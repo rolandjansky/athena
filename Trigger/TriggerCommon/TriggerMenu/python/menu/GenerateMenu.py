@@ -280,7 +280,7 @@ class GenerateMenu:
                 log.info(traceback.print_exc())
                 self.doBphysicsChains = False
                 
-        if self.doMETChains:
+        if self.doMETChains: 
             try:
                 import TriggerMenu.met.generateMETChainDefs 
             except:
@@ -418,8 +418,8 @@ class GenerateMenu:
         #print 'doEgammaChains, doMuonChains', self.doEgammaChains, self.doMuonChains
 
         for chainDict in chainDicts:
-            chainDef = None
-            #print 'checking chainDict for chain %s %s %r' %(chainDict['chainName'],chainDict["signature"], self.doEnhancedBiasChains)
+            chainDefs = None
+            # print 'checking chainDict for chain %s %s %r' %(chainDict['chainName'],chainDict["signature"], self.doEnhancedBiasChains)
 
             if (chainDict["signature"] == "Jet" or chainDict["signature"] == "HT") and (self.doJetChains or self.doBjetChains):
                 bjetchain = False
@@ -428,14 +428,14 @@ class GenerateMenu:
 
                 if (bjetchain == True) and self.doBjetChains:
                     try:
-                        chainDef = TriggerMenu.bjet.generateBjetChainDefs.generateChainDefs(chainDict)
+                        chainDefs = TriggerMenu.bjet.generateBjetChainDefs.generateChainDefs(chainDict)
                     except:
                         log.error('Problems creating ChainDef for bjet chain %s ' % (chainDict['chainName']))
                         log.info(traceback.print_exc())
                         continue
                 elif self.doJetChains:                    
                     try:
-                        chainDef = TriggerMenu.jet.generateJetChainDefs.generateChainDefs(chainDict)
+                        chainDefs = TriggerMenu.jet.generateJetChainDefs.generateChainDefs(chainDict)
                     except:
                         log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                         log.info(traceback.print_exc())
@@ -444,7 +444,7 @@ class GenerateMenu:
 
             elif chainDict["signature"] == "Muon" and self.doMuonChains:
                 try:
-                    chainDef = TriggerMenu.muon.generateMuonChainDefs.generateChainDefs(chainDict)
+                    chainDefs = TriggerMenu.muon.generateMuonChainDefs.generateChainDefs(chainDict)
                 except:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
@@ -452,7 +452,7 @@ class GenerateMenu:
 
             elif chainDict["signature"] == "Bphysics" and self.doBphysicsChains:
                 try:
-                    chainDef = TriggerMenu.bphysics.generateBPhysicsChainDefs.generateChainDefs(chainDict)
+                    chainDefs = TriggerMenu.bphysics.generateBPhysicsChainDefs.generateChainDefs(chainDict)
                 except:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
@@ -460,7 +460,7 @@ class GenerateMenu:
 
             elif chainDict["signature"] == "Electron" and self.doEgammaChains:
                 try:
-                    chainDef = TriggerMenu.egamma.generateElectronChainDefs.generateChainDefs(chainDict)
+                    chainDefs = TriggerMenu.egamma.generateElectronChainDefs.generateChainDefs(chainDict)
                 except:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
@@ -468,7 +468,7 @@ class GenerateMenu:
 
             elif chainDict["signature"] == "Photon" and self.doEgammaChains:
                 try:
-                    chainDef = TriggerMenu.egamma.generatePhotonChainDefs.generateChainDefs(chainDict)
+                    chainDefs = TriggerMenu.egamma.generatePhotonChainDefs.generateChainDefs(chainDict)
                 except:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
@@ -476,7 +476,7 @@ class GenerateMenu:
                  
             elif (chainDict["signature"] == "MET" or chainDict["signature"] == "XS" or chainDict["signature"] == "TE") and self.doMETChains:
                 try:
-                    chainDef = TriggerMenu.met.generateMETChainDefs.generateChainDefs(chainDict)
+                    chainDefs = TriggerMenu.met.generateMETChainDefs.generateChainDefs(chainDict)
                 except:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
@@ -484,7 +484,7 @@ class GenerateMenu:
 
             elif chainDict["signature"] == "Tau" and self.doTauChains:
                 try:
-                    chainDef = TriggerMenu.tau.generateTauChainDefs.generateChainDefs(chainDict)
+                    chainDefs = TriggerMenu.tau.generateTauChainDefs.generateChainDefs(chainDict)
                 except:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
@@ -492,7 +492,7 @@ class GenerateMenu:
 
             elif chainDict["signature"] == "MinBias" and self.doMinBiasChains:
                 try:
-                    chainDef = TriggerMenu.minbias.generateMinBiasChainDefs.generateChainDefs(chainDict)
+                    chainDefs = TriggerMenu.minbias.generateMinBiasChainDefs.generateChainDefs(chainDict)
                 except:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
@@ -500,7 +500,7 @@ class GenerateMenu:
 
             elif chainDict["signature"] == "HeavyIon" and self.doHeavyIonChains:
                 try:
-                    chainDef = TriggerMenu.heavyion.generateHeavyIonChainDefs.generateChainDefs(chainDict)
+                    chainDefs = TriggerMenu.heavyion.generateHeavyIonChainDefs.generateChainDefs(chainDict)
                 except:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
@@ -508,7 +508,7 @@ class GenerateMenu:
 
             elif chainDict["signature"] == "Cosmic" and self.doCosmicChains:
                 try:
-                    chainDef = TriggerMenu.calibcosmicmon.generateCosmicChainDefs.generateChainDefs(chainDict)
+                    chainDefs = TriggerMenu.calibcosmicmon.generateCosmicChainDefs.generateChainDefs(chainDict)
                 except:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
@@ -516,7 +516,7 @@ class GenerateMenu:
 
             elif chainDict["signature"] == "Calibration" and self.doCalibrationChains:
                 try:
-                    chainDef = TriggerMenu.calibcosmicmon.generateCalibChainDefs.generateChainDefs(chainDict)
+                    chainDefs = TriggerMenu.calibcosmicmon.generateCalibChainDefs.generateChainDefs(chainDict)
                 except:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
@@ -524,7 +524,7 @@ class GenerateMenu:
 
             elif chainDict["signature"] == "Streaming" and self.doStreamingChains:
                 try:
-                    chainDef = TriggerMenu.calibcosmicmon.generateStreamingChainDefs.generateChainDefs(chainDict)
+                    chainDefs = TriggerMenu.calibcosmicmon.generateStreamingChainDefs.generateChainDefs(chainDict)
                 except:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
@@ -532,7 +532,7 @@ class GenerateMenu:
 
             elif chainDict["signature"] == "Monitoring" and self.doMonitorChains:
                 try:
-                    chainDef = TriggerMenu.calibcosmicmon.generateMonitoringChainDefs.generateChainDefs(chainDict)
+                    chainDefs = TriggerMenu.calibcosmicmon.generateMonitoringChainDefs.generateChainDefs(chainDict)
                 except:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
@@ -540,7 +540,7 @@ class GenerateMenu:
 
             elif chainDict["signature"] == "Beamspot" and self.doBeamspotChains:
                 try:
-                    chainDef = TriggerMenu.calibcosmicmon.generateBeamspotChainDefs.generateChainDefs(chainDict)
+                    chainDefs = TriggerMenu.calibcosmicmon.generateBeamspotChainDefs.generateChainDefs(chainDict)
                 except:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
@@ -548,7 +548,7 @@ class GenerateMenu:
 
             elif chainDict["signature"] == "EnhancedBias" and self.doEnhancedBiasChains:
                 try:
-                    chainDef = TriggerMenu.calibcosmicmon.generateEnhancedBiasChainDefs.generateChainDefs(chainDict)
+                    chainDefs = TriggerMenu.calibcosmicmon.generateEnhancedBiasChainDefs.generateChainDefs(chainDict)
                 except:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
@@ -557,7 +557,7 @@ class GenerateMenu:
             
             elif chainDict["signature"] == "Test" and self.doTestChains:
                 try:
-                    chainDef = TriggerMenu.test.generateTestChainDefs.generateChainDefs(chainDict)
+                    chainDefs = TriggerMenu.test.generateTestChainDefs.generateChainDefs(chainDict)
                 except:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
@@ -568,18 +568,23 @@ class GenerateMenu:
                 log.error('Chain %s ignored - either because the trigger signature ("slice") has been turned off or because the corresponding chain dictionary cannot be read.' %(chainDict['chainName']))
                 log.debug('Chain dictionary of failed chain is %s.', chainDict)
                          
-            log.debug(' ChainDef  %s ' % chainDef)
+            log.debug(' ChainDef  %s ' % chainDefs)
             from ChainDef import ErrorChainDef,ChainDef
-            if isinstance(chainDef, ErrorChainDef): 
-                self.listOfErrorChainDefs.append(chainDict['chainName'])
-                continue
-            elif isinstance(chainDef, ChainDef):
-                listOfChainDefs.append(chainDef)
 
-        
+            if not isinstance(chainDefs,list):
+                chainDefs = [chainDefs]
+                
+            for chainDef in chainDefs:
+                if isinstance(chainDef, ErrorChainDef): 
+                    self.listOfErrorChainDefs.append(chainDict['chainName'])
+                    continue
+                elif isinstance(chainDef, ChainDef):
+                    listOfChainDefs.append(chainDef)
+                
+
         doTopo = self.CheckIntraSignatureTopo(chainDicts) and chainDict["topo"]
 
-        if len(listOfChainDefs) == 0 or not (len(listOfChainDefs)==len(chainDicts)):
+        if len(listOfChainDefs) == 0:# or not (len(listOfChainDefs)==len(chainDicts)):
             return False
         elif len(listOfChainDefs)>1:
             if ("mergingStrategy" in chainDicts[0].keys()):
@@ -665,6 +670,7 @@ class GenerateMenu:
             if len(listOfSequenceInputs)<2: 
                 listOfSequenceInputs = [listOfSequenceInputs] 
             for thisSequenceInputs in listOfSequenceInputs: 
+                print thisSequenceInputs
                 if thisSequenceInputs == [""] or thisSequenceInputs[0].isupper() or inputsAreTEs(thisSequenceInputs): 
                     return True 
 

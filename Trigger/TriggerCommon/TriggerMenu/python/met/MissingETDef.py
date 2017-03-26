@@ -46,6 +46,7 @@ from TriggerMenu.menu import DictFromChainName
 from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
 from TriggerMenu.menu.MenuUtils import splitChainDict
 from TriggerMenu.muon.MuonDef import L2EFChain_mu
+from TriggerMenu.menu.SignatureDicts import METChainParts_Default
 
 #############################################################################
 class L2EFChain_met(L2EFChainDef):
@@ -57,6 +58,8 @@ class L2EFChain_met(L2EFChainDef):
         self.EFsignatureList  = []
         self.TErenamingDict   = []
     
+        # May as well give the methods easy access to all the input information
+        self.chainDict = chainDict
         l1_item_name = chainDict['L1item']        
         self.l2_input_tes = ''    ##MET is un-seeded
         chain_counter = chainDict['chainCounter']
@@ -102,6 +105,7 @@ class L2EFChain_met(L2EFChainDef):
         
         threshold   = int(self.chainPart['threshold'])
         calibration = self.chainPart['calib']
+        jetCalib    = self.chainPart['jetCalib']
         L2recoAlg   = self.chainPart['L2recoAlg']
         EFrecoAlg   = self.chainPart['EFrecoAlg']        
         L2muon      = self.chainPart['L2muonCorr']
@@ -177,12 +181,14 @@ class L2EFChain_met(L2EFChainDef):
 
             ##MET based on trigger jets
             if EFrecoAlg=='mht':
+                calibCorr = ('_{0}'.format(calibration) if calibration != METChainParts_Default['calib'] else '') + ('_{0}'.format(jetCalib) if jetCalib != METChainParts_Default['jetCalib'] else '')
+
                 #MET fex
-                theEFMETFex = EFMissingET_Fex_Jets()
+                theEFMETFex = EFMissingET_Fex_Jets("EFMissingET_Fex_Jets{0}".format(calibCorr), extraCalib=calibCorr )
                 #Muon correction fex
-                theEFMETMuonFex = EFTrigMissingETMuon_Fex_Jets()
+                theEFMETMuonFex = EFTrigMissingETMuon_Fex_Jets("EFTrigMissingETMuon_Fex_Jets{0}".format(calibCorr) )
                 #mucorr= '_wMu' if EFmuon else ''
-                theEFMETHypo = EFMetHypoJetsXE('EFMetHypo_Jets_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
+                theEFMETHypo = EFMetHypoJetsXE('EFMetHypo_Jets_xe%s_tc%s%s%s'%(threshold,jetCalib,calibration,mucorr),ef_thr=float(threshold)*GeV)
                 
         
             ##Topo-cluster with Pile-up suppression
@@ -218,12 +224,14 @@ class L2EFChain_met(L2EFChainDef):
         #----------------------------------------------------
         # Obtaining the needed jet TEs from the jet code
         #----------------------------------------------------
-        #from TriggerJobOpts.TriggerFlags import TriggerFlags
+        from TriggerJobOpts.TriggerFlags import TriggerFlags
         #if "v6" in TriggerFlags.triggerMenuSetup() or "v5" in TriggerFlags.triggerMenuSetup():
         #    chain = ['j0_lcw', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
         #else:
         #    chain = ['j0', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
-        chain = ['j0_lcw', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
+        # chain = ['j0_lcw', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
+
+        chain = ['j0_{0}_{1}'.format(calibration, jetCalib), '', [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
 
         theDictFromChainName = DictFromChainName.DictFromChainName()
         jetChainDict = theDictFromChainName.getChainDict(chain)
@@ -284,6 +292,33 @@ class L2EFChain_met(L2EFChainDef):
             #     self.L2sequenceList += [[ ['L2_xe_step3',muonSeed],   [theL2FEBMuonFex,theL2MuonHypo], 'L2_xe_step4']]
 
         # --- EF ---                
+
+        # cell preselection (v7 onwards only)
+        # First check if we're in a multipart chain (for now assume that we don't apply the preselection for these)
+        isMulitpartChain = self.chainPart['chainPartName'] != self.chainDict['chainName']
+        if EFrecoAlg != 'cell' and 'v6' not in TriggerFlags.triggerMenuSetup() and 'v5' not in TriggerFlags.triggerMenuSetup() and not isMulitpartChain:
+        # if EFrecoAlg != 'cell' and TriggerFlags.run2Config() != '2016' and not isMulitpartChain:
+          # a few parameters
+          cellPresel_minL1Threshold = 50
+          cellPresel_threshold = 50
+          # work out what the L1 threshold is
+          import re
+          match = re.match("L1_XE(\d+)", self.chainDict['L1item'])
+          if match:
+            if int(match.group(1) ) >= cellPresel_minL1Threshold:
+              cellPreselectionFex = EFMissingET_Fex_2sidednoiseSupp()
+              cellPreselectionMuonFex = EFTrigMissingETMuon_Fex()
+              cellPreselectionHypo = EFMetHypoXE('EFMetHypo_xe{0}_presel'.format(cellPresel_threshold), ef_thr = float(cellPresel_threshold) * GeV)
+
+              self.EFsequenceList += [[ [''], [cellPreselectionFex], 'EF_xe{0}_step1'.format(cellPresel_threshold) ]]
+              self.EFsequenceList += [[ ['EF_xe{0}_step1'.format(cellPresel_threshold), muonSeed], [cellPreselectionMuonFex, cellPreselectionHypo], 'EF_xe{0}_step2'.format(cellPresel_threshold) ]]
+              
+              self.EFsignatureList += [ [['EF_xe{0}_step1'.format(cellPresel_threshold)]] ]
+              self.EFsignatureList += [ [['EF_xe{0}_step2'.format(cellPresel_threshold)]] ]
+          else:
+            log.info("Pure MET chain doesn't have an L1_XE seed! Will not apply the cell preselection")
+
+
         #topocluster
         if EFrecoAlg=='tc' or EFrecoAlg=='pueta' or EFrecoAlg=='pufit':
             self.EFsequenceList +=[[ input0,algo0,  output0 ]]            

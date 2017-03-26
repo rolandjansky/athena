@@ -18,5 +18,3 @@ atlas_install_xmls( data/*.dtd data/*.xml )
 atlas_add_test( generateMenu SCRIPT scripts/testMenu.sh 
                 PROPERTIES TIMEOUT 500 
               )
-
-

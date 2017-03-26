@@ -412,6 +412,14 @@ def defineCPSGroups():
                                            'mu4_j35_bperf_split_dr05_dz99',
                                            'mu4_j35_bperf_split',
 				       ],
+        'RATE:CPS:HLT_xe70_L1XE50' : ['xe70_L1XE50',
+                                      'xe75_L1XE50',
+                                      'xe80_L1XE50',
+                                      'xe90_L1XE50',
+                                      'xe110_mht_xe70_L1XE50',
+                                      'xe110_mht_xe75_L1XE50',
+                                      'xe110_mht_xe80_L1XE50', 
+                                      ],
         })
     if "v5" in TriggerFlags.triggerMenuSetup():
      HLT_CPS_Groups.update({

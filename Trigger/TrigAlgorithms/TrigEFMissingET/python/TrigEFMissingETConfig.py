@@ -1371,11 +1371,11 @@ class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
 ##### loop over jets #####
 class EFMissingET_Fex_Jets (EFMissingETBase):
     __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_Jets"):
+    def __init__ (self, name="EFMissingET_Fex_Jets", extraCalib = ""):
         super(EFMissingET_Fex_Jets, self).__init__(name)
 
         # name of TrigMissingET object
-        self.MissingETOutputKey = "TrigEFMissingET_mht"
+        self.MissingETOutputKey = "TrigEFMissingET_mht{0}".format(extraCalib)
         self.doJets = True
                 
         # tools
