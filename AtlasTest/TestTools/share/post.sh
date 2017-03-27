@@ -34,7 +34,8 @@ s/^StoreGateSvc_Impl   DEBUG/StoreGateSvc        DEBUG/
 s/StoreGateSvc_Impl/StoreGateSvc/
 s/SGImplSvc/StoreGateSvc/
 s/SG::DataProxyHolder::sgkey_t/sgkey_t/
-s!\\\\(ERROR\\\\|INFO\\\\|WARNING\\\\|FATAL\\\\) [^ ]*/!\\\\1 ../!
+s!(ERROR|INFO|WARNING|FATAL) [^ ]*/!\\\\1 ../!
+s/(\.cxx|\.cpp|\.h|\.icc|LINE):[0-9]+/\\\\1/
 s/.[[][?]1034h//
 EOF
 
@@ -168,9 +169,9 @@ else
        if [ -r $reflog ]
            then
 	   jobrep=${joblog}-rep
-	   sed "$II" $joblog > $jobrep
+	   sed -r "$II" $joblog > $jobrep
 	   refrep=`basename ${reflog}`-rep
-	   sed "$II" $reflog > $refrep
+	   sed -r "$II" $reflog > $refrep
            jobdiff=${joblog}-todiff
            refdiff=`basename ${reflog}`-todiff
            egrep -a -v "$PP" < $jobrep > $jobdiff
