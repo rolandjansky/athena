@@ -43,10 +43,3 @@ StatusCode MyPackageAlg::beginInputFile() {
   return StatusCode::SUCCESS;
 }
 
-
-//double MyPackageAlg::calcPiVirtual() { return 2.0*acos( 0.0 ); }
-//double MyPackageAlg::calcPi() { return 2.0*acos( 0.0 ); }
-
-//double MyPackageAlg::getStore( int i ) { return store[i%10]; }
-//double MyPackageAlg::getStoreVirtual( int i ) { return store[i%10]; }
-
