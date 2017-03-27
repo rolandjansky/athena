@@ -60,12 +60,6 @@ public:
 
 
 private:
-  /// Parameter: Prefix for names read from SG.
-  std::string m_readPrefix;
-
-  /// Parameter: Prefix for names written to SG.  Null for no write.
-  std::string m_writePrefix;
-
   SG::ReadHandleKey<DMTest::CVec> m_cvecKey;
   SG::WriteHandleKey<DMTest::CVec> m_writeKey;
 };

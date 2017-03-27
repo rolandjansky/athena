@@ -267,6 +267,7 @@ void test2()
 #else
 
 void test1() {}
+void test2() {}
 
 #endif // not XAOD_STANDALONE
 

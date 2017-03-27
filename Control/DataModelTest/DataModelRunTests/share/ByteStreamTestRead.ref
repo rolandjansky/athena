@@ -1,27 +1,22 @@
-Tue May 17 15:04:55 EDT 2016
-WARNING: TCMALLOCDIR not defined, will use libc malloc
+Wed Jan 18 05:35:58 CET 2017
+Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:Athena            INFO using release [WorkDir-21.0.14] [x86_64-slc6-gcc49-dbg] [private/private] -- built on [2017-01-18 05:25]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
-Warning in <TInterpreter::ReadRootmapFile>: class  Event found in libG4AtlasControlDict.so  is already in libzzllqq_matelemDict.so 
+Warning in <TInterpreter::ReadRootmapFile>: class  Event found in libG4AtlasControlDict.so  is already in libtest_GPyTestDict.so 
+Warning in <TInterpreter::ReadRootmapFile>: class  UCharDbArray found in libStorageSvcDict.so  is already in libRootCnvDict.so 
 Py:Athena            INFO executing ROOT6Setup
-Py:Athena            INFO including file "AthenaCommon/Execution.py"
-Py:Athena            INFO including file "/home/sss/atlas/rootaccess/../share/ByteStreamTestRead_jo.py"
-Py:ConfigurableDb    INFO Read module info for 4021 configurables from 2 genConfDb files
-Py:ConfigurableDb WARNING Found 1 duplicates among the 2 genConfDb files :
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -D3PD__TrigConfMetadataTool: TriggerD3PDMaker.TriggerD3PDMakerConf - ['TrigCostD3PDMaker.TrigCostD3PDMakerConf']
-Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+[?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "DataModelRunTests/ByteStreamTestRead_jo.py"
+Py:ConfigurableDb    INFO Read module info for 5149 configurables from 15 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-# setting LC_ALL to "C"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Tue May 17 15:05:01 2016
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
+                                          running on lxplus023.cern.ch on Wed Jan 18 05:36:09 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -29,18 +24,17 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 7932 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-20
+ClassIDSvc           INFO  getRegistryEntries: read 8631 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-22
 AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
-ClassIDSvc           INFO  getRegistryEntries: read 344 CLIDRegistry entries for module ALL
-AthAlgSeq            INFO Member list: DMTest::HLTResultReader/HLTResultReader, DMTest::xAODTestReadCVec/xAODTestReadCVec
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-00-00-00
-ByteStreamAddre...   INFO Initializing ByteStreamAddressProviderSvc - package version ByteStreamCnvSvcBase-00-00-00
-ROBDataProviderSvc   INFO Initializing ROBDataProviderSvc - package version ByteStreamCnvSvcBase-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 361 CLIDRegistry entries for module ALL
+AthAlgSeq            INFO Member list: DMTest::HLTResultReader/HLTResultReader, DMTest::xAODTestReadCVec/xAODTestReadCVec, DMTest::xAODTestReadCView/xAODTestReadCView, DMTest::xAODTestReadHVec/xAODTestReadHVec
+ByteStreamAddre...   INFO Initializing ByteStreamAddressProviderSvc - package version ByteStreamCnvSvcBase-00-08-14
+ROBDataProviderSvc   INFO Initializing ROBDataProviderSvc - package version ByteStreamCnvSvcBase-00-08-14
 ROBDataProviderSvc   INFO  ---> Filter out empty ROB fragments                               =  'filterEmptyROB':False
 ROBDataProviderSvc   INFO  ---> Filter out specific ROBs by Status Code: # ROBs = 0
 ROBDataProviderSvc   INFO  ---> Filter out Sub Detector ROBs by Status Code: # Sub Detectors = 0
@@ -52,36 +46,32 @@ ByteStreamAddre...   INFO    Calorimeter Cluster Processor RoI    = 0xa8, 0xa9, 
 ByteStreamAddre...   INFO    Calorimeter Jet/Energy Processor RoI = 0xac, 0xad
 ByteStreamAddre...   INFO    Topo Processor RoI = 0x81, 0x91
 ByteStreamAddre...   INFO -- Will fill Store with id =  0
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
-InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-00-00-00
-MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-00-00-00
-AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
-PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-00-00
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-60-22
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-29-00
+PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-25-05
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Read replica configuration from /home/sss/atlas/rootaccess/build/share/dbreplica.config
-DBReplicaSvc         INFO No specific match for domain found - use default fallback
-DBReplicaSvc         INFO Total of 1 servers found for host karma [atlas_dd ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://aiatlas036.cern.ch:8000/atlr)(serverurl=http://aiatlas034.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli02.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca18.cern.ch:3128)(proxyurl=http://ca17.cern.ch:3128)(proxyurl=http://atlast0fsquid.cern.ch:3128)(proxyurl=http://atlassquid1.cern.ch:3128)(proxyurl=http://atlassquid2.cern.ch:3128)(proxyurl=http://atlassquid4.cern.ch:3128) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /afs/cern.ch/atlas/software/builds/nightlies/21.0.X-VAL/AtlasCore/rel_1/InstallArea/x86_64-slc6-gcc49-dbg/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus023.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
-PoolSvc              INFO Re-initializing PoolSvc
+PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
-ToolSvc.ByteStr...   INFO Initializing ToolSvc.ByteStreamMetadataTool - package version ByteStreamCnvSvc-00-00-00
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 1801 CLIDRegistry entries for module ALL
+PoolSvc              INFO Re-initializing PoolSvc
+ToolSvc.ByteStr...   INFO Initializing ToolSvc.ByteStreamMetadataTool - package version ByteStreamCnvSvc-01-34-41-02
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-08
+ClassIDSvc           INFO  getRegistryEntries: read 2160 CLIDRegistry entries for module ALL
 TrigSerializeCn...   INFO initialize()
 HistogramPersis...WARNING Histograms saving not required.
-EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-00-00-00
-ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-00-00-00
+EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-01-34-41-02
+ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-01-34-41-02
 EventSelector        INFO reinitialization...
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
-ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-00-00-00
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-07-07
 ApplicationMgr       INFO Application Manager Initialized successfully
-InputMetaDataStore   INFO Start InputMetaDataStore
-MetaDataStore        INFO Start MetaDataStore
-StoreGateSvc         INFO Start StoreGateSvc
 ToolSvc.ByteStr...   INFO handle() FirstInputFile, filename = BSF:test.bs
 ByteStreamInputSvc   INFO Picked valid file: test.bs
 ToolSvc.ByteStr...   INFO handle() BeginInputFile, filename = BSF:test.bs
@@ -100,11 +90,13 @@ TClass::Init:0: RuntimeWarning: no dictionary for class CosmicMuon_p1 is availab
 TClass::Init:0: RuntimeWarning: no dictionary for class MdtTrackSegmentCollection_p1 is available
 TClass::Init:0: RuntimeWarning: no dictionary for class MdtTrackSegment_p1 is available
 TClass::Init:0: RuntimeWarning: no dictionary for class MdtTrackSegmentCollection_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class PanTauDetails_p1 is available
 ToolSvc.TrigTSe...WARNING Could not re-load  class listOfRules
-ToolSvc.TrigSer...   INFO Initializing - Package version: TrigSerializeTP-00-00-00
+ToolSvc.TrigSer...   INFO Initializing - Package version: TrigSerializeTP-00-02-11
 APR:DbReflex:forGuid Warning  doing GUID scan on ALL types for Class ID=10DE610D-5634-4D42-80D4-80B0A8C16452
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+APR:DbReflex:forGuid Warning  doing GUID scan on ALL types for Class ID=2577D84A-BC0F-4CD2-9539-9F0A4EFC64AA
+APR:DbReflex:forGuid Warning  doing GUID scan on ALL types for Class ID=740C4020-F0A3-40B3-88E1-B15A8055DB64
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 101 aFloat: 200 pInt: 501 pFloat: 0.01
   pvInt: []
@@ -136,10 +128,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 110 aFloat: 200.9 pInt: 510 pFloat: 9.01
   pvInt: [-310 -309 -308 -307 -306 -305 -304 -303 -302 ]
   pvFloat: [-0.409 -0.309 -0.209 -0.109 -0.009 0.091 0.191 0.291 0.391 ]
+HLT_DMTest__CView_cview: 110 109 108 107 106 105 104 103 102 101
+HLT_DMTest__HVec_hvec: 401.5 402.5 403.5 404.5 405.5 406.5 407.5 408.5 409.5 410.5 411.5 412.5 413.5 414.5 415.5 416.5 417.5 418.5 419.5 420.5
+HLT_DMTest__HView_hview: 420.5 419.5 418.5 417.5 416.5 415.5 414.5 413.5 412.5 411.5 410.5 409.5 408.5 407.5 406.5 405.5 404.5 403.5 402.5 401.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 201 aFloat: 400 pInt: 1001 pFloat: 0.02
   pvInt: []
@@ -171,10 +165,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 210 aFloat: 400.9 pInt: 1010 pFloat: 9.02
   pvInt: [-210 -209 -208 -207 -206 -205 -204 -203 -202 ]
   pvFloat: [-0.408 -0.308 -0.208 -0.108 -0.008 0.092 0.192 0.292 0.392 ]
+HLT_DMTest__CView_cview: 210 209 208 207 206 205 204 203 202 201
+HLT_DMTest__HVec_hvec: 801.5 802.5 803.5 804.5 805.5 806.5 807.5 808.5 809.5 810.5 811.5 812.5 813.5 814.5 815.5 816.5 817.5 818.5 819.5 820.5
+HLT_DMTest__HView_hview: 820.5 819.5 818.5 817.5 816.5 815.5 814.5 813.5 812.5 811.5 810.5 809.5 808.5 807.5 806.5 805.5 804.5 803.5 802.5 801.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #0 2 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 301 aFloat: 600 pInt: 1501 pFloat: 0.03
   pvInt: []
@@ -206,10 +202,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 310 aFloat: 600.9 pInt: 1510 pFloat: 9.03
   pvInt: [-110 -109 -108 -107 -106 -105 -104 -103 -102 ]
   pvFloat: [-0.407 -0.307 -0.207 -0.107 -0.007 0.093 0.193 0.293 0.393 ]
+HLT_DMTest__CView_cview: 310 309 308 307 306 305 304 303 302 301
+HLT_DMTest__HVec_hvec: 1201.5 1202.5 1203.5 1204.5 1205.5 1206.5 1207.5 1208.5 1209.5 1210.5 1211.5 1212.5 1213.5 1214.5 1215.5 1216.5 1217.5 1218.5 1219.5 1220.5
+HLT_DMTest__HView_hview: 1220.5 1219.5 1218.5 1217.5 1216.5 1215.5 1214.5 1213.5 1212.5 1211.5 1210.5 1209.5 1208.5 1207.5 1206.5 1205.5 1204.5 1203.5 1202.5 1201.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #0 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #0 3 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 401 aFloat: 800 pInt: 2001 pFloat: 0.04
   pvInt: []
@@ -241,10 +239,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 410 aFloat: 800.9 pInt: 2010 pFloat: 9.04
   pvInt: [-10 -9 -8 -7 -6 -5 -4 -3 -2 ]
   pvFloat: [-0.406 -0.306 -0.206 -0.106 -0.006 0.094 0.194 0.294 0.394 ]
+HLT_DMTest__CView_cview: 410 409 408 407 406 405 404 403 402 401
+HLT_DMTest__HVec_hvec: 1601.5 1602.5 1603.5 1604.5 1605.5 1606.5 1607.5 1608.5 1609.5 1610.5 1611.5 1612.5 1613.5 1614.5 1615.5 1616.5 1617.5 1618.5 1619.5 1620.5
+HLT_DMTest__HView_hview: 1620.5 1619.5 1618.5 1617.5 1616.5 1615.5 1614.5 1613.5 1612.5 1611.5 1610.5 1609.5 1608.5 1607.5 1606.5 1605.5 1604.5 1603.5 1602.5 1601.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 501 aFloat: 1000 pInt: 2501 pFloat: 0.05
   pvInt: []
@@ -276,10 +276,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 510 aFloat: 1000.9 pInt: 2510 pFloat: 9.05
   pvInt: [90 91 92 93 94 95 96 97 98 ]
   pvFloat: [-0.405 -0.305 -0.205 -0.105 -0.005 0.095 0.195 0.295 0.395 ]
+HLT_DMTest__CView_cview: 510 509 508 507 506 505 504 503 502 501
+HLT_DMTest__HVec_hvec: 2001.5 2002.5 2003.5 2004.5 2005.5 2006.5 2007.5 2008.5 2009.5 2010.5 2011.5 2012.5 2013.5 2014.5 2015.5 2016.5 2017.5 2018.5 2019.5 2020.5
+HLT_DMTest__HView_hview: 2020.5 2019.5 2018.5 2017.5 2016.5 2015.5 2014.5 2013.5 2012.5 2011.5 2010.5 2009.5 2008.5 2007.5 2006.5 2005.5 2004.5 2003.5 2002.5 2001.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 601 aFloat: 1200 pInt: 3001 pFloat: 0.06
   pvInt: []
@@ -311,10 +313,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 610 aFloat: 1200.9 pInt: 3010 pFloat: 9.06
   pvInt: [190 191 192 193 194 195 196 197 198 ]
   pvFloat: [-0.404 -0.304 -0.204 -0.104 -0.004 0.096 0.196 0.296 0.396 ]
+HLT_DMTest__CView_cview: 610 609 608 607 606 605 604 603 602 601
+HLT_DMTest__HVec_hvec: 2401.5 2402.5 2403.5 2404.5 2405.5 2406.5 2407.5 2408.5 2409.5 2410.5 2411.5 2412.5 2413.5 2414.5 2415.5 2416.5 2417.5 2418.5 2419.5 2420.5
+HLT_DMTest__HView_hview: 2420.5 2419.5 2418.5 2417.5 2416.5 2415.5 2414.5 2413.5 2412.5 2411.5 2410.5 2409.5 2408.5 2407.5 2406.5 2405.5 2404.5 2403.5 2402.5 2401.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 701 aFloat: 1400 pInt: 3501 pFloat: 0.07
   pvInt: []
@@ -346,10 +350,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 710 aFloat: 1400.9 pInt: 3510 pFloat: 9.07
   pvInt: [290 291 292 293 294 295 296 297 298 ]
   pvFloat: [-0.403 -0.303 -0.203 -0.103 -0.003 0.097 0.197 0.297 0.397 ]
+HLT_DMTest__CView_cview: 710 709 708 707 706 705 704 703 702 701
+HLT_DMTest__HVec_hvec: 2801.5 2802.5 2803.5 2804.5 2805.5 2806.5 2807.5 2808.5 2809.5 2810.5 2811.5 2812.5 2813.5 2814.5 2815.5 2816.5 2817.5 2818.5 2819.5 2820.5
+HLT_DMTest__HView_hview: 2820.5 2819.5 2818.5 2817.5 2816.5 2815.5 2814.5 2813.5 2812.5 2811.5 2810.5 2809.5 2808.5 2807.5 2806.5 2805.5 2804.5 2803.5 2802.5 2801.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #0 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #0 7 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 801 aFloat: 1600 pInt: 4001 pFloat: 0.08
   pvInt: []
@@ -381,10 +387,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 810 aFloat: 1600.9 pInt: 4010 pFloat: 9.08
   pvInt: [390 391 392 393 394 395 396 397 398 ]
   pvFloat: [-0.402 -0.302 -0.202 -0.102 -0.002 0.098 0.198 0.298 0.398 ]
+HLT_DMTest__CView_cview: 810 809 808 807 806 805 804 803 802 801
+HLT_DMTest__HVec_hvec: 3201.5 3202.5 3203.5 3204.5 3205.5 3206.5 3207.5 3208.5 3209.5 3210.5 3211.5 3212.5 3213.5 3214.5 3215.5 3216.5 3217.5 3218.5 3219.5 3220.5
+HLT_DMTest__HView_hview: 3220.5 3219.5 3218.5 3217.5 3216.5 3215.5 3214.5 3213.5 3212.5 3211.5 3210.5 3209.5 3208.5 3207.5 3206.5 3205.5 3204.5 3203.5 3202.5 3201.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #0 8 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 901 aFloat: 1800 pInt: 4501 pFloat: 0.09
   pvInt: []
@@ -416,10 +424,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 910 aFloat: 1800.9 pInt: 4510 pFloat: 9.09
   pvInt: [490 491 492 493 494 495 496 497 498 ]
   pvFloat: [-0.401 -0.301 -0.201 -0.101 -0.001 0.099 0.199 0.299 0.399 ]
+HLT_DMTest__CView_cview: 910 909 908 907 906 905 904 903 902 901
+HLT_DMTest__HVec_hvec: 3601.5 3602.5 3603.5 3604.5 3605.5 3606.5 3607.5 3608.5 3609.5 3610.5 3611.5 3612.5 3613.5 3614.5 3615.5 3616.5 3617.5 3618.5 3619.5 3620.5
+HLT_DMTest__HView_hview: 3620.5 3619.5 3618.5 3617.5 3616.5 3615.5 3614.5 3613.5 3612.5 3611.5 3610.5 3609.5 3608.5 3607.5 3606.5 3605.5 3604.5 3603.5 3602.5 3601.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1001 aFloat: 2000 pInt: 5001 pFloat: 0.10
   pvInt: []
@@ -451,10 +461,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1010 aFloat: 2000.9 pInt: 5010 pFloat: 9.10
   pvInt: [590 591 592 593 594 595 596 597 598 ]
   pvFloat: [-0.400 -0.300 -0.200 -0.100 0.000 0.100 0.200 0.300 0.400 ]
+HLT_DMTest__CView_cview: 1010 1009 1008 1007 1006 1005 1004 1003 1002 1001
+HLT_DMTest__HVec_hvec: 4001.5 4002.5 4003.5 4004.5 4005.5 4006.5 4007.5 4008.5 4009.5 4010.5 4011.5 4012.5 4013.5 4014.5 4015.5 4016.5 4017.5 4018.5 4019.5 4020.5
+HLT_DMTest__HView_hview: 4020.5 4019.5 4018.5 4017.5 4016.5 4015.5 4014.5 4013.5 4012.5 4011.5 4010.5 4009.5 4008.5 4007.5 4006.5 4005.5 4004.5 4003.5 4002.5 4001.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #0 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #0 10 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1101 aFloat: 2200 pInt: 5501 pFloat: 0.11
   pvInt: []
@@ -486,10 +498,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1110 aFloat: 2200.9 pInt: 5510 pFloat: 9.11
   pvInt: [690 691 692 693 694 695 696 697 698 ]
   pvFloat: [-0.399 -0.299 -0.199 -0.099 0.001 0.101 0.201 0.301 0.401 ]
+HLT_DMTest__CView_cview: 1110 1109 1108 1107 1106 1105 1104 1103 1102 1101
+HLT_DMTest__HVec_hvec: 4401.5 4402.5 4403.5 4404.5 4405.5 4406.5 4407.5 4408.5 4409.5 4410.5 4411.5 4412.5 4413.5 4414.5 4415.5 4416.5 4417.5 4418.5 4419.5 4420.5
+HLT_DMTest__HView_hview: 4420.5 4419.5 4418.5 4417.5 4416.5 4415.5 4414.5 4413.5 4412.5 4411.5 4410.5 4409.5 4408.5 4407.5 4406.5 4405.5 4404.5 4403.5 4402.5 4401.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #0 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #0 11 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1201 aFloat: 2400 pInt: 6001 pFloat: 0.12
   pvInt: []
@@ -521,10 +535,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1210 aFloat: 2400.9 pInt: 6010 pFloat: 9.12
   pvInt: [790 791 792 793 794 795 796 797 798 ]
   pvFloat: [-0.398 -0.298 -0.198 -0.098 0.002 0.102 0.202 0.302 0.402 ]
+HLT_DMTest__CView_cview: 1210 1209 1208 1207 1206 1205 1204 1203 1202 1201
+HLT_DMTest__HVec_hvec: 4801.5 4802.5 4803.5 4804.5 4805.5 4806.5 4807.5 4808.5 4809.5 4810.5 4811.5 4812.5 4813.5 4814.5 4815.5 4816.5 4817.5 4818.5 4819.5 4820.5
+HLT_DMTest__HView_hview: 4820.5 4819.5 4818.5 4817.5 4816.5 4815.5 4814.5 4813.5 4812.5 4811.5 4810.5 4809.5 4808.5 4807.5 4806.5 4805.5 4804.5 4803.5 4802.5 4801.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #0 12 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #0 12 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1301 aFloat: 2600 pInt: 6501 pFloat: 0.13
   pvInt: []
@@ -556,10 +572,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1310 aFloat: 2600.9 pInt: 6510 pFloat: 9.13
   pvInt: [890 891 892 893 894 895 896 897 898 ]
   pvFloat: [-0.397 -0.297 -0.197 -0.097 0.003 0.103 0.203 0.303 0.403 ]
+HLT_DMTest__CView_cview: 1310 1309 1308 1307 1306 1305 1304 1303 1302 1301
+HLT_DMTest__HVec_hvec: 5201.5 5202.5 5203.5 5204.5 5205.5 5206.5 5207.5 5208.5 5209.5 5210.5 5211.5 5212.5 5213.5 5214.5 5215.5 5216.5 5217.5 5218.5 5219.5 5220.5
+HLT_DMTest__HView_hview: 5220.5 5219.5 5218.5 5217.5 5216.5 5215.5 5214.5 5213.5 5212.5 5211.5 5210.5 5209.5 5208.5 5207.5 5206.5 5205.5 5204.5 5203.5 5202.5 5201.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #0 13 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #0 13 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1401 aFloat: 2800 pInt: 7001 pFloat: 0.14
   pvInt: []
@@ -591,10 +609,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1410 aFloat: 2800.9 pInt: 7010 pFloat: 9.14
   pvInt: [990 991 992 993 994 995 996 997 998 ]
   pvFloat: [-0.396 -0.296 -0.196 -0.096 0.004 0.104 0.204 0.304 0.404 ]
+HLT_DMTest__CView_cview: 1410 1409 1408 1407 1406 1405 1404 1403 1402 1401
+HLT_DMTest__HVec_hvec: 5601.5 5602.5 5603.5 5604.5 5605.5 5606.5 5607.5 5608.5 5609.5 5610.5 5611.5 5612.5 5613.5 5614.5 5615.5 5616.5 5617.5 5618.5 5619.5 5620.5
+HLT_DMTest__HView_hview: 5620.5 5619.5 5618.5 5617.5 5616.5 5615.5 5614.5 5613.5 5612.5 5611.5 5610.5 5609.5 5608.5 5607.5 5606.5 5605.5 5604.5 5603.5 5602.5 5601.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #0 14 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #0 14 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1501 aFloat: 3000 pInt: 7501 pFloat: 0.15
   pvInt: []
@@ -626,10 +646,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1510 aFloat: 3000.9 pInt: 7510 pFloat: 9.15
   pvInt: [1090 1091 1092 1093 1094 1095 1096 1097 1098 ]
   pvFloat: [-0.395 -0.295 -0.195 -0.095 0.005 0.105 0.205 0.305 0.405 ]
+HLT_DMTest__CView_cview: 1510 1509 1508 1507 1506 1505 1504 1503 1502 1501
+HLT_DMTest__HVec_hvec: 6001.5 6002.5 6003.5 6004.5 6005.5 6006.5 6007.5 6008.5 6009.5 6010.5 6011.5 6012.5 6013.5 6014.5 6015.5 6016.5 6017.5 6018.5 6019.5 6020.5
+HLT_DMTest__HView_hview: 6020.5 6019.5 6018.5 6017.5 6016.5 6015.5 6014.5 6013.5 6012.5 6011.5 6010.5 6009.5 6008.5 6007.5 6006.5 6005.5 6004.5 6003.5 6002.5 6001.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #0 15 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #0 15 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1601 aFloat: 3200 pInt: 8001 pFloat: 0.16
   pvInt: []
@@ -661,10 +683,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1610 aFloat: 3200.9 pInt: 8010 pFloat: 9.16
   pvInt: [1190 1191 1192 1193 1194 1195 1196 1197 1198 ]
   pvFloat: [-0.394 -0.294 -0.194 -0.094 0.006 0.106 0.206 0.306 0.406 ]
+HLT_DMTest__CView_cview: 1610 1609 1608 1607 1606 1605 1604 1603 1602 1601
+HLT_DMTest__HVec_hvec: 6401.5 6402.5 6403.5 6404.5 6405.5 6406.5 6407.5 6408.5 6409.5 6410.5 6411.5 6412.5 6413.5 6414.5 6415.5 6416.5 6417.5 6418.5 6419.5 6420.5
+HLT_DMTest__HView_hview: 6420.5 6419.5 6418.5 6417.5 6416.5 6415.5 6414.5 6413.5 6412.5 6411.5 6410.5 6409.5 6408.5 6407.5 6406.5 6405.5 6404.5 6403.5 6402.5 6401.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #0 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #0 16 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1701 aFloat: 3400 pInt: 8501 pFloat: 0.17
   pvInt: []
@@ -696,10 +720,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1710 aFloat: 3400.9 pInt: 8510 pFloat: 9.17
   pvInt: [1290 1291 1292 1293 1294 1295 1296 1297 1298 ]
   pvFloat: [-0.393 -0.293 -0.193 -0.093 0.007 0.107 0.207 0.307 0.407 ]
+HLT_DMTest__CView_cview: 1710 1709 1708 1707 1706 1705 1704 1703 1702 1701
+HLT_DMTest__HVec_hvec: 6801.5 6802.5 6803.5 6804.5 6805.5 6806.5 6807.5 6808.5 6809.5 6810.5 6811.5 6812.5 6813.5 6814.5 6815.5 6816.5 6817.5 6818.5 6819.5 6820.5
+HLT_DMTest__HView_hview: 6820.5 6819.5 6818.5 6817.5 6816.5 6815.5 6814.5 6813.5 6812.5 6811.5 6810.5 6809.5 6808.5 6807.5 6806.5 6805.5 6804.5 6803.5 6802.5 6801.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #0 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #0 17 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1801 aFloat: 3600 pInt: 9001 pFloat: 0.18
   pvInt: []
@@ -731,10 +757,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1810 aFloat: 3600.9 pInt: 9010 pFloat: 9.18
   pvInt: [1390 1391 1392 1393 1394 1395 1396 1397 1398 ]
   pvFloat: [-0.392 -0.292 -0.192 -0.092 0.008 0.108 0.208 0.308 0.408 ]
+HLT_DMTest__CView_cview: 1810 1809 1808 1807 1806 1805 1804 1803 1802 1801
+HLT_DMTest__HVec_hvec: 7201.5 7202.5 7203.5 7204.5 7205.5 7206.5 7207.5 7208.5 7209.5 7210.5 7211.5 7212.5 7213.5 7214.5 7215.5 7216.5 7217.5 7218.5 7219.5 7220.5
+HLT_DMTest__HView_hview: 7220.5 7219.5 7218.5 7217.5 7216.5 7215.5 7214.5 7213.5 7212.5 7211.5 7210.5 7209.5 7208.5 7207.5 7206.5 7205.5 7204.5 7203.5 7202.5 7201.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #0 18 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1901 aFloat: 3800 pInt: 9501 pFloat: 0.19
   pvInt: []
@@ -766,10 +794,12 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 1910 aFloat: 3800.9 pInt: 9510 pFloat: 9.19
   pvInt: [1490 1491 1492 1493 1494 1495 1496 1497 1498 ]
   pvFloat: [-0.391 -0.291 -0.191 -0.091 0.009 0.109 0.209 0.309 0.409 ]
+HLT_DMTest__CView_cview: 1910 1909 1908 1907 1906 1905 1904 1903 1902 1901
+HLT_DMTest__HVec_hvec: 7601.5 7602.5 7603.5 7604.5 7605.5 7606.5 7607.5 7608.5 7609.5 7610.5 7611.5 7612.5 7613.5 7614.5 7615.5 7616.5 7617.5 7618.5 7619.5 7620.5
+HLT_DMTest__HView_hview: 7620.5 7619.5 7618.5 7617.5 7616.5 7615.5 7614.5 7613.5 7612.5 7611.5 7610.5 7609.5 7608.5 7607.5 7606.5 7605.5 7604.5 7603.5 7602.5 7601.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
+HLT_DMTest__CVec_cvec aux items: aFloat anInt pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
  anInt1 2001 aFloat: 4000 pInt: 10001 pFloat: 0.20
   pvInt: []
@@ -801,23 +831,19 @@ Type of aux store: DMTest::CAuxContainer_v1
  anInt1 2010 aFloat: 4000.9 pInt: 10010 pFloat: 9.20
   pvInt: [1590 1591 1592 1593 1594 1595 1596 1597 1598 ]
   pvFloat: [-0.390 -0.290 -0.190 -0.090 0.010 0.110 0.210 0.310 0.410 ]
+HLT_DMTest__CView_cview: 2010 2009 2008 2007 2006 2005 2004 2003 2002 2001
+HLT_DMTest__HVec_hvec: 8001.5 8002.5 8003.5 8004.5 8005.5 8006.5 8007.5 8008.5 8009.5 8010.5 8011.5 8012.5 8013.5 8014.5 8015.5 8016.5 8017.5 8018.5 8019.5 8020.5
+HLT_DMTest__HView_hview: 8020.5 8019.5 8018.5 8017.5 8016.5 8015.5 8014.5 8013.5 8012.5 8011.5 8010.5 8009.5 8008.5 8007.5 8006.5 8005.5 8004.5 8003.5 8002.5 8001.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
 ToolSvc.ByteStr...   INFO handle() LastInputFile, filename = stop
-StoreGateSvc         INFO Stop StoreGateSvc
-StoreGateSvc         INFO stop: setting service priority to 101 so that event stores get finalized and cleared before other stores
-MetaDataStore        INFO Stop MetaDataStore
-InputMetaDataStore   INFO Stop InputMetaDataStore
 ApplicationMgr       INFO Application Manager Stopped successfully
 AthAlgSeq            INFO Finalizing AthAlgSeq...
 AthOutSeq            INFO Finalizing AthOutSeq...
 AthRegSeq            INFO Finalizing AthRegSeq...
 AthMasterSeq         INFO Finalizing AthMasterSeq...
-StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-00-00-00
 EventInfoByteSt...   INFO finalize 
-PoolSvc              INFO I/O finalization...
 PoolXMLFileCatalog Info XercesC termination number 0
-MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-00-00-00
-InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-00-00-00
+PoolSvc              INFO I/O finalization...
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 ToolSvc.ByteStr...   INFO in finalize()

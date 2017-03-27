@@ -43,14 +43,21 @@ theApp.EvtMax = 20
 
 from DataModelTestDataRead.DataModelTestDataReadConf import \
      DMTest__xAODTestReadCVec, \
+     DMTest__xAODTestReadCView, \
+     DMTest__xAODTestReadHVec, \
      DMTest__xAODTestRead
 
 topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec")
 topSequence += DMTest__xAODTestRead ("xAODTestRead")
+topSequence += DMTest__xAODTestReadCView ('xAODTestReadCView')
+topSequence += DMTest__xAODTestReadHVec ("xAODTestReadHVec")
 topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec_scopy",
                                          CVecKey = 'scopy_cvec')
 topSequence += DMTest__xAODTestRead ("xAODTestRead_scopy",
                                      ReadPrefix = 'scopy_')
+topSequence += DMTest__xAODTestReadHVec ("xAODTestReadHVec_scopy",
+                                         HVecKey = "scopy_hvec",
+                                         HViewKey = "")
 
 # Note: can't autoload these.
 import ROOT

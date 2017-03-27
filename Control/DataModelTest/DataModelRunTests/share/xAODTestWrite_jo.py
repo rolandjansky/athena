@@ -39,9 +39,18 @@ theApp.EvtMax = 20
 
 from DataModelTestDataWrite.DataModelTestDataWriteConf import \
      DMTest__xAODTestWriteCVec, \
+     DMTest__xAODTestWriteHVec, \
+     DMTest__xAODTestWriteCView, \
+     DMTest__xAODTestWriteCInfo, \
+     DMTest__xAODTestWriteCVecConst, \
      DMTest__xAODTestWrite
 topSequence += DMTest__xAODTestWriteCVec ("xAODTestWriteCVec")
+topSequence += DMTest__xAODTestWriteHVec ("xAODTestWriteHVec")
+topSequence += DMTest__xAODTestWriteCView ("xAODTestWriteCView")
+topSequence += DMTest__xAODTestWriteCInfo ("xAODTestWriteCInfo")
 topSequence += DMTest__xAODTestWrite ("xAODTestWrite")
+topSequence += DMTest__xAODTestWriteCVecConst ("xAODTestWriteCVecConst")
+
 
 #--------------------------------------------------------------
 # Output options

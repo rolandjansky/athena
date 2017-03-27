@@ -61,10 +61,7 @@ private:
   StatusCode read_cvec_with_data() const;
 
   /// Test reading view container.
-  StatusCode read_cview() const;
-
-  /// Test schema evolution involving view container.
-  StatusCode read_htest() const;
+  //StatusCode read_cview() const;
 
   /// Parameter: Prefix for names read from SG.
   std::string m_readPrefix;

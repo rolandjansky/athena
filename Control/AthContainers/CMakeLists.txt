@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 744397 2016-05-03 10:03:07Z krasznaa $
+# $Id: CMakeLists.txt 800990 2017-03-19 23:15:21Z ssnyder $
 ################################################################################
 # Package: AthContainers
 ################################################################################
@@ -98,6 +98,7 @@ _add_test( debug_test )
 if( NOT XAOD_STANDALONE )
    _add_test( dataVectorAsELV_test )
    _add_test( ViewVector_test )
+   _add_test( ViewVectorBase_test )
    _add_test( AuxVectorData_test EXTRA_PATTERNS "will use std::" )
    _add_test( DVLDataBucket_test )
 endif()

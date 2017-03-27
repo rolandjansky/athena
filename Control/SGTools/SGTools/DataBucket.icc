@@ -25,11 +25,11 @@ namespace SG {
 // If T is a DataObject, increment its reference count.
 // The second parameter tells whether or not T is a DataObject.
 template <class T>
-void db_maybe_ref (T*, type_tools::false_tag)
+void db_maybe_ref (T*, std::false_type)
 {
 }
 template <class T>
-void db_maybe_ref (T* ptr, type_tools::true_tag)
+void db_maybe_ref (T* ptr, std::true_type)
 {
   ptr->addRef();
 }
@@ -40,13 +40,13 @@ void db_maybe_ref (T* ptr, type_tools::true_tag)
 // otherwise, just delete it.
 // The second parameter tells whether or not T is a DataObject.
 template <class T>
-void db_free_ptr (T* ptr, type_tools::false_tag)
+void db_free_ptr (T* ptr, std::false_type)
 {
   //  std::cout << "db_free_ptr: deleting ptr @" << ptr << " of type " << ClassID_traits<T>::typeName() << std::endl;
   delete ptr;
 }
 template <class T>
-void db_free_ptr (T* ptr, type_tools::true_tag)
+void db_free_ptr (T* ptr, std::true_type)
 {
   typedef typename std::remove_const<T>::type T_nc;
   //  std::cout << "db_free_ptr: releasing ptr @" << ptr << " of type " << ClassID_traits<T>::typeName() << std::endl;

@@ -51,3 +51,15 @@ apply_pattern lcgdict dict=DataModelTestDataRead selectionfile=selection.xml\
   elementLinks="$(elemLinks_DataModelTestDataRead)" \
   extralibfiles=../src/dict/*.cxx
 
+
+
+private
+use TrigSerializeUtils  TrigSerializeUtils-*    Trigger/TrigDataAccess
+
+
+apply_tag no_merge_componentslist
+
+apply_pattern sercnv \
+ typesWithNamespace="DMTest::HVec DMTest::HView DMTest::HAuxContainer" \
+ files=" -s=${DataModelTestDataRead_root}/DataModelTestDataRead \
+             HVec.h HView.h HAuxContainer.h "

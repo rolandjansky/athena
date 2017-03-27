@@ -10,6 +10,9 @@
  * @brief Regression tests for AuxVectorData
  */
 
+// Disable this test in standalone mode:
+#ifndef XAOD_STANDALONE
+
 #undef NDEBUG
 #include "AthContainers/AuxVectorData.h"
 #include "AthContainers/AuxTypeRegistry.h"
@@ -489,3 +492,11 @@ int main()
   test_threading();
   return 0;
 }
+
+#else
+
+int main() {
+   return 0;
+}
+
+#endif // not XAOD_STANDALONE

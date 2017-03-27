@@ -7,14 +7,19 @@
  * @file DataModelTestDataWrite/src/HLTResultWriter.cxx
  * @author snyder@bnl.gov
  * @date Mar, 2016
- * @brief Test for serializing an xAOD object into bytestream.
+ * @brief Test for serialiclang warnings: unused members.zing an xAOD object into bytestream.
  */
 
 
 #include "HLTResultWriter.h"
 #include "DataModelTestDataCommon/CVec.h"
+#include "DataModelTestDataCommon/CView.h"
 #include "DataModelTestDataCommon/C.h"
 #include "DataModelTestDataCommon/CAuxContainer.h"
+#include "DataModelTestDataWrite/HVec.h"
+#include "DataModelTestDataWrite/HView.h"
+#include "DataModelTestDataWrite/H.h"
+#include "DataModelTestDataWrite/HAuxContainer.h"
 #include "TrigNavigation/Navigation.h"
 #include "TrigNavigation/Holder.icc"
 #include "TrigSteeringEvent/HLTResult.h"
@@ -23,6 +28,9 @@
 
 HLT_BEGIN_TYPE_REGISTRATION
   HLT_REGISTER_TYPE(DMTest::C, DMTest::CVec, DMTest::CVec, DMTest::CAuxContainer) 
+  HLT_REGISTER_TYPE(DMTest::C, DMTest::CView, DMTest::CView, DMTest::CAuxContainer) 
+  HLT_REGISTER_TYPE(DMTest::H, DMTest::HVec, DMTest::HVec, DMTest::HAuxContainer) 
+  HLT_REGISTER_TYPE(DMTest::H, DMTest::HView, DMTest::HView, DMTest::HAuxContainer) 
 HLT_END_TYPE_REGISTRATION(DataModelTest)
 
 
@@ -68,7 +76,11 @@ StatusCode HLTResultWriter::initialize()
   ATH_CHECK( m_resultKey.initialize() );
   ATH_CHECK( m_nav.retrieve() );
   HLT::TypeMaps::registerFeatureContainer<DMTest::CVec,DMTest::CVec>();
+  HLT::TypeMaps::registerFeatureContainer<DMTest::CView,DMTest::CView>();
   HLT::TypeMaps::registerType<DMTest::CAuxContainer>();
+  HLT::TypeMaps::registerFeatureContainer<DMTest::HVec,DMTest::HVec>();
+  HLT::TypeMaps::registerFeatureContainer<DMTest::HView,DMTest::HView>();
+  HLT::TypeMaps::registerType<DMTest::HAuxContainer>();
   return StatusCode::SUCCESS;
 }
 

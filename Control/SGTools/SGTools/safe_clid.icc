@@ -65,7 +65,7 @@ CLID safe_clid_1 (T, U);
 template <class T>
 CLID safe_clid()
 {
-  return safe_clid_1 ((T*)0, type_tools::true_tag());
+  return safe_clid_1 ((T*)0, std::true_type());
 }
 
 

@@ -77,6 +77,7 @@ StatusCode xAODTestWriteCVec::execute_r (const EventContext& ctx) const
 
   const static C::Accessor<int> anInt2 ("anInt2");
   const static C::Decorator<int> dInt1 ("dInt1");
+  const static C::Decorator<int> dVar1 ("dVar1");
   const static C::Accessor<ElementLink<DMTest::CVec> > cEL ("cEL");
 
   const static C::Decorator<unsigned int> dpInt1 ("dpInt1");
@@ -102,6 +103,7 @@ StatusCode xAODTestWriteCVec::execute_r (const EventContext& ctx) const
 
     anInt2(c) = count*300 + i+1;
     dInt1(c) = count*400 + i+1;
+    dVar1(c) = count*450 + i+1;
     dpInt1(c) = count*50 + i+1;
     cEL(c).toIndexedElement (*coll, 9-i);
 

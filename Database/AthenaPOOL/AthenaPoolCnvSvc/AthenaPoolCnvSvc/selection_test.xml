@@ -7,9 +7,9 @@
          id="0AAC9C99-726D-4CF4-B9F9-00B6674C57DD" />
   <class name="AthenaPoolCnvSvcTest::Y_v1"/>
   <class name="AthenaPoolCnvSvcTest::Y_v2"/>
-  <class name="AthenaPoolCnvSvcTest::YCont_v1_pers"
+  <class name="AthenaPoolCnvSvcTest::YCont_v1_pers2"
          id="7E1826B9-3666-42B3-A2E7-C916BD10A5B8" />
-  <class name="AthenaPoolCnvSvcTest::YCont_v2_pers"
+  <class name="AthenaPoolCnvSvcTest::YCont_v2_pers2"
          id="80C19103-FE9B-4227-8E48-8C0DB468F892" />
   <class name="DataVector<AthenaPoolCnvSvcTest::Y_v1>"
          id="05309E49-5567-4790-BE56-2E541E0B4B24" />
@@ -19,6 +19,11 @@
          id="BEE3C14E-149E-4366-9E24-8A32C419A3B4" />
   <class name="AthenaPoolCnvSvcTest::YAuxCont_v2"
          id="170BFEE4-F6B2-4AF4-919B-7EB3986656FA" />
+
+  <class name="ViewVector<DataVector<AthenaPoolCnvSvcTest::Y_v1> >"
+         id="C5454482-92F6-4EE5-BBAB-44B36D571942"/>
+  <class name="ViewVector<DataVector<AthenaPoolCnvSvcTest::Y_v2> >"
+         id="CA993B46-C358-4F5E-9EE2-3693A8F3CDAF"/>
 
   <class name="AthenaPoolCnvSvcTest::XCont"
          id="6AEA6831-8777-4571-8595-95FFF40B171F" />

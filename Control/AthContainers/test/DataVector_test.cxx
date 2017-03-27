@@ -148,12 +148,13 @@ void test1 ()
   DataVector<int>::const_iterator ci(testConst.begin()), ce(testConst.end());
   while (ci != ce) {
     const int* UNUSED(cp) = *ci;
-    cp = 0; //remove warning
+#if 0
     //this is bad but unfortunately correct: a DataVector<int> is like a
     //vector<int*>. vector<int*>::const_iterator has type (int* const)*
     //and not (const int*)*. It is hence legal to do
     int* p = *ci;  //assign a int* const to a int*
     *p = 77; //OUCH!
+#endif
     ++ci;
   }
   
@@ -531,6 +532,7 @@ void test_copyconvert()
     myassert (mmvec[i]->mm == i + 100);
     MM* mm = mmvec[i];
     P* pp = dynamic_cast<P*> (mm);
+    if (!pp) std::abort();
     myassert (pp->x == i);
   }
 
@@ -543,6 +545,7 @@ void test_copyconvert()
     myassert (mmvec[i]->mm == i + 100);
     MM* mm = mmvec[i];
     P* pp = dynamic_cast<P*> (mm);
+    myassert (pp != nullptr);
     myassert (pp->x == i);
   }
 }

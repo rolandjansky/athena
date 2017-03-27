@@ -613,7 +613,26 @@ void* AuxStoreInternal::getDataInternal (auxid_t auxid,
                                          bool no_lock_check)
 {
   guard_t guard (m_mutex);
-  return getDataInternal_noLock (auxid, size, capacity, no_lock_check);
+  if (m_vecs.size() <= auxid) {
+    m_vecs.resize (auxid+1);
+    m_isDecoration.resize (auxid+1);
+  }
+  if (m_vecs[auxid] == 0) {
+    if (m_locked && !no_lock_check)
+      throw ExcStoreLocked (auxid);
+    m_vecs[auxid] = AuxTypeRegistry::instance().makeVector (auxid, size, capacity);
+    addAuxID (auxid);
+  }
+  else {
+    // Make sure the vector has at least the requested size.
+    // One way in which it could be short: setOption was called and created
+    // a variable in a store that had no other variables.
+    if (m_vecs[auxid]->size() < size) {
+      m_vecs[auxid]->resize (size);
+      m_vecs[auxid]->reserve (capacity);
+    }
+  }
+  return m_vecs[auxid]->toPtr();
 }
 
 
