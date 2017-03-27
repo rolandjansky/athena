@@ -17,14 +17,8 @@ namespace egGain {
 //--------------------------------------
 
   GainUncertainty::GainUncertainty() : asg::AsgMessaging("GainUncertainty") {
-    #ifdef ROOTCORE
-    const std::string filename = "$ROOTCOREBIN/data/ElectronPhotonFourMomentumCorrection/gain_uncertainty_specialRun.root";
-    #else
-    const std::string filename = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/gain_uncertainty_specialRun.root");
-    #endif
 
-    // TODO: move to calib area and do:
-    // const std::string PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/gain_uncertainty_specialRun.root");
+    const std::string filename = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/gain_uncertainty_specialRun.root");
 
     ATH_MSG_INFO("opening file " << filename);
     m_gainFile = CxxUtils::make_unique<TFile>(filename.c_str());
