@@ -56,7 +56,7 @@ def merge_han_configs(template, parent_dir, out, options):
     files = []
 
     # First pass; find if there are name conflicts
-    for dir in list_directories('.'):
+    for dir in list_directories(parent_dir):
         f = os.path.join(dir, template)
         if not os.access(f, os.R_OK):
             continue
