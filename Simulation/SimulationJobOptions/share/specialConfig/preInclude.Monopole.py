@@ -63,8 +63,9 @@ if doG4SimConfig:
     # FIXME ideally would include this file early enough, so that the unlocking is not required
     #simFlags.EquationOfMotion.unlock()
     simFlags.EquationOfMotion.set_On()
-    simFlags.EquationOfMotion.set_Value_and_Lock("G4mplEqMagElectricField")#"MonopoleEquationOfMotion")
+    simFlags.EquationOfMotion.set_Value_and_Lock("G4mplEqMagElectricField") #Monopole Equation of Motion
     simFlags.G4Stepper.set_Value_and_Lock('ClassicalRK4')
+    simFlags.TightMuonStepping.set_Value_and_Lock(False)
     simFlags.PhysicsOptions += ["MonopolePhysicsTool"]
     # add monopole-specific configuration for looper killer
     simFlags.OptionalUserActionList.addAction('MonopoleLooperKillerTool',['Step'])

@@ -326,7 +326,11 @@ std::unique_ptr<DataObject> DataProxy::readData (ErrNo* errNo) const
   SG::CurrentEventStore::Push push (m_store);
 
   DataObject* obj = nullptr;
-  StatusCode sc = m_dataLoader->createObj(m_tAddress->address(), obj);
+  StatusCode sc;
+  if (m_store)
+    sc = m_store->createObj (m_dataLoader, m_tAddress->address(), obj);
+  else
+    sc = m_dataLoader->createObj (m_tAddress->address(), obj);
   if (sc.isSuccess())
     return std::unique_ptr<DataObject>(obj);
   if (errNo) *errNo = CNVFAILED;

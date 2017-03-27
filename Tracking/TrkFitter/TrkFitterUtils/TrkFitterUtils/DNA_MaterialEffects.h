@@ -51,7 +51,7 @@ namespace Trk{
     double xmin()           const;
     //! returns the uncertainty on the retained inv. E fraction @f$ \Delta z @f$
     double dxmin()          const;
-    //! returns the min @f$ \chi^2 $f@ from the trial-updates (used to seed DNA) */
+    //! returns the min @f$ \chi^2 @f$ from the trial-updates (used to seed DNA) */
     double chi2min()        const;
     //! returns the @f$ t/X_0 @f$
     double thicknessInX0()  const;
@@ -60,7 +60,7 @@ namespace Trk{
     /** @brief returns the additional noise term @f$ \sigma{noise} @f$.
 
         Will be squared when filled into the EDM MaterialEffectsOnTrack,
-        which demand @f$ \sigma^2 $f@. */
+        which demand @f$ \sigma^2 @f$. */
     double addSigmaQoverP() const;
     //! returns flag if DNA point comes from forward or backward filter
     bool   foundByForwardFilter() const;

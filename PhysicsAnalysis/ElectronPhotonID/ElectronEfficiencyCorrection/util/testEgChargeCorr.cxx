@@ -66,7 +66,7 @@ int main( int argc, char* argv[] ) {
    CHECK( xAOD::Init( APP_NAME ) );
 
    // Set message level
-  MSG::Level mylevel=MSG::VERBOSE;
+  MSG::Level mylevel=MSG::DEBUG;
   //this.msg().setLevel(mylevel);
 
   // Open the input file:
@@ -105,23 +105,24 @@ int main( int argc, char* argv[] ) {
   CHECK( myEgCorrections.setProperty("CorrectionFileName",inputFile) );
   CHECK( myEgCorrections.setProperty("ForceDataType",1) );
 
-  CHECK( myEgCorrections.setProperty("DefaultRandomRunNumber", (unsigned int)300000 ) );
+  CHECK( myEgCorrections.setProperty("DefaultRandomRunNumber", (unsigned int)311481 ) );
   CHECK( myEgCorrections.setProperty("UseRandomRunNumber",false) );
   myEgCorrections.initialize();
 
   AsgElectronLikelihoodTool * m_LHToolTight = new AsgElectronLikelihoodTool("m_LHToolTight");
   CHECK (m_LHToolTight->setProperty("primaryVertexContainer","PrimaryVertices") );
-  m_LHToolTight->setProperty("ConfigFile","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth.conf").ignore();
+  m_LHToolTight->setProperty("ConfigFile","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_CutBL_Smooth.conf").ignore();
   m_LHToolTight->initialize();
 
 
   // Get a list of systematics
   CP::SystematicSet recSysts = myEgCorrections.recommendedSystematics();
   // Convert into a simple list
-  std::vector<CP::SystematicSet> sysList = CP::make_systematics_vector(recSysts);
+ // std::vector<CP::SystematicSet> sysList = CP::make_systematics_vector(recSysts);
   std::cout << "=="<<std::endl;
+
   // Loop over the events:
-    entries = 100;
+    entries = 600;
 
   Long64_t entry = 0;
   for( ; entry < entries; ++entry ) {
@@ -168,8 +169,12 @@ int main( int argc, char* argv[] ) {
 
       xAOD::Electron* el = *el_it;
       if (el->pt() < 25000) continue;//skip electrons outside of recommendations
+
+bool LHacc = m_LHToolTight->accept(el);
+std::cout << "acc:  "<< LHacc << std::endl;
+      if(!m_LHToolTight->accept(el)) continue; 
       if (fabs(el->caloCluster()->etaBE(2)) > 2.4) continue;//skip electrons outside of recommendations
-      if(!m_LHToolTight->accept(el)) continue;
+//      if(!m_LHToolTight->accept(el)) continue;
 
       SF_nevents++;
 
@@ -189,10 +194,26 @@ int main( int argc, char* argv[] ) {
         return EXIT_FAILURE;
       }
 
-      Info( APP_NAME, "===>>> Resulting SF (from get function) %f, (from apply function) %f",
-            SF, el->auxdata< float >("SF"));
+//      Info( APP_NAME, "===>>> Resulting SF (from get function) %f, (from apply function) %f",
+ //           SF, el->auxdata< float >("SF"));
 
       SF_chargeID=SF_chargeID+SF;
+
+
+
+     for(const auto& sys : recSysts){  //recSysts){
+       double systematic = 0;
+
+    // Configure the tool for this systematic
+    CHECK( myEgCorrections.applySystematicVariation({sys}) );
+    //
+    if(myEgCorrections.getEfficiencyScaleFactor(*el,systematic) == CP::CorrectionCode::Ok){
+std::cout <<  (sys).name() <<"  sys names    " << (myEgCorrections.affectingSystematics().name()) << std::endl;    
+Info( APP_NAME,  "%f Result %f Systematic value %f ", SF,systematic,systematic-SF );
+   //                     unc.push_back(systematic);
+    //
+}
+}
 
       int truthcharge = (-1)*el->auxdata<int>("firstEgMotherPdgId");
       if (el->auxdata<int>("truthType")) { std::cout << el->charge() << "  " << el->auxdata<int>("firstEgMotherPdgId") << std::endl; }

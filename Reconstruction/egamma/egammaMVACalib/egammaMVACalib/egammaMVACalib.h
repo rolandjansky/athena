@@ -403,7 +403,7 @@ class egammaMVACalib : public asg::AsgMessaging
     // Parameters defined in the constructor
     egammaMVACalib::egammaType m_egammaType; //! electron or photon
     bool m_useNewBDTs; //! use egamma::BDT or TMVA::Reader
-    TString fMethodName; //! BDTG
+    TString m_methodName; //! BDTG
     egammaMVACalib::CalibrationType m_calibrationType; //! correct Eaccordion, Ecluster...
     // Variables that define the key and the initial energy (for getMVAEnergy)
     TString m_etaVar, m_energyVar, m_particleTypeVar;

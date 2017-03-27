@@ -332,19 +332,24 @@ string SGImplSvc::createKey(const CLID& id)
 // clear store
 StatusCode SGImplSvc::clearStore(bool forceRemove)
 {
-  lock_t lock (m_mutex);
-  emptyTrash();
-  for (auto& p : m_newBoundHandles)
-    p.second.clear();
-  assert(m_pStore);
-  MsgStream* pmlog( msgLvl(MSG::VERBOSE) ? &msg() : 0);
-  msg() << MSG::DEBUG << "Clearing store with forceRemove="
-        << forceRemove << endmsg;
-  bool hard_reset = (m_numSlots > 1);
-  m_pStore->clearStore(forceRemove, hard_reset, pmlog);
-  m_storeLoaded=false;  //FIXME hack needed by loadEventProxies
-  m_remap_impl->m_remaps.clear();
-  m_arena.reset();
+  {
+    lock_t lock (m_mutex);
+    emptyTrash();
+    for (auto& p : m_newBoundHandles)
+      p.second.clear();
+    assert(m_pStore);
+    MsgStream* pmlog( msgLvl(MSG::VERBOSE) ? &msg() : 0);
+    msg() << MSG::DEBUG << "Clearing store with forceRemove="
+          << forceRemove << endmsg;
+    bool hard_reset = (m_numSlots > 1);
+    m_pStore->clearStore(forceRemove, hard_reset, pmlog);
+    m_storeLoaded=false;  //FIXME hack needed by loadEventProxies
+  }
+  {
+    lock_t remap_lock (m_remapMutex);
+    m_remap_impl->m_remaps.clear();
+    m_arena.reset();
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -1412,7 +1417,7 @@ void SGImplSvc::remap_impl (sgkey_t source,
                             sgkey_t target,
                             off_t index_offset)
 {
-  lock_t lock (m_mutex);
+  lock_t lock (m_remapMutex);
   SG::RemapImpl::remap_t payload;
   payload.target = target;
   payload.index_offset = index_offset;
@@ -1431,7 +1436,7 @@ void SGImplSvc::remap_impl (sgkey_t source,
 bool SGImplSvc::tryELRemap (sgkey_t sgkey_in, size_t index_in,
                             sgkey_t& sgkey_out, size_t& index_out)
 {
-  lock_t lock (m_mutex);
+  lock_t lock (m_remapMutex);
   SG::RemapImpl::remap_map_t::iterator i =
     m_remap_impl->m_remaps.find (sgkey_in);
   if (i == m_remap_impl->m_remaps.end())
@@ -1633,6 +1638,26 @@ void SGImplSvc::makeCurrent()
   lock_t lock (m_mutex);
   m_arena.makeCurrent();
   SG::CurrentEventStore::setStore (this);
+}
+
+
+/**
+ * @brief Call converter to create an object, with locking.
+ * @param cvt The converter to call.
+ * @param addr Opaque address information for the object to create.
+ * @param refpObject Reference to location of the pointer of the
+ *                   created object.
+ *
+ * This calls the @c createObj method on @c cvt to create the referenced
+ * transient object, locking the store during the call.
+ */
+StatusCode
+SGImplSvc::createObj (IConverter* cvt,
+                      IOpaqueAddress* addr,
+                      DataObject*& refpObject)
+{
+  lock_t lock (m_mutex);
+  return cvt->createObj (addr, refpObject);
 }
 
 

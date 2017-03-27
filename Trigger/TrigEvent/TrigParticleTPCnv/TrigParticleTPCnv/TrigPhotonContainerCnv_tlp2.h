@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigParticleTPCnv
- * @Class  : TrigPhotonContainerCnv_tlp2
+ * @class  : TrigPhotonContainerCnv_tlp2
  *
  * @brief "top level" transient-persistent converter for TrigPhotonContainer
  *

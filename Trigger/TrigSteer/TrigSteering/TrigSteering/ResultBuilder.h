@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : ResultBuilder
+ * @class  : ResultBuilder
  *
  * @brief : tool to create the HLTResult at the end of every HLT event processing
  *

@@ -69,7 +69,7 @@ class EtaJESCorrection
   const static unsigned int s_nEtaBins=90;
   const static unsigned int s_nParMin=7;
   const static unsigned int s_nParMax=9;
-  unsigned int s_nPar; // number of parameters in config file
+  unsigned int m_nPar; // number of parameters in config file
   double m_JESFactors[s_nEtaBins][s_nParMax];
   double m_JES_MinPt_Slopes[s_nEtaBins];
   double m_JES_MinPt_E[s_nEtaBins];

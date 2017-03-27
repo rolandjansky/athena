@@ -19,7 +19,7 @@
 
 #include <list>
 #include "InDetSimEvent/SiCharge.h"
-#include "DataModel/tools/ArenaSharedHeapSTLAllocator.h"
+#include "AthAllocators/ArenaSharedHeapSTLAllocator.h"
 
 class SiTotalCharge {
 

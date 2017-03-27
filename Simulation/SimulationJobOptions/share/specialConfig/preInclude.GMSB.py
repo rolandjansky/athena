@@ -127,31 +127,13 @@ load_files_for_GMSB_scenario(simdict)
 
 if doG4SimConfig:
     from G4AtlasApps.SimFlags import simFlags
-    def gmsb_processlist():
-        from G4AtlasApps import AtlasG4Eng
-        AtlasG4Eng.G4Eng.gbl.G4Commands().process.list()
-
-    simFlags.InitFunctions.add_function("postInit", gmsb_processlist)
-
-    def gmsb_setparams():
-        from G4AtlasApps import AtlasG4Eng
-        from GaudiKernel.SystemOfUnits import GeV, ns
-
-        ## Assuming that GMSBIndex is an int here...
-        GMSBIndex = int(AtlasG4Eng.G4Eng.Dict_SpecialConfiguration["GMSBIndex"])
-
-        if GMSBIndex == 1: # generic neutralino to photon scenario
-            from G4AtlasApps.SimFlags import simFlags
-            simFlags.PhysicsOptions += ["GauginosPhysicsTool"]
-
-        elif GMSBIndex == 2 or GMSBIndex == 3 or GMSBIndex == 4: # generic stau scenario
-            from G4AtlasApps.SimFlags import simFlags
-            simFlags.PhysicsOptions += ["SleptonsPhysicsTool"]
-
-        del GMSBIndex
-
-
-    simFlags.InitFunctions.add_function("preInitPhysics", gmsb_setparams)
+    ## Assuming that GMSBIndex is an int here...
+    GMSBIndex = eval(simdict["GMSBIndex"])
+    if GMSBIndex == 1: # generic neutralino to photon scenario
+        simFlags.PhysicsOptions += ["GauginosPhysicsTool"]
+    elif GMSBIndex == 2 or GMSBIndex == 3 or GMSBIndex == 4: # generic stau scenario
+        simFlags.PhysicsOptions += ["SleptonsPhysicsTool"]
+    del GMSBIndex
 
     def gmsb_applycalomctruthstrategy():
     ## Applying the MCTruth strategies: add decays in the Calorimeter

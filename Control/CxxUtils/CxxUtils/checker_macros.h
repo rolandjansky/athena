@@ -54,6 +54,33 @@
 
 
 /**
+ * @brief Include this at the start of a file to enable thread-safety
+ *        checking for everything in a file:
+ *
+ *@code
+ *   ATLAS_CHECK_FILE_THREAD_SAFETY;
+ @endcode
+*/
+#define ATLAS_CHECK_FILE_THREAD_SAFETY _Pragma ("ATLAS check_thread_safety") \
+        class ATLAS_CHECK_FILE_THREAD_SAFETY_SWALLOW_SEMICOLON
+
+
+/**
+ * @brief Include this at the start of a file to disable thread-safety
+ *        checking for everything in a file:
+ *
+ *@code
+ *   ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+ @endcode
+ *
+ * This can be used to disable checking for specific files when checking
+ * has been enabled on a per-package basis.
+ */
+#define ATLAS_NO_CHECK_FILE_THREAD_SAFETY _Pragma ("ATLAS no_check_thread_safety") \
+        class ATLAS_CHECK_FILE_THREAD_SAFETY_SWALLOW_SEMICOLON
+  
+
+/**
  * @brief Request thread-safety checking of a function/class.
  *
  *@code
@@ -162,6 +189,8 @@
 #else // not ATLAS_GCC_CHECKERS
 
 
+#define ATLAS_CHECK_FILE_THREAD_SAFETY class ATLAS_CHECK_FILE_THREAD_SAFETY_SWALLOW_SEMICOLON
+#define ATLAS_NO_CHECK_FILE_THREAD_SAFETY class ATLAS_CHECK_FILE_THREAD_SAFETY_SWALLOW_SEMICOLON
 #define ATLAS_CHECK_THREAD_SAFETY
 #define ATLAS_THREAD_SAFE
 #define ATLAS_NOT_THREAD_SAFE

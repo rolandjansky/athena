@@ -22,6 +22,40 @@ eflowRecTrack::eflowRecTrack(
     m_trackCaloPoints(theTrackExtrapolatorTool->execute(m_track)) {
 }
 
+eflowRecTrack::eflowRecTrack(const eflowRecTrack& eflowRecTrack){
+  m_trackId = eflowRecTrack.m_trackId;
+  m_trackElemLink = eflowRecTrack.m_trackElemLink;
+  m_track = *m_trackElemLink;
+  m_type = eflowRecTrack.m_type;
+  m_pull15 = eflowRecTrack.m_pull15;
+  m_eExpect = eflowRecTrack.m_eExpect;
+  m_varEExpect = eflowRecTrack.m_varEExpect;
+  m_isInDenseEnvironment = eflowRecTrack.m_isInDenseEnvironment;
+  m_isSubtracted = eflowRecTrack.m_isSubtracted;
+  m_hasBin = eflowRecTrack.m_hasBin;
+  m_trackCaloPoints = new eflowTrackCaloPoints(*eflowRecTrack.m_trackCaloPoints);
+}
+
+eflowRecTrack& eflowRecTrack::operator = (const eflowRecTrack& originalEflowRecTrack){
+  if (this == &originalEflowRecTrack) return *this;
+  //if not assigning to self, then we copy the data to the new object
+  else{
+    m_trackId = originalEflowRecTrack.m_trackId;
+    m_trackElemLink = originalEflowRecTrack.m_trackElemLink;
+    m_track = *m_trackElemLink;
+    m_type = originalEflowRecTrack.m_type;
+    m_pull15 = originalEflowRecTrack.m_pull15;
+    m_eExpect = originalEflowRecTrack.m_eExpect;
+    m_varEExpect = originalEflowRecTrack.m_varEExpect;
+    m_isInDenseEnvironment = originalEflowRecTrack.m_isInDenseEnvironment;
+    m_isSubtracted = originalEflowRecTrack.m_isSubtracted;
+    m_hasBin = originalEflowRecTrack.m_hasBin;
+    if (m_trackCaloPoints) delete m_trackCaloPoints;
+    m_trackCaloPoints = new eflowTrackCaloPoints(*originalEflowRecTrack.m_trackCaloPoints);
+    return *this;
+  }//if not assigning to self, then we have copied the data to the new object
+}
+
 eflowRecTrack::~eflowRecTrack() { delete m_trackCaloPoints; }
 
 void eflowRecTrack::setCaloDepthArray(const double* depthArray) {

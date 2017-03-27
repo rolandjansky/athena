@@ -8,7 +8,7 @@ atlas_subdir( InDetSimEvent )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/CLIDSvc
-                          Control/DataModel
+                          Control/AthAllocators
                           Control/SGTools
                           Generators/GeneratorObjects
                           Simulation/HitManagement
@@ -28,12 +28,12 @@ atlas_add_library( InDetSimEvent
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} DataModel SGTools GeneratorObjects HitManagement StoreGateLib SGtests
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthAllocators SGTools GeneratorObjects HitManagement StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} InDetIdentifier )
 
 atlas_add_dictionary( InDetSimEventDict
                       InDetSimEvent/InDetSimEventDict.h
                       InDetSimEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} DataModel SGTools GeneratorObjects HitManagement StoreGateLib SGtests InDetIdentifier InDetSimEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthAllocators SGTools GeneratorObjects HitManagement StoreGateLib SGtests InDetIdentifier InDetSimEvent )
 

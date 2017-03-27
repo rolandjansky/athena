@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : TrigPassBitsCnv
+ * @class  : TrigPassBitsCnv
  *
  * @brief transient persistent converter for TrigPassBits
  *

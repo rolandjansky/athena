@@ -13,10 +13,10 @@ namespace JetSubStructureUtils {
     public:
       Volatility(unsigned int num_iterations, double zcut, double dcut_fctr, double exp_min, double exp_max,
           double rigidity, double truncation_fctr = 0.0) :
-        _num_iterations(num_iterations),
-        _zcut(zcut), _dcut_fctr(dcut_fctr), _exp_min(exp_min), _exp_max(exp_max),
-        _rigidity(rigidity), _truncation_fctr(truncation_fctr),
-        _seed(-1)
+        m_num_iterations(num_iterations),
+        m_zcut(zcut), m_dcut_fctr(dcut_fctr), m_exp_min(exp_min), m_exp_max(exp_max),
+        m_rigidity(rigidity), m_truncation_fctr(truncation_fctr),
+        m_seed(-1)
         {};
 
       using SubstructureCalculator::result;
@@ -25,9 +25,9 @@ namespace JetSubStructureUtils {
       void setSeed(unsigned int seed);
 
     private:
-      unsigned int _num_iterations;
-      double _zcut, _dcut_fctr, _exp_min, _exp_max, _rigidity, _truncation_fctr;
-      int _seed;
+      unsigned int m_num_iterations;
+      double m_zcut, m_dcut_fctr, m_exp_min, m_exp_max, m_rigidity, m_truncation_fctr;
+      int m_seed;
   };
 }
 

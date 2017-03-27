@@ -9,7 +9,7 @@
  * @file WriteDataReentrant.h
  * @author scott snyder <snyder@bnl.gov>
  * @date Jan, 2016
- * @brief 
+ * @brief Testing reentrant algorithms.
  */
 
 

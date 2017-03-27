@@ -50,7 +50,7 @@ atlas_add_library( TrigT1CaloCalibToolsLib
                    src/components/*.cxx
                    PUBLIC_HEADERS TrigT1CaloCalibTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AsgTools AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier xAODTrigL1Calo GaudiKernel LArIdentifier LArRecConditions TileEvent TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloToolInterfaces CaloDetDescrLib StoreGateLib SGtests LArRecUtilsLib TileConditionsLib TrigT1CaloMonitoringToolsLib TrigT1CaloUtilsLib CaloTriggerToolLib AthenaMonitoringLib LArCablingLib TrigT1CaloEventLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AsgTools AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier xAODTrigL1Calo GaudiKernel LArIdentifier LArRecConditions TileEvent TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloToolInterfaces CaloDetDescrLib StoreGateLib SGtests LArRecUtilsLib TileConditionsLib TrigT1CaloMonitoringToolsLib TrigT1CaloUtilsLib CaloTriggerToolLib AthenaMonitoringLib LArCablingLib TrigT1CaloEventLib  TrigT1CaloCondSvcLib
                    PRIVATE_LINK_LIBRARIES CaloEvent CaloIdentifier EventInfo LArRawEvent LWHists TrigT1Interfaces )
 
 atlas_add_component( TrigT1CaloCalibTools

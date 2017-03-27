@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigParticleTPCnv
- * @Class  : TrigTauContainerCnv_p3
+ * @class  : TrigTauContainerCnv_p3
  *
  * @brief transient persistent converter for TrigTauContainer
  *

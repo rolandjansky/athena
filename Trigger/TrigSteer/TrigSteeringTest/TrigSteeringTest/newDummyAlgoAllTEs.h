@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteeringTest
- * @Class  : newDummyAlgoAllTEs
+ * @class  : newDummyAlgoAllTEs
  *
  * @brief : PESA algorithm that runs on all given input TE types, ie this is a so-called AllTEAlgo !
  *

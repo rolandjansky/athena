@@ -6,7 +6,7 @@
 /**********************************************************************************
  * @Project: HLT SteeringEvent
  * @Package: TrigSteeringEvent
- * @Class  : Chain
+ * @class  : Chain
  *
  * @brief  chain of signatures
  *

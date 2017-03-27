@@ -18,20 +18,20 @@ TrackRecordCnv_p1::persToTrans(const TrackRecord_p1* persObj, TrackRecord* trans
 {
    log << MSG::DEBUG << "TrackRecordCnv_p1::persToTrans called " << endmsg;
 
-   transObj->PDG_code           = persObj->PDG_code();
-   transObj->Energy             = (double) persObj->energy();
-   transObj->Momentum           = CLHEP::Hep3Vector(persObj->momentumX(), persObj->momentumY(), persObj->momentumZ() );
-   transObj->Position           = CLHEP::Hep3Vector(persObj->positionX(), persObj->positionY(), persObj->positionZ() );
-   transObj->Time               = (double) persObj->time();
-   transObj->barCode            = persObj->barCode();
-   transObj->volName            = persObj->volName();
+   transObj->m_PDG_code           = persObj->PDG_code();
+   transObj->m_Energy             = (double) persObj->energy();
+   transObj->m_Momentum           = CLHEP::Hep3Vector(persObj->momentumX(), persObj->momentumY(), persObj->momentumZ() );
+   transObj->m_Position           = CLHEP::Hep3Vector(persObj->positionX(), persObj->positionY(), persObj->positionZ() );
+   transObj->m_Time               = (double) persObj->time();
+   transObj->m_barCode            = persObj->barCode();
+   transObj->m_volName            = persObj->volName();
 
    log << MSG::DEBUG << "TrackRecord: "
-     <<  transObj->PDG_code  << ", "
-     <<  transObj->Energy  << ", "
-     <<  transObj->Momentum.x()  << ", " <<  transObj->Momentum.y()  << ", " <<  transObj->Momentum.z()  << ", "
-     <<  transObj->Position.x()  << ", " <<  transObj->Position.y()  << ", " <<  transObj->Position.z()  << ", "
-     <<  transObj->Time << ", " << transObj->barCode << ", " << transObj->volName 
+     <<  transObj->m_PDG_code  << ", "
+     <<  transObj->m_Energy  << ", "
+     <<  transObj->m_Momentum.x()  << ", " <<  transObj->m_Momentum.y()  << ", " <<  transObj->m_Momentum.z()  << ", "
+     <<  transObj->m_Position.x()  << ", " <<  transObj->m_Position.y()  << ", " <<  transObj->m_Position.z()  << ", "
+     <<  transObj->m_Time << ", " << transObj->m_barCode << ", " << transObj->m_volName 
      << endmsg;
 }
 
@@ -40,16 +40,16 @@ void
 TrackRecordCnv_p1::transToPers(const TrackRecord* transObj, TrackRecord_p1* persObj, MsgStream &log)
 {
    log << MSG::DEBUG << "TrackRecordCnv_p1::transToPers called " << endmsg;
-   persObj->m_PDG_code          = transObj->PDG_code;
-   persObj->m_energy            = (float) transObj->Energy;
-   persObj->m_momentumX		= (float) transObj->Momentum.x();
-   persObj->m_momentumY		= (float) transObj->Momentum.y();
-   persObj->m_momentumZ		= (float) transObj->Momentum.z();
-   persObj->m_positionX		= (float) transObj->Position.x();
-   persObj->m_positionY		= (float) transObj->Position.y();
-   persObj->m_positionZ		= (float) transObj->Position.z();
-   persObj->m_time              = (float) transObj->Time;
-   persObj->m_barCode           = transObj->barCode;
-   persObj->m_volName           = transObj->volName;
+   persObj->m_PDG_code          = transObj->m_PDG_code;
+   persObj->m_energy            = (float) transObj->m_Energy;
+   persObj->m_momentumX		= (float) transObj->m_Momentum.x();
+   persObj->m_momentumY		= (float) transObj->m_Momentum.y();
+   persObj->m_momentumZ		= (float) transObj->m_Momentum.z();
+   persObj->m_positionX		= (float) transObj->m_Position.x();
+   persObj->m_positionY		= (float) transObj->m_Position.y();
+   persObj->m_positionZ		= (float) transObj->m_Position.z();
+   persObj->m_time              = (float) transObj->m_Time;
+   persObj->m_barCode           = transObj->m_barCode;
+   persObj->m_volName           = transObj->m_volName;
 }
 

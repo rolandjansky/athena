@@ -377,6 +377,8 @@ namespace SG {
 
   /**
    * @brief Retrieve and cache all information managed by a handle.
+   * @param used If false, then this handle is not to be used.
+   *             Instead of normal initialization, the key will be cleared.
    *
    * This will retrieve and cache the associated @c DataProxy.
    *
@@ -385,8 +387,13 @@ namespace SG {
    * @c isInitialized will still return false.
    */
   StatusCode 
-  VarHandleBase::initialize()
+  VarHandleBase::initialize (bool used /*= true*/)
   {
+    if (!used) {
+      CHECK( VarHandleKey::initialize (used) );
+      return StatusCode::SUCCESS;
+    }
+
     if (!m_store) {
       CHECK( VarHandleKey::initialize() );
       m_store = &*(this->storeHandle());

@@ -19,20 +19,26 @@ eflowRecCluster::eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& 
   m_matchCluster = new eflowMatchCluster(this);
 }
 
-eflowRecCluster::eflowRecCluster(const eflowRecCluster& anEFlowRecCluster) {
-  m_clusterId = anEFlowRecCluster.m_clusterId;
-  m_cluster = anEFlowRecCluster.m_cluster;
-  m_clusElementLink = anEFlowRecCluster.m_clusElementLink;
-  m_isTouchable = anEFlowRecCluster.m_isTouchable;
-  m_type = anEFlowRecCluster.m_type;
+eflowRecCluster::eflowRecCluster(const eflowRecCluster& originalEflowRecCluster) {
+  m_clusterId = originalEflowRecCluster.m_clusterId;
+  m_cluster = originalEflowRecCluster.m_cluster;
+  m_clusElementLink = originalEflowRecCluster.m_clusElementLink;
+  m_isTouchable = originalEflowRecCluster.m_isTouchable;
+  m_type = originalEflowRecCluster.m_type;
   m_matchCluster = new eflowMatchCluster(this);
 }
 
-void eflowRecCluster::operator=(const eflowRecCluster& anEFlowRecCluster) {
-  m_cluster = anEFlowRecCluster.m_cluster;
-  m_clusElementLink = anEFlowRecCluster.m_clusElementLink;
-  m_isTouchable = anEFlowRecCluster.m_isTouchable;
-  m_matchCluster = new eflowMatchCluster(this);
+eflowRecCluster& eflowRecCluster::operator=(const eflowRecCluster& originalEflowRecCluster) {
+  if (this == &originalEflowRecCluster) return *this;
+  //if not assigning to self, then we copy the data to the new object
+  else{
+    m_cluster = originalEflowRecCluster.m_cluster;
+    m_clusElementLink = originalEflowRecCluster.m_clusElementLink;
+    m_isTouchable = originalEflowRecCluster.m_isTouchable;
+    if (m_matchCluster) delete m_matchCluster;
+    m_matchCluster = new eflowMatchCluster(this);
+    return *this;
+  }//if not assigning to self, then we have copied the data to the new object
 }
 
 eflowRecCluster::~eflowRecCluster() { delete m_matchCluster; }

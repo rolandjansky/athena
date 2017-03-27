@@ -5,7 +5,7 @@
 /*********************************************************************
  * @Project:  HLT, PESA algorithms
  * @Package:  Trigger/TrigAlgorithms/TrigEFMissingET
- * @Class:    TrigEFMissingEtHelper, TrigEFMissingEtComponent
+ * @class:    TrigEFMissingEtHelper, TrigEFMissingEtComponent
  *
  * @brief:    Transient-only helper class (companion to TrigMissingET)
  *

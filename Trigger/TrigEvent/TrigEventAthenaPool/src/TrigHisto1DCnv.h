@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : TrigHisto1DCnv
+ * @class  : TrigHisto1DCnv
  *
  * @brief transient persistent converter for TrigHisto1D
  *

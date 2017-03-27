@@ -38,7 +38,7 @@ namespace Muon {
   StatusCode InnerDetProbeCollectorTool::initialize()
   {
     StatusCode sc = AlgTool::initialize();
-    m_log.setLevel(outputLevel());
+    m_log.setLevel(msgLevel());
     if (sc.isFailure()) return sc;
 	
     /// histogram location
