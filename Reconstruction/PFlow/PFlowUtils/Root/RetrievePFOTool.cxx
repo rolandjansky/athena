@@ -25,13 +25,13 @@ namespace CP {
     if (CP::charged == theCharge || CP::all == theCharge) {
       if(m_inCharged!="") sc = this->fillPFOContainer(newContainer, m_inCharged);
       else sc = this->fillPFOContainer(newContainer, "JetETMissChargedParticleFlowObjects");
-      if (sc.isFailure()) std::cout << " could not fill charged pfo container " << std::endl;
+      if (sc.isFailure()) ATH_MSG_WARNING( " could not fill charged pfo container ");
     }
 
     //Then we retrieve the neutral PFO - thu is different in the EM and LC modes
     if (CP::neutral == theCharge || CP::all == theCharge) {
       sc = this->retrieve_neutralPFO(theScale,newContainer);
-      if (sc.isFailure()) std::cout << " could not fill neutral pfo container " << std::endl;
+      if (sc.isFailure()) ATH_MSG_WARNING(" could not fill neutral pfo container ");
     }
 
     //The client is only allowed a const pointer, to prevent them modifying the PFO

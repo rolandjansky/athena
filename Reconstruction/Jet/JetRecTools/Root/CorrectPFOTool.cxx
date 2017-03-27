@@ -37,11 +37,11 @@ StatusCode CorrectPFOTool::process(xAOD::IParticleContainer* cont) const {
 
 StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const { 
   // Get the vertex.
-  const xAOD::VertexContainer* pvtxs = 0;
+  const xAOD::VertexContainer* pvtxs = nullptr;
   const xAOD::Vertex* vtx = nullptr;
   if (m_usevertices){
     ATH_CHECK(evtStore()->retrieve(pvtxs, "PrimaryVertices"));
-    if ( pvtxs == 0 || pvtxs->size()==0 ) {
+    if ( pvtxs == nullptr || pvtxs->size()==0 ) {
       ATH_MSG_WARNING(" This event has no primary vertices " );
       return StatusCode::FAILURE;
     }
