@@ -86,7 +86,7 @@ void	getMuonPTResolution(	TH1F *hist,
       gaussian.SetRange(mean-sigma*2.,mean+sigma*2.);
 
       // Check if converged, if yes then quit
-      if (fabs(1.0-old_sigma/sigma)<0.0001) i=n_max_runs+1;
+      if (fabs(1.0-old_sigma/sigma)<0.0001) break;
       old_sigma=sigma;
     }
 
