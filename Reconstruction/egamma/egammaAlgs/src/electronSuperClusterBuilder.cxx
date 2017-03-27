@@ -5,9 +5,6 @@
 
 #include "egammaAlgs/electronSuperClusterBuilder.h"
 //
-#include "CaloUtils/CaloClusterStoreHelper.h"
-#include "CaloUtils/CaloCellList.h"
-//
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
@@ -23,7 +20,11 @@
 #include "TrkMaterialOnTrack/EstimatedBremOnTrack.h"
 #include "FourMomUtils/P4Helpers.h"
 
-#include "CxxUtils/make_unique.h"
+#include "egammaInterfaces/IEMTrackMatchBuilder.h"
+
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+
 #include <memory>
 
 using CLHEP::GeV;
@@ -64,6 +65,14 @@ electronSuperClusterBuilder::electronSuperClusterBuilder(const std::string& name
   //
   declareProperty("NumberOfReqSiHits", m_numberOfSiHits = 4);
 
+  // Handle of TrackMatchBuilder
+  declareProperty("TrackMatchBuilderTool", m_trackMatchBuilder,
+		  "Handle of TrackMatchBuilder");
+
+  // Boolean to do track matching
+  declareProperty("doTrackMatching",m_doTrackMatching= true,
+		  "Boolean to do track matching (and conversion building)");
+
 }
 
 StatusCode electronSuperClusterBuilder::initialize() {
@@ -78,6 +87,11 @@ StatusCode electronSuperClusterBuilder::initialize() {
 
   m_maxDelPhi = m_maxDelPhiCells * s_cellPhiSize * 0.5;
   m_maxDelEta = m_maxDelEtaCells * s_cellEtaSize * 0.5;
+
+  // retrieve track match builder
+  if (m_doTrackMatching) {
+    ATH_CHECK(m_trackMatchBuilder.retrieve());
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -220,7 +234,17 @@ StatusCode electronSuperClusterBuilder::execute(){
       ATH_MSG_DEBUG("Made new egammaRec object");
     }
   } //End loop on egammaRecs
-  
+ 
+  //Redo track matching given the super cluster
+  if (m_doTrackMatching){
+    for (auto egRec : *newEgammaRecs) {
+      if (m_trackMatchBuilder->executeRec(egRec).isFailure()){
+	ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
+	return StatusCode::FAILURE;
+      }
+    }      
+  }
+ 
   return StatusCode::SUCCESS;
 }
 

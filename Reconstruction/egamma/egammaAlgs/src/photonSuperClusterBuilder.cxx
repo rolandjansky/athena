@@ -4,9 +4,6 @@
 
 #include "egammaAlgs/photonSuperClusterBuilder.h"
 //
-#include "CaloUtils/CaloClusterStoreHelper.h"
-#include "CaloUtils/CaloCellList.h"
-//
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
@@ -19,7 +16,7 @@
 //
 #include "FourMomUtils/P4Helpers.h"
 //
-#include "egammaInterfaces/IegammaSwTool.h"
+#include "egammaInterfaces/IEMConversionBuilder.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -66,6 +63,14 @@ photonSuperClusterBuilder::photonSuperClusterBuilder(const std::string& name,
 
   declareProperty("UseOnlyLeadingTrack", m_useOnlyLeadingTrack = true, 
 		  "use only the leading track for matching");
+
+  // Handle of Conversion Builder
+  declareProperty("ConversionBuilderTool",m_conversionBuilder,
+		  "Handle of Conversion Builder");
+
+  // Boolean to do conversion reconstruction
+  declareProperty("doConversions",m_doConversions= true,
+		  "Boolean to do conversion building / matching");
   
 }
 
@@ -76,6 +81,11 @@ StatusCode photonSuperClusterBuilder::initialize() {
   ATH_CHECK(m_inputEgammaRecContainerKey.initialize());
   ATH_CHECK(m_photonSuperRecCollectionKey.initialize());
   ATH_CHECK(m_outputPhotonSuperClustersKey.initialize());
+
+  // retrieve conversion builder
+  if (m_doConversions) {
+    ATH_CHECK( m_conversionBuilder.retrieve() );
+  }
 
   return egammaSuperClusterBuilder::initialize();
 }
@@ -197,6 +207,17 @@ StatusCode photonSuperClusterBuilder::execute(){
 
     ATH_MSG_DEBUG("Finished making photon egammaRec object");
   } //End loop on egammaRecs
+
+  //Redo conversion matching given the super cluster
+  if (m_doConversions) {
+    for (auto egRec : *newEgammaRecs) {
+      if (m_conversionBuilder->executeRec(egRec).isFailure()){
+	ATH_MSG_ERROR("Problem executing conversioBuilder on photonSuperRecs");
+	return StatusCode::FAILURE;
+      }
+    }
+  }
+
   return StatusCode::SUCCESS;
 }
 

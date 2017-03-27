@@ -7,7 +7,6 @@
 
 // INCLUDE HEADER FILES:
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IChronoStatSvc.h"
 #include "egammaAlgs/egammaSuperClusterBuilder.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -16,6 +15,8 @@
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "xAODEgamma/EgammaEnums.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+
+class IEMConversionBuilder;
 
 class photonSuperClusterBuilder : public egammaSuperClusterBuilder {
 
@@ -50,7 +51,6 @@ class photonSuperClusterBuilder : public egammaSuperClusterBuilder {
   bool MatchesVtxTrack(const std::vector<const xAOD::TrackParticle*>& seedVertexTracks,
 		  const egammaRec *egRec) const;
 
-
   /////////////////////////////////////////////////////////////////////
   //internal variables
   /** @brief Key for input egammaRec container */
@@ -60,6 +60,9 @@ class photonSuperClusterBuilder : public egammaSuperClusterBuilder {
   /** @brief Key for output clusters */
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputPhotonSuperClustersKey;
 
+  /** @brief Tool to retrieve the conversions*/
+  ToolHandle<IEMConversionBuilder>             m_conversionBuilder;
+
   // options for how to build superclusters
   bool m_addClustersInWindow; //!< add the topoclusters in window
   bool m_addClustersMatchingVtx; //!< add the topoclusters matching conversion vertex
@@ -67,6 +70,9 @@ class photonSuperClusterBuilder : public egammaSuperClusterBuilder {
   bool m_useOnlySi; //!< use only vertices/tracks with silicon tracks
   bool m_addClustersMatchingVtxTracks; //!< add the topoclusters matching conversion vertex tracks
   bool m_useOnlyLeadingTrack; //!< use only the leading track for matching
+
+  /** @brief private member flag to do the conversion building and matching */
+  bool         m_doConversions;
 
 };
 

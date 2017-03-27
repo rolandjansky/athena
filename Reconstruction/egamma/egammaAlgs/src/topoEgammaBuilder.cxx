@@ -7,6 +7,8 @@
 
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IToolSvc.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -22,15 +24,6 @@
 
 #include "egammaInterfaces/IegammaBaseTool.h" 
 #include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
-#include "egammaInterfaces/IEMTrackMatchBuilder.h"
-#include "egammaInterfaces/IEMConversionBuilder.h"
-#include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
-#include "egammaUtils/egammaDuplicateRemoval.h"
-#include "CaloUtils/CaloClusterStoreHelper.h"
-
-//Supercluster interfaces.
-#include "egammaInterfaces/IelectronSuperClusterBuilder.h"
-#include "egammaInterfaces/IphotonSuperClusterBuilder.h"
 
 // INCLUDE GAUDI HEADER FILES:
 #include <algorithm> 
@@ -64,33 +57,23 @@ namespace{
 topoEgammaBuilder::topoEgammaBuilder(const std::string& name, 
 				     ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
-  m_doTrackMatching(true),
-  m_doConversions(true),
   m_timingProfile(0){
 
   //Containers
   declareProperty("ElectronOutputName",
-		  m_electronOutputName="ElectronContainer",
+		  m_electronOutputKey="ElectronContainer",
 		  "Name of Electron Connainer to be created");
   
   declareProperty("PhotonOutputName",
-		  m_photonOutputName="PhotonContainer",
+		  m_photonOutputKey="PhotonContainer",
 		  "Name of Photon Container to be created");
 
-  declareProperty("InputTopoClusterContainerName",
-		  m_inputTopoClusterContainerName = "egammaTopoCluster",
-		  "Name of input cluster container");
-
-  declareProperty("egammaRecContainer",
-		  m_egammaRecContainerName="egammaRecCollection",
-		  "Output container for egammaRec objects");
-
   declareProperty("ElectronSuperClusterRecContainerName",
-		  m_electronSuperClusterRecContainerName="ElectronSuperRecCollection",
+		  m_electronSuperClusterRecContainerKey="ElectronSuperRecCollection",
 		  "Input container for electron  Super Cluster  egammaRec objects");
 
   declareProperty("PhotonSuperClusterRecContainerName",
-		  m_photonSuperClusterRecContainerName="PhotonSuperRecCollection",
+		  m_photonSuperClusterRecContainerKey="PhotonSuperRecCollection",
 		  "Input container for electron  Super Cluster  egammaRec objects");
 
   // Handles of tools
@@ -104,45 +87,11 @@ topoEgammaBuilder::topoEgammaBuilder(const std::string& name,
   declareProperty("PhotonTools", m_photonTools,
 		  "Tools for dressing ONLY photons");
 
-  declareProperty("electronSuperClusterBuilder",
-		  m_electronSuperClusterBuilder,
-		  "Tool to build superclusters");
-
-  declareProperty("photonSuperClusterBuilder",
-		  m_photonSuperClusterBuilder,
-		  "Tool to build superclusters");
-
   // Handle of ambiguity tool
   declareProperty("AmbiguityTool", m_ambiguityTool,
 		  "Handle of ambiguity tool");
 
-  // Handle of TrackMatchBuilder
-  declareProperty("TrackMatchBuilderTool", m_trackMatchBuilder,
-		  "Handle of TrackMatchBuilder");
 
-  // Handle of Conversion Builder
-  declareProperty("ConversionBuilderTool",m_conversionBuilder,
-		  "Handle of Conversion Builder");
-
-  // All booleans
-
-  // Boolean to do track matching
-  declareProperty("doTrackMatching",m_doTrackMatching= true,
-		  "Boolean to do track matching (and conversion building)");
-
-  // Boolean to do conversion reconstruction
-  declareProperty("doConversions",m_doConversions= true,
-		  "Boolean to do conversion building / matching");
-
-  // Boolean to dump content of each object
-  declareProperty("Dump",m_dump=false,
-		  "Boolean to dump content of each object");
-}
-
-// ================================================================
-topoEgammaBuilder::~topoEgammaBuilder()
-{  
-  // destructor
 }
 
 // =================================================================
@@ -152,16 +101,14 @@ StatusCode topoEgammaBuilder::initialize()
 
   ATH_MSG_DEBUG("Initializing topoEgammaBuilder");
 
-  //////////////////////////////////////////////////
+  // the data handle keys
+  ATH_CHECK(m_electronOutputKey.initialize());
+  ATH_CHECK(m_photonOutputKey.initialize());
+  ATH_CHECK(m_electronSuperClusterRecContainerKey.initialize());
+  ATH_CHECK(m_photonSuperClusterRecContainerKey.initialize());
+
   //
-  CHECK(RetrieveElectronSuperClusterBuilder());
-  CHECK(RetrievePhotonSuperClusterBuilder());
-  //
   //////////////////////////////////////////////////
-  // retrieve track match builder
-  CHECK( RetrieveEMTrackMatchBuilder() );
-  // retrieve conversion builder
-  CHECK(  RetrieveEMConversionBuilder() );
   // retrieve ambiguity tool
   CHECK( RetrieveAmbiguityTool() );
   ATH_MSG_DEBUG("Retrieving " << m_egammaTools.size() << " tools for egamma objects");
@@ -190,35 +137,6 @@ StatusCode topoEgammaBuilder::RetrieveTools(ToolHandleArray<IegammaBaseTool>& to
   return StatusCode::SUCCESS;
 }
 // ====================================================================
-StatusCode topoEgammaBuilder::RetrieveElectronSuperClusterBuilder(){
-  if (m_electronSuperClusterBuilder.empty()) {
-    ATH_MSG_ERROR("Super Cluster Builder tool  is empty");
-    return StatusCode::FAILURE;
-  }
-  if(m_electronSuperClusterBuilder.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve "<< m_electronSuperClusterBuilder);
-    return StatusCode::FAILURE;
-  } 
-  else ATH_MSG_DEBUG("Retrieved Tool " << m_electronSuperClusterBuilder); 
-  
-  return StatusCode::SUCCESS;  
-
-}
-// ====================================================================
-StatusCode topoEgammaBuilder::RetrievePhotonSuperClusterBuilder(){
-  if (m_photonSuperClusterBuilder.empty()) {
-    ATH_MSG_ERROR("Super Cluster Builder tool  is empty");
-    return StatusCode::FAILURE;
-  }
-  if(m_photonSuperClusterBuilder.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve "<< m_photonSuperClusterBuilder);
-    return StatusCode::FAILURE;
-  } 
-  else ATH_MSG_DEBUG("Retrieved Tool " << m_photonSuperClusterBuilder); 
-  
-  return StatusCode::SUCCESS;  
-}
-// ====================================================================
 StatusCode topoEgammaBuilder::RetrieveAmbiguityTool(){
   // retrieve Ambiguity tool
   if (m_ambiguityTool.empty()) {
@@ -231,46 +149,6 @@ StatusCode topoEgammaBuilder::RetrieveAmbiguityTool(){
     return StatusCode::FAILURE;
   } 
   else ATH_MSG_DEBUG("Retrieved Tool "<<m_ambiguityTool);
-
-  return StatusCode::SUCCESS;
-}
-// ====================================================================
-StatusCode topoEgammaBuilder::RetrieveEMTrackMatchBuilder(){
-  // retrieve EMTrackMatchBuilder tool
-  if (!m_doTrackMatching) {
-    return StatusCode::SUCCESS;
-  }
-
-  if (m_trackMatchBuilder.empty()) {
-    ATH_MSG_ERROR("EMTrackMatchBuilder is empty, but track matching is enabled");
-    return StatusCode::FAILURE;
-  } 
-  
-  if(m_trackMatchBuilder.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve "<<m_trackMatchBuilder);
-    return StatusCode::FAILURE;
-  } 
-  else ATH_MSG_DEBUG("Retrieved Tool "<<m_trackMatchBuilder); 
-
-  return StatusCode::SUCCESS;
-}
-// ====================================================================
-StatusCode topoEgammaBuilder::RetrieveEMConversionBuilder(){
-  //
-  // retrieve EMConversionBuilder tool
-  //  
-  if (!m_doConversions) {
-    return StatusCode::SUCCESS;
-  }
-  if (m_conversionBuilder.empty()) {
-    ATH_MSG_ERROR("EMConversionBuilder is empty");
-    return StatusCode::FAILURE;
-  } 
-  if(m_conversionBuilder.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve "<<m_conversionBuilder);
-    return StatusCode::FAILURE;
-  } 
-  else ATH_MSG_DEBUG("Retrieved Tool "<<m_conversionBuilder); 
 
   return StatusCode::SUCCESS;
 }
@@ -290,117 +168,32 @@ StatusCode topoEgammaBuilder::execute(){
   // Chrono name for each Tool
   std::string chronoName;
 
-  xAOD::ElectronContainer*    electronContainer    = new xAOD::ElectronContainer();
-  xAOD::ElectronAuxContainer* electronAuxContainer = new xAOD::ElectronAuxContainer();
-  electronContainer->setStore( electronAuxContainer );
-  
-  if ( evtStore()->record(electronContainer, m_electronOutputName).isFailure() ||
-       evtStore()->record(electronAuxContainer, m_electronOutputName + "Aux.").isFailure()){
-      ATH_MSG_ERROR("Could not record electron container or its aux container");
-      return StatusCode::FAILURE;
-    }       
+  // the output handles
+  SG::WriteHandle<xAOD::ElectronContainer> electronContainer(m_electronOutputKey);
+  ATH_CHECK(electronContainer.record(std::make_unique<xAOD::ElectronContainer>(),
+				     std::make_unique<xAOD::ElectronAuxContainer>()));
 
-  xAOD::PhotonContainer*    photonContainer    = new xAOD::PhotonContainer();
-  xAOD::PhotonAuxContainer* photonAuxContainer = new xAOD::PhotonAuxContainer();
-  photonContainer->setStore( photonAuxContainer );
-  
-  if ( evtStore()->record(photonContainer, m_photonOutputName).isFailure() ||
-       evtStore()->record(photonAuxContainer, m_photonOutputName + "Aux.").isFailure()){
-    ATH_MSG_ERROR("Could not record photon container or its aux container");
-    return StatusCode::FAILURE;
-  }       
-    
-  //Then retrieve the topoclusters
-  const xAOD::CaloClusterContainer *topoclusters = 0;
-  if (evtStore()->retrieve(topoclusters, m_inputTopoClusterContainerName).isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve cluster container " << m_inputTopoClusterContainerName);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("Retrieved input cluster container " << m_inputTopoClusterContainerName);
-  }
+  SG::WriteHandle<xAOD::PhotonContainer> photonContainer(m_photonOutputKey);
+  ATH_CHECK(photonContainer.record(std::make_unique<xAOD::PhotonContainer>(),
+				     std::make_unique<xAOD::PhotonAuxContainer>()));
 
-  //Build the initial egamma Rec objects for all copied Topo Clusters
-  EgammaRecContainer* egammaRecs = new EgammaRecContainer();
-  if (evtStore()->record(egammaRecs, m_egammaRecContainerName).isFailure()){
-    ATH_MSG_ERROR("Could not record egammaRecContainer");
+  //get the final electron and photon SuperClusters
+  SG::ReadHandle<EgammaRecContainer> electronSuperRecs(m_electronSuperClusterRecContainerKey);
+
+  // check is only used for serial running; remove when MT scheduler used
+  if(!electronSuperRecs.isValid()) {
+    ATH_MSG_ERROR("Failed to retrieve "<< m_electronSuperClusterRecContainerKey.key());
     return StatusCode::FAILURE;
   }
-  
-  for (size_t i(0); i < topoclusters->size(); i++) {
-    const ElementLink< xAOD::CaloClusterContainer > clusterLink( *topoclusters, i );
-    const std::vector< ElementLink<xAOD::CaloClusterContainer> > ClusterLink {clusterLink};    
-    egammaRec *egRec = new egammaRec();
-    egRec->setCaloClusters( ClusterLink );
-    egammaRecs->push_back( egRec );
-  }
-  
-  ///Append track Matching information
-  if (m_doTrackMatching){
-    smallChrono timer(m_timingProfile, this->name()+"_"+m_trackMatchBuilder->name()+"_AllClusters");
-    for (auto egRec : *egammaRecs) {
-      if (m_trackMatchBuilder->executeRec(egRec).isFailure()){
-	ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
-	return StatusCode::FAILURE;
-      }
-    }
-  }
-  //Do the conversion matching
-  if (m_doConversions){
-    ATH_MSG_DEBUG("Running ConversionBuilder");  
-    smallChrono timer(m_timingProfile, this->name()+"_"+m_conversionBuilder->name()+"_AllClusters");
-    if (m_conversionBuilder->contExecute().isFailure()){
-      ATH_MSG_ERROR("Problem executing " << m_conversionBuilder);
-      return StatusCode::FAILURE;  
-    }
-  }
-  //
-  ////////////////////////////////////////////////
-  //Now all info should be added  the initial topoClusters build SuperClusters
-  //Electron superclusters Builder
-  {
-    smallChrono timer(m_timingProfile, this->name()+"_"+m_electronSuperClusterBuilder->name());
-    CHECK(m_electronSuperClusterBuilder->execute());
+
+  SG::ReadHandle<EgammaRecContainer> photonSuperRecs(m_photonSuperClusterRecContainerKey);
+
+  // check is only used for serial running; remove when MT scheduler used
+  if(!photonSuperRecs.isValid()) {
+    ATH_MSG_ERROR("Failed to retrieve "<< m_photonSuperClusterRecContainerKey.key());
+    return StatusCode::FAILURE;
   }
 
-  //Track Match the final electron SuperClusters
-  EgammaRecContainer *electronSuperRecs(0);
-  if( evtStore()->contains<EgammaRecContainer>( m_electronSuperClusterRecContainerName)) { 
-    CHECK(evtStore()->retrieve(electronSuperRecs,  m_electronSuperClusterRecContainerName));
-    ATH_MSG_DEBUG("Size of "  <<m_electronSuperClusterRecContainerName << " : " << electronSuperRecs->size());
-    
-    if (m_doTrackMatching){
-      smallChrono timer(m_timingProfile,this->name()+"_"+m_trackMatchBuilder->name()+"_FinalClusters");
-      for (auto egRec : *electronSuperRecs) {
-	if (m_trackMatchBuilder->executeRec(egRec).isFailure()){
-	  ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
-	  return StatusCode::FAILURE;
-	}
-      }      
-    }
-  }
-  //Photon superclusters Builder
-  {
-  smallChrono timer(m_timingProfile,this->name()+"_"+m_photonSuperClusterBuilder->name());  
-  CHECK(m_photonSuperClusterBuilder->execute());
-  }
-  
-  EgammaRecContainer *photonSuperRecs(0);
-  if( evtStore()->contains<EgammaRecContainer>( m_photonSuperClusterRecContainerName)) { 
-    //Else retrieve them 
-    CHECK(evtStore()->retrieve(photonSuperRecs,  m_photonSuperClusterRecContainerName));
-    ATH_MSG_DEBUG("Size of "  <<m_photonSuperClusterRecContainerName << " : " << photonSuperRecs->size());
-
-    //Redo conversion matching given the super cluster
-    if (m_doConversions) {
-      smallChrono timer(m_timingProfile,this->name()+"_"+m_conversionBuilder->name()+"_FinalClusters");
-      for (auto egRec : *photonSuperRecs) {
-	if (m_conversionBuilder->executeRec(egRec).isFailure()){
-	  ATH_MSG_ERROR("Problem executing conversioBuilder on photonSuperRecs");
-	  return StatusCode::FAILURE;
-	}
-      }
-    }
-  }
   //
   //
   //For now naive double loops bases on the seed (constituent at position 0)
@@ -408,8 +201,8 @@ StatusCode topoEgammaBuilder::execute(){
   //These should be the CaloCalTopo links for the clustes. the 0 should be the seed (always there) 
   static const SG::AuxElement::Accessor < std::vector< ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
   
-  ATH_MSG_DEBUG("Build  "<< electronSuperRecs->size() << " electron Super Clusters"); 
-  ATH_MSG_DEBUG("Build  "<< photonSuperRecs->size() << " photon Super Clusters"); 
+  ATH_MSG_DEBUG("Read in  "<< electronSuperRecs->size() << " electron Super Clusters"); 
+  ATH_MSG_DEBUG("Read in  "<< photonSuperRecs->size() << " photon Super Clusters"); 
   //
   //Look at the constituents , for ambiguity resolution, for now based on the seed only
   //We could add secondaries cluster in this logic.
@@ -441,7 +234,7 @@ StatusCode topoEgammaBuilder::execute(){
     if (author == xAOD::EgammaParameters::AuthorElectron || 
 	author == xAOD::EgammaParameters::AuthorAmbiguous){
       ATH_MSG_DEBUG("getElectron");
-      if ( !getElectron(electronRec, electronContainer, author,type) ){
+      if ( !getElectron(electronRec, electronContainer.ptr(), author,type) ){
 	return StatusCode::FAILURE;
       }
     }
@@ -471,7 +264,7 @@ StatusCode topoEgammaBuilder::execute(){
     if (author == xAOD::EgammaParameters::AuthorPhoton || 
 	author == xAOD::EgammaParameters::AuthorAmbiguous){
       ATH_MSG_DEBUG("getPhoton");
-      if ( !getPhoton(photonRec, photonContainer, author,type) ){
+      if ( !getPhoton(photonRec, photonContainer.ptr(), author,type) ){
 	return StatusCode::FAILURE;
       }
     }
@@ -480,21 +273,21 @@ StatusCode topoEgammaBuilder::execute(){
   //-----------------------------------------------------------------
   // Call tools
   for (auto& tool : m_egammaTools){
-    CHECK( CallTool(tool, electronContainer, photonContainer) );
+    CHECK( CallTool(tool, electronContainer.ptr(), photonContainer.ptr()) );
   }
   
   for (auto& tool : m_electronTools){
-    CHECK( CallTool(tool, electronContainer, 0) );
+    CHECK( CallTool(tool, electronContainer.ptr(), 0) );
   }
   
   for (auto& tool : m_photonTools){
-    CHECK( CallTool(tool, 0, photonContainer) );
+    CHECK( CallTool(tool, 0, photonContainer.ptr()) );
   }
   
   //---------------------------------------
   //Do the ambiguity Links
   //-----------------------------------------------------------------
-  CHECK(doAmbiguityLinks (electronContainer,photonContainer));
+  CHECK(doAmbiguityLinks (electronContainer.ptr(),photonContainer.ptr()));
   
   ATH_MSG_DEBUG("Build  "<< electronContainer->size() << " electrons "); 
   ATH_MSG_DEBUG("Build  "<< photonContainer->size() << " photons"); 

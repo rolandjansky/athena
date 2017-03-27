@@ -7,7 +7,6 @@
 
 // INCLUDE HEADER FILES:
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IChronoStatSvc.h"
 #include "egammaAlgs/egammaSuperClusterBuilder.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -16,6 +15,8 @@
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+
+class IEMTrackMatchBuilder;
 
 class electronSuperClusterBuilder : public egammaSuperClusterBuilder {
 
@@ -75,6 +76,11 @@ class electronSuperClusterBuilder : public egammaSuperClusterBuilder {
   /** @brief Key for output clusters */
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputElectronSuperClustersKey;
 
+  /** @brief Tool to perform track matching*/
+  ToolHandle<IEMTrackMatchBuilder>             m_trackMatchBuilder;
+
+  /** @brief private member flag to do the TrackMatching (and conversion building)*/
+  bool         m_doTrackMatching;
 
 };
 

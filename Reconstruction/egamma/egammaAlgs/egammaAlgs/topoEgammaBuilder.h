@@ -17,24 +17,20 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IChronoStatSvc.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "egammaRecEvent/egammaRecContainer.h"
 
 class IegammaBaseTool;
 class IEGammaAmbiguityTool;
-class IEMTrackMatchBuilder;
-class IEMConversionBuilder;
 
 class egammaRec;
-class StoreGateSvc;
-
-//Supercluster tools.
-class IelectronSuperClusterBuilder;
-class IphotonSuperClusterBuilder;
 
 class topoEgammaBuilder : public AthAlgorithm
 {
@@ -42,9 +38,6 @@ class topoEgammaBuilder : public AthAlgorithm
 
   /** @brief Default constructor*/
   topoEgammaBuilder(const std::string& name, ISvcLocator* pSvcLocator);
-
-  /** @brief Destructor*/
-  ~topoEgammaBuilder();
 
   /** @brief initialize method*/
   StatusCode initialize();
@@ -90,51 +83,26 @@ class topoEgammaBuilder : public AthAlgorithm
                       xAOD::ElectronContainer *electronContainer = 0, 
                       xAOD::PhotonContainer *photonContainer = 0);
 
-  /** @brief  Supercluster-specific stuff **/
-  StatusCode RetrieveElectronSuperClusterBuilder();
-  StatusCode RetrievePhotonSuperClusterBuilder();
   /** @brief retrieve EMAmbiguityTool **/
   StatusCode RetrieveAmbiguityTool();
-  /** @brief retrieve EMTrackMatchBuilder **/
-  StatusCode RetrieveEMTrackMatchBuilder();
-  /** @brief retrieve EMConversionBuilder **/
-  StatusCode RetrieveEMConversionBuilder();
   /** @brief Name of the electron output collection*/
-  std::string  m_electronOutputName;
+  SG::WriteHandleKey<xAOD::ElectronContainer> m_electronOutputKey;
   /** @brief Name of the photon output collection */
-  std::string  m_photonOutputName;
-  /** @brief Name of the topo cluster input collection */
-  std::string  m_inputTopoClusterContainerName;
-  /** @brief Name of egammaRec container */
-  std::string  m_egammaRecContainerName;
+  SG::WriteHandleKey<xAOD::PhotonContainer> m_photonOutputKey;
   /** @brief Name of input super cluster electron egammaRec container */
-  std::string  m_electronSuperClusterRecContainerName;
+  SG::ReadHandleKey<EgammaRecContainer> m_electronSuperClusterRecContainerKey;
   /** @brief Name of input super cluster photon egammaRec container */
-  std::string  m_photonSuperClusterRecContainerName;
+  SG::ReadHandleKey<EgammaRecContainer> m_photonSuperClusterRecContainerKey;
   //
   // The tools
   //
-  /** @brief ToolHandles for the Topo tools*/
-  ToolHandle<IelectronSuperClusterBuilder>  m_electronSuperClusterBuilder;
-  ToolHandle<IphotonSuperClusterBuilder>  m_photonSuperClusterBuilder;
   /** @brief Tool to resolve electron/photon ambiguity */
   ToolHandle<IEGammaAmbiguityTool>             m_ambiguityTool;
-  /** @brief Tool to perform track matching*/
-  ToolHandle<IEMTrackMatchBuilder>             m_trackMatchBuilder;
-  /** @brief Tool to retrieve the conversions*/
-  ToolHandle<IEMConversionBuilder>             m_conversionBuilder;
-  //
-  // All booleans
-  //
-  /** @brief private member flag to do the TrackMatching (and conversion building)*/
-  bool         m_doTrackMatching;
-  /** @brief private member flag to do the conversion building and matching */
-  bool         m_doConversions;
+
   //
   // Other properties.
   //
   // others:
-  bool            m_dump ;
   IChronoStatSvc* m_timingProfile;
 };
 
