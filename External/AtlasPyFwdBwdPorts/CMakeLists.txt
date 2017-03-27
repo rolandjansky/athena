@@ -163,10 +163,10 @@ _setup_python_package( keyring
    SINGLE_VERSION )
 
 # Install mercurial:
-_setup_python_package( mercurial
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/mercurial-2.1.2.tar.gz
-   15354d739504ec46f68a0fee2ecfbf25
-   SINGLE_VERSION )
+#_setup_python_package( mercurial
+#   ${CMAKE_CURRENT_SOURCE_DIR}/src/mercurial-2.1.2.tar.gz
+#   15354d739504ec46f68a0fee2ecfbf25
+#   SINGLE_VERSION )
 
 # Install nested_dict:
 #_setup_python_package( nested_dict
@@ -180,10 +180,10 @@ _setup_python_package( ordereddict
    SINGLE_VERSION )
 
 # Install paramiko:
-_setup_python_package( paramiko
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/paramiko-1.7.6.tar.gz
-   fa144ab46f1dc639b05ab948c30efac4
-   DEPENDS pycrypto )
+#_setup_python_package( paramiko
+#   ${CMAKE_CURRENT_SOURCE_DIR}/src/paramiko-1.7.6.tar.gz
+#   fa144ab46f1dc639b05ab948c30efac4
+#   DEPENDS pycrypto )
 
 # Install pip:
 _setup_python_package( pip
@@ -221,10 +221,10 @@ _setup_python_package( pyyaml
    SINGLE_VERSION )
 
 # Install ruffus:
-_setup_python_package( ruffus
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/ruffus-2.2.tar.gz
-   d96fc1b90ad58367f04538e7c9b07c95
-   DEPENDS simplejson )
+#_setup_python_package( ruffus
+#   ${CMAKE_CURRENT_SOURCE_DIR}/src/ruffus-2.2.tar.gz
+#   d96fc1b90ad58367f04538e7c9b07c95
+#   DEPENDS simplejson )
 
 # Install simplejson:
 _setup_python_package( simplejson
@@ -233,10 +233,10 @@ _setup_python_package( simplejson
    DEPENDS distribute )
 
 # Install virtualenv:
-_setup_python_package( virtualenv
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/virtualenv-1.6.4.tar.gz
-   1072b66d53c24e019a8f1304ac9d9fc5
-   DEPENDS pip )
+#_setup_python_package( virtualenv
+#   ${CMAKE_CURRENT_SOURCE_DIR}/src/virtualenv-1.6.4.tar.gz
+#   1072b66d53c24e019a8f1304ac9d9fc5
+#   DEPENDS pip )
 
 # Clean up:
 unset( _setup_python_package )
