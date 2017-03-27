@@ -671,8 +671,9 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
          ATH_MSG_ERROR("Failed to get Token");
          return(nullptr);
       }
-      token = new Token();
-      const_cast<Token*>(token)->fromString(tokenStr); tokenStr = nullptr;
+      Token* tempToken = new Token();
+      tempToken->fromString(tokenStr); tokenStr = nullptr;
+      token = tempToken; tempToken = nullptr;
    } else {
       token = m_poolSvc->registerForWrite(placement, obj, classDesc);
    }
