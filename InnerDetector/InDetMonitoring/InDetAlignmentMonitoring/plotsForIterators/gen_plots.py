@@ -25,5 +25,5 @@ for monfile,color,marker,i in zip( monfiles, colors, markers, range(0, n_iters) 
 
 os.system( "cat userConfig_meta.py | sed -e \"s@FILELIST@" + string + "@g\" > userConfig.py" )
 os.system( "python MakeMajorAlignMonPlots.py --ALL 2>/dev/null" )
-os.system( "mv ../plots {0}/plots_{1}_{2}".format(dirname, prename, suffix) )
+os.system( "mv ../plots {0}/{1}_{2}_plots".format(dirname, prename, suffix) )
 
