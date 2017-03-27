@@ -13,7 +13,7 @@
 
 #include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
 #include "MuonEfficiencyCorrections/IMuonTriggerScaleFactors.h"
-#include "PileupReweighting/IPileupReweightingTool.h"
+#include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 
 namespace CP {
 
