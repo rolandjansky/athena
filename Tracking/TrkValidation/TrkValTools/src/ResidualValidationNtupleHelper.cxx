@@ -12,12 +12,6 @@
 ///////////////////////////////////////////////////////////////////
 
 
-//Gaudi
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/ITHistSvc.h"
-
 #include "TBranch.h"
 #include "TTree.h"
 // Trk

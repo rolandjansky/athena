@@ -14,13 +14,9 @@
 
 //Gaudi
 #include "GaudiKernel/ListItem.h"
-//#include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "TString.h"
 #include "TTree.h"
-
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/PropertyMgr.h"
 
 // Trk
 #include "TrkValTools/TrackDiff.h"
