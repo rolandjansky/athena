@@ -268,9 +268,9 @@ private:
 
   bool selectPdg( int pdg ) const { return m_selectedPdgs.count(pdg); }
 
-  std::string         m_trackLocation;            //!< Location of the track output location
-  std::string         m_segmentCombiLocation;     //!< Location of the segment combination collections
-  const xAOD::EventInfo*    m_eventInfo;                //!< pointer to the event info
+  SG::ReadHandleKey<TrackCollection>         m_trackKey;            //!< Location of the track output location
+  SG::ReadHandleKey<MuonSegmentCombinationCollection>    m_segmentCombiKey;     //!< Location of the segment combination collections
+  xAOD::EventInfo*    m_eventInfo;                //!< pointer to the event info
 
   // member set by Joboptions 
   int  m_doSummary;
