@@ -59,7 +59,7 @@ private:
 
 template<class ClusterType>
    MatchDistance TrackClusterMatcher::bestMatchDRparametrized(ITrack* track, const std::vector<ClusterType*>& clusters) {
-   ClusterType* bestCluster(0);
+   ClusterType* bestCluster = nullptr;
    double bestDistance(m_matchCut);
    unsigned int nClusters(clusters.size());
    for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster){
@@ -76,7 +76,7 @@ template<class ClusterType>
      } 	
    }
    
-   return MatchDistance(bestCluster, bestDistance, bestCluster != 0);
+   return MatchDistance(bestCluster, bestDistance, bestCluster != nullptr);
  }
 
  template<class ClusterType>
@@ -100,7 +100,7 @@ std::vector<MatchDistance> TrackClusterMatcher::bestMatches(ITrack* track, const
     std::vector<unsigned int> masked;
     std::vector<int> maskedType;
     for (int imatch = 0; imatch < nLoops; ++imatch) {
-      ClusterType* bestCluster(0);
+      ClusterType* bestCluster = nullptr;
       double bestDistance(m_matchCut);
       int iMasked = -1;
       for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster) {
@@ -131,12 +131,12 @@ std::vector<MatchDistance> TrackClusterMatcher::bestMatches(ITrack* track, const
           bestCluster = thisCluster;
         }
       }
-      if (iMasked == -1) break;
+      if (iMasked == -1 || nullptr == bestCluster) break;
 
       masked.push_back(iMasked);
       maskedType.push_back(bestCluster->getEfRecCluster()->getClusterType());
 
-      result.push_back(MatchDistance(bestCluster, bestDistance, bestCluster != 0));
+      result.push_back(MatchDistance(bestCluster, bestDistance, bestCluster != nullptr));
     }
     assert(maskedType.size() == masked.size());
   }

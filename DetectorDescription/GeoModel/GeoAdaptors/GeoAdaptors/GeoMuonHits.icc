@@ -51,14 +51,14 @@
 inline void GeoMDTHit::init()
 {
     StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-    if(detStore->retrieve(_man,"Muon").isSuccess())
-      _mdtID = _man->mdtIdHelper();
+    if(detStore->retrieve(s_man,"Muon").isSuccess())
+      s_mdtID = s_man->mdtIdHelper();
 }
 
 
 inline GeoMDTHit::GeoMDTHit (const MDTSimHit & h) {
-    _hit = &h;
-    if(!_mdtID) init();
+    m_hit = &h;
+    if(!s_mdtID) init();
 }
 
 
@@ -66,7 +66,7 @@ inline Amg::Vector3D GeoMDTHit::getGlobalPosition() const {
 
 
 
-    HitID hitid = _hit->MDTid();
+    HitID hitid = m_hit->MDTid();
     MdtHitIdHelper* mdthhelper = MdtHitIdHelper::GetHelper();
 
     std::string stname = mdthhelper->GetStationName(hitid);
@@ -76,7 +76,7 @@ inline Amg::Vector3D GeoMDTHit::getGlobalPosition() const {
     int         tl     = mdthhelper->GetLayer(hitid);
     int         tube   = mdthhelper->GetTube(hitid);
 
-    Identifier offid = _mdtID->channelID(stname,
+    Identifier offid = s_mdtID->channelID(stname,
                                          steta,
                                          stphi,ml,tl,tube);
   
@@ -84,18 +84,18 @@ inline Amg::Vector3D GeoMDTHit::getGlobalPosition() const {
         std::cerr<<" Cannot build a valid Identifier; skip "<<std::endl;
   
   
-    const MuonGM::MdtReadoutElement* mdtdet = _man->getMdtReadoutElement(offid);
+    const MuonGM::MdtReadoutElement* mdtdet = s_man->getMdtReadoutElement(offid);
     if (mdtdet == NULL)
     {
         std::cerr<<"MDT readout element not found for Id = "
-                 <<_mdtID->show_to_string(offid)<<std::endl;
+                 <<s_mdtID->show_to_string(offid)<<std::endl;
         return Amg::Vector3D(0,0,0);
     }
 
     // -------- Testing Sim to Offline ID conversion ---------
   
 
-    Amg::Vector3D simHitPosLoc(_hit->localPosition().x(), _hit->localPosition().y(), _hit->localPosition().z());
+    Amg::Vector3D simHitPosLoc(m_hit->localPosition().x(), m_hit->localPosition().y(), m_hit->localPosition().z());
     Amg::Vector3D simHitPos = mdtdet->localToGlobalCoords(simHitPosLoc , offid );
     
     return simHitPos;
@@ -104,18 +104,18 @@ inline Amg::Vector3D GeoMDTHit::getGlobalPosition() const {
 inline void GeoRPCHit::init()
 {
     StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-    if(detStore->retrieve(_man,"Muon").isSuccess())
-      _rpcID = _man->rpcIdHelper();
+    if(detStore->retrieve(s_man,"Muon").isSuccess())
+      s_rpcID = s_man->rpcIdHelper();
 }
 
 inline GeoRPCHit::GeoRPCHit (const RPCSimHit & h) {
-    _hit = &h;
-    if(!_rpcID) init();
+    m_hit = &h;
+    if(!s_rpcID) init();
 }
 
 inline Amg::Vector3D GeoRPCHit::getGlobalPosition() const {
 
-    HitID hitid = _hit->RPCid();
+    HitID hitid = m_hit->RPCid();
     RpcHitIdHelper* rpchhelper = RpcHitIdHelper::GetHelper();
     std::string stname = rpchhelper->GetStationName(hitid);
     int         steta  = rpchhelper->GetZSector(hitid);
@@ -128,7 +128,7 @@ inline Amg::Vector3D GeoRPCHit::getGlobalPosition() const {
     int         strip  = 1;
     //    std::cerr<<" Building Offline Id with "<<stname<<" eta/phi "<<steta<<"/"<<stphi
     //             <<" dbRZP "<<dbr<<" "<<dbz<<" "<<dbp<<" "<<gg<<" "<<mfi<<" "<<strip<<std::endl;
-    Identifier offid = _rpcID->channelID(stname,
+    Identifier offid = s_rpcID->channelID(stname,
                                          steta,
                                          stphi,
                                          dbr, dbz, dbp, gg, mfi, strip);
@@ -136,12 +136,12 @@ inline Amg::Vector3D GeoRPCHit::getGlobalPosition() const {
         std::cerr<<" Cannot build a valid Identifier; skip "<<std::endl;
 
 
-    //    std::cerr<<" Offline Id "<<_rpcID->show_to_string(offid)<<std::endl;
-    const MuonGM::RpcReadoutElement* rpcdet = _man->getRpcReadoutElement(offid);
+    //    std::cerr<<" Offline Id "<<s_rpcID->show_to_string(offid)<<std::endl;
+    const MuonGM::RpcReadoutElement* rpcdet = s_man->getRpcReadoutElement(offid);
     if (rpcdet != NULL)
     {
       Amg::Vector3D xU;
-      Amg::Vector3D localHit(_hit->localPosition().x(),_hit->localPosition().y(),_hit->localPosition().z());
+      Amg::Vector3D localHit(m_hit->localPosition().x(),m_hit->localPosition().y(),m_hit->localPosition().z());
         xU = rpcdet->localToGlobalCoords(localHit,offid);
 
         return xU;
@@ -149,7 +149,7 @@ inline Amg::Vector3D GeoRPCHit::getGlobalPosition() const {
     else
     {
         std::cerr<<"RPC readout element not found for Id = "
-                 <<_rpcID->show_to_string(offid)<<std::endl;
+                 <<s_rpcID->show_to_string(offid)<<std::endl;
         return Amg::Vector3D(0,0,0);
     }
 
@@ -158,18 +158,18 @@ inline Amg::Vector3D GeoRPCHit::getGlobalPosition() const {
 inline void GeoTGCHit::init()
 {
     StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-    if(detStore->retrieve(_man,"Muon").isSuccess())
-      _tgcID = _man->tgcIdHelper();
+    if(detStore->retrieve(s_man,"Muon").isSuccess())
+      s_tgcID = s_man->tgcIdHelper();
 }
 
 inline GeoTGCHit::GeoTGCHit (const TGCSimHit & h) {
-    _hit = &h;
-    if(!_tgcID) init();
+    m_hit = &h;
+    if(!s_tgcID) init();
 }
 
 inline Amg::Vector3D GeoTGCHit::getGlobalPosition() const {
 
-    HitID hitid = _hit->TGCid();
+    HitID hitid = m_hit->TGCid();
     TgcHitIdHelper* tgchhelper = TgcHitIdHelper::GetHelper();
     std::string stname = tgchhelper->GetStationName(hitid);
     int         steta  = tgchhelper->GetStationEta(hitid);
@@ -179,7 +179,7 @@ inline Amg::Vector3D GeoTGCHit::getGlobalPosition() const {
     int         channel= 1;
     //    std::cerr<<" Building Offline Id with "<<stname<<" eta/phi "<<steta<<"/"<<stphi
     //             <<" gasGap "<<gg<<" isstrip "<<isstrip<<" channel "<<channel<<std::endl;
-    Identifier offid = _tgcID->channelID(stname,
+    Identifier offid = s_tgcID->channelID(stname,
                                          steta,
                                          stphi,
                                          gg, isstrip, channel);
@@ -187,12 +187,12 @@ inline Amg::Vector3D GeoTGCHit::getGlobalPosition() const {
         std::cerr<<" Cannot build a valid Identifier; skip "<<std::endl;
 
 
-    //    std::cerr<<" Offline Id "<<_tgcID->show_to_string(offid)<<std::endl;
-    const MuonGM::TgcReadoutElement* tgcdet = _man->getTgcReadoutElement(offid);
+    //    std::cerr<<" Offline Id "<<s_tgcID->show_to_string(offid)<<std::endl;
+    const MuonGM::TgcReadoutElement* tgcdet = s_man->getTgcReadoutElement(offid);
     if (tgcdet != NULL)
     {
         Amg::Vector3D xU;
-        Amg::Vector3D localHit(_hit->localPosition().x(),_hit->localPosition().y(),_hit->localPosition().z());
+        Amg::Vector3D localHit(m_hit->localPosition().x(),m_hit->localPosition().y(),m_hit->localPosition().z());
         xU = tgcdet->localToGlobalCoords(localHit,offid);
 
         return xU;
@@ -200,7 +200,7 @@ inline Amg::Vector3D GeoTGCHit::getGlobalPosition() const {
     else
     {
         std::cerr<<"TGC readout element not found for Id = "
-                 <<_tgcID->show_to_string(offid)<<std::endl;
+                 <<s_tgcID->show_to_string(offid)<<std::endl;
         return Amg::Vector3D(0,0,0);
     }
 }
@@ -208,17 +208,17 @@ inline Amg::Vector3D GeoTGCHit::getGlobalPosition() const {
 inline void GeoCSCHit::init()
 {
     StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-    if(detStore->retrieve(_man,"Muon").isSuccess())
-      _cscID = _man->cscIdHelper();
+    if(detStore->retrieve(s_man,"Muon").isSuccess())
+      s_cscID = s_man->cscIdHelper();
 }
 inline GeoCSCHit::GeoCSCHit (const CSCSimHit & h) {
-    _hit = &h;
-    if (!_cscID) init();
+    m_hit = &h;
+    if (!s_cscID) init();
 }
 
 inline Amg::Vector3D GeoCSCHit::getGlobalPosition() const {
 
-    HitID hitid = _hit->CSCid();
+    HitID hitid = m_hit->CSCid();
     CscHitIdHelper* cschhelper = CscHitIdHelper::GetHelper();
 
     std::string stname = cschhelper->GetStationName(hitid);
@@ -231,7 +231,7 @@ inline Amg::Vector3D GeoCSCHit::getGlobalPosition() const {
     //    std::cerr<<hitid << " name, eta, phi, ml, wl, mphi, ch "<<stname<<" "<<steta<<" "<<stphi<<" "
     //             <<ml<<" "<<wl<<" "<<measphi<<" "<<channel<<std::endl;
     
-    Identifier offid = _cscID->channelID(stname,
+    Identifier offid = s_cscID->channelID(stname,
                                          steta,
                                          stphi,ml,wl,measphi,channel);
   
@@ -239,16 +239,16 @@ inline Amg::Vector3D GeoCSCHit::getGlobalPosition() const {
         std::cerr<<" Cannot build a valid Identifier; skip "<<std::endl;
   
   
-    const MuonGM::CscReadoutElement* cscdet = _man->getCscReadoutElement(offid);
+    const MuonGM::CscReadoutElement* cscdet = s_man->getCscReadoutElement(offid);
     if (cscdet == NULL)
     {
         std::cerr<<"CSC readout element not found for Id = "
-                 <<_cscID->show_to_string(offid)<<std::endl;
+                 <<s_cscID->show_to_string(offid)<<std::endl;
         return Amg::Vector3D(0,0,0);
     }
 
     Amg::Vector3D xU;
-    Amg::Vector3D localHit(_hit->getHitStart().x(),_hit->getHitStart().y(),_hit->getHitStart().z());
+    Amg::Vector3D localHit(m_hit->getHitStart().x(),m_hit->getHitStart().y(),m_hit->getHitStart().z());
     xU = cscdet->localToGlobalCoords(localHit,offid);
 
     return xU;
@@ -258,35 +258,35 @@ inline Amg::Vector3D GeoCSCHit::getGlobalPosition() const {
 inline void GeoMMHit::init()
 {
     StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-    if(detStore->retrieve(_man,"Muon").isSuccess())
-      _mmID = _man->mmIdHelper();
+    if(detStore->retrieve(s_man,"Muon").isSuccess())
+      s_mmID = s_man->mmIdHelper();
 }
 
 inline GeoMMHit::GeoMMHit (const GenericMuonSimHit & h) {
-    _hit = &h;
-    if (!_mmID) init();
+    m_hit = &h;
+    if (!s_mmID) init();
 }
 
 inline Amg::Vector3D GeoMMHit::getGlobalPosition() const {
 
-    HitID hitid = _hit->GenericId();
-    MM_SimIdToOfflineId simToOffline(*_mmID);
+    HitID hitid = m_hit->GenericId();
+    MM_SimIdToOfflineId simToOffline(*s_mmID);
     Identifier offid = simToOffline.convert(hitid);
   
     if (offid == 0)
         std::cerr<<" Cannot build a valid Identifier; skip "<<std::endl;
   
   
-    const MuonGM::MMReadoutElement* mmdet = _man->getMMReadoutElement(offid);
+    const MuonGM::MMReadoutElement* mmdet = s_man->getMMReadoutElement(offid);
     if (mmdet == NULL)
     {
         std::cerr<<"MM readout element not found for Id = "
-                 <<_mmID->show_to_string(offid)<<std::endl;
+                 <<s_mmID->show_to_string(offid)<<std::endl;
         return Amg::Vector3D(0,0,0);
     }
 
     Amg::Vector3D xU;
-    Amg::Vector3D localHit(_hit->localPosition().x(),_hit->localPosition().y(),_hit->localPosition().z());
+    Amg::Vector3D localHit(m_hit->localPosition().x(),m_hit->localPosition().y(),m_hit->localPosition().z());
     xU = mmdet->localToGlobalCoords(localHit,offid);
 
     return xU;
@@ -294,19 +294,19 @@ inline Amg::Vector3D GeoMMHit::getGlobalPosition() const {
 }
 inline Amg::Vector3D GeoMMHit::getTrkGlobalPosition() const {
 
-    HitID hitid = _hit->GenericId();
-    MM_SimIdToOfflineId simToOffline(*_mmID);
+    HitID hitid = m_hit->GenericId();
+    MM_SimIdToOfflineId simToOffline(*s_mmID);
     Identifier offid = simToOffline.convert(hitid);
   
     if (offid == 0)
         std::cerr<<" Cannot build a valid Identifier; skip "<<std::endl;
   
   
-    const MuonGM::MMReadoutElement* mmdet = _man->getMMReadoutElement(offid);
+    const MuonGM::MMReadoutElement* mmdet = s_man->getMMReadoutElement(offid);
     if (mmdet == NULL)
     {
         std::cerr<<"MM readout element not found for Id = "
-                 <<_mmID->show_to_string(offid)<<std::endl;
+                 <<s_mmID->show_to_string(offid)<<std::endl;
         return Amg::Vector3D(0,0,0);
     }
     Amg::Vector3D trkLocP = getTrkLocalPosition();
@@ -318,25 +318,25 @@ inline Amg::Vector3D GeoMMHit::getTrkGlobalPosition() const {
 inline Amg::Vector3D GeoMMHit::getTrkLocalPosition() const {
 
 /*
-    HitID hitid = _hit->GenericId();
-    MM_SimIdToOfflineId simToOffline(*_mmID);
+    HitID hitid = m_hit->GenericId();
+    MM_SimIdToOfflineId simToOffline(*s_mmID);
     Identifier offid = simToOffline.convert(hitid);
   
     if (offid == 0)
         std::cerr<<" Cannot build a valid Identifier; skip "<<std::endl;
   
   
-    const MuonGM::MMReadoutElement* mmdet = _man->getMMReadoutElement(offid);
+    const MuonGM::MMReadoutElement* mmdet = s_man->getMMReadoutElement(offid);
     if (mmdet == NULL)
     {
         std::cerr<<"MM readout element not found for Id = "
-                 <<_mmID->show_to_string(offid)<<std::endl;
+                 <<s_mmID->show_to_string(offid)<<std::endl;
         return Amg::Vector3D(0,0,0);
     }
 
     Amg::Vector3D xU;
 */
-    Amg::Vector3D localHit(0.,_hit->localPosition().y(),_hit->localPosition().z());
+    Amg::Vector3D localHit(0.,m_hit->localPosition().y(),m_hit->localPosition().z());
     Amg::Vector3D trkLocHit=Amg::AngleAxis3D(90.*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*localHit;
 
     return trkLocHit;
@@ -345,34 +345,34 @@ inline Amg::Vector3D GeoMMHit::getTrkLocalPosition() const {
 inline void GeosTGCHit::init()
 {
     StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-    if(detStore->retrieve(_man,"Muon").isSuccess())
-      _stgcID = _man->stgcIdHelper();
+    if(detStore->retrieve(s_man,"Muon").isSuccess())
+      s_stgcID = s_man->stgcIdHelper();
 }
 inline GeosTGCHit::GeosTGCHit (const GenericMuonSimHit & h) {
-    _hit = &h;
-    if (!_stgcID) init();
+    m_hit = &h;
+    if (!s_stgcID) init();
 }
 
 inline Amg::Vector3D GeosTGCHit::getGlobalPosition() const {
 
-    HitID hitid = _hit->GenericId();
-    sTgcSimIdToOfflineId simToOffline(*_stgcID);
+    HitID hitid = m_hit->GenericId();
+    sTgcSimIdToOfflineId simToOffline(*s_stgcID);
     Identifier offid = simToOffline.convert(hitid);
   
     if (offid == 0)
         std::cerr<<" Cannot build a valid Identifier; skip "<<std::endl;
   
   
-    const MuonGM::sTgcReadoutElement* stgcdet = _man->getsTgcReadoutElement(offid);
+    const MuonGM::sTgcReadoutElement* stgcdet = s_man->getsTgcReadoutElement(offid);
     if (stgcdet == NULL)
     {
         std::cerr<<"sTGC readout element not found for Id = "
-                 <<_stgcID->show_to_string(offid)<<std::endl;
+                 <<s_stgcID->show_to_string(offid)<<std::endl;
         return Amg::Vector3D(0,0,0);
     }
 
     Amg::Vector3D xU;
-    Amg::Vector3D localHit(_hit->localPosition().x(),_hit->localPosition().y(),_hit->localPosition().z());
+    Amg::Vector3D localHit(m_hit->localPosition().x(),m_hit->localPosition().y(),m_hit->localPosition().z());
     xU = stgcdet->localToGlobalCoords(localHit,offid);
 
     return xU;

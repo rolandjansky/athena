@@ -21,6 +21,15 @@
 #include "larem_id_test_common.cxx"
 
 
+class LArEM_SuperCell_ID_Test
+  : public LArEM_SuperCell_ID, public ILArEM_ID_Test
+{
+public:
+  virtual int get_lar_field_value() const override { return lar_field_value(); }
+  virtual int get_lar_em_field_value() const override { return lar_em_field_value(); }
+};
+
+
 void test_basic (const LArEM_Base_ID& idhelper)
 {
   std::cout << "test_basic\n";
@@ -70,8 +79,8 @@ void test4 (const LArEM_SuperCell_ID& /*em_id*/)
 
 int main()
 {
-  std::unique_ptr<LArEM_SuperCell_ID> idhelper = make_helper<LArEM_SuperCell_ID>();
-  std::unique_ptr<LArEM_SuperCell_ID> idhelper_n = make_helper<LArEM_SuperCell_ID>(true);
+  std::unique_ptr<LArEM_SuperCell_ID> idhelper = make_helper<LArEM_SuperCell_ID_Test>();
+  std::unique_ptr<LArEM_SuperCell_ID> idhelper_n = make_helper<LArEM_SuperCell_ID_Test>(true);
   try {
     test_basic (*idhelper);
     test_connected (*idhelper, true);

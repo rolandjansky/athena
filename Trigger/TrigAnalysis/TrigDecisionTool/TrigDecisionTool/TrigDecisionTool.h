@@ -10,7 +10,7 @@
 /**********************************************************************************
  * @Project: TrigDecisionTool
  * @Package: TrigDecisionTool
- * @Class  : TrigDecisionTool
+ * @class  : TrigDecisionTool
  *
  * @brief main tool
  *

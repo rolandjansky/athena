@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigMuonEventTPCnv
- * @Class  : TileMuFeature_p1
+ * @class  : TileMuFeature_p1
  *
  * @brief persistent partner for TileMuFeature
  *

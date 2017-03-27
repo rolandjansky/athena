@@ -68,14 +68,14 @@ StatusCode TileRawChannelToNtuple::initialize()
 
   m_ntupleLoc="/NTUPLES" + m_ntupleLoc;
 
-  SmartDataPtr<NTuple::Directory> DirPtr(ntupleService(), m_ntupleLoc);
-  if(!DirPtr) DirPtr = ntupleService()->createDirectory(m_ntupleLoc);
+  SmartDataPtr<NTuple::Directory> DirPtr(ntupleSvc(), m_ntupleLoc);
+  if(!DirPtr) DirPtr = ntupleSvc()->createDirectory(m_ntupleLoc);
   if(!DirPtr) {
     ATH_MSG_ERROR( "Invalid Ntuple Directory: " );
     return StatusCode::FAILURE;
   }
-  m_ntuplePtr=ntupleService()->book(DirPtr.ptr(), m_ntupleID, 
-                                    CLID_ColumnWiseTuple, "TileRC-Ntuple");
+  m_ntuplePtr=ntupleSvc()->book(DirPtr.ptr(), m_ntupleID, 
+                                CLID_ColumnWiseTuple, "TileRC-Ntuple");
   if(!m_ntuplePtr) {
     ATH_MSG_ERROR( "Failed to book ntuple: TileRCNtuple" );
     return StatusCode::FAILURE;
@@ -152,7 +152,7 @@ StatusCode TileRawChannelToNtuple::execute()
   }      
  
   // step3: commit ntuple
-  CHECK( ntupleService()->writeRecord(m_ntuplePtr) );
+  CHECK( ntupleSvc()->writeRecord(m_ntuplePtr) );
 
   // Execution completed.
   ATH_MSG_DEBUG( "execute() completed successfully" );

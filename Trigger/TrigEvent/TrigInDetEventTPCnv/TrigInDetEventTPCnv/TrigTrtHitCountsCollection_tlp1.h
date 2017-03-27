@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigInDetEventTPCnv
- * @Class  : TrigTrtHitCountsCollection_tlp1
+ * @class  : TrigTrtHitCountsCollection_tlp1
  *
  * @brief "top-level" persistent partner for TrigTrtHitCountsCollection
  *

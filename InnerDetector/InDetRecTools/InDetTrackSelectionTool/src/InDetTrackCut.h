@@ -11,6 +11,7 @@
 #define INDETTRACKSELECTIONTOOL_INDETTRACKCUT_H
 
 #include "InDetTrackAccessor.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
 
 #include <map>
 #include <array>

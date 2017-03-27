@@ -1,11 +1,8 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
+  
 #include "InDetRegionSelector/SiRegionSelectorTable.h"
-
-// #include "GaudiKernel/MsgStream.h"
-// #include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -38,10 +35,8 @@ SiRegionSelectorTable::SiRegionSelectorTable(const std::string& type,
 					     const std::string& name,
 					     const IInterface* parent)
   :  AthAlgTool(type,name,parent),
-     //     m_detStore(NULL),
-     m_regionLUT(NULL),
+     m_regionLUT(nullptr),
      m_managerName(""),
-     m_deltaZ(168 * CLHEP::mm),
      m_roiFileName("RoITable.txt"),
      m_printHashId(true),
      m_printTable(false),
@@ -51,7 +46,6 @@ SiRegionSelectorTable::SiRegionSelectorTable(const std::string& type,
 {
   declareInterface<IRegionIDLUT_Creator>(this);
   declareProperty("ManagerName", m_managerName);
-  declareProperty("DeltaZ",      m_deltaZ);
 
   // The remaining properties are for debugging purposes.
   declareProperty("OutputFile",  m_roiFileName);
@@ -72,7 +66,6 @@ SiRegionSelectorTable::initialize(){
 
   msg(MSG::INFO)  << "Tool Properties" << endmsg;
   msg(MSG::INFO)  << " Detector Manager: " << m_managerName << endmsg;
-  msg(MSG::INFO)  << " DeltaZ:           " << m_deltaZ/CLHEP::mm << " mm <<< NB: this parameter is now OBSOLETE" << endmsg;
   if( msgLvl(MSG::DEBUG) ) {
     msg(MSG::DEBUG) << " Output File:      " << m_roiFileName <<endmsg;
     msg(MSG::DEBUG) << " Print hashId:     " << ((m_printHashId) ? "true" : "false") <<endmsg;
@@ -161,9 +154,6 @@ SiRegionSelectorTable::createTable()
       
       if ( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "Found element with HashId = " << hashId << endmsg;
    
-      ////   double etaMin,etaMax,phiMin,phiMax,rz;
-      ////   element->getEtaPhiRegion(m_deltaZ,etaMin,etaMax,phiMin,phiMax,rz);
-
       // new region selector detector element extent.
       double rMin, rMax, zMin, zMax, phiMin, phiMax;
 
@@ -221,7 +211,6 @@ SiRegionSelectorTable::createTable()
       if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << smod << endmsg;
 	
       if ( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "      " 
-						    << " deltaZ = " << m_deltaZ/CLHEP::mm << " mm, " 
 						    << " robId = " << robId
 						    << " barrelEC = " << barrelEC 
 						    << ", layerDisk = " << layerDisk 

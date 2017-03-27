@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigMuonEventTPCnv
- * @Class  : CombinedMuonFeatureContainer_tlp1
+ * @class  : CombinedMuonFeatureContainer_tlp1
  *
  * @brief "top-level" persistent partner for CombinedMuonFeatureContainer
  *

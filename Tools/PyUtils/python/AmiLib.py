@@ -117,7 +117,7 @@ def xmlstr_todict(s):
     return  _x.xml2dict(ET.fromstring(s))
 
 
-## @basic Do some basic checks on an AMI JSON result
+## @brief Do some basic checks on an AMI JSON result
 #  @return bool, errmsg tuple
 def badresult(result, checkForValidRows=True, expectCommandStatus=True):
     try:

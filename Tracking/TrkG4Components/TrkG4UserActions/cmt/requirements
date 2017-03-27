@@ -13,12 +13,13 @@ use TrkParameters               TrkParameters-*         Tracking/TrkEvent
 use Geant4                      Geant4-*                External
 use TrkDetDescrInterfaces       TrkDetDescrInterfaces-* Tracking/TrkDetDescr
 use TrkMaterialOnTrack          TrkMaterialOnTrack-*    Tracking/TrkEvent
+use StoreGate                   StoreGate-*             Control
+use G4AtlasInterfaces           G4AtlasInterfaces-*     Simulation/G4Atlas
 
 private
 use AtlasROOT                   AtlasROOT-*             External
 use AtlasCLHEP                  AtlasCLHEP-*            External
 use CxxUtils                    CxxUtils-*              Control
-use StoreGate                   StoreGate-*             Control
 use GeoPrimitives               GeoPrimitives-*         DetectorDescription
 use SimHelpers                  SimHelpers-*            Simulation/G4Sim
 use TrkSurfaces                 TrkSurfaces-*           Tracking/TrkDetDescr

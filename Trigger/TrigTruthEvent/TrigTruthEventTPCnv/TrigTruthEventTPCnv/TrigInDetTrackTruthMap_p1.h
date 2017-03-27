@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigTruthEventTPCnv
- * @Class  : TrigInDetTrackTruthMap_p1
+ * @class  : TrigInDetTrackTruthMap_p1
  *
  * @brief  p1 persistent version of TrigInDetTrackTruthMap
  *

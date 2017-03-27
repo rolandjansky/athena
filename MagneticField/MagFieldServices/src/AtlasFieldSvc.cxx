@@ -31,10 +31,6 @@
 #include "TFile.h"
 #include "TTree.h"
 
-namespace {
-    inline double atan2fast(double y, double x);
-}
-
 /** Constructor **/
 MagField::AtlasFieldSvc::AtlasFieldSvc(const std::string& name,ISvcLocator* svc) :
     AthService(name,svc),
@@ -53,10 +49,20 @@ MagField::AtlasFieldSvc::AtlasFieldSvc(const std::string& name,ISvcLocator* svc)
     m_useSoleCurrent(7730.),
     m_useToroCurrent(20400.),
     m_lockMapCurrents(false),
-    m_cache(),
-    m_cond(0),
-    m_condsize(0),
-    m_meshZR(0)
+    m_mapHandle(),
+    m_currentHandle(),
+    m_zone(),
+    m_meshZR(nullptr),
+    m_edge(),
+    m_edgeLUT(),
+    m_invq(),
+    m_zoneLUT(),
+    m_zmin(0.),
+    m_zmax(0.),
+    m_nz(0),
+    m_rmax(0.),
+    m_nr(0),
+    m_nphi(0)
     /* ,
        m_doManipulation(false),
        m_manipulator("undefined") */
@@ -126,18 +132,21 @@ StatusCode MagField::AtlasFieldSvc::initialize()
     } else {
         ATH_MSG_INFO( "Currents are set-up by jobOptions - delaying map initialization until BeginRun incident happens" );
 
-	ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
-	if (incidentSvc.retrieve().isFailure()) {
+        ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
+        if (incidentSvc.retrieve().isFailure()) {
             ATH_MSG_FATAL( "Unable to retrieve the IncidentSvc" );
             return StatusCode::FAILURE;
-	} else {
- 	    incidentSvc->addListener( this, IncidentType::BeginRun );
+        } else {
+            incidentSvc->addListener( this, IncidentType::BeginRun );
             ATH_MSG_INFO( "Added listener to BeginRun incident" );
-	}
+        }
     }
 
+    // retrieve thread-local storage
+    AtlasFieldSvcTLS &tls = getAtlasFieldSvcTLS();
+
     // clear the map for zero field
-    clearMap();
+    clearMap(tls);
     setSolenoidCurrent(0.0);
     setToroidCurrent(0.0);
 
@@ -163,7 +172,10 @@ void MagField::AtlasFieldSvc::handle(const Incident& runIncident)
 {
     ATH_MSG_INFO( "handling incidents ..." );
     if ( !m_useDCS && runIncident.type() == IncidentType::BeginRun) {
-        if ( importCurrents().isFailure() ) {
+        // get thread-local storage
+        AtlasFieldSvcTLS &tls = getAtlasFieldSvcTLS();
+
+        if ( importCurrents(tls).isFailure() ) {
             ATH_MSG_FATAL( "Failure in manual setting of currents" );
         } else {
             ATH_MSG_INFO( "BeginRun incident handled" );
@@ -172,7 +184,7 @@ void MagField::AtlasFieldSvc::handle(const Incident& runIncident)
     ATH_MSG_INFO( "incidents handled successfully" );
 }
 
-StatusCode MagField::AtlasFieldSvc::importCurrents()
+StatusCode MagField::AtlasFieldSvc::importCurrents(AtlasFieldSvcTLS &tls)
 {
     ATH_MSG_INFO( "importCurrents() ..." );
 
@@ -190,7 +202,7 @@ StatusCode MagField::AtlasFieldSvc::importCurrents()
     setSolenoidCurrent(solcur);
     setToroidCurrent(torcur);
     // read the map file
-    if ( initializeMap().isFailure() ) {
+    if ( initializeMap(tls).isFailure() ) {
         ATH_MSG_FATAL( "Failed to initialize field map" );
         return StatusCode::FAILURE;
     }
@@ -273,8 +285,11 @@ StatusCode MagField::AtlasFieldSvc::updateCurrent(IOVSVC_CALLBACK_ARGS)
     setSolenoidCurrent( solcur );
     setToroidCurrent( torcur );
     if ( solenoidOn() != solWasOn || toroidOn() != torWasOn ) {
+        // get thread-local storage
+        AtlasFieldSvcTLS &tls = getAtlasFieldSvcTLS();
+
         // map has changed. re-initialize the map
-        if ( initializeMap().isFailure() ) {
+        if ( initializeMap(tls).isFailure() ) {
             ATH_MSG_ERROR( "Failed to re-initialize field map" );
             return StatusCode::FAILURE;
         }
@@ -335,8 +350,11 @@ StatusCode MagField::AtlasFieldSvc::updateMapFilenames(IOVSVC_CALLBACK_ARGS)
       m_soleMapFilename = soleMapFilename;
       m_toroMapFilename = toroMapFilename;
 
+      // retrieve the thread-local storage
+      AtlasFieldSvcTLS &tls = getAtlasFieldSvcTLS();
+
       // trigger map reinitialization
-      if ( initializeMap().isFailure() ) {
+      if ( initializeMap(tls).isFailure() ) {
          ATH_MSG_ERROR( "failed to re-initialize field map" );
          return StatusCode::FAILURE;
       }
@@ -350,11 +368,11 @@ StatusCode MagField::AtlasFieldSvc::updateMapFilenames(IOVSVC_CALLBACK_ARGS)
 //
 //  read and initialize map
 //
-StatusCode MagField::AtlasFieldSvc::initializeMap()
+StatusCode MagField::AtlasFieldSvc::initializeMap(AtlasFieldSvcTLS &tls)
 {
     ATH_MSG_INFO( "Initializing the field map (solenoidCurrent=" << solenoidCurrent() << " toroidCurrent=" << toroidCurrent() << ")" );
     // empty the current map first
-    clearMap();
+    clearMap(tls);
 
     // determine the map to load
     std::string mapFile("");
@@ -433,39 +451,48 @@ StatusCode MagField::AtlasFieldSvc::finalize()
 }
 
 /* void MagField::AtlasFieldSvc::getFieldStandard(const double *xyz, double *bxyz, double *deriv) */
-void MagField::AtlasFieldSvc::getField(const double *xyz, double *bxyz, double *deriv)
+void MagField::AtlasFieldSvc::getField(const double *xyz, double *bxyz, double *deriv) const
 {
   const double &x(xyz[0]);
   const double &y(xyz[1]);
   const double &z(xyz[2]);
-  double r = sqrt(x * x + y * y);
-  double phi = atan2fast(y, x);
+  double r = std::sqrt(x * x + y * y);
+  double phi = std::atan2(y, x);
 
-  // test if the cache is valid
-  if (!m_cache.inside(z, r, phi)) {
+  // retrieve the thread-local storage
+  AtlasFieldSvcTLS &tls = getAtlasFieldSvcTLS();
+  BFieldCache &cache = tls.cache;
+
+  // test if the TLS was initialized and the cache is valid
+  if ( !tls.isInitialized || !cache.inside(z, r, phi) ) {
     // cache is invalid -> refresh cache
-    if (!fillFieldCache(z, r, phi)) {
+    if (!fillFieldCache(z, r, phi, tls)) {
       // caching failed -> outside the valid map volume
       // return default field (0.1 gauss)
-      static const double defaultB(0.1*CLHEP::gauss);
+      const double defaultB(0.1*CLHEP::gauss);
       bxyz[0] = bxyz[1] = bxyz[2] = defaultB;
       // return zero gradient if requested
-      if ( deriv ) for ( int i = 0; i < 9; i++ ) deriv[i] = 0.;
+      if ( deriv ) {
+          for ( int i = 0; i < 9; i++ ) {
+            deriv[i] = 0.;
+          }
+      }
       // check NaN in input
       if ( x!=x || y!=y || z!=z ) {
-        ATH_MSG_WARNING( "getFieldStandard was called for xyz = " << x << "," << y << "," << z );
+        ATH_MSG_WARNING( "getField() was called for xyz = " << x << "," << y << "," << z );
       }
       return;
     }
   }
 
   // do interpolation
-  m_cache.getB(xyz, r, phi, bxyz, deriv);
+  cache.getB(xyz, r, phi, bxyz, deriv);
 
   // add biot savart component
-  if (m_cond) {
-    for (int i = 0; i < m_condsize; i++) {
-      (*m_cond)[i].addBiotSavart(xyz, bxyz, deriv);
+  if (tls.cond) {
+    const size_t condSize = tls.cond->size();
+    for (size_t i = 0; i < condSize; i++) {
+      (*tls.cond)[i].addBiotSavart(xyz, bxyz, deriv);
     }
   }
 } 
@@ -500,26 +527,30 @@ void MagField::AtlasFieldSvc::getField(const double *xyz, double *bxyz, double *
 }
 */
 
-void MagField::AtlasFieldSvc::getFieldZR(const double *xyz, double *bxyz, double *deriv)
+void MagField::AtlasFieldSvc::getFieldZR(const double *xyz, double *bxyz, double *deriv) const
 {
   const double &x(xyz[0]);
   const double &y(xyz[1]);
   const double &z(xyz[2]);
   double r = sqrt(x * x + y * y);
 
-  // test if the cache is valid
-  if (!m_cacheZR.inside(z, r)) {
+  // get thread-local storage
+  AtlasFieldSvcTLS &tls = getAtlasFieldSvcTLS();
+  BFieldCacheZR &cacheZR = tls.cacheZR;
+
+  // test if the TLS was initialized and the cache is valid
+  if ( !tls.isInitialized || !cacheZR.inside(z, r) ) {
     // cache is invalid -> refresh cache
-    if (!fillFieldCacheZR(z, r)) {
+    if (!fillFieldCacheZR(z, r, tls)) {
       // caching failed -> outside the valid z-r map volume
-      // call the full verion of getField()
+      // call the full version of getField()
       getField(xyz, bxyz, deriv);
       return;
     }
   }
 
   // do interpolation
-  m_cacheZR.getB(xyz, r, bxyz, deriv);
+  cacheZR.getB(xyz, r, bxyz, deriv);
 }
 
 /** Query the interfaces. */
@@ -541,12 +572,12 @@ StatusCode MagField::AtlasFieldSvc::queryInterface(const InterfaceID& riid, void
 // Clear the map.
 // Subsequent call should return zero magnetic field.
 //
-void MagField::AtlasFieldSvc::clearMap()
+void MagField::AtlasFieldSvc::clearMap(AtlasFieldSvcTLS &tls)
 {
-    m_cache.invalidate();
-    m_cacheZR.invalidate();
-    m_cond = 0;
-    m_condsize = 0;
+    tls.cache.invalidate();
+    tls.cacheZR.invalidate();
+
+    tls.cond = nullptr;
     // Next lines clear m_zone, m_edge[3], m_edgeLUT[3], and m_zoneLUT and deallocate their memory.
     std::vector<BFieldZone>().swap(m_zone);
     for ( int i = 0; i < 3; i++ ) {
@@ -560,7 +591,7 @@ void MagField::AtlasFieldSvc::clearMap()
     m_rmax = -1.0;
     m_nz = m_nr = m_nphi = 0;
     delete m_meshZR;
-    m_meshZR = 0;
+    m_meshZR = nullptr;
 }
 
 //
@@ -651,6 +682,7 @@ StatusCode MagField::AtlasFieldSvc::readMap( std::istream& input )
     std::vector<int> jcoil(nzone), ncoil(nzone);
     std::vector<int> jfield(nzone), nfield(nzone);
     std::vector<int> jaux(nzone), naux(nzone);
+
     for ( int i = 0; i < nzone; i++ )
     {
         int id;
@@ -840,7 +872,7 @@ StatusCode MagField::AtlasFieldSvc::readMap( std::istream& input )
 //
 // wrire the map to a ROOT file
 //
-void MagField::AtlasFieldSvc::writeMap( TFile* rootfile )
+void MagField::AtlasFieldSvc::writeMap( TFile* rootfile ) const
 {
     if ( rootfile == 0 ) return; // no file
     if ( rootfile->cd() == false ) return; // could not make it current directory
@@ -858,6 +890,7 @@ void MagField::AtlasFieldSvc::writeMap( TFile* rootfile )
     double *meshz, *meshr, *meshphi;
     int nfield;
     short *fieldz, *fieldr, *fieldphi;
+
     // prepare arrays - need to know the maximum sizes
     unsigned maxcond(0), maxmeshz(0), maxmeshr(0), maxmeshphi(0), maxfield(0);
     for ( unsigned i = 0; i < m_zone.size(); i++ ) {
@@ -1074,6 +1107,7 @@ StatusCode MagField::AtlasFieldSvc::readMap( TFile* rootfile )
     tree->SetBranchAddress( "fieldz", fieldz );
     tree->SetBranchAddress( "fieldr", fieldr );
     tree->SetBranchAddress( "fieldphi", fieldphi );
+
     // reserve the space for m_zone so that it won't move as the vector grows
     m_zone.reserve( tree->GetEntries() );
     // read all tree and store
@@ -1133,7 +1167,7 @@ StatusCode MagField::AtlasFieldSvc::readMap( TFile* rootfile )
 //
 // utility function used by readMap()
 //
-int MagField::AtlasFieldSvc::read_packed_data( std::istream& input, std::vector<int>& data )
+int MagField::AtlasFieldSvc::read_packed_data( std::istream& input, std::vector<int>& data ) const
 {
     const std::string myname("BFieldMap::read_packed_data()");
 
@@ -1210,7 +1244,7 @@ int MagField::AtlasFieldSvc::read_packed_data( std::istream& input, std::vector<
 //
 // utility function used by read_packed_data()
 //
-int MagField::AtlasFieldSvc::read_packed_int( std::istream &input, int &n )
+int MagField::AtlasFieldSvc::read_packed_int( std::istream &input, int &n ) const
 {
     const std::string myname("BFieldMap::read_packed_int()");
     n = 0;
@@ -1418,62 +1452,5 @@ int MagField::AtlasFieldSvc::memSize() const
         size += m_meshZR->memSize();
     }
     return size;
-}
-
-//
-// Fast (less accurate) atan2()
-//
-namespace {
-
-double atan2fast(double y, double x)
-{
-    const double halfpi(M_PI / 2.);
-    const double sixthpi(M_PI / 6.);
-    const double tansixthpi(tan(M_PI / 6.));
-    const double tantwelfthpi(tan(M_PI / 12.));
-
-    bool complement(false);
-    bool sign(false);
-    bool region(false);
-
-    // test zeros
-    if (y == 0.0) return 0.0;
-    if (x == 0.0) return halfpi;
-
-    // normalize range to -pi/12 to pi/12
-    double z = y / x;
-    if (z < 0) {
-        z = -z;
-        sign = true;
-    }
-    if (z > 1.0) {
-        z = 1.0 / z;
-        complement = true;
-    }
-    if (z > tantwelfthpi) {
-        z = (z - tansixthpi) / (1 + tansixthpi * z);
-        region = true;
-    }
-
-    // compute approximate atan
-    const double c1 = 1.6867629106;
-    const double c2 = 0.4378497304;
-    const double c3 = 1.6867633134;
-
-    double zz = z * z;
-    double v = (z * (c1 + zz * c2) / (c3 + zz));
-
-    // go back to the original range
-    if (region) v += sixthpi;
-    if (complement) v = halfpi - v;
-    if (sign) v = -v;
-    if (x < 0.0) {
-        if (v < 0.0) v += M_PI;
-        else v -= M_PI;
-    }
-
-    return v;
-}
-
 }
 

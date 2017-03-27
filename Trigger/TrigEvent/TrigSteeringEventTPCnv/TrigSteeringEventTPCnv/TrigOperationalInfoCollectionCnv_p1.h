@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigSteeringEventTPCnv
- * @Class  : TrigOperationalInfoCollectionCnv_p1
+ * @class  : TrigOperationalInfoCollectionCnv_p1
  *
  * @brief transient persistent converter for TrigOperationalInfoCollectionCnv
  *

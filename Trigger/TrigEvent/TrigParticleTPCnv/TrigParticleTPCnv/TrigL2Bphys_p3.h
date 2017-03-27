@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigParticleTPCnv
- * @Class  : TrigL2Bphys_p3
+ * @class  : TrigL2Bphys_p3
  *
  * @brief persistent partner for TrigL2Bphys
  *

@@ -31,41 +31,41 @@
 #include "JetCalibTools/CalibrationMethods/NPVBeamspotCorrection.h"
 
 NPVBeamspotCorrection::NPVBeamspotCorrection()
-  : g_nvtx_nreco_bs66mm(0), g_nvtx_nreco_bs47mm(0), invGraph(0), NPVmin(0), NPVmax(0)
+  : m_g_nvtx_nreco_bs66mm(0), m_g_nvtx_nreco_bs47mm(0), m_invGraph(0), m_NPVmin(0), m_NPVmax(0)
 {
   initNPVBeamspotCorrection();
 }
 
 NPVBeamspotCorrection::~NPVBeamspotCorrection()
 {
-    if (g_nvtx_nreco_bs66mm) delete g_nvtx_nreco_bs66mm;
-    if (g_nvtx_nreco_bs47mm) delete g_nvtx_nreco_bs47mm; 
-    if (invGraph) delete invGraph; 
+    if (m_g_nvtx_nreco_bs66mm) delete m_g_nvtx_nreco_bs66mm;
+    if (m_g_nvtx_nreco_bs47mm) delete m_g_nvtx_nreco_bs47mm; 
+    if (m_invGraph) delete m_invGraph; 
 }
 
 void NPVBeamspotCorrection::initNPVBeamspotCorrection() {
 
   printf("  \n\nInitializing the NPV Beamspot correction tool\n");
 
-  g_nvtx_nreco_bs47mm = NVtx_NReconstructible_bs47mm();
-  g_nvtx_nreco_bs66mm = NVtx_NReconstructible_bs66mm();
+  m_g_nvtx_nreco_bs47mm = NVtx_NReconstructible_bs47mm();
+  m_g_nvtx_nreco_bs66mm = NVtx_NReconstructible_bs66mm();
 
-  if (invGraph==0) {
-    invGraph = new TGraph();
-    for (int i=0;i<g_nvtx_nreco_bs66mm->GetN();++i) 
-      invGraph->SetPoint(i,g_nvtx_nreco_bs66mm->GetY()[i],g_nvtx_nreco_bs66mm->GetX()[i]);
+  if (m_invGraph==0) {
+    m_invGraph = new TGraph();
+    for (int i=0;i<m_g_nvtx_nreco_bs66mm->GetN();++i) 
+      m_invGraph->SetPoint(i,m_g_nvtx_nreco_bs66mm->GetY()[i],m_g_nvtx_nreco_bs66mm->GetX()[i]);
   }
-  NPVmin = g_nvtx_nreco_bs66mm->GetY()[0];
-  NPVmax = g_nvtx_nreco_bs66mm->GetY()[g_nvtx_nreco_bs66mm->GetN()-1];
+  m_NPVmin = m_g_nvtx_nreco_bs66mm->GetY()[0];
+  m_NPVmax = m_g_nvtx_nreco_bs66mm->GetY()[m_g_nvtx_nreco_bs66mm->GetN()-1];
 }
 
 double NPVBeamspotCorrection::GetNVertexBsCorrection(double nRecoVtx) 
 {
-  if (nRecoVtx<NPVmin) error(Form("Nonsense input to GetNVertexBsCorrection: NPV=%.2f",nRecoVtx));
+  if (nRecoVtx<m_NPVmin) error(Form("Nonsense input to GetNVertexBsCorrection: NPV=%.2f",nRecoVtx));
   // if outside range, linear extrapolation from last valid value
-  if (nRecoVtx>=NPVmax) return g_nvtx_nreco_bs47mm->Eval(invGraph->Eval(NPVmax))/NPVmax*nRecoVtx;
+  if (nRecoVtx>=m_NPVmax) return m_g_nvtx_nreco_bs47mm->Eval(m_invGraph->Eval(m_NPVmax))/m_NPVmax*nRecoVtx;
 
-  return g_nvtx_nreco_bs47mm->Eval(invGraph->Eval(nRecoVtx));
+  return m_g_nvtx_nreco_bs47mm->Eval(m_invGraph->Eval(nRecoVtx));
 }
 
 /*
@@ -73,27 +73,27 @@ double NPVBeamspotCorrection::GetNVertexBsCorrection(double nRecoVtx) {
 
   //get corresponding NReconstructible (points are already sorted in X, monotonic in Y)
   double nRecon=-1;
-  if (nRecoVtx < g_nvtx_nreco_bs66mm->GetY()[0]) {
+  if (nRecoVtx < m_g_nvtx_nreco_bs66mm->GetY()[0]) {
     std::cout << "WARNING - NPVBeamspotCorrection: Requested nVertex outside the expected range: " << nRecoVtx << std::endl;
     return nRecoVtx; //do not correct
   }
-  if (nRecoVtx > g_nvtx_nreco_bs66mm->GetY()[g_nvtx_nreco_bs66mm->GetN()-1]) {
+  if (nRecoVtx > m_g_nvtx_nreco_bs66mm->GetY()[m_g_nvtx_nreco_bs66mm->GetN()-1]) {
     std::cout << "WARNING - NPVBeamspotCorrection: Requested nVertex outside the expected range: " << nRecoVtx << std::endl;
     return nRecoVtx; //do not correct 
   }
-  for (int i=1; i < g_nvtx_nreco_bs66mm->GetN(); i++) {
-    if (nRecoVtx < g_nvtx_nreco_bs66mm->GetY()[i]) {
+  for (int i=1; i < m_g_nvtx_nreco_bs66mm->GetN(); i++) {
+    if (nRecoVtx < m_g_nvtx_nreco_bs66mm->GetY()[i]) {
       //linear interpolation
-      nRecon = g_nvtx_nreco_bs66mm->GetX()[i-1]+(nRecoVtx - (g_nvtx_nreco_bs66mm->GetY()[i-1])) *
-        (g_nvtx_nreco_bs66mm->GetX()[i] - g_nvtx_nreco_bs66mm->GetX()[i-1]) / 
-        (g_nvtx_nreco_bs66mm->GetY()[i] - g_nvtx_nreco_bs66mm->GetY()[i-1]);
+      nRecon = m_g_nvtx_nreco_bs66mm->GetX()[i-1]+(nRecoVtx - (m_g_nvtx_nreco_bs66mm->GetY()[i-1])) *
+        (m_g_nvtx_nreco_bs66mm->GetX()[i] - m_g_nvtx_nreco_bs66mm->GetX()[i-1]) / 
+        (m_g_nvtx_nreco_bs66mm->GetY()[i] - m_g_nvtx_nreco_bs66mm->GetY()[i-1]);
 
       break;
     }
   }
 
   //now return corresponding reconstructed vertices for bs=47mm
-  return g_nvtx_nreco_bs47mm->Eval(nRecon);
+  return m_g_nvtx_nreco_bs47mm->Eval(nRecon);
 }
 */
 

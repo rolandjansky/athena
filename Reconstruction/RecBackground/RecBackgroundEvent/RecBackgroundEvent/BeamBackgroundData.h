@@ -16,7 +16,7 @@
 #include <vector>
 
 /**
- * @Short Class holding the results of the Beam Background Identification Method
+ * @brief Class holding the results of the Beam Background Identification Method
  *
  *        The results are obtained by BeamBackgroundFiller.
  *

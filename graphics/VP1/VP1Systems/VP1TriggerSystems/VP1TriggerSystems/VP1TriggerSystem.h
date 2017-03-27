@@ -7,7 +7,7 @@
 
 /***********************************************************************************
  * @Package : VP1TriggerSystems
- * @Class   : VP1TriggerSystem
+ * @class   : VP1TriggerSystem
  *
  * @brief   : Trigger Data System (Header) - access and store trigger data
  *

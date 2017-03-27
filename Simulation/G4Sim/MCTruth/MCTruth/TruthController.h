@@ -10,18 +10,18 @@ class TrackVisualizationHelper;
 class TruthController {
 private:
 	// this is a singleton
-	static TruthController *thePointer;
+	static TruthController *s_thePointer;
 	TruthController();
 	TruthController(const TruthController&) {}
         TruthController& operator= (const TruthController&); 
 	~TruthController();
-	TrackVisualizationHelper *theVisHelper;
+	TrackVisualizationHelper *m_theVisHelper;
 public:
 	static TruthController *GetTruthController();
 	void SetVisualizationHelper(TrackVisualizationHelper *);
 	TrackVisualizationHelper* GetVisualizationHelper() const 
 	{
-		return theVisHelper;
+		return m_theVisHelper;
 	}
 };
 

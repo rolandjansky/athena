@@ -109,7 +109,7 @@ public:
   void add_base (bool is_virtual)
   {
     // Make sure the bib for the base class exists.
-    (void)BaseInfo<B>::baseinfo();
+    BaseInfo<B>::maybeInit();
 
     // Add the information for this base.
     this->add_info (typeid(B),
@@ -465,6 +465,15 @@ template <class T>
 const BaseInfoBase& BaseInfo<T>::baseinfo()
 {
   return instance();
+}
+
+
+template <class T>
+void BaseInfo<T>::maybeInit()
+{
+  BaseInfoImpl<T>* inst = s_instance.instance;
+  if (inst)
+    inst->maybeInit();
 }
 
 

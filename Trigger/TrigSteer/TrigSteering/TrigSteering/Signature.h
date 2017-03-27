@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : Signature
+ * @class  : Signature
  *
  * @brief  one signature, for instance
  *         2 muons AND 4 electrons AND 1 jet ...

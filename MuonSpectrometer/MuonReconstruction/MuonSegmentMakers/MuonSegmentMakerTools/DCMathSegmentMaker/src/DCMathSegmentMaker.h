@@ -26,6 +26,8 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
+#include "MuonPrepRawData/RpcPrepDataContainer.h"
+
 #include <vector>
 #include <set>
 #include <string>
@@ -429,6 +431,11 @@ class MdtDriftCircleOnTrack;
     mutable Amg::Transform3D m_amdbToGlobal; //<! station to global transform
     mutable std::vector<const Trk::MeasurementBase*> m_measurementsToBeDeleted;
     mutable unsigned int m_nmultipleHitWarnings;
+
+    SG::ReadHandleKey <Muon::RpcPrepDataContainer> m_rpcKey;
+    SG::ReadHandleKey <Muon::TgcPrepDataContainer> m_tgcKey;
+    SG::ReadHandleKey <Muon::MdtPrepDataContainer> m_mdtKey;
+
   };
   
 }

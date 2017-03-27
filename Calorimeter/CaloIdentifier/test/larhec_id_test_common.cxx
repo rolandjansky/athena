@@ -32,12 +32,11 @@ void basic_print_id (const LArHEC_Base_ID& idhelper, const Identifier& id)
 }
 
 
-class LArHEC_ID_Test
-  : public LArHEC_Base_ID
+class ILArHEC_ID_Test
 {
 public:
-  using LArHEC_Base_ID::lar_field_value;
-  using LArHEC_Base_ID::lar_hec_field_value;
+  virtual int get_lar_field_value() const = 0;
+  virtual int get_lar_hec_field_value() const = 0;
 };
 
 
@@ -122,9 +121,9 @@ void test_connected (const LArHEC_Base_ID& idhelper, bool supercell)
     counts.count (reg, samp);
 
     ExpandedIdentifier exp_id;
-    LArHEC_ID_Test* idhelper_test = (LArHEC_ID_Test*)&idhelper;
-    exp_id << idhelper_test->lar_field_value()
-      	   << idhelper_test->lar_hec_field_value()
+    const ILArHEC_ID_Test& idhelper_test = dynamic_cast<const ILArHEC_ID_Test&>(idhelper);
+    exp_id << idhelper_test.get_lar_field_value()
+      	   << idhelper_test.get_lar_hec_field_value()
 	   << idhelper.pos_neg(id)
 	   << idhelper.sampling(id)
 	   << idhelper.region(id)
@@ -157,9 +156,9 @@ void test_connected (const LArHEC_Base_ID& idhelper, bool supercell)
     assert (id == id2);
 
     ExpandedIdentifier exp_id;
-    LArHEC_ID_Test* idhelper_test = (LArHEC_ID_Test*)&idhelper;
-    exp_id << idhelper_test->lar_field_value()
-      	   << idhelper_test->lar_hec_field_value()
+    const ILArHEC_ID_Test& idhelper_test = dynamic_cast<const ILArHEC_ID_Test&>(idhelper);
+    exp_id << idhelper_test.get_lar_field_value()
+      	   << idhelper_test.get_lar_hec_field_value()
 	   << idhelper.pos_neg(id)
 	   << idhelper.sampling(id)
 	   << idhelper.region(id);

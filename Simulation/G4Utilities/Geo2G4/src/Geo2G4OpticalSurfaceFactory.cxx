@@ -3,7 +3,7 @@
 */
 
 #include "Geo2G4OpticalSurfaceFactory.h"
-#include "Geo2G4MatPropTableFactory.h"
+#include "GeoMaterial2G4/Geo2G4MatPropTableFactory.h"
 
 #include "GeoModelUtilities/GeoOpticalSurface.h"
 

@@ -203,7 +203,7 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
 
 }
 
-float JMSCorrection::getMassCorr(double pT_uncorr, double m_uncorr, int etabin) const {
+float JMSCorrection::getMassCorr(double pT_uncorr, double mass_uncorr, int etabin) const {
 
   // Asymptotic values
   double pTMax = m_respFactorsMass[etabin]->GetXaxis()->GetBinLowEdge(m_respFactorsMass[etabin]->GetNbinsX()+1);
@@ -212,14 +212,14 @@ float JMSCorrection::getMassCorr(double pT_uncorr, double m_uncorr, int etabin) 
   if ( pT_uncorr > pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
   if ( pT_uncorr < m_pTMinCorr ) return 1; // no correction
   if ( pT_uncorr < pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
-  if ( m_uncorr > massMax ) m_uncorr = massMax-1e-6; //so it fits the up-most m-bin
+  if ( mass_uncorr > massMax ) mass_uncorr = massMax-1e-6; //so it fits the up-most m-bin
 
-  float mass_corr = m_respFactorsMass[etabin]->Interpolate( pT_uncorr, m_uncorr );
+  float mass_corr = m_respFactorsMass[etabin]->Interpolate( pT_uncorr, mass_uncorr );
 
   return mass_corr;
 }
 
-float JMSCorrection::getTrackAssistedMassCorr(double pT_uncorr, double m_uncorr, int etabin) const {
+float JMSCorrection::getTrackAssistedMassCorr(double pT_uncorr, double uncorr, int etabin) const {
 
   // Asymptotic values
   double pTMax = m_respFactorsTrackAssistedMass[etabin]->GetXaxis()->GetBinLowEdge(m_respFactorsTrackAssistedMass[etabin]->GetNbinsX()+1);
@@ -228,14 +228,14 @@ float JMSCorrection::getTrackAssistedMassCorr(double pT_uncorr, double m_uncorr,
   if ( pT_uncorr > pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
   if ( pT_uncorr < m_pTMinCorr ) return 1; // no correction
   if ( pT_uncorr < pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
-  if ( m_uncorr > massMax ) m_uncorr = massMax-1e-6; //so it fits the up-most m-bin
+  if ( uncorr > massMax ) uncorr = massMax-1e-6; //so it fits the up-most m-bin
 
-  float mass_corr = m_respFactorsTrackAssistedMass[etabin]->Interpolate( pT_uncorr, m_uncorr );
+  float mass_corr = m_respFactorsTrackAssistedMass[etabin]->Interpolate( pT_uncorr, uncorr );
 
   return mass_corr;
 }
 
-float JMSCorrection::getRelCalo(double pT_uncorr, double m_over_pt_uncorr, int etabin) const {
+float JMSCorrection::getRelCalo(double pT_uncorr, double mass_over_pt_uncorr, int etabin) const {
 
   // Asymptotic values
   double pTMax = m_caloResolutionMassCombination[etabin]->GetXaxis()->GetBinLowEdge(m_caloResolutionMassCombination[etabin]->GetNbinsX()+1);
@@ -244,15 +244,15 @@ float JMSCorrection::getRelCalo(double pT_uncorr, double m_over_pt_uncorr, int e
   double mass_over_pTMin = m_caloResolutionMassCombination[etabin]->GetYaxis()->GetBinLowEdge(1);
   if ( pT_uncorr > pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
   if ( pT_uncorr < pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
-  if ( m_over_pt_uncorr > mass_over_pTMax ) m_over_pt_uncorr = mass_over_pTMax-1e-6; //so it fits the up-most m_over_pt-bin
-  if ( m_over_pt_uncorr < mass_over_pTMin ) m_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
+  if ( mass_over_pt_uncorr > mass_over_pTMax ) mass_over_pt_uncorr = mass_over_pTMax-1e-6; //so it fits the up-most m_over_pt-bin
+  if ( mass_over_pt_uncorr < mass_over_pTMin ) mass_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
 
-  float rel = m_caloResolutionMassCombination[etabin]->Interpolate( pT_uncorr, m_over_pt_uncorr );
+  float rel = m_caloResolutionMassCombination[etabin]->Interpolate( pT_uncorr, mass_over_pt_uncorr );
 
   return rel;
 }
 
-float JMSCorrection::getRelTA(double pT_uncorr, double m_over_pt_uncorr, int etabin) const {
+float JMSCorrection::getRelTA(double pT_uncorr, double mass_over_pt_uncorr, int etabin) const {
 
   // Asymptotic values
   double pTMax = m_taResolutionMassCombination[etabin]->GetXaxis()->GetBinLowEdge(m_taResolutionMassCombination[etabin]->GetNbinsX()+1);
@@ -261,15 +261,15 @@ float JMSCorrection::getRelTA(double pT_uncorr, double m_over_pt_uncorr, int eta
   double mass_over_pTMin = m_taResolutionMassCombination[etabin]->GetYaxis()->GetBinLowEdge(1);
   if ( pT_uncorr > pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
   if ( pT_uncorr < pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
-  if ( m_over_pt_uncorr > mass_over_pTMax ) m_over_pt_uncorr = mass_over_pTMax-1e-6; //so it fits the up-most m_over_pt-bin
-  if ( m_over_pt_uncorr < mass_over_pTMin ) m_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
+  if ( mass_over_pt_uncorr > mass_over_pTMax ) mass_over_pt_uncorr = mass_over_pTMax-1e-6; //so it fits the up-most m_over_pt-bin
+  if ( mass_over_pt_uncorr < mass_over_pTMin ) mass_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
 
-  float rel = m_taResolutionMassCombination[etabin]->Interpolate( pT_uncorr, m_over_pt_uncorr );
+  float rel = m_taResolutionMassCombination[etabin]->Interpolate( pT_uncorr, mass_over_pt_uncorr );
 
   return rel;
 }
 
-float JMSCorrection::getRho(double pT_uncorr, double m_over_pt_uncorr, int etabin) const {
+float JMSCorrection::getRho(double pT_uncorr, double mass_over_pt_uncorr, int etabin) const {
 
   // Asymptotic values
   double pTMax = m_correlationMapMassCombination[etabin]->GetXaxis()->GetBinLowEdge(m_correlationMapMassCombination[etabin]->GetNbinsX()+1);
@@ -278,10 +278,10 @@ float JMSCorrection::getRho(double pT_uncorr, double m_over_pt_uncorr, int etabi
   double mass_over_pTMin = m_correlationMapMassCombination[etabin]->GetYaxis()->GetBinLowEdge(1);
   if ( pT_uncorr > pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
   if ( pT_uncorr < pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
-  if ( m_over_pt_uncorr > mass_over_pTMax ) m_over_pt_uncorr = mass_over_pTMax-1e-6; //so it fits the up-most m_over_pt-bin
-  if ( m_over_pt_uncorr < mass_over_pTMin ) m_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
+  if ( mass_over_pt_uncorr > mass_over_pTMax ) mass_over_pt_uncorr = mass_over_pTMax-1e-6; //so it fits the up-most m_over_pt-bin
+  if ( mass_over_pt_uncorr < mass_over_pTMin ) mass_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
 
-  float rho = m_correlationMapMassCombination[etabin]->Interpolate( pT_uncorr, m_over_pt_uncorr );
+  float rho = m_correlationMapMassCombination[etabin]->Interpolate( pT_uncorr, mass_over_pt_uncorr );
 
   return rho;
 }
@@ -302,9 +302,9 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
   xAOD::JetFourMom_t calibP4 = jet.jetP4();
 
   // For combination
-  float m_calo;   // saving calibrated calo mass
+  float mass_calo;   // saving calibrated calo mass
   double pT_calo; // saving pT corrected by calo mass calib
-  float m_ta;     // saving calibrated trk-assisted mass
+  float mass_ta;     // saving calibrated trk-assisted mass
 
   float mass_corr = jetStartP4.mass();
   double pT_corr = jetStartP4.pt();
@@ -329,7 +329,7 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
     if(!m_pTfixed) pT_corr = sqrt(jetStartP4.e()*jetStartP4.e()-mass_corr*mass_corr)/cosh( jetStartP4.eta() );
   }
 
-  m_calo = mass_corr;
+  mass_calo = mass_corr;
   pT_calo = pT_corr;
   
   if(!m_combination){
@@ -410,7 +410,7 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
     }
 
     // For combination
-    m_ta = mass_corr;
+    mass_ta = mass_corr;
 
     if(!m_combination){
       //Transfer calibrated track assisted mass property to the Jet object
@@ -429,12 +429,12 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
       calibP4_ta.SetPxPyPzE( TLVjet_ta.Px(), TLVjet_ta.Py(), TLVjet_ta.Pz(), TLVjet_ta.E() );
       jet.setAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA",calibP4_ta);
 
-      float  m_comb  = m_calo;  // combined mass
+      float  mass_comb  = mass_calo;  // combined mass
       double pT_comb = pT_calo;
 
       // if one of the mass is null, use the other one
-      if( (m_comb==0) || (mass_corr==0) ) { 
-        m_comb = mass_corr+m_comb;
+      if( (mass_comb==0) || (mass_corr==0) ) { 
+        mass_comb = mass_corr+mass_comb;
       }
       else {
         // Determine mass combination eta bin to use
@@ -456,25 +456,25 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
 	    ATH_MSG_FATAL("There was a problem determining the eta bin to use for the mass combination");
 	    return StatusCode::FAILURE;
 	  }
-	  const double relCalo = getRelCalo( pT_calo/m_GeV, m_calo/pT_calo, etabin );
-	  const double relTA   = getRelTA( pT_calo/m_GeV, m_ta/pT_calo, etabin );
-	  const double rho     = ( m_useCorrelatedWeights ? getRho( pT_calo/m_GeV, m_calo/pT_calo, etabin ) : 0);
+	  const double relCalo = getRelCalo( pT_calo/m_GeV, mass_calo/pT_calo, etabin );
+	  const double relTA   = getRelTA( pT_calo/m_GeV, mass_ta/pT_calo, etabin );
+	  const double rho     = ( m_useCorrelatedWeights ? getRho( pT_calo/m_GeV, mass_calo/pT_calo, etabin ) : 0);
           // Watch for division by zero
           if(m_useCorrelatedWeights && (relCalo*relCalo + relTA*relTA - 2 * rho* relCalo * relTA == 0)){
             ATH_MSG_ERROR("Encountered division by zero when calculating mass combination weight using correlated weights");
             return StatusCode::FAILURE;
           }
 	  const double Weight = ( relTA*relTA - rho *relCalo*relTA ) / ( relCalo*relCalo + relTA*relTA - 2 * rho* relCalo * relTA );
-  	  m_comb =  ( m_calo * Weight ) + ( m_ta * ( 1 - Weight) );
+  	  mass_comb =  ( mass_calo * Weight ) + ( mass_ta * ( 1 - Weight) );
 	  // Protection
-	  if(m_comb>jetStartP4.e()) m_comb = m_calo;
-	  else if(!m_pTfixed) pT_comb = sqrt(jetStartP4.e()*jetStartP4.e()-m_comb*m_comb)/cosh( jetStartP4.eta() );
+	  if(mass_comb>jetStartP4.e()) mass_comb = mass_calo;
+	  else if(!m_pTfixed) pT_comb = sqrt(jetStartP4.e()*jetStartP4.e()-mass_comb*mass_comb)/cosh( jetStartP4.eta() );
         }
       }
 
 
       TLorentzVector TLVjet;
-      TLVjet.SetPtEtaPhiM( pT_comb, jetStartP4.eta(), jetStartP4.phi(), m_comb );
+      TLVjet.SetPtEtaPhiM( pT_comb, jetStartP4.eta(), jetStartP4.phi(), mass_comb );
       calibP4.SetPxPyPzE( TLVjet.Px(), TLVjet.Py(), TLVjet.Pz(), TLVjet.E() );
   
       //Transfer calibrated jet properties to the Jet object
@@ -483,7 +483,7 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
 
       //Transfer calibrated calo mass property to the Jet object
       xAOD::JetFourMom_t calibP4_calo = jet.jetP4();
-      calibP4_calo.SetCoordinates( pT_calo, jetStartP4.eta(), jetStartP4.phi(), m_calo );
+      calibP4_calo.SetCoordinates( pT_calo, jetStartP4.eta(), jetStartP4.phi(), mass_calo );
       jet.setAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumCalo",calibP4_calo);
 
     }

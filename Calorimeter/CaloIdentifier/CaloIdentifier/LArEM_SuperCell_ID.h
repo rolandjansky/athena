@@ -30,6 +30,7 @@
 *  for the Supercell version of the LAr EM detector subsystem.  <p>
 *
 * Definition and range of values for the elements of the identifier are: <p>
+*
 * <pre>
 *             Connected channels :
 *             ------------------
@@ -110,6 +111,7 @@
 * total       :   512
 * 
 * Grand Total : 12672
+* </pre>
 *
 * @author RD Schaffer, Denis Oliveira Damazio, scott snyder
 */

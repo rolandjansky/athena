@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: LAr Calibration
  * @Package: TrigDetCalib
- * @Class  : TrigROBSelector
+ * @class  : TrigROBSelector
  *
  * @brief : Tool to select a list of ROBs for a given (eta,phi) region and subdetector set
  *

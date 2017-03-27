@@ -42,3 +42,9 @@ atlas_add_dictionary( LArGeoCheckerDict
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                       LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} ${GSL_LIBRARIES} ${CLHEP_LIBRARIES} SGTools StoreGateLib SGtests GeoModelKernel AthenaKernel CxxUtils GeoModelUtilities GaudiKernel GeoSpecialShapes )
 
+atlas_add_dictionary( LArWheelEnums
+                      GeoSpecialShapes/LArWheelCalculatorEnums.h
+                      GeoSpecialShapes/selectionEnums.xml
+                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} ${GSL_LIBRARIES} ${CLHEP_LIBRARIES} SGTools StoreGateLib SGtests GeoModelKernel AthenaKernel CxxUtils GeoModelUtilities GaudiKernel GeoSpecialShapes )
+

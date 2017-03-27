@@ -9,7 +9,6 @@ atlas_subdir( LArConditionsTest )
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloInterface
                           Control/AthenaBaseComps
-                          Control/MinimalRunTime
                           Control/StoreGate
                           DetectorDescription/Identifier
                           GaudiKernel
@@ -64,6 +63,7 @@ function (larconditions_run_test testName)
   atlas_add_test( ${testName}
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/larconditions_${testName}.sh
                   ENVIRONMENT PATH=${CMAKE_CURRENT_SOURCE_DIR}/test:$ENV{PATH}
+                              ATLAS_REFERENCE_TAG=LArConditionsTest/LArConditionsTest-01-00-00
                   PROPERTIES TIMEOUT 300
                    )
   if( ARG_DEPENDS )

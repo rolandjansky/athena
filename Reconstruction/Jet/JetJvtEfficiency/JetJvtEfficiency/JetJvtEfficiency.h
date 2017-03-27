@@ -64,8 +64,8 @@ private:
     std::string m_file;
     SG::AuxElement::Decorator< float >* m_sfDec;
     SG::AuxElement::Decorator< char >* m_dropDec;
-    TH2 *h_JvtHist;
-    TH2 *h_EffHist;
+    TH2 *m_h_JvtHist;
+    TH2 *m_h_EffHist;
     std::string m_sf_decoration_name;
     std::string m_drop_decoration_name;
     float m_jvtCut;

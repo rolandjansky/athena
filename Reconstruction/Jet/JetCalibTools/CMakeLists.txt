@@ -24,7 +24,6 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTracking
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    Reconstruction/Jet/JetInterface
-   Reconstruction/Jet/JetCalibTools
    PRIVATE
    Event/xAOD/xAODMuon
    Tools/PathResolver

@@ -13,7 +13,7 @@
 #  include "GaudiKernel/ContextSpecificPtr.h"
 #endif
 
-static std::mutex _sgMutex;
+static std::mutex sgMutex;
 
 //
 // private constructor
@@ -41,7 +41,7 @@ void SiHitIdHelper::Initialize() {
   const PixelID* pix;
   StoreGateSvc* detStore(nullptr);
   {
-    std::lock_guard<std::mutex> lock(_sgMutex);
+    std::lock_guard<std::mutex> lock(sgMutex);
     detStore = StoreGate::pointer("DetectorStore");
     if (detStore->retrieve(pix, "PixelID").isFailure()) { pix = 0; }
   }

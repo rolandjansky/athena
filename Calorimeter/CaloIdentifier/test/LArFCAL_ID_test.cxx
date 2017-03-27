@@ -23,6 +23,15 @@
 #include "larfcal_id_test_common.cxx"
 
 
+class LArFCAL_ID_Test
+  : public LArFCAL_ID, public ILArFCAL_ID_Test
+{
+public:
+  virtual int get_lar_field_value() const override { return lar_field_value(); }
+  virtual int get_lar_fcal_field_value() const override { return lar_fcal_field_value(); }
+};
+
+
 // neighbors
 void test4 (const LArFCAL_ID& fcal_id)
 {
@@ -74,8 +83,8 @@ int main()
   idd.add_metadata("FCAL2DNEIGHBORS",     "FCal2DNeighbors-DC3-05-Comm-01.txt");  
   idd.add_metadata("FCAL3DNEIGHBORSNEXT", "FCal3DNeighborsNext-DC3-05-Comm-01.txt");  
   idd.add_metadata("FCAL3DNEIGHBORSPREV", "FCal3DNeighborsPrev-DC3-05-Comm-01.txt");  
-  std::unique_ptr<LArFCAL_ID> idhelper = make_helper<LArFCAL_ID>();
-  std::unique_ptr<LArFCAL_ID> idhelper_n = make_helper<LArFCAL_ID>(true);
+  std::unique_ptr<LArFCAL_ID> idhelper = make_helper<LArFCAL_ID_Test>();
+  std::unique_ptr<LArFCAL_ID> idhelper_n = make_helper<LArFCAL_ID_Test>(true);
   try {
     test_basic (*idhelper);
     test_connected (*idhelper, false);

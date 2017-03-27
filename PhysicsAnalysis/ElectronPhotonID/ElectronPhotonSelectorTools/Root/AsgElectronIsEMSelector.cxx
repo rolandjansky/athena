@@ -184,7 +184,7 @@ StatusCode AsgElectronIsEMSelector::initialize()
   StatusCode sc = StatusCode::SUCCESS ;
 
   if(!m_WorkingPoint.empty()){
-    m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::m_ElectronCutPointToConfFile);
+    m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::ElectronCutPointToConfFile);
   }
 
   if(!m_configFile.empty()) {    

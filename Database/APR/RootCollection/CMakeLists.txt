@@ -19,7 +19,7 @@ atlas_depends_on_subdirs( PRIVATE
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
-find_package( ROOT COMPONENTS MathCore Hist Tree TreePlayer Net RIO Cint Core pthread )
+find_package( ROOT COMPONENTS MathCore Graf Hist Tree TreePlayer Net RIO Cint Core pthread )
 
 # Component(s) in the package:
 atlas_add_root_dictionary( RootCollection
@@ -55,6 +55,8 @@ atlas_add_test( update_test
                 test/update_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} TestTools AthenaKernel RootUtils RootUtilsPyROOT CollectionBase FileCatalog POOLCore PersistencySvc PersistentDataModel GaudiKernel RootCollection RootCollectionComponents )
+set_tests_properties( RootCollection_update_test_ctest
+                      PROPERTIES DEPENDS RootCollection_read_test_ctest )
 
 # Component list generation:
 atlas_generate_componentslist( RootCollectionComponents )

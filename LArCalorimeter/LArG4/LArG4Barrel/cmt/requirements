@@ -9,15 +9,16 @@ author Mikhail Leltchouk <lelchuk@nevis.columbia.edu>
 
 use AtlasPolicy    AtlasPolicy-*
 use LArG4Code      LArG4Code-*      LArCalorimeter/LArG4
-use CaloG4Sim      CaloG4Sim-*      Calorimeter
 use Geant4         Geant4-*         External
 
 # For reading the e-field files for charge collection.
 
 
 # Build the library (and export the headers)
-library LArG4Barrel *.cc
-apply_pattern installed_library
+library LArG4Barrel *.cc components/*.cxx
+apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"
+
 #macro_append cppflags " -g -O0 "
 #macro_append LArG4Barrel_cppflags  " -DLARG4NOROOT -O -Wno-unused"
 
@@ -26,6 +27,7 @@ use CxxUtils         CxxUtils-*          Control
 use AthenaKernel     AthenaKernel-*      Control
 use StoreGate        StoreGate-*         Control
 use GaudiInterface   GaudiInterface-*    External
-use LArG4RunControl  LArG4RunControl-*   LArCalorimeter/LArG4
+#use LArG4RunControl  LArG4RunControl-*   LArCalorimeter/LArG4
 use LArHV            LArHV-*             LArCalorimeter/LArGeoModel
 use PathResolver     PathResolver-*      Tools
+use CaloG4Sim      CaloG4Sim-*      Calorimeter

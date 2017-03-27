@@ -30,9 +30,8 @@ def getAFIIParticleBrokerSvc(name="ISF_AFIIParticleBrokerSvc", **kwargs):
     kwargs.setdefault('EntryLayerTool', 'ISF_AFIIEntryLayerTool')
     return getParticleBrokerSvc(name, **kwargs)
 
+
 def getSimHitService(name="ISF_SimHitService", **kwargs):
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    kwargs.setdefault('ValidationOutput', ISF_Flags.ValidationMode())
     return CfgMgr.ISF__SimHitSvc(name, **kwargs)
 
 def getNoG4SimHitService(name="ISF_NoG4SimHitService", **kwargs):
@@ -41,13 +40,12 @@ def getNoG4SimHitService(name="ISF_NoG4SimHitService", **kwargs):
     return getSimHitService(name, **kwargs)
 
 def getPileupSimHitService(name="ISF_PileupSimHitService", **kwargs):
-    kwargs.setdefault('SeparateInDetPileupHits', True)
     return getNoG4SimHitService(name, **kwargs)
+
 
 def getISFEnvelopeDefSvc(name="ISF_ISFEnvelopeDefSvc", **kwargs):
     # ATLAS common envlope definitions
     kwargs.setdefault("ATLASEnvelopeDefSvc", "AtlasGeometry_EnvelopeDefSvc")
-    return CfgMgr.ISF__ISFEnvelopeDefSvc(name, **kwargs)
     return CfgMgr.ISF__ISFEnvelopeDefSvc(name, **kwargs)
 
 def getAFIIEnvelopeDefSvc(name="ISF_AFIIEnvelopeDefSvc", **kwargs):
@@ -56,13 +54,11 @@ def getAFIIEnvelopeDefSvc(name="ISF_AFIIEnvelopeDefSvc", **kwargs):
     kwargs.setdefault("ISFEnvelopeDefSvc", "ISF_ISFEnvelopeDefSvc")
     kwargs.setdefault("InDetMaxExtentZ", 3549.5*mm)
     return CfgMgr.ISF__AFIIEnvelopeDefSvc(name, **kwargs)
-    return CfgMgr.ISF__AFIIEnvelopeDefSvc(name, **kwargs)
 
 
 def getGeoIDSvc(name="ISF_GeoIDSvc", **kwargs):
     # with ISF volume definitions
     kwargs.setdefault("EnvelopeDefSvc", "ISF_ISFEnvelopeDefSvc")
-    return CfgMgr.ISF__GeoIDSvc(name, **kwargs)
     return CfgMgr.ISF__GeoIDSvc(name, **kwargs)
 
 

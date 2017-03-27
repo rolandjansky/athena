@@ -29,5 +29,4 @@ atlas_add_component( TestLArHardwareID
 # Install files from the package:
 atlas_install_headers( TestLArHardwareID )
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/FCal-online-map.txt )
 

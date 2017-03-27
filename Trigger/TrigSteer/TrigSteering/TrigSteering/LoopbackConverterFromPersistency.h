@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : LoopbackConverterFromPersistency
+ * @class  : LoopbackConverterFromPersistency
  *
  * @brief this tool initializes the HLT from a previous run (HLTResult)
  *
