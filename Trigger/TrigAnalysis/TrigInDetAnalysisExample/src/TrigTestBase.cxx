@@ -171,7 +171,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 #endif
 
 
-  msg(MSG::DEBUG) << "TrigTestBase::book() SUTT buildNtuple " << m_buildNtuple
+  msg(MSG::DEBUG) << "TrigTestBase::book() buildNtuple " << m_buildNtuple
       << "\tNewEventBlock " << newEventsBlock
       << "\tNewLumiBlock "  << newLumiBlock
       << "\tNewRun "        << newRun  <<  endmsg;
@@ -228,6 +228,8 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
     int shifter_l2star    = 0;
     int shifter_efid_run1 = 0;
 
+    std::string lastvtx = "";
+
     // if (m_analysis_config == "Tier0") {
     {
       std::vector<std::string> chains;
@@ -248,15 +250,15 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	msg(MSG::DEBUG) << "configuring chain: " << chainName.head() << "\t: " << chainName.tail() << endmsg;
 
 	if ( chainName.roi()!="" ) { 
-	  msg(MSG::INFO) << "configuring chain: " << chainName.head() 
-			 << "\ttracks: " << chainName.tail()
-			 << "\troi: "    << chainName.roi()
-			 << endmsg;
+	  msg(MSG::DEBUG) << "trying chain: " << chainName.head() 
+			  << "\ttracks: " << chainName.tail()
+			  << "\troi: "    << chainName.roi()
+			  << endmsg;
 	}
 	else { 
-	  msg(MSG::INFO) << "configuring chain: " << chainName.head() 
-			 << "\ttracks: " << chainName.tail()
-			 << endmsg;
+	  msg(MSG::DEBUG) << "trying chain: " << chainName.head() 
+			  << "\ttracks: " << chainName.tail()
+			  << endmsg;
 	}
 	
 	/// check for configured chains only ...
@@ -271,12 +273,9 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	/// get matching chains
 	std::vector<std::string> selectChains  = m_tdt->getListOfTriggers( chainName.head() );
 
-	// std::cout << "selected chains " << selectChains.size() << std::endl;
-
 	if ( selectChains.size()==0 ) { 
-	  msg(MSG::INFO) << "^[[91;1m" << "No chains matched\tchain input " << chainName.head() << "  :  " << chainName.tail() << "^[[m"<< endmsg;
+	  msg(MSG::DEBUG) << "^[[91;1m" << "No chains matched\tchain input " << chainName.head() << "  :  " << chainName.tail() << "^[[m"<< endmsg;
 	}
-
 
 	for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 
@@ -295,38 +294,42 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	    std::cout << "\tvtx:   " << chainName.vtx()     << std::endl;
 	    std::cout << "\tte:    " << chainName.element() << std::endl;
 #endif
-
+	    int shifterChains = m_shifterChains;
+	    if ( chainName.vtx()=="" ) shifterChains = ( m_shifterChains>1 ? 1 : m_shifterChains );
+	    
 	    if ( m_sliceTag.find("Shifter")!=std::string::npos ) { 
 	      /// shifter histograms 
 	      if ( chainName.tail().find("_FTF")!=std::string::npos ) { 
 		/// FTF chain
-		shifter_ftf++;
-		if ( shifter_ftf>m_shifterChains ) {
-		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endmsg;
+		if (   shifter_ftf>=shifterChains || 
+		     ( shifter_ftf<shifterChains && chainName.vtx()!="" && chainName.vtx()==lastvtx ) ) {  
+		  msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endmsg;
 		  continue;
 		}
+		shifter_ftf++;
+		lastvtx = chainName.vtx();
 	      }
 	      else if ( chainName.tail().find("_IDTrig")!=std::string::npos || chainName.tail().find("CosmicsN_EFID")!=std::string::npos ) { 
 		/// EFID chain
 		shifter_efid++;
-		if ( shifter_efid>m_shifterChains ) {
-		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endmsg;
+		if ( shifter_efid>shifterChains ) {
+		  msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endmsg;
 		  continue;
 		}
 	      }
 	      else if ( chainName.tail().find("_EFID")!=std::string::npos ) { 
 		/// EFID chain
 		shifter_efid_run1++;
-		if ( shifter_efid_run1>m_shifterChains ) {
-		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endmsg;
+		if ( shifter_efid_run1>shifterChains ) {
+		  msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endmsg;
 		  continue;
 		}
 	      }
 	      else if ( chainName.tail().find("L2SiTrackFinder")!=std::string::npos ) { 
 		/// EFID chain
 		shifter_l2star++;
-		if ( shifter_l2star>m_shifterChains ) {
-		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endmsg;
+		if ( shifter_l2star>shifterChains ) {
+		  msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endmsg;
 		  continue;
 		}
 	      }
@@ -336,7 +339,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	    //            chains.push_back( ChainString(selectChains[iselected]) );
             chains.push_back( selectChains[iselected] );
 
-            msg(MSG::VERBOSE) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endmsg;
+            msg(MSG::DEBUG) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endmsg;
 
 	}
         
@@ -362,18 +365,22 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
         m_sequences.push_back( analysis );
 
 
-        msg(MSG::INFO)   << " ----- creating analysis " << m_sequences.back()->name() << " : " << m_chainNames[i] << " -----" << endmsg;
-	
-        m_sequences.back()->releaseData(m_releaseMetaData);
-        if ( m_useHighestPT ) { 
-	  msg(MSG::INFO) << "       using highest PT only for chain " << m_chainNames[i] << endmsg;
+	std::string highestPT_str = "";
+	std::string vtxindex_str  = "";
+
+	if ( m_useHighestPT ) { 
+	  highestPT_str = ": using highest PT only";
 	  m_sequences.back()->setUseHighestPT(true);
 	}
 
 	if ( !(m_vtxIndex<0) )  {
-	  msg(MSG::INFO) << "       searching for vertex index " << m_vtxIndex << endmsg;
+	  vtxindex_str = ": searching for vertex index ";
 	  m_sequences.back()->setVtxIndex(m_vtxIndex);
 	}
+	
+        msg(MSG::INFO)   << " ----- creating analysis " << m_sequences.back()->name() << " : " << m_chainNames[i] << highestPT_str << vtxindex_str << " -----" << endmsg;
+	
+        m_sequences.back()->releaseData(m_releaseMetaData);
 
 	/// don't filter cosmic chains on Roi
 	/// - could be done with a global job option, but then if configuring some cosmic chains,
