@@ -5,7 +5,7 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 from PartPropSvc.PartPropSvcConf import PartPropSvc
 
 include( "ParticleBuilderOptions/McAOD_PoolCnv_jobOptions.py")
-#include( "EventAthenaPool/EventAthenaPool_joboptions.py" )
+include( "EventAthenaPool/EventAthenaPool_joboptions.py" )
 
 #Use these lines if the NSW is included in the simulation   
 #from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
@@ -21,20 +21,36 @@ ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput() # Thi
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-from HitAnalysis.HitAnalysisConf import CaloHitAnalysis
-CaloHitAnalysis = CaloHitAnalysis()
-topSequence += CaloHitAnalysis
-CaloHitAnalysis.HistPath = '/CaloHitAnalysis/histos/'
-CaloHitAnalysis.NtupleFileName = '/CaloHitAnalysis/ntuple/'
-#ExpertMode adds more histograms to the output. Default mode is off
-CaloHitAnalysis.ExpertMode = "off"
-#CalibHits adds Calibrated hits histograms to the output. Default mode is off
-CaloHitAnalysis.CalibHits = "off"
+from HitAnalysis.HitAnalysisConf import SiHitAnalysis
+topSequence += SiHitAnalysis('PixelHitAnalysis') 
+topSequence.PixelHitAnalysis.CollectionName='PixelHits'
+topSequence += SiHitAnalysis('SCTHitAnalysis')
+topSequence.SCTHitAnalysis.CollectionName='SCT_Hits'
+topSequence += SiHitAnalysis('BCMHitAnalysis')
+topSequence.BCMHitAnalysis.CollectionName='BCMHits'
+topSequence += SiHitAnalysis('BLMHitAnalysis')
+topSequence.BLMHitAnalysis.CollectionName='BLMHits'
+
+topSequence.PixelHitAnalysis.HistPath='/SiHitAnalysis/histos/'
+topSequence.SCTHitAnalysis.HistPath='/SiHitAnalysis/histos/'
+topSequence.BCMHitAnalysis.HistPath='/SiHitAnalysis/histos/'
+topSequence.BLMHitAnalysis.HistPath='/SiHitAnalysis/histos/'
+
+topSequence.PixelHitAnalysis.NtupleFileName='/SiHitAnalysis/ntuples/'
+topSequence.SCTHitAnalysis.NtupleFileName='/SiHitAnalysis/ntuples/'
+topSequence.BCMHitAnalysis.NtupleFileName='/SiHitAnalysis/ntuples/'
+topSequence.BLMHitAnalysis.NtupleFileName='/SiHitAnalysis/ntuples/'
+
+
+#Add some more TH2 histograms
+topSequence.PixelHitAnalysis.ExpertMode= "off"
+topSequence.SCTHitAnalysis.ExpertMode= "off"
+topSequence.BCMHitAnalysis.ExpertMode= "off"
+topSequence.BLMHitAnalysis.ExpertMode= "off"
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
-ServiceMgr.THistSvc.Output += ["CaloHitAnalysis DATAFILE='CaloHitAnalysis.root' OPT='RECREATE'" ]
-
+ServiceMgr.THistSvc.Output += [ "SiHitAnalysis DATAFILE='SiHitAnalysis.root' OPT='RECREATE'" ]
 
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 9999999
