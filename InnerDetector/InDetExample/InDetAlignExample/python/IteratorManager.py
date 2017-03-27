@@ -374,10 +374,10 @@ class IteratorManager:
                     "      athena ${solver} &> ${logfile}\n",
                     "      head -n1 ${logfile} > is_finished\n",
                     "      if [ -e mycool.db ] ; then\n",
-                   ("        echo \"Directory: ${PWD}\" | mail -s \"Alignment Iter${iteration} solving done\" -a alignlogfile.txt -r aligniter@cern.ch %s\n" % self.config.email) if self.config.email.find("@")>0 else "",
+                   ("        echo \"Directory: ${PWD}\" | mail -s \"Alignment ${preName}_${folderSuffix} Iter${iteration} solving done\" -a alignlogfile.txt -r aligniter@cern.ch %s\n" % self.config.email ) if self.config.email.find("@")>0 else "",
                     "        break\n",
                     "      else\n",
-                   ("        echo -e \"Directory: ${PWD}\\nPlease check carefully the solver result and fix.\" | mail -s \"Alignment Iter${iteration} solving failed\" -r aligniter@cern.ch %s\n" % self.config.email) if self.config.email.find("@")>0 else "",
+                   ("        echo -e \"Directory: ${PWD}\\nPlease check carefully the solver result and fix.\" | mail -s \"Alignment Iter${iteration} solving failed\" -r aligniter@cern.ch %s\n" % self.config.email ) if self.config.email.find("@")>0 else "",
                     "        exit 1\n",
                     "      fi\n",
                     "      \n",
@@ -495,9 +495,10 @@ class MergingManager:
                 "  workdir=${basedir}/${preName}_Iter${iteration}_${folderSuffix}\n",
                 "  \n",
                 "  while true; do\n",
+                "    cd ${workdir}\n",
+                "    if [ -e TotalMonitoring.root ]; then break; fi\n",
                 "    n_finished=`ls ${workdir}/${dataName}/*/is_finished | wc -l`\n",
                 ("    if [ $n_finished == %d ] ; then\n" % self.nCPUs) if self.config.doTruncate == False else ("    if [ $n_finished -ge %d ] ; then\n" % int(self.nCPUs*(1.0-self.config.TruncateThreshold)) ),
-                "      cd ${workdir}\n",
                 "      \n",
                 "      # evaluate the list of monitoring files with lazy evaluation\n",
                 "      ls ${workdir}/${dataName}/*/monitoring.root > ${workdir}/%s\n" % ( mergeFilesName ),
@@ -517,7 +518,7 @@ class MergingManager:
                 "done\n\n",
                 "cd %s/InnerDetector/InDetMonitoring/InDetAlignmentMonitoring/plotsForIterators\n" % ( self.ATHENACFG.TestArea() ),
                 "python gen_plots.py ${basedir} ${preName} ${folderSuffix} %s\n" % ( self.config.RunNumber ),
-                "mv ../plots ${basedir}/${preName}_plots_${folderSuffix}\n",
+               ("echo \"monitoring plots generated at: ${basedir}/${preName}_${folderSuffix}_plots\" | mail -s \"Alignment ${preName}_${folderSuffix} completed\" -r aligniter@cern.ch %s\n" % self.config.email) if self.config.email.find("@")>0 else "",
                 "cd ${basedir}\n"
                 ] )
         script.close()
