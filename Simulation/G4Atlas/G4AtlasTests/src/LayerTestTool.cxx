@@ -27,25 +27,25 @@ StatusCode LayerTestTool::initialize()
   m_path+=m_collection+"/";
 
   _TH1D(m_n_energy,(m_collection+"_energy").c_str(),31,0.,2000000.);
-  _SET_TITLE(m_n_energy,"m_energy","E MeV","n");
+  _SET_TITLE(m_n_energy,"energy","E MeV","n");
 
   _TH1D(m_n_energy_e,(m_collection+"_energy_e").c_str(),31,0.,20000.);
-  _SET_TITLE(m_n_energy_e,"m_energy","E MeV","n");
+  _SET_TITLE(m_n_energy_e,"energy","E MeV","n");
 
   _TH1D(m_n_energy_ep,(m_collection+"_energy_ep").c_str(),31,0.,20000.);
-  _SET_TITLE(m_n_energy_ep,"m_energy","E MeV","n");
+  _SET_TITLE(m_n_energy_ep,"energy","E MeV","n");
 
   _TH1D(m_n_energy_gamma,(m_collection+"_energy_gamma").c_str(),31,0.,20000.);
-  _SET_TITLE(m_n_energy_gamma,"m_energy","E MeV","n");
+  _SET_TITLE(m_n_energy_gamma,"energy","E MeV","n");
 
   _TH1D(m_n_energy_neutron,(m_collection+"_energy_neutron").c_str(),31,0.,20000.);
-  _SET_TITLE(m_n_energy_neutron,"m_energy","E MeV","n");
+  _SET_TITLE(m_n_energy_neutron,"energy","E MeV","n");
 
   _TH1D(m_n_energy_muon,(m_collection+"_energy_muon").c_str(),31,0.,2000000.);
-  _SET_TITLE(m_n_energy_muon,"m_energy","E MeV","n");
+  _SET_TITLE(m_n_energy_muon,"energy","E MeV","n");
 
   _TH1D(m_n_energy_muonp,(m_collection+"_energy_muonp").c_str(),31,0.,2000000.);
-  _SET_TITLE(m_n_energy_muonp,"m_energy","E MeV","n");
+  _SET_TITLE(m_n_energy_muonp,"energy","E MeV","n");
 
   _TH1D(m_n_px,(m_collection+"_px").c_str(),31,-500000.,500000.);
   _SET_TITLE(m_n_px,"px distribution","px MeV","n");
