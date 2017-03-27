@@ -106,9 +106,9 @@ namespace InDet
     declareMonitoredStdContainer("IBLHitExpectedAndFound", m_dqm_ibl_hit_expected_found); 
 
     //Timers
-    m_timerMemAlloc = 0;
-    m_timerFeatureAttach = 0;
-    m_timerTrackConversion = 0;
+    m_timerMemAlloc = nullptr;
+    m_timerFeatureAttach = nullptr;
+    m_timerTrackConversion = nullptr;
 
   }
 
