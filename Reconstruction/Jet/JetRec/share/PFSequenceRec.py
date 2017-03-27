@@ -1,3 +1,10 @@
+####################################################################################################
+#Use the standard PseudoJetGetter (rather than PFlowPseudoJetGetter) and
+#and JetConstituentModSequence to reconstruct PFlow Jets
+#
+#Authors: John Stupak and Jennifer Roloff
+####################################################################################################
+
 theApp.EvtMax = 10
 
 infile = "/afs/cern.ch/work/j/jstupak/mc16_13TeV.410007.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_allhad.merge.AOD.e4135_s2997_r8957_r8996/AOD.10340813._000004.pool.root.1"
@@ -13,7 +20,6 @@ topSequence = AlgSequence()
 
 from JetRec.JetRecFlags import jetFlags
 
-#from JetRec.JetRecStandardToolManager import jtm
 from JetRec.JetRecStandard import jtm
 
 # Flag to show messges while running.
@@ -37,7 +43,6 @@ def listReplace(l,old,new):
 
 ############################################################################################
 
-
 # Add tools to find or groom jets.
 # Each call to addJetFinder adds one JetRecTool so that one jet
 # container will be added to the event.
@@ -54,7 +59,7 @@ jtm.addJetFinder("MyAntiKt4TruthJets",  "AntiKt", 0.4,  "truth",   "truth",
                    ghostArea=0.01 , ptmin=2000, ptminFilter=3000)
 
 ############################################################################################
-#Reconstruct PF jets with standard tools
+#Reconstruct PF jets with standard tools (PFlowPseudoJetGetter, etc) for comparison
 
 jtm.addJetFinder("MyAntiKt4EMPFlowJets",  "AntiKt", 0.4,  "empflow", "pflow_ungroomed", ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
 
@@ -65,11 +70,12 @@ from JetRec.JetRecConf import PseudoJetGetter
 jtm += PseudoJetGetter(
   "PFGetter",
   Label = "EMPFlow",
-  InputContainer = "myParticleFlowObjects",
+  InputContainer = "MyParticleFlowObjects",
   OutputContainer = "PFPseudoJet",
   SkipNegativeEnergy = True,
   )
 
+#this tool does much of the PFO manipulations in PFlowPseudoJetGetter
 from JetRecTools.JetRecToolsConf import CorrectPFOTool
 correctPFOTool = CorrectPFOTool("correctPFOTool",
                                 WeightPFOTool = jtm.pflowweighter,
@@ -78,27 +84,29 @@ correctPFOTool = CorrectPFOTool("correctPFOTool",
                                 UseChargedWeights = True,
                                 UseVertices = True,
                                 UseTrackToVertexTool = False,
-                            )
+                                )
 ToolSvc += correctPFOTool
 
+#This tool removes charged hadrons not matched to the primary vertex
 from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
 CHSTool = ChargedHadronSubtractionTool("CHSTool")
 ToolSvc += CHSTool
 
+#run the above tools to modify PFO
 from JetRecTools.JetRecToolsConf import JetConstituentModSequence
 PFSequence = JetConstituentModSequence("PFSequence",
-                                      InputContainer = "JetETMiss",
-                                      OutputContainer = "My",
-                                      InputType = "ParticleFlow",
-                                      Modifiers = [correctPFOTool,CHSTool],
-                                      SaveAsShallow = False,
-                                      )
+                                       InputContainer = "JetETMiss",
+                                       OutputContainer = "My",   #"ParticleFlowObjects" will be appended later
+                                       InputType = "ParticleFlow",
+                                       Modifiers = [correctPFOTool,CHSTool],
+                                       SaveAsShallow = False,
+                                       )
 ToolSvc += PFSequence
 
 from JetRec.JetRecStandardToolManager import empfgetters,pflow_ungroomed_modifiers
-myGetters=listReplace(empfgetters,jtm.empflowget,jtm.PFGetter)
+myGetters=listReplace(empfgetters,jtm.empflowget,jtm.PFGetter)  #use PFJetter instead of default PFlowPseudoJetGetter
 from JetRec.JetRecStandardToolManager import filterout
-pflow_ungroomed_modifiers=filterout(['width'],pflow_ungroomed_modifiers)
+pflow_ungroomed_modifiers=filterout(['width'],pflow_ungroomed_modifiers) #width tool causes a problem for some reason
 jtm.addJetFinder("MyAntiKt4EMPFlowJets2", "AntiKt", 0.4, myGetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="arj:pflow")
 
 ############################################################################################
@@ -106,6 +114,7 @@ jtm.addJetFinder("MyAntiKt4EMPFlowJets2", "AntiKt", 0.4, myGetters, pflow_ungroo
 from JetRec.JetAlgorithm import addJetRecoToAlgSequence
 addJetRecoToAlgSequence(job=topSequence, separateJetAlgs=True)
 
+#insert the JetConstituentModSequence before sequence-based PF jet reconstruction
 if hasattr(topSequence,"jetalgMyAntiKt4EMPFlowJets2"):
   topSequence.jetalgMyAntiKt4EMPFlowJets2.Tools.insert(0,PFSequence)
 

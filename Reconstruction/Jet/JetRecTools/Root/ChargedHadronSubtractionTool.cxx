@@ -37,7 +37,7 @@ StatusCode ChargedHadronSubtractionTool::process(xAOD::PFOContainer* cont) const
 
     if (!PVMatchedAcc.isAvailable(*ppfo)){
       ATH_MSG_ERROR("Not known if PFO is matched to primary vertex.  Run CorrectPFOTool before ChargedHadronSubtractionTool");
-        return StatusCode::FAILURE;
+      return StatusCode::FAILURE;
     }
 	
     if(!PVMatchedAcc(*ppfo))

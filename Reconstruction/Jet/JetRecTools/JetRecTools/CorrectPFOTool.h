@@ -15,13 +15,13 @@
 /// Properties:
 ///  InputIsEM - If true, EM-scale is used for the neutral pflow
 ///  CalibratePFO - If true the EM-scale pflow is calibrated
-/// \author John Stupak and Jennifer Roloff- based on PFlowPseudoJetGetter by P-A Delsart, D. Adams
+///
+/// \author Jennifer Roloff and John Stupak - based on PFlowPseudoJetGetter by P-A Delsart, D. Adams
 //////////////////////////////////////////////////
 
 #include "JetRecTools/JetConstituentModifierBase.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "AsgTools/ToolHandle.h"
-//#include "PFlowUtils/IRetrievePFOTool.h"
 #include "PFlowUtils/IWeightPFOTool.h"
 
 namespace jet{
@@ -40,12 +40,12 @@ class CorrectPFOTool : public JetConstituentModifierBase{
  private:
   bool m_inputIsEM;   /// If true EM clusters are used for neutral PFOs.
   bool m_calibrate;   /// If true, EM PFOs are calibrated to LC.
-  bool m_correctneutral;
-  bool m_correctcharged;
+  bool m_correctneutral;   //If true, correct neutral PFO
+  bool m_correctcharged;   //If true, correct charged PFO
   bool m_usevertices; //If true, then we make use of the primary vertex information
   bool m_useChargedWeights; //If true, them we make use of the charged PFO weighting scheme
   bool m_useTrackToVertexTool; //If true, use jet tracktovertex tool
-  bool m_applyCHS; //If true, remove charged PFO not associated to the PV
+  bool m_applyCHS; //If true, remove charged PFO not matched to the PV
   ToolHandle<CP::IWeightPFOTool> m_weightPFOTool;
   std::string m_trkVtxAssocName; //Name of track-vertex association container
 };

@@ -11,9 +11,9 @@
 
 CorrectPFOTool::CorrectPFOTool(const std::string &name): JetConstituentModifierBase(name), m_weightPFOTool("WeightPFOTool"), m_trkVtxAssocName("JetTrackVtxAssoc") {
 
-  #ifdef ASG_TOOL_ATHENA
-    declareInterface<IJetConstituentModifier>(this);
-  #endif
+#ifdef ASG_TOOL_ATHENA
+  declareInterface<IJetConstituentModifier>(this);
+#endif
 
   declareProperty("WeightPFOTool",   m_weightPFOTool,    "Name of tool that extracts the cPFO weights.");
   declareProperty("InputIsEM",       m_inputIsEM =false, "True if neutral PFOs are EM scale clusters.");
@@ -70,7 +70,6 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
     }
   }
 
-  //CP::PFO_JetMETConfig_inputScale inscale = m_inputIsEM ? CP::EM : CP::LC;
   SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
 
   for ( xAOD::PFO* ppfo : *cont ) {
@@ -82,7 +81,6 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
     bool matchedToPrimaryVertex = false;
 
     if ( m_correctneutral && ppfo->charge()==0) {
-
       if (ppfo->e() <= 0.0) ppfo->setP4(ppfo->p4()*0);   //This is necesarry to avoid changing sign of pT for pT<0 PFO
       else{
         if ( !m_inputIsEM || m_calibrate ) {
@@ -140,7 +138,6 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
         ppfo->setP4(ppfo->p4()*0);
       }
     }
-    //ppfo->auxdecor<bool>("matchedToPV")=matchedToPrimaryVertex;
     PVMatchedAcc(*ppfo) = matchedToPrimaryVertex;
   }
   
