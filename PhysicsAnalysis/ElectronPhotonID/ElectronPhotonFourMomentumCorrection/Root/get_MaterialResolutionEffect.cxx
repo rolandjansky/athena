@@ -16,11 +16,8 @@ get_MaterialResolutionEffect::get_MaterialResolutionEffect()
 {
   //std::cout << " Initialize get_MaterialResolutionEffect " << std::endl;
 
-#ifdef ROOTCORE
-  const std::string filename = "$ROOTCOREBIN/data/ElectronPhotonFourMomentumCorrection/histos-systematics-material.root";
-#else
-  const std::string filename = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/histos-systematics-material.root");
-#endif
+  const std::string filename = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/histos-systematics-material.root");
+  
   
   m_file0 = CxxUtils::make_unique<TFile>(filename.c_str());
 
