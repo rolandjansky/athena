@@ -9,7 +9,6 @@
 
 using namespace std;
 
-const ubit16 numberOfPads=8;
 //----------------------------------------------------------------------------//
 RXReadOut::RXReadOut(ubit16 sectorID, PadReadOut **PROlist) 
                      : BaseObject(Hardware,"RXReadOut") {

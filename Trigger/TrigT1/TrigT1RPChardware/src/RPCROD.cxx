@@ -9,7 +9,6 @@
 
 using namespace std;
 
-const ubit16 numberOfSectors=2;
 //----------------------------------------------------------------------------//
 RPCROD::RPCROD(ubit16 subsystem, ubit16 RODID, 
                  RODword LVL1ID, ubit16 ECRID,
