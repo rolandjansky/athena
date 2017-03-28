@@ -1,9 +1,0 @@
-G4VERSION	= @G4VERSION@
-G4SYSTEM	= @G4SYSTEM@
-
-_linkset_Geant4_Geant4_options		= @FORCE@
-_linkset_Geant4_Geant4_sysppflags	= @FLAGS@ ${G4FLAGS}
-_linkset_Geant4_Geant4_ldflags		= -L${ATLAS_EXTERNAL}/geant4/${G4VERSION}/lib/${G4SYSTEM}
-_linkset_Geant4_Geant4_libs		= ${G4LIBS}
-_linkset_Geant4_Geant4_rpath		= ${ATLAS_EXTERNAL}/geant4/${G4VERSION}/lib/${G4SYSTEM}
-_linkset_Geant4_Geant4_needs 		:= ${_linkset_Geant4_Geant4_needs} @EXTRAS@

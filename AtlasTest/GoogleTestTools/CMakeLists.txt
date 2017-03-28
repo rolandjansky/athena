@@ -14,7 +14,6 @@ atlas_depends_on_subdirs(
   PRIVATE
   GaudiKernel )
 
-find_package( GTest )
 find_package( GMock )
 
 # In standalone mode we just use the headers from the package. While in
@@ -28,16 +27,16 @@ else()
   atlas_add_library( GoogleTestTools
     GoogleTestTools/*.h src/*.cxx
     PUBLIC_HEADERS GoogleTestTools
-    INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
-    LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES}
+    INCLUDE_DIRS ${GMOCK_INCLUDE_DIRS}
+    LINK_LIBRARIES ${GMOCK_LIBRARIES}
     PRIVATE_LINK_LIBRARIES GaudiKernel )
 endif()
 
 # Unit tests for InitGaudiGoogleTest:
 atlas_add_test( GoogleTestToolsTests
   SOURCES test/gt_GoogleTestTools.cxx
-  INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} 
-  LINK_LIBRARIES ${GTEST_LIBRARIES} GaudiKernel GoogleTestTools )
+  INCLUDE_DIRS ${GMOCK_INCLUDE_DIRS} 
+  LINK_LIBRARIES ${GMOCK_LIBRARIES} GaudiKernel GoogleTestTools )
 
 # Install files from the package:
 # atlas_install_python_modules( python/*.py )
