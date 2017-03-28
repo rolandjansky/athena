@@ -20,7 +20,7 @@
 #include "TrkEventPrimitives/TrackStateDefs.h"
 #include "TrkValEvent/TrackStateData.h"
 //#include <vector>
-#include "DataModel/DataList.h"
+#include "AthContainers/DataVector.h"
 //class INTupleSvc;
 class AtlasDetectorID;
 class TTree;
@@ -154,7 +154,7 @@ private:
     mutable int m_trackSum;
 
     /** extract data from a Trk::Track into a list of Trk::TrackStateData */
-    DataList< const Trk::TrackStateData >* extractDataFromTrack( const Trk::Track& ) const;
+    DataVector< const Trk::TrackStateData >* extractDataFromTrack( const Trk::Track& ) const;
 
     /** reset the ntuple variables */
     void resetVariables() const;
