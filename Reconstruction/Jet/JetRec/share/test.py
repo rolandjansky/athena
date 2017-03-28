@@ -1,6 +1,6 @@
 theApp.EvtMax = 10
 
-infile = "/afs/cern.ch/work/j/jstupak/mc16_13TeV.410007.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_allhad.merge.AOD.e4135_s2997_r8957_r8996/AOD.10340813._000004.pool.root.1"
+infile = "/afs/cern.ch/work/j/jstupak/data/AOD/mc15_13TeV.361021.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ1W.merge.AOD.e3569_s2576_s2132_r7725_r7676/AOD.07916735._000053.pool.root.1"
 #infile = "root://eosatlas//eos/atlas/user/m/mdobre/forRTTmc16/MC16_210.AOD.pool.root"
 #infile = "/afs/cern.ch/work/j/jstupak/mc15_13TeV.361021.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ1W.merge.AOD.e3569_s2576_s2132_r7725_r7676/AOD.07916735._000053.pool.root.1"
 
