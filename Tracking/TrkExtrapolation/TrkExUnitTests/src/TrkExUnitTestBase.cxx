@@ -13,6 +13,7 @@ Trk::TrkExUnitTestBase::TrkExUnitTestBase(const std::string& name, ISvcLocator* 
     AthAlgorithm(name,pSvcLocator),
     m_gaussDist(0),
     m_flatDist(0),
+    m_landauDist(0),
     m_numTests(100),
     m_scanMode(false)
 {
@@ -22,9 +23,15 @@ Trk::TrkExUnitTestBase::TrkExUnitTestBase(const std::string& name, ISvcLocator* 
 
 Trk::TrkExUnitTestBase::~TrkExUnitTestBase()
 {
-    delete m_gaussDist;
-    delete m_flatDist;
-    delete m_landauDist;
+   if( m_gaussDist ) {
+      delete m_gaussDist;
+   }
+   if( m_flatDist ) {
+      delete m_flatDist;
+   }
+   if( m_landauDist ) {
+      delete m_landauDist;
+   }
 }
 
 StatusCode Trk::TrkExUnitTestBase::initialize()
