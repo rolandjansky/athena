@@ -46,8 +46,8 @@ TrigTrackJetFinderTool::TrigTrackJetFinderTool(const std::string& t, const std::
   declareProperty("PtSeed", m_ptSeed = 2.0);
   declareProperty("Mult",   m_mult   = 1);
 
-  declareProperty("DefTrkSel", defTrackSel = true);
-  declareProperty("ExtTrkSel", extTrackSel = false);
+  declareProperty("DefTrkSel", m_defTrackSel = true);
+  declareProperty("ExtTrkSel", m_extTrackSel = false);
 }
 
 
@@ -98,7 +98,7 @@ void TrigTrackJetFinderTool::addTrack(const TrigInDetTrack*& track, unsigned int
 
   bool selTrack=true;
 
-  if (defTrackSel) {
+  if (m_defTrackSel) {
 
     if (fabs(track->param()->pT()) < m_ptMin && (fabs(track->param()->z0() - m_zpv) >= m_dz)) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (pT && deltaZ cut)" << endmsg;
@@ -107,7 +107,7 @@ void TrigTrackJetFinderTool::addTrack(const TrigInDetTrack*& track, unsigned int
 
   }
 
-  if (extTrackSel) {
+  if (m_extTrackSel) {
 
     m_trkSelPt     = 1000;
     m_trkSelSiHits = 4;
