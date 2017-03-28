@@ -222,7 +222,22 @@ void eflowObjectCreatorTool::createChargedEflowObjects(eflowCaloObject* energyFl
     if (m_eOverPMode){
       /* In EOverPMode want charged eflowObjects to have extrapolated eta,phi as coordinates
        * (needed for analysis of EOverP Data) */
-      etaPhi = efRecTrack->getTrackCaloPoints().getEM2etaPhi();
+        etaPhi = efRecTrack->getTrackCaloPoints().getEM2etaPhi();
+      
+        //add information to xAOD
+        xAOD::PFODetails::PFOAttributes myAttribute_layerHED = xAOD::PFODetails::PFOAttributes::eflowRec_layerHED;
+        myEflowObject->setAttribute<int>(myAttribute_layerHED,efRecTrack->getLayerHED() );
+//   std::cout << "DEBUG: Add variable " << efRecTrack->getLayerHED() << std::endl;
+        xAOD::PFODetails::PFOAttributes myAttribute_layerCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_layerCellOrdering;
+//         myEflowObject->setAttribute<std::vector<int>>(myAttribute_layerCellOrdering,efRecTrack->getLayerCellOrder() );
+        myEflowObject->setAttribute<int>(myAttribute_layerCellOrdering,efRecTrack->getLayerCellOrder() );
+        
+        xAOD::PFODetails::PFOAttributes myAttribute_radiusCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_radiusCellOrdering;
+        myEflowObject->setAttribute<int>(myAttribute_radiusCellOrdering,efRecTrack->getRadiusCellOrder() );
+        
+        xAOD::PFODetails::PFOAttributes myAttribute_avgEdensityCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_avgEdensityCellOrdering;
+        myEflowObject->setAttribute<int>(myAttribute_avgEdensityCellOrdering,efRecTrack->getAverageEnergyDensity() );
+
     } else {
       /* In normal mode we want te track eta,phi at the perigee */
       etaPhi.first = efRecTrack->getTrack()->eta();

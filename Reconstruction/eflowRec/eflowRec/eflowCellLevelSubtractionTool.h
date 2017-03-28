@@ -50,6 +50,10 @@ public:
   void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer);
   StatusCode finalize();
 
+ protected:
+ 
+ void calculateAverageEnergyDensity();
+
  private:
 
   void calculateRadialEnergyProfiles();
