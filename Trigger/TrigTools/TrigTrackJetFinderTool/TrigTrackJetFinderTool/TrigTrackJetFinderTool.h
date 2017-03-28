@@ -156,14 +156,11 @@ class TrigTrackJetFinderTool: public AthAlgTool, virtual public ITrigTrackJetFin
   
  private:
 
-  int outputLevel;
-
   bool defTrackSel;
   bool extTrackSel;
 
   float m_trkSelChi2;
   int   m_trkSelBLayer;
-  int   m_trkSelPixHits;
   int   m_trkSelSiHits;
   float m_trkSelPt;
 
