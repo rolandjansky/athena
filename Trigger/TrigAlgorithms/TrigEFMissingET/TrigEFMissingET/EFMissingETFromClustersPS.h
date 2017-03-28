@@ -40,13 +40,15 @@ class EFMissingETFromClustersPS : public EFMissingETBaseTool
     ~EFMissingETFromClustersPS();
 
     virtual StatusCode initialize();
-    virtual StatusCode finalize(); 
+    virtual StatusCode finalize();
     virtual StatusCode execute();
 
-    virtual StatusCode execute(xAOD::TrigMissingET *met, 
-        TrigEFMissingEtHelper *metHelper, 
-        const xAOD::CaloClusterContainer *caloCluster,
-        const xAOD::JetContainer *jets);
+    virtual StatusCode execute(xAOD::TrigMissingET *met,
+                               TrigEFMissingEtHelper *metHelper,
+                               const xAOD::CaloClusterContainer *caloCluster,
+                               const xAOD::JetContainer *jets,
+                               const xAOD::TrackParticleContainer *track,
+                               const xAOD::VertexContainer *vertex);
 
   private:
     bool m_saveuncalibrated;

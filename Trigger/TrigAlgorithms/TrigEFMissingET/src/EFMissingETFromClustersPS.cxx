@@ -25,7 +25,7 @@ PURPOSE:  Updates TrigMissingETHelper using info from topo. clusters
 #include "EventKernel/SignalStateHelper.h"
 
 #include <cmath>
-#include <string> 
+#include <string>
 using namespace std;
 
 EFMissingETFromClustersPS::EFMissingETFromClustersPS(const std::string& type,
@@ -45,7 +45,7 @@ EFMissingETFromClustersPS::EFMissingETFromClustersPS(const std::string& type,
 
   m_fextype = FexType::TOPO;
 
-  m_methelperposition = 18; 
+  m_methelperposition = 18;
 
   //initialization to make coverity happy:
   m_clusterstate = xAOD::CaloCluster_v1::UNCALIBRATED;
@@ -74,7 +74,7 @@ StatusCode EFMissingETFromClustersPS::initialize()
     m_glob_timer = m_timersvc->addItem(basename);
   } // if timing service
 
-  if(m_saveuncalibrated) m_methelperposition = 13; 
+  if(m_saveuncalibrated) m_methelperposition = 13;
 
   if(m_saveuncalibrated) m_clusterstate = xAOD::CaloCluster_v1::UNCALIBRATED;
    else m_clusterstate = xAOD::CaloCluster_v1::CALIBRATED;
@@ -100,7 +100,9 @@ StatusCode EFMissingETFromClustersPS::finalize()
 
 StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
     TrigEFMissingEtHelper *metHelper ,
-    const xAOD::CaloClusterContainer *caloCluster, const xAOD::JetContainer * /* jets */)
+    const xAOD::CaloClusterContainer *caloCluster, const xAOD::JetContainer * /* jets */,
+                                        const xAOD::TrackParticleContainer * /*trackContainer*/,
+                                        const xAOD::VertexContainer * /*vertexContainer*/ )
 {
 
   if(msgLvl(MSG::DEBUG))
@@ -162,7 +164,7 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
     metComp->m_sumE  += E;
     metComp->m_usedChannels += 1;
     metComp->m_sumOfSigns += static_cast<short int>(floor(copysign(1.0,Et)+0.5));
-          
+
    } // end topo. loop -- before PS
 
   msg() << MSG::DEBUG << " Start pileup subtraction algorithm: " << endmsg;
@@ -201,8 +203,8 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
 
          for(xAOD::CaloClusterContainer::const_iterator it_ii = caloCluster->begin(); it_ii != caloCluster->end(); ++it_ii) {
              float eta = (*it_ii)->eta(m_clusterstate);
-             float E =  (*it_ii)->p4(m_clusterstate).E(); 
-             
+             float E =  (*it_ii)->p4(m_clusterstate).E();
+
              //msg() << MSG::DEBUG << " E = " << E << endmsg;
              //msg() << MSG::DEBUG << " eta = " << eta << endmsg;
 
@@ -236,7 +238,7 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
              tempEMean = 0;
              tempESigma = 0;
          } else {
-             tempEMean = ringE[ring] / numRingCl[ring];    
+             tempEMean = ringE[ring] / numRingCl[ring];
              tempESigma = sqrt( fabs( ringESq[ring] / numRingCl[ring] - tempEMean * tempEMean ) ); // correct std-dev
          };
 
@@ -248,7 +250,7 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
      // --------------------
          for(xAOD::CaloClusterContainer::const_iterator it_ii = caloCluster->begin(); it_ii != caloCluster->end(); ++it_ii) {
              float eta = (*it_ii)->eta(m_clusterstate);
-             float E = (*it_ii)->p4(m_clusterstate).E(); 
+             float E = (*it_ii)->p4(m_clusterstate).E();
 
              //msg() << MSG::DEBUG << " E = " << E << endmsg;
              //msg() << MSG::DEBUG << " eta = " << eta << endmsg;
@@ -271,14 +273,14 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
             }
          }
          etaMin += etaDelta;
-         
+
          msg() << MSG::DEBUG << " After second pass " << ring << endmsg;
 
-         
+
      }
-     
+
      msg() << MSG::DEBUG << " Ready for third pass " << endmsg;
-     
+
      // --------------------
      // Third pass to apply correction
      // --------------------
@@ -294,7 +296,7 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
          sincosf(phi, &sinPhi, &cosPhi);
          float Ex = Et*cosPhi;
          float Ey = Et*sinPhi;
-         float E = (*it_ii)->p4(m_clusterstate).E(); 
+         float E = (*it_ii)->p4(m_clusterstate).E();
          // Identify which ring the cluster belongs to
          int Iring = -1;
          for(int j = 0; j < m_pileupnumrings; j++) {
@@ -305,15 +307,15 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
          // Exclude these clusters from being corrected to avoid FPEs
          double second_r;
          double center_mag;
-         
+
          // msg() << MSG::DEBUG << " Fetching second_r & center_mag " << endmsg;
-         
+
          (*it_ii)->retrieveMoment(xAOD::CaloCluster::SECOND_R,second_r);
          (*it_ii)->retrieveMoment(xAOD::CaloCluster::CENTER_MAG,center_mag);
 
-         
+
          if(Iring != -1 && second_r != 0 && center_mag != 0) {
-      
+
              // Calculate corrected energy of cluster and the correction factor to be applied to the components
              double clSolidAngle = 4.0 * PI * second_r / ( center_mag * center_mag );
              double etaL = -5.0 + static_cast<double>(Iring)*etaDelta;

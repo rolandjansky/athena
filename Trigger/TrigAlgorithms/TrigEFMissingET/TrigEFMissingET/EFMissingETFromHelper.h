@@ -36,8 +36,8 @@ class EFMissingETFromHelper : public EFMissingETBaseTool
 {
   public:
 
-    EFMissingETFromHelper(const std::string& type, 
-        const std::string& name, 
+    EFMissingETFromHelper(const std::string& type,
+        const std::string& name,
         const IInterface* parent);
 
     ~EFMissingETFromHelper();
@@ -46,11 +46,12 @@ class EFMissingETFromHelper : public EFMissingETBaseTool
     virtual StatusCode finalize();
     virtual StatusCode execute();
 
-    virtual StatusCode execute(xAOD::TrigMissingET *met, 
-        TrigEFMissingEtHelper *metHelper, 
-        const xAOD::CaloClusterContainer *caloCluster,
-        const xAOD::JetContainer *jets);
- 
+    virtual StatusCode execute(xAOD::TrigMissingET *met,
+                               TrigEFMissingEtHelper *metHelper,
+                               const xAOD::CaloClusterContainer *caloCluster,
+                               const xAOD::JetContainer *jets,
+                               const xAOD::TrackParticleContainer *track,
+                               const xAOD::VertexContainer *vertex);
 
 //  private: -- these no longer are required
 //    bool m_doMonitoring;                   //!< configurable

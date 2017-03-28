@@ -24,8 +24,8 @@ and updates the global event status flag
 using namespace std;
 
 
-EFMissingETFlags::EFMissingETFlags(const std::string& type, 
-    const std::string& name, 
+EFMissingETFlags::EFMissingETFlags(const std::string& type,
+    const std::string& name,
     const IInterface* parent):
   EFMissingETBaseTool(type, name, parent)
 {
@@ -95,7 +95,7 @@ EFMissingETFlags::EFMissingETFlags(const std::string& type,
 
   m_hCompFlags=0;
 
-  m_fextype = FexType::OTHER; 
+  m_fextype = FexType::OTHER;
 
 }
 
@@ -153,7 +153,7 @@ StatusCode EFMissingETFlags::start()
    "TileExt0", "TileExt1", "TileExt2",    // Tile extended barrel
    "FCalEM",   "FCalHad2", "FCalHad3",    // Forward cal endcap
    "Muons"                                // Muons
- }; 
+ };
  std::string bitName[bits] = { // see EFMissingETBaseTool
    "Processing",         // bit  0
    "ErrBSconv",          // bit  1
@@ -210,7 +210,9 @@ StatusCode EFMissingETFlags::execute()
 
 StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
     TrigEFMissingEtHelper *metHelper ,
-    const xAOD::CaloClusterContainer * /* caloCluster */ , const xAOD::JetContainer  * /* jets */)
+    const xAOD::CaloClusterContainer * /* caloCluster */ , const xAOD::JetContainer  * /* jets */,
+                                        const xAOD::TrackParticleContainer * /*trackContainer*/,
+                                        const xAOD::VertexContainer * /*vertexContainer*/ )
 {
   if (msgLvl(MSG::DEBUG)) {
      msg(MSG::DEBUG) << "EFMissingETFlags::execute() called" << endmsg;
@@ -243,8 +245,8 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
   float FCal_SumE=0;
 
 
-  if (elem == 42) { // compute subdetector energies 
- 
+  if (elem == 42) { // compute subdetector energies
+
      for (unsigned char i=0; i<elem-18; ++i) { // EMB
       TrigEFMissingEtComponent* metComp = metHelper->GetComponent(i);
       string Name=metComp->m_name;
@@ -275,7 +277,7 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
 	  EM_SumE += sumE;
 	  EME_SumE += sumE;
 	} else {
-          msg(MSG::WARNING) 
+          msg(MSG::WARNING)
 		   << "Cannot find EME!  Skipping check" << endmsg;
 	  break;
 	}
@@ -317,16 +319,16 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
 	  if (Name == "FCalEM") EM_SumE += sumE;
 	  FCal_SumE += sumE;
 	} else {
-          msg(MSG::WARNING) 
+          msg(MSG::WARNING)
 		   << "Cannot find FCal!  Skipping check" << endmsg;
 	  break;
 	}
-      }  // end loop over i 
+      }  // end loop over i
 
      }  //end elem == 42
 
   } else {
-    msg(MSG::WARNING) << "Found " << elem 
+    msg(MSG::WARNING) << "Found " << elem
 	     << " (!=42) auxiliary components.  Skipping checks!" << endmsg;
   }
 
@@ -345,7 +347,7 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
     float MET = sqrtf(MEx*MEx+MEy*MEy);
     float sumBadEt =   sumOfSigns * c0 + c1 *  metComp->m_sumBadEt;
 
-    // flag component if |MET/SumET| is too large 
+    // flag component if |MET/SumET| is too large
     if (elem==42 && i<24 && sumEt>0 && fabsf(MET/sumEt)>m_CompMaxMEtSumEtRatio[i]) {
       metComp->m_status |= m_maskCompBigMEtSEtRatio;
     }
@@ -426,7 +428,7 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
              metComp->m_status |= m_maskBadEnergyRatio;
           }
        }
-       
+
     }
 
 

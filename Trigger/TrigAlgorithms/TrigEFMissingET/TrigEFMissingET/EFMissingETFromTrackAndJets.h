@@ -2,18 +2,18 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGEFMISSINGET_EFMISSINGETFROMJETS_H
-#define TRIGEFMISSINGET_EFMISSINGETFROMJETS_H
+#ifndef TRIGEFMISSINGET_EFMISSINGETFROMTRACKANDJETS_H
+#define TRIGEFMISSINGET_EFMISSINGETFROMTRACKANDJETS_H
 
 /********************************************************************
 
-NAME:     EFMissingETFromJets.h
+NAME:     EFMissingETFromTrackAndJets.h
 PACKAGE:  Trigger/TrigAlgorithms/TrigEFMissingET
 
-AUTHORS:  Florian U. Bernlochner, Doug Schaefer, Justin Chiu
-CREATED:  May 20, 2014
+AUTHORS:  Renjie Wang (renjie.wang@cern.ch)
+CREATED:  Nov 18, 2016
 
-PURPOSE:  Updates TrigMissingETHelper using info from jets
+PURPOSE:  Updates TrigMissingETHelper using info from tracks and jets
 
  ********************************************************************/
 
@@ -21,20 +21,28 @@ PURPOSE:  Updates TrigMissingETHelper using info from jets
 #include "TrigMissingEtEvent/TrigMissingET.h"
 
 
+#include "TH2.h"
+#include "TH1.h"
+#include "TFile.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "PathResolver/PathResolver.h"
+
+#include "GaudiKernel/ToolHandle.h"
+
 /**
-  $class EFMissingETFromJets
+  $class EFMissingETFromTrackAndJets
   Updates transient helper object with jets
  **/
 
-class EFMissingETFromJets : public EFMissingETBaseTool
+class EFMissingETFromTrackAndJets : public EFMissingETBaseTool
 {
   public:
 
-    EFMissingETFromJets(const std::string& type,
+    EFMissingETFromTrackAndJets(const std::string& type,
         const std::string& name,
         const IInterface* parent);
 
-    ~EFMissingETFromJets();
+    ~EFMissingETFromTrackAndJets();
 
     virtual StatusCode initialize();
     virtual StatusCode finalize();
@@ -47,11 +55,18 @@ class EFMissingETFromJets : public EFMissingETBaseTool
                                const xAOD::TrackParticleContainer *track,
                                const xAOD::VertexContainer *vertex);
 
+    TH1* getHistogramFromFile(TString hname, TString fname);
+
   private:
     float m_etacut;
     float m_forward_ptcut, m_central_ptcut;
     int  m_methelperposition;
+    float m_track_ptcut;
+    float m_central_jvtcut;
+    ToolHandle< InDet::IInDetTrackSelectionTool > trackselTool;
+    ToolHandle< InDet::IInDetTrackSelectionTool > muontrackselTool;
+    TH2F                   *m_jvtLikelihood;
 
 };
 
-#endif // TRIGEFMISSINGET_EFMISSINGETFROMJETS_H
+#endif // TRIGEFMISSINGET_EFMISSINGETFROMTRACKANDJETS_H

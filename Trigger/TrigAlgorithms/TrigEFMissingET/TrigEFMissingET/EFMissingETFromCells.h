@@ -23,7 +23,7 @@ TrigT2CaloCommon/TrigDataAccess.h
 #include "TrigT2CaloCommon/ITrigDataAccess.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
-#include "GaudiKernel/ToolHandle.h" 
+#include "GaudiKernel/ToolHandle.h"
 #include <vector>
 
 
@@ -40,7 +40,7 @@ class EFMissingETFromCells : public EFMissingETBaseTool
   public:
 
     EFMissingETFromCells(const std::string& type,
-        const std::string& name, 
+        const std::string& name,
         const IInterface* parent);
 
     ~EFMissingETFromCells();
@@ -49,19 +49,21 @@ class EFMissingETFromCells : public EFMissingETBaseTool
     virtual StatusCode finalize();
     virtual StatusCode execute();
 
-    virtual StatusCode execute(xAOD::TrigMissingET *met, 
-        TrigEFMissingEtHelper *metHelper, 
-        const xAOD::CaloClusterContainer *caloCluster,
-        const xAOD::JetContainer *jets); 
+    virtual StatusCode execute(xAOD::TrigMissingET *met,
+                               TrigEFMissingEtHelper *metHelper,
+                               const xAOD::CaloClusterContainer *caloCluster,
+                               const xAOD::JetContainer *jets,
+                               const xAOD::TrackParticleContainer *track,
+                               const xAOD::VertexContainer *vertex);
 
     // slow calo data access via RegionSelector
     StatusCode addAllCellsToHelper(TrigEFMissingEtHelper* met);
-    StatusCode addLArCellsToHelper(double etamin, double etamax, 
+    StatusCode addLArCellsToHelper(double etamin, double etamax,
         double phimin, double phimax,
         TrigEFMissingEtHelper* met,
         DETID detectorID, int sampling,
         bool prepare);
-    StatusCode addTileCellsToHelper(double etamin, double etamax, 
+    StatusCode addTileCellsToHelper(double etamin, double etamax,
         double phimin, double phimax,
         TrigEFMissingEtHelper* met,
         DETID detectorID, int sampling,

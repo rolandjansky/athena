@@ -31,8 +31,8 @@ class EFMissingETFlags : public EFMissingETBaseTool
 {
  public:
 
-  EFMissingETFlags(const std::string& type, 
-		   const std::string& name, 
+  EFMissingETFlags(const std::string& type,
+		   const std::string& name,
 		   const IInterface* parent);
 
   ~EFMissingETFlags();
@@ -42,10 +42,12 @@ class EFMissingETFlags : public EFMissingETBaseTool
   virtual StatusCode finalize();
   virtual StatusCode execute();
 
-  virtual StatusCode execute(xAOD::TrigMissingET *met, 
-        TrigEFMissingEtHelper *metHelper, 
-        const xAOD::CaloClusterContainer *caloCluster,
-        const xAOD::JetContainer *jets); 
+    virtual StatusCode execute(xAOD::TrigMissingET *met,
+                               TrigEFMissingEtHelper *metHelper,
+                               const xAOD::CaloClusterContainer *caloCluster,
+                               const xAOD::JetContainer *jets,
+                               const xAOD::TrackParticleContainer *track,
+                               const xAOD::VertexContainer *vertex);
 
  private:
 

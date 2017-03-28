@@ -31,7 +31,7 @@ PURPOSE: Data preparation from Cells
 EFMissingETFromCells::EFMissingETFromCells(const std::string& type,
     const std::string& name,
     const IInterface* parent):
-  EFMissingETBaseTool(type, name, parent) 
+  EFMissingETBaseTool(type, name, parent)
 // , m_noiseTool("CaloNoiseTool/CaloNoiseToolDefault")
 {
 
@@ -138,11 +138,13 @@ StatusCode EFMissingETFromCells::execute()
 
 StatusCode EFMissingETFromCells::execute(xAOD::TrigMissingET * /* met */ ,
     TrigEFMissingEtHelper *metHelper ,
-    const xAOD::CaloClusterContainer * /* caloCluster */ , const xAOD::JetContainer  * /* jets */)
+    const xAOD::CaloClusterContainer * /* caloCluster */ , const xAOD::JetContainer  * /* jets */,
+                                        const xAOD::TrackParticleContainer * /*trackContainer*/,
+                                        const xAOD::VertexContainer * /*vertexContainer*/ )
 {
 
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) 
+    msg(MSG::DEBUG)
       << "this is EFMissingETFromCells::execute()" << endmsg;
   }
 
@@ -213,7 +215,7 @@ StatusCode EFMissingETFromCells::addAllCellsToHelper(TrigEFMissingEtHelper* metH
 
     if (msgLvl(MSG::DEBUG)){
       msg(MSG::DEBUG)
-        << "EFMissingETFromCells::addAllCellsToHelper() is using LoadFullCollections" 
+        << "EFMissingETFromCells::addAllCellsToHelper() is using LoadFullCollections"
         << endmsg; // DEBUG
     }
 
@@ -241,7 +243,7 @@ StatusCode EFMissingETFromCells::addAllCellsToHelper(TrigEFMissingEtHelper* metH
 
     if (msgLvl(MSG::DEBUG)){
       msg(MSG::DEBUG)
-	<< "EFMissingETFromCells::addAllCellsToHelper() is using RegionSelector" 
+	<< "EFMissingETFromCells::addAllCellsToHelper() is using RegionSelector"
         << endmsg; // DEBUG
     }
     const char* samplNames[12] = {"TTEM",  "TTEM",  "TTEM",  "TTEM",
@@ -271,7 +273,7 @@ StatusCode EFMissingETFromCells::addAllCellsToHelper(TrigEFMissingEtHelper* metH
 	    << samplNames[i] << ", " << sampling[i] << ")" << endmsg; // DEBUG
         }
 
-	StatusCode sc = addLArCellsToHelper(etamin, etamax, phimin, phimax, metHelper, 
+	StatusCode sc = addLArCellsToHelper(etamin, etamax, phimin, phimax, metHelper,
 				 samplDetID[i], sampling[i], true);
 	if (sc.isFailure()) return sc;
 
@@ -282,7 +284,7 @@ StatusCode EFMissingETFromCells::addAllCellsToHelper(TrigEFMissingEtHelper* metH
 	    << samplNames[i] << ", " << sampling[i] << ")" << endmsg; // DEBUG
         }
 
-	StatusCode sc = addTileCellsToHelper(etamin, etamax, 0., 2*phimax, metHelper, 
+	StatusCode sc = addTileCellsToHelper(etamin, etamax, 0., 2*phimax, metHelper,
 				  samplDetID[i], sampling[i], true);
 	if (sc.isFailure()) return sc;
       }
@@ -299,7 +301,7 @@ StatusCode EFMissingETFromCells::addAllCellsToHelper(TrigEFMissingEtHelper* metH
 
 //////--
 
-StatusCode EFMissingETFromCells::addLArCellsToHelper(double etamin, double etamax, 
+StatusCode EFMissingETFromCells::addLArCellsToHelper(double etamin, double etamax,
     double phimin, double phimax,
     TrigEFMissingEtHelper* metHelper,
     DETID detectorID, int sampling,
@@ -363,12 +365,12 @@ StatusCode EFMissingETFromCells::addLArCellsToHelper(double etamin, double etama
     if (metComp->m_skip) {
       if (msgLvl(MSG::DEBUG)){
         msg(MSG::DEBUG)
-          << "Skipping L.Ar cells from (detID = "<< detectorID 
-          << ", sampling = " << sampling << "), i.e. " 
+          << "Skipping L.Ar cells from (detID = "<< detectorID
+          << ", sampling = " << sampling << "), i.e. "
           << metComp->m_name << endmsg;
       }
       break;
-    } 
+    }
     else if ( metComp->m_status & m_maskProcessed ) // already done
       break;
 
@@ -411,12 +413,12 @@ StatusCode EFMissingETFromCells::addLArCellsToHelper(double etamin, double etama
     if (!m_makeRobustness) continue;
     if (!m_doCellNoiseSupp || (m_doCellNoiseSupp &&
                                m_MinCellSNratio[cDDE->getSampling()] > m_maxThreshold)) {
-       
+
        if (fabs(E) < m_MinCellSNratio[cDDE->getSampling()] *
            m_noiseTool->getNoise(*m_it, ICalorimeterNoiseTool::TOTALNOISE))
           continue;
 	    }
-    
+
     float time = (*m_it)->time() * 1e-3;  // ns
     float quality = (*m_it)->quality();
     if (time < metComp->m_minTime) metComp->m_minTime = time;
@@ -426,7 +428,7 @@ StatusCode EFMissingETFromCells::addLArCellsToHelper(double etamin, double etama
     if (E > metComp->m_maxE) metComp->m_maxE = E;
 
   } // end of Main Loop
-  
+
   if (m_timersvc) m_timer[iDet][2]->pause();
 
   return StatusCode::SUCCESS;
@@ -435,7 +437,7 @@ StatusCode EFMissingETFromCells::addLArCellsToHelper(double etamin, double etama
 
 //////--
 
-StatusCode EFMissingETFromCells::addTileCellsToHelper(double etamin, double etamax, 
+StatusCode EFMissingETFromCells::addTileCellsToHelper(double etamin, double etamax,
     double phimin, double phimax,
     TrigEFMissingEtHelper* metHelper,
     DETID detectorID, int sampling,
@@ -490,12 +492,12 @@ StatusCode EFMissingETFromCells::addTileCellsToHelper(double etamin, double etam
           << "Skipping Tile cells from "
           << metComp->m_name << endmsg;
         break;
-      } 
+      }
       else if ( metComp->m_status & m_maskProcessed ) // already done
         break;
 
       metComp->m_status |= m_maskProcessing; // go to "processing" state
-      
+
       double E   = (*m_itt)->e();
       // 2. noise suppression
       if (m_doCellNoiseSupp) {
@@ -547,7 +549,7 @@ StatusCode EFMissingETFromCells::addTileCellsToHelper(double etamin, double etam
       if (!m_makeRobustness) continue;
       if (!m_doCellNoiseSupp || (m_doCellNoiseSupp &&
                                  m_MinCellSNratio[cDDE->getSampling()] > m_maxThreshold)) {
-         double sigma = m_noiseTool->getEffectiveSigma( *m_itt, 
+         double sigma = m_noiseTool->getEffectiveSigma( *m_itt,
                                                         ICalorimeterNoiseTool::MAXSYMMETRYHANDLING,
                                                         ICalorimeterNoiseTool::TOTALNOISE);
          if (fabs(E) < m_MinCellSNratio[cDDE->getSampling()] * sigma) continue;
@@ -560,20 +562,20 @@ StatusCode EFMissingETFromCells::addTileCellsToHelper(double etamin, double etam
       if (quality > metComp->m_maxQlty) metComp->m_maxQlty = quality;
       if (E < metComp->m_minE) metComp->m_minE = E;
       if (E > metComp->m_maxE) metComp->m_maxE = E;
-      
+
     } // end loop over cells
-    
+
   } // end loop over samplings
-  
+
   if (m_timersvc) m_timer[iDet][2]->pause();
-  
+
   return StatusCode::SUCCESS;
-  
+
 }
 
 //////--
 
-StatusCode EFMissingETFromCells::addFullLArCellsToHelper(TrigEFMissingEtHelper* metHelper, 
+StatusCode EFMissingETFromCells::addFullLArCellsToHelper(TrigEFMissingEtHelper* metHelper,
     DETID detectorID, bool prepare){
 
   if (msgLvl(MSG::DEBUG)){
@@ -630,11 +632,11 @@ StatusCode EFMissingETFromCells::addFullLArCellsToHelper(TrigEFMissingEtHelper* 
     if (metComp->m_skip) {
       if (msgLvl(MSG::DEBUG)){
         msg(MSG::DEBUG)
-          << "Skipping L.Ar cells from detID = "<< detectorID 
+          << "Skipping L.Ar cells from detID = "<< detectorID
           << ", i.e. " << metComp->m_name << endmsg;
       }
       break;
-    } 
+    }
     else if ( metComp->m_status & m_maskProcessed ) // already done
       break;
 
@@ -698,7 +700,7 @@ StatusCode EFMissingETFromCells::addFullLArCellsToHelper(TrigEFMissingEtHelper* 
 
 //////--
 
-StatusCode EFMissingETFromCells::addFullTileCellsToHelper(TrigEFMissingEtHelper* metHelper, 
+StatusCode EFMissingETFromCells::addFullTileCellsToHelper(TrigEFMissingEtHelper* metHelper,
     int sampling, bool /*prepare*/ ){
   if (msgLvl(MSG::DEBUG)){
     msg(MSG::DEBUG) << "EFMissingETFromCells::addFullTileCellsToHelper(sampling="
@@ -735,7 +737,7 @@ StatusCode EFMissingETFromCells::addFullTileCellsToHelper(TrigEFMissingEtHelper*
 
       // 1. find component
       // TrigEFMissingEtComponent *metComp = metHelper->GetComponent( CaloSampling::getSampling( *(*m_itt) ) );
-      TrigEFMissingEtComponent *metComp = metHelper->GetComponent( (*m_itt)->caloDDE()->getSampling() ); 
+      TrigEFMissingEtComponent *metComp = metHelper->GetComponent( (*m_itt)->caloDDE()->getSampling() );
       if (metComp==0) {
         msg(MSG::FATAL) << "Cannot find calo sampling!" << endmsg;
         return StatusCode::FAILURE;
@@ -745,7 +747,7 @@ StatusCode EFMissingETFromCells::addFullTileCellsToHelper(TrigEFMissingEtHelper*
           << "Skipping Tile cells from "
           << metComp->m_name << endmsg;
         break;
-      } 
+      }
       else if ( metComp->m_status & m_maskProcessed ) // already done
         break;
 
@@ -797,17 +799,17 @@ StatusCode EFMissingETFromCells::addFullTileCellsToHelper(TrigEFMissingEtHelper*
       if( tileQuality > m_MaxTileQ ) metComp->m_sumBadEt += et;
       if (BSerrors) metComp->m_status |= m_maskErrBSconv; // | m_maskCompErrors;
       metComp->m_sumOfSigns += static_cast<short int>(floor(copysign(1.0,E) + 0.5));
-      
+
       // 4. auxiliary quantities for robustness checks
       if (!m_makeRobustness) continue;
       if (!m_doCellNoiseSupp || (m_doCellNoiseSupp &&
                                  m_MinCellSNratio[cDDE->getSampling()] > m_maxThreshold)) {
-         double sigma = m_noiseTool->getEffectiveSigma( *m_itt, 
+         double sigma = m_noiseTool->getEffectiveSigma( *m_itt,
                                                         ICalorimeterNoiseTool::MAXSYMMETRYHANDLING,
                                                         ICalorimeterNoiseTool::TOTALNOISE);
          if (fabs(E) < m_MinCellSNratio[cDDE->getSampling()] * sigma) continue;
       }
-      
+
       float time = (*m_itt)->time() * 1e-3;  // ns
       float quality = (*m_itt)->quality();
       if (time < metComp->m_minTime) metComp->m_minTime = time;

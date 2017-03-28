@@ -93,7 +93,7 @@ StatusCode EFMissingETFromFEBHeader::initialize()
   if (service( "DetectorStore", detStore ).isFailure()) {
     msg(MSG::FATAL) << "Unable to locate DetectorStore" << endmsg;
     return StatusCode::FAILURE;
-  }	
+  }
 
   if (detStore->retrieve(m_LArOnlineID, "LArOnlineID").isFailure()) {
     msg(MSG::FATAL) << "Could not get LArOnlineID helper!" << endmsg;
@@ -122,12 +122,14 @@ StatusCode EFMissingETFromFEBHeader::execute()
 
 StatusCode EFMissingETFromFEBHeader::execute(xAOD::TrigMissingET * /* met */ ,
     TrigEFMissingEtHelper * metHelper,
-    const xAOD::CaloClusterContainer * /* caloCluster */, const xAOD::JetContainer  * /* jets */)
+    const xAOD::CaloClusterContainer * /* caloCluster */, const xAOD::JetContainer  * /* jets */,
+                                        const xAOD::TrackParticleContainer * /*trackContainer*/,
+                                        const xAOD::VertexContainer * /*vertexContainer*/ )
 {
 
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) 
-      << "EFMissingETFromFEBHeader::execute() has been called" 
+    msg(MSG::DEBUG)
+      << "EFMissingETFromFEBHeader::execute() has been called"
       << endmsg; // DEBUG
   }
 
@@ -152,7 +154,7 @@ StatusCode EFMissingETFromFEBHeader::execute(xAOD::TrigMissingET * /* met */ ,
 
   if (msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG)
-      << "EFMissingETFromFEBHeader::execute() is calling addFebEnergyToHelper()" 
+      << "EFMissingETFromFEBHeader::execute() is calling addFebEnergyToHelper()"
       << endmsg; // DEBUG
   }
   StatusCode sc = addFebEnergyToHelper(metHelper);
@@ -198,7 +200,7 @@ StatusCode EFMissingETFromFEBHeader::addFebEnergyToHelper(TrigEFMissingEtHelper*
 
     if(msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG)
-	       << "EFMissingETFromFEBHeader::addFebEnergyToHelper() is using LoadFullCollections" 
+	       << "EFMissingETFromFEBHeader::addFebEnergyToHelper() is using LoadFullCollections"
 	       << endmsg; // DEBUG
     }
 
@@ -225,8 +227,8 @@ StatusCode EFMissingETFromFEBHeader::addFebEnergyToHelper(TrigEFMissingEtHelper*
   } else { // use RegionSelector() to load collections (slower!)
 
     if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) 
-	       << "EFMissingETFromFEBHeader::addFebEnergyToHelper() is using RegionSelector" 
+      msg(MSG::DEBUG)
+	       << "EFMissingETFromFEBHeader::addFebEnergyToHelper() is using RegionSelector"
 	       << endmsg; // DEBUG
     }
 
@@ -283,7 +285,7 @@ StatusCode EFMissingETFromFEBHeader::addLArFebEnergyToHelper(double etamin, doub
     DETID detectorID, int sampling,
     bool prepare){
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "addLArFebEnergyToHelper(DETID=" << detectorID 
+    msg(MSG::DEBUG) << "addLArFebEnergyToHelper(DETID=" << detectorID
       << ", sampling=" << sampling << ")" << endmsg;
   }
 
@@ -354,17 +356,17 @@ StatusCode EFMissingETFromFEBHeader::addLArFebEnergyToHelper(double etamin, doub
         offChId = m_cablingSvc->cnvToIdentifier(onlChId);
         ichannel++;
         if (ichannel>127) {
-          msg(MSG::ERROR) 
+          msg(MSG::ERROR)
 		   << "not connected channel found for this FEB: " << febid << endmsg;
           return StatusCode::RECOVERABLE;
         }
       } while(!offChId.is_valid());
 
-      int caloSamp = m_CaloCell_ID->sampling(offChId); 
+      int caloSamp = m_CaloCell_ID->sampling(offChId);
       HWIdentifier modId = m_cablingSvc->getReadoutModuleID(febid2); //ReadOutModuleId
       int subdet =  m_larROModSvc.em_hec_fcal(modId);  // em=0, hec=1, fcal=2
       int caloId =  m_larROModSvc.barrel_ec(modId);    // barrel:0 or EndCAp:1
-      //       int posneg =  m_larROModSvc.pos_neg(modId);      // A(pos:1) or C(neg:0)      
+      //       int posneg =  m_larROModSvc.pos_neg(modId);      // A(pos:1) or C(neg:0)
 
       unsigned char k=0;
       bool doHackForHEC=false;
@@ -386,7 +388,7 @@ StatusCode EFMissingETFromFEBHeader::addLArFebEnergyToHelper(double etamin, doub
 
       TrigEFMissingEtComponent* metComp = metHelper->GetComponent(k);
       if (metComp==0) {
-        msg(MSG::FATAL) << "Cannot find calo sampling " << (int)k 
+        msg(MSG::FATAL) << "Cannot find calo sampling " << (int)k
           << ". caloId=" << caloId << ", caloSamp=" << caloSamp
           << ", subdet=" << subdet << " (febid=" << febid
           << ", offChId=" << offChId << ")" << endmsg;
@@ -398,7 +400,7 @@ StatusCode EFMissingETFromFEBHeader::addLArFebEnergyToHelper(double etamin, doub
           << ", sampling = " << sampling << "), i.e. "
           << metComp->m_name << endmsg;
         break;
-      } 
+      }
       else if ( metComp->m_status & m_maskProcessed ) // already done
         break;
 
@@ -441,7 +443,7 @@ StatusCode EFMissingETFromFEBHeader::addLArFebEnergyToHelper(double etamin, doub
 
 //////--
 
-StatusCode EFMissingETFromFEBHeader::addFullLArFebEnergyToHelper(TrigEFMissingEtHelper* metHelper, 
+StatusCode EFMissingETFromFEBHeader::addFullLArFebEnergyToHelper(TrigEFMissingEtHelper* metHelper,
     DETID detectorID, bool prepare){
   if(msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << "addFullLArFebEnergyToHelper(DETID="
@@ -510,17 +512,17 @@ StatusCode EFMissingETFromFEBHeader::addFullLArFebEnergyToHelper(TrigEFMissingEt
         offChId = m_cablingSvc->cnvToIdentifier(onlChId);
         ichannel++;
         if (ichannel>127) {
-          msg(MSG::ERROR) 
+          msg(MSG::ERROR)
 		   << "not connected channel found for this FEB: " << febid << endmsg;
           return StatusCode::RECOVERABLE;
         }
       } while(!offChId.is_valid());
 
-      int caloSamp = m_CaloCell_ID->sampling(offChId); 
+      int caloSamp = m_CaloCell_ID->sampling(offChId);
       HWIdentifier modId = m_cablingSvc->getReadoutModuleID(febid2); //ReadOutModuleId
       int subdet = m_larROModSvc.em_hec_fcal(modId);  // em=0, hec=1, fcal=2
       int caloId = m_larROModSvc.barrel_ec(modId);    // barrel:0 or EndCAp:1
-      //       int posneg =  m_larROModSvc.pos_neg(modId);      // A(pos:1) or C(neg:0)      
+      //       int posneg =  m_larROModSvc.pos_neg(modId);      // A(pos:1) or C(neg:0)
 
       unsigned char k=0;
       bool doHackForHEC=false;
@@ -553,7 +555,7 @@ StatusCode EFMissingETFromFEBHeader::addFullLArFebEnergyToHelper(TrigEFMissingEt
           << "Skipping L.Ar cells from DETID = " << detectorID
           << ", i.e. " << metComp->m_name << endmsg;
         break;
-      } 
+      }
       else if ( metComp->m_status & m_maskProcessed ) // already done
         break;
 
@@ -597,7 +599,7 @@ StatusCode EFMissingETFromFEBHeader::addFullLArFebEnergyToHelper(TrigEFMissingEt
 
 //////--
 
-StatusCode EFMissingETFromFEBHeader::addFullTileFebEnergyToHelper(TrigEFMissingEtHelper* metHelper, 
+StatusCode EFMissingETFromFEBHeader::addFullTileFebEnergyToHelper(TrigEFMissingEtHelper* metHelper,
     DETID detectorID, bool /*prepare*/ ){
   if(msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << "addFullLArFebEnergyToHelper(DETID="
@@ -655,7 +657,7 @@ StatusCode EFMissingETFromFEBHeader::addFullTileFebEnergyToHelper(TrigEFMissingE
        metComp = metHelper->GetComponent(targetComponent+jj);
        if (metComp) metComp->m_status |= m_maskProcessing;
      }
-     
+
 
 
   }

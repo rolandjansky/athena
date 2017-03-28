@@ -40,7 +40,7 @@ class EFMissingETFromFEBHeader : public EFMissingETBaseTool
   public:
 
     EFMissingETFromFEBHeader(const std::string& type,
-        const std::string& name, 
+        const std::string& name,
         const IInterface* parent);
 
     ~EFMissingETFromFEBHeader();
@@ -49,10 +49,12 @@ class EFMissingETFromFEBHeader : public EFMissingETBaseTool
     virtual StatusCode finalize();
     virtual StatusCode execute();
 
-    virtual StatusCode execute(xAOD::TrigMissingET *met, 
-        TrigEFMissingEtHelper *metHelper, 
-        const xAOD::CaloClusterContainer *caloCluster,
-        const xAOD::JetContainer *jets);
+    virtual StatusCode execute(xAOD::TrigMissingET *met,
+                               TrigEFMissingEtHelper *metHelper,
+                               const xAOD::CaloClusterContainer *caloCluster,
+                               const xAOD::JetContainer *jets,
+                               const xAOD::TrackParticleContainer *track,
+                               const xAOD::VertexContainer *vertex);
 
     // slow calo data access via RegionSelector
     StatusCode addFebEnergyToHelper(TrigEFMissingEtHelper* met);
@@ -89,7 +91,7 @@ class EFMissingETFromFEBHeader : public EFMissingETBaseTool
     const LArOnlineID *m_LArOnlineID;
     const CaloCell_ID *m_CaloCell_ID;
     LArReadoutModuleService m_larROModSvc;
-    
+
 };
 
 #endif // TRIGEFMISSINGET_EFMISSINGETFROMFEBHEADER

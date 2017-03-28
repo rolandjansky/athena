@@ -80,7 +80,7 @@ EFMissingETBaseTool::EFMissingETBaseTool(const std::string& type,
   m_maskObjInCrack           = 0x40000000; // bit 30
   m_maskGlobErrors           = 0x80000000; // bit 31
 
-  m_fextype = FexType::OTHER; 
+  m_fextype = FexType::OTHER;
 
 }
 
@@ -114,8 +114,10 @@ StatusCode EFMissingETBaseTool::execute()
 
 StatusCode EFMissingETBaseTool::execute(xAOD::TrigMissingET * /* met */ ,
     TrigEFMissingEtHelper * /* metHelper */ ,
-    const xAOD::CaloClusterContainer * /* caloCluster */ , const xAOD::JetContainer  * /* jets */)
-{	
+    const xAOD::CaloClusterContainer * /* caloCluster */ , const xAOD::JetContainer  * /* jets */,
+                                        const xAOD::TrackParticleContainer * /*trackContainer*/,
+                                        const xAOD::VertexContainer * /*vertexContainer*/ )
+{
   return StatusCode::SUCCESS;
 }
 
