@@ -184,15 +184,6 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster *cluster,
   m_cluster = cluster;
   m_cellContainer = cell_container;
 
-  // get cell_container key in SG so functions called later can retrieve right container
-  SG::DataProxy* proxy(evtStore()->proxy(cell_container));
-  if (proxy) {
-    m_cellsName = proxy->name();
-  }  else {
-    ATH_MSG_DEBUG(" No valid StoreGate proxy for CaloCellContainer pointer");
-    return StatusCode::SUCCESS;
-  }
-
   // initialisation of variables
   InitVariables();
   // retrieve energy in all samplings

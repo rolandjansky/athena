@@ -30,6 +30,7 @@
 #include "GaudiKernel/AlgTool.h"
 #include "egammaBaseTool.h"
 #include "GaudiKernel/ToolHandle.h" 
+#include "StoreGate/ReadHandleKey.h"
 
 #include "egammaInterfaces/IEMShowerBuilder.h"
 #include "egammaInterfaces/IegammaShowerShape.h"
@@ -86,7 +87,7 @@ class EMShowerBuilder : public egammaBaseTool, virtual public IEMShowerBuilder
   StatusCode FillEMShowerShape(xAOD::Egamma* eg) const ;
 
   /** @brief Cell container*/
-  std::string m_cellsName;     
+  SG::ReadHandleKey<CaloCellContainer> m_cellsKey;     
   /** @brief vector of calo-id to treat*/
   std::vector<int> m_caloNums ;     
 

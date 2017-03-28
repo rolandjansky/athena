@@ -27,6 +27,7 @@ Most of the informations are given separately for each layer of the EM calorimet
 #include "CaloUtils/CaloCellList.h"
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class IToolSvc;
 class CaloCellContainer;
@@ -61,8 +62,7 @@ class egammaOQFlagsBuilder : public egammaBaseTool
   const LArEM_ID* m_emHelper;
   const CaloCell_ID* m_calocellId;
   const CaloAffectedRegionInfoVec* m_affRegVec;
-  const CaloCellContainer* m_cellcoll;
-  std::string m_cellsName;
+  SG::ReadHandleKey<CaloCellContainer> m_cellsKey;
 
   // IToolSvc* m_toolSvc;
   bool isCore(Identifier Id, const std::vector<IdentifierHash>& neighbourList) const;

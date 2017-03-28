@@ -19,6 +19,7 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "FourMomUtils/P4Helpers.h"
+#include "StoreGate/ReadHandle.h"
 //  END OF HEADER FILES INCLUDE
 
 using CLHEP::GeV;
@@ -33,7 +34,6 @@ egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
     m_larCablingSvc("LArCablingService"),
     m_affectedTool("CaloAffectedTool"),
     m_emHelper(0),
-    m_cellcoll(0),
     m_cellCentrId(0),
     m_detStore(NULL)
 {
@@ -49,7 +49,7 @@ egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
   // (declared in jobOptions file)
   declareProperty("LArBadChannelTool",m_badChannelTool,"This is the larBadChannelTool");
   declareProperty("affectedTool"    , m_affectedTool); 
-  declareProperty("CellsName",m_cellsName="AllCalo","Names of container which contain cells ");
+  declareProperty("CellsName",m_cellsKey="AllCalo","Names of container which contain cells ");
   declareProperty("QCellCut", m_QCellCut = 4000.);
   declareProperty("QCellHECCut", m_QCellHECCut = 60000.);
   declareProperty("QCellSporCut", m_QCellSporCut = 4000.);
@@ -78,6 +78,8 @@ StatusCode egammaOQFlagsBuilder::initialize()
 
   ATH_MSG_DEBUG(" Initializing egammaOQFlagsBuilder");
  
+  ATH_CHECK(m_cellsKey.initialize());
+
   StatusCode sc;
   
   // get DetectorStore service
@@ -441,13 +443,14 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
 
   //====================  Check the tile component  ==================================//
   //Get CaloCellContainer
-  StatusCode sc = evtStore()->retrieve(m_cellcoll, m_cellsName) ; 
-  if(sc.isFailure() || !m_cellcoll) {
-    ATH_MSG_WARNING("no Calo Cell Container " << m_cellsName << " found");
-    return sc;
+  SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey);
+  // check is only used for serial running; remove when MT scheduler used
+  if(!cellcoll.isValid()) {
+    ATH_MSG_ERROR("Failed to retrieve cell container: "<< m_cellsKey.key());
+    return StatusCode::FAILURE;
   }
   CaloCell_ID::SUBCALO HADCal = static_cast<CaloCell_ID::SUBCALO>(CaloCell_ID::TILE);
-  CaloCellList ccl(m_cellcoll,HADCal); 
+  CaloCellList ccl(cellcoll.cptr(),HADCal);
   double size = 0.12;
   //------------------------ TileBar0 --------------------------------//
   bool isbadtilebar0cell=isbadtilecell(ccl,clusterEta,clusterPhi,size,size,CaloSampling::TileBar0);

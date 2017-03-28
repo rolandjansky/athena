@@ -4,6 +4,7 @@
 
 // INCLUDE HEADER FILES:
 #include "GaudiKernel/IChronoStatSvc.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "EMShowerBuilder.h"
 
@@ -56,7 +57,7 @@ EMShowerBuilder::EMShowerBuilder(const std::string& type,
   // (declared in jobOptions file)
   
   // Names of containers which contain cells  
-  declareProperty("CellsName",m_cellsName="AllCalo", "Names of containers which contain cells ");
+  declareProperty("CellsName",m_cellsKey="AllCalo", "Names of containers which contain cells ");
 
   // list of calo to treat
   declareProperty("CaloNums",m_caloNums, "list of calo to treat");
@@ -102,6 +103,8 @@ StatusCode EMShowerBuilder::initialize()
 
   ATH_MSG_DEBUG(" Initializing EMShowerBuilder");;
  
+  ATH_CHECK(m_cellsKey.initialize(m_UseShowerShapeTool || m_UseCaloIsoTool));
+
   unsigned int nSubCalo=static_cast<int>(CaloCell_ID::NSUBCALO) ;
   //check calo number specified
   m_caloSelection = false ;
@@ -264,11 +267,17 @@ StatusCode EMShowerBuilder::retrieveContainers()
 
   // retrieve Calo Cell Container
   if (m_UseShowerShapeTool || m_UseCaloIsoTool) {
-    StatusCode sc = evtStore()->retrieve(m_cellcoll, m_cellsName) ; 
-    if(sc.isFailure() || !m_cellcoll) {
-      ATH_MSG_WARNING("no Calo Cell Container " << m_cellsName << " found");
-      return sc;
+    SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey);
+
+    // check is only used for serial running; remove when MT scheduler used
+    if(!cellcoll.isValid()) {
+      ATH_MSG_ERROR("Failed to retrieve cell container: "<< m_cellsKey.key());
+      return StatusCode::FAILURE;
     }
+
+    m_cellcoll = cellcoll.cptr();
+  } else {
+    m_cellcoll = nullptr;
   }
 
   return StatusCode::SUCCESS;
