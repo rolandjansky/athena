@@ -15,7 +15,7 @@ LayerTestTool::LayerTestTool(const std::string& type, const std::string& name, c
   : SimTestToolBase(type, name, parent), m_collection("CaloEntry"), m_n_energy(0),m_n_energy_e(0),m_n_energy_ep(0),
     m_n_energy_gamma(0),m_n_energy_neutron(0),m_n_energy_muon(0),m_n_energy_muonp(0),
     m_n_pos(0),m_n_px(0),m_n_py(0),m_n_pz(0),m_n_rho(0),m_n_eta(0),m_n_phi(0), 
-    energy(0),pos_x(0),pos_y(0),pos_z(0),pos_r(0),p_x(0),p_y(0),p_z(0),p_rho(0),p_phi(0),p_eta(0)
+    m_energy(0),m_pos_x(0),m_pos_y(0),m_pos_z(0),m_pos_r(0),m_p_x(0),m_p_y(0),m_p_z(0),m_p_rho(0),m_p_phi(0),m_p_eta(0)
 {
     declareProperty("CollectionName",  m_collection="CaloEntry");
 }
@@ -77,54 +77,54 @@ StatusCode LayerTestTool::processEvent()
    
     for(auto e : *trCollection){
 
-      energy = e.GetEnergy();
-      m_n_energy->Fill(energy);
+      m_energy = e.GetEnergy();
+      m_n_energy->Fill(m_energy);
 
       if(e.GetPDGCode() == 11){
-        m_n_energy_e->Fill(energy);
+        m_n_energy_e->Fill(m_energy);
       }
 
       if(e.GetPDGCode() == -11){
-        m_n_energy_ep->Fill(energy);
+        m_n_energy_ep->Fill(m_energy);
       }
 
       if(e.GetPDGCode() == 22){
-        m_n_energy_gamma->Fill(energy);
+        m_n_energy_gamma->Fill(m_energy);
       }
 
       if(e.GetPDGCode() == 2112){
-        m_n_energy_neutron->Fill(energy);
+        m_n_energy_neutron->Fill(m_energy);
       }
 
       if(e.GetPDGCode() == 13){
-        m_n_energy_muon->Fill(energy);
+        m_n_energy_muon->Fill(m_energy);
       }
 
       if(e.GetPDGCode() == -13){
-        m_n_energy_muonp->Fill(energy);
+        m_n_energy_muonp->Fill(m_energy);
       }
 
-      pos_x = e.GetPosition().x();
-      pos_y = e.GetPosition().y();
-      pos_z = e.GetPosition().z();
-      pos_r= std::sqrt(pos_x*pos_x+pos_y*pos_y);
-      m_n_pos->Fill(pos_z,pos_r);
+      m_pos_x = e.GetPosition().x();
+      m_pos_y = e.GetPosition().y();
+      m_pos_z = e.GetPosition().z();
+      m_pos_r= std::sqrt(m_pos_x*m_pos_x+m_pos_y*m_pos_y);
+      m_n_pos->Fill(m_pos_z,m_pos_r);
 
-      p_x=e.GetMomentum().x();
-      p_y=e.GetMomentum().y();
-      p_z=e.GetMomentum().z();
-      //    std::cout<<"px="<<p_x<<";py="<<p_y<<";pz="<<p_z<<std::endl;
-      m_n_px->Fill(p_x);
-      m_n_py->Fill(p_y);
-      m_n_pz->Fill(p_z);
+      m_p_x=e.GetMomentum().x();
+      m_p_y=e.GetMomentum().y();
+      m_p_z=e.GetMomentum().z();
+      //    std::cout<<"px="<<m_p_x<<";py="<<m_p_y<<";pz="<<m_p_z<<std::endl;
+      m_n_px->Fill(m_p_x);
+      m_n_py->Fill(m_p_y);
+      m_n_pz->Fill(m_p_z);
 
-      p_rho=e.GetMomentum().rho();
-      p_phi=e.GetMomentum().phi();
-      p_eta=e.GetMomentum().eta();
-      //    std::cout<<"rho="<<p_rho<<";phi="<<p_phi<<";eta="<<p_eta<<std::endl;
-      m_n_rho->Fill(p_rho);
-      m_n_eta->Fill(p_eta);
-      m_n_phi->Fill(p_phi);
+      m_p_rho=e.GetMomentum().rho();
+      m_p_phi=e.GetMomentum().phi();
+      m_p_eta=e.GetMomentum().eta();
+      //    std::cout<<"rho="<<m_p_rho<<";phi="<<m_p_phi<<";eta="<<m_p_eta<<std::endl;
+      m_n_rho->Fill(m_p_rho);
+      m_n_eta->Fill(m_p_eta);
+      m_n_phi->Fill(m_p_phi);
     }
 
   }
