@@ -38,8 +38,8 @@ TrigSuperRoiBuilderAllTE::TrigSuperRoiBuilderAllTE(const std::string & name, ISv
 {
   declareProperty ("JetInputKey",     m_jetInputKey     = "TrigJetRec");
   declareProperty ("JetOutputKey",    m_jetOutputKey    = "SuperRoi");
-  declareProperty ("EtaHalfWidth",    m_etaHalfWidth    = 0.2);
-  declareProperty ("PhiHalfWidth",    m_phiHalfWidth    = 0.2);
+  declareProperty ("EtaHalfWidth",    m_etaHalfWidth    = 0.1);
+  declareProperty ("PhiHalfWidth",    m_phiHalfWidth    = 0.1);
   declareProperty ("JetMinEt",        m_minJetEt        = 30.0); // in GeV 
   declareProperty ("JetMaxEta",       m_maxJetEta       = 2.5+m_etaHalfWidth);  // tracker acceptance + jet half-width
   declareProperty ("NJetsMax",        m_nJetsMax        = -1); // option to limit the number of jets that form the super RoI
