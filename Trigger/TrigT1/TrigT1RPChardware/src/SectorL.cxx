@@ -18,9 +18,9 @@ SectorL::SectorL(int run, int event, CMAword /*debug*/,
 ubit16 i, j, k;
 m_padData=7;
 m_maxNumPads=10;
-nBunMax=NOBXS;
+m_nBunMax=NOBXS;
 
-for(i=0; i<nBunMax; i++) {
+for(i=0; i<m_nBunMax; i++) {
     m_numOfPads[i]=0;
 }
  
@@ -29,7 +29,7 @@ m_event=event;
 m_subsystem=subsys;
 m_sector=sect;    
         
-for(i=0; i<nBunMax; i++) {
+for(i=0; i<m_nBunMax; i++) {
  m_numberOfRoIs[i]=0;
  m_sectorOutput[i]=0;
  for(k=0; k<10; k++) {
@@ -78,7 +78,7 @@ void SectorL::execute() {
 // buffer of the sector logic 
 //
 ubit16 i, j, k;
-for(i=0; i<nBunMax; i++) {
+for(i=0; i<m_nBunMax; i++) {
  for(j=0; j<m_numOfPads[i]; j++) {
   if(m_sectorInput[i][j][2]) m_numberOfRoIs[i]++;
 //  if(m_sectorInput[i][j][2]) {
@@ -95,7 +95,7 @@ for(i=0; i<nBunMax; i++) {
  }//end-of-for(j
 }//end-of-for(i
 //
-//for(i=0; i<nBunMax; i++) {
+//for(i=0; i<m_nBunMax; i++) {
 // DISP<<" pTArray[0] pT= "<<m_pTArray[i][0][0]
 //     <<" padInd= "<<m_pTArray[i][0][1]<<endl
 //     <<" pTArray[1] pT= "<<m_pTArray[i][1][0]
@@ -106,7 +106,7 @@ for(i=0; i<nBunMax; i++) {
 //
 // now fill the output buffer
 //
-for(i=0; i<nBunMax; i++) {
+for(i=0; i<m_nBunMax; i++) {
 
   // TEMP: use m_sectorOut[i][8] and [9] to store OVL1 and OVL2
 
@@ -181,7 +181,7 @@ void SectorL::storePT(ubit16 bunch, ubit16 padInd, ubit16 modeInd) {
 }
 //-------------------------------------------------------------------//
 CMAword SectorL::output(ubit16 i) {
-if(i<nBunMax) {
+if(i<m_nBunMax) {
  return m_sectorOutput[i];
 } else {
  return 0xffffffff;
