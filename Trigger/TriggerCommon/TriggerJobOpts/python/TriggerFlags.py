@@ -12,11 +12,6 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerJobOpts.TriggerFlags' )
 log.setLevel(logging.DEBUG)
 
-
-#import traceback
-#stack = traceback.extract_stack()
-#log.info( "Imported TriggerFlags from %s, line %i" % (stack[-2][0], stack[-2][1]) )
-
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
 from TriggerMenu.menu.CommonSliceHelper import AllowedList
 from TrigConfigSvc.TrigConfigSvcUtils import getKeysFromNameRelease, getMenuNameFromDB
@@ -309,33 +304,6 @@ class doMuon(JobProperty):
 
 _flags.append(doMuon)
 
-# Flags to switch on/off physics selection slices
-# defaults L2ID, L2Calo, L2Muon, EFID, EFCalo, EFMuon
-#         class TauSlice(JobProperty):---""" """ statusOn=True\allowedType=['bool']\nStoredValue=TriggerSliceFlags(L2ID(JobProperty):True, L2Calo(JobProperty):True, L2Muon(JobProperty):False,
-#                                         EFID(JobProperty):False, EFCalo(JobProperty):False, EFMuon(JobProperty):False)
-
-#         class JetSlice(JobProperty):TriggerSliceFlags(L2ID(JobProperty):False, L2Calo(JobProperty):False, L2Muon(JobProperty):False,
-#                                         EFID(JobProperty):False, EFCalo(JobProperty):False, EFMuon(JobProperty):False)
-
-#         class BphysicsSlice(JobProperty):TriggerSliceFlags(L2ID(JobProperty):False, L2Calo(JobProperty):False, L2Muon(JobProperty):False,
-#                                              EFID(JobProperty):False, EFCalo(JobProperty):False, EFMuon(JobProperty):False)
-
-#         class BjetSlice(JobProperty):TriggerSliceFlags(L2ID(JobProperty):False, L2Calo(JobProperty):False, L2Muon(JobProperty):False,
-#                                          EFID(JobProperty):False, EFCalo(JobProperty):False, EFMuon(JobProperty):False)
-
-#         class METSlice(JobProperty):TriggerSliceFlags(L2ID(JobProperty):False, L2Calo(JobProperty):False, L2Muon(JobProperty):False,
-#                                              EFID(JobProperty):False, EFCalo(JobProperty):False, EFMuon(JobProperty):False)
-
-#         class EgammaSlice(JobProperty):TriggerSliceFlags(L2ID(JobProperty):True, L2Calo(JobProperty):True, L2Muon(JobProperty):False,
-#                                            EFID(JobProperty):True, EFCalo(JobProperty):False, EFMuon(JobProperty):False)
-
-#         class MuonSlice(JobProperty):TriggerSliceFlags(L2ID(JobProperty):False, L2Calo(JobProperty):False, L2Muon(JobProperty):False,
-#                                          EFID(JobProperty):False, EFCalo(JobProperty):False, EFMuon(JobProperty):False)
-
-#         class mySlice(JobProperty):TriggerSliceFlags(L2ID(JobProperty):False, L2Calo(JobProperty):False, L2Muon(JobProperty):False,
-#                                        EFID(JobProperty):False, EFCalo(JobProperty):False, EFMuon(JobProperty):False)
-
-
 class doHLTpersistency(JobProperty):
     """ serialise L2result """
     statusOn=True
@@ -501,7 +469,7 @@ class triggerConfig(JobProperty):
     
     statusOn=''
     allowedType=['string']
-    StoredValue = 'MCRECO:DEFAULT';
+    StoredValue = 'MCRECO:DEFAULT'
 
 
     def _do_action(self):
@@ -574,7 +542,7 @@ class triggerConfig(JobProperty):
                 tf.triggerDbConnection = ':'.join(configs[2:-1])  # the dbconnection goes from second to last ':', it can contain ':'
                 DBkeys = configs[-1].split(",")
                 if (len(DBkeys) == 2): #We got either 2 keys (SM, L1PS) or menu name plus release. If latter, second object will contain a .
-                    if not '.' in str(DBkeys[1]):
+                    if '.' not in str(DBkeys[1]):
                         tf.triggerDbKeys=[int(x) for x in DBkeys] +[-1,1] # SMkey, L1PSkey, HLTPSkey, BGkey
                         log.info("triggerConfig: LVL1 from DB with specified keys SMK %i and L1 PSK %i." % tuple(tf.triggerDbKeys()[0:2])   )
                     else:
@@ -671,7 +639,7 @@ class triggerConfig(JobProperty):
                     # possibly not all DetFlags have a TriggerFlag
                     try:
                         exec cmd
-                        recoLog.info(cmd)
+                        log.info(cmd)
                     except AttributeError:
                         pass
         #------            
@@ -679,7 +647,7 @@ class triggerConfig(JobProperty):
         #------
         else:
             log.error("triggerConfig argument \""+self.get_Value()+"\" not understood. "
-                       + "Please check in TriggerFlags.py to see the allowed values.")
+                      + "Please check in TriggerFlags.py to see the allowed values.")
             
 
 _flags.append(triggerConfig)
@@ -735,14 +703,7 @@ class readLVL1configFromXML(JobProperty):
             xmlFile=TriggerFlags.inputLVL1configFile()
             from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
             if xmlFile!='NONE' and not os.path.exists(findFileInXMLPATH(xmlFile)):
-                log.debug("The LVL1 xml file is missing. ")
-                nightlyPaths=os.environ['XMLPATH'].split(':')
-                
-                nightlyDir = [ i.split("/") for i in nightlyPaths if "AtlasTrigger" in  i ][0]
-                #print nightlyDir
-                OldMenuVersion = nightlyDir[nightlyDir.index('AtlasTrigger')+1]
-                log.warning("LVL1 xml file will be taken with the older version: "+OldMenuVersion )
-                TriggerFlags.inputLVL1configFile = "LVL1config_"+TriggerFlags.triggerMenuSetup()+"_" + OldMenuVersion + ".xml"
+                log.error("Cannot find LVL1 xml file %s" % xmlFile)
 
             TriggerFlags.Lvl1.items.set_Off()
 
@@ -765,14 +726,12 @@ class readHLTconfigFromXML(JobProperty):
         log = logging.getLogger( 'TriggerFlags.readHLTconfigFromXML' )
 
         ## loop over all properties in the container
-        # from AthenaCommon.JobProperties import JobPropertyContainer
-        # from TriggerJobOpts.TriggerFlags import TriggerFlags
         for prop in TriggerFlags.__dict__.values():
             if issubclass( prop.__class__, JobPropertyContainer ) and "signatures" in prop.__dict__.keys():
                 for slice_prop_name in prop.__dict__:
                     slice_prop = prop.__dict__.get(slice_prop_name)
                     if issubclass(slice_prop.__class__, JobProperty):
-                        if self.get_Value() == True: ## now depending on the value set flags are on/off
+                        if self.get_Value() is True: ## now depending on the value set flags are on/off
                             slice_prop.set_Off()
                         else:
                             slice_prop.set_On()
@@ -796,14 +755,7 @@ class readHLTconfigFromXML(JobProperty):
                         success = False
 
                 if success is False:
-                    log.debug("The HLT xml file is missing: HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml")
-
-                    nightlyDir = [ i.split("/") for i in nightlyPaths if "AtlasTrigger" in  i ][0]
-                    #print nightlyDir
-                    OldMenuVersion = nightlyDir[nightlyDir.index('AtlasTrigger')+1]
-                    log.warning("HLT xml file will be taken with the older version: "+OldMenuVersion )
-                    TriggerFlags.inputHLTconfigFile = "HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + OldMenuVersion + ".xml"
-
+                    log.error("The HLT xml file is missing: HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml")
                 
 _flags.append(readHLTconfigFromXML)
 
@@ -1101,7 +1053,7 @@ class triggerMenuSetup(JobProperty):
         # filenames for LVL1 and HLT
         if TriggerFlags.readLVL1configFromXML() is True:
             TriggerFlags.inputLVL1configFile = "LVL1config_"+self.get_Value()+"_" + TriggerFlags.menuVersion() + ".xml"
-        if TriggerFlags.readHLTconfigFromXML() is True and (TriggerFlags.inputHLTconfigFile=="" or TriggerFlags.inputHLTconfigFile==None):
+        if TriggerFlags.readHLTconfigFromXML() is True and (TriggerFlags.inputHLTconfigFile=="" or TriggerFlags.inputHLTconfigFile is None):
             TriggerFlags.inputHLTconfigFile = "HLTconfig_"+self.get_Value()+"_" + TriggerFlags.menuVersion() + ".xml"
 
 _flags.append(triggerMenuSetup)
@@ -1163,20 +1115,8 @@ class Trigger(JobPropertyContainer):
             if issubclass( prop.__class__, JobPropertyContainer ) and "signatures" in prop.__dict__.keys():
                 prop.unsetAll()
 
-#    def synchronizeFlgasToRecoSetup(self):
-#        """ When running in the recnstruction framework TriggerFlags must be synchronized with the Reco/Common/Global Flags  """
-#        print 'globals ', globals()
-#        print 'dir ',dir()
-#        if 'doWriteBS' in globals().keys():
-#            if doWriteBS:
-#                self.writeBS = True
-
-        # more to come
-
-
 
 ## attach yourself to the RECO flags
-## from RecExConfig.RecFlags import jobproperties
 from RecExConfig.RecFlags import rec
 rec.add_Container(Trigger)
 
@@ -1219,12 +1159,5 @@ def sync_Trigger2Reco():
 
     if rec.doWriteBS():
         TriggerFlags.writeBS = True
-                    
-                                        
-def sync_Reco2Trigger():
-    #from AthenaCommon.Include import include
-    #include( "TriggerRelease/TransientBS_DetFlags.py" )
-    pass
-
 
 del log
