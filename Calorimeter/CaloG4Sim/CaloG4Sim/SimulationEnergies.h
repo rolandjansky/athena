@@ -37,8 +37,10 @@
 #include <map>
 #include <vector>
 
-#include <thread>
-#include "tbb/concurrent_unordered_map.h"
+#ifdef G4MULTITHREADED
+#  include <thread>
+#  include "tbb/concurrent_unordered_map.h"
+#endif
 
 // Forward declarations.
 class G4Step;
@@ -128,13 +130,17 @@ namespace CaloG4 {
     G4bool ProcessEscapedEnergy( G4ThreeVector point, G4double energy ) const;
 
     // Used to keep track of processing state.
-
+#ifdef G4MULTITHREADED
     /// Thread-to-SD concurrent map type
     /// TODO: this needs a redesign. The map structure is bizarre and needless.
     using StCallThreadMap_t = tbb::concurrent_unordered_map
         < std::thread::id, G4bool, std::hash<std::thread::id> >;
     /// Concurrent map of flags, one for each thread
     static StCallThreadMap_t m_calledForStepThreadMap;
+#else
+    // flag to mark that call was made
+    static G4bool m_calledForStep;
+#endif
 
   };
 

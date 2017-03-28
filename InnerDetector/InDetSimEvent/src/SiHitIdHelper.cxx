@@ -9,7 +9,9 @@
 #include "StoreGate/StoreGate.h"
 #include "InDetIdentifier/PixelID.h"
 
-#include "GaudiKernel/ContextSpecificPtr.h"
+#ifdef G4MULTITHREADED
+#  include "GaudiKernel/ContextSpecificPtr.h"
+#endif
 
 static std::mutex _sgMutex;
 
@@ -20,10 +22,15 @@ SiHitIdHelper::SiHitIdHelper() :HitIdHelper() {
 }
 
 SiHitIdHelper* SiHitIdHelper::GetHelper() {
+#ifdef G4MULTITHREADED
   // Context-specific singleton
   static Gaudi::Hive::ContextSpecificPtr<SiHitIdHelper> helperPtr;
   if(!helperPtr) helperPtr = new SiHitIdHelper();
   return helperPtr.get();
+#else
+  static SiHitIdHelper helper;
+  return &helper;
+#endif
 }
 
 void SiHitIdHelper::Initialize() {

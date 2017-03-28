@@ -23,6 +23,9 @@ SensitiveDetectorBase::SensitiveDetectorBase(const std::string& type,
                                              const std::string& name,
                                              const IInterface* parent)
   : AthAlgTool(type,name,parent)
+#ifndef G4MULTITHREADED
+  , m_SD(nullptr)
+#endif
 {
   declareProperty("LogicalVolumeNames", m_volumeNames);
   declareProperty("NoVolumes", m_noVolumes=false);
@@ -138,19 +141,27 @@ queryInterface(const InterfaceID& riid, void** ppvIf)
 
 G4VSensitiveDetector* SensitiveDetectorBase::getSD()
 {
+#ifdef G4MULTITHREADED
   // Get current thread-ID
   const auto tid = std::this_thread::get_id();
   // Retrieve it from the SD map
   auto sdPair = m_sdThreadMap.find(tid);
   if(sdPair == m_sdThreadMap.end()) return nullptr;
   return sdPair->second;
+#else
+  return m_SD;
+#endif
 }
 
 void SensitiveDetectorBase::setSD(G4VSensitiveDetector* sd)
 {
+#ifdef G4MULTITHREADED
   const auto tid = std::this_thread::get_id();
   ATH_MSG_DEBUG("Creating and registering SD " << sd << " in thread " << tid);
   m_sdThreadMap.insert( std::make_pair(tid, sd) );
+#else
+  m_SD = sd;
+#endif
 }
 
 void SensitiveDetectorBase::

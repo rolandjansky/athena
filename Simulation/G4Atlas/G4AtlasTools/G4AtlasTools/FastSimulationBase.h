@@ -12,7 +12,9 @@
 
 // Members
 #include "G4VFastSimulationModel.hh"
-#include "tbb/concurrent_unordered_map.h"
+#ifdef G4MULTITHREADED
+#  include "tbb/concurrent_unordered_map.h"
+#endif
 
 // STL library
 #include <string>
@@ -50,12 +52,16 @@ class FastSimulationBase : virtual public IFastSimulation, public AthAlgTool {
   /// Set the current model. In hive, this gets assigned as the thread-local model
   void setFastSimModel(G4VFastSimulationModel*);
 
+#ifdef G4MULTITHREADED
   /// Thread-to-FastSimModel concurrent map type
   typedef tbb::concurrent_unordered_map < std::thread::id,
                                           G4VFastSimulationModel*,
                                           std::hash<std::thread::id> > FastSimModelThreadMap_t;
   /// Concurrent map of Fast Sim Models, one for each thread
   FastSimModelThreadMap_t m_fastsimmodelThreadMap;
+#else
+  G4VFastSimulationModel* m_FastSimModel;             ///!< The Fast Simulation Model to which this thing corresponds
+#endif
 };
 
 #endif
