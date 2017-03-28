@@ -135,11 +135,7 @@ namespace CaloG4 {
   G4double SimulationEnergies::helium3Mass  = 0;
   */
 
-#ifdef ATHENAHIVE
   SimulationEnergies::StCallThreadMap_t SimulationEnergies::m_calledForStepThreadMap;
-#else
-  G4bool SimulationEnergies::m_calledForStep = false;
-#endif
 
   SimulationEnergies::SimulationEnergies() 
   {
@@ -180,34 +176,22 @@ namespace CaloG4 {
 
 
   G4bool SimulationEnergies::StepWasProcessed() {
-#ifdef ATHENAHIVE
     // Get current thread-ID
     const auto tid = std::this_thread::get_id();
     // Retrieve it from the call flags map
     auto cfPair = m_calledForStepThreadMap.find(tid);
     if(cfPair == m_calledForStepThreadMap.end()) return false;
     return cfPair->second;
-#else
-    return m_calledForStep;
-#endif
   }
 
   void SimulationEnergies::SetStepProcessed() {
-#ifdef ATHENAHIVE
     const auto tid = std::this_thread::get_id();
     m_calledForStepThreadMap.insert( std::make_pair(tid, true) );
-#else
-    m_calledForStep = true;
-#endif
   }
 
   void SimulationEnergies::ResetStepProcessed() {
-#ifdef ATHENAHIVE
     const auto tid = std::this_thread::get_id();
     m_calledForStepThreadMap.insert( std::make_pair(tid, false) );
-#else
-    m_calledForStep = false;
-#endif
   }
 
   // The "simple" call, intended for calibration calculators:

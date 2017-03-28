@@ -212,18 +212,10 @@ TileGeoG4CalibSD::~TileGeoG4CalibSD() {
 void TileGeoG4CalibSD::Initialize(G4HCofThisEvent* /*HCE*/) {
   if (verboseLevel > 5) G4cout << "Initializing SD" << G4endl;
 
-#ifdef ATHENAHIVE
-  // Temporary fix for Hive until isValid is fixed
-  m_tileActiveCellCalibHits = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_tileActiveCellCalibHits.name());
-  m_tileInactiveCellCalibHits = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_tileInactiveCellCalibHits.name());
-  m_tileDeadMaterialCalibHits = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_tileDeadMaterialCalibHits.name());
-  m_tileHits = CxxUtils::make_unique<TileHitVector>(m_tileHits.name());
-#else
   if (!m_tileActiveCellCalibHits.isValid()) m_tileActiveCellCalibHits = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_tileActiveCellCalibHits.name());
   if (!m_tileInactiveCellCalibHits.isValid()) m_tileInactiveCellCalibHits = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_tileInactiveCellCalibHits.name());
   if (!m_tileDeadMaterialCalibHits.isValid()) m_tileDeadMaterialCalibHits = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_tileDeadMaterialCalibHits.name());
   if (!m_tileHits.isValid()) m_tileHits = CxxUtils::make_unique<TileHitVector>(m_tileHits.name());
-#endif
 
   //TILECAL IDENTIFIER NUMBER - ALWAYS FIXED
   m_subCalo = 3;

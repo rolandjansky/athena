@@ -9,9 +9,7 @@
 #include "StoreGate/StoreGate.h"
 #include "InDetIdentifier/PixelID.h"
 
-#ifdef ATHENAHIVE
-#  include "GaudiKernel/ContextSpecificPtr.h"
-#endif
+#include "GaudiKernel/ContextSpecificPtr.h"
 
 static std::mutex _sgMutex;
 
@@ -22,15 +20,10 @@ SiHitIdHelper::SiHitIdHelper() :HitIdHelper() {
 }
 
 SiHitIdHelper* SiHitIdHelper::GetHelper() {
-#ifdef ATHENAHIVE
   // Context-specific singleton
   static Gaudi::Hive::ContextSpecificPtr<SiHitIdHelper> helperPtr;
   if(!helperPtr) helperPtr = new SiHitIdHelper();
   return helperPtr.get();
-#else
-  static SiHitIdHelper helper;
-  return &helper;
-#endif
 }
 
 void SiHitIdHelper::Initialize() {

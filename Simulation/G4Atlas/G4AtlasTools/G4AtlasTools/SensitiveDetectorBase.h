@@ -11,9 +11,7 @@
 
 // Members
 #include "G4VSensitiveDetector.hh"
-#ifdef ATHENAHIVE
-#  include "tbb/concurrent_unordered_map.h"
-#endif
+#include "tbb/concurrent_unordered_map.h"
 
 // STL library
 #include <string>
@@ -97,16 +95,11 @@ class SensitiveDetectorBase : virtual public ISensitiveDetector, public AthAlgTo
   /** In hive, this gets assigned as the thread-local SD. */
   void setSD(G4VSensitiveDetector*);
 
-#ifdef ATHENAHIVE
   /// Thread-to-SD concurrent map type
   using SDThreadMap_t = tbb::concurrent_unordered_map
     < std::thread::id, G4VSensitiveDetector*, std::hash<std::thread::id> >;
   /// Concurrent map of SDs, one for each thread
   SDThreadMap_t m_sdThreadMap;
-#else
-  /// The sensitive detector to which this thing corresponds
-  G4VSensitiveDetector* m_SD;
-#endif
 
 }; // class SensitiveDetectorBase
 

@@ -31,12 +31,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   void CosmicPerigeeAction::beginOfEvent(const G4Event*)
   {
-#ifdef ATHENAHIVE
-    // Temporary fix for Hive until isValid is fixed
-    m_trackRecordCollection = CxxUtils::make_unique<TrackRecordCollection>(m_trackRecordCollection.name());
-#else
     if (!m_trackRecordCollection.isValid()) m_trackRecordCollection = CxxUtils::make_unique<TrackRecordCollection>(m_trackRecordCollection.name());
-#endif
     //FIXME need a nice way of getting the maximum size of the ID envelope in R and Z.
     //EnvelopeGeometryManager *gm=EnvelopeGeometryManager::GetGeometryManager();
     //m_idR = gm->IdetOuterRadius();

@@ -74,14 +74,8 @@ void MuonWallSD::Initialize(G4HCofThisEvent* /* HCE */) {
     G4cout << "MuonWallSD::Initialize()" << G4endl;
   }
 
-#ifdef ATHENAHIVE
-  // Temporary fix for Hive until isValid is fixed
-  m_HitColl = CxxUtils::make_unique<TileHitVector>(m_HitColl.name());
-#else
-
   if (!m_HitColl.isValid())
     m_HitColl = CxxUtils::make_unique<TileHitVector>(m_HitColl.name());
-#endif
 }
 
 G4bool MuonWallSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /* ROhist */) {
