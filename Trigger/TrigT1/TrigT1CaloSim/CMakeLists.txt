@@ -57,7 +57,7 @@ atlas_add_library( TrigT1CaloSimLib
    CaloDetDescrLib PileUpToolsLib StoreGateLib SGtests LArToolsLib
    TileConditionsLib TrigT1CaloEventLib TrigT1CaloUtilsLib LumiBlockCompsLib
    PRIVATE_LINK_LIBRARIES AthenaKernel CxxUtils EventInfo xAODEventInfo
-   AtlasCLHEP_RandomGenerators PathResolver )
+   AtlasCLHEP_RandomGenerators PathResolver TrigT1CaloCondSvcLib )
 
 atlas_add_component( TrigT1CaloSim
    src/components/*.cxx
