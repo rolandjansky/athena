@@ -231,6 +231,18 @@ void CaloLumiBCIDTool::getListOfCells()
 {
   m_ncell = m_calocell_id->calo_cell_hash_max();
 
+  // temporary fix for HGTD
+  int hgtdCaloID = m_calocell_id->GetSubCaloName("HGTD");
+  if ( hgtdCaloID !=  CaloCell_Base_ID::NOT_VALID ) {
+    int hgtdNcells = m_calocell_id->cell_end(hgtdCaloID) - m_calocell_id->cell_begin(hgtdCaloID);
+    if ( hgtdNcells > 0 ) {
+      //      m_ncell = 187652;
+      // subtract the HGTD cells from the total
+      m_ncell = m_ncell - hgtdNcells;
+      msg(MSG::WARNING) << "HGTD sets the hash_max in the noiseTool  to " << m_ncell << endreq;
+    }
+  }
+
   m_symCellIndex.resize(m_ncell,-1);
   m_hwid_sym.reserve(2000);
   m_eshift_sym.reserve(2000);
