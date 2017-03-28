@@ -92,16 +92,25 @@ if( ATLAS_RELEASE_MODE )
    return()
 endif()
 
+# Install the ubsan.supp file already during the CMake configuration.
+# This is necessary because the file may be needer very early during the
+# build, and we don't explicitly make everything else wait for this
+# file's installation. Creating a race condition.
+file( INSTALL share/ubsan.supp
+   DESTINATION ${CMAKE_SHARE_OUTPUT_DIRECTORY} )
+install( FILES share/ubsan.supp
+   DESTINATION ${CMAKE_INSTALL_SHAREDIR} )
 
-# Setting up the ubsan suppression file.
-atlas_install_runtime( share/ubsan.supp )
+# Set the directory to put the configured environment setup file into:
+set( CxxUtilsEnvironment_DIR
+   ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}
+   CACHE PATH "Location of CxxUtilsEnvironmentConfig.cmake" )
 
+# Configure the environment setup module:
 configure_file(
    ${CMAKE_CURRENT_SOURCE_DIR}/CxxUtilsEnvironmentConfig.cmake.in
-   ${CMAKE_CURRENT_BINARY_DIR}/CxxUtilsEnvironmentConfig.cmake
+   ${CxxUtilsEnvironment_DIR}/CxxUtilsEnvironmentConfig.cmake
    @ONLY )
 
 # And now "find" it:
-set( CxxUtilsEnvironment_DIR ${CMAKE_CURRENT_BINARY_DIR}
-   CACHE PATH "Location of CxxUtilsEnvironmentConfig.cmake" )
-find_package( CxxUtilsEnvironment )
+find_package( CxxUtilsEnvironment REQUIRED )
