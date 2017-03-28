@@ -1244,7 +1244,7 @@ for(i=0; i<nclock; i++)             { // loop on clock cycles
 
 
     if(   bitstatus(&mjori[thres][0][conf[l][0]][i][0],j)
-          *( (mjori[thres][1][conf[l][1]][i][0]&trigRoad[thres][j][0])
+          &( (mjori[thres][1][conf[l][1]][i][0]&trigRoad[thres][j][0])
              |  (mjori[thres][1][conf[l][1]][i][1]&trigRoad[thres][j][1]))){
 
     if(matrixDebug&1<<df) {
