@@ -7,19 +7,19 @@ def compose_result_text(status):
 
     status ... Jenkins exit code as string
     """
-    text = ":question: **CI Build UNSET**"
+    text = ":question: **CI Result UNSET**"
     if status == "SUCCESS":
-        text = ":white_check_mark: **CI Build SUCCESS**"
+        text = ":white_check_mark: **CI Result SUCCESS**"
     elif status == "FAILURE":
-        text = ":negative_squared_cross_mark: **CI Build FAILURE**"
+        text = ":negative_squared_cross_mark: **CI Result FAILURE**"
     elif status == "ABORT":
-        text = ":point_up: **CI Build ABORTED**"
+        text = ":point_up: **CI Result ABORTED**"
 
     return text
 
 def compose_stage_text(stage,result):
     """
-    generate comment line describing result of build stage
+    generate comment line describing result of CI job stage
 
     result ... Jenkin exit code as string
     """
