@@ -55,7 +55,6 @@ atlas_add_library( TrigEFMissingETLib
    LArToolsLib TrigT2CaloCommonLib TrigInterfacesLib TrigTimeAlgsLib
    PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CxxUtils Identifier
    EventKernel xAODEventInfo JetEvent TrigMuonEvent TrigSteeringEvent
-   InDetTrackSelectionTool
    PathResolver
    TrigT1Interfaces )
 
