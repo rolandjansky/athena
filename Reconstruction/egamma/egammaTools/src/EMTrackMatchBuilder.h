@@ -23,6 +23,7 @@ The matching of a track to a cluster is driven by the EMTrackMatchBuilder tool l
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h" 
 #include "TrkEventPrimitives/PropDirection.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class egammaRec;
 class IEMExtrapolationTools;
@@ -43,11 +44,11 @@ class EMTrackMatchBuilder : public egammaBaseTool, virtual public IEMTrackMatchB
   ~EMTrackMatchBuilder();
         
   /** @brief Gaudi algorithm hooks*/
-  StatusCode initialize();
+  StatusCode initialize() override;
   /** @brief execute method*/
-  virtual StatusCode executeRec(egammaRec* eg);
+  virtual StatusCode executeRec(egammaRec* eg) override;
   /** @brief execute method*/
-  virtual StatusCode trackExecute(egammaRec* eg,  const xAOD::TrackParticleContainer * trackPC);
+  virtual StatusCode trackExecute(egammaRec* eg,  const xAOD::TrackParticleContainer * trackPC) override;
 
 private:
 
@@ -73,7 +74,7 @@ private:
   
   // configuration:
   /** @brief name of TrackParticle container in TDS*/
-  std::string           m_TrackParticlesName; 
+  SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_TrackParticlesKey; 
   /** @brief broad cut on deltaEta*/
   double                m_broadDeltaEta;
   /** @brief broad cut on deltaPhi*/

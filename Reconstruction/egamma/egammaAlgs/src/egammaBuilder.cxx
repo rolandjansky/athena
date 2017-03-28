@@ -380,12 +380,12 @@ StatusCode egammaBuilder::execute(){
     //
     chronoName = this->name()+"_"+m_conversionBuilder->name();         
     if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
-    //
-    if (m_conversionBuilder->contExecute().isFailure()){
-      ATH_MSG_ERROR("Problem executing " << m_conversionBuilder);
-      return StatusCode::FAILURE;  
+    for (auto egRec : *egammaRecs) {
+      if (m_conversionBuilder->executeRec(egRec).isFailure()){
+	ATH_MSG_ERROR("Problem executing " << m_conversionBuilder);
+	return StatusCode::FAILURE;  
+      }
     }
-    //
     if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
   }
   ////////////////////////////
@@ -484,7 +484,7 @@ StatusCode egammaBuilder::CallTool(ToolHandle<IegammaBaseTool>& tool,
   std::string chronoName = this->name()+"_"+tool->name();         
   if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
   
-  if ( tool->contExecute().isFailure() )
+  if ( tool->contExecute(electronContainer, photonContainer).isFailure() )
   {
     ATH_MSG_ERROR("Problem executing tool on containers: " << tool);
     return StatusCode::FAILURE;

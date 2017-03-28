@@ -21,6 +21,8 @@
 #include "GaudiKernel/IAlgTool.h"
 // Forward declarations
 #include "xAODEgamma/EgammaFwd.h"
+#include "xAODEgamma/ElectronContainerFwd.h"
+#include "xAODEgamma/PhotonContainerFwd.h"
 
 static const InterfaceID IID_IegammaBaseTool("IegammaBaseTool", 1, 0);
 
@@ -42,7 +44,8 @@ class IegammaBaseTool : virtual public IAlgTool
   /** @brief execute method*/
   virtual StatusCode execute(xAOD::Egamma* eg) = 0; 
   /** @brief execute method for tools that operate on containers*/
-  virtual StatusCode contExecute() = 0; 
+  virtual StatusCode contExecute(xAOD::ElectronContainer *electronContainer, 
+				 xAOD::PhotonContainer *photonContainer) = 0; 
 
 };
 

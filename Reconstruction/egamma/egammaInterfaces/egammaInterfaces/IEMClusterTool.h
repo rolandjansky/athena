@@ -8,6 +8,8 @@
 #include "egammaInterfaces/IegammaBaseTool.h"
 #include "xAODCaloEvent/CaloCluster.h" // cannot use CaloClusterFwd b/c of ClusterSize
 #include "xAODEgamma/EgammaEnums.h"
+#include "xAODEgamma/ElectronContainerFwd.h"
+#include "xAODEgamma/PhotonContainerFwd.h"
 
 /**
    @class IEMClusterTool
@@ -29,7 +31,8 @@ class IEMClusterTool : virtual public IegammaBaseTool {
   /** @brief initialize method*/
   virtual StatusCode initialize() = 0;
   /** @brief execute on containers */
-  virtual StatusCode contExecute() = 0;
+  virtual StatusCode contExecute(xAOD::ElectronContainer *electronContainer, 
+				 xAOD::PhotonContainer *photonContainer) = 0;
   /** @brief finalize method*/
   virtual StatusCode finalize() = 0;
   

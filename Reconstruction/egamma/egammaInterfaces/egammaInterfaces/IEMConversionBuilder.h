@@ -40,8 +40,6 @@ class IEMConversionBuilder : virtual public IegammaBaseTool
   /** @brief initialize method*/
   virtual StatusCode initialize() = 0;
   /** @brief execute method*/
-  //virtual StatusCode contExecute() = 0;
-  /** @brief execute method*/
   virtual StatusCode executeRec(egammaRec* egRec)=0;
   /** @brief execute method*/
   virtual StatusCode hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions)=0;

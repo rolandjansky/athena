@@ -31,6 +31,7 @@
 #include "egammaInterfaces/IEMConversionBuilder.h"
 #include "xAODTracking/VertexContainerFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class IEMExtrapolationTools;
 
@@ -48,17 +49,15 @@ class EMConversionBuilder : public egammaBaseTool, virtual public IEMConversionB
   ~EMConversionBuilder();
 	
   /** @brief initialize method*/
-  StatusCode initialize();
+  StatusCode initialize() override;
   /** @brief execute method*/
-  //virtual StatusCode contExecute();
+  virtual StatusCode executeRec(egammaRec* egRec) override;
   /** @brief execute method*/
-  virtual StatusCode executeRec(egammaRec* egRec);
+  virtual StatusCode hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) override;
   /** @brief execute method*/
-  virtual StatusCode hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions);
-  /** @brief execute method*/
-  virtual StatusCode vertexExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions);
+  virtual StatusCode vertexExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) override;
   /** @brief finalize method*/
-  StatusCode finalize();
+  StatusCode finalize() override;
 
 private:
 
@@ -70,11 +69,7 @@ private:
   
   // configuration:
   /** @brief Name of conversion container*/
-  std::string		m_conversionContainerName; 
-
-  /** @brief Name of egammaRec container*/
-  std::string		m_egammaRecContainerName; 
-
+  SG::ReadHandleKey<xAOD::VertexContainer> m_conversionContainerKey; 
 
   /** @brief EMExtrapolationTools */
   ToolHandle<IEMExtrapolationTools>  m_extrapolationTool;

@@ -361,7 +361,7 @@ StatusCode topoEgammaBuilder::CallTool(ToolHandle<IegammaBaseTool>& tool,
 
   ATH_MSG_DEBUG("Executing tool on containers: " << tool );  
   smallChrono timer(m_timingProfile,this->name()+"_"+tool->name());  
-  if ( tool->contExecute().isFailure() )
+  if ( tool->contExecute(electronContainer, photonContainer).isFailure() )
     {
       ATH_MSG_ERROR("Problem executing tool on containers: " << tool);
       return StatusCode::FAILURE;

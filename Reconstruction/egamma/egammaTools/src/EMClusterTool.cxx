@@ -8,7 +8,7 @@
 #include "egammaMVACalib/IegammaMVATool.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODCaloEvent/CaloCluster.h"
-#include "xAODCaloEvent/CaloClusterKineHelper.h"
+#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "xAODEgamma/ElectronContainer.h"
@@ -16,24 +16,21 @@
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloUtils/CaloCellDetPos.h"
-#include "CxxUtils/make_unique.h"
+#include "StoreGate/WriteHandle.h"
 
 
 // =============================================================
 EMClusterTool::EMClusterTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  egammaBaseTool(type, name, parent)
+  egammaBaseTool(type, name, parent), 
+  m_doTopoSeededContainer(false)
 {
   declareProperty("ClusterCorrectionToolName", m_ClusterCorrectionToolName = "egammaSwTool/egammaswtool");
   declareProperty("MVACalibTool", m_MVACalibTool);
-  declareProperty("OutputClusterContainerName", m_outputClusterContainerName, 
+  declareProperty("OutputClusterContainerName", m_outputClusterContainerKey, 
     "Name of the output cluster container");
   declareProperty("OutputTopoSeededClusterContainerName",
-    m_outputTopoSeededClusterContainerName, 
+    m_outputTopoSeededClusterContainerKey, 
     "Name of the output cluster container for topo-seeded clusters (can be the same as the other clusters)");
-  declareProperty("ElectronContainerName", m_electronContainerName, 
-    "Name of the input electron container");
-  declareProperty("PhotonContainerName", m_photonContainerName, 
-    "Name of the input photon container");
   declareProperty("doSuperCluster", m_doSuperClusters = true, 
     "Do Super Cluster Reco");
   declareProperty("applyMVAToSuperCluster", m_applySuperClusters = true, 
@@ -42,7 +39,7 @@ EMClusterTool::EMClusterTool(const std::string& type, const std::string& name, c
 
   declareInterface<IEMClusterTool>(this);
   
-  m_caloCellDetPos = CxxUtils::make_unique<CaloCellDetPos>();
+  m_caloCellDetPos = std::make_unique<CaloCellDetPos>();
 }
 
 EMClusterTool::~EMClusterTool() {  }
@@ -55,6 +52,12 @@ EMClusterTool::~EMClusterTool() {  }
 StatusCode EMClusterTool::initialize() {
 
   ATH_MSG_DEBUG("Initializing " << name() << "...");
+
+  ATH_CHECK(m_outputClusterContainerKey.initialize());
+
+  m_doTopoSeededContainer = (m_outputTopoSeededClusterContainerKey.key() != m_outputClusterContainerKey.key() && !m_doSuperClusters);
+
+  ATH_CHECK(m_outputTopoSeededClusterContainerKey.initialize(m_doTopoSeededContainer));
 
   // Get the cluster correction tool
   m_clusterCorrectionTool = ToolHandle<IegammaSwTool>(m_ClusterCorrectionToolName);
@@ -87,48 +90,29 @@ StatusCode EMClusterTool::finalize() {
 }
 
 // =========================================================================
-StatusCode EMClusterTool::contExecute() 
+StatusCode EMClusterTool::contExecute(xAOD::ElectronContainer *electronContainer, 
+				      xAOD::PhotonContainer *photonContainer) 
 {
   // Create output cluster container and register in StoreGate
-  xAOD::CaloClusterContainer* outputClusterContainer = 0;
-
-  outputClusterContainer = CaloClusterStoreHelper::makeContainer(&*evtStore(), 
-								 m_outputClusterContainerName, 
-								 msg());
-  if (!outputClusterContainer) {
-    ATH_MSG_ERROR("Failed to record Output Cluster Container " 
-		  << m_outputClusterContainerName);
-    return StatusCode::FAILURE;
-  }
+  SG::WriteHandle<xAOD::CaloClusterContainer> outputClusterContainer(m_outputClusterContainerKey);
+  ATH_CHECK(outputClusterContainer.record(std::make_unique<xAOD::CaloClusterContainer>(),
+					  std::make_unique<xAOD::CaloClusterAuxContainer>()));
 
   // Create output cluster container for topo-seeded clusters and register in StoreGate
   // Only if they differ from the main output cluster container
   // and if we do not do supercluster
-  xAOD::CaloClusterContainer* outputTopoSeededClusterContainer = outputClusterContainer;
-  bool doTopoSeededContainer= (m_outputTopoSeededClusterContainerName != m_outputClusterContainerName && !m_doSuperClusters);
-  if(doTopoSeededContainer){
-    outputTopoSeededClusterContainer = CaloClusterStoreHelper::makeContainer(&*evtStore(), 
-									     m_outputTopoSeededClusterContainerName, 
-									     msg());  
-    if (!outputTopoSeededClusterContainer){
-      ATH_MSG_ERROR("Failed to record Output Topo-seeded Cluster Container " 
-		    << m_outputTopoSeededClusterContainerName);
-      return StatusCode::FAILURE;
-    }
+  SG::WriteHandle<xAOD::CaloClusterContainer> 
+    outputTopoSeededClusterContainer(m_outputTopoSeededClusterContainerKey);
+  if (m_doTopoSeededContainer) {
+    ATH_CHECK(outputTopoSeededClusterContainer.record(std::make_unique<xAOD::CaloClusterContainer>(),
+						      std::make_unique<xAOD::CaloClusterAuxContainer>()));
   }
   
-  // Retrieve electron and photon containers
-  xAOD::ElectronContainer *electronContainer = nullptr;
-  ATH_CHECK (evtStore()->retrieve(electronContainer, m_electronContainerName) );
-  
-  xAOD::PhotonContainer *photonContainer = nullptr;
-  ATH_CHECK( evtStore()->retrieve(photonContainer, m_photonContainerName) );
-    
   // Loop over electrons and create new clusters
   xAOD::EgammaParameters::EgammaType egType = xAOD::EgammaParameters::electron;
   //Only do this for non-supercluster (i.e. default SW) electrons.
   for (auto electron : *electronContainer){
-    setNewCluster(electron, outputClusterContainer, egType);
+    setNewCluster(electron, outputClusterContainer.ptr(), egType);
   }
   // Loop over photons and create new clusters
   for (auto photon : *photonContainer){
@@ -136,11 +120,11 @@ StatusCode EMClusterTool::contExecute()
 	      xAOD::EgammaParameters::convertedPhoton :
 	      xAOD::EgammaParameters::unconvertedPhoton);
     
-    if ( !photon->author(xAOD::EgammaParameters::AuthorCaloTopo35) ){
-      setNewCluster(photon, outputClusterContainer, egType);
+    if (!m_doTopoSeededContainer || !photon->author(xAOD::EgammaParameters::AuthorCaloTopo35) ){
+      setNewCluster(photon, outputClusterContainer.ptr(), egType);
     }
     else{
-      setNewCluster(photon, outputTopoSeededClusterContainer, egType);
+      setNewCluster(photon, outputTopoSeededClusterContainer.ptr(), egType);
     }
   }
   return StatusCode::SUCCESS;

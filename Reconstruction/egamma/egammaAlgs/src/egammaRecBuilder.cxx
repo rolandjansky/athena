@@ -50,8 +50,6 @@ namespace{
 egammaRecBuilder::egammaRecBuilder(const std::string& name, 
 				   ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
-  m_doTrackMatching(true),
-  m_doConversions(true),
   m_timingProfile(0){
 
   //Containers

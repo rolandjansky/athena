@@ -24,6 +24,7 @@ PURPOSE:  subAlgorithm which creates an EMConversion object.
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "egammaRecEvent/egammaRec.h"
 #include "FourMomUtils/P4Helpers.h"
+#include "StoreGate/ReadHandle.h"
 
 //  END OF HEADER FILES INCLUDE
 
@@ -44,14 +45,9 @@ EMConversionBuilder::EMConversionBuilder(const std::string& type,
   
   // Name of the input conversion container
   declareProperty("ConversionContainerName",                 
-		  m_conversionContainerName="PhotonConversionVertices",
+		  m_conversionContainerKey="PhotonConversionVertices",
 		  "Name of the input conversion container");
 	
-  // Name of the input egammaRec container
-  declareProperty("egammaRecContainerName",                 
-		  m_egammaRecContainerName="egammaRecs",
-		  "Name of the input egammaRec container");
-
   // Name of the extrapolation tool
   declareProperty("ExtrapolationTool",
 		  m_extrapolationTool,
@@ -103,6 +99,8 @@ StatusCode EMConversionBuilder::initialize()
 
   ATH_MSG_DEBUG("Initializing EMConversionBuilder");
 
+  ATH_CHECK(m_conversionContainerKey.initialize());
+
   // the extrapolation tool
   if(m_extrapolationTool.retrieve().isFailure()){
     ATH_MSG_ERROR("Cannot retrieve extrapolationTool " << m_extrapolationTool);
@@ -114,41 +112,20 @@ StatusCode EMConversionBuilder::initialize()
   return StatusCode::SUCCESS;
 }
 
-// // =============================================================
-// StatusCode EMConversionBuilder::contExecute() 
-// {
-
-//   // retrieve Conversion Container
-//   const xAOD::VertexContainer* conversions = 0;
-//   if(evtStore()->retrieve(conversions,m_conversionContainerName).isFailure()){
-//     ATH_MSG_WARNING("Could not retrieve Conversion container! EMConversionBuilder will stop.");
-//     return StatusCode::SUCCESS;
-//   }
-  
-//   // retrieve egammaRec container
-//   const EgammaRecContainer* egammaRecs = 0;
-//   if(evtStore()->retrieve(egammaRecs,m_egammaRecContainerName).isFailure()){
-//     ATH_MSG_WARNING("Could not retrieve egammaRec container! EMConversionBuilder will stop.");
-//     return StatusCode::SUCCESS;
-//   }   
-//   for (auto& egRec : *egammaRecs){
-//     ATH_CHECK(vertexExecute(egRec,conversions));
-//   }
-//   return StatusCode::SUCCESS;
-// }
-
-
 StatusCode EMConversionBuilder::executeRec(egammaRec* egRec) {
   // retrieve Conversion Container
-  const xAOD::VertexContainer* conversions = 0;
-  if(evtStore()->retrieve(conversions,m_conversionContainerName).isFailure()){
-    ATH_MSG_WARNING("Could not retrieve Conversion container! EMConversionBuilder will stop.");
-    return StatusCode::SUCCESS;
+  
+  SG::ReadHandle<xAOD::VertexContainer> conversions(m_conversionContainerKey); 
+
+  // only for serial running; remove for MT
+  if(!conversions.isValid()){
+    ATH_MSG_ERROR("Could not retrieve Conversion container with key: " << m_conversionContainerKey.key());
+    return StatusCode::FAILURE;
   }
   //reset the vertices
   std::vector< ElementLink< xAOD::VertexContainer > >  vertices;
   egRec->setVertices(vertices);
-  ATH_CHECK(vertexExecute(egRec,conversions));
+  ATH_CHECK(vertexExecute(egRec,conversions.cptr()));
   return StatusCode::SUCCESS;
 }
 

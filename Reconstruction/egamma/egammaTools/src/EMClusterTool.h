@@ -15,6 +15,8 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODEgamma/EgammaEnums.h"
+#include "StoreGate/WriteHandleKey.h"
+
 
 class IegammaSwTool;
 class IegammaMVATool;
@@ -54,11 +56,12 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   virtual ~EMClusterTool();
 
   /** @brief initialize method */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   /** @brief execute on container */
-  virtual StatusCode contExecute();
+  virtual StatusCode contExecute(xAOD::ElectronContainer *electronContainer, 
+				 xAOD::PhotonContainer *photonContainer) override;
   /** @brief finalize method */
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
   
   void fillPositionsInCalo(xAOD::CaloCluster* cluster) const ;
  private:
@@ -89,11 +92,11 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   /** @brief creation of new super cluster based on existing one */
   xAOD::CaloCluster* makeNewSuperCluster(const xAOD::CaloCluster& cluster, xAOD::Egamma *eg);  
 
-  /** @brief Name of the output cluster container **/
-  std::string m_outputClusterContainerName;
+  /** @brief Key of the output cluster container **/
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputClusterContainerKey;
 
-  /** @brief Name of the output cluster container for topo-seeded clusters **/
-  std::string m_outputTopoSeededClusterContainerName;
+  /** @brief Key of the output cluster container for topo-seeded clusters **/
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputTopoSeededClusterContainerKey;
 
   /** Handle to the MVA calibration Tool **/
   ToolHandle<IegammaMVATool>  m_MVACalibTool;  
@@ -118,6 +121,10 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
 
   /** @brief Position in Calo frame**/  
   std::unique_ptr<CaloCellDetPos> m_caloCellDetPos;
+
+  // derived variable (not set by JOs)
+  bool m_doTopoSeededContainer;
+
 };
 
 #endif // EGAMMATOOLS_EMCLUSTERTOOL_H

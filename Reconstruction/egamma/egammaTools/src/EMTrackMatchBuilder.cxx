@@ -21,6 +21,7 @@
 #include "egammaUtils/CandidateMatchHelpers.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "SGTools/CurrentEventStore.h"
+#include "StoreGate/ReadHandle.h"
 
 #include <cmath>
 
@@ -45,7 +46,7 @@ EMTrackMatchBuilder::EMTrackMatchBuilder(const std::string& type,
   // (declared in jobOptions file)
 
   // Name of the input track particle container
-  declareProperty("TrackParticlesName", m_TrackParticlesName,
+  declareProperty("TrackParticlesName", m_TrackParticlesKey,
                   "Name of the input track particle container");
   
   // Name of the extrapolation tool
@@ -129,6 +130,8 @@ StatusCode EMTrackMatchBuilder::initialize()
   ATH_MSG_DEBUG("Initializing EMTrackMatchBuilder");
 
 
+  ATH_CHECK(m_TrackParticlesKey.initialize());
+
   // the extrapolation tool
   if(m_extrapolationTool.retrieve().isFailure()){
     ATH_MSG_ERROR("initialize: Cannot retrieve extrapolationTool " << m_extrapolationTool);
@@ -171,23 +174,16 @@ StatusCode EMTrackMatchBuilder::executeRec(egammaRec* eg)
   }
         
   // retrieve the trackparticle container
-  const xAOD::TrackParticleContainer* trackPC = evtStore()->retrieve< const xAOD::TrackParticleContainer >(m_TrackParticlesName );
-  if( ! trackPC ) {
-    REPORT_MESSAGE( MSG::WARNING )
-      << "Couldn't retrieve TrackParticle container with key: "
-      << m_TrackParticlesName;
-    return StatusCode::SUCCESS;
-  }
-  // Check that the auxiliary store association was made successfully:
-  if( ! trackPC->hasStore() ) {
-    REPORT_MESSAGE( MSG::WARNING )
-      << "No auxiliary store got associated to the TrackParticle container "
-      << "with key: " << m_TrackParticlesName;
-    return StatusCode::SUCCESS;
+  SG::ReadHandle<xAOD::TrackParticleContainer> trackPC(m_TrackParticlesKey);
+
+  // check is only used for serial running; remove when MT scheduler used
+  if( !trackPC.isValid() ) {
+    ATH_MSG_ERROR("Couldn't retrieve TrackParticle container with key: " << m_TrackParticlesKey.key());
+    return StatusCode::FAILURE;
   }
    
   // call the execute method
-  CHECK( trackExecute(eg, trackPC) );
+  CHECK( trackExecute(eg, trackPC.cptr()) );
   return StatusCode::SUCCESS;
 }
 

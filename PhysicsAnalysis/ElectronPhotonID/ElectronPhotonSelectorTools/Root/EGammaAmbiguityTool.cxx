@@ -48,10 +48,6 @@ EGammaAmbiguityTool::EGammaAmbiguityTool(std::string myname) :
   declareProperty("maxEoverPCut", m_maxEoverPCut = 10,"Maximum EoverP , more that this is ambiguous");
   declareProperty("minPCut",      m_minPtCut = 2000 ,  "Minimum Pt, less than that is ambiguous");
   declareProperty("maxDeltaR_innermost",      m_maxDeltaR_innermost = 40 ,  "Maximum value for Rconv - RfirstHit for Si+Si conversions where both tracks have innermost hits");
-  declareProperty("ElectronContainerName", m_electronContainerName = "Electrons",
-		  "Electron container name");
-  declareProperty("PhotonContainerName", m_photonContainerName = "Photons",
-		  "Photon container name");
 
 }
 
