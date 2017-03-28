@@ -34,12 +34,12 @@ is computed from components using the DK calibration
 
 using CxxUtils::strformat;
 
-EFMissingETFromHelper::EFMissingETFromHelper(const std::string& type, 
-    const std::string& name, 
+EFMissingETFromHelper::EFMissingETFromHelper(const std::string& type,
+    const std::string& name,
     const IInterface* parent):
   EFMissingETBaseTool(type, name, parent)
 {
-   m_fextype = FexType::OTHER; 
+   m_fextype = FexType::OTHER;
 }
 
 
@@ -85,9 +85,11 @@ StatusCode EFMissingETFromHelper::execute()
 }
 
 
-StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met , 
+StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
     TrigEFMissingEtHelper *metHelper ,
-    const xAOD::CaloClusterContainer * /* caloCluster */, const xAOD::JetContainer * /* jets */)
+    const xAOD::CaloClusterContainer * /* caloCluster */, const xAOD::JetContainer * /* jets */,
+                                        const xAOD::TrackParticleContainer * /*trackContainer*/,
+                                        const xAOD::VertexContainer * /*vertexContainer*/ )
 {
 
   if(msgLvl(MSG::DEBUG)) {
@@ -112,9 +114,9 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
   unsigned int comp = met->getNumberOfComponents(); // final no. of aux. compon.
   unsigned char elem = metHelper->GetElements(); // no. of transient aux. compon.
   if (elem!=42) {
-    msg(MSG::WARNING) 
+    msg(MSG::WARNING)
       << "Found " << elem
-      << " aux components in the transient helper class.  Not supported!" 
+      << " aux components in the transient helper class.  Not supported!"
       << endmsg;
   }
 
@@ -147,17 +149,17 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
       save1comp=true;
       break;
     default:
-      msg(MSG::WARNING)  
+      msg(MSG::WARNING)
         << "Found " << comp
-        << " aux components in TrigMissingET.  Not supported.  NOT SAVING AUX INFO" 
+        << " aux components in TrigMissingET.  Not supported.  NOT SAVING AUX INFO"
         << endmsg;
       skipAuxInfo=true;
   }
-  
+
   // Initialize EDM by setting all components to zero
-  met->setEx(0.); met->setEy(0.); met->setEz(0.); 
-  met->setSumE(0.); met->setSumEt(0.); 
-  
+  met->setEx(0.); met->setEy(0.); met->setEz(0.);
+  met->setSumE(0.); met->setSumEt(0.);
+
   // take info from *metHelper and update *met
   for (unsigned char  i=0; i<elem; ++i) { // loop over transient components
     TrigEFMissingEtComponent* metComp = metHelper->GetComponent(i);
@@ -173,41 +175,41 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
     short sumOfSigns =    metComp->m_sumOfSigns;
     unsigned short Ntot = metComp->m_usedChannels;
 
-    // basic info - DK calibration 
+    // basic info - DK calibration
     if (i<elem-18){  // skip muon or Had Topo granular or EM Topo correction for all quantities
       met->setEx( met->ex() + sumOfSigns * c0 + c1 * ex );
       met->setEy( met->ey() + sumOfSigns * c0 + c1 * ey );
       met->setEz( met->ez() + sumOfSigns * c0 + c1 * ez );
       met->setSumE( met->sumE() + sumOfSigns * c0 + c1 * sumE );
-      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );   
+      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );
     }
-    
+
     if(save9comp && i == 24) { // Save summed HAD MET
       met->setEx( met->ex() + sumOfSigns * c0 + c1 * ex );
       met->setEy( met->ey() + sumOfSigns * c0 + c1 * ey );
       met->setEz( met->ez() + sumOfSigns * c0 + c1 * ez );
       met->setSumE( met->sumE() + sumOfSigns * c0 + c1 * sumE );
-      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );        	
+      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );
     }
-    
+
     if( (save2comp || save6comp) && i == 34) { // Save JET MET
       met->setEx( met->ex() + sumOfSigns * c0 + c1 * ex );
       met->setEy( met->ey() + sumOfSigns * c0 + c1 * ey );
       met->setEz( met->ez() + sumOfSigns * c0 + c1 * ez );
       met->setSumE( met->sumE() + sumOfSigns * c0 + c1 * sumE );
-      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );        	
+      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );
     }
-    
+
     if(save3comp && i == 39) { // Save PUC MET
       met->setEx( met->ex() + sumOfSigns * c0 + c1 * ex );
       met->setEy( met->ey() + sumOfSigns * c0 + c1 * ey );
       met->setEz( met->ez() + sumOfSigns * c0 + c1 * ez );
       met->setSumE( met->sumE() + sumOfSigns * c0 + c1 * sumE );
-      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );        	
-    }    
-    
-    if (skipAuxInfo) continue; 
-    
+      met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );
+    }
+
+    if (skipAuxInfo) continue;
+
     // auxiliary info - uncorrected
     if (comp == unsigned(elem-17) && i < 24) { // finest granularity
       met->setNameOfComponent( i, metComp->m_name );
@@ -221,7 +223,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
       met->setStatusComponent(          i, status );
       met->setSumOfSignsComponent(      i, sumOfSigns );
       met->setUsedChannelsComponent(    i, Ntot );
-    } else if(comp == unsigned(elem-17) && i == 41) { // save muons  
+    } else if(comp == unsigned(elem-17) && i == 41) { // save muons
       met->setNameOfComponent( i-17, metComp->m_name );
       met->setExComponent(     i-17, ex );
       met->setEyComponent(     i-17, ey );
@@ -232,7 +234,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
       met->setCalib1Component( i-17, c1 );
       met->setStatusComponent(          i-17, status );
       met->setSumOfSignsComponent(      i-17, sumOfSigns );
-      met->setUsedChannelsComponent(    i-17, Ntot );    
+      met->setUsedChannelsComponent(    i-17, Ntot );
     } else if (save6comp) {
       if (i>=34 && i < 39) { // Central and Forward Jets
         met->setNameOfComponent( i-34, metComp->m_name );
@@ -259,8 +261,8 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
         met->setStatusComponent(          5, status );
         met->setSumOfSignsComponent(      5, sumOfSigns );
         met->setUsedChannelsComponent(    5, Ntot );
-      }      
-      
+      }
+
     } else if (save9comp) {
       if (i > 24 && i < 29 ) { // HAD scale quantities
       met->setNameOfComponent( i-25, metComp->m_name );
@@ -273,11 +275,11 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
       met->setCalib1Component( i-25, c1 );
       met->setStatusComponent(          i-25, status );
       met->setSumOfSignsComponent(      i-25, sumOfSigns );
-      met->setUsedChannelsComponent(    i-25, Ntot );    
-      } else if( i > 29 && i < 34) {     // EM scale quantities 
+      met->setUsedChannelsComponent(    i-25, Ntot );
+      } else if( i > 29 && i < 34) {     // EM scale quantities
       met->setNameOfComponent( i-25-1, metComp->m_name );
       met->setExComponent(     i-25-1, ex );
-      met->setEyComponent(     i-25-1, ey ); 
+      met->setEyComponent(     i-25-1, ey );
       met->setEzComponent(     i-25-1, ez );
       met->setSumEtComponent(  i-25-1, sumEt );
       met->setSumEComponent(   i-25-1, sumE );
@@ -285,7 +287,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
       met->setCalib1Component( i-25-1, c1 );
       met->setStatusComponent(          i-25-1, status );
       met->setSumOfSignsComponent(      i-25-1, sumOfSigns );
-      met->setUsedChannelsComponent(    i-25-1, Ntot );        		
+      met->setUsedChannelsComponent(    i-25-1, Ntot );
       } else if( i == 41) {    // Muon
       met->setNameOfComponent( i-25-8, metComp->m_name );
       met->setExComponent(     i-25-8, ex );
@@ -297,8 +299,8 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
       met->setCalib1Component( i-25-8, c1 );
       met->setStatusComponent(          i-25-8, status );
       met->setSumOfSignsComponent(      i-25-8, sumOfSigns );
-      met->setUsedChannelsComponent(    i-25-8, Ntot );        		
-      }      
+      met->setUsedChannelsComponent(    i-25-8, Ntot );
+      }
     } else if (save5comp) {
       switch (i) {
         case 0: case 1: case 2: case 3: // LAr, barrel
@@ -342,8 +344,8 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
         case 24: case 25: case 26: case 27: case 28:
         case 29: case 30: case 31: case 32: case 33:
         case 34: case 35: case 36: case 37: case 38:
-        case 39: case 40 :             // Topo. cluster elements or jets - do nothing. 
-          break;  
+        case 39: case 40 :             // Topo. cluster elements or jets - do nothing.
+          break;
         case 41: // muons
           met->setExComponent(     4, ex );
           met->setEyComponent(     4, ey );
@@ -407,8 +409,8 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
           met->setCalib1Component( 2, c1 );
           met->setStatusComponent(          2, status );
           met->setSumOfSignsComponent(      2, sumOfSigns );
-          met->setUsedChannelsComponent(    2, Ntot );   
-      } 
+          met->setUsedChannelsComponent(    2, Ntot );
+      }
     } else if (save2comp) { // Jets + muons only
       if (i==34) { // Jets
         met->setNameOfComponent( 0, metComp->m_name );
@@ -463,40 +465,40 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
 
   if(m_timersvc)
     m_glob_timer->stop(); // total time
-    
+
   // Show the xAOD persistent object
   // Remove me please once done
-  
+
   std::string s; //char buff[256];
   std::string message;
 
   if(msgLvl(MSG::DEBUG)){
-    message = strformat ("REGTEST Ex =         %10.2f CLHEP::MeV", met->ex());    
+    message = strformat ("REGTEST Ex =         %10.2f CLHEP::MeV", met->ex());
     msg() << MSG::DEBUG << message << endmsg;
-    message = strformat ("REGTEST Ey =         %10.2f CLHEP::MeV", met->ey());    
+    message = strformat ("REGTEST Ey =         %10.2f CLHEP::MeV", met->ey());
     msg() << MSG::DEBUG << message << endmsg;
-    message = strformat ("REGTEST Ez =         %10.2f CLHEP::MeV", met->ez());    
+    message = strformat ("REGTEST Ez =         %10.2f CLHEP::MeV", met->ez());
     msg() << MSG::DEBUG << message << endmsg;
-    message = strformat ("REGTEST SumET =         %10.2f CLHEP::MeV", met->sumEt());    
+    message = strformat ("REGTEST SumET =         %10.2f CLHEP::MeV", met->sumEt());
     msg() << MSG::DEBUG << message << endmsg;
-    message = strformat ("REGTEST SumE =       %10.2f CLHEP::MeV", met->sumE());    
+    message = strformat ("REGTEST SumE =       %10.2f CLHEP::MeV", met->sumE());
     msg() << MSG::DEBUG << message << endmsg;
-    message = strformat ("REGTEST Flag =       %d", met->flag());    
+    message = strformat ("REGTEST Flag =       %d", met->flag());
     msg() << MSG::DEBUG << message << endmsg;
   }
 
   unsigned int Nc = met->getNumberOfComponents();
-  
-  if (Nc > 0) { 
+
+  if (Nc > 0) {
     if(msgLvl(MSG::DEBUG)){
         s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
 			    s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
-        msg() << MSG::DEBUG << s << endmsg; 
+        msg() << MSG::DEBUG << s << endmsg;
      }
    }
-             
+
    for(uint j = 0; j < Nc; j++) {
-             
+
 	const char* name =               met->nameOfComponent(j).c_str();
 	const short status =             met->statusComponent(j);
 	const unsigned short usedChan =  met->usedChannelsComponent(j);
@@ -511,10 +513,10 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
 
      if(msgLvl(MSG::DEBUG)){
         message = strformat ("REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
-			   name, status, usedChan, sumOfSigns, calib1, calib0, ex, ey, ez, sumE, sumEt);    
+			   name, status, usedChan, sumOfSigns, calib1, calib0, ex, ey, ez, sumE, sumEt);
         msg() << MSG::DEBUG << message << endmsg;
       }
-			
+
     }
 
 

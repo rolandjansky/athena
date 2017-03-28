@@ -6,7 +6,7 @@
 //
 // NAME:     EFMissingET.cxx
 // PACKAGE:  Trigger/TrigAlgorithms/TrigEFMissingET
-// 
+//
 // AUTHOR:   Rashid Djilkibaev, Diego Casadei
 // CREATED:  March 1, 2006
 //
@@ -51,6 +51,7 @@ EFMissingET::EFMissingET(const std::string & name, ISvcLocator* pSvcLocator):
   declareProperty("DecodeDetMask", m_decodeDetMask = false, "switch on/off DetMask decoding");
   declareProperty("doTopoClusters", m_doTopoClusters = false, "run with or without topo. clusters");
   declareProperty("doJets", m_doJets = false, "run with or without jets");
+  declareProperty("doTracks", m_doTracks = false, "run with or without tracks");
   declareProperty("doPUC", m_doPUC = false, "run with or without pile-up correction fit");
   declareProperty("ComponentFlags",  m_flags,  "(vector) set to -1 to switch off a component");
   declareProperty("ComponentCalib0", m_calib0, "(vector) additive calibration constants");
@@ -71,7 +72,7 @@ EFMissingET::EFMissingET(const std::string & name, ISvcLocator* pSvcLocator):
   declareMonitoredVariable("EF_ME_lin",    m_me_lin);
   declareMonitoredVariable("EF_SumEt_lin", m_set_lin);
   declareMonitoredVariable("EF_SumE_lin",  m_se_lin);
-  declareMonitoredVariable("EF_XS", m_xs);  
+  declareMonitoredVariable("EF_XS", m_xs);
   declareMonitoredVariable("EF_MET_phi",   m_phi);
 
   declareMonitoredVariable("EMRegSelTime",     m_tool_time_00);
@@ -97,9 +98,9 @@ EFMissingET::EFMissingET(const std::string & name, ISvcLocator* pSvcLocator):
   declareMonitoredVariable("TotalLoopTime",    m_tool_time_Loop);
 
   // helper object
-  unsigned char N=42; // number of components   
+  unsigned char N=42; // number of components
   m_met_help = new TrigEFMissingEtHelper(N);
-  m_flags.reserve(N);  
+  m_flags.reserve(N);
   m_calib0.reserve(N);
   m_calib1.reserve(N);
   m_comp_index.reserve(N);
@@ -164,8 +165,10 @@ EFMissingET::EFMissingET(const std::string & name, ISvcLocator* pSvcLocator):
   m_TileExtBarAside=true;
   m_TileExtBarCside=true;
 
-  m_caloCluster=0; 
+  m_caloCluster=0;
   m_jets=0;
+  m_tracks=0;
+  m_vertices=0;
 
   // // see the base tool for all other status bits
   // m_maskEMB_A_Missing      = 0x00010000; // bit 16
@@ -183,7 +186,7 @@ EFMissingET::EFMissingET(const std::string & name, ISvcLocator* pSvcLocator):
 
   //Initialize some variables to make coverity happy,
   //even though not needed in principle
-  
+
   m_met=0;
   m_firsteventinrun=false;
   m_n_sizePers=0;
@@ -225,7 +228,7 @@ HLT::ErrorCode EFMissingET::hltInitialize()
   if(Nf>0){
     msg() << MSG::INFO << "ComponentFlags has size " << Nf << endmsg;
     if (Nf!=Nc) {
-      msg() << MSG::ERROR 
+      msg() << MSG::ERROR
         << "ComponentFlags has size different from the number "
         << Nc << " of components.  Aborting" << endmsg;
       return HLT::ERROR;
@@ -235,13 +238,13 @@ HLT::ErrorCode EFMissingET::hltInitialize()
           (m_met_help->GetComponent(i))->m_skip = true;
       }
     }
-  } 
+  }
 
   int N0 = m_calib0.size();
   if (N0>0) {
     msg() << MSG::INFO << "ComponentCalib0 has size " << N0 << endmsg;
     if (N0!=Nc) {
-      msg() << MSG::ERROR 
+      msg() << MSG::ERROR
         << "ComponentCalib0 has size different from the number "
         << Nc << " of components.  Aborting" << endmsg;
       return HLT::ERROR;
@@ -256,7 +259,7 @@ HLT::ErrorCode EFMissingET::hltInitialize()
   if (N1>0) {
     msg() << MSG::INFO << "ComponentCalib1 has size " << N1 << endmsg;
     if (N1!=Nc) {
-      msg() << MSG::ERROR 
+      msg() << MSG::ERROR
         << "ComponentCalib1 has size different from the number "
         << Nc << " of components.  Aborting" << endmsg;
       return HLT::ERROR;
@@ -274,7 +277,7 @@ HLT::ErrorCode EFMissingET::hltInitialize()
 
 EFMissingET::~EFMissingET(){
   if (m_met_help) {
-    delete m_met_help; 
+    delete m_met_help;
     m_met_help = 0;
   }
 }
@@ -299,47 +302,47 @@ HLT::ErrorCode EFMissingET::hltBeginRun() {
     msg() << MSG::DEBUG << " loop through helper tools start " << endmsg;
 
   for (ToolHandleArray<EFMissingETBaseTool>::iterator it = m_tools.begin(); it != m_tools.end(); ++it ) {
-  
+
    if(msgLvl() <= MSG::DEBUG)
      msg() << MSG::DEBUG << (*it)->name() << endmsg;
-  
+
       if((*it)->getFexType() == FexType::TOPO) foundTopo = true;
       if((*it)->getFexType() == FexType::CELL) foundCell = true;
       if((*it)->getFexType() == FexType::FEB)  foundFEB = true;
       if((*it)->getFexType() == FexType::JET)  foundJets = true;
-      
+
   }
-  
+
   if(foundTopo && (foundFEB || foundCell)) {
-  
+
     if(msgLvl() <= MSG::DEBUG)
-     msg() << MSG::DEBUG << "found topo. clusters AND Cells OR FEB - not a valid configuration .. aborting " << endmsg;   
-  
-  	return HLT::ERROR;  
+     msg() << MSG::DEBUG << "found topo. clusters AND Cells OR FEB - not a valid configuration .. aborting " << endmsg;
+
+  	return HLT::ERROR;
   }
-  
+
   if(m_doTopoClusters && !foundTopo) {
 
     if(msgLvl() <= MSG::DEBUG)
-     msg() << MSG::DEBUG << "found topo. clusters config but no ClusterTool .. aborting " << endmsg;     
-  	
-  	return HLT::ERROR;  
+     msg() << MSG::DEBUG << "found topo. clusters config but no ClusterTool .. aborting " << endmsg;
+
+  	return HLT::ERROR;
   }
-  
+
   if(m_doJets && !foundJets) {
 
     if(msgLvl() <= MSG::DEBUG)
-     msg() << MSG::DEBUG << "found jet config but no JetTool .. aborting " << endmsg;     
-  	
-  	return HLT::ERROR;  
-  }  
- 
-  
+     msg() << MSG::DEBUG << "found jet config but no JetTool .. aborting " << endmsg;
+
+  	return HLT::ERROR;
+  }
+
+
   // --
 
   m_firsteventinrun = true;
 
-  return HLT::OK; 
+  return HLT::OK;
 }
 
 //////////////////////////////////////////////////////////
@@ -389,11 +392,11 @@ HLT::ErrorCode EFMissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   m_me_lin  = -9e9;
   m_set_lin = -9e9;
   m_se_lin  = -9e9;
-  
+
   m_xs      = -9e9;
-  
+
   m_phi = -9e9;
-  
+
   m_tool_time_00 = 0;
   m_tool_time_01 = 0;
   m_tool_time_02 = 0;
@@ -417,6 +420,8 @@ HLT::ErrorCode EFMissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
 
   m_jets = 0;
   m_caloCluster = 0;
+  m_tracks=0;
+  m_vertices=0;
 
   if(msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "Executing EFMissingET::hltExecute()" << endmsg;
@@ -503,7 +508,7 @@ HLT::ErrorCode EFMissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   HLT::ErrorCode status = makeMissingET(tes_in);
 
   if(status != HLT::OK){
-    delete m_met; 
+    delete m_met;
     m_met = 0;
     msg() << MSG::ERROR << "EFMissingET::makeOutputTE returned Failure" << endmsg;
     return HLT::ERROR;
@@ -540,77 +545,124 @@ HLT::ErrorCode EFMissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
 HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerElement*> >& tes_in)
 {
 
-  if(m_doTopoClusters == false && m_doJets == false && m_doJets == false) 
+  if(m_doTopoClusters == false && m_doJets == false && m_doJets == false)
      m_n_sizePers = 25;
    else if(m_doJets == true)
-     m_n_sizePers = 6;   
+     m_n_sizePers = 6;
    else if(m_doPUC == true)
      m_n_sizePers = 3;
-   else  
-     m_n_sizePers = 9;    
-     
-  
+   else
+     m_n_sizePers = 9;
+
+
   // Setup xAOD EDM
   m_met = new xAOD::TrigMissingET(); m_met->makePrivateStore();
-  
+
   std::vector <std::string> vs_aux;
   for(int i = 0; i < m_n_sizePers; i++)
      vs_aux.push_back("");
-     
-  m_met->defineComponents(vs_aux); 
-  
+
+  m_met->defineComponents(vs_aux);
+
   ATH_MSG_DEBUG (" Created pers. object of size " << m_n_sizePers);
 
    // fetch topo. clusters for later use
-   if (m_doTopoClusters && tes_in.size() > 0) { // safe-guard 
+   if (m_doTopoClusters && tes_in.size() > 0) { // safe-guard
       for (HLT::TEVec::const_iterator it = tes_in[0].begin(); it != tes_in[0].end(); ++it) {
          HLT::ErrorCode status = getFeature(  (*it) , m_caloCluster );
-         
-         if(status!=HLT::OK || !m_caloCluster) {      	 
+
+         if(status!=HLT::OK || !m_caloCluster) {
             // Changed to prevent abortions of combined chains during cosmic data taking
             // This should not be in during collisions
-            //msg() << MSG::ERROR <<"Failed to get ClusterContainer" << endmsg; return HLT::NAV_ERROR; 
-            msg() << MSG::ERROR <<"Failed to get ClusterContainer" << endmsg; return HLT::OK; 
-         } else {     
+            //msg() << MSG::ERROR <<"Failed to get ClusterContainer" << endmsg; return HLT::NAV_ERROR;
+            msg() << MSG::ERROR <<"Failed to get ClusterContainer" << endmsg; return HLT::OK;
+         } else {
             if (msgLvl() <= MSG::DEBUG) {
-               msg() << MSG::DEBUG << "size of cluster container " << m_caloCluster->size() << endmsg;  	
+               msg() << MSG::DEBUG << "size of cluster container " << m_caloCluster->size() << endmsg;
                //for (xAOD::CaloClusterContainer::const_iterator it = m_caloCluster->begin(); it != m_caloCluster->end(); ++it )
-               //   msg() << MSG::DEBUG << " Cluster E, eta, phi: " << (*it)->e()<<", "<< (*it)->eta()<<", "<< (*it)->phi() << endmsg;   
-            }     
+               //   msg() << MSG::DEBUG << " Cluster E, eta, phi: " << (*it)->e()<<", "<< (*it)->eta()<<", "<< (*it)->phi() << endmsg;
+            }
          }
-         
+
       } // end loop over topoclusters
    } // fetched all topo. clusters
 
    // fetch jets for later use
-   if (m_doJets && tes_in.size() > 0) { // safe-guard 
+   if (m_doJets && tes_in.size() > 0) { // safe-guard
       for (HLT::TEVec::const_iterator it = tes_in[0].begin(); it != tes_in[0].end(); ++it) {
          HLT::ErrorCode status = getFeature(  (*it) , m_jets );
-         
-         if(status!=HLT::OK || !m_jets) {      	  
-            msg() << MSG::ERROR <<"Failed to get Jets" << endmsg; return HLT::NAV_ERROR; 
-         } else {     
+
+         if(status!=HLT::OK || !m_jets) {
+            msg() << MSG::ERROR <<"Failed to get Jets" << endmsg; return HLT::NAV_ERROR;
+         } else {
             if (msgLvl() <= MSG::DEBUG) {
-               msg() << MSG::DEBUG << "size of jet container " << m_jets->size() << endmsg;  	
+               msg() << MSG::DEBUG << "size of jet container " << m_jets->size() << endmsg;
                for (xAOD::JetContainer::const_iterator it = m_jets->begin(); it != m_jets->end(); ++it )
-                  msg() << MSG::DEBUG << " Jet E, eta, phi: " << (*it)->e()<<", "<< (*it)->eta()<<", "<< (*it)->phi() << endmsg;   
-            }     
+                  msg() << MSG::DEBUG << " Jet E, eta, phi: " << (*it)->e()<<", "<< (*it)->eta()<<", "<< (*it)->phi() << endmsg;
+            }
          }
-         
+
       } // end loop over topoclusters
    } // fetched all topo. clusters
 
-    
-  if(m_doTopoClusters && !m_caloCluster) {  // check if one should process topo. clusters and if pointer is present  
+
+   //fetch tracks for later use
+   if (m_doJets && m_doTracks && tes_in.size() > 0) { // safe-guard
+      for (HLT::TEVec::const_iterator it = tes_in[1].begin(); it != tes_in[1].end(); ++it) {
+         HLT::ErrorCode status = getFeature(  (*it) , m_tracks );
+
+         if(status!=HLT::OK || !m_tracks) {
+            msg() << MSG::ERROR <<"Failed to get tracks" << endmsg; return HLT::NAV_ERROR;
+         } else {
+            if (msgLvl() <= MSG::DEBUG) {
+               msg() << MSG::DEBUG << "size of track container " << m_tracks->size() << endmsg;
+               for (xAOD::TrackParticleContainer::const_iterator it = m_tracks->begin(); it != m_tracks->end(); ++it )
+                  msg() << MSG::DEBUG << " Track pt, eta, phi, vertex, z0, vz: " << (*it)->pt()<<", "<< (*it)->eta()<<", "<< (*it)->phi() << ", "
+                                        << (*it)->vertex() << ", " <<  fabs((*it)->z0()) << ", " << (*it)->vz() << endmsg;
+            }
+         }
+
+      } // end loop over topoclusters
+   } // fetched all topo. clusters
+
+
+
+   //fetch vertex for later use
+   if (m_doJets  && m_doTracks && tes_in.size() > 0) { // safe-guard
+      for (HLT::TEVec::const_iterator it = tes_in[1].begin(); it != tes_in[1].end(); ++it) {
+         HLT::ErrorCode status = getFeature(  (*it) , m_vertices );
+
+         if(status!=HLT::OK || !m_vertices) {
+            msg() << MSG::ERROR <<"Failed to get vertices" << endmsg; return HLT::NAV_ERROR;
+         } else {
+            if (msgLvl() <= MSG::DEBUG) {
+               msg() << MSG::DEBUG << "size of vertex container " << m_vertices->size() << endmsg;
+               for (xAOD::VertexContainer::const_iterator it = m_vertices->begin(); it != m_vertices->end(); ++it )
+                  msg() << MSG::DEBUG << " Vertex x, y, z, ntracks: " << (*it)->x()<<", "<< (*it)->y()<<", "<< (*it)->z() << ", "
+                                        << (*it)->nTrackParticles() << endmsg;
+            }
+         }
+
+      } // end loop over topoclusters
+   } // fetched all topo. clusters
+
+
+
+  if(m_doTopoClusters && !m_caloCluster) {  // check if one should process topo. clusters and if pointer is present
      msg() << MSG::INFO << " Error: configured to run over topo. clusters but no TriggerElement was passed to the FEX -- check menu configuration!! " << endmsg;
-     return HLT::ERROR;    
+     return HLT::ERROR;
   }
 
-  if(m_doJets && !m_jets) {  // check if one should process jets and if pointer is present  
+  if(m_doJets && !m_jets) {  // check if one should process jets and if pointer is present
      msg() << MSG::INFO << " Error: configured to run over jets but no TriggerElement was passed to the FEX -- check menu configuration!! " << endmsg;
-     return HLT::ERROR;    
+     return HLT::ERROR;
   }
-      
+
+  if(m_doTracks && (!m_tracks || !m_vertices)) {  // check if one should process jets and if pointer is present
+     msg() << MSG::INFO << " Error: configured to run over tracks and jets but no TriggerElement was passed to the FEX -- check menu configuration!! " << endmsg;
+     return HLT::ERROR;
+  }
+
   if (doTiming() && m_doTimers && m_algTime) {
     m_algTime->start();
   }
@@ -627,11 +679,11 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
   // if (!m_LArEMendCapCside)  flag |= m_maskEME_C_Missing;
   // if (!m_LArHECendCapAside) flag |= m_maskHEC_A_Missing;
   // if (!m_LArHECendCapCside) flag |= m_maskHEC_C_Missing;
-  // if (!m_LArFCalAside)      flag |= m_maskFCAL_A_Missing;    
-  // if (!m_LArFCalCside)      flag |= m_maskFCAL_C_Missing;    
-  // if (!m_TileBarrelAside)   flag |= m_maskTileB_A_Missing; 
-  // if (!m_TileBarrelCside)   flag |= m_maskTileB_C_Missing; 
-  // if (!m_TileExtBarAside)   flag |= m_maskTileE_A_Missing; 
+  // if (!m_LArFCalAside)      flag |= m_maskFCAL_A_Missing;
+  // if (!m_LArFCalCside)      flag |= m_maskFCAL_C_Missing;
+  // if (!m_TileBarrelAside)   flag |= m_maskTileB_A_Missing;
+  // if (!m_TileBarrelCside)   flag |= m_maskTileB_C_Missing;
+  // if (!m_TileExtBarAside)   flag |= m_maskTileE_A_Missing;
   // if (!m_TileExtBarCside)   flag |= m_maskTileE_C_Missing;
 
   // m_met_help->SetStatus(flag);
@@ -639,16 +691,16 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
   //unsigned short m_tmp_maskProcessing         = 0x0001; // bit  0
   //unsigned short m_tmp_maskProcessed          = 0x4000; // bit 14
 
-  /// loop over tools 
+  /// loop over tools
   ToolHandleArray<EFMissingETBaseTool>::iterator it = m_tools.begin();
   for (; it < m_tools.end(); ++it) {
-     
-     if ( (*it)->execute(m_met, m_met_help, m_caloCluster,m_jets).isFailure() ) {
+
+     if ( (*it)->execute(m_met, m_met_help, m_caloCluster,m_jets, m_tracks, m_vertices).isFailure() ) {
            msg() << MSG::ERROR << "EFMissingET AlgTool returned Failure" << endmsg;
            return HLT::ERROR;
-     }       
-     
-             	
+     }
+
+
     if (doTiming() && m_doTimers) {
       float timer[4][3]={{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
 
@@ -730,8 +782,8 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
   m_se_lin  = m_met->sumE() * 1e-3;  // NB: might be negative
 
   float epsilon = 1e-6;  // 1 keV
-  if (m_set_lin > epsilon) m_xs = m_met_lin / sqrt(m_set_lin); 
-  
+  if (m_set_lin > epsilon) m_xs = m_met_lin / sqrt(m_set_lin);
+
   // never compare a float with zero:
   epsilon = 1e-6;  // 1 keV
   if (m_me_lin>epsilon)  m_me_log  = log10(fabsf(m_me_lin)); // underflow otherwise

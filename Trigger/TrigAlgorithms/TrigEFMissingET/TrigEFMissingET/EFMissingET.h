@@ -11,8 +11,8 @@
  * @brief  Right now calculates EF MissingET by adding up all the cells, feb headers, or clusters
  *
  * @author  Rashid Djilkibaev (updated by Diego Casadei)
- * File and Version Information: 
- * $Id: EFMissingET.h,v 1.46 2009-03-26 09:41:29 venkat Exp $ 
+ * File and Version Information:
+ * $Id: EFMissingET.h,v 1.46 2009-03-26 09:41:29 venkat Exp $
  ********************************************************************
  **/
 
@@ -41,9 +41,9 @@ class EFMissingETBaseTool;
 
 class TrigMissingET;
 
-/** 
+/**
 
-  $class EFMissingET 
+  $class EFMissingET
   This class calculates Missing ET at EF level.
 
   Tools are available to do this calculation in several ways:
@@ -57,9 +57,9 @@ class TrigMissingET;
   - EFMissingETFlags makes checks about fake sources of MET
 
   - EFMissingETFromHelper saves data into TrigMissingET
-  
+
   */
-  
+
 
 class EFMissingET : public HLT::AllTEAlgo {
   public:
@@ -113,7 +113,7 @@ class EFMissingET : public HLT::AllTEAlgo {
     //const HLT::TriggerElement *m_inputTE;
     /** pointer to StoreGate */
     StoreGateSvc* m_StoreGate;
-        
+
     //!< Internal caching:
     HLT::TriggerElement *m_cachedTE; //!< output TE from the first exectution
     bool m_useCachedResult;          //!< true when the hltExecute will run in cached mode
@@ -123,9 +123,11 @@ class EFMissingET : public HLT::AllTEAlgo {
     unsigned int m_current_lbk_id;  //!< luminosity block
     unsigned int m_current_evt_id;  //!< event number
     unsigned int m_current_bcg_id;  //!< bunch crossing
-    
+
     const xAOD::CaloClusterContainer *m_caloCluster;
     const xAOD::JetContainer *m_jets;
+    const xAOD::TrackParticleContainer *m_tracks;
+    const xAOD::VertexContainer *m_vertices;
 
     //    unsigned m_maskEMB_A_Missing;      //!< EMB_A absent in DetMask
     //    unsigned m_maskEMB_C_Missing;      //!< EMB_C absent in DetMask
@@ -161,6 +163,7 @@ class EFMissingET : public HLT::AllTEAlgo {
     bool m_decodeDetMask;        //!< switch on/off DetMask decoding
     bool m_doTopoClusters;       //!< switch on/off topo. clusters
     bool m_doJets;               //!< switch on/off jets
+    bool m_doTracks;               //!< switch on/off tracks
     bool m_doPUC;                //!< switch on/off Pile-up fit
     std::string  m_metOutputKey; //!< label for the MET feature in the HLT Navigation
     ToolHandleArray< EFMissingETBaseTool > m_tools; //!< list of tools
@@ -168,7 +171,7 @@ class EFMissingET : public HLT::AllTEAlgo {
     std::vector<int>  m_flags;   //!< component flag (skip if <0)
     std::vector<float> m_calib0; //!< additive calibration constants
     std::vector<float> m_calib1; //!< multiplicative calib. constants
-    
+
     //!< Monitoring variables:
     float m_mex_log;  //!< Monitoring: EF signed log10 of Missing Ex [GeV]
     float m_mey_log;  //!< Monitoring: EF signed log10 of Missing Ey [GeV]
@@ -185,7 +188,7 @@ class EFMissingET : public HLT::AllTEAlgo {
     float m_me_lin;   //!< Monitoring: EF Missing E [GeV]
     float m_set_lin;  //!< Monitoring: EF SumEt [GeV]
     float m_se_lin;   //!< Monitoring: EF SumE [GeV]
-    float m_xs;       //!< Monitoring: EF XS [1/GeV^{1/2}]    
+    float m_xs;       //!< Monitoring: EF XS [1/GeV^{1/2}]
     float m_phi;      //!< Monitoring: EF MET phi [rad]
 
     std::vector<int> m_status_flag;   //!< Monitoring: status flags

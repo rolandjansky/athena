@@ -30,20 +30,22 @@ class EFMissingETFromClusters : public EFMissingETBaseTool
 {
   public:
 
-    EFMissingETFromClusters(const std::string& type, 
-        const std::string& name, 
+    EFMissingETFromClusters(const std::string& type,
+        const std::string& name,
         const IInterface* parent);
 
     ~EFMissingETFromClusters();
 
-    virtual StatusCode initialize(); 
+    virtual StatusCode initialize();
     virtual StatusCode finalize();
     virtual StatusCode execute();
 
-    virtual StatusCode execute(xAOD::TrigMissingET *met, 
-        TrigEFMissingEtHelper *metHelper, 
-        const xAOD::CaloClusterContainer *caloCluster,
-        const xAOD::JetContainer *jets);
+    virtual StatusCode execute(xAOD::TrigMissingET *met,
+                               TrigEFMissingEtHelper *metHelper,
+                               const xAOD::CaloClusterContainer *caloCluster,
+                               const xAOD::JetContainer *jets,
+                               const xAOD::TrackParticleContainer *track,
+                               const xAOD::VertexContainer *vertex);
 
   private:
     bool m_saveuncalibrated;
