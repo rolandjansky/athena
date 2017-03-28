@@ -19,7 +19,7 @@ atlas_add_library( AthAsgExUnittestLib
                    src/components/*.cxx
                    Root/*.cxx
                    PUBLIC_HEADERS MyPackage
-                   LINK_LIBRARIES GaudiKernel AthAnalysisBaseComps AsgTools )
+                   LINK_LIBRARIES GaudiKernel AthAnalysisBaseCompsLib AsgTools )
 #atlas_add_component( MyPackage
 #                     MyPackage/*.h src/*.cxx
 #                     src/components/*.cxx
