@@ -35,8 +35,9 @@ class RatesGroup : public RatesHistoBase {
    * @param log Reference to message service
    * @param prescale Prescale to apply to the whole group
    * @param doHistograms Flag to mint histograms or not
+   * @param doExtrapolation Flag to switch on or off extrapolation within the group
    */
-  RatesGroup(const std::string& name, const MsgStream& log, const double prescale = 1., const bool doHistograms = true);
+  RatesGroup(const std::string& name, const MsgStream& log, const bool doHistograms = true, const bool doExtrapolation = true);
 
   ~RatesGroup();
 
@@ -79,6 +80,8 @@ class RatesGroup : public RatesHistoBase {
   void setUseCachedWeights(const bool i) { m_useCachedWeights = i; } //!< Set to use cached weights from the Master group (need ptr to m_masterGroup)
   void duplicateChildren(const RatesGroup* toDuplicate) { m_children = toDuplicate->getChildren(); m_masterGroup = toDuplicate; } //!< Copy in triggers from another group. Sets my master
   double getCachedWeight(const size_t l1Hash) const { return m_cachedWeights.at(l1Hash); } //!< Get cached weight from triggers seeding from a given L1 item.
+  void setUniqueTrigger(RatesTrigger* trigger) { m_uniqueTrigger = trigger; } //!< Set trigger I am doing unique rates for
+  RatesTrigger* getUniqueTrigger() { return m_uniqueTrigger; } //!< Get the trigger I am doing unique rates for
 
   /**
    * @brief Get the unique rate of a unique-rate group
@@ -101,8 +104,7 @@ class RatesGroup : public RatesHistoBase {
  private:
 
   const std::string m_name; //!< Name of the group.
-  size_t m_nameHash; //!< Hash of the group's name
-  double m_groupPrescale; //!< Prescale to apply to the group as a whole
+  const size_t m_nameHash; //!< Hash of the group's name
   public: //TODO remove this
   double m_rateAccumulatorOR; //!< Numerator for the rate of the OR of all triggers
   double m_rateAccumulatorAND; //!< Numerator for the rate of the AND of all triggers
@@ -112,7 +114,9 @@ class RatesGroup : public RatesHistoBase {
   bool m_doCachedWeights; //!< Used in the global rates group. Cache extra information for the benefit of the unique rate groups
   std::unordered_map<size_t, double> m_cachedWeights; //!< Cached weight of the OR of all triggers *except* for the L1 seed-hash of the key here.
   bool m_useCachedWeights; //!< Efficiency. Required m_masterGroup to have been set.
+  const bool m_doLumiExtrapolation; //!< If we are using lumi extrapolation or not 
   const RatesGroup* m_masterGroup; //!< If not nullptr, then use the cached weights info in this master group object
+  RatesTrigger* m_uniqueTrigger; //!< If not nullptr, then a trigger this group is calculating the unique rate for. Needs non-const as fills a histo
 
   bool m_isExpressGroup; //!< If this group is calculating for the express stream - also include express prescales.
 

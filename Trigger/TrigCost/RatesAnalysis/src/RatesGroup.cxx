@@ -13,11 +13,10 @@ double RatesCPS::getWeight() const {
   return (1. - m_weight) / m_coherentFactor;
 }
 
-RatesGroup::RatesGroup(const std::string& name, const MsgStream& log, const double prescale, const bool doHistograms) :
+RatesGroup::RatesGroup(const std::string& name, const MsgStream& log, const bool doHistograms, const bool doExtrapolation) :
   RatesHistoBase(name, log, doHistograms),
   m_name(name),
   m_nameHash(std::hash<std::string>{}(name)),
-  m_groupPrescale(prescale < 1. ? 0 : prescale),
   m_rateAccumulatorOR(0.),
   m_rateAccumulatorAND(0.),
   m_rateAccumulatorOR2(0.),
@@ -25,7 +24,9 @@ RatesGroup::RatesGroup(const std::string& name, const MsgStream& log, const doub
   m_doCachedWeights(false),
   m_cachedWeights(),
   m_useCachedWeights(false),
+  m_doLumiExtrapolation(doExtrapolation),
   m_masterGroup(nullptr),
+  m_uniqueTrigger(nullptr),
   m_isExpressGroup(false),
   m_children()
   {}
@@ -34,7 +35,7 @@ RatesGroup::~RatesGroup() {}
 
 const std::string RatesGroup::printConfig() const {
   std::stringstream ss;
-  ss << m_name << " groupPS:" << m_groupPrescale << std::endl;
+  ss << m_name << std::endl;
   for (const auto& child : m_children) {
     if (child.first != std::hash<std::string>{}("")) ss << "\t" << (**(child.second.begin())).getSeedName() << " ->" << std::endl;
     for (const auto& chain : child.second) {
@@ -127,7 +128,7 @@ void RatesGroup::execute(const WeightingValuesSummary_t& weights) {
     weightOR  *= 1. - (weightL1 * (1. - weightHLT_OR));
     weightAND *= weightL1 * weightHLT_AND; 
 
-    //if (m_name == "Main") std::cout << "|weightL1:" << weightL1 << ",weightHLT_OR:" << weightHLT_OR << ",weightOR:" << weightOR;
+    //if (m_name == "Main") std::cout << "|M|weightL1:" << weightL1 << ",weightHLT_OR:" << weightHLT_OR << ",weightOR:" << weightOR;
 
     // If we are caching this result for use by the Unique groups
     if (m_doCachedWeights) {
@@ -146,22 +147,32 @@ void RatesGroup::execute(const WeightingValuesSummary_t& weights) {
     weightOR *= m_masterGroup->getCachedWeight( myOneAndOnlyL1SeedHash );
   }
 
-  //if (m_name == "Physics") std::cout << ">>>>>weightOR:" << weightOR << ",wOR:" << wOR << std::endl;
-
-  // We don't apply any lumi extrapolation when filling the MU histogram
-  // This is wOR but without weights.m_linearLumiFactor or any other scaling in L
-  if (m_rateVsMu != nullptr) m_rateVsMu->Fill(weights.m_eventMu, (1./m_groupPrescale) * weights.m_enhancedBiasWeight * (1. - weightOR));
-
   //TODO - we currently only let groups scale linearly. Should change this.
-  const double w = (1./m_groupPrescale) * weights.m_enhancedBiasWeight * weights.m_linearLumiFactor;
+  const double w = weights.m_enhancedBiasWeight * (m_doLumiExtrapolation ? weights.m_linearLumiFactor : 1.);
   const double wOR  = w * (1. - weightOR);
   const double wAND = w * weightAND;
 
-  if (m_rateVsTrain != nullptr) m_rateVsTrain->Fill(weights.m_distanceInTrain, wOR);
+  //if (m_name == "Main") std::cout << ">>>>M>weightOR:" << weightOR << ",wOR:" << wOR << ",w:" << w << std::endl;
+
   m_rateAccumulatorOR   += wOR;
   m_rateAccumulatorAND  += wAND;
   m_rateAccumulatorOR2  += wOR * wOR;
   m_rateAccumulatorAND2 += wAND * wAND;
+
+  // We don't apply any lumi extrapolation when filling the MU histogram
+  // This is wOR but without weights.m_linearLumiFactor or any other scaling in L
+  if (m_rateVsMu != nullptr) m_rateVsMu->Fill(weights.m_eventMu, weights.m_enhancedBiasWeight * (1. - weightOR));
+
+  if (m_rateVsTrain != nullptr) m_rateVsTrain->Fill(weights.m_distanceInTrain, wOR);
+
+  if (m_data != nullptr) {
+    m_data->Fill(RatesBinIdentifier_t::kRATE_BIN_OR, wOR);
+    m_data->Fill(RatesBinIdentifier_t::kRATE_BIN_AND, wAND);
+  }
+
+  if (m_uniqueTrigger != nullptr && m_uniqueTrigger->getDataHist() != nullptr) {
+    m_uniqueTrigger->getDataHist()->Fill(RatesBinIdentifier_t::kUNIQUE_BIN, wOR);
+  }
 
 }
 

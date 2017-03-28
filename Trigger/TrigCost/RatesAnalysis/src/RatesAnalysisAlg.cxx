@@ -24,7 +24,8 @@ RatesAnalysisAlg::RatesAnalysisAlg( const std::string& name, ISvcLocator* pSvcLo
   m_ratesDenominator(0),
   m_eventCounter(0),
   m_weightedEventCounter(0),
-  m_scalingHist(nullptr)
+  m_scalingHist(nullptr),
+  m_bcidHist(nullptr)
 {
   declareProperty("DoUniqueRates", m_doUniqueRates = true, "Calculate unique rates for all chains (slow)");
   declareProperty("DoHistograms", m_doHistograms = true, "Switch on histogram output of rate vs. mu and position in train.");
@@ -32,6 +33,7 @@ RatesAnalysisAlg::RatesAnalysisAlg( const std::string& name, ISvcLocator* pSvcLo
   declareProperty("PrescaleXML", m_prescaleXML = "", "Optional XML of prescales from the TrigRuleBook to apply.");
   declareProperty("NormaliseHistograms", m_normaliseHistograms = true, "Set this to false if you are going to be merging outputs.");
   declareProperty("EnableLumiExtrapolation", m_enableLumiExtrapolation = true, "If false then no extrapolation in L, N_bunch or <mu> will be performed..");
+  declareProperty("VetoStartOfTrain", m_vetoStartOfTrain = 0, "How many BCID to veto at the start of a bunch train.");
 
   declareProperty("ExpoScalingFactor", m_expoScalingFactor = 0.1, "Optional. Exponential factor if using exponential-mu rates scaling.");
   
@@ -60,7 +62,9 @@ StatusCode RatesAnalysisAlg::newScanTrigger(const std::string& name,
     return StatusCode::FAILURE;
   }
 
-  m_scanTriggers.emplace(std::make_pair(name, RatesScanTrigger(name, msg(), thresholdMin, thresholdMax, thresholdBins, behaviour, prescale, seedName, seedPrecale, extrapolation)));
+  const ExtrapStrat_t e = (m_enableLumiExtrapolation ? extrapolation : ExtrapStrat_t::kNONE); 
+
+  m_scanTriggers.emplace(std::make_pair(name, RatesScanTrigger(name, msg(), thresholdMin, thresholdMax, thresholdBins, behaviour, prescale, seedName, seedPrecale, e)));
   RatesScanTrigger* newScanTrigger = &(m_scanTriggers.at(name));
   if (isRandomSeed(name, seedName)) newScanTrigger->setSeedsFromRandom(true);
   ATH_MSG_DEBUG("newScanTrigger " <<  name << " added");
@@ -82,7 +86,9 @@ StatusCode RatesAnalysisAlg::newScanTrigger(const std::string& name,
     return StatusCode::FAILURE;
   }
 
-  m_scanTriggers.emplace(std::make_pair(name, RatesScanTrigger(name, msg(), thresholdBinEdges, behaviour, prescale, seedName, seedPrecale, extrapolation)));
+  const ExtrapStrat_t e = (m_enableLumiExtrapolation ? extrapolation : ExtrapStrat_t::kNONE); 
+
+  m_scanTriggers.emplace(std::make_pair(name, RatesScanTrigger(name, msg(), thresholdBinEdges, behaviour, prescale, seedName, seedPrecale, e)));
   RatesScanTrigger* newScanTrigger = &(m_scanTriggers.at(name));
   if (isRandomSeed(name, seedName)) newScanTrigger->setSeedsFromRandom(true);
   ATH_MSG_DEBUG("newScanTrigger " <<  name << " added");
@@ -154,7 +160,7 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
   // Add this trigger to its groups
   for (const std::string& group : groups) {
     if (m_groups.count(group) == 0) {
-      m_groups.emplace(std::make_pair(group, RatesGroup(group, msg(), .1, m_doHistograms)));
+      m_groups.emplace(std::make_pair(group, RatesGroup(group, msg(), m_doHistograms, m_enableLumiExtrapolation)));
       // As the group is formed from at least one active trigger - it must be active itself (counter example - CPS group of a PS=-1 trigger)
       m_activeGroups.insert( &(m_groups.at(group)) );
     }
@@ -322,9 +328,9 @@ StatusCode RatesAnalysisAlg::setTriggerDesicison(const std::string& name, const 
 StatusCode RatesAnalysisAlg::initialize() {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
-  m_globalGroups.emplace(std::make_pair(m_l1GroupName,      RatesGroup(m_l1GroupName, msg(),      1., false))); // TODO re-enable group histograms
-  m_globalGroups.emplace(std::make_pair(m_l2GroupName,      RatesGroup(m_l2GroupName, msg(),      1., false)));
-  m_globalGroups.emplace(std::make_pair(m_expressGroupName, RatesGroup(m_expressGroupName, msg(), 1., false)));
+  m_globalGroups.emplace(std::make_pair(m_l1GroupName,      RatesGroup(m_l1GroupName, msg(),      m_doHistograms, m_enableLumiExtrapolation)));
+  m_globalGroups.emplace(std::make_pair(m_l2GroupName,      RatesGroup(m_l2GroupName, msg(),      m_doHistograms, m_enableLumiExtrapolation)));
+  m_globalGroups.emplace(std::make_pair(m_expressGroupName, RatesGroup(m_expressGroupName, msg(), m_doHistograms, m_enableLumiExtrapolation)));
   m_globalGroups.at(m_l2GroupName).setDoCachedWeights( m_doUniqueRates ); // This extra sub-weight caching is only utilised by unique-rate groups 
   m_globalGroups.at(m_expressGroupName).setExpressGroup( true );
   return StatusCode::SUCCESS;
@@ -391,10 +397,11 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
     const RatesGroup* l1GroupPtr = &(m_globalGroups.at(m_l1GroupName)); // The finalised list of all L1 chains
     for (const auto& trigger : m_triggers) {
       const uint32_t level = getLevel(trigger.first);
-      m_uniqueGroups.emplace(std::make_pair(trigger.first, RatesGroup(trigger.first, msg(), 1., false))); // Each trigger gets its own unique group. No hist needed
+      m_uniqueGroups.emplace(std::make_pair(trigger.first, RatesGroup(trigger.first, msg(), false, m_enableLumiExtrapolation))); // Each trigger gets its own unique group. No hist needed
       RatesTrigger* triggerPtr = &(m_triggers.at(trigger.first));
       RatesGroup* uniqueGroupPtr = &(m_uniqueGroups.at(trigger.first));
-      triggerPtr->setUniqueGroup( uniqueGroupPtr );
+      triggerPtr->setUniqueGroup( uniqueGroupPtr ); // Create two-way links
+      uniqueGroupPtr->setUniqueTrigger( triggerPtr ); // Create two-way links
       // Copy in the global rates topology and make note of the unique rates master group
       if      (level == 2) uniqueGroupPtr->duplicateChildren( l2GroupPtr );
       else if (level == 1) uniqueGroupPtr->duplicateChildren( l1GroupPtr );
@@ -427,9 +434,12 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
   if (m_doHistograms) {
     ServiceHandle<ITHistSvc> histSvc("THistSvc", name());
     m_scalingHist = new TH1D("normalisation","normalisation;;sample walltime [s]",1,0.,1.);
-    ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Normalisation/normalisation"), m_scalingHist) );
+    ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/normalisation"), m_scalingHist) );
+    m_bcidHist = new TH1D("bcid",";BCID;Events",3565,-.5,3564.5);
+    ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/bcid"), m_bcidHist) );
     for (const auto& trigger : m_triggers) {
       if (!trigger.second.doHistograms()) continue; // Not all may be doing histograming
+      ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Triggers/" + trigger.first + "/data"), trigger.second.getDataHist()) );
       ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Triggers/" + trigger.first + "/rateVsMu"), trigger.second.getMuHist()) );
       if (m_useBunchCrossingTool) ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Triggers/" + trigger.first + "/rateVsTrain"), trigger.second.getTrainHist()) );
     }
@@ -438,16 +448,13 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
     }
     for (const auto& group : m_groups) {
       if (!group.second.doHistograms()) continue;
+      ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Groups/" + group.first + "/data"),     group.second.getDataHist()) );
       ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Groups/" + group.first + "/rateVsMu"), group.second.getMuHist()) );
       if (m_useBunchCrossingTool) ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Groups/" + group.first + "/rateVsTrain"), group.second.getTrainHist()) );
     }
     for (const auto& group : m_globalGroups) {
       if (!group.second.doHistograms()) continue;
-      // ATH_MSG_WARNING("doing global group histos for " << group.first << " with ptr " << (uint64_t)(group.second.getMuHist()) << " " <<  (uint64_t)(group.second.getTrainHist()) );
-      // ATH_MSG_WARNING("get name " << group.second.getMuHist()->GetName() );
-      // ATH_MSG_WARNING("get name " << group.second.getTrainHist()->GetName() );
-
-      //TODO these are broken - it's a mystery!!! (disabled above when group rates are minted)
+      ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Globals/" + group.first + "/data"), group.second.getDataHist()) );
       ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Globals/" + group.first + "/rateVsMu"), group.second.getMuHist()) );
       if (m_useBunchCrossingTool) ATH_CHECK( histSvc->regHist(std::string("/RATESTREAM/Globals/" + group.first + "/rateVsTrain"), group.second.getTrainHist()) );
     }
@@ -468,7 +475,7 @@ StatusCode RatesAnalysisAlg::execute() {
   ATH_MSG_DEBUG("Executing " << name() << "...");
   setFilterPassed(false);
   if (m_populatedTriggers == false) { // First time in execute loop - cannot access TDT before this.
-    ATH_CHECK( checkGotTDT() );
+    //ATH_CHECK( checkGotTDT() ); upgrade samples don't have TDT
     ATH_CHECK( populateTriggers() );
     m_populatedTriggers = true;
   }
@@ -484,6 +491,8 @@ StatusCode RatesAnalysisAlg::execute() {
   m_weightingValues.m_isUnbiased = m_enhancedBiasRatesTool->isUnbiasedEvent(eventInfo);
   m_weightingValues.m_distanceInTrain = m_enhancedBiasRatesTool->getDistanceIntoTrain(eventInfo); 
   m_weightingValues.m_eventLiveTime = m_enhancedBiasRatesTool->getEBLiveTime(eventInfo); 
+
+  if (m_useBunchCrossingTool && m_vetoStartOfTrain > 0 && m_weightingValues.m_distanceInTrain < m_vetoStartOfTrain) return StatusCode::SUCCESS;
 
   // Bunch factor doesn't change as a fn. of the run.
   m_weightingValues.m_muFactor = m_targetMu / m_weightingValues.m_eventMu;
@@ -514,6 +523,8 @@ StatusCode RatesAnalysisAlg::execute() {
   m_ratesDenominator += m_weightingValues.m_eventLiveTime;
   m_weightedEventCounter += m_weightingValues.m_enhancedBiasWeight;
 
+  if (m_doHistograms) m_bcidHist->Fill(eventInfo->bcid(), m_weightingValues.m_enhancedBiasWeight);
+
   // Some debug info
   if (m_eventCounter++ % 1000 == 0) {
     ATH_MSG_INFO( "Event " << m_eventCounter << " " << m_weightingValues.print() << " currentWallTime:" << m_ratesDenominator );
@@ -543,13 +554,13 @@ StatusCode RatesAnalysisAlg::executeTriggerEmulation() {
 StatusCode RatesAnalysisAlg::finalize() {
   ATH_MSG_INFO ("Finalizing " << name() << "...");
   ATH_CHECK( ratesFinalize() );
-  if (m_triggers.size()) {
-    ATH_MSG_INFO("################## Computed Rate Estimations for Single Items:");
-    for (const auto& trigger : m_triggers) ATH_MSG_INFO(trigger.second.printRate(m_ratesDenominator));
-  }
   if (m_scanTriggers.size()) {
     ATH_MSG_INFO("################## Computed Rate Scans for Threshold-Scan Items:");
     for (const auto& trigger : m_scanTriggers) ATH_MSG_INFO(trigger.second.printRate(m_ratesDenominator));
+  }
+  if (m_triggers.size()) {
+    ATH_MSG_INFO("################## Computed Rate Estimations for Single Items:");
+    for (const auto& trigger : m_triggers) ATH_MSG_INFO(trigger.second.printRate(m_ratesDenominator));
   }
   if (m_expressTriggers.size()) {
     ATH_MSG_INFO("################## Computed Express Rate Estimations for Single Items:");
@@ -576,12 +587,12 @@ StatusCode RatesAnalysisAlg::finalize() {
   if (m_doHistograms && m_normaliseHistograms) {
     for (auto& trigger : m_triggers)        trigger.second.normaliseHist(m_ratesDenominator);
     for (auto& trigger : m_scanTriggers)    trigger.second.normaliseHist(m_ratesDenominator);
-    // Express triggers don't do histograms at the moment
+    // for (auto& trigger : m_expressTriggers) // Express triggers don't do histograms at the moment
     for (auto& group   : m_groups)          group.second.normaliseHist(m_ratesDenominator);
     for (auto& group   : m_globalGroups)    group.second.normaliseHist(m_ratesDenominator);
   }
 
-  ATH_CHECK(m_tdt->finalize());
+  if (m_tdt.isSet()) ATH_CHECK(m_tdt->finalize());
   ATH_CHECK(m_enhancedBiasRatesTool->finalize());
   return StatusCode::SUCCESS;
 }
