@@ -133,7 +133,11 @@ namespace PFODetails
     tauShots_mergedScore, 
     tauShots_signalScore, 
     tauShots_nPhotons,
-    tauShots_seedHash
+    tauShots_seedHash,
+    eflowRec_layerHED,
+    eflowRec_layerCellOrdering,
+    eflowRec_radiusCellOrdering,
+    eflowRec_avgEdensityCellOrdering,
   };
 
   /** This enum is used to label the associated particles to the PFO object */
