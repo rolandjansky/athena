@@ -9,11 +9,11 @@ dqconfig.config         = "TEST"
 # Use this setup to test your new han configuration before committing it. Set "hcfg_dir" manually if the default doesn't work for you.
 # You can change these settings in your local working copy of this file, but please do not commit the change to SVN.
 try:
-    hcfg_dir = os.environ["TestArea"] + "/DataQuality/DataQualityConfigurations/config"
-    print "$TestArea is defined, using it."
+    hcfg_dir = os.path.join(os.environ["WorkDir_DIR"], "data/DataQualityConfigurations")
+    print "$WorkDir_DIR is defined, using it."
 except KeyError:
     hcfg_dir = os.getcwd()
-    print "$TestArea is not defined, using $PWD instead."
+    print "$WorkDir_DIR is not defined, using $PWD instead."
 print "Looking for collisions_*.hcfg files in %s" % (hcfg_dir)
 
 dqconfig.hcfg           = "%s/cosmics_run.hcfg"       % (hcfg_dir)
