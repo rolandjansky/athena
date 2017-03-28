@@ -46,13 +46,18 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( TrigT1CaloSimLib
-                   src/*.cxx
-                   PUBLIC_HEADERS TrigT1CaloSim
-                   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier CaloTTDetDescr AthenaBaseComps DataModel xAODTrigL1Calo GaudiKernel LArRawEvent TileEvent TrigConfL1Data TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloToolInterfaces TrigT1Interfaces CaloDetDescrLib PileUpToolsLib StoreGateLib SGtests LArToolsLib TileConditionsLib TrigT1CaloEventLib TrigT1CaloUtilsLib LumiBlockCompsLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel CxxUtils EventInfo xAODEventInfo AtlasCLHEP_RandomGenerators PathResolver )
+   TrigT1CaloSim/*.h src/*.cxx
+   PUBLIC_HEADERS TrigT1CaloSim
+   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+   DEFINITIONS ${CLHEP_DEFINITIONS}
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier CaloTTDetDescr
+   AthenaBaseComps AthContainers xAODTrigL1Calo GaudiKernel LArRawEvent
+   TileEvent TrigConfL1Data TrigT1CaloCalibConditions
+   TrigT1CaloCalibToolInterfaces TrigT1CaloToolInterfaces TrigT1Interfaces
+   CaloDetDescrLib PileUpToolsLib StoreGateLib SGtests LArToolsLib
+   TileConditionsLib TrigT1CaloEventLib TrigT1CaloUtilsLib LumiBlockCompsLib
+   PRIVATE_LINK_LIBRARIES AthenaKernel CxxUtils EventInfo xAODEventInfo
+   AtlasCLHEP_RandomGenerators PathResolver TrigT1CaloCondSvcLib )
 
 atlas_add_component( TrigT1CaloSim
                      src/components/*.cxx
