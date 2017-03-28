@@ -17,36 +17,10 @@ fi
 dest=`cd $dest; pwd`
 
 jo=TriggerMenuXML/runHLT_forXMLgeneration.py
-sqliteFile=TriggerMenuSQLiteFile.sqlite
-uploadLog=TriggerMenuUpload.log
-doDBUpload="false"
+release=${AtlasVersion}
 
-if [[ "$NICOS_ATLAS_RELEASE" != "" ]]; then
-    if [[ "$NICOS_ATLAS_ALT_RELEASE" != "None" ]]; then   # MIG nightlies
-        release=$NICOS_ATLAS_ALT_RELEASE
-    else
-        release=$NICOS_ATLAS_RELEASE
-    fi
-    if [[ "$AtlasProject" != "AtlasP1HLT" && "$AtlasProject" != "AtlasCAFHLT" && "$AtlasProject" != "AtlasTestHLT" ]]; then
-        #doDBUpload="true"     # Temporarily disabled due to sqlite slowness (Savannah #102038)
-        # we upload the default menu
-	    menuForUpload=`python -c "from TriggerJobOpts import TriggerFlags;print TriggerFlags.triggerMenuSetup().get_Value()" | tail -1`
-    fi
-else
-    release=`python -c "from TriggerJobOpts import TriggerFlags; print(TriggerFlags.menuVersion().get_Value())" | tail -1`
-fi
-
-if [[ -e MenusKeys.txt ]]; then
-    echo "XMLDumperFromAthena: Removing old MenusKeys.txt "
-    rm -f MenusKeys.txt
-fi
-
-# Setup TriggerTool
-if [ ${doDBUpload} = "true" ]; then
-    source /afs/cern.ch/sw/lcg/external/Java/bin/setup.sh
-    get_files -data -remove -symlink TriggerTool.jar
-    export _JAVA_OPTIONS="-Xms256m -Xmx1048m"
-fi
+# The following would be better but doesn't seem to work (yet) in git builds
+#release=`python -c "from TriggerJobOpts import TriggerFlags; print(TriggerFlags.menuVersion().get_Value())" | tail -1`
 
 # Temporary run directroy and cleanup traps in case of termination
 rundir=`mktemp -t -d tmxml.${menu}.XXXXXXXXXX`
@@ -60,11 +34,6 @@ TRAPTERM() {
 }
 
 ## menu generation starts here
-if [ -n "${AtlasTrigger_PLATFORM}" ]; then   # CMAKE
-    platform=${AtlasTrigger_PLATFORM}
-else  # CMT
-    platform=${CMTCONFIG}
-fi
 echo "XMLDumperFromAthena: Building menu: ${menu} for ${release}"
 logfiletopo=topo${menu}.log
 logfile=${menu}.log
@@ -88,28 +57,6 @@ if [ $athena_exit -eq 0 ]; then
     echo "XMLDumperFromAthena: $menu DONE | Exit code: $athena_exit | Log: $dest/$logfile"
 else
     echo "XMLDumperFromAthena: $menu FAILED | Exit code: $athena_exit | Log: $dest/$logfile"
-fi
-
-
-#upload default menu into to the SQLite file
-#doDBUpload is True if we are in NICOS and not in the P1HLT cache
-if [[ ( ${doDBUpload} = "true" ) && ( ${menu} = ${menuForUpload} ) && ( -s outputHLTconfig.xml ) ]]; then
-    echo "XMLDumperFromAthena: Uploading the xml files to the DB"
-    rm -f $sqliteFile
-    cmd=(java -jar TriggerTool.jar -up -release $release -l1_menu outputLVL1config.xml -hlt_menu outputHLTconfig.xml -name $menu -offlineconfig -dbConn "sqlite_file:$sqliteFile" --outputLevel FINER --output $uploadLog)
-    echo "XMLDumperFromAthena: Upload command: java $cmd"
-    ${cmd}
-    cp $uploadLog $dest/TriggerMenuUpload.log
-    echo "Copying sqlite file $sqliteFile to $dest/TriggerMenuSQLiteFile_${release}.sqlite"
-    chmod 777 $sqliteFile
-    cp $sqliteFile ${dest}/TriggerMenuSQLiteFile_${release}.sqlite
-    
-    if [[ -e MenusKeys.txt ]]; then
-        echo "Copying MenuKeys.txt to ${dest}/MenusKeys_${release}.txt"
-        cp MenusKeys.txt ${dest}/MenusKeys_${release}.txt
-    else
-        echo "Error : MenuKeys.txt does not exist, likely a DB upload problem "
-    fi
 fi
 
 if [[ -e outputLVL1config.xml ]]; then
