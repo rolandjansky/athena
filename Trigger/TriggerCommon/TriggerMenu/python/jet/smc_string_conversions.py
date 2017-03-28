@@ -5,7 +5,7 @@
 
 
 import re
-smc_range_re = re.compile(r'(?P<smc_min>((-)?\d|-?INF))smc(?P<smc_max>((-)?\d|-?INF))')
+smc_range_re = re.compile(r'^(?P<smc_min>((-)?\d+|-?INF))smc(?P<smc_max>((-)?\d+|-?INF))$')
 
 def _extract(smc_range):
     
