@@ -115,18 +115,22 @@ void TrigTrackJetFinderTool::addTrack(const TrigInDetTrack*& track, unsigned int
     m_trkSelChi2   = 0.001;
 
     if (fabs(track->param()->pT()) < m_trkSelPt) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (pT cut)" << endmsg; selTrack=false;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (pT cut)" << endmsg;
+      selTrack=false;
     }
     if (track->siSpacePoints()) {
       
       if ((*track->siSpacePoints())[0]->layer()) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (missing b-layer hit)" << endmsg; selTrack=false;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (missing b-layer hit)" << endmsg;
+        selTrack=false;
       }
       if ((int)track->siSpacePoints()->size() < m_trkSelSiHits) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (too few silicon hits)" << endmsg; selTrack=false;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (too few silicon hits)" << endmsg;
+        selTrack=false;
       }
       if (TMath::Prob(track->chi2(),(int)track->siSpacePoints()->size()*3-5) <= m_trkSelChi2) {
-      	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (chi2 cut)" << endmsg; selTrack=false;
+      	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  track " << i+1 << " not selected (chi2 cut)" << endmsg;
+        selTrack=false;
       }
     }
   }
