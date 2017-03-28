@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/PersistentDataModel
                           Event/EventInfo
+                          Event/xAOD/xAODEventInfo
                           GaudiKernel )
 
 # Component(s) in the package:
@@ -24,8 +25,10 @@ atlas_add_component( OutputStreamAthenaPool
                      src/MakeEventStreamInfo.cxx
                      src/CopyEventStreamInfo.cxx
                      src/MakeInputDataHeader.cxx
+                     src/EventInfoAttListTool.cxx
+                     src/EventInfoTagBuilder.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib AthenaPoolUtilities PersistentDataModel EventInfo GaudiKernel )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib AthenaPoolUtilities PersistentDataModel EventInfo xAODEventInfo GaudiKernel )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

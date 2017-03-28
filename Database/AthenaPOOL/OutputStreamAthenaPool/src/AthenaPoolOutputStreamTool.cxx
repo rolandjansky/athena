@@ -21,7 +21,8 @@
 #include "SGTools/SGIFolder.h"
 #include "PersistentDataModel/DataHeader.h"
 #include "AthenaPoolCnvSvc/IAthenaPoolCnvSvc.h"
-#include "AthenaPoolUtilities/TagAthenaAttributeList.h"
+//#include "AthenaPoolUtilities/TagAthenaAttributeList.h"
+#include "PersistentDataModel/AthenaAttributeList.h"
 
 /// Constructor
 AthenaPoolOutputStreamTool::AthenaPoolOutputStreamTool(const std::string& type,
@@ -253,7 +254,7 @@ StatusCode AthenaPoolOutputStreamTool::connectOutput(const std::string& outputNa
       attrListKey = outputConnectionString.substr(pos + 18, outputConnectionString.find("]", pos + 18) - pos - 18);
    }
    if (!attrListKey.empty()) {
-      const DataHandle<TagAthenaAttributeList> attrList;
+      const DataHandle<AthenaAttributeList> attrList;
       if (m_store->retrieve(attrList, attrListKey).isFailure()) {
          ATH_MSG_WARNING("Unable to retrieve AttributeList with key " << attrListKey);
       } else {

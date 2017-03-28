@@ -8,15 +8,21 @@
 #include "../MakeInputDataHeader.h"
 #include "../MakeEventStreamInfo.h"
 #include "../CopyEventStreamInfo.h"
+#include "../EventInfoAttListTool.h"
+#include "../EventInfoTagBuilder.h"
 
 DECLARE_TOOL_FACTORY(AthenaPoolOutputStreamTool)
 DECLARE_TOOL_FACTORY(MakeEventStreamInfo)
 DECLARE_TOOL_FACTORY(CopyEventStreamInfo)
+DECLARE_TOOL_FACTORY(EventInfoAttListTool)
 DECLARE_ALGORITHM_FACTORY(MakeInputDataHeader)
+DECLARE_ALGORITHM_FACTORY(EventInfoTagBuilder)
 
 DECLARE_FACTORY_ENTRIES(OutputStreamAthenaPool) {
    DECLARE_TOOL(AthenaPoolOutputStreamTool)
    DECLARE_TOOL(MakeEventStreamInfo)
    DECLARE_TOOL(CopyEventStreamInfo)
+   DECLARE_TOOL(EventInfoAttListTool)
    DECLARE_ALGORITHM(MakeInputDataHeader)
+   DECLARE_ALGORITHM(EventInfoTagBuilder)
 }
