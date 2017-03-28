@@ -16,6 +16,11 @@ source /afs/cern.ch/sw/lcg/external/Java/bin/setup.sh
 export _JAVA_OPTIONS="-Xms256m -Xmx1048m"
 export DBConn="TRIGGERDBATN"
 
+export TDAQ_VERSION="tdaq-07-01-00"
+export TDAQ_RELEASE_BASE=/afs/cern.ch/atlas/project/tdaq/prod
+export TDAQ_DB_PATH=/afs/cern.ch/atlas/project/tdaq/prod/tdaq/$TDAQ_VERSION/installed/share/data:/afs/cern.ch/atlas/project/tdaq/prod/tdaq/$TDAQ_VERSION/installed/databases:/afs/cern.ch/atlas/project/tdaq/prod/tdaq/$TDAQ_VERSION/databases
+source $TDAQ_RELEASE_BASE/../cmake/cmake_tdaq/bin/cm_setup.sh $TDAQ_VERSION
+
 
 ##get the right pattern to load Lvl1 xml file
 if [ "$type" == "HLT_LS1V1" ]; then
@@ -55,7 +60,8 @@ get_files -xmls LVL1config.dtd
 #upload the first key
 echo "upload the first key"
 
-cmd1="java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release 'P1HLT' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest' -l INFO --dbConn $DBConn -w_n 60 -w_t 60 "
+#cmd1="java -Duser.timezone=CET -cp \"*:$TDAQ_CLASSPATH\" triggertool.TriggerTool -up -release 'P1HLT' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest' -l INFO --dbConn $DBConn -w_n 60 -w_t 60 "
+
 
 echo $cmd1
 eval $cmd1 &> uploadSMK1.log
@@ -85,7 +91,7 @@ hlt__setup2=ef_Default_setup_rerun.xml
 #upload the second key
 echo "upload the second key"
 
-cmd2="java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release 'P1HLT' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu2 --hlt_setup $hlt__setup2 --name 'P1HLTtest' -l INFO --dbConn $DBConn -w_n 60 -w_t 60 "
+cmd2="java -Duser.timezone=CET -cp \"*:$TDAQ_CLASSPATH\" triggertool.TriggerTool -up -release 'P1HLT' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu2 --hlt_setup $hlt__setup2 --name 'P1HLTtest' -l INFO --dbConn $DBConn -w_n 60 -w_t 60 "
 
 echo $cmd2 "&> uploadSMK2.log"
 eval $cmd2 &> uploadSMK2.log
@@ -110,8 +116,8 @@ smkDiffFile=diff_smk_${smk1}_${smk2}.xml
 
 echo "diff key 1 vs key 2"
 #java -jar TriggerTool.jar -diff -smk1 $smk1 -smk2 $smk2 -name "P1HLTtest" -dbConn $DBConn -xml $smkDiffFile -w_n 50 -w_t 60
-echo "java  -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -diff -smk1 $smk1 -smk2 $smk2 -name "P1HLTtest" -dbConn $DBConn -xml diff_smk_${smk1}_${smk2}.xml -w_n 50 -w_t 60"
-java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -diff -smk1 $smk1 -smk2 $smk2 -name "P1HLTtest" -dbConn $DBConn -xml diff_smk_${smk1}_${smk2}.xml -w_n 50 -w_t 60
+echo "java  -Duser.timezone=CET -cp \"*:$TDAQ_CLASSPATH\" triggertool.TriggerTool -diff -smk1 $smk1 -smk2 $smk2 -name "P1HLTtest" -dbConn $DBConn -xml diff_smk_${smk1}_${smk2}.xml -w_n 50 -w_t 60"
+java -Duser.timezone=CET -cp "*:$TDAQ_CLASSPATH" triggertool.TriggerTool -diff -smk1 $smk1 -smk2 $smk2 -name "P1HLTtest" -dbConn $DBConn -xml diff_smk_${smk1}_${smk2}.xml -w_n 50 -w_t 60
 
 
 
