@@ -1625,11 +1625,11 @@ if (m_useMdtData>0) {
   int nSeg = 0;
   if(m_segmentCombiColl) nSeg = segmentMonitoring(m_segmentCombiColl, monVars);
   if(m_segments){
-    std::vector<const Muon::MuonSegment*> m_muonSegCollection;
+    std::vector<const Muon::MuonSegment*> muonSegCollection;
     for(Trk::SegmentCollection::const_iterator itSeg = m_segments->begin(); itSeg!= m_segments->end(); ++itSeg){
-      if(*itSeg) m_muonSegCollection.push_back(dynamic_cast<Muon::MuonSegment*>(*itSeg));
+      if(*itSeg) muonSegCollection.push_back(dynamic_cast<const Muon::MuonSegment*>(*itSeg));
     }
-    nSeg = segmentMonitoring(m_muonSegCollection, monVars);
+    nSeg = segmentMonitoring(muonSegCollection, monVars);
   }
 
   monVars.numberOfSegs.push_back(nSeg);
