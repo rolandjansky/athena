@@ -21,6 +21,9 @@ class InDetTrigSliceSettingsDB:
   their default settings. The settings may be overriden by user if the
   InDetTrigSliceSettings is instantiated early in the jO (before
   other InDetTrigRecExample files are included)
+  for example a preExec line
+  from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings; InDetTrigSliceSettings[('pTmin','bjetVtx')] = 2000.
+  allows testing the bjetVtx instance with as different reconstruction threshold 
   """
   def __init__(self):
     from AthenaCommon.SystemOfUnits import GeV
@@ -76,6 +79,7 @@ class InDetTrigSliceSettingsDB:
     ptmin['fullScan500'] = 0.5 * GeV
     ptmin['minBias400'] = 0.39 * GeV
     ptmin['bphysHighPt'] = 2. * GeV
+    ptmin['bjetVtx'] = 5. * GeV
 
     self.db['pTmin']=ptmin
 
