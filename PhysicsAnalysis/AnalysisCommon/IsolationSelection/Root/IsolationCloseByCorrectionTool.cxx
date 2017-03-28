@@ -688,11 +688,11 @@ namespace CP {
 	    }
 	    
         m_accept.clear();
-        strObj m_strPar;
-        m_strPar.isolationValues.resize(xAOD::Iso::numIsolationTypes);
-        m_strPar.pt = x.pt();
-        m_strPar.eta = x.eta();
-        m_strPar.type = x.type();
+        strObj strPar;
+        strPar.isolationValues.resize(xAOD::Iso::numIsolationTypes);
+        strPar.pt = x.pt();
+        strPar.eta = x.eta();
+        strPar.type = x.type();
         std::vector < float > corrections;
         if(getCloseByCorrection(corrections, x, isoTypes, closePar, topoetconeModel) == CP::CorrectionCode::Error) {
             ATH_MSG_WARNING("Could not calculate the corrections. acceptCorrected(x) is done without the corrections.");
@@ -704,10 +704,10 @@ namespace CP {
             SG::AuxElement::Accessor< float > *acc = xAOD::getIsolationAccessor(isoTypes.at(i));
             float old = (*acc)(x);
             ATH_MSG_DEBUG("Correcting " << xAOD::Iso::toString(isoTypes.at(i)) << " from " << old << " to " << old-corrections.at(i));
-            m_strPar.isolationValues[isoTypes.at(i)] = old - corrections.at(i);
+            strPar.isolationValues[isoTypes.at(i)] = old - corrections.at(i);
         }
 
-        m_accept = m_selectorTool->accept(m_strPar);
+        m_accept = m_selectorTool->accept(strPar);
 
         return m_accept;
  	}
