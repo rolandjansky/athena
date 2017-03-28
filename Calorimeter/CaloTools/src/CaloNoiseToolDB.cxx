@@ -385,6 +385,10 @@ CaloNoiseToolDB::updateCache()
     msg(MSG::INFO) << " number of cells in EM calo " << ncellEM[EMECZNEG] << " " << ncellEM[EMBZNEG]  << " " << ncellEM[EMBZPOS] << " " << ncellEM[EMECZPOS] << endreq;
     msg(MSG::INFO) << " number from Cools " <<  m_noiseBlobMap[EMECZNEG]->getNChans() << " " << m_noiseBlobMap[EMBZNEG]->getNChans() << " " 
                    << m_noiseBlobMap[EMBZPOS]->getNChans() << " " << m_noiseBlobMap[EMECZPOS]->getNChans() << endreq;
+
+    m_calo_id->calo_cell_hash_range(CaloCell_ID::TILE, cellHash, cellHashEnd);
+    msg(MSG::INFO) << " Tile cell hash start " << cellHash << " end " << cellHashEnd << " delta " << cellHashEnd - cellHash
+                   << " in DB " << m_noiseBlobMap[TILE]->getNChans() << endreq;
   }
   const int MaxGains = 4;  // make sure that code below does not exceed this size
   // m_noise is quite large and memory layout is important; profiling shows that
