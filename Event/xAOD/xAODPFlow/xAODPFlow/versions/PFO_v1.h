@@ -105,6 +105,15 @@ namespace xAOD {
     float charge() const;
     /** set charge of PFO */
     void setCharge(float charge);
+    
+    std::vector<int> layervector() const;
+    void setLayer(std::vector<int> vector_test);
+    
+    std::vector<float> radiusvector() const;
+    void setRadius(std::vector<float> radiusvector);
+    
+    std::vector<float> energydensityvector() const;
+    void setEnergyDensity(std::vector<float> energydensityvector);
 
     /** Set a PFO Variable via enum - overwrite is allowed */
     template<class T> void setAttribute(PFODetails::PFOAttributes AttributeType, const T& anAttribute) ;
@@ -191,6 +200,8 @@ namespace xAOD {
     mutable bool m_p4EMCached;
     /** this defines the factor to compress floats by */
     int m_floatCompressionFactor;
+    
+    //std::vector<int> m_layervector;
 
   }; // class PFO
 

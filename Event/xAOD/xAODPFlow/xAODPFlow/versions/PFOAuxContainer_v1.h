@@ -59,6 +59,9 @@ namespace xAOD {
     std::vector<std::vector<ElementLink<IParticleContainer> > > pfo_ClusterLinks;
     std::vector<std::vector<ElementLink<IParticleContainer> > >  pfo_TrackLinks;
     std::vector<std::vector<ElementLink<IParticleContainer> > > pfo_TauShotLinks;
+    std::vector<std::vector<int> > layervector;
+    std::vector<std::vector<float> > radiusvector;
+    std::vector<std::vector<float> > energydensityvector;
 
   }; // class PFOAuxContainer_v1
 

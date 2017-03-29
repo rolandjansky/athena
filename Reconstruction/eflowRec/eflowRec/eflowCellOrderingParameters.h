@@ -13,8 +13,8 @@ class eflowCellOrderingParameters {
   eflowCellOrderingParameters ();
   ~eflowCellOrderingParameters () {};
   
-  int getLayerCellOrder() const { return m_layerToStore; }
-  void setLayerCellOrder(int layerToStore) { m_layerToStore = layerToStore; }
+  std::vector<int> getLayerCellOrder() const { return m_layerToStore; }
+  void setLayerCellOrder(std::vector<int> layerToStoreVector) { m_layerToStore = layerToStoreVector; }
   int getRadiusCellOrder() const { return m_radiusToStore; }
   void setRadiusCellOrder(int radiusToStore) { m_radiusToStore = radiusToStore; }
   int getAverageEnergyDensity() const { return m_averageEnergyDensityPerRing; }
@@ -24,7 +24,7 @@ class eflowCellOrderingParameters {
  private:
  
  
- int m_layerToStore;
+ std::vector<int> m_layerToStore;
  float m_radiusToStore;
  float m_averageEnergyDensityPerRing;
 //  

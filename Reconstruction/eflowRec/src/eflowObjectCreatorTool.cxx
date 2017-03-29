@@ -47,7 +47,7 @@ eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const st
     m_chargedPFOContainer(0),
     m_neutralPFOContainer(0),
     m_neutralPFOContainer_nonModified(0),
-    m_eOverPMode(false),
+    m_eOverPMode(true),
     m_goldenModeString(""),
     m_debug(0),
     m_LCMode(false),
@@ -216,20 +216,31 @@ void eflowObjectCreatorTool::createChargedEflowObjects(eflowCaloObject* energyFl
     bool isSet = myEflowObject->setTrackLink(theTrackLink);
     if (!isSet) { msg(MSG::WARNING) << "Could not set Track B in PFO " << endmsg; }
     myEflowObject->setCharge(efRecTrack->getTrack()->charge());
+
     
     std::pair<double,double> etaPhi(0.0,0.0);
+    
+    std::vector<int> vector_test = {1, 3, 5, 7};
+        
+    myEflowObject->setLayer(vector_test);
+      
 
     if (m_eOverPMode){
       /* In EOverPMode want charged eflowObjects to have extrapolated eta,phi as coordinates
        * (needed for analysis of EOverP Data) */
         etaPhi = efRecTrack->getTrackCaloPoints().getEM2etaPhi();
+        
+//         std::vector<int> vector_test = {1, 3, 5, 7};
+//         
+//         myEflowObject->setLayer(vector_test);
       
         //add information to xAOD
         xAOD::PFODetails::PFOAttributes myAttribute_layerHED = xAOD::PFODetails::PFOAttributes::eflowRec_layerHED;
         myEflowObject->setAttribute<int>(myAttribute_layerHED,efRecTrack->getLayerHED() );
 //   std::cout << "DEBUG: Add variable " << efRecTrack->getLayerHED() << std::endl;
+
         xAOD::PFODetails::PFOAttributes myAttribute_layerCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_layerCellOrdering;
-//         myEflowObject->setAttribute<std::vector<int>>(myAttribute_layerCellOrdering,efRecTrack->getLayerCellOrder() );
+        // myEflowObject->setAttribute<std::vector<int>>(myAttribute_layerCellOrdering,efRecTrack->getLayerCellOrderVector() );
         myEflowObject->setAttribute<int>(myAttribute_layerCellOrdering,efRecTrack->getLayerCellOrder() );
         
         xAOD::PFODetails::PFOAttributes myAttribute_radiusCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_radiusCellOrdering;

@@ -24,6 +24,9 @@ namespace xAOD {
     AUX_VARIABLE(pfo_ClusterLinks);
     AUX_VARIABLE(pfo_TrackLinks);
     AUX_VARIABLE(pfo_TauShotLinks);
+    AUX_VARIABLE(layervector);
+    AUX_VARIABLE(radiusvector);
+    AUX_VARIABLE(energydensityvector);
   }
   
 } // namespace xAOD

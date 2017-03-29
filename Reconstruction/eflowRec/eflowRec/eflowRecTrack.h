@@ -83,8 +83,8 @@ public:
   
   int getLayerHED() const { return m_layerHED; }
   void setLayerHED(int layerHED) { m_layerHED = layerHED; }
-//   std::vector<int> getLayerCellOrder() const { return m_layerCellOrder; }
-//   void setLayerCellOrder(std::vector<int> layerToStoreVector) { m_layerCellOrder = layerToStoreVector; }
+  std::vector<int> getLayerCellOrderVector() const { return m_layerCellOrderVector; }
+  void setLayerCellOrderVector(std::vector<int> layerToStoreVector) { m_layerCellOrderVector = layerToStoreVector; }
   int getLayerCellOrder() const { return m_layerCellOrder; }
   void setLayerCellOrder(int layerToStore) { m_layerCellOrder = layerToStore; }
   int getRadiusCellOrder() const { return m_radiusCellOrder; }
@@ -107,7 +107,7 @@ private:
   double m_pull15;
   
   int m_layerHED;
- //  std::vector<int> m_layerCellOrder;
+  std::vector<int> m_layerCellOrderVector;
   int m_layerCellOrder;
   float m_radiusCellOrder;
   float m_avgEdensityCellOrder;

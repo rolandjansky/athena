@@ -37,6 +37,8 @@ CREATED:  25th January, 2005
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 
+#include "xAODPFlow/PFO.h"
+
 #include "eflowRec/eflowCaloObject.h"
 #include "eflowRec/eflowCaloObjectMaker.h"
 #include "GaudiKernel/MsgStream.h"
@@ -315,6 +317,7 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
 //      do dR2 check, i.e. provide eta, phi of calorimeter cell and calculate distance to 
 //      extrapolated track position in a given layer? 
 //      handled by begin ring?
+        xAOD::PFO thiseFlowObject;
 
         if (i==0){
         
@@ -326,6 +329,10 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
           int indexofRing = 0;
           int layerToStore = -999;
           std::vector<int> layerToStoreVector;
+          
+          std::cout<<"layerToStore vector about to be cleared"<<std::endl;
+          layerToStoreVector.clear();
+          std::cout<<"layerToStore vector cleared"<<std::endl;
           double radiusToStore = 0;
           double totalEnergyPerCell = 0;
       
@@ -422,8 +429,10 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
                 std::cout << " track E is " << efRecTrack->getTrack()->e()/1000.;
                 std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
                 layerToStore = (eflowCaloENUM)i;
+                std::cout << " before layervector "<<std::endl;
                 layerToStoreVector.push_back(layerToStore);
                 std::cout<<"layerToStore is "<< layerToStore << std::endl;
+                std::cout<<"layerToStoreVector["<< n <<"] is "<< layerToStoreVector[n] << std::endl;
                 radiusToStore = (indexofRing)*ringThickness;
                 std::cout<<"radiusToStore is "<< radiusToStore << std::endl;
                 efRecTrack->setLayerCellOrder(layerToStore);
@@ -451,8 +460,9 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
         }
         else {std::cout<<"averageEnergyDensityPerRing = 0"<<std::endl;}
     }
-//     efRecTrack->setLayerCellOrder(layerToStoreVector);
-//     layerToStoreVector.clear();
+//     efRecTrack->setLayerCellOrderVector(layerToStoreVector);
+//     std::cout<<"LayerCellOrder is " << efRecTrack->getLayerCellOrderVector()[0]<<std::endl;
+
     }
         if (i==1){
         

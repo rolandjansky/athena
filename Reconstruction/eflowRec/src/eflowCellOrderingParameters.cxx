@@ -6,7 +6,7 @@
 
 eflowCellOrderingParameters::eflowCellOrderingParameters(){
 
-// m_layerToStore(-1), m_radiusToStore(-1.0), m_averageEnergyDensityPerRing(-1.0),
+// : m_layerToStore(-1), m_radiusToStore(-1.0), m_averageEnergyDensityPerRing(-1.0),
 
 }
 
