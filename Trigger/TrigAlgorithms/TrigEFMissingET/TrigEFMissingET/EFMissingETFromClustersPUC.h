@@ -5,6 +5,8 @@
 #ifndef TRIGEFMISSINGET_EFMissingETFromClustersPUC_H
 #define TRIGEFMISSINGET_EFMissingETFromClustersPUC_H
 
+
+
 /********************************************************************
 
 NAME:     EFMissingETFromClustersPUC.h
@@ -36,7 +38,7 @@ class EFMissingETFromClustersPUC : public EFMissingETBaseTool
 
     ~EFMissingETFromClustersPUC();
 
-    virtual StatusCode initialize();
+    virtual StatusCode initialize(); 
     virtual StatusCode finalize();
     virtual StatusCode execute();
 
