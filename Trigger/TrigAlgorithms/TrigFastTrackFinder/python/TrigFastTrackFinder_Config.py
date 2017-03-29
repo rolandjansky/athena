@@ -358,6 +358,7 @@ class TrigFastTrackFinder_Cosmic_Monitoring(TrigFastTrackFinder_CommonMonitoring
                                              xbins = 100, xmin=-0.5, xmax=99.5)]
 
 def remapper(type):
+    #this funcion should not be needed - we don't have to remap in both directions
     remap  = {
         "Muon"     : "muon",
         "MuonCore" : "muonCore",
@@ -367,7 +368,7 @@ def remapper(type):
         "TauCore"  : "tauCore",
         "TauIso"   : "tauIso",
         "Jet"      : "bjet",
-        "Jet"      : "bjetVtx",
+        #"Jet"      : "bjetVtx",
         "FullScan" : "fullScan",
         "BeamSpot" : "beamSpot",
         "Bphysics" : "bphysics",
