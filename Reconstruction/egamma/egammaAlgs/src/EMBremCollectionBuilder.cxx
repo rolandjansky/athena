@@ -212,6 +212,7 @@ StatusCode EMBremCollectionBuilder::execute()
   SG::WriteHandle<TrackCollection> finalTracks(m_OutputTrackContainerKey);
   ATH_CHECK(finalTracks.record(std::make_unique<TrackCollection>()));
 
+  m_finalTracks = finalTracks.ptr();
   
   //
   SG::ReadHandle<xAOD::CaloClusterContainer> clusterTES(m_clusterContainerKey);

@@ -68,11 +68,11 @@ topoEgammaBuilder::topoEgammaBuilder(const std::string& name,
 		  m_photonOutputKey="PhotonContainer",
 		  "Name of Photon Container to be created");
 
-  declareProperty("ElectronSuperClusterRecContainerName",
+  declareProperty("SuperElectronRecCollectionName",
 		  m_electronSuperClusterRecContainerKey="ElectronSuperRecCollection",
 		  "Input container for electron  Super Cluster  egammaRec objects");
 
-  declareProperty("PhotonSuperClusterRecContainerName",
+  declareProperty("SuperPhotonRecCollectionName",
 		  m_photonSuperClusterRecContainerKey="PhotonSuperRecCollection",
 		  "Input container for electron  Super Cluster  egammaRec objects");
 
