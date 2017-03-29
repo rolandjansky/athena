@@ -295,11 +295,11 @@ void test4()
 
   SGTest::TestStore store;
   assert (h1.setProxyDict (&store).isSuccess());
-  assert (h1.initialize().isSuccess()); // ok because it's a writer.
+  assert (h1.setState().isSuccess()); // ok because it's a writer.
 
   TestHandle h2 (293847295, "foo", Gaudi::DataHandle::Reader, "FooSvc");
   assert (h2.setProxyDict (&store).isSuccess());
-  assert (h2.initialize().isFailure());
+  assert (h2.setState().isFailure());
   store.record (new MyObj, "foo");
   assert (h2.setState().isSuccess());
 
@@ -494,7 +494,7 @@ void test8()
   assert (h1.typeless_dataPointer_impl(true) == nullptr);
 
   testStore.record (obj.release(), "foo");
-  assert (h1.initialize().isSuccess());
+  assert (h1.setState().isSuccess());
   testStore.proxy(293847295, "foo")->reset();
 
   assert (h1.typeless_dataPointer_impl(false) == nullptr);

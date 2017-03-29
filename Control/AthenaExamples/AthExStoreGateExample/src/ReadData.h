@@ -9,6 +9,8 @@
 
 #include <string>
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthExStoreGateExample/MyDataObj.h"
+#include "StoreGate/ReadHandle.h"
 class StoreGateSvc;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -22,7 +24,8 @@ public:
   
 private:
   //Properties
-  std::string m_DataProducer;     
+  std::string m_DataProducer;
+  SG::ReadHandle<MyDataObj> m_dobj3;
 };
 
 #endif // not ATHEXSTOREGATEEXAMPLE_READDATA_H
