@@ -828,14 +828,18 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     int mu1_TE=-1;
     int mu2_TE=-1;
     if (!m_FTK) {
+      
       if ( inputTE.size() != 2 ) {
-        msg() << MSG::ERROR << "Got different than 2 number of input TEs: " << inputTE.size() << endmsg;
-        m_mon_Errors.push_back(ERROR_Not_2_InputTEs);
-        if ( timerSvc() ) m_TotTimer->stop();
-        return HLT::BAD_JOB_SETUP;
+        msg() << MSG::DEBUG << "Got different than 2 number of input TEs: " << inputTE.size() << endmsg;
+        //m_mon_Errors.push_back(ERROR_Not_2_InputTEs);
+        //if ( timerSvc() ) m_TotTimer->stop();
+        //return HLT::BAD_JOB_SETUP;
+	mu1_TE=0;
+	mu2_TE=0;
+      }else{
+	mu1_TE=0;
+	mu2_TE=1;
       }
-      mu1_TE=0;
-      mu2_TE=1;
     } else {
       if ( inputTE.size() != 3 ) {
         msg() << MSG::ERROR << "FTK mode expect 3 input TEs, got : " << inputTE.size() << endmsg;
