@@ -9,7 +9,6 @@
 #include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "GaudiKernel/PropertyMgr.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/Timeout.h"
 
