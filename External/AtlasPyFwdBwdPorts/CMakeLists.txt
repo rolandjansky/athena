@@ -154,7 +154,8 @@ _setup_python_package( keyring
 
 # Install nested_dict:
 _setup_python_package( nested_dict
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/nested_dict-1.0.9.tar.gz )
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/nested_dict-1.0.9.tar.gz
+   DEPENDS distribute )
 
 # Install ordereddict:
 _setup_python_package( ordereddict
