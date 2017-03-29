@@ -59,9 +59,16 @@ persToTrans( const xAOD::TauJetAuxContainer_v2* oldObj,
    // Greet the user:
    ATH_MSG( "Converting xAOD::TauJetAuxContainer_v2 to current version..." );
 
-   xAOD::TauTrackContainer* pTracks = new xAOD::TauTrackContainer();
-   xAOD::TauTrackAuxContainer* pAuxTracks = new xAOD::TauTrackAuxContainer();
-   pTracks->setStore(pAuxTracks);
+   xAOD::TauTrackContainer* pTracks = 0; 
+   xAOD::TauTrackAuxContainer* pAuxTracks = 0; 
+   if(m_key.length()){
+     //m_key is set in xAODTauJetAuxContainerCnv.cxx
+     //if reading data, then trigger calls T/P converter directly
+     //and the key is not set.  In this case, forget about TauTracks
+     pTracks = new xAOD::TauTrackContainer();
+     pAuxTracks = new xAOD::TauTrackAuxContainer();
+     pTracks->setStore(pAuxTracks);
+   }
 
    // Clear the transient object:
    newObj->resize( 0 );
@@ -259,6 +266,8 @@ persToTrans( const xAOD::TauJetAuxContainer_v2* oldObj,
       newTau->setProtoChargedPFOLinks( oldTau->protoChargedPFOLinks() );
       newTau->setProtoPi0PFOLinks( oldTau->protoPi0PFOLinks() );
 
+      if(m_key.length()==0) continue;
+      
       for(unsigned int i = 0; i < oldTau->nTracks(); ++i){
 	ElementLink< xAOD::TrackParticleContainer > linkToTrackParticle = oldTau->trackLinks()[i];
 	if(!linkToTrackParticle.isValid()) continue;
@@ -310,62 +319,42 @@ persToTrans( const xAOD::TauJetAuxContainer_v2* oldObj,
         linkToTauTrack.toContainedElement(*pTracks, track);
         newTau->addTauTrackLink(linkToTauTrack);
       }
-     
+
 
       newTau->setDetail(xAOD::TauJetParameters::nChargedTracks, (int) newTau->nTracks());
       newTau->setDetail(xAOD::TauJetParameters::nIsolatedTracks, (int) newTau->nTracks(xAOD::TauJetParameters::classifiedIsolation));
 
-      // //
-      // //set per track track variables
-      // //
-      // for (unsigned int i = 0; i < oldTau->nTracks(); ++i) 
-      // 	{
-      // 	  //set track filter info
-      // 	  newTau->setTrackFlag(oldTau->track(i), xAOD::TauJetParameters::failTrackFilter, oldTau->trackFilterPass(i)  );
-      // 	  //set extrapolated track position
-      // 	  newTau->setTrackEtaStrip( i ,  oldTau->trackEtaStrip(i) );
-      // 	  newTau->setTrackPhiStrip( i ,  oldTau->trackPhiStrip(i) );
-      // 	}
-
-      // for (unsigned int i = 0; i < oldTau->nConversionTracks(); ++i) 
-      // 	{
-      // 	  //set conversion track flags
-      // 	  newTau->setTrackFlag(oldTau->conversionTrack(i), xAOD::TauJetParameters::isConversion, true  );
-      // 	}
-
-
    }
    
-
-   std::string tauTrackContName=m_key;
-   tauTrackContName.replace(tauTrackContName.find("Aux."),4,"");
-   //example names:
-   //TauJets : Jets --> Tracks
-   //HLT_xAOD__TauJetContainer_TrigTauRecMerged Jet --> Track; +=Tracks
-   //HLT_xAOD__TauJetContainer_TrigTauRecPreselection ""
-   if(tauTrackContName.find("Jet") != std::string::npos){
-     tauTrackContName.replace( tauTrackContName.find("Jet"), 3, "Track" );
-     if(tauTrackContName.find("HLT") != std::string::npos) tauTrackContName+="Tracks";
-   }
-   else {
-     ATH_MSG("Cannot decipher name TauTrackConatiner should have");
-     return;
-   }
+   if(m_key.length()){
+     std::string tauTrackContName=m_key;
+     tauTrackContName.replace(tauTrackContName.find("Aux."),4,"");
+     //example names:
+     //TauJets : Jets --> Tracks
+     //HLT_xAOD__TauJetContainer_TrigTauRecMerged Jet --> Track; +=Tracks
+     //HLT_xAOD__TauJetContainer_TrigTauRecPreselection ""
+     if(tauTrackContName.find("Jet") != std::string::npos){
+       tauTrackContName.replace( tauTrackContName.find("Jet"), 3, "Track" );
+       if(tauTrackContName.find("HLT") != std::string::npos) tauTrackContName+="Tracks";
+     }
+     else {
+       ATH_MSG("Cannot decipher name TauTrackConatiner should have");
+       return;
+     }
    
-   std::string tauTrackAuxContName=tauTrackContName+"Aux.";
+     std::string tauTrackAuxContName=tauTrackContName+"Aux.";
 
-   //   std::cout << "Key name: " << tauTrackContName << " " << tauTrackAuxContName << " " << m_key << std::endl;
-
-   if(evtStore->record(pTracks, tauTrackContName).isFailure() ||
-      evtStore->record(pAuxTracks, tauTrackAuxContName)){
-     ATH_MSG("Couldn't Record TauTracks");
-     return;
+     if(evtStore->record(pTracks, tauTrackContName).isFailure() ||
+	evtStore->record(pAuxTracks, tauTrackAuxContName)){
+       ATH_MSG("Couldn't Record TauTracks");
+       return;
+     }
    }
 
    // Print what happened:
    ATH_MSG( "Converting xAOD::TauJetAuxContainer_v2 to current version "
 	    "[OK]" );
-   
+
    return;
 }
 
