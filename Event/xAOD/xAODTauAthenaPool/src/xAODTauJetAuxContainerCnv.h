@@ -4,9 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTauJetAuxContainerCnv.h 581660 2014-02-05 15:52:29Z janus $
+// $Id: xAODTauJetAuxContainerCnv.h 800296 2017-03-10 18:16:40Z griffith $
 #ifndef XAODTAUATHENAPOOL_XAODTAUJETAUXCONTAINERCNV_H
 #define XAODTAUATHENAPOOL_XAODTAUJETAUXCONTAINERCNV_H
+
+// stystem includes
+#include <string>
 
 // Gaudi/Athena include(s):
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
@@ -31,8 +34,8 @@ typedef T_AthenaPoolCustomCnv< xAOD::TauJetAuxContainer,
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  * @author Michel Janus <janus@cern.ch>
  *
- * $Revision: 581660 $
- * $Date: 2014-02-05 16:52:29 +0100 (Wed, 05 Feb 2014) $
+ * $Revision: 800296 $
+ * $Date: 2017-03-10 19:16:40 +0100 (Fri, 10 Mar 2017) $
  */
 class xAODTauJetAuxContainerCnv :
    public xAODTauJetAuxContainerCnvBase {
@@ -49,6 +52,13 @@ protected:
    createPersistent( xAOD::TauJetAuxContainer* trans );
    /// Function reading in the object from the input file
    virtual xAOD::TauJetAuxContainer* createTransient();
+
+   /// Re-implemented function in order to get access to the SG key
+   virtual StatusCode createObj( IOpaqueAddress* pAddr, DataObject*& pObj );
+
+private:
+  std::string m_key;
+
 
 }; // class xAODTauJetAuxContainerCnv
 
