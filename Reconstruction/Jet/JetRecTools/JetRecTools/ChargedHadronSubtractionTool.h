@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef JETRECTOOLS_CHARGEDHADRONSUBTRACTIONTOOL_H
 #define JETRECTOOLS_CHARGEDHADRONSUBTRACTIONTOOL_H
 

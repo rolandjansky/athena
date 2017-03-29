@@ -41,7 +41,7 @@ StatusCode ChargedHadronSubtractionTool::process(xAOD::PFOContainer* cont) const
     }
 	
     if(!PVMatchedAcc(*ppfo))
-      (ppfo)->setP4(ppfo->p4()*0);
+      (ppfo)->setP4(0,0,0,0);
   }
 
   return StatusCode::SUCCESS;

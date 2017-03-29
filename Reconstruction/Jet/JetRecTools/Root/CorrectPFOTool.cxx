@@ -81,7 +81,7 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
     bool matchedToPrimaryVertex = false;
 
     if ( m_correctneutral && ppfo->charge()==0) {
-      if (ppfo->e() <= 0.0) ppfo->setP4(ppfo->p4()*0);   //This is necesarry to avoid changing sign of pT for pT<0 PFO
+      if (ppfo->e() <= 0.0) ppfo->setP4(0,0,0,0);   //This is necesarry to avoid changing sign of pT for pT<0 PFO
       else{
         if ( !m_inputIsEM || m_calibrate ) {
           if (m_usevertices) ppfo->setP4(ppfo->GetVertexCorrectedFourVec(*vtx));
@@ -135,7 +135,7 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
 	}//if should use charged PFO weighting scheme
       }
       if ( false == matchedToPrimaryVertex && m_applyCHS){
-        ppfo->setP4(ppfo->p4()*0);
+        ppfo->setP4(0,0,0,0);
       }
     }
     PVMatchedAcc(*ppfo) = matchedToPrimaryVertex;
