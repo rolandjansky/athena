@@ -1,5 +1,5 @@
 #################################################################
-#	preInclude.GMSB.py - Sascha Mehlhase, 6 Jul 2016            	#
+#       preInclude.GMSB.py - Sascha Mehlhase, 6 Jul 2016        #
 #################################################################
 
 def get_and_fix_PDGTABLE(replace):
@@ -31,15 +31,14 @@ def get_and_fix_PDGTABLE(replace):
     update = open('PDGTABLE.MeV', 'w')
     update.write(''.join(lines))
     update.close()
-    
+
     print 'modfied PDGTABLE\n%s\n' % ''.join(lines)
 
 def load_files_for_GMSB_scenario(simdict):
 
     GMSBIndex = int(simdict["GMSBIndex"])
-    
+
     if GMSBIndex == 1:
-        # get_and_fix_PDGTABLE([('M', '1000022', eval(simdict["GMSBNeutralino"])), ('M', '1000039', eval(simdict.get("GMSBGravitino",'0')))])
         get_and_fix_PDGTABLE([
                               (1000022, eval(simdict["GMSBNeutralino"]), '~chi(0,1)', '0'),
                               (1000039, eval(simdict.get("GMSBGravitino",'0')), '~G', '0')
@@ -48,7 +47,6 @@ def load_files_for_GMSB_scenario(simdict):
     elif GMSBIndex == 2:
         m_stau    = eval(simdict["GMSBStau"])
         m_slepton = eval(simdict["GMSBSlepton"])
-        # get_and_fix_PDGTABLE([('M', '1000015', m_stau), ('M', '2000011', m_slepton), ('M', '2000013', m_slepton)])
         get_and_fix_PDGTABLE([
                               (1000015, m_stau, '~tau(L)', '-'),
                               (2000011, m_slepton, '~e(R)', '-'),
@@ -61,16 +59,6 @@ def load_files_for_GMSB_scenario(simdict):
         m_squark = eval(simdict["SQUARKMASS"])
         m_neutralino = eval(simdict["NEUTRALINOMASS"])
         m_gluino = eval(simdict["GLUINOMASS"])
-        # get_and_fix_PDGTABLE([('M', '1000001', m_squark), ('M', '2000001', m_squark), ('M', '1000002', m_squark), \
-        #                       ('M', '2000002', m_squark), ('M', '1000022', m_neutralino), ('M', '1000021', m_gluino), \
-        #                       ('M', '1000003', 1.00E+04 ), ('M', '2000003', 1.00E+04 ), ('M', '1000004', 1.00E+04 ), \
-        #                       ('M', '2000004', 1.00E+04 ), ('M', '1000005', 1.00E+04 ), ('M', '2000005', 1.00E+04 ), \
-        #                       ('M', '1000006', 1.00E+04 ), ('M', '2000006', 1.00E+04 ), ('M', '1000011', 2.50E+02 ), \
-        #                       ('M', '1000012', 1.00E+04 ), ('M', '1000013', 2.50E+02 ), ('M', '1000014', 1.00E+04 ), \
-        #                       ('M', '1000015', m_stau ), ('M', '1000016', 1.00E+04 ), ('M', '2000011', m_slepton ), \
-        #                       ('M', '2000013', m_slepton ), ('M', '2000015', 2.50E+02 ), ('M', '1000023', 1.00E+04 ), \
-        #                       ('M', '1000024', 1.00E+04 ), ('M', '1000025', -1.0E+04 ), ('M', '1000035', 1.00E+04 ), \
-        #                       ('M', '1000037', 1.00E+04 ) ])
         get_and_fix_PDGTABLE([
                               (1000001, m_squark, '~d(L)', '-1/3'), (2000001, m_squark, '~d(R)', '-1/3'),
                               (1000002, m_squark, '~u(L)', '+2/3'), (2000002, m_squark, '~u(R)', '+2/3'),
@@ -92,9 +80,8 @@ def load_files_for_GMSB_scenario(simdict):
                               (1000035, 1.00E+04, '~chi(0,4)', '0'),
                               (1000037, 1.00E+04, '~chi(+,2)', '+')
                             ])
-        
+
     elif GMSBIndex == 4:
-        # get_and_fix_PDGTABLE([('M', '1000015', eval(simdict["GMSBStau"]))])
         get_and_fix_PDGTABLE([
                               (1000015, m_stau, '~tau(L)', '-')
                             ])
@@ -102,7 +89,7 @@ def load_files_for_GMSB_scenario(simdict):
     else:
         print 'GMSBIndex %i not supported' % GMSBIndex
         raise
-    
+
 doG4SimConfig = True
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 import PyUtils.AthFile as af
@@ -121,18 +108,20 @@ except:
     simdict = simFlags.specialConfiguration.get_Value()
 
 assert "GMSBIndex" in simdict
-#if 2525 == simdict["GMSBIndex"]:
 
 load_files_for_GMSB_scenario(simdict)
 
 if doG4SimConfig:
     from G4AtlasApps.SimFlags import simFlags
     ## Assuming that GMSBIndex is an int here...
-    GMSBIndex = eval(simdict["GMSBIndex"])
+    GMSBIndex = int(simdict["GMSBIndex"])
     if GMSBIndex == 1: # generic neutralino to photon scenario
         simFlags.PhysicsOptions += ["GauginosPhysicsTool"]
     elif GMSBIndex == 2 or GMSBIndex == 3 or GMSBIndex == 4: # generic stau scenario
         simFlags.PhysicsOptions += ["SleptonsPhysicsTool"]
+    else:
+        print 'GMSBIndex %i not supported' % GMSBIndex
+        raise
     del GMSBIndex
 
     def gmsb_applycalomctruthstrategy():
