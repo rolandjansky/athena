@@ -417,7 +417,7 @@ namespace met {
       double const ptHardMet = TMath::Sqrt( ptHard.mpx * ptHard.mpx +
 					    ptHard.mpy * ptHard.mpy )  ;
 
-      xAOD::MissingET* jetterm = *METcont->find( MissingETBase::Source::jet() );
+      const xAOD::MissingET* jetterm = *METcont->find( MissingETBase::Source::jet() );
       size_t njet = (jetterm==nullptr) ? 0 : acc_constitObjLinks(*jetterm ).size();
 
       int          phbin                                     = m_shiftpara_pthard_njet_mu->GetXaxis()->FindBin( ptHardMet  ) ;
@@ -593,7 +593,7 @@ namespace met {
       switch( m_appliedSystEnum ) {
       case MET_JETTRK_SCALEUP :
 	{
-	  uncert  = uncert;
+	  //uncert  = uncert;
 	  break;
 	}
       case MET_JETTRK_SCALEDOWN :
