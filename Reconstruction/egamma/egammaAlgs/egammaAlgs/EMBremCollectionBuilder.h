@@ -11,6 +11,8 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "TrkTrack/TrackCollection.h"
 
 class IegammaTrkRefitterTool;
@@ -69,10 +71,10 @@ private:
   /** @brier Option to do truth*/
   bool                              m_doTruth;
   /** @brief Names of input output collections */
-  std::string                       m_clusterContainerName;
-  std::string                       m_trackParticleContainerName;
-  std::string                       m_OutputTrkPartContainerName;	
-  std::string                       m_OutputTrackContainerName;	
+  SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_clusterContainerKey;
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey;
+  SG::WriteHandleKey<xAOD::TrackParticleContainer> m_OutputTrkPartContainerKey;
+  SG::WriteHandleKey<TrackCollection> m_OutputTrackContainerKey;
   /** @Cut on minimum silicon hits*/
   int                               m_MinNoSiHits;
   /** @brief broad cut on deltaEta*/

@@ -101,9 +101,9 @@ StatusCode EMClusterTool::contExecute(xAOD::ElectronContainer *electronContainer
   // Create output cluster container for topo-seeded clusters and register in StoreGate
   // Only if they differ from the main output cluster container
   // and if we do not do supercluster
-  SG::WriteHandle<xAOD::CaloClusterContainer> 
-    outputTopoSeededClusterContainer(m_outputTopoSeededClusterContainerKey);
+  SG::WriteHandle<xAOD::CaloClusterContainer> outputTopoSeededClusterContainer;
   if (m_doTopoSeededContainer) {
+    outputTopoSeededClusterContainer = SG::WriteHandle<xAOD::CaloClusterContainer>(m_outputTopoSeededClusterContainerKey);
     ATH_CHECK(outputTopoSeededClusterContainer.record(std::make_unique<xAOD::CaloClusterContainer>(),
 						      std::make_unique<xAOD::CaloClusterAuxContainer>()));
   }

@@ -8,6 +8,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
 
@@ -44,10 +46,10 @@ class EMVertexBuilder : public AthAlgorithm {
   float m_minPtCut_SingleTrack;
 
   /** @brief TrackParticle container input name*/
-  std::string            m_inputTrackParticleContainerName;
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_inputTrackParticleContainerKey;
 
   /** @brief conversion container output name*/
-  std::string            m_outputConversionContainerName;
+  SG::WriteHandleKey<xAOD::VertexContainer> m_outputConversionContainerKey;
 
   /** @brief Tool to find vertices (creates double-track conversions) */
   ToolHandle<InDet::IVertexFinder>    m_vertexFinderTool;

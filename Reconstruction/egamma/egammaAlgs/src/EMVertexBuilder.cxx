@@ -24,6 +24,8 @@ changes :
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "egammaInterfaces/IEMExtrapolationTools.h"
 #include "egammaAlgs/EMVertexBuilder.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 EMVertexBuilder::EMVertexBuilder(const std::string& name, 
 				 ISvcLocator* pSvcLocator):
@@ -31,9 +33,9 @@ EMVertexBuilder::EMVertexBuilder(const std::string& name,
   m_vertexFinderTool("InDet::InDetConversionFinderTools"),
   m_EMExtrapolationTool("EMExtrapolationTools")
 {
-  declareProperty("InputTrackParticleContainerName", m_inputTrackParticleContainerName = "GSFTrackParticles");
+  declareProperty("InputTrackParticleContainerName", m_inputTrackParticleContainerKey = "GSFTrackParticles");
 
-  declareProperty("OutputConversionContainerName",   m_outputConversionContainerName = "GSFConversionVertices");
+  declareProperty("OutputConversionContainerName",   m_outputConversionContainerKey = "GSFConversionVertices");
 
   declareProperty("VertexFinderTool",                m_vertexFinderTool);
 
@@ -57,6 +59,8 @@ StatusCode EMVertexBuilder::initialize() {
 
   ATH_MSG_DEBUG( "Initializing " << name() << "...");
   
+  ATH_CHECK(m_inputTrackParticleContainerKey.initialize());
+  ATH_CHECK(m_outputConversionContainerKey.initialize());
 
   // Get the ID VertexFinderTool
   if ( m_vertexFinderTool.retrieve().isFailure() ) {
@@ -90,27 +94,30 @@ StatusCode EMVertexBuilder::execute()
 {  	
   StatusCode sc;
 
-  //retrieve TrackParticleContainer and cast into non-const
-  const xAOD::TrackParticleContainer* TPCol;
-  sc = evtStore()->retrieve(TPCol, m_inputTrackParticleContainerName);
-  if(sc.isFailure()  ||  !TPCol){
+  //retrieve TrackParticleContainer
+  SG::ReadHandle<xAOD::TrackParticleContainer> TPCol(m_inputTrackParticleContainerKey);
+
+  // check for serial running only, remove in MT
+  if(!TPCol.isValid()){
     ATH_MSG_ERROR("No TrackParticleInputContainer found in TDS");
     return sc;
   }
 
-  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> vertices = m_vertexFinderTool->findVertex(TPCol);
-  if (!vertices.first || !vertices.second){
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> verticesPair = m_vertexFinderTool->findVertex(TPCol.cptr());
+  if (!verticesPair.first || !verticesPair.second){
     ATH_MSG_ERROR("Null pointer to conversion container");
     return StatusCode::SUCCESS;
   }
-  CHECK( evtStore()->record(vertices.first,  m_outputConversionContainerName) );
-  CHECK( evtStore()->record(vertices.second, m_outputConversionContainerName + "Aux.") );
 
-  ATH_MSG_DEBUG("New conversion container size: " << vertices.first->size());
+  SG::WriteHandle<xAOD::VertexContainer>vertices(m_outputConversionContainerKey);
+  ATH_CHECK(vertices.record(std::unique_ptr<xAOD::VertexContainer>(verticesPair.first),
+			    std::unique_ptr<xAOD::VertexAuxContainer>(verticesPair.second)));
+
+  ATH_MSG_DEBUG("New conversion container size: " << vertices->size());
 
   // Remove vertices with radii above m_maxRadius   
-  xAOD::VertexContainer::iterator itVtx = vertices.first->begin();
-  xAOD::VertexContainer::iterator itVtxEnd = vertices.first->end();
+  xAOD::VertexContainer::iterator itVtx = vertices->begin();
+  xAOD::VertexContainer::iterator itVtxEnd = vertices->end();
   
   while (itVtx != itVtxEnd){
     xAOD::Vertex& vertex = **itVtx;
@@ -135,8 +142,8 @@ StatusCode EMVertexBuilder::execute()
 	(vxSingleTRT &&  momentum.perp()< m_minPtCut_SingleTrack) || 
 	((*itVtx)->position().perp() > m_maxRadius)){
       
-      itVtx = vertices.first->erase(itVtx);
-      itVtxEnd = vertices.first->end();
+      itVtx = vertices->erase(itVtx);
+      itVtxEnd = vertices->end();
     }
     else{
       ++itVtx;
@@ -146,7 +153,7 @@ StatusCode EMVertexBuilder::execute()
   // Decorate the vertices with the momentum at the conversion point and 
   // etaAtCalo, phiAtCalo (extrapolate each vertex)
   float etaAtCalo = -9999., phiAtCalo = -9999.;
-  for (itVtx = vertices.first->begin(); itVtx != vertices.first->end(); ++itVtx ){
+  for (itVtx = vertices->begin(); itVtx != vertices->end(); ++itVtx ){
     xAOD::Vertex *vertex = *itVtx;
     
     
@@ -160,11 +167,6 @@ StatusCode EMVertexBuilder::execute()
     accetaAtCalo(*vertex) = etaAtCalo;
     accphiAtCalo(*vertex) = phiAtCalo;
   }
-  
-  //put the new conversion vertex container and its aux container into StoreGate
-
-  ATH_MSG_DEBUG("Writing container " << m_outputConversionContainerName);
-
   
   return StatusCode::SUCCESS;
 }

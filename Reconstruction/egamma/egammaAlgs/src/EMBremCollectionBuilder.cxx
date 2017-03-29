@@ -47,6 +47,10 @@ UPDATE :
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
+
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+
 //std includes
 #include <stdint.h>
 #include <algorithm>
@@ -71,10 +75,10 @@ EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& name,
   //options
   declareProperty("DoTruth",                                m_doTruth=false);
   //Collection
-  declareProperty("ClusterContainerName"  ,                 m_clusterContainerName   = "LArClusterEM");
-  declareProperty("TrackParticleContainerName"  ,           m_trackParticleContainerName   = "InDetTrackParticles");
-  declareProperty("OutputTrkPartContainerName",             m_OutputTrkPartContainerName = "GSFTrackParticles");
-  declareProperty("OutputTrackContainerName",               m_OutputTrackContainerName = "GSFTracks");
+  declareProperty("ClusterContainerName"  ,                 m_clusterContainerKey   = "LArClusterEM");
+  declareProperty("TrackParticleContainerName"  ,           m_trackParticleContainerKey   = "InDetTrackParticles");
+  declareProperty("OutputTrkPartContainerName",             m_OutputTrkPartContainerKey = "GSFTrackParticles");
+  declareProperty("OutputTrackContainerName",               m_OutputTrackContainerKey = "GSFTracks");
   //=================================================================================
   // Tools
   declareProperty("TrackRefitTool",                         m_trkRefitTool);
@@ -120,6 +124,11 @@ EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& name,
 
 // ==================================================================
 StatusCode EMBremCollectionBuilder::initialize() {
+
+  ATH_CHECK(m_clusterContainerKey.initialize());
+  ATH_CHECK(m_trackParticleContainerKey.initialize());
+  ATH_CHECK(m_OutputTrkPartContainerKey.initialize());
+  ATH_CHECK(m_OutputTrackContainerKey.initialize());
 
   // retrieve the track refitter tool:
   if(m_trkRefitTool.retrieve().isFailure()) {
@@ -192,47 +201,35 @@ StatusCode EMBremCollectionBuilder::execute()
   
   // Record the final Track Particle container in StoreGate
   //
-  m_finalTrkPartContainer = new xAOD::TrackParticleContainer();
-  xAOD::TrackParticleAuxContainer* aux = new xAOD::TrackParticleAuxContainer();
-  m_finalTrkPartContainer->setStore( aux );
-  sc = evtStore()->record(m_finalTrkPartContainer, m_OutputTrkPartContainerName);
-  if(sc.isFailure()){
-    ATH_MSG_ERROR("Unable to create new container " << m_OutputTrkPartContainerName);
-    return sc;
-  }
-  CHECK( evtStore()->record( aux, m_OutputTrkPartContainerName + "Aux." ) );  
+
+  SG::WriteHandle<xAOD::TrackParticleContainer> finalTrkPartContainer(m_OutputTrkPartContainerKey);
+  ATH_CHECK(finalTrkPartContainer.record(std::make_unique<xAOD::TrackParticleContainer>(),
+					 std::make_unique<xAOD::TrackParticleAuxContainer>()));
+  
+  m_finalTrkPartContainer = finalTrkPartContainer.ptr();
   //
   //create container for slimmed tracks
-  m_finalTracks = new TrackCollection(0);
-  sc = evtStore()->record(m_finalTracks, m_OutputTrackContainerName);
-  if(sc.isFailure()){
-    ATH_MSG_ERROR("Unable to create new track container " << m_OutputTrackContainerName);
-    return sc;
-  }
+  SG::WriteHandle<TrackCollection> finalTracks(m_OutputTrackContainerKey);
+  ATH_CHECK(finalTracks.record(std::make_unique<TrackCollection>()));
+
+  
   //
-  //if no input return gracefully
-  if( ! evtStore()->contains<xAOD::CaloClusterContainer>(m_clusterContainerName) || 
-      ! evtStore()->contains<xAOD::TrackParticleContainer>(m_trackParticleContainerName )){
-    return StatusCode::SUCCESS;
-  }
-  //
-  //
-  const xAOD::CaloClusterContainer* clusterTES(0);
-  sc = evtStore()->retrieve( clusterTES, m_clusterContainerName);
-  if( sc.isFailure()  ||  !clusterTES ) {
-    ATH_MSG_ERROR(" No Cluster collection with key " << m_clusterContainerName <<" found in TES") ;
+  SG::ReadHandle<xAOD::CaloClusterContainer> clusterTES(m_clusterContainerKey);
+
+  // check is only used for serial running; remove when MT scheduler used
+  if(!clusterTES.isValid()) {
+    ATH_MSG_ERROR("Failed to retrieve cluster container: "<< m_clusterContainerKey.key());
     return StatusCode::FAILURE;
   }
-  ATH_MSG_DEBUG( "Cluster container successfully retrieved");
-  //
-  const xAOD::TrackParticleContainer*  trackTES(0);
-  sc=evtStore()->retrieve( trackTES, m_trackParticleContainerName );
-  if( sc.isFailure()  ||  !trackTES ) {
-    ATH_MSG_ERROR("No AOD TrackParticle container found in TES: StoreGate Key = " <<m_trackParticleContainerName);
+
+  SG::ReadHandle<xAOD::TrackParticleContainer> trackTES(m_trackParticleContainerKey);
+
+  // check is only used for serial running; remove when MT scheduler used
+  if(!trackTES.isValid()) {
+    ATH_MSG_ERROR("Failed to retrieve TrackParticle container: "<< m_trackParticleContainerKey.key());
     return StatusCode::FAILURE;
   }
-  ATH_MSG_DEBUG("TrackParticle container successfully retrieved");
-  //
+
   //======================================================================================================
   //Here is the new Logic
   //Loop over tracks and clusters 
