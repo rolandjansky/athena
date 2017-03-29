@@ -46,7 +46,15 @@ atlas_add_component( TrigConfigSvc
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
+atlas_install_joboptions(  share/hltConfigSvc_standalone_test_configurables.py
+  share/hltConfigSvc_standalone_test.py
+  share/jobOptions_commonSetup.py
+  share/jobOptions_setupHLTSvc.py
+  share/jobOptions_setupLVL1Svc.py
+  share/L1config-example.py
+  share/lvl1ConfigSvc_standalone_test.py
+  share/testKeyByNameLoader.py
+  share/testTriggerFrontierQuery.py )
 atlas_install_scripts( share/checkTrigger.py share/checkTriggerConfig.py )
 atlas_install_xmls( data/*.dtd )
 

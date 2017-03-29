@@ -7,10 +7,10 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "TrkParameters/TrackParameters.h"
 #include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/TrackParticleContainer.h"
+
 #include "xAODTracking/TrackParticleAuxContainer.h"
 
-#include "MuonPrepRawData/MdtPrepDataContainer.h"
+
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
 #include "MuonPrepRawData/CscPrepDataContainer.h"
@@ -49,16 +49,17 @@ namespace Muon {
     AthAlgTool(type, name, parent),
     m_mdtIdHelper(0),
     m_DeltaAlphaCut(0),
-    m_nMDT(0),
     m_PI(3.1415927),
     m_BIL(28.4366),
     m_BML(62.8267),
     m_BMS(53.1259),
-    m_BOL(29.7554)
+    m_BOL(29.7554),
+    m_mdtTESKey("MDT_DriftCircles"),
+    m_TPContainer("MSonlyTracklets")
   {
     declareInterface<IMSVertexTrackletTool>(this);    
 
-    declareProperty("xAODTrackParticleContainer",m_TPContainer = "MSonlyTracklets");
+    declareProperty("xAODTrackParticleContainer", m_TPContainer );
     // max residual for tracklet seeds
     declareProperty("SeedResidual",m_SeedResidual = 5);
     // segment fitter chi^2 cut
@@ -71,6 +72,8 @@ namespace Muon {
     declareProperty("EndcapDeltaAlpha",m_EndcapDeltaAlphaCut = 0.015);
     // tight tracklet requirement (affects efficiency - disabled by default)
     declareProperty("TightTrackletRequirement",m_tightTrackletRequirement = false);
+    declareProperty("mdtTES", m_mdtTESKey);
+    
   }
 
 
@@ -98,6 +101,9 @@ namespace Muon {
     m_BMS = 53.1259;//MeV*mrad
     m_BOL = 29.7554;//MeV*mrad
 
+    ATH_CHECK(m_mdtTESKey.initialize());
+    ATH_CHECK(m_TPContainer.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -123,31 +129,25 @@ namespace Muon {
 
   StatusCode MSVertexTrackletTool::findTracklets(std::vector<Tracklet>& tracklets) {
 
-    //sort the MDT hits into chambers & MLs
+
+
+    SG::WriteHandle<xAOD::TrackParticleContainer> container(m_TPContainer);
+    //record TrackParticle container in StoreGate
+
+    ATH_CHECK( container.record (std::make_unique<xAOD::TrackParticleContainer>(),
+                           std::make_unique<xAOD::TrackParticleAuxContainer>()) );
+
+   //sort the MDT hits into chambers & MLs
     std::vector<std::vector<Muon::MdtPrepData*> > SortedMdt;
-    m_nMDT = SortMDThits(SortedMdt);   
 
-    if (m_nMDT<=0) {
+    int nMDT = SortMDThits(SortedMdt);   
 
-      //record TrackParticle container in StoreGate
-      xAOD::TrackParticleContainer* container = new xAOD::TrackParticleContainer();
-      if(evtStore()->record( container, m_TPContainer ).isFailure()) {
-	ATH_MSG_WARNING("Failed to record the xAOD::TrackParticleContainer with key " << m_TPContainer);
-	return StatusCode::SUCCESS;
-      }
-      
-      xAOD::TrackParticleAuxContainer* aux = new xAOD::TrackParticleAuxContainer();
-      if(evtStore()->record( aux, m_TPContainer + "Aux." ).isFailure()) {
-	ATH_MSG_WARNING("Failed to record the xAOD::TrackParticleAuxContainer with key " << m_TPContainer << "Aux");
-	return StatusCode::SUCCESS;
-      }
-      container->setStore(aux);
-      
+    if (nMDT<=0) {   
       return StatusCode::SUCCESS;
     }
 
     if (msgLvl(MSG::DEBUG)) 
-      msg(MSG::DEBUG) << m_nMDT << " MDT hits are selected and sorted" << endmsg;
+      msg(MSG::DEBUG) << nMDT << " MDT hits are selected and sorted" << endmsg;
 
     //loop over the MDT hits and find segments
     //select the tube combinations to be fit
@@ -160,7 +160,7 @@ namespace Muon {
     */
     double d12_max = 50.; double d13_max = 80.;
 
-    static double errorCutOff = 0.001;
+    constexpr double errorCutOff = 0.001;
     std::vector<TrackletSegment> segs[6][2][16];//single ML segment array (indicies [station type][ML][sector])
     std::vector<std::vector<Muon::MdtPrepData*> >::const_iterator ChamberItr = SortedMdt.begin();
     for(; ChamberItr != SortedMdt.end(); ++ChamberItr) {      
@@ -383,7 +383,7 @@ namespace Muon {
     tracklets = ResolveAmbiguousTracklets(tracklets);
 
     //convert from tracklets to Trk::Tracks
-    convertToTrackParticles(tracklets);
+    convertToTrackParticles(tracklets, container);
 
     return StatusCode::SUCCESS;
   }
@@ -393,22 +393,8 @@ namespace Muon {
 
 
   //convert tracklets to Trk::Track and store in a TrackCollection
-  void MSVertexTrackletTool::convertToTrackParticles(std::vector<Tracklet>& tracklets) {
+  void MSVertexTrackletTool::convertToTrackParticles(std::vector<Tracklet>& tracklets, SG::WriteHandle<xAOD::TrackParticleContainer> &container) {
     
-    //record TrackParticle container in StoreGate
-    xAOD::TrackParticleContainer* container = new xAOD::TrackParticleContainer();
-    if(evtStore()->record( container, m_TPContainer ).isFailure()) {
-      ATH_MSG_WARNING("Failed to record the xAOD::TrackParticleContainer with key " << m_TPContainer);
-      return;
-    }
-    
-    xAOD::TrackParticleAuxContainer* aux = new xAOD::TrackParticleAuxContainer();
-    if(evtStore()->record( aux, m_TPContainer + "Aux." ).isFailure()) {
-      ATH_MSG_WARNING("Failed to record the xAOD::TrackParticleAuxContainer with key " << m_TPContainer << "Aux");
-      return;
-    }
-    container->setStore(aux);
-
     for(std::vector<Tracklet>::iterator trkItr=tracklets.begin(); trkItr!=tracklets.end(); ++trkItr) {
 
       //create the Trk::Perigee for the tracklet
@@ -448,8 +434,9 @@ namespace Muon {
 
     SortedMdt.clear();
     int nMDT(0);
-    const Muon::MdtPrepDataContainer* mdtTES = 0;
-    if(evtStore()->retrieve(mdtTES,"MDT_DriftCircles").isFailure()) {
+
+    SG::ReadHandle<Muon::MdtPrepDataContainer> mdtTES(m_mdtTESKey);
+    if(!mdtTES.isValid()) {
       if (msgLvl(MSG::DEBUG)) 
 	msg(MSG::DEBUG) << "Muon::MdtPrepDataContainer with key MDT_DriftCircles was not retrieved" << endmsg;
       return 0;

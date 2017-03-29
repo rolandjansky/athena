@@ -58,6 +58,7 @@
 #include "StoreGate/SGObjectWithVersion.h"
 
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/IIncidentListener.h"
 
 #ifdef SG_DEPRECATION_WARNINGS
 # define SG_DEPRECATED __attribute__((deprecated))
@@ -128,7 +129,8 @@ class StoreGateSvc :
   public Service, 
   public IProxyDict, 
   public IHiveStore,
-  public IHiveStoreMgr
+  public IHiveStoreMgr,
+  public IIncidentListener
 {
 
 public:
@@ -855,6 +857,7 @@ public:
   //////////////////////////////////////////////////////////////////
   /// \name Gaudi IIncidentListener implementation
   //@{
+  virtual void handle(const Incident&) override final;  
   /// load proxies at begin event
   StatusCode loadEventProxies();
   //@}

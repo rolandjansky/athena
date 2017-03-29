@@ -8,7 +8,7 @@
 #include "./SchedulerProxyAlg.h"
 
 SchedulerProxyAlg::SchedulerProxyAlg(const std::string& name, ISvcLocator* pSvcLocator) 
-  : AthViewAlgorithm(name, pSvcLocator),
+  : AthAlgorithm(name, pSvcLocator),
     m_roisContainer("RegionOfReco"), 
     m_outputClusterContainer("Clusters"), 
     m_outputClusterContainerAux("ClustersAux.")
@@ -18,29 +18,44 @@ SchedulerProxyAlg::SchedulerProxyAlg(const std::string& name, ISvcLocator* pSvcL
   declareProperty("OutputClusterContainerAux", m_outputClusterContainerAux, "ClustersAux.");
 }
 
-StatusCode SchedulerProxyAlg::initialize() {
+StatusCode SchedulerProxyAlg::initialize()
+{
+  CHECK( m_roisContainer.initialize() );
+  CHECK( m_outputClusterContainer.initialize() );
+  CHECK( m_outputClusterContainerAux.initialize() );
   return StatusCode::SUCCESS;
 }
 
-StatusCode SchedulerProxyAlg::execute() {
+StatusCode SchedulerProxyAlg::execute()
+{
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
+  const EventContext& ctx = getContext();
+#else
+  const EventContext& ctx = *getContext();
+#endif  
 
-  if ( not m_roisContainer.isValid() ) {
-    ATH_MSG_ERROR("No decisions object prom previous stage");
+  SG::ReadHandle< ConstDataVector< TrigRoiDescriptorCollection > > inputHandle( m_roisContainer, ctx );
+  if ( not inputHandle.isValid() )
+  {
+    ATH_MSG_ERROR("No decisions object from previous stage");
     return StatusCode::FAILURE;
   }
 
-  m_outputClusterContainer =  CxxUtils::make_unique<TestClusterContainer >();
-  ATH_CHECK(m_outputClusterContainer.commit());
+  SG::WriteHandle< TestClusterContainer > outputHandle( m_outputClusterContainer, ctx );
+  outputHandle = CxxUtils::make_unique<TestClusterContainer >();
+  ATH_CHECK( outputHandle.commit() );
 
-  m_outputClusterContainerAux = CxxUtils::make_unique<TestClusterAuxContainer>();
-  ATH_CHECK(m_outputClusterContainerAux.commit());
-  m_outputClusterContainer->setStore(m_outputClusterContainerAux.ptr());
+  SG::WriteHandle< TestClusterAuxContainer > outputHandleAux( m_outputClusterContainerAux, ctx );
+  outputHandleAux = CxxUtils::make_unique<TestClusterAuxContainer>();
+  ATH_CHECK( outputHandleAux.commit() );
+  outputHandle->setStore( outputHandleAux.ptr() );
 
   ATH_MSG_INFO( "Launching processing for View with RoIs" );
-  for ( const auto roi: *m_roisContainer.cptr() ) {
+  for ( const auto roi: *inputHandle.cptr() )
+  {
     ATH_MSG_INFO( " ... " << *roi );
     TestCluster * cl = new TestCluster();
-    m_outputClusterContainer->push_back(cl);
+    outputHandle->push_back(cl);
     TestEDM::setClusterEt (cl, roi->eta()*10.0); // whatever values
     TestEDM::setClusterEta(cl, roi->eta()+0.01);
     TestEDM::setClusterPhi(cl, roi->phi()-0.05);

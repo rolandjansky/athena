@@ -84,7 +84,7 @@ HE = HiveAlgE("AlgE",OutputLevel=DEBUG,Time=10)
 
 # add a data loop in a sequence to test strict ordering
 from AthenaCommon.AlgSequence import AthSequencer
-alp = AthSequencer("LoopSeq", OutputLevel=DEBUG)
+alp = AthSequencer("LoopSeq", OutputLevel=DEBUG, Sequential=True)
 
 loopKey = "l2"
 HL1 = HiveAlgL1("AlgL1",OutputLevel=DEBUG,Key_W1=loopKey,Time=110)

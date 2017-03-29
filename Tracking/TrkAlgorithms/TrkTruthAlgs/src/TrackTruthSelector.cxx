@@ -24,6 +24,8 @@ TrackTruthSelector::TrackTruthSelector(const std::string &name,ISvcLocator *pSvc
 StatusCode TrackTruthSelector::initialize()
 {
   ATH_MSG_INFO ("TrackTruthSelector::initialize()");
+  ATH_CHECK( m_detailedTrackTruthName.initialize() );
+  ATH_CHECK( m_outputName.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -42,12 +44,14 @@ StatusCode TrackTruthSelector::execute() {
   //----------------------------------------------------------------
   // Retrieve the input
   const DetailedTrackTruthCollection *detailed = 0;
-  sc = evtStore()->retrieve(detailed, m_detailedTrackTruthName);
-  if (sc.isFailure()){
-    ATH_MSG_WARNING ("DetailedTrackTruthCollection "<<m_detailedTrackTruthName<<" NOT found");
+  SG::ReadHandle<DetailedTrackTruthCollection> rh_detailed(m_detailedTrackTruthName);
+  SG::WriteHandle<TrackTruthCollection> wh_output(m_outputName);
+  if(!rh_detailed.isValid()){
+    ATH_MSG_WARNING ("DetailedTrackTruthCollection "<<m_detailedTrackTruthName.key()<<" NOT found");
     return StatusCode::SUCCESS;
   } else {
-    ATH_MSG_DEBUG ("Got DetailedTrackTruthCollection "<<m_detailedTrackTruthName);
+    detailed = rh_detailed.cptr();
+    ATH_MSG_DEBUG ("Got DetailedTrackTruthCollection "<<m_detailedTrackTruthName.key());
   }
 
 
@@ -58,13 +62,7 @@ StatusCode TrackTruthSelector::execute() {
 
   fillOutput(out, detailed);
 
-  sc=evtStore()->record(out, m_outputName, false);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR ("TrackTruthCollection '" << m_outputName << "' could not be registered in StoreGate !");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG ("TrackTruthCollection '" << m_outputName << "' is registered in StoreGate, size="<<out->size());
-  }
+  ATH_CHECK(wh_output.record(std::make_unique<TrackTruthCollection>(*out)));
   
   return StatusCode::SUCCESS;
 

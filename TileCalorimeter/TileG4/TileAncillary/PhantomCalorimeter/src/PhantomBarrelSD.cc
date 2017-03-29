@@ -72,7 +72,7 @@ void PhantomBarrelSD::Initialize(G4HCofThisEvent* /* HCE */) {
     G4cout << "PhantomBarrelSD::Initialize()" << G4endl;
   }
 
-#ifdef ATHENAHIVE
+#ifdef G4MULTITHREADED
   // Temporary fix for Hive until isValid is fixed
   m_HitColl = CxxUtils::make_unique<TileHitVector>(m_HitColl.name());
 #else

@@ -29,4 +29,3 @@ atlas_add_component( MagFieldServices
 # Install files from the package:
 atlas_install_headers( MagFieldServices )
 atlas_install_python_modules( python/*.py )
-

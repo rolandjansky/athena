@@ -3,9 +3,9 @@
 */
 
 #include "HiveAlgF.h"
-#include "CxxUtils/make_unique.h"
 #include <thread>
 #include <chrono>
+#include <memory>
 
 HiveAlgF::HiveAlgF( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 

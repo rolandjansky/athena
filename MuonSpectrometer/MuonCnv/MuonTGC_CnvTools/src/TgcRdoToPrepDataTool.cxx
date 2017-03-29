@@ -9,7 +9,6 @@
 #include "TgcRdoToPrepDataTool.h"
 
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/PropertyMgr.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
@@ -19,7 +18,6 @@
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 #include "TGCcablingInterface/TGCIdBase.h"
 
-#include "MuonRDO/TgcRdoContainer.h"
 #include "MuonDigitContainer/TgcDigit.h"
 
 #include "MuonTrigCoinData/TgcCoinData.h"
@@ -44,7 +42,6 @@ Muon::TgcRdoToPrepDataTool::TgcRdoToPrepDataTool(const std::string& t, const std
     m_tgcCabling(0),
     m_useBStoRdoTool(false), // true if running trigger (EF) on BS input
     m_rawDataProviderTool("Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool"),
-    m_decodedRdoCollVec(0), 
     m_nHitRDOs(0), 
     m_nHitPRDs(0), 
     m_nTrackletRDOs(0), 
@@ -55,7 +52,10 @@ Muon::TgcRdoToPrepDataTool::TgcRdoToPrepDataTool(const std::string& t, const std
     m_nHiPtPRDs(0), 
     m_nSLRDOs(0), 
     m_nSLPRDs(0), 
-    m_is12fold(true)
+    m_is12fold(true),
+    m_rdoContainer("TGCRDO"),
+    m_outputCoinKeys{"dummy", "dummy", "dummy" },
+    m_outputprepdataKeys{"dummy", "dummy", "dummy", "dummy"}
 {
   // tools
   declareProperty("RawDataProviderTool", m_rawDataProviderTool);
@@ -68,7 +68,9 @@ Muon::TgcRdoToPrepDataTool::TgcRdoToPrepDataTool(const std::string& t, const std
   declareProperty("useBStoRdoTool", m_useBStoRdoTool = false);
   declareProperty("show_warning_level_invalid_A09_SSW6_hit", m_show_warning_level_invalid_A09_SSW6_hit = false); 
   declareProperty("dropPrdsWithZeroWidth", m_dropPrdsWithZeroWidth = true);
-
+  declareProperty("RDOContainer", m_rdoContainer);
+  declareProperty("outputCoinKey", m_outputCoinKeys);
+  declareProperty("prepDataKeys", m_outputprepdataKeys);
   for(int ibc=0; ibc<NBC+1; ibc++) m_tgcPrepDataContainer[ibc]=0;
   for(int ibc=0; ibc<NBC  ; ibc++) m_tgcCoinDataContainer[ibc]=0;
   for(int ibc=0; ibc<NBC+1; ibc++) m_fullEventDone[ibc]=false;
@@ -108,42 +110,35 @@ StatusCode Muon::TgcRdoToPrepDataTool::initialize()
   /// get tgcIdHelper from muonMgr
   m_tgcHelper = m_muonMgr->tgcIdHelper();
   
-  
-  /// create an empty TGC container for filling
-  for(int ibc=0; ibc<NBC+1; ibc++) {
-    try {
-      m_tgcPrepDataContainer[ibc] = new TgcPrepDataContainer(m_tgcHelper->module_hash_max());
-    } catch(std::bad_alloc) {
-      ATH_MSG_FATAL("Could not create a new TGC PrepRawData container!");
-      return StatusCode::FAILURE;
-    }
-    m_tgcPrepDataContainer[ibc]->addRef();
+
+  for(int ibc=0; ibc<NBC+1; ibc++) {      
+    int bcTag=ibc+1;
+    std::ostringstream location;
+    location << m_outputCollectionLocation << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
+	     << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "") << (bcTag==(NBC+1) ? "AllBCs" : "");    
+    m_outputprepdataKeys.at(ibc) = location.str();
   }
 
+  for(int ibc=0; ibc<NBC; ibc++) {
+    int bcTag=ibc+1;
+    std::ostringstream location;
+    location << m_outputCoinCollectionLocation << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
+             << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "");
+    m_outputCoinKeys.at(ibc) = location.str();
+  }
   
+  ATH_CHECK(m_outputCoinKeys.initialize());
+  ATH_CHECK(m_outputprepdataKeys.initialize());
+ 
   // Get TgcRawDataProviderTool
-  sc = m_rawDataProviderTool.retrieve();
-  if(sc.isFailure()) {
-    ATH_MSG_FATAL("Failed to retrieve serive " << m_rawDataProviderTool);
-    return sc;
+  if(m_useBStoRdoTool && m_rawDataProviderTool.retrieve().isFailure()) {
+    ATH_MSG_FATAL("Failed to retrieve tool " << m_rawDataProviderTool);
+    return StatusCode::FAILURE;
   } else {
     ATH_MSG_INFO("Retrieved Tool " << m_rawDataProviderTool);
   }
   
-  
-  /// create an empty TgcCoinData container for filling 
-  for(int ibc=0; ibc<NBC; ibc++) {
-    try {
-      m_tgcCoinDataContainer[ibc] = new TgcCoinDataContainer(m_tgcHelper->module_hash_max());
-    } catch(std::bad_alloc) {
-      ATH_MSG_FATAL("Could not create a new TGC TrigCoinData container!");
-      return StatusCode::FAILURE;
-    }
-    m_tgcCoinDataContainer[ibc]->addRef();
-  }    
 
-  // create vector of RDO collections already decoded in the event
-  m_decodedRdoCollVec = new std::vector<const TgcRdo*>;
   
   //try to configure the cabling service
   sc = getCabling();
@@ -159,15 +154,9 @@ StatusCode Muon::TgcRdoToPrepDataTool::initialize()
 
 StatusCode Muon::TgcRdoToPrepDataTool::finalize()
 {
-  for(int ibc=0; ibc<NBC+1; ibc++) {
-    m_tgcPrepDataContainer[ibc]->release();    
-  }
-  for(int ibc=0; ibc<NBC; ibc++) {
-    m_tgcCoinDataContainer[ibc]->release();
-  }
 
-  delete m_decodedRdoCollVec;
-  m_decodedRdoCollVec = 0;
+  m_decodedRdoCollVec.clear();
+  m_decodedRdoCollVec.shrink_to_fit();
 
   ATH_MSG_INFO("finalize(): input RDOs->output PRDs ["  << 
 	       "Hit: "          << m_nHitRDOs          << "->" << m_nHitPRDs          << ", " << 
@@ -201,34 +190,30 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
   /// clean up containers for Hits
   for(int ibc=0; ibc<NBC+1; ibc++) {      
     int bcTag=ibc+1;
-    std::ostringstream location;
-    location << m_outputCollectionLocation << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
-	     << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "") << (bcTag==(NBC+1) ? "AllBCs" : "");    
-    if(!evtStore()->contains<Muon::TgcPrepDataContainer>(location.str())) {
-      // this happens the first time in the event !
-      m_tgcPrepDataContainer[ibc]->cleanup(); // clean up the PrepRawData container
+ 
+    if(!evtStore()->contains<Muon::TgcPrepDataContainer>(m_outputprepdataKeys.at(ibc).key())) {
+
      
       // initialize with false  
-      for(uint16_t onlineId=0; onlineId<m_decodedOnlineId.size(); onlineId++) {  
-        m_decodedOnlineId.at(onlineId) = false;  
-      } 
-
+      std::fill(m_decodedOnlineId.begin(), m_decodedOnlineId.end(), false);
+      SG::WriteHandle<TgcPrepDataContainer>  handle(m_outputprepdataKeys[ibc]);
+      
       // record the container in storeGate
-      StatusCode status = evtStore()->record(m_tgcPrepDataContainer[ibc],location.str());
-      if(status.isFailure()) {
-	ATH_MSG_FATAL("Could not record container of TGC PrepRawData at " << location.str());
-	return status;
+      handle = std::unique_ptr<TgcPrepDataContainer> (new TgcPrepDataContainer(m_tgcHelper->module_hash_max()));
+      // cache the pointer, storegate retains ownership
+      m_tgcPrepDataContainer[ibc] = handle.ptr();
+      if(!handle.isValid()) {
+	ATH_MSG_FATAL("Could not record container of TGC PrepRawData at " << m_outputprepdataKeys[ibc].key());
+	return StatusCode::FAILURE;
       } else {
-	ATH_MSG_DEBUG("TGC PrepData Container recorded in StoreGate with key " << location.str());
+	ATH_MSG_DEBUG("TGC PrepData Container recorded in StoreGate with key " << m_outputprepdataKeys[ibc].key());
       }
 
-      if(sizeVectorRequested==0) { // un-seeded mode (no need to decode this event after this execution) 
-	m_fullEventDone[ibc] = true;
-      } else { // seeded mode (still need to decode this event even after this execution) 
-	m_fullEventDone[ibc] = false;
-      }
-    
-      m_decodedRdoCollVec->clear(); // The information of decoded RDO in the previous event is cleared. 
+      //true: un-seeded mode (no need to decode this event after this execution)
+      //false: seeded mode (still need to decode this event even after this execution) 
+      m_fullEventDone[ibc] = sizeVectorRequested==0;
+
+      m_decodedRdoCollVec.clear(); // The information of decoded RDO in the previous event is cleared. 
     } else {
       // If you come here, this event is partially or fully decoded.
       ATH_MSG_DEBUG("TGC PrepData Container at " << 
@@ -268,21 +253,22 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
   if(!nothingToDoForAllBC) { // If still need to do something 
     /// clean up containers for Coincidence
     for(int ibc=0; ibc<NBC; ibc++) {
-      int bcTag=ibc+1;
-      std::ostringstream location;
-      location << m_outputCoinCollectionLocation << (bcTag==TgcDigit::BC_PREVIOUS ? "PriorBC" : "")
-               << (bcTag==TgcDigit::BC_NEXT ? "NextBC" : "");
-      if(!evtStore()->contains<Muon::TgcCoinDataContainer>(location.str())) {
+
+      if(!evtStore()->contains<Muon::TgcCoinDataContainer>(m_outputCoinKeys.at(ibc).key())) {
         // this happens the first time in the event !
-        m_tgcCoinDataContainer[ibc]->cleanup();// clean up the CoinData container
+        SG::WriteHandle<TgcCoinDataContainer>  handle(m_outputCoinKeys[ibc]);
       
-        // record the container in storeGate
-        StatusCode status = evtStore()->record(m_tgcCoinDataContainer[ibc],location.str());
-        if(status.isFailure()) {
-	  ATH_MSG_FATAL("Could not record container of TGC CoinData at " << location.str());
-	  return status;
+      // record the container in storeGate
+        handle = std::unique_ptr<TgcCoinDataContainer> (new TgcCoinDataContainer(m_tgcHelper->module_hash_max()));
+      
+        // cache the pointer, storegate retains ownership
+        m_tgcCoinDataContainer[ibc] = handle.ptr();
+
+        if(!handle.isValid()) {
+	  ATH_MSG_FATAL("Could not record container of TGC CoinData at " << m_outputCoinKeys[ibc].key());
+	  return StatusCode::FAILURE;
         } else {
-	  ATH_MSG_DEBUG("TGC CoinData Container recorded in StoreGate with key " << location.str());
+	  ATH_MSG_DEBUG("TGC CoinData Container recorded in StoreGate with key " << m_outputCoinKeys[ibc].key());
         }
       } else {
         ATH_MSG_DEBUG("TGC CoinData Container is already in StoreGate");
@@ -304,7 +290,6 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
     } 
 
     // retrieve the collection of RDO
-    const TgcRdoContainer* rdoContainer = 0;
     if(m_useBStoRdoTool) {
       // we come here if the entire rdo container is not yet in SG (i.e. in EF with BS input) 
       // ask TgcRawDataProviderTool to decode the list of robs and to fill the rdo IDC
@@ -326,21 +311,20 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
     }
 
     ATH_MSG_DEBUG("Retriving TGC RDO container from the store");
-    StatusCode status = evtStore()->retrieve(rdoContainer, "TGCRDO");
-    if(status.isFailure()) {
+    if(!m_rdoContainer.isValid()) {
       ATH_MSG_WARNING("No TGC RDO container in StoreGate!");
       return StatusCode::SUCCESS;
     }
 
     ///////////// here the RDO container is retrieved and filled -whatever input type we start with- => check the size 
-    if(rdoContainer->size()==0) { 
+    if(m_rdoContainer->size()==0) { 
       // empty csm container - no tgc rdo in this event
       ATH_MSG_DEBUG("Empty rdo container - no tgc rdo in this event");
       return StatusCode::SUCCESS;
     }
 
     ATH_MSG_DEBUG("Not empty rdo container in this event, the container size is " << 
-		  rdoContainer->size());
+		  m_rdoContainer->size());
   
     // select RDOs to be decoded when seeded mode is used  
     std::vector<const TgcRdo*> rdoCollVec; 
@@ -361,8 +345,8 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
 
         m_decodedOnlineId.at(onlineId) = true; // The ROB with this onlineId will be decoded only once 
 
-        TgcRdoContainer::const_iterator rdo_container_it   = rdoContainer->begin(); 
-        TgcRdoContainer::const_iterator rdo_container_it_e = rdoContainer->end(); 
+        TgcRdoContainer::const_iterator rdo_container_it   = m_rdoContainer->begin(); 
+        TgcRdoContainer::const_iterator rdo_container_it_e = m_rdoContainer->end(); 
         for(; rdo_container_it!=rdo_container_it_e; rdo_container_it++) { 
           const TgcRdo* rdoColl = *rdo_container_it; 
           if(rdoColl->identify()==onlineId) { 
@@ -389,15 +373,15 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
         for(; itD!=itD_e; itD++) { 
           selectDecoder(itD, (*iRdo));
         }
-        m_decodedRdoCollVec->push_back(*iRdo);
+        m_decodedRdoCollVec.push_back(*iRdo);
       }
       // show the vector of IdentifierHash which contains the data within requested range
       showIdentifierHashVector(selectedIdHashVect);
     } else {
       ATH_MSG_DEBUG("Start loop over rdos - unseeded mode");
     
-      TgcRdoContainer::const_iterator rdoColli   = rdoContainer->begin();
-      TgcRdoContainer::const_iterator rdoColli_e = rdoContainer->end();
+      TgcRdoContainer::const_iterator rdoColli   = m_rdoContainer->begin();
+      TgcRdoContainer::const_iterator rdoColli_e = m_rdoContainer->end();
       for(; rdoColli!=rdoColli_e; rdoColli++) {
         // loop over all elements of the rdo container 
         const TgcRdo* rdoColl = *rdoColli;
@@ -409,7 +393,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
           for(; itD!=itD_e; itD++) { 
             selectDecoder(itD, rdoColl);
           }
-          m_decodedRdoCollVec->push_back(rdoColl);
+          m_decodedRdoCollVec.push_back(rdoColl);
         }
       }
       // show the vector of IdentifierHash which contains the data
@@ -448,14 +432,12 @@ void Muon::TgcRdoToPrepDataTool::printInputRdo()
   IdContext tgcContext = m_tgcHelper->module_context();
 
   /// TGC RDO container --- assuming it is available
-  const TgcRdoContainer* rdoContainer;
-  StatusCode status = evtStore()->retrieve(rdoContainer, "TGCRDO");
-  if(status.isFailure()) {
+  if(!m_rdoContainer.isValid()) {
     ATH_MSG_WARNING("*** Retrieval of TGC RDO container for debugging purposes failed !");
     return;
   }                                                                
 
-  if(rdoContainer->size()<=0) {
+  if(m_rdoContainer->size()==0) {
     ATH_MSG_INFO("*** No TgcRdo collections were found");
     return;
   }
@@ -469,8 +451,8 @@ void Muon::TgcRdoToPrepDataTool::printInputRdo()
   int nOthers = 0;
   int nTgcRawData = 0;
 
-  TgcRdoContainer::const_iterator rdo_container_it   = rdoContainer->begin();
-  TgcRdoContainer::const_iterator rdo_container_it_e = rdoContainer->end();
+  TgcRdoContainer::const_iterator rdo_container_it   = m_rdoContainer->begin();
+  TgcRdoContainer::const_iterator rdo_container_it_e = m_rdoContainer->end();
   for(; rdo_container_it!=rdo_container_it_e; rdo_container_it++) {
     // loop over all elements of the rdo container 
     const TgcRdo* rdoColl = *rdo_container_it;
@@ -595,7 +577,7 @@ void Muon::TgcRdoToPrepDataTool::printPrepData()
 
   const TgcPrepDataCollection* tgcColl;
   for(int ibc=0; ibc<NBC; ibc++) {
-    if(m_tgcPrepDataContainer[ibc]->size() <= 0) ATH_MSG_INFO("No TgcPrepRawData collections found");
+    if(m_tgcPrepDataContainer[ibc]->size()==0) ATH_MSG_INFO("No TgcPrepRawData collections found");
 
     ATH_MSG_INFO("--------------------------------------------------------------------------------------------");
     IdentifiableContainer<Muon::TgcPrepDataCollection>::const_iterator tgcColli = m_tgcPrepDataContainer[ibc]->begin();
@@ -622,7 +604,7 @@ void Muon::TgcRdoToPrepDataTool::printPrepData()
 
   const TgcCoinDataCollection* tgcCoinColl;
   for(int ibc=0; ibc<NBC; ibc++) {
-    if(m_tgcCoinDataContainer[ibc]->size() <= 0) ATH_MSG_INFO("No TgcCoinData collections found");
+    if(m_tgcCoinDataContainer[ibc]->size()==0) ATH_MSG_INFO("No TgcCoinData collections found");
 
     ATH_MSG_INFO("--------------------------------------------------------------------------------------------");
 
@@ -1806,16 +1788,14 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeSL(const TgcRdo::const_iterator& it
   Amg::Vector3D tmp_gp(tmp_r*cos(tmp_phi), tmp_r*sin(tmp_phi), tmp_wire_z); 
   Amg::Vector2D tmp_hitPos;
   bool onSurface = descriptor_w2->surface(channelId_wire[2]).globalToLocal(tmp_gp,tmp_gp,tmp_hitPos);
-  const Amg::Vector2D* hitPos = new Amg::Vector2D(tmp_hitPos);
-  if(!onSurface) { 
     // If TGC A-lines with rotations are used, the z-coordinate of a chamber depends on position. 
     // In this case, the global to local conversion fails. 
     // Obtain the local position in a different way. 
-    hitPos = getSLLocalPosition(descriptor_w2, channelId_wire[2], tmp_eta, tmp_phi); 
-  }
-  if(!hitPos) {  
-    ATH_MSG_WARNING("Muon::TgcRdoToPrepDataTool::decodeSL Amg::Vector2D* hitPos is null.");  
-  } 
+  const Amg::Vector2D* hitPos = !onSurface ? new Amg::Vector2D(tmp_hitPos) : getSLLocalPosition(descriptor_w2, channelId_wire[2], tmp_eta, tmp_phi);
+
+//  if(!hitPos) {  //No need to check should not be possible to fail
+//    ATH_MSG_WARNING("Muon::TgcRdoToPrepDataTool::decodeSL Amg::Vector2D* hitPos is null.");  
+//  } 
 
   Amg::MatrixX mat(2,2);
   mat.setIdentity();
@@ -1956,9 +1936,9 @@ bool Muon::TgcRdoToPrepDataTool::isAlreadyConverted(std::vector<const TgcRdo*>& 
     }
   }
 
-  if(!m_decodedRdoCollVec->empty()) {
-    std::vector<const TgcRdo*>::const_iterator jt   = m_decodedRdoCollVec->begin();
-    std::vector<const TgcRdo*>::const_iterator jt_e = m_decodedRdoCollVec->end();
+  if(!m_decodedRdoCollVec.empty()) {
+    std::vector<const TgcRdo*>::const_iterator jt   = m_decodedRdoCollVec.begin();
+    std::vector<const TgcRdo*>::const_iterator jt_e = m_decodedRdoCollVec.end();
     for(; jt!=jt_e; jt++) {
       if(*jt==rdoColl) return true;
     }
@@ -3380,17 +3360,17 @@ bool Muon::TgcRdoToPrepDataTool::getSbLocOfEndcapStripBoundaryFromTracklet(const
 
 void Muon::TgcRdoToPrepDataTool::getEndcapStripCandidateTrackletIds(const int roi, int &trackletIdStripFirst, 
 								    int &trackletIdStripSecond, int &trackletIdStripThird) const {
-  static const int T9SscMax =  2; // SSC 0 to SSC 2
-  static const int T8SscMax =  4; // SSC 3 to SSC 4
-  static const int T7SscMax =  6; // SSC 5 to SSC 6
-  static const int T6SscMax = 12; // SSC 7 to SSC12
-  static const int T5SscMax = 18; // SSC13 to SSC18
+  constexpr int T9SscMax =  2; // SSC 0 to SSC 2
+  constexpr int T8SscMax =  4; // SSC 3 to SSC 4
+  constexpr int T7SscMax =  6; // SSC 5 to SSC 6
+  constexpr int T6SscMax = 12; // SSC 7 to SSC12
+  constexpr int T5SscMax = 18; // SSC13 to SSC18
 
-  static const int T9Offset = 32 + 0; 
-  static const int T8Offset = 32 + 2; 
-  static const int T7Offset = 32 + 4; 
-  static const int T6Offset = 32 + 6; 
-  static const int T5Offset = 32 + 8; 
+  constexpr int T9Offset = 32 + 0; 
+  constexpr int T8Offset = 32 + 2; 
+  constexpr int T7Offset = 32 + 4; 
+  constexpr int T6Offset = 32 + 6; 
+  constexpr int T5Offset = 32 + 8; 
   
   // ROI     :  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 ...
   // SSC     :  0  0  0  0  1  1  1  1  1  1  1  1  2  2  2  2  2  2 ...
@@ -3508,10 +3488,10 @@ const Amg::Vector2D* Muon::TgcRdoToPrepDataTool::getSLLocalPosition(const MuonGM
   if(!readout) return 0;  
   
   // Obtain the local coordinate by the secant method
-  const double length = 100.; // 100 mm
-  const unsigned int nRep = 10; // 10 repetitions
-  const double dRAccuracy = 1.0E-20; // recuqired dR accuracy
-  const double maxLocR = 10000.; // 10 m
+  constexpr double length = 100.; // 100 mm
+  constexpr unsigned int nRep = 10; // 10 repetitions
+  constexpr double dRAccuracy = 1.0E-20; // recuqired dR accuracy
+  constexpr double maxLocR = 10000.; // 10 m
   
   double locX = 0.;  
   double locY = 0.;  
@@ -3519,65 +3499,56 @@ const Amg::Vector2D* Muon::TgcRdoToPrepDataTool::getSLLocalPosition(const MuonGM
     Amg::Vector2D loc_hitPos_c(locX, locY); // center or current position 
     Amg::Vector3D tmp_glob_hitPos_c;
     readout->surface(identify).localToGlobal(loc_hitPos_c,tmp_glob_hitPos_c,tmp_glob_hitPos_c);
-    const Amg::Vector3D* glob_hitPos_c = new Amg::Vector3D(tmp_glob_hitPos_c);
-    if(glob_hitPos_c) {
-      double glob_eta_c = glob_hitPos_c->eta();
-      double glob_phi_c = glob_hitPos_c->phi();
-      
-      Amg::MatrixX vector(2, 1);
-      vector(0,0) = eta - glob_eta_c;
-      vector(1,0) = phi - glob_phi_c;
-      while(vector(1,0)>+M_PI) vector(1,0) -= 2.*M_PI;
-      while(vector(1,0)<-M_PI) vector(1,0) += 2.*M_PI;
-      
-      double dR = sqrt(vector(0,0)*vector(0,0) + vector(1,0)*vector(1,0));
-      if(dR<dRAccuracy) {
-	delete glob_hitPos_c; glob_hitPos_c = 0;
-	break;
-      }
-      
-      Amg::Vector2D loc_hitPos_w(locX+length, locY       ); // slightly shifted position in the wire direction 
-      Amg::Vector2D loc_hitPos_s(locX,        locY+length); // slightly shifted position in the strip direction 
-      Amg::Vector3D tmp_glob_hitPos_w; 
-      readout->surface(identify).localToGlobal(loc_hitPos_w,tmp_glob_hitPos_w,tmp_glob_hitPos_w);
-      const Amg::Vector3D* glob_hitPos_w = new Amg::Vector3D(tmp_glob_hitPos_w);
-      Amg::Vector3D tmp_glob_hitPos_s; 
-      readout->surface(identify).localToGlobal(loc_hitPos_s,tmp_glob_hitPos_s,tmp_glob_hitPos_s);
-      const Amg::Vector3D* glob_hitPos_s = new Amg::Vector3D(tmp_glob_hitPos_s);
-      
-      if(glob_hitPos_w && glob_hitPos_s) {
-	Amg::MatrixX matrix(2, 2);
-	matrix(0,0) = glob_hitPos_w->eta() - glob_eta_c;
-	matrix(1,0) = glob_hitPos_w->phi() - glob_phi_c;
-	while(matrix(1,0)>+M_PI) matrix(1,0) -= 2.*M_PI;
-	while(matrix(1,0)<-M_PI) matrix(1,0) += 2.*M_PI;
-	
-	matrix(0,1) = glob_hitPos_s->eta() - glob_eta_c;
-	matrix(1,1) = glob_hitPos_s->phi() - glob_phi_c;
-	while(matrix(1,1)>+M_PI) matrix(1,1) -= 2.*M_PI;
-	while(matrix(1,1)<-M_PI) matrix(1,1) += 2.*M_PI;
-	
-	bool invertible(false);
-	if( matrix.determinant() ) invertible = true;
-	if(invertible) {
-	  Amg::MatrixX invertedMatrix = matrix.inverse();
-	  Amg::MatrixX solution = invertedMatrix * vector;
-	  locX += length * solution(0,0);
-	  locY += length * solution(1,0);
-	  
-	  double locR = sqrt(locX*locX + locY*locY);
-	  if(locR>maxLocR) {
-	    locX *= maxLocR/locR;
-	    locY *= maxLocR/locR;
-	  }
-	}       
-      }
+    const Amg::Vector3D &glob_hitPos_c  = tmp_glob_hitPos_c;
 
-      delete glob_hitPos_c; glob_hitPos_c = 0;
-      delete glob_hitPos_w; glob_hitPos_w = 0;
-      delete glob_hitPos_s; glob_hitPos_s = 0;
+    double glob_eta_c = glob_hitPos_c.eta();
+    double glob_phi_c = glob_hitPos_c.phi();
+
+    Amg::MatrixX vector(2, 1);
+    vector(0,0) = eta - glob_eta_c;
+    vector(1,0) = phi - glob_phi_c;
+    while(vector(1,0)>+M_PI) vector(1,0) -= 2.*M_PI;
+    while(vector(1,0)<-M_PI) vector(1,0) += 2.*M_PI;
+      
+    double dR = sqrt(vector(0,0)*vector(0,0) + vector(1,0)*vector(1,0));
+    if(dR<dRAccuracy) {
+	break;
     }
-  } 
+      
+    Amg::Vector2D loc_hitPos_w(locX+length, locY       ); // slightly shifted position in the wire direction 
+    Amg::Vector2D loc_hitPos_s(locX,        locY+length); // slightly shifted position in the strip direction 
+    Amg::Vector3D tmp_glob_hitPos_w; 
+    readout->surface(identify).localToGlobal(loc_hitPos_w,tmp_glob_hitPos_w,tmp_glob_hitPos_w);
+    const Amg::Vector3D &glob_hitPos_w = tmp_glob_hitPos_w;
+    Amg::Vector3D tmp_glob_hitPos_s; 
+    readout->surface(identify).localToGlobal(loc_hitPos_s,tmp_glob_hitPos_s,tmp_glob_hitPos_s);
+    const Amg::Vector3D &glob_hitPos_s = tmp_glob_hitPos_s;
+      
+    Amg::MatrixX matrix(2, 2);
+    matrix(0,0) = glob_hitPos_w.eta() - glob_eta_c;
+    matrix(1,0) = glob_hitPos_w.phi() - glob_phi_c;
+    while(matrix(1,0)>+M_PI) matrix(1,0) -= 2.*M_PI;
+    while(matrix(1,0)<-M_PI) matrix(1,0) += 2.*M_PI;
+	
+    matrix(0,1) = glob_hitPos_s.eta() - glob_eta_c;
+    matrix(1,1) = glob_hitPos_s.phi() - glob_phi_c;
+    while(matrix(1,1)>+M_PI) matrix(1,1) -= 2.*M_PI;
+    while(matrix(1,1)<-M_PI) matrix(1,1) += 2.*M_PI;
+
+    bool invertible = matrix.determinant();
+    if(invertible) {
+      Amg::MatrixX invertedMatrix = matrix.inverse();
+      Amg::MatrixX solution = invertedMatrix * vector;
+      locX += length * solution(0,0);
+      locY += length * solution(1,0);
+	  
+      double locR = sqrt(locX*locX + locY*locY);
+      if(locR>maxLocR) {
+        locX *= maxLocR/locR;
+        locY *= maxLocR/locR;
+      }
+    }
+  }
   
   return new Amg::Vector2D(locX, locY); 
 } 

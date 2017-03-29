@@ -4,7 +4,6 @@
 
 #include "CondAlgY.h"
 #include "AthExHive/IASCIICondDbSvc.h"
-#include "CxxUtils/make_unique.h"
 #include "StoreGate/WriteCondHandle.h"
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -14,6 +13,7 @@
 
 #include <thread>
 #include <chrono>
+#include <memory>
 
 CondAlgY::CondAlgY( const std::string& name, 
             ISvcLocator* pSvcLocator ) : 

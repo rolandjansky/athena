@@ -52,4 +52,3 @@ atlas_add_dictionary( LArG4GenShowerLibDict
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_scripts( share/*.py )
-

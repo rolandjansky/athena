@@ -1,13 +1,13 @@
-Fri Feb 17 20:14:54 CET 2017
+Fri Mar 17 17:21:36 CET 2017
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.0] [x86_64-slc6-gcc49-dbg] [private/private] -- built on [2017-02-17 20:14]
+Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc49-opt] [private/private] -- built on [2017-03-17 17:16]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 [?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthExJobOptions/AthExJobOptions_BasicJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5232 configurables from 11 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5282 configurables from 7 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO Can't set int to string property (this is correct)
 Py:Athena            INFO Can't set non-existing property (this is correct)
@@ -41,6 +41,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 |-NeededResources           = []  (default: [])
 |-OutputLevel               = 0
 |-RegisterForContextService = False
+|-Sequential                = False
 |-StopOverride              = False
 |-TimeOut                   = 0.0
 |-Timeline                  = True
@@ -409,27 +410,23 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | \----- (End of Algorithm TopAlgorithm/MyAlg) -------------------------------------------------------
 \----- (End of Algorithm AthSequencer/TopAlg) ------------------------------------------------------
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 200, which is not a valid value for type 'bool'
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v28r1)
-                                          running on lxplus028.cern.ch on Fri Feb 17 20:15:08 2017
+                                          running on p05614910w96644.cern.ch on Fri Mar 17 17:21:46 2017
 ====================================================================================================================================
-/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 128, which is not a valid value for type 'bool'
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr                     INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 StatusCodeSvc                      INFO initialize
 AthDictLoaderSvc                   INFO in initialize...
 AthDictLoaderSvc                   INFO acquired Dso-registry
-ClassIDSvc                         INFO  getRegistryEntries: read 2200 CLIDRegistry entries for module ALL
+ClassIDSvc                         INFO  getRegistryEntries: read 2303 CLIDRegistry entries for module ALL
 ChronoStatSvc                      INFO  Number of skipped events for MemStat-1
 CoreDumpSvc                        INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr                 INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-60
-AthMasterSeq                       INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
-AthAlgSeq                          INFO Member list: TopAlgorithm, TopAlgorithm/MyAlg
+AthenaEventLoopMgr                 INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 TopAlgorithm                      DEBUG Property update for OutputLevel : new value = 2
 TopAlgorithm.TSTT                 DEBUG Property update for OutputLevel : new value = 2
 TopAlgorithm                       INFO Retrieved TheTool = PrivateToolHandle('ToolSpace::TemplatedTool<double>/TSTT')
@@ -705,12 +702,10 @@ MyAlg                              INFO ... my work is done!
 MyAlg                             DEBUG wrote data: 1.00913e+59 for key: BBB
 AthenaEventLoopMgr                 INFO   ===>>>  done processing event #2, run #1 2 events processed so far  <<<===
 ApplicationMgr                     INFO Application Manager Stopped successfully
-AthAlgSeq                          INFO Finalizing AthAlgSeq...
+IncidentProcAlg1                   INFO Finalize
 TopAlgorithm                      DEBUG Calling destructor
 MyAlg                             DEBUG Calling destructor
-AthOutSeq                          INFO Finalizing AthOutSeq...
-AthRegSeq                          INFO Finalizing AthRegSeq...
-AthMasterSeq                       INFO Finalizing AthMasterSeq...
+IncidentProcAlg2                   INFO Finalize
 QotdSvc                            INFO Finalizing QotdSvc...
 ConcreteSvc                        INFO Finalizing ConcreteSvc...
 AthDictLoaderSvc                   INFO in finalize...
@@ -734,7 +729,7 @@ TopAlgorithm.TSTT                 DEBUG Calling destructor
 *****Chrono*****                   INFO ****************************************************************************************************
 *****Chrono*****                   INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****                   INFO ****************************************************************************************************
-ChronoStatSvc                      INFO Time User   : Tot=  340 [ms]                                             #=  1
+ChronoStatSvc                      INFO Time User   : Tot=  100 [ms]                                             #=  1
 *****Chrono*****                   INFO ****************************************************************************************************
 ChronoStatSvc.finalize()           INFO  Service finalized successfully 
 ApplicationMgr                     INFO Application Manager Finalized successfully

@@ -18,4 +18,3 @@ atlas_install_scripts( share/athena.py share/athena.C share/athena-app.py share/
 # Aliases:
 atlas_add_alias( athena-app "athena-app.py" )
 atlas_add_alias( athena "athena.py" )
-

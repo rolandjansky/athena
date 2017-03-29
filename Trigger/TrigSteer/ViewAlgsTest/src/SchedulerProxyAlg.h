@@ -8,24 +8,23 @@
 #define ViewAlgs_SchedulerProxyAlg_h
 
 #include <string>
-#include "AthViews/AthViewAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "AthContainers/ConstDataVector.h"
 
 #include "./TestEDM.h"
 
-class SchedulerProxyAlg : public AthViewAlgorithm {
+class SchedulerProxyAlg : public AthAlgorithm {
 public:
   SchedulerProxyAlg(const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
   StatusCode execute();
 
 private:
-  SG::ReadHandle<ConstDataVector<TrigRoiDescriptorCollection> > m_roisContainer;
-  //SG::ReadHandle<TrigRoiDescriptorCollection> m_roisContainer;
-  SG::WriteHandle< TestClusterContainer > m_outputClusterContainer;
-  SG::WriteHandle< TestClusterAuxContainer > m_outputClusterContainerAux;
+  SG::ReadHandleKey<ConstDataVector<TrigRoiDescriptorCollection> > m_roisContainer;
+  SG::WriteHandleKey< TestClusterContainer > m_outputClusterContainer;
+  SG::WriteHandleKey< TestClusterAuxContainer > m_outputClusterContainerAux;
 
 };
 

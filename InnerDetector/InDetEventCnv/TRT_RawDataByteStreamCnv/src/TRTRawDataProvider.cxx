@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <memory>
 #include "TRTRawDataProvider.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"  
 
@@ -11,14 +12,17 @@
 TRTRawDataProvider::TRTRawDataProvider(const std::string& name,
 				       ISvcLocator* pSvcLocator) :
   AthAlgorithm      ( name, pSvcLocator ),
+  m_regionSelector  ("RegSelSvc", name), 
   m_robDataProvider ( "ROBDataProviderSvc", name ),
   m_rawDataTool     ( "TRTRawDataProviderTool",this ),
   m_CablingSvc      ( "TRT_CablingSvc", name ),
-  m_trt_id          ( nullptr )
+  m_trt_id          ( nullptr ),
+  m_rdoContainerKey("")
 {
-  declareProperty ( "RDOKey"      , m_RDO_Key = "TRT_RDOs" );
+  declareProperty("RoIs", m_roiCollectionKey = std::string(""), "RoIs to read in");
+  declareProperty("isRoI_Seeded", m_roiSeeded = false, "Use RoI");
+  declareProperty("RDOKey", m_rdoContainerKey = std::string("TRT_RDOs"));
   declareProperty ( "ProviderTool", m_rawDataTool );
-  m_first_event = true;
 }
 
 // --------------------------------------------------------------------
@@ -67,12 +71,18 @@ StatusCode TRTRawDataProvider::initialize() {
 
 
   
-  // Retrieve id mapping 
-  if (m_CablingSvc.retrieve().isFailure()) {
-    ATH_MSG_FATAL( "Failed to retrieve service " << m_CablingSvc );
-    return StatusCode::FAILURE;
-  } else 
-    ATH_MSG_INFO( "Retrieved service " << m_CablingSvc );
+  if (m_roiSeeded) {
+    ATH_CHECK( m_roiCollectionKey.initialize() );
+    ATH_CHECK(m_regionSelector.retrieve());
+  }
+  else {//Only need cabling if not using RoIs
+    // Retrieve id mapping 
+  ATH_CHECK(m_CablingSvc.retrieve());
+  }
+
+  ATH_CHECK( m_rdoContainerKey.initialize() );
+
+  ATH_CHECK( m_rdoContainerKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -82,25 +92,41 @@ StatusCode TRTRawDataProvider::initialize() {
 
 StatusCode TRTRawDataProvider::execute() 
 {
-  TRT_RDO_Container *container = new TRT_RDO_Container(m_trt_id->straw_layer_hash_max()); 
+  SG::WriteHandle<TRT_RDO_Container> rdoContainer(m_rdoContainerKey);
+  rdoContainer = std::make_unique<TRT_RDO_Container>(m_trt_id->straw_hash_max()); 
+  ATH_CHECK(rdoContainer.isValid());
 
-  if (evtStore()->record(container, m_RDO_Key).isFailure()) 
-  {
-    ATH_MSG_FATAL( "Unable to record TRT RDO Container." );
-    return StatusCode::FAILURE;
-  }
   
-  // ask ROBDataProviderSvc for the vector of ROBFragment for all TRT ROBIDs
+  std::vector<uint32_t> listOfRobs; 
+  if (!m_roiSeeded) {
+    listOfRobs = m_CablingSvc->getAllRods();
+  }
+  else {//Enter RoI-seeded mode
+      SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey);
+      ATH_CHECK(roiCollection.isValid());
+
+      TrigRoiDescriptorCollection::const_iterator roi = roiCollection->begin();
+      TrigRoiDescriptorCollection::const_iterator roiE = roiCollection->end();
+      TrigRoiDescriptor superRoI;//add all RoIs to a super-RoI
+      superRoI.setComposite(true);
+      superRoI.manageConstituents(false);
+      for (; roi!=roiE; ++roi) {
+        superRoI.push_back(*roi);
+      }
+      m_regionSelector->DetROBIDListUint( TRT, 
+					  superRoI,
+					  listOfRobs);
+  }
   std::vector<const ROBFragment*> listOfRobf;
-  m_robDataProvider->getROBData( m_CablingSvc->getAllRods(), listOfRobf);
+  m_robDataProvider->getROBData( listOfRobs, listOfRobf);
 
   ATH_MSG_DEBUG( "Number of ROB fragments " << listOfRobf.size() );
 
   // ask TRTRawDataProviderTool to decode it and to fill the IDC
-  if (m_rawDataTool->convert(listOfRobf,container).isFailure())
+  if (m_rawDataTool->convert(listOfRobf,&(*rdoContainer)).isFailure())
     ATH_MSG_WARNING( "BS conversion into RDOs failed" );
 
-  ATH_MSG_DEBUG( "Number of Collections in IDC " << container->numberOfCollections() );
+  ATH_MSG_DEBUG( "Number of Collections in IDC " << rdoContainer->numberOfCollections() );
 
   return StatusCode::SUCCESS;
 }

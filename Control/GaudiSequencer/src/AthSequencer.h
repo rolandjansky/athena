@@ -218,6 +218,10 @@ private:
   Gaudi::Property<bool> m_ignoreFilter;
   /// Stop on filter failure Override flag (normally stop if alg filter fails)
   Gaudi::Property<bool> m_stopOverride;
+  /// a "Concurrent" or "Sequential" sequence. "Sequential" enforces
+  /// strict ordering in MT. "Concurrent" allows scheduler re-ordering 
+  /// for data flow (default)
+  Gaudi::Property<bool> m_sequential;
   
   /// set optional algorithm / sequence time outs
   double m_timeout;

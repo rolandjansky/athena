@@ -1,4 +1,3 @@
-AthAlgSeq            INFO Member list: PassNoneFilter, RunEventMetaWriter, StoreDump
 StreamBSFileOutput  DEBUG Property update for OutputLevel : new value = 2
 StreamBSFileOutput  DEBUG In initialize 
 StreamBSFileOutput  DEBUG Found IDecisionSvc.
@@ -7,7 +6,7 @@ StreamBSFileOutput  DEBUG Trying to add PassNoneFilter of stream StreamBSFileOut
 StreamBSFileOutput  DEBUG End initialize 
 StreamBSFileOutput  DEBUG In initialize
 StreamBSFileOutput  DEBUG Found StoreGateSvc store.
-ByteStreamEvent...   INFO Initializing ByteStreamEventStorageOutputSvc - package version ByteStreamCnvSvc-01-34-51
+ByteStreamEvent...   INFO Initializing ByteStreamEventStorageOutputSvc - package version ByteStreamCnvSvc-00-00-00
 ByteStreamAttLi...  DEBUG Property update for OutputLevel : new value = 2
 ByteStreamAttLi...  DEBUG ByteStreamAttListMetadataSvc::initialize()
 ByteStreamEvent...   INFO eformat version to use: "current"
@@ -22,12 +21,12 @@ StreamBSFileOutput  DEBUG output handles: 0
 StreamBSFileOutput  DEBUG Registering all Tools in ToolHandleArray HelperTools
 StreamBSFileOutput  DEBUG Adding private ToolHandle tool StreamBSFileOutput.DefaultNameTool (AthenaOutputStreamTool)
 StreamBSFileOutput  DEBUG Data Deps for StreamBSFileOutput
- flags: (  valid, UNLOCKED,  reset) --- data: 0x13330190 --- key: RunEventTag
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x157b22d0 --- key: RunEventTag
 StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x13330190 --- key: RunEventTag
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x157b22d0 --- key: RunEventTag
 StoreDump            INFO AttributeList has size 2
 StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x13330190 --- key: RunEventTag
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x157b22d0 --- key: RunEventTag
 StoreDump            INFO AttributeList has size 2
 ByteStreamAttLi...   INFO ByteStreamAttListMetadataSvc::toBSMetadata
 ByteStreamAttLi...   INFO Found RunEventTag in DetectorStore

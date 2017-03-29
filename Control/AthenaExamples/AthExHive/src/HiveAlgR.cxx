@@ -5,7 +5,6 @@
 #ifdef REENTRANT_GAUDI
 
 #include "HiveAlgR.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -13,6 +12,7 @@
 #include <thread>
 #include <chrono>
 #include <ctime>
+#include <memory>
 
 DECLARE_COMPONENT(HiveAlgR)
 
@@ -56,7 +56,7 @@ StatusCode HiveAlgR::execute_r(const EventContext& ctx) const {
 
 
   SG::WriteHandle<HiveDataObj> wh1(m_wrh1);
-  ATH_CHECK( wh1.record( CxxUtils::make_unique<HiveDataObj> 
+  ATH_CHECK( wh1.record( std::make_unique<HiveDataObj> 
                          ( HiveDataObj(10000 + 
                                        evt->event_ID()->event_number()*100 )))
              );

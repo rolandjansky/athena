@@ -49,6 +49,10 @@ static bool isITK(false);
 PixelCalibDbTool::PixelCalibDbTool(const std::string& type, const std::string& name, const IInterface* parent)
   :
   AthAlgTool(type, name, parent),
+  m_toolsvc(nullptr),
+  m_IOVSvc(nullptr),
+  m_pixid(nullptr),
+  m_pixman(nullptr),
   par_calibfolder("/PIXEL/PixCalib"),
   par_caliblocation("PixCalibKey"),
   par_writedb(false),
@@ -59,11 +63,7 @@ PixelCalibDbTool::PixelCalibDbTool(const std::string& type, const std::string& n
   m_dbTag(""),
   m_dbRevision(0),
   m_calibData(0),
-  m_geoModelSvc("GeoModelSvc",name),
-  m_toolsvc(nullptr),
-  m_IOVSvc(nullptr),
-  m_pixman(nullptr),
-  m_pixid(nullptr)
+  m_geoModelSvc("GeoModelSvc",name)
 {
   declareInterface< IPixelCalibDbTool >(this); 
 
