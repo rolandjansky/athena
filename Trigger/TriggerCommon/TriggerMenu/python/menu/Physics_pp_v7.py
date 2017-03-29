@@ -1224,6 +1224,14 @@ def setupMenu():
         ['xe250_mht_xe200_L1XE60','L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe250_mht','xe200'] ]], 
         ['xe300_mht_xe250_L1XE60','L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe300_mht','xe250'] ]], 
     
+        ##trkmht
+        ['xe100_trkmht_L1XE50',           'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe110_trkmht_wEFMu_L1XE50',           'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+
+        ['xe100_trkmht_L1XE60',           'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe110_trkmht_wEFMu_L1XE60',           'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+
+
 			 ]
     
     TriggerFlags.TauSlice.signatures = [

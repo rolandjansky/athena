@@ -14,6 +14,7 @@ log = logging.getLogger("TriggerMenu.met.MissingETDef")
 
 from TrigEFMissingET.TrigEFMissingETConfig import (EFMissingET_Fex_2sidednoiseSupp,
                                                    EFMissingET_Fex_Jets,
+                                                   EFMissingET_Fex_TrackAndJets,
                                                    EFMissingET_Fex_topoClusters,
                                                    EFMissingET_Fex_topoClustersPS, 
                                                    EFMissingET_Fex_topoClustersPUC)
@@ -22,6 +23,7 @@ from TrigL2MissingET.TrigL2MissingETConfig import (L2CaloMissingET_Fex_ReadL2L1,
                                                    L2MissingET_Fex)
 
 from TrigMissingETHypo.TrigMissingETHypoConfig import (EFMetHypoJetsXE,
+                                                       EFMetHypoTrackAndJetsXE,
                                                        EFMetHypoTCPSXE,
                                                        EFMetHypoTCPUCXE, 
                                                        EFMetHypoTCXE,
@@ -152,7 +154,7 @@ class L2EFChain_met(L2EFChainDef):
 
         mucorr=  '_wMu' if EFmuon else ''          
         ##MET with topo-cluster
-        if EFrecoAlg=='tc' or EFrecoAlg=='pueta' or EFrecoAlg=='pufit' or EFrecoAlg=='mht':
+        if EFrecoAlg=='tc' or EFrecoAlg=='pueta' or EFrecoAlg=='pufit' or EFrecoAlg=='mht' or EFrecoAlg=='trkmht':
 
             ##Topo-cluster
             if EFrecoAlg=='tc':
@@ -189,6 +191,18 @@ class L2EFChain_met(L2EFChainDef):
                 theEFMETMuonFex = EFTrigMissingETMuon_Fex_Jets("EFTrigMissingETMuon_Fex_Jets{0}".format(calibCorr) )
                 #mucorr= '_wMu' if EFmuon else ''
                 theEFMETHypo = EFMetHypoJetsXE('EFMetHypo_Jets_xe%s_tc%s%s%s'%(threshold,jetCalib,calibration,mucorr),ef_thr=float(threshold)*GeV)
+
+             ##MET based on trigger jets
+            if EFrecoAlg=='trkmht':
+                #MET fex                                                                                                                                                    
+                theEFMETFex = EFMissingET_Fex_TrackAndJets()                                                                                                                
+                #Muon correction fex                                                                                                                                        
+                ## this will be added later                                                                                                                                 
+                theEFMETMuonFex = EFTrigMissingETMuon_Fex_Jets()                                                                                                            
+                #mucorr= '_wMu' if EFmuon else ''                                                                                                                           
+                theEFMETHypo = EFMetHypoTrackAndJetsXE('EFMetHypo_TrackAndJets_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)                     
+ 
+
                 
         
             ##Topo-cluster with Pile-up suppression
@@ -345,6 +359,30 @@ class L2EFChain_met(L2EFChainDef):
                 dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
                 self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step3' ]]
 
+        elif EFrecoAlg=='trkmht':
+            self.EFsequenceList +=[[ input0,algo0,  output0 ]]
+            self.EFsequenceList +=[[ input1,algo1,  output1 ]]
+            self.EFsequenceList +=[[ input2,algo2,  output2 ]]
+            self.EFsequenceList +=[[ input3,algo3,  output3 ]]
+            self.EFsequenceList +=[[ input4,algo4,  output4 ]]
+
+            ##adding FTK tracks in the sequence,
+            ##if not, adding FullScan tracks
+            if "FTK" in addInfo:
+                from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
+                trk_algs = TrigInDetFTKSequence("FullScan", "fullScan", sequenceFlavour=["FTKVtx"]).getSequence()
+                dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
+                self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step0' ]]
+
+            else:
+                from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+                trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", "FTF").getSequence()
+                dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
+                self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step0' ]]
+
+            self.EFsequenceList +=[[ [output4,'EF_xe_step0'], [theEFMETFex], 'EF_xe_step1' ]]                                                                               
+            self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]   
+
         #cell based MET
         elif EFrecoAlg=='cell':
             self.EFsequenceList +=[[ [''],          [theEFMETFex],  'EF_xe_step1' ]]  
@@ -358,6 +396,8 @@ class L2EFChain_met(L2EFChainDef):
 #            self.L2signatureList += [ [['L2_xe_step3']] ]
 #            self.L2signatureList += [ [['L2_xe_step4']] ]
 
+        if EFrecoAlg=="trkmht" :
+            self.EFsignatureList += [ [['EF_xe_step0']] ]   
 
         self.EFsignatureList += [ [['EF_xe_step1']] ]
         self.EFsignatureList += [ [['EF_xe_step2']] ]
@@ -373,6 +413,10 @@ class L2EFChain_met(L2EFChainDef):
             self.TErenamingDict['L2_xe_step2']= mergeRemovingOverlap('L2_', self.sig_id_noMult+'_step2')
 #            self.TErenamingDict['L2_xe_step3']= mergeRemovingOverlap('L2_', self.sig_id_noMult+'_step3')
 #            self.TErenamingDict['L2_xe_step4']= mergeRemovingOverlap('L2_', self.sig_id_noMult+'_step4')
+
+        if EFrecoAlg=='trkmht':
+            self.TErenamingDict['EF_xe_step0']= mergeRemovingOverlap('EF_', self.sig_id_noMult+"_step0")                                                                    
+  
             
         self.TErenamingDict['EF_xe_step1']= mergeRemovingOverlap('EF_', self.sig_id_noMult+'_step1')
         if "FStracks" in addInfo:

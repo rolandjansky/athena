@@ -303,10 +303,10 @@ METChainParts = {
     'calib'        : ['lcw','had','em'],    
     'jetCalib'     : JetChainParts['jetCalib'],
     'L2recoAlg'    : ['','l2fsperf','L2FS'],
-    'EFrecoAlg'    : ['tc','cell','pueta','mht','pufit'],
+    'EFrecoAlg'    : ['tc','cell','pueta','mht','trkmht','pufit'],
     'L2muonCorr'   : ['','wL2MuFEB','wEFMuFEB'],
     'EFmuonCorr'   : ['','wEFMu'],
-    'addInfo'      : ['FStracks'],
+    'addInfo'      : ['FStracks','FTK'],
     }
 # ---- MetDictinary of default Values ----
 METChainParts_Default = {
