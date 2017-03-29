@@ -74,7 +74,7 @@ std::string chamber(int istation, int zsec, int phi) {
 Csc2dSegmentMaker::
 Csc2dSegmentMaker(const std::string& type, const std::string& aname, const IInterface* parent)
   : AthAlgTool(type, aname, parent),
-    m_dumpcount(0), m_dumped(0), m_dump(false), m_pgm(0), m_phelper(0),
+    m_pgm(0), m_phelper(0),
     m_segmentTool("CscSegmentUtilTool/CscSegmentUtilTool"),
     m_cscClusterOnTrackCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
