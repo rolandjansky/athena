@@ -1,0 +1,15 @@
+<!-- emacs: this is -*- html -*- -->
+
+            <action position="20">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+

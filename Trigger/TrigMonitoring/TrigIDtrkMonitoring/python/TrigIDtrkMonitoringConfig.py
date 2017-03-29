@@ -429,10 +429,22 @@ def TrigIDtrkMonitoringTool():
 		# tidabase.OutputLevel = DEBUG
 		tidaftk.ntupleChainNames += [
 			"Offline",
+			#jets
 			"HLT_j.*perf_.*_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit",
 			"HLT_j.*perf_.*_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig",
 			"HLT_j.*perf_.*_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK",
-			"HLT_j.*perf_.*_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig"
+			"HLT_j.*perf_.*_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig",
+			#taus
+			"HLT_tau.*_idperf_.*FTK:key=InDetTrigTrackingxAODCnv_Tau_FTK",
+                        "HLT_tau.*_idperf_.*FTK:key=InDetTrigTrackingxAODCnv_Tau_FTK_IDTrig",
+                        "HLT_tau.*_FTKNoPrec:key=InDetTrigTrackingxAODCnv_Tau_FTK",
+                        "HLT_tau.*_FTKRefit:key=InDetTrigTrackingxAODCnv_Tau_FTKRefit",
+                        "HLT_tau.*_FTKRefit:key=InDetTrigTrackingxAODCnv_Tau_FTKRefit_IDTrig",
+                        #muons 
+                        "HLT_mu.*_idperf_FTK:key=InDetTrigTrackingxAODCnv_Muon_FTK",
+                        "HLT_mu.*_idperf_FTK:key=InDetTrigTrackingxAODCnv_Muon_FTK_IDTrig",
+                        "HLT_mu.*_idperf_FTKRefit:key=InDetTrigTrackingxAODCnv_Muon_FTKRefit",
+                        "HLT_mu.*_idperf_FTKRefit:key=InDetTrigTrackingxAODCnv_Muon_FTKRefit_IDTrig"
 			]
 		ToolSvc += tidaftk;
 		list += [ "TrigTestBase/IDFTKTool" ]

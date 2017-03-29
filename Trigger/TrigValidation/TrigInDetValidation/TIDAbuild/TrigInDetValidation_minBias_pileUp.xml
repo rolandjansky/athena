@@ -11,6 +11,7 @@
 #          include "samples/TrigInDetValidation_minBias_sample1.xml"
            
 
+
      <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -24,18 +25,19 @@
                 </arg>
             </action>
 
+
 	    	    
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
-            <auxFilePattern>expert-monitoring-minBias_pileUp-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"	    
 
 
           <athenaCommonFlags /> 
 	  </athena>
+
 
 
 

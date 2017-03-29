@@ -18,11 +18,12 @@ def TrigIDPhysValMonitoringTool():
     from AthenaCommon.AppMgr import release_metadata
     d = release_metadata()
 
-    def makePhysvalMon(name, pdgid, chainnames, cosmic = False):
+    def makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic = False):
       Monname = "TestIDPhysValMon" + name
       TestIDPhysValMon = TrigTestPhysValMon(name=Monname)
       TestIDPhysValMon.SliceTag = "HLT/IDMon/" + name
       TestIDPhysValMon.OutputLevel = INFO
+      TestIDPhysValMon.UseHighestPT = useHighestPT
 
       try:
         TestIDPhysValMon.EnableLumi = False
@@ -47,8 +48,9 @@ def TrigIDPhysValMonitoringTool():
       else:
         TestIDPhysValMon.mcTruth = False
         TestIDPhysValMon.ntupleChainNames = ['Offline',name]
-        TestIDPhysValMon.sctHitsOffline = 1
-        TestIDPhysValMon.pixHitsOffline = 1
+#       use default values ? 
+#       TestIDPhysValMon.sctHitsOffline = 1
+#       TestIDPhysValMon.pixHitsOffline = 1
 
 
       TestIDPhysValMon.ntupleChainNames += chainnames
@@ -62,26 +64,29 @@ def TrigIDPhysValMonitoringTool():
     ############### Electrons ###############
     name = "Electron"
     pdgid = 11
+    UseHighestPT = True
     chainnames = [
       "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_EFID",
       "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_IDTrig",
       "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_FTF"
     ]
-    outputlist += [makePhysvalMon(name, pdgid, chainnames)]
+    outputlist += [makePhysvalMon(name, pdgid, useHighestPT, chainnames)]
 
     ############### Muons ###############
     name = "Muon"
     pdgid = 13
+    useHighestPT = True
     chainnames = [
       "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_EFID",
       "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_IDTrig",
       "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_FTF"
     ]
-    outputlist += [makePhysvalMon(name, pdgid, chainnames)]
+    outputlist += [makePhysvalMon(name, pdgid, useHighestPT, chainnames)]
 
     ############### Taus ###############
     name = "Tau"
     pdgid = 15
+    useHighestPT = True
     chainnames = [
       "HLT_tau.*idperf.*:InDetTrigTrackingxAODCnv_Tau_EFID",
       "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
@@ -89,11 +94,12 @@ def TrigIDPhysValMonitoringTool():
       "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1",
       "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3"
     ]
-    outputlist += [makePhysvalMon(name, pdgid, chainnames)]
+    outputlist += [makePhysvalMon(name, pdgid, useHighestPT, chainnames)]
 
     ############### Bjets ###############
     name = "Bjet"
     pdgid = 5
+    useHighestPT = False
     chainnames = [
       "HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=TrigSuperRoi",
       "HLT_j.*bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
@@ -104,25 +110,27 @@ def TrigIDPhysValMonitoringTool():
       "HLT_mu.*bperf_dr05:InDetTrigTrackingxAODCnv_Bjet_EFID",
       "HLT_mu.*bperf_dr05:InDetTrigTrackingxAODCnv_Bjet_FTF"
     ]
-    outputlist += [makePhysvalMon(name, pdgid, chainnames)]
+    outputlist += [makePhysvalMon(name, pdgid, useHighestPT, chainnames)]
 
     ############### Bphys ###############
     name = "Bphys"
     pdgid = 0 # Doesn't make sense
+    useHighestPT = False
     chainnames = [
       "HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_IDTrig",
       "HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_FTF"
     ]
-    outputlist += [makePhysvalMon(name, pdgid, chainnames)]
+    outputlist += [makePhysvalMon(name, pdgid, useHighestPT, chainnames)]
 
     ############### Cosmics ###############
     name = "Cosmic"
+    useHighestPT = False
     pdgid = 0 # Not used for cosmic
     chainnames = [
       'HLT_.*id.*cosmic.*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID',
       'HLT_.*id.*cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID'
     ]
-    outputlist += [makePhysvalMon(name, pdgid, chainnames, cosmic=True)]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT, cosmic=True)]
 
 
   return outputlist

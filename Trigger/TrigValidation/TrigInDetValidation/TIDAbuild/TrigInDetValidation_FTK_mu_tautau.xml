@@ -11,6 +11,7 @@
 
 
 
+
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -26,12 +27,13 @@
 
 
 
+
      <action position="02">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
                 <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
+                <argvalue>TIDArun.sh</argvalue> 
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
@@ -40,12 +42,13 @@
             </action>
 
 
+
      <action position="03">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
                 <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
+                <argvalue>TIDArun.sh</argvalue> 
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
@@ -53,33 +56,6 @@
               </arg>
             </action>
 
-
-
-     <action position="04">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDArun.sh</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-muon-FTK.root data-FTK_mu_tautau-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  HLT_mu6_FTK_idperf_InDetTrigTrackingxAODCnv_Muon_FTK HLT_mu24_FTK_idperf_InDetTrigTrackingxAODCnv_Muon_FTK  -d HLTL2-test-plots </argvalue>
-              </arg>
-            </action>
-
-     <action position="05">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDArun.sh</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-muon-FTK.root data-FTK_mu_tautau-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig  HLT_mu6_FTLJ_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig HLT_mu24_FTK_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig  -d HLTEF-test-plots </argvalue>
-              </arg>
-            </action>
 
 
 #	  include "TrigInDetValidation_expertMonitoring.xml"
@@ -94,13 +70,12 @@
             </testToRemove>
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
-	    <auxFilePattern>data-FTK_mu_tautau-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-FTK_mu_tautau-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
 
 	  <athenaCommonFlags />
 	  <alwaysRunPostProc />
 	  </athena>
+
 
 

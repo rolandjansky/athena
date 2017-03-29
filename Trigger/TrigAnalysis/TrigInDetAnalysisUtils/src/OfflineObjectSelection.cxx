@@ -13,7 +13,7 @@ bool TIDA::isGoodOffline(const xAOD::Electron& elec, const unsigned int selectio
   double et = elec.e()*sintheta;
   if ( std::fabs(et)<ETOffline ) return false;
 
-  if ( std::fabs(elec.e())<ETOffline ) return false; 
+  //  if ( std::fabs(elec.e())<ETOffline ) return false; 
   if      (selection == 1) return elec.passSelection("Tight");
   else if (selection == 2) return elec.passSelection("Medium");
   else if (selection == 3) return elec.passSelection("Loose");
@@ -29,22 +29,33 @@ bool TIDA::isGoodOffline(const xAOD::Muon& /*muon*/, double ) { return true; }
 
 // xAOD offline tau selection
 // selection: 0 = take all, 1 = tight, 2 = medium, 3 = loose, any other unsigned int = no JetBDTSig requirement
-bool TIDA::isGoodOffline(const xAOD::TauJet& tau, bool doThreeProng, const unsigned int selection, double EtCutOffline ) {
+bool TIDA::isGoodOffline(const xAOD::TauJet& tau, const unsigned int selection, int requireNtracks, double EtCutOffline ) {
 
-  if ( selection== 0) return true;
+  //  still require the ET threshold and the track multiplicity
+  //  if ( selection==0) return true;
 
   /// hmmm	           
   TLorentzVector TauTLV = tau.p4();
   double        eta_Tau = TauTLV.Eta();
   double         et_Tau = TauTLV.Et();
 
-  if ( std::fabs(eta_Tau)>2.47 )           return false;
+  if ( std::fabs(eta_Tau)>2.47 )        return false;
   if ( std::fabs(et_Tau)<EtCutOffline ) return false;
 
-  int ntrack_Tau = tau.nTracks();
+  //  int ntrack_Tau = tau.nTracks();
 
-  if      ( doThreeProng==false && ntrack_Tau!=1 ) return false;
-  else if ( doThreeProng==true  && ntrack_Tau!=3 ) return false;
+#ifdef XAODTRACKING_TRACKPARTICLE_H
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+  int Ntracks = tau.nTracks();
+  //  std::cout << "SUTT no tau detail " << Ntracks << "\t(isGood)" << std::endl;
+#else
+  int Ntracks=0;
+  tau.detail( xAOD::TauJetParameters::nChargedTracks, Ntracks );
+  //  std::cout << "SUTT tau detail: N " << Ntracks << "\t(isGood)" << std::endl;
+#endif
+#else
+  int Ntracks = tau.numTrack();
+#endif
 
   // Could this selection just be replaced by a string that is passed in? Or an enumerate if the function is needed to be called when incrementing an int for the selection?
   bool good_tau = false;
@@ -54,16 +65,15 @@ bool TIDA::isGoodOffline(const xAOD::TauJet& tau, bool doThreeProng, const unsig
   else if ( selection == 3 ) good_tau = tau.isTau(xAOD::TauJetParameters::JetBDTSigLoose);
   else                       good_tau = true;
 
+  /// instead of a bool to decide on whether 1 or 3 tracks are required, 
+  /// why not just specify the number of tracks ?
+  //  if ( doThreeProng==false && Ntracks!=1 ) return false;
+  //  if ( doThreeProng==true  && Ntracks!=3 ) return false;
+  if ( requireNtracks>0 && Ntracks!=requireNtracks ) return false;
 
   //bool not_a_electron = !( tauisTau(xAOD::TauJetParameters::EleBDTMedium) );
   //bool not_a_muon = !( tauisTau(xAOD::TauJetParameters::MuonVeto) );
   //bool best_tau = good_tau && not_a_electron && not_a_muon;
-
-  //  bool best_tau = good_tau;
-  //  if      (!best_tau) return false;
-  //  else if (best_tau)  return true;
-
-  //  return false; // Safeguard by defaulting to returning false if the rest of the method does not function correctly and this return point is reached
 
   return good_tau;
 }
