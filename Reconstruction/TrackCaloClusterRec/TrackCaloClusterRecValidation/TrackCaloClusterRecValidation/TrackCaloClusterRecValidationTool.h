@@ -62,6 +62,9 @@ private:
     std::string m_dirName;
     float m_maxJetDR;
     float m_maxEta;
+    float m_minPt;
+    float m_minMass;
+    float m_maxMass;
     
     std::string m_folder;
     

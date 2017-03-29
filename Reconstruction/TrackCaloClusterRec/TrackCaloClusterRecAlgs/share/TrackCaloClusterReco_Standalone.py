@@ -6,11 +6,14 @@ from AthenaCommon import CfgMgr
 # "/afs/cern.ch/work/r/rjansky/InputHGTD/AOD.10041718._000164.pool.root.1",
 # "/afs/cern.ch/work/r/rjansky/InputHGTD/AOD.10041718._000312.pool.root.1"]
 
-InputFiles = ["/afs/cern.ch/work/r/rjansky/mc15_13TeV.301267.Pythia8EvtGen_A14NNPDF23LO_Wprime_WZqqqq_m2000.merge.AOD.e3749_s2608_s2183_r8459_r7676/AOD.09378881._000006.pool.root.1"]
-# InputFiles = ["/afs/cern.ch/user/n/ncalace/work/mc15_13TeV/AOD.09378881._000006.pool.root.1"]
+#InputFiles = ["/afs/cern.ch/work/r/rjansky/mc15_13TeV.301267.Pythia8EvtGen_A14NNPDF23LO_Wprime_WZqqqq_m2000.merge.AOD.e3749_s2608_s2183_r8459_r7676/AOD.09378881._000006.pool.root.1"]
+#InputFiles = ["/afs/cern.ch/user/n/ncalace/work/mc15_13TeV/AOD.09378881._000006.pool.root.1"]
 
 svcMgr.EventSelector.InputCollections = InputFiles
-Name = "WprimeWTVA400MeV"
+Name = Sample
+
+#svcMgr.EventSelector.InputCollections = InputFiles
+#Name = "WprimeWTVA400MeV"
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
@@ -122,7 +125,7 @@ topSequence += ParticleToCaloExtrapolation
 
 print ParticleToCaloExtrapolation
 
-theApp.EvtMax = 100
+theApp.EvtMax = -1
 
 ### Jet Stuff
 if 1:

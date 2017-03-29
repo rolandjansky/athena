@@ -79,6 +79,43 @@
     <y title="Entries"/>
   </h>
   
+  
+<!--   m_jet_eta_2leadings -->
+  <h id="jet_eta_2leadings" type="TH1F" title="#eta - 2 leading jets">
+    <x title="#eta" n="200" lo="-5" hi="5"/>
+    <y title="Entries"/>
+  </h>
+  
+<!--   m_jet_phi_2leadings -->
+  <h id="jet_phi_2leadings" type="TH1F" title="#phi - 2 leadings jets">
+    <x title="#phi" n="160" lo="-4" hi="4"/>
+    <y title="Entries"/>
+  </h> 
+  
+  <!--   m_jet_eta_leading -->
+  <h id="jet_eta_leading" type="TH1F" title="#eta - leading jets">
+    <x title="#eta" n="200" lo="-5" hi="5"/>
+    <y title="Entries"/>
+  </h>
+  
+<!--   m_jet_phi_leading -->
+  <h id="jet_phi_leading" type="TH1F" title="#phi - leading jets">
+    <x title="#phi" n="160" lo="-4" hi="4"/>
+    <y title="Entries"/>
+  </h> 
+  
+  <!--   m_jet_eta_subleading -->
+  <h id="jet_eta_subleading" type="TH1F" title="#eta - subleading jets">
+    <x title="#eta" n="200" lo="-5" hi="5"/>
+    <y title="Entries"/>
+  </h>
+  
+<!--   m_jet_phi_subleading -->
+  <h id="jet_phi_subleading" type="TH1F" title="#phi - subleading jets">
+    <x title="#phi" n="160" lo="-4" hi="4"/>
+    <y title="Entries"/>
+  </h> 
+  
 <!--   m_jet_deltaR -->
   <h id="jet_deltaR" type="TH1F" title="#DeltaR">
     <x title="#DeltaR" n="100" lo="0." hi="1."/>
@@ -103,6 +140,18 @@
     <y title="Entries"/>
   </h> 
   
+<!-- m_jet_response_eta -->
+  <h id="jet_response_eta" type="TH1F" title="#eta response - all jets">
+    <x title="#eta response" n="500" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h> 
+
+<!-- m_jet_response_phi -->
+  <h id="jet_response_phi" type="TH1F" title="#phi response - all jets">
+    <x title="#phi response" n="500" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h> 
+  
 <!-- m_jet_response_m_2leadings -->
   <h id="jet_response_m_2leadings" type="TH1F" title="Mass response - 2 leading jets">
     <x title="Mass response" n="500" lo="0." hi="5."/>
@@ -112,6 +161,18 @@
 <!-- m_jet_response_pt_2leadings -->
   <h id="jet_response_pt_2leadings" type="TH1F" title="p_{T} response - 2 leading jets">
     <x title="p_{T} response" n="500" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h> 
+  
+<!-- m_jet_response_eta_2leadings -->
+  <h id="jet_response_eta_2leadings" type="TH1F" title="#eta response - 2 leading jets">
+    <x title="#eta response" n="500" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h> 
+
+<!-- m_jet_response_phi_2leadings -->
+  <h id="jet_response_phi_2leadings" type="TH1F" title="#phi response - 2 leading jets">
+    <x title="#phi response" n="500" lo="0." hi="5."/>
     <y title="Entries"/>
   </h> 
 
@@ -124,6 +185,18 @@
 <!-- m_jet_response_pt_leading -->
   <h id="jet_response_pt_leading" type="TH1F" title="p_{T} response - leading jet">
     <x title="p_{T} response" n="500" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h> 
+  
+<!-- m_jet_response_eta_leading -->
+  <h id="jet_response_eta_leading" type="TH1F" title="#eta response - leading jet">
+    <x title="#eta response" n="500" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h> 
+
+<!-- m_jet_response_phi_leading -->
+  <h id="jet_response_phi_leading" type="TH1F" title="#phi response - leading jet">
+    <x title="#phi response" n="500" lo="0." hi="5."/>
     <y title="Entries"/>
   </h> 
 
@@ -139,7 +212,19 @@
     <y title="Entries"/>
   </h> 
   
-  <!-- m_jet_pseudoresponse_m -->
+<!-- m_jet_response_eta_subleading -->
+  <h id="jet_response_eta_subleading" type="TH1F" title="#eta response - subleading jet">
+    <x title="#eta response" n="500" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h> 
+
+<!-- m_jet_response_phi_subleading -->
+  <h id="jet_response_phi_subleading" type="TH1F" title="#phi response - subleading jet">
+    <x title="#phi response" n="500" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h> 
+  
+<!-- m_jet_pseudoresponse_m -->
   <h id="jet_pseudoresponse_m" type="TH1F" title="Mass pseudo response - all jets">
     <x title="Mass pseudoresponse" n="500" lo="0." hi="5."/>
     <y title="Entries"/>
@@ -206,7 +291,7 @@
   </h> 
 
 <!-- m_jet_d2_subleading -->
-  <h id="jet_d2_subleading" type="TH1F" title="Mass response leading jet">
+  <h id="jet_d2_subleading" type="TH1F" title="D_{2} - subleading jet">
     <x title="D_{2}" n="2500" lo="0." hi="50."/>
     <y title="Entries"/>
   </h> 
@@ -224,7 +309,7 @@
   </h> 
   
 <!-- m_jet_d2_leading_massCut -->
-  <h id="jet_d2_leading_massCut" type="TH1F" title="D_{2} after mass cut - leading jet - mass cut">
+  <h id="jet_d2_leading_massCut" type="TH1F" title="D_{2} after mass cut - leading jet">
     <x title="D_{2}" n="2500" lo="0." hi="50."/>
     <y title="Entries"/>
   </h> 
@@ -234,6 +319,30 @@
     <x title="D_{2}" n="2500" lo="0." hi="50."/>
     <y title="Entries"/>
   </h>
+  
+  <!-- m_jet_response_d2 -->
+  <h id="jet_response_d2" type="TH1F" title="D_{2} response - all jets">
+    <x title="D_{2} response" n="500" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h> 
+  
+<!-- m_jet_response_d2_2leadings -->
+  <h id="jet_response_d2_2leadings" type="TH1F" title="D_{2} response - 2 leading jets">
+    <x title="D_{2} response" n="500" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h> 
+  
+<!-- m_jet_response_d2_leading -->
+  <h id="jet_response_d2_leading" type="TH1F" title="D_{2} response - leading jet">
+    <x title="D_{2} response" n="500" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h> 
+
+<!-- m_jet_response_d2_subleading -->
+  <h id="jet_response_d2_subleading" type="TH1F" title="D_{2} response - subleading jet">
+    <x title="D_{2} response" n="500" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h> 
 
 </hdef>
 

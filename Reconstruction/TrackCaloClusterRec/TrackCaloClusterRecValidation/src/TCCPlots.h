@@ -20,21 +20,25 @@ public:
   void fill(const xAOD::Jet& jet);
   void fill(const xAOD::Jet& jet, const xAOD::Jet& truth);
   
+  void fillLeading(const xAOD::Jet& jet);
+  void fillSubLeading(const xAOD::Jet& jet);
+  
   void fillResponse(const xAOD::Jet& jet, const xAOD::Jet& truth);
+  void fillResponseLeading(const xAOD::Jet& jet, const xAOD::Jet& truth);
+  void fillResponseSubLeading(const xAOD::Jet& jet, const xAOD::Jet& truth);
+  
   void fillPseudoResponse(const xAOD::Jet& jet, const xAOD::Jet& calo);
-  
+  void fillPseudoResponseLeading(const xAOD::Jet& jet, const xAOD::Jet& calo);
+  void fillPseudoResponseSubLeading(const xAOD::Jet& jet, const xAOD::Jet& calo);
+    
   void fillMoments(const xAOD::Jet& jet);
-  void fillMoments(const xAOD::Jet& jet, const xAOD::Jet& calo);
-  
-  void fill2Leadings(std::vector<const xAOD::Jet*>& jets, std::vector<const xAOD::Jet*>& truths);
-  
-  void fillMoments2Leadings(std::vector<const xAOD::Jet*>& jets, std::vector<const xAOD::Jet*>& calo);
-  void fillPseudoResponse2Leadings(std::vector<const xAOD::Jet*>& jets, std::vector<const xAOD::Jet*>& calo);
+  void fillMomentsLeading(const xAOD::Jet& jet);
+  void fillMomentsSubLeading(const xAOD::Jet& jet);
+  void fillMomentsWithMassCut(const xAOD::Jet& jet);
+  void fillMomentsLeadingWithMassCut(const xAOD::Jet& jet);
+  void fillMomentsSubLeadingWithMassCut(const xAOD::Jet& jet);
 
-private:
-  double m_minMass;
-  double m_maxMass;
-  
+private:  
   TH1* m_jet_n                             ;
   TH1* m_jet_pt                            ;
   TH1* m_jet_eta                           ;
@@ -42,27 +46,42 @@ private:
   TH1* m_jet_m                             ;
   
   TH1* m_jet_m_2leadings                   ;
-  TH1* m_jet_m_leading                     ;
-  TH1* m_jet_m_subleading                  ;
-  
   TH1* m_jet_pt_2leadings                  ;
+  TH1* m_jet_eta_2leadings                 ;
+  TH1* m_jet_phi_2leadings                 ;
+  
+  TH1* m_jet_m_leading                     ;
   TH1* m_jet_pt_leading                    ;
+  TH1* m_jet_eta_leading                   ;
+  TH1* m_jet_phi_leading                   ;
+  
+  TH1* m_jet_m_subleading                  ;
   TH1* m_jet_pt_subleading                 ;
+  TH1* m_jet_eta_subleading                ;
+  TH1* m_jet_phi_subleading                ;
   
   TH1* m_jet_deltaR                        ;
   TH1* m_jet_deltaR_matched                ;
   
   TH1* m_jet_response_m                    ;
   TH1* m_jet_response_pt                   ;
+  TH1* m_jet_response_eta                  ;
+  TH1* m_jet_response_phi                  ;
   
   TH1* m_jet_response_m_2leadings          ;
   TH1* m_jet_response_pt_2leadings         ;
+  TH1* m_jet_response_eta_2leadings        ;
+  TH1* m_jet_response_phi_2leadings        ;
   
   TH1* m_jet_response_m_leading            ;
   TH1* m_jet_response_pt_leading           ;
+  TH1* m_jet_response_eta_leading          ;
+  TH1* m_jet_response_phi_leading          ;
   
   TH1* m_jet_response_m_subleading         ;
   TH1* m_jet_response_pt_subleading        ;
+  TH1* m_jet_response_eta_subleading       ;
+  TH1* m_jet_response_phi_subleading       ;
   
   TH1* m_jet_pseudoresponse_m              ;
   TH1* m_jet_pseudoresponse_pt             ;
@@ -86,6 +105,10 @@ private:
   TH1* m_jet_d2_leading_massCut            ;
   TH1* m_jet_d2_subleading_massCut         ;
   
+  TH1* m_jet_response_d2                   ;
+  TH1* m_jet_response_d2_2leadings         ;
+  TH1* m_jet_response_d2_leading           ;
+  TH1* m_jet_response_d2_subleading        ;  
    
   // plot base has nop default implementation of this; we use it to book the histos
   void initializePlots();
