@@ -10,9 +10,7 @@
 """
 
 __author__ = "Jiri Masik"
-__version__= "$Revision: 1.6 $"
 __doc__    = "InDetTrigSliceSettings"
-
 __all__    = [ "InDetTrigSliceSettings" ]
 
 class InDetTrigSliceSettingsDB:
