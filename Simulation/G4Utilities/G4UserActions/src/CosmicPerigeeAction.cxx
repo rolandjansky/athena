@@ -31,7 +31,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   void CosmicPerigeeAction::beginOfEvent(const G4Event*)
   {
-#ifdef ATHENAHIVE
+#ifdef G4MULTITHREADED
     // Temporary fix for Hive until isValid is fixed
     m_trackRecordCollection = CxxUtils::make_unique<TrackRecordCollection>(m_trackRecordCollection.name());
 #else

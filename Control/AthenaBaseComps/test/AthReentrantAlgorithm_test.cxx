@@ -101,9 +101,7 @@ void test1 (ISvcLocator* svcLoc)
     assert (alg.outputs[i]->objKey() == outputKeys[i]);
 
   IProxyDict* xdict = &*alg.evtStore();
-#ifdef ATHENAHIVE
   xdict = alg.evtStore()->hiveProxyDict();
-#endif
   EventContext ctx;
   ctx.setProxy (xdict);
   Gaudi::Hive::setCurrentContext (ctx);
