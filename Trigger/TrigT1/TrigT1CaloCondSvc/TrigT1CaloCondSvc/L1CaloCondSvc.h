@@ -4,6 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #ifndef TRIGT1CALOCONDSVC_L1CALOCONDSVC_H
 #define TRIGT1CALOCONDSVC_L1CALOCONDSVC_H
 
