@@ -24,7 +24,7 @@ formatter = logging.Formatter('%(levelname)-8s %(message)s')
 console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
-def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False):
+def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False, trigConfig="2017"):
     q=qtest
     if q == 'q431' and doR2A:
         extraArg += " --steering='doRAWtoALL'"
@@ -33,6 +33,9 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False
             extraArg += " --geometryVersion all:ATLAS-R2-2015-04-00-00 --conditionsTag all:CONDBR2-BLKPA-2016-11 "
         elif q == 'q221':
             extraArg += " --conditionsTag all:OFLCOND-RUN12-SDR-25 "
+
+    if trigConfig == "2016":
+        extraArg += "--preExec \"all:from TriggerJobOpts.TriggerFlags import TriggerFlags as TF;TF.run2Config='2016'\""
 
     logging.info("Running clean in rel "+release+" \"Reco_tf.py --AMI "+q+" "+extraArg+"\"")
     #Check if CleanRunHead directory exists if not exist with a warning 
@@ -44,7 +47,7 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False
     logging.info("Finished clean \"Reco_tf.py --AMI "+q+"\"")
     pass
 
-def RunPatchedQTest(qtest,pwd,release,theTestArea,extraArg, doR2A=False):
+def RunPatchedQTest(qtest,pwd,release,theTestArea,extraArg, doR2A=False, trigConfig="2017"):
     q=qtest
     if q == 'q431' and doR2A:
         extraArg += " --steering='doRAWtoALL'"
@@ -53,6 +56,10 @@ def RunPatchedQTest(qtest,pwd,release,theTestArea,extraArg, doR2A=False):
             extraArg += " --geometryVersion all:ATLAS-R2-2015-04-00-00 --conditionsTag all:CONDBR2-BLKPA-2016-11 "
         elif q == 'q221':
             extraArg += " --conditionsTag all:OFLCOND-RUN12-SDR-25 "
+
+    if trigConfig == "2016":
+        extraArg += "--preExec \"all:from TriggerJobOpts.TriggerFlags import TriggerFlags as TF;TF.run2Config='2016'\""
+
 
     logging.info("Running patched in rel "+release+" \"Reco_tf.py --AMI "+q+" "+extraArg+"\"")
 
@@ -359,6 +366,7 @@ def main():
     parser.add_option("-c","--cleanDir"     ,type="string"       ,dest="cleanDir"        ,default="/tmp/"    ,help="specify the head directory for running the clean Tier0 tests. The default is /tmp/${USER}")
     parser.add_option("-r","--ref"     ,type="string"        ,dest="ref"   ,default=None    ,help="define a particular reference release")
     parser.add_option("-v","--val"     ,type="string"        ,dest="val"   ,default=None    ,help="define a particular validation release")
+    parser.add_option("-t","--trigRun2Config", type="string", dest="trigRun2Config_flag", default="2017"       ,help="specify the value of run2Config variable used by trigger. Allowed values are \"2016\" and \"2017\" (default)")
 
     (options,args)=parser.parse_args()
 
@@ -371,10 +379,18 @@ def main():
     RunFast = options.fast_flag
     CleanRunHeadDir=options.cleanDir
     r2aMode = options.r2a_flag
+    trigRun2Config = options.trigRun2Config_flag    
 
-#        tct_ESD = "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/tct/"+latest_nightly+"/"+release+"/"+platform+"/offline/Tier0ChainTests/"+q+"/myESD.pool.root"                                                       
-    
-    
+#        tct_ESD = "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/tct/"+latest_nightly+"/"+release+"/"+platform+"/offline/Tier0ChainTests/"+q+"/myESD.pool.root"          
+
+########### Is TriggerFlags.run2Config defined properly?
+    if trigRun2Config != "2016" and trigRun2Config != "2017":
+        logging.info("")
+        logging.info("Exit. The value of trigRun2Config can be \"2016\" or \"2017\"")
+        logging.info("")
+        sys.exit(0)
+        
+
 ########### Does the clean run head directory exist?
     if str(CleanRunHeadDir) == "/tmp/":
         myUser = os.environ['USER']
@@ -415,8 +431,6 @@ def main():
         if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' in os.environ:
             logging.info("Please be aware that you are running in a base release rather than a Tier0 release, where in general q-tests are not guaranteed to work.")
 
-            
-        
 
 ########### Define which q-tests to run
 
@@ -461,11 +475,11 @@ def main():
                 q=str(qtest)
 
                 def mycleanqtest():
-                    RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName, doR2A=r2aMode)
+                    RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName, doR2A=r2aMode, trigConfig=trigRun2Config)
                     pass
-    
+
                 def mypatchedqtest():
-                    RunPatchedQTest(q,mypwd,mysetup,myTestArea,extraArg, doR2A=r2aMode)
+                    RunPatchedQTest(q,mypwd,mysetup,myTestArea,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
                     pass
             
                 mythreads[q+"_clean"]   = threading.Thread(target=mycleanqtest)
@@ -481,11 +495,11 @@ def main():
                 q=str(qtest)
 
                 def mycleanqtest():
-                    RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
+                    RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName,trigConfig=trigRun2Config)
                     pass
                 
                 def mypatchedqtest():
-                    RunPatchedQTest(q,mypwd,mysetup,myTestArea,extraArg)
+                    RunPatchedQTest(q,mypwd,mysetup,myTestArea,extraArg,trigConfig=trigRun2Config)
                     pass
 
                 mythreads[q+"_clean"]   = threading.Thread(target=mycleanqtest)
