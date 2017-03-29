@@ -92,7 +92,7 @@ pars = dal.VariableSet('%s-Parameters' % prefix,
                                                  Description='%s release version' % prefix) ])
 
 apps = [
-    dal.Script('HLTMPPU_asetup',
+    dal.Binary('HLTMPPU_asetup',
                BinaryName='asetup_wrapper',
                Description='HLTMPPU_main with asetup environment',
                DefaultParameters='HLTMPPU_main',
