@@ -33,10 +33,11 @@ def generateChainDefs(chainDict):
 
     # OI - this is really should be managed in RunTier0Tests and not here!! 
     menu_name = TriggerFlags.triggerMenuSetup()
-    if 'MC_pp_v6' in menu_name and TriggerFlags.run2Config!='2016' and log.bphysTrigWarning :
+    if 'MC_pp_v6' in menu_name and TriggerFlags.run2Config!='2016' :
         log.warning(menu_name+" is used with run2Config = "+str(TriggerFlags.run2Config)+" will use Bphys trigger config for 2016!!")
         thisIsBphysChain = False
-        log.bphysTrigWarning = False
+        if log.bphysTrigWarning :
+            log.bphysTrigWarning = False
 
     elif log.bphysTrigWarning :
         log.bphysTrigWarning = False
@@ -145,6 +146,7 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         L2TEname = "L2_" + TEname+'_'+mtopo+'_tsf_'+chainDict['L1item']
         topo2StartFrom = L2TEname
 
+
     chainParts = chainDict['chainParts']
 
     fexNameExt,trkmuons, mult  = getBphysThresholds(chainDict)
@@ -243,6 +245,7 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
 
     elif (mtopo == 'bTau'):
 
+        
         from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_trkTau
         from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Tau3
         from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Tau2
@@ -268,6 +271,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
             EFHypo = EFMultiMuHypo_2700("EFMultiMuHypo_Tau3")
             EFHypo.bphysCollectionKey = "EFMultiMuFex"
 
+
+            
     elif (mtopo == 'trkTau'):  # no EF muon hypo
 
         from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_trkTau
@@ -415,10 +420,15 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
 
     else:
         log.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], mtopo ))
-   
+
+        
     if  L2Fex != None :
         theChainDef.addSequence([L2Fex, L2Hypo], inputTEsL2, L2TEname, topo_start_from = topoStartFrom)
         theChainDef.addSignatureL2([L2TEname])
+    else :
+        # that is to make sure that L1 topo seed is not give to EF-only chains..
+        topo2StartFrom = None
+        
     if EFHypo != None :
         theChainDef.addSequence([EFFex, EFHypo],inputTEsEF, EFTEname, topo_start_from=topo2StartFrom)
     else :
@@ -899,6 +909,8 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
     if L2Fex != None :
         theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2TEname, topo_start_from = topoStartFrom)
         theChainDef.addSignatureL2([L2TEname])
+    else :
+        topo2StartFrom = None
  
     theChainDef.addSequence([EFFex, EFHypo],inputTEsEF, EFTEname, topo_start_from = topo2StartFrom)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])       
