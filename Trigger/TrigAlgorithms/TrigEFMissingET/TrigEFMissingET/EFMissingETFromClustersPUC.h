@@ -5,6 +5,8 @@
 #ifndef TRIGEFMISSINGET_EFMissingETFromClustersPUC_H
 #define TRIGEFMISSINGET_EFMissingETFromClustersPUC_H
 
+
+
 /********************************************************************
 
 NAME:     EFMissingETFromClustersPUC.h
@@ -30,13 +32,13 @@ class EFMissingETFromClustersPUC : public EFMissingETBaseTool
 {
   public:
 
-    EFMissingETFromClustersPUC(const std::string& type,
-        const std::string& name,
+    EFMissingETFromClustersPUC(const std::string& type, 
+        const std::string& name, 
         const IInterface* parent);
 
     ~EFMissingETFromClustersPUC();
 
-    virtual StatusCode initialize();
+    virtual StatusCode initialize(); 
     virtual StatusCode finalize();
     virtual StatusCode execute();
 
@@ -54,14 +56,17 @@ class EFMissingETFromClustersPUC : public EFMissingETBaseTool
 
     // Configurables of pile-up fit
     bool  m_subtractpileup;
+    bool  m_use2016algo;
     double m_towerwidthinput;
     double m_etarange; //the eta range (-m_etarange,+m_etarange) over which towers are defined
     //    double m_ptmin; //the tower Et threshold
     double m_aveecluspu; //a parameter (in MeV) that determines the variance assigned to masked-off regions
     double m_rese; //the resolution (in units of sqrt(MeV))
+    double m_resefloor; //the resolution floor (in units of MeV)
     double m_nsigma; //tower ET significance
     double m_varrhoscale; //adjustment factor for weighting rho errors in fit
-
+    double m_trimfactor; //Fraction of towers used in calculating trimmed mean
+      
     int m_nphibins;
     int m_netabins;
     int m_ntowers;

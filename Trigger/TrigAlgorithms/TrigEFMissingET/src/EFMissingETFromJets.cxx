@@ -23,6 +23,8 @@ PURPOSE:  Updates TrigMissingETHelper using info from jets
 //#include "FourMomUtils/P4DescendingSorters.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/Jet.h"
+#include "CaloGeoHelpers/CaloSampling.h"
+#include "xAODJet/JetAccessorMap.h"
 
 #include "EventKernel/ISignalState.h"
 #include "EventKernel/SignalStateHelper.h"
@@ -39,6 +41,7 @@ EFMissingETFromJets::EFMissingETFromJets(const std::string& type,
   declareProperty("EtaSeparation", m_etacut = 2.2 ,"Cut to split into forward and central jets -- needs to be positive");
   declareProperty("CentralpTCut", m_central_ptcut = 0.0 ,"pT Cut for central jets");
   declareProperty("ForwardpTCut", m_forward_ptcut = 0.0 ,"pT Cut for forward jets");
+  declareProperty("ApplyTileGap3Correction", m_applyTileGap3Correction = false);
   // declare configurables
 
   m_fextype = FexType::JET; m_etacut = fabs(m_etacut);
@@ -121,36 +124,49 @@ StatusCode EFMissingETFromJets::execute(xAOD::TrigMissingET *,
 
   for (const xAOD::Jet* aJet : MHTJetsVec) {
 
+    TLorentzVector p4 = aJet->p4();
+    float scale = 1.;
+    if (m_applyTileGap3Correction) {
+      // get the uncalibrated energy and tile gap 3 fractions
+      static xAOD::JetAttributeAccessor::AccessorWrapper< std::vector<float> >& acc_ePerSample =
+        *xAOD::JetAttributeAccessor::accessor< std::vector<float> >(xAOD::JetAttribute::EnergyPerSampling);
+      static xAOD::JetAttributeAccessor::AccessorWrapper<xAOD::JetFourMom_t> acc_uncalibrated("JetConstitScaleMomentum");
+      const std::vector<float>& eInSampling = acc_ePerSample.getAttribute(*aJet);
+      float e_tileGap3 = eInSampling.at(CaloSampling::TileGap3);
+      scale = 1 - e_tileGap3/acc_uncalibrated.getAttribute(*aJet).E();
+    }
+    p4*=scale;
+
     if(i == 0) {
 
-          metComp->m_ex -= aJet->px();
-          metComp->m_ey -= aJet->py();
-          metComp->m_ez -= aJet->pz();
-          metComp->m_sumEt += aJet->pt();
-          metComp->m_sumE  += aJet->e();
+          metComp->m_ex -= p4.Px();
+          metComp->m_ey -= p4.Py();
+          metComp->m_ez -= p4.Pz();
+          metComp->m_sumEt += p4.Pt();
+          metComp->m_sumE  += p4.E();
           metComp->m_usedChannels += 1;
-          metComp->m_sumOfSigns += static_cast<short int>(floor(copysign(1.0,aJet->pt())+0.5));
+          metComp->m_sumOfSigns += static_cast<short int>(floor(copysign(1.0,p4.Pt())+0.5));
 
 
     } else if (i > 0) {
 
-       float eta = aJet->eta(); float ptCut = 0.;
+       float eta = p4.Eta(); float ptCut = 0.;
 
        // Set pT cut depending on region
        if(i == 1 || i == 2) ptCut = m_central_ptcut;
         else ptCut = m_forward_ptcut;
 
        // only sum jets that have a pt above the cut value
-       if(aJet->pt() < ptCut) continue;
+       if(p4.Pt() < ptCut) continue;
 
        if( eta >= lowerlim[i-1] && eta <= upperlim[i-1]) {
-          metComp->m_ex -= aJet->px();
-          metComp->m_ey -= aJet->py();
-          metComp->m_ez -= aJet->pz();
-          metComp->m_sumEt += aJet->pt();
-          metComp->m_sumE  += aJet->e();
+          metComp->m_ex -= p4.Px();
+          metComp->m_ey -= p4.Py();
+          metComp->m_ez -= p4.Pz();
+          metComp->m_sumEt += p4.Pt();
+          metComp->m_sumE  += p4.E();
           metComp->m_usedChannels += 1;
-          metComp->m_sumOfSigns += static_cast<short int>(floor(copysign(1.0,aJet->pt())+0.5));
+          metComp->m_sumOfSigns += static_cast<short int>(floor(copysign(1.0,p4.Pt())+0.5));
        }
 
      }

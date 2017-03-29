@@ -51,6 +51,7 @@ class EFMissingETFromJets : public EFMissingETBaseTool
     float m_etacut;
     float m_forward_ptcut, m_central_ptcut;
     int  m_methelperposition;
+    bool m_applyTileGap3Correction;
 
 };
 
