@@ -462,7 +462,7 @@ namespace Trk
     Amg::VectorX F_fac_vec(m_dim); F_fac_vec.setZero();
 
     const Amg::Vector3D * globalPosition = &(firstStartingPoint);
-    ATH_MSG_DEBUG("globalPosition of starting point: " << globalPosition[0] << ", " << globalPosition[1] << ", " << globalPosition[2]);
+    ATH_MSG_DEBUG("globalPosition of starting point: " << (*globalPosition)[0] << ", " << (*globalPosition)[1] << ", " << (*globalPosition)[2]);
     if (globalPosition->perp() > m_maxR && globalPosition->z() > m_maxZ) return 0;
 
 // magnetic field  
