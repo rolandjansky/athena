@@ -244,7 +244,7 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
   if(use2Layers) ATH_MSG_DEBUG("use 2-layer segment finding for this chamber");
 
   for ( CscPrepDataCollection::const_iterator iclu=clus.begin(); iclu!=clus.end(); ++iclu ) {
-    CscPrepData* pclu = *iclu;
+    const CscPrepData* pclu = *iclu;
     Identifier id = pclu->identify();
     int station = m_phelper->stationName(id) - 49;
     int eta = m_phelper->stationEta(id);

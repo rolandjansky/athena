@@ -134,7 +134,7 @@ Csc4dSegmentMaker::find( const MuonSegmentCombinationCollection& segcols) const
 
   for ( MuonSegmentCombinationCollection::const_iterator icom=segcols.begin();
         icom!=segcols.end(); ++icom ) {
-    MuonSegmentCombination& insegs = **icom;
+    const MuonSegmentCombination& insegs = **icom;
 
     int nsta = insegs.numberOfStations();
     if ( nsta != 2 ) { // This can be happened if segment is not made at all in case of two hit layers !!

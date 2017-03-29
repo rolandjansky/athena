@@ -68,7 +68,7 @@ public:
                               const Amg::Vector3D& lpos000) const;
 
   Muon::MuonSegmentCombination*
-  get4dMuonSegmentCombination(Muon::MuonSegmentCombination* Muon2dSegComb) const;  
+  get4dMuonSegmentCombination(const Muon::MuonSegmentCombination* Muon2dSegComb) const;  
 
   //get2dMuonSegmentCombination : get2dSegments does
   //  -> (1) find_2dsegments (2) find_2dseg3hit (3) add_2dsegments
