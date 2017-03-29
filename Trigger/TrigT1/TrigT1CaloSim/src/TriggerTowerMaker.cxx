@@ -35,9 +35,6 @@
 #include "PathResolver/PathResolver.h"
 #include <sys/types.h>
 
-// Pedestal Correction
-#include "GaudiKernel/ITHistSvc.h"
-
 #include <numeric>
 
 namespace LVL1 {
@@ -75,8 +72,7 @@ TriggerTowerMaker::TriggerTowerMaker( const std::string& name, ISvcLocator* pSvc
     m_TTContainer(0),
     m_ADCContainer(0), 
     m_elementFir(true),
-    m_correctFir(true), // Pedestal Correction
-    m_thistSvc("THistSvc", name) 
+    m_correctFir(true)
 {
  
   declareProperty("RndmSvc", m_rndGenSvc, "Random number service");
