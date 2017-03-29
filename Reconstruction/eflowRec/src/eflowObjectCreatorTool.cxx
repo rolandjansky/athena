@@ -47,7 +47,7 @@ eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const st
     m_chargedPFOContainer(0),
     m_neutralPFOContainer(0),
     m_neutralPFOContainer_nonModified(0),
-    m_eOverPMode(true),
+    m_eOverPMode(false),
     m_goldenModeString(""),
     m_debug(0),
     m_LCMode(false),
@@ -220,9 +220,6 @@ void eflowObjectCreatorTool::createChargedEflowObjects(eflowCaloObject* energyFl
     
     std::pair<double,double> etaPhi(0.0,0.0);
     
-    std::vector<int> vector_test = {1, 3, 5, 7};
-        
-    myEflowObject->setLayer(vector_test);
       
 
     if (m_eOverPMode){
@@ -230,9 +227,9 @@ void eflowObjectCreatorTool::createChargedEflowObjects(eflowCaloObject* energyFl
        * (needed for analysis of EOverP Data) */
         etaPhi = efRecTrack->getTrackCaloPoints().getEM2etaPhi();
         
-//         std::vector<int> vector_test = {1, 3, 5, 7};
-//         
-//         myEflowObject->setLayer(vector_test);
+        std::vector<int> vector_test = {1, 3, 5, 7};
+        
+        myEflowObject->setLayer(vector_test);
       
         //add information to xAOD
         xAOD::PFODetails::PFOAttributes myAttribute_layerHED = xAOD::PFODetails::PFOAttributes::eflowRec_layerHED;
