@@ -5703,10 +5703,15 @@ void test2_partition()
 template <class D>
 void test2_asdatavector()
 {
-  ConstDataVector<DataVector<D> > cv;
+  typedef ConstDataVector<DataVector<D> > cdv_t;
+  cdv_t cv;
   cv.push_back (new D(1));
   const DataVector<D>* dv = cv.asDataVector();
   myassert (dv->size() == 1);
+
+  myassert (cdv_t::fromDataVector (dv) == &cv);
+  DataVector<D> dv2;
+  myassert (cdv_t::fromDataVector (&dv2) == nullptr);
 }
 
 
