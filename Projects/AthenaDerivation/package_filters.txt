@@ -1,0 +1,232 @@
+#
+# Package filtering rules for the AthenaDerivation project build.
+#
+
+# Pick up a few packages from the External directory:
++ External/AtlasDataArea
++ External/pyAMI
++ External/AtlasPyFwdBwdPorts
+
+# Testing package(s):
++ AtlasTest/TestTools
+
+# Calorimeter package(s):
++ Calorimeter/CaloClusterCorrection
++ Calorimeter/CaloCondBlobObjs
++ Calorimeter/CaloConditions
++ Calorimeter/CaloDetDescr
++ Calorimeter/CaloEvent
++ Calorimeter/CaloGeoHelpers
++ Calorimeter/CaloIdentifier
++ Calorimeter/CaloInterface
++ Calorimeter/CaloRec
++ Calorimeter/CaloUtils
+
++ Commission/CommissionEvent
+
++ Control/AthAllocators
++ Control/AthAnalysisBaseComps
++ Control/AthContainersInterfaces
++ Control/AthContainers
++ Control/AthLinks
++ Control/AthenaBaseComps
++ Control/AthenaKernel
++ Control/AthToolSupport/.*
++ Control/CLIDComps
++ Control/CLIDSvc
++ Control/CxxUtils
++ Control/DataModel.*
++ Control/IOVSvc
++ Control/Navigation
++ Control/RootUtils
++ Control/SG.*
++ Control/StoreGate.*
++ Control/xAODRootAccess.*
+
++ Database/APR/.*
++ Database/AthenaPOOL/.*
++ Database/ConnectionManagement/.*
++ Database/CoraCool
++ Database/IOVDb.*
++ Database/PersistentDataModel.*
++ Database/RegistrationServices
++ Database/TPTools
+
++ DataQuality/GoodRunsLists
+
++ DetectorDescription/AGDD/AGDDKernel
++ DetectorDescription/AGDD/AGDDModel
++ DetectorDescription/AtlasDetDescr
++ DetectorDescription/DetDescrCnvSvc
++ DetectorDescription/DetDescrCond/DetDescrCond.*
++ DetectorDescription/DetDescrCond/DetectorStatus
++ DetectorDescription/GeoModel/GeoModelInterfaces
++ DetectorDescription/GeoModel/GeoModelKernel
++ DetectorDescription/GeoModel/GeoModelUtilities
++ DetectorDescription/GeoPrimitives
++ DetectorDescription/IdDict.*
++ DetectorDescription/Identifier
++ DetectorDescription/IRegionSelector
++ DetectorDescription/RoiDescriptor
+
++ Event/ByteStreamData
++ Event/EventBookkeeper.*
++ Event/EventCommonAthenaPool
++ Event/EventCommonTPCnv
++ Event/EventContainers
++ Event/EventInfo.*
++ Event/EventKernel
++ Event/EventPrimitives
++ Event/FourMom.*
++ Event/NavFourMom
++ Event/xAOD/xAODCoreCnv
++ Event/xAOD/xAODMetaDataCnv
++ Event/xAOD/xAODTrackingCnv
++ Event/xAOD/xAODTriggerCnv
++ Event/xAOD/xAODTruthCnv
+- Event/xAOD/xAOD.*Cnv
++ Event/xAOD/.*
+
++ Generators/GeneratorObjects.*
++ Generators/HepMCWeightSvc
++ Generators/TruthUtils
+
++ InnerDetector/InDetConditions/InDetByteStreamErrors
++ InnerDetector/InDetConditions/InDetCondServices
++ InnerDetector/InDetConditions/InDetConditionsSummaryService
++ InnerDetector/InDetConditions/InDetCoolCoralClientUtils
++ InnerDetector/InDetConditions/TRT_ConditionsData
++ InnerDetector/InDetConditions/TRT_ConditionsServices
++ InnerDetector/InDetDetDescr/InDetIdentifier
++ InnerDetector/InDetDetDescr/InDetReadoutGeometry
++ InnerDetector/InDetDetDescr/SCT_Cabling
++ InnerDetector/InDetRecEvent/InDetPrepRawData
++ InnerDetector/InDetRecEvent/InDetRIO_OnTrack
++ InnerDetector/InDetRecEvent/SiSpacePointSeed
++ InnerDetector/InDetRecTools/InDetConversionFinderTools
++ InnerDetector/InDetRecTools/InDetRecToolInterfaces
++ InnerDetector/InDetRecTools/InDetTrackSelectionTool
++ InnerDetector/InDetRecTools/TrackVertexAssociationTool
+
++ LArCalorimeter/LArCabling
++ LArCalorimeter/LArElecCalib
++ LArCalorimeter/LArGeoModel/LArHV
++ LArCalorimeter/LArGeoModel/LArReadoutGeometry
++ LArCalorimeter/LArIdentifier
++ LArCalorimeter/LArRecConditions
++ LArCalorimeter/LArRecEvent
++ LArCalorimeter/LArTools
+
++ MagneticField/.*
+
++ MuonSpectrometer/MuonAlignment/MuonAlignmentData
++ MuonSpectrometer/MuonDetDescr/MuonAGDDDescription
++ MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
++ MuonSpectrometer/MuonIdHelpers
++ MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPattern
++ MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
++ MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
+
++ PhysicsAnalysis/AnalysisCommon/ParticleEvent.*
++ PhysicsAnalysis/AnalysisCommon/ParticleJetTools
++ PhysicsAnalysis/AnalysisCommon/PAT.*
++ PhysicsAnalysis/AnalysisCommon/PileupReweighting
++ PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
++ PhysicsAnalysis/CommonTools/ExpressionEvaluation
++ PhysicsAnalysis/D3PDTools/RootCoreUtils
+- PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
++ PhysicsAnalysis/ElectronPhotonID/.*
+- PhysicsAnalysis/JetTagging/JetTagInfo.*
+- PhysicsAnalysis/JetTagging/JetTagMonitoring
+- PhysicsAnalysis/JetTagging/JetTagValidation/.*
+- PhysicsAnalysis/JetTagging/JetTaggingTagTools
++ PhysicsAnalysis/JetTagging/JetTag.*
++ PhysicsAnalysis/JpsiUpsilonTools
++ PhysicsAnalysis/MCTruthClassifier
++ PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
++ PhysicsAnalysis/MuonID/MuonSelectorTools
++ PhysicsAnalysis/POOLRootAccess
+
++ PhysicsAnalysis/DerivationFramework/.*
+
++ Reconstruction/egamma/egammaLayerRecalibTool
++ Reconstruction/egamma/egammaMVACalib
++ Reconstruction/EventShapes/.*
+- Reconstruction/Jet/JetEvent.*
+- Reconstruction/Jet/JetMonitoring
++ Reconstruction/Jet/.*
++ Reconstruction/MuonIdentification/MuidEvent
++ Reconstruction/MVAUtils
++ Reconstruction/Particle
++ Reconstruction/ParticleTruth
++ Reconstruction/PFlow/PFlowUtils
++ Reconstruction/RecoEvent/ParticleCaloExtension
++ Reconstruction/RecoTools/ParticlesInConeTools
++ Reconstruction/RecoTools/RecoToolInterfaces
+
++ Simulation/HitManagement
+
++ TileCalorimeter/TileCalib/TileCalibBlobObjs
++ TileCalorimeter/TileConditions
++ TileCalorimeter/TileDetDescr
++ TileCalorimeter/TileEvent
++ TileCalorimeter/TileIdentifier
++ TileCalorimeter/TileSimEvent
+
++ Tools/PathResolver
++ Tools/XMLCoreParser
+
++ Tracking/TrkDetDescr/TrkDetDescrUtils
++ Tracking/TrkDetDescr/TrkDetElementBase
++ Tracking/TrkDetDescr/TrkDistortedSurfaces
++ Tracking/TrkDetDescr/TrkGeometry.*
++ Tracking/TrkDetDescr/TrkSurfaces
++ Tracking/TrkDetDescr/TrkVolumes
++ Tracking/TrkEvent/TrkCaloExtension
++ Tracking/TrkEvent/TrkCompetingRIOsOnTrack
++ Tracking/TrkEvent/TrkEventPrimitives
++ Tracking/TrkEvent/TrkEventUtils
++ Tracking/TrkEvent/TrkLinks
++ Tracking/TrkEvent/TrkMaterialOnTrack
++ Tracking/TrkEvent/TrkMeasurementBase
++ Tracking/TrkEvent/TrkNeutralParameters
++ Tracking/TrkEvent/TrkParameters.*
++ Tracking/TrkEvent/TrkParticleBase
++ Tracking/TrkEvent/TrkPatternParameters
++ Tracking/TrkEvent/TrkPrepRawData
++ Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
++ Tracking/TrkEvent/TrkRIO_OnTrack
++ Tracking/TrkEvent/TrkSegment
++ Tracking/TrkEvent/TrkSpacePoint
++ Tracking/TrkEvent/TrkSpaceTimePoint
++ Tracking/TrkEvent/TrkTrack.*
++ Tracking/TrkEvent/TrkTruthData
++ Tracking/TrkEvent/TrkSummary
++ Tracking/TrkEvent/TrkVertexOnTrack
++ Tracking/TrkEvent/VxJetVertex
++ Tracking/TrkEvent/VxSecVertex
++ Tracking/TrkEvent/VxVertex
++ Tracking/TrkExtrapolation/TrkExInterfaces
++ Tracking/TrkExtrapolation/TrkExUtils
++ Tracking/TrkTools/TrkToolInterfaces
++ Tracking/TrkVertexFitter/TrkV0Fitter
++ Tracking/TrkVertexFitter/TrkVKalVrt.*
++ Tracking/TrkVertexFitter/TrkVertexAnalysisUtils
+
++ Trigger/TrigAnalysis/TrigDecisionTool
++ Trigger/TrigAnalysis/TrigMuonMatching
++ Trigger/TrigConfiguration/.*
++ Trigger/TrigEvent/Trig.*Event
++ Trigger/TrigEvent/Trig.*TPCnv
++ Trigger/TrigEvent/TrigDecisionInterface
++ Trigger/TrigEvent/TrigEventAthenaPool
++ Trigger/TrigEvent/TrigNavStructure
++ Trigger/TrigEvent/TrigNavTools
++ Trigger/TrigEvent/TrigNavigation
++ Trigger/TrigEvent/TrigRoiConversion
++ Trigger/TrigDataAccess/TrigSerialize.*
++ Trigger/TrigT1/TrigT1CaloEvent
++ Trigger/TrigT1/TrigT1Interfaces
+
+# Don't build anything else:
+- .*
