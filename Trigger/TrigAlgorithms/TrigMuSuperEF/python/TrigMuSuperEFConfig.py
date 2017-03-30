@@ -147,6 +147,12 @@ def TrigMuSuperEF_SAonly(name="TrigMuSuperEF_SAonly",**kwargs):
     kwargs.setdefault("StandaloneOnly", True)
     return TrigMuSuperEFConfig(name,**kwargs)
 
+def TrigMuSuperEF_STonly(name="TrigMuSuperEF_STonly",**kwargs):
+    kwargs.setdefault("doInsideOut", False)
+    kwargs.setdefault("doOutsideIn", True)
+    kwargs.setdefault("SegmentTagOnly", True)
+    return TrigMuSuperEFConfig(name,**kwargs)
+
 def TrigMuSuperEF_TMEFCombinerOnly(name="TrigMuSuperEF_TMEFCombinerOnly",**kwargs):
     kwargs.setdefault("doInsideOut", False)
     kwargs.setdefault("doOutsideIn", True)

@@ -927,6 +927,41 @@ class TrigMuonEFCombinerMultiHypoConfig(TrigMuonEFCombinerMultiHypo) :
             if len(handle.PtThresholds)!=len(handle.PtBins)-nmult:
                 print handle.name," eta bins doesn't match the Pt thresholds!"
 
+class TrigMuonEFSegmentHypoConfig(TrigMuonEFSegmentHypo) :
+
+    __slots__ = []
+
+    def __new__( cls, *args, **kwargs ):
+        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
+        return super( TrigMuonEFSegmentHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
+
+    def __init__( self, name, *args, **kwargs ):
+        super( TrigMuonEFSegmentHypoConfig, self ).__init__( name )
+
+        threshold = args[1]
+
+        try:
+            values = efCombinerThresholds[threshold]
+            self.PtBins = values[0]
+            self.PtThresholds = [ x * GeV for x in values[1] ]
+            self.AcceptAll = False
+        except LookupError:
+            if (threshold=='passthrough'):
+                self.PtBins = [-10000.,10000.]
+                self.PtThresholds = [ -1. * GeV ]
+                self.AcceptAll = True
+            else:
+                raise Exception('TrigMuonEFSegment Hypo Misconfigured: threshold %r not supported' % threshold)
+
+        #validation = TrigMuonEFCombinerHypoValidationMonitoring()
+        #online     = TrigMuonEFCombinerHypoOnlineMonitoring()
+	
+        #self.AthenaMonTools = [ validation, online ]
+
+    def setDefaults(cls,handle):
+        if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
+            if len(handle.PtThresholds)!=len(handle.PtBins)-1:
+                print handle.name," eta bins doesn't match the Pt thresholds!"
 
 class TrigMuonEFExtrapolatorMultiHypoConfig(TrigMuonEFExtrapolatorMultiHypo) :
 
