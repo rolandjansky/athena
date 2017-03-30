@@ -2,8 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TrigEgammaEmulationToolAlg_H
-#define TrigEgammaEmulationToolTest_H
+#ifndef TRIGEGAMMAEMULATIONTOOL_TRIGEGAMMAEMULATIONTOOLALG_H
+#define TRIGEGAMMAEMULATIONTOOL_TRIGEGAMMAEMULATIONTOOLALG_H
+
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
