@@ -107,6 +107,9 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project):
         logging.critical("failed to determine MR IID")
         return
 
+    # save original author so that we can add as watcher
+    original_mr_author = mr_handle.author.username
+
     # handle sweep labels
     labels = set(mr_handle.labels)
     if "sweep:done" in labels:
@@ -179,12 +182,15 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project):
             mr_data['labels'] = "sweep:from {0}".format(os.path.basename(source_branch))
             mr_data['remove_source_branch'] = True
             try:
-                project.mergerequests.create(mr_data)
+                new_mr = project.mergerequests.create(mr_data)
             except GitlabCreateError as e:
                 logging.critical("failed to create merge request for '%s' into '%s' with\n%s",cherry_pick_branch,tbranch,e.error_message)
                 failed_branches.add(tbranch)
             else:
                 good_branches.add(tbranch)
+                # adding original author as watcher
+                notification_text = "Adding original author @{0:s} as watcher.".format(original_mr_author)
+                new_mr.notes.create({'body': notification_text})
 
     # compile comment about sweep results
     comment = "**Sweep summary**  \n"
