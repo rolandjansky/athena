@@ -213,7 +213,7 @@ StatusCode ByteStreamEmonInputSvc::initialize()
         return sc;
     }
 
-    if(m_robProvider.retrieve().isSuccess()) {
+    if(!m_robProvider.retrieve().isSuccess()) {
         ATH_MSG_FATAL("Cannot get rob data provider");
         return StatusCode::FAILURE;
     }
