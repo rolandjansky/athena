@@ -15,9 +15,6 @@
 #include "GaudiKernel/SmartIF.h"
 #include "AthenaBaseComps/AthService.h"
 
-// ATLAS C++
-#include "CxxUtils/make_unique.h"
-
 // Tested AthAlgorithm
 #include "../src/SimKernelMT.h"
 
@@ -210,7 +207,7 @@ TEST_F(SimKernelMT_test, nonexistingOutputCollection_expectCreationOfOutputColle
   m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection");
   m_alg->setProperty("InputConverter", mockInputConverterName);
 
-  auto inputEvgen = CxxUtils::make_unique<McEventCollection>();
+  auto inputEvgen = std::make_unique<McEventCollection>();
   SG::WriteHandle<McEventCollection> testInputEvgenHandle{"testInputEvgenCollection"};
   testInputEvgenHandle.record( std::move(inputEvgen) );
 
@@ -221,8 +218,8 @@ TEST_F(SimKernelMT_test, nonexistingOutputCollection_expectCreationOfOutputColle
 }
 
 
-TEST_F(SimKernelMT_test, filledInputCollection_expectFullConversion) {
-  auto inputEvgen = CxxUtils::make_unique<McEventCollection>();
+TEST_F(SimKernelMT_test, emptyInputCollection_expectSuccess) {
+  auto inputEvgen = std::make_unique<McEventCollection>();
   auto* genEvent = new HepMC::GenEvent{};
 
   inputEvgen->push_back(genEvent);
@@ -234,21 +231,87 @@ TEST_F(SimKernelMT_test, filledInputCollection_expectFullConversion) {
   m_alg->setProperty("InputConverter", mockInputConverterName);
   EXPECT_TRUE( m_alg->initialize().isSuccess() );
 
-  EXPECT_CALL(*m_mockInputConverter, convert(::testing::_, ::testing::_, ::testing::_))
+  ASSERT_TRUE( m_alg->execute().isSuccess() );
+}
+
+// checks if the two given HepMC::GenEvent instances are equal.
+// returns true if they are equal, false otherwise
+bool GenEventsEq(const HepMC::GenEvent& a, const HepMC::GenEvent& b) {
+  HepMC::GenEvent::vertex_const_iterator aVertexIterator = a.vertices_begin();
+  HepMC::GenEvent::vertex_const_iterator bVertexIterator = b.vertices_begin();
+  const auto& aVertexIteratorEnd = a.vertices_end();
+  const auto& bVertexIteratorEnd = b.vertices_end();
+
+  bool eventsAreEqual = true;
+
+  do {
+    bool endReached = (aVertexIterator == aVertexIteratorEnd) ||
+                      (bVertexIterator == bVertexIteratorEnd);
+    if (endReached) {
+      break;
+    }
+
+    eventsAreEqual = **aVertexIterator == **bVertexIterator;
+
+    ++aVertexIterator;
+    ++bVertexIterator;
+  } while(eventsAreEqual);
+
+  return eventsAreEqual;
+}
+
+
+// matcher to check if the given McEventCollection contains one HepMC::GenEvent that's
+// equal to the given expectedGenEvent
+MATCHER_P(ContainsOneGenEventEq, expectedGenEvent, "is equal to expected HepMC::GenEvent") {
+  const auto& actualMcEventCollection = arg;
+
+  size_t expectedCollectionSize = 1;
+  auto actualCollectionSize = actualMcEventCollection.size();
+  if (expectedCollectionSize!=actualCollectionSize) {
+    return false;
+  }
+
+  size_t firstEventNum = 0;
+  const auto* actualGenEvent = actualMcEventCollection[firstEventNum];
+  return GenEventsEq(expectedGenEvent, *actualGenEvent);
+}
+
+
+TEST_F(SimKernelMT_test, filledInputCollection_expectFullConversion) {
+  auto* genEvent = new HepMC::GenEvent{};
+  HepMC::GenParticle* genPart = new HepMC::GenParticle{};
+  HepMC::FourVector mom{12.3, 45.6, 78.9, 0.12};
+  HepMC::GenParticle* genPart2 = new HepMC::GenParticle{mom,
+                                                        11,  // pdg id (e-)
+                                                        1  // status
+                                                        };
+  auto* genVertex = new HepMC::GenVertex{};
+  genVertex->add_particle_out(genPart);
+  genVertex->add_particle_out(genPart2);
+  genEvent->add_vertex(genVertex);
+
+  auto inputEvgen = std::make_unique<McEventCollection>();
+  inputEvgen->push_back(genEvent);
+  SG::WriteHandle<McEventCollection> inputEvgenHandle{"testInputEvgenCollection"};
+  inputEvgenHandle.record( std::move(inputEvgen) );
+
+  m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection");
+  m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection");
+  m_alg->setProperty("InputConverter", mockInputConverterName);
+  EXPECT_TRUE( m_alg->initialize().isSuccess() );
+
+  EXPECT_CALL(*m_mockInputConverter, convert(ContainsOneGenEventEq(*genEvent),
+                                             ::testing::_,
+                                             ::testing::_))
       .WillOnce(::testing::Return(StatusCode::SUCCESS));
 
   ASSERT_TRUE( m_alg->execute().isSuccess() );
 }
 
-  //HepMC::GenParticle* genPart = new HepMC::GenParticle{};
-  //HepMC::FourVector mom{12.3, 45.6, 78.9, 0.12};
-  //HepMC::GenParticle* genPart2 = new HepMC::GenParticle{mom,
-  //                                                      11, // pdg id (e-)
-  //                                                      1 // status
-  //                                                      };
 
 //TEST_F(SimKernelMT_test, emptyInputEvgenCollection_expectSuccess) {
-//  auto inputEvgen = CxxUtils::make_unique<McEventCollection>();
+//  auto inputEvgen = std::make_unique<McEventCollection>();
 //  SG::WriteHandle<McEventCollection> inputEvgenHandle{"testInputEvgenCollection"};
 //  inputEvgenHandle.record( std::move(inputEvgen) );
 //
