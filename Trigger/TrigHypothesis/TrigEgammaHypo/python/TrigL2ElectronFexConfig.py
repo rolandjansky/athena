@@ -28,11 +28,11 @@ class L2ElectronFexBase(TrigL2ElectronFex):
         self.TrackPt = 1.0 * GeV
         self.TrackPtHighEt = 2.0 * GeV
         self.ClusEt = 20.0 * GeV
-        self.CaloTrackdEtaNoExtrap = 0.5
-        self.CaloTrackdEtaNoExtrapHighEt = 0.1
+        self.CaloTrackdEtaNoExtrap = 0.3
+        self.CaloTrackdEtaNoExtrapHighEt = 0.2
         # Calo-Tracking matching cuts
-        self.CaloTrackdETA = 0.5
-        self.CaloTrackdPHI = 0.5
+        self.CaloTrackdETA = 0.3
+        self.CaloTrackdPHI = 0.3
         self.CaloTrackdEoverPLow  = 0.0
         self.CaloTrackdEoverPHigh = 999.0
 
