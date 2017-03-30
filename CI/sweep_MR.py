@@ -117,7 +117,7 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project):
         return
 
     labels.add("sweep:done")
-    mr_handle.labels = ",".join(labels)
+    mr_handle.labels = list(labels)
     mr_handle.save()
 
     # get list of affected packages for this MR
