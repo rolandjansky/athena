@@ -74,7 +74,7 @@ class TrigVertex{
     m_tracks(NULL), m_algId(id),
     m_ownTracks(false)
     {
-      for(int i=0;i<5;i++) m_cov[i]=0.0; m_cov[5]=cv;
+      for(int i=0;i<5;i++) {m_cov[i]=0.0;} m_cov[5]=cv;
       m_mass=0.0;m_massVar=0.0;m_P=NULL;m_energyFraction=0.0;
       m_nTwoTracksSecVtx=0;
       m_decayLength = m_decayLengthSignificance = 0;
