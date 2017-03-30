@@ -11,13 +11,14 @@
  **/
 
 #include "PoolSvc/IPoolSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIoComponent.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthService.h"
 
 #include <string>
 #include <vector>
 #include <map>
+#include <memory>
 #include <mutex>
 
 // Forward declarations
@@ -27,9 +28,7 @@ namespace pool {
    class IPersistencySvc;
    class ISession;
 }
-class IAthenaSealSvc;
 class Guid;
-class Placement;
 
 template <class TYPE> class SvcFactory;
 
@@ -118,10 +117,6 @@ public: // Non-static members
 	   const std::string& collection,
 	   const unsigned long ientry) const;
 
-   /// Utility to test whether the dictionary knows about a given class.
-   /// @param className [IN] string containing the name of the class to be checked.
-   bool testDictionary(const std::string& className) const;
-
    /// Connect to a logical database unit; PersistencySvc is chosen according to transaction type (accessmode).
    StatusCode connect(pool::ITransaction::Type type,
 	   unsigned int contextId = IPoolSvc::kInputStream) const;
@@ -189,13 +184,12 @@ private: // data
    mutable CallMutex                                 m_pool_mut;
    coral::Context*                                   m_context;
    pool::IFileCatalog*                               m_catalog;
-   ServiceHandle<IAthenaSealSvc>                     m_athenaSealSvc;
    std::vector<pool::IPersistencySvc*>               m_persistencySvcVec;
    mutable std::vector<CallMutex*>                   m_pers_mut;
    std::map<std::string, unsigned int>               m_contextLabel;
    std::map<unsigned int, unsigned int>              m_contextMaxFile;
+   // Cache for open file guids for each m_persistencySvcVec member, protected by m_pers_mut
    mutable std::map<unsigned int, std::list<Guid> >  m_guidLists;
-   mutable std::map<std::string, std::vector<std::string> > m_containersMap;
 
 private: // properties
    /// FileOpen, the open mode for the file ("append" or "overwrite").
@@ -221,8 +215,6 @@ private: // properties
    /// Frontier proprties, compression level and list of schemas to be refreshed: default = 5
    IntegerProperty m_frontierComp;
    StringArrayProperty m_frontierRefresh;
-   /// CheckDictionary, enable SEAL dictionary checking: default = true.
-   BooleanProperty m_testDictionary;
    /// Use DBReplicaSvc to sort database connections, default = true.
    BooleanProperty m_sortReplicas;
 
@@ -232,16 +224,10 @@ private: // internal helper functions
    // setup APR persistency
    StatusCode setupPersistencySvc();
 
-   /// Get Session and Database handles
-   StatusCode getSessionDbHandles(pool::ISession*& sesH,
-	pool::IDatabase*& dbH,
-	unsigned int contextId,
-	const std::string& dbName) const;
+   /// Get Database handle
+   std::unique_ptr<pool::IDatabase> getDbHandle(unsigned int contextId, const std::string& dbName) const;
    /// Get Container handle
-   StatusCode getContainerHandle(pool::IDatabase* dbH,
-	const std::string& contName,
-	pool::IContainer*& contH,
-	std::string& objName) const;
+   std::unique_ptr<pool::IContainer> getContainerHandle(pool::IDatabase* dbH, const std::string& contName) const;
 
    /// Resolve a file using ATLAS_POOLCOND_PATH
    std::string poolCondPath(const std::string& leaf);

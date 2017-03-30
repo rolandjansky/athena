@@ -66,7 +66,6 @@ outStream = wap.AthenaPoolOutputStream("StreamUSR")
 
 if 'OUTPUT' not in dir():
    OUTPUT = "reaccessed.%s" % INPUT[0]
-svcMgr.PoolSvc.CheckDictionary = True
 
 # Stream's output file
 outStream.OutputFile = OUTPUT

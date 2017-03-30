@@ -643,6 +643,7 @@ RootCollection::MetadataCommit Debug Bytes written to the Metadata TTree ????
 RootCollection Info Closing open collection 'SimplePoolCollection2.root'
 RootCollectionSchemaEditor Debug ###### Writing schema....
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   UPDATE    [ROOT_All] ????
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All]
 Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 WriteData            INFO in finalize()

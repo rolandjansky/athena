@@ -633,6 +633,7 @@ MetaDataHdr(DataHeader) Debug Opened container MetaDataHdr(DataHeader) of type R
 Stream1              INFO Records written: 21
 Stream1             DEBUG Leaving handle
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   UPDATE    [ROOT_All] ????
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All]
 Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 WriteData            INFO in finalize()

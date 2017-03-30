@@ -1438,10 +1438,8 @@ EmptyPoolFile.root Debug ---->ClassID:????
 EmptyPoolFile.root Debug --->Adding Shape[2 , ????]:  [1 Column(s)] 
 EmptyPoolFile.root Debug ---->Class:DataHeader_p5
 EmptyPoolFile.root Debug ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
-PoolSvc             DEBUG Failed to get ContainerHandle for: POOLContainer(DataHeader)
 PoolSvc             DEBUG Failed to get ContainerHandle to set POOL property.
 AthenaPoolCnvSvc    DEBUG setAttribute failed for BRANCH_BASKET_SIZE to 256000 for db: EmptyPoolFile.root and cont: POOLContainer(DataHeader)
-PoolSvc             DEBUG Failed to get ContainerHandle for: POOLContainerForm(DataHeaderForm)
 PoolSvc             DEBUG Failed to get ContainerHandle to set POOL property.
 AthenaPoolCnvSvc    DEBUG setAttribute failed for BRANCH_BASKET_SIZE to 1024000 for db: EmptyPoolFile.root and cont: POOLContainerForm(DataHeaderForm)
 AthenaPoolCnvSvc    DEBUG commitOutput failed process POOL container attributes.
@@ -1500,6 +1498,7 @@ RootCollectionSchemaEditor Debug ###### Writing schema....
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All]
 Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 WriteData            INFO in finalize()

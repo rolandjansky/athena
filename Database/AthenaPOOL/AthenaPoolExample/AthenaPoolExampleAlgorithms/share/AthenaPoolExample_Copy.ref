@@ -132,7 +132,6 @@ MetaDataHdr(DataHeader) Debug Opening
 MetaDataHdr(DataHeader) Debug    attributes# = 1
 MetaDataHdr(DataHeader) Debug Branch container 'DataHeader'
 MetaDataHdr(DataHeader) Debug Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-PoolSvc              INFO Failed to find container MetaDataHdrDataHeader to get Token.
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 SimplePoolFile1.root Debug --> Access   DbContainer  READ      [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
 MetaDataHdrForm(DataHeaderForm) Debug Opening
@@ -193,7 +192,6 @@ RootCollectionSchemaEditor Debug   + adding column: MagicNumber
 RootCollectionSchemaEditor Debug       column type: unsigned int/i
 RootCollection Info Root collection opened, size = 20
 ApplicationMgr       INFO Application Manager Started successfully
-PoolSvc              INFO Failed to find container MetaDataHdrDataHeader to get Token.
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000000].

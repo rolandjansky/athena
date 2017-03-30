@@ -77,7 +77,6 @@ include( "AtlfastAthenaPool/AtlfastAthenaPool_joboptions.py" )
 include( "ParticleBuilderOptions/AOD_PoolCnv_jobOptions.py" )
 
 PoolSvc = Service( "PoolSvc" )
-PoolSvc.CheckDictionary = True
 
 AthenaSealSvc = Service("AthenaSealSvc")
 AthenaSealSvc.CheckDictionary = True

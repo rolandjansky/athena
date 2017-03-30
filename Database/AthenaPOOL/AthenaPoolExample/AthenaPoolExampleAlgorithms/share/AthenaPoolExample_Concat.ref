@@ -1304,6 +1304,7 @@ Stream2              INFO Records written: 21
 Stream2             DEBUG Leaving handle
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All]
 Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 WriteData            INFO in finalize()

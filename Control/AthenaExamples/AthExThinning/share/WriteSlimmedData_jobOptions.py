@@ -80,7 +80,6 @@ for i in xrange(2):
 
 if 'OUTPUT' not in dir():
    OUTPUT = "slimmed.%s" % INPUT[0]
-svcMgr.PoolSvc.CheckDictionary = True
 
 # Stream's output file
 outStreams[0].OutputFile = OUTPUT

@@ -75,7 +75,6 @@ outStream.ItemList = [
      "EventInfo#*",
      "AthExParticles#*",
      ]
-svcMgr.PoolSvc.CheckDictionary = True
 
 # Stream's output file
 outStream.OutputFile = OUTPUT_0
@@ -90,7 +89,6 @@ outStream.ItemList = [
      "EventInfo#*",
      "AthExParticles#*",
      ]
-svcMgr.PoolSvc.CheckDictionary = True
 
 # Stream's output file
 outStream.OutputFile = OUTPUT_NOTHINNING
@@ -104,7 +102,6 @@ outStream.ItemList = [
      "EventInfo#*",
      "AthExParticles#*",
      ]
-svcMgr.PoolSvc.CheckDictionary = True
 
 # Stream's output file
 outStream.OutputFile = OUTPUT_1

@@ -705,6 +705,7 @@ SimplePoolFile5.root Debug ---->ClassID:????
 Stream1              INFO Records written: 21
 Stream1             DEBUG Leaving handle
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All]
 Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 WriteData            INFO in finalize()

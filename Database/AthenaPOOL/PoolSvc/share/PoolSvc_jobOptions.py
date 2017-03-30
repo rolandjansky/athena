@@ -53,8 +53,5 @@ PoolSvc.FileOpen = "overwrite";
 # Option to have PoolSvc limit the number of open Input Files. (0 = No files are closed automatically)
 PoolSvc.MaxFilesOpen = 0;
 
-# Passthrough for SEAL dictionary checking
-PoolSvc.CheckDictionary = True;
-
 # Use Replica Sorter Service
 PoolSvc.SortReplicas = True;

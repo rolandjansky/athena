@@ -374,6 +374,7 @@ RootCollection Info Closing open collection 'SimpleRawCollection.root'
 RootCollection Debug Retrieved Collection TTree  "POOLCollectionTree" from file SimpleRawCollection.root
 RootCollectionSchemaEditor Debug ###### Writing schema....
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All]
 Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 ReadBs               INFO in finalize()

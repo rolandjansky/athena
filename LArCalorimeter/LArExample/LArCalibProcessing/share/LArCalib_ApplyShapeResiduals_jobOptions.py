@@ -58,7 +58,6 @@ include("LArCalibProcessing/LArCalib_MinimalSetup.py")
 theApp.EvtMax = 1
 conddb.setGlobalTag("LARCALIB-000-02") #For id mapping and wave residuals
 
-svcMgr.PoolSvc.CheckDictionary=True
 svcMgr.PoolSvc.SortReplicas=False
 svcMgr.PoolSvc.FileOpen="update"
 
