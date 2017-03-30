@@ -140,7 +140,7 @@ TrigSteer::TrigSteer(const std::string& name, ISvcLocator* pSvcLocator)
    declareProperty("TopoOutputLevel", m_topoOutputLevel, "OutputLevel for L1Topo algorithms" );
    declareProperty("EventInfoAccessTool", m_EventInfoTool,"Tool to update the EventInfo at the end of the execution");
    declareProperty("AuditChains", m_auditChains=false, "Call auditor hooks for chain execution");
-   declareProperty("TopoUseBitwise", m_topoUseBitwise=false, "Whether L1Topo simulation should use the bitwise implementation of the algorithms" );
+   declareProperty("TopoUseBitwise", m_topoUseBitwise=true, "Whether L1Topo simulation should use the bitwise implementation of the algorithms" );
 }
 
 
