@@ -543,7 +543,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
 
    // fetch topo. clusters for later use
    if (m_doTopoClusters && tes_in.size() > 0) { // safe-guard
-      for (auto& te_in : tes_in.at(0) ) {
+      for (const auto& te_in : tes_in.at(0) ) {
          HLT::ErrorCode status = getFeature(  te_in , m_caloCluster );
 
          if(status!=HLT::OK || !m_caloCluster) {
@@ -560,7 +560,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
 
    // fetch jets for later use
    if (m_doJets && tes_in.size() > 0) { // safe-guard
-      for (auto& te_in : tes_in.at(0) ) {
+      for (const auto& te_in : tes_in.at(0) ) {
          HLT::ErrorCode status = getFeature(  te_in , m_jets );
 
          if(status!=HLT::OK || !m_jets) {
@@ -579,7 +579,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
 
    //fetch tracks for later use
    if (m_doJets && m_doTracks && tes_in.size() > 0) { // safe-guard
-      for (auto& te_in : tes_in.at(1) ) {
+      for (const auto& te_in : tes_in.at(1) ) {
          HLT::ErrorCode status = getFeature(  te_in , m_tracks );
 
          if(status!=HLT::OK || !m_tracks) {
@@ -600,7 +600,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
 
    //fetch vertex for later use
    if (m_doJets  && m_doTracks && tes_in.size() > 0) { // safe-guard
-      for (auto& te_in : tes_in.at(1) ) {
+      for (const auto& te_in : tes_in.at(1) ) {
          HLT::ErrorCode status = getFeature(  te_in , m_vertices );
 
          if(status!=HLT::OK || !m_vertices) {
