@@ -59,8 +59,8 @@ persToTrans( const xAOD::TauJetAuxContainer_v2* oldObj,
    // Greet the user:
    ATH_MSG( "Converting xAOD::TauJetAuxContainer_v2 to current version..." );
 
-   xAOD::TauTrackContainer* pTracks = 0; 
-   xAOD::TauTrackAuxContainer* pAuxTracks = 0; 
+   xAOD::TauTrackContainer* pTracks = nullptr; 
+   xAOD::TauTrackAuxContainer* pAuxTracks = nullptr; 
    if(m_key.length()){
      //m_key is set in xAODTauJetAuxContainerCnv.cxx
      //if reading data, then trigger calls T/P converter directly
