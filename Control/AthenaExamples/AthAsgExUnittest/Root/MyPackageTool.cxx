@@ -23,4 +23,7 @@ StatusCode MyPackageTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
+double MyPackageTool::useTheProperty() {
+  return m_nProperty;
+}
 

@@ -8,13 +8,14 @@
 class MyPackageTool: public asg::AsgTool, public virtual IMyPackageTool { 
 public: 
 
-  ASG_TOOL_CLASS( MyPackageTool , IMyPackageTool )
+  ASG_TOOL_CLASS( MyPackageTool, IMyPackageTool )
   // Add another constructor for non-athena use cases
   MyPackageTool( const std::string& name, bool unittest=false );
   
   // Initialize is required by AsgTool base class
   virtual StatusCode initialize() override;
-  
+  virtual double useTheProperty() override;
+
 private: 
 
   double m_nProperty;

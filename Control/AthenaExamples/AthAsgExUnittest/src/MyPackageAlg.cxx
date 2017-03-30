@@ -4,7 +4,8 @@
 MyPackageAlg::MyPackageAlg( const std::string& name, 
 			    ISvcLocator* pSvcLocator ) : 
   AthAnalysisAlgorithm( name, pSvcLocator ),
-  m_tool( "MyPackageTool/MyTool", this ) { // private
+  m_property( 1 ),
+  m_tool( "MyPackageTool/MyTool", this ) {
   addRef(); // workaround until fix in Gaudi
   // example property declarations
   declareProperty( "MyProperty", m_property ); 
