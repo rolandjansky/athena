@@ -1,0 +1,71 @@
+author: Steffen Henkelmann
+
+1. Retrieve derivations from a specific GRL
+----------------------------------------------
+setupATLAS
+lsetup rucio
+
+Specify a GRL by setting the GRL variable to the desired GRL in AlignmentGetRunsFromGRL.py
+
+Then do:
+python AlignmentGetRunsFromGRL.py
+
+This will give you a file called e.g.:
+Runs_data16_13TeV.periodAllYear_DetStatus-v82-pro20-13_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml.txt
+
+including the latest ftags. You can also specify if you want to get the DESDMs or DAODs.
+
+This file is sufficient to be used to run on the grid.
+However, if you intend on running on the lxbatch you need to replicate the samples to the CERN scratch disc. To do this, follow 2.
+
+
+
+
+2. Replicate data samples to the CERN scratch disk
+--------------------------------------------------
+You can replicate samples to a specific site using the web interface here:
+https://rucio-ui.cern.ch/r2d2/request
+
+or much quicker by executing:
+. ReplicateDSs.sh
+
+it will read in the file you produced in step 1. and replicate all those data sets to CERN-PROD_SCRATCHDISK. You can check the status of replication
+on the above mentioned web page.
+
+
+
+
+3. Get location of samples on the scratch disk
+----------------------------------------------
+To get the location of the samples on the scratch disk do:
+. GetFilesOnScratchDisk.sh
+This uses the input file from 1. and produces for each run a .txt file in runNumberFiles/ including all the files on the scratch.
+
+
+
+4. Run jobs using the input files
+----------------------------------
+To run jobs on the inputfiles execute:
+. run.sh
+It will run one job per .txt file in runNumberFiles/ using athenaJob_Batch.py and the runzmumu_maps.py included in the folder, and produce a .root file in
+BatchJobOutput/jobs/<queue>/<.txt filename in runNumberFiles/>_<timestamp>_OUT/<counter>_<runnumber>/
+
+This requires a proper setup of a $TestArea including the code that is needed to run the maps, e.g. InDetPerformanceMonitoring
+
+5. Merging output
+-----------------
+info will be added soon
+
+
+
+
+6. Extra
+----------
+
+Sometimes you want to split the dataset into different periods (e.g., A,B,C ... or pre and post d0 bias), to to that
+I included a script called trimRunsInGRLInUserDefinedPeriods/TrimGRLinPeriods.py.
+
+The script takes as input the file you got from 1. and splits it into periods that are defined in
+runs_periodPostD0fix_304198_308084.txt  runs_periodPostTSI_preD0fix_301912_304178.txt  runs_periodPreTSI_297730_300908.txt
+
+You can define it in any other way.

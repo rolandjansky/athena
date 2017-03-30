@@ -14,11 +14,8 @@ svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.LumiBlockMetaDataTool ]
 from GoodRunsLists.GoodRunsListsConf import *
 ToolSvc += GoodRunsListSelectorTool()
 
-GoodRunsListSelectorTool.GoodRunsListVec = [ '$TestArea/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/data15_13TeV.periodAllYear_DetStatus-v69-pro19-03_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml' ]
-#GoodRunsListSelectorTool.GoodRunsListVec = [ 'data15_13TeV.periodAllYear_DetStatus-v65-pro19-01_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml' ]
-
-#GoodRunsListSelectorTool.GoodRunsListVec = [ 'data15_13TeV.periodAllYear_DetStatus-v63-pro18-01_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml' ]
-#GoodRunsListSelectorTool.OutputLevel = VERBOSE
+GoodRunsListSelectorTool.GoodRunsListVec = [ '/project/atlas/users/pbutti/Maps_v2/run/GRLs/data15_13TeV.periodAllYear_DetStatus-v79-repro20-02_DQDefects-00-02-02_PHYS_StandardGRL_All_Good.xml' ]
+#GoodRunsListSelectorTool.GoodRunsListVec = [ '/project/atlas/users/pbutti/Maps_v2/run/GRLs/data15_13TeV.periodAllYear_DetStatus-v79-repro20-02_DQDefects-00-02-02_PHYS_StandardGRL_All_Good_tolerable_L1CALmisconfigSatBCID.xml' ]
 
 ## This Athena job consists of algorithms that loop over events;
 ## here, the (default) top sequence is used:

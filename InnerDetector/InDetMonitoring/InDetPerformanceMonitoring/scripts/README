@@ -1,0 +1,41 @@
+Produce maps using batch
+=========================
+
+Setup an athena release, such that you have a $TestArea
+Checkout the InDetPerformanceMonitoring package
+$> cmt co InnerDetector/InDetMonitoring/InDetPerformanceMonitoring
+
+Checkout patch which is located here:
+$> cp $TestArea
+Use this patch:
+$> cp /afs/cern.ch/work/s/sthenkel/public/forPF/Reconstruction .
+
+
+
+
+Copy the NEW alignment constants in this directory:
+/afs/cern.ch/work/s/sthenkel/public/forPF/ScriptsToRunWeakModeMaps/runOnBatch/AlignmentConstants/
+or define own global pass and hange the inputConstants variable in runzmumu_runallmonitoring.py to the NEW alignment constants.
+
+Run jobs on the batch using:
+$> python athenaJob_Batch.py Run_StableInPeriodE.txt
+
+The output needs to be merged
+
+
+You can run the maps with
+$> root -l
+-- .L run_ZmumuValidation.C++
+-- run_ZmumuValidation(20,0,2)
+
+That results in a rootfile
+
+Change the f_file variable in printCorrectionMaps_simple.py to the outputted rootfile. Then execute:
+
+$> python printCorrectionMaps_simple.py
+that results in a pdf containing all four maps in the directory outputmaps
+
+
+
+
+

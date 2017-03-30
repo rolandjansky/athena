@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 //==================================================================================
 //
 //  ZMM_Event.cxx :       Class designed to reconstruct di-boson events
@@ -63,12 +59,12 @@ MuonSelector::MuonSelector()
   m_bCutOnCombKine  = false; //not used
   m_fEtaCut         = 2.5;
   //m_fEtaCut         = 1.9;
-      m_combPtCut       = 15.0*CLHEP::GeV; // GeV/c
+  m_combPtCut       = 15.0*CLHEP::GeV; // GeV/c
   //    m_combPtCut       = .01*CLHEP::GeV; // GeV/c
 
   //m_ptMSCut         = 10.0*CLHEP::GeV;
   m_ptMSCut         = 0.0*CLHEP::GeV;
-  m_diffZCut        = 10.0*CLHEP::mm;  // mm
+  m_diffZCut        = 1.5*CLHEP::mm;  // mm --> used to be 10.0*CLHEP::mm // Changed by Salva 26/january/2016
   m_diffPtCut       = 15.0*CLHEP::GeV;  // not used
   m_pVZCut          = 150.0*CLHEP::mm; // mm
 
@@ -80,7 +76,7 @@ MuonSelector::MuonSelector()
   m_ucID_TRTCut     = 0;        // Hits
 
   m_doDebug     = false;
-  m_doQualSelection = true;
+  m_doQualSelection = false;
   m_doIsoSelection  = false;
   m_doPtSelection   = true;
   m_doIPSelection   = true;
@@ -98,8 +94,9 @@ MuonSelector::~MuonSelector()
 }
 
 //bool MuonSelector::passSelection( const Analysis::Muon* pxMuon )
-bool MuonSelector::passSelection( const xAOD::Muon* pxMuon )
+bool MuonSelector::passSelection( const xAOD::Muon* pxMuon)
 {
+  if(m_doDebug){ std::cout << "  * MuonSelector * passSelection() * starting on new muon " << pxMuon << std::endl; }
 
   std::vector<bool> passes;
   bool pass = true;
@@ -130,11 +127,12 @@ bool MuonSelector::passSelection( const xAOD::Muon* pxMuon )
 
       for (int i=0; i < int(passes.size()); i++)
 	if (false == passes[i]){
-	  if(m_doDebug) std::cout << " haven't passed the " << i <<"th selection " << std::endl;
+	  if(m_doDebug) std::cout << "  * MuonSelector * passSelection() * BAD MUON * muon haven't passed the " << i+1 <<"th selection " << std::endl;
 	  return false;
 	}
 
     }
+  if(m_doDebug){ std::cout << "  * MuonSelector * passSelection() * completed. GOOD MUON " << std::endl; }
   return true;
 }
 
@@ -147,7 +145,7 @@ void MuonSelector::Init()
   StatusCode sc = serviceLocator->service("ToolSvc", toolSvc, true);
 
   if ( sc.isFailure() || toolSvc == 0 ) {
-    (*m_msgStream) << MSG::ERROR << "Unable to retrieve ToolSvc " << endmsg;
+    (*m_msgStream) << MSG::ERROR << "  * MuonSelector * Init() * Unable to retrieve ToolSvc " << endreq;
     return;
   }
   PARENT::Init();
@@ -194,18 +192,23 @@ bool MuonSelector::passQualCuts()
     int nPIXH = IDTrk->summaryValue( dummy, xAOD::numberOfPixelHoles )? dummy :-1;
     int nSCTH = IDTrk->summaryValue( dummy, xAOD::numberOfSCTHoles )? dummy :-1;
 
-    if(m_doDebug) std::cout << " eBLhits: " << eBLhits << " nBLhits:  " << nBLhits  << " nhitsPIX: " << nhitsPIX << std::endl;
+    if(m_doDebug) std::cout << "   * MuonSelector * passQualCuts() * eBLhits: " << eBLhits
+			    << "  nBLhits:  " << nBLhits
+			    << "  nhitsPIX: " << nhitsPIX
+			    << "  nhitsSCT: " << nhitsSCT
+			    << "  holes: " << nPIXH + nSCTH
+			    << std::endl;
 
     if (   ((!eBLhits) || (nBLhits > 0))
 	   &&   (nhitsPIX + nPIXDS > 1 )
 	   &&   (nhitsSCT + nSCTDS >=6 )
 	   &&   (nPIXH    + nSCTH  < 2 ) )
+      if(m_doDebug) std::cout << "   * MuonSelector * passQualCuts() * this muon satisfies the hits number QualCuts  "  << std::endl;
       return true;
   }
 
-
-if(m_doDebug) std::cout << "this muon not pass the hits number QualCuts:  "  << std::endl;
-return false;
+  if(m_doDebug) std::cout << "   * MuonSelector * passQualCuts() * this muon did not pass the hits number QualCuts  "  << std::endl;
+  return false;
 }
 
 bool MuonSelector::passPtCuts()
@@ -213,18 +216,21 @@ bool MuonSelector::passPtCuts()
 
   const xAOD::TrackParticle* pxMuonID = m_pxMuon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
   const xAOD::TrackParticle* pxMuonMS = m_pxMuon->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
+
+  double pt, ptID, ptMS;
+
   if ( !(pxMuonID && pxMuonMS)){
-         if(m_doDebug) std::cout << "NO inDetTrackParticle && muonSpectrometerTrackParticle: " << std::endl;
+         if(m_doDebug) std::cout << "   * MuonSelector * passPtCuts() * NO inDetTrackParticle && muonSpectrometerTrackParticle: " << std::endl;
   }
 
   else {
 
-    double pt    = m_pxMuon->pt();
-    double ptID  = pxMuonID->pt();
-    double ptMS  = pxMuonMS->pt();
+    pt    = m_pxMuon->pt();
+    ptID  = pxMuonID->pt();
+    ptMS  = pxMuonMS->pt();
     double fMEta = fabs( m_pxMuon->eta() );
 
-    if(m_doDebug) std::cout <<" in passPtCuts: "<< " pt: "  << pt << " ptID: " << ptID <<" ptMS:  " << ptMS << " fMEta: "<< fMEta << std::endl;
+    if(m_doDebug) std::cout <<"   * MuonSelector * passPtCuts() * pt of segments "  << pt << " ptID: " << ptID <<" ptMS:  " << ptMS << " fMEta: "<< fMEta << std::endl;
 
 
     if (  fMEta < m_fEtaCut    &&
@@ -232,12 +238,11 @@ bool MuonSelector::passPtCuts()
     ptMS  > m_ptMSCut
     //fabs(ptMS - ptID) < m_diffPtCut
     ){
-             if(m_doDebug) std::cout << " this muon passed the PtCuts:" << std::endl;
+      if(m_doDebug) std::cout << "   * MuonSelector * passPtCuts() * this muon passed the PtCuts (" << m_combPtCut <<") "<< std::endl;
              return true;
     }
   }
-
-  (*m_msgStream) << MSG::DEBUG << " this muon did not pass the PtCuts:" << endmsg;
+  if(m_doDebug) std::cout << "   * MuonSelector * passPtCuts() * this muon did not pass the PtCuts (reco pt=" << pt << ") " << std::endl;
   return false;
 }
 
@@ -247,8 +252,8 @@ bool MuonSelector::passIsolCuts()
   if (pxMuonID) {
     float iso_pt40(0);
     if( !m_pxMuon->isolation(iso_pt40, xAOD::Iso::ptcone40) ) {
-      std::cout << "No isolation variable stored on the muon" << std::endl;
-      if(m_doDebug) std::cout << " this muon did not pass the IsoCuts:" << std::endl;
+      std::cout << " * MuonSelector * WARNING * No isolation variable stored on the muon" << std::endl;
+      if(m_doDebug) std::cout << "   * MuonSelector * passIsolCuts() * this muon did not pass the IsoCuts " << endreq;
       return false;
     }
     else {
@@ -256,12 +261,12 @@ bool MuonSelector::passIsolCuts()
       double ptSum = xAOD::Iso::ptcone40;
       if(m_doDebug) std::cout <<" in passIsolCuts , pt :" << pt <<" ptSum: "<< ptSum << std::endl;
         if (ptSum/pt < m_IsoCut ){
-         if(m_doDebug) std::cout << " this muon passed the IsoCuts:" << std::endl;
+         if(m_doDebug) std::cout << "   * MuonSelector * passIsolCuts() * this muon passed the IsoCuts:" << std::endl;
        return true;
      }
     }
   }
-  if(m_doDebug) std::cout << " this muon did not pass the IsoCuts:" << std::endl;
+  if(m_doDebug) std::cout << "   * MuonSelector * passIsolCuts() * this muon did not pass the IsoCuts:" << std::endl;
   return false;
 }
 
@@ -276,58 +281,75 @@ bool MuonSelector::passIPCuts()
     extd0 = IDTrk->d0();
     extz0 = IDTrk->z0()+IDTrk->vz();
     if(m_doDebug){
-      std::cout << " the IDTrack muon d0:  " << extd0 << std::endl;
-      std::cout << " the IDTrack muon z0:  " << extz0 << std::endl;
+      std::cout << "   * MuonSelector * passIPCuts() *"
+		<< " the IDTrack muon d0:  " << extd0
+		<< " the IDTrack muon z0:  " << extz0 << std::endl;
     }
-    //if( IDTrk->track() ) {
-    //      const Trk::Track* IDTrkTrack = IDTrk->track();
-    //      if(IDTrkTrack) {
-    //	const Trk::Perigee* measPerigee = IDTrkTrack->perigeeParameters();
-    //	if( measPerigee==0 ){
-    //	  std::cout << "Could not get Trk::MeasuredPerigee " << std::endl;
-    //	}
-    //	  else{
-    //	    extd0 = measPerigee->parameters()[Trk::d0];
-    //	    extz0 = measPerigee->parameters()[Trk::z0];
-    //	    if(m_doDebug){
-    //	      std::cout << " the IDTrack muon d0:  " << extd0 << std::endl;
-    //	      std::cout << " the IDTrack muon z0:  " << extz0 << std::endl;
-    //
-    //	  }
-    //	}
-    //      }
-    //    }
-
-    //    else
-    //      return false;
   }
-  else
+  else {
+    if(m_doDebug) std::cout << "   * MuonSelector * passIPCuts() * no valid inDetTrackParticleLink() " << std::endl;
     return false;
+  }
 
-  //      const VxContainer *  vxContainer(0);
   const xAOD::VertexContainer *  vxContainer(0);
-  //vxContainer = PerfMonServices::getContainer<VxContainer>( PerfMonServices::VTX_COLLECTION );
   vxContainer = PerfMonServices::getContainer<xAOD::VertexContainer>( PerfMonServices::VTX_COLLECTION );
   if (!vxContainer){
-    if(m_doDebug) std::cout << " NO vertex collection "<< std::endl;
+    if(m_doDebug) std::cout << "   * MuonSelector * passIPCuts() ** fails because NO vertex collection "<< std::endl;
     return false;
   }
 
   if ( vxContainer->size()>1 ) {
-    //    const Trk::VxCandidate* PV  = (*vxContainer)[0];
-    const xAOD::Vertex* PV  = (*vxContainer)[0];
-    //Amg::Vector3D newPos = PV->recVertex().position();
-    Amg::Vector3D newPos = PV->position();
-    if(m_doDebug) std::cout << " the PV of this event: " << newPos << std::endl;
+    if(m_doDebug) {
+      std::cout << "   * MuonSelector * passIPCuts() ** vertex container is filled with " << vxContainer->size() << " vertices" <<  std::endl;
 
-    if ( PV->nTrackParticles() > 2         &&
-	 //If- ( PV->vxTrackAtVertex()->size() > 2         &&
-	 fabs(newPos.z())              < m_pVZCut   &&
-    	 fabs(extz0 - newPos.z())      < m_diffZCut    ){
-      if(m_doDebug) std::cout <<" this muon passed the IPCuts: " << std::endl;
-      return true;
+      // loop on vertices to check their coordinates:
+      for (int ivtx=0; ivtx < (int) vxContainer->size(); ivtx++) {
+	const xAOD::Vertex* thisVtx  = (*vxContainer)[ivtx];
+	std::cout << "                                   vertex " << ivtx+1 << " (x,y,z) = (" << thisVtx->position().x()
+		  << ", " << thisVtx->position().y()
+		  << ", " << thisVtx->position().z()
+		  << ")  type= " << thisVtx->vertexType()
+		  << "  Npart= " << thisVtx->nTrackParticles()
+		  <<  std::endl;
+      }
+    }
+    // old method (using only first vertex)
+    if (false) {
+      const xAOD::Vertex* PV  = (*vxContainer)[0];
+      Amg::Vector3D newPos = PV->position();
+      if(m_doDebug) std::cout << "   * MuonSelector * passIPCuts() ** the PV of this event: (" << newPos.x()
+			      << ", " << newPos.y()
+			      << ", " << newPos.z() << ") "
+			      << std::endl;
+
+      if ( PV->nTrackParticles() > 2         &&
+	   fabs(newPos.z())              < m_pVZCut   &&
+	   fabs(extz0 - newPos.z())      < m_diffZCut    ){
+	if(m_doDebug) std::cout <<"   * MuonSelector * passIPCuts() * this muon has passed the IPCuts. Zcut: "<<  m_pVZCut << "  m_diffZCut " << m_diffZCut << std::endl;
+	return true;
+      }
+    }
+    // new method
+    if (true) {
+      bool goodmuonIP = false; // by default think the IP is not good
+      // loop on vertices and check the muon may come from one of them
+      for (int ivtx=0; ivtx < (int) vxContainer->size(); ivtx++) {
+	const xAOD::Vertex* thisVtx  = (*vxContainer)[ivtx];
+	if ( (thisVtx->vertexType() == 1) && thisVtx->nTrackParticles()>2 ) {
+	  // check the vertex is in range and the muon is not far from the vertex
+	  if (fabs(thisVtx->position().z()) < m_pVZCut && fabs(extz0 - thisVtx->position().z()) < m_diffZCut){
+	    goodmuonIP = true;
+	    if(m_doDebug) std::cout <<"   * MuonSelector * passIPCuts() * this muon has passed the IPCuts for vertex " << ivtx+1
+				    << "  pVZcut= " << fabs(extz0 - thisVtx->position().z()) << " < " << m_diffZCut << std::endl;
+	  }
+	}
+      }
+      if (goodmuonIP) {
+	if(m_doDebug) std::cout <<"   * MuonSelector * passIPCuts() * this muon has passed the IPCuts. Zcut: "<<  m_pVZCut << "  m_diffZCut " << m_diffZCut << std::endl;
+	return true;
+      }
     }
   }
-  if(m_doDebug) std::cout <<" this muon not passed the IPCuts: " << std::endl;
+  if(m_doDebug) std::cout <<"   * MuonSelector * passIPCuts() * this muon has not passed the IPCuts: " << std::endl;
   return false;
 }
