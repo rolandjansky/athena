@@ -16,6 +16,7 @@
 
 // Include files.
 #include "ByteStreamCnvSvc/ByteStreamInputSvc.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h" 
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -114,7 +115,8 @@ private:
 
    /// Reference to StoreGateSvc;
    ServiceHandle<StoreGateSvc>  m_inputMetaDataStore;
-   ServiceHandle<StoreGateSvc> m_sgSvc; //!< StoreGateSvc
+   ServiceHandle<StoreGateSvc>  m_sgSvc; 
+   ServiceHandle<IROBDataProviderSvc>        m_robProvider;
 
 };
 

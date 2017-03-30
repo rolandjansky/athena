@@ -105,7 +105,8 @@ ByteStreamEmonInputSvc::ByteStreamEmonInputSvc(const std::string& name, ISvcLoca
     m_frequency_counter(60),
     m_publish_target(0),
     m_inputMetaDataStore("StoreGateSvc/InputMetaDataStore", name ),
-    m_sgSvc("StoreGateSvc", name)
+    m_sgSvc("StoreGateSvc", name),
+    m_robProvider("ROBDataProviderSvc", name)
 {
 
     declareProperty("Partition", m_partition, "Partitin name, default taken from $TDAQ_PARTITION if not set")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
@@ -210,6 +211,11 @@ StatusCode ByteStreamEmonInputSvc::initialize()
     if( !sc.isSuccess() ) {
         log << MSG::FATAL << "Error retrieving InputMetaDataStore"+m_inputMetaDataStore << endreq;
         return sc;
+    }
+
+    if(m_robProvider.retrieve().isSuccess()) {
+        ATH_MSG_FATAL("Cannot get rob data provider");
+        return StatusCode::FAILURE;
     }
 
     signal(SIGTERM, handle_terminate);
@@ -426,6 +432,8 @@ const RawEvent* ByteStreamEmonInputSvc::nextEvent()
             try {
                 m_re->check_tree();
                 log << MSG::INFO << "nextEvent: Got valid fragment of size:" << event.size() << endreq;
+                m_robProvider->setNextEvent(m_re);
+                m_robProvider->setEventStatus(0);
             } catch (ers::Issue& ex) {
                 // log in any case
                 log << MSG::ERROR << "nextEvent: Invalid event fragment" << endreq;
@@ -645,5 +653,7 @@ StatusCode ByteStreamEmonInputSvc::finalize()
 {
     setProperty("State","Shutdown");
     m_inputMetaDataStore.release().ignore();
+    m_robProvider.release().ignore();
+    m_sgSvc.release().ignore();
     return StatusCode::SUCCESS;
 }
