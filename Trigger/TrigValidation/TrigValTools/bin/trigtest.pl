@@ -1063,6 +1063,7 @@ sub run_test($){
  
     my %reldata = release_metadata();
     my $nightly = (exists $reldata{'nightly name'} ? $reldata{'nightly name'} : "UNKNOWN");
+    $nightly = $nightly . "/latest";
     print "$prog: looking for histograms and references for nightly $nightly \n";
 
     # rootcomp
