@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef TAUANALYSISTOOLS_HELPERFUNCTIONS_H
 #define TAUANALYSISTOOLS_HELPERFUNCTIONS_H
 

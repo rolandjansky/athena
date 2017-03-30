@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // Dear emacs, this is -*- c++ -*-
 #ifndef  TAUANALYSISTOOLS_TAUTRUTHMATCHINGTOOL_H
 #define  TAUANALYSISTOOLS_TAUTRUTHMATCHINGTOOL_H

@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // Dear emacs, this is -*- c++ -*-
 
 // local include(s)
@@ -336,20 +340,6 @@ bool SelectionCutJetIDWP::accept(const xAOD::TauJet& xTau)
   default:
     m_tTST->msg() << MSG::WARNING << "The jet ID working point with the enum "<<m_tTST->m_iJetIDWP<<" is not available" << endmsg;
     break;
-// #ifdef XAODTAU_VERSIONS_TAUJET_V3_H
-//   case JETIDBDTVERYLOOSE:
-//     if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigVeryLoose)) bPass = true;
-//     break;
-//   case JETBDTBKGLOOSE:
-//     if (xTau.isTau(xAOD::TauJetParameters::JetBDTBkgLoose)) bPass = true;
-//     break;
-//   case JETBDTBKGMEDIUM:
-//     if (xTau.isTau(xAOD::TauJetParameters::JetBDTBkgMedium)) bPass = true;
-//     break;
-//   case JETBDTBKGTIGHT:
-//     if (xTau.isTau(xAOD::TauJetParameters::JetBDTBkgTight)) bPass = true;
-//     break;
-// #endif
   }
   if (bPass)
   {
