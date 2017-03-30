@@ -64,7 +64,7 @@ def TrigIDPhysValMonitoringTool():
     ############### Electrons ###############
     name = "Electron"
     pdgid = 11
-    UseHighestPT = True
+    useHighestPT = True
     chainnames = [
       "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_EFID",
       "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_IDTrig",
