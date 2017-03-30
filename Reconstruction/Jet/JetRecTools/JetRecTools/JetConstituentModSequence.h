@@ -60,9 +60,9 @@ protected:
       std::pair< T*, xAOD::ShallowAuxContainer* > newclust = xAOD::shallowCopyContainer(*clustCont );    
       newclust.second->setShallowIO(m_saveAsShallow);
       if(record){
-        if(evtStore()->record( newclust.first, m_outputContainer ).isFailure() ||
+        if(evtStore()->record( newclust.first, m_outputContainer+suffix ).isFailure() ||
 	   evtStore()->record( newclust.second, m_outputContainer+suffix+"Aux." ).isFailure() ){
-          ATH_MSG_ERROR("Unable to record cluster collection" << m_outputContainer+suffix );
+          ATH_MSG_ERROR("Unable to record object collection" << m_outputContainer+suffix );
           return NULL;
         }
       }
