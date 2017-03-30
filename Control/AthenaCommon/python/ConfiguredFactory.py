@@ -1256,7 +1256,7 @@ class ConfiguredFactory(object):
         nFiles = 0
         startTime = time.time()
 
-        paths = [p for p in sys.path if p.endswith ('InstallArea/python')]
+        paths = [p for p in sys.path if p.endswith ('/python')]
         if not paths: paths = sys.path
 
         for path in paths:
