@@ -14,6 +14,7 @@ algseq.ExampleRatesEmulation.DoHistograms = DoHistograms
 algseq.ExampleRatesEmulation.NormaliseHistograms = NormaliseHistograms
 algseq.ExampleRatesEmulation.UseBunchCrossingTool = DoRatesVsPositionInTrain
 algseq.ExampleRatesEmulation.TargetLuminosity = TargetLuminosity
+algseq.ExampleRatesEmulation.VetoStartOfTrain = VetoStartOfTrain
 algseq.ExampleRatesEmulation.EnableLumiExtrapolation = EnableLumiExtrapolation
 
 # The following are only needed for MC

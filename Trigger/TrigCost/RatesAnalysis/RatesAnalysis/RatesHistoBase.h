@@ -20,15 +20,26 @@
 #include <memory>
 
 /**
-* Extrapolation strategy to apply to each emulated trigger.
-* @see RatesAnalysisAlg::setTargetLumi
-*/
+ * Extrapolation strategy to apply to each emulated trigger.
+ * @see RatesAnalysisAlg::setTargetLumi
+ */
 enum ExtrapStrat_t{
   kLINEAR, //!< Scale trigger linearly with luminosity
   kEXPO_MU, //!< Scale trigger linearly in bunches and exponentially in mu. Exponential modifier factor is to be provided.
   kBUNCH_SCALING, //!< Scale trigger linearly but only in the number of bunches
   kMU_SCALING, //!< Scale trigger linearly but only in the change in <mu>
   kNONE //!< Do not scale this trigger for changes in luminosity
+};
+
+/**
+ * Lables a bin in a histogram.
+ */
+enum RatesBinIdentifier_t{
+  kRATE_BIN_OR, //!< Bin used to store the total rate (OR)
+  kRATE_BIN_AND, //!< Bin used to store the total rate (AND)
+  kEXPRESS_BIN, //!< Bin used to store the express rate.
+  kUNIQUE_BIN, //!< Bin used to store data needed to get the unique rate
+  kNRATES_BINS //!< Must always come last
 };
 
 /**
@@ -70,6 +81,7 @@ class RatesHistoBase {
   virtual ~RatesHistoBase();
 
   TH1D* getMuHist() const; //!< @return histogram pointer or nullptr and an error
+  TH1D* getDataHist() const; //!< @return histogram pointer or nullptr. Does not cause error
   TH1D* getTrainHist() const; //!< @return histogram pointer or nullptr and an error
   virtual void normaliseHist(const double ratesDenominator); //!< Normalise to walltime to get rate.
   bool doHistograms() const { return m_doHistograms; } //!< If histogramming was enabled in this rates object
@@ -81,6 +93,7 @@ class RatesHistoBase {
   bool m_doHistograms; //!< If histogramming is switched on
   TH1D* m_rateVsMu; //!< Histogram of rate as a fn. of the input event's mu
   TH1D* m_rateVsTrain; //!< Histogram of rate as a fn. of position in bunch train
+  TH1D* m_data; //!< Histogram of raw rates quantites, for when we need to normalise offline (e.g. grid processing)
   static uint32_t m_histoID; //!< Give every histo a unique name using this
 
   mutable MsgStream m_log; //!< For ATHENA messaging
