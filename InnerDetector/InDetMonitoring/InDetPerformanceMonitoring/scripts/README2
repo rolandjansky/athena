@@ -1,0 +1,102 @@
+author: Oscar Estrada Pastor
+
+After having the ntuple ready and merged for the desired runs, the weak modes for several resonances can be analyzed:
+
+We need to run run_ZmumuValidationExample.C 
+
+The maps are made on ZmumuValidationExample.cxx iteratively (libraries implemented in ZmumuValidationExample.h) and an output root file is generated afterwards containing all the histograms.
+
+Different modes can be set to run the script (default mode is Zmumu):
+
+run_ZmumuValidationExample(Int_t nIterationsUserInput, Int_t sampletype, Int_t analysismode)
+
+sampleType: {0 = ZSAMPLE, 1 = JPSISAMPLE, 2 = UPSILONSAMPLE, 3 = DIMUONSAMPLE, 4 = KSHORTSAMPLE};
+analysismode: {ANALYSIS_ALL = 0, ANALYSIS_RADIALDIST = 1, ANALYSIS_SAGITTADIST= 2}
+
+One can set also :
+*the ouput root file name in the variable string output_file.
+*if it Data or MC with the boolean variable isMC.
+*the number of eta and phi bins.
+*if it is present a MC bias (by default set to zero. If one wants to introduce biases must introduce it by hand in ZmumuValidationExample.cxx).*to perform several tests setting booleans in the ApplyBFieldRotationTest, ApplySagittaHistogramTest and ApplyRadialTest. Set these variables to false to perform standard computation.
+*to perform positive and negative muons fits individually (apart from the dimuon fit). Set this variable to true if you want to perform ANALYSIS_RADIALDIST mode and fit both muons separately (e.g. useful for Z).
+
+In the last version of trunk it is needed as input a root file (i.e. DeltaSagittaMaps.root). Copy it to your InDetPerformaceMonitoring/scripts folder from:
+
+/afs/cern.ch/work/o/oestrada/public/alignment2/forSteffen/DeltaSagittaMap.root
+
+cp /afs/cern.ch/work/o/oestrada/public/alignment2/forSteffen/DeltaSagittaMap.root /path/to/folder/InDetPerformanceMonitoring/scripts
+
+0. Set up and loading run_ZmumuValidationExample.C
+-------------------------------------------------
+setupATLAS
+asetup 20.7.7.9, gcc49, here
+
+introduce the path of the merged file ntuple into scripts/userFiles.C
+
+e.g. s_fileNames.push_back("/afs/cern.ch/work/o/oestrada/public/alignment2/Zmaps_20.7.7.9/20.7.7.9/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/ZmumuValidationUserSel.root");
+
+
+
+root -l
+.L run_ZmumuValidationExample.C+
+
+1. Running the sagitta, d0 an z0 maps for the Z->mu mu mode
+----------------------------------------------------------
+Usually for the Z mode the sagitta distorsion mode runs with 20 iterations smoothly. If you are only interested in obtaining these maps, the sagitta distorsion mode saves time by neither not doing any invariant mass fit nor performing radial distorsions calculations.
+
+run_ZmumuValidationExample(20, 0, 2)
+
+We usually look at the 2-D maps generated in the output root file:
+
+LambdaCorrectionVsEtaPhi
+d0CorrectionVsEtaPhi
+z0CorrectionVsEtaPhi
+
+Once we have the root file created, scripts/printCorrectionMaps_simple.py can be used to generate 2D maps in pdf format.
+
+mkdir outputmaps
+python printCorrectionsMaps_simple.py --inputFiles outputrootfilename.root --outdir outputmaps 
+
+PDF's files will be generated in the ouputmaps folder.
+
+
+2. Running the sagitta, d0 and z0 maps for the Jpsi-> mu mu mode
+---------------------------------------------------------------
+WARNING: usually less events available in Jpsi. May need a smaller binning.
+
+Follow the instructions from item 1, only when running change to:
+
+run_ZmumuValidationExample(20, 1, 2)
+
+
+
+3. Running the reconstructed mass differences for Z -> mu mu
+-------------------------------------------------------------
+All the fit models for every resonance are implemented in scripts/JPsiMassFit.C and are used to calculate radial distorsions corrections.
+
+Therefore in this case we need to perform 1 iteration (since we are interested in reconstructed mass) and use radial distorsion mode (where the fits are performed).
+
+By default the program calculates the fit for the dimuon. In this case we need to focus on the positive and negative muon.
+
+Set FitPositiveAndNegativeMuon option of run_ZmumuValidationExample to false and activate the m_JPsiMassFit->Execute() in ZmumuValidationExample.cxx in case it is commented.
+
+When running:
+
+run_ZmumuValidationExample(1,0,1)
+
+
+4. Running the radial distorsions for the Jpsi -> mu mu
+---------------------------------------------------
+
+By default the program calculates the fit for the dimuon. In this case we do not need to focus on the positive and negative muon, since Jpsi are very boosted dimuon is sufficient.
+
+Set FitPositiveAndNegativeMuon option of run_ZmumuValidationExample to false and activate the m_JPsiMassFit->Execute() in ZmumuValidationExample.cxx in case it is commented.
+
+When running:
+
+run_ZmumuValidationExample(20,1,1)
+
+
+
+
+

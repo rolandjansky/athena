@@ -1,23 +1,35 @@
+
 # enable outputs
 zmumuval = True
 globalAlignmentMon = True
-dimuonmon = True
+dimuonmon = False
 
 # use GRL
-useGRL = True
+useGRL = False
+
+# MC
+MC_bool = False
+
+#do Trigger
+DoTrigger = False
 
 # where to run
 grid = True
 
 # handle input constants
 readPool = False
-inputConstants = "./Iter1_AlignmentConstants.root"
+inputConstants = "/afs/cern.ch/work/s/sthenkel/public/forPF/ScriptsToRunWeakModeMaps/runOnBatch/AlignmentConstants/Iter0_AlignmentConstants.root"
 
 
-
+#include("InDetSimpleVisual/GetDetectorPositions.py")
 
 if grid == True:
-    PoolInput = ["/afs/cern.ch/user/s/sthenkel/eos/atlas/user/s/sthenkel/MC/valid3.147407.PowhegPythia8_AZNLO_Zmumu.recon.ESD.e3099_s2578_r6588_tid05292497_00/ESD.05292497._000150.pool.root.1"]
+    #PoolInput = ["/afs/cern.ch/work/o/oestrada/public/alignment2/Jpsi_20.7.3.8/20.7.3.8/JpsiNtuplesMC/data16_13TeV.00296939.physics_Main.merge.DESDM_MCP.f689_m1587/data16_13TeV.00296939.physics_Main.merge.DESDM_MCP.f689_m1587._0004.1"]#
+    PoolInput = ["/afs/cern.ch/work/d/dhaliwal/public/ForOscar/test.pool.root"]
+
+    # xx
+    # xx
+    
 elif 'inputFiles' in dir():
     print inputFiles
     PoolInput = inputFiles
@@ -27,7 +39,8 @@ else:
 #    print inputFiles
 #PoolInput = inputFiles
 # number of event to process
-EvtMax=-1
+
+EvtMax=100
 SkipEvents = 0
 
 
@@ -58,8 +71,13 @@ athenaCommonFlags.EvtMax = EvtMax
 athenaCommonFlags.SkipEvents = SkipEvents
 
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-BLKPA-2015-14")
-globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-R2-2015-03-01-00")
+if not MC_bool:
+    globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-BLKPA-2016-16")
+else:
+    globalflags.ConditionsTag.set_Value_and_Lock("OFLCOND-MC15c-SDR-05")
+
+globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-R2-2015-04-00-00")
+
 
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
@@ -84,7 +102,7 @@ rec.doMuonCombined.set_Value_and_Lock(False)
 rec.doEgamma.set_Value_and_Lock(False)
 rec.doJetMissingETTag.set_Value_and_Lock(False)
 rec.doTau.set_Value_and_Lock(False)
-rec.doTrigger.set_Value_and_Lock(False)
+rec.doTrigger.set_Value_and_Lock(DoTrigger)
 rec.doTruth.set_Value_and_Lock(False)
 
 #rec.doMonitoring.set_Value_and_Lock(True)
@@ -108,9 +126,9 @@ DetFlags.Muon_setOn()
 
 
 from IOVDbSvc.CondDB import conddb
-inputCollections = [inputConstants]
-conddb.addOverride('/Indet/Align', 'InDetAlign-RUN2-25NS')
-conddb.addOverride('/TRT/Align',   'TRTAlign-RUN2-25NS')
+inputCollectons =[]
+if 'inputConstants' in dir():
+    inputCollections = [inputConstants]
 
 
 if readPool :
@@ -134,7 +152,21 @@ include ("InDetRecExample/InDetRecConditionsAccess.py")
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
 
+from PerfMonComps.PerfMonFlags import jobproperties
+jobproperties.PerfMonFlags.doMonitoring = False
+
 print svcMgr.IOVDbSvc
+
+
+####  Track Selection Tool
+
+from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+m_TrackSelectorTool_LooseMuon = InDet__InDetTrackSelectionTool(name         = "InDetTrackSelectorLooseMuon",
+                                                               CutLevel = "LooseMuon",
+                                                               minPt = 25000
+                                                               
+                                                               )
+ToolSvc += m_TrackSelectorTool_LooseMuon
 
 
 #### run zmumu validation
@@ -145,17 +177,44 @@ if zmumuval == True:
     include ("InDetPerformanceMonitoring/ElectronEoverPTracking.py")
 
     from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonZmumu
-    iDPerfMonZmumu = IDPerfMonZmumu(name = 'IDPerfMonZmumu',
-                                    ReFitterTool1 = MuonRefitterTool,
-                                    ReFitterTool2 = MuonRefitterTool2,
-                                    OutputTracksName =  "SelectedMuons",
-                                    isMC = False,
-                                    doIsoSelection = False,
-                                    OutputLevel= INFO)
+    if (True): 
+        iDPerfMonZmumu = IDPerfMonZmumu(name = 'IDPerfMonZmumu',
+                                        ReFitterTool1 = MuonRefitterTool,
+                                        ReFitterTool2 = MuonRefitterTool2,
+                                        OutputTracksName =  "SelectedMuons",
+                                        isMC = MC_bool,
+                                        doIsoSelection = True,
+                                        doIPSelection  = True,
+                                        UseTrigger     = DoTrigger,
+                                        OutputLevel= INFO,
+                                        UseTrackSelectionTool = True,
+                                        MassWindowLow        = 70,
+                                        MassWindowHigh       = 110,
+                                        PtLeadingMuon        = 25,
+                                        PtSecondMuon         = 25,
+                                        TrackSelectionTool = m_TrackSelectorTool_LooseMuon,
+                                        TrackParticleName= 'CombinedMuonTrackParticles')
+        
+        job += iDPerfMonZmumu
+        print iDPerfMonZmumu
 
-
-    job += iDPerfMonZmumu
-
+    if (False):
+        iDPerfMonJPsi = IDPerfMonZmumu(name = 'IDPerfMonJPsi',
+                                       ReFitterTool1 = MuonRefitterTool,
+                                       ReFitterTool2 = MuonRefitterTool2,
+                                       OutputTracksName =  "SelectedMuons",
+                                       isMC = False,
+                                       doIsoSelection = False,
+                                       doIPSelection = True,
+                                       OutputLevel= INFO,
+                                       MassWindowLow = 1.0,
+                                       MassWindowHigh = 120.,
+                                       PtLeadingMuon = 1.0,
+                                       OpeningAngle = 0.001,
+				       #TrackTruthName ="TrackTruthCollection",
+                                       TrackParticleName= 'CombinedMuonTrackParticles')
+        job += iDPerfMonJPsi
+        print iDPerfMonJPsi
 
 
 
@@ -169,19 +228,19 @@ if dimuonmon == True:
     varsDistrZmumu = ["etaAll","etaPos","etaNeg","phiAll","phiPos","phiNeg","ptAll","ptPos","ptNeg"]
 
     ZmumuMon = DiMuMon (name = "ZmumuMon_NoTrig",
-                               resonName = "Zmumu",
-                               minInvmass = 60.,
-                               maxInvmass = 120.,
-                               nMassBins = 60,
-                               triggerChainName = "NoTrig",
-                               regions = ["All","BB","EAEA","ECEC"],
-                               varsVSmean = varsVSmeanZmumu,
-                               varsVSwidth = varsVSwidthZmumu,
-                               varsDistr = varsDistrZmumu,
-                               doFits = True,
-                               doSaveFits = False,
-#                               setDebug = True,
-                               OutputLevel = INFO)
+                        resonName = "Zmumu",
+                        minInvmass = 10.,
+                        maxInvmass = 120.,
+                        nMassBins = 60,
+                        triggerChainName = "NoTrig",
+                        regions = ["All","BB","EAEA","ECEC"],
+                        varsVSmean = varsVSmeanZmumu,
+                        varsVSwidth = varsVSwidthZmumu,
+                        varsDistr = varsDistrZmumu,
+                        doFits = True,
+                        doSaveFits = False,
+    #                               setDebug = True,
+    OutputLevel = INFO)
     ToolSvc += ZmumuMon
 
     from AthenaMonitoring.DQMonFlags import DQMonFlags
@@ -205,7 +264,8 @@ if dimuonmon == True:
 #### run global alignment monitoring
 
 if zmumuval == True and globalAlignmentMon == True:
-    trackCollections = ["SelectedMuonsRefit1","SelectedMuonsRefit2"]
+    trackCollections = ["SelectedMuonsRefit1","SelectedMuonsRefit2","]
+#    trackCollections = ["SelectedMuonsDefault"]
     StoreGateSvc = Service("StoreGateSvc")
     StoreGateSvc.Dump = False
     include ("InDetPerformanceMonitoring/TrackMonitoring.py")

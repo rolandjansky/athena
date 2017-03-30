@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef IDPERFMON_MUONSELECTOR_H
 #define IDPERFMON_MUONSELECTOR_H
 
@@ -35,7 +31,10 @@ class MuonSelector : public EventAnalysis
   // Override functions from EventAnalysis
   virtual void Init();
   virtual bool Reco();
-  void doIsoSelection(bool doIso) {m_doIsoSelection=doIso;}
+  inline void doIsoSelection (bool doIso) {m_doIsoSelection=doIso;}
+  inline void doIPSelection (bool doIPsel) {m_doIPSelection=doIPsel;}
+  inline void SetPtCut (double newvalue) {m_combPtCut = newvalue;}
+  inline double GetPtCut () {return m_combPtCut;}
 
  protected:
   virtual void BookHistograms();

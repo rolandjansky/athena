@@ -1,6 +1,7 @@
 ################################
+import os
+###############################
 # setup of alignment monitoring
-
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 InDetAlignMonManager = AthenaMonManager( name                = "InDetAlignMonManager",
@@ -39,69 +40,71 @@ InDetTrackSummaryTool = ToolSvc.InDetTrackSummaryTool
 #import egammaRec.EMCommonTrackSummary
 #InDetTrackSummaryTool = ToolSvc.InDetTrackSummaryTool #egammaRec.EMCommonTrackSummary.egammaInDetTrackSummaryTool
 
-from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
-trackSelector = InDet__InDetDetailedTrackSelectorTool(
-    name = "TrackSelector",
-    OutputLevel = 7,
-    #OutputLevel = DEBUG,
-    TrackSummaryTool = InDetTrackSummaryTool,
-    pTMin = 10000.,
-    IPd0Max = 500.,
-    IPz0Max = 500.,
-    #nHitSct = 4,
-    nHitPix = 1,
-    nHitPixPhysical = 1,
-    nHitBLayerPlusPix = 0,
-    nHitBLayer = 0,
-    nHitSi = 9,
-    nHitSiPhysical = 7,
-    nHitTrt = 0,
-    #useEtaDepententMinHitTrt = True,
-    TrtDCCutTool = trtDCtool,
-#    addToMinHitTrt = -3
-)
-trackSelector.useEtaDepententMinHitTrt = True
-ToolSvc += trackSelector
 
 
-alignTrackSelection = InDetAlignMon__TrackSelectionTool(
+from InDetTrackSelectionTool.InDetTrackSelectionToolConf   import InDet__InDetTrackSelectionTool           #loading the InDetTrackSelectionTool
+
+m_TrackSelectorTool_NoCut = InDet__InDetTrackSelectionTool(name         = "InDetTrackSelectorNoCut",
+							       UseTrkTrackTools = True,
+							       CutLevel = "NoCut",
+							       TrackSummaryTool    = InDetTrackSummaryTool,
+							       Extrapolator        = InDetExtrapolator)
+
+
+
+ToolSvc +=  m_TrackSelectorTool_NoCut
+
+LPSelection = InDetAlignMon__TrackSelectionTool(
+	name = "InDetAlignMonTracksSelectionTool_LP",
+	PrimVtxContainerName = InDetKeys.xAODVertexContainer(),
+	UseIDTrackSelectionTool = True,
+	IDTrackSelectionTool = m_TrackSelectorTool_NoCut,
+	#TrackSelectorTool    = InDetDetailedTrackSelector_Default
+	)
+
+ToolSvc += LPSelection
+
+
+allSelection = InDetAlignMon__TrackSelectionTool(
                                                         name = "InDetAlignMonAlignTrackSelectionTool",
-                                                        #PassAllTracks = True, ## Uncomment this line to bypass track slection
-                                                        TrackSelectorTool = trackSelector
-                                                        )
-ToolSvc += alignTrackSelection
+                                                        PassAllTracks = True, ## Uncomment this line to bypass track slection
+							PrimVtxContainerName = InDetKeys.xAODVertexContainer(),
+							UseIDTrackSelectionTool = True,
+							IDTrackSelectionTool = m_TrackSelectorTool_NoCut,
+							#TrackSelectorTool    = InDetDetailedTrackSelector_Default
+							)
+ToolSvc += allSelection
 
 
 from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonResiduals
 from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonGenericTracks
 from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonEfficiencies
-tracks = trackCollections[0]
+
 
 for trackCollection in trackCollections:
         # Selected tracks
         print "Loading monitoring"
         InDetAlignMonResiduals = IDAlignMonResiduals(
                 name = "InDetAlignMonResiduals_"+trackCollection,
-                trackSelection = alignTrackSelection,#allSelection,
+                trackSelection = LPSelection,
                 tracksName = trackCollection,
                 useExtendedPlots = True,
-                triggerChainName = "all",
+                triggerChainName = "Tracks",
                 Pixel_Manager = InDetKeys.PixelManager(),
                 SCT_Manager = InDetKeys.SCT_Manager(),
                 TRT_Manager = InDetKeys.TRT_Manager(),
-                minPIXResXFillRange = -0.1,
-                maxPIXResXFillRange =  0.1,
-                #minPIXResXFillRange = -0.5,
-                #maxPIXResXFillRange =  0.5,
+                minPIXResXFillRange = -0.065,
+                maxPIXResXFillRange =  0.065,
                 minPIXResYFillRange = -0.5,
                 maxPIXResYFillRange =  0.5,
-                minSCTResFillRange  = -0.2,
-                maxSCTResFillRange =   0.2,
-                #minSCTResFillRange  = -0.5,
-                #maxSCTResFillRange =   0.5,
+                minSCTResFillRange  = -0.110,
+                maxSCTResFillRange =   0.110,
+                minTRTResidualWindow = -0.5,
+                maxTRTResidualWindow =  0.5,
                 NSplitMap = 4,
-                RangeOfPullHistos  =   5
-
+                RangeOfPullHistos  =   5,
+                applyHistWeight = True,
+                hWeightInFileName = os.getenv("TestArea")+"/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/hWeight.root"
         )
         print InDetAlignMonResiduals
 
@@ -110,20 +113,27 @@ for trackCollection in trackCollections:
 
         InDetAlignMonGenericTracks = IDAlignMonGenericTracks(
                 name = "InDetAlignMonGenericTracks_"+trackCollection,
-                trackSelection = alignTrackSelection,#allSelection,
+                trackSelection = LPSelection,
                 tracksName = trackCollection,
                 useExtendedPlots = True,
-                triggerChainName = "all",
-                VxPrimContainerName = InDetKeys.PrimaryVertices()
+                triggerChainName = "Tracks",
+                VxPrimContainerName = InDetKeys.PrimaryVertices(),
+                d0BsRange = 0.1,
+                z0Range = 150.,
+                applyHistWeight = True,
+                hWeightInFileName = os.getenv("TestArea")+"/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/hWeight.root"
+
         )
+        print InDetAlignMonGenericTracks
+        
         ToolSvc += InDetAlignMonGenericTracks
         InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonGenericTracks ]
 
         InDetAlignMonSelectedTracksEfficiencies = IDAlignMonEfficiencies (
                 name = "InDetAlignMonEfficiencies_"+trackCollection,
-                trackSelection = alignTrackSelection,#allSelection,
+                trackSelection = LPSelection,
                 tracksName = trackCollection,
-                triggerChainName = "all",
+                triggerChainName = "Tracks",
                 #HoleSearch = InDetExtendedHoleSearchTool,
                 Pixel_Manager = InDetKeys.PixelManager(),
                 SCT_Manager = InDetKeys.SCT_Manager(),
@@ -143,8 +153,8 @@ InDetAlignMonBeamSpot_noTrig = InDetAlignMonBeamSpot (name  = "InDetAlignMonBeam
                                                                                                          vxContainerWithBeamConstraint  = InDetFlags.useBeamConstraint(),
 						                                    #                     vxContainerWithBeamConstraint  = False,
 						                                                          OutputLevel= 1)
-ToolSvc += InDetAlignMonBeamSpot_noTrig
-InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonBeamSpot_noTrig ]
+#ToolSvc += InDetAlignMonBeamSpot_noTrig
+#InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonBeamSpot_noTrig ]
 
 # write out BS info
 #from AthenaCommon.AppMgr    import ServiceMgr as svcMgr
