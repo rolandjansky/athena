@@ -1061,26 +1061,8 @@ sub run_test($){
     #make short file with last 600 lines only
     systemcall("tail -600 $logfile > $logfiletail");
  
-    # get the nightly we are using form the CMTPATH    
-    my $nightly = "";
-    my $cmt = "";
-    if(defined $ENV{'CMAKE_PREFIX_PATH'}){
-        $cmt = $ENV{'CMAKE_PREFIX_PATH'};
-    }
-    else{        
-        $cmt = $ENV{'CMTPATH'};
-    }
-    my $nightlykey =  'builds/nightlies/';
-    my $keylength  = length $nightlykey;
-    my $start  = rindex($cmt,$nightlykey) ;
-    if( $start > -1 ) {
-      $start =  $start + $keylength;
-      #  $nightly should be dev,devval, bugfix, val, ect.
-      $nightly = substr $cmt, $start;
-      my $nextslash = index $nightly, '/' ;
-      $nightly = substr $nightly, 0, $nextslash ;
-      $nightly = $nightly . "/latest";
-    } 
+    my %reldata = release_metadata();
+    my $nightly = (exists $reldata{'nightly name'} ? $reldata{'nightly name'} : "UNKNOWN");
     print "$prog: looking for histograms and references for nightly $nightly \n";
 
     # rootcomp
@@ -1370,4 +1352,17 @@ sub resolveSymlinks() {
   }
   chomp $respath;
   return $respath;
+}
+
+# Read ReleaseData file and return dictionary with content
+sub release_metadata() {
+    my %data;
+    my @dir = grep(/$ENV{'AtlasProject'}/, split(':',$ENV{'LD_LIBRARY_PATH'}));
+    open RELDATA, "$dir[0]/../ReleaseData" or print "=== Alert! Cannot open ReleaseData file\n";
+    while (<RELDATA>) {
+        chomp;
+        my @kv = split(':');
+        $data{$kv[0]} = $kv[1];
+    }
+    return %data;
 }
