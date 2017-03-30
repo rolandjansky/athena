@@ -6,7 +6,10 @@
 
 namespace CP {
 
-  RetrievePFOTool::RetrievePFOTool(const std::string& name) : asg::AsgTool( name ) { }
+  RetrievePFOTool::RetrievePFOTool(const std::string& name) : asg::AsgTool( name ) {     
+    declareProperty("ChargedInputContainer", m_inCharged="");
+    declareProperty("NeutralInputContainer", m_inNeutral="");
+}
 
   const xAOD::PFOContainer* RetrievePFOTool::retrievePFO(const CP::PFO_JetMETConfig_inputScale& theScale) const {
     return this->retrievePFO(theScale, CP::all);
@@ -20,14 +23,15 @@ namespace CP {
     StatusCode sc;
     //Then we retrieve the charged PFO - this is the same for both EM and LC modes
     if (CP::charged == theCharge || CP::all == theCharge) {
-      sc = this->fillPFOContainer(newContainer, "JetETMissChargedParticleFlowObjects");
-      if (sc.isFailure()) std::cout << " could not fill charged pfo container " << std::endl;
+      if(m_inCharged!="") sc = this->fillPFOContainer(newContainer, m_inCharged);
+      else sc = this->fillPFOContainer(newContainer, "JetETMissChargedParticleFlowObjects");
+      if (sc.isFailure()) ATH_MSG_WARNING( " could not fill charged pfo container ");
     }
 
     //Then we retrieve the neutral PFO - thu is different in the EM and LC modes
     if (CP::neutral == theCharge || CP::all == theCharge) {
       sc = this->retrieve_neutralPFO(theScale,newContainer);
-      if (sc.isFailure()) std::cout << " could not fill neutral pfo container " << std::endl;
+      if (sc.isFailure()) ATH_MSG_WARNING(" could not fill neutral pfo container ");
     }
 
     //The client is only allowed a const pointer, to prevent them modifying the PFO
@@ -41,12 +45,18 @@ namespace CP {
 
     if (CP::EM == theScale) {
       //Get neutral PFO for EM mode - stored in one container
-      ATH_CHECK(this->fillPFOContainer(theContainer, "JetETMissNeutralParticleFlowObjects"));
+      if(m_inNeutral!="") ATH_CHECK(this->fillPFOContainer(theContainer, m_inNeutral));
+      else ATH_CHECK(this->fillPFOContainer(theContainer, "JetETMissNeutralParticleFlowObjects"));
     }// EM mode
     else if (CP::LC == theScale){
       //Get neutral PFO for LC mode - stored in two containers
-      ATH_CHECK(this->fillPFOContainer(theContainer, "JetETMissLCNeutralParticleFlowObjects"));
-      ATH_CHECK(this->fillPFOContainer(theContainer, "JetETMissLCNonModifiedNeutralParticleFlowObjects"));
+      if(m_inNeutral!="")
+        ATH_CHECK(this->fillPFOContainer(theContainer, m_inNeutral));
+      else{
+        //Get neutral PFO for LC mode - stored in two containers
+        ATH_CHECK(this->fillPFOContainer(theContainer, "JetETMissLCNeutralParticleFlowObjects"));
+        ATH_CHECK(this->fillPFOContainer(theContainer, "JetETMissLCNonModifiedNeutralParticleFlowObjects"));
+      }
     }//LC mode
 
     return StatusCode::SUCCESS;

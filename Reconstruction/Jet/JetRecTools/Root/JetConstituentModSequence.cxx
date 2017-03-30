@@ -51,8 +51,9 @@ StatusCode JetConstituentModSequence::initialize() {
 }
   
 int JetConstituentModSequence::execute() const {
-  const xAOD::IParticleContainer* cont = 0;
-  ATH_CHECK( evtStore()->retrieve(cont, m_inputContainer) );
+  const xAOD::IParticleContainer* cont = nullptr;
+  if(m_inputType != xAOD::Type::ParticleFlow)
+    ATH_CHECK( evtStore()->retrieve(cont, m_inputContainer) );
 
   xAOD::IParticleContainer* modifiedCont = 0;
 
@@ -72,13 +73,36 @@ int JetConstituentModSequence::execute() const {
 
 
   case xAOD::Type::ParticleFlow : {
-    modifiedCont = copyAndRecord<xAOD::PFOContainer>(cont, !m_trigger);
+    const xAOD::IParticleContainer *charged;
+    const xAOD::IParticleContainer *neutral;
+    ATH_CHECK( evtStore()->retrieve(charged, m_inputContainer+"ChargedParticleFlowObjects") );
+    ATH_CHECK( evtStore()->retrieve(neutral, m_inputContainer+"NeutralParticleFlowObjects") );
+
+    xAOD::PFOContainer* chargedCopy = dynamic_cast<xAOD::PFOContainer *>(copyAndRecord<xAOD::PFOContainer>(charged, !m_trigger, "ChargedParticleFlowObjects"));
+    xAOD::PFOContainer* neutralCopy = dynamic_cast<xAOD::PFOContainer *>(copyAndRecord<xAOD::PFOContainer>(neutral, !m_trigger, "NeutralParticleFlowObjects"));
+
+    xAOD::PFOContainer* tmpCont = new xAOD::PFOContainer(SG::VIEW_ELEMENTS);
+    for ( xAOD::PFO* pfo: *chargedCopy){
+      tmpCont->push_back(pfo);
+    }
+    for ( xAOD::PFO* pfo: *neutralCopy){
+      tmpCont->push_back(pfo);
+    }
+    modifiedCont=tmpCont;
+
+    if(!m_trigger){
+      if( evtStore()->record(modifiedCont, m_outputContainer+"ParticleFlowObjects").isFailure() ){
+        ATH_MSG_ERROR("Unable to record cluster collection" << m_outputContainer+"ParticleFlowObjects" );
+        return NULL;
+      }
+    }
+
     break; }
 
   default: {
     ATH_MSG_WARNING( "Unsupported input type " << m_inputType );
   }
-    
+
 
   }
 
@@ -96,6 +120,9 @@ int JetConstituentModSequence::execute() const {
       return 1;
     }
   }
+
+  //To prevent memory leak when modified PFO are not recorded to event store
+  if(m_inputType == xAOD::Type::ParticleFlow && m_trigger) delete modifiedCont;
   
   return 0;
 }
