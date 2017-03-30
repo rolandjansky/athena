@@ -4,23 +4,20 @@ from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBa
 
 class TrigFastTrackFinder(TrigFastTrackFinderBase):
   def __init__(self, name="TrigTrackFinder_Muon", type="muon"):
-
-    #dictionary to accommodate old instance naming of the TrigFastTrackFinder
-    #new configurations should not enter here
     remap  = {
-      "muon"        : "Muon",
-      "muonCore"    : "MuonCore",
-      "muonIso"     : "MuonIso",
-      "electron"    : "eGamma",
-      "tau"         : "Tau",
-      "tauCore"     : "TauCore",
-      "tauIso"      : "TauIso",
-      "bjet"        : "Jet",
-      #"bjetVtx"     : "Jet",       #if configs are the same they can map to the same instance
-      "fullScan"    : "FullScan",
-      "beamSpot"    : "BeamSpot",
-      "bphysics"    : "Bphysics",
-      "cosmics"     : "Cosmic",
+      "muon"     : "Muon",
+      "muonCore" : "MuonCore",
+      "muonIso"  : "MuonIso",
+      "electron" : "eGamma",
+      "tau"      : "Tau",
+      "tauCore"  : "TauCore",
+      "tauIso"   : "TauIso",
+      "bjet"     : "Jet",
+      "bjetVtx"  : "Jet",
+      "fullScan" : "FullScan",
+      "beamSpot" : "BeamSpot",
+      "bphysics" : "Bphysics",
+      "cosmics"  : "Cosmic",
       }
 
     #this should not happen here
@@ -30,10 +27,8 @@ class TrigFastTrackFinder(TrigFastTrackFinderBase):
     elif 'Iso' in name and 'Iso' not in type:
         hacktype = type+'Iso'
 
-    conftype = hacktype
-    if hacktype in remap:
-      conftype = remap[hacktype]
-      
+    #more type hacking
+    conftype = remap[hacktype]    
     if name.find('TrigFastTrackFinder_FTK')>-1:
       import re
       conftype = re.search("FTK.*$",name).group(0)
