@@ -124,14 +124,14 @@ def addJetRecoToAlgSequence(job = None, useTruth = None, eventShapeTools = None,
     jtm.jetconstit
     runners = [jtm.jetconstit]
 
-  if jetFlags.separateJetAlgs():
+  if separateJetAlgs:
 
     jtm += JetToolRunner("jetrun",
                          EventShapeTools=evstools,
                          Tools=rtools,
                          Timer=jetFlags.timeJetToolRunner()
                          )
-    runners += [jetrun]
+    runners += [jtm.jetrun]
 
     job += JetAlgorithm("jetalg")
     jetalg = job.jetalg
