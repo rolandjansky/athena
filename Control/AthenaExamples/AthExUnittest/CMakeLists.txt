@@ -12,20 +12,14 @@ atlas_depends_on_subdirs( PUBLIC
 			  Control/AthenaBaseComps
                           TestPolicy )
 
-# Library in the package:
-# atlas_add_library( AthExUnittestLib
-#                    MyPackage/*.h src/*.cxx
-#                    src/components/*.cxx
-#                    Root/*.cxx
-#                    PUBLIC_HEADERS MyPackage
-#                    LINK_LIBRARIES GaudiKernel AthenaBaseCompsLib )
-
+# The component lib:
 atlas_add_component( AthExUnittest
-                     MyPackage/*.h src/*.cxx
+                     AthExUnittest/*.h src/*.cxx
                      src/components/*.cxx
                      Root/*.cxx
                      LINK_LIBRARIES GaudiKernel AthenaBaseComps )
 
+# The test:
 atlas_add_test( gt_AthExUnittest
   SOURCES test/gt_AthExUnittest.cxx
   LINK_LIBRARIES GaudiKernel GoogleTestTools AthenaBaseComps )

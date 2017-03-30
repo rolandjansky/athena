@@ -9,6 +9,7 @@ using ::testing::SetArgReferee;
 
 namespace Athena_test {
 
+  // Mock for xAOD::Jet with method handle Jet::getAttribute<T>
   class MockxAODJet : public xAOD::Jet {
   public:
     MockxAODJet() {}
@@ -28,6 +29,7 @@ namespace Athena_test {
 
 }  
 
+// Template method specialisation
 namespace xAOD {
 
   template<> inline
@@ -41,25 +43,31 @@ namespace xAOD {
 
 namespace Athena_test {
 
-  TEST( MyxAODAnalysis, mockjetpt ) {
+  // Tests with mock object, these show that the mock
+  // object works correctly incl. the specialised template
+  // method
+
+  class MockxAODJetTest : public ::testing::Test {
+  public:
+    MockxAODJetTest() : jet( &mockjet ) {}
     MockxAODJet mockjet;
-    mockjet.makePrivateStore();
+    xAOD::Jet* jet;
+  };
+
+  TEST_F( MockxAODJetTest, jetpt ) {
     ON_CALL( mockjet, pt() ).WillByDefault( Return( 1.0 ) );
     EXPECT_CALL( mockjet, pt() ).Times( 1 );
-    xAOD::Jet& jet= mockjet;
-    EXPECT_EQ( jet.pt(), 1.0 );
+    EXPECT_EQ( jet->pt(), 1.0 );
   }
 
-  TEST( MyxAODAnalysis, mockjetgetAttribute ) {
-    MockxAODJet mockjet;
+  TEST_F( MockxAODJetTest, jetgetAttribute ) {
     EXPECT_CALL( mockjet, getAttributeFloat( "test", _ ) )
       .WillOnce( DoAll( SetArgReferee<1>( 42 ), Return(true) ) );
-    xAOD::Jet& jet= mockjet;
     float value;
-    EXPECT_TRUE( jet.getAttribute<float>( "test", value ) );
+    EXPECT_TRUE( jet->getAttribute<float>( "test", value ) );
     EXPECT_EQ( 42, value );
   }
-  
+
 }
 
 int main( int argc, char **argv ) {

@@ -20,14 +20,13 @@ atlas_add_library( AthAsgExUnittestLib
                    src/components/*.cxx
                    Root/*.cxx
                    PUBLIC_HEADERS MyPackage
-                   LINK_LIBRARIES GaudiKernel AthAnalysisBaseCompsLib AsgTools )
+                   LINK_LIBRARIES GaudiKernel AsgTools AthAnalysisBaseCompsLib )
 
 atlas_add_component( AthAsgExUnittest
                      MyPackage/*.h src/*.cxx
                      src/components/*.cxx
                      Root/*.cxx
-                     LINK_LIBRARIES GaudiKernel AthAnalysisBaseComps 
-                                    AsgTools AthAsgExUnittestLib )
+                     LINK_LIBRARIES GaudiKernel AsgTools AthAsgExUnittestLib )
 
 atlas_add_test( gt_AthAsgExUnittest
   SOURCES test/gt_AthAsgExUnittest.cxx
@@ -35,8 +34,7 @@ atlas_add_test( gt_AthAsgExUnittest
 
 atlas_add_test( gt_AthExUnittest
   SOURCES test/gt_AthExUnittest.cxx
-#  LINK_LIBRARIES GaudiKernel GoogleTestTools AthenaBaseComps )
-  LINK_LIBRARIES GaudiKernel GoogleTestTools AthAnalysisBaseComps )
+  LINK_LIBRARIES GaudiKernel GoogleTestTools AthenaBaseComps )
 
 atlas_add_test( gt_MockxAODJet
   SOURCES test/gt_MockxAODJet.cxx
