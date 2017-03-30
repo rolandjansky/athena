@@ -1,12 +1,11 @@
-// emacs: this is -*- c++ -*-
-//
-//   @file    InDetRegionSelectorLUT.h
-//                    
-//  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef InDetRegionSelector_InDetRegionSelectorLUT_h
 #define InDetRegionSelector_InDetRegionSelectorLUT_h
 
+// #include "GaudiKernel/Algorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "RegSelLUT/IRegionIDLUT_Creator.h"
