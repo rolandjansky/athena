@@ -32,5 +32,5 @@ DOMAIN_MAP['Tile']             = set(['^TileCalorimeter/'])
 DOMAIN_MAP['Tools']            = set(['^Tools/'])
 DOMAIN_MAP['Tracking']         = set(['^Tracking/'])
 DOMAIN_MAP['Trigger']          = set(['^Trigger/','^HLT/','Trig','^DetectorDescription/.?Reg','^DetectorDescription/RoiDescriptor','RegionSelector'])
-DOMAIN_MAP['TriggerMenu']      = set(['^Trigger/TriggerCommon/TriggerMenu'])  # matches TriggerMenu and TriggerMenuXML
+DOMAIN_MAP['TriggerMenu']      = set(['^Trigger/TriggerCommon/TriggerMenu'])
 
