@@ -68,6 +68,8 @@
             </testToRemove>
 
 
+            <auxFilePattern>data-beamspot_ttbar_pu46-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-beamspot_ttbar_pu46-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
    

@@ -59,9 +59,9 @@ public:
   // histogram registration
   // Inheriting class independant histogram registration                                                                                                                                
   virtual void addHistogram(TH1* h, const std::string& system) {
-    msg(MSG::INFO) << "TrigTestPhysValMon::addHistogram() " << endmsg;
+    msg(MSG::INFO) << "TrigTestPhysValMon::addHistogram() " << endreq;
     if (regHist(h, m_sliceTag+system, run).isFailure()) {
-      msg(MSG::ERROR) << "TrigTestPhysValMon::addHistorgram() failed to add histogram" << endmsg;
+      msg(MSG::ERROR) << "TrigTestPhysValMon::addHistorgram() failed to add histogram" << endreq;
     }
   }
 
