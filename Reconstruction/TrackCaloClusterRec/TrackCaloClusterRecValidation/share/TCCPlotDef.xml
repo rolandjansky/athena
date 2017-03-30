@@ -133,6 +133,12 @@
     <x title="Mass response" n="500" lo="0." hi="5."/>
     <y title="Entries"/>
   </h> 
+  
+<!-- m_jet_response_m_pt -->
+  <h id="jet_response_m_pt" type="TH2F" title="Mass response vs Truth jet p_{T} - all jets">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Mass response"         n="500" lo="0." hi="5."/>
+  </h> 
 
 <!-- m_jet_response_pt -->
   <h id="jet_response_pt" type="TH1F" title="p_{T} response - all jets">
@@ -156,6 +162,12 @@
   <h id="jet_response_m_2leadings" type="TH1F" title="Mass response - 2 leading jets">
     <x title="Mass response" n="500" lo="0." hi="5."/>
     <y title="Entries"/>
+  </h> 
+  
+<!-- m_jet_response_m_pt_2leadings -->
+  <h id="jet_response_m_pt_2leadings" type="TH2F" title="Mass response vs Truth jet p_{T} - 2 leading jets">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Mass response"         n="500" lo="0." hi="5."/>
   </h> 
 
 <!-- m_jet_response_pt_2leadings -->
@@ -181,6 +193,13 @@
     <x title="Mass response" n="500" lo="0." hi="5."/>
     <y title="Entries"/>
   </h> 
+  
+<!-- m_jet_response_m_pt_leading -->
+  <h id="jet_response_m_pt_leading" type="TH2F" title="Mass response vs Truth jet p_{T} - leading jets">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Mass response"         n="500" lo="0." hi="5."/>
+  </h> 
+
 
 <!-- m_jet_response_pt_leading -->
   <h id="jet_response_pt_leading" type="TH1F" title="p_{T} response - leading jet">
@@ -205,6 +224,13 @@
     <x title="Mass response" n="500" lo="0." hi="5."/>
     <y title="Entries"/>
   </h> 
+  
+<!-- m_jet_response_m_pt_subleading -->
+  <h id="jet_response_m_pt_subleading" type="TH2F" title="Mass response vs Truth jet p_{T} - subleading jets">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Mass response"         n="500" lo="0." hi="5."/>
+  </h> 
+
 
 <!-- m_jet_response_pt_subleading -->
   <h id="jet_response_pt_subleading" type="TH1F" title="p_{T} response - subleading jet">
@@ -342,6 +368,30 @@
   <h id="jet_response_d2_subleading" type="TH1F" title="D_{2} response - subleading jet">
     <x title="D_{2} response" n="500" lo="0." hi="5."/>
     <y title="Entries"/>
+  </h> 
+  
+<!-- m_jet_resolution_m -->
+  <h id="jet_resolution_m" type="TH1F" title="Mass resolution - all jets">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Mass resolution (IQR/median)" />
+  </h> 
+
+<!-- m_jet_resolution_m_2leadings -->
+  <h id="jet_resolution_m_2leadings" type="TH1F" title="Mass resolution - 2 leading jets">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Mass resolution (IQR/median)" />
+  </h> 
+
+<!-- m_jet_resolution_m_leading -->
+  <h id="jet_resolution_m_leading" type="TH1F" title="Mass resolution - leading jet">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Mass resolution (IQR/median)" />
+  </h> 
+
+<!-- m_jet_resolution_m_subleading -->
+  <h id="jet_resolution_m_subleading" type="TH1F" title="Mass resolution - subleading jet">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Mass resolution (IQR/median)" />
   </h> 
 
 </hdef>
