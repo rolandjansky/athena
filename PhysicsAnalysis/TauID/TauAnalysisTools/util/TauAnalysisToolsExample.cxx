@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // System include(s):
 #include <memory>
 #include <cstdlib>
@@ -136,13 +132,14 @@ int main( int argc, char* argv[] )
   CHECK(TauSelTool->setProperty("CreateControlPlots", true ));
   CHECK(TauSelTool->setProperty("MuonOLR", true ));
   CHECK(TauSelTool->setProperty("PtMin", 20. ));
+  CHECK(TauSelTool->setProperty("EleBDTWP", int(ELEIDBDTLOOSE) ));
   CHECK(TauSelTool->setProperty("ConfigPath", "" ));
-  CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt|CutMuonOLR|CutEleOLR) ));
-  // CHECK(TauSelTool->setProperty("IgnoreAODFixCheck", true));
-  // CHECK(TauSelTool->setProperty("RecalcEleOLR", false));
+  CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt|CutMuonOLR|CutEleOLR|CutEleBDTWP) ));
+  CHECK(TauSelTool->setProperty("IgnoreAODFixCheck", true));
+  CHECK(TauSelTool->setProperty("RecalcEleOLR", false));
   CHECK(TauSelTool->initialize());
 
-  // ToolHandle<TauAnalysisTools::ITauSelectionTool> TauSelToolHandle = TauSelTool;
+  ToolHandle<TauAnalysisTools::ITauSelectionTool> TauSelToolHandle = TauSelTool;
 
   // ===========================================================================
   // TauSmearingTool
@@ -173,7 +170,7 @@ int main( int argc, char* argv[] )
   // ===========================================================================
   TauAnalysisTools::TauEfficiencyCorrectionsTool TauEffCorrTool( "TauEfficiencyCorrectionsTool" );
   TauEffCorrTool.msg().setLevel( MSG::DEBUG );
-  // CHECK(TauEffCorrTool.setProperty("TauSelectionTool",TauSelToolHandle));
+  CHECK(TauEffCorrTool.setProperty("TauSelectionTool",TauSelToolHandle));
   CHECK(TauEffCorrTool.initialize());
 
   // restructure all recommended systematic variations for efficiency tools
@@ -313,6 +310,8 @@ int main( int argc, char* argv[] )
               sSystematicSet.name().c_str());
       }
 
+      // Select "good" taus:
+      if( ! TauSelTool->accept( *xTau ) ) continue;
 
       for (auto sSystematicSet: vEfficiencyCorrectionsSystematicSet)
       {
@@ -336,8 +335,6 @@ int main( int argc, char* argv[] )
               sSystematicSet.name().c_str(),
               xTau->auxdata< double >( "TauScaleFactorTriggerHadTau" ));
       }
-      // Select "good" taus:
-      if( ! TauSelTool->accept( *xTau ) ) continue;
 
       // print some info about the selected tau:
       Info( "TauAnalysisToolsExample", "Selected tau: pt = %g MeV, eta = %g, phi = %g, prong = %i, charge = %i",

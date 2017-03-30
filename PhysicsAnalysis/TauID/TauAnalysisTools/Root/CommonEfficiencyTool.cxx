@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // Framework include(s):
 #include "PathResolver/PathResolver.h"
 
@@ -188,10 +184,9 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
   std::string sProng = ConvertProngToString(xTau.nTracks());
 
   // get standard scale factor
-  CP::CorrectionCode tmpCorrectionCode;
-  tmpCorrectionCode = getValue(m_sSFHistName+sProng,
-                               xTau,
-                               dEfficiencyScaleFactor);
+  CP::CorrectionCode tmpCorrectionCode = getValue(m_sSFHistName+sProng,
+                                                  xTau,
+                                                  dEfficiencyScaleFactor);
   // return correction code if histogram is not available
   if (tmpCorrectionCode != CP::CorrectionCode::Ok)
     return tmpCorrectionCode;

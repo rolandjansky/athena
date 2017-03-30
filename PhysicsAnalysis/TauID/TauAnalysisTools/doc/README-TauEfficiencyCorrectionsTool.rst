@@ -118,7 +118,7 @@ The tool can be used to retrieve scale factors for a specific
      - ``"2017-moriond"``
      - ``"2016-fall"``, ``"2016-ichep"``, ``"mc15-moriond"``, ``"mc15-pre-recommendations"``, ``"mc12-final"``
 
-For the default ``RecommendationTag`` "mc15-moriond" the following properties
+For the default ``RecommendationTag`` "2017-moriond" the following properties
 are available for tool steering:
 
 .. list-table::
@@ -135,19 +135,19 @@ are available for tool steering:
 
    * - ``InputFilePathRecoHadTau``
      - ``std::string``
-     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/Reco_TrueHadTau_mc15-moriond.root"``
+     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/Reco_TrueHadTau_2016-ichep.root"``
 
    * - ``InputFilePathEleOLRHadTau``
      - ``std::string``
-     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/EleOLR_TrueHadTau_mc15-moriond.root"``
+     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/EleOLR_TrueHadTau_2016-ichep.root"``
 
    * - ``InputFilePathEleOLRHadTau``
      - ``std::string``
-     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/EleOLR_TrueElectron_mc15-moriond.root"``
+     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/EleOLR_TrueElectron_2017-moriond.root"``
 
    * - ``InputFilePathJetIDHadTau``
      - ``std::string``
-     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/JetID_TrueHadTau_mc15-moriond.root"``
+     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/JetID_TrueHadTau_2017-moriond.root"``
 
    * - ``VarNameRecoHadTau``
      - ``std::string``
@@ -214,10 +214,6 @@ In addition the following properties are available for further configurations:
    * - ``IDLevel``
      - ``int``
      - ``JETIDBDTTIGHT``
-
-   * - ``EVLevel``
-     - ``int``
-     - ``ELEIDBDTLOOSE``
 
    * - ``OLRLevel``
      - ``int``
@@ -298,14 +294,17 @@ points:
    * - ``TAUELEOLR``
      - the TauWG eVeto (OLR very loose e)
 
-   * - ``ELELOOSELLHOLR``
-     - analysis OL with loose LLH electrons
-   
-   * - ``ELEMEDIUMLLHOLR``
-     - analysis OL with medium LLH electrons
-  
-   * - ``ELETIGHTLLHOLR``
-     - analysis OL with tight LLH electrons
+   * - ``ELEBDTLOOSE``
+     - electron BDT loose working point
+
+   * - ``ELEBDTLOOSEPLUSVETO``
+     - electron BDT loose working point + TauWG eVeto
+
+   * - ``ELEBDTMEDIUM``
+     - electron BDT medium working point
+
+   * - ``ELEBDTMEDIUMPLUSVETO``
+     - electron BDT medium working point + TauWG eVeto
 
 These can be accessed, for example via::
 

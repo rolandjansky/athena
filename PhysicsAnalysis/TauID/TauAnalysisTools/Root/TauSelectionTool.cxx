@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // Local include(s):
 #include "TauAnalysisTools/TauSelectionTool.h"
 #include "TauAnalysisTools/SharedFilesVersion.h"
@@ -257,7 +253,7 @@ StatusCode TauSelectionTool::initialize()
       {
         iSelectionCuts = iSelectionCuts | CutEleBDTWP;
         if (m_iEleBDTWP == ELEIDNONEUNCONFIGURED)
-          m_iEleBDTWP = convertStrToEleBDTWP(rEnv.GetValue("EleIDWP","ELEIDNONE"));
+          m_iEleBDTWP = convertStrToEleBDTWP(rEnv.GetValue("EleBDTWP","ELEIDNONE"));
       }
       else if (sCut == "EleOLR")
       {
@@ -654,6 +650,7 @@ void TauSelectionTool::PrintConfigValue(std::string sCutName, T& tVal)
 int TauSelectionTool::convertStrToJetIDWP(std::string sJetIDWP)
 {
   if (sJetIDWP == "JETIDNONE") return int(JETIDNONE);
+  else if (sJetIDWP == "JETIDBDTVERYLOOSE") return int(JETIDBDTVERYLOOSE); // new in rel21 
   else if (sJetIDWP == "JETIDBDTLOOSE") return int(JETIDBDTLOOSE);
   else if (sJetIDWP == "JETIDBDTMEDIUM") return int(JETIDBDTMEDIUM);
   else if (sJetIDWP == "JETIDBDTTIGHT") return int(JETIDBDTTIGHT);
@@ -661,6 +658,9 @@ int TauSelectionTool::convertStrToJetIDWP(std::string sJetIDWP)
   else if (sJetIDWP == "JETIDBDTLOOSENOTTIGHT") return int(JETIDBDTLOOSENOTTIGHT);
   else if (sJetIDWP == "JETIDBDTMEDIUMNOTTIGHT") return int(JETIDBDTMEDIUMNOTTIGHT);
   else if (sJetIDWP == "JETIDBDTNOTLOOSE") return int(JETIDBDTNOTLOOSE);
+  else if (sJetIDWP == "JETBDTBKGLOOSE") return int(JETBDTBKGLOOSE); // new in rel21
+  else if (sJetIDWP == "JETBDTBKGMEDIUM") return int(JETBDTBKGMEDIUM); // new in rel21
+  else if (sJetIDWP == "JETBDTBKGTIGHT") return int(JETBDTBKGTIGHT); // new in rel21
 
   ATH_MSG_ERROR( "jet ID working point "<<sJetIDWP<<" is unknown, the cut JETIDWP will not accept any tau!" );
   return -1;
@@ -692,6 +692,9 @@ std::string TauSelectionTool::convertJetIDWPToStr(int iJetIDWP)
   case JETIDBDTLOOSE:
     return "JETIDBDTLOOSE";
     break;
+  case JETIDBDTVERYLOOSE:
+    return "JETIDBDTVERYLOOSE";
+    break;
   case JETIDBDTMEDIUM:
     return "JETIDBDTMEDIUM";
     break;
@@ -709,6 +712,15 @@ std::string TauSelectionTool::convertJetIDWPToStr(int iJetIDWP)
     break;
   case JETIDBDTNOTLOOSE:
     return "JETIDBDTNOTLOOSE";
+    break;
+  case JETBDTBKGLOOSE:
+    return "JETBDTBKGLOOSE";
+    break;
+  case JETBDTBKGMEDIUM:
+    return "JETBDTBKGMEDIUM";
+    break;
+  case JETBDTBKGTIGHT:
+    return "JETBDTBKGTIGHT";
     break;
   default:
     ATH_MSG_ERROR( "jet ID working point with enum "<<iJetIDWP<<" is unknown, the cut JETIDWP will not accept any tau!" );

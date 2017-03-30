@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // EDM include(s):
 #include "PATInterfaces/SystematicRegistry.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -117,15 +113,48 @@ StatusCode TauEfficiencyCorrectionsTool::initializeWithTauSelectionTool()
         ATH_MSG_VERBOSE( "added SFJetIDHadTau" );
       }
     }
+
+    
+    if (m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR
+      and !m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP )
+    {
+      ATH_MSG_DEBUG("TauEleOLR");
+      m_iOLRLevel = TAUELEOLR;
+    }
+    else if (m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR
+      and m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP )
+    {
+      ATH_MSG_DEBUG("TauBDTPLUSTauEleolr");
+      if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTLOOSE)
+        m_iOLRLevel = ELEBDTLOOSEPLUSVETO;
+      if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTMEDIUM)
+        m_iOLRLevel = ELEBDTMEDIUMPLUSVETO;
+      if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTTIGHT)
+        m_iOLRLevel = ELEBDTIGHTPLUSVETO;
+    }
+    else if (!m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR and m_tTauSelectionTool->m_bEleOLR
+      and m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP )
+    {
+      ATH_MSG_DEBUG("TauBDT");
+      if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTLOOSE)
+        m_iOLRLevel = ELEBDTLOOSE;      
+      if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTMEDIUM)
+        m_iOLRLevel = ELEBDTMEDIUM;
+      if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTTIGHT)
+        m_iOLRLevel = ELEBDTIGHT;
+    }
+
     // use electron OLR scale factors if TauSelectionTool applies electron OLR
     // cut
-    if (m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR and m_tTauSelectionTool->m_bEleOLR)
+    if (m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR 
+      or m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP )
     {
       m_vEfficiencyCorrectionTypes.push_back(SFEleOLRHadTau);
       ATH_MSG_VERBOSE( "added SFEleOLRHadTau" );
       m_vEfficiencyCorrectionTypes.push_back(SFEleOLRElectron);
       ATH_MSG_VERBOSE( "added SFEleOLRElectron" );
     }
+
   }
   else if (m_sRecommendationTag == "mc12-final" and m_vEfficiencyCorrectionTypes.size() == 0)
   {
@@ -468,7 +497,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2017_moriond()
     else if (iEfficiencyCorrectionType == SFEleOLRElectron)
     {
       // only set vars if they differ from "", which means they have been configured by the user
-      if (m_sInputFilePathEleOLRElectron.empty()) m_sInputFilePathEleOLRElectron = sDirectory+"EleOLR_TrueElectron_2016-ichep.root";
+      if (m_sInputFilePathEleOLRElectron.empty()) m_sInputFilePathEleOLRElectron = sDirectory+"EleOLR_TrueElectron_2017-moriond.root";
       if (m_sVarNameEleOLRElectron.length() == 0) m_sVarNameEleOLRElectron = "TauScaleFactorEleOLRElectron";
 
       asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>* tTool = new asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>("EleOLRElectronTool", this);
@@ -1161,6 +1190,18 @@ std::string TauEfficiencyCorrectionsTool::ConvertEleOLRToString(const int& iLeve
   case ELETIGHTLLHOLR:
     return "EleTightLLHOLR";
     break;
+  case ELEBDTIGHTPLUSVETO:
+    return "eleBDTTightPlusVeto";
+  case ELEBDTIGHT:
+    return "eleBDTTight";
+  case ELEBDTMEDIUMPLUSVETO:
+    return "eleBDTMediumPlusVeto";
+  case ELEBDTMEDIUM:
+    return "eleBDTMedium";
+  case ELEBDTLOOSEPLUSVETO:
+    return "eleBDTLoosePlusVeto";
+  case ELEBDTLOOSE:
+    return "eleBDTLoose";
   default:
     assert(false && "No valid electron OLR passed. Breaking up ...");
     break;

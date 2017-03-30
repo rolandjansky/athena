@@ -1,9 +1,4 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef TAUANALYSISTOOLS_TAUSMEARINGTOOL_H
 #define TAUANALYSISTOOLS_TAUSMEARINGTOOL_H
 
