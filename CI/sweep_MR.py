@@ -192,6 +192,9 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project):
         comment += "successful:  \n* " + "\n* ".join(sorted(good_branches)) + "  \n  \n"
     if failed_branches:
         comment += "failed:  \n* " + "\n* ".join(sorted(failed_branches))
+        # add label to original MR indicating cherry-pick problem
+        mr_handle.labels = list(set(mr_handle.labels) | "sweep:failed")
+        mr_handle.save()
 
     # add sweep summary to MR in Gitlab
     try:
