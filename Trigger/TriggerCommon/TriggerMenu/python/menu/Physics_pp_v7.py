@@ -1895,7 +1895,7 @@ def setupMenu():
         ['3mu4_bTau',                     'L1_3MU4', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
         ['3mu4_nomucomb_bTau',                     'L1_3MU4', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
         ['3mu4_bUpsi',                    'L1_3MU4', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
-
+        
         ['3mu6_bDimu',                   'L1_3MU6', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
         ['3mu6_bJpsi',                   'L1_3MU6', [], [PhysicsStream, 'express'], ['RATE:Bphysics','BW:Bphys'], -1],
         ['3mu6_bTau',                    'L1_3MU6', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
@@ -1963,7 +1963,7 @@ def setupMenu():
         ['mu11_mu6noL1_bTau_L1MU11_2MU6', 'L1_MU11_2MU6', ['L1_MU11','L2_mu6'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1,['serial',-1,['mu11','mu6noL1']]],
         ['mu20_mu6noL1_bTau', 'L1_MU20', ['L1_MU20','L2_mu20'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1,['serial',-1,['mu20','mu6noL1']]],
         ## LFV topo based nscan (ATR-14352)
-        ['mu11_2mu4noL1_bTau_L1LFV-MU', 'L1_LFV-MU', ['L1_MU10','L2_mu11'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1,['serial',-1,['mu11','2mu4noL1']]],    
+        ['mu11_2mu4noL1_bTau_L1LFV-MU', 'L1_LFV-MU', ['L1_MU10','L2_mu11'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1,['serial',-1,['mu11','2mu4noL1']]],      
 
         ['mu6_2mu4_bTau_L1MU6_3MU4' , 'L1_MU6_3MU4',  ['L1_MU6','L1_2MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
         ['2mu6_mu4_bTau_L12MU6_3MU4', 'L1_2MU6_3MU4', ['L1_2MU6','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],

@@ -33,10 +33,10 @@ def generateChainDefs(chainDict):
 
     # OI - this is really should be managed in RunTier0Tests and not here!! 
     menu_name = TriggerFlags.triggerMenuSetup()
-    if 'MC_pp_v6' in menu_name and TriggerFlags.run2Config!='2016':
+    if 'MC_pp_v6' in menu_name and TriggerFlags.run2Config!='2016' :
         log.warning(menu_name+" is used with run2Config = "+str(TriggerFlags.run2Config)+" will use Bphys trigger config for 2016!!")
         thisIsBphysChain = False
-        if log.bphysTrigWarning:
+        if log.bphysTrigWarning :
             log.bphysTrigWarning = False
 
     elif log.bphysTrigWarning :
@@ -244,6 +244,7 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
 
     elif (mtopo == 'bTau'):
 
+        
         from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_trkTau
         from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Tau3
         from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Tau2
@@ -269,6 +270,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
             EFHypo = EFMultiMuHypo_2700("EFMultiMuHypo_Tau3")
             EFHypo.bphysCollectionKey = "EFMultiMuFex"
 
+
+            
     elif (mtopo == 'trkTau'):  # no EF muon hypo
 
         from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_trkTau
@@ -416,7 +419,7 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
 
     else:
         log.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], mtopo ))
-   
+    
     if  L2Fex != None :
         theChainDef.addSequence([L2Fex, L2Hypo], inputTEsL2, L2TEname, topo_start_from = topoStartFrom)
         theChainDef.addSignatureL2([L2TEname])

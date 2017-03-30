@@ -21,6 +21,7 @@
 #include "../TrigEFTrkMassHypo.h"
 #include "../TrigMultiTrkFex.h"
 #include "../TrigBphysMuonCounter.h"
+
 //#include "../TrigL2LooseMuonHypo.h"
 
 #include "../TrigBphysHelperUtilsTool.h"
@@ -87,6 +88,7 @@ DECLARE_FACTORY_ENTRIES( TrigBphysHypo ) {
     DECLARE_ALGORITHM( TrigEFBMuMuFex   )
     DECLARE_ALGORITHM( TrigEFMultiMuFex )
     DECLARE_ALGORITHM( TrigMultiTrkFex )
+    DECLARE_ALGORITHM( TrigBphysMuonCounter )
     DECLARE_ALGORITHM( TrigEFTrkMassFex )
 //    DECLARE_ALGORITHM( TrigBphysL1DiMuComboFeX )
 
