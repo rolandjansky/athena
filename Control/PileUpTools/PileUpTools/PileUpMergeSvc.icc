@@ -87,7 +87,7 @@ PileUpMergeSvc::retrieveSubEvtsData(const KEY& dataKey, //orig evt key
 	    if (!m_pITriggerTime.empty()) sigTime-= m_pITriggerTime->time();
 	    evtIndex = subEv.index();
 	  }
-	  value_type tData(PileUpTimeEventIndex(int(sigTime),evtIndex), dLink);
+	  value_type tData(PileUpTimeEventIndex(int(sigTime),evtIndex,iEvt->type()), dLink);
 	  numberOfSimHits+=tData.second->size();
 	  timedData.push_back(tData);
 	  ATH_MSG_DEBUG ( "added entry from store " <<  pSubEvtSG->name()
@@ -237,7 +237,7 @@ PileUpMergeSvc::retrieveSubEvtsData(const KEY& dataKey, //orig evt key
 	    if (!m_pITriggerTime.empty()) sigTime-= m_pITriggerTime->time();
 	    evtIndex = subEv.index();
 	  }
-	  value_type tData(PileUpTimeEventIndex(int(sigTime),evtIndex), dLink);
+	  value_type tData(PileUpTimeEventIndex(int(sigTime),evtIndex,iEvt->type()), dLink);
 	  timedData.push_back(tData);
 	  ATH_MSG_DEBUG ( "added entry from store " << pSubEvtSG->name()
 			  << " for object of type " << System::typeinfoName(typeid(data_t)) 
