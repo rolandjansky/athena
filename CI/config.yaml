@@ -1,5 +1,0 @@
-sweep-targets:
-  '.*':
-    - 'multithreading'
-  'CI':
-    - '21.0'
