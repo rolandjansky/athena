@@ -64,13 +64,13 @@ def TrigIDPhysValMonitoringTool():
     ############### Electrons ###############
     name = "Electron"
     pdgid = 11
-    useHighestPT = True
+    UseHighestPT = True
     chainnames = [
       "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_EFID",
       "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_IDTrig",
       "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_FTF"
     ]
-    outputlist += [makePhysvalMon(name, pdgid, useHighestPT, chainnames)]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
 
     ############### Muons ###############
     name = "Muon"
@@ -81,7 +81,7 @@ def TrigIDPhysValMonitoringTool():
       "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_IDTrig",
       "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_FTF"
     ]
-    outputlist += [makePhysvalMon(name, pdgid, useHighestPT, chainnames)]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
 
     ############### Taus ###############
     name = "Tau"
@@ -94,7 +94,7 @@ def TrigIDPhysValMonitoringTool():
       "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1",
       "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3"
     ]
-    outputlist += [makePhysvalMon(name, pdgid, useHighestPT, chainnames)]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
 
     ############### Bjets ###############
     name = "Bjet"
@@ -110,7 +110,7 @@ def TrigIDPhysValMonitoringTool():
       "HLT_mu.*bperf_dr05:InDetTrigTrackingxAODCnv_Bjet_EFID",
       "HLT_mu.*bperf_dr05:InDetTrigTrackingxAODCnv_Bjet_FTF"
     ]
-    outputlist += [makePhysvalMon(name, pdgid, useHighestPT, chainnames)]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
 
     ############### Bphys ###############
     name = "Bphys"
@@ -120,7 +120,7 @@ def TrigIDPhysValMonitoringTool():
       "HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_IDTrig",
       "HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_FTF"
     ]
-    outputlist += [makePhysvalMon(name, pdgid, useHighestPT, chainnames)]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
 
     ############### Cosmics ###############
     name = "Cosmic"
