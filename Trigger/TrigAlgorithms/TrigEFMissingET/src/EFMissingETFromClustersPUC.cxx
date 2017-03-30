@@ -68,12 +68,11 @@ EFMissingETFromClustersPUC::~EFMissingETFromClustersPUC()
 StatusCode EFMissingETFromClustersPUC::initialize()
 {
 
-  if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "called EFMissingETFromClustersPUC::initialize()" << endmsg;
+  ATH_MSG_DEBUG( "called EFMissingETFromClustersPUC::initialize()" );
 
   /// timers
   if( service( "TrigTimerSvc", m_timersvc).isFailure() )
-    msg(MSG::WARNING) << name() << ": Unable to locate TrigTimer Service" << endmsg;
+    ATH_MSG_WARNING( name() << ": Unable to locate TrigTimer Service" );
 
   if (m_timersvc) {
     // global time
@@ -95,8 +94,7 @@ StatusCode EFMissingETFromClustersPUC::execute()
 
 StatusCode EFMissingETFromClustersPUC::finalize()
 {
-  if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "called EFMissingETFromClustersPUC::finalize()" << endmsg;
+  ATH_MSG_DEBUG( "called EFMissingETFromClustersPUC::finalize()" );
 
   return StatusCode::SUCCESS;
 
@@ -109,27 +107,24 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
                                         const xAOD::VertexContainer * /*vertexContainer*/ )
 {
 
-  if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "called EFMissingETFromClustersPUC::execute()" << endmsg;
+  ATH_MSG_DEBUG( "called EFMissingETFromClustersPUC::execute()" );
 
   if(m_timersvc)
     m_glob_timer->start(); // total time
 
   /// fetching the topo. cluster component
-  TrigEFMissingEtComponent* metComp = 0;
+  TrigEFMissingEtComponent* metComp = nullptr;
   metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition); // fetch Cluster component
   if (metComp==0) {
-    msg(MSG::ERROR) << "cannot fetch Topo. cluster component!" << endmsg;
+    ATH_MSG_ERROR( "cannot fetch Topo. cluster component!" );
     return StatusCode::FAILURE;
   }
   if(string(metComp->m_name).substr(0,2)!="TC"){
-    msg(MSG::ERROR) << "fetched " << metComp->m_name
-	     << " instead of the Clusters component!" << endmsg;
+    ATH_MSG_ERROR( "fetched " << metComp->m_name << " instead of the Clusters component!" );
     return StatusCode::FAILURE;
   }
 
-  if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "fetched metHelper component \"" << metComp->m_name << "\"" << endmsg;
+  ATH_MSG_DEBUG( "fetched metHelper component \"" << metComp->m_name << "\"" );
 
 
   if ( (metComp->m_status & m_maskProcessed)==0 ){ // not yet processed
@@ -144,8 +139,8 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
 
   metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition ); // fetch Cluster component
 
-  if (metComp==0) {  msg(MSG::ERROR) << "cannot fetch Topo. cluster component!" << endmsg;  return StatusCode::FAILURE; }
-  if(string(metComp->m_name).substr(0,2)!="TC"){ msg(MSG::ERROR) << "fetched " << metComp->m_name << " instead of the Clusters component!" << endmsg; return StatusCode::FAILURE; }
+  if (metComp==0) {  ATH_MSG_ERROR( "cannot fetch Topo. cluster component!" );  return StatusCode::FAILURE; }
+  if(string(metComp->m_name).substr(0,2)!="TC"){ ATH_MSG_ERROR( "fetched " << metComp->m_name << " instead of the Clusters component!" ); return StatusCode::FAILURE; }
 
   // Variables
   double MExEta = 0, MEyEta = 0, MEzEta = 0, MExFull = 0, MEyFull = 0, MEzFull = 0, METEta = 0, MET = 0;
@@ -159,9 +154,9 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
   vector<int> indexOfMask;
 
   // Calculate initial energy
-  for (xAOD::CaloClusterContainer::const_iterator it = caloCluster->begin(); it != caloCluster->end(); ++it ) {
-      float phi = (*it)->phi(m_clusterstate), eta = (*it)->eta(m_clusterstate), Et  = (*it)->pt(m_clusterstate),
-            E = (*it)->p4(m_clusterstate).E();
+  for (const auto& clus : *caloCluster) {
+      float phi = clus->phi(m_clusterstate), eta = clus->eta(m_clusterstate), Et  = clus->pt(m_clusterstate),
+            E = clus->p4(m_clusterstate).E();
       float cosPhi, sinPhi; sincosf(phi, &sinPhi, &cosPhi);
       float Ex = Et*cosPhi, Ey = Et*sinPhi, Ez = Et*sinhf(eta);
       // calculate full granularity Ex, Ey
@@ -321,7 +316,7 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
       // for (int k=0; k<nummasks; k++) { varMET += dMETdphi[k][0]*dMETdphi[k][0]*varPhi; }
       // signif = sqrt(METfitcor*METfitcor/varMET);
 
-      msg() << MSG::DEBUG << " METEta = " << METEta << "\t METfitcor = " << METfitcor << "\t MET= " << MET << endmsg;
+      ATH_MSG_DEBUG( " METEta = " << METEta << "\t METfitcor = " << METfitcor << "\t MET= " << MET );
 
       ETobscor[0][0]=MExEta; ETobscor[1][0]=MEyEta;
 

@@ -40,8 +40,8 @@ class EFMissingETFromCells : public EFMissingETBaseTool
   public:
 
     EFMissingETFromCells(const std::string& type,
-        const std::string& name,
-        const IInterface* parent);
+                         const std::string& name,
+                         const IInterface* parent);
 
     ~EFMissingETFromCells();
 
@@ -59,15 +59,15 @@ class EFMissingETFromCells : public EFMissingETBaseTool
     // slow calo data access via RegionSelector
     StatusCode addAllCellsToHelper(TrigEFMissingEtHelper* met);
     StatusCode addLArCellsToHelper(double etamin, double etamax,
-        double phimin, double phimax,
-        TrigEFMissingEtHelper* met,
-        DETID detectorID, int sampling,
-        bool prepare);
+                                   double phimin, double phimax,
+                                   TrigEFMissingEtHelper* met,
+                                   DETID detectorID, int sampling,
+                                   bool prepare);
     StatusCode addTileCellsToHelper(double etamin, double etamax,
-        double phimin, double phimax,
-        TrigEFMissingEtHelper* met,
-        DETID detectorID, int sampling,
-        bool prepare);
+                                    double phimin, double phimax,
+                                    TrigEFMissingEtHelper* met,
+                                    DETID detectorID, int sampling,
+                                    bool prepare);
 
     // fast data access via LoadFullCollection
     StatusCode addFullLArCellsToHelper(TrigEFMissingEtHelper* met, DETID detectorID, bool prepare);
@@ -77,15 +77,15 @@ class EFMissingETFromCells : public EFMissingETBaseTool
   private:
 
     /** configurables */
-    float m_rmsOneSided;        //<! 1-sided cell noise suppression (can be negative)
-    float m_rmsTwoSided;        //<! 2-sided cell noise suppression: disabled if negative
-    float m_maxThreshold;       //<! maximum between the previous ones
-    bool m_doCellNoiseSupp;     //<! switch on/off cell noise suppression
-    bool m_useFullColl;         //<! switch on/off fast access via LoadFullCollection
-    bool m_makeRobustness;      //<! switch on/off robustness checks
-    std::vector<float> m_MinCellSNratio; //<! min cell |energy|/rms for robustness checks
-    uint16_t m_MaxLArQ;
-    int m_MaxTileQ;
+    float              m_rmsOneSided;       //<! 1-sided cell noise suppression (can be negative)
+    float              m_rmsTwoSided;       //<! 2-sided cell noise suppression: disabled if negative
+    float              m_maxThreshold;      //<! maximum between the previous ones
+    bool               m_doCellNoiseSupp;   //<! switch on/off cell noise suppression
+    bool               m_useFullColl;       //<! switch on/off fast access via LoadFullCollection
+    bool               m_makeRobustness;    //<! switch on/off robustness checks
+    std::vector<float> m_MinCellSNratio;    //<! min cell |energy|/rms for robustness checks
+    uint16_t           m_MaxLArQ;
+    int                m_MaxTileQ;
 
     ITrigDataAccess*  m_data;
 
@@ -103,8 +103,6 @@ class EFMissingETFromCells : public EFMissingETBaseTool
     TileCellCollection::const_iterator m_itBegin;
     TileCellCollection::const_iterator m_itEnd;
     TileCellCollection::const_iterator m_itt;
-
-
 };
 
 #endif // TRIGEFMISSINGET_EFMISSINGETFROMCELLS

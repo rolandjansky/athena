@@ -52,14 +52,11 @@ EFMissingETFromHelper::~EFMissingETFromHelper()
 
 StatusCode EFMissingETFromHelper::initialize()
 {
-  if(msgLvl( MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "called EFMissingETFromHelper::initialize()" << endmsg;
-  }
+  ATH_MSG_DEBUG( "called EFMissingETFromHelper::initialize()" );
 
   /// timers
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
-    msg(MSG::WARNING) << name() <<
-      ": Unable to locate TrigTimer Service" << endmsg;
+    ATH_MSG_WARNING( name() << ": Unable to locate TrigTimer Service" );
   }
   if (m_timersvc) {
     // global time
@@ -91,20 +88,14 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
                                         const xAOD::TrackParticleContainer * /*trackContainer*/,
                                         const xAOD::VertexContainer * /*vertexContainer*/ )
 {
-
-  if(msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "EFMissingETFromHelper::execute() called" << endmsg;
-  }
+  ATH_MSG_DEBUG( "EFMissingETFromHelper::execute() called" );
 
   if (met==0 || metHelper==0) {
-    msg(MSG::ERROR) << "ERROR: null pointers as input!" << endmsg;
+    ATH_MSG_ERROR( "ERROR: null pointers as input!" );
     return StatusCode::FAILURE;
   }
 
-  if(msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "Found this info in the helper class: "
-      << metHelper->getFormattedValues() << endmsg;
-  }
+  ATH_MSG_DEBUG( "Found this info in the helper class: " << metHelper->getFormattedValues() );
 
   if(m_timersvc)
     m_glob_timer->start(); // total time
@@ -114,10 +105,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
   unsigned int comp = met->getNumberOfComponents(); // final no. of aux. compon.
   unsigned char elem = metHelper->GetElements(); // no. of transient aux. compon.
   if (elem!=42) {
-    msg(MSG::WARNING)
-      << "Found " << elem
-      << " aux components in the transient helper class.  Not supported!"
-      << endmsg;
+    ATH_MSG_WARNING( "Found " << elem << " aux components in the transient helper class.  Not supported!" );
   }
 
   bool skipAuxInfo=false;
@@ -149,10 +137,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
       save1comp=true;
       break;
     default:
-      msg(MSG::WARNING)
-        << "Found " << comp
-        << " aux components in TrigMissingET.  Not supported.  NOT SAVING AUX INFO"
-        << endmsg;
+      ATH_MSG_WARNING( "Found " << comp << " aux components in TrigMissingET.  Not supported.  NOT SAVING AUX INFO" );
       skipAuxInfo=true;
   }
 
@@ -474,17 +459,17 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
 
   if(msgLvl(MSG::DEBUG)){
     message = strformat ("REGTEST Ex =         %10.2f CLHEP::MeV", met->ex());
-    msg() << MSG::DEBUG << message << endmsg;
+    ATH_MSG_DEBUG( message );
     message = strformat ("REGTEST Ey =         %10.2f CLHEP::MeV", met->ey());
-    msg() << MSG::DEBUG << message << endmsg;
+    ATH_MSG_DEBUG( message );
     message = strformat ("REGTEST Ez =         %10.2f CLHEP::MeV", met->ez());
-    msg() << MSG::DEBUG << message << endmsg;
+    ATH_MSG_DEBUG( message );
     message = strformat ("REGTEST SumET =         %10.2f CLHEP::MeV", met->sumEt());
-    msg() << MSG::DEBUG << message << endmsg;
+    ATH_MSG_DEBUG( message );
     message = strformat ("REGTEST SumE =       %10.2f CLHEP::MeV", met->sumE());
-    msg() << MSG::DEBUG << message << endmsg;
+    ATH_MSG_DEBUG( message );
     message = strformat ("REGTEST Flag =       %d", met->flag());
-    msg() << MSG::DEBUG << message << endmsg;
+    ATH_MSG_DEBUG( message );
   }
 
   unsigned int Nc = met->getNumberOfComponents();
@@ -493,7 +478,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
     if(msgLvl(MSG::DEBUG)){
         s="REGTEST __name____status_usedChannels__sumOfSigns__calib1_calib0";
 			    s+="/MeV__ex/MeV_____ey/MeV_____ez/MeV___sumE/MeV__sumEt/CLHEP::MeV";
-        msg() << MSG::DEBUG << s << endmsg;
+        ATH_MSG_DEBUG( s );
      }
    }
 
@@ -514,7 +499,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
      if(msgLvl(MSG::DEBUG)){
         message = strformat ("REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
 			   name, status, usedChan, sumOfSigns, calib1, calib0, ex, ey, ez, sumE, sumEt);
-        msg() << MSG::DEBUG << message << endmsg;
+        ATH_MSG_DEBUG( message );
       }
 
     }

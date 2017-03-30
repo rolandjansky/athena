@@ -31,8 +31,8 @@ class EFMissingETFromClusters : public EFMissingETBaseTool
   public:
 
     EFMissingETFromClusters(const std::string& type,
-        const std::string& name,
-        const IInterface* parent);
+                            const std::string& name,
+                            const IInterface* parent);
 
     ~EFMissingETFromClusters();
 
@@ -51,7 +51,6 @@ class EFMissingETFromClusters : public EFMissingETBaseTool
     bool m_saveuncalibrated;
     int  m_methelperposition;
     xAOD::CaloCluster_v1::State m_clusterstate;
-
 };
 
 #endif // TRIGEFMISSINGET_EFMISSINGETFROMCLUSTERS_H

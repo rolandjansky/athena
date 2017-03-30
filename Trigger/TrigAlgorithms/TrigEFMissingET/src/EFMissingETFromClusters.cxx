@@ -51,12 +51,11 @@ EFMissingETFromClusters::~EFMissingETFromClusters()
 StatusCode EFMissingETFromClusters::initialize()
 {
 
-  if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "called EFMissingETFromClusters::initialize()" << endmsg;
+  ATH_MSG_DEBUG( "called EFMissingETFromClusters::initialize()" );
 
   /// timers
   if( service( "TrigTimerSvc", m_timersvc).isFailure() )
-    msg(MSG::WARNING) << name() << ": Unable to locate TrigTimer Service" << endmsg;
+    ATH_MSG_WARNING( name() << ": Unable to locate TrigTimer Service" );
 
   if (m_timersvc) {
     // global time
@@ -80,8 +79,7 @@ StatusCode EFMissingETFromClusters::execute()
 
 StatusCode EFMissingETFromClusters::finalize()
 {
-  if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "called EFMissingETFromClusters::finalize()" << endmsg;
+  ATH_MSG_DEBUG( "called EFMissingETFromClusters::finalize()" );
 
   return StatusCode::SUCCESS;
 
@@ -94,27 +92,24 @@ StatusCode EFMissingETFromClusters::execute(xAOD::TrigMissingET * /* met */ ,
                                         const xAOD::VertexContainer * /*vertexContainer*/ )
 {
 
-  if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "called EFMissingETFromClusters::execute()" << endmsg;
+  ATH_MSG_DEBUG( "called EFMissingETFromClusters::execute()" );
 
   if(m_timersvc)
     m_glob_timer->start(); // total time
 
   /// fetching the topo. cluster component
-  TrigEFMissingEtComponent* metComp = 0;
+  TrigEFMissingEtComponent* metComp = nullptr;
   metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition); // fetch Cluster component
   if (metComp==0) {
-    msg(MSG::ERROR) << "cannot fetch Topo. cluster component!" << endmsg;
+    ATH_MSG_ERROR( "cannot fetch Topo. cluster component!" );
     return StatusCode::FAILURE;
   }
   if(string(metComp->m_name).substr(0,2)!="TC"){
-    msg(MSG::ERROR) << "fetched " << metComp->m_name
-	     << " instead of the Clusters component!" << endmsg;
+    ATH_MSG_ERROR( "fetched " << metComp->m_name << " instead of the Clusters component!" );
     return StatusCode::FAILURE;
   }
 
-  if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "fetched metHelper component \"" << metComp->m_name << "\"" << endmsg;
+  ATH_MSG_DEBUG( "fetched metHelper component \"" << metComp->m_name << "\"" );
 
 
   if ( (metComp->m_status & m_maskProcessed)==0 ){ // not yet processed
@@ -134,20 +129,20 @@ StatusCode EFMissingETFromClusters::execute(xAOD::TrigMissingET * /* met */ ,
 
   metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition + i); // fetch Cluster component
 
-  if (metComp==0) {  msg(MSG::ERROR) << "cannot fetch Topo. cluster component!" << endmsg;  return StatusCode::FAILURE; }
-  if(string(metComp->m_name).substr(0,2)!="TC"){ msg(MSG::ERROR) << "fetched " << metComp->m_name << " instead of the Clusters component!" << endmsg; return StatusCode::FAILURE; }
+  if (metComp==0) {  ATH_MSG_ERROR( "cannot fetch Topo. cluster component!" );  return StatusCode::FAILURE; }
+  if(string(metComp->m_name).substr(0,2)!="TC"){ ATH_MSG_ERROR( "fetched " << metComp->m_name << " instead of the Clusters component!" ); return StatusCode::FAILURE; }
 
-  for (xAOD::CaloClusterContainer::const_iterator it = caloCluster->begin(); it != caloCluster->end(); ++it ) {
+  for (const auto& clus : *caloCluster) {
 
-    float phi = (*it)->phi(m_clusterstate);
-    float eta = (*it)->eta(m_clusterstate);
-    float Et  = (*it)->pt(m_clusterstate);
+    float phi = clus->phi(m_clusterstate);
+    float eta = clus->eta(m_clusterstate);
+    float Et  = clus->pt(m_clusterstate);
     float cosPhi, sinPhi;
     sincosf(phi, &sinPhi, &cosPhi);
     float Ex = Et*cosPhi;
     float Ey = Et*sinPhi;
     float Ez = Et*sinhf(eta);
-    float E =  (*it)->p4(m_clusterstate).E(); //sqrtf(Et*Et + Ez*Ez);
+    float E =  clus->p4(m_clusterstate).E(); //sqrtf(Et*Et + Ez*Ez);
 
 
     if(i == 0) {

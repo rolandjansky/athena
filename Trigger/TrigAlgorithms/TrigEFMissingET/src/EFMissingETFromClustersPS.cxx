@@ -61,12 +61,11 @@ EFMissingETFromClustersPS::~EFMissingETFromClustersPS()
 StatusCode EFMissingETFromClustersPS::initialize()
 {
 
-  if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "called EFMissingETFromClustersPS::initialize()" << endmsg;
+  ATH_MSG_DEBUG( "called EFMissingETFromClustersPS::initialize()" );
 
   /// timers
   if( service( "TrigTimerSvc", m_timersvc).isFailure() )
-    msg(MSG::WARNING) << name() << ": Unable to locate TrigTimer Service" << endmsg;
+    ATH_MSG_WARNING( name() << ": Unable to locate TrigTimer Service" );
 
   if (m_timersvc) {
     // global time
@@ -91,8 +90,7 @@ StatusCode EFMissingETFromClustersPS::execute()
 
 StatusCode EFMissingETFromClustersPS::finalize()
 {
-  if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "called EFMissingETFromClustersPS::finalize()" << endmsg;
+  ATH_MSG_DEBUG( "called EFMissingETFromClustersPS::finalize()" );
 
   return StatusCode::SUCCESS;
 
@@ -105,27 +103,24 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
                                         const xAOD::VertexContainer * /*vertexContainer*/ )
 {
 
-  if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "called EFMissingETFromClustersPS::execute()" << endmsg;
+  ATH_MSG_DEBUG( "called EFMissingETFromClustersPS::execute()" );
 
   if(m_timersvc)
     m_glob_timer->start(); // total time
 
   /// fetching the topo. cluster component
-  TrigEFMissingEtComponent* metComp = 0;
+  TrigEFMissingEtComponent* metComp = nullptr;
   metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition); // fetch Cluster component
   if (metComp==0) {
-    msg(MSG::ERROR) << "cannot fetch Topo. cluster component!" << endmsg;
+    ATH_MSG_ERROR( "cannot fetch Topo. cluster component!" );
     return StatusCode::FAILURE;
   }
   if(string(metComp->m_name).substr(0,2)!="TC"){
-    msg(MSG::ERROR) << "fetched " << metComp->m_name
-	     << " instead of the Clusters component!" << endmsg;
+    ATH_MSG_ERROR( "fetched " << metComp->m_name << " instead of the Clusters component!" );
     return StatusCode::FAILURE;
   }
 
-  if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "fetched metHelper component \"" << metComp->m_name << "\"" << endmsg;
+  ATH_MSG_DEBUG( "fetched metHelper component \"" << metComp->m_name << "\"" );
 
 
   if ( (metComp->m_status & m_maskProcessed)==0 ){ // not yet processed
@@ -138,24 +133,24 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
   // set status to Processing
   metComp->m_status |= m_maskProcessing;
 
-  msg() << MSG::DEBUG << " Fetch topo cluster component " << endmsg;
+  ATH_MSG_DEBUG( " Fetch topo cluster component " );
 
   metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition); // fetch Cluster component
 
-  if (metComp==0) {  msg(MSG::ERROR) << "cannot fetch Topo. cluster component!" << endmsg;  return StatusCode::FAILURE; }
-  if(string(metComp->m_name).substr(0,2)!="TC"){ msg(MSG::ERROR) << "fetched " << metComp->m_name << " instead of the Clusters component!" << endmsg; return StatusCode::FAILURE; }
+  if (metComp==0) {  ATH_MSG_ERROR( "cannot fetch Topo. cluster component!" );  return StatusCode::FAILURE; }
+  if(string(metComp->m_name).substr(0,2)!="TC"){ ATH_MSG_ERROR( "fetched " << metComp->m_name << " instead of the Clusters component!" ); return StatusCode::FAILURE; }
 
-  for (xAOD::CaloClusterContainer::const_iterator it = caloCluster->begin(); it != caloCluster->end(); ++it ) {
+  for (const auto& clus : *caloCluster) {
 
-    float phi = (*it)->phi(m_clusterstate);
-    float eta = (*it)->eta(m_clusterstate);
-    float Et  = (*it)->pt(m_clusterstate);
+    float phi = clus->phi(m_clusterstate);
+    float eta = clus->eta(m_clusterstate);
+    float Et  = clus->pt(m_clusterstate);
     float cosPhi, sinPhi;
     sincosf(phi, &sinPhi, &cosPhi);
     float Ex = Et*cosPhi;
     float Ey = Et*sinPhi;
     float Ez = Et*sinhf(eta);
-    float E =  (*it)->p4(m_clusterstate).E();  // sqrtf(Et*Et + Ez*Ez);
+    float E =  clus->p4(m_clusterstate).E();  // sqrtf(Et*Et + Ez*Ez);
 
     metComp->m_ex -= Ex;
     metComp->m_ey -= Ey;
@@ -167,7 +162,7 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
 
    } // end topo. loop -- before PS
 
-  msg() << MSG::DEBUG << " Start pileup subtraction algorithm: " << endmsg;
+  ATH_MSG_DEBUG( " Start pileup subtraction algorithm: " );
 
   if (m_subtractpileup) {
      // --------------------
@@ -186,7 +181,7 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
      double *ringE_Cl_thresh = new double[m_pileupnumrings]{};
      bool *ringException = new bool[m_pileupnumrings]{};
 
-     msg() << MSG::DEBUG << " Ready for first and second pass " << endmsg;
+     ATH_MSG_DEBUG( " Ready for first and second pass " );
 
      // --------------------
      // First pass to get average energy and standard deviation
@@ -199,26 +194,26 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
           numRingCl[ring]=0;
           numRingCl_thresh[ring]=0;
 
-          msg() << MSG::DEBUG << " In ring: " << ring << endmsg;
+          ATH_MSG_DEBUG( " In ring: " << ring );
 
-         for(xAOD::CaloClusterContainer::const_iterator it_ii = caloCluster->begin(); it_ii != caloCluster->end(); ++it_ii) {
-             float eta = (*it_ii)->eta(m_clusterstate);
-             float E =  (*it_ii)->p4(m_clusterstate).E();
+         for (const auto& clus : *caloCluster) {
+             float eta = clus->eta(m_clusterstate);
+             float E =  clus->p4(m_clusterstate).E();
 
-             //msg() << MSG::DEBUG << " E = " << E << endmsg;
-             //msg() << MSG::DEBUG << " eta = " << eta << endmsg;
+             //ATH_MSG_DEBUG( " E = " << E );
+             //ATH_MSG_DEBUG( " eta = " << eta );
 
 
              if(isnan(E)) {
-                 msg() << MSG::DEBUG << "isnan E" << endmsg;
+                 ATH_MSG_DEBUG( "isnan E" );
                  E = 0;
              }
              if(isnan(eta)) {
-                 msg() << MSG::DEBUG << "isnan eta" << endmsg;
+                 ATH_MSG_DEBUG( "isnan eta" );
                  eta = 0;
              }
-             if(E == 0) { msg() << MSG::DEBUG << "E is zero" << endmsg; };
-             if(eta == 0) {msg() << MSG::DEBUG << "eta is zero" << endmsg; };
+             if(E == 0) { ATH_MSG_DEBUG( "E is zero" ); };
+             if(eta == 0) {ATH_MSG_DEBUG( "eta is zero" ); };
 
              if(E > 0 && eta >= etaMin && eta < etaMin + etaDelta) {
                  numRingCl[ring]++;
@@ -227,13 +222,13 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
              }
          }
 
-          msg() << MSG::DEBUG << " After first pass " << ring << endmsg;
+          ATH_MSG_DEBUG( " After first pass " << ring );
 
          // safety check
          double tempEMean;
          double tempESigma;
          if(ringE[ring] == 0 || numRingCl[ring] == 0) {
-             msg() << MSG::DEBUG << "zero ring energy or zero number of cl" << endmsg;
+             ATH_MSG_DEBUG( "zero ring energy or zero number of cl" );
              ringException[ring] = true;
              tempEMean = 0;
              tempESigma = 0;
@@ -243,28 +238,28 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
          };
 
          //double sqrarg = ringESq[ring] / numRingCl[ring] - tempEMean * tempEMean;
-         //if(sqrarg < 0) { msg() << MSG::DEBUG << "argument of sqrt is negative" << endmsg; };
+         //if(sqrarg < 0) { ATH_MSG_DEBUG( "argument of sqrt is negative" ); };
 
      // --------------------
      // Second pass to exclude energetic clusters
      // --------------------
-         for(xAOD::CaloClusterContainer::const_iterator it_ii = caloCluster->begin(); it_ii != caloCluster->end(); ++it_ii) {
-             float eta = (*it_ii)->eta(m_clusterstate);
-             float E = (*it_ii)->p4(m_clusterstate).E();
+         for (const auto& clus : *caloCluster) {
+             float eta = clus->eta(m_clusterstate);
+             float E = clus->p4(m_clusterstate).E();
 
-             //msg() << MSG::DEBUG << " E = " << E << endmsg;
-             //msg() << MSG::DEBUG << " eta = " << eta << endmsg;
+             //ATH_MSG_DEBUG( " E = " << E );
+             //ATH_MSG_DEBUG( " eta = " << eta );
 
              if(isnan(E)) {
-                 msg() << MSG::DEBUG << "isnan E 2ndpass" << endmsg;
+                 ATH_MSG_DEBUG( "isnan E 2ndpass" );
                  E = 0;
              }
              if(isnan(eta)) {
-                 msg() << MSG::DEBUG << "isnan eta 2ndpass" << endmsg;
+                 ATH_MSG_DEBUG( "isnan eta 2ndpass" );
                  eta = 0;
              }
-             if(E == 0) {msg() << MSG::DEBUG << "E is zero 2ndpass" << endmsg; };
-             if(eta == 0) {msg() << MSG::DEBUG << "eta is zero 2ndpass" << endmsg; };
+             if(E == 0) {ATH_MSG_DEBUG( "E is zero 2ndpass" ); };
+             if(eta == 0) {ATH_MSG_DEBUG( "eta is zero 2ndpass" ); };
 
              double threshold = tempEMean + m_pileupnumstddev * tempESigma;
              if(E > 0 && E < threshold && eta >= etaMin && eta < etaMin + etaDelta) {
@@ -274,12 +269,12 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
          }
          etaMin += etaDelta;
 
-         msg() << MSG::DEBUG << " After second pass " << ring << endmsg;
+         ATH_MSG_DEBUG( " After second pass " << ring );
 
 
      }
 
-     msg() << MSG::DEBUG << " Ready for third pass " << endmsg;
+     ATH_MSG_DEBUG( " Ready for third pass " );
 
      // --------------------
      // Third pass to apply correction
@@ -288,15 +283,15 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
      double EyNew = 0.0;
      const double PI = 3.141592653589793238463;
 
-     for(xAOD::CaloClusterContainer::const_iterator it_ii = caloCluster->begin(); it_ii != caloCluster->end(); ++it_ii) {
-         float phi = (*it_ii)->phi(m_clusterstate);
-         float eta = (*it_ii)->eta(m_clusterstate);
-         float Et = (*it_ii)->pt(m_clusterstate);
+     for (const auto& clus : *caloCluster) {
+         float phi = clus->phi(m_clusterstate);
+         float eta = clus->eta(m_clusterstate);
+         float Et = clus->pt(m_clusterstate);
          float cosPhi, sinPhi;
          sincosf(phi, &sinPhi, &cosPhi);
          float Ex = Et*cosPhi;
          float Ey = Et*sinPhi;
-         float E = (*it_ii)->p4(m_clusterstate).E();
+         float E = clus->p4(m_clusterstate).E();
          // Identify which ring the cluster belongs to
          int Iring = -1;
          for(int j = 0; j < m_pileupnumrings; j++) {
@@ -308,10 +303,10 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
          double second_r;
          double center_mag;
 
-         // msg() << MSG::DEBUG << " Fetching second_r & center_mag " << endmsg;
+         // ATH_MSG_DEBUG( " Fetching second_r & center_mag " );
 
-         (*it_ii)->retrieveMoment(xAOD::CaloCluster::SECOND_R,second_r);
-         (*it_ii)->retrieveMoment(xAOD::CaloCluster::CENTER_MAG,center_mag);
+         clus->retrieveMoment(xAOD::CaloCluster::SECOND_R,second_r);
+         clus->retrieveMoment(xAOD::CaloCluster::CENTER_MAG,center_mag);
 
 
          if(Iring != -1 && second_r != 0 && center_mag != 0) {
@@ -320,8 +315,8 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
              double clSolidAngle = 4.0 * PI * second_r / ( center_mag * center_mag );
              double etaL = -5.0 + static_cast<double>(Iring)*etaDelta;
              double etaU = etaL + etaDelta;
-             //msg() << MSG::INFO << "etaL = " << etaL << endmsg;
-             //msg() << MSG::INFO << "etaU = " << etaU << endmsg;
+             //ATH_MSG_INFO( "etaL = " << etaL );
+             //ATH_MSG_INFO( "etaU = " << etaU );
               double deltaTheta = 2.0 * atan(exp(-etaL)) - 2.0 * atan(exp(-etaU));
              double ringSolidAngle = (2.0 * PI) * deltaTheta;
              double EclNew = E - ringE_Cl_thresh[Iring] * clSolidAngle / ringSolidAngle;

@@ -54,12 +54,11 @@ EFMissingETFromJets::~EFMissingETFromJets()
 
 StatusCode EFMissingETFromJets::initialize()
 {
-  if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "called EFMissingETFromJets::initialize()" << endmsg;
+  ATH_MSG_DEBUG( "called EFMissingETFromJets::initialize()" );
 
   /// timers
   if( service( "TrigTimerSvc", m_timersvc).isFailure() )
-    msg(MSG::WARNING) << name() << ": Unable to locate TrigTimer Service" << endmsg;
+    ATH_MSG_WARNING( name() << ": Unable to locate TrigTimer Service" );
 
   if (m_timersvc) {
     // global time
@@ -74,14 +73,13 @@ StatusCode EFMissingETFromJets::initialize()
 StatusCode EFMissingETFromJets::execute()
 {
 
-  msg(MSG::DEBUG) << name() << ": Executing Jet algorithm for ETMiss" << endmsg;
+  ATH_MSG_DEBUG( name() << ": Executing Jet algorithm for ETMiss" );
   return StatusCode::SUCCESS;
 }
 
 StatusCode EFMissingETFromJets::finalize()
 {
-  if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "called EFMissingETFromJets::finalize()" << endmsg;
+  ATH_MSG_DEBUG( "called EFMissingETFromJets::finalize()" );
 
   return StatusCode::SUCCESS;
 }
@@ -94,23 +92,21 @@ StatusCode EFMissingETFromJets::execute(xAOD::TrigMissingET *,
                                         const xAOD::VertexContainer * /*vertexContainer*/ )
 {
 
-  if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "called EFMissingETFromJets::execute()" << endmsg; // EFMissingET_Fex_Jets
+  ATH_MSG_DEBUG( "called EFMissingETFromJets::execute()" ); // EFMissingET_Fex_Jets
 
   if(m_timersvc)
     m_glob_timer->start(); // total time
 
-  if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "started MET jet CPU timer" << endmsg;
+  ATH_MSG_DEBUG( "started MET jet CPU timer" );
 
   TrigEFMissingEtComponent* metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition); // fetch Jet component
 
-  if (metComp==0) {  msg(MSG::ERROR) << "cannot fetch Topo. cluster component!" << endmsg;  return StatusCode::FAILURE; }
-  if(string(metComp->m_name).substr(0,3)!="JET"){ msg(MSG::ERROR) << "fetched " << metComp->m_name << " instead of the Jet component!" << endmsg; return StatusCode::FAILURE; }
+  if (metComp==0) {  ATH_MSG_ERROR( "cannot fetch Topo. cluster component!" );  return StatusCode::FAILURE; }
+  if(string(metComp->m_name).substr(0,3)!="JET"){ ATH_MSG_ERROR( "fetched " << metComp->m_name << " instead of the Jet component!" ); return StatusCode::FAILURE; }
 
   std::vector<const xAOD::Jet*> MHTJetsVec(MHTJetContainer->begin(), MHTJetContainer->end());
 
-  msg(MSG::DEBUG) << "num of jets: " << MHTJetsVec.size() << endmsg;
+  ATH_MSG_DEBUG( "num of jets: " << MHTJetsVec.size() );
 
  //--- fetching the topo. cluster component
  float upperlim[4] = {m_etacut,0,5,-m_etacut}; float lowerlim[4] = {0,-m_etacut,m_etacut,-5};
@@ -129,7 +125,7 @@ StatusCode EFMissingETFromJets::execute(xAOD::TrigMissingET *,
           metComp->m_sumEt += aJet->pt();
           metComp->m_sumE  += aJet->e();
           metComp->m_usedChannels += 1;
-          metComp->m_sumOfSigns += static_cast<short int>(floor(copysign(1.0,aJet->pt())+0.5));
+          metComp->m_sumOfSigns += copysign(1.0, aJet->pt() );
 
 
     } else if (i > 0) {
@@ -150,7 +146,7 @@ StatusCode EFMissingETFromJets::execute(xAOD::TrigMissingET *,
           metComp->m_sumEt += aJet->pt();
           metComp->m_sumE  += aJet->e();
           metComp->m_usedChannels += 1;
-          metComp->m_sumOfSigns += static_cast<short int>(floor(copysign(1.0,aJet->pt())+0.5));
+          metComp->m_sumOfSigns += copysign(1.0, aJet->pt() );
        }
 
      }
@@ -165,7 +161,7 @@ StatusCode EFMissingETFromJets::execute(xAOD::TrigMissingET *,
 
   metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition); // fetch Cluster component
 
-  msg(MSG::DEBUG) << " calculated MET: " << sqrt((metComp->m_ex)*(metComp->m_ex)+(metComp->m_ey)*(metComp->m_ey)) << endmsg;
+  ATH_MSG_DEBUG( " calculated MET: " << sqrt((metComp->m_ex)*(metComp->m_ex)+(metComp->m_ey)*(metComp->m_ey)) );
 
 
   if(m_timersvc)

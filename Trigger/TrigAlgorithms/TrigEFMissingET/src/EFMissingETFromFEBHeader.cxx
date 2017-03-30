@@ -31,12 +31,12 @@ EFMissingETFromFEBHeader::EFMissingETFromFEBHeader(const std::string& type,
 {
 
   declareProperty("useFullCollection", m_useFullColl = true);
-  m_usedfeb = 0;
+  m_usedfeb = nullptr;
 
-  m_data = NULL;
-  m_cablingSvc = NULL;
-  m_LArOnlineID = NULL;
-  m_CaloCell_ID = NULL;
+  m_data = nullptr;
+  m_cablingSvc = nullptr;
+  m_LArOnlineID = nullptr;
+  m_CaloCell_ID = nullptr;
 
   m_fextype = FexType::FEB;
 
@@ -49,14 +49,11 @@ EFMissingETFromFEBHeader::~EFMissingETFromFEBHeader()
 StatusCode EFMissingETFromFEBHeader::initialize()
 {
 
-  if(msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << " In initialize() of EFMissingETFromFEBHeader " << endmsg;
-  }
+  ATH_MSG_DEBUG( " In initialize() of EFMissingETFromFEBHeader " );
 
   /// timers
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
-    msg(MSG::WARNING) << name() <<
-      ": Unable to locate TrigTimer Service" << endmsg;
+    ATH_MSG_WARNING( name() << ": Unable to locate TrigTimer Service" );
   }
   if (m_timersvc) {
     // global time
@@ -80,28 +77,28 @@ StatusCode EFMissingETFromFEBHeader::initialize()
 
 
   if (toolSvc()->retrieveTool("TrigDataAccess", m_data).isFailure()) {
-    msg(MSG::FATAL) << "Could not get m_data" << endmsg;
+    ATH_MSG_FATAL( "Could not get m_data" );
     return StatusCode::FAILURE;
   }
 
   if(toolSvc()->retrieveTool("LArCablingService",m_cablingSvc).isFailure()) {
-    msg(MSG::FATAL) << "Could not get LArCablingService" << endmsg;
+    ATH_MSG_FATAL( "Could not get LArCablingService" );
     return StatusCode::FAILURE;
   }
 
-  StoreGateSvc* detStore = 0;
+  StoreGateSvc* detStore = nullptr;
   if (service( "DetectorStore", detStore ).isFailure()) {
-    msg(MSG::FATAL) << "Unable to locate DetectorStore" << endmsg;
+    ATH_MSG_FATAL( "Unable to locate DetectorStore" );
     return StatusCode::FAILURE;
   }
 
   if (detStore->retrieve(m_LArOnlineID, "LArOnlineID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get LArOnlineID helper!" << endmsg;
+    ATH_MSG_FATAL( "Could not get LArOnlineID helper!" );
     return StatusCode::FAILURE;
   }
 
   if (detStore->retrieve(m_CaloCell_ID, "CaloCell_ID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get CaloCell_ID helper!" << endmsg;
+    ATH_MSG_FATAL( "Could not get CaloCell_ID helper!" );
     return StatusCode::FAILURE;
   }
 
@@ -127,11 +124,7 @@ StatusCode EFMissingETFromFEBHeader::execute(xAOD::TrigMissingET * /* met */ ,
                                         const xAOD::VertexContainer * /*vertexContainer*/ )
 {
 
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG)
-      << "EFMissingETFromFEBHeader::execute() has been called"
-      << endmsg; // DEBUG
-  }
+  ATH_MSG_DEBUG( "EFMissingETFromFEBHeader::execute() has been called" );
 
   if(m_timersvc){
     m_glob_timer->start(); // total time
@@ -152,14 +145,10 @@ StatusCode EFMissingETFromFEBHeader::execute(xAOD::TrigMissingET * /* met */ ,
 
   m_usedfeb = new std::vector<int>;
 
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG)
-      << "EFMissingETFromFEBHeader::execute() is calling addFebEnergyToHelper()"
-      << endmsg; // DEBUG
-  }
+  ATH_MSG_DEBUG( "EFMissingETFromFEBHeader::execute() is calling addFebEnergyToHelper()" );
   StatusCode sc = addFebEnergyToHelper(metHelper);
   if(sc.isFailure()){
-    msg(MSG::ERROR) << " Failure of addFebEnergy" << endmsg;
+    ATH_MSG_ERROR( " Failure of addFebEnergy" );
     return sc;
   }
 
@@ -183,7 +172,7 @@ StatusCode EFMissingETFromFEBHeader::execute(xAOD::TrigMissingET * /* met */ ,
   } // if timing service
 
   delete m_usedfeb;
-  m_usedfeb = 0;
+  m_usedfeb = nullptr;
 
   return StatusCode::SUCCESS;
 }
@@ -192,17 +181,11 @@ StatusCode EFMissingETFromFEBHeader::execute(xAOD::TrigMissingET * /* met */ ,
 
 StatusCode EFMissingETFromFEBHeader::addFebEnergyToHelper(TrigEFMissingEtHelper* metHelper){
 
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "addFebEnergyToHelper()" << endmsg;
-  }
+  ATH_MSG_DEBUG( "addFebEnergyToHelper()" );
 
   if(m_useFullColl){ // use LoadFullCollections in TrigDataAccess
 
-    if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG)
-	       << "EFMissingETFromFEBHeader::addFebEnergyToHelper() is using LoadFullCollections"
-	       << endmsg; // DEBUG
-    }
+    ATH_MSG_DEBUG( "EFMissingETFromFEBHeader::addFebEnergyToHelper() is using LoadFullCollections" );
 
     // Now all TTEM
     StatusCode sc = addFullLArFebEnergyToHelper(metHelper, TTEM, true);
@@ -226,11 +209,7 @@ StatusCode EFMissingETFromFEBHeader::addFebEnergyToHelper(TrigEFMissingEtHelper*
 
   } else { // use RegionSelector() to load collections (slower!)
 
-    if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG)
-	       << "EFMissingETFromFEBHeader::addFebEnergyToHelper() is using RegionSelector"
-	       << endmsg; // DEBUG
-    }
+    ATH_MSG_DEBUG( "EFMissingETFromFEBHeader::addFebEnergyToHelper() is using RegionSelector" );
 
     const double phimin = -M_PI;    const double phimax =  M_PI;
     const double etamin = -4.8;     const double etamax =  4.8;
@@ -268,9 +247,7 @@ StatusCode EFMissingETFromFEBHeader::addFebEnergyToHelper(TrigEFMissingEtHelper*
     if (sc.isFailure()) return sc;
   }
 
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << metHelper->getFormattedValues() << endmsg;
-  }
+  ATH_MSG_DEBUG( metHelper->getFormattedValues() );
 
   return StatusCode::SUCCESS;
 
@@ -284,10 +261,7 @@ StatusCode EFMissingETFromFEBHeader::addLArFebEnergyToHelper(double etamin, doub
     TrigEFMissingEtHelper* metHelper,
     DETID detectorID, int sampling,
     bool prepare){
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "addLArFebEnergyToHelper(DETID=" << detectorID
-      << ", sampling=" << sampling << ")" << endmsg;
-  }
+  ATH_MSG_DEBUG( "addLArFebEnergyToHelper(DETID=" << detectorID << ", sampling=" << sampling << ")" );
 
   int iDet=0;
   //CaloSampling::CaloSample samp = CaloSampling::PreSamplerB;
@@ -356,8 +330,7 @@ StatusCode EFMissingETFromFEBHeader::addLArFebEnergyToHelper(double etamin, doub
         offChId = m_cablingSvc->cnvToIdentifier(onlChId);
         ichannel++;
         if (ichannel>127) {
-          msg(MSG::ERROR)
-		   << "not connected channel found for this FEB: " << febid << endmsg;
+          ATH_MSG_ERROR( "not connected channel found for this FEB: " << febid );
           return StatusCode::RECOVERABLE;
         }
       } while(!offChId.is_valid());
@@ -382,23 +355,22 @@ StatusCode EFMissingETFromFEBHeader::addLArFebEnergyToHelper(double etamin, doub
           k = 20 + caloSamp;
           break;
         default:
-          msg(MSG::FATAL) << "Unknown subdetector!" << endmsg;
+          ATH_MSG_FATAL( "Unknown subdetector!" );
           return StatusCode::FAILURE;
       }
 
       TrigEFMissingEtComponent* metComp = metHelper->GetComponent(k);
       if (metComp==0) {
-        msg(MSG::FATAL) << "Cannot find calo sampling " << (int)k
-          << ". caloId=" << caloId << ", caloSamp=" << caloSamp
-          << ", subdet=" << subdet << " (febid=" << febid
-          << ", offChId=" << offChId << ")" << endmsg;
+        ATH_MSG_FATAL("Cannot find calo sampling " << (int)k
+                      << ". caloId=" << caloId << ", caloSamp=" << caloSamp
+                      << ", subdet=" << subdet << " (febid=" << febid
+                      << ", offChId=" << offChId << ")" );
         return StatusCode::FAILURE;
       }
       if (metComp->m_skip) {
-        msg(MSG::DEBUG)
-          << "Skipping L.Ar cells from (DETID = " << detectorID
-          << ", sampling = " << sampling << "), i.e. "
-          << metComp->m_name << endmsg;
+        ATH_MSG_DEBUG( "Skipping L.Ar cells from (DETID = " << detectorID
+                       << ", sampling = " << sampling << "), i.e. "
+                       << metComp->m_name );
         break;
       }
       else if ( metComp->m_status & m_maskProcessed ) // already done
@@ -445,10 +417,7 @@ StatusCode EFMissingETFromFEBHeader::addLArFebEnergyToHelper(double etamin, doub
 
 StatusCode EFMissingETFromFEBHeader::addFullLArFebEnergyToHelper(TrigEFMissingEtHelper* metHelper,
     DETID detectorID, bool prepare){
-  if(msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "addFullLArFebEnergyToHelper(DETID="
-      << detectorID << ")" << endmsg;
-  }
+  ATH_MSG_DEBUG( "addFullLArFebEnergyToHelper(DETID=" << detectorID << ")" );
 
   int iDet=0;
   //CaloSampling::CaloSample samp = CaloSampling::PreSamplerB;
@@ -512,8 +481,7 @@ StatusCode EFMissingETFromFEBHeader::addFullLArFebEnergyToHelper(TrigEFMissingEt
         offChId = m_cablingSvc->cnvToIdentifier(onlChId);
         ichannel++;
         if (ichannel>127) {
-          msg(MSG::ERROR)
-		   << "not connected channel found for this FEB: " << febid << endmsg;
+          ATH_MSG_ERROR( "not connected channel found for this FEB: " << febid );
           return StatusCode::RECOVERABLE;
         }
       } while(!offChId.is_valid());
@@ -538,22 +506,21 @@ StatusCode EFMissingETFromFEBHeader::addFullLArFebEnergyToHelper(TrigEFMissingEt
           k = 20 + caloSamp;
           break;
         default:
-          msg(MSG::FATAL) << "Unknown subdetector!" << endmsg;
+          ATH_MSG_FATAL( "Unknown subdetector!" );
           return StatusCode::FAILURE;
       }
 
       TrigEFMissingEtComponent* metComp = metHelper->GetComponent(k);
       if (metComp==0) {
-        msg(MSG::FATAL) << "Cannot find calo sampling " << (int)k
-          << ". caloId=" << caloId << ", caloSamp=" << caloSamp
-          << ", subdet=" << subdet << " (febid=" << febid
-          << ", offChId=" << offChId << ")" << endmsg;
+        ATH_MSG_FATAL( "Cannot find calo sampling " << (int)k
+                       << ". caloId=" << caloId << ", caloSamp=" << caloSamp
+                       << ", subdet=" << subdet << " (febid=" << febid
+                       << ", offChId=" << offChId << ")" );
         return StatusCode::FAILURE;
       }
       if (metComp->m_skip) {
-        msg(MSG::DEBUG)
-          << "Skipping L.Ar cells from DETID = " << detectorID
-          << ", i.e. " << metComp->m_name << endmsg;
+        ATH_MSG_DEBUG( "Skipping L.Ar cells from DETID = " << detectorID
+                        << ", i.e. " << metComp->m_name );
         break;
       }
       else if ( metComp->m_status & m_maskProcessed ) // already done
@@ -601,10 +568,7 @@ StatusCode EFMissingETFromFEBHeader::addFullLArFebEnergyToHelper(TrigEFMissingEt
 
 StatusCode EFMissingETFromFEBHeader::addFullTileFebEnergyToHelper(TrigEFMissingEtHelper* metHelper,
     DETID detectorID, bool /*prepare*/ ){
-  if(msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "addFullLArFebEnergyToHelper(DETID="
-      << detectorID << ")" << endmsg;
-  }
+  ATH_MSG_DEBUG( "addFullLArFebEnergyToHelper(DETID=" << detectorID << ")" );
 
 /*  int iDet=0;
   CaloSampling::CaloSample samp = CaloSampling::PreSamplerB;
@@ -619,22 +583,19 @@ StatusCode EFMissingETFromFEBHeader::addFullTileFebEnergyToHelper(TrigEFMissingE
 */
   // Get the Tile part of the Calo info
   TileL2Container::const_iterator draw_it, draw_it_beg, draw_it_end;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << MSG::DEBUG << "Tile part" << endmsg;
+  ATH_MSG_DEBUG( "Tile part" );
   StatusCode sc = m_data->LoadFullCollections(draw_it_beg, draw_it_end );
   if (sc.isFailure()) return sc;
   draw_it = draw_it_beg;
   for(;draw_it!=draw_it_end;++draw_it){
     int targetComponent = 12; int sumComponent = 5;
     int id = (*draw_it)->identify();
-    //if(m_outputLevel <= MSG::DEBUG) (*m_log) << MSG::DEBUG << std::hex << "drawerID=0x" << id << std::dec << endmsg;
     if( (id & 0x700) == 0x100  ||  (id & 0x700) == 0x200 ) {
-      //if(m_outputLevel <= MSG::DEBUG) (*m_log) << MSG::DEBUG << "barrel" << endmsg;
       targetComponent = 12; sumComponent = 5;
     }else if( (id & 0x700) == 0x300  ||  (id & 0x700) == 0x400 ) {
-      //if(m_outputLevel <= MSG::DEBUG) (*m_log) << MSG::DEBUG << "extended barrel" << endmsg;
       targetComponent = 18; sumComponent = 2;
     }else{
-      msg(MSG::ERROR) << MSG::ERROR << "dont know which part this tile drawer belongs to." << endmsg;
+      ATH_MSG_ERROR( "dont know which part this tile drawer belongs to." );
     }
     TrigEFMissingEtComponent* metComp = metHelper->GetComponent(targetComponent);
 

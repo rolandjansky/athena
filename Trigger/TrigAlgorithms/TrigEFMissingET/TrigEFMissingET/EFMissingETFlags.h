@@ -78,21 +78,15 @@ class EFMissingETFlags : public EFMissingETBaseTool
 
   std::vector<float> m_MaxCompE;   //<! max reasonable component energy
   std::vector<float> m_MinCompE;   //<! min reasonable component energy
-
   std::vector<float> m_MaxCellE;   //<! max reasonable cell energy for each component
   std::vector<float> m_MinCellE;   //<! min reasonable cell energy for each component
-
   std::vector<float> m_MaxCellTime;   //<! max reasonable cell time for each component
   std::vector<float> m_MinCellTime;   //<! min reasonable cell time for each component
-
   std::vector<float> m_CompMaxNoisyEnergyRatio; //<! max reasonable BadSET/SET for each component
-
   std::vector<float> m_WorstCellQlty; //<! max reasonable CaloCell::quality() for each component
-
   std::vector<float> m_CompMaxMEtSumEtRatio; //<! max reasonable |MET/SumET|
 
   TH2F* m_hCompFlags; //<! monitoring histograms for component status bits
-
 };
 
 #endif // TRIGEFMISSINGET_EFMISSINGETFLAGS

@@ -34,8 +34,8 @@ class EFMissingETFromClustersPS : public EFMissingETBaseTool
   public:
 
     EFMissingETFromClustersPS(const std::string& type,
-        const std::string& name,
-        const IInterface* parent);
+                              const std::string& name,
+                              const IInterface* parent);
 
     ~EFMissingETFromClustersPS();
 
@@ -51,17 +51,13 @@ class EFMissingETFromClustersPS : public EFMissingETBaseTool
                                const xAOD::VertexContainer *vertex);
 
   private:
-    bool m_saveuncalibrated;
-    bool m_subtractpileup;
-    bool m_pileupdebug;
-    int m_pileupnumrings;
+    bool  m_saveuncalibrated;
+    bool  m_subtractpileup;
+    bool  m_pileupdebug;
+    int   m_pileupnumrings;
     float m_pileupnumstddev;
-    int m_methelperposition;
+    int   m_methelperposition;
     xAOD::CaloCluster_v1::State m_clusterstate;
-
-    // March 6 2013
-    //int m_metType;
-
 };
 
 #endif // TRIGEFMISSINGET_EFMissingETFromClustersPS_H

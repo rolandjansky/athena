@@ -67,14 +67,10 @@ EFMissingETFromCells::~EFMissingETFromCells()
 
 StatusCode EFMissingETFromCells::initialize()
 {
-
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << " In initialize() of EFMissingETFromCells " << endmsg;
-  }
+  ATH_MSG_DEBUG( " In initialize() of EFMissingETFromCells " );
   /// timers
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
-    msg(MSG::WARNING) << name() <<
-      ": Unable to locate TrigTimer Service" << endmsg;
+    ATH_MSG_WARNING( name() << ": Unable to locate TrigTimer Service" );
   }
   if (m_timersvc) {
     // global time
@@ -99,7 +95,7 @@ StatusCode EFMissingETFromCells::initialize()
 
 
   if (toolSvc()->retrieveTool("TrigDataAccess", m_data).isFailure()) {
-    msg(MSG::FATAL) << "Could not get m_data" << endmsg;
+    ATH_MSG_FATAL( "Could not get m_data" );
     return StatusCode::FAILURE;
   }
 
@@ -107,13 +103,13 @@ StatusCode EFMissingETFromCells::initialize()
   /// noise suppression
   if(m_doCellNoiseSupp!=0){
     if(m_noiseTool.retrieve().isFailure()){
-      msg(MSG::FATAL) << "Unable to find CaloNoiseTool" << endmsg;
+      ATH_MSG_FATAL( "Unable to find CaloNoiseTool" );
       return StatusCode::FAILURE;
     }
 
     StatusCode sc=toolSvc()->retrieveTool("LArCablingService", m_cablingSvc);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::FATAL) << "Failed to retrieve LArCablingService " << endmsg;
+      ATH_MSG_FATAL( "Failed to retrieve LArCablingService " );
       return StatusCode::FAILURE;
     }
   }
@@ -143,13 +139,10 @@ StatusCode EFMissingETFromCells::execute(xAOD::TrigMissingET * /* met */ ,
                                         const xAOD::VertexContainer * /*vertexContainer*/ )
 {
 
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG)
-      << "this is EFMissingETFromCells::execute()" << endmsg;
-  }
+  ATH_MSG_DEBUG( "this is EFMissingETFromCells::execute()" );
 
   if(!m_glob_timer) {
-    msg(MSG::WARNING) << "ERROR: cannot get global timer!" << endmsg;
+    ATH_MSG_WARNING( "ERROR: cannot get global timer!" );
   }
 
   if(m_timersvc && m_glob_timer){
@@ -169,14 +162,12 @@ StatusCode EFMissingETFromCells::execute(xAOD::TrigMissingET * /* met */ ,
     if ( (metComp->m_status & m_maskProcessed)==0 ) metComp->Reset();
   }
 
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG)
-      << "EFMissingETFromCells::execute() is calling addAllCellsToHelper()"
-      << endmsg; // DEBUG
-  }
+
+
+  ATH_MSG_DEBUG( "EFMissingETFromCells::execute() is calling addAllCellsToHelper()" );
   StatusCode sc = addAllCellsToHelper(metHelper);
   if(sc.isFailure()){
-    msg(MSG::ERROR) << " Failure of addAllCellsToHelper" << endmsg;
+    ATH_MSG_ERROR( " Failure of addAllCellsToHelper" );
     return sc;
   }
 
@@ -207,17 +198,11 @@ StatusCode EFMissingETFromCells::execute(xAOD::TrigMissingET * /* met */ ,
 
 
 StatusCode EFMissingETFromCells::addAllCellsToHelper(TrigEFMissingEtHelper* metHelper){
-  if (msgLvl(MSG::DEBUG)){
-    msg(MSG::DEBUG) << "EFMissingETFromCells::addAllCellsToHelper()" << endmsg;
-  }
+  ATH_MSG_DEBUG( "EFMissingETFromCells::addAllCellsToHelper()" );
 
   if(m_useFullColl) { // use LoadFullCollections in TrigDataAccess
 
-    if (msgLvl(MSG::DEBUG)){
-      msg(MSG::DEBUG)
-        << "EFMissingETFromCells::addAllCellsToHelper() is using LoadFullCollections"
-        << endmsg; // DEBUG
-    }
+    ATH_MSG_DEBUG( "EFMissingETFromCells::addAllCellsToHelper() is using LoadFullCollections" );
 
     /** Load TTEM */
     StatusCode sc = addFullLArCellsToHelper(metHelper, TTEM, true);
@@ -241,11 +226,7 @@ StatusCode EFMissingETFromCells::addAllCellsToHelper(TrigEFMissingEtHelper* metH
 
   } else { // use RegionSelector() to load collections (slower!)
 
-    if (msgLvl(MSG::DEBUG)){
-      msg(MSG::DEBUG)
-	<< "EFMissingETFromCells::addAllCellsToHelper() is using RegionSelector"
-        << endmsg; // DEBUG
-    }
+    ATH_MSG_DEBUG( "EFMissingETFromCells::addAllCellsToHelper() is using RegionSelector" );
     const char* samplNames[12] = {"TTEM",  "TTEM",  "TTEM",  "TTEM",
 				  "TTHEC", "TTHEC", "TTHEC", "TTHEC",
 				  "TILE",
@@ -268,10 +249,7 @@ StatusCode EFMissingETFromCells::addAllCellsToHelper(TrigEFMissingEtHelper* metH
     for (int i=0; i<12; ++i) { // loop over samplings
       if (i!=8) { // LAr
 
-        if (msgLvl(MSG::DEBUG)){
-          msg(MSG::DEBUG) << "EFMissingETFromCells::addLArCellsToHelper("
-	    << samplNames[i] << ", " << sampling[i] << ")" << endmsg; // DEBUG
-        }
+        ATH_MSG_DEBUG( "EFMissingETFromCells::addLArCellsToHelper(" << samplNames[i] << ", " << sampling[i] << ")" );
 
 	StatusCode sc = addLArCellsToHelper(etamin, etamax, phimin, phimax, metHelper,
 				 samplDetID[i], sampling[i], true);
@@ -279,10 +257,7 @@ StatusCode EFMissingETFromCells::addAllCellsToHelper(TrigEFMissingEtHelper* metH
 
       } else { // Tile
 
-        if (msgLvl(MSG::DEBUG)){
-          msg(MSG::DEBUG) << "EFMissingETFromCells::addTileCellsToHelper("
-	    << samplNames[i] << ", " << sampling[i] << ")" << endmsg; // DEBUG
-        }
+        ATH_MSG_DEBUG( "EFMissingETFromCells::addTileCellsToHelper(" << samplNames[i] << ", " << sampling[i] << ")" );
 
 	StatusCode sc = addTileCellsToHelper(etamin, etamax, 0., 2*phimax, metHelper,
 				  samplDetID[i], sampling[i], true);
@@ -291,9 +266,7 @@ StatusCode EFMissingETFromCells::addAllCellsToHelper(TrigEFMissingEtHelper* metH
     }
   }
 
-  if (msgLvl(MSG::DEBUG)){
-    msg(MSG::DEBUG) << metHelper->getFormattedValues() << endmsg;
-  }
+  ATH_MSG_DEBUG( metHelper->getFormattedValues() );
 
   return StatusCode::SUCCESS;
 
@@ -306,10 +279,7 @@ StatusCode EFMissingETFromCells::addLArCellsToHelper(double etamin, double etama
     TrigEFMissingEtHelper* metHelper,
     DETID detectorID, int sampling,
     bool prepare){
-  if (msgLvl(MSG::DEBUG)){
-    msg(MSG::DEBUG) << "EFMissingETFromCells::addLArCellsToHelper(detectorID="
-      << detectorID << ", sampling=" << sampling << ")" << endmsg;
-  }
+  ATH_MSG_DEBUG( "EFMissingETFromCells::addLArCellsToHelper(detectorID=" << detectorID << ", sampling=" << sampling << ")" );
 
   int iDet=0;
   switch (detectorID) {
@@ -349,26 +319,19 @@ StatusCode EFMissingETFromCells::addLArCellsToHelper(double etamin, double etama
     // 0. get calo descriptor
     const CaloDetDescrElement* cDDE = (*m_it)->caloDDE();
     if (cDDE==0) {
-      msg(MSG::WARNING)
-        << "cannot get CaloDetDescrElement from cell "
-        << (*m_it)->ID() << endmsg;
+      ATH_MSG_WARNING( "cannot get CaloDetDescrElement from cell " << (*m_it)->ID() );
       continue;
     }
 
     // 1. find component
     TrigEFMissingEtComponent *metComp = metHelper->GetComponent( cDDE->getSampling() );
     if (metComp==0) {
-      msg(MSG::FATAL) << "Cannot find calo sampling!" << endmsg;
+      ATH_MSG_FATAL( "Cannot find calo sampling!" );
       return StatusCode::FAILURE;
     }
 
     if (metComp->m_skip) {
-      if (msgLvl(MSG::DEBUG)){
-        msg(MSG::DEBUG)
-          << "Skipping L.Ar cells from (detID = "<< detectorID
-          << ", sampling = " << sampling << "), i.e. "
-          << metComp->m_name << endmsg;
-      }
+      ATH_MSG_DEBUG( "Skipping L.Ar cells from (detID = "<< detectorID << ", sampling = " << sampling << "), i.e. " << metComp->m_name );
       break;
     }
     else if ( metComp->m_status & m_maskProcessed ) // already done
@@ -442,10 +405,7 @@ StatusCode EFMissingETFromCells::addTileCellsToHelper(double etamin, double etam
     TrigEFMissingEtHelper* metHelper,
     DETID detectorID, int sampling,
     bool /*prepare*/ ){
-  if (msgLvl(MSG::DEBUG)){
-    msg(MSG::DEBUG) << "EFMissingETFromCells::addTileCellsToHelper(detectorID="
-      << detectorID << ", sampling=" << sampling << ")" << endmsg;
-  }
+  ATH_MSG_DEBUG( "EFMissingETFromCells::addTileCellsToHelper(detectorID=" << detectorID << ", sampling=" << sampling << ")" );
 
   int iDet=2;
 
@@ -474,23 +434,19 @@ StatusCode EFMissingETFromCells::addTileCellsToHelper(double etamin, double etam
       // 0. get calo descriptor
       const CaloDetDescrElement* cDDE = (*m_itt)->caloDDE();
       if (cDDE==0) {
-        msg(MSG::WARNING)
-          << "cannot get CaloDetDescrElement from cell "
-          << (*m_itt)->ID() << endmsg;
+        ATH_MSG_WARNING( "cannot get CaloDetDescrElement from cell " << (*m_itt)->ID() );
         continue;
       }
 
       // 1. find component
       TrigEFMissingEtComponent *metComp = metHelper->GetComponent( cDDE->getSampling() );
       if (metComp==0) {
-        msg(MSG::FATAL) << "Cannot find calo sampling!" << endmsg;
+        ATH_MSG_FATAL( "Cannot find calo sampling!" );
         return StatusCode::FAILURE;
       }
 
       if (metComp->m_skip) {
-        msg(MSG::WARNING)
-          << "Skipping Tile cells from "
-          << metComp->m_name << endmsg;
+        ATH_MSG_WARNING( "Skipping Tile cells from " << metComp->m_name );
         break;
       }
       else if ( metComp->m_status & m_maskProcessed ) // already done
@@ -578,10 +534,7 @@ StatusCode EFMissingETFromCells::addTileCellsToHelper(double etamin, double etam
 StatusCode EFMissingETFromCells::addFullLArCellsToHelper(TrigEFMissingEtHelper* metHelper,
     DETID detectorID, bool prepare){
 
-  if (msgLvl(MSG::DEBUG)){
-    msg(MSG::DEBUG) << "EFMissingETFromCells::addFullLArCellsToHelper(detectorID="
-      << detectorID << ")" << endmsg;
-  }
+  ATH_MSG_DEBUG( "EFMissingETFromCells::addFullLArCellsToHelper(detectorID=" << detectorID << ")" );
 
   int iDet=0;
   switch (detectorID) {
@@ -616,25 +569,19 @@ StatusCode EFMissingETFromCells::addFullLArCellsToHelper(TrigEFMissingEtHelper* 
     // 0. get calo descriptor
     const CaloDetDescrElement* cDDE = (*m_it)->caloDDE();
     if (cDDE==0) {
-      msg(MSG::WARNING)
-        << "cannot get CaloDetDescrElement from cell "
-        << (*m_it)->ID() << endmsg;
+      ATH_MSG_WARNING( "cannot get CaloDetDescrElement from cell " << (*m_it)->ID() );
       continue;
     }
 
     // 1. find component
     TrigEFMissingEtComponent *metComp = metHelper->GetComponent( cDDE->getSampling() );
     if (metComp==0) {
-      msg(MSG::FATAL) << "Cannot find calo sampling!" << endmsg;
+      ATH_MSG_FATAL( "Cannot find calo sampling!" );
       return StatusCode::FAILURE;
     }
 
     if (metComp->m_skip) {
-      if (msgLvl(MSG::DEBUG)){
-        msg(MSG::DEBUG)
-          << "Skipping L.Ar cells from detID = "<< detectorID
-          << ", i.e. " << metComp->m_name << endmsg;
-      }
+      ATH_MSG_DEBUG( "Skipping L.Ar cells from detID = "<< detectorID << ", i.e. " << metComp->m_name );
       break;
     }
     else if ( metComp->m_status & m_maskProcessed ) // already done
@@ -702,10 +649,7 @@ StatusCode EFMissingETFromCells::addFullLArCellsToHelper(TrigEFMissingEtHelper* 
 
 StatusCode EFMissingETFromCells::addFullTileCellsToHelper(TrigEFMissingEtHelper* metHelper,
     int sampling, bool /*prepare*/ ){
-  if (msgLvl(MSG::DEBUG)){
-    msg(MSG::DEBUG) << "EFMissingETFromCells::addFullTileCellsToHelper(sampling="
-      << sampling << ")" << endmsg;
-  }
+  ATH_MSG_DEBUG( "EFMissingETFromCells::addFullTileCellsToHelper(sampling=" << sampling << ")" );
 
   int iDet=2;
 
@@ -729,9 +673,7 @@ StatusCode EFMissingETFromCells::addFullTileCellsToHelper(TrigEFMissingEtHelper*
       // 0. get calo descriptor
       const CaloDetDescrElement* cDDE = (*m_itt)->caloDDE();
       if (cDDE==0) {
-        msg(MSG::WARNING)
-          << "cannot get CaloDetDescrElement from cell "
-          << (*m_itt)->ID() << endmsg;
+        ATH_MSG_WARNING( "cannot get CaloDetDescrElement from cell " << (*m_itt)->ID() );
         continue;
       }
 
@@ -739,13 +681,11 @@ StatusCode EFMissingETFromCells::addFullTileCellsToHelper(TrigEFMissingEtHelper*
       // TrigEFMissingEtComponent *metComp = metHelper->GetComponent( CaloSampling::getSampling( *(*m_itt) ) );
       TrigEFMissingEtComponent *metComp = metHelper->GetComponent( (*m_itt)->caloDDE()->getSampling() );
       if (metComp==0) {
-        msg(MSG::FATAL) << "Cannot find calo sampling!" << endmsg;
+        ATH_MSG_FATAL( "Cannot find calo sampling!" );
         return StatusCode::FAILURE;
       }
       if (metComp->m_skip) {
-        msg(MSG::WARNING)
-          << "Skipping Tile cells from "
-          << metComp->m_name << endmsg;
+        ATH_MSG_WARNING( "Skipping Tile cells from " << metComp->m_name );
         break;
       }
       else if ( metComp->m_status & m_maskProcessed ) // already done

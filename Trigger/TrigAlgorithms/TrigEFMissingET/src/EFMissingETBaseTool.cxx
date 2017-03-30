@@ -36,11 +36,11 @@ EFMissingETBaseTool::EFMissingETBaseTool(const std::string& type,
   declareInterface<EFMissingETBaseTool>( this );
   declareProperty("ParentFexName", m_FexName="EFMissingET_Fex");
 
-  m_timersvc=0;
-  m_glob_timer=0;
+  m_timersvc=nullptr;
+  m_glob_timer=nullptr;
   for (int iDet=0; iDet<4; ++iDet)
     for (int iStep=0; iStep<3; ++iStep)
-      m_timer[iDet][iStep] = 0;
+      m_timer[iDet][iStep] = nullptr;
 
 
   /** definition of the meaning for the component flag bits **/

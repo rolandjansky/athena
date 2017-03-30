@@ -31,8 +31,8 @@ class EFMissingETFromJets : public EFMissingETBaseTool
   public:
 
     EFMissingETFromJets(const std::string& type,
-        const std::string& name,
-        const IInterface* parent);
+                        const std::string& name,
+                        const IInterface* parent);
 
     ~EFMissingETFromJets();
 
@@ -41,17 +41,17 @@ class EFMissingETFromJets : public EFMissingETBaseTool
     virtual StatusCode execute();
 
     virtual StatusCode execute(xAOD::TrigMissingET *met,
-			       TrigEFMissingEtHelper *metHelper,
-			       const xAOD::CaloClusterContainer *caloCluster,
-			       const xAOD::JetContainer *jets,
+                  			       TrigEFMissingEtHelper *metHelper,
+                  			       const xAOD::CaloClusterContainer *caloCluster,
+                  			       const xAOD::JetContainer *jets,
                                const xAOD::TrackParticleContainer *track,
                                const xAOD::VertexContainer *vertex);
 
   private:
     float m_etacut;
-    float m_forward_ptcut, m_central_ptcut;
-    int  m_methelperposition;
-
+    float m_forward_ptcut;
+    float m_central_ptcut;
+    int   m_methelperposition;
 };
 
 #endif // TRIGEFMISSINGET_EFMISSINGETFROMJETS_H

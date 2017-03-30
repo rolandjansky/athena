@@ -77,7 +77,7 @@ class EFMissingET : public HLT::AllTEAlgo {
      * @param type_out the output TE type
      **/
     HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& tes_in,
-        unsigned int type_out);
+                              unsigned int type_out);
 
     //HLT::ErrorCode getROI();
 
@@ -159,18 +159,18 @@ class EFMissingET : public HLT::AllTEAlgo {
     bool m_firsteventinrun;
 
     //!< Configurables:
-    bool m_doTimers;             //!< switch on/off detailed timers
-    bool m_decodeDetMask;        //!< switch on/off DetMask decoding
-    bool m_doTopoClusters;       //!< switch on/off topo. clusters
-    bool m_doJets;               //!< switch on/off jets
-    bool m_doTracks;               //!< switch on/off tracks
-    bool m_doPUC;                //!< switch on/off Pile-up fit
-    std::string  m_metOutputKey; //!< label for the MET feature in the HLT Navigation
+    bool m_doTimers;         //!< switch on/off detailed timers
+    bool m_decodeDetMask;    //!< switch on/off DetMask decoding
+    bool m_doTopoClusters;   //!< switch on/off topo. clusters
+    bool m_doJets;           //!< switch on/off jets
+    bool m_doTracks;         //!< switch on/off tracks
+    bool m_doPUC;            //!< switch on/off Pile-up fit
+    int  m_n_sizePers;       //!< number of components in pers. objects
+    std::string        m_metOutputKey;     //!< label for the MET feature in the HLT Navigation
+    std::vector<int>   m_flags;            //!< component flag (skip if <0)
+    std::vector<float> m_calib0;           //!< additive calibration constants
+    std::vector<float> m_calib1;           //!< multiplicative calib. constants
     ToolHandleArray< EFMissingETBaseTool > m_tools; //!< list of tools
-    int m_n_sizePers;            //!< number of components in pers. objects
-    std::vector<int>  m_flags;   //!< component flag (skip if <0)
-    std::vector<float> m_calib0; //!< additive calibration constants
-    std::vector<float> m_calib1; //!< multiplicative calib. constants
 
     //!< Monitoring variables:
     float m_mex_log;  //!< Monitoring: EF signed log10 of Missing Ex [GeV]
@@ -230,14 +230,9 @@ class EFMissingET : public HLT::AllTEAlgo {
     float m_tool_time_LoadCol; //!< Monitoring: total LoadCollections time [ms]
     float m_tool_time_Loop;    //!< Monitoring: total algorithmic time [ms]
 
-
-
-
   protected:
-
     TrigTimer*  m_totTime;
     TrigTimer*  m_algTime;
-
 };
 
 

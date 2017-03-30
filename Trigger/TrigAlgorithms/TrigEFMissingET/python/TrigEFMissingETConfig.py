@@ -1178,8 +1178,6 @@ class EFMissingET_Fex_topoClustersPS (EFMissingETBase):
 
         self.AthenaMonTools = [ validation, online, cosmic]
 
-
-
 ##### Use topo. clusters for noise suppression #####
 class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
     __slots__ = []
@@ -1367,8 +1365,6 @@ class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
 
         self.AthenaMonTools = [ validation, online, cosmic]
 
-
-
 ##### loop over jets #####
 class EFMissingET_Fex_Jets (EFMissingETBase):
     __slots__ = []
@@ -1421,8 +1417,6 @@ class EFMissingET_Fex_TrackAndJets (EFMissingETBase):
         self.doJets = True
         self.doTracks = True
 
-
-
         # tools
         febTool    = EFMissingETFromFEBHeader("TheFEBTool")
         jetTool    = EFMissingETFromTrackAndJets("TheTrackAndJetTool")
@@ -1448,14 +1442,11 @@ class EFMissingET_Fex_TrackAndJets (EFMissingETBase):
         jetTool.MuonTrackSelectionTool.maxZ0SinTheta = 1.5
         jetTool.MuonTrackSelectionTool.maxD0overSigmaD0 = 3
 
-
-
         ## chain of tools
         self.Tools = []
         self.Tools += [ jetTool ]
         self.Tools += [ flagTool ]
         self.Tools += [ helperTool ]
-
 
         from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_alt, TrigEFMissingETOnlineMonitoring_alt, TrigEFMissingETCosmicMonitoring_alt
         validation = TrigEFMissingETValidationMonitoring_alt()

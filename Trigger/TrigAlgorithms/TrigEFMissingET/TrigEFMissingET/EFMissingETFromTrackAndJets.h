@@ -39,8 +39,8 @@ class EFMissingETFromTrackAndJets : public EFMissingETBaseTool
   public:
 
     EFMissingETFromTrackAndJets(const std::string& type,
-        const std::string& name,
-        const IInterface* parent);
+                                const std::string& name,
+                                const IInterface* parent);
 
     ~EFMissingETFromTrackAndJets();
 
@@ -49,9 +49,9 @@ class EFMissingETFromTrackAndJets : public EFMissingETBaseTool
     virtual StatusCode execute();
 
     virtual StatusCode execute(xAOD::TrigMissingET *met,
-			       TrigEFMissingEtHelper *metHelper,
-			       const xAOD::CaloClusterContainer *caloCluster,
-			       const xAOD::JetContainer *jets,
+                  			       TrigEFMissingEtHelper *metHelper,
+                  			       const xAOD::CaloClusterContainer *caloCluster,
+                  			       const xAOD::JetContainer *jets,
                                const xAOD::TrackParticleContainer *track,
                                const xAOD::VertexContainer *vertex);
 
@@ -59,14 +59,15 @@ class EFMissingETFromTrackAndJets : public EFMissingETBaseTool
 
   private:
     float m_etacut;
-    float m_forward_ptcut, m_central_ptcut;
-    int  m_methelperposition;
+    float m_forward_ptcut;
+    float m_central_ptcut;
+    int   m_methelperposition;
     float m_track_ptcut;
     float m_central_jvtcut;
-    ToolHandle< InDet::IInDetTrackSelectionTool > trackselTool;
-    ToolHandle< InDet::IInDetTrackSelectionTool > muontrackselTool;
-    TH2F                   *m_jvtLikelihood;
+    TH2F* m_jvtLikelihood;
 
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trackselTool;
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_muontrackselTool;
 };
 
 #endif // TRIGEFMISSINGET_EFMISSINGETFROMTRACKANDJETS_H
