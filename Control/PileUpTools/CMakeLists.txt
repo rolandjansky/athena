@@ -26,4 +26,3 @@ atlas_add_library( PileUpToolsLib
 atlas_add_component( PileUpTools
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps AthenaKernel DataModel SGTools StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel PileUpToolsLib )
-

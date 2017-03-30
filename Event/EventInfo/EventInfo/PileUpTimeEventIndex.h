@@ -16,7 +16,8 @@ public:
 		    MinimumBias=1, 
 		    Cavern=2, 
 		    HaloGas=3, 
-		    ZeroBias=4,
+                    HighPtMinimumBias=4,
+		    ZeroBias=5,
 		    NTYPES };
   typedef long time_type;
   typedef unsigned long index_type;
