@@ -48,7 +48,7 @@ topSequence += AthPoolEx__WriteData("WriteData")
 
 # Run OutputStream as an algorithm
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolFile1.root", True )
+Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolFile1.root", True, noTag=True )
 Stream1.ItemList += [ "ExampleHitContainer#My*" ]
 
 #--------------------------------------------------------------
@@ -59,7 +59,7 @@ topSequence += MakeInputDataHeader( StreamName = "Stream1" )
 topSequence += AthPoolEx__ReWriteData( "ReWriteData" )
 
 # Run OutputStream as an algorithm
-Stream2 = AthenaPoolOutputStream( "Stream2" , "SimplePoolFile3.root", True )
+Stream2 = AthenaPoolOutputStream( "Stream2" , "SimplePoolFile3.root", True, noTag=True )
 Stream2.ItemList += [ "ExampleTrackContainer#*Tracks" ]
 
 # Must make sure that no OutStream's have been declared

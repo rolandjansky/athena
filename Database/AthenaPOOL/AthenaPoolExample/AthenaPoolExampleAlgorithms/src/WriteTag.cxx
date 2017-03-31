@@ -10,8 +10,9 @@
 
 #include "WriteTag.h"
 
-// the user data-class defintions
 #include "AthenaPoolUtilities/TagAthenaAttributeList.h"
+#include "PersistentDataModel/AthenaAttributeList.h"
+#include "AthenaPoolUtilities/AthenaAttributeListSpecification.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -59,16 +60,24 @@ StatusCode WriteTag::execute() {
    unsigned int runNumber = evt->event_ID()->run_number();
    ATH_MSG_INFO("EventInfo event: " << eventNumber << "  run: " << runNumber);
 
-   TagAthenaAttributeList* attribList = new TagAthenaAttributeList(*m_attribListSpec);
+   auto tagAttribList = std::make_unique<TagAthenaAttributeList>(*m_attribListSpec);
+   (*tagAttribList)["RunNumber"].data<unsigned int>() = runNumber;
+   (*tagAttribList)["EventNumber"].data<unsigned int>() = eventNumber;
+   if (m_magic > 0) {
+      (*tagAttribList)["MagicNumber"].data<unsigned int>() = m_magic.value();
+   }
+
+   coral::AttributeListSpecification* cspec = new coral::AttributeListSpecification;
+   m_attribListSpec->coralSpec (*cspec);
+   auto attribList = std::make_unique<AthenaAttributeList>(*cspec);
+   cspec->release();
    (*attribList)["RunNumber"].data<unsigned int>() = runNumber;
    (*attribList)["EventNumber"].data<unsigned int>() = eventNumber;
    if (m_magic > 0) {
       (*attribList)["MagicNumber"].data<unsigned int>() = m_magic.value();
    }
-   if (evtStore()->record(attribList, m_key.value()).isFailure()) {
-      ATH_MSG_ERROR("Could not record TagAthenaAttributeList object.");
-      return StatusCode::FAILURE;
-   }
+   ATH_CHECK( evtStore()->record (std::move(attribList), m_key.value()) );
+   ATH_CHECK( evtStore()->record (std::move(tagAttribList), m_key.value()) );
 
    ATH_MSG_INFO("registered all data");
    return StatusCode::SUCCESS;
