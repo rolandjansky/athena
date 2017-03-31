@@ -373,25 +373,25 @@
 <!-- m_jet_resolution_m -->
   <h id="jet_resolution_m" type="TH1F" title="Mass resolution - all jets">
     <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
-    <y title="0.5 x 68 % IQnR(R_{m})∕median(R_{m})" />
+    <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_m_2leadings -->
   <h id="jet_resolution_m_2leadings" type="TH1F" title="Mass resolution - 2 leading jets">
     <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
-    <y title="0.5 x 68 % IQnR(R_{m})∕median(R_{m})" />
+    <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_m_leading -->
   <h id="jet_resolution_m_leading" type="TH1F" title="Mass resolution - leading jet">
     <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
-    <y title="0.5 x 68 % IQnR(R_{m})∕median(R_{m})" />
+    <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_m_subleading -->
   <h id="jet_resolution_m_subleading" type="TH1F" title="Mass resolution - subleading jet">
     <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
-    <y title="0.5 x 68 % IQnR(R_{m})∕median(R_{m})" />
+    <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 </hdef>
