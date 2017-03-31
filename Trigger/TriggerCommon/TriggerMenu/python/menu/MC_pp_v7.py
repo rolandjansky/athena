@@ -155,7 +155,8 @@ def setupMenu():
         ['mu18_2mu4noL1',          'L1_MU15', ['L1_MU15',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu18','2mu4noL1']]],
         ['mu6_mu4noL1',            'L1_MU6',  ['L1_MU6',''],  [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu6','mu4noL1']]],
         ['mu4_mu4noL1',            'L1_MU4',  ['L1_MU4',''],  [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu4','mu4noL1']]],
-	['mu4noL1',                'L1_MU4',  ['L1_MU4',''],  [PhysicsStream], ['RATE:SingleMuon','BW:Muon'], -1, ],
+	['mu4noL1',                '',  [],  [PhysicsStream], ['RATE:SingleMuon','BW:Muon'], -1, ],
+	['mu0noL1',                '',  [],  [PhysicsStream], ['RATE:SingleMuon','BW:Muon'], -1, ],
         ['mu18_2mu0noL1_JpsimumuFS', 'L1_MU15', ['L1_MU15',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu18','2mu0noL1_JpsimumuFS']]],
         ['mu18_2mu4_JpsimumuL2',     'L1_MU15', ['L1_MU15','L1_2MU4'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['2mu4_JpsimumuL2','mu18']]],
         

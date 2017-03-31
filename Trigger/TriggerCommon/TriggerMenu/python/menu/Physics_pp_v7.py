@@ -121,6 +121,7 @@ def setupMenu():
         ['2mu6',                    'L1_2MU6',  [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
         ['2mu4',                    'L1_2MU4',  [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
         ['mu20_2mu0noL1_JpsimumuFS', 'L1_MU20', ['L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20','2mu0noL1_JpsimumuFS']]],
+        ['mu20_2mu0noL1',            'L1_MU20', ['L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20','2mu0noL1']]],
         ['mu20_2mu4_JpsimumuL2',     'L1_MU20', ['L1_MU20','L1_2MU4'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['2mu4_JpsimumuL2','mu20']]],
         # Primary (multi muon chains)
         ['3mu4',                   'L1_3MU4',           [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
@@ -271,8 +272,7 @@ def setupMenu():
             ['mu6_idperf_FTK_L1MU6_FTK',             'L1_MU6_FTK',            [], [PhysicsStream, 'express'], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
             ['mu24_idperf_FTKRefit_L1MU20_FTK',       'L1_MU20_FTK',           [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1], 
             ['mu6_idperf_FTKRefit_L1MU6_FTK',        'L1_MU6_FTK',            [], [PhysicsStream, 'express'], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
-            ['mu18_mu8noL1_ftkFS_L1MU20_FTK',         'L1_MU20_FTK', ['L1_MU20_FTK',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu18','mu8noL1_ftkFS']]],
-            ['mu18_mu8noL1_L1MU20',                   'L1_MU20',     ['L1_MU20',''],     [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu18','mu8noL1']]],
+            ['mu22_mu8noL1_ftkFS_L1MU20_FTK',         'L1_MU20_FTK', ['L1_MU20_FTK',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu22','mu8noL1_ftkFS']]],
             ['mu26_ivarmedium_ftk_L1MU20_FTK',      'L1_MU20_FTK',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
             ]
 
