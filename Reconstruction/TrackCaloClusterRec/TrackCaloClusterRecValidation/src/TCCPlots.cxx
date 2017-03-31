@@ -329,13 +329,13 @@ void TCCPlots::make_median(TH2* h2_response, TH1* h1_resolution){
     for (int j=1; j<=h2_response->GetNbinsY(); j++){
       hold->SetBinContent(j,h2_response->GetBinContent(i,j));
     }
-    Double_t prob,quant25,quant75,median;
+    Double_t prob,quant16,quant84,median;
     prob=.5;
     hold->GetQuantiles(1,&median,&prob);
-    prob=.75;
-    hold->GetQuantiles(1,&quant75,&prob);
-    prob=.25;
-    hold->GetQuantiles(1,&quant25,&prob);
-    h1_resolution->SetBinContent(i,fabs(quant75-quant25)/median);
+    prob=.84;
+    hold->GetQuantiles(1,&quant84,&prob);
+    prob=.16;
+    hold->GetQuantiles(1,&quant16,&prob);
+    h1_resolution->SetBinContent(i,0.5*fabs(quant84-quant16)/median);
   }
 }
