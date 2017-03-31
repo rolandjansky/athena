@@ -180,6 +180,8 @@
 + Reconstruction/RecoTools/I?TrackToVertex
 + Reconstruction/RecoTools/ParticlesInConeTools
 + Reconstruction/RecoTools/RecoToolInterfaces
++ Reconstruction/tauEvent
++ Reconstruction/TrackParticleTPCnv
 
 + Simulation/HitManagement
 
@@ -220,8 +222,10 @@
 + Tracking/TrkEvent/TrkTrack.*
 + Tracking/TrkEvent/TrkTruthData
 + Tracking/TrkEvent/TrkSummary
++ Tracking/TrkEvent/TrkV0Vertex
 + Tracking/TrkEvent/TrkVertexOnTrack
 + Tracking/TrkEvent/Vx.*Vertex
++ Tracking/TrkEventCnv/TrkEvent.*
 + Tracking/TrkExtrapolation/TrkExInterfaces
 + Tracking/TrkExtrapolation/TrkExUtils
 + Tracking/TrkTools/TrkToolInterfaces
@@ -239,6 +243,7 @@
 + Trigger/TrigAnalysis/TrigDecisionTool
 + Trigger/TrigAnalysis/TrigMuonMatching
 + Trigger/TrigConfiguration/.*
++ Trigger/TrigDataAccess/TrigSerialize.*
 + Trigger/TrigEvent/Trig.*Event
 + Trigger/TrigEvent/Trig.*TPCnv
 + Trigger/TrigEvent/TrigDecisionInterface
@@ -249,13 +254,15 @@
 + Trigger/TrigEvent/TrigParticle
 + Trigger/TrigEvent/TrigRoiConversion
 + Trigger/TrigEvent/TrigStorageDefinitions
-+ Trigger/TrigDataAccess/TrigSerialize.*
++ Trigger/TrigFTK/TrigFTK_RawData
++ Trigger/TrigFTK/TrigFTK_RawDataTPCnv
 + Trigger/TrigMonitoring/TrigMonitorBase
 + Trigger/TrigSteer/TrigInterfaces
 + Trigger/TrigT1/L1Topo/L1TopoCommon
 + Trigger/TrigT1/L1Topo/L1TopoConfig
 + Trigger/TrigT1/TrigT1CaloEvent
 + Trigger/TrigT1/TrigT1Interfaces
++ Trigger/TrigTools/TrigTimeAlgs
 
 # Don't build anything else:
 - .*
