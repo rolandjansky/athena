@@ -22,8 +22,8 @@ public:
   /// Check whether the logging system is active at the provided verbosity level
   bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 private:
-  matList definedMaterials;
-  matNames definedMatNames;
+  matList m_definedMaterials;
+  matNames m_definedMatNames;
   /// Private message stream member
   mutable Athena::MsgStreamMember m_msg;
 };
