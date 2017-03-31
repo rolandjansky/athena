@@ -1,4 +1,9 @@
 // -*- C++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // ================================================
 // Run2TriggerTowerMaker class description
 // ================================================
@@ -33,7 +38,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 //Calorimeter tower includes
 #include "LArRawEvent/LArTTL1Container.h"
