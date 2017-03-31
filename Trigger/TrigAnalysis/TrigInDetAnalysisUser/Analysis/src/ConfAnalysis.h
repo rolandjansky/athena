@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.h 770310 2016-08-26 12:34:42Z sutt $
+//   $Id: ConfAnalysis.h 800361 2017-03-12 14:33:19Z sutt $
 
 
 #ifndef __CONFANALYSIS_H
@@ -52,7 +52,7 @@ public:
   
   ConfAnalysis( const std::string& name ) : 
     TrackAnalysis( clean(name) ), Nreco(0), Nref(0), Nmatched(0), m_print(false), m_roi(0), 
-    m_initialised(false), m_initialiseFirstEvent(false), m_lfirst(true)  {
+    m_initialised(false), m_initialiseFirstEvent(false) { // , m_lfirst(true)  {
     std::cout << "ConfAnalysis::ConfAnalysis() " << TrackAnalysis::name() << " ..." << std::endl;
   }  
 
@@ -213,6 +213,9 @@ private:
   Resplot* rnsct_pt_rec;
   Resplot* rntrt_pt_rec;
 
+  Resplot* rnpixh_pt_rec;
+  Resplot* rnscth_pt_rec;
+
   std::vector<Resplot*> mres;
 
   std::vector<Resplot*> retares;
@@ -283,7 +286,7 @@ private:
   bool m_initialised;
   bool m_initialiseFirstEvent;
 
-  bool m_lfirst;
+  //  bool m_lfirst;
 
 };
 
