@@ -49,13 +49,9 @@ public:
     /* If results agree within m_error threshold, return the mean... */
     double Imean = (I5 + I6) / 2.0;
     if (fabs(I5 - I6) / Imean <= m_error) {
-//      if (fabs((I5 - I6) / Imean) > m_error){
-//        std::cout << "SKANDAL!!" << "\tdepth =  " << m_depth << "\tI5 = " << I5 << "\tI6 = " << I6 << "\t (I5-I6)/Imean = " << (I5 - I6) / Imean << std::endl;
-//      }
       return Imean;
     } else {
       /* ...else recursively part up the integration into n subRanges */
-//      std::cout << "\tdepth =  " << m_depth << "\tI5 = " << I5 << "\tI6 = " << I6 << "\t (I5-I6)/Imean = " << (I5 - I6) / Imean << std::endl;
       return RecurseIntegration(range, 2);
     }
   }
@@ -79,10 +75,6 @@ private:
     for (int i = 0; i < nOrder; i++) {
       x = rangeCenter + roots[i] * rangeHalfWidth;
       I += weights[i] * m_integrand->evaluate(x);
-//      if (std::isnan(I)){
-//        std::cout << "Integral getting NAN! Aborting." << std::endl;
-//        throw std::runtime_error("Raus hier!");
-//      }
     }
     if (I < 0. || rangeHalfWidth < 0.){
       std::cout << "I = " << I << "\trange = " << range.print() << std::endl;
