@@ -103,7 +103,7 @@ private:
   //    template <typename T>
   //    StatusCode registerCondition(std::string key, T*& pobj); // to be replaced
   template <typename T>
-  StatusCode registerCondition(T*& pobj);
+  StatusCode registerCondition(T*& pobj, const std::string& mykey="");
 
   std::map<std::string, const DataHandle<AthenaAttributeList>* > m_mDataHandleAttrList;
   std::map<std::string, const DataHandle<CondAttrListCollection>* > m_mDataHandleAttrListColl;
