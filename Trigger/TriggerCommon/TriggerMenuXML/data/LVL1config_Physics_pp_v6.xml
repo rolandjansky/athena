@@ -7248,8 +7248,8 @@
       <Parametrization isobit="1" offset="0" slope="0" mincut="0" upperlimit="0" etamin="-49" etamax="49" priority="0"/>
       <Parametrization isobit="2" offset="-18" slope="80" mincut="20" upperlimit="50" etamin="-49" etamax="49" priority="0"/>
       <Parametrization isobit="3" offset="-18" slope="80" mincut="20" upperlimit="50" etamin="-49" etamax="49" priority="0"/>
-      <Parametrization isobit="4" offset="-18" slope="80" mincut="20" upperlimit="50" etamin="-49" etamax="49" priority="0"/>
-      <Parametrization isobit="5" offset="-18" slope="80" mincut="20" upperlimit="50" etamin="-49" etamax="49" priority="0"/>
+      <Parametrization isobit="4" offset="-20" slope="80" mincut="10" upperlimit="50" etamin="-49" etamax="49" priority="0"/>
+      <Parametrization isobit="5" offset="-18" slope="80" mincut="15" upperlimit="50" etamin="-49" etamax="49" priority="0"/>
     </Isolation>
     <Isolation thrtype="EMIsoForTAUthr">
       <Parametrization isobit="1" offset="30" slope="100" mincut="0" upperlimit="60" etamin="-49" etamax="49" priority="0"/>

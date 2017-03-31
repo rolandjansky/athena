@@ -40,9 +40,9 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="5" partition="1" name="L1_EM13VH" complex_deadtime="0" definition="(EM13VH[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="5" partition="1" name="L1_TE15.0ETA24" complex_deadtime="0" definition="(TE15.0ETA24[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="EM13VH_x1" triggerthreshold="EM13VH"/>
+        <TriggerCondition multi="1" name="TE15.0ETA24_x1" triggerthreshold="TE15.0ETA24"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -187,9 +187,10 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="26" partition="1" name="L1_2EM13VH" complex_deadtime="0" definition="(EM13VH[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="26" partition="1" name="L1_EM20VH_3J20" complex_deadtime="0" definition="(EM20VH[x1]&amp;J20[x3]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="2" name="EM13VH_x2" triggerthreshold="EM13VH"/>
+        <TriggerCondition multi="1" name="EM20VH_x1" triggerthreshold="EM20VH"/>
+        <TriggerCondition multi="3" name="J20_x3" triggerthreshold="J20"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -366,9 +367,10 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="50" partition="1" name="L1_TE15.0ETA24" complex_deadtime="0" definition="(TE15.0ETA24[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="50" partition="1" name="L1_EM12_W-MT25" complex_deadtime="0" definition="(25MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="TE15.0ETA24_x1" triggerthreshold="TE15.0ETA24"/>
+        <TriggerCondition multi="1" name="25MT-EM12s6-XE0_x1" triggerthreshold="25MT-EM12s6-XE0"/>
+        <TriggerCondition multi="1" name="EM12_x1" triggerthreshold="EM12"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -438,17 +440,17 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="60" partition="1" name="L1_EM15HI_2TAU12IM" complex_deadtime="0" definition="(EM15HI[x1]&amp;HA12IM[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="60" partition="1" name="L1_EM15VHI_2TAU12IM" complex_deadtime="0" definition="(EM15VHI[x1]&amp;HA12IM[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="EM15HI_x1" triggerthreshold="EM15HI"/>
+        <TriggerCondition multi="1" name="EM15VHI_x1" triggerthreshold="EM15VHI"/>
         <TriggerCondition multi="2" name="HA12IM_x2" triggerthreshold="HA12IM"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="61" partition="1" name="L1_EM15HI_2TAU12IM_J25_3J12" complex_deadtime="0" definition="(EM15HI[x1]&amp;HA12IM[x2]&amp;J25[x1]&amp;J12[x3]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="61" partition="1" name="L1_EM15VHI_2TAU12IM_J25_3J12" complex_deadtime="0" definition="(EM15VHI[x1]&amp;HA12IM[x2]&amp;J25[x1]&amp;J12[x3]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="EM15HI_x1" triggerthreshold="EM15HI"/>
+        <TriggerCondition multi="1" name="EM15VHI_x1" triggerthreshold="EM15VHI"/>
         <TriggerCondition multi="2" name="HA12IM_x2" triggerthreshold="HA12IM"/>
         <TriggerCondition multi="1" name="J25_x1" triggerthreshold="J25"/>
         <TriggerCondition multi="3" name="J12_x3" triggerthreshold="J12"/>
@@ -456,9 +458,9 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="62" partition="1" name="L1_EM15HI_TAU40_2TAU15" complex_deadtime="0" definition="(EM15HI[x1]&amp;HA40[x1]&amp;HA15[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="62" partition="1" name="L1_EM15VHI_TAU40_2TAU15" complex_deadtime="0" definition="(EM15VHI[x1]&amp;HA40[x1]&amp;HA15[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="EM15HI_x1" triggerthreshold="EM15HI"/>
+        <TriggerCondition multi="1" name="EM15VHI_x1" triggerthreshold="EM15VHI"/>
         <TriggerCondition multi="1" name="HA40_x1" triggerthreshold="HA40"/>
         <TriggerCondition multi="2" name="HA15_x2" triggerthreshold="HA15"/>
         <InternalTrigger name="BGRP0"/>
@@ -585,24 +587,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="77" partition="1" name="L1_EM12_W-MT25" complex_deadtime="0" definition="(25MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
-      <AND>
-        <TriggerCondition multi="1" name="25MT-EM12s6-XE0_x1" triggerthreshold="25MT-EM12s6-XE0"/>
-        <TriggerCondition multi="1" name="EM12_x1" triggerthreshold="EM12"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="78" partition="1" name="L1_EM15HI_2TAU12IM_XE35" complex_deadtime="0" definition="(EM15HI[x1]&amp;HA12IM[x2]&amp;XE35[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
-      <AND>
-        <TriggerCondition multi="1" name="EM15HI_x1" triggerthreshold="EM15HI"/>
-        <TriggerCondition multi="2" name="HA12IM_x2" triggerthreshold="HA12IM"/>
-        <TriggerCondition multi="1" name="XE35_x1" triggerthreshold="XE35"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="79" partition="1" name="L1_EM12_W-MT35_XS30_W-15DPHI-JXE-0_W-15DPHI-EMXE" complex_deadtime="0" definition="(35MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;XS30[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM12s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="77" partition="1" name="L1_EM12_W-MT35_XS30_W-15DPHI-JXE-0_W-15DPHI-EMXE" complex_deadtime="0" definition="(35MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;XS30[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM12s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="35MT-EM12s6-XE0_x1" triggerthreshold="35MT-EM12s6-XE0"/>
         <TriggerCondition multi="1" name="EM12_x1" triggerthreshold="EM12"/>
@@ -613,13 +598,33 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="80" partition="1" name="L1_EM12_W-MT35_XS40_W-05DPHI-JXE-0_W-05DPHI-EMXE" complex_deadtime="0" definition="(35MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;XS40[x1]&amp;05MINDPHI-AJj10s6-XE0[x1]&amp;05MINDPHI-EM12s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="78" partition="1" name="L1_EM15VHI_2TAU12IM_XE35" complex_deadtime="0" definition="(EM15VHI[x1]&amp;HA12IM[x2]&amp;XE35[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="EM15VHI_x1" triggerthreshold="EM15VHI"/>
+        <TriggerCondition multi="2" name="HA12IM_x2" triggerthreshold="HA12IM"/>
+        <TriggerCondition multi="1" name="XE35_x1" triggerthreshold="XE35"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="79" partition="1" name="L1_EM12_W-MT35_XS40_W-05DPHI-JXE-0_W-05DPHI-EMXE" complex_deadtime="0" definition="(35MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;XS40[x1]&amp;05MINDPHI-AJj10s6-XE0[x1]&amp;05MINDPHI-EM12s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="35MT-EM12s6-XE0_x1" triggerthreshold="35MT-EM12s6-XE0"/>
         <TriggerCondition multi="1" name="EM12_x1" triggerthreshold="EM12"/>
         <TriggerCondition multi="1" name="XS40_x1" triggerthreshold="XS40"/>
         <TriggerCondition multi="1" name="05MINDPHI-AJj10s6-XE0_x1" triggerthreshold="05MINDPHI-AJj10s6-XE0"/>
         <TriggerCondition multi="1" name="05MINDPHI-EM12s6-XE0_x1" triggerthreshold="05MINDPHI-EM12s6-XE0"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="80" partition="1" name="L1_EM12_W-MT35_W-90RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EMXE" complex_deadtime="0" definition="(35MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;90RATIO2-XE0-HT0-AJj15all.ETA49[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM12s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="35MT-EM12s6-XE0_x1" triggerthreshold="35MT-EM12s6-XE0"/>
+        <TriggerCondition multi="1" name="EM12_x1" triggerthreshold="EM12"/>
+        <TriggerCondition multi="1" name="90RATIO2-XE0-HT0-AJj15all.ETA49_x1" triggerthreshold="90RATIO2-XE0-HT0-AJj15all.ETA49"/>
+        <TriggerCondition multi="1" name="15MINDPHI-AJj10s6-XE0_x1" triggerthreshold="15MINDPHI-AJj10s6-XE0"/>
+        <TriggerCondition multi="1" name="15MINDPHI-EM12s6-XE0_x1" triggerthreshold="15MINDPHI-EM12s6-XE0"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -935,13 +940,13 @@
         <InternalTrigger name="BGRP8"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="124" partition="1" name="L1_EM12_W-MT35_W-90RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EMXE" complex_deadtime="0" definition="(35MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;90RATIO2-XE0-HT0-AJj15all.ETA49[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM12s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="124" partition="1" name="L1_EM12_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EMXE" complex_deadtime="0" definition="(35MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;250RATIO2-XE0-HT0-AJj15all.ETA49[x1]&amp;05MINDPHI-AJj10s6-XE0[x1]&amp;05MINDPHI-EM12s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="35MT-EM12s6-XE0_x1" triggerthreshold="35MT-EM12s6-XE0"/>
         <TriggerCondition multi="1" name="EM12_x1" triggerthreshold="EM12"/>
-        <TriggerCondition multi="1" name="90RATIO2-XE0-HT0-AJj15all.ETA49_x1" triggerthreshold="90RATIO2-XE0-HT0-AJj15all.ETA49"/>
-        <TriggerCondition multi="1" name="15MINDPHI-AJj10s6-XE0_x1" triggerthreshold="15MINDPHI-AJj10s6-XE0"/>
-        <TriggerCondition multi="1" name="15MINDPHI-EM12s6-XE0_x1" triggerthreshold="15MINDPHI-EM12s6-XE0"/>
+        <TriggerCondition multi="1" name="250RATIO2-XE0-HT0-AJj15all.ETA49_x1" triggerthreshold="250RATIO2-XE0-HT0-AJj15all.ETA49"/>
+        <TriggerCondition multi="1" name="05MINDPHI-AJj10s6-XE0_x1" triggerthreshold="05MINDPHI-AJj10s6-XE0"/>
+        <TriggerCondition multi="1" name="05MINDPHI-EM12s6-XE0_x1" triggerthreshold="05MINDPHI-EM12s6-XE0"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -1048,13 +1053,13 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="139" partition="1" name="L1_EM12_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EMXE" complex_deadtime="0" definition="(35MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;250RATIO2-XE0-HT0-AJj15all.ETA49[x1]&amp;05MINDPHI-AJj10s6-XE0[x1]&amp;05MINDPHI-EM12s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="139" partition="1" name="L1_EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;250RATIO2-XE0-HT0-AJj15all.ETA49[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM15s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="35MT-EM12s6-XE0_x1" triggerthreshold="35MT-EM12s6-XE0"/>
-        <TriggerCondition multi="1" name="EM12_x1" triggerthreshold="EM12"/>
+        <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
+        <TriggerCondition multi="1" name="EM15_x1" triggerthreshold="EM15"/>
         <TriggerCondition multi="1" name="250RATIO2-XE0-HT0-AJj15all.ETA49_x1" triggerthreshold="250RATIO2-XE0-HT0-AJj15all.ETA49"/>
-        <TriggerCondition multi="1" name="05MINDPHI-AJj10s6-XE0_x1" triggerthreshold="05MINDPHI-AJj10s6-XE0"/>
-        <TriggerCondition multi="1" name="05MINDPHI-EM12s6-XE0_x1" triggerthreshold="05MINDPHI-EM12s6-XE0"/>
+        <TriggerCondition multi="1" name="15MINDPHI-AJj10s6-XE0_x1" triggerthreshold="15MINDPHI-AJj10s6-XE0"/>
+        <TriggerCondition multi="1" name="15MINDPHI-EM15s6-XE0_x1" triggerthreshold="15MINDPHI-EM15s6-XE0"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -1315,9 +1320,9 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="172" partition="1" name="L1_EM13VH_3J20" complex_deadtime="0" definition="(EM13VH[x1]&amp;J20[x3]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="172" partition="1" name="L1_EM18VHI_3J20" complex_deadtime="0" definition="(EM18VHI[x1]&amp;J20[x3]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="EM13VH_x1" triggerthreshold="EM13VH"/>
+        <TriggerCondition multi="1" name="EM18VHI_x1" triggerthreshold="EM18VHI"/>
         <TriggerCondition multi="3" name="J20_x3" triggerthreshold="J20"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
@@ -1932,13 +1937,13 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="250" partition="1" name="L1_EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;250RATIO2-XE0-HT0-AJj15all.ETA49[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM15s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="250" partition="1" name="L1_EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;250RATIO2-XE0-HT0-AJj15all.ETA49[x1]&amp;05MINDPHI-AJj10s6-XE0[x1]&amp;05MINDPHI-EM15s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
         <TriggerCondition multi="1" name="EM15_x1" triggerthreshold="EM15"/>
         <TriggerCondition multi="1" name="250RATIO2-XE0-HT0-AJj15all.ETA49_x1" triggerthreshold="250RATIO2-XE0-HT0-AJj15all.ETA49"/>
-        <TriggerCondition multi="1" name="15MINDPHI-AJj10s6-XE0_x1" triggerthreshold="15MINDPHI-AJj10s6-XE0"/>
-        <TriggerCondition multi="1" name="15MINDPHI-EM15s6-XE0_x1" triggerthreshold="15MINDPHI-EM15s6-XE0"/>
+        <TriggerCondition multi="1" name="05MINDPHI-AJj10s6-XE0_x1" triggerthreshold="05MINDPHI-AJj10s6-XE0"/>
+        <TriggerCondition multi="1" name="05MINDPHI-EM15s6-XE0_x1" triggerthreshold="05MINDPHI-EM15s6-XE0"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -2118,24 +2123,24 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="274" partition="1" name="L1_EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;250RATIO2-XE0-HT0-AJj15all.ETA49[x1]&amp;05MINDPHI-AJj10s6-XE0[x1]&amp;05MINDPHI-EM15s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
-      <AND>
-        <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
-        <TriggerCondition multi="1" name="EM15_x1" triggerthreshold="EM15"/>
-        <TriggerCondition multi="1" name="250RATIO2-XE0-HT0-AJj15all.ETA49_x1" triggerthreshold="250RATIO2-XE0-HT0-AJj15all.ETA49"/>
-        <TriggerCondition multi="1" name="05MINDPHI-AJj10s6-XE0_x1" triggerthreshold="05MINDPHI-AJj10s6-XE0"/>
-        <TriggerCondition multi="1" name="05MINDPHI-EM15s6-XE0_x1" triggerthreshold="05MINDPHI-EM15s6-XE0"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="275" partition="1" name="L1_EM15_W-MT35_XS60_W-15DPHI-JXE-0_W-15DPHI-EM15XE" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;XS60[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM15s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="274" partition="1" name="L1_EM15_W-MT35_XS60_W-15DPHI-JXE-0_W-15DPHI-EM15XE" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;XS60[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM15s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
         <TriggerCondition multi="1" name="EM15_x1" triggerthreshold="EM15"/>
         <TriggerCondition multi="1" name="XS60_x1" triggerthreshold="XS60"/>
         <TriggerCondition multi="1" name="15MINDPHI-AJj10s6-XE0_x1" triggerthreshold="15MINDPHI-AJj10s6-XE0"/>
         <TriggerCondition multi="1" name="15MINDPHI-EM15s6-XE0_x1" triggerthreshold="15MINDPHI-EM15s6-XE0"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="275" partition="1" name="L1_EM15_W-MT35_XS60_W-05DPHI-JXE-0_W-05DPHI-EM15XE" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;XS60[x1]&amp;05MINDPHI-AJj10s6-XE0[x1]&amp;05MINDPHI-EM15s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
+        <TriggerCondition multi="1" name="EM15_x1" triggerthreshold="EM15"/>
+        <TriggerCondition multi="1" name="XS60_x1" triggerthreshold="XS60"/>
+        <TriggerCondition multi="1" name="05MINDPHI-AJj10s6-XE0_x1" triggerthreshold="05MINDPHI-AJj10s6-XE0"/>
+        <TriggerCondition multi="1" name="05MINDPHI-EM15s6-XE0_x1" triggerthreshold="05MINDPHI-EM15s6-XE0"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -2200,24 +2205,24 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="284" partition="1" name="L1_EM15_W-MT35_XS60_W-05DPHI-JXE-0_W-05DPHI-EM15XE" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;XS60[x1]&amp;05MINDPHI-AJj10s6-XE0[x1]&amp;05MINDPHI-EM15s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
-      <AND>
-        <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
-        <TriggerCondition multi="1" name="EM15_x1" triggerthreshold="EM15"/>
-        <TriggerCondition multi="1" name="XS60_x1" triggerthreshold="XS60"/>
-        <TriggerCondition multi="1" name="05MINDPHI-AJj10s6-XE0_x1" triggerthreshold="05MINDPHI-AJj10s6-XE0"/>
-        <TriggerCondition multi="1" name="05MINDPHI-EM15s6-XE0_x1" triggerthreshold="05MINDPHI-EM15s6-XE0"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="285" partition="1" name="L1_EM15_W-MT35_XS40_W-15DPHI-JXE-0_W-15DPHI-EM15XE" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;XS40[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM15s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="284" partition="1" name="L1_EM15_W-MT35_XS40_W-15DPHI-JXE-0_W-15DPHI-EM15XE" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;XS40[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM15s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
         <TriggerCondition multi="1" name="EM15_x1" triggerthreshold="EM15"/>
         <TriggerCondition multi="1" name="XS40_x1" triggerthreshold="XS40"/>
         <TriggerCondition multi="1" name="15MINDPHI-AJj10s6-XE0_x1" triggerthreshold="15MINDPHI-AJj10s6-XE0"/>
         <TriggerCondition multi="1" name="15MINDPHI-EM15s6-XE0_x1" triggerthreshold="15MINDPHI-EM15s6-XE0"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="285" partition="1" name="L1_EM15_W-MT35_XS40_W-05DPHI-JXE-0_W-05DPHI-EM15XE" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;XS40[x1]&amp;05MINDPHI-AJj10s6-XE0[x1]&amp;05MINDPHI-EM15s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
+        <TriggerCondition multi="1" name="EM15_x1" triggerthreshold="EM15"/>
+        <TriggerCondition multi="1" name="XS40_x1" triggerthreshold="XS40"/>
+        <TriggerCondition multi="1" name="05MINDPHI-AJj10s6-XE0_x1" triggerthreshold="05MINDPHI-AJj10s6-XE0"/>
+        <TriggerCondition multi="1" name="05MINDPHI-EM15s6-XE0_x1" triggerthreshold="05MINDPHI-EM15s6-XE0"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -2230,18 +2235,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="287" partition="1" name="L1_EM15_W-MT35_XS40_W-05DPHI-JXE-0_W-05DPHI-EM15XE" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;XS40[x1]&amp;05MINDPHI-AJj10s6-XE0[x1]&amp;05MINDPHI-EM15s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
-      <AND>
-        <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
-        <TriggerCondition multi="1" name="EM15_x1" triggerthreshold="EM15"/>
-        <TriggerCondition multi="1" name="XS40_x1" triggerthreshold="XS40"/>
-        <TriggerCondition multi="1" name="05MINDPHI-AJj10s6-XE0_x1" triggerthreshold="05MINDPHI-AJj10s6-XE0"/>
-        <TriggerCondition multi="1" name="05MINDPHI-EM15s6-XE0_x1" triggerthreshold="05MINDPHI-EM15s6-XE0"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="288" partition="1" name="L1_EM12_W-MT35_XS50" complex_deadtime="0" definition="(35MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;XS50[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="287" partition="1" name="L1_EM12_W-MT35_XS50" complex_deadtime="0" definition="(35MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;XS50[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="35MT-EM12s6-XE0_x1" triggerthreshold="35MT-EM12s6-XE0"/>
         <TriggerCondition multi="1" name="EM12_x1" triggerthreshold="EM12"/>
@@ -2250,7 +2244,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="289" partition="1" name="L1_EM15_W-MT35_XS60" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;XS60[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="288" partition="1" name="L1_EM15_W-MT35_XS60" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;XS60[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
         <TriggerCondition multi="1" name="EM15_x1" triggerthreshold="EM15"/>
@@ -2259,7 +2253,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="290" partition="1" name="L1_EM10VH_W-MT35_XS50" complex_deadtime="0" definition="(35MT-EM12s6-XE0[x1]&amp;EM10VH[x1]&amp;XS50[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="289" partition="1" name="L1_EM10VH_W-MT35_XS50" complex_deadtime="0" definition="(35MT-EM12s6-XE0[x1]&amp;EM10VH[x1]&amp;XS50[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="35MT-EM12s6-XE0_x1" triggerthreshold="35MT-EM12s6-XE0"/>
         <TriggerCondition multi="1" name="EM10VH_x1" triggerthreshold="EM10VH"/>
@@ -2268,7 +2262,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="291" partition="1" name="L1_EM15VH_W-MT35_XS60" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15VH[x1]&amp;XS60[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="290" partition="1" name="L1_EM15VH_W-MT35_XS60" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15VH[x1]&amp;XS60[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
         <TriggerCondition multi="1" name="EM15VH_x1" triggerthreshold="EM15VH"/>
@@ -2277,7 +2271,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="292" partition="1" name="L1_EM20VH_W-MT35_XS60" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM20VH[x1]&amp;XS60[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="291" partition="1" name="L1_EM20VH_W-MT35_XS60" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM20VH[x1]&amp;XS60[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
         <TriggerCondition multi="1" name="EM20VH_x1" triggerthreshold="EM20VH"/>
@@ -2286,7 +2280,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="293" partition="1" name="L1_EM22VHI_W-MT35_XS40" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM22VHI[x1]&amp;XS40[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="292" partition="1" name="L1_EM22VHI_W-MT35_XS40" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM22VHI[x1]&amp;XS40[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
         <TriggerCondition multi="1" name="EM22VHI_x1" triggerthreshold="EM22VHI"/>
@@ -2295,13 +2289,24 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="294" partition="1" name="L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0" complex_deadtime="0" definition="(25MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM12s6-XE0[x1]&amp;90RATIO2-XE0-HT0-AJj15all.ETA49[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="293" partition="1" name="L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0" complex_deadtime="0" definition="(25MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM12s6-XE0[x1]&amp;90RATIO2-XE0-HT0-AJj15all.ETA49[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="25MT-EM12s6-XE0_x1" triggerthreshold="25MT-EM12s6-XE0"/>
         <TriggerCondition multi="1" name="EM12_x1" triggerthreshold="EM12"/>
         <TriggerCondition multi="1" name="15MINDPHI-AJj10s6-XE0_x1" triggerthreshold="15MINDPHI-AJj10s6-XE0"/>
         <TriggerCondition multi="1" name="15MINDPHI-EM12s6-XE0_x1" triggerthreshold="15MINDPHI-EM12s6-XE0"/>
         <TriggerCondition multi="1" name="90RATIO2-XE0-HT0-AJj15all.ETA49_x1" triggerthreshold="90RATIO2-XE0-HT0-AJj15all.ETA49"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="294" partition="1" name="L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20" complex_deadtime="0" definition="(25MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM12s6-XE0[x1]&amp;XS20[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="25MT-EM12s6-XE0_x1" triggerthreshold="25MT-EM12s6-XE0"/>
+        <TriggerCondition multi="1" name="EM12_x1" triggerthreshold="EM12"/>
+        <TriggerCondition multi="1" name="15MINDPHI-AJj10s6-XE0_x1" triggerthreshold="15MINDPHI-AJj10s6-XE0"/>
+        <TriggerCondition multi="1" name="15MINDPHI-EM12s6-XE0_x1" triggerthreshold="15MINDPHI-EM12s6-XE0"/>
+        <TriggerCondition multi="1" name="XS20_x1" triggerthreshold="XS20"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -2637,13 +2642,12 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="335" partition="1" name="L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20" complex_deadtime="0" definition="(25MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM12s6-XE0[x1]&amp;XS20[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="335" partition="1" name="L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE" complex_deadtime="0" definition="(25MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM12s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="25MT-EM12s6-XE0_x1" triggerthreshold="25MT-EM12s6-XE0"/>
         <TriggerCondition multi="1" name="EM12_x1" triggerthreshold="EM12"/>
         <TriggerCondition multi="1" name="15MINDPHI-AJj10s6-XE0_x1" triggerthreshold="15MINDPHI-AJj10s6-XE0"/>
         <TriggerCondition multi="1" name="15MINDPHI-EM12s6-XE0_x1" triggerthreshold="15MINDPHI-EM12s6-XE0"/>
-        <TriggerCondition multi="1" name="XS20_x1" triggerthreshold="XS20"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -2690,12 +2694,9 @@
         <InternalTrigger name="BGRP3"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="342" partition="1" name="L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE" complex_deadtime="0" definition="(25MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM12s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="342" partition="1" name="L1_2EM15VHI" complex_deadtime="0" definition="(EM15VHI[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="25MT-EM12s6-XE0_x1" triggerthreshold="25MT-EM12s6-XE0"/>
-        <TriggerCondition multi="1" name="EM12_x1" triggerthreshold="EM12"/>
-        <TriggerCondition multi="1" name="15MINDPHI-AJj10s6-XE0_x1" triggerthreshold="15MINDPHI-AJj10s6-XE0"/>
-        <TriggerCondition multi="1" name="15MINDPHI-EM12s6-XE0_x1" triggerthreshold="15MINDPHI-EM12s6-XE0"/>
+        <TriggerCondition multi="2" name="EM15VHI_x2" triggerthreshold="EM15VHI"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -2979,9 +2980,9 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="378" partition="1" name="L1_EM15HI_TAU20IM_2TAU15_J25_2J20_3J15" complex_deadtime="0" definition="(EM15HI[x1]&amp;HA20IM[x1]&amp;HA15[x2]&amp;J25[x1]&amp;J20[x2]&amp;J15[x3]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="378" partition="1" name="L1_EM15VHI_TAU20IM_2TAU15_J25_2J20_3J15" complex_deadtime="0" definition="(EM15VHI[x1]&amp;HA20IM[x1]&amp;HA15[x2]&amp;J25[x1]&amp;J20[x2]&amp;J15[x3]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="EM15HI_x1" triggerthreshold="EM15HI"/>
+        <TriggerCondition multi="1" name="EM15VHI_x1" triggerthreshold="EM15VHI"/>
         <TriggerCondition multi="1" name="HA20IM_x1" triggerthreshold="HA20IM"/>
         <TriggerCondition multi="2" name="HA15_x2" triggerthreshold="HA15"/>
         <TriggerCondition multi="1" name="J25_x1" triggerthreshold="J25"/>
@@ -3319,9 +3320,9 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="423" partition="1" name="L1_EM15HI" complex_deadtime="0" definition="(EM15HI[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="423" partition="1" name="L1_EM15VHI" complex_deadtime="0" definition="(EM15VHI[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="EM15HI_x1" triggerthreshold="EM15HI"/>
+        <TriggerCondition multi="1" name="EM15VHI_x1" triggerthreshold="EM15VHI"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -4354,27 +4355,6 @@
     <TriggerCounter name="7EM12" type="CTPIN">
       <TriggerCondition name="7EM12" triggerthreshold="EM12" multi="7"/>
     </TriggerCounter>
-    <TriggerCounter name="1EM13VH" type="CTPIN">
-      <TriggerCondition name="1EM13VH" triggerthreshold="EM13VH" multi="1"/>
-    </TriggerCounter>
-    <TriggerCounter name="2EM13VH" type="CTPIN">
-      <TriggerCondition name="2EM13VH" triggerthreshold="EM13VH" multi="2"/>
-    </TriggerCounter>
-    <TriggerCounter name="3EM13VH" type="CTPIN">
-      <TriggerCondition name="3EM13VH" triggerthreshold="EM13VH" multi="3"/>
-    </TriggerCounter>
-    <TriggerCounter name="4EM13VH" type="CTPIN">
-      <TriggerCondition name="4EM13VH" triggerthreshold="EM13VH" multi="4"/>
-    </TriggerCounter>
-    <TriggerCounter name="5EM13VH" type="CTPIN">
-      <TriggerCondition name="5EM13VH" triggerthreshold="EM13VH" multi="5"/>
-    </TriggerCounter>
-    <TriggerCounter name="6EM13VH" type="CTPIN">
-      <TriggerCondition name="6EM13VH" triggerthreshold="EM13VH" multi="6"/>
-    </TriggerCounter>
-    <TriggerCounter name="7EM13VH" type="CTPIN">
-      <TriggerCondition name="7EM13VH" triggerthreshold="EM13VH" multi="7"/>
-    </TriggerCounter>
     <TriggerCounter name="1EM15" type="CTPIN">
       <TriggerCondition name="1EM15" triggerthreshold="EM15" multi="1"/>
     </TriggerCounter>
@@ -4395,27 +4375,6 @@
     </TriggerCounter>
     <TriggerCounter name="7EM15" type="CTPIN">
       <TriggerCondition name="7EM15" triggerthreshold="EM15" multi="7"/>
-    </TriggerCounter>
-    <TriggerCounter name="1EM15HI" type="CTPIN">
-      <TriggerCondition name="1EM15HI" triggerthreshold="EM15HI" multi="1"/>
-    </TriggerCounter>
-    <TriggerCounter name="2EM15HI" type="CTPIN">
-      <TriggerCondition name="2EM15HI" triggerthreshold="EM15HI" multi="2"/>
-    </TriggerCounter>
-    <TriggerCounter name="3EM15HI" type="CTPIN">
-      <TriggerCondition name="3EM15HI" triggerthreshold="EM15HI" multi="3"/>
-    </TriggerCounter>
-    <TriggerCounter name="4EM15HI" type="CTPIN">
-      <TriggerCondition name="4EM15HI" triggerthreshold="EM15HI" multi="4"/>
-    </TriggerCounter>
-    <TriggerCounter name="5EM15HI" type="CTPIN">
-      <TriggerCondition name="5EM15HI" triggerthreshold="EM15HI" multi="5"/>
-    </TriggerCounter>
-    <TriggerCounter name="6EM15HI" type="CTPIN">
-      <TriggerCondition name="6EM15HI" triggerthreshold="EM15HI" multi="6"/>
-    </TriggerCounter>
-    <TriggerCounter name="7EM15HI" type="CTPIN">
-      <TriggerCondition name="7EM15HI" triggerthreshold="EM15HI" multi="7"/>
     </TriggerCounter>
     <TriggerCounter name="1EM15VH" type="CTPIN">
       <TriggerCondition name="1EM15VH" triggerthreshold="EM15VH" multi="1"/>
@@ -4438,6 +4397,27 @@
     <TriggerCounter name="7EM15VH" type="CTPIN">
       <TriggerCondition name="7EM15VH" triggerthreshold="EM15VH" multi="7"/>
     </TriggerCounter>
+    <TriggerCounter name="1EM15VHI" type="CTPIN">
+      <TriggerCondition name="1EM15VHI" triggerthreshold="EM15VHI" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="2EM15VHI" type="CTPIN">
+      <TriggerCondition name="2EM15VHI" triggerthreshold="EM15VHI" multi="2"/>
+    </TriggerCounter>
+    <TriggerCounter name="3EM15VHI" type="CTPIN">
+      <TriggerCondition name="3EM15VHI" triggerthreshold="EM15VHI" multi="3"/>
+    </TriggerCounter>
+    <TriggerCounter name="4EM15VHI" type="CTPIN">
+      <TriggerCondition name="4EM15VHI" triggerthreshold="EM15VHI" multi="4"/>
+    </TriggerCounter>
+    <TriggerCounter name="5EM15VHI" type="CTPIN">
+      <TriggerCondition name="5EM15VHI" triggerthreshold="EM15VHI" multi="5"/>
+    </TriggerCounter>
+    <TriggerCounter name="6EM15VHI" type="CTPIN">
+      <TriggerCondition name="6EM15VHI" triggerthreshold="EM15VHI" multi="6"/>
+    </TriggerCounter>
+    <TriggerCounter name="7EM15VHI" type="CTPIN">
+      <TriggerCondition name="7EM15VHI" triggerthreshold="EM15VHI" multi="7"/>
+    </TriggerCounter>
     <TriggerCounter name="1EM18VH" type="CTPIN">
       <TriggerCondition name="1EM18VH" triggerthreshold="EM18VH" multi="1"/>
     </TriggerCounter>
@@ -4458,6 +4438,27 @@
     </TriggerCounter>
     <TriggerCounter name="7EM18VH" type="CTPIN">
       <TriggerCondition name="7EM18VH" triggerthreshold="EM18VH" multi="7"/>
+    </TriggerCounter>
+    <TriggerCounter name="1EM18VHI" type="CTPIN">
+      <TriggerCondition name="1EM18VHI" triggerthreshold="EM18VHI" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="2EM18VHI" type="CTPIN">
+      <TriggerCondition name="2EM18VHI" triggerthreshold="EM18VHI" multi="2"/>
+    </TriggerCounter>
+    <TriggerCounter name="3EM18VHI" type="CTPIN">
+      <TriggerCondition name="3EM18VHI" triggerthreshold="EM18VHI" multi="3"/>
+    </TriggerCounter>
+    <TriggerCounter name="4EM18VHI" type="CTPIN">
+      <TriggerCondition name="4EM18VHI" triggerthreshold="EM18VHI" multi="4"/>
+    </TriggerCounter>
+    <TriggerCounter name="5EM18VHI" type="CTPIN">
+      <TriggerCondition name="5EM18VHI" triggerthreshold="EM18VHI" multi="5"/>
+    </TriggerCounter>
+    <TriggerCounter name="6EM18VHI" type="CTPIN">
+      <TriggerCondition name="6EM18VHI" triggerthreshold="EM18VHI" multi="6"/>
+    </TriggerCounter>
+    <TriggerCounter name="7EM18VHI" type="CTPIN">
+      <TriggerCondition name="7EM18VHI" triggerthreshold="EM18VHI" multi="7"/>
     </TriggerCounter>
     <TriggerCounter name="1EM20VH" type="CTPIN">
       <TriggerCondition name="1EM20VH" triggerthreshold="EM20VH" multi="1"/>
@@ -5965,33 +5966,13 @@
         <Signal range_begin="15" range_end="17"/>
       </Cable>
     </TriggerThreshold>
-    <TriggerThreshold active="1" bitnum="3" id="48" mapping="6" name="EM13VH" type="EM" input="ctpin" version="1">
-      <TriggerThresholdValue em_isolation="63" etamin="-49" etamax="49" had_isolation="63" had_veto="99" isobits="00001" name="EM13VHfull" phimin="0" phimax="64" priority="1" thresholdval="15" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-25" etamax="-17" had_isolation="63" had_veto="99" isobits="00001" name="EM13VHfull" phimin="0" phimax="64" priority="2" thresholdval="14" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-17" etamax="-15" had_isolation="63" had_veto="99" isobits="00001" name="EM13VHfull" phimin="0" phimax="64" priority="2" thresholdval="13" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-15" etamax="-14" had_isolation="63" had_veto="99" isobits="00001" name="EM13VHfull" phimin="0" phimax="64" priority="2" thresholdval="11" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-14" etamax="-12" had_isolation="63" had_veto="99" isobits="00001" name="EM13VHfull" phimin="0" phimax="64" priority="2" thresholdval="12" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-12" etamax="-9" had_isolation="63" had_veto="99" isobits="00001" name="EM13VHfull" phimin="0" phimax="64" priority="2" thresholdval="13" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-9" etamax="-7" had_isolation="63" had_veto="99" isobits="00001" name="EM13VHfull" phimin="0" phimax="64" priority="2" thresholdval="14" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-7" etamax="0" had_isolation="63" had_veto="99" isobits="00001" name="EM13VHfull" phimin="0" phimax="64" priority="2" thresholdval="15" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="0" etamax="7" had_isolation="63" had_veto="99" isobits="00001" name="EM13VHfull" phimin="0" phimax="64" priority="2" thresholdval="15" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="7" etamax="9" had_isolation="63" had_veto="99" isobits="00001" name="EM13VHfull" phimin="0" phimax="64" priority="2" thresholdval="14" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="9" etamax="12" had_isolation="63" had_veto="99" isobits="00001" name="EM13VHfull" phimin="0" phimax="64" priority="2" thresholdval="13" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="12" etamax="14" had_isolation="63" had_veto="99" isobits="00001" name="EM13VHfull" phimin="0" phimax="64" priority="2" thresholdval="12" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="14" etamax="15" had_isolation="63" had_veto="99" isobits="00001" name="EM13VHfull" phimin="0" phimax="64" priority="2" thresholdval="11" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="15" etamax="17" had_isolation="63" had_veto="99" isobits="00001" name="EM13VHfull" phimin="0" phimax="64" priority="2" thresholdval="13" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="17" etamax="25" had_isolation="63" had_veto="99" isobits="00001" name="EM13VHfull" phimin="0" phimax="64" priority="2" thresholdval="14" type="EM" window="0"/>
+    <TriggerThreshold active="1" bitnum="3" id="48" mapping="6" name="EM15" type="EM" input="ctpin" version="1">
+      <TriggerThresholdValue em_isolation="63" etamin="-49" etamax="49" had_isolation="63" had_veto="99" isobits="00000" name="EM15full" phimin="0" phimax="64" priority="1" thresholdval="15" type="EM" window="0"/>
       <Cable connector="CON0" input="SLOT7" name="EM1">
         <Signal range_begin="18" range_end="20"/>
       </Cable>
     </TriggerThreshold>
-    <TriggerThreshold active="1" bitnum="3" id="49" mapping="7" name="EM15" type="EM" input="ctpin" version="1">
-      <TriggerThresholdValue em_isolation="63" etamin="-49" etamax="49" had_isolation="63" had_veto="99" isobits="00000" name="EM15full" phimin="0" phimax="64" priority="1" thresholdval="15" type="EM" window="0"/>
-      <Cable connector="CON0" input="SLOT7" name="EM1">
-        <Signal range_begin="21" range_end="23"/>
-      </Cable>
-    </TriggerThreshold>
-    <TriggerThreshold active="1" bitnum="3" id="50" mapping="8" name="EM15VH" type="EM" input="ctpin" version="1">
+    <TriggerThreshold active="1" bitnum="3" id="49" mapping="7" name="EM15VH" type="EM" input="ctpin" version="1">
       <TriggerThresholdValue em_isolation="63" etamin="-49" etamax="49" had_isolation="63" had_veto="99" isobits="00001" name="EM15VHfull" phimin="0" phimax="64" priority="1" thresholdval="17" type="EM" window="0"/>
       <TriggerThresholdValue em_isolation="63" etamin="-25" etamax="-17" had_isolation="63" had_veto="99" isobits="00001" name="EM15VHfull" phimin="0" phimax="64" priority="2" thresholdval="16" type="EM" window="0"/>
       <TriggerThresholdValue em_isolation="63" etamin="-17" etamax="-15" had_isolation="63" had_veto="99" isobits="00001" name="EM15VHfull" phimin="0" phimax="64" priority="2" thresholdval="15" type="EM" window="0"/>
@@ -6007,17 +5988,33 @@
       <TriggerThresholdValue em_isolation="63" etamin="14" etamax="15" had_isolation="63" had_veto="99" isobits="00001" name="EM15VHfull" phimin="0" phimax="64" priority="2" thresholdval="13" type="EM" window="0"/>
       <TriggerThresholdValue em_isolation="63" etamin="15" etamax="17" had_isolation="63" had_veto="99" isobits="00001" name="EM15VHfull" phimin="0" phimax="64" priority="2" thresholdval="15" type="EM" window="0"/>
       <TriggerThresholdValue em_isolation="63" etamin="17" etamax="25" had_isolation="63" had_veto="99" isobits="00001" name="EM15VHfull" phimin="0" phimax="64" priority="2" thresholdval="16" type="EM" window="0"/>
+      <Cable connector="CON0" input="SLOT7" name="EM1">
+        <Signal range_begin="21" range_end="23"/>
+      </Cable>
+    </TriggerThreshold>
+    <TriggerThreshold active="1" bitnum="3" id="50" mapping="8" name="EM15VHI" type="EM" input="ctpin" version="1">
+      <TriggerThresholdValue em_isolation="63" etamin="-49" etamax="49" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="1" thresholdval="17" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-25" etamax="-17" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="16" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-17" etamax="-15" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="14" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-15" etamax="-14" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="12" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-14" etamax="-13" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="13" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-13" etamax="-11" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="14" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-11" etamax="-8" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="15" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-8" etamax="-7" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="16" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-7" etamax="0" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="17" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="0" etamax="7" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="17" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="7" etamax="8" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="16" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="8" etamax="11" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="15" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="11" etamax="13" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="14" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="13" etamax="14" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="13" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="14" etamax="15" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="12" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="15" etamax="17" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="14" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="17" etamax="25" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="16" type="EM" window="0"/>
       <Cable connector="CON1" input="SLOT7" name="EM2">
         <Signal range_begin="0" range_end="2"/>
       </Cable>
     </TriggerThreshold>
-    <TriggerThreshold active="1" bitnum="3" id="51" mapping="9" name="EM15HI" type="EM" input="ctpin" version="1">
-      <TriggerThresholdValue em_isolation="63" etamin="-49" etamax="49" had_isolation="63" had_veto="99" isobits="00100" name="EM15HIfull" phimin="0" phimax="64" priority="1" thresholdval="15" type="EM" window="0"/>
-      <Cable connector="CON1" input="SLOT7" name="EM2">
-        <Signal range_begin="3" range_end="5"/>
-      </Cable>
-    </TriggerThreshold>
-    <TriggerThreshold active="1" bitnum="3" id="52" mapping="10" name="EM18VH" type="EM" input="ctpin" version="1">
+    <TriggerThreshold active="1" bitnum="3" id="51" mapping="9" name="EM18VH" type="EM" input="ctpin" version="1">
       <TriggerThresholdValue em_isolation="63" etamin="-49" etamax="49" had_isolation="63" had_veto="99" isobits="00001" name="EM18VHfull" phimin="0" phimax="64" priority="1" thresholdval="20" type="EM" window="0"/>
       <TriggerThresholdValue em_isolation="63" etamin="-25" etamax="-17" had_isolation="63" had_veto="99" isobits="00001" name="EM18VHfull" phimin="0" phimax="64" priority="2" thresholdval="19" type="EM" window="0"/>
       <TriggerThresholdValue em_isolation="63" etamin="-17" etamax="-15" had_isolation="63" had_veto="99" isobits="00001" name="EM18VHfull" phimin="0" phimax="64" priority="2" thresholdval="17" type="EM" window="0"/>
@@ -6035,6 +6032,28 @@
       <TriggerThresholdValue em_isolation="63" etamin="14" etamax="15" had_isolation="63" had_veto="99" isobits="00001" name="EM18VHfull" phimin="0" phimax="64" priority="2" thresholdval="15" type="EM" window="0"/>
       <TriggerThresholdValue em_isolation="63" etamin="15" etamax="17" had_isolation="63" had_veto="99" isobits="00001" name="EM18VHfull" phimin="0" phimax="64" priority="2" thresholdval="17" type="EM" window="0"/>
       <TriggerThresholdValue em_isolation="63" etamin="17" etamax="25" had_isolation="63" had_veto="99" isobits="00001" name="EM18VHfull" phimin="0" phimax="64" priority="2" thresholdval="19" type="EM" window="0"/>
+      <Cable connector="CON1" input="SLOT7" name="EM2">
+        <Signal range_begin="3" range_end="5"/>
+      </Cable>
+    </TriggerThreshold>
+    <TriggerThreshold active="1" bitnum="3" id="52" mapping="10" name="EM18VHI" type="EM" input="ctpin" version="1">
+      <TriggerThresholdValue em_isolation="63" etamin="-49" etamax="49" had_isolation="63" had_veto="99" isobits="00100" name="EM18VHIfull" phimin="0" phimax="64" priority="1" thresholdval="20" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-25" etamax="-17" had_isolation="63" had_veto="99" isobits="00100" name="EM18VHIfull" phimin="0" phimax="64" priority="2" thresholdval="19" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-17" etamax="-15" had_isolation="63" had_veto="99" isobits="00100" name="EM18VHIfull" phimin="0" phimax="64" priority="2" thresholdval="17" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-15" etamax="-14" had_isolation="63" had_veto="99" isobits="00100" name="EM18VHIfull" phimin="0" phimax="64" priority="2" thresholdval="15" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-14" etamax="-13" had_isolation="63" had_veto="99" isobits="00100" name="EM18VHIfull" phimin="0" phimax="64" priority="2" thresholdval="16" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-13" etamax="-11" had_isolation="63" had_veto="99" isobits="00100" name="EM18VHIfull" phimin="0" phimax="64" priority="2" thresholdval="17" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-11" etamax="-8" had_isolation="63" had_veto="99" isobits="00100" name="EM18VHIfull" phimin="0" phimax="64" priority="2" thresholdval="18" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-8" etamax="-7" had_isolation="63" had_veto="99" isobits="00100" name="EM18VHIfull" phimin="0" phimax="64" priority="2" thresholdval="19" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-7" etamax="0" had_isolation="63" had_veto="99" isobits="00100" name="EM18VHIfull" phimin="0" phimax="64" priority="2" thresholdval="20" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="0" etamax="7" had_isolation="63" had_veto="99" isobits="00100" name="EM18VHIfull" phimin="0" phimax="64" priority="2" thresholdval="20" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="7" etamax="8" had_isolation="63" had_veto="99" isobits="00100" name="EM18VHIfull" phimin="0" phimax="64" priority="2" thresholdval="19" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="8" etamax="11" had_isolation="63" had_veto="99" isobits="00100" name="EM18VHIfull" phimin="0" phimax="64" priority="2" thresholdval="18" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="11" etamax="13" had_isolation="63" had_veto="99" isobits="00100" name="EM18VHIfull" phimin="0" phimax="64" priority="2" thresholdval="17" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="13" etamax="14" had_isolation="63" had_veto="99" isobits="00100" name="EM18VHIfull" phimin="0" phimax="64" priority="2" thresholdval="16" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="14" etamax="15" had_isolation="63" had_veto="99" isobits="00100" name="EM18VHIfull" phimin="0" phimax="64" priority="2" thresholdval="15" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="15" etamax="17" had_isolation="63" had_veto="99" isobits="00100" name="EM18VHIfull" phimin="0" phimax="64" priority="2" thresholdval="17" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="17" etamax="25" had_isolation="63" had_veto="99" isobits="00100" name="EM18VHIfull" phimin="0" phimax="64" priority="2" thresholdval="19" type="EM" window="0"/>
       <Cable connector="CON1" input="SLOT7" name="EM2">
         <Signal range_begin="6" range_end="8"/>
       </Cable>
@@ -7516,8 +7535,8 @@
       <Parametrization isobit="1" offset="0" slope="0" mincut="0" upperlimit="0" etamin="-49" etamax="49" priority="0"/>
       <Parametrization isobit="2" offset="-18" slope="80" mincut="20" upperlimit="50" etamin="-49" etamax="49" priority="0"/>
       <Parametrization isobit="3" offset="-18" slope="80" mincut="20" upperlimit="50" etamin="-49" etamax="49" priority="0"/>
-      <Parametrization isobit="4" offset="-18" slope="80" mincut="20" upperlimit="50" etamin="-49" etamax="49" priority="0"/>
-      <Parametrization isobit="5" offset="-18" slope="80" mincut="20" upperlimit="50" etamin="-49" etamax="49" priority="0"/>
+      <Parametrization isobit="4" offset="-20" slope="80" mincut="10" upperlimit="50" etamin="-49" etamax="49" priority="0"/>
+      <Parametrization isobit="5" offset="-18" slope="80" mincut="15" upperlimit="50" etamin="-49" etamax="49" priority="0"/>
     </Isolation>
     <Isolation thrtype="EMIsoForTAUthr">
       <Parametrization isobit="1" offset="30" slope="100" mincut="0" upperlimit="60" etamin="-49" etamax="49" priority="0"/>

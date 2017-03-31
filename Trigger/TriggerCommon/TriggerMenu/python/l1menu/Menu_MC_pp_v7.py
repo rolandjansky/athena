@@ -41,9 +41,9 @@ def defineMenu():
         # 16 x EM
         'EM3', 'EM7', 'EM8VH',
         'EM8I',
-        'EM10VH', 'EM12', 'EM13VH', 'EM15', 'EM15VH',
-        'EM15HI',
-        'EM18VH', 'EM20VH', 'EM20VHI', 'EM22VHI', 'EM24VHI', 'EM26VHI', 
+        'EM10VH', 'EM12', 'EM15', 'EM15VH',
+        'EM15VHI',
+        'EM18VH', 'EM18VHI',  'EM20VH', 'EM20VHI', 'EM22VHI', 'EM24VHI', 'EM26VHI', 
 
         # 1 x ZB
         'ZB_EM15',
@@ -360,8 +360,8 @@ def defineMenu():
 
         'L1_EM3','L1_EM7','L1_EM12', 'L1_EM8VH',
 #        'L1_EM8I',
-        'L1_EM10VH', 'L1_EM13VH', 'L1_EM15',
-        'L1_EM15I','L1_EM15HI',
+        'L1_EM10VH', 'L1_EM15',
+        'L1_EM15I','L1_EM15VHI',
         'L1_EM26VHI','L1_EM15VH', 'L1_EM18VH', 'L1_EM20VH', 'L1_EM20VHI', 'L1_EM22VHI', 'L1_EM24VHI', # see Jira ATR-10334'L1_EM22VHLIL', #'L1_EM50V',
         'L1_EM3_EMPTY', 'L1_EM7_EMPTY', 'L1_EM7_UNPAIRED_ISO', 'L1_EM7_FIRSTEMPTY','L1_EM7_UNPAIRED_NONISO',
         'L1_EM20VH_FIRSTEMPTY',
@@ -383,7 +383,7 @@ def defineMenu():
         
         
         # multi lepton
-        "L1_2EM3", "L1_2EM7", "L1_2EM10VH", "L1_2EM13VH", "L1_2EM15", "L1_2EM15VH", "L1_EM7_2EM3", "L1_EM12_2EM3", "L1_EM15VH_3EM7", "L1_EM15VH_3EM8VH", "L1_EM15VH_2EM10VH_3EM7",
+        "L1_2EM3", "L1_2EM7", "L1_2EM10VH", "L1_2EM15", "L1_2EM15VH", "L1_2EM15VHI", "L1_EM7_2EM3", "L1_EM12_2EM3", "L1_EM15VH_3EM7", "L1_EM15VH_3EM8VH", "L1_EM15VH_2EM10VH_3EM7",
 				"L1_2EM18VH", "L1_2EM20VH", "L1_EM15VH_3EM10VH", "L1_EM18VH_3EM8VH", "L1_EM18VH_2EM10VH_3EM7", "L1_EM20VH_3EM10VH", "L1_EM20VH_2EM10VH_3EM8VH",
         "L1_EM7_MU10",
         "L1_2MU4", "L1_2MU6", "L1_2MU10", "L1_2MU20_OVERLAY", "L1_MU10_2MU6", "L1_MU11_2MU6", "L1_3MU4", "L1_MU6_2MU4", "L1_3MU6",  "L1_4MU4", "L1_MU6_3MU4", "L1_2MU6_3MU4",
@@ -400,9 +400,9 @@ def defineMenu():
         "L1_TAU20IM_2TAU12IM", "L1_TAU20_2TAU12", "L1_TAU40_2TAU20IM",
 
         # combined tau - lepton
-        "L1_EM15HI_2TAU12IM",          
-        "L1_EM15HI_2TAU12IM_J25_3J12",   
-	"L1_EM15HI_TAU40_2TAU15",
+        "L1_EM15VHI_2TAU12IM",          
+        "L1_EM15VHI_2TAU12IM_J25_3J12",   
+	"L1_EM15VHI_TAU40_2TAU15",
         "L1_MU10_TAU12IM",  
         "L1_MU10_TAU12IM_J25_2J12", 
 #        "L1_MU10_TAU12_J25_2J12", 
@@ -426,8 +426,8 @@ def defineMenu():
 #        "L1_TAU20IM_2J20_XE50",   
 
         #"L1_EM15HI_2TAU12I_XE35", 
-        "L1_EM15HI_2TAU12IM_XE35", 
-        "L1_EM15HI_TAU20IM_2TAU15_J25_2J20_3J15",	 
+        "L1_EM15VHI_2TAU12IM_XE35", 
+        "L1_EM15VHI_TAU20IM_2TAU15_J25_2J20_3J15",	 
         'L1_EM20VHI_TAU20IM_2TAU20_J25_3J20',
 
 
@@ -443,7 +443,8 @@ def defineMenu():
         # combined em - jet
         #'L1_EM15VH_J15.23ETA49',
 #        'L1_EM15VH_JJ15.23ETA49',
-        'L1_EM13VH_3J20',
+        'L1_EM18VHI_3J20',
+        'L1_EM20VH_3J20',
         'L1_EM18VH_3J20',
 
         # combined mu - jet
@@ -903,7 +904,7 @@ def defineMenu():
         'L1_EM12' : 2,
         'L1_EM8VH' : 3,
         'L1_EM10VH' : 4,
-        'L1_EM13VH' : 5,
+        #'L1_EM13VH' : 5,
         'L1_EM15' : 6,
         'L1_EM15VH' : 7,
         'L1_EM18VH' : 8,
@@ -926,7 +927,7 @@ def defineMenu():
         'L1_2EM3' : 23,
         'L1_2EM7' : 24,
         'L1_2EM10VH' : 25,
-        'L1_2EM13VH' : 26,
+        #'L1_2EM13VH' : 26,
         'L1_2EM15' : 27,
         'L1_2EM15VH' : 28,
         'L1_EM7_2EM3' : 29,
@@ -965,11 +966,11 @@ def defineMenu():
         'L1_TAU8_EMPTY' : 57,
         'L1_TAU20IM_2TAU12IM' : 58,
         'L1_TAU20_2TAU12' : 59,
-        'L1_EM15HI_2TAU12IM' : 60,
-        'L1_EM15HI_2TAU12IM_J25_3J12' : 61,
-        'L1_EM15HI_TAU20IM_2TAU15_J25_2J20_3J15' : 378,
+        'L1_EM15VHI_2TAU12IM' : 60,
+        'L1_EM15VHI_2TAU12IM_J25_3J12' : 61,
+        'L1_EM15VHI_TAU20IM_2TAU15_J25_2J20_3J15' : 378,
         'L1_EM20VHI_TAU20IM_2TAU20_J25_3J20' : 69,
-        'L1_EM15HI_TAU40_2TAU15' : 62,
+        'L1_EM15VHI_TAU40_2TAU15' : 62,
         'L1_MU10_TAU12IM' : 63,
         'L1_MU10_TAU12IM_J25_2J12' : 64,
         'L1_EM7_MU10':65,
@@ -985,7 +986,7 @@ def defineMenu():
         'L1_TAU20IM_2J20_XE45' : 74,
         'L1_TAU30_UNPAIRED_ISO' :343,
         'L1_TAU60_DR-TAU20ITAU12I' : 76,
-        'L1_EM15HI_2TAU12IM_XE35' : 78,
+        'L1_EM15VHI_2TAU12IM_XE35' : 78,
         'L1_MU10_TAU12IM_XE35' : 81,
 #        'L1_MU10_TAU12IM_XE40' : 82,
         'L1_TAU20IM_2TAU12IM_XE35' : 83,
@@ -1101,8 +1102,9 @@ def defineMenu():
         'L1_MBTS_1_1_UNPAIRED_ISO' : 169,
 
         'L1_DPHI-AJ20s2XE50' : 171,
-        'L1_EM13VH_3J20' : 172,
+        'L1_EM18VHI_3J20' : 172,
         'L1_EM18VH_3J20' : 295,
+        'L1_EM20VH_3J20' : 26,
         'L1_MU10_3J20' : 173,
 
         'L1_2J50_XE40' : 175,
@@ -1459,7 +1461,8 @@ def defineMenu():
         'L1_EM15VH_3EM8VH': 396, 
         'L1_EM8I_MU10'  : 399,
         "L1_EM26VHI"    :402,
-        "L1_EM15HI"    :423,
+        "L1_EM15VHI"    :423,
+        "L1_2EM15VHI"    :342,
         "L1_EM15I"    :424,
         "L1_MU6_3MU4"  :403,
         "L1_2MU6_3MU4" :404,
