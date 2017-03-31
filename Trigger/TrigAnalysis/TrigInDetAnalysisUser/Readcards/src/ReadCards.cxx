@@ -81,7 +81,7 @@ void ReadCards::Construct(const std::string& filename) {
   else                                          std::sprintf( tfile, ".readcards-%d", pid );
 
   char cmd[256];
-  std::sprintf( cmd, "cpp -P %s > %s", mFileName.c_str(), tfile );
+  std::sprintf( cmd, "cpp -I. -P %s > %s", mFileName.c_str(), tfile );
 
   std::system( cmd );
 
