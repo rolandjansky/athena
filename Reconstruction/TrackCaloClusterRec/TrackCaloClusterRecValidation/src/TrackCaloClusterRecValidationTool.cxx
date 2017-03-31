@@ -25,10 +25,10 @@ TrackCaloClusterRecValidationTool::TrackCaloClusterRecValidationTool(const std::
   declareProperty("TopoJetReferenceName"        , m_topoJetReferenceName = "AntiKt10LCTopoJets");
   declareProperty("TopoTrimmedJetReferenceName" , m_topoTrimmedJetReferenceName = "AntiKt10LCTopoTrimmedJets");
   declareProperty("maxTrkJetDR"                 , m_maxJetDR = 0.75);
-  declareProperty("maxEta"                      , m_maxEta  = 2.0);
-  declareProperty("minPt"                       , m_minPt   = 200*GeV);
-  declareProperty("minMass"                     , m_minMass =  50.*GeV);
-  declareProperty("maxMass"                     , m_maxMass = 150.*GeV);
+  declareProperty("maxEta"                      , m_maxEta   = 2.0);
+  declareProperty("minPt"                       , m_minPt    = 200*GeV);
+  declareProperty("minMass"                     , m_minMass  =  50.*GeV);
+  declareProperty("maxMass"                     , m_maxMass  = 150.*GeV);
   declareProperty("DirName"                     , m_dirName = "TCCValidation/");
   declareProperty("SubFolder"                   , m_folder);
   }

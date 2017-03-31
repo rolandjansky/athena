@@ -37,6 +37,8 @@ public:
   void fillMomentsWithMassCut(const xAOD::Jet& jet);
   void fillMomentsLeadingWithMassCut(const xAOD::Jet& jet);
   void fillMomentsSubLeadingWithMassCut(const xAOD::Jet& jet);
+  
+  void make_median(TH2* h2_response, TH1* h1_resolution);
 
 private:  
   TH1* m_jet_n                             ;
@@ -64,21 +66,25 @@ private:
   TH1* m_jet_deltaR_matched                ;
   
   TH1* m_jet_response_m                    ;
+  TH2* m_jet_response_m_pt                 ;
   TH1* m_jet_response_pt                   ;
   TH1* m_jet_response_eta                  ;
   TH1* m_jet_response_phi                  ;
   
   TH1* m_jet_response_m_2leadings          ;
+  TH2* m_jet_response_m_pt_2leadings       ;
   TH1* m_jet_response_pt_2leadings         ;
   TH1* m_jet_response_eta_2leadings        ;
   TH1* m_jet_response_phi_2leadings        ;
   
   TH1* m_jet_response_m_leading            ;
+  TH2* m_jet_response_m_pt_leading         ;
   TH1* m_jet_response_pt_leading           ;
   TH1* m_jet_response_eta_leading          ;
   TH1* m_jet_response_phi_leading          ;
   
   TH1* m_jet_response_m_subleading         ;
+  TH2* m_jet_response_m_pt_subleading      ;
   TH1* m_jet_response_pt_subleading        ;
   TH1* m_jet_response_eta_subleading       ;
   TH1* m_jet_response_phi_subleading       ;
@@ -110,6 +116,11 @@ private:
   TH1* m_jet_response_d2_leading           ;
   TH1* m_jet_response_d2_subleading        ;  
    
+  TH1* m_jet_resolution_m                      ;
+  TH1* m_jet_resolution_m_2leadings            ;
+  TH1* m_jet_resolution_m_leading              ;
+  TH1* m_jet_resolution_m_subleading           ;  
+  
   // plot base has nop default implementation of this; we use it to book the histos
   void initializePlots();
   void finalizePlots();
