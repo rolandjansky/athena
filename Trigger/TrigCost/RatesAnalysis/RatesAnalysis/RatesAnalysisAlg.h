@@ -264,6 +264,7 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
   bool m_isMC; //!< If input is Monte Carlo
   bool m_normaliseHistograms; //!< Flag to apply normalisation to histograms. Easier to set this to FALSE if will be needing to hadd
   bool m_enableLumiExtrapolation; //!< Global flag if extrapolation is to be used. If not, results will be presented at the input file's lumi
+  uint32_t m_vetoStartOfTrain; //!< If > 0, then veto this many BCIDs from the start of a train
   double m_ratesDenominator; //!< How much walltime is seen by the algorithm. This is what we need to normalise to.
   double m_mcCrossSection; //!< If MC, the cross section in nb
   double m_mcFilterEfficiency; //!< If MC, the filter efficiency
@@ -273,6 +274,7 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
   std::string m_prescaleXML; //!< Filename of XML of prescales to load
 
   TH1D* m_scalingHist; //!< One-bin histogram to store the normalisation of the sample, for use in later combinations
+  TH1D* m_bcidHist; //!< Histogram of the BCIDs distribution of the processing
 
   WeightingValuesSummary_t m_weightingValues; //!< Possible weighting & lumi extrapolation values for the current event 
 }; 
