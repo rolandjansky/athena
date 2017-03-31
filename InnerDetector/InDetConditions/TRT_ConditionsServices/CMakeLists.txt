@@ -52,3 +52,4 @@ atlas_add_component( TRT_ConditionsServices
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives EventPrimitives GaudiKernel TRT_ConditionsData TrkParameters AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities DetDescrConditions GeoModelUtilities Identifier EventInfo InDetCoolCoralClientUtils InDetIdentifier InDetReadoutGeometry PathResolver TRT_ConditionsServicesLib )
 
+atlas_install_python_modules( python/*.py )
