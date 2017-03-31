@@ -24,13 +24,10 @@ atlas_add_library( AtlasCollectionTools
                    LINK_LIBRARIES GoodRunsListsLib
                    PRIVATE_LINK_LIBRARIES CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc )
 
-atlas_add_executable( CollAppend
+atlas_add_executable( AthCollAppend
                       src/CollAppend.cxx
                       LINK_LIBRARIES GoodRunsListsLib CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc AtlasCollectionTools )
 
-atlas_add_executable( CollAppendXML
-                      src/CollAppendXML.cxx
-                      LINK_LIBRARIES GoodRunsListsLib CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc AtlasCollectionTools )
 
 # Install files from the package:
 atlas_install_python_modules( python/countGuidsClient.py python/eventLookupClient.py )
