@@ -948,10 +948,10 @@ namespace LVL1 {
     if(m_requireAllCalos && ((sc1==StatusCode::FAILURE) ||
                             (sc2==StatusCode::FAILURE) ||
                             (sc3==StatusCode::FAILURE))) {
-      ATH_MSG_ERROR("Can't find calo towers - stopping processing" << endreq
-                    << "Found Em  LArTTL1 : "<<sc1 << endreq
-                    << "Found Had LArTTL1 : "<<sc2 << endreq
-                    << "Found TileTTL1    : "<<sc3<< endreq
+      ATH_MSG_ERROR("Can't find calo towers - stopping processing" << endmsg
+                    << "Found Em  LArTTL1 : "<<sc1 << endmsg
+                    << "Found Had LArTTL1 : "<<sc2 << endmsg
+                    << "Found TileTTL1    : "<<sc3<< endmsg
                     );
       return StatusCode::FAILURE;
     }
