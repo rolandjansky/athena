@@ -39,7 +39,7 @@ private:
   StatusCode createTable();
 
   ServiceHandle<ITRT_CablingSvc>    m_TRT_IdMapping;  // Identifier mapping Tool
-  TRT_IdentifierConversionTool* m_TRT_IdMappingOld;  // Identifier conversion Tool. 
+  //TRT_IdentifierConversionTool* m_TRT_IdMappingOld;  // Identifier conversion Tool. 
                                                      // Here temporarily until ATLAS mapping 
                                                      // is put into InDetCabling
 
