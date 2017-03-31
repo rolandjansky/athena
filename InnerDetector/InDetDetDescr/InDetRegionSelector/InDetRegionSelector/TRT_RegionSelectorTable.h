@@ -13,7 +13,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include <string>
-using std::string;
 
 class RegSelSiLUT;
 class TRT_IdentifierConversionTool;
