@@ -317,7 +317,7 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
 //      do dR2 check, i.e. provide eta, phi of calorimeter cell and calculate distance to 
 //      extrapolated track position in a given layer? 
 //      handled by begin ring?
-        xAOD::PFO thiseFlowObject;
+//         xAOD::PFO thiseFlowObject;
 
         if (i==0){
         
@@ -329,10 +329,12 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
           int indexofRing = 0;
           int layerToStore = -999;
           std::vector<int> layerToStoreVector;
+          std::vector<float> radiusToStoreVector;
+          std::vector<float> avgEdensityToStoreVector;
           
-          std::cout<<"layerToStore vector about to be cleared"<<std::endl;
-          layerToStoreVector.clear();
-          std::cout<<"layerToStore vector cleared"<<std::endl;
+          // std::cout<<"layerToStore vector about to be cleared"<<std::endl;
+//           layerToStoreVector.clear();
+//           std::cout<<"layerToStore vector cleared"<<std::endl;
           double radiusToStore = 0;
           double totalEnergyPerCell = 0;
       
@@ -428,12 +430,16 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
                 averageEnergyDensityPerRing = energyDensityPerRing/((totalCellsinRing)*(efRecTrack->getTrack()->e()/1000.));
                 std::cout << " track E is " << efRecTrack->getTrack()->e()/1000.;
                 std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
+                avgEdensityToStoreVector.push_back(averageEnergyDensityPerRing);
+                std::cout<<"avgEdensityToStoreVector["<< n-1 <<"] is "<< avgEdensityToStoreVector[n-1] << std::endl;
                 layerToStore = (eflowCaloENUM)i;
                 std::cout << " before layervector "<<std::endl;
                 layerToStoreVector.push_back(layerToStore);
                 std::cout<<"layerToStore is "<< layerToStore << std::endl;
-                std::cout<<"layerToStoreVector["<< n <<"] is "<< layerToStoreVector[n] << std::endl;
+                std::cout<<"layerToStoreVector["<< n-1 <<"] is "<< layerToStoreVector[n-1] << std::endl;
                 radiusToStore = (indexofRing)*ringThickness;
+                radiusToStoreVector.push_back(radiusToStore);
+                std::cout<<"radiusToStoreVector["<< n-1 <<"] is "<< radiusToStoreVector[n-1] << std::endl;
                 std::cout<<"radiusToStore is "<< radiusToStore << std::endl;
                 efRecTrack->setLayerCellOrder(layerToStore);
                 efRecTrack->setRadiusCellOrder(radiusToStore);
@@ -450,13 +456,20 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
 //         //where should these go?
 //         averageEnergyDensityPerRing = energyDensityPerRing/((totalCellsinRing)*(efRecTrack->getTrack()->e()/1000.));
 //         std::cout << " track E is " << efRecTrack->getTrack()->e()/1000.;
+
+        efRecTrack->setLayerCellOrderVector(layerToStoreVector);
+        layerToStoreVector.clear();
+        efRecTrack->setRadiusCellOrderVector(radiusToStoreVector);
+        radiusToStoreVector.clear();
+        efRecTrack->setAvgEDensityCellOrderVector(avgEdensityToStoreVector);
+        avgEdensityToStoreVector.clear();
+        
         if (averageEnergyDensityPerRing != 0) {
         std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
         std::cout<<"layerToStore is "<< layerToStore << std::endl;
         std::cout<<"radiusToStore is "<< radiusToStore << std::endl;
         std::cout<<"indexofRing is "<< indexofRing << std::endl;
-//         eflowCellOrderingParameters* eflowCOP;
-//         eflowCOP->setLayerToStore(layerToStore, radiusToStore, averageEnergyDensityPerRing);
+        
         }
         else {std::cout<<"averageEnergyDensityPerRing = 0"<<std::endl;}
     }
