@@ -1,9 +1,4 @@
 // -*- C++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // ================================================
 // Run2TriggerTowerMaker class description
 // ================================================
@@ -38,7 +33,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
 //Calorimeter tower includes
 #include "LArRawEvent/LArTTL1Container.h"
@@ -59,12 +54,19 @@ class CaloLVL1_ID;
 class CaloTriggerTowerService;
 class L1CaloCondSvc;
 class L1CaloPprChanCalibContainer;
+class L1CaloPprChanCalib;
 class L1CaloPprChanDefaults;
 class L1CaloDisabledTowersContainer;
+class L1CaloDisabledTowers;
 class L1CaloPpmDeadChannelsContainer;
+class L1CaloPpmDeadChannels;
 
 namespace CLHEP { class HepRandomEngine; }
 namespace TrigConf { class ILVL1ConfigSvc; }
+
+namespace LVL1BS {
+   class ITrigT1CaloDataAccessV2;
+}
 
 namespace LVL1
 {
@@ -141,6 +143,10 @@ private:
   std::string m_chanDefaultsKey;
   std::string m_disabledTowersKey;
   std::string m_deadChannelsKey;
+  std::string m_chanCalibKeyoverlay;
+  std::string m_chanDefaultsKeyoverlay;
+  std::string m_disabledTowersKeyoverlay;
+  std::string m_deadChannelsKeyoverlay;
 
   // Tools/Services
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
@@ -151,6 +157,7 @@ private:
   ToolHandle<IL1TriggerTowerTool> m_TTtool;
   ToolHandle<IL1CaloMappingTool> m_mappingTool;
   ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
+  ToolHandle<LVL1BS::ITrigT1CaloDataAccessV2> m_bstowertool;
 
   const CaloLVL1_ID* m_caloId; //non-owning ptr
 
@@ -167,12 +174,19 @@ private:
   // flag whether we reprocess data
   // if yes, special treatment of the pedestal correction is necessary
   bool m_isDataReprocessing;
+  // Do overlay?
+  bool m_doOverlay;
+  bool m_isReco;
 
   // non-owning pointers
   L1CaloPprChanCalibContainer* m_chanCalibContainer = nullptr;
   L1CaloDisabledTowersContainer* m_disabledTowersContainer = nullptr;
   L1CaloPpmDeadChannelsContainer* m_deadChannelsContainer = nullptr;
   L1CaloPprChanDefaults m_chanDefaults;
+  L1CaloPprChanCalibContainer* m_chanCalibContaineroverlay = nullptr;
+  L1CaloDisabledTowersContainer* m_disabledTowersContaineroverlay = nullptr;
+  L1CaloPpmDeadChannelsContainer* m_deadChannelsContaineroverlay = nullptr;
+  L1CaloPprChanDefaults m_chanDefaultsoverlay;
 
   std::unique_ptr<xAOD::TriggerTowerContainer> m_xaodTowers;
   std::unique_ptr<xAOD::TriggerTowerAuxContainer> m_xaodTowersAux;
@@ -200,7 +214,30 @@ private:
   void digitize();
 
   /** Simulate PreProcessing on analogue amplitudes */
-  StatusCode preProcess();
+  StatusCode preProcess(const int eventBCID);
+  StatusCode preProcessTower(const int eventBCID,xAOD::TriggerTower* tower);
+  
+  /** Add overlay data **/
+  virtual StatusCode addOverlay(const int eventBCID);
+  virtual StatusCode addOverlay(const int eventBCID,xAOD::TriggerTower* sigTT,xAOD::TriggerTower* ovTT);
+  
+  /** PreProcess up to LUT in **/
+  StatusCode preProcessTower_getLutIn(const int eventBCID,xAOD::TriggerTower* tower,const L1CaloPprChanCalib* db,const std::vector<int>& digits,std::vector<int>& output);
+  
+  /** calculate LUT out **/
+  StatusCode calcLutOutCP(const std::vector<int>& sigLutIn,const L1CaloPprChanCalib* sigDB,const std::vector<int>& ovLutIn,const L1CaloPprChanCalib* ovDB,std::vector<int>& output);
+  StatusCode calcLutOutJEP(const std::vector<int>& sigLutIn,const L1CaloPprChanCalib* sigDB,const std::vector<int>& ovLutIn,const L1CaloPprChanCalib* ovDB,std::vector<int>& output);
+  void calcCombinedLUT(const std::vector<int>& sigIN,const int sigSlope,const int sigOffset,
+                       const std::vector<int>& ovIN,const int ovSlope,const int ovOffset,const int ovNoiseCut,std::vector<int>& output);  
+  
+  /** Database helper functions for dead and disabled towers **/
+  bool IsDeadChannel(const L1CaloPpmDeadChannels* db) const;
+  bool IsDisabledChannel(const L1CaloDisabledTowers* db) const;
+  bool IsGoodTower(const xAOD::TriggerTower* tt,const L1CaloPpmDeadChannelsContainer* dead,const L1CaloDisabledTowersContainer* disabled) const;
+
+  
+  /** normalise the number of ADC digits for overlay **/
+  void normaliseDigits(const std::vector<int>& sigDigits,const std::vector<int>& ovDigits,std::vector<int>& normDigits);
 
   /** Stores Trigger Towers in the TES, at a
       location defined in m_outputLocation.<p>
@@ -219,10 +256,13 @@ private:
   std::vector<int> ADC(L1CaloCoolChannelId channel, const std::vector<double>& amps) const;
   int EtRange(int et, unsigned short bcidEnergyRangeLow, unsigned short bcidEnergyRangeHigh) const;
 
-  // void preProcessLayer(int layer, int eventBCID, InternalTriggerTower* tower, std::vector<int>& etResultVector, std::vector<int>& bcidResultVector);
-  StatusCode preProcessTower(xAOD::TriggerTower* tower, int eventBCID);
+  // void preProcessLayer(int layer, int m_eventBCID, InternalTriggerTower* tower, std::vector<int>& etResultVector, std::vector<int>& bcidResultVector);
+  
 
   int etaToElement(float feta, int layer) const;
+  
+  // non-linear LUT 
+  int non_linear_lut(int lutin, unsigned short offset, unsigned short slope, unsigned short noiseCut, unsigned short scale, short par1, short par2, short par3, short par4);  
 };
 
 } // namespace LVL1
