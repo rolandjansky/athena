@@ -1,4 +1,4 @@
-# This script sets up the build enironment for an AthenaDerivation
+# This script sets up the build enironment for an AthDerivation
 # build, on top of a built set of externals (including Gaudi)
 #
 # This script is kept separate from the build.sh
@@ -27,24 +27,24 @@ env_setup() {
     # The BASH solution is a bit more straight forward:
 	thisdir=$(dirname ${BASH_SOURCE[0]})
     fi
-    AthenaDerivationSrcDir=$(cd ${thisdir};pwd)
+    AthDerivationSrcDir=$(cd ${thisdir};pwd)
 
     # The directory holding the helper scripts:
-    scriptsdir=${AthenaDerivationSrcDir}/../../Build/AtlasBuildScripts
+    scriptsdir=${AthDerivationSrcDir}/../../Build/AtlasBuildScripts
 
     # Go to the main directory of the repository:
-    cd ${AthenaDerivationSrcDir}/../..
+    cd ${AthDerivationSrcDir}/../..
 
     # Check if the user specified any source/build directories:
     if [ "$BUILDDIR" = "" ]; then
-	BUILDDIR=${AthenaDerivationSrcDir}/../../../build
+	BUILDDIR=${AthDerivationSrcDir}/../../../build
     fi
 
     # Set up the environment for the build:
-    export NICOS_PROJECT_VERSION=`cat ${AthenaDerivationSrcDir}/version.txt`
+    export NICOS_PROJECT_VERSION=`cat ${AthDerivationSrcDir}/version.txt`
     export NICOS_ATLAS_RELEASE=${NICOS_PROJECT_VERSION}
     export NICOS_PROJECT_RELNAME=${NICOS_PROJECT_VERSION}
-    export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthenaDerivation
+    export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthDerivation
 
     # Set up the environment variables for finding LCG and the TDAQ externals:
     source ${scriptsdir}/LCG_RELEASE_BASE.sh

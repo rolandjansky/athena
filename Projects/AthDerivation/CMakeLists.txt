@@ -6,8 +6,8 @@ cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
 # overridden from the command line if necessary.
 file( READ ${CMAKE_SOURCE_DIR}/version.txt _version )
 string( STRIP ${_version} _version )
-set( ATHENADERIVATION_PROJECT_VERSION ${_version}
-   CACHE STRING "Version of the AthenaDerivation project to build" )
+set( ATHDERIVATION_PROJECT_VERSION ${_version}
+   CACHE STRING "Version of the AthDerivation project to build" )
 unset( _version )
 
 # Set the versions of the TDAQ externals to pick up for the build:
@@ -33,7 +33,7 @@ atlas_disable_no_undefined()
 atlas_ctest_setup()
 
 # Declare project name and version
-atlas_project( AthenaDerivation ${ATHENADERIVATION_PROJECT_VERSION}
+atlas_project( AthDerivation ${ATHDERIVATION_PROJECT_VERSION}
    USE AthenaExternals 0.0.1
    PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../
    FORTRAN )
@@ -45,11 +45,11 @@ lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
 set( _replacements )
 if( NOT "$ENV{NICOS_PROJECT_HOME}" STREQUAL "" )
    get_filename_component( _buildDir $ENV{NICOS_PROJECT_HOME} PATH )
-   list( APPEND _replacements ${_buildDir} "\${AthenaDerivation_DIR}/../../../.." )
+   list( APPEND _replacements ${_buildDir} "\${AthDerivation_DIR}/../../../.." )
 endif()
 if( NOT "$ENV{NICOS_PROJECT_RELNAME}" STREQUAL "" )
    list( APPEND _replacements $ENV{NICOS_PROJECT_RELNAME}
-      "\${AthenaDerivation_VERSION}" )
+      "\${AthDerivation_VERSION}" )
 endif()
 if( NOT "$ENV{TDAQ_RELEASE_BASE}" STREQUAL "" )
    list( APPEND _replacements $ENV{TDAQ_RELEASE_BASE}

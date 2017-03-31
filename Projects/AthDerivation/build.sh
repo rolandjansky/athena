@@ -77,20 +77,20 @@ fi
 set -e
 
 # Source in our environment
-AthenaDerivationSrcDir=$(dirname ${BASH_SOURCE[0]})
+AthDerivationSrcDir=$(dirname ${BASH_SOURCE[0]})
 if [ -z "$BUILDDIR" ]; then
-    BUILDDIR=${AthenaDerivationSrcDir}/../../../build
+    BUILDDIR=${AthDerivationSrcDir}/../../../build
 fi
 mkdir -p ${BUILDDIR}
 BUILDDIR=$(cd ${BUILDDIR} && pwd)
-source $AthenaDerivationSrcDir/build_env.sh -b $BUILDDIR
+source $AthDerivationSrcDir/build_env.sh -b $BUILDDIR
 
 # Set Gaudi's version to the same value as this project's version:
-export GAUDI_VERSION=`cat ${AthenaDerivationSrcDir}/version.txt`
+export GAUDI_VERSION=`cat ${AthDerivationSrcDir}/version.txt`
 
 # create the actual build directory
-mkdir -p ${BUILDDIR}/build/AthenaDerivation
-cd ${BUILDDIR}/build/AthenaDerivation
+mkdir -p ${BUILDDIR}/build/AthDerivation
+cd ${BUILDDIR}/build/AthDerivation
 
 # consider a pipe failed if ANY of the commands fails
 set -o pipefail
@@ -103,7 +103,7 @@ if [ -n "$EXE_CMAKE" ]; then
     # Now run the actual CMake configuration:
     time cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
         -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
-        ${AthenaDerivationSrcDir} 2>&1 | tee cmake_config.log
+        ${AthDerivationSrcDir} 2>&1 | tee cmake_config.log
 fi
 
 # for nightly builds we want to get as far as we can
@@ -120,11 +120,11 @@ fi
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
     time make install/fast \
-	DESTDIR=${BUILDDIR}/install/AthenaDerivation/${NICOS_PROJECT_VERSION} 2>&1 | tee cmake_install.log
+	DESTDIR=${BUILDDIR}/install/AthDerivation/${NICOS_PROJECT_VERSION} 2>&1 | tee cmake_install.log
 fi
 
 # Build an RPM for the release:
 if [ -n "$EXE_CPACK" ]; then
     time cpack 2>&1 | tee cmake_cpack.log
-    cp AthenaDerivation*.rpm ${BUILDDIR}/
+    cp AthDerivation*.rpm ${BUILDDIR}/
 fi
