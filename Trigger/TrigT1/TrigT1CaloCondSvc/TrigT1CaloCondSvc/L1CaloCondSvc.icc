@@ -285,7 +285,7 @@ StatusCode L1CaloCondSvc::retrieveImpl( T*& pobj, const std::string& key) {
 }
 
 template <typename T>
-StatusCode L1CaloCondSvc::registerCondition(T*& pObj) {
+StatusCode L1CaloCondSvc::registerCondition(T*& pObj, const std::string& mykey) {
   ATH_MSG_DEBUG(  "L1CaloCondSvc::registerCondition(T*& pObj))" );
 
   if(!pObj) {
