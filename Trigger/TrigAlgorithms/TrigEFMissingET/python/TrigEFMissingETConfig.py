@@ -8,6 +8,7 @@ from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromClusters
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromClustersPS
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromClustersPUC
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromJets
+from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromTrackAndJets
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFlags
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromHelper
 

@@ -141,7 +141,7 @@ StatusCode EFMissingETFromJets::execute(xAOD::TrigMissingET *,
           metComp->m_sumEt += p4.Pt();
           metComp->m_sumE  += p4.E();
           metComp->m_usedChannels += 1;
-          metComp->m_sumOfSigns += copysign(1.0, aJet->pt() );
+          metComp->m_sumOfSigns += copysign(1.0, p4.Pt() );
 
 
     } else if (i > 0) {
@@ -162,7 +162,7 @@ StatusCode EFMissingETFromJets::execute(xAOD::TrigMissingET *,
           metComp->m_sumEt += p4.Pt();
           metComp->m_sumE  += p4.E();
           metComp->m_usedChannels += 1;
-          metComp->m_sumOfSigns += copysign(1.0, aJet->pt() );
+          metComp->m_sumOfSigns += copysign(1.0, p4.Pt() );
        }
 
      }

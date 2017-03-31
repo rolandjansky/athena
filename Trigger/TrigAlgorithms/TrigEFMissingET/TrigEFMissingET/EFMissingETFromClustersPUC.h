@@ -56,13 +56,16 @@ class EFMissingETFromClustersPUC : public EFMissingETBaseTool
 
     // Configurables of pile-up fit
     bool   m_subtractpileup;
+    bool   m_use2016algo;       // Use the old (2016) version of the algorithm - included for backwards compatibility
     double m_towerwidthinput;
     double m_etarange;          //the eta range (-m_etarange,+m_etarange) over which towers are defined
     // double m_ptmin; //the tower Et threshold
     double m_aveecluspu;        //a parameter (in MeV) that determines the variance assigned to masked-off regions
     double m_rese;              //the resolution (in units of sqrt(MeV))
+    double m_resefloor;         //floor for calo energy resolution (sqrt(Mev))
     double m_nsigma;            //tower ET significance
     double m_varrhoscale;       //adjustment factor for weighting rho errors in fit
+    double m_trimfactor;        //Fraction of towers used in calculating the trimmed mean
 
     int    m_nphibins;
     int    m_netabins;
