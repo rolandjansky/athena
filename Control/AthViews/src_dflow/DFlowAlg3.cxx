@@ -16,9 +16,9 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
-#include "AthViews/View.h"
-
 #include "CxxUtils/make_unique.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 namespace AthViews {
 
@@ -30,10 +30,9 @@ namespace AthViews {
 ////////////////
 DFlowAlg3::DFlowAlg3( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
-  ::AthViewAlgorithm( name, pSvcLocator ),
+  ::AthAlgorithm( name, pSvcLocator ),
   m_r_int( "dflow_int" ),
   m_r_ints( "dflow_ints" ),
-  //m_rw_ints( "dflow_ints" ),
   m_w_dflowDummy( "dflow_dummy" )
 {
   //
@@ -45,8 +44,6 @@ DFlowAlg3::DFlowAlg3( const std::string& name,
   declareProperty( "RIntFlow", m_r_int, "Data flow of int (read)" );
 
   declareProperty( "RIntsFlow", m_r_ints, "Data flow of integers (read)" );
-
-  /*declareProperty( "RWIntsFlow", m_rw_ints, "Data flow of integers (r/w)" );*/
 
   declareProperty( "DFlowDummy", m_w_dflowDummy, "Dummy object to fix dependencies" );
 
@@ -62,6 +59,10 @@ DFlowAlg3::~DFlowAlg3()
 StatusCode DFlowAlg3::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
+
+  CHECK( m_r_int.initialize() );
+  CHECK( m_r_ints.initialize() );
+  CHECK( m_w_dflowDummy.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -83,68 +84,37 @@ StatusCode DFlowAlg3::execute()
   const EventContext& ctx = *getContext();
 #endif
 
+  SG::ReadHandle< int > inputScalarHandle( m_r_int, ctx );
   ATH_MSG_INFO("================================");
   ATH_MSG_INFO("myint r-handle...");
-  ATH_MSG_INFO("name: [" << m_r_int.name() << "]");
-  ATH_MSG_INFO("store [" << m_r_int.store() << "]");
-  ATH_MSG_INFO("clid: [" << m_r_int.clid() << "]");
+  ATH_MSG_INFO("name: [" << inputScalarHandle.name() << "]");
+  ATH_MSG_INFO("store [" << inputScalarHandle.store() << "]");
+  ATH_MSG_INFO("clid: [" << inputScalarHandle.clid() << "]");
 
-  ATH_MSG_INFO("ptr: " << m_r_int.cptr());
-  if (m_r_int.isValid()) {
-    ATH_MSG_INFO("val: " << *(m_r_int.cptr()));
+  ATH_MSG_INFO("ptr: " << inputScalarHandle.cptr());
+  if ( inputScalarHandle.isValid() )
+  {
+    ATH_MSG_INFO( "val: " << *( inputScalarHandle.cptr() ) );
   }
 
+  SG::ReadHandle< std::vector< int > > inputVectorHandle( m_r_ints, ctx );
   ATH_MSG_INFO("ints r-handle...");
-  ATH_MSG_INFO("name: [" << m_r_ints.name() << "]");
-  ATH_MSG_INFO("store [" << m_r_ints.store() << "]");
-  ATH_MSG_INFO("clid: [" << m_r_ints.clid() << "]");
+  ATH_MSG_INFO("name: [" << inputVectorHandle.name() << "]");
+  ATH_MSG_INFO("store [" << inputVectorHandle.store() << "]");
+  ATH_MSG_INFO("clid: [" << inputVectorHandle.clid() << "]");
+  ATH_MSG_INFO("cptr: " << inputVectorHandle.cptr());
 
-  ATH_MSG_INFO( "cptr: " << m_r_ints.cptr() );
-
-  //UpdateHandles have changed
-  /*ATH_MSG_INFO("ints rw-handle...");
-  m_rw_ints->push_back(10);
-  if (m_r_int.isValid())
-  {
-    m_rw_ints->push_back(*m_r_int);
-  }
-  ATH_MSG_INFO("size:" << m_rw_ints->size());
-  for ( int i = 0, imax = m_rw_ints->size(); i != imax; ++i )
-  {
-    ATH_MSG_INFO( "val[" << i << "]= " << m_rw_ints->at( i ) );
-  }*/
-
-  // try to modify 'ints' via ReadHadnle<>
+  // try to modify 'ints' via ReadHandle<>
   // shouldn't compile
 #ifdef TRY_COMPILATION_ERRORS
-  m_r_ints->push_back(666);
+  inputVectorHandle->push_back(666);
 #endif
 
   // create a temporary r-handle
-  SG::ReadHandle<std::vector<int> > ints(m_r_ints.name());
-  StatusCode sc = ints.setProxyDict( eventView(ctx) );
+  SG::ReadHandle< std::vector<int> > ints( inputVectorHandle.name() );
+  StatusCode sc = ints.setProxyDict( ctx.proxy() );
   if ( !sc.isSuccess() ) ATH_MSG_INFO( "Failed to load view " );
-  ATH_MSG_INFO("temporary r-handle[ints] - size: " << ints->size());
-  /*ATH_MSG_INFO("compare pointers: ok=" << (ints.ptr() == m_r_ints.ptr()));
-  ATH_MSG_INFO("compare pointers: ok=" << (ints.ptr() == m_rw_ints.ptr()));
-
-  // test that modification thru one handle is seen thru the other one
-  std::vector<int> save = *m_rw_ints;
-  m_rw_ints = std::vector<int>();
-  ATH_MSG_INFO("temporary r-handle[ints] - size: " << ints->size());
-  if (m_r_int.isValid()) {
-    ATH_MSG_INFO("data mbr  r-handle[ints] - size: " << m_r_ints->size());
-  }
-  ATH_MSG_INFO("data mbr rw-handle[ints] - size: " << m_rw_ints->size());
-
-  ATH_MSG_INFO("--restore--");
-  m_rw_ints = save;
-  ATH_MSG_INFO("temporary r-handle[ints] - size: " << ints->size());
-  if (m_r_int.isValid()) {
-    ATH_MSG_INFO("data mbr  r-handle[ints] - size: " << m_r_ints->size());
-  }
-  ATH_MSG_INFO("data mbr rw-handle[ints] - size: " << m_rw_ints->size());*/
-
+  ATH_MSG_INFO( "temporary r-handle[ints] - size: " << ints->size() );
 
   // test that inexistant proxies are correctly detected
   ATH_MSG_INFO("-- testing inexistant proxies --");
@@ -166,66 +136,11 @@ StatusCode DFlowAlg3::execute()
       return StatusCode::FAILURE;
     }
   }
-  {
-    SG::UpdateHandle<int> o("--rw-not-there--");
-    ATH_MSG_INFO("name: " << o.name());
-    ATH_MSG_INFO("valid:" << o.isValid());
-    if (o.isValid()) {
-      ATH_MSG_ERROR("should NOT be valid ! [line " << __LINE__ << "]" );
-      return StatusCode::FAILURE;
-    }
-  }
-
-  // 
-  if (m_r_int.isValid()) {
-    SG::UpdateHandle<int> rw_int(m_r_int.name());
-    if (rw_int.isValid()) {
-      ATH_MSG_INFO("temporary r/w-int: " << *rw_int);
-    }
-    m_r_int.setConst();
-    if (!m_r_int.isConst()) {
-      ATH_MSG_ERROR("ReadHandle<int>@[" << m_r_int.name() << "] should be CONST !");
-      return StatusCode::FAILURE;
-    }
-    //now we can't put it into an update handle anymore
-    SG::UpdateHandle<int> rw_const_int(m_r_int.name());
-    if (rw_const_int.isValid()) {
-      ATH_MSG_ERROR("UpdateHandle<int>@[" << m_r_int.name() << "] should not be allowed to refer to a const value !");
-      return StatusCode::FAILURE;
-    }
-
-  }
 
   // test WVar<T> semantics
   ATH_MSG_INFO("-- testing WVar<T> semantics...");
   {
-    SG::WriteHandle<int> o(m_r_int.name());
-    ATH_MSG_INFO("name: " << o.name());
-    ATH_MSG_INFO("valid:" << o.isValid());
-    if (o.isValid()) {
-      ATH_MSG_ERROR("should NOT be valid ! [line " << __LINE__ << "]" );
-      return StatusCode::FAILURE;
-    }
-    try {
-      *o = 42;
-      if (o.isValid()) {
-        ATH_MSG_ERROR("should NOT be valid ! [line " << __LINE__ << "]" );
-        return StatusCode::FAILURE;
-      }
-    } catch (std::exception &err) {
-      ATH_MSG_INFO("good, caught: [" << err.what() << "]");
-    }
-    ATH_MSG_INFO("valid:" << o.isValid());
-    if (o.isValid()) {
-      ATH_MSG_ERROR("should NOT be valid ! [line " << __LINE__ << "]" );
-      return StatusCode::FAILURE;
-    }
-  }
-
-  // test RWVar<T> semantics
-  ATH_MSG_INFO("-- testing RWVar<T> semantics...");
-  {
-    SG::UpdateHandle<int> o(m_r_int.name());
+    SG::WriteHandle<int> o( inputScalarHandle.name() );
     ATH_MSG_INFO("name: " << o.name());
     ATH_MSG_INFO("valid:" << o.isValid());
     if (o.isValid()) {
@@ -249,7 +164,8 @@ StatusCode DFlowAlg3::execute()
   }
 
   //Dummy object to fix the data flow
-  m_w_dflowDummy.record( CxxUtils::make_unique<int>(1) );
+  SG::WriteHandle< int > outputHandle( m_w_dflowDummy, ctx );
+  outputHandle.record( CxxUtils::make_unique<int>(1) );
 
   return StatusCode::SUCCESS;
 }

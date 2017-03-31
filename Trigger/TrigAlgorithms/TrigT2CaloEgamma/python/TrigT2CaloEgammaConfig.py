@@ -7,6 +7,7 @@ from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaEmEnFex, EgammaHadEnFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import RingerFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaAllFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgamma
+from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaFastAlgo
 
 from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaHitsCalibrationBarrelConfig, EgammaHitsCalibrationEndcapConfig, EgammaGapCalibrationConfig
 from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaTransitionRegionsConfig
@@ -27,6 +28,32 @@ class EgammaSamp2FexConfig (EgammaSamp2Fex):
        super(EgammaSamp2FexConfig, self).__init__(name)
        self.MaxDetaHotCell=0.15
        self.MaxDphiHotCell=0.15
+
+class EgammaSamp2FexNoTimerConfig (EgammaSamp2Fex):
+   __slots__ = []
+   def __init__ (self, name="EgammaSamp2Fex"):
+       super(EgammaSamp2FexNoTimerConfig, self).__init__(name)
+       self.MaxDetaHotCell=0.15
+       self.MaxDphiHotCell=0.15
+       self.TrigTimerSvc=""
+
+class EgammaSamp1FexNoTimerConfig (EgammaSamp1Fex):
+   __slots__ = []
+   def __init__ (self, name="EgammaSamp1Fex"):
+       super(EgammaSamp1FexNoTimerConfig, self).__init__(name)
+       self.TrigTimerSvc=""
+
+class EgammaEmEnFexNoTimerConfig (EgammaEmEnFex):
+   __slots__ = []
+   def __init__ (self, name="EgammaEmEnFex"):
+       super(EgammaEmEnFexNoTimerConfig, self).__init__(name)
+       self.TrigTimerSvc=""
+
+class EgammaHadEnFexNoTimerConfig (EgammaHadEnFex):
+   __slots__ = []
+   def __init__ (self, name="EgammaHadEnFex"):
+       super(EgammaHadEnFexNoTimerConfig, self).__init__(name)
+       self.TrigTimerSvc=""
 
 class T2CaloEgamma_eGamma (T2CaloEgamma):
    __slots__ = []
@@ -370,3 +397,31 @@ class T2CaloEgamma_Ringer (T2CaloEgamma_eGamma):
        self.TimerNtuple="T2CaloEgamma.T2CaEgtTotRinger"
        self.AthenaMonTools += [TrigT2CaloEgammaRingerTimeMonitoring()]
 
+
+class T2CaloEgamma_FastAlgo (T2CaloEgammaFastAlgo):
+   __slots__ = []
+   def __init__ (self, name="T2CaloEgamma_FastAlgo"):
+       super(T2CaloEgamma_FastAlgo, self).__init__(name)
+       # here put your customizations
+       from AthenaCommon.AppMgr import ToolSvc
+       ToolSvc+=EgammaSamp2FexNoTimerConfig("FaAlgoSamp2FexConfig")
+       ToolSvc+=EgammaSamp1FexNoTimerConfig("FaAlgoSamp1FexConfig")
+       ToolSvc+=EgammaEmEnFexNoTimerConfig("FaAlgoEmEnFexConfig")
+       ToolSvc+=EgammaHadEnFexNoTimerConfig("FaAlgoHadEnFexConfig")
+       self.IAlgToolList = [ EgammaSamp2FexNoTimerConfig("FaAlgoSamp2FexConfig") ]
+       self.IAlgToolList+= [ EgammaSamp1FexNoTimerConfig("FaAlgoSamp1FexConfig") ]
+       self.IAlgToolList+= [ EgammaEmEnFexNoTimerConfig("FaAlgoEmEnFexConfig") ]
+       self.IAlgToolList+= [ EgammaHadEnFexNoTimerConfig("FaAlgoHadEnFexConfig") ]
+       self.EtaWidth = 0.2
+       self.PhiWidth = 0.2
+       #self.EtaWidthForID = 0.1
+       #self.PhiWidthForID = 0.1
+       #self.TrigEMClusterKey="TrigT2CaloEgamma"
+       #t2catime.TimerHistLimits = [0,20]
+       self.CalibListEndcap=[EgammaSshapeCalibrationEndcapConfig()]
+       self.CalibListBarrel=[EgammaSshapeCalibrationBarrelConfig()]
+       self.CalibListBarrel+=[EgammaHitsCalibrationBarrelConfig()]
+       self.CalibListBarrel+=[EgammaGapCalibrationConfig()]
+       self.CalibListBarrel+=[EgammaTransitionRegionsConfig()]
+       self.CalibListEndcap+=[EgammaHitsCalibrationEndcapConfig()]
+       self.CalibListEndcap+=[EgammaGapCalibrationConfig()]

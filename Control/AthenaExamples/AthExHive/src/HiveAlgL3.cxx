@@ -3,10 +3,10 @@
 */
 
 #include "HiveAlgL3.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include <thread>
 #include <chrono>
+#include <memory>
 
 HiveAlgL3::HiveAlgL3( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 

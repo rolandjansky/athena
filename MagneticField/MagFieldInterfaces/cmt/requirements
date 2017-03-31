@@ -25,3 +25,8 @@ apply_pattern cmake_add_command command=metalibrary
 private
 
 end_private
+
+#private
+## use this to activate debug info in this package:
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"

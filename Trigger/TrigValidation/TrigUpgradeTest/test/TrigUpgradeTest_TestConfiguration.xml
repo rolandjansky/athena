@@ -1,0 +1,67 @@
+<?xml version="1.0"?>  
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+<!--
+ ***************************************************************************
+ *
+ *               TrigP1Test_TestConfiguration.xml.autoconf
+ *
+ * This file is used as input to test-xml-autoconf.py during the build.
+ * It will create TrigP1Test_TestConfiguraton.xml on-the-fly, which is
+ * used by ATN and RTT tests.
+ *
+ * For detailed syntax see: TrigValTools/bin/test-xml-autoconf.py
+ *
+ ***************************************************************************
+ -->
+<!-- NB validate this file here before commiting to svn:
+ /afs/cern.ch/user/r/rtt/public/xmlvalidate.py TrigP1Test_TestConfiguration.xml
+ -->
+
+<unifiedTestConfiguration>
+    
+    <atn>
+        <TEST name="menuRun" type="script" suite="TUT">
+            <options_atn>get_files -xmls LVL1config_Physics_pp_v7.xml; get_files -xmls HLTTestMenu.xml; athena.py ViewAlgsTest/menuRun.py</options_atn>
+            <timelimit>5</timelimit>
+            <expectations>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        <TEST name="IDRunMC" type="script" suite="TUT">
+            <options_atn>get_files -xmls LVL1config_Physics_pp_v7.xml; get_files -data caloRoIData.dat; athena.py --threads=1 ViewAlgsTest/BasicMTTrackingTrigger.py</options_atn>
+            <timelimit>20</timelimit>
+            <expectations>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        <TEST name="IDRunData" type="script" suite="TUT">
+            <options_atn>get_files -xmls LVL1config_Physics_pp_v7.xml; athena.py --threads=1 ViewAlgsTest/ID_RawDataMT_Trigger.py</options_atn>
+            <timelimit>20</timelimit>
+            <expectations>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        <TEST name="GraphView1" type="script" suite="TUT">
+            <options_atn>athena.py --threads=1 AthViews/GraphViews.py </options_atn>
+            <timelimit>5</timelimit>
+            <expectations>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        <TEST name="GraphView2" type="script" suite="TUT">
+            <options_atn>athena.py --threads=2 AthViews/GraphViews.py </options_atn>
+            <timelimit>5</timelimit>
+            <expectations>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        <TEST name="GraphView64" type="script" suite="TUT">
+            <options_atn>athena.py --threads=64 AthViews/GraphViews.py </options_atn>
+            <timelimit>5</timelimit>
+            <expectations>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+    </atn>
+    
+</unifiedTestConfiguration>

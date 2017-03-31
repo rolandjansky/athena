@@ -160,6 +160,8 @@ PP="$PP"'|bits/regex.h:1545'
 # More StoreGate changes.
 PP="$PP"'|DEBUG trying to create store'
 
+# Differences in MT build.
+PP="$PP"'|^IncidentProcAlg.* INFO|^Ath.*Seq +INFO'
 
 
 if [ "$extrapatterns" != "" ]; then

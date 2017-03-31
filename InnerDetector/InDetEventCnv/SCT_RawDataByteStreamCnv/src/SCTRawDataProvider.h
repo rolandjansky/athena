@@ -26,8 +26,11 @@
 /** other */
 #include "InDetRawData/InDetTimeCollection.h"
 #include "InDetRawData/SCT_RDO_Container.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "IRegionSelector/IRegSelSvc.h" 
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 /** STL */
 #include <string>
 
@@ -59,10 +62,13 @@ class SCTRawDataProvider : public AthAlgorithm
 
  private:
 
+  ServiceHandle<IRegSelSvc>             m_regionSelector;     
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
   ToolHandle<ISCTRawDataProviderTool> m_rawDataTool;
   ServiceHandle<ISCT_CablingSvc>     m_cabling;
   const SCT_ID*                      m_sct_id; 
+  bool m_roiSeeded;
+  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
   SG::WriteHandleKey<SCT_RDO_Container> m_rdoContainerKey;
   SG::WriteHandleKey<InDetTimeCollection> m_lvl1CollectionKey;
   SG::WriteHandleKey<InDetTimeCollection> m_bcidCollectionKey;

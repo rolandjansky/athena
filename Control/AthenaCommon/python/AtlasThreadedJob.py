@@ -51,7 +51,9 @@ def _setupAtlasThreadedJob():
 
 
     from GaudiHive.GaudiHiveConf import AlgResourcePool
-    svcMgr += AlgResourcePool( OutputLevel = INFO );
+    arp=AlgResourcePool( OutputLevel = INFO );
+    arp.TopAlg=["AthMasterSeq"] #this should enable control flow
+    svcMgr += arp
 
     from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
     svcMgr += ForwardSchedulerSvc()
@@ -59,6 +61,8 @@ def _setupAtlasThreadedJob():
     svcMgr.ForwardSchedulerSvc.MaxEventsInFlight = numStores
     svcMgr.ForwardSchedulerSvc.MaxAlgosInFlight = numAlgsInFlight
     svcMgr.ForwardSchedulerSvc.ThreadPoolSize = numThreads
+    svcMgr.ForwardSchedulerSvc.useGraphFlowManagement = True
+    svcMgr.ForwardSchedulerSvc.DataFlowManagerNext = True
 
     # enable timeline recording
     from GaudiHive.GaudiHiveConf import TimelineSvc

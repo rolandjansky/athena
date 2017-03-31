@@ -22,6 +22,7 @@
 #include "../AlgB.h"
 #include "../AlgC.h"
 #include "../AlgD.h"
+#include "../AlgT.h"
 #include "../CondAlgX.h"
 #include "../CondAlgY.h"
 
@@ -50,6 +51,7 @@ DECLARE_ALGORITHM_FACTORY( AlgA )
 DECLARE_ALGORITHM_FACTORY( AlgB )
 DECLARE_ALGORITHM_FACTORY( AlgC )
 DECLARE_ALGORITHM_FACTORY( AlgD )
+DECLARE_ALGORITHM_FACTORY( AlgT )
 DECLARE_ALGORITHM_FACTORY( CondAlgX )
 DECLARE_ALGORITHM_FACTORY( CondAlgY )
 

@@ -37,7 +37,7 @@
 #include <map>
 #include <vector>
 
-#ifdef ATHENAHIVE
+#ifdef G4MULTITHREADED
 #  include <thread>
 #  include "tbb/concurrent_unordered_map.h"
 #endif
@@ -130,7 +130,7 @@ namespace CaloG4 {
     G4bool ProcessEscapedEnergy( G4ThreeVector point, G4double energy ) const;
 
     // Used to keep track of processing state.
-#ifdef ATHENAHIVE
+#ifdef G4MULTITHREADED
     /// Thread-to-SD concurrent map type
     /// TODO: this needs a redesign. The map structure is bizarre and needless.
     using StCallThreadMap_t = tbb::concurrent_unordered_map

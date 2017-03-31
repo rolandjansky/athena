@@ -13,7 +13,7 @@
 #include "./SchedulerProxy.h"
 #include "./TestViewDriver.h"
 
-
+enum RoIsInView { BareRoIDescriptor = 0, CollectionWithOneElement = 1, CollectionWithAllElements = 2, SuperRoI=3 };
 
 TestViewDriver::TestViewDriver(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
@@ -29,7 +29,8 @@ TestViewDriver::TestViewDriver(const std::string& name, ISvcLocator* pSvcLocator
    
   declareProperty("RoIsContainer", m_roisContainer, "Input RoIs");
   declareProperty("Views", m_views, "Name of the generated view" );
-
+  declareProperty("RoITypeInViews", m_roITypeInViews = 1, "0 - place TrigRoiDesciptor in views, 1 - place Collections wiht single RoI, 2 - place entrie collection in the view, 3 - place SuperRoI in single view ");
+  declareProperty("RoIKeyInViews", m_roIKeyInViews="ANewBeginning", "A key under which the roi descriptors appear in the view");
   declareProperty("OutputClusterContainer", m_outputClusterContainer, "Output collection for clusters");
   declareProperty("OutputClusterContainerAux", m_outputClusterContainerAux, "");
   // declareProperty("OutputProxyContainer", m_outputProxyContainer, "Output proxies - this is returned by each fex and can be used to access actual objects");
@@ -45,38 +46,44 @@ StatusCode TestViewDriver::initialize() {
 StatusCode TestViewDriver::execute() {
 
   if ( not m_roisContainer.isValid() ) {
-    ATH_MSG_ERROR("No decisions object from previous stage");
+    ATH_MSG_ERROR("No RoIs previous stage");
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Running on " << m_roisContainer->size() << " RoIs");
 
-  // Create a temporary WriteHandle to populate the views (this should maybe be done with a configurable handle instead)
-  SG::WriteHandle< ConstDataVector<TrigRoiDescriptorCollection> > roisForTheView("RegionOfReco");
-
-  // Divide the RoIs into a vector of single-element collections, one for each view
-  std::vector< ConstDataVector<TrigRoiDescriptorCollection> > roiCollections;
-  for ( const auto roi: *m_roisContainer.cptr() ) {
-    ConstDataVector<TrigRoiDescriptorCollection> oneRoI;
-    oneRoI.clear(SG::VIEW_ELEMENTS); //Don't delete the RoIs
-    oneRoI.push_back( roi );
-    roiCollections.push_back( oneRoI );
-  }
-
-  // Create the views and populate them
+  
+  //  
   std::vector<SG::View*> viewVector;
-  CHECK( ViewHelper::MakeAndPopulate( name()+"_view",	// Base name for all views to use
-				viewVector,		// Vector to store views
-				roisForTheView,		// A writehandle to use to access the views (the handle itself, not the contents)
-				roiCollections ) );	// Data to initialise each view - one view will be made per entry
+  unsigned int viewCounter = 0;
+  for ( const auto roi: *m_roisContainer.cptr() ) {
+    viewVector.push_back( ViewHelper::makeView(name()+"_view", viewCounter++) );
+
+    // Divide the RoIs into a vector of single-element collections, one for each view
+    if ( m_roITypeInViews == CollectionWithOneElement ) {
+      
+      auto oneRoIColl = new ConstDataVector<TrigRoiDescriptorCollection>;
+      oneRoIColl->clear(SG::VIEW_ELEMENTS); //Don't delete the RoIs
+      oneRoIColl->push_back( roi );
+      CHECK( ViewHelper::addToView(viewVector.back(), m_roIKeyInViews, oneRoIColl ) );
+      ATH_MSG_DEBUG("Placed RoICollection with a single RoI in the view");
+      // just an RoI descriptor in the view
+    } else if ( m_roITypeInViews == BareRoIDescriptor ) {
+      
+      CHECK( ViewHelper::addToView(viewVector.back(), m_roIKeyInViews, new TrigRoiDescriptor(*roi) ) );
+      
+    }
+  }
+  if ( m_roITypeInViews == CollectionWithAllElements ) {
+    viewVector.push_back( ViewHelper::makeView(name()+"_view") );
+    CHECK( ViewHelper::addViewCollectionToView( viewVector.back(), m_roIKeyInViews, m_roisContainer.cptr() ) );    
+  }
+  // missing is super RoI, and not covering the case when this alg can actually comsume more than on RoIs input collections
 
   // Run the views
   CHECK( ViewHelper::RunViews( viewVector,				// Vector to store views
 			m_viewAlgorithmNames,				// Algorithms to run in each view
 			Gaudi::Hive::currentContext(),			// Context to attach the views to
 			serviceLocator()->service( "ViewAlgPool" ) ) );	// Service to retrieve algorithms by name (should make the service name configurable)
-
-  // Create a temporary ReadHandle to access the views (this should maybe be done with a configurable handle instead)
-  SG::ReadHandle< TestClusterContainer > viewClusters("Clusters");
 
   // Harvest the results into a merged collection - currently impossible due to issue with TrigComposite
   m_outputClusterContainer = CxxUtils::make_unique< TestClusterContainer >();
@@ -86,11 +93,10 @@ StatusCode TestViewDriver::execute() {
 				viewClusters,
 				*m_outputClusterContainer ) );*/
 
-
   for ( auto view : viewVector ) {
-    CHECK(viewClusters.setProxyDict(view));
-
-    for ( auto cl: *viewClusters.cptr() ) {
+    const TestClusterContainer* viewClusters = ViewHelper::getFromView<TestClusterContainer>(view, "Clusters");
+    
+    for ( auto cl: *viewClusters ) {
       ATH_MSG_DEBUG("Pulling cluster from the view of Et " << TestEDM::getClusterEt(cl) );
     }
 

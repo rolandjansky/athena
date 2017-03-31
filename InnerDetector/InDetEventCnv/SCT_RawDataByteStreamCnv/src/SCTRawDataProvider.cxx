@@ -7,6 +7,7 @@
 
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "IRegionSelector/IRegSelSvc.h" 
 #include "InDetIdentifier/SCT_ID.h"
 
 /// --------------------------------------------------------------------
@@ -15,14 +16,19 @@
 SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
 				       ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
+  m_regionSelector  ("RegSelSvc", name), 
   m_robDataProvider ("ROBDataProviderSvc",name),
   m_rawDataTool     ("SCTRawDataProviderTool",this),
   m_cabling         ("SCT_CablingSvc",name),
   m_sct_id(nullptr),
+  m_roiSeeded(false),
+  m_roiCollectionKey(""),
   m_rdoContainerKey(""),
   m_lvl1CollectionKey(""),
   m_bcidCollectionKey("")
 {
+  declareProperty("RoIs", m_roiCollectionKey = std::string(""), "RoIs to read in");
+  declareProperty("isRoI_Seeded", m_roiSeeded = false, "Use RoI");
   declareProperty("RDOKey", m_rdoContainerKey = std::string("SCT_RDOs"));
   declareProperty("LVL1IDKey", m_lvl1CollectionKey = std::string("SCT_LVL1ID"));
   declareProperty("BCIDKey", m_bcidCollectionKey = std::string("SCT_BCID"));
@@ -40,8 +46,14 @@ StatusCode SCTRawDataProvider::initialize() {
   ATH_CHECK(m_rawDataTool.retrieve());
   /** Get the SCT ID helper **/
   ATH_CHECK(detStore()->retrieve(m_sct_id,"SCT_ID"));
-  /** Retrieve Cabling service */ 
-  ATH_CHECK(m_cabling.retrieve());
+  if (m_roiSeeded) {//Don't need SCT cabling if running in RoI-seeded mode
+    ATH_CHECK( m_roiCollectionKey.initialize() );
+    ATH_CHECK(m_regionSelector.retrieve());
+  }
+  else {
+    /** Retrieve Cabling service */ 
+    ATH_CHECK(m_cabling.retrieve());
+  }
   //Initialize 
   ATH_CHECK( m_rdoContainerKey.initialize() );
   ATH_CHECK( m_lvl1CollectionKey.initialize() );
@@ -62,9 +74,29 @@ StatusCode SCTRawDataProvider::execute() {
 
   /** ask ROBDataProviderSvc for the vector of ROBFragment for all SCT ROBIDs */
   std::vector<const ROBFragment*> listOfRobf;
-  std::vector<boost::uint32_t> rodList;
-  m_cabling->getAllRods(rodList);
+  if (!m_roiSeeded) {
+    std::vector<uint32_t> rodList;
+    m_cabling->getAllRods(rodList);
   m_robDataProvider->getROBData( rodList , listOfRobf);
+  }
+  else {//Only load ROBs from RoI
+    std::vector<uint32_t> listOfRobs;
+    SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey);
+    ATH_CHECK(roiCollection.isValid());
+    TrigRoiDescriptorCollection::const_iterator roi = roiCollection->begin();
+    TrigRoiDescriptorCollection::const_iterator roiE = roiCollection->end();
+    TrigRoiDescriptor superRoI;//add all RoIs to a super-RoI
+    superRoI.setComposite(true);
+    superRoI.manageConstituents(false);
+    for (; roi!=roiE; ++roi) {
+      superRoI.push_back(*roi);
+    }
+    m_regionSelector->DetROBIDListUint(SCT, 
+        superRoI,
+        listOfRobs);
+    m_robDataProvider->getROBData( listOfRobs, listOfRobf);
+  }
+
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of ROB fragments " << listOfRobf.size() << endmsg;
 

@@ -41,9 +41,7 @@ ISF::TruthSvc::TruthSvc(const std::string& name,ISvcLocator* svc) :
   m_passWholeVertex(true),
   m_forceEndVtxRegionsVec(),
   m_forceEndVtx(),
-  m_quasiStableParticlesIncluded(false),
-  m_secondaryParticleBcOffset(Barcode::fUndefinedBarcode),
-  m_myLowestVertexBC(Barcode::fUndefinedBarcode)
+  m_quasiStableParticlesIncluded(false)
 {
     // the barcode service (used to compute Vertex Barco des)
     declareProperty("BarcodeSvc",                        m_barcodeSvc              );
@@ -137,9 +135,6 @@ StatusCode ISF::TruthSvc::finalize()
 /** Initialize the TruthSvc and the truthSvc */
 StatusCode ISF::TruthSvc::initializeTruthCollection()
 {
-  m_myLowestVertexBC          = m_barcodeSvc->secondaryVertexBcOffset();
-  m_secondaryParticleBcOffset = m_barcodeSvc->secondaryParticleBcOffset();
-
   return StatusCode::SUCCESS;
 }
 
@@ -150,7 +145,7 @@ StatusCode ISF::TruthSvc::releaseEvent() {
 
 
 /** Register a truth incident */
-void ISF::TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) {
+void ISF::TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) const {
 
   // pass whole vertex or individual child particles
   ti.setPassWholeVertices(m_passWholeVertex);
@@ -212,7 +207,7 @@ void ISF::TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) {
 }
 
 /** Record the given truth incident to the MC Truth */
-void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
+void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) const {
 
   Barcode::PhysicsProcessCode processCode = ti.physicsProcessCode();
   Barcode::ParticleBarcode       parentBC = ti.parentBarcode();
@@ -259,19 +254,6 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
       ATH_MSG_VERBOSE ( "Writing out " << i << "th child particle: " << *p);
       // add particle to vertex
       vtx->add_particle_out( p);
-
-      // Check to see if this is meant to be a "parent" vertex
-      if ( p && p->barcode() < m_secondaryParticleBcOffset ){
-        vtx->suggest_barcode( m_myLowestVertexBC );
-        ++m_myLowestVertexBC;
-        if (m_quasiStableParticlesIncluded){
-          ATH_MSG_VERBOSE( "Found a case of low barcode (" << p->barcode() << " < " <<
-                           m_secondaryParticleBcOffset  << " changing vtx barcode to " << m_myLowestVertexBC+1 );
-        } else {
-          ATH_MSG_WARNING( "Modifying vertex barcode, but no apparent quasi-stable particle simulation enabled." );
-          ATH_MSG_WARNING( "This means that you have encountered a very strange configuration.  Watch out!" );
-        }
-      }
     } // <-- if write out child particle
     else {
       ATH_MSG_VERBOSE ( "Not writing out " << i << "th child particle." );
@@ -281,7 +263,7 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
 }
 
 /** Record the given truth incident to the MC Truth */
-HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIncident& ti) {
+HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIncident& ti) const {
 
   Barcode::PhysicsProcessCode processCode = ti.physicsProcessCode();
   Barcode::ParticleBarcode       parentBC = ti.parentBarcode();
@@ -316,8 +298,6 @@ HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIn
     }
   }
   int vtxID = 1000 + static_cast<int>(processCode);
-  HepMC::GenVertex *vtx = new HepMC::GenVertex( ti.position(), vtxID, weights );
-  vtx->suggest_barcode( vtxbcode );
 
   if (parent->end_vertex()){
     if(!m_quasiStableParticlesIncluded) {
@@ -327,19 +307,20 @@ HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIn
       ATH_MSG_WARNING("Will delete the old vertex and swap in the new one.");
     }
 
+    // Set the vertex barcode to use the old vertex barcode
+    vtxbcode = parent->end_vertex()->barcode();
+
     // Remove the old vertex from the event
     parent->parent_event()->remove_vertex( parent->end_vertex() );
-
-    // Now add the new vertex to the new parent
-    vtx->add_particle_in( parent );
-    ATH_MSG_VERBOSE ( "QS End Vertex representing process: " << processCode << ", for parent with barcode "<<parentBC<<". Creating." );
-    ATH_MSG_VERBOSE ( "Parent: " << *parent);
-  } else { // Normal simulation
-    // add parent particle to vtx
-    vtx->add_particle_in( parent );
-    ATH_MSG_VERBOSE ( "End Vertex representing process: " << processCode << ", for parent with barcode "<<parentBC<<". Creating." );
-    ATH_MSG_VERBOSE ( "Parent: " << *parent);
   }
+
+  HepMC::GenVertex *vtx = new HepMC::GenVertex( ti.position(), vtxID, weights );
+  vtx->suggest_barcode( vtxbcode );
+
+  // Now add the new vertex to the new parent
+  vtx->add_particle_in( parent );
+  ATH_MSG_VERBOSE ( "End Vertex representing process: " << processCode << ", for parent with barcode "<<parentBC<<". Creating." );
+  ATH_MSG_VERBOSE ( "Parent: " << *parent);
 
   mcEvent->add_vertex( vtx );
 
@@ -347,7 +328,7 @@ HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIn
 }
 
 /** Set shared barcode for child particles particles */
-void ISF::TruthSvc::setSharedChildParticleBarcode( ISF::ITruthIncident& ti) {
+void ISF::TruthSvc::setSharedChildParticleBarcode( ISF::ITruthIncident& ti) const {
   Barcode::PhysicsProcessCode processCode = ti.physicsProcessCode();
   Barcode::ParticleBarcode       parentBC = ti.parentBarcode();
 
