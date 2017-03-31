@@ -76,9 +76,7 @@ private:
       x = rangeCenter + roots[i] * rangeHalfWidth;
       I += weights[i] * m_integrand->evaluate(x);
     }
-    if (I < 0. || rangeHalfWidth < 0.){
-      std::cout << "I = " << I << "\trange = " << range.print() << std::endl;
-    }
+    if (I < 0. || rangeHalfWidth < 0.) std::cerr << "eflowCellIntergrator::DoGaussLegendreIntegration WARNING: I = " << I << "\trange = " << range.print() << std::endl;
 
     return I * rangeHalfWidth;
   }
