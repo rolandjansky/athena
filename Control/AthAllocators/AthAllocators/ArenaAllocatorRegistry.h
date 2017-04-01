@@ -18,6 +18,7 @@
 #define ATLALLOCATORS_ARENAALLOCATORREGISTRY_H
 
 
+#include "AthAllocators/ArenaAllocatorCreator.h"
 #include <cstdlib>
 #include <string>
 #include <memory>
@@ -27,7 +28,6 @@ namespace SG {
 
 
 class ArenaAllocatorBase;
-class ArenaAllocatorCreator;
 class ArenaAllocatorRegistryImpl;
 
 
