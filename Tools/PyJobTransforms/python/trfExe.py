@@ -1496,8 +1496,8 @@ class hybridPOOLMergeExecutor(athenaExecutor):
         fastConf = copy.copy(self.conf)
         fastConf.addToArgdict('checkEventCount', trfArgClasses.argSubstepBool("all:False", runarg=False))
         fastEventMerge1 = scriptExecutor(name='fastEventMerge_step1', conf=fastConf, inData=self._inData, outData=self._outData,
-                                        exe='mergePOOL.exe', exeArgs=None)
-        fastEventMerge1._cmd = ['mergePOOL.exe', '-o', self._hybridMergeTmpFile]
+                                        exe='mergePOOL', exeArgs=None)
+        fastEventMerge1._cmd = ['mergePOOL', '-o', self._hybridMergeTmpFile]
         for fname in self.conf.dataDictionary[list(self._input)[0]].value:
             fastEventMerge1._cmd.extend(['-i', fname])
         fastEventMerge1._cmd.extend(['-e', 'MetaData', '-e', 'MetaDataHdrDataHeaderForm', '-e', 'MetaDataHdrDataHeader', '-e', 'MetaDataHdr', '-e', 'MetaDataHdrForm'])
@@ -1507,14 +1507,14 @@ class hybridPOOLMergeExecutor(athenaExecutor):
         
 
         fastEventMerge2 = scriptExecutor(name='fastEventMerge_step2', conf=fastConf, inData=self._inData, outData=self._outData,
-                                        exe='mergePOOL.exe', exeArgs=None)
-        fastEventMerge2._cmd = ['mergePOOL.exe', '-o', self._hybridMergeTmpFile]
+                                        exe='mergePOOL', exeArgs=None)
+        fastEventMerge2._cmd = ['mergePOOL', '-o', self._hybridMergeTmpFile]
         fastEventMerge2._cmd.extend(['-i', self.conf.dataDictionary[list(self._output)[0]].value[0]])
 
         msg.debug('Constructed this command line for fast event merge step 2: {0}'.format(fastEventMerge2._cmd))
         fastEventMerge2.doAll()
         
-        # Ensure we count all the mergePOOL.exe stuff in the resource report
+        # Ensure we count all the mergePOOL stuff in the resource report
         self._exeStop = os.times()
         msg.debug('+++ exeStop time is {0}'.format(self._exeStop))
 
