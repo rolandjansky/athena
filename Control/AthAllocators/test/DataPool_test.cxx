@@ -8,6 +8,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "TestTools/initGaudi.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <cassert>
 #include <iostream>
@@ -44,7 +45,50 @@ class Fluff
 
 };
 
-int main ()
+
+void test_slots()
+{
+  SG::ArenaHeader& head = *SG::ArenaHeader::defaultHeader();
+  SG::Arena a1 ("1");
+  SG::Arena a2 ("2");
+  head.setArenaForSlot (1, &a1);
+  head.setArenaForSlot (2, &a2);
+
+  {
+    DataPool<Fluff> pool (EventContext (0, 1));
+    Fluff* f = pool.nextElementPtr();
+    f->setPar(0);
+  }
+
+  assert (head.reportStr() == "\
+=== 1 ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       1/   1023/   1024      80/  49104/  49184       1/      0/      1  SG::ArenaCachingHandle<Fluff,SG::ArenaPoolAllocator>\n\
+=== 2 ===\n\
+=== default ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+    1500/    548/   2048   72064/  26304/  98368       2/      0/      2  SG::ArenaCachingHandle<Fluff,SG::ArenaPoolAllocator>\n");
+
+  {
+    DataPool<Fluff> pool (EventContext (0, 2));
+    Fluff* f = pool.nextElementPtr();
+    f->setPar(0);
+  }
+
+  assert (head.reportStr() == "\
+=== 1 ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       1/   1023/   1024      80/  49104/  49184       1/      0/      1  SG::ArenaCachingHandle<Fluff,SG::ArenaPoolAllocator>\n\
+=== 2 ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       1/   1023/   1024      80/  49104/  49184       1/      0/      1  SG::ArenaCachingHandle<Fluff,SG::ArenaPoolAllocator>\n\
+=== default ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+    1500/    548/   2048   72064/  26304/  98368       2/      0/      2  SG::ArenaCachingHandle<Fluff,SG::ArenaPoolAllocator>\n");
+}
+
+
+int main ATLAS_NOT_THREAD_SAFE ()
 {
 
 	ISvcLocator* pSvcLoc;
@@ -135,6 +179,8 @@ int main ()
 
 	// call the pool destructor
 	delete df;
+
+        test_slots();
 
 	cout << " **** DataPool test successfully completed **** " << endl;
 	p_svc->chronoStop("ChronoStatSvc");

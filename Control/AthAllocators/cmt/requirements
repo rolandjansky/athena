@@ -8,6 +8,7 @@ use AtlasBoost     AtlasBoost-*     External
 
 
 private
+use CxxUtils       CxxUtils-*       Control
 end_private
 
   

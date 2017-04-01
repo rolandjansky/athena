@@ -26,11 +26,9 @@ namespace SG {
  * @param name   Value to use as the base for the allocator names.
  */
 ArenaSharedHeapSTLHeader::ArenaSharedHeapSTLHeader (const void* owner,
-                                                    int nblock,
-                                                    const std::string& name)
+                                                    int nblock)
   : m_owner (owner),
-    m_nblock (nblock),
-    m_name (name)
+    m_nblock (nblock)
 {
 }
 

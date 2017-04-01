@@ -90,10 +90,13 @@ public:
   /// Constructors:
   //////////////////////////////////////////////////////////////////////
 
-  /// default constructor will initialize the pool with m_minRefCount
-  DataPool(size_type n = 0,
-           size_type block_size = 0,
-           SG::Arena* arena = 0);
+  DataPool(size_type n = 0);
+
+  DataPool(const EventContext& ctx,
+           size_type n = 0);
+ 
+  DataPool(SG::Arena* arena,
+           size_type n = 0);
  
   ///////////////////////////////////////////////////////
 
@@ -149,9 +152,12 @@ public:
 
    handle_t m_handle;
 
+   const static typename alloc_t::Params s_params;
+
   /// minimum number of elements in pool
-  static const unsigned int m_minRefCount = 1024;
+  static const unsigned int s_minRefCount = 1024;
 };
+
 
 #include "AthAllocators/DataPool.icc"
 

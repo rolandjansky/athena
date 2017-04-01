@@ -16,8 +16,13 @@
 #include "AthAllocators/ArenaAllocatorRegistry.h"
 #include "AthAllocators/ArenaAllocatorCreator.h"
 #include "AthAllocators/ArenaBase.h"
+#include "CxxUtils/checker_macros.h"
 #include <cassert>
-#include <ostream>
+#include <iostream>
+
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 
 std::string reset;
 class TestAlloc
@@ -29,7 +34,7 @@ public:
   virtual void reset() override { ::reset = m_name; }
   virtual void erase() override {}
   virtual void reserve (size_t /*size*/) override {}
-  virtual const SG::ArenaAllocatorBase::Stats& stats() const override
+  virtual SG::ArenaAllocatorBase::Stats stats() const override
   { return m_stats; }
   virtual const std::string& name() const override { return m_name; }
 private:
@@ -41,14 +46,16 @@ class Creator
   : public SG::ArenaAllocatorCreator
 {
 public:
-  Creator (int x) : m_x (x) {}
-  virtual SG::ArenaAllocatorBase* create() override
-  { return new TestAlloc (m_x, "creat"); }
+  Creator (int x, const char* name) : m_x (x), m_name (name) {}
+  virtual std::unique_ptr<SG::ArenaAllocatorBase> create() override
+  { return std::make_unique<TestAlloc> (m_x, m_name); }
 private:
   int m_x;
+  std::string m_name;
 };
 
 
+#if 0
 class TestArena
   : public SG::ArenaBase
 {
@@ -61,55 +68,87 @@ private:
   std::string m_name;
   int m_x;
 };
+#endif
 
 
 void test1()
 {
-  SG::ArenaHeader::ArenaAllocVec_t vec1;
-  vec1.resize (10);
-  vec1[2] = new TestAlloc (0, "a");
-  SG::ArenaHeader::ArenaAllocVec_t vec2;
-  vec2.resize (10);
-  vec2[5] = new TestAlloc (1, "b");
+  SG::ArenaAllocatorRegistry* reg =
+    SG::ArenaAllocatorRegistry::instance();
+  assert (reg->registerCreator ("a", std::make_unique<Creator>(0, "a")) == 0);
+  assert (reg->registerCreator ("b", std::make_unique<Creator>(1, "b")) == 1);
 
+  SG::ArenaBase a1;
+  SG::ArenaBase a2;
   SG::ArenaHeader* head = SG::ArenaHeader::defaultHeader();
-  assert (head->setAllocVec(&vec1) == nullptr);
-  assert (head->allocator(2) == vec1[2]);
-  assert (head->setAllocVec(&vec2) == &vec1);
-  assert (head->allocator(5) == vec2[5]);
+  assert (head->setArena (&a1) == nullptr);
+  assert (head->allocator (0)->name() == "a");
+  assert (head->setArena (&a2) == &a1);
+  assert (head->allocator (1)->name() == "b");
+
+  {
+    std::ostringstream os;
+    a1.report (os);
+    assert (os.str() == "Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  a\n");
+  }
+  {
+    std::ostringstream os;
+    a2.report (os);
+    assert (os.str() == "Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      1       0/      0/      0  b\n");
+  }
+  
   head->reset();
   assert (reset == "b");
 
-  SG::ArenaHeader::ArenaAllocVec_t vec3;
-  assert (head->setAllocVec(nullptr) == &vec2);
-  SG::ArenaAllocatorRegistry* reg =
-    SG::ArenaAllocatorRegistry::instance();
-  size_t i = reg->registerCreator ("foo", new Creator (1));
-  assert (i == 0);
-  assert (head->allocator(i)->stats().bytes.total == 1);
+  assert (head->setArena (nullptr) == &a2);
+  size_t i = reg->registerCreator ("foo", std::make_unique<Creator> (1, "foo"));
+  assert (i == 2);
+  assert (head->allocator (i)->stats().bytes.total == 1);
+
+  head->setArenaForSlot (1, &a1);
+  head->setArenaForSlot (2, &a2);
+  EventContext ctx1 (0, 1);
+  EventContext ctx2 (0, 2);
+  SG::ArenaAllocatorBase* a1_0 = a1.allocator (0).get();
+  SG::ArenaAllocatorBase* a2_1 = a2.allocator (1).get();
+  assert (head->allocator (ctx1, 0).get() == a1_0);
+  assert (head->allocator (ctx2, 1).get() == a2_1);
+
+  EventContext ctxx (0, 0);
+  SG::ArenaAllocatorBase* ax_2 = head->allocator (i).get();
+  assert (head->allocator (ctxx, i).get() == ax_2);
 }
 
 
 void test2()
 {
   SG::ArenaHeader head;
-  TestArena a1 ("a1", 1);
-  TestArena a2 ("a2", 2);
+  SG::ArenaBase a1 ("a1");
+  SG::ArenaBase a2 ("a2");
   head.addArena (&a1);
   head.addArena (&a2);
+  a1.allocator (0);
+  a2.allocator (1);
   std::string s = head.reportStr();
   assert (s == "=== a1 ===\n\
-foo 1\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  a\n\
 === a2 ===\n\
-foo 2\n");
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      1       0/      0/      0  b\n\
+=== default ===\n");
+
   head.delArena (&a1);
-  assert (head.allocator(0)->stats().bytes.total == 1);
+  assert (head.allocator(1)->stats().bytes.total == 1);
   s = head.reportStr();
   assert (s == "=== a2 ===\n\
-foo 2\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      1       0/      0/      0  b\n\
 === default ===\n\
 Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
-       0/      0/      0       0/      0/      1       0/      0/      0  creat\n");
+       0/      0/      0       0/      0/      1       0/      0/      0  b\n");
 
 }
 

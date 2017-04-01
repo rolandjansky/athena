@@ -19,6 +19,7 @@
 
 
 #include <cstdlib>
+#include <atomic>
 
 
 namespace SG {
@@ -189,7 +190,7 @@ private:
 
 
   /// Global count of the number of blocks in use.
-  static size_t s_nactive;
+  static std::atomic<size_t> s_nactive;
 };
 
 

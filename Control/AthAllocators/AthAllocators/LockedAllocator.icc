@@ -1,0 +1,73 @@
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthAllocators/LockedAllocator.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Mar, 2017
+ * @brief A pointer type that holds a lock on an allocator object.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Constructor.
+ * @param alloc The allocator object to which we're pointing.
+ * @oaram mutex The mutex to lock.
+ */
+inline
+LockedAllocator::LockedAllocator (ArenaAllocatorBase* alloc, std::mutex& mutex)
+  : m_alloc (alloc),
+    m_lock (mutex)
+{
+}
+
+
+/**
+ * @brief Dereference the pointer.
+ */
+inline
+ArenaAllocatorBase& LockedAllocator::operator*()
+{
+  return *m_alloc;
+}
+
+
+/**
+ * @brief Dereference the pointer.
+ */
+inline
+ArenaAllocatorBase* LockedAllocator::operator->()
+{
+  return m_alloc;
+}
+
+
+/**
+ * @brief Return the underlying pointer.
+ */
+inline
+ArenaAllocatorBase* LockedAllocator::get()
+{
+  return m_alloc;
+}
+
+  
+/**
+ * @brief Return the underlying pointer.
+ */
+inline
+const ArenaAllocatorBase* LockedAllocator::get() const
+{
+  return m_alloc;
+}
+
+
+} // namespace SG
+
+

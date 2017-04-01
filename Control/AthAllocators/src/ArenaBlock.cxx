@@ -21,7 +21,7 @@ namespace SG {
 
 
 /// Global number of blocks in use.
-size_t ArenaBlock::s_nactive = 0;
+std::atomic<size_t> ArenaBlock::s_nactive;
 
 
 /**

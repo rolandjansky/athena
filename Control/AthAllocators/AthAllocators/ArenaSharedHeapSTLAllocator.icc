@@ -43,39 +43,18 @@ void ArenaSharedHeapSTLHeader::maybe_delete (const void* a)
 template <class T>
 std::string ArenaSharedHeapSTLHeader::get_name()
 {
-  return m_name + "::ArenaSharedHeapSTLAllocator<" +
+  return "ArenaSharedHeapSTLAllocator<" +
     System::typeinfoName (typeid (T)) + ">";
 }
 
 
 /**
  * @brief Return the heap allocator for type @c T.
- * @param index Reference to the index for type @c T.
- *              Before the first call, this should be initialized
- *              to std::string::npos.  This should generally
- *              be a static variable.
  */
 template <class T>
-ArenaHeapAllocator* ArenaSharedHeapSTLHeader::get_pool (size_t& index)
+ArenaHeapAllocator* ArenaSharedHeapSTLHeader::get_pool()
 {
-  // If we need the name, we'll put it here.
-  std::string name;
-
-  // If we don't have an index yet, ask the global registry.
-  // Note: We're only using the registry for the name<->index
-  // mapping; we're not using it to construct the allocators
-  // for us.  This, we pass in a null pointer for the constructor.
-  // (We don't construct the allocators from the registry because
-  // we cant to be able to change the number of blocks from instance
-  // to instance, but there's no way passing that to the Registry
-  // interface.)
-  if (index == std::string::npos) {
-    name = get_name<T>();
-    ArenaAllocatorRegistry* reg = ArenaAllocatorRegistry::instance();
-    index = reg->lookup (name);
-    if (index == std::string::npos)
-      index = reg->registerCreator (name, 0);
-  }
+  const static size_t index = get_index<T>();
 
   // Expand the list of allocators if needed.
   if (index >= m_allocators.size())
@@ -83,10 +62,8 @@ ArenaHeapAllocator* ArenaSharedHeapSTLHeader::get_pool (size_t& index)
 
   // Create the allocator if we haven't done so yet.
   if (!m_allocators[index]) {
-    if (name.empty()) // Only construct the name once.
-      name = get_name<T>();
     m_allocators[index] = new ArenaHeapAllocator
-      (ArenaHeapSTLAllocator_initParams<T> (m_nblock, name));
+      (ArenaHeapSTLAllocator_initParams<T> (m_nblock, get_name<T>()));
   }
 
   // Return the allocator.
@@ -110,26 +87,42 @@ void ArenaSharedHeapSTLHeader::update_owner (const void* old_owner,
 }
 
 
+/**
+ * @brief Return the allocator index to use for type @c T.
+ */
+template <class T>
+size_t ArenaSharedHeapSTLHeader::get_index()
+{
+  // Note: We're only using the registry for the name<->index
+  // mapping; we're not using it to construct the allocators
+  // for us.  This, we pass in a null pointer for the constructor.
+  // (We don't construct the allocators from the registry because
+  // we cant to be able to change the number of blocks from instance
+  // to instance, but there's no way passing that to the Registry
+  // interface.)
+
+  std::string name = get_name<T>();
+  ArenaAllocatorRegistry* reg = ArenaAllocatorRegistry::instance();
+  size_t index = reg->lookup (name);
+  if (index == std::string::npos)
+    index = reg->registerCreator (name, 0);
+  return index;
+}
+
 
 //===========================================================================
-
-
-template <class T>
-size_t ArenaSharedHeapSTLAllocator<T>::s_index = -1;
 
 
 /**
  * @brief Default constructor.
  * @param nblock Value to set in the parameters structure for the
  *               number of elements to allocate per block.
- * @param name   Value to use as the base for the allocator names.
  */
 template <class T>
 ArenaSharedHeapSTLAllocator<T>::ArenaSharedHeapSTLAllocator
-  (size_t nblock /*= 1000*/,
-   const std::string& name /*= ""*/)
-    : m_header (new ArenaSharedHeapSTLHeader (this, nblock, name)),
-      m_pool (0)
+  (size_t nblock /*= 1000*/)
+    : m_header (new ArenaSharedHeapSTLHeader (this, nblock)),
+      m_pool (m_header->get_pool<T>())
 {
 }
 
@@ -144,8 +137,8 @@ template <class T>
 inline
 ArenaSharedHeapSTLAllocator<T>::ArenaSharedHeapSTLAllocator
   (const ArenaSharedHeapSTLAllocator& a)
-    : m_header (const_cast<ArenaSharedHeapSTLHeader*>(a.m_header)),
-      m_pool (const_cast<ArenaHeapAllocator*> (a.m_pool))
+    : m_header (a.m_header),
+      m_pool (a.m_pool)
 {
 }
 
@@ -161,8 +154,8 @@ template <class U>
 inline
 ArenaSharedHeapSTLAllocator<T>::ArenaSharedHeapSTLAllocator
   (const ArenaSharedHeapSTLAllocator<U>& a)
-    : m_header (const_cast<ArenaSharedHeapSTLHeader*>(a.m_header)),
-      m_pool (0)
+    : m_header (a.m_header),
+      m_pool (m_header->get_pool<T>())
 {
 }
 
@@ -444,7 +437,7 @@ void ArenaSharedHeapSTLAllocator<T>::reserve (size_t size)
  * @brief Return the statistics block for this allocator.
  */
 template <class T>
-const ArenaAllocatorBase::Stats&
+ArenaAllocatorBase::Stats
 ArenaSharedHeapSTLAllocator<T>::stats() const
 {
   return poolptr()->stats();
@@ -465,14 +458,22 @@ ArenaAllocatorBase::Stats ArenaSharedHeapSTLAllocator<T>::totstats() const
 
 /**
  * @brief Return a pointer to the underlying allocator.
- *        This creates the allocator if needed.
  */
 template <class T>
 inline
-ArenaHeapAllocator* ArenaSharedHeapSTLAllocator<T>::poolptr() const
+ArenaHeapAllocator* ArenaSharedHeapSTLAllocator<T>::poolptr()
 {
-  if (!m_pool)
-    get_pool();
+  return m_pool;
+}
+
+
+/**
+ * @brief Return a pointer to the underlying allocator.
+ */
+template <class T>
+inline
+const ArenaHeapAllocator* ArenaSharedHeapSTLAllocator<T>::poolptr() const
+{
   return m_pool;
 }
 
@@ -485,18 +486,6 @@ template <class T>
 void ArenaSharedHeapSTLAllocator<T>::report (std::ostream& os) const
 {
   m_header->report(os);
-}
-
-
-/**
- * @brief Ask the Header for the allocator to use.
- *        This will either return an existing one or create a new one.
- */
-template <class T>
-inline
-void ArenaSharedHeapSTLAllocator<T>::get_pool() const
-{
-  m_pool = m_header->get_pool<T> (s_index);
 }
 
 
