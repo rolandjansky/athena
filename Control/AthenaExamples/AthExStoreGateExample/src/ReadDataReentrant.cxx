@@ -126,7 +126,6 @@ StatusCode ReadDataReentrant::execute_r (const EventContext& ctx) const
   std::vector<SG::ReadHandle<MyDataObj> > vh = m_dobjKeyArray.makeHandles (ctx);
   for (size_t i = 0; i < vh.size(); i++) {
     assert (vh[i]->val() == static_cast<int> (100+i));
-    ++i;
   }
   
 #if 0
