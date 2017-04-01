@@ -66,9 +66,9 @@ def defineCPSGroups():
                                             'e60_lhvloose_nod0'],
 
 
-        "RATE:CPS:HLT_e24_medium_L1EM18VH" : ['e24_lhmedium_L1EM18VH',
-                                                'e24_lhmedium_nod0_L1EM18VH', 
-                                                ],
+#        "RATE:CPS:HLT_e24_medium_L1EM18VH" : ['e24_lhmedium_L1EM18VH',
+#                                                'e24_lhmedium_nod0_L1EM18VH', 
+#                                                ],
         
         "RATE:CPS:HLT_e24_tight_L1EM20VH" :  ['e24_lhtight_L1EM20VH',
                                                 'e24_lhtight_nod0_L1EM20VH',
@@ -82,8 +82,8 @@ def defineCPSGroups():
         #                                                 'e5_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5',],
 
 
-        'RATE:CPS:HLT_e24_medium_L1EM18VH': ['e24_lhmedium_L1EM18VH',
-                                             'e24_lhmedium_nod0_L1EM18VH',],
+ #       'RATE:CPS:HLT_e24_medium_L1EM18VH': ['e24_lhmedium_L1EM18VH',
+ #                                            'e24_lhmedium_nod0_L1EM18VH',],
         
         'RATE:CPS:HLT_e18_etcut_trkcut_xs20' :['e18_etcut_trkcut_xs20_mt35',
                                                'e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35',
@@ -337,9 +337,15 @@ def defineCPSGroups():
                                            'mu4_j35_bperf_split_dr05_dz02',
                                            'mu4_j35_bperf_split',
 				       ],
+        'RATE:CPS:HLT_e24_medium_L1EM18VH' : ['e24_lhmedium_L1EM18VH',
+                                                'e24_lhmedium_nod0_L1EM18VH',
+		],
         })
     if "v7" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
+        'RATE:CPS:HLT_e24_medium_L1EM18VHI' : ['e24_lhmedium_L1EM18VHI',
+                                                'e24_lhmedium_nod0_L1EM18VHI',
+                ],
             'RATE:CPS:HLT_mu_jet_L1MU6_J75' : [
                 'mu6_j260_bperf_split_dr05_dz02',
                 'mu6_j320_bperf_split_dr05_dz02',

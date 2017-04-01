@@ -91,7 +91,8 @@ class ThresholdDef:
             .addThrValue(15, -17, -15, priority=2).addThrValue(15, 15, 17, priority=2)\
             .addThrValue(16, -25, -17, priority=2).addThrValue(16, 17, 25, priority=2)
         
-        tc.registerThr( 'EM18VH', type='EM').addThrValue(20, priority=1)\
+        if not '_v7' in TriggerFlags.triggerMenuSetup():
+           tc.registerThr( 'EM18VH', type='EM').addThrValue(20, priority=1)\
             .addThrValue(20, -7, 0, priority=2).addThrValue(20, 0, 7, priority=2)\
             .addThrValue(19, -8, -7, priority=2).addThrValue(19, 7, 8, priority=2)\
             .addThrValue(18, -11, -8, priority=2).addThrValue(18, 8, 11, priority=2)\
@@ -121,6 +122,32 @@ class ThresholdDef:
 
 
         # (V)HI section
+
+        # new egamma v7 menu (ATR-16089)
+        if '_v7' in TriggerFlags.triggerMenuSetup():
+           ThresholdValue.setDefaults('EM', {'isobits' : '01000', 'use_relIso' : True })
+
+           tc.registerThr( 'EM22VHIM', type='EM').addThrValue(24, priority=1)\
+            .addThrValue(24, -7, 0, priority=2).addThrValue(24, 0, 7, priority=2)\
+            .addThrValue(23, -8, -7, priority=2).addThrValue(23, 7, 8, priority=2)\
+            .addThrValue(22, -11, -8, priority=2).addThrValue(22, 8, 11, priority=2)\
+            .addThrValue(21, -13, -11, priority=2).addThrValue(21, 11, 13, priority=2)\
+            .addThrValue(20, -14, -13, priority=2).addThrValue(20, 13, 14, priority=2)\
+            .addThrValue(19, -15, -14, priority=2).addThrValue(19, 14, 15, priority=2)\
+            .addThrValue(21, -17, -15, priority=2).addThrValue(21, 15, 17, priority=2)\
+            .addThrValue(23, -25, -17, priority=2).addThrValue(23, 17, 25, priority=2)
+
+           tc.registerThr( 'EM24VHIM', type='EM').addThrValue(24, priority=1)\
+            .addThrValue(26, -7, 0, priority=2).addThrValue(26, 0, 7, priority=2)\
+            .addThrValue(25, -8, -7, priority=2).addThrValue(25, 7, 8, priority=2)\
+            .addThrValue(24, -11, -8, priority=2).addThrValue(24, 8, 11, priority=2)\
+            .addThrValue(23, -13, -11, priority=2).addThrValue(23, 11, 13, priority=2)\
+            .addThrValue(22, -14, -13, priority=2).addThrValue(22, 13, 14, priority=2)\
+            .addThrValue(21, -15, -14, priority=2).addThrValue(21, 14, 15, priority=2)\
+            .addThrValue(23, -17, -15, priority=2).addThrValue(23, 15, 17, priority=2)\
+            .addThrValue(25, -25, -17, priority=2).addThrValue(25, 17, 25, priority=2)
+
+
         ThresholdValue.setDefaults('EM', {'isobits' : '00100', 'use_relIso' : True })
 
         if '_v7' in TriggerFlags.triggerMenuSetup():
@@ -177,8 +204,9 @@ class ThresholdDef:
             .addThrValue(21, -15, -14, priority=2).addThrValue(21, 14, 15, priority=2)\
             .addThrValue(23, -17, -15, priority=2).addThrValue(23, 15, 17, priority=2)\
             .addThrValue(25, -25, -17, priority=2).addThrValue(25, 17, 25, priority=2)
-        
-        tc.registerThr( 'EM26VHI', type='EM').addThrValue(26, priority=1)\
+       
+        if not '_v7' in TriggerFlags.triggerMenuSetup(): 
+           tc.registerThr( 'EM26VHI', type='EM').addThrValue(26, priority=1)\
             .addThrValue(28, -7, 0, priority=2).addThrValue(28, 0, 7, priority=2)\
             .addThrValue(27, -8, -7, priority=2).addThrValue(27, 7, 8, priority=2)\
             .addThrValue(26, -11, -8, priority=2).addThrValue(26, 8, 11, priority=2)\
