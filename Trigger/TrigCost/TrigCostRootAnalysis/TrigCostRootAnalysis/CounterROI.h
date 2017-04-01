@@ -21,7 +21,6 @@
 #include <Rtypes.h>
 
 namespace TrigCostRootAnalysis {
-
   //Forward declaration
   class TrigCostData;
 
@@ -32,23 +31,18 @@ namespace TrigCostRootAnalysis {
    * @see CounterBase
    * @see MonitorROI
    */
-  class CounterROI : public CounterBase {
-
-   public:
-
-    CounterROI( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10, MonitorBase* _parent = 0 );
+  class CounterROI: public CounterBase {
+  public:
+    CounterROI(const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10,
+               MonitorBase* _parent = 0);
     ~CounterROI();
     void startEvent();
     void processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight = 1.);
     void endEvent(Float_t _weight = 1.);
     void debug(UInt_t _e);
-
-   private:
-
+  private:
     Double_t getPrescaleFactor(UInt_t _e = INT_MAX);
-
   }; //class CounterROI
-
 } // namespace TrigCostRootAnalysis
 
 #endif //TrigCostRootAnalysis_CounterROI_H

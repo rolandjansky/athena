@@ -24,24 +24,22 @@
 #include "../TrigCostRootAnalysis/TrigXMLService.h"
 
 namespace TrigCostRootAnalysis {
-
   /**
    * Evenr Profile counter - What is the typical event like? Can be broken down into differnt
    * @param _name Const ref to name of the counter, by default this is of the form 'LumiBlock_xxx'.
    * @param _ID Lumi block this counter is monitoring
    */
-  CounterEventProfile::CounterEventProfile( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel, MonitorBase* _parent )
+  CounterEventProfile::CounterEventProfile(const TrigCostData* _costData, const std::string& _name, Int_t _ID,
+                                           UInt_t _detailLevel, MonitorBase* _parent)
     : CounterBase(_costData, _name, _ID, _detailLevel, _parent) {
-
-      m_dataStore.newVariable(kVarCalls).setSavePerCall();
-      m_dataStore.newVariable(kVarTimeElapsed).setSavePerCall();
-      m_dataStore.newVariable(kVarCPUTime).setSavePerCall();
-      m_dataStore.newVariable(kVarROSTime).setSavePerCall();
-      m_dataStore.newVariable(kVarROSCalls).setSavePerCall();
-      m_dataStore.newVariable(kVarAlgCaches).setSavePerCall();
-      m_dataStore.newVariable(kVarROBReqSize).setSavePerCall();
-      m_dataStore.newVariable(kVarROBRetSize).setSavePerCall();
-
+    m_dataStore.newVariable(kVarCalls).setSavePerCall();
+    m_dataStore.newVariable(kVarTimeElapsed).setSavePerCall();
+    m_dataStore.newVariable(kVarCPUTime).setSavePerCall();
+    m_dataStore.newVariable(kVarROSTime).setSavePerCall();
+    m_dataStore.newVariable(kVarROSCalls).setSavePerCall();
+    m_dataStore.newVariable(kVarAlgCaches).setSavePerCall();
+    m_dataStore.newVariable(kVarROBReqSize).setSavePerCall();
+    m_dataStore.newVariable(kVarROBRetSize).setSavePerCall();
   }
 
   /**
@@ -66,7 +64,7 @@ namespace TrigCostRootAnalysis {
     ++m_calls;
     _weight = 1.; // Don't use weighting
 
-    if ( Config::config().debug() ) debug(_e);
+    if (Config::config().debug()) debug(_e);
 
     m_dataStore.store(kVarCalls, 1., _weight);
     m_dataStore.store(kVarAlgCaches, m_costData->getSeqAlgIsCached(_e, _f), _weight);
@@ -85,11 +83,10 @@ namespace TrigCostRootAnalysis {
     if (_time < 0.) {
       _time += 3600.; // Hour boundary crossed
       if (Config::config().getDisplayMsg(kMsgLargeSteerTime) == kTRUE) {
-        Info("CounterEventProfile::processEventCounter","Hour boundary crossed - corrected time is %f", _time);
+        Info("CounterEventProfile::processEventCounter", "Hour boundary crossed - corrected time is %f", _time);
       }
     }
     m_dataStore.store(kVarTimeElapsed, _time, _weight);
-
   }
 
   Double_t CounterEventProfile::getPrescaleFactor(UInt_t _e) {
@@ -105,12 +102,10 @@ namespace TrigCostRootAnalysis {
     m_dataStore.endEvent();
   }
 
-
   /**
    * Output debug information on this call to the console
    */
   void CounterEventProfile::debug(UInt_t _e) {
     UNUSED(_e);
   }
-
 } // namespace TrigCostRootAnalysis

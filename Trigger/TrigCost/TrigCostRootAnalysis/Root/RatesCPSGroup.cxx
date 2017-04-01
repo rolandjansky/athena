@@ -1,4 +1,4 @@
-  // Dear emacs, this is -*- c++ -*-
+// Dear emacs, this is -*- c++ -*-
 
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
@@ -18,7 +18,6 @@
 #include <TError.h>
 
 namespace TrigCostRootAnalysis {
-
   /**
    * Construct new RatesCPSGroup to keep these chains together.
    */
@@ -28,7 +27,7 @@ namespace TrigCostRootAnalysis {
     m_commonPSWeight(1.),
     m_l1(nullptr)
   {}
-    
+
   /**
    * Add a item to this CPS group. All items added will be weighted in a coherent way
    * @param _item A HLT chain item which is part of this CPS group
@@ -36,7 +35,8 @@ namespace TrigCostRootAnalysis {
   void RatesCPSGroup::add(RatesChainItem* _item) {
     assert(_item != nullptr);
     if (m_items.count(_item) == 1) return;
-    m_items.insert( _item );
+
+    m_items.insert(_item);
   }
 
   /**
@@ -44,20 +44,22 @@ namespace TrigCostRootAnalysis {
    * This is applied coherently to the set of chains.
    */
   void RatesCPSGroup::calculateCPSFactor() {
-        // We expect more than one L2
+    // We expect more than one L2
     if (m_items.size() < 2) {
       Warning("RatesCPSGroup::calculateCPSFactor", "Expect two or more HLT chains to do CPS for %s", getName().c_str());
     }
     // We can only do this if all of our chains have the same L1 seed
     for (const auto _item : m_items) {
       if (_item->getLower().size() != 1) {
-        Error("RatesCPSGroup::calculateCPSFactor", "Cannot factor out CPS for %s, there is not exactly one L1 seed", getName().c_str());
+        Error("RatesCPSGroup::calculateCPSFactor", "Cannot factor out CPS for %s, there is not exactly one L1 seed",
+              getName().c_str());
         return;
       }
       ChainItemSetIt_t _it = _item->getLowerStart(); // We know there is only one
       if (m_l1 == nullptr) m_l1 = (*_it);
-      else if ( (*_it) != m_l1) {
-        Error("RatesCPSGroup::calculateCPSFactor", "Cannot factor out CPS for %s, HLT chains have different seeds", getName().c_str());
+      else if ((*_it) != m_l1) {
+        Error("RatesCPSGroup::calculateCPSFactor", "Cannot factor out CPS for %s, HLT chains have different seeds",
+              getName().c_str());
         return;
       }
     }
@@ -66,25 +68,29 @@ namespace TrigCostRootAnalysis {
     // Find lowest PS
     for (const auto _item : m_items) if (_item->getPS() > 0 && _item->getPS() < _lowestPS) _lowestPS = _item->getPS();
 
-    if (_lowestPS <= 0. || _lowestPS >= 1e10)  { // Disabled
-      if (Config::config().debug()) Warning("RatesCPSGroup::calculateCPSFactor", "Disabling CPS group %s as all its chains are prescaled out.", getName().c_str());
+    if (_lowestPS <= 0. || _lowestPS >= 1e10) {  // Disabled
+      if (Config::config().debug()) Warning("RatesCPSGroup::calculateCPSFactor",
+                                            "Disabling CPS group %s as all its chains are prescaled out.",
+                                            getName().c_str());
       m_commonPSWeight = 0.;
       m_commonPS = -1;
-      for (const auto _item : m_items) _item->setPSReduced( -1 );
+      for (const auto _item : m_items) _item->setPSReduced(-1);
     } else {
-    // Set reduced PS
+      // Set reduced PS
       m_commonPS = _lowestPS;
       m_commonPSWeight = 1. / m_commonPS; // Extra weight to apply coherently
       for (const auto _item : m_items) {
         if (_item->getPS() > 0) {
-          _item->setPSReduced( _item->getPS() / _lowestPS );
+          _item->setPSReduced(_item->getPS() / _lowestPS);
         } else {
-          _item->setPSReduced( -1 );
+          _item->setPSReduced(-1);
         }
       }
-      if (Config::config().debug()) Info("RatesCPSGroup::calculateCPSFactor", "CPS group %s has common prescale factor: %f", getName().c_str(), m_commonPS);
+      if (Config::config().debug()) Info("RatesCPSGroup::calculateCPSFactor",
+                                         "CPS group %s has common prescale factor: %f", getName().c_str(), m_commonPS);
     }
-    //Info("RatesCPSGroup::calculateCPSFactor", "Debug, group %s has CPS weight %f", getName().c_str(), (Float_t) m_commonPSWeight);
+    //Info("RatesCPSGroup::calculateCPSFactor", "Debug, group %s has CPS weight %f", getName().c_str(), (Float_t)
+    // m_commonPSWeight);
   }
 
   Double_t RatesCPSGroup::getCommonWeight() {
@@ -109,5 +115,4 @@ namespace TrigCostRootAnalysis {
   const std::string& RatesCPSGroup::getName() {
     return m_name;
   }
-
 }
