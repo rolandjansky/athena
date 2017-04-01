@@ -23,24 +23,18 @@
 #include <TCanvas.h>
 
 namespace TrigCostRootAnalysis {
-
-  
   /**
    * @class MonitorROI
    * Collect statistics on the number and type of ROI
    */
-  class MonitorROI : public MonitorBase {
-  
-   public:
-   
+  class MonitorROI: public MonitorBase {
+  public:
     MonitorROI(const TrigCostData* _costData);
     void newEvent(Float_t _weight = 1.);
-    CounterBase* newCounter( const std::string &_name, Int_t _ID );
+    CounterBase* newCounter(const std::string& _name, Int_t _ID);
     Bool_t getIfActive(ConfKey_t _mode);
     void saveOutput();
-    
   }; //class MonitorROI
-  
 } // namespace TrigCostRootAnalysis
 
 #endif //TrigCostRootAnalysis_MonitorROI_H
