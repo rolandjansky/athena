@@ -85,7 +85,7 @@ class ItemDef:
         LVL1MenuItem('L1_EM15'      ).setLogic( EM15       & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_EM15_BGRP7').setLogic( EM15       & bgrp7cond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_EM15I'     ).setLogic( EM15 & EM8I      & physcond).setTriggerType( TT.calo )
-        if '_v7' in TriggerFlags.triggerMenuSetup():
+        if not '_v6' in TriggerFlags.triggerMenuSetup() and not '_HI' in TriggerFlags.triggerMenuSetup():
            LVL1MenuItem('L1_EM15VHI'    ).setLogic( EM15VHI      & physcond).setTriggerType( TT.calo )
            LVL1MenuItem('L1_EM22VHIM'   ).setLogic( EM22VHIM      & physcond).setTriggerType( TT.calo )
            LVL1MenuItem('L1_EM24VHIM'   ).setLogic( EM24VHIM      & physcond).setTriggerType( TT.calo )
@@ -98,11 +98,11 @@ class ItemDef:
         LVL1MenuItem('L1_EM10VH'    ).setLogic( EM10VH     & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_EM20A'     ).setLogic( EM20A      & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_EM20C'     ).setLogic( EM20C      & physcond).setTriggerType( TT.calo )
-        if not '_v7' in TriggerFlags.triggerMenuSetup():
+        if '_v6' in TriggerFlags.triggerMenuSetup() or '_HI' in TriggerFlags.triggerMenuSetup():
            LVL1MenuItem('L1_EM13VH'    ).setLogic( EM13VH     & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_EM15VH'    ).setLogic( EM15VH     & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_EM18'      ).setLogic( EM18       & physcond).setTriggerType( TT.calo )
-        if '_v7' in TriggerFlags.triggerMenuSetup():
+        if not '_v6' in TriggerFlags.triggerMenuSetup() and not '_HI' in TriggerFlags.triggerMenuSetup():
            LVL1MenuItem('L1_EM18VHI'    ).setLogic( EM18VHI     & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_EM20'      ).setLogic( EM20       & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_EM20VH'    ).setLogic( EM20VH     & physcond).setTriggerType( TT.calo )  
@@ -119,12 +119,12 @@ class ItemDef:
         LVL1MenuItem('L1_2EM7'           ).setLogic( EM7.x(2)             & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_2EM10'          ).setLogic( EM10.x(2)            & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_2EM10VH'        ).setLogic( EM10VH.x(2)          & physcond).setTriggerType( TT.calo )
-        if not '_v7' in TriggerFlags.triggerMenuSetup():
+        if '_v6' in TriggerFlags.triggerMenuSetup() or '_HI' in TriggerFlags.triggerMenuSetup():
            LVL1MenuItem('L1_2EM13VH'        ).setLogic( EM13VH.x(2)          & physcond).setTriggerType( TT.calo )                
            LVL1MenuItem('L1_2EM18VH'        ).setLogic( EM18VH.x(2)          & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_2EM15'          ).setLogic( EM15.x(2)            & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_2EM15VH'        ).setLogic( EM15VH.x(2)          & physcond).setTriggerType( TT.calo )
-        if '_v7' in TriggerFlags.triggerMenuSetup():
+        if not '_v6' in TriggerFlags.triggerMenuSetup() and not '_HI' in TriggerFlags.triggerMenuSetup():
            LVL1MenuItem('L1_2EM15VHI'    ).setLogic( EM15VHI.x(2)      & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_2EM20VH'        ).setLogic( EM20VH.x(2)          & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_EM7_2EM3'       ).setLogic( EM7 & EM3.x(2)       & physcond).setTriggerType( TT.calo )
@@ -139,7 +139,7 @@ class ItemDef:
         LVL1MenuItem('L1_EM15VH_3EM8VH'       ).setLogic( EM15VH & EM8VH.x(3)    & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_EM15VH_3EM10VH'      ).setLogic( EM15VH & EM10VH.x(3)    & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_EM15VH_2EM10VH_3EM7' ).setLogic( EM15VH & EM10VH.x(2) & EM7.x(3)     & physcond).setTriggerType( TT.calo )
-        if not '_v7' in TriggerFlags.triggerMenuSetup():
+        if '_v6' in TriggerFlags.triggerMenuSetup() or '_HI' in TriggerFlags.triggerMenuSetup():
            LVL1MenuItem('L1_EM18VH_3EM8VH'       ).setLogic( EM18VH & EM8VH.x(3)    & physcond).setTriggerType( TT.calo )
            LVL1MenuItem('L1_EM18VH_2EM10VH_3EM7' ).setLogic( EM18VH & EM10VH.x(2) & EM7.x(3)     & physcond).setTriggerType( TT.calo )
 
@@ -380,7 +380,7 @@ class ItemDef:
         LVL1MenuItem('L1_EM15_TAU40_2TAU15'            ).setLogic( EM15    & HA40 & HA15.x(2)   & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_EM15_2TAU12_J25_2J15_3J12'    ).setLogic( EM15  & HA12.x(2)  & J25 & J15.x(2) & J12.x(3) & physcond).setTriggerType( TT.calo )
 
-        if '_v7' in TriggerFlags.triggerMenuSetup():
+        if not '_v6' in TriggerFlags.triggerMenuSetup() and not '_HI' in TriggerFlags.triggerMenuSetup():
            LVL1MenuItem('L1_EM15VHI_2TAU12'                ).setLogic( EM15VHI  & HA12.x(2)          & physcond).setTriggerType( TT.calo )
            LVL1MenuItem('L1_EM15VHI_2TAU12IL'              ).setLogic( EM15VHI  & HA12IL.x(2)        & physcond).setTriggerType( TT.calo )
            LVL1MenuItem('L1_EM15VHI_2TAU12IM'              ).setLogic( EM15VHI  & HA12IM.x(2)        & physcond).setTriggerType( TT.calo )
@@ -389,7 +389,6 @@ class ItemDef:
            LVL1MenuItem('L1_EM15VHI_2TAU12IM_J25_3J12'  ).setLogic( EM15VHI  & HA12IM.x(2)  & J25 & J12.x(3) & physcond).setTriggerType( TT.calo )
            LVL1MenuItem('L1_EM15VHI_2TAU12IL_J25_3J12'  ).setLogic( EM15VHI  & HA12IL.x(2)  & J25 & J12.x(3) & physcond).setTriggerType( TT.calo )
            LVL1MenuItem('L1_EM15VHI_2TAU12_J25_3J12'  ).setLogic( EM15VHI  & HA12.x(2)  & J25 & J12.x(3) & physcond).setTriggerType( TT.calo )
-
         else:
            LVL1MenuItem('L1_EM15HI_2TAU12'                ).setLogic( EM15HI  & HA12.x(2)          & physcond).setTriggerType( TT.calo )
            LVL1MenuItem('L1_EM15HI_2TAU12IL'              ).setLogic( EM15HI  & HA12IL.x(2)        & physcond).setTriggerType( TT.calo )
@@ -443,7 +442,7 @@ class ItemDef:
         LVL1MenuItem('L1_MU10_TAU12IM_XE40'            ).setLogic( MU10    & HA12IM     & XE40 & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_TAU20I_2TAU12I_XE35'          ).setLogic( HA20I   & HA12I.x(2) & XE35 & physcond).setTriggerType( TT.calo )
 
-        if '_v7' in TriggerFlags.triggerMenuSetup():
+        if not '_v6' in TriggerFlags.triggerMenuSetup() and not '_HI' in TriggerFlags.triggerMenuSetup():
            LVL1MenuItem('L1_EM15VHI_TAU20IM_2TAU15_J25_2J20_3J15'          ).setLogic( EM15VHI  &  HA20IM  &  HA15.x(2) &  J25  & J20.x(2) & J15.x(3) & physcond).setTriggerType( TT.calo )
            LVL1MenuItem('L1_EM15VHI_2TAU12I_XE35'          ).setLogic( EM15VHI  & HA12I.x(2) & XE35 & physcond).setTriggerType( TT.calo )
            LVL1MenuItem('L1_EM15VHI_2TAU12IM_XE35'         ).setLogic( EM15VHI  & HA12IM.x(2) & XE35 & physcond).setTriggerType( TT.calo )
@@ -594,7 +593,7 @@ class ItemDef:
         
         # combined em - jet
         LVL1MenuItem('L1_EM15VH_JJ15.23ETA49' ).setLogic( EM15VH  & JJ1523ETA49  & physcond).setTriggerType(TT.calo)
-        if '_v7' in TriggerFlags.triggerMenuSetup():
+        if not '_v6' in TriggerFlags.triggerMenuSetup() and not '_HI' in TriggerFlags.triggerMenuSetup():
             LVL1MenuItem('L1_EM18VHI_3J20' ).setLogic( EM18VHI  & J20.x(3)  & physcond).setTriggerType(TT.calo)
             LVL1MenuItem('L1_EM20VH_3J20' ).setLogic( EM20VH  & J20.x(3)  & physcond).setTriggerType(TT.calo)
         else:
@@ -1533,7 +1532,7 @@ class ItemDef:
                     LVL1MenuItem('L1_XE35_MJJ-200').setLogic( XE35 & TOPO_200INVM9999_AJ30s6_AJ20s6 & physcond)
                     
                     ### ATR-15062
-                    if '_v7' in TriggerFlags.triggerMenuSetup():
+                    if not '_v6' in TriggerFlags.triggerMenuSetup() and not '_HI' in TriggerFlags.triggerMenuSetup():
                        LVL1MenuItem('L1_EM18VHI_MJJ-300').setLogic( EM18VHI & TOPO_300INVM9999_AJ30s6_AJ20s6 & physcond)
                     else:
                        LVL1MenuItem('L1_EM18VH_MJJ-300').setLogic( EM18VH & TOPO_300INVM9999_AJ30s6_AJ20s6 & physcond)
