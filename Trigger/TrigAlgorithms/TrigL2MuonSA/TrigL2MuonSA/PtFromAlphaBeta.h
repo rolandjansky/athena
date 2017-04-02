@@ -50,6 +50,7 @@ class PtFromAlphaBeta: public AthAlgTool
     
     BooleanProperty  m_use_mcLUT;
     BooleanProperty m_use_cscpt;
+    BooleanProperty m_avoid_misaligned_cscs;
 
     const ToolHandle<PtEndcapLUT>*    m_ptEndcapLUT;
       
