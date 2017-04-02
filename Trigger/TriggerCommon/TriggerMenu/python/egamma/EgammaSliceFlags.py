@@ -49,7 +49,7 @@ class doFastElectronFex(JobProperty):
     '''enable L2ElectronFex cuts and sequence'''
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 
 _flags.append(doFastElectronFex)
 

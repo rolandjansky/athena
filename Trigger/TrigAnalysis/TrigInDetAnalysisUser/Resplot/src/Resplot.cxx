@@ -37,6 +37,7 @@ ClassImp(Resplot)
 
 bool Resplot::mAddDirectoryStatus = true;
 bool Resplot::interpolate_flag = true;
+bool Resplot::nofit = false;
 
 /// use the new error estimates
 bool Resplot::oldrms95   = true;
@@ -428,15 +429,6 @@ int Resplot::Finalise(double a, double b, TF1* (*func)(TH1D* s, double a, double
   
       //      std::cout << i << " fitnull " << getWeights( s ) << std::endl; 
 
-#if 0
-      int ib = s->GetNbinsX()/2;
-
-      if (  s->GetBinContent(ib) ) { 
-	std::cout << "hhhh " << s->GetBinError(ib) << " " << s->GetBinContent(ib) 
-		  << "  "    << m_h2d->GetBinError(i,ib) << " " << m_h2d->GetBinContent(i,ib) << std::endl; 
-      }
-#endif     
- 
       if ( !m_uniform ) binwidth(s);
       s->SetTitle(projname.c_str());
       if ( m_yaxis!="" ) s->SetXTitle(m_yaxis.c_str()); 
@@ -446,15 +438,19 @@ int Resplot::Finalise(double a, double b, TF1* (*func)(TH1D* s, double a, double
 
     //    ZeroErrors(s);
 
-    TF1* f1 = func(s, a, b); 
+    TF1* f1 = 0;
+
+
+    if ( !nofit ) f1 = func(s, a, b); 
+
+    //    std::cout << "nofit " << nofit << "\tf1 " << f1 << std::endl;
 
 
     //    unZeroErrors(s);
 
 
-    if ( f1!=NULL ) {
+    if ( f1!=0 ) {
  
-
       f1->SetLineWidth(1);
       f1->SetNpx(5000);
       m_fitname = f1->GetName();
@@ -507,20 +503,26 @@ int Resplot::Finalise(double a, double b, TF1* (*func)(TH1D* s, double a, double
   // get the overall resolution and offset
 
   if ( !m_uniform ) binwidth(m_h1d);
-  ZeroErrors(m_h1d);
-  TF1* f2 = func(m_h1d, a, b);
- 
 
+  TF1* f2 = 0;
 
-  unZeroErrors(m_h1d);
-  if ( f2!=NULL ) {
+  if ( !nofit ) { 
+    ZeroErrors(m_h1d);
+    f2 = func(m_h1d, a, b);
+    unZeroErrors(m_h1d);  
+  }
+
+  if ( f2!=0 ) {
+
     //    std::cout << "  fit = " << f2 << std::endl;
     f2->SetLineWidth(1);
     f2->SetNpx(5000);
 
     g_mean  = StatVal( f2->GetParameter(1), f2->GetParError(1) );
     g_sigma = StatVal( f2->GetParameter(2), f2->GetParError(2) );
-  
+
+    //    std::cout << gDirectory->GetName() << "\tgmean " << g_mean << "\tgsigma " << g_sigma << std::endl;  
+    
     std::string mname = std::string(f2->GetParName(1));
     std::string sname = std::string(f2->GetParName(2));
     
@@ -532,7 +534,7 @@ int Resplot::Finalise(double a, double b, TF1* (*func)(TH1D* s, double a, double
     delete f2;
   }
   else {
-    std::cerr << "null overall fit Resplot:" << m_name << std::endl;
+    if ( !nofit ) std::cerr << "null overall fit Resplot:" << m_name << std::endl;
     g_mean  = StatVal(0,0);
     g_sigma = StatVal(0,0);
   }
@@ -1301,7 +1303,7 @@ TF1* Resplot::FitATan(TH1D* s, double , double ) {
 
 TF1* Resplot::FitNull(TH1D* s, double , double ) {
 
-  unZeroErrors(s);
+  // unZeroErrors(s);
 
   TF1* f=new TF1("null", "[0]+[1]+[2]");
   
@@ -1312,6 +1314,8 @@ TF1* Resplot::FitNull(TH1D* s, double , double ) {
   f->FixParameter(0, s->GetMaximum()); f->SetParError(0, sqrt(s->GetMaximum()));
   f->FixParameter(1, s->GetMean());    f->SetParError(1, s->GetMeanError());
   f->FixParameter(2, s->GetRMS());     f->SetParError(2, s->GetRMSError());
+
+  //  std::cout << gDirectory->GetName() << "  " << s->GetName() << "\tFitNull mean: " <<  f->GetParameter(1) << "\tsigma: " << f->GetParameter(2) << std::endl;
 
   return f;
 }

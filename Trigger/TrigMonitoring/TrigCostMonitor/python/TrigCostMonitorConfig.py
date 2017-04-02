@@ -56,7 +56,7 @@ def prepareCostTool(target):
     tool.monitoringTarget = target
     tool.purgeCostStream  = True  # Remove cost stream if no data to save 
     tool.writeAlways      = False # This is set to True by postSetupCostForCAF()
-    tool.writeConfig      = True  # This should default to false for online (why?) [TODO] put to true for tests
+    tool.writeConfig      = False # Now know why this should be false online, consumes too much bandwidth. Will read from COOL at T0 instead.
     tool.writeConfigDB    = False # If reading from the DB, do we want to save the data? Should not be needed as EBWeight calc is in this package.
     tool.useConfDb        = True  # Ask toolConf to fetch online config from DB. Only used currently if running costoForCAF
     tool.costForCAF       = False # This is set to True by postSetupCostForCAF()
@@ -69,7 +69,7 @@ def prepareCostTool(target):
     
     tool.toolConf     = Trig__TrigNtConfTool('Conf'+target)
     tool.toolEBWeight = Trig__TrigNtEBWeightTool('Ebwt'+target)
-    tool_elem = Trig__TrigNtElemTool('Elem'+target)
+    tool_elem = Trig__TrigNtElemTool('Elem'+target) # Not currently utilised
     tool_exec = Trig__TrigNtExecTool('Exec'+target)
     tool_lvl1 = Trig__TrigNtLvl1Tool('Lvl1'+target)
     tool_hlt2 = Trig__TrigNtHltRTool('Hlt2'+target)
@@ -128,16 +128,13 @@ def prepareCostTool(target):
                 
         if   tool.level == "L2":
             tool.eventTools += [ tool_lvl1 ]
-            tool.scaleTools += [ tool_elem ]
             tool.scaleTools += [ tool_exec ]
             tool.scaleTools += [ tool_robs ]
         elif tool.level == "EF":
-            tool.scaleTools += [ tool_elem ]
             tool.scaleTools += [ tool_exec ]
             tool.scaleTools += [ tool_hlt2 ]
         elif tool.level == "HLT":
             tool.eventTools += [ tool_lvl1 ]
-            tool.scaleTools += [ tool_elem ]
             tool.scaleTools += [ tool_exec ]
             tool.scaleTools += [ tool_robs ]
             tool.scaleTools += [ tool_hlt2 ]

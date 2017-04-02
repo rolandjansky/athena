@@ -110,10 +110,11 @@ foreach xmlfile ( $files )
       
 # #     echo "joboption $joboptions    cmdlineflags $cmdlineflags"
 
-      if ( "$joboptions" != "" ) then 
-         echo "\nget_files -jo $joboptions.py" >> $outfile
-#        echo  "athena.py  -c 'include("\"$pyfile\"";$cmdlineflags' $joboptions.py \n\n" >> $_file.sh
-         echo  "athena.py  -c 'XMLDataSet="\"$jobid\"";$cmdlineflags' $joboptions.py \n\n" >> $outfile
+      if ( "$joboptions" != "" ) then
+         echo >> $outfile
+         echo  "get_files -jo $joboptions.py" >> $outfile
+#        echo  "athena.py  -c 'include("\"$pyfile\"";$cmdlineflags' $joboptions.py" >> $_file.sh
+         echo  "athena.py  -c 'XMLDataSet="\"$jobid\"";$cmdlineflags' $joboptions.py" >> $outfile
       endif
   
 #     cat /tmp/_args
@@ -130,39 +131,62 @@ foreach xmlfile ( $files )
   
            set arg = `tail -$N /tmp/_args | head -1`
 
-   	   if ( "$arg" == "TIDArdict.exe" || "$arg" == "TIDAcomparitor.exe" || "$arg" == "TIDAcpucost.exe" || "$arg" == "RunTrigCostD3PD.exe" ) then 
-              if ( "$command" != "" ) then 
-                 echo "$command\n" >> $outfile
-              endif
-              set command = "$arg"
+           # NB: the TIDArun.sh exeRunners do not need to get_files the reference
+           #     files, since the TIDArun.sh script copies them itself
+
+   	   if ( "$arg" == "TIDArdict.exe"      || \
+                "$arg" == "TIDAcomparitor.exe" || \
+                "$arg" == "TIDAcpucost.exe"    || \
+    	        "$arg" == "TIDArdict"          || \
+                "$arg" == "TIDAcomparitor"     || \
+                "$arg" == "TIDAcpucost"        || \
+                "$arg" == "TIDAcpucost"        || \
+                "$arg" == "TIDArun.sh"        || \
+                "$arg" == "RunTrigCostD3PD.exe" ) then 
+               if ( "$command" != "" ) then 
+                  echo "$command" >> $outfile
+                  echo  >> $outfile
+               endif
+               set command = "$arg"
+
+#              echo "COMMAND: $command"
+
             else 
 
-	      if ( "$command" == "TIDAcpucost.exe" ) then 
+  	       if ( "$command" == "TIDAcpucost.exe" || \
+                    "$command" == "TIDAcpucost" ) then
+
                  set auxfile = `grep auxFile /tmp/$_file.xml | grep expert | $SED 's|.*<auxFilePattern>||g' | $SED 's|</auxFilePattern>||g'`
 
                  set arg = `echo "$arg" | $SED "s| \S*\*\S* | $auxfile |g"`
 
-              endif
+               endif
 
-	      foreach ffile ( $arg )
-                 set ext = `echo $ffile | cut -d . -f2` 
-                 set ref = `echo $ffile | grep ".*ref.*.root"`
-#                echo "ffile: $ffile" 
-#		 echo "ref: $ref     : ext: $ext"
-                 if ( "$ext" == "dat" || "$ref" != "" )  then 
-#                   echo "   getting file $ffile"   
-		    echo "get_files -data $ffile" >> $outfile 
-                 endif
-              end
-              set command = "$command $arg"
-           endif
+	       foreach ffile ( $arg )
+                   
+#                  echo "FFILE $ffile"
 
-           @ N--
+                  set ext = `echo $ffile | cut -d . -f2` 
+                  set ref = `echo $ffile | grep ".*ref.*.root"`
+#                 echo "ffile: $ffile" 
+#		  echo "ref: $ref     : ext: $ext"
+                  if ( "$ext" == "dat" || "$ref" != "" )  then 
+#                    echo "   getting file $ffile"
+                     if ( "$command" != "TIDArun.sh" ) then   
+	   	        echo "get_files -data $ffile" >> $outfile
+                     endif 
+                  endif
+               end
+               set command = "$command $arg"
+            endif
+
+            @ N--
  
         end
 
         if ( "$command" != "" ) then 
-          echo  "$command\n\n"  >> $outfile
+          echo  "$command"  >> $outfile
+          echo  >> $outfile
         endif
 
       endif

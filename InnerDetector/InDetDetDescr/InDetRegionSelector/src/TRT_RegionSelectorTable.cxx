@@ -44,8 +44,7 @@ TRT_RegionSelectorTable::TRT_RegionSelectorTable(const std::string& type,
 						 const IInterface* parent)
   :  AthAlgTool(type,name,parent),
      m_TRT_IdMapping("TRT_CablingSvc", name),
-     m_regionLUT(NULL),
-     m_deltaZ(168 * CLHEP::mm),
+     m_regionLUT(nullptr),
      m_managerName("TRT"),
      m_roiFileName("TRTRoITable.txt"),
      m_printHashId(true),
@@ -53,7 +52,6 @@ TRT_RegionSelectorTable::TRT_RegionSelectorTable(const std::string& type,
 {
   declareInterface<IRegionIDLUT_Creator>(this);
   declareProperty("ManagerName", m_managerName);
-  declareProperty("DeltaZ",      m_deltaZ);
 
   // The remaining properties are for debugging purposes.
   declareProperty("OutputFile",  m_roiFileName);
@@ -66,19 +64,18 @@ TRT_RegionSelectorTable::TRT_RegionSelectorTable(const std::string& type,
 StatusCode TRT_RegionSelectorTable::initialize(){
 
   //  MsgStream msglog(msgSvc(), name());
-  msg(MSG::INFO) << "initialize() " << name() << " " << PACKAGE_VERSION << endreq;
+  msg(MSG::INFO) << "initialize() " << name() << " " << PACKAGE_VERSION << endmsg;
 
-  msg(MSG::INFO)  << "Tool Properties" << endreq;
-  msg(MSG::INFO)  << " Detector Manager: " << m_managerName << endreq;
-  msg(MSG::INFO)  << " DeltaZ:           " << m_deltaZ/CLHEP::mm << " mm <<< NB: this parameter is now OBSOLETE" << endreq;
+  msg(MSG::INFO)  << "Tool Properties" << endmsg;
+  msg(MSG::INFO)  << " Detector Manager: " << m_managerName << endmsg;
   if ( msgLvl(MSG::DEBUG) ) {
-    msg(MSG::DEBUG) << " Output File:      " << m_roiFileName <<endreq;
-    msg(MSG::DEBUG) << " Print hashId:     " << ((m_printHashId) ? "true" : "false") <<endreq;
-    msg(MSG::DEBUG) << " Print Table:      " << ((m_printTable) ? "true" : "false") <<endreq;
+    msg(MSG::DEBUG) << " Output File:      " << m_roiFileName <<endmsg;
+    msg(MSG::DEBUG) << " Print hashId:     " << ((m_printHashId) ? "true" : "false") <<endmsg;
+    msg(MSG::DEBUG) << " Print Table:      " << ((m_printTable) ? "true" : "false") <<endmsg;
   }
 
   if (m_managerName.empty()) {
-    msg(MSG::WARNING) << "Tool disabled." << endreq;
+    msg(MSG::WARNING) << "Tool disabled." << endmsg;
     return StatusCode::FAILURE;
   } 
  
@@ -105,22 +102,22 @@ RegSelSiLUT* TRT_RegionSelectorTable::getLUT() const
 StatusCode 
 TRT_RegionSelectorTable::createTable()
 {
-  if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Creating region selector table"  << endreq;
+  if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Creating region selector table"  << endmsg;
   StatusCode sc;
   // Retrieve manager
   const TRT_DetectorManager* manager;
   sc=detStore()->retrieve(manager, m_managerName);
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not find the Manager: "<< m_managerName << " !" << endreq;
+    msg(MSG::FATAL) << "Could not find the Manager: "<< m_managerName << " !" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Manager found" << endreq;
+    if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Manager found" << endmsg;
   }
   
   // Get Tool Service
   IToolSvc* toolSvc;
   if (StatusCode::SUCCESS != service("ToolSvc", toolSvc))    {
-    msg(MSG::ERROR) << " Can't get ToolSvc " << endreq;
+    msg(MSG::ERROR) << " Can't get ToolSvc " << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -128,13 +125,13 @@ TRT_RegionSelectorTable::createTable()
   sc = m_TRT_IdMapping.retrieve();
 
   if (sc != StatusCode::SUCCESS){
-    msg(MSG::ERROR) << " Can't get TRTCablingSvc " << endreq;
+    msg(MSG::ERROR) << " Can't get TRTCablingSvc " << endmsg;
     return StatusCode::FAILURE;
   }
   // Get the id helper 
-  const TRT_ID* idHelper = NULL;
+  const TRT_ID* idHelper = 0;
   if ( detStore()->retrieve( idHelper, "TRT_ID" ).isFailure() ) {
-    msg(MSG::FATAL) << "Could not get TRT ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -155,8 +152,8 @@ TRT_RegionSelectorTable::createTable()
     int idLayerWheel = idHelper->layer_or_wheel(id);
     int idPhiModule = idHelper->phi_module(id);
     int idStrawLayer = idHelper->straw_layer(id);
-    const TRT_BarrelElement * Belement = NULL;
-    const TRT_EndcapElement * Eelement = NULL;
+    const TRT_BarrelElement* Belement = nullptr;
+    const TRT_EndcapElement* Eelement = nullptr;
     Identifier idelement;
     double InnerRadiusOfStraw = 2.; //hardcoded. No method? (it will NEVER change anyway)
     double phiMin,phiMax,rz;    
@@ -227,7 +224,7 @@ TRT_RegionSelectorTable::createTable()
 
   // MS: new region selector lookup table
   // initialise and save the new look up table
-  msg(MSG::INFO) << " initialising new trt map " << endreq;
+  msg(MSG::INFO) << " initialising new trt map " << endmsg;
   rtrt->initialise();
 
   // save pointer for access from the ToolSvc
@@ -240,15 +237,15 @@ TRT_RegionSelectorTable::createTable()
   std::string newtrtKey = "TRTRegSelSiLUT";
   sc = detStore()->contains< RegSelSiLUT >(newtrtKey);
   if (sc == StatusCode::SUCCESS ) {
-    msg(MSG::FATAL) << " TRTRegSelSiLUT " << newtrtKey << " already exists " << endreq;
+    msg(MSG::FATAL) << " TRTRegSelSiLUT " << newtrtKey << " already exists " << endmsg;
   } else {
     // create and store LUT
     sc = detStore()->record(rtrt, newtrtKey, true);
     if ( sc.isFailure() ) {
-      msg(MSG::ERROR) << " could not register trt RegSelSiLUT" << endreq;
+      msg(MSG::ERROR) << " could not register trt RegSelSiLUT" << endmsg;
       return( StatusCode::FAILURE );
     } else {
-      msg(MSG::INFO) << "trt RegSelSiLUT successfully saved in detector Store" << endreq;
+      msg(MSG::INFO) << "trt RegSelSiLUT successfully saved in detector Store" << endmsg;
     }
   }
 #endif
@@ -274,7 +271,7 @@ StatusCode TRT_RegionSelectorTable::execute() {
 StatusCode TRT_RegionSelectorTable::finalize() {
 
   //  MsgStream msglog(msgSvc(), name());
-  msg(MSG::INFO) << "finalize()" << endreq;
+  msg(MSG::INFO) << "finalize()" << endmsg;
   
   return StatusCode::SUCCESS;
 }
