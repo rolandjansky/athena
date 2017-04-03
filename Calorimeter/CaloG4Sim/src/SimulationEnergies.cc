@@ -84,6 +84,7 @@
 #include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"
 #include "G4VProcess.hh"
+#include "G4RunManager.hh"
 // #include "G4EmProcessSubType.hh"
 
 // Particle definitions
