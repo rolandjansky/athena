@@ -76,7 +76,7 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("R_WIDTH_TGC_FAILED",m_rWidth_TGC_Failed=200);
 
   declareProperty("USE_RPC", m_use_rpc = true);
-  declareProperty("USE_MDTCSM", m_use_mdtcsm = false);
+  declareProperty("USE_MDTCSM", m_use_mdtcsm = true);
   declareProperty("USE_ROIBASEDACCESS_MDT", m_use_RoIBasedDataAccess_MDT = true);
   declareProperty("USE_ROIBASEDACCESS_TGC", m_use_RoIBasedDataAccess_TGC = true);
   declareProperty("USE_ROIBASEDACCESS_RPC", m_use_RoIBasedDataAccess_RPC = true);
@@ -91,6 +91,8 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("WinPt",m_winPt=4.0);
 
   declareProperty("RpcErrToDebugStream",m_rpcErrToDebugStream = false);
+
+  declareProperty("UseEndcapInnerFromBarrel",m_use_endcapInnerFromBarrel = false);
 
   declareMonitoredVariable("InnMdtHits", m_inner_mdt_hits);
   declareMonitoredVariable("MidMdtHits", m_middle_mdt_hits);
@@ -235,6 +237,7 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     ATH_MSG_ERROR("Failed to set MC flag to TrackFitter");
     return HLT::ERROR;
   }
+  m_trackFitter -> setUseEIFromBarrel( m_use_endcapInnerFromBarrel );
 
   // initialize the joboptions service
   sc = service("JobOptionsSvc", m_jobOptionsSvc);
@@ -721,6 +724,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
   int ee     = 6;
   int csc    = 7;
   int barrelinner = 0;
+  int endcapinner = 3;
   int bee = 8;
   int bme = 9;
 
@@ -748,6 +752,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
       middle = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
       outer  = xAOD::L2MuonParameters::Chamber::BarrelOuter;
       bme = xAOD::L2MuonParameters::Chamber::BME;
+      endcapinner  = xAOD::L2MuonParameters::Chamber::EndcapInner;
     }
 
     ATH_MSG_DEBUG("pattern#0: # of hits at inner  =" << pattern.mdtSegments[inner].size());
@@ -757,8 +762,10 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
       ATH_MSG_DEBUG("pattern#0: # of hits at ee  =" << pattern.mdtSegments[ee].size());
       ATH_MSG_DEBUG("pattern#0: # of hits at endcap barrel inner  =" << pattern.mdtSegments[barrelinner].size());
       ATH_MSG_DEBUG("pattern#0: # of hits at BEE  =" << pattern.mdtSegments[bee].size());
+    } else {
+      ATH_MSG_DEBUG("pattern#0: # of hits at BME  =" << pattern.mdtSegments[bme].size());
+      ATH_MSG_DEBUG("pattern#0: # of hits at barrel endcap inner  =" << pattern.mdtSegments[endcapinner].size());
     }
-    else ATH_MSG_DEBUG("pattern#0: # of hits at BME  =" << pattern.mdtSegments[bme].size());
     ATH_MSG_DEBUG("pt=" << pattern.pt);
 
     // ---------
@@ -824,6 +831,9 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
                             pattern.superPoints[barrelinner].Alin, pattern.superPoints[barrelinner].Blin, pattern.superPoints[barrelinner].Chi2);
       muonSA->setSuperPoint(csc, pattern.superPoints[csc].R, pattern.superPoints[csc].Z,
 			    pattern.superPoints[csc].Alin, pattern.superPoints[csc].Blin, pattern.superPoints[csc].Chi2);
+    } else {
+      muonSA->setSuperPoint(endcapinner, pattern.superPoints[endcapinner].R, pattern.superPoints[endcapinner].Z,
+                            pattern.superPoints[endcapinner].Alin, pattern.superPoints[endcapinner].Blin, pattern.superPoints[endcapinner].Chi2);
     }
 
     ///////////////////////////////

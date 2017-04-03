@@ -723,6 +723,8 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
 	 tmp.Residual  = 0;
 	 tmp.isOutlier = 0;
 	 tmp.Chamber = chamber;
+   Identifier id; //temporary invalid id
+   tmp.Id = id;
 	 
 	 mdtHits.push_back(tmp);
        }
@@ -758,12 +760,13 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
    std::vector<IdentifierHash> idList;
 
    //combine regions of sector and type
-   for(int j_station=0; j_station<4; j_station++) {
+   for(int j_station=0; j_station<5; j_station++) {
      int cha=0;
      if (j_station==0) cha = xAOD::L2MuonParameters::Chamber::BarrelInner; 
      if (j_station==1) cha = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
      if (j_station==2) cha = xAOD::L2MuonParameters::Chamber::BarrelOuter;
      if (j_station==3) cha = xAOD::L2MuonParameters::Chamber::BME;
+     if (j_station==4) cha = xAOD::L2MuonParameters::Chamber::EndcapInner;
      phiMinChamber[cha]=mdtRegion.phiMin[cha][0];
      phiMaxChamber[cha]=mdtRegion.phiMax[cha][0];
      etaMinChamber[cha]=9999;
@@ -777,12 +780,13 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
    }
 
    // get hashIdlist by using region selector
-   for(int i_station=0; i_station<4; i_station++) {
+   for(int i_station=0; i_station<5; i_station++) {
      int chamber=0;
      if (i_station==0) chamber = xAOD::L2MuonParameters::Chamber::BarrelInner; 
      if (i_station==1) chamber = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
      if (i_station==2) chamber = xAOD::L2MuonParameters::Chamber::BarrelOuter;
      if (i_station==3) chamber = xAOD::L2MuonParameters::Chamber::BME;
+     if (i_station==4) chamber = xAOD::L2MuonParameters::Chamber::EndcapInner;
      ATH_MSG_DEBUG( "chamber=" << chamber );
      ATH_MSG_DEBUG( "...etaMin/etaMax/phiMin/phiMax="
        << etaMinChamber[chamber] << "/"
@@ -1003,6 +1007,8 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 	if (st=='I') chamber = xAOD::L2MuonParameters::Chamber::BarrelInner;
 	if (st=='M') chamber = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
 	if (st=='O') chamber = xAOD::L2MuonParameters::Chamber::BarrelOuter;
+  if (st=='E' && chamberType[2]=='E') chamber = xAOD::L2MuonParameters::Chamber::BEE;
+  if (st=='M' && chamberType[2]=='E') chamber = xAOD::L2MuonParameters::Chamber::BME;
       }
       
       double R = m_mdtReadout->center(TubeLayer, Tube).perp();
@@ -1088,6 +1094,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 	tmp.Residual  = 0;
 	tmp.isOutlier = 0;
 	tmp.Chamber = chamber;
+  tmp.Id = id;
         
 	mdtHits.push_back(tmp);
       }	  
