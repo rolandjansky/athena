@@ -34,6 +34,10 @@ namespace Monitored {
             friend MonitoredValuesCollection<T> declare<T>(const std::string strName, const T& collection);
             
             MonitoredValuesCollection(MonitoredValuesCollection&&) = default;
+            
+            const std::vector<double> getVectorRepresentation() const override {
+                return std::vector<double>(std::begin(mCollection), std::end(mCollection));
+            }
         private:
             const T& mCollection;
             
@@ -41,10 +45,6 @@ namespace Monitored {
             : IMonitoredVariable(strName), mCollection(collection) { }
             MonitoredValuesCollection(MonitoredValuesCollection const&) = delete;
             MonitoredValuesCollection& operator=(MonitoredValuesCollection const&) = delete;
-            
-            const std::vector<double> getVectorRepresentation() const override {
-                return std::vector<double>(std::begin(mCollection), std::end(mCollection));
-            }
         };
         
         template<class T>
@@ -53,14 +53,6 @@ namespace Monitored {
             friend MonitoredObjectsCollection<T> declare<T>(const std::string strName, const T& collection, std::function<double(const typename MonitoredHelpers::get_collection_values_type<T>::value_type&)> converterToDouble);
             
             MonitoredObjectsCollection(MonitoredObjectsCollection&&) = default;
-        private:
-            const T& mCollection;
-            std::function<double(const typename MonitoredHelpers::get_collection_values_type<T>::value_type&)> mConverterToDouble;
-            
-            MonitoredObjectsCollection(const std::string strName, const T& collection, std::function<double(const typename MonitoredHelpers::get_collection_values_type<T>::value_type&)> converterToDouble)
-            : IMonitoredVariable(strName), mCollection(collection), mConverterToDouble(converterToDouble) { }
-            MonitoredObjectsCollection(MonitoredObjectsCollection const&) = delete;
-            MonitoredObjectsCollection& operator=(MonitoredObjectsCollection const&) = delete;
             
             const std::vector<double> getVectorRepresentation() const override {
                 auto distance = std::distance(std::begin(mCollection), std::end(mCollection));
@@ -74,6 +66,14 @@ namespace Monitored {
                 
                 return result;
             }
+        private:
+            const T& mCollection;
+            std::function<double(const typename MonitoredHelpers::get_collection_values_type<T>::value_type&)> mConverterToDouble;
+            
+            MonitoredObjectsCollection(const std::string strName, const T& collection, std::function<double(const typename MonitoredHelpers::get_collection_values_type<T>::value_type&)> converterToDouble)
+            : IMonitoredVariable(strName), mCollection(collection), mConverterToDouble(converterToDouble) { }
+            MonitoredObjectsCollection(MonitoredObjectsCollection const&) = delete;
+            MonitoredObjectsCollection& operator=(MonitoredObjectsCollection const&) = delete;
         };
         
         template<class T>

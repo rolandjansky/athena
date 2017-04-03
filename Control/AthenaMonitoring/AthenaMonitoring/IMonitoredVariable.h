@@ -20,13 +20,12 @@ namespace Monitored {
         virtual ~IMonitoredVariable() {}
         
         const std::string& stringName() const { return mStrName; }
+        virtual const std::vector<double> getVectorRepresentation() const = 0;
     protected:
         const std::string mStrName;
         
         IMonitoredVariable(const std::string& strName)
         : mStrName(strName) {}
-        
-        virtual const std::vector<double> getVectorRepresentation() const = 0;
     };
 }
 
