@@ -135,12 +135,6 @@ namespace CaloG4 {
   G4double SimulationEnergies::helium3Mass  = 0;
   */
 
-#ifdef G4MULTITHREADED
-  SimulationEnergies::StCallThreadMap_t SimulationEnergies::m_calledForStepThreadMap;
-#else
-  G4bool SimulationEnergies::m_calledForStep = false;
-#endif
-
   SimulationEnergies::SimulationEnergies() 
   {
     // Initialize some static variables.
@@ -192,23 +186,6 @@ namespace CaloG4 {
 #endif
   }
 
-  void SimulationEnergies::SetStepProcessed() {
-#ifdef G4MULTITHREADED
-    const auto tid = std::this_thread::get_id();
-    m_calledForStepThreadMap.insert( std::make_pair(tid, true) );
-#else
-    m_calledForStep = true;
-#endif
-  }
-
-  void SimulationEnergies::ResetStepProcessed() {
-#ifdef G4MULTITHREADED
-    const auto tid = std::this_thread::get_id();
-    m_calledForStepThreadMap.insert( std::make_pair(tid, false) );
-#else
-    m_calledForStep = false;
-#endif
-  }
 
   // The "simple" call, intended for calibration calculators:
   void SimulationEnergies::Energies( const G4Step* a_step , std::vector<G4double>& energies ) const
@@ -225,9 +202,6 @@ namespace CaloG4 {
     energies.push_back( category.energy[SimulationEnergies::kNonEm] );
     energies.push_back( category.energy[SimulationEnergies::kInvisible0] );
     energies.push_back( category.energy[SimulationEnergies::kEscaped] );
-
-    // Note that we've been called for the current G4Step.
-    SetStepProcessed();
   }
 
 
