@@ -189,6 +189,7 @@ for sd in larSDs: sdMaster.SensitiveDetectors.remove(sd)
 try:
     topSeq.remove(topSeq.EventInfoTagBuilder)
 except AttributeError as e:
+    from AthenaCommon.Logging import log as msg
     msg.warning('EventInfoTagBuilder no longer on TopSeq')
     msg.warning('Probably safe to disable workaround now.')
 
