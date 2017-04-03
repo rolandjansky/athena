@@ -184,6 +184,14 @@ sdMaster = ToolSvc.SensitiveDetectorMasterTool
 larSDs = [sd for sd in sdMaster.SensitiveDetectors if sd.name().startswith('LAr')]
 for sd in larSDs: sdMaster.SensitiveDetectors.remove(sd)
 
+# Workaround to disable the EventInfoTagBuilder.
+# Not sure how it gets on the sequence.
+try:
+    topSeq.remove(topSeq.EventInfoTagBuilder)
+except AttributeError as e:
+    msg.warning('EventInfoTagBuilder no longer on TopSeq')
+    msg.warning('Probably safe to disable workaround now.')
+
 # Increase verbosity of the output stream
 #topSeq.StreamHITS.OutputLevel = DEBUG
 
