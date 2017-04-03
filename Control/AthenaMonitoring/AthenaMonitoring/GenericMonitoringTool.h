@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMONITORBASE_TRIGGENERICMONITORINGTOOL_H
-#define TRIGMONITORBASE_TRIGGENERICMONITORINGTOOL_H
+#ifndef AthenaMonitoring_GenericMonitoringTool_h
+#define AthenaMonitoring_GenericMonitoringTool_h
 
 #include "TrigMonitorBase/TrigMonitorToolBase.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
@@ -117,13 +117,13 @@ private:
  */
 
 template<class M, class P>     // Mutex and Proxy type
-class TrigGenericMonitoringTool : public TrigMonitorToolBase {
+class GenericMonitoringTool : public TrigMonitorToolBase {
 public:
   
-  TrigGenericMonitoringTool<M,P>(const std::string & type, 
+  GenericMonitoringTool<M,P>(const std::string & type, 
                                  const std::string & name,
                                  const IInterface* parent);
-  virtual ~TrigGenericMonitoringTool();
+  virtual ~GenericMonitoringTool();
   
   virtual StatusCode bookHists();
   virtual StatusCode fillHists();   //!< does histograms filling
@@ -324,7 +324,7 @@ private:
   TH1* create2DProfile( TProfile2D*& histo, const HistogramDef& def );
 };
 
-using TrigGenericMonitoringToolST = TrigGenericMonitoringTool<NoMutex, IMonitoredAlgo::IGetter*>;
-using TrigGenericMonitoringToolMT = TrigGenericMonitoringTool<std::mutex, ContextGetter<IMonitoredAlgo::IGetter>>;
+using GenericMonitoringToolST = GenericMonitoringTool<NoMutex, IMonitoredAlgo::IGetter*>;
+using GenericMonitoringToolMT = GenericMonitoringTool<std::mutex, ContextGetter<IMonitoredAlgo::IGetter>>;
 
-#endif
+#endif /* AthenaMonitoring_GenericMonitoringTool_h */

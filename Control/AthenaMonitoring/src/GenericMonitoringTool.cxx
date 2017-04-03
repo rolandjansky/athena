@@ -21,13 +21,13 @@
 #include "GaudiKernel/ThreadGaudi.h"
 #include "TrigInterfaces/Algo.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
-#include "TrigGenericMonitoringTool.h"
+#include "AthenaMonitoring/GenericMonitoringTool.h"
 
 using namespace std;
 
 
 template <class M, class P>
-TrigGenericMonitoringTool<M,P>::TrigGenericMonitoringTool(const std::string & type, 
+GenericMonitoringTool<M,P>::GenericMonitoringTool(const std::string & type, 
                                                           const std::string & name,
                                                           const IInterface* parent)
   : TrigMonitorToolBase(type, name, parent)
@@ -37,11 +37,11 @@ TrigGenericMonitoringTool<M,P>::TrigGenericMonitoringTool(const std::string & ty
 }
 
 template <class M, class P>
-TrigGenericMonitoringTool<M,P>::~TrigGenericMonitoringTool() {
+GenericMonitoringTool<M,P>::~GenericMonitoringTool() {
 }
 
 template <class M, class P>
-StatusCode TrigGenericMonitoringTool<M,P>::bookHists() {
+StatusCode GenericMonitoringTool<M,P>::bookHists() {
 
   ATH_MSG_DEBUG("bookHists");
   
@@ -85,7 +85,7 @@ StatusCode TrigGenericMonitoringTool<M,P>::bookHists() {
 }
 
 template <class M, class P>
-void TrigGenericMonitoringTool<M,P>::setProxy(const std::string& /*name*/, 
+void GenericMonitoringTool<M,P>::setProxy(const std::string& /*name*/, 
                                                 IMonitoredAlgo::IGetter* g)
 {
   for (auto f : m_fillers) {
@@ -95,7 +95,7 @@ void TrigGenericMonitoringTool<M,P>::setProxy(const std::string& /*name*/,
 }
 
 template <class M, class P>
-void TrigGenericMonitoringTool<M,P>::setOpts(TH1* histo, const std::string& opt) {
+void GenericMonitoringTool<M,P>::setOpts(TH1* histo, const std::string& opt) {
   // try to apply an option
   if ( opt.find("kCanRebin") != std::string::npos ) {
      histo->SetCanExtend(TH1::kAllAxes);
@@ -109,7 +109,7 @@ void TrigGenericMonitoringTool<M,P>::setOpts(TH1* histo, const std::string& opt)
 }
 
 template <class M, class P>
-void TrigGenericMonitoringTool<M,P>::setLabels(TH1* histo, const std::vector<std::string>& labels) {
+void GenericMonitoringTool<M,P>::setLabels(TH1* histo, const std::vector<std::string>& labels) {
   if ( ! labels.empty() ){
     for ( int i = 0; i < std::min( (int)labels.size(), (int)histo->GetNbinsX() ); ++i ) {
       int bin = i+1;
@@ -134,7 +134,7 @@ void TrigGenericMonitoringTool<M,P>::setLabels(TH1* histo, const std::vector<std
  * Args   : remaining arguments to TH constructor (except name, title)
  */
 template<class M, class P> template<class H, class HBASE, typename... Types> 
-HBASE* TrigGenericMonitoringTool<M,P>::create( const HistogramDef& def, Types&&... hargs )
+HBASE* GenericMonitoringTool<M,P>::create( const HistogramDef& def, Types&&... hargs )
 {
   // Check if histogram exists already
   HBASE* histo = m_histogramCategory[def.path]->template getHist<HBASE>(def.alias);
@@ -167,14 +167,14 @@ HBASE* TrigGenericMonitoringTool<M,P>::create( const HistogramDef& def, Types&&.
 
 
 template<class M, class P> template<class H> 
-TH1* TrigGenericMonitoringTool<M,P>::create1D( TH1*& histo, const HistogramDef& def ) 
+TH1* GenericMonitoringTool<M,P>::create1D( TH1*& histo, const HistogramDef& def ) 
 {
   histo = create<H,TH1>(def, def.xbins, def.xmin, def.xmax);
   return histo;
 }
 
 template<class M, class P> template<class H> 
-TH1* TrigGenericMonitoringTool<M,P>::createProfile( TProfile*& histo, const HistogramDef& def ) 
+TH1* GenericMonitoringTool<M,P>::createProfile( TProfile*& histo, const HistogramDef& def ) 
 {
   TH1* h = create<H,TH1>(def, def.xbins, def.xmin, def.xmax, def.ymin, def.ymax);
   histo = dynamic_cast<TProfile*>(h);
@@ -182,14 +182,14 @@ TH1* TrigGenericMonitoringTool<M,P>::createProfile( TProfile*& histo, const Hist
 }
 
 template<class M, class P> template<class H> 
-TH1* TrigGenericMonitoringTool<M,P>::create2D( TH2*& histo, const HistogramDef& def ) 
+TH1* GenericMonitoringTool<M,P>::create2D( TH2*& histo, const HistogramDef& def ) 
 {
   histo = create<H,TH2>(def, def.xbins, def.xmin, def.xmax, def.ybins, def.ymin, def.ymax);
   return histo;
 }
 
 template<class M, class P> template<class H> 
-TH1* TrigGenericMonitoringTool<M,P>::create2DProfile( TProfile2D*& histo, const HistogramDef& def ) 
+TH1* GenericMonitoringTool<M,P>::create2DProfile( TProfile2D*& histo, const HistogramDef& def ) 
 {
   TH1* h = create<H,TH2>(def, def.xbins, def.xmin, def.xmax, 
                          def.ybins, def.ymin, def.ymax, def.zmin, def.zmax);
@@ -198,7 +198,7 @@ TH1* TrigGenericMonitoringTool<M,P>::create2DProfile( TProfile2D*& histo, const 
 }
 
 template <class M, class P>
-StatusCode TrigGenericMonitoringTool<M,P>::createFiller(const HistogramDef& def) {
+StatusCode GenericMonitoringTool<M,P>::createFiller(const HistogramDef& def) {
   TH1* histo(0);
   TH1* histo1D(0);
   TProfile* histoProfile(0);
@@ -364,7 +364,7 @@ StatusCode TrigGenericMonitoringTool<M,P>::createFiller(const HistogramDef& def)
 }
 
 template <class M, class P>
-StatusCode TrigGenericMonitoringTool<M,P>::fillHists() {
+StatusCode GenericMonitoringTool<M,P>::fillHists() {
   unsigned fills(0);
   for( HistogramFiller* hf : m_fillers ) {
     fills += hf->fill();
@@ -378,7 +378,7 @@ StatusCode TrigGenericMonitoringTool<M,P>::fillHists() {
 
 
 template <class M, class P>
-StatusCode TrigGenericMonitoringTool<M,P>::finalHists() {
+StatusCode GenericMonitoringTool<M,P>::finalHists() {
 
   for ( const auto i : m_histogramCategory ) {
     delete i.second;
@@ -395,7 +395,7 @@ StatusCode TrigGenericMonitoringTool<M,P>::finalHists() {
 
 
 template <class M, class P>
-const typename TrigGenericMonitoringTool<M,P>::HistogramDef TrigGenericMonitoringTool<M,P>::parseJobOptHistogram(const std::string& histDef) {
+const typename GenericMonitoringTool<M,P>::HistogramDef GenericMonitoringTool<M,P>::parseJobOptHistogram(const std::string& histDef) {
   /* Parse histogram defintion
      Example:
      1D: "EXPERT, TH1I, Name, Title;Alias, nBins, xmin, xmax, BinLabel1:BinLabel2:BinLabel3, kCumulative"
@@ -659,7 +659,7 @@ const typename TrigGenericMonitoringTool<M,P>::HistogramDef TrigGenericMonitorin
 /////////////////////////////////////////////////////////////////////////////
 
 template <class M, class P>
-unsigned TrigGenericMonitoringTool<M,P>::HistogramFiller1D::fill() {
+unsigned GenericMonitoringTool<M,P>::HistogramFiller1D::fill() {
   unsigned i(0);
   std::lock_guard<M> lock(this->m_mutex);
   for (; i < this->m_variable->size() ; ++i )
@@ -668,7 +668,7 @@ unsigned TrigGenericMonitoringTool<M,P>::HistogramFiller1D::fill() {
 } 
 
 template <class M, class P>
-unsigned TrigGenericMonitoringTool<M,P>::CumulativeHistogramFiller1D::fill() {
+unsigned GenericMonitoringTool<M,P>::CumulativeHistogramFiller1D::fill() {
   unsigned i(0);
   std::lock_guard<M> lock(this->m_mutex);
   for (; i < this->m_variable->size() ; ++i ) {
@@ -680,7 +680,7 @@ unsigned TrigGenericMonitoringTool<M,P>::CumulativeHistogramFiller1D::fill() {
 }
 
 template <class M, class P>
-unsigned TrigGenericMonitoringTool<M,P>::VecHistogramFiller1D::fill() {
+unsigned GenericMonitoringTool<M,P>::VecHistogramFiller1D::fill() {
   unsigned i(0);  
   std::lock_guard<M> lock(this->m_mutex);
   for (; i < this->m_variable->size() ; ++i ) {
@@ -693,7 +693,7 @@ unsigned TrigGenericMonitoringTool<M,P>::VecHistogramFiller1D::fill() {
 
 
 template <class M, class P>
-unsigned TrigGenericMonitoringTool<M,P>::VecHistogramFiller1DWithOverflows::fill() {
+unsigned GenericMonitoringTool<M,P>::VecHistogramFiller1DWithOverflows::fill() {
   unsigned i(0);
   std::lock_guard<M> lock(this->m_mutex);
   for (; i < this->m_variable->size() ; ++i ) {
@@ -705,14 +705,14 @@ unsigned TrigGenericMonitoringTool<M,P>::VecHistogramFiller1DWithOverflows::fill
 }
 
 template <class M, class P>
-TrigGenericMonitoringTool<M,P>::HistogramFillerProfile::HistogramFillerProfile(TProfile* hist, 
+GenericMonitoringTool<M,P>::HistogramFillerProfile::HistogramFillerProfile(TProfile* hist, 
                                                                                IMonitoredAlgo::IGetter* var1, 
                                                                                IMonitoredAlgo::IGetter* var2) 
   : m_histogram(hist), m_variable1(var1), m_variable2(var2) {
 }  
 
 template <class M, class P>
-unsigned TrigGenericMonitoringTool<M,P>::HistogramFillerProfile::fill() {
+unsigned GenericMonitoringTool<M,P>::HistogramFillerProfile::fill() {
   if ( !m_histogram )
     return 0;
 
@@ -738,7 +738,7 @@ unsigned TrigGenericMonitoringTool<M,P>::HistogramFillerProfile::fill() {
 }
 
 template <class M, class P>
-TrigGenericMonitoringTool<M,P>::HistogramFiller2DProfile::HistogramFiller2DProfile(TProfile2D* hist, 
+GenericMonitoringTool<M,P>::HistogramFiller2DProfile::HistogramFiller2DProfile(TProfile2D* hist, 
                                                                                      IMonitoredAlgo::IGetter* var1, 
                                                                                      IMonitoredAlgo::IGetter* var2,
                                                                                      IMonitoredAlgo::IGetter* var3) 
@@ -746,7 +746,7 @@ TrigGenericMonitoringTool<M,P>::HistogramFiller2DProfile::HistogramFiller2DProfi
 }  
 
 template <class M, class P>
-unsigned TrigGenericMonitoringTool<M,P>::HistogramFiller2DProfile::fill() {
+unsigned GenericMonitoringTool<M,P>::HistogramFiller2DProfile::fill() {
   if ( !m_histogram )
     return 0;
 
@@ -768,13 +768,13 @@ unsigned TrigGenericMonitoringTool<M,P>::HistogramFiller2DProfile::fill() {
 
 
 template <class M, class P>
-TrigGenericMonitoringTool<M,P>::HistogramFiller2D::HistogramFiller2D(TH2* hist, IMonitoredAlgo::IGetter* var1, 
+GenericMonitoringTool<M,P>::HistogramFiller2D::HistogramFiller2D(TH2* hist, IMonitoredAlgo::IGetter* var1, 
                                 IMonitoredAlgo::IGetter* var2) 
   : m_histogram(hist), m_variable1(var1), m_variable2(var2) {
 }  
 
 template <class M, class P>
-unsigned TrigGenericMonitoringTool<M,P>::HistogramFiller2D::fill() {
+unsigned GenericMonitoringTool<M,P>::HistogramFiller2D::fill() {
   if ( !m_histogram )
     return 0;
 
@@ -800,5 +800,5 @@ unsigned TrigGenericMonitoringTool<M,P>::HistogramFiller2D::fill() {
 }
 
 // Explicitly instantiate the possible templates and define aliases
-template class TrigGenericMonitoringTool<NoMutex, IMonitoredAlgo::IGetter*>;
-template class TrigGenericMonitoringTool<std::mutex, ContextGetter<IMonitoredAlgo::IGetter>>;
+template class GenericMonitoringTool<NoMutex, IMonitoredAlgo::IGetter*>;
+template class GenericMonitoringTool<std::mutex, ContextGetter<IMonitoredAlgo::IGetter>>;
