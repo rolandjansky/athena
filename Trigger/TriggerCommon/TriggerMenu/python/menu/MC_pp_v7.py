@@ -3404,13 +3404,6 @@ ps_Bphys_list = [
     '2mu6_bBmumux_BcmumuDsloose_L12MU6-B',
     '2mu6_bBmumux_BcmumuDsloose_L12MU6-BO',
     'mu10_mu6_bBmumux_BcmumuDsloose_L1LFV-MU',
-    'mu6_mu4_bBmumux_BcmumuDsloose_delayed',
-    '2mu6_bBmumux_BcmumuDsloose_delayed',
-    'mu10_mu6_bBmumux_BcmumuDsloose_delayed',
-    '2mu10_bBmumux_BcmumuDsloose_delayed',
-    'mu10_mu6_bBmumux_BcmumuDsloose_delayed_L1LFV-MU',
-    'mu6_mu4_bBmumux_BcmumuDsloose_delayed_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
-    '2mu6_bBmumux_BcmumuDsloose_delayed_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
 ]
 
 if TriggerFlags.doFTK():
