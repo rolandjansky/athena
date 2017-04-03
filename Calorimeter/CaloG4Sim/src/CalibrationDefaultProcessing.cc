@@ -74,7 +74,6 @@ namespace G4UA {
               // Update the step info
               event_info->SetLastProcessedBarcode( a_step->GetTrack()->GetTrackID() );
               event_info->SetLastProcessedStep( a_step->GetTrack()->GetCurrentStepNumber() );
-
             }
         }
 

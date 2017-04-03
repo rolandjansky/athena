@@ -202,6 +202,14 @@ namespace CaloG4 {
     energies.push_back( category.energy[SimulationEnergies::kNonEm] );
     energies.push_back( category.energy[SimulationEnergies::kInvisible0] );
     energies.push_back( category.energy[SimulationEnergies::kEscaped] );
+
+    // Update the global step information to say that we've dealt with this
+    EventInformation * event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
+    if ( event_info ) {
+        // Update the step info
+        event_info->SetLastProcessedBarcode( a_step->GetTrack()->GetTrackID() );
+        event_info->SetLastProcessedStep( a_step->GetTrack()->GetCurrentStepNumber() );
+    }
   }
 
 
