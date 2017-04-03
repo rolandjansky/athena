@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Generators/GeneratorObjects
                           Generators/TruthUtils
+                          Simulation/Barcode/BarcodeEvent
                           Simulation/Barcode/BarcodeInterfaces
                           Simulation/Barcode/BarcodeServices
                           Simulation/ISF/ISF_Core/ISF_Event
