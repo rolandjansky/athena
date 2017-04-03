@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef __TRIG_TRACK_SEED_GENERATOR_H__
 #define __TRIG_TRACK_SEED_GENERATOR_H__
 
@@ -442,7 +438,7 @@ InternalSoA() : m_spi(0), m_spo(0), m_r(0), m_u(0), m_v(0), m_t(0), m_ti(0), m_t
 } INTERNAL_SOA;
 
 
-typedef std::multimap<float, TrigInDetTriplet*, std::greater<float> > INTERNAL_TRIPLET_BUFFER;
+typedef std::vector<std::pair<float, TrigInDetTriplet*> > INTERNAL_TRIPLET_BUFFER;
 
 typedef std::pair<std::vector<const TrigSiSpacePointBase*>::const_iterator, std::vector<const TrigSiSpacePointBase*>::const_iterator> SP_RANGE;
 
