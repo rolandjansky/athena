@@ -235,9 +235,6 @@ def defineCPSGroups():
                                      '3mu4_bUpsi',
                                      ],
 
-        'RATE:CPS:HLT_mu20_L1MU15' : ['mu20_L1MU15',
-                                      'mu24_L1MU15',
-                                      ],
         ### ATR-15050
         'RATE:CPS:HLT_bDimu_L1BPH-2M8-MU6MU4_0DR15-MU6MU4' : 
                              ['mu6_mu4_bDimu_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
