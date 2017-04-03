@@ -25,7 +25,7 @@ namespace Rec {
     declareInterface<IParticleCaloClusterAssociationTool>(this);
     declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
     declareProperty("ClustersInConeTool",          m_clustersInConeTool);
-
+    declareProperty("CaloClusterLocation",         m_containerName);
     //coneSize for including calo cells around track
     declareProperty("ConeSize", m_coneSize = 0.1);
 
