@@ -7,7 +7,7 @@
 using namespace std;
 using namespace fastjet;
 
-// variables (other than alpha) should always be defined so that PU takes small values and HS takes large values - JS
+//This class can be used to pass in otherchi2 values for each PFO
 class PuppiUserInfo: public fastjet::PseudoJet::UserInfoBase{
  public:
 	PuppiUserInfo();
@@ -38,11 +38,9 @@ class Puppi{
 
  private:
 
-	void fillUserInfo(PseudoJet& pfo);
-	void calculateAllAlphas();
-	void findAlphaMedianAndRMS();
-
 	double getChi2(const PseudoJet& pfo);
+
+	void findAlphaMedianAndRMS();
 
 	std::vector<PseudoJet> m_chargedHS;
 	std::vector<PseudoJet> m_chargedPU;
