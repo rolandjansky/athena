@@ -1,9 +1,9 @@
 theApp.EvtMax = 10
 
-#infile="/afs/cern.ch/work/j/jstupak/mc16_13TeV.361024.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ4W.recon.AOD.e3668_s2997_r9064/AOD.10618464._001695.pool.root.1"
-#outputName="JZ4.Out.pool.root"
-infile="/afs/cern.ch/work/j/jstupak/mc16_13TeV.361021.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ1W.merge.AOD.e3569_s2997_r9064_r8996/AOD.10618338._000230.pool.root.1"
-outputName="JZ1.Out.pool.root"
+#infile = "/eos/atlas/user/j/jstupak/data/AOD/mc15_14TeV.147911.Pythia8_AU2CT10_jetjet_JZ1W.recon.AOD.e2403_s2987_s2999_r8820/AOD.10072617._008202.pool.root.1"
+#outputName="JZ1HighPU.Out.pool.root"
+infile="/eos/atlas/user/j/jstupak/data/AOD/mc15_14TeV.147914.Pythia8_AU2CT10_jetjet_JZ4W.recon.AOD.e2403_s2987_s2999_r8820/AOD.10041856._000235.pool.root.1"
+outputName="JZ4HighPU.Out.pool.root"
 
 from AthenaCommon.AppMgr import ServiceMgr
 #ServiceMgr.MessageSvc.OutputLevel = VERBOSE

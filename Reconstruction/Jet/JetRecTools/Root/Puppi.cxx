@@ -31,36 +31,9 @@ void Puppi::setParticles(const std::vector<fastjet::PseudoJet> chargedHS, const 
 
 	m_allParticles = {&m_chargedHS, &m_chargedPU, &m_neutral, &m_forward};
 	
-	//calculateAllAlphas();
 	findAlphaMedianAndRMS();
 }
 
-//---------------------------------------------------------------------------------------------------------------------------------
-/*
-void Puppi::calculateAllAlphas(){
-	for (auto collection: m_allParticles){
-		for (auto &p: *collection) fillUserInfo(p);
-	}
-}
-
-void Puppi::fillUserInfo(PseudoJet& pfo){
-	if (!pfo.has_user_info<PuppiUserInfo>()) pfo.set_user_info(new PuppiUserInfo(getAlpha(pfo)));
-	else{
-	std::vector<double> ui=pfo.user_info<PuppiUserInfo>().otherChi2Vec;
-	ui.insert(ui.begin(),getAlpha(pfo));
-	pfo.set_user_info(new PuppiUserInfo(ui));
-	}
-
-	if (m_nDF==0) {  //For the first PFO (only) this should be true
-	m_nDF=pfo.user_info<PuppiUserInfo>().otherChi2Vec.size();
-	if (m_nDF>1) std::cout<<"WARNING: Use of PUPPI with information besides alpha completely untested"<<std::endl;
-	if (m_nDF==0) std::cout<<"ERROR: no alpha info"<<std::endl;
-	}
-	else{
-	if(pfo.user_info<PuppiUserInfo>().otherChi2Vec.size() != m_nDF) std::cout<<"PUPPI ERROR: Inconsistent UserInfo length"<<std::endl;
-	}
-}
-*/
 //---------------------------------------------------------------------------------------------------------------------------------
 
 double Puppi::getChi2(const PseudoJet& pfo){
@@ -71,7 +44,6 @@ double Puppi::getChi2(const PseudoJet& pfo){
 //---------------------------------------------------------------------------------------------------------------------------------
 
 double Puppi::getWeight(PseudoJet pfo){
-	//fillUserInfo(pfo);
 
 	double chi2Total=getChi2(pfo);
 	int nDF=1;
@@ -168,7 +140,6 @@ double Puppi::getAlpha(const PseudoJet pfo){
 //---------------------------------------------------------------------------------------------------------------------------------
 
 //Finds the median and LHS RMS for the charged PU distribution (done each event)
-//should probably be configurable to take total RMS or RHS RMS for variables other than alpha
 void Puppi::findAlphaMedianAndRMS(){
 	vector<double> values;
 
@@ -205,4 +176,3 @@ double Puppi::getMedian(){
 double Puppi::getRMS(){
 	return m_rms;
 }
-

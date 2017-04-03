@@ -57,8 +57,6 @@ StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
   SG::AuxElement::Accessor<double> alphaAcc("PUPPI_alpha");
   SG::AuxElement::Accessor<double> weightAcc("PUPPI_weight");
 
-  SG::AuxElement::Accessor<float> z0SinThetaPUMinAcc("z0SinThetaPUMin");
-
   std::vector<fastjet::PseudoJet> chargedHSVector;
   std::vector<fastjet::PseudoJet> chargedPUVector;
   std::vector<fastjet::PseudoJet> neutralVector;
@@ -80,18 +78,15 @@ StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
     float charge = ppfo->charge();
 
     if(fabs(ppfo->eta()) > m_etaBoundary) forwardVector.push_back(pj);
+    else{     
+      if(charge != 0){
+        bool matchedToPrimaryVertex=PVMatchedAcc(*ppfo);
+	if(matchedToPrimaryVertex) chargedHSVector.push_back(pj);
+	else chargedPUVector.push_back(pj);
+      }
+      else neutralVector.push_back(pj);
+    }
     
-    bool matchedToPrimaryVertex=PVMatchedAcc(*ppfo);
-
-    if(charge != 0){
-      if(matchedToPrimaryVertex) chargedHSVector.push_back(pj);
-      else chargedPUVector.push_back(pj);
-    }
-
-    if(m_includeCentralNeutralsInAlpha){
-      std::cout<<"WARNING: you are doing something experimental"<<std::endl;
-      if(charge == 0 && fabs(ppfo->eta()) < m_etaBoundary) neutralVector.push_back(pj);
-    }
 
     //Test inclusion of low pT tracks
     if (m_includeLowPTTracks){
