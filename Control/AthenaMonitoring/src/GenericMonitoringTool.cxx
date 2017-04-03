@@ -2,76 +2,54 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <iostream>
-#include <sstream>
+// #include <iostream>
+// #include <sstream>
 #include <map>
 #include <mutex>
 #include <TH1.h>
 #include <TH2.h>
 #include <TProfile.h>
 #include <TProfile2D.h>
-#include "TrigMonitorBase/TrigLBNHist.h"
 
 #include <boost/tokenizer.hpp>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "GaudiKernel/INamedInterface.h"
-#include "GaudiKernel/ThreadGaudi.h"
-#include "TrigInterfaces/Algo.h"
-#include "TrigInterfaces/IMonitoredAlgo.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
 using namespace std;
 
-
-template <class M, class P>
-GenericMonitoringTool<M,P>::GenericMonitoringTool(const std::string & type, 
-                                                          const std::string & name,
-                                                          const IInterface* parent)
-  : TrigMonitorToolBase(type, name, parent)
-{ 
+GenericMonitoringTool::GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent)
+  : AthAlgTool(type, name, parent), m_histSvc("THistSvc", name) { 
   declareProperty("Histograms", m_histograms, "Definitions of histograms");
-  declareInterface<IMonitorToolBase>(this);
+  declareInterface<GenericMonitoringTool>(this);
 }
 
-template <class M, class P>
-GenericMonitoringTool<M,P>::~GenericMonitoringTool() {
-}
+GenericMonitoringTool::~GenericMonitoringTool() { }
 
-template <class M, class P>
-StatusCode GenericMonitoringTool<M,P>::bookHists() {
+StatusCode GenericMonitoringTool::initialize() {
+  // ATH_CHECK(setProperties());
+  ATH_CHECK(m_histSvc.retrieve());
 
-  ATH_MSG_DEBUG("bookHists");
-  
-  // Clear private members (bookHists can be called multiple times)
-  m_fillers.clear();
-
-  ATH_CHECK(service("THistSvc", m_rootHistSvc));
-  
-  m_algo = dynamic_cast<const IMonitoredAlgo*>(parent());  
-  if ( !m_algo ) {
-    ATH_MSG_DEBUG("Attached to algorithm which is not of type IMonitoredAlgo");
-    //return StatusCode::FAILURE;
-  }
   const INamedInterface* parentAlg = dynamic_cast<const INamedInterface*>(parent());
-  if (parentAlg==0) {
+
+  if (parentAlg == nullptr) {
     ATH_MSG_ERROR("Cannot retrieve INamedInterface of parent algorithm");
     return StatusCode::FAILURE;
   }
   
-  m_parentName =  parentAlg->name();
+  string parentAlgName = parentAlg->name();
 
-  
-  m_histogramCategory["EXPERT"]   = new TrigMonGroup ( this, m_parentName, expert );
-  m_histogramCategory["SHIFT"]    = new TrigMonGroup ( this, m_parentName, shift );
-  m_histogramCategory["DEBUG"]    = new TrigMonGroup ( this, m_parentName, debug );
-  m_histogramCategory["RUNSTAT"]  = new TrigMonGroup ( this, m_parentName, runstat );
-  m_histogramCategory["EXPRESS"]  = new TrigMonGroup ( this, m_parentName, express );
+  m_histogramCategory["EXPERT"]   = new MonGroup(this, parentAlgName, expert);
+  m_histogramCategory["SHIFT"]    = new MonGroup(this, parentAlgName, shift);
+  m_histogramCategory["DEBUG"]    = new MonGroup(this, parentAlgName, debug);
+  m_histogramCategory["RUNSTAT"]  = new MonGroup(this, parentAlgName, runstat);
+  m_histogramCategory["EXPRESS"]  = new MonGroup(this, parentAlgName, express);
 
   for (const string& item : m_histograms) {
     HistogramDef def = parseJobOptHistogram(item);
+
     if ( ! def.ok || createFiller(def).isFailure() ) {
       ATH_MSG_DEBUG("Demand to monitor variable(s): " << def.name  << " can't be satisfied");
     }
@@ -81,47 +59,61 @@ StatusCode GenericMonitoringTool<M,P>::bookHists() {
     ATH_MSG_ERROR("No variables to be monitored, detach this tool, it will save time");
     return StatusCode::FAILURE;
   }
+
   return StatusCode::SUCCESS;
 }
 
-template <class M, class P>
-void GenericMonitoringTool<M,P>::setProxy(const std::string& /*name*/, 
-                                                IMonitoredAlgo::IGetter* g)
-{
-  for (auto f : m_fillers) {
-    ATH_MSG_DEBUG("Setting new proxy for " << (g ? g->name() : "UNKNOWN"));
-    f->updateGetter(g);
+string GenericMonitoringTool::level2string(Level l) {
+  string result = "/UNSPECIFIED_NONE_OF_EXPERT_DEBUG_SHIFT_EXPRESS_RUNSUM/";
+
+  switch (l){
+  case debug:
+    result = "/DEBUG/";
+    break;
+  case expert:
+    result = "/EXPERT/";
+    break;
+  case shift:
+    result = "/SHIFT/";
+    break;
+  case express:
+    result = "/EXPRESS/";
+    break;
+  case runsum:
+    result = "/RUNSUM/";
+    break;
   }
+
+  return result;
 }
 
-template <class M, class P>
-void GenericMonitoringTool<M,P>::setOpts(TH1* histo, const std::string& opt) {
+void GenericMonitoringTool::setOpts(TH1* hist, const std::string& opt) {
   // try to apply an option
   if ( opt.find("kCanRebin") != std::string::npos ) {
-     histo->SetCanExtend(TH1::kAllAxes);
-  }else {
-     histo->SetCanExtend(TH1::kNoAxis);  
+     hist->SetCanExtend(TH1::kAllAxes);
+  } else {
+     hist->SetCanExtend(TH1::kNoAxis);  
   }
   // try to apply option to make Sumw2 in histogram
   if ( opt.find("Sumw2") != std::string::npos ) {
-    histo->Sumw2();
+    hist->Sumw2();
   }
 }
 
-template <class M, class P>
-void GenericMonitoringTool<M,P>::setLabels(TH1* histo, const std::vector<std::string>& labels) {
-  if ( ! labels.empty() ){
-    for ( int i = 0; i < std::min( (int)labels.size(), (int)histo->GetNbinsX() ); ++i ) {
-      int bin = i+1;
-      histo->GetXaxis()->SetBinLabel(bin, labels[i].c_str());
-      ATH_MSG_DEBUG("setting label X" <<  labels[i] << " for bin " << bin);
-    }
+void GenericMonitoringTool::setLabels(TH1* hist, const std::vector<std::string>& labels) {
+  if (labels.empty()){
+    return;
+  }
+  for ( int i = 0; i < std::min( (int)labels.size(), (int)hist->GetNbinsX() ); ++i ) {
+    int bin = i+1;
+    hist->GetXaxis()->SetBinLabel(bin, labels[i].c_str());
+    ATH_MSG_DEBUG("setting label X" <<  labels[i] << " for bin " << bin);
+  }
 
-    for ( int i = (int)histo->GetNbinsX(); i < std::min( (int)labels.size(), (int)histo->GetNbinsX()+(int)histo->GetNbinsY() ); ++i ) {
-      int bin = i+1-(int)histo->GetNbinsX();
-      histo->GetYaxis()->SetBinLabel(bin, labels[i].c_str());
-      ATH_MSG_DEBUG("setting label Y" <<  labels[i] << " for bin " << bin);
-    }
+  for ( int i = (int)hist->GetNbinsX(); i < std::min( (int)labels.size(), (int)hist->GetNbinsX()+(int)hist->GetNbinsY() ); ++i ) {
+    int bin = i+1-(int)hist->GetNbinsX();
+    hist->GetYaxis()->SetBinLabel(bin, labels[i].c_str());
+    ATH_MSG_DEBUG("setting label Y" <<  labels[i] << " for bin " << bin);
   }
 }
 
@@ -133,11 +125,11 @@ void GenericMonitoringTool<M,P>::setLabels(TH1* histo, const std::vector<std::st
  * HBASE  : histogram base class (TH[1,2,3])
  * Args   : remaining arguments to TH constructor (except name, title)
  */
-template<class M, class P> template<class H, class HBASE, typename... Types> 
-HBASE* GenericMonitoringTool<M,P>::create( const HistogramDef& def, Types&&... hargs )
-{
+template<class H, class HBASE, typename... Types> 
+HBASE* GenericMonitoringTool::create(const HistogramDef& def, Types&&... hargs) {
   // Check if histogram exists already
   HBASE* histo = m_histogramCategory[def.path]->template getHist<HBASE>(def.alias);
+
   if (histo) {
     ATH_MSG_DEBUG("Histogram " << def.alias << " already exists. Re-using it.");
     return histo;
@@ -145,60 +137,44 @@ HBASE* GenericMonitoringTool<M,P>::create( const HistogramDef& def, Types&&... h
 
   // Create the histogram and register it
   H* h = new H(def.alias.c_str(), def.title.c_str(), std::forward<Types>(hargs)...);
-
-  StatusCode sc;
-  // Convert to LBN histogram if needed
-  if ( def.opt.find("kLBN") != std::string::npos ) {
-    auto lbh = new TrigLBNHist<H>(*h);
-    delete h; 
-    h = lbh;
-    sc = m_histogramCategory[def.path]->regHist(static_cast<ITrigLBNHist*>(lbh));
-  }
-  else
-    sc = m_histogramCategory[def.path]->regHist(static_cast<TH1*>(h));
+  StatusCode sc = m_histogramCategory[def.path]->regHist(static_cast<TH1*>(h));
 
   if (sc.isFailure()) {
     delete h;
-    h = 0;
+    h = nullptr;
   }
   
   return h;
 }
 
-
-template<class M, class P> template<class H> 
-TH1* GenericMonitoringTool<M,P>::create1D( TH1*& histo, const HistogramDef& def ) 
-{
+template<class H> 
+TH1* GenericMonitoringTool::create1D( TH1*& histo, const HistogramDef& def ) {
   histo = create<H,TH1>(def, def.xbins, def.xmin, def.xmax);
   return histo;
 }
 
-template<class M, class P> template<class H> 
-TH1* GenericMonitoringTool<M,P>::createProfile( TProfile*& histo, const HistogramDef& def ) 
-{
+template<class H> 
+TH1* GenericMonitoringTool::createProfile( TProfile*& histo, const HistogramDef& def ) {
   TH1* h = create<H,TH1>(def, def.xbins, def.xmin, def.xmax, def.ymin, def.ymax);
   histo = dynamic_cast<TProfile*>(h);
   return h;
 }
 
-template<class M, class P> template<class H> 
-TH1* GenericMonitoringTool<M,P>::create2D( TH2*& histo, const HistogramDef& def ) 
-{
+template<class H> 
+TH1* GenericMonitoringTool::create2D( TH2*& histo, const HistogramDef& def ) {
   histo = create<H,TH2>(def, def.xbins, def.xmin, def.xmax, def.ybins, def.ymin, def.ymax);
   return histo;
 }
 
-template<class M, class P> template<class H> 
-TH1* GenericMonitoringTool<M,P>::create2DProfile( TProfile2D*& histo, const HistogramDef& def ) 
-{
+template<class H> 
+TH1* GenericMonitoringTool::create2DProfile( TProfile2D*& histo, const HistogramDef& def ) {
   TH1* h = create<H,TH2>(def, def.xbins, def.xmin, def.xmax, 
                          def.ybins, def.ymin, def.ymax, def.zmin, def.zmax);
   histo = dynamic_cast<TProfile2D*>(h);
   return histo;
 }
 
-template <class M, class P>
-StatusCode GenericMonitoringTool<M,P>::createFiller(const HistogramDef& def) {
+StatusCode GenericMonitoringTool::createFiller(const HistogramDef& def) {
   TH1* histo(0);
   TH1* histo1D(0);
   TProfile* histoProfile(0);
@@ -363,39 +339,7 @@ StatusCode GenericMonitoringTool<M,P>::createFiller(const HistogramDef& def) {
   return StatusCode::SUCCESS;
 }
 
-template <class M, class P>
-StatusCode GenericMonitoringTool<M,P>::fillHists() {
-  unsigned fills(0);
-  for( HistogramFiller* hf : m_fillers ) {
-    fills += hf->fill();
-  }
-
-  // Can be useful for debugging, in case one suspects a monitored container with ever increasing size
-  ATH_MSG_DEBUG(fills << " histogram fills done");
-  
-  return StatusCode::SUCCESS;
-}
-
-
-template <class M, class P>
-StatusCode GenericMonitoringTool<M,P>::finalHists() {
-
-  for ( const auto i : m_histogramCategory ) {
-    delete i.second;
-  }
-  m_histogramCategory.clear();
-  
-  for ( HistogramFiller* hf : m_fillers ) {
-    delete hf;
-  }
-  m_fillers.clear();
-
-  return StatusCode::SUCCESS;
-}
-
-
-template <class M, class P>
-const typename GenericMonitoringTool<M,P>::HistogramDef GenericMonitoringTool<M,P>::parseJobOptHistogram(const std::string& histDef) {
+GenericMonitoringTool::HistogramDef GenericMonitoringTool::parseJobOptHistogram(const std::string& histDef) {
   /* Parse histogram defintion
      Example:
      1D: "EXPERT, TH1I, Name, Title;Alias, nBins, xmin, xmax, BinLabel1:BinLabel2:BinLabel3, kCumulative"
@@ -506,9 +450,7 @@ const typename GenericMonitoringTool<M,P>::HistogramDef GenericMonitoringTool<M,
     ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for xmax");
     return histPar;
   }
-  
-  
-  
+
   if (histPar.type.find("TH2") == 0) {
     if (histProperty.size() < 2) {
       ATH_MSG_WARNING(histPar.name[0] << warning << "y-axis definition expected for TH2");
@@ -652,14 +594,11 @@ const typename GenericMonitoringTool<M,P>::HistogramDef GenericMonitoringTool<M,
   return histPar;
 }
 
-
-
 /////////////////////////////////////////////////////////////////////////////
 // fillers
 /////////////////////////////////////////////////////////////////////////////
 
-template <class M, class P>
-unsigned GenericMonitoringTool<M,P>::HistogramFiller1D::fill() {
+unsigned GenericMonitoringTool::HistogramFiller1D::fill() {
   unsigned i(0);
   std::lock_guard<M> lock(this->m_mutex);
   for (; i < this->m_variable->size() ; ++i )
@@ -667,8 +606,7 @@ unsigned GenericMonitoringTool<M,P>::HistogramFiller1D::fill() {
   return i;
 } 
 
-template <class M, class P>
-unsigned GenericMonitoringTool<M,P>::CumulativeHistogramFiller1D::fill() {
+unsigned GenericMonitoringTool::CumulativeHistogramFiller1D::fill() {
   unsigned i(0);
   std::lock_guard<M> lock(this->m_mutex);
   for (; i < this->m_variable->size() ; ++i ) {
@@ -679,8 +617,7 @@ unsigned GenericMonitoringTool<M,P>::CumulativeHistogramFiller1D::fill() {
   return i;  
 }
 
-template <class M, class P>
-unsigned GenericMonitoringTool<M,P>::VecHistogramFiller1D::fill() {
+unsigned GenericMonitoringTool::VecHistogramFiller1D::fill() {
   unsigned i(0);  
   std::lock_guard<M> lock(this->m_mutex);
   for (; i < this->m_variable->size() ; ++i ) {
@@ -691,9 +628,7 @@ unsigned GenericMonitoringTool<M,P>::VecHistogramFiller1D::fill() {
   return i;
 }
 
-
-template <class M, class P>
-unsigned GenericMonitoringTool<M,P>::VecHistogramFiller1DWithOverflows::fill() {
+unsigned GenericMonitoringTool::VecHistogramFiller1DWithOverflows::fill() {
   unsigned i(0);
   std::lock_guard<M> lock(this->m_mutex);
   for (; i < this->m_variable->size() ; ++i ) {
@@ -704,15 +639,7 @@ unsigned GenericMonitoringTool<M,P>::VecHistogramFiller1DWithOverflows::fill() {
   return i;
 }
 
-template <class M, class P>
-GenericMonitoringTool<M,P>::HistogramFillerProfile::HistogramFillerProfile(TProfile* hist, 
-                                                                               IMonitoredAlgo::IGetter* var1, 
-                                                                               IMonitoredAlgo::IGetter* var2) 
-  : m_histogram(hist), m_variable1(var1), m_variable2(var2) {
-}  
-
-template <class M, class P>
-unsigned GenericMonitoringTool<M,P>::HistogramFillerProfile::fill() {
+unsigned GenericMonitoringTool::HistogramFillerProfile::fill() {
   if ( !m_histogram )
     return 0;
 
@@ -724,7 +651,7 @@ unsigned GenericMonitoringTool<M,P>::HistogramFillerProfile::fill() {
       for ( i = 0; i < m_variable2->size() ; ++i )
         m_histogram->Fill(m_variable1->get(0), m_variable2->get(i));  
     } else if (m_variable2->size() == 1)  {
-      // second varaible is scalar -- loop oer first
+      // second varaible is scalar -- loop over first
       for ( i = 0; i < m_variable1->size() ; ++i )
         m_histogram->Fill(m_variable1->get(i), m_variable2->get(0));  
     }
@@ -737,16 +664,7 @@ unsigned GenericMonitoringTool<M,P>::HistogramFillerProfile::fill() {
   return i;
 }
 
-template <class M, class P>
-GenericMonitoringTool<M,P>::HistogramFiller2DProfile::HistogramFiller2DProfile(TProfile2D* hist, 
-                                                                                     IMonitoredAlgo::IGetter* var1, 
-                                                                                     IMonitoredAlgo::IGetter* var2,
-                                                                                     IMonitoredAlgo::IGetter* var3) 
-  : m_histogram(hist), m_variable1(var1), m_variable2(var2), m_variable3(var3) {
-}  
-
-template <class M, class P>
-unsigned GenericMonitoringTool<M,P>::HistogramFiller2DProfile::fill() {
+unsigned GenericMonitoringTool::HistogramFiller2DProfile::fill() {
   if ( !m_histogram )
     return 0;
 
@@ -765,16 +683,7 @@ unsigned GenericMonitoringTool<M,P>::HistogramFiller2DProfile::fill() {
   return i;
 }
 
-
-
-template <class M, class P>
-GenericMonitoringTool<M,P>::HistogramFiller2D::HistogramFiller2D(TH2* hist, IMonitoredAlgo::IGetter* var1, 
-                                IMonitoredAlgo::IGetter* var2) 
-  : m_histogram(hist), m_variable1(var1), m_variable2(var2) {
-}  
-
-template <class M, class P>
-unsigned GenericMonitoringTool<M,P>::HistogramFiller2D::fill() {
+unsigned GenericMonitoringTool::HistogramFiller2D::fill() {
   if ( !m_histogram )
     return 0;
 
@@ -799,6 +708,25 @@ unsigned GenericMonitoringTool<M,P>::HistogramFiller2D::fill() {
   return i;
 }
 
-// Explicitly instantiate the possible templates and define aliases
-template class GenericMonitoringTool<NoMutex, IMonitoredAlgo::IGetter*>;
-template class GenericMonitoringTool<std::mutex, ContextGetter<IMonitoredAlgo::IGetter>>;
+/////////////////////////////////////////////////////////////////////////
+// code form monitoring group
+/////////////////////////////////////////////////////////////////////////
+GenericMonitoringTool::MonGroup::MonGroup(TrigMonitorToolBase* tool, const std::string& algo, Level l) 
+  : m_tool(tool), m_algo(algo), m_level(l) {}
+
+StatusCode GenericMonitoringTool::MonGroup::regHist(TH1* h) {
+  return m_tool->m_histSvc->regHist(m_tool->level2string(m_level)+m_algo+"/"+h->GetName(), h);
+}
+
+StatusCode GenericMonitoringTool::MonGroup::regHist(ITrigLBNHist* h) {
+  h->setDepth(m_tool->m_lbnHistoryDepth);
+  h->setGroup(m_tool->m_lbnHistoryGroup);
+  h->setITHistSvc(&*(m_tool->m_histSvc));
+  h->setPath(m_tool->level2string(m_level)+m_algo);
+  h->reg();
+  return StatusCode::SUCCESS;
+}
+
+StatusCode GenericMonitoringTool::MonGroup::deregHist(TH1* h) {
+  return m_tool->m_histSvc->deReg(h);
+}
