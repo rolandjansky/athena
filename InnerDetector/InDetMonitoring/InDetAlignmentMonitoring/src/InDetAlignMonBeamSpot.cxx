@@ -353,9 +353,9 @@ StatusCode InDetAlignMonBeamSpot::procHistograms()
 {
 
 
-  if( endOfLowStat || endOfLumiBlock ) { }
+  if( endOfLowStatFlag() || endOfLumiBlockFlag() ) { }
 
-  if( endOfRun ) { }
+  if( endOfRunFlag() ) { }
 
   return StatusCode::SUCCESS;
 }

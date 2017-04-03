@@ -2468,12 +2468,12 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 
 StatusCode IDAlignMonResiduals::procHistograms()
 {  
-  if( endOfLowStat ) {
+  if( endOfLowStatFlag() ) {
   }
-  if( endOfLumiBlock ) {
+  if( endOfLumiBlockFlag() ) {
     
   }
-  if( endOfRun || ( ( AthenaMonManager::environment() == AthenaMonManager::online ) && endOfLumiBlock ) ) { 
+  if( endOfRunFlag() || ( ( AthenaMonManager::environment() == AthenaMonManager::online ) && endOfLumiBlockFlag() ) ) { 
     for(unsigned int side=0;side<3;++side){
       
       //single TRT residuals

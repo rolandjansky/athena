@@ -2482,11 +2482,11 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
 
 StatusCode IDAlignMonGenericTracks::procHistograms()
 {
-  if( endOfLowStat ) {
+  if( endOfLowStatFlag() ) {
   }
-  if( endOfLumiBlock ) {
+  if( endOfLumiBlockFlag() ) {
   }
-  if( endOfRun ) {
+  if( endOfRunFlag() ) {
 
     m_ZpT_diff->Add(m_ZpT_p,m_ZpT_n,1.,-1);
     m_pT_diff->Add(m_pT_p,m_pT_n,1.,-1);

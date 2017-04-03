@@ -79,7 +79,7 @@ else:
 #PoolInput = inputFiles
 # number of event to process
 
-EvtMax= 1000 # -1 # 
+EvtMax=  -1 # 
 SkipEvents = 0
 
 
