@@ -28,6 +28,7 @@
 #include "G4SDManager.hh"
 #include "G4Run.hh"
 #include "G4Step.hh"
+#include "G4RunManager.hh"
 
 
 #include "GaudiKernel/Bootstrap.h"
