@@ -6,14 +6,14 @@ from AthenaCommon import CfgMgr
 # "/afs/cern.ch/work/r/rjansky/InputHGTD/AOD.10041718._000164.pool.root.1",
 # "/afs/cern.ch/work/r/rjansky/InputHGTD/AOD.10041718._000312.pool.root.1"]
 
-#InputFiles = ["/afs/cern.ch/work/r/rjansky/mc15_13TeV.301267.Pythia8EvtGen_A14NNPDF23LO_Wprime_WZqqqq_m2000.merge.AOD.e3749_s2608_s2183_r8459_r7676/AOD.09378881._000006.pool.root.1"]
+InputFiles = ["/afs/cern.ch/work/r/rjansky/mc15_13TeV.301282.Pythia8EvtGen_A14NNPDF23LO_Wprime_WZqqqq_m4000.merge.AOD.e3743_s2608_s2183_r7772_r7676/AOD.08110078._000001.pool.root.1"]
 #InputFiles = ["/afs/cern.ch/user/n/ncalace/work/mc15_13TeV/AOD.09378881._000006.pool.root.1"]
 
 svcMgr.EventSelector.InputCollections = InputFiles
-Name = Sample
+# Name = Sample
 
 #svcMgr.EventSelector.InputCollections = InputFiles
-#Name = "WprimeWTVA400MeV"
+Name = "WprimeWTVA400MeVOriginAndTimeAtAssociationCreation"
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
@@ -51,6 +51,32 @@ print "globalflags.DetDescrVersion = ", globalflags.DetDescrVersion
 include("RecExCond/AllDet_detDescr.py")
 # include('InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py')
 
+from JetRec.JetRecConf import JetAlgorithm
+from JetRecTools.JetRecToolsConf import JetConstituentModSequence, CaloClusterConstituentsOrigin, ClusterTimeCutTool
+ccco = CaloClusterConstituentsOrigin("JetConstit_LCOrigin") 
+ToolSvc += ccco
+
+ctct = ClusterTimeCutTool("JetConstit_Timecut") 
+ToolSvc += ctct
+
+PFSequence = JetConstituentModSequence("JetConstitSeq_LCOriginAndTime",
+                                       InputContainer = "CaloCalTopoClusters",
+                                       OutputContainer = "LCOriginTopoClusters",
+                                       InputType = "CaloCluster",
+                                       Modifiers = [ctct, ccco],
+                                       SaveAsShallow = False
+                                       )
+ToolSvc += PFSequence
+
+# PFSequence2 = JetConstituentModSequence("JetConstitSeq_LCOrigin",
+                                       # InputContainer = "CaloCalTopoClusters",
+                                       # OutputContainer = "LCOriginOnlyTopoClusters",
+                                       # InputType = "CaloCluster",
+                                       # Modifiers = [ccco],
+                                       # SaveAsShallow = False
+                                       # )
+# ToolSvc += PFSequence2
+
 #Configure the extrapolator
 from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
 theAtlasExtrapolator=AtlasExtrapolator("AtlasExtrapolator")
@@ -66,7 +92,7 @@ print ParticleToCaloExtrapolationTool
 
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
 CaloClustersInCone = xAOD__CaloClustersInConeTool(name = "CaloClustersInCone", 
-                                                  CaloClusterLocation = "CaloCalTopoClusters")
+                                                  CaloClusterLocation = "LCOriginTopoClusters")
 # CaloClustersInCone.OutputLevel = DEBUG
 ToolSvc += CaloClustersInCone
 
@@ -75,15 +101,29 @@ print CaloClustersInCone
 from TrackToCalo.TrackToCaloConf import Rec__ParticleCaloClusterAssociationTool
 ParticleCaloCellAssociation = Rec__ParticleCaloClusterAssociationTool(name                 = "ParticleCaloCellAssociationInDet",
                                                                    ParticleCaloExtensionTool                = ParticleToCaloExtrapolationTool,
+                                                                   CaloClusterLocation = "LCOriginTopoClusters",
                                                                    ClustersInConeTool = CaloClustersInCone,
                                                                    ConeSize             = 0.1)
-# ParticleCaloCellAssociation.OutputLevel = DEBUG
+ParticleCaloCellAssociation.OutputLevel = DEBUG
 ToolSvc+=ParticleCaloCellAssociation
 print      ParticleCaloCellAssociation
 
 # Access the algorithm sequence:
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
+
+# Add the algorithm.
+jetalg = JetAlgorithm("JetAlg_OriginAndTime")
+jetalg.OutputLevel = INFO
+jetalg.Tools += [PFSequence]
+topSequence += jetalg
+
+# # Add the algorithm.
+# jetalg = JetAlgorithm("JetAlg_Origin")
+# jetalg.OutputLevel = INFO
+# jetalg.Tools += [PFSequence2]
+# topSequence += jetalg
+
 
 from TrackParticleAssociationAlgs.TrackParticleAssociationAlgsConf import TrackParticleClusterAssociationAlg
 TrackParticleClusterAssociation = TrackParticleClusterAssociationAlg(name = "TrackParticleClusterAssociationInDet",
@@ -105,6 +145,16 @@ print      TrackCaloClusterWeights
 loosetrackvertexassotool=CfgMgr.CP__LooseTrackVertexAssociationTool("LooseTrackVertexAssociationTool", dzSinTheta_cut=3, d0_cut=2) 
 ToolSvc+=loosetrackvertexassotool 
 
+from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
+jettva  =   TrackVertexAssociationTool( name                    = "tvassoc",
+                                        TrackParticleContainer  = "InDetTrackParticles",
+                                        TrackVertexAssociation  = "JetTrackVtxAssoc",
+                                        VertexContainer         = "PrimaryVertices",
+                                        TrackVertexAssoTool     = loosetrackvertexassotool
+                                    )
+ToolSvc+=jettva 
+print      jettva
+
 from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import TrackCaloClusterCreatorTool
 TrackCaloClusterCreator = TrackCaloClusterCreatorTool(name                      = "TrackCaloClusterCreator",
                                                       VertexContainerName       = "PrimaryVertices",
@@ -116,7 +166,7 @@ print      TrackCaloClusterCreator
 from TrackCaloClusterRecAlgs.TrackCaloClusterRecAlgsConf import TrackCaloClusterRecAlg
 ParticleToCaloExtrapolation = TrackCaloClusterRecAlg(name                           = "TrackCaloClusterRecAlg",
                                                      OutputCollectionPostFix        = "Test",
-                                                     CaloClustersLocation           = "CaloCalTopoClusters",
+                                                     CaloClustersLocation           = "LCOriginTopoClusters",
                                                      TrackCaloClusterContainerName  = "TrackCaloClusters",
                                                      TrackCaloClusterWeightsTool    = TrackCaloClusterWeights,
                                                      TrackCaloClusterCreatorTool    = TrackCaloClusterCreator)
@@ -125,7 +175,7 @@ topSequence += ParticleToCaloExtrapolation
 
 print ParticleToCaloExtrapolation
 
-theApp.EvtMax = -1
+theApp.EvtMax = 1000
 
 ### Jet Stuff
 if 1:
@@ -238,7 +288,6 @@ if 1:
   
   from JetRec.JetRecConf import JetPseudojetRetriever
   from JetRec.JetRecConf import JetRecTool
-  from JetRec.JetRecConf import JetAlgorithm
 
   for name in clnames:
   #--------------------------------------------------------------
@@ -323,12 +372,20 @@ if 1:
   # Find jet inputs.
   from JetRec.JetRecConf import PseudoJetGetter
   psjget = PseudoJetGetter("PseudoJetGetter")
-  psjget.InputContainer = "CaloCalTopoClusters"
-  psjget.Label = "LCTopo"
-  psjget.OutputContainer = "PseudoJetLCTopo"
+  psjget.InputContainer = "LCOriginTopoClusters"
+  psjget.Label = "LCTopoOrigin"
+  psjget.OutputContainer = "PseudoJetLCTopoOrigin"
   # psjget.OutputLevel = INFO
   psjget.SkipNegativeEnergy = True
   ToolSvc += psjget
+  
+  psjget2 = PseudoJetGetter("cget_ghost")
+  psjget2.InputContainer = "InDetTrackParticles"
+  psjget2.Label = "GhostTrack"
+  psjget2.OutputContainer = "PseudoJetGhostTrack"
+  # psjget.OutputLevel = INFO
+  psjget2.GhostScale = 1e-20
+  ToolSvc += psjget2
     
   # Find jets.
   from JetRec.JetRecConf import JetFinder
@@ -339,12 +396,21 @@ if 1:
   jfind.PtMin = 2000.0
   #  jfind.OutputLevel = VERBOSE
   ToolSvc += jfind
-    
+   
+  from JetMomentTools.JetMomentToolsConf import JetTrackSumMomentsTool
+  TrackSumMomentsTool = JetTrackSumMomentsTool(  name = "trksummoms",
+                                                 VertexContainer = "PrimaryVertices",
+                                                 AssociatedTracks = "GhostTrack",
+                                                 TrackVertexAssociation = jettva.TrackVertexAssociation,
+                                                 RequireTrackPV = True)
+  TrackSumMomentsTool.OutputLevel = DEBUG                                               
+  ToolSvc += TrackSumMomentsTool   
+
   # JetRec tool for finding.
   jetrec = JetRecTool("JetRecTool")
   jetrec.OutputContainer = "MyAntiKt10LCTopoJets"
   jetrec.OutputLevel = INFO
-  jetrec.PseudoJetGetters += [psjget]
+  jetrec.PseudoJetGetters += [psjget, psjget2]
   jetrec.JetFinder = jfind  
   jetrec.JetModifiers += [nsubjettiness]
   jetrec.JetModifiers += [nsubjettinessratios]
@@ -361,10 +427,11 @@ if 1:
   jetrec.JetModifiers += [charge]
   jetrec.JetModifiers += [subjetmaker]
   jetrec.JetModifiers += [subjetfinder]
+  # jetrec.JetModifiers += [TrackSumMomentsTool]
   ToolSvc += jetrec
  
   from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
-  calib_tool=JetCalibrationTool('JetCalibTool',JetCollection="AntiKt10LCTopoTrimmedPtFrac5SmallR20",ConfigFile='JES_MC15recommendation_FatJet_June2015.config',CalibSequence='EtaJES_JMS',IsData=False)
+  calib_tool=JetCalibrationTool('JetCalibTool',JetCollection="AntiKt10LCTopoTrimmedPtFrac5SmallR20",ConfigFile='JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights.config',CalibSequence='EtaJES_JMS',IsData=False)
   ToolSvc += calib_tool
   print calib_tool
     
@@ -392,13 +459,14 @@ if 1:
   jetrec_trimm.JetModifiers += [charge]
   jetrec_trimm.JetModifiers += [subjetmaker]
   jetrec_trimm.JetModifiers += [subjetfinder]
+  jetrec_trimm.JetModifiers += [TrackSumMomentsTool]
   jetrec_trimm.JetModifiers += [calib_tool]
   ToolSvc += jetrec_trimm
      
   # Add the algorithm. It runs the demo tools.
   jetalg = JetAlgorithm("JetAlg")
   jetalg.OutputLevel = INFO
-  jetalg.Tools += [jetrec, jetrec_trimm]
+  jetalg.Tools += [jetrec, jettva, jetrec_trimm]
   topSequence += jetalg
 
 ###end jet stuff
@@ -406,21 +474,25 @@ if 1:
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 xaodStream = MSMgr.NewPoolRootStream( "StreamAOD", "XAOD_"+Name+".pool.root" )
 # xaodStream.Stream.TakeItemsFromInput = True #this will only work for the event-by-event items. MetadataItems must still be specified
-xaodStream.AddItem("xAOD::EventInfo#*")
-xaodStream.AddItem("xAOD::EventAuxInfo#*")
-xaodStream.AddItem("xAOD::EventShape#*")
-xaodStream.AddItem("xAOD::EventShapeAuxInfo#*")
-xaodStream.AddItem("xAOD::VertexContainer#PrimaryVertices")
-xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClusters")
-xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersAux.")
-xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClustersCharged")
-xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersChargedAux.")
-xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClustersAll")
-xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersAllAux.")
-xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClustersAllTrack")
-xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersAllTrackAux.")
-xaodStream.AddItem( "xAOD::JetContainer#*")
-xaodStream.AddItem( "xAOD::JetAuxContainer#*")
+# xaodStream.AddItem("xAOD::EventInfo#*")
+# xaodStream.AddItem("xAOD::EventAuxInfo#*")
+# xaodStream.AddItem("xAOD::EventShape#*")
+# xaodStream.AddItem("xAOD::EventShapeAuxInfo#*")
+# xaodStream.AddItem("xAOD::VertexContainer#PrimaryVertices")
+# xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClusters")
+# xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersAux.")
+# xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClustersCharged")
+# xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersChargedAux.")
+# xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClustersAll")
+# xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersAllAux.")
+# xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClustersAllTrack")
+# xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersAllTrackAux.")
+xaodStream.AddItem( "xAOD::JetContainer#My*")
+xaodStream.AddItem( "xAOD::JetAuxContainer#My*")
+xaodStream.AddItem( "xAOD::JetContainer#*TrackCaloClusters*")
+xaodStream.AddItem( "xAOD::JetAuxContainer#*TrackCaloClusters*")
+xaodStream.AddItem( "xAOD::JetContainer#*AntiKt10Truth*")
+xaodStream.AddItem( "xAOD::JetAuxContainer#*AntiKt10Truth*")
 
 # from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
 # pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
