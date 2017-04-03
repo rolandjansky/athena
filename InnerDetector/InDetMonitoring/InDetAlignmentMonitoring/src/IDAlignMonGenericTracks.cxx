@@ -557,11 +557,11 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
   MonGroup al_mon ( this, outputDirName, run );
   MonGroup al_mon_ls ( this, outputDirName, lowStat );
 
-  if ( newLowStat ) {  
+  if ( newLowStatFlag() ) {  
   }
-  if ( newLumiBlock ) {  
+  if ( newLumiBlockFlag() ) {  
   }
-  if ( newRun ) {  
+  if ( newRunFlag() ) {  
 
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job

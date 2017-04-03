@@ -138,10 +138,10 @@ StatusCode IDPerfMonWenu::bookHistograms()
 
 
 
-  if ( newLowStat || newLumiBlock ) {
+  if ( newLowStatFlag() || newLumiBlockFlag() ) {
   }
 
-  if( newRun ) {
+  if( newRunFlag() ) {
 
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job

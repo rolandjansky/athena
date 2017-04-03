@@ -737,11 +737,11 @@ StatusCode IDAlignMonResiduals::bookHistograms()
 
   MonGroup al_mon ( this, outputDirName, run );
 	
-  if ( newLowStat ) {  
+  if ( newLowStatFlag() ) {  
   }
-  if ( newLumiBlock ) {  
+  if ( newLumiBlockFlag() ) {  
   }
-  if ( newRun ) {
+  if ( newRunFlag() ) {
 	  
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job
@@ -2103,7 +2103,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    m_hiterror_y_pix_ec   -> Fill(hitErrorY       , hweight);       m_hiterror_y_pix_ec_WideRange-> Fill(hitErrorY       , hweight);    
 
 	    if (0 <= layerDisk && layerDisk <= m_PIX_Mgr->numerology().numDisks()-1) { // protection
-	      msg(MSG::INFO) << " filling biased histos pixel ECA disk " << layerDisk << " for track " << nTracks << " of collection "<<  m_tracksName << endmsg;
+	      msg(MSG::DEBUG) << " filling biased histos pixel ECA disk " << layerDisk << " for track " << nTracks << " of collection "<<  m_tracksName << endmsg;
 	      m_pix_eca_biased_residualsx[layerDisk]   -> Fill(biasedResidualX      , hweight);
 	      m_pix_eca_biased_residualsy[layerDisk]   -> Fill(biasedResidualY      , hweight);
 	      m_pix_eca_biased_residualsx_pt[layerDisk]-> Fill(trkpt,biasedResidualX, hweight);
@@ -2164,7 +2164,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    m_hiterror_y_pix_ec   -> Fill(hitErrorY       , hweight);  m_hiterror_y_pix_ec_WideRange-> Fill(hitErrorY       , hweight);
 	   
 	    if (0 <= layerDisk && layerDisk <= m_PIX_Mgr->numerology().numDisks()-1) { // protection
-	      msg(MSG::INFO) << " filling biased histos pixel ECA disk " << layerDisk << " for track " << nTracks << " of collection "<<  m_tracksName << endmsg;
+	      msg(MSG::DEBUG) << " filling biased histos pixel ECA disk " << layerDisk << " for track " << nTracks << " of collection "<<  m_tracksName << endmsg;
 	      
 	      m_pix_ecc_biased_residualsx[layerDisk]   -> Fill(biasedResidualX      , hweight);
 	      m_pix_ecc_biased_residualsy[layerDisk]   -> Fill(biasedResidualY      , hweight);

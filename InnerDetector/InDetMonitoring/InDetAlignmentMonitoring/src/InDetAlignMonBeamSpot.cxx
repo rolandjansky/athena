@@ -114,10 +114,10 @@ StatusCode InDetAlignMonBeamSpot::bookHistograms() {
     // book histograms that are only relevant for cosmics data...
   }
 
-  if ( newLowStat || newLumiBlock ) {
+  if ( newLowStatFlag() || newLumiBlockFlag() ) {
   }
 
-  if( newRun ) {
+  if( newRunFlag() ) {
 
     // Histograms for track-based beam spot monitoring
     m_hTrDPhi       = makeAndRegisterTH2F(al_beamspot_mon,"trkDPhi","DCA vs Phi wrt (0,0);#varphi (rad);d_{0} (mm)",100,-3.5,3.5,100,-5,5);

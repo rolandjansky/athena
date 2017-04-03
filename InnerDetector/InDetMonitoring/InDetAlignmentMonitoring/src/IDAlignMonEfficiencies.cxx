@@ -443,11 +443,11 @@ StatusCode IDAlignMonEfficiencies::bookHistograms()
   
   
 
-  if ( newLowStat ) {  
+  if ( newLowStatFlag() ) {  
   }
-  if ( newLumiBlock ) {  
+  if ( newLumiBlockFlag() ) {  
   }
-  if ( newRun ) {  
+  if ( newRunFlag() ) {  
     
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job

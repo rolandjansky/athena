@@ -714,7 +714,7 @@ StatusCode IDPerfMonZmumu::execute()
     if (muonTrksRefit1->size()<2) {
       ATH_MSG_WARNING("Refit1 muon tracks are missing!");
     }else{
-      ATH_MSG_INFO("-- >> going to fill refit1params << -- ");
+      ATH_MSG_DEBUG("-- >> going to fill refit1params << -- ");
       FillRecParameters(refit1MuonTrk1, p1_comb->charge());
       FillRecParameters(refit1MuonTrk2, p2_comb->charge());
 
@@ -739,7 +739,7 @@ StatusCode IDPerfMonZmumu::execute()
     if (muonTrksRefit2->size()<2) {
       ATH_MSG_WARNING("Refit2 muon tracks are missing!");
     }else{
-      ATH_MSG_INFO("-- >> going to fill refit2params << --");
+      ATH_MSG_DEBUG("-- >> going to fill refit2params << --");
       FillRecParameters(refit2MuonTrk1, p1_comb->charge());
       FillRecParameters(refit2MuonTrk2, p2_comb->charge());
       m_refit2Tree->Fill();
@@ -748,7 +748,7 @@ StatusCode IDPerfMonZmumu::execute()
     if (!muon_pos || !muon_neg) {
       ATH_MSG_WARNING("CB Muons missing!");
     } else {
-      ATH_MSG_INFO("-- >> going to fill combined muons params << --");
+      ATH_MSG_DEBUG("-- >> going to fill combined muons params << --");
       FillRecParameters(p1_comb->track(), p1_comb->charge());
       FillRecParameters(p2_comb->track(), p2_comb->charge());
       m_combMuidTree->Fill();
