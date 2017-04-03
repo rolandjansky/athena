@@ -30,6 +30,7 @@ sequence of sequences.
 """
 
 from TriggerMenu.commonUtils  import makeCaloSequences
+from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
 
 class AlgList(object):
     def __init__(self, alg_list, alias, attach_to=''):
@@ -90,10 +91,12 @@ class JetSequencesBuilder(object):
                        'cmfs1': self.make_cmfs1,  # cell maker full scan
                        'cmfs2': self.make_cmfs2,  # cluster maker full scan
                        'ed': self.make_ed,  # energy density
+                       'ftk': self.make_ftk,  # run algos for ftk track finding and xaod conversion
+                       'tm': self.make_tm, # track moments helper
                        'jr': self.make_jr_clusters,  # jet rec
                        'hijr': self.make_hijr,  # hi jet rec
                        'rc': self.make_jr_recluster,  # recluster jets
-		       'tr': self.make_jr_trimming, # trimmed jets
+                       'tr': self.make_jr_trimming, # trimmed jets
                        'jh': self.make_jh,  # jet hypo
                        'jh_ht': self.make_jh_ht,  # HT hypo
                        'jh_tla': self.make_jh_tla,  # TLA hypo
@@ -147,17 +150,20 @@ class JetSequencesBuilder(object):
         data_type = menu_data.data_type
         scan_type = menu_data.scan_type
         do_trimming = menu_data.fex_params.fex_type == 'jetrec_trimming'
+        trkopt = menu_data.trkopt
         seq_order = {
             # ('tc', 'FS'): ['fs', 'cmfs', 'ed', 'jr'],
             #('tc', 'FS', False): ['fs2', 'ed', 'jr'],
-            ('tc','FS',False): ['fs2','cmfs1','cmfs2','ed','jr'],
+            ('tc','FS',False,'notrk'): ['fs2','cmfs1','cmfs2','ed','jr'],
+            ('tc','FS',False,'ftk'): ['fs2','cmfs1','cmfs2','ed','ftk','tm','jr'],
+            ('tc','FS',False,'ftkrefit'): ['fs2','cmfs1','cmfs2','ed','ftk','tm','jr'],
             # ('tc', 'FS'): ['fs', 'cmfs', 'jr'],
-            ('tc', 'PS', False): ['ps', 'cm', 'jr'],
-            ('ion', 'FS', False): ['fs','hicm','hijr'],
-            ('TT', 'FS', False): ['tt', 'jt'],
-            ('tc', 'FS', True): ['fs2', 'cmfs1', 'cmfs2','ed', 'tr']}.get((data_type,
+            ('tc', 'PS', False, 'notrk'): ['ps', 'cm', 'jr'],
+            ('ion', 'FS', False, 'notrk'): ['fs','hicm','hijr'],
+            ('TT', 'FS', False, 'notrk'): ['tt', 'jt'],
+            ('tc', 'FS', True, 'notrk'): ['fs2', 'cmfs1', 'cmfs2','ed', 'tr']}.get((data_type,
                                                            scan_type,
-                                                           do_trimming), [])
+                                                           do_trimming,trkopt), [])
 
         if not seq_order:
             msg = '%s._make_sequence_list: cannot determine sequence'\
@@ -281,6 +287,29 @@ class JetSequencesBuilder(object):
 
         return AlgList(algs, alias=alias)
 
+    def make_ftk(self):
+        """Return FTK sequence"""
+        alias = 'ftktracking'
+        
+        ftkopt = self.chain_config.menu_data.trkopt
+        if ftkopt == 'ftk': 
+            ftksequence_list = TrigInDetFTKSequence("FullScan", "fullScan", sequenceFlavour=["FTKVtx"]).getSequence()
+        elif ftkopt == 'ftkrefit':
+            ftksequence_list = TrigInDetFTKSequence("FullScan", "fullScan", sequenceFlavour=["FTKVtx", "refit"]).getSequence()
+        ftkalgo_list = []
+
+        for seq in ftksequence_list:
+                for a in seq:
+                        print "adding ftk algo ", a
+                        ftkalgo_list.append(AlgStringProxy(a))
+
+        return AlgList(ftkalgo_list, alias=alias)
+
+    def make_tm(self):
+        """make track moment helpers Alglist"""
+        alias = 'trkmomhelpers'
+
+        return AlgList(alg_list=self.alg_factory.trackmoment_helpers(), alias=alias)
 
     def make_cm(self):
         """Return cellmaker for non partial scan running.
