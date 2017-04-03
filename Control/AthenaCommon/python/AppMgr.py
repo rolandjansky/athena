@@ -19,10 +19,8 @@ __author__  = 'Wim Lavrijsen (WLavrijsen@lbl.gov)'
 __all__ = [ 'theApp', 'ServiceMgr', 'ToolSvc', 'AuditorSvc', 'theAuditorSvc',
             'athMasterSeq',
             'athFilterSeq',
-            'athBeginSeq',
             'athCondSeq',
             'athAlgSeq',    'topSequence',
-            'athEndSeq'
             'athOutSeq',
             'athRegSeq',
             ]
