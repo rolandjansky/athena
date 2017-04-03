@@ -71,6 +71,8 @@
 #include "CaloG4Sim/VEscapedEnergyProcessing.h"
 #include "CaloG4Sim/EscapedEnergyRegistry.h"
 
+#include "MCTruth/EventInformation.h"
+
 #include "G4EventManager.hh"
 #include "G4SteppingManager.hh"
 #include "G4TrackVector.hh"
@@ -172,19 +174,6 @@ namespace CaloG4 {
   SimulationEnergies::~SimulationEnergies()
   {;}
 
-
-  G4bool SimulationEnergies::StepWasProcessed() {
-#ifdef G4MULTITHREADED
-    // Get current thread-ID
-    const auto tid = std::this_thread::get_id();
-    // Retrieve it from the call flags map
-    auto cfPair = m_calledForStepThreadMap.find(tid);
-    if(cfPair == m_calledForStepThreadMap.end()) return false;
-    return cfPair->second;
-#else
-    return m_calledForStep;
-#endif
-  }
 
 
   // The "simple" call, intended for calibration calculators:

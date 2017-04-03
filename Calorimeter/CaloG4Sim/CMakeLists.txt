@@ -12,7 +12,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/G4Atlas/G4AtlasInterfaces
                           Simulation/G4Atlas/G4AtlasTools
                           PRIVATE
-                          Control/CxxUtils )
+                          Control/CxxUtils
+                          Simulation/MCTruth )
 
 # External dependencies:
 find_package( CLHEP )
