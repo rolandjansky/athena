@@ -26,6 +26,7 @@
 #include "GaudiKernel/System.h"
 #include <map>
 #include <memory>
+#include <sstream>
 
 
 namespace DMTest {
@@ -57,67 +58,67 @@ StatusCode AuxDataTestTypelessRead::initialize()
 namespace {
 
 
-void dumpAuxItem (SG::auxid_t auxid, const SG::AuxVectorData& c, size_t i)
+void dumpAuxItem (std::ostream& ost, SG::auxid_t auxid, const SG::AuxVectorData& c, size_t i)
 {
   const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
   const std::type_info* ti = r.getType(auxid);
   std::string head = r.getName(auxid) + ": ";
   if (ti == &typeid(int))
-    std::cout << head << c.getData<int> (auxid, i) << "; ";
+    ost << head << c.getData<int> (auxid, i) << "; ";
   else if (ti == &typeid(float))
-    std::cout << head << CxxUtils::strformat ("%.3f", c.getData<float> (auxid, i)) << "; ";
+    ost << head << CxxUtils::strformat ("%.3f", c.getData<float> (auxid, i)) << "; ";
   else if (ti == &typeid(ElementLink<DMTest::BAuxVec>)) {
     const ElementLink<DMTest::BAuxVec>& el =
       c.getData<ElementLink<DMTest::BAuxVec> > (auxid, i);
-    std::cout << head << el.dataID() << "[" << el.index() << "]; ";
+    ost << head << el.dataID() << "[" << el.index() << "]; ";
   }
   else if (ti == &typeid(DMTest::B)) {
-    std::cout << head << c.getData<B>(auxid, i).m_x << "; ";
+    ost << head << c.getData<B>(auxid, i).m_x << "; ";
   }
 #if 0
   else if (ti == &typeid(SG::PackedElement<unsigned int>))
-    std::cout << head << c.getData<SG::PackedElement<unsigned int> > (auxid, i) << "; ";
+    ost << head << c.getData<SG::PackedElement<unsigned int> > (auxid, i) << "; ";
 #endif
   else if (ti == &typeid(unsigned int))
-    std::cout << head << c.getData<unsigned int> (auxid, i) << "; ";
+    ost << head << c.getData<unsigned int> (auxid, i) << "; ";
 #if 0
   else if (ti == &typeid(SG::PackedElement<float>))
-    std::cout << head << c.getData<SG::PackedElement<float> > (auxid, i) << "; ";
+    ost << head << c.getData<SG::PackedElement<float> > (auxid, i) << "; ";
   else if (ti == &typeid(SG::PackedElement<std::vector<unsigned int> >)) {
-    std::cout << "\n    " << head << "[";
+    ost << "\n    " << head << "[";
     for (auto ii : c.getData<SG::PackedElement<std::vector<unsigned int> > > (auxid, i))
-      std::cout << ii << " ";
-    std::cout << "]; ";
+      ost << ii << " ";
+    ost << "]; ";
   }
   else if (ti == &typeid(SG::PackedElement<std::vector<int> >)) {
-    std::cout << "\n    " << head << "[";
+    ost << "\n    " << head << "[";
     for (auto ii : c.getData<SG::PackedElement<std::vector<int> > > (auxid, i))
-      std::cout << ii << " ";
-    std::cout << "]; ";
+      ost << ii << " ";
+    ost << "]; ";
   }
   else if (ti == &typeid(SG::PackedElement<std::vector<float> >)) {
-    std::cout << "\n    " << head << "[";
+    ost << "\n    " << head << "[";
     for (auto ii : c.getData<SG::PackedElement<std::vector<float> > > (auxid, i))
-      std::cout << CxxUtils::strformat ("%.3f", ii) << " ";
-    std::cout << "]; ";
+      ost << CxxUtils::strformat ("%.3f", ii) << " ";
+    ost << "]; ";
   }
 #endif
   else if (ti == &typeid(std::vector<int>)) {
-    std::cout << "\n    " << head << "[";
+    ost << "\n    " << head << "[";
     for (auto ii : c.getData<std::vector<int> > (auxid, i))
-      std::cout << ii << " ";
-    std::cout << "]; ";
+      ost << ii << " ";
+    ost << "]; ";
   }
   else if (ti == &typeid(std::vector<float>) ||
            strcmp (ti->name(), typeid(std::vector<float>).name()) == 0)
   {
-    std::cout << "\n    " << head << "[";
+    ost << "\n    " << head << "[";
     for (auto ii : c.getData<std::vector<float> > (auxid, i))
-      std::cout << CxxUtils::strformat ("%.3f", ii) << " ";
-    std::cout << "]; ";
+      ost << CxxUtils::strformat ("%.3f", ii) << " ";
+    ost << "]; ";
   }
   else
-    std::cout << head << "xxx " << ti->name() << "; ";
+    ost << head << "xxx " << ti->name() << "; ";
 }
 
 
@@ -148,10 +149,11 @@ StatusCode AuxDataTestTypelessRead::execute()
               << System::typeinfoName (*r.getType(m.second)) << " ";
   std::cout << "\n";
   for (size_t i = 0; i < vec->size(); i++) {
-    std::cout << "  ";
+    std::ostringstream ss;
+    ss << "  ";
     for (const auto& m : auxid_map)
-      dumpAuxItem (m.second, *vec, i);
-    std::cout << "\n";
+      dumpAuxItem (ss, m.second, *vec, i);
+    std::cout << ss.str() << "\n";
   }
 
   const BAux* b = 0;
@@ -167,9 +169,10 @@ StatusCode AuxDataTestTypelessRead::execute()
     std::cout << r.getName(m.second) << "/" 
               << System::typeinfoName (*r.getType(m.second)) << " ";
   std::cout << "\n";
+  std::ostringstream ss;
   for (const auto& m : bauxid_map)
-    dumpAuxItem (m.second, *cont, 0);
-  std::cout << "\n";
+    dumpAuxItem (ss, m.second, *cont, 0);
+  std::cout << ss.str() << "\n";
 
   if (!m_writePrefix.empty()) {
     // Passing this as the third arg of record will make the object const.

@@ -20,10 +20,9 @@
 #include "AthContainers/AuxVectorData.h"
 #include "AthContainers/OwnershipPolicy.h"
 #include "AthContainers/exceptions.h"
+#include "AthContainers/tools/CurrentEventStore.h"
 #include "AthContainersInterfaces/AuxStore_traits.h"
 #include "AthLinks/ElementLink.h"
-#include "SGTools/CurrentEventStore.h"
-#include "AthenaKernel/IProxyDict.h"
 #include <vector>
 
 

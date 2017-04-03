@@ -31,14 +31,26 @@ theApp.EvtMax = 20
 # Set up the algorithm.
 #--------------------------------------------------------------
 
-bswrite = ['DMTest::CVec#cvec']
+bswrite = ['DMTest::CVec#cvec',
+           'DMTest::CView#cview',
+           'DMTest::HVec#hvec',
+           'DMTest::HView#hview',
+           ]
 
 from TrigNavigation.TrigNavigationConf import HLT__Navigation
 from DataModelTestDataWrite.DataModelTestDataWriteConf import \
      DMTest__xAODTestWriteCVec, \
+     DMTest__xAODTestWriteHVec, \
+     DMTest__xAODTestWriteCView, \
      DMTest__HLTResultWriter
 topSequence += DMTest__xAODTestWriteCVec ("xAODTestWriteCVec",
                                           CVecKey = 'HLT_DMTest__CVec_cvec')
+topSequence += DMTest__xAODTestWriteCView ("xAODTestWriteCView",
+                                           CVecKey = 'HLT_DMTest__CVec_cvec',
+                                           CViewKey = 'HLT_DMTest__CView_cview')
+topSequence += DMTest__xAODTestWriteHVec ("xAODTestWriteHVec",
+                                          HVecKey = 'HLT_DMTest__HVec_hvec',
+                                          HViewKey = 'HLT_DMTest__HView_hview')
 topSequence += DMTest__HLTResultWriter \
                ("HLTResultWriter",
                 Nav = HLT__Navigation (ClassesToPayload = bswrite,
@@ -54,6 +66,7 @@ cppyy.loadDictionary("libDataModelTestDataCommonDict")
 cppyy.loadDictionary("libDataModelTestDataWriteDict")
 ROOT.DMTest.B
 ROOT.DMTest.setConverterLibrary ('libDataModelTestDataWriteCnvPoolCnv.so')
+ROOT.DMTest.setTrigConverterLibrary ('libDataModelTestDataWriteSerCnv.so')
 
 # ItemList:
 fullItemList = []
