@@ -119,7 +119,7 @@ void inLoopTest() {
     }
 } // save happens here
 
-int main(int argc, const char * argv[]) {
+int main(void) {
     scalarTest();
     valuesCollectionTest();
     objectsCollectionTest();
