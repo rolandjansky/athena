@@ -115,6 +115,8 @@ public:
     HistogramFiller(TH1* hist, HistogramDef histDef) 
       : m_hist(hist), m_mutex(std::make_shared<std::mutex>()), m_histDef(new HistogramDef(histDef)) {}
 
+    virtual TH1* histogram() = 0;
+
     TH1* m_hist;
     std::shared_ptr<std::mutex> m_mutex;
     std::shared_ptr<HistogramDef> m_histDef;
@@ -129,7 +131,7 @@ public:
   virtual ~GenericMonitoringTool();
   
   virtual StatusCode initialize();
-  virtual std::vector<HistogramFiller> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables);
+  virtual std::vector<HistogramFiller*> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables);
   
   enum Level { debug, expert, shift, express, runsum, runstat = runsum };
   std::string level2string( Level l );
@@ -162,6 +164,8 @@ private:
     HistogramFiller1D(TH1* hist, HistogramDef histDef)
       : HistogramFiller(hist, histDef) {}
     virtual unsigned fill();
+  protected:
+    virtual TH1* histogram() { return m_hist; }
   };
   
   /**
@@ -196,6 +200,8 @@ private:
     HistogramFillerProfile(TProfile* hist, HistogramDef histDef)
       : HistogramFiller(hist, histDef) {};
     virtual unsigned fill();
+  protected:
+    virtual TProfile* histogram() { return static_cast<TProfile*>(m_hist); }
   };
   
   /**
@@ -206,6 +212,8 @@ private:
     HistogramFiller2D(TH2* hist, HistogramDef histDef)
       : HistogramFiller(hist, histDef) {};
     virtual unsigned fill();
+  protected:
+    virtual TH2* histogram() { return static_cast<TH2*>(m_hist); }
   };
 
   /**
@@ -216,6 +224,8 @@ private:
     HistogramFiller2DProfile(TProfile2D* hist, HistogramDef histDef)
       : HistogramFiller(hist, histDef) {};
     virtual unsigned fill();
+  protected:
+    virtual TProfile2D* histogram() { return static_cast<TProfile2D*>(m_hist); }
   };  
   
   StatusCode createFiller(const HistogramDef& def); //!< creates filler and adds to the list of active fillers
@@ -237,7 +247,7 @@ private:
   TH1* create2DProfile( TProfile2D*& histo, const HistogramDef& def );
   
   ServiceHandle<ITHistSvc> m_histSvc;  
-  std::vector<HistogramFiller> m_fillers;                          //!< list of fillers
+  std::vector<HistogramFiller*> m_fillers;                         //!< list of fillers
   std::vector<std::string> m_histograms;                           //!< property (list of histogram definitions)
   std::map<std::string, MonGroup*> m_histogramCategory;            //!< predefined categories (drive booking paths)
 };

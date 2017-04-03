@@ -20,6 +20,12 @@
 
 using namespace std;
 
+const InterfaceID& GenericMonitoringTool::interfaceID() {
+	static InterfaceID GenericMonitoringTool_ID("GenericMonitoringTool", 1, 0);
+
+	return GenericMonitoringTool_ID;
+}
+
 GenericMonitoringTool::GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent)
   : AthAlgTool(type, name, parent), m_histSvc("THistSvc", name) { 
   declareProperty("Histograms", m_histograms, "Definitions of histograms");
@@ -32,14 +38,14 @@ StatusCode GenericMonitoringTool::initialize() {
   // ATH_CHECK(setProperties());
   ATH_CHECK(m_histSvc.retrieve());
 
-  const INamedInterface* parentAlg = dynamic_cast<const INamedInterface*>(parent());
+  // const INamedInterface* parentAlg = dynamic_cast<const INamedInterface*>(parent());
 
-  if (parentAlg == nullptr) {
-    ATH_MSG_ERROR("Cannot retrieve INamedInterface of parent algorithm");
-    return StatusCode::FAILURE;
-  }
+  // if (parentAlg == nullptr) {
+  //   ATH_MSG_ERROR("Cannot retrieve INamedInterface of parent algorithm");
+  //   return StatusCode::FAILURE;
+  // }
   
-  string parentAlgName = parentAlg->name();
+  string parentAlgName = "TODO"; // parentAlg->name();
 
   m_histogramCategory["EXPERT"]   = new MonGroup(this, parentAlgName, expert);
   m_histogramCategory["SHIFT"]    = new MonGroup(this, parentAlgName, shift);
@@ -61,6 +67,21 @@ StatusCode GenericMonitoringTool::initialize() {
   }
 
   return StatusCode::SUCCESS;
+}
+
+vector<GenericMonitoringTool::HistogramFiller*> GenericMonitoringTool::getHistogramsFillers(vector<reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) {
+  vector<GenericMonitoringTool::HistogramFiller*> result;
+
+  // for (auto filler : m_fillers) {
+  //   auto fillerVariables = filler->histogramVariablesNames();
+  //   vector<reference_wrapper<Monitored::IMonitoredVariable>> variables;
+
+  //   for (auto fillerVariable : fillerVariables) {
+
+  //   }
+  // }
+//TODO
+  return result;
 }
 
 string GenericMonitoringTool::level2string(Level l) {
@@ -196,10 +217,10 @@ StatusCode GenericMonitoringTool::createFiller(const HistogramDef& def) {
   
   //create 2D
   else if (def.type == "TH2F")
-    histo = create2D<TH2F>(histo2D, def );
+    histo = create2D<TH2F>(histo2D, def);
 
   else if (def.type == "TH2D")
-    histo = create2D<TH2D>(histo2D, def );
+    histo = create2D<TH2D>(histo2D, def);
 
   else if (def.type == "TH2I") 
     histo = create2D<TH2I>(histo2D, def);
@@ -216,130 +237,64 @@ StatusCode GenericMonitoringTool::createFiller(const HistogramDef& def) {
   setLabels(histo, def.labels);
   setOpts(histo, def.opt);
 
-  // create filler for 1D
+  std::string m_parentName = "TODO";
+
   if ( histo1D && !histoProfile){
+    if ( def.opt.find("kCumulative") != std::string::npos ) {
+      ATH_MSG_DEBUG("Variable: " << def.name[0] << " from parent algorithm: "
+                    << m_parentName << " will be histogrammed in Cummulative histogram");
 
-    std::map<std::string, IMonitoredAlgo::IGetter*>::const_iterator varIt;
-    if (m_algo) varIt = m_algo->variables().find(def.name[0]);
-    
-    if ( (m_algo && varIt != m_algo->variables().end()) || m_algo==nullptr ) {
-    
-      IMonitoredAlgo::IGetter* g = m_algo ? varIt->second : new IMonitoredAlgo::IGetter(def.name[0]);  
-      if ( def.opt.find("kCumulative") != std::string::npos ) {
-        ATH_MSG_DEBUG("Variable: " << def.name[0] << " from parent algorithm: "
-                      << m_parentName << " will be histogrammed in Cummulative histogram");
-        HistogramFiller* f = new CumulativeHistogramFiller1D(histo1D, g);
-        m_fillers.push_back(f);
-      } 
-      else if (def.opt.find("kVecUO") != std::string::npos) {
-        ATH_MSG_DEBUG("Variable: " << def.name << " from parent algorithm: "
-                      << m_parentName << " will be added to histogram");
-        if (g && (unsigned(histo1D->GetNbinsX()+2) != g->size()))
-          ATH_MSG_WARNING("Variable: " << def.name << " from parent algorithm: " << m_parentName 
-                          << " has different dimension: " << g->size() 
-                          << " than histogram: " << histo1D->GetNbinsX()
-                          << " booked for it and kVecUO options is requested (variable has to accomodate Under/Overflows too)");
+      m_fillers.push_back(new CumulativeHistogramFiller1D(histo1D, def));
+    } else if (def.opt.find("kVecUO") != std::string::npos) {
+      ATH_MSG_DEBUG("Variable: " << def.name << " from parent algorithm: "
+                    << m_parentName << " will be added to histogram");
+      // if (g && (unsigned(histo1D->GetNbinsX()+2) != g->size())) {
+      //   ATH_MSG_WARNING("Variable: " << def.name << " from parent algorithm: " << m_parentName 
+      //                   << " has different dimension: " << g->size() 
+      //                   << " than histogram: " << histo1D->GetNbinsX()
+      //                   << " booked for it and kVecUO options is requested (variable has to accomodate Under/Overflows too)");
+      // }
 
-        HistogramFiller* f = new VecHistogramFiller1DWithOverflows(histo1D, g);
-        m_fillers.push_back(f);
-        
-      } 
-      else if (def.opt.find("kVec") != std::string::npos) {
-        ATH_MSG_DEBUG("Variable: " << def.name << " from parent algorithm: "
-                      << m_parentName << " will be added to histogram");
-        if (g && (unsigned(histo1D->GetNbinsX()) != varIt->second->size()))
-          ATH_MSG_WARNING("Variable: " << def.name << " from parent algorithm: " << m_parentName 
-                          << " has different dimension: " << g->size() 
-                          << " than hisogram: " << histo1D->GetNbinsX()
-                          << " booked for it and kVec options is requested");
-       
-        HistogramFiller* f = new VecHistogramFiller1D(histo1D, g);
-        m_fillers.push_back(f);
- 
-      } 
-      else {
-        ATH_MSG_DEBUG("Variable: " << def.name << " from parent algorithm: " << m_parentName
-                      <<  " will be histogrammed");
-        HistogramFiller* f = new HistogramFiller1D(histo1D, g);
-        m_fillers.push_back(f);
-      }
+      m_fillers.push_back(new VecHistogramFiller1DWithOverflows(histo1D, def));
+    } else if (def.opt.find("kVec") != std::string::npos) {
+      ATH_MSG_DEBUG("Variable: " << def.name << " from parent algorithm: "
+                    << m_parentName << " will be added to histogram");
+      // if (g && (unsigned(histo1D->GetNbinsX()) != varIt->second->size())) {
+      //   ATH_MSG_WARNING("Variable: " << def.name << " from parent algorithm: " << m_parentName 
+      //                   << " has different dimension: " << g->size() 
+      //                   << " than histogram: " << histo1D->GetNbinsX()
+      //                   << " booked for it and kVec options is requested");
+      // }
+
+      m_fillers.push_back(new VecHistogramFiller1D(histo1D, def));
     } else {
-      ATH_MSG_WARNING("Variable: " << def.name << " not exported by parent algorithm: " << m_parentName  << " this are available:");
-      for ( varIt = m_algo->variables().begin(); varIt != m_algo->variables().end(); ++varIt) {
-        msg() << MSG::WARNING << varIt->first << " ";   
-      }
-      msg() << MSG::WARNING << endmsg;
-      
-      return StatusCode::FAILURE;
+      ATH_MSG_DEBUG("Variable: " << def.name << " from parent algorithm: " << m_parentName
+                    <<  " will be histogrammed");
+
+      m_fillers.push_back(new HistogramFiller1D(histo1D, def));
     }
-
-  } else if ( histo2DProfile ){
-
-
-    std::map<std::string, IMonitoredAlgo::IGetter*>::const_iterator var1It, var2It, var3It;
-    if (m_algo) {
-      var1It = m_algo->variables().find(def.name[0]);
-      var2It = m_algo->variables().find(def.name[1]);
-      var3It = m_algo->variables().find(def.name[2]);
-    }
-
-    IMonitoredAlgo::IGetter* g1 = m_algo ? var1It->second : new IMonitoredAlgo::IGetter(def.name[0]);
-    IMonitoredAlgo::IGetter* g2 = m_algo ? var2It->second : new IMonitoredAlgo::IGetter(def.name[1]);
-    IMonitoredAlgo::IGetter* g3 = m_algo ? var3It->second : new IMonitoredAlgo::IGetter(def.name[2]);
-
-    if ( (m_algo && var1It != m_algo->variables().end() && 
-          var2It != m_algo->variables().end() && var3It != m_algo->variables().end()) || m_algo==nullptr ) {
+  } else if ( histo2DProfile ) {
       ATH_MSG_DEBUG("Variables: " << def.name[0] << "," << def.name[1] << "," << def.name[2]
                     << " from parent algorithm: " << m_parentName
                     << " will be histogrammed in 2D Profile histogram");
-      m_fillers.push_back(new HistogramFiller2DProfile(histo2DProfile, g1, g2, g3));
-    }
-    else{
-      ATH_MSG_WARNING("Variables: " << def.name[0] << "," << def.name[1] << "," << def.name[2] 
-                      << " not exported by parent algorithm: " << m_parentName);
-      for ( var1It = m_algo->variables().begin(); var1It != m_algo->variables().end(); ++var1It) {
-        msg() << MSG::WARNING << var1It->first << " ";  
-      }
-      msg() << MSG::WARNING << endmsg;
-      return StatusCode::FAILURE;
-    }
 
+      m_fillers.push_back(new HistogramFiller2DProfile(histo2DProfile, def));
   } else if ( histo2D || histoProfile ){
-    std::map<std::string, IMonitoredAlgo::IGetter*>::const_iterator var1It, var2It;
-    if (m_algo) {
-      var1It = m_algo->variables().find(def.name[0]);
-      var2It = m_algo->variables().find(def.name[1]);
-    }
-    
-    IMonitoredAlgo::IGetter* g1 = m_algo ? var1It->second : new IMonitoredAlgo::IGetter(def.name[0]);
-    IMonitoredAlgo::IGetter* g2 = m_algo ? var2It->second : new IMonitoredAlgo::IGetter(def.name[1]);
-
-    if ( (m_algo && var1It != m_algo->variables().end() && 
-          var2It != m_algo->variables().end()) || m_algo==nullptr ) {
       ATH_MSG_DEBUG("Variables: " << def.name[0] << "," << def.name[1]
                     << " from parent algorithm: " << m_parentName
                     << " will be histogrammed in 2D histogram");
-      if (histo2D)
-        m_fillers.push_back(new HistogramFiller2D(histo2D, g1, g2));
-      else {       
-        m_fillers.push_back(new HistogramFillerProfile(histoProfile, g1, g2));
+
+      if (histo2D) {
+        m_fillers.push_back(new HistogramFiller2D(histo2D, def));
+      } else {       
+        m_fillers.push_back(new HistogramFillerProfile(histoProfile, def));
       }
-    }
-    else {
-      ATH_MSG_WARNING("Variables: " << def.name[0] << "," << def.name[1] 
-                      << " not exported by parent algorithm: " << m_parentName);
-      for ( var1It = m_algo->variables().begin(); var1It != m_algo->variables().end(); ++var1It) {
-        msg() << MSG::WARNING << var1It->first << " ";  
-      }
-      msg() << MSG::WARNING << endmsg;
-      return StatusCode::FAILURE;
-    }
   }
   
   return StatusCode::SUCCESS;
 }
 
-GenericMonitoringTool::HistogramDef GenericMonitoringTool::parseJobOptHistogram(const std::string& histDef) {
+const GenericMonitoringTool::HistogramDef GenericMonitoringTool::parseJobOptHistogram(const std::string& histDef) {
   /* Parse histogram defintion
      Example:
      1D: "EXPERT, TH1I, Name, Title;Alias, nBins, xmin, xmax, BinLabel1:BinLabel2:BinLabel3, kCumulative"
@@ -599,76 +554,130 @@ GenericMonitoringTool::HistogramDef GenericMonitoringTool::parseJobOptHistogram(
 /////////////////////////////////////////////////////////////////////////////
 
 unsigned GenericMonitoringTool::HistogramFiller1D::fill() {
+  if (m_monVariables.size() != 1) {
+    return 0;
+  }
+
   unsigned i(0);
-  std::lock_guard<M> lock(this->m_mutex);
-  for (; i < this->m_variable->size() ; ++i )
-    m_histogram->Fill(this->m_variable->get(i));
+  auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
+  std::lock_guard<std::mutex> lock(*(this->m_mutex));
+
+  for (auto value : valuesVector) {
+    histogram()->Fill(value);
+    ++i;
+  }
+
   return i;
 } 
 
 unsigned GenericMonitoringTool::CumulativeHistogramFiller1D::fill() {
-  unsigned i(0);
-  std::lock_guard<M> lock(this->m_mutex);
-  for (; i < this->m_variable->size() ; ++i ) {
-    unsigned bin = this->m_histogram->FindBin( this->m_variable->get(i) );
-    for ( unsigned j = bin; j > 0; --j) 
-      this->m_histogram->AddBinContent(j);
+  if (m_monVariables.size() != 1) {
+    return 0;
   }
+
+  unsigned i(0);
+  auto hist = histogram();
+  auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
+  std::lock_guard<std::mutex> lock(*(this->m_mutex));
+
+  for (auto value : valuesVector) {
+    unsigned bin = hist->FindBin(value);
+
+    for (unsigned j = bin; j > 0; --j) {
+      hist->AddBinContent(j);
+    }
+
+    ++i;
+  }
+
   return i;  
 }
 
 unsigned GenericMonitoringTool::VecHistogramFiller1D::fill() {
-  unsigned i(0);  
-  std::lock_guard<M> lock(this->m_mutex);
-  for (; i < this->m_variable->size() ; ++i ) {
-    double v = this->m_variable->get(i);
-    this->m_histogram->AddBinContent(i+1, v);
-    this->m_histogram->SetEntries(this->m_histogram->GetEntries() + v );
+  if (m_monVariables.size() != 1) {
+    return 0;
   }
+
+  unsigned i(0);
+  auto hist = histogram();
+  auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
+  std::lock_guard<std::mutex> lock(*(this->m_mutex));
+
+  for (auto value : valuesVector) {
+    hist->AddBinContent(i+1, value);
+    hist->SetEntries(hist->GetEntries() + value);
+
+    ++i;
+  }
+
   return i;
 }
 
 unsigned GenericMonitoringTool::VecHistogramFiller1DWithOverflows::fill() {
-  unsigned i(0);
-  std::lock_guard<M> lock(this->m_mutex);
-  for (; i < this->m_variable->size() ; ++i ) {
-    double v = this->m_variable->get(i);
-    this->m_histogram->AddBinContent(i, v); 
-    this->m_histogram->SetEntries(this->m_histogram->GetEntries() + v );
+  if (m_monVariables.size() != 1) {
+    return 0;
   }
+
+  unsigned i(0);
+  auto hist = histogram();
+  auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
+  std::lock_guard<std::mutex> lock(*(this->m_mutex));
+
+  for (auto value : valuesVector) {
+    hist->AddBinContent(i, value);
+    hist->SetEntries(hist->GetEntries() + value);
+
+    ++i;
+  }
+
   return i;
 }
 
 unsigned GenericMonitoringTool::HistogramFillerProfile::fill() {
-  if ( !m_histogram )
+  if (m_monVariables.size() != 2) {
     return 0;
-
-  unsigned i(0);  
-  std::lock_guard<M> lock(this->m_mutex);
-  if ( m_variable1->size() != m_variable2->size() ) {
-    if ( m_variable1->size() == 1 ) {
-      // first variable is scalar -- loop over second
-      for ( i = 0; i < m_variable2->size() ; ++i )
-        m_histogram->Fill(m_variable1->get(0), m_variable2->get(i));  
-    } else if (m_variable2->size() == 1)  {
-      // second varaible is scalar -- loop over first
-      for ( i = 0; i < m_variable1->size() ; ++i )
-        m_histogram->Fill(m_variable1->get(i), m_variable2->get(0));  
-    }
-    return i;
   }
 
-  for ( i = 0; i < m_variable1->size() ; ++i )
-    m_histogram->Fill(m_variable1->get(i), m_variable2->get(i));
+  unsigned i(0);
+  auto hist = histogram();
+  auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
+  auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
+  std::lock_guard<std::mutex> lock(*(this->m_mutex));
+
+  if (valuesVector1.size() != valuesVector2.size()) {
+    if (valuesVector1.size() == 1) {
+      // first variable is scalar -- loop over second
+      for (auto value2 : valuesVector2) {
+        hist->Fill(valuesVector1[0], value2);
+        ++i;
+      }
+    } else if (valuesVector2.size() == 1)  {
+      // second varaible is scalar -- loop over first
+      for (auto value1 : valuesVector1) {
+        hist->Fill(value1, valuesVector2[0]); 
+        ++i;
+      } 
+    }
+  } else {
+    for (i = 0; i < valuesVector1.size(); ++i) {
+      hist->Fill(valuesVector1[i], valuesVector2[i]);
+    }
+  }
   
   return i;
 }
 
 unsigned GenericMonitoringTool::HistogramFiller2DProfile::fill() {
-  if ( !m_histogram )
+  if (m_monVariables.size() != 3) {
     return 0;
+  }
 
   unsigned i(0);
+  auto hist = histogram();
+  auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
+  auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
+  auto valuesVector3 = m_monVariables[2].get().getVectorRepresentation();
+  std::lock_guard<std::mutex> lock(*(this->m_mutex));
   /*HERE NEED TO INCLUDE CASE IN WHICH SOME VARIABLES ARE SCALAR AND SOME VARIABLES ARE VECTORS
   unsigned i(0);
   if (m_variable1->size() != m_variable2->size() || m_variable1->size() != m_variable3->size() || m_variable2->size() != m_variable3->size() ) {
@@ -676,55 +685,55 @@ unsigned GenericMonitoringTool::HistogramFiller2DProfile::fill() {
   }*/
 
   //For now lets just consider the case in which all variables are of the same length
-  std::lock_guard<M> lock(this->m_mutex);
-  for ( i = 0; i < m_variable1->size() ; ++i )
-    m_histogram->Fill(m_variable1->get(i), m_variable2->get(i), m_variable3->get(i));
+  for (i = 0; i < valuesVector1.size(); ++i) {
+    hist->Fill(valuesVector1[i], valuesVector2[i], valuesVector3[i]);
+  }
   
   return i;
 }
 
 unsigned GenericMonitoringTool::HistogramFiller2D::fill() {
-  if ( !m_histogram )
+  if (m_monVariables.size() != 2) {
     return 0;
-
-  unsigned i(0);
-  std::lock_guard<M> lock(this->m_mutex);
-  if ( m_variable1->size() != m_variable2->size() ) {
-    if ( m_variable1->size() == 1 ) {
-      // first variable is scalar -- loop over second
-      for ( i = 0; i < m_variable2->size() ; ++i )
-    m_histogram->Fill(m_variable1->get(0), m_variable2->get(i));  
-    } else if (m_variable2->size() == 1)  {
-      // second varaible is scalar -- loop over first
-      for ( i = 0; i < m_variable1->size() ; ++i )
-    m_histogram->Fill(m_variable1->get(i), m_variable2->get(0));  
-    }
-    return i;
   }
 
-  for ( i = 0; i < m_variable1->size() ; ++i )
-    m_histogram->Fill(m_variable1->get(i), m_variable2->get(i));
+  unsigned i(0);
+  auto hist = histogram();
+  auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
+  auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
+  std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
+  if (valuesVector1.size() != valuesVector2.size()) {
+    if (valuesVector1.size() == 1) {
+      // first variable is scalar -- loop over second
+      for (auto value2 : valuesVector2) {
+        hist->Fill(valuesVector1[0], value2);
+        ++i;
+      }
+    } else if (valuesVector2.size() == 1)  {
+      // second varaible is scalar -- loop over first
+      for (auto value1 : valuesVector1) {
+        hist->Fill(value1, valuesVector2[0]); 
+        ++i;
+      } 
+    }
+  } else {
+    for (i = 0; i < valuesVector1.size(); ++i) {
+      hist->Fill(valuesVector1[i], valuesVector2[i]);
+    }
+  }
+  
   return i;
 }
 
 /////////////////////////////////////////////////////////////////////////
 // code form monitoring group
 /////////////////////////////////////////////////////////////////////////
-GenericMonitoringTool::MonGroup::MonGroup(TrigMonitorToolBase* tool, const std::string& algo, Level l) 
+GenericMonitoringTool::MonGroup::MonGroup(GenericMonitoringTool* tool, const std::string& algo, Level l) 
   : m_tool(tool), m_algo(algo), m_level(l) {}
 
 StatusCode GenericMonitoringTool::MonGroup::regHist(TH1* h) {
   return m_tool->m_histSvc->regHist(m_tool->level2string(m_level)+m_algo+"/"+h->GetName(), h);
-}
-
-StatusCode GenericMonitoringTool::MonGroup::regHist(ITrigLBNHist* h) {
-  h->setDepth(m_tool->m_lbnHistoryDepth);
-  h->setGroup(m_tool->m_lbnHistoryGroup);
-  h->setITHistSvc(&*(m_tool->m_histSvc));
-  h->setPath(m_tool->level2string(m_level)+m_algo);
-  h->reg();
-  return StatusCode::SUCCESS;
 }
 
 StatusCode GenericMonitoringTool::MonGroup::deregHist(TH1* h) {
