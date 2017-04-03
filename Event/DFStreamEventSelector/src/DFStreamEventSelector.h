@@ -25,6 +25,8 @@
 #endif
 
 #include "AthenaBaseComps/AthService.h"
+#include "hltinterface/DataSource.h"
+
 class DFStreamEventSelector:public AthService,
 			     public IEvtSelector{
 public:
@@ -102,6 +104,24 @@ public:
     * @param c Reference pointer to the Context object.
     */
   virtual StatusCode resetCriteria(const std::string& cr,Context& c)const override;
+private:
+  ServiceHandle<IIncidentSvc> m_incidentSvc;
+  ServiceHandle<StoreGateSvc> m_evtStore;
+  Gaudi::Property<std::string> m_plugin{this,"PluginName","FileDS","Name of the DataSource plugin"};
+  Gaudi::Property<std::string> m_pluginConfig{this,"PluginConfig","","Plugin configuration, in the form of xml serialized ptree"};
+  Gaudi::Property<bool> m_overrideRunNumber;
+  Gaudi::Property<bool> m_overrideEventNumber;
+  Gaudi::Property<bool> m_overrideTimeStamp;
+  Gaudi::Property<bool> m_filebased;
+  
+  Gaudi::CheckedProperty<int> m_runNo;
+  Gaudi::CheckedProperty<int> m_firstEventNo;
+  Gaudi::CheckedProperty<int> m_eventsPerRun;
+  Gaudi::CheckedProperty<int> m_firstLBNo;
+  Gaudi::CheckedProperty<int> m_eventsPerLB;
+  Gaudi::CheckedProperty<int> m_initTimeStamp;
+  Gaudi::Property<int> m_timeStampInterval;
+
 
 };
 #endif
