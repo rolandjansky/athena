@@ -6,9 +6,9 @@
 #include <array>
 #include <set>
 
-#include "MonitoredScope.h"
-#include "MonitoredScalar.h"
-#include "MonitoredCollection.h"
+#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/MonitoredScalar.h"
+#include "AthenaMonitoring/MonitoredCollection.h"
 
 using namespace Monitored;
 

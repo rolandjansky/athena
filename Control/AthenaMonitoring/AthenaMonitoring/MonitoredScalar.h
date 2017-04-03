@@ -10,8 +10,8 @@
 
 #include <vector>
 
-#include "IMonitoredVariable.h"
-#include "MonitoredHelpers.h"
+#include "AthenaMonitoring/IMonitoredVariable.h"
+#include "AthenaMonitoring/MonitoredHelpers.h"
 
 namespace Monitored {
     namespace MonitoredScalar {

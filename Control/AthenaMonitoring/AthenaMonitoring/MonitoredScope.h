@@ -13,7 +13,7 @@
 #include <string>
 #include <iostream>
 
-#include "IMonitoredVariable.h"
+#include "AthenaMonitoring/IMonitoredVariable.h"
 
 namespace Monitored {
     class MonitoredScope {
