@@ -2,8 +2,7 @@
 
 from TrigL2MuonSA.TrigL2MuonSAConf import *
 from TrigL2MuonSA.TrigL2MuonSAMonitoring import *
-from AthenaCommon.AppMgr import *
-from AthenaCommon.AppMgr import ServiceMgr
+from AthenaCommon.AppMgr import ServiceMgr,ToolSvc
 from TrigTimeMonitor.TrigTimeHistToolConfig import *
 from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import *
@@ -15,7 +14,6 @@ theTrackFitter       = TrigL2MuonSA__MuFastTrackFitter()
 theTrackExtrapolator = TrigL2MuonSA__MuFastTrackExtrapolator()
 
 
-from AthenaCommon.AppMgr import ToolSvc
 
 ToolSvc += theDataPreparator
 ToolSvc += thePatternFinder
@@ -125,7 +123,6 @@ class TrigL2MuonSAConfig(MuFastSteering):
         self.BackExtrapolator = MuonBackExtrapolatorForMisalignedDet()
 
         # adding Geometry Services
-        from AthenaCommon.AppMgr import ServiceMgr
         
         # Histograms for monitored variables
         validation = TrigL2MuonSAValidationMonitoring()
