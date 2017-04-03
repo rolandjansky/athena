@@ -4,18 +4,18 @@ This contains everything you need to run and test the IDTrigger in the RTT
 
 The directory structure is 
 
-  share   -   py job options files for running the RTT processing
-  test    -   global TestConfiguration xml file for running the jobs in the RTT
-  build   -   xml fragments and makefile to build the global xml file
-  utils   -   useful utilities to allow testing the xml jobs 
-  doc     -   this documantation
+  share      -   py job options files for running the RTT processing
+  test       -   global TestConfiguration xml file for running the jobs in the RTT
+  TIDAbuild  -   xml fragments and makefile to build the global xml file
+  utils      -   useful utilities to allow testing the xml jobs 
+  doc        -   this documantation
 
 
 Making the xml file
 -------------------
 In the 
 
-   build
+   TIDAbuild
 
 directory, there are separate small xml fragments for individual jobs to be 
 run in the RTT, for example ...
@@ -36,7 +36,11 @@ which simply includes all the separate xml fragments to make the large
 xml file for the RTT.
 
 Do NOT edit this large xml file directly - instead modify the xml fragments
-and then run make in the build directory.
+and then run 
+
+  make 
+
+in the build directory.
 
 This also tests the xml integrity of the file.
 
@@ -54,7 +58,20 @@ NB: Because we use the c preprocessor to compine the xml fragments, then
 
     so the preprocessor creates these patterns for us, and they are not then 
     interpretted as the open comments     
-      
+
+
+Data samples
+-------------
+
+The different data samples to run on are stored in the 
+
+  TIDAbuild/samples 
+
+directory. The different data samples should be used by 
+
+ #include
+
+statements in the xml fragment for the relevant job.       
 
 Utilsities for testing
 ----------------------
@@ -103,6 +120,21 @@ script.
 Rather than try to run the script directly, which may not work,  you should edit 
 it, or simply cut and paste the commands to ru nthe stages that you require.
 
-  
+
+Finishing up
+------------
+
+To build the full, large xml configuration file ...
+
+  test/TrigInDetValidation_TestConfiguration.xml
+
+you need to run 
+
+make 
+
+in the TIDAbuild directory.
+
+This also runs the xml checker to ensure that there are no xml syntax errors 
+in main file 
 
  

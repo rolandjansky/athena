@@ -10,6 +10,7 @@
 #          include "samples/TrigInDetValidation_minBias_sample0.xml"
 	    
 
+
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -24,12 +25,13 @@
             </action>
 
 
+
      <action position="02">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
                 <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
+                <argvalue>TIDArun.sh</argvalue> 
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
@@ -38,12 +40,13 @@
             </action>
 
 
+
      <action position="03">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
                 <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
+                <argvalue>TIDArun.sh</argvalue> 
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
@@ -51,32 +54,6 @@
               </arg>
             </action>
 
-
-     <action position="04">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDArun.sh</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-monitor-merge.root data-minBias_mergeDataPrep-reference.root EF_InDetMonMergeDP_FS_InDetTrigParticleCreation_FullScan_EFID -d EF-test-plots </argvalue>
-              </arg>
-            </action>
-
-     <action position="05">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDArun.sh</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-monitor-merge.root data-minBias_mergeDataPrep-reference.root L2_InDetMonMergeDP_FS_TrigL2SiTrackFinder_FullScan_0 L2_InDetMonMergeDP_FS_TrigL2SiTrackFinder_FullScan_1 L2_InDetMonMergeDP_FS_TrigL2SiTrackFinder_FullScan_2  L2_InDetMonMergeDP_FS_TrigL2SiTrackFinder_FullScan_3 -d L2-test-plots </argvalue>
-              </arg>
-            </action>
 
 
 #	  include "TrigInDetValidation_expertMonitoring.xml"
@@ -91,13 +68,12 @@
             </testToRemove>
 
 
-	    <auxFilePattern>data-minBias_mergeDataPrep-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-minBias_mergeDataPrep-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
 
           <athenaCommonFlags /> 
 	  </athena>
+
 
 
 

@@ -32,15 +32,19 @@ class InternalCache  {
   void SetCombinedTrackColl(TrackCollection *combtrkcoll);
   void SetSATracksAux(xAOD::TrackParticleAuxContainer satrkaux);
   void SetMuonContainer(xAOD::MuonContainer*  muonContainerOwn);
-  MuonCandidateCollection *MuonCandidates() {   return m_muoncandidates;}
+  void SetSegmentTaggedMuonCandidates(MuonCandidateCollection*  muonCand);
+  MuonCandidateCollection *MuonCandidates() { return m_STMuonCandidates; }
   std::pair<xAOD::TrackParticleContainer*,xAOD::TrackParticleAuxContainer*> CombinedTracks() {return m_combinedtracks;}
   std::pair<xAOD::TrackParticleContainer*, xAOD::TrackParticleAuxContainer*> SATracks() {return m_satracks;}
   TrackCollection *ExtrapolatedTracks() {   return m_extrapolatedtracks;}
   TrackCollection *CombinedTrackColl() {return m_combtrkcoll;}
   std::pair<xAOD::MuonContainer*, xAOD::MuonAuxContainer*> MuonContainer() {return m_muoncont;}
+  MuonCandidateCollection *MuonSTCandidates() { return m_STMuonCandidates; }
+
  private:
   
   MuonCandidateCollection *m_muoncandidates;
+  MuonCandidateCollection *m_STMuonCandidates;
   std::pair<xAOD::TrackParticleContainer*,xAOD::TrackParticleAuxContainer*> m_combinedtracks;
   std::pair<xAOD::TrackParticleContainer*,xAOD::TrackParticleAuxContainer*> m_satracks;
   TrackCollection *m_extrapolatedtracks;

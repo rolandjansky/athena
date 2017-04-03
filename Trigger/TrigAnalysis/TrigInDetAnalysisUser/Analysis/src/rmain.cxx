@@ -51,6 +51,27 @@
 
 #include "zbeam.h"
 
+#include "computils.h"
+
+///  globals for communicating with *Analyses
+#include "globals.h"
+
+// in ConfAnalysis
+
+extern bool PRINT_BRESIDUALS;
+
+// in BinConfig.cxx
+extern BinConfig binConfig;
+
+extern BinConfig electronBinConfig;
+extern BinConfig muonBinConfig;
+extern BinConfig tauBinConfig;
+extern BinConfig bjetBinConfig;
+extern BinConfig cosmicBinConfig;
+
+
+
+
 // useful function to return a string with the 
 // current date   
 std::string time_str() { 
@@ -74,26 +95,7 @@ int atoi_check( const std::string& s ) {
   else return i;
 }
 
-int Nvtxtracks = 0;
-int NvtxCount  = 0;
 
-bool hipt     = false;
-
-bool dumpflag = false;
-
-extern bool PRINT_BRESIDUALS;
-
-
-
-int NMod = 14;
-
-
-int r = 0;
-int lb = 0;
-int ts = 0;
-int ev = 0;
-
-double a0 = 1.5;
 
 
 /// Return selected author, expects format
@@ -211,9 +213,6 @@ struct event_list {
 };
 
 
-TIDA::Event* gevent = 0;
-
-
 
 
 int usage(const std::string& name, int status) { 
@@ -221,13 +220,15 @@ int usage(const std::string& name, int status) {
   
   s << "Usage: " << name << " <config filename> [OPTIONS]" << std::endl;
   s << "\nOptions: \n";
-  s << "    -f, --file      value\toutput filename, \n";
-  s << "    -b, --binConfig value\tconfig file for histogram configuration, \n";
-  s << "    -r, --refChain  value\treference chain, \n";
-  s << "    -t, --testChain value\ttest chain, \n";
+  s << " -o, -f, --file      value\toutput filename, \n";
+  s << "     -b, --binConfig value\tconfig file for histogram configuration, \n";
+  s << "     -r, --refChain  value\treference chain, \n";
+  s << "     -t, --testChain value\ttest chain, \n";
+  s << "     -p, --pdgId     value\tpdg ID of truth particle if requiring truth particle processing,\n";
+  s << "     -n, --nofit           \ttest do not fit resplots, \n";
+  s << "         --rms             \ttest force new rms95 errors, \n";
   //  s << "    -a, --all     \tadd all grids (default)\n";
-  s << "    -p, --pdgId     value\tpdg ID of truth particle if requiring truth particle processing,\n";
-  s << "    -h, --help           \tthis help\n";
+  s << "     -h, --help           \tthis help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
   s << "\nReport bugs to sutt@cern.ch";
   s << std::endl;
@@ -237,25 +238,14 @@ int usage(const std::string& name, int status) {
 }
 
 
-/// global to grant access to the roi descriptor
-TIDARoiDescriptor* groi = 0;
-
-
-extern BinConfig binConfig;
-
-extern BinConfig electronBinConfig;
-extern BinConfig muonBinConfig;
-extern BinConfig tauBinConfig;
-extern BinConfig bjetBinConfig;
-extern BinConfig cosmicBinConfig;
 
 
 // #define DATA
 
 
-bool contains( const std::string& s, const std::string& r ) { 
-  return s.find(r)!=std::string::npos;
-}
+// bool contains( const std::string& s, const std::string& r ) { 
+//   return s.find(r)!=std::string::npos;
+// }
 
 template<typename T>
 std::vector<T*> pointers( std::vector<T>& v ) {
@@ -301,11 +291,14 @@ int main(int argc, char** argv)
 
   std::string binningConfigFile = "";
 
+  bool useoldrms = true;
+  bool nofit     = false;
+
   for ( int i=1 ; i<argc ; i++ ) { 
     if ( std::string(argv[i])=="-h" || std::string(argv[i])=="--help" ) {
       return usage(argv[0], 0);
     } 
-    else if ( std::string(argv[i])=="-f" || std::string(argv[i])=="--file" ) { 
+    else if ( std::string(argv[i])=="-o" || std::string(argv[i])=="-f" || std::string(argv[i])=="--file" ) { 
       if ( ++i>=argc ) return usage(argv[0], -1);
       histofilename = argv[i];
       if ( histofilename.find(".root")==std::string::npos ) histofilename += ".root";
@@ -314,6 +307,8 @@ int main(int argc, char** argv)
       if ( ++i>=argc ) return usage(argv[0], -1);
       refChain = argv[i];
     }
+    else if ( std::string(argv[i])=="--rms" )   useoldrms = false;
+    else if ( std::string(argv[i])=="-n" || std::string(argv[i])=="--nofit" ) nofit = true;
     else if ( std::string(argv[i])=="-t" || std::string(argv[i])=="--testChain" ) { 
       if ( ++i>=argc ) return usage(argv[0], -1);
       testChains.push_back(argv[i]);
@@ -335,6 +330,8 @@ int main(int argc, char** argv)
       datafile = argv[i];
     }
   }
+
+
   
   if ( datafile=="" ) { 
     std::cerr << "no config file specifed\n" << endl;
@@ -347,12 +344,24 @@ int main(int argc, char** argv)
 
   inputdata.print();
 
+  /// true by default - command line options sets to false
+  /// so should override what is in the config file 
+  if ( useoldrms ) { 
+      bool oldrms95 = true;
+      inputdata.declareProperty( "OldRMS95", oldrms95 );
+      std::cout << "setting Resplot old rms95 " << oldrms95 << std::endl;
+      Resplot::setoldrms95( oldrms95 );
+  }
+  else {
+    std::cout << "setting Resplot  old rms95 " << useoldrms << std::endl;
+    Resplot::setoldrms95( useoldrms );
+  }
 
-#if 0
-  bool oldrms95 = true;
-  inputdata.declareProperty( "OldRMS95", oldrms95 );
-  Resplot::setoldrms95( oldrms95 );
-#endif
+
+  if ( nofit ) { 
+    std::cout << "Not fitting resplots " << std::endl;
+    Resplot::setnofit( nofit );
+  }
 
 
   unsigned nfiles = 0;
@@ -1079,9 +1088,9 @@ int main(int argc, char** argv)
     for (unsigned int ids=0 ; ids<datasets.size() ; ids++ ) {
       std::cout << "\tdataset " << datasets[ids] << std::endl; 
       dataset d( datasets[ids] );
-      std::vector<std::string> _filenames = d.datafiles();
-      std::cout << "\tdataset contains " << _filenames.size() << " files" << std::endl; 
-      filenames.insert(filenames.end(),_filenames.begin(),_filenames.end());
+      std::vector<std::string> filenames_ = d.datafiles();
+      std::cout << "\tdataset contains " << filenames_.size() << " files" << std::endl; 
+      filenames.insert(filenames.end(), filenames_.begin(),filenames_.end());
     }
   }
   else if ( inputdata.isTagDefined("DataFiles") ) filenames = inputdata.GetStringVector("DataFiles");
@@ -1112,7 +1121,7 @@ int main(int argc, char** argv)
 
 
       if ( finput==0 || !finput->IsOpen() || finput->IsZombie() ) {
-	std::cerr << "Error: could not open input file" << filenames[i] << std::endl;
+	std::cerr << "Error: could not open input file: " << filenames[i] << std::endl;
 	exit(-1);
       }
   

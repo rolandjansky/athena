@@ -36,7 +36,7 @@ namespace MuonCombined {
 
   class MuonSegmentTagTool: public AthAlgTool, virtual public IMuonSegmentTagTool
   {
-
+    using SegmentMap = std::map< const Muon::MuonSegment*, ElementLink<xAOD::MuonSegmentContainer> >;
   public:
     MuonSegmentTagTool(const std::string& type, const std::string& name, const IInterface* parent);
     ~MuonSegmentTagTool(void); // destructor
@@ -46,6 +46,7 @@ namespace MuonCombined {
 
     /**IMuonSegmentTagTool interface: build muons from ID and MuonSegments */    
     void tag( const InDetCandidateCollection& inDetCandidates, const xAOD::MuonSegmentContainer& segments ) const;
+    void tag( const InDetCandidateCollection& inDetCandidates, const std::vector<const Muon::MuonSegment*>& segments, SegmentMap* segmentToxAODSegmentMap ) const;
 
 
 

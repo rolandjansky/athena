@@ -61,7 +61,69 @@ def resetSigs():
   TriggerFlags.BjetSlice.setAll();
   TriggerFlags.BjetSlice.signatures = idtrigChainlist
 
+
+# tags for bjet vertex optimisation testing
+#####################################################
+## Primary vertex finding optimisations
+#####################################################
+
+# if 'bjetEtaHalfWidth' in dir() or 
+#   'bjetPhiHalfWidth' in dir() or 
+#   'bjetJetMinEt' in dir() or 
+#   'bjetNJetsMax' in dir() or 
+#   'bjetDynamicMinJetEt' in dir() or 
+#   'bjetDynamicNjetsMax' in dir() or
+#   'bjetDynamicEtFactor' in dir():
+  
+from TrigBjetHypo.TrigSuperRoiBuilderAllTEConfig import getSuperRoiBuilderAllTEInstance
+theSuperRoi=getSuperRoiBuilderAllTEInstance()
+
+# Vary size of SuperRoi constituents.  Suggest Eta/PhiHalfWidth = 0.1, 0.15, 0.2
+if 'bjetEtaHalfWidth' in dir():
+    theSuperRoi.EtaHalfWidth = bjetEtaHalfWidth
+
+if 'bjetPhiHalfWidth' in dir():
+    theSuperRoi.PhiHalfWidth = bjetPhiHalfWidth
+
+# Raise the pT threshold of jets used to construct the super ROI. Suggest 30, 35, 40
+if 'bjetJetMinEt' in dir():
+    theSuperRoi.JetMinEt = bjetJetMinEt
+
+# Limit number of jets used to construct the super ROI.  Suggest 5, 10, 15, 20
+if 'bjetNJetsMax' in dir():
+    theSuperRoi.NJetsMax = NJetsMax
+
+# Dynamically scale the min jet Et threshold as a function of the number of jets.
+# Suggest (X, Y) values of (5, 2), (5, 5), (5, 10)
+if 'bjetDynamicMinJetEt' in dir():
+    theSuperRoi.DynamicMinJetEt = bjetDynamicMinJetEt
+
+if 'bjetDynamicNJetsMax' in dir():
+    theSuperRoi.DynamicNJetsMax = bjetDynamicNJetsMax
+
+if 'bjetDynamicEtFactor' in dir():
+    theSuperRoi.DynamicEtFactor = bjetDynamicEtFactor
+
+#####################################################
+## b-tagging optimisations
+#####################################################
+
+print theSuperRoi
+
+if 'splitZHalfWidth' in dir() :
+  from TrigBjetHypo.TrigJetSplitterAllTEConfig import getJetSplitterAllTEInstance, getJetSplitterFTKAllTEInstance
+  theJetSplit=getJetSplitterAllTEInstance()
+
+# Vary z half-width of RoIs used for b-tagging.  Suggest zHalfWidth = 20, 15, 10, 9, 8, 7, 6, 5 mm
+  theJetSplit.ZHalfWidth = splitZHalfWidth
+
+  print theJetSplit
+
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
+
+# minimum track pT for the bjet vertex tracking 
+if 'minVtxTrackpT' in dir() :  
+  topSequence.TrigSteer_HLT.TrigFastTrackFinder_BjetVtx.pTmin = minVtxTrackpT 
 
 # print "*********************************"
 # print "*********************************"

@@ -314,9 +314,9 @@ StatusCode RegSelectorMap::read(const char *filename, DETID type){
   // use path resolver to find full path to file
   std::string unresolvedFileName(filename);
   std::string fullFileName = PathResolver::find_file (unresolvedFileName, "DATAPATH");
-  //log << MSG::DEBUG << "PathResolver found " << fullFileName << endreq;
+  //log << MSG::DEBUG << "PathResolver found " << fullFileName << endmsg;
   if (fullFileName == "") {
-    //log << MSG::FATAL << "Could not find input file in DATAPATH" <<  unresolvedFileName<< endreq;
+    //log << MSG::FATAL << "Could not find input file in DATAPATH" <<  unresolvedFileName<< endmsg;
     std::cerr << "RegSelectorMap: FATAL: Could not find input file in DATAPATH" <<  unresolvedFileName<< std::endl;
     return StatusCode::FAILURE;
   }
