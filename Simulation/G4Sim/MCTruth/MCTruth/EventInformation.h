@@ -14,7 +14,8 @@ public:
         EventInformation(): G4VUserEventInformation(),m_nrOfPrimaryParticles(0),
                         m_nrOfPrimaryVertices(0),m_secondaryParticleBarCode(200000),
                         m_secondaryVertexBarCode(-200000),m_theEvent(0),
-                        m_currentPrimary(0),m_currentlyTraced(0) {}
+                        m_currentPrimary(0),m_currentlyTraced(0),
+                        m_last_processed_barcode(0),m_last_processed_step(0) {}
         HepMC::GenEvent* GetHepMCEvent() ;
         void SetHepMCEvent(HepMC::GenEvent*);
         int GetNrOfPrimaryParticles() const;
@@ -36,6 +37,10 @@ public:
                                         return m_secondaryParticleBarCode;}
         int SecondaryVertexBarCode() {m_secondaryVertexBarCode--;
                                       return m_secondaryVertexBarCode;}
+        int GetLastProcessedBarcode() const { return m_last_processed_barcode; }
+        void SetLastProcessedBarcode(int b) { m_last_processed_barcode = b; }
+        int GetLastProcessedStep() const { return m_last_processed_step; }
+        void SetLastProcessedStep(int s) { m_last_processed_step = s; }
 
 private:
         G4ThreeVector m_vertexPosition;
@@ -46,6 +51,11 @@ private:
         HepMC::GenEvent *m_theEvent;
         HepMC::GenParticle *m_currentPrimary;
         HepMC::GenParticle *m_currentlyTraced;
+        // These two are used by calibration hits as event-level flags
+        // They correspond to the last barcode and step processed by an SD
+        // Both are needed, because a particle might have only one step
+        int m_last_processed_barcode;
+        int m_last_processed_step;
 };
 
 #endif
