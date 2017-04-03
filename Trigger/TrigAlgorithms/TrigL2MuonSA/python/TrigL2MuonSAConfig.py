@@ -7,6 +7,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 from TrigTimeMonitor.TrigTimeHistToolConfig import *
 from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import *
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 theDataPreparator    = TrigL2MuonSA__MuFastDataPreparator()
 thePatternFinder     = TrigL2MuonSA__MuFastPatternFinder()
@@ -99,6 +100,11 @@ class TrigL2MuonSAConfig(MuFastSteering):
 
         self.RpcErrToDebugStream = True
 
+        if TriggerFlags.run2Config=='2016':
+          self.UseEndcapInnerFromBarrel = False
+        else:
+          self.UseEndcapInnerFromBarrel = True
+
         if ( args[0]== '900GeV' ):
             self.WinPt = 4.0
             self.Scale_Road_BarrelInner  = 3
@@ -146,5 +152,10 @@ class TrigL2MuonSAConfig(MuFastSteering):
                 if handle.BackExtrapolator.name().find("DataBackExtrapolator")!=-1:
                     print self.name," using BackExtrapolatorLUT for Data"
                     
+        if TriggerFlags.run2Config=='2016':
+            self.StationFitter.PtFromAlphaBeta.useCscPt = False
+            self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = True
+        else:
+            self.StationFitter.PtFromAlphaBeta.useCscPt = True
+            self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = True
 
-        self.StationFitter.PtFromAlphaBeta.useCscPt = False
