@@ -1,5 +1,10 @@
 ################################
 import os
+#from runzmumu_run2paper import useWeightInMonitoring
+try:
+    useWeightInMonitoring
+except:
+    useWeightInMonitoring = False
 ###############################
 # setup of alignment monitoring
 from AthenaMonitoring.DQMonFlags import DQMonFlags
@@ -93,17 +98,17 @@ for trackCollection in trackCollections:
                 Pixel_Manager = InDetKeys.PixelManager(),
                 SCT_Manager = InDetKeys.SCT_Manager(),
                 TRT_Manager = InDetKeys.TRT_Manager(),
-                minPIXResXFillRange = -0.065,
-                maxPIXResXFillRange =  0.065,
-                minPIXResYFillRange = -0.5,
-                maxPIXResYFillRange =  0.5,
-                minSCTResFillRange  = -0.110,
-                maxSCTResFillRange =   0.110,
+                minPIXResXFillRange = -0.055,
+                maxPIXResXFillRange =  0.055,
+                minPIXResYFillRange = -0.4,
+                maxPIXResYFillRange =  0.4,
+                minSCTResFillRange  = -0.100,
+                maxSCTResFillRange =   0.100,
                 minTRTResidualWindow = -0.5,
                 maxTRTResidualWindow =  0.5,
                 NSplitMap = 4,
                 RangeOfPullHistos  =   5,
-                applyHistWeight = True,
+                applyHistWeight = useWeightInMonitoring,
                 hWeightInFileName = os.getenv("TestArea")+"/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/hWeight.root"
         )
         print InDetAlignMonResiduals
@@ -120,7 +125,7 @@ for trackCollection in trackCollections:
                 VxPrimContainerName = InDetKeys.PrimaryVertices(),
                 d0BsRange = 0.1,
                 z0Range = 150.,
-                applyHistWeight = True,
+                applyHistWeight = useWeightInMonitoring,
                 hWeightInFileName = os.getenv("TestArea")+"/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/hWeight.root"
 
         )
