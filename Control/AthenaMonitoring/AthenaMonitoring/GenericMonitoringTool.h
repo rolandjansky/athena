@@ -7,78 +7,21 @@
 #ifndef AthenaMonitoring_GenericMonitoringTool_h
 #define AthenaMonitoring_GenericMonitoringTool_h
 
-#include "TrigMonitorBase/TrigMonitorToolBase.h"
-#include "TrigInterfaces/IMonitoredAlgo.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
-#include "GaudiKernel/EventContext.h"
-
+#include <functional>
+#include <vector>
 #include <mutex>
+#include <memory>
 
-class TH1;
-class TH2;
-class TProfile;
-class TProfile2D;
+#include "TH1.h"
+#include "TH2.h"
+#include "TProfile.h"
+#include "TProfile2D.h"
 
+#include "GaudiKernel/ITHistSvc.h"
 
-/**
- * a BasicLockable noop for the non-MT use-case
- */
-class NoMutex {   
-public:
-  void lock() {}
-  void unlock() {}
-};
+#include "AthenaBaseComps/AthAlgTool.h"
 
-/**
- * Context specific Getter
- *
- * Inspired by GaudiKernel/ContextSpecificPtr.h
- * Will return a copy of the default Getter (the one created during bookHist)
- * for each new Context
- */
-template<class T>
-class ContextGetter {
-public:
-
-  ContextGetter() = default;
-  explicit ContextGetter(T* ptr) { set(ptr); }
-
-  /// Return the pointer for the current context
-  inline T* get() const {
-    std::lock_guard<std::mutex> lock(m_ptrs_lock);
-    
-    auto itr = m_ptrs.find(Gaudi::Hive::currentContextId());
-    if (itr!=m_ptrs.end()) 
-      return itr->second;
-   
-    // If new context, return a clone of the object in the 
-    // invalid slot (object before threading started)
-    return (m_ptrs[Gaudi::Hive::currentContextId()] = 
-            new T(*m_ptrs[(EventContext::ContextID_t)EventContext::INVALID_CONTEXT_ID]));
-  }
-  /// Set the pointer for the current context.
-  inline T*& set(T* ptr) {
-    std::lock_guard<std::mutex> lock(m_ptrs_lock);
-    return m_ptrs[Gaudi::Hive::currentContextId()] = ptr;
-  }
-  
-  /// Assignment operator (@see set).
-  inline T*& operator= (T* ptr) { return set(ptr); }
-
-  /// @{ Dereference operators.
-  inline T& operator* () { return *get(); }
-  inline const T& operator* () const { return *get(); }
-  inline T* operator-> () { return get(); }
-  inline const T* operator-> () const { return get(); }
-  /// @}
-
-  
-private:
-  mutable std::unordered_map<Gaudi::Hive::ContextIdType, T*> m_ptrs;  //!< ptr per context
-  mutable std::mutex m_ptrs_lock;
-};
-
+#include "AthenaMonitoring/IMonitoredVariable.h"
 
 /**
  * @brief Basic monitoring tool for the HLT trigger.
@@ -116,20 +59,7 @@ private:
  * @author Wang Meng
  */
 
-template<class M, class P>     // Mutex and Proxy type
-class GenericMonitoringTool : public TrigMonitorToolBase {
-public:
-  
-  GenericMonitoringTool<M,P>(const std::string & type, 
-                                 const std::string & name,
-                                 const IInterface* parent);
-  virtual ~GenericMonitoringTool();
-  
-  virtual StatusCode bookHists();
-  virtual StatusCode fillHists();   //!< does histograms filling
-  virtual StatusCode finalHists();  //!< dummy implementation
-  virtual void setProxy(const std::string& name, IMonitoredAlgo::IGetter* g);
-  
+class GenericMonitoringTool : public AthAlgTool {
 private:
   /**
    * @brief the internal class used to keep parsed Filler properties
@@ -160,118 +90,122 @@ private:
 
     std::vector<std::string> labels; //!< bins labels
   };
-
-  static void switchGetter(IMonitoredAlgo::IGetter* g,
-                           IMonitoredAlgo::IGetter*& old) {
-    if (old && g->name()==old->name()) {
-      delete old;
-      old = g;
-    }
-  }
-
-  static void switchGetter(IMonitoredAlgo::IGetter* g,
-                           ContextGetter<IMonitoredAlgo::IGetter>& old) {
-    if (g->name()==old->name()) {
-      delete old.get();
-      old = g;
-    }
-  }
-        
-
+public:
   /**
    * @brief base class for fillers 
    */
   class HistogramFiller {
   public:
-    HistogramFiller() {}
+    friend GenericMonitoringTool;
+    HistogramFiller(const HistogramFiller& hf) 
+      : m_hist(hf.m_hist), m_mutex(hf.m_mutex), m_histDef(hf.m_histDef) {}
+    HistogramFiller(HistogramFiller&&) = default;
+
     virtual ~HistogramFiller() {}
     virtual unsigned fill() = 0;
-    virtual void updateGetter(IMonitoredAlgo::IGetter* g) = 0;
+
+    void setMonitoredVariables(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) {
+      m_monVariables = monitoredVariables;
+    }
+
+    std::vector<std::string> histogramVariablesNames() {
+      return m_histDef->name;
+    }
   protected:
-    M m_mutex;
+    HistogramFiller(TH1* hist, HistogramDef histDef) 
+      : m_hist(hist), m_mutex(std::make_shared<std::mutex>()), m_histDef(new HistogramDef(histDef)) {}
+
+    TH1* m_hist;
+    std::shared_ptr<std::mutex> m_mutex;
+    std::shared_ptr<HistogramDef> m_histDef;
+    std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> m_monVariables;
+  private:
+    HistogramFiller& operator=(HistogramFiller const&) = delete;
   };
+
+	static const InterfaceID& interfaceID();
+
+  GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent);
+  virtual ~GenericMonitoringTool();
   
+  virtual StatusCode initialize();
+  virtual std::vector<HistogramFiller> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables);
+  
+  enum Level { debug, expert, shift, express, runsum, runstat = runsum };
+  std::string level2string( Level l );
+  class MonGroup {
+  public:
+    MonGroup(GenericMonitoringTool* tool, const std::string& algo, Level l );
+    StatusCode regHist(TH1* h);
+    template <class T>
+    T* getHist(const std::string& hname) const {
+      T* h(0);
+      const std::string name = m_tool->level2string(m_level)+m_algo+"/"+hname;
+      if (m_tool->m_histSvc->exists(name)) {
+        m_tool->m_histSvc->getHist(name, h).ignore();
+      }
+      return h;
+    }
+    StatusCode deregHist(TH1* h);
+  private:
+    GenericMonitoringTool* m_tool;
+    std::string m_algo;
+    Level m_level;
+  };
+
+private: 
   /**
    * @brief filler for plain 1D hisograms 
    */
   class HistogramFiller1D : public HistogramFiller {
   public: 
-    HistogramFiller1D(TH1* hist, IMonitoredAlgo::IGetter* var )
-      : m_histogram(hist), m_variable(var) {}
+    HistogramFiller1D(TH1* hist, HistogramDef histDef)
+      : HistogramFiller(hist, histDef) {}
     virtual unsigned fill();
-    virtual void updateGetter(IMonitoredAlgo::IGetter* g) {
-      switchGetter(g, m_variable);
-    }
-  protected:
-    TH1* m_histogram{0};
-    P m_variable;
   };
-  
   
   /**
    * @brief filler for 1D hisograms filled in cummulative mode
    */
   class CumulativeHistogramFiller1D : public HistogramFiller1D {
   public:
-    CumulativeHistogramFiller1D(TH1* hist, IMonitoredAlgo::IGetter* var) 
-      : HistogramFiller1D(hist, var) {}
+    CumulativeHistogramFiller1D(TH1* hist, HistogramDef histDef) 
+      : HistogramFiller1D(hist, histDef) {}
     virtual unsigned fill();
   };
-  
 
   class VecHistogramFiller1D : public HistogramFiller1D {
   public:
-    VecHistogramFiller1D(TH1* hist, IMonitoredAlgo::IGetter* var) 
-      : HistogramFiller1D(hist, var) {}
+    VecHistogramFiller1D(TH1* hist, HistogramDef histDef) 
+      : HistogramFiller1D(hist, histDef) {}
     virtual unsigned fill();
   };
   
   class VecHistogramFiller1DWithOverflows : public HistogramFiller1D {
   public:
-    VecHistogramFiller1DWithOverflows(TH1* hist, IMonitoredAlgo::IGetter* var) 
-      : HistogramFiller1D(hist, var) {}
+    VecHistogramFiller1DWithOverflows(TH1* hist, HistogramDef histDef) 
+      : HistogramFiller1D(hist, histDef) {}
     virtual unsigned fill();
   };
 
-  
-
   /**
-   * @brief filler for profile 1d  histogram 
+   * @brief filler for profile 1d histogram 
    */
   class HistogramFillerProfile : public HistogramFiller {
   public:
-    HistogramFillerProfile(TProfile* hist, IMonitoredAlgo::IGetter* var1, IMonitoredAlgo::IGetter* var2 );
+    HistogramFillerProfile(TProfile* hist, HistogramDef histDef)
+      : HistogramFiller(hist, histDef) {};
     virtual unsigned fill();
-    virtual void updateGetter(IMonitoredAlgo::IGetter* g) {
-      switchGetter(g, m_variable1);
-      switchGetter(g, m_variable2);
-    }
-      
-  private:
-    TProfile* m_histogram{0};
-    P  m_variable1{0};
-    P  m_variable2{0};
   };
-  
-
-
   
   /**
    * @brief filler for plain 2D hisograms 
    */
   class HistogramFiller2D : public HistogramFiller {
   public:
-    HistogramFiller2D(TH2* hist, IMonitoredAlgo::IGetter* var1, IMonitoredAlgo::IGetter* var2); 
+    HistogramFiller2D(TH2* hist, HistogramDef histDef)
+      : HistogramFiller(hist, histDef) {};
     virtual unsigned fill();
-    virtual void updateGetter(IMonitoredAlgo::IGetter* g) {
-      switchGetter(g, m_variable1);
-      switchGetter(g, m_variable2);
-    }
-
-  protected:
-    TH2* m_histogram;
-    P  m_variable1{0};
-    P  m_variable2{0};
   };
 
   /**
@@ -279,38 +213,17 @@ private:
    */
   class HistogramFiller2DProfile : public HistogramFiller {
   public:
-    HistogramFiller2DProfile(TProfile2D* hist, IMonitoredAlgo::IGetter* var1, IMonitoredAlgo::IGetter* var2, IMonitoredAlgo::IGetter* var3);
+    HistogramFiller2DProfile(TProfile2D* hist, HistogramDef histDef)
+      : HistogramFiller(hist, histDef) {};
     virtual unsigned fill();
-    virtual void updateGetter(IMonitoredAlgo::IGetter* g) {
-      switchGetter(g, m_variable1);
-      switchGetter(g, m_variable2);
-      switchGetter(g, m_variable3);
-    }
-
-  private:
-    TProfile2D* m_histogram{0};
-    P m_variable1{0};
-    P m_variable2{0};
-    P m_variable3{0};
   };  
   
   StatusCode createFiller(const HistogramDef& def); //!< creates filler and adds to the list of active fillers
-  
-  const IMonitoredAlgo* m_algo{0};   //!< ptr to the algorithm to which tool is attached (variables coming from)
-  std::string m_parentName;          //!< name of parent algo (used in printouts to help debugging)
-  ITHistSvc *m_rootHistSvc{0};   
-  
-  std::vector<HistogramFiller*> m_fillers;   //!< list of fillers
-
- 
-  const HistogramDef parseJobOptHistogram(const std::string& histDef); //!< utility method to parse JO
-  std::vector<std::string> m_histograms;                               //!< property (list of histogram definitions)
-  std::map<std::string, TrigMonGroup*> m_histogramCategory;            //!< predefined categories (drive booking paths)
-  
+  const HistogramDef parseJobOptHistogram(const std::string& histDef); //!< utility method to parse JO  
   // utility functions
   
-  void setOpts(TH1* histo, const std::string& opt);
-  void setLabels(TH1* histo, const std::vector<std::string>& labels);
+  void setOpts(TH1* hist, const std::string& opt);
+  void setLabels(TH1* hist, const std::vector<std::string>& labels);
 
   template<class H, class HBASE, typename... Types> 
   HBASE* create( const HistogramDef& def, Types&&... hargs );
@@ -322,9 +235,11 @@ private:
   TH1* create2D( TH2*& histo, const HistogramDef& def );
   template<class H> 
   TH1* create2DProfile( TProfile2D*& histo, const HistogramDef& def );
+  
+  ServiceHandle<ITHistSvc> m_histSvc;  
+  std::vector<HistogramFiller> m_fillers;                          //!< list of fillers
+  std::vector<std::string> m_histograms;                           //!< property (list of histogram definitions)
+  std::map<std::string, MonGroup*> m_histogramCategory;            //!< predefined categories (drive booking paths)
 };
-
-using GenericMonitoringToolST = GenericMonitoringTool<NoMutex, IMonitoredAlgo::IGetter*>;
-using GenericMonitoringToolMT = GenericMonitoringTool<std::mutex, ContextGetter<IMonitoredAlgo::IGetter>>;
 
 #endif /* AthenaMonitoring_GenericMonitoringTool_h */
