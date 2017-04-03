@@ -300,6 +300,7 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
                                                          useSCT        = InDetTrigCutValues.useSCT(),
                                                          minTRTonTrk  = 0,    # no TRT here
                                                          DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
+                                                         doEmCaloSeed = False,
                                                          #BeamPositionSvc = default instance ,
                                                          )
 
@@ -338,7 +339,8 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
                                             RefitPrds   = not InDetTrigFlags.refitROT()
                                             )
 
-      InDetTrigAmbiguityProcessor.ScoringTool = InDet__InDetAmbiScoringTool('InDetTrigScoringTool_'+slice)
+      InDetTrigAmbiguityProcessor.ScoringTool = InDet__InDetAmbiScoringTool(name='InDetTrigScoringTool_'+slice, doEmCaloSeed = False)
+
       if slice=='beamgas':
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsBeamGas import \
             InDetTrigAmbiTrackSelectionToolBeamGas
@@ -567,7 +569,7 @@ class TrigExtProcessor_EF( InDet__InDetTrigExtensProcessor ):
                                                           maxDoubleHoles=InDetTrigCutValues.maxDoubleHoles(),
                                                           usePixel      = InDetTrigCutValues.usePixel(),
                                                           useSCT        = InDetTrigCutValues.useSCT(),
-
+                                                          doEmCaloSeed = False,
                                                           minTRTonTrk  = InDetTrigCutValues.minTRTonTrk(),
                                                           #useSigmaChi2   = False # tuning from Thijs
                                                           DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
@@ -595,7 +597,8 @@ class TrigExtProcessor_EF( InDet__InDetTrigExtensProcessor ):
 
       
     self.TrackFitter  = InDetTrigExtensionFitter
-    self.ScoringTool  = InDet__InDetAmbiScoringTool('InDetTrigExtScoringTool_'+type)
+    self.ScoringTool  = InDet__InDetAmbiScoringTool(name='InDetTrigExtScoringTool_'+type, doEmCaloSeed = False)
+                                                          
     self.RefitPrds    = not (InDetTrigFlags.refitROT() or (InDetTrigFlags.trtExtensionType() is 'DAF'))
     self.suppressHoleSearch = False    # does not work properly      
     if type=="cosmicsN":
