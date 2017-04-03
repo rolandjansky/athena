@@ -7,49 +7,67 @@
 using namespace std;
 using namespace fastjet;
 
+// variables (other than alpha) should always be defined so that PU takes small values and HS takes large values - JS
+class PuppiUserInfo: public fastjet::PseudoJet::UserInfoBase{
+ public:
+	PuppiUserInfo();
+	PuppiUserInfo(std::vector<double>);
+	PuppiUserInfo(double);
+
+	std::vector<double> otherChi2Vec;
+};
+
+//=================================================================================================================================
+
 class Puppi{
 
  public:
-  // default ctor
-  Puppi(double R0, double Rmin, double exp, double sfa, double sfb, double m_etaForward, double forwardSF);
+	// default ctor
+	Puppi(double R0, double Rmin, double beta, double centralPTCutOffset, double centralPTCutSlope, double forwardPTCutOffset, double forwardPTCutSlope, double etaBoundary, bool PUPenalty);
 
-  void SetParticles(std::vector<fastjet::PseudoJet> chargedHS, std::vector<fastjet::PseudoJet> chargedPU, std::vector<fastjet::PseudoJet> neutralAndForward, int NPV);
+	void setParticles(const std::vector<fastjet::PseudoJet> chargedHS, const std::vector<fastjet::PseudoJet> chargedPU, const std::vector<fastjet::PseudoJet> neutral, const std::vector<fastjet::PseudoJet> forward, int nPU);
 
-  //Note that this currently treats everything like it is a neutral or forward
-  std::vector<PseudoJet> operator()(const std::vector<PseudoJet> & neutralsAndForward){
-    std::vector<fastjet::PseudoJet> cNeutralsAndForward = neutralsAndForward;
-    apply(cNeutralsAndForward);
-    return cNeutralsAndForward;
-  }
+	// Returns the weight that would be applied to a particle (assuming it is neutral or forward)
+	double getWeight(const PseudoJet pfo);
 
-  // Returns the weight that would be applied to a particle (assuming it is neutral or forward)
-  double getWeight(const PseudoJet& centre);
+	// Returns the value of alpha for this particle
+	double getAlpha(const PseudoJet pfo);
 
-  // Returns the value of alpha for this particle
-  double getAlpha(const PseudoJet& centre);
-
-
+	double getMedian();
+	double getRMS();
 
  private:
 
-  void findMedianAndRMS();
-  void apply(std::vector<fastjet::PseudoJet> & neutralAndForward);
+	void fillUserInfo(PseudoJet& pfo);
+	void calculateAllAlphas();
+	void findAlphaMedianAndRMS();
 
-  std::vector<PseudoJet> m_alphaParticles; //! The particles used to calculate alpha (the HS charged and forward)
-  std::vector<PseudoJet> m_puChargedParticles; //! The particles used to calculate the median and RMS
+	double getChi2(const PseudoJet& pfo);
 
-  double m_R0;
-  double m_Rmin;
-  double m_exponent;
-  double m_scaleFactorA;
-  double m_scaleFactorB;
-  double m_forwardSF;
-  double m_etaForward;
+	std::vector<PseudoJet> m_chargedHS;
+	std::vector<PseudoJet> m_chargedPU;
+	std::vector<PseudoJet> m_neutral;
+	std::vector<PseudoJet> m_forward;
 
-  double m_PU_median;
-  double m_PU_RMS;
+	std::vector< std::vector< PseudoJet >* > m_allParticles;
 
-  double m_NPV;
+	double m_R0;
+	double m_Rmin;
+	double m_beta;
+	double m_centralPTCutOffset;
+	double m_centralPTCutSlope;
+	double m_forwardPTCutOffset;
+	double m_forwardPTCutSlope;
+	double m_etaBoundary;
+	bool m_PUPenalty;
+	bool m_includeCentralNeutralsInAlpha;
+
+	double m_median;
+	double m_rms;
+
+	double m_nPU;
+
+	double m_nDF;
 
 };
 

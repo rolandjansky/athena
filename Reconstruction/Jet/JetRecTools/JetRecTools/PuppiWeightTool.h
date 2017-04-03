@@ -11,26 +11,33 @@
 #include <string>
 
 class PuppiWeightTool: public JetConstituentModifierBase {
-  ASG_TOOL_CLASS(PuppiWeightTool, IJetConstituentModifier)
+	ASG_TOOL_CLASS(PuppiWeightTool, IJetConstituentModifier)
 
-    public:
+	public:
 
-  PuppiWeightTool(const std::string& name);
-  StatusCode process(xAOD::IParticleContainer* cont) const;
-  StatusCode process(xAOD::PFOContainer* cont) const; 
+	PuppiWeightTool(const std::string& name);
+	StatusCode process(xAOD::IParticleContainer* cont) const;
+	StatusCode process(xAOD::PFOContainer* cont) const; 
 
  private:
 
-  // puppi parameters
-  double m_R0;
-  double m_Rmin;
-  double m_exponent;
-  double m_weightCut;
-  double m_scaleFactorA;
-  double m_scaleFactorB;
-  double m_forwardSF;
-  double m_etaForward;
-  bool m_applyWeight;
+	// puppi parameters
+	double m_R0;
+	double m_Rmin;
+	double m_beta;
+	double m_centralPTCutOffset;
+	double m_centralPTCutSlope;
+	double m_forwardPTCutOffset;
+	double m_forwardPTCutSlope;
+	double m_etaBoundary;
+	bool m_PUPenalty;
+
+	//experimental
+	bool m_includeLowPTTracks;
+	bool m_includeCentralNeutralsInAlpha;
+
+	bool m_applyWeight;
+	//bool m_limitRemoval;
 };
 
 #endif
