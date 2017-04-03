@@ -8,7 +8,7 @@
 #ifndef MonitoredScope_h
 #define MonitoredScope_h
 
-#include <utility>
+#include <functional>
 #include <vector>
 #include <string>
 #include <iostream>
