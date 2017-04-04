@@ -1002,12 +1002,6 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
             return A.first > B.first;
           }
         );
-        //unsigned int count = 0;
-        //std::cout << "Q: \t" << Q << std::endl;
-        //for (auto entry : output) {
-        //  std::cout << "BEFORE:\t" << count << "\t" << entry.first << std::endl;
-        //  count++;
-        //}
 	  
         INTERNAL_TRIPLET_BUFFER::iterator it = output.begin();
         if( Q >= (*it).first) {
