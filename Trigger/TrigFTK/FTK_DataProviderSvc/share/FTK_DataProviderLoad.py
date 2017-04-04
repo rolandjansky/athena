@@ -12,7 +12,7 @@ from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 FTK_TrackFitter = Trk__GlobalChi2Fitter(name                  = 'FTK_TrackFitter',
                                         ExtrapolationTool     = InDetTrigExtrapolator,
                                         NavigatorTool         = InDetTrigNavigator,
-                                        PropagatorTool        = InDetTrigPropagator,     
+                                        PropagatorTool        = InDetTrigPropagator,
                                         RotCreatorTool        = InDetTrigRefitRotCreator,
                                         BroadRotCreatorTool   = InDetTrigBroadInDetRotCreator,
                                         MeasurementUpdateTool = InDetTrigUpdator,
@@ -25,7 +25,7 @@ FTK_TrackFitter = Trk__GlobalChi2Fitter(name                  = 'FTK_TrackFitter
                                         RecalibrateTRT        = True,
                                         ReintegrateOutliers   = True,
                                         TrackChi2PerNDFCut    = 7,
-                                        TRTExtensionCuts      = False, 
+                                        TRTExtensionCuts      = False,
                                         MaxIterations         = 40,
                                         Acceleration          = True,
                                         Momentum=1000.,
@@ -35,7 +35,7 @@ print "added FTK_TrackFitter to ToolSvc"
 
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator,InDetTrigTrackSelectorTool,InDetTrigHoleSearchTool
-from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryToolSharedHits, InDetTrigPrdAssociationTool 
+from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryToolSharedHits, InDetTrigPrdAssociationTool
 
 
 from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
@@ -88,18 +88,18 @@ from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__CrossDist
 FTK_VtxSeedFinder = Trk__CrossDistancesSeedFinder(name = "InDetTrigCrossDistancesSeedFinder",
                                                   trackdistcutoff = 1.,
                                                   trackdistexppower = 2)
-ToolSvc += FTK_TrigVtxSeedFinder
- 
+ToolSvc += FTK_VtxSeedFinder
+
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import \
      Trk__ImpactPoint3dEstimator, Trk__DetAnnealingMaker
-    
+
 FTK_ImpactPoint3dEstimator = Trk__ImpactPoint3dEstimator(name         = "InDetTrigTrkImpactPoint3dEstimator",
                                                          Extrapolator = InDetTrigExtrapolator,
                                                          )
-        
+
 ToolSvc += FTK_ImpactPoint3dEstimator
 
- 
+
 FTK_AnnealingMaker = Trk__DetAnnealingMaker(name = "InDetTrigTrkAnnealingMaker")
 FTK_AnnealingMaker.SetOfTemperatures = [64.,16.,4.,2.,1.5,1.] # not default
 ToolSvc += FTK_AnnealingMaker
@@ -116,7 +116,7 @@ FTK_VxFitterTool = Trk__AdaptiveVertexFitter(name                         = "InD
                                              LinearizedTrackFactory       = InDetTrigLinFactory,
                                              ImpactPoint3dEstimator       = FTK_ImpactPoint3dEstimator,
                                              AnnealingMaker               = FTK_AnnealingMaker,
-                                             #TrackCompatibilityEstimator = 
+                                             #TrackCompatibilityEstimator =
                                              VertexSmoother = FTK_VertexSmoother,
                                              #VertexUpdator = ,  #does not use any tools?
                                              #onlyzseed = ,
@@ -145,7 +145,7 @@ FTK_UncertaintyTool= ConfiguredFTK_UncertaintyTool(name="FTK_UncertaintyTool")
 ToolSvc+=FTK_UncertaintyTool
 
 
-   
+
 
 print "FTK_DataProviderLoad.py loaded all FTK tools: ToolSvc=",ToolSvc
 
