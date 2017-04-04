@@ -36,8 +36,8 @@ namespace LArG4 {
   public:
 
     CalibrationDefaultCalculator(const std::string& name, ISvcLocator *pSvcLocator);
-    StatusCode initialize() {return StatusCode::SUCCESS;}
-    StatusCode finalize() {return StatusCode::SUCCESS;}
+    virtual StatusCode initialize() override {return StatusCode::SUCCESS;}
+    virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
     virtual ~CalibrationDefaultCalculator();
 
     // The Process method returns a boolean value.  If it's true, the
