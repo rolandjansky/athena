@@ -6,6 +6,9 @@
 #include "AthenaMonitoring/DQDummyFilterTool.h"
 #include "AthenaMonitoring/DQBadLBFilterTool.h"
 #include "AthenaMonitoring/TriggerTranslatorSimple.h"
+#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoring/GenericMonitoringToolTest.h"
+
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
@@ -17,6 +20,8 @@ DECLARE_TOOL_FACTORY(DQFilledBunchFilterTool)
 DECLARE_TOOL_FACTORY(DQDummyFilterTool)
 DECLARE_TOOL_FACTORY(DQBadLBFilterTool)
 DECLARE_TOOL_FACTORY(TriggerTranslatorToolSimple)
+DECLARE_TOOL_FACTORY(GenericMonitoringTool)
+DECLARE_ALGORITHM_FACTORY(GenericMonitoringToolTest)
 
 DECLARE_FACTORY_ENTRIES(AthenaMonitoring) {
   DECLARE_ALGORITHM(AthenaMon)
@@ -27,4 +32,6 @@ DECLARE_FACTORY_ENTRIES(AthenaMonitoring) {
   DECLARE_ALGTOOL(DQDummyFilterTool)
   DECLARE_ALGTOOL(DQBadLBFilterTool)
   DECLARE_ALGTOOL(TriggerTranslatorToolSimple)
+  DECLARE_ALGTOOL(GenericMonitoringTool)
+  DECLARE_ALGORITHM(GenericMonitoringToolTest)
 }
