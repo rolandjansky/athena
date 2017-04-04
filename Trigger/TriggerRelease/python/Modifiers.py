@@ -1343,7 +1343,10 @@ class memMon(_modifier):
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
         if TriggerFlags.doHLT():
-            topSequence.TrigSteer_HLT.MonTools['TrigMemMonitor'].OutputLevel = VERBOSE         
+            try:
+                topSequence.TrigSteer_HLT.MonTools['TrigMemMonitor'].OutputLevel = VERBOSE
+            except:
+                log.warning("memMon=True but TrigMemMonitor not present in the HLTMonTools")
                     
 class chainOrderedUp(_modifier):
     """
