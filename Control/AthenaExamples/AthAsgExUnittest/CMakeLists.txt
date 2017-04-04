@@ -1,3 +1,8 @@
+
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 ################################################################################
 # Package: MyPackage
 ################################################################################
@@ -14,20 +19,20 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthToolSupport/AsgTools
                           TestPolicy )
 
-# Library in the package:
+# Libraries in the package:
 atlas_add_library( AthAsgExUnittestLib
                    MyPackage/*.h src/*.cxx
                    src/components/*.cxx
                    Root/*.cxx
                    PUBLIC_HEADERS MyPackage
                    LINK_LIBRARIES GaudiKernel AsgTools AthAnalysisBaseCompsLib )
-
 atlas_add_component( AthAsgExUnittest
                      MyPackage/*.h src/*.cxx
                      src/components/*.cxx
                      Root/*.cxx
                      LINK_LIBRARIES GaudiKernel AsgTools AthAsgExUnittestLib )
 
+# Add tests:
 atlas_add_test( gt_AthAsgExUnittest
   SOURCES test/gt_AthAsgExUnittest.cxx
   LINK_LIBRARIES GaudiKernel GoogleTestTools AthAsgExUnittestLib )

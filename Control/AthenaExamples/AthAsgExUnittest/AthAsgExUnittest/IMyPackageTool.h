@@ -1,4 +1,9 @@
 // -*- mode: c++ -*-
+
+//
+//  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+//
+
 #ifndef ATHASGEXUNITTEST_IMYPACKAGETOOL_H
 #define ATHASGEXUNITTEST_IMYPACKAGETOOL_H 1
 

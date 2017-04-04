@@ -1,4 +1,7 @@
 // -*- mode: c++ -*-
+//
+//  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef ATHEXUNITTEST_IATHEXUNITTESTTOOL_H
 #define ATHEXUNITTEST_IATHEXUNITTESTTOOL_H 1
 

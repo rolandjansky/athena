@@ -1,3 +1,8 @@
+
+//
+//  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+//
+
 // MyPackage includes
 #include "AthExUnittestAlg.h"
 
@@ -12,9 +17,7 @@ AthExUnittestAlg::AthExUnittestAlg( const std::string& name,
   declareProperty( "MyTool", m_tool );
 }
 
-
 AthExUnittestAlg::~AthExUnittestAlg() {}
-
 
 StatusCode AthExUnittestAlg::initialize() {
   ATH_MSG_INFO( "Initializing " << name() << "..." );

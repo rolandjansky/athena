@@ -1,4 +1,7 @@
 // -*- mode: c++ -*-
+//
+//  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef ATHASGEXUNITTEST_MYPACKAGEALG_H
 #define ATHASGEXUNITTEST_MYPACKAGEALG_H 1
 
@@ -7,8 +10,6 @@
 #ifdef XAOD_ANALYSIS
 #include "AsgTools/AnaToolHandle.h" //use asg::AnaToolHandle instead of regular ToolHandles for full dual-use experience!
 #endif
-
-//#include <cmath>
 
 #include "AthAsgExUnittest/IMyPackageTool.h"
 

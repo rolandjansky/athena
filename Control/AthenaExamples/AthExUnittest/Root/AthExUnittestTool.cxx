@@ -1,4 +1,8 @@
 
+//
+//  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+//
+
 #include "AthExUnittest/AthExUnittestTool.h"
 
 AthExUnittestTool::AthExUnittestTool( const std::string& type,
