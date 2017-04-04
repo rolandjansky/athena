@@ -1,8 +1,8 @@
+
 // **********************************************************************
 // IDPerfMonWenu.cxx
 // AUTHORS: Beate Heinemann, Tobias Golling, Sara Strandberg
 // **********************************************************************
-
 #include <sstream>
 #include <math.h>
 #include "TH1.h"
@@ -34,7 +34,8 @@
 #include "TrkEventPrimitives/LocalParameters.h"
 
 #include "egammaEvent/egammaParamDefs.h"
-#include "egammaEvent/egammaPIDdefs.h"
+//#include "egammaEvent/egammaPIDdefs.h"
+#include "egammaEvent/egammaPIDdefsObs.h"
 
 
 

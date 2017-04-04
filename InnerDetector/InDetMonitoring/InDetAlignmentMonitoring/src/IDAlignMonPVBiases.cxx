@@ -237,11 +237,11 @@ StatusCode IDAlignMonPVBiases::bookHistograms()
     //m_validationMode = false;
   }
 
-  if ( newLowStat ) {  
+  if ( newLowStatFlag() ) {  
   }
-  if ( newLumiBlock ) {  
+  if ( newLumiBlockFlag() ) {  
   }
-  if ( newRun ) {  
+  if ( newRunFlag() ) {  
 
     	//if user environment specified we don't want to book new histograms at every run boundary
     	//we instead want one histogram per job
@@ -756,11 +756,11 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
 
 StatusCode IDAlignMonPVBiases::procHistograms()
 {
-  if( endOfLowStat ) {
+  if( endOfLowStatFlag() ) {
   }
-  if( endOfLumiBlock ) {
+  if( endOfLumiBlockFlag() ) {
   }
-  if( endOfRun ) {
+  if( endOfRunFlag() ) {
 
   }
  

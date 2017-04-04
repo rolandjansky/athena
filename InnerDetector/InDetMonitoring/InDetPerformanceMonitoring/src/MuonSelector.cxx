@@ -145,7 +145,7 @@ void MuonSelector::Init()
   StatusCode sc = serviceLocator->service("ToolSvc", toolSvc, true);
 
   if ( sc.isFailure() || toolSvc == 0 ) {
-    (*m_msgStream) << MSG::ERROR << "  * MuonSelector * Init() * Unable to retrieve ToolSvc " << endreq;
+    (*m_msgStream) << MSG::ERROR << "  * MuonSelector * Init() * Unable to retrieve ToolSvc " << endmsg;
     return;
   }
   PARENT::Init();
@@ -199,12 +199,13 @@ bool MuonSelector::passQualCuts()
 			    << "  holes: " << nPIXH + nSCTH
 			    << std::endl;
 
-    if (   ((!eBLhits) || (nBLhits > 0))
-	   &&   (nhitsPIX + nPIXDS > 1 )
-	   &&   (nhitsSCT + nSCTDS >=6 )
-	   &&   (nPIXH    + nSCTH  < 2 ) )
+    if ( ((!eBLhits) || (nBLhits > 0))
+	 &&   (nhitsPIX + nPIXDS > 1 )
+	 &&   (nhitsSCT + nSCTDS >=6 )
+	 &&   (nPIXH    + nSCTH  < 2 ) ) {
       if(m_doDebug) std::cout << "   * MuonSelector * passQualCuts() * this muon satisfies the hits number QualCuts  "  << std::endl;
       return true;
+    }
   }
 
   if(m_doDebug) std::cout << "   * MuonSelector * passQualCuts() * this muon did not pass the hits number QualCuts  "  << std::endl;
@@ -253,7 +254,7 @@ bool MuonSelector::passIsolCuts()
     float iso_pt40(0);
     if( !m_pxMuon->isolation(iso_pt40, xAOD::Iso::ptcone40) ) {
       std::cout << " * MuonSelector * WARNING * No isolation variable stored on the muon" << std::endl;
-      if(m_doDebug) std::cout << "   * MuonSelector * passIsolCuts() * this muon did not pass the IsoCuts " << endreq;
+      if(m_doDebug) std::cout << "   * MuonSelector * passIsolCuts() * this muon did not pass the IsoCuts " << endmsg;
       return false;
     }
     else {
