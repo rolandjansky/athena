@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef __TRIG_COMBINATORIAL_SETTINGS_H__
 #define __TRIG_COMBINATORIAL_SETTINGS_H__
 
