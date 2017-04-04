@@ -41,11 +41,12 @@ foreach (hanfile IN LISTS han_config_files)
     COMMAND ${CMAKE_COMMAND} -E copy
       ${CMAKE_CURRENT_BINARY_DIR}/${hanfile}.hcfg
       ${CMAKE_DATA_OUTPUT_DIRECTORY}/DataQualityConfigurations/${hanfile}.hcfg
-    DEPENDS scripts/MergeConfigs.py config/*/${hanfile}.config han-config-gen
+    DEPENDS scripts/MergeConfigs.py config/*/${hanfile}.config
   )
   set(hcfgfiles ${hcfgfiles} ${CMAKE_DATA_OUTPUT_DIRECTORY}/DataQualityConfigurations/${hanfile}.hcfg)
 endforeach(hanfile)
 
 add_custom_target( han_configs ALL SOURCES ${hcfgfiles} )
+add_dependencies( han_configs han-config-gen )
 
 add_dependencies( Package_DataQualityConfigurations han_configs )
