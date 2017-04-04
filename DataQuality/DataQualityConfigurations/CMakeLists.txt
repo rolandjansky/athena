@@ -32,14 +32,14 @@ foreach (hanfile IN LISTS han_config_files)
     OUTPUT ${CMAKE_DATA_OUTPUT_DIRECTORY}/DataQualityConfigurations/${hanfile}.hcfg
     COMMENT "merge & build han configuration ${hanfile}"
     COMMAND env PATH=${BUILD_BIN_DIR}:$ENV{PATH} LD_LIBRARY_PATH=${BUILD_LIB_DIR}:$ENV{LD_LIBRARY_PATH} which han-config-gen
-    COMMAND env PATH=${BUILD_BIN_DIR}:$ENV{PATH} LD_LIBRARY_PATH=${BUILD_LIB_DIR}:$ENV{LD_LIBRARY_PATH} ldd `which han-config-gen`
+    COMMAND PATH=${BUILD_BIN_DIR}:$ENV{PATH} LD_LIBRARY_PATH=${BUILD_LIB_DIR}:$ENV{LD_LIBRARY_PATH} env ldd `which han-config-gen`
     # Merge
     COMMAND ${CMAKE_COMMAND} -E env GIT_COMMIT_HASH=${GIT_COMMIT_HASH}
       ${CMAKE_CURRENT_SOURCE_DIR}/scripts/MergeConfigs.py ${hanfile}.config
       ${CMAKE_CURRENT_SOURCE_DIR}/config
       ${CMAKE_CURRENT_BINARY_DIR}/${hanfile}.config
     # Build binary config
-    COMMAND env PATH=${BUILD_BIN_DIR}:$ENV{PATH} LD_LIBRARY_PATH=${BUILD_LIB_DIR}:$ENV{LD_LIBRARY_PATH} han-config-gen
+    COMMAND PATH=${BUILD_BIN_DIR}:$ENV{PATH} LD_LIBRARY_PATH=${BUILD_LIB_DIR}:$ENV{LD_LIBRARY_PATH} env han-config-gen
       ${CMAKE_CURRENT_BINARY_DIR}/${hanfile}.config
     # Deploy binary config
     COMMAND ${CMAKE_COMMAND} -E copy
