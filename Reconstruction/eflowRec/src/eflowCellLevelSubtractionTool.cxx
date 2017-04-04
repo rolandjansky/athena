@@ -328,9 +328,9 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
 //         std::cout<<"after rings"<<std::endl;
           int indexofRing = 0;
           int layerToStore = -999;
-          std::vector<int> layerToStoreVector;
-          std::vector<float> radiusToStoreVector;
-          std::vector<float> avgEdensityToStoreVector;
+          std::vector<int> layerToStoreVector(100,-1);
+          std::vector<float> radiusToStoreVector(100,1.0);
+          std::vector<float> avgEdensityToStoreVector(100,-777.0);
           
           // std::cout<<"layerToStore vector about to be cleared"<<std::endl;
 //           layerToStoreVector.clear();
