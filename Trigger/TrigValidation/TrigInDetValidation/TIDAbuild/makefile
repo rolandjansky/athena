@@ -68,6 +68,10 @@ install : all
 	mv ../test/$(XMLFILE) ../test/$(XMLFILE).bak
 	mv $(XMLFILE) ../test	
 
+move : 
+	mv ../test/$(XMLFILE) ../test/$(XMLFILE).bak
+	mv $(XMLFILE) ../test	
+
 all: $(XMLFILE)
 
 $(FILES) : $(JOBS)

@@ -69,7 +69,7 @@ class TrigMultiTrkFex_trkPhi (TrigMultiTrkFexPy):
         self.nTrkCharge = 0
         self.nTrkMassMin = [840.]  
         self.nTrkMassMax = [1240.] 
-        self.ptTrkMin = [4000., 4000. ] # set minimal pt of tracks for Phi+Pi
+        self.ptTrkMin = [3750., 3750. ] # set minimal pt of tracks for Phi+Pi
         self.diTrkMassMin = []   # phi window
         self.diTrkMassMax = []
         self.diTrkCharge = -1
@@ -98,7 +98,7 @@ class TrigMultiTrkFex_trkPhiX (TrigMultiTrkFexPy):
         self.nTrk = 3
         self.trkMass = 105.6583745  # looking for di-muon resonances       
         self.nTrkCharge = 1
-        self.ptTrkMin = [4000., 4000., 1000. ] # set minimal pt of tracks for Phi+Pi
+        self.ptTrkMin = [3750., 3750., 1000. ] # set minimal pt of tracks for Phi+Pi
         self.diTrkMassMin = [840.]   # phi window
         self.diTrkMassMax = [1240.]
         self.diTrkCharge = 0
@@ -130,7 +130,7 @@ class TrigMultiTrkFex_trkPhiXTight (TrigMultiTrkFexPy):
         self.nTrkCharge = 1
         self.nTrkMassMin = [1500.]
         self.nTrkMassMax = [2500.] 
-        self.ptTrkMin = [4000., 4000., 1000. ] # set minimal pt of tracks for Phi+Pi
+        self.ptTrkMin = [3750., 3750., 1000. ] # set minimal pt of tracks for Phi+Pi
         self.diTrkMassMin = [840.]   # phi window
         self.diTrkMassMax = [1240.]
         self.diTrkCharge = 0
@@ -148,6 +148,7 @@ class TrigMultiTrkFex_trkPhiXTight (TrigMultiTrkFexPy):
                                 
         self.AthenaMonTools = [ validation, online, time ]
         
+###################################################################################
 
 class TrigMultiTrkFex_trkTau (TrigMultiTrkFexPy):
     __slots__ = []
@@ -159,11 +160,11 @@ class TrigMultiTrkFex_trkTau (TrigMultiTrkFexPy):
 
         #self.trackCollectionKey = "'
         self.trkMass = 105.6583745  # looking for di-muon resonances       
-        self.nTrk = 3
+        self.nTrk = 2
         self.nTrkMassMin = [0.]
         self.nTrkMassMax = [2900.] # cut away J/psi
-        self.nTrkCharge = 1
-        self.ptTrkMin = [4000., 4000., 1000. ] # set minimal pt of tracks for Phi+Pi
+        self.nTrkCharge = -1
+        self.ptTrkMin = [3750., 1000. ] # set minimal pt of tracks for Phi+Pi
         self.diTrkMassMin = []   # no sub-resonances
         self.diTrkMassMax = []
         # muons are not matched to tracks, but still require to be present in TE
@@ -173,6 +174,41 @@ class TrigMultiTrkFex_trkTau (TrigMultiTrkFexPy):
         self.ptMuonMin = [] #3600., 3600.]
         #self.overlapdR  = 0.005 
 
+
+        time = TrigTimeHistToolConfig("Time")
+        validation = TrigMultiTrkFexValidationMonitoring()
+        online = TrigMultiTrkFexOnlineMonitoring()
+                                
+        self.AthenaMonTools = [ validation, online, time ]
+
+###################################################################################
+class TrigMultiTrkFex_bNmu (TrigMultiTrkFexPy):
+    __slots__ = []
+    # lets force name setting, as it needs to match pt cuts
+    def __init__(self, name, ptMuonMin ):
+        super( TrigMultiTrkFex_bNmu, self ).__init__( name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll = False
+
+        #self.trackCollectionKey = "'
+        self.trkMass = 105.6583745  # looking for di-muon resonances       
+        self.nTrk = -1  # no cut
+        self.nTrkMassMin = []
+        self.nTrkMassMax = [] # cut away J/psi
+        self.nTrkCharge = -1
+        self.ptTrkMin = [] # set minimal pt of tracks for Phi+Pi
+        self.diTrkMassMin = []   # no sub-resonances
+        self.diTrkMassMax = []
+        # muons are not matched to tracks, but still could be required to be present in TE
+        self.nL2CombMuon = 0
+        self.nL2SAMuon = 0
+
+        # these are 2 cuts that matters. Set to the softest 
+        self.nEfMuon = len(ptMuonMin)
+        self.ptMuonMin = []
+        for thr in ptMuonMin :
+            self.ptMuonMin.append(thr)
 
         time = TrigTimeHistToolConfig("Time")
         validation = TrigMultiTrkFexValidationMonitoring()
@@ -277,7 +313,7 @@ class TrigMultiTrkFex_DiMu (TrigMultiTrkFexPy):
         self.nTrkCharge = 0
         self.nTrkMassMin = [100.]
         self.nTrkMassMax = [15000.] 
-        self.ptTrkMin = [4000., 4000. ] # set minimal pt of tracks for 2mu passing L1
+        self.ptTrkMin = [3750., 3750. ] # set minimal pt of tracks for 2mu passing L1
         self.diTrkMassMin = []   # phi window
         self.diTrkMassMax = []
         self.diTrkCharge = -1
@@ -321,3 +357,33 @@ class TrigMultiTrkFex_DiMu_noVtx_noM_SS (TrigMultiTrkFex_DiMu):
         self.nTrkVertexChi2 = -1
         self.nTrkMassMin = [0.]  # OI not sure if this will work...
         self.nTrkMassMax = [1e+8] # should be safe at LHC, no? 
+
+
+#############################################################################
+class TrigMultiTrkFex_Jpsi (TrigMultiTrkFexPy):
+    __slots__ = []
+    def __init__(self, name = "MultiTrkFex_Jpsi"):
+        super( TrigMultiTrkFex_Jpsi, self ).__init__( name )
+        self.nTrk = 2
+        self.trkMass = 105.6583745  # looking for di-muon resonances       
+        self.nTrkVertexChi2 = 20
+        self.nTrkCharge = 0
+        self.nTrkMassMin = [2600.]
+        self.nTrkMassMax = [3600.] 
+        self.ptTrkMin = [3500., 3500. ] # set minimal pt of tracks for 2mu passing L1
+        self.diTrkMassMin = []   # phi window
+        self.diTrkMassMax = []
+        self.diTrkCharge = -1
+
+        # muons are not matched to tracks, but still require to be present in TE
+        self.nEfMuon = 0
+        self.nL2CombMuon = 0
+        self.nL2SAMuon = 0  # as we run on muon RoIs all necessary muons are already requested.
+        self.ptMuonMin = [] #[3600.]
+        #self.overlapdR  = 0.005 
+
+        time = TrigTimeHistToolConfig("Time")
+        validation = TrigMultiTrkFexValidationMonitoring()
+        online = TrigMultiTrkFexOnlineMonitoring()
+                                
+        self.AthenaMonTools = [ validation, online, time ]

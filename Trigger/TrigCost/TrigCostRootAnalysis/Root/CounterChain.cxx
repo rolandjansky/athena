@@ -24,7 +24,6 @@
 #include "../TrigCostRootAnalysis/Utility.h"
 
 namespace TrigCostRootAnalysis {
-
   Float_t CounterChain::s_eventTimeExecute = 0.; //Static timer for whole event
 
   /**
@@ -32,13 +31,13 @@ namespace TrigCostRootAnalysis {
    * @param _name Const ref to chain's name
    * @param _ID Chain's HLT ID number.
    */
-  CounterChain::CounterChain( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel, MonitorBase* _parent )
+  CounterChain::CounterChain(const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel,
+                             MonitorBase* _parent)
     : CounterBase(_costData, _name, _ID, _detailLevel, _parent),
     m_prescaleWeight(1.) {
-
     // Register variables to study.
     if (m_detailLevel == 0) {
-      m_dataStore.setHistogramming( kFALSE );
+      m_dataStore.setHistogramming(kFALSE);
     }
 
     m_dataStore.newVariable(kVarEventsActive).setSavePerEvent();
@@ -48,26 +47,26 @@ namespace TrigCostRootAnalysis {
     m_dataStore.newVariable(kVarEventsSlow).setSavePerEvent();
     //m_dataStore.newVariable(kVarTotalPrescale).setSavePerEvent(); // Not used
     m_dataStore.newVariable(kVarAlgCalls)
-      .setSavePerEvent("Number Of Algorithm Executions Per Event;Algorithm Executions;Events");
+     .setSavePerEvent("Number Of Algorithm Executions Per Event;Algorithm Executions;Events");
     m_dataStore.newVariable(kVarAlgCaches)
-      .setSavePerEvent("Number Of Cached Algorithms Per Event;Cached Algorithims;Events");
+     .setSavePerEvent("Number Of Cached Algorithms Per Event;Cached Algorithims;Events");
     m_dataStore.newVariable(kVarTime)
-      .setSavePerEvent("Chain Total Time Per Event;Chain Total Time per Event [ms];Events")
-      .setSavePerEventFraction("Fractional Chain Total Time;Chain Total Time/Event Total Time;Events");
+     .setSavePerEvent("Chain Total Time Per Event;Chain Total Time per Event [ms];Events")
+     .setSavePerEventFraction("Fractional Chain Total Time;Chain Total Time/Event Total Time;Events");
     m_dataStore.newVariable(kVarRerunTime).setSavePerEvent();
     m_dataStore.newVariable(kVarROBReqs)
-      .setSavePerEvent("Number Of Cached ROBs Per Event;Cached ROBs;Events");
+     .setSavePerEvent("Number Of Cached ROBs Per Event;Cached ROBs;Events");
     m_dataStore.newVariable(kVarROBRets)
-      .setSavePerEvent("Number Of Retrieved ROBs Per Event;Retrieved ROBs;Events");
+     .setSavePerEvent("Number Of Retrieved ROBs Per Event;Retrieved ROBs;Events");
     m_dataStore.newVariable(kVarROBReqSize)
-      .setSavePerEvent("Size Of Cached ROBs Per Event;Cached ROBs Size [kB];Events");
+     .setSavePerEvent("Size Of Cached ROBs Per Event;Cached ROBs Size [kB];Events");
     m_dataStore.newVariable(kVarROBRetSize)
-      .setSavePerEvent("Size Of Retrieved ROBs Per Event;Retrieved ROBs Size [kB];Events");
+     .setSavePerEvent("Size Of Retrieved ROBs Per Event;Retrieved ROBs Size [kB];Events");
 
     if (getName() == Config::config().getStr(kDummyString)) return;
 
     // Get my prescale
-    m_prescaleWeight = TrigXMLService::trigXMLService().getHLTCostWeightingFactor( getName() );
+    m_prescaleWeight = TrigXMLService::trigXMLService().getHLTCostWeightingFactor(getName());
     decorate(kEffectivePrescale, m_prescaleWeight);
   }
 
@@ -93,9 +92,9 @@ namespace TrigCostRootAnalysis {
    */
   void CounterChain::processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight) {
     ++m_calls;
-    UNUSED( _f );
+    UNUSED(_f);
 
-    if ( Config::config().debug() ) debug(_e);
+    if (Config::config().debug()) debug(_e);
 
     _weight *= getPrescaleFactor();
     if (isZero(_weight) == kTRUE) return;
@@ -114,25 +113,24 @@ namespace TrigCostRootAnalysis {
 
     s_eventTimeExecute += _chainTime * _weight; // Tabulate over all chains in event
 
-    if ( _chainTime > Config::config().getInt(kSlowThreshold) ) {
+    if (_chainTime > Config::config().getInt(kSlowThreshold)) {
       m_dataStore.store(kVarEventsSlow, 1., _weight);
     }
 
     m_dataStore.store(kVarAlgCalls, m_costData->getChainAlgCalls(_e), _weight);
     m_dataStore.store(kVarAlgCaches, m_costData->getChainAlgCaches(_e), _weight);
 
-    if ( m_costData->getChainROBRetrievals(_e) != 0 ) {
+    if (m_costData->getChainROBRetrievals(_e) != 0) {
       m_dataStore.store(kVarROBRets, m_costData->getChainROBRetrievals(_e), _weight);
       m_dataStore.store(kVarROBRetSize, m_costData->getChainROBRetrievalSize(_e), _weight);
     }
-    if ( m_costData->getChainROBRequests(_e) != 0) {
+    if (m_costData->getChainROBRequests(_e) != 0) {
       m_dataStore.store(kVarROBReqs, m_costData->getChainROBRequests(_e), _weight);
       m_dataStore.store(kVarROBReqSize, m_costData->getChainROBRequestSize(_e), _weight);
     }
 
     // We should have as many algs here as we recorded as "called" and "cached"
-    assert( m_costData->getChainAlgs(_e).size() == m_costData->getChainAlgCalls(_e) + m_costData->getChainAlgCaches(_e));
-
+    assert(m_costData->getChainAlgs(_e).size() == m_costData->getChainAlgCalls(_e) + m_costData->getChainAlgCaches(_e));
   }
 
   /**
@@ -154,7 +152,6 @@ namespace TrigCostRootAnalysis {
     UNUSED(_weight);
     m_dataStore.setVariableDenominator(kVarTime, s_eventTimeExecute);
     m_dataStore.endEvent();
-
   }
 
   /**
@@ -162,13 +159,13 @@ namespace TrigCostRootAnalysis {
    */
   void CounterChain::debug(UInt_t _e) {
     Info("CounterChain::debug", "Counter Name:%s ID:%i Event:%i ChainTime:%.2f ChainTimeFromSeq:%.2f "
-         "PS:%.2f LB:%i Pass:%i PassRaw:%i PT:%i SeqCalls:%i AlgCall:%i AlgCache:%i",
+                                "PS:%.2f LB:%i Pass:%i PassRaw:%i PT:%i SeqCalls:%i AlgCall:%i AlgCache:%i",
          m_name.c_str(),
          getID(),
          m_costData->getEventNumber(),
          m_costData->getChainTimer(_e),
          m_costData->getChainTimerFromSequences(_e),
-         TrigConfInterface::getPrescale( m_name ),
+         TrigConfInterface::getPrescale(m_name),
          m_costData->getLumi(),
          m_costData->getIsChainPassed(_e),
          m_costData->getIsChainPassedRaw(_e),
@@ -176,8 +173,6 @@ namespace TrigCostRootAnalysis {
          m_costData->getChainSeqCalls(_e),
          m_costData->getChainAlgCalls(_e),
          m_costData->getChainAlgCaches(_e)
-        );
+         );
   }
-
-
 } // namespace TrigCostRootAnalysis

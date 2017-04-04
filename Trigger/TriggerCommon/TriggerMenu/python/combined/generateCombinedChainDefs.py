@@ -26,6 +26,31 @@ def _addTopoInfo(theChainDef,chainDicts,listOfChainDefs,doAtL2AndEF=True):
             
     topoAlgs = chainDicts[0]["topo"]
 
+    if any("Heg" in alg for alg in topoAlgs):
+        hegInputTEsEF=[]
+        # First TE: electron merged
+        for cD in listOfChainDefs:
+            if [x for x in cD.signatureList[-1]['listOfTriggerElements'] if 'EF_e' in x]:
+                hegInputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])] 
+                break
+
+        # Second TE: electron
+        for cD in listOfChainDefs:
+            if [x for x in cD.signatureList[-1]['listOfTriggerElements'] if 'EF_g' in x]:
+                hegInputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])] 
+                break
+
+        from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Heg, TrigEFDielectronMassHypo_Heg
+
+        EFFex = TrigEFDielectronMassFex_Heg()
+        EFHypo = TrigEFDielectronMassHypo_Heg()
+        
+        EFChainName = "EF_" + chainDicts[0]['chainName']
+        if (len(EFChainName) > 99):
+            EFChainName = EFChainName[:-(len(EFChainName)-99)]
+        theChainDef.addSequence([EFFex, EFHypo],hegInputTEsEF,EFChainName)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
+   
     if any("dphi" in alg for alg in topoAlgs):
         ##Check that we only have a MET and JET chain
         inputChains=[]

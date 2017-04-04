@@ -36,7 +36,8 @@ TrigCostRun::TrigCostRun(const std::string& name,
    m_timerSvc("TrigTimerSvc/TrigTimerSvc", name),
    m_navigation("HLT::Navigation/Navigation", this),
    m_tools(this),
-   m_toolsSave(this)
+   m_toolsSave(this),
+   m_toolConf("Trig::TrigNtConfTool/TrigNtConfTool", this)
 {
   declareProperty("navigation",    m_navigation, "Trigger navigation tool");
   declareProperty("tools",         m_tools,      "Tools array");
@@ -92,6 +93,8 @@ StatusCode TrigCostRun::initialize()
   CHECK(m_toolsSave.retrieve());
   ATH_MSG_DEBUG("Retrieved " << m_toolsSave << endreq);
 
+  CHECK(m_toolConf.retrieve());
+  ATH_MSG_DEBUG("Retrieved " << m_toolConf << endreq);
 
   //
   // Pass global configuration pointer to sub-tools
@@ -104,21 +107,21 @@ StatusCode TrigCostRun::initialize()
   // Configure HLTResult extraction objects
   //
   m_readL2.hltLevel     = "L2";
-  m_readL2.outputLevel  = outputLevel();
+  m_readL2.outputLevel  = msgLevel();
   m_readL2.msgStream    = &msg();
   m_readL2.globalConfig = &m_config;
   m_readL2.timerNavig   = m_timerNavig;
   m_readL2.PrintInit();
 
   m_readEF.hltLevel     = "EF";  
-  m_readEF.outputLevel  = outputLevel();
+  m_readEF.outputLevel  = msgLevel();
   m_readEF.msgStream    = &msg();
   m_readEF.globalConfig = &m_config;
   m_readEF.timerNavig   = m_timerNavig;
   m_readEF.PrintInit();
   
   m_readHLT.hltLevel     = "HLT";  
-  m_readHLT.outputLevel  = outputLevel();
+  m_readHLT.outputLevel  = msgLevel();
   m_readHLT.msgStream    = &msg();
   m_readHLT.globalConfig = &m_config;
   m_readHLT.timerNavig   = m_timerNavig;
@@ -180,9 +183,9 @@ StatusCode TrigCostRun::execute()
     m_navigation->reset();
   }
 
-  m_readL2.ProcessEvent(evtStore(), m_navigation);
-  m_readEF.ProcessEvent(evtStore(), m_navigation);
-  m_readHLT.ProcessEvent(evtStore(), m_navigation);
+  m_readL2.ProcessEvent(evtStore(), m_navigation, m_toolConf);
+  m_readEF.ProcessEvent(evtStore(), m_navigation, m_toolConf);
+  m_readHLT.ProcessEvent(evtStore(), m_navigation, m_toolConf);
 
   if(m_printEvent) {
     m_readL2.PrintEvent();
@@ -342,7 +345,8 @@ TrigCostRun::ReadHLTResult::ReadHLTResult()
 
 //-----------------------------------------------------------------------------
 bool TrigCostRun::ReadHLTResult::ProcessEvent(ServiceHandle<StoreGateSvc> &storeGate, 
-					      ToolHandle<HLT::Navigation> &navigation)
+					      ToolHandle<HLT::Navigation> &navigation,
+                ToolHandle<Trig::ITrigNtTool> &confTool)
 {
   //
   // Process one event:
@@ -373,8 +377,10 @@ bool TrigCostRun::ReadHLTResult::ProcessEvent(ServiceHandle<StoreGateSvc> &store
   //
   // Read events and configs
   //
-  ReadConfig(storeGate);
-  ReadEvent (storeGate);
+  const bool gotConfigSG = ReadConfig(storeGate);
+  // If gotConfigSG is false, we will try again to read in from the DB configs for cost mon events stored in this dummy-export-event
+
+  ReadEvent(storeGate, gotConfigSG, confTool);
   
   return true;
 }
@@ -538,8 +544,56 @@ bool TrigCostRun::ReadHLTResult::ReadConfig(ServiceHandle<StoreGateSvc> &storeGa
 }
 
 //---------------------------------------------------------------------------------------
-bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGate)
-{
+bool TrigCostRun::ReadHLTResult::ReadConfigDB(ServiceHandle<StoreGateSvc> &storeGate, 
+  const TrigMonEvent* trigMonEvent,
+  ToolHandle<Trig::ITrigNtTool> &confTool) {
+  //
+  // Read in trig config from data base
+  // If no configuration was exported from P1, then once we know what P1-monitoring-events
+  // are stored in this dummy-RAW-export event then we can load in these data from the DB.
+  // We put the config into storegate such that it can be then picked up by later tools &
+  // the D3PD maker
+  //
+
+  TrigMonConfig* trigMonConfig = new TrigMonConfig();
+
+  trigMonConfig->setEventID(trigMonEvent->getEvent(),
+                  trigMonEvent->getLumi(),
+                  trigMonEvent->getRun(),
+                  trigMonEvent->getSec(),
+                  trigMonEvent->getNanoSec());
+
+  if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "ProcessConfig - Attempting load from DB " << endreq;
+
+  confTool->SetOption(2); //2 = DBAccess
+  confTool->Fill(trigMonConfig);
+
+  // Have we already saved this config?
+  std::pair<int,int> prescaleKeys( trigMonConfig->getLV1PrescaleKey(), trigMonConfig->getHLTPrescaleKey() );
+  if ( exportedConfigs.find(prescaleKeys) != exportedConfigs.end() ) {
+    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Already exported for L1 " 
+      << trigMonConfig->getLV1PrescaleKey() << " HLT " << trigMonConfig->getHLTPrescaleKey() << endreq;
+    delete trigMonConfig;
+    return true;
+  }
+
+  // Write me to storegate so that I can get picked up by the ntuple tools
+  TrigMonConfigCollection* trigMonConfigCollection = new TrigMonConfigCollection();
+  trigMonConfigCollection->push_back(trigMonConfig);
+  if(storeGate->record(trigMonConfigCollection, keyConfig).isFailure()) {
+    log() << MSG::ERROR << "Failed to write TrigMonEventCollection: " << keyConfig << endreq;
+    delete trigMonConfigCollection;
+    return false;
+  }
+
+  // No that we know it should (must!) be there - try again to read it!
+  return ReadConfig(storeGate);
+}
+
+//---------------------------------------------------------------------------------------
+bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGate, 
+  const bool gotConfigSG,
+  ToolHandle<Trig::ITrigNtTool> &confTool) {
 
   if (doLevel == false) return false;
   
@@ -570,6 +624,9 @@ bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGat
   for(TrigMonEventCollection::const_iterator it = eventCol->begin(); it != eventCol->end(); ++it) {
     TrigMonEvent *ptr = *it;
     if(!ptr) continue;
+
+    // If we didn't export configs from the HLT itself, then check if we need to get the config for this event
+    if (!gotConfigSG) ReadConfigDB(storeGate, ptr, confTool);
 
     // Add my HLT node
     ptr->addWord(appId); //Backward compatability

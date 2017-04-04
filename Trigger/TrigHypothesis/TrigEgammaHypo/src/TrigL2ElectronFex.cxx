@@ -38,14 +38,14 @@ TrigL2ElectronFex::TrigL2ElectronFex(const std::string & name, ISvcLocator* pSvc
 {
     declareProperty( "AcceptAll",            m_acceptAll  = false );
     declareProperty( "ClusEt",              m_clusEtthr = 20.0*CLHEP::GeV );
-    declareProperty( "TrackPt",              m_trackPtthr = 5.0*CLHEP::GeV );
+    declareProperty( "TrackPt",              m_trackPtthr = 1.0*CLHEP::GeV );
     declareProperty( "CaloTrackdEtaNoExtrap",        m_calotrkdeta_noextrap );
-    declareProperty( "TrackPtHighEt",              m_trackPtthr = 2.0*CLHEP::GeV );
-    declareProperty( "CaloTrackdEtaNoExtrapHighEt",        m_calotrkdeta_noextrap_highet );
-    declareProperty( "CaloTrackdETA",        m_calotrackdeta );
-    declareProperty( "CaloTrackdPHI",        m_calotrackdphi ); 
-    declareProperty( "CaloTrackdEoverPLow",  m_calotrackdeoverp_low );
-    declareProperty( "CaloTrackdEoverPHigh", m_calotrackdeoverp_high );
+    declareProperty( "TrackPtHighEt",              m_trackPtthr_highet = 2.0*CLHEP::GeV );
+    declareProperty( "CaloTrackdEtaNoExtrapHighEt",        m_calotrkdeta_noextrap_highet = 0.5 );
+    declareProperty( "CaloTrackdETA",        m_calotrackdeta = 0.5);
+    declareProperty( "CaloTrackdPHI",        m_calotrackdphi = 0.5); 
+    declareProperty( "CaloTrackdEoverPLow",  m_calotrackdeoverp_low = 0.);
+    declareProperty( "CaloTrackdEoverPHigh", m_calotrackdeoverp_high = 999.);
     declareProperty( "RCalBarrelFace",       m_RCAL = 1470.0*CLHEP::mm );
     declareProperty( "ZCalEndcapFace",       m_ZCAL = 3800.0*CLHEP::mm );
     declareProperty( "ParticleCaloExtensionTool",    m_caloExtensionTool);
@@ -218,117 +218,92 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
       float trkPt = fabs((trkIter)->pt());
       float etoverpt = fabs(calo_et/trkPt);
       float calotrkdeta_noextrap = (trkIter)->eta() - calo_eta;
-      
+
       double etaAtCalo=999.;
       double phiAtCalo=999.;
-      if(m_acceptAll){
-          if(!extrapolate(*el_t2calo_clus,trkIter,etaAtCalo,phiAtCalo)){
-              ATH_MSG_VERBOSE("extrapolator failed");
-              continue; 
-          }
-          else{
-              ATH_MSG_VERBOSE("REGTEST: TrigElectron: cluster = " <<
-                      el_t2calo_clus.getStorableObjectPointer() << " index = " << el_t2calo_clus.index() <<
-                      " track = "     << trkIter << " eta = " << etaAtCalo << " phi = " << phiAtCalo); 
-              xAOD::TrigElectron* trigElec = new xAOD::TrigElectron();
-              m_trigElecColl->push_back(trigElec);
-              trigElec->init(  initialRoI->roiWord(),
-                      etaAtCalo, phiAtCalo,  etoverpt,        
-                      el_t2calo_clus,
-                      trkLink);
-              m_calotrackdeta_mon.push_back(trigElec->trkClusDeta()); 
-              m_calotrackdphi_mon.push_back(trigElec->trkClusDphi()); 
-              m_calotrackdeoverp_mon.push_back(trigElec->etOverPt());
-              m_trackpt_mon.push_back(getTkPt(trigElec));
-              m_calopt_mon.push_back(getCaloPt(trigElec));
-              m_calotrkdeta_noextrap_mon.push_back(calotrkdeta_noextrap);
-          }
+      ATH_MSG_DEBUG("Apply cuts");
+      if(trkPt < m_trackPtthr){
+          ATH_MSG_DEBUG("Failed track pt cut " << trkPt);
+          continue;
       }
-      else {
-          ATH_MSG_DEBUG("Apply cuts");
-          if(trkPt < m_trackPtthr){
-              ATH_MSG_DEBUG("Failed track pt cut " << trkPt);
-              continue;
-          }
-          if(fabs(calotrkdeta_noextrap) > m_calotrkdeta_noextrap){
-              ATH_MSG_DEBUG("Failed pre extrapolation calo track deta " << calotrkdeta_noextrap);
-              continue;
-          }
-          if(calo_et > m_clusEtthr){
-              if(trkPt < m_trackPtthr_highet){
-                  ATH_MSG_DEBUG("Failed track pt cut for high et cluster");
-                  continue;
-              }
-              if(calotrkdeta_noextrap > m_calotrkdeta_noextrap_highet){
-                  ATH_MSG_DEBUG("Failed pre extrapolation calo track deta for high et");
-                  continue;
-              }
-          } 
-          if (etoverpt < m_calotrackdeoverp_low){ 
-              ATH_MSG_DEBUG("failed low cut on ET/PT");
-              continue;
-          }
-          if (etoverpt > m_calotrackdeoverp_high){ 
-              ATH_MSG_DEBUG("failed high cut on ET/PT");
-              continue;
-          }
-          if(!extrapolate(*el_t2calo_clus,trkIter,etaAtCalo,phiAtCalo)){
-              ATH_MSG_DEBUG("extrapolator failed 1");
-              continue; 
-          }
-          // all ok: do track-matching cuts
-          ATH_MSG_DEBUG("extrapolated eta/phi=" << etaAtCalo << "/" << phiAtCalo);
-          // match in eta
-          float dEtaCalo = fabs(etaAtCalo - calo_eta);
-          ATH_MSG_DEBUG("deta = " << dEtaCalo); 
-          if ( dEtaCalo > m_calotrackdeta){ 
-              ATH_MSG_DEBUG("failed eta match cut " << dEtaCalo);
-              continue;
-          }
-
-          // match in phi: deal with differences larger than Pi
-          float dPhiCalo =  fabs(phiAtCalo - calo_phi);
-          dPhiCalo       = ( dPhiCalo < M_PI ? dPhiCalo : 2*M_PI - dPhiCalo );
-          ATH_MSG_DEBUG("dphi = " << dPhiCalo); 
-          if ( dPhiCalo > m_calotrackdphi) {
-              ATH_MSG_DEBUG("failed phi match cut " << dPhiCalo);
-              continue;
-          }
-          // all cuts passed
-          result = true;
-          /** Create a TrigElectron corresponding to this candidate
-            assume cluster quantities give better estimate of transverse energy
-            (probably a safe assumption for large pT) and that track parameters
-            at perigee give better estimates of angular quantities */
-
-          ATH_MSG_DEBUG("REGTEST: TrigElectron: cluster = " <<
-                  el_t2calo_clus.getStorableObjectPointer() << 
-                  " index = " << el_t2calo_clus.index() <<
-                  " track = "     << trkIter << " eta = " << 
-                  etaAtCalo << " phi = " << phiAtCalo << 
-                  " deta = " << dEtaCalo << "dphi = " << dPhiCalo);
-
-          xAOD::TrigElectron* trigElec = new xAOD::TrigElectron();
-          m_trigElecColl->push_back(trigElec);
-          trigElec->init(  initialRoI->roiWord(),
-                  etaAtCalo, phiAtCalo,  etoverpt,        
-                  el_t2calo_clus,
-                  trkLink);
-          ATH_MSG_DEBUG(" deta = " << dEtaCalo << " deta = " << trigElec->trkClusDeta() 
-                  << " dphi = " << dPhiCalo << " dphi = " << trigElec->trkClusDphi()
-                  << " caloEta = " << calo_eta << " caloEta = " << trigElec->caloEta()
-                  << " caloPhi = " << calo_phi << " calophi = " << trigElec->caloPhi()
-                  << " etaAtCalo = " << etaAtCalo << " etaAtCalo = " << trigElec->trkEtaAtCalo()
-                  << " phiAtCalo = " << phiAtCalo << " phiAtCalo = " << trigElec->trkPhiAtCalo()
-                  );
-
-          m_calotrackdeta_mon.push_back(trigElec->trkClusDeta()); 
-          m_calotrackdphi_mon.push_back(trigElec->trkClusDphi()); 
-          m_calotrackdeoverp_mon.push_back(trigElec->etOverPt());
-          m_trackpt_mon.push_back(getTkPt(trigElec));
-          m_calopt_mon.push_back(getCaloPt(trigElec));
-          m_calotrkdeta_noextrap_mon.push_back(calotrkdeta_noextrap);
+      if(fabs(calotrkdeta_noextrap) > m_calotrkdeta_noextrap){
+          ATH_MSG_DEBUG("Failed pre extrapolation calo track deta " << calotrkdeta_noextrap);
+          continue;
       }
+      if(calo_et > m_clusEtthr){
+          if(trkPt < m_trackPtthr_highet){
+              ATH_MSG_DEBUG("Failed track pt cut for high et cluster");
+              continue;
+          }
+          if(calotrkdeta_noextrap > m_calotrkdeta_noextrap_highet){
+              ATH_MSG_DEBUG("Failed pre extrapolation calo track deta for high et");
+              continue;
+          }
+      } 
+      if (etoverpt < m_calotrackdeoverp_low){ 
+          ATH_MSG_DEBUG("failed low cut on ET/PT");
+          continue;
+      }
+      if (etoverpt > m_calotrackdeoverp_high){ 
+          ATH_MSG_DEBUG("failed high cut on ET/PT");
+          continue;
+      }
+      if(!extrapolate(*el_t2calo_clus,trkIter,etaAtCalo,phiAtCalo)){
+          ATH_MSG_DEBUG("extrapolator failed 1");
+          continue; 
+      }
+      // all ok: do track-matching cuts
+      ATH_MSG_DEBUG("extrapolated eta/phi=" << etaAtCalo << "/" << phiAtCalo);
+      // match in eta
+      float dEtaCalo = fabs(etaAtCalo - calo_eta);
+      ATH_MSG_DEBUG("deta = " << dEtaCalo); 
+      if ( dEtaCalo > m_calotrackdeta){ 
+          ATH_MSG_DEBUG("failed eta match cut " << dEtaCalo);
+          continue;
+      }
+
+      // match in phi: deal with differences larger than Pi
+      float dPhiCalo =  fabs(phiAtCalo - calo_phi);
+      dPhiCalo       = ( dPhiCalo < M_PI ? dPhiCalo : 2*M_PI - dPhiCalo );
+      ATH_MSG_DEBUG("dphi = " << dPhiCalo); 
+      if ( dPhiCalo > m_calotrackdphi) {
+          ATH_MSG_DEBUG("failed phi match cut " << dPhiCalo);
+          continue;
+      }
+      // all cuts passed
+      result = true;
+      /** Create a TrigElectron corresponding to this candidate
+        assume cluster quantities give better estimate of transverse energy
+        (probably a safe assumption for large pT) and that track parameters
+        at perigee give better estimates of angular quantities */
+
+      ATH_MSG_DEBUG("REGTEST: TrigElectron: cluster = " <<
+              el_t2calo_clus.getStorableObjectPointer() << 
+              " index = " << el_t2calo_clus.index() <<
+              " track = "     << trkIter << " eta = " << 
+              etaAtCalo << " phi = " << phiAtCalo << 
+              " deta = " << dEtaCalo << "dphi = " << dPhiCalo);
+
+      xAOD::TrigElectron* trigElec = new xAOD::TrigElectron();
+      m_trigElecColl->push_back(trigElec);
+      trigElec->init(  initialRoI->roiWord(),
+              etaAtCalo, phiAtCalo,  etoverpt,        
+              el_t2calo_clus,
+              trkLink);
+      ATH_MSG_DEBUG(" deta = " << dEtaCalo << " deta = " << trigElec->trkClusDeta() 
+              << " dphi = " << dPhiCalo << " dphi = " << trigElec->trkClusDphi()
+              << " caloEta = " << calo_eta << " caloEta = " << trigElec->caloEta()
+              << " caloPhi = " << calo_phi << " calophi = " << trigElec->caloPhi()
+              << " etaAtCalo = " << etaAtCalo << " etaAtCalo = " << trigElec->trkEtaAtCalo()
+              << " phiAtCalo = " << phiAtCalo << " phiAtCalo = " << trigElec->trkPhiAtCalo()
+              );
+
+      m_calotrackdeta_mon.push_back(trigElec->trkClusDeta()); 
+      m_calotrackdphi_mon.push_back(trigElec->trkClusDphi()); 
+      m_calotrackdeoverp_mon.push_back(trigElec->etOverPt());
+      m_trackpt_mon.push_back(getTkPt(trigElec));
+      m_calopt_mon.push_back(getCaloPt(trigElec));
+      m_calotrkdeta_noextrap_mon.push_back(calotrkdeta_noextrap);
   }
 
   // set output TriggerElement unless acceptAll is set

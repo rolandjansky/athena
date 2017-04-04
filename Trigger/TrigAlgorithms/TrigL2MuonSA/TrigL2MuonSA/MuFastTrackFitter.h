@@ -57,6 +57,8 @@ namespace TrigL2MuonSA {
     
     StatusCode setMCFlag(BooleanProperty  use_mcLUT);
 
+    void setUseEIFromBarrel( BooleanProperty use_endcapInnerFromBarrel );
+
   private:
     // Reference to StoreGateSvc;
     ServiceHandle<StoreGateSvc>    m_storeGateSvc;
@@ -68,6 +70,8 @@ namespace TrigL2MuonSA {
     
     const AlignmentBarrelLUTSvc*           m_alignmentBarrelLUTSvc;
     
+    BooleanProperty  m_use_endcapInnerFromBarrel;
+
     ToolHandle<SagittaRadiusEstimate>      m_sagittaRadiusEstimate;
     ToolHandle<AlphaBetaEstimate>          m_alphaBetaEstimate;
     

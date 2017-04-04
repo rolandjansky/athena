@@ -196,7 +196,7 @@ class L2EFChain_e(L2EFChainDef):
         name = str(self.chainPart['threshold'])
         name = name.split('.')[0]
         dofastrecseq = TriggerFlags.EgammaSlice.doFastElectronFex
-        if 'perf' in self.chainName: 
+        if 'perf' in self.chainPartName: 
             dofastrecseq=False
         log.debug('setup_electron %s, apply ringer %s for %s',self.chainName,self._ringer_selection,thr )
         # Ringer chains not tuned for low-et
@@ -209,7 +209,7 @@ class L2EFChain_e(L2EFChainDef):
         # but 
         algo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+name+"_EtCut",thr)
         fastrec_algo = L2ElectronFex_Clean()
-        fastrec_hypo = self.el_sequences['fastrec'].pop()
+        fastrec_hypo = self.el_sequences['fastrec'][-1]
         precisecalocalib =  self.el_sequences['precisecalocalib']
         precisecalocalib.pop()
         precisecalocalib.extend([algo])
@@ -228,14 +228,17 @@ class L2EFChain_e(L2EFChainDef):
         if dofastrecseq:
             seq_dict['fastrec']=[fastrec_algo,fastrec_hypo]
             log.debug('FastRec sequence %s'%seq_dict['fastrec'])
-            
+            # remove track hypo from precisetrack step
+            precisetrack = self.el_sequences['precisetrack']
+            precisetrack.pop()
+            seq_dict['precisetrack']=precisetrack
             seq_te_dict['fastcalorec']=('L2_e_step1','cl')
             seq_te_dict['fastringerhypo']=('L2_e_step2','clhypo')
-            seq_te_dict['fasttrack']=('L2_e_step3','id')
+            seq_te_dict['fasttrack']=('L2_e_step3','ftf')
             seq_te_dict['fastrec']=('L2_e_step4','')
             seq_te_dict['precisecalo']=('EF_e_step1','calo')
             seq_te_dict['precisecalocalib']=('EF_e_step2','calocalib')    
-            seq_te_dict['precisetrack']=('EF_e_step3','id') 
+            seq_te_dict['precisetrack']=('EF_e_step3','idtrig') 
             seq_te_dict['preciserec']=('EF_e_step4','')
         else:    
             seq_te_dict['fastcalorec']=('L2_e_step1','cl')

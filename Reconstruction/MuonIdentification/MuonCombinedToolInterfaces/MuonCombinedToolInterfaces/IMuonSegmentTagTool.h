@@ -23,12 +23,15 @@ namespace MuonCombined {
    */
 
   class IMuonSegmentTagTool : virtual public IAlgTool {
+    using SegmentMap = std::map< const Muon::MuonSegment*, ElementLink<xAOD::MuonSegmentContainer> >;
+
   public:
     static const InterfaceID& interfaceID( ) ;
 
 
     /**IMuonSegmentTagTool interface: build muons from ID and MuonSegments */    
     virtual void tag( const InDetCandidateCollection& inDetCandidates, const xAOD::MuonSegmentContainer& segments ) const = 0;
+    virtual void tag( const InDetCandidateCollection& inDetCandidates, const std::vector<const Muon::MuonSegment*>& segments, SegmentMap* segmentToxAODSegmentMap ) const = 0;
 
   };
 

@@ -53,12 +53,15 @@ StatusCode TauJetBDTEvaluator::execute(xAOD::TauJet& xTau){
   xTau.detail(xAOD::TauJetParameters::nChargedTracks, nTracks);
   if(nTracks<m_minNTracks) return StatusCode::SUCCESS;
   if(nTracks>m_maxNTracks) return StatusCode::SUCCESS;
-  float absTrackEta = acc_absTrackEta(xTau);
-  if(m_minAbsTrackEta>=0. && absTrackEta < m_minAbsTrackEta) 
-    return StatusCode::SUCCESS;
-  if(m_maxAbsTrackEta>=0. && absTrackEta >= m_maxAbsTrackEta)
-    return StatusCode::SUCCESS; 
-  
+
+  if( not inTrigger() ){
+    float absTrackEta = acc_absTrackEta(xTau);
+    if(m_minAbsTrackEta>=0. && absTrackEta < m_minAbsTrackEta) 
+      return StatusCode::SUCCESS;
+    if(m_maxAbsTrackEta>=0. && absTrackEta >= m_maxAbsTrackEta)
+      return StatusCode::SUCCESS; 
+  }
+
   m_myBdt->updateVariables(xTau);
   float response = (m_isGrad ? m_myBdt->GetGradBoostMVA() : m_myBdt->GetClassification() );   
   (*m_outputVar)(xTau) = response;

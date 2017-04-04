@@ -1125,3 +1125,16 @@ ullongvec
 floatvec
 doublevec
 boolvec
+clearVector
+ViewVectorBase
+CurrentEventStore
+xAODRootAccessInterfaces
+ATEAM
+endmsg
+endreq
+rootcore
+CMakeLists
+AtlasSTLAddReflexDict
+3f
+pInt
+pFloat

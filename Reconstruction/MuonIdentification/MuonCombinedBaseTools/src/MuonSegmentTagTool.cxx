@@ -163,7 +163,6 @@ namespace MuonCombined {
 
     return StatusCode::SUCCESS;
   }
-
   void MuonSegmentTagTool::tag( const InDetCandidateCollection& inDetCandidates, const xAOD::MuonSegmentContainer& xaodSegments ) const {
 
     // loop over segments are extract MuonSegments + create links between segments and xAOD segments
@@ -181,6 +180,10 @@ namespace MuonCombined {
         segmentToxAODSegmentMap[mseg] = link;
       }
     }
+    tag(inDetCandidates, segments, &segmentToxAODSegmentMap);
+  }
+  
+  void MuonSegmentTagTool::tag( const InDetCandidateCollection& inDetCandidates, const std::vector<const Muon::MuonSegment*>& segments, SegmentMap* segmentToxAODSegmentMap ) const {
 
     std::vector<const Muon::MuonSegment*>  FilteredSegmentCollection;
     if (m_doSegmentsFilter) {
@@ -627,8 +630,9 @@ namespace MuonCombined {
 	      if( !atSegSurface ) continue;
 
 	      MuonCombined::MuonSegmentInfo info = p_MuTagMatchingTool->muTagSegmentInfo(track,*itSeg,atSegSurface) ;
-              info.link = segmentToxAODSegmentMap[*itSeg];
-	      //              ATH_MSG_DEBUG( " MuTagSegmentInfo  matchPosition  pullY " <<  info.pullY << " pullX " << info.pullX << " resY " <<  info.resY << " resX " << info.resX << " exErrorY " <<  info.exErrorY << " ex errorX " << info.exErrorX << " seg errorY " << info.segErrorY << " seg errorX " << info.segErrorX );
+	      if(segmentToxAODSegmentMap)
+		info.link = (*segmentToxAODSegmentMap)[*itSeg];
+		//              ATH_MSG_DEBUG( " MuTagSegmentInfo  matchPosition  pullY " <<  info.pullY << " pullX " << info.pullX << " resY " <<  info.resY << " resX " << info.resX << " exErrorY " <<  info.exErrorY << " ex errorX " << info.exErrorX << " seg errorY " << info.segErrorY << " seg errorX " << info.segErrorX );
 	      //              ATH_MSG_DEBUG( " MuTagSegmentInfo matchDirection pullYZ " <<  info.pullYZ << " pullXZ " << info.pullXZ << " resYZ " <<  info.dangleYZ << " resXZ " << info.dangleXZ << " exErrorYZ " <<  info.exErrorYZ << " ex errorXZ " << info.exErrorXZ << " seg errorYZ " << info.segErrorYZ << " seg errorXZ " << info.segErrorXZ );
 	      //              ATH_MSG_DEBUG( " MuTagSegmentInfo matchDistance hasPhi " << info.hasPhi << " resX " << info.resX << " dangleXZ " << info.dangleXZ << " maximumResidualAlongTube " << info.maximumResidualAlongTube << " resY " << info.resY << " dangleYZ " << info.dangleYZ );    
 	      //               ATH_MSG_DEBUG( " MuTagSegmentInfo matchCombined Pull hasPhi " << info.hasPhi << " minimumPullPhi " << info.minimumPullPhi << " pullChamber " << info.pullChamber << " pullCY " << info.pullCY );

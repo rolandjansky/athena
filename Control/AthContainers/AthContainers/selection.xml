@@ -49,6 +49,19 @@
   <function proto_pattern="*operator==*hashtable_const_iterator<unsigned *"/>
   <class name="CxxUtils_Internal::prime_rehash_policy"/>
 
+  <class name="SG::ViewVectorBase">
+    <field name="m_clearOnPersistent" transient="true"/>
+  </class>
+  <read sourceClass="SG::ViewVectorBase" version="[1-]"
+        targetClass="SG::ViewVectorBase" source=""
+        target=""
+        >
+    <![CDATA[
+       // Let the object prepare for being used:
+       if (newObj) newObj->toTransient();
+    ]]>
+  </read>
+
   <class name="SG::AuxElement::TypelessConstAccessor"/>
 
   <class name="SG::AuxElement::ConstAccessor<char>"/>

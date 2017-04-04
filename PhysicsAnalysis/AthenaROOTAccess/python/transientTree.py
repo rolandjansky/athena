@@ -35,32 +35,17 @@ import sys
 import os
 
 
-try:
-   # try to touch ROOT5-only attribute
-   cppyy.Cintex.Debug
-   _root5 = True
-except AttributeError:
-   # ROOT 6
-   from PyUtils.Helpers import ROOT6Setup
-   ROOT6Setup()
-   _root5 = False
+from PyUtils.Helpers import ROOT6Setup
+ROOT6Setup()
 
 # Turn off annoying dict auto-generation --- it doesn't work anyway.
 ROOT.gInterpreter.ProcessLine(".autodict")
 
 # Make sure the proper dictionaries are loaded.
-cppyy.loadDictionary('libSTLRflx')
-cppyy.loadDictionary('libSTLAddRflx')
 cppyy.loadDictionary('libAtlasSTLAddReflexDict')
 
 # Make sure abstract base classes have streaminfos built.
 # Otherwise, we can get crashes from TTree::Scan.
-
-def _loadStreamerInfo(cname):
-    if _root5 and hasattr(ROOT,cname): ROOT.gROOT.GetClass(cname).GetStreamerInfo()
-_loadStreamerInfo('Analysis::TauCommonDetails')
-_loadStreamerInfo('JetINav4MomAssociation')
-_loadStreamerInfo('Analysis::BaseTagInfo')
 
 # Prevent AthenaBarCodeImpl from trying to create JobIDSvc.
 import os
@@ -481,7 +466,9 @@ def _handle_elem (elem, file, trans_tree, pers_type, pers_tree, branch_names,
                 trans_type = trans_type2
                 trans_branch_name_suffix = '_auxcnv'
 
-    elif pers_type != trans_type and pers_type.startswith ('DataVector<xAOD::'):
+    elif (pers_type != trans_type and
+          (pers_type.startswith ('DataVector<xAOD::') or
+           pers_type.startswith ('DataVector<DMTest::'))):
        trans_branch_name_suffix = '_auxcnv'
 
     elif (pers_type != trans_type and

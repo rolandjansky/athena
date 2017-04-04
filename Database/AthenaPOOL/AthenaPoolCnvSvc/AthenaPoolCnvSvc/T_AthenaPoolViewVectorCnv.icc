@@ -22,21 +22,18 @@ T_AthenaPoolViewVectorCnv<DV>::T_AthenaPoolViewVectorCnv (ISvcLocator* svcloc)
 }
 
 
-/**
- * @brief Standard Gaudi initialize method.
- */
 template <class DV>
-StatusCode
-T_AthenaPoolViewVectorCnv<DV>::initialize()
+std::vector<pool::Guid>
+T_AthenaPoolViewVectorCnv<DV>::initGuids (const std::type_info& ti) const
 {
-  CHECK( Base::initialize() );
-
+  std::vector<Guid> guids;
+  
   // Make a list of all the guids that this converter can read.
   // First, add the entry for pers_t.
-  pool::TypeH typ = pool::DbReflex::forTypeInfo (typeid(pers_t));
+  pool::TypeH typ = pool::DbReflex::forTypeInfo (ti);
   if (!typ)
-    AthenaPoolCnvSvc::throwExcNoDictForClass (typeid(pers_t));
-  m_guids.push_back (pool::DbReflex::guid (typ));
+    AthenaPoolCnvSvc::throwExcNoDictForClass (ti);
+  guids.push_back (pool::DbReflex::guid (typ));
 
   // Now look for entries for previous versions.
   // Look for a version tag in the type name and try replacing it with
@@ -59,11 +56,28 @@ T_AthenaPoolViewVectorCnv<DV>::initialize()
           std::string name2 = name.substr(0,vpos) + CxxUtils::strformat("%d", vers) + name.substr(vpos2,std::string::npos);
           pool::TypeH typ2 = pool::DbReflex::forTypeName (name2);
           if (typ2)
-            m_guids.push_back (pool::DbReflex::guid (typ2));
+            guids.push_back (pool::DbReflex::guid (typ2));
         }
       }
     }
   }
+
+  return guids;
+}
+
+  
+/**
+ * @brief Standard Gaudi initialize method.
+ */
+template <class DV>
+StatusCode
+T_AthenaPoolViewVectorCnv<DV>::initialize()
+{
+  CHECK( Base::initialize() );
+
+  m_guids = initGuids (typeid(pers_t));
+  m_guids2 = initGuids (typeid(pers2_t));
+
   return StatusCode::SUCCESS;
 }
 
@@ -78,10 +92,8 @@ template <class DV>
 typename T_AthenaPoolViewVectorCnv<DV>::pers_t*
 T_AthenaPoolViewVectorCnv<DV>::createPersistent( trans_t* trans )
 {
-  // Convert to ElementLinks and apply thinning.
-  pers_t* pers =  new pers_t (SG::dataVectorAsELV (static_cast<const DV&>(*trans)));
-  for (ElementLink<DV>& el : *pers)
-    el.thin();
+  pers_t* pers =  new pers_t (*trans);
+  pers->setClearOnPersistent();
   return pers;
 }
 
@@ -103,11 +115,28 @@ T_AthenaPoolViewVectorCnv<DV>::createTransient()
   for (const pool::Guid& guid : m_guids) {
     if( this->compareClassGuid( guid ) ) {
       std::unique_ptr<pers_t> v (this->template poolReadObject< pers_t >());
+      if (guid != m_guids.front()) {
+        auto v2 = std::make_unique<pers_t> (*v);
+        v = std::move (v2);
+        // root read rule doesn't do anything in this case.
+        v->toTransient();
+      }
+      v->clearPersistent();
+      return v.release();
+    }
+  }
+
+
+  for (const pool::Guid& guid : m_guids2) {
+    if( this->compareClassGuid( guid ) ) {
+      std::unique_ptr<pers2_t> v (this->template poolReadObject< pers2_t >());
       auto c = CxxUtils::make_unique<ConstDataVector<trans_t> > (*v);
       // FIXME: To get rid of this @c const_cast, the converter interfaces
       // need to be changed to allow returning a const pointer
       // all the way back to StoreGate.
-      return const_cast<trans_t*>(c.release()->asDataVector());
+      trans_t* vv = const_cast<trans_t*>(c.release()->asDataVector());
+      vv->clearPersistent();
+      return vv;
     }
   }
    

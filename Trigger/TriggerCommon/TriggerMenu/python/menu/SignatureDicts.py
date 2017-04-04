@@ -54,7 +54,7 @@ ChainDictTemplate = {
 AllowedTopos_e = ["Jpsiee","Zeg","Zee","Heg"]
 AllowedTopos_mu = ['Jpsimumu']
 AllowedTopos_xe = ['1dphi10', '2dphi05', '6dphi05', '6dphi15', '2dphi05', '2dphi15', 'mt25', 'mt35', 'razor140', 'razor170', 'razor200','razor220','razor100','razor185','razor195']
-AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu', 
+AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu', 'bDimu2700', 'bNocut',
                       'bJpsimumu', 'bUpsimumu', 
                       'bBmumu', 'bBmumux', 
                       'bBmumuxv2', 'bBmumuxv3',
@@ -62,7 +62,7 @@ AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu',
                       'BcmumuDs' ,   'BcmumuDsloose' ,
                       '7invm9', 'noos', 'noid', 'novtx',
                       '11invm60','18invm60', 'bUpsi',
-                      'Trkloose', 'Zmumu', 'noL2', 'noEFbph',
+                      'Trkloose',  'TrkPEB', 'Zmumu', 'noL2', 'noEFbph',
                       'noinvm', 'ss', 'BpmumuKp', 'Taumumux', 'Dsmumux', 'LbmumuLambda',
                       'trkTau', 'bTauTrk', 'bDsPhiX', 'bPhi','bDsPhiXtight',
                       '11invm24', '24invm60',
@@ -131,7 +131,8 @@ JetChainParts = {
 #    'bMatching'    : ['mu4antidr05', 'mu6antidr05'],
     'bMatching'    : ['antimatchdr05mu'],
     'dataScouting' : ['ds1', 'ds2'],
-    'smc'          : ['30smcINF', 'nosmc']
+    'smc'          : ['30smcINF', 'nosmc'],
+    'trkopt'       : ['notrk', 'ftk', 'ftkrefit'],
 }
 
 
@@ -159,6 +160,7 @@ JetChainParts_Default = {
     'bMatching'    : [],
     'dataScouting' : '',
     'smc'          : 'nosmc',
+    'trkopt'       : 'notrk',
     }
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -243,11 +245,13 @@ MuonChainParts_Default = {
 BphysicsChainParts = deepcopy(MuonChainParts)
 #BphysicsChainParts['bTracking'] = ['FTK']
 BphysicsChainParts['signature'] = ['Bphysics']
+BphysicsChainParts['peb'] = ['peb075']
 BphysicsChainParts['topo'] = AllowedTopos_bphys
 # ---- Bphysics Dictinary of default Values ----
 BphysicsChainParts_Default = deepcopy(MuonChainParts_Default)
 BphysicsChainParts_Default['signature'] = ['Bphysics']
 BphysicsChainParts_Default['topo'] = []
+BphysicsChainParts['peb'] = []
 BphysicsChainParts_Default['overlapRemoval'] = ['noOvlpRm']
 
 #==========================================================
@@ -303,10 +307,10 @@ METChainParts = {
     'calib'        : ['lcw','had','em'],    
     'jetCalib'     : JetChainParts['jetCalib'],
     'L2recoAlg'    : ['','l2fsperf','L2FS'],
-    'EFrecoAlg'    : ['tc','cell','pueta','mht','pufit'],
+    'EFrecoAlg'    : ['tc','cell','pueta','mht','trkmht','pufit'],
     'L2muonCorr'   : ['','wL2MuFEB','wEFMuFEB'],
     'EFmuonCorr'   : ['','wEFMu'],
-    'addInfo'      : ['FStracks'],
+    'addInfo'      : ['FStracks','FTK'],
     }
 # ---- MetDictinary of default Values ----
 METChainParts_Default = {

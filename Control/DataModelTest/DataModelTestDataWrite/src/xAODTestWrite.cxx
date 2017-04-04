@@ -14,24 +14,20 @@
 #include "xAODTestWrite.h"
 #include "xAODTestWriteHelper.h"
 #include "DataModelTestDataCommon/CVec.h"
-#include "DataModelTestDataCommon/CView.h"
 #include "DataModelTestDataCommon/CVecWithData.h"
 #include "DataModelTestDataCommon/C.h"
 #include "DataModelTestDataCommon/CAuxContainer.h"
 #include "DataModelTestDataCommon/CTrigAuxContainer.h"
-#include "DataModelTestDataCommon/CInfoAuxContainer.h"
 #include "DataModelTestDataWrite/GVec.h"
 #include "DataModelTestDataWrite/G.h"
 #include "DataModelTestDataWrite/GAuxContainer.h"
-#include "DataModelTestDataWrite/H.h"
-#include "DataModelTestDataWrite/HVec.h"
-#include "DataModelTestDataWrite/HView.h"
-#include "DataModelTestDataWrite/HAuxContainer.h"
+//#include "DataModelTestDataWrite/H.h"
+//#include "DataModelTestDataWrite/HVec.h"
+//#include "DataModelTestDataWrite/HView.h"
+//#include "DataModelTestDataWrite/HAuxContainer.h"
 #include "AthContainersInterfaces/AuxDataOption.h"
-#include "AthContainers/ConstDataVector.h"
 #include "AthLinks/ElementLink.h"
 #include "AthenaKernel/errorcheck.h"
-#include "CxxUtils/make_unique.h"
 
 
 #define CHECK_OPTION(ret)                       \
@@ -55,8 +51,8 @@ xAODTestWrite::xAODTestWrite (const std::string &name,
                               ISvcLocator *pSvcLocator)
   : AthAlgorithm (name, pSvcLocator),
     m_count(0),
-    m_cvecKey ("cvec"),
-    m_hvecKey ("hvec")
+    m_cvecKey ("cvec")
+    //m_hvecKey ("hvec")
 {
 }
   
@@ -67,7 +63,7 @@ xAODTestWrite::xAODTestWrite (const std::string &name,
 StatusCode xAODTestWrite::initialize()
 {
   ATH_CHECK( m_cvecKey.initialize() );
-  ATH_CHECK( m_hvecKey.initialize() );
+  //ATH_CHECK( m_hvecKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -84,10 +80,6 @@ StatusCode xAODTestWrite::execute()
   DMTest::CVec* trig_coll = new DMTest::CVec;
   DMTest::CTrigAuxContainer* trig_store = new DMTest::CTrigAuxContainer;
   trig_coll->setStore (trig_store);
-
-  DMTest::C* cinfo = new DMTest::C;
-  DMTest::CInfoAuxContainer* info_store = new DMTest::CInfoAuxContainer;
-  cinfo->setStore (info_store);
 
   static C::Accessor<int> anInt2 ("anInt2");
   static C::Decorator<int> dInt1 ("dInt1");
@@ -108,22 +100,10 @@ StatusCode xAODTestWrite::execute()
     dInt1(c) = m_count*480 + i+1;
   }
 
-  cinfo->setAnInt (m_count * 1000);
-  cinfo->setAFloat ((float)m_count * 0.1);
-  anInt2(*cinfo) = m_count * 2000;
-  dInt1(*cinfo) = m_count * 3000;
-
   CHECK( evtStore()->record (trig_coll, "ctrig") );
   CHECK( evtStore()->record (trig_store, "ctrigAux.") );
   CHECK( evtStore()->setConst (trig_coll) );
   CHECK( evtStore()->setConst (trig_store) );
-
-  cEL(*cinfo).toIndexedElement (*cvec, m_count % cvec->size());
-
-  CHECK( evtStore()->record (cinfo, "cinfo") );
-  CHECK( evtStore()->record (info_store, "cinfoAux.") );
-  CHECK( evtStore()->setConst (cinfo) );
-  CHECK( evtStore()->setConst (info_store) );
 
   DMTest::GVec* gvec = new DMTest::GVec;
   DMTest::GAuxContainer* gstore = new DMTest::GAuxContainer;
@@ -141,8 +121,7 @@ StatusCode xAODTestWrite::execute()
   CHECK( evtStore()->setConst (gstore) );
 
   CHECK( write_cvec_with_data() );
-  CHECK( write_cview (*cvec) );
-  CHECK( write_htest() );
+  //CHECK( write_htest() );
 
   return StatusCode::SUCCESS;
 }
@@ -173,30 +152,16 @@ StatusCode xAODTestWrite::write_cvec_with_data()
 }
 
 
-/**
- * @brief Test writing view container.
- */
-StatusCode xAODTestWrite::write_cview (const DMTest::CVec& coll)
-{
-  auto cview = CxxUtils::make_unique<ConstDataVector<DMTest::CView> >(SG::VIEW_ELEMENTS);
-  for (int i = coll.size()-1; i >= 0; --i)
-    cview->push_back (coll[i]);
-
-  CHECK( DMTest::recordView1 (&*evtStore(), std::move(cview), "cview") );
-
-  return StatusCode::SUCCESS;
-}
-
-
+#if 0
 /**
  * @brief Test schema evolution involving view container.
  */
 StatusCode xAODTestWrite::write_htest()
 {
-  auto hvec = CxxUtils::make_unique<DMTest::HVec>();
-  auto store = CxxUtils::make_unique<DMTest::HAuxContainer>();
+  auto hvec = std::make_unique<DMTest::HVec>();
+  auto store = std::make_unique<DMTest::HAuxContainer>();
   hvec->setStore (store.get());
-  auto hview = CxxUtils::make_unique<DMTest::HView>();
+  auto hview = std::make_unique<DMTest::HView>();
 
   for (int i = 0; i < 20; i++) {
     hvec->push_back (new DMTest::H);
@@ -213,6 +178,7 @@ StatusCode xAODTestWrite::write_htest()
 
   return StatusCode::SUCCESS;
 }
+#endif
 
 
 /**

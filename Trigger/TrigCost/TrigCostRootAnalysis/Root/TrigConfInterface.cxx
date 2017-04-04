@@ -30,7 +30,6 @@
 #include "TrigRootAnalysis/TrigConfigSvcD3PD.h"
 
 namespace TrigCostRootAnalysis {
-
   // Initialise statics
   D3PD::TrigDecisionToolD3PD* TrigConfInterface::m_tdt;
   D3PD::TrigConfigSvcD3PD* TrigConfInterface::m_tct;
@@ -49,11 +48,11 @@ namespace TrigCostRootAnalysis {
    * @param _inputChain TChain pointer to input files
    * @return Returns kTRUE upon successful configuration.
    */
-  Bool_t TrigConfInterface::configure( TChain* _inputChain ) {
-
+  Bool_t TrigConfInterface::configure(TChain* _inputChain) {
     TFile* _file = 0;
-    TChain* _chain = dynamic_cast< TChain* >( _inputChain );
-    if( _chain ) {
+    TChain* _chain = dynamic_cast< TChain* >(_inputChain);
+
+    if (_chain) {
       // We are running locally...
       Info("TrigConfInterface::configure", "Opening a new file locally...");
       _file = _chain->GetFile();
@@ -63,8 +62,8 @@ namespace TrigCostRootAnalysis {
       _file = _inputChain->GetCurrentFile();
     }
 
-    TTree* _confTree = dynamic_cast< TTree* >( _file->Get( Config::config().getStr(kConfigPrefix).c_str() ) );
-    if( ! _confTree ) {
+    TTree* _confTree = dynamic_cast< TTree* >(_file->Get(Config::config().getStr(kConfigPrefix).c_str()));
+    if (!_confTree) {
       Error("TrigConfInterface::configure", "Couldn't retrieve configuration metadata tree!");
       m_isConfigured = kFALSE;
       return kFALSE;
@@ -73,12 +72,12 @@ namespace TrigCostRootAnalysis {
     if (m_tdt) delete m_tdt;
     m_tdt = new D3PD::TrigDecisionToolD3PD();
 
-    if( ! m_tdt->SetEventTree( _inputChain ) ) {
+    if (!m_tdt->SetEventTree(_inputChain)) {
       Error("TrigConfInterface::configure", "Problems with setting the event tree to the TrigDecisionTool.");
       m_isConfigured = kFALSE;
       return kFALSE;
     }
-    if( ! m_tdt->SetConfigTree( _confTree ) ) {
+    if (!m_tdt->SetConfigTree(_confTree)) {
       Error("TrigConfInterface::configure", "Problems setting the trigger config tree to the TrigDecisionTool.");
       m_isConfigured = kFALSE;
       return kFALSE;
@@ -99,6 +98,7 @@ namespace TrigCostRootAnalysis {
   Int_t TrigConfInterface::getCurrentSMK() {
     // XXX this is temporary
     Int_t _smk = getTDT()->GetSMK();
+
     //if (_smk == 65535) return 0;
     return _smk;
   }
@@ -121,7 +121,7 @@ namespace TrigCostRootAnalysis {
    * @return When configured, returns the current HLT keyset in small wrapper object.
    */
   const DBKey& TrigConfInterface::getCurrentDBKey() {
-    m_key.set( getCurrentSMK(), getCurrentL1PSK(), getCurrentHLTPSK() );
+    m_key.set(getCurrentSMK(), getCurrentL1PSK(), getCurrentHLTPSK());
     return m_key;
   }
 
@@ -129,18 +129,21 @@ namespace TrigCostRootAnalysis {
    * Check if we have seen this configuration before - and if we need to dump it
    */
   void TrigConfInterface::newEvent(UInt_t _lb) {
-    Bool_t _seen = (m_seenKeys.count( getCurrentDBKey() ) == 1);
+    Bool_t _seen = (m_seenKeys.count(getCurrentDBKey()) == 1);
+
     if (m_lumiToKeyMap.count(_lb) == 0) m_lumiToKeyMap[ _lb ] = getCurrentDBKey();
     if (_seen) return;
-    m_seenKeys.insert( getCurrentDBKey() );
-    if ( Config::config().getInt(kOutputMenus) == kTRUE) {
-      Info("TrigConfInterface::newEvent", "Exporting trigger configuration JSON file for %s", getCurrentDBKey().name().c_str() );
+
+    m_seenKeys.insert(getCurrentDBKey());
+    if (Config::config().getInt(kOutputMenus) == kTRUE) {
+      Info("TrigConfInterface::newEvent", "Exporting trigger configuration JSON file for %s",
+           getCurrentDBKey().name().c_str());
       TrigConfInterface::dump();
     }
   }
 
   /**
-   * Look at which LB each keyset was being used in 
+   * Look at which LB each keyset was being used in
    */
   void TrigConfInterface::populateLBPerKeysetStrings() {
     for (const auto _keyset : m_seenKeys) {
@@ -149,7 +152,7 @@ namespace TrigCostRootAnalysis {
       for (const auto _it : m_lumiToKeyMap) {
         if (_it.second == _keyset) {
           _myLB.insert(_it.first);
-        } 
+        }
       }
       // Now have a set of all LB, need to make a nice string
       std::stringstream _ss;
@@ -157,7 +160,7 @@ namespace TrigCostRootAnalysis {
       Int_t _previous = -1;
       Bool_t _chainInProgress = kFALSE;
       for (const auto _lumiBlock : _myLB) {
-        if (_lumiBlock == (UInt_t)(_previous + 1)) { // Chain
+        if (_lumiBlock == (UInt_t) (_previous + 1)) { // Chain
           _chainInProgress = kTRUE;
         } else if (_chainInProgress == kTRUE) { // Chain has just ended
           _chainInProgress = kFALSE;
@@ -179,9 +182,10 @@ namespace TrigCostRootAnalysis {
    * @param _name Const reference to name of L1 chain.
    * @return Integer CTPID for L1 chain.
    */
-  Int_t TrigConfInterface::getCtpId( const std::string& _name ) {
+  Int_t TrigConfInterface::getCtpId(const std::string& _name) {
     if (_name == "NO_SEED") return -1;
-    return getTCT()->GetCTPId( _name );
+
+    return getTCT()->GetCTPId(_name);
   }
 
   /**
@@ -189,8 +193,8 @@ namespace TrigCostRootAnalysis {
    * @param _name CPT ID of L1 chain.
    * @return Name of the L1 chain.
    */
-  const std::string& TrigConfInterface::getNameFromCtpId( Int_t _ctpId ) {
-    return getTCT()->GetNameFromCTPId( _ctpId );
+  const std::string& TrigConfInterface::getNameFromCtpId(Int_t _ctpId) {
+    return getTCT()->GetNameFromCTPId(_ctpId);
   }
 
   /**
@@ -198,8 +202,8 @@ namespace TrigCostRootAnalysis {
    * @param _name Const reference to higher chain name.
    * @return Const reference to lower chain name.
    */
-  const std::string& TrigConfInterface::getLowerChainName( const std::string& _name ) {
-    return getTCT()->GetLowerChainName( _name );
+  const std::string& TrigConfInterface::getLowerChainName(const std::string& _name) {
+    return getTCT()->GetLowerChainName(_name);
   }
 
   /**
@@ -207,17 +211,17 @@ namespace TrigCostRootAnalysis {
    * @param _name Const reference to higher chain name.
    * @return Passthrough value
    */
-  Float_t TrigConfInterface::getPassthrough( const std::string& _name ) {
-    return getTCT()->GetPassthrough( _name );
+  Float_t TrigConfInterface::getPassthrough(const std::string& _name) {
+    return getTCT()->GetPassthrough(_name);
   }
 
   /**
    * Explicitly load given entry in tree. This should not be needed.
    * @param _entry Entry in tree to load.
    */
-  void TrigConfInterface::getEntry( Long64_t _entry ) {
-    UNUSED( _entry );
-    assert( m_isConfigured );
+  void TrigConfInterface::getEntry(Long64_t _entry) {
+    UNUSED(_entry);
+    assert(m_isConfigured);
     // This is not, it appears, needed.
     Warning("TrigConfInterface::getEntry", "This does not need to be called"); //TODO Remove this func
     return;
@@ -230,18 +234,19 @@ namespace TrigCostRootAnalysis {
    * @param _level Chain level (2 for L2 or HLT, 3 for EF)
    * @return Const reference to chain name. Empty string if invalid ID or if using unsupported access mode.
    */
-  const std::string TrigConfInterface::getHLTNameFromChainID( Int_t _chainID, Int_t _level ) {
-    if ( getUsingNtupleMetadata() == kTRUE ) {
+  const std::string TrigConfInterface::getHLTNameFromChainID(Int_t _chainID, Int_t _level) {
+    if (getUsingNtupleMetadata() == kTRUE) {
       // Currently split into L2 and EF
       if (_level == 2 || _level == 0) { // If L2 (HLT responds as L2) or unspecified
-        if ( getTCT()->GetL2NameFromChainId( _chainID ) != "" && getTCT()->GetL2NameFromChainId( _chainID ) != "0") {
+        if (getTCT()->GetL2NameFromChainId(_chainID) != "" && getTCT()->GetL2NameFromChainId(_chainID) != "0") {
           //std::cout << _chainID << ", THE NAME IS " << getTCT()->GetL2NameFromChainId( _chainID ) << std::endl;
-          return getTCT()->GetL2NameFromChainId( _chainID );
+          return getTCT()->GetL2NameFromChainId(_chainID);
         }
       }
       // Else try EF, unless we're running on HLT as there is no EF any more, then we can just return cannot find.
       if (Config::config().getInt(kDoHLT) == kTRUE) return Config::config().getStr(kBlankString);
-      return getTCT()->GetEFNameFromChainId( _chainID );
+
+      return getTCT()->GetEFNameFromChainId(_chainID);
     } else {
       Error("TrigConfInterface::getHLTNameFromChainID", "XML based menu navigation not yet included.");
     }
@@ -254,11 +259,12 @@ namespace TrigCostRootAnalysis {
    * @param _chainID HLT ID number of chain
    * @return Number of groups this chain belongs to
    */
-  UInt_t TrigConfInterface::getNHLTGroupNamesFromChainID( Int_t _chainID ) {
-    if ( getUsingNtupleMetadata() == kTRUE ) {
+  UInt_t TrigConfInterface::getNHLTGroupNamesFromChainID(Int_t _chainID) {
+    if (getUsingNtupleMetadata() == kTRUE) {
       UInt_t _index = getTCT()->GetChainIndexFromCounter(_chainID);
       if (_index == UINT_MAX) {
-        Warning("TrigConfInterface::getNHLTGroupNamesFromChainID","Chain with Counter %i is not in the configuration.", _chainID);
+        Warning("TrigConfInterface::getNHLTGroupNamesFromChainID", "Chain with Counter %i is not in the configuration.",
+                _chainID);
         return 0;
       }
       return getTCT()->GetChainGroupNameSize(_index);
@@ -275,15 +281,17 @@ namespace TrigCostRootAnalysis {
    * @param _group the index of the group to fetch (0 to getNHLTGroupNamesFromChainID() -1)
    * @return New'd string of the group name.
    */
-  const std::string TrigConfInterface::getHLTGroupNameFromChainID( Int_t _chainID, UInt_t _group ) {
-    if ( getUsingNtupleMetadata() == kTRUE ) {
+  const std::string TrigConfInterface::getHLTGroupNameFromChainID(Int_t _chainID, UInt_t _group) {
+    if (getUsingNtupleMetadata() == kTRUE) {
       UInt_t _index = getTCT()->GetChainIndexFromCounter(_chainID);
       if (_index == UINT_MAX) {
-        Warning("TrigConfInterface::getHLTGroupNameFromChainID","Chain with Counter %i is not in the configuration.", _chainID);
+        Warning("TrigConfInterface::getHLTGroupNameFromChainID", "Chain with Counter %i is not in the configuration.",
+                _chainID);
         return Config::config().getStr(kBlankString);
       }
-      if ( _group >= getNHLTGroupNamesFromChainID(_chainID)) {
-        Warning("TrigConfInterface::getHLTGroupNameFromChainID","Requested group %i out of range, size is %i.", _group, getNHLTGroupNamesFromChainID(_chainID));
+      if (_group >= getNHLTGroupNamesFromChainID(_chainID)) {
+        Warning("TrigConfInterface::getHLTGroupNameFromChainID", "Requested group %i out of range, size is %i.", _group, getNHLTGroupNamesFromChainID(
+                  _chainID));
         return Config::config().getStr(kBlankString);
       }
       return getTCT()->GetChainGroupName(_index, _group);
@@ -298,9 +306,9 @@ namespace TrigCostRootAnalysis {
    * @param _index Index number of sequence.
    * @return Const reference to sequence name. Empty string if invalid ID or if using unsupported access mode.
    */
-  const std::string& TrigConfInterface::getHLTSeqNameFromIndex( UInt_t _index ) {
-    if ( getUsingNtupleMetadata() == kTRUE ) {
-      return getTCT()->GetSequenceNameFromIndex( _index );
+  const std::string& TrigConfInterface::getHLTSeqNameFromIndex(UInt_t _index) {
+    if (getUsingNtupleMetadata() == kTRUE) {
+      return getTCT()->GetSequenceNameFromIndex(_index);
     } else {
       Error("TrigConfInterface::getHLTSeqNameFromIndex", "XML based menu navigation not yet included.");
     }
@@ -313,9 +321,9 @@ namespace TrigCostRootAnalysis {
    * @param _position Position of algorithm within parent sequence.
    * @return Const reference to algorithm name. Empty string if invalid ID or if using unsupported access mode.
    */
-  const std::string& TrigConfInterface::getHLTAlgNameFromSeqIDAndAlgPos( UInt_t _index, UInt_t _position ) {
-    if ( getUsingNtupleMetadata() == kTRUE ) {
-      return getTCT()->GetAlgNameFromSeqIDAndAlgPos( (int) _index, (int) _position );
+  const std::string& TrigConfInterface::getHLTAlgNameFromSeqIDAndAlgPos(UInt_t _index, UInt_t _position) {
+    if (getUsingNtupleMetadata() == kTRUE) {
+      return getTCT()->GetAlgNameFromSeqIDAndAlgPos((int) _index, (int) _position);
     } else {
       Error("TrigConfInterface::getHLTAlgNameFromSeqIDAndAlgPos", "XML based menu navigation not yet included.");
     }
@@ -328,9 +336,9 @@ namespace TrigCostRootAnalysis {
    * @param _position Position of algorithm within parent sequence.
    * @return Const reference to algorithm name. Empty string if invalid ID or if using unsupported access mode.
    */
-  UInt_t TrigConfInterface::getHLTAlgNameIDFromSeqIDAndAlgPos( UInt_t _index, UInt_t _position ) {
-    if ( getUsingNtupleMetadata() == kTRUE ) {
-      return getTCT()->GetAlgNameIDFromSeqIDAndAlgPos( (int) _index, (int) _position );
+  UInt_t TrigConfInterface::getHLTAlgNameIDFromSeqIDAndAlgPos(UInt_t _index, UInt_t _position) {
+    if (getUsingNtupleMetadata() == kTRUE) {
+      return getTCT()->GetAlgNameIDFromSeqIDAndAlgPos((int) _index, (int) _position);
     } else {
       Error("TrigConfInterface::getHLTAlgNameIDFromSeqIDAndAlgPos", "XML based menu navigation not yet included.");
     }
@@ -341,11 +349,12 @@ namespace TrigCostRootAnalysis {
    * Fetch HLT algorithm class type name using the parents sequence index and position of algorithm within sequence.
    * @param _index Index number of parent sequence.
    * @param _position Position of algorithm within parent sequence.
-   * @return Const reference to algorithm class type name. Empty string if invalid ID or if using unsupported access mode.
+   * @return Const reference to algorithm class type name. Empty string if invalid ID or if using unsupported access
+   *mode.
    */
-  const std::string& TrigConfInterface::getHLTAlgClassNameFromSeqIDAndAlgPos( UInt_t _index, UInt_t _position ) {
-    if ( getUsingNtupleMetadata() == kTRUE ) {
-      return getTCT()->GetAlgClassNameFromSeqIDAndAlgPos( (Int_t) _index, (Int_t) _position );
+  const std::string& TrigConfInterface::getHLTAlgClassNameFromSeqIDAndAlgPos(UInt_t _index, UInt_t _position) {
+    if (getUsingNtupleMetadata() == kTRUE) {
+      return getTCT()->GetAlgClassNameFromSeqIDAndAlgPos((Int_t) _index, (Int_t) _position);
     } else {
       Error("TrigConfInterface::getHLTAlgClassNameFromSeqIDAndAlgPos", "XML based menu navigation not yet included.");
     }
@@ -353,14 +362,15 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * Fetch hash of HLT algorithm class type name using the parents sequence index and position of algorithm within sequence.
+   * Fetch hash of HLT algorithm class type name using the parents sequence index and position of algorithm within
+   *sequence.
    * @param _index Index number of parent sequence.
    * @param _position Position of algorithm within parent sequence.
    * @return Hash of algorithm class type name. 0 if invalid ID or if using unsupported access mode.
    */
-  UInt_t TrigConfInterface::getHLTAlgClassNameIDFromSeqIDAndAlgPos( UInt_t _index, UInt_t _position ) {
-    if ( getUsingNtupleMetadata() == kTRUE ) {
-      return getTCT()->GetAlgClassNameIDFromSeqIDAndAlgPos( (Int_t) _index, (Int_t) _position );
+  UInt_t TrigConfInterface::getHLTAlgClassNameIDFromSeqIDAndAlgPos(UInt_t _index, UInt_t _position) {
+    if (getUsingNtupleMetadata() == kTRUE) {
+      return getTCT()->GetAlgClassNameIDFromSeqIDAndAlgPos((Int_t) _index, (Int_t) _position);
     } else {
       Error("TrigConfInterface::getHLTAlgClassNameIDFromSeqIDAndAlgPos", "XML based menu navigation not yet included.");
     }
@@ -372,10 +382,11 @@ namespace TrigCostRootAnalysis {
    * @param _chainName Name of chain to fetch prescale for.
    * @return Floating point prescale factor for chain in current menu. 0 on fail.
    */
-  Float_t TrigConfInterface::getPrescale( std::string _chainName ) {
-    if ( getUsingNtuplePrescales() == kTRUE ) {
+  Float_t TrigConfInterface::getPrescale(std::string _chainName) {
+    if (getUsingNtuplePrescales() == kTRUE) {
       if (_chainName == Config::config().getStr(kAlwaysPassString)) return 1.;
-      return getTCT()->GetPrescale( _chainName );
+
+      return getTCT()->GetPrescale(_chainName);
     } else {
       Error("TrigConfInterface::getPrescale", "XML based menu navigation not yet included.");
     }
@@ -387,7 +398,7 @@ namespace TrigCostRootAnalysis {
    * @return Number of string->string metadata pairs
    */
   UInt_t TrigConfInterface::getMetaStringN() {
-    if ( getUsingNtupleMetadata() == kTRUE ) {
+    if (getUsingNtupleMetadata() == kTRUE) {
       return getTCT()->GetMetaStringN();
     }
     return 0;
@@ -399,8 +410,8 @@ namespace TrigCostRootAnalysis {
    * @return String key value for this metadata
    */
   std::string TrigConfInterface::getMetaStringKey(UInt_t _m) {
-    if ( getUsingNtuplePrescales() == kTRUE ) {
-      return getTCT()->GetMetaStringKey( _m );
+    if (getUsingNtuplePrescales() == kTRUE) {
+      return getTCT()->GetMetaStringKey(_m);
     }
     return Config::config().getStr(kBlankString);
   }
@@ -411,8 +422,8 @@ namespace TrigCostRootAnalysis {
    * @return String payload value for this metadata
    */
   std::string TrigConfInterface::getMetaStringVal(UInt_t _m) {
-    if ( getUsingNtuplePrescales() == kTRUE ) {
-      return getTCT()->GetMetaStringVal( _m );
+    if (getUsingNtuplePrescales() == kTRUE) {
+      return getTCT()->GetMetaStringVal(_m);
     }
     return Config::config().getStr(kBlankString);
   }
@@ -423,7 +434,7 @@ namespace TrigCostRootAnalysis {
    * @return String payload value for this metadata
    */
   std::string TrigConfInterface::getMetaStringVal(std::string _key) {
-    if ( getUsingNtuplePrescales() == kTRUE ) {
+    if (getUsingNtuplePrescales() == kTRUE) {
       for (UInt_t _i = 0; _i < getMetaStringN(); ++_i) {
         if (getMetaStringKey(_i) == _key) return getMetaStringVal(_i);
       }
@@ -440,24 +451,25 @@ namespace TrigCostRootAnalysis {
   StringIntMap_t TrigConfInterface::getBunchGroupSetup() {
     StringIntMap_t _BGDatabase, _BGCTPConf;
     UInt_t _BCIDCountDB = 0, _BCIDCountCTPConf = 0;
+
     for (Int_t _bg = 0; _bg < Config::config().getInt(kNBunchGroups); ++_bg) {
       std::stringstream _ss, _ssDB, _ssCTPName, _ssCTPSize;
       // Database
       _ssDB << "DB:BGRP" << _bg;
       std::string _BGDBVal = getMetaStringVal(_ssDB.str());
-      if ( _BGDBVal != Config::config().getStr(kBlankString) ) {
+      if (_BGDBVal != Config::config().getStr(kBlankString)) {
         _ss << "BGRP" << _bg;
-        _BGDatabase[_ss.str()] = stringToInt( _BGDBVal );
-        _BCIDCountDB += stringToInt( _BGDBVal );
+        _BGDatabase[_ss.str()] = stringToInt(_BGDBVal);
+        _BCIDCountDB += stringToInt(_BGDBVal);
       }
       // CTP Config
       _ssCTPName << "CTPConfig:NAME:BGRP" << _bg;
       _ssCTPSize << "CTPConfig:SIZE:BGRP" << _bg;
-      std::string _CTPBGName = getMetaStringVal( _ssCTPName.str() );
-      std::string _CTPBGSize = getMetaStringVal( _ssCTPSize.str() );
-      if ( _CTPBGName != Config::config().getStr(kBlankString) &&  _CTPBGSize != Config::config().getStr(kBlankString) ) {
-        _BGCTPConf[_CTPBGName] = stringToInt( _CTPBGSize );
-        _BCIDCountCTPConf += stringToInt( _CTPBGSize );
+      std::string _CTPBGName = getMetaStringVal(_ssCTPName.str());
+      std::string _CTPBGSize = getMetaStringVal(_ssCTPSize.str());
+      if (_CTPBGName != Config::config().getStr(kBlankString) && _CTPBGSize != Config::config().getStr(kBlankString)) {
+        _BGCTPConf[_CTPBGName] = stringToInt(_CTPBGSize);
+        _BCIDCountCTPConf += stringToInt(_CTPBGSize);
       }
     }
     // Hopefully these agree, but let's assume if not that the one with the most active BCIDs
@@ -473,7 +485,7 @@ namespace TrigCostRootAnalysis {
    * @return Pointer to configured D3PD::TrigDecisionToolD3PD.
    */
   D3PD::TrigDecisionToolD3PD* TrigConfInterface::getTDT() {
-    if ( m_isConfigured == kFALSE ) {
+    if (m_isConfigured == kFALSE) {
       Error("TrigConfInterface::getTDT", "Configuration tool is not configured!");
       return 0;
     }
@@ -485,38 +497,37 @@ namespace TrigCostRootAnalysis {
    * @return Const pointer to configured D3PD::TrigConfigSvcD3PD.
    */
   const D3PD::TrigConfigSvcD3PD* TrigConfInterface::getTCT() {
-    assert( m_isConfigured );
-    if ( !m_tct) {
-      m_tct = dynamic_cast<D3PD::TrigConfigSvcD3PD*>( &(m_tdt->GetConfigSvc()) );
+    assert(m_isConfigured);
+    if (!m_tct) {
+      m_tct = dynamic_cast<D3PD::TrigConfigSvcD3PD*>(&(m_tdt->GetConfigSvc()));
     }
     return m_tct;
   }
 
   D3PD::TrigConfigSvcD3PD* TrigConfInterface::getTCTNonConst() {
-    assert( m_isConfigured );
-    if ( !m_tct) {
-      m_tct = dynamic_cast<D3PD::TrigConfigSvcD3PD*>( &(m_tdt->GetConfigSvc()) );
+    assert(m_isConfigured);
+    if (!m_tct) {
+      m_tct = dynamic_cast<D3PD::TrigConfigSvcD3PD*>(&(m_tdt->GetConfigSvc()));
     }
     return m_tct;
   }
-
 
   /**
    * Export current trigger configuration to basic HTML page.
    */
   void TrigConfInterface::dump() {
-
     if (m_isConfigured == kFALSE) return;
 
-    const std::string _sm = intToString( getCurrentSMK() );
+    const std::string _sm = intToString(getCurrentSMK());
 
-    const std::string _fileName = std::string( Config::config().getStr(kOutputDirectory)
-      + "/TriggerConfiguration_"
-      + getCurrentDBKey().name() + ".json" );
-    if (Config::config().debug()) Info("TrigConfInterface::dump", "Saving trigger configuration to %s", _fileName.c_str() );
+    const std::string _fileName = std::string(Config::config().getStr(kOutputDirectory)
+                                              + "/TriggerConfiguration_"
+                                              + getCurrentDBKey().name() + ".json");
+    if (Config::config().debug()) Info("TrigConfInterface::dump", "Saving trigger configuration to %s",
+                                       _fileName.c_str());
 
     //std::ofstream _foutHtml( std::string(_fileName + ".htm").c_str() );
-    std::ofstream _foutJson( _fileName.c_str() );
+    std::ofstream _foutJson(_fileName.c_str());
 
     JsonExport* _json = new JsonExport();
 
@@ -531,7 +542,7 @@ namespace TrigCostRootAnalysis {
     for (UInt_t _c = 0; _c < getTCT()->GetChainN(); ++_c) {
       Bool_t _isL1 = kFALSE;
       //std::string _counter = "</b>, Counter:<i>";
-      if ( getTCT()->GetChainLevel(_c) == 1) {
+      if (getTCT()->GetChainLevel(_c) == 1) {
         //_counter = "</b>, CTPID:<i>";
         _isL1 = kTRUE;
       } else if (_jsonDoingL1 == kTRUE) {
@@ -541,9 +552,10 @@ namespace TrigCostRootAnalysis {
         _jsonDoingL1 = kFALSE;
       }
       //_foutHtml << "<hr>" << std::endl;
-      //_foutHtml << "<li>Trigger Chain: Name:<b>" << getTCT()->GetChainName(_c) << _counter << getTCT()->GetChainCounter(_c) << "</i></li>" << std::endl;
+      //_foutHtml << "<li>Trigger Chain: Name:<b>" << getTCT()->GetChainName(_c) << _counter <<
+      // getTCT()->GetChainCounter(_c) << "</i></li>" << std::endl;
       std::string _chainName = getTCT()->GetChainName(_c);
-      _json->addNode(_foutJson, _chainName + " (PS:" + floatToString(getTCT()->GetPrescale(_chainName),2) + ")", "C");
+      _json->addNode(_foutJson, _chainName + " (PS:" + floatToString(getTCT()->GetPrescale(_chainName), 2) + ")", "C");
       // _foutHtml << "<li>Prescale:<i>" << getPrescale( getTCT()->GetChainName(_c) ) << "</i></li>" << std::endl;
       // if (getTCT()->GetChainGroupNameSize(_c)) {
       //   _foutHtml << "<li>Groups:<i>";
@@ -554,7 +566,8 @@ namespace TrigCostRootAnalysis {
       //   _foutHtml << "</i></li>" << std::endl;
       // }
       // if ( getTCT()->GetChainLevel(_c) > 1) {
-      //   _foutHtml << "<li>Lower Chain Name:" << getTCT()->GetLowerChainName( getTCT()->GetChainName(_c) ) << "</li>" << std::endl;
+      //   _foutHtml << "<li>Lower Chain Name:" << getTCT()->GetLowerChainName( getTCT()->GetChainName(_c) ) << "</li>"
+      // << std::endl;
       // }
       // if ( getTCT()->GetChainEBHypoNameSize(_c) > 0) {
       //   std::cout << "<li>Enhanced Bias Hypo Items:<i>";
@@ -570,21 +583,24 @@ namespace TrigCostRootAnalysis {
       for (UInt_t _s = 0; _s < getTCT()->GetSigN(_c); ++_s) {
         UInt_t _nOutputTEs = getTCT()->GetSigNOutputTE(_c, _s);
         if (!_isL1) _json->addNode(_foutJson, getTCT()->GetSigLabel(_c, _s), "SI"); // SIG STEP
-        //_foutHtml << " <li>Signature Step: Label:<b>" << getTCT()->GetSigLabel(_c, _s) << "</b>, Logic:<i>" << getTCT()->GetSigLogic(_c, _s) << "</i></li>" << std::endl;
+        //_foutHtml << " <li>Signature Step: Label:<b>" << getTCT()->GetSigLabel(_c, _s) << "</b>, Logic:<i>" <<
+        // getTCT()->GetSigLogic(_c, _s) << "</i></li>" << std::endl;
         //_foutHtml << "  <ul>" << std::endl;
         // SIG -> SEQ
         for (Int_t _t = _nOutputTEs - 1; _t >= 0; --_t) {
           UInt_t _outputTE = getTCT()->GetSigOutputTE(_c, _s, _t);
-          UInt_t _seq = getTCT()->GetSequenceIndex( _outputTE );
+          UInt_t _seq = getTCT()->GetSequenceIndex(_outputTE);
           if (_seq != UINT_MAX) {
-            //_foutHtml << "  <li> Sequence: Name:<b>" << getTCT()->GetSeqName(_seq) << "</b>, Index:<i>" << getTCT()->GetSeqIndex(_seq) << "</i></li>" << std::endl;
+            //_foutHtml << "  <li> Sequence: Name:<b>" << getTCT()->GetSeqName(_seq) << "</b>, Index:<i>" <<
+            // getTCT()->GetSeqIndex(_seq) << "</i></li>" << std::endl;
             if (_isL1) _json->addLeaf(_foutJson, getTCT()->GetSeqName(_seq), "L1"); // L1 BG (does not need closing)
             else _json->addNode(_foutJson, getTCT()->GetSeqName(_seq), "SE"); // SEQ STEP
             //_foutHtml << "   <ol>" << std::endl;
             // ALG
             for (UInt_t _a = 0; _a < getTCT()->GetAlgN(_seq); ++_a) {
               _json->addLeaf(_foutJson, getTCT()->GetAlgName(_seq, _a), "A"); //ALG LEAF (does not need closing)
-              //_foutHtml << "   <li>Algorithm Instance/Class:<b>" << getTCT()->GetAlgName(_seq, _a) << " </b>/<b> " << getTCT()->GetAlgTypeName(_seq, _a) << "</b></li>" << std::endl;
+              //_foutHtml << "   <li>Algorithm Instance/Class:<b>" << getTCT()->GetAlgName(_seq, _a) << " </b>/<b> " <<
+              // getTCT()->GetAlgTypeName(_seq, _a) << "</b></li>" << std::endl;
             }
             //_foutHtml << "   </ol>" << std::endl;
             if (!_isL1) _json->endNode(_foutJson); // SEQ STEP
@@ -603,7 +619,6 @@ namespace TrigCostRootAnalysis {
     //_foutHtml << "</ul>" << std::endl;
     //_foutHtml << "</p></body></html>" << std::endl;
     //_foutHtml.close();
-
   }
 
   /**
@@ -628,32 +643,33 @@ namespace TrigCostRootAnalysis {
            getTCT()->GetSeqIndex(_s),
            getTCT()->GetAlgN(_s),
            getTCT()->GetSeqNInputTEs(_s),
-           getTCT()->GetSeqName(_s).c_str() );
+           getTCT()->GetSeqName(_s).c_str());
       for (UInt_t _t = 0; _t < getTCT()->GetSeqNInputTEs(_s); ++_t) {
-        Info("TrigConfInterface::debug", "\tSequence Input TE #%i: %u", _t, getTCT()->GetSeqInputTE(_s, _t) );
+        Info("TrigConfInterface::debug", "\tSequence Input TE #%i: %u", _t, getTCT()->GetSeqInputTE(_s, _t));
       }
       // Algorithm
       for (UInt_t _a = 0; _a < getTCT()->GetAlgN(_s); ++_a) {
-        Info("TrigConfInterface::debug", "\tAlgorithm: Index=%i\tPosition=%i\tNameHash=%u\tTypeNameHash=%u\tName=%s\tTypeName=%s",
+        Info("TrigConfInterface::debug",
+             "\tAlgorithm: Index=%i\tPosition=%i\tNameHash=%u\tTypeNameHash=%u\tName=%s\tTypeName=%s",
              getTCT()->GetAlgIndex(_s, _a),
              getTCT()->GetAlgPosition(_s, _a),
              getTCT()->GetAlgNameID(_s, _a),
              getTCT()->GetAlgTypeID(_s, _a),
              getTCT()->GetAlgName(_s, _a).c_str(),
-             getTCT()->GetAlgTypeName(_s, _a).c_str() );
+             getTCT()->GetAlgTypeName(_s, _a).c_str());
       }
     }
   }
 
-  UInt_t      TrigConfInterface::getChainN() {
+  UInt_t TrigConfInterface::getChainN() {
     return getTCT()->GetChainN();
   }
 
-  UInt_t      TrigConfInterface::getChainLevel(UInt_t _c) {
+  UInt_t TrigConfInterface::getChainLevel(UInt_t _c) {
     return getTCT()->GetChainLevel(_c);
   }
 
-  UInt_t      TrigConfInterface::getChainCounter(UInt_t _c) {
+  UInt_t TrigConfInterface::getChainCounter(UInt_t _c) {
     return getTCT()->GetChainCounter(_c);
   }
 
@@ -661,7 +677,7 @@ namespace TrigCostRootAnalysis {
     return getTCT()->GetChainName(_c);
   }
 
-  UInt_t      TrigConfInterface::getChainEBHypoNameSize(UInt_t _c) {
+  UInt_t TrigConfInterface::getChainEBHypoNameSize(UInt_t _c) {
     return getTCT()->GetChainEBHypoNameSize(_c);
   }
 
@@ -669,7 +685,7 @@ namespace TrigCostRootAnalysis {
     return getTCT()->GetChainEBHypoName(_c, _h);
   }
 
-  UInt_t      TrigConfInterface::getChainGroupsNameSize(UInt_t _c) {
+  UInt_t TrigConfInterface::getChainGroupsNameSize(UInt_t _c) {
     return getTCT()->GetChainGroupNameSize(_c);
   }
 
@@ -677,7 +693,7 @@ namespace TrigCostRootAnalysis {
     return getTCT()->GetChainGroupName(_c, _g);
   }
 
-  UInt_t      TrigConfInterface::getChainStreamNameSize(UInt_t _c) {
+  UInt_t TrigConfInterface::getChainStreamNameSize(UInt_t _c) {
     return getTCT()->GetChainStreamNameSize(_c);
   }
 
@@ -688,6 +704,7 @@ namespace TrigCostRootAnalysis {
   const std::vector<std::string>& TrigConfInterface::getChainRatesGroupNames(UInt_t _c) { // Now with caching
     static std::map<UInt_t, std::vector<std::string> > _groups;
     static std::vector<std::string> _emptyVector;
+
     if (_groups.count(_c) == 0) { // Populate
       _groups[_c] = std::vector<std::string>();
       for (UInt_t _group = 0; _group < getTCT()->GetChainGroupNameSize(_c); ++_group) {
@@ -695,12 +712,13 @@ namespace TrigCostRootAnalysis {
         if (_groupName.find("Rate:") != std::string::npos || _groupName.find("RATE:") != std::string::npos) {
           // Veto CPS groups - these have their own system
           if (_groupName.find("CPS") != std::string::npos) continue;
-          std::replace( _groupName.begin(), _groupName.end(), ':', '_'); // A ":" can cause issues in TDirectory naming structure. "_" is safe.
+          std::replace(_groupName.begin(), _groupName.end(), ':', '_'); // A ":" can cause issues in TDirectory naming
+                                                                        // structure. "_" is safe.
           _groups[_c].push_back(_groupName);
         }
       }
     }
-    return _groups[_c]; 
+    return _groups[_c];
   }
 
   std::vector<std::string> TrigConfInterface::getChainStreamNames(UInt_t _c) {
@@ -727,13 +745,14 @@ namespace TrigCostRootAnalysis {
     for (UInt_t _group = 0; _group < getTCT()->GetChainGroupNameSize(_c); ++_group) {
       std::string _groupName = getTCT()->GetChainGroupName(_c, _group);
       if (_groupName.find("CPS") != std::string::npos) {
-        std::replace( _groupName.begin(), _groupName.end(), ':', '_'); // A ":" can cause issues in TDirectory naming structure. "_" is safe.
+        std::replace(_groupName.begin(), _groupName.end(), ':', '_'); // A ":" can cause issues in TDirectory naming
+                                                                      // structure. "_" is safe.
         if (_cpsGroup == "") _cpsGroup = _groupName;
-        else Warning("TrigConfInterface::getChainCPSGroup", "Chain %s has more than one CPS group (%s, %s). This is not supported.", getChainName(_c).c_str(), _cpsGroup.c_str(), _groupName.c_str());
+        else Warning("TrigConfInterface::getChainCPSGroup",
+                     "Chain %s has more than one CPS group (%s, %s). This is not supported.", getChainName(
+                       _c).c_str(), _cpsGroup.c_str(), _groupName.c_str());
       }
     }
     return _cpsGroup;
   }
-
-
 } // namespace TrigCostRootAnalysis

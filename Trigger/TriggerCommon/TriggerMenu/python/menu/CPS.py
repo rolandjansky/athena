@@ -66,9 +66,9 @@ def defineCPSGroups():
                                             'e60_lhvloose_nod0'],
 
 
-        "RATE:CPS:HLT_e24_medium_L1EM18VH" : ['e24_lhmedium_L1EM18VH',
-                                                'e24_lhmedium_nod0_L1EM18VH', 
-                                                ],
+#        "RATE:CPS:HLT_e24_medium_L1EM18VH" : ['e24_lhmedium_L1EM18VH',
+#                                                'e24_lhmedium_nod0_L1EM18VH', 
+#                                                ],
         
         "RATE:CPS:HLT_e24_tight_L1EM20VH" :  ['e24_lhtight_L1EM20VH',
                                                 'e24_lhtight_nod0_L1EM20VH',
@@ -82,8 +82,8 @@ def defineCPSGroups():
         #                                                 'e5_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5',],
 
 
-        'RATE:CPS:HLT_e24_medium_L1EM18VH': ['e24_lhmedium_L1EM18VH',
-                                             'e24_lhmedium_nod0_L1EM18VH',],
+ #       'RATE:CPS:HLT_e24_medium_L1EM18VH': ['e24_lhmedium_L1EM18VH',
+ #                                            'e24_lhmedium_nod0_L1EM18VH',],
         
         'RATE:CPS:HLT_e18_etcut_trkcut_xs20' :['e18_etcut_trkcut_xs20_mt35',
                                                'e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35',
@@ -192,60 +192,7 @@ def defineCPSGroups():
                                 'j320_bperf_split',
                                 'j320_boffperf',
                                 'j320_boffperf_split',
-                               ],
-
-
-
-
-        #Met chains
-        'RATE:CPS:HLT_xe35' : ['xe35',
-                               'xe35_tc_lcw',
-                               'xe35_tc_em',
-                               'xe35_pueta',
-                               'xe35_pufit',
-                               'xe35_mht',
-                               'xe35_wEFMu',
-                               'xe35_tc_lcw_wEFMu', 
-                               'xe35_tc_em_wEFMu',
-                               'xe35_mht_wEFMu',
-                               'xe35_pueta_wEFMu',
-                               'xe35_pufit_wEFMu',
-                               ],
-
-        'RATE:CPS:HLT_xe70_L1XE50' : ['xe70_L1XE50',
-                                      'xe75_L1XE50',
-                                      'xe80_L1XE50',
-                                      'xe90_L1XE50',
-                                      'xe110_mht_L1XE50_AND_xe70_L1XE50',
-                                      'xe110_mht_L1XE50_AND_xe75_L1XE50',
-                                      'xe110_mht_L1XE50_AND_xe80_L1XE50', 
-                                      ],
-
-        'RATE:CPS:HLT_xe75_L1XE55' : ['xe75_L1XE55',
-                                      'xe80_L1XE55',
-                                      'xe90_L1XE55',],
-
-        
-        'RATE:CPS:HLT_xe90_L1XE50' : ['xe90_tc_lcw_L1XE50', 
-                                      'xe90_mht_L1XE50',   
-                                      'xe90_tc_lcw_wEFMu_L1XE50',
-                                      'xe90_mht_wEFMu_L1XE50',   
-                                      ],                            
-         
-        'RATE:CPS:HLT_xe100_L1XE50' : ['xe100_L1XE50',  
-                                       'xe100_tc_lcw_L1XE50', 
-                                       'xe100_tc_em_L1XE50',  
-                                       'xe100_mht_L1XE50',    
-   #                                    'xe100_pueta_L1XE50',  
-   #                                    'xe100_pufit_L1XE50',  
-                                       'xe100_wEFMu_L1XE50',  
-                                       'xe100_tc_lcw_wEFMu_L1XE50',
-                                       'xe100_tc_em_wEFMu_L1XE50', 
-                                       'xe100_mht_wEFMu_L1XE50',   
-   #                                    'xe100_pueta_wEFMu_L1XE50', 
-   #                                    'xe100_pufit_wEFMu_L1XE50', 
-                                       ],         
-         
+                               ],         
         #Bphys	
 
         'RATE:CPS:HLT_2mu4_bDimu' : ['2mu4_bDimu',                
@@ -288,24 +235,16 @@ def defineCPSGroups():
                                      '3mu4_bUpsi',
                                      ],
 
-        'RATE:CPS:HLT_mu20_L1MU15' : ['mu20_L1MU15',
-                                      'mu24_L1MU15',
-                                      ],
         ### ATR-15050
         'RATE:CPS:HLT_bDimu_L1BPH-2M8-MU6MU4_0DR15-MU6MU4' : 
                              ['mu6_mu4_bDimu_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
                               'mu6_mu4_bJpsimumu_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
-                              'mu6_mu4_bJpsimumu_delayed_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
                               'mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
-                              'mu6_mu4_bJpsimumu_Lxy0_delayed_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
                               'mu6_mu4_bBmumu_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
                               'mu6_mu4_bBmumu_Lxy0_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
                               'mu6_mu4_bBmumuxv2_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
-                              'mu6_mu4_bBmumuxv2_delayed_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
                               'mu6_mu4_bBmumux_BcmumuDsloose_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
-                              'mu6_mu4_bBmumux_BcmumuDsloose_delayed_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
                               'mu6_mu4_bBmumux_BsmumuPhi_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
-                              'mu6_mu4_bBmumux_BsmumuPhi_delayed_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
                              ], 
         'RATE:CPS:HLT_bDimu_L1BPH-2M9-2MU6_2DR15-2MU6' :
                              ['2mu6_bDimu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
@@ -316,11 +255,6 @@ def defineCPSGroups():
                               '2mu6_bBmumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
                               '2mu6_bBmumux_BsmumuPhi_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
                               '2mu6_bJpsimumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
-                              '2mu6_bBmumuxv2_delayed_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
-                              '2mu6_bBmumux_BsmumuPhi_delayed_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
-                              '2mu6_bBmumux_BcmumuDsloose_delayed_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
-                              '2mu6_bJpsimumu_delayed_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
-                              '2mu6_bJpsimumu_Lxy0_delayed_L1BPH-2M9-2MU6_BPH-2DR15-2MU6', 
                              ],
         'RATE:CPS:HLT_2mu4_bDimu_L1BPH-2M8-2MU4' : 
                              ['2mu4_bDimu_L1BPH-2M8-2MU4',
@@ -330,20 +264,15 @@ def defineCPSGroups():
                               '2mu4_bBmumux_BcmumuDsloose_L1BPH-2M8-2MU4',
                               '2mu4_bBmumu_Lxy0_L1BPH-2M8-2MU4',
                               '2mu4_bBmumux_BsmumuPhi_L1BPH-2M8-2MU4',
-                              '2mu4_bBmumux_BsmumuPhi_delayed_L1BPH-2M8-2MU4',
-                              '2mu4_bJpsimumu_Lxy0_delayed_L1BPH-2M8-2MU4',
-                              '2mu4_bJpsimumu_delayed_L1BPH-2M8-2MU4',
                              ],
         'RATE:CPS:HLT_mu6_mu4_bDimu_L1BPH-8M15-MU6MU4' : 
                              ['mu6_mu4_bDimu_L1BPH-8M15-MU6MU4',
                               'mu6_mu4_bUpsimumu_L1BPH-8M15-MU6MU4',
-                              'mu6_mu4_bUpsimumu_delayed_L1BPH-8M15-MU6MU4',
                              ],
 
         'RATE:CPS:HLT_2mu6_bDimu_L1BPH-8M15-2MU6' :
                               ['2mu6_bDimu_L1BPH-8M15-2MU6',
                                '2mu6_bUpsimumu_L1BPH-8M15-2MU6',
-                               '2mu6_bUpsimumu_delayed_L1BPH-8M15-2MU6',
                               ],
 
 
@@ -390,9 +319,15 @@ def defineCPSGroups():
                                            'mu4_j35_bperf_split_dr05_dz02',
                                            'mu4_j35_bperf_split',
 				       ],
+        'RATE:CPS:HLT_e24_medium_L1EM18VH' : ['e24_lhmedium_L1EM18VH',
+                                                'e24_lhmedium_nod0_L1EM18VH',
+		],
         })
     if "v7" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
+        'RATE:CPS:HLT_e24_medium_L1EM18VHI' : ['e24_lhmedium_L1EM18VHI',
+                                                'e24_lhmedium_nod0_L1EM18VHI',
+                ],
             'RATE:CPS:HLT_mu_jet_L1MU6_J75' : [
                 'mu6_j260_bperf_split_dr05_dz02',
                 'mu6_j320_bperf_split_dr05_dz02',
@@ -412,14 +347,14 @@ def defineCPSGroups():
                                            'mu4_j35_bperf_split_dr05_dz99',
                                            'mu4_j35_bperf_split',
 				       ],
-        'RATE:CPS:HLT_xe70_L1XE50' : ['xe70_L1XE50',
-                                      'xe75_L1XE50',
-                                      'xe80_L1XE50',
-                                      'xe90_L1XE50',
-                                      'xe110_mht_xe70_L1XE50',
-                                      'xe110_mht_xe75_L1XE50',
-                                      'xe110_mht_xe80_L1XE50', 
-                                      ],
+#        'RATE:CPS:HLT_xe70_L1XE50' : ['xe70_L1XE50',
+#                                      'xe75_L1XE50',
+#                                      'xe80_L1XE50',
+#                                      'xe90_L1XE50',
+#                                      'xe110_mht_xe70_L1XE50',
+#                                      'xe110_mht_xe75_L1XE50',
+#                                      'xe110_mht_xe80_L1XE50', 
+#                                      ],
         })
     if "v5" in TriggerFlags.triggerMenuSetup():
      HLT_CPS_Groups.update({
@@ -524,9 +459,82 @@ def defineCPSGroups():
 						'mu6_j260_bperf_split_dr05_dz02',
 						'mu6_j320_bperf_split_dr05_dz02',
 						'mu6_j400_bperf_split_dr05_dz02',     
-				       ],
+				       ],      
 					    }) 
+    if "v6" in TriggerFlags.triggerMenuSetup():
+        HLT_CPS_Groups.update({
+        #Met chains
+        'RATE:CPS:HLT_xe35' : ['xe35',
+                               'xe35_tc_lcw',
+                               'xe35_tc_em',
+                               'xe35_pueta',
+                               'xe35_pufit',
+                               'xe35_mht',
+                               'xe35_wEFMu',
+                               'xe35_tc_lcw_wEFMu', 
+                               'xe35_tc_em_wEFMu',
+                               'xe35_mht_wEFMu',
+                               'xe35_pueta_wEFMu',
+                               'xe35_pufit_wEFMu',
+                               ],
 
+        'RATE:CPS:HLT_xe70_L1XE50' : ['xe70_L1XE50',
+                                      'xe75_L1XE50',
+                                      'xe80_L1XE50',
+                                      'xe90_L1XE50',
+                                      'xe110_mht_L1XE50_AND_xe70_L1XE50',
+                                      'xe110_mht_L1XE50_AND_xe75_L1XE50',
+                                      'xe110_mht_L1XE50_AND_xe80_L1XE50', 
+                                      ],
+
+        'RATE:CPS:HLT_xe75_L1XE55' : ['xe75_L1XE55',
+                                      'xe80_L1XE55',
+                                      'xe90_L1XE55',],
+
+        
+        'RATE:CPS:HLT_xe90_L1XE50' : ['xe90_tc_lcw_L1XE50', 
+                                      'xe90_mht_L1XE50',   
+                                      'xe90_tc_lcw_wEFMu_L1XE50',
+                                      'xe90_mht_wEFMu_L1XE50',   
+                                      ],                            
+         
+        'RATE:CPS:HLT_xe100_L1XE50' : ['xe100_L1XE50',  
+                                       'xe100_tc_lcw_L1XE50', 
+                                       'xe100_tc_em_L1XE50',  
+                                       'xe100_mht_L1XE50',    
+   #                                    'xe100_pueta_L1XE50',  
+   #                                    'xe100_pufit_L1XE50',  
+                                       'xe100_wEFMu_L1XE50',  
+                                       'xe100_tc_lcw_wEFMu_L1XE50',
+                                       'xe100_tc_em_wEFMu_L1XE50', 
+                                       'xe100_mht_wEFMu_L1XE50',   
+   #                                    'xe100_pueta_wEFMu_L1XE50', 
+   #                                    'xe100_pufit_wEFMu_L1XE50', 
+                                       ],         
+
+        'RATE:CPS:HLT_xe45' : ['xe45',
+                               'xe45_mht',
+                               'xe45_mht_wEFMu',
+                               'xe45_pueta',
+                               'xe45_pueta_wEFMu',
+                               'xe45_pufit',
+                               'xe45_pufit_wEFMu',
+                               'xe45_tc_em',
+                               'xe45_tc_em_wEFMu',
+                               'xe45_tc_lcw',
+                               'xe45_tc_lcw_wEFMu',
+                               'xe45_wEFMu',
+                               ],
+        'RATE:CPS:HLT_xe100_L1XE35' : ['xe100_L1XE35',  
+                                       'xe100_tc_lcw_L1XE35', 
+                                       'xe100_tc_em_L1XE35',  
+                                       'xe100_mht_L1XE35',    
+                                       'xe100_tc_lcw_wEFMu_L1XE35',
+                                       'xe100_tc_em_wEFMu_L1XE35', 
+                                       'xe100_mht_wEFMu_L1XE35',   
+                                       'xe100_wEFMu_L1XE35',   
+                                       ],   
+        })
     if "v6" in TriggerFlags.triggerMenuSetup() or "v7" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
           'RATE:CPS:HLT_mu10_mu6_bBmumuX'   :  ['mu10_mu6_bBmumuxv2',
@@ -702,29 +710,7 @@ def defineCPSGroups():
                                       '2mu6_bBmumu_Lxy0',
                                        ],
 
-        'RATE:CPS:HLT_xe45' : ['xe45',
- 															 'xe45_mht',
- 															 'xe45_mht_wEFMu',
- 															 'xe45_pueta',
- 															 'xe45_pueta_wEFMu',
- 															 'xe45_pufit',
- 															 'xe45_pufit_wEFMu',
- 															 'xe45_tc_em',
- 															 'xe45_tc_em_wEFMu',
- 															 'xe45_tc_lcw',
- 															 'xe45_tc_lcw_wEFMu',
- 															 'xe45_wEFMu',
-                               ],
-        'RATE:CPS:HLT_xe100_L1XE35' : ['xe100_L1XE35',  
-                                       'xe100_tc_lcw_L1XE35', 
-                                       'xe100_tc_em_L1XE35',  
-                                       'xe100_mht_L1XE35',    
-                                       'xe100_tc_lcw_wEFMu_L1XE35',
-                                       'xe100_tc_em_wEFMu_L1XE35', 
-                                       'xe100_mht_wEFMu_L1XE35',   
-                                       'xe100_wEFMu_L1XE35',   
-                                       ],         
-        
+
         
 
 #        'RATE:CPS:HLT_2mu4_bJpsimumu_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4' : ['2mu4_bJpsimumu_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4',
@@ -744,6 +730,17 @@ def defineCPSGroups():
 
     if "v7" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
+        'RATE:CPS:HLT_xe45' : ['xe45',
+                               'xe45_mht',
+                               'xe45_mht_wEFMu',
+                               'xe45_pufit',
+                               'xe45_pufit_wEFMu',
+                               'xe45_tc_em',
+                               'xe45_tc_em_wEFMu',
+                               'xe45_tc_lcw',
+                               'xe45_tc_lcw_wEFMu',
+                               'xe45_wEFMu',
+                               ],
            'RATE:CPS:HLT_j300_a10_sub_L1J75':[ 'j300_a10_sub_L1J75',
                                            'j300_a10_lcw_subjes_L1J75',
                                            'j300_a10r_L1J75',

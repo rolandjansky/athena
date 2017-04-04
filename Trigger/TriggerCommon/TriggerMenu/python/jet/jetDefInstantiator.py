@@ -43,7 +43,8 @@ from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
                                                TrigHLTHypoDiagnostics_named,
                                                TrigHLTJetDebug,
                                                TrigHLTEnergyDensity,
-                                               TrigHLTJetDSSelector,)
+                                               TrigHLTJetDSSelector,
+                                               TrigHLTTrackMomentHelpers,)
 
 from TrigHLTJetHypo.TrigHLTJetHypoConfig import (TrigHLTJetHypo2,
                                                  TrigHLTJetHypo_DijetMassDEta,
@@ -52,7 +53,6 @@ from TrigHLTJetHypo.TrigHLTJetHypoConfig import (TrigHLTJetHypo2,
                                                  TrigHLTJetHypo_TLA,
                                                  TrigHLTJetHypo_SMC,
                                                  )
-                                                 
 
 from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter
 

@@ -42,6 +42,6 @@ use TrigSerializeUtils  TrigSerializeUtils-*    Trigger/TrigDataAccess
 
 
 apply_pattern sercnv \
- typesWithNamespace="DMTest::CVec DMTest::CAuxContainer" \
+ typesWithNamespace="DMTest::CVec DMTest::CView DMTest::CAuxContainer" \
  files=" -s=${DataModelTestDataCommon_root}/DataModelTestDataCommon \
-             CVec.h CAuxContainer.h "
+             CVec.h CView.h CAuxContainer.h "
