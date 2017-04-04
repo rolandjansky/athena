@@ -119,6 +119,8 @@ TCS::NotMatch::processBitCorrect( const std::vector<TCS::TOBArray const *> & inp
       bool matched = false;
       unsigned int deltaR2= 999;
       for(unsigned int i=0; i<numberOutputBits(); ++i) {
+          bool all_unmatched = true;
+          vector<GenericTOB*> unmatched_tobs;
        for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
            ++tob1)
@@ -137,15 +139,20 @@ TCS::NotMatch::processBitCorrect( const std::vector<TCS::TOBArray const *> & inp
                // test DeltaR2Min, DeltaR2Max
                deltaR2 = calcDeltaR2BW( *tob1, *tob2 );
                if (deltaR2 <= p_DRCut[i]) matched = true; 
-            }
+            } // for(tob2)
             // protection against no jets
             if (deltaR2 == 999) matched = true;
-            bool accept = matched?false:true ;
-            if(accept) decision.setBit( i, accept );
-            if(accept) output[i]->push_back( TCS::CompositeTOB(*tob1));
-            TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " delta-match = " << deltaR2 );
-         }
+            if(not matched) unmatched_tobs.push_back(*tob1);
+            all_unmatched = all_unmatched and not matched;
+         } // for(tob1)
+       const bool accept = all_unmatched and unmatched_tobs.size()>0;
+       if(accept){
+           decision.setBit(i, true);
+           for(const auto tob : unmatched_tobs)
+               output[i]->push_back(TCS::CompositeTOB(tob));
        }
+       TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail"));
+      } // for(i)
    } else {
       TCS_EXCEPTION("NotMatch alg must have  2 inputs, but got " << input.size());
    }
@@ -162,6 +169,8 @@ TCS::NotMatch::process( const std::vector<TCS::TOBArray const *> & input,
       bool matched = false;
       unsigned int deltaR2= 999;
       for(unsigned int i=0; i<numberOutputBits(); ++i) { 
+       bool all_unmatched = true;
+       vector<GenericTOB*> unmatched_tobs;
        for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
            ++tob1)
@@ -180,15 +189,20 @@ TCS::NotMatch::process( const std::vector<TCS::TOBArray const *> & input,
                // test DeltaR2Min, DeltaR2Max
                deltaR2 = calcDeltaR2( *tob1, *tob2 );
                if (deltaR2 <= p_DRCut[i]) matched = true; 
-            }
+            } // for(tob2)
             // protection against no jets
             if (deltaR2 == 999) matched = true;
-            bool accept = matched?false:true ;
-            if(accept) decision.setBit( i, accept );
-            if(accept) output[i]->push_back( TCS::CompositeTOB(*tob1));
-            TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " delta-match = " << deltaR2 );
-         }
+            if(not matched) unmatched_tobs.push_back(*tob1);
+            all_unmatched = all_unmatched and not matched;
+         } // for(tob1)
+       const bool accept = all_unmatched and unmatched_tobs.size()>0;
+       if(accept){
+           decision.setBit(i, true);
+           for(const auto tob : unmatched_tobs)
+               output[i]->push_back(TCS::CompositeTOB(tob));
        }
+       TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail"));
+      } // for(i)
    } else {
       TCS_EXCEPTION("NotMatch alg must have  2 inputs, but got " << input.size());
    }
