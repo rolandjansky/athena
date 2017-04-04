@@ -14,12 +14,13 @@
 #include <iostream>
 
 #include "AthenaMonitoring/IMonitoredVariable.h"
+#include "AthenaMonitoring/GenericMonitoringTool.h"
 
 namespace Monitored {
     class MonitoredScope {
     public:
         template <typename... T>
-        static MonitoredScope declare(/*ToolHandle<IMonitoringTool>*/std::string tool, T&&... scopeMonitored) {
+        static MonitoredScope declare(ToolHandle<GenericMonitoringTool> tool, T&&... scopeMonitored) {
             return MonitoredScope(tool, {std::forward<T>(scopeMonitored)...});
         }
         
@@ -27,38 +28,33 @@ namespace Monitored {
             if (mAutoSave) {
                 save();
             }
+
+            for (auto filler : mHistogramsFillers) {
+                delete filler;
+            }
         }
         
         void save() {
-            std::cout << mTool << ": " << std::endl;
-            // in the impl. there will be loop over the histograms here
-            for (auto monitored : mScopeMonitored) {
-                std::cout << monitored.get().stringName() << std::endl;
-                
-                for (auto value : monitored.get().getVectorRepresentation()) {
-                    std::cout << value << ", ";
-                }
-                
-                std::cout << std::endl;
+            for (auto filler : mHistogramsFillers) {
+                filler->fill();
             }
-            
-            std::cout << std::endl;
         }
         
         void setAutoSaveEnabled(bool isEnabled) {
             mAutoSave = isEnabled;
         }
     private:
-        /*ToolHandle<IMonitoringTool>*/ std::string mTool;
+        ToolHandle<GenericMonitoringTool> mTool;
         bool mAutoSave;
         const std::vector<std::reference_wrapper<IMonitoredVariable>> mScopeMonitored;
+        const std::vector<GenericMonitoringTool::HistogramFiller*> mHistogramsFillers;
         
-        MonitoredScope(/*ToolHandle<IMonitoringTool>*/ std::string tool, std::initializer_list<std::reference_wrapper<IMonitoredVariable>> scopeMonitored)
-        : mTool(tool), mAutoSave(true), mScopeMonitored(scopeMonitored) { }
+        MonitoredScope(ToolHandle<GenericMonitoringTool> tool, std::initializer_list<std::reference_wrapper<IMonitoredVariable>> scopeMonitored)
+        : mTool(tool), mAutoSave(true), mScopeMonitored(scopeMonitored), mHistogramsFillers(mTool->getHistogramsFillers(mScopeMonitored)) { }
     };
     
     template <typename... T>
-    static MonitoredScope declareScope(/*ToolHandle<IMonitoringTool>*/std::string tool, T&&... scopeMonitored) {
+    static MonitoredScope declareScope(ToolHandle<GenericMonitoringTool> tool, T&&... scopeMonitored) {
         return MonitoredScope::declare(tool, scopeMonitored...);
     }
 }
