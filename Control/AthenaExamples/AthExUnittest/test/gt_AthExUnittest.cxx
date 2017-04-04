@@ -27,7 +27,7 @@ namespace Athena_test {
   public:
 
     AthExUnittestAlgTest() 
-      : InitGaudiGoogleTest( MSG::INFO ) // get usual message blurb
+    //  : InitGaudiGoogleTest( MSG::INFO ) // get usual message blurb
     {}
 
     virtual void SetUp() override {

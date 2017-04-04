@@ -7,12 +7,10 @@
 
 AthExUnittestTool::AthExUnittestTool( const std::string& type,
 				      const std::string& name,
-				      const IInterface* parent,
-				      bool unittest ) : 
+				      const IInterface* parent ) :
   AthAlgTool( type, name, parent ), 
   m_nProperty( 0 ),
-  m_enumProperty( IAthExUnittestTool::Val1 ),
-  m_unittest( unittest ) {
+  m_enumProperty( IAthExUnittestTool::Val1 ) {
   //example property declarations with default values
   declareProperty( "Property", m_nProperty = 3.0, 
                    "Please describe the property here" );
@@ -21,11 +19,9 @@ AthExUnittestTool::AthExUnittestTool( const std::string& type,
 }
 
 StatusCode AthExUnittestTool::initialize() {
-  if( not m_unittest ) {
-    ATH_MSG_INFO( "Initializing " << name() << "..." );
-    ATH_MSG_INFO( "Property = " << m_nProperty );
-    ATH_MSG_INFO( "ENumProperty = " << m_enumProperty );
-  }
+  ATH_MSG_INFO( "Initializing " << name() << "..." );
+  ATH_MSG_INFO( "Property = " << m_nProperty );
+  ATH_MSG_INFO( "ENumProperty = " << m_enumProperty );
 
   //Make use of the property values to configure the tool
   //Tools should be designed so that no method other than setProperty is called before initialize

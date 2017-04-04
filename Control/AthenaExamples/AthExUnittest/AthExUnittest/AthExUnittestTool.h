@@ -12,11 +12,10 @@ class AthExUnittestTool: public AthAlgTool,
                          public virtual IAthExUnittestTool { 
 public: 
 
-  // Add another constructor for non-athena use cases
+  // Constructor
   AthExUnittestTool( const std::string& type,
 		     const std::string& name,
-		     const IInterface* parent,
-		     bool unittest=false );
+		     const IInterface* parent );
   
   // Initialize is required by AsgTool base class
   virtual StatusCode initialize() override;
@@ -25,8 +24,7 @@ public:
 private: 
 
   double m_nProperty;
-  unsigned int m_enumProperty; 
-  bool m_unittest;
+  unsigned int m_enumProperty;
 
 }; 
 
