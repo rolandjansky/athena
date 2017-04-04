@@ -32,8 +32,8 @@ namespace LArG4 {
     public:
 
       MiniFCALCalibrationCalculator(const std::string& name, ISvcLocator *pSvcLocator);
-      StatusCode initialize();
-      StatusCode finalize() {return StatusCode::SUCCESS;}
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
       virtual ~MiniFCALCalibrationCalculator();
 
       virtual G4bool Process (const G4Step* step, LArG4Identifier & identifier,
