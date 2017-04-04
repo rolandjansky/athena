@@ -7,3 +7,4 @@
 .pydevproject
 .project
 *.pyc
+.asetup*
