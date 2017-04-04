@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "RadLenNtupleTool.h"
 
 namespace G4UA
@@ -33,12 +32,12 @@ namespace G4UA
   RadLenNtupleTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<RadLenNtuple>(m_config);
+    auto action = std::make_unique<RadLenNtuple>(m_config);
     if(action->initialize().isFailure())
       {
         ATH_MSG_WARNING("Failed to set up RadLenNtuple properly!");
       }
-    return std::move(action);
+    return action;
   }
 
   //---------------------------------------------------------------------------
