@@ -32,20 +32,20 @@ namespace Athena_test {
   };
 
   TEST_F( MyPackageToolTest, initialise ) {
-    EXPECT_TRUE( myTool.initialize() );
+    EXPECT_TRUE( myTool.initialize().isSuccess() );
   }
 
   TEST_F( MyPackageToolTest, property ) {
-    EXPECT_TRUE( myTool.setProperty( "Property", 42.0 ) );
-    EXPECT_TRUE( myTool.initialize() );
+    EXPECT_TRUE( myTool.setProperty( "Property", 42.0 ).isSuccess() );
+    EXPECT_TRUE( myTool.initialize().isSuccess() );
     std::string prop;
     myTool.getProperty( "Property", prop );
     EXPECT_EQ( std::stod( prop ), 42.0 );
   }
   
   TEST_F( MyPackageToolTest, enumProperty ) {
-    EXPECT_TRUE( myTool.setProperty( "EnumProperty", IMyPackageTool::Val2 ) );
-    EXPECT_TRUE( myTool.initialize() );
+    EXPECT_TRUE( myTool.setProperty( "EnumProperty", IMyPackageTool::Val2 ).isSuccess() );
+    EXPECT_TRUE( myTool.initialize().isSuccess() );
     std::string prop;
     myTool.getProperty( "EnumProperty", prop );
     EXPECT_EQ( std::stoi( prop ), IMyPackageTool::Val2 ); 
@@ -80,7 +80,7 @@ namespace Athena_test {
     MyPackageTool* getMyTool() {
       ToolHandle<IMyPackageTool> toolHandle( "", myAlg );
       toolHandle.setTypeAndName( myAlg->getProperty( "MyTool" ).toString() );
-      toolHandle.retrieve();
+      EXPECT_TRUE( toolHandle.retrieve().isSuccess() );
       IMyPackageTool* impt= toolHandle.get();
       MyPackageTool* mpt= dynamic_cast<MyPackageTool*>( impt );
       return mpt;
@@ -91,19 +91,19 @@ namespace Athena_test {
   };
   
   TEST_F( MyPackageAlgTest, initialise ) {
-    EXPECT_TRUE( myAlg->initialize() );
+    EXPECT_TRUE( myAlg->initialize().isSuccess() );
   }
   
   TEST_F( MyPackageAlgTest, setProperty ) {
-    EXPECT_TRUE( myAlg->setProperty( "MyProperty", 5 ) );
-    EXPECT_TRUE( myAlg->initialize() );
+    EXPECT_TRUE( myAlg->setProperty( "MyProperty", 5 ).isSuccess() );
+    EXPECT_TRUE( myAlg->initialize().isSuccess() );
     std::string prop;
     myAlg->getProperty( "MyProperty", prop );
     EXPECT_EQ( prop, "5" );
   }
   
   TEST_F( MyPackageAlgTest, sysInitialize ) {
-    EXPECT_TRUE( myAlg->sysInitialize() );
+    EXPECT_TRUE( myAlg->sysInitialize().isSuccess() );
     std::string prop;
     myAlg->getProperty( "MyProperty", prop );
     EXPECT_EQ( std::stoi( prop ), 21 );
@@ -111,7 +111,7 @@ namespace Athena_test {
   
   TEST_F( MyPackageAlgTest, toolProperty ) {
     // sysInitialize() gets properties then call initialize()
-    EXPECT_TRUE( myAlg->sysInitialize() );
+    EXPECT_TRUE( myAlg->sysInitialize().isSuccess() );
     MyPackageTool* mpt= getMyTool();
     std::string prop;
     mpt->getProperty( "Property", prop );

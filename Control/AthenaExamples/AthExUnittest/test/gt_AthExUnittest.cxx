@@ -53,14 +53,14 @@ namespace Athena_test {
     IAthExUnittestTool* getMyTool() {
       ToolHandle<IAthExUnittestTool> toolHandle( "", myAlg );
       toolHandle.setTypeAndName( myAlg->getProperty( "MyTool" ).toString() );
-      EXPECT_TRUE( toolHandle.retrieve() );
+      EXPECT_TRUE( toolHandle.retrieve().isSuccess() );
       IAthExUnittestTool* impt= toolHandle.get();
       return impt;
     }
 
     int getIntProperty( const std::string & name ) {
       std::string prop;
-      EXPECT_TRUE( myAlg->getProperty( name, prop ) );
+      EXPECT_TRUE( myAlg->getProperty( name, prop ).isSuccess() );
       return std::stoi( prop );
     }
 
@@ -74,25 +74,25 @@ namespace Athena_test {
   }
   
   TEST_F( AthExUnittestAlgTest, initialise ) {
-    EXPECT_TRUE( myAlg->initialize() );
+    EXPECT_TRUE( myAlg->initialize().isSuccess() );
   }
   
   TEST_F( AthExUnittestAlgTest, setProperty ) {
-    EXPECT_TRUE( myAlg->setProperty( "MyProperty", 5 ) );
-    EXPECT_TRUE( myAlg->initialize() );
+    EXPECT_TRUE( myAlg->setProperty( "MyProperty", 5 ).isSuccess() );
+    EXPECT_TRUE( myAlg->initialize().isSuccess() );
     int prop= getIntProperty( "MyProperty" );
     EXPECT_EQ( prop, 5 );
   }
   
   TEST_F( AthExUnittestAlgTest, getPropertyFromCatalogue ) {
-    EXPECT_TRUE( myAlg->sysInitialize() );
+    EXPECT_TRUE( myAlg->sysInitialize().isSuccess() );
     int prop= getIntProperty( "MyProperty" );
     EXPECT_EQ( prop, 21 );
   }
   
   TEST_F( AthExUnittestAlgTest, toolMethod ) {
     // sysInitialize() gets properties then calls initialize()
-    EXPECT_TRUE( myAlg->sysInitialize() );
+    EXPECT_TRUE( myAlg->sysInitialize().isSuccess() );
     IAthExUnittestTool* mpt= getMyTool();
     double prop= mpt->useTheProperty();
     EXPECT_EQ( prop, 42.0 );
