@@ -5,14 +5,11 @@
 ####################
 #Run-dependent digi job configuration file.
 #RunDependentSimData/OverrideRunLBLumiDigitConfig.py
-
-# WARNING timestamps are derived ad hoc to put them outside run-1 or run-2 periods! 
+# WARNING timestamps are derived ad hoc to put them outside run-1 or run-2 periods!
 # This is based on assumptions for beta*=60cm collisions.
-
 #We need to be able to adjust for different dataset sizes.
 if not 'ScaleTaskLength' in dir():   ScaleTaskLength = 1
 _evts = lambda x: int(ScaleTaskLength * x)
-
 if not 'logging' in dir(): import logging
 digilog = logging.getLogger('Digi_trf')
 digilog.info('doing RunLumiOverride configuration from file.')
@@ -59,9 +56,7 @@ JobMaker=[
     {'run':284500, 'lb':40, 'starttstamp':1446541525, 'dt':0.000, 'evts':_evts(13), 'mu':39.5, 'force_new':False},
     #--> end hiding
 ]
-
 include('RunDependentSimData/configCommon.py')
-
 #cleanup python memory
 if not "RunDMC_testing_configuration" in dir():
     del JobMaker
