@@ -238,24 +238,36 @@ void eflowObjectCreatorTool::createChargedEflowObjects(eflowCaloObject* energyFl
 
 //         xAOD::PFODetails::PFOAttributes myAttribute_layerCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_layerCellOrdering;
 //         myEflowObject->setAttribute<int>(myAttribute_layerCellOrdering,efRecTrack->getLayerCellOrder() );
+
+//         std::vector<int> FakeVectorInt(100,-555);
+//         std::vector<float> FakeVectorFloat(100,-555.0);
+//         efRecTrack->setLayerCellOrderVector(FakeVectorInt);
+//         std::cout << "layer fake is" << efRecTrack->getLayerCellOrderVector()[0] << std::endl;
+//         efRecTrack->setRadiusCellOrderVector(FakeVectorFloat);
+//         efRecTrack->setAvgEDensityCellOrderVector(FakeVectorFloat);
+
+
         
         std::cout << "DEBUG: Add variable layer vector" << std::endl;
+//         std::cout << "layer vector is" << efRecTrack->getLayerCellOrderVector() << std::endl;
         xAOD::PFODetails::PFOAttributes myAttribute_layerVectorCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_layerVectorCellOrdering;
         std::cout << "DEBUG: Before set attribute" << std::endl;
         myEflowObject->setAttribute<std::vector<int> >(myAttribute_layerVectorCellOrdering,efRecTrack->getLayerCellOrderVector() );
-        std::cout << "DEBUG: Add variable layer vector" << std::endl;
+
         
-        std::cout << "DEBUG: Add variable layer vector" << std::endl;
+        std::cout << "DEBUG: Add variable radius vector" << std::endl;
+        std::cout << "radius vector is" << efRecTrack->getRadiusCellOrderVector()[0] << std::endl;
         xAOD::PFODetails::PFOAttributes myAttribute_radiusVectorCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_radiusVectorCellOrdering;
         std::cout << "DEBUG: Before set attribute" << std::endl;
         myEflowObject->setAttribute<std::vector<float> >(myAttribute_radiusVectorCellOrdering,efRecTrack->getRadiusCellOrderVector() );
-        std::cout << "DEBUG: Add variable layer vector" << std::endl;
+
         
-                std::cout << "DEBUG: Add variable layer vector" << std::endl;
+        std::cout << "DEBUG: Add variable avg. E density vector" << std::endl;
+        std::cout << "energy density vector is" << efRecTrack->getAvgEDensityCellOrderVector()[0] << std::endl;
         xAOD::PFODetails::PFOAttributes myAttribute_avgEdensityVectorCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_avgEdensityVectorCellOrdering;
         std::cout << "DEBUG: Before set attribute" << std::endl;
         myEflowObject->setAttribute<std::vector<float> >(myAttribute_avgEdensityVectorCellOrdering,efRecTrack->getAvgEDensityCellOrderVector() );
-        std::cout << "DEBUG: Add variable layer vector" << std::endl;
+        
         
 //         xAOD::PFODetails::PFOAttributes myAttribute_radiusCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_radiusCellOrdering;
 //         myEflowObject->setAttribute<int>(myAttribute_radiusCellOrdering,efRecTrack->getRadiusCellOrder() );
