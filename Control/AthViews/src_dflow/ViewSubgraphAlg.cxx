@@ -8,8 +8,8 @@
 // STL includes
 
 // FrameWork includes
-//#include "GaudiKernel/Property.h"
-
+#include "GaudiKernel/Property.h"
+#include "StoreGate/WriteHandle.h"
 #include "CxxUtils/make_unique.h"
 
 namespace AthViews {
@@ -25,7 +25,6 @@ ViewSubgraphAlg::ViewSubgraphAlg( const std::string& name,
   ::AthAlgorithm( name, pSvcLocator ),
   m_w_views( "all_views" ),
   m_w_int( "view_start" ),
-  m_w_allViewsDone( "all_views_done_dflow" ),
   m_algorithmNameSequence( std::vector< std::string >() ),
   m_algPoolName( "" ),
   m_viewBaseName( "" ),
@@ -37,8 +36,6 @@ ViewSubgraphAlg::ViewSubgraphAlg( const std::string& name,
 
   declareProperty( "ViewStart", m_w_int, "A number to start off the view" );
   
-  declareProperty( "AllViewsDone", m_w_allViewsDone, "Data flow to indicate that all views have been completed" );
-
   declareProperty( "AllViews", m_w_views, "All views" );
 
   declareProperty( "ViewBaseName", m_viewBaseName, "Name to use for all views - number will be appended" );
@@ -62,6 +59,9 @@ StatusCode ViewSubgraphAlg::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
+  CHECK( m_w_int.initialize() );
+  CHECK( m_w_views.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -76,9 +76,6 @@ StatusCode ViewSubgraphAlg::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  //Create the container of views
-  m_w_views.record( CxxUtils::make_unique< std::vector< SG::View* > >() );
-
 #ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
   const EventContext& ctx = getContext();
 #else
@@ -87,27 +84,28 @@ StatusCode ViewSubgraphAlg::execute()
   
   //Make a vector of dummy data to initialise the views
   std::vector<int> viewData;
+  std::vector< SG::View* > viewVector;
   for ( int viewIndex = 0; viewIndex < m_viewNumber; ++viewIndex )
   {
     viewData.push_back( ( viewIndex * 10 ) + 10 + ctx.evt() );
   }
 
   //Create the views and populate them
+  SG::WriteHandle< int > viewStartHandle( m_w_int, ctx );
   CHECK( ViewHelper::MakeAndPopulate( m_viewBaseName,	//Base name for all views to use
-					*m_w_views,	//Vector to store views (within writehandle)
-					m_w_int,	//A writehandle to use to access the views (the handle itself, not the contents)
+					viewVector,	//Vector to store views
+					viewStartHandle,//A writehandle to use to access the views (the handle itself, not the contents)
 					viewData ) );	//Data to initialise each view - one view will be made per entry
 
-  //Specify algorithms to run in views (data flow info not available yet)
-  //std::vector< std::string > algorithmNameSequence = { "dflow_alg1", "dflow_alg2", "dflow_alg3" };
-
-  CHECK( ViewHelper::RunViews( *m_w_views,					//View vector
+  //Run the algorithms in views
+  CHECK( ViewHelper::RunViews( viewVector,					//View vector
 				m_algorithmNameSequence,			//Algorithms to run in each view
-				ctx,				//Context to attach the views to
+				ctx,						//Context to attach the views to
 				serviceLocator()->service( m_algPoolName ) ) );	//Service to retrieve algorithms by name
 
-  //Make a dummy output to organise data flow
-  m_w_allViewsDone.record( CxxUtils::make_unique<int>( 1 ) );
+  //Store the collection of views
+  SG::WriteHandle< std::vector< SG::View* > > outputViewHandle( m_w_views, ctx );
+  outputViewHandle.record( CxxUtils::make_unique< std::vector< SG::View* > >( viewVector ) );
 
   return StatusCode::SUCCESS;
 }

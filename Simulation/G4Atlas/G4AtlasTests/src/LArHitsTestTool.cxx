@@ -158,7 +158,7 @@ StatusCode LArHitsTestTool::processEvent() {
     m_phi->Fill(phi);
     m_time->Fill( (*hi)->time(),energy);
     m_edep->Fill( energy);
-    m_log_edep->Fill( log(energy));
+    m_log_edep->Fill( energy > 0 ? log(energy) : -1 );
 		 
     m_zr->Fill(z,radius);
     m_etaphi->Fill(eta,phi);

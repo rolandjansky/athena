@@ -1,4 +1,3 @@
-AthAlgSeq            INFO Member list: AthPoolEx::ReadData/ReadData, RunEventTagWriter, RegistrationStreamDefMeta/DefaultCollMeta
 ReadData            DEBUG Property update for OutputLevel : new value = 2
 ReadData             INFO in initialize()
 EventSelector       DEBUG Property update for OutputLevel : new value = 2
@@ -15,7 +14,6 @@ EventSelector       DEBUG Try item: "PFN:NullableCollection.root" from the colle
 ReadData            DEBUG input handles: 0
 ReadData            DEBUG output handles: 0
 ReadData            DEBUG Data Deps for ReadData
-AthRegSeq            INFO Member list: RegistrationStream/FullColl
 FullColl.FullCo...  DEBUG Property update for OutputLevel : new value = 2
 FullColl            DEBUG Property update for OutputLevel : new value = 2
 FullColl            DEBUG In initialize 

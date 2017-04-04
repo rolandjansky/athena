@@ -12,6 +12,7 @@ from AthenaServices.AthenaServicesConf import AthenaOutputStream
 from OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
 
 def createOutputStream( streamName, fileName = "", asAlg = False ):
+   # define athena output stream
    writingTool = AthenaPoolOutputStreamTool( streamName + "Tool" )
    writingTool.DataHeaderSatellites = [ "basic/:EventInfo#*" ]
    outputStream = AthenaOutputStream(
@@ -21,9 +22,20 @@ def createOutputStream( streamName, fileName = "", asAlg = False ):
       )
    outputStream.MetadataStore = svcMgr.MetaDataStore
    outputStream.MetadataItemList = [ "EventStreamInfo#" + streamName, "IOVMetaDataContainer#*" ]
+
+   # build eventinfo attribute list
+   from OutputStreamAthenaPoolConf import EventInfoAttListTool
+   svcMgr.ToolSvc += EventInfoAttListTool()
+
+   from OutputStreamAthenaPoolConf import EventInfoTagBuilder
+   EventInfoTagBuilder   = EventInfoTagBuilder(AttributeList="SimpleTag")
+
+   from AthenaCommon.AlgSequence import AlgSequence
+   topSequence = AlgSequence()
+   topSequence += EventInfoTagBuilder
+
+   # decide where to put outputstream in sequencing
    if asAlg:
-      from AthenaCommon.AlgSequence import AlgSequence
-      topSequence = AlgSequence()
       topSequence += outputStream
    else:
       theApp.OutStreamType = "AthenaOutputStream"
@@ -35,6 +47,7 @@ def createOutputStream( streamName, fileName = "", asAlg = False ):
       streamInfoTool = MakeEventStreamInfo( streamName + "_MakeEventStreamInfo" )
       streamInfoTool.Key = streamName
       outputStream.HelperTools = [ streamInfoTool ]
+
    return outputStream
 
 def createOutputConditionStream( streamName, fileName = "" ):

@@ -3,7 +3,7 @@
 */
 
 #include "ElectronPhotonFourMomentumCorrection/e1hg_systematics.h"
-
+#include "PathResolver/PathResolver.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -17,11 +17,8 @@
 e1hg_systematics::e1hg_systematics()
 {
 
-#ifdef ROOTCORE
-  m_file0 = TFile::Open("$ROOTCOREBIN/data/ElectronPhotonFourMomentumCorrection/e1hg_systematics_histos.root");
-#else
-  m_file0 = TFile::Open( PathResolver::find_file("ElectronPhotonFourMomentumCorrection/e1hg_systematics_histos.root", "XMLPATH").c_str() );
-#endif
+  m_file0 = TFile::Open( PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/e1hg_systematics_histos.root").c_str() );
+
 
   for (Int_t ieta=0;ieta<8;ieta++) {
      char name[60];

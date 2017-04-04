@@ -15,8 +15,8 @@
 #include "MSVertexUtils/Tracklet.h"
 #include <utility>
 #include <vector>
-
-
+#include "xAODTracking/TrackParticleContainer.h"
+#include "MuonPrepRawData/MdtPrepDataContainer.h"
 namespace Muon {
 
   class MSVertexTrackletTool : virtual public IMSVertexTrackletTool, public AthAlgTool
@@ -39,7 +39,6 @@ namespace Muon {
     const MdtIdHelper* m_mdtIdHelper;
     static const MdtIdHelper* s_mdtCompareIdHelper;
 
-    std::string m_TPContainer;
     float m_SeedResidual;
     float m_minSegFinderChi2;
     float m_BarrelDeltaAlphaCut;
@@ -51,7 +50,6 @@ namespace Muon {
 
     bool m_tightTrackletRequirement;
 
-    int m_nMDT;
     float m_PI;
     float m_BIL;
     float m_BML;
@@ -76,11 +74,12 @@ namespace Muon {
     float TrackMomentumError(TrackletSegment& ml1, TrackletSegment& ml2);
     float TrackMomentumError(TrackletSegment& ml1);
     std::vector<Tracklet> ResolveAmbiguousTracklets(std::vector<Tracklet>& tracks);
-    void convertToTrackParticles(std::vector<Tracklet>& tracklets);
+    void convertToTrackParticles(std::vector<Tracklet>& tracklets, SG::WriteHandle<xAOD::TrackParticleContainer> &container);
     float sq(float x) { return (x)*(x); }
     static bool mdtComp(const Muon::MdtPrepData* mprd1, const Muon::MdtPrepData* mprd2);
     void addMDTHits( std::vector<Muon::MdtPrepData*>& hits, std::vector<std::vector<Muon::MdtPrepData*> >& SortedMdt ) const;
-
+    SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtTESKey;//"MDT_DriftCircles"
+    SG::WriteHandleKey<xAOD::TrackParticleContainer> m_TPContainer;
   };
   
   

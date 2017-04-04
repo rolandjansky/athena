@@ -86,10 +86,6 @@
 class IAtRndmGenSvc;
 class ILumiBlockMuTool;
 
-// Pedestal Correction
-#include "TProfile.h"
-class ITHistSvc;
-
 namespace LVL1
 {
 
@@ -443,9 +439,6 @@ class TriggerTowerMaker : public AthAlgorithm,
     int  IetaToElement(int eta, int layer);
     void initLUTsPrepare(const std::vector< std::vector< std::vector<double> > >& PulsesElement);
 
-  protected:
-    //  Athena hist service
-    ServiceHandle<ITHistSvc> m_thistSvc;
 };
 
 } // end of namespace bracket

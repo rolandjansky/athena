@@ -57,15 +57,6 @@ public:
   /// Retrieves secondaries from a static SecondaryTracksHelper.
   std::vector<G4Track*> GetSecondaries();
 
-  /// Construct and return a GenVertex from the space-time 4-vector of the step point.
-  HepMC::GenVertex* StepPoint2Vertex(G4StepPoint*) const;
-  /// Construct and return a GenParticle from the track kinematics and pdg ID.
-  HepMC::GenParticle* Track2Particle(G4Track*) const;
-
-  /// Construct GenVertex, fill with GenParticles, and save it to GenEvent.
-  /// N.B. using this isn't thread-safe. Migrate to TruthStrategyUtils instead.
-  void SaveSecondaryVertex(G4Track*, G4StepPoint*, const std::vector<G4Track*>&) const;
-
 private:
   TruthStrategyManager();
   TruthStrategyManager(const TruthStrategyManager&) = delete;

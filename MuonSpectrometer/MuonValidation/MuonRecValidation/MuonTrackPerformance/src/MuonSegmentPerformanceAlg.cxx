@@ -13,11 +13,13 @@ MuonSegmentPerformanceAlg::MuonSegmentPerformanceAlg(const std::string& name, IS
   : 
   AthAlgorithm(name, pSvcLocator),
   m_writeToFile (false),
+  m_segmentKey("MuonSegments"),
+  m_truthSegmentKey( "MuonTruthSegments"),
   m_nevents(0),
   m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {
-  declareProperty("SegmentLocation",      m_segmentLocation = "MuonSegments");
-  declareProperty("TruthSegmentLocation", m_truthSegmentLocation = "MuonTruthSegments");
+  declareProperty("SegmentLocation",      m_segmentKey);
+  declareProperty("TruthSegmentLocation", m_truthSegmentKey);
   declareProperty("writeToFile",          m_writeToFile = false);
   declareProperty("FileName",             m_fileName = "MuonSegmentPerformanceAlg.txt" );
 
@@ -40,16 +42,20 @@ StatusCode MuonSegmentPerformanceAlg::initialize()
     m_nfound[i].resize(Muon::MuonStationIndex::ChIndexMax,0);
     m_nfake[i].resize(Muon::MuonStationIndex::ChIndexMax,0);
   }
+
+  if(!m_segmentKey.key().empty()) ATH_CHECK(m_segmentKey.initialize());
+  if(!m_truthSegmentKey.key().empty()) ATH_CHECK(m_truthSegmentKey.initialize());
+
   return StatusCode::SUCCESS;
 }
  
 StatusCode MuonSegmentPerformanceAlg::execute()
 {
-  xAOD::MuonSegmentContainer* segments = 0;
-  if( !retrieve(m_segmentLocation,segments) || !segments ) return StatusCode::SUCCESS;
+  const xAOD::MuonSegmentContainer* segments = 0;
+  if( !retrieve(m_segmentKey,segments) || !segments ) return StatusCode::SUCCESS;
 
-  xAOD::MuonSegmentContainer* truthSegments = 0;
-  if( !retrieve(m_truthSegmentLocation,truthSegments) || !truthSegments ) return StatusCode::SUCCESS;
+  const xAOD::MuonSegmentContainer* truthSegments = 0;
+  if( !retrieve(m_truthSegmentKey,truthSegments) || !truthSegments ) return StatusCode::SUCCESS;
   std::set<const xAOD::MuonSegment*> matchedSegments;
   ++m_nevents;
 
@@ -182,15 +188,15 @@ StatusCode MuonSegmentPerformanceAlg::finalize()
   return StatusCode::SUCCESS;
 }
 
-bool MuonSegmentPerformanceAlg::retrieve( std::string location, xAOD::MuonSegmentContainer*& segments ) const {
-  if(evtStore()->contains<xAOD::MuonSegmentContainer>(location)) {
-    if(evtStore()->retrieve(segments,location).isFailure()) {
-      ATH_MSG_WARNING( "Unable to retrieve " << location );
+bool MuonSegmentPerformanceAlg::retrieve(const SG::ReadHandleKey<xAOD::MuonSegmentContainer>& segments, const xAOD::MuonSegmentContainer*& ptr ) const {
+  SG::ReadHandle<xAOD::MuonSegmentContainer> handle(segments);
+  if(!handle.isPresent() || !handle.isValid()) { //Cautious isPresent TODO remove once job options are more intelligent
+      ATH_MSG_WARNING( "Unable to retrieve " << segments.key() );
+      ptr=nullptr;
       return false;
-    }
-  } 
-  ATH_MSG_DEBUG( "Retrieved " << location << " size " << segments->size() );
- 
+  }
+  ptr = handle.cptr();    
+  ATH_MSG_DEBUG( "Retrieved " << segments.key() << " size " << ptr->size() );
   return true;
 }
  

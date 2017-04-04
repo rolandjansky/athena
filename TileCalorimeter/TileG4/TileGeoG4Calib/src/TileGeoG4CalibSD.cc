@@ -212,7 +212,7 @@ TileGeoG4CalibSD::~TileGeoG4CalibSD() {
 void TileGeoG4CalibSD::Initialize(G4HCofThisEvent* /*HCE*/) {
   if (verboseLevel > 5) G4cout << "Initializing SD" << G4endl;
 
-#ifdef ATHENAHIVE
+#ifdef G4MULTITHREADED
   // Temporary fix for Hive until isValid is fixed
   m_tileActiveCellCalibHits = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_tileActiveCellCalibHits.name());
   m_tileInactiveCellCalibHits = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_tileInactiveCellCalibHits.name());

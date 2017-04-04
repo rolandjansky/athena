@@ -2,11 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/CloneService.h"
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/tools/SGImplSvc.h"
 #include "SGHiveMgrSvc.h"
+
 using namespace SG;
 
 __thread HiveEventSlot* s_current(0);
@@ -149,6 +151,14 @@ StatusCode HiveMgrSvc::initialize() {
   //use hiveStore default impl store as prototype
   Service* child(0);
   SGImplSvc* pSG(0);
+  ServiceHandle<IIncidentSvc> pincSvc("IncidentSvc",name());
+  if(!(pincSvc.retrieve().isSuccess())){
+    error()<<"Failed to retrieve incident Svc"<<endmsg;
+    return StatusCode::FAILURE;
+  }
+  const int PRIORITY=100;
+  pincSvc->addListener(this, "EndEvent",PRIORITY);
+  pincSvc->addListener(this, "BeginEvent", PRIORITY);
 
   for( size_t i = 0; i< m_nSlots; ++i) {
     std::ostringstream oss;
@@ -164,8 +174,14 @@ StatusCode HiveMgrSvc::initialize() {
       return StatusCode::FAILURE;
     }
   }
+  
   return selectStore(0);
 }
+
+void HiveMgrSvc::handle(const Incident &inc) {
+  m_slots.at(inc.context().slot()).pEvtStore->handle(inc);
+}
+
 StatusCode HiveMgrSvc::finalize() {
   info() <<  "Finalizing " << name() 
          << " - package version " << PACKAGE_VERSION << endmsg ;

@@ -8,7 +8,7 @@ JobOptionsSvc        INFO Job options successfully read in from ../share/VarHand
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v28r1)
-                                          running on lxplus050.cern.ch on Fri Mar 17 15:25:16 2017
+                                          running on lxplus090.cern.ch on Mon Mar 20 16:42:04 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ClassIDSvc           INFO  getRegistryEntries: read 217 CLIDRegistry entries for module ALL
@@ -40,6 +40,7 @@ ServiceManager      FATAL No Service factory for FooSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service FooSvc
                     FATAL FILE:LINE (StatusCode SG::VarHandleKey::initialize(bool)): code 0: m_storeHandle.retrieve()
 VarHandle(FooSv...  FATAL FILE:LINE (StatusCode SG::VarHandleBase::initialize(bool)): code 0: VarHandleKey::initialize()
+VarHandle(FooSv...  FATAL FILE:LINE (StatusCode SG::VarHandleBase::setState()): code 0: initialize()
 test6
 test7
 ServiceManager      FATAL No Service factory for FooSvc available.
@@ -54,7 +55,7 @@ VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointe
 VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_fromProxy(SG::DataProxy*, bool) const): Proxy  [293847295/foo] is in an invalid state
 VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_fromProxy(SG::DataProxy*, bool) const): Request for an invalid object; requested CLID = 293847295, proxy primary ID is 293847296
 test9
-VarHandleBase @0x7ffd1bdcb870 store=FooSvc, clid=293847295, key=foo----------- ptr@0, proxy@0
+VarHandleBase @0x7ffd4a4b1950 store=FooSvc, clid=293847295, key=foo----------- ptr@0, proxy@0
 test10
 ServiceManager      FATAL No Service factory for FooSvc available.
 VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service FooSvc

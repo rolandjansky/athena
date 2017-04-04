@@ -48,6 +48,9 @@ StatusCode ReadData::initialize(){
   StatusCode sc = evtStore().retrieve();
   if (!sc.isSuccess()) 
     ATH_MSG_ERROR ("Could not find StoreGateSvc");
+
+  ATH_CHECK( m_dobj3.assign (m_DataProducer) );
+  ATH_CHECK( m_dobj3.initialize() );
   return sc;
 }
 
@@ -110,6 +113,10 @@ StatusCode ReadData::execute() {
   } else {
     dobj3->val(4);   // should be able to do this
   }
+
+  // Also check retrieving it as a const object via ReadHandle.
+  assert (m_dobj3->val() == 4);
+
   //not every type can be used as a key.
   //These requirements are checked at compile time in the record method
   //using StoreGate/constraints/KeyConcept.h

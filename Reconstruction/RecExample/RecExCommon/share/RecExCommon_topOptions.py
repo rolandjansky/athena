@@ -470,20 +470,22 @@ pdr.flag_domain('admin')
 # one print every 100 event
 topSequence+=EventCounter(Frequency=100)
 
-
 #Temporary: Schedule conversion algorithm for EventInfo object:
 # Note that we need to check whether the HLT already added this algorithm to the
 # algorithm sequence!
 #FIXME: Subsequent algorithms may alter the event info object (setting Error bits)
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+
 if( ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
         ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
     from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-    topSequence+=xAODMaker__EventInfoCnvAlg()
+    condSeq+=xAODMaker__EventInfoCnvAlg()
     pass
 
 # Conditions data access infrastructure for serial and MT Athena
 from IOVSvc.IOVSvcConf import CondInputLoader
-topSequence += CondInputLoader( "CondInputLoader")
+condSeq += CondInputLoader( "CondInputLoader")
 
 import StoreGate.StoreGateConf as StoreGateConf
 svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
@@ -945,16 +947,7 @@ if rec.doWriteTAG():
         rec.doWriteTAG=False
         treatException("Could not include EventTagAlgs/EventTag_jobOptions.py. Disable TAG writing")
 else: # minimal TAG to be written into AOD
-    try:
-        include( "EventTagAlgs/GlobalEventTagBuilder_jobOptions.py" )
-        from EventTagUtils.EventTagUtilsConf import GlobalEventTagTool
-        GlobalEventTagTool.IncludeEventFlag     = False
-        GlobalEventTagTool.IncludeExtras        = True
-        GlobalEventTagTool.IncludeRecoTime      = False
-        GlobalEventTagTool.IncludeVertexFlag    = False
-        GlobalEventTagTool.UseMC                = False
-    except Exception:
-        print "WARNING Could not include EventTagAlgs/GlobalEventTagBuilder_jobOptions.py, OK for ATN."
+    print "Using EventInfoAttList"
 
 if rec.doWriteRDO():
     #Create output StreamRDO
@@ -1472,8 +1465,9 @@ if rec.doWriteAOD():
     StreamAOD=StreamAOD_Augmented.GetEventStream()
 
     ## Add TAG attribute list to payload data
+    from EventTagAlgs.EventTagGlobal import EventTagGlobal
     try:
-        StreamAOD_Augmented.GetEventStream().WritingTool.AttributeListKey = EventTagGlobal.AttributeList
+        StreamAOD.WritingTool.AttributeListKey = EventTagGlobal.AttributeList
     except:
         logRecExCommon_topOptions.warning("Failed to add TAG attribute list to payload data")
 

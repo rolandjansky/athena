@@ -55,8 +55,8 @@ std::unique_ptr<egGain::GainTool> gainToolFactory(egEnergyCorr::ESModel model)
     case egEnergyCorr::es2015_day0_3percent:
     case egEnergyCorr::es2016PRE:
     {
-      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsTO.root");
-      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsG_all.root");
+      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
+      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
       return CxxUtils::make_unique<egGain::GainTool>(gain_filename1, gain_filename2);
     }
     case egEnergyCorr::es2017:
@@ -452,18 +452,6 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
   ATH_MSG_INFO("use uA2MeV correction 2015 1/2 week = " << m_use_uA2MeV_2015_first2weeks_correction);
   //ATH_MSG_INFO("use AFII = " << m_use_AFII); ... print in beginInputFile now, since that's where we check it's value
 
-  //pileup reweighting tool
-  /*ATH_MSG_DEBUG("initializing pileup tool");
-  m_pileupRW.setTypeAndName("CP::PileupReweightingTool/PileUpReweighting");
-  ATH_MSG_DEBUG("done");
-  std::string lumicalc_2015 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/ilumicalc_histograms_None_276262-284484_OflLumi-13TeV-005.root");
-  std::string lumicalc_2016 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/ilumicalc_histograms_None_297730-311481_OflLumi-13TeV-005.root");
-  std::vector<std::string> lumicalc_files;
-  lumicalc_files.push_back(lumicalc_2015);
-  lumicalc_files.push_back(lumicalc_2016);
-  ANA_CHECK( m_pileupRW.setProperty( "LumiCalcFiles", lumicalc_files) );
-  if (m_pileupRW.retrieve().isFailure()) { ATH_MSG_FATAL("Failed to create pileup reweighting tool"); }
-*/
   setupSystematics();
 
   applySystematicVariation(CP::SystematicSet()).ignore();   // this set the flags for the internal tool without systematics

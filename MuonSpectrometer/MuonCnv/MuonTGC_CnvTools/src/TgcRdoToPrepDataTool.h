@@ -19,6 +19,8 @@
 #include "MuonRDO/TgcRdo.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
 
+#include "MuonRDO/TgcRdoContainer.h"
+
 class AtlasDetectorID;
 class Identifier;
 
@@ -55,19 +57,19 @@ namespace Muon
       virtual ~TgcRdoToPrepDataTool();
       
       /** Query the IMuonRdoToPrepDataTool interface */
-      StatusCode queryInterface(const InterfaceID& riid, void** ppvIf);
+      StatusCode queryInterface(const InterfaceID& riid, void** ppvIf) override;
       
       /** Standard AthAlgTool initialize method */
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
       /** Standard AthAlgTool finalize method */
-      virtual StatusCode finalize();
+      virtual StatusCode finalize() override;
       
       /** Decode RDO to PRD  
        *  A vector of IdentifierHash are passed in, and the data corresponding to this list (i.e. in a Region of Interest) are converted.  
        *  @param requestedIdHashVect          Vector of hashes to convert i.e. the hashes of ROD collections in a 'Region of Interest'  
        *  @return selectedIdHashVect This is the subset of requestedIdVect which were actually found to contain data   
        *  (i.e. if you want you can use this vector of hashes to optimise the retrieval of data in subsequent steps.) */ 
-      StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect);
+      StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) override;
 
       /** Print Input RDO for debugging */ 
       void printInputRdo();
@@ -352,7 +354,7 @@ namespace Muon
       std::vector<uint16_t> m_hashToOnlineId;
 
       /** Vector of RDO collections already decoded in the event */
-      std::vector<const TgcRdo*> *m_decodedRdoCollVec;
+      std::vector<const TgcRdo*> m_decodedRdoCollVec;
 
       /** Switch for error message disabling on one invalid channel in 
 	  sector A09 seen in 2008 data, at least run 79772 - 91800. 
@@ -364,7 +366,7 @@ namespace Muon
       /** Flag for dropping PRD's with zero widths */
       bool m_dropPrdsWithZeroWidth;
       /** Cut value for zero widths */ 
-      static const double s_cutDropPrdsWithZeroWidth;
+      const static double s_cutDropPrdsWithZeroWidth; // 0.1 mm
 
       /** long to count the numbers of RDOs and PRDs */
       long m_nHitRDOs;
@@ -380,6 +382,11 @@ namespace Muon
 
       /** Flag to distinguish 12-fold cabling and 8-fold cabling */
       bool m_is12fold;
+
+
+      SG::ReadHandle<TgcRdoContainer> m_rdoContainer;//"TGCRDO"
+      SG::WriteHandleKeyArray<Muon::TgcCoinDataContainer> m_outputCoinKeys;
+      SG::WriteHandleKeyArray<TgcPrepDataContainer> m_outputprepdataKeys;
 
       /** Aboid compiler warning **/
       virtual StatusCode decode( const std::vector<uint32_t>& /*robIds*/ ) {return StatusCode::FAILURE;}

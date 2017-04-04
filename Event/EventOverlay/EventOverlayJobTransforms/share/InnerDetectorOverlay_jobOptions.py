@@ -29,7 +29,7 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 
         indetovl.do_Pixel = True
         if readBS and isRealData:
-           job.InDetPixelRawDataProvider.EvtStore = "OriginalEvent_SG"
+           job.InDetPixelRawDataProvider.RDOKey = "OriginalEvent_SG/PixelRDOs"
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "PixelRDO_Container/PixelRDOs" ]
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::PixelClusterContainer/PixelOnlineClusters" ]
     else:

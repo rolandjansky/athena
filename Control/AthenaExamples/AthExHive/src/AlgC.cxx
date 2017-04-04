@@ -4,7 +4,6 @@
 
 #include "AlgC.h"
 
-#include "CxxUtils/make_unique.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -12,6 +11,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include <thread>
 #include <chrono>
+#include <memory>
 
 
 AlgC::AlgC( const std::string& name, 

@@ -9,6 +9,7 @@ atlas_subdir( DetDescrConditions )
 atlas_depends_on_subdirs( PUBLIC
                           Control/CLIDSvc
                           Control/SGTools
+			  Control/AthenaKernel
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/Identifier
                           GaudiKernel )

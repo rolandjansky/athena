@@ -58,6 +58,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "CscClusterization/ICscClusterBuilder.h"
+#include "MuonPrepRawData/CscPrepDataContainer.h"
+#include "MuonPrepRawData/CscStripPrepDataContainer.h"
 
 class ICscCalibTool;
 class ICscStripFitter;
@@ -120,8 +122,8 @@ private:  // data
   float m_kFactor;
   std::string m_noiseOptionStr;
   NoiseOption m_noiseOption;
-  std::string m_digit_key;        // SG key for input digits
-  std::string m_cluster_key;      // SG key for output clusters
+  SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_digit_key;        // SG key for input digits
+  SG::WriteHandle<Muon::CscPrepDataContainer> m_pclusters;      // SG key for output clusters
 
   // Calibration tool.
   ToolHandle<ICscCalibTool> m_cscCalibTool;
@@ -136,9 +138,6 @@ private:  // data
 
   // Pointer to muon geometry manager.
   const MuonGM::MuonDetectorManager* m_pmuon_detmgr;
-
-  // Cluster container.
-  Muon::CscPrepDataContainer* m_pclusters;
 
   // Geometry helper.
   const CscIdHelper* m_phelper;

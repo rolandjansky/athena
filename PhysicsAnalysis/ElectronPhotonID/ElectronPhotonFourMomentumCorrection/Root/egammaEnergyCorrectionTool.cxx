@@ -378,8 +378,8 @@ namespace AtlasRoot {
       m_endRunNumber = 194382;
 
 
-      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsTO.root");
-      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsG_all.root");
+      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
+      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
       m_gain_tool = new egGain::GainTool(gain_filename1, gain_filename2);
 
       m_e1hg_tool = new e1hg_systematics();
@@ -449,8 +449,8 @@ namespace AtlasRoot {
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
 
-      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsTO.root");
-      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsG_all.root");
+      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
+      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
       m_gain_tool = new egGain::GainTool(gain_filename1, gain_filename2);
 
       m_e1hg_tool = new e1hg_systematics();
@@ -500,8 +500,8 @@ namespace AtlasRoot {
       m_endRunNumber = 219365;
 
 
-      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsTO.root");
-      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsG_all.root");
+      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
+      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
       m_gain_tool = new egGain::GainTool(gain_filename1, gain_filename2);
 
       m_e1hg_tool = new e1hg_systematics();
@@ -563,8 +563,8 @@ namespace AtlasRoot {
       m_G4OverAFII_resolution_unconverted->SetDirectory(0);
       m_G4OverAFII_resolution_converted->SetDirectory(0);
 
-      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsTO.root");
-      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsG_all.root");
+      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
+      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
       m_gain_tool = new egGain::GainTool(gain_filename1, gain_filename2);
 
       m_e1hg_tool = new e1hg_systematics();
@@ -627,8 +627,8 @@ namespace AtlasRoot {
       m_G4OverAFII_resolution_unconverted->SetDirectory(0);
       m_G4OverAFII_resolution_converted->SetDirectory(0);
 
-      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsTO.root");
-      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsG_all.root");
+      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
+      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
       m_gain_tool = new egGain::GainTool(gain_filename1, gain_filename2);
 
       m_e1hg_tool = new e1hg_systematics();
@@ -691,8 +691,8 @@ namespace AtlasRoot {
       m_G4OverAFII_resolution_unconverted->SetDirectory(0);
       m_G4OverAFII_resolution_converted->SetDirectory(0);
 
-      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsTO.root");
-      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsG_all.root");
+      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
+      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
       m_gain_tool = new egGain::GainTool(gain_filename1, gain_filename2);
 
       m_e1hg_tool = new e1hg_systematics();
@@ -757,8 +757,8 @@ namespace AtlasRoot {
       m_G4OverAFII_resolution_unconverted->SetDirectory(0);
       m_G4OverAFII_resolution_converted->SetDirectory(0);
 
-      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsTO.root");
-      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsG_all.root");
+      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
+      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
       m_gain_tool = new egGain::GainTool(gain_filename1, gain_filename2);
 
       m_e1hg_tool = new e1hg_systematics();
@@ -809,11 +809,8 @@ namespace AtlasRoot {
       // TODO: change path when moving to calibarea
       // TODO: better package this somewhere
 
-      #ifdef ROOTCORE
-      const std::string filename_pp0 = "$ROOTCOREBIN/data/ElectronPhotonFourMomentumCorrection/PP0sys.root";
-      #else
-      const std::string filename_pp0 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/PP0sys.root");
-      #endif
+      const std::string filename_pp0 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/PP0sys.root");
+      
       TFile file_pp0(filename_pp0.c_str());
       m_pp0_elec = get_object<TH2D>(file_pp0, "elec");
       m_pp0_conv = get_object<TH2D>(file_pp0, "conv");
@@ -824,11 +821,8 @@ namespace AtlasRoot {
       m_pp0_conv->SetDirectory(0);
 
       //similar case for wtots1
-      #ifdef ROOTCORE
-      const std::string filename_wstot = "$ROOTCOREBIN/data/ElectronPhotonFourMomentumCorrection/wstot_related_syst.root";
-      #else
-      const std::string filename_wstot = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/wstot_related_syst.root");
-      #endif
+      const std::string filename_wstot = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/wstot_related_syst.root");
+      
 
       TFile file_wstot(filename_wstot.c_str());
       m_wstot_slope_A_data = (TH1D*) file_wstot.Get("A_data"); m_wstot_slope_A_data->SetDirectory(0);
@@ -863,8 +857,8 @@ namespace AtlasRoot {
       m_G4OverAFII_resolution_unconverted->SetDirectory(0);
       m_G4OverAFII_resolution_converted->SetDirectory(0);
 
-      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsTO.root");
-      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsG_all.root");
+      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
+      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
       m_gain_tool = nullptr;
       m_gain_tool_run2 = new egGain::GainUncertainty();
 
@@ -916,8 +910,8 @@ namespace AtlasRoot {
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
 
-      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsTO.root");
-      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/FunctionsG_all.root");
+      const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
+      const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
       m_gain_tool = new egGain::GainTool(gain_filename1, gain_filename2);
 
       m_e1hg_tool = new e1hg_systematics();

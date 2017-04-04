@@ -4,7 +4,6 @@
 
 #include "CondAlgX.h"
 #include "AthExHive/IASCIICondDbSvc.h"
-#include "CxxUtils/make_unique.h"
 
 #include "StoreGate/WriteCondHandle.h"
 
@@ -18,6 +17,7 @@
 
 #include <thread>
 #include <chrono>
+#include <memory>
 
 CondAlgX::CondAlgX( const std::string& name, 
             ISvcLocator* pSvcLocator ) : 

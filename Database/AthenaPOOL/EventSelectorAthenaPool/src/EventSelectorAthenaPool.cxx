@@ -555,9 +555,7 @@ StatusCode EventSelectorAthenaPool::createContext(IEvtSelector::Context*& ctxt) 
 }
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
-#ifdef ATHENAHIVE
    CallMutex::scoped_lock l(m_callLock);
-#endif
    if (!m_eventStreamingTool.empty() && m_eventStreamingTool->isClient()) {
       if (eventStore()->transientContains<AthenaAttributeList>(m_attrListKey.value())) {
          const DataHandle<AthenaAttributeList> oldAttrList;

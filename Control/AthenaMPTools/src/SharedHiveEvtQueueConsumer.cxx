@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifdef ATHENAHIVE
-
 #include "SharedHiveEvtQueueConsumer.h"
 #include "copy_file_icc_hack.h"
 #include "AthenaInterprocess/ProcessGroup.h"
@@ -750,4 +748,3 @@ SharedHiveEvtQueueConsumer::initHive() {
 
 }
 
-#endif

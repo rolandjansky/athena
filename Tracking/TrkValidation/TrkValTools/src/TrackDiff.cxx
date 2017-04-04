@@ -14,13 +14,9 @@
 
 //Gaudi
 #include "GaudiKernel/ListItem.h"
-//#include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "TString.h"
 #include "TTree.h"
-
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/PropertyMgr.h"
 
 // Trk
 #include "TrkValTools/TrackDiff.h"
@@ -262,9 +258,9 @@ StatusCode Trk::TrackDiff::diff (
  
 
     // list of track state data of the reference track
-    DataList< const Trk::TrackStateData > *refTrackStateData;
+    DataVector< const Trk::TrackStateData > *refTrackStateData;
     // list of track state data of the compared track
-    DataList< const Trk::TrackStateData > *compareTrackStateData;
+    DataVector< const Trk::TrackStateData > *compareTrackStateData;
     // get data from the track states to be able to compare the surfaces and PrepRawData
     refTrackStateData     = extractDataFromTrack(referenceTrack);
     compareTrackStateData = extractDataFromTrack(comparedTrack);
@@ -276,8 +272,8 @@ StatusCode Trk::TrackDiff::diff (
     // loop over the track states of the reference track
     //   and try to find the related measurements on the
     //   comparison track
-    DataList< const Trk::TrackStateData >::iterator refIter = refTrackStateData->begin();
-    DataList< const Trk::TrackStateData >::iterator compIter = compareTrackStateData->begin();
+    DataVector< const Trk::TrackStateData >::iterator refIter = refTrackStateData->begin();
+    DataVector< const Trk::TrackStateData >::iterator compIter = compareTrackStateData->begin();
     for (; refIter != refTrackStateData->end(); refIter++) {
         // count the reference states by detector type
         //m_nRefStates[ refIter->detType() ]++;
@@ -358,7 +354,7 @@ StatusCode Trk::TrackDiff::diff (
 }
 
 /// extract track state data from the track
-DataList< const Trk::TrackStateData >* Trk::TrackDiff::extractDataFromTrack( const Trk::Track& track ) const {
+DataVector< const Trk::TrackStateData >* Trk::TrackDiff::extractDataFromTrack( const Trk::Track& track ) const {
 
     // Get pointer to track state on surfaces
     const DataVector<const Trk::TrackStateOnSurface>* trackStates = track.trackStateOnSurfaces();
@@ -368,7 +364,7 @@ DataList< const Trk::TrackStateData >* Trk::TrackDiff::extractDataFromTrack( con
     }
 
     // create the vector of extracted data
-    DataList< const Trk::TrackStateData >* trackStateData = new DataList< const Trk::TrackStateData >;
+    DataVector< const Trk::TrackStateData >* trackStateData = new DataVector< const Trk::TrackStateData >;
 
     // track state iterator
     DataVector<const Trk::TrackStateOnSurface>::const_iterator iter = trackStates->begin();

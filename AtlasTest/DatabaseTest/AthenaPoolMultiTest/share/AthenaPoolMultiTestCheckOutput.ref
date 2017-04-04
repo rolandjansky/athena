@@ -1,4 +1,3 @@
-AthAlgSeq            INFO Member list: AthPoolEx::ReadData/ReadData
 ReadData             INFO in initialize()
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 

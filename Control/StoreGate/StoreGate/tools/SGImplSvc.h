@@ -1198,29 +1198,6 @@ void SG_dump (SGImplSvc* sg, const char* fname);
 
 #include "StoreGate/tools/SGImplSvc.icc"
 
-// FIXME!!!
-// #ifndef ATHENAHIVE
-// //- PyGate: StoreGate access from python -------------------------------------
-// template< class T >
-// struct PyGate {
-//   // default object retrieval
-//   static const T* retrieve( SGImplSvc* psg ) {
-//     const T* obj = 0;
-//     if ( StatusCode::SUCCESS == psg->retrieve( obj ) )
-//       return obj;
-//     return 0;
-//   }
-
-//   // object retrieval with string key
-//   static const T* retrieve( SGImplSvc* psg, const std::string& key ) {
-//     const T* obj = 0;
-//     if ( StatusCode::SUCCESS == psg->retrieve( obj, key ) )
-//       return obj;
-//     return 0;
-//   }
-// };
-// #endif
-
 // inline methods
 inline
 bool 

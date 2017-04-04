@@ -404,8 +404,6 @@ namespace Analysis {
 	for(uint i=0;i<m_folders.size();i++) {
 	  if((*itr)==m_folders[i]) {
 	    ATH_MSG_DEBUG( "#BTAG# Key and folder match: " << (*itr) );
-	    std::map<std::string, std::pair<TObject*, bool> >::iterator mI = m_histos[i].begin();
-	    std::map<std::string, std::pair<TObject*, bool> >::iterator mE = m_histos[i].end();
 
 	    for(unsigned int j=0; j<m_originalChannels.size(); ++j){
 

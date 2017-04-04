@@ -22,10 +22,10 @@ public:
   
 private:
   // DetailedTrackTruthCollection input name
-  std::string m_detailedTrackTruthName;
+  SG::ReadHandleKey<DetailedTrackTruthCollection> m_detailedTrackTruthName;
 
   // TrackTruthCollection output name
-  std::string m_outputName;
+  SG::WriteHandleKey<TrackTruthCollection> m_outputName;
 
   // Subdetector weights
   std::vector<double> m_subDetWeights;
