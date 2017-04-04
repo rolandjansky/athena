@@ -22,9 +22,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "AthenaMonitoring/IMonitoredVariable.h"
-#include "AthenaMonitoring/MonitoredScope.h"
-#include "AthenaMonitoring/MonitoredScalar.h"
-#include "AthenaMonitoring/MonitoredCollection.h"
 
 /**
  * @brief Basic monitoring tool for the HLT trigger.
@@ -262,5 +259,9 @@ private:
   std::vector<std::string> m_histograms;                           //!< property (list of histogram definitions)
   std::map<std::string, MonGroup*> m_histogramCategory;            //!< predefined categories (drive booking paths)
 };
+
+#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/MonitoredScalar.h"
+#include "AthenaMonitoring/MonitoredCollection.h"
 
 #endif /* AthenaMonitoring_GenericMonitoringTool_h */
