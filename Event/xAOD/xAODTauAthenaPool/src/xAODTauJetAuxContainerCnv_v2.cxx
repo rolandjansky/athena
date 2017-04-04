@@ -14,9 +14,15 @@
 #include "xAODTau/versions/TauJetContainer_v2.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauTrackContainer.h"
+#include "xAODTau/TauTrackAuxContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 // Local include(s):
 #include "xAODTauJetAuxContainerCnv_v2.h"
+
+// StoreGateSvc
+#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 /// Convenience macro for setting the level of output messages
 #define MSGLVL MSG::DEBUG
@@ -35,13 +41,34 @@ xAODTauJetAuxContainerCnv_v2::xAODTauJetAuxContainerCnv_v2()
 
 }
 
+
+ServiceHandle<StoreGateSvc> evtStore ("StoreGateSvc", "tauJetCnv_v2");
+
+
 void xAODTauJetAuxContainerCnv_v2::
 persToTrans( const xAOD::TauJetAuxContainer_v2* oldObj,
              xAOD::TauJetAuxContainer* newObj,
              MsgStream& log ) {
 
+  if (evtStore.retrieve().isFailure()) {
+    ATH_MSG("Cannot get StoreGateHandle");
+    return;
+  }
+
+
    // Greet the user:
    ATH_MSG( "Converting xAOD::TauJetAuxContainer_v2 to current version..." );
+
+   xAOD::TauTrackContainer* pTracks = nullptr; 
+   xAOD::TauTrackAuxContainer* pAuxTracks = nullptr; 
+   if(m_key.length()){
+     //m_key is set in xAODTauJetAuxContainerCnv.cxx
+     //if reading data, then trigger calls T/P converter directly
+     //and the key is not set.  In this case, forget about TauTracks
+     pTracks = new xAOD::TauTrackContainer();
+     pAuxTracks = new xAOD::TauTrackAuxContainer();
+     pTracks->setStore(pAuxTracks);
+   }
 
    // Clear the transient object:
    newObj->resize( 0 );
@@ -55,12 +82,7 @@ persToTrans( const xAOD::TauJetAuxContainer_v2* oldObj,
    xAOD::TauJetContainer newInt;
    newInt.setStore( newObj );
 
-   // xAOD::TauTrackContainer* pTracks = new xAOD::TauTrackContainer();
-   // ATH_CHECK( evtStore()->record( pTracks, "TauTracks") );
-   // xAOD::TauTrackAuxContainer* pAuxTracks = new xAOD::TauTrackAuxContainer();
-   // ATH_CHECK( evtStore()->record( pAuxTracks, "TauTracksAux." ));
-   // pTracks->setStore( pAuxTracks );
-   
+  
    // Loop over the interface objects, and do the conversion with their help:
    for( const xAOD::TauJet_v2* oldTau : oldInt ) {
 
@@ -243,33 +265,96 @@ persToTrans( const xAOD::TauJetAuxContainer_v2* oldObj,
       newTau->setProtoNeutralPFOLinks( oldTau->protoNeutralPFOLinks() );
       newTau->setProtoChargedPFOLinks( oldTau->protoChargedPFOLinks() );
       newTau->setProtoPi0PFOLinks( oldTau->protoPi0PFOLinks() );
-     
 
-      // //
-      // //set per track track variables
-      // //
-      // for (unsigned int i = 0; i < oldTau->nTracks(); ++i) 
-      // 	{
-      // 	  //set track filter info
-      // 	  newTau->setTrackFlag(oldTau->track(i), xAOD::TauJetParameters::failTrackFilter, oldTau->trackFilterPass(i)  );
-      // 	  //set extrapolated track position
-      // 	  newTau->setTrackEtaStrip( i ,  oldTau->trackEtaStrip(i) );
-      // 	  newTau->setTrackPhiStrip( i ,  oldTau->trackPhiStrip(i) );
-      // 	}
+      if(m_key.length()==0) continue;
+      
+      for(unsigned int i = 0; i < oldTau->nTracks(); ++i){
+	ElementLink< xAOD::TrackParticleContainer > linkToTrackParticle = oldTau->trackLinks()[i];
+	if(!linkToTrackParticle.isValid()) continue;
+	xAOD::TauTrack* track = new xAOD::TauTrack();
+	pTracks->push_back(track);
+	const xAOD::TrackParticle* trackParticle=oldTau->track(i);
+        track->addTrackLink(linkToTrackParticle);
+        track->setP4(trackParticle->pt(), trackParticle->eta(), trackParticle->phi(), trackParticle->m());
+	track->setFlag(xAOD::TauJetParameters::TauTrackFlag::coreTrack, true);
+        track->setFlag(xAOD::TauJetParameters::TauTrackFlag::passTrkSelector, true);
+        track->setFlag(xAOD::TauJetParameters::TauTrackFlag::classifiedCharged, true); 
+        track->setFlag(xAOD::TauJetParameters::TauTrackFlag::unclassified, true); 
+        ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
+        linkToTauTrack.toContainedElement(*pTracks, track);
+        newTau->addTauTrackLink(linkToTauTrack);
+      }
 
-      // for (unsigned int i = 0; i < oldTau->nConversionTracks(); ++i) 
-      // 	{
-      // 	  //set conversion track flags
-      // 	  newTau->setTrackFlag(oldTau->conversionTrack(i), xAOD::TauJetParameters::isConversion, true  );
-      // 	}
+      for(unsigned int i = 0; i < oldTau->nWideTracks(); ++i){
+	ElementLink< xAOD::TrackParticleContainer > linkToTrackParticle = oldTau->wideTrackLinks()[i];
+	if(!linkToTrackParticle.isValid()) continue;
+	xAOD::TauTrack* track = new xAOD::TauTrack();
+	pTracks->push_back(track);
+	const xAOD::TrackParticle* trackParticle=oldTau->wideTrack(i);
+        track->addTrackLink(linkToTrackParticle);
+        track->setP4(trackParticle->pt(), trackParticle->eta(), trackParticle->phi(), trackParticle->m());
+	track->setFlag(xAOD::TauJetParameters::TauTrackFlag::wideTrack, true);
+        track->setFlag(xAOD::TauJetParameters::TauTrackFlag::passTrkSelector, true);
+        track->setFlag(xAOD::TauJetParameters::TauTrackFlag::classifiedIsolation, true); 
+        track->setFlag(xAOD::TauJetParameters::TauTrackFlag::modifiedIsolationTrack, true); 
+        track->setFlag(xAOD::TauJetParameters::TauTrackFlag::unclassified, true); 
+        ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
+        linkToTauTrack.toContainedElement(*pTracks, track);
+        newTau->addTauTrackLink(linkToTauTrack);
+      }
+
+      for(unsigned int i = 0; i < oldTau->nOtherTracks(); ++i){
+	ElementLink< xAOD::TrackParticleContainer > linkToTrackParticle = oldTau->otherTrackLinks()[i];
+	if(!linkToTrackParticle.isValid()) continue;
+	xAOD::TauTrack* track = new xAOD::TauTrack();
+	pTracks->push_back(track);
+	const xAOD::TrackParticle* trackParticle=oldTau->otherTrack(i);
+        track->addTrackLink(linkToTrackParticle);
+        track->setP4(trackParticle->pt(), trackParticle->eta(), trackParticle->phi(), trackParticle->m());
+	float dR=oldTau->p4(xAOD::TauJetParameters::IntermediateAxis).DeltaR(trackParticle->p4());
+	if(dR<=0.2) track->setFlag(xAOD::TauJetParameters::TauTrackFlag::coreTrack, true);
+	else track->setFlag(xAOD::TauJetParameters::TauTrackFlag::wideTrack, true);
+	track->setFlag(xAOD::TauJetParameters::TauTrackFlag::unclassified, true); 
+        ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
+        linkToTauTrack.toContainedElement(*pTracks, track);
+        newTau->addTauTrackLink(linkToTauTrack);
+      }
 
 
+      newTau->setDetail(xAOD::TauJetParameters::nChargedTracks, (int) newTau->nTracks());
+      newTau->setDetail(xAOD::TauJetParameters::nIsolatedTracks, (int) newTau->nTracks(xAOD::TauJetParameters::classifiedIsolation));
+
+   }
+   
+   if(m_key.length()){
+     std::string tauTrackContName=m_key;
+     tauTrackContName.replace(tauTrackContName.find("Aux."),4,"");
+     //example names:
+     //TauJets : Jets --> Tracks
+     //HLT_xAOD__TauJetContainer_TrigTauRecMerged Jet --> Track; +=Tracks
+     //HLT_xAOD__TauJetContainer_TrigTauRecPreselection ""
+     if(tauTrackContName.find("Jet") != std::string::npos){
+       tauTrackContName.replace( tauTrackContName.find("Jet"), 3, "Track" );
+       if(tauTrackContName.find("HLT") != std::string::npos) tauTrackContName+="Tracks";
+     }
+     else {
+       ATH_MSG("Cannot decipher name TauTrackConatiner should have");
+       return;
+     }
+   
+     std::string tauTrackAuxContName=tauTrackContName+"Aux.";
+
+     if(evtStore->record(pTracks, tauTrackContName).isFailure() ||
+	evtStore->record(pAuxTracks, tauTrackAuxContName)){
+       ATH_MSG("Couldn't Record TauTracks");
+       return;
+     }
    }
 
    // Print what happened:
    ATH_MSG( "Converting xAOD::TauJetAuxContainer_v2 to current version "
 	    "[OK]" );
-   
+
    return;
 }
 
