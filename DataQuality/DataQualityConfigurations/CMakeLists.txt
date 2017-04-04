@@ -5,7 +5,8 @@
 # Declare the package name:
 atlas_subdir( DataQualityConfigurations )
 
-# Requires DQI for binary build
+# Requires DQI for binary build - this turns out not to do much, but keep for indication
+# Actual heavy lifting done by DEPENDS in add_custom_command
 atlas_depends_on_subdirs(PRIVATE DataQuality/DataQualityInterfaces)
 
 # Install files from the package:
@@ -40,7 +41,7 @@ foreach (hanfile IN LISTS han_config_files)
     COMMAND ${CMAKE_COMMAND} -E copy
       ${CMAKE_CURRENT_BINARY_DIR}/${hanfile}.hcfg
       ${CMAKE_DATA_OUTPUT_DIRECTORY}/DataQualityConfigurations/${hanfile}.hcfg
-    DEPENDS scripts/MergeConfigs.py config/*/${hanfile}.config
+    DEPENDS scripts/MergeConfigs.py config/*/${hanfile}.config han-config-gen
   )
   set(hcfgfiles ${hcfgfiles} ${CMAKE_DATA_OUTPUT_DIRECTORY}/DataQualityConfigurations/${hanfile}.hcfg)
 endforeach(hanfile)
