@@ -6,9 +6,7 @@
 // MyPackage includes
 #include "AthAsgExUnittest/MyPackageTool.h"
 
-MyPackageTool::MyPackageTool( const std::string& name,
-			      bool unittest ) : asg::AsgTool( name ), 
-						m_unittest(unittest) {
+MyPackageTool::MyPackageTool( const std::string& name ) : asg::AsgTool( name ) {
   //example property declarations with default values
   declareProperty( "Property", m_nProperty = 3.0, 
                    "Please describe the property here" );
@@ -17,10 +15,8 @@ MyPackageTool::MyPackageTool( const std::string& name,
 }
 
 StatusCode MyPackageTool::initialize() {
-  if( not m_unittest ) {
     ATH_MSG_INFO( "Initializing " << name() << "..." );
     ATH_MSG_INFO( "Property = " << m_nProperty );
-  }
   //
   //Make use of the property values to configure the tool
   //Tools should be designed so that no method other than setProperty is called before initialize

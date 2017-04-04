@@ -26,7 +26,7 @@ namespace Athena_test {
 
   class MyPackageToolTest : public ::testing::Test  {
   public:
-    MyPackageToolTest() : myTool( "MyTool", true ) {}
+    MyPackageToolTest() : myTool( "MyTool" ) {}
     ~MyPackageToolTest() {}
     MyPackageTool myTool;
   };
@@ -62,7 +62,7 @@ namespace Athena_test {
 
     virtual void SetUp() override {
       // Algorithm and Tool properties via service:
-      // see: https://svnweb.cern.ch/trac/atlasoff/browser/Control/AthAnalysisBaseComps/trunk/AthAnalysisBaseComps/AthAnalysisHelper.h#L32
+      // see: Control/AthAnalysisBaseComps/AthAnalysisBaseComps/AthAnalysisHelper.h
       AthAnalysisHelper::addPropertyToCatalogue( "MyPackageAlg",
 						 "MyProperty",
 						 21 );

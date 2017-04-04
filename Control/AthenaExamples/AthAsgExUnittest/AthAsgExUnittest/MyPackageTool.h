@@ -13,17 +13,18 @@ public:
 
   ASG_TOOL_CLASS( MyPackageTool, IMyPackageTool )
   // Add another constructor for non-athena use cases
-  MyPackageTool( const std::string& name, bool unittest=false );
+  MyPackageTool( const std::string& name );
   
   // Initialize is required by AsgTool base class
   virtual StatusCode initialize() override;
+
+  // This tools method
   virtual double useTheProperty() override;
 
 private: 
 
   double m_nProperty;
   unsigned int m_enumProperty; 
-  bool m_unittest;
 
 }; 
 
