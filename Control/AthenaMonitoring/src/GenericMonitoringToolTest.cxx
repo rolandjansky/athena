@@ -1,4 +1,7 @@
-// tests and examples headers
+/*
+* Author: Piotr Sarna
+*/
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -6,15 +9,10 @@
 #include <array>
 #include <set>
 
-#include "AthenaMonitoring/MonitoredScope.h"
-#include "AthenaMonitoring/MonitoredScalar.h"
-#include "AthenaMonitoring/MonitoredCollection.h"
+#include "AthenaMonitoring/GenericMonitoringToolTest.h"
 
+using namespace std;
 using namespace Monitored;
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Tests and examples of use
-////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Scalar {
 public:
@@ -119,9 +117,28 @@ void inLoopTest() {
     }
 } // save happens here
 
-int main(void) {
+GenericMonitoringToolTest::GenericMonitoringToolTest(const string& name, ISvcLocator* pSvcLocator)
+	: AthAlgorithm(name, pSvcLocator) {
+    declareProperty("GenericMonitoringTool", m_monitoringTool, "Generic monitored variables tool");
+}
+
+StatusCode GenericMonitoringToolTest::initialize() {
+	return StatusCode::SUCCESS;
+}
+
+StatusCode GenericMonitoringToolTest::beginRun() {
+	return StatusCode::SUCCESS;
+}
+
+StatusCode GenericMonitoringToolTest::execute() {
     scalarTest();
     valuesCollectionTest();
     objectsCollectionTest();
     inLoopTest();
-} 
+
+	return StatusCode::SUCCESS;
+}
+
+StatusCode GenericMonitoringToolTest::finalize() {
+	return StatusCode::SUCCESS;
+}

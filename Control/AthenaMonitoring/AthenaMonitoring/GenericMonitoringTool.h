@@ -22,6 +22,9 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "AthenaMonitoring/IMonitoredVariable.h"
+#include "AthenaMonitoring/MonitoredScope.h"
+#include "AthenaMonitoring/MonitoredScalar.h"
+#include "AthenaMonitoring/MonitoredCollection.h"
 
 /**
  * @brief Basic monitoring tool for the HLT trigger.
