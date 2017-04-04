@@ -30,6 +30,26 @@ namespace LArG4 {
 
   namespace Barrel {
 
+    // output of computations (everything in half barrel frame except m_zSide)
+    struct CalcData {
+      int cellID = 0;           // 0 if not valid cell
+      G4int sampling = 0;       // sampling number  (1 to 3)
+      G4int region = 0;         // region number (0 or 1)
+      G4int etaBin = 0;         // cell number in eta
+      G4int phiBin = 0;         // cell number in phi
+      G4int zSide = 0;          // side (+-1 for +-z)
+      G4int phiGap = 0;         // number (0 to 1024) of closest electrode
+      G4int nstraight = 0;      // number of straight section (0 to 13)
+      G4int nfold = 0;          // number of closest fold (0 to 14)
+      G4double distElec = 0;    // algebric distance to electrode
+      G4double distAbs = 0;     // algebric distance to absorber
+      G4double xl = 0;          // normalized lenght along electrode
+      G4double x0 = 0;          //
+      G4double y0 = 0;          // coordinates in local cell frame (down absorber with phi=0)
+      G4int sampMap = 0;        // sampling number not taking into account readout strips
+      G4int etaMap = 0;         // eta number not taking into account readout strips
+    };
+
     class Geometry {
 
     public:
@@ -43,36 +63,8 @@ namespace LArG4 {
       LArG4Identifier CalculateIdentifier( const G4Step* ,std::string strDetector="") const;
       LArG4Identifier CalculateECAMIdentifier( const G4Step* , const G4int indEcam, std::string strDetector="",const bool inSTAC=true,int zside=1) const;
 
-      // Get geometry informations (filled with findCell)
-      //   cellID = 1 valid, 0 invalid
-      //   sampling = sampling number (1 to 3)
-      //   region = 0 (eta<1.) or 1 (1.4<eta<1.475)
-      //   etaBin = cell number in eta
-      //   phiBin = cell number in phi
-      //   phiGap    = gap number in phi (0 to 1023)
-      //   nstraight = straight section number (0 to 13)
-      //   nfold = closest fold number (0 to 14)
-      //   distElec   = distance to electode (signed)
-      //   distAbs    = distance to absorber (signed)
-      //   x0,y0     = local coordinates in first cell frame (to be used for current maps)
-      int cellID() const  { return m_cellID;};
-      G4int sampling() const { return m_sampling;};
-      G4int region() const   { return m_region;};
-      G4int etaBin() const   { return m_etaBin;};
-      G4int phiBin() const   { return m_phiBin;};
-      G4int phiGap() const   { return m_phiGap;};
-      G4int nstraight() const {return m_nstraight;};
-      G4int nfold() const {return m_nfold;};
-      G4double distElec() const { return m_distElec;};
-      G4double distAbs() const { return m_distAbs;};
-      G4double x0() const {return m_x0;};
-      G4double y0() const {return m_y0;};
-      G4double xl() const {return m_xl;};
-      G4int etaMap() const {return m_etaMap;};
-      G4int sampMap() const {return m_sampMap;};
-
       // Given a point compute all quantities (cell number, distance to electrode, etc...)
-      void findCell( const double & x, const double & y, const double & z,
+      void findCell( CalcData & currentCellData, const double & x, const double & y, const double & z,
                      const double & r, const double & eta, const double & phi, const bool detail,
                      std::string strDetector="") const; //FIXME non-const function
 
@@ -123,24 +115,6 @@ namespace LArG4 {
       // to handle small difference (mostly phi wrapping and +-z symmetry)
       // between atlas and test beam
       bool m_testbeam;
-
-      // output of computations (everything in half barrel frame except m_zSide)
-      mutable int m_cellID;   // 0 if not valid cell
-      mutable G4int m_sampling;       // sampling number  (1 to 3)
-      mutable G4int m_region;         // region number (0 or 1)
-      mutable G4int m_etaBin;         // cell number in eta
-      mutable G4int m_phiBin;         // cell number in phi
-      mutable G4int m_zSide;          // side (+-1 for +-z)
-      mutable G4int m_phiGap;         // number (0 to 1024) of closest electrode
-      mutable G4int m_nstraight;      // number of straight section (0 to 13)
-      mutable G4int m_nfold;          // number of closest fold (0 to 14)
-      mutable G4double m_distElec;    // algebric distance to electrode
-      mutable G4double m_distAbs;     // algebric distance to absorber
-      mutable G4double m_xl;          // normalized lenght along electrode
-      mutable G4double m_x0;          //
-      mutable G4double m_y0;          // coordinates in local cell frame (down absorber with phi=0)
-      mutable G4int m_sampMap;        // sampling number not taking into account readout strips
-      mutable G4int m_etaMap;         // eta number not taking into account readout strips
 
       bool m_iflSAG;
 

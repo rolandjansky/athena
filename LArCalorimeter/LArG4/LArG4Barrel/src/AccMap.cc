@@ -15,13 +15,7 @@ AccMap::AccMap()
 {
   int i1[10]={0,0,3,2,9,12,10,9,0,2};      // first fold
   int i2[10]={2,1,12,12,13,13,13,13,1,4};  // last fold for 10 electronic regions
-  m_curr=0;
-  m_elecregion=-1;
-  m_eta=-1;
-  m_sampling=-1;
-  m_fold=-1;
   m_directory="/afs/cern.ch/atlas/offline/data/lar/calo_data";
-  m_region=-1;
 
   m_nmax=14;
   m_xmin.resize(m_nmax);
@@ -96,30 +90,20 @@ void AccMap::Reset()
   }
 }
 
-void AccMap::SetMap(int ifold, int region, int sampling, int eta)
+CurrMap* AccMap::GetMap(int ifold, int region, int sampling, int eta) const
 {
-  if (m_eta==eta && m_sampling==sampling && m_fold==ifold && m_region==region) return;
-  SetMap(ifold,Region(region,sampling,eta));
-  // std::cout << "after SetMap " << region << " " << eta << " " << sampling
-  //           << " " << " elecregion is " << m_elecregion << std::endl;
-  m_eta=eta;
-  m_sampling=sampling;
-  m_fold=ifold;
-  m_region=region;
+  return this->GetMap(ifold,this->Region(region,sampling,eta));
 }
 
-void AccMap::SetMap(int ifold, int ielecregion)
+CurrMap* AccMap::GetMap(int ifold, int ielecregion) const
 {
-  if (m_fold==ifold && m_elecregion==ielecregion) return;
-  m_fold=ifold;
-  m_elecregion=ielecregion;
-  int code=10*ifold+ielecregion;
+  const int code=10*ifold+ielecregion;
   // std::cout << " code is " << code << std::endl;
   if (m_theMap.find(code) != m_theMap.end())
-    m_curr = m_theMap[code];
+    return m_theMap.at(code);
   else {
     std::cout << " Code " << code << " not found in map ..." << std::endl;
-    m_curr=0;
+    return nullptr;
   }
 }
 

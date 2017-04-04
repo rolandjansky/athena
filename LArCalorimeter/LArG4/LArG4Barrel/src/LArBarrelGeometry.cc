@@ -51,22 +51,6 @@ namespace LArG4 {
     // ==========================================================================
     Geometry::Geometry()
       : m_testbeam(false)
-      , m_cellID(0)
-      , m_sampling(0)
-      , m_region(0)
-      , m_etaBin(0)
-      , m_phiBin(0)
-      , m_zSide(0)
-      , m_phiGap(0)
-      , m_nstraight(0)
-      , m_nfold(0)
-      , m_distElec(0)
-      , m_distAbs(0)
-      , m_xl(0)
-      , m_x0(0)
-      , m_y0(0)
-      , m_sampMap(0)
-      , m_etaMap(0)
       , m_iflSAG(false)
     {
       // Constructor initializes the geometry.
@@ -616,7 +600,8 @@ namespace LArG4 {
     // It has already been checked that the hit is in the accordion sensitive volume
     //
 
-    void Geometry::findCell(const double &xPosition,
+    void Geometry::findCell(CalcData & currentCellData,
+                            const double &xPosition,
                             const double &yPosition,
                             const double &zPosition,
                             const double &aRadius,
@@ -635,7 +620,7 @@ namespace LArG4 {
         m_FIRST = false;
       }
 
-      m_cellID = 0;
+      currentCellData.cellID = 0;
 
       if (aRadius < m_rc[0] || aRadius >= m_rc[m_Nbrt1-1]) {
 #ifdef DEBUGHITS
@@ -645,39 +630,39 @@ namespace LArG4 {
       }
 
       // set the straight section number
-      m_nstraight=0;
+      currentCellData.nstraight=0;
       for (int i=1;i<m_Nbrt1;i++) {
         if (m_rc[i] > aRadius) break;
-        m_nstraight++;
+        currentCellData.nstraight++;
       }
-      if (m_nstraight <0 || m_nstraight >= m_Nbrt) {
-        std::cout << "Invalid straight number " << m_nstraight << " " << aRadius << std::endl;
+      if (currentCellData.nstraight <0 || currentCellData.nstraight >= m_Nbrt) {
+        std::cout << "Invalid straight number " << currentCellData.nstraight << " " << aRadius << std::endl;
         return;
       }
 
       // get the closest fold number
-      m_nfold=m_nstraight;
-      if (std::fabs(aRadius-m_rc[m_nfold]) > std::fabs(aRadius-m_rc[m_nfold+1]) ) m_nfold +=1;
-      if (m_nfold <0 || m_nfold >= m_Nbrt1) {
-        std::cout << "Invalid fold number " << m_nfold << std::endl;
+      currentCellData.nfold=currentCellData.nstraight;
+      if (std::fabs(aRadius-m_rc[currentCellData.nfold]) > std::fabs(aRadius-m_rc[currentCellData.nfold+1]) ) currentCellData.nfold +=1;
+      if (currentCellData.nfold <0 || currentCellData.nfold >= m_Nbrt1) {
+        std::cout << "Invalid fold number " << currentCellData.nfold << std::endl;
         return;
       }
 
 
 #ifdef DEBUGHITS
       std::cout << "  BarrelGeometry: radius,eta,phi " << aRadius << " " << anEta << " " << aPhi << std::endl;
-      std::cout << "  Straight/Fold numbers " << m_nstraight << " " << m_nfold << std::endl;
+      std::cout << "  Straight/Fold numbers " << currentCellData.nstraight << " " << currentCellData.nfold << std::endl;
 #endif
 
       // eta and longitudinal segmentations
       G4int ireg,isamp,ieta,isamp2,ieta2;
-      m_cellID = SampSeg(anEta,aRadius,zPosition,ireg,isamp,ieta,isamp2,ieta2);
+      currentCellData.cellID = SampSeg(anEta,aRadius,zPosition,ireg,isamp,ieta,isamp2,ieta2);
 
-      m_etaBin   = ieta;
-      m_sampling = isamp;
-      m_region   = ireg;
-      m_etaMap   = ieta2;
-      m_sampMap  = isamp2;
+      currentCellData.etaBin   = ieta;
+      currentCellData.sampling = isamp;
+      currentCellData.region   = ireg;
+      currentCellData.etaMap   = ieta2;
+      currentCellData.sampMap  = isamp2;
 
       // compute electrode number in phi
       int phicell = PhiGap(aRadius,xPosition,yPosition);
@@ -687,7 +672,7 @@ namespace LArG4 {
         if (phicell>=m_NCellTot) {
           if (phicell<512) phicell=m_NCellTot-1;
           else phicell=0;
-          m_cellID=0;
+          currentCellData.cellID=0;
         }
       }
 
@@ -697,18 +682,18 @@ namespace LArG4 {
 
       // compute readout cell number
       int sampling_phi_nGaps=4;
-      if (m_region==0 && m_sampling==1) sampling_phi_nGaps=16;
+      if (currentCellData.region==0 && currentCellData.sampling==1) sampling_phi_nGaps=16;
 
-      if (m_cellID==0) {
-        m_phiBin = (G4int) ( phicell/sampling_phi_nGaps );
-        m_distElec=9999.;
+      if (currentCellData.cellID==0) {
+        currentCellData.phiBin = (G4int) ( phicell/sampling_phi_nGaps );
+        currentCellData.distElec=9999.;
         return;
       }
 
       // compute distance to electrode
       G4double xl;
-      G4int nstr = m_nstraight;
-      G4double distElec = Distance_Ele(xPosition,yPosition,phicell,nstr,m_nfold,xl);
+      G4int nstr = currentCellData.nstraight;
+      G4double distElec = Distance_Ele(xPosition,yPosition,phicell,nstr,currentCellData.nfold,xl);
 
 #ifdef DEBUGHITS
       std::cout << " distElec " << distElec << std::endl;
@@ -728,8 +713,8 @@ namespace LArG4 {
           if (phicellnew < 0) phicellnew += m_NCellTot;
           if (phicellnew >= m_NCellTot) phicellnew -= m_NCellTot;
           double xln;
-          int nstr2=m_nstraight;
-          double dElec = Distance_Ele(xPosition,yPosition,phicellnew,nstr2,m_nfold,xln);
+          int nstr2=currentCellData.nstraight;
+          double dElec = Distance_Ele(xPosition,yPosition,phicellnew,nstr2,currentCellData.nfold,xln);
           if (std::fabs(dElec)<std::fabs(dElecMin)) {
             phicellmin=phicellnew;
             xlmin=xln;
@@ -737,68 +722,68 @@ namespace LArG4 {
             nstr=nstr2;
           }
         }
-        m_phiGap = phicellmin;
-        m_distElec = dElecMin;
-        m_xl = xlmin;
-        m_nstraight = nstr;
+        currentCellData.phiGap = phicellmin;
+        currentCellData.distElec = dElecMin;
+        currentCellData.xl = xlmin;
+        currentCellData.nstraight = nstr;
       }       // end distance >2.5mm
       else {
-        m_phiGap=phicell;
-        m_distElec=distElec;
-        m_xl=xl;
-        m_nstraight=nstr;
+        currentCellData.phiGap=phicell;
+        currentCellData.distElec=distElec;
+        currentCellData.xl=xl;
+        currentCellData.nstraight=nstr;
       }
 
 #ifdef DEBUGHITS
-      std::cout << "  final phiGap,distElec,xl " << m_phiGap << " " << m_distElec << " "
-                << m_xl << std::endl;
+      std::cout << "  final phiGap,distElec,xl " << currentCellData.phiGap << " " << currentCellData.distElec << " "
+                << currentCellData.xl << std::endl;
 #endif
 
       // compute distance to absorber
 
       G4int nabs;
-      if (m_distElec<0) nabs=m_phiGap;
-      else nabs=m_phiGap+1;
+      if (currentCellData.distElec<0) nabs=currentCellData.phiGap;
+      else nabs=currentCellData.phiGap+1;
       if (nabs >= m_NCellMax) nabs -= m_NCellMax;
-      m_distAbs = Distance_Abs(xPosition,yPosition,nabs,m_nstraight,m_nfold);
+      currentCellData.distAbs = Distance_Abs(xPosition,yPosition,nabs,currentCellData.nstraight,currentCellData.nfold);
 #ifdef DEBUGHITS
-      std::cout << "  nabs,distAbs " << nabs << " " << m_distAbs << std::endl;
+      std::cout << "  nabs,distAbs " << nabs << " " << currentCellData.distAbs << std::endl;
 #endif
 
       // in some rare cases near fold, the closest distance could give the wrong gap
       //  in such case, the signs of distAbs and distElec are not opposite as they should
-      if ((m_distAbs>0. && m_distElec>0) ||
-          (m_distAbs<0. && m_distElec<0) ) {
-        //    std::cout << "distElec and distAbs same sign " << m_distElec << " " << m_distAbs << std::endl;
-        //    std::cout << " m_phiGap " << m_phiGap << std::endl;
-        if (std::fabs(m_distElec)>std::fabs(m_distAbs)) {
-          if (m_distAbs>0) m_phiGap += 1;
-          if (m_distAbs<0) m_phiGap -= 1;
+      if ((currentCellData.distAbs>0. && currentCellData.distElec>0) ||
+          (currentCellData.distAbs<0. && currentCellData.distElec<0) ) {
+        //    std::cout << "distElec and distAbs same sign " << currentCellData.distElec << " " << currentCellData.distAbs << std::endl;
+        //    std::cout << " currentCellData.phiGap " << currentCellData.phiGap << std::endl;
+        if (std::fabs(currentCellData.distElec)>std::fabs(currentCellData.distAbs)) {
+          if (currentCellData.distAbs>0) currentCellData.phiGap += 1;
+          if (currentCellData.distAbs<0) currentCellData.phiGap -= 1;
           if (m_NCellTot != 1024) {
-            if (m_phiGap <0) m_phiGap=0;
-            if (m_phiGap >= m_NCellTot) m_phiGap = m_NCellTot-1;
+            if (currentCellData.phiGap <0) currentCellData.phiGap=0;
+            if (currentCellData.phiGap >= m_NCellTot) currentCellData.phiGap = m_NCellTot-1;
           } else {
-            if (m_phiGap < 0) m_phiGap += m_NCellTot;
-            if (m_phiGap >= m_NCellTot) m_phiGap -= m_NCellTot;
+            if (currentCellData.phiGap < 0) currentCellData.phiGap += m_NCellTot;
+            if (currentCellData.phiGap >= m_NCellTot) currentCellData.phiGap -= m_NCellTot;
           }
-          m_distElec = Distance_Ele(xPosition,yPosition,m_phiGap,m_nstraight,m_nfold,m_xl);
-          //        std::cout << " new phiGap,distElec " << m_phiGap << " " << m_distElec << std::endl;
+          currentCellData.distElec = Distance_Ele(xPosition,yPosition,currentCellData.phiGap,currentCellData.nstraight,currentCellData.nfold,currentCellData.xl);
+          //        std::cout << " new phiGap,distElec " << currentCellData.phiGap << " " << currentCellData.distElec << std::endl;
         }
       }
 
-      m_phiBin = (G4int) ( m_phiGap/sampling_phi_nGaps );
+      currentCellData.phiBin = (G4int) ( currentCellData.phiGap/sampling_phi_nGaps );
 
       if (MapDetail) {
         // compute x0,y0 coordinates in local electrode frame, using closest fold
         // as reference
-        G4double alpha = m_coudeelec->PhiRot(m_nfold,m_phiGap);
-        G4double dx=xPosition-m_coudeelec->XCentCoude(m_nfold,m_phiGap);
-        G4double dy=yPosition-m_coudeelec->YCentCoude(m_nfold,m_phiGap);
+        G4double alpha = m_coudeelec->PhiRot(currentCellData.nfold,currentCellData.phiGap);
+        G4double dx=xPosition-m_coudeelec->XCentCoude(currentCellData.nfold,currentCellData.phiGap);
+        G4double dy=yPosition-m_coudeelec->YCentCoude(currentCellData.nfold,currentCellData.phiGap);
         G4double dx1=dx*cos(alpha)-dy*sin(alpha);
         G4double dy1=dx*sin(alpha)+dy*cos(alpha);
-        m_x0 = dx1 + m_xc[m_nfold];
-        m_y0 = dy1 + m_yc[m_nfold];
-        if (m_parity==1) m_y0 = -1*m_y0;
+        currentCellData.x0 = dx1 + m_xc[currentCellData.nfold];
+        currentCellData.y0 = dy1 + m_yc[currentCellData.nfold];
+        if (m_parity==1) currentCellData.y0 = -1*currentCellData.y0;
       }
 
 
@@ -1102,10 +1087,11 @@ namespace LArG4 {
       G4double radius2Zpos = xZpos*xZpos + yZpos*yZpos;
       G4double radiusZpos = sqrt(radius2Zpos);
 
+      CalcData currentCellData;
       if (m_testbeam)
-        m_zSide = 1;
+        currentCellData.zSide = 1;
       else
-        m_zSide = zside;
+        currentCellData.zSide = zside;
 
 
       // Check if the hit is in the fiducial range and in the STAC volume
@@ -1118,61 +1104,61 @@ namespace LArG4 {
         std::cout << "This hit is in the STAC volume !!!!! " << std::endl;
 #endif
 
-        //   DETERMINATION of m_cellID, m_zSide, m_sampling, m_phiBin, m_etaBin, m_stackNumID
+        //   DETERMINATION of currentCellData.cellID, currentCellData.zSide, currentCellData.sampling, currentCellData.phiBin, currentCellData.etaBin, m_stackNumID
         bool MapDetail=false;
-        this->findCell( xZpos, yZpos, zZpos, radiusZpos, etaZpos, phiZpos, MapDetail, strDetector );
+        this->findCell( currentCellData, xZpos, yZpos, zZpos, radiusZpos, etaZpos, phiZpos, MapDetail, strDetector );
 
         // adjust phi in the negative half barrel frame
 
-        if( m_zSide == -1 )
+        if( currentCellData.zSide == -1 )
           {
-            if( m_sampling == 1 && m_region ==0 )
+            if( currentCellData.sampling == 1 && currentCellData.region ==0 )
               {
-                m_phiBin = 31 - m_phiBin;
-                if(m_phiBin < 0 ) m_phiBin += 64;
+                currentCellData.phiBin = 31 - currentCellData.phiBin;
+                if(currentCellData.phiBin < 0 ) currentCellData.phiBin += 64;
               }
-            if( m_sampling == 1 && m_region ==1 )
+            if( currentCellData.sampling == 1 && currentCellData.region ==1 )
               {
-                m_phiBin = 127 - m_phiBin;
-                if(m_phiBin < 0 ) m_phiBin += 256;
+                currentCellData.phiBin = 127 - currentCellData.phiBin;
+                if(currentCellData.phiBin < 0 ) currentCellData.phiBin += 256;
               }
-            if( m_sampling >= 2 )
+            if( currentCellData.sampling >= 2 )
               {
-                m_phiBin = 127 - m_phiBin;
-                if(m_phiBin < 0 ) m_phiBin += 256;
+                currentCellData.phiBin = 127 - currentCellData.phiBin;
+                if(currentCellData.phiBin < 0 ) currentCellData.phiBin += 256;
               }
           }
 
         // there are few hundred microns between the 4mm nominal beginning of the active region
         //  and the real beginning of the first strip at eta=0.025/8
         //  to avoid inactive energy with strip=0 assign this to strip=1
-        if (m_sampling==1 && m_region==0 && m_etaBin==0) {
-          m_etaBin=1;
+        if (currentCellData.sampling==1 && currentCellData.region==0 && currentCellData.etaBin==0) {
+          currentCellData.etaBin=1;
         }
 
         result << 4          // LArCalorimeter
                << 1          // LArEM
-               << m_zSide
-               << m_sampling
-               << m_region
-               << m_etaBin
-               << m_phiBin;
+               << currentCellData.zSide
+               << currentCellData.sampling
+               << currentCellData.region
+               << currentCellData.etaBin
+               << currentCellData.phiBin;
 
 #ifdef  DEBUGHITS
         std::cout << "Here the identifier for the barrel ACTIVE ----> " << std::endl;
         std::cout << "eta in local frame --> " << etaZpos << std::endl;
-        std::cout << "m_zSide  ----> " << m_zSide << std::endl;
-        std::cout << "m_sampling  ----> " << m_sampling << std::endl;
-        std::cout << "m_region  ----> " <<  m_region << std::endl;
-        std::cout << "m_etaBin  ----> " << m_etaBin << std::endl;
-        std::cout << "m_phiBin  ----> " << m_phiBin << std::endl;
+        std::cout << "currentCellData.zSide  ----> " << currentCellData.zSide << std::endl;
+        std::cout << "currentCellData.sampling  ----> " << currentCellData.sampling << std::endl;
+        std::cout << "currentCellData.region  ----> " <<  currentCellData.region << std::endl;
+        std::cout << "currentCellData.etaBin  ----> " << currentCellData.etaBin << std::endl;
+        std::cout << "currentCellData.phiBin  ----> " << currentCellData.phiBin << std::endl;
         G4double firsteta = thisStepPoint->GetPosition().pseudoRapidity();
         std::cout << "And also etafirst ----> " << firsteta << std::endl;
 #endif
 
-        //    if (!Geometry::CheckLArIdentifier(m_sampling,m_region,m_etaBin,m_phiBin)) {
-        //      std::cout << " **  Bad LAr identifier " << m_sampling << " " << m_region << " "
-        //                << m_etaBin << " " << m_phiBin << std::endl;
+        //    if (!Geometry::CheckLArIdentifier(currentCellData.sampling,currentCellData.region,currentCellData.etaBin,currentCellData.phiBin)) {
+        //      std::cout << " **  Bad LAr identifier " << currentCellData.sampling << " " << currentCellData.region << " "
+        //                << currentCellData.etaBin << " " << currentCellData.phiBin << std::endl;
         //      std::cout << " x,y,z,eta,phi " <<  xZpos << " " << yZpos << " " << zZpos
         //                << " " << radiusZpos << " " << etaZpos << " " << phiZpos << std::endl;
         //    }
@@ -1188,24 +1174,24 @@ namespace LArG4 {
         double abs_eta = std::fabs(etaZpos);
         double DM1EtaWidth = 0.1 ;
         double DM1PhiWidth = 2.*M_PI / numDeadPhiBins ;
-        m_etaBin = (G4int) ( abs_eta * (1./DM1EtaWidth) ) ;
-        m_phiBin = (G4int) (phiZpos/ DM1PhiWidth );
+        currentCellData.etaBin = (G4int) ( abs_eta * (1./DM1EtaWidth) ) ;
+        currentCellData.phiBin = (G4int) (phiZpos/ DM1PhiWidth );
         G4int type=1;
         // protect against rounding error for phi ~2pi
-        if (m_phiBin==numDeadPhiBins) m_phiBin=m_phiBin-1;
+        if (currentCellData.phiBin==numDeadPhiBins) currentCellData.phiBin=currentCellData.phiBin-1;
 
         // adjust phi for negative half barrel
 
-        if ( m_zSide == -1 ) {
-          m_phiBin = 31 - m_phiBin;
-          if (m_phiBin < 0 ) m_phiBin +=64 ;
+        if ( currentCellData.zSide == -1 ) {
+          currentCellData.phiBin = 31 - currentCellData.phiBin;
+          if (currentCellData.phiBin < 0 ) currentCellData.phiBin +=64 ;
         }
 
         // material in front of the active accordion
         if ( radiusZpos < m_rMinAccordion ) {
           sampling =1 ;
           region = 3 ;
-          if (m_etaBin > 14) m_etaBin=14;
+          if (currentCellData.etaBin > 14) currentCellData.etaBin=14;
 
 #ifdef  DEBUGHITS
           std::cout << "This hit is in the ECAM volume in front of the accordion (DEAD MATERIAL) !!!!! " << std::endl;
@@ -1221,40 +1207,40 @@ namespace LArG4 {
 #endif
           } else if ( abs_eta >= 1.0 && abs_eta < 1.5) {
             region = 2;
-            m_etaBin = m_etaBin - 10;    // to have etabin between 0 and 4
+            currentCellData.etaBin = currentCellData.etaBin - 10;    // to have etabin between 0 and 4
 #ifdef  DEBUGHITS
             std::cout << "This hit is in the ECAM volume behind accordion (DEAD MATERIAL 2) !!!!! " << std::endl;
 #endif
           } else {
             std::cout << " LArBarrelGeometry: hit behind accordion at eta>1.5 !!! " << std::endl,
               region = 2;
-            m_etaBin = 4;
+            currentCellData.etaBin = 4;
           }
 
         } else if (zZpos <= m_zMinBarrel) {   // inactive matter between two EMB halves
           type=2;
           region=0;
-          G4int phisave=m_phiBin;
+          G4int phisave=currentCellData.phiBin;
           G4bool MapDetail=false;
-          this->findCell( xZpos, yZpos, zZpos, radiusZpos, etaZpos, phiZpos, MapDetail ,strDetector );
-          sampling = m_sampling; // sampling as in normal definition
-          m_etaBin=0;
-          m_phiBin=phisave;
+          this->findCell( currentCellData, xZpos, yZpos, zZpos, radiusZpos, etaZpos, phiZpos, MapDetail ,strDetector );
+          sampling = currentCellData.sampling; // sampling as in normal definition
+          currentCellData.etaBin=0;
+          currentCellData.phiBin=phisave;
 
         } else if (zZpos >= m_zMaxBarrel || abs_eta >= 1.40) { // inactive matter between EMB and scintillator
           if (abs_eta >1.0 && abs_eta < 1.5) {
             sampling=2;
             region=2;
-            m_etaBin = m_etaBin - 10;    // to have etabin between 0 and 4
+            currentCellData.etaBin = currentCellData.etaBin - 10;    // to have etabin between 0 and 4
           } else if (abs_eta < 1.6) {
             sampling=1;
             region=4;
-            m_etaBin=0;
+            currentCellData.etaBin=0;
           } else {
             std::cout << " LArBarrelGeometry: hit at eta>1.6 !!! " << std::endl;
             sampling=1;
             region=4;
-            m_etaBin=0;
+            currentCellData.etaBin=0;
           }
         } else {
           if (!m_testbeam) {
@@ -1280,48 +1266,48 @@ namespace LArG4 {
           else
             {
               G4bool MapDetail=false;
-              this->findCell( xZpos, yZpos, zZpos, radiusZpos, etaZpos, phiZpos, MapDetail ,strDetector );
+              this->findCell( currentCellData, xZpos, yZpos, zZpos, radiusZpos, etaZpos, phiZpos, MapDetail ,strDetector );
               //         std::cout << " Lateral lakage r,eta,phi " << radiusZpos << " " << etaZpos << " "
-              //                   << phiZpos << "  sampling/region/eta/phi " << m_sampling << " " <<
-              //              m_region << " " << m_etaBin << " " << m_phiBin << std::endl;
+              //                   << phiZpos << "  sampling/region/eta/phi " << currentCellData.sampling << " " <<
+              //              currentCellData.region << " " << currentCellData.etaBin << " " << currentCellData.phiBin << std::endl;
               // protect against small space between z=4m and real beginning of ieta=1 in strips
-              if (m_sampling==1 && m_region==0 && m_etaBin==0) {
-                m_etaBin=1;
+              if (currentCellData.sampling==1 && currentCellData.region==0 && currentCellData.etaBin==0) {
+                currentCellData.etaBin=1;
                 //            std::cout << "S1R0 etabin 0 found  r,z,phi local " << radiusZpos << " "
                 //                   << " " << zZpos << " " << phiZpos << std::endl;
               }
               result << 4          // LArCalorimeter
                      << 1          // LArEM
-                     << m_zSide
-                     << m_sampling
-                     << m_region
-                     << m_etaBin
-                     << m_phiBin;
+                     << currentCellData.zSide
+                     << currentCellData.sampling
+                     << currentCellData.region
+                     << currentCellData.etaBin
+                     << currentCellData.phiBin;
               return result;
             }
         }
 
         result << 10             // LArCalorimeter
-               << m_zSide * 4     // LArBarrel
+               << currentCellData.zSide * 4     // LArBarrel
                << type
                << sampling
                << region
-               << m_etaBin
-               << m_phiBin;
+               << currentCellData.etaBin
+               << currentCellData.phiBin;
 
 #ifdef  DEBUGHITS
         std::cout << "Here the identifier for the barrel DEAD materials ---->" << std::endl;
         std::cout << "Type     ----> " << type << std::endl;
         std::cout << "Sampling ----> " << sampling << std::endl;
         std::cout << "Region   ----> " << region << std::endl;
-        std::cout << "m_zSide  ----> " << m_zSide*4 << std::endl;
-        std::cout << "etaBin   ----> " << m_etaBin << std::endl;
-        std::cout << "phiBin   ----> " << m_phiBin << std::endl;
+        std::cout << "zSide  ----> "   << currentCellData.zSide*4 << std::endl;
+        std::cout << "etaBin   ----> " << currentCellData.etaBin << std::endl;
+        std::cout << "phiBin   ----> " << currentCellData.phiBin << std::endl;
 #endif
 
-        //    if (!Geometry::CheckDMIdentifier(type,sampling,region,m_etaBin,m_phiBin)) {
+        //    if (!Geometry::CheckDMIdentifier(type,sampling,region,currentCellData.etaBin,currentCellData.phiBin)) {
         //        std::cout << " **  Bad DM identifier " << type << " " << sampling << " " << region << " "
-        //                  << m_etaBin << " " << m_phiBin << std::endl;
+        //                  << currentCellData.etaBin << " " << currentCellData.phiBin << std::endl;
         //        std::cout << "x,y,z,r,eta,phi" << xZpos << " " << yZpos << " " << zZpos <<
         //         " " << radiusZpos << " " << etaZpos << " " << phiZpos << std::endl;
         //    }

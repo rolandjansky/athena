@@ -20,9 +20,9 @@ public:
   void SetDirectory(std::string dir);
   void Reset();
   int  Region(int region, int sampling, int eta) const;
-  void SetMap(int ifold, int ielecregion);
-  void SetMap(int ifold, int region, int sampling, int eta);
-  CurrMap* Map() const {return m_curr;}
+  CurrMap* GetMap(int ifold, int ielecregion) const;
+  CurrMap* GetMap(int ifold, int region, int sampling, int eta) const;
+  //CurrMap* Map() const {return m_curr;}
   float GetXmin(int ifold) const {
     if (ifold<m_nmax && ifold >=0) return m_xmin[ifold];
     else return -999.;}
@@ -40,13 +40,6 @@ private:
   static AccMap* s_thePointer;
   curr_map m_theMap;
   std::string m_directory;
-  // current map info
-  CurrMap* m_curr;
-  int m_fold;
-  int m_region;
-  int m_eta;
-  int m_sampling;
-  int m_elecregion;
   int m_nmax;
   std::vector<float> m_xmin;
   std::vector<float> m_xmax;
