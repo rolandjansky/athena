@@ -137,7 +137,7 @@ def list_patch_packages():
 ###############################
 ########### Was the q test successful? To check simply count the number of lines containing the string "successful run"
 
-def QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqID):
+def QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqID,RunPatchedOnly=False):
     logging.info("-----------------------------------------------------"  )
     logging.info("Did each step of the "+q+" test complete successfully?" )
 
@@ -146,14 +146,6 @@ def QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqID):
     _Test=True
     for step in qTestsToRun[q]:
         logging.info("")
-        cmd = "grep \"successful run\" " + test_dir + "/log."+str(step)
-        ref = subprocess.Popen(['/bin/bash', '-c',cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
-
-        if "successful run" in ref:
-            logging.info(step+" Reference test successful")
-        else :
-            logging.info(step+" Reference test failed")
-            _Test = False
 
         cmd = "grep \"successful run\" run_"+q+"/log."+str(step)
         test = subprocess.Popen(['/bin/bash', '-c',cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
@@ -162,6 +154,17 @@ def QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqID):
             logging.info(step+" Patched test successful")
         else :
             logging.info(step+" Patched test failed")
+            _Test = False
+
+        if RunPatchedOnly : continue   # Skip checking reference test because in this mode the clean tests have not been run
+            
+        cmd = "grep \"successful run\" " + test_dir + "/log."+str(step)
+        ref = subprocess.Popen(['/bin/bash', '-c',cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
+
+        if "successful run" in ref:
+            logging.info(step+" Reference test successful")
+        else :
+            logging.info(step+" Reference test failed")
             _Test = False
 
     logging.info("")       
@@ -173,11 +176,14 @@ def QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqID):
              
 
 ############### Run Frozen Tier0 Policy Test 
-def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID):
+def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID,RunPatchedOnly=False):
     logging.info("---------------------------------------------------------------------------------------" )
     logging.info("Running "+q+" Frozen Tier0 Policy Test on "+inputFormat+" for "+str(maxEvents)+" events" )
 
     clean_dir = CleanRunHeadDir+"/clean_run_"+q+"_"+UniqID
+
+    if RunPatchedOnly: #overwrite
+        clean_dir = '/afs/cern.ch/work/g/gencomm/public/referenceFiles/'+q
 
     comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --error-mode resilient --ignore-leaves  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"   
     output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
@@ -368,6 +374,9 @@ def main():
     parser.add_option("-v","--val"     ,type="string"        ,dest="val"   ,default=None    ,help="define a particular validation release")
     parser.add_option("-t","--trigRun2Config", type="string", dest="trigRun2Config_flag", default="2017"       ,help="specify the value of run2Config variable used by trigger. Allowed values are \"2016\" and \"2017\" (default)")
 
+    parser.add_option("-p","--patched"     ,action="store_true"       ,dest="patched_flag"        ,default=False    ,help="patched option will run q-tests just on your patched version of packages. Be warned! File output comparisons will only be performed against pre-defined reference files stored in the directory /afs/cern.ch/work/g/gencomm/public/referenceFiles and performance comparison tests will not be run.")
+
+
     (options,args)=parser.parse_args()
 
     extraArg = ""
@@ -377,6 +386,7 @@ def main():
         extraArg = options.extraArgs
 
     RunFast = options.fast_flag
+    RunPatchedOnly = options.patched_flag
     CleanRunHeadDir=options.cleanDir
     r2aMode = options.r2a_flag
     trigRun2Config = options.trigRun2Config_flag    
@@ -398,7 +408,16 @@ def main():
 
     if os.path.exists(CleanRunHeadDir):
         logging.info("")
-        logging.info("The head directory for the output of the clean Tier0 q-tests will be "+CleanRunHeadDir)
+        if RunPatchedOnly:
+            logging.info("You are running in patched only mode whereby only q-tests against your build are being run.")
+            logging.info("In this mode ESD and AOD outputs are compared with pre-defined reference files found in the directory")
+            logging.info("/afs/cern.ch/work/g/gencomm/public/referenceFiles")
+            logging.info("")
+            if not os.path.exists('/afs/cern.ch/work/g/gencomm/public/referenceFiles'):
+                logging.error("Exit. Patched only mode can only be run on nodes with access to /afs/cern.ch/work/g/gencomm/public/referenceFiles")
+                sys.exit(0)            
+        else:
+            logging.info("The head directory for the output of the clean Tier0 q-tests will be "+CleanRunHeadDir)
         logging.info("")
     else:
         logging.info("")
@@ -490,6 +509,24 @@ def main():
             for thread in mythreads:
                 mythreads[thread].join()
 
+        elif RunPatchedOnly:
+
+            for qtest in qTestsToRun:
+                q=str(qtest)
+
+
+                def mypatchedqtest():
+                    RunPatchedQTest(q,mypwd,mysetup,myTestArea,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
+                    pass
+            
+                mythreads[q+"_patched"] = threading.Thread(target=mypatchedqtest)
+                mythreads[q+"_patched"].start()
+
+            for thread in mythreads:
+                mythreads[thread].join()
+
+            
+
         else :
             for qtest in qTestsToRun:
                 q=str(qtest)
@@ -517,15 +554,17 @@ def main():
             logging.info("-----------------------------------------------------"    )
             logging.info("----------- Post-processing of "+q+" Test -----------"    )
 
-            QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqName)
+            QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqName,RunPatchedOnly)
 
+            RunFrozenTier0PolicyTest(q,"ESD",10,CleanRunHeadDir,UniqName,RunPatchedOnly)
+
+            RunFrozenTier0PolicyTest(q,"AOD",20,CleanRunHeadDir,UniqName,RunPatchedOnly)
+
+            if RunPatchedOnly: continue  #
+    
             if 'q221' in q: 
                 RunFrozenTier0PolicyTest(q,"RDO",10,CleanRunHeadDir,UniqName)
             
-            RunFrozenTier0PolicyTest(q,"ESD",10,CleanRunHeadDir,UniqName)
-
-            RunFrozenTier0PolicyTest(q,"AOD",20,CleanRunHeadDir,UniqName)
-
             RunTest(q,qTestsToRun,"CPU Time"       ,"evtloop_time"    ,"sec/event"   ,4,0.4,CleanRunHeadDir,UniqName)
 
             RunTest(q,qTestsToRun,"Physical Memory","VmRSS"           ,"kBytes"      ,4,0.2,CleanRunHeadDir,UniqName)

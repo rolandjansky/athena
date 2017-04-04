@@ -126,6 +126,7 @@ def copy_vec (event, obj, key):
 
 def copy_view (event, obj, key):
     copy = obj.__class__(obj)
+    copy.toPersistent()
     CHECK (event.record (copy, key))
     ROOT.SetOwnership (copy, False)
     return

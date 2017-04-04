@@ -503,7 +503,7 @@ StatusCode TrigCostTool::fillHists()
     }
   }
 
-  if(outputLevel() <= MSG::DEBUG) { 
+  if(msgLevel() <= MSG::DEBUG) { 
     ATH_MSG_DEBUG("Processed run #" << eventInfo->runNumber() << " lb #" << eventInfo->lumiBlock() << " event #" << eventInfo->eventNumber() );
     ATH_MSG_DEBUG("  steeringOPILevel  = " << opiLevel );
     ATH_MSG_DEBUG("  isMonitoringEvent = " << monitoringEvent << ", ranTools = " << _runTools << ", ranScaleTools = " << _ranSacleTools );
@@ -654,8 +654,8 @@ void TrigCostTool::ProcessConfig(xAOD::EventInfo* info)
 
       bool writeConfig = true;
       if      (m_writeAlways == true) writeConfig = true; // First check WriteAlways flag
-      else if (m_writeConfig == false) writeConfig = false; // Next comes WriteConfig flag. This is normally true.
       else if (m_costForCAF == true) writeConfig = true; // If offline, then we don't have any other preconditions
+      else if (m_writeConfig == false) writeConfig = false; // Next comes WriteConfig flag. In 2017 this will be false online
       else if (m_obeyCostChainPS == true && m_costChainPS > 0) writeConfig = true; // Online, we normally only write out if we are in stable beams
       else if (m_obeyCostChainPS == true && m_costChainPS <= 0) writeConfig = false;
       

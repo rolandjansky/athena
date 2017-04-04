@@ -1,7 +1,7 @@
-Thu May  5 22:30:40 CEST 2016
+Wed Jan 18 05:28:02 CET 2017
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-1.0.0] [x86_64-slc6-gcc49-dbg] [private/private] -- built on [2016-05-05 20:54]
+Py:Athena            INFO using release [WorkDir-21.0.14] [x86_64-slc6-gcc49-dbg] [private/private] -- built on [2017-01-18 05:25]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Warning in <TInterpreter::ReadRootmapFile>: class  Event found in libG4AtlasControlDict.so  is already in libtest_GPyTestDict.so 
@@ -9,19 +9,14 @@ Warning in <TInterpreter::ReadRootmapFile>: class  UCharDbArray found in libStor
 Py:Athena            INFO executing ROOT6Setup
 [?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/ByteStreamTestWrite_jo.py"
-Py:ConfigurableDb    INFO Read module info for 4999 configurables from 39 genConfDb files
-Py:ConfigurableDb WARNING Found 1 duplicates among the 39 genConfDb files :
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -D3PD__TrigConfMetadataTool: TriggerD3PDMaker.TriggerD3PDMakerConf - ['TrigCostD3PDMaker.TrigCostD3PDMakerConf']
-Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+Py:ConfigurableDb    INFO Read module info for 5149 configurables from 15 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
-                                          running on lxplus018.cern.ch on Thu May  5 22:30:53 2016
+                                          running on lxplus023.cern.ch on Wed Jan 18 05:28:19 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -29,19 +24,18 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-19
-ClassIDSvc           INFO  getRegistryEntries: read 6783 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-20
+ClassIDSvc           INFO  getRegistryEntries: read 8338 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-08
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-22
 AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
-ClassIDSvc           INFO  getRegistryEntries: read 346 CLIDRegistry entries for module ALL
-AthAlgSeq            INFO Member list: DMTest::xAODTestWriteCVec/xAODTestWriteCVec, DMTest::HLTResultWriter/HLTResultWriter
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-06-40
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-07
+ClassIDSvc           INFO  getRegistryEntries: read 363 CLIDRegistry entries for module ALL
+AthAlgSeq            INFO Member list: DMTest::xAODTestWriteCVec/xAODTestWriteCVec, DMTest::xAODTestWriteCView/xAODTestWriteCView, DMTest::xAODTestWriteHVec/xAODTestWriteHVec, DMTest::HLTResultWriter/HLTResultWriter
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-08
 TrigSerializeCn...   INFO initialize()
-ClassIDSvc           INFO  getRegistryEntries: read 443 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 461 CLIDRegistry entries for module ALL
 TClass::Init:0: RuntimeWarning: no dictionary for class CosmicMuonCollection_tlp1 is available
 TClass::Init:0: RuntimeWarning: no dictionary for class MdtTrackSegmentCollection_tlp1 is available
 TClass::Init:0: RuntimeWarning: no dictionary for class CosmicMuonCollection_p1 is available
@@ -49,29 +43,30 @@ TClass::Init:0: RuntimeWarning: no dictionary for class CosmicMuon_p1 is availab
 TClass::Init:0: RuntimeWarning: no dictionary for class MdtTrackSegmentCollection_p1 is available
 TClass::Init:0: RuntimeWarning: no dictionary for class MdtTrackSegment_p1 is available
 TClass::Init:0: RuntimeWarning: no dictionary for class MdtTrackSegmentCollection_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class PanTauDetails_p1 is available
 ToolSvc.TrigTSe...WARNING Could not re-load  class listOfRules
 ToolSvc.TrigSer...   INFO Initializing - Package version: TrigSerializeTP-00-02-11
-ClassIDSvc           INFO  getRegistryEntries: read 7564 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 10566 CLIDRegistry entries for module ALL
 DecisionSvc          INFO Inserting stream: StreamBSFileOutput with no Algs
-OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-01-60-08
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-60-08
-InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-03-06-40
-MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-03-06-40
-AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-28-18
-PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-25-02
+OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-01-60-22
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-60-22
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-29-00
+PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-25-05
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://aiatlas036.cern.ch:8000/atlr)(serverurl=http://aiatlas034.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli02.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca18.cern.ch:3128)(proxyurl=http://ca17.cern.ch:3128)(proxyurl=http://atlast0fsquid.cern.ch:3128)(proxyurl=http://atlassquid1.cern.ch:3128)(proxyurl=http://atlassquid2.cern.ch:3128)(proxyurl=http://atlassquid4.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_3/InstallArea/x86_64-slc6-gcc49-dbg/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus018.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /afs/cern.ch/atlas/software/builds/nightlies/21.0.X-VAL/AtlasCore/rel_1/InstallArea/x86_64-slc6-gcc49-dbg/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus023.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
-PoolSvc              INFO Re-initializing PoolSvc
+PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
+PoolXMLFileCatalog Info File PoolFileCatalog.xml does not exist, a new one is created
+PoolSvc              INFO Re-initializing PoolSvc
 StreamBSFileOut...   INFO AthenaOutputStreamTool initialize
-ByteStreamEvent...   INFO Initializing ByteStreamEventStorageOutputSvc - package version ByteStreamCnvSvc-01-34-38
+ByteStreamEvent...   INFO Initializing ByteStreamEventStorageOutputSvc - package version ByteStreamCnvSvc-01-34-41-02
 ByteStreamEvent...   INFO eformat version to use: "current"
 ByteStreamEvent...   INFO event storage (BS) version to use: "current"
 ByteStreamEvent...   INFO Reinitialization...
@@ -81,106 +76,72 @@ StreamBSFileOutput   INFO I/O reinitialization...
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO  Enter McEventSelector Initialization 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
-ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-06-40
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-07-07
 ApplicationMgr       INFO Application Manager Initialized successfully
-StoreGateSvc         INFO Start StoreGateSvc
-InputMetaDataStore   INFO Start InputMetaDataStore
-MetaDataStore        INFO Start MetaDataStore
 ApplicationMgr       INFO Application Manager Started successfully
 EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-ClassIDSvc           INFO  getRegistryEntries: read 1622 CLIDRegistry entries for module ALL
-ROBDataProviderSvc   INFO Initializing ROBDataProviderSvc - package version ByteStreamCnvSvcBase-00-08-12
+ClassIDSvc           INFO  getRegistryEntries: read 1691 CLIDRegistry entries for module ALL
+ROBDataProviderSvc   INFO Initializing ROBDataProviderSvc - package version ByteStreamCnvSvcBase-00-08-14
 ROBDataProviderSvc   INFO  ---> Filter out empty ROB fragments                               =  'filterEmptyROB':False
 ROBDataProviderSvc   INFO  ---> Filter out specific ROBs by Status Code: # ROBs = 0
 ROBDataProviderSvc   INFO  ---> Filter out Sub Detector ROBs by Status Code: # Sub Detectors = 0
 InputMetaDataStoreWARNING retrieve(default): No valid proxy for default object 
  of type ByteStreamMetadata(CLID 170625359)
 ByteStreamEvent...   INFO No ByteStreamMetadata in InputMetaDataStore
-DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-06-40
-DetectorStore        INFO Start DetectorStore
 DetectorStore     WARNING retrieve(default): No valid proxy for default object 
  of type TagInfo(CLID 61780915)
 ByteStreamEvent...WARNING Did not find /ByteStream/Output/FreeMetadataStrings in detstore. Skipping.
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
-ClassIDSvc           INFO  getRegistryEntries: read 202 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 210 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #0 2 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #0 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #0 3 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #0 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #0 7 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #0 8 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #0 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #0 10 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #0 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #0 11 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #0 12 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #0 12 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #0 13 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #0 13 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #0 14 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #0 14 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #0 15 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #0 15 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #0 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #0 16 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #0 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #0 17 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #0 18 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
-HolderFactory     WARNING HolderImp::syncWithSG policy 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
-DetectorStore        INFO Stop DetectorStore
-MetaDataStore        INFO Stop MetaDataStore
-InputMetaDataStore   INFO Stop InputMetaDataStore
-StoreGateSvc         INFO Stop StoreGateSvc
-StoreGateSvc         INFO stop: setting service priority to 101 so that event stores get finalized and cleared before other stores
 ApplicationMgr       INFO Application Manager Stopped successfully
 AthAlgSeq            INFO Finalizing AthAlgSeq...
 AthOutSeq            INFO Finalizing AthOutSeq...
 AthRegSeq            INFO Finalizing AthRegSeq...
 AthMasterSeq         INFO Finalizing AthMasterSeq...
-StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-03-06-40
-DetectorStore        INFO Finalizing DetectorStore - package version StoreGate-03-06-40
 EventSelector        INFO finalize
 ByteStreamEvent...   INFO number of events written: 20
-PoolSvc              INFO I/O finalization...
 PoolXMLFileCatalog Info XercesC termination number 0
-MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-03-06-40
-InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-03-06-40
+PoolSvc              INFO I/O finalization...
 DecisionSvc          INFO -- OUTPUT STREAM EVENT OVERLAP SUMMARY --
 DecisionSvc          INFO List of registered 1 Streams: StreamBSFileOutput 
 DecisionSvc          INFO Finalized successfully.

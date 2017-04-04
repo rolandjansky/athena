@@ -3410,6 +3410,7 @@ void test_copyconvert()
     MM* mm = *it;
     assert (mm->mm == i + 100);
     P* pp = dynamic_cast<P*> (mm);
+    if (!pp) std::abort();
     assert (pp->x == i);
     ++it;
   }

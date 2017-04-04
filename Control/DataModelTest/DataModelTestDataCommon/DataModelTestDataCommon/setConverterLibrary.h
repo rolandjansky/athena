@@ -27,6 +27,8 @@ namespace DMTest {
 void setPluginLibrary (const std::string& name, const std::string& lib);
 void setConverterLibrary (CLID clid, const std::string& lib);
 void setConverterLibrary (const std::string& lib);
+void setTrigConverterLibrary (CLID clid, const std::string& lib);
+void setTrigConverterLibrary (const std::string& lib);
 
 
 } // namespace DMTest

@@ -1,0 +1,197 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file ViewVectorBase.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Sep, 2016
+ * @brief Hold the persistent representation for a ViewVector.
+ */
+
+
+#include "AthContainers/AuxElement.h"
+#include <type_traits>
+
+
+namespace {
+
+
+template <class T>
+inline
+SG::AuxVectorData* getContainer1 (T* p, const std::true_type&)
+{
+  return p->container();
+}
+template <class T>
+inline
+SG::AuxVectorData* getContainer1 (T*, const std::false_type&)
+{
+  return nullptr;
+}
+
+
+/**
+ * @brief Return the container for an element.
+ *
+ * Returns null if the element does not derive from AuxElement.
+ */
+template <class T>
+inline
+SG::AuxVectorData* getContainer (T* p)
+{
+  return getContainer1 (p, typename std::is_base_of<SG::AuxElement, T>::type());
+}
+
+
+} // anonyous namespace
+
+
+namespace SG {
+
+
+/**
+ * @brief Destructor.
+ */
+inline
+ViewVectorBase::~ViewVectorBase()
+{
+}
+
+
+/**
+ * @brief Clear the persistent data.
+ */
+inline
+void ViewVectorBase::clearPersistent()
+{
+  m_persKey.clear();
+  m_persIndex.clear();
+}
+
+
+/**
+ * @brief Set a flag to declare that the vector should be cleared
+ *        on the next call to toPersistent().
+ *
+ *        This would be used in the case where we make a copy of the
+ *        object being written.
+ */
+inline
+void ViewVectorBase::setClearOnPersistent()
+{
+  m_clearOnPersistent = true;
+}
+
+
+/**
+ * @brief Convert to persistent form.
+ * @param v The vector to convert.
+ *
+ * Called for classes that have a CLID.
+ */
+template <class DV>
+void
+ViewVectorBase::doToPersistent1 (DV& v, const std::true_type&)
+{
+  IProxyDict* store = SG::CurrentEventStore::store();
+  std::vector<ElementLink<DV> > elv = SG::dataVectorAsELV (v, store);
+  m_persKey.clear();
+  m_persIndex.clear();
+  m_persKey.reserve (elv.size());
+  m_persIndex.reserve (elv.size());
+  for (ElementLinkBase& el : elv) {
+#ifdef XAOD_STANDALONE
+    m_persKey.push_back (el.persKey());
+    m_persIndex.push_back (el.persIndex());
+#else
+    el.thin();
+    m_persKey.push_back (el.key());
+    m_persIndex.push_back (el.index());
+#endif
+  }
+  if (m_clearOnPersistent) {
+    v.clear();
+    m_clearOnPersistent = false;
+  }
+}
+
+
+/**
+ * @brief Convert to persistent form.
+ * @param v The vector to convert.
+ *
+ * Called for classes that do not have a CLID.
+ * This will simply abort.
+ */
+template <class DV>
+inline
+void ViewVectorBase::doToPersistent1 (DV&, const std::false_type&)
+{
+  std::abort();
+}
+
+
+/**
+ * @brief Convert to persistent form.
+ * @param v The vector to convert.
+ *
+ * This will abort if called for a class with no CLID.
+ */
+template <class DV>
+inline
+void ViewVectorBase::doToPersistent (DV& v)
+{
+  // Dispatch depending on whether or not DV has a CLID.
+  doToPersistent1 (v,
+#ifdef XAOD_STANDALONE
+                   std::true_type()
+#else
+                   typename ClassID_traits<DV>::has_classID_tag()
+#endif
+                   );
+}
+
+
+/**
+ * @brief Convert to transient form.
+ * @param v The vector to fill in.
+ *
+ * Called for classes that have a CLID if DV is not a ConstDataVector.
+ */
+template <class DV>
+void ViewVectorBase::doToTransient2 (DV& v, const std::true_type&)
+{
+  // The custom DataVector collection proxy will have created elements here,
+  // so we need to delete them to avoid a memory leak.
+  // FIXME: It should be possible to avoid creating the elements
+  // in the first place, at least for the usual case xAOD where the elements
+  // themselves have no persistent data.
+  if (v.ownPolicy() == SG::VIEW_ELEMENTS) {
+    for (typename DV::value_type p : v) {
+      // Try to protect against deleting an unowned object in the case
+      // where this gets called multiple times on the same object.
+      // The dummy elements will have null container pointers, while
+      // those that we've retrieved through EL resolution below should
+      // have the container pointer set.  Can only do this check, though,
+      // for types with aux data.
+      if (getContainer(p) == nullptr)
+        delete p;
+    }
+  }
+  v.clear (SG::VIEW_ELEMENTS);
+  IProxyDict* store = SG::CurrentEventStore::store();
+
+  assert (m_persKey.size() == m_persIndex.size());
+  for (size_t i = 0; i < m_persKey.size(); i++) {
+    ElementLink<DV> el (m_persKey[i], m_persIndex[i], store);
+    // FIXME: const_cast
+    v.push_back (const_cast<typename DV::value_type> (*el));
+  }
+}
+
+
+} // namespace SG
+
+             
