@@ -18,6 +18,11 @@ public:
 
 private:
     ToolHandle<GenericMonitoringTool> m_monitoringTool;
+
+    void scalarTest();
+    void valuesCollectionTest();
+    void objectsCollectionTest();
+    void inLoopTest();
 };
 
 #endif
