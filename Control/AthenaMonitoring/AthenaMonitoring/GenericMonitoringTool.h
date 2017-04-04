@@ -103,6 +103,7 @@ public:
 
     virtual ~HistogramFiller() {}
     virtual unsigned fill() = 0;
+    virtual HistogramFiller* clone() = 0;
 
     void setMonitoredVariables(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) {
       m_monVariables = monitoredVariables;
@@ -164,6 +165,7 @@ private:
     HistogramFiller1D(TH1* hist, HistogramDef histDef)
       : HistogramFiller(hist, histDef) {}
     virtual unsigned fill();
+    virtual HistogramFiller1D* clone();
   protected:
     virtual TH1* histogram() { return m_hist; }
   };
@@ -176,6 +178,7 @@ private:
     CumulativeHistogramFiller1D(TH1* hist, HistogramDef histDef) 
       : HistogramFiller1D(hist, histDef) {}
     virtual unsigned fill();
+    virtual CumulativeHistogramFiller1D* clone();
   };
 
   class VecHistogramFiller1D : public HistogramFiller1D {
@@ -183,6 +186,7 @@ private:
     VecHistogramFiller1D(TH1* hist, HistogramDef histDef) 
       : HistogramFiller1D(hist, histDef) {}
     virtual unsigned fill();
+    virtual VecHistogramFiller1D* clone();
   };
   
   class VecHistogramFiller1DWithOverflows : public HistogramFiller1D {
@@ -190,6 +194,7 @@ private:
     VecHistogramFiller1DWithOverflows(TH1* hist, HistogramDef histDef) 
       : HistogramFiller1D(hist, histDef) {}
     virtual unsigned fill();
+    virtual VecHistogramFiller1DWithOverflows* clone();
   };
 
   /**
@@ -200,6 +205,7 @@ private:
     HistogramFillerProfile(TProfile* hist, HistogramDef histDef)
       : HistogramFiller(hist, histDef) {};
     virtual unsigned fill();
+    virtual HistogramFillerProfile* clone();
   protected:
     virtual TProfile* histogram() { return static_cast<TProfile*>(m_hist); }
   };
@@ -212,6 +218,7 @@ private:
     HistogramFiller2D(TH2* hist, HistogramDef histDef)
       : HistogramFiller(hist, histDef) {};
     virtual unsigned fill();
+    virtual HistogramFiller2D* clone();
   protected:
     virtual TH2* histogram() { return static_cast<TH2*>(m_hist); }
   };
@@ -224,6 +231,7 @@ private:
     HistogramFiller2DProfile(TProfile2D* hist, HistogramDef histDef)
       : HistogramFiller(hist, histDef) {};
     virtual unsigned fill();
+    virtual HistogramFiller2DProfile* clone();
   protected:
     virtual TProfile2D* histogram() { return static_cast<TProfile2D*>(m_hist); }
   };  

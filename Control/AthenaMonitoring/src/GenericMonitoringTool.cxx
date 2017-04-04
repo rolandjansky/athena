@@ -70,17 +70,31 @@ StatusCode GenericMonitoringTool::initialize() {
 }
 
 vector<GenericMonitoringTool::HistogramFiller*> GenericMonitoringTool::getHistogramsFillers(vector<reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) {
-  vector<GenericMonitoringTool::HistogramFiller*> result;
+  vector<HistogramFiller*> result;
 
-  // for (auto filler : m_fillers) {
-  //   auto fillerVariables = filler->histogramVariablesNames();
-  //   vector<reference_wrapper<Monitored::IMonitoredVariable>> variables;
+  for (auto filler : m_fillers) {
+    auto fillerVariables = filler->histogramVariablesNames();
+    vector<reference_wrapper<Monitored::IMonitoredVariable>> variables;
 
-  //   for (auto fillerVariable : fillerVariables) {
+    for (auto fillerVariable : fillerVariables) {
+      for (auto monValue : monitoredVariables) {
+        if (fillerVariable.compare(monValue.get().stringName()) == 0) {
+          variables.push_back(monValue);
+          break;
+        }
+      }
+    }
 
-  //   }
-  // }
-//TODO
+    if (fillerVariables.size() != variables.size()) {
+      ATH_MSG_DEBUG("Filler has different variables than monitoredVariables");
+      continue;
+    }
+
+    HistogramFiller* fillerCopy = filler->clone();
+    fillerCopy->setMonitoredVariables(variables);
+    result.push_back(fillerCopy);
+  }
+
   return result;
 }
 
@@ -570,6 +584,10 @@ unsigned GenericMonitoringTool::HistogramFiller1D::fill() {
   return i;
 } 
 
+GenericMonitoringTool::HistogramFiller1D* GenericMonitoringTool::HistogramFiller1D::clone() {
+  return new HistogramFiller1D(*this);
+}
+
 unsigned GenericMonitoringTool::CumulativeHistogramFiller1D::fill() {
   if (m_monVariables.size() != 1) {
     return 0;
@@ -593,6 +611,10 @@ unsigned GenericMonitoringTool::CumulativeHistogramFiller1D::fill() {
   return i;  
 }
 
+GenericMonitoringTool::CumulativeHistogramFiller1D* GenericMonitoringTool::CumulativeHistogramFiller1D::clone() {
+  return new CumulativeHistogramFiller1D(*this);
+}
+
 unsigned GenericMonitoringTool::VecHistogramFiller1D::fill() {
   if (m_monVariables.size() != 1) {
     return 0;
@@ -613,6 +635,10 @@ unsigned GenericMonitoringTool::VecHistogramFiller1D::fill() {
   return i;
 }
 
+GenericMonitoringTool::VecHistogramFiller1D* GenericMonitoringTool::VecHistogramFiller1D::clone() {
+  return new VecHistogramFiller1D(*this);
+}
+
 unsigned GenericMonitoringTool::VecHistogramFiller1DWithOverflows::fill() {
   if (m_monVariables.size() != 1) {
     return 0;
@@ -631,6 +657,10 @@ unsigned GenericMonitoringTool::VecHistogramFiller1DWithOverflows::fill() {
   }
 
   return i;
+}
+
+GenericMonitoringTool::VecHistogramFiller1DWithOverflows* GenericMonitoringTool::VecHistogramFiller1DWithOverflows::clone() {
+  return new VecHistogramFiller1DWithOverflows(*this);
 }
 
 unsigned GenericMonitoringTool::HistogramFillerProfile::fill() {
@@ -667,6 +697,10 @@ unsigned GenericMonitoringTool::HistogramFillerProfile::fill() {
   return i;
 }
 
+GenericMonitoringTool::HistogramFillerProfile* GenericMonitoringTool::HistogramFillerProfile::clone() {
+  return new HistogramFillerProfile(*this);
+}
+
 unsigned GenericMonitoringTool::HistogramFiller2DProfile::fill() {
   if (m_monVariables.size() != 3) {
     return 0;
@@ -690,6 +724,10 @@ unsigned GenericMonitoringTool::HistogramFiller2DProfile::fill() {
   }
   
   return i;
+}
+
+GenericMonitoringTool::HistogramFiller2DProfile* GenericMonitoringTool::HistogramFiller2DProfile::clone() {
+  return new HistogramFiller2DProfile(*this);
 }
 
 unsigned GenericMonitoringTool::HistogramFiller2D::fill() {
@@ -724,6 +762,10 @@ unsigned GenericMonitoringTool::HistogramFiller2D::fill() {
   }
   
   return i;
+}
+
+GenericMonitoringTool::HistogramFiller2D* GenericMonitoringTool::HistogramFiller2D::clone() {
+  return new HistogramFiller2D(*this);
 }
 
 /////////////////////////////////////////////////////////////////////////
