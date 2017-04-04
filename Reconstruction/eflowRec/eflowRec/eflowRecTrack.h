@@ -121,6 +121,7 @@ private:
   std::vector<float> m_avgEdensityCellOrderVector;
   int m_layerCellOrder;
   float m_radiusCellOrder;
+
   float m_avgEdensityCellOrder;
   
 
