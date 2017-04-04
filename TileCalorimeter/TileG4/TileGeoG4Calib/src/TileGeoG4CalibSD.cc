@@ -249,8 +249,8 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
   EventInformation * event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
   if ( event_info ) {
       // Update the step info
-      event_info->SetLastProcessedBarcode( a_step->GetTrack()->GetTrackID() );
-      event_info->SetLastProcessedStep( a_step->GetTrack()->GetCurrentStepNumber() );
+      event_info->SetLastProcessedBarcode( step->GetTrack()->GetTrackID() );
+      event_info->SetLastProcessedStep( step->GetTrack()->GetCurrentStepNumber() );
   }
 
   //THIS METHOD WILL CHECK WHETER ARE ALL CLASSIFIED ENERGIES
