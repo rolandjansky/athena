@@ -339,7 +339,7 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
                                             RefitPrds   = not InDetTrigFlags.refitROT()
                                             )
 
-      InDetTrigAmbiguityProcessor.ScoringTool = InDet__InDetAmbiScoringTool(name='InDetTrigScoringTool_'+slice, doEmCaloSeed = False)
+      InDetTrigAmbiguityProcessor.ScoringTool = InDet__InDetAmbiScoringTool('InDetTrigScoringTool_'+slice)
 
       if slice=='beamgas':
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsBeamGas import \
@@ -597,7 +597,7 @@ class TrigExtProcessor_EF( InDet__InDetTrigExtensProcessor ):
 
       
     self.TrackFitter  = InDetTrigExtensionFitter
-    self.ScoringTool  = InDet__InDetAmbiScoringTool(name='InDetTrigExtScoringTool_'+type, doEmCaloSeed = False)
+    self.ScoringTool  = InDet__InDetAmbiScoringTool('InDetTrigExtScoringTool_'+type)
                                                           
     self.RefitPrds    = not (InDetTrigFlags.refitROT() or (InDetTrigFlags.trtExtensionType() is 'DAF'))
     self.suppressHoleSearch = False    # does not work properly      
