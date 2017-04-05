@@ -427,7 +427,7 @@ const Root::TResult& AsgElectronChargeIDSelectorTool::calculate( const xAOD::Ele
   //   std::cout<<"\t kmdebug: "<<m_inputVars.at(i)<<"\t("<<pointer<<")\t = "<<*pointer<<std::endl; i++;
   // }
 
-  double bdt_output = m_v_bdts.at(bdt_index)->GetGradBoostMVA(m_v_bdts.at(bdt_index)->GetPointers());
+  double bdt_output = m_v_bdts.at(m_bdt_index)->GetGradBoostMVA(m_v_bdts.at(m_bdt_index)->GetPointers());
   ATH_MSG_DEBUG("ECIDS-BDT= "<<bdt_output);
 
   m_resultBDT.setResult(m_resultPosition_bdt,bdt_output);
