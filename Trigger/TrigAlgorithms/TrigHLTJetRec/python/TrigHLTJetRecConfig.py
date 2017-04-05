@@ -289,31 +289,31 @@ def _getJetBuildTool(merge_param,
                                             ptminFilter=ptminFilter
                                             )
             
-#            if not hasattr(jtm,"jbldTrigger"):
-#                jtm.addJetBuilderWithArea(JetFromPseudojet("jbldTrigger",
-#                                                        Attributes = ["ActiveArea", "ActiveArea4vec"],
-#                                                        IsTrigger=True,
-#                                                       ))
+            if not hasattr(jtm,"jbldTrigger"):
+                jtm.addJetBuilderWithArea(JetFromPseudojet("jbldTrigger",
+                                                        Attributes = ["ActiveArea", "ActiveArea4vec"],
+                                                        IsTrigger=True,#                                                       ))
+                                                       ))
  
             if merge_param==0.4: 
                     from AthenaCommon.AppMgr import ToolSvc
-#                    #getattr(ToolSvc,name+"Groomer").unlock()
-#                    #getattr(ToolSvc,name+"Groomer").JetBuilder = jtm.trigjblda
-#                    #getattr(ToolSvc,name+"Groomer").lock()
-#        
-#                    # For debugging
-                    getattr(ToolSvc,"jconretriever").unlock()
-                    getattr(ToolSvc,"jconretriever").OutputLevel = 1
-                    getattr(ToolSvc,"jconretriever").lock()
-                    print "FS scan Builder looks like.."
-                    print getattr(ToolSvc,name+"Finder").JetBuilder
                     getattr(ToolSvc,name+"Finder").unlock()
-                    getattr(ToolSvc,name+"Finder").OutputLevel = 1
+                    getattr(ToolSvc,name+"Finder").JetBuilder = jtm.jbldTrigger
+                    getattr(ToolSvc,name+"Finder").lock()
+        
+#                    # For debugging
+#                    getattr(ToolSvc,"jconretriever").unlock()
+#                    getattr(ToolSvc,"jconretriever").OutputLevel = 1
+#                    getattr(ToolSvc,"jconretriever").lock()
+#                    print "FS scan Builder looks like.."
+#                    print getattr(ToolSvc,name+"Finder").JetBuilder
+#                    getattr(ToolSvc,name+"Finder").unlock()
+#                    getattr(ToolSvc,name+"Finder").OutputLevel = 1
 #                    getattr(ToolSvc,"jbldTrigger").unlock()
 #                    getattr(ToolSvc,"jbldTrigger").OutputLevel = 1
 #                    getattr(ToolSvc,"jbldTrigger").lock()
                     #getattr(ToolSvc,name+"Finder").JetBuilder.setOutputLevel = 1
-                    getattr(ToolSvc,name+"Finder").lock()        
+#                    getattr(ToolSvc,name+"Finder").lock()        
     
         except Exception, e:
             print 'error adding new jet finder %s' % name
