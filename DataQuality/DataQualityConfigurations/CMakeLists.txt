@@ -25,30 +25,24 @@ set( han_config_files collisions_run collisions_minutes10
                       cosmics_run cosmics_minutes10
 		      heavyions_run heavyions_minutes10 )
 set( hcfgfiles )
-#set( BUILD_BIN_DIR ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/bin )
-#set( BUILD_LIB_DIR ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/lib )
-#configure_file(scripts/invoke_in_build_environment.sh.in invoke_in_build_environment.sh)
+
 foreach (hanfile IN LISTS han_config_files)
   add_custom_command(
     OUTPUT ${CMAKE_DATA_OUTPUT_DIRECTORY}/DataQualityConfigurations/${hanfile}.hcfg
     COMMENT "merge & build han configuration ${hanfile}"
-    COMMAND env PATH=${BUILD_BIN_DIR}:$ENV{PATH} LD_LIBRARY_PATH=${BUILD_LIB_DIR}:$ENV{LD_LIBRARY_PATH} which han-config-gen
-    #COMMAND PATH=${BUILD_BIN_DIR}:$ENV{PATH} LD_LIBRARY_PATH=${BUILD_LIB_DIR}:$ENV{LD_LIBRARY_PATH} env ldd `which han-config-gen`
     # Merge
     COMMAND ${CMAKE_COMMAND} -E env GIT_COMMIT_HASH=${GIT_COMMIT_HASH}
       ${CMAKE_CURRENT_SOURCE_DIR}/scripts/MergeConfigs.py ${hanfile}.config
       ${CMAKE_CURRENT_SOURCE_DIR}/config
       ${CMAKE_CURRENT_BINARY_DIR}/${hanfile}.config
     # Build binary config
-    #COMMAND ${CMAKE_COMMAND} -E env ${CMAKE_CURRENT_BINARY_DIR}/invoke_in_build_environment.sh han-config-gen
-    #  ${CMAKE_CURRENT_BINARY_DIR}/${hanfile}.config
     COMMAND ${CMAKE_COMMAND} -E env ${CMAKE_BINARY_DIR}/atlas_build_run.sh han-config-gen
       ${CMAKE_CURRENT_BINARY_DIR}/${hanfile}.config
     # Deploy binary config
     COMMAND ${CMAKE_COMMAND} -E copy
       ${CMAKE_CURRENT_BINARY_DIR}/${hanfile}.hcfg
       ${CMAKE_DATA_OUTPUT_DIRECTORY}/DataQualityConfigurations/${hanfile}.hcfg
-    DEPENDS scripts/MergeConfigs.py config/*/${hanfile}.config han-config-gen
+    DEPENDS scripts/MergeConfigs.py config/*/${hanfile}.config
   )
   set( hcfgfiles ${hcfgfiles} 
        ${CMAKE_DATA_OUTPUT_DIRECTORY}/DataQualityConfigurations/${hanfile}.hcfg )
@@ -56,7 +50,7 @@ foreach (hanfile IN LISTS han_config_files)
            DESTINATION ${CMAKE_INSTALL_DATADIR}/DataQualityConfigurations OPTIONAL )
 endforeach(hanfile)
 
-add_custom_target( han_configs ALL SOURCES ${hcfgfiles} )
-#add_dependencies( han_configs han-config-gen )
+add_custom_target( DataQualityConfigurations_han_configs ALL SOURCES ${hcfgfiles} )
+add_dependencies( DataQualityConfigurations_han_configs han-config-gen )
 
-add_dependencies( Package_DataQualityConfigurations han_configs )
+add_dependencies( Package_DataQualityConfigurations DataQualityConfigurations_han_configs )

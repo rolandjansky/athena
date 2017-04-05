@@ -1,7 +1,0 @@
-#!/bin/bash
-
-#export PATH=@BUILD_BIN_DIR@:$PATH
-#export LD_LIBRARY_PATH=@BUILD_LIB_DIR@:$LD_LIBRARY_PATH
-source ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/setup.sh
-
-$@
