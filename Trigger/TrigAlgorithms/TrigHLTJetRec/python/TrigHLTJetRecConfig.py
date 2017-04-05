@@ -1201,7 +1201,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
             do_minimalist_setup=do_minimalist_setup,
             iParticleRejectionTool=iIParticleRejecter,
             name=name+'notrim',
-            do_substructure=do_substructure,
+            do_substructure=False, #do_substructure,
             OutputLevel=OutputLevel,
         )
         
@@ -1472,6 +1472,8 @@ class TrigHLTEnergyDensity(TrigHLTJetRecConf.TrigHLTEnergyDensity):
 
         self.energyDensity = 0
 
+from JetRecTools.JetRecToolsConf import  (JetConstituentModSequence, SoftKillerWeightTool, ClusterAtEMScaleTool, VoronoiWeightTool)
+
 class TrigHLTSoftKiller(TrigHLTJetRecConf.TrigHLTSoftKiller):
     """Supply a specific grid configuration for SoftKiller"""
 
@@ -1487,12 +1489,43 @@ class TrigHLTSoftKiller(TrigHLTJetRecConf.TrigHLTSoftKiller):
         TrigHLTJetRecConf.TrigHLTSoftKiller.__init__(self,name=name)
 
         self.OutputLevel = OutputLevel
-        self.output_collection_label = output_collection_label
+        self.output_collection_label = output_collection_label+ '_' + name + '_'+cluster_calib
 
-        # TODO create and configure offline SoftKiller tool here, pass it to our tool
         # Use cluster_calib, sk_grid_param_eta, and sk_grid_param_phi to configure the offline tool
         print "SK: %s, %f, %f"%(cluster_calib,sk_grid_param_eta,sk_grid_param_phi)
 
+        # Temp hardcode enum value as this is code that will be dropped
+        xaodtype_calocluster = 1
+
+        modifiers = []
+        # We only want an EM tool if we are working with EM clusters
+        # The tool should be used before calling SoftKiller (prepend to list)
+        if cluster_calib == "EM":
+            emTool = ClusterAtEMScaleTool('emTool_'+name+'_'+cluster_calib, InputType=xaodtype_calocluster)
+            jtm.add(emTool)
+            self.emTool = emTool
+            modifiers.append(self.emTool)
+        
+        global jtm
+        skTool =  SoftKillerWeightTool( name+cluster_calib, SKGridSize=0.6, isCaloSplit=False, SKRapMin=0, SKRapMax=2.5, InputType=xaodtype_calocluster)
+        jtm.add(skTool)
+        self.skWeightTool = skTool
+
+        voronoiTool = VoronoiWeightTool('voronoiTool'+name+'_'+cluster_calib, doSpread =  False, nSigma = 0, InputType=xaodtype_calocluster)
+        jtm.add(voronoiTool)
+        self.voronoiTool = voronoiTool
+        modifiers += [self.voronoiTool, self.skWeightTool]
+        
+        skclustModSeq = JetConstituentModSequence('ClustModifSequence_'+name+'_'+cluster_calib,
+                                                 InputContainer = "CaloCalTopoClusters",
+                                                 OutputContainer = self.output_collection_label,
+                                                 InputType=xaodtype_calocluster,
+                                                 Trigger = True,
+                                                 Modifiers = modifiers
+                                                 )
+        jtm.add(skclustModSeq)
+        self.skclustModSeqTool = skclustModSeq
+        
         print "SK clusters from clusters"
 
 # Track Moment helper class                                                     
@@ -1528,9 +1561,6 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
                        vcSGkey=primVtxSGkey,
                        )
         addTrkMomsTool(trkmomstoolname, **trkmomsoptions)
-=======
-                                                     
->>>>>>> 72e6b7d9ee... Fixed memory leak in trimmed jet triggers (TrigHLTJetRec-00-00-56)
 
 # Data scouting algorithm
 class TrigHLTJetDSSelector(TrigHLTJetRecConf.TrigHLTJetDSSelector):

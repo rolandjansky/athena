@@ -99,6 +99,10 @@ def _get_energy_density_radius():
     """Provide a common source for the energy density akt radius"""
     return 0.4
 
+def _get_soft_killer_grid_size():
+    """Provide a common source for the SoftKiller grid size"""
+    return 0.4,0.4
+
 
 class AlgFactory(object):
     def __init__(self, chain_config):
@@ -253,6 +257,7 @@ class AlgFactory(object):
             'output_collection_label': "'%s'" % (self.fex_params.fex_label),
             'rclus': self.fex_params.rclus,
             'ptfrac': self.fex_params.ptfrac,
+            'OutputLevel':1
         }
 
         return [Alg(factory, (), kwds)]
@@ -635,6 +640,30 @@ class AlgFactory(object):
                 'ed_merge_param': ed_merge_param
             }
     
+        return [Alg(factory, (), kwds)]
+
+
+    def softKillerAlg(self):
+        factory = 'TrigHLTSoftKiller'
+
+        # assign a name which identifies the fex sequence and
+        # the python class to be instantiated.
+        sk_grid_param_eta,sk_grid_param_phi = _get_soft_killer_grid_size()
+
+        name = '"%s_%s%s"' % (
+            factory,
+            str(int(10*sk_grid_param_eta))+str(int(10*sk_grid_param_phi)),
+            self.fex_params.cluster_calib,
+        )
+        
+        # we do not carry the SoftKiller grid sizes
+        # so hard wire it here (to be fixed)
+        kwds = {'name': name,
+                'cluster_calib': '"%s"' %self.fex_params.cluster_calib_fex,
+                'sk_grid_param_eta': sk_grid_param_eta,
+                'sk_grid_param_phi': sk_grid_param_phi
+            }
+
         return [Alg(factory, (), kwds)]
 
 

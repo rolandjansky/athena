@@ -77,7 +77,7 @@ def _check_values(chain_parts):
             raise RuntimeError(msg)
 
     dataTypes = [p['dataType'] for p in chain_parts]
-    bad = [r for r in dataTypes if r not in ('TT', 'tc', 'ion')]
+    bad = [r for r in dataTypes if r not in ('TT', 'tc', 'ion', 'sktc')]
 
     if bad:
         msg = '%s unknown dataType(s): %s' % (err_hdr, ' '.join(bad))
