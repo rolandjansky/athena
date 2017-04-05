@@ -28,11 +28,13 @@ class JetConstituentModSequence: public asg::AsgTool, virtual public IJetExecute
   StatusCode initialize();
   int execute() const;
   void setInputClusterCollection(const xAOD::IParticleContainer* cont);
+  xAOD::IParticleContainer* getOutputClusterCollection();
   
 protected:
   std::string m_inputContainer = "";
   std::string m_outputContainer = "";
   const xAOD::IParticleContainer* m_trigInputClusters; // used in trigger context only
+  mutable xAOD::IParticleContainer* m_trigOutputClusters;
   bool m_trigger;
   
   // P-A : a property defining the type name of the input constituent
@@ -45,25 +47,50 @@ protected:
 
   bool m_saveAsShallow = true;
 
-  /// helper function to cast, shallow copy and record a container.
-  template<class T>
+  /// helper function to cast, shallow copy and record a container (for offline) or deep copy and record a container (for trigger, where shallow copy isn't supported)
+  template<class T, class Taux, class Tsingle>
   xAOD::IParticleContainer* copyAndRecord(const xAOD::IParticleContainer* cont, bool record) const {
     const T * clustCont = dynamic_cast<const T *>(cont);
     if(clustCont == 0) {
-      ATH_MSG_ERROR( "Container "<<m_inputContainer<< " is not of type "<< m_inputType);
+      ATH_MSG_ERROR( "Container "<<cont<< " is not of type "<< m_inputType);
       return NULL;
     }
 
-    std::pair< T*, xAOD::ShallowAuxContainer* > newclust = xAOD::shallowCopyContainer(*clustCont );    
-    newclust.second->setShallowIO(m_saveAsShallow);
-    if(record){
-      if(evtStore()->record( newclust.first, m_outputContainer ).isFailure() || evtStore()->record( newclust.second, m_outputContainer+"Aux." ).isFailure() ){
-        ATH_MSG_ERROR("Unable to record cluster collection" << m_outputContainer );
-        return NULL;
+    if(!m_trigger){
+      std::pair< T*, xAOD::ShallowAuxContainer* > newclust = xAOD::shallowCopyContainer(*clustCont );    
+      newclust.second->setShallowIO(m_saveAsShallow);
+      if(record){
+        if(evtStore()->record( newclust.first, m_outputContainer ).isFailure() || evtStore()->record( newclust.second, m_outputContainer+"Aux." ).isFailure() ){
+          ATH_MSG_ERROR("Unable to record cluster collection" << m_outputContainer );
+          return NULL;
+        }
       }
+      //newclust.second->setShallowIO(false);
+      return newclust.first;
     }
-    //newclust.second->setShallowIO(false);
-    return newclust.first;
+    
+    
+    // This is the trigger case, revert to a deep copy
+    
+    // Create the new container and its auxiliary store.
+    T* clusterCopy = new T();
+    Taux* clusterCopyAux = new Taux();
+    clusterCopy->setStore( clusterCopyAux ); //< Connect the two
+    typename T::const_iterator clust_itr;
+    clust_itr = clustCont->begin();
+    typename T::const_iterator clust_end = clustCont->end();
+
+    for( ; clust_itr != clust_end; ++clust_itr ) {
+      Tsingle* cluster = new Tsingle();
+      clusterCopy->push_back( cluster ); // jet acquires the goodJets auxstore
+      *cluster= **clust_itr; // copies auxdata from one auxstore to the other
+      //clusterCopy->push_back(new Tsingle(**clust_itr));
+    }
+
+    // Store and return the container
+    m_trigOutputClusters = clusterCopy;
+    return m_trigOutputClusters;
+
   }
 
 };
