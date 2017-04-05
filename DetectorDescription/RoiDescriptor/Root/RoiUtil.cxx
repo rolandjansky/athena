@@ -47,7 +47,7 @@ bool RoiUtil::contains_internal( const IRoiDescriptor& roi, double z0, double zo
   
 
 
-bool contains_zrange( const IRoiDescriptor& roi, double z0, double dzdr, double zmin, double zmax ) { 
+bool RoiUtil::contains_zrange( const IRoiDescriptor& roi, double z0, double dzdr, double zmin, double zmax ) { 
  static const double maxR = 1100; // maximum radius of RoI - outer TRT radius ~1070 mm - should be configurable? 
   double zouter = dzdr*maxR + z0; 
   if ( roi.composite() ) { 
