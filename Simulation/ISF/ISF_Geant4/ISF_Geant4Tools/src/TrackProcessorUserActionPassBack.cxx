@@ -232,7 +232,7 @@ void iGeant4::TrackProcessorUserActionPassBack::ISFSteppingAction(const G4Step* 
         // attach TrackInformation instance to the new secondary G4Track
         const ISF::ISFParticle *parent                  = curISP;
         HepMC::GenParticle* generationZeroTruthParticle = nullptr;
-        ::iGeant4::ISFG4Helpers::attachTrackInfoToNewG4Track( *aTrack_2nd,
+        ::iGeant4::ISFG4Helper::attachTrackInfoToNewG4Track( *aTrack_2nd,
                                                    *parent,
                                                    Secondary,
                                                    generationZeroTruthParticle );
@@ -252,7 +252,7 @@ void iGeant4::TrackProcessorUserActionPassBack::ISFSteppingAction(const G4Step* 
 ISF::TruthBinding*
 iGeant4::TrackProcessorUserActionPassBack::newTruthBinding(const G4Track* aTrack, HepMC::GenParticle* truthParticle) const
 {
-  auto* trackInfo = ::iGeant4::ISFG4Helpers::getISFTrackInfo(*aTrack);
+  auto* trackInfo = ::iGeant4::ISFG4Helper::getISFTrackInfo(*aTrack);
   if (!trackInfo) {
     G4ExceptionDescription description;
     description << G4String("newTruthBinding: ") + "No TrackInformation associated with G4Track (trackID: "
@@ -279,7 +279,7 @@ iGeant4::TrackProcessorUserActionPassBack::newISFParticle(G4Track* aTrack,
 {
   ISF::TruthBinding* tBinding = newTruthBinding(aTrack, truthParticle);
 
-  ISF::ISFParticle* isp = ::iGeant4::ISFG4Helpers::convertG4TrackToISFParticle( *aTrack,
+  ISF::ISFParticle* isp = ::iGeant4::ISFG4Helper::convertG4TrackToISFParticle( *aTrack,
                                                                      *parentISP,
                                                                      tBinding );
 
@@ -306,7 +306,7 @@ iGeant4::TrackProcessorUserActionPassBack::returnParticleToISF( G4Track *aTrack,
   ISF::ISFParticle *newISP = newISFParticle( aTrack, parentISP, truthParticle, nextGeoID );
 
   // update TrackInformation
-  auto trackInfo = ::iGeant4::ISFG4Helpers::getISFTrackInfo(*aTrack);
+  auto trackInfo = ::iGeant4::ISFG4Helper::getISFTrackInfo(*aTrack);
   trackInfo->SetReturnedToISF( true );
   trackInfo->SetBaseISFParticle( newISP );
 

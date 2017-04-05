@@ -37,6 +37,9 @@
 #include "G4EventManager.hh"
 #include "G4Event.hh"
 
+// ISF includes
+#include "ISF_Event/ISFParticle.h"
+
 /*
   Comments:
   what about parent particle surviving (e.g. bremstrahlung)
@@ -63,6 +66,7 @@
 
 
 iGeant4::Geant4TruthIncident::Geant4TruthIncident( const G4Step *step,
+                                               const ISF::ISFParticle& baseISP,
                                                AtlasDetDescr::AtlasRegion geoID,
                                                int numChildren,
                                                SecondaryTracksHelper &sHelper,
@@ -71,6 +75,7 @@ iGeant4::Geant4TruthIncident::Geant4TruthIncident( const G4Step *step,
   m_positionSet(false),
   m_position(),
   m_step(step),
+  m_baseISP(baseISP),
   m_sHelper( sHelper),
   m_eventInfo(eventInfo),
   m_childrenPrepared(false),
@@ -133,6 +138,11 @@ HepMC::GenParticle* iGeant4::Geant4TruthIncident::parentParticle() const {
 
   return hepParticle;
 }
+
+int iGeant4::Geant4TruthIncident::parentBCID() const {
+  return m_baseISP.getBCID();
+}
+
 
 bool iGeant4::Geant4TruthIncident::parentSurvivesIncident() const { 
   const G4Track *track = m_step->GetTrack();

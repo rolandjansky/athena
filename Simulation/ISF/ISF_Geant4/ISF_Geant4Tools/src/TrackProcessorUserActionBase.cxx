@@ -61,7 +61,7 @@ iGeant4::TrackProcessorUserActionBase::TrackProcessorUserActionBase(const std::s
 void iGeant4::TrackProcessorUserActionBase::BeginOfEvent(const G4Event*)
 {
   m_curBaseISP = nullptr;
-  m_eventInfo  = ISFG4Helpers::getEventInformation();
+  m_eventInfo  = ISFG4Helper::getEventInformation();
 }
 
 void iGeant4::TrackProcessorUserActionBase::EndOfEvent(const G4Event*)
@@ -90,16 +90,16 @@ void iGeant4::TrackProcessorUserActionBase::Step(const G4Step* aStep)
     // get a non-const G4Track for current secondary (nasty!)
     G4Track* aSecondaryTrack = const_cast<G4Track*>( aConstSecondaryTrack );
 
-    auto *trackInfo = ISFG4Helpers::getISFTrackInfo(*aSecondaryTrack);
+    auto *trackInfo = ISFG4Helper::getISFTrackInfo(*aSecondaryTrack);
 
     // G4Tracks aready returned to ISF will have a TrackInformation attached to them
     bool particleReturnedToISF = trackInfo && trackInfo->GetReturnedToISF();
     if (!particleReturnedToISF) {
       HepMC::GenParticle* generationZeroTruthParticle = nullptr;
-      ISFG4Helpers::attachTrackInfoToNewG4Track( *aSecondaryTrack,
-                                                 *m_curBaseISP,
-                                                 Secondary,
-                                                 generationZeroTruthParticle );
+      ISFG4Helper::attachTrackInfoToNewG4Track( *aSecondaryTrack,
+                                                *m_curBaseISP,
+                                                Secondary,
+                                                generationZeroTruthParticle );
     }
   } // <- loop over secondaries from this step
 
@@ -111,7 +111,7 @@ void iGeant4::TrackProcessorUserActionBase::PreTracking(const G4Track* aTrack)
   // what a great way to start a function... :)
   G4Track* inT = const_cast<G4Track*> (aTrack);
 
-  auto *trackInfo = ISFG4Helpers::getISFTrackInfo(*aTrack);
+  auto *trackInfo = ISFG4Helper::getISFTrackInfo(*aTrack);
 
   // will be filled later on
   HepMC::GenParticle *currentlyTracedHepPart = nullptr;
@@ -181,10 +181,10 @@ void iGeant4::TrackProcessorUserActionBase::PreTracking(const G4Track* aTrack)
       else                                                                            { classification = RegisteredSecondary; }
     }
 
-    auto* newTrackInfo = ISFG4Helpers::attachTrackInfoToNewG4Track( *inT,
-                                                                    *baseISP,
-                                                                    classification,
-                                                                    generationZeroTruthParticle );
+    auto* newTrackInfo = ISFG4Helper::attachTrackInfoToNewG4Track( *inT,
+                                                                   *baseISP,
+                                                                   classification,
+                                                                   generationZeroTruthParticle );
     newTrackInfo->SetRegenerationNr(regenerationNr);
     trackInfo = newTrackInfo;
   } else {
