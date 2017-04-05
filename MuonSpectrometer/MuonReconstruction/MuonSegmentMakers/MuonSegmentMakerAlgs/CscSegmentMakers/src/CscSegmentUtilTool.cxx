@@ -1843,7 +1843,7 @@ fit_detailCalcPart2(double q0, double q1, double q2, double q01, double q11, dou
 
 
 MuonSegmentCombination* CscSegmentUtilTool::
-get4dMuonSegmentCombination( MuonSegmentCombination* insegs ) const {
+get4dMuonSegmentCombination( const MuonSegmentCombination* insegs ) const {
 
   ATH_MSG_DEBUG("get4dMuonSegmentCombination called");
   const ICscSegmentFinder::SegmentVec& rsegs = *insegs->stationSegments(0);
