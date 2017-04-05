@@ -51,7 +51,6 @@ use RoiDescriptor              RoiDescriptor-*             DetectorDescription
 # Add transform
 apply_pattern declare_job_transforms tfs='*_tf.py' jo='skeleton.*.py'
 #end_private
-apply_pattern declare_runtime extras="../share/FTK_DataProviderLoad.py"
 apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_xmls extras="-s=../share *.dtd *.xml"
