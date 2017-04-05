@@ -25,9 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Calorimeter/CaloEvent
                           Event/xAOD/xAODEventShape
-                          Reconstruction/EventShapes/EventShapeTools
-                          Reconstruction/Jet/JetRecTools 
-                          InnerDetector/InDetRecTools/TrackVertexAssociationTool )
+                          Reconstruction/EventShapes/EventShapeTools )
 
 # External dependencies:
 find_package( FastJet )
@@ -38,7 +36,7 @@ atlas_add_component( TrigHLTJetRec
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AthenaBaseComps StoreGateLib SGtests xAODBase xAODCaloEvent xAODJet xAODTrigL1Calo GaudiKernel JetEDM JetInterface JetRecLib TrigCaloEvent TrigNavStructure TrigParticle TrigSteeringEvent TrigInterfacesLib CaloEvent xAODEventShape EventShapeToolsLib JetRecToolsLib TrackVertexAssociationToolLib  )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AthenaBaseComps StoreGateLib SGtests xAODBase xAODCaloEvent xAODJet xAODTrigL1Calo GaudiKernel JetEDM JetInterface JetRecLib TrigCaloEvent TrigNavStructure TrigParticle TrigSteeringEvent TrigInterfacesLib CaloEvent xAODEventShape EventShapeToolsLib )
 
 # Install files from the package:
 atlas_install_headers( TrigHLTJetRec )
