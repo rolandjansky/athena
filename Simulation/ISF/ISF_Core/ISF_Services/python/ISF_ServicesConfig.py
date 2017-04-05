@@ -48,7 +48,6 @@ def getISFEnvelopeDefSvc(name="ISF_ISFEnvelopeDefSvc", **kwargs):
     # ATLAS common envlope definitions
     kwargs.setdefault("ATLASEnvelopeDefSvc", "AtlasGeometry_EnvelopeDefSvc")
     return CfgMgr.ISF__ISFEnvelopeDefSvc(name, **kwargs)
-    return CfgMgr.ISF__ISFEnvelopeDefSvc(name, **kwargs)
 
 def getAFIIEnvelopeDefSvc(name="ISF_AFIIEnvelopeDefSvc", **kwargs):
     from AthenaCommon.SystemOfUnits import mm
@@ -56,13 +55,11 @@ def getAFIIEnvelopeDefSvc(name="ISF_AFIIEnvelopeDefSvc", **kwargs):
     kwargs.setdefault("ISFEnvelopeDefSvc", "ISF_ISFEnvelopeDefSvc")
     kwargs.setdefault("InDetMaxExtentZ", 3549.5*mm)
     return CfgMgr.ISF__AFIIEnvelopeDefSvc(name, **kwargs)
-    return CfgMgr.ISF__AFIIEnvelopeDefSvc(name, **kwargs)
 
 
 def getGeoIDSvc(name="ISF_GeoIDSvc", **kwargs):
     # with ISF volume definitions
     kwargs.setdefault("EnvelopeDefSvc", "ISF_ISFEnvelopeDefSvc")
-    return CfgMgr.ISF__GeoIDSvc(name, **kwargs)
     return CfgMgr.ISF__GeoIDSvc(name, **kwargs)
 
 
