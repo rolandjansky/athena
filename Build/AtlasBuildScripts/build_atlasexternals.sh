@@ -98,7 +98,11 @@ fi
 # Build the RPM or other package for the project:
 cpack || ((ERROR_COUNT++))
 mkdir -p ${RPMDIR} || ((ERROR_COUNT++))
-FILES=$(ls ${PROJECT}*.rpm ${PROJECT}*.tar.gz ${PROJECT}*.dmg)
+FILES=$(ls ${PROJECT}*.rpm ${PROJECT}*.tar.gz ${PROJECT}*.dmg 2> /dev/null)
 cp ${FILES} ${RPMDIR} || ((ERROR_COUNT++))
+
+if [ $ERROR_COUNT -ne 0 ]; then
+	echo "AtlasExternals build script counted $ERROR_COUNT errors"
+fi
 
 exit ${ERROR_COUNT}
