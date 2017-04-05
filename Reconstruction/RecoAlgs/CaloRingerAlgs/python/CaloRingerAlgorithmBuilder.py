@@ -13,6 +13,7 @@ from AthenaCommon.Include import include
 from AthenaCommon import CfgMgr
 
 from RecExConfig.RecFlags import rec
+from egammaRec.egammaRecFlags import jobproperties
 from CaloRingerAlgs.CaloRingerKeys import *
 from egammaRec import egammaKeys
 
@@ -59,11 +60,14 @@ def checkBuildElectronCaloRings():
   """ Return true if it can build CaloRings for Electrons. Raise if it was
   expected to build electrons and it won't be possible. Return false if not
   asked to build."""
+  if not rec.doESD() and caloRingerFlags.buildElectronCaloRings():
+    mlog.info("Turning off ringer algorithm electron reconstruction since not doing ESD.")
+    caloRingerFlags.buildElectronCaloRings = False
   if caloRingerFlags.buildElectronCaloRings():
     if not inputAvailable(inputElectronType(), inputElectronKey()):
 
       # Try to force egammaBuilder startup if it is not already started:
-      if not egammaBuilderAvailable(): 
+      if not jobproperties.egammaRecFlags.doEgammaCaloSeeded() and rec.doESD(): # egammaBuilderAvailable(): 
         mlog.warning(("Requested to build ElectronCaloRings but egamma"
           " builder was not available. Deactivating ElectronCaloRings and electron selection.")
           )
@@ -77,7 +81,7 @@ def checkBuildElectronCaloRings():
         mlog.verbose(("Input not available in the file, but it is requested"
           " to be reconstructed so it will be build during reconstruction."))
     else:
-      if egammaBuilderAvailable():
+      if jobproperties.egammaRecFlags.doEgammaCaloSeeded(): # egammaBuilderAvailable():
         mlog.verbose(("There already exists the egamma objects in file, but"
           " they will be updated during reconstruction to new ones."))
       else:
@@ -123,11 +127,14 @@ def checkBuildPhotonCaloRings():
   """ Return true if it can build CaloRings for Photons. Raise if it was
   expected to build electrons and it won't be possible. Return false if not
   asked to build."""
+  if not rec.doESD() and caloRingerFlags.buildPhotonCaloRings():
+    mlog.info("Turning off ringer algorithm photon reconstruction since not doing ESD.")
+    caloRingerFlags.buildPhotonCaloRings = False
   if caloRingerFlags.buildPhotonCaloRings():
     if not inputAvailable(inputPhotonType(), inputPhotonKey()):
 
       # Try to force egammaBuilder startup if it is not already started:
-      if not egammaBuilderAvailable(): 
+      if not jobproperties.egammaRecFlags.doEgammaCaloSeeded() and not rec.doESD():  # egammaBuilderAvailable(): 
         mlog.warning(("Requested to build PhotonCaloRings but egamma"
           " builder was not available. Deactivating buildPhotonCaloRings.")
             )
@@ -141,7 +148,7 @@ def checkBuildPhotonCaloRings():
         mlog.verbose(("Input not available in the file. No problem: it will "
           " be reconstructed"))
     else:
-      if egammaBuilderAvailable():
+      if jobproperties.egammaRecFlags.doEgammaCaloSeeded(): # egammaBuilderAvailable():
         mlog.verbose(("There already exists the egamma objects in file, but"
           " they will be updated during reconstruction to new ones."))
       else:

@@ -1,3 +1,9 @@
+2017-04-05  Werner Freund <wsfreund@cern.ch>
+
+	* CaloRingerAlgorithmBuilder.py, CaloRinger_jobOptions.py: Use flag
+	egammaRecFlags.doEgammaCaloSeeded instead egammaGetter which is being
+	discontinued by egamma reconstruction.
+
 2017-01-28  scott snyder  <snyder@bnl.gov>
 
 	* Tagging CaloRingerAlgs-00-00-29.
