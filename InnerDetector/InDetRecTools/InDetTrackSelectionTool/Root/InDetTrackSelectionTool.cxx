@@ -3,7 +3,7 @@
 */
 
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
-#include "src/InDetTrackCut.h"
+#include "InDetTrackCut.h"
 
 #include "AsgTools/Check.h"
 #include "xAODTracking/TrackingPrimitives.h"
