@@ -27,6 +27,7 @@ set( han_config_files collisions_run collisions_minutes10
 set( hcfgfiles )
 set( BUILD_BIN_DIR ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/bin )
 set( BUILD_LIB_DIR ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/lib )
+configure_file(scripts/invoke_in_build_environment.sh.in invoke_in_build_environment.sh)
 foreach (hanfile IN LISTS han_config_files)
   add_custom_command(
     OUTPUT ${CMAKE_DATA_OUTPUT_DIRECTORY}/DataQualityConfigurations/${hanfile}.hcfg
@@ -39,7 +40,7 @@ foreach (hanfile IN LISTS han_config_files)
       ${CMAKE_CURRENT_SOURCE_DIR}/config
       ${CMAKE_CURRENT_BINARY_DIR}/${hanfile}.config
     # Build binary config
-    COMMAND PATH=${BUILD_BIN_DIR}:$ENV{PATH} LD_LIBRARY_PATH=${BUILD_LIB_DIR}:$ENV{LD_LIBRARY_PATH} env han-config-gen
+    COMMAND ${CMAKE_COMMAND} -E env ${CMAKE_CURRENT_BINARY_DIR}/invoke_in_build_environment.sh han-config-gen
       ${CMAKE_CURRENT_BINARY_DIR}/${hanfile}.config
     # Deploy binary config
     COMMAND ${CMAKE_COMMAND} -E copy
