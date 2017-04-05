@@ -277,7 +277,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 
   // This will allow the MDT tube structure to be mirrored w.r.t. the chamber at z>0
   // and to correctly place any other component in the m_station 
-  if (zi<0 && !is_mirrored && stName[0]=='B' && (geometry_version != "CTB2004") ) {
+  if (zi<0 && !is_mirrored && stName[0]=='B') {
     if (m_station->hasMdts()) {
       amdbOrigine_along_length += halfpitch;
     }
@@ -711,8 +711,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         
     if (type == "MDT") {
       htcomponent = HepGeom::TranslateX3D(ypos)*HepGeom::TranslateZ3D(zpos)*HepGeom::TranslateY3D(xpos);
-      if (zi < 0 && !is_mirrored && stName[0] == 'B'
-          && (geometry_version != "CTB2004") ) { 
+      if (zi < 0 && !is_mirrored && stName[0] == 'B') { 
         // this (rotation +  shift of halfpitch) will mirror the tube structure w.r.t. the chamber at z>0
          htcomponent = htcomponent*HepGeom::RotateX3D(180.*CLHEP::deg);
          if (geometry_version.substr(0,3) != "P03" )
