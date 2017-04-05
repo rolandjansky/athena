@@ -28,8 +28,6 @@ class JetConstituentFiller {
 
 public :
 
-  JetConstituentFiller(bool isTrig=false) :m_isTrigger(isTrig){}
-
   typedef std::vector<std::string> NameList;
 
   /// Build and fill constituents of jet from its PseudoJet (or from ppj)
@@ -52,10 +50,6 @@ public :
   /// Returns the jet's constituents as a vector of PseudoJet 
   /// if ignoreGhosts==true, ghost constituents are removed from the output.
   static PseudoJetVector constituentPseudoJets(const xAOD::Jet& jet, bool ignoreGhosts=true);
-
- protected:
-  bool m_isTrigger;
-    
 };
 
 }  // end jet namespace
