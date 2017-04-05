@@ -122,7 +122,7 @@ def defineMenu():
         #------------------------
         
         # 6 x MU
-        'MU4', 'MU6', 'MU10', 'MU11', 'MU15', 'MU20',
+        'MU4', 'MU6', 'MU10', 'MU11', 'MU20', 'MU21',
 
 
         #------------------------
@@ -374,11 +374,11 @@ def defineMenu():
         #'L1_JJ15.23ETA49', # 4x4 window
 
         # single MU
-        "L1_MU4", "L1_MU6", "L1_MU10", "L1_MU11", "L1_MU15", "L1_MU20",
+        "L1_MU4", "L1_MU6", "L1_MU10", "L1_MU11", "L1_MU20", "L1_MU21",
 
         "L1_MU4_EMPTY", "L1_MU6_EMPTY", "L1_MU4_FIRSTEMPTY", "L1_MU11_EMPTY",
         'L1_MU4_UNPAIRED_ISO','L1_MU4_UNPAIRED_NONISO',
-         'L1_MU20_FIRSTEMPTY',
+         'L1_MU20_FIRSTEMPTY','L1_MU21_FIRSTEMPTY',
 
         
         
@@ -728,8 +728,6 @@ def defineMenu():
         'L1_LFV-MU6',
         'L1_LFV-EM8I',
         'L1_LFV-EM15I',
-        'L1_EM7_MU15',
-        'L1_EM8VH_MU15',
         'L1_DPHI-J20s2XE50',
         'L1_J40_XE50_DPHI-J20s2XE50',
         'L1_DPHI-J20XE50',
@@ -878,8 +876,8 @@ def defineMenu():
 
         #item with FTK trigger type, for FTK commissioning
         'L1_MU6_FTK',
-        'L1_MU15_FTK',
         'L1_MU20_FTK',
+        'L1_MU21_FTK',
         'L1_TAU12IM_FTK', 
         'L1_TAU20IM_FTK',
         'L1_MU20_TAU12IM_FTK', 
@@ -920,8 +918,8 @@ def defineMenu():
         'L1_MU6' : 15,
         'L1_MU10' : 16,
         'L1_MU11' : 256,
-        'L1_MU15' : 17,
         'L1_MU20' : 18,
+        'L1_MU21' : 17,
         'L1_MU4_EMPTY' : 19,
         'L1_MU6_EMPTY' : 66,
         'L1_MU4_FIRSTEMPTY' : 20,
@@ -1369,8 +1367,6 @@ def defineMenu():
         'L1_LFV-MU6' : 332,
         'L1_LFV-EM8I' : 320,
         'L1_LFV-EM15I' : 321,
-        'L1_EM7_MU15' : 322,
-        'L1_EM8VH_MU15' : 48,
         'L1_DPHI-J20s2XE50' : 323,
         'L1_DPHI-J20XE50' : 324,
         'L1_DPHI-CJ20XE50' : 325,
@@ -1480,6 +1476,7 @@ def defineMenu():
         'L1_EM20VH_FIRSTEMPTY':411, 
         'L1_EM22VHI_FIRSTEMPTY':412, 
         'L1_MU20_FIRSTEMPTY':413, 
+        'L1_MU21_FIRSTEMPTY':416, 
         'L1_J100_FIRSTEMPTY':414, 
         'L1_J100.31ETA49_FIRSTEMPTY':415, 
         #'L1_TE60.0ETA24':416, 
@@ -1569,8 +1566,8 @@ def defineMenu():
 
         
         'L1_MU6_FTK'                           : 499,
-        'L1_MU15_FTK'                          : 497,
         'L1_MU20_FTK'                          : 500,
+        'L1_MU21_FTK'                          : 497,
         'L1_TAU12IM_FTK'                       : 501,
         'L1_TAU20IM_FTK'                       : 86,
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12_FTK': 502,
