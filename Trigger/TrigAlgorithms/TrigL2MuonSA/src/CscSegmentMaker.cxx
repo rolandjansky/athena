@@ -141,7 +141,8 @@ ReturnCode CscSegmentMaker :: FindSuperPointCsc( const TrigL2MuonSA::CscHits &cs
 	  CscSegment cscsegment, cscsegment_noip;
 	  if (this->make_segment(hashSP, clusters[hashSP] , cscsegment, cscsegment_noip) != ReturnCode::FAILURE  ){
 	    found_segment=true;
-	    
+	    (*itTrack).hashID_CSC = hashSP;
+
 	    xAOD::L2MuonParameters::Chamber csc = xAOD::L2MuonParameters::Chamber::CSC;
 	    xAOD::L2MuonParameters::Chamber outer = xAOD::L2MuonParameters::Chamber::EndcapOuter;
 	    TrigL2MuonSA::SuperPoint* superPoint = &((*itTrack).superPoints[csc]);
@@ -173,7 +174,8 @@ ReturnCode CscSegmentMaker :: FindSuperPointCsc( const TrigL2MuonSA::CscHits &cs
 	    superPoint->Blin = cscsegment_ext.interceptRZ();
 	    superPoint->Npoint = cscsegment_ext.nHitEta();
 	    superPoint->Chi2 = cscsegment_ext.chiSquare();
-	    ATH_MSG_DEBUG("CSC super point:CSCR=" << CSCSPR << ",CSCZ=" << CSCZ 
+	    ATH_MSG_DEBUG("CSC super point:hashID=" << hashSP
+			  << ",CSCR=" << CSCSPR << ",CSCZ=" << CSCZ 
 			  << ",Slope=" << cscsegment_ext.slopeRZ() << ",Intercept=" << cscsegment_ext.interceptRZ()
 			  << ",nHitsEta=" << cscsegment_ext.nHitEta() << ",Chi2="<< cscsegment_ext.chiSquare());
 	    

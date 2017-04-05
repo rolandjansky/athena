@@ -235,24 +235,16 @@ def defineCPSGroups():
                                      '3mu4_bUpsi',
                                      ],
 
-        'RATE:CPS:HLT_mu20_L1MU15' : ['mu20_L1MU15',
-                                      'mu24_L1MU15',
-                                      ],
         ### ATR-15050
         'RATE:CPS:HLT_bDimu_L1BPH-2M8-MU6MU4_0DR15-MU6MU4' : 
                              ['mu6_mu4_bDimu_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
                               'mu6_mu4_bJpsimumu_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
-                              'mu6_mu4_bJpsimumu_delayed_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
                               'mu6_mu4_bJpsimumu_Lxy0_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
-                              'mu6_mu4_bJpsimumu_Lxy0_delayed_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
                               'mu6_mu4_bBmumu_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
                               'mu6_mu4_bBmumu_Lxy0_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
                               'mu6_mu4_bBmumuxv2_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
-                              'mu6_mu4_bBmumuxv2_delayed_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
                               'mu6_mu4_bBmumux_BcmumuDsloose_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
-                              'mu6_mu4_bBmumux_BcmumuDsloose_delayed_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
                               'mu6_mu4_bBmumux_BsmumuPhi_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
-                              'mu6_mu4_bBmumux_BsmumuPhi_delayed_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4',
                              ], 
         'RATE:CPS:HLT_bDimu_L1BPH-2M9-2MU6_2DR15-2MU6' :
                              ['2mu6_bDimu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
@@ -263,11 +255,6 @@ def defineCPSGroups():
                               '2mu6_bBmumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
                               '2mu6_bBmumux_BsmumuPhi_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
                               '2mu6_bJpsimumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
-                              '2mu6_bBmumuxv2_delayed_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
-                              '2mu6_bBmumux_BsmumuPhi_delayed_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
-                              '2mu6_bBmumux_BcmumuDsloose_delayed_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
-                              '2mu6_bJpsimumu_delayed_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
-                              '2mu6_bJpsimumu_Lxy0_delayed_L1BPH-2M9-2MU6_BPH-2DR15-2MU6', 
                              ],
         'RATE:CPS:HLT_2mu4_bDimu_L1BPH-2M8-2MU4' : 
                              ['2mu4_bDimu_L1BPH-2M8-2MU4',
@@ -277,20 +264,15 @@ def defineCPSGroups():
                               '2mu4_bBmumux_BcmumuDsloose_L1BPH-2M8-2MU4',
                               '2mu4_bBmumu_Lxy0_L1BPH-2M8-2MU4',
                               '2mu4_bBmumux_BsmumuPhi_L1BPH-2M8-2MU4',
-                              '2mu4_bBmumux_BsmumuPhi_delayed_L1BPH-2M8-2MU4',
-                              '2mu4_bJpsimumu_Lxy0_delayed_L1BPH-2M8-2MU4',
-                              '2mu4_bJpsimumu_delayed_L1BPH-2M8-2MU4',
                              ],
         'RATE:CPS:HLT_mu6_mu4_bDimu_L1BPH-8M15-MU6MU4' : 
                              ['mu6_mu4_bDimu_L1BPH-8M15-MU6MU4',
                               'mu6_mu4_bUpsimumu_L1BPH-8M15-MU6MU4',
-                              'mu6_mu4_bUpsimumu_delayed_L1BPH-8M15-MU6MU4',
                              ],
 
         'RATE:CPS:HLT_2mu6_bDimu_L1BPH-8M15-2MU6' :
                               ['2mu6_bDimu_L1BPH-8M15-2MU6',
                                '2mu6_bUpsimumu_L1BPH-8M15-2MU6',
-                               '2mu6_bUpsimumu_delayed_L1BPH-8M15-2MU6',
                               ],
 
 

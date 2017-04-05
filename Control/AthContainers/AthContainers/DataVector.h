@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataVector.h 797205 2017-02-14 19:38:03Z ssnyder $
+// $Id: DataVector.h 800990 2017-03-19 23:15:21Z ssnyder $
 
 /**
  * @file  AthContainers/DataVector.h
@@ -774,6 +774,8 @@ public:
   /// yield an @c ElementProxy, not a @c reference.
   typedef typename std::reverse_iterator<iterator>
     reverse_iterator;
+
+  typedef DataVector base_data_vector;
 
 
   //========================================================================
@@ -2010,6 +2012,7 @@ public:
   typedef typename std::reverse_iterator<iterator>
     reverse_iterator;
 
+  typedef DataVector base_data_vector;
 
   //========================================================================
   /** @name Constructors, destructors, assignment. */

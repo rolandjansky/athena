@@ -155,7 +155,7 @@ void Analysis_Tier0::initialise() {
   h_phieff   = new TProfile( "Eff_Phi",    "phi  efficiency",   25,   -M_PI, M_PI  );
   h_d0eff    = new TProfile( "Eff_d0",     "d0 efficiency",     39,   d0bins    );
   h_z0eff    = new TProfile( "Eff_z0",     "z0 efficiency",     50, -225.,  225.   );
-  h_nVtxeff  = new TProfile( "Eff_nVtx",   "nVtx efficiency",   41,   -0.5,  40.5  );
+  h_nVtxeff  = new TProfile( "Eff_nVtx",   "nVtx efficiency",   71,   -0.5,  70.5  );
 
   h_lbeff = new TProfile( "Eff_lb", "efficinecy vs lumiblock", 301, -0.5, 3009.5 );
 

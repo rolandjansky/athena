@@ -10,6 +10,7 @@
 #include "AthContainers/AuxVectorData.h"
 #include "AthContainers/AuxVectorBase.h"
 #include "AthContainers/AuxElement.h"
+#include "AthContainers/ViewVectorBase.h"
 #include "AthContainersInterfaces/IAuxElement.h"
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IConstAuxStore.h"
@@ -97,6 +98,10 @@ namespace {
     SG::PackedContainer<std::vector<std::vector<double> > >         pvvdouble;
   };
 }
+
+// Work around cling error.
+template class std::vector<std::pair<unsigned int, unsigned int> >;
+
 
 #define ARGS1 (const std::string&)
 #define ARGS2 (const std::string&, const std::string&)

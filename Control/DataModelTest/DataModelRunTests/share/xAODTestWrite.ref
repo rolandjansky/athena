@@ -1,86 +1,80 @@
-Mon Apr 18 14:31:11 EDT 2016
-WARNING: TCMALLOCDIR not defined, will use libc malloc
+Tue Jan 17 22:01:29 CET 2017
+Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [?-?] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:Athena            INFO using release [WorkDir-21.0.14] [x86_64-slc6-gcc49-dbg] [private/private] -- built on [2017-01-17 21:59]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Warning in <TInterpreter::ReadRootmapFile>: class  Event found in libG4AtlasControlDict.so  is already in libtest_GPyTestDict.so 
+Warning in <TInterpreter::ReadRootmapFile>: class  UCharDbArray found in libStorageSvcDict.so  is already in libRootCnvDict.so 
 Py:Athena            INFO executing ROOT6Setup
-Py:Athena            INFO including file "AthenaCommon/Execution.py"
-Py:Athena            INFO including file "/home/sss/atlas/dvtest/../share/xAODTestWrite_jo.py"
-Py:ConfigurableDb    INFO Read module info for 262 configurables from 2 genConfDb files
+[?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "DataModelRunTests/xAODTestWrite_jo.py"
+Py:ConfigurableDb    INFO Read module info for 5149 configurables from 15 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-# setting LC_ALL to "C"
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v999r999)
-                                          running on karma on Mon Apr 18 14:31:16 2016
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
+                                          running on lxplus023.cern.ch on Tue Jan 17 22:01:55 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 7498 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-20
+ClassIDSvc           INFO  getRegistryEntries: read 8494 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-xAODMaker::Even...   INFO Initialising - Package version: xAODEventFormatCnv-00-00-00
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-00-00-00
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
-InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-00-00-00
-MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-00-00-00
-AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
-PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-00-00
-PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
+xAODMaker::Even...   INFO Initialising - Package version: xAODEventFormatCnv-00-00-10
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-60-22
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-29-00
+PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-25-05
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Read replica configuration from /home/sss/atlas/dvtest/build/share/dbreplica.config
-DBReplicaSvc         INFO No specific match for domain found - use default fallback
-DBReplicaSvc         INFO Total of 1 servers found for host karma [atlas_dd ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://aiatlas036.cern.ch:8000/atlr)(serverurl=http://aiatlas034.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli02.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca18.cern.ch:3128)(proxyurl=http://ca17.cern.ch:3128)(proxyurl=http://atlast0fsquid.cern.ch:3128)(proxyurl=http://atlassquid1.cern.ch:3128)(proxyurl=http://atlassquid2.cern.ch:3128)(proxyurl=http://atlassquid4.cern.ch:3128) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /afs/cern.ch/atlas/software/builds/nightlies/21.0.X-VAL/AtlasCore/rel_1/InstallArea/x86_64-slc6-gcc49-dbg/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus023.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
-PoolSvc              INFO Re-initializing PoolSvc
-PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
+PoolSvc              INFO Setting up APR FileCatalog and Streams
+PoolSvc              INFO POOL WriteCatalog is file:xAODTestWrite_catalog.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-00
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+PoolXMLFileCatalog Info File xAODTestWrite_catalog.xml does not exist, a new one is created
+PoolSvc              INFO Re-initializing PoolSvc
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-08
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-22
 AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
-ClassIDSvc           INFO  getRegistryEntries: read 992 CLIDRegistry entries for module ALL
-AthAlgSeq            INFO Member list: DMTest::xAODTestWriteCVec/xAODTestWriteCVec, DMTest::xAODTestWrite/xAODTestWrite, AthenaOutputStream/Stream1
+ClassIDSvc           INFO  getRegistryEntries: read 1424 CLIDRegistry entries for module ALL
+AthAlgSeq            INFO Member list: DMTest::xAODTestWriteCVec/xAODTestWriteCVec, DMTest::xAODTestWriteHVec/xAODTestWriteHVec, DMTest::xAODTestWriteCView/xAODTestWriteCView, DMTest::xAODTestWriteCInfo/xAODTestWriteCInfo, DMTest::xAODTestWrite/xAODTestWrite, DMTest::xAODTestWriteCVecConst/xAODTestWriteCVecConst, AthenaOutputStream/Stream1
 DecisionSvc          INFO Inserting stream: Stream1 with no Algs
-OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 252 CLIDRegistry entries for module ALL
-Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version OutputStreamAthenaPool-00-00-00
+OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-01-60-22
+ClassIDSvc           INFO  getRegistryEntries: read 262 CLIDRegistry entries for module ALL
+Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version OutputStreamAthenaPool-00-02-84
 Stream1.Stream1...   INFO streamProperty ProcessingTag = Stream1
-DetectorStore        INFO Initializing DetectorStore - package version StoreGate-00-00-00
-Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
+Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-02-84
 Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo'])
 Stream1              INFO Data output: xaoddata.root
 Stream1              INFO I/O reinitialization...
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO  Enter McEventSelector Initialization 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
-ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-00-00-00
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-07-07
 ApplicationMgr       INFO Application Manager Initialized successfully
-InputMetaDataStore   INFO Start InputMetaDataStore
-MetaDataStore        INFO Start MetaDataStore
-StoreGateSvc         INFO Start StoreGateSvc
-DetectorStore        INFO Start DetectorStore
 ApplicationMgr       INFO Application Manager Started successfully
 EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
 DbSession Info     Open     DbSession    
 Domain[ROOT_All] Info >   Access   DbDomain     UPDATE    [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] 070798F7-CDF7-1042-942D-D1B288BDBA6F
+Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] 467DB4A2-D3DE-BA45-B854-8110A3B6D5D3
 Domain[ROOT_All] Info                           xaoddata.root
-RootDatabase.open Success xaoddata.root File version:60602
-ClassIDSvc           INFO  getRegistryEntries: read 108 CLIDRegistry entries for module ALL
+RootDatabase.open Always xaoddata.root File version:60802
+ClassIDSvc           INFO  getRegistryEntries: read 112 CLIDRegistry entries for module ALL
 StorageSvc Info Building shape according to reflection information using shape ID for:
 StorageSvc Info EventInfo_p4 [C634FDB6-CC4B-4BA2-B8F9-A84BE6A786C7]
 StorageSvc Info Building shape according to reflection information using shape ID for:
@@ -100,18 +94,18 @@ StorageSvc Info DMTest::GAuxContainer_v1 [E70544A9-9D77-475E-AAD8-C5F967A44B66]
 StorageSvc Info Building shape according to reflection information using shape ID for:
 StorageSvc Info DMTest::CVecWithData_v1 [B35B5C5A-E691-4735-96E9-EA24BB1816C6]
 StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info vector<ElementLink<DataVector<DMTest::C_v1> > > [CDB407A6-1B30-4214-BC29-47268D2F28F7]
+StorageSvc Info ViewVector<DataVector<DMTest::C_v1> > [2577D84A-BC0F-4CD2-9539-9F0A4EFC64AA]
 StorageSvc Info Building shape according to reflection information using shape ID for:
 StorageSvc Info DataVector<DMTest::H_v1> [EAD7484F-1F40-4344-A667-BB9C47536BE6]
 StorageSvc Info Building shape according to reflection information using shape ID for:
 StorageSvc Info DMTest::HAuxContainer_v1 [AFB5909C-1DF3-44AC-ABB5-9818204C2736]
 StorageSvc Info Building shape according to reflection information using shape ID for:
-StorageSvc Info vector<ElementLink<DataVector<DMTest::H_v1> > > [55E513AA-EDF9-4860-945A-5B4E8C05C27A]
+StorageSvc Info ViewVector<DataVector<DMTest::H_v1> > [740C4020-F0A3-40B3-88E1-B15A8055DB64]
 StorageSvc Info Building shape according to reflection information using shape ID for:
 StorageSvc Info DataHeaderForm_p5 [3397D8A3-BBE6-463C-9F8E-4B3DFD8831FE]
 StorageSvc Info Building shape according to reflection information using shape ID for:
 StorageSvc Info DataHeader_p5 [D82968A1-CF91-4320-B2DD-E0F739CBC7E6]
-ClassIDSvc           INFO  getRegistryEntries: read 116 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 100 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
@@ -151,35 +145,27 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
-DetectorStore        INFO Stop DetectorStore
-StoreGateSvc         INFO Stop StoreGateSvc
-StoreGateSvc         INFO stop: setting service priority to 101 so that event stores get finalized and cleared before other stores
 StorageSvc Info Building shape according to reflection information using shape ID for:
 StorageSvc Info EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
 StorageSvc Info Building shape according to reflection information using shape ID for:
 StorageSvc Info xAOD::EventFormat_v1 [0EFE2D2C-9E78-441D-9A87-9EE2B908AC81]
-ClassIDSvc           INFO  getRegistryEntries: read 10 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 8 CLIDRegistry entries for module ALL
 Stream1              INFO Records written: 21
 xaoddata.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] 070798F7-CDF7-1042-942D-D1B288BDBA6F
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] 467DB4A2-D3DE-BA45-B854-8110A3B6D5D3
 Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
-MetaDataStore        INFO Stop MetaDataStore
-InputMetaDataStore   INFO Stop InputMetaDataStore
 ApplicationMgr       INFO Application Manager Stopped successfully
 AthAlgSeq            INFO Finalizing AthAlgSeq...
 AthOutSeq            INFO Finalizing AthOutSeq...
 AthRegSeq            INFO Finalizing AthRegSeq...
 AthMasterSeq         INFO Finalizing AthMasterSeq...
-StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-00-00-00
 EventSelector        INFO finalize
-DetectorStore        INFO Finalizing DetectorStore - package version StoreGate-00-00-00
 DecisionSvc          INFO -- OUTPUT STREAM EVENT OVERLAP SUMMARY --
 DecisionSvc          INFO List of registered 1 Streams: Stream1 
 DecisionSvc          INFO Finalized successfully.
-PoolSvc              INFO I/O finalization...
+XMLFileCatalog Info Updating the catalog
 PoolXMLFileCatalog Info XercesC termination number 0
-MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-00-00-00
-InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-00-00-00
+PoolSvc              INFO I/O finalization...
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 ChronoStatSvc.f...   INFO  Service finalized successfully 

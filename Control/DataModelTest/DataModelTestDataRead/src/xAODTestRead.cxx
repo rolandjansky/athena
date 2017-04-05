@@ -13,16 +13,16 @@
 
 #include "xAODTestRead.h"
 #include "DataModelTestDataCommon/CVec.h"
-#include "DataModelTestDataCommon/CView.h"
+//#include "DataModelTestDataCommon/CView.h"
 #include "DataModelTestDataCommon/CVecWithData.h"
 #include "DataModelTestDataCommon/C.h"
 #include "DataModelTestDataCommon/CAuxContainer.h"
 #include "DataModelTestDataCommon/CTrigAuxContainer.h"
 #include "DataModelTestDataCommon/CInfoAuxContainer.h"
-#include "DataModelTestDataRead/HVec.h"
-#include "DataModelTestDataRead/H.h"
-#include "DataModelTestDataRead/HAuxContainer.h"
-#include "DataModelTestDataRead/HView.h"
+//#include "DataModelTestDataRead/HVec.h"
+//#include "DataModelTestDataRead/H.h"
+//#include "DataModelTestDataRead/HAuxContainer.h"
+//#include "DataModelTestDataRead/HView.h"
 #include "DataModelTestDataRead/GVec.h"
 #include "DataModelTestDataRead/G.h"
 #include "DataModelTestDataRead/GAuxContainer.h"
@@ -196,8 +196,7 @@ StatusCode xAODTestRead::execute()
   }
 
   CHECK( read_cvec_with_data() );
-  CHECK( read_cview() );
-  CHECK( read_htest() );
+  //CHECK( read_cview() );
 
   return StatusCode::SUCCESS;
 }
@@ -239,6 +238,7 @@ StatusCode xAODTestRead::read_cvec_with_data() const
 }
 
 
+#if 0
 /**
  * @brief Test reading view container.
  */
@@ -268,53 +268,7 @@ StatusCode xAODTestRead::read_cview() const
 
   return StatusCode::SUCCESS;
 }
-
-
-/**
- * @brief Test schema evolution involving view container.
- */
-StatusCode xAODTestRead::read_htest() const
-{
-  const HVec* vec = nullptr;
-  CHECK( evtStore()->retrieve (vec, m_readPrefix + "hvec") );
-  std::cout << m_readPrefix << "hvec:";
-  for (const H* h : *vec)
-    std::cout << " " << h->aFloat();
-  std::cout << "\n";
-
-  if (!evtStore()->contains<HView> (m_readPrefix + "hview")) {
-    std::cout << "(No " << m_readPrefix << "hview.)\n";
-  }
-  else {
-    CHECK( evtStore()->retrieve (vec, m_readPrefix + "hview") );
-    std::cout << m_readPrefix << "hview:";
-    for (const H* h : *vec)
-      std::cout << " " << h->aFloat();
-    std::cout << "\n";
-  }
-
-  if (!m_writePrefix.empty()) {
-    // Passing this as the third arg of record will make the object const.
-    bool LOCKED = false;
-    auto vecnew = CxxUtils::make_unique<HVec>();
-    auto store = CxxUtils::make_unique<HAuxContainer>();
-    vecnew->setStore (store.get());
-    for (size_t i = 0; i < vec->size(); i++) {
-      vecnew->push_back (new H);
-      *vecnew->back() = *(*vec)[i];
-    }
-
-    auto viewnew = CxxUtils::make_unique<HView>();
-    for (size_t i = 0; i < vec->size(); i++)
-      viewnew->push_back (vecnew->at(vec->size()-1-i));
-
-    CHECK (evtStore()->record (std::move(vecnew), m_writePrefix + "hvec", LOCKED));
-    CHECK (evtStore()->record (std::move(store), m_writePrefix + "hvecAux.", LOCKED));
-    CHECK (evtStore()->record (std::move(viewnew), m_writePrefix + "hview", LOCKED));
-  }
-
-  return StatusCode::SUCCESS;
-}
+#endif
 
 
 /**

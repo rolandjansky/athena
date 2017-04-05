@@ -6,7 +6,7 @@
 /**
  * @file  DataModelTestDataRead/src/xAODTestReadCVec.cxx
  * @author snyder@bnl.gov
- * @date May 2014
+ * @date Apr, 2016
  * @brief Algorithm to test reading xAOD data (CVec).
  */
 
@@ -24,6 +24,7 @@
 #include "CxxUtils/make_unique.h"
 #include "GaudiKernel/System.h"
 #include <memory>
+#include <sstream>
 
 
 namespace DMTest {
@@ -50,6 +51,8 @@ xAODTestReadCVec::xAODTestReadCVec (const std::string &name,
  */
 StatusCode xAODTestReadCVec::initialize()
 {
+  C::Accessor<float> dVar1 ("dVar1");
+
   ATH_CHECK( m_cvecKey.initialize() );
   if (!m_writeKey.key().empty())
     ATH_CHECK( m_writeKey.initialize() );
@@ -67,6 +70,7 @@ StatusCode xAODTestReadCVec::execute_r (const EventContext& ctx) const
   const static C::Accessor<int> anInt2 ("anInt2");
   const static C::Accessor<int> anInt10 ("anInt10");
   const static C::Accessor<int> dInt1 ("dInt1");
+  const static C::Accessor<float> dVar1 ("dVar1"); // testing schema evolution
   const static C::Accessor<unsigned int> dpInt1 ("dpInt1");
   const static C::Accessor<std::vector<float> > dpvFloat ("dpvFloat");
   const static C::Accessor<int> dInt100 ("dInt100");
@@ -81,63 +85,71 @@ StatusCode xAODTestReadCVec::execute_r (const EventContext& ctx) const
   for (SG::auxid_t auxid : cvec->getAuxIDs())
     names.push_back (r.getName(auxid));
   std::sort (names.begin(), names.end());
-  std::cout << "cvec aux items: ";
+  std::cout << m_cvecKey.key() << " aux items: ";
   for (const std::string& n : names)
     std::cout << n << " ";
   std::cout << "\n";
-  std::cout << "Type of aux store: "
-            << System::typeinfoName (typeid (*cvec->getConstStore())) << "\n";
+  {
+    const SG::IConstAuxStore* auxstore = cvec->getConstStore();
+      std::cout << "Type of aux store: "
+                << System::typeinfoName (typeid (*auxstore)) << "\n";
+  }
 
   for (const C* c : *cvec) {
-    std::cout << " anInt1 " << c->anInt()
+    std::ostringstream ost;
+    ost << " anInt1 " << c->anInt()
               << " aFloat: " << c->aFloat()
               << " pInt: " << c->pInt()
               << " pFloat: " << CxxUtils::strformat ("%.2f", c->pFloat());
     if (anInt2.isAvailable(*c))
-      std::cout << " anInt2: " << anInt2(*c);
+      ost << " anInt2: " << anInt2(*c);
     if (dInt1.isAvailable(*c))
-      std::cout << " dInt1: " << dInt1(*c);
+      ost << " dInt1: " << dInt1(*c);
+    if (dVar1.isAvailable(*c))
+      ost << " dVar1: " << dVar1(*c);
     if (dpInt1.isAvailable(*c))
-      std::cout << " dpInt1: " << dpInt1(*c);
+      ost << " dpInt1: " << dpInt1(*c);
     if (dInt100.isAvailable(*c))
-      std::cout << " dInt100: " << dInt100(*c);
+      ost << " dInt100: " << dInt100(*c);
     if (dInt150.isAvailable(*c))
-      std::cout << " dInt150: " << dInt150(*c);
+      ost << " dInt150: " << dInt150(*c);
     if (dInt200.isAvailable(*c))
-      std::cout << " dInt200: " << dInt200(*c);
+      ost << " dInt200: " << dInt200(*c);
     if (dInt250.isAvailable(*c))
-      std::cout << " dInt250: " << dInt250(*c);
+      ost << " dInt250: " << dInt250(*c);
     if (anInt10.isAvailable(*c))
-      std::cout << " anInt10: " << anInt10(*c);
+      ost << " anInt10: " << anInt10(*c);
     if (cEL.isAvailable(*c))
-      std::cout << " cEL: " << cEL(*c).dataID()
+      ost << " cEL: " << cEL(*c).dataID()
                 << "[" << cEL(*c).index() << "]";
-    std::cout << "\n";
+    ost << "\n";
     
     {
       const std::vector<int>& pvi = c->pvInt();
-      std::cout << "  pvInt: [";
+      ost << "  pvInt: [";
       for (auto ii : pvi)
-        std::cout << ii << " ";
-      std::cout << "]\n";
+        ost << ii << " ";
+      ost << "]\n";
     }
 
     {
       const std::vector<float>& pvf = c->pvFloat();
-      std::cout << "  pvFloat: [";
+      ost << "  pvFloat: [";
       for (auto ii : pvf)
-        std::cout << CxxUtils::strformat ("%.3f", ii) << " ";
-      std::cout << "]\n";
+        ost << CxxUtils::strformat ("%.3f", ii) << " ";
+      ost << "]\n";
     }
 
     if (dpvFloat.isAvailable(*c))
     {
       const std::vector<float>& pvf = dpvFloat(*c);
-      std::cout << "  dpvFloat: [";
+      ost << "  dpvFloat: [";
       for (auto ii : pvf)
-        std::cout << CxxUtils::strformat ("%.3f", ii) << " ";
-      std::cout << "]\n";
+        ost << CxxUtils::strformat ("%.3f", ii) << " ";
+      ost << "]\n";
     }
+
+    std::cout << ost.str();
   }
 
   if (!m_writeKey.key().empty()) {

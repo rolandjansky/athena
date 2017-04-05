@@ -367,6 +367,12 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
          superPoint->Z      = X + Yor;
          superPoint->Alin   = pbFitResult.ALIN;
          superPoint->Blin   = pbFitResult.BLIN; 
+         if ( chamber == 3 ){ //// Endcap Inner
+           superPoint->Z = rm;
+           superPoint->R = (rm-Yor)/pbFitResult.ALIN - pbFitResult.BLIN/pbFitResult.ALIN + Xor;
+           superPoint->Alin = 1./pbFitResult.ALIN;
+           superPoint->Blin = -pbFitResult.BLIN/pbFitResult.ALIN;
+         }
        }
        
        superPoint->Phim   = phim;

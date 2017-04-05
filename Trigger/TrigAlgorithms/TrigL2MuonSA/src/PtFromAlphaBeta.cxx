@@ -27,6 +27,7 @@ TrigL2MuonSA::PtFromAlphaBeta::PtFromAlphaBeta(const std::string& type,
 {
   declareInterface<TrigL2MuonSA::PtFromAlphaBeta>(this);
   declareProperty("useCscPt", m_use_cscpt=false);
+  declareProperty("AvoidMisalignedCSCs", m_avoid_misaligned_cscs=true,"avoid using the 2 new chambers, whose alignment is not completed");
 }
 
 // --------------------------------------------------------------------------------
@@ -143,7 +144,8 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trac
     const float &cscPt = trackPattern.ptCSC;
     const int &etabin = trackPattern.etaBin;
     bool validrange = (20<=etabin && etabin<=27) || (etabin==20 && abs(side-charge)!=1);//side-charge==0 <=> Qeta==1
-    if( etabin !=23 && etabin!=24 &&  validrange ){
+    bool validchamber = !m_avoid_misaligned_cscs || (16!=trackPattern.hashID_CSC && 17!=trackPattern.hashID_CSC);
+    if( etabin !=23 && etabin!=24 &&  validrange && validchamber){
       if(fabs(trackPattern.ptEndcapBeta)<ZERO_LIMIT && fabs(cscPt)>ZERO_LIMIT 
 	 &&  fabs((cscPt - mdtPt) / mdtPt)<ALPHA_TO_CSC_RATIO && fabs(1./cscPt-1./mdtPt)<ALPHA_TO_CSC_RATIO_PT ){
 	trackPattern.pt = fabs(cscPt);

@@ -63,13 +63,13 @@
  *  @param CID 		clid
  *  @param VERSION 	not yet used
  */
-#define CLASS_DEF(NAME, CID , VERSION)		\
-  template <>					\
-  struct ClassID_traits< NAME > {				 \
-    typedef boost::is_base_and_derived<DataObject, NAME> isDObj_t;	\
-    BOOST_STATIC_CONSTANT(bool, s_isDataObject = isDObj_t::value);	\
-    typedef type_tools::Int2Type<s_isDataObject> is_DataObject_tag;	\
-    typedef type_tools::true_tag has_classID_tag;			\
+#define CLASS_DEF(NAME, CID , VERSION)                                  \
+  template <>                                                           \
+  struct ClassID_traits< NAME > {                                       \
+    typedef std::is_base_of<DataObject, NAME> isDObj_t;                 \
+    static const bool s_isDataObject = isDObj_t::value;                 \
+    typedef std::integral_constant<bool, s_isDataObject> is_DataObject_tag; \
+    typedef std::true_type has_classID_tag;                             \
     static const CLID& ID() { static CLID c(CID); return  c; }		\
     static const char* typeNameString() {                               \
       return #NAME;                                                     \
@@ -85,9 +85,9 @@
     static const std::type_info& typeInfo() {				\
       return typeid (NAME);						\
     }									\
-    typedef type_tools::true_tag has_version_tag;			\
-    BOOST_STATIC_CONSTANT(int, s_version = VERSION);			\
-    BOOST_STATIC_CONSTANT(bool, s_isConst = false);                     \
+    typedef std::true_type has_version_tag;                             \
+    static const int s_version = VERSION;                               \
+    static const bool s_isConst = false;                                \
   };									\
   CLIDREGISTRY_ADDENTRY(CID, NAME)
 
@@ -106,10 +106,10 @@
 #define CLASS_DEF2(ARG1, ARG2, CID , VERSION)	\
   template <>					\
   struct ClassID_traits< ARG1,ARG2 > {					\
-    typedef boost::is_base_and_derived<DataObject, ARG1, ARG2 > isDObj_t; \
-    BOOST_STATIC_CONSTANT(bool, s_isDataObject = isDObj_t::value);	\
-    typedef type_tools::Int2Type<s_isDataObject> is_DataObject_tag;	\
-    typedef type_tools::true_tag has_classID_tag;			\
+    typedef std::is_base_of<DataObject, ARG1, ARG2 > isDObj_t;          \
+    static const bool s_isDataObject = isDObj_t::value;                 \
+    typedef std::integral_constant<bool, s_isDataObject> is_DataObject_tag; \
+    typedef std::true_type has_classID_tag;                             \
     static const CLID& ID() {						\
       static CLID c(CID); return  c;					\
     }									\
@@ -126,9 +126,9 @@
     static  Athena::PackageInfo packageInfo() {				\
       return Athena::PackageInfo("Package-00-00-00");			\
     }									\
-    typedef type_tools::true_tag has_version_tag;			\
-    BOOST_STATIC_CONSTANT(int, s_version = VERSION);			\
-    BOOST_STATIC_CONSTANT(bool, s_isConst = false);                     \
+    typedef std::true_type has_version_tag;                             \
+    static const int s_version = VERSION;                               \
+    static const bool s_isConst = false;                                \
   };									\
   CLIDREGISTRY_ADDENTRY2(CID, ARG1, ARG2)
 
