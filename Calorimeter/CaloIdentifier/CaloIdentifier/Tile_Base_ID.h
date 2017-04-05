@@ -52,7 +52,7 @@ public:
                  };
     enum SAMPLE { SAMP_A = 0, 
                   SAMP_B = 1, SAMP_BC = 1, SAMP_C = 1, // synonyms
-                  SAMP_D = 2, SAMP_E = 3, SAMP_X = 4 };
+                  SAMP_D = 2, SAMP_E = 3, SAMP_X = 4, SAMP_UNKNOWN = 5};
     enum SIDE { NEGATIVE = -1, POSITIVE = 1, TWOSIDES = 0 };
     enum GAIN { LOWGAIN = 0,   HIGHGAIN = 1 };
     enum SIZE { NSIDES = 2, NSECTIONS = 3, NREGIONS = NSIDES * NSECTIONS };

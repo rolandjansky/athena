@@ -60,6 +60,8 @@ TileNeighbour::TileNeighbour(void)
   : m_debug(0)
   , m_length(0)
   , m_maxHash(0)
+  , m_granularity(1)
+  , m_mergedBC(true)
 {
 }
 
@@ -76,17 +78,17 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
 
   // Find the full path to filename:
   std::string file = PathResolver::find_file (filename, "DATAPATH");
-  log << MSG::INFO << "Reading file  " << file << endreq;
+  log << MSG::INFO << "Reading file  " << file << endmsg;
   std::ifstream fin;
   if (file != "") {
     fin.open(file.c_str());
   }
   else {
-    log << MSG::ERROR << "Could not find input file " << filename <<  endreq;
+    log << MSG::ERROR << "Could not find input file " << filename <<  endmsg;
     return 1;
   }
   if (fin.bad()) {
-    log << MSG::ERROR << "Could not open file " << file << endreq;
+    log << MSG::ERROR << "Could not open file " << file << endmsg;
     return 1;
   }
 
@@ -96,7 +98,7 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
   unsigned int line=0, record=0;              // file line number, record number
   char token[MAX_TOKEN_SIZE];                 // input token
 
-  log << MSG::VERBOSE << "Parsing input file:" << endreq;
+  log << MSG::VERBOSE << "Parsing input file:" << endmsg;
     
   std::vector<Cell> allCells;
 
@@ -131,7 +133,7 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
 
     fin.ignore(MAX_TOKEN_SIZE, '\n'); // skip to eol
 
-    log << endreq;
+    log << endmsg;
     allCells.push_back(newCell);
     record++;				     // count input records
     
@@ -139,7 +141,7 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
  
   fin.close();
 
-  log << MSG::DEBUG << "Processed " << line << " lines, " << record << " records." << endreq;
+  log << MSG::DEBUG << "Processed " << line << " lines, " << record << " records." << endmsg;
 
   unsigned int curSize = allCells.size();
   for (unsigned int i=0; i<curSize; ++i) {
@@ -186,6 +188,16 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
       const ExpandedIdentifier& exp_id = (*first);
       phi = exp_id[tileID->m_MODULE_INDEX];
       if (phi > max_phi) max_phi = phi;
+      if( m_granularity == 1 && exp_id[tileID->m_TOWER_INDEX] > 15 )
+      {
+        m_granularity = 4;
+        log << MSG::VERBOSE << "Using granularity equal to " << m_granularity << endmsg;
+      }
+      if ( m_mergedBC && exp_id[tileID->m_SAMPLE_INDEX] == 4) {
+        m_mergedBC = false;
+        log << MSG::VERBOSE << "Using separate B and C layers in barrel " << endmsg;
+      }
+      
       Identifier id = tileID->cell_id (  exp_id[tileID->m_SECTION_INDEX],
                                          exp_id[tileID->m_SIDE_INDEX], 
                                          exp_id[tileID->m_MODULE_INDEX], 
@@ -196,7 +208,7 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
         log << MSG::ERROR << "init_hashes "
             << " Error: duplicated id for cell id. nids= " << nids
             << " compact Id  " << tileID->show_to_string(id)
-            << endreq;
+            << endmsg;
       }
       nids++;
     }
@@ -238,7 +250,7 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
                   << nb_name[j] << k << " "
                   << allCells[i].neighbours[j][k] << " "
                   << allCells[i].neighbours_ind[j][k] << " "
-                  << endreq;
+                  << endmsg;
             }
             break;
           }
@@ -384,7 +396,7 @@ int TileNeighbour::fill_phi_vec  (std::set<std::pair<IdentifierHash,int> > & ids
     log << MSG::ERROR << "fill_phi_vec "
         << " Error: set size NOT EQUAL to hash max. size " << ids.size()
         << " hash max " << hash_max
-        << endreq;
+        << endmsg;
     return (1);
   }
 
@@ -583,29 +595,32 @@ void TileNeighbour::get_id(std::string & strName, Identifier & id, const Tile_Ba
     std::string::size_type pos = strName.find( "-", 0 );
     if ( std::string::npos != pos ) sd = -1; else sd = 1;
 
-    sscanf(name+2,"%d",&tw);
+    sscanf(name+2,"%80d",&tw);
     if (tw<0) tw *= -1;
 
     switch ( name[0] ) {
         case 'a': case 'A': sm = 0; tw -= 1; 
-            if (tw<10) se = 1; else se = 2;
+            if (tw<10*m_granularity) se = 1; else se = 2;
             break;
         case 'b': case 'B': sm = 1; tw -= 1;
             if (tw<10) se = 1; else se = 2;
+            tw = (tw+0.5) * m_granularity;
             break;
         case 'c': case 'C': sm = 1; tw -= 1;
-            se = 3;
+            if (tw<9) {se = 1; sm = 4;} else se = 3;
+            tw = (tw+0.5) * m_granularity;
             break;
         case 'd': case 'D': sm = 2; tw *= 2;
             if (tw<10) se = 1; else se = 2;
             if (tw==8)  se = 3;
+            tw *= m_granularity;
             break;
         case 'e': case 'E': sm = 3; 
             switch ( tw ) {
-                case 1: tw = 10; break;
-                case 2: tw = 11; break;
-                case 3: tw = 13; break;
-                case 4: tw = 15; break;
+                case 1: tw = 10.5 * m_granularity; break;
+                case 2: tw = 11.5 * m_granularity; break;
+                case 3: tw = 13   * m_granularity; break;
+                case 4: tw = 15   * m_granularity; break;
             }
             se = 3;
             break;
@@ -651,19 +666,22 @@ void TileNeighbour::get_name(Identifier & id, std::string & strSection,
             tw=tower+1; 
             break;
     case 1: sm='B';
-            tw=tower+1;
-            if (tw<9) s1='C';
+            tw=tower/m_granularity+1;
+            if (tw<9 && m_mergedBC) s1='C';
             if (tw==10) sm='C';
             break;
+    case 4: sm='C';
+            tw=tower/m_granularity+1;
+            break;
     case 2: sm=(supercell?'V':'D');
-            tw=tower/2;
+            tw=tower/m_granularity/2;
             if (tw==0) {
               if (sd=='+') sd='*';
               else sd='0';
             }
             break;
     case 3: sm='E'; 
-            tw=(tower-7)/2;
+            tw=(tower/m_granularity-7)/2;
             break;
     }
       
@@ -697,11 +715,11 @@ void TileNeighbour::print_list(std::vector<IdentifierHash> & nb_list,
 //  memset(space,32,size);
 //  space[size]=0;
   for (unsigned int j=0; j<size; ++j) {
-    log << MSG::VERBOSE << endreq;
+    log << MSG::VERBOSE << endmsg;
     log << MSG::VERBOSE << "\t";
     tileID->get_id (nb_list[j], id, context);
     get_name(id,strSection,module,strCell,tileID,log,suff);
   }
-  log << endreq;
+  log << endmsg;
 //  delete [] space;
 }

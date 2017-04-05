@@ -155,7 +155,7 @@ void region_check (const Tile_Base_ID& idhelper, Identifier id)
   assert (idhelper.system(id) == 5); // tile
 
   if (sect == Tile_Base_ID::AUXDET)
-    assert (idhelper.sample(id) == Tile_Base_ID::SAMP_X);
+    assert (idhelper.sample(id) == Tile_Base_ID::SAMP_UNKNOWN);
   else
     assert (idhelper.sample(id) == idhelper.sampling(id));
 }

@@ -84,15 +84,15 @@ int CaloCell_Base_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 {
   
   MsgStream log(m_msgSvc, "CaloCell_Base_ID");
-  if(m_msgSvc)log << MSG::DEBUG << "Initialize" << endreq;
+  if(m_msgSvc)log << MSG::DEBUG << "Initialize" << endmsg;
   
   // Check whether this helper should be reinitialized
   if (!reinitialize(dict_mgr)) {
-    if(m_msgSvc)log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endreq;
+    if(m_msgSvc)log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
     return (0);
   }
   else {
-    if(m_msgSvc)log << MSG::DEBUG << "(Re)initialize" << endreq;
+    if(m_msgSvc)log << MSG::DEBUG << "(Re)initialize" << endmsg;
   }
   
   // init base object
@@ -133,7 +133,7 @@ int CaloCell_Base_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
       neighbourFile = "SuperCaloNeighborsSuperCells-April2014.dat";
     }
     if (!neighbourFile.size()) throw std::runtime_error("CaloCell_ID: Cannot find the CaloNeighbour file name");
-    if(m_msgSvc)log << MSG::DEBUG << "Initializing Super3D Neighbors from file " << neighbourFile << endreq;
+    if(m_msgSvc)log << MSG::INFO << "Initializing Super3D Neighbors from file " << neighbourFile << endmsg;
     m_caloNeighbours->initialize(this, neighbourFile);
   }
  
@@ -183,6 +183,7 @@ int   CaloCell_Base_ID::calo_sample   (const Identifier         id) const
   }
   
   else if (m_tileHelper->is_tile_barrel( id )) {
+    if(m_tileHelper->sample(id) == 4) return TileGap1; // temporary fix for sample C in upgrade geometry
     calo_sampl = TileBar0 + m_tileHelper->sample(id);
   } 
 

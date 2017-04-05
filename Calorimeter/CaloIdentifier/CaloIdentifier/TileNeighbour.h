@@ -95,6 +95,10 @@ private:
   void          print_list  (std::vector<IdentifierHash> & nb_list, 
                              const Tile_Base_ID* tileID, const IdContext* context,
                              MsgStream & log, const char * pref, const char * suff);
+
+  // special flags for upgrade geometries
+  int m_granularity;
+  bool m_mergedBC;
 };
 
 #endif // CALOIDENTIFIER_TILENEIGHBOUR_H
