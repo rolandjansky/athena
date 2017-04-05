@@ -17,7 +17,7 @@ from idbs import IDBS
 from magnets import Magnets
 from global_system import Global
 
-ALL_SYSTEMS = [CSC, LAr, Lucid, MDT, Pixels, RPC, SCT, TDQ, Tile, TGC, TRT, IDBS, Magnets, Global]
+ALL_SYSTEMS = [CSC, LAr, Lucid, MDT, Pixels, RPC, SCT, TDQ, Tile, TGC, TRT,  IDBS, Magnets, Global]
 SYS_NAMES = ", ".join(map(lambda x: x.__name__, ALL_SYSTEMS))
 
 SYSTEM_MAP = dict((x.__name__, x) for x in ALL_SYSTEMS)
