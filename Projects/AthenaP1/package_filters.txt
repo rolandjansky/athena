@@ -110,3 +110,5 @@
 - PhysicsAnalysis/AnalysisCommon/ReweightUtils
 - PhysicsAnalysis/D3PDMaker/TruthD3PDMaker
 
+# Temporarily disabled
+- HLT/HLToks
