@@ -20,6 +20,7 @@ export TDAQ_VERSION="tdaq-07-01-00"
 export TDAQ_RELEASE_BASE=/afs/cern.ch/atlas/project/tdaq/prod
 export TDAQ_DB_PATH=/afs/cern.ch/atlas/project/tdaq/prod/tdaq/$TDAQ_VERSION/installed/share/data:/afs/cern.ch/atlas/project/tdaq/prod/tdaq/$TDAQ_VERSION/installed/databases:/afs/cern.ch/atlas/project/tdaq/prod/tdaq/$TDAQ_VERSION/databases
 source $TDAQ_RELEASE_BASE/../cmake/cmake_tdaq/bin/cm_setup.sh $TDAQ_VERSION
+export TNS_ADMIN=/afs/cern.ch/atlas/offline/external/oracle/latest/admin
 
 ##get the right pattern to load LVl1 xml file
 if [ "$type" == "HLT_LS1V1" ]; then
