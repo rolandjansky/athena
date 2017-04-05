@@ -34,10 +34,11 @@ EgammaD3PDStream_msg.info( "Configuring EgammaD3PD with streamName '%s' and file
 
 # Create the D3PD streams:
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-EgammaD3PDStream = MSMgr.NewRootStream( streamName, fileName, "egamma" )
+EgammaD3PDStream = MSMgr.NewRootStream( streamName, fileName, "egamma", asAlg=True )
 EgammaTriggerD3PDStream = MSMgr.NewRootStream( streamName + ":" + streamName +
                                                "D3PDTrigDec", fileName,
-                                               "egammaTrigDec" )
+                                               "egammaTrigDec",
+                                               asAlg=True)
 
 # Now add all the content to this stream:
 from D3PDMakerConfig.egammaD3PD import egammaD3PD
