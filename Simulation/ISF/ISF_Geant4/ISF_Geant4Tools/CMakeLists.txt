@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Simulation/G4Atlas/G4AtlasInterfaces
                           PRIVATE
-			  Control/AthToolSupport/AsgTools
                           Control/AthenaBaseComps
                           Control/CxxUtils
                           Control/StoreGate

@@ -9,7 +9,6 @@ use Geant4                Geant4-*                External
 use G4AtlasInterfaces     G4AtlasInterfaces-*     Simulation/G4Atlas
 
 private
-use AsgTools		  AsgTools-*		  Control/AthToolSupport
 use AthenaBaseComps       AthenaBaseComps-*       Control
 use AtlasCLHEP            AtlasCLHEP-*            External
 use AtlasDetDescr         AtlasDetDescr-*         DetectorDescription
