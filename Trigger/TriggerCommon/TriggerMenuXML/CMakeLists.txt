@@ -42,7 +42,7 @@ function( atlas_build_trigger_menu menu )
       COMMAND ${CMAKE_COMMAND} -E make_directory
       ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}
       COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh
-      ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/XMLDumperFromAthena.sh ${menu}
+      ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/XMLDumperFromAthena.sh -r ${CMAKE_PROJECT_VERSION} ${menu}
       ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}
       COMMAND ${CMAKE_COMMAND} -E make_directory
       ${CMAKE_XML_OUTPUT_DIRECTORY}/TriggerMenuXML
@@ -74,7 +74,7 @@ function( atlas_build_trigger_menu menu )
                      execute_process(
                         COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh
                         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/XMLDumperFromAthena.sh
-                        ${menu} ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu} )
+                        -r ${CMAKE_PROJECT_VERSION} ${menu} ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu} )
                   endif()" )
 
    # Install the generated XML files. Note that this installation rule is
