@@ -19,46 +19,48 @@ namespace xAOD {
     std::vector<double> pdf4lhc_unc, nnpdf30_unc;
     double alphaS_up, alphaS_dn;
 
-    /// ggF QCD scale variations (muR,muF), 8 variations
+    /// Weights to reweigh central to a different PDF set
+    /// If the PDF set is not present in file, this weight will be zero
+    double nnpdf30_nlo, nnpdf30_nnlo, mmht2014nlo, pdf4lhc_nlo, pdf4lhc_nnlo;
+    double ct10nlo, ct10nlo_0118, ct14nlo, ct14nlo_0118;
+    
+    /// QCD scale variations (muR,muF)
     std::vector<double> qcd;
 
-    /// NNLOPS
+
+    /// Special weights for Powheg ggF NNLOPS
     /// 1. QCD scale variations 3x(NNLO), 9xPowheg(muR,muF) - 26 variations
     std::vector<double> qcd_nnlops;
 
     /// 2. quark mass variations
     double mt_inf, mb_minlo;
 
-    /// Special PDF weights
-    double nnpdf30_nlo, nnpdf30_nnlo, mmht2014nlo, pdf4lhc_nlo, pdf4lhc_nnlo;
-    double ct10nlo, ct10nlo_0118, ct14nlo, ct14nlo_0118;
-    
+    /// ggF specific uncertainty weights
+    /// various different schemes
+
     /// WG1 proposed QCD uncertainty scheme
     double qcd_wg1_mu, qcd_wg1_res, qcd_wg1_mig01, qcd_wg1_mig12;
     double qcd_wg1_pTH, qcd_wg1_qm_b, qcd_wg1_qm_t, qcd_wg1_vbf2j, qcd_wg1_vbf3j;
 
+    /// WG1 proposed uncertainty scheme
+    std::vector<double> ggF_qcd_wg1() { return {qcd_wg1_mu,qcd_wg1_res,qcd_wg1_mig01,qcd_wg1_mig12,
+	  qcd_wg1_vbf2j,qcd_wg1_vbf3j,qcd_wg1_pTH,qcd_wg1_qm_t}; }
+    
     /// Tackmann proposed QCD uncertainty scheme
-    std::vector<double> qcd_stxs;
-
+    std::vector<double> ggF_qcd_stxs;
+    
     /// Merging of STXS and WG1 schemes
-    std::vector<double> qcd_2017;
+    std::vector<double> ggF_qcd_2017;
 
     /// Jet veto efficiency method for cross check
-    std::vector<double> qcd_jve;
+    std::vector<double> ggF_qcd_jve;
 
-    /// Powheg NNLOPS possible scheme TODO
+    /// Powheg NNLOPS possible scheme
     double qcd_nnlops_nnlo, qcd_nnlops_pow;
-
-    /// NLO weights for cross checks of NNLOPS
-    // double weightNLO, nlo_pdf4lhc_nlo, nlo_pdf4lhc_nnlo, nlo_nnpdf30_nlo
-    
 
     /// information of the current event kinematiocs
     double pTH;
     int Njets30, STXS;
-
-    std::vector<double> qcd_wg1() { return {qcd_wg1_mu,qcd_wg1_res,qcd_wg1_mig01,qcd_wg1_mig12,
-	  qcd_wg1_vbf2j,qcd_wg1_vbf3j,qcd_wg1_pTH,qcd_wg1_qm_t}; }
 
     /// methods to print weights to the screen
     char *uncStr(double var, double nom) { return var==0?Form("  N/A"):Form("%s%.1f%%",var>=nom?"+":"",(var-nom)/nom*100); }

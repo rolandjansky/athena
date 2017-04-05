@@ -1,3 +1,11 @@
+2017-04-05 Dag Gillberg <dag.gillberg@cern.h>
+	* Tagging TruthWeightTools-01-04-00
+	* Changed names of accessors: QCD uncertatinites only relevant to ggF now called
+	*   ggF_qcd_XXX
+	* Removed lines from example code added by mistake
+	* Version intened for Summer 2017 analysis - contains WG1 recommendation for ggF
+	* Namely: ggF_qcd_2017
+
 2017-03-26 Dag Gillberg <dag.gillberg@cern.h>
 	* Tagging TruthWeightTools-01-03-00
 	* Contains Higgs ggF QCD uncertainty weights as discussed at
