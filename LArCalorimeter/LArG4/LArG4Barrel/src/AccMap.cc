@@ -99,8 +99,9 @@ CurrMap* AccMap::GetMap(int ifold, int ielecregion) const
 {
   const int code=10*ifold+ielecregion;
   // std::cout << " code is " << code << std::endl;
-  if (m_theMap.find(code) != m_theMap.end())
-    return m_theMap.at(code);
+  const auto mapIter = m_theMap.find(code);
+  if (mapIter != m_theMap.end())
+    return mapIter->second;
   else {
     std::cout << " Code " << code << " not found in map ..." << std::endl;
     return nullptr;
