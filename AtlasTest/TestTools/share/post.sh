@@ -155,7 +155,7 @@ PP="$PP"'|^(StoreGateSvc|[^ ]+Store) +(INFO|VERBOSE) (Stop|stop|Start)'
 PP="$PP"'|^warn  .fn-'
 
 # ubsan
-PP="$PP"'|bits/regex.h:1545'
+PP="$PP"'|bits/regex.h:11'
 
 # More StoreGate changes.
 PP="$PP"'|DEBUG trying to create store'
