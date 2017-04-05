@@ -21,12 +21,10 @@ Purpose : create a EventInfoTag - The Tag information associated to the event
 
 #include <sstream>
 
-
-//using xAOD::EventInfo;
-
 /** the constructor */
-EventInfoAttListTool::EventInfoAttListTool (const std::string& type, const
-					std::string& name, const IInterface* parent) : 
+EventInfoAttListTool::EventInfoAttListTool (const std::string& type, 
+                                            const std::string& name, 
+                                            const IInterface* parent) : 
   AthAlgTool( type, name, parent ) 
 {
   declareInterface<EventInfoAttListTool>( this );
@@ -54,7 +52,8 @@ StatusCode  EventInfoAttListTool::initialize() {
 
 
 /** execute - called on every event */
-const AthenaAttributeList EventInfoAttListTool::getAttributeList(const DataHandle<xAOD::EventInfo> eventInfo) {
+const AthenaAttributeList 
+EventInfoAttListTool::getAttributeList(const xAOD::EventInfo& eventInfo) {
 
   // Create attributeList with appropriate attributes
   AthenaAttributeList eventTag( *m_attribListSpec );
@@ -70,32 +69,33 @@ const AthenaAttributeList EventInfoAttListTool::getAttributeList(const DataHandl
 }
 
 /** build the tag associate to the event information */
-StatusCode EventInfoAttListTool::eventTag(AthenaAttributeList& eventTag, 
-                                      const DataHandle<xAOD::EventInfo> eventInfo) 
+StatusCode 
+EventInfoAttListTool::eventTag(AthenaAttributeList& eventTag, 
+                               const xAOD::EventInfo& eventInfo) 
 {
 
   /** Event Type */
-  bool isSimulation  = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
-  bool isTestBeam    = eventInfo->eventType(xAOD::EventInfo::IS_TESTBEAM);
-  bool isCalibration = eventInfo->eventType(xAOD::EventInfo::IS_CALIBRATION);
+  bool isSimulation  = eventInfo.eventType(xAOD::EventInfo::IS_SIMULATION);
+  bool isTestBeam    = eventInfo.eventType(xAOD::EventInfo::IS_TESTBEAM);
+  bool isCalibration = eventInfo.eventType(xAOD::EventInfo::IS_CALIBRATION);
   eventTag["IsSimulation"] .data<bool>() = isSimulation;
   eventTag["IsCalibration"].data<bool>() = isCalibration;
   eventTag["IsTestBeam"]   .data<bool>() = isTestBeam;
 
   // run number and Event number 
-  unsigned int       runNumber     = eventInfo->runNumber();
+  unsigned int       runNumber     = eventInfo.runNumber();
   unsigned int       condRunNumber = runNumber;
-  unsigned long long eventNumber   = eventInfo->eventNumber();
-  unsigned int       lumiBlock     = eventInfo->lumiBlock();
-  if (isSimulation)  runNumber     = eventInfo->mcChannelNumber();
+  unsigned long long eventNumber   = eventInfo.eventNumber();
+  unsigned int       lumiBlock     = eventInfo.lumiBlock();
+  if (isSimulation)  runNumber     = eventInfo.mcChannelNumber();
   eventTag["RunNumber"]    .data<unsigned int>()       = runNumber;
   eventTag["EventNumber"]  .data<unsigned long long>() = eventNumber;
   eventTag["LumiBlockN"]   .data<unsigned int>()       = lumiBlock;
   eventTag["ConditionsRun"].data<unsigned int>()       = condRunNumber;
 
-  unsigned long timeStamp   = eventInfo->timeStamp();
-  unsigned long timeStampNS = eventInfo->timeStampNSOffset();
-  unsigned long bunchId     = eventInfo->bcid();
+  unsigned long timeStamp   = eventInfo.timeStamp();
+  unsigned long timeStampNS = eventInfo.timeStampNSOffset();
+  unsigned long bunchId     = eventInfo.bcid();
   eventTag["EventTime"]       .data<unsigned int>() = timeStamp;
   eventTag["EventTimeNanoSec"].data<unsigned int>() = timeStampNS;
   eventTag["BunchId"]         .data<unsigned int>() = bunchId;
@@ -103,7 +103,7 @@ StatusCode EventInfoAttListTool::eventTag(AthenaAttributeList& eventTag,
   // event weight 
   // used for event weighting in monte carlo or just an event count in data
   float evweight = 1;
-  if (isSimulation) evweight = eventInfo->mcEventWeight();
+  if (isSimulation) evweight = eventInfo.mcEventWeight();
   eventTag["EventWeight"].data<float>() = evweight;
 
   return StatusCode::SUCCESS;
