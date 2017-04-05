@@ -98,6 +98,9 @@ public:
   virtual void setDecodedROD(const boost::uint32_t rodId);
   virtual std::vector<boost::uint32_t> getRODOuts() const;
 
+  virtual void setFirstMaskedChip(const IdentifierHash& id, const int firstMaskedChip);
+  virtual int getFirstMaskedChip(const IdentifierHash& id) const;
+
 private:
 
   const SCT_ID* m_sct_id;
@@ -112,6 +115,8 @@ private:
   std::set<IdentifierHash>* m_bsErrors[SCT_ByteStreamErrors::NUM_ERROR_TYPES];
 
   std::set<IdentifierHash>* m_rxRedundancy;
+
+  std::map<IdentifierHash, int>* m_firstMaskedChips;
 
   int m_numBsErrors[SCT_ByteStreamErrors::NUM_ERROR_TYPES];
 

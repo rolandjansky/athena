@@ -101,6 +101,9 @@ public:
   virtual void setDecodedROD(const boost::uint32_t rodId) = 0;
   virtual std::vector<boost::uint32_t> getRODOuts() const = 0;
 
+  virtual void setFirstMaskedChip(const IdentifierHash& id, const int firstMaskedChip)=0;
+  virtual int getFirstMaskedChip(const IdentifierHash& id) const =0;
+
 private:
 
 };

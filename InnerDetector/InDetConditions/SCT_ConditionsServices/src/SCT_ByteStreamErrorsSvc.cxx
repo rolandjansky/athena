@@ -11,6 +11,7 @@
 #include "SCT_ByteStreamErrorsSvc.h"
 ///STL includes
 #include <set>
+#include <map>
 
 ///Gaudi includes
 #include "GaudiKernel/StatusCode.h"
@@ -35,7 +36,7 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   m_lookForSGErrContainer(true),
   //
   m_rxRedundancy(0),
-  //
+  m_firstMaskedChips(nullptr),
   m_isRODSimulatedData(false),
   m_numRODsHVon(0),
   m_numRODsTotal(0),
@@ -115,6 +116,8 @@ SCT_ByteStreamErrorsSvc::initialize(){
     } 
   }
 
+  m_firstMaskedChips = new std::map<IdentifierHash, int>;
+
   resetCounts();
   return sc;
 }
@@ -129,6 +132,9 @@ SCT_ByteStreamErrorsSvc::finalize(){
   }
   delete m_rxRedundancy;
   m_rxRedundancy = 0;
+
+  delete m_firstMaskedChips;
+  m_firstMaskedChips = nullptr;
 
   return sc;
 }
@@ -183,6 +189,7 @@ SCT_ByteStreamErrorsSvc::handle(const Incident& inc) {
     for(auto& rodDecodeStatus: m_rodDecodeStatuses) {
       rodDecodeStatus.second = false;
     }
+    m_firstMaskedChips->clear();
   }
   return;
 }
@@ -563,4 +570,29 @@ SCT_ByteStreamErrorsSvc::getRODOuts() const {
     }
   }
   return rodOuts;
+}
+
+void SCT_ByteStreamErrorsSvc::setFirstMaskedChip(const IdentifierHash& id, const int firstMaskedChip) {
+  std::map<IdentifierHash, int>::const_iterator it = m_firstMaskedChips->find(id);
+  if(it!=m_firstMaskedChips->end()) {
+    ATH_MSG_WARNING("setFirstMaskedChip duplication: hashId " << id << " firstMaskedChip is " << it->second << " and " << firstMaskedChip);
+  } else {
+    (*m_firstMaskedChips)[id] = firstMaskedChip;
+
+    const Identifier wafId = m_sct_id->wafer_id(id);
+    ATH_MSG_VERBOSE("SCT_ByteStreamErrorsSvc::setFirstMaskedChip Hash " << id 
+		    << " SerialNumber " << m_cabling->getSerialNumberFromHash(id).str() 
+		    << " barrel_ec " << m_sct_id->barrel_ec(wafId) 
+		    << " layer_disk " << m_sct_id->layer_disk(wafId) 
+		    << " eta_module " << m_sct_id->eta_module(wafId) 
+		    << " phi_module " << m_sct_id->phi_module(wafId) 
+		    << " side " << m_sct_id->side(wafId) 
+		    << " firstMaskedChip " << firstMaskedChip);
+  }
+}
+
+int SCT_ByteStreamErrorsSvc::getFirstMaskedChip(const IdentifierHash& id) const {
+  std::map<IdentifierHash, int>::const_iterator it = m_firstMaskedChips->find(id);
+  if(it!=m_firstMaskedChips->end()) return it->second;
+  return -1;
 }

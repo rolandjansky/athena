@@ -713,6 +713,15 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
 	  addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::TrailerOverflowError);
 	  sc=StatusCode::RECOVERABLE;
 	}
+	if (d[n] & 0xF) { 
+	  // fisrt masked chip information
+	  // 0 means no masked chip (always have been 0 until April 2017)
+	  // 1 means chip 0 and larger number chips are masked.
+	  // ...
+	  // 12 means only chip 11 is masked.
+	  // Need to check if Rx redundancy is used or not to determine the number of masked chips.
+	  m_byteStreamErrSvc->setFirstMaskedChip(currentLinkIdHash, (d[n] & 0xF));
+	}
 	continue; 
       }
       
