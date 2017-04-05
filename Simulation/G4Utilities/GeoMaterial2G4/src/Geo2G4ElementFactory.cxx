@@ -19,15 +19,15 @@ G4Element *Geo2G4ElementFactory::Build(const GeoElement* theEle)
   //
   G4Element* elm;
   std::string sym = theEle->getSymbol();
-  if (definedElements.find(sym) != definedElements.end())
+  if (m_definedElements.find(sym) != m_definedElements.end())
     {
-      return definedElements[sym];
+      return m_definedElements[sym];
     }
   elm = new G4Element(theEle->getName(),
                       sym,
                       theEle->getZ(),
                       theEle->getA());
 
-  definedElements[sym]=elm;
+  m_definedElements[sym]=elm;
   return elm;
 }

@@ -17,7 +17,7 @@ public:
   Geo2G4ElementFactory();
   G4Element* Build(const GeoElement*);
 private:
-  elList definedElements;
+  elList m_definedElements;
 };
 
 #endif
