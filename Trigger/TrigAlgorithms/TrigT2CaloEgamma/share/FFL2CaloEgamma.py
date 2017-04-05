@@ -1,6 +1,5 @@
 #
-# get_files LVL1config_Physics_pp_v5.xml
-# ln -s /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/atn-test/data15_13TeV.00266904.physics_EnhancedBias.merge.RAW._lb0452._SFO-1._0001.1 input.data
+# get_files LVL1config_Physics_pp_v7.xml
 # 
 
 from AthenaCommon.GlobalFlags import globalflags;
@@ -79,10 +78,7 @@ if nThreads >= 1:
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-# older file, has wrong ROD id: svcMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/user/m/mzinser/public/l1calo-event.sim"]
-#svcMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/user/m/mzinser/public/InputSimon/Mode7/l1calo-event.sim" ]
-svcMgr.ByteStreamInputSvc.FullFileName = [ "./input.data" ]
-#svcMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/user/s/sgeorge/atlaspublic/L1TopoCnv/mergedsim._0001.data" ]
+svcMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/atn-test/data15_13TeV.00266904.physics_EnhancedBias.merge.RAW._lb0452._SFO-1._0001.1" ]
 
 svcMgr.ByteStreamInputSvc.ValidateEvent = True
 svcMgr.EventSelector.ProcessBadEvent = True
@@ -96,7 +92,7 @@ if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
 
 from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
 l1svc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
-l1svc.XMLMenuFile = "LVL1config_Physics_pp_v5.xml"
+l1svc.XMLMenuFile = "LVL1config_Physics_pp_v7.xml"
 svcMgr += l1svc
 
 
