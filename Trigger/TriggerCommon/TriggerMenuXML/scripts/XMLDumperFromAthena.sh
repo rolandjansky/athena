@@ -2,9 +2,13 @@
 # Script to generate the trigger menu XML files
 #
 
-if [ $# -lt 1 ]; then
+help() {
     echo "Syntax: XMLDumperFromAthena.sh [-r VERSION] MENU [DEST]"
-    exit 1
+}
+
+if [ $# -lt 1 ]; then
+    help
+    exit 0
 fi
 
 while true; do
@@ -12,6 +16,14 @@ while true; do
         -r)
             release=$2
             shift 2
+            ;;
+        -h)
+            help
+            exit 0
+            ;;
+        -*)
+            echo "Invalid parameter"
+            exit 1
             ;;
         *)
             break
