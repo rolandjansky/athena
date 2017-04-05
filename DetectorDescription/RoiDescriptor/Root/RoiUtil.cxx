@@ -47,6 +47,27 @@ bool RoiUtil::contains_internal( const IRoiDescriptor& roi, double z0, double zo
   
 
 
+bool contains_zrange( const IRoiDescriptor& roi, double z0, double dzdr, double zmin, double zmax ) { 
+ static const double maxR = 1100; // maximum radius of RoI - outer TRT radius ~1070 mm - should be configurable? 
+  double zouter = dzdr*maxR + z0; 
+  if ( roi.composite() ) { 
+    for ( IRoiDescriptor::roi_iterator itr=roi.begin() ; itr!=roi.end() ; itr++ ) if ( RoiUtil::contains_zrange_internal( *(*itr), z0, zouter, zmin, zmax ) ) return true;
+    return false;
+  }
+  else return contains_zrange_internal( roi, z0, zouter, zmin, zmax ); 
+}
+
+
+
+
+bool RoiUtil::contains_zrange_internal( const IRoiDescriptor& roi, double z0, double zouter, double zmin, double zmax )  {
+  if ( z0<=zmax && z0>=zmin && zouter<=roi.zedOuterPlus() && zouter>=roi.zedOuterMinus() ) return true;
+  return false;
+} 
+  
+
+
+
 /// test whether a stub is contained within the roi
 bool RoiUtil::containsPhi( const IRoiDescriptor& roi, double phi ) {
   if ( roi.composite() ) { 

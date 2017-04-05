@@ -24,6 +24,9 @@ namespace RoiUtil {
 bool contains( const IRoiDescriptor& roi, double z0, double dzdr );
 bool contains_internal( const IRoiDescriptor& roi, double z0, double zouter );
  
+bool contains_zrange( const IRoiDescriptor& roi, double z0, double dzdr, double zmin, double zmax );
+bool contains_zrange_internal( const IRoiDescriptor& roi, double z0, double zouter, double zmin, double zmax );
+
 /// see whether a point is contained within the roi (in phi and r-z)
 bool contains( const IRoiDescriptor& roi, double z, double r, double phi );
 bool containsPhi( const IRoiDescriptor& roi, double phi );
