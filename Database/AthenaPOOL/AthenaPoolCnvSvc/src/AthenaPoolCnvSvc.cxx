@@ -176,7 +176,6 @@ StatusCode AthenaPoolCnvSvc::queryInterface(const InterfaceID& riid, void** ppvI
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::createObj(IOpaqueAddress* pAddress, DataObject*& refpObject) {
    assert(pAddress);
-   std::lock_guard<CallMutex> lock(m_i_mut);
    std::string objName = "ALL";
    if (m_useDetailChronoStat.value()) {
       if (m_clidSvc->getTypeNameOfID(pAddress->clID(), objName).isFailure()) {
@@ -199,7 +198,6 @@ StatusCode AthenaPoolCnvSvc::createObj(IOpaqueAddress* pAddress, DataObject*& re
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::createRep(DataObject* pObject, IOpaqueAddress*& refpAddress) {
    assert(pObject);
-   std::lock_guard<CallMutex> lock(m_o_mut);
    std::string objName = "ALL";
    if (m_useDetailChronoStat.value()) {
       if (m_clidSvc->getTypeNameOfID(pObject->clID(), objName).isFailure()) {
