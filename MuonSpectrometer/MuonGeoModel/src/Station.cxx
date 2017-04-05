@@ -842,9 +842,9 @@ HepGeom::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
     HepGeom::Rotate3D rgamma;
     rgamma = HepGeom::RotateY3D(p.gamma*CLHEP::deg);
     if (pLvl)
-      log<<MSG::VERBOSE<<" gamma is not changing sign - original "<<p.gamma<<" new one "<<p.gamma<<endreq;
+      log<<MSG::VERBOSE<<" gamma is not changing sign - original "<<p.gamma<<" new one "<<p.gamma<<endmsg;
     if (pLvl)
-    log<<MSG::VERBOSE<<" alpha / beta "<<p.alpha<<" "<<p.beta<<endreq;
+    log<<MSG::VERBOSE<<" alpha / beta "<<p.alpha<<" "<<p.beta<<endmsg;
 
     // // apply all transform in sequence 
     // //    HepGeom::Transform3D to_tsz = rgamma*rbeta*ralpha*AMDBorgTranslation*mirrsym;  // works for barrel and barrel-like
