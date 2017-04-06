@@ -51,23 +51,22 @@
 + DetectorDescription/DetDescrCnvSvc
 + DetectorDescription/DetDescrCond/DetDescrCond.*
 + DetectorDescription/DetDescrCond/DetectorStatus
++ DetectorDescription/GeoModel/AtlasGeoModel
 + DetectorDescription/GeoModel/GeoModelInterfaces
 + DetectorDescription/GeoModel/GeoModelKernel
 + DetectorDescription/GeoModel/GeoModelUtilities
++ DetectorDescription/GeoModel/GeoSpecialShapes
++ DetectorDescription/GeoModel/GeoModelSvc
 + DetectorDescription/GeoPrimitives
++ DetectorDescription/GeometryDBSvc
 + DetectorDescription/IdDict.*
 + DetectorDescription/Identifier
 + DetectorDescription/IRegionSelector
 + DetectorDescription/RoiDescriptor
 
 + Event/ByteStreamData
-+ Event/EventBookkeeper.*
-+ Event/EventCommonAthenaPool
-+ Event/EventCommonTPCnv
-+ Event/EventContainers
-+ Event/EventInfo.*
-+ Event/EventKernel
-+ Event/EventPrimitives
+- Event/EventOverlay/.*
++ Event/Event.*
 + Event/FourMom.*
 + Event/NavFourMom
 + Event/xAOD/xAODCoreCnv
@@ -84,6 +83,7 @@
 
 + InnerDetector/InDetConditions/InDetBeamSpotService
 + InnerDetector/InDetConditions/InDetByteStreamErrors
++ InnerDetector/InDetConditions/InDetCondFolders
 + InnerDetector/InDetConditions/InDetCondServices
 + InnerDetector/InDetConditions/InDetConditionsSummaryService
 + InnerDetector/InDetConditions/InDetCoolCoralClientUtils
@@ -93,6 +93,8 @@
 + InnerDetector/InDetDetDescr/InDetIdentifier
 + InnerDetector/InDetDetDescr/InDetReadoutGeometry
 + InnerDetector/InDetDetDescr/SCT_Cabling
++ InnerDetector/InDetDetDescr/.*GeoModel.*
++ InnerDetector/InDetExample/InDetRecExample
 + InnerDetector/InDetRecEvent/InDetPrepRawData
 + InnerDetector/InDetRecEvent/InDetRIO_OnTrack
 + InnerDetector/InDetRecEvent/SiSpacePointsSeed
@@ -105,8 +107,9 @@
 
 + LArCalorimeter/LArCabling
 + LArCalorimeter/LArElecCalib
-+ LArCalorimeter/LArGeoModel/LArHV
-+ LArCalorimeter/LArGeoModel/LArReadoutGeometry
+- LArCalorimeter/LArGeoModel/LArGeoH6.*
++ LArCalorimeter/LArGeoModel/.*
++ LArCalorimeter/LArG4/LArG4RunControl
 + LArCalorimeter/LArIdentifier
 + LArCalorimeter/LArRecConditions
 + LArCalorimeter/LArRecEvent
@@ -118,12 +121,14 @@
 + MagneticField/.*
 
 + MuonSpectrometer/MuonAlignment/MuonAlignmentData
++ MuonSpectrometer/MuonCnv/MuonCnvExample
 + MuonSpectrometer/MuonDetDescr/MuonAGDDDescription
 + MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
 + MuonSpectrometer/MuonIdHelpers
 + MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPattern
 + MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
 + MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
++ MuonSpectrometer/MuonReconstruction/MuonRecExample
 
 + PhysicsAnalysis/AnalysisCommon/AnalysisUtils
 + PhysicsAnalysis/AnalysisCommon/ParticleEvent.*
@@ -153,28 +158,36 @@
 + PhysicsAnalysis/TauID/TauAnalysisTools
 + PhysicsAnalysis/TruthParticleID/McParticleEvent
 
++ Reconstruction/AODFix
 + Reconstruction/egamma/egammaConditions
 + Reconstruction/egamma/egammaEvent
++ Reconstruction/egamma/egammaInterfaces
 + Reconstruction/egamma/egammaLayerRecalibTool
 + Reconstruction/egamma/egammaMVACalib
++ Reconstruction/egamma/egammaRec
++ Reconstruction/egamma/egammaRecEvent
++ Reconstruction/egamma/egammaUtils
 + Reconstruction/EventShapes/.*
 - Reconstruction/Jet/JetMonitoring
 - Reconstruction/Jet/JetEvent.+
 + Reconstruction/Jet/.*
 + Reconstruction/MuonIdentification/MuidEvent
 + Reconstruction/MuonIdentification/muonEvent
++ Reconstruction/MuonIdentification/MuonCombinedRecExample
 + Reconstruction/MVAUtils
 + Reconstruction/Particle
 + Reconstruction/ParticleTruth
 + Reconstruction/PFlow/PFlowUtils
-+ Reconstruction/RecExamples/RecExCo.*
-+ Reconstruction/RecExamples/RecExPers
++ Reconstruction/RecEvent.*
++ Reconstruction/RecExample/RecExCo.*
++ Reconstruction/RecExample/RecExPers
 + Reconstruction/RecJobTransforms
 + Reconstruction/RecoEvent/ParticleCaloExtension
 + Reconstruction/RecoTools/I?TrackToVertex
 + Reconstruction/RecoTools/ParticlesInConeTools
 + Reconstruction/RecoTools/RecoToolInterfaces
 + Reconstruction/tauEvent
++ Reconstruction/tauRec.*
 + Reconstruction/TrackParticleTPCnv
 
 + Simulation/HitManagement
@@ -186,6 +199,8 @@
 + TileCalorimeter/TileEvent
 + TileCalorimeter/TileIdentifier
 + TileCalorimeter/TileSimEvent
+- TileCalorimeter/TileSvc/TileByteStream
++ TileCalorimeter/TileSvc/.*
 
 + Tools/LWHists
 + Tools/PathResolver
