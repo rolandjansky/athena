@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // **********************************************************************
 // IDAlignMonNtuple.cxx
 // AUTHORS: Ben Cooper
@@ -110,11 +114,11 @@ StatusCode IDAlignMonNtuple::bookHistograms()
 {
   StatusCode sc;
 
-  if ( newLowStatFlag() ) {  
+  if ( newLowStat ) {  
   }
-  if ( newLumiBlockFlag() ) {  
+  if ( newLumiBlock ) {  
   }
-  if ( newRunFlag() ) {  }
+  if ( newRun ) {  }
   
   std::string directoryStructure = "/NTUPLES/ALIGNMONITOR";
   //std::string fullNtuplePath = "/NTUPLES/ALIGNMONITOR/Alignment/tree";
@@ -700,11 +704,11 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 StatusCode IDAlignMonNtuple::procHistograms()
 {
 
-  if( endOfLowStatFlag() ) {
+  if( endOfLowStat ) {
   }
-  if( endOfLumiBlockFlag() ) {
+  if( endOfLumiBlock ) {
   }
-  if( endOfRunFlag() ) {}
+  if( endOfRun ) {}
   
   return StatusCode::SUCCESS;
 }

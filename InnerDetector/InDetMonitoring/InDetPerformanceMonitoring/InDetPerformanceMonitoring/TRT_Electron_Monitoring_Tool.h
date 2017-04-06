@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef TRT_ELECTRON_MONITORING_TOOL_H
 #define TRT_ELECTRON_MONITORING_TOOL_H
 

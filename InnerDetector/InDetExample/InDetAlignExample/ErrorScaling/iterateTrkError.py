@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 # usage: iterateTrkError.py [options] [file1.py [file2.py [...]]]
 #
 # options:
@@ -88,8 +90,8 @@ pixbarX_sigma0 = 11.1 * micron
 pixbarY_sigma0 = 117 * micron
 pixecX_sigma0  = 13.5 * micron
 pixecY_sigma0  = 118 * micron
-iblbarX_sigma0 = 10 * micron  #http://cds.cern.ch/record/2203893
-iblbarY_sigma0 = 66 * micron  #http://cds.cern.ch/record/2203893
+#iblbarX_sigma0 = 14 * micron
+#iblbarY_sigma0 = 72 * micron
 sctbar_sigma0  = 21.0 * micron
 sctec_sigma0   = 24.5 * micron
 trtbar_sigma0  = 163 * micron
@@ -101,8 +103,8 @@ sigma0 ={
     'PixEta Barrel':  pixbarY_sigma0,
     'PixPhi Endcap':  pixecX_sigma0,
     'PixEta Endcap':  pixecY_sigma0,
-    'PixPhi IBL'   :  iblbarX_sigma0,
-    'PixEta IBL'   :  iblbarY_sigma0,
+    'PixPhi IBL'   :  iblX_sigma0,
+    'PixEta IBL'   :  iblY_sigma0,
     'SCT Barrel':     sctbar_sigma0,
     'SCT Endcap':     sctec_sigma0,
     'TRT Barrel':     trtbar_sigma0,
@@ -216,7 +218,6 @@ def printResults(outfile, tag, sigma0, targetpull, pulls, scalingset, extraRPOpt
 def printScaling(outfile, tag, scalingset):
     outfile.write('Tag: '+tag+'\n')
     outfile.write("%-15s %10s %10s\n" % ('Det','A','C'))
-    
     for entry in entries:
         key = entry[0]
         keypull = entry[1]
@@ -225,7 +226,7 @@ def printScaling(outfile, tag, scalingset):
 
 
 #--------------------------------------------------------------
-def runAthena(jobOptions,tag, logfile, batchmode, itertag, batchqueue=None):
+def runAthena(jobOptions,tag, logfile, batchmode, itertag):
     import os
     import sys
     from subprocess import Popen
@@ -245,9 +246,10 @@ def runAthena(jobOptions,tag, logfile, batchmode, itertag, batchqueue=None):
         #-n is number of segments, -t is the iter tag
         # the errorScalingOverride='tag' line must NOT have any spaces or extra quotes 
         # and must come before the jobOptions
-        commandstr = "python run_RecEx.py -n40 -t %s --estag %s " % (itertag, tag)
-        if batchqueue: commandstr += "-q %s " % batchqueue
-        commandstr += jobOptions
+        commandstr = ( 'python run_RecEx.py -n40 -t %s ' % itertag +
+                       ("--estag %s" % tag)
+                       + ' ' + jobOptions )
+                       
 
         print "ExecutingBen:",commandstr
         sys.stdout.flush()
@@ -279,80 +281,119 @@ def getTargetPull(key, targetpull, rmsoption):
     return targetp
 
 #--------------------------------------------------------------
-def doIteration(jobOptions, tag, prevDataset, itercount, doAorC, targetpull, rms, usentuple, damping, strategy, extraRPOptions, batchmode, mc, queue):
-    if doAorC not in ["A","C"]: doAorC = 'C'
+def iterStr(num):
+    return str(num).zfill(2)
 
+#--------------------------------------------------------------
+def doIteration(jobOptions, tag, prevDataset, itercount, doAorC, targetpull, rms, usentuple, damping, strategy, extraRPOptions, batchmode,mc):    
     print "-----------------------------------------------------------------"
     print "Running iteration:", itercount
     print " tag =", tag
     print " Tuning parameter", doAorC
     print 
     
-    pullsfilename = "pulls_iter%s%02i.txt" % (doAorC, itercount)
-    monitoringfile = "monitoring_iter%s%02i.root" % (doAorC, itercount)
-    paramfile = "param_iter%s%02i.py" % (doAorC, itercount+1)
-    nexttag = "IndetTrkErrorScaling_iter%s%02i" % (doAorC, itercount+1)
-    logfile = "out_iter%s%02i.log" % (doAorC, itercount)
-    resultsfilename = "results_iter%s%02i.txt" % (doAorC, itercount)
+    pullsfilename = 'pulls_iter'+doAorC+iterStr(itercount)+'.txt'
+    #pullsfile = 'pulls.txt'
+    monitoringfile = 'monitoring_iter'+doAorC+iterStr(itercount)+'.root'
+    paramfile = 'param_iter'+doAorC+iterStr(itercount+1)+'.py'
+    nexttag = 'IndetTrkErrorScaling_iter'+doAorC+iterStr(itercount+1)
+    logfile = 'out_iter'+doAorC+iterStr(itercount)+'.log'
+    resultsfilename = 'results_iter'+doAorC+iterStr(itercount)+'.txt'
 
     import os
     import os.path
     from subprocess import Popen
+
+    if not (doAorC == 'A' or doAorC == 'C') :
+        doAorC = 'C'
+
         
-    resultsfile = open(resultsfilename,'wt')
-    lines = ["-" * 80, "Iteration: %02i", "Tuning parameter " + doAorC, "", ""]
-    resultsfile.write("\n".join(lines))
+    resultsfile = open(resultsfilename,'w')
+    resultsfile.write('---------------------------------------------------------------------------------------------------------\n')
+    resultsfile.write("Iteration: "+str(itercount)+'\n')
+    resultsfile.write("Tuning parameter "+doAorC+'\n')
+    resultsfile.write("\n")
 
     prevScalingSet = makeScaling(prevDataset)
     printScaling(sys.stdout, tag, prevScalingSet)
     printScaling(resultsfile, tag, prevScalingSet)
+    #print prevScalingSet
 
-    print "Running on", "MC" if mc else "data"
-    addToDatabase(prevDataset, tag, mc)
 
-    if usentuple:
-        print "Athena not run. Using ntuple file:", usentuple
-        monitoringfile = usentuple 
-    else:
+    print "Is  this mc ? : ", mc
+    addToDatabase(prevDataset, tag, mc) 
+
+
+    if (not usentuple):
         runAthena(jobOptions, tag, logfile, batchmode,
-                  itertag="iter%s%02i" % (doAorC, itercount),
-                  batchqueue=queue)
-        os.rename("monitoring.root", monitoringfile)
+                  itertag=('iter' + doAorC + iterStr(itercount)))
+    else:
+        print "Athena not run. Using ntuple file:", usentuple
+    
+    if (usentuple):
+        monitoringfile = usentuple 
+    elif (quickTest):
+        monitoringfile = "monitoring.root"
+    
+    
+    # rename ntuple output file
+    if (not quickTest and not usentuple):
+        os.rename('monitoring.root',monitoringfile)
 
-    commandstr = 'python generatePulls.py %s iter%s%02i "Fully Unbiased"' \
-        % (monitoringfile, doAorC, itercount)
-    print "Executing:", commandstr
+    #commandstr = './AllResidualsAndPulls -b '+ntuplebasename+' Validation Tracks 65 2000 250 ' + extraRPOptions
+    #commandstr = './AllResidualsAndPulls -b '+ntuplebasename+' Validation CombinedInDetTracks 65 2000 250 Drifttime ' + extraRPOptions
+    commandstr = 'python generatePulls.py ' + monitoringfile + ' iter' + doAorC+iterStr(itercount) + ' "Fully Unbiased"'
+    print "Executing:",commandstr
     sys.stdout.flush()
     p = Popen(commandstr, shell=True)
     rc = os.waitpid(p.pid, 0)[1]
 
     os.rename('pulls.txt',pullsfilename)
+        
+    #rc = 0
+    #print 'return status: ',rc
+
+    pulls = {}
     pulls = readPullsFile(pullsfilename)
 
     nextScalingSet = {}
     for entry in entries:
-        key, pullkey = entry[0:2]
-        p_obs = pulls[pullkey][2 if rms else 0]
+        key = entry[0]
+        pullkey = entry[1]
+        p = pulls[pullkey]
+        p_obs = p[0]
+        p_err = p[1]
+        if (rms): # use rms instead
+            p_obs = p[2]
+            p_err = p[3]
+            
+        nextScaling  = prevScalingSet[key]
 
-        if doAorC == "A":
-            nextScalingSet[key] = getNextScalingA(prevScalingSet[key], p_obs)
+        targetp = getTargetPull(pullkey, targetpull, rms)           
+
+        if (doAorC == 'A'):
+            nextScaling = getNextScalingA(nextScaling, p_obs)
         else:
-            targetp = getTargetPull(pullkey, targetpull, rms)           
-            getNextScalingC(prevScalingSet[key], p_obs, sigma0[key], targetp, damping, strategy)
+            nextScaling = getNextScalingC(nextScaling, p_obs, sigma0[key], targetp, damping, strategy)
+        #print nextScaling
+        nextScalingSet[key] = nextScaling
 
     printResults(sys.stdout,  tag, sigma0, targetpull, pulls, nextScalingSet, extraRPOptions, rms)
     printResults(resultsfile, tag, sigma0, targetpull, pulls, nextScalingSet, extraRPOptions, rms)
     print 'Next tag:',nexttag
-
-    resultsfile.write("\n".join(["Next tag: " + nexttag, "-" * 80, "", ""]))
-    resultsfile.close()
+    resultsfile.write('Next tag: '+nexttag+'\n')
+    resultsfile.write('---------------------------------------------------------------------------------------------------------\n')
+    resultsfile.write('\n')
 
     #print nextScalingSet
     dataset = makeDataset(nextScalingSet)
     print 'Writing parameters for next iteration:',paramfile
-    with open(paramfile,'wt') as outfile:
-        outfile.write('tag = \''+nexttag+'\'\n')
-        printDataset(outfile, dataset)
+    outfile = open(paramfile,'w')
+    outfile.write('tag = \''+nexttag+'\'\n')
+    printDataset(outfile,dataset)
+    outfile.close()
+    
+    resultsfile.close()
 
     # signal to continue iterations.
     # Placeholder to allow the possibility to abort iterations
@@ -406,7 +447,7 @@ def parseOptions():
     parser.add_option("-k", "",
                       action="store_true", dest="simul", default=False,
                       help="input dataset is simulation")
-    parser.add_option("-q", "--queue", dest="queue", default="1nh",
+    parser.add_option("-q", "--queue", dest="queue", default="atlasb1",
                       help="queue for job submission")
     
 
@@ -533,8 +574,8 @@ for i in range(firstIter,firstIter+numIter):
                                            strategy = options.strategy,
                                            extraRPOptions = rpoptions,
                                            batchmode = options.batch,
-                                           mc=options.simul,
-                                           queue = options.queue)
+                                           mc=options.simul)
+                                           #queue = options.queue)
 
 
     if (not more):

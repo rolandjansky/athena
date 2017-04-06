@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 ## set to true in case you would like to write out your own InDetAlignMon.root
 InDetAlignMonDoOutput = True
 
