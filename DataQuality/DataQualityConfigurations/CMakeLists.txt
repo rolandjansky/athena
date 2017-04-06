@@ -36,7 +36,7 @@ foreach (hanfile IN LISTS han_config_files)
       ${CMAKE_CURRENT_SOURCE_DIR}/config
       ${CMAKE_CURRENT_BINARY_DIR}/${hanfile}.config
     # Build binary config
-    COMMAND ${CMAKE_COMMAND} -E env ${CMAKE_BINARY_DIR}/atlas_build_run.sh han-config-gen
+    COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh han-config-gen
       ${CMAKE_CURRENT_BINARY_DIR}/${hanfile}.config
     # Deploy binary config
     COMMAND ${CMAKE_COMMAND} -E copy
