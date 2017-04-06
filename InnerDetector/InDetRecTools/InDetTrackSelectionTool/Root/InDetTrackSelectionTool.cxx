@@ -904,6 +904,10 @@ InDet::InDetTrackSelectionTool::accept( const Trk::Track& track,
 ///                  function does not change the cut levels if they
 ///                  have been altered from their default (no cut) value.
 ///
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 void InDet::InDetTrackSelectionTool::setCutLevel(InDet::CutLevel level, Bool_t overwrite )
 {
 #ifndef XAOD_STANDALONE
@@ -915,6 +919,9 @@ void InDet::InDetTrackSelectionTool::setCutLevel(InDet::CutLevel level, Bool_t o
   }
   setCutLevelPrivate(level, overwrite);
 }
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, Bool_t overwrite)
 {
