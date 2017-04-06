@@ -1,0 +1,40 @@
+## automatically generated CMT requirements file
+package FTKStandaloneMonitoring
+author  giulini
+
+# public dependencies
+public
+use  EventInfo                  EventInfo-*                     Event
+use  AtlasPolicy                AtlasPolicy-*                   
+#use  FTK_DataProviderInterfaces FTK_DataProviderInterfaces-*   Trigger/TrigFTK
+use  TrigInDetAnalysis          TrigInDetAnalysis-*             Trigger/TrigAnalysis
+use  TrigInDetAnalysisUtils     TrigInDetAnalysisUtils-*        Trigger/TrigAnalysis
+use  xAODTracking               xAODTracking-*                  Event/xAOD
+use  TrigFTKByteStream          TrigFTKByteStream-*             Trigger/TrigFTK
+use  TrigFTK_RawData            TrigFTK_RawData-*               Trigger/TrigFTK
+# private dependencies
+private
+use  GaudiInterface             GaudiInterface-*                External
+use  AtlasROOT                  AtlasROOT-*                External
+use  TrigFTKSim          TrigFTKSim-*             Trigger/TrigFTK
+#use  TrigNavigation             TrigNavigation-*                Trigger/TrigEvent
+#use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent
+#use  TrigTimeAlgs               TrigTimeAlgs-*                  Trigger/TrigTools
+end_private
+
+branches src src/components doc python share FTKStandaloneMonitoring
+
+## default is to make component library. See: https://twiki.cern.ch/twiki/bin/view/Main/LearningAthena#Libraries_in_CMT for alternatives
+library FTKStandaloneMonitoring *.cxx components/*.cxx 
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+application MonitoringFTKHWSWComparison        " ../test/MonitoringComparison.cxx"
+macro MonitoringFTKHWSWComparison_dependencies "  "
+macro_append MonitoringFTKHWSWComparison_shlibflags " "
+macro MonitoringFTKHWSWComparisonlinkopts      "  "
+macro_append MonitoringFTKHWSWComparisonlinkopts           "$(root_linkopts) "
+
+
