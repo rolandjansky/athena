@@ -188,7 +188,7 @@ namespace Trig {
       mc = &defaultconfig;
     }
     
-    match_result->original_recolist = recoObjects;
+    match_result->m_original_recolist = recoObjects;
     
     ATH_MSG_DEBUG("matching " << recoObjects.size() << " reco objects to chain: " << chain );
     
