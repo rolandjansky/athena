@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 #include "FTKStandaloneMonitoring/CompareFTKTracks.h"
 #include <iostream>
 #include <string>
@@ -21,7 +24,6 @@ void CompareFTKTracks::TestEquivalence(){
          itrk+=1;
          match_track = m_associator->matched(ref_track);
 	 if (!match_track) {std::cout<<"the "<<itrk<<"-th track has no matched track"<<std::endl; continue;}
-      	 //std::cout<<"Phi matched "<<match_track->getPhi()<<" ref "<<ref_track->getPhi()<<std::endl;
 	 if (ref_track->getPhi()!=0&&abs(match_track->getPhi()/ref_track->getPhi()-1.)>0.001){	    
       	    std::cout<<"Wrong matching: Phi matched "<<match_track->getPhi()<<" ref "<<ref_track->getPhi()<<std::endl;
 	    m_allmatched=false;
@@ -118,6 +120,3 @@ void CompareFTKTracks::FillHistos(){
       m_map_histo["nTrk_same_hw_sw"]->Fill(HWSWmatched); 
 }
 
-//      TH1D * h_res_pt= new TH1D("h_res_pt","h_res_pt",1000,-5.,5.);
-//	 h_res_pt->Fill((1./match_track->getInvPt()-1./ref_track->getInvPt())/(1./ref_track->getInvPt()));
-//      std::cout<<"bin "<<h_res_pt->GetBinContent(501)<<std::endl;

@@ -1,3 +1,6 @@
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 #include "FTKStandaloneMonitoring/CompareFTKEvents.h"
 #include <iostream>
 #include <string>
@@ -5,10 +8,6 @@ CompareFTKEvents::CompareFTKEvents()
 {
     std::cout<<"Empty constructor"<<std::endl;
 }
-//CompareFTKEvents::~CompareFTKEvents()
-//{
-//    std::cout<<"Destructor"<<std::endl;
-//}
 CompareFTKEvents::CompareFTKEvents(const std::string &BSfile, const std::string &NTUP_FTK_file):
    m_BSfile(BSfile),
    m_NTUP_FTK_file(NTUP_FTK_file)
@@ -31,7 +30,6 @@ void CompareFTKEvents::CreateHistos(){
     vec_histo.push_back(h_res_d0);
     vec_histo.push_back(h_ref_ntrk);
     vec_histo.push_back(h_test_ntrk);
-//      std::cout<<"bin "<<h_res_pt->GetBinContent(501)<<std::endl;
 
 }
 void CompareFTKEvents::SetHistos(std::vector<std::string> histo_list){
@@ -48,8 +46,6 @@ void CompareFTKEvents::SetHistos(std::vector<std::string> histo_list){
             if (istr.find("nTrk")!=std::string::npos) map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D(istr.c_str(),title.c_str(),100,0,100)));
  	    else if (istr.find("HWSW")!=std::string::npos|| istr.find("HWonly")!=std::string::npos) map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D(istr.c_str(),title.c_str(),histo_param[str3].at(0),histo_param[str3].at(1),histo_param[str3].at(2))));
             if (istr.find("res_pt")!=std::string::npos){
-		//TH1D *h= new TH1D("m_res_pt","#Delta p_{T} (test-ref)/ p_{T}^{ref};( p_{T}^{test} - p_{T}^{ref} )/ p_{T}^{ref};FTK Tracks",2000,-1.,1.);
-		//map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, h));
 		map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D("m_res_pt","#Delta p_{T} (test-ref)/ p_{T}^{ref};( p_{T}^{test} - p_{T}^{ref} )/ p_{T}^{ref};FTK Tracks",2000,-1.,1.)));
 	    }
             if (istr.find("res_d0")!=std::string::npos) 
@@ -170,7 +166,6 @@ void CompareFTKEvents::EventLoop()
            rod_data += trackBlockOffsetStart;            // moving data pointer to first track block
 	   if (m_verbose){
 	      std::cout<<"test of working rod l1 "<<ROBFragment.rod_lvl1_id()<<" ndata "<<rod_ndata<<std::endl;
-	      //std::cout<< "decode N tracks "<< decodeNumberOfTracks(rod_data)<< "Ntracks "<<nTrks<<std::endl;
 	   }
 	   // decoding the rod info into FTK track container
            StatusCode sc;
@@ -183,15 +178,11 @@ void CompareFTKEvents::EventLoop()
 	   if (m_verbose){
 	      std::cout<<sc.isSuccess()<<std::endl;
               std::cout<< "collection of size " << trkcontainer->size() << std::endl;
-              //for ( unsigned int i = 0 ; i < nTrks; ++i ) {
-	      //	 std::cout<<"D0"<<trkcontainer->at(i)->getD0()<<std::endl;
-	      //}
 	   }
            for ( unsigned int i = 0 ; i < niTrks; ++i ) {
 	       ftkBSref.push_back(trkcontainer->at(i));
 	   }
 	   nrob+=1;	  
-	   //delete [] rod_data;
        }
        vec_histo.at(2)->Fill(nTrks);
        if (nrob>1){std::cout<<"!!!!!!!!!!SOMETHING WRONG number of robs >1:"<<nrob<<std::endl;}
@@ -212,7 +203,6 @@ void CompareFTKEvents::EventLoop()
 	 rawftktrk->setZ0(ftktrk->getZ0());
 	 rawftktrk->setPhi(ftktrk->getPhi());
 	 rawftktrk->setCotTh(ftktrk->getCotTheta());
-	 //cout<<"Eta comp"<<TMath::ASinH(rawftktrk->getCotTh())<<" "<<ftktrk->getEta()<<std::endl;
 	 rawftktrk->setInvPt(2*ftktrk->getHalfInvPt());
 	 rawftktrk->setChi2(ftktrk->getChi2());
 	 rawftktrk->setBarcode(ftktrk->getBarcode());
@@ -253,8 +243,8 @@ void CompareFTKEvents::EventLoop()
        }
        m_compTrk= new CompareFTKTracks(ftkBSref,ftkNTUPtest,vec_histo, map_histo, map_histo_2D);
        m_compTrk->AssociateTracks();
-       //m_compTrk->TestEquivalence();
        m_compTrk->FillHistos();
+       delete data32;
      }
 }
 void CompareFTKEvents::WriteHistos(){
@@ -286,10 +276,9 @@ std::streampos CompareFTKEvents::readBSevent(int ievent,std::streampos startbufp
     if (m_verbose) std::cout<<"starting reading words "<<startbufpos<<std::endl;
     while(m_myBSfile.is_open())
     {
-       if(m_myBSfile.eof()){  break; }//printf("END\n");
+       if(m_myBSfile.eof()){  break; }
        word=0;
        m_myBSfile.read ((char*)&word, sizeof(word));
-       //if (m_verbose) std::cout<<"word" <<word<<std::endl;
        if (word==m_checkword) {
 	  nprocessedevents+=1;
           if (m_verbose) std::cout<<"pointer position start event"<<m_myBSfile.tellg()<<std::endl;

@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 /* CompareFTKEvents class
  * author: Maddalena.Giulini@cern.ch
  * started: 27/02/2017
@@ -16,8 +19,9 @@
 #include <cmath>
 #include "TTree.h"
 #include "TFile.h"
-
-
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "ByteStreamData/RawEvent.h"
 #include "TrigFTKSim/FTKTrackStream.h"
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
@@ -28,11 +32,8 @@
 
 class CompareFTKEvents{
   public:
-    /*! \brief Constructor, does nothing
-    */
     CompareFTKEvents();
     CompareFTKEvents(const std::string &BSfile, const std::string &NTUP_FTK_file);
-    //~CompareFTKEvents();
     std::streampos readBSevent(int ievent,std::streampos startbufpos);
     void readNTUP_FTKfile();
     void PrintFiles();
@@ -48,7 +49,6 @@ class CompareFTKEvents{
     ~CompareFTKEvents();
   private:
     StatusCode decode(uint32_t nTracks, OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result);
-    //size_t decodeNumberOfTracks(OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData);
     FTK_RawTrack* unpackFTTrack( OFFLINE_FRAGMENTS_NAMESPACE::PointerType data);
     void unpackPixCluster(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, FTK_RawPixelCluster& cluster);
     void unpackSCTCluster(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, FTK_RawSCT_Cluster& cluster) { cluster.setWord(*data); }
@@ -72,7 +72,6 @@ class CompareFTKEvents{
     TTree *m_tevtinfo;
     TTree *m_theTree;
     TFile *m_fntupftk;
-    //gnamFTKEventFragment* ftkEF= new gnamFTKEventFragment();
     int RN, EN, LB, BCID, EL1ID, l1TT;
     FTKTrackStream *m_ft;
     bool m_allmatched=true;
