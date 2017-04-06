@@ -572,16 +572,16 @@ SCT_ByteStreamErrorsSvc::getRODOuts() const {
   return rodOuts;
 }
 
-void SCT_ByteStreamErrorsSvc::setFirstMaskedChip(const IdentifierHash& id, const int firstMaskedChip) {
-  std::map<IdentifierHash, int>::const_iterator it = m_firstMaskedChips->find(id);
+void SCT_ByteStreamErrorsSvc::setFirstMaskedChip(const IdentifierHash& hashId, const int firstMaskedChip) {
+  std::map<IdentifierHash, int>::const_iterator it = m_firstMaskedChips->find(hashId);
   if(it!=m_firstMaskedChips->end()) {
-    ATH_MSG_WARNING("setFirstMaskedChip duplication: hashId " << id << " firstMaskedChip is " << it->second << " and " << firstMaskedChip);
+    ATH_MSG_WARNING("setFirstMaskedChip duplication: hashId " << hashId << " firstMaskedChip is " << it->second << " and " << firstMaskedChip);
   } else {
-    (*m_firstMaskedChips)[id] = firstMaskedChip;
+    (*m_firstMaskedChips)[hashId] = firstMaskedChip;
 
-    const Identifier wafId = m_sct_id->wafer_id(id);
-    ATH_MSG_VERBOSE("SCT_ByteStreamErrorsSvc::setFirstMaskedChip Hash " << id 
-		    << " SerialNumber " << m_cabling->getSerialNumberFromHash(id).str() 
+    const Identifier wafId = m_sct_id->wafer_id(hashId);
+    ATH_MSG_VERBOSE("SCT_ByteStreamErrorsSvc::setFirstMaskedChip Hash " << hashId 
+		    << " SerialNumber " << m_cabling->getSerialNumberFromHash(hashId).str() 
 		    << " barrel_ec " << m_sct_id->barrel_ec(wafId) 
 		    << " layer_disk " << m_sct_id->layer_disk(wafId) 
 		    << " eta_module " << m_sct_id->eta_module(wafId) 
@@ -589,10 +589,82 @@ void SCT_ByteStreamErrorsSvc::setFirstMaskedChip(const IdentifierHash& id, const
 		    << " side " << m_sct_id->side(wafId) 
 		    << " firstMaskedChip " << firstMaskedChip);
   }
+  //  unsigned int _maskedChips(maskedChips(m_sct_id->module_id(m_sct_id->wafer_id(hashId)))); // just for debugging
 }
 
-int SCT_ByteStreamErrorsSvc::getFirstMaskedChip(const IdentifierHash& id) const {
-  std::map<IdentifierHash, int>::const_iterator it = m_firstMaskedChips->find(id);
+int SCT_ByteStreamErrorsSvc::getFirstMaskedChip(const IdentifierHash& hashId) const {
+  std::map<IdentifierHash, int>::const_iterator it = m_firstMaskedChips->find(hashId);
   if(it!=m_firstMaskedChips->end()) return it->second;
   return -1;
+}
+
+unsigned int SCT_ByteStreamErrorsSvc::maskedChips(const Identifier & moduleId) const {
+  unsigned int _maskedChips(0);
+
+  // Side 0
+  IdentifierHash hash_side0;
+  m_sct_id->get_hash(moduleId, hash_side0);
+  if(m_sct_id->side(m_sct_id->wafer_id(hash_side0))!=0) {
+    ATH_MSG_WARNING("SCT_ByteStreamErrorsSvc::badChips not side 0");
+  }
+  int firstMaskedChip_side0 = getFirstMaskedChip(hash_side0);
+  int nMaskedChips_side0(0); /// should be updated
+
+  // Side 1
+  IdentifierHash hash_side1;
+  m_sct_id->get_other_side(hash_side0, hash_side1);
+  if(m_sct_id->side(m_sct_id->wafer_id(hash_side1))!=1) {
+    ATH_MSG_WARNING("SCT_ByteStreamErrorsSvc::badChips not side 1");
+  }
+  int firstMaskedChip_side1 = getFirstMaskedChip(hash_side1);
+  int nMaskedChips_side1(0); /// should be updated
+
+  // There is at least one masked chip
+  if(firstMaskedChip_side0>=0 or nMaskedChips_side0>0 or 
+     firstMaskedChip_side1>=0 or nMaskedChips_side1>0) {
+
+    int type = 0;
+    // Check if Rx redundancy is used or not in this module
+    if(m_rxRedundancy->find(hash_side0)!=m_rxRedundancy->end()) {
+      // Rx redundancy is used in this module.
+      std::pair<bool, bool> links = m_config->badLinks(moduleId);
+      if(links.first and not links.second) {
+	// link-1 is broken
+	type = 1;
+      } else if(links.second and not links.first) {
+	// link-0 is broken
+	type = 2;
+      } else if(links.first and links.second) {
+	// both link-0 and link-1 are working
+	ATH_MSG_WARNING("Both link-0 and link-1 are working. But Rx redundancy is used... Why?");
+      } else {
+	// both link-0 and link-1 are broken
+	ATH_MSG_WARNING("Both link-0 and link-1 are broken. But data are coming... Why?");
+      }
+    }
+
+    if(type==0) {
+      // both link-0 and link-1 are working
+      for(int iChip=firstMaskedChip_side0-1; iChip<firstMaskedChip_side0-1+nMaskedChips_side0; iChip++) {
+	if(iChip>=0 and iChip<6) _maskedChips |= (1<<iChip);
+      }
+      for(int iChip=firstMaskedChip_side1-1; iChip<firstMaskedChip_side1-1+nMaskedChips_side1; iChip++) {
+	if(iChip>=6 and iChip<12) _maskedChips |= (1<<iChip);
+      }
+    } else if(type==1) {
+      // link-1 is broken
+      for(int iChip=firstMaskedChip_side0-1; iChip<firstMaskedChip_side0-1+nMaskedChips_side0; iChip++) {
+        if(iChip>=0 and iChip<12) _maskedChips |= (1<<iChip);
+      }
+    } else {
+      // link-0 is broken
+      for(int iChip=firstMaskedChip_side1-1; iChip<firstMaskedChip_side1-1+nMaskedChips_side1; iChip++) {
+	int jChip = iChip;
+	if(jChip>=12) jChip -= 12;
+        if(jChip>=0 and jChip<12) _maskedChips |= (1<<jChip);
+      }
+    }
+  }
+
+  return _maskedChips;
 }
