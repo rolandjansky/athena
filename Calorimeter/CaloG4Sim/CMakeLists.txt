@@ -12,7 +12,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/G4Atlas/G4AtlasInterfaces
                           Simulation/G4Atlas/G4AtlasTools
                           PRIVATE
-                          Control/CxxUtils )
+                          Control/CxxUtils
+                          Simulation/MCTruth )
 
 # External dependencies:
 find_package( CLHEP )
@@ -28,7 +29,7 @@ atlas_add_library( CaloG4SimLib
                    INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps GaudiKernel G4AtlasInterfaces G4AtlasToolsLib
-                   PRIVATE_LINK_LIBRARIES CxxUtils )
+                   PRIVATE_LINK_LIBRARIES CxxUtils MCTruth )
 
 atlas_add_component( CaloG4Sim
                      src/components/*.cxx
