@@ -6,6 +6,9 @@
 # Find Gaudi:
 find_package( Gaudi REQUIRED )
 
+# Temporarily setting additional compile flags here:
+add_definitions( -DSIMULATIONBASE )
+
 # Load all the files from the externals/ subdirectory:
 get_filename_component( _thisdir ${CMAKE_CURRENT_LIST_FILE} PATH )
 file( GLOB _externals "${_thisdir}/externals/*.cmake" )
