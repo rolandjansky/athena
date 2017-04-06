@@ -51,7 +51,7 @@ namespace Units = Athena::Units;
 // ================================================================================
 LArBarrelCalculator::LArBarrelCalculator(const std::string& name, ISvcLocator* pSvcLocator)
   : LArCalculatorSvcImp(name, pSvcLocator)
-  , m_geometry(nullptr)
+  , m_geometry("LArBarrelGeometry", name)
   , m_accmap(nullptr)
   , m_IflCur(true)
   , m_IflMapTrans(true)
@@ -59,18 +59,17 @@ LArBarrelCalculator::LArBarrelCalculator(const std::string& name, ISvcLocator* p
   , m_dstep(.2*CLHEP::mm)
   , m_birksLaw(nullptr)
   , m_doHV(false)
-  , m_detectorName("LArMgr")
   , m_testbeam(false)
 {
   ATH_MSG_DEBUG("LArBarrelCalculator: Beginning construction ");
 
+  declareProperty("GeometryCalculator", m_geometry);
   // define RUN conditions for the Barrel
   declareProperty("EMBCurr",m_IflCur);
   declareProperty("EMBEtaTrans",m_IflMapTrans);
   declareProperty("EMBXtalk",m_IflXtalk);
   declareProperty("EMBdstep", m_dstep);
   declareProperty("EMBHVEnable",m_doHV);
-  declareProperty("DetectorName",m_detectorName);
 }
 
 StatusCode LArBarrelCalculator::initialize()
@@ -124,7 +123,7 @@ StatusCode LArBarrelCalculator::initialize()
     }
   // ===
   //  access geometry computation class
-  m_geometry = LArG4::Barrel::Geometry::GetInstance();
+  ATH_CHECK(m_geometry.retrieve());
 
   // access current maps if required
   if (m_IflCur)
@@ -293,7 +292,7 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
       continue;
     }
     LArG4::Barrel::CalcData currentCellData;
-    m_geometry->findCell(currentCellData,xloc,yloc,zloc,radloc,etaloc,philoc,m_IflCur,m_detectorName);
+    m_geometry->findCell(currentCellData,xloc,yloc,zloc,radloc,etaloc,philoc,m_IflCur);
 
     if (currentCellData.cellID == 0)
       {

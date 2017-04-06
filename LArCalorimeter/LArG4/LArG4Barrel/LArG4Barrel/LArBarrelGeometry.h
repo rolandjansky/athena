@@ -7,6 +7,9 @@
 #ifndef LARG4BARREL_LARBARRELGEOMETRY_H
 #define LARG4BARREL_LARBARRELGEOMETRY_H
 
+#include "ILArBarrelGeometry.h"
+#include "AthenaBaseComps/AthService.h"
+
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArVG4DetectorParameters.h"
 #include "G4ThreeVector.hh"
@@ -30,57 +33,37 @@ namespace LArG4 {
 
   namespace Barrel {
 
-    // output of computations (everything in half barrel frame except m_zSide)
-    struct CalcData {
-      int cellID = 0;           // 0 if not valid cell
-      G4int sampling = 0;       // sampling number  (1 to 3)
-      G4int region = 0;         // region number (0 or 1)
-      G4int etaBin = 0;         // cell number in eta
-      G4int phiBin = 0;         // cell number in phi
-      G4int zSide = 0;          // side (+-1 for +-z)
-      G4int phiGap = 0;         // number (0 to 1024) of closest electrode
-      G4int nstraight = 0;      // number of straight section (0 to 13)
-      G4int nfold = 0;          // number of closest fold (0 to 14)
-      G4double distElec = 0;    // algebric distance to electrode
-      G4double distAbs = 0;     // algebric distance to absorber
-      G4double xl = 0;          // normalized lenght along electrode
-      G4double x0 = 0;          //
-      G4double y0 = 0;          // coordinates in local cell frame (down absorber with phi=0)
-      G4int sampMap = 0;        // sampling number not taking into account readout strips
-      G4int etaMap = 0;         // eta number not taking into account readout strips
-    };
-
-    class Geometry {
+    class Geometry: public AthService, virtual public ILArBarrelGeometry {
 
     public:
 
-      // Accessor method for singleton pattern.
-      static Geometry* GetInstance();
+      //constructor
+      Geometry(const std::string& name, ISvcLocator * pSvcLocator);
 
-      virtual ~Geometry();
+      virtual ~Geometry() { };
+
+      /** Query interface method to make athena happy */
+      virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
+
+      virtual StatusCode initialize() override final;
+      virtual StatusCode finalize() override final;
 
       // Full identifier computation from a G4 step
-      LArG4Identifier CalculateIdentifier( const G4Step* ,std::string strDetector="") const;
-      LArG4Identifier CalculateECAMIdentifier( const G4Step* , const G4int indEcam, std::string strDetector="",const bool inSTAC=true,int zside=1) const;
+      virtual LArG4Identifier CalculateIdentifier( const G4Step* ) const override final;
+      virtual LArG4Identifier CalculateECAMIdentifier( const G4Step* , const G4int indEcam, const bool inSTAC=true,int zside=1) const override final;
 
       // Given a point compute all quantities (cell number, distance to electrode, etc...)
-      void findCell( CalcData & currentCellData, const double & x, const double & y, const double & z,
-                     const double & r, const double & eta, const double & phi, const bool detail,
-                     std::string strDetector="") const; //FIXME non-const function
+      virtual void findCell( CalcData & currentCellData, const double & x, const double & y, const double & z,
+                             const double & r, const double & eta, const double & phi, const bool detail) const override final;
 
-      bool CheckLArIdentifier(int sampling,int region, int eta,int phi) const;
-      bool CheckDMIdentifier(int type, int sampling, int region, int eta, int phi) const;
-
+      virtual bool CheckLArIdentifier(int sampling,int region, int eta,int phi) const override final;
+      virtual bool CheckDMIdentifier(int type, int sampling, int region, int eta, int phi) const override final;
 
     private:
 
-      //copy constructor
-      Geometry(const Geometry& );//coverity issue fix. Declared, but not implemented
-      Geometry& operator=(const Geometry&);//coverity issue fix. Declared, but not implemented
-
-      static Geometry* m_instance;
-
-      mutable bool m_FIRST; // FIXME needed due to lazy initialization
+      // detector name, for translated geometry
+      std::string m_detectorName;
+      G4String m_ecamName;
 
       // global EMBarrel dimensions
       double m_rMinAccordion;

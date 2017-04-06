@@ -8,6 +8,7 @@
 #include "../DMCalibrationCalculator.h"
 #include "../LArBarrelCalibrationCalculator.h"
 #include "../PresamplerCalibrationCalculator.h"
+#include "LArG4Barrel/LArBarrelGeometry.h"
 
 DECLARE_SERVICE_FACTORY(LArG4::BarrelCryostat::CalibrationCalculator)
 DECLARE_SERVICE_FACTORY(LArG4::BarrelCryostat::CalibrationMixedCalculator)
@@ -17,3 +18,4 @@ DECLARE_SERVICE_FACTORY(LArG4::BarrelCryostat::CalibrationLArCalculator)
 DECLARE_SERVICE_FACTORY(LArG4::DM::CalibrationCalculator)
 DECLARE_SERVICE_FACTORY(LArG4::Barrel::CalibrationCalculator)
 DECLARE_SERVICE_FACTORY(LArG4::BarrelPresampler::CalibrationCalculator)
+DECLARE_SERVICE_FACTORY(LArG4::Barrel::Geometry)
