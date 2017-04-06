@@ -5,6 +5,8 @@
 #include "LArG4H6WarmTCSD.h"
 #include "CaloG4Sim/SimulationEnergies.h"
 
+#include "MCTruth/EventInformation.h"
+
 #include "G4VTouchable.hh"
 #include "G4TouchableHistory.hh"
 #include "G4NavigationHistory.hh"
@@ -14,6 +16,7 @@
 #include "G4TrackStatus.hh"
 #include "G4Step.hh"
 #include "G4ios.hh"
+#include "G4RunManager.hh"
 #include <iomanip>
 
 // for position checking
@@ -82,7 +85,14 @@ G4bool LArG4H6WarmTCSD::ProcessHits(G4Step* aStep,G4TouchableHistory* ROhist)
 #endif
   edep  = aStep->GetTotalEnergyDeposit();
   if(edep == 0.) {
-    if(m_isCalib) CaloG4::SimulationEnergies::SetStepProcessed();
+    if(m_isCalib){
+      EventInformation * event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
+      if ( event_info ) {
+        // Update the step info
+        event_info->SetLastProcessedBarcode( aStep->GetTrack()->GetTrackID() );
+        event_info->SetLastProcessedStep( aStep->GetTrack()->GetCurrentStepNumber() );
+      }
+    }
     return true;
   }
 

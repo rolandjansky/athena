@@ -2438,6 +2438,19 @@ def GetHistogram(rootFile,histogramDir,histogramName,markerColor,markerStyle, fi
         histoGram.SetMarkerColor(markerColor)
         histoGram.SetMarkerStyle(markerStyle)
 
+    if "PIXONLY" in histogramName:
+        if histogramName=="PIXONLY_residualx":
+            histoGram3D1 = GetHistogram3D (rootFile, histogramDir, "pix_b1_xresvsmodetaphi_3d") # retrieve the 3D histogram
+            histoGram3D2 = GetHistogram3D (rootFile, histogramDir, "pix_b2_xresvsmodetaphi_3d") # retrieve the 3D histogram
+            histoGram3D3 = GetHistogram3D (rootFile, histogramDir, "pix_b3_xresvsmodetaphi_3d") # retrieve the 3D histogram
+            histoGram = getPIXONLYBarrelResidualsFromH3D (histoGram3D1, histoGram3D2, histoGram3D3, fileID)
+        if histogramName=="PIXONLY_residualy":
+            histoGram3D1 = GetHistogram3D (rootFile, histogramDir, "pix_b1_yresvsmodetaphi_3d") # retrieve the 3D histogram
+            histoGram3D2 = GetHistogram3D (rootFile, histogramDir, "pix_b2_yresvsmodetaphi_3d") # retrieve the 3D histogram
+            histoGram3D3 = GetHistogram3D (rootFile, histogramDir, "pix_b3_yresvsmodetaphi_3d") # retrieve the 3D histogram
+            histoGram = getPIXONLYBarrelResidualsFromH3D (histoGram3D1, histoGram3D2, histoGram3D3, fileID)
+        histoGram.SetMarkerColor(markerColor)
+        histoGram.SetMarkerStyle(markerStyle)
 
     #
     # - end of searching histograms
@@ -3838,6 +3851,31 @@ def MakeResidualMaps(histogramDir, legendTitles, rootFiles, fileID, detecName="p
     return totalTuple #returning histograms and fits
 
 ###########################################################################################################################
+def getPIXONLYBarrelResidualsFromH3D(inputHisto1, inputHisto2, inputHisto3, fileID=0):
+
+    # the input histo is a 3D
+    hname = "pixonly_barrel_residualx_file"+str(fileID)
+    if "residualy" in inputHisto1.GetName():
+        hname = "pixonly_barrel_residualy_file"+str(fileID)
+    htitle = hname
+
+    # build the histogram that will contain the residuals of the 3 barrel layers together
+    outputHisto = TH1F(hname, htitle, inputHisto1.GetZaxis().GetNbins(), 
+                       inputHisto1.GetZaxis().GetXmin(),
+                       inputHisto1.GetZaxis().GetXmax());
+
+    histoLay1 = inputHisto1.ProjectionZ(hname+"_lay1_file"+str(fileID), 0,-1,0,-1)
+    histoLay2 = inputHisto2.ProjectionZ(hname+"_lay2_file"+str(fileID), 0,-1,0,-1)
+    histoLay3 = inputHisto3.ProjectionZ(hname+"_lay3_file"+str(fileID), 0,-1,0,-1)
+
+    outputHisto.Add(histoLay1)
+    outputHisto.Add(histoLay2)
+    outputHisto.Add(histoLay3)
+    # print " **  getPIXResidualsFromH3D **  outputHisto.GetName() = ",outputHisto.GetName(), "  entries:", outputHisto.GetEntries()
+       
+    return outputHisto
+
+###########################################################################################################################
 def getIBLResidualBySensorType(inputHisto, layer, draw3DSensors, drawPlanarSensors, fileID=0, side = "all"):
     sideFor3DSensors = side.upper()
     sideFor3DSensors = sideFor3DSensors[0:3]
@@ -3893,6 +3931,7 @@ def getIBLResidualBySensorType(inputHisto, layer, draw3DSensors, drawPlanarSenso
 
     return outputHisto1D
 
+###########################################################################################################################
 def get1DFrom2D(inputHisto, thistype = "mean",custombins=[]):
     hname = inputHisto.GetName()+"_ResMean"
     htitle= "residual map " + "(" + thistype +")"

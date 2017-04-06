@@ -1,7 +1,5 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 # Write out error scalings that are read in from python fragments.
 # The fragment should define dataset and tag
 # If the keyword "nominal" is passed as one of the arguments then

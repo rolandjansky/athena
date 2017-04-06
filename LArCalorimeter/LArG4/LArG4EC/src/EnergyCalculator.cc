@@ -1225,7 +1225,7 @@ G4bool EnergyCalculator::FindIdentifier_Default(
   G4double phi = pforcell.phi();
   if(phi < 0.) phi += CLHEP::twopi;
 
-  G4int m_compartment = 0;
+  G4int compartment = 0;
 
   if(lwc()->GetisInner())
     {
@@ -1237,8 +1237,8 @@ G4bool EnergyCalculator::FindIdentifier_Default(
         if (ipad<0) ipad=0;
         if (ipad>6) ipad=6;
       }
-      if(z < ziw[ipad]) m_compartment = 1;
-      else              m_compartment = 2;
+      if(z < ziw[ipad]) compartment = 1;
+      else              compartment = 2;
     } else { // !isInner
     G4int ipad = G4int((eta - 1.4) / 0.025);
     if(ipad < 0) ipad = 0;   // first electrode starts below eta=1.4
@@ -1249,23 +1249,23 @@ G4bool EnergyCalculator::FindIdentifier_Default(
       ipad=43;
     }
     if(z < zsep12[ipad]){
-      if     (eta > 2.4)   m_compartment = 3;
-      else if(eta > 2.0)   m_compartment = 4;
-      else if(eta > 1.8)   m_compartment = 5;
-      else if(eta > 1.5)   m_compartment = 6;
-      else if(eta > 1.425) m_compartment = 7;
-      else                 m_compartment = 10;
+      if     (eta > 2.4)   compartment = 3;
+      else if(eta > 2.0)   compartment = 4;
+      else if(eta > 1.8)   compartment = 5;
+      else if(eta > 1.5)   compartment = 6;
+      else if(eta > 1.425) compartment = 7;
+      else                 compartment = 10;
     } else {
       if(z < zsep23[ipad/2]){
-        if(eta > 1.425) m_compartment = 8;
-        else            m_compartment = 11;
-      } else                  m_compartment = 9;
+        if(eta > 1.425) compartment = 8;
+        else            compartment = 11;
+      } else                  compartment = 9;
     }
   }
-  // if m_compartment==0, then none of the above "if's" were resolved.
-  assert(m_compartment > 0);
+  // if compartment==0, then none of the above "if's" were resolved.
+  assert(compartment > 0);
 
-  G4int c = m_compartment - 1;
+  G4int c = compartment - 1;
 
   // There were some differences between the definition of a
   // "compartment" in the G3 study and the assignment of
@@ -1275,8 +1275,8 @@ G4bool EnergyCalculator::FindIdentifier_Default(
   // are now obsolete and are commented out, but they're left in place
   // in case we have to do a study with the old G3 numbers.
 
-  // if ( m_compartment == 10 ) m_compartment = 7;
-  // if ( m_compartment == 11 ) m_compartment = 8;
+  // if ( compartment == 10 ) compartment = 7;
+  // if ( compartment == 11 ) compartment = 8;
 
 
   // 19-04-2007 AMS    use constant m_AtlasZside obtained in constructor
@@ -1339,7 +1339,7 @@ G4bool EnergyCalculator::FindIdentifier_Default(
   // distance of the hit to the Cu signal layer on the (r,z) plane
   // is bigger than 1mm.
 
-  switch(m_compartment){
+  switch(compartment){
 
     //compartment=1:inner wheel S1
 
@@ -1508,7 +1508,7 @@ G4bool EnergyCalculator::FindIdentifier_Default(
 
   G4int cnew=-1;
 
-  if(m_compartment == 10 || m_compartment == 7 ){
+  if(compartment == 10 || compartment == 7 ){
 
     eta_max  = (geometry[c].etaOffset+etaBin+1.)/ geometry[c].etaScale;
     dist=DistanceToEtaLine(pforcell,eta_max);
@@ -1518,7 +1518,7 @@ G4bool EnergyCalculator::FindIdentifier_Default(
 
   // outer wheel, S3:
 
-  else if(m_compartment == 9 ) {
+  else if(compartment == 9 ) {
 
     eta_min=(geometry[c].etaOffset+etaBin)   / geometry[c].etaScale;
     eta_max=(geometry[c].etaOffset+etaBin+1.)/ geometry[c].etaScale;
@@ -1542,7 +1542,7 @@ G4bool EnergyCalculator::FindIdentifier_Default(
 
   // inner wheel S2:
 
-  else if(m_compartment == 2) {
+  else if(compartment == 2) {
 
     eta_min=(geometry[c].etaOffset+etaBin)/geometry[c].etaScale;
     dist   = DistanceToEtaLine(pforcell,eta_min);
@@ -1563,7 +1563,7 @@ G4bool EnergyCalculator::FindIdentifier_Default(
        <<G4endl;*/
 
     c=cnew;
-    m_compartment = c + 1;
+    compartment = c + 1;
     sampling = geometry[c].sampling;
     region   = geometry[c].region;
     etaBin = G4int(eta * geometry[c].etaScale - geometry[c].etaOffset);
@@ -2200,18 +2200,17 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
 
   G4int compartment,etabin;
 
-  // get m_compartment and etaBin
+  // get compartment and etaBin
 
   validhit=GetCompartment_Barrett(pforcell, r_inb, z_inb, eta_inb, compartment, etabin);
 
-  G4int m_compartment = compartment;
   G4int etaBin        = etabin;
   if (!validhit) {
-    m_compartment = 9;  // to have some 'reasonable' number
+    compartment = 9;  // to have some 'reasonable' number
     etaBin        = 0;
   }
 
-  const G4int c = m_compartment-1;
+  const G4int c = compartment-1;
 
   G4int sampling = geometry[c].sampling;
   G4int region   = geometry[c].region;
@@ -2300,8 +2299,8 @@ G4bool EnergyCalculator::FindDMIdentifier_Barrett(const G4Step* step, std::vecto
   //  hdata[0].id = m_supportCalculator->identifier();
   //  return validid;
   hdata[0].id = LArG4Identifier();
-  std::vector<G4double> _tmpv;
-  return m_supportCalculator->Process(step, hdata[0].id, _tmpv, LArG4::kOnlyID );
+  std::vector<G4double> tmpv;
+  return m_supportCalculator->Process(step, hdata[0].id, tmpv, LArG4::kOnlyID );
 }
 
 G4double EnergyCalculator::_AdjustedPhiOfPoint_Barrett(const G4ThreeVector& p, G4double PhiStartOfPhiDiv) const {

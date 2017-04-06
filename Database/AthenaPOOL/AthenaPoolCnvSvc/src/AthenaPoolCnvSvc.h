@@ -20,7 +20,6 @@
 
 #include <vector>
 #include <map>
-#include <mutex>
 
 // Forward declarations
 class IAthenaIPCTool;
@@ -183,16 +182,6 @@ private: // member functions
 	   bool doSet = true,
 	   bool doClear = true) const;
 
-   /// Receive dynamic aux store variables from streaming tool
-   StatusCode receiveStore(const IAthenaIPCTool* tool, void* obj, int num = 0) const;
-
-   /// Send dynamic aux store variables to streaming tool
-   StatusCode sendStore(const IAthenaIPCTool* tool,
-	   const void* obj,
-	   const Guid& classId,
-	   const std::string& contName,
-	   int num = 0) const;
-
 private: // data
    pool::DbType    m_dbType;
    std::string     m_outputConnectionSpec;
@@ -247,10 +236,6 @@ private: // properties
    BooleanProperty m_skipFirstChronoCommit;
    /// bool to activate the chrono stats, depending on the m_skipFirstChronoCommit data member
    bool m_doChronoStat;
-
-   typedef std::recursive_mutex CallMutex;
-   mutable CallMutex m_i_mut;
-   mutable CallMutex m_o_mut;
 };
 
 #endif

@@ -35,7 +35,6 @@ outStream.ItemList = [
     "AthExDecay#*",
     "AthExElephantino#*",
     ]
-svcMgr.PoolSvc.CheckDictionary = True
 
 # Stream's output file
 outStream.OutputFile = OUTPUT

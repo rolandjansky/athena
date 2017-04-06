@@ -622,11 +622,11 @@ void LArG4::EC::EnergyCalculator::PrepareFieldMap(Wheel_Efield_Map* ChCollWheelT
               if(s_FieldMapVersion != "v00") {
                 wx=0.; // new map
               } else {                               // old map
-                WheelGeometry _wg;
-                SetHalfWave(lwc()->GetStraightStartSection()+WaveLength()+z, _wg);
+                WheelGeometry wg;
+                SetHalfWave(lwc()->GetStraightStartSection()+WaveLength()+z, wg);
                 //PointFoldMapArea=1; // looks like this assignment does not affect on something
                 G4double Ylimits[4];
-                SetYlimitsofPhigapinFieldMap(i, _wg, Ylimits);
+                SetYlimitsofPhigapinFieldMap(i, wg, Ylimits);
                 if ((y>=Ylimits[0] && y<=Ylimits[1]) ||
                     (y>=Ylimits[2] && y<=Ylimits[3])) {  //point in LAr
                   wx=1.;     // Dice computes the Ylimits at (z+GridShift) value,
@@ -769,11 +769,11 @@ G4double LArG4::EC::EnergyCalculator::_interpolateCurrentSubStep(G4double rforal
   G4double shift = lwc()->GetStraightStartSection();
   if(fa.PointFoldMapArea != 0) shift += WaveLength();
 
-  WheelGeometry _wg;
-  SetHalfWave(shift+vmap[2], _wg);
+  WheelGeometry wg;
+  SetHalfWave(shift+vmap[2], wg);
 
   G4double Ylimits[4];
-  SetYlimitsofPhigapinWheel(rforalpha, rforalpha, _wg, Ylimits);
+  SetYlimitsofPhigapinWheel(rforalpha, rforalpha, wg, Ylimits);
 
   //check geom. err condition if point is outside of LAr gap
   if ( gaperr > -100  &&
@@ -804,7 +804,7 @@ G4double LArG4::EC::EnergyCalculator::_interpolateCurrentSubStep(G4double rforal
   // get corresponding y coordinates on the radial layers
   // where the weight is to be taken from;
 
-  SetYlimitsofPhigapinFieldMap(irlayer, _wg, Ylimits);    //on the lower layer
+  SetYlimitsofPhigapinFieldMap(irlayer, wg, Ylimits);    //on the lower layer
 
   //	if (gapup==-1) {
   //		yonlowerlayer = Ylimits[0]*(1.-yratio)+Ylimits[1]*yratio;
@@ -818,7 +818,7 @@ G4double LArG4::EC::EnergyCalculator::_interpolateCurrentSubStep(G4double rforal
     Ylimits[2]*(1.-yratio)+Ylimits[3]*yratio
     ;
 
-  SetYlimitsofPhigapinFieldMap(irlayer+1, _wg, Ylimits);  //on the upper layer
+  SetYlimitsofPhigapinFieldMap(irlayer+1, wg, Ylimits);  //on the upper layer
 
   //	if(gapup==-1) {
   //		yonupperlayer = Ylimits[0]*(1.-yratio)+Ylimits[1]*yratio;
@@ -868,21 +868,21 @@ G4double LArG4::EC::EnergyCalculator::GetCurrent(
     }
   }
 
-  WheelGeometry _wg;
+  WheelGeometry wg;
 
-  SetHalfWave(v2[2], _wg); //check whether start and endpoints are in the same gap
-  GetPhiGap(v2, _wg);
-  const G4int igap2     = _wg.PhiGapNumber;
-  const G4int ihalfgap2 = _wg.PhiHalfGapNumber;
+  SetHalfWave(v2[2], wg); //check whether start and endpoints are in the same gap
+  GetPhiGap(v2, wg);
+  const G4int igap2     = wg.PhiGapNumber;
+  const G4int ihalfgap2 = wg.PhiHalfGapNumber;
 
-  SetHalfWave(v1[2], _wg);
-  GetPhiGap(v1, _wg);
+  SetHalfWave(v1[2], wg);
+  GetPhiGap(v1, wg);
 
-  FoldArea _fa;
+  FoldArea fa;
 
-  SetFoldArea(v1[2], _fa);
-  const G4int igap1     = _wg.PhiGapNumber;  // from 1 to NumberOfFans
-  const G4int ihalfgap1 = _wg.PhiHalfGapNumber;
+  SetFoldArea(v1[2], fa);
+  const G4int igap1     = wg.PhiGapNumber;  // from 1 to NumberOfFans
+  const G4int ihalfgap1 = wg.PhiHalfGapNumber;
 
   if( (igap1 != igap2) || (ihalfgap1 != ihalfgap2) )  gaperr = -1;
 
@@ -890,20 +890,20 @@ G4double LArG4::EC::EnergyCalculator::GetCurrent(
   // start point is used, because G4 does not garantee that the middlepoint is in the LAr gap
 
   G4double vmap[3];
-  TransformWheeltoFieldMap(v1 ,vmap, _wg, _fa);
+  TransformWheeltoFieldMap(v1 ,vmap, wg, fa);
   //r=sqrt(v1[0]*v1[0]+v1[1]*v1[1]);
   //r=sqrt(r*r-vmap[1]*vmap[1]);
   const G4double r = sqrt(v1[0]*v1[0] + v1[1]*v1[1] - vmap[1]*vmap[1]);
 
   { // shift scope
     G4double shift = lwc()->GetStraightStartSection();
-    if(_fa.PointFoldMapArea != 0) shift += WaveLength();
+    if(fa.PointFoldMapArea != 0) shift += WaveLength();
 
-    SetHalfWave(shift+vmap[2], _wg);
+    SetHalfWave(shift+vmap[2], wg);
   }
 
   G4double Ylimits[4];
-  SetYlimitsofPhigapinWheel(r, r, _wg, Ylimits); // get the y limits of LAr gap
+  SetYlimitsofPhigapinWheel(r, r, wg, Ylimits); // get the y limits of LAr gap
 
   const G4double Ymid=0.5*(Ylimits[1]+Ylimits[2]);
 
@@ -927,11 +927,11 @@ G4double LArG4::EC::EnergyCalculator::GetCurrent(
   const G4int nofstep=G4int(steplength/s_GridSize)+1;  // step is divided to substeps
   G4double current=0.;                          //current to be returned
 
-  for(G4int _nstep=0;_nstep < nofstep;++_nstep) {
+  for(G4int nstep=0;nstep < nofstep;++nstep) {
     G4double supcorr =1.;
 
     // compute substep point
-    const G4double ds=(_nstep+0.5)/nofstep;
+    const G4double ds=(nstep+0.5)/nofstep;
     for(G4int j=0;j<3;++j){
       vstep[j]=v1[j]*(1.-ds)+v2[j]*ds;    // get the middle point of substep
       hvpoint[j]=vstep[j];                // hvpoint is always in local coord. Wheel or PhiDiv)
@@ -960,9 +960,9 @@ G4double LArG4::EC::EnergyCalculator::GetCurrent(
     G4double x = agap/( agap - CHC_Esr() );     // change av. signal in the gap
     if(x >=0.) supcorr=x;
 
-    SetFoldArea(vstep[2], _fa);                 // set fold type
-    SetHalfWave(vstep[2], _wg);                 // set halfwave parameters for substep
-    TransformWheeltoFieldMap(vstep, vmap, _wg, _fa);  //get corresponding point in Map
+    SetFoldArea(vstep[2], fa);                 // set fold type
+    SetHalfWave(vstep[2], wg);                 // set halfwave parameters for substep
+    TransformWheeltoFieldMap(vstep, vmap, wg, fa);  //get corresponding point in Map
     //system (it is equivalent to the
     //halfwave system of pos. slope)
     //rvstep   = sqrt(vstep[0]*vstep[0]+vstep[1]*vstep[1]);
@@ -973,7 +973,7 @@ G4double LArG4::EC::EnergyCalculator::GetCurrent(
     const G4double yshift_on_wheel= rvstep*M_PI/lwc()->GetNumberOfFans()-(FanAbsThickness() + FanEleThickness())/2.;
     const G4double cylgapcorr=yshift_on_wheel/yshift_on_map; // scale difference between plane and cylindrical surface
 
-    const G4double cur = _interpolateCurrentSubStep( rforalpha, gapup, vmap, tol, _fa, gaperr );
+    const G4double cur = _interpolateCurrentSubStep( rforalpha, gapup, vmap, tol, fa, gaperr );
     // old current calculation: edep*E**1.3*(gap0/gap)**1.3
     //    normalized so, that signal=edep in the straight section of gap0=1.3mm
     //                  (it is at eta=2.25, r=787mm, foldingangle~110 degree)

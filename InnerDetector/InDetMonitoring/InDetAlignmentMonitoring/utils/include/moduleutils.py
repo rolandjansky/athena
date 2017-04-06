@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 class Module:
     def __init__(self, index, FullName):
         self.index = index

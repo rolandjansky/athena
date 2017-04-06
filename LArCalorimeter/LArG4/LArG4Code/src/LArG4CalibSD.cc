@@ -53,15 +53,15 @@ G4bool LArG4CalibSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
   // it occurred outside the sensitive region.  If such a thing
   // happens, it means that the geometry definitions in the
   // detector-construction routine and the calculator do not agree.)
-  LArG4Identifier _identifier;
-  std::vector<G4double>  _energies;
+  LArG4Identifier identifier;
+  std::vector<G4double>  energies;
 
-  if(!(m_calculator->Process(a_step, _identifier, _energies))) {
+  if(!(m_calculator->Process(a_step, identifier, energies))) {
     m_numberInvalidHits++;
     return false;
   }
 
-  return SimpleHit( _identifier , _energies );
+  return SimpleHit( identifier , energies );
 }
 
 G4bool LArG4CalibSD::SimpleHit( const LArG4Identifier& a_ident , const std::vector<double>& energies ){
@@ -153,13 +153,13 @@ G4bool LArG4CalibSD::SimpleHit( const LArG4Identifier& a_ident , const std::vect
 G4bool LArG4CalibSD::SpecialHit(G4Step* a_step,
                                 const std::vector<G4double>& a_energies)
 {
-  LArG4Identifier _identifier;
-  std::vector<G4double>  _vtmp;
+  LArG4Identifier identifier;
+  std::vector<G4double>  vtmp;
 
   // If we can't calculate the identifier, something is wrong.
-  if (!(m_calculator->Process( a_step, _identifier, _vtmp, LArG4::kOnlyID))) return false;
+  if (!(m_calculator->Process( a_step, identifier, vtmp, LArG4::kOnlyID))) return false;
 
-  return SimpleHit( _identifier , a_energies );
+  return SimpleHit( identifier , a_energies );
 } 
  
 

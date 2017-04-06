@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef IDAlignMonPVBiases_H
 #define IDAlignMonPVBiases_H
 
@@ -134,6 +130,11 @@ public:
 
 	TH2F* m_trkd0_wrtPV_vs_eta_10GeV_positive;
   	TH2F* m_trkd0_wrtPV_vs_eta_10GeV_negative;
+
+	/////////////////////////////////////////////////
+    	////////////Declare map larger than 2GeV/////////
+    	/////////////////////////////////////////////////
+	TH3F* m_trkd0_wrtPV_vs_phi_vs_eta_2GeV;
 
 private:
 

@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // **********************************************************************
 // Class to monitoring TRT HL threshold monitoring by looking at electrons
 // Created by Benjamin Kaplan (kaplan) 2009-10-14

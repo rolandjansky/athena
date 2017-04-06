@@ -11,8 +11,6 @@
 
 #include "GaudiKernel/IIoComponentMgr.h"
 
-#include "AthenaKernel/IAthenaSealSvc.h"
-
 #include "PathResolver/PathResolver.h"
 
 #include "CoralKernel/Context.h"
@@ -37,7 +35,6 @@
 #include "StorageSvc/DbType.h"
 
 #include "RelationalAccess/ConnectionService.h"
-#include "RelationalAccess/IConnectionService.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
 #include "RelationalAccess/IWebCacheControl.h"
 #include "RelationalAccess/IWebCacheInfo.h"
@@ -52,20 +49,13 @@
 #include <sys/stat.h> 	// for struct stat
 #include <algorithm> 	// for STL find()
 
-#include <iostream>
-
 //__________________________________________________________________________
 StatusCode PoolSvc::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
    if (!::AthService::initialize().isSuccess()) {
       ATH_MSG_FATAL("Cannot initialize AthService base class.");
       return(StatusCode::FAILURE);
    }
 
-   // Load AthenaSealSvc to check for type definitions
-   if (!m_athenaSealSvc.retrieve().isSuccess()) {
-      ATH_MSG_WARNING("Cannot get AthenaSealSvc - no dictionary checks will be done");
-   }
    // Register this service for 'I/O' events
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
    if (!iomgr.retrieve().isSuccess()) {
@@ -159,14 +149,12 @@ StatusCode PoolSvc::initialize() {
    }
    return reinit();
 }
-
 //__________________________________________________________________________
 StatusCode PoolSvc::reinit() {
    ATH_MSG_INFO("Re-initializing " << name());
    // Setup a catalog connection based on the value of $POOL_CATALOG
    return(StatusCode::SUCCESS);
 }
-
 //__________________________________________________________________________
 StatusCode PoolSvc::io_reinit() {
    ATH_MSG_INFO("I/O reinitialization...");
@@ -207,10 +195,8 @@ StatusCode PoolSvc::io_reinit() {
    if (!setupPersistencySvc().isSuccess()) {
       return(StatusCode::FAILURE);
    }
-   // MN: reinit: maybe needed, maybe not
    return reinit();
 }
-
 //__________________________________________________________________________
 StatusCode PoolSvc::setupPersistencySvc() {
    ATH_MSG_INFO("Setting up APR FileCatalog and Streams");
@@ -236,7 +222,6 @@ StatusCode PoolSvc::setupPersistencySvc() {
       delete *iter;
    }
    m_pers_mut.clear();
-
    pool::IPersistencySvcFactory* psfactory = pool::IPersistencySvcFactory::get();
    if (psfactory == nullptr) {
       ATH_MSG_FATAL("Failed to create PersistencySvcFactory.");
@@ -272,7 +257,6 @@ StatusCode PoolSvc::setupPersistencySvc() {
    m_persistencySvcVec[IPoolSvc::kOutputStream]->session().setDefaultConnectionPolicy(policy);
    return(StatusCode::SUCCESS);
 }
-
 //__________________________________________________________________________
 StatusCode PoolSvc::stop() {
    unsigned int contextId = 0;
@@ -302,9 +286,6 @@ StatusCode PoolSvc::finalize() {
    if (m_catalog != nullptr) {
       m_catalog->commit();
       delete m_catalog; m_catalog = nullptr;
-   }
-   if (!m_athenaSealSvc.release().isSuccess()) {
-      ATH_MSG_WARNING("Cannot release AthenaSealSvc");
    }
    bool retError = false;
    if (!::AthService::finalize().isSuccess()) {
@@ -488,11 +469,9 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
    }
    // Check whether Collection Container exists.
    if (collectionType == "ImplicitCollection" || collectionType == "SeekableCollection") {
-      pool::ISession* sesH = nullptr;
-      pool::IDatabase* dbH = nullptr;
-      if (!getSessionDbHandles(sesH, dbH, contextId, connection).isSuccess()) {
+      std::unique_ptr<pool::IDatabase> dbH = getDbHandle(contextId, connection);
+      if (dbH == nullptr) {
          ATH_MSG_INFO("Failed to get Session/DatabaseHandle to create POOL collection.");
-         delete dbH; dbH = nullptr;
          return(nullptr);
       }
       try {
@@ -508,11 +487,8 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
                this->disconnectDb("FID:" + m_guidLists[contextId].begin()->toString(), contextId).ignore();
             }
          }
-         std::map<std::string, std::vector<std::string> >::const_iterator it = m_containersMap.find(dbH->fid());
-         if (it == m_containersMap.end()) {
-            it = m_containersMap.insert(std::pair<std::string, std::vector<std::string> >(dbH->fid(), dbH->containers())).first;
-         }
-         if (find(it->second.begin(), it->second.end(), collection) == it->second.end()) {
+         std::unique_ptr<pool::IContainer> contH = getContainerHandle(dbH.get(), collection);
+         if (contH == nullptr) {
             ATH_MSG_INFO("Failed to find container " << collection << " to create POOL collection.");
             if (insertFile && m_attemptCatalogPatch.value()) {
                dbH->setTechnology(pool::ROOT_StorageType.type());
@@ -521,13 +497,11 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
                std::string fid = dbH->fid();
                action.registerPFN(connection.substr(4), "ROOT_All", fid);
             }
-            delete dbH; dbH = nullptr;
             return(nullptr); // no events
          }
       } catch(std::exception& e) {
          ATH_MSG_INFO("Failed to open container to check POOL collection - trying.");
       }
-      delete dbH; dbH = nullptr;
    }
    pool::CollectionFactory* collFac = pool::CollectionFactory::get();
    pool::CollectionDescription collDes(collection, collectionType, (collectionType == "ImplicitCollection" || collectionType == "SeekableCollection") ? connection : "");
@@ -540,25 +514,21 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
          collPtr = collFac->create(collDes, openMode, &m_persistencySvcVec[contextId]->session());
       } catch (std::exception &e) {
          if (insertFile) {
-            pool::ISession* sesH = nullptr;
-            pool::IDatabase* dbH = nullptr;
-            if (getSessionDbHandles(sesH, dbH, contextId, connection).isSuccess()) {
+            std::unique_ptr<pool::IDatabase> dbH = getDbHandle(contextId, connection);
+            if (dbH != nullptr) {
                if (!dbH->fid().empty()) {
-                  delete dbH; dbH = nullptr;
                   return(nullptr); // no events
                }
             }
-            delete dbH; dbH = nullptr;
          }
          throw; // bad file, rethrow
       }
    }
    if (insertFile && m_attemptCatalogPatch.value()) {
-      pool::ISession* sesH = nullptr;
-      pool::IDatabase* dbH = nullptr;
-      if (!getSessionDbHandles(sesH, dbH, contextId, connection).isSuccess()) {
+      std::unique_ptr<pool::IDatabase> dbH = getDbHandle(contextId, connection);
+      if (dbH == nullptr) {
          ATH_MSG_INFO("Failed to create FileCatalog entry.");
-      } else if( openMode == pool::ICollection::READ && dbH->fid().empty() ) {
+      } else if (openMode == pool::ICollection::READ && dbH->fid().empty()) {
          ATH_MSG_INFO("Cannot retrieve the FID of an existing POOL database: '"
                       << connection << "' - FileCatalog will NOT be updated.");
       } else {
@@ -568,7 +538,6 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
          std::string fid = dbH->fid();
          action.registerPFN(connection.substr(4), "ROOT_All", fid);
       }
-      delete dbH; dbH = nullptr;
    }
    return(collPtr);
 }
@@ -589,29 +558,15 @@ Token* PoolSvc::getToken(const std::string& connection,
 	const std::string& collection,
 	const unsigned long ientry) const {
    std::lock_guard<CallMutex> lock(*m_pers_mut[IPoolSvc::kInputStream]);
-   pool::ISession* sesH = nullptr;
-   pool::IDatabase* dbH = nullptr;
-   if (!getSessionDbHandles(sesH, dbH, IPoolSvc::kInputStream, connection).isSuccess()) {
-      delete dbH; dbH = nullptr;
+   std::unique_ptr<pool::IDatabase> dbH = getDbHandle(IPoolSvc::kInputStream, connection);
+   if (dbH == nullptr) {
       return(nullptr);
    }
    if (dbH->openMode() == pool::IDatabase::CLOSED) {
       dbH->connectForRead();
    }
-   std::map<std::string, std::vector<std::string> >::const_iterator it = m_containersMap.find(dbH->fid());
-   if (it == m_containersMap.end()) {
-      it = m_containersMap.insert(std::pair<std::string, std::vector<std::string> >(dbH->fid(), dbH->containers())).first;
-   }
-   if (find(it->second.begin(), it->second.end(), collection) ==  it->second.end()) {
-      ATH_MSG_INFO("Failed to find container " << collection << " to get Token.");
-      delete dbH; dbH = nullptr;
-      return(nullptr);
-   }
-   pool::IContainer* contH = nullptr;
-   std::string objName;
-   if (!getContainerHandle(dbH, collection, contH, objName).isSuccess()) {
-      delete contH; contH = nullptr;
-      delete dbH; dbH = nullptr;
+   std::unique_ptr<pool::IContainer> contH = getContainerHandle(dbH.get(), collection);
+   if (contH == nullptr) {
       return(nullptr);
    }
    pool::ITokenIterator* tokenIter = contH->tokens("");
@@ -620,16 +575,7 @@ Token* PoolSvc::getToken(const std::string& connection,
       delete thisToken; thisToken = tokenIter->next();
    }
    delete tokenIter; tokenIter = nullptr;
-   delete contH; contH = nullptr;
-   delete dbH; dbH = nullptr;
    return(thisToken);
-}
-//__________________________________________________________________________
-bool PoolSvc::testDictionary(const std::string& className) const {
-   if (m_athenaSealSvc != 0 && m_testDictionary.value()) {
-      return(m_athenaSealSvc->checkClass(className).isSuccess());
-   }
-   return(true);
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::connect(pool::ITransaction::Type type, unsigned int contextId) const {
@@ -709,11 +655,9 @@ StatusCode PoolSvc::disconnectDb(const std::string& connection, unsigned int con
       return(StatusCode::SUCCESS);
    }
    std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
-   pool::ISession* sesH = nullptr;
-   pool::IDatabase* dbH = nullptr;
-   if (!getSessionDbHandles(sesH, dbH, contextId, connection).isSuccess()) {
+   std::unique_ptr<pool::IDatabase> dbH = getDbHandle(contextId, connection);
+   if (dbH == nullptr) {
       ATH_MSG_ERROR("Failed to get Session/DatabaseHandle.");
-      delete dbH; dbH = nullptr;
       return(StatusCode::FAILURE);
    }
    std::map<unsigned int, unsigned int>::const_iterator maxFileIter = m_contextMaxFile.find(contextId);
@@ -721,18 +665,14 @@ StatusCode PoolSvc::disconnectDb(const std::string& connection, unsigned int con
       const Guid guid(dbH->fid());
       m_guidLists[contextId].remove(guid);
    }
-   m_containersMap.erase(dbH->fid());
    dbH->disconnect();
-   delete dbH; dbH = nullptr;
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
 long long int PoolSvc::getFileSize(const std::string& dbName, long tech, unsigned int contextId) const {
-   pool::ISession* sesH = nullptr;
-   pool::IDatabase* dbH = nullptr;
-   if (!getSessionDbHandles(sesH, dbH, contextId, dbName).isSuccess()) {
+   std::unique_ptr<pool::IDatabase> dbH = getDbHandle(contextId, dbName);
+   if (dbH == nullptr) {
       ATH_MSG_DEBUG("getFileSize: Failed to get Session/DatabaseHandle to get POOL FileSize property.");
-      delete dbH; dbH = nullptr;
       return(StatusCode::FAILURE);
    }
    if (dbH->openMode() == pool::IDatabase::CLOSED) {
@@ -743,9 +683,7 @@ long long int PoolSvc::getFileSize(const std::string& dbName, long tech, unsigne
          dbH->connectForRead();
       }
    }
-   long long int value = dbH->technologySpecificAttributes().attribute<long long int>("FILE_SIZE");
-   delete dbH; dbH = nullptr;
-   return(value);
+   return(dbH->technologySpecificAttributes().attribute<long long int>("FILE_SIZE"));
 }
 //_______________________________________________________________________
 StatusCode PoolSvc::getAttribute(const std::string& optName,
@@ -758,14 +696,11 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
    pool::ISession& sesH = m_persistencySvcVec[contextId]->session();
    std::ostringstream oss;
    if (data == "DbLonglong") {
-      long long int value = sesH.technologySpecificAttributes(tech).attribute<long long int>(optName);
-      oss << std::dec << value;
+      oss << std::dec << sesH.technologySpecificAttributes(tech).attribute<long long int>(optName);
    } else if (data == "double") {
-      double value = sesH.technologySpecificAttributes(tech).attribute<double>(optName);
-      oss << std::dec << value;
+      oss << std::dec << sesH.technologySpecificAttributes(tech).attribute<double>(optName);
    } else {
-      int value = sesH.technologySpecificAttributes(tech).attribute<int>(optName);
-      oss << std::dec << value;
+      oss << std::dec << sesH.technologySpecificAttributes(tech).attribute<int>(optName);
    }
    data = oss.str();
    ATH_MSG_INFO("Domain attribute [" << optName << "]" << ": " << data);
@@ -778,11 +713,9 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
 		const std::string& dbName,
 		const std::string& contName,
 		unsigned int contextId) const {
-   pool::ISession* sesH = nullptr;
-   pool::IDatabase* dbH = nullptr;
-   if (!getSessionDbHandles(sesH, dbH, contextId, dbName).isSuccess()) {
+   std::unique_ptr<pool::IDatabase> dbH = getDbHandle(contextId, dbName);
+   if (dbH == nullptr) {
       ATH_MSG_DEBUG("getAttribute: Failed to get Session/DatabaseHandle to get POOL property.");
-      delete dbH; dbH = nullptr;
       return(StatusCode::FAILURE);
    }
    if (dbH->openMode() == pool::IDatabase::CLOSED) {
@@ -796,43 +729,31 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
    std::ostringstream oss;
    if (contName.empty()) {
       if (data == "DbLonglong") {
-         long long int value = dbH->technologySpecificAttributes().attribute<long long int>(optName);
-         oss << std::dec << value;
+         oss << std::dec << dbH->technologySpecificAttributes().attribute<long long int>(optName);
       } else if (data == "double") {
-         double value = dbH->technologySpecificAttributes().attribute<double>(optName);
-         oss << std::dec << value;
+         oss << std::dec << dbH->technologySpecificAttributes().attribute<double>(optName);
       } else if (data == "string") {
-         char* value = dbH->technologySpecificAttributes().attribute<char*>(optName);
-         oss << value;
+         oss << dbH->technologySpecificAttributes().attribute<char*>(optName);
       } else {
-         int value = dbH->technologySpecificAttributes().attribute<int>(optName);
-         oss << std::dec << value;
+         oss << std::dec << dbH->technologySpecificAttributes().attribute<int>(optName);
       }
       ATH_MSG_INFO("Database (" << dbH->pfn() << ") attribute [" << optName << "]" << ": " << oss.str());
    } else {
-      pool::IContainer* contH = nullptr;
-      std::string objName;
-      if (!getContainerHandle(dbH, contName, contH, objName).isSuccess()) {
+      std::unique_ptr<pool::IContainer> contH = getContainerHandle(dbH.get(), contName);
+      if (contH == nullptr) {
          ATH_MSG_DEBUG("Failed to get ContainerHandle to get POOL property.");
-         delete contH; contH = nullptr;
-         delete dbH; dbH = nullptr;
          return(StatusCode::FAILURE);
       }
       if (data == "DbLonglong") {
-         long long int value = contH->technologySpecificAttributes().attribute<long long int>(optName);
-         oss << std::dec << value;
+         oss << std::dec << contH->technologySpecificAttributes().attribute<long long int>(optName);
       } else if (data == "double") {
-         double value = contH->technologySpecificAttributes().attribute<double>(optName);
-         oss << std::dec << value;
+         oss << std::dec << contH->technologySpecificAttributes().attribute<double>(optName);
       } else {
-         int value = contH->technologySpecificAttributes().attribute<int>(optName);
-         oss << std::dec << value;
+         oss << std::dec << contH->technologySpecificAttributes().attribute<int>(optName);
       }
-      delete contH; contH = nullptr;
       ATH_MSG_INFO("Container attribute [" << contName << "." << optName << "]: " << oss.str());
    }
    data = oss.str();
-   delete dbH; dbH = nullptr;
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
@@ -845,14 +766,12 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
    }
    pool::ISession& sesH = m_persistencySvcVec[contextId]->session();
    if (data[data.size() - 1] == 'L') {
-      long long int value = atoll(data.c_str());
-      if (!sesH.technologySpecificAttributes(tech).setAttribute<long long int>(optName, value)) {
+      if (!sesH.technologySpecificAttributes(tech).setAttribute<long long int>(optName, atoll(data.c_str()))) {
          ATH_MSG_DEBUG("Failed to set POOL property, " << optName << " to " << data);
          return(StatusCode::FAILURE);
       }
    } else {
-      int value = atoi(data.c_str());
-      if (!sesH.technologySpecificAttributes(tech).setAttribute<int>(optName, value)) {
+      if (!sesH.technologySpecificAttributes(tech).setAttribute<int>(optName, atoi(data.c_str()))) {
          ATH_MSG_DEBUG("Failed to set POOL property, " << optName << " to " << data);
          return(StatusCode::FAILURE);
       }
@@ -866,12 +785,13 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
 		const std::string& dbName,
 		const std::string& contName,
 		unsigned int contextId) const {
+   if (contextId >= m_persistencySvcVec.size()) {
+      contextId = IPoolSvc::kOutputStream;
+   }
    std::lock_guard<CallMutex> lock(m_pool_mut);
-   pool::ISession* sesH = nullptr;
-   pool::IDatabase* dbH = nullptr;
-   if (!getSessionDbHandles(sesH, dbH, contextId, dbName).isSuccess()) {
+   std::unique_ptr<pool::IDatabase> dbH = getDbHandle(contextId, dbName);
+   if (dbH == nullptr) {
       ATH_MSG_DEBUG("Failed to get Session/DatabaseHandle to set POOL property.");
-      delete dbH; dbH = nullptr;
       return(StatusCode::FAILURE);
    }
    if (dbH->openMode() == pool::IDatabase::CLOSED) {
@@ -888,33 +808,37 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
    if (contName.empty() || hasTTreeName || contextId != IPoolSvc::kOutputStream) {
       objName = hasTTreeName ? contName.substr(6) : contName;
       if (data[data.size() - 1] == 'L') {
-         long long int value = atoll(data.c_str());
-         retError = dbH->technologySpecificAttributes().setAttribute<long long int>(optName, value, objName);
+         retError = dbH->technologySpecificAttributes().setAttribute<long long int>(optName, atoll(data.c_str()), objName);
       } else {
-         int value = atoi(data.c_str());
-         retError = dbH->technologySpecificAttributes().setAttribute<int>(optName, value, objName);
+         retError = dbH->technologySpecificAttributes().setAttribute<int>(optName, atoi(data.c_str()), objName);
       }
       if (!retError) {
          ATH_MSG_DEBUG("Failed to set POOL property, " << optName << " to " << data);
-         delete dbH; dbH = nullptr;
          return(StatusCode::FAILURE);
       }
    } else {
-      pool::IContainer* contH = nullptr;
-      if (!getContainerHandle(dbH, contName, contH, objName).isSuccess()) {
+      std::unique_ptr<pool::IContainer> contH = getContainerHandle(dbH.get(), contName);
+      if (contH == nullptr) {
          ATH_MSG_DEBUG("Failed to get ContainerHandle to set POOL property.");
-         delete contH; contH = nullptr;
-         delete dbH; dbH = nullptr;
          return(StatusCode::FAILURE);
       }
+      if (contName.find('(') != std::string::npos) {
+         objName = contName.substr(contName.find('(') + 1); // Get BranchName between parenthesis
+         objName = objName.substr(0, objName.find(')'));
+      } else if (contName.find("::") != std::string::npos) {
+         objName = contName.substr(contName.find("::") + 2); // Split off Tree name
+      } else if (contName.find('_') != std::string::npos) {
+         objName = contName.substr(contName.find('_') + 1); // Split off "POOLContainer"
+         objName = objName.substr(0, objName.find('/')); // Split off key
+      }
+      std::string::size_type off = 0;
+      while ((off = objName.find_first_of("<>/")) != std::string::npos) {
+         objName.replace(off, 1, "_"); // Replace special chars (e.g. templates)
+      }
       if (data[data.size() - 1] == 'L') {
-         long long int value = atoll(data.c_str());
-         retError = contH->technologySpecificAttributes().setAttribute<long long int>(optName,
-	         value,
-	         objName);
+         retError = contH->technologySpecificAttributes().setAttribute<long long int>(optName, atoll(data.c_str()), objName);
       } else {
-         int value = atoi(data.c_str());
-         retError = contH->technologySpecificAttributes().setAttribute<int>(optName, value, objName);
+         retError = contH->technologySpecificAttributes().setAttribute<int>(optName, atoi(data.c_str()), objName);
       }
       if (!retError) {
          ATH_MSG_DEBUG("Failed to set POOL container property, "
@@ -923,13 +847,9 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
 	         << contName << " : " << objName
 	         << " to "
 	         << data);
-         delete contH; contH = nullptr;
-         delete dbH; dbH = nullptr;
          return(StatusCode::FAILURE);
       }
-      delete contH; contH = nullptr;
    }
-   delete dbH; dbH = nullptr;
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
@@ -1038,13 +958,11 @@ PoolSvc::PoolSvc(const std::string& name, ISvcLocator* pSvcLocator) :
         ::AthService(name, pSvcLocator),
 	m_context(nullptr),
 	m_catalog(nullptr),
-	m_athenaSealSvc("AthenaSealSvc", name),
 	m_persistencySvcVec(),
 	m_pers_mut(),
 	m_contextLabel(),
 	m_contextMaxFile(),
-	m_guidLists(),
-	m_containersMap() {
+	m_guidLists() {
    declareProperty("WriteCatalog", m_writeCatalog = "xmlcatalog_file:PoolFileCatalog.xml");
    declareProperty("ReadCatalog", m_readCatalog);
    declareProperty("AttemptCatalogPatch", m_attemptCatalogPatch = true);
@@ -1056,55 +974,46 @@ PoolSvc::PoolSvc(const std::string& name, ISvcLocator* pSvcLocator) :
    declareProperty("FrontierRefreshSchema", m_frontierRefresh);
    declareProperty("FileOpen", m_fileOpen = "overwrite");
    declareProperty("MaxFilesOpen", m_dbAgeLimit = 0);
-   declareProperty("CheckDictionary", m_testDictionary = true);
    declareProperty("SortReplicas", m_sortReplicas = true);
 }
 //__________________________________________________________________________
 PoolSvc::~PoolSvc() {
 }
 //__________________________________________________________________________
-StatusCode PoolSvc::getSessionDbHandles(pool::ISession*& sesH,
-		pool::IDatabase*& dbH,
-		unsigned int contextId,
-		const std::string& dbName) const {
+std::unique_ptr<pool::IDatabase> PoolSvc::getDbHandle(unsigned int contextId, const std::string& dbName) const {
+   pool::IDatabase* dbH = nullptr;
    if (contextId >= m_persistencySvcVec.size()) {
       contextId = IPoolSvc::kInputStream;
    }
-   sesH = &m_persistencySvcVec[contextId]->session();
-   if (sesH == nullptr) {
-      ATH_MSG_DEBUG("Failed to get SessionHandle.");
-      return(StatusCode::FAILURE);
-   }
-   if (!sesH->transaction().isActive()) {
+   pool::ISession& sesH = m_persistencySvcVec[contextId]->session();
+   if (!sesH.transaction().isActive()) {
       pool::ITransaction::Type transMode = pool::ITransaction::READ;
       if (contextId == IPoolSvc::kOutputStream) {
          transMode = pool::ITransaction::UPDATE;
       }
-      if (!sesH->transaction().start(transMode)) {
+      if (!sesH.transaction().start(transMode)) {
          ATH_MSG_DEBUG("Failed to start transaction, type = " << transMode);
-         return(StatusCode::FAILURE);
+         return(nullptr);
       }
    }
    if (dbName.find("PFN:") == 0) {
-      dbH = sesH->databaseHandle(dbName.substr(4), pool::DatabaseSpecification::PFN);
+      dbH = sesH.databaseHandle(dbName.substr(4), pool::DatabaseSpecification::PFN);
    } else if (dbName.find("LFN:") == 0) {
-      dbH = sesH->databaseHandle(dbName.substr(4), pool::DatabaseSpecification::LFN);
+      dbH = sesH.databaseHandle(dbName.substr(4), pool::DatabaseSpecification::LFN);
    } else if (dbName.find("FID:") == 0) {
-      dbH = sesH->databaseHandle(dbName.substr(4), pool::DatabaseSpecification::FID);
+      dbH = sesH.databaseHandle(dbName.substr(4), pool::DatabaseSpecification::FID);
    } else {
-      dbH = sesH->databaseHandle(dbName, pool::DatabaseSpecification::PFN);
+      dbH = sesH.databaseHandle(dbName, pool::DatabaseSpecification::PFN);
    }
-   if (dbH == nullptr) {
-      ATH_MSG_DEBUG("Failed to get DatabaseHandle.");
-      return(StatusCode::FAILURE);
-   }
-   return(StatusCode::SUCCESS);
+   return(std::unique_ptr<pool::IDatabase>(dbH));
 }
 //__________________________________________________________________________
-StatusCode PoolSvc::getContainerHandle(pool::IDatabase* dbH,
-		const std::string& contName,
-		pool::IContainer*& contH,
-		std::string& objName) const {
+std::unique_ptr<pool::IContainer> PoolSvc::getContainerHandle(pool::IDatabase* dbH, const std::string& contName) const {
+   pool::IContainer* contH = nullptr;
+   if (dbH == nullptr) {
+      ATH_MSG_DEBUG("No DatabaseHandle to get Container.");
+      return(nullptr);
+   }
    if (dbH->openMode() == pool::IDatabase::CLOSED) {
       dbH->connectForRead();
    }
@@ -1113,24 +1022,7 @@ StatusCode PoolSvc::getContainerHandle(pool::IDatabase* dbH,
    } else {
       contH = dbH->containerHandle(contName);
    }
-   if (contH == nullptr) {
-      ATH_MSG_DEBUG("Failed to get ContainerHandle for: " << contName);
-      return(StatusCode::FAILURE);
-   }
-   if (contName.find('(') != std::string::npos) {
-      objName = contName.substr(contName.find('(') + 1); // Get BranchName between parenthesis
-      objName = objName.substr(0, objName.find(')'));
-   } else if (contName.find("::") != std::string::npos) {
-      objName = contName.substr(contName.find("::") + 2); // Split off Tree name
-   } else {
-      objName = contName.substr(contName.find('_') + 1); // Split off "POOLContainer"
-      objName = objName.substr(0, objName.find('/')); // Split off key
-   }
-   std::string::size_type off = 0;
-   while ((off = objName.find_first_of("<>/")) != std::string::npos) {
-      objName.replace(off, 1, "_"); // Replace special chars (e.g. templates)
-   }
-   return(StatusCode::SUCCESS);
+   return(std::unique_ptr<pool::IContainer>(contH));
 }
 //__________________________________________________________________________
 std::string PoolSvc::poolCondPath(const std::string& leaf) {

@@ -31,10 +31,11 @@ PhysicsD3PDStream_msg.info( "Configuring PhysicsD3PD with streamName '%s' and fi
 
 # Create the D3PD streams:
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-PhysicsD3PDStream = MSMgr.NewRootStream( streamName, fileName, "physics" )
+PhysicsD3PDStream = MSMgr.NewRootStream( streamName, fileName, "physics", asAlg=True )
 PhysicsTriggerD3PDStream = MSMgr.NewRootStream( streamName + ":" + streamName +
                                                 "TrigDec", fileName,
-                                                "physicsTrigDec" )
+                                                "physicsTrigDec",
+                                                asAlg=True )
 
 # Now add all the content to this stream:
 from D3PDMakerConfig.physicsD3PD import physicsD3PD

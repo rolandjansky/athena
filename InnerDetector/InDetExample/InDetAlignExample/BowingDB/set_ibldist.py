@@ -1,6 +1,4 @@
 #!/bin/env python
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 # set_ibldist.py - tool to generate COOL sqlite DB fragment for IBL distortion
 # Richard Hawkings, 21/5/15
 # execute without arguments for help

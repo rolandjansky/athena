@@ -20,7 +20,6 @@
 #include "MonitorROSCommon.h"
 
 namespace TrigCostRootAnalysis {
-
   //Forward declaration
   class TrigCostData;
 
@@ -29,30 +28,26 @@ namespace TrigCostRootAnalysis {
    * ROS monitoring class, called per event if ROS monitoring is enabled.
    * responsible for lower level monitoring at the per ROBIN level
    */
-  class MonitorROBIN : public MonitorBase, public MonitorROSCommon {
-
-   public:
-
+  class MonitorROBIN: public MonitorBase, public MonitorROSCommon {
+  public:
     // StringIntSetMap_t& getROBINMapping(UInt_t _robReq);
     //static void collateROBINRequests(UInt_t _level, const TrigCostData* _costData);
 
     MonitorROBIN(const TrigCostData* _costData);
     void newEvent(Float_t _weight = 1.);
-    CounterBase* newCounter( const std::string &_name, Int_t _ID );
+    CounterBase* newCounter(const std::string& _name, Int_t _ID);
     Bool_t getIfActive(ConfKey_t _mode);
     void saveOutput();
 
     /*
-  protected: 
-    static Int_t m_eventNumber; //!< Static event number which is buffered
-    static UInt_t m_level; //!<Static level which is buffered
-    static std::vector< StringIntSetMap_t > m_ROBINRequestStorage; //!< For each ROS request, buffer which ROBINs are hit
-    */
-   private:
-
-
+       protected:
+       static Int_t m_eventNumber; //!< Static event number which is buffered
+       static UInt_t m_level; //!<Static level which is buffered
+       static std::vector< StringIntSetMap_t > m_ROBINRequestStorage; //!< For each ROS request, buffer which ROBINs are
+          hit
+     */
+  private:
   }; //class MonitorROBIN
-
 } // namespace TrigCostRootAnalysis
 
 #endif //TrigCostRootAnalysis_MonitorROBIN_H

@@ -22,7 +22,7 @@ Iterations     = 2
 runMode = 'batch'
 #runMode = 'local'
 # Batch queue
-QUEUE = '1nh'
+QUEUE = '8nh'
 #QUEUE = 'atlasb1'
 
 # Prefix to identify your jobs
@@ -207,7 +207,7 @@ for i_sample in range(len(inputList)):
         if isData:
             print " ==> In collisions and isData True :)   myTag=",myTag
             myTag = "ATLAS-R2-2015-03-01-00"
-            Data1.setGlobalTag("CONDBR2-BLKPA-2015-14")
+            Data1.setGlobalTag("CONDBR2-BLKPA-2016-12")
             Data1.setDetDescrVersion(myTag)
             if HeavyIons:
                 myTag = "ATLAS-R2-2015-03-01-00"
@@ -267,8 +267,10 @@ AlignmentMethod = "GX2"
 #inputAlignmentPoolFile = "/afs/cern.ch/user/m/mdanning/AlignmentTestArea/IBL_4br_30Jan/run_misalign/MisalignmentSet1.pool.root"
 inputAlignmentPoolFile = ""
 inputBowingCoolFile    = ""
+inputDynamicGlobalCoolFile = ""
 readConstantsFromPool = False
 readBowingFromCool    = False
+readDynamicGlobalFoldersFromCool = False
 
 if ConstantsFile != "":
     inputAlignmentPoolFile=ConstantsFile
@@ -324,8 +326,8 @@ extraOptions["HeavyIons"] = HeavyIons
 #extraOptions["trtAlignmentTag"] = "TRTAlign_nominal"
 
 #25 NS
-extraOptions["siAlignmentTag"] = "InDetAlign-RUN2-25NS"
-extraOptions["trtAlignmentTag"] = "TRTAlign-RUN2-25NS"
+#extraOptions["siAlignmentTag"] = "InDetAlign-RUN2-25NS"
+#extraOptions["trtAlignmentTag"] = "TRTAlign-RUN2-25NS"
 
 #extraOptions["beamSpotTag"] = "IndetBeampos-ES1-UPD2"
 #extraOptions["particleNumber"] = 0
@@ -343,6 +345,18 @@ extraOptions["softModeCut"]= 0.
 #---- IBL stave bowing alignment
 extraOptions["applyLBibldistTweak"] = False
 extraOptions["writeIBLDistDB"] = True
+
+
+#---- New dynamic DB configuration
+extraOptions["useDynamicAlignFolders"] = True                
+extraOptions["writeDynamicDB"] = True
+           
+extraOptions["dynamicL1IDTag"] = "InDetAlignL1_R2dynamic_Post_TS1_June2016_d0corrected"
+extraOptions["dynamicL2PIXTag"] = "InDetAlignL2PIX_R2dynamic_Post_TS1_June2016_d0corrected"
+extraOptions["dynamicL2SCTTag"] = "InDetAlignL2SCT_R2dynamic_Post_TS1_June2016_d0corrected"
+extraOptions["dynamicL3SiTag"] = "InDetAlign_R2dynamic_Post_TS1_June2016_d0corrected"
+extraOptions["dynamicL1TRTag"] = "TRTAlignL1_R2dynamic_Post_TS1_June2016_d0corrected"
+extraOptions["dynamicL2TRTTag"] = "TRTAlign_R2dynamic_Post_TS1_June2016_d0corrected" 
 
 
 #extraOptions["doBSConstraint"] = False

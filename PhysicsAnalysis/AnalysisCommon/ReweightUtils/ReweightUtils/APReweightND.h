@@ -50,11 +50,11 @@ public:
   ClassDef(APReweightND, 1)
 
 private:
-  unsigned int _n_dim;                                                           /*!< Holds the amount of dimensions. */
-  THnSparse* _denominator_hist;                                                  /*!< Holds the original denominator histogram. */
-  THnSparse* _numerator_hist;                                                    /*!< Holds the original numerator histogram. */
-  std::map< std::vector<int> , APWeightEntry* > _weights;                        /*!< Holds all weight entries. */
-  std::vector< TAxis* > _axes;                                                   /*!< Holds all axes of the APReweightND instance (from input histograms). */
+  unsigned int m_n_dim;                                                           /*!< Holds the amount of dimensions. */
+  THnSparse* m_denominator_hist;                                                  /*!< Holds the original denominator histogram. */
+  THnSparse* m_numerator_hist;                                                    /*!< Holds the original numerator histogram. */
+  std::map< std::vector<int> , APWeightEntry* > m_weights;                        /*!< Holds all weight entries. */
+  std::vector< TAxis* > m_axes;                                                   /*!< Holds all axes of the APReweightND instance (from input histograms). */
 };
 
 #endif

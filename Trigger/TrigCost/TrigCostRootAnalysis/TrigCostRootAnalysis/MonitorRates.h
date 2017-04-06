@@ -25,26 +25,21 @@
 #include <TCanvas.h>
 
 namespace TrigCostRootAnalysis {
-
   class CounterBaseRates;
   class CounterRatesUnion;
 
   /**
    * @class MonitorRates
    */
-  class MonitorRates : public MonitorBase {
-  
-   public:
-   
+  class MonitorRates: public MonitorBase {
+  public:
     MonitorRates(const TrigCostData* _costData);
     ~MonitorRates();
     void newEvent(Float_t _weight = 1.);
-    CounterBase* newCounter( const std::string &_name, Int_t _ID );
+    CounterBase* newCounter(const std::string& _name, Int_t _ID);
     Bool_t getIfActive(ConfKey_t _mode);
     void saveOutput();
-
-   private:
-
+  private:
     void populateCounterMap(CounterMap_t* _counterMap);
     void populateChainItemMaps();
     void saveRateGraphs();
@@ -63,14 +58,11 @@ namespace TrigCostRootAnalysis {
 
     ChainItemMap_t m_chainItemsL1;
     ChainItemMap_t m_chainItemsHLT;
-    CPSGroupMap_t  m_cpsGroups;
+    CPSGroupMap_t m_cpsGroups;
 
     Bool_t m_doingOverlaps; //!< Flag for if one or more overlaps is being calculated
     Bool_t m_doCPS; //!< Flag to switch on special handling for chains which are in CPS groups
-
-    
   }; //class MonitorRates
-  
 } // namespace TrigCostRootAnalysis
 
 #endif //TrigCostRootAnalysis_MonitorRates_H

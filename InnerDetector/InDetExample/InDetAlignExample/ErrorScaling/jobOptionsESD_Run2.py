@@ -1,216 +1,287 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-
-
+ #--------------------------------------------------------------
+# control input
 #--------------------------------------------------------------
-# Import config
-#--------------------------------------------------------------
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-from RecExConfig.RecFlags import rec
-from RecExConfig.RecAlgsFlags import recAlgs
+# --- specify input type
+#if not 'readAOD' in dir():
+#  readAOD = True
+
+readAOD=False
+readESD = not readAOD
 
 
-rec.AutoConfiguration=['everything']
+###############
+# GRL
+###############
 
-print athenaCommonFlags.FilesInput()
+useGRL = False
+
+if useGRL:
+  import os
+  include(os.environ["PWD"]+"/jobOptions_useGRL.py")
 
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-BLKPA-2015-08")
-globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-R2-2015-03-01-00")
-globalflags.DataSource.set_Value_and_Lock("data")
+globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-BLKPA-2016-17")
+#globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-R2-2015-04-00-00")
+globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-R2-2015-03-29-00")
 
-import MagFieldServices.SetupField
+#--------------------------------------------------------------
+# Event related parameters
+#--------------------------------------------------------------
 
-from IOVDbSvc.CondDB import conddb
-conddb.setGlobalTag(globalflags.ConditionsTag())
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+  
+#if readESD:
+#  athenaCommonFlags.FilesInput = inputFiles
+
+#elif readAOD:
+#  athenaCommonFlags.FilesInput = [ "AOD.pool.root" ]
+
+import AthenaPython.ConfigLib as apcl
+cfg = apcl.AutoCfg(name = 'InDetRecExampleAutoConfig', input_files=athenaCommonFlags.FilesInput())
+cfg.configure_job()
+
+#theApp.EvtMax  = 10 #from jobOptionsErrorTuning.py
 
 
-# --- number of events to process
-athenaCommonFlags.EvtMax     = 50
-athenaCommonFlags.SkipEvents = 0
-
-
-# --- disable error protection of RecExCommon
-athenaCommonFlags.AllowIgnoreConfigError.set_Value_and_Lock(False)
 
 
 #--------------------------------------------------------------
-# Additional Detector Setup
+# control output (here so RecExCommon via auto-config doesn't delete the global flags)
 #--------------------------------------------------------------
+# --- controls what is written out. ESD includes AOD, so it's normally enough
+doWriteESD = False and readESD
+doWriteAOD = False
+
+#--------------------------------------------------------------
+# control algorithms to be rerun
+#--------------------------------------------------------------
+# --- run InDetRecStatistics (only possible if readESD = True)
+doInDetRecStatistics = True and readESD
+# --- refit the EXISTING tracks in ESD (only possible if readESD = True)
+doRefitTracks = True and readESD
+# --- redo the pattern reco and the tracking (do not use that in conjunction with doRefitTracks above)
+redoPatternRecoAndTracking = False and not doRefitTracks and readESD
+# --- redo primary vertexing (will be set to true later automatically if you redid the tracking and want to redo the TrackParticle creation)
+reDoPrimaryVertexing = False
+# --- redo particle creation (recommended after revertexing on ESD, otherwise trackparticles are inconsistent)
+reDoParticleCreation = False and readESD and reDoPrimaryVertexing
+# --- redo conversion finding
+reDoConversions = False
+# --- redo V0 finding
+reDoV0Finder = False
+ 
+#--------------------------------------------------------------
+# Control - standard options (as in jobOptions.py)
+#--------------------------------------------------------------
+# --- Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
+OutputLevel     = INFO
+# --- produce an atlantis data file
+doJiveXML       = False
+# --- run the Virtual Point 1 event visualisation
+doVP1           = False
+# --- do auditors ?
+doAuditors      = True
+
+import os
+if os.environ['CMTCONFIG'].endswith('-dbg'):
+  # --- do EDM monitor (debug mode only)
+  doEdmMonitor    = True
+  # --- write out a short message upon entering or leaving each algorithm
+  doNameAuditor   = True
+else:
+  doEdmMonitor    = False
+  doNameAuditor   = False
+
+# safety section ... redoing tracking/vertexing is a tricky business to stay consistent ...
+if redoPatternRecoAndTracking and reDoParticleCreation:
+  reDoPrimaryVertexing = True
+
+if not (readESD or readAOD):
+  print "You have to turn on reading of ESD or AOD! That's the purpose of this jobO!"
+if readESD and readAOD:
+  print "I can either read ESD or AOD but not both at the same time! Turn one or the other off!"
+if readESD and reDoPrimaryVertexing and not reDoParticleCreation:
+  print "INFO! You are running on ESD, redoing the vertexing but not recreating the TrackParticles!"
+  print "INFO! To avoid inconsistencies do not use the old track particles in conjunction with the new vertex!"
+  if doWriteESD or doWriteAOD:
+    print "INFO! To avoid inconsistencies the old track particle (truth) container will not be in the new ESD/AOD!"
+if readAOD and reDoPrimaryVertexing:
+  print "INFO! You are running on AOD, and redoing the vertexing. At the moment new track particles cannot be made from old ones."
+  print "INFO! To avoid inconsistencies do not use the old track particles in conjunction with the new vertex!"
+  if doWriteAOD:
+    print "INFO! To avoid inconsistencies the old track particle (truth) container will not be in the new AOD!"
+if doRefitTracks and (reDoPrimaryVertexing or reDoParticleCreation):
+  print "INFO! You are refitting tracks and also revertex and/or recreate track particles"
+  print "INFO! The input for that will be the refitted tracks!"
+
+#--------------------------------------------------------------
+# Additional Detector setup
+#--------------------------------------------------------------
+
+from RecExConfig.RecFlags import rec
+rec.Commissioning=False
 
 from AthenaCommon.DetFlags import DetFlags 
 # --- switch on InnerDetector
 DetFlags.ID_setOn()
-# --- turn off Calo
+# --- and switch off all the rest
 DetFlags.Calo_setOff()
-# --- and switch off Muons
 DetFlags.Muon_setOff()
-DetFlags.BField_setOn()
+# ---- switch parts of ID off/on as follows (always use both lines)
+#DetFlags.pixel_setOff()
+#DetFlags.detdescr.pixel_setOn()
+#DetFlags.SCT_setOff()
+#DetFlags.detdescr.SCT_setOn()
+#DetFlags.TRT_setOff()
+#DetFlags.detdescr.TRT_setOn()
 
-
-#--------------------------------------------------------------
-# Control
-#--------------------------------------------------------------
-# --- Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
-rec.OutputLevel.set_Value_and_Lock       (INFO)
-
-rec.doWriteESD.set_Value_and_Lock        (False)
-rec.doAOD.set_Value_and_Lock             (False)
-rec.doWriteAOD.set_Value_and_Lock        (False)
-rec.doDPD.set_Value_and_Lock             (False)
-rec.doCBNT.set_Value_and_Lock            (False)
-rec.doWriteTAG.set_Value_and_Lock        (False)
-
-# --- turn on InDet
-rec.doInDet.set_Value_and_Lock           (True)
-# --- turn off calo
-rec.doCalo.set_Value_and_Lock            (False)
-# --- turn off muons
-rec.doMuon.set_Value_and_Lock            (False) 
-# --- turn off forward detectors
-rec.doForwardDet.set_Value_and_Lock      (False)
-
-# --- turn off combined reconstruction
-rec.doEgamma.set_Value_and_Lock          (False)
-rec.doMuonCombined.set_Value_and_Lock    (False)
-rec.doTau.set_Value_and_Lock             (False)
-rec.doJetMissingETTag.set_Value_and_Lock (False)
-
-# --- turn off global monitoring 
-rec.doMonitoring.set_Value_and_Lock      (False)
-
-
-# --- turn of calo stuff we don't need anyway
-from CaloRec.CaloRecFlags import jobproperties
-jobproperties.CaloRecFlags.doCaloTopoCluster.set_Value_and_Lock  (False)
-jobproperties.CaloRecFlags.doCaloEMTopoCluster.set_Value_and_Lock(False)
-jobproperties.CaloRecFlags.doCaloTopoTower.set_Value_and_Lock    (False)
-
-# --- turn off jets (Hack!!!)
-from JetRec.JetRecFlags import jetFlags
-jetFlags.Enabled.set_Value_and_Lock          (False)
-
-# --- turn off egamma Brem
-recAlgs.doEgammaBremReco.set_Value_and_Lock  (False)
-# --- turn off Eflow and missing ET
-recAlgs.doEFlow.set_Value_and_Lock           (False)
-recAlgs.doEFlowJet.set_Value_and_Lock        (False)
-recAlgs.doMissingET.set_Value_and_Lock       (False)
-recAlgs.doMissingETSig.set_Value_and_Lock    (False)
-recAlgs.doObjMissingET.set_Value_and_Lock    (False)
-# --- turn off combined muons
-recAlgs.doMuGirl.set_Value_and_Lock          (False)
-recAlgs.doMuTag.set_Value_and_Lock           (False)
-recAlgs.doMuidLowPt.set_Value_and_Lock       (False)
-recAlgs.doMuonIDCombined.set_Value_and_Lock  (False)
-recAlgs.doMuonIDStandAlone.set_Value_and_Lock(False)
-recAlgs.doMuonSpShower.set_Value_and_Lock    (False)
-recAlgs.doStaco.set_Value_and_Lock           (False)
-recAlgs.doCaloTrkMuId.set_Value_and_Lock     (False)
-recAlgs.doTileMuID.set_Value_and_Lock        (False)
-# --- trigger
-recAlgs.doTrigger.set_Value_and_Lock         (False)
-rec.doTagRawSummary.set_Value_and_Lock   (False)
-
-
-
-#--------------------------------------------------------------
-# Printout config
-#--------------------------------------------------------------
-
-from AthenaCommon.GlobalFlags import globalflags
-print "globalflags configuration:"
-print globalflags
-
-print "detflags configuration:"
+# --- printout
 DetFlags.Print()
 
-print "rec configuration:"
-print rec
-
-
+#--------------------------------------------------------------
+# Load Reconstruction configuration for tools only
+#--------------------------------------------------------------
 #--------------------------------------------------------------
 # Load InDet configuration
 #--------------------------------------------------------------
+import MagFieldServices.SetupField
 
-# --- setup InDetJobProperties (default)
+from AthenaCommon.GlobalFlags import globalflags
+
+# --- setup InDetJobProperties
 from InDetRecExample.InDetJobProperties import InDetFlags
-#InDetFlags.doTruth.set_Value_and_Lock (globalflags.DataSource == 'geant4' and globalflags.InputFormat() == 'pool')
-InDetFlags.doTruth.set_Value_and_Lock (False)
-
-if datasample.getFormat()=='ESD': 
-    InDetFlags.doRefit=True
-
-#Anthony's recommendation: Is to load old SCT conditions. To be off >= M8
-#InDetFlags.ForceCoraCool.set_Value_and_Lock                        (True)
-
-# --- enable brem recovery
-InDetFlags.doBremRecovery.set_Value_and_Lock                       (False)
-InDetFlags.doCaloSeededBrem.set_Value_and_Lock                     (False)
-# --- enable forward tracks
-InDetFlags.doForwardTracks.set_Value_and_Lock                      (False)
-# --- enable 
-InDetFlags.doTrackSegmentsPixelPrdAssociation.set_Value_and_Lock   (False)
-# --- enable low mu run setup
-InDetFlags.doLowMuRunSetup.set_Value_and_Lock                      (False)
-InDetFlags.doTRTSeededTrackFinder.set_Value_and_Lock               (False)
-InDetFlags.doBackTracking.set_Value_and_Lock                       (False)
-InDetFlags.doPseudoTracking.set_Value_and_Lock                     (False)
-# --- activate monitorings
-InDetFlags.doMonitoringGlobal.set_Value_and_Lock                   (False)
-InDetFlags.doMonitoringPrimaryVertexingEnhanced.set_Value_and_Lock (False)
-InDetFlags.doMonitoringPixel.set_Value_and_Lock                    (False)
-InDetFlags.doMonitoringSCT.set_Value_and_Lock                      (False)
-InDetFlags.doMonitoringTRT.set_Value_and_Lock                      (False)
-InDetFlags.doMonitoringAlignment.set_Value_and_Lock                (False)
-
-# activate the print InDetXYZAlgorithm statements
-InDetFlags.doPrintConfigurables.set_Value_and_Lock                 (True)
-
-
-InDetFlags.cutLevel.set_Value_and_Lock                             (12) 
-InDetFlags.doTRTStandalone.set_Value_and_Lock                      (False)
-
-
-InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock         (False)
-InDetFlags.useBroadClusterErrors.set_Value_and_Lock(False);
-
-#NN clustering for pixel
-InDetFlags.doPixelClusterSplitting.set_Value_and_Lock(True);
-InDetFlags.doTIDE_Ambi.set_Value_and_Lock(True);
+InDetFlags.doTruth            = (globalflags.DataSource == 'geant4' and globalflags.InputFormat == "pool")
+InDetFlags.preProcessing      = redoPatternRecoAndTracking
+InDetFlags.doPRDFormation        = False                       # those two will be (later) automatically false if
+InDetFlags.doSpacePointFormation = redoPatternRecoAndTracking  # preProcessing is false
+InDetFlags.doNewTracking      = redoPatternRecoAndTracking
+InDetFlags.doiPatRec          = False
+InDetFlags.doxKalman          = False
+InDetFlags.doLowPt            = False
+InDetFlags.doBackTracking     = redoPatternRecoAndTracking
+InDetFlags.doTRTStandalone    = redoPatternRecoAndTracking
+InDetFlags.doTrtSegments      = redoPatternRecoAndTracking
+InDetFlags.postProcessing     = reDoPrimaryVertexing or reDoParticleCreation or reDoConversions or doInDetRecStatistics or reDoV0Finder
+InDetFlags.doTrackSegmentsPixel = False
+InDetFlags.doTrackSegmentsSCT = False
+InDetFlags.doTrackSegmentsTRT = False
+InDetFlags.doSlimming         = False
+InDetFlags.loadTools          = True
+InDetFlags.doVertexFinding    = reDoPrimaryVertexing
+InDetFlags.doParticleCreation = reDoParticleCreation
+InDetFlags.doConversions      = reDoConversions
+InDetFlags.doSecVertexFinder  = False
+InDetFlags.doV0Finder         = reDoV0Finder
+InDetFlags.doSimpleV0Finder   = False
+InDetFlags.doTrkNtuple        = False
+InDetFlags.doPixelTrkNtuple   = False
+InDetFlags.doSctTrkNtuple     = False
+InDetFlags.doTrtTrkNtuple     = False
+InDetFlags.doPixelClusterNtuple = False
+InDetFlags.doSctClusterNtuple   = False
+InDetFlags.doTrtDriftCircleNtuple = False
+InDetFlags.doVtxNtuple        = False
+InDetFlags.doConvVtxNtuple    = False
+InDetFlags.doV0VtxNtuple      = False
+InDetFlags.doRefit            = doRefitTracks
+InDetFlags.doLowBetaFinder    = False
+InDetFlags.doPrintConfigurables = True
 
 
+#Alignment Dynamic Database Scheme
 
+InDetFlags.useDynamicAlignFolders = True
+
+# --- activate (memory/cpu) monitoring
+#InDetFlags.doPerfMon = True
+
+# IMPORTANT NOTE: initialization of the flags and locking them is done in InDetRec_jobOptions.py!
+# This way RecExCommon just needs to import the properties without doing anything else!
 # DO NOT SET JOBPROPERTIES AFTER THIS LINE! The change will be ignored!
 
+from InDetRecExample.InDetKeys import InDetKeys
+if InDetFlags.doVertexFinding() and readAOD:
+  InDetKeys.Tracks = InDetKeys.TrackParticles()
+
+# uncomment if you don't want to overwrite the original fits (e.g. for comparison)
+# this would also require enabling "pass-through" output mode (see bottom of this file)
+# or else manually adding the input collection to the output stream
+#if InDetFlags.doVertexFinding():
+#  InDetKeys.xAODVertexContainer = "RefitPrimaryVertices" 
+
+if readESD and not redoPatternRecoAndTracking:
+  InDetKeys.UnslimmedTracks              = 'Tracks'
+  InDetKeys.UnslimmedTracksTruth         = 'TrackTruthCollection'
+
+# Set container names
+if doWriteESD:
+  InDetKeys.OutputESDFileName = "InDetRecESD_new.root"
+
+if doWriteAOD:
+  InDetKeys.OutputAODFileName = "InDetRecAOD_new.root"  
+
+print "Printing InDetKeys"
+InDetKeys.lockAllExceptAlias()
+InDetKeys.print_JobProperties()
+
+#--------------------------------------------------------------
+# enable statistics for reading ESD testing
+#--------------------------------------------------------------
+
+InDetFlags.doStatistics   = doInDetRecStatistics
+TrackCollectionKeys        = [InDetKeys.Tracks()]
+TrackCollectionTruthKeys   = [InDetKeys.TracksTruth()]
+
+# Uncomment to use medical image seeding
+# InDetFlags.primaryVertexSetup = "MedImgMultiFinding"
+  
 #--------------------------------------------------------------
 # load master joboptions file
 #--------------------------------------------------------------
+  
+include("InDetRecExample/InDetRec_all.py")
 
-include ("RecExCommon/RecExCommon_topOptions.py")
+
+##Ignoring tag Difference
+Service ("GeoModelSvc").IgnoreTagDifference = True
+
+
+
+## Override alignment folders 
+
+
+#from IOVDbSvc.CondDB import conddb
+
+#Alignment Tags
+conddb.addOverride("/Indet/AlignL1/ID","IndetAlignL1ID-Repro-Rel21-UPD3-00")
+conddb.addOverride("/Indet/AlignL2/PIX","IndetAlignL2PIX-Repro-Rel21-UPD3-00")
+conddb.addOverride("/Indet/AlignL2/SCT","IndetAlignL2SCT-Repro-Rel21-UPD3-00")
+conddb.addOverride("/Indet/IBLDist","IndetIBLDist-Repro-Rel21-UPD3-00")
+conddb.addOverride("/TRT/AlignL1/TRT","TRTAlignL1-Repro-Rel21-UPD3-00")
+conddb.addOverride("/Indet/AlignL3","IndetAlignL3-Repro-Rel21-UPD3-00")
+conddb.addOverride("/TRT/AlignL2","TRTAlignL2-Repro-Rel21-UPD3-00")
+
+if doRefitTracks:
+  from IOVDbSvc.CondDB import conddb
+
+  if not conddb.folderRequested('/PIXEL/PixelClustering/PixelClusNNCalib'):
+    conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib")
+
+
+# Set to True if you want to write out all input data ("pass-through" mode)
+if doWriteESD:
+  StreamESD.TakeItemsFromInput = False
+
+if doWriteAOD:
+  StreamAOD.TakeItemsFromInput = False
+
+
+#Override of the Error Scaling - to do: if change the dbnane. You need to pass the information. This line works only for data. 
 
 conddb.blockFolder("/Indet/TrkErrorScaling")
 conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema=mycool.db;dbname=CONDBR2</dbConnection>/Indet/TrkErrorScaling',errorScalingOverride,True);
-#conddb.addOverride('/Indet/Beampos','IndetBeampos-data15_13TeV-ReproJun15-v0')
 
-
-conddb.blockFolder("/Indet/Align")
-conddb.blockFolder("/TRT/Align")
-from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import CondProxyProvider
-from AthenaCommon.AppMgr import ServiceMgr
-ServiceMgr += CondProxyProvider()
-ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
-# set this to the file containing AlignableTransform objects
-ServiceMgr.CondProxyProvider.InputCollections = ["/afs/cern.ch/user/m/mdanning/hias/public/13TeV/20.1.5.8/run_DCSfix/Iter3/Iter3_AlignmentConstants.root"]
-print "INPUT POOL FILES COLLECTION", ServiceMgr.CondProxyProvider.InputCollections 
-ServiceMgr.CondProxyProvider.OutputLevel = DEBUG
-print ServiceMgr.CondProxyProvider
-# this preload causes callbacks for read in objects to be activated,
-# allowing GeoModel to pick up the transforms
-ServiceMgr.IOVSvc.preLoadData = True
-ServiceMgr.IOVSvc.OutputLevel = INFO
 
 
 include("InDetMonitoringAlignment.py")
-
 

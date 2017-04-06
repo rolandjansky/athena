@@ -1,0 +1,589 @@
+2016-11-03 Steffen Henkelmann <steffen.henkelmann@cern.ch>
+	* Added scripts to reweight Zmumu maps to E/p maps
+2016-10-20 Steffen Henkelmann <steffen.henkelmann@cern.ch>
+	* Rewrote the FillTruthParameters part of IDPerfMonZmumu to deal with BS
+	* Added Primary Vertex extrapolation of impact parameters in Zmumu part of the code
+	* Edited the runzmumu_recommendations.py to include the PV extrapolation
+	* Added xrootd patch for 20.7.7+ releases -- https://its.cern.ch/jira/browse/ATEAM-340, thanks Will diClemente
+2016-10-13 Steffen Henkelmann <steffen.henkelmann@cern.ch>
+	* Added scripts to run jobs on the lxbatch, run_batch
+	* Implemented option to enable/disabled the refitting part in IDPerfMonZmumu
+	* Filling by default the indettrackparticles in the default container using trackparticles
+
+2016-10-11 Steffen Henkelmann <steffen.henkelmann@cern.ch>
+	* Added scripts to run weak mode maps on different data periods scripts/runMaps
+	* Added scripts to run zmumu maps (including the track selectors) with MC adjusted event selection
+	* Added option to name tree folders in IDPerfMonZmumu
+	* Changed quality cuts to true by default in MuonSelector.cxx
+
+2016-05-20 Goetz Gaycken
+	* Fix possible segmentation fault if MET does not exist
+	  (ATLASRECTS-3168)
+	* Fix compiler warning (usage of deprecated flags)
+
+2016-05-17 Goetz Gaycken (obo  Peter Onyisi)
+	* Improved reliability to detect when to enable trigger aware
+	  monitoring.
+
+2015-10-05 Goetz Gaycken
+	* Fixed chechreq warning (unused package).
+
+2014-11-17 Steffen Henkelmann <steffen.henkelmann@cern.ch>
+	* xAOD migration
+	* InDetPerformanceMonitoring-00-03-00
+
+2014-01-06 Anthony Morley
+  * Eigen and EDM migration -- Compatible 19.X onwards
+	* InDetPerformanceMonitoring-00-02-00
+
+2013-09-02 Anthony Morley
+  * Add IDPerfMounRefitter
+	* InDetPerformanceMonitoring-00-01-66
+
+2013-07-29 Anthony Morley
+  * Change Muon to collection to Muons
+  * InDetPerformanceMonitoring-00-01-65
+
+
+2013-03-07 Anthony Morley
+  * Fix mem leak in Zmumu monitoring
+	* Add muon residuals monitoring
+  * InDetPerformanceMonitoring-00-01-64
+
+2013-03-07 Anthony Morley
+  * Minor changes to EoverP validation
+	* InDetPerformanceMonitoring-00-01-63
+
+2013-01-22 Ozan Arslan <ozan.arslan@cern.ch>
+	* src/TRT_Electron_Monitoring_Tool.cxx: Minor bug fix.
+	* InDetPerformanceMonitoring-00-01-62
+
+2012-11-22  Adrian Vogel  <adrian.vogel@cern.ch>
+	* src/*.cxx: Fixed namespaces for migration to CLHEP2.
+	* InDetPerformanceMonitoring/EventAnalysis.h: Fixed namespaces for migration to CLHEP2.
+	* InDetPerformanceMonitoring-00-01-61
+
+2012-10-15 Anthony Morley
+	* Fix requirements
+	* InDetPerformanceMonitoring-00-01-60
+
+2012-08-17 Anthony Morley
+	* Fix silly bug in IDPerfMonZmumu
+	* InDetPerformanceMonitoring-00-01-59
+
+2012-08-17 Anthony Morley
+	* Add d0 and z0 points at beam line  to Zmumu ntuple
+	* InDetPerformanceMonitoring-00-01-58
+
+2012-06-06 Ozan Arslan <ozan.arslan@cern.ch>
+	* Bug in the HT Fraction histograms merging fixed
+	* Major update of ntuple to dump Zmumu ntuple (J. Stahlman)
+	* InDetPerformanceMonitoring-00-01-57
+
+2012-04-12 Markus Juengst <ralph.markus.jungst@cern.ch>
+	* Changes in last tag created bug during histogram merging
+	* Changes referted without creating a new tag
+
+2012-03-09 Jahred Adelman <jahreda@gmail.com> and Adrian Vogel <adrian.vogel@cern.ch>
+	* Fix converity issues and monitoring issues
+	* InDetPerformanceMonitoring-00-01-56
+
+2012-02-20 Anthony Morley <amorley@cern.ch>
+	* Fix converity issues and requirements file
+	* InDetPerformanceMonitoring-00-01-55
+
+2012-02-05 Ana Ovcharova <ana.ovcharova@cern.ch>
+	* remove Jpsi and Upsilon monitoring
+	* remove the NtupleMaker used by Kshort  and previously Jpsi and Upsilon as it is no longer used and causing coverity defects
+
+2011-10-19 Benjamin Kaplan <benjamin.kaplan@cern.ch>
+	* Fix histogram names in IDPerfMonZee (bug #88084)
+	* InDetPerformanceMonitoring-00-01-53
+
+2011-10-19 Weina Ji <weina.ji@cern.ch>
+	* Remove the fitting procedure in IDPerfMonKshort::procHistograms since it will be done in post-processing, also for fixing FPE error (bug #87848)
+	* Change several efficiency plots from TProfile to TH1F in IDPerfMonZee and IDPerfMonWenu
+	* InDetPerformanceMonitoring-00-01-52
+
+2011-10-12 Anthony Morley <amorley@cern.ch>
+	* Fix constness in E/p monitoring code
+	* InDetPerformanceMonitoring-00-01-51
+
+2011-10-10 Weina Ji <weina.ji@cern.ch>
+	* Fix bug #85993 about the long time spent in IDPerfMonManager:finalize
+	* InDetPerformanceMonitoring-00-01-50
+
+2011-09-22 Anthony Morley <amorley@cern.ch>
+	* Add EoverP code
+	* InDetPerformanceMonitoring-00-01-49
+
+2011-08-29 Weina ji <weina.ji@cern.ch>
+	* Removed hardcoded pi value in IDPerfMonJpsi.cxx and IDPerfMonUpsilon.cxx
+	* InDetPerformanceMonitoring-00-01-48
+
+2011-07-29 Benjamin Kaplan <benjamin.kaplan@cern.ch>
+	* "Fix for compatibility with new DataModel tag"
+	* InDetPerformanceMonitoring-00-01-47
+
+2011-07-26 weina ji <weina.ji@cern.ch>
+	* remove compilation warning in IDPerfMonNtupleMaker.cxx
+	* InDetPerformanceMonitoring-00-01-46
+
+2011-07-09 Ana Ovcharova <ana.ovcharova@cern.ch>
+	* revert to VKalVrtFitter
+	* InDetPerformanceMonitoring-00-01-45
+
+2011-05-04 Susumu Oda <Susumu.Oda@cern.ch>
+	* Excluded angle_eta==90. in src/IDPerfMonUpsilon.cxx to fix
+	  bug #81829: Segmentation fault by IDPerfMonUpsilon::fillHistograms()
+	* InDetPerformanceMonitoring-00-01-44
+
+2011-04-25 Susumu Oda <Susumu.Oda@cern.ch>
+	* Added null-pointer checks in src/IDPerfMonJpsi.cxx and src/IDPerfMonUpsilon.cxx.
+	  bug #81482: Segfault in IDPerfMonManager (run180153, 16.6.4.2, f368)
+	* InDetPerformanceMonitoring-00-01-43
+
+2011-04-23 Ana Ovcharova <ana.ovcharova@cern.ch>
+	* changed access to some packages in req in response to AtlasNightlyBuild error report
+	* fix bug 81077
+	* changed Zmumu trigger due to changes in express stream menu
+	* changed from gaus+pol fit to iterative gaus fit in Jpsi code
+	* InDetPerformanceMonitoring-00-01-42
+
+2011-04-16 Jike Wang <jike.wang@cern.ch>
+        * comment out cout lines
+	* InDetPerformanceMonitoring-00-01-41
+
+2011-04-16 Jike Wang <jike.wang@cern.ch>
+        * fix compilation WARNING in MuonSelector.cxx
+	* InDetPerformanceMonitoring-00-01-40
+
+2011-04-13 Sara Strandberg <sara.strandberg@cern.ch>
+	* Removed cout in IDPerfMonWenu.cxx
+	* InDetPerformanceMonitoring-00-01-39
+
+2011-04-10 Jike Wang <jike.wang@cern.ch>
+	* changed the Z->mumu selection, follow MCP rel.16 guideline
+	* added more plots in Z->mumu
+	* InDetPerformanceMonitoring-00-01-38
+	* (InDetPerformanceMonitoring-00-01-37 is already in the tags, but miss the corresponding changeLog)
+
+2011-03-17 Weina Ji <weina.ji@cern.ch>
+	* Changed to VxContainer in Kshort monitoring due to changes in the standard reconstruction.
+	* InDetPerformanceMonitoring-00-01-36
+
+2011-03-17 Weina Ji <weina.ji@cern.ch>
+	* Fixed bug 77889 by Ana
+	* InDetPerformanceMonitoring-00-01-35
+
+2010-12-20 Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Changed one WARNING to DEBUG
+	* InDetPerformanceMonitoring-00-01-34
+
+2010-11-18 Weina Ji <weina.ji@cern.ch>
+	* fix bug 75078
+	* InDetPerformanceMonitoring-00-01-33
+
+2010-10-16 Jike Wang <jike.wang@cern.ch>
+	* fix bug 73872
+	* InDetPerformanceMonitoring-00-01-32
+
+2010-10-14 Jike Wang <jike.wang@cern.ch>
+	* Check StatusCode, TEMPORARY tag
+	* InDetPerformanceMonitoring-00-01-31
+
+2010-10-13 Jike Wang <jike.wang@cern.ch>
+	* comment out many histograms in Zmumu
+	* A TEMPORARY tag for nightly
+	* InDetPerformanceMonitoring-00-01-30
+
+2010-10-12 Weina Ji <weina.ji@cern.ch>
+	* fix TrackIsolationTool error
+	* InDetPerformanceMonitoring-00-01-29
+
+2010-10-12 Weina Ji <weina.ji@cern.ch>
+	* fix for bug #73829
+	* InDetPerformanceMonitoring-00-01-28
+
+2010-10-04 Jike Wang <jike.wang@cern.ch>
+	* standardize the histogram names in Z->mumu
+	* InDetPerformanceMonitoring-00-01-27
+
+2010-10-03 Weina Ji <weina.ji@cern.ch>
+	* Fix checkreq error
+	* InDetPerformanceMonitoring-00-01-26
+
+2010-10-01 Weina Ji <weina.ji@cern.ch>
+	* Add a protection for TrackIsolationTool in IDPerfMonZmumu module against the error when rec.doMuon=False
+	* InDetPerformanceMonitoring-00-01-25
+
+2010-09-30 Jike Wang <jike.wang@cern.ch>
+	* rename the histograms in Zmumu monitoring package
+	* InDetPerformanceMonitoring-00-01-24
+
+2010-09-22 Jike Wang <jike.wang@cern.ch>
+	* restructure the Zmumu monitoring code
+	* InDetPerformanceMonitoring-00-01-23
+
+2010-09-15 Jike Wang <jike.wang@cern.ch>
+        * register dimuon tracks from Z->mumu into StoreGate
+	* InDetPerformanceMonitoring-00-01-22
+
+2010-09-15 Weina Ji <weina.ji@cern.ch>
+	* Add IDPerfMonNtupleMaker for producing Jpsi/Kshort ntuples offline
+	* InDetPerformanceMonitoring-00-01-21
+
+2010-09-13 Jike Wang <jike.wang@cern.ch>
+	* Change some files' names in Z->mumu
+	* InDetPerformanceMonitoring-00-01-20
+
+2010-09-12 Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* MonGroup now passed by reference (fix bug #72061)
+	* InDetPerformanceMonitoring-00-01-19
+
+2010-09-11 Jike Wang <jike.wang@cern.ch>
+	* Add the official Z->mumu selections
+	* InDetPerformanceMonitoring-00-01-18
+
+2010-08-30 Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* MonGroup now passed by reference
+	* InDetPerformanceMonitoring-00-01-17
+
+2010-08-02 Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* histograms now no longer re-booked at every run boundary if use DQM environment 'user'
+	* InDetPerformanceMonitoring-00-01-16
+
+2010-07-26 Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Small fix in TRT Electron Monitoring Tool
+	* InDetPerformanceMonitoring-00-01-15
+
+2010-07-21 Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Updates to TRT electron monitoring tool
+	* InDetPerformanceMonitoring-00-01-14
+
+2010-07-21 Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Fixed FPE in electron monitoring tool
+	* InDetPerformanceMonitoring-00-01-13
+
+2010-07-12 Weina Ji <weina.ji@cern.ch>
+	* Fixed bugs due to missing JpsiFinder in trigger aware monitoring modules
+	* InDetPerformanceMonitoring-00-01-12
+
+2010-07-09 Weina Ji <weina.ji@cern.ch>
+	* Switch to JpsiUpsilonTool for Jpsi&Upsilon Monitoring
+	* InDetPerformanceMonitoring-00-01-11
+
+2010-06-21   Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Small improvements to TRT_Electron_Monitoring_Tool
+	* InDetPerformanceMonitoring-00-01-09
+	* InDetPerformanceMonitoring-00-01-10
+
+2010-06-21   Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* General improvements to TRT_Electron_Monitoring_Tool
+	* InDetPerformanceMonitoring-00-01-08
+
+2010-06-08 Weina Ji <weina.ji@cern.ch>
+	* Fixed checkreq errors
+	* InDetPerformanceMonitoring-00-01-07
+
+2010-06-08   Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Fixed a small bug in TRT_Electron_Monitoring_Tool
+	* InDetPerformanceMonitoring-00-01-06
+
+2010-06-07   Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Removed compilation waring in Mu_ID.cxx
+	* InDetPerformanceMonitoring-00-01-05
+
+2010-06-07   Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Removed compilation waring in IDPerfWenu.cxx
+	* Improved title of TRT_Electron_Monitoring_Tool histogram
+	* InDetPerformanceMonitoring-00-01-04
+
+2010-06-05   Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Finished the restructuring of TRT_Electron_Monitoring_Tool
+	* InDetPerformanceMonitoring-00-01-03
+
+2010-05-21   Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Major restructuring of TRT_Electron_Monitoring_Tool
+	* InDetPerformanceMonitoring-00-01-01
+
+2010-04-26   Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Updated IDPerfZee and IDPerfWenu
+	* InDetPerformanceMonitoring-00-00-76
+
+2010-04-16   Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Updated IDPerfZee and IDPerfWenu
+	* InDetPerformanceMonitoring-00-00-75
+
+2010-04-08   Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Added useTRTOnly to jobOptions.  changed some message levels
+	* InDetPerformanceMonitoring-00-00-74
+
+2010-04-07   Grigori Rybkine <Grigori.Rybkine@cern.ch>
+	* cmt/requirements: Modification to work with CMT v1r21
+
+2010-04-02  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* small fix
+	* InDetPerformanceMonitoring-00-00-72
+
+2010-03-31 Weina Ji <weina.ji@cern.ch>
+	* Add a plot of dimuon full mass spectrum (0, 50 GeV)
+	* InDetPerformanceMonitoring-00-00-71
+
+2010-03-25  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* small improvement
+	* InDetPerformanceMonitoring-00-00-70
+
+2010-03-25  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* fixed a memory leak found with valgrind
+	* InDetPerformanceMonitoring-00-00-69
+
+2010-03-12  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* fixed a small issue from valgrind
+	* InDetPerformanceMonitoring-00-00-68
+
+2010-03-12  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Fixed memory leak
+	* InDetPerformanceMonitoring-00-00-67
+
+2010-03-09  Weina Ji <weina.ji@cern.ch>
+	* Add a protection in jobOptions against calling TrigEffJpsiTools when rec.doMuon=False
+	* InDetPerformanceMonitoring-00-00-66
+
+2010-03-08  Sara Strandberg <sara.strandberg@cern.ch>
+	* Fixed segfault in IDPerfMonZee and IDPerfMonWenu
+	* InDetPerformanceMonitoring-00-00-65
+
+2009-02-24  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Removed a debugging statement
+	* InDetPerformanceMonitoring-00-00-64
+
+2009-02-23  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Fixed a bug in electron tool
+	* InDetPerformanceMonitoring-00-00-63
+
+2009-02-23  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* General improvments to electron tool
+	* InDetPerformanceMonitoring-00-00-62
+
+2009-02-16 Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* Added curly braces to MakeDiMuons to fix SL5 compilation warning
+	* InDetPerformanceMonitoring-00-00-61
+
+2009-02-12  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Added conversions to electron tool
+	* InDetPerformanceMonitoring-00-00-60
+
+2009-02-08  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Fixed a small bug in electron code
+	* Assigned tracks the pion mass
+	* Assigned jets the pion mass
+	* Changed default electron cuts to medium
+	* InDetPerformanceMonitoring-00-00-59
+
+2009-02-01  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Fixed bug in electron code
+	* InDetPerformanceMonitoring-00-00-58
+
+2009-01-29  Weina Ji <weina.ji@cern.ch>
+	* Added one dummy mass plot in each module that is to be scaled in the postprocessing
+	* Updated tag-and-probe method to extract tracking efficiency in IDPerfMonJpsi
+	* InDetPerformanceMonitoring-00-00-57
+
+2009-01-07  Weina Ji <weina.ji@cern.ch>
+	* Added some protections that only call TrigEffJpsiTools when rec.doTrigger = True
+	* InDetPerformanceMonitoring-00-00-56
+
+2009-01-05  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+	* Fixed a small bug
+	* InDetPerformanceMonitoring-00-00-55
+
+2009-12-18  Weina Ji <weina.ji@cern.ch>
+	* Added a protection in IDPerfMonJpsi in case of no trigger
+	* InDetPerformanceMonitoring-00-00-54
+
+2009-12-11  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+
+	* Switched to AntiKt Jets
+	* InDetPerformanceMonitoring-00-00-53
+2009-12-08  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+
+	* Switched from track particles to tracks
+	* InDetPerformanceMonitoring-00-00-52
+
+2009-12-03  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+
+	* Added tracks and jets
+	* InDetPerformanceMonitoring-00-00-51
+
+2009-11-06  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+
+	* Fixed job properties
+	* InDetPerformanceMonitoring-00-00-50
+
+2009-11-06  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+
+	* Fixed bug due to light-like lorentz vectors in Electron or Muon ESD Collection
+	* InDetPerformanceMonitoring-00-00-49
+
+2009-10-30  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+
+	* Fixed a small bug in TRT_Electron_Monitoring_Tool
+	* InDetPerformanceMonitoring-00-00-48
+
+2009-10-14  Benjamin Kaplan <benjamin.kaplan@yale.edu>
+
+	* Changed the TRT_Electron_Monitoring_Tool from a placeholder to a High Threshold Monitoring Tool
+	* Details of using this new package can be found at https://twiki.cern.ch/twiki/bin/view/Atlas/TRTDetectorMonitoring
+	* InDetPerformanceMonitoring-00-00-47
+
+2009-10-07  Weina Ji <weina.ji@cern.ch>
+
+	* Require minimum statistics to start likelihood fit in IDPerfMonKshort.cxx
+	* InDetPerformanceMonitoring-00-00-46
+
+2009-09-28  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Fix bug in Zmumu module: compile error in IDPerfMonZmumu.cxx
+	* InDetPerformanceMonitoring-00-00-45
+
+2009-09-11  Weina Ji <weina.ji@cern.ch>
+
+	* Several updates in IDPerfMonKshort, IDPerfMonJpsi and IDPerfMonUpsilon
+	* InDetPerformanceMonitoring-00-00-44
+
+2009-08-26  Weina Ji <weina.ji@cern.ch>
+
+	* Fix sumw2 warnings in IDPerfMonKshort and IDPerfMonJpsi
+	* InDetPerformanceMonitoring-00-00-43
+
+2009-08-10  Sara Strandberg  <sara.strandberg@cern.ch>
+
+	* Changed Zee and Wenu to have fewer histograms with sumw2.
+	* Fix name of met container in Wenu and removed the retrieval of the met container in Zee.
+
+2009-04-20 James Degenhardt <james.degenhardt@cern.ch>
+	*Fix TRT_Electron_Monitoring Steering JOs
+	* BUG 49326
+	InDetPerformanceMonitoring-00-00-42
+
+2009-02-23  Sara Strandberg  <sara.strandberg@cern.ch>
+
+	* Changed msg() to msg(MSG::LEVEL) in IDPerfMonKshort.cxx, IDPerfMonJpsi.cxx and IDPerfMonUpsilon.cxx.
+
+2009-02-19  Sara Strandberg  <sara.strandberg@cern.ch>
+
+	* Fix include in IDPerfMonWenu
+
+2009-02-11  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Bugs fixed by Sara and Kyle
+
+2009-01-22 Ben Cooper <b.d.cooper@qmul.ac.uk>
+	* Entry on behalf of Sara Strandberg
+	* Fixed bug in IDPerfMonZee
+	* tag as InDetPerformanceMonitoring-00-00-38
+
+2009-01-20 James Degenhardt <jdegenha@cern.ch>
+	* code clean up of electron monitoring tool
+	tag as InDetPerformanceMonitoring-00-00-37
+
+2009-01-13 James Degenhardt <jdegenha@cern.ch>
+	* add TRT_ElectronMonitoring_Tool
+	* tag as InDetPerformanceMonitoring-00-00-36
+
+2008-12-18  Tobias Golling  <TFGolling@lbl.gov>
+
+	* cleanup requirement file: remove data and joboptions declaration
+	* tag as InDetPerformanceMonitoring-00-00-35
+
+2008-12-03 Weina Ji <Weina.Ji@cern.ch>
+
+	* cmt/requirements: remove bad dependencies given by Checkreq test warnings
+	* tag InDetPerformanceMonitoring-00-00-34
+
+2008-10-13 Frederic Derue <derue@lpnhe.in2p3.fr>
+
+	* cmt/requirements: adapt for Reconstruction/egamma
+	* tag InDetPerformanceMonitoring-00-00-33
+
+2008-08-22  Tobias Golling  <TFGolling@lbl.gov>
+
+	* undo dynamic trigger lookup changes
+
+2008-08-21  Tobias Golling  <TFGolling@lbl.gov>
+
+	* use dynamic trigger lookup
+
+2008-07-31  Tobias Golling  <TFGolling@lbl.gov>
+
+	* fix Kshort for the case when V0Candidates not there
+
+2008-07-30  Tobias Golling  <TFGolling@lbl.gov>
+
+	* replace hardcoded names by InDetKeys
+
+	* return SUCCESS and DEBUG message if retrieve fails
+
+2008-07-29  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Introduce InDetKeys.V0Candidates(), fix V0Candidates ERROR message
+
+2008-07-23  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Fix order ot tools, algorithms, printout
+	* add initialize function
+
+2008-07-22  Tobias Golling  <TFGolling@lbl.gov>
+
+	* proper order to setup tools and algorithm in python (proposed by Wildauer)
+	* only do trigger-aware monitoring if monTrigDecTool known by ToolSvc
+
+2008-07-17  Tobias Golling  <TFGolling@lbl.gov>
+
+	* src/IDPerfMonUpsilon.cxx (fillHistograms) and JPsi: change MSG output
+
+2008-07-15  Tobias Golling  <TFGolling@lbl.gov>
+
+	* share/IDPerfMon_jobOptions.py: use monTrigDecTool
+
+2008-07-09 Andreas Wildauer
+
+	* removed V0 finder steering: monitoring must not reconfigure
+          settings of reco algorithms!!
+
+2008-06-24  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Fix V0Finder python settings
+
+2008-06-03  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Fix V0Finder python settings
+
+2008-05-19  Tobias Golling  <TFGolling@lbl.gov>
+
+	* fix Z->mumu module: put trigger back in
+
+2008-05-14  Tobias Golling  <TFGolling@lbl.gov>
+
+	* remove TrigDecisionMaker from jO
+
+2008-05-12  Tobias Golling  <TFGolling@lbl.gov>
+
+	* several instances of modules for different triggers
+
+2008-05-08  Tobias Golling  <TFGolling@lbl.gov>
+
+	* add trigger-aware monitoring
+
+2008-05-06  Tobias Golling  <TFGolling@lbl.gov>
+
+	* bug fix to requirements: remove "macro_append cppflags ""\ "
+
+2008-04-28  Tobias Golling  <TFGolling@lbl.gov>
+
+	* Check in for the first time: Zee, Wenu, Zmumu, Kshort, Jpsi, Upsilon
+
+2008-04-24  Atlas Librarian  <Atlas.Librarian@cern.ch>
+
+	* Creating package InDetPerformanceMonitoring

@@ -57,21 +57,37 @@ userUseLBselector = config.inputUseLBselector
 #  split the input file according to the lumiblocks      #
 ##########################################################
 initialLB = userFirstLB 
-finalLB = userFirstLB - 1# intialization
+finalLB = userFirstLB - 1 # intialization
 upperLB = finalLB+1 # maximum value, a value that allows to enter the loop
 if (userLastLB > 0): upperLB = userLastLB 
 ListOfDaughterFiles = []
 ListOfNFiles = []
 ListOfLBranges = []
 
-with open(userFile, 'rb') as inFile:
+#with open(userFile, 'rb') as inFile:
+if (debug): 
+    print " <LumiBlockIterator> going to split ",userFile," into groups of ", userNLB, " Lumiblocks, from ",finalLB," --> ",upperLB
+
+    #with open(userFile) as inFile:
+inFile = open(userFile)
+print " infile = ",inFile
+#with open("/afs/cern.ch/user/m/martis/mywork/data16_13TeV_20.7.5.7/InnerDetector/InDetExample/InDetAlignExample/datafiles/Run_297041.txt") as inFile:
+if (True):
+    if (debug):
+        " <LumiBlockIterator> input file is open... "
+        
     while (finalLB < upperLB and finalLB < userLastLB):
         initialLB = finalLB + 1 # go for next LB
         finalLB = initialLB + userNLB - 1 #to correct for the first one. This way one may do from 1 to 10 and so on 
         if (finalLB > userLastLB): finalLB = userLastLB
         # -- open output file
-        outputFileName = "SelectedLB_" + str(initialLB) + "_" + str(finalLB) + ".txt"
-        if ( userNLB == 1): outputFileName = "SelectedLB_" + str(initialLB) +  ".txt"
+        strInitialLB = str("%04d" %initialLB)
+        strFinalLB = str("%04d" %finalLB)
+        print " strInitialLB =", strInitialLB,"   strFinalLB =",strFinalLB 
+        #outputFileName = "SelectedLB_" + str(initialLB) + "_" + str(finalLB) + ".txt"
+        outputFileName = "SelectedLB_" + strInitialLB + "_" + strFinalLB + ".txt"
+        #if ( userNLB == 1): outputFileName = "SelectedLB_" + str(initialLB) +  ".txt"
+        if ( userNLB == 1): outputFileName = "SelectedLB_" + strInitialLB +  ".txt"
         outFile = open(outputFileName, 'w')
         writtenLines = 0
         
@@ -97,7 +113,6 @@ with open(userFile, 'rb') as inFile:
         ListOfLBranges.append(finalLB)
         
     print " <LumiBlockIterator> Lumiblock file splitting completed. In total ", len(ListOfDaughterFiles) ," daughter files with active LumiBlocks have been created"
-
 ##########################################################
 # Loop over the daughter files and submit the jobs       #
 ##########################################################

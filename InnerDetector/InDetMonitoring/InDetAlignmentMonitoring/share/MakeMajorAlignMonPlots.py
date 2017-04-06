@@ -57,8 +57,9 @@ def optParsing():
 	parser.add_option("--pdf", dest="inputPDF", help="output files saved as PDFs", action="store_true", default = False)
 	parser.add_option("--Prefix", dest="inputPrefix", help="prexif added to all output file names", default = "")
 	parser.add_option("--Pulls", dest="inputPulls", help="Do pulls plots for all systems and then layer by layer", action="store_true",default=False)
-	parser.add_option("--ResidualMaps", dest="inputResidualMaps", help="Do residuals plots for all systems layer by layer", action="store_true",default=False)
 	parser.add_option("--Residuals", dest="inputResiduals", help="Do residuals plots for all systems and then layer by layer", action="store_true",default=False)
+	parser.add_option("--ResidualMaps", dest="inputResidualMaps", help="Do residuals plots for all systems layer by layer", action="store_true",default=False)
+	parser.add_option("--Run2Paper", dest="inputRun2Paper", help="Plot the histograms for the Run2 paper", action="store_true", default=False)
 	parser.add_option("--Overlaps", dest="inputOverlaps", help="Do Overlap residuals plots for all systems and then layer by layer", action="store_true",default=False)
 	parser.add_option("--Script", dest="inputScript", help="The user may provie its own script", default="")
 	parser.add_option("--SetBatch", dest="inputSetBatch", help="When SetBatch is used histogram displays are not open", action="store_true", default=True)
@@ -105,7 +106,8 @@ userOuputFolder = config.outputFolder
 userCollectOutput = config.collectOutput and userPDF
 userWebMonitoring = config.WebMonitoring
 userCanvasText = config.canvasText.split()
-userPrefix = config.inputPrefix    
+userPrefix = config.inputPrefix
+userRun2Paper = config.inputRun2Paper    
 
 if (config.inputALL):
     userHitErrors = False
@@ -148,6 +150,7 @@ doIBL = False or userIBL
 doBeamSpot = False or userBeamSpot
 doResByModule = False or userResByModule
 doClusters = False or userClusters
+doRun2Paper = False or userRun2Paper
 
 print "\n ****************************"
 print " ** MakeMajorAlignMonPlots **"
@@ -233,6 +236,9 @@ if (doClusters): execfile("MakeClusterSizePlots.py")
 # Residuals module by module
 if (doResByModule): execfile("MakeResidualsPerModule.py") 
 
+# plots for Run2 paper
+if (doRun2Paper): execfile("MakeRun2PaperPlots.py")
+    
 #user script
 if (len(userScript)>0):
     if (os.path.isfile(userScript)):
