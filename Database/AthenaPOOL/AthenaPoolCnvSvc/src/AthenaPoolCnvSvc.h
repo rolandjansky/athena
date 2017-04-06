@@ -20,7 +20,6 @@
 
 #include <vector>
 #include <map>
-#include <mutex>
 
 // Forward declarations
 class IAthenaIPCTool;
@@ -247,10 +246,6 @@ private: // properties
    BooleanProperty m_skipFirstChronoCommit;
    /// bool to activate the chrono stats, depending on the m_skipFirstChronoCommit data member
    bool m_doChronoStat;
-
-   typedef std::recursive_mutex CallMutex;
-   mutable CallMutex m_i_mut;
-   mutable CallMutex m_o_mut;
 };
 
 #endif
