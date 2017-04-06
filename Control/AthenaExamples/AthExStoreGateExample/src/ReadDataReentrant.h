@@ -35,10 +35,8 @@ public:
   virtual StatusCode finalize() override final;
   
 private:
-  SG::UpdateHandleKey<MyDataObj> m_dobjKey3;
   SG::ReadHandleKey<DataVector<MyContObj> > m_cobjKey;
   SG::ReadHandleKey<std::vector<float> > m_vFloatKey;
-  //SG::ReadHandleKey<MyDataObj> m_nonexistingKey;
   SG::ReadHandleKey<std::list<ElementLink<std::vector<float> > > > m_pLinkListKey;
   SG::ReadHandleKey<std::vector<ElementLink<MapStringFloat> > > m_linkVectorKey;
   SG::ReadHandleKey<TestDataObject> m_testObjectKey;
