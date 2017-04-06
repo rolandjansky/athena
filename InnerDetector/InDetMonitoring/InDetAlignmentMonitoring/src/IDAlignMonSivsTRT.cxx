@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // **********************************************************************
 // IDAlignMonSivsTRT.cxx
 // AUTHORS: Ben Cooper
@@ -146,10 +142,10 @@ StatusCode IDAlignMonSivsTRT::bookHistograms()
 
   MonGroup al_mon ( this, "IDAlignMon/SivsTRT/" + m_triggerChainName, run );
 
-  if ( newLowStat || newLumiBlock ) {
+  if ( newLowStatFlag() || newLumiBlockFlag() ) {
   }
 
-  if( newRun ) { 
+  if( newRunFlag() ) { 
 
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job
@@ -543,7 +539,7 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
 StatusCode IDAlignMonSivsTRT::procHistograms()
 {
 
-  if( endOfLowStat || endOfLumiBlock ) {
+  if( endOfLowStatFlag() || endOfLumiBlockFlag() ) {
 
     //StatusCode sc = fillEfficiencyHisto(m_matched_eta0,m_trt_eta0,m_sieff_eta0);
     //if (sc.isFailure()) return StatusCode::SUCCESS;
@@ -561,7 +557,7 @@ StatusCode IDAlignMonSivsTRT::procHistograms()
     //if (sc.isFailure()) return StatusCode::SUCCESS;
   }
 
-  if( endOfRun ) { 
+  if( endOfRunFlag() ) { 
     
     StatusCode sc = fillEfficiencyProfileHisto(m_matched_eta0,m_trt_eta0,m_sieff_eta0);
     if (sc.isFailure()) return StatusCode::SUCCESS;

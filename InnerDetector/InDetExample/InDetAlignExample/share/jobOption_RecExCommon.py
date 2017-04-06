@@ -8,6 +8,7 @@ loadInDetRec_Options = {"detectorDescription" : ""
                         ,"numberOfEvents":30
                         ,"DigitalClustering":False
                         ,"useTRT": True
+                        ,"useDynamicAlignFolders": False
                         ,"GoodRunList":""
                         ,"inputFiles":["root://castoratlas//castor/cern.ch/atlas/atlascerngroupdisk/perf-idtracking/InDetRecExample/mc09_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e510_s624_s633_d287_tid112426_00/RDO.112426._000007.pool.root.1"]
                         ,"Cosmics":False
@@ -16,6 +17,8 @@ loadInDetRec_Options = {"detectorDescription" : ""
                         ,"projectName" : ""
                         ,"dataSource" : ""
                         ,"HeavyIons" : False
+                        ,"QuietBeams" : False
+                        ,"use50ns"    : False
                         }
 
 # If not defined the defaults given above are used
@@ -23,7 +26,9 @@ for var in loadInDetRec_Options:
   if var in dir():
     loadInDetRec_Options[var] = eval(var)
 
-print "Starting loadInDet_Rec"
+
+
+print " <jobOption_recExCommon> Starting loadInDet_Rec"
 
 #--------------------------------------------------------------
 # Import config
@@ -54,7 +59,7 @@ if not loadInDetRec_Options["realData"] and loadInDetRec_Options["Cosmics"]: # a
   jobproperties.Beam.energy.set_Value_and_Lock(0)
   jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50)
   
-if loadInDetRec_Options["HeavyIons"]:
+if loadInDetRec_Options["HeavyIons"] and loadInDetRec_Options["use50ns"]:
   jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50)
 else:
   jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25)
@@ -79,16 +84,18 @@ if len(loadInDetRec_Options["projectName"])!=0:
 
 
 if len(globalflags.ConditionsTag())!=0:
-  print "setting global tag"
-  print rec.projectName()
+  print " <jobOption_recExCommon>  rec.projectName() = ", rec.projectName()
   from IOVDbSvc.CondDB import conddb
   conddb.setGlobalTag(globalflags.ConditionsTag())
+  print " <jobOption_recExCommon>  setting global tag:", globalflags.ConditionsTag()
 
 import MagFieldServices.SetupField
 
 # --- number of events to process
 athenaCommonFlags.EvtMax     = int(loadInDetRec_Options["numberOfEvents"])
 athenaCommonFlags.SkipEvents = 0
+print " <jobOption_recExCommon>  EvtMax    = ",athenaCommonFlags.EvtMax
+print " <jobOption_recExCommon>  SkipEvents= ",athenaCommonFlags.SkipEvents
 
 doVP1 = False
 
@@ -171,7 +178,15 @@ if loadInDetRec_Options["HeavyIons"]:
 # --- For Commissioning phase
 #rec.Commissioning.set_Value_and_Lock     (True);  #should keep the InDet25nsec flag to False (check the implications). Relax max number of holes for the InDetTriggerTrackingCuts
 from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.InDet25nsec.set_Value_and_Lock(True)
+
+if loadInDetRec_Options["use50ns"]:
+  InDetFlags.InDet25nsec.set_Value_and_Lock(False)
+else:
+  InDetFlags.InDet25nsec.set_Value_and_Lock(True)
+
+#This i'm not 100% sure but I'll keep it off - PF
+InDetFlags.useBeamConstraint.set_Value_and_Lock      (False)
+
 
 
 # --- turn of calo stuff we don't need anyway
@@ -233,6 +248,11 @@ InDetFlags.doTruth.set_Value_and_Lock (False)
 
 #Anthony's recommendation: Is to load old SCT conditions. To be off >= M8
 #InDetFlags.ForceCoraCool.set_Value_and_Lock                        (True)
+
+if loadInDetRec_Options["useDynamicAlignFolders"]:
+  InDetFlags.useDynamicAlignFolders.set_Value_and_Lock             (True)
+else:
+  InDetFlags.useDynamicAlignFolders.set_Value_and_Lock             (False)
 
 # --- enable brem recovery
 InDetFlags.doBremRecovery.set_Value_and_Lock                       (False)
@@ -307,6 +327,11 @@ else:
 
 # --- if we are using ESD (make flag) // Revist later
 #InDetFlags.doPRDFormation = False
+
+# --- Quiet beams. If the SCT has 50V the following flag is needed to have hit on tracks 
+
+if loadInDetRec_Options["QuietBeams"]:
+  InDetFlags.doRobustReco.set_Value_and_Lock                          (True)
 
 # Only for Data
 

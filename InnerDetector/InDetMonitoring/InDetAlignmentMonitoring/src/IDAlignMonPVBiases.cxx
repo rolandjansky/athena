@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // **********************************************************************
 // IDAlignMonPVBiases.cxx
 // AUTHORS: Ambrosius  Vermeulen, Pierfrancesco Butti
@@ -153,6 +149,11 @@ void IDAlignMonPVBiases::InitializeHistograms() {
 
 	m_trkd0_wrtPV_vs_eta_10GeV_positive 		= 0;
   	m_trkd0_wrtPV_vs_eta_10GeV_negative 		= 0;
+
+       	/////////////////////////////////////////////////
+    	//////////Initialize map larger than 2GeV////////
+    	/////////////////////////////////////////////////
+	m_trkd0_wrtPV_vs_phi_vs_eta_2GeV      		= 0;
 } 
 
 
@@ -236,11 +237,11 @@ StatusCode IDAlignMonPVBiases::bookHistograms()
     //m_validationMode = false;
   }
 
-  if ( newLowStat ) {  
+  if ( newLowStatFlag() ) {  
   }
-  if ( newLumiBlock ) {  
+  if ( newLumiBlockFlag() ) {  
   }
-  if ( newRun ) {  
+  if ( newRunFlag() ) {  
 
     	//if user environment specified we don't want to book new histograms at every run boundary
     	//we instead want one histogram per job
@@ -400,6 +401,12 @@ StatusCode IDAlignMonPVBiases::bookHistograms()
 
 	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_10GeV_positive	);
 	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_10GeV_negative	);
+
+	/////////////////////////////////////////////////
+    	///////Define+register map larger than 2GeV//////
+    	/////////////////////////////////////////////////
+    	//TH3D for map 
+	m_trkd0_wrtPV_vs_phi_vs_eta_2GeV 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_2GeV"	, "d0 vs phi vs eta >2GeV; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
 	
 /*
     /////////////////////////////////////////////////
@@ -645,6 +652,12 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
 		if(m_charge==-1) m_trkd0_wrtPV_vs_eta_10GeV_negative->Fill(m_eta,myIPandSigma->IPd0);
 	}
 
+	if(pt>2) {
+		//Fill TH3D vs phi vs eta
+		if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_2GeV->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_2GeV->Fill(m_phi,m_eta,-myIPandSigma->IPd0);
+        }
+
 	/******************************************************************
   	** Divide in barrel, eca, ecc
   	*******************************************************************/
@@ -743,11 +756,11 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
 
 StatusCode IDAlignMonPVBiases::procHistograms()
 {
-  if( endOfLowStat ) {
+  if( endOfLowStatFlag() ) {
   }
-  if( endOfLumiBlock ) {
+  if( endOfLumiBlockFlag() ) {
   }
-  if( endOfRun ) {
+  if( endOfRunFlag() ) {
 
   }
  

@@ -1,98 +1,129 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
- #include <iostream>
+#include <iostream>
 #include <string>
 #include <list>
 #include "TROOT.h"
+#include "TStyle.h"
 #include "ZmumuValidationExample.cxx"
+#include "userFiles.C"
 
-void run_ZmumuValidationExample(Int_t nIterationsUserInput=20)
+void run_ZmumuValidationExample(Int_t nIterationsUserInput=1, Int_t sampletype = ZmumuValidationExample::ZSAMPLE, Int_t analysismode = ZmumuValidationExample::ANALYSIS_SAGITTADIST)
 {
+  gStyle->SetPalette(1);
 
-   //////////////////////////////////
-   // compile ZmumuValidationExample
-   //////////////////////////////////
+  //////////////////////////////////
+  // compile ZmumuValidationExample
+  //////////////////////////////////
   //  gROOT->ProcessLine(".L ZmumuValidationExample.cxx+");
+  
+  /////////////////////////////////////////
+  // define list of files to be analysed
+  /////////////////////////////////////////
+  std::list <std::string > s_fileNames;
+  
+  string output_dir = "./";
+  string output_file_name = "ZmumuValidationExampleOutput.root";
 
-   /////////////////////////////////////////
-   // define list of files to be analysed
-   /////////////////////////////////////////
-   std::list <std::string > s_fileNames;
+  string output_tag = "initial_00302872"; 
+  string output_tag_mod = "initial_00302872";
+  string tree_name = "Default_InDetTrackParticle";
+  //string tree_name = "TruthParams";
+  //string tree_name = "Refit1_SiAndTRT";
+  //string tree_name = "Refit2_SiOnly";
+  //string tree_name = "Refit1Params"; 
+  //string tree_name = "Refit2Params"; // Silicon only tracks (PIX+SCT)
+  //string tree_name = "Default_InDetTrackParticle"; // 
 
-   string output_dir = "./";
-   string output_file_name = "ZmumuValidationExampleOutput.root";
+  
+   s_fileNames = userFiles();
+
+   //MC
+   //   string output_tag = "TrackingCP.nom.r6588.";  s_fileNames.push_back("../nomZmumuMC/r6588/MergedZmumuValidation_nom.root");
+   //   string output_tag = "TrackingCP.nom.r6939.";  s_fileNames.push_back("../nomZmumuMC/r6939/MergedZmumuValidation_nom.root");
 
 
-   //test files
-   //s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.data11_7TeV.periodM2.physics_Muons.PhysCont.DESD_ZMUMU.t0pro09_v01.ZmumuValidationTest");
-   //s_fileNames.push_back("/home/stahlman/testarea/AlignmentDev/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/ZmumuValidationOut.root");
-
-   //190608_191239 tag validation
-   //string output_tag = "190608_191239"; s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.data11_7TeV.190608_191239.physics_Muons.recon.DESD_ZMUMU.f411_m716_f411.ZmumuTuple.v1");
-
-   //189598_189845 tag validation
-   //string output_tag = "189598_189845"; s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.data11_7TeV.189598_189845.physics_Muons.recon.DESD_ZMUMU.f406_m716_f406.ZmumuTuple");
-
-   //2012 Period A
-   string output_tag = "PeriodA";
-   //   s_fileNames.push_back("/afs/cern.ch/user/s/sthenkel/work/A20ProjectArea/Validation/Zmumu/local/0/ZmumuValidationOut.root");
-   s_fileNames.push_back("/afs/cern.ch/user/s/sthenkel/eos/atlas/user/s/sthenkel/ProcessedOutput/Zmumu_BS_mig/user.sthenkel.t12.valid1.167824.Sherpa_CT10_ZmumuMassiveCBPt280_500_BFilter.ESD.e3099_s1982_s1964_r6006_ZmumuValidation/mergedOutput/MergedZmumuValidation.root");
-   /*
-   s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.data12_8TeV.periodA3.physics_Muons.PhysCont.DESD_ZMUMU.t0pro12_v01.ZmumuTuple.v1.120427142453");
-   s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.data12_8TeV.periodA3.physics_Muons.PhysCont.DESD_ZMUMU.t0pro12_v01.ZmumuTuple.v1.12042714251
-0");
-   s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.data12_8TeV.periodA3.physics_Muons.PhysCont.DESD_ZMUMU.t0pro12_v01.ZmumuTuple.v1.120427142526");
-   s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.data12_8TeV.periodA4.physics_Muons.PhysCont.DESD_ZMUMU.t0pro12_v01.ZmumuTuple.v1.120427142559");
-   s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.data12_8TeV.periodA4.physics_Muons.PhysCont.DESD_ZMUMU.t0pro12_v01.ZmumuTuple.v1.120427142622");
-   s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.data12_8TeV.periodA4.physics_Muons.PhysCont.DESD_ZMUMU.t0pro12_v01.ZmumuTuple.v1.120427142644");
-   s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.data12_8TeV.periodA4.physics_Muons.PhysCont.DESD_ZMUMU.t0pro12_v01.ZmumuTuple.v1.120427142704");
-   s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.data12_8TeV.periodA4.physics_Muons.PhysCont.DESD_ZMUMU.t0pro12_v01.ZmumuTuple.v1.120427142729");
-   s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.data12_8TeV.periodA4.physics_Muons.PhysCont.DESD_ZMUMU.t0pro12_v01.ZmumuTuple.v1.120427142756");
-   s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.data12_8TeV.periodA4.physics_Muons.PhysCont.DESD_ZMUMU.t0pro12_v01.ZmumuTuple.v1.120427142818");
-   s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.data12_8TeV.periodA5.physics_Muons.PhysCont.DESD_ZMUMU.t0pro12_v01.ZmumuTuple.v1.120427142854");
-   s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.data12_8TeV.periodA6.physics_Muons.PhysCont.DESD_ZMUMU.t0pro12_v01.ZmumuTuple.v1.120427142940");
-   s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.data12_8TeV.periodA7.physics_Muons.PhysCont.DESD_ZMUMU.t0pro12_v01.ZmumuTuple.v1.120427143018");
-   s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.data12_8TeV.periodA7.physics_Muons.PhysCont.DESD_ZMUMU.t0pro12_v01.ZmumuTuple.v1.120427143034");
-   */
-
-   //MC validation study - big ZDeltaPhi
-   //string output_tag = "ZDeltaPhi_01";  s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.mc10_7TeV.106047.PythiaZmumu_no_filter.recon.ESD.e574_s933_s946_r2425.ZmumuTuple.ZDeltaPhi_01.v4.120326010304");
-
-   //MC validation study - small ZDeltaPhi
-   //string output_tag = "ZDeltaPhi_02";  s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.mc10_7TeV.106047.PythiaZmumu_no_filter.recon.ESD.e574_s933_s946_r2425.ZmumuTuple.ZDeltaPhi_02.v1.120403101909");
-
-   //MC validation study - RDeltaPhi
-   //string output_tag = "RDeltaPhi_01";  s_fileNames.push_back("/local_data0/stahlman/data/ZmumuValidation/user.stahlman.mc10_7TeV.106047.PythiaZmumu_no_filter.recon.ESD.e574_s933_s946_r2425.ZmumuTuple.RDeltaPhi_01.v4.120326010436");
+   // string output_tag = "GRL_v69_All_Good_subset_FromPeriodG"; s_fileNames.push_back("../NomWithGRL_FromPeriodG/MergedZmumuValidation.root");
+   //      string output_tag = "GRL_v69_All_Good_subset_FromPeriodG_WithAlignConstEP"; s_fileNames.push_back("../NomWithGRL_WithAlignConstEP_FromPeriodG/MergedZmumuValidation.root");
+   //     string output_tag = "ZmumuMC15a"; s_fileNames.push_back("../NomZmumuMC/MergedZmumuValidation_nom.root");
 
    /////////////////////////////////////////////////
    //define job parameters and run
    /////////////////////////////////////////////////
-   int nIterations = 5; if (nIterationsUserInput > 0) nIterations = nIterationsUserInput;
-   int nEvents = 0;
-   bool isMC = false;
+   int nIterations = 1; if (nIterationsUserInput > 0) nIterations = nIterationsUserInput;
+   int nEvents = 100000000;
+   //nEvents = 10000;
+   bool isMC = false; //for IPResolStudies this option must be set hard-coded in the IPResolStudies.C for the time being, leaving this flag to false even if it is MC in that case
+      
+   std::vector <double> Jpsi1SMCbias (1); //makes a 1-component vector initialized with zero value at component zero, the mc bias will be filled from the first component on with push_back method
 
-   //string tree_name = "DefaultParams";
-   string tree_name = "Refit1Params";
+   // string tree_name = "IDPerfMon/Kshort/NoTriggerSelection/DefaultParams";
+   //string tree_name = "DefaultParams"; // combined tracks
+   //string tree_name = "Refit1Params"; // ID tracks (PIX+SCT+TRT)
+   //string tree_name = "Refit2Params"; // Silicon only tracks (PIX+SCT)
 
-   string output_tag_mod = "";
+
+   //string output_tag_mod = "epsilonm001_6_eta_3_phi_30iter";
+   //string output_tag_mod = "upsilonmc_1eta_1phi";
    //string output_tag_mod = "ZScaleUp500.";
    //string output_tag_mod = "ZScaleDn500.";
 
-   string output_file = Form("%sZmumuValidationExampleOutput.%s.%s.%s%s.root", output_dir.c_str(), (isMC ? "MC":"Data"), output_tag.c_str(), output_tag_mod.c_str(), tree_name.c_str());
+   string output_file = "ZmumuValidationExampleOutput_test.root";
+   //string output_file = Form("%sZmumuValidationExampleOutput.%s.%s.%s%s.root", output_dir.c_str(), (isMC ? "MC":"Data"), output_tag.c_str(), output_tag_mod.c_str(), tree_name.c_str());
+
+   //output_file = Form("%sZmumuValidationExampleOutput_Zmumu_2016_10x9.root",output_dir.c_str());
+   //   output_file = Form("%sZmumuValidationExampleOutput_jpsitest40x40.root",output_dir.c_str());
 
    ZmumuValidationExample myZmumuValidationExample(s_fileNames, tree_name, output_file, isMC);
+   myZmumuValidationExample.SetSampleType(sampletype);
+   myZmumuValidationExample.SetAnalysisType(analysismode);
    myZmumuValidationExample.SetPrintLevel(0);
-   myZmumuValidationExample.SetEtaBins(10);
-   myZmumuValidationExample.SetPhiBins(10);
+   myZmumuValidationExample.SetEtaBins(6); 
+   myZmumuValidationExample.SetPhiBins(6);
+   myZmumuValidationExample.SetUserIteration(nIterations);
+   // detector deformations / alignment weak modes
+   myZmumuValidationExample.ApplyBFieldRotationTest(false);
+   myZmumuValidationExample.ApplyEndcapExpansion(true);
+   myZmumuValidationExample.ApplyRadialDeformation(false);
+   myZmumuValidationExample.ApplySagittaHistogramTest(false);
+   myZmumuValidationExample.ApplyTelescopeDeformation(false);
+   // invariant mass fit
+   myZmumuValidationExample.FitPositiveAndNegativeMuon(false);
+   // delta sagitta comparing pt spectrum of mu+ and mu-
+   myZmumuValidationExample.RunDeltaSagittaFitter(false);
+   // Impact parameter resolution studies
+   myZmumuValidationExample.RunIPResolStudies(false);
+  
+    
+   if (sampletype == ZmumuValidationExample::JPSISAMPLE) {
+     myZmumuValidationExample.SetEtaBins(12);
+     myZmumuValidationExample.SetPhiBins(8); 
+     Jpsi1SMCbias.push_back(0);  //eta 1, phi 1
+     myZmumuValidationExample.SetMCbias(Jpsi1SMCbias);
+     myZmumuValidationExample.SetMCbias(sampletype); // in MeV
+   }
+   if (sampletype == ZmumuValidationExample::UPSILONSAMPLE) {
+     myZmumuValidationExample.SetEtaBins(3);
+     myZmumuValidationExample.SetPhiBins(2);
+     Jpsi1SMCbias.push_back(0);  //eta 1, phi 1
+     myZmumuValidationExample.SetMCbias(sampletype); // in MeV
+   }
+   if (sampletype == ZmumuValidationExample::DIMUONSAMPLE) {
+     myZmumuValidationExample.SetEtaBins(1);
+     myZmumuValidationExample.SetPhiBins(1);
+   }
+   if (sampletype == ZmumuValidationExample::KSHORTSAMPLE) {
+     myZmumuValidationExample.SetEtaBins(1);
+     myZmumuValidationExample.SetPhiBins(1);
+   }
+
    myZmumuValidationExample.bookHistograms();
+   myZmumuValidationExample.configurationReport();
+
 
    for (int i = 0; i < nIterations; i++) {
      std::cout<< endl << " ==== ZmumuValidation ==== starting iteration "<< i+1 <<" of " << nIterations<< std::endl;
      myZmumuValidationExample.loop(nEvents);
    }
-
+   
    myZmumuValidationExample.writeToFile(0);
    myZmumuValidationExample.DrawMap();
 

@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 # =====================================================================
 #
 #  Class for local processing
@@ -663,10 +661,12 @@ class mergeScript:
         else:
             script.write("source %s/scripts/asetup.sh %s --testarea=%s --tags=%s \n" % (self.ATHENACFG.AtlasSetupPath(),self.ATHENACFG.Release(),self.ATHENACFG.TestArea(), self.ATHENACFG.Tags()))
         script.write("cd %s/Iter%d%s/ \n" % (self.OutputPath,self.i,self.folderSuffix))
-        script.write("DQHistogramMerge.py %s %s/TotalMonitoring.root True\n" %(mergeFilesName,self.dataName))
+        script.write("DQHistogramMerge.py %s TotalMonitoring.root True\n" %(mergeFilesName))
         script.write("cd - \n")
+        script.write("if [ -e %s/Iter%d%s/TotalMonitoring.root ] ; then\n" % (self.OutputPath, self.i, self.folderSuffix) )
         for subJob in range(self.nCPUs):
-            script.write("rm %s/Iter%d%s/%s/%02d/monitoring.root \n" % (self.OutputPath,self.i,self.folderSuffix,self.dataName,subJob))
+            script.write("  rm %s/Iter%d%s/%s/%02d/monitoring.root \n" % (self.OutputPath,self.i,self.folderSuffix,self.dataName,subJob))
+        script.write("fi\n")
         script.close()
         
         mergeFiles=open(mergeFilesName,"w")

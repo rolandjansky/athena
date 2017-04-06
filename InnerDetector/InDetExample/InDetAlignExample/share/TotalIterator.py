@@ -30,6 +30,8 @@ def optParsing():
     parser.add_option("--nIter",dest="inputnIter", help="Number of iterations to be executed", default = "1")
     parser.add_option("--queue",dest="inputQueue", help="name of the LSF queue were jobs will be submitted", default="")
     parser.add_option("--suffix",dest = "inputSuffix", help = " Suffix for the jobs", default ="")
+    parser.add_option("--siAlignmentTag",dest="siAlignmentTag", help="specify which alignment tag from the DB to be used for the silicon part", default="")
+    parser.add_option("--trtAlignmentTag",dest="trtAlignmentTag", help="specify which alignment tag from the DB to be used for the trt part", default="")
     parser.add_option("--useLBselector", dest = "inputUseLBselector", help = "If True use the athena LB selector. If false, file list is split by LB.",action="store_true", default=False) 
     
     (config, sys.argv[1:]) = parser.parse_args(sys.argv[1:])
@@ -57,11 +59,9 @@ userSuffix = str(config.inputSuffix)
 userUseLBselector = config.inputUseLBselector
 usernIter = str(config.inputnIter)
 userQueue = str(config.inputQueue)
+userSiAlignmentTag = config.siAlignmentTag
+userTRTAlignmentTag = config.trtAlignmentTag
 
-multiplicativeFactor = 1
-
-if (userUseLBselector):
-    multiplicativeFactor = 3
 
 
 
@@ -129,9 +129,7 @@ execCommandOptions = ""
 execCommandOptions1 = ""
 execCommandOptions2 = "" # input bowing file
 execCommandOptions3 = "" # for LB selections
-
-outcommandFile = open("CommandsFile.txt","w")
-
+execCommandOptions4 = "" # for si and TRT input tags
 
 if (len(userConstantsFile)>0): execCommandOptions1 = execCommandOptions1 + " --inputConstantsFile " + userConstantsFile
 if (len(userErrorScalingTag)>0): execCommandOptions1 = execCommandOptions1 + " --errorScalingTag " + userErrorScalingTag
@@ -150,13 +148,12 @@ if (len(usernCpus)>0): execCommandOptions0 = execCommandOptions0 + " --nCpus " +
 if (len(usernIter)>0): execCommandOptions0 = execCommandOptions0 + " --nIter " +  str(usernIter)
 if (len(userQueue)>0): execCommandOptions0 = execCommandOptions0 + " --queue " +  str(userQueue)
     
-
-execCommandOptions = execCommandOptions0 + execCommandOptions1 + execCommandOptions2 + execCommandOptions3
+if (len(userSiAlignmentTag)>0): execCommandOptions4 = execCommandOptions4 + " --siAlignmentTag " + str(userSiAlignmentTag)
+if (len(userTRTAlignmentTag)>0): execCommandOptions4 = execCommandOptions4 + " --trtAlignmentTag " + str(userTRTAlignmentTag)
+    
+execCommandOptions = execCommandOptions0 + execCommandOptions1 + execCommandOptions2 + execCommandOptions3 + execCommandOptions4
 
 if (debug): print " <LumiBlockIterator> execCommandOptions = ", execCommandOptions 
-
-outcommandFile.write("python RunIterator_L11.py "+execCommandOptions+"\n\n\n\n")
-
 os.system("python RunIterator_L11.py "+execCommandOptions)
 
 lastIterID = int(usernIter)-1
@@ -178,6 +175,8 @@ if len(ListOfDaughterFiles) > 0:
     execCommandOptions1 = ""
     execCommandOptions2 = "" # input bowing file
     execCommandOptions3 = "" # for LB selections
+    execCommandOptions4 = "" # for si and TRT input tags
+
 
     # as input constants file one should use the L11 results
     if (len(userConstantsFile)>0): execCommandOptions1 = execCommandOptions1 + " --inputConstantsFile " + userConstantsFile
@@ -201,8 +200,9 @@ if len(ListOfDaughterFiles) > 0:
         execCommandOptions0 = execCommandOptions0 + " --suffix " + theTail
 
         thisnCpus = usernCpus
+        #thisnCpus = int(usernCpus)*len(ListOfDaughterFiles)
         #if (ListOfNFiles[subJob] < usernCpus): thisnCpus = ListOfNFiles[subJob] 
-        if (len(usernCpus)>0): execCommandOptions0 = execCommandOptions0 + " --nCpus " +  str( int(thisnCpus) * multiplicativeFactor)
+        if (len(usernCpus)>0): execCommandOptions0 = execCommandOptions0 + " --nCpus " +  str(thisnCpus)
         if (len(usernIter)>0): execCommandOptions0 = execCommandOptions0 + " --nIter " +  str(usernIter)
         if (len(userQueue)>0): execCommandOptions0 = execCommandOptions0 + " --queue " +  str(userQueue)
 
@@ -212,17 +212,20 @@ if len(ListOfDaughterFiles) > 0:
         firtLB = ListOfLBranges[thisfile*2]
         lastLB = ListOfLBranges[thisfile*2+1]
         if (userUseLBselector): execCommandOptions3 =  " --LBrangeFirst " + str(firtLB) + " --LBrangeLast " + str(lastLB)
-        
+            
+        if (len(userSiAlignmentTag)>0): execCommandOptions4 = execCommandOptions4 + " --siAlignmentTag " + str(userSiAlignmentTag)
+        if (len(userTRTAlignmentTag)>0): execCommandOptions4 = execCommandOptions4 + " --trtAlignmentTag " + str(userTRTAlignmentTag)
+
+            
         # build the command options for RunIterator
-        execCommandOptions = execCommandOptions0 + execCommandOptions1 + execCommandOptions2 + execCommandOptions3
+        execCommandOptions = execCommandOptions0 + execCommandOptions1 + execCommandOptions2 + execCommandOptions3 + execCommandOptions4
 
         if (debug): print " <LumiBlockIterator> execCommandOptions = ", execCommandOptions 
-        outcommandFile.write("python RunIterator_L16.py "+execCommandOptions+" &"+"\n\n\n\n\n\n")
         os.system("python RunIterator_L16.py "+execCommandOptions+" &")
 
         subJob += 1
         thisfile += 1
 
-        os.system("sleep 2")
-outcommandFile.close()
+        os.system("sleep 4")
+        
 exit()    

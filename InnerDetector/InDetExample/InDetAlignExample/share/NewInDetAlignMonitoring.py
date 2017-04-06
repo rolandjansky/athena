@@ -30,6 +30,7 @@ tracks = "ExtendedTracks"
 if Cosmics:
     tracks = "CombinedInDetTracks"
     trackCollections = [tracks]
+    print " <NewinDetAlignMonitoring> Cosmics = True --> set tracks to CombinedInDetTracks "
 
 # if we're running Si only (TRT is off) we need to use different track collection
 if not newInDetAlignAlg_Options["useTRT"]:
@@ -141,8 +142,24 @@ if newInDetAlignAlg_Options["useTrackSelector"]:
 from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonResiduals
 from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonGenericTracks
 from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonEfficiencies
+from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonPVBiases
 
-print " <NewInDetAlignMonitoring> setting up " 
+print " <NewInDetAlignMonitoring> setting up for the following track collections:"
+count = 0
+for trackCollection in trackCollections:
+    count += 1
+    print "      - collection %d/%d = %s" %(count,len(trackCollections), trackCollection)
+
+InDetAlignMonPVBiases = IDAlignMonPVBiases (
+    name = "InDetAlignMonPVBiases_"+trackCollection,
+    trackSelection = allSelection,
+    tracksName = "InDetTrackParticles",
+    triggerChainName = "all",
+    VxPrimContainerName = InDetKeys.xAODVertexContainer()
+)
+ToolSvc += InDetAlignMonPVBiases
+InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonPVBiases ]
+ 
 for trackCollection in trackCollections:
     # Selected tracks
     print " <NewInDetAlignMonitoring> (type 1) Loading monitor for track Collection", trackCollection, " selection", allSelection.name
@@ -150,9 +167,9 @@ for trackCollection in trackCollections:
         name = "InDetAlignMonResiduals_"+trackCollection,
         trackSelection = allSelection,
         tracksName = trackCollection,
-        useExtendedPlots = True,
-        doIBLLBPlots = True,
-        doClusterSizeHistos = True,
+        useExtendedPlots = False,
+        doIBLLBPlots = False,
+        doClusterSizeHistos = False,
         triggerChainName = "all",
         Pixel_Manager = InDetKeys.PixelManager(),
         SCT_Manager = InDetKeys.SCT_Manager(),
@@ -177,7 +194,7 @@ for trackCollection in trackCollections:
         name = "InDetAlignMonGenericTracks_"+trackCollection,
         trackSelection = allSelection,
         tracksName = trackCollection,
-        useExtendedPlots = True,
+        useExtendedPlots = False,
         doIP = False,
         #doIPmaps = True,
         triggerChainName = "all",
@@ -214,20 +231,21 @@ if True:
         name = "InDetAlignMonResiduals_LoosePrimary",
         trackSelection = LPSelection,
         tracksName = "ExtendedTracks",
-        useExtendedPlots = True,
-        doClusterSizeHistos = True,
+        useExtendedPlots = False,
+        doClusterSizeHistos = False,
         triggerChainName = "LoosePrimary",
         Pixel_Manager = InDetKeys.PixelManager(),
         SCT_Manager = InDetKeys.SCT_Manager(),
         TRT_Manager = InDetKeys.TRT_Manager(),
-        minPIXResXFillRange = -0.4,
-        maxPIXResXFillRange =  0.4,
-        minPIXResYFillRange = -0.80,
-        maxPIXResYFillRange =  0.80,
-        minSCTResFillRange  = -0.4,
-        maxSCTResFillRange =   0.4,
-        minTRTResidualWindow =-2.5,
-        maxTRTResidualWindow = 2.5,
+        minPIXResXFillRange = -0.1,
+        maxPIXResXFillRange =  0.1,
+        minPIXResYFillRange = -0.5,
+        maxPIXResYFillRange =  0.5,
+        minSCTResFillRange  = -0.2,
+        maxSCTResFillRange =   0.2,
+        minTRTResidualWindow =-0.6,
+        maxTRTResidualWindow = 0.6,
+        FinerBinningFactor   = 2,
         NSplitMap  = 1,
         RangeOfPullHistos  =   5.0
         )
@@ -240,7 +258,7 @@ if True:
         name = "InDetAlignMonGenericTracks_LoosePrimary",
         trackSelection = LPSelection,
         tracksName = "ExtendedTracks",
-        useExtendedPlots = True,
+        useExtendedPlots = False,
         triggerChainName = "LoosePrimary",
         d0Range = 5,
         z0Range = 200,
@@ -278,8 +296,8 @@ if newInDetAlignAlg_Options["useTrackSelector"]:
         name = "InDetAlignMonResiduals_"+tracks+"_sel",
         trackSelection = alignTrackSelection,
         tracksName = tracks,
-        useExtendedPlots = True,
-        doClusterSizeHistos = True,
+        useExtendedPlots = False,
+        doClusterSizeHistos = False,
         triggerChainName = "alignSelection",  
         Pixel_Manager = InDetKeys.PixelManager(),
         SCT_Manager = InDetKeys.SCT_Manager(),
@@ -304,7 +322,7 @@ if newInDetAlignAlg_Options["useTrackSelector"]:
         name = "InDetAlignMonGenericTracks_"+tracks+"_sel",
         trackSelection = alignTrackSelection,
         tracksName = tracks,
-        useExtendedPlots = True,
+        useExtendedPlots = False,
         triggerChainName = "alignSelection",
         #doIPmaps = True,
         VxPrimContainerName = InDetKeys.PrimaryVertices()
@@ -353,10 +371,10 @@ if not Cosmics:
 #RefitTrackCollections= ["SelectedMuonsRefit1","SelectedMuonsRefit2"]
 #RefitTrackSelector  = InDet__InDetDetailedTrackSelectorTool(
 #   name= "RefitTrackSelector",
-#   OutputLevel=INFO,
 #   TrackSummaryTool=InDetTrackSummaryTool,
 #   pTMin = 10000.,
 #   IPd0Max = 500.,
+#   OutputLevel=INFO,
 #   IPz0Max = 500.,
 #   nHitPix = 1,
 #   nHitPixPhysical = 1,
@@ -458,17 +476,18 @@ if Cosmics:
     for i in range(len(m_alignMonTrackSelectionToolName)):
         print " <NewInDetAlignMonitoring> step ",i," --> setting track selector:", m_trackSelectorToolName[i]    
         m_alignMonTrackSelectorTool.append(InDet__InDetDetailedTrackSelectorTool(name            = m_trackSelectorToolName[i],
-                                                                                pTMin           = 2000,#1 GeV
-                                                                                IPd0Max       = 1000.0,#no cut on d0 yet
-                                                                                IPz0Max       = 1200.0,#actual cut is on sin(theta)*z0
-                                                                                nHitBLayer     = m_nHitBLayer[i],
-                                                                                nHitPix       = m_nHitPix[i],
-                                                                                nHitSct       = m_nHitSct[i],
-                                                                                nHitSi         = 0,
-                                                                                nHitTrt       = m_nHitTrt[i],
-                                                                                nSharedSct     = 0,
-                                                                                TrackSummaryTool = InDetTrackSummaryTool,
-                                                                                Extrapolator     = InDetExtrapolator))
+                                                                                 OutputLevel=INFO,
+                                                                                 pTMin           = 2000,#1 GeV
+                                                                                 IPd0Max       = 1000.0,#no cut on d0 yet
+                                                                                 IPz0Max       = 1200.0,#actual cut is on sin(theta)*z0
+                                                                                 nHitBLayer     = m_nHitBLayer[i],
+                                                                                 nHitPix       = m_nHitPix[i],
+                                                                                 nHitSct       = m_nHitSct[i],
+                                                                                 nHitSi         = 0,
+                                                                                 nHitTrt       = m_nHitTrt[i],
+                                                                                 nSharedSct     = 0,
+                                                                                 TrackSummaryTool = InDetTrackSummaryTool,
+                                                                                 Extrapolator     = InDetExtrapolator))
         ToolSvc += m_alignMonTrackSelectorTool[i]
         if (InDetFlags.doPrintConfigurables()):
             print m_alignMonTrackSelectorTool[i]
@@ -553,8 +572,8 @@ if Cosmics:
             name = "InDetAlignMonResiduals_"+trackCollection,
             trackSelection = allSelection,
             tracksName = trackCollection,
-            useExtendedPlots = True,
-            doClusterSizeHistos = True,
+            useExtendedPlots = False,
+            doClusterSizeHistos = False,
             triggerChainName = "all",
             Pixel_Manager = InDetKeys.PixelManager(),
             SCT_Manager = InDetKeys.SCT_Manager(),
@@ -581,7 +600,7 @@ if Cosmics:
             name = "InDetAlignMonGenericTracks_"+trackCollection,
             trackSelection = allSelection,
             tracksName = trackCollection,
-            useExtendedPlots = True,
+            useExtendedPlots = False,
             triggerChainName = "all",
             #doIPmaps = True,
             d0Range = 5,
@@ -621,8 +640,8 @@ if Cosmics:
             name = "InDetAlignMonResiduals_"+trackCollection,
             trackSelection = allSelection,
             tracksName = trackCollection,
-            useExtendedPlots = True,
-            doClusterSizeHistos = True,
+            useExtendedPlots = False,
+            doClusterSizeHistos = False,
             triggerChainName = "all",
             Pixel_Manager = InDetKeys.PixelManager(),
             SCT_Manager = InDetKeys.SCT_Manager(),
@@ -649,7 +668,7 @@ if Cosmics:
             name = "InDetAlignMonGenericTracks_"+trackCollection,
             trackSelection = allSelection,
             tracksName = trackCollection,
-            useExtendedPlots = True,
+            useExtendedPlots = False,
             triggerChainName = "all",
             d0Range = 5,
             z0Range = 200,

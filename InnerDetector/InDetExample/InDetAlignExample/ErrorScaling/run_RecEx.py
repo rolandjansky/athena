@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 #This is a python script, not an athena jobOptions file
 # Ravi Shekhar <ravi.shekhar@duke.edu>
 
@@ -45,7 +43,7 @@ def submitjobs(prefix, nSegments, estag,queue, args):
 
     #we build a dictionary with 'definitions'. These are then substituted into
     vals = {}
-    vals['releasetag'] = '20.1.5.8'
+    vals['releasetag'] = '21.0.8'
     vals['nSegments'] = nSegments
     vals['eso'] = estag #error scaling override
     vals['joboptions'] = ' '.join(args[0:])
@@ -68,11 +66,12 @@ def submitjobs(prefix, nSegments, estag,queue, args):
         a = Popen("ln -s " + cwd + "/jobOptionsRAW.py " +  ("%s/%02d" % (prefix, i)) + "/jobOptionsRAW.py", shell=True)
         a = Popen("ln -s " + cwd + "/jobOptionsESD.py " +  ("%s/%02d" % (prefix, i)) + "/jobOptionsESD.py", shell=True)
         a = Popen("ln -s " + cwd + "/jobOptionsESD_Run2.py " +  ("%s/%02d" % (prefix, i)) + "/jobOptionsESD_Run2.py", shell=True)
+        a = Popen("ln -s " + cwd + "/jobOptionsRAW_Run2.py " +  ("%s/%02d" % (prefix, i)) + "/jobOptionsRAW_Run2.py", shell=True)
         a = Popen("ln -s " + cwd + "/InDetMonitoringAlignment.py " +  ("%s/%02d" % (prefix, i)) + "/InDetMonitoringAlignment.py", shell=True)
         #a = Popen("ln -s " + cwd + "/ReadInDet_jobOptions.py " + ("%s/%02d" % (prefix, i)) + "/ReadInDet_jobOptions.py", shell=True)
         a = Popen("ln -s " + cwd + "/jobOptionsAlignmentSet.py " + ("%s/%02d" % (prefix, i)) + "/jobOptionsAlignmentSet.py", shell=True)
         a = Popen("ln -s " + cwd + "/jobOptionsErrorTuning.py " + ("%s/%02d" % (prefix, i)) + "/jobOptionsErrorTuning.py", shell=True)
-        a = Popen("ln -s " + cwd + "/MisalignmentSet2.pool.root " + ("%s/%02d" % (prefix, i)) + "/MisalignmentSet2.pool.root", shell=True)
+        #a = Popen("ln -s " + cwd + "/MisalignmentSet2.pool.root " + ("%s/%02d" % (prefix, i)) + "/MisalignmentSet2.pool.root", shell=True)
         
         #wait for command to finish, get the return code rc
         rc = os.waitpid(a.pid, 0)[1]
@@ -133,10 +132,26 @@ def submitjobs(prefix, nSegments, estag,queue, args):
                 completed[i] = True
             else:
                 time.sleep(2.0) # slow down the afs access, bugs out sometimes
-        time.sleep(30.0) # sleep 60s 
+        time.sleep(15.0) # sleep 60s 
+    
 
-    a = Popen("hadd -T monitoring.root "+pwd+"/*/*.root" , shell=True)
-    rc = os.waitpid(a.pid, 0)[1]
+    #use DQHstogramMerge
+    import glob
+    print pwd+"/*/monitoring.root"
+    lst = glob.glob(pwd+"/*/monitoring.root")
+    print lst
+    lstf = open("lst.lst","w")
+    
+    for ll in lst:
+        lstf.write(ll+"\n")
+        print ll
+    lstf.close()
+    
+    cmd="DQHistogramMerge.py lst.lst monitoring.root False" 
+    os.system(cmd)
+    #a = Popen("hadd -T monitoring.root "+pwd+"/*/*.root" , shell=True)
+    #rc = os.waitpid(a.pid, 0)[1]
+    #os.system("rm lst.lst")
                 
     
 

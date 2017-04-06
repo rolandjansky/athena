@@ -22,6 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorObjects
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
+			  InnerDetector/InDetConditions/InDetBeamSpotService
                           PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
                           Reconstruction/Jet/JetInterface
                           Reconstruction/RecoTools/ITrackToVertex
@@ -36,11 +37,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventPrimitives
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRecEvent/InDetPrepRawData
+			  InnerDetector/InDetRecTools/InDetTrackSelectionTool
                           Reconstruction/egamma/egammaInterfaces
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkTrackSummary
                           Tracking/TrkEvent/TrkTruthData
                           Tracking/TrkEvent/TrkV0Vertex
+			  Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
                           Tracking/TrkVertexFitter/TrkVertexAnalysisUtils
                           Trigger/TrigAnalysis/TrigDecisionTool )
 
@@ -56,7 +59,7 @@ atlas_add_library( InDetPerformanceMonitoringLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel xAODCaloEvent xAODEgamma xAODJet xAODMissingET xAODMuon xAODTracking xAODTruth GaudiKernel GeneratorObjects InDetReadoutGeometry InDetRIO_OnTrack JetInterface ITrackToVertex egammaEvent LWHists TrkParameters TrkParticleBase TrkTrack AthenaMonitoringLib StoreGateLib SGtests ElectronPhotonSelectorToolsLib TrkVertexAnalysisUtilsLib TrigDecisionToolLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel xAODCaloEvent xAODEgamma xAODJet xAODMissingET xAODMuon xAODTracking xAODTruth GaudiKernel GeneratorObjects InDetReadoutGeometry InDetRIO_OnTrack InDetTrackSelectionTool JetInterface ITrackToVertex egammaEvent LWHists TrkParameters TrkParticleBase TrkTrack AthenaMonitoringLib StoreGateLib SGtests ElectronPhotonSelectorToolsLib TrkVertexAnalysisUtilsLib TrigDecisionToolLib
                    PRIVATE_LINK_LIBRARIES ${HEPMC_LIBRARIES} IdDictDetDescr EventInfo EventPrimitives InDetIdentifier InDetPrepRawData TrkEventPrimitives TrkTrackSummary TrkTruthData TrkV0Vertex )
 
 atlas_add_component( InDetPerformanceMonitoring

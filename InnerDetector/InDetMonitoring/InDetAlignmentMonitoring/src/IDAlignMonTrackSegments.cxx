@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // **********************************************************************
 // IDAlignMonTrackSegments.cxx
 // AUTHORS: John Alison (john.alison@cern.ch) johnda 
@@ -195,10 +191,10 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
   MonGroup al_mon ( this, outputDirName, run );
   
 
-  if ( newLowStat || newLumiBlock ) {
+  if ( newLowStatFlag() || newLumiBlockFlag() ) {
   }
 
-  if( newRun ) { 
+  if( newRunFlag() ) { 
     
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job

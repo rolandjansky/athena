@@ -89,9 +89,15 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
         ReadAlignmentConstants = True
 
     if (iteration == 0 ) and not inputBowingCoolFile:
-	    ReadBowingParameter = False
+        ReadBowingParameter = False
     else:
         ReadBowingParameter = True
+
+    if (iteration == 0 ) and not inputDynamicGlobalCoolFile:
+        ReadDynamicGlobalFolders = False
+    else:
+        ReadDynamicGlobalFolders = True
+
 
     print '\n'
     print " ---> Iteration "+repr(iteration)
@@ -210,7 +216,8 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
     
             AlignmentOptions["readConstantsFromPool"] = ReadAlignmentConstants
             constantsFile = ""
-            bowingdb= ""
+            bowingdb = ""
+            dynamicdb = ""
             if ReadAlignmentConstants:
                 if iteration == 0:
                     constantsFile = inputAlignmentPoolFile 
@@ -220,12 +227,22 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
                     AlignmentOptions["inputPoolFiles"] = [constantsFile]
 
             if ReadBowingParameter:
-                    if iteration == 0:
-                        bowingdb = inputBowingCoolFile
-                        AlignmentOptions["inputBowingDatabase"] = inputBowingCoolFile
-                    else:
-                        bowingdb = str(OutputPaths)+"/Iter"+str(iteration-1)+folderSuffix+"/mycool.db"
-                        AlignmentOptions["inputBowingDatabase"] = bowingdb
+                if iteration == 0:
+                    bowingdb = inputBowingCoolFile
+                    AlignmentOptions["inputBowingDatabase"] = inputBowingCoolFile
+                else:
+                    bowingdb = str(OutputPaths)+"/Iter"+str(iteration-1)+folderSuffix+"/mycool.db"
+                    AlignmentOptions["inputBowingDatabase"] = bowingdb
+
+            if ReadDynamicGlobalFolders:
+                if iteration == 0:
+                    dynamicdb = inputDynamicGlobalCoolFile   
+                    AlignmentOptions["inputDynamicGlobalDatabase"] = inputDynamicGlobalCoolFile
+                else:
+                    dynamicdb = str(OutputPaths)+"/Iter"+str(iteration-1)+folderSuffix+"/mycool.db"
+                    AlignmentOptions["inputDynamicGlobalDatabase"] = dynamicdb
+
+
 
             AlignmentOptions["alignTRT"] = AlignTRT[iteration]
             if AlignTRT[iteration]:
@@ -359,7 +376,8 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
         AlignmentOptions["inputPoolFiles"] = [constantsFile]
 
         AlignmentOptions["inputBowingDatabase"] = bowingdb
-        
+        AlignmentOptions["inputDynamicGlobalDatabase"] = dynamicdb
+
         AlignmentOptions["alignTRT"] = AlignTRT[iteration]
         if AlignTRT[iteration]:
             AlignmentOptions["trtAlignmentLevel"] = TRTAlignmentLevel[iteration]
@@ -449,6 +467,7 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
                 ConditionsScript = "InDetAlignExample/jobOption_ConditionsOverrider.py"
                 constantsFile = ""
                 bowingdb = ""
+                dynamicdb = ""
                 if ReadAlignmentConstants:  
                     if iteration == 0:
                         constantsFile = inputAlignmentPoolFile 
@@ -464,6 +483,14 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
                     else:
                         bowingdb = str(OutputPaths)+"/Iter"+str(iteration-1)+folderSuffix+"/mycool.db"
                         AlignmentOptions["inputBowingDatabase"] = bowingdb
+
+                if ReadDynamicGlobalFolders:
+                    if iteration == 0:
+                        dynamicdb = inputDynamicGlobalCoolFile
+                        AlignmentOptions["inputDynamicGlobalDatabase"] = inputDynamicGlobalCoolFile
+                    else:
+                        dynamicdb = str(OutputPaths)+"/Iter"+str(iteration-1)+folderSuffix+"/mycool.db"
+                        AlignmentOptions["inputDynamicGlobalDatabase"] = dynamicdb
 
                 poolfiles = [RecoOptions["inputFiles"][0],constantsFile]
                 #coolfiles = [RecoOptions["inputDbs"][0],bowingdb]

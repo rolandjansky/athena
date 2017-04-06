@@ -54,8 +54,8 @@ athenaCommonFlags.EvtMax = EvtMax
 athenaCommonFlags.SkipEvents = SkipEvents
 
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-BLKPA-2015-09")
-globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-R2-2015-03-01-00")
+globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-BLKPA-2016-21")
+globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-R2-2016-00-01-00")
 
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
@@ -103,8 +103,8 @@ from IOVDbSvc.CondDB import conddb
 inputCollections = []#["Iter4_AlignmentConstants.root"]
 #inputCollections = ["/afs/cern.ch/user/m/mdanning/hias/public/13TeV/20.1.5.8/run_DCSfix/DCS_L2fixedThenL27_andL3/Iter3/Iter0_AlignmentConstants.root"]
 readPool  = False
-conddb.addOverride('/Indet/Align', 'InDetAlign-RUN2-25NS')
-conddb.addOverride('/TRT/Align',   'TRTAlign-RUN2-25NS')
+#conddb.addOverride('/Indet/Align', 'InDetAlign-RUN2-25NS')
+#conddb.addOverride('/TRT/Align',   'TRTAlign-RUN2-25NS')
 
 if readPool :
   conddb.blockFolder("/Indet/Align")
@@ -136,7 +136,7 @@ from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
 ServiceMgr.THistSvc.Output += ["eoverpValidation DATAFILE='eoverpValidationOut.root' OPT='RECREATE'"]
 ServiceMgr.THistSvc.Output += ["eoverpValidation2 DATAFILE='eoverpValidationOut.root' OPT='RECREATE'"]
-include ("ElectronEoverPTracking.py")
+include ("InDetPerformanceMonitoring/ElectronEoverPTracking.py")
 from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonEoverP
 funIDPerfMonEoverP = IDPerfMonEoverP(name = 'IDPerfMonEoverP',
                                      ReFitterTool = ElectronRefitterTool,
@@ -147,6 +147,7 @@ funIDPerfMonEoverP = IDPerfMonEoverP(name = 'IDPerfMonEoverP',
                                      RefittedElectronTrackContainer2 = DNATrackCollection,
                                      RefitTracks = True,
                                      isDATA = True,
+                                     isxAOD = False,
                                      FillDetailedTree = True,
                                      OutputLevel = INFO)
 
