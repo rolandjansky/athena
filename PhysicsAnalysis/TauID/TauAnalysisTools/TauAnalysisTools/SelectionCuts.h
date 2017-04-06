@@ -1,9 +1,8 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// Dear emacs, this is -*- c++ -*-
 #ifndef TAUANALYSISTOOLS_SELECTIONCUTS_H
 #define TAUANALYSISTOOLS_SELECTIONCUTS_H
 
@@ -135,6 +134,7 @@ public:
   SelectionCutBDTEleScore(TauSelectionTool* tTST);
   bool accept(const xAOD::TauJet& xTau);
 private:
+  std::string m_sEleBDTDecorationName;
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
 };
 
@@ -145,6 +145,7 @@ public:
   SelectionCutEleBDTWP(TauSelectionTool* tTST);
   bool accept(const xAOD::TauJet& xTau);
 private:
+  std::string m_sEleBDTDecorationName;
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
 };
 

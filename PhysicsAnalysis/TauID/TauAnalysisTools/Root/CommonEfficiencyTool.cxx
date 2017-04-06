@@ -188,10 +188,9 @@ CP::CorrectionCode CommonEfficiencyTool::getEfficiencyScaleFactor(const xAOD::Ta
   std::string sProng = ConvertProngToString(xTau.nTracks());
 
   // get standard scale factor
-  CP::CorrectionCode tmpCorrectionCode;
-  tmpCorrectionCode = getValue(m_sSFHistName+sProng,
-                               xTau,
-                               dEfficiencyScaleFactor);
+  CP::CorrectionCode tmpCorrectionCode = getValue(m_sSFHistName+sProng,
+                                                  xTau,
+                                                  dEfficiencyScaleFactor);
   // return correction code if histogram is not available
   if (tmpCorrectionCode != CP::CorrectionCode::Ok)
     return tmpCorrectionCode;
