@@ -3199,11 +3199,14 @@
         <InternalTrigger name="BGRP9"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="406" partition="3" name="L1_RD3_BGRP15" complex_deadtime="0" definition="(RNDM3&amp;BGRP0&amp;BGRP15)" trigger_type="0001" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="406" partition="1" name="L1_MU21_FIRSTEMPTY" complex_deadtime="0" definition="((MU20[x1]|MU21[x1])&amp;BGRP0&amp;BGRP6)" trigger_type="10001000" monitor="LF:000|HF:000">
       <AND>
-        <InternalTrigger name="RNDM3"/>
+        <OR>
+          <TriggerCondition multi="1" name="MU20_x1" triggerthreshold="MU20"/>
+          <TriggerCondition multi="1" name="MU21_x1" triggerthreshold="MU21"/>
+        </OR>
         <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP15"/>
+        <InternalTrigger name="BGRP6"/>
       </AND>
     </TriggerItem>
     <TriggerItem ctpid="407" partition="1" name="L1_TE5" complex_deadtime="0" definition="(TE5[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
@@ -3211,6 +3214,13 @@
         <TriggerCondition multi="1" name="TE5_x1" triggerthreshold="TE5"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="408" partition="3" name="L1_RD3_BGRP15" complex_deadtime="0" definition="(RNDM3&amp;BGRP0&amp;BGRP15)" trigger_type="0001" monitor="LF:000|HF:000">
+      <AND>
+        <InternalTrigger name="RNDM3"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP15"/>
       </AND>
     </TriggerItem>
     <TriggerItem ctpid="409" partition="1" name="L1_TE25.0ETA24" complex_deadtime="0" definition="(TE25.0ETA24[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
@@ -3258,16 +3268,6 @@
     <TriggerItem ctpid="415" partition="1" name="L1_J100.31ETA49_FIRSTEMPTY" complex_deadtime="0" definition="(J100.31ETA49[x1]&amp;BGRP0&amp;BGRP6)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="J100.31ETA49_x1" triggerthreshold="J100.31ETA49"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP6"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="416" partition="1" name="L1_MU21_FIRSTEMPTY" complex_deadtime="0" definition="((MU20[x1]|MU21[x1])&amp;BGRP0&amp;BGRP6)" trigger_type="10001000" monitor="LF:000|HF:000">
-      <AND>
-        <OR>
-          <TriggerCondition multi="1" name="MU20_x1" triggerthreshold="MU20"/>
-          <TriggerCondition multi="1" name="MU21_x1" triggerthreshold="MU21"/>
-        </OR>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP6"/>
       </AND>
@@ -4143,7 +4143,7 @@
     <Prescale ctpid="405" cut="000001" value="1"/>
     <Prescale ctpid="406" cut="000001" value="1"/>
     <Prescale ctpid="407" cut="000001" value="1"/>
-    <Prescale ctpid="408" cut="-000001" value="-1"/>
+    <Prescale ctpid="408" cut="000001" value="1"/>
     <Prescale ctpid="409" cut="000001" value="1"/>
     <Prescale ctpid="410" cut="000001" value="1"/>
     <Prescale ctpid="411" cut="000001" value="1"/>
@@ -4151,7 +4151,7 @@
     <Prescale ctpid="413" cut="000001" value="1"/>
     <Prescale ctpid="414" cut="000001" value="1"/>
     <Prescale ctpid="415" cut="000001" value="1"/>
-    <Prescale ctpid="416" cut="000001" value="1"/>
+    <Prescale ctpid="416" cut="-000001" value="-1"/>
     <Prescale ctpid="417" cut="000001" value="1"/>
     <Prescale ctpid="418" cut="000001" value="1"/>
     <Prescale ctpid="419" cut="000001" value="1"/>
