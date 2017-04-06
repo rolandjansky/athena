@@ -22,28 +22,17 @@
 + Calorimeter/CaloRec
 + Calorimeter/CaloUtils
 
+# Commissioning EDM package(s):
 + Commission/CommissionEvent
 
-+ Control/AthAllocators
-+ Control/AthAnalysisBaseComps
-+ Control/AthContainersInterfaces
-+ Control/AthContainers
-+ Control/AthLinks
-+ Control/AthToolSupport/.*
-+ Control/AthenaBaseComps
-+ Control/AthenaKernel
-+ Control/AthenaMonitoring
-+ Control/CLIDComps
-+ Control/CLIDSvc
-+ Control/CxxUtils
-+ Control/DataModel.*
-+ Control/IOVSvc
-+ Control/Navigation
-+ Control/RootUtils
-+ Control/SG.*
-+ Control/StoreGate.*
-+ Control/xAODRootAccess.*
+# Core/Control package(s):
+- Control/AthLinksSA
+- Control/AthenaExamples/.*
+- Control/PileUp.*
+- Control/Valkyrie
++ Control/.*
 
+# Database package(s):
 + Database/APR/.*
 + Database/AthenaPOOL/.*
 + Database/ConnectionManagement/.*
@@ -159,6 +148,7 @@
 + PhysicsAnalysis/MCTruthClassifier
 + PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
 + PhysicsAnalysis/MuonID/MuonSelectorTools
++ PhysicsAnalysis/PATJobTransforms
 + PhysicsAnalysis/POOLRootAccess
 + PhysicsAnalysis/TauID/TauAnalysisTools
 + PhysicsAnalysis/TruthParticleID/McParticleEvent
@@ -177,6 +167,9 @@
 + Reconstruction/Particle
 + Reconstruction/ParticleTruth
 + Reconstruction/PFlow/PFlowUtils
++ Reconstruction/RecExamples/RecExCo.*
++ Reconstruction/RecExamples/RecExPers
++ Reconstruction/RecJobTransforms
 + Reconstruction/RecoEvent/ParticleCaloExtension
 + Reconstruction/RecoTools/I?TrackToVertex
 + Reconstruction/RecoTools/ParticlesInConeTools
@@ -185,6 +178,7 @@
 + Reconstruction/TrackParticleTPCnv
 
 + Simulation/HitManagement
++ Simulation/Tools/AtlasCLHEP_RandomGenerators
 
 + TileCalorimeter/TileCalib/TileCalibBlobObjs
 + TileCalorimeter/TileConditions
@@ -195,6 +189,8 @@
 
 + Tools/LWHists
 + Tools/PathResolver
++ Tools/Py.*
++ Tools/Scripts
 + Tools/XMLCoreParser
 
 + Tracking/TrkDetDescr/TrkDetDescrUtils
