@@ -1,8 +1,8 @@
-The Full ATLAS Offline Software Project
+The AthSimulation Project
 =======================================
 
-This is the configuration for building the full offline software from the
-repository.
+This is the configuration for building the parts of the offline
+software necessary to run G4 simulation from the repository.
 
 Build Instructions
 ------------------
