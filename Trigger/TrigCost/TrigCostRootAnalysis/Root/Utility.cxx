@@ -9,7 +9,7 @@
 // STL include(s):
 #include <sstream>
 #include <iostream>
-#include <iomanip> 
+#include <iomanip>
 #include <assert.h>
 
 // Local include(s):
@@ -24,20 +24,20 @@
 #include <TSystem.h>
 
 namespace TrigCostRootAnalysis {
-
   /**
    * Check to see if a counter name has been specified by the user as one we're interested in.
    * Match it to the vector of chains to run over.
-   * A check is made here to allow for the exlusion of rerun chains in events which failed the HLT 
+   * A check is made here to allow for the exlusion of rerun chains in events which failed the HLT
    * @param _counterName Const reference to counter name to test.
-   * @param _invert if the results are to be inverted 
+   * @param _invert if the results are to be inverted
    * @result If the counter is in the list of counters to process in this run.
    */
-  Bool_t checkPatternNameMonitor( const std::string& _counterName, Bool_t _invert, Bool_t _isRerun ) {
+  Bool_t checkPatternNameMonitor(const std::string& _counterName, Bool_t _invert, Bool_t _isRerun) {
     Bool_t _result = checkPatternInternal(_counterName, kPatternsMonitor, _invert);
     static Bool_t _isPrediction = (Bool_t) Config::config().getInt(kIsCPUPrediction);
+
     if (_isPrediction == kTRUE && _result == kTRUE) {
-      // Check if this chain is rerun 
+      // Check if this chain is rerun
       Bool_t _ignoreRerun = (Bool_t) Config::config().getInt(kIgnoreRerun);
       if (_ignoreRerun == kTRUE && _isRerun == kTRUE) return kFALSE;
     }
@@ -49,7 +49,7 @@ namespace TrigCostRootAnalysis {
    * @param _counterName Const reference to counter name to test.
    * @result If the counter is on the list
    */
-  Bool_t checkPatternNoLumiWeight( const std::string& _counterName) {
+  Bool_t checkPatternNoLumiWeight(const std::string& _counterName) {
     return Config::config().getVecMatches(kPatternsNoLumiWeight, _counterName);
   }
 
@@ -59,7 +59,7 @@ namespace TrigCostRootAnalysis {
    * @param _counterName Const reference to counter name to test.
    * @result If the counter is on the list
    */
-  Bool_t checkPatternNoMuLumiWeight( const std::string& _counterName) {
+  Bool_t checkPatternNoMuLumiWeight(const std::string& _counterName) {
     return Config::config().getVecMatches(kPatternsNoMuLumiWeight, _counterName);
   }
 
@@ -69,7 +69,7 @@ namespace TrigCostRootAnalysis {
    * @param _counterName Const reference to counter name to test.
    * @result If the counter is on the list
    */
-  Bool_t checkPatternNoBunchLumiWeight( const std::string& _counterName) {
+  Bool_t checkPatternNoBunchLumiWeight(const std::string& _counterName) {
     return Config::config().getVecMatches(kPatternsNoBunchLumiWeight, _counterName);
   }
 
@@ -78,22 +78,20 @@ namespace TrigCostRootAnalysis {
    * @param _counterName Const reference to counter name to test.
    * @result If the counter is on the list
    */
-  Bool_t checkPatternExponentialWithMu( const std::string& _counterName) {
+  Bool_t checkPatternExponentialWithMu(const std::string& _counterName) {
     return Config::config().getVecMatches(kPatternsExpoMuLumiWeight, _counterName);
   }
-
 
   /**
    * Check to see if a counter name has been specified by the user as one we're interested in saving.
    * Match it to the vector of chains to save.
    * @param _counterName Const reference to counter name to test.
-   * @param _invert if the results are to be inverted 
+   * @param _invert if the results are to be inverted
    * @result If the counter is in the list of counters to output from this run.
    */
-  Bool_t checkPatternNameOutput( const std::string& _counterName, Bool_t _invert ) {
+  Bool_t checkPatternNameOutput(const std::string& _counterName, Bool_t _invert) {
     return checkPatternInternal(_counterName, kPatternsOutput, _invert);
   }
-
 
   /**
    * Check to see if a counter name has been specified by the user as one we're interested in
@@ -101,7 +99,7 @@ namespace TrigCostRootAnalysis {
    * @param _counterName Const reference to counter name to test.
    * @result If the counter is in the list of counters to output from this run.
    */
-  Bool_t checkPatternUnique( const std::string& _counterName, Bool_t _invert ) {
+  Bool_t checkPatternUnique(const std::string& _counterName, Bool_t _invert) {
     return checkPatternInternal(_counterName, kPatternsUnique, _invert);
   }
 
@@ -111,10 +109,9 @@ namespace TrigCostRootAnalysis {
    * @param _counterName Const reference to counter name to test.
    * @result If the counter is in the list of counters to output from this run.
    */
-  Bool_t checkPatternOverlap( const std::string& _counterName, Bool_t _invert ) {
+  Bool_t checkPatternOverlap(const std::string& _counterName, Bool_t _invert) {
     return checkPatternInternal(_counterName, kPatternsOverlap, _invert);
   }
-
 
   /**
    * Code to actually perform the check if a counter is listed in a given vector
@@ -122,15 +119,15 @@ namespace TrigCostRootAnalysis {
    * @param _list The key of the saved configuration vector to test in
    * @result If the counter is in the list of counters to output from this run.
    */
-  Bool_t checkPatternInternal( const std::string& _counterName, ConfKey_t _list, Bool_t _invert ) {
-    if ( Config::config().getVecSize(_list) > 0 ) {
+  Bool_t checkPatternInternal(const std::string& _counterName, ConfKey_t _list, Bool_t _invert) {
+    if (Config::config().getVecSize(_list) > 0) {
       Bool_t _result = Config::config().getVecMatches(_list, _counterName);
       if (_invert == kTRUE) return !_result;
+
       return _result;
     }
     return kTRUE;
   }
-
 
   /**
    * Helper function, converts string to signed int
@@ -139,7 +136,8 @@ namespace TrigCostRootAnalysis {
    */
   Int_t stringToInt(const std::string& _i) {
     Int_t _result = INT_MAX;
-    std::istringstream( _i ) >> _result;
+
+    std::istringstream(_i) >> _result;
     return _result;
   }
 
@@ -150,7 +148,8 @@ namespace TrigCostRootAnalysis {
    */
   Float_t stringToFloat(const std::string& _i) {
     Float_t _result = FLT_MAX;
-    std::istringstream( _i ) >> _result;
+
+    std::istringstream(_i) >> _result;
     return _result;
   }
 
@@ -161,7 +160,8 @@ namespace TrigCostRootAnalysis {
    */
   Double_t stringToDouble(const std::string& _i) {
     Double_t _result = DBL_MAX;
-    std::istringstream( _i ) >> _result;
+
+    std::istringstream(_i) >> _result;
     return _result;
   }
 
@@ -181,11 +181,11 @@ namespace TrigCostRootAnalysis {
    */
   std::string intToString(Long64_t _i, UInt_t _pad) {
     std::ostringstream _ss;
-    if (_pad) _ss << std::setfill('0') << std::setw(_pad); 
+    if (_pad) _ss << std::setfill('0') << std::setw(_pad);
     _ss << std::fixed << _i;
     return _ss.str();
   }
-  
+
   /**
    * Helper function, converts integer to string.
    * @param _i Int_t to convert.
@@ -194,7 +194,7 @@ namespace TrigCostRootAnalysis {
   std::string intToString(Int_t _i, UInt_t _pad) {
     return intToString((Long64_t) _i, _pad);
   }
-  
+
   /**
    * Helper function, converts floating point to string.
    * @param _f Float_t to convert.
@@ -203,9 +203,9 @@ namespace TrigCostRootAnalysis {
    */
   std::string floatToString(Float_t _f, Int_t _precision) {
     // This is going to screen so internal precision doesn't matter
-    return doubleToString( (Double_t) _f, _precision );
+    return doubleToString((Double_t) _f, _precision);
   }
-  
+
   /**
    * Helper function, converts double precision floating point to string.
    * @param _d Float_t to convert.
@@ -214,7 +214,7 @@ namespace TrigCostRootAnalysis {
    */
   std::string doubleToString(Double_t _d, Int_t _precision) {
     std::ostringstream ss;
-    ss.precision( _precision );
+    ss.precision(_precision);
     if (isZero(_d) == kTRUE) {
       ss << "0";
     } else if (TMath::Abs(_d) < 1e4) {
@@ -229,30 +229,31 @@ namespace TrigCostRootAnalysis {
    * Helper function, calculate distance in eta and phi
    */
   Float_t deltaR(Float_t _phi1, Float_t _phi2, Float_t _eta1, Float_t _eta2) {
-    if (_phi1 < 0) _phi1 += 2*M_PI;
-    if (_phi2 < 0) _phi2 += 2*M_PI;
-    assert(_phi1 >= 0 && _phi1 <= 2*M_PI);
-    assert(_phi2 >= 0 && _phi2 <= 2*M_PI);
+    if (_phi1 < 0) _phi1 += 2 * M_PI;
+    if (_phi2 < 0) _phi2 += 2 * M_PI;
+    assert(_phi1 >= 0 && _phi1 <= 2 * M_PI);
+    assert(_phi2 >= 0 && _phi2 <= 2 * M_PI);
     const Float_t _phiDiff = _phi2 - _phi1;
     Float_t _deltaPhi = _phiDiff;
-    if (_phiDiff > M_PI) _deltaPhi = -2*M_PI + _phiDiff;
-    else if (_phiDiff < -M_PI) _deltaPhi = 2*M_PI + _phiDiff;
+    if (_phiDiff > M_PI) _deltaPhi = -2 * M_PI + _phiDiff;
+    else if (_phiDiff < -M_PI) _deltaPhi = 2 * M_PI + _phiDiff;
     Float_t _dE = _eta1 - _eta2;
-    return TMath::Sqrt( _deltaPhi*_deltaPhi + _dE*_dE );
+    return TMath::Sqrt(_deltaPhi * _deltaPhi + _dE * _dE);
   }
-  
+
   /**
    * Helper function, draws a TLatex on the current active TCanvas.
    * @param x,y Coordinates of text in NDC (Range: 0 to 1).
    * @param text Const character array of text to print.
    */
-  void plotText(Double_t x, Double_t y, const char *text) {
+  void plotText(Double_t x, Double_t y, const char* text) {
     TLatex l; //l.SetTextAlign(12);
-    l.SetTextSize(0.05 );
+
+    l.SetTextSize(0.05);
     l.SetNDC();
     l.DrawLatex(x, y, text);
   }
-  
+
   /**
    * Helper function, plots histogram to current canvas.
    * @param _h Pointer to histogram to plot.
@@ -269,7 +270,7 @@ namespace TrigCostRootAnalysis {
     // }
     _h->Draw(_opt.c_str());
   }
-  
+
   /**
    * Helper function, check if a floating point is compatible with zero.
    * @param _float Value to test.
@@ -278,21 +279,23 @@ namespace TrigCostRootAnalysis {
    */
   Bool_t isZero(Float_t _float, Float_t _precision) {
     if (TMath::Abs(_float) < _precision) return kTRUE;
+
     return kFALSE;
   }
 
   /**
    * Helper function, check if a floating point numbers are compatable.
    * @param _float1 First value to test.
-   * @param _float2 Second value to test.  
+   * @param _float2 Second value to test.
    * @param _precision Optional level of precision required.
    * @returns true if value1 and value2 are equal to each other.
    */
   Bool_t isEqual(Float_t _float1, Float_t _float2, Float_t _precision) {
     if (TMath::Abs(_float1 - _float2) < _precision) return kTRUE;
+
     return kFALSE;
   }
-  
+
   /**
    * Helper function, constructs a std::pair from a variable name and VariableOption.
    * @param _name The name of the variable.
@@ -302,32 +305,34 @@ namespace TrigCostRootAnalysis {
   ConfVariableOptionPair_t makePair(ConfKey_t _name, VariableOption_t _vo) {
     return std::make_pair(_name, _vo);
   }
-  
+
   /**
    * Helper function, returns basic hash of string.
    * hash function (based on available elswhere ELF hash function)
    * @param _s String to hash
    * @returns Hash value.
    */
-  UInt_t stringToIntHash( std::string& _s ) {
-   UInt_t _hash;
-   _hash = 0xd2d84a61;
-   Int_t i;
- 
-   for ( i = (Int_t)_s.size()-1; i >= 0; --i ) _hash ^= ( _hash >> 5) + _s[i] + ( _hash << 7 );
-   for ( i = 0; i < (Int_t)_s.size(); ++i ) _hash ^= ( _hash >> 5) + _s[i] + ( _hash << 7 );
- 
-   return _hash;
+  UInt_t stringToIntHash(std::string& _s) {
+    UInt_t _hash;
+
+    _hash = 0xd2d84a61;
+    Int_t i;
+
+    for (i = (Int_t) _s.size() - 1; i >= 0; --i) _hash ^= (_hash >> 5) + _s[i] + (_hash << 7);
+    for (i = 0; i < (Int_t) _s.size(); ++i) _hash ^= (_hash >> 5) + _s[i] + (_hash << 7);
+
+    return _hash;
   }
 
   const std::string& getLevelString(UInt_t _level) {
     if (_level == 1) return Config::config().getStr(kL1String);
+
     if (_level == 2 && Config::config().getInt(kDoL2) == 1) return Config::config().getStr(kL2String);
+
     if (_level == 2 && Config::config().getInt(kDoHLT) == 1) return Config::config().getStr(kHLTString);
+
     if (_level == 3 && Config::config().getInt(kDoEF) == 1) return Config::config().getStr(kEFString);
+
     return Config::config().getStr(kUnknownString);
   }
-  
-  
-  
 }

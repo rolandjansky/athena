@@ -26,7 +26,6 @@ class TH1F;
 class TH2F;
 
 namespace TrigCostRootAnalysis {
-
   //Forward declaration
   class DataVariable;
   class CounterBase;
@@ -47,9 +46,7 @@ namespace TrigCostRootAnalysis {
    */
 
   class DataStore {
-
-   public:
-
+  public:
     DataStore(CounterBase* _parent = 0);
     ~DataStore();
     DataStore& newVariable(ConfKey_t _name);
@@ -63,32 +60,31 @@ namespace TrigCostRootAnalysis {
     void endEvent();
     void setVariableDenominator(ConfKey_t _name, Float_t _denominator);
     void store(ConfKey_t _name, Float_t _value, Float_t _weight = 1.);
-    Float_t getValue(ConfKey_t _name, VariableOption_t _vo);
-    Bool_t  getValueExists(ConfKey_t _name, VariableOption_t _vo);
-    Float_t getValueError(ConfKey_t _name, VariableOption_t _vo);
-    Int_t getEntries(ConfKey_t _name, VariableOption_t _vo);
-    void  setValue(ConfKey_t _name, VariableOption_t _vo, Float_t _val);
-    void  setEntries(ConfKey_t _name, VariableOption_t _vo, UInt_t _val);
-    void  setErrorSquared(ConfKey_t _name, VariableOption_t _vo, Float_t _val);
+    Float_t getValue(ConfKey_t _name, VariableOption_t _vo) const;
+    Bool_t getValueExists(ConfKey_t _name, VariableOption_t _vo) const;
+    Float_t getValueError(ConfKey_t _name, VariableOption_t _vo) const;
+    Int_t getEntries(ConfKey_t _name, VariableOption_t _vo) const;
+    void setValue(ConfKey_t _name, VariableOption_t _vo, Float_t _val);
+    void setEntries(ConfKey_t _name, VariableOption_t _vo, UInt_t _val);
+    void setErrorSquared(ConfKey_t _name, VariableOption_t _vo, Float_t _val);
     TH1F* getHist(ConfKey_t _name, VariableOption_t _vo, Bool_t _silent = kFALSE);
-    void  setHist(ConfKey_t _name, VariableOption_t _vo, TH1F* _hist);
+    void setHist(ConfKey_t _name, VariableOption_t _vo, TH1F* _hist);
     // TH2F* getHist2D(ConfKey_t _name, VariableOption_t _vo);
-    Bool_t getHistogramming() { return m_histogrammingEnabled; }
-    CounterBase* getParent() { return m_parent; }
+    Bool_t getHistogramming() const {return m_histogrammingEnabled;}
+    CounterBase* getParent() const {return m_parent;}
     VariableOptionVector_t getAllHistograms();
-    const std::string& getNameOfMostRecentCall();
-
-   private:
-
-    Bool_t checkRegistered(ConfKey_t _name, Bool_t _silent = kFALSE);
+    const std::string& getNameOfMostRecentCall() const;
+  private:
+    Bool_t checkRegistered(ConfKey_t _name, Bool_t _silent = kFALSE) const;
     DataStore& setSaveInternal(VariableOption_t _vo, std::string& _title, ConfKey_t _name = kBlankString);
-    Bool_t m_histogrammingEnabled; //!< If histograming is to be unsed on newly created VariableOptions. Designed to be toggled on and off.
-    DataVariable* m_mostRecent; //!< Pointer to most recently created/modified variable, used with the chaining operators.
-    std::map< ConfKey_t, DataVariable* > m_variableMap; //!< Internal map of DataVariable objects, these hold the primitive types and histograms.
+    Bool_t m_histogrammingEnabled; //!< If histograming is to be unsed on newly created VariableOptions. Designed to be
+                                   // toggled on and off.
+    mutable DataVariable* m_mostRecent; //!< Pointer to most recently created/modified variable, used with the chaining
+                                        // operators.
+    std::map< ConfKey_t, DataVariable* > m_variableMap; //!< Internal map of DataVariable objects, these hold the
+                                                        // primitive types and histograms.
     CounterBase* m_parent; //!< Pointer to the CounterBase which (may) own this object.
-
   }; //class DataStore
-
 } // namespace TrigCostRootAnalysis
 
 #endif //TrigCostRootAnalysis_DataStore_H
