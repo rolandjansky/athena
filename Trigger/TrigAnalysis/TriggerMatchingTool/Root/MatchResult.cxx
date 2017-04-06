@@ -41,7 +41,6 @@ namespace Trig{
   
   std::vector<const xAOD::IParticle*> MatchResult::bestMatchedObjects(){
     double bestcost = 0;
-    const ComboMatch* bestcombo = 0;
     int i = 0;
     int bestindex = -1;
     for (const auto combresult : m_combresults){

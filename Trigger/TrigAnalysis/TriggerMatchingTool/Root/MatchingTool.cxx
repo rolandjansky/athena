@@ -140,7 +140,7 @@ namespace Trig {
     
 
     //record sum of costs
-    for(int i = 0; i < result.assignment.size(); ++i){
+    for(size_t i = 0; i < result.assignment.size(); ++i){
       result.total_cost += distance_matrix[i][result.assignment[i]];
     }
 
