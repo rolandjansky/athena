@@ -109,10 +109,6 @@ public: // Non-static members
 	   const std::string& collection,
 	   const unsigned long ientry) const = 0;
 
-   /// Utility to test whether the dictionary knows about a given class.
-   /// @param className [IN] string containing the name of the class to be checked.
-   virtual bool testDictionary(const std::string& className) const = 0;
-
    /// Connect to a logical database unit; PersistencySvc is chosen according to transaction type (accessmode).
    virtual StatusCode connect(pool::ITransaction::Type type,
 	   unsigned int contextId = IPoolSvc::kInputStream) const = 0;

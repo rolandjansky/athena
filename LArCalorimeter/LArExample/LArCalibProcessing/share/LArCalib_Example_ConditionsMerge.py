@@ -73,7 +73,6 @@ include("LArCalibProcessing/LArCalib_MinimalSetup.py")
 theApp.EvtMax = 1
 conddb.setGlobalTag("COMCOND-BLKPA-006-01") #For id mapping
 
-svcMgr.PoolSvc.CheckDictionary=False
 svcMgr.PoolSvc.SortReplicas=False
 
 runNoForFileName=2147483647
