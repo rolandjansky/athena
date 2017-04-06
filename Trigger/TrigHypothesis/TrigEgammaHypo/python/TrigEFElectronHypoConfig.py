@@ -163,19 +163,22 @@ class TrigEFElectronHypo_e_LH_Iso (TrigEFElectronHypo_e_LH):
         self.useClusETforTrackIso = True
         caloiso = [x for x in isoInfo if 'icalo' in x]
         trkiso = [x for x in isoInfo if 'icalo' not in x]
-        if(len(trkiso)!=1):
-            mlog.error('ERROR, no calo isolation in chain dict')
-        #EtCone Size              =  etcone20, etcone30, etcone40, topoetcone20, 30, 40
+
+        self.PtConeSizes = 6
+        #EtCone Size              =  20, 30, 40
         self.EtConeSizes = 6
+        self.PtConeCut          = [-1, -1, -1,-1,-1,-1]   
+        self.EtConeCut          = [-1, -1, -1,-1, -1, -1]
+        
+        if(len(trkiso)>0):
+            self.RelPtConeCut       = isolation_dict[trkiso[0]] 
+        else:
+            self.RelPtConeCut       = [-1, -1, -1,-1,-1,-1]
+
         if len(caloiso) > 0:
             self.RelEtConeCut       = caloisolation_dict[caloiso[0]]
         else:
             self.RelEtConeCut = [-1, -1, -1,-1, -1, -1]
-        self.EtConeCut          = [-1, -1, -1, -1, -1, -1]
-        #PtCone Size              =  20, 30, 40
-        self.PtConeSizes = 6
-        self.RelPtConeCut       = isolation_dict[trkiso[0]] 
-        self.PtConeCut          = [-1, -1, -1,-1,-1,-1]
 
 # --- W T&P supporting trigger
 #-----------------------------------------------------------------------
@@ -230,20 +233,23 @@ class TrigEFElectronHypo_e_Iso (TrigEFElectronHypo_e_ID):
         self.useClusETforTrackIso = True
         caloiso = [x for x in isoInfo if 'icalo' in x]
         trkiso = [x for x in isoInfo if 'icalo' not in x]
-        if(len(trkiso)!=1):
-            mlog.error('ERROR, no track isolation in chain dict')
 
+        self.PtConeSizes = 6
         #EtCone Size              =  20, 30, 40
         self.EtConeSizes = 6
+        self.PtConeCut          = [-1, -1, -1,-1,-1,-1]   
+        self.EtConeCut          = [-1, -1, -1,-1, -1, -1]
+        
+        if(len(trkiso)>0):
+            self.RelPtConeCut       = isolation_dict[trkiso[0]] 
+        else:
+            self.RelPtConeCut       = [-1, -1, -1,-1,-1,-1]
+
         if len(caloiso) > 0:
             self.RelEtConeCut       = caloisolation_dict[caloiso[0]]
         else:
             self.RelEtConeCut = [-1, -1, -1,-1, -1, -1]
-        self.EtConeCut          = [-1, -1, -1,-1, -1, -1]
-        #PtCone Size              =  20, 30, 40
-        self.PtConeSizes = 6
-        self.RelPtConeCut       = isolation_dict[trkiso[0]] 
-        self.PtConeCut          = [-1, -1, -1,-1,-1,-1]
+
 
 #-----------------------------------------------------------------------
 # --- eXX Particle ID and Isolation performance chains

@@ -69,11 +69,10 @@ class L2EFChain_g(L2EFChainDef):
             self.use_v7=True
         
         self.doIsolation=False
-        if ('ivloose' in self.chainPart['isoInfo'] or
-            'iloose' in self.chainPart['isoInfo'] or
-            'itight' in self.chainPart['isoInfo']):
-           self.doIsolation=True
-
+        caloiso = [x for x in self.chainPart['isoInfo'] if 'icalo' in x]
+        if len(caloiso) > 0:
+            self.doIsolation=True
+        
         log.debug('Sequences %s ', self.ph_sequences)
                 
         # gXX_ID type chains:

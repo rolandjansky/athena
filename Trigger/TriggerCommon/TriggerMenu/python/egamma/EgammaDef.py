@@ -171,7 +171,7 @@ class EgammaFexBuilder(object):
         self._egamma_rec_ph_caloiso    = TrigEgammaRec.copy(name = "TrigEgammaRec_CaloIso_photon",PhotonContainerName="egamma_Iso_Photons",
                                                      doTrackMatching = False,doTrackIsolation = False,
                                                      doCaloTopoIsolation=True,doPrint=False)()
-        self._egamma_rec_el_caloiso    = TrigEgammaRec.copy(name = "TrigEgammaRec_CaloIso_electron",PhotonContainerName="egamma_Iso_Electrons",
+        self._egamma_rec_el_caloiso    = TrigEgammaRec.copy(name = "TrigEgammaRec_CaloIso_electron",ElectronContainerName="egamma_Iso_Electrons",
                                                      doCaloTopoIsolation=True,doPrint=False)()
         self._cell_maker = TrigCaloCellMaker_eGamma()
         self._tower_maker    = TrigCaloTowerMaker_eGamma()
