@@ -30,9 +30,8 @@ def getAFIIParticleBrokerSvc(name="ISF_AFIIParticleBrokerSvc", **kwargs):
     kwargs.setdefault('EntryLayerTool', 'ISF_AFIIEntryLayerTool')
     return getParticleBrokerSvc(name, **kwargs)
 
+
 def getSimHitService(name="ISF_SimHitService", **kwargs):
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    kwargs.setdefault('ValidationOutput', ISF_Flags.ValidationMode())
     return CfgMgr.ISF__SimHitSvc(name, **kwargs)
 
 def getNoG4SimHitService(name="ISF_NoG4SimHitService", **kwargs):
@@ -41,8 +40,8 @@ def getNoG4SimHitService(name="ISF_NoG4SimHitService", **kwargs):
     return getSimHitService(name, **kwargs)
 
 def getPileupSimHitService(name="ISF_PileupSimHitService", **kwargs):
-    kwargs.setdefault('SeparateInDetPileupHits', True)
     return getNoG4SimHitService(name, **kwargs)
+
 
 def getISFEnvelopeDefSvc(name="ISF_ISFEnvelopeDefSvc", **kwargs):
     # ATLAS common envlope definitions

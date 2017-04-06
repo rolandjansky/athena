@@ -16,6 +16,7 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/IConverter.h"
 #include "AthenaKernel/IProxyDict.h"
 
 #include <GaudiKernel/ClassID.h>        // for CLID
@@ -892,6 +893,22 @@ public:
    */
   MsgStream& 
   msg (const MSG::Level lvl) const;
+
+  /**
+   * @brief Call converter to create an object, with locking.
+   * @param cvt The converter to call.
+   * @param addr Opaque address information for the object to create.
+   * @param refpObject Reference to location of the pointer of the
+   *                   created object.
+   *
+   * This calls the @c createObj method on @c cvt to create the referenced
+   * transient object, locking the store during the call.
+   */
+  virtual
+  StatusCode createObj (IConverter* cvt,
+                        IOpaqueAddress* addr,
+                        DataObject*& refpObject) override;
+
                      
   ///////////////////////////////////////////////////////////////////////
 private:
@@ -1107,6 +1124,7 @@ private:
   typedef std::lock_guard<mutex_t> lock_t;
   mutable mutex_t m_mutex;
   mutable mutex_t m_remapMutex;
+  mutable mutex_t m_stringPoolMutex;
 
   
 public:
@@ -1180,29 +1198,6 @@ void SG_dump (SGImplSvc* sg, const char* fname);
 
 
 #include "StoreGate/tools/SGImplSvc.icc"
-
-// FIXME!!!
-// #ifndef ATHENAHIVE
-// //- PyGate: StoreGate access from python -------------------------------------
-// template< class T >
-// struct PyGate {
-//   // default object retrieval
-//   static const T* retrieve( SGImplSvc* psg ) {
-//     const T* obj = 0;
-//     if ( StatusCode::SUCCESS == psg->retrieve( obj ) )
-//       return obj;
-//     return 0;
-//   }
-
-//   // object retrieval with string key
-//   static const T* retrieve( SGImplSvc* psg, const std::string& key ) {
-//     const T* obj = 0;
-//     if ( StatusCode::SUCCESS == psg->retrieve( obj, key ) )
-//       return obj;
-//     return 0;
-//   }
-// };
-// #endif
 
 // inline methods
 inline

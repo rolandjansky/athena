@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// SimKernel.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 // ISF_Algs includes
 #include "SimKernel.h"
 // ISF_Event includes

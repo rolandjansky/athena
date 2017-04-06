@@ -248,6 +248,10 @@ StatusCode PoolSvc::setupPersistencySvc() {
       return(StatusCode::FAILURE);
    }
    m_pers_mut.push_back(new CallMutex);
+   if (!m_persistencySvcVec[IPoolSvc::kInputStream]->session().technologySpecificAttributes(pool::ROOT_StorageType.type()).setAttribute<bool>("MultiThreaded", true)) {
+      ATH_MSG_FATAL("Failed to enable multithreaded ROOT via PersistencySvc.");
+      return(StatusCode::FAILURE);
+   }
    m_contextMaxFile.insert(std::pair<unsigned int, int>(IPoolSvc::kInputStream, m_dbAgeLimit));
    if (!connect(pool::ITransaction::READ).isSuccess()) {
       ATH_MSG_FATAL("Failed to connect Input PersistencySvc.");
@@ -351,7 +355,6 @@ void PoolSvc::setObjPtr(void*& obj, const Token* token) const {
       }
    }
    // Get Context ID/label from Token
-   std::lock_guard<CallMutex> dummy(m_pool_mut); // FIXME, PvG: Should go away once calling ROOT::EnableThreadSafety()
    std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
    obj = m_persistencySvcVec[contextId]->readObject(*token, obj);
    std::map<unsigned int, unsigned int>::const_iterator maxFileIter = m_contextMaxFile.find(contextId);
@@ -654,7 +657,6 @@ StatusCode PoolSvc::commit(unsigned int contextId) const {
    if (contextId >= m_persistencySvcVec.size()) {
       return(StatusCode::FAILURE);
    }
-   std::lock_guard<CallMutex> dummy(m_pool_mut);
    std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
    pool::IPersistencySvc* persSvc = m_persistencySvcVec[contextId];
    if (persSvc != nullptr && persSvc->session().transaction().isActive()) {
@@ -675,7 +677,6 @@ StatusCode PoolSvc::commitAndHold(unsigned int contextId) const {
    if (contextId >= m_persistencySvcVec.size()) {
       return(StatusCode::FAILURE);
    }
-   std::lock_guard<CallMutex> dummy(m_pool_mut);
    std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
    pool::IPersistencySvc* persSvc = m_persistencySvcVec[contextId];
    if (persSvc->session().transaction().isActive()) {
@@ -754,20 +755,16 @@ StatusCode PoolSvc::getAttribute(const std::string& optName,
    if (contextId >= m_persistencySvcVec.size()) {
       contextId = IPoolSvc::kInputStream;
    }
-   pool::ISession* sesH = &m_persistencySvcVec[contextId]->session();
-   if (sesH == nullptr) {
-       ATH_MSG_DEBUG("Failed to get SessionHandle for context " << contextId << " to get POOL property.");
-      return(StatusCode::FAILURE);
-   }
+   pool::ISession& sesH = m_persistencySvcVec[contextId]->session();
    std::ostringstream oss;
    if (data == "DbLonglong") {
-      long long int value = sesH->technologySpecificAttributes(tech).attribute<long long int>(optName);
+      long long int value = sesH.technologySpecificAttributes(tech).attribute<long long int>(optName);
       oss << std::dec << value;
    } else if (data == "double") {
-      double value = sesH->technologySpecificAttributes(tech).attribute<double>(optName);
+      double value = sesH.technologySpecificAttributes(tech).attribute<double>(optName);
       oss << std::dec << value;
    } else {
-      int value = sesH->technologySpecificAttributes(tech).attribute<int>(optName);
+      int value = sesH.technologySpecificAttributes(tech).attribute<int>(optName);
       oss << std::dec << value;
    }
    data = oss.str();
@@ -846,20 +843,16 @@ StatusCode PoolSvc::setAttribute(const std::string& optName,
    if (contextId >= m_persistencySvcVec.size()) {
       contextId = IPoolSvc::kOutputStream;
    }
-   pool::ISession* sesH = &m_persistencySvcVec[contextId]->session();
-   if (sesH == nullptr) {
-      ATH_MSG_DEBUG("Failed to get SessionHandle to set POOL property.");
-      return(StatusCode::FAILURE);
-   }
+   pool::ISession& sesH = m_persistencySvcVec[contextId]->session();
    if (data[data.size() - 1] == 'L') {
       long long int value = atoll(data.c_str());
-      if (!sesH->technologySpecificAttributes(tech).setAttribute<long long int>(optName, value)) {
+      if (!sesH.technologySpecificAttributes(tech).setAttribute<long long int>(optName, value)) {
          ATH_MSG_DEBUG("Failed to set POOL property, " << optName << " to " << data);
          return(StatusCode::FAILURE);
       }
    } else {
       int value = atoi(data.c_str());
-      if (!sesH->technologySpecificAttributes(tech).setAttribute<int>(optName, value)) {
+      if (!sesH.technologySpecificAttributes(tech).setAttribute<int>(optName, value)) {
          ATH_MSG_DEBUG("Failed to set POOL property, " << optName << " to " << data);
          return(StatusCode::FAILURE);
       }

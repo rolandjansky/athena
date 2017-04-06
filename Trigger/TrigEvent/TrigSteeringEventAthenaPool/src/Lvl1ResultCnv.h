@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : Lvl1ResultCnv
+ * @class  : Lvl1ResultCnv
  *
  * @brief  The converter for TrigEventAthenaPool/Lvl1Result_pX. It calls the
  *         converters for specific persistent data formats (for now only Lvl1Result_p1).

@@ -1364,7 +1364,7 @@ SGImplSvc::record_HistObj(const CLID& id, const std::string& key,
 SGImplSvc::sgkey_t
 SGImplSvc::stringToKey (const std::string& str, CLID clid)
 {
-  lock_t lock (m_mutex);
+  lock_t lock (m_stringPoolMutex);
   return m_stringpool.stringToKey (str, clid);
 }
 
@@ -1378,7 +1378,7 @@ SGImplSvc::stringToKey (const std::string& str, CLID clid)
  */
 const std::string* SGImplSvc::keyToString (sgkey_t key) const
 {
-  lock_t lock (m_mutex);
+  lock_t lock (m_stringPoolMutex);
   return m_stringpool.keyToString (key);
 }
 
@@ -1394,7 +1394,7 @@ const std::string* SGImplSvc::keyToString (sgkey_t key) const
 const std::string*
 SGImplSvc::keyToString (sgkey_t key, CLID& clid) const
 {
-  lock_t lock (m_mutex);
+  lock_t lock (m_stringPoolMutex);
   return m_stringpool.keyToString (key, clid);
 }
 
@@ -1415,7 +1415,7 @@ void SGImplSvc::registerKey (sgkey_t key,
                              const std::string& str,
                              CLID clid)
 {
-  lock_t lock (m_mutex);
+  lock_t lock (m_stringPoolMutex);
   if (!m_stringpool.registerKey (key, str, clid)) {
     CLID clid2;
     const std::string* str2 = m_stringpool.keyToString (key, clid2);
@@ -1688,6 +1688,26 @@ void SGImplSvc::makeCurrent()
   lock_t lock (m_mutex);
   m_arena.makeCurrent();
   SG::CurrentEventStore::setStore (this);
+}
+
+
+/**
+ * @brief Call converter to create an object, with locking.
+ * @param cvt The converter to call.
+ * @param addr Opaque address information for the object to create.
+ * @param refpObject Reference to location of the pointer of the
+ *                   created object.
+ *
+ * This calls the @c createObj method on @c cvt to create the referenced
+ * transient object, locking the store during the call.
+ */
+StatusCode
+SGImplSvc::createObj (IConverter* cvt,
+                      IOpaqueAddress* addr,
+                      DataObject*& refpObject)
+{
+  lock_t lock (m_mutex);
+  return cvt->createObj (addr, refpObject);
 }
 
 

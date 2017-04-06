@@ -46,14 +46,14 @@ public:
 
 private:
   void Compute();                                                                /*!< Performs the ensemble test to model final PDF. */
-  std::vector< std::vector< APWeightEntry* > > _weight_vector;                   /*!< Holds the weight objects (dim2) for each event (dim1). */
-  std::vector< APWeightEntry* > _current_evt_pdfs;                               /*!< Holds the weight objects for the current event. */
-  std::vector< double > _ext_weights;                                            /*!< Holds the external event weight provided when finishing the respective events. */
-  double _rel_prec;                                                              /*!< Holds the relative precision of the gaussian fit to stop the ensemble test at. */
-  TH1F *_pdf;                                                                    /*!< Holds the TH1F instance from the arrays if computed. */
-  double _ensemble_mode;                                                         /*!< Holds the Mode (= sum of weights from PDF) from ensemble test. */
-  double _ensemble_sigma;                                                        /*!< Holds the standard deviation from ensemble test. */
-  bool _ensembleTest_done;                                                       /*!< Flag if the ensemble test has been performed with the current set of weights. */
+  std::vector< std::vector< APWeightEntry* > > m_weight_vector;                   /*!< Holds the weight objects (dim2) for each event (dim1). */
+  std::vector< APWeightEntry* > m_current_evt_pdfs;                               /*!< Holds the weight objects for the current event. */
+  std::vector< double > m_ext_weights;                                            /*!< Holds the external event weight provided when finishing the respective events. */
+  double m_rel_prec;                                                              /*!< Holds the relative precision of the gaussian fit to stop the ensemble test at. */
+  TH1F *m_pdf;                                                                    /*!< Holds the TH1F instance from the arrays if computed. */
+  double m_ensemble_mode;                                                         /*!< Holds the Mode (= sum of weights from PDF) from ensemble test. */
+  double m_ensemble_sigma;                                                        /*!< Holds the standard deviation from ensemble test. */
+  bool m_ensembleTest_done;                                                       /*!< Flag if the ensemble test has been performed with the current set of weights. */
 };
 
 #endif

@@ -45,27 +45,27 @@ class RDBRecord : public IRDBRecord
   bool isFieldNull(const std::string& fieldName) const;
 
   /// Get int field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @return field value
   int getInt(const std::string& fieldName) const;
 
   /// Get long field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @return field value
   long getLong(const std::string& fieldName) const;
 
   /// Get double field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @return field value
   double getDouble(const std::string& fieldName) const;
 
   /// Get float field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @return field value
   float getFloat(const std::string& fieldName) const;
 
   /// Get string field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @return field value
   std::string getString(const std::string& fieldName) const;
 
@@ -73,31 +73,31 @@ class RDBRecord : public IRDBRecord
   // arrays are implemented using the field with names like NAME_0, NAME_1 etc.
 
   /// Get array int field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @param index [IN] index in the array
   /// @return field value
   int getInt(const std::string& fieldName, unsigned int index) const;
 
   /// Get array long field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @param index [IN] index in the array
   /// @return field value
   long getLong(const std::string& fieldName, unsigned int index) const;
 
   /// Get array double field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @param index [IN] index in the array
   /// @return field value
   double getDouble(const std::string& fieldName, unsigned int index) const;
 
   /// Get array float field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @param index [IN] index in the array
   /// @return field value
   float getFloat(const std::string& fieldName, unsigned int index) const;
 
   /// Get array string field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @param index [IN] index in the array
   /// @return field value
   std::string getString(const std::string& fieldName, unsigned int index) const;

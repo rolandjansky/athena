@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigCaloEventTPCnv
- * @Class  : TrigT2JetCnv_tlp1
+ * @class  : TrigT2JetCnv_tlp1
  *
  * @brief "top level" transient-persistent converter for TrigT2Jet
  *

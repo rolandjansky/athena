@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : TileTrackMuFeatureContainerCnv
+ * @class  : TileTrackMuFeatureContainerCnv
  *
  * @brief transient persistent converter for TrigMuonContainer
  *

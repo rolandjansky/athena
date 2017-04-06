@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: ATLAS HLT Steering Monitoring
  * @Package: Trigger/TrigMonitoring/TrigSteerMonitor
- * @Class  : TrigErrorMon
+ * @class  : TrigErrorMon
  *
  * @brief  :  monitor HLT error code (HLT and chain status)
  *

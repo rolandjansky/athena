@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigParticleTPCnv
- * @Class  : TrigL2BjetContainer_p1
+ * @class  : TrigL2BjetContainer_p1
  *
  * @brief persistent partner for TrigL2BjetContainer
  *

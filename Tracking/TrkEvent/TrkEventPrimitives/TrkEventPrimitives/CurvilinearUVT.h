@@ -25,7 +25,7 @@ namespace Trk {
       simple class that constructs the curvilinear vectors curvU and curvV
       from a given momentum direction (must be unit vector).
      
-     The curvilinear frame @f$ (\vec u, \vec v, \vec t) at each point @f$ m @f$ is constructed by:
+     The curvilinear frame @f$ (\vec u, \vec v, \vec t) @f$ at each point @f$ m @f$ is constructed by:
      
      - @f$ \vec t = \vec{curvT} @f$ ... momentum direction at @f$ m @f$ 
      - @f$ \vec u = \vec{curvU} = \frac{\vec t \times \vec z}{||\vec t \times \vec z||} @f$ ... with @f$ \vec z @f$ the global z-axis  

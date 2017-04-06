@@ -2,16 +2,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _GeoMuonHits_h_
-#define _GeoMuonHits_h_
+#ifndef GEOADAPTORS_GEOMUONHITS_H
+#define GEOADAPTORS_GEOMUONHITS_H
 //----------------------------------------------------------//
 //                                                          //
-// And adaptor for MuonHits.                                //
+// An adaptor for MuonHits.                                 //
 //                                                          //
 // Joe Boudreau Feb 24.                                     //
 //                                                          //
 // This adaptor class allows Muon(MDT,RPC,TGC, CSC) Hits to //
-// behave as if they knew which detector they were in..     //
+// behave as if they knew which detector they were in.      //
 //                                                          //
 // imt 2005/11/4 PrepRawData just need access to helpers... //
 //                                                          //
@@ -59,18 +59,18 @@ class GeoMDTHit {
   Amg::Vector3D getGlobalPosition() const;
 
    // Underlying hit.
-  const MDTSimHit &data() const { return *_hit;}
+  const MDTSimHit &data() const { return *m_hit;}
 
   // Is this hit OK?
-  operator bool () const { return _man; }
+  operator bool () const { return s_man; }
 
  private:
 
   static void init();
   
-  const MDTSimHit* _hit;
-  static const MuonGM::MuonDetectorManager* _man;
-  static const MdtIdHelper* _mdtID;
+  const MDTSimHit* m_hit;
+  static const MuonGM::MuonDetectorManager* s_man;
+  static const MdtIdHelper* s_mdtID;
 };
 
 class GeoRPCHit {
@@ -84,17 +84,17 @@ class GeoRPCHit {
   Amg::Vector3D getGlobalPosition() const;
 
   // Underlying hit.
-  const RPCSimHit &data() const { return *_hit;}
+  const RPCSimHit &data() const { return *m_hit;}
   
   // Is this hit OK?
-  operator bool () const { return _man; }
+  operator bool () const { return s_man; }
 
  private:
   static void init();
   
-  const RPCSimHit* _hit;
-  static const MuonGM::MuonDetectorManager* _man;
-  static const RpcIdHelper* _rpcID;
+  const RPCSimHit* m_hit;
+  static const MuonGM::MuonDetectorManager* s_man;
+  static const RpcIdHelper* s_rpcID;
 
 };
 
@@ -109,19 +109,19 @@ class GeoTGCHit {
   Amg::Vector3D getGlobalPosition() const;
 
   // Underlying hit.
-  const TGCSimHit &data() const { return *_hit;}
+  const TGCSimHit &data() const { return *m_hit;}
 
   // Is this hit OK?
-  operator bool () const { return _man; }
+  operator bool () const { return s_man; }
 
  
 
  private:
   static void init();
   
-  const TGCSimHit *_hit;
-  static const MuonGM::MuonDetectorManager* _man;
-  static const TgcIdHelper* _tgcID;
+  const TGCSimHit *m_hit;
+  static const MuonGM::MuonDetectorManager* s_man;
+  static const TgcIdHelper* s_tgcID;
 
 };
 
@@ -137,17 +137,17 @@ class GeoCSCHit {
   Amg::Vector3D getGlobalPosition() const;
 
   // Underlying hit.
-  const CSCSimHit &data() const { return *_hit;}
+  const CSCSimHit &data() const { return *m_hit;}
 
   // Is this hit OK?
-  operator bool () const { return _man; }
+  operator bool () const { return s_man; }
 
  private:
   static void init();
   
-  const CSCSimHit                                 *_hit;
-  static const MuonGM::MuonDetectorManager* _man;
-  static const CscIdHelper* _cscID;
+  const CSCSimHit                                 *m_hit;
+  static const MuonGM::MuonDetectorManager* s_man;
+  static const CscIdHelper* s_cscID;
 
 };
 
@@ -168,19 +168,19 @@ class GeoMMHit {
   Amg::Vector3D getTrkGlobalPosition() const;
   
   // Underlying hit.
-  const GenericMuonSimHit &data() const { return *_hit;}
+  const GenericMuonSimHit &data() const { return *m_hit;}
 
   // Is this hit OK?
-  operator bool () const { return _man; }
+  operator bool () const { return s_man; }
 
  
 
  private:
   static void init();
   
-  const GenericMuonSimHit *_hit;
-  static const MuonGM::MuonDetectorManager* _man;
-  static const MmIdHelper* _mmID;
+  const GenericMuonSimHit *m_hit;
+  static const MuonGM::MuonDetectorManager* s_man;
+  static const MmIdHelper* s_mmID;
 
 };
 
@@ -195,19 +195,19 @@ class GeosTGCHit {
   Amg::Vector3D getGlobalPosition() const;
 
   // Underlying hit.
-  const GenericMuonSimHit &data() const { return *_hit;}
+  const GenericMuonSimHit &data() const { return *m_hit;}
 
   // Is this hit OK?
-  operator bool () const { return _man; }
+  operator bool () const { return s_man; }
 
  
 
  private:
   static void init();
   
-  const GenericMuonSimHit *_hit;
-  static const MuonGM::MuonDetectorManager* _man;
-  static const sTgcIdHelper* _stgcID;
+  const GenericMuonSimHit *m_hit;
+  static const MuonGM::MuonDetectorManager* s_man;
+  static const sTgcIdHelper* s_stgcID;
 
 };
 

@@ -1,5 +1,8 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "AlgA.h"
-#include "CxxUtils/make_unique.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "StoreGate/ReadHandle.h"
@@ -10,6 +13,7 @@
 #include <thread>
 #include <chrono>
 #include <ctime>
+#include <memory>
 
 AlgA::AlgA( const std::string& name, 
 		    ISvcLocator* pSvcLocator ) : 
@@ -60,7 +64,7 @@ StatusCode AlgA::execute() {
 
 
   SG::WriteHandle<HiveDataObj> wh1(m_wrh1);
-  ATH_CHECK( wh1.record( CxxUtils::make_unique<HiveDataObj> 
+  ATH_CHECK( wh1.record( std::make_unique<HiveDataObj> 
                          ( HiveDataObj(10000 + 
                                        evt->event_ID()->event_number()*100 + 
                                        m_i) ) )
@@ -69,7 +73,7 @@ StatusCode AlgA::execute() {
 
 
   SG::WriteHandle<HiveDataObj> wh2(m_wrh2);
-  ATH_CHECK( wh2.record( CxxUtils::make_unique< HiveDataObj >( HiveDataObj(10050+m_i) ) ) );
+  ATH_CHECK( wh2.record( std::make_unique< HiveDataObj >( HiveDataObj(10050+m_i) ) ) );
   ATH_MSG_INFO("  write: " << wh2.key() << " = " << wh2->val() );
     
   m_i += 1;

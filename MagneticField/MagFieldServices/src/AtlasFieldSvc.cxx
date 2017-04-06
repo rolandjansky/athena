@@ -31,10 +31,6 @@
 #include "TFile.h"
 #include "TTree.h"
 
-namespace {
-    inline double atan2fast(double y, double x);
-}
-
 /** Constructor **/
 MagField::AtlasFieldSvc::AtlasFieldSvc(const std::string& name,ISvcLocator* svc) :
     AthService(name,svc),
@@ -56,7 +52,7 @@ MagField::AtlasFieldSvc::AtlasFieldSvc(const std::string& name,ISvcLocator* svc)
     m_mapHandle(),
     m_currentHandle(),
     m_zone(),
-    m_meshZR(0),
+    m_meshZR(nullptr),
     m_edge(),
     m_edgeLUT(),
     m_invq(),
@@ -138,11 +134,11 @@ StatusCode MagField::AtlasFieldSvc::initialize()
 
         ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
         if (incidentSvc.retrieve().isFailure()) {
-                ATH_MSG_FATAL( "Unable to retrieve the IncidentSvc" );
-                return StatusCode::FAILURE;
+            ATH_MSG_FATAL( "Unable to retrieve the IncidentSvc" );
+            return StatusCode::FAILURE;
         } else {
             incidentSvc->addListener( this, IncidentType::BeginRun );
-                ATH_MSG_INFO( "Added listener to BeginRun incident" );
+            ATH_MSG_INFO( "Added listener to BeginRun incident" );
         }
     }
 
@@ -460,8 +456,8 @@ void MagField::AtlasFieldSvc::getField(const double *xyz, double *bxyz, double *
   const double &x(xyz[0]);
   const double &y(xyz[1]);
   const double &z(xyz[2]);
-  double r = sqrt(x * x + y * y);
-  double phi = atan2fast(y, x);
+  double r = std::sqrt(x * x + y * y);
+  double phi = std::atan2(y, x);
 
   // retrieve the thread-local storage
   AtlasFieldSvcTLS &tls = getAtlasFieldSvcTLS();
@@ -494,8 +490,8 @@ void MagField::AtlasFieldSvc::getField(const double *xyz, double *bxyz, double *
 
   // add biot savart component
   if (tls.cond) {
-    int condSize = tls.cond->size();
-    for (int i = 0; i < condSize; i++) {
+    const size_t condSize = tls.cond->size();
+    for (size_t i = 0; i < condSize; i++) {
       (*tls.cond)[i].addBiotSavart(xyz, bxyz, deriv);
     }
   }
@@ -581,7 +577,7 @@ void MagField::AtlasFieldSvc::clearMap(AtlasFieldSvcTLS &tls)
     tls.cache.invalidate();
     tls.cacheZR.invalidate();
 
-    tls.cond = 0;
+    tls.cond = nullptr;
     // Next lines clear m_zone, m_edge[3], m_edgeLUT[3], and m_zoneLUT and deallocate their memory.
     std::vector<BFieldZone>().swap(m_zone);
     for ( int i = 0; i < 3; i++ ) {
@@ -595,7 +591,7 @@ void MagField::AtlasFieldSvc::clearMap(AtlasFieldSvcTLS &tls)
     m_rmax = -1.0;
     m_nz = m_nr = m_nphi = 0;
     delete m_meshZR;
-    m_meshZR = 0;
+    m_meshZR = nullptr;
 }
 
 //
@@ -1456,62 +1452,5 @@ int MagField::AtlasFieldSvc::memSize() const
         size += m_meshZR->memSize();
     }
     return size;
-}
-
-//
-// Fast (less accurate) atan2()
-//
-namespace {
-
-double atan2fast(double y, double x)
-{
-    const double halfpi(M_PI / 2.);
-    const double sixthpi(M_PI / 6.);
-    const double tansixthpi(tan(M_PI / 6.));
-    const double tantwelfthpi(tan(M_PI / 12.));
-
-    bool complement(false);
-    bool sign(false);
-    bool region(false);
-
-    // test zeros
-    if (y == 0.0) return 0.0;
-    if (x == 0.0) return halfpi;
-
-    // normalize range to -pi/12 to pi/12
-    double z = y / x;
-    if (z < 0) {
-        z = -z;
-        sign = true;
-    }
-    if (z > 1.0) {
-        z = 1.0 / z;
-        complement = true;
-    }
-    if (z > tantwelfthpi) {
-        z = (z - tansixthpi) / (1 + tansixthpi * z);
-        region = true;
-    }
-
-    // compute approximate atan
-    const double c1 = 1.6867629106;
-    const double c2 = 0.4378497304;
-    const double c3 = 1.6867633134;
-
-    double zz = z * z;
-    double v = (z * (c1 + zz * c2) / (c3 + zz));
-
-    // go back to the original range
-    if (region) v += sixthpi;
-    if (complement) v = halfpi - v;
-    if (sign) v = -v;
-    if (x < 0.0) {
-        if (v < 0.0) v += M_PI;
-        else v -= M_PI;
-    }
-
-    return v;
-}
-
 }
 

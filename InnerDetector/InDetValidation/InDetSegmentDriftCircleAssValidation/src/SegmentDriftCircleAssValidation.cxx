@@ -203,7 +203,8 @@ std::ostream& InDet::operator <<
 MsgStream& InDet::SegmentDriftCircleAssValidation::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumptools(out);
+  if(m_nprint)  return dumpevent(out);
+  return dumptools(out);
 }
 
 ///////////////////////////////////////////////////////////////////

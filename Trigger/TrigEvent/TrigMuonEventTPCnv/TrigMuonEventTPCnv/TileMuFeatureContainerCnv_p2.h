@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigMuonEventTPCnv
- * @Class  : TileMuFeatureContainerCnv_p2
+ * @class  : TileMuFeatureContainerCnv_p2
  *
  * @brief transient-persistent converter for TileMuFeatureContainer_p2
  *

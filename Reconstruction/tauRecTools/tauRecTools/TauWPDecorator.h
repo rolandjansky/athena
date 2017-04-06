@@ -87,8 +87,8 @@ private:
     std::string m_scoreName;
     std::string m_newScoreName;
 
-    SG::AuxElement::ConstAccessor<float>* acc_score;
-    SG::AuxElement::Accessor<float>* acc_newScore;
+    SG::AuxElement::ConstAccessor<float>* m_acc_score;
+    SG::AuxElement::Accessor<float>* m_acc_newScore;
 
 };
 

@@ -12,10 +12,10 @@
 using namespace std;
 using namespace JetSubStructureUtils;
 
-Dipolarity::Dipolarity(unsigned int m_n1, unsigned int m_n2, bool exclusive, double subjetR) :
+Dipolarity::Dipolarity(unsigned int n1, unsigned int n2, bool exclusive, double subjetR) :
   m_exclusive(exclusive),
-  m_n1(m_n1),
-  m_n2(m_n2),
+  m_n1(n1),
+  m_n2(n2),
   m_subjetR(subjetR) {
 
     if(m_n2 <= m_n1 || m_n1 == 0) {

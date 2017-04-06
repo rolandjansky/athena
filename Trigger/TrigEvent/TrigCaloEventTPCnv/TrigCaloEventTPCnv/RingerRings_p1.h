@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigCaloEventTPCnv
- * @Class  : RingerRings_p1
+ * @class  : RingerRings_p1
  *
  * @brief persistent partner for RingerRings
  *

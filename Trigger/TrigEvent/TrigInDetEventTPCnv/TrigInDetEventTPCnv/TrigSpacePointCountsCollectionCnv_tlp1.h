@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigInDetEventTPCnv
- * @Class  : TrigSpacePointCountsCollectionCnv_tlp1
+ * @class  : TrigSpacePointCountsCollectionCnv_tlp1
  *
  * @brief "top-level" transient-persistent converter for TrigSpacePointCountsCollection_tlp1
  *

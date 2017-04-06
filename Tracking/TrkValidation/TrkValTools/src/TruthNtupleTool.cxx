@@ -13,10 +13,7 @@
 
 
 //Gaudi
-#include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/PropertyMgr.h"
 
 // Trk
 #include "TrkValTools/TruthNtupleTool.h"

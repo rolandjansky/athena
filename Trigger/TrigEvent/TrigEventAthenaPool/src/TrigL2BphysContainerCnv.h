@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : TrigL2BphysContainerCnv
+ * @class  : TrigL2BphysContainerCnv
  *
  * @brief transient persistent converter for TrigL2BphysContainer
  *

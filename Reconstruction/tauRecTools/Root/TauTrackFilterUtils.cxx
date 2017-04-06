@@ -236,16 +236,17 @@ float TauTrackFilterUtils::ComputePi0Cone(int recProngs,TLorentzVector tau){
    return angle;
 } //End ComputePi0Cone
 
+
 float TauTrackFilterUtils::ComputeAngle(float p, float eta, float a[9][4], int npar, int npol, char eqn[]){
-   char name[10];
-   char poleqn[10];
+   char name[13];
+   char poleqn[13];
    
    //TF1* etacoeff[npar]; //FIXME variable length array, use something like: = new TF1[npar];
    std::vector<TF1> etacoeff;
    TF1* pcone = new TF1("pcone",eqn); 
    for(int i=0;i<npar;i++){
-      sprintf(name,"p%i",i);
-      sprintf(poleqn,"pol%i",npol);
+      snprintf(name,sizeof(name),"p%i",i);
+      snprintf(poleqn,sizeof(poleqn),"pol%i",npol);
       etacoeff.push_back(TF1(name,poleqn));
       for(int j=0;j<npol;j++) etacoeff.at(i).SetParameter(j,a[j][i]);
 		  pcone->SetParameter(i,etacoeff.at(i).Eval(eta));

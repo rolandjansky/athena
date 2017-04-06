@@ -34,7 +34,8 @@ s/^StoreGateSvc_Impl   DEBUG/StoreGateSvc        DEBUG/
 s/StoreGateSvc_Impl/StoreGateSvc/
 s/SGImplSvc/StoreGateSvc/
 s/SG::DataProxyHolder::sgkey_t/sgkey_t/
-s!\\\\(ERROR\\\\|INFO\\\\|WARNING\\\\|FATAL\\\\) [^ ]*/!\\\\1 ../!
+s!(ERROR|INFO|WARNING|FATAL) [^ ]*/!\\\\1 ../!
+s/(\.cxx|\.cpp|\.h|\.icc|LINE):[0-9]+/\\\\1/
 s/.[[][?]1034h//
 s/([0-9][0-9]* ms)/(xx ms)/
 s/([0-9][0-9]* ms total)/(xx ms total)/
@@ -154,7 +155,7 @@ PP="$PP"'|^(StoreGateSvc|[^ ]+Store) +(INFO|VERBOSE) (Stop|stop|Start)'
 PP="$PP"'|^warn  .fn-'
 
 # ubsan
-PP="$PP"'|bits/regex.h:1545'
+PP="$PP"'|bits/regex.h:11'
 
 # More StoreGate changes.
 PP="$PP"'|DEBUG trying to create store'
@@ -206,9 +207,9 @@ else
        if [ -r $reflog ]
            then
 	   jobrep=${joblog}-rep
-	   sed "$II" $joblog > $jobrep
+	   sed -r "$II" $joblog > $jobrep
 	   refrep=`basename ${reflog}`-rep
-	   sed "$II" $reflog > $refrep
+	   sed -r "$II" $reflog > $refrep
            jobdiff=${joblog}-todiff
            refdiff=`basename ${reflog}`-todiff
            egrep -a -v "$PP" < $jobrep > $jobdiff

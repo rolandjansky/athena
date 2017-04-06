@@ -670,14 +670,14 @@ namespace Muon {
     if( !RpcCont.isValid() ) {
       ATH_MSG_DEBUG(" Failed to retrieve RpcPrepDataContainer, will not recover rpc trigger hits ");
     }
-    else m_rpcPrdContainer=RpcCont.get();
+    else m_rpcPrdContainer=RpcCont.cptr();
     
     m_tgcPrdContainer=0;
     SG::ReadHandle<Muon::TgcPrepDataContainer> TgcCont(m_keyTgc);
     if(!TgcCont.isValid() ) {
 	ATH_MSG_DEBUG(" Failed to retrieve TgcPrepDataContainer, will not recover tgc trigger hits ");
     }
-    else m_tgcPrdContainer=TgcCont.get();
+    else m_tgcPrdContainer=TgcCont.cptr();
   
   }
 

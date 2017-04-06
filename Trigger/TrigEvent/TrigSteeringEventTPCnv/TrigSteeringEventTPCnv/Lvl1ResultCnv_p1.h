@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigSteeringEventTPCnv
- * @Class  : Lvl1ResultCnv_p1
+ * @class  : Lvl1ResultCnv_p1
  *
  * @brief  The converter for the Lvl1Result_p1 persistent format.
  *

@@ -25,54 +25,54 @@ namespace TauShotVariableHelpers {
 
     /** @brief mean eta, used by other functions */
     float mean_eta(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
-                   ToolHandle<IHadronicCalibrationTool>& /*m_caloWeightTool*/);
+                   ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
 
     /** @brief mean pt, used by other functions */ 
     float mean_pt(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
-                  ToolHandle<IHadronicCalibrationTool>& /*m_caloWeightTool*/);
+                  ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
 
     /** @brief pt in windows */
     float ptWindow(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
                    int /*windowSize*/, 
-                   ToolHandle<IHadronicCalibrationTool>& /*m_caloWeightTool*/);
+                   ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
 
     /** @brief ws5 variable (egamma) */
     float ws5(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
-                          ToolHandle<IHadronicCalibrationTool>& /*m_caloWeightTool*/);
+                          ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
 
     /** @brief standard deviation in eta WRT mean */
     float sdevEta_WRTmean(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
-                          ToolHandle<IHadronicCalibrationTool>& /*m_caloWeightTool*/);
+                          ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
 
     /** @brief standard deviation in eta WRT mode */
     float sdevEta_WRTmode(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
-                          ToolHandle<IHadronicCalibrationTool>& /*m_caloWeightTool*/);
+                          ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
 
     /** @brief normalized standard deviation in pt */
     float sdevPt(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
-                             ToolHandle<IHadronicCalibrationTool>& /*m_caloWeightTool*/);
+                             ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
 
     /** @brief pT diff b/w lead and sub-lead cell */
     float deltaPt12_min(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
-                        ToolHandle<IHadronicCalibrationTool>& /*m_caloWeightTool*/);
+                        ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
 
     /** @brief Fside variable (egamma) */
     float Fside(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
                 int /*largerWindow*/, 
                 int /*smallerWindow*/, 
-                ToolHandle<IHadronicCalibrationTool>& /*m_caloWeightTool*/);
+                ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
 
     /** @brief similar than Fside but in unit of eta instead of number of cells */
     float fracSide(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
                    int /*largerWindow*/, 
                    int /*smallerWindow*/, 
-                   ToolHandle<IHadronicCalibrationTool>& /*m_caloWeightTool*/);
+                   ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
 
     /** @brief pt window fraction */
     float ptWindowFrac(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
                        int /*largerWindow*/, 
                        int /*smallerWindow*/, 
-                       ToolHandle<IHadronicCalibrationTool>& /*m_caloWeightTool*/);
+                       ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
 }
 
 #endif // TAUSHOTVARIABLEHELPERS_H

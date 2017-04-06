@@ -392,7 +392,13 @@ int main()
   // These allocate static data in ctors.
   ElementLinkCnv_p2<ElementLink<CaloShowerContainer> >  dumcnv1;
   ElementLinkCnv_p2<ElementLink<CaloCellLinkContainer> >  dumcnv2;
-  DataPool<CaloCluster> pooldum;
+  {
+    // Need to instantiate an instance of this before Leakcheck,
+    // to get the allocator created.  But the instance will also
+    // hold a lock on the allocator, so can't leave this live
+    // or we'll deadlock.
+    DataPool<CaloCluster> pooldum;
+  }
   Athena_test::Leakcheck check;
   std::unique_ptr<const CaloClusterContainer> clust = make_clusters();
   testit<CaloClusterContainer_p7, CaloClusterContainerCnvTest_p7> (*clust, 7);

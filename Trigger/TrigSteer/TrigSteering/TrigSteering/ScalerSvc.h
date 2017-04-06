@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : ScalerSvc, IScalerFactory, ScalerFactory
+ * @class  : ScalerSvc, IScalerFactory, ScalerFactory
  *
  * @brief : The ScalerSvc is responsible for all scaler engines.
  *

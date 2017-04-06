@@ -129,10 +129,16 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
   m_SF_SS.clear();
   m_SF_OS.clear();
   TList* keyListfolder = rootFile->GetListOfKeys();
+std::vector<std::string> names;
 
   for ( int j=0; j<keyListfolder->GetEntries(); j++ ){
+names.push_back(( keyListfolder->At(j)->GetName() ));
+}
+std::sort(names.begin(), names.end());
 
-    std::string name = ( keyListfolder->At(j)->GetName() );
+ for ( unsigned int j=0; j<names.size(); j++ ){
+
+    std::string name = names.at(j);
     ATH_MSG_DEBUG("Got ROOT object with name: " << name);
     if ( name.find(Form("SFCentral_") ) != std::string::npos){
       ATH_MSG_VERBOSE("Found name 'SFCentral_' in ROOT object name");
@@ -143,7 +149,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
         ATH_MSG_VERBOSE("Found name '_OS' in ROOT object name");
       }
       if (isOS){
-        std::string histid = ( keyListfolder->At(j)->GetName() );
+        std::string histid = ( names.at(j) );
         histid.erase(0,10);
         histid.erase(histid.size()-3,3);// remove _SS, _OS
         ATH_MSG_VERBOSE("Using histid: " << histid);
@@ -160,14 +166,14 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
           m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runhigh.c_str())) );
         }
         ATH_MSG_VERBOSE("Using histid (OS hid): " << histid);
-        m_SF_OS[histid].push_back( (TH2D*)rootFile->Get( keyListfolder->At(j)->GetName() ));
+        m_SF_OS[histid].push_back( (TH2D*)rootFile->Get( names.at(j).c_str() ));
       }
       else {
-        std::string histid = ( keyListfolder->At(j)->GetName() );
+        std::string histid = ( names.at(j) );
         histid.erase(0,10);
         histid.erase(histid.size()-3,3);// remove _SS, _OS
         ATH_MSG_VERBOSE("Using histid (do we this in ? SS): " << histid);
-        m_SF_SS[histid].push_back( (TH2D*)rootFile->Get( keyListfolder->At(j)->GetName() ));
+        m_SF_SS[histid].push_back( (TH2D*)rootFile->Get( names.at(j).c_str() ));
       }
     }///// if ( name.find(Form("SFCentral_") ) != std::string::npos)
 
@@ -181,7 +187,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
         ATH_MSG_VERBOSE("Found name '_OS' in ROOT object name");
       }
       if ( isOS ){
-        std::string histid = ( keyListfolder->At(j)->GetName() );
+        std::string histid = ( names.at(j) );
         histid.erase(0,5);
         histid.erase(histid.size()-3,3);// remove _SS, _OS
         ATH_MSG_VERBOSE("Using histid: " << histid);
@@ -198,15 +204,15 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
 //          m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runhigh.c_str())) );
         }
         ATH_MSG_VERBOSE("Using histid (OS hid): " << histid);
-        m_SF_OS[histid].push_back( (TH2D*)rootFile->Get( keyListfolder->At(j)->GetName() ));
+        m_SF_OS[histid].push_back( (TH2D*)rootFile->Get( names.at(j).c_str() ));
       }
       else {
-        std::string histid = ( keyListfolder->At(j)->GetName() );
+        std::string histid = ( names.at(j) );
         ATH_MSG_VERBOSE("Found  histid: " << histid);
         histid.erase(0,5);
         histid.erase(histid.size()-3,3);// remove _SS, _OS
         ATH_MSG_VERBOSE("Using histid (do we this in ? SS): " << histid);
-        m_SF_SS[histid].push_back( (TH2D*)rootFile->Get( keyListfolder->At(j)->GetName() ));
+        m_SF_SS[histid].push_back( (TH2D*)rootFile->Get( names.at(j).c_str() ));
       }
 
     }///// if ( name.find(Form("SYST") ) != std::string::npos)
@@ -221,7 +227,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
         ATH_MSG_VERBOSE("Found name '_OS' in ROOT object name");
       }
       if ( isOS ){
-        std::string histid = ( keyListfolder->At(j)->GetName() );
+        std::string histid = ( names.at(j) );
         histid.erase(0,4);
         histid.erase(histid.size()-3,3);// remove _SS, _OS
 
@@ -243,15 +249,15 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
     //      m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runhigh.c_str())) );
         }
         ATH_MSG_VERBOSE("Using histid (OS hid): " << histid);
-        m_SF_OS[histid].push_back( (TH2D*)rootFile->Get( keyListfolder->At(j)->GetName() ));
+        m_SF_OS[histid].push_back( (TH2D*)rootFile->Get( names.at(j).c_str() ));
       }
       else {
-        std::string histid = ( keyListfolder->At(j)->GetName() );
+        std::string histid = ( names.at(j) );
         histid.erase(0,4);
         histid.erase(histid.size()-3,3);// remove _SS, _OS
         histid.erase(0,histid.find("_")+1);// remove _SS, _OS
         ATH_MSG_VERBOSE("Using histid (sys ? SS): " << histid);
-        m_SF_SS[histid].push_back( (TH2D*)rootFile->Get( keyListfolder->At(j)->GetName() ));
+        m_SF_SS[histid].push_back( (TH2D*)rootFile->Get( names.at(j).c_str() ));
       }
 
     }///end // if ( name.find(Form("SYST") ) != std::string::npos)
@@ -395,14 +401,14 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD:
       runnumber = randomrunnumber(*(eventInfo));
     }
     ATH_MSG_DEBUG("Number of RunNumbers: " << m_RunNumbers.size() );
-    for ( std::size_t r=0; r<m_RunNumbers.size()-1; r++ ){
-ATH_MSG_VERBOSE(  m_RunNumbers.at(r) );
+    for ( std::size_t r=0; r<m_RunNumbers.size(); r++ ){
+ATH_MSG_DEBUG(  m_RunNumbers.at(r) );
 	}
 ATH_MSG_VERBOSE("DONE");
 
     for ( std::size_t r=0; r<m_RunNumbers.size()-1; r++ ){
       ATH_MSG_VERBOSE(m_RunNumbers.size()-1 << "  " << m_RunNumbers.at(r) << "  " << m_RunNumbers.at(r+1) << "  " << runnumber);
-      if ( runnumber > (unsigned int)m_RunNumbers.at(r) && runnumber < (unsigned int)m_RunNumbers.at(r+1) ) {
+      if ( runnumber > (unsigned int)m_RunNumbers.at(r) && runnumber <= (unsigned int)m_RunNumbers.at(r+1) ) {
         cutRunNumber.clear();
         cutRunNumber = Form("RunNumber%d_%d",m_RunNumbers.at(r) ,m_RunNumbers.at(r+1));
         ATH_MSG_DEBUG(m_RunNumbers.at(r));
@@ -443,7 +449,9 @@ ATH_MSG_VERBOSE("DONE");
     }
   }
 
-   ATH_MSG_VERBOSE("SF Rates---- . SF: " << sf );
+   ATH_MSG_DEBUG("eta: " << ele_eta << "  pt: "<< ele_pt );
+   ATH_MSG_DEBUG("SF Rates---- . SF: " << sf );
+
 
   // Systematics ------------------------------------------------------------------------------------------------------
   double val_stat;
@@ -472,7 +480,7 @@ ATH_MSG_VERBOSE("DONE");
     if (isOS) {
       retVal = this->getChargeFlipRate( ele_eta, ele_pt,OShistograms.at(s), val_sys);
       if ( retVal != 0 ) {
-        sf = -9999.0;
+        val_sys = -9999.0;
         return CP::CorrectionCode::OutOfValidityRange;
       }
     }
@@ -480,12 +488,14 @@ ATH_MSG_VERBOSE("DONE");
       ATH_MSG_DEBUG("Get SS his");
       retVal = this->getChargeFlipRate( ele_eta, ele_pt, SShistograms.at(s), val_sys);
       if ( retVal != 0 ) {
-        sf = -9999.0;
+        val_sys = -9999.0;
         return CP::CorrectionCode::OutOfValidityRange;
       }
     }
     systs.push_back(static_cast<float>(val_sys));
   }
+
+    ATH_MSG_DEBUG(" ... nominal SF: "   << sf);
 
 
   if ( m_mySysConf.size()==0 ) {
@@ -498,7 +508,7 @@ ATH_MSG_VERBOSE("DONE");
     for (unsigned int i=0;i<m_systematics.size();i++){
       if (*(m_mySysConf.begin()) == SystematicVariation (Form("EL_CHARGEID_SYS%s",m_systematics.at(i).c_str()), 1)) { sf=(sf+(val_sys));  ATH_MSG_DEBUG("SF after SYSup = "    << sf); }
 
-      if (*(m_mySysConf.begin()) == SystematicVariation (Form("EL_CHARGEID_SYS%s",m_systematics.at(i).c_str()), -1)) { sf=(sf-(val_sys));  ATH_MSG_DEBUG("SF after SYSup = "    << sf); }
+      if (*(m_mySysConf.begin()) == SystematicVariation (Form("EL_CHARGEID_SYS%s",m_systematics.at(i).c_str()), -1)) { sf=(sf-(val_sys));  ATH_MSG_DEBUG("SF after SYSdown = "    << sf); }
 
     }
 
@@ -711,8 +721,9 @@ CP::SystematicCode CP::ElectronChargeEfficiencyCorrectionTool::applySystematicVa
   if (!SystematicSet::filterForAffectingSystematics(systConfig, m_affectingSys, m_mySysConf)){
     ATH_MSG_ERROR("Unsupported combination of systematics passed to the tool! ");
     return SystematicCode::Unsupported;
-
   }
+
+
 
   return SystematicCode::Ok;
 

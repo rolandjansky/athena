@@ -8,7 +8,7 @@
 /**********************************************************************************
  * @Project: FTK
  * @Package: TrigFTKByteStream
- * @Class  : TrigFTKByteStreamCnv
+ * @class  : TrigFTKByteStreamCnv
  *
  * @brief  Gaudi bytestream Converter for the TrigFTK class
  *

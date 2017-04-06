@@ -37,7 +37,7 @@ class IPixelOfflineCalibSvc;
 class IModuleDistortionsTool;
 
 class StoreGateSvc;
-class IBLParameterSvc;
+class IIBLParameterSvc;
 
 namespace InDet {
 
@@ -181,7 +181,7 @@ public:
   /** NN clusterizationi factory for NN based positions and errors **/
   ToolHandle<NnClusterizationFactory>                   m_NnClusterizationFactory;
   ServiceHandle<StoreGateSvc>                           m_storeGate;            //!< Event store
-  ServiceHandle<IBLParameterSvc>                        m_IBLParameterSvc;
+  ServiceHandle<IIBLParameterSvc>                       m_IBLParameterSvc;
 
 
   SG::ReadHandleKey<InDet::DRMap>                      m_dRMap;      //!< the actual dR map         

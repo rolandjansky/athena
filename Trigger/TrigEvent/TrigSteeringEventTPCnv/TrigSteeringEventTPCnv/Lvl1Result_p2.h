@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigSteeringEventTPCnv
- * @Class  : Lvl1Result_p2
+ * @class  : Lvl1Result_p2
  *
  * @brief  persistent representation of Lvl1ResultData.
  *

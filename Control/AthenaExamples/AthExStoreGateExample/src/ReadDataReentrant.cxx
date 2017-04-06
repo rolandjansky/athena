@@ -7,7 +7,7 @@
  * @file ReadDataReentrant.h
  * @author scott snyder <snyder@bnl.gov>
  * @date Jan, 2016
- * @brief 
+ * @brief Testing reentrant algorithms.
  */
 
 
@@ -33,6 +33,7 @@
 #include "AthLinks/ElementLink.h"
 
 #include "AthenaKernel/DefaultKey.h"
+#include "AthenaKernel/errorcheck.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -47,13 +48,14 @@ ReadDataReentrant::ReadDataReentrant(const std::string& name, ISvcLocator* pSvcL
   declareProperty ("PLinkListKey", m_pLinkListKey = std::string("WriteDataReentrant"));
   declareProperty ("LinkVectorKey", m_linkVectorKey = std::string("linkvec"));
   declareProperty ("TestObjectKey", m_testObjectKey = "testobj");
-
+  declareProperty ("DObjKeyArray", m_dobjKeyArray = {"dobj_a1", "dobj_a2"});
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode ReadDataReentrant::initialize(){
-
+StatusCode ReadDataReentrant::initialize()
+{
+  errorcheck::ReportMessage::hideErrorLocus();
 
   ATH_MSG_INFO ("in initialize()");
 
@@ -64,6 +66,7 @@ StatusCode ReadDataReentrant::initialize(){
   ATH_CHECK( m_pLinkListKey.initialize() );
   ATH_CHECK( m_linkVectorKey.initialize() );
   ATH_CHECK( m_testObjectKey.initialize() );
+  ATH_CHECK( m_dobjKeyArray.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -118,6 +121,12 @@ StatusCode ReadDataReentrant::execute_r (const EventContext& ctx) const
 
   SG::ReadHandle<TestDataObject> testobj (m_testObjectKey, ctx);
   if (testobj->val() != 10) std::abort();
+
+  // Reading the array of handles.
+  std::vector<SG::ReadHandle<MyDataObj> > vh = m_dobjKeyArray.makeHandles (ctx);
+  for (size_t i = 0; i < vh.size(); i++) {
+    assert (vh[i]->val() == static_cast<int> (100+i));
+  }
   
 #if 0
   /////////////////////////////////////////////////////////////////////

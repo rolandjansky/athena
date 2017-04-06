@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteeringTest
- * @Class  : newDummyAlgo2To1
+ * @class  : newDummyAlgo2To1
  *
  * @brief : PESA algorithm that runs on 2 input TEs, ie this is a so-called ComboAlgorithm !
  *

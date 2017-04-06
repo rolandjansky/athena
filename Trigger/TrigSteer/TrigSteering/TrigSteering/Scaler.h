@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : Scaler
+ * @class  : Scaler
  *
  * @brief : class to generate decisions for chain prescale states based on the prescale factors,
  *          and similarly for pass-through states

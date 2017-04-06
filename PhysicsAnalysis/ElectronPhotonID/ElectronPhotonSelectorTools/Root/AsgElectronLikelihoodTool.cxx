@@ -155,7 +155,7 @@ StatusCode AsgElectronLikelihoodTool::initialize()
   std::string PDFfilename(""); //Default
 
   if(!m_WorkingPoint.empty()){
-    m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::m_LHPointToConfFile);
+    m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::LHPointToConfFile);
     ATH_MSG_INFO("operating point : " << this->getOperatingPointName());
   }
   

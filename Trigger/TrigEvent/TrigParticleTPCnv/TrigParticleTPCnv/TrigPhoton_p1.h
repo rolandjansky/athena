@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigParticleTPCnv
- * @Class  : TrigPhoton_p1
+ * @class  : TrigPhoton_p1
  *
  * @brief persistent partner for TrigPhoton
  *

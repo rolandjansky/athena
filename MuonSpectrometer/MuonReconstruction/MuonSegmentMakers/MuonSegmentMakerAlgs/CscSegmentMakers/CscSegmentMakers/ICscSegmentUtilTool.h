@@ -67,7 +67,7 @@ public:  // Interface methods
   
   // Get 2d segments eta/phi seperately
   virtual Muon::MuonSegmentCombination*
-  get4dMuonSegmentCombination(Muon::MuonSegmentCombination* Muon2dSegComb) const=0;  
+  get4dMuonSegmentCombination(const Muon::MuonSegmentCombination* Muon2dSegComb) const=0;  
   
   virtual std::vector<const Muon::MuonSegment*>*
   getMuonSegments(Identifier eta_id, Identifier phi_id,

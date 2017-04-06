@@ -59,9 +59,9 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
   TFile * file = TFile::Open(calibFilePath.c_str(), "READ");
 
   //m_Nsigma_compatibility=5;
-  m_Nsigma_compatibility=TF1("Nsigma_compatibility", "pol1", 0, 500000); // needs to go beyond ~420 where it crosses y=0
-  m_Nsigma_compatibility.SetParameter(0, 3.809); // derived from fit
-  m_Nsigma_compatibility.SetParameter(1, -9.58/1000000.); // derived from fit
+  m_Nsigma_compatibility=std::make_unique<TF1>("Nsigma_compatibility", "pol1", 0, 500000); // needs to go beyond ~420 where it crosses y=0
+  m_Nsigma_compatibility->SetParameter(0, 3.809); // derived from fit
+  m_Nsigma_compatibility->SetParameter(1, -9.58/1000000.); // derived from fit
 
   TH1F* histogram(0);
   std::string histname="";
@@ -69,7 +69,7 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
   std::string Graphname="";
 
   //loop over decay modes
-  for(int imode=0;imode < abs(m_modeNames.size());imode++){
+  for(size_t imode=0;imode < m_modeNames.size();imode++){
     
     ATH_MSG_DEBUG("mode = " << imode);
 
@@ -86,10 +86,10 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
 
 
   //loop over eta bins
-  for(int ietaBin=0;ietaBin < abs(m_etaBinNames.size()); ietaBin++){
+  for(size_t ietaBin=0;ietaBin < m_etaBinNames.size(); ietaBin++){
   
     //loop over decay modes
-    for(int imode=0;imode < abs(m_modeNames.size());imode++){
+    for(size_t imode=0;imode < m_modeNames.size();imode++){
 
       ATH_MSG_DEBUG("eta bin = " << ietaBin << " / mode = " << imode );
       
@@ -511,7 +511,7 @@ TLorentzVector CombinedP4FromRecoTaus::getCombinedP4(const xAOD::TauJet* tau) {
 //_____________________________________________________________________________
 float CombinedP4FromRecoTaus::GetNsigma_Compatibility(float et_TauRec){
 
-    float nsigma=m_Nsigma_compatibility.Eval(et_TauRec);
+    float nsigma=m_Nsigma_compatibility->Eval(et_TauRec);
 
     if(nsigma<0) return 0.;
     return nsigma;

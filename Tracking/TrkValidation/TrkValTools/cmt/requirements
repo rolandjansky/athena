@@ -11,7 +11,7 @@ use TrkEventPrimitives      TrkEventPrimitives-*        Tracking/TrkEvent
 use TrkParameters           TrkParameters-*             Tracking/TrkEvent
 use TrkTrack                TrkTrack-*                  Tracking/TrkEvent
 use TrkValEvent             TrkValEvent-*               Tracking/TrkValidation
-use DataModel               DataModel-*                 Control
+use AthContainers           AthContainers-*             Control
 use AtlasHepMC              AtlasHepMC-*                External
 use HepPDT                  v*                          LCG_Interfaces
 use SGTools                 SGTools-*                   Control	

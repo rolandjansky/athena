@@ -7,7 +7,7 @@
 
 /***********************************************************************************
  * @Package : VP1TriggerSystems
- * @Class   : Logger
+ * @class   : Logger
  *
  * @brief   : Trigger Messenger Service (Header) - common stdcout methods
  *

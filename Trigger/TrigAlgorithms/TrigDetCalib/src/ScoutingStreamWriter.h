@@ -3,7 +3,7 @@
 */
 
 /**********************************************************************************
- * @Class  : ScoutingStreamWriter
+ * @class  : ScoutingStreamWriter
  *
  *
  * @author Noemi Calace <noemi.calace@cern.ch>  - CERN

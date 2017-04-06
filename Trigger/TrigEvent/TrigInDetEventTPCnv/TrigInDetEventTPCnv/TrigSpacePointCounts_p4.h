@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigInDetEventTPCnv
- * @Class  : TrigSpacePointCounts_p2
+ * @class  : TrigSpacePointCounts_p2
  *
  * @brief persistent partner for TrigSpacePointCounts
  *

@@ -130,9 +130,19 @@ namespace CP {
     }
     bool EfficiencyScaleFactor::CheckConsistency() {
         //Check whether  the SFs could be successfully loaded
-        if (!m_sf) Error("EfficiencyScaleFactor", ("Could not load the SF for " + EfficiencyTypeName(m_Type) + " and systematic " + m_sys.name()).c_str());
-        if (!m_sf_sys) Error("EfficiencyScaleFactor", ("Could not load the SF systematic for " + EfficiencyTypeName(m_Type) + " and systematic " + m_sys.name()).c_str());
-        if (m_respond_to_PtDepsys && !m_sf_PtDepsys) Error("EfficiencyScaleFactor", ("Could not load the SF pt-dependent systematic for " + EfficiencyTypeName(m_Type) + " and systematic " + m_sys.name()).c_str());
+        if (!m_sf) Error("EfficiencyScaleFactor",
+                         "Could not load the SF for %s and systematic %s",
+                         EfficiencyTypeName(m_Type).c_str(),
+                         m_sys.name().c_str());
+        if (!m_sf_sys) Error("EfficiencyScaleFactor",
+                             "Could not load the SF systematic for %s and systematic %s",
+                             EfficiencyTypeName(m_Type).c_str(),
+                             m_sys.name().c_str());
+        if (m_respond_to_PtDepsys && !m_sf_PtDepsys)
+          Error("EfficiencyScaleFactor",
+                "Could not load the SF pt-dependent systematic for %s and systematic %s",
+                EfficiencyTypeName(m_Type).c_str(),
+                m_sys.name().c_str());
         return m_sf_sys != NULL && m_sf != NULL && (!m_respond_to_PtDepsys || m_sf_PtDepsys);
     }
     HistHandler* EfficiencyScaleFactor::ReadHistFromFile(std::string name, TFile* f, std::string time_unit) {
@@ -189,16 +199,18 @@ namespace CP {
     }
     CorrectionCode EfficiencyScaleFactor::GetContentFromHist(HistHandler* Hist, HistHandler* PtDepHist, const xAOD::Muon& mu, float & Eff, bool PtDepHistNeeded) {
         if (!Hist) {
-            Warning("EfficiencyScaleFactor", Form("Could not find histogram for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff));
+            Warning("EfficiencyScaleFactor", "Could not find histogram for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff);
             Eff = m_default_eff;
             return CorrectionCode::OutOfValidityRange;
         } else if (PtDepHistNeeded && !PtDepHist) {
-            Error("EfficiencyScaleFactor", Form("Could not find pt-dependent histogram for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi()));
+            Error("EfficiencyScaleFactor",
+                  "Could not find pt-dependent histogram for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi());
             return CorrectionCode::Error;
         }
         if (m_Type == CP::MuonEfficiencyType::TTVA && fabs(mu.eta()) > 2.5 && fabs(mu.eta()) <= 2.7 && mu.muonType() == xAOD::Muon::MuonType::MuonStandAlone) {
             static bool Warned = false;
-            if (!Warned) Info("EfficiencyScaleFactor", Form("No TTVA sf/efficiency provided for standalone muons with 2.5<|eta|<2.7 for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff_ttva));
+            if (!Warned) Info("EfficiencyScaleFactor",
+                              "No TTVA sf/efficiency provided for standalone muons with 2.5<|eta|<2.7 for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff_ttva);
             Warned = true;
             Eff = m_default_eff_ttva;
             return CorrectionCode::Ok;
@@ -234,7 +246,8 @@ namespace CP {
         if (replicas.empty()) return CorrectionCode::OutOfValidityRange;
         if (m_Type == CP::MuonEfficiencyType::TTVA && fabs(mu.eta()) > 2.5 && fabs(mu.eta()) <= 2.7 && mu.muonType() == xAOD::Muon::MuonType::MuonStandAlone) {
             static bool Warned = false;
-            if (!Warned) Info("EfficiencyScaleFactor", Form("No TTVA sf/efficiency provided for standalone muons with 2.5<|eta|<2.7 for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff_ttva));
+            if (!Warned) Info("EfficiencyScaleFactor",
+                              "No TTVA sf/efficiency provided for standalone muons with 2.5<|eta|<2.7 for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff_ttva);
             Warned = true;
             for (auto& r : SF)
                 r = m_default_eff_ttva;

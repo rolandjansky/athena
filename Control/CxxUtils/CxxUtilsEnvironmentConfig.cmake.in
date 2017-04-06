@@ -1,0 +1,15 @@
+# $Id$
+#
+# This module is used to set up run-time environment variables relating
+# to the compiler.
+#
+# Set up an ubsan suppression file.
+#
+
+# Set the environment variables:
+set( CXXUTILSENVIRONMENT_ENVIRONMENT
+   FORCESET UBSAN_OPTIONS
+   suppressions=\${@CMAKE_PROJECT_NAME@_DIR}/@CMAKE_INSTALL_SHAREDIR@/ubsan.supp )
+
+# Silently declare the module found:
+set( CXXUTILSENVIRONMENT_FOUND TRUE )

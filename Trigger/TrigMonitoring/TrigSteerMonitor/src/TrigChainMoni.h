@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: ATLAS HLT Steering Monitoring
  * @Package: Trigger/TrigMonitoring/TrigChainMonitor
- * @Class  : TrigChainMoni
+ * @class  : TrigChainMoni
  * @Created: Nov, 2006
  *
  * @brief number of events vs chain for raw accepted and events after passthrough and 

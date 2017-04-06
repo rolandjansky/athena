@@ -7,14 +7,14 @@ from AthenaCommon import CfgMgr
 #####################################
 
 def getTestPileUpTool(name="TestPileUpTool", **kwargs):
-    from AthenaCommon.Constants import *
+    from AthenaCommon.Constants import VERBOSE
     kwargs.setdefault('OutputLevel', VERBOSE )
     kwargs.setdefault('FirstXing', -300 )
     kwargs.setdefault('LastXing', +300 )
     return CfgMgr.TestPileUpTool(name, **kwargs)
 
 def getTestFilterPileUpTool(name="TestFilterPileUpTool", **kwargs):
-    from AthenaCommon.Constants import *
+    from AthenaCommon.Constants import INFO
     kwargs.setdefault('OutputLevel', INFO )
     kwargs.setdefault('DoFiltering', True )
     return getTestPileUpTool(name, **kwargs)
@@ -419,20 +419,20 @@ def getSplitNoMergeFFPileUpToolsAlg(name="SplitNoMergeFFPileUpToolsAlg", **kwarg
 def getTestPileUpToolsAlg(name="TestPileUpToolsAlg", **kwargs):
     PileUpToolsList = [ "TestPileUpTool" ]
     kwargs.setdefault('PileUpTools', PileUpToolsList )
-    from AthenaCommon.Constants import *
+    from AthenaCommon.Constants import DEBUG
     kwargs.setdefault('OutputLevel', DEBUG )
     return getStandardPileUpToolsAlg(name, **kwargs)
 
 def getTestFilterPileUpToolsAlg(name="TestFilterPileUpToolsAlg", **kwargs):
     PileUpToolsList = [ "TestFilterPileUpTool" ]
     kwargs.setdefault('PileUpTools', PileUpToolsList )
-    from AthenaCommon.Constants import *
+    from AthenaCommon.Constants import DEBUG
     kwargs.setdefault('OutputLevel', DEBUG )
     return getStandardPileUpToolsAlg(name, **kwargs)
 
 def getTestTruthJetFilterPileUpToolsAlg(name="TestTruthJetFilterPileUpToolsAlg", **kwargs):
     PileUpToolsList = [ "MergeTruthJetsFilterTool" ]
     kwargs.setdefault('PileUpTools', PileUpToolsList )
-    from AthenaCommon.Constants import *
+    from AthenaCommon.Constants import DEBUG
     kwargs.setdefault('OutputLevel', DEBUG )
     return getStandardPileUpToolsAlg(name, **kwargs)

@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigSteeringEventTPCnv
- * @Class  : TrigPassBitsCnv_p1
+ * @class  : TrigPassBitsCnv_p1
  *
  * @brief transient persistent converter for TrigPassBits
  *

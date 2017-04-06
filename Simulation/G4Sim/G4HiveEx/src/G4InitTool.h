@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef G4HIVEEX_G4INITTOOL_H
 #define G4HIVEEX_G4INITTOOL_H
 

@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ATHEXHIVE_IHIVETOOL
 #define ATHEXHIVE_IHIVETOOL
 
@@ -5,8 +9,7 @@
 
 class GAUDI_API IHiveTool : virtual public IAlgTool {
 public:
-   virtual StatusCode saySomething() const = 0;
-   virtual void ss() = 0;
+   virtual StatusCode doSomething() const = 0;
    virtual ~IHiveTool() {};
 
   DeclareInterfaceID(IHiveTool,1,0);

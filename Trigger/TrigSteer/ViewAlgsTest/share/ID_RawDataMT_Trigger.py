@@ -280,6 +280,6 @@ from TrigFastTrackFinder.TrigFastTrackFinderMT_Config import TrigFastTrackFinder
 theFTFMT = TrigFastTrackFinderMT_eGamma()
 theFTFMT.outputLevel=VERBOSE
 
-topSequence += theFTFMT
+#topSequence += theFTFMT
 
 

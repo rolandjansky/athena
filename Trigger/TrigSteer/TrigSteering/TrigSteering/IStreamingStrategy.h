@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : LvlConverter
+ * @class  : LvlConverter
  *
  * @brief Base class for the Streaming strategies
  *

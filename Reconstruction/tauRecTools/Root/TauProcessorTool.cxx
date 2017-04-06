@@ -421,8 +421,8 @@ StatusCode TauProcessorTool::finalize(){
 //________________________________________
 //TODO: Inherit this, don't reimplement it
 std::string TauProcessorTool::find_file(const std::string& fname) const {
-  static const std::string m_tauRecToolsTag="tauRecTools/00-00-00/";
-  std::string full_path = PathResolverFindCalibFile(m_tauRecToolsTag+fname);
+  static const std::string tauRecToolsTag="tauRecTools/00-00-00/";
+  std::string full_path = PathResolverFindCalibFile(tauRecToolsTag+fname);
   if(full_path=="") full_path = PathResolverFindCalibFile(fname);
   return full_path;
 }

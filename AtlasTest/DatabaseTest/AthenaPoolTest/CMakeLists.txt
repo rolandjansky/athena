@@ -74,7 +74,6 @@ function (athenapooltest_run_test testName jo pattern)
                   @ONLY )
   atlas_add_test( ${testName}
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/athenapooltest_${testName}.sh
-                  ENVIRONMENT PATH=${CMAKE_CURRENT_SOURCE_DIR}/test:$ENV{PATH}
                   POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post_check_with_select.sh ${testName} ${pattern}"
                   PROPERTIES TIMEOUT 600
                    )

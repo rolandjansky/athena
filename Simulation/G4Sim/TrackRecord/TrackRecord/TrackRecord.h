@@ -10,68 +10,68 @@
 class TrackRecord {
 public:
   /** @brief Default constructor */ 
-  TrackRecord() : PDG_code(0), Energy(0), Momentum(0,0,0), Position(0,0,0), Time(0), barCode(0), volName("") {}
+  TrackRecord() : m_PDG_code(0), m_Energy(0), m_Momentum(0,0,0), m_Position(0,0,0), m_Time(0), m_barCode(0), m_volName("") {}
   /** @brief Default destructor */ 
   virtual ~TrackRecord() {}
   /** @brief Constructor */ 
   TrackRecord(int pdg, double e, CLHEP::Hep3Vector& p, CLHEP::Hep3Vector& x, double t, int bc, std::string vn)
-    : PDG_code(pdg), Energy(e), Momentum(p), Position(x), Time(t), barCode(bc), volName(vn) {}
+    : m_PDG_code(pdg), m_Energy(e), m_Momentum(p), m_Position(x), m_Time(t), m_barCode(bc), m_volName(vn) {}
   /** @brief Constructor */ 
-  TrackRecord(const TrackRecord& trc):PDG_code(trc.PDG_code), Energy(trc.Energy), 
-    Momentum(trc.Momentum), Position(trc.Position),
-    Time(trc.Time), barCode(trc.barCode), volName(trc.volName){}
+  TrackRecord(const TrackRecord& trc):m_PDG_code(trc.m_PDG_code), m_Energy(trc.m_Energy), 
+    m_Momentum(trc.m_Momentum), m_Position(trc.m_Position),
+    m_Time(trc.m_Time), m_barCode(trc.m_barCode), m_volName(trc.m_volName){}
   /** @brief Assignement Operator */ 
   TrackRecord &operator=(const TrackRecord& trc) {
     if(this!=&trc) {
-      PDG_code = trc.PDG_code; Energy = trc.Energy; 
-      Momentum = trc.Momentum; Position = trc.Position;
-      Time = trc.Time; barCode = trc.barCode; 
-      volName = trc.volName;
+      m_PDG_code = trc.m_PDG_code; m_Energy = trc.m_Energy; 
+      m_Momentum = trc.m_Momentum; m_Position = trc.m_Position;
+      m_Time = trc.m_Time; m_barCode = trc.m_barCode; 
+      m_volName = trc.m_volName;
     }
     return *this;
   }
  
   /** @brief Set energy */ 
-  void SetEnergy(double e) {Energy=e;}
+  void SetEnergy(double e) {m_Energy=e;}
   /** @brief Set position */ 
-  void SetPosition(CLHEP::Hep3Vector p) {Position=p;}
+  void SetPosition(CLHEP::Hep3Vector p) {m_Position=p;}
   /** @brief Set momentum */ 
-  void SetMomentum(CLHEP::Hep3Vector e) {Momentum=e;}
+  void SetMomentum(CLHEP::Hep3Vector e) {m_Momentum=e;}
   /** @brief Set PDG code */ 
-  void SetPDGCode(int pcode) {PDG_code=pcode;}
+  void SetPDGCode(int pcode) {m_PDG_code=pcode;}
   /** @brief Energy */ 
-  double GetEnergy() const {return Energy;}
+  double GetEnergy() const {return m_Energy;}
   /** @brief Position */ 
-  CLHEP::Hep3Vector GetPosition() const {return Position;}
+  CLHEP::Hep3Vector GetPosition() const {return m_Position;}
   /** @brief Momentum */ 
-  CLHEP::Hep3Vector GetMomentum() const {return Momentum;}
+  CLHEP::Hep3Vector GetMomentum() const {return m_Momentum;}
   /** @brief PDG Code */ 
-  int GetPDGCode() const {return PDG_code;}
+  int GetPDGCode() const {return m_PDG_code;}
   
   /* Davide 30-6-06 add methods and evolve this class */
 
   /** @brief Set time */ 
-  void SetTime(double time) {Time=time;}
+  void SetTime(double time) {m_Time=time;}
   /** @brief  Time */ 
-  double GetTime() const {return Time;}
+  double GetTime() const {return m_Time;}
   /** @brief Set bar code */ 
-  void SetBarCode(int theCode){barCode=theCode;}
+  void SetBarCode(int theCode){m_barCode=theCode;}
   /** @brief bar code */ 
-  int GetBarCode() const {return barCode;}
+  int GetBarCode() const {return m_barCode;}
   /** @brief Set Volume name */ 
-  void SetVolName(std::string theName){volName=theName;}
+  void SetVolName(std::string theName){m_volName=theName;}
   /** @brief Volume name */ 
-  std::string GetVolName() const {return volName;}
+  std::string GetVolName() const {return m_volName;}
   
  private:
-  int PDG_code;
-  double Energy;
-  CLHEP::Hep3Vector Momentum;
-  CLHEP::Hep3Vector Position;
+  int m_PDG_code;
+  double m_Energy;
+  CLHEP::Hep3Vector m_Momentum;
+  CLHEP::Hep3Vector m_Position;
   /* Davide 30-6-06 add member and evolve this class */
-  double Time;
-  int barCode;
-  std::string volName;
+  double m_Time;
+  int m_barCode;
+  std::string m_volName;
 };
 
 #endif

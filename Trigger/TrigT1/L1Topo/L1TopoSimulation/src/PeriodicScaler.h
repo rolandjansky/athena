@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : PeriodicScaler
+ * @class  : PeriodicScaler
  *
  * @brief : implementation of Prescale/PassThrough engine using periodic algorithm
  *

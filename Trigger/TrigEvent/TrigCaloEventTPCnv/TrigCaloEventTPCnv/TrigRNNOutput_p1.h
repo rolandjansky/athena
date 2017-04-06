@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigCaloEventTPCnv
- * @Class  : TrigRNNOutput_p1
+ * @class  : TrigRNNOutput_p1
  *
  * @brief persistent partner for TrigRNNOutput
  *

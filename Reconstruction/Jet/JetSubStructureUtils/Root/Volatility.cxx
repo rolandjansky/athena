@@ -13,14 +13,14 @@ double Volatility::result(const fastjet::PseudoJet &jet) const
   vector<fastjet::PseudoJet> constit_pseudojets = jet.constituents();
   if(constit_pseudojets.size() == 0) return -999;
 
-  QjetsPlugin qjets_plugin(_zcut, _dcut_fctr, _exp_min, _exp_max, _rigidity, _truncation_fctr);
+  QjetsPlugin qjets_plugin(m_zcut, m_dcut_fctr, m_exp_min, m_exp_max, m_rigidity, m_truncation_fctr);
   fastjet::JetDefinition qjets_def(&qjets_plugin);
 
   unsigned int n = 0;
   double sum_mass = 0, sum_mass2 = 0;
-  for(unsigned int i=0; i < _num_iterations; i++) {
-    if(_seed != -1) { // Seed needs to be different for each run of Qjets, but this has consistent running
-      qjets_plugin.SetRandSeed(_seed + i);
+  for(unsigned int i=0; i < m_num_iterations; i++) {
+    if(m_seed != -1) { // Seed needs to be different for each run of Qjets, but this has consistent running
+      qjets_plugin.SetRandSeed(m_seed + i);
     }
     fastjet::ClusterSequence clust_seq(constit_pseudojets, qjets_def);
     vector<fastjet::PseudoJet> qjets = fastjet::sorted_by_pt(clust_seq.inclusive_jets());
@@ -55,5 +55,5 @@ double Volatility::result(const fastjet::PseudoJet &jet) const
 
 void Volatility::setSeed(unsigned int seed)
 {
-  _seed = seed;
+  m_seed = seed;
 }

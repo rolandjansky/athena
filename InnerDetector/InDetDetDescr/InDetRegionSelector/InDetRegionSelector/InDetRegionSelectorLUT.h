@@ -5,7 +5,6 @@
 #ifndef InDetRegionSelector_InDetRegionSelectorLUT_h
 #define InDetRegionSelector_InDetRegionSelectorLUT_h
 
-// #include "GaudiKernel/Algorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "RegSelLUT/IRegionIDLUT_Creator.h"

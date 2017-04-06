@@ -7,7 +7,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : ConfigThreshold, ConfigJetEThreshold,
+ * @class  : ConfigThreshold, ConfigJetEThreshold,
  *           HLTRoI, MuonRoI, EMTauRoI, JetEnergyRoI
  *
  * @brief  LVL1 RoI and Item data classes which are filled by the Lvl1ResultAccessTool.

@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : StreamTag
+ * @class  : StreamTag
  *
  * @brief  proerties of a DataFlow stream
  *

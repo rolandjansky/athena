@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/** @Class MdtDigitizationTool
+/** @class MdtDigitizationTool
 
     In the initialize() method, the PileUpMerge and StoreGate services are 
     initialized, and a pointer to an instance of the class MuonDetectorManager 

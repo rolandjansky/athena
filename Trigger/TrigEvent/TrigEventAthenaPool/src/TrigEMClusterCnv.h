@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : TrigEMClusterCnv
+ * @class  : TrigEMClusterCnv
  *
  * @brief transient persistent converter for TrigEMCluster
  *

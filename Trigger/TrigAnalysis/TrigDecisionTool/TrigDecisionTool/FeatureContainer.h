@@ -11,7 +11,7 @@
 /**********************************************************************************
  * @Project:
  * @Package: TrigDecision
- * @Class  : TrigDecision
+ * @class  : TrigDecision
  *
  * @brief objects of this type hold "synchronized" lists of features
  *

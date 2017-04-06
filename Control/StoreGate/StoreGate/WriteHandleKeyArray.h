@@ -83,6 +83,20 @@ namespace SG {
       return ( std::move( hndl ) );
     }
 
+    /**
+     * @brief create a vector of WriteHandles from the WriteHandleKeys
+     * in the array, with explicit EventContext.
+     */
+    std::vector< WriteHandle<T> > makeHandles (const EventContext& ctx) const
+    {
+      std::vector< WriteHandle<T> > hndl;
+      typename std::vector<WriteHandleKey<T>>::const_iterator itr;
+      for (itr = this->begin(); itr != this->end(); ++itr) {
+        hndl.push_back ( WriteHandle<T>( *itr, ctx) );
+      }
+      return ( std::move( hndl ) );
+    }
+
   };
 
 

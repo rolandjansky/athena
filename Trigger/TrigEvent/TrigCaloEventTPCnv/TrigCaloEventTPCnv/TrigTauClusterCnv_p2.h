@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigCaloEventTPCnv
- * @Class  : TrigTauClusterCnv_p2
+ * @class  : TrigTauClusterCnv_p2
  *
  * @brief transient persistent converter for TrigTauCluster
  *

@@ -309,7 +309,7 @@ class transform(object):
 
         
     ## @brief Execute transform
-    # @detailed This function calls the actual transform execution class and
+    # @details This function calls the actual transform execution class and
     # sets \c self.exitCode,  \c self.exitMsg and \c self.processedEvents transform data members.
     # TODO: This method should be timed - try a decorator function for that 
     # @return None.

@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigTopoEventTPCnv
- * @Class  : ElectronMuonTopoInfoCnv_p1
+ * @class  : ElectronMuonTopoInfoCnv_p1
  *
  * @brief transient persistent converter for ElectronMuonTopoInfo
  *

@@ -10,7 +10,7 @@
 /**********************************************************************************
  * @Project:
  * @Package: TrigDecision
- * @Class  : Feature
+ * @class  : Feature
  *
  *
  * @author Nicolas Berger  <Nicolas.Berger@cern.ch>  - LAPP Annecy

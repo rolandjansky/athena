@@ -119,7 +119,7 @@ class AthReentrantAlgorithm
 
   /** @brief The standard @c StoreGateSvc
    * Returns (kind of) a pointer to the @c StoreGateSvc
-   * @WARNING: deprecated. please use @c evtStore() instead
+   * @warning: deprecated. please use @c evtStore() instead
    */
   ServiceHandle<StoreGateSvc>& sgSvc() const;
 

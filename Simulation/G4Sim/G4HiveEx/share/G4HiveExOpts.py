@@ -1,3 +1,7 @@
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 # 
 ## G4HiveExOpts.py - an example job options for multi-threaded simulation
 ## in AthenaHive. This configuration can only be run if Hive is enabled.
@@ -179,6 +183,15 @@ topSeq.StreamHITS.ExtraInputs += topSeq.G4AtlasAlg.ExtraOutputs
 sdMaster = ToolSvc.SensitiveDetectorMasterTool
 larSDs = [sd for sd in sdMaster.SensitiveDetectors if sd.name().startswith('LAr')]
 for sd in larSDs: sdMaster.SensitiveDetectors.remove(sd)
+
+# Workaround to disable the EventInfoTagBuilder.
+# Not sure how it gets on the sequence.
+try:
+    topSeq.remove(topSeq.EventInfoTagBuilder)
+except AttributeError as e:
+    from AthenaCommon.Logging import log as msg
+    msg.warning('EventInfoTagBuilder no longer on TopSeq')
+    msg.warning('Probably safe to disable workaround now.')
 
 # Increase verbosity of the output stream
 #topSeq.StreamHITS.OutputLevel = DEBUG

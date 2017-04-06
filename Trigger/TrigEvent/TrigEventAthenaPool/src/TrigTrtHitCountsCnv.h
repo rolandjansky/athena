@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : TrigTrtHitCountsCnv
+ * @class  : TrigTrtHitCountsCnv
  *
  * @brief transient persistent converter for TrigTrtHitCounts
  *

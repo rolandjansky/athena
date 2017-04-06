@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT
  * @Package: TrigDecisionEvent
- * @Class  : TrigDecision
+ * @class  : TrigDecision
  *
  * @brief transient trigger decision class
  *

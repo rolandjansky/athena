@@ -38,16 +38,18 @@ double PlanarFlow::result(const fastjet::PseudoJet &jet) const
     }
   }
 
-  double mag3 = sqrt(nvec[0]*nvec[0] + nvec[1]*nvec[1]+ nvec[2]*nvec[2]);
-  double mag2 = sqrt(nvec[0]*nvec[0] + nvec[1]*nvec[1]);
+  const double mag3 = sqrt(nvec[0]*nvec[0] + nvec[1]*nvec[1]+ nvec[2]*nvec[2]);
+  const double mag2 = sqrt(nvec[0]*nvec[0] + nvec[1]*nvec[1]);
 
   if(mag3 <= 0) {
     // Rotation axis is null
     return PF;
   }
 
-  double ctheta0 = nvec[2]/mag3;
-  double stheta0 = mag2/mag3;
+  const double inv_mag3 = 1. / mag3;
+
+  double ctheta0 = nvec[2]*inv_mag3;
+  double stheta0 = mag2*inv_mag3;
   double cphi0 = (mag2>0.) ? nvec[0]/mag2:0.;
   double sphi0 = (mag2>0.) ? nvec[1]/mag2:0.;
 

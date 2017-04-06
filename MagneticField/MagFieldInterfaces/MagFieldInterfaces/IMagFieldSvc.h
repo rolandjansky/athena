@@ -43,10 +43,10 @@ namespace MagField {
         /** get B field value at given position */
         /** xyz[3] is in mm, bxyz[3] is in kT */
         /** if deriv[9] is given, field derivatives are returned in kT/mm */
-        virtual void getField(const double *xyz, double *bxyz, double *deriv = 0) const = 0;
+        virtual void getField(const double *xyz, double *bxyz, double *deriv = nullptr) const = 0;
 
         /** a getField() wrapper for Amg classes */
-        void getField(const Amg::Vector3D *xyz, Amg::Vector3D *bxyz, Amg::RotationMatrix3D *deriv = 0) const {
+        void getField(const Amg::Vector3D *xyz, Amg::Vector3D *bxyz, Amg::RotationMatrix3D *deriv = nullptr) const {
           getField( xyz->data(), bxyz->data(), deriv->data() );
         }
 
@@ -54,7 +54,7 @@ namespace MagField {
         /** works only inside the solenoid; otherwise calls getField() above */
         /** xyz[3] is in mm, bxyz[3] is in kT */
         /** if deriv[9] is given, field derivatives are returned in kT/mm */
-        virtual void getFieldZR(const double *xyz, double *bxyz, double *deriv = 0) const = 0;
+        virtual void getFieldZR(const double *xyz, double *bxyz, double *deriv = nullptr) const = 0;
 
         /** status of the magnets */
         bool solenoidOn() const { return solenoidCurrent() > 0.0; }

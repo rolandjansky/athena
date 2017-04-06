@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           GaudiKernel
                           PRIVATE
+                          Control/CxxUtils
                           Control/AthenaKernel
                           Control/DataModelRoot
                           Database/APR/CollectionBase

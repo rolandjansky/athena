@@ -376,6 +376,36 @@ namespace SG {
 
 
   /**
+   * @brief Verify that the handle has been configured properly.
+   * @param used If false, then this handle is not to be used.
+   *             Instead of normal initialization, the key will be cleared.
+   *
+   * This will return failure if the key is blank or if the event store
+   * cannot be found.
+   */
+  StatusCode 
+  VarHandleBase::initialize (bool used /*= true*/)
+  {
+    if (!used) {
+      CHECK( VarHandleKey::initialize (used) );
+      return StatusCode::SUCCESS;
+    }
+
+    if (!m_store) {
+      CHECK( VarHandleKey::initialize() );
+      m_store = &*(this->storeHandle());
+      m_storeWasSet = false;
+    }
+
+    if (!m_store) {
+      return StatusCode::FAILURE;
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+
+  /**
    * @brief Retrieve and cache all information managed by a handle.
    *
    * This will retrieve and cache the associated @c DataProxy.
@@ -385,16 +415,9 @@ namespace SG {
    * @c isInitialized will still return false.
    */
   StatusCode 
-  VarHandleBase::initialize()
+  VarHandleBase::setState()
   {
-    if (!m_store) {
-      CHECK( VarHandleKey::initialize() );
-      m_store = &*(this->storeHandle());
-      m_storeWasSet = false;
-    }
-
-    if (!m_store)
-      return StatusCode::FAILURE;
+    CHECK( initialize() );
 
     StatusCode sc = this->setState(m_store->proxy(this->clid(), this->key()));
 
@@ -404,18 +427,6 @@ namespace SG {
       return StatusCode::SUCCESS;
 
     return sc;
-  }
-
-
-  /**
-   * @brief Retrieve and cache all information managed by a handle.
-   *
-   * Synonym for initialize().
-   */
-  StatusCode 
-  VarHandleBase::setState()
-  {
-    return initialize();
   }
 
 

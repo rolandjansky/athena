@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <atn>
    <TEST name="HelloWorld" type="script" suite="Examples">
-      <options_atn>AtlasTest/TestTools/scripts/nightlies/TestHelloWorld.sh</options_atn>
+      <options_atn>TestHelloWorld.sh</options_atn>
       <timelimit>2</timelimit>
       <author> Atlas Developer </author> 
       <mailto> somebody@somewhere.ch </mailto>   

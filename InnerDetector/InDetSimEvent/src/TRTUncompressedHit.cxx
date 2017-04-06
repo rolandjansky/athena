@@ -15,14 +15,14 @@ TRTUncompressedHit::TRTUncompressedHit(int hit,
                                        float preX, float preY, float preZ,
                                        float postX, float postY, float postZ,
                                        float time):
-  hitID(hit),
+  m_hitID(hit),
   m_partLink(track),
-  particleEncoding(particle),
-  kineticEnergy(kinEnergy),
-  energyDeposit(eneDeposit),
-  preStepX(preX), preStepY(preY), preStepZ(preZ),
-  postStepX(postX), postStepY(postY), postStepZ(postZ),
-  globalTime(time) {}
+  m_particleEncoding(particle),
+  m_kineticEnergy(kinEnergy),
+  m_energyDeposit(eneDeposit),
+  m_preStepX(preX), m_preStepY(preY), m_preStepZ(preZ),
+  m_postStepX(postX), m_postStepY(postY), m_postStepZ(postZ),
+  m_globalTime(time) {}
 
 TRTUncompressedHit::TRTUncompressedHit(int hit,
                                        const HepMcParticleLink& partlink,
@@ -32,25 +32,25 @@ TRTUncompressedHit::TRTUncompressedHit(int hit,
                                        float preX, float preY, float preZ,
                                        float postX, float postY, float postZ,
                                        float time):
-  hitID(hit),
+  m_hitID(hit),
   m_partLink(partlink),
-  particleEncoding(particle),
-  kineticEnergy(kinEnergy),
-  energyDeposit(eneDeposit),
-  preStepX(preX), preStepY(preY), preStepZ(preZ),
-  postStepX(postX), postStepY(postY), postStepZ(postZ),
-  globalTime(time) {}
+  m_particleEncoding(particle),
+  m_kineticEnergy(kinEnergy),
+  m_energyDeposit(eneDeposit),
+  m_preStepX(preX), m_preStepY(preY), m_preStepZ(preZ),
+  m_postStepX(postX), m_postStepY(postY), m_postStepZ(postZ),
+  m_globalTime(time) {}
 
 // Default constructor needed by athenaroot/athenapool
 //
 TRTUncompressedHit::TRTUncompressedHit( ) :
-  hitID(0xffff),
-  particleEncoding(0),
-  kineticEnergy(0.0),
-  energyDeposit(0.0),
-  preStepX(0.0), preStepY(0.0), preStepZ(0.0),
-  postStepX(0.0), postStepY(0.0), postStepZ(0.0),
-  globalTime(0.0)
+  m_hitID(0xffff),
+  m_particleEncoding(0),
+  m_kineticEnergy(0.0),
+  m_energyDeposit(0.0),
+  m_preStepX(0.0), m_preStepY(0.0), m_preStepZ(0.0),
+  m_postStepX(0.0), m_postStepY(0.0), m_postStepZ(0.0),
+  m_globalTime(0.0)
 {
 }
 

@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigGenericAlgs
- * @Class  : DummyFEX
+ * @class  : DummyFEX
  *
  * @brief : simple PESA algorithm, taking exactly 1 input TE. Does not require any
  *          detector data!

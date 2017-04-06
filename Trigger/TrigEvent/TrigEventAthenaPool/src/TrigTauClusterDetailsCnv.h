@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : TrigTauClusterDetailsCnv
+ * @class  : TrigTauClusterDetailsCnv
  *
  * @brief transient persistent converter for TrigTauClusterDetails
  *

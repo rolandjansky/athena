@@ -85,7 +85,7 @@ namespace PanTau {
 
         StatusCode                        arrangePFOLinks(PanTau::PanTauSeed2* inSeed, xAOD::TauJet* tauJet);
 
-        void                        SetHLVTau(PanTau::PanTauSeed2* inSeed, xAOD::TauJet* tauJet, std::string inputAlg, std::string m_varTypeName_Basic);
+        void                        SetHLVTau(PanTau::PanTauSeed2* inSeed, xAOD::TauJet* tauJet, std::string inputAlg, std::string varTypeName_Basic);
 
 	std::vector< ElementLink< xAOD::PFOContainer > > PreselectNeutralLinks(std::vector< ElementLink<xAOD::PFOContainer> > neutralPFOLinks, xAOD::TauJet* tauJet);
 
@@ -109,7 +109,7 @@ namespace PanTau {
         
         bool        m_expectInvalidFeatures;
         
-	const float MASS_PI0 = 134.98; // in MeV
+	static const constexpr float MASS_PI0 = 134.98; // in MeV
         
         double      m_CoreCone;
         std::vector<double> m_EtaBinEdges;

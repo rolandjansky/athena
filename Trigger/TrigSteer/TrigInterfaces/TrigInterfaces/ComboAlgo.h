@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigInterface
- * @Class  : ComboAlgo
+ * @class  : ComboAlgo
  *
  * @brief  base class for FexAlgo, HypoAlgo ... used by PESA HLT Algorithms
  *

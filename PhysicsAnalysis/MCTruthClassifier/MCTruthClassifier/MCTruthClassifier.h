@@ -85,6 +85,9 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
     checkOrigOfBkgElec(const xAOD::TruthParticle* thePart,
                        Info* info = nullptr) const override;
 
+  virtual
+  const xAOD::TruthParticle* isHadronFromB(const xAOD::TruthParticle *) const override;
+
  private:
 
    static float detEta(float x, float y ) {return fabs(x-y);}

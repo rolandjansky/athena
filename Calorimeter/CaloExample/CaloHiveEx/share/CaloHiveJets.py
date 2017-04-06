@@ -1,8 +1,11 @@
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 
 # They force us to setup this weird jettoolmanager first
 # although we don't really (want to) use it afterwards...
 from JetRec.JetRecFlags import jetFlags
-jetFlags.useTruth=True
 jetFlags.useTruth=False
 jetFlags.useTracks=False
 jetFlags.useTopo=True

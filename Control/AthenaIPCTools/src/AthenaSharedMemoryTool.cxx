@@ -278,8 +278,7 @@ StatusCode AthenaSharedMemoryTool::putObject(const void* source, size_t nbytes, 
    if (source == nullptr) {
       evtH->evtSize = evtH->evtOffset;
       evtH->evtOffset = 0;
-      // FIXME: PvG, flushes complete object, including first part again
-      m_payload->flush(evtH->evtOffset, evtH->evtSize);
+      m_payload->flush(evtH->evtOffset + evtH->evtCursor, evtH->evtSize - evtH->evtCursor);
       m_status->flush(num * sizeof(ShareEventHeader), sizeof(ShareEventHeader));
       evtH->evtProcessStatus = ShareEventHeader::FILLED;
    } else {
@@ -287,14 +286,15 @@ StatusCode AthenaSharedMemoryTool::putObject(const void* source, size_t nbytes, 
          ATH_MSG_ERROR("Object location = " << evtH->evtOffset << " greater than maximum for client = " << num);
          return(StatusCode::FAILURE);
       }
-      if (evtH->evtSize == m_maxSize) {
-         evtH->evtProcessStatus = ShareEventHeader::PARTIAL;
-      }
       bool first = (evtH->evtOffset == 0);
       std::memcpy(static_cast<char*>(m_payload->get_address()) + evtH->evtOffset, &nbytes, sizeof(size_t));
       evtH->evtOffset += sizeof(size_t);
       std::memcpy(static_cast<char*>(m_payload->get_address()) + evtH->evtOffset, source, nbytes);
       evtH->evtOffset += nbytes;
+      if (evtH->evtSize == m_maxSize) {
+         evtH->evtSize = evtH->evtOffset;
+         evtH->evtProcessStatus = ShareEventHeader::PARTIAL;
+      }
       if (first) {
          evtH->evtSize = m_maxSize;
          m_payload->flush(0, evtH->evtOffset);
@@ -315,6 +315,7 @@ StatusCode AthenaSharedMemoryTool::getObject(void** target, size_t& nbytes, int 
    size_t evtSize = evtH->evtSize; // read only once
    if (evtStatus == ShareEventHeader::PARTIAL && evtH->evtCursor > 0) {
       ATH_MSG_DEBUG("Waiting for UNPARTIAL getObject, client = " << num);
+      nbytes = evtH->evtCursor;
       return(StatusCode::RECOVERABLE);
    }
    if (evtStatus != ShareEventHeader::FILLED &&
@@ -325,23 +326,18 @@ StatusCode AthenaSharedMemoryTool::getObject(void** target, size_t& nbytes, int 
       return(StatusCode::RECOVERABLE);
    }
    if (evtH->evtCursor < evtSize) {
-      bool own = (nbytes != 0);
       std::memcpy(&nbytes, static_cast<char*>(m_payload->get_address()) + evtH->evtCursor, sizeof(size_t));
       evtH->evtCursor += sizeof(size_t);
-      if (own) {
-         *target = static_cast<char*>(m_payload->get_address()) + evtH->evtCursor;
+      *target = static_cast<char*>(m_payload->get_address()) + evtH->evtCursor;
+      if (evtStatus != ShareEventHeader::PARTIAL) {
          evtH->evtProcessStatus = ShareEventHeader::SHARED;
-      } else {
-         char* buf = new char[nbytes];
-         std::memcpy(buf, static_cast<char*>(m_payload->get_address()) + evtH->evtCursor, nbytes);
-         *target = buf;
       }
       evtH->evtCursor += nbytes;
    } else {
       nbytes = 0;
    }
    if (evtH->evtCursor == evtSize) {
-      if (evtStatus == ShareEventHeader::SHARED) {
+      if (evtH->evtProcessStatus == ShareEventHeader::SHARED) {
          evtH->evtProcessStatus = ShareEventHeader::FILLED;
       } else {
          evtH->evtCursor = 0;
@@ -363,11 +359,7 @@ StatusCode AthenaSharedMemoryTool::clearObject(char** tokenString, int& num) con
          ATH_MSG_DEBUG("Waiting for FILL clearObject");
          return(StatusCode::RECOVERABLE);
       }
-      if (*tokenString == nullptr) {
-         *tokenString = new char[maxTokenLength];
-      }
-      ATH_MSG_DEBUG("Getting Token in clearObject");
-      strncpy(*tokenString, evtH->token, maxTokenLength - 1); (*tokenString)[maxTokenLength - 1] = 0;
+      *tokenString = evtH->token;
       evtH->evtProcessStatus = ShareEventHeader::UNLOCKED;
       return(StatusCode::SUCCESS);
    }
@@ -382,11 +374,7 @@ StatusCode AthenaSharedMemoryTool::clearObject(char** tokenString, int& num) con
          ATH_MSG_DEBUG("Waiting for LOCK clearObject, client = " << i);
          return(StatusCode::RECOVERABLE);
       } else if ((i == num || num < 0) && evtStatus == ShareEventHeader::LOCKED) {
-         if (*tokenString == nullptr) {
-            *tokenString = new char[maxTokenLength];
-         }
-         ATH_MSG_DEBUG("Getting Token in clearObject, client = " << i);
-         strncpy(*tokenString, evtH->token, maxTokenLength - 1); (*tokenString)[maxTokenLength - 1] = 0;
+         *tokenString = evtH->token;
          num = i;
       }
    }

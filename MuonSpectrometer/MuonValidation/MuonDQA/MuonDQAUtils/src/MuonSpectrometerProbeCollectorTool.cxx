@@ -35,7 +35,7 @@ namespace Muon {
   StatusCode MuonSpectrometerProbeCollectorTool::initialize()
   {
     StatusCode sc = AlgTool::initialize();
-    m_log.setLevel(outputLevel());
+    m_log.setLevel(msgLevel());
     if (sc.isFailure()) return sc;
 	
     m_log << MSG::DEBUG << "Initialize ()" << endmsg;

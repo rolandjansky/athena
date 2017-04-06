@@ -7,7 +7,7 @@
 
 /***********************************************************************************
  * @Package : VP1TriggerSystems
- * @Class   : TrackSystemDisplay
+ * @class   : TrackSystemDisplay
  *
  * @brief   : Temp. Version of Track Display (Header; for testing purposes only)
  *

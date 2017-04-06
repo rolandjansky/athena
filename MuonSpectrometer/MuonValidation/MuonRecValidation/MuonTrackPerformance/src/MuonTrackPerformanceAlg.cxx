@@ -25,6 +25,8 @@
 
 MuonTrackPerformanceAlg::MuonTrackPerformanceAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
+  m_trackKey("MooreTracks"),
+  m_segmentCombiKey("MooreSegmentCombinations"),
   m_eventInfo(0),
   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
@@ -59,8 +61,8 @@ MuonTrackPerformanceAlg::MuonTrackPerformanceAlg(const std::string& name, ISvcLo
   m_ntruthTracksSecondary(0)
 {
   // MoMu location segments (per chamner)
-  declareProperty("TrackInputLocation",m_trackLocation = "MooreTracks");
-  declareProperty("SegmentCombitLocation",m_segmentCombiLocation = "MooreSegmentCombinations");
+  declareProperty("TrackInputLocation",m_trackKey );
+  declareProperty("SegmentCombitLocation",m_segmentCombiKey );
   declareProperty("DoHistos",m_doHistos = false);
   declareProperty("DoSummary",m_doSummary = 0);
   declareProperty("DoHitResiduals",m_doHitResiduals = 0);
@@ -121,6 +123,9 @@ StatusCode MuonTrackPerformanceAlg::initialize()
     msg(MSG::DEBUG) << endmsg;
   }
 
+  ATH_CHECK(m_trackKey.initialize());
+  ATH_CHECK(m_segmentCombiKey.initialize());
+
   return StatusCode::SUCCESS; 
 }
 
@@ -140,10 +145,11 @@ StatusCode MuonTrackPerformanceAlg::execute()
 
 bool MuonTrackPerformanceAlg::handleSegmentCombinations() {
 
-  const MuonSegmentCombinationCollection* combiCol;
-  StatusCode sc = evtStore()->retrieve(combiCol,m_segmentCombiLocation);
-  if (sc.isFailure() ) {
-    *m_log << MSG::WARNING << " Could not find MuonSegmentCombinationCollection at " << m_segmentCombiLocation <<endmsg;
+
+  SG::ReadHandle<MuonSegmentCombinationCollection> combiCol(m_segmentCombiKey);
+
+  if (!combiCol.isValid() ) {
+    *m_log << MSG::WARNING << " Could not find MuonSegmentCombinationCollection at " << m_segmentCombiKey.key() <<endmsg;
     return true;
   }else{
     if( m_debug ) *m_log << MSG::DEBUG << " Retrieved MuonSegmentCombinationCollection "  << combiCol->size() << endmsg;
@@ -242,10 +248,10 @@ bool MuonTrackPerformanceAlg::handleSegmentCombi( const Muon::MuonSegmentCombina
 
 
 bool MuonTrackPerformanceAlg::handleTracks() {
-  const TrackCollection* trackCollection = 0;
-  StatusCode sc = evtStore()->retrieve(trackCollection,m_trackLocation);
-  if (sc.isFailure() || !trackCollection ) {
-    *m_log << MSG::WARNING << " Could not find tracks at " << m_trackLocation <<endmsg;
+
+  SG::ReadHandle<TrackCollection> trackCollection(m_trackKey);
+  if (!trackCollection.isValid() ) {
+    *m_log << MSG::WARNING << " Could not find tracks at " << m_trackKey.key() <<endmsg;
     return false;
   }else{
     if( m_debug ) *m_log << MSG::DEBUG << " Retrieved tracks "  << trackCollection->size() << endmsg;
@@ -572,7 +578,7 @@ StatusCode MuonTrackPerformanceAlg::finalize()
   //write to file
   if (m_writeToFile){
     std::string outfile = "trkPerformance_";
-    outfile.append(m_trackLocation);
+    outfile.append(m_trackKey.key());
     outfile.append(".txt");
     m_fileOutput.open(outfile.c_str(), std::ios::trunc);
 
@@ -610,14 +616,7 @@ int MuonTrackPerformanceAlg::eventNumber() const {
 }
 
 std::string MuonTrackPerformanceAlg::eventInfo() const {
-  std::ostringstream sout;
-  if( !m_eventInfo ) {
-    sout << "No event info!";
-  }else{
-    int eventNumber = m_eventInfo->eventNumber();
-    sout << eventNumber;
-  }
-  return sout.str();
+  return std::to_string(eventNumber());
 }
 
 void MuonTrackPerformanceAlg::doSummary( const TrackCollection& trackCollection ) const {
@@ -978,7 +977,7 @@ std::string MuonTrackPerformanceAlg::printTrackCounters( bool doSecondaries ) co
   double evScale = m_nevents != 0 ? 1./m_nevents : 1.;
 
   sout << std::endl;
-  sout << "Summarizing results for track collection " << m_trackLocation << "  " << m_nevents << " events: " << std::endl
+  sout << "Summarizing results for track collection " << m_trackKey.key() << "  " << m_nevents << " events: " << std::endl
        << "  number of tracks                           " << std::setw(12) << m_ntracks << "   average per event " << m_ntracks*evScale;
 
   if( m_doTruth ){

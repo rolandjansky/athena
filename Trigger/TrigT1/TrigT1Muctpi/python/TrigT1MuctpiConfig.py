@@ -125,7 +125,7 @@ class L1Muctpi_on_Data( DefaultL1Muctpi ):
     self.RoIOutputLocID = "not_used_1"
     self.CTPOutputLocID = "/Run/L1MuCTPItoCTPLocation"
     self.OverlapStrategyName = "LUT"
-    self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_crc_1614217507.xml"
+    self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB_crc_3385316356.xml"
     self.IsData=1
     self.FlaggingMode = False
 
@@ -271,7 +271,7 @@ class L1MuctpiTool_on_Data( DefaultL1MuctpiTool ):
     self.RoIOutputLocID = "not_used_1"
     self.CTPOutputLocID = "/Run/L1MuCTPItoCTPLocation"
     self.OverlapStrategyName = "LUT"
-    self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_crc_1614217507.xml"
+    self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB_crc_3385316356.xml"
     self.IsData=1
     self.FlaggingMode = False
 

@@ -268,7 +268,7 @@ class InDetTrigTrackingxAODCnv_EF( InDet__TrigTrackingxAODCnv ):
 
       creatorTool = InDetTrigParticleCreatorToolWithSummary
 
-      if "_FTF" in name:
+      if "_FTF" in name or "_FTK" in name:
         creatorTool = InDetTrigParticleCreatorToolFTF
       elif "_IDTrig" in name and type=="electron":
         creatorTool = InDetTrigParticleCreatorToolWithSummaryTRTPid

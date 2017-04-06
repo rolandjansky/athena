@@ -78,6 +78,15 @@ namespace CP {
 
     CP::SystematicCode registerSystematics();
 
+ /// returns: the currently applied systematics
+  const CP::SystematicSet& appliedSystematics() const {
+       return *m_appliedSystematics;
+    }
+ 
+
+
+ //
+
   private:
 
     /// Get the charge flip rate rate given pt, eta, histogram
@@ -143,6 +152,9 @@ namespace CP {
     CP::SystematicSet m_mySysConf;
     CP::SystematicSet m_affectingSys;
 
+ /// Currently applied systematics
+   CP::SystematicSet* m_appliedSystematics;
+ 
     /// Decorator
     std::string m_sf_decoration_name;
     SG::AuxElement::Decorator< float >* m_sfDec;

@@ -35,6 +35,7 @@
 #include "PathResolver/PathResolver.h"
 
 #include "DataModelRoot/RootType.h"
+#include "CxxUtils/no_sanitize_undefined.h"
 
 #define  TRIGTSERHEADER  0xf00dbeef
 //#define  TRIGTSERTRAILER 0xbeeff00d
@@ -77,7 +78,7 @@ class TBufferFileWorkaround
 {
 public:
   void* ReadObjectAnyNV (const TClass*);
-  static void* doReadObjectAny (TBufferFile* buf, const TClass* cl)
+  static void* doReadObjectAny NO_SANITIZE_UNDEFINED (TBufferFile* buf, const TClass* cl)
   {
     TBufferFileWorkaround* ba = reinterpret_cast<TBufferFileWorkaround*>(buf);
     return ba->ReadObjectAnyNV(cl);
@@ -269,9 +270,9 @@ void TrigTSerializer::add_previous_streamerinfos(){
   TFile f(extFile.c_str());
   TList *a = f.GetStreamerInfoList();
   TIter nextinfo(a);
-  TStreamerInfo *inf;
-  while ((inf = (TStreamerInfo *)nextinfo()) != 0){
-
+  while (TObject* obj = nextinfo()) {
+    TStreamerInfo *inf = dynamic_cast<TStreamerInfo*> (obj);
+    if (!inf) continue;
     TString t_name=inf->GetName();
 
     if (t_name.BeginsWith("listOfRules")){
@@ -286,7 +287,6 @@ void TrigTSerializer::add_previous_streamerinfos(){
       ATH_MSG_DEBUG( "external TStreamerInfo for " << cl->GetName()
                      << " checksum: " << inf->GetCheckSum()  );
   }
-
 }
 
 

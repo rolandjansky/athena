@@ -1,5 +1,0 @@
-# Create an `import' command.
-
-define import
-  python import $arg0
-end

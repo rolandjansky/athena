@@ -29,7 +29,7 @@ class GeoCaloCalibHit
   enum Type {ACTIVE, INACTIVE, DEAD, TILEAI, TILEDM, TILEACTIVE, TILEINACTIVE, TILEDEAD, UNRECOGNIZED};
 
   // Default constructor:
-  GeoCaloCalibHit() {_failed=true;}
+  GeoCaloCalibHit() {m_failed=true;}
 
   // Constructor:
   GeoCaloCalibHit(const CaloCalibrationHit & h, const std::string & collectionName);
@@ -56,7 +56,7 @@ class GeoCaloCalibHit
   bool isEndcap() const;
 
   // Underlying hit.
-  const CaloCalibrationHit &data() const { return *_hit;}
+  const CaloCalibrationHit &data() const { return *m_hit;}
 
   // Is this hit OK?
   operator bool () const;
@@ -71,22 +71,22 @@ class GeoCaloCalibHit
 
   void init(const std::string & collectionName);
   
-  const CaloCalibrationHit         *_hit;
-  static const CaloIdManager       *_man;
-  static const CaloDM_ID           *_dmid;
-  static const CaloDetDescrManager *_caloMan;
-  int _subdet;
-  int _type; // i.e. in the barrel or in the endcap.
-  int _sampling;
-  int _region;
-  int _etaBin;
-  int _phiBin;
-  double _etaOffset;
-  double _distance;
-  bool _isBarrel;
-  bool _failed;
-  Type _hitType; // ie. active, inactive dead.
-  const CaloDetDescrElement *_ddElement;
+  const CaloCalibrationHit         *m_hit;
+  static const CaloIdManager       *s_man;
+  static const CaloDM_ID           *s_dmid;
+  static const CaloDetDescrManager *s_caloMan;
+  int m_subdet;
+  int m_type; // i.e. in the barrel or in the endcap.
+  int m_sampling;
+  int m_region;
+  int m_etaBin;
+  int m_phiBin;
+  double m_etaOffset;
+  double m_distance;
+  bool m_isBarrel;
+  bool m_failed;
+  Type m_hitType; // ie. active, inactive dead.
+  const CaloDetDescrElement *m_ddElement;
 };
 
 #include "GeoAdaptors/GeoCaloCalibHit.icc"

@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT
  * @Package: TrigSteeringEventTPCnv
- * @Class  : HLTResultCnv_p1
+ * @class  : HLTResultCnv_p1
  *
  * @brief  The converter for the HLTResult_p1 persistent format.
  *

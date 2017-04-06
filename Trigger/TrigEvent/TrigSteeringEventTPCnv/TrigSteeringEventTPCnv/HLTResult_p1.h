@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigSteeringEventTPCnv
- * @Class  : HLTResult_p1
+ * @class  : HLTResult_p1
  *
  * @brief  persistent representation of all three trigger level information - for now
  *         this is exactly what is in HLTResultData.

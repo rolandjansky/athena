@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : TopoSequence
+ * @class  : TopoSequence
  *
  * @brief  one sequence node, i.e.
  *         input TE type(s) -> PESA Algorithm(s) -> output TE type

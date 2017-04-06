@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigParticleTPCnv
- * @Class  : TrigElectron_p2
+ * @class  : TrigElectron_p2
  *
  * @brief persistent partner for TrigElectron
  *

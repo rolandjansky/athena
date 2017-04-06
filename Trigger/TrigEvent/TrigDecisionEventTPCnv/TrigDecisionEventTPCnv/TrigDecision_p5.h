@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT
  * @Package: TrigDecisionEventTPCnv
- * @Class  : TrigDecision_p5
+ * @class  : TrigDecision_p5
  *
  * @brief  persistent representation of all three trigger level information - for now
  *         this is exactly what is in TrigDecisionData.

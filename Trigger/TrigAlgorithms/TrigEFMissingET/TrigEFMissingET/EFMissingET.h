@@ -6,7 +6,7 @@
  ***
  * @Project:  HLT, PESA algorithms
  * @Package:  Trigger/TrigAlgorithms/TrigEFMissingET
- * @Class:    EFMissingET
+ * @class:    EFMissingET
  *
  * @brief  Right now calculates EF MissingET by adding up all the cells, feb headers, or clusters
  *

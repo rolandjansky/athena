@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigInDetEventTPCnv
- * @Class  : TrigTauTracksInfo_p1
+ * @class  : TrigTauTracksInfo_p1
  *
  * @brief persistent partner for TrigTauTracksInfo
  *

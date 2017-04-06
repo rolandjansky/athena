@@ -3,12 +3,7 @@
 */
 
 #include "PixelGeoModel/IBLParameterSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/SvcFactory.h"
-#include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/PropertyMgr.h"
 #include "GaudiKernel/PathResolver.h"
 
 //Includes related to determining presence of IBL
@@ -23,7 +18,7 @@
  ** Constructor(s)
  **/
 IBLParameterSvc::IBLParameterSvc(const std::string& name,ISvcLocator* svc)
-  : AthService(name,svc),
+  : base_class(name,svc),
     m_geoDbTagSvc("GeoDbTagSvc",name),
     m_rdbAccessSvc("RDBAccessSvc",name),
     m_disablePixMapCondDB(false),
@@ -56,7 +51,7 @@ inline StatusCode IBLParameterSvc::queryInterface(const InterfaceID& riid, void*
     addRef();
     return StatusCode::SUCCESS;
   }
-  return AthService::queryInterface( riid, ppvIf );
+  return base_class::queryInterface( riid, ppvIf );
 
 }
  

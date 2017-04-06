@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigParticleTPCnv
- * @Class  : TrigTauCnv_tlp2
+ * @class  : TrigTauCnv_tlp2
  *
  * @brief "top level" transient-persistent converter for TrigTau
  *

@@ -39,6 +39,8 @@ class eflowRecTrack {
 public:
   eflowRecTrack(const ElementLink<xAOD::TrackParticleContainer>& trackElemLink,
                 const ToolHandle<eflowTrackExtrapolatorBaseAlgTool>& theTrackExtrapolatorTool);
+  eflowRecTrack(const eflowRecTrack& originalEflowRecTrack);
+  eflowRecTrack& operator = (const eflowRecTrack& originalEflowRecTrack);
   virtual ~eflowRecTrack();
 
   const xAOD::TrackParticle* getTrack() const { return m_track; }

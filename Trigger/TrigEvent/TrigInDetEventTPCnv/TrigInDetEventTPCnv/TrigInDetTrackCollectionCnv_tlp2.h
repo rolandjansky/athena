@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigInDetEventTPCnv
- * @Class  : TrigInDetTrackCollectionCnv_tlp1
+ * @class  : TrigInDetTrackCollectionCnv_tlp1
  *
  * @brief "top level" transient-persistent converter for TrigInDetTrackCollection
  *

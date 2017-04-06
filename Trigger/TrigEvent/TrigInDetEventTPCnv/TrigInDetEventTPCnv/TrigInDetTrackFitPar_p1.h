@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigInDetEventTPCnv
- * @Class  : TrigInDetTrackFitPar_p1
+ * @class  : TrigInDetTrackFitPar_p1
  *
  * @brief persistent partner for TrigInDetTrackFitPar
  *

@@ -1,4 +1,0 @@
-define classname
-  #p *((char**)$arg0+4)
-  p *(char**)((char*)$arg0+2*sizeof(void*)+2*sizeof(int))
-end

@@ -39,10 +39,16 @@ endif()
 find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
-  run_tpcnv_test( RecTPCnv_15.0.0   AOD-15.0.0-full )
-  run_tpcnv_test( RecTPCnv_15.6.1   AOD-15.6.1-full )
-  run_tpcnv_test( RecTPCnv_17.0.6   AOD-17.0.6-full )
-  run_tpcnv_test( RecTPCnv_18.0.0   AOD-18.0.0-full )
+  set( RECATHENAPOOL_REFERENCE_TAG
+       RecAthenaPoolReference-01-00-00 )
+  run_tpcnv_test( RecTPCnv_15.0.0   AOD-15.0.0-full
+                   REFERENCE_TAG ${RECATHENAPOOL_REFERENCE_TAG} )
+  run_tpcnv_test( RecTPCnv_15.6.1   AOD-15.6.1-full
+                   REFERENCE_TAG ${RECATHENAPOOL_REFERENCE_TAG} )
+  run_tpcnv_test( RecTPCnv_17.0.6   AOD-17.0.6-full
+                   REFERENCE_TAG ${RECATHENAPOOL_REFERENCE_TAG} )
+  run_tpcnv_test( RecTPCnv_18.0.0   AOD-18.0.0-full
+                   REFERENCE_TAG ${RECATHENAPOOL_REFERENCE_TAG} )
 else()
    message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
 endif()   

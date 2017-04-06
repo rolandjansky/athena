@@ -10,7 +10,7 @@
 /**********************************************************************************
  * @Project: TrigDecisionTool
  * @Package: TrigDecisionTool
- * @Class  : DecisionAccess
+ * @class  : DecisionAccess
  *
  * @brief access to information about the trigger decision
  *

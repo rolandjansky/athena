@@ -16,5 +16,5 @@ which normally boil down to variables:
 `EXTNAME_VERSION`
 
 But some modules may require other variables. In which case the `_ROOT`
-variable should still be set, to get a nice printout from the AtlasExternals
-code during the build about the location of the used external.
+variable should still be set, to get a nice printout from the Athena
+project during the build about the location of the used external.

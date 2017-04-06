@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : TrigT2JetCnv
+ * @class  : TrigT2JetCnv
  *
  * @brief transient persistent converter for TrigT2Jet
  *

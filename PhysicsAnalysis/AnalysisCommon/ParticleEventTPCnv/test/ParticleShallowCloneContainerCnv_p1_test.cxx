@@ -59,7 +59,13 @@ void test1()
 
   MsgStream log (0, "test");
   ElementLink<VxContainer> origin ("vx", 0);
-  DataPool<Analysis::ParticleShallowClone> pool;
+  {
+    // Need to instantiate an instance of this before Leakcheck,
+    // to get the allocator created.  But the instance will also
+    // hold a lock on the allocator, so can't leave this live
+    // or we'll deadlock.
+    DataPool<Analysis::ParticleShallowClone> pooldum;
+  }
 
   Athena_test::Leakcheck check;
 
@@ -85,7 +91,10 @@ void test1()
   cnv.persToTrans (&pers, &trans2, log);
 
   compare (trans1, trans2);
-  pool.erase();
+  {
+    DataPool<Analysis::ParticleShallowClone> pooldum;
+    pooldum.erase();
+  }
 }
 
 

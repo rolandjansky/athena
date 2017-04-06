@@ -1,7 +1,11 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "HiveAlgG.h"
-#include "CxxUtils/make_unique.h"
 #include <thread>
 #include <chrono>
+#include <memory>
 
 HiveAlgG::HiveAlgG( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
@@ -46,7 +50,7 @@ StatusCode HiveAlgG::execute() {
   ATH_MSG_INFO("  read: " << rdh1.key() << " = " << rdh1->val() );
   
   SG::WriteHandle<HiveDataObj> wrh1( m_wrh1 );
-  wrh1 = CxxUtils::make_unique< HiveDataObj >( HiveDataObj(70000) );
+  wrh1 = std::make_unique< HiveDataObj >( HiveDataObj(70000) );
   ATH_MSG_INFO("  write: " << wrh1.key() << " = " << wrh1->val() );
 
   return StatusCode::SUCCESS;

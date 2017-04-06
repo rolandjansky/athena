@@ -195,6 +195,12 @@ private:
 
 CLASS_DEF(CondAttrListCollection, 1238547719, 0)
 
+#include "AthenaKernel/CondCont.h"
+CLASS_DEF( CondCont<CondAttrListCollection>, 1223307417  , 1 )
+#include "SGTools/BaseInfo.h"
+SG_BASE( CondCont<CondAttrListCollection>, CondContBase );
+
+
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
 //<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 

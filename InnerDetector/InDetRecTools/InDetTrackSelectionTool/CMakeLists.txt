@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 789865 2016-12-15 13:22:59Z krasznaa $
 ################################################################################
 # Package: InDetTrackSelectionTool
 ################################################################################
@@ -56,7 +55,7 @@ if( NOT XAOD_ANALYSIS )
 endif()
 
 atlas_add_library( InDetTrackSelectionToolLib
-   InDetTrackSelectionTool/*.h Root/*.cxx
+   InDetTrackSelectionTool/*.h Root/*.h Root/*.cxx
    PUBLIC_HEADERS InDetTrackSelectionTool
    LINK_LIBRARIES PATCoreLib xAODTracking ${extra_libs} )
 

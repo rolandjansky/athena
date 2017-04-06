@@ -1,8 +1,12 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "HiveAlgV.h"
-#include "CxxUtils/make_unique.h"
 #include <thread>
 #include <chrono>
 #include <vector>
+#include <memory>
 
 HiveAlgV::HiveAlgV( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
@@ -72,7 +76,7 @@ void
 HiveAlgV::write() {
   std::vector< SG::WriteHandle<HiveDataObj> > whv = m_whv.makeHandles();
   for (auto &hnd : whv) {
-    hnd = CxxUtils::make_unique<HiveDataObj> ( HiveDataObj( 10101 ) );
+    hnd = std::make_unique<HiveDataObj> ( HiveDataObj( 10101 ) );
     ATH_MSG_INFO("  write: " << hnd.key() << " = " << hnd->val() );
   }
 }

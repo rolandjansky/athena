@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : TrigPassFlagsCnv
+ * @class  : TrigPassFlagsCnv
  *
  * @brief transient persistent converter for TrigPassFlags
  *

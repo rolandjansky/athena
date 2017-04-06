@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : IsoMuonFeatureCnv
+ * @class  : IsoMuonFeatureCnv
  *
  * @brief transient persistent converter for IsoMuonFeature
  *

@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : EventInfoAccessTool
+ * @class  : EventInfoAccessTool
  *
  * @brief Tool to change EventInfo based on trigger result
  *

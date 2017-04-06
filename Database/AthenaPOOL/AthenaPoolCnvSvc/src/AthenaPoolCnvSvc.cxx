@@ -356,7 +356,6 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
          std::string fileName(fileStr); *endPos = ']';
          if (!this->connectOutput(fileName).isSuccess()) {
             ATH_MSG_ERROR("Failed to connectOutput for " << fileName);
-            delete placementStr; placementStr = nullptr;
             return(StatusCode::FAILURE);
          }
          while (strncmp(placementStr, "release", 7) != 0) {
@@ -377,7 +376,6 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
             }
             if (!sc.isSuccess()) {
                ATH_MSG_ERROR("Failed to get Data for " << placementStr);
-               delete placementStr; placementStr = nullptr;
                return(StatusCode::FAILURE);
             }
             // Deserialize object
@@ -386,9 +384,11 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
             RootType classDesc = RootType::ByName(className);
             void* obj = nullptr;
             if (className == "Token") {
-               obj = buffer; static_cast<char*>(obj)[nbytes - 1] = 0; buffer = nullptr;
+               obj = new char[nbytes];
+               std::memcpy(obj, buffer, nbytes); static_cast<char*>(obj)[nbytes - 1] = 0; buffer = nullptr;
             } else if (classDesc.IsFundamental()) {
-               obj = buffer; buffer = nullptr;
+               obj = new char[nbytes];
+               std::memcpy(obj, buffer, nbytes); buffer = nullptr;
             } else {
                if (m_doChronoStat) {
                   m_chronoStatSvc->chronoStart("wDeser_ALL");
@@ -403,7 +403,6 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
             }
             if (!receiveStore(m_outputStreamingTool.get(), obj, num).isSuccess()) {
                ATH_MSG_ERROR("Failed to get Dynamic Aux Store for " << placementStr);
-               delete placementStr; placementStr = nullptr;
                return(StatusCode::FAILURE);
             }
             if (m_doChronoStat) {
@@ -411,8 +410,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
             }
             // Write object
             Placement placement;
-            placement.fromString(placementStr);
-            delete placementStr; placementStr = nullptr;
+            placement.fromString(placementStr); placementStr = nullptr;
             const Token* token = this->registerForWrite(&placement, obj, classDesc);
             if (token == nullptr) {
                ATH_MSG_ERROR("Failed to write Data for: " << className);
@@ -458,20 +456,17 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
             }
             if (!sc.isSuccess()) {
                ATH_MSG_ERROR("Failed to get Data for client: " << num);
-               delete placementStr; placementStr = nullptr;
                return(StatusCode::FAILURE);
             }
             if (m_doChronoStat) {
                m_chronoStatSvc->chronoStop("cRep_" + objName);
             }
          }
-         delete placementStr; placementStr = nullptr;
+         placementStr = nullptr;
       } else if (sc.isRecoverable() || num == -1) {
-         delete placementStr; placementStr = nullptr;
          return(StatusCode::RECOVERABLE);
       } else {
          ATH_MSG_ERROR("Failed to get first Data for client: " << num);
-         delete placementStr; placementStr = nullptr;
          return(StatusCode::FAILURE);
       }
    }
@@ -674,12 +669,11 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       }
       if (!sc.isSuccess()) {
          ATH_MSG_ERROR("Failed to get Token");
-         delete tokenStr; tokenStr = nullptr;
          return(nullptr);
       }
-      token = new Token();
-      const_cast<Token*>(token)->fromString(tokenStr);
-      delete tokenStr; tokenStr = nullptr;
+      Token* tempToken = new Token();
+      tempToken->fromString(tokenStr); tokenStr = nullptr;
+      token = tempToken; tempToken = nullptr;
    } else {
       token = m_poolSvc->registerForWrite(placement, obj, classDesc);
    }
@@ -713,7 +707,6 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
             m_chronoStatSvc->chronoStop("gObj_ALL");
          }
          if (!sc.isSuccess()) {
-            delete [] static_cast<char*>(buffer); buffer = nullptr;
             ATH_MSG_WARNING("Failed to get Data for " << token->toString());
             obj = nullptr;
          } else {
@@ -776,14 +769,13 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
       if (!sc.isSuccess()) {
          ATH_MSG_WARNING("Failed to get Address Token: " << addressToken.toString());
          return(StatusCode::FAILURE);
-      } else {
-         token = new Token();
-         token->fromString(static_cast<char*>(buffer));
-         delete [] static_cast<char*>(buffer); buffer = nullptr;
-         if (token->classID() == Guid::null()) {
-            delete token; token = nullptr;
-         }
       }
+      token = new Token();
+      token->fromString(static_cast<char*>(buffer)); buffer = nullptr;
+      if (token->classID() == Guid::null()) {
+         delete token; token = nullptr;
+      }
+      m_inputStreamingTool->getObject(&buffer, nbytes).ignore();
    } else {
       token = m_poolSvc->getToken(par[0], par[1], ip[0]);
    }
@@ -887,14 +879,12 @@ StatusCode AthenaPoolCnvSvc::readData() const {
    if (sc.isSuccess() && tokenStr != nullptr && strlen(tokenStr) > 0 && num > 0) {
       ATH_MSG_DEBUG("readData: " << tokenStr << ", for client: " << num);
    } else {
-      delete tokenStr; tokenStr = nullptr;
       return(sc);
    }
    // Read object instance via POOL/ROOT
    void* instance = nullptr;
    Token token;
-   token.fromString(tokenStr);
-   delete tokenStr; tokenStr = nullptr;
+   token.fromString(tokenStr); tokenStr = nullptr;
    if (token.classID() != Guid::null()) {
       std::string objName = "ALL";
       if (m_useDetailChronoStat.value()) {
@@ -1155,12 +1145,12 @@ StatusCode AthenaPoolCnvSvc::processPoolAttributes(std::vector<std::vector<std::
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::receiveStore(const IAthenaIPCTool* tool, void* obj, int num) const {
    void* buffer = nullptr;
-   size_t nbytes = 1; // StreamingTool owns buffer, will stay around until last dynamic attribute is copied
+   size_t nbytes = 0;
    StatusCode sc = tool->getObject(&buffer, nbytes, num);
    while (sc.isRecoverable() && nbytes > 0) {
       sc = tool->getObject(&buffer, nbytes, num);
    }
-   if (!sc.isSuccess() || nbytes == 0) { // No dynamic attributes
+   if (/*!sc.isSuccess() || */nbytes == 0) { // No dynamic attributes
       return(StatusCode::SUCCESS);
    }
    Guid classId;
@@ -1178,12 +1168,12 @@ StatusCode AthenaPoolCnvSvc::receiveStore(const IAthenaIPCTool* tool, void* obj,
       while (tool->getObject(&attrName, nbytes, num).isSuccess() && nbytes > 0 &&
 	      tool->getObject(&typeName, nbytes, num).isSuccess() && nbytes > 0 &&
 	      tool->getObject(&elemName, nbytes, num).isSuccess() && nbytes > 0) {
-         nbytes = 0;
          if (tool->getObject(&buffer, nbytes, num).isSuccess()) {
             const RootType type(std::string(static_cast<char*>(typeName)));
             void* dynAttr = nullptr;
             if (type.IsFundamental()) {
-               dynAttr = buffer; buffer = nullptr;
+               dynAttr = new char[nbytes];
+               std::memcpy(dynAttr, buffer, nbytes); buffer = nullptr;
             } else {
                dynAttr = m_serializeSvc->deserialize(buffer, nbytes, type); buffer = nullptr;
             }

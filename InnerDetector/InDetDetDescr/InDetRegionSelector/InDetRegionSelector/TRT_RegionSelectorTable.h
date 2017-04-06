@@ -13,9 +13,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include <string>
-using std::string;
 
-// class StoreGateSvc;
 class RegSelSiLUT;
 class TRT_IdentifierConversionTool;
 class ITRT_CablingSvc;
@@ -40,18 +38,14 @@ private:
  
   StatusCode createTable();
 
-  //  StoreGateSvc*                 m_detStore;
-  //  ToolHandle<ITRT_IdMapping>    m_TRT_IdMapping;  // Identifier mapping Tool
   ServiceHandle<ITRT_CablingSvc>    m_TRT_IdMapping;  // Identifier mapping Tool
-  //  TRT_IdMapping*                m_TRT_IdMapping;
-  TRT_IdentifierConversionTool* m_TRT_IdMappingOld;  // Identifier conversion Tool. 
+  //TRT_IdentifierConversionTool* m_TRT_IdMappingOld;  // Identifier conversion Tool. 
                                                      // Here temporarily until ATLAS mapping 
                                                      // is put into InDetCabling
 
   RegSelSiLUT*  m_regionLUT;
 
   // Algorithm properties
-  double m_deltaZ;
   std::string m_managerName;
   std::string m_roiFileName;
   bool m_printHashId;

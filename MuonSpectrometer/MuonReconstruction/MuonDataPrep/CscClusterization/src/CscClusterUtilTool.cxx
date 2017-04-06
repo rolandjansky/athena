@@ -31,12 +31,13 @@ CscClusterUtilTool(string type, string aname, const IInterface* parent)
   : AthAlgTool(type, aname, parent),
     m_pmuon_detmgr(0), m_phelper(0),
     m_stripFitter("CalibCscStripFitter/CalibCscStripFitter"),
-    m_precClusterFitter("QratCscClusterFitter/QratCscClusterFitter")
+    m_precClusterFitter("QratCscClusterFitter/QratCscClusterFitter"),
+    m_cscStripLocation("CSC_Measurements")
 {
   declareInterface<ICscClusterUtilTool>(this);
   declareProperty("strip_fitter", m_stripFitter);
   declareProperty("precision_fitter", m_precClusterFitter);
-  declareProperty("CscStripPrepDataLocation",  m_cscStripLocation = "CSC_Measurements");
+  declareProperty("CscStripPrepDataLocation",  m_cscStripLocation );
 }
 
 //**********************************************************************
@@ -49,7 +50,8 @@ StatusCode CscClusterUtilTool::initialize() {
 
   ATH_MSG_DEBUG ( "Initializing " << name() );
   ATH_MSG_DEBUG ( "  Strip fitter is " << m_stripFitter.typeAndName() );
-  ATH_MSG_DEBUG ( "  CscStripPrepDataLocation is " << m_cscStripLocation );
+  ATH_CHECK( m_cscStripLocation.initialize() );
+  ATH_MSG_DEBUG ( "  CscStripPrepDataLocation is " << m_cscStripLocation.key() );
 
   // Retrieve the strip fitting tool.
   if ( m_stripFitter.retrieve().isFailure() ) {
@@ -172,13 +174,13 @@ vector<const CscStripPrepData*> CscClusterUtilTool::getStrips(const CscPrepData*
 
   vector<Identifier> prd_digit_ids = MClus->rdoList();
 
-  const DataHandle<Muon::CscStripPrepDataContainer> pdigcont;
+  SG::ReadHandle<Muon::CscStripPrepDataContainer> pdigcont(m_cscStripLocation);
 
-  if ( evtStore()->retrieve(pdigcont, m_cscStripLocation).isFailure() ) {
-    ATH_MSG_WARNING ( "Strip container " << m_cscStripLocation << " not found in StoreGate!" );
+  if ( !pdigcont.isValid() ) {
+    ATH_MSG_WARNING ( "Strip container " << m_cscStripLocation.key() << " not found in StoreGate!" );
     return strips;
   }
-  ATH_MSG_DEBUG ( "Retrieved " << m_cscStripLocation << " successfully. " );
+  ATH_MSG_DEBUG ( "Retrieved " << m_cscStripLocation.key() << " successfully. " );
 
 
   IdentifierHash elhash=MClus->collectionHash();

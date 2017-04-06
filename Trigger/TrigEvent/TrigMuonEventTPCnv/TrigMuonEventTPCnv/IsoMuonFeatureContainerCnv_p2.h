@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigMuonEventTPCnv
- * @Class  : IsoMuonFeatureContainerCnv_p2
+ * @class  : IsoMuonFeatureContainerCnv_p2
  *
  * @brief transient-persistent converter for IsoMuonFatureContainer_p2
  *

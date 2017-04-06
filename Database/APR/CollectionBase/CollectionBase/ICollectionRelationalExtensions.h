@@ -13,7 +13,7 @@
 namespace pool {
 
   /** 
-   * @class 
+   * @class ICollectionGUIDQuery
    * @author Marcin.Nowak@cern.ch
    */
    

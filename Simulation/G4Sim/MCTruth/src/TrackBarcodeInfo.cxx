@@ -4,31 +4,31 @@
 
 #include "MCTruth/TrackBarcodeInfo.h"
 
-TrackBarcodeInfo::TrackBarcodeInfo(int bc, const ISF::ISFParticle* baseIsp):VTrackInformation(BarcodeOnly),theBaseISFParticle(baseIsp),barcode(bc),returnedToISF(false)
+TrackBarcodeInfo::TrackBarcodeInfo(int bc, const ISF::ISFParticle* baseIsp):VTrackInformation(BarcodeOnly),m_theBaseISFParticle(baseIsp),m_barcode(bc),m_returnedToISF(false)
 {
 }
 
 int TrackBarcodeInfo::GetParticleBarcode() const
 {
-  return barcode;
+  return m_barcode;
 }
 
 void TrackBarcodeInfo::SetBaseISFParticle(const ISF::ISFParticle* isp)
 {
-  theBaseISFParticle=isp;
+  m_theBaseISFParticle=isp;
 }
 
 const ISF::ISFParticle* TrackBarcodeInfo::GetBaseISFParticle() const
 {
-  return theBaseISFParticle;
+  return m_theBaseISFParticle;
 }
 
 void TrackBarcodeInfo::SetReturnedToISF(bool returned)
 {
-  returnedToISF = returned;
+  m_returnedToISF = returned;
 }
 
 bool TrackBarcodeInfo::GetReturnedToISF() const
 {
-  return returnedToISF;
+  return m_returnedToISF;
 }

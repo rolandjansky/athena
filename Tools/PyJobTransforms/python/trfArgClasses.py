@@ -990,7 +990,7 @@ class argFile(argList):
     
     
     ## @brief Set metadata values into the cache
-    #  @detailed Manually sets the metadata cache values to the values given in the
+    #  @details Manually sets the metadata cache values to the values given in the
     #  metadata key dictionary here.
     #  This is useful for setting values to make checks on file metadata handling.
     #  @note To really suppress any external function calls that gather metadata be careful
@@ -1011,7 +1011,7 @@ class argFile(argList):
     
     
     ## @brief Test if certain metadata elements are already cached
-    #  @detailed Will test for a cached value for all files and all keys
+    #  @details Will test for a cached value for all files and all keys
     #  given, aborting as soon as it finds a single uncached value.
     #  @param files Files to check (defaults to all files)
     #  @param metadataKeys Keys to check (defaults to all keys)

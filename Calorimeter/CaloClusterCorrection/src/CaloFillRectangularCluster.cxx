@@ -161,10 +161,10 @@ public:
 
   /**
    * @brief Calculate layer variables --- abstract method.
-   * @param eta Center of the cluster in @f$\eta$@f.
-   * @param phi Center of the cluster in @f$\phi$@f.
-   * @param deta Full width of the cluster in @f$\eta$@f.
-   * @param dphi Full width of the cluster in @f$\phi$@f.
+   * @param eta Center of the cluster in @f$\eta@f$.
+   * @param phi Center of the cluster in @f$\phi@f$.
+   * @param deta Full width of the cluster in @f$\eta@f$.
+   * @param dphi Full width of the cluster in @f$\phi@f$.
    * @param sampling The sampling for which to do the calculation.
    * @param dofill If true, add selected cells to the cluster (if possible).
    *
@@ -195,10 +195,10 @@ public:
 
   /**
    * @brief Calculate layer variables for cells in the cluster.
-   * @param eta Center of the cluster in @f$\eta$@f.
-   * @param phi Center of the cluster in @f$\phi$@f.
-   * @param deta Full width of the cluster in @f$\eta$@f.
-   * @param dphi Full width of the cluster in @f$\phi$@f.
+   * @param eta Center of the cluster in @f$\eta@f$.
+   * @param phi Center of the cluster in @f$\phi@f$.
+   * @param deta Full width of the cluster in @f$\eta@f$.
+   * @param dphi Full width of the cluster in @f$\phi@f$.
    * @param sampling The sampling for which to do the calculation.
    *
    * This method selects the cells within the specified
@@ -217,12 +217,12 @@ public:
 
   /**
    * @brief Calculate layer variables and update cluster.
-   * @param eta Center of the cluster in @f$\eta$@f.
-   * @param phi Center of the cluster in @f$\phi$@f.
-   * @param deta Full width of the cluster in @f$\eta$@f.
-   * @param dphi Full width of the cluster in @f$\phi$@f.
-   * @param fallback_eta @f$\eta$@f result to use if there's an error.
-   * @param fallback_phi @f$\phi$@f result to use if there's an error.
+   * @param eta Center of the cluster in @f$\eta@f$.
+   * @param phi Center of the cluster in @f$\phi@f$.
+   * @param deta Full width of the cluster in @f$\eta@f$.
+   * @param dphi Full width of the cluster in @f$\phi@f$.
+   * @param fallback_eta @f$\eta@f$ result to use if there's an error.
+   * @param fallback_phi @f$\phi@f$ result to use if there's an error.
    * @param sampling The sampling for which to do the calculation.
    * @param allow_badpos Should error flags be allowed into the cluster?
    *
@@ -255,16 +255,16 @@ public:
   /// Return the cluster we're updating.
   CaloCluster* cluster() const;
 
-  /// Return the @f$\eta$@f position from the last calculation.
+  /// Return the @f$\eta@f$ position from the last calculation.
   double etam() const;
 
-  /// Return the @f$\phi$@f position from the last calculation.
+  /// Return the @f$\phi@f$ position from the last calculation.
   double phim() const;
 
-  /// Return the @f$\eta$@f maximum position from the last calculation.
+  /// Return the @f$\eta@f$ maximum position from the last calculation.
   double etamax() const;
 
-  /// Return the @f$\phi$@f maximum position from the last calculation.
+  /// Return the @f$\phi@f$ maximum position from the last calculation.
   double phimax() const;
 
   // return also the real value (now that the raw value are returned instead)
@@ -281,10 +281,10 @@ protected:
   /// The cluster we're updating.
   CaloCluster* m_cluster;
 
-  /// @f$\eta$@f position from last calculation.
+  /// @f$\eta@f$ position from last calculation.
   double m_etam;
 
-  /// @f$\phi$@f position from last calculation.
+  /// @f$\phi@f$ position from last calculation.
   double m_phim;
 };
 
@@ -306,12 +306,12 @@ SamplingHelper::SamplingHelper (const CaloClusterCorrection& parent,
 
 /**
  * @brief Calculate layer variables and update cluster.
- * @param eta Center of the cluster in @f$\eta$@f.
- * @param phi Center of the cluster in @f$\phi$@f.
- * @param deta Full width of the cluster in @f$\eta$@f.
- * @param dphi Full width of the cluster in @f$\phi$@f.
- * @param fallback_eta @f$\eta$@f result to use if there's an error.
- * @param fallback_phi @f$\phi$@f result to use if there's an error.
+ * @param eta Center of the cluster in @f$\eta@f$.
+ * @param phi Center of the cluster in @f$\phi@f$.
+ * @param deta Full width of the cluster in @f$\eta@f$.
+ * @param dphi Full width of the cluster in @f$\phi@f$.
+ * @param fallback_eta @f$\eta@f$ result to use if there's an error.
+ * @param fallback_phi @f$\phi@f$ result to use if there's an error.
  * @param sampling The sampling for which to do the calculation.
  * @param allow_badpos Should error flags be allowed into the cluster?
  *
@@ -373,10 +373,10 @@ SamplingHelper::calculate_and_set
 
 /**
  * @brief Calculate layer variables for cells in the cluster.
- * @param eta Center of the cluster in @f$\eta$@f.
- * @param phi Center of the cluster in @f$\phi$@f.
- * @param deta Full width of the cluster in @f$\eta$@f.
- * @param dphi Full width of the cluster in @f$\phi$@f.
+ * @param eta Center of the cluster in @f$\eta@f$.
+ * @param phi Center of the cluster in @f$\phi@f$.
+ * @param deta Full width of the cluster in @f$\eta@f$.
+ * @param dphi Full width of the cluster in @f$\phi@f$.
  * @param sampling The sampling for which to do the calculation.
  *
  * This method selects the cells within the specified
@@ -408,7 +408,7 @@ CaloCluster* SamplingHelper::cluster() const
 }
 
 
-/// Return the @f$\eta$@f position from the last calculation.
+/// Return the @f$\eta@f$ position from the last calculation.
 inline
 double SamplingHelper::etam() const
 {
@@ -416,7 +416,7 @@ double SamplingHelper::etam() const
 }
 
 
-/// Return the @f$\phi$@f position from the last calculation.
+/// Return the @f$\phi@f$ position from the last calculation.
 inline
 double SamplingHelper::phim() const
 {
@@ -424,7 +424,7 @@ double SamplingHelper::phim() const
 }
 
 
-/// Return the @f$\eta$@f maximum position from the last calculation.
+/// Return the @f$\eta@f$ maximum position from the last calculation.
 inline
 double SamplingHelper::etamax() const
 {
@@ -432,7 +432,7 @@ double SamplingHelper::etamax() const
 }
 
 
-/// Return the @f$\phi$@f maximum position from the last calculation.
+/// Return the @f$\phi@f$ maximum position from the last calculation.
 inline
 double SamplingHelper::phimax() const
 {
@@ -495,10 +495,10 @@ public:
 
   /**
    * @brief Calculate layer variables.
-   * @param eta Center of the cluster in @f$\eta$@f.
-   * @param phi Center of the cluster in @f$\phi$@f.
-   * @param deta Full width of the cluster in @f$\eta$@f.
-   * @param dphi Full width of the cluster in @f$\phi$@f.
+   * @param eta Center of the cluster in @f$\eta@f$.
+   * @param phi Center of the cluster in @f$\phi@f$.
+   * @param deta Full width of the cluster in @f$\eta@f$.
+   * @param dphi Full width of the cluster in @f$\phi@f$.
    * @param sampling The sampling for which to do the calculation.
    * @param dofill If true, add selected cells to the cluster.
    *
@@ -551,10 +551,10 @@ SamplingHelper_CaloCellList::SamplingHelper_CaloCellList
 
 /**
  * @brief Calculate layer variables.
- * @param eta Center of the cluster in @f$\eta$@f.
- * @param phi Center of the cluster in @f$\phi$@f.
- * @param deta Full width of the cluster in @f$\eta$@f.
- * @param dphi Full width of the cluster in @f$\phi$@f.
+ * @param eta Center of the cluster in @f$\eta@f$.
+ * @param phi Center of the cluster in @f$\phi@f$.
+ * @param deta Full width of the cluster in @f$\eta@f$.
+ * @param dphi Full width of the cluster in @f$\phi@f$.
  * @param sampling The sampling for which to do the calculation.
  * @param dofill If true, add selected cells to the cluster.
  *
@@ -618,10 +618,10 @@ public:
 
   /**
    * @brief Calculate layer variables.
-   * @param eta Center of the cluster in @f$\eta$@f.
-   * @param phi Center of the cluster in @f$\phi$@f.
-   * @param deta Full width of the cluster in @f$\eta$@f.
-   * @param dphi Full width of the cluster in @f$\phi$@f.
+   * @param eta Center of the cluster in @f$\eta@f$.
+   * @param phi Center of the cluster in @f$\phi@f$.
+   * @param deta Full width of the cluster in @f$\eta@f$.
+   * @param dphi Full width of the cluster in @f$\phi@f$.
    * @param sampling The sampling for which to do the calculation.
    * @param dofill (Ignored for this implementation.)
    *
@@ -661,10 +661,10 @@ SamplingHelper_Cluster::SamplingHelper_Cluster (const CaloClusterCorrection& par
 
 /**
  * @brief Calculate layer variables.
- * @param eta Center of the cluster in @f$\eta$@f.
- * @param phi Center of the cluster in @f$\phi$@f.
- * @param deta Full width of the cluster in @f$\eta$@f.
- * @param dphi Full width of the cluster in @f$\phi$@f.
+ * @param eta Center of the cluster in @f$\eta@f$.
+ * @param phi Center of the cluster in @f$\phi@f$.
+ * @param deta Full width of the cluster in @f$\eta@f$.
+ * @param dphi Full width of the cluster in @f$\phi@f$.
  * @param sampling The sampling for which to do the calculation.
  * @param dofill (Ignored for this implementation.)
  *
@@ -830,8 +830,8 @@ CaloFillRectangularCluster::geoInit(IOVSVC_CALLBACK_ARGS)
  * @brief Actually make the correction for one region (barrel or endcap).
  * @param ctx     The event context.
  * @param helper Sampling calculation helper object.
- * @param eta The @f$\eta$@f seed of the cluster.
- * @param phi The @f$\phi$@f seed of the cluster.
+ * @param eta The @f$\eta@f$ seed of the cluster.
+ * @param phi The @f$\phi@f$ seed of the cluster.
  * @param samplings List of samplings for this region.
  */
 void

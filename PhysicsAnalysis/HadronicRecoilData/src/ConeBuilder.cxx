@@ -15,7 +15,7 @@ namespace HadronicRecoil {
 
     double phi = 999.;
     bool hasOverlap = true;
-    TRandom3 m_rnd(seed);
+    TRandom3 rnd(seed);
 
     int nloops = 0;
 
@@ -34,10 +34,10 @@ namespace HadronicRecoil {
 	}
 	
 	// Phi is generated randomly
-	phi = m_rnd.Uniform( -(M_PI-radius/2.), M_PI-radius/2.);
+	phi = rnd.Uniform( -(M_PI-radius/2.), M_PI-radius/2.);
 
 	// Eta sign
-	if( m_rnd.Uniform(-1 , 1) < 0 ){
+	if( rnd.Uniform(-1 , 1) < 0 ){
 	  eta *= -1;
 	}
 	

@@ -37,27 +37,27 @@ class IRDBRecord
   virtual bool isFieldNull(const std::string& fieldName) const = 0;
 
   /// Get int field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @return field value
   virtual int getInt(const std::string& fieldName) const = 0;
 
   /// Get long field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @return field value
   virtual long getLong(const std::string& fieldName) const = 0;
 
   /// Get double field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @return field value
   virtual double getDouble(const std::string& fieldName) const = 0;
 
   /// Get float field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @return field value
   virtual float getFloat(const std::string& fieldName) const = 0;
 
   /// Get string field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @return field value
   virtual std::string getString(const std::string& fieldName) const = 0;
 
@@ -66,31 +66,31 @@ class IRDBRecord
   // arrays are implemented using the field with names like NAME_0, NAME_1 etc.
 
   /// Get array int field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @param index [IN] index in the array
   /// @return field value
   virtual int getInt(const std::string& fieldName, unsigned int index) const = 0;
 
   /// Get array long field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @param index [IN] index in the array
   /// @return field value
   virtual long getLong(const std::string& fieldName, unsigned int index) const = 0;
 
   /// Get array double field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @param index [IN] index in the array
   /// @return field value
   virtual double getDouble(const std::string& fieldName, unsigned int index) const = 0;
 
   /// Get array float field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @param index [IN] index in the array
   /// @return field value
   virtual float getFloat(const std::string& fieldName, unsigned int index) const = 0;
 
   /// Get array string field value
-  /// @parem fieldName [IN] field name
+  /// @param fieldName [IN] field name
   /// @param index [IN] index in the array
   /// @return field value
   virtual std::string getString(const std::string& fieldName, unsigned int index) const = 0;

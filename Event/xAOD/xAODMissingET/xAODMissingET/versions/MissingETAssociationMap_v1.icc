@@ -59,7 +59,7 @@ inline xAOD::MissingETAssociationMap_v1::iterator xAOD::MissingETAssociationMap_
  *  <b>Principal design guidelines</b>
  *
  *  The MET composition describing a fully configured MET (@f$ E_{\rm T}^{\rm miss} @f$) contains a list of MET terms, which in general should add up to
- *  @f E_{\rm T}^{\miss} @f$. Each MET term is represented by a MET contribution object of type MissingETComponent_v1. The sequence with which these
+ *  @f$ E_{\rm T}^{\miss} @f$. Each MET term is represented by a MET contribution object of type MissingETComponent_v1. The sequence with which these
  *  contributions are recorded into the composition is given by the tool sequence invoked to reconstruct the corresponding terms. This suggests a 
  *  random access container object for the composition. The basic model chosen for implementation is ::DataVector<xAOD::MissingETComponent_v1>. 
  *  While this base class provides all necessary features to manage the MET composition, it lacks (1) support for map-like  data access using keys, 

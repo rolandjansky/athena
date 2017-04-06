@@ -115,7 +115,6 @@ public:
 private:
 	
 	// Cache the StoreGateSvc ptr for efficiency
-	StoreGateSvc*	p_SGevent;
 	
 	// access to Id Helpers
 	ToolHandle<Muon::MuonEDMHelperTool>   m_helperTool;
@@ -125,7 +124,6 @@ private:
     
 	
 	bool                m_doTruth;
-	MsgStream*          m_log;
 	//bool                m_debug;
 	//bool                m_verbose;
 	

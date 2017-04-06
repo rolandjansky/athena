@@ -7,7 +7,7 @@
  * @file WriteDataReentrant.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Jan, 2016
- * @brief 
+ * @brief Testing reentrant algorithms.
  */
 
 
@@ -31,7 +31,6 @@
 
 #include "AthenaKernel/DefaultKey.h"
 #include "AthenaKernel/errorcheck.h"
-#include "CxxUtils/make_unique.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -50,12 +49,15 @@ WriteDataReentrant::WriteDataReentrant(const std::string& name,
   declareProperty ("MKey", m_mKey = "mkey");
   declareProperty ("LinkVectorKey", m_linkVectorKey = "linkvec");
   declareProperty ("TestObjectKey", m_testObjectKey = "testobj");
+  declareProperty ("DObjKeyArray", m_dobjKeyArray = {"dobj_a1", "dobj_a2"});
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode WriteDataReentrant::initialize()
 {
+  errorcheck::ReportMessage::hideErrorLocus();
+
   ATH_MSG_INFO ("in initialize()");
   ATH_CHECK( m_dobjKey.initialize() );
   ATH_CHECK( m_dobjKey2.initialize() );
@@ -67,6 +69,7 @@ StatusCode WriteDataReentrant::initialize()
   ATH_CHECK( m_mKey.initialize() );
   ATH_CHECK( m_linkVectorKey.initialize() );
   ATH_CHECK( m_testObjectKey.initialize() );
+  ATH_CHECK( m_dobjKeyArray.initialize() );
 
   m_testObject =
     SG::DataObjectSharedPtr<TestDataObject> (new TestDataObject(10));
@@ -96,20 +99,20 @@ StatusCode WriteDataReentrant::execute_r (const EventContext& ctx) const
 
   // Part 1: Recording objects to SG 
   SG::WriteHandle<MyDataObj> dobj (m_dobjKey, ctx);
-  dobj = CxxUtils::make_unique<MyDataObj>(1);
+  dobj = std::make_unique<MyDataObj>(1);
 
   //now we create a second MyDataObj instance...
   //...try to record it as we did for the first. Since dobj2 is also a
   //MyDataObj we expect to see an error 
   ATH_MSG_WARNING ("we expect  an error message here");
   EXPECT_EXCEPTION (std::runtime_error,
-                    dobj = CxxUtils::make_unique<MyDataObj>(2));
+                    dobj = std::make_unique<MyDataObj>(2));
   ATH_MSG_WARNING ("end of error message");
 
   //here we go again...
   //... but this time we register the dobj3 using this algo name as key
   auto dobj3 = SG::makeHandle (m_dobjKey3, ctx);
-  dobj3 = CxxUtils::make_unique<MyDataObj>(3);
+  dobj3 = std::make_unique<MyDataObj>(3);
 
   SG::WriteHandle<TestDataObject> testobj (m_testObjectKey, ctx);
   if (m_testObject->refCount() != 1) std::abort();
@@ -119,32 +122,40 @@ StatusCode WriteDataReentrant::execute_r (const EventContext& ctx) const
 #if 0  
   {
     SG::WriteHandle<MyDataObj> dobj4 (m_dobjKey4, ctx);
-    ATH_CHECK( dobj4.recordOrRetrieve (CxxUtils::make_unique<MyDataObj>(4)) );
+    ATH_CHECK( dobj4.recordOrRetrieve (std::make_unique<MyDataObj>(4)) );
     MyDataObj* pp = &*dobj4;
-    ATH_CHECK( dobj4.recordOrRetrieve (CxxUtils::make_unique<MyDataObj>(4)) );
+    ATH_CHECK( dobj4.recordOrRetrieve (std::make_unique<MyDataObj>(4)) );
     assert (pp == &*dobj4);
   }
 #endif
+
+  // Writing an array of objects.
+  size_t i = 0;
+  for (const SG::WriteHandleKey<MyDataObj>& k : m_dobjKeyArray) {
+    SG::WriteHandle<MyDataObj> h (k, ctx);
+    ATH_CHECK( h.record (std::make_unique<MyDataObj> (i+100)) );
+    ++i;
+  }
   
   ///////////////////////////////////////////////////////////////////////
 
   // Part 2: storing collections in the SG
 
   SG::WriteHandle<DataVector<MyContObj> > cobj (m_cobjKey, ctx);
-  ATH_CHECK( cobj.record (CxxUtils::make_unique<DataVector<MyContObj> >()) );
+  ATH_CHECK( cobj.record (std::make_unique<DataVector<MyContObj> >()) );
   cobj->reserve(10);
-  cobj->push_back (CxxUtils::make_unique<MyContObj> (11.3, 132));
-  cobj->push_back (CxxUtils::make_unique<MyContObj> (41.7, 291));
+  cobj->push_back (std::make_unique<MyContObj> (11.3, 132));
+  cobj->push_back (std::make_unique<MyContObj> (41.7, 291));
 
   // as above with a vector of integers
   SG::WriteHandle<std::vector<float> > vFloat (m_vFloatKey, ctx);
-  vFloat = CxxUtils::make_unique<std::vector<float> >();
+  vFloat = std::make_unique<std::vector<float> >();
   vFloat->push_back(1.0);
   vFloat->push_back(2.0);
   vFloat->push_back(3.0);
 
   SG::WriteHandle<MapStringFloat> m (m_mKey, ctx);
-  ATH_CHECK( m.record (CxxUtils::make_unique<MapStringFloat>()) );
+  ATH_CHECK( m.record (std::make_unique<MapStringFloat>()) );
   (*m)["uno"]=1.0;
   (*m)["due"]=2.0;
 
@@ -209,7 +220,7 @@ StatusCode WriteDataReentrant::execute_r (const EventContext& ctx) const
   //since dobj is identifiable in the SG a reference to it is all we need
 
   SG::WriteHandle<MyDataObj> dobj2 (m_dobjKey2, ctx);
-  dobj2 = CxxUtils::make_unique<MyDataObj> (2);
+  dobj2 = std::make_unique<MyDataObj> (2);
 
   //Otherwise one could first create an empty link
   DataLink<MyDataObj> dobjLink2;
@@ -250,7 +261,7 @@ StatusCode WriteDataReentrant::execute_r (const EventContext& ctx) const
   // toContainedElement!
 
   SG::WriteHandle<std::list<VecElemLink> > pLinkList (m_pLinkListKey, ctx);
-  pLinkList = CxxUtils::make_unique<std::list<VecElemLink> >();
+  pLinkList = std::make_unique<std::list<VecElemLink> >();
   pLinkList->push_back(aLink);
   pLinkList->push_back(thirdElementLink);
 
@@ -259,7 +270,7 @@ StatusCode WriteDataReentrant::execute_r (const EventContext& ctx) const
   //        
   typedef ElementLink<MapStringFloat> MapElemLink;
   SG::WriteHandle<std::vector<MapElemLink> > linkVector (m_linkVectorKey, ctx);
-  linkVector = CxxUtils::make_unique<std::vector<MapElemLink> >();
+  linkVector = std::make_unique<std::vector<MapElemLink> >();
   linkVector->push_back(MapElemLink(*m, "uno"));
   MapElemLink mLink;
   mLink.toContainedElement(*m, (*m)["due"]);

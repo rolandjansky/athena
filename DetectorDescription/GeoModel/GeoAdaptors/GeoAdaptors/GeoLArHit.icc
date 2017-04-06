@@ -13,33 +13,33 @@
 inline void GeoLArHit::init()
 {
   StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-  if(detStore->retrieve(_man).isFailure())
+  if(detStore->retrieve(s_man).isFailure())
     std::cout << "GeoLArHit::init() WARNING  Unable to retrieve CaloDetDescrManager!" << std::endl;
 }
 
 inline GeoLArHit::GeoLArHit(const LArHit & h) 
 {
-  _hit = &h;
-  if(!_man) init();
+  m_hit = &h;
+  if(!s_man) init();
 }
 
 inline const CaloDetDescrElement* GeoLArHit::getDetDescrElement() const
 {
-  return _man->get_element(_hit->cellID());
+  return s_man->get_element(m_hit->cellID());
 }
 
 inline double GeoLArHit::Energy() const
 {
-  return _hit->energy();
+  return m_hit->energy();
 }
 
 inline double GeoLArHit::Time() const
 {
-  return _hit->time();
+  return m_hit->time();
 }
 
 inline int GeoLArHit::SamplingLayer() const {
-  const CaloCell_ID *caloID = _man->getCaloCell_ID();
-  int layer = caloID->sampling(_hit->cellID());
+  const CaloCell_ID *caloID = s_man->getCaloCell_ID();
+  int layer = caloID->sampling(m_hit->cellID());
   return layer;
 }

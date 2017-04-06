@@ -7,7 +7,7 @@
 
 /***********************************************************************************
  * @Package : VP1TriggerSystems
- * @Class   : VP1TriggerHandleL1
+ * @class   : VP1TriggerHandleL1
  *
  * @brief   : L1 Trigger Data Handle (Header)
  *

@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : TrigMissingETCnv
+ * @class  : TrigMissingETCnv
  *
  * @brief transient persistent converter for TrigMissingET
  *

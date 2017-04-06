@@ -7,7 +7,7 @@
 /**********************************************************************************
  * @Project: TrigDecisionTool
  * @Package: TrigDecisionTool
- * @Class  : TrigDecisionTool
+ * @class  : TrigDecisionTool
  *
  * @brief main tool
  *    This class defines basic functionality of TDT irrespectively 

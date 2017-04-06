@@ -5,21 +5,21 @@
 #define APReweightBase_cxx
 #include "ReweightUtils/APReweightBase.h"
 
-unsigned int APReweightBase::_NID = 0;
+unsigned int APReweightBase::s_NID = 0;
 
 APReweightBase::APReweightBase()
-  : _scale(0),
-    _isTrig(0),
-    _isQuiet(0),
-    _syst_uncert_global(0),
-    _empty_weight(0)
+  : m_scale(0),
+    m_isTrig(0),
+    m_isQuiet(0),
+    m_syst_uncert_global(0),
+    m_empty_weight(0)
 {
-  _ID = _NID;
-  ++_NID;
+  m_ID = s_NID;
+  ++s_NID;
 }
 
 APReweightBase::~APReweightBase() { }
 
 unsigned int APReweightBase::GetID() const {
-  return _ID;
+  return m_ID;
 }

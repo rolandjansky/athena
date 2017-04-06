@@ -131,10 +131,9 @@ StatusCode Muon::TgcRdoToPrepDataTool::initialize()
   ATH_CHECK(m_outputprepdataKeys.initialize());
  
   // Get TgcRawDataProviderTool
-  sc = m_rawDataProviderTool.retrieve();
-  if(sc.isFailure()) {
-    ATH_MSG_FATAL("Failed to retrieve serive " << m_rawDataProviderTool);
-    return sc;
+  if(m_useBStoRdoTool && m_rawDataProviderTool.retrieve().isFailure()) {
+    ATH_MSG_FATAL("Failed to retrieve tool " << m_rawDataProviderTool);
+    return StatusCode::FAILURE;
   } else {
     ATH_MSG_INFO("Retrieved Tool " << m_rawDataProviderTool);
   }

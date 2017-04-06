@@ -10,7 +10,7 @@
 /**********************************************************************************
  * @Project: TrigDecisionTool
  * @Package: TrigDecisionTool
- * @Class  : ExpertMethods
+ * @class  : ExpertMethods
  *
  * @brief access to information about the trigger decision
  *

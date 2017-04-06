@@ -46,8 +46,8 @@ except:
     from G4AtlasApps.SimFlags import simFlags
     simdict = simFlags.specialConfiguration.get_Value()
 
-C1Mass = eval(simdict["AMSBC1Mass"])
-N1Mass = eval(simdict["AMSBN1Mass"])
+C1Mass = float(simdict["AMSBC1Mass"])
+N1Mass = float(simdict["AMSBN1Mass"])
 # patching PDGTABLE
 get_and_fix_PDGTABLE([(1000022, N1Mass, '~chi(0,1)', '0'), (1000024, C1Mass, '~chi(+,1)', '+')])
 

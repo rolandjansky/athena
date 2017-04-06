@@ -9,7 +9,6 @@
 #include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "GaudiKernel/PropertyMgr.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/Timeout.h"
 
@@ -190,7 +189,7 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
   declareProperty("maxMdtHits",m_maxMdtHits);
   declareProperty("RpcPrepDataContainer", m_rpcKey);
   declareProperty("TgcPrepDataContainer", m_tgcKey);
-  declareProperty("TgcPrepDataContainer", m_tgcKeyNextBC);
+  declareProperty("TgcPrepDataContainerNextBC", m_tgcKeyNextBC);
   declareProperty("MdtPrepDataContainer", m_mdtKey);
   declareProperty("CscPrepDataContainer", m_cscKey);
 
@@ -455,11 +454,6 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
     ATH_MSG_ERROR("Couldn't initalize CSC ReadHandleKey");
     return StatusCode::FAILURE;
   }
-  //  ATH_CHECK(m_rpcKey);
-  // ATH_CHECK(m_tgcKey);
-  // ATH_CHECK(m_tgcKeynextBC);
-  // ATH_CHECK(m_cscKey);
-  // ATH_CHECK(m_mdtKey);
 
   return StatusCode::SUCCESS;
 }
@@ -1066,7 +1060,7 @@ if (m_useMdtData>0) {
       return HLT::NAV_ERROR;
     }
     else{ 
-      rpcPrds=RpcCont.get();
+      rpcPrds=RpcCont.cptr();
       msg()<< MSG::DEBUG << " RPC PRD Container retrieved" << endmsg;
     }
     // Get RPC collections
@@ -1127,7 +1121,7 @@ if (m_useMdtData>0) {
       return HLT::NAV_ERROR;
     }
     else{ 
-      mdtPrds=MdtCont.get();
+      mdtPrds=MdtCont.cptr();
       msg()<< MSG::DEBUG << " MDT PRD Container retrieved" << endmsg;
     }
 
@@ -1228,7 +1222,7 @@ if (m_useMdtData>0) {
       return HLT::NAV_ERROR;
     }
     else{ 
-      tgcPrds=TgcCont.get();
+      tgcPrds=TgcCont.cptr();
       msg()<< MSG::DEBUG << " MDT PRD Container retrieved" << endmsg;
     }
 
@@ -1313,7 +1307,7 @@ if (m_useMdtData>0) {
 	return HLT::NAV_ERROR;
       }
       else{ 
-	tgcPrds=TgcCont.get();
+	tgcPrds=TgcCont.cptr();
 	msg()<< MSG::DEBUG << " MDT PRD Container retrieved" << endmsg;
       }
 
@@ -1366,7 +1360,7 @@ if (m_useMdtData>0) {
       return HLT::NAV_ERROR;
     }
     else{ 
-      cscPrds=CscCont.get();
+      cscPrds=CscCont.cptr();
       msg()<< MSG::DEBUG << " CSC PRD Container retrieved" << endmsg;
     }
 
@@ -1630,11 +1624,11 @@ if (m_useMdtData>0) {
   int nSeg = 0;
   if(m_segmentCombiColl) nSeg = segmentMonitoring(m_segmentCombiColl, monVars);
   if(m_segments){
-    std::vector<const Muon::MuonSegment*> m_muonSegCollection;
+    std::vector<const Muon::MuonSegment*> muonSegCollection;
     for(Trk::SegmentCollection::const_iterator itSeg = m_segments->begin(); itSeg!= m_segments->end(); ++itSeg){
-      if(*itSeg) m_muonSegCollection.push_back(dynamic_cast<Muon::MuonSegment*>(*itSeg));
+      if(*itSeg) muonSegCollection.push_back(dynamic_cast<const Muon::MuonSegment*>(*itSeg));
     }
-    nSeg = segmentMonitoring(m_muonSegCollection, monVars);
+    nSeg = segmentMonitoring(muonSegCollection, monVars);
   }
 
   monVars.numberOfSegs.push_back(nSeg);

@@ -84,5 +84,6 @@ void* AthenaRootSerializeSvc::deserialize(void* buffer, size_t& nbytes, const Ro
    TBufferFile readBuffer(TBuffer::kRead, nbytes, buffer, kTRUE);
    void* obj = readBuffer.ReadObjectAny(cltype);
    nbytes = readBuffer.Length();
+   readBuffer.ResetBit(TBuffer::kIsOwner); readBuffer.SetBuffer(nullptr);
    return(obj);
 }

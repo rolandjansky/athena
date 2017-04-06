@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 ///////////////////////// -*- C++ -*- /////////////////////////////
 // G4InputLoader.h 
 // Header file for class G4InputLoader

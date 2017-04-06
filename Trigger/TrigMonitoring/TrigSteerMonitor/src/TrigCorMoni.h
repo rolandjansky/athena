@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: ATLAS HLT Steering Monitoring
  * @Package: Trigger/TrigMonitoring/TrigSignatureMonitor
- * @Class  : TrigSignatureMoni
+ * @class  : TrigSignatureMoni
  * @Created: Nov, 2006
  *
  * @brief  Make correlation plots between L1 accept and HLT accept and HLT streams

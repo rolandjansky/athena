@@ -130,10 +130,7 @@ void eflowCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCa
   /* Add each track to its best matching cluster's eflowCaloObject */
   matchAndCreateEflowCaloObj(m_nMatchesInCellLevelSubtraction);
 
-  int debug = 0;
-  if (1 == debug) {
-    printAllClusters(recClusterContainer);
-  }
+  if (msgLvl(MSG::DEBUG)) printAllClusters(recClusterContainer);
 
   performSubtraction();
 }
@@ -318,13 +315,13 @@ void eflowCellLevelSubtractionTool::printAllClusters(eflowRecClusterContainer* r
       /* Create the eflowCaloObject and put it in the container */
       eflowRecCluster* thisEFRecCluster = recClusterContainer->at(iCluster);
     if (thisEFRecCluster->getTrackMatches().empty()) {
-      std::cout << "Isolated" << printCluster(thisEFRecCluster->getCluster()) << std::endl;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Isolated" << printCluster(thisEFRecCluster->getCluster()) << endmsg;
     } else {
-      std::cout << "Matched" << printCluster(thisEFRecCluster->getCluster()) << std::endl;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Matched" << printCluster(thisEFRecCluster->getCluster()) << endmsg;
       int nTrackMatches = thisEFRecCluster->getNTracks();
       std::vector<eflowTrackClusterLink*> theTrackLinks = thisEFRecCluster->getTrackMatches();
       for (int iTrackMatch = 0; iTrackMatch < nTrackMatches; ++iTrackMatch) {
-        std::cout << "Matched" << printTrack(theTrackLinks[iTrackMatch]->getTrack()->getTrack()) << std::endl;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Matched" << printTrack(theTrackLinks[iTrackMatch]->getTrack()->getTrack()) << endmsg;
       }
     }
   }

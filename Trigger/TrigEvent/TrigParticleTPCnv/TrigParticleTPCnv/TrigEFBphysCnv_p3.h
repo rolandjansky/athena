@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigParticleTPCnv
- * @Class  : TrigEFBphysCnv_p3
+ * @class  : TrigEFBphysCnv_p3
  *
  * @brief transient-persistent converter for TrigEFBphys
  *

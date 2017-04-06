@@ -56,10 +56,12 @@ void RatesTrigger::execute(const WeightingValuesSummary_t& weights) {
   if (m_rateVsTrain != nullptr) m_rateVsTrain->Fill(weights.m_distanceInTrain, w);
   m_rateAccumulator  += w;
   m_rateAccumulator2 += w * w;
+  if (m_data != nullptr) m_data->Fill(RatesBinIdentifier_t::kRATE_BIN_OR, w);
   if (m_expressPrescale >= 1) {
     const double wExp = m_totalPrescaleWeightExpress * weights.m_enhancedBiasWeight * getExtrapolationFactor(weights);
     m_rateExpressAccumulator  += wExp;
     m_rateExpressAccumulator2 += wExp * wExp;
+    if (m_data != nullptr) m_data->Fill(RatesBinIdentifier_t::kEXPRESS_BIN, wExp);
   }
 }
 

@@ -2,63 +2,44 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// ISimHitSvc.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 #ifndef ISF_INTERFACES_ISIMHITSVC_H
 #define ISF_INTERFACES_ISIMHITSVC_H 1
 
 // Include Files
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 
 /** Declaration of the interface ID ( interface id, major version, minor version) */
 static const InterfaceID IID_ISimHitSvc("ISimHitSvc", 1 , 0);
 
-class SiHit;
-class TRTHit;
-class TRTUncompressedHit;
-class IdentifierHash;
-
 namespace ISF {
-      
+
   /** @ class ISimHitSvc
-  
-      Interface for the central simulaiton hit service to be used
-      by the different simulation flavors.
-      
+
+      Largely obsolete - just maintaining the class until it is safe
+      to move the functionality to SimKernel.
+
       @TODO add Calo, MS, et al.
-  
+
       @ author Andreas.Salzburger -at- cern.ch
      */
-  class ISimHitSvc : virtual public IInterface { 
+  class ISimHitSvc : virtual public IInterface {
 
-      /////////////////////////////////////////////////////////////////// 
-      // Public methods: 
-      /////////////////////////////////////////////////////////////////// 
-    public: 
+      ///////////////////////////////////////////////////////////////////
+      // Public methods:
+      ///////////////////////////////////////////////////////////////////
+    public:
 
       /** Retrieve interface ID */
       static const InterfaceID& interfaceID() { return IID_ISimHitSvc; }
 
       /** Initialize event chain */
-      virtual StatusCode initializeEvent() = 0;                             
-      
-      /** Insert a SiHit - used for Pixels, SCT */
-      virtual void insert(const SiHit& siHit) = 0;
+      virtual StatusCode initializeEvent() = 0;
 
-      /* Insert a TRT Hit */
-      virtual void insert(const TRTHit& trtHit) = 0;
-
-      /* Insert a TRTUncompressed Hit */
-      virtual void insert(const TRTUncompressedHit& trtHit) = 0;
-      
       /** Release Event chain - @TODO: evoke callback chain ? */
-      virtual StatusCode releaseEvent() = 0;                             
-            
-  }; 
+      virtual StatusCode releaseEvent() = 0;
+
+  };
 }
 
 #endif //> !ISF_INTERFACES_ISIMHITSVC_H

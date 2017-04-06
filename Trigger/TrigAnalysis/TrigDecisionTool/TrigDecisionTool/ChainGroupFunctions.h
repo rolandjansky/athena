@@ -7,7 +7,7 @@
 /**********************************************************************************
  * @Project: TrigDecisionTool
  * @Package: TrigDecisionTool
- * @Class  : ChainGroupFunctions
+ * @class  : ChainGroupFunctions
  *
  * @brief Chain Group management
  *

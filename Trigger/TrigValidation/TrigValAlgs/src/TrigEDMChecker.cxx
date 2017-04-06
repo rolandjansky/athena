@@ -551,46 +551,46 @@ void TrigEDMChecker::dumpTrigSpacePointCounts()
         getVec = SpacePointCountsCont->at(i)->contentsPixelClusEndcapC();
         sum = 0.;
         for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-        snprintf(buff, 128, "REGTEST %s SUM of contentsPixelClusEndcapC() =         %10.2f ", s.c_str(), sum );
+        snprintf(buff, sizeof(buff), "REGTEST %s SUM of contentsPixelClusEndcapC() =         %10.2f ", s.c_str(), sum );
         ATH_MSG_INFO(buff);
         
         getVec = SpacePointCountsCont->at(i)->contentsPixelClusBarrel();
         sum = 0.;
         for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-        snprintf(buff, 128, "REGTEST %s SUM of contentsPixelClusBarrel() =         %10.2f ", s.c_str(), sum );
+        snprintf(buff, sizeof(buff), "REGTEST %s SUM of contentsPixelClusBarrel() =         %10.2f ", s.c_str(), sum );
         ATH_MSG_INFO(buff);
         
         getVec = SpacePointCountsCont->at(i)->contentsPixelClusEndcapA();
         sum = 0.;
         for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-        snprintf(buff, 128, "REGTEST %s SUM of contentsPixelClusEndcapA() =         %10.2f ", s.c_str(), sum );
+        snprintf(buff, sizeof(buff), "REGTEST %s SUM of contentsPixelClusEndcapA() =         %10.2f ", s.c_str(), sum );
         ATH_MSG_INFO(buff);
         
-        snprintf(buff, 128, "REGTEST %s pixelClusTotBins() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusTotBins() );
+        snprintf(buff, sizeof(buff), "REGTEST %s pixelClusTotBins() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusTotBins() );
         ATH_MSG_INFO(buff);
         
-        snprintf(buff, 128, "REGTEST %s pixelClusTotMin() =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusTotMin() );
+        snprintf(buff, sizeof(buff), "REGTEST %s pixelClusTotMin() =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusTotMin() );
         ATH_MSG_INFO(buff);
         
-        snprintf(buff, 128, "REGTEST %s pixelClusTotMax() =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusTotMax() );
+        snprintf(buff, sizeof(buff), "REGTEST %s pixelClusTotMax() =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusTotMax() );
         ATH_MSG_INFO(buff);
         
-        snprintf(buff, 128, "REGTEST %s pixelClusSizeBins() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusSizeBins() );
+        snprintf(buff, sizeof(buff), "REGTEST %s pixelClusSizeBins() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusSizeBins() );
         ATH_MSG_INFO(buff);
         
-        snprintf(buff, 128, "REGTEST %s pixelClusSizeMin()  =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusSizeMin() );
+        snprintf(buff, sizeof(buff), "REGTEST %s pixelClusSizeMin()  =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusSizeMin() );
         ATH_MSG_INFO(buff);
         
-        snprintf(buff, 128, "REGTEST %s pixelClusSizeMax() =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusSizeMax() );
+        snprintf(buff, sizeof(buff), "REGTEST %s pixelClusSizeMax() =        %10.2f ", s.c_str(), SpacePointCountsCont->at(i)->pixelClusSizeMax() );
         ATH_MSG_INFO(buff);
         
-        snprintf(buff, 128, "REGTEST %s sctSpEndcapC() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->sctSpEndcapC() );
+        snprintf(buff, sizeof(buff), "REGTEST %s sctSpEndcapC() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->sctSpEndcapC() );
         ATH_MSG_INFO(buff);
         
-        snprintf(buff, 128, "REGTEST %s sctSpBarrel() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->sctSpBarrel() );
+        snprintf(buff, sizeof(buff), "REGTEST %s sctSpBarrel() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->sctSpBarrel() );
         ATH_MSG_INFO(buff);
         
-        snprintf(buff, 128, "REGTEST %s sctSpEndcapA() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->sctSpEndcapA() );
+        snprintf(buff, sizeof(buff), "REGTEST %s sctSpEndcapA() =        %u ", s.c_str(), SpacePointCountsCont->at(i)->sctSpEndcapA() );
         ATH_MSG_INFO(buff);
       }
 	}
@@ -609,7 +609,7 @@ void TrigEDMChecker::dumpTrigT2MBTSBits(){
   else {
     ATH_MSG_INFO("Accessing " << METTag << " with " << T2MbtsBitsCont->size() << " elements");
 
-    std::string s; char buff[128];
+    std::string s; char buff[380];
     std::vector<float> getVec;
     float sum;
 
@@ -618,13 +618,13 @@ void TrigEDMChecker::dumpTrigT2MBTSBits(){
       getVec = T2MbtsBitsCont->at(i)->triggerEnergies();
       sum = 0.;
       for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-      snprintf(buff, 128, "REGTEST %s SUM of triggerEnergies() =         %10.2f ", s.c_str(), sum );
+      snprintf(buff, sizeof(buff), "REGTEST %s SUM of triggerEnergies() =         %10.2f ", s.c_str(), sum );
       ATH_MSG_INFO(buff);
 
       getVec = T2MbtsBitsCont->at(i)->triggerTimes();
       sum = 0.;
       for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-      snprintf(buff, 128, "REGTEST %s SUM of triggerTimes() =         %10.2f ", s.c_str(), sum );
+      snprintf(buff, sizeof(buff), "REGTEST %s SUM of triggerTimes() =         %10.2f ", s.c_str(), sum );
       ATH_MSG_INFO(buff);
     }
   }
@@ -643,7 +643,7 @@ void TrigEDMChecker::dumpTrigVertexCounts(){
   else {
     ATH_MSG_INFO("Accessing " << METTag << " with " << T2VertexCountsCont->size() << " elements");
 
-    std::string s; char buff[128];
+    std::string s; char buff[380];
     std::vector<float> fgetVec;
     float fsum(0.);
     std::vector<unsigned int> ugetVec;
@@ -653,12 +653,12 @@ void TrigEDMChecker::dumpTrigVertexCounts(){
     for(uint i = 0; i < T2VertexCountsCont->size(); i++) {
       ugetVec = T2VertexCountsCont->at(i)->vtxNtrks();
       for (uint j = 0; j < ugetVec.size(); ++j) usum += ugetVec[j];
-      snprintf(buff, 128, "REGTEST %s SUM of vtxNtrks() =         %u ", s.c_str(), usum );
+      snprintf(buff, sizeof(buff), "REGTEST %s SUM of vtxNtrks() =         %u ", s.c_str(), usum );
       ATH_MSG_INFO(buff);
 
       fgetVec = T2VertexCountsCont->at(i)->vtxTrkPtSqSum();
       for (uint j = 0; j < fgetVec.size(); ++j) fsum += fgetVec[j];
-      snprintf(buff, 128, "REGTEST %s SUM of vtxTrkPtSqSum() =         %10.2f ", s.c_str(), fsum );
+      snprintf(buff, sizeof(buff), "REGTEST %s SUM of vtxTrkPtSqSum() =         %10.2f ", s.c_str(), fsum );
       ATH_MSG_INFO(buff);
     }
   }
@@ -677,7 +677,7 @@ void TrigEDMChecker::dumpTrigTrackCounts(){
   else {
     ATH_MSG_INFO("Accessing " << METTag << " with " << T2TrackCountsCont->size() << " elements");
 
-    std::string s; char buff[128];
+    std::string s; char buff[380];
     std::vector<float> getVec;
     float sum;
 
@@ -686,49 +686,49 @@ void TrigEDMChecker::dumpTrigTrackCounts(){
       getVec = T2TrackCountsCont->at(i)->z0_pt();
       sum = 0.;
       for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-      snprintf(buff, 128, "REGTEST %s SUM of z0_pt =         %10.2f ", s.c_str(), sum );
+      snprintf(buff, sizeof(buff), "REGTEST %s SUM of z0_pt =         %10.2f ", s.c_str(), sum );
       ATH_MSG_INFO(buff);
 
       getVec = T2TrackCountsCont->at(i)->eta_phi();
       sum = 0.;
       for (uint j = 0; j < getVec.size(); ++j) sum += getVec[j];
-      snprintf(buff, 128, "REGTEST %s SUM of eta_phi() =         %10.2f ", s.c_str(), sum );
+      snprintf(buff, sizeof(buff), "REGTEST %s SUM of eta_phi() =         %10.2f ", s.c_str(), sum );
       ATH_MSG_INFO(buff);
 
-      snprintf(buff, 128, "REGTEST %s z0Bins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->z0Bins() );
+      snprintf(buff, sizeof(buff), "REGTEST %s z0Bins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->z0Bins() );
       ATH_MSG_INFO(buff);
 
-      snprintf(buff, 128, "REGTEST %s z0Min() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->z0Min() );
+      snprintf(buff, sizeof(buff), "REGTEST %s z0Min() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->z0Min() );
       ATH_MSG_INFO(buff);
 
-      snprintf(buff, 128, "REGTEST %s z0Max() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->z0Max() );
+      snprintf(buff, sizeof(buff), "REGTEST %s z0Max() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->z0Max() );
       ATH_MSG_INFO(buff);
 
-      snprintf(buff, 128, "REGTEST %s ptBins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->ptBins() );
+      snprintf(buff, sizeof(buff), "REGTEST %s ptBins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->ptBins() );
       ATH_MSG_INFO(buff);
 
-      snprintf(buff, 128, "REGTEST %s ptMin() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->ptMin() );
+      snprintf(buff, sizeof(buff), "REGTEST %s ptMin() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->ptMin() );
       ATH_MSG_INFO(buff);
 
-      snprintf(buff, 128, "REGTEST %s ptMax() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->ptMax() );
+      snprintf(buff, sizeof(buff), "REGTEST %s ptMax() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->ptMax() );
       ATH_MSG_INFO(buff);
 
-      snprintf(buff, 128, "REGTEST %s etaBins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->etaBins() );
+      snprintf(buff, sizeof(buff), "REGTEST %s etaBins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->etaBins() );
       ATH_MSG_INFO(buff);
 
-      snprintf(buff, 128, "REGTEST %s etaMin() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->etaMin() );
+      snprintf(buff, sizeof(buff), "REGTEST %s etaMin() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->etaMin() );
       ATH_MSG_INFO(buff);
 
-      snprintf(buff, 128, "REGTEST %s etaMax() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->etaMax() );
+      snprintf(buff, sizeof(buff), "REGTEST %s etaMax() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->etaMax() );
       ATH_MSG_INFO(buff);
 
-      snprintf(buff, 128, "REGTEST %s phiBins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->phiBins() );
+      snprintf(buff, sizeof(buff), "REGTEST %s phiBins() =        %u ", s.c_str(), T2TrackCountsCont->at(i)->phiBins() );
       ATH_MSG_INFO(buff);
 
-      snprintf(buff, 128, "REGTEST %s phiMin() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->phiMin() );
+      snprintf(buff, sizeof(buff), "REGTEST %s phiMin() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->phiMin() );
       ATH_MSG_INFO(buff);
 
-      snprintf(buff, 128, "REGTEST %s phiMax() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->phiMax() );
+      snprintf(buff, sizeof(buff), "REGTEST %s phiMax() =        %10.2f ", s.c_str(), T2TrackCountsCont->at(i)->phiMax() );
       ATH_MSG_INFO(buff);
     }
   }
@@ -767,21 +767,21 @@ StatusCode TrigEDMChecker::dumpxAODTrigMissingET() {
       // Loop over container content
       for(uint i = 0; i < MissingETCont->size(); i++) {
 
-        std::string s; char buff[128];
+        std::string s; char buff[3000];
              
-        snprintf(buff, 128, "REGTEST %s Ex =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ex() );
+        snprintf(buff, sizeof(buff), "REGTEST %s Ex =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ex() );
         ATH_MSG_INFO(buff);
-        snprintf(buff, 128, "REGTEST %s Ey =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ey() );
+        snprintf(buff, sizeof(buff), "REGTEST %s Ey =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ey() );
         ATH_MSG_INFO(buff);
-        snprintf(buff, 128, "REGTEST %s Ez =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ez() );
+        snprintf(buff, sizeof(buff), "REGTEST %s Ez =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->ez() );
         ATH_MSG_INFO(buff);
-        snprintf(buff, 128, "REGTEST %s SumET =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->sumEt() );
+        snprintf(buff, sizeof(buff), "REGTEST %s SumET =         %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->sumEt() );
         ATH_MSG_INFO(buff);
-        snprintf(buff, 128, "REGTEST %s SumE =       %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->sumE() );
+        snprintf(buff, sizeof(buff), "REGTEST %s SumE =       %10.2f CLHEP::MeV", s.c_str(), MissingETCont->at(i)->sumE() );
         ATH_MSG_INFO(buff);
-        snprintf(buff, 128, "REGTEST %s Flag =       %d", s.c_str(), MissingETCont->at(i)->flag() );
+        snprintf(buff, sizeof(buff), "REGTEST %s Flag =       %d", s.c_str(), MissingETCont->at(i)->flag() );
         ATH_MSG_INFO(buff);
-        snprintf(buff, 128, "REGTEST %s Flag =       %d", s.c_str(), MissingETCont->at(i)->roiWord() );
+        snprintf(buff, sizeof(buff), "REGTEST %s Flag =       %d", s.c_str(), MissingETCont->at(i)->roiWord() );
         ATH_MSG_INFO(buff);
              
         unsigned int Nc = MissingETCont->at(i)->getNumberOfComponents();
@@ -805,7 +805,7 @@ StatusCode TrigEDMChecker::dumpxAODTrigMissingET() {
           const float sumE =               MissingETCont->at(i)->sumEComponent(j);
           const float sumEt =              MissingETCont->at(i)->sumEtComponent(j);
 
-          snprintf(buff, 128,
+          snprintf(buff, sizeof(buff),
                    "REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
                    name.c_str(), status, usedChan, sumOfSigns, calib1, calib0,
                    ex, ey, ez, sumE, sumEt);
@@ -850,23 +850,23 @@ StatusCode TrigEDMChecker::dumpTrigMissingET() {
       std::string s;
       char buff[128];
 
-      snprintf(buff, 128, "REGTEST %s Ex =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->ex() );
+      snprintf(buff, sizeof(buff), "REGTEST %s Ex =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->ex() );
       ATH_MSG_INFO(buff);
-      snprintf(buff, 128, "REGTEST %s Ey =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->ey() );
+      snprintf(buff, sizeof(buff), "REGTEST %s Ey =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->ey() );
       ATH_MSG_INFO(buff);
-      snprintf(buff, 128, "REGTEST %s Ez =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->ez() );
+      snprintf(buff, sizeof(buff), "REGTEST %s Ez =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->ez() );
       ATH_MSG_INFO(buff);
-      snprintf(buff, 128, "REGTEST %s Et =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->et() );
+      snprintf(buff, sizeof(buff), "REGTEST %s Et =         %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->et() );
       ATH_MSG_INFO(buff);
-      snprintf(buff, 128, "REGTEST %s SumEt =      %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->sumEt() );
+      snprintf(buff, sizeof(buff), "REGTEST %s SumEt =      %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->sumEt() );
       ATH_MSG_INFO(buff);
-      snprintf(buff, 128, "REGTEST %s SumE =       %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->sumE() );
+      snprintf(buff, sizeof(buff), "REGTEST %s SumE =       %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->sumE() );
       ATH_MSG_INFO(buff);
-      snprintf(buff, 128, "REGTEST %s E =          %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->e() );
+      snprintf(buff, sizeof(buff), "REGTEST %s E =          %10.2f CLHEP::MeV", s.c_str(), (*trigMETfirst)->e() );
       ATH_MSG_INFO(buff);
-      snprintf(buff, 128, "REGTEST %s flag =    %10d",       s.c_str(), (*trigMETfirst)->getFlag() );
+      snprintf(buff, sizeof(buff), "REGTEST %s flag =    %10d",       s.c_str(), (*trigMETfirst)->getFlag() );
       ATH_MSG_INFO(buff);
-      snprintf(buff, 128, "REGTEST %s RoIword = %10ld",      s.c_str(), (*trigMETfirst)->RoIword() );
+      snprintf(buff, sizeof(buff), "REGTEST %s RoIword = %10ld",      s.c_str(), (*trigMETfirst)->RoIword() );
       ATH_MSG_INFO(buff);
 
       unsigned int Nc = (*trigMETfirst)->getNumOfComponents();
@@ -888,7 +888,7 @@ StatusCode TrigEDMChecker::dumpTrigMissingET() {
           const float sumE =              (*trigMETfirst)->getSumEComponent(i);
           const float sumEt =             (*trigMETfirst)->getSumEtComponent(i);
 
-          snprintf(buff, 128,
+          snprintf(buff, sizeof(buff),
                    "REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
                    name.c_str(), status, usedChan, sumOfSigns, calib1, calib0,
                    ex, ey, ez, sumE, sumEt);
@@ -914,7 +914,7 @@ StatusCode TrigEDMChecker::dumpTrigMissingET() {
     ATH_MSG_INFO("Got TrigMissingET object with key \"" << name << "\"");
 
     std::string s;
-    char buff[128];
+    char buff[3000];
 
     if( name.find("TrigEFMissingET") != std::string::npos ) {
       s="REGTEST EF: ";
@@ -925,23 +925,23 @@ StatusCode TrigEDMChecker::dumpTrigMissingET() {
       s="REGTEST ??? ";
     }
 
-    snprintf(buff, 128, "%s Ex =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->ex() );
+    snprintf(buff, sizeof(buff), "%s Ex =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->ex() );
     ATH_MSG_INFO(buff);
-    snprintf(buff, 128, "%s Ey =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->ey() );
+    snprintf(buff, sizeof(buff), "%s Ey =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->ey() );
     ATH_MSG_INFO(buff);
-    snprintf(buff, 128, "%s Ez =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->ez() );
+    snprintf(buff, sizeof(buff), "%s Ez =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->ez() );
     ATH_MSG_INFO(buff);
-    snprintf(buff, 128, "%s Et =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->et() );
+    snprintf(buff, sizeof(buff), "%s Et =         %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->et() );
     ATH_MSG_INFO(buff);
-    snprintf(buff, 128, "%s SumE =       %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->sumE() );
+    snprintf(buff, sizeof(buff), "%s SumE =       %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->sumE() );
     ATH_MSG_INFO(buff);
-    snprintf(buff, 128, "%s SumEt =      %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->sumEt() );
+    snprintf(buff, sizeof(buff), "%s SumEt =      %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->sumEt() );
     ATH_MSG_INFO(buff);
-    snprintf(buff, 128, "%s E =          %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->e() );
+    snprintf(buff, sizeof(buff), "%s E =          %10.2f CLHEP::MeV", s.c_str(), trigMETfirst->e() );
     ATH_MSG_INFO(buff);
-    snprintf(buff, 128, "%s flag =    %10d",       s.c_str(), trigMETfirst->getFlag() );
+    snprintf(buff, sizeof(buff), "%s flag =    %10d",       s.c_str(), trigMETfirst->getFlag() );
     ATH_MSG_INFO(buff);
-    snprintf(buff, 128, "%s RoIword = %10ld",      s.c_str(), trigMETfirst->RoIword() );
+    snprintf(buff, sizeof(buff), "%s RoIword = %10ld",      s.c_str(), trigMETfirst->RoIword() );
     ATH_MSG_INFO(buff);
 
     unsigned int Nc = trigMETfirst->getNumOfComponents();
@@ -963,7 +963,7 @@ StatusCode TrigEDMChecker::dumpTrigMissingET() {
         const float sumE =              trigMETfirst->getSumEComponent(i);
         const float sumEt =             trigMETfirst->getSumEtComponent(i);
 
-        snprintf(buff, 128,
+        snprintf(buff, sizeof(buff),
                  "REGTEST   %s   %6d %12d %10d   %6.2f  %6.3f %10.2f %10.2f %10.2f %10.2f %10.2f",
                  name.c_str(), status, usedChan, sumOfSigns, calib1, calib0,
                  ex, ey, ez, sumE, sumEt);

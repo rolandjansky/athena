@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigSteeringEventTPCnv
- * @Class  : TrigRoiDescriptorCnv_p1
+ * @class  : TrigRoiDescriptorCnv_p1
  *
  * @brief transient persistent converter for TrigRoiDescriptor
  *

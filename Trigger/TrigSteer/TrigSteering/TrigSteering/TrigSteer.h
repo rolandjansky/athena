@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : TrigSteer
+ * @class  : TrigSteer
  *
  * @brief  TopAlgorithm for HLT Steering
  *

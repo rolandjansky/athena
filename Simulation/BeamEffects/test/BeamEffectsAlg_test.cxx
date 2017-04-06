@@ -29,7 +29,6 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 // Athena headers
-#include "CxxUtils/make_unique.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 // Tested AthAlgorithm
@@ -86,6 +85,7 @@ namespace SimTesting {
 
 
   TEST_F(BeamEffectsAlg_test, empty_alg_execute) {
+    ASSERT_TRUE( m_alg->initialize().isSuccess() );
     // expected to fail as input collection doesn't exist
     ASSERT_TRUE( m_alg->execute().isFailure() );
   }
@@ -136,7 +136,7 @@ namespace SimTesting {
   TEST_F(BeamEffectsAlg_test, execute_pass_through) {
     // create dummy input McEventCollection containing a dummy GenEvent
     SG::WriteHandle<McEventCollection> inputTestDataHandle{"GEN_EVENT"};
-    inputTestDataHandle = CxxUtils::make_unique<McEventCollection>();
+    inputTestDataHandle = std::make_unique<McEventCollection>();
     inputTestDataHandle->push_back(new HepMC::GenEvent());
     HepMC::GenEvent& ge = *(inputTestDataHandle->at(0));
     CLHEP::HepLorentzVector myPos( 0.0, 0.0, 0.0, 0.0);
@@ -157,6 +157,7 @@ namespace SimTesting {
     ge.set_signal_process_vertex( myVertex );
     ge.set_beam_particles(inParticle1,inParticle2);
     //
+    ASSERT_TRUE( m_alg->initialize().isSuccess() );
     ASSERT_TRUE( m_alg->execute().isSuccess() );
     SG::ReadHandle<McEventCollection>     outputTestDataHandle{"BeamTruthEvent"};
     ASSERT_TRUE( outputTestDataHandle.isValid() );

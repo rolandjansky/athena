@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef CONDALGS_ALGC_H
 #define CONDALGS_ALGC_H 1
 

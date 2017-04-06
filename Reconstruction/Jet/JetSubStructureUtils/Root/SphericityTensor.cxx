@@ -42,9 +42,10 @@ map<string, double> SphericityTensor::result(const fastjet::PseudoJet &jet) cons
   double Sphericity = -1;
 
   if(P2Sum > 0) {
+    const double inv_P2Sum = 1. / P2Sum;
     for(int i=0; i<3; i++) {
       for(int j=0; j<3; j++) {
-        MomentumTensor(i,j) /= P2Sum;
+        MomentumTensor(i,j) *= inv_P2Sum;
       }
     }
 

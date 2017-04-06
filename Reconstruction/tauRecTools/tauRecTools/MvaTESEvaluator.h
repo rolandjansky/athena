@@ -24,14 +24,14 @@ class MvaTESEvaluator
   StatusCode initialize();
   StatusCode eventInitialize();
   StatusCode execute(xAOD::TauJet& xTau);
-  StatusCode finalize() { delete reader; return StatusCode::SUCCESS;}
+  StatusCode finalize() { delete m_reader; return StatusCode::SUCCESS;}
   
  private:
    
   // Configurable properties
   std::string m_sWeightFileName;
 
-  MVAUtils::BDT *reader; //!
+  MVAUtils::BDT *m_reader; //!
 
   std::map<TString, float*> m_availableVars; //!< addresses of the floats below
   
@@ -39,33 +39,33 @@ class MvaTESEvaluator
   const xAOD::VertexContainer* m_xVertexContainer; //!
   
   // MVA input variables (provide all variables in float)
-  float mu; //!
-  float nVtxPU; //!
+  float m_mu; //!
+  float m_nVtxPU; //!
   
-  float center_lambda; //!
-  float first_eng_dens; //!
-  float second_lambda; //!
-  float presampler_frac; //!
-  float em_probability; //!
+  float m_center_lambda; //!
+  float m_first_eng_dens; //!
+  float m_second_lambda; //!
+  float m_presampler_frac; //!
+  float m_em_probability; //!
   
-  float ptCombined; //!
-  float ptLC_D_ptCombined; //!
-  float ptConstituent_D_ptCombined;//!
-  float etaConstituent; //!
+  float m_ptCombined; //!
+  float m_ptLC_D_ptCombined; //!
+  float m_ptConstituent_D_ptCombined;//!
+  float m_etaConstituent; //!
   
-  float PanTauBDT_1p0n_vs_1p1n; //!
-  float PanTauBDT_1p1n_vs_1pXn; //!
-  float PanTauBDT_3p0n_vs_3pXn; //!
-  float nTracks; //!
-  float PFOEngRelDiff; //!
+  float m_PanTauBDT_1p0n_vs_1p1n; //!
+  float m_PanTauBDT_1p1n_vs_1pXn; //!
+  float m_PanTauBDT_3p0n_vs_3pXn; //!
+  float m_nTracks; //!
+  float m_PFOEngRelDiff; //!
   
   // Spectators
-  float truthPtVis; //!
-  float pt; //!
-  float ptPanTauCellBased; //!
-  float ptDetectorAxis; //!
-  float truthDecayMode; //!
-  float PanTau_DecayMode; //!
+  float m_truthPtVis; //!
+  float m_pt; //!
+  float m_ptPanTauCellBased; //!
+  float m_ptDetectorAxis; //!
+  float m_truthDecayMode; //!
+  float m_PanTau_DecayMode; //!
 };
 
 #endif // TAURECTOOLSDEV_MVATESEVALUATOR_H

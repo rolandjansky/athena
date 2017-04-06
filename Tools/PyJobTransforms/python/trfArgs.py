@@ -176,7 +176,7 @@ def addMetadataArguments(parser):
 
 
 ## @brief Add primary DPD arguments
-# @detailed Get the list of current primary DPDs and add then to the parser
+# @details Get the list of current primary DPDs and add then to the parser
 # optionally only some DPDs may be added, using the @c pick list. This function
 # uses the @c silent decorator to supress useless messages from ROOT
 # @param parser Argument parser object to add arguments to
@@ -230,7 +230,7 @@ def addPrimaryDPDArguments(parser, pick = None, transform = None, multipleOK=Fal
         msg.warning('PrimaryDPDFlags not available - cannot add primary DPD arguments')
             
 ## @brief Add top DAOD arguments
-# @detailed Get the list of current top ADODs and add then to the parser
+# @details Get the list of current top ADODs and add then to the parser
 # optionally only some DPDs may be added, using the @c pick list.
 # @param @c parser Argument parser object to add arguments to
 # @param @c pick Optional list of DPD types to add (use short names, e.g., @c D2AODM_TOPJET)
@@ -250,7 +250,7 @@ def addTopPhysDAODArguments(parser, pick = None):
 
         
 ## @brief Add D3PD arguments
-# @detailed Get the list of current D3PDs and add then to the parser
+# @details Get the list of current D3PDs and add then to the parser
 # optionally only some DPDs may be added, using the @c pick list.
 # @param parser Argument parser object to add arguments to
 # @param pick Optional list of DPD types to add (use short names, e.g., @c NTUP_EGAMMA)
@@ -294,7 +294,7 @@ def addD3PDArguments(parser, pick = None, transform = None, multipleOK=False, ad
 
 
 ## @brief Add reduction framework output file argument
-# @detailed This is the base name for the NTUP output streams. It will get appended
+# @details This is the base name for the NTUP output streams. It will get appended
 # to it the names of the specific reduced types.
 # @param parser Argument parser object to add arguments to
 # @param transform Transform object, to add reduced object to (maybe don't need that here?)
@@ -317,7 +317,7 @@ def addReductionArguments(parser, transform = None):
 
 
 ## @brief Simple class to store information about extra DPD filetypes
-#  @detailed Implement this type of information as a class allowing for
+#  @details Implement this type of information as a class allowing for
 #  extensions to be easily added and for some convenient heuristics
 #  in the constructor 
 class dpdType(object):
@@ -436,7 +436,7 @@ def getExtraDPDList(NTUPOnly = False):
     return extraDPDs
 
 ## @brief Add additional DPD arguments
-# @detailed Manually add DPDs that, for some reason, are not in any of the automated
+# @details Manually add DPDs that, for some reason, are not in any of the automated
 # lists parsed by the companion functions above.
 # @param parser Argument parser object to add arguments to
 # @param pick Optional list of DPD types to add (use short names, e.g., @c NTUP_EGAMMA)

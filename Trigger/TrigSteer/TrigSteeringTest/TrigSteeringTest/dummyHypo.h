@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteeringTest
- * @Class  : dummyHypo
+ * @class  : dummyHypo
  *
  * @brief : simple PESA hypothesis algorithm
  *

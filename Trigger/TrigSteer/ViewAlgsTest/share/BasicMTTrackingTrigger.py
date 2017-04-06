@@ -225,7 +225,7 @@ topSequence += InDetSiTrackerSpacePointFinder
 from TrigFastTrackFinder.TrigFastTrackFinderMT_Config import TrigFastTrackFinderMT_eGamma
 theFTFMT = TrigFastTrackFinderMT_eGamma()
 
-topSequence += theFTFMT
+#topSequence += theFTFMT
 log.info(theFTFMT)
 
 #probably initialized only in trigger=True?

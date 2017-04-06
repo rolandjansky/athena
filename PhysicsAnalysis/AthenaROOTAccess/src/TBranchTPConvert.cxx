@@ -508,7 +508,11 @@ TBranchTPConvert::TBranchTPConvert (TTreeTrans* tree,
   // The signature of the TBranchObject ctor changed in 5.17.  Bleh.
   // The object address needs to be provided to the TBranchObject.
   // So we break out the object creation to addObjInit.
-  TBranchObject (tree, name, clsname, addObjInit(clsname, obj, tree), 100, -1),
+  TBranchObject (tree, name, clsname, addObjInit(clsname, obj, tree,
+                                                 m_obj_ptr,
+                                                 m_own_obj,
+                                                 m_class),
+                 100, -1),
     m_trans_tree (tree),
     m_pers_tree (perstree),
     m_pers_tree_name (perstree->GetName()),
@@ -560,6 +564,9 @@ TBranchTPConvert::TBranchTPConvert (TTreeTrans* tree,
  * @param obj Object pointer passed into the constructor.
  *            If 0, we'll create one.
  * @param transtree The tree we're being created in.
+ * @param obj_ptr Reference to m_obj_ptr.
+ * @param obj_own Reference to m_obj_own.
+ * @param cls Reference to m_class.
  * @return Pointer-to-pointer to the object.
  *
  * Note: This is run at the start of object construction;
@@ -567,30 +574,33 @@ TBranchTPConvert::TBranchTPConvert (TTreeTrans* tree,
  */
 void* TBranchTPConvert::addObjInit (const char* clsname,
                                     void* obj,
-                                    TTreeTrans* transtree)
+                                    TTreeTrans* transtree,
+                                    void*& obj_ptr,
+                                    bool& own_obj,
+                                    TClass*& cls)
 {
   // Start with nothing.
-  m_obj_ptr = 0;
-  m_own_obj = false;
-  m_class = 0;
+  obj_ptr = nullptr;
+  own_obj = false;
+  cls = nullptr;
 
   // If an object pointer was supplied, use it; we don't own it.
   if (obj)
-    m_obj_ptr = obj;
+    obj_ptr = obj;
   else {
     // Otherwise, we need to create the object.
     // We own it in this case.
-    m_class = gROOT->GetClass (clsname);
-    if (m_class) {
+    cls = gROOT->GetClass (clsname);
+    if (cls) {
       // Need to make sure that this tree is made current while
       // the object's constructor is running.
       TTreeTrans::Push save_tree (transtree);
-      m_obj_ptr = m_class->New();
-      m_own_obj = true;
+      obj_ptr = cls->New();
+      own_obj = true;
     }
   }
 
-  return &m_obj_ptr;
+  return &obj_ptr;
 }
 
 

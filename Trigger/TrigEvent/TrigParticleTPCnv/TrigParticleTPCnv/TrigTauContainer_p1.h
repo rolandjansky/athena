@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigParticleTPCnv
- * @Class  : TrigTauContainer_p1
+ * @class  : TrigTauContainer_p1
  *
  * @brief persistent partner for TrigTauContainer
  *

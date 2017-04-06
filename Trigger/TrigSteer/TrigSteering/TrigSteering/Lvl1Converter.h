@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : Lvl1Converter
+ * @class  : Lvl1Converter
  *
  * @brief this tool initializes the HLT from LVL1 objects
  *

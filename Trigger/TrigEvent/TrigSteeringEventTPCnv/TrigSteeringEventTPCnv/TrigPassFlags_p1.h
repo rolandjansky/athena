@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigSteeringEventTPCnv
- * @Class  : TrigPassFlags_p1
+ * @class  : TrigPassFlags_p1
  *
  * @brief persistent partner for TrigPassFlags
  *

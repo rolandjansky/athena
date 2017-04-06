@@ -13,8 +13,8 @@ def Vmem():
 memUsage = [Vmem()]
 
 # import ROOT and load dictionary
-import ROOT, PyCintex, numpy as np
-PyCintex.loadDict('egammaMVACalibDict')
+import ROOT, cppyy, numpy as np
+cppyy.loadDict('egammaMVACalibDict')
 memUsage.append( Vmem() )
 
 # Electrons

@@ -109,7 +109,8 @@ StatusCode SiHitsTestTool::processEvent() {
       m_hits_edep->Fill(i_hit->energyLoss());
       m_hits_log_edep->Fill( log(i_hit->energyLoss()) );
       m_hits_edep_zr->Fill(u.z(),u.perp(),i_hit->energyLoss());
-      m_hits_log_barcode->Fill( log(i_hit->particleLink().barcode()) );
+      int barcode = i_hit->particleLink().barcode();
+      m_hits_log_barcode->Fill( barcode > 0 ? log(barcode) : -1 );
       double step_length = ( i_hit->localStartPosition()-i_hit->localEndPosition() ).mag();
       m_hits_step_length->Fill(step_length);
       m_hits_log_step_length->Fill( log(step_length));

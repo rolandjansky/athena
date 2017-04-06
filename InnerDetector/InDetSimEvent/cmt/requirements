@@ -7,7 +7,7 @@ use GeneratorObjects    GeneratorObjects-*	Generators
 use AtlasDoxygen        AtlasDoxygen-*          Tools
 use AtlasCLHEP          AtlasCLHEP-*            External
 use CLIDSvc	 	CLIDSvc-* 		Control
-use DataModel           DataModel-*             Control
+use AthAllocators       AthAllocators-*         Control
 
 apply_pattern installed_library
 library InDetSimEvent *.cxx
