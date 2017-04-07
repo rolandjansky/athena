@@ -25,7 +25,7 @@ then
 	    echo "Running.........."
     
         # Original DCSCalculator
-        /afs/cern.ch/user/a/atlasdqm/DQCalculators/DCSCalc/RunDCSCalc/ExecuteDCSC1.sh $run
+        #/afs/cern.ch/user/a/atlasdqm/DQCalculators/DCSCalc/RunDCSCalc/ExecuteDCSC1.sh $run
         
         # New DCSCalculator2
         /afs/cern.ch/user/a/atlasdqm/DQCalculators/DCSCalc/RunDCSCalc/ExecuteDCSC2.sh $run &> $LOG_PATH/dcsc2_$run

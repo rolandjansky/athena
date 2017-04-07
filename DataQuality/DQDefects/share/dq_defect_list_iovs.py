@@ -52,8 +52,8 @@ def main():
     add_arg = parser.add_argument
 
     # Specify range to process
-    add_arg('-p', '--project', default='data12_8TeV',
-            help='Data project (default: data12_8TeV)')
+    add_arg('-p', '--project', default='data15_13TeV',
+            help='Data project (default: data15_13TeV)')
     add_arg('-P', '--period', default=None, nargs='*', help='Data period(s)')
     #add_arg('-r', '--run', default=None, nargs='*', help='Run number(s) to process')
     add_arg('-r', '--run', default=None, type=int, help='Run number to process')
@@ -93,7 +93,7 @@ def main():
         period_dict = project_dict[args.project]
         run_set = set()
         # Use periods if specified
-        if len(args.period) > 0:
+        if args.period and len(args.period) > 0:
             for period in args.period:
                 run_set.update(period_dict[period])
         # Otherwise use all periods in project

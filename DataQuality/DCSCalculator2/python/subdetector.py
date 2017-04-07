@@ -34,6 +34,8 @@ class DCSC_Subdetector(object):
 
         # calculate the inverse mapping if appropriate
         if not hasattr(self, "input_to_output_map") and hasattr(self, "mapping"):
+            # NOTE: this breaks silently if an input channel was accidentally
+            # mapped to more than one output channel. Maybe I should add a check.
             inverse = dict((value, key) 
                            for key, values in self.mapping.iteritems() 
                            for value in values)
@@ -335,9 +337,8 @@ class DCSC_Subdetector(object):
         return code, dead_fraction, thrust, n_config, n_working
     
     def debug_what_changed(self, runlb, prev_states, states):
-    
+        """Apparently not used"""
         changes = [(a, b) for a, b in zip(prev_states, states) if a != b]
-        
         log.debug("Changes at %s: %i: %s", runlb, len(changes), tally(changes))
             
     def calculate_dead_fraction_all(self, output_channel, local_variables):
@@ -348,7 +349,7 @@ class DCSC_Subdetector(object):
         # for this output channel.
         # Why would you call it local_variables?
         
-        prev_states = []
+        #prev_states = []
         
         dead_frac_iovs = IOVSet()
         calc_dead_frac = self.calculate_dead_fraction
@@ -467,6 +468,7 @@ class DCSC_Subdetector(object):
         
     def calculate_result(self, inputs_by_output, global_variables):
         """
+        Terrible name for a method.
         Calculate the iov extents and dead fractions for all output channels.
         In other words, the IoVs to be written to DCSOFL for this subdetector.
         """
@@ -533,6 +535,12 @@ class DCSC_Subdetector(object):
         """
 
 class DCSC_DefectTranslate_Subdetector(DCSC_Subdetector):
+    """
+    A defect calculator for one subsystem that still works in terms of color
+    flags. The colors need to be translated into defects by building translators
+    with the color_to_defect_translator static method.
+    """
+
     def __init__(self, keep_dcsofl=False):
         super(DCSC_DefectTranslate_Subdetector, self).__init__()
         self.translators = []

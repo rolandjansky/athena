@@ -91,7 +91,8 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
             if len(tag) != 2:
                 raise TypeError('tag argument must be a 2-element sequence')
             self._tag = tag 
-        
+        self._tag = tagtype(self._tag[0].encode('ascii'), self._tag[1].encode('ascii'))
+
         # COOL has no way of emptying a storage buffer. Creating a new storage
         # buffer flushes the old one. Therefore, if an exception happens 
         # halfway through setting up a storage buffer, subsequent operations
@@ -149,7 +150,7 @@ class DefectsDB(DefectsDBVirtualDefectsMixin,
         if already_exists:
             raise DefectExistsError('Defect %s already exists' % oldname)
         
-        self.defects_folder.createChannel(did, name,
+        self.defects_folder.createChannel(did, name.encode('ascii'),
                                           description.encode('utf-8'))
         self._new_defect(did, name)
     
