@@ -171,7 +171,7 @@ namespace Muon {
       int stName = m_mdtIdHelper->stationName((*mdt1)->identify());
       int stEta = m_mdtIdHelper->stationEta((*mdt1)->identify());
       if(stName == 6 || stName == 14 || stName == 15) continue; //ignore hits from BEE, EEL and EES
-      if(stName == 1 && fabs(stEta) >= 7) continue; //ignore hits from BIS7/8
+      if(stName == 1 && std::abs(stEta) >= 7) continue; //ignore hits from BIS7/8
       if(stName == 53 || stName == 54) continue; //ignore hits from BME and BMG
 
       //convert to the hardware sector [1-16]
@@ -462,7 +462,7 @@ namespace Muon {
       if(stName == 6 || stName == 14 || stName == 15) continue;
 
       // Doesn't consider hits belonging to chambers BIS7 and BIS8
-      if(stName == 1 && fabs(m_mdtIdHelper->stationEta((*mpdc)->identify())) >= 7) continue;
+      if(stName == 1 && std::abs(m_mdtIdHelper->stationEta((*mpdc)->identify())) >= 7) continue;
 
       // Doesn't consider hits belonging to BME or BMG chambers
       if(stName == 53 || stName == 54) continue;
