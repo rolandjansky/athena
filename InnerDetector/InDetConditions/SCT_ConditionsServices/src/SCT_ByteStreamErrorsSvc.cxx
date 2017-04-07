@@ -37,6 +37,7 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   //
   m_rxRedundancy(0),
   m_firstMaskedChips(nullptr),
+  m_maskedChips(nullptr),
   m_isRODSimulatedData(false),
   m_numRODsHVon(0),
   m_numRODsTotal(0),
@@ -117,6 +118,7 @@ SCT_ByteStreamErrorsSvc::initialize(){
   }
 
   m_firstMaskedChips = new std::map<IdentifierHash, int>;
+  m_maskedChips = new std::map<Identifier, unsigned int>;
 
   resetCounts();
   return sc;
@@ -135,6 +137,8 @@ SCT_ByteStreamErrorsSvc::finalize(){
 
   delete m_firstMaskedChips;
   m_firstMaskedChips = nullptr;
+  delete m_maskedChips;
+  m_maskedChips = nullptr;
 
   return sc;
 }
@@ -190,6 +194,7 @@ SCT_ByteStreamErrorsSvc::handle(const Incident& inc) {
       rodDecodeStatus.second = false;
     }
     m_firstMaskedChips->clear();
+    m_maskedChips->clear();
   }
   return;
 }
@@ -599,6 +604,9 @@ int SCT_ByteStreamErrorsSvc::getFirstMaskedChip(const IdentifierHash& hashId) co
 }
 
 unsigned int SCT_ByteStreamErrorsSvc::maskedChips(const Identifier & moduleId) const {
+  std::map<Identifier, unsigned int>::const_iterator it = m_maskedChips->find(moduleId);
+  if(it!=m_maskedChips->end()) return it->second;
+
   unsigned int _maskedChips(0);
 
   // Side 0
@@ -608,7 +616,6 @@ unsigned int SCT_ByteStreamErrorsSvc::maskedChips(const Identifier & moduleId) c
     ATH_MSG_WARNING("SCT_ByteStreamErrorsSvc::badChips not side 0");
   }
   int firstMaskedChip_side0 = getFirstMaskedChip(hash_side0);
-  int nMaskedChips_side0(0); /// should be updated
 
   // Side 1
   IdentifierHash hash_side1;
@@ -617,12 +624,9 @@ unsigned int SCT_ByteStreamErrorsSvc::maskedChips(const Identifier & moduleId) c
     ATH_MSG_WARNING("SCT_ByteStreamErrorsSvc::badChips not side 1");
   }
   int firstMaskedChip_side1 = getFirstMaskedChip(hash_side1);
-  int nMaskedChips_side1(0); /// should be updated
 
   // There is at least one masked chip
-  if(firstMaskedChip_side0>=0 or nMaskedChips_side0>0 or 
-     firstMaskedChip_side1>=0 or nMaskedChips_side1>0) {
-
+  if(firstMaskedChip_side0>0 or firstMaskedChip_side1>0) {
     int type = 0;
     // Check if Rx redundancy is used or not in this module
     if(m_rxRedundancy->find(hash_side0)!=m_rxRedundancy->end()) {
@@ -645,26 +649,29 @@ unsigned int SCT_ByteStreamErrorsSvc::maskedChips(const Identifier & moduleId) c
 
     if(type==0) {
       // both link-0 and link-1 are working
-      for(int iChip=firstMaskedChip_side0-1; iChip<firstMaskedChip_side0-1+nMaskedChips_side0; iChip++) {
-	if(iChip>=0 and iChip<6) _maskedChips |= (1<<iChip);
+      for(int iChip=firstMaskedChip_side0-1; iChip<6; iChip++) {
+	_maskedChips |= (1<<iChip);
       }
-      for(int iChip=firstMaskedChip_side1-1; iChip<firstMaskedChip_side1-1+nMaskedChips_side1; iChip++) {
-	if(iChip>=6 and iChip<12) _maskedChips |= (1<<iChip);
+      for(int iChip=firstMaskedChip_side1-1; iChip<12; iChip++) {
+	_maskedChips |= (1<<iChip);
       }
     } else if(type==1) {
-      // link-1 is broken
-      for(int iChip=firstMaskedChip_side0-1; iChip<firstMaskedChip_side0-1+nMaskedChips_side0; iChip++) {
-        if(iChip>=0 and iChip<12) _maskedChips |= (1<<iChip);
+      // link-1 is broken: chip 0 1 2 3 4 5 6 7 8 9 10 11
+      for(int iChip=firstMaskedChip_side0-1; iChip<12; iChip++) {
+	_maskedChips |= (1<<iChip);
       }
     } else {
-      // link-0 is broken
-      for(int iChip=firstMaskedChip_side1-1; iChip<firstMaskedChip_side1-1+nMaskedChips_side1; iChip++) {
+      // link-0 is broken: chip 6 7 8 9 10 11 0 1 2 3 4 5
+      if(firstMaskedChip_side1<=6) firstMaskedChip_side1 += 12;
+      for(int iChip=firstMaskedChip_side1-1; iChip<12+6; iChip++) {
 	int jChip = iChip;
 	if(jChip>=12) jChip -= 12;
-        if(jChip>=0 and jChip<12) _maskedChips |= (1<<jChip);
+	_maskedChips |= (1<<jChip);
       }
     }
   }
+
+  (*m_maskedChips)[moduleId] = _maskedChips;
 
   return _maskedChips;
 }

@@ -118,6 +118,7 @@ private:
   std::set<IdentifierHash>* m_rxRedundancy;
 
   std::map<IdentifierHash, int>* m_firstMaskedChips;
+  std::map<Identifier, unsigned int>* m_maskedChips;
 
   int m_numBsErrors[SCT_ByteStreamErrors::NUM_ERROR_TYPES];
 
