@@ -168,9 +168,14 @@ class EgammaFexBuilder(object):
         self._egamma_rec         = TrigEgammaRec.copy(name = "TrigEgammaRec_eGamma",doPrint=False)()
         self._egamma_rec_conv    = TrigEgammaRec.copy(name = "TrigEgammaRec_Conv_eGamma", doConversions = True,doPrint=False)()
         self._egamma_rec_noid    = TrigEgammaRec.copy(name = "TrigEgammaRec_NoIDEF_eGamma",doTrackMatching = False,doTrackIsolation = False,doPrint=False)()
-        self._egamma_rec_iso    = TrigEgammaRec.copy(name = "TrigEgammaRec_Iso_eGamma",PhotonContainerName="egamma_Iso_Photons",
+        self._egamma_rec_ph_caloiso    = TrigEgammaRec.copy(name = "TrigEgammaRec_CaloIso_photon",PhotonContainerName="egamma_Iso_Photons",
                                                      doTrackMatching = False,doTrackIsolation = False,
                                                      doCaloTopoIsolation=True,doPrint=False)()
+        self._egamma_rec_el_caloiso    = TrigEgammaRec.copy(name = "TrigEgammaRec_CaloIso_electron",
+                                                    ElectronContainerName="egamma_Iso_Electrons",
+                                                    PhotonContainerName="egamma_Iso_Photons",
+                                                    doCaloTopoIsolation=True,doPrint=False)()
+                                                     
         self._cell_maker = TrigCaloCellMaker_eGamma()
         self._tower_maker    = TrigCaloTowerMaker_eGamma()
         self._tower_maker_ion    = TrigCaloTowerMaker_eGamma("TrigCaloTowerMaker_eGamma_heavyIon")
@@ -298,7 +303,7 @@ class EgammaFexBuilder(object):
         chain_part = chainDict['chainParts']
         seq = []
         if(chain_part['trigType'] == 'e'):
-            seq = [self._egamma_rec]
+            seq = [self._get_electronrec(chainDict)]
         elif(chain_part['trigType'] == 'g'):
             seq = [self._get_photonrec(chainDict)]
         else:
@@ -306,21 +311,40 @@ class EgammaFexBuilder(object):
         log.debug('preciserec %s',seq)
         return seq    
 
+    def _get_electronrec(self,chainDict):
+        chain_part = chainDict['chainParts']
+        do_caloiso = False
+        log.debug('Electron preciserec')
+        if 'isoInfo' in chain_part:
+            iso = [x for x in chain_part['isoInfo'] if 'icalo' in x]
+            if len(iso)>0:
+                log.debug('Electron calo isolation %s',iso[0])
+                do_caloiso = True
+    
+        if do_caloiso:
+            log.debug('Electron calo + track isolation')
+            return self._egamma_rec_el_caloiso
+        else:
+            log.debug('Electron default rec')
+            return self._egamma_rec
+
     def _get_photonrec(self,chainDict):
         chain_part = chainDict['chainParts']
         do_conv = False
-        do_iso = False
+        do_caloiso = False
         log.debug('Photon preciserec') 
         if 'addInfo' in chain_part:
             if 'conv' in chain_part['addInfo']:
                 do_conv = True
-        if 'isoInfo' in chain_part: 
-            if chain_part['isoInfo']:
-                do_iso = True
         
-        if do_iso:
+        if 'isoInfo' in chain_part:
+            iso = [x for x in chain_part['isoInfo'] if 'icalo' in x]
+            if len(iso)>0:
+                log.debug('Electron calo isolation %s',iso[0])
+                do_caloiso = True
+        if do_caloiso:
             log.debug('Photon isolation')
-            return self._egamma_rec_iso
+            return self._egamma_rec_ph_caloiso
         elif do_conv:
             log.debug('Photon conversions')
             return self._egamma_rec_conv
@@ -349,7 +373,7 @@ class EgammaHypoBuilder(object):
         ''' Properties of chain required to configure the hypos '''
         self._properties = {'threshold':0,
                             'IDinfo':'',
-                            'isoInfo':'',
+                            'isoInfo':[],
                             'lhInfo':'',
                             'etcut':False,
                             'perf':False,
@@ -416,7 +440,7 @@ class EgammaHypoBuilder(object):
         suffix = self._base_name
         parts = [self._properties['IDinfo'],
                  self._properties['lhInfo'],
-                 self._properties['isoInfo']]
+                 '_'.join(self._properties['isoInfo'])]
         
         for item in parts:
             if item:

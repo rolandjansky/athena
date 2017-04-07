@@ -1483,11 +1483,11 @@ def setupMenu():
         #['g35_medium1_g25_medium1',                 'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
         ['2g20_tight',                              'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
         ['2g20_tight_L12EM15VHI',                   'L1_2EM15VHI', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],
-        ['2g20_tight_ivloose_L12EM15VHI',           'L1_2EM15VHI', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],
-        ['2g20_tight_itight_L12EM15VHI',            'L1_2EM15VHI', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],
+        ['2g20_tight_icalovloose_L12EM15VHI',           'L1_2EM15VHI', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],
+        ['2g20_tight_icalotight_L12EM15VHI',            'L1_2EM15VHI', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],
         ['2g22_tight_L12EM15VHI',                   'L1_2EM15VHI', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],
-        ['2g22_tight_ivloose_L12EM15VHI',           'L1_2EM15VHI', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],
-        ['2g22_tight_itight_L12EM15VHI',            'L1_2EM15VHI', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],
+        ['2g22_tight_icalovloose_L12EM15VHI',           'L1_2EM15VHI', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],
+        ['2g22_tight_icalotight_L12EM15VHI',            'L1_2EM15VHI', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],
         ['2g50_loose',                              'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
         ['2g60_loose_L12EM15VH',                    'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],  
         #['2g50_loose_L12EM18VH',                    'L1_2EM18VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
@@ -1849,6 +1849,7 @@ def setupMenu():
         ['e28_lhmedium_nod0_ivarloose',       'L1_EM24VHI', [], [PhysicsStream,'express'], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e28_lhmedium_nod0_ivarmedium',      'L1_EM24VHI', [], [PhysicsStream,'express'], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e28_lhmedium_nod0_ivartight',       'L1_EM24VHI', [], [PhysicsStream,'express'], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+
 
         #['e30_lhtight_nod0',                  'L1_EM26VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         #['e30_lhtight_cutd0dphideta_ivarloose','L1_EM26VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
