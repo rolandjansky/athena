@@ -17,7 +17,6 @@
 
 // Forward declaractions:
 class G4Step;
-class StatusCode;
 
 namespace LArG4 {
 
@@ -34,11 +33,11 @@ namespace LArG4 {
       G4int phiGap = 0;         // number (0 to 1024) of closest electrode
       G4int nstraight = 0;      // number of straight section (0 to 13)
       G4int nfold = 0;          // number of closest fold (0 to 14)
-      G4double distElec = 0;    // algebric distance to electrode
-      G4double distAbs = 0;     // algebric distance to absorber
-      G4double xl = 0;          // normalized lenght along electrode
-      G4double x0 = 0;          //
-      G4double y0 = 0;          // coordinates in local cell frame (down absorber with phi=0)
+      G4double distElec = 0.;   // algebric distance to electrode
+      G4double distAbs = 0.;    // algebric distance to absorber
+      G4double xl = 0.;         // normalized lenght along electrode
+      G4double x0 = 0.;         //
+      G4double y0 = 0.;         // coordinates in local cell frame (down absorber with phi=0)
       G4int sampMap = 0;        // sampling number not taking into account readout strips
       G4int etaMap = 0;         // eta number not taking into account readout strips
     };
@@ -60,14 +59,11 @@ public:
 
   // Full identifier computation from a G4 step
   virtual LArG4Identifier CalculateIdentifier( const G4Step* ) const = 0;
-  virtual LArG4Identifier CalculateECAMIdentifier( const G4Step* , const G4int indEcam, const bool inSTAC,int zside) const = 0;
 
   // Given a point compute all quantities (cell number, distance to electrode, etc...)
   virtual void findCell( LArG4::Barrel::CalcData & currentCellData, const double & x, const double & y, const double & z,
                          const double & r, const double & eta, const double & phi, const bool detail) const = 0;
 
-  virtual bool CheckLArIdentifier(int sampling,int region, int eta,int phi) const = 0;
-  virtual bool CheckDMIdentifier(int type, int sampling, int region, int eta, int phi) const = 0;
 };
 
 #endif // LARG4BARREL_ILARBARRELGEOMETRY_H

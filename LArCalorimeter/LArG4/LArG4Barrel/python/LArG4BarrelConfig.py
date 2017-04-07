@@ -29,4 +29,7 @@ def getEMBPresamplerCalculator(name="EMBPresamplerCalculator", **kwargs):
 def getLArBarrelGeometry(name="LArBarrelGeometry", **kwargs):
        return CfgMgr.LArG4__Barrel__Geometry(name, **kwargs)
 
+def getLArBarrelPresamplerGeometry(name="LArBarrelPresamplerGeometry", **kwargs):
+       return CfgMgr.LArG4__BarrelPresampler__Geometry(name, **kwargs)
+
 

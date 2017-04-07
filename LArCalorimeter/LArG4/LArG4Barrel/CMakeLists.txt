@@ -6,14 +6,13 @@
 atlas_subdir( LArG4Barrel )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          LArCalorimeter/LArG4/LArG4Code
-                          PRIVATE
+atlas_depends_on_subdirs( PRIVATE
                           Calorimeter/CaloG4Sim
                           Control/AthenaKernel
                           Control/CxxUtils
                           Control/StoreGate
                           GaudiKernel
+                          LArCalorimeter/LArG4/LArG4Code
                           LArCalorimeter/LArGeoModel/LArHV
                           Tools/PathResolver )
 
@@ -26,7 +25,6 @@ find_package( XercesC )
 atlas_add_component( LArG4Barrel
                    src/*.cc
                    src/components/*.cxx
-                   PUBLIC_HEADERS LArG4Barrel
                    INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} LArG4Code CaloG4SimLib StoreGateLib SGtests

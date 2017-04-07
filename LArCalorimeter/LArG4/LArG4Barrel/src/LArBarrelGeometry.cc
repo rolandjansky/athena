@@ -24,7 +24,7 @@ UPDATES:  - Calculate identifier method used by CalibrationCalculator.
 
 #include <cmath>
 #include <iostream>
-#include "LArG4Barrel/LArBarrelGeometry.h"
+#include "LArBarrelGeometry.h"
 
 #include "LArStraightAbsorbers.h"
 #include "LArStraightElectrodes.h"
@@ -44,6 +44,8 @@ namespace LArG4 {
       declareProperty("DetectorName",m_detectorName);
       declareProperty("TestBeam", m_testbeam);
     }
+
+    // ====================================================================================
 
     StatusCode Geometry::initialize()
     {
@@ -159,8 +161,6 @@ namespace LArG4 {
                                   const double &yhit, const int &PhiCell, int &Num_Straight,
                                   const int &Num_Coude, double &xl) const
     {
-      double dx, dy, dr;
-      double DistEle = 0.;
       //
       // FrameWork is consistent with the one used to PhiCell determination
       // e.g. it assumes HERE to be the LOCAL one of "stac_phys1",
@@ -171,11 +171,9 @@ namespace LArG4 {
       // either for straight parts or for folds
       //
       // Fold Center ccoordinates
-      G4double Xc[2];
-      Xc[0] = m_coudeelec->XCentCoude(Num_Coude, PhiCell);
-      Xc[1] = m_coudeelec->YCentCoude(Num_Coude, PhiCell);
-      G4double radfold = sqrt(Xc[0]*Xc[0]+Xc[1]*Xc[1]);
-      G4double radhit = sqrt(xhit*xhit+yhit*yhit);
+      const G4double Xc[2] = { m_coudeelec->XCentCoude(Num_Coude, PhiCell), m_coudeelec->YCentCoude(Num_Coude, PhiCell) };
+      const G4double radfold = sqrt(Xc[0]*Xc[0]+Xc[1]*Xc[1]);
+      const G4double radhit = sqrt(xhit*xhit+yhit*yhit);
 
       // check if the assumed straight number is the correct one
       //   (this can be wrong when we are close to a fold and there is sagging)
@@ -189,42 +187,37 @@ namespace LArG4 {
       }
 
       // u unit 2D_Vector along straight part of the electrode neutral fiber
-      double u[2];
-      u[0] = m_electrode->Cosu(Num_Straight, PhiCell);
-      u[1] = m_electrode->Sinu(Num_Straight, PhiCell);
+      const double u[2] = { m_electrode->Cosu(Num_Straight, PhiCell), m_electrode->Sinu(Num_Straight, PhiCell) };
       // Middle m_coordinates of this straight part of the electrode neutral fiber
-      double Xm[2];
-      Xm[0] = m_electrode->XCentEle(Num_Straight, PhiCell);
-      Xm[1] = m_electrode->YCentEle(Num_Straight, PhiCell);
+      const double Xm[2] = { m_electrode->XCentEle(Num_Straight, PhiCell), m_electrode->YCentEle(Num_Straight, PhiCell) };
       // m_Hit Vector components
-      dx = xhit - Xm[0];  dy = yhit - Xm[1];
+      double dx = xhit - Xm[0];
+      double dy = yhit - Xm[1];
 
       // First compute algebric distance m_hit (2D) the 2D_projection of the
       // m_Hit Vector on this electrode neutral fiber.
-      double hit = dx*u[0] + dy*u[1];
+      const double hit = dx*u[0] + dy*u[1];
 
       //
       // Flat of Fold Region ?
       //
-      G4double Half_Elec;
-      Half_Elec = m_electrode->HalfLength(Num_Straight,PhiCell);
+      const G4double Half_Elec(m_electrode->HalfLength(Num_Straight,PhiCell));
 
       if(std::fabs(hit) < Half_Elec) {
         // Flat Region
-        DistEle = u[0]*dy - u[1]*dx;
         xl=hit/Half_Elec;
+        return u[0]*dy - u[1]*dx;
       }
       else {
         // Fold region
         // c_Hit Vector components and its length
-        dx = xhit - Xc[0];  dy = yhit - Xc[1];  dr = sqrt( dx*dx + dy*dy);
-        DistEle = (Num_Coude%2 == m_parity) ? (m_rint_eleFib-dr) : (dr - m_rint_eleFib);
+        dx = xhit - Xc[0];
+        dy = yhit - Xc[1];
+        const double dr = sqrt( dx*dx + dy*dy);
         if (Num_Coude==Num_Straight) { xl=-1.; }
         else xl=+1;
+        return (Num_Coude%2 == m_parity) ? (m_rint_eleFib-dr) : (dr - m_rint_eleFib);
       }      // end of Fold Regions
-
-      return DistEle;
-
     } // end of the function Distance_Ele
 
 
@@ -242,8 +235,6 @@ namespace LArG4 {
                                   const double &yhit, const int &PhiCell, const int &Num_Straight,
                                   const int &Num_Coude) const
     {
-      double dx, dy, dr;
-      double DistAbs = 0.;
       //
       // FrameWork is consistent with the one used to PhiCell determination
       // e.g. it assumes HERE to be the LOCAL one of "stac_phys1",
@@ -254,40 +245,32 @@ namespace LArG4 {
       // either for straight parts or for folds
       //
       // u unit 2D_Vector along straight part of the electrode neutral fiber
-      G4double u[2];
-      u[0] = m_absorber->Cosu(Num_Straight, PhiCell);
-      u[1] = m_absorber->Sinu(Num_Straight, PhiCell);
+      const G4double u[2] = { m_absorber->Cosu(Num_Straight, PhiCell), m_absorber->Sinu(Num_Straight, PhiCell) };
       // Middle m_coordinates of this straight part of the electrode neutral fiber
-      G4double Xm[2];
-      Xm[0] = m_absorber->XCentAbs(Num_Straight, PhiCell);
-      Xm[1] = m_absorber->YCentAbs(Num_Straight, PhiCell);
+      const G4double Xm[2] = { m_absorber->XCentAbs(Num_Straight, PhiCell), m_absorber->YCentAbs(Num_Straight, PhiCell) };
       // m_Hit Vector components
-      dx = xhit - Xm[0];  dy = yhit - Xm[1];
+      double dx = xhit - Xm[0];  double dy = yhit - Xm[1];
 
       // First compute algebric distance hit (2D) the 2D_projection of the
       // m_Hit Vector on this electrode neutral fiber.
-      double hit = dx*u[0] + dy*u[1];
+      const double hit = dx*u[0] + dy*u[1];
 
       //
       // Flat of Fold Region ?
       //
       if(std::fabs(hit) < m_absorber->HalfLength(Num_Straight,PhiCell)) {
         // Flat Region
-        DistAbs = u[0]*dy - u[1]*dx;
+        return u[0]*dy - u[1]*dx;
       }
       else {
         // Fold Center c_coordinates
-        G4double Xc[2];
-        Xc[0] = m_coudeabs->XCentCoude(Num_Coude, PhiCell);
-        Xc[1] = m_coudeabs->YCentCoude(Num_Coude, PhiCell);
+        const G4double Xc[2] = { m_coudeabs->XCentCoude(Num_Coude, PhiCell), m_coudeabs->YCentCoude(Num_Coude, PhiCell) };
         // c_Hit Vector components and its length
-        dx = xhit - Xc[0];  dy = yhit - Xc[1];  dr = sqrt( dx*dx + dy*dy);
-        DistAbs = (Num_Coude%2 == m_parity) ? (m_rint_eleFib-dr) : (dr - m_rint_eleFib);
-
+        dx = xhit - Xc[0];
+        dy = yhit - Xc[1];
+        const double dr = sqrt( dx*dx + dy*dy);
+        return (Num_Coude%2 == m_parity) ? (m_rint_eleFib-dr) : (dr - m_rint_eleFib);
       }      // end of Fold Regions
-
-      return DistAbs;
-
     } // end of the function Distance_Abs
 
 
@@ -387,7 +370,7 @@ namespace LArG4 {
       // iactive = 1 if active region, 0 if region considered as inactive
       G4int iactive = 1;
 
-      G4double aeta=std::fabs(eta);
+      const G4double aeta=std::fabs(eta);
 
       G4double r12=-1.;
       G4double r23=-1.;
@@ -516,10 +499,8 @@ namespace LArG4 {
             }   // end radius>r23
             // put into middle energy deposited along readout strips across the back
             if (isampling==3 && z<zmax4 && (radius<rmax4 || aeta<1.2) ) {
-              double etastr;
-              if (imid%2==0) etastr=0.025*imid;
-              else           etastr=0.025*(imid+1);
-              double delta=radius*(sinh(etastr)-sinh(aeta))/cosh(etastr);
+              const double etastr = (imid%2==0) ? 0.025*imid : 0.025*(imid+1);
+              const double delta=radius*(sinh(etastr)-sinh(aeta))/cosh(etastr);
               double deltastr;
               if (aeta<0.475) { deltastr=1.5;}
               else if (aeta<0.80) { deltastr=2.75;}
@@ -554,7 +535,7 @@ namespace LArG4 {
         r12 = Rmax1[447];   // radius for end of sampling 1
         r23=Z_max_acc/sinh(aeta);   // radius of end of sampling 2, bounded by high z end
 
-        double zmax = Z_max_lowr + dzdr*(radius-R_min_acc);
+        const double zmax = Z_max_lowr + dzdr*(radius-R_min_acc);
 
         iregion=1;
         if (radius <=r12) {
@@ -659,7 +640,7 @@ namespace LArG4 {
 
       // eta and longitudinal segmentations
       G4int ireg,isamp,ieta,isamp2,ieta2;
-      currentCellData.cellID = SampSeg(anEta,aRadius,zPosition,ireg,isamp,ieta,isamp2,ieta2);
+      currentCellData.cellID = this->SampSeg(anEta,aRadius,zPosition,ireg,isamp,ieta,isamp2,ieta2);
 
       currentCellData.etaBin   = ieta;
       currentCellData.sampling = isamp;
@@ -668,7 +649,7 @@ namespace LArG4 {
       currentCellData.sampMap  = isamp2;
 
       // compute electrode number in phi
-      int phicell = PhiGap(aRadius,xPosition,yPosition);
+      int phicell = this->PhiGap(aRadius,xPosition,yPosition);
       if (phicell<0) phicell=0;
       // for test beam, some protection
       if (m_NCellTot !=1024) {
@@ -696,7 +677,7 @@ namespace LArG4 {
       // compute distance to electrode
       G4double xl;
       G4int nstr = currentCellData.nstraight;
-      G4double distElec = Distance_Ele(xPosition,yPosition,phicell,nstr,currentCellData.nfold,xl);
+      const G4double distElec = this->Distance_Ele(xPosition,yPosition,phicell,nstr,currentCellData.nfold,xl);
 
 #ifdef DEBUGHITS
       ATH_MSG_VERBOSE(" distElec " << distElec);
@@ -780,11 +761,11 @@ namespace LArG4 {
       if (MapDetail) {
         // compute x0,y0 coordinates in local electrode frame, using closest fold
         // as reference
-        G4double alpha = m_coudeelec->PhiRot(currentCellData.nfold,currentCellData.phiGap);
-        G4double dx=xPosition-m_coudeelec->XCentCoude(currentCellData.nfold,currentCellData.phiGap);
-        G4double dy=yPosition-m_coudeelec->YCentCoude(currentCellData.nfold,currentCellData.phiGap);
-        G4double dx1=dx*cos(alpha)-dy*sin(alpha);
-        G4double dy1=dx*sin(alpha)+dy*cos(alpha);
+        const G4double alpha = m_coudeelec->PhiRot(currentCellData.nfold,currentCellData.phiGap);
+        const G4double dx=xPosition-m_coudeelec->XCentCoude(currentCellData.nfold,currentCellData.phiGap);
+        const G4double dy=yPosition-m_coudeelec->YCentCoude(currentCellData.nfold,currentCellData.phiGap);
+        const G4double dx1=dx*cos(alpha)-dy*sin(alpha);
+        const G4double dy1=dx*sin(alpha)+dy*cos(alpha);
         currentCellData.x0 = dx1 + m_xc[currentCellData.nfold];
         currentCellData.y0 = dy1 + m_yc[currentCellData.nfold];
         if (m_parity==1) { currentCellData.y0 = -1*currentCellData.y0; }
@@ -862,16 +843,16 @@ namespace LArG4 {
           }
         }
         xl2+=rint*std::fabs(phi1-phi0);
-        G4int nstep=int((phi1-phi0)*inv_dt)+1;
+        const G4int nstep=int((phi1-phi0)*inv_dt)+1;
         for (int ii=0;ii<nstep;ii++) {
           xl+=dl;
-          G4double phi=phi0+dt*((G4double)ii);
-          G4double x=cenx[i]+rint*cos(phi);
-          G4double y=ceny[i]+rint*sin(phi);
-          G4double radius=sqrt(x*x+y*y);
+          const G4double phi=phi0+dt*((G4double)ii);
+          const G4double x=cenx[i]+rint*cos(phi);
+          const G4double y=ceny[i]+rint*sin(phi);
+          const G4double radius=sqrt(x*x+y*y);
           if (radius>m_Rmax) { m_Rmax=radius; }
-          G4double phid=atan(y/x);
-          G4int ir=((int) ((radius-m_Rmin)/m_dR) );
+          const G4double phid=atan(y/x);
+          const G4int ir=((int) ((radius-m_Rmin)/m_dR) );
           if (ir>=0 && ir < m_NRphi) {
             sum1[ir]+=1.;
             sumx[ir]+=phid;
@@ -880,27 +861,24 @@ namespace LArG4 {
 
         // straight section
         if (i<14) {
-          G4double dx=cenx[i+1]-cenx[i];
-          G4double dy=ceny[i+1]-ceny[i];
-          G4double along=dx*dx+dy*dy-4.*rint*rint;
-          along=sqrt(along);
-          G4double x0=0.5*(cenx[i+1]+cenx[i]);
-          G4double y0=0.5*(ceny[i+1]+ceny[i]);
-          G4double phi;
-          if (i%2==m_parity) { phi=CLHEP::pi/2-m_delta[i]; }
-          else               { phi=-CLHEP::pi/2.+m_delta[i]; }
-          G4double x1=x0-0.5*along*cos(phi);
-          G4double y1=y0-0.5*along*sin(phi);
+          const G4double dx=cenx[i+1]-cenx[i];
+          const G4double dy=ceny[i+1]-ceny[i];
+          const G4double along=std::sqrt(dx*dx+dy*dy-4.*rint*rint);
+          const G4double x0=0.5*(cenx[i+1]+cenx[i]);
+          const G4double y0=0.5*(ceny[i+1]+ceny[i]);
+          const G4double phi = (i%2==m_parity) ? CLHEP::pi/2-m_delta[i] : -CLHEP::pi/2.+m_delta[i];
+          const G4double x1=x0-0.5*along*cos(phi);
+          const G4double y1=y0-0.5*along*sin(phi);
           xl2+=along;
-          int nstep=int(along*inv_dl)+1;
+          const int nstep=int(along*inv_dl)+1;
           for (int ii=0;ii<nstep;ii++) {
             xl+=dl;
-            G4double x=x1+dl*((G4double)ii)*cos(phi);
-            G4double y=y1+dl*((G4double)ii)*sin(phi);
-            G4double radius=sqrt(x*x+y*y);
+            const G4double x=x1+dl*((G4double)ii)*cos(phi);
+            const G4double y=y1+dl*((G4double)ii)*sin(phi);
+            const G4double radius=sqrt(x*x+y*y);
             if (radius>m_Rmax) { m_Rmax=radius; }
-            G4double phid=atan(y/x);
-            G4int ir=((int) ((radius-m_Rmin)/m_dR) );
+            const G4double phid=atan(y/x);
+            const G4int ir=((int) ((radius-m_Rmin)/m_dR) );
             if (ir>=0 && ir < m_NRphi) {
               sum1[ir]+=1.;
               sumx[ir]+=phid;
@@ -941,14 +919,14 @@ namespace LArG4 {
     // accordion geometry
     G4int Geometry::PhiGap(const double & radius, const double & xhit, const double &yhit) const
     {
-      G4double phi0=Phi0(radius)+m_gam0;   // from -pi to pi
-      G4double phi_hit=atan2(yhit,xhit);  // from -pi to pi
+      const G4double phi0=Phi0(radius)+m_gam0;   // from -pi to pi
+      const G4double phi_hit=atan2(yhit,xhit);  // from -pi to pi
       G4double dphi=phi_hit-phi0;
       // bring back to 0-2pi
       if (dphi<0) dphi=dphi+m_2pi;
       if (dphi>=m_2pi) dphi=dphi-m_2pi;
       dphi=dphi/(m_2pi)*1024;
-      G4int ngap=((int) dphi);
+      const G4int ngap=((int) dphi);
 #ifdef DEBUGHITS
       ATH_MSG_VERBOSE(" phi0 " << phi0 << " dphi, ngap " << dphi << " " << ngap);
 #endif
@@ -965,26 +943,18 @@ namespace LArG4 {
       LArG4Identifier result = LArG4Identifier();
 
       // Get all the required information from the current step
-
-      G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
-      G4StepPoint* post_step_point = a_step->GetPostStepPoint();
-      G4ThreeVector startPoint = pre_step_point->GetPosition();
-      G4ThreeVector endPoint   = post_step_point->GetPosition();
-      G4ThreeVector p = (startPoint + endPoint) * 0.5;
-
-      const G4NavigationHistory* g4navigation = pre_step_point->GetTouchable()->GetHistory();
-      G4int ndep = g4navigation->GetDepth();
+      const G4NavigationHistory* g4navigation = a_step->GetPreStepPoint()->GetTouchable()->GetHistory();
+      const G4int ndep = g4navigation->GetDepth();
+      bool inSTAC = false;
+      int zside=1;
       G4int indECAM = -999;
 
       // Now navigate through the volumes hierarchy
-
-      bool inSTAC = false;
-      int zside=1;
       for (G4int ii=0;ii<=ndep;ii++) {
-        G4VPhysicalVolume* v1 = g4navigation->GetVolume(ii);
-        G4String vname = v1->GetName();
-        if ( vname == m_ecamName ) indECAM=ii;
-        if ( vname.find("STAC") !=std::string::npos) inSTAC=true;
+        const G4String& vname = g4navigation->GetVolume(ii)->GetName();
+        // FIXME Need to find a way to avoid these string-comparisons
+        if ( indECAM<0 && vname == m_ecamName ) indECAM=ii;
+        if ( !inSTAC && vname.find("STAC") !=std::string::npos) inSTAC=true;
         if ( vname.find("NegPhysical") != std::string::npos) zside=-1;
       }
       if (indECAM>=0)
@@ -1053,11 +1023,11 @@ namespace LArG4 {
 
       // Get all the information about the step
 
-      G4StepPoint *thisStepPoint = a_step->GetPreStepPoint();
-      G4StepPoint *thisStepBackPoint = a_step->GetPostStepPoint();
-      G4ThreeVector startPoint = thisStepPoint->GetPosition();
-      G4ThreeVector endPoint = thisStepBackPoint->GetPosition();
-      G4ThreeVector p = (thisStepPoint->GetPosition() + thisStepBackPoint->GetPosition()) * 0.5;
+      const G4StepPoint *thisStepPoint = a_step->GetPreStepPoint();
+      const G4StepPoint *thisStepBackPoint = a_step->GetPostStepPoint();
+      const G4ThreeVector startPoint = thisStepPoint->GetPosition();
+      const G4ThreeVector endPoint = thisStepBackPoint->GetPosition();
+      const G4ThreeVector p = (thisStepPoint->GetPosition() + thisStepBackPoint->GetPosition()) * 0.5;
 
 #ifdef  DEBUGHITS
       ATH_MSG_VERBOSE("Position of the step in the ATLAS frame (x,y,z) --> " << p.x() << " " << p.y() << " " << p.z());
@@ -1068,9 +1038,9 @@ namespace LArG4 {
 
       const G4NavigationHistory* g4navigation = thisStepPoint->GetTouchable()->GetHistory();
       const G4AffineTransform transformation = g4navigation->GetTransform(indECAM);
-      G4ThreeVector startPointinLocal = transformation.TransformPoint(startPoint);
-      G4ThreeVector endPointinLocal = transformation.TransformPoint  (endPoint);
-      G4ThreeVector midinLocal = (startPointinLocal+endPointinLocal)*0.5;
+      const G4ThreeVector startPointinLocal = transformation.TransformPoint(startPoint);
+      const G4ThreeVector endPointinLocal = transformation.TransformPoint  (endPoint);
+      const G4ThreeVector midinLocal = (startPointinLocal+endPointinLocal)*0.5;
 
 #ifdef  DEBUGHITS
       ATH_MSG_VERBOSE("Position of the step in the LOCAL frame (x,y,z) --> " << midinLocal.x() << " " << midinLocal.y() << " " << midinLocal.z());
@@ -1079,14 +1049,13 @@ namespace LArG4 {
 
       // coordinates in the local frame
 
-      G4double xZpos   = midinLocal.x();
-      G4double yZpos   = midinLocal.y();
-      G4double zZpos   = midinLocal.z();
-      G4double etaZpos = midinLocal.pseudoRapidity();
-      G4double phiZpos = midinLocal.phi();
-      if(phiZpos<0.) phiZpos = phiZpos + 2.*M_PI;
-      G4double radius2Zpos = xZpos*xZpos + yZpos*yZpos;
-      G4double radiusZpos = sqrt(radius2Zpos);
+      const G4double xZpos   = midinLocal.x();
+      const G4double yZpos   = midinLocal.y();
+      const G4double zZpos   = midinLocal.z();
+      const G4double etaZpos = midinLocal.pseudoRapidity();
+      const G4double phiZpos = (midinLocal.phi()<0.) ? midinLocal.phi() + 2.*M_PI : midinLocal.phi();
+      const G4double radius2Zpos = xZpos*xZpos + yZpos*yZpos;
+      const G4double radiusZpos = sqrt(radius2Zpos);
 
       CalcData currentCellData;
       if (m_testbeam) {
@@ -1106,8 +1075,11 @@ namespace LArG4 {
         ATH_MSG_VERBOSE("This hit is in the STAC volume !!!!! ");
 #endif
 
-        //   DETERMINATION of currentCellData.cellID, currentCellData.zSide, currentCellData.sampling, currentCellData.phiBin, currentCellData.etaBin, m_stackNumID
-        bool MapDetail=false;
+        //   DETERMINATION of currentCellData.cellID,
+        //   currentCellData.zSide, currentCellData.sampling,
+        //   currentCellData.phiBin, currentCellData.etaBin,
+        //   m_stackNumID
+        const bool MapDetail(false);
         this->findCell( currentCellData, xZpos, yZpos, zZpos, radiusZpos, etaZpos, phiZpos, MapDetail );
 
         // adjust phi in the negative half barrel frame
@@ -1154,8 +1126,7 @@ namespace LArG4 {
         ATH_MSG_VERBOSE("currentCellData.region  ----> " <<  currentCellData.region);
         ATH_MSG_VERBOSE("currentCellData.etaBin  ----> " << currentCellData.etaBin);
         ATH_MSG_VERBOSE("currentCellData.phiBin  ----> " << currentCellData.phiBin);
-        G4double firsteta = thisStepPoint->GetPosition().pseudoRapidity();
-        ATH_MSG_VERBOSE("And also etafirst ----> " << firsteta);
+        ATH_MSG_VERBOSE("And also etafirst ----> " << thisStepPoint->GetPosition().pseudoRapidity());
 #endif
 
         //    if (!Geometry::CheckLArIdentifier(currentCellData.sampling,currentCellData.region,currentCellData.etaBin,currentCellData.phiBin)) {
@@ -1172,10 +1143,10 @@ namespace LArG4 {
 
         G4int sampling=0;
         G4int region=0;
-        G4int numDeadPhiBins = 64;
+        const G4int numDeadPhiBins = 64;
         double abs_eta = std::fabs(etaZpos);
-        double DM1EtaWidth = 0.1 ;
-        double DM1PhiWidth = 2.*M_PI / numDeadPhiBins ;
+        const double DM1EtaWidth = 0.1 ;
+        const double DM1PhiWidth = 2.*M_PI / numDeadPhiBins ;
         currentCellData.etaBin = (G4int) ( abs_eta * (1./DM1EtaWidth) ) ;
         currentCellData.phiBin = (G4int) (phiZpos/ DM1PhiWidth );
         G4int type=1;
@@ -1222,8 +1193,8 @@ namespace LArG4 {
         } else if (zZpos <= m_zMinBarrel) {   // inactive matter between two EMB halves
           type=2;
           region=0;
-          G4int phisave=currentCellData.phiBin;
-          G4bool MapDetail=false;
+          const G4int phisave=currentCellData.phiBin;
+          const G4bool MapDetail(false);
           this->findCell( currentCellData, xZpos, yZpos, zZpos, radiusZpos, etaZpos, phiZpos, MapDetail );
           sampling = currentCellData.sampling; // sampling as in normal definition
           currentCellData.etaBin=0;
@@ -1250,15 +1221,15 @@ namespace LArG4 {
             ATH_MSG_ERROR("r,z,eta,phi " << radiusZpos << " " << zZpos << " " << etaZpos << " " << phiZpos);
             ATH_MSG_ERROR("x,y,z (Atlas) " << p.x() << " " << p.y() << " " << p.z());
             ATH_MSG_ERROR(" inSTAC " << inSTAC);
-            G4double thisStepEnergyDeposit = a_step->GetTotalEnergyDeposit();
+            const G4double thisStepEnergyDeposit = a_step->GetTotalEnergyDeposit();
             ATH_MSG_ERROR(" eDeposited " << thisStepEnergyDeposit);
-            G4VPhysicalVolume* vol = thisStepPoint->GetPhysicalVolume();
-            G4String volName = vol->GetName();
+            const G4VPhysicalVolume* vol = thisStepPoint->GetPhysicalVolume();
+            const G4String volName = vol->GetName();
             ATH_MSG_ERROR(" volName " << volName);
-            G4int ndep = g4navigation->GetDepth();
+            const G4int ndep = g4navigation->GetDepth();
             for (G4int ii=0;ii<=ndep;ii++) {
-              G4VPhysicalVolume* v1 = g4navigation->GetVolume(ii);
-              G4String vname = v1->GetName();
+              const G4VPhysicalVolume* v1 = g4navigation->GetVolume(ii);
+              const G4String vname = v1->GetName();
               ATH_MSG_ERROR("vname " << vname);
             }
 
@@ -1320,7 +1291,7 @@ namespace LArG4 {
 
     }
 
-    bool  Geometry::CheckDMIdentifier(int type, int sampling, int region, int eta, int phi) const
+    bool Geometry::CheckDMIdentifier(int type, int sampling, int region, int eta, int phi) const
     {
 
       if (type <1 || type > 2) return false;

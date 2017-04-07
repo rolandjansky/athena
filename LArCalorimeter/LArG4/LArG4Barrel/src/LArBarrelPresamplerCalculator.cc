@@ -12,7 +12,7 @@
 #include "LArG4Code/LArVG4DetectorParameters.h"
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArG4BirksLaw.h"
-#include "LArG4Barrel/LArBarrelPresamplerGeometry.h"
+#include "LArBarrelPresamplerGeometry.h"
 #include "PsMap.h"
 
 #include "G4AffineTransform.hh"
@@ -40,7 +40,7 @@ namespace Units = Athena::Units;
 //=============================================================================
 LArBarrelPresamplerCalculator::LArBarrelPresamplerCalculator(const std::string& name, ISvcLocator *pSvcLocator)
  : LArCalculatorSvcImp(name, pSvcLocator)
- , m_geometry(nullptr)
+ , m_geometry("LArBarrelPresamplerGeometry", name)
  , m_psmap(nullptr)
  , m_IflCur(true)
  , m_birksLaw(nullptr)
@@ -48,7 +48,7 @@ LArBarrelPresamplerCalculator::LArBarrelPresamplerCalculator(const std::string& 
    //, m_testbeam(false)
  , m_volname("LArMgr::LAr::Barrel::Presampler")
 {
-  ATH_MSG_DEBUG("LArBarrelPresamplerCalculator: Beginning initialization ");
+  declareProperty("GeometryCalculator", m_geometry);
   declareProperty("IflCur",m_IflCur);
   declareProperty("DetectorName",m_detectorName);
   //declareProperty("isTestbeam",m_testbeam);
@@ -56,14 +56,15 @@ LArBarrelPresamplerCalculator::LArBarrelPresamplerCalculator(const std::string& 
 
 StatusCode LArBarrelPresamplerCalculator::initialize()
 {
+  ATH_MSG_DEBUG("LArBarrelPresamplerCalculator: Beginning initialization ");
   // Initialize private members.
   // m_identifier2 = LArG4Identifier();
 
   // Access source of detector parameters.
   LArVG4DetectorParameters* parameters = LArVG4DetectorParameters::GetInstance();
 
-  //Inizialize the geometry calculator
-  m_geometry = LArG4::BarrelPresampler::Geometry::GetInstance();
+  // Initialize the geometry calculator
+  ATH_CHECK(m_geometry.retrieve());
 
   if (m_IflCur)
     {
@@ -235,7 +236,8 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
     // call geometry method to find cell from local position
     //  status = true if hit is in  normal region (13mm LAr gap)
     //  this method fills the cell number as well as coordinates in the electrode frame
-    bool status = m_geometry->findCell(xloc,yloc,zloc);
+    LArG4::BarrelPresampler::CalcData currentCellData;
+    bool status = m_geometry->findCell(currentCellData,xloc,yloc,zloc);
 
     // check fiducical cuts
     if (status) {
@@ -247,10 +249,10 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
       else
         zSide = ( startPoint.z() > 0.) ? 1 : -1;
 
-      G4int region = m_geometry->region();
-      G4int etaBin = m_geometry->etaBin();
-      G4int phiBin = m_geometry->phiBin();
-      G4int sampling = m_geometry->sampling();
+      G4int region = currentCellData.region;
+      G4int etaBin = currentCellData.etaBin;
+      G4int phiBin = currentCellData.phiBin;
+      G4int sampling = currentCellData.sampling;
 
       if( zSide == -1 )
         {
@@ -293,9 +295,9 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
       }
       else  {
         // get module number and coordinates in electrode frame
-        G4int imodule = m_geometry->module();
-        G4double x0 = m_geometry->distElec();
-        G4double y0 = m_geometry->xElec();
+        G4int imodule = currentCellData.module;
+        G4double x0 = currentCellData.distElec;
+        G4double y0 = currentCellData.xElec;
         // full symmetry for angle=0 electrodes
         if (imodule>1) {
           x0=std::fabs(x0);

@@ -50,16 +50,16 @@ namespace LArG4 {
 
       // Full identifier computation from a G4 step
       virtual LArG4Identifier CalculateIdentifier( const G4Step* ) const override final;
-      virtual LArG4Identifier CalculateECAMIdentifier( const G4Step* , const G4int indEcam, const bool inSTAC=true,int zside=1) const override final;
 
       // Given a point compute all quantities (cell number, distance to electrode, etc...)
       virtual void findCell( CalcData & currentCellData, const double & x, const double & y, const double & z,
                              const double & r, const double & eta, const double & phi, const bool detail) const override final;
 
-      virtual bool CheckLArIdentifier(int sampling,int region, int eta,int phi) const override final;
-      virtual bool CheckDMIdentifier(int type, int sampling, int region, int eta, int phi) const override final;
-
     private:
+
+      LArG4Identifier CalculateECAMIdentifier( const G4Step* , const G4int indEcam, const bool inSTAC=true,int zside=1) const;
+      bool CheckLArIdentifier(int sampling,int region, int eta,int phi) const;
+      bool CheckDMIdentifier(int type, int sampling, int region, int eta, int phi) const;
 
       // detector name, for translated geometry
       std::string m_detectorName;

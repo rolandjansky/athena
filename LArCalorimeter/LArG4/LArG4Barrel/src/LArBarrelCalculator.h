@@ -16,7 +16,7 @@
 
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArCalculatorSvcImp.h"
-#include "LArG4Barrel/ILArBarrelGeometry.h"
+#include "ILArBarrelGeometry.h"
 
 #include <stdexcept>
 #include <vector>

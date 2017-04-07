@@ -12,6 +12,7 @@
 
 #include "LArG4Code/LArCalibCalculatorSvcImp.h"
 #include "LArG4Code/LArG4Identifier.h"
+#include "ILArBarrelPresamplerGeometry.h"
 
 #include "CaloG4Sim/SimulationEnergies.h"
 
@@ -59,13 +60,10 @@ namespace LArG4 {
 
     private:
       // Geometry calculator
-      Geometry* m_geometryCalculator;
+      ServiceHandle<ILArBarrelPresamplerGeometry> m_geometryCalculator;
 
       // Energy calculator
       CaloG4::SimulationEnergies m_energyCalculator;
-
-      // detector name, for translated geometry
-      std::string m_detectorName;
 
     };
 
