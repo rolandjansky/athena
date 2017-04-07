@@ -26,7 +26,6 @@ newInDetAlignAlg_Options = {
     ,"writeTRT"             : True                           #  whether to write final TRT constants to pool file
     ,"writeTRTL3"           : False                          #  whether to write final TRT L3 constants to pool file    
     ,"writeIBLDistDB"       : True                          #  whether to write /Indet/IBLDist to db file    
-    ,"writeDynamicDB"       : True                          #  whether to write new dynamic folder sheme or old static    
     ,"outputPoolFile"       : "alignment_output.pool.root"       #  pool file to write the final constants
     ,"outputCoolFile"       : "mycool2.db"               #  cool file to write the final bowing
     ,"tagSi"            : "IndetAlign_test"              #  DB tag to use for final Si constants
@@ -99,21 +98,6 @@ newInDetAlignAlg_Options = {
     ,"doSiHitQualSel"       : False                   #  perform Si hit (pix+sct) quality selection with InDetAlinHitQualSelTool
     ,"AlignIBLbutNotPixel"  : False		# Set to True to align the IBL but not the Old Pixel (L11).
     ,"AlignPixelbutNotIBL"  : False		# Set to True to align the Old Pixel but not the IBL (L11).
-
-    ,"Remove_Pixel_Tx"      : False		# Set to True to remove Old Pixel's Tx Dof from the alignment Matrix (L11).
-    ,"Remove_Pixel_Ty"      : False		# Set to True to remove Old Pixel's Ty Dof from the alignment Matrix (L11).
-    ,"Remove_Pixel_Tz"      : False		# Set to True to remove Old Pixel's Tz Dof from the alignment Matrix (L11).
-    ,"Remove_Pixel_Rx"      : False		# Set to True to remove Old Pixel's Rx Dof from the alignment Matrix (L11).
-    ,"Remove_Pixel_Ry"      : False		# Set to True to remove Old Pixel's Ry Dof from the alignment Matrix (L11).
-    ,"Remove_Pixel_Rz"      : False		# Set to True to remove Old Pixel's Rz Dof from the alignment Matrix (L11).
-
-    ,"Remove_IBL_Tx"        : False		# Set to True to remove IBL's Tx Dof from the alignment Matrix (L11).
-    ,"Remove_IBL_Ty"        : False		# Set to True to remove IBL's Ty Dof from the alignment Matrix (L11).
-    ,"Remove_IBL_Tz"        : False		# Set to True to remove IBL's Tz Dof from the alignment Matrix (L11).
-    ,"Remove_IBL_Rx"        : False		# Set to True to remove IBL's Rx Dof from the alignment Matrix (L11).
-    ,"Remove_IBL_Ry"        : False		# Set to True to remove IBL's Ry Dof from the alignment Matrix (L11).
-    ,"Remove_IBL_Rz"        : False		# Set to True to remove IBL's Rz Dof from the alignment Matrix (L11).
-
     ,"FixMomentum"          : False             # Set to True to remove the QoverP from the track parameters when deriving the residuals.
     ,"LumiblockSelection"   : False				     #	whether to select events from a list of lumiblocks.
     ,"LumiblockList"	    : range(400,420,1) 		     #	The list of LBs you want to select
@@ -149,11 +133,11 @@ else:
 ## Preprocessor Check ##
 
 if newInDetAlignAlg_Options["doBSConstraint"] or newInDetAlignAlg_Options["doPVConstraint"] or newInDetAlignAlg_Options["doBSTrackSelection"] or newInDetAlignAlg_Options["doBSAssociatedToPVSelection"]:
-    print " <NewInDetAlignAlgSetup> Switching off the OldPreprocessor"
+    print "NewInDetAlignAlg: Switching off the OldPreprocessor"
     newInDetAlignAlg_Options["useOldPreProcessor"] = False
 
 if newInDetAlignAlg_Options["useOldPreProcessor"]:
-    print " <NewInDetAlignAlgSetup> WARNING: The BeamSpot constraint and PV Constraint are disabled"
+    print "WARNING: The BeamSpot constraint and PV Constraint are disabled"
 
 ## ===================================================================
 ## ===================================================================
@@ -161,7 +145,7 @@ if newInDetAlignAlg_Options["useOldPreProcessor"]:
 ## ==               Settings for the alignment                      ==
 ## ==                                                               ==
 if not newInDetAlignAlg_Options["runAccumulate"] and not newInDetAlignAlg_Options["runSolving"]:
-    print ' <NewInDetAlignAlgSetup> ERROR: Both event processing and solving switched off. Nothing to be done.'
+    print 'ERROR: Both event processing and solving switched off. Nothing to be done.'
     exit(10)
 
 # if we're running full local method we have to adjust some parameters
@@ -300,25 +284,8 @@ matrixTool.InputHitmapFiles     = newInDetAlignAlg_Options["inputHitmapFiles"]
 matrixTool.SoftEigenmodeCut     = newInDetAlignAlg_Options["softModeCut"]
 matrixTool.ScaleMatrix      = newInDetAlignAlg_Options["scaleMatrix"]
 matrixTool.PathBinName      = newInDetAlignAlg_Options["PathBinName"]
-
 matrixTool.AlignIBLbutNotPixel = newInDetAlignAlg_Options["AlignIBLbutNotPixel"]
 matrixTool.AlignPixelbutNotIBL = newInDetAlignAlg_Options["AlignPixelbutNotIBL"]
-
-#Uncomment only if you have checkout trunk of Tracking/TrkAlignment/TrkAlignGenTools
-#matrixTool.Remove_Pixel_Tx = newInDetAlignAlg_Options["Remove_Pixel_Tx"]
-#matrixTool.Remove_Pixel_Ty = newInDetAlignAlg_Options["Remove_Pixel_Ty"]
-#matrixTool.Remove_Pixel_Tz = newInDetAlignAlg_Options["Remove_Pixel_Tz"]
-#matrixTool.Remove_Pixel_Rx = newInDetAlignAlg_Options["Remove_Pixel_Rx"]
-#matrixTool.Remove_Pixel_Ry = newInDetAlignAlg_Options["Remove_Pixel_Ry"]
-#matrixTool.Remove_Pixel_Rz = newInDetAlignAlg_Options["Remove_Pixel_Rz"]
-
-#Uncomment only if you have checkout trunk of Tracking/TrkAlignment/TrkAlignGenTools
-#matrixTool.Remove_IBL_Tx = newInDetAlignAlg_Options["Remove_IBL_Tx"]
-#matrixTool.Remove_IBL_Ty = newInDetAlignAlg_Options["Remove_IBL_Ty"]
-#matrixTool.Remove_IBL_Tz = newInDetAlignAlg_Options["Remove_IBL_Tz"]
-#matrixTool.Remove_IBL_Rx = newInDetAlignAlg_Options["Remove_IBL_Rx"]
-#matrixTool.Remove_IBL_Ry = newInDetAlignAlg_Options["Remove_IBL_Ry"]
-#matrixTool.Remove_IBL_Rz = newInDetAlignAlg_Options["Remove_IBL_Rz"]
 
 if newInDetAlignAlg_Options["WriteTFile"]:
     matrixTool.WriteTFile   = True
@@ -454,7 +421,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
         maxEtaForTRTHitCuts = 0 
         maxTRTEtaAcceptance = 1e+16
         if newInDetAlignAlg_Options["useTRT"]:
-            print " <NewInDetAlignAlgSetup> NewInDetAlignAlgSetup : setting TRT Cuts"
+            print "NewInDetAlignAlgSetup : setting TRT Cuts"
             minNTRTHits = 20
             maxEtaForTRTHitCuts = 1.9
             maxTRTEtaAcceptance = 0.
@@ -463,10 +430,8 @@ if newInDetAlignAlg_Options["runAccumulate"]:
         if not newInDetAlignAlg_Options["Cosmics"] :
             
             
-            print " <NewInDetAlignAlgSetup> NewInDetAlignAlgSetup : setting InDetTrackSelectionToolAlignTracks for cosmics"
             trackSelectorNew = InDet__InDetTrackSelectionTool(name         = "InDetTrackSelectionToolAlignTracks",
                                                               UseTrkTrackTools = True,
-                                                              OutputLevel       = newInDetAlignAlg_Options["outputLevel"],
                                                               minPt = float(newInDetAlignAlg_Options["PtCut"]),
                                                               maxD0 = 500,
                                                               maxZ0 = 500,
@@ -483,7 +448,6 @@ if newInDetAlignAlg_Options["runAccumulate"]:
             if newInDetAlignAlg_Options["d0significanceCut"] > 0:
                 trackSelectorNew.maxD0overSigmaD0 = 3
         else:
-            print " <NewInDetAlignAlgSetup> NewInDetAlignAlgSetup : setting InDetTrackSelectionToolAlignTracks"
             trackSelectorNew= InDet__InDetTrackSelectionTool(name         = "InDetTrackSelectionToolAlignTracks",
                                                              UseTrkTrackTools = True,
                                                              minPt = float(newInDetAlignAlg_Options["PtCut"]),
@@ -522,7 +486,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
 
         if newInDetAlignAlg_Options["FixMomentum"]:
             preProcessor.FixMomentum = newInDetAlignAlg_Options["FixMomentum"]
-            print " <NewInDetAlignAlgSetup> OldProcessor -> Using FixMomentum = ", newInDetAlignAlg_Options["FixMomentum"]
+            print "OldProcessor -> Using FixMomentum = ", newInDetAlignAlg_Options["FixMomentum"]
         
         # don't store matrices when running local
         if newInDetAlignAlg_Options["runLocal"]:
@@ -577,7 +541,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
             #print BStrackSelector
 
         from TrkAlignGenTools.TrkAlignGenToolsConf import Trk__BeamspotVertexPreProcessor
-        #print " <NewInDetAlignAlgSetup> TYPE PtCutForBSConstraint", type(newInDetAlignAlg_Options["PtCutForBSConstraint"])
+        print "TYPE PtCutForBSConstraint", type(newInDetAlignAlg_Options["PtCutForBSConstraint"])
         preProcessor = Trk__BeamspotVertexPreProcessor(
             name              = "BeamspotVertexPreProcessor",
             OutputLevel           = newInDetAlignAlg_Options["outputLevel"],
@@ -604,7 +568,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
 
         if newInDetAlignAlg_Options["FixMomentum"]:
             preProcessor.FixMomentum = newInDetAlignAlg_Options["FixMomentum"]
-            print " <NewInDetAlignAlgSetup> NewProcessor -> Using FixMomentum = ", newInDetAlignAlg_Options["FixMomentum"]
+            print "NewProcessor -> Using FixMomentum = ", newInDetAlignAlg_Options["FixMomentum"]
         
         # don't store matrices when running local
         if newInDetAlignAlg_Options["runLocal"]:
@@ -772,45 +736,7 @@ else:
     topSequence += InDetGlobalSolve
     print InDetGlobalSolve
 
-################################   
-# Write constants to Pool file     
-# the OutputConditionsAlg has to be set up at the end
-# so that it runs last and picks up the latest version  
-# of constants from memory                                                                                       
-if newInDetAlignAlg_Options["runSolving"] and newInDetAlignAlg_Options["writeConstantsToPool"]:
-    objectList = []
-    tagList = []
 
-    if newInDetAlignAlg_Options["writeSilicon"]:
-        if newInDetAlignAlg_Options["writeDynamicDB"]:
-            objectList += ["CondAttrListCollection#/Indet/AlignL1/ID"]
-            objectList += ["CondAttrListCollection#/Indet/AlignL2/PIX"]
-            objectList += ["CondAttrListCollection#/Indet/AlignL2/SCT"]
-            objectList += [ "AlignableTransformContainer#/Indet/AlignL3" ]
-            tagList += [ "IndetL1Test", "IndetL2PIXTest", "IndetL2SCTTest",  newInDetAlignAlg_Options["tagSi"] ]
-        else:
-            objectList += [ "AlignableTransformContainer#/Indet/Align" ]
-            tagList += [ newInDetAlignAlg_Options["tagSi"] ]
-    if newInDetAlignAlg_Options["writeTRT"]:
-        if newInDetAlignAlg_Options["writeDynamicDB"]:
-            objectList += ["CondAttrListCollection#/TRT/AlignL1/TRT"]
-            objectList += [ "AlignableTransformContainer#/TRT/AlignL2" ]
-            tagList += [ "IndetL1TRTTest", newInDetAlignAlg_Options["tagTRT"] ]
-        else:
-            objectList += [ "AlignableTransformContainer#/TRT/Align" ]
-            tagList += [ newInDetAlignAlg_Options["tagTRT"] ]
-    if newInDetAlignAlg_Options["writeTRTL3"]:
-        objectList += [ "TRTCond::StrawDxContainer#/TRT/Calib/DX"]
-    if newInDetAlignAlg_Options["writeIBLDistDB"]:
-        objectList += ["CondAttrListCollection#/Indet/IBLDist"]
-        tagList    += [newInDetAlignAlg_Options["tagBow"]]
-
-
-    from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
-    myOCA = OutputConditionsAlg(outputFile = newInDetAlignAlg_Options["outputPoolFile"])
-    myOCA.ObjectList = objectList
-    myOCA.IOVTagList = tagList
-'''
 ################################
 # Write constants to Pool file
 # the OutputConditionsAlg has to be set up at the end
@@ -837,7 +763,7 @@ if newInDetAlignAlg_Options["runSolving"] and newInDetAlignAlg_Options["writeCon
     myOCA = OutputConditionsAlg(outputFile = newInDetAlignAlg_Options["outputPoolFile"])
     myOCA.ObjectList = objectList
     myOCA.IOVTagList = tagList
-'''
+
         
 ################################
 # build AlignTrack collection splitter algorithm
@@ -860,14 +786,14 @@ if newInDetAlignAlg_Options["doMonitoring"] and newInDetAlignAlg_Options["runAcc
     
     
 if newInDetAlignAlg_Options["LumiblockSelection"]:
-	print " <NewInDetAlignAlgSetup>      **************************** "
-	print "                              **  Selecting LumiBlocks  ** "
-	print "                              **************************** "
-	print "                              **   List of LumiBlocks   ** "
+	print " ************************** "
+	print " ** Selecting LumiBlocks ** "
+	print " ************************** "
+	print " **  List of LumiBlocks  ** "
 	
 	print str(newInDetAlignAlg_Options["LumiblockList"]).strip('[]')
 	print " **                      ** "	
 	import InDetBeamSpotExample.FilterUtils as FilterUtils
 	FilterUtils.filterSeq += FilterUtils.LBFilter(newInDetAlignAlg_Options["LumiblockList"]) 
 else:
-	print " <NewInDetAlignAlgSetup> ** Selecting LumiBlocks is deactivated ** " 
+	print " ** Selecting LumiBlocks is deactivated ** " 

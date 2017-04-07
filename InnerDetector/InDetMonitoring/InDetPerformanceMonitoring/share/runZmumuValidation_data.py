@@ -23,7 +23,7 @@ PoolInput = inputFiles
 
 
 # number of event to process
-EvtMax=100
+EvtMax=-1
 SkipEvents = 0
 
 

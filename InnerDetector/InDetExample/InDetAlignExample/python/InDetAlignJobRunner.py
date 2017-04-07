@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 # $Id: InDetAlignJobRunner.py,v 1.6 2008-07-31 18:02:08 beringer Exp $
 # Written by Juerg Beringer in April 2008.
 

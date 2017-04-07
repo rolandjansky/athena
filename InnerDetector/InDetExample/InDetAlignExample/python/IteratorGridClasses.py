@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 # =====================================================================
 #  Classes for running ATLAS ID alignment jobs on Grid resources
 #    Authors: Jike Wang      (jike.wang@cern.ch)

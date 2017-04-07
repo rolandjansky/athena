@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // ********************************************************//
 //    RTT Constants at Level1 for rel_X ; X= [0,6]         //
 //*********************************************************//

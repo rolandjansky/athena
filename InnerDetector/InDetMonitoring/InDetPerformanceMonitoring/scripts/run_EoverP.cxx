@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef __CINT__
 
 #include "RooGlobalFunc.h"
@@ -961,39 +965,26 @@ void makeScalingHist(TString inputDir)
     delete projection;
   }  
   
-  // for some reason cloning the histogram bugs out the z-axis range for the "colz" draw option
-  // we're gonna fill a brand new histogram from the bugged one so the ranges work...
+
   TH2F* a = (TH2F*) meanPlotPos->Clone(); 
   a->Add(meanPlotNeg,-1);
   a->Scale(-0.5); // divide by 2
 
-  // set up new histogram
-  int nbinsx = meanPlotPos->GetNbinsX();
-  int nbinsy = meanPlotPos->GetNbinsY();
-  double etaRange[nbinsx];
-  double stepSize = 5./nbinsx;
-  for (int  i(0); i<= nbinsx; ++i) etaRange[i] = -2.5+stepSize*(double)i;
-  double phiRange[nbinsy];
-  stepSize = 2 * TMath::Pi()/nbinsy;
-  for (int  i(0); i<= nbinsy; ++i) phiRange[i] = -TMath::Pi()+stepSize*(double)i;
-  TH2F *scaling = new TH2F("FinalCorrections","FinalCorrections",nbinsx,etaRange,nbinsy,phiRange);
-
-  // fill the histogram
-  for(int i=1; i <= nbinsx; i++){
-    for(int j=1; j <= nbinsy; j++){
+  for(int i=1; i <= a->GetNbinsX(); i++){
+    for(int j=1; j <= a->GetNbinsY(); j++){
       double temp  =  a->GetBinContent(i,j);
-      scaling->SetBinContent(i,j, temp/pt[i-1]*1e3); 
+      a->SetBinContent(i,j, temp/pt[i-1]*1e3); 
       temp  =  a->GetBinError(i,j);
-      scaling->SetBinError(i,j, temp/pt[i-1]*1e3);    
+      a->SetBinError(i,j, temp/pt[i-1]*1e3);    
     }
   }
   
-  scaling->Draw("colz");
+  a->Draw("colz");
   
   TFile f(dir+"Scaling.root","RECREATE");
-  //a->SetName("FinalCorrections");
-  //a->SetTitle("FinalCorrections");
-  scaling->Write();
+  a->SetName("FinalCorrections");
+  a->SetTitle("FinalCorrections");
+  a->Write();
   f.ls();
   f.Close();
 }

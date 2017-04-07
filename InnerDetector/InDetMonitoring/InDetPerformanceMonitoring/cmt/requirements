@@ -12,9 +12,7 @@ apply_tag ROOTGraphicsLibs
 # InDet packages which may be needed
 use InDetIdentifier 		InDetIdentifier-* 		InnerDetector/InDetDetDescr
 use InDetPrepRawData 		InDetPrepRawData-* 		InnerDetector/InDetRecEvent
-use InDetTrackSelectionTool     InDetTrackSelectionTool-*       InnerDetector/InDetRecTools
 use IdDictDetDescr  		IdDictDetDescr-*     		DetectorDescription
-
 
 # Muons - for IDPerfMonZmumu by Jike Wang
 use GaudiInterface              GaudiInterface-*                External
@@ -26,7 +24,7 @@ use TrkParameters         	TrkParameters-*   		Tracking/TrkEvent
 use TrkEventPrimitives 		TrkEventPrimitives-* 		Tracking/TrkEvent
 
 use  EventPrimitives            EventPrimitives-*               Event
-use InDetBeamSpotService InDetBeamSpotService-* InnerDetector/InDetConditions
+
 
 
 #packages needed for IDPerfMonZmumu
@@ -48,8 +46,6 @@ use TrkVertexAnalysisUtils   	TrkVertexAnalysisUtils-*  	Tracking/TrkVertexFitte
 use AtlasHepMC            AtlasHepMC-*        External
 use EventInfo             EventInfo-*         Event
 
-use TrkVertexFitterInterfaces  TrkVertexFitterInterfaces-*     Tracking/TrkVertexFitter
-
 public
 use AtlasROOT         		AtlasROOT-* 			  External
 use AthenaMonitoring  		AthenaMonitoring-* 		  Control
@@ -64,7 +60,6 @@ use AthenaBaseComps       	AthenaBaseComps-*  		  Control
 use TrkTrack 			TrkTrack-* 			Tracking/TrkEvent
 use TrkParameters         	TrkParameters-*         	Tracking/TrkEvent
 
-use TrkExInterfaces             TrkExInterfaces-*               Tracking/TrkExtrapolation
 use TrkParticleBase      	TrkParticleBase-*      		Tracking/TrkEvent
 #use VxVertex                 	VxVertex-*                	Tracking/TrkEvent
 use ITrackToVertex              ITrackToVertex-*                Reconstruction/RecoTools

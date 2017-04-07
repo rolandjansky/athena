@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // **********************************************************************
 // IDAlignMonTruthComparison.cxx
 // AUTHORS: Beate Heinemann, Tobias Golling
@@ -116,11 +120,11 @@ StatusCode IDAlignMonTruthComparison::bookHistograms()
   std::string outputDirName = "IDAlignMon/" + m_tracksName + "_NoTriggerSelection/TruthComparison";
   MonGroup al_mon ( this, outputDirName, run );
 
-  if ( newLowStatFlag() ) {  
+  if ( newLowStat ) {  
   }
-  if ( newLumiBlockFlag() ) {  
+  if ( newLumiBlock ) {  
   }
-  if( newRunFlag() ) { 
+  if( newRun ) { 
     
     // increase d0 and z0 range for cosmics
     if (AthenaMonManager::dataType() == AthenaMonManager::cosmics ) {
@@ -683,11 +687,11 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
 
 StatusCode IDAlignMonTruthComparison::procHistograms()
 {
-  if( endOfLowStatFlag() ) {
+  if( endOfLowStat ) {
   }
-  if( endOfLumiBlockFlag() ) {
+  if( endOfLumiBlock ) {
   }
-  if( endOfRunFlag() ) {
+  if( endOfRun ) {
 
     // deta vs eta
     m_Deta_vs_eta->FitSlicesY(0,1,0,10);

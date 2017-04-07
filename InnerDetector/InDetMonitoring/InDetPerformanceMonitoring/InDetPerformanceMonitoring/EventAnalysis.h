@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 
 // Bit of an abstract class ( not in the C++ sense )
 // designed to apply a bunch of cuts & chop up the data
