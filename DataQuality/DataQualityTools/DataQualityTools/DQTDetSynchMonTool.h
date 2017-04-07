@@ -225,36 +225,36 @@ private:
   std::multiset<uint32_t> m_rpcl1idset;
   std::multiset<uint32_t> m_pixell1idset;
 
-  int m_nevents;
+  //int m_nevents;
 
-  int m_n_sct_nrobs;
-  int m_n_trt_nrobs;
-  int m_n_lar_nrobs;
-  int m_n_tile_nrobs;
-  int m_n_pixel_nrobs;
+  //int m_n_sct_nrobs;
+  //int m_n_trt_nrobs;
+  //int m_n_lar_nrobs;
+  //int m_n_tile_nrobs;
+  //int m_n_pixel_nrobs;
   
 
-  int m_n_sct_bcid_nrobs;
-  int m_n_trt_bcid_nrobs;
-  int m_n_sct_lvl1_nrobs;
-  int m_n_trt_lvl1_nrobs;
-  int m_n_pixel_bcid_nrobs;
-  int m_n_pixel_lvl1_nrobs;
-
+  //int m_n_sct_bcid_nrobs;
+  //int m_n_trt_bcid_nrobs;
+  //int m_n_sct_lvl1_nrobs;
+  //int m_n_trt_lvl1_nrobs;
+  //int m_n_pixel_bcid_nrobs;
+  //int m_n_pixel_lvl1_nrobs;
+  
   // Use these so we don't print out endless messages!
-  bool printedErrorCTP_RIO;
-  bool printedErrorTRT_BCID;
-  bool printedErrorSCT_BCID;
-  bool printedErrorPixel_BCID;
+  bool m_printedErrorCTP_RIO;
+  bool m_printedErrorTRT_BCID;
+  bool m_printedErrorSCT_BCID;
+  bool m_printedErrorPixel_BCID;
 
-  bool printedErrorTRT_LVL1ID;
-  bool printedErrorSCT_LVL1ID;
-  bool printedErrorPixel_LVL1ID;
+  bool m_printedErrorTRT_LVL1ID;
+  bool m_printedErrorSCT_LVL1ID;
+  bool m_printedErrorPixel_LVL1ID;
 
-  bool printedErrorLAr;
-  bool printedErrorTile;
-  bool printedErrorTileCtr;
-  bool printedErrorRPC;     
+  bool m_printedErrorLAr;
+  bool m_printedErrorTile;
+  bool m_printedErrorTileCtr;
+  bool m_printedErrorRPC;     
 };
 
 #endif
