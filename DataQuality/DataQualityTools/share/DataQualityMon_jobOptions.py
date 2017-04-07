@@ -112,7 +112,7 @@ if DQMonFlags.monManEnvironment != 'tier0ESD':
     #ManagedAthenaGlobalMon.AthenaMonTools += [ DQTMuTrkMon ];
 
      # Import Det Synch tool
-    if DQMonFlags.monManEnvironment in ('tier0Raw', 'tier0'):
+    if DQMonFlags.monManEnvironment in ('tier0Raw', 'tier0') and globalflags.DataSource.get_Value() != 'geant4':
         from DataQualityTools.DataQualityToolsConf import  DQTDetSynchMonTool
         DQTDetSynchMon = DQTDetSynchMonTool(name            = 'DQTDetSynchMon',
                                             histoPathBase   = "/GLOBAL/DQTSynch",
@@ -268,14 +268,19 @@ if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet
                                                  MuonWP="LooseTrackOnly",
                                                  ElectronWP="LooseTrackOnly"
                                                  );
+    from TrigMuonMatching.TrigMuonMatchingConf import Trig__TrigMuonMatching
+    ToolSvc += Trig__TrigMuonMatching("MatchingTool");
 
     from DataQualityTools.DataQualityToolsConf import DQTGlobalWZFinderTool
     MyDQTGlobalWZFinderTool = DQTGlobalWZFinderTool(
         name  = 'DQTGlobalWZFinderTool',
         doTrigger = rec.doTrigger(),
         JetCollectionName = JetCollectionKey,
+        MuonPtCut = 27,
+        MuonMaxEta = ToolSvc.DQTMuonSelectionTool.MaxEta,
         MuonSelectionTool = ToolSvc.DQTMuonSelectionTool,
-        IsolationSelectionTool = ToolSvc.DQTIsoGradientTool
+        IsolationSelectionTool = ToolSvc.DQTIsoGradientTool,
+        MuonTrigMatchingTool = ToolSvc.MatchingTool,
     )
     ToolSvc += MyDQTGlobalWZFinderTool;
     ManagedAthenaGlobalPhysMon.AthenaMonTools += [ MyDQTGlobalWZFinderTool ];
