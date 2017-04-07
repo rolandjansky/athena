@@ -169,6 +169,7 @@ EFMissingET::EFMissingET(const std::string & name, ISvcLocator* pSvcLocator):
   m_jets=nullptr;
   m_tracks=nullptr;
   m_vertices=nullptr;
+  m_muons=nullptr;
 
   // // see the base tool for all other status bits
   // m_maskEMB_A_Missing      = 0x00010000; // bit 16
@@ -399,6 +400,7 @@ HLT::ErrorCode EFMissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   m_caloCluster = nullptr;
   m_tracks=nullptr;
   m_vertices=nullptr;
+  m_muons=nullptr;
 
   ATH_MSG_DEBUG( "Executing EFMissingET::hltExecute()" );
 
@@ -618,6 +620,24 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
    } // fetched all topo. clusters
 
 
+   //fetch muons for later use
+   if (m_doJets  && m_doTracks && tes_in.size() > 2) { // safe-guard
+      for (HLT::TEVec::const_iterator it = tes_in[2].begin(); it != tes_in[2].end(); ++it) {
+         HLT::ErrorCode status = getFeature(  (*it) , m_muons );
+
+         if(status==HLT::OK && m_muons!=nullptr) {
+            if (msgLvl() <= MSG::DEBUG) {
+               ATH_MSG_DEBUG( "size of muon container " << m_muons->size() );
+               for (xAOD::MuonContainer::const_iterator it = m_muons->begin(); it != m_muons->end(); ++it )
+                  ATH_MSG_DEBUG( " Muon pt, eta, phi: " << (*it)->pt()/1000.<<", "<< (*it)->eta()<<", "<< (*it)->phi() );
+            }
+         }
+
+      } // end loop over topoclusters
+   } // fetched all topo. clusters
+
+
+
 
   if(m_doTopoClusters && !m_caloCluster) {  // check if one should process topo. clusters and if pointer is present
      ATH_MSG_INFO( " Error: configured to run over topo. clusters but no TriggerElement was passed to the FEX -- check menu configuration!! " );
@@ -665,7 +685,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
   /// loop over tools
   for (auto& tool : m_tools) {
 
-     if ( tool->execute(m_met, m_met_help, m_caloCluster,m_jets, m_tracks, m_vertices).isFailure() ) {
+     if ( tool->execute(m_met, m_met_help, m_caloCluster,m_jets, m_tracks, m_vertices, m_muons).isFailure() ) {
            ATH_MSG_ERROR( "EFMissingET AlgTool returned Failure" );
            return HLT::ERROR;
      }

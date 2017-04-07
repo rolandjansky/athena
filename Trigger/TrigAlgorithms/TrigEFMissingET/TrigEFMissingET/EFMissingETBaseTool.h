@@ -26,6 +26,7 @@ tools must implement the execute(...) method.
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODTrigMissingET/TrigMissingET.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODMuon/MuonContainer.h"
 #include <vector>
 
 class TrigMissingET;
@@ -63,7 +64,8 @@ class EFMissingETBaseTool : public AthAlgTool
                                const xAOD::CaloClusterContainer *caloCluster,
                                const xAOD::JetContainer *jets,
                                const xAOD::TrackParticleContainer *track,
-                               const xAOD::VertexContainer *vertex);
+                               const xAOD::VertexContainer *vertex,
+                               const xAOD::MuonContainer *muon);
 
     /** save time for detector iDet at step iStep in timerTime */
     StatusCode getTime(int iDet, int iStep, float *timerTime);
