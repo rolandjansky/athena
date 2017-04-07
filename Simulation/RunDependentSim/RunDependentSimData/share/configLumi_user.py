@@ -15,7 +15,7 @@ try:
 except:
     digilog.error("Set userRunLumiOverride=\'{\"run\":1234,...}\' in preExec to use configLumi_user.py!")
     raise RuntimeError("No valid userRunLumiOverride provided.")
-keys=['run','startmu','endmu','stepmu','startlb','timestamp']
+keys=['run','mu','evts','lb','starttstamp']
 for key in userRunLumiOverride.keys():
     if key not in keys:
         raise RuntimeError("Invalid userRunLumiOverride provided, key: %s. Valid keys are: %s"%(key,keys)) 
