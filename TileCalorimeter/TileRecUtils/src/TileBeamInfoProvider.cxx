@@ -339,15 +339,32 @@ void TileBeamInfoProvider::handle(const Incident& inc) {
                   m_cispar[20] = (aux_ext >> 24) & 0x00ff; // small/large cap
                 }
                   break;
-                case 0x07: {
-                  unsigned int *iCharge = &m_cispar[17];
-                  float *fCharge = reinterpret_cast<float *>(iCharge); // this is for the charge
-                  m_cispar[17] = *fCharge;
 
+                case 0x07: {
+                  bool badpar = ((m_cispar[16] == m_cispar[17]) || (m_cispar[17] == m_cispar[18]));
                   int aux_ext = m_cispar[18];
                   m_cispar[18] = (aux_ext & 0x00ff) - 1; // pmt ext cispar starts from 1
                   m_cispar[19] = (aux_ext >> 8) & 0x00ff; // tower
                   m_cispar[20] = (aux_ext >> 16) & 0x00ff; // drawer
+
+                  if (badpar || (aux_ext>>24)!=0 || m_cispar[18]>5 || m_cispar[19]>15 || m_cispar[20]>63) {
+                    ATH_MSG_WARNING("bad cispar[16,17,18]: " << m_cispar[16] << " " << m_cispar[17] << " " << aux_ext
+                                    << "  drawer,tower,pmt: " << m_cispar[20] << " " << m_cispar[19] << " " << (int)m_cispar[18]);
+                    m_cispar[16] += 0x100; // flag bad events
+                    m_cispar[18] = 5;
+                    m_cispar[19] = 0xff;
+                    m_cispar[20] = 0xff;
+                  }
+
+                  if (m_cispar[16] != m_cispar[17]) {
+                    // Warning: nonportable.
+                    union {
+                      unsigned int i;
+                      float f;
+                    } chargeCnv;
+                    chargeCnv.i = m_cispar[17];
+                    m_cispar[17] = chargeCnv.f;
+                  }
                 }
                   break;
               }
@@ -509,7 +526,7 @@ void TileBeamInfoProvider::handle(const Incident& inc) {
   if (msgLvl(MSG::VERBOSE)) {
     msg(MSG::VERBOSE) << "BCID = " << m_BCID << endmsg;
     msg(MSG::VERBOSE) << "digi size = " << m_digiSize << endmsg;
-    msg(MSG::VERBOSE) << "zero-suppressed digi container = " << m_incompleteDigits << endreq;
+    msg(MSG::VERBOSE) << "zero-suppressed digi container = " << m_incompleteDigits << endmsg;
 
     if (m_trigType < 0)
       msg(MSG::VERBOSE) << "trig type = " << m_trigType << " (Level-1 type) " << endmsg;

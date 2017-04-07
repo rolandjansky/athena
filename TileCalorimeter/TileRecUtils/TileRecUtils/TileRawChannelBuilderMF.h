@@ -22,8 +22,7 @@
 
 // Tile includes
 #include "TileRecUtils/TileRawChannelBuilder.h"
-#include "TileConditions/TileCondToolOfc.h"
-#include "TileConditions/TileCondToolOfcCool.h"
+#include "TileConditions/ITileCondToolOfc.h"
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
 
@@ -50,7 +49,7 @@ class TileRawChannelBuilderMF: public TileRawChannelBuilder {
   private:
     ToolHandle<TileCondToolTiming> m_tileToolTiming;
     ToolHandle<ITileCondToolOfc> m_tileCondToolOfc;
-    ToolHandle<ITileCondToolOfc> m_tileCondToolOfcCool;
+    ToolHandle<ITileCondToolOfc> m_tileCondToolOfcOnFly;
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample;
 
     bool are3FF(float &dmin, float &dmax); //!< Checks that all the samples are 0x3FF (as sent by the DSP when no data arrives)
@@ -66,7 +65,6 @@ class TileRawChannelBuilderMF: public TileRawChannelBuilder {
     double m_minTime; //!< min allowed time = -25*(m_nSamples-1)/2
 
     bool m_bestPhase; // if true, use best phase from COOL DB in "fixed phase" mode (i.e., no iterations)
-    bool m_ofcFromCool; // if true, take OFCs from DB (no on-fly calculations)
     bool m_timeFromCOF; // if true, take time estimated from second step of COF
 
     std::vector<float> m_digits;

@@ -2,14 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TileEvent/TileRawChannel.h"
-
-// Gaudi includes
-#include "GaudiKernel/Property.h"
-
-// Atlas includes
-#include "AthenaKernel/errorcheck.h"
-
 // Tile includes
 #include "TileRecUtils/TileRawChannelBuilder.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
@@ -19,6 +11,17 @@
 #include "CaloIdentifier/TileID.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileInfo.h"
+#include "TileConditions/TileCablingService.h"
+#include "TileConditions/TileCablingSvc.h"
+
+#include "TileEvent/TileRawChannel.h"
+
+
+// Atlas includes
+#include "AthenaKernel/errorcheck.h"
+
+// Gaudi includes
+#include "GaudiKernel/Property.h"
 
 
 static const InterfaceID IID_ITileRawChannelBuilder("TileRawChannelBuilder", 1, 0);
@@ -79,6 +82,7 @@ TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
   , m_nChH(0)
   , m_RChSumL(0.0)
   , m_RChSumH(0.0)
+  , m_notUpgradeCabling(true)
 {
   resetDrawer();
   memset(s_error, 0, sizeof(s_error));
@@ -168,6 +172,17 @@ StatusCode TileRawChannelBuilder::initialize() {
   }
 
   if (m_dataPoollSize < 0) m_dataPoollSize = m_tileHWID->channel_hash_max();
+
+  ServiceHandle<TileCablingSvc> cablingSvc("TileCablingSvc", name());
+  CHECK( cablingSvc.retrieve());
+    
+  const TileCablingService* cabling = cablingSvc->cablingService();
+  if (!cabling) {
+    ATH_MSG_ERROR( "Unable to retrieve TileCablingService" );
+    return StatusCode::FAILURE;
+  }
+  
+  m_notUpgradeCabling = (cabling->getCablingType() != TileCablingService::UpgradeABC);
 
   return StatusCode::SUCCESS;
 }
@@ -440,7 +455,7 @@ void TileRawChannelBuilder::build(const TileDigitsCollection* coll) {
   int frag = coll->identify();
 
   // make sure that errror array is up-to-date
-  if (frag != s_lastDrawer) {
+  if (frag != s_lastDrawer && m_notUpgradeCabling) {
     fill_drawer_errors(coll);
   }
 
@@ -451,22 +466,28 @@ void TileRawChannelBuilder::build(const TileDigitsCollection* coll) {
   for (; digitItr != lastDigit; ++digitItr) {
 
     TileRawChannel* rch = rawChannel((*digitItr));
-    int err = s_error[m_tileHWID->channel(rch->adc_HWID())];
 
-    if (err) {
-      if (err == -8 || err == -7) m_overflows.push_back(std::make_pair(rch, (*digitItr)));
-      float ped = rch->pedestal() + 100000 + 10000 * err;
-      rch->setPedestal(ped);
-      if (msgLvl(MSG::VERBOSE) && !s_badDrawer) {
-        if (err < -5) {
-          msg(MSG::VERBOSE) << "BadCh " << m_tileHWID->to_string(rch->adc_HWID())
-                            << " warning = " << BadPatternName(ped) << endmsg;
-        } else {
-          msg(MSG::VERBOSE) << "BadCh " << m_tileHWID->to_string(rch->adc_HWID())
-                            << " error = " << BadPatternName(ped) << endmsg;
+    if (m_notUpgradeCabling) {
+
+      int err = s_error[m_tileHWID->channel(rch->adc_HWID())];
+      
+      if (err) {
+        if (err == -8 || err == -7) m_overflows.push_back(std::make_pair(rch, (*digitItr)));
+        float ped = rch->pedestal() + 100000 + 10000 * err;
+        rch->setPedestal(ped);
+        if (msgLvl(MSG::VERBOSE) && !s_badDrawer) {
+          if (err < -5) {
+            msg(MSG::VERBOSE) << "BadCh " << m_tileHWID->to_string(rch->adc_HWID())
+                              << " warning = " << BadPatternName(ped) << endmsg;
+          } else {
+            msg(MSG::VERBOSE) << "BadCh " << m_tileHWID->to_string(rch->adc_HWID())
+                              << " error = " << BadPatternName(ped) << endmsg;
+          }
         }
       }
+
     }
+
     m_rawChannelCnt->push_back(rch);
   }
 }
@@ -594,8 +615,19 @@ double TileRawChannelBuilder::correctAmp(double phase, bool of2) {
    */
 
   // estimation from Vakhtang for rel 14.4.0
-  double k = (phase < 0.0 ? 0.0009400 : 0.0010160);
+  /*double k = (phase < 0.0 ? 0.0009400 : 0.0010160);
   corr = (1.0 + k * phase * phase);
+  */
+
+   // Parabolic correction from Tigran
+   double a1,a2,b,c;
+   a1 = phase < 0.0 ? 0.000940774 : 0.00102111;
+   a2 = phase < 0.0 ? 0.000759051 : 0.000689625;
+   b = phase < 0.0 ? -2.0 * 7.0 * (a1 - a2) : 2.0 * 12.5 * (a1 - a2);
+   c = phase < 0.0 ? 1.0 - 7.0 * 7.0 * (a1-a2) :  1.0 - 12.5 * 12.5 * (a1-a2);
+   if (phase < 12.5 && phase > -7.0) corr = a1 * phase * phase + 1.0;
+   else corr = phase * ( a2  * phase + b) + c;
+
 
  } else {
   /*double a,b,c;
@@ -607,8 +639,19 @@ double TileRawChannelBuilder::correctAmp(double phase, bool of2) {
   corr = a + phase * ( b + c * phase);
   */
 
-  double k = (phase < 0.0 ? 0.0005241 : 0.0006167);
+  /*double k = (phase < 0.0 ? 0.0005241 : 0.0006167);
   corr = (1.0 + k * phase * phase);
+  */
+
+  // 4th degree polynomial correction from Tigran
+  double k1 = (phase < 0.0 ? -0.0000326707:0.000380336);
+  double k2 = (phase < 0.0 ? -0.000560962:-0.000670487);
+  double k3 = (phase < 0.0 ? -0.00000807869:0.00000501773);
+  double k4 = (phase < 0.0 ? -0.000000145008:0.0000000584647);
+
+  corr = 1.0 / (1.0 + (k1 + (k2  + (k3 + k4 *phase)*phase)*phase)*phase);
+
+
  }
 
   return corr;

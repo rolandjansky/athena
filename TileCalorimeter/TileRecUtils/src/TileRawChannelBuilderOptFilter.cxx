@@ -413,7 +413,7 @@ bool TileRawChannelBuilderOptFilter::are3FF() {
 }
 
 
-float TileRawChannelBuilderOptFilter::setPedestal() {
+float TileRawChannelBuilderOptFilter::getPedestal() {
   float pedestal = 0.;
 
   switch (m_pedestalMode) {
@@ -437,7 +437,7 @@ float TileRawChannelBuilderOptFilter::setPedestal() {
       break;
   }
 
-  ATH_MSG_VERBOSE("setPedestal(): pedestal=" << pedestal);
+  ATH_MSG_VERBOSE("getPedestal(): pedestal=" << pedestal);
 
   return pedestal;
 }
@@ -448,7 +448,7 @@ double TileRawChannelBuilderOptFilter::filter(int ros, int drawer, int channel
 
   ATH_MSG_VERBOSE( "Filter" );
 
-  pedestal = setPedestal();
+  pedestal = getPedestal();
   amplitude = 0.;
   time = 0.;
   int phase = 0;

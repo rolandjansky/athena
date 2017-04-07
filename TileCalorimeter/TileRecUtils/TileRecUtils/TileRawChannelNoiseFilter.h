@@ -16,6 +16,7 @@
 // Tile includes
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileRecUtils/ITileRawChannelTool.h"
+#include "TileConditions/TileCondToolEmscale.h"
 
 // forward declarations
 class TileHWID;
@@ -23,7 +24,7 @@ class TileRawChannel;
 class TileRawChannelContainer;
 class TileRawChannelCollection;
 class ITileBadChanTool;
-class TileCondToolEmscale;
+//class TileCondToolEmscale;
 class TileCondToolNoiseSample;
 class TileBeamInfoProvider;
 

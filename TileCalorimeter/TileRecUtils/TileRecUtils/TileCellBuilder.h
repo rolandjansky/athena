@@ -320,7 +320,10 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     };
 
     enum CELL_CHANNEL {E1_CHANNEL = 12};
-    enum CELL_TOWER {E1_TOWER = 10};
+    enum CELL_TOWER {E1_TOWER = 10, E1_TOWER_UPGRADE_ABC = 42};
+    int m_towerE1 = E1_TOWER;
+    bool m_notUpgradeCabling;
+    bool m_run2;
 };
 
 #endif

@@ -620,12 +620,15 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
       case 3:
         rms = m_tileInfo->DigitsPedSigma(adcId);
         if (rms > 0.0) break;
+        /* FALLTHROUGH */
       case 2:
         rms = m_pulseShapes->m_noiseNkLo[noise_channel];
         if (rms > 0.0) break;
+        /* FALLTHROUGH */
       case 1:
         rms = m_pulseShapes->m_noiseOrigLo[noise_channel];
         if (rms > 0.0) break;
+        /* FALLTHROUGH */
       default:
         rms = m_noiseLow;
     }
@@ -634,12 +637,15 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
       case 3:
         rms = m_tileInfo->DigitsPedSigma(adcId);
         if (rms > 0.0) break;
+        /* FALLTHROUGH */
       case 2:
         rms = m_pulseShapes->m_noiseNkHi[noise_channel];
         if (rms > 0.0) break;
+        /* FALLTHROUGH */
       case 1:
         rms = m_pulseShapes->m_noiseOrigHi[noise_channel];
         if (rms > 0.0) break;
+        /* FALLTHROUGH */
       default:
         rms = m_noiseHigh;
     }
