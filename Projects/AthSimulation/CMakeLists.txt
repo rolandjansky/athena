@@ -20,6 +20,9 @@ find_package( Gaudi REQUIRED )
 # Temporarily setting additional compile flags here:
 add_definitions( -DSIMULATIONBASE )
 
+set( AthSimulationBase TRUE CACHE BOOL
+   "Flag specifying that this is a simulation release build" )
+
 # Load all the files from the externals/ subdirectory:
 file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )
 foreach( _external ${_externals} )
