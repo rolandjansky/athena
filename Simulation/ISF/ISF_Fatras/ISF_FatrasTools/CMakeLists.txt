@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
                           GaudiKernel
-                          Simulation/Barcode/BarcodeInterfaces
+                          Simulation/Barcode/BarcodeEvent
                           Simulation/ISF/ISF_Core/ISF_Event
                           Simulation/ISF/ISF_Core/ISF_Interfaces
                           Simulation/ISF/ISF_Fatras/ISF_FatrasInterfaces

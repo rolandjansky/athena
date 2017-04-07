@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           DetectorDescription/AtlasDetDescr
+                          Simulation/Barcode/BarcodeEvent
                           Simulation/Barcode/BarcodeInterfaces
                           Simulation/G4Sim/TrackRecord
                           Simulation/ISF/ISF_Core/ISF_Event

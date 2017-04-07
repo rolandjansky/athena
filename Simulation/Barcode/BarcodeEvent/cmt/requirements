@@ -1,9 +1,7 @@
-package BarcodeInterfaces
-author <Andreas.Salzburger@cern.ch>
+package BarcodeEvent
+author <Elmar.Ritsch@cern.ch>
 
 public
 use AtlasPolicy                	AtlasPolicy-*                   
 use GaudiInterface             	GaudiInterface-*       		External
-use BarcodeEvent                BarcodeEvent-*              Simulation/Barcode
 end_public
-

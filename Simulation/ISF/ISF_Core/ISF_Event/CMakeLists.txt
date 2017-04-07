@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/GeoPrimitives
                           GaudiKernel
-                          Simulation/Barcode/BarcodeInterfaces )
+                          Simulation/Barcode/BarcodeEvent )
 
 # External dependencies:
 find_package( CLHEP )

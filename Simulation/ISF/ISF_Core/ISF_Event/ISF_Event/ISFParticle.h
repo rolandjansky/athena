@@ -12,7 +12,7 @@
 // Gaudi Kernel
 #include "GaudiKernel/MsgStream.h"
 // Barcode includes
-#include "BarcodeInterfaces/Barcode.h"
+#include "BarcodeEvent/Barcode.h"
 // ISF include
 #include "ISF_Event/TruthBinding.h"
 #include "ISF_Event/SimSvcID.h"
