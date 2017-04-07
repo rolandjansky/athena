@@ -325,6 +325,20 @@ class CaloClusterTopoGetter ( Configured )  :
                                                "TileExt0","TileExt1","TileExt2",
                                                "HEC0","HEC1","HEC2","HEC3",
                                                "FCAL1","FCAL2"]
+
+        
+        from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+        GeoModelSvc = GeoModelSvc()
+        if (jp.Global.DetDescrVersion().endswith('TileUpgradeBC') or
+            jp.Global.DetDescrVersion().endswith('TileUpgradeABC') or
+            (hasattr(GeoModelSvc, 'CaloVersionOverride') and
+             (GeoModelSvc.CaloVersionOverride.endswith('TileUpgradeBC') or
+              GeoModelSvc.CaloVersionOverride.endswith('TileUpgradeABC')))):
+
+            # Tile upgrade geometry with splitted BC layers is detected,
+            # adding "TileGap1" sampling to secondary samplings to consider for local maxima.
+            TopoSplitter.SecondarySamplingNames += ["TileGap1"]
+
         TopoSplitter.ShareBorderCells = True
         TopoSplitter.RestrictHECIWandFCalNeighbors  = False
         #
