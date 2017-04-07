@@ -155,7 +155,7 @@ namespace LArG4 {
       //Now navigate through the volumes hierarchy
       for (G4int ii=0;ii<=ndep;ii++) {
         // FIXME Need to find a way to avoid these string-comparisons
-        const G4string& vname = g4navigation->GetVolume(ii)->GetName();
+        const G4String& vname = g4navigation->GetVolume(ii)->GetName();
         if (idep<0 && vname==fullPSName) idep=ii;    // half barrel
         else if (!isTestBeam && vname==fullCryoName) isTestBeam=true;  // TB or not ?
         else if (!iactive && vname==fullModuleName) iactive=true;
@@ -275,7 +275,7 @@ namespace LArG4 {
       const G4int zSide(this->determineZSide(isTestBeam, p.z()));
 
       // eta,phi in "local" half barrel coordinates
-      const G4double phi (ploc2.phi() < 0.) ? ploc2.phi()+2.*M_PI : ploc2.phi();
+      const G4double phi = (ploc2.phi() < 0.) ? ploc2.phi()+2.*M_PI : ploc2.phi();
       const G4double eta = ploc2.eta();
       //G4double z2=fabs(ploc2.z());
 
