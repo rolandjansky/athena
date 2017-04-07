@@ -34,7 +34,7 @@ atlas_add_component( ISF_Algorithms
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps StoreGate CxxUtils AtlasDetDescr GeneratorObjects ISF_Event ISF_Interfaces PmbCxxUtils InDetSimEvent LArSimEvent TileSimEvent MuonSimEvent )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps StoreGateLib CxxUtils AtlasDetDescr GeneratorObjects ISF_Event ISF_Interfaces PmbCxxUtils InDetSimEvent LArSimEvent TileSimEvent MuonSimEvent )
 
 atlas_add_test( CollectionMerger_test
                 SOURCES test/CollectionMerger_test.cxx src/*.cxx
