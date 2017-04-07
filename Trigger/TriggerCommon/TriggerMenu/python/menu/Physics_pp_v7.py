@@ -2360,6 +2360,19 @@ def setupMenu():
         #['g80_loose_L1EM26VHI_xe80noL1',           'L1_EM26VHI', ['L1_EM26VHI',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g80_loose_L1EM26VHI","xe80noL1"]]],
         ['g45_tight_L1EM24VHI', 'L1_EM24VHI', [], [PhysicsStream], ['RATE:ElectronPhoton', 'BW:Egamma'], -1],
         #['g45_tight_L1EM26VHI', 'L1_EM26VHI', [], [PhysicsStream], ['RATE:ElectronPhoton', 'BW:Egamma'], -1],
+
+        ['g40_tight_icalovloose_xe40noL1', 	        'L1_EM20VHI', ['L1_EM20VHI',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g40_tight_icalovloose","xe40noL1"]]],
+        ['g45_tight_icalovloose_xe40noL1',           'L1_EM20VHI', ['L1_EM20VHI',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g45_tight_icalovloose","xe40noL1"]]],
+        ['g45_tight_icalovloose_xe45noL1', 	        'L1_EM20VHI', ['L1_EM20VHI',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g45_tight_icalovloose","xe45noL1"]]],
+        ['g45_tight_icalovloose_L1EM22VHI_xe45noL1', 'L1_EM22VHI', ['L1_EM22VHI',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g45_tight_icalovloose_L1EM22VHI","xe45noL1"]]],
+        ['g45_tight_icalovloose_L1EM24VHI_xe45noL1', 'L1_EM24VHI', ['L1_EM24VHI',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g45_tight_icalovloose_L1EM24VHI","xe45noL1"]]],
+        ['g80_loose_icalovloose_xe80noL1',           'L1_EM22VHI', ['L1_EM22VHI',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g80_loose_icalovloose","xe80noL1"]]],
+        ['g80_loose_icalovloose_L1EM24VHI_xe80noL1', 'L1_EM24VHI', ['L1_EM24VHI',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g80_loose_icalovloose_L1EM24VHI","xe80noL1"]]],
+        ['g85_tight_icalovloose_3j50noL1_L1EM22VHI',  'L1_EM22VHI', ['L1_EM22VHI',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g85_tight_icalovloose","3j50noL1_L1EM22VHI"]]],
+        ['g100_tight_icalovloose_3j50noL1_L1EM22VHI', 'L1_EM22VHI', ['L1_EM22VHI',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g100_tight_icalovloose","3j50noL1_L1EM22VHI"]]],
+        ['g85_tight_icalovloose_3j50noL1_L1EM24VHI', 'L1_EM24VHI', ['L1_EM24VHI',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g85_tight_icalovloose","3j50noL1_L1EM24VHI"]]],
+        ['g100_tight_icalovloose_3j50noL1_L1EM24VHI', 'L1_EM24VHI', ['L1_EM24VHI',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g100_tight_icalovloose","3j50noL1_L1EM24VHI"]]],
+
         #ATR-14196
         ['g80_loose_xe80noL1',           'L1_EM22VHI', ['L1_EM22VHI',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g80_loose","xe80noL1"]]],
 
@@ -2572,12 +2585,12 @@ def setupMenu():
         # alternative HLT photon and di-muon chains with L1EM24VHI seed
         ['g35_loose_L1EM24VHI_mu18noL1',        'L1_EM24VHI', ['L1_EM24VHI', ''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g35_loose_L1EM24VHI','mu18noL1'] ]],
         ['g35_loose_L1EM24VHIM_mu18noL1',        'L1_EM24VHIM', ['L1_EM24VHIM', ''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g35_loose_L1EM24VHIM','mu18noL1'] ]],
-        ['g35_tight_itight_L1EM24VHIM_mu18noL1',        'L1_EM24VHIM', ['L1_EM24VHIM', ''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g35_tight_itight_L1EM24VHIM','mu18noL1'] ]],
-        ['g40_tight_itight_L1EM24VHIM_mu18noL1',        'L1_EM24VHIM', ['L1_EM24VHIM', ''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g40_tight_itight_L1EM24VHIM','mu18noL1'] ]],
+        ['g35_tight_icalotight_L1EM24VHIM_mu18noL1',        'L1_EM24VHIM', ['L1_EM24VHIM', ''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g35_tight_icalotight_L1EM24VHIM','mu18noL1'] ]],
+        ['g40_tight_icalotight_L1EM24VHIM_mu18noL1',        'L1_EM24VHIM', ['L1_EM24VHIM', ''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g40_tight_icalotight_L1EM24VHIM','mu18noL1'] ]],
         ['g35_loose_L1EM24VHI_mu15noL1_mu2noL1', 'L1_EM24VHI', ['L1_EM24VHI', '',''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g35_loose_L1EM24VHI','mu15noL1','mu2noL1']]],
         ['g35_loose_L1EM24VHIM_mu15noL1_mu2noL1', 'L1_EM24VHIM', ['L1_EM24VHIM', '',''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g35_loose_L1EM24VHIM','mu15noL1','mu2noL1']]],
-        ['g35_tight_itight_L1EM24VHIM_mu15noL1_mu2noL1', 'L1_EM24VHIM', ['L1_EM24VHIM', '',''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g35_tight_itight_L1EM24VHIM','mu15noL1','mu2noL1']]],
-        ['g40_tight_itight_L1EM24VHIM_mu15noL1_mu2noL1', 'L1_EM24VHIM', ['L1_EM24VHIM', '',''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g40_tight_itight_L1EM24VHIM','mu15noL1','mu2noL1']]],
+        ['g35_tight_icalotight_L1EM24VHIM_mu15noL1_mu2noL1', 'L1_EM24VHIM', ['L1_EM24VHIM', '',''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g35_tight_icalotight_L1EM24VHIM','mu15noL1','mu2noL1']]],
+        ['g40_tight_icalotight_L1EM24VHIM_mu15noL1_mu2noL1', 'L1_EM24VHIM', ['L1_EM24VHIM', '',''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g40_tight_icalotight_L1EM24VHIM','mu15noL1','mu2noL1']]],
         #['g35_loose_L1EM26VHI_mu18noL1',        'L1_EM26VHI', ['L1_EM26VHI', ''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g35_loose_L1EM26VHI','mu18noL1'] ]],
         #['g35_loose_L1EM26VHI_mu15noL1_mu2noL1', 'L1_EM26VHI', ['L1_EM26VHI', '',''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g35_loose_L1EM26VHI','mu15noL1','mu2noL1']]],
 
