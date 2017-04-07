@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import os,sys
-from RunTimeTester.get_release_2017 import (fn2dt, _get_release)
+from get_release_2017 import (fn2dt, _get_release)
 
 __author__ = 'Renaud Bruneliere <Renaud.Bruneliere@cern.ch>'
 __doc__    = 'Call compareTCTs.py from Walter Lampl available in Tools/PROCTools.'

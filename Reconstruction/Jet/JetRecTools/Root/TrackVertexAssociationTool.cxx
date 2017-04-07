@@ -48,20 +48,11 @@ int TrackVertexAssociationTool::execute() const {
     return 1;
   }
 
-  // If this is a view container, then we assume that it contains elements from only one owning container
+  // Check this is not a view container.
   if ( trackContainer->ownPolicy() != SG::OWN_ELEMENTS ) {
-    bool oneOwningContainer(true);
-    for(const auto& track : *trackContainer) {
-      if(track->container() != trackContainer->front()->container()) {
-	oneOwningContainer=false;
-	break;
-      }
-    }
-    if(!oneOwningContainer) {
-      ATH_MSG_ERROR("Track view container holds track from multiple owning containers.");
-      ATH_MSG_ERROR("Problem is this container: " << m_trackContainer);
-      return 11;
-    }
+    ATH_MSG_ERROR("Track container must hold track directly. View container is not allowed.");
+    ATH_MSG_ERROR("Problem is this container: " << m_trackContainer);
+    return 11;
   }
 
   // Get input vertex collection
