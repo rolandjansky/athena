@@ -21,6 +21,7 @@
 class CaloCellContainer;
 class CaloCell;
 class LArDigit;
+class ICalorimeterNoiseTool;
 class TFile;
 class TH1I;
 class TH1F;
@@ -50,6 +51,7 @@ private :
 	/** base histograms about super-cells */
         TTree* m_evt;
         TTree* m_selectron;
+        TTree* m_selectronLAr;
 	TTree* m_truth;
 	TTree* m_l1;
 	TTree* m_offelectron;
@@ -59,7 +61,12 @@ private :
 	int m_counter;
 	/** some keys */
 	std::string m_inputClusterName;
+	std::string m_inputLArName;
         std::string m_inputLvl1Name;
+
+	ToolHandle< ICalorimeterNoiseTool > m_noiseTool;
+	float  m_etInSigma;
+	float  m_et;
 
 	/** branch address */
 	std::vector<float> m_selectron_et;
@@ -75,6 +82,12 @@ private :
 	std::vector<float> m_selectron_e3;
 	std::vector<float> m_selectron_wstot;
 	std::vector<float> m_selectron_time;
+
+	std::vector<float> m_selectronLAr_eta;
+	std::vector<float> m_selectronLAr_phi;
+	std::vector<float> m_selectronLAr_fracs1;
+	std::vector<float> m_selectronLAr_Eratio;
+	std::vector<float> m_selectronLAr_wstot;
 
 	std::vector<float> m_truth_pt;
 	std::vector<float> m_truth_eta;
@@ -118,6 +131,7 @@ private :
 	std::vector< std::vector<float> > m_allcell_infront_layer;
 	std::vector< std::vector<float> > m_allcell_infront_time;
 	std::vector< std::vector<float> > m_allcell_infront_quality;
+	bool m_saveLa1Cells;
 };
 
 
