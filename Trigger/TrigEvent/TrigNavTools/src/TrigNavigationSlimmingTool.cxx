@@ -782,7 +782,12 @@ namespace {
 
 StatusCode HLT::TrigNavigationSlimmingTool::syncThinning( ) {
   ATH_MSG_DEBUG ( "Running the syncThinning" );
-  for(auto holder : m_navigation->m_holderstorage.getAllHolders<HLTNavDetails::IHolder>()) {
+  auto holders = m_navigation->m_holderstorage.getAllHolders<HLTNavDetails::IHolder>();
+  for(auto holder : holders) {
+    if ( not evtStore()->contains(holder->containerClid(), holder->label() ) ) {
+      ATH_MSG_DEBUG("Skipping feature missing in the store: " << holder->label());
+      continue;
+    }
       holder->syncWithSG();
       auto containerPointer = holder->containerTypeProxy().cptr();
       if ( m_thinningSvc->thinningOccurred(containerPointer)  )  {
