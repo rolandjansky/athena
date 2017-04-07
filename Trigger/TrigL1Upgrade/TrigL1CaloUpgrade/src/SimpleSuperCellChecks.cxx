@@ -17,11 +17,13 @@
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "xAODTracking/VertexContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TH1I.h"
 #include <math.h>
+#include "BCID.h"
 
 SimpleSuperCellChecks::SimpleSuperCellChecks( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm (name, pSvcLocator), m_scidtool("CaloSuperCellIDTool")  {
 }
@@ -73,10 +75,10 @@ StatusCode SimpleSuperCellChecks::initialize(){
         m_EtSCells_perLayer.push_back( new TH1F( "EtCells_EMB2", "EtCells EMB2",60,0,10e3) );
         m_EtSCells_perLayer.push_back( new TH1F( "EtCells_EMB3", "EtCells EMB3",60,0,10e3) );
 
-        m_EtaSCells_perLayer.push_back( new TH1F( "EtaCells_PreSamplerB", "EtaCells PreSamplerB",60,-1.5,1.5) );
+        m_EtaSCells_perLayer.push_back( new TH1F( "EtaCells_PreSamplerB", "EtaCells PreSamplerB",30,-1.5,1.5) );
         m_EtaSCells_perLayer.push_back( new TH1F( "EtaCells_EMB1", "EtaCells EMB1",60,-1.5,1.5) );
         m_EtaSCells_perLayer.push_back( new TH1F( "EtaCells_EMB2", "EtaCells EMB2",60,-1.5,1.5) );
-        m_EtaSCells_perLayer.push_back( new TH1F( "EtaCells_EMB3", "EtaCells EMB3",60,-1.5,1.5) );
+        m_EtaSCells_perLayer.push_back( new TH1F( "EtaCells_EMB3", "EtaCells EMB3",30,-1.5,1.5) );
 
         m_PhiSCells_perLayer.push_back( new TH1F( "PhiCells_PreSamplerB", "PhiCells PreSamplerB",64,-M_PI,M_PI) );
         m_PhiSCells_perLayer.push_back( new TH1F( "PhiCells_EMB1", "PhiCells EMB1",64,-M_PI,M_PI) );
@@ -103,10 +105,10 @@ StatusCode SimpleSuperCellChecks::initialize(){
 	m_resol_vs_et_perLayer.push_back( new TH2F("resol_vs_et_EMB2","resol vs et EMB2",120,0,60,60,-30,30) );
 	m_resol_vs_et_perLayer.push_back( new TH2F("resol_vs_et_EMB3","resol vs et EMB3",120,0,60,60,-30,30) );
 
-	m_resol_vs_eta_perLayer.push_back( new TH2F("resol_vs_eta_PreSamplerB","resol vs #eta PreSamplerB",60,-1.5,1.5,60,-30,30) );
+	m_resol_vs_eta_perLayer.push_back( new TH2F("resol_vs_eta_PreSamplerB","resol vs #eta PreSamplerB",30,-1.5,1.5,60,-30,30) );
 	m_resol_vs_eta_perLayer.push_back( new TH2F("resol_vs_eta_EMB1","resol vs #eta EMB1",60,-1.5,1.5,60,-30,30) );
 	m_resol_vs_eta_perLayer.push_back( new TH2F("resol_vs_eta_EMB2","resol vs #eta EMB2",60,-1.5,1.5,60,-30,30) );
-	m_resol_vs_eta_perLayer.push_back( new TH2F("resol_vs_eta_EMB3","resol vs #eta EMB3",60,-1.5,1.5,60,-30,30) );
+	m_resol_vs_eta_perLayer.push_back( new TH2F("resol_vs_eta_EMB3","resol vs #eta EMB3",30,-1.5,1.5,60,-30,30) );
 
         m_TimeResolAT_perLayer.push_back( new TH1F("timeResol_AT_PreSamplerB","time resol PreSamplerB",200,-100.0,100.0) );
         m_TimeResolAT_perLayer.push_back( new TH1F("timeResol_AT_EMB1","time resol EMB1",200,-100.0,100.0) );
@@ -118,6 +120,15 @@ StatusCode SimpleSuperCellChecks::initialize(){
 	m_resol_vs_nvtx_perLayer.push_back( new TH2F("resol_vs_nvtx_EMB2","resol vs nvtx EMB2",120,0,120,60,-30,30) );
 	m_resol_vs_nvtx_perLayer.push_back( new TH2F("resol_vs_nvtx_EMB3","resol vs nvtx EMB3",120,0,120,60,-30,30) );
 
+	m_resol_vs_bcid_perLayer.push_back( new TH2F("resol_vs_bcid_PreSamplerB","resol vs bcid PreSamplerB",3500,0,3500,60,-30,30) );
+	m_resol_vs_bcid_perLayer.push_back( new TH2F("resol_vs_bcid_EMB1","resol vs bcid EMB1",3500,0,3500,60,-30,30) );
+	m_resol_vs_bcid_perLayer.push_back( new TH2F("resol_vs_bcid_EMB2","resol vs bcid EMB2",3500,0,3500,60,-30,30) );
+	m_resol_vs_bcid_perLayer.push_back( new TH2F("resol_vs_bcid_EMB3","resol vs bcid EMB3",3500,0,3500,60,-30,30) );
+
+	m_resol_vs_bcidN_perLayer.push_back( new TH2F("resol_vs_bcidN_PreSamplerB","resol vs bcidN PreSamplerB",150,0,150,60,-30,30) );
+	m_resol_vs_bcidN_perLayer.push_back( new TH2F("resol_vs_bcidN_EMB1","resol vs bcidN EMB1",150,0,150,60,-30,30) );
+	m_resol_vs_bcidN_perLayer.push_back( new TH2F("resol_vs_bcidN_EMB2","resol vs bcidN EMB2",150,0,150,60,-30,30) );
+	m_resol_vs_bcidN_perLayer.push_back( new TH2F("resol_vs_bcidN_EMB3","resol vs bcidN EMB3",150,0,150,60,-30,30) );
 
 	m_file->cd("/");
 	m_file->mkdir("EMEC");
@@ -172,6 +183,16 @@ StatusCode SimpleSuperCellChecks::initialize(){
 	m_resol_vs_nvtx_perLayer.push_back( new TH2F("resol_vs_nvtx_EME2","resol vs nvtx EME2",120,0,120,60,-30,30) );
 	m_resol_vs_nvtx_perLayer.push_back( new TH2F("resol_vs_nvtx_EME3","resol vs nvtx EME3",120,0,120,60,-30,30) );
 
+	m_resol_vs_bcid_perLayer.push_back( new TH2F("resol_vs_bcid_PreSamplerE","resol vs bcid PreSamplerE",3500,0,3500,60,-30,30) );
+	m_resol_vs_bcid_perLayer.push_back( new TH2F("resol_vs_bcid_EME1","resol vs bcid EME1",3500,0,3500,60,-30,30) );
+	m_resol_vs_bcid_perLayer.push_back( new TH2F("resol_vs_bcid_EME2","resol vs bcid EME2",3500,0,3500,60,-30,30) );
+	m_resol_vs_bcid_perLayer.push_back( new TH2F("resol_vs_bcid_EME3","resol vs bcid EME3",3500,0,3500,60,-30,30) );
+
+	m_resol_vs_bcidN_perLayer.push_back( new TH2F("resol_vs_bcidN_PreSamplerE","resol vs bcidN PreSamplerE",150,0,150,60,-30,30) );
+	m_resol_vs_bcidN_perLayer.push_back( new TH2F("resol_vs_bcidN_EME1","resol vs bcidN EME1",150,0,150,60,-30,30) );
+	m_resol_vs_bcidN_perLayer.push_back( new TH2F("resol_vs_bcidN_EME2","resol vs bcidN EME2",150,0,150,60,-30,30) );
+	m_resol_vs_bcidN_perLayer.push_back( new TH2F("resol_vs_bcidN_EME3","resol vs bcidN EME3",150,0,150,60,-30,30) );
+
         m_TimeResolAT_perLayer.push_back( new TH1F("timeResol_AT_PreSamplerE","time resol PreSamplerE",200,-100.0,100.0) );
         m_TimeResolAT_perLayer.push_back( new TH1F("timeResol_AT_EME1","time resol EME1",200,-100.0,100.0) );
         m_TimeResolAT_perLayer.push_back( new TH1F("timeResol_AT_EME2","time resol EME2",200,-100.0,100.0) );
@@ -192,6 +213,8 @@ StatusCode SimpleSuperCellChecks::initialize(){
 	m_resol_vs_et_perLayer.push_back( new TH2F("resol_vs_et_HEC","resol vs et HEC",120,0,60,60,-30,30) );
 	m_resol_vs_eta_perLayer.push_back( new TH2F("resol_vs_eta_HEC","resol vs #eta HEC",50,-5,5,60,-30,30) );
 	m_resol_vs_nvtx_perLayer.push_back( new TH2F("resol_vs_nvtx_HEC","resol vs nvtx HEC",120,0,120,60,-30,30) );
+	m_resol_vs_bcid_perLayer.push_back( new TH2F("resol_vs_bcid_HEC","resol vs bcid HEC",3500,0,3500,60,-30,30) );
+	m_resol_vs_bcidN_perLayer.push_back( new TH2F("resol_vs_bcidN_HEC","resol vs bcidN HEC",150,0,150,60,-30,30) );
 
 
         m_TimeResolAT_perLayer.push_back( new TH1F("timeResol_AT_HEC","time resol HEC",200,-100.0,100.0) );
@@ -240,6 +263,14 @@ StatusCode SimpleSuperCellChecks::initialize(){
 	m_resol_vs_nvtx_perLayer.push_back( new TH2F("resol_vs_nvtx_FCAL1","resol vs nvtx FCAL1",120,0,120,60,-30,30) );
 	m_resol_vs_nvtx_perLayer.push_back( new TH2F("resol_vs_nvtx_FCAL2","resol vs nvtx FCAL2",120,0,120,60,-30,30) );
 
+	m_resol_vs_bcid_perLayer.push_back( new TH2F("resol_vs_bcid_FCAL0","resol vs bcid FCAL0",3500,0,3500,60,-30,30) );
+	m_resol_vs_bcid_perLayer.push_back( new TH2F("resol_vs_bcid_FCAL1","resol vs bcid FCAL1",3500,0,3500,60,-30,30) );
+	m_resol_vs_bcid_perLayer.push_back( new TH2F("resol_vs_bcid_FCAL2","resol vs bcid FCAL2",3500,0,3500,60,-30,30) );
+
+	m_resol_vs_bcidN_perLayer.push_back( new TH2F("resol_vs_bcidN_FCAL0","resol vs bcidN FCAL0",150,0,150,60,-30,30) );
+	m_resol_vs_bcidN_perLayer.push_back( new TH2F("resol_vs_bcidN_FCAL1","resol vs bcidN FCAL1",150,0,150,60,-30,30) );
+	m_resol_vs_bcidN_perLayer.push_back( new TH2F("resol_vs_bcidN_FCAL2","resol vs bcidN FCAL2",150,0,150,60,-30,30) );
+
         m_TimeResolAT_perLayer.push_back( new TH1F("timeResol_AT_FCAL0","time resol FCAL0",200,-100.0,100.0) );
         m_TimeResolAT_perLayer.push_back( new TH1F("timeResol_AT_FCAL1","time resol FCAL1",200,-100.0,100.0) );
         m_TimeResolAT_perLayer.push_back( new TH1F("timeResol_AT_FCAL2","time resol FCAL2",200,-100.0,100.0) );
@@ -278,6 +309,16 @@ StatusCode SimpleSuperCellChecks::initialize(){
 	m_resol_vs_nvtx_perLayer.push_back( new TH2F("resol_vs_nvtx_EME22","resol vs nvtx EME22",120,0,120,60,-30,30) );
 	m_resol_vs_nvtx_perLayer.push_back( new TH2F("resol_vs_nvtx_EME32","resol vs nvtx EME32",120,0,120,60,-30,30) );
 
+	m_resol_vs_bcid_perLayer.push_back( new TH2F("resol_vs_bcid_PreSamplerE2","resol vs bcid PreSamplerE2",120,0,120,60,-30,30) );
+	m_resol_vs_bcid_perLayer.push_back( new TH2F("resol_vs_bcid_EME12","resol vs bcid EME12",120,0,120,60,-30,30) );
+	m_resol_vs_bcid_perLayer.push_back( new TH2F("resol_vs_bcid_EME22","resol vs bcid EME22",120,0,120,60,-30,30) );
+	m_resol_vs_bcid_perLayer.push_back( new TH2F("resol_vs_bcid_EME32","resol vs bcid EME32",120,0,120,60,-30,30) );
+
+	m_resol_vs_bcidN_perLayer.push_back( new TH2F("resol_vs_bcidN_PreSamplerE2","resol vs bcidN PreSamplerE2",150,0,150,60,-30,30) );
+	m_resol_vs_bcidN_perLayer.push_back( new TH2F("resol_vs_bcidN_EME12","resol vs bcidN EME12",150,0,150,60,-30,30) );
+	m_resol_vs_bcidN_perLayer.push_back( new TH2F("resol_vs_bcidN_EME22","resol vs bcidN EME22",150,0,150,60,-30,30) );
+	m_resol_vs_bcidN_perLayer.push_back( new TH2F("resol_vs_bcidN_EME32","resol vs bcidN EME32",150,0,150,60,-30,30) );
+
         m_TimeResolAT_perLayer.push_back( new TH1F("timeResol_AT_PreSamplerE2","time resol PreSamplerE2",200,-100.0,100.0) );
         m_TimeResolAT_perLayer.push_back( new TH1F("timeResol_AT_EME12","time resol EME12",200,-100.0,100.0) );
         m_TimeResolAT_perLayer.push_back( new TH1F("timeResol_AT_EME22","time resol EME22",200,-100.0,100.0) );
@@ -287,6 +328,9 @@ StatusCode SimpleSuperCellChecks::initialize(){
 	m_resolution = new TH1F("resolution","resolution",60,-30,30);
 	m_resol_vs_et = new TH2F("resol_vs_et","resol vs et",120,0,60,60,-30,30);
 	m_resol_vs_eta = new TH2F("resol_vs_eta","resol vs #eta",50,-5,5,60,-30,30);
+	m_resol_vs_nvtx = new TH2F("resol_vs_nvtx","resol vs nvtx",120,0,120,60,-30,30);
+	m_resol_vs_bcid = new TH2F("resol_vs_bcid","resol vs bcid",3500,0,3500,60,-30,30);
+	m_resol_vs_bcidN = new TH2F("resol_vs_bcidN","resol vs bcidN",150,0,150,60,-30,30);
 
 	// for cell <-> SCell comparison
 	if ( m_scidtool.retrieve().isFailure() ){
@@ -308,6 +352,16 @@ StatusCode SimpleSuperCellChecks::execute(){
 	
         MsgStream msg(msgSvc(), name());
 	msg << MSG::DEBUG << "execute SimpleSuperCellChecks" << endreq;
+	const xAOD::EventInfo* evt(0);
+	if ( evtStore()->retrieve(evt,"EventInfo").isFailure() ){
+		msg << MSG::WARNING << "did not find EventInfo container" << endreq;
+	}
+	long bunch_crossing(-1);
+	long bunch_crossingNor(-1);
+	if ( evt ) {
+	   bunch_crossing = evt->bcid();
+	   bunch_crossingNor = bcids_from_start ( bunch_crossing );
+	}
         const CaloCellContainer* scells;
         const CaloCellContainer* allcalo(NULL);
 	if ( evtStore()->retrieve(scells,"SCell").isFailure() ){
@@ -450,6 +504,9 @@ StatusCode SimpleSuperCellChecks::execute(){
 			if ( sc_ets[idx] > 1000 ){
 			m_resol_vs_eta->Fill( scell->eta(), resol);
 			}
+			m_resol_vs_nvtx->Fill( nvtxs, resol);
+			m_resol_vs_bcid->Fill( bunch_crossing, resol);
+			m_resol_vs_bcidN->Fill( bunch_crossingNor, resol);
 		}
 		float sc_time = 0.0;
 		float sc_timew = 0.0;
@@ -552,10 +609,14 @@ StatusCode SimpleSuperCellChecks::execute(){
 		if ( sc_ets[idx] > 1000 ){
 			m_TimeSCellsAT->Fill ( scell->time() );
 			m_QualitySCellsAT->Fill ( scell->provenance() );
-			if ( scell->provenance() & 0x40 ) m_resolutionBCID_perLayer[index+index2]->Fill(resol);
 			m_resolutionMEt_perLayer[index+index2]->Fill(resol);
+			if ( scell->provenance() & 0x40 ) m_resolutionBCID_perLayer[index+index2]->Fill(resol);
+			if ( sc_ets[idx] > 2000 ) {
 			m_resol_vs_eta_perLayer[index+index2]->Fill( scell->eta(), resol);
 			m_resol_vs_nvtx_perLayer[index+index2]->Fill( nvtxs, resol);
+			m_resol_vs_bcid_perLayer[index+index2]->Fill( bunch_crossing, resol);
+			m_resol_vs_bcidN_perLayer[index+index2]->Fill( bunch_crossingNor, resol);
+			}
 			if ( scell->et() > 4e3 ) {
 				m_TimeResolAT_perLayer[index+index2]->Fill( res_time );
 			}

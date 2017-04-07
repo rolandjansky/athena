@@ -22,7 +22,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTruth
                           LArCalorimeter/LArRawEvent
                           LArCalorimeter/LArTools
-			  LArCalorimeter/LArCabling )
+			  LArCalorimeter/LArCabling
+			  Calorimeter/CaloInterface )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

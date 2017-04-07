@@ -23,6 +23,8 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODTrigger/EmTauRoIContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -30,10 +32,16 @@
 #include "TTree.h"
 #include "TNtuple.h"
 #include <math.h>
+#include "BCID.h"
 
 DumpAll::DumpAll( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm (name, pSvcLocator), m_cabling("LArSuperCellCablingTool")  {
        declareProperty("InputClusterName", m_inputClusterName = "SCluster" );
+       declareProperty("InputLArFexName", m_inputLArName = "LArLayer1Vars" );
        declareProperty("InputLvl1Name", m_inputLvl1Name = "LVL1EmTauRoIs" );
+       declareProperty("SaveLayer1Cells", m_saveLa1Cells = false );
+       declareProperty("CaloNoiseTool",m_noiseTool,"Tool Handle for noise tool");
+       declareProperty("EtInSigma", m_etInSigma = -1.0, "sigma cut");
+       declareProperty("Et", m_et = 100.0, "et cut");
 }
 
 DumpAll::~DumpAll(){}
@@ -42,13 +50,16 @@ StatusCode DumpAll::initialize(){
 	
         MsgStream msg(msgSvc(), name());
 	msg << MSG::DEBUG << "initializing DumpAll" << endreq;
+	if ( (m_etInSigma > 0 ) && ( m_et > 0 ) )
+	msg << MSG::WARNING << "Configuration issue" << endreq;
+	if ( m_etInSigma > 0 ) m_noiseTool.retrieve().ignore();
         m_counter = 0;
 	std::string filename=name();
 	filename+=".DumpAll.root";
 	m_file = new TFile (filename.c_str(),"RECREATE");
 	m_file->mkdir("DumpAll");
 	m_file->cd("DumpAll");
-	m_evt = (TTree*)new TNtuple("Evt","Evt","count:event_number:nVtx");
+	m_evt = (TTree*)new TNtuple("Evt","Evt","count:event_number:bunch_crossing:bunch_crossingNor:nVtx");
 	//m_truth = (TTree*)new TNtuple("Truth","Truth","count:truth_pt:truth_eta:truth_phi:truth_pdg:truth_barcode");
 	m_truth = (TTree*)new TTree("Truth","Truth");
 	m_truth->Branch("truth_pt",    &m_truth_pt);
@@ -83,6 +94,13 @@ StatusCode DumpAll::initialize(){
 	m_selectron->Branch("selectron_wstot"    ,&m_selectron_wstot);
 	m_selectron->Branch("selectron_time"    ,&m_selectron_time);
 
+        m_selectronLAr = new TTree("SClusterLAr","SClusterLAr");
+        m_selectronLAr->Branch("selectronLAr_eta"    ,&m_selectronLAr_eta);
+        m_selectronLAr->Branch("selectronLAr_phi"    ,&m_selectronLAr_phi);
+        m_selectronLAr->Branch("selectronLAr_Eratio"    ,&m_selectronLAr_Eratio);
+        m_selectronLAr->Branch("selectronLAr_fracs1"    ,&m_selectronLAr_fracs1);
+        m_selectronLAr->Branch("selectronLAr_wstot"    ,&m_selectronLAr_wstot);
+
 	m_offelectron = new TTree("OffEl","OffEl");
 	m_offelectron->Branch("offel_et", &m_offel_et);
 	m_offelectron->Branch("offel_eta", &m_offel_eta);
@@ -105,7 +123,8 @@ StatusCode DumpAll::initialize(){
 	m_cell_infront->Branch("time",&m_cell_infront_time);
 	m_cell_infront->Branch("quality",&m_cell_infront_quality);
 
-	m_allcell_infront = new TTree("AllCellInFrontLayer","CellInFront");
+	if ( m_saveLa1Cells ) {
+	m_allcell_infront = new TTree("AllCellInFrontLayer","AllCellInFrontLayer");
 	m_allcell_infront->Branch("idx",&m_allcell_infront_idx);
 	m_allcell_infront->Branch("e",&m_allcell_infront_e);
 	m_allcell_infront->Branch("eta",&m_allcell_infront_eta);
@@ -113,6 +132,7 @@ StatusCode DumpAll::initialize(){
 	m_allcell_infront->Branch("layer",&m_allcell_infront_layer);
 	m_allcell_infront->Branch("time",&m_allcell_infront_time);
 	m_allcell_infront->Branch("quality",&m_allcell_infront_quality);
+	}
 
 	m_file->cd("/");
 
@@ -136,7 +156,18 @@ StatusCode DumpAll::execute(){
 	
         MsgStream msg(msgSvc(), name());
 	msg << MSG::DEBUG << "execute DumpAll" << endreq;
-	std::cout << "DumpAll" << std::endl;
+        const xAOD::EventInfo* evt(0);
+        if ( evtStore()->retrieve(evt,"EventInfo").isFailure() ){
+                msg << MSG::WARNING << "did not find EventInfo container" << endreq;
+        }
+        long bunch_crossing(-1);
+        long bunch_crossingNor(-1);
+	long event_number(-1);
+        if ( evt ) {
+	   event_number = evt->eventNumber();
+           bunch_crossing = evt->bcid();
+           bunch_crossingNor = bcids_from_start ( bunch_crossing );
+        }
         const CaloCellContainer* scells;
 	if ( evtStore()->retrieve(scells,"SCell").isFailure() ){
 		msg << MSG::WARNING << "did not find cell container" << endreq;
@@ -158,10 +189,15 @@ StatusCode DumpAll::execute(){
                 msg << MSG::WARNING << "did not find super cluster container" << endreq;
                 return StatusCode::SUCCESS;
         }
+        const xAOD::TrigEMClusterContainer* sclusterLAr(nullptr);
+        if ( evtStore()->retrieve(sclusterLAr,m_inputLArName).isFailure() ){
+                msg << MSG::WARNING << "did not find LArFex container" << endreq;
+                //return StatusCode::SUCCESS;
+        }
         const xAOD::EmTauRoIContainer* lvl1(nullptr);
         if ( evtStore()->retrieve(lvl1,m_inputLvl1Name).isFailure() ){
                 msg << MSG::WARNING << "did not find old l1 container" << endreq;
-                return StatusCode::SUCCESS;
+                //return StatusCode::SUCCESS;
         }
 	const xAOD::TruthParticleContainer* truth;
         if ( evtStore()->retrieve(truth,"TruthParticles").isFailure() ) {
@@ -185,6 +221,18 @@ StatusCode DumpAll::execute(){
         // for(auto digit : *allcalo) {
         // m_selectron_et.clear();
         ResetAllBranches();
+
+        for(auto scl : *sclusterLAr) {
+           m_selectronLAr_eta.push_back(scl->eta());
+           m_selectronLAr_phi.push_back(scl->phi());
+	   float den = (scl->emaxs1() + scl->e2tsts1() );
+	   if ( den > 0.1 ) m_selectronLAr_Eratio.push_back((scl->emaxs1() - scl->e2tsts1() )/den );
+	   else m_selectronLAr_Eratio.push_back( 999.0 );
+           m_selectronLAr_fracs1.push_back(scl->fracs1());
+           m_selectronLAr_wstot.push_back(scl->wstot());
+	}
+	m_selectronLAr->Fill();
+
         for(auto scl : *scluster) {
 	   m_selectron_et.push_back(scl->et());
 	   m_selectron_eta.push_back(scl->eta());
@@ -208,47 +256,14 @@ StatusCode DumpAll::execute(){
 		std::vector< float > layer;
 		std::vector< float > time;
 		std::vector< float > quality;
-		std::vector< float > all_idx;
-		std::vector< float > all_e;
-		std::vector< float > all_eta;
-		std::vector< float > all_phi;
-		std::vector< float > all_layer;
-		std::vector< float > all_time;
-		std::vector< float > all_quality;
-		int index = 0;
 		for(auto c : *allcalo) {
 			int l = c->caloDDE()->getSampling();
 			if ( (l!=1) && (l!=5) ) continue;
-			float seedEta=c->eta();
-			float absSeedEta = TMath::Abs( seedEta );
-			float seedPhi=c->phi();
-			if ( c->energy() / TMath::CosH( absSeedEta ) > 125 ) { // found a seed
-			   for(auto d : *allcalo) {
-				int k = c->caloDDE()->getSampling();
-				if ( (k!=1) && (k!=5) ) continue;
-				float limit = 0.066;
-				if ( absSeedEta > 1.7 ) limit = 0.088;
-				if ( absSeedEta > 1.9 ) limit = 0.132;
-				if ( fabsf( seedEta-d->eta() ) > limit ) continue;
-				float dphi = fabsf( seedPhi-d->phi() );
-				dphi = fabsf(M_PI - dphi);
-				dphi = fabsf(M_PI - dphi);
-				if ( dphi > 0.12 ) continue;
-				all_idx.push_back( index );
-				all_e.push_back ( d->energy() );
-				all_eta.push_back ( d->eta() );
-				all_phi.push_back ( d->phi() );
-				all_layer.push_back ( d->caloDDE()->getSampling() );
-				all_time.push_back ( d->time() );
-				all_quality.push_back ( d->quality() );
-			   }
-			   index++;
-			}
-			if ( fabsf( etaCl-c->eta() ) > 0.2 ) continue;
+			if ( fabsf( etaCl-c->eta() ) > 0.14 ) continue;
 			float dphi = fabsf( phiCl-c->phi() );
 			dphi = fabsf(M_PI - dphi);
 			dphi = fabsf(M_PI - dphi);
-			if ( dphi > 0.2 ) continue;
+			if ( dphi > 0.15 ) continue;
 			e.push_back ( c->energy() );
 			eta.push_back ( c->eta() );
 			phi.push_back ( c->phi() );
@@ -262,7 +277,51 @@ StatusCode DumpAll::execute(){
 		m_cell_infront_layer.push_back(layer);
 		m_cell_infront_time.push_back(time);
 		m_cell_infront_quality.push_back(quality);
+	   }
+	}
 
+	if ( caloavail ) {
+		std::vector< float > all_idx;
+		std::vector< float > all_e;
+		std::vector< float > all_eta;
+		std::vector< float > all_phi;
+		std::vector< float > all_layer;
+		std::vector< float > all_time;
+		std::vector< float > all_quality;
+		int index = 0;
+                for(auto c : *allcalo) {
+                        int l = c->caloDDE()->getSampling();
+                        if ( (l!=1) && (l!=5) ) continue;
+                        float seedEta=c->eta();
+                        float absSeedEta = TMath::Abs( seedEta );
+                        float seedPhi=c->phi();
+			float noiseToCompare = m_et;
+			if ( m_etInSigma >= 0.0 ) 
+			  noiseToCompare = m_etInSigma*m_noiseTool->getNoise(&(*c),ICalorimeterNoiseTool::TOTALNOISE);
+                        if ( c->energy() > noiseToCompare ) { // found a seed
+                           for(auto d : *allcalo) {
+                                int k = d->caloDDE()->getSampling();
+                                if ( (k!=1) && (k!=5) ) continue;
+                                float limit = 0.066;
+                                if ( absSeedEta > 1.7 ) limit = 0.088;
+                                if ( absSeedEta > 1.9 ) limit = 0.132;
+                                if ( fabsf( seedEta-d->eta() ) > limit ) continue;
+                                float dphi = fabsf( seedPhi-d->phi() );
+                                dphi = fabsf(M_PI - dphi);
+                                dphi = fabsf(M_PI - dphi);
+                                if ( dphi > 0.12 ) continue;
+                                all_idx.push_back( index );
+                                all_e.push_back ( d->energy() );
+                                all_eta.push_back ( d->eta() );
+                                all_phi.push_back ( d->phi() );
+                                all_layer.push_back ( d->caloDDE()->getSampling() );
+                                all_time.push_back ( d->time() );
+                                all_quality.push_back ( d->quality() );
+                           }
+                           index++;
+                        }
+		}
+		if ( m_saveLa1Cells ){
 		m_allcell_infront_idx.push_back(all_idx);
 		m_allcell_infront_e.push_back(all_e);
 		m_allcell_infront_eta.push_back(all_eta);
@@ -270,17 +329,17 @@ StatusCode DumpAll::execute(){
 		m_allcell_infront_layer.push_back(all_layer);
 		m_allcell_infront_time.push_back(all_time);
 		m_allcell_infront_quality.push_back(all_quality);
-	   }
+		}
 	}
+
 	if ( caloavail ) {
-		m_allcell_infront->Fill();
+		if ( m_saveLa1Cells ) m_allcell_infront->Fill();
 		m_cell_infront->Fill();
 	}
 	m_selectron->Fill();
         int nvtxs=-1;
 	if ( nvtx != NULL) nvtxs = nvtx->size();
-        int event_number=0;
-	((TNtuple*)m_evt)->Fill(m_counter,event_number,nvtxs);
+	((TNtuple*)m_evt)->Fill(m_counter,event_number,bunch_crossing,bunch_crossingNor,nvtxs);
 
 	for( auto tt : *truth ){
 		if ( tt->status() != 1 ) continue;
@@ -346,6 +405,12 @@ void DumpAll::ResetAllBranches(){
 	m_selectron_wstot.clear();
 	m_selectron_time.clear();
 
+	m_selectronLAr_eta.clear();
+	m_selectronLAr_phi.clear();
+	m_selectronLAr_Eratio.clear();
+	m_selectronLAr_fracs1.clear();
+	m_selectronLAr_wstot.clear();
+
         m_truth_pt.clear();
         m_truth_eta.clear();
         m_truth_phi.clear();
@@ -381,6 +446,7 @@ void DumpAll::ResetAllBranches(){
 	m_cell_infront_time.clear();
 	m_cell_infront_quality.clear();
 
+	if ( m_saveLa1Cells ) {
 	m_allcell_infront_idx.clear();
 	m_allcell_infront_e.clear();
 	m_allcell_infront_eta.clear();
@@ -388,6 +454,7 @@ void DumpAll::ResetAllBranches(){
 	m_allcell_infront_layer.clear();
 	m_allcell_infront_time.clear();
 	m_allcell_infront_quality.clear();
+	}
 
 }
 
