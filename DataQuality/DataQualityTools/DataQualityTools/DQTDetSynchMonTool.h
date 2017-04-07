@@ -225,22 +225,6 @@ private:
   std::multiset<uint32_t> m_rpcl1idset;
   std::multiset<uint32_t> m_pixell1idset;
 
-  //int m_nevents;
-
-  //int m_n_sct_nrobs;
-  //int m_n_trt_nrobs;
-  //int m_n_lar_nrobs;
-  //int m_n_tile_nrobs;
-  //int m_n_pixel_nrobs;
-  
-
-  //int m_n_sct_bcid_nrobs;
-  //int m_n_trt_bcid_nrobs;
-  //int m_n_sct_lvl1_nrobs;
-  //int m_n_trt_lvl1_nrobs;
-  //int m_n_pixel_bcid_nrobs;
-  //int m_n_pixel_lvl1_nrobs;
-  
   // Use these so we don't print out endless messages!
   bool m_printedErrorCTP_RIO;
   bool m_printedErrorTRT_BCID;

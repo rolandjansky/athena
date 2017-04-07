@@ -37,8 +37,6 @@ class ZdcSignalSinc {
   int     m_Err;
   int     m_Warn;
 
-  //bool    m_CorrFlag;
-
   double *m_buf;
 
   int     m_p;
@@ -49,7 +47,6 @@ class ZdcSignalSinc {
   double  fraction(double,double);
 
   double  m_tim[3],m_wfm[3],m_dt;
-  //int AAAA;    
 
 
 };

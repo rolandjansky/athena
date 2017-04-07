@@ -10,14 +10,10 @@ parser.add_argument('--nlb', type=int, help='# of LBs to combine',
                     default=20)
 args = parser.parse_args()
 
-#recozfname = sys.argv[1]
-#effzfname = sys.argv[2]
-#outfname = sys.argv[3]
 recozfname = args.recofile
 effzfname = args.efffile
 outfname = args.outfile
 
-#LUMIBLOCKS = 20
 LUMIBLOCKS = args.nlb
 ACCEPTANCE = 3.173927e-01
 ZXSEC=1.929

@@ -37,9 +37,6 @@ namespace CP {
 namespace Trig {
   class ITrigMuonMatching;
 }
-//namespace xAOD {
-//  class Muon;
-  //}
 
 class DQTGlobalWZFinderTool: public DataQualityFatherMonTool
 {
@@ -82,8 +79,6 @@ private:
       TH1F_LW *m_Z_Q_ele;
       TH1F_LW *m_Z_Q_mu;
 
-      //TH1F_LW *m_Z_ee_mass_lb;
-      //TH1F_LW *m_Z_mm_mass_lb;
       TProfile *m_livetime_lb;
       TProfile *m_lblength_lb;
       TProfile *m_mu_lb;
