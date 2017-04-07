@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 void hitCorrelations(TString TrkCol_1,TString TrkCol_2) {
 	TH2F *hPixelVSSCT;
 	TH2F *hPixelVSSCT2;

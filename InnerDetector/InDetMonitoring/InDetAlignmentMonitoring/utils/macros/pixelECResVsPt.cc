@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 void pixelECResidualsVsPt(TString trkCol, bool ec){
 	pixelECResidualsVsPt(trkCol, ec, 0, "");
 }

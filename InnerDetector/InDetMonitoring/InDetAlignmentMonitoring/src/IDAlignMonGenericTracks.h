@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef IDAlignMonGenericTracks_H
 #define IDAlignMonGenericTracks_H
 
@@ -193,8 +197,7 @@ protected:
   TH1F_LW* m_pTRes;
   TH1F_LW* m_pTResOverP;
   TH1F_LW* m_P;
-  TH1F_LW* m_pTabs;
-
+  
   TH3F* m_trk_d0_vs_phi_vs_eta;
   TH2F* m_trk_pT_vs_eta;
   
@@ -389,7 +392,6 @@ protected:
   TH1F_LW* m_trk_z0c_asym_eca;
   TH1F_LW* m_trk_z0c_asym_ecc;
 
-  TH1F_LW* m_hTrackWeight;
 
  private:
  
@@ -421,8 +423,8 @@ protected:
   bool m_extendedPlots;
   float m_d0Range;
   float m_d0BsRange;
-  float m_z0Range;
   float m_pTRange;
+  float m_z0Range;
   float m_etaRange;
   int   m_NTracksRange;
 

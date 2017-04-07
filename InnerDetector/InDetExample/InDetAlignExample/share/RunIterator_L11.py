@@ -73,8 +73,6 @@ def optParsing():
     parser.add_option("--preIBLgeometry",dest="preIBLgeometry", help="Set it when you want to run on Run1 geometry (Default: False)",action="store_true",default=False)
     parser.add_option("--ptmin",dest="userPtMin", help="Minimum pt of tracks to enter the align track selection *** in MeV ***", default = "2000")
     parser.add_option("--queue",dest="userQueue", help="name of the LSF queue were jobs will be submitted", default="")
-    parser.add_option("--siAlignmentTag",dest="siAlignmentTag", help="specify which alignment tag from the DB to be used for the silicon part", default="")
-    parser.add_option("--trtAlignmentTag",dest="trtAlignmentTag", help="specify which alignment tag from the DB to be used for the trt part", default="")
     parser.add_option("--suffix", dest="suffix", help="suffix to the IterN folder name --> IterN_suffix", default="")
     
     
@@ -107,8 +105,7 @@ userLBrangeFirst = int(config.LBrangeFirst)
 userLBrangeLast = int(config.LBrangeLast)
 userQueue = config.userQueue
 userNIter = config.nIter
-userSiAlignmentTag = config.siAlignmentTag
-userTRTAlignmentTag = config.trtAlignmentTag
+
 
 # split the possible collections
 inputList = inputList.split()
@@ -155,10 +152,6 @@ print " <RunIterator> iterating on ",len(eventType),"samples "
 if (len(userNIter)>0): print " <RunIterator> #Iterations = ",Iterations
 if userLBselection:
     print " <RunIterator> LB range = ",userLBrangeFirst, " --> ", userLBrangeLast
-if (len(userSiAlignmentTag)>0):
-    print " <RunIterator> siAlignmentTag = ",userSiAlignmentTag
-if (len(userTRTAlignmentTag)>0):
-    print " <RunIterator> trtAlignmentTag = ",userTRTAlignmentTag
 
 ##########################################################
 #       Datasets to use
@@ -214,7 +207,7 @@ for i_sample in range(len(inputList)):
         if isData:
             print " ==> In collisions and isData True :)   myTag=",myTag
             myTag = "ATLAS-R2-2015-03-01-00"
-            Data1.setGlobalTag("CONDBR2-BLKPA-2016-12")
+            Data1.setGlobalTag("CONDBR2-BLKPA-2015-14")
             Data1.setDetDescrVersion(myTag)
             if HeavyIons:
                 myTag = "ATLAS-R2-2015-03-01-00"
@@ -229,7 +222,7 @@ for i_sample in range(len(inputList)):
     if (eventType[i_sample] == "cosmics"):
         if isData:
             print " ==> In cosmics and isData True :) "
-            Data1.setGlobalTag("CONDBR2-BLKPA-2016-12")
+            Data1.setGlobalTag("CONDBR2-BLKPA-2015-14")
             Data1.setDetDescrVersion("ATLAS-R2-2015-03-01-00")
         else:
             print " ==> In cosmics and else :) "
@@ -322,11 +315,17 @@ extraOptions["BField_AlgSetup"] = extraOptions["BField"]
 #Heavy Ions reconstruction
 extraOptions["HeavyIons"] = HeavyIons
 
-# user set tags
-if (len(userSiAlignmentTag)>0):
-    extraOptions["siAlignmentTag"] = userSiAlignmentTag
-if (len(userTRTAlignmentTag)>0):
-    extraOptions["trtAlignmentTag"] = userTRTAlignmentTag
+
+
+#
+#extraOptions["siAlignmentTag"] = "InDetAlign_R2_Nominal"
+#extraOptions["siAlignmentTag"] = "InDetAlign_RUN1-L3IBLm15-CORRECT"
+#extraOptions["siAlignmentTag"] = "InDetAlign_R2_Initial_fixed"
+#extraOptions["trtAlignmentTag"] = "TRTAlign_nominal"
+
+#25 NS
+extraOptions["siAlignmentTag"] = "InDetAlign-RUN2-25NS"
+extraOptions["trtAlignmentTag"] = "TRTAlign-RUN2-25NS"
 
 #extraOptions["beamSpotTag"] = "IndetBeampos-ES1-UPD2"
 #extraOptions["particleNumber"] = 0
@@ -345,12 +344,6 @@ extraOptions["softModeCut"]= 0.
 extraOptions["applyLBibldistTweak"] = False
 extraOptions["writeIBLDistDB"] = True
 
-extraOptions["doBSConstraint"] = False
-extraOptions["doBSTrackSelection"] = True
-extraOptions["PtCutForBSConstraint"] = 3.0
-extraOptions["MinPtForConstrainedProvider"] = 3.0
-extraOptions["trackCollection"] = "ExtendedTracks"
-#extraOptions["doPVConstraint"] = False
 
 #extraOptions["doBSConstraint"] = False
 #extraOptions["doPVConstraint"] = False
@@ -391,14 +384,14 @@ extraOptions["pixelAlignBarrelZ"] = True
 extraOptions["pixelAlignBarrelRotX"] = True
 extraOptions["pixelAlignBarrelRotY"] = True
 extraOptions["pixelAlignBarrelRotZ"] = True
-extraOptions["pixelAlignBarrelBowX"] = False
+extraOptions["pixelAlignBarrelBowX"] = True
 
 ## end-caps
 extraOptions["pixelAlignEndcapX"] = True
 extraOptions["pixelAlignEndcapY"] = True
-extraOptions["pixelAlignEndcapZ"] = True
-extraOptions["pixelAlignEndcapRotX"] = True
-extraOptions["pixelAlignEndcapRotY"] = True
+extraOptions["pixelAlignEndcapZ"] = False
+extraOptions["pixelAlignEndcapRotX"] = False
+extraOptions["pixelAlignEndcapRotY"] = False
 extraOptions["pixelAlignEndcapRotZ"] = True
 
 ## SCT
@@ -415,7 +408,6 @@ extraOptions["sctAlignEndcapZ"] = False
 extraOptions["sctAlignEndcapRotX"] = False
 extraOptions["sctAlignEndcapRotY"] = False
 extraOptions["sctAlignEndcapRotZ"] = True
-
              
 # do the solving? (Set to False only to do quick reconstruction tests)
 doSolve = True
@@ -439,7 +431,7 @@ PixelAlignmentLevelEndcaps = [   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,  
 # SCT
 # are we running SCT alignment (for barrel and endcaps)
 AlignSCT                  =  [ True, True, True, True, True, True, True, True, True, True]
-AlignSCTBarrel            =  [ False, False, False, False, True, True, True, True, True, True]
+AlignSCTBarrel            =  [ True, True, True, True, True, True, True, True, True, True]
 AlignSCTEndcaps           =  [ True, True, True, True, True, True, True, True, True, True]
 
 # alignment level for the full SCT # see InDetAlignGeometryLevel wiki for more info

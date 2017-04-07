@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // **********************************************************************
 // IDAlignMonEfficiencies.cxx
 // AUTHORS: Beate Heinemann, Tobias Golling, John Alison, Lauren Tompkins
@@ -443,11 +447,11 @@ StatusCode IDAlignMonEfficiencies::bookHistograms()
   
   
 
-  if ( newLowStatFlag() ) {  
+  if ( newLowStat ) {  
   }
-  if ( newLumiBlockFlag() ) {  
+  if ( newLumiBlock ) {  
   }
-  if ( newRunFlag() ) {  
+  if ( newRun ) {  
     
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job
@@ -1796,11 +1800,11 @@ void IDAlignMonEfficiencies::makeEffHistoWithCut(TH2F* h_num, TH2F* h_denom, TPr
 StatusCode IDAlignMonEfficiencies::procHistograms()
 {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In procHistograms" << endmsg;
-  if( endOfLowStatFlag() ) {
+  if( endOfLowStat ) {
   }
-  if( endOfLumiBlockFlag() ) {
+  if( endOfLumiBlock ) {
   }
-  if( endOfRunFlag() || ( ( AthenaMonManager::environment() == AthenaMonManager::online ) && endOfLumiBlockFlag() ) ) {
+  if( endOfRun || ( ( AthenaMonManager::environment() == AthenaMonManager::online ) && endOfLumiBlock ) ) {
     // -----------------------------------------------------------------------
     //
     // normalize: divide measurement / outliers / holes by number of possible hits

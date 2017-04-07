@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 class setupData:
 	def __init__ (self, name):
 		self.name = name
@@ -182,17 +184,15 @@ class setupData:
 		os.environ['STAGE_SVCCLASS']=self.STAGE_SVCCLASS
 
 	def Print(self):
-		print "------------- setupData -- print status --------------"
-		print "+ Dataset with name ", self.name
-		print "+ The data is: ", self.dataType
-		print "+ ProjectName: ", self.projectName
-		print "+ Is ByteStream? ", self.ByteStream
-		print "+ Are data Cosmics? ", self.AreCosmics
-		print "+ The list of files to use is in: ", self.fileListName
-		print "+ CPUs: ", self.CPUs
-		print "+ Events: ", self.Events
-		print "+ pixelDigitalClustering? ", self.pixelDigitalClustering
-		print "------------- setupData -- end of status --------------"
+		print "---------------------------"
+		print "Dataset with name ", self.name
+		print "The data is: ", self.dataType
+		print "ProjectName: ", self.projectName
+		print "Is ByteStream? ", self.ByteStream
+		print "Are data Cosmics? ", self.AreCosmics
+		print "The list of files to use is in: ", self.fileListName
+		print "CPUs: ", self.CPUs
+		print "Events: ", self.Events
 		
 		
 		

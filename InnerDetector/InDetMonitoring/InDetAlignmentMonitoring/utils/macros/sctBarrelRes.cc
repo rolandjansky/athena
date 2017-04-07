@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 void sctBarrelResiduals(TString trkCol){
 	sctBarrelResiduals(trkCol, 0, "");
 }

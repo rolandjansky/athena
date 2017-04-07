@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // ********************************************************************************
 // $Id: InDetAlignMonBeamSpot.h,v 1.5 2009-02-05 20:55:07 beringer Exp $
 //

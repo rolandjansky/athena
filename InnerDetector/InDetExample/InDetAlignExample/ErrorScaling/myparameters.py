@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 tag = 'IndetTrkErrorScaling_MyTest'
 dataset = [('PixPhi Barrel', 1.0, 0.0056041573996374978),
            ('PixEta Barrel', 1.0, 0.03969924988268),

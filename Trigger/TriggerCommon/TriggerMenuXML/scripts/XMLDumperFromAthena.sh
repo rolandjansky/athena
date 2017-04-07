@@ -2,10 +2,33 @@
 # Script to generate the trigger menu XML files
 #
 
+help() {
+    echo "Syntax: XMLDumperFromAthena.sh [-r VERSION] MENU [DEST]"
+}
+
 if [ $# -lt 1 ]; then
-    echo "Syntax: XMLDumperFromAthena.sh MENU [DEST]"
-    exit 1
+    help
+    exit 0
 fi
+
+while true; do
+    case "$1" in
+        -r)
+            release=$2
+            shift 2
+            ;;
+        -h)
+            help
+            exit 0
+            ;;
+        -*)
+            echo "Invalid parameter"
+            exit 1
+            ;;
+        *)
+            break
+    esac
+done
 
 menu=$1
 dest=$2
@@ -17,10 +40,9 @@ fi
 dest=`cd $dest; pwd`
 
 jo=TriggerMenuXML/runHLT_forXMLgeneration.py
-release=${AtlasVersion}
-
-# The following would be better but doesn't seem to work (yet) in git builds
-#release=`python -c "from TriggerJobOpts import TriggerFlags; print(TriggerFlags.menuVersion().get_Value())" | tail -1`
+if [ -z "$release" ]; then
+    release=${AtlasVersion}    # for interactive use
+fi
 
 # Temporary run directroy and cleanup traps in case of termination
 rundir=`mktemp -t -d tmxml.${menu}.XXXXXXXXXX`

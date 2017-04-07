@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "InDetPerformanceMonitoring/PerfMonServices.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
@@ -62,7 +66,7 @@ StatusCode PerfMonServices::InitialiseServices( ISvcLocator* pxSvcLocator )
   {
     //log << MSG::WARNING
     //<< "Problem starting at least one of the Athena services : this may be cause problems downstream"
-    //<< endreq;
+    //<< endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -111,13 +115,13 @@ bool PerfMonServices::CheckServiceInit( const StatusCode& xSC, bool bNullPointer
   {
     //log << MSG::WARNING
     //<< "Problem starting " << sType << " service : Error Code."
-    //<< endreq;
+    //<< endmsg;
   }
   if ( bNullPointer )
   {
     //log << MSG::WARNING
     //<< "Problem starting " << sType << " service : NULL pointer."
-    //<< endreq;
+    //<< endmsg;
   }
   return ( xSC.isSuccess() && !bNullPointer ) ? true : false;
 }
