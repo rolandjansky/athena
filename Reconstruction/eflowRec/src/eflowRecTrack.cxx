@@ -20,7 +20,7 @@ eflowRecTrack::eflowRecTrack(
     m_pull15(0.0),
     m_eExpect(1.0), m_varEExpect(0.0),  m_isInDenseEnvironment(false), m_isSubtracted(false), m_hasBin(true),
     m_layerHED(-1), m_layerCellOrder(-1), m_radiusCellOrder(-1.0), m_avgEdensityCellOrder(-1.0),
-    m_layerCellOrderVector(1300,-2),m_radiusCellOrderVector(1300,-2.0),m_avgEdensityCellOrderVector(1300,-2.0),
+    // m_layerCellOrderVector,m_radiusCellOrderVector,m_avgEdensityCellOrderVector,
     m_trackCaloPoints(theTrackExtrapolatorTool->execute(m_track)) {
 }
 

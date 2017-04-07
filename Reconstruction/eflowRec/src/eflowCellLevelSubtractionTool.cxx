@@ -11,6 +11,9 @@ PACKAGE:  offline/Reconstruction/eflowRec
 AUTHORS:  M.Hodgkinson
 CREATED:  25th January, 2005
 
+AUTHOR: 
+UPDATED: 
+
 ********************************************************************/
 
 #include "eflowRec/eflowCellLevelSubtractionTool.h"
@@ -123,6 +126,8 @@ StatusCode eflowCellLevelSubtractionTool::initialize(){
 
 }
 
+//figure out where this is called 
+
 void eflowCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer) {
 
   if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Executing eflowCellLevelSubtractionTool" << endmsg;
@@ -130,6 +135,8 @@ void eflowCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCa
   m_eflowCaloObjectContainer = theEflowCaloObjectContainer;
   m_eflowTrackContainer = recTrackContainer;
   m_eflowClusterContainer = recClusterContainer;
+
+//is matching the same as done for E/p
 
   /* Add each track to its best matching cluster's eflowCaloObject */
   matchAndCreateEflowCaloObj(m_nMatchesInCellLevelSubtraction);
@@ -293,9 +300,9 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
 
 	
 
-    std::vector<int> layerToStoreVector(1300,-1);
-    std::vector<float> radiusToStoreVector(1300,-1.0);
-    std::vector<float> avgEdensityToStoreVector(1300,-1.0);
+    std::vector<int> layerToStoreVector;
+    std::vector<float> radiusToStoreVector;
+    std::vector<float> avgEdensityToStoreVector ;
 	
 	for (int i=0; i < eflowCalo::nRegions ;i++){
 	
@@ -310,11 +317,15 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
         double phi_extr = calorimeterCellList.phiFF(layer);
         std::cout<<"extrapolated phi ["<<layer<<"] is "<<phi_extr<<std::endl;
         
-
-
-
-        if (i==0){
         
+        
+        if (eta_extr == -999.0){
+            continue;
+        }
+
+
+
+        if (i<3){
         //loop over ring thicknesses and then ask for iterator corresponding to that loop
 	        // CellIt beginRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness);
 // 	        CellIt endRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness*2);
@@ -370,7 +381,6 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
                 }
                 
                 
-                
                 std::cout << " cell eta and phi are " << ((*firstPair).first)->eta() << " and " << ((*firstPair).first)->phi() << " with index " << (*firstPair).second << " and sampling of " << sampling << std::endl;
                 std::cout << " cell energy is " << ((*firstPair).first)->energy()<<std::endl;
                 
@@ -379,9 +389,9 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
                 
                 double celltrackdist = calorimeterCellList.dR(previouseta,previousphi,layer);
                 
-                if (celltrackdist > 2){
-                    break;
-                }
+//                 if (celltrackdist > 2){
+//                     break;
+//                 }
                 
                 double hand_dR2 = (((*firstPair).first)->eta()-eta_extr)*(((*firstPair).first)->eta()-eta_extr) + (((*firstPair).first)->phi()-phi_extr)*(((*firstPair).first)->phi()-phi_extr);
                 double hand_dR = sqrt(hand_dR2);
@@ -411,27 +421,10 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
                 std::cout << " Initial added E density per Cell is " << energyDensityPerRing<<std::endl;
                 energyDensityPerRing += energyDensityPerCell;
                 std::cout << " Final added E density per Cell is " << energyDensityPerRing<<std::endl;
-        
+                averageEnergyDensityPerRing = energyDensityPerRing/((totalCellsinRing)*(efRecTrack->getTrack()->e()/1000.));
         // 	    std::cout << " Added cell E densities are " << energyDensityPerRing<<std::endl;
         
-                        //where should these go?
-                averageEnergyDensityPerRing = energyDensityPerRing/((totalCellsinRing)*(efRecTrack->getTrack()->e()/1000.));
-                std::cout << " track E is " << efRecTrack->getTrack()->e()/1000.;
-                std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
-                avgEdensityToStoreVector[100*(eflowCaloENUM)i+n-1] = averageEnergyDensityPerRing;
-                std::cout<<"avgEdensityToStoreVector["<< 100*(eflowCaloENUM)i+n-1 <<"] is "<< avgEdensityToStoreVector[n-1] << std::endl;
-                layerToStore = (eflowCaloENUM)i;
-                std::cout << " before layervector "<<std::endl;
-                layerToStoreVector[100*(eflowCaloENUM)i+n-1] = layerToStore;
-                std::cout<<"layerToStore is "<< layerToStore << std::endl;
-                std::cout<<"layerToStoreVector["<< 100*(eflowCaloENUM)i+n-1 <<"] is "<< layerToStoreVector[100*(eflowCaloENUM)i+n-1] << std::endl;
-                radiusToStore = (indexofRing)*ringThickness;
-                radiusToStoreVector[100*(eflowCaloENUM)i+n-1] = radiusToStore;
-                std::cout<<"radiusToStoreVector["<< 100*(eflowCaloENUM)i+n-1 <<"] is "<< radiusToStoreVector[100*(eflowCaloENUM)i+n-1] << std::endl;
-                std::cout<<"radiusToStore is "<< radiusToStore << std::endl;
-                efRecTrack->setLayerCellOrder(layerToStore);
-                efRecTrack->setRadiusCellOrder(radiusToStore);
-                efRecTrack->setAverageEnergyDensity(averageEnergyDensityPerRing);
+
                 
                 if (radiusToStore > celltrackdist){
                     std::cout<<"cell-track distance is smaller than ring radius. GOOD!"<<std::endl;
@@ -440,757 +433,52 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
                 else { std::cout<<"cell-track distance is NOT smaller than ring radius. NOT GOOD!"<<std::endl; ;}
       
               }
-        
-        if (averageEnergyDensityPerRing != 0) {
-        std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
-        std::cout<<"layerToStore is "<< layerToStore << std::endl;
-        std::cout<<"radiusToStore is "<< radiusToStore << std::endl;
-        std::cout<<"indexofRing is "<< indexofRing << std::endl;
-        
-        }
-        else {std::cout<<"averageEnergyDensityPerRing = 0"<<std::endl;}
-        
-        
-    }
-
-
-    std::cout<<"layer vector[1] is "<< layerToStoreVector[1] << std::endl;
-    
-    }
-    
-        if (i==1){
-        
-        //loop over ring thicknesses and then ask for iterator corresponding to that loop
-	        // CellIt beginRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness);
-// 	        CellIt endRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness*2);
-	        
-//         std::cout<<"after rings"<<std::endl;
-          int indexofRing = 0;
-          int layerToStore = -999;
-
-          
-          // std::cout<<"layerToStore vector about to be cleared"<<std::endl;
-//           layerToStoreVector.clear();
-//           std::cout<<"layerToStore vector cleared"<<std::endl;
-          double radiusToStore = 0;
-          double totalEnergyPerCell = 0;
-      
-          int indexofCell = 0;
-          double energyDensityPerCell = -666;
-          double totalEnergyPerRing = 0;
-
-          double cellVolume = 0;
-          int totalCells = 0;
-          double previouseta = 0;
-          double previousphi = 0;
               
-          int n;
-        for (n=1; n<100; n++){
-        
-        // use calorimeterCellList.
-        
-        
-        
-          CellIt beginRing = calorimeterCellList.getLowerBound((eflowCaloENUM)i, ringThickness*(n-1));
-//           CellIt beginRing = calorimeterCellList.find(eflowCaloENUM::EMB1, EMB1_ringThickness*n);
-          // 
-//           CellIt endRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness*n+1);
-        // for (;beginRing != endRing; beginRing++){
-//         save # of rings 
-          indexofRing += 1;
-          std::cout<<"Ring Number "<<indexofRing<< std::endl;
-          std::cout<<"within ring loop "<< std::endl;
-          std::vector<std::pair<CaloCell*,int> > tempVector = (*beginRing).second;
-          std::vector<std::pair<CaloCell*,int> >::iterator firstPair = tempVector.begin();
-          std::vector<std::pair<CaloCell*,int> >::iterator lastPair = tempVector.end();
-      
-          int totalCellsinRing = 0;
-          double energyDensityPerRing = 0;
-          double averageEnergyDensityPerRing = 0;
-      
-          for (; firstPair != lastPair; ++firstPair) {
-                std::cout<<"within pair loop"<<std::endl;
-                const CaloDetDescrElement* DDE = ((*firstPair).first)->caloDDE();
-                CaloCell_ID::CaloSample sampling = DDE->getSampling();
-                
-                
-                if (previouseta == ((*firstPair).first)->eta() && previousphi == ((*firstPair).first)->phi()){
-                    break;
-                }
-                
-                
-                
-                std::cout << " cell eta and phi are " << ((*firstPair).first)->eta() << " and " << ((*firstPair).first)->phi() << " with index " << (*firstPair).second << " and sampling of " << sampling << std::endl;
-                std::cout << " cell energy is " << ((*firstPair).first)->energy()<<std::endl;
-                
-                previouseta = ((*firstPair).first)->eta();
-                previousphi = ((*firstPair).first)->phi();
-                
-                double celltrackdist = calorimeterCellList.dR(previouseta,previousphi,layer);
-                
-                if (celltrackdist > 2){
-                    break;
-                }
-                
-                double hand_dR2 = (((*firstPair).first)->eta()-eta_extr)*(((*firstPair).first)->eta()-eta_extr) + (((*firstPair).first)->phi()-phi_extr)*(((*firstPair).first)->phi()-phi_extr);
-                double hand_dR = sqrt(hand_dR2);
-                
-                std::cout << " hand dR2 is " << hand_dR2 <<std::endl;
-                std::cout << " hand_dR is " << hand_dR <<std::endl;
-                std::cout << " cell-track distance is " << celltrackdist <<std::endl;
-                
-                
-                
-                totalCells += 1;
-                totalCellsinRing += 1;
-        
-                totalEnergyPerRing += ((*firstPair).first)->energy();
-                totalEnergyPerCell = ((*firstPair).first)->energy();
-                std::cout << " Total E per Cell is " << totalEnergyPerCell<<std::endl;
-                std::cout << " Total E per Ring is " << totalEnergyPerRing<<std::endl;
-        
-                //implement track E here and divide cluster E by track E to have energy ratio
-        // 	    indexofCell = (*firstPair).second;
-        // check that volume units are OK -- volume from database
-                cellVolume = DDE->volume();
-                std::cout << " cell volume is " << cellVolume/1000.<<std::endl;
-        
-                energyDensityPerCell = totalEnergyPerCell/(cellVolume/1000.);
-                std::cout << " E density per Cell is " << energyDensityPerCell<<std::endl;
-                std::cout << " Initial added E density per Cell is " << energyDensityPerRing<<std::endl;
-                energyDensityPerRing += energyDensityPerCell;
-                std::cout << " Final added E density per Cell is " << energyDensityPerRing<<std::endl;
-        
-        // 	    std::cout << " Added cell E densities are " << energyDensityPerRing<<std::endl;
-        
                         //where should these go?
-                averageEnergyDensityPerRing = energyDensityPerRing/((totalCellsinRing)*(efRecTrack->getTrack()->e()/1000.));
-                std::cout << " track E is " << efRecTrack->getTrack()->e()/1000.;
-                std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
-                avgEdensityToStoreVector[100*(eflowCaloENUM)i+n-1] = averageEnergyDensityPerRing;
-                std::cout<<"avgEdensityToStoreVector["<< 100*(eflowCaloENUM)i+n-1 <<"] is "<< avgEdensityToStoreVector[n-1] << std::endl;
-                layerToStore = (eflowCaloENUM)i;
-                std::cout << " before layervector "<<std::endl;
-                layerToStoreVector[100*(eflowCaloENUM)i+n-1] = layerToStore;
-                std::cout<<"layerToStore is "<< layerToStore << std::endl;
-                std::cout<<"layerToStoreVector["<< 100*(eflowCaloENUM)i+n-1 <<"] is "<< layerToStoreVector[100*(eflowCaloENUM)i+n-1] << std::endl;
-                radiusToStore = (indexofRing)*ringThickness;
-                radiusToStoreVector[100*(eflowCaloENUM)i+n-1] = radiusToStore;
-                std::cout<<"radiusToStoreVector["<< 100*(eflowCaloENUM)i+n-1 <<"] is "<< radiusToStoreVector[100*(eflowCaloENUM)i+n-1] << std::endl;
-                std::cout<<"radiusToStore is "<< radiusToStore << std::endl;
-                efRecTrack->setLayerCellOrder(layerToStore);
-                efRecTrack->setRadiusCellOrder(radiusToStore);
-                efRecTrack->setAverageEnergyDensity(averageEnergyDensityPerRing);
-                
-                if (radiusToStore > celltrackdist){
-                    std::cout<<"cell-track distance is smaller than ring radius. GOOD!"<<std::endl;
-                    
-                }
-                else { std::cout<<"cell-track distance is NOT smaller than ring radius. NOT GOOD!"<<std::endl; ;}
-      
-              }
-        
-        if (averageEnergyDensityPerRing != 0) {
+
+        std::cout << " track E is " << efRecTrack->getTrack()->e()/1000.;
         std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
-        std::cout<<"layerToStore is "<< layerToStore << std::endl;
-        std::cout<<"radiusToStore is "<< radiusToStore << std::endl;
-        std::cout<<"indexofRing is "<< indexofRing << std::endl;
         
+        if (averageEnergyDensityPerRing != 0){
+            std::cout<<"indexofRing is "<< indexofRing << std::endl;
+            std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
+            avgEdensityToStoreVector.push_back(averageEnergyDensityPerRing);
+            // avgEdensityToStoreVector[100*i+n-1] = averageEnergyDensityPerRing;
+            // std::cout<<"avgEdensityToStoreVector["<< 100*i+n-1 <<"] is "<< avgEdensityToStoreVector[n-1] << std::endl;
+            layerToStore = (eflowCaloENUM)i;
+            std::cout<<"layerToStore is "<< layerToStore << std::endl;
+            layerToStoreVector.push_back(layerToStore);
+            // layerToStoreVector[100*i+n-1] = layerToStore;
+            // std::cout<<"layerToStoreVector["<< 100*i+n-1 <<"] is "<< layerToStoreVector[100*(eflowCaloENUM)i+n-1] << std::endl;
+            radiusToStore = (indexofRing)*ringThickness;
+            std::cout<<"radiusToStore is "<< radiusToStore << std::endl;
+            radiusToStoreVector.push_back(radiusToStore);
+            // radiusToStoreVector[100*i+n-1] = radiusToStore;
+            // std::cout<<"radiusToStoreVector["<< 100*i+n-1 <<"] is "<< radiusToStoreVector[100*(eflowCaloENUM)i+n-1] << std::endl;
+            
+            efRecTrack->setLayerCellOrder(layerToStore);
+            efRecTrack->setRadiusCellOrder(radiusToStore);
+            efRecTrack->setAverageEnergyDensity(averageEnergyDensityPerRing);
         }
+
         else {std::cout<<"averageEnergyDensityPerRing = 0"<<std::endl;}
-    }
-
-    }
-    
-        if (i==2){
-        
-        //loop over ring thicknesses and then ask for iterator corresponding to that loop
-	        // CellIt beginRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness);
-// 	        CellIt endRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness*2);
-	        
-//         std::cout<<"after rings"<<std::endl;
-          int indexofRing = 0;
-          int layerToStore = -999;
-
-          
-          // std::cout<<"layerToStore vector about to be cleared"<<std::endl;
-//           layerToStoreVector.clear();
-//           std::cout<<"layerToStore vector cleared"<<std::endl;
-          double radiusToStore = 0;
-          double totalEnergyPerCell = 0;
-      
-          int indexofCell = 0;
-          double energyDensityPerCell = -666;
-          double totalEnergyPerRing = 0;
-
-          double cellVolume = 0;
-          int totalCells = 0;
-          double previouseta = 0;
-          double previousphi = 0;
-              
-          int n;
-        for (n=1; n<100; n++){
-        
-        // use calorimeterCellList.
         
         
-        
-          CellIt beginRing = calorimeterCellList.getLowerBound((eflowCaloENUM)i, ringThickness*(n-1));
-//           CellIt beginRing = calorimeterCellList.find(eflowCaloENUM::EMB1, EMB1_ringThickness*n);
-          // 
-//           CellIt endRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness*n+1);
-        // for (;beginRing != endRing; beginRing++){
-//         save # of rings 
-          indexofRing += 1;
-          std::cout<<"Ring Number "<<indexofRing<< std::endl;
-          std::cout<<"within ring loop "<< std::endl;
-          std::vector<std::pair<CaloCell*,int> > tempVector = (*beginRing).second;
-          std::vector<std::pair<CaloCell*,int> >::iterator firstPair = tempVector.begin();
-          std::vector<std::pair<CaloCell*,int> >::iterator lastPair = tempVector.end();
-      
-          int totalCellsinRing = 0;
-          double energyDensityPerRing = 0;
-          double averageEnergyDensityPerRing = 0;
-      
-          for (; firstPair != lastPair; ++firstPair) {
-                std::cout<<"within pair loop"<<std::endl;
-                const CaloDetDescrElement* DDE = ((*firstPair).first)->caloDDE();
-                CaloCell_ID::CaloSample sampling = DDE->getSampling();
-                
-                
-                if (previouseta == ((*firstPair).first)->eta() && previousphi == ((*firstPair).first)->phi()){
-                    break;
-                }
-                
-                
-                
-                std::cout << " cell eta and phi are " << ((*firstPair).first)->eta() << " and " << ((*firstPair).first)->phi() << " with index " << (*firstPair).second << " and sampling of " << sampling << std::endl;
-                std::cout << " cell energy is " << ((*firstPair).first)->energy()<<std::endl;
-                
-                previouseta = ((*firstPair).first)->eta();
-                previousphi = ((*firstPair).first)->phi();
-                
-                double celltrackdist = calorimeterCellList.dR(previouseta,previousphi,layer);
-                
-                if (celltrackdist > 2){
-                    break;
-                }
-                
-                double hand_dR2 = (((*firstPair).first)->eta()-eta_extr)*(((*firstPair).first)->eta()-eta_extr) + (((*firstPair).first)->phi()-phi_extr)*(((*firstPair).first)->phi()-phi_extr);
-                double hand_dR = sqrt(hand_dR2);
-                
-                std::cout << " hand dR2 is " << hand_dR2 <<std::endl;
-                std::cout << " hand_dR is " << hand_dR <<std::endl;
-                std::cout << " cell-track distance is " << celltrackdist <<std::endl;
-                
-                
-                
-                totalCells += 1;
-                totalCellsinRing += 1;
-        
-                totalEnergyPerRing += ((*firstPair).first)->energy();
-                totalEnergyPerCell = ((*firstPair).first)->energy();
-                std::cout << " Total E per Cell is " << totalEnergyPerCell<<std::endl;
-                std::cout << " Total E per Ring is " << totalEnergyPerRing<<std::endl;
-        
-                //implement track E here and divide cluster E by track E to have energy ratio
-        // 	    indexofCell = (*firstPair).second;
-        // check that volume units are OK -- volume from database
-                cellVolume = DDE->volume();
-                std::cout << " cell volume is " << cellVolume/1000.<<std::endl;
-        
-                energyDensityPerCell = totalEnergyPerCell/(cellVolume/1000.);
-                std::cout << " E density per Cell is " << energyDensityPerCell<<std::endl;
-                std::cout << " Initial added E density per Cell is " << energyDensityPerRing<<std::endl;
-                energyDensityPerRing += energyDensityPerCell;
-                std::cout << " Final added E density per Cell is " << energyDensityPerRing<<std::endl;
-        
-        // 	    std::cout << " Added cell E densities are " << energyDensityPerRing<<std::endl;
-        
-                        //where should these go?
-                averageEnergyDensityPerRing = energyDensityPerRing/((totalCellsinRing)*(efRecTrack->getTrack()->e()/1000.));
-                std::cout << " track E is " << efRecTrack->getTrack()->e()/1000.;
-                std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
-                avgEdensityToStoreVector[100*(eflowCaloENUM)i+n-1] = averageEnergyDensityPerRing;
-                std::cout<<"avgEdensityToStoreVector["<< 100*(eflowCaloENUM)i+n-1 <<"] is "<< avgEdensityToStoreVector[n-1] << std::endl;
-                layerToStore = (eflowCaloENUM)i;
-                std::cout << " before layervector "<<std::endl;
-                layerToStoreVector[100*(eflowCaloENUM)i+n-1] = layerToStore;
-                std::cout<<"layerToStore is "<< layerToStore << std::endl;
-                std::cout<<"layerToStoreVector["<< 100*(eflowCaloENUM)i+n-1 <<"] is "<< layerToStoreVector[100*(eflowCaloENUM)i+n-1] << std::endl;
-                radiusToStore = (indexofRing)*ringThickness;
-                radiusToStoreVector[100*(eflowCaloENUM)i+n-1] = radiusToStore;
-                std::cout<<"radiusToStoreVector["<< 100*(eflowCaloENUM)i+n-1 <<"] is "<< radiusToStoreVector[100*(eflowCaloENUM)i+n-1] << std::endl;
-                std::cout<<"radiusToStore is "<< radiusToStore << std::endl;
-                efRecTrack->setLayerCellOrder(layerToStore);
-                efRecTrack->setRadiusCellOrder(radiusToStore);
-                efRecTrack->setAverageEnergyDensity(averageEnergyDensityPerRing);
-                
-                if (radiusToStore > celltrackdist){
-                    std::cout<<"cell-track distance is smaller than ring radius. GOOD!"<<std::endl;
-                    
-                }
-                else { std::cout<<"cell-track distance is NOT smaller than ring radius. NOT GOOD!"<<std::endl; ;}
-      
-              }
-        
-        if (averageEnergyDensityPerRing != 0) {
-        std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
-        std::cout<<"layerToStore is "<< layerToStore << std::endl;
-        std::cout<<"radiusToStore is "<< radiusToStore << std::endl;
-        std::cout<<"indexofRing is "<< indexofRing << std::endl;
-        
-        }
-        else {std::cout<<"averageEnergyDensityPerRing = 0"<<std::endl;}
-    }
-
     }
     
-        if (i==3){
-        
-        //loop over ring thicknesses and then ask for iterator corresponding to that loop
-	        // CellIt beginRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness);
-// 	        CellIt endRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness*2);
-	        
-//         std::cout<<"after rings"<<std::endl;
-          int indexofRing = 0;
-          int layerToStore = -999;
-
-          
-          // std::cout<<"layerToStore vector about to be cleared"<<std::endl;
-//           layerToStoreVector.clear();
-//           std::cout<<"layerToStore vector cleared"<<std::endl;
-          double radiusToStore = 0;
-          double totalEnergyPerCell = 0;
-      
-          int indexofCell = 0;
-          double energyDensityPerCell = -666;
-          double totalEnergyPerRing = 0;
-
-          double cellVolume = 0;
-          int totalCells = 0;
-          double previouseta = 0;
-          double previousphi = 0;
-              
-          int n;
-        for (n=1; n<100; n++){
-        
-        // use calorimeterCellList.
-        
-        
-        
-          CellIt beginRing = calorimeterCellList.getLowerBound((eflowCaloENUM)i, ringThickness*(n-1));
-//           CellIt beginRing = calorimeterCellList.find(eflowCaloENUM::EMB1, EMB1_ringThickness*n);
-          // 
-//           CellIt endRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness*n+1);
-        // for (;beginRing != endRing; beginRing++){
-//         save # of rings 
-          indexofRing += 1;
-          std::cout<<"Ring Number "<<indexofRing<< std::endl;
-          std::cout<<"within ring loop "<< std::endl;
-          std::vector<std::pair<CaloCell*,int> > tempVector = (*beginRing).second;
-          std::vector<std::pair<CaloCell*,int> >::iterator firstPair = tempVector.begin();
-          std::vector<std::pair<CaloCell*,int> >::iterator lastPair = tempVector.end();
-      
-          int totalCellsinRing = 0;
-          double energyDensityPerRing = 0;
-          double averageEnergyDensityPerRing = 0;
-      
-          for (; firstPair != lastPair; ++firstPair) {
-                std::cout<<"within pair loop"<<std::endl;
-                const CaloDetDescrElement* DDE = ((*firstPair).first)->caloDDE();
-                CaloCell_ID::CaloSample sampling = DDE->getSampling();
-                
-                
-                if (previouseta == ((*firstPair).first)->eta() && previousphi == ((*firstPair).first)->phi()){
-                    break;
-                }
-                
-                
-                
-                std::cout << " cell eta and phi are " << ((*firstPair).first)->eta() << " and " << ((*firstPair).first)->phi() << " with index " << (*firstPair).second << " and sampling of " << sampling << std::endl;
-                std::cout << " cell energy is " << ((*firstPair).first)->energy()<<std::endl;
-                
-                previouseta = ((*firstPair).first)->eta();
-                previousphi = ((*firstPair).first)->phi();
-                
-                double celltrackdist = calorimeterCellList.dR(previouseta,previousphi,layer);
-                
-                if (celltrackdist > 2){
-                    break;
-                }
-                
-                double hand_dR2 = (((*firstPair).first)->eta()-eta_extr)*(((*firstPair).first)->eta()-eta_extr) + (((*firstPair).first)->phi()-phi_extr)*(((*firstPair).first)->phi()-phi_extr);
-                double hand_dR = sqrt(hand_dR2);
-                
-                std::cout << " hand dR2 is " << hand_dR2 <<std::endl;
-                std::cout << " hand_dR is " << hand_dR <<std::endl;
-                std::cout << " cell-track distance is " << celltrackdist <<std::endl;
-                
-                
-                
-                totalCells += 1;
-                totalCellsinRing += 1;
-        
-                totalEnergyPerRing += ((*firstPair).first)->energy();
-                totalEnergyPerCell = ((*firstPair).first)->energy();
-                std::cout << " Total E per Cell is " << totalEnergyPerCell<<std::endl;
-                std::cout << " Total E per Ring is " << totalEnergyPerRing<<std::endl;
-        
-                //implement track E here and divide cluster E by track E to have energy ratio
-        // 	    indexofCell = (*firstPair).second;
-        // check that volume units are OK -- volume from database
-                cellVolume = DDE->volume();
-                std::cout << " cell volume is " << cellVolume/1000.<<std::endl;
-        
-                energyDensityPerCell = totalEnergyPerCell/(cellVolume/1000.);
-                std::cout << " E density per Cell is " << energyDensityPerCell<<std::endl;
-                std::cout << " Initial added E density per Cell is " << energyDensityPerRing<<std::endl;
-                energyDensityPerRing += energyDensityPerCell;
-                std::cout << " Final added E density per Cell is " << energyDensityPerRing<<std::endl;
-        
-        // 	    std::cout << " Added cell E densities are " << energyDensityPerRing<<std::endl;
-        
-                        //where should these go?
-                averageEnergyDensityPerRing = energyDensityPerRing/((totalCellsinRing)*(efRecTrack->getTrack()->e()/1000.));
-                std::cout << " track E is " << efRecTrack->getTrack()->e()/1000.;
-                std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
-                avgEdensityToStoreVector[100*(eflowCaloENUM)i+n-1] = averageEnergyDensityPerRing;
-                std::cout<<"avgEdensityToStoreVector["<< 100*(eflowCaloENUM)i+n-1 <<"] is "<< avgEdensityToStoreVector[n-1] << std::endl;
-                layerToStore = (eflowCaloENUM)i;
-                std::cout << " before layervector "<<std::endl;
-                layerToStoreVector[100*(eflowCaloENUM)i+n-1] = layerToStore;
-                std::cout<<"layerToStore is "<< layerToStore << std::endl;
-                std::cout<<"layerToStoreVector["<< 100*(eflowCaloENUM)i+n-1 <<"] is "<< layerToStoreVector[100*(eflowCaloENUM)i+n-1] << std::endl;
-                radiusToStore = (indexofRing)*ringThickness;
-                radiusToStoreVector[100*(eflowCaloENUM)i+n-1] = radiusToStore;
-                std::cout<<"radiusToStoreVector["<< 100*(eflowCaloENUM)i+n-1 <<"] is "<< radiusToStoreVector[100*(eflowCaloENUM)i+n-1] << std::endl;
-                std::cout<<"radiusToStore is "<< radiusToStore << std::endl;
-                efRecTrack->setLayerCellOrder(layerToStore);
-                efRecTrack->setRadiusCellOrder(radiusToStore);
-                efRecTrack->setAverageEnergyDensity(averageEnergyDensityPerRing);
-                
-                if (radiusToStore > celltrackdist){
-                    std::cout<<"cell-track distance is smaller than ring radius. GOOD!"<<std::endl;
-                    
-                }
-                else { std::cout<<"cell-track distance is NOT smaller than ring radius. NOT GOOD!"<<std::endl; ;}
-      
-              }
-        
-        if (averageEnergyDensityPerRing != 0) {
-        std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
-        std::cout<<"layerToStore is "<< layerToStore << std::endl;
-        std::cout<<"radiusToStore is "<< radiusToStore << std::endl;
-        std::cout<<"indexofRing is "<< indexofRing << std::endl;
-        
-        }
-        else {std::cout<<"averageEnergyDensityPerRing = 0"<<std::endl;}
-    }
-
-    }
-    
-        if (i==4){
-        
-        //loop over ring thicknesses and then ask for iterator corresponding to that loop
-	        // CellIt beginRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness);
-// 	        CellIt endRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness*2);
-	        
-//         std::cout<<"after rings"<<std::endl;
-          int indexofRing = 0;
-          int layerToStore = -999;
-
-          
-          // std::cout<<"layerToStore vector about to be cleared"<<std::endl;
-//           layerToStoreVector.clear();
-//           std::cout<<"layerToStore vector cleared"<<std::endl;
-          double radiusToStore = 0;
-          double totalEnergyPerCell = 0;
-      
-          int indexofCell = 0;
-          double energyDensityPerCell = -666;
-          double totalEnergyPerRing = 0;
-
-          double cellVolume = 0;
-          int totalCells = 0;
-          double previouseta = 0;
-          double previousphi = 0;
-              
-          int n;
-        for (n=1; n<100; n++){
-        
-        // use calorimeterCellList.
-        
-        
-        
-          CellIt beginRing = calorimeterCellList.getLowerBound((eflowCaloENUM)i, ringThickness*(n-1));
-//           CellIt beginRing = calorimeterCellList.find(eflowCaloENUM::EMB1, EMB1_ringThickness*n);
-          // 
-//           CellIt endRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness*n+1);
-        // for (;beginRing != endRing; beginRing++){
-//         save # of rings 
-          indexofRing += 1;
-          std::cout<<"Ring Number "<<indexofRing<< std::endl;
-          std::cout<<"within ring loop "<< std::endl;
-          std::vector<std::pair<CaloCell*,int> > tempVector = (*beginRing).second;
-          std::vector<std::pair<CaloCell*,int> >::iterator firstPair = tempVector.begin();
-          std::vector<std::pair<CaloCell*,int> >::iterator lastPair = tempVector.end();
-      
-          int totalCellsinRing = 0;
-          double energyDensityPerRing = 0;
-          double averageEnergyDensityPerRing = 0;
-      
-          for (; firstPair != lastPair; ++firstPair) {
-                std::cout<<"within pair loop"<<std::endl;
-                const CaloDetDescrElement* DDE = ((*firstPair).first)->caloDDE();
-                CaloCell_ID::CaloSample sampling = DDE->getSampling();
-                
-                
-                if (previouseta == ((*firstPair).first)->eta() && previousphi == ((*firstPair).first)->phi()){
-                    break;
-                }
-                
-                
-                
-                std::cout << " cell eta and phi are " << ((*firstPair).first)->eta() << " and " << ((*firstPair).first)->phi() << " with index " << (*firstPair).second << " and sampling of " << sampling << std::endl;
-                std::cout << " cell energy is " << ((*firstPair).first)->energy()<<std::endl;
-                
-                previouseta = ((*firstPair).first)->eta();
-                previousphi = ((*firstPair).first)->phi();
-                
-                double celltrackdist = calorimeterCellList.dR(previouseta,previousphi,layer);
-                
-                if (celltrackdist > 2){
-                    break;
-                }
-                
-                double hand_dR2 = (((*firstPair).first)->eta()-eta_extr)*(((*firstPair).first)->eta()-eta_extr) + (((*firstPair).first)->phi()-phi_extr)*(((*firstPair).first)->phi()-phi_extr);
-                double hand_dR = sqrt(hand_dR2);
-                
-                std::cout << " hand dR2 is " << hand_dR2 <<std::endl;
-                std::cout << " hand_dR is " << hand_dR <<std::endl;
-                std::cout << " cell-track distance is " << celltrackdist <<std::endl;
-                
-                
-                
-                totalCells += 1;
-                totalCellsinRing += 1;
-        
-                totalEnergyPerRing += ((*firstPair).first)->energy();
-                totalEnergyPerCell = ((*firstPair).first)->energy();
-                std::cout << " Total E per Cell is " << totalEnergyPerCell<<std::endl;
-                std::cout << " Total E per Ring is " << totalEnergyPerRing<<std::endl;
-        
-                //implement track E here and divide cluster E by track E to have energy ratio
-        // 	    indexofCell = (*firstPair).second;
-        // check that volume units are OK -- volume from database
-                cellVolume = DDE->volume();
-                std::cout << " cell volume is " << cellVolume/1000.<<std::endl;
-        
-                energyDensityPerCell = totalEnergyPerCell/(cellVolume/1000.);
-                std::cout << " E density per Cell is " << energyDensityPerCell<<std::endl;
-                std::cout << " Initial added E density per Cell is " << energyDensityPerRing<<std::endl;
-                energyDensityPerRing += energyDensityPerCell;
-                std::cout << " Final added E density per Cell is " << energyDensityPerRing<<std::endl;
-        
-        // 	    std::cout << " Added cell E densities are " << energyDensityPerRing<<std::endl;
-        
-                        //where should these go?
-                averageEnergyDensityPerRing = energyDensityPerRing/((totalCellsinRing)*(efRecTrack->getTrack()->e()/1000.));
-                std::cout << " track E is " << efRecTrack->getTrack()->e()/1000.;
-                std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
-                avgEdensityToStoreVector[100*(eflowCaloENUM)i+n-1] = averageEnergyDensityPerRing;
-                std::cout<<"avgEdensityToStoreVector["<< 100*(eflowCaloENUM)i+n-1 <<"] is "<< avgEdensityToStoreVector[n-1] << std::endl;
-                layerToStore = (eflowCaloENUM)i;
-                std::cout << " before layervector "<<std::endl;
-                layerToStoreVector[100*(eflowCaloENUM)i+n-1] = layerToStore;
-                std::cout<<"layerToStore is "<< layerToStore << std::endl;
-                std::cout<<"layerToStoreVector["<< 100*(eflowCaloENUM)i+n-1 <<"] is "<< layerToStoreVector[100*(eflowCaloENUM)i+n-1] << std::endl;
-                radiusToStore = (indexofRing)*ringThickness;
-                radiusToStoreVector[100*(eflowCaloENUM)i+n-1] = radiusToStore;
-                std::cout<<"radiusToStoreVector["<< 100*(eflowCaloENUM)i+n-1 <<"] is "<< radiusToStoreVector[100*(eflowCaloENUM)i+n-1] << std::endl;
-                std::cout<<"radiusToStore is "<< radiusToStore << std::endl;
-                efRecTrack->setLayerCellOrder(layerToStore);
-                efRecTrack->setRadiusCellOrder(radiusToStore);
-                efRecTrack->setAverageEnergyDensity(averageEnergyDensityPerRing);
-                
-                if (radiusToStore > celltrackdist){
-                    std::cout<<"cell-track distance is smaller than ring radius. GOOD!"<<std::endl;
-                    
-                }
-                else { std::cout<<"cell-track distance is NOT smaller than ring radius. NOT GOOD!"<<std::endl; ;}
-      
-              }
-        
-        if (averageEnergyDensityPerRing != 0) {
-        std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
-        std::cout<<"layerToStore is "<< layerToStore << std::endl;
-        std::cout<<"radiusToStore is "<< radiusToStore << std::endl;
-        std::cout<<"indexofRing is "<< indexofRing << std::endl;
-        
-        }
-        else {std::cout<<"averageEnergyDensityPerRing = 0"<<std::endl;}
-    }
-
-    }
-    
-        if (i==5){
-        
-        //loop over ring thicknesses and then ask for iterator corresponding to that loop
-	        // CellIt beginRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness);
-// 	        CellIt endRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness*2);
-	        
-//         std::cout<<"after rings"<<std::endl;
-          int indexofRing = 0;
-          int layerToStore = -999;
-
-          
-          // std::cout<<"layerToStore vector about to be cleared"<<std::endl;
-//           layerToStoreVector.clear();
-//           std::cout<<"layerToStore vector cleared"<<std::endl;
-          double radiusToStore = 0;
-          double totalEnergyPerCell = 0;
-      
-          int indexofCell = 0;
-          double energyDensityPerCell = -666;
-          double totalEnergyPerRing = 0;
-
-          double cellVolume = 0;
-          int totalCells = 0;
-          double previouseta = 0;
-          double previousphi = 0;
-              
-          int n;
-        for (n=1; n<100; n++){
-        
-        // use calorimeterCellList.
-        
-        
-        
-          CellIt beginRing = calorimeterCellList.getLowerBound((eflowCaloENUM)i, ringThickness*(n-1));
-//           CellIt beginRing = calorimeterCellList.find(eflowCaloENUM::EMB1, EMB1_ringThickness*n);
-          // 
-//           CellIt endRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness*n+1);
-        // for (;beginRing != endRing; beginRing++){
-//         save # of rings 
-          indexofRing += 1;
-          std::cout<<"Ring Number "<<indexofRing<< std::endl;
-          std::cout<<"within ring loop "<< std::endl;
-          std::vector<std::pair<CaloCell*,int> > tempVector = (*beginRing).second;
-          std::vector<std::pair<CaloCell*,int> >::iterator firstPair = tempVector.begin();
-          std::vector<std::pair<CaloCell*,int> >::iterator lastPair = tempVector.end();
-      
-          int totalCellsinRing = 0;
-          double energyDensityPerRing = 0;
-          double averageEnergyDensityPerRing = 0;
-      
-          for (; firstPair != lastPair; ++firstPair) {
-                std::cout<<"within pair loop"<<std::endl;
-                const CaloDetDescrElement* DDE = ((*firstPair).first)->caloDDE();
-                CaloCell_ID::CaloSample sampling = DDE->getSampling();
-                
-                
-                if (previouseta == ((*firstPair).first)->eta() && previousphi == ((*firstPair).first)->phi()){
-                    break;
-                }
-                
-                
-                
-                std::cout << " cell eta and phi are " << ((*firstPair).first)->eta() << " and " << ((*firstPair).first)->phi() << " with index " << (*firstPair).second << " and sampling of " << sampling << std::endl;
-                std::cout << " cell energy is " << ((*firstPair).first)->energy()<<std::endl;
-                
-                previouseta = ((*firstPair).first)->eta();
-                previousphi = ((*firstPair).first)->phi();
-                
-                double celltrackdist = calorimeterCellList.dR(previouseta,previousphi,layer);
-                
-                if (celltrackdist > 2){
-                    break;
-                }
-                
-                double hand_dR2 = (((*firstPair).first)->eta()-eta_extr)*(((*firstPair).first)->eta()-eta_extr) + (((*firstPair).first)->phi()-phi_extr)*(((*firstPair).first)->phi()-phi_extr);
-                double hand_dR = sqrt(hand_dR2);
-                
-                std::cout << " hand dR2 is " << hand_dR2 <<std::endl;
-                std::cout << " hand_dR is " << hand_dR <<std::endl;
-                std::cout << " cell-track distance is " << celltrackdist <<std::endl;
-                
-                
-                
-                totalCells += 1;
-                totalCellsinRing += 1;
-        
-                totalEnergyPerRing += ((*firstPair).first)->energy();
-                totalEnergyPerCell = ((*firstPair).first)->energy();
-                std::cout << " Total E per Cell is " << totalEnergyPerCell<<std::endl;
-                std::cout << " Total E per Ring is " << totalEnergyPerRing<<std::endl;
-        
-                //implement track E here and divide cluster E by track E to have energy ratio
-        // 	    indexofCell = (*firstPair).second;
-        // check that volume units are OK -- volume from database
-                cellVolume = DDE->volume();
-                std::cout << " cell volume is " << cellVolume/1000.<<std::endl;
-        
-                energyDensityPerCell = totalEnergyPerCell/(cellVolume/1000.);
-                std::cout << " E density per Cell is " << energyDensityPerCell<<std::endl;
-                std::cout << " Initial added E density per Cell is " << energyDensityPerRing<<std::endl;
-                energyDensityPerRing += energyDensityPerCell;
-                std::cout << " Final added E density per Cell is " << energyDensityPerRing<<std::endl;
-        
-        // 	    std::cout << " Added cell E densities are " << energyDensityPerRing<<std::endl;
-        
-                        //where should these go?
-                averageEnergyDensityPerRing = energyDensityPerRing/((totalCellsinRing)*(efRecTrack->getTrack()->e()/1000.));
-                std::cout << " track E is " << efRecTrack->getTrack()->e()/1000.;
-                std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
-                avgEdensityToStoreVector[100*(eflowCaloENUM)i+n-1] = averageEnergyDensityPerRing;
-                std::cout<<"avgEdensityToStoreVector["<< 100*(eflowCaloENUM)i+n-1 <<"] is "<< avgEdensityToStoreVector[n-1] << std::endl;
-                layerToStore = (eflowCaloENUM)i;
-                std::cout << " before layervector "<<std::endl;
-                layerToStoreVector[100*(eflowCaloENUM)i+n-1] = layerToStore;
-                std::cout<<"layerToStore is "<< layerToStore << std::endl;
-                std::cout<<"layerToStoreVector["<< 100*(eflowCaloENUM)i+n-1 <<"] is "<< layerToStoreVector[100*(eflowCaloENUM)i+n-1] << std::endl;
-                radiusToStore = (indexofRing)*ringThickness;
-                radiusToStoreVector[100*(eflowCaloENUM)i+n-1] = radiusToStore;
-                std::cout<<"radiusToStoreVector["<< 100*(eflowCaloENUM)i+n-1 <<"] is "<< radiusToStoreVector[100*(eflowCaloENUM)i+n-1] << std::endl;
-                std::cout<<"radiusToStore is "<< radiusToStore << std::endl;
-                efRecTrack->setLayerCellOrder(layerToStore);
-                efRecTrack->setRadiusCellOrder(radiusToStore);
-                efRecTrack->setAverageEnergyDensity(averageEnergyDensityPerRing);
-                
-                if (radiusToStore > celltrackdist){
-                    std::cout<<"cell-track distance is smaller than ring radius. GOOD!"<<std::endl;
-                    
-                }
-                else { std::cout<<"cell-track distance is NOT smaller than ring radius. NOT GOOD!"<<std::endl; ;}
-      
-              }
-        
-        if (averageEnergyDensityPerRing != 0) {
-        std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
-        std::cout<<"layerToStore is "<< layerToStore << std::endl;
-        std::cout<<"radiusToStore is "<< radiusToStore << std::endl;
-        std::cout<<"indexofRing is "<< indexofRing << std::endl;
-        
-        }
-        else {std::cout<<"averageEnergyDensityPerRing = 0"<<std::endl;}
-    }
-
-    }
-    
-
-    
-        std::cout<<"layer vector[1] is "<< layerToStoreVector[1] << std::endl;
-        std::cout<<"layer vector[106] is "<< layerToStoreVector[106] << std::endl;
-        
+//     std::cout<<"layer vector[1] is "<< layerToStoreVector[1] << std::endl;
+//     std::cout<<"layer vector[106] is "<< layerToStoreVector[106] << std::endl;
+     }   
 
 
 	    
 	    
 	    }
 	    
-	    std::cout<<"layer vector[1] is "<< layerToStoreVector[1] << std::endl;
-        std::cout<<"layer vector[106] is "<< layerToStoreVector[106] << std::endl;
+// 	    std::cout<<"layer vector[1] is "<< layerToStoreVector[1] << std::endl;
+//         std::cout<<"layer vector[106] is "<< layerToStoreVector[106] << std::endl;
+	    
+	    std::cout<<" size of layertostorevector is" << layerToStoreVector.size() << " & itrack is" << iTrack << std::endl;
 	    
 	    efRecTrack->setLayerCellOrderVector(layerToStoreVector);
         efRecTrack->setRadiusCellOrderVector(radiusToStoreVector);
