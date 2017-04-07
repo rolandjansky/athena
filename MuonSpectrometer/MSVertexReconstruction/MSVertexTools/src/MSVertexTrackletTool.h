@@ -62,12 +62,12 @@ namespace Muon {
     
   private:
     //private functions
-    int SortMDThits(std::vector<std::vector<Muon::MdtPrepData*> >& SortedMdt);
+    int SortMDThits(std::vector<std::vector<const Muon::MdtPrepData*> >& SortedMdt);
     bool SortMDT(Identifier& i1, Identifier& i2);    
-    std::vector<TrackletSegment> TrackletSegmentFitter(std::vector<Muon::MdtPrepData*>& mdts);
-    std::vector<TrackletSegment> TrackletSegmentFitterCore(std::vector<Muon::MdtPrepData*>& mdts,std::vector<std::pair<float,float> >& SeedParams);
-    std::vector<std::pair<float,float> > SegSeeds(std::vector<Muon::MdtPrepData*>& mdts);
-    float SeedResiduals(std::vector<Muon::MdtPrepData*>& mdts, float slope, float inter);
+    std::vector<TrackletSegment> TrackletSegmentFitter(std::vector<const Muon::MdtPrepData*>& mdts);
+    std::vector<TrackletSegment> TrackletSegmentFitterCore(std::vector<const Muon::MdtPrepData*>& mdts,std::vector<std::pair<float,float> >& SeedParams);
+    std::vector<std::pair<float,float> > SegSeeds(std::vector<const Muon::MdtPrepData*>& mdts);
+    float SeedResiduals(std::vector<const Muon::MdtPrepData*>& mdts, float slope, float inter);
     std::vector<TrackletSegment> CleanSegments(std::vector<TrackletSegment>& segs);
     bool DeltabCalc(TrackletSegment& ML1seg, TrackletSegment& ML2seg);
     float TrackMomentum(int chamber,float deltaAlpha);
@@ -77,7 +77,7 @@ namespace Muon {
     void convertToTrackParticles(std::vector<Tracklet>& tracklets, SG::WriteHandle<xAOD::TrackParticleContainer> &container);
     float sq(float x) { return (x)*(x); }
     static bool mdtComp(const Muon::MdtPrepData* mprd1, const Muon::MdtPrepData* mprd2);
-    void addMDTHits( std::vector<Muon::MdtPrepData*>& hits, std::vector<std::vector<Muon::MdtPrepData*> >& SortedMdt ) const;
+    void addMDTHits( std::vector<const Muon::MdtPrepData*>& hits, std::vector<std::vector<const Muon::MdtPrepData*> >& SortedMdt ) const;
     SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtTESKey;//"MDT_DriftCircles"
     SG::WriteHandleKey<xAOD::TrackParticleContainer> m_TPContainer;
   };
