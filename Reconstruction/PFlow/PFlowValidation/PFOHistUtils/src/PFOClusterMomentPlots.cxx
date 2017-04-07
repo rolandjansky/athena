@@ -30,7 +30,7 @@ namespace PFO {
     m_PFO_ENG_POS = Book1D("PFO_ENG_POS",m_sPFOContainerName + "_ENG_POS",60,-100.0,10000.0);
     m_PFO_AVG_LAR_Q = Book1D("PFO_AVG_LAR_Q",m_sPFOContainerName + "_AVG_LAR_Q",240,-1.0,200.0);
     m_PFO_AVG_TILE_Q = Book1D("PFO_AVG_TILE_Q",m_sPFOContainerName + "_AVG_TILE_Q",21,-1.0,20.0);
-    m_PFO_EM_PROBABILTY = Book1D("PFO_EM_PROBABILTY",m_sPFOContainerName + "_EM_PROBABILTY",30,0,3);
+    m_PFO_EM_PROBABILTY = Book1D("PFO_EM_PROBABILTY",m_sPFOContainerName + "_EM_PROBABILTY",20,0,1);
 
   }
 
