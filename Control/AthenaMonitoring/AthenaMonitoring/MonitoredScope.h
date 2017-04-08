@@ -12,6 +12,7 @@
 
 #include "AthenaMonitoring/IMonitoredVariable.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoring/HistogramFiller.h"
 
 namespace Monitored {
     class MonitoredScope {
@@ -44,7 +45,7 @@ namespace Monitored {
         ToolHandle<GenericMonitoringTool> mTool;
         bool mAutoSave;
         const std::vector<std::reference_wrapper<IMonitoredVariable>> mScopeMonitored;
-        const std::vector<GenericMonitoringTool::HistogramFiller*> mHistogramsFillers;
+        const std::vector<HistogramFiller*> mHistogramsFillers;
         
         MonitoredScope(ToolHandle<GenericMonitoringTool> tool, std::initializer_list<std::reference_wrapper<IMonitoredVariable>> scopeMonitored)
           : mTool(tool), mAutoSave(true), mScopeMonitored(scopeMonitored), mHistogramsFillers(mTool->getHistogramsFillers(mScopeMonitored)) { }

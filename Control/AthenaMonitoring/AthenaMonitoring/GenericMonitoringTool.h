@@ -21,6 +21,7 @@
 
 #include "AthenaMonitoring/IMonitoredVariable.h"
 #include "AthenaMonitoring/HistogramDef.h"
+#include "AthenaMonitoring/HistogramFiller.h"
 
 /**
  * @brief Basic monitoring tool for the HLT trigger.
@@ -60,41 +61,6 @@
 
 class GenericMonitoringTool : public AthAlgTool {
 public:
-  /**
-   * @brief base class for fillers 
-   */
-  class HistogramFiller {
-  public:
-    friend GenericMonitoringTool;
-    HistogramFiller(const HistogramFiller& hf) 
-      : m_hist(hf.m_hist), m_mutex(hf.m_mutex), m_histDef(hf.m_histDef) {}
-    HistogramFiller(HistogramFiller&&) = default;
-
-    virtual ~HistogramFiller() {}
-    virtual unsigned fill() = 0;
-    virtual HistogramFiller* clone() = 0;
-
-    void setMonitoredVariables(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) {
-      m_monVariables = monitoredVariables;
-    }
-
-    std::vector<std::string> histogramVariablesNames() {
-      return m_histDef->name;
-    }
-  protected:
-    HistogramFiller(TH1* hist, HistogramDef histDef) 
-      : m_hist(hist), m_mutex(std::make_shared<std::mutex>()), m_histDef(new HistogramDef(histDef)) {}
-
-    virtual TH1* histogram() = 0;
-
-    TH1* m_hist;
-    std::shared_ptr<std::mutex> m_mutex;
-    std::shared_ptr<HistogramDef> m_histDef;
-    std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> m_monVariables;
-  private:
-    HistogramFiller& operator=(HistogramFiller const&) = delete;
-  };
-
 	static const InterfaceID& interfaceID();
 
   GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent);
@@ -126,85 +92,6 @@ public:
   };
 
 private: 
-  /**
-   * @brief filler for plain 1D hisograms 
-   */
-  class HistogramFiller1D : public HistogramFiller {
-  public: 
-    HistogramFiller1D(TH1* hist, HistogramDef histDef)
-      : HistogramFiller(hist, histDef) {}
-    virtual unsigned fill();
-    virtual HistogramFiller1D* clone();
-  protected:
-    virtual TH1* histogram() { return m_hist; }
-  };
-  
-  /**
-   * @brief filler for 1D hisograms filled in cummulative mode
-   */
-  class CumulativeHistogramFiller1D : public HistogramFiller1D {
-  public:
-    CumulativeHistogramFiller1D(TH1* hist, HistogramDef histDef) 
-      : HistogramFiller1D(hist, histDef) {}
-    virtual unsigned fill();
-    virtual CumulativeHistogramFiller1D* clone();
-  };
-
-  class VecHistogramFiller1D : public HistogramFiller1D {
-  public:
-    VecHistogramFiller1D(TH1* hist, HistogramDef histDef) 
-      : HistogramFiller1D(hist, histDef) {}
-    virtual unsigned fill();
-    virtual VecHistogramFiller1D* clone();
-  };
-  
-  class VecHistogramFiller1DWithOverflows : public HistogramFiller1D {
-  public:
-    VecHistogramFiller1DWithOverflows(TH1* hist, HistogramDef histDef) 
-      : HistogramFiller1D(hist, histDef) {}
-    virtual unsigned fill();
-    virtual VecHistogramFiller1DWithOverflows* clone();
-  };
-
-  /**
-   * @brief filler for profile 1d histogram 
-   */
-  class HistogramFillerProfile : public HistogramFiller {
-  public:
-    HistogramFillerProfile(TProfile* hist, HistogramDef histDef)
-      : HistogramFiller(hist, histDef) {};
-    virtual unsigned fill();
-    virtual HistogramFillerProfile* clone();
-  protected:
-    virtual TProfile* histogram() { return static_cast<TProfile*>(m_hist); }
-  };
-  
-  /**
-   * @brief filler for plain 2D hisograms 
-   */
-  class HistogramFiller2D : public HistogramFiller {
-  public:
-    HistogramFiller2D(TH2* hist, HistogramDef histDef)
-      : HistogramFiller(hist, histDef) {};
-    virtual unsigned fill();
-    virtual HistogramFiller2D* clone();
-  protected:
-    virtual TH2* histogram() { return static_cast<TH2*>(m_hist); }
-  };
-
-  /**
-   * @brief filler for profile 2D histogram
-   */
-  class HistogramFiller2DProfile : public HistogramFiller {
-  public:
-    HistogramFiller2DProfile(TProfile2D* hist, HistogramDef histDef)
-      : HistogramFiller(hist, histDef) {};
-    virtual unsigned fill();
-    virtual HistogramFiller2DProfile* clone();
-  protected:
-    virtual TProfile2D* histogram() { return static_cast<TProfile2D*>(m_hist); }
-  };  
-  
   StatusCode createFiller(const HistogramDef& def); //!< creates filler and adds to the list of active fillers
   // utility functions
   
