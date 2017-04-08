@@ -1,9 +1,6 @@
-//
-//  MonitoringHelpers.h
-//  AthenaMonitoring
-//
-//  Created by Piotr Sarna on 03/04/2017.
-//
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef MonitoringHelpers_h
 #define MonitoringHelpers_h

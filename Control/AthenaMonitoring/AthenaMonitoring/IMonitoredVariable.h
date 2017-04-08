@@ -1,9 +1,6 @@
-//
-//  IMonitoredVariable.h
-//  AthenaMonitoring
-//
-//  Created by Piotr Sarna on 03/04/2017.
-//
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef IMonitoredVariable_h
 #define IMonitoredVariable_h
@@ -19,13 +16,13 @@ namespace Monitored {
         friend MonitoredScope;
         virtual ~IMonitoredVariable() {}
         
-        const std::string& stringName() const { return mStrName; }
+        const std::string& name() const { return mName; }
         virtual const std::vector<double> getVectorRepresentation() const = 0;
     protected:
-        const std::string mStrName;
+        const std::string mName;
         
-        IMonitoredVariable(const std::string& strName)
-        : mStrName(strName) {}
+        IMonitoredVariable(std::string name)
+        : mName(std::move(name)) {}
     };
 }
 

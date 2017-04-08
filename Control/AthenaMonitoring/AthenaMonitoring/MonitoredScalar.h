@@ -1,9 +1,6 @@
-//
-//  MonitoredScalar.h
-//  AthenaMonitoring
-//
-//  Created by Piotr Sarna on 03/04/2017.
-//
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef MonitoredScalar_h
 #define MonitoredScalar_h
@@ -19,13 +16,13 @@ namespace Monitored {
         class MonitoredScalar;
         
         template<class T>
-        MonitoredScalar<T> declare(const std::string strName, const T& defaultValue = {});
+        MonitoredScalar<T> declare(std::string name, const T& defaultValue = {});
         
         template<class T>
         class MonitoredScalar : public IMonitoredVariable {
         public:
             static_assert(MonitoredHelpers::has_double_operator<T>::value, "Value must be convertable to double");
-            friend MonitoredScalar<T> declare<T>(const std::string strName, const T& defaultValue);
+            friend MonitoredScalar<T> declare<T>(std::string name, const T& defaultValue);
             
             MonitoredScalar(MonitoredScalar&&) = default;
             
@@ -36,21 +33,16 @@ namespace Monitored {
         private:
             T mValue;
             
-            MonitoredScalar(const std::string strName, const T& defaultValue = {})
-            : IMonitoredVariable(strName), mValue(defaultValue) { }
+            MonitoredScalar(std::string name, const T& defaultValue = {})
+              : IMonitoredVariable(std::move(name)), mValue(defaultValue) { }
             MonitoredScalar(MonitoredScalar const&) = delete;
             MonitoredScalar& operator=(MonitoredScalar const&) = delete;
         };
         
         template<class T>
-        MonitoredScalar<T> declare(const std::string strName, const T& defaultValue) {
-            return MonitoredScalar<T>(strName, defaultValue);
+        MonitoredScalar<T> declare(std::string name, const T& defaultValue) {
+            return MonitoredScalar<T>(std::move(name), defaultValue);
         }
-    }
-    
-    template<class T>
-    MonitoredScalar::MonitoredScalar<T> declareScalar(const std::string strName, const T& defaultValue) {
-        return MonitoredScalar::declare(strName, defaultValue);
     }
 }
 

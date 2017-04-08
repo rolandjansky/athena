@@ -1,9 +1,6 @@
-//
-//  MonitoredCollection.h
-//  AthenaMonitoring
-//
-//  Created by Piotr Sarna on 03/04/2017.
-//
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef MonitoredCollection_h
 #define MonitoredCollection_h
@@ -19,19 +16,19 @@ namespace Monitored {
         class MonitoredValuesCollection;
         
         template<class T>
-        MonitoredValuesCollection<T> declare(const std::string strName, const T& collection);
+        MonitoredValuesCollection<T> declare(std::string name, const T& collection);
         
         template<class T>
         class MonitoredObjectsCollection;
         
         template<class T>
-        MonitoredObjectsCollection<T> declare(const std::string strName, const T& collection, std::function<double(const typename MonitoredHelpers::get_collection_values_type<T>::value_type&)> converterToDouble);
+        MonitoredObjectsCollection<T> declare(std::string name, const T& collection, std::function<double(const typename MonitoredHelpers::get_collection_values_type<T>::value_type&)> converterToDouble);
         
         template<class T>
         class MonitoredValuesCollection : public IMonitoredVariable {
         public:
             static_assert(MonitoredHelpers::are_collection_values_have_double_operator<T>::value, "Collection values must be convertable to double");
-            friend MonitoredValuesCollection<T> declare<T>(const std::string strName, const T& collection);
+            friend MonitoredValuesCollection<T> declare<T>(std::string name, const T& collection);
             
             MonitoredValuesCollection(MonitoredValuesCollection&&) = default;
             
@@ -41,8 +38,8 @@ namespace Monitored {
         private:
             const T& mCollection;
             
-            MonitoredValuesCollection(const std::string strName, const T& collection)
-            : IMonitoredVariable(strName), mCollection(collection) { }
+            MonitoredValuesCollection(std::string name, const T& collection)
+              : IMonitoredVariable(std::move(name)), mCollection(collection) { }
             MonitoredValuesCollection(MonitoredValuesCollection const&) = delete;
             MonitoredValuesCollection& operator=(MonitoredValuesCollection const&) = delete;
         };
@@ -50,7 +47,7 @@ namespace Monitored {
         template<class T>
         class MonitoredObjectsCollection : public IMonitoredVariable {
         public:
-            friend MonitoredObjectsCollection<T> declare<T>(const std::string strName, const T& collection, std::function<double(const typename MonitoredHelpers::get_collection_values_type<T>::value_type&)> converterToDouble);
+            friend MonitoredObjectsCollection<T> declare<T>(std::string name, const T& collection, std::function<double(const typename MonitoredHelpers::get_collection_values_type<T>::value_type&)> converterToDouble);
             
             MonitoredObjectsCollection(MonitoredObjectsCollection&&) = default;
             
@@ -70,31 +67,21 @@ namespace Monitored {
             const T& mCollection;
             std::function<double(const typename MonitoredHelpers::get_collection_values_type<T>::value_type&)> mConverterToDouble;
             
-            MonitoredObjectsCollection(const std::string strName, const T& collection, std::function<double(const typename MonitoredHelpers::get_collection_values_type<T>::value_type&)> converterToDouble)
-            : IMonitoredVariable(strName), mCollection(collection), mConverterToDouble(converterToDouble) { }
+            MonitoredObjectsCollection(std::string name, const T& collection, std::function<double(const typename MonitoredHelpers::get_collection_values_type<T>::value_type&)> converterToDouble)
+            : IMonitoredVariable(std::move(name)), mCollection(collection), mConverterToDouble(std::move(converterToDouble)) { }
             MonitoredObjectsCollection(MonitoredObjectsCollection const&) = delete;
             MonitoredObjectsCollection& operator=(MonitoredObjectsCollection const&) = delete;
         };
         
         template<class T>
-        MonitoredValuesCollection<T> declare(const std::string strName, const T& collection) {
-            return MonitoredValuesCollection<T>(strName, collection);
+        MonitoredValuesCollection<T> declare(std::string name, const T& collection) {
+            return MonitoredValuesCollection<T>(std::move(name), collection);
         }
         
         template<class T>
-        MonitoredObjectsCollection<T> declare(const std::string strName, const T& collection, std::function<double(const typename MonitoredHelpers::get_collection_values_type<T>::value_type&)> converterToDouble) {
-            return MonitoredObjectsCollection<T>(strName, collection, converterToDouble);
+        MonitoredObjectsCollection<T> declare(std::string name, const T& collection, std::function<double(const typename MonitoredHelpers::get_collection_values_type<T>::value_type&)> converterToDouble) {
+            return MonitoredObjectsCollection<T>(std::move(name), collection, std::move(converterToDouble));
         }
-    }
-    
-    template<class T>
-    MonitoredCollection::MonitoredValuesCollection<T> declareCollection(const std::string strName, const T& collection) {
-        return MonitoredCollection::declare(strName, collection);
-    }
-    
-    template<class T>
-    MonitoredCollection::MonitoredObjectsCollection<T> declareCollection(const std::string strName, const T& collection, std::function<double(const typename MonitoredHelpers::get_collection_values_type<T>::value_type&)> converterToDouble) {
-        return MonitoredCollection::declare(strName, collection, converterToDouble);
     }
 }
 

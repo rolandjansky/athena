@@ -78,7 +78,7 @@ vector<GenericMonitoringTool::HistogramFiller*> GenericMonitoringTool::getHistog
 
     for (auto fillerVariable : fillerVariables) {
       for (auto monValue : monitoredVariables) {
-        if (fillerVariable.compare(monValue.get().stringName()) == 0) {
+        if (fillerVariable.compare(monValue.get().name()) == 0) {
           variables.push_back(monValue);
           break;
         }

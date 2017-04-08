@@ -1,9 +1,6 @@
-//
-//  MonitoredScope.h
-//  AthenaMonitoring
-//
-//  Created by Piotr Sarna on 03/04/2017.
-//
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef MonitoredScope_h
 #define MonitoredScope_h
@@ -34,7 +31,7 @@ namespace Monitored {
             }
         }
         
-        void save() {
+        virtual void save() {
             for (auto filler : mHistogramsFillers) {
                 filler->fill();
             }
@@ -43,20 +40,15 @@ namespace Monitored {
         void setAutoSaveEnabled(bool isEnabled) {
             mAutoSave = isEnabled;
         }
-    private:
+    protected:
         ToolHandle<GenericMonitoringTool> mTool;
         bool mAutoSave;
         const std::vector<std::reference_wrapper<IMonitoredVariable>> mScopeMonitored;
         const std::vector<GenericMonitoringTool::HistogramFiller*> mHistogramsFillers;
         
         MonitoredScope(ToolHandle<GenericMonitoringTool> tool, std::initializer_list<std::reference_wrapper<IMonitoredVariable>> scopeMonitored)
-        : mTool(tool), mAutoSave(true), mScopeMonitored(scopeMonitored), mHistogramsFillers(mTool->getHistogramsFillers(mScopeMonitored)) { }
+          : mTool(tool), mAutoSave(true), mScopeMonitored(scopeMonitored), mHistogramsFillers(mTool->getHistogramsFillers(mScopeMonitored)) { }
     };
-    
-    template <typename... T>
-    static MonitoredScope declareScope(ToolHandle<GenericMonitoringTool> tool, T&&... scopeMonitored) {
-        return MonitoredScope::declare(tool, scopeMonitored...);
-    }
 }
 
 #endif /* MonitoredScope_h */

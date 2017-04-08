@@ -67,7 +67,7 @@ void GenericMonitoringToolTest::scalarTest () {
     
     auto roiPhi = MonitoredScalar::declare("phi", -99.0); //deducted double
     auto roiEta = MonitoredScalar::declare<double>("eta", -99); //explicite double
-    auto scalarObj = declareScalar("scalar", Scalar(15)); //class object convertable to number
+    auto scalarObj = MonitoredScalar::declare("scalar", Scalar(15)); //class object convertable to number
     //    auto error = MonitoredScalar::declare("error", "compile error value");
     
     auto monitorIt = MonitoredScope::declare(m_monitoringTool, roiPhi, roiEta, scalarObj);  // this is binding to histograms
@@ -94,9 +94,9 @@ void GenericMonitoringToolTest::valuesCollectionTest() {
     auto list = MonitoredCollection::declare("list values", someListValues);
     auto set = MonitoredCollection::declare("set values", someSetValues);
     auto array = MonitoredCollection::declare("array values", someArrayValues);
-    auto rawArray = declareCollection("raw array values", someRawArrayValues);
+    auto rawArray = MonitoredCollection::declare("raw array values", someRawArrayValues);
     
-    auto monitorIt = declareScope(m_monitoringTool, vector, list, set, array, rawArray); // this is binding to histograms
+    auto monitorIt = MonitoredScope::declare(m_monitoringTool, vector, list, set, array, rawArray); // this is binding to histograms
     
     someVectorValues.push_back(3);
     someVectorValues.push_back(1);
@@ -120,7 +120,7 @@ void GenericMonitoringToolTest::objectsCollectionTest() {
     Track tracks[2];
     
     auto eta = MonitoredCollection::declare("eta", tracks, &Track::eta);
-    auto phi = declareCollection("phi", tracks, [](const Track& t) { return t.phi(); });
+    auto phi = MonitoredCollection::declare("phi", tracks, [](const Track& t) { return t.phi(); });
     
     auto monitorIt = MonitoredScope::declare(m_monitoringTool, eta, phi); // this is binding to histograms
     

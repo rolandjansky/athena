@@ -1,5 +1,5 @@
 /*
-* Author: Piotr Sarna
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AthenaMonitoring_GenericMonitoringToolTest_h
