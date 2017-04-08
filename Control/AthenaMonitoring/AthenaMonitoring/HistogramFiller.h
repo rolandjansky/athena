@@ -15,6 +15,9 @@
 #include "TProfile.h"
 #include "TProfile2D.h"
 
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ITHistSvc.h"
+
 #include "AthenaMonitoring/IMonitoredVariable.h"
 #include "AthenaMonitoring/HistogramDef.h"
  
@@ -40,6 +43,7 @@ public:
   std::vector<std::string> histogramVariablesNames() {
     return m_histDef->name;
   }
+  
 protected:
   virtual TH1* histogram() = 0;
 
@@ -47,8 +51,62 @@ protected:
   std::shared_ptr<std::mutex> m_mutex;
   std::shared_ptr<HistogramDef> m_histDef;
   std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> m_monVariables;
+  
 private:
   HistogramFiller& operator=(HistogramFiller const&) = delete;
+};
+
+class HistogramFillerFactory {
+private:
+  class MonitoringGroup {
+  public:
+    enum Level { debug, expert, shift, express, runsum, runstat = runsum };
+  private:
+    std::string level2string(Level l) const;
+  public:
+    MonitoringGroup(ServiceHandle<ITHistSvc> histSvc, std::string groupName, Level l);
+  
+    StatusCode regHist(TH1* h);
+    StatusCode deregHist(TH1* h);
+    
+    template <class T>
+    T* getHist(const std::string& hname) const {
+      T* h(0);
+      const std::string name = level2string(m_level) + m_groupName + "/" + hname;
+      if (m_histSvc->exists(name)) {
+        m_histSvc->getHist(name, h).ignore();
+      }
+      return h;
+    }
+  private:
+    ServiceHandle<ITHistSvc> m_histSvc;
+    std::string m_groupName;
+    Level m_level;
+  };
+  
+public:
+  HistogramFillerFactory(ServiceHandle<ITHistSvc> histSvc, std::string groupName);
+  virtual ~HistogramFillerFactory();
+  HistogramFiller* create(const HistogramDef& def); //!< creates filler*/
+  
+private:
+  template<class H, class HBASE, typename... Types> 
+  HBASE* create(const HistogramDef& def, Types&&... hargs);
+  template<class H> 
+  TH1* create1D(const HistogramDef& def);
+  template<class H> 
+  TH1* create1DProfile(const HistogramDef& def);
+  template<class H> 
+  TH1* create2D(const HistogramDef& def);
+  template<class H> 
+  TH1* create2DProfile(const HistogramDef& def);
+  
+  static void setOpts(TH1* hist, const std::string& opt);
+  static void setLabels(TH1* hist, const std::vector<std::string>& labels);
+  
+  ServiceHandle<ITHistSvc> m_histSvc;
+  std::string m_groupName;
+  std::map<std::string, MonitoringGroup*> m_histogramCategory; //!< predefined categories (drive booking paths)
 };
 
 /**

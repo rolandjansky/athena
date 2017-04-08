@@ -68,51 +68,10 @@ public:
   
   virtual StatusCode initialize();
   virtual std::vector<HistogramFiller*> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables);
-  
-  enum Level { debug, expert, shift, express, runsum, runstat = runsum };
-  std::string level2string( Level l );
-  class MonGroup {
-  public:
-    MonGroup(GenericMonitoringTool* tool, const std::string& algo, Level l );
-    StatusCode regHist(TH1* h);
-    template <class T>
-    T* getHist(const std::string& hname) const {
-      T* h(0);
-      const std::string name = m_tool->level2string(m_level)+m_algo+"/"+hname;
-      if (m_tool->m_histSvc->exists(name)) {
-        m_tool->m_histSvc->getHist(name, h).ignore();
-      }
-      return h;
-    }
-    StatusCode deregHist(TH1* h);
-  private:
-    GenericMonitoringTool* m_tool;
-    std::string m_algo;
-    Level m_level;
-  };
-
-private: 
-  StatusCode createFiller(const HistogramDef& def); //!< creates filler and adds to the list of active fillers
-  // utility functions
-  
-  void setOpts(TH1* hist, const std::string& opt);
-  void setLabels(TH1* hist, const std::vector<std::string>& labels);
-
-  template<class H, class HBASE, typename... Types> 
-  HBASE* create( const HistogramDef& def, Types&&... hargs );
-  template<class H> 
-  TH1* create1D( TH1*& histo, const HistogramDef& def );
-  template<class H> 
-  TH1* createProfile( TProfile*& histo, const HistogramDef& def );
-  template<class H> 
-  TH1* create2D( TH2*& histo, const HistogramDef& def );
-  template<class H> 
-  TH1* create2DProfile( TProfile2D*& histo, const HistogramDef& def );
-  
+private:   
   ServiceHandle<ITHistSvc> m_histSvc;  
   std::vector<HistogramFiller*> m_fillers;                         //!< list of fillers
   std::vector<std::string> m_histograms;                           //!< property (list of histogram definitions)
-  std::map<std::string, MonGroup*> m_histogramCategory;            //!< predefined categories (drive booking paths)
 };
 
 #include "AthenaMonitoring/MonitoredScope.h"
