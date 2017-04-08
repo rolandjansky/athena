@@ -9,7 +9,7 @@ from copy                                 import deepcopy
 
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'MC_pp_v6.py' )
+log = logging.getLogger( 'MC_pp_v7.py' )
 
 
 #---------------------------------------------------------------------
@@ -179,202 +179,276 @@ def setupMenu():
 
     TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
 
-
-        ['j0_0i1c200m400TLA',             'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-#        ['j0_0i1c200m400TLA_test4',       'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['j0_0i1c400m600TLA',             'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['j0_0i1c600m800TLA',             'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['j0_0i1c800m1000TLA',             'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['j0_1i2c100m300TLA',             'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['j0_1i2c500m700TLA',             'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['j0_1i2c100m8000TLA',             'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-	['j0_1i2c500m900TLA',             'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-	['j0_1i2c600m800TLA',             'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-	
-        ## Additional jet chains(ATR-12772)
-        # moved to phys ['j60_TT', 'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-
-# triggers for mass cut
-        ['j100_a10_lcw_subjes', 'L1_J20', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j100_a10_lcw_subjes_30smcINF', 'L1_J20', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j100_a10t_lcw_jes', 'L1_J20', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j100_a10t_lcw_jes_30smcINF', 'L1_J20', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j100_a10r', 'L1_J20', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j100_a10r_30smcINF', 'L1_J20', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
         
-        ['j375_a10t_lcw_jes_30smcINF', 'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j375_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21', 'L1_HT190-J15.ETA21', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j375_a10t_lcw_jes_30smcINF_L1SC111', 'L1_SC111', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['2j330_a10t_lcw_jes_30smcINF', 'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['2j330_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21', 'L1_HT190-J15.ETA21', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['2j330_a10t_lcw_jes_30smcINF_L1SC111', 'L1_SC111', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-
-
-        ['j400_a10_lcw_sub_L1J100', 'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j400_a10_sub_L1J100', 'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j420_a10_lcw_sub_L1J100', 'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j420_a10_sub_L1J100', 'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-
-        ['j360_a10_lcw_sub_L1SC111', 'L1_SC111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j400_a10_lcw_sub_L1SC111', 'L1_SC111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j420_a10_lcw_sub_L1SC111', 'L1_SC111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j460_a10_lcw_sub_L1SC111', 'L1_SC111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j300_a10_lcw_sub_L1J75', 'L1_J75', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        #['j300_a10_lcw_sub_L1SC85', 'L1_SC85', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j360_a10_lcw_sub_L1J100'               , 'L1_J100',    [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j380_a10_lcw_sub_L1J100', 'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j440_a10_lcw_sub_L1J100', 'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-
-        ### ATR-14353
-        ['j300_a10_lcw_subjes_L1SC85', 'L1_SC85', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j360_a10_lcw_subjes_L1SC111', 'L1_SC111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-
-        # trimming chains
-        ['j460_a10t_nojcalib_L1J100',     'L1_J100', [], [PhysicsStream], ['Rate:SingleJet',  'BW:Jet'], -1],
-        ['j460_a10t_lcw_nojcalib_L1J100', 'L1_J100', [], [PhysicsStream], ['Rate:SingleJet',  'BW:Jet'], -1],
-        ['j460_a10t_lcw_jes_L1J100',      'L1_J100', [], [PhysicsStream], ['Rate:SingleJet',  'BW:Jet'], -1],
-        ['j260_a10t_nojcalib_L1J75',      'L1_J75',  [], [PhysicsStream], ['Rate:SingleJet',  'BW:Jet'], -1],
-        ['j260_a10t_lcw_nojcalib_L1J75',  'L1_J75',  [], [PhysicsStream], ['Rate:SingleJet',  'BW:Jet'], -1],
-        ['j260_a10t_lcw_jes_L1J75',       'L1_J75',  [], [PhysicsStream], ['Rate:SingleJet',  'BW:Jet'], -1],
-
-        # jet chains with updated calibrations for 2017
-        ['j175_subjesIS',     'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j175_lcw_subjesIS', 'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j420_subjesIS',     'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j420_lcw_subjesIS', 'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+        #####
+        ######################### Performance-style chains
+        #####
         
-        # data scouting
+        # Jet data scouting stream chains
+        # These record only the trigger jets, but for every event passing the L1 trigger
         ['j0_perf_ds1_L1All',      'L1_All',  [], ['DataScouting_05_Jets'], ['RATE:Cosmic_Jets_DS', 'BW:Jet'], -1],
         ['j0_lcw_jes_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1], 
 
-	['j10_320eta490', 'L1_RD0_FILLED',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-#        ['j10_320eta490_test4', 'L1_RD0_FILLED',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j25_320eta490_L1TE5', 'L1_TE5',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j35_320eta490_L1TE10', 'L1_TE10',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j45_320eta490_L1TE20', 'L1_TE20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j55_320eta490_L1TE20', 'L1_TE20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+
+
+        #####
+        ######################### Single-jet small-R trigger chains
+        #####
+
+        # Standard central jet triggers
+        ['j10',                     'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+	['j20',                     'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+	['j30',                     'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+	['j30_L1TE5',               'L1_TE5', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+	['j30_L1TE10',              'L1_TE10', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+	['j40',                     'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+	['j40_L1TE10',              'L1_TE10', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+	['j40_L1TE20',              'L1_TE20', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+	['j40_L1J12',               'L1_J12', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+	['j50_L1TE20',              'L1_TE20', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j50_L1J12',               'L1_J12', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+	['j50_L1J15',               'L1_J15', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j55_L1RD0_FILLED',        'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+	['j60_L1J15',               'L1_J15', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+	['j75_L1J20',               'L1_J20', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j85_L1J40',               'L1_J40', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j100',                    'L1_J25',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j125',                    'L1_J50', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j200',                    'L1_J50', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j300',                    'L1_J85', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        
+        # 2017 calibration central jet triggers
+        ['j175_subjesIS',           'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1], #TODO J100 isn't appropriate here
+        ['j175_lcw_subjesIS',       'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1], #TODO J100 isn't appropriate here
+        ['j420_subjesIS',           'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+        ['j420_lcw_subjesIS',       'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+        
+        # Alternative calibration central jet triggers
+        ['j85_nojcalib',            'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j85_lcw',                 'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j85_lcw_jes',             'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j85_lcw_nojcalib',        'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j175_jes',                'L1_J50',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j175_nojcalib',           'L1_J50',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j175_lcw',                'L1_J50',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j175_lcw_jes',            'L1_J50',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j175_lcw_nojcalib',       'L1_J50',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j300_lcw_nojcalib',       'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+ 
+        # Standard forward jet triggers
+	['j10_320eta490',           'L1_RD0_FILLED',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+#        ['j10_320eta490_test4',     'L1_RD0_FILLED',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j25_320eta490_L1TE5',     'L1_TE5',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j35_320eta490_L1TE10',    'L1_TE10',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j45_320eta490_L1TE20',    'L1_TE20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j55_320eta490_L1TE20',    'L1_TE20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+
+
+
+        #####
+        ######################### Single-jet large-R trigger chains
+        #####
+
+        # Alternative calibration topocluster large-R jet triggers
+        ['j300_a10_lcw_sub_L1J75',          'L1_J75', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j360_a10_sub_L1J100',             'L1_J100', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j360_a10_lcw_sub_L1J100',         'L1_J100', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j380_a10_lcw_sub_L1J100',         'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j400_a10_sub_L1J100',             'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j400_a10_lcw_sub_L1J100',         'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j420_a10_sub_L1J100',             'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j420_a10_lcw_sub_L1J100',         'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j440_a10_lcw_sub_L1J100',         'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+
+        # L1Topo simple cone seeded topocluster large-R jet triggers
+        # See ATR-14353 for details of the request
+        #['j300_a10_lcw_sub_L1SC85',         'L1_SC85', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j300_a10_lcw_subjes_L1SC85',      'L1_SC85', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j360_a10_lcw_subjes_L1SC111',     'L1_SC111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j360_a10_lcw_sub_L1SC111',        'L1_SC111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j400_a10_lcw_sub_L1SC111',        'L1_SC111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j420_a10_lcw_sub_L1SC111',        'L1_SC111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j460_a10_lcw_sub_L1SC111',        'L1_SC111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        
+        # L1Topo HT seeded topocluster large-R jet triggers
+        ['j360_a10_nojcalib',                       'L1_HT150-J20s5.ETA31', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j360_a10_nojcalib_L1HT150-J20.ETA31',     'L1_HT150-J20.ETA31', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j360_a10_lcw_nojcalib',                   'L1_HT150-J20s5.ETA31', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j360_a10_lcw_nojcalib_L1HT150-J20.ETA31', 'L1_HT150-J20.ETA31', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j460_a10_nojcalib',                       'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j460_a10_nojcalib_L1HT190-J15.ETA21',     'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j460_a10_lcw_nojcalib',                   'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j460_a10_lcw_nojcalib_L1HT190-J15.ETA21', 'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j360_a10_sub',                            'L1_HT150-J20s5.ETA31', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j360_a10_sub_L1HT150-J20.ETA31',          'L1_HT150-J20.ETA31', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j360_a10_lcw_sub',                        'L1_HT150-J20s5.ETA31', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j360_a10_lcw_sub_L1HT150-J20.ETA31',      'L1_HT150-J20.ETA31', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j460_a10_sub',                            'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j460_a10_sub_L1HT190-J15.ETA21',          'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j460_a10_lcw_sub',                        'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j460_a10_lcw_sub_L1HT190-J15.ETA21',      'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        
+        # L1Topo HT seeded reclustered large-R jet triggers
+        ['j360_a10r',                       'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j460_a10r',                       'L1_HT150-J20s5.ETA31', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+
+
+        # Trimmed topocluster large-R jet triggers
+        ['j260_a10t_nojcalib_L1J75',        'L1_J75',  [], [PhysicsStream], ['Rate:SingleJet',  'BW:Jet'], -1],
+        ['j260_a10t_lcw_nojcalib_L1J75',    'L1_J75',  [], [PhysicsStream], ['Rate:SingleJet',  'BW:Jet'], -1],
+        ['j260_a10t_lcw_jes_L1J75',         'L1_J75',  [], [PhysicsStream], ['Rate:SingleJet',  'BW:Jet'], -1],
+        ['j460_a10t_nojcalib_L1J100',       'L1_J100', [], [PhysicsStream], ['Rate:SingleJet',  'BW:Jet'], -1],
+        ['j460_a10t_lcw_nojcalib_L1J100',   'L1_J100', [], [PhysicsStream], ['Rate:SingleJet',  'BW:Jet'], -1],
+        ['j460_a10t_lcw_jes_L1J100',        'L1_J100', [], [PhysicsStream], ['Rate:SingleJet',  'BW:Jet'], -1],
+
+
+        
+        #####
+        ######################### Large-R jet trigger chains with mass cuts and support chains
+        #####
+        
+        # Single-jet chains
+        ['j375_a10t_lcw_jes_30smcINF',                      'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+        ['j375_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',    'L1_HT190-J15.ETA21', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+        ['j375_a10t_lcw_jes_30smcINF_L1SC111',              'L1_SC111', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+
+        # Di-jet chains
+        ['2j330_a10t_lcw_jes_30smcINF',                     'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+        ['2j330_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',   'L1_HT190-J15.ETA21', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+        ['2j330_a10t_lcw_jes_30smcINF_L1SC111',             'L1_SC111', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+
+        # Validation chains, not intended for physics usage
+        ['j100_a10_lcw_subjes',             'L1_J20', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+        ['j100_a10_lcw_subjes_30smcINF',    'L1_J20', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+        ['j100_a10r',                       'L1_J20', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+        ['j100_a10r_30smcINF',              'L1_J20', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+        ['j100_a10t_lcw_jes',               'L1_J20', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+        ['j100_a10t_lcw_jes_30smcINF',      'L1_J20', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+
+
+
+        #####
+        ######################### Multi-jet small-R trigger chains
+        #####
+
+        # 2-jet single threshold triggers
+	['2j10',                'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['2j15',                'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['2j20',                'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['2j25',                'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	
+        # 2-jet single threshold forward triggers
+	['2j10_320eta490',      'L1_RD0_FILLED',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+	['2j15_320eta490',      'L1_RD0_FILLED',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+	['2j20_320eta490',      'L1_RD0_FILLED',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+	['2j25_320eta490',      'L1_RD0_FILLED',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+	['2j25_320eta490_L1TE5','L1_TE5',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+	['2j35_320eta490',      'L1_TE10',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+
+	# 3-jet single threshold triggers
+        ['3j30',                'L1_TE10', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['3j40',                'L1_TE20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['3j50',                'L1_TE30', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+
+        # 3-jet mixed threshold triggers
+	['j75_2j30',            'L1_J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['j75_2j40',            'L1_J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['j100_2j30',           'L1_J25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],	
+	['j100_2j40',           'L1_J25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['j100_2j50',           'L1_J25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+	['j150_2j50',           'L1_J40', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+
+
+
+        #####
+        ######################### HT trigger chains
+        #####
+
+        # L1topo seeded HT triggers
+        ['ht400',                       'L1_HT150-J20s5.ETA31', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['ht400_L1HT150-J20.ETA31',     'L1_HT150-J20.ETA31', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['ht550',                       'L1_HT150-J20s5.ETA31', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['ht550_L1HT150-J20.ETA31',     'L1_HT150-J20.ETA31', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['ht700',                       'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['ht700_L1HT190-J15.ETA21',     'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['ht850',                       'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['ht850_L1HT190-J15.ETA21',     'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['ht1000',                      'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['ht1000_L1HT190-J15.ETA21',    'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+
+
+        #####
+        ######################### Analysis-specific jet trigger chains
+        #####
+
+        # Dijet invariant mass range plus y* cut triggers, mainly aimed at the dijet trigger-level analysis
+        ['j0_0i1c200m400TLA',           'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+#        ['j0_0i1c200m400TLA_test4',     'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j0_0i1c400m600TLA',           'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j0_0i1c600m800TLA',           'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j0_0i1c800m1000TLA',          'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j0_1i2c100m300TLA',           'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j0_1i2c500m700TLA',           'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j0_1i2c100m8000TLA',          'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+	['j0_1i2c500m900TLA',           'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+	['j0_1i2c600m800TLA',           'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+	
+        # Analysis-driven multijet triggers
+        ['j85_2j45',                    'L1_J20', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j45_0eta240_2j45_320eta490_L1J15.0ETA25_2J15.31ETA49', 'L1_J15.0ETA25_2J15.31ETA49',[] , [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'],  -1,['serial',-1,["j45_0eta240","2j45_320eta490_L1J15"]]],
+
+        # VBF triggers
+        ['2j40_0eta490_invm250',                'L1_XE35_MJJ-200', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+#        ['2j40_0eta490_invm250_test4',          'L1_XE35_MJJ-200', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j80_0eta240_2j60_320eta490_invm700',  'L1_J40.0ETA25_2J15.31ETA49',['',''], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet' ], -1 ], #Bjet rate but needs to be in the Jet slice
+
+
+
+        #####
+        ######################### Specialty jet trigger chains (mostly for performance studies)
+        #####
+
+        # Central+forward (dijet) triggers
         ['j35_j35_320eta490',              'L1_RD0_FILLED',      [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         ['j55_j55_320eta490_L1RD0_FILLED', 'L1_RD0_FILLED',      [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         ['j85_j85_320eta490',              'L1_J20_J20.31ETA49', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 
-        # test chains
+        ## Trigger tower jet chains (ATR-12772)
+        # moved to phys ['j60_TT', 'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
-        # ['j85_test1',                             'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        #['j85_test2',                             'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-#        ['j85_test4',                             'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        # ['j85_jes_test1',                         'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        #['j85_jes_test2',                         'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-
-        # ['4j45_test1',                            'L1_3J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        #['4j45_test2',                            'L1_3J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-
-        ['j85_2j45',                              'L1_J20', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        # ['j85_test1_2j45_test1',                  'L1_J20', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        #['j85_test2_2j45_test2',                  'L1_J20', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        # Partial scan 
+        ['j200_jes_PS',     'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],         
+        ['3j175_jes_PS',    'L1_J100', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 
 
-        ## multijets
-	#pp ref run
-	['2j10',                   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-	['2j15',                   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-	['2j20',                   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-	['2j25',                   'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
 
-	['3j30',                   'L1_TE10', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-	['3j40',                   'L1_TE20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-	['3j50',                   'L1_TE30', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-	['j75_2j30',               'L1_J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-#	['j75_test4_2j30_test4',         'L1_J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-	['j75_2j40',               'L1_J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-	['j100_2j30',              'L1_J25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],	
-	['j100_2j40',              'L1_J25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-	['j100_2j50',              'L1_J25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-	['j150_2j50',              'L1_J40', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-	
-	['2j10_320eta490', 'L1_RD0_FILLED',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-	['2j15_320eta490', 'L1_RD0_FILLED',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-	['2j20_320eta490', 'L1_RD0_FILLED',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-	['2j25_320eta490', 'L1_RD0_FILLED',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-	['2j25_320eta490_L1TE5', 'L1_TE5',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-	['2j35_320eta490', 'L1_TE10',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['3j175_jes_PS','L1_J100', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        #####
+        ######################### Jet test chains
+        #####
 
-        ## single jet
-        ['j100',                   'L1_J25',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j10',                    'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-	['j20',                    'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-	['j30',                    'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-	['j30_L1TE5',              'L1_TE5', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-	['j30_L1TE10',             'L1_TE10', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-	['j40',                    'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-	['j40_L1TE10',             'L1_TE10', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-	['j40_L1TE20',             'L1_TE20', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-	['j40_L1J12',              'L1_J12', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-	['j50_L1TE20',             'L1_TE20', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j50_L1J12',              'L1_J12', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-	['j50_L1J15',              'L1_J15', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-	['j60_L1J15',              'L1_J15', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-	['j75_L1J20',              'L1_J20', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j175_jes',               'L1_J50',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j175_lcw',               'L1_J50',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j175_lcw_jes',           'L1_J50',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j175_lcw_nojcalib',        'L1_J50',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j175_nojcalib',           'L1_J50',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
- 
-        ['j125',            'L1_J50', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j85_L1J40',            'L1_J40', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        # Single-jet test chains
+        #['j85_test1',               'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        #['j85_test2',               'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        #['j85_test4',               'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        #['j85_jes_test1',           'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        #['j85_jes_test2',           'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
-        ['j200',                   'L1_J50', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j200_jes_PS', 'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],         
+        # Large-R jet test chains
+        #['j360_a10r_test4',         'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
-        ['j300',                   'L1_J85', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j300_lcw_nojcalib',       'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j360_a10_sub_L1J100'                ,  'L1_J100',    [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j55_L1RD0_FILLED',      'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j85_lcw',                'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j85_lcw_jes',            'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j85_lcw_nojcalib',        'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j85_nojcalib',       'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
- 
-        # L1Topo HT
-        ['j360_a10_nojcalib'                      ,      'L1_HT150-J20s5.ETA31',    [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j360_a10_nojcalib_L1HT150-J20.ETA31',      'L1_HT150-J20.ETA31', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j360_a10_lcw_nojcalib'                      ,  'L1_HT150-J20s5.ETA31',    [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j360_a10_lcw_nojcalib_L1HT150-J20.ETA31',  'L1_HT150-J20.ETA31', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j460_a10_nojcalib'                          ,  'L1_HT190-J15s5.ETA21',    [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j460_a10_nojcalib_L1HT190-J15.ETA21'    ,  'L1_HT190-J15.ETA21',    [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j460_a10_lcw_nojcalib'                      ,  'L1_HT190-J15s5.ETA21',    [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j460_a10_lcw_nojcalib_L1HT190-J15.ETA21',  'L1_HT190-J15.ETA21',    [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j360_a10_sub'                      ,  'L1_HT150-J20s5.ETA31',    [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j360_a10_sub_L1HT150-J20.ETA31',  'L1_HT150-J20.ETA31', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j360_a10_lcw_sub'                      , 'L1_HT150-J20s5.ETA31',    [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j360_a10_lcw_sub_L1HT150-J20.ETA31', 'L1_HT150-J20.ETA31', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j460_a10_sub'                          , 'L1_HT190-J15s5.ETA21',    [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j460_a10_sub_L1HT190-J15.ETA21'    , 'L1_HT190-J15.ETA21',    [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j460_a10_lcw_sub'                      , 'L1_HT190-J15s5.ETA21',    [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j460_a10_lcw_sub_L1HT190-J15.ETA21', 'L1_HT190-J15.ETA21',    [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['ht400'                       ,    'L1_HT150-J20s5.ETA31',    [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-#        ['ht400_test4',                      'L1_HT150-J20s5.ETA31',    [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-        ['ht400_L1HT150-J20.ETA31' ,    'L1_HT150-J20.ETA31', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-        ['ht550'                       ,    'L1_HT150-J20s5.ETA31',    [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-        ['ht550_L1HT150-J20.ETA31' ,    'L1_HT150-J20.ETA31', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-        ['ht700'                          , 'L1_HT190-J15s5.ETA21',    [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-        ['ht700_L1HT190-J15.ETA21'    , 'L1_HT190-J15.ETA21',    [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-        ['ht850'                          , 'L1_HT190-J15s5.ETA21',    [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-        ['ht850_L1HT190-J15.ETA21'    , 'L1_HT190-J15.ETA21',    [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-        ['ht1000'                          , 'L1_HT190-J15s5.ETA21',    [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-        ['ht1000_L1HT190-J15.ETA21'    , 'L1_HT190-J15.ETA21',    [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-        # VBF triggers
-        ['2j40_0eta490_invm250',        'L1_XE35_MJJ-200', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-#        ['2j40_0eta490_invm250_test4',        'L1_XE35_MJJ-200', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['j80_0eta240_2j60_320eta490_invm700', 'L1_J40.0ETA25_2J15.31ETA49',['',''], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet' ], -1 ], #Bjet rate but needs to be in the Jet slice
-        #reclustering chains
-        ['j360_a10r', 'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-#        ['j360_a10r_test4', 'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j460_a10r', 'L1_HT150-J20s5.ETA31', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        # Multi-jet test chains
+        #['4j45_test1',              'L1_3J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        #['4j45_test2',              'L1_3J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        #['j75_test4_2j30_test4',    'L1_J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        #['j85_test1_2j45_test1',    'L1_J20', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        #['j85_test2_2j45_test2',    'L1_J20', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+
+        # HT test chains
+        #['ht400_test4',             'L1_HT150-J20s5.ETA31', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
 
 
-        ['j45_0eta240_2j45_320eta490_L1J15.0ETA25_2J15.31ETA49',  'L1_J15.0ETA25_2J15.31ETA49',[] , [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'],  -1,['serial',-1,["j45_0eta240","2j45_320eta490_L1J15"]]],
+
+
 	]
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
