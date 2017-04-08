@@ -48,7 +48,10 @@ namespace Monitored {
         const std::vector<HistogramFiller*> mHistogramsFillers;
         
         MonitoredScope(ToolHandle<GenericMonitoringTool> tool, std::initializer_list<std::reference_wrapper<IMonitoredVariable>> scopeMonitored)
-          : mTool(tool), mAutoSave(true), mScopeMonitored(scopeMonitored), mHistogramsFillers(mTool->getHistogramsFillers(mScopeMonitored)) { }
+          : mTool(tool), 
+            mAutoSave(true), 
+            mScopeMonitored(scopeMonitored), 
+            mHistogramsFillers(mTool.retrieve().isSuccess() ? mTool->getHistogramsFillers(mScopeMonitored) : std::vector<HistogramFiller*>()) { }
     };
 }
 
