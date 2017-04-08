@@ -60,41 +60,39 @@ HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
   setLabels(histo, def.labels);
   setOpts(histo, def.opt);
 
-//  std::string m_parentName = "TODO";
-
   HistogramFiller* result(0);
 
   if ( histo1D && !histoProfile){
     if ( def.opt.find("kCumulative") != std::string::npos ) {
 //      ATH_MSG_DEBUG("Variable: " << def.name[0] << " from parent algorithm: "
-//                    << m_parentName << " will be histogrammed in Cummulative histogram");
+//                    << m_groupName << " will be histogrammed in Cummulative histogram");
 
       result = new CumulativeHistogramFiller1D(histo1D, def);
     } else if (def.opt.find("kVecUO") != std::string::npos) {
 //      ATH_MSG_DEBUG("Variable: " << def.name << " from parent algorithm: "
-//                    << m_parentName << " will be added to histogram");
+//                    << m_groupName << " will be added to histogram");
 
       result = new VecHistogramFiller1DWithOverflows(histo1D, def);
     } else if (def.opt.find("kVec") != std::string::npos) {
 //      ATH_MSG_DEBUG("Variable: " << def.name << " from parent algorithm: "
-//                    << m_parentName << " will be added to histogram");
+//                    << m_groupName << " will be added to histogram");
 
       result = new VecHistogramFiller1D(histo1D, def);
     } else {
-//      ATH_MSG_DEBUG("Variable: " << def.name << " from parent algorithm: " << m_parentName
+//      ATH_MSG_DEBUG("Variable: " << def.name << " from parent algorithm: " << m_groupName
 //                    <<  " will be histogrammed");
 
       result = new HistogramFiller1D(histo1D, def);
     }
   } else if ( histo2DProfile ) {
 //      ATH_MSG_DEBUG("Variables: " << def.name[0] << "," << def.name[1] << "," << def.name[2]
-//                    << " from parent algorithm: " << m_parentName
+//                    << " from parent algorithm: " << m_groupName
 //                    << " will be histogrammed in 2D Profile histogram");
 
       result = new HistogramFiller2DProfile(histo2DProfile, def);
   } else if ( histo2D || histoProfile ){
 //      ATH_MSG_DEBUG("Variables: " << def.name[0] << "," << def.name[1]
-//                    << " from parent algorithm: " << m_parentName
+//                    << " from parent algorithm: " << m_groupName
 //                    << " will be histogrammed in 2D histogram");
 
       if (histo2D) {

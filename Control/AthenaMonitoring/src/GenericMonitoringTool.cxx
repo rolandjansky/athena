@@ -23,6 +23,7 @@ const InterfaceID& GenericMonitoringTool::interfaceID() {
 GenericMonitoringTool::GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent)
   : AthAlgTool(type, name, parent), m_histSvc("THistSvc", name) { 
   declareProperty("Histograms", m_histograms, "Definitions of histograms");
+  declareProperty("HistogramsGroupName", m_histogramsGroupName, "Name of group to which histograms would be generated");
   declareInterface<GenericMonitoringTool>(this);
 }
 
@@ -30,10 +31,9 @@ GenericMonitoringTool::~GenericMonitoringTool() { }
 
 StatusCode GenericMonitoringTool::initialize() {
   ATH_CHECK(m_histSvc.retrieve());
+  ATH_CHECK(!m_histogramsGroupName.empty());
   
-  string parentAlgName = "TODO"; // parentAlg->name();
-  
-  HistogramFillerFactory factory(m_histSvc, parentAlgName);
+  HistogramFillerFactory factory(m_histSvc, m_histogramsGroupName);
 
   for (const string& item : m_histograms) {
     bool isSuccess = false;
