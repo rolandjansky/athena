@@ -470,6 +470,30 @@ def _getPseudoJetSelectorAll(toolname, **options):
             'Added selector "%s" to jtm' % toolname
 
     return selector
+    
+def _getPseudoJetSelectorPositivePt(toolname, **options):
+
+    # set up a tool to select all pseudo jets
+    # declare jtm as global as this function body may modify it
+    # with the += operator
+    global jtm
+    
+    # Build a new list of jet inputs. original: mygetters = [jtm.lcget]
+    try:
+        selector = getattr(jtm, toolname)
+    except AttributeError:
+        # Add the PseudoJetSelectorPositivePt to the JetTool Manager,
+        # which pushes it to the ToolSvc in __iadd__
+        # This is done in the same as PseudoJetGetter is added in
+        # JetRecStandardTools.py.
+        # The 'Label' must be one of the values found in JetContainerInfo.h
+        selector = TrigHLTJetRecConf.PseudoJetSelectorPositivePt(name=toolname)
+        jtm += selector
+        selector = getattr(jtm, toolname)
+        print 'TrigHLTJetRecConfig._getPseudoJetSelectorPositivePt '\
+            'Added selector "%s" to jtm' % toolname
+
+    return selector
 
 
 def _getPseudoJetSelectorEtaPt(toolname, **kwds):
@@ -562,8 +586,8 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
         
         
-        self.iPseudoJetSelector = _getPseudoJetSelectorAll(
-            'iPseudoJetSelectorAll')
+        self.iPseudoJetSelector = _getPseudoJetSelectorPositivePt(
+            'iPseudoJetSelectorPositivePt')
         
         self.jetBuildTool = _getJetBuildTool(
             float(int(merge_param))/10.,
@@ -608,7 +632,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
         
         
-        self.iPseudoJetSelector = _getPseudoJetSelectorAll('iPseudoJetSelectorAll')
+        self.iPseudoJetSelector = _getPseudoJetSelectorPositivePt('iPseudoJetSelectorPositivePt')
         
         self.jetBuildTool = _getJetBuildTool(float(int(merge_param))/10.,
                                              ptmin=ptmin,
