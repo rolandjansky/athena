@@ -40,7 +40,7 @@ class TH2I;
  * to the TDAQ ERS message system.
  *
  * The message suppression is configured with the following parameters:
- * @param <level>Limit = 0:       no message suppression for <level>
+ * @param <level>Limit = 0:       no message suppression for \<level\>
  * @param <level>Limit = N > 0:   suppress messages after N messages (per source)
  * @param <level>Limit = -N < 0:  use logarithmic suppression after N messages (per message)
  *

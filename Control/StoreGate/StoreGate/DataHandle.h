@@ -92,11 +92,11 @@ public:
   // FIXME op! is to keep backward compatibility with Gaudi
   // FIXME similar to checking the SmartDataPtr
   // FIXME dangerous stuff: remove!
-  ///DEPRECATED for statements like:  if (!DataHandle<XXX>) {...} 
+  ///DEPRECATED for statements like:  if (!DataHandle\<XXX\>) {...} 
   bool operator !() const { return !isValid(); }
 
   //FIXME VERY dangerous stuff: remove!
-  ///DEPRECATED for statements like:  if (DataHandle<XXX>) {...} 
+  ///DEPRECATED for statements like:  if (DataHandle\<XXX\>) {...} 
   operator int() const  { return isValid(); }
   //@}
 

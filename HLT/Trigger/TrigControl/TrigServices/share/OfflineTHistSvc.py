@@ -1,6 +1,6 @@
 ## @file   OfflineTHistSvc.py
 ## @brief  Configure the offline THistSvc
-## @author Frank Winklmeier <fwinkl@cern>
+## @author Frank Winklmeier <fwinkl@cern.ch>
 ##
 ## This fragment will be included by athenaHLT if we are
 ## running withtout the OH monitoring. Otherwise, the default

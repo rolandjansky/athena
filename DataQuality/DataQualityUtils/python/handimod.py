@@ -443,7 +443,7 @@ def makeOneHistFile( htmlDir, name, subname, sp, runlistLoc, compare ):
   k.write('<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n')
   k.write('<title>'+name+ ' ' + subname+ ' ' + sp[0]+'</title>\n')
   k.write('<link rel="stylesheet" href="AutomChecks.css" type="text/css" />\n')
-##   k.write('<script type=\"text/javascript\" src=\"'+javaScriptLoc +'\"><!-- dont contract-->\n</script>\n')
+#   k.write('<script type=\"text/javascript\" src=\"'+javaScriptLoc +'\"><!-- dont contract-->\n</script>\n')
   k.write('</head>\n')
   k.write('<body>\n')
   k.write('<center>\n')

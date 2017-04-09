@@ -5,7 +5,7 @@
 /// a simple testing macro for the MuonEfficiencyCorrections_xAOD package in RC
 /// shamelessly stolen from CPToolTests.cxx
 ///
-/// Usage: MuonEfficiencyCorrectionsRootCoreTest <input file>
+/// Usage: MuonEfficiencyCorrectionsRootCoreTest \<input file\>
 
 // System include(s):
 #include <memory>
