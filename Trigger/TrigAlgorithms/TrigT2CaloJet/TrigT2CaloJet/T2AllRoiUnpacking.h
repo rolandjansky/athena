@@ -86,10 +86,10 @@ class T2AllRoiUnpacking: public HLT::AllTEAlgo {
   ToolHandle< T2CaloJetGridFromCells > m_caloGridFromCellsTool;
   bool m_retrievedGridTool;
   std::vector<Trig3Momentum>* m_grid;
-  //! (\eta,\phi) regions that have been already processed
+  //! @f$ (\eta,\phi) @f$ regions that have been already processed
   /*! This datamember is reset at each event */
   std::vector< EtaPhiRectangle > m_processedRegions;
-  //! (\eta,\phi) regions that overlap with regions that have already been processed
+  //! @f$ (\eta,\phi) @f$ regions that overlap with regions that have already been processed
   /*! This datamember is reset at each TriggerElement */
   std::vector< EtaPhiRectangle > m_overlapRegions;
   /** For Logging, in all tools we should use (*m_log) to avoid recalling of the MsgStream all the time. */

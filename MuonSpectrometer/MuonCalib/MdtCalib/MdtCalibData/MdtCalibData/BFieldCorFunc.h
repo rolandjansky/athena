@@ -29,7 +29,7 @@ namespace MuonCalib {
 ///					\frac{v_{B=0}^{1-\epsilon}(r')}
 ///						{E^{2-\epsilon}(r')}\,dr' @f].
 ///
-/// @f$ B_\perp = |\vec{B}_\perp|$; $\vec{B}_\perp = \vec{B}_{wire}+\vec{B}_\mu @f$;
+/// @f$ B_\perp = |\vec{B}_\perp| @f$; @f$ \vec{B}_\perp = \vec{B}_{wire}+\vec{B}_\mu @f$;
 ///
 /// @f$ \vec{B}_{wire} @f$: magnetic field parallel to the anode wire of the given
 ///                   tube;
