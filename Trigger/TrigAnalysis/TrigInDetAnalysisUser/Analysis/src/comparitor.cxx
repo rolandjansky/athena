@@ -55,8 +55,9 @@ bool fulldbg = false;
 
 int usage(const std::string& name, int status) { 
   std::ostream& s = std::cout;
-  s << "Usage: " << name << " [OPTIONS]  test.root reference.root    chain1 chain2 chain2 ...\n\n"; 
-  s << "  TIDA \'" << name << "\' plots comparison histograms\n\n"; 
+  s << "Usage: " << name << "\t [OPTIONS]  test.root reference.root    chain1 chain2 chain2 ...\n\n"; 
+  s << "\t" << " plots comparison histograms"; 
+  s << " - compiled on " << __DATE__ << " at " << __TIME__ << "\n\n";
   //  s << "Configuration: \n";
   //  s << "    -o filename   \tname of output grid (filename required)\n\n";
   s << "Options: \n";
@@ -90,6 +91,8 @@ int usage(const std::string& name, int status) {
   s << "         --nopng              \t do not print png files\n"; 
   s << "         --deleteref          \t delete unused reference histograms\n";
   s << "    -xo, --xoffset            \t relative x offset for the key\n"; 
+  s << "    -yp, --ypos               \t relative yposition for the key\n"; 
+  s << "    -xe, --xerror value       \t size of the x error tick marks\n"; 
   //  s << "         --fe,            \t relative x offset for the key\n"; 
   s << "    -h,  --help              \t this help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
@@ -217,6 +220,8 @@ int main(int argc, char** argv) {
   bool normref     = false;
   bool scalepix    = true;
   bool oldrms      = false;
+  
+  double xerror    = 0;
 
   std::string atlaslabel = "Internal";
 
@@ -370,6 +375,10 @@ int main(int argc, char** argv) {
       if ( ++i<argc ) _ypos=std::atof(argv[i]);
       else return usage(argv[0], -1);
     }
+    else if ( arg=="-xe" || arg=="--xerror" ) { 
+      if ( ++i<argc ) xerror=std::atof(argv[i]);
+      else return usage(argv[0], -1);
+    }
     else if ( arg=="-s" || arg=="--swap" ) { 
       if ( ++i<argc ) pattern=argv[i];
       else return usage(argv[0], -1);
@@ -392,6 +401,7 @@ int main(int argc, char** argv) {
     }
   }
 
+  gStyle->SetErrorX(xerror);
 
   if ( ftestname=="" )  { 
        std::cerr << "main(): test file not specified " << std::endl;
@@ -414,7 +424,7 @@ int main(int argc, char** argv) {
     if ( frefname==ftestname )    _fref = _ftest;
     else if ( exists(frefname) )  _fref = TFile::Open( frefname.c_str() );
     else { 
-      std::cerr << "main(): test file " << frefname << " does not exist" << std::endl;
+      std::cerr << "main(): ref file " << frefname << " does not exist" << std::endl;
       return -1;
     }
   }
@@ -542,11 +552,40 @@ int main(int argc, char** argv) {
   }
   
   if ( refrun != "" ) { 
+
     std::string newtag = "Reference: ";
+
+    std::cout << "refrun: " << refrun << std::endl;
+
     size_t pos;
     while ( (pos=refrun.find("_"))!=std::string::npos ) refrun.replace( pos, 1, " " );
     newtag += refrun;
+
+    std::string rawrun = refrun.erase( refrun.find("run"), 4 );
+
+    //    if ( frefname!=ftestname && contains(frefname, rawrun) ) { 
+    if ( contains(frefname, rawrun) ) { 
+      
+      std::string release = frefname;
+
+      release.erase( 0, release.find(rawrun) ); 
+   
+      //      release.erase( release.find(rawrun)+1, release.find("HIST")+5);
+
+      if ( contains(release,"HIST") ) release.erase( 0, release.find("HIST")+5 ); 
+      if ( contains(release,"-") ) release.erase( release.find("-"), release.size() ); 
+      if ( contains(release,"_") ) release.erase( release.find("_"), release.size() ); 
+      if ( contains(release,".") ) release.erase( release.find("."), release.size() ); 
+
+      newtag += " ";
+      newtag += release;
+
+    } 
+
     taglabels.push_back( newtag );
+    
+    std::cout << "tag labels: " << taglabels << std::endl;
+
   } 
   
   std::vector<std::string> chainnames;
@@ -1234,6 +1273,7 @@ int main(int argc, char** argv) {
         if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
 	if ( scalepix && std::string(htest->GetName()).find("npix")!=std::string::npos ) htest->Scale(0.5);
+	if ( scalepix && href && std::string(htest->GetName()).find("npix")!=std::string::npos ) href->Scale(0.5);
 
 	if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
@@ -1295,6 +1335,12 @@ int main(int argc, char** argv) {
 	      std::cout << "rebin " << histos[i] << std::endl;
 	      htestnum->Rebin(3);
 	      htestden->Rebin(3);
+	    }
+
+	    if ( contains( htest->GetName(), "eta_eff" )  ) { 
+	      std::cout << "rebin " << histos[i] << std::endl;
+	      htestnum->Rebin(2);
+	      htestden->Rebin(2);
 	    }
 #endif	
     
