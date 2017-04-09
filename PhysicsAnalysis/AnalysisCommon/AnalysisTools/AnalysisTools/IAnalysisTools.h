@@ -40,11 +40,11 @@ public:
    */
   virtual ~IAnalysisTools () {}
 
-  /** \Delta\phi
+  /** @f$ \Delta\phi @f$
    */
   double deltaPhi (const INavigable4Momentum *p1, const INavigable4Momentum *p2) const;
   
-  /** \Delta{R}
+  /** @f$ \Delta{R} @f$
    */
   double deltaR (const INavigable4Momentum *p1, const INavigable4Momentum *p2) const;
 
@@ -60,7 +60,7 @@ public:
   /** find the closest (in R) element in a collection to an INavigable4Momentum
       not check PDG ID
       @param index [out] index of the closest element
-      @param deltaR [out] \Delta{R}
+      @param deltaR [out] @f$ \Delta{R} @f$
       @return true if found
   */
   template <class COLL> bool matchR
@@ -84,7 +84,7 @@ public:
   /** find the closest (in R) element in a collection to an INavigable4Momentum
       not check PDG ID but a condition on E
       @param index [out] index of the closest element
-      @param deltaR [out] \Delta{R}
+      @param deltaR [out] @f$ \Delta{R} @f$
       @return true if found
   */
   template <class COLL> bool matchR
@@ -109,7 +109,7 @@ public:
   /** find the closest (in R) element in a collection to an INavigable4Momentum
       not check PDG ID
       @param element [out] pointer to the closest element
-      @param deltaR  [out] \Delta{R}
+      @param deltaR  [out] @f$ \Delta{R} @f$
       @return true if found
   */
   template <class COLL, class ELEMENT> bool matchR
@@ -141,7 +141,7 @@ public:
   /** find the closest (in R) element in a collection to an INavigable4Momentum
       not check PDG ID - with a condition on E
       @param element [out] pointer to the closest element
-      @param deltaR  [out] \Delta{R}
+      @param deltaR  [out] @f$ \Delta{R} @f$
       @return true if found
   */
   template <class COLL, class ELEMENT> bool matchR
@@ -173,7 +173,7 @@ public:
 
   /** find the closest (in R) element in a collection to an INavigable4Momentum
       @param index [out] index of the closest element
-      @param deltaR [out] \Delta{R}
+      @param deltaR [out] @f$ \Delta{R} @f$
       @return true if found
   */
   template <class COLL> bool matchR
@@ -196,7 +196,7 @@ public:
 
   /** find the closest (in R) element in a collection to an INavigable4Momentum
       @param index [out] index of the closest element
-      @param deltaR [out] \Delta{R}
+      @param deltaR [out] @f$ \Delta{R} @f$
       @return true if found
   */
   template <class COLL> bool matchR
@@ -221,7 +221,7 @@ public:
 
   /** find the closest (in R) element in a collection to an INavigable4Momentum
       @param element [out] pointer to the closest element
-      @param deltaR [out] \Delta{R}
+      @param deltaR [out] @f$ \Delta{R} @f$
       @return true if found
   */
   template <class COLL, class ELEMENT> bool matchR
@@ -252,7 +252,7 @@ public:
 
   /** find the closest (in R) element in a collection to an INavigable4Momentum
       @param element [out] pointer to the closest element and a condition on E
-      @param deltaR [out] \Delta{R}
+      @param deltaR [out] @f$ \Delta{R} @f$
       @return true if found
   */
   template <class COLL, class ELEMENT> bool matchR
