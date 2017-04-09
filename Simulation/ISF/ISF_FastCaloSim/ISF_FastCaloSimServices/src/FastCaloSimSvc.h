@@ -28,7 +28,7 @@
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 
 // Barcode includes
-#include "BarcodeInterfaces/Barcode.h"
+#include "BarcodeEvent/Barcode.h"
 
 // forward declarations
 class ITrackingGeometrySvc;

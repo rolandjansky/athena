@@ -219,6 +219,7 @@ class ItemDef:
         LVL1MenuItem('L1_MU11' ).setLogic( MU11 & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_MU15' ).setLogic( MU15 & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_MU20' ).setLogic( MU20 & physcond).setTriggerType(TT.muon)
+        LVL1MenuItem('L1_MU21' ).setLogic( (MU20 | MU21) & physcond).setTriggerType(TT.muon)
 
         # 2xMU, 3xMU, 4xMU
         LVL1MenuItem('L1_2MU0'     ).setLogic( MU0.x(2)        & physcond).setTriggerType(TT.muon)
@@ -301,11 +302,13 @@ class ItemDef:
         LVL1MenuItem('L1_2MU6_FIRSTEMPTY'    ).setLogic(MU6.x(2) & firstempty).setTriggerType( TT.muon )
 
         LVL1MenuItem('L1_MU20_FIRSTEMPTY' ).setLogic( MU20 & firstempty).setTriggerType(TT.muon)
+        LVL1MenuItem('L1_MU21_FIRSTEMPTY' ).setLogic( (MU20 | MU21) & firstempty).setTriggerType(TT.muon)
 
         #FTK items
         LVL1MenuItem('L1_MU6_FTK').setLogic( MU6  & physcond).setTriggerType(TT.ftk)
         LVL1MenuItem('L1_MU15_FTK').setLogic( MU15  & physcond).setTriggerType(TT.ftk)
         LVL1MenuItem('L1_MU20_FTK').setLogic( MU20  & physcond).setTriggerType(TT.ftk)
+        LVL1MenuItem('L1_MU21_FTK').setLogic( (MU20 | MU21)  & physcond).setTriggerType(TT.ftk)
             
         # EM and MU
         LVL1MenuItem('L1_EM6_MU10'   ).setLogic( EM6        & MU10     & physcond).setTriggerType(TT.muon)

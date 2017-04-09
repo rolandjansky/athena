@@ -6,6 +6,7 @@ import TrigHLTJetRecConf
 from JetRec.JetRecConf import JetRecTool
 from JetRec.JetRecConf import (JetFromPseudojet,
                                JetFinder,JetToolRunner)
+from JetRecTools.JetRecToolsConf import  (JetConstituentModSequence, SoftKillerWeightTool, ClusterAtEMScaleTool, VoronoiWeightTool)
 
 from EventShapeTools.EventDensityConfig import configEventDensityTool
 
@@ -469,6 +470,30 @@ def _getPseudoJetSelectorAll(toolname, **options):
             'Added selector "%s" to jtm' % toolname
 
     return selector
+    
+def _getPseudoJetSelectorPositivePt(toolname, **options):
+
+    # set up a tool to select all pseudo jets
+    # declare jtm as global as this function body may modify it
+    # with the += operator
+    global jtm
+    
+    # Build a new list of jet inputs. original: mygetters = [jtm.lcget]
+    try:
+        selector = getattr(jtm, toolname)
+    except AttributeError:
+        # Add the PseudoJetSelectorPositivePt to the JetTool Manager,
+        # which pushes it to the ToolSvc in __iadd__
+        # This is done in the same as PseudoJetGetter is added in
+        # JetRecStandardTools.py.
+        # The 'Label' must be one of the values found in JetContainerInfo.h
+        selector = TrigHLTJetRecConf.PseudoJetSelectorPositivePt(name=toolname)
+        jtm += selector
+        selector = getattr(jtm, toolname)
+        print 'TrigHLTJetRecConfig._getPseudoJetSelectorPositivePt '\
+            'Added selector "%s" to jtm' % toolname
+
+    return selector
 
 
 def _getPseudoJetSelectorEtaPt(toolname, **kwds):
@@ -561,8 +586,8 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
         
         
-        self.iPseudoJetSelector = _getPseudoJetSelectorAll(
-            'iPseudoJetSelectorAll')
+        self.iPseudoJetSelector = _getPseudoJetSelectorPositivePt(
+            'iPseudoJetSelectorPositivePt')
         
         self.jetBuildTool = _getJetBuildTool(
             float(int(merge_param))/10.,
@@ -607,7 +632,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
         
         
-        self.iPseudoJetSelector = _getPseudoJetSelectorAll('iPseudoJetSelectorAll')
+        self.iPseudoJetSelector = _getPseudoJetSelectorPositivePt('iPseudoJetSelectorPositivePt')
         
         self.jetBuildTool = _getJetBuildTool(float(int(merge_param))/10.,
                                              ptmin=ptmin,
@@ -860,12 +885,39 @@ class TrigHLTSoftKiller(TrigHLTJetRecConf.TrigHLTSoftKiller):
                 ):
 
         TrigHLTJetRecConf.TrigHLTSoftKiller.__init__(self,name=name)
-        self.output_collection_label = output_collection_label
+        self.output_collection_label = output_collection_label+ '_' + name + '_'+cluster_calib
 
-        # TODO create and configure offline SoftKiller tool here, pass it to our tool
         # Use cluster_calib, sk_grid_param_eta, and sk_grid_param_phi to configure the offline tool
         print "SK: %s, %f, %f"%(cluster_calib,sk_grid_param_eta,sk_grid_param_phi)
+        
+        global jtm
+        skTool =  SoftKillerWeightTool( name+cluster_calib, SKGridSize=0.6, isCaloSplit=False, SKRapMin=0, SKRapMax=2.5)
+        jtm.add(skTool)
+        self.skWeightTool = skTool
 
+        voronoiTool = VoronoiWeightTool('voronoiTool'+name+'_'+cluster_calib, doLCWeights = True, doSpread =  False, nSigma = 0)
+        jtm.add(voronoiTool)
+        self.voronoiTool = voronoiTool
+        modifiers = [self.voronoiTool, self.skWeightTool]
+
+        # We only want an EM tool if we are working with EM clusters
+        # The tool should be used before calling SoftKiller (prepend to list)
+        if cluster_calib == "EM":
+            emTool = ClusterAtEMScaleTool('emTool_'+name+'_'+cluster_calib)
+            jtm.add(emTool)
+            self.emTool = emTool
+            modifiers.insert(0,self.emTool)
+        
+        skclustModSeq = JetConstituentModSequence('ClustModifSequence_'+name+'_'+cluster_calib,
+                                                 InputContainer = "CaloCalTopoClusters",
+                                                 OutputContainer = self.output_collection_label,
+                                                 InputType = "CaloCluster",
+                                                 Trigger = True,
+                                                 Modifiers = modifiers
+                                                 )
+        jtm.add(skclustModSeq)
+        self.skclustModSeqTool = skclustModSeq
+        
         print "SK clusters from clusters"
                                                      
 

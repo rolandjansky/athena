@@ -11,8 +11,8 @@
 // Athena Base
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "BarcodeInterfaces/Barcode.h"
-#include "BarcodeInterfaces/PhysicsProcessCode.h"
+#include "BarcodeEvent/Barcode.h"
+#include "BarcodeEvent/PhysicsProcessCode.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
 /*-------------------------------------------------------------------------

@@ -12,8 +12,8 @@
 #include "AtlasDetDescr/AtlasRegion.h"
 
 // Barcode includes
-#include "BarcodeInterfaces/Barcode.h"
-#include "BarcodeInterfaces/PhysicsProcessCode.h"
+#include "BarcodeEvent/Barcode.h"
+#include "BarcodeEvent/PhysicsProcessCode.h"
 
 // forward declarations
 namespace HepMC {

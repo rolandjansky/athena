@@ -6,7 +6,7 @@
 #define ISF_GEANT4TOOLS_ISFG4HELPERS_H
 
 // Barcode includes
-#include "BarcodeInterfaces/Barcode.h"
+#include "BarcodeEvent/Barcode.h"
 
 // ISF Includes
 #include "ISF_Event/ISFParticle.h"

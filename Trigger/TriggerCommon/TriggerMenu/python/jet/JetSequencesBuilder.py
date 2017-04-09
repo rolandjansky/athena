@@ -90,6 +90,7 @@ class JetSequencesBuilder(object):
                        'cmfs1': self.make_cmfs1,  # cell maker full scan
                        'cmfs2': self.make_cmfs2,  # cluster maker full scan
                        'ed': self.make_ed,  # energy density
+                       'sk': self.make_sk,  # SoftKiller
                        'jr': self.make_jr_clusters,  # jet rec
                        'hijr': self.make_hijr,  # hi jet rec
                        'rc': self.make_jr_recluster,  # recluster jets
@@ -152,6 +153,7 @@ class JetSequencesBuilder(object):
             #('tc', 'FS', False): ['fs2', 'ed', 'jr'],
             ('tc','FS',False): ['fs2','cmfs1','cmfs2','ed','jr'],
             # ('tc', 'FS'): ['fs', 'cmfs', 'jr'],
+            ('sktc','FS',False): ['fs2','cmfs1','cmfs2','sk','jr'], # SoftKiller topoclusters, no need for EventDensity for rho*area subtraction
             ('tc', 'PS', False): ['ps', 'cm', 'jr'],
             ('ion', 'FS', False): ['fs','hicm','hijr'],
             ('TT', 'FS', False): ['tt', 'jt'],
@@ -281,6 +283,15 @@ class JetSequencesBuilder(object):
 
         return AlgList(algs, alias=alias)
 
+    def make_sk(self):
+        """Return SoftKiller Alg"""
+        fex_params = self.chain_config.menu_data.fex_params
+        alias = 'softkiller_%s' % fex_params.cluster_calib
+
+        algs = []
+        [algs.extend(f()) for f in (self.alg_factory.softKillerAlg,)]
+
+        return AlgList(algs,alias=alias)
 
     def make_cm(self):
         """Return cellmaker for non partial scan running.

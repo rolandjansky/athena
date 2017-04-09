@@ -18,7 +18,7 @@
 #include "ISF_HepMC_Interfaces/IGenParticleFilter.h"
 // barcode interfaces for bc creation
 #include "BarcodeInterfaces/IBarcodeSvc.h"
-#include "BarcodeInterfaces/Barcode.h"
+#include "BarcodeEvent/Barcode.h"
 #include "BarcodeServices/BitCalculator.h"
 // ISF_Event include
 #include "ISF_Event/ISFParticle.h"

@@ -18,3 +18,8 @@ atlas_install_xmls( data/*.dtd data/*.xml )
 atlas_add_test( generateMenu SCRIPT scripts/testMenu.sh 
                 PROPERTIES TIMEOUT 500 
               )
+
+atlas_add_test ( pyflakesMenu
+   SCRIPT scripts/pyflakesMenu.sh
+   ENVIRONMENT "PYPATH=${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/share ${CMAKE_CURRENT_SOURCE_DIR}/scripts"
+)

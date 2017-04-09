@@ -10,14 +10,18 @@
 #include "xAODBase/IParticleContainer.h"
 #include "xAODCaloEvent/CaloCluster.h" 
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODTruth/TruthParticle.h" 
 #include "xAODTruth/TruthParticleContainer.h" 
+#include "xAODTruth/TruthParticleAuxContainer.h" 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODPFlow/PFO.h"
 #include "xAODPFlow/PFOContainer.h"
+#include "xAODPFlow/PFOAuxContainer.h"
 
-JetConstituentModSequence::JetConstituentModSequence(const std::string &name): asg::AsgTool(name) {
+JetConstituentModSequence::JetConstituentModSequence(const std::string &name): asg::AsgTool(name), m_trigInputClusters(NULL), m_trigOutputClusters(NULL) {
 
 #ifdef ASG_TOOL_ATHENA
   declareInterface<IJetConstituentModifier>(this);
@@ -26,7 +30,7 @@ JetConstituentModSequence::JetConstituentModSequence(const std::string &name): a
   declareProperty("OutputContainer", m_outputContainer, "The output container for the sequence.");
   declareProperty("InputType", m_inputTypeName, "The xAOD type name for the input container.");
   declareProperty("Modifiers", m_modifiers, "List of IJet tools.");
-	declareProperty("Trigger", m_trigger=false);
+  declareProperty("Trigger", m_trigger=false);
   declareProperty("SaveAsShallow", m_saveAsShallow=true, "Save as shallow copy");
 
 }
@@ -52,27 +56,30 @@ StatusCode JetConstituentModSequence::initialize() {
   
 int JetConstituentModSequence::execute() const {
   const xAOD::IParticleContainer* cont = 0;
-  ATH_CHECK( evtStore()->retrieve(cont, m_inputContainer) );
+  if (!m_trigger)
+    ATH_CHECK( evtStore()->retrieve(cont, m_inputContainer) );
+  else
+    cont = m_trigInputClusters;
 
   xAOD::IParticleContainer* modifiedCont = 0;
 
   // Create the shallow copy according to the input type
   switch(m_inputType){
   case xAOD::Type::CaloCluster : { 
-    modifiedCont = copyAndRecord<xAOD::CaloClusterContainer>(cont, !m_trigger);
+    modifiedCont = copyAndRecord<xAOD::CaloClusterContainer, xAOD::CaloClusterAuxContainer, xAOD::CaloCluster>(cont, !m_trigger);
     break; }
       
   case xAOD::Type::TruthParticle : {
-    modifiedCont = copyAndRecord<xAOD::TruthParticleContainer>(cont, !m_trigger);
+    modifiedCont = copyAndRecord<xAOD::TruthParticleContainer, xAOD::TruthParticleAuxContainer, xAOD::TruthParticle>(cont, !m_trigger);
     break;}
         
   case xAOD::Type::TrackParticle : {
-    modifiedCont = copyAndRecord<xAOD::TrackParticleContainer>(cont, !m_trigger);
+    modifiedCont = copyAndRecord<xAOD::TrackParticleContainer, xAOD::TrackParticleAuxContainer, xAOD::TrackParticle>(cont, !m_trigger);
     break;}
 
 
   case xAOD::Type::ParticleFlow : {
-    modifiedCont = copyAndRecord<xAOD::PFOContainer>(cont, !m_trigger);
+    modifiedCont = copyAndRecord<xAOD::PFOContainer, xAOD::PFOAuxContainer, xAOD::PFO>(cont, !m_trigger);
     break; }
 
   default: {
@@ -104,4 +111,7 @@ void JetConstituentModSequence::setInputClusterCollection(const xAOD::IParticleC
 	m_trigInputClusters = cont;
 }
 
+xAOD::IParticleContainer* JetConstituentModSequence::getOutputClusterCollection() {
+    return m_trigOutputClusters;
+}
 
