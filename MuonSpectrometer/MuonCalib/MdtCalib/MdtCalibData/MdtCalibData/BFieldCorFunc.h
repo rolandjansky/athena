@@ -19,22 +19,22 @@
 namespace MuonCalib {
 /// \class BFieldCorFunc
 /// This class allows the user to get the difference between the drift time 
-/// measured by a tube operated in a magnetic field $\vec{B}$ and the drift time
-/// which would be measured by this tube if $\vec{B}$ vanished.
+/// measured by a tube operated in a magnetic field @f$ \vec{B} @f$ and the drift time
+/// which would be measured by this tube if @f$ \vec{B} @f$ vanished.
 ///
 /// Correction:
 ///
-/// $t(r,\vec{B}) = t(r,\vec{B}=0) + B_\perp^{2-\epsilon}\cdot
+/// @f$ t(r,\vec{B}) = t(r,\vec{B}=0) + B_\perp^{2-\epsilon}\cdot
 ///                                  \int\limits_{25\ \mu m}^{r}
 ///					\frac{v_{B=0}^{1-\epsilon}(r')}
-///						{E^{2-\epsilon}(r')}\,dr'$.
+///						{E^{2-\epsilon}(r')}\,dr' @f$.
 ///
-/// $B_\perp = |\vec{B}_\perp|$; $\vec{B}_\perp = \vec{B}_{wire}+\vec{B}_\mu$;
+/// @f$ B_\perp = |\vec{B}_\perp|$; $\vec{B}_\perp = \vec{B}_{wire}+\vec{B}_\mu @f$;
 ///
-/// $\vec{B}_{wire}$: magnetic field parallel to the anode wire of the given
+/// @f$ \vec{B}_{wire} @f$: magnetic field parallel to the anode wire of the given
 ///                   tube;
 ///
-/// $\vec{B}_\mu$: magnetic field magnetic field perpendicular to wire and
+/// @f$ \vec{B}_\mu @f$: magnetic field magnetic field perpendicular to wire and
 ///                parallel to the muon trajectory in the given tube.
 ///
 /// \author Oliver.Kortner@CERN.CH
@@ -79,23 +79,23 @@ public:
   ///< quality = "low", fast initialization of the correction function
   ///< at the price of lower quality.
   ///< parameters[0] = high voltage [V],
-  ///< parameters[1] = $\epsilon$,
+  ///< parameters[1] = @f$ \epsilon @f$,
   explicit BFieldCorFunc(const CalibFunc::ParVec & parameters, const IRtRelation *rt) : 
   IMdtBFieldCorFunc(parameters) {
     init(std::string("medium"), parameters, rt);
   }
   ///< Constructor:
   ///< parameters[0] = high voltage [V],
-  ///< parameters[1] = $\epsilon$,
+  ///< parameters[1] = @f$ \epsilon @f$,
 
 // Methods //
 // get-methods //
 
-  ///< get the $\epsilon$ parameter of the B-field correction function
+  ///< get the @f$ \epsilon @f$ parameter of the B-field correction function
   double epsilon(void) const;
 
 // set-methods //
-  ///< set the $\epsilon$ parameter of the B-field correction function = eps
+  ///< set the @f$ \epsilon @f$ parameter of the B-field correction function = eps
   //	void setEpsilon(const double & eps);
 
   ///< set the r-t relationship used to calculate the B field correction
@@ -113,7 +113,7 @@ public:
   ///< [B] = Tesla
   double correction(double t, double B_wire, double B_mu) const;
 
-  ///< get t(r,\vec{B}!=0)-t(r,\vec{B}=0);
+  ///< get t(r,@f$ \vec{B} @f$!=0)-t(r,@f$ \vec{B} @f$=0);
   ///< t = drift time t [ns] for B=0;
   ///< B_wire = magnetic field parallel to the anode wire of the given tube,
   ///< B_mu = magnetic field orthogonal to the wire and  parallel

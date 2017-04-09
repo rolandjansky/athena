@@ -31,14 +31,14 @@
 namespace MuonCalib {
 /**
 @class  RtResolutionChebyshev
-This class contains the implementation of a spatial resolution \sigma 
+This class contains the implementation of a spatial resolution @f$ \sigma @f$ 
 parametrized by a linear combination of Chebyshev polyonomials.
 
 Convention:
 
-\sigma(t) = \sum_{k=0}^{K}                                 
-                     p_k*T_k(2*(t-0.5*(tupper+tlower))/(tupper-tlower) 
-where T_k is the Chebyshev polynomial of k-th order,              
+@f$ \sigma(t) = \sum_{k=0}^{K}                                 
+                     p_k*T_k(2*(t-0.5*(tupper+tlower))/(tupper-tlower) @f$
+where @f$ T_k @f$ is the Chebyshev polynomial of k-th order,              
 tupper and tlower are upper and lower drift-time bounds.          
 
 Units: [t] = ns, [r] = mm, [v] = mm/ns.

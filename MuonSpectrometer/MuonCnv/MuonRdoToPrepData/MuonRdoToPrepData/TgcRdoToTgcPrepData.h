@@ -13,7 +13,7 @@
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 
 /** Algorithm to decode RDO into TgcPrepData, using the Muon::TgcRdoToTgcPrepDataTool 
- @auther Takashi Kubota (Takashi.Kubota@cern.ch)
+ @author Takashi Kubota (Takashi.Kubota@cern.ch)
 */
 
 class TgcRdoToTgcPrepData : public AthAlgorithm {

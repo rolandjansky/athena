@@ -67,11 +67,11 @@ class DeltaROverlapFilter : public IOverlapFilter
   bool hasOverlap( const INavigable4Momentum& obj1,
 		   const INavigable4Momentum& obj2 ) const;
 
-  /** @brief Retrieve the defined lowest value cut for the $\Delta R$
+  /** @brief Retrieve the defined lowest value cut for the @f$ \Delta R @f$
    */
   double minDeltaR() const;
 
-  /** @brief Retrieve the defined highest value cut for the $\Delta R$
+  /** @brief Retrieve the defined highest value cut for the @f$ \Delta R @f$
    */
   double maxDeltaR() const;
 
