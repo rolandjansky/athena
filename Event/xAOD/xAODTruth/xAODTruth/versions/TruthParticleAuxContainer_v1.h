@@ -22,7 +22,7 @@ namespace xAOD {
   ///
   /// @author Andy Buckley <Andy.Buckey@cern.ch>
   /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-  /// @author Jovan Mitrevski <Jovan.Mitrevski@cern.ch>
+  /// @author Jovan Mitrevski <Jovan.Mitrevski@cern.h>
   ///
   class TruthParticleAuxContainer_v1 : public AuxContainerBase {
 

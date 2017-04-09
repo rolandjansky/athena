@@ -305,16 +305,16 @@ set /Herwig/EventHandlers/LHEReader:Cuts /Herwig/Cuts/NoCuts
 """.format(pdfsubname="NLO" if nlo else "LO", lhefilename=filename, usespin="Yes" if usespin else "No")
 
 
-## Commands specific to showering of events produced with MG5_aMC\@NLO
+## Commands specific to showering of events produced with MG5_aMC@NLO
 ##
-## The reason for this is that for MC\@NLO-like matching schemes the
+## The reason for this is that for MC@NLO-like matching schemes the
 ## subtraction of the parton shower contribution in the hard process and the
 ## parton shower settings have to be consistent in order to recover the
 ## correct terms at the NLO.
 ##
 def mg5amc_cmds():
     return """
-## commands specific to showering of events produced with MG5_aMC\@NLO
+## commands specific to showering of events produced with MG5_aMC@NLO
 set /Herwig/Shower/KinematicsReconstructor:ReconstructionOption General
 set /Herwig/Shower/KinematicsReconstructor:InitialInitialBoostOption LongTransBoost
 set /Herwig/Shower/KinematicsReconstructor:InitialStateReconOption Rapidity

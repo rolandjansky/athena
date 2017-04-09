@@ -203,7 +203,7 @@ place. For Pythia, here is the example.
 - If you want to access ``External Process''. This is done in
   Pythia by setting ``USER''(see section 9.9 of the 6.4 Pythia
   manual). External procesess usually read a file containting events.  At present several externals are available,
-  CompHep, AcerMC, Alpgen, Matchig, HvGen, MadCUP, MadGraph, TopRex, GR\@PPA,
+  CompHep, AcerMC, Alpgen, Matchig, HvGen, MadCUP, MadGraph, TopRex, GR@PPA,
   and the fourth is a dummy that users can adapt to their
   needs by following one of the examples above. To find out how to run these external processes
   please refer to the documentation of these generators. 

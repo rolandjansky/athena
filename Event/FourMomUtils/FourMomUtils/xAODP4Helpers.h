@@ -34,14 +34,14 @@ namespace xAOD
 {
   namespace P4Helpers
   {
-    /// Computes efficiently @f$ \Delta{y} @f$
+    /// Computes efficiently \Delta{y}
     inline
     double deltaRapidity( const xAOD::IParticle& p1, const xAOD::IParticle& p2 )
     {
       return p1.rapidity() - p2.rapidity();
     }
 
-    /// Computes efficiently @f$ \Delta{y} @f$, pointer args.
+    /// Computes efficiently \Delta{y}, pointer args.
     inline
     double deltaRapidity( const xAOD::IParticle * const p1, const xAOD::IParticle * const p2 )
     {
@@ -49,14 +49,14 @@ namespace xAOD
     }
 
 
-    /// Computes efficiently @f$ \Delta{\eta} @f$
+    /// Computes efficiently \Delta{\eta}
     inline
     double deltaEta( const xAOD::IParticle& p1, const xAOD::IParticle& p2 )
     {
       return p1.eta() - p2.eta();
     }
 
-    /// Computes efficiently @f$ \Delta{\eta} @f$, pointer args.
+    /// Computes efficiently \Delta{\eta}, pointer args.
     inline
     double deltaEta( const xAOD::IParticle * const p1, const xAOD::IParticle * const p2 )
     {
@@ -106,7 +106,7 @@ namespace xAOD
 
 
 
-    /// @f$ \Delta{R}^2 @f$ from 1 @c xAOD::IParticle
+    /// \Delta{R}^2 from 1 @c xAOD::IParticle
     inline
     double deltaR2( const xAOD::IParticle& p4, double rapidity, double phi, bool useRapidity=true )
     {
@@ -144,7 +144,7 @@ namespace xAOD
 
 
 
-    /// @f$ \Delta{R} @f$ from 1 @c xAOD::IParticle
+    /// \Delta{R} from 1 @c xAOD::IParticle
     inline
     double deltaR( const xAOD::IParticle& p4, double rapidity, double phi, bool useRapidity=true )
     { return std::sqrt( xAOD::P4Helpers::deltaR2( p4, rapidity, phi, useRapidity ) ); }
@@ -161,8 +161,8 @@ namespace xAOD
 
 
 
-    /// Check if 2 @c xAOD::IParticle are in a @f$ \Delta{R} @f$ cone
-    /// @param dR [in] @f$ \Delta{R} @f$
+    /// Check if 2 @c xAOD::IParticle are in a \Delta{R} cone
+    /// @param dR [in] \Delta{R}
     /// @return true if they are
     inline
     bool isInDeltaR( const xAOD::IParticle& p1, const xAOD::IParticle& p2,
@@ -188,7 +188,7 @@ namespace xAOD
 
 
 
-    /// Get the delta-|@f$ \vec{p} @f$| between two particles
+    /// Get the delta-|\vec{p}| between two particles
     inline
     double deltaAbsP( const xAOD::IParticle& pA, const xAOD::IParticle& pB )
     {
@@ -197,7 +197,7 @@ namespace xAOD
       return absPA - absPB;
     }
 
-    /// Get the delta-|@f$ \vec{p} @f$| between two particles using pointers
+    /// Get the delta-|\vec{p}| between two particles using pointers
     inline
     double deltaAbsP( const xAOD::IParticle * const pA, const xAOD::IParticle * const pB )
     { return xAOD::P4Helpers::deltaAbsP( *pA, *pB ); }
