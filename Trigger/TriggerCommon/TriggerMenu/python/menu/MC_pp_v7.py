@@ -218,8 +218,8 @@ def setupMenu():
         ['j300',                    'L1_J85', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         
         # 2017 calibration central jet triggers
-        ['j175_subjesIS',           'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1], #TODO J100 isn't appropriate here
-        ['j175_lcw_subjesIS',       'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1], #TODO J100 isn't appropriate here
+        ['j175_subjesIS',           'L1_J50', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+        ['j175_lcw_subjesIS',       'L1_J50', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
         ['j420_subjesIS',           'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
         ['j420_lcw_subjesIS',       'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
         
