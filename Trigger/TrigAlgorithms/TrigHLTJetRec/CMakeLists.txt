@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/Jet/JetEDM
                           Reconstruction/Jet/JetInterface
                           Reconstruction/Jet/JetRec
+                          Reconstruction/Jet/JetRecTools
                           Trigger/TrigEvent/TrigCaloEvent
                           Trigger/TrigEvent/TrigNavStructure
                           Trigger/TrigEvent/TrigParticle
@@ -36,7 +37,7 @@ atlas_add_component( TrigHLTJetRec
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AthenaBaseComps StoreGateLib SGtests xAODBase xAODCaloEvent xAODJet xAODTrigL1Calo GaudiKernel JetEDM JetInterface JetRecLib TrigCaloEvent TrigNavStructure TrigParticle TrigSteeringEvent TrigInterfacesLib CaloEvent xAODEventShape EventShapeToolsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AthenaBaseComps StoreGateLib SGtests xAODBase xAODCaloEvent xAODJet xAODTrigL1Calo GaudiKernel JetEDM JetInterface JetRecLib JetRecToolsLib TrigCaloEvent TrigNavStructure TrigParticle TrigSteeringEvent TrigInterfacesLib CaloEvent xAODEventShape EventShapeToolsLib )
 
 # Install files from the package:
 atlas_install_headers( TrigHLTJetRec )
