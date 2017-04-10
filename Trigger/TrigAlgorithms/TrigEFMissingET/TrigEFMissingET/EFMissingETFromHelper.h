@@ -51,7 +51,8 @@ class EFMissingETFromHelper : public EFMissingETBaseTool
                                const xAOD::CaloClusterContainer *caloCluster,
                                const xAOD::JetContainer *jets,
                                const xAOD::TrackParticleContainer *track,
-                               const xAOD::VertexContainer *vertex);
+                               const xAOD::VertexContainer *vertex,
+                               const xAOD::MuonContainer *muon);
 };
 
 #endif // TRIGEFMISSINGET_EFMISSINGETFROMHELPER
