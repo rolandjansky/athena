@@ -325,7 +325,9 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
 
 
 
-        if (i<3){
+
+
+//         if (i<3){
         //loop over ring thicknesses and then ask for iterator corresponding to that loop
 	        // CellIt beginRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness);
 // 	        CellIt endRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness*2);
@@ -358,7 +360,12 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
           // 
 //           CellIt endRing = calorimeterCellList.getLowerBound(eflowCaloENUM::EMB1, EMB1_ringThickness*n+1);
         // for (;beginRing != endRing; beginRing++){
-//         save # of rings 
+//         save # of rings
+
+           if(beginRing == calorimeterCellList.end()){
+               break;
+            }
+        
           indexofRing += 1;
           std::cout<<"Ring Number "<<indexofRing<< std::endl;
           std::cout<<"within ring loop "<< std::endl;
@@ -468,7 +475,7 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
     
 //     std::cout<<"layer vector[1] is "<< layerToStoreVector[1] << std::endl;
 //     std::cout<<"layer vector[106] is "<< layerToStoreVector[106] << std::endl;
-     }   
+//      }  
 
 
 	    
