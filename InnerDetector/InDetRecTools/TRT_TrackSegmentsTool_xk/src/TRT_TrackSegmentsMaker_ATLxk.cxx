@@ -854,7 +854,10 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::mapStrawsProduction()
 	    double Sq = A*A+2.*D*B;  Sq>0. ? Sq=sqrt(Sq) : Sq=0.;
 	    double S1 =-(A+Sq)/B;
 	    double S2 =-(A-Sq)/B;
-	    S>S2 ? S=S2 : S<S1 ? S=S1 : S=S;
+            if (S > S2)
+              S = S2;
+            else if (S < S1)
+              S = S1;
 	  }
 	  m_slope [n] = atan2(y+S*ay,x+S*ax)*m_A; 
 	  m_islope[n] = int(m_slope[n]*m_Psi128);
