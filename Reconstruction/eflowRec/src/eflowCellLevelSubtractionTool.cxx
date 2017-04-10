@@ -463,9 +463,9 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
             // radiusToStoreVector[100*i+n-1] = radiusToStore;
             // std::cout<<"radiusToStoreVector["<< 100*i+n-1 <<"] is "<< radiusToStoreVector[100*(eflowCaloENUM)i+n-1] << std::endl;
             
-            efRecTrack->setLayerCellOrder(layerToStore);
-            efRecTrack->setRadiusCellOrder(radiusToStore);
-            efRecTrack->setAverageEnergyDensity(averageEnergyDensityPerRing);
+//             efRecTrack->setLayerCellOrder(layerToStore);
+//             efRecTrack->setRadiusCellOrder(radiusToStore);
+//             efRecTrack->setAverageEnergyDensity(averageEnergyDensityPerRing);
         }
 
         else {std::cout<<"averageEnergyDensityPerRing = 0"<<std::endl;}
