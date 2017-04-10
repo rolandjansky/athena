@@ -160,7 +160,7 @@ class EtaPhiRectangle{
   //! compute the rectangle corresponding to the overlapping area
   static EtaPhiRectangle overlappingRectangle(const EtaPhiRectangle &lhs,
 					     const EtaPhiRectangle &rhs);
-  //! convert any angle to its equivalent in ( @f$-\pi @f$, @f$ +\pi @f$]
+  //! convert any angle to its equivalent in ( @f$ -\pi @f$, @f$ +\pi @f$]
   static double phi_mpi_pi(const double &val);
   //! convert any angle to its equivalent in ( 0 , @f$ +2\pi @f$]
   static double phi_zero_2pi(const double &val);

@@ -91,7 +91,7 @@ public:
      * @param name Name of this group (only for error reporting).
      * @param ids Set of Identifiers comprising this group.
      * @param end_index The ending index for the context for this group.
-     * @param msgSvc The global message service
+     * @parma msgSvc The global message service
      *               (may be 0, only for error reporting).
      * @param full_range The @c MultiRange corresponding to this group.
      *                   If supplied, the side of the @c ids set is checked

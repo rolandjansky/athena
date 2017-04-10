@@ -15,7 +15,7 @@
  * of outliers fitted to the vertex and tracks 
  * originating from the pileup is determined.
  * 
- * @authpr Kirill Prokofiev, September 2006  
+ * @author Kirill Prokofiev, September 2006  
  */
 
 #include "AthenaBaseComps/AthAlgTool.h"

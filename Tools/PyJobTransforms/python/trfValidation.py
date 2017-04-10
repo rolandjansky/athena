@@ -103,8 +103,8 @@ class ignorePatterns(object):
 
     ## @brief Load error patterns from files
     #  @details Load regular expressions to be used in logfile parsing
-    #  @files Files to load up structured error patterns from
-    #  @extraSearch Extra regexp strings to @a search against
+    #  Files to load up structured error patterns from
+    #  @param extraSearch Extra regexp strings to @a search against
     def __init__(self, files=['atlas_error_mask.db'], extraSearch = []):
         # Setup structured search patterns
         self._structuredPatterns = []

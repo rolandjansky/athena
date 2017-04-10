@@ -142,7 +142,7 @@ class TgcFit: public AthAlgTool
     }
     /*
      *  Calculate projected values given fit results.
-     * @param fX The X value of the point to project.
+     * @parma fX The X value of the point to project.
      * @return The projected Y value.
      */
     double eval(double fX) const;

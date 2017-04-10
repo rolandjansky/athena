@@ -334,7 +334,7 @@ class argList(argument):
 
 
     ## @brief Argument value setter
-    #  @detail If we get a list then set that, otherwise we split a string on the splitter character
+    #  @details If we get a list then set that, otherwise we split a string on the splitter character
     @value.setter
     def value(self, value):
         if isinstance(value, (list, tuple)):
@@ -379,7 +379,7 @@ class argIntList(argList):
     
 
     ## @brief Argument value setter
-    #  @detail If we get a list then set that, otherwise we split a string on the splitter character
+    #  @details If we get a list then set that, otherwise we split a string on the splitter character
     #  @throw trfExceptions.TransformArgException Exception thrown if any list member is not an @c int
     #  @throw trfExceptions.TransformArgException Exception thrown is any @c int() conversion fails
     @value.setter
@@ -435,7 +435,7 @@ class argKeyFloatValueList(argList):
         return self._value
 
     ## @brief Argument value setter
-    #  @detail If we get a dict then set that, otherwise we split a string on the splitter character
+    #  @details If we get a dict then set that, otherwise we split a string on the splitter character
     #  and then on the kvsplitter into key and value, with the value being converted to float
     #  @throw trfExceptions.TransformArgException Exception thrown if any dictionary @c key:value member is not @c string:int
     #  @throw trfExceptions.TransformArgException Exception thrown if any @c int() conversion fails of the kvsplitter is not found
@@ -551,7 +551,7 @@ class argFile(argList):
         return self._value
 
     ## @brief Argument value setter
-    #  @detail Calls the valueSetter function with the standard options
+    #  @details Calls the valueSetter function with the standard options
     @value.setter
     def value(self, value):
         self.valueSetter(value)
@@ -1039,7 +1039,7 @@ class argFile(argList):
         return isCachedFlag
     
     ## @brief Look for dataset name in dataset#filename Tier0 convention
-    #  @detail At the moment all files must be in the same dataset if it's specified. 
+    #  @details At the moment all files must be in the same dataset if it's specified. 
     #          (To change this dataset will need to become a per-file metadatum.)
     #  @note dsn#lfn notation must be used for @b all input values and all dsn values must be the same
     #  @param @c reset If @c True then forget previous dataset setting. Default is @c False.

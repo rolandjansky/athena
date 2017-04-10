@@ -128,7 +128,7 @@ std::string BasenameOfBranch (const std::string& fullname)
 /**
  * @brief Find the @c TStreamerInfo for a class from a @c TFile.
  * @param cl The class for which we want the @c TStreamerInfo.
- * @param br The branch in which the class is being read.
+ * @parma br The branch in which the class is being read.
  *
  * Find the @c TStreamerInfo for a class by looking directly at the
  * list from the file from which it's being read (not relying on the

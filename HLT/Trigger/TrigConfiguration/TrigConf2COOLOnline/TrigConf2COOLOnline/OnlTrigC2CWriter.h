@@ -39,7 +39,7 @@ class TrigConf::OnlTrigC2CWriter : public daq::rc::Controllable {
 public:
 
    /**@brief:constructor.
-    * @parameter name: this is the named published in IPC (required)
+    * @param name: this is the named published in IPC (required)
     */
    OnlTrigC2CWriter(const std::string & partitionName, const std::string & cooldb, const std::string& triggerdb, bool l1is, bool l1cool, bool mckcool = false );
    OnlTrigC2CWriter(const OnlTrigC2CWriter&) = delete;

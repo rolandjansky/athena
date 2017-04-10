@@ -205,7 +205,7 @@ inline void xAOD::MissingET_v1::clear()
  *
  *  @note The particular behaviour concerning the data store depends on the actual implementation of SG::AuxElement::makePrivateStore.
  *
- *  @param[in] met reference to non-modifiable MET object (the source).
+ *  @parm[in] met reference to non-modifiable MET object (the source).
  */
 
 /////////////

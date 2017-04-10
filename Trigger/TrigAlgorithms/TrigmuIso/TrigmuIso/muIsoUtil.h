@@ -19,7 +19,7 @@ namespace muIsoUtil {
 
   ///SGExtrapolator Functions
 
-  ///Return deltaEta between eta@MS entrance and eta@Calo entrance
+  ///Return deltaEta between eta\@MS entrance and eta\@Calo entrance
   /*!
   * \param double phi 
   * \param double pt 
@@ -27,7 +27,7 @@ namespace muIsoUtil {
   */
   double corrDEtaCM(double phi, double pt, int charge);
 
-  ///Return deltaPhi between phi@MS entrance and phi@Calo entrance
+  ///Return deltaPhi between phi\@MS entrance and phi@Calo entrance
   /*!
   * \param double eta
   * \param double pt 
@@ -35,7 +35,7 @@ namespace muIsoUtil {
   */
   double corrDPhiCM(double eta, double pt, int charge);
 
-  ///Return deltaEta between eta@Calo entrance and eta@IP (dummy)
+  ///Return deltaEta between eta\@Calo entrance and eta\@IP (dummy)
   /*!
   * \param double phi 
   * \param double pt 
@@ -52,7 +52,7 @@ namespace muIsoUtil {
   */
   double corrDPhiC(double eta, double pt, int charge);
 
-  ///Return phi@Calo entrance
+  ///Return phi\@Calo entrance
   /*!
   * \param double phi 
   * \param double eta
@@ -61,7 +61,7 @@ namespace muIsoUtil {
   */
   double phiATCal(double phi, double eta, double pt, int charge);
 
-  ///Return eta@Calo entrance
+  ///Return eta\@Calo entrance
   /*!
   * \param double phi 
   * \param double eta
@@ -71,7 +71,7 @@ namespace muIsoUtil {
   double etaATCal(double eta); //dummy
   //double etaATCal(double phi, double eta, double pt, int charge);
 
-  ///Return phi@MS entrance
+  ///Return phi\@MS entrance
   /*!
   * \param double phi 
   * \param double eta

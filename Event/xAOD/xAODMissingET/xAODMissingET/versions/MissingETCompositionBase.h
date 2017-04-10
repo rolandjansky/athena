@@ -48,7 +48,7 @@ namespace MissingETBase
 
     typedef ConstDataVector<xAOD::IParticleContainer> const_signal_vector_t;
     
-    /*! @names Vector of links  and object types */
+    /*! @name Vector of links  and object types */
     /*!@{*/
     /*! @brief Vector of object links type
      *

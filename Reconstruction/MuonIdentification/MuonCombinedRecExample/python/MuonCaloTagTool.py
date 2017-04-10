@@ -11,7 +11,7 @@ from AthenaCommon.Logging import log
 ###############################################################################
 ## Helper function for defining THistSvc inputs
 ###############################################################################
-# Finds the root file @rootFileName and creates a one-item list for THistSvc.Input
+# Finds the root file \@rootFileName and creates a one-item list for THistSvc.Input
 ###############################################################################
 
 ### Track Selector for CaloTrkMuIdAlg

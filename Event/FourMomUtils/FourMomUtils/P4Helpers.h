@@ -187,7 +187,7 @@ namespace P4Helpers
   double deltaPhi( const I4Momentum * const pA, const I4Momentum * const pB )
   { return deltaPhi( pA->phi(), pB->phi() ); }
 
-  /// \Delta{R} from 1 @c I4Momentum
+  /// @f$ \Delta{R} @f$ from 1 @c I4Momentum
   inline
   double deltaR( const I4Momentum& p4, double eta, double phi )
   {
@@ -212,8 +212,8 @@ namespace P4Helpers
   double deltaR( const I4Momentum * const pA, const I4Momentum * const pB )
   { return P4Helpers::deltaR( *pA, *pB ); }
 
-  /// Check if 2 @c I4Momentum are in a \Delta{R} cone
-  /// @param dR [in] \Delta{R}
+  /// Check if 2 @c I4Momentum are in a @f$ \Delta{R} @f$ cone
+  /// @param dR [in] @f$ \Delta{R} @f$
   /// @return true if they are
   inline
   bool isInDeltaR( const I4Momentum& p1, const I4Momentum& p2,
@@ -281,7 +281,7 @@ namespace P4Helpers
 
   /// Find the closest element in a collection to an @c I4Momentum
   /// @param index [out] index of the closest element
-  /// @param deltaR [out] \Delta{R}
+  /// @param deltaR [out] @f$ \Delta{R} @f$
   /// @return true if found
   template <class Container_t>
   inline

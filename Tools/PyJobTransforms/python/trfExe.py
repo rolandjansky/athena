@@ -98,7 +98,7 @@ class transformExecutor(object):
     ## @brief Base class initaliser for transform executors
     #  @param name Transform name
     #  @param trf Parent transform
-    #  @param conf executorConfig object (if @None then set from the @c trf directly)
+    #  @param conf executorConfig object (if @c None then set from the @c trf directly)
     #  @param inData Data inputs this transform can start from. This should be a list, tuple or set
     #  consisting of each input data type. If a tuple (or list) is passed as a set member then this is interpreted as
     #  meaning that all of the data members in that tuple are necessary as an input.
