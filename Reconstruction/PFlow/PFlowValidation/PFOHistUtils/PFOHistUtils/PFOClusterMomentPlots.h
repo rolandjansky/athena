@@ -30,6 +30,7 @@ namespace PFO {
     TH1* m_PFO_AVG_LAR_Q;
     TH1* m_PFO_AVG_TILE_Q;
     TH1* m_PFO_EM_PROBABILTY;
+    TH1* m_PFO_SECOND_LAMBDA;
     
     void initializePlots();
     std::string m_sPFOContainerName;

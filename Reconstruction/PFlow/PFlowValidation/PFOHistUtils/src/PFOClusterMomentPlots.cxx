@@ -17,7 +17,8 @@ namespace PFO {
     m_PFO_AVG_LAR_Q = nullptr;
     m_PFO_AVG_TILE_Q = nullptr;
     m_PFO_EM_PROBABILTY = nullptr;
-}
+    m_PFO_SECOND_LAMBDA = nullptr;
+  }
 
   void PFOClusterMomentPlots::initializePlots(){
 
@@ -31,7 +32,7 @@ namespace PFO {
     m_PFO_AVG_LAR_Q = Book1D("PFO_AVG_LAR_Q",m_sPFOContainerName + "_AVG_LAR_Q",240,-1.0,200.0);
     m_PFO_AVG_TILE_Q = Book1D("PFO_AVG_TILE_Q",m_sPFOContainerName + "_AVG_TILE_Q",21,-1.0,20.0);
     m_PFO_EM_PROBABILTY = Book1D("PFO_EM_PROBABILTY",m_sPFOContainerName + "_EM_PROBABILTY",20,0,1);
-
+    m_PFO_SECOND_LAMBDA = Book1D("PFO_SECOND_LAMBDA",m_sPFOContainerName + "_SECOND_LAMBDA",60,-1.0,3000.0);
   }
 
   void PFOClusterMomentPlots::fill(const xAOD::PFO& PFO){
@@ -85,6 +86,11 @@ namespace PFO {
     gotMoment = PFO.getClusterMoment(moment_EM_PROBABILTY,xAOD::CaloCluster::EM_PROBABILITY);
     if (true == gotMoment) m_PFO_EM_PROBABILTY->Fill(moment_EM_PROBABILTY);
     else m_PFO_EM_PROBABILTY->Fill(-1.0);
+    
+    float moment_SECOND_LAMBDA = 0.0;
+    gotMoment = PFO.getClusterMoment(moment_SECOND_LAMBDA,xAOD::CaloCluster::SECOND_LAMBDA);
+    if (true == gotMoment) m_PFO_SECOND_LAMBDA->Fill(moment_SECOND_LAMBDA);
+    else m_PFO_SECOND_LAMBDA->Fill(-1.0);
 
   }
 
