@@ -59,9 +59,6 @@ eflowRecTrack& eflowRecTrack::operator = (const eflowRecTrack& originalEflowRecT
 eflowRecTrack::~eflowRecTrack() { delete m_trackCaloPoints; }
 
 void eflowRecTrack::setCaloDepthArray(const double* depthArray) {
-  if (!m_caloDepthArray.empty()){
-    std::cout << "WARNING\tResetting caloDepthArray in eflowRecTrack!" << std::endl;
-  }
   m_caloDepthArray.assign(depthArray, depthArray + eflowDepthCalculator::NDepth() + 1);
 }
 

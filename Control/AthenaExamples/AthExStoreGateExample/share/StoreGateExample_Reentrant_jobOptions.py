@@ -20,8 +20,8 @@ theApp.EvtMax = 3
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
-topSeq += CfgMgr.WriteDataReentrant()
-topSeq += CfgMgr.ReadDataReentrant()
+topSeq += CfgMgr.WriteDataReentrant(DObjKeyArray = ['x1', 'x2', 'x3'])
+topSeq += CfgMgr.ReadDataReentrant(DObjKeyArray = ['x1', 'x2', 'x3'])
 
 # setup output level
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr

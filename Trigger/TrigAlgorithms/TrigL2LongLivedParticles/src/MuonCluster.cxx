@@ -64,17 +64,20 @@ HLT::ErrorCode MuonCluster::hltInitialize() {
     msg() << MSG::DEBUG << "Timers are initializated here" << endmsg;
   }
 
-  m_Timers.push_back(addTimer("ClusterMuon_Initialization"));
-  m_Timers.push_back(addTimer("ClusterMuon_ClusterFinding"));
-  m_Timers.push_back(addTimer("ClusterMuon_Finalization"));
 
-  declareMonitoredObject("Initialization", 
-			 *(m_Timers[ITIMER_INIT]), 
-			 &TrigTimer::elapsed);
-  declareMonitoredObject("ClusterFinder", *(m_Timers[ITIMER_CLUSTER]), 
-			 &TrigTimer::elapsed);
-  declareMonitoredObject("Finalization", *(m_Timers[ITIMER_FINAL]), 
-			 &TrigTimer::elapsed);
+  if (doTiming()) {
+    m_Timers.push_back(addTimer("ClusterMuon_Initialization"));
+    m_Timers.push_back(addTimer("ClusterMuon_ClusterFinding"));
+    m_Timers.push_back(addTimer("ClusterMuon_Finalization"));
+
+    declareMonitoredObject("Initialization", 
+                           *(m_Timers[ITIMER_INIT]), 
+                           &TrigTimer::elapsed);
+    declareMonitoredObject("ClusterFinder", *(m_Timers[ITIMER_CLUSTER]), 
+                           &TrigTimer::elapsed);
+    declareMonitoredObject("Finalization", *(m_Timers[ITIMER_FINAL]), 
+                           &TrigTimer::elapsed);
+  }
    
   msg() << MSG::INFO << "initialize() success" << endmsg;
 

@@ -46,20 +46,10 @@ EtaPhiWithVariance* ClusterGeometricalCenterProvider::getPosition(const ICluster
   }
   cluster->setCalVarianceStatus();
 
-  /* Remainder cluster (TODO: What is this about and can this ever happen?!?) */
-  if (cluster->eta() == -10) {
-    std::cout << "eflowGeometricalClusterCenter::getPosition()\tWARNING\tBad cluster passed!" << std::endl;
-    cluster->etaVariance(0.0);
-    cluster->phiVariance(0.0);
-    *m_position = EtaPhiWithVariance(eflowEtaPhiPosition(cluster->eta(), cluster->phi()), cluster->etaVariance(), cluster->phiVariance());
-    return m_position;
-  }
-
   unsigned int nCells = cluster->nCells();
 
   /* Catch empty clusters */
   if (nCells == 0){
-    std::cout << "eflowGeometricalClusterCenter::setCluster()\tWARNING\tEmpty cluster passed!" << std::endl;
     cluster->etaVariance(m_etaPhiLowerLimit);
     cluster->phiVariance(m_etaPhiLowerLimit);
     *m_position = EtaPhiWithVariance(eflowEtaPhiPosition(cluster->eta(), cluster->phi()), cluster->etaVariance(), cluster->phiVariance());

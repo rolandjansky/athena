@@ -352,8 +352,7 @@ def getKernel_ATLFASTIIF_PileUp(name="ISF_Kernel_ATLFASTIIF_PileUp", **kwargs):
 
     kwargs.setdefault("SimHitService"              , "ISF_PileupSimHitService"                  )
     kwargs.setdefault("BeamPipeSimulationSelectors", [ 'ISF_DefaultParticleKillerSelector' ]    )
-    kwargs.setdefault("IDSimulationSelectors"      , [ #'ISF_FatrasRandomSelector',
-                                                       #'ISF_FatrasPileupSelector_noHits',
+    kwargs.setdefault("IDSimulationSelectors"      , [ #'ISF_FatrasPileupSelector_noHits',
                                                        'ISF_FatrasPileupSelector',
                                                        'ISF_DefaultFatrasSelector' ]            )
     kwargs.setdefault("CaloSimulationSelectors"    , [ 'ISF_MuonFatrasSelector',

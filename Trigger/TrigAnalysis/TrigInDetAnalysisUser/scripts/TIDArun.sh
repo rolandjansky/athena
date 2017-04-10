@@ -4,17 +4,7 @@ pwd
 
 echo "args: $*"
 
-BASEDIR=/afs/cern.ch/user/s/sutt/public
-
-
-# copy basic web page information 
-
-for FILE in style.css index.php; do
-  echo "checking file $FILE"
-  if [ ! -e $FILE ]; then 
-    cp  $BASEDIR/TIDAWeb/TIDAV/$FILE .
-  fi
-done
+BASEDIR=/eos/atlas/atlascerngroupdisk/proj-sit/trigindet
 
 echo 
 echo "copy reference file and run comparitor"

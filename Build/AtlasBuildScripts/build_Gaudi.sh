@@ -107,4 +107,8 @@ cpack || ((ERROR_COUNT++))
 mkdir -p ${RPMDIR} || ((ERROR_COUNT++))
 cp GAUDI*.rpm ${RPMDIR} || ((ERROR_COUNT++))
 
+if [ $ERROR_COUNT -ne 0 ]; then
+	echo "Gaudi build script counted $ERROR_COUNT errors"
+fi
+
 exit ${ERROR_COUNT}

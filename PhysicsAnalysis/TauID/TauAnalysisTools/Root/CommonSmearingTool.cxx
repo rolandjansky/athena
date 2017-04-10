@@ -264,10 +264,9 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
 
   double dCorrection = 1.;
   // get standard scale factor
-  CP::CorrectionCode tmpCorrectionCode;
-  tmpCorrectionCode = getValue("sf"+sProng,
-                               xTau,
-                               dCorrection);
+  CP::CorrectionCode tmpCorrectionCode = getValue("sf"+sProng,
+                                                  xTau,
+                                                  dCorrection);
   // return correction code if histogram is not available
   if (tmpCorrectionCode != CP::CorrectionCode::Ok)
     return tmpCorrectionCode;

@@ -39,8 +39,6 @@ StatusCode TrackTruthSelector::finalize() {
 StatusCode TrackTruthSelector::execute() {
   ATH_MSG_DEBUG ("TrackTruthSelector::execute()");
 
-  StatusCode sc;
-
   //----------------------------------------------------------------
   // Retrieve the input
   const DetailedTrackTruthCollection *detailed = 0;

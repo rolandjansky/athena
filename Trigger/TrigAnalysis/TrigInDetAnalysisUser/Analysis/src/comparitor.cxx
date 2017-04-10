@@ -414,7 +414,7 @@ int main(int argc, char** argv) {
     if ( frefname==ftestname )    _fref = _ftest;
     else if ( exists(frefname) )  _fref = TFile::Open( frefname.c_str() );
     else { 
-      std::cerr << "main(): test file " << ftestname << " does not exist" << std::endl;
+      std::cerr << "main(): test file " << frefname << " does not exist" << std::endl;
       return -1;
     }
   }

@@ -53,7 +53,6 @@ public:
     int iSubBin(((x-iExpBin)*m_nExpSubBins));
 
     if (iExpBin > m_nExpBins){
-//      std::cout << "Exceeded # exp bins: " << iExpBin << " > " << nExpBins << std::endl;
       return exp(-x);
     }
     return m_exp[iExpBin]*m_subExp[iSubBin];

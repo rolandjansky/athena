@@ -8,13 +8,16 @@
 #include "PATInterfaces/ISystematicsTool.h"
 
 #include "xAODEgamma/Electron.h"
+#include "CxxUtils/ubsan_suppress.h"
 
 #include "TFile.h"
 #include "TH1D.h"
+#include "TInterpreter.h"
 
 using namespace asg::msgUserCode;
 
 int main() {
+   CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
    ANA_CHECK_SET_TYPE (int); //makes ANA_CHECK return ints if exiting function
 
    //make test files

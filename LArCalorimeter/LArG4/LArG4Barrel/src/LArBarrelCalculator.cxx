@@ -81,41 +81,41 @@ StatusCode LArBarrelCalculator::initialize()
   }
 
   // Access source of detector parameters.
-  LArVG4DetectorParameters* m_parameters = LArVG4DetectorParameters::GetInstance();
+  LArVG4DetectorParameters* parameters = LArVG4DetectorParameters::GetInstance();
 
   // Get the out-of-time cut from the detector parameters routine.
-  m_OOTcut = m_parameters->GetValue("LArExpHallOutOfTimeCut"); //FIXME should be done via configurables
+  m_OOTcut = parameters->GetValue("LArExpHallOutOfTimeCut"); //FIXME should be done via configurables
   ATH_MSG_DEBUG("**** OutOfTime cut " << m_OOTcut);
 
   // Main Barrel parameters
   // All the UNITS are implicitly the GEANT4 ONES e.g. mm, rad, etc ...
-  m_etaMaxBarrel = m_parameters->GetValue("LArEMBMaxEtaAcceptance");
-  m_zMinBarrel = m_parameters->GetValue("LArEMBfiducialMothZmin");
-  m_zMaxBarrel = m_parameters->GetValue("LArEMBfiducialMothZmax");
-  m_NCellMax   = (int) (m_parameters->GetValue("LArEMBnoOFPhysPhiCell"));
-  m_rMinAccordion  =  m_parameters->GetValue("LArEMBRadiusInnerAccordion");
-  m_rMaxAccordion  = m_parameters->GetValue("LArEMBFiducialRmax");
+  m_etaMaxBarrel = parameters->GetValue("LArEMBMaxEtaAcceptance");
+  m_zMinBarrel = parameters->GetValue("LArEMBfiducialMothZmin");
+  m_zMaxBarrel = parameters->GetValue("LArEMBfiducialMothZmax");
+  m_NCellMax   = (int) (parameters->GetValue("LArEMBnoOFPhysPhiCell"));
+  m_rMinAccordion  =  parameters->GetValue("LArEMBRadiusInnerAccordion");
+  m_rMaxAccordion  = parameters->GetValue("LArEMBFiducialRmax");
 
   // absorbers and electrodes thickness
-  m_ThickAbs = 0.5*( m_parameters->GetValue("LArEMBThickAbsGlue")
-                     +m_parameters->GetValue("LArEMBThickAbsIron")
-                     +m_parameters->GetValue("LArEMBThickAbsLead"));
+  m_ThickAbs = 0.5*( parameters->GetValue("LArEMBThickAbsGlue")
+                     +parameters->GetValue("LArEMBThickAbsIron")
+                     +parameters->GetValue("LArEMBThickAbsLead"));
 
-  G4double check = 0.5*( m_parameters->GetValue("LArEMBThinAbsGlue")
-                         +m_parameters->GetValue("LArEMBThinAbsIron")
-                         +m_parameters->GetValue("LArEMBThinAbsLead"));
+  G4double check = 0.5*( parameters->GetValue("LArEMBThinAbsGlue")
+                         +parameters->GetValue("LArEMBThinAbsIron")
+                         +parameters->GetValue("LArEMBThinAbsLead"));
 
   if (fabs(check-m_ThickAbs)>0.001)
     {
       ATH_MSG_WARNING("Thin and Thick Abs have difference thickness!");
     }
 
-  m_ThickEle= 0.5*( m_parameters->GetValue("LArEMBThickElecCopper")
-                    +m_parameters->GetValue("LArEMBThickElecKapton"));
+  m_ThickEle= 0.5*( parameters->GetValue("LArEMBThickElecCopper")
+                    +parameters->GetValue("LArEMBThickElecKapton"));
 
   // === GU 11/06/2003   total number of cells in phi
   // to distinguish 1 module (testbeam case) from full Atlas
-  m_NCellTot = (int) (m_parameters->GetValue("LArEMBnoOFPhysPhiCell"));
+  m_NCellTot = (int) (parameters->GetValue("LArEMBnoOFPhysPhiCell"));
   if (m_NCellTot != 1024)
     {
       m_NCellMax=1024;

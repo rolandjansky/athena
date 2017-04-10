@@ -30,13 +30,13 @@ public:
   ClassDef(APReweightBase, 1)
 
 protected:
-  unsigned int _ID;                                                              /*!< Holds the unique ID for assignment of APWeightEntries to source. */
-  static unsigned int _NID;                                                      /*!< Holds the overall number of assigned IDs. */
-  double _scale;                                                                 /*!< Holds the scale factor that was calculated from sample sizes upon instantiation. */
-  bool _isTrig;                                                                  /*!< Flag to determine if the class holds trigger efficiencies or "simple" MC weights. */
-  bool _isQuiet;                                                                 /*!< Flag to turn off messages. */
-  double _syst_uncert_global;                                                    /*!< Holds the global relative (!) systematic uncertainty of all efficiencies/weights. */
-  APWeightEntry* _empty_weight;                                                  /*!< Dummy weight (equals 0.) to return if value out of range is provided. */
+  unsigned int m_ID;                                                              /*!< Holds the unique ID for assignment of APWeightEntries to source. */
+  static unsigned int s_NID;                                                      /*!< Holds the overall number of assigned IDs. */
+  double m_scale;                                                                 /*!< Holds the scale factor that was calculated from sample sizes upon instantiation. */
+  bool m_isTrig;                                                                  /*!< Flag to determine if the class holds trigger efficiencies or "simple" MC weights. */
+  bool m_isQuiet;                                                                 /*!< Flag to turn off messages. */
+  double m_syst_uncert_global;                                                    /*!< Holds the global relative (!) systematic uncertainty of all efficiencies/weights. */
+  APWeightEntry* m_empty_weight;                                                  /*!< Dummy weight (equals 0.) to return if value out of range is provided. */
 };
 
 #endif

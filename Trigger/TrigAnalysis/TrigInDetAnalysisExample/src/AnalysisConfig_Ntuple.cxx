@@ -448,7 +448,7 @@ void AnalysisConfig_Ntuple::loop() {
 		for ( unsigned iv=0 ; iv<2 ; iv++ ) { 
 		  std::vector< Trig::Feature<xAOD::VertexContainer> > fvtx = comb->get<xAOD::VertexContainer>( vnames[iv] );
 		  
-		  std::cout << "SUTT " << chainName << "\t" << iv << "\txAOD::VertexContainer " << vnames[iv] << "\tsize: " << fvtx.size() << std::endl;
+		  //		  std::cout << "SUTT " << chainName << "\t" << iv << "\txAOD::VertexContainer " << vnames[iv] << "\tsize: " << fvtx.size() << std::endl;
 
 		  for ( unsigned ivt=0 ; ivt<fvtx.size() ; ivt++ ) { 
 		    
@@ -471,12 +471,11 @@ void AnalysisConfig_Ntuple::loop() {
 	  }
 	  
 	  
-	  std::cout << "[91;1m" << "SUTT npassed triggers = " << npassed << std::endl;
-	  for ( unsigned i=0 ; i<passed.size() ; i++ ) { 
-	    std::cout << "\tSUTT passed chain " << passed[i] << "\t(event " << event_number << ")" << std::endl;
-	  }
-
-	  std::cout << "[m" << std::endl;
+	  //	  std::cout << "[91;1m" << "SUTT npassed triggers = " << npassed << std::endl;
+	  //	  for ( unsigned i=0 ; i<passed.size() ; i++ ) { 
+	  //        std::cout << "\tSUTT passed chain " << passed[i] << "\t(event " << event_number << ")" << std::endl;
+	  //      }
+	  //	  std::cout << "[m" << std::endl;
 	}
 #endif
 
