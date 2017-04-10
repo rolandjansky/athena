@@ -155,7 +155,7 @@ namespace ana
     std::string orDef;
 
 
-    /// \string that contains triggers used seperated by spaces
+    /// \brief string that contains triggers used seperated by spaces
     ///
     /// e.g. "", "HLT_mu20_iloose_L1MU15", "HLT_mu20_iloose_L1MU15 HLT_e24_tight1_iloose"
   public:

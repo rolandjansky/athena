@@ -105,7 +105,7 @@ public:
   // methods required by the base class "IMdtBFieldCorFunc" //
   std::string name() const;  ///< get the class name
 
-  ///< get t(r,\vec{B}!=0)-t(r,\vec{B}=0);
+  ///< get t(r, @f$ \vec{B} @f$ !=0)-t(r, @f$ \vec{B} @f$ =0);
   ///< t = measured drift time t [ns];
   ///< B_wire = magnetic field parallel to the anode wire of the given tube,
   ///< B_mu = magnetic field orthogonal to the wire and  parallel

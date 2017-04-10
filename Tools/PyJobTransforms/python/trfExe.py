@@ -787,7 +787,7 @@ class athenaExecutor(scriptExecutor):
     #  @param memMonitor Enable subprocess memory monitoring
     #  @param disableMP Ensure that AthenaMP is not used (i.e., also unset 
     #  @c ATHENA_PROC_NUMBER before execution)
-    #  @note The difference between @c extraRunargs, @runtimeRunargs and @literalRunargs is that: @c extraRunargs 
+    #  @note The difference between @c extraRunargs, @c runtimeRunargs and @c literalRunargs is that: @c extraRunargs 
     #  uses repr(), so the RHS is the same as the python object in the transform; @c runtimeRunargs uses str() so 
     #  that a string can be interpreted at runtime; @c literalRunargs allows the direct insertion of arbitary python
     #  snippets into the runArgs file.

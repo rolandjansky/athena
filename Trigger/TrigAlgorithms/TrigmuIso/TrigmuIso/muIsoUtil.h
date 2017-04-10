@@ -27,7 +27,7 @@ namespace muIsoUtil {
   */
   double corrDEtaCM(double phi, double pt, int charge);
 
-  ///Return deltaPhi between phi\@MS entrance and phi@Calo entrance
+  ///Return deltaPhi between phi\@MS entrance and phi\@Calo entrance
   /*!
   * \param double eta
   * \param double pt 
@@ -44,7 +44,7 @@ namespace muIsoUtil {
   double corrDEtaC(); //dummy
   //double corrDEtaC(double phi = 0., double pt = 0., int charge = 0);
 
-  ///Return deltaPhi between phi@Calo entrance and phi@IP
+  ///Return deltaPhi between phi\@Calo entrance and phi\@IP
   /*!
   * \param double eta
   * \param double pt 
@@ -80,7 +80,7 @@ namespace muIsoUtil {
   */
   double phiATMS(double phi, double eta, double pt, int charge);
 
-  ///Return eta@MS entrance
+  ///Return eta\@MS entrance
   /*!
   * \param double phi 
   * \param double eta

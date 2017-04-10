@@ -1781,7 +1781,7 @@ class argSubstep(argument):
     
     ## @brief Return the value of this substep arg for an executor with the given parameters
     #  @param name Executor name
-    #  @parem substep Executor substep nickname
+    #  @param substep Executor substep nickname
     #  @param first Boolean flag set true if this is the first executor in the chain
     #  @param exe Executor instance, from which 'name', 'substep' and 'first' can be taken.  
     def returnMyValue(self, name=None, substep=None, first=False, exe=None):
