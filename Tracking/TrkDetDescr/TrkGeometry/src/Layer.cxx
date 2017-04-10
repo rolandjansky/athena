@@ -204,7 +204,7 @@ const Trk::MaterialProperties* Trk::Layer::fullUpdateMaterialProperties(const Tr
   }
 
 bool Trk::Layer::needsMaterialProperties() const {
-  //!< @TODO this is temporary    
+  //!< @todo this is temporary    
   if (m_surfaceArray){
     const std::vector<const Trk::Surface*>& surfaces = m_surfaceArray->arrayObjects();
     for ( auto& sIter : surfaces ) {

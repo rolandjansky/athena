@@ -14,14 +14,14 @@ static const InterfaceID IID_ISimHitSvc("ISimHitSvc", 1 , 0);
 
 namespace ISF {
 
-  /** @ class ISimHitSvc
+  /** @class ISimHitSvc
 
       Largely obsolete - just maintaining the class until it is safe
       to move the functionality to SimKernel.
 
-      @TODO add Calo, MS, et al.
+      @todo add Calo, MS, et al.
 
-      @ author Andreas.Salzburger -at- cern.ch
+      @author Andreas.Salzburger -at- cern.ch
      */
   class ISimHitSvc : virtual public IInterface {
 
@@ -36,7 +36,7 @@ namespace ISF {
       /** Initialize event chain */
       virtual StatusCode initializeEvent() = 0;
 
-      /** Release Event chain - @TODO: evoke callback chain ? */
+      /** Release Event chain - @todo : evoke callback chain ? */
       virtual StatusCode releaseEvent() = 0;
 
   };
