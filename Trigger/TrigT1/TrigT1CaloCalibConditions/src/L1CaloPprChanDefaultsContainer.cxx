@@ -115,9 +115,11 @@ DataObject* L1CaloPprChanDefaultsContainer::makePersistent() const
 void L1CaloPprChanDefaultsContainer::makeTransient(const std::map<std::string, CondAttrListCollection*> condAttrListCollectionMap)
 {
   clear();
-
-  auto it = condAttrListCollectionMap.find(m_coolFolderKey);
-  if(it == std::end(condAttrListCollectionMap)) return;
+  
+  // In the case of overlay, we need multiple instances of L1CaloPprChanDefaultsContainer
+  // Take the last element in the map
+  if (condAttrListCollectionMap.empty()) return;
+  auto it = condAttrListCollectionMap.rbegin();  
 
   auto attrListCollection = it->second;
   for(const auto& item : *attrListCollection) {
