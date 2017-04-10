@@ -256,9 +256,9 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, bdtPi0Score, setBDTPi0Score)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, centerMag, setCenterMag)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, charge, setCharge)
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, std::vector<int>, layervector, setLayer)
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, std::vector<float>, radiusvector, setRadius)
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, std::vector<float>, energydensityvector, setEnergyDensity)
+//   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, std::vector<int>, layervector, setLayer)
+//   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, std::vector<float>, radiusvector, setRadius)
+//   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, std::vector<float>, energydensityvector, setEnergyDensity)
   
 
 
