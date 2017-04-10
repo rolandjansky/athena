@@ -325,7 +325,9 @@ void TrigTrackSeedGenerator::createSeedsZv() {
 
 
 bool TrigTrackSeedGenerator::validateLayerPair(int layerI, int layerJ, float rm, float zm) {
-
+  
+  const float deltaRefCoord = 5.0;
+  
   if(layerJ==layerI) return false;//skip the same layer ???
   
   if(m_pStore->m_layers[layerJ].m_nSP==0) return false;
@@ -349,17 +351,100 @@ bool TrigTrackSeedGenerator::validateLayerPair(int layerI, int layerJ, float rm,
   m_maxCoord =-10000.0;
   
   if(isBarrel) {
-    m_minCoord = m_zMinus + refCoordJ*(zm-m_zMinus)/rm;
-    m_maxCoord = m_zPlus + refCoordJ*(zm-m_zPlus)/rm;
+    if(refCoordJ<rm){//inner layer
+      m_minCoord = m_zMinus + refCoordJ*(zm-m_zMinus)/rm;//+deltaRefCoord
+      m_maxCoord = m_zPlus + refCoordJ*(zm-m_zPlus)/rm;//-deltaRefCoord
+      m_minCoord -= deltaRefCoord*fabs(zm-m_zMinus)/rm;//corrections due to the layer width
+      m_maxCoord += deltaRefCoord*fabs(zm-m_zPlus)/rm;
+      //if(m_minCoord>m_maxCoord) {
+      //	std::cout<<"1 WRONG ORDER: m_minCoord="<<m_minCoord<<" m_maxCoord="<<m_maxCoord<<std::endl;
+      //}
+    }
+    else {//outer layer
+      m_minCoord = m_zPlus + refCoordJ*(zm-m_zPlus)/rm;//+deltaRefCoord
+      m_maxCoord = m_zMinus + refCoordJ*(zm-m_zMinus)/rm;//-deltaRefCoord
+      m_minCoord -= deltaRefCoord*fabs(zm-m_zPlus)/rm;
+      m_maxCoord += deltaRefCoord*fabs(zm-m_zMinus)/rm;
+      //if(m_minCoord>m_maxCoord) {
+      //	std::cout<<"2 WRONG ORDER: m_minCoord="<<m_minCoord<<" m_maxCoord="<<m_maxCoord<<std::endl;
+      //}
+    }
+
   }
   else {
-    m_minCoord = rm*(refCoordJ-m_zMinus)/(zm-m_zMinus);
-    m_maxCoord = rm*(refCoordJ-m_zPlus)/(zm-m_zPlus);
+
+    float maxB =  m_settings.m_layerGeometry[layerJ].m_maxBound;
+    float minB =  m_settings.m_layerGeometry[layerJ].m_minBound;
+    if(maxB<rm) return false;
+
+    if(refCoordJ>0) {
+      
+      float zMax = (zm*maxB-rm*refCoordJ)/(maxB-rm);
+      float zMin = (zm*minB-rm*refCoordJ)/(minB-rm);
+      if(m_zPlus<zMin || m_zMinus > zMax) return false;
+      if(refCoordJ > zm) {//outer layer
+	m_minCoord = (refCoordJ-m_zMinus)*rm/(zm-m_zMinus);
+	m_maxCoord = (refCoordJ-m_zPlus)*rm/(zm-m_zPlus);
+	m_minCoord -= deltaRefCoord*rm/fabs(zm-m_zMinus);
+	m_maxCoord += deltaRefCoord*rm/fabs(zm-m_zPlus);
+
+	if(zm <= m_zPlus) m_maxCoord = maxB;
+	if(zm <= m_zMinus) return false;
+	if(m_minCoord > maxB) return false;
+
+	//if(m_minCoord>m_maxCoord) {
+	//  std::cout<<"31 WRONG ORDER: m_minC="<<m_minCoord<<" m_maxC="<<m_maxCoord<<" rm="<<rm<<" zm="<<zm<<" refC="<<refCoordJ<<" zminus="<<m_zMinus<<" zplus="<<m_zPlus<<std::endl;
+	//}
+      }
+      else {//inner layer
+	m_minCoord = (refCoordJ-m_zPlus)*rm/(zm-m_zPlus);
+	m_maxCoord = (refCoordJ-m_zMinus)*rm/(zm-m_zMinus);
+	m_minCoord -= deltaRefCoord*rm/fabs(zm-m_zPlus);
+	m_maxCoord += deltaRefCoord*rm/fabs(zm-m_zMinus);
+	//if(m_minCoord>m_maxCoord) {
+	//  std::cout<<"32 WRONG ORDER: m_minC="<<m_minCoord<<" m_maxC="<<m_maxCoord<<" rm="<<rm<<" zm="<<zm<<" refC="<<refCoordJ<<" zminus="<<m_zMinus<<" zplus="<<m_zPlus<<std::endl;
+	//}
+      }
+
+    }
+    else {
+      float zMin = (zm*maxB-rm*refCoordJ)/(maxB-rm);
+      float zMax = (zm*minB-rm*refCoordJ)/(minB-rm);
+      if(m_zPlus<zMin || m_zMinus > zMax) return false;
+
+      if(refCoordJ < zm) {//outer layer
+
+	m_minCoord = (refCoordJ-m_zPlus)*rm/(zm-m_zPlus);
+	m_maxCoord = (refCoordJ-m_zMinus)*rm/(zm-m_zMinus);
+	m_minCoord -= deltaRefCoord*rm/fabs(zm-m_zPlus);
+	m_maxCoord += deltaRefCoord*rm/fabs(zm-m_zMinus);
+
+	if(zm > m_zMinus) m_maxCoord = maxB;
+	if(zm > m_zPlus) return false;
+	if(m_minCoord > maxB) return false;
+
+	//if(m_minCoord>m_maxCoord) {
+	//  std::cout<<"41 WRONG ORDER: m_minC="<<m_minCoord<<" m_maxC="<<m_maxCoord<<" rm="<<rm<<" zm="<<zm<<" refC="<<refCoordJ<<" zminus="<<m_zMinus<<" zplus="<<m_zPlus<<std::endl;
+	//}
+      }
+      else {//inner layer
+	m_minCoord = (refCoordJ-m_zMinus)*rm/(zm-m_zMinus);
+	m_maxCoord = (refCoordJ-m_zPlus)*rm/(zm-m_zPlus);
+	m_minCoord -= deltaRefCoord*rm/fabs(zm-m_zMinus);
+	m_maxCoord += deltaRefCoord*rm/fabs(zm-m_zPlus);
+	//if(m_minCoord>m_maxCoord) {
+	//  std::cout<<"42 WRONG ORDER: m_minC="<<m_minCoord<<" m_maxC="<<m_maxCoord<<" rm="<<rm<<" zm="<<zm<<" refC="<<refCoordJ<<" zminus="<<m_zMinus<<" zplus="<<m_zPlus<<std::endl;
+	//}
+      }
+
+    }
   }
   
-  if(m_minCoord>m_maxCoord) {
-    float tmp = m_maxCoord;m_maxCoord = m_minCoord;m_minCoord = tmp;
-  }
+  //if(m_minCoord>m_maxCoord) {
+  //   std::cout<<"WRONG ORDER: m_minCoord="<<m_minCoord<<" m_maxCoord="<<m_maxCoord<<std::endl;
+  // }
+  //  float tmp = m_maxCoord;m_maxCoord = m_minCoord;m_minCoord = tmp;
+  //}
   
   float minBoundJ = m_settings.m_layerGeometry[layerJ].m_minBound;
   float maxBoundJ = m_settings.m_layerGeometry[layerJ].m_maxBound;
