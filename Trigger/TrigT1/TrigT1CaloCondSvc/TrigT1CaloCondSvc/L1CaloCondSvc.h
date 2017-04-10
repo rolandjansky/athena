@@ -98,10 +98,6 @@ private:
   template <typename T>
   StatusCode retrieveImpl(T*& pobj, const std::string& key);
 
-  //
-  //StatusCode registerCondition(std::string key, IL1CaloPersistenceCapable* pObj);
-  //    template <typename T>
-  //    StatusCode registerCondition(std::string key, T*& pobj); // to be replaced
   template <typename T>
   StatusCode registerCondition(T*& pobj, const std::string& mykey="");
 

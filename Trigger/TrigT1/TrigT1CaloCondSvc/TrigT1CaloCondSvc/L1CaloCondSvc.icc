@@ -387,54 +387,6 @@ StatusCode L1CaloCondSvc::registerCondition(T*& pObj, const std::string& mykey) 
 
 }
 
-//template <typename T>
-//StatusCode L1CaloCondSvc::registerCondition(std::string key, T*& pObj) {
-//	MsgStream log(msgSvc(),name());
-//
-//	StatusCode sc;
-//
-//	log << MSG::DEBUG << "L1CaloCondSvc::registerCondition(std::string key, T*& pObj))" << endmsg;
-///*
-//	if(!pObj) {
-//		log << MSG::ERROR << "IL1CaloPersistenceCapable* pObj is NULL in L1CaloCondSvc::registerCondition()" << endmsg;
-//		return StatusCode::FAILURE;
-//	}
-//
-//	std::string conditionType = pObj->conditionType();
-//
-//	if(conditionType=="CondAttrListCollection") {
-//
-//		m_mConditions[key] = pObj;
-//		m_mDataHandleAttrListColl[key] = new DataHandle<CondAttrListCollection>();
-//
-//		const DataHandle<CondAttrListCollection>& dh = *m_mDataHandleAttrListColl[key];
-//		sc = m_detStore->regFcn(&L1CaloCondSvc::updateConditions, this, dh, key, true);
-//		if(sc.isFailure()) {
-//			log << MSG::ERROR << "failed to regFcn datahandle to L1CaloCondSvc::updateConditions()" << endmsg;
-//			return StatusCode::FAILURE;
-//		}
-//
-//
-//	} else if(conditionType=="AthenaAttributeList"){
-//
-//		m_mConditions[key] = pObj;
-//		m_mDataHandleAttrList[key] = new DataHandle<AthenaAttributeList>();
-//
-//		const DataHandle<AthenaAttributeList>& dh = *m_mDataHandleAttrList[key];
-//		sc = m_detStore->regFcn(&L1CaloCondSvc::updateConditions, this, dh, key, true);
-//		if(sc.isFailure()) {
-//			log << MSG::ERROR << "failed to regFcn datahandle to L1CaloCondSvc::updateConditions()" << endmsg;
-//			return StatusCode::FAILURE;
-//		}
-//
-//	} else {
-//		log << MSG::ERROR << "Condition type " << conditionType << "not recognized by L1CaloCondSvc" << endmsg;
-//		return StatusCode::FAILURE;
-//	}
-//*/
-//	return StatusCode::SUCCESS;
-//}
-
 #endif
 
 

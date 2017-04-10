@@ -261,9 +261,6 @@ private:
   std::vector<int> ADC(L1CaloCoolChannelId channel, const std::vector<double>& amps) const;
   int EtRange(int et, unsigned short bcidEnergyRangeLow, unsigned short bcidEnergyRangeHigh) const;
 
-  // void preProcessLayer(int layer, int m_eventBCID, InternalTriggerTower* tower, std::vector<int>& etResultVector, std::vector<int>& bcidResultVector);
-  
-
   int etaToElement(float feta, int layer) const;
   
   // non-linear LUT 
