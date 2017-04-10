@@ -30,17 +30,6 @@ mlog.info("Entering")
 # CaloRinger flags
 from CaloRingerAlgs.CaloRingerFlags import caloRingerFlags
 
-def egammaBuilderAvailable():
-  " Return true if egammaBuilder is available."
-  flag = False
-  if rec.readRDO() or rec.readESD() and not rec.readAOD():
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()                     
-    if hasattr(topSequence,'egamma'):
-      flag = True
-  return flag
-
-
 def inputAvailable(inputType, inputKey):
   """ inputAvailable(inputType, inputKey) 
   Return true if inputType with inputKey is available."""
@@ -66,15 +55,10 @@ def checkBuildElectronCaloRings():
       caloRingerFlags.buildElectronCaloRings = False
       return False
     if not inputAvailable(inputElectronType(), inputElectronKey()):
-
-      # Try to force egammaBuilder startup if it is not already started:
-      if not jobproperties.egammaRecFlags.doEgammaCaloSeeded(): # egammaBuilderAvailable(): 
+      if not jobproperties.egammaRecFlags.doEgammaCaloSeeded():
         mlog.warning(("Requested to build ElectronCaloRings but egamma"
-          " builder was not available. Deactivating ElectronCaloRings and electron selection.")
+          " calo seeded is off. Deactivating ElectronCaloRings and electron selection.")
           )
-        #if rec.doEgamma():
-          #__enableEgamma()
-        #else
         caloRingerFlags.buildElectronCaloRings = False
         caloRingerFlags.doElectronIdentification = False
         return False
@@ -82,7 +66,7 @@ def checkBuildElectronCaloRings():
         mlog.verbose(("Input not available in the file, but it is requested"
           " to be reconstructed so it will be build during reconstruction."))
     else:
-      if jobproperties.egammaRecFlags.doEgammaCaloSeeded(): # egammaBuilderAvailable():
+      if jobproperties.egammaRecFlags.doEgammaCaloSeeded():
         mlog.verbose(("There already exists the egamma objects in file, but"
           " they will be updated during reconstruction to new ones."))
       else:
@@ -135,14 +119,11 @@ def checkBuildPhotonCaloRings():
       return False
     if not inputAvailable(inputPhotonType(), inputPhotonKey()):
 
-      # Try to force egammaBuilder startup if it is not already started:
-      if not jobproperties.egammaRecFlags.doEgammaCaloSeeded():  # egammaBuilderAvailable(): 
+      # Deadtivate photon calo rings if egamma calo seeded is off:
+      if not jobproperties.egammaRecFlags.doEgammaCaloSeeded():
         mlog.warning(("Requested to build PhotonCaloRings but egamma"
-          " builder was not available. Deactivating buildPhotonCaloRings.")
+          " calo seeded is off. Deactivating buildPhotonCaloRings.")
             )
-        #if rec.doEgamma():
-          #__enableEgamma()
-        #else:
         caloRingerFlags.buildPhotonCaloRings = False
         #caloRingerFlags.doPhotonIdentification = False
         return False
@@ -150,7 +131,7 @@ def checkBuildPhotonCaloRings():
         mlog.verbose(("Input not available in the file. No problem: it will "
           " be reconstructed"))
     else:
-      if jobproperties.egammaRecFlags.doEgammaCaloSeeded(): # egammaBuilderAvailable():
+      if jobproperties.egammaRecFlags.doEgammaCaloSeeded():
         mlog.verbose(("There already exists the egamma objects in file, but"
           " they will be updated during reconstruction to new ones."))
       else:
@@ -191,20 +172,6 @@ def checkDoPhotonIdentification():
     return True
   else:
     return False
-
-def __enableEgamma():
-  " Local function to enable Egamma Reconstruction."
-  # Set egamma flags to True
-  rec.doEgamma = True
-  from egammaRec.egammaRecFlags import jobproperties
-  egammaRecFlags = jobproperties.egammaRecFlags
-  egammaRecFlags.Enabled = True 
-  egammaRecFlags.doEgammaCaloSeeded = True 
-  egammaRecFlags.doEgammaForwardSeeded = False 
-  include("egammaRec/egammaRec_jobOptions.py")
-  if not egammaBuilderAvailable(): 
-    mlog.error("Couldn't add egamma reconstruction to joboptions")
-    raise RuntimeError("Coudln't add egamma reconstruction to joboptions.")
 
 def getCaloRingerInputReaderTools():
   """ Returns a list with the CaloRinger tools to get the input objects to be
