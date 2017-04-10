@@ -147,7 +147,7 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   bool buildL2InDetCandidates(const ElementLinkVector<xAOD::TrackParticleContainer>&, InDetCandidateCollection*, const xAOD::L2CombinedMuonContainer*);
   void runMuGirl(const ElementLinkVector<xAOD::TrackParticleContainer>&, InDetCandidateCollection*);
 
-  bool retrieveFromCache(map<std::vector<std::vector<IdentifierHash> >, InternalCache*>::iterator itmap, MuonCandidateCollection* muonCandidates, xAOD::TrackParticleContainer* combTrackParticleCont, xAOD::TrackParticleContainer* saTrackParticleCont, TrackCollection* extrapolatedTracks );
+  bool retrieveFromCache(std::map<std::vector<std::vector<IdentifierHash> >, InternalCache*>::iterator itmap, MuonCandidateCollection* muonCandidates, xAOD::TrackParticleContainer* combTrackParticleCont, xAOD::TrackParticleContainer* saTrackParticleCont, TrackCollection* extrapolatedTracks );
 
   void retrieveTrackContainersFromCache(InternalCache* cache, xAOD::TrackParticleContainer* combTrackParticleCont, xAOD::TrackParticleContainer* saTrackParticleCont, TrackCollection* extrapolatedTracks );
 
