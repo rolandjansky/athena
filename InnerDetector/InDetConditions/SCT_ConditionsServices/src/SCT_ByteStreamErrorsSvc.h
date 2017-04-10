@@ -26,6 +26,8 @@
 /** needs to be included here for gcc 4.3 compatibility */
 #include "StoreGate/StoreGateSvc.h"
 
+#include "Identifier/IdContext.h"
+
 /** forward declarations */
 template <class TYPE> class SvcFactory;
 class ISvcLocator;
@@ -98,9 +100,9 @@ public:
   virtual void setDecodedROD(const boost::uint32_t rodId);
   virtual std::vector<boost::uint32_t> getRODOuts() const;
 
-  virtual void setFirstMaskedChip(const IdentifierHash& hashId, const int firstMaskedChip);
-  virtual int getFirstMaskedChip(const IdentifierHash& hashId) const;
-  virtual unsigned int maskedChips(const Identifier & moduleId) const;
+  virtual void setFirstTempMaskedChip(const IdentifierHash& hashId, const int firstTempMaskedChip);
+  virtual int getFirstTempMaskedChip(const IdentifierHash& hashId) const;
+  virtual unsigned int tempMaskedChips(const Identifier & moduleId) const;
 
 private:
 
@@ -117,8 +119,9 @@ private:
 
   std::set<IdentifierHash>* m_rxRedundancy;
 
-  std::map<IdentifierHash, int>* m_firstMaskedChips;
-  std::map<Identifier, unsigned int>* m_maskedChips;
+  std::map<IdentifierHash, int>* m_firstTempMaskedChips;
+  std::map<Identifier, unsigned int>* m_tempMaskedChips;
+  IdContext m_cntx_sct;
 
   int m_numBsErrors[SCT_ByteStreamErrors::NUM_ERROR_TYPES];
 
