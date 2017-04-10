@@ -39,9 +39,8 @@ atlas_add_component( TrackCaloClusterRecValidation
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} 
-                     AthenaBaseComps AthenaMonitoringLib xAODTracking xAODTruth GaudiKernel TrkValHistUtils 
-                     AsgTools AthenaKernel GeoPrimitives EventPrimitives xAODBase xAODEventInfo xAODJet InDetPhysValMonitoring PathResolver )
-
+                     AthenaBaseComps AthenaMonitoringLib xAODTracking xAODTruth GaudiKernel TrkValHistUtils InDetPhysValMonitoringLib
+                     AsgTools AthenaKernel GeoPrimitives EventPrimitives xAODBase xAODEventInfo xAODJet PathResolver)
 # Install files from the package:
 atlas_install_headers( TrackCaloClusterRecValidation )
 #atlas_install_python_modules( python/*.py )

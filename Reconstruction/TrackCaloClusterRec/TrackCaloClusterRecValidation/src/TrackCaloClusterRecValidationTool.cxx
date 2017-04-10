@@ -58,7 +58,7 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
   
   const auto truths = getContainer<xAOD::JetContainer>(m_truthJetContainerName);
   if (not truths) return StatusCode::FAILURE;
-    
+   
   // retrieve jet container
   for (auto name : m_jetContainerNames) {
     ATH_MSG_DEBUG("Using Container " << name << "...");
@@ -73,10 +73,17 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
     if (not caloclusters) return StatusCode::FAILURE;
         
     m_tccPlots.at(name)->fill(*jets);
-        
+            
     for (const auto& jet: *jets) {
       // conditions to be satisfied to select jets
       if (fabs(jet->eta())>m_maxEta) continue;
+      
+      // get the truth matched
+      const xAOD::Jet* truth_matched_nocuts = ClusterMatched(jet,truths);
+      // if truth_matched exists, fill the response w/o pt and mass cuts
+      if (truth_matched_nocuts)
+	m_tccPlots.at(name)->fillResponseNoPtNoMassCuts(*jet,*truth_matched_nocuts);
+      
       if (fabs(jet->pt())<m_minPt) continue;
             
       // fill all jets histograms
@@ -104,10 +111,13 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
       if (calo_matched)
 	m_tccPlots.at(name)->fillPseudoResponse(*jet,*calo_matched);
     }
+    
+    
     ATH_MSG_DEBUG("All jets histograms filled! ...");
     
     // evaluate the leadings in mass of the leadings is pt
     std::vector<const xAOD::Jet*> leadings = {nullptr, nullptr};
+    std::vector<const xAOD::Jet*> leadings_nocuts = {nullptr, nullptr};
     
     std::vector<const xAOD::Jet*> tmp_leadings;
     if (jets->size()>0)
@@ -116,6 +126,39 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
       tmp_leadings.push_back(jets->at(1));
     
     if (tmp_leadings.size()>1 and tmp_leadings.at(0)->m()<tmp_leadings.at(1)->m()) std::swap(tmp_leadings.at(0), tmp_leadings.at(1));
+    
+    // fill the leadings jets if they satisfy the eta requirement
+    if (tmp_leadings.size()>0 
+      and fabs(tmp_leadings.at(0)->eta())<m_maxEta)
+      leadings_nocuts.at(0) = tmp_leadings.at(0);
+    
+    if (tmp_leadings.size()>1 
+      and fabs(tmp_leadings.at(1)->eta())<m_maxEta)
+      leadings_nocuts.at(1) = tmp_leadings.at(1);
+    
+    std::vector<const xAOD::Jet*> truth_matches_nocuts  = {nullptr, nullptr};
+    unsigned int pos = 0;
+    for (const auto& jet: leadings_nocuts) {
+      pos++;
+      if (not jet) continue;
+      const xAOD::Jet* truth_matched_nocuts = ClusterMatched(jet,truths);
+      if (truth_matched_nocuts)
+	truth_matches_nocuts.at(pos-1) = truth_matched_nocuts;
+    }
+    
+    if (leadings_nocuts.at(0)) {
+      ATH_MSG_DEBUG(" ---> fillLeading w/o cuts ...");
+      if (truth_matches_nocuts.at(0)) 
+	m_tccPlots.at(name)->fillResponseNoPtNoMassCutsLeading(*leadings_nocuts.at(0),*truth_matches_nocuts.at(0));
+      ATH_MSG_DEBUG("Leading jet w/o cuts histograms filled! ...");
+    }
+    
+    if (leadings_nocuts.at(1)) {
+      ATH_MSG_DEBUG(" ---> fillSubLeading w/o cuts ...");
+      if (truth_matches_nocuts.at(1)) 
+	m_tccPlots.at(name)->fillResponseNoPtNoMassCutsSubLeading(*leadings_nocuts.at(1),*truth_matches_nocuts.at(1));
+      ATH_MSG_DEBUG("SubLeading jet w/o cuts histograms filled! ...");
+    }     
     
     // fill the leadings jets if they satisfy the eta and pt requirements
     if (tmp_leadings.size()>0 
@@ -138,9 +181,9 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
       m_tccPlots.at(name)->fillMomentsSubLeading(*leadings.at(1));
     }
        
-    std::vector<const xAOD::Jet*> truth_matches  = {nullptr, nullptr};
-    std::vector<const xAOD::Jet*>  calo_matches  = {nullptr, nullptr};
-    unsigned int pos = 0;
+    std::vector<const xAOD::Jet*> truth_matches         = {nullptr, nullptr};
+    std::vector<const xAOD::Jet*>  calo_matches         = {nullptr, nullptr};
+    pos = 0;
     for (const auto& jet: leadings) {
       pos++;
       if (not jet) continue;
@@ -172,8 +215,8 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
 	  m_tccPlots.at(name)->fillPseudoResponseSubLeading(*leadings.at(1),*calo_matches.at(1));
       }
       ATH_MSG_DEBUG("SubLeading jet histograms filled! ...");
-    }
-  }  
+    }     
+  }
   
   return StatusCode::SUCCESS;
 }

@@ -12,6 +12,8 @@
 
 // to retrieve HistogramDefinitionSvc
 #include "InDetPhysValMonitoring/HistogramDefinitionSvc.h"
+#include "InDetPhysValMonitoring/SingleHistogramDefinition.h"
+
 #include <cmath>
 
 using CLHEP::GeV;
@@ -23,8 +25,13 @@ namespace {
   }
 
   bool
-  validArguments(const float arg, const float arg2) {
-    return not (std::isnan(arg) or std::isnan(arg2));
+  validArguments(const float arg1, const float arg2) {
+    return not (std::isnan(arg1) or std::isnan(arg2));
+  }
+  
+  bool
+  validArguments(const float arg1, const float arg2, const float arg3) {
+    return not (std::isnan(arg1) or std::isnan(arg2) or std::isnan(arg3));
   }
 }
 
@@ -36,7 +43,6 @@ TCCPlotsBase::TCCPlotsBase(PlotBase* pParent, std::string folder):
 
 void TCCPlotsBase::book(TH1*& pHisto, const std::string& histoIdentifier, const std::string& folder) {
   const SingleHistogramDefinition hd = retrieveDefinition(histoIdentifier, folder);
-
   if (hd.empty()) {
     ATH_MSG_WARNING("Histogram definition is empty for identifier " << histoIdentifier);
   }
@@ -46,14 +52,15 @@ void TCCPlotsBase::book(TH1*& pHisto, const std::string& histoIdentifier, const 
 
 void TCCPlotsBase::book(TH1*& pHisto, const SingleHistogramDefinition& hd) {
   if (hd.isValid()) {
-    pHisto = Book1D(hd.name, hd.allTitles, hd.nBinsX, hd.xAxis.first, hd.xAxis.second, false);
+    pHisto = Book1D(hd.name, hd.allTitles, 
+		    hd.nBinsX, hd.xAxis.first, hd.xAxis.second, 
+		    false);
   }
   return;
 }
 
 void TCCPlotsBase::book(TH2*& pHisto, const std::string& histoIdentifier, const std::string& folder) {
   const SingleHistogramDefinition hd = retrieveDefinition(histoIdentifier, folder);
-
   if (hd.empty()) {
     ATH_MSG_WARNING("Histogram definition is empty for identifier " << histoIdentifier);
   }
@@ -63,8 +70,30 @@ void TCCPlotsBase::book(TH2*& pHisto, const std::string& histoIdentifier, const 
 
 void TCCPlotsBase::book(TH2*& pHisto, const SingleHistogramDefinition& hd) {
   if (hd.isValid()) {
-    pHisto = Book2D(hd.name, hd.allTitles, hd.nBinsX, hd.xAxis.first, hd.xAxis.second, hd.nBinsY, hd.yAxis.first,
-                    hd.yAxis.second, false);
+    pHisto = Book2D(hd.name, hd.allTitles, 
+		    hd.nBinsX, hd.xAxis.first, hd.xAxis.second, 
+		    hd.nBinsY, hd.yAxis.first, hd.yAxis.second, 
+		    false);
+  }
+  return;
+}
+
+void TCCPlotsBase::book(TH3*& pHisto, const std::string& histoIdentifier, const std::string& folder) {
+  const SingleHistogramDefinition hd = retrieveDefinition(histoIdentifier, folder);
+  if (hd.empty()) {
+    ATH_MSG_WARNING("Histogram definition is empty for identifier " << histoIdentifier);
+  }
+  book(pHisto, hd);
+  return;
+}
+
+void TCCPlotsBase::book(TH3*& pHisto, const SingleHistogramDefinition& hd) {
+  if (hd.isValid()) {
+    pHisto = Book3D(hd.name, hd.allTitles, 
+		    hd.nBinsX, hd.xAxis.first, hd.xAxis.second, 
+		    hd.nBinsY, hd.yAxis.first, hd.yAxis.second, 
+		    hd.nBinsZ, hd.zAxis.first, hd.zAxis.second,
+		    false);
   }
   return;
 }
@@ -86,6 +115,12 @@ void TCCPlotsBase::fillHisto(TH1* pTh1, const float value, const float weight) {
 void TCCPlotsBase::fillHisto(TH2* pTh2, const float xval, const float yval) {
   if (pTh2 and validArguments(xval, yval)) {
     pTh2->Fill(xval, yval);
+  }
+}
+
+void TCCPlotsBase::fillHisto(TH3* pTh3, const float xval, const float yval, const float zval) {
+  if (pTh3 and validArguments(xval, yval, zval)) {
+    pTh3->Fill(xval, yval, zval);
   }
 }
   

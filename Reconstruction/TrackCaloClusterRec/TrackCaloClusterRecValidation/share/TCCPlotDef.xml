@@ -394,5 +394,291 @@
     <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
+<!-- m_jet_mopt_pt_response_m -->
+  <h id="jet_mopt_pt_response_m" type="TH3F" title="Mass response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="Mass response"                 n="500" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_mopt_pt_response_m_2leadings -->
+  <h id="jet_mopt_pt_response_m_2leadings" type="TH3F" title="Mass response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="Mass response"                 n="500" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_mopt_pt_response_m_leading -->
+  <h id="jet_mopt_pt_response_m_leading" type="TH3F" title="Mass response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="Mass response"                 n="500" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_mopt_pt_response_m_subleading -->
+  <h id="jet_mopt_pt_response_m_subleading" type="TH3F" title="Mass response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="Mass response"                 n="500" lo="0." hi="5."/>
+  </h> 
+
+<!-- m_jet_mopt_pt_response_pt -->
+  <h id="jet_mopt_pt_response_pt" type="TH3F" title="p_{T} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="p_{T} response"                 n="500" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_mopt_pt_response_pt_2leadings -->
+  <h id="jet_mopt_pt_response_pt_2leadings" type="TH3F" title="p_{T} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="p_{T} response"                 n="500" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_mopt_pt_response_pt_leading -->
+  <h id="jet_mopt_pt_response_pt_leading" type="TH3F" title="p_{T} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="p_{T} response"                 n="500" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_mopt_pt_response_pt_subleading -->
+  <h id="jet_mopt_pt_response_pt_subleading" type="TH3F" title="p_{T} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="p_{T} response"                 n="500" lo="0." hi="5."/>
+  </h> 
+
+<!-- m_jet_mopt_pt_response_eta -->
+  <h id="jet_mopt_pt_response_eta" type="TH3F" title="#eta response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="#eta response"                 n="500" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_mopt_pt_response_eta_2leadings -->
+  <h id="jet_mopt_pt_response_eta_2leadings" type="TH3F" title="#eta response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="#eta response"                 n="500" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_mopt_pt_response_eta_leading -->
+  <h id="jet_mopt_pt_response_eta_leading" type="TH3F" title="#eta response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="#eta response"                 n="500" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_mopt_pt_response_eta_subleading -->
+  <h id="jet_mopt_pt_response_eta_subleading" type="TH3F" title="#eta response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="#eta response"                 n="500" lo="0." hi="5."/>
+  </h> 
+
+<!-- m_jet_mopt_pt_response_phi -->
+  <h id="jet_mopt_pt_response_phi" type="TH3F" title="#phi response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="#phi response"                 n="500" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_mopt_pt_response_phi_2leadings -->
+  <h id="jet_mopt_pt_response_phi_2leadings" type="TH3F" title="#phi response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="#phi response"                 n="500" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_mopt_pt_response_phi_leading -->
+  <h id="jet_mopt_pt_response_phi_leading" type="TH3F" title="#phi response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="#phi response"                 n="500" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_mopt_pt_response_phi_subleading -->
+  <h id="jet_mopt_pt_response_phi_subleading" type="TH3F" title="#phi response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="#phi response"                 n="500" lo="0." hi="5."/>
+  </h> 
+
+<!-- m_jet_mopt_pt_response_d2 -->
+  <h id="jet_mopt_pt_response_d2" type="TH3F" title="D_{2} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="D_{2} response"                 n="500" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_mopt_pt_response_d2_2leadings -->
+  <h id="jet_mopt_pt_response_d2_2leadings" type="TH3F" title="D_{2} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="D_{2} response"                 n="500" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_mopt_pt_response_d2_leading -->
+  <h id="jet_mopt_pt_response_d2_leading" type="TH3F" title="D_{2} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="D_{2} response"                 n="500" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_mopt_pt_response_d2_subleading -->
+  <h id="jet_mopt_pt_response_d2_subleading" type="TH3F" title="D_{2} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
+    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="D_{2} response"                 n="500" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_resolution_mopt_pt_m -->
+  <h id="jet_resolution_mopt_pt_m" type="TH2F" title="Mass resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_resolution_mopt_pt_m_2leadings -->
+  <h id="jet_resolution_mopt_pt_m_2leadings" type="TH2F" title="Mass resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h>
+  
+<!-- m_jet_resolution_mopt_pt_m_2leadings_test -->
+  <h id="jet_resolution_mopt_pt_m_2leadings_test" type="TH1F" title="Mass resolution TEST - 2 leading jets">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_resolution_mopt_pt_m_leading -->
+  <h id="jet_resolution_mopt_pt_m_leading" type="TH2F" title="Mass resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_resolution_mopt_pt_m_subleading -->
+  <h id="jet_resolution_mopt_pt_m_subleading" type="TH2F" title="Mass resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+  
+<!-- m_jet_resolution_mopt_pt_pt -->
+  <h id="jet_resolution_mopt_pt_pt" type="TH2F" title="p_{T} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_resolution_mopt_pt_pt_2leadings -->
+  <h id="jet_resolution_mopt_pt_pt_2leadings" type="TH2F" title="p_{T} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_resolution_mopt_pt_pt_leading -->
+  <h id="jet_resolution_mopt_pt_pt_leading" type="TH2F" title="p_{T} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_resolution_mopt_pt_pt_subleading -->
+  <h id="jet_resolution_mopt_pt_pt_subleading" type="TH2F" title="p_{T} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+  
+<!-- m_jet_resolution_mopt_pt_eta -->
+  <h id="jet_resolution_mopt_pt_eta" type="TH2F" title="#eta resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_resolution_mopt_pt_eta_2leadings -->
+  <h id="jet_resolution_mopt_pt_eta_2leadings" type="TH2F" title="#eta resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_resolution_mopt_pt_eta_leading -->
+  <h id="jet_resolution_mopt_pt_eta_leading" type="TH2F" title="#eta resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_resolution_mopt_pt_eta_subleading -->
+  <h id="jet_resolution_mopt_pt_eta_subleading" type="TH2F" title="#eta resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+  
+<!-- m_jet_resolution_mopt_pt_phi -->
+  <h id="jet_resolution_mopt_pt_phi" type="TH2F" title="#phi resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_resolution_mopt_pt_phi_2leadings -->
+  <h id="jet_resolution_mopt_pt_phi_2leadings" type="TH2F" title="#phi resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_resolution_mopt_pt_phi_leading -->
+  <h id="jet_resolution_mopt_pt_phi_leading" type="TH2F" title="#phi resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_resolution_mopt_pt_phi_subleading -->
+  <h id="jet_resolution_mopt_pt_phi_subleading" type="TH2F" title="#phi resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+  
+<!-- m_jet_resolution_mopt_pt_d2 -->
+  <h id="jet_resolution_mopt_pt_d2" type="TH2F" title="D_{2} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_resolution_mopt_pt_d2_2leadings -->
+  <h id="jet_resolution_mopt_pt_d2_2leadings" type="TH2F" title="D_{2} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_resolution_mopt_pt_d2_leading -->
+  <h id="jet_resolution_mopt_pt_d2_leading" type="TH2F" title="D_{2} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_resolution_mopt_pt_d2_subleading -->
+  <h id="jet_resolution_mopt_pt_d2_subleading" type="TH2F" title="D_{2} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
+    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
+    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+  
 </hdef>
 
