@@ -111,7 +111,7 @@ struct acquire_attachFeatureConstDV<T, true> {
 					  HLT::Navigation::MemoryManagement, std::string&, const std::string&  );
   
   static type do_it() {
-    return &HLT::Navigation::attachFeature<ConstDataVector<T>>; 
+    return &HLT::Navigation::attachFeature<T>; 
   }
 };
 
