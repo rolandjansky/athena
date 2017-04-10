@@ -74,7 +74,7 @@ StatusCode TileCondToolOfcCool::finalize() {
 const TileOfcWeightsStruct* TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx
                                                                , unsigned int /* channel */
                                                                , unsigned int adc
-                                                               , float phase
+                                                               , float& phase
                                                                , bool /* of2 */) {
 
   if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
@@ -106,7 +106,7 @@ const TileOfcWeightsStruct* TileCondToolOfcCool::getOfcWeights(unsigned int draw
 int TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx
                                        , unsigned int /* channel */
                                        , unsigned int adc
-                                       , float phase
+                                       , float& phase
                                        , float *a, float *b, float *c, float *g, float *dg) {
 
   if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {

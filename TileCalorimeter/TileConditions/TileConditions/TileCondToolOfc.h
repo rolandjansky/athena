@@ -26,8 +26,7 @@
 #include <TMatrixD.h>
 #include <iostream>
 #include <iomanip>
-
-#define MAX_ADCS 13248
+#include <memory>
 
 class CaloDetDescrManager;
 class IdContext;
@@ -56,26 +55,39 @@ class TileCondToolOfc: public AthAlgTool, public ITileCondToolOfc {
     //=== ITileCondTollOfc methods
     //===============================================================
 
-    const TileOfcWeightsStruct* getOfcWeights(unsigned int drawerIdx, unsigned int channel, unsigned int adc, float phase, bool of2);
+    const TileOfcWeightsStruct* getOfcWeights(unsigned int drawerIdx, unsigned int channel, unsigned int adc, float& phase, bool of2);
 
     int getNSamples(void);
 
   private:
 
-    typedef std::map<int, TileOfcWeightsStruct*> ADCPhaseCache;
-    ADCPhaseCache* m_ofc_phase_cache[MAX_ADCS * 2];
+    /** @brief Returns cache index used for online calibration constants.
+        @details Returns cache index used for the calibration constant applied in the DSP
+        @param drawerIdx Drawer index                                                                                                                                         @param channel Tile channel                                                                                                                                           @param adc Gain 
+    */
+    inline unsigned int cacheIndex(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
+      return m_drawerCacheSize * drawerIdx + m_maxChannels * adc + channel;
+    };
+
+    typedef std::map<int, std::unique_ptr<TileOfcWeightsStruct> > OfcPhaseCache;
+    std::vector<std::unique_ptr<OfcPhaseCache> > m_ofc_phase_cache;
 
     ToolHandle<TileCondToolPulseShape> m_tileToolPulseShape;
     ToolHandle<TileCondToolAutoCr> m_tileToolAutoCr;
     //  ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample;
     const TileInfo* m_tileInfo;
-    TileOfcWeightsStruct* m_weights;
+    TileOfcWeightsStruct m_weights;
 
     //=== properties
     int m_nSamples;
     int m_t0Sample;
     bool m_deltaCorrelation;
     unsigned int m_cache;
+
+    unsigned int m_maxChannels;
+    unsigned int m_maxGains;
+    unsigned int m_drawerCacheSize;
+
 };
 
 #endif

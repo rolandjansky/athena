@@ -38,9 +38,9 @@ class TileCondToolOfcCool: public AthAlgTool, public ITileCondToolOfc {
     StatusCode finalize();
 
     const TileOfcWeightsStruct* getOfcWeights(unsigned int drawerIdx, unsigned int channel
-                                              , unsigned int adc, float phase, bool of2);
+                                              , unsigned int adc, float& phase, bool of2);
 
-    int getOfcWeights(unsigned int drawerIdx, unsigned int channel, unsigned int adc, float phase
+    int getOfcWeights(unsigned int drawerIdx, unsigned int channel, unsigned int adc, float& phase
                      , float *a, float *b, float *c, float *g, float *dg);
 
     void getOfcParams(unsigned int drawerIdx, int &NPhases, int &NFields, int &Phamin, int &Phamax, int &NSamples);

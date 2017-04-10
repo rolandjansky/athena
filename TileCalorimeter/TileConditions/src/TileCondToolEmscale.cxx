@@ -2,14 +2,18 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Athena includes
-#include "AthenaKernel/errorcheck.h"
-
 // Tile includes
 #include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCablingService.h"
+#include "TileConditions/TileCablingSvc.h"
+
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileCalibBlobObjs/Exception.h"
 #include "TileConditions/TileCondProxyWrapper.h"
+
+// Athena includes
+#include "AthenaKernel/errorcheck.h"
+
 
 //
 //____________________________________________________________________
@@ -42,6 +46,9 @@ TileCondToolEmscale::TileCondToolEmscale(const std::string& type, const std::str
     , m_pryOnlCes("TileCondProxyCool_TileCalibDrawerFlt_/TileCondProxyDefault_OnlCes", this)
     , m_pryOnlEms("TileCondProxyCool_TileCalibDrawerFlt_/TileCondProxyDefault_OnlEms", this)
     , m_useOflLasFib(false)
+    , m_maxChannels(0)
+    , m_maxGains(0)
+    , m_drawerCacheSize(0)
 {
   declareInterface<TileCondToolEmscale>(this);
 
@@ -156,11 +163,22 @@ StatusCode TileCondToolEmscale::initialize() {
     CHECK( detStore()->regFcn(&TileCondProxyCoolFlt::callback, ptrPryOflLasNln, &TileCondToolEmscale::checkIfOflLasNlnCalibUsed, this, true) );
 
     //=== Resize onlCache to desired size
-    unsigned int maxAdcIdx = TileCalibUtils::getAdcIdx(TileCalibUtils::MAX_DRAWERIDX - 1
-                                                      , TileCalibUtils::MAX_CHAN - 1
-                                                      , TileCalibUtils::MAX_GAIN - 1);
-    m_onlCache.resize(maxAdcIdx + 1);
 
+    ServiceHandle<TileCablingSvc> cablingSvc("TileCablingSvc", name());
+    CHECK( cablingSvc.retrieve());
+    
+    const TileCablingService* cabling = cablingSvc->cablingService();
+    if (!cabling) {
+      ATH_MSG_ERROR( "Unable to retrieve TileCablingService" );
+      return StatusCode::FAILURE;
+    }
+    
+    m_maxChannels = cabling->getMaxChannels();
+    m_maxGains = cabling->getMaxGains();
+    m_drawerCacheSize = m_maxChannels * m_maxGains;
+    
+    m_onlCache.resize(m_drawerCacheSize * TileCalibUtils::MAX_DRAWERIDX);
+    
   } else {
     ATH_MSG_INFO( "Loading of online calibration folders not requested, "
                   << "since OnlCacheUnit=" << m_onlCacheUnitStr  );
@@ -187,17 +205,14 @@ StatusCode TileCondToolEmscale::resetOnlCache( IOVSVC_CALLBACK_ARGS_K(keys)) {
   msg(MSG::INFO) << endmsg;
 
   //=== recalculate online cache
-  for (unsigned int ros = 0; ros < TileCalibUtils::MAX_ROS; ++ros) {
-    for (unsigned int mod = 0; mod < TileCalibUtils::getMaxDrawer(ros); ++mod) {
-      unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, mod);
-      for (unsigned int chn = 0; chn < TileCalibUtils::MAX_CHAN; ++chn) {
-        for (unsigned int adc = 0; adc < TileCalibUtils::MAX_GAIN; ++adc) {
-          unsigned int adcCacheIdx = TileCalibUtils::getAdcIdx(drawerIdx, chn, adc);
-          m_onlCache[adcCacheIdx] = getOnlCalib(drawerIdx, chn, adc, m_onlCacheUnit);
-        }    //end adc
-      }    //end chn
-    }    //end mod
-  }    //end ros
+  for (unsigned int drawerIdx = 0; drawerIdx < TileCalibUtils::MAX_DRAWERIDX; ++ drawerIdx) {
+    for (unsigned int channel = 0; channel < m_maxChannels; ++channel) {
+      for (unsigned int adc = 0; adc < m_maxGains; ++adc) {
+        m_onlCache[cacheIndex(drawerIdx, channel, adc)] = getOnlCalib(drawerIdx, channel, adc, m_onlCacheUnit);      
+      }
+    }
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -260,7 +275,7 @@ float TileCondToolEmscale::undoOnlCalib(unsigned int drawerIdx, unsigned int cha
   float val(0.);
   //=== Look up total calib constant in cache if possible ...
   if (onlUnit == m_onlCacheUnit) {
-    unsigned int idx = TileCalibUtils::getAdcIdx(drawerIdx, channel, adc);
+    unsigned int idx = cacheIndex(drawerIdx, channel, adc);
     if (idx >= m_onlCache.size()) {
       throw TileCalib::IndexOutOfRange("TileCondToolEmscale::undoOnlineCalib", idx, m_onlCache.size());
     }
@@ -509,24 +524,12 @@ float TileCondToolEmscale::doCalibCisOnl(unsigned int drawerIdx, unsigned int ch
 
 //
 //____________________________________________________________________
-float TileCondToolEmscale::getCesRefLas(unsigned int drawerIdx, unsigned int channel) const {
-
-  if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
-    throw TileCalib::IndexOutOfRange("TileCondToolEmscale::getCesRefLas", drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
-  }
-
-  return m_pryOflCes->getCalibDrawer(drawerIdx)->getData(channel, 0, 1);
-}
-
-
-//
-//____________________________________________________________________
 float TileCondToolEmscale::getCesRefLas(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
-  
+
   if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
     throw TileCalib::IndexOutOfRange("TileCondToolEmscale::getCesRefLas", drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
   }
-  
+
   return m_pryOflCes->getCalibDrawer(drawerIdx)->getData(channel, adc, 1);
 }
 

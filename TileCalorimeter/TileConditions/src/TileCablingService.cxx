@@ -5,6 +5,8 @@
 #include "TileConditions/TileCablingService.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
 #include <string>
 #include <iostream>
 #include <algorithm>
@@ -34,6 +36,10 @@ TileCablingService::TileCablingService()
   , m_isCacheFilled(false)
   , m_MBTSmergedRun2(64, 0)
   , m_E1mergedRun2(128, 0)
+  , m_run2(false)
+  , m_maxChannels(TileCalibUtils::MAX_CHAN)
+  , m_maxGains(TileCalibUtils::MAX_GAIN)
+  , m_msg("TileCablingService")
 {
   m_testBeam = false;
   // old cabling for simulation - no special EB modules, wrong numbers for E1-E4
@@ -153,12 +159,65 @@ TileCablingService::setCablingType(TileCablingService::TileCablingType type)
     m_E4chan = 1;
     m_E3special = 18;
     m_E4special = 19;
-    if (TileCablingService::RUN2Cabling == type)
+
+    m_run2 = (type == TileCablingService::RUN2Cabling || type == TileCablingService::UpgradeABC);
+
+    if (m_run2)
       m_MBTSchan = -1; // should use function MBTS2channel_run2(int eta)
-    if (TileCablingService::MBTSOnly == type || TileCablingService::RUN2Cabling == type)
+    if (TileCablingService::MBTSOnly == type || m_run2)
       m_MBTSchan = 0;
     else // Crack and MBTS in spare channel
       m_MBTSchan = 47;
+
+    if (type == TileCablingService::UpgradeABC) {
+
+      if (m_tileID) {
+        
+        m_maxChannels = 240;
+        const int nBarrelAndExtendedChannels(m_maxChannels * 2);
+        
+        m_ch2towerUpgradeABC.resize(nBarrelAndExtendedChannels, -1);
+        m_ch2sampleUpgradeABC.resize(nBarrelAndExtendedChannels, -1);
+        m_ch2pmtUpgradeABC.resize(nBarrelAndExtendedChannels, -1);
+        
+        
+        IdContext pmtContext = m_tileID->pmt_context();
+        unsigned int maxPmtHash = m_tileID->pmt_hash_max();
+        
+        for (IdentifierHash pmtHash = 0; pmtHash < maxPmtHash; pmtHash += 1) {
+          Identifier swid;
+          if (m_tileID->get_id(pmtHash, swid, &pmtContext) == 0) {
+            int module = m_tileID->module(swid);
+            if (module == 0) { // Use module 0 to fill caches
+              int side = m_tileID->side(swid);
+              if (side == TileID::POSITIVE) { // Use only positive side to fill caches
+                int section = m_tileID->section(swid);
+                int tower = m_tileID->tower(swid);
+                int sample = m_tileID->sample(swid);
+                int pmt = m_tileID->pmt(swid);
+
+                if (tower == 41 || (tower > 42 && tower < 46)) continue; // Skip dummy towers
+                
+                int channel = swid2channel_upgradeABC(section, TileID::POSITIVE, tower, sample, pmt);
+                
+                if (channel >= 0 && (unsigned int) channel < m_ch2towerUpgradeABC.size()) {
+                  if (section != TileID::BARREL) channel += m_maxChannels; 
+                  m_ch2towerUpgradeABC[channel] = tower;
+                  m_ch2sampleUpgradeABC[channel] = sample;
+                  m_ch2pmtUpgradeABC[channel] = pmt;
+                }
+                
+              }
+            }
+          }
+        }
+        
+      } else {
+        ATH_MSG_ERROR("Tile ID helpers should be set up before setting UpgradeABC cabling type!");
+      }
+
+    }
+
   }
 }
 
@@ -213,6 +272,11 @@ TileCablingService::pmt2tt_id ( const Identifier & id ) const
   int sample   = m_tileID->sample   (id);
   int pmt      = m_tileID->pmt      (id);
 
+  if (m_cablingType == UpgradeABC) {
+    tower /= 4;
+    if (sample == TileID::SAMP_X) sample = TileID::SAMP_BC;
+  }
+
   int posneg = side; // -1 or +1
   int sampling = 1;  // Hadronic
   int region = 0;    // abs(eta)<2.5
@@ -251,7 +315,7 @@ TileCablingService::pmt2tt_id ( const Identifier & id ) const
     ieta = std::min(ieta,maxeta[section]);
   }
   
-  Identifier tt_id = m_TT_ID->tower_id(posneg,sampling,region,ieta,iphi) ;
+  Identifier tt_id = m_TT_ID->tower_id(posneg, sampling, region, ieta, iphi);
 
   return tt_id;
 }
@@ -279,6 +343,11 @@ TileCablingService::pmt2mt_id ( const Identifier & id ) const
   int sample   = m_tileID->sample   (id);
   int pmt      = m_tileID->pmt      (id);
 
+  if (m_cablingType == UpgradeABC) {
+    tower /= 4;
+    if (sample == TileID::SAMP_X) sample = TileID::SAMP_BC;
+  }
+
   if (TileID::SAMP_D == sample) {
     int posneg = side; // -1 or +1
     int sampling = 2;  // muon signal from last sampling
@@ -300,7 +369,7 @@ TileCablingService::pmt2mt_id ( const Identifier & id ) const
       }
     }
 
-    Identifier tt_id = m_TT_ID->tower_id(posneg,sampling,region,ieta,iphi) ;
+    Identifier tt_id = m_TT_ID->tower_id(posneg, sampling, region, ieta, iphi) ;
     return tt_id;
 
   } else {
@@ -326,7 +395,7 @@ TileCablingService::drawer2MBTS_id ( const HWIdentifier & hwid ) const
 
     return m_invalid_id;
   
-  } else if ( RUN2Cabling == m_cablingType ) {
+  } else if ( m_run2) {
 
     if (hwid2MBTSconnected_run2(ros,drawer)) {
 
@@ -399,11 +468,13 @@ TileCablingService::h2s_cell_id ( const HWIdentifier & hwid ) const
     return m_tileTBID->channel_id(tbtype, tbmodule, tbchannel);
   }
 
-  int sample = hwid2sample(ros,channel);
+  int sample = (m_cablingType != UpgradeABC) ? hwid2sample(ros, channel) 
+                                             : hwid2sample_upgradeABC(ros, channel);
+
   if (sample < 0)
     return m_invalid_id; // for any kind of cabling can't have negagive sample
 
-  if (m_cablingType == RUN2Cabling) {
+  if (m_run2) {
 
     if ((ros > 2) && hwid2MBTSconnected_run2(ros,drawer,channel)) {
       int side = hwid2side(ros,channel);
@@ -417,7 +488,7 @@ TileCablingService::h2s_cell_id ( const HWIdentifier & hwid ) const
       int eta  = hwid2E4preta_run2(drawer);
       return m_tileTBID->channel_id(side, phi, eta);
 
-    } else if (sample == TileID::SAMP_X) { // can't have MBTS anymore
+    } else if (sample == TileID::SAMP_X && m_cablingType != TileCablingService::UpgradeABC) { // can't have MBTS anymore
       return m_invalid_id;
     }
     
@@ -453,10 +524,12 @@ TileCablingService::h2s_cell_id ( const HWIdentifier & hwid ) const
     }
   }
 
-  int section  = hwid2section  (ros,channel);
-  int side     = hwid2side     (ros,channel);
-  int module   = hwid2module   (drawer);
-  int tower    = hwid2tower    (ros,channel);
+  int section = hwid2section  (ros,channel);
+  int side    = hwid2side     (ros,channel);
+  int module  = hwid2module   (drawer);
+
+  int tower = (m_cablingType != UpgradeABC) ? hwid2tower(ros, channel)
+                                            : hwid2tower_upgradeABC(ros, channel);
 
   if (m_cablingType == MBTSOnly) {
     if( ros > 2 && isTileGapCrack(channel) ) { // E3 might be disconnected - check this
@@ -491,13 +564,15 @@ TileCablingService::h2s_cell_id_index_find ( int ros, int drawer, int channel, i
     return m_tileTBID->channel_id(tbtype, tbmodule, tbchannel);
   }
   
-  int sample = hwid2sample(ros,channel);
+  int sample = (m_cablingType != UpgradeABC) ? hwid2sample(ros, channel) 
+                                             : hwid2sample_upgradeABC(ros, channel);
+
   if (sample < 0) {
     index = pmt = -1;
     return m_invalid_id; // for any kind of cabling can't have negagive sample
   }
   
-  if (m_cablingType == RUN2Cabling) {
+  if (m_run2) {
 
     if ((ros > 2) && hwid2MBTSconnected_run2(ros,drawer,channel)) {
       int side = hwid2side(ros,channel);
@@ -517,7 +592,7 @@ TileCablingService::h2s_cell_id_index_find ( int ros, int drawer, int channel, i
       index = -3;
       return m_tileTBID->channel_id(side, phi, eta);
 
-    } else if (sample == TileID::SAMP_X) { // can't have MBTS anymore
+    } else if (sample == TileID::SAMP_X && m_cablingType != TileCablingService::UpgradeABC) { // can't have MBTS anymore
       index = pmt = -1;
       return m_invalid_id;
     }
@@ -568,9 +643,17 @@ TileCablingService::h2s_cell_id_index_find ( int ros, int drawer, int channel, i
   int section  = hwid2section  (ros,channel);
   int side     = hwid2side     (ros,channel);
   int module   = hwid2module   (drawer);
-  int tower    = hwid2tower    (ros,channel);
 
-  pmt          = hwid2pmt      (ros,channel);
+  int tower(-1);
+
+  if (m_cablingType != UpgradeABC) {
+    tower = hwid2tower(ros, channel);
+    pmt = hwid2pmt(ros, channel);
+  } else {
+    tower = hwid2tower_upgradeABC(ros, channel);
+    pmt = hwid2pmt_upgradeABC(ros, channel);
+  }
+
   Identifier cellid;
 
   if (m_cablingType == MBTSOnly) {
@@ -616,11 +699,13 @@ TileCablingService::h2s_pmt_id ( const HWIdentifier & hwid ) const
     return m_tileTBID->channel_id(tbtype, tbmodule, tbchannel);
   }
 
-  int sample = hwid2sample(ros,channel);
+  int sample = (m_cablingType != UpgradeABC) ? hwid2sample(ros, channel) 
+                                             : hwid2sample_upgradeABC(ros, channel);
+
   if (sample < 0)
     return m_invalid_id; // for any kind of cabling can't have negagive sample
 
-  if (m_cablingType == RUN2Cabling) {
+  if (m_run2) {
 
     if ((ros > 2) && hwid2MBTSconnected_run2(ros,drawer,channel)) {
       int side = hwid2side(ros,channel);
@@ -634,7 +719,7 @@ TileCablingService::h2s_pmt_id ( const HWIdentifier & hwid ) const
       int eta  = hwid2E4preta_run2(drawer);
       return m_tileTBID->channel_id(side, phi, eta);
 
-    } else if (sample == TileID::SAMP_X) { // can't have MBTS anymore
+    } else if (sample == TileID::SAMP_X && m_cablingType != TileCablingService::UpgradeABC) { // can't have MBTS anymore
       return m_invalid_id;
     }
     
@@ -673,8 +758,17 @@ TileCablingService::h2s_pmt_id ( const HWIdentifier & hwid ) const
   int section  = hwid2section  (ros,channel);
   int side     = hwid2side     (ros,channel);
   int module   = hwid2module   (drawer);
-  int tower    = hwid2tower    (ros,channel);
-  int pmt      = hwid2pmt      (ros,channel);
+
+  int tower(-1);
+  int pmt(-1);
+
+  if (m_cablingType != UpgradeABC) {
+    tower = hwid2tower(ros, channel);
+    pmt = hwid2pmt(ros, channel);
+  } else {
+    tower = hwid2tower_upgradeABC(ros, channel);
+    pmt = hwid2pmt_upgradeABC(ros, channel);
+  }
     
   if (m_cablingType == MBTSOnly) {
     if( ros > 2 && isTileGapCrack(channel) ) { // E3 might be disconnected - check this
@@ -713,11 +807,13 @@ TileCablingService::h2s_adc_id ( const HWIdentifier & hwid ) const
     return m_tileTBID->channel_id(tbtype, tbmodule, tbchannel);
   }
 
-  int sample = hwid2sample(ros,channel);
+  int sample = (m_cablingType != UpgradeABC) ? hwid2sample(ros, channel) 
+                                             : hwid2sample_upgradeABC(ros, channel);
+
   if (sample < 0)
     return m_invalid_id;
 
-  if (m_cablingType == RUN2Cabling) {
+  if (m_run2) {
 
     if ((ros > 2) && hwid2MBTSconnected_run2(ros,drawer,channel)) {
       int side = hwid2side(ros,channel);
@@ -731,7 +827,7 @@ TileCablingService::h2s_adc_id ( const HWIdentifier & hwid ) const
       int eta  = hwid2E4preta_run2(drawer);
       return m_tileTBID->channel_id(side, phi, eta);
 
-    } else if (sample == TileID::SAMP_X) { // can't have MBTS anymore
+    } else if (sample == TileID::SAMP_X && m_cablingType != TileCablingService::UpgradeABC) { // can't have MBTS anymore
       return m_invalid_id;
     }
     
@@ -770,9 +866,19 @@ TileCablingService::h2s_adc_id ( const HWIdentifier & hwid ) const
   int section  = hwid2section  (ros,channel);
   int side     = hwid2side     (ros,channel);
   int module   = hwid2module   (drawer);
-  int tower    = hwid2tower    (ros,channel);
-  int pmt      = hwid2pmt      (ros,channel);
   int adc      = m_tileHWID->adc(hwid);
+
+  int tower(-1);
+  int pmt(-1);
+
+  if (m_cablingType != UpgradeABC) {
+    tower = hwid2tower(ros, channel);
+    pmt = hwid2pmt(ros, channel);
+  } else {
+    tower = hwid2tower_upgradeABC(ros, channel);
+    pmt = hwid2pmt_upgradeABC(ros, channel);
+  }
+
     
   if (m_cablingType == MBTSOnly) {
     if( ros > 2 && isTileGapCrack(channel) ) { // E3 might be disconnected - check this
@@ -810,7 +916,7 @@ TileCablingService::s2h_drawer_id ( const Identifier & swid ) const
 
       ros = swid2ros(TileID::EXTBAR,tbtype);
 
-      if (m_cablingType == RUN2Cabling) {
+      if (m_run2) {
         drawer = MBTS2drawer_run2(tbmodule,tbchannel);
       } else if (m_cablingType == MBTSOnly) {
         drawer = MBTS2drawer_real(ros, tbmodule,tbchannel);
@@ -834,10 +940,12 @@ TileCablingService::s2h_drawer_id ( const Identifier & swid ) const
   if (tower == 0 ) { // special case for D-0 cell
     int pmt      = m_tileID->pmt      (swid);
 
-    int channel  = swid2channel (section,side,tower,sample,pmt);
-
+    int channel = (m_cablingType != UpgradeABC) 
+      ? swid2channel(section,side,tower,sample,pmt)
+      : swid2channel_upgradeABC (section,side,tower,sample,pmt);
+      
     // special case for D0 cell, 2 PMTs in different sides
-    if (channel>47) {
+    if (isChannelFromOppositeSide(channel)) {
       if      ( TileID::NEGATIVE == side )  side = TileID::POSITIVE;
       else if ( TileID::POSITIVE == side )  side = TileID::NEGATIVE;
     }
@@ -845,8 +953,8 @@ TileCablingService::s2h_drawer_id ( const Identifier & swid ) const
     
   ros = swid2ros (section,side);
 
-  if (sample == TileID::SAMP_E && m_cablingType == RUN2Cabling) {
-    drawer   = swid2drawer_gapscin_run2  (side, module,tower); // E1 might go to another module
+  if (sample == TileID::SAMP_E && (m_run2)) {
+    drawer = swid2drawer_gapscin_run2(side, module,tower); // E1 might go to another module
   } else if (sample == TileID::SAMP_E && m_cablingType == MBTSOnly) {
     drawer   = swid2drawer_gapscin  (side,module,tower);
     if (drawer < 0) drawer = module; // special trick for disconnected E3 and E4
@@ -874,7 +982,7 @@ TileCablingService::s2h_channel_id ( const Identifier & swid ) const
 
       ros = swid2ros(TileID::EXTBAR,tbtype);
 
-      if (m_cablingType == RUN2Cabling) {
+      if (m_run2) {
         drawer = MBTS2drawer_run2(tbmodule,tbchannel);
         return m_tileHWID->channel_id(ros, drawer, MBTS2channel_run2(tbchannel));
       } else if (m_cablingType == MBTSOnly) {
@@ -898,10 +1006,13 @@ TileCablingService::s2h_channel_id ( const Identifier & swid ) const
   int sample   = m_tileID->sample   (swid);
   int pmt      = m_tileID->pmt      (swid);
 
-  if (sample == TileID::SAMP_E && m_cablingType == RUN2Cabling) {
+  if (sample == TileID::SAMP_E && (m_run2)) {
     drawer   = swid2drawer_gapscin_run2  (side, module,tower);  // E1 might go to another module
-    channel  = swid2channel (section,side,tower,sample,pmt);
-    
+
+    channel = (m_cablingType != UpgradeABC) 
+      ? swid2channel(section,side,tower,sample,pmt)
+      : swid2channel_upgradeABC (section,side,tower,sample,pmt);
+
   } else if (sample == TileID::SAMP_E && m_cablingType == MBTSOnly) {
     drawer   = swid2drawer_gapscin  (side,module,tower);
     channel  = swid2channel_gapscin (side,module,tower);
@@ -912,18 +1023,23 @@ TileCablingService::s2h_channel_id ( const Identifier & swid ) const
     
   } else {
     drawer   = swid2drawer  (module);
-    channel  = swid2channel (section,side,tower,sample,pmt);
+
+    channel = (m_cablingType != UpgradeABC) 
+      ? swid2channel(section,side,tower,sample,pmt)
+      : swid2channel_upgradeABC (section,side,tower,sample,pmt);
   }
 
   if (channel < 0)
     return m_invalid_hwid;
     
   // special case for D0 cell, 2 PMTs in different sides
-  if (channel>47) {
+  if (isChannelFromOppositeSide(channel)) {
     if      ( TileID::NEGATIVE == side )  side = TileID::POSITIVE;
     else if ( TileID::POSITIVE == side )  side = TileID::NEGATIVE;
 
-    channel = swid2channel (section,side,tower,sample,pmt);
+    channel = (m_cablingType != UpgradeABC) 
+      ? swid2channel(section,side,tower,sample,pmt)
+      : swid2channel_upgradeABC (section,side,tower,sample,pmt);
   }
 
   ros = swid2ros (section,side);
@@ -949,7 +1065,7 @@ TileCablingService::s2h_adc_id ( const Identifier & swid ) const
 
       ros = swid2ros(TileID::EXTBAR,tbtype);
 
-      if (m_cablingType == RUN2Cabling) {
+      if (m_run2) {
         drawer = MBTS2drawer_run2(tbmodule,tbchannel);
         return m_tileHWID->adc_id(ros, drawer, MBTS2channel_run2(tbchannel), TileHWID::HIGHGAIN);
       } else if (m_cablingType == MBTSOnly) {
@@ -974,10 +1090,12 @@ TileCablingService::s2h_adc_id ( const Identifier & swid ) const
   int pmt      = m_tileID->pmt      (swid);
   int adc      = m_tileID->adc      (swid);
 
-  if (sample == TileID::SAMP_E && m_cablingType == RUN2Cabling) {
+  if (sample == TileID::SAMP_E && (m_run2)) {
     drawer   = swid2drawer_gapscin_run2  (side, module,tower); // E1 might go to another module
-    channel  = swid2channel (section,side,tower,sample,pmt);
-    
+
+    channel = ((m_cablingType != UpgradeABC) ? swid2channel(section,side,tower,sample,pmt)
+                                             : swid2channel_upgradeABC(section,side,tower,sample,pmt));
+
   } else if (sample == TileID::SAMP_E && m_cablingType == MBTSOnly) {
     drawer   = swid2drawer_gapscin  (side,module,tower);
     channel  = swid2channel_gapscin (side,module,tower);
@@ -988,18 +1106,21 @@ TileCablingService::s2h_adc_id ( const Identifier & swid ) const
     
   } else {
     drawer   = swid2drawer  (module);
-    channel  = swid2channel (section,side,tower,sample,pmt);
+
+    channel = (m_cablingType != UpgradeABC) ? swid2channel(section,side,tower,sample,pmt)
+                                            : swid2channel_upgradeABC (section,side,tower,sample,pmt);
   }
 
   if (channel < 0)
     return m_invalid_hwid;
 
   // special case for D0 cell, 2 PMTs in different sides
-  if (channel>47) {
+  if (isChannelFromOppositeSide(channel)) {
     if      ( TileID::NEGATIVE == side )  side = TileID::POSITIVE;
     else if ( TileID::POSITIVE == side )  side = TileID::NEGATIVE;
 
-    channel = swid2channel (section,side,tower,sample,pmt);
+    channel = (m_cablingType != UpgradeABC) ? swid2channel(section,side,tower,sample,pmt)
+                                            : swid2channel_upgradeABC (section,side,tower,sample,pmt);
   }
 
   ros = swid2ros(section,side);
@@ -1015,7 +1136,7 @@ TileCablingService::s2h_adc_id ( const Identifier & swid ) const
 int
 TileCablingService::frag ( const Identifier & swid ) const
 {
-  int section  = m_tileID->section  (swid);
+  int section  = m_tileID->section(swid);
   int ros, drawer;
  
   if ( TileTBID::TILE_TESTBEAM == section ) {
@@ -1028,7 +1149,7 @@ TileCablingService::frag ( const Identifier & swid ) const
 
       ros = swid2ros(TileID::EXTBAR,tbtype);
 
-      if (m_cablingType == RUN2Cabling) {
+      if (m_run2) {
         drawer = MBTS2drawer_run2(tbmodule,tbchannel);
       } else if (m_cablingType == MBTSOnly) {
         drawer = MBTS2drawer_real(ros, tbmodule,tbchannel);
@@ -1044,32 +1165,33 @@ TileCablingService::frag ( const Identifier & swid ) const
     return m_tileHWID->frag(TileHWID::BEAM_ROS,drawer);
   }
     
-  int side     = m_tileID->side     (swid);
-  int module   = m_tileID->module   (swid);
-  int tower    = m_tileID->tower    (swid);
-  int sample   = m_tileID->sample   (swid);
+  int side     = m_tileID->side(swid);
+  int module   = m_tileID->module(swid);
+  int tower    = m_tileID->tower(swid);
+  int sample   = m_tileID->sample(swid);
 
   if (tower == 0 ) { // special case for D-0 cell
-    int pmt      = m_tileID->pmt      (swid);
+    int pmt = m_tileID->pmt(swid);
 
-    int channel  = swid2channel (section,side,tower,sample,pmt);
+    int channel = (m_cablingType != UpgradeABC) ? swid2channel(section,side,tower,sample,pmt)
+                                                : swid2channel_upgradeABC (section,side,tower,sample,pmt);
 
     // special case for D0 cell, 2 PMTs in different sides
-    if (channel>47) {
+    if (isChannelFromOppositeSide(channel)) {
       if      ( TileID::NEGATIVE == side )  side = TileID::POSITIVE;
       else if ( TileID::POSITIVE == side )  side = TileID::NEGATIVE;
     }
   }
     
-  ros = swid2ros (section,side);
+  ros = swid2ros (section, side);
 
-  if (sample == TileID::SAMP_E && m_cablingType == RUN2Cabling) {
-    drawer   = swid2drawer_gapscin_run2  (side, module,tower); // E1 might go to another module
+  if (sample == TileID::SAMP_E && (m_run2)) {
+    drawer = swid2drawer_gapscin_run2  (side, module,tower); // E1 might go to another module
   } else if (sample == TileID::SAMP_E && m_cablingType == MBTSOnly) {
-    drawer   = swid2drawer_gapscin  (side,module,tower);
+    drawer = swid2drawer_gapscin(side,module,tower);
     if (drawer < 0) drawer = module; // special trick for disconnected E3 and E4
   } else {
-    drawer   = swid2drawer  (module);
+    drawer = swid2drawer(module);
   }
 
   return m_tileHWID->frag(ros, drawer);
@@ -1088,14 +1210,14 @@ int
 TileCablingService::frag2channels ( const HWIdentifier & hwid, std::vector<HWIdentifier> & ids) const
 {
     ids.clear();
-    ids.reserve(48);
+    ids.reserve(m_maxChannels);
   
-    int ch=0;
-    for ( ; ch<48; ++ch) {
-        ids.push_back(m_tileHWID->channel_id(hwid,ch));
+    int channel = 0;
+    for ( ; channel < m_maxChannels; ++channel) {
+        ids.push_back(m_tileHWID->channel_id(hwid, channel));
     }
     
-    return ch;
+    return channel;
 }
 
 int
@@ -1113,7 +1235,7 @@ TileCablingService::hwid2section ( int ros, int channel )
 {
     int section;
 
-    if (ros > 2) { // ext.barrel ROS
+    if (ros > 2) { // extended barrel ROS
 
         // move cells D4, C10 and gap scin to gap section
         if (channel < 6 || channel == 12 || channel == 13)
@@ -1176,7 +1298,7 @@ TileCablingService::hwid2tower ( int ros, int channel ) const
        14, 12, 12, 14, 15, 15, -1, -1, -1, -1, -1, -1 };
     
     if (ros > 2) {
-      channel += 48; // ext.barrel
+      channel += 48; // extended barrel
       twr[48+m_E1chan] = 10; // old and new simulation has different numbers here
       twr[48+m_E2chan] = 11;
       twr[48+m_E3chan] = 13;
@@ -1186,6 +1308,21 @@ TileCablingService::hwid2tower ( int ros, int channel ) const
     
     return tower;
 }
+
+int
+TileCablingService::hwid2tower_upgradeABC( int ros, int channel ) const {
+
+  if (channel >= 0) {
+    if (ros > 2) channel += m_maxChannels; // extended barrel
+    
+    if ((unsigned int) channel < m_ch2towerUpgradeABC.size()) {
+      return m_ch2towerUpgradeABC[channel];
+    }
+  }
+
+  return -1;
+}
+
 
 int
 TileCablingService::hwid2sample ( int ros, int channel  )
@@ -1201,11 +1338,26 @@ TileCablingService::hwid2sample ( int ros, int channel  )
        -1, -1, -1, -1, -1, -1,  1,  0,  0, -1, -1,  1,
         1,  2,  2,  1,  0,  0, -1, -1, -1, -1, -1,  4 }; // last one is MBTS
     
-    if (ros > 2) channel += 48; // ext.barrel
+    if (ros > 2) channel += 48; // extended barrel
     int sample = smp[channel];
 
     return sample;
 }
+
+int
+TileCablingService::hwid2sample_upgradeABC(int ros, int channel) const {
+    
+  if (channel >= 0) {
+    if (ros > 2) channel += m_maxChannels; // extended barrel
+    
+    if ((unsigned int) channel < m_ch2towerUpgradeABC.size()) {
+      return m_ch2sampleUpgradeABC[channel];
+    }
+  }
+
+  return -1;
+}
+
 
 void
 TileCablingService::fillConnectionTables()
@@ -1387,7 +1539,9 @@ TileCablingService::swid2drawer_gapscin_run2 (int side, int module, int tower) c
 
   int drawer = module;
 
-  if (tower == 10) {
+  const int towerE1 = (m_cablingType != UpgradeABC) ? 10 : 42;
+
+  if (tower == towerE1) {
     if (drawer == 7 || drawer == 53) --drawer;
     else if (drawer == 42 || drawer == 23) ++drawer;
     else if (side < 0) {
@@ -1398,6 +1552,8 @@ TileCablingService::swid2drawer_gapscin_run2 (int side, int module, int tower) c
 
   return drawer;
 }
+
+
 
 int
 TileCablingService::swid2drawer_gapscin (int side, int module, int tower) const
@@ -1479,14 +1635,14 @@ TileCablingService::TileGap_connected(const Identifier & id) const
         return !(EB_special(((m_tileID->side(id)>0)?EBA:EBC),m_tileID->module(id)));
 
       case TileID::SAMP_E: // E1-E4 - gap/crack scin
-        return (m_cablingType == RUN2Cabling || swid2channel_gapscin(m_tileID->side(id),
-                                     m_tileID->module(id),
-                                     m_tileID->tower(id)) != -1);
+        return (m_run2 || swid2channel_gapscin(m_tileID->side(id),
+                                               m_tileID->module(id),
+                                               m_tileID->tower(id)) != -1);
       default:
         return false; // other samples do not exist 
     }
   }
-  return true; // true for all normal cells in barrel and ext.barrel
+  return true; // true for all normal cells in barrel and extended barrel
 }
 
 bool
@@ -1531,7 +1687,7 @@ TileCablingService::hwid2pmt ( int ros, int channel ) const
 
     } else {
 
-        if (ros > 2) channel += 48; // ext.barrel
+        if (ros > 2) channel += 48; // extended barrel
 
         pmt = pm[channel];
 
@@ -1545,6 +1701,30 @@ TileCablingService::hwid2pmt ( int ros, int channel ) const
 }
 
 int
+TileCablingService::hwid2pmt_upgradeABC(int ros, int channel ) const {
+
+  int pmt(-1);
+  
+  if (channel >= 0) {
+    if (ros > 2) channel += m_maxChannels; // extended barrel
+    
+    if ((unsigned int) channel < m_ch2pmtUpgradeABC.size()) {
+      pmt = m_ch2pmtUpgradeABC[channel];
+
+      // mirroring of odd/even numbers in negative side
+      if ((pmt >= 0 && hwid2side(ros, channel) == TileID::NEGATIVE
+           && m_ch2sampleUpgradeABC[channel] != TileID::SAMP_E)
+          || (channel == 0 && ros == LBC)) {
+        pmt = 1 - pmt; 
+      }
+    }
+  }
+
+  return pmt;
+}
+
+
+int
 TileCablingService::swid2ros( int section, int side ) const
 {
     // odd crates are in positive side
@@ -1555,7 +1735,7 @@ TileCablingService::swid2ros( int section, int side ) const
       // even crates are in positive side
       ros = ( TileID::POSITIVE == side ) ? 2 : 1;
     
-    // another crate for ext.barrel and gap section
+    // another crate for extended barrel and gap section
     if ( TileID::BARREL != section ) ros += 2;
     
     return ros;
@@ -1572,26 +1752,26 @@ TileCablingService::swid2channel( int section, int side, int tower, int sample, 
 {
     // 3 samplings * 2 pmt * 16 towers in barrel and ext barrel ITC    
     //           and 2 pmt * 16 towers for scintillators from gap section (samp=3)
-    // pmt=48 for D0/down means that this pmt belongs to another drawer
+    // pmt=m_maxChannels for D0/down means that this pmt belongs to another drawer
     // this exeption should be treated correctly in calling routine
 
     int cell[128] = {
-        //-------------barrel--------------//       //-ext. barrel-//
-        4,  8, 10, 18, 20, 26, 32, 38, 36, 46, -1,  6, 10, 20, 31, 41,  // sampling A
-        1,  5,  9, 15, 19, 23, 29, 35, 37, 45, -1,  7, 11, 21, 32, 40,  // sampling A
-
-        //-----------barrel------------//  ITC  //-ext. barrel-//
-        2,  6, 12, 16, 22, 28, 34, 40, 42,  4,  8, 14, 22, 30, 39, -1,  // sampling BC
-        3,  7, 11, 17, 21, 27, 33, 39, 47,  5,  9, 15, 23, 35, 36, -1,  // sampling BC
-
-        //-------barrel--------//      ITC    /ext.barrel/
-        0, -1, 14, -1, 24, -1, 44, -1,  2, -1, 16, -1, 38, -1, -1, -1,  // sampling D 
-       48, -1, 13, -1, 25, -1, 41, -1,  3, -1, 17, -1, 37, -1, -1, -1,  // sampling D
-
-                                               //-----gap scin-----// 
-       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, m_E1chan, m_E2chan, -1,  m_E3chan, -1,  m_E4chan,  // gap scin 
-       -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };// pmt=1 doesn't exist
-
+      //-------------barrel--------------//       //-extended barrel-//
+      4,  8, 10, 18, 20, 26, 32, 38, 36, 46, -1,  6, 10, 20, 31, 41,  // sampling A
+      1,  5,  9, 15, 19, 23, 29, 35, 37, 45, -1,  7, 11, 21, 32, 40,  // sampling A
+      
+      //-----------barrel------------//  ITC  //-extended barrel-//
+      2,  6, 12, 16, 22, 28, 34, 40, 42,  4,  8, 14, 22, 30, 39, -1,  // sampling BC
+      3,  7, 11, 17, 21, 27, 33, 39, 47,  5,  9, 15, 23, 35, 36, -1,  // sampling BC
+      
+      //-------barrel--------//      ITC    /extended barrel/
+      0, -1, 14, -1, 24, -1, 44, -1,  2, -1, 16, -1, 38, -1, -1, -1,  // sampling D 
+      m_maxChannels, -1, 13, -1, 25, -1, 41, -1,  3, -1, 17, -1, 37, -1, -1, -1,  // sampling D
+      
+      //-----gap scin-----// 
+      -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, m_E1chan, m_E2chan, -1,  m_E3chan, -1,  m_E4chan,  // gap scin 
+      -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };// pmt=1 doesn't exist
+    
     // preserve pmt number for gap scintillators (only pmt=0 exists)
     if ( sample != TileID::SAMP_E || section != TileID::GAPDET ) {
         
@@ -1599,10 +1779,38 @@ TileCablingService::swid2channel( int section, int side, int tower, int sample, 
         if (TileID::NEGATIVE == side) pmt = 1 - pmt;
     }
     
-    int channel = cell[(sample<<5) | (pmt<<4) | tower];
+    int channel = cell[(sample << 5) | (pmt << 4) | tower];
 
     return channel;
 }
+
+int
+TileCablingService::swid2channel_upgradeABC( int section, int side, int tower, int sample, int pmt) const
+{
+
+  int channel(-1);
+
+  if (sample == TileID::SAMP_A) {
+    int offset = (48 * (1 + (tower % 4)));
+    channel = offset + swid2channel( section, side, tower / 4, TileID::SAMP_A, pmt);
+  } else if (sample == TileID::SAMP_B) {
+    if (((tower - 2) % 4) == 0) {
+      int offset = (section == TileID::BARREL) ? 48 : 0;
+      channel = offset + swid2channel( section, side, (tower - 2) / 4, TileID::SAMP_B, pmt);
+    }
+  } else if (sample == TileID::SAMP_D) {
+    if ((tower % 8) == 0)
+      channel = swid2channel( section, side, tower / 4, TileID::SAMP_D, pmt);
+  } else if (sample == TileID::SAMP_X) { // sample C in upgrade
+    if (((tower - 2) % 4) == 0)
+      channel = 96 + swid2channel( section, side, (tower - 2) / 4, TileID::SAMP_BC, pmt);
+  } else {
+    channel = swid2channel( section, side, tower / 4, sample, pmt);
+  }
+
+  return channel;
+}
+
 
 int
 TileCablingService::channel2hole(int ros, int channel)
@@ -1619,7 +1827,7 @@ TileCablingService::channel2hole(int ros, int channel)
                  -27,-26,-25,-31,-32,-28, 33, 29, 30,-36,-35, 34,
                   44, 38, 37, 43, 42, 41,-45,-39,-40,-48,-47,-46 };
 
-  if (ros > 2) channel += 48; // ext.barrel
+  if (ros > 2) channel += 48; // extended barrel
   int hole = pos[channel];
   // FIXME:: need to do something for special modules EBA15 and EBC18
   // the hole numbers -18 and -19 are not expected numbers for gap scin
@@ -1643,7 +1851,7 @@ TileCablingService::channel2cellindex(int ros, int channel)
       16, 17, 17, 16, 18, 18, -1, -1, -1, -1, -1, -1 
     };
   
-  if (ros > 2) channel += 48; // ext.barrel
+  if (ros > 2) channel += 48; // extended barrel
   int index = ind[channel];
   
   return index;
@@ -1794,7 +2002,7 @@ TileCablingService::hwid2MBTSeta_real(int ros, int drawer, int /* channel */) co
   };
   // no protection against wrong numbers
   // assume that ROS can be only 3 or 4
-  if (ros == EBC) drawer += 64; // negative ext.barrel, ROS=4
+  if (ros == EBC) drawer += 64; // negative extended barrel, ROS=4
   return eta[drawer];
 }
 
@@ -1976,19 +2184,18 @@ TileCablingService::getNChanPerCell(const Identifier& cell_id) const
 
 void 
 TileCablingService::fillH2SIdCache(void) {
+
   if (m_isCacheFilled) return;
   
-  unsigned int nch =   TileCalibUtils::MAX_CHAN 
-                     * TileCalibUtils::MAX_DRAWER 
-		     * (TileCalibUtils::MAX_ROS - 1);
-  
-  m_ch2cell.resize(nch);
-  m_ch2pmt.resize(nch);
-  m_ch2index.resize(nch);
-  
-  for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
+  unsigned int nChannels = (TileCalibUtils::MAX_ROS - 1) * TileCalibUtils::MAX_DRAWER * m_maxChannels;
+
+  m_ch2cell.resize(nChannels);
+  m_ch2pmt.resize(nChannels);
+  m_ch2index.resize(nChannels);
+
+  for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {  
     for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
-      for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
+      for (int channel = 0; channel < m_maxChannels; ++channel) {
 	int index;
         int pmt;
         Identifier cell_id = h2s_cell_id_index_find(ros, drawer, channel,index, pmt);

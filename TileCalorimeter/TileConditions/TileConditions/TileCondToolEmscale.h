@@ -94,6 +94,7 @@
 #include "TileConditions/ITileCondProxy.h"
 
 #include <vector>
+#include <array>
 
 class TileCondToolEmscale: public AthAlgTool {
   public:
@@ -218,16 +219,7 @@ class TileCondToolEmscale: public AthAlgTool {
      gain measured by the laser system directly after the last cesium equalization.
      @returns The PMT gain reference at the last cesium scan.
      @param drawerIdx Drawer index
-     @param channel Tile channel */
-    float getCesRefLas(unsigned int drawerIdx, unsigned int channel) const;
-
-    /** @brief Returns the PMT gain reference as measured by the laser system.
-     @details Continous PMT gain measurements with the laser system enable to correct for PMT
-     gain drifts between cesium calibration runs. Corrections are applied relative to the PMT
-     gain measured by the laser system directly after the last cesium equalization.
-     @returns The PMT gain reference at the last cesium scan.
-     @param drawerIdx Drawer index
-     @param channel Tile channel
+     @param channel Tile channel 
      @param adc Gain */
     float getCesRefLas(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const;
 
@@ -297,6 +289,14 @@ class TileCondToolEmscale: public AthAlgTool {
      \ref TileCondToolEmscale::m_OflLasNlnUsed  property. */
     StatusCode checkIfOflLasNlnCalibUsed( IOVSVC_CALLBACK_ARGS);
 
+    /** @brief Returns cache index used for online calibration constants.
+        @details Returns cache index used for the calibration constant applied in the DSP
+        @param drawerIdx Drawer index                                                                                                                                         @param channel Tile channel                                                                                                                                           @param adc Gain 
+    */
+    inline unsigned int cacheIndex(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
+      return m_drawerCacheSize * drawerIdx + m_maxChannels * adc + channel;
+    };
+
     //=== cache of total online calibration factors
     std::string m_onlCacheUnitStr;
     TileRawChannelUnit::UNIT m_onlCacheUnit;
@@ -321,6 +321,11 @@ class TileCondToolEmscale: public AthAlgTool {
     ToolHandle<ITileCondProxy<TileCalibDrawerFlt> > m_pryOnlEms;
 
     bool m_useOflLasFib;
+
+    unsigned int m_maxChannels;
+    unsigned int m_maxGains;
+    unsigned int m_drawerCacheSize;
+    
 };
 
 #endif

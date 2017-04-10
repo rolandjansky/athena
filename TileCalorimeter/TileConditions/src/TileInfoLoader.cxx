@@ -279,17 +279,25 @@ StatusCode TileInfoLoader::geoInit(IOVSVC_CALLBACK_ARGS) {
     int upg  = atlasVersion.compare(0,7,"ATLAS-P") ;
     int ver = 0;
 
-    if (geo == 0 || comm == 0 || ibl == 0 || slhc == 0 || run1 == 0 || run2 == 0 || upg == 0) {
+    bool nothing_found = (geo*run1*ibl*run2*comm*slhc*upg != 0);
+    GeoModel::GeoConfig geoConfig = geoModel->geoConfig();
+    bool RUN2 = (nothing_found && (geoConfig==GeoModel::GEO_RUN2 
+                                   || geoConfig==GeoModel::GEO_RUN3
+                                   || geoConfig==GeoModel::GEO_RUN4
+                                   || geoConfig==GeoModel::GEO_ITk
+                     )) || (run2 == 0); // calibration for all geometries >=RUN2 are the same as in RUN2
+
+    if (geo == 0 || comm == 0 || ibl == 0 || slhc == 0 || run1 == 0 || run2 == 0 || upg == 0 || RUN2) {
       int pos = (atlasVersion.substr(9)).find("-");
-      if(run1 == 0 || run2 == 0) pos = (atlasVersion.substr(13)).find("-");
+      if(run1 == 0 || run2 == 0) pos = (atlasVersion.substr(13)).find("-") + 4;
       std::string geoVersion = atlasVersion.substr(pos+10,2)
                              + atlasVersion.substr(pos+13,2)
                              + atlasVersion.substr(pos+16,2);
       ver = atoi(geoVersion.c_str());
+      ATH_MSG_INFO( "New ATLAS geometry detected: " << atlasVersion << " (" << geoVersion << ")"  << " version " << ver  );
 
       if (fabs(m_info->m_ttL1Calib - 4.1) < 0.001) {
         // They are TTL1Calib = 4.1 and TTL1NoiseSigma = 2.5 but should be 6.9 and 2.8 respectively.
-        ATH_MSG_INFO( "New ATLAS geometry detected: " << atlasVersion << " (" << geoVersion << ")" );
 
         msg(MSG::INFO) << "Changing TTL1 calib from " << m_info->m_ttL1Calib;
         m_info->m_ttL1Calib = 6.9;
@@ -299,6 +307,8 @@ StatusCode TileInfoLoader::geoInit(IOVSVC_CALLBACK_ARGS) {
         m_info->m_ttL1NoiseSigma = 2.8;
         msg(MSG::INFO) << " to " << m_info->m_ttL1NoiseSigma << endmsg;
       }
+    } else {
+      ATH_MSG_INFO( "ATLAS geometry " << atlasVersion << " version " << ver );
     }
 
     if (m_info->m_emscaleA < 0.0) { // negative value from jobOptions
@@ -314,8 +324,8 @@ StatusCode TileInfoLoader::geoInit(IOVSVC_CALLBACK_ARGS) {
       }
     }
 
-    if (ver >= 140000 || run1 == 0 || ibl == 0 || slhc == 0 || run2 == 0 || upg == 0) {
-      if (ibl == 0 || run2 == 0)
+    if (ver >= 140000 || run1 == 0 || ibl == 0 || slhc == 0 || run2 == 0 || upg == 0 || RUN2) {
+      if (ibl == 0 || run2 == 0 || RUN2)
         ATH_MSG_INFO( "ATLAS IBL geometry - special sampling fractions for gap/crack scin are allowed" );
       else if (slhc == 0 || upg == 0)
         ATH_MSG_INFO( "ATLAS SLHC geometry - special sampling fractions for gap/crack scin are allowed" );
@@ -492,17 +502,17 @@ StatusCode TileInfoLoader::buildDigitsShapesHiLo() {
   }
 
   if (std::getline(shape_file_hi, line)) {
-    if (sscanf(line.c_str(), "%d", &m_info->m_digitsNBinsHi) == 1)
+    if (sscanf(line.c_str(), "%80d", &m_info->m_digitsNBinsHi) == 1)
       ATH_MSG_DEBUG(  std::setw(3) << m_info->m_digitsNBinsHi << " number of bins in shaping function" );
   }
 
   if (std::getline(shape_file_hi, line)) {
-    if (sscanf(line.c_str(), "%d", &m_info->m_digitsTime0BinHi) == 1)
+    if (sscanf(line.c_str(), "%80d", &m_info->m_digitsTime0BinHi) == 1)
       ATH_MSG_DEBUG( std::setw(3) << m_info->m_digitsTime0BinHi << " index of in-time bin" );
   }
 
   if (std::getline(shape_file_hi, line)) {
-    if (sscanf(line.c_str(), "%d", &m_info->m_digitsBinsPerXHi) == 1)
+    if (sscanf(line.c_str(), "%80d", &m_info->m_digitsBinsPerXHi) == 1)
       ATH_MSG_DEBUG( std::setw(3) << m_info->m_digitsBinsPerXHi << " bins per beam crossing" );
   }
 
@@ -510,7 +520,7 @@ StatusCode TileInfoLoader::buildDigitsShapesHiLo() {
   m_info->m_digitsFullShapeHi.resize(m_info->m_digitsNBinsHi, 0.);
   size_t jt = 0;
   while (std::getline(shape_file_hi, line) && jt < m_info->m_digitsFullShapeHi.size()) {
-    int nread = sscanf(line.c_str(), "%lf %lf", &It0, &dbuff);
+    int nread = sscanf(line.c_str(), "%80lf %80lf", &It0, &dbuff);
     if (nread > 1) m_info->m_digitsFullShapeHi[jt++] = dbuff;
     ATH_MSG_VERBOSE( "t= " << It0 << " a= " << dbuff );
   }
@@ -541,17 +551,17 @@ StatusCode TileInfoLoader::buildDigitsShapesHiLo() {
   }
 
   if (std::getline(shape_file_lo, line)) {
-    if (sscanf(line.c_str(), "%d", &m_info->m_digitsNBinsLo) == 1)
+    if (sscanf(line.c_str(), "%80d", &m_info->m_digitsNBinsLo) == 1)
       ATH_MSG_DEBUG( std::setw(3) << m_info->m_digitsNBinsLo << " number of bins in shaping function" );
   }
 
   if (std::getline(shape_file_lo, line)) {
-    if (sscanf(line.c_str(), "%d", &m_info->m_digitsTime0BinLo) == 1)
+    if (sscanf(line.c_str(), "%80d", &m_info->m_digitsTime0BinLo) == 1)
       ATH_MSG_DEBUG( std::setw(3) << m_info->m_digitsTime0BinLo << " index of in-time bin" );
   }
 
   if (std::getline(shape_file_lo, line)) {
-    if (sscanf(line.c_str(), "%d", &m_info->m_digitsBinsPerXLo) == 1)
+    if (sscanf(line.c_str(), "%80d", &m_info->m_digitsBinsPerXLo) == 1)
       ATH_MSG_DEBUG( std::setw(3) << m_info->m_digitsBinsPerXLo << " bins per beam crossing" );
   }
 
@@ -559,7 +569,7 @@ StatusCode TileInfoLoader::buildDigitsShapesHiLo() {
   m_info->m_digitsFullShapeLo.resize(m_info->m_digitsNBinsLo, 0.);
   jt = 0;
   while (std::getline(shape_file_lo, line) && jt < m_info->m_digitsFullShapeLo.size()) {
-    int nread = sscanf(line.c_str(), "%lf %lf", &It0, &dbuff);
+    int nread = sscanf(line.c_str(), "%80lf %80lf", &It0, &dbuff);
     if (nread > 1) m_info->m_digitsFullShapeLo[jt++] = dbuff;
     ATH_MSG_VERBOSE( "t= " << It0 << " a= " << dbuff );
   }
@@ -683,17 +693,17 @@ StatusCode TileInfoLoader::buildTTL1Shapes(std::string ShapeFile, int &NBins, in
   }
 
   if (std::getline(shape_file, line)) {
-    if (sscanf(line.c_str(), "%d", &NBins) == 1)
+    if (sscanf(line.c_str(), "%80d", &NBins) == 1)
       ATH_MSG_DEBUG( std::setw(3) << NBins << " number of bins in shaping function" );
   }
 
   if (std::getline(shape_file, line)) {
-    if (sscanf(line.c_str(), "%d", &Time0Bin) == 1)
+    if (sscanf(line.c_str(), "%80d", &Time0Bin) == 1)
       ATH_MSG_DEBUG( std::setw(3) << Time0Bin << " index of in-time bin" );
   }
 
   if (std::getline(shape_file, line)) {
-    if (sscanf(line.c_str(), "%d", &BinsPerX) == 1)
+    if (sscanf(line.c_str(), "%80d", &BinsPerX) == 1)
       ATH_MSG_DEBUG( BinsPerX << " bins per beam crossing" );
   }
 
@@ -701,7 +711,7 @@ StatusCode TileInfoLoader::buildTTL1Shapes(std::string ShapeFile, int &NBins, in
   FullShape.resize(NBins, 0.);
   size_t jt = 0;
   while (std::getline(shape_file, line) && jt < FullShape.size()) {
-    int nread = sscanf(line.c_str(), "%lf %lf", &It0, &dbuff);
+    int nread = sscanf(line.c_str(), "%80lf %80lf", &It0, &dbuff);
     if (nread > 1) FullShape[jt++] = dbuff;
     ATH_MSG_VERBOSE( "t= " << It0 << " a= " << dbuff );
   }
@@ -833,7 +843,7 @@ void TileInfoLoader::buildCovMatrix() {
             //define Matrix dimension
             int dima = 0;
             if (std::getline(cov_file, line)) {
-              if (sscanf(line.c_str(), "%d", &dima) == 1)
+              if (sscanf(line.c_str(), "%80d", &dima) == 1)
                 ATH_MSG_DEBUG( "The Dimension of the matrix is " << dima );
             }
 
