@@ -36,7 +36,6 @@ EFMissingETFromTrackAndJets::EFMissingETFromTrackAndJets(const std::string& type
         const IInterface* parent) :
     EFMissingETBaseTool(type, name, parent),
     m_trackselTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this ),
-    m_muontrackselTool("InDet::InDetTrackSelectionTool/MuonTrackSelectionTool", this )
 {
     declareProperty("EtaSeparation", m_etacut = 2.2 ,"Cut to split into forward and central jets -- needs to be positive");
     declareProperty("CentralpTCut", m_central_ptcut = 0.0 ,"pT Cut for central jets");
@@ -44,7 +43,6 @@ EFMissingETFromTrackAndJets::EFMissingETFromTrackAndJets(const std::string& type
     declareProperty("TrackpTCut", m_track_ptcut = 0.0 ,"pT Cut for online tracks");
     declareProperty("CentralJetJVTCut", m_central_jvtcut = 0.9 ,"Jet JVT Cut for central jets");
     declareProperty("TrackSelectionTool", m_trackselTool );
-    declareProperty("MuonTrackSelectionTool", m_muontrackselTool );
 
     m_fextype = FexType::JET;
     m_etacut = fabs(m_etacut);
@@ -240,7 +238,6 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
       if(!m_trackselTool->accept(*track,primaryVertex)) continue;
             
       //remove muon tracks
-      //if(m_muontrackselTool->accept(*track,primaryVertex)) continue;
       float mindeltaR_trackj(999.);
       for (const xAOD::TrackParticle* muontrk: vecOfMuonTrk) {
       	  float deltaR_trackj = track->p4().DeltaR(muontrk->p4());
