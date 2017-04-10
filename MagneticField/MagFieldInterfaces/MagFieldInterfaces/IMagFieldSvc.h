@@ -46,7 +46,10 @@ namespace MagField {
         virtual void getField(const double *xyz, double *bxyz, double *deriv = nullptr) const = 0;
 
         /** a getField() wrapper for Amg classes */
-        void getField(const Amg::Vector3D *xyz, Amg::Vector3D *bxyz, Amg::RotationMatrix3D *deriv = nullptr) const {
+        void getField(const Amg::Vector3D *xyz, Amg::Vector3D *bxyz) const {
+          getField( xyz->data(), bxyz->data(), nullptr );
+        }
+        void getField(const Amg::Vector3D *xyz, Amg::Vector3D *bxyz, Amg::RotationMatrix3D *deriv) const {
           getField( xyz->data(), bxyz->data(), deriv->data() );
         }
 
