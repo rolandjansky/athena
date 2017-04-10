@@ -50,6 +50,11 @@ def test_database_creation():
     log.info("Created database %s", TEST_DATABASE)
     
 @with_setup(create_database, teardown_database)
+def test_database_creation_unicode():
+    assert exists("test_defects.db")
+    log.info("Created database %s", unicode(TEST_DATABASE))
+    
+@with_setup(create_database, teardown_database)
 def test_database_retrieval():
     ddb = DefectsDB(TEST_DATABASE)
     defects = ddb.retrieve()
@@ -203,6 +208,28 @@ def test_virtual_defect_creation():
     # Make a virtual defect whose result is the combination of the above
     ddb.new_virtual_defect("DQD_TEST_VIRTUAL_DEFECT", 
                            "Comment", "DQD_TEST_DEFECT_0 DQD_TEST_DEFECT_1")
+    
+    # First test ensures internals are correct
+    assert len(ddb.virtual_defect_ids) == 1
+    assert "DQD_TEST_VIRTUAL_DEFECT" in ddb.virtual_defect_names
+    
+    # Second test to ensure database is in correct state
+    ddb = DefectsDB(TEST_DATABASE)
+    assert len(ddb.virtual_defect_ids) == 1
+    assert "DQD_TEST_VIRTUAL_DEFECT" in ddb.virtual_defect_names
+
+@with_setup(create_database, teardown_database)
+def test_virtual_defect_creation_unicode():
+    
+    ddb = DefectsDB(TEST_DATABASE, read_only=False)
+    
+    # Create two defects
+    create_defect_type(ddb, 0)
+    create_defect_type(ddb, 1)
+    
+    # Make a virtual defect whose result is the combination of the above
+    ddb.new_virtual_defect(u"DQD_TEST_VIRTUAL_DEFECT", 
+                           u"Comment", u"DQD_TEST_DEFECT_0 DQD_TEST_DEFECT_1")
     
     # First test ensures internals are correct
     assert len(ddb.virtual_defect_ids) == 1
@@ -424,7 +451,36 @@ def test_update_virtual_defect():
     db3 = Databases.get_instance(TEST_DATABASE, read_only=True)
     pfs = db3.getFolderSet('/GLOBAL/DETSTATUS')
     assert pfs.tagDescription(new_htag) != '', 'Hierarchical tag description not created'
+
+@with_setup(create_database, teardown_database)
+def test_tagging_unicode():
     
+    ddb = DefectsDB(TEST_DATABASE, read_only=False)
+    
+    # Create two defects
+    create_defect_type(ddb, 0)
+    create_defect_type(ddb, 1)
+    
+    ddb.insert(u"DQD_TEST_DEFECT_0",   0, 100, u"", u"")
+    ddb.insert(u"DQD_TEST_DEFECT_1", 100, 200, u"", u"")
+    
+    defects_tag = ddb.new_defects_tag("dqd-test", u"New iov tag")
+    
+    # Make a virtual defect whose result is the combination of the above
+    ddb.new_virtual_defect(u"DQD_TEST_VIRTUAL_DEFECT", u"", 
+                           u"DQD_TEST_DEFECT_0 DQD_TEST_DEFECT_1")
+    
+    original_tag = ddb.new_logics_tag()
+    original_htag = ddb.new_hierarchical_tag(defects_tag, original_tag)
+                           
+    what = {"channels": [u"DQD_TEST_VIRTUAL_DEFECT"]}
+
+    orig_iovs = DefectsDB((TEST_DATABASE), tag=unicode(original_htag)).retrieve(**what)
+    
+    assert len(orig_iovs) == 2
+    assert (orig_iovs[0].since, orig_iovs[0].until) == (  0, 100)
+    assert (orig_iovs[1].since, orig_iovs[1].until) == (100, 200)
+
 @with_setup(create_database, teardown_database)
 def test_rename_defects():
     
@@ -626,7 +682,7 @@ def test_virtual_defect_consistency():
     """
     Checking that virtual flags don't depend on non-existent flags
     """
-    DefectsDB('oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_GLOBAL;dbname=COMP200')._virtual_defect_consistency_check()
+    DefectsDB('oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_GLOBAL;dbname=CONDBR2')._virtual_defect_consistency_check()
     
 @with_setup(create_database, teardown_database)
 def test_iov_tag_defects():

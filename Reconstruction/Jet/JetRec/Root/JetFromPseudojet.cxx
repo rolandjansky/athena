@@ -34,8 +34,6 @@ typedef IJetFromPseudojet::NameList NameList;
 JetFromPseudojet::JetFromPseudojet(std::string name)
   :   AsgTool(name), m_doArea(false), m_doFourVecArea(false) {
   declareProperty("Attributes", m_atts);
-  declareProperty("IsTrigger", m_isTrigger=false);
-
 }
 
 //**********************************************************************
@@ -214,7 +212,7 @@ JetFromPseudojet::addjet(const PseudoJet& pj, xAOD::JetContainer& jets,
 
   const PseudoJetVector pjcons = pj.constituents();
   ATH_MSG_VERBOSE("  Adding constituents: multiplicity is " << pjcons.size());
-  JetConstituentFiller confiller(m_isTrigger);
+  JetConstituentFiller confiller;
   if ( pparent == 0 ) {
     ATH_MSG_VERBOSE("  No parent jet.");
     int nconskip = confiller.extractConstituents(*pjet, pghostlabs, &pj);

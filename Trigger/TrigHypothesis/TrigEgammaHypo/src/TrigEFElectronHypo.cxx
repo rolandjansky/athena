@@ -303,6 +303,9 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
     m_mapEtCone.insert(std::pair<int, string>(0, "etcone20")); 
     m_mapEtCone.insert(std::pair<int, string>(1, "etcone30")); 
     m_mapEtCone.insert(std::pair<int, string>(2, "etcone40"));
+    m_mapEtCone.insert(std::pair<int, string>(3, "topoetcone20")); 
+    m_mapEtCone.insert(std::pair<int, string>(4, "topoetcone30")); 
+    m_mapEtCone.insert(std::pair<int, string>(5, "topoetcone40"));
     //
     m_mapPtCone.insert(std::pair<int, string>(0, "ptcone20")); 
     m_mapPtCone.insert(std::pair<int, string>(1, "ptcone30")); 
@@ -314,6 +317,9 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
     m_mapRelEtCone.insert(std::pair<int, string>(0, "etcone20/ele_pt")); 
     m_mapRelEtCone.insert(std::pair<int, string>(1, "etcone30/ele_pt")); 
     m_mapRelEtCone.insert(std::pair<int, string>(2, "etcone40/ele_pt")); 
+    m_mapRelEtCone.insert(std::pair<int, string>(3, "topoetcone20/ele_pt")); 
+    m_mapRelEtCone.insert(std::pair<int, string>(4, "topoetcone30/ele_pt")); 
+    m_mapRelEtCone.insert(std::pair<int, string>(5, "topoetcone40/ele_pt")); 
     //
     m_mapRelPtCone.insert(std::pair<int, string>(0, "ptcone20/ele_pt")); 
     m_mapRelPtCone.insert(std::pair<int, string>(1, "ptcone30/ele_pt")); 
@@ -608,6 +614,12 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 	EtCone.push_back(val_float);
         egIt->isolationValue(val_float,xAOD::Iso::etcone40);
 	EtCone.push_back(val_float);
+        egIt->isolationValue(val_float,xAOD::Iso::topoetcone20);
+        EtCone.push_back(val_float);
+        egIt->isolationValue(val_float,xAOD::Iso::topoetcone30);
+        EtCone.push_back(val_float);
+        egIt->isolationValue(val_float,xAOD::Iso::topoetcone40);
+        EtCone.push_back(val_float);
 
 	//
         egIt->isolationValue(val_float,xAOD::Iso::ptcone20);

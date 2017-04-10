@@ -6,6 +6,7 @@ import TrigHLTJetRecConf
 from JetRec.JetRecConf import JetRecTool
 from JetRec.JetRecConf import (JetFromPseudojet,
                                JetFinder,JetToolRunner)
+from JetRecTools.JetRecToolsConf import  (JetConstituentModSequence, SoftKillerWeightTool, ClusterAtEMScaleTool, VoronoiWeightTool)
 
 from EventShapeTools.EventDensityConfig import configEventDensityTool
 
@@ -143,45 +144,6 @@ def _getTrimmedJetCalibrationModifier(jet_calib,int_merge_param,cluster_calib,rc
     return calibmod
 
 
-# *** FTK track moment tool helpers set up ***
-def configTVassocTool(name,
-                    tvSGkey,
-                    tpcSGkey,
-                    vcSGkey, ):
-    """Set up Track Vertex Association tool that will create a
-    a track vertex association container for FTK tracks and FTK primary vertices."""
-
-    from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool 
-
-    toolProperties = dict(
-        TrackParticleContainer = tpcSGkey,
-        TrackVertexAssociation = tvSGkey,
-        VertexContainer = vcSGkey,
-    )
-
-    # Build the tool :
-    return TrackVertexAssociationTool(name, **toolProperties)
-
-def _getTVassocTool(toolname, **options):
-
-    # declare jtm as global as this function body may modify it
-    # with the += operator
-    global jtm
-    
-    try:
-        tvassocTool  = getattr(jtm, toolname)
-    except AttributeError:        
-        # Add the TVA tool to the JetTool Manager,
-        tvassocTool = configTVassocTool(toolname, **options)
-        jtm += tvassocTool
-        tvassocTool = getattr(jtm, toolname)
-        print 'TrigHLTJetRecConfig._getTVassocTool '\
-            'Added tvassoc tools "%s" to jtm' % toolname
-
-    return tvassocTool
-
-
-
 def _getJetBuildTool(merge_param,
                      ptmin,
                      ptminFilter,
@@ -189,7 +151,6 @@ def _getJetBuildTool(merge_param,
                      cluster_calib,
                      do_minimalist_setup,
                      name='',
-                     secondary_label='',
                      outputLabel=''):
     """Set up offline tools. do_minimalist_setup controls whether
     jetRecTool is set up with the minimum required jet modifiers.
@@ -209,16 +170,9 @@ def _getJetBuildTool(merge_param,
     # Ensure the calibration is valid
     _is_calibration_supported(int_merge_param, jet_calib, cluster_calib)
     
-    if secondary_label == '':     
-        mygetters = [_getTriggerPseudoJetGetter(cluster_calib)]
-    else:   
-        mygetters = [_getTriggerPseudoJetGetter(cluster_calib), _getTriggerPseudoJetGetter(secondary_label)]
+    mygetters = [_getTriggerPseudoJetGetter(cluster_calib)]
     jtm.gettersMap["mygetters"] = mygetters
-   
-    print "my getters are "
-    print mygetters 
-    print "printing gettersMap keys..."
-    print jtm.gettersMap.keys()
+    # print jtm.gettersMap.keys()
 
     # tell the offline code which calibration is requested
     calib_str = {'jes': 'calib:j:triggerNoPileup:HLTKt4',
@@ -232,11 +186,6 @@ def _getJetBuildTool(merge_param,
     mymods.append(jtm.caloqual_cluster)
     if outputLabel!='triggerTowerjets': #towers don't have cluster moments
         mymods.append(jtm.clsmoms)
-    if secondary_label == 'GhostTrack': # ghost track association expected, will want track moments.
-        jtm.trkmoms.unlock()
-        jtm.trkmoms.AssociatedTracks = secondary_label
-        jtm.trkmoms.lock()
-        mymods.append(jtm.trkmoms)
 
     if not do_minimalist_setup:
         # add in extra modofiers. This allows monitoring the ability
@@ -289,32 +238,7 @@ def _getJetBuildTool(merge_param,
                                             ptminFilter=ptminFilter
                                             )
             
-#            if not hasattr(jtm,"jbldTrigger"):
-#                jtm.addJetBuilderWithArea(JetFromPseudojet("jbldTrigger",
-#                                                        Attributes = ["ActiveArea", "ActiveArea4vec"],
-#                                                        IsTrigger=True,
-#                                                       ))
- 
-            if merge_param==0.4: 
-                    from AthenaCommon.AppMgr import ToolSvc
-#                    #getattr(ToolSvc,name+"Groomer").unlock()
-#                    #getattr(ToolSvc,name+"Groomer").JetBuilder = jtm.trigjblda
-#                    #getattr(ToolSvc,name+"Groomer").lock()
-#        
-#                    # For debugging
-                    getattr(ToolSvc,"jconretriever").unlock()
-                    getattr(ToolSvc,"jconretriever").OutputLevel = 1
-                    getattr(ToolSvc,"jconretriever").lock()
-                    print "FS scan Builder looks like.."
-                    print getattr(ToolSvc,name+"Finder").JetBuilder
-                    getattr(ToolSvc,name+"Finder").unlock()
-                    getattr(ToolSvc,name+"Finder").OutputLevel = 1
-#                    getattr(ToolSvc,"jbldTrigger").unlock()
-#                    getattr(ToolSvc,"jbldTrigger").OutputLevel = 1
-#                    getattr(ToolSvc,"jbldTrigger").lock()
-                    #getattr(ToolSvc,name+"Finder").JetBuilder.setOutputLevel = 1
-                    getattr(ToolSvc,name+"Finder").lock()        
-    
+            
         except Exception, e:
             print 'error adding new jet finder %s' % name
             for jr in jtm.trigjetrecs:
@@ -471,7 +395,7 @@ def _is_calibration_supported(int_merge_param, jet_calib, cluster_calib):
         raise RuntimeError(m)
 
 
-def _getTriggerPseudoJetGetter(label):
+def _getTriggerPseudoJetGetter(cluster_calib):
     # Build a new list of jet inputs. original: mygetters = [jtm.lcget]
 
     # declare jtm as global as this function body may modify it
@@ -480,11 +404,7 @@ def _getTriggerPseudoJetGetter(label):
 
     # The 'Label' must be one of the values found in JetContainerInfo.h
     # LC or EM
-    if label in ['EM', 'LC']: # checking if EM or LC should not have unforeseen consequences?
-        label = label + 'Topo'
-    else:
-        label = label
-
+    label = cluster_calib + 'Topo'
     pjg_name = 'triggerPseudoJetGetter_%s' % label
 
     try:
@@ -547,6 +467,30 @@ def _getPseudoJetSelectorAll(toolname, **options):
         jtm += selector
         selector = getattr(jtm, toolname)
         print 'TrigHLTJetRecConfig._getPseudoJetSelectorAll '\
+            'Added selector "%s" to jtm' % toolname
+
+    return selector
+    
+def _getPseudoJetSelectorPositivePt(toolname, **options):
+
+    # set up a tool to select all pseudo jets
+    # declare jtm as global as this function body may modify it
+    # with the += operator
+    global jtm
+    
+    # Build a new list of jet inputs. original: mygetters = [jtm.lcget]
+    try:
+        selector = getattr(jtm, toolname)
+    except AttributeError:
+        # Add the PseudoJetSelectorPositivePt to the JetTool Manager,
+        # which pushes it to the ToolSvc in __iadd__
+        # This is done in the same as PseudoJetGetter is added in
+        # JetRecStandardTools.py.
+        # The 'Label' must be one of the values found in JetContainerInfo.h
+        selector = TrigHLTJetRecConf.PseudoJetSelectorPositivePt(name=toolname)
+        jtm += selector
+        selector = getattr(jtm, toolname)
+        print 'TrigHLTJetRecConfig._getPseudoJetSelectorPositivePt '\
             'Added selector "%s" to jtm' % toolname
 
     return selector
@@ -624,8 +568,6 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
     """Supply a specific merge parameter for the anti-kt algorithm"""
     def __init__(self,
                  name,
-                 scan_type,
-                 trkopt,
                  alg="AntiKt",
                  merge_param="04",
                  ptmin=7.0 * GeV,
@@ -639,22 +581,13 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
         
         TrigHLTJetRecConf.TrigHLTJetRecFromCluster.__init__(self, name = name)
         
-        self.scan_type = scan_type 
+      
         self.cluster_calib = cluster_calib
-        self.trkopt = trkopt
         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
         
-        secondary_label = ''
-        # FTK specific: do we want FTK? Set label to GhostTrack. 
-        if 'ftk' in trkopt:
-                print "FTK opt switched on. Setting ghost label and adding extra pseudojet getter."
-                print "FTK jet container output collection label is ", output_collection_label
-                secondary_label = 'GhostTrack'
-                self.secondarypseudoJetGetter = _getTriggerPseudoJetGetter(secondary_label) # ghost tracks will be loaded into this getter.
-        self.secondary_label = secondary_label # Used to label secondary pseudojets. If empty no attempt at association of secondary pseudojets is done.
-
-        self.iPseudoJetSelector = _getPseudoJetSelectorAll(
-            'iPseudoJetSelectorAll')
+        
+        self.iPseudoJetSelector = _getPseudoJetSelectorPositivePt(
+            'iPseudoJetSelectorPositivePt')
         
         self.jetBuildTool = _getJetBuildTool(
             float(int(merge_param))/10.,
@@ -664,7 +597,6 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
             cluster_calib=cluster_calib,
             do_minimalist_setup=do_minimalist_setup,
             name=name,
-            secondary_label=secondary_label, # needed for retrieving the track psjgetter.
             )
         print 'after jetbuild'
         
@@ -695,11 +627,12 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
         
         TrigHLTJetRecConf.TrigHLTJetRecGroomer.__init__(self, name = name)
         
+      
         self.cluster_calib = cluster_calib
         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
         
         
-        self.iPseudoJetSelector = _getPseudoJetSelectorAll('iPseudoJetSelectorAll')
+        self.iPseudoJetSelector = _getPseudoJetSelectorPositivePt('iPseudoJetSelectorPositivePt')
         
         self.jetBuildTool = _getJetBuildTool(float(int(merge_param))/10.,
                                              ptmin=ptmin,
@@ -801,7 +734,7 @@ class TrigHLTJetRecFromTriggerTower(
             jet_calib=jet_calib,
             cluster_calib=cluster_calib,
             do_minimalist_setup=do_minimalist_setup,
-            outputLabel='triggerTowerjets',
+            outputLabel='triggerTowerjets'
             )
 
         self.output_collection_label = output_collection_label
@@ -952,45 +885,41 @@ class TrigHLTSoftKiller(TrigHLTJetRecConf.TrigHLTSoftKiller):
                 ):
 
         TrigHLTJetRecConf.TrigHLTSoftKiller.__init__(self,name=name)
-        self.output_collection_label = output_collection_label
+        self.output_collection_label = output_collection_label+ '_' + name + '_'+cluster_calib
 
-        # TODO create and configure offline SoftKiller tool here, pass it to our tool
         # Use cluster_calib, sk_grid_param_eta, and sk_grid_param_phi to configure the offline tool
         print "SK: %s, %f, %f"%(cluster_calib,sk_grid_param_eta,sk_grid_param_phi)
-
-        print "SK clusters from clusters"
-
-# Track Moment helper class                                                     
-class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
-    """Supply configurations for storing track based info to SG
-    and configuration of track vertex association tool"""
-
-    def __init__(self,
-                 name,
-                 tvassocSGkey,
-                 trackSGkey,
-                 primVtxSGkey,
-                ):
-
-        TrigHLTJetRecConf.TrigHLTTrackMomentHelpers.__init__(self,name=name)
-        self.trackSGkey = trackSGkey
-        self.primVtxSGkey = primVtxSGkey
- 
-        tvatoolname = 'tvassoc_GhostTracks'
-
-        options = dict(tvSGkey=tvassocSGkey,
-                       tpcSGkey=trackSGkey,
-                       vcSGkey=primVtxSGkey,
-                       )
-
-        self.tvassocTool = _getTVassocTool(tvatoolname, **options)
         
-        # and configure track moment modifiers here. 
         global jtm
-        jtm.trkmoms.unlock()
-        jtm.trkmoms.VertexContainer = primVtxSGkey 
-        jtm.trkmoms.TrackVertexAssociation = tvassocSGkey
-        jtm.trkmoms.lock()     
+        skTool =  SoftKillerWeightTool( name+cluster_calib, SKGridSize=0.6, isCaloSplit=False, SKRapMin=0, SKRapMax=2.5)
+        jtm.add(skTool)
+        self.skWeightTool = skTool
+
+        voronoiTool = VoronoiWeightTool('voronoiTool'+name+'_'+cluster_calib, doLCWeights = True, doSpread =  False, nSigma = 0)
+        jtm.add(voronoiTool)
+        self.voronoiTool = voronoiTool
+        modifiers = [self.voronoiTool, self.skWeightTool]
+
+        # We only want an EM tool if we are working with EM clusters
+        # The tool should be used before calling SoftKiller (prepend to list)
+        if cluster_calib == "EM":
+            emTool = ClusterAtEMScaleTool('emTool_'+name+'_'+cluster_calib)
+            jtm.add(emTool)
+            self.emTool = emTool
+            modifiers.insert(0,self.emTool)
+        
+        skclustModSeq = JetConstituentModSequence('ClustModifSequence_'+name+'_'+cluster_calib,
+                                                 InputContainer = "CaloCalTopoClusters",
+                                                 OutputContainer = self.output_collection_label,
+                                                 InputType = "CaloCluster",
+                                                 Trigger = True,
+                                                 Modifiers = modifiers
+                                                 )
+        jtm.add(skclustModSeq)
+        self.skclustModSeqTool = skclustModSeq
+        
+        print "SK clusters from clusters"
+                                                     
 
 # Data scouting algorithm
 class TrigHLTJetDSSelector(TrigHLTJetRecConf.TrigHLTJetDSSelector):

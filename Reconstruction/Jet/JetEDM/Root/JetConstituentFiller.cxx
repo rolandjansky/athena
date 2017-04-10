@@ -127,12 +127,10 @@ extractConstituents(xAOD::Jet& jet, const NameList* pghostlabs,
     // Check if this is in the parent jet
     int count_test; // dummy var to retrieve into -- we don't care about the value
     const static SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer> > cacc_parent("Parent");
-    if(!m_isTrigger) {
-      if(cacc_parent.isAvailable(jet) && cacc_parent(jet).isValid()) {
-        if(!(*cacc_parent(jet))->getAttribute(cname,count_test)) {
-          nbad += out[i].size(); // Skip if the parent does not have this
-          continue;
-        }
+    if(cacc_parent.isAvailable(jet) && cacc_parent(jet).isValid()) {
+      if(!(*cacc_parent(jet))->getAttribute(cname,count_test)) {
+	nbad += out[i].size(); // Skip if the parent does not have this
+	continue;
       }
     }
     if ( partype == MUSEG ) {

@@ -1,14 +1,13 @@
 ################################################################################
-# Package: TrigInDetValidationReference
+# Package: BarcodeEvent
 ################################################################################
 
 # Declare the package name:
-atlas_subdir( TrigInDetValidationReference )
+atlas_subdir( BarcodeEvent )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          TestPolicy )
+atlas_depends_on_subdirs( PUBLIC
+                          GaudiKernel )
 
 # Install files from the package:
-atlas_install_runtime( share/data-*.root share/expert/expert*.root )
-
+atlas_install_headers( BarcodeEvent )

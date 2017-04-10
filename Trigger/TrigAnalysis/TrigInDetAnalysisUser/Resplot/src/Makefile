@@ -18,13 +18,14 @@
 
 
 
-ifeq ($(CMTCONFIG),)
+#ifeq ($(CMTCONFIG),)
 #   ARCH_TYPE = $(shell ./setarch.sh)
     ARCH_TYPE = $(shell uname)
-else 
-    ARCH_TYPE = $(CMTCONFIG)
-endif
+#else 
+#    ARCH_TYPE = $(CMTCONFIG)
+#endif
 
+CMTCONFIG=
 
 
 CMDDIR = .

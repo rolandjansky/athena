@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           DetectorDescription/AtlasDetDescr
                           Generators/GeneratorObjects
+                          Simulation/Barcode/BarcodeEvent
                           Simulation/Barcode/BarcodeInterfaces
                           Simulation/ISF/ISF_Core/ISF_Event
                           Simulation/ISF/ISF_Core/ISF_Interfaces

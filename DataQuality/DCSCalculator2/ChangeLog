@@ -1,0 +1,337 @@
+Note: Production system is located in atlasdqm account, ~atlasdqm/DQCalculators/DCSCalc.
+	* code checkout is "prodarea", scripts are in RunDCSCalc (ExecuteDCSC{1,2}.sh).
+
+2017-03-17 - run > 317398 - Peter Onyisi <ponyisi at cern.ch>
+	* Calculator will send email if --email-on-failure option is set
+	* Disable Lucid due to continual failure
+	* Tag DCSCalculator2-00-01-21
+
+2016-10-25 - run > 311364 - Philipp Stolte <Philipp.Stolte@cern.ch>
+	* Tile update from Puja Saha:
+		* Modify tile.py -> two modules in the Tile Calorimeter, LBA52 for severe data corruption and LBC05 for cooling problem, switched off
+	* Tagging DCSCalculator2-00-01-20
+
+2016-06-29 - run > 302956 - Alexander Tuna <tuna@cern.ch>
+	* Updated mdt.py to make debugging easier
+	* Tagging DCSCalculator2-00-01-19
+
+2016-06-06 - run > 300908 - Philipp Stolte <Philipp.Stolte@cern.ch>
+	* Additional debug printout in subdetectors/gobal_system.py in case the run number is 0
+	* Remove Pixel from the systems list in main.py l.185 (email from Yosuke Takubo)
+	* Tagging DCSCalculator2-00-01-18 (DCSCalculator2-00-01-17 contains a bug - Pixel not properly removed)
+
+2016-05-12 - run > 298967 - Philipp Stolte <Philipp.Stolte@cern.ch>
+	* Tagging Peter's updates as DCSCalculator2-00-01-16
+
+2016-05-11 Peter Onyisi <ponyisi@cern.ch>
+	* Reenable GLOBAL_BUSY monitoring. This is tied to new LumiAccounting folder,
+	  i.e. it is versioned and updates will be needed if this changes!
+	* Leave it to Philipp to tag and deploy
+
+2016-03-07 - run > 290468 - Philipp Stolte <Philipp.Stolte@cern.ch>
+	* Tile update from Puja Saha:
+		* Modify tile.py -> all dead modules are fixed and turned on
+	* Tagging DCSCalculator2-00-01-15
+
+2015-10-08 - run > 281143 - Philipp Stolte <Philipp.Stolte@cern.ch>
+	* Tile update from Blake Burghgrave:
+		* Modify tile.py to ignore partially dead modules
+	* Tagging DCSCalculator2-00-01-14
+
+2015-06-29 Steve Farrell <Steven.Farrell@cern.ch>
+	* Disabled the iov debug printout of two tags below, as the
+	  isEnabledFor doesn't seem to work as expected and the printout is
+	  happening without turning on debug. This maybe should be fixed in
+	  DQUtils at some point.
+	* Tagging: DCSCalculator2-00-01-13
+
+2015-06-28 - run > 269414 - Alexander Tuna <tuna@cern.ch>
+	* Updated mdt.py to ignore ML2 if chamber has only one ML.
+	* Tagging DCSCalculator2-00-01-12
+
+2015-06-17 - not deployed - Steve Farrell <Steven.Farrell@cern.ch>
+	* Added input iov debug printout. Activate with '-v -v' at the command
+	  line.
+	* Tagging DCSCalculator2-00-01-11
+
+2015-06-13 - run > 267385 - Philipp Stolte <Philipp.Stolte@cern.ch>
+	* Tile update from Blake Burghgrave:
+		* Modify tile.py to ignore dead module EBC21
+	* Tagging DCSCalculator2-00-01-10
+
+
+2015-06-07 - run > 267152 - Steve Farrell <Steven.Farrell@cern.ch>
+	* Pixel updates from Alex Kastanas and Yosuke Takubo
+		* Implemented color-to-defect translator for pixel
+	* Tagging DCSCalculator2-00-01-09
+
+2015-06-05 - run > 267142 - Steve Farrell <Steven.Farrell@cern.ch>
+	* TGC updates from Alex Tuna:
+		* first pass at rewriting tgc.py to read from the COOL DB
+		* only the HV state is currently available
+		* the HV value is kinda buggy, so its not used for now
+	* Tagging DCSCalculator2-00-01-08
+
+2015-05-29 - run > 266253 - Steve Farrell <Steven.Farrell@cern.ch>
+	* Fixed exception in magnets when expected current unavailable
+	* Tagging DCSCalculator2-00-01-07
+
+2015-05-22 run > 265659 - Steve Farrell <Steven.Farrell@cern.ch>
+	* Updated pixels.py from Yosuke Takubo and Alex Kastanas to reflect
+	  changes in DCS.
+	* Tagging DCSCalculator2-00-01-06
+
+2015-05-15 - run > 264902 - Steve Farrell <Steven.Farrell@cern.ch>
+	* MDT updates taken from Alex Tuna:
+		* first pass a rewriting the MDT DCS calculator for new
+		  database structure in 2015
+		* now maps onto chamber name instead of HV because HV can now
+		  be degenerate in the BME
+		* similar evaluators (HV on/standby, LV on, JTAG initialized)
+		  are used as 2012
+		* the DROPPEDCH evaluator is removed because its not available
+		  in the new database
+		* fixed up evaluator_HV to be more like the Run-I logic.
+		* added script to generate the mdt mapping:
+	  	  share/generate_mdt_mapping.py
+		* Tagging DCSCalculator2-00-01-05
+
+2015-04-23 - not deployed - Peter Onyisi
+	* Update ExecuteDCSC2.sh
+
+2015-04-23 - not deployed - Steve Farrell <Steven.Farrell@cern.ch>
+	* DCSCalculator2-00-01-04
+	* Fixed ipython shell embedding upon exception
+
+23 Feb 2015 - run > 253084
+	* DCSCalculator2-00-01-03
+	* Fix bug introduced in changeset 645880
+
+10 Feb 2015 - run > 248476
+	* DCSCalculator2-00-01-02
+	* Define defect output for LAr
+
+25 Nov 2014 - run > 246743
+	* DCSCalculator2-00-01-01
+	* Tile update obo Sasha Solodkov
+
+2 Oct 2014 - run > 235785
+	* DCSCalculator2-00-01-00
+	* Change DB access to CONDBR2
+	* Disable DCSOFL writing
+
+1 Apr 2014 (not deployed) (ponyisi)
+	* DCSCalculator2-00-00-30
+	* Shut up checkreq warning
+
+from run > 218436 (30 Jan 2013) (sfarrell)
+	* DCSCalculator2-00-00-29
+	* Comment out printing of bad input channels in python/variable.py
+	  It doesn't seem to work anymore. I'll try to figure out why
+	* The verbosity also doesn't seem to work correctly, since the bad input
+	  channels get printed regardless of dcsc.py arguments
+
+from run > 218436 (30 Jan 2013) (sfarrell)
+	* DCSCalculator2-00-00-28
+	* Updated lucid.py in order to account for 2 tubes which are permanently off. 
+	  Added these tubes to the list of excluded channels in order to get rid of the LCD_HV_OFF defect.
+	  (Davide Caforio)
+	* Added debug printout of bad IDs to subdetector.py
+
+from (14 May 2012) (sfarrell)
+	* DCSCalculator2-00-00-27
+	* Add verbose output of bad input channels (with GoodIOV.good == False)
+	* to DCSC_Variable.calculate_good_iovs
+	* This was requested by Tile experts and is not meant to be a permanent solution
+
+from (14 May 2012) (sfarrell)
+	* DCSCalculator2-00-00-26
+	* Updated tgc.py from David Front
+	* Now should only read relevant channels that are mapped to defects
+	* This allows me to require that all input channels considered are mapped
+
+from (1 May 2012) (sfarrell)
+	* DCSCalculator2-00-00-25
+	* New channel mapping for Tile from Giorgi Arabidze
+	* Added allowed FORDAQ_MBHV state of 202221
+
+from run > 201255 (13 Apr 2012) (sfarrell)
+	* DCSCalculator2-00-00-24
+	* Changed pixel FSM status logic to good = "OK" or "WARNING" by request from pixel
+		* Previously only "OK" was considered good
+
+from run > 200926 (6 Apr 2012) (sfarrell)
+	* DCSCalculator2-00-00-23
+	* Fixed pixels initialize_name_mapping database alias
+		* Changed "tdaq" -> "COOLONL_TDAQ"
+		* "tdaq" was causing server errors (not exactly sure what changed)
+
+from run > 199365 (16 Mar 2012) (sfarrell)
+	* DCSCalculator2-00-00-22
+	* update python/subdetectors/data/mdt_codes.dat after EE installation during the shutdown 
+	  (provided by George Iakovidis)
+
+from run > 190728 (10 Oct 2011) (sfarrell)
+	* DCSCalculator2-00-00-21
+	* Fixed name of LUCID defect
+	* LCD_MAGNET_RAMPING -> LCD_MAGNETS_RAMPING
+
+from run > 188949 (8 Sep 2011) (sfarrell)
+	* DCSCalculator2-00-00-20
+	* Add the ability to automatically mask Tile problems from the /TILE/OFL01/STATUS/ADC folder
+
+from run > 187814 (22 Aug 2011) (pwaller)
+	* DCSCalculator2-00-00-19
+	* Take tile.py from Giorgi as requested. Created DCSCalculator2-00-00-01-branch
+	* which contains the work-in-progress code for automatic module masking.
+
+from run >187572 (19 Aug 2011) (ponyisi)
+	* DCSCalculator2-00-00-18
+	* Enable SCT defect output
+
+from run >185140 (9th Jul 2011) (pwaller)
+	* DCSCalculator2-00-00-17
+	* Numerous compatibility and bugfixes, hopefully it should run from the release now.
+	* Finally adds Lucid, the last remaining implementation
+	* Introduces DCSC_Subdetector_DefectsOnly for things which only emit defects
+	* Create defects if they don't exist (mainly useful for saving to an sqlite db)
+	* Removes/disables parallel running functionality since it is broken and unused
+	*     at the moment.
+	* Code cleanup
+
+from run >181613 (11 May 2011) (ponyisi)
+    DCSCalculator2-00-00-15
+    Tile update obo Rob Calkins: threshold change
+	
+from run >180124 (22 Apr 2011) (ponyisi)
+    DCSCalculator2-00-00-14
+    RPC update obo Marcello Bindi: change underlying COOL folder and channel mapping
+	
+from run >179940 (19 Apr 2011) (ponyisi)
+    DCSCalculator2-00-00-13 
+    Tile, TRT updates
+    Core code cleanup and updates from pwaller
+
+19 Apr 2011
+    Output GLOBAL_BUSY defect if ATLAS live fraction (first CTP item) < 10%
+
+12 Apr 2011
+    Tile configurations will output directly to the defects DB as well as DCSOFL.
+
+from run 179496- (11 Apr 2011) (pwaller)
+    DCSCalculator2-00-00-12 DQUtils-00-00-27 DQDefects-00-00-11
+    Tile: Update thresholds
+    Most systems: Write out defects
+
+11 Apr 2011
+    Muon configurations will now output directly to the defects DB as well
+    as DCSOFL.
+	
+22 Mar 2011
+    DCSCalculator2-00-00-11 is a fix to the requirements file purely to stop Nicos complaining. 
+    The running version of the calculator has not been updated to it.
+
+from run 177967- (21 Mar 2011) (pwaller)
+    DCSCalculator2-00-00-10 DQUtils-00-00-25 DQDefects-00-00-10
+    Tile: Update thresholds
+    Magnets: Fix tolerance check
+
+from run 176548- (27 Feb 2011)
+    DCSCalculator2-00-00-08 DQUtils-00-00-23 DQDefects-00-00-07
+    Magnets: fix bug in comparison between measured and set currents.  Retrofilled to run 175517.
+
+from run 169864- (17 Feb 2011)
+    DCSCalculator2-00-00-07 DQUtils-00-00-23
+    First version that fills defects.  Currently fills magnet and ATLAS Ready information.
+
+from run 168012- (Nov 1st 2010)
+    DCSCalculator2-00-00-06 DQUtils-00-00-20
+
+    Muons:
+        Requested by the muons: Update CSC, RPC and TGC to use the same thresholds as MDT.
+        TGC:
+            tgc.py: fix bug: the query for current now refers to channels that did not change from "since", not from "until"
+            Cleanup some warnings and output from tgc.py (hides sqlalchemy warnings)
+            update TGC_BAD_IDS only to have unconnected channels
+            update TGC_BAD_IDS, now 9 channels less there
+    
+    Cleanup:
+        TGC: Update atlas_config to ATLAS_CONFIG to be in line with the atlas policy (please update your authentication.xml)
+        SCT: Account for cleanup in DQUtils
+        Move main code out of share/dcsc.py and into python/main.py
+    Changelog docs update
+    Add run scripts
+
+
+from run 167051- (Oct 20th)
+    DCSCalculator2-00-00-05 DQUtils-00-00-20
+
+    Systems using DCSC2:
+        CSC, MDT, RPC, TDQ and Tile
+    (Systems using DCSC1: [(Small Discrepancies) Pixel, SCT, TRT], [(Untested), LAr], 
+        [(Implementation unfinished) Magnet, Lucid])
+    (Unused: IDBS)
+
+    Significant changes since before:
+        - Moved CSC, RPC and TDQ to DCSC2.
+        - Removed Yellow state for MDT (now red)
+        - Change CSC thresholds to (dead) 5% for red, 10% for yellow.
+        - Grey is written now for all systems if enough input states are indeterminate.
+        - Development continues for TGC.
+
+    --- FULL CHANGELOG summary ---
+
+    General global DCSC improvements:
+        Add support for dead_fraction_caution == None, eliminating the caution
+            state
+        Change default behaviour to not write to a database
+        DCSC2: Minor update to keep in line with DQU API changes
+        Make DCSC robust against one system raising an exception
+        More renames to bring it into line with DQU
+        Move dcsofl_cool_record() out of dcsc.py and into lib
+        Move options out of main program. Minor cleanup
+        If the number of unfilled modules is sufficient to make us not green,
+            write grey instead
+        Create the local sqlite database if it doesn't exist (changes to api
+            meant this wasn't default anymore)
+        Remove now unused clear_connections()
+        Deal with the case that DCSC_Subdetector.run_iovs is empty gracefully
+
+    Misc additions:
+        
+        Add IDBS flag calculator
+        Add example calc_idbs.py script for running outside of the dcsc.py main
+        IDBS: Minor cleanup
+        If unfilled fraction is enough to make the detector go red, write grey
+            instead
+        Update calc_idbs example to new DQU API
+
+    CSC
+        Update CSC: Change threshold to 5% of modules bad for yellow, and 10% 
+            for red.
+
+    MDT:
+        Eliminate caution state for MDT
+
+    TGC:
+        TGC: Concept for retrieving most recent data for a channel. 
+            Not tested yet.
+        TGC: Minor code changes
+        change the limit of iov.actual_vMon at DCSC_Variable_TGC_HV to be 
+            2775.0 rather than 2000.0
+        ehnance tgc.py: Take current values from
+            ATLAS_CONF_TGC.TGC1CURRENT_CONDITION if channel DATE is 
+            smaller than until
+        first attempt to add empty iovs for channels that have no conditions
+        minor remark change
+        remove unneeded remarks
+        add a correction to times read from TGC conditions table to +/-
+            itc_delta, because times appear originally as local times
+        add a main documentation remark at top of tgc.py     
+        Add find_tgc_unfilled_channelids.py script to share/   
+        Revert "add a correction to times read from TGC conditions table to 
+            +/- itc_delta, because times appear originally as local times"
+
+
+from run 162420 (Aug 21st) to 167050:
+    DCSCalculator2-r316636 DQUtils-r316722

@@ -4,6 +4,7 @@
 #include "TrigHLTJetRec/TrigHLTJetRecFromTriggerTower.h"
 #include "TrigHLTJetRec/TriggerPseudoJetGetter.h"
 #include "TrigHLTJetRec/PseudoJetSelectorAll.h"
+#include "TrigHLTJetRec/PseudoJetSelectorPositivePt.h"
 #include "TrigHLTJetRec/PseudoJetSelectorEtaPt.h"
 #include "TrigHLTJetRec/IParticleSelectorAll.h"
 #include "TrigHLTJetRec/IParticleSelectorEtaPt.h"
@@ -20,7 +21,6 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrigHLTJetRec/TrigHLTJetRecGroomer.h"
 #include "TrigHLTJetRec/TrigJetFromPseudojet.h"
-#include "TrigHLTJetRec/TrigHLTTrackMomentHelpers.h"
 
 //DECLARE_ALGORITHM_FACTORY( TrigHLTJetRec)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetRecFromCluster)
@@ -37,10 +37,10 @@ DECLARE_ALGORITHM_FACTORY( TrigHLTEnergyDensity)
 DECLARE_ALGORITHM_FACTORY( TrigHLTSoftKiller)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetDSSelector)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetRecGroomer)
-DECLARE_ALGORITHM_FACTORY( TrigHLTTrackMomentHelpers)
 
 DECLARE_TOOL_FACTORY(TriggerPseudoJetGetter)
 DECLARE_TOOL_FACTORY(PseudoJetSelectorAll)
+DECLARE_TOOL_FACTORY(PseudoJetSelectorPositivePt)
 DECLARE_TOOL_FACTORY(PseudoJetSelectorEtaPt)
 DECLARE_TOOL_FACTORY(IParticleSelectorAll)
 DECLARE_TOOL_FACTORY(IParticleSelectorEtaPt)
@@ -62,9 +62,9 @@ DECLARE_FACTORY_ENTRIES(TrigHLTJetRec) {
     DECLARE_ALGORITHM( TrigHLTSoftKiller);
     DECLARE_ALGORITHM( TrigHLTJetDSSelector);
     DECLARE_ALGORITHM( TrigHLTJetRecGroomer);
-    DECLARE_ALGORITHM( TrigHLTTrackMomentHelpers);
     DECLARE_TOOL(TriggerPseudoJetGetter);
     DECLARE_TOOL(PseudoJetSelectorAll);
+    DECLARE_TOOL(PseudoJetSelectorPositivePt);
     DECLARE_TOOL(PseudoJetSelectorEtaPt);
     DECLARE_TOOL(IParticleSelectorAll);
     DECLARE_TOOL(IParticleSelectorEtaPt);

@@ -34,7 +34,7 @@
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
 	  export userJobId="system_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz  *mem*             ${OutputDestination}/. ; 
@@ -59,7 +59,7 @@
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
 	  export userJobId="calo_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz  *mem*             ${OutputDestination}/. ; 
@@ -84,7 +84,7 @@
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
 	  export userJobId="combined_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz  *mem*             ${OutputDestination}/. ; 
@@ -110,7 +110,7 @@
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
 	  export userJobId="monitoring_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz  *mem*             ${OutputDestination}/. ; 
@@ -135,7 +135,7 @@
 	  checkxAOD.py my.RDO_TRIG.pool.root &gt; my.RDO_TRIG.pool.root.checkfile.txt ; 
 	  export userJobId="timingtest_rdotordotrigger"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz  *mem*             ${OutputDestination}/. ; 
@@ -161,7 +161,7 @@
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
 	  export userJobId="monitoring_reco_data15_main"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination}   ; 
 	  rsync -avz  *mem*              ${OutputDestination}/. ; 
@@ -186,7 +186,7 @@
 	      checkTriggerxAOD.py myAOD.pool.root &gt; myAOD.trig.pool.root.checkfile.txt ;  
 	      export userJobId="rawtoall_tier0_reco_data16_main"; 
 	      export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	      export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	      export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	      gzip *txt; 
 	      mkdir -p                       ${OutputDestination} ; 
 	      rsync -avz  *mem*             ${OutputDestination}/. ; 
@@ -212,7 +212,7 @@
 	      checkTriggerxAOD.py myAOD.pool.root &gt; myAOD.trig.pool.root.checkfile.txt ;  
 	      export userJobId="rawtoall_tier0_reco_data16_idtide"; 
 	      export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	      export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	      export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	      gzip *txt; 
 	      mkdir -p                       ${OutputDestination} ; 
 	      rsync -avz  *mem*             ${OutputDestination}/. ; 
@@ -240,7 +240,7 @@
 	      checkTriggerxAOD.py myAOD.pool.root &gt; myAOD.trig.pool.root.checkfile.txt ;  
 	      export userJobId="rawtoall_tier0_reco_data16_alloutputs"; 
 	      export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	      export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	      export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	      gzip *txt; 
 	      mkdir -p                       ${OutputDestination} ; 
 	      rsync -avz ntuple*             ${OutputDestination}/. ; 
@@ -267,7 +267,7 @@
 	      checkTriggerxAOD.py myAOD.pool.root &gt; myAOD.trig.pool.root.checkfile.txt ;  
 	      export userJobId="rawtoall_tier0_reco_data16_noidtide"; 
 	      export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	      export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	      export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	      gzip *txt; 
 	      mkdir -p                       ${OutputDestination} ; 
 	      rsync -avz ntuple*             ${OutputDestination}/. ; 
@@ -297,7 +297,7 @@
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
 	  export userJobId="mp_monitoring_reco_data15_main"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz  *mem*             ${OutputDestination}/. ; 
@@ -323,7 +323,7 @@
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
 	  export userJobId="mp8_monitoring_reco_data15_main"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz  *mem*             ${OutputDestination}/. ; 
@@ -348,7 +348,7 @@
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
 	  export userJobId="rawtoall_monitoring_reco_data15_main"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz  *mem*             ${OutputDestination}/. ; 
@@ -376,7 +376,7 @@
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
 	  export userJobId="mp_rawtoall_monitoring_reco_data15_main"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz  *mem*             ${OutputDestination}/. ; 
@@ -402,7 +402,7 @@
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
 	  export userJobId="mp8_rawtoall_monitoring_reco_data15_main"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz  *mem*             ${OutputDestination}/. ; 
@@ -429,7 +429,7 @@
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
 	  export userJobId="trigger_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz  *mem*             ${OutputDestination}/. ; 
@@ -455,7 +455,7 @@
 	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
 	  export userJobId="fullsim_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz  *mem*             ${OutputDestination}/. ; 
@@ -479,7 +479,7 @@
 	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
 	  export userJobId="fastsim_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz  *mem*             ${OutputDestination}/. ; 
@@ -503,7 +503,7 @@
 	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
 	  export userJobId="digi_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz  *mem*             ${OutputDestination}/. ; 
@@ -527,7 +527,7 @@
 	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
 	  export userJobId="fullchain_mc15_ttbar_valid_13tev_25ns_mu40"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  checkxAOD.py myRDO.pool.root &gt; myRDO.pool.root.checkfile.txt ; 
 	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
@@ -556,7 +556,7 @@
 	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
 	  export userJobId="fullchain_mc15_ttbar_valid_13tev_25ns_mu60"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  checkxAOD.py myRDO.pool.root &gt; myRDO.pool.root.checkfile.txt ; 
 	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
@@ -588,7 +588,7 @@
 	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
 	  export userJobId="mp_fullchain_mc15_ttbar_valid_13tev_25ns_mu40"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  checkxAOD.py myRDO.pool.root &gt; myRDO.pool.root.checkfile.txt ; 
 	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
@@ -617,7 +617,7 @@
 	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
 	  export userJobId="combined_reco_mc15_ttbar_valid_13tev_25ns_mu40"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`echo ${AtlasBuildBranch}`/`basename $ROOTSYS`/${userJobId}; 
 	  gzip *txt; 
 	  mkdir -p                       ${OutputDestination} ; 
 	  rsync -avz  *mem*             ${OutputDestination}/. ; 

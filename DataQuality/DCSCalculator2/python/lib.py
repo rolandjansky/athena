@@ -65,6 +65,20 @@ def map_channels(iovs, mapping, folder):
     iovs.sort(key=lambda iov: (iov.channel, iov.since))
 
     return IOVSet(iovs)
+
+def connect_adjacent_iovs_defect(generator):
+    previous = None
+    for iov in generator:
+        if (previous and previous.connected_to(iov) and
+            previous.comment==iov.comment and previous.channel==iov.channel and
+            previous.present==iov.present):
+            previous = previous._replace(until=iov.until)
+        else:
+            if previous:
+                yield previous
+            previous = iov
+    if previous:
+        yield previous
     
 from subdetector import DCSC_Subdetector, DCSC_DefectTranslate_Subdetector, DCSC_Subdetector_DefectsOnly
 
