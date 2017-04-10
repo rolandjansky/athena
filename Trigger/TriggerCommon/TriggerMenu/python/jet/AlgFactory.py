@@ -177,8 +177,10 @@ class AlgFactory(object):
             'name': name,  # instance label
             'merge_param': "'%s'" % merge_param_str,
             'jet_calib': "'%s'" % self.fex_params.jet_calib,
-            'cluster_calib': '"%s"' % self.fex_params.cluster_calib_fex,
-            'output_collection_label': "'%s'" % (self.fex_params.fex_label)
+            'cluster_calib': "'%s'" % self.fex_params.cluster_calib_fex,
+            'output_collection_label': "'%s'" % (self.fex_params.fex_label),
+            'ptmin': '%s' % str(self.fex_params.recoCutUncalib * GeV),
+            'ptminFilter': '%s' % str(self.fex_params.recoCutCalib * GeV),
         }
 
         return [Alg(factory, (), kwds)]

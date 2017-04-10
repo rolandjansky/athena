@@ -39,6 +39,8 @@ class _JetFexParams(object):
                  fex_label,
                  data_type,
                  fex_alg_name,
+                 recoCutCalib,
+                 recoCutUncalib,
                  **kargs):
 
         self._check_args(merge_param)
@@ -51,7 +53,8 @@ class _JetFexParams(object):
         self.cluster_calib_fex = {'em': 'EM', 'lcw': 'LC'}.get(cluster_calib)
         self.fex_label = fex_label
         self.fex_alg_name = fex_alg_name  # from input dictionary
-      
+        self.recoCutCalib = recoCutCalib
+        self.recoCutUncalib = recoCutUncalib
 
     def __str__(self):
         s = ['%s: %s\n' % (k, str(v)) for k, v in self.__dict__.items()]
