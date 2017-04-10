@@ -123,7 +123,7 @@ class T2AllRoiUnpacking: public HLT::AllTEAlgo {
  * care of the @f$ 2\pi @f$ ambigiuties and that can perform simple operations
  * such as compute the overlap between two rectangles.  While the
  * minimum and maximum @f$ \phi @f$ values can be provided in any range,
- * internally all \phi angles are stored and handled within
+ * internally all @f$ \phi angles @f$ are stored and handled within
  * (@f$ -\pi @f$,@f$ +\pi @f$].
  * Maybe at some point you could use TVector2.h (but they store x,y) or gsl::polar.
  */
@@ -150,7 +150,7 @@ class EtaPhiRectangle{
   double phiMax() const { return m_phiMax; };
   double etaHalfWidth() const {return m_etaHw; };
   double phiHalfWidth() const {return m_phiHw; };
-  //! determine whether a given point in (\eta,\phi) is inside this EtaPhiRectangle
+  //! determine whether a given point in (@f$ \eta @f$, @f$ \phi @f$) is inside this EtaPhiRectangle
   bool contains(const EtaPhiPoint &point) const;
   //! same as above, but less safe agaist eta-phi swap
   bool contains(const double &eta, const double &phi) const { return contains(std::make_pair(eta,phi));};
