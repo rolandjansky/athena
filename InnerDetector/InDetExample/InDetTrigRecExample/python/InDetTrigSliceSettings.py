@@ -2,7 +2,6 @@
 
 ##
 ## @file InDetTrigRecExample/python/InDetTrigSliceSettings.py
-## @purpose 
 ##
 ##
 
