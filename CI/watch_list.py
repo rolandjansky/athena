@@ -8,3 +8,5 @@ WATCH_LIST['Simulation'] = set(['ritsch'])
 WATCH_LIST['TrkiPatFitter'] = set(['pop'])
 WATCH_LIST['MooPerformance'] = set(['pop'])
 WATCH_LIST['JetCalibTools'] = set(['jbossios'])
+WATCH_LIST['AFP'] = set(['ggach'])
+

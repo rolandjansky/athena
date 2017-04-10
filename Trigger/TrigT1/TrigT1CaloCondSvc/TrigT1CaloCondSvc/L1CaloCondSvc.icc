@@ -24,8 +24,6 @@ StatusCode L1CaloCondSvc::store(const T*& pobj, const std::string& key, const st
   ATH_MSG_VERBOSE( "*** L1CaloCondSvc::store() ***" );
   ATH_MSG_VERBOSE(key <<" "<< folder <<" "<< tag );
 
-  //StatusCode sc;
-
   // create persitent object (either AthenaAttributeList or CondAttrListCollection) from the transient one
   // the new object is not registered in the TDS
   ATH_MSG_VERBOSE( "*** pobj->makePersistent() ***" );
@@ -79,8 +77,6 @@ StatusCode L1CaloCondSvc::store(const T*& pobj, const std::string& key, const st
           newAttrListCollection->add(channelNumber, attrList);
           newAttrListCollection->add(channelNumber, range);
         }
-
-        //finalConditions = SG::asStorable(newAttrListCollection);
 
         ATH_CHECK(  m_detStore->record(newAttrListCollection, key) );
 
@@ -289,7 +285,7 @@ StatusCode L1CaloCondSvc::retrieveImpl( T*& pobj, const std::string& key) {
 }
 
 template <typename T>
-StatusCode L1CaloCondSvc::registerCondition(T*& pObj) {
+StatusCode L1CaloCondSvc::registerCondition(T*& pObj, const std::string& mykey) {
   ATH_MSG_DEBUG(  "L1CaloCondSvc::registerCondition(T*& pObj))" );
 
   if(!pObj) {
@@ -303,6 +299,41 @@ StatusCode L1CaloCondSvc::registerCondition(T*& pObj) {
 
     // we retrieve the keys (ie cool folder paths) needed by the condition object
     std::vector<std::string> vCoolInputKeys = pObj->coolInputKeys();
+    
+    // Check if we specified some new key
+    // Used for L1Calo Overlay where we have both data and MC databases
+    
+    // Update for PprChanCalib
+    if (mykey!="" && mykey.find("PprChanCalib")!=std::string::npos){
+        ATH_MSG_INFO("Overriding default keys for PprChanCalib that were:");
+        for (auto it=vCoolInputKeys.begin();it!=vCoolInputKeys.end();++it) {ATH_MSG_INFO(*it);}
+        //Now set to specified key only
+        vCoolInputKeys.clear(); vCoolInputKeys.push_back(mykey);
+    }
+    
+    // Update for PprChanDefaults
+    if (mykey!="" && mykey.find("PprChanDefaults")!=std::string::npos){
+        ATH_MSG_INFO("Overriding default keys for PprChanDefaults that were:");
+        for (auto it=vCoolInputKeys.begin();it!=vCoolInputKeys.end();++it) {ATH_MSG_INFO(*it);}
+        //Now set to specified key only
+        vCoolInputKeys.clear(); vCoolInputKeys.push_back(mykey);
+    }    
+    
+    // Update for DisabledTowers
+    if (mykey!="" && mykey.find("DisabledTowers")!=std::string::npos){
+        ATH_MSG_INFO("Overriding default keys for DisabledTowers that were:");
+        for (auto it=vCoolInputKeys.begin();it!=vCoolInputKeys.end();++it) {ATH_MSG_INFO(*it);}
+        //Now set to specified key only
+        vCoolInputKeys.clear(); vCoolInputKeys.push_back(mykey);
+    } 
+    
+    // Update for PpmDeadChannels
+    if (mykey!="" && mykey.find("PpmDeadChannels")!=std::string::npos){
+        ATH_MSG_INFO("Overriding default keys for PpmDeadChannels that were:");
+        for (auto it=vCoolInputKeys.begin();it!=vCoolInputKeys.end();++it) {ATH_MSG_INFO(*it);}
+        //Now set to specified key only
+        vCoolInputKeys.clear(); vCoolInputKeys.push_back(mykey);
+    }      
 
     // this list is required to call updateConditions() later on
     std::list<std::string> lKeys;
@@ -315,7 +346,8 @@ StatusCode L1CaloCondSvc::registerCondition(T*& pObj) {
       lKeys.push_back(key);
 
       m_mConditions[key].push_back(pObj);
-
+      m_map_conditions2key[pObj].push_back(key);
+      
       std::map<std::string, const DataHandle<CondAttrListCollection>* >::const_iterator it_dh = m_mDataHandleAttrListColl.find(key);
       if(it_dh==m_mDataHandleAttrListColl.end()) {
 
@@ -354,54 +386,6 @@ StatusCode L1CaloCondSvc::registerCondition(T*& pObj) {
   return StatusCode::SUCCESS;
 
 }
-
-//template <typename T>
-//StatusCode L1CaloCondSvc::registerCondition(std::string key, T*& pObj) {
-//	MsgStream log(msgSvc(),name());
-//
-//	StatusCode sc;
-//
-//	log << MSG::DEBUG << "L1CaloCondSvc::registerCondition(std::string key, T*& pObj))" << endmsg;
-///*
-//	if(!pObj) {
-//		log << MSG::ERROR << "IL1CaloPersistenceCapable* pObj is NULL in L1CaloCondSvc::registerCondition()" << endmsg;
-//		return StatusCode::FAILURE;
-//	}
-//
-//	std::string conditionType = pObj->conditionType();
-//
-//	if(conditionType=="CondAttrListCollection") {
-//
-//		m_mConditions[key] = pObj;
-//		m_mDataHandleAttrListColl[key] = new DataHandle<CondAttrListCollection>();
-//
-//		const DataHandle<CondAttrListCollection>& dh = *m_mDataHandleAttrListColl[key];
-//		sc = m_detStore->regFcn(&L1CaloCondSvc::updateConditions, this, dh, key, true);
-//		if(sc.isFailure()) {
-//			log << MSG::ERROR << "failed to regFcn datahandle to L1CaloCondSvc::updateConditions()" << endmsg;
-//			return StatusCode::FAILURE;
-//		}
-//
-//
-//	} else if(conditionType=="AthenaAttributeList"){
-//
-//		m_mConditions[key] = pObj;
-//		m_mDataHandleAttrList[key] = new DataHandle<AthenaAttributeList>();
-//
-//		const DataHandle<AthenaAttributeList>& dh = *m_mDataHandleAttrList[key];
-//		sc = m_detStore->regFcn(&L1CaloCondSvc::updateConditions, this, dh, key, true);
-//		if(sc.isFailure()) {
-//			log << MSG::ERROR << "failed to regFcn datahandle to L1CaloCondSvc::updateConditions()" << endmsg;
-//			return StatusCode::FAILURE;
-//		}
-//
-//	} else {
-//		log << MSG::ERROR << "Condition type " << conditionType << "not recognized by L1CaloCondSvc" << endmsg;
-//		return StatusCode::FAILURE;
-//	}
-//*/
-//	return StatusCode::SUCCESS;
-//}
 
 #endif
 
