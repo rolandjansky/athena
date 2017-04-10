@@ -3,7 +3,7 @@
 */
 
 /** @file TRT_DCS_ConditionsSvc.cxx
- *  @Service to provide a simple Athena interface to read
+ *  @brief Service to provide a simple Athena interface to read
  *  DCS conditions data from COOL
  * author Denver Whittington <Denver.Whittington@cern.ch>
  **/
