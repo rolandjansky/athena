@@ -25,7 +25,7 @@ class egammaCheckEnergyDepositTool : virtual public IegammaCheckEnergyDepositToo
 
  public:
 
-  /** @bried constructor */
+  /** @brief constructor */
   egammaCheckEnergyDepositTool (const std::string& type,const std::string& name, const IInterface* parent);
 
   /** @brief destructor */

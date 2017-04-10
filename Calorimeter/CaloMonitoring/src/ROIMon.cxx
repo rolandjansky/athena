@@ -75,7 +75,7 @@ int ROIMon::Accept( Hep3Vector Point){
   //  m_theTime = m_tileComTime;
   
   // extract distance of minimum approach==============
-  // for instance see a bried sicussion at http://math.mit.edu/~djk/18_022/chapter02/example02.html
+  // for instance see a brief sicussion at http://math.mit.edu/~djk/18_022/chapter02/example02.html
   // bring everything back to the origin (but we would just need one point on the line) using the Zero Position of the track
    Hep3Vector TranslateToOrigin=Point-MuZeroPosition;
    // find orthogonal component of the point vector with respect to the line  

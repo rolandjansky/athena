@@ -47,7 +47,7 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
 
  public:
 
-  /** @bried constructor */
+  /** @brief constructor */
   EMClusterTool (const std::string& type,const std::string& name, const IInterface* parent);
 
   /** @brief destructor */
