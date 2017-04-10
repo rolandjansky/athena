@@ -202,8 +202,7 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const Trk::TrackingVolume& f
                 // if existing, set the material Layer
                 // get the second face surface and set the new MaterialLayer
                 const Trk::Surface& secondFaceSurface = volIter->boundarySurfaces()[secondFace]->surfaceRepresentation();
-                // @TODO set material layer also if mLayer=NULL ?
-                secondFaceSurface.setMaterialLayer(*mLayer);                
+                secondFaceSurface.setMaterialLayer(mLayer);                
             }
         }
     } // 1-to-n case    
