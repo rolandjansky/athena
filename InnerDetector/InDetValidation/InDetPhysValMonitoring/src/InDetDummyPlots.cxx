@@ -215,7 +215,7 @@ InDetDummyPlots::track_vs_truth(const xAOD::TrackParticle& track, const xAOD::Tr
 }
 
 void
-InDetDummyPlots::minDR(float min_dR, float prod_rad, float bestmatch, double BIDPt, double truth_pt){
+InDetDummyPlots::minDR(float min_dR, float prod_rad, float bestmatch, double BIDPt, double /* unused truth_pt*/){
 
   if(bestmatch > 0.50){
     fillHisto(m_delta_inverse_pt, BIDPt);
