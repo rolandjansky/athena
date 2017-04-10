@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 from RecExConfig.Configured import Configured
 from AthenaCommon.Logging import logging
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
@@ -15,9 +13,11 @@ class ThinTrkTrack(Configured):
             theTrkTrackThinner = ThinTrkTrackAlg(
                 "ThinTrkTrackAlg",
                 doElectrons=True,
+                doPhotons=True,
                 doMuons=True,
                 MuonsKey="Muons",
                 ElectronsKey="Electrons",
+                PhotonsKey="Photons",
                 CombinedMuonsTrackKey="CombinedMuonTracks",
                 GSFTrackKey="GSFTracks")                
             
