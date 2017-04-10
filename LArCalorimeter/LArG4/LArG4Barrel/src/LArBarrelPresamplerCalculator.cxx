@@ -58,7 +58,6 @@ StatusCode LArBarrelPresamplerCalculator::initialize()
 {
   ATH_MSG_DEBUG("LArBarrelPresamplerCalculator: Beginning initialization ");
   // Initialize private members.
-  // m_identifier2 = LArG4Identifier();
 
   // Access source of detector parameters.
   LArVG4DetectorParameters* parameters = LArVG4DetectorParameters::GetInstance();

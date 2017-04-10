@@ -49,7 +49,7 @@ namespace LArG4 {
     Geometry::Geometry(const std::string& name, ISvcLocator *pSvcLocator)
       : AthService(name, pSvcLocator)
       , m_detectorName("LArMgr")
-      // , m_testbeam(false)
+        // , m_testbeam(false)
     {
       declareProperty("DetectorName",m_detectorName);
       // declareProperty("TestBeam", m_testbeam);
@@ -59,19 +59,19 @@ namespace LArG4 {
     Geometry::~Geometry() {;}
 
     // ==================================================================
-    // initialize geometry parameters
-    //  this should at some stage be taken from a database...
+    /** initialize geometry parameters
+        this should at some stage be taken from a database... */
     StatusCode Geometry::initialize()
     {
 #include "PresParameterDef.icc"
 
-      // Access source of detector parameters.
+      /** Access source of detector parameters. */
       m_parameters = LArVG4DetectorParameters::GetInstance();
 
-      // position of mother volume inside nominal Atlas frame
+      /** position of mother volume inside nominal Atlas frame */
       m_zpres=1549.*CLHEP::mm;
-      // compute positions of end of modules and of first cathode in a module in
-      // nominal Atlas coordinates
+      /** compute positions of end of modules and of first cathode in
+       a module in nominal Atlas coordinates */
       const double eps=0.007*CLHEP::mm;
       m_zminPS=3.00*CLHEP::mm;   // FIXME this should come from database
       m_end_module[0]=(m_mod[0][0]*m_cmm+2*eps)+m_zminPS+eps;
@@ -123,20 +123,20 @@ namespace LArG4 {
         addRef();
         return StatusCode::SUCCESS;
       }
-      // Interface is not directly available : try out a base class
+      /** Interface is not directly available : try out a base class */
       return AthService::queryInterface(riid, ppvInterface);
     }
 
-     //======================================================================================
-    //
-    // The following method computes the identifiers in the Presampler volume:
-    //
-    // 1) Navigate through the volumes hierarchy
-    //
-    // 2) Calculate identifier using the CalculatePSActiveIdentifier method if the
-    //    hit is in the Module volume and CalculatePS_DMIdentifier if the hit is
-    //    in some dead region
-    //
+    //======================================================================================
+    /**
+    The following method computes the identifiers in the Presampler volume:
+
+    1) Navigate through the volumes hierarchy
+
+    2) Calculate identifier using the CalculatePSActiveIdentifier method if the
+       hit is in the Module volume and CalculatePS_DMIdentifier if the hit is
+       in some dead region
+    */
     //======================================================================================
 
     LArG4Identifier Geometry::CalculateIdentifier(const G4Step* a_step) const
@@ -145,14 +145,14 @@ namespace LArG4 {
       const static G4String fullCryoName = (m_detectorName.empty()) ? "LAr::TBBarrel::Cryostat::LAr" : G4String(m_detectorName+"::LAr::TBBarrel::Cryostat::LAr");
       const static G4String fullModuleName = (m_detectorName.empty()) ? "LAr::Barrel::Presampler::Module" : G4String(m_detectorName+"::LAr::Barrel::Presampler::Module");
 
-      // Get all the required information from the current step
+      /** Get all the required information from the current step */
       const G4NavigationHistory* g4navigation = a_step->GetPreStepPoint()->GetTouchable()->GetHistory();
       const G4int ndep = g4navigation->GetDepth();
       bool iactive(false);
       bool isTestBeam(false);
       G4int idep(-999);
 
-      //Now navigate through the volumes hierarchy
+      /** Now navigate through the volumes hierarchy */
       for (G4int ii=0;ii<=ndep;ii++) {
         // FIXME Need to find a way to avoid these string-comparisons
         const G4String& vname = g4navigation->GetVolume(ii)->GetName();
@@ -170,9 +170,10 @@ namespace LArG4 {
     }
 
     // ==========================================================================================
-    // calculate identifier from a G4 step in the PS active region
-    // This function should always return a valid identifier which can be used for calibration hit
-    //  even if the hit is not really in the "fiducial" active part
+    /** calculate identifier from a G4 step in the PS active region
+    This function should always return a valid identifier which can be
+    used for calibration hit even if the hit is not really in the
+    "fiducial" active part */
 
     LArG4Identifier Geometry::CalculatePSActiveIdentifier(const G4Step* a_step, const G4int ind, const bool isTestBeam) const
     {
@@ -185,7 +186,7 @@ namespace LArG4 {
       ATH_MSG_VERBOSE("Eta and Phi in the atlas frame                  --> " << p.eta() << " " << p.phi());
 #endif
 
-      // to get coordinates in the Presampler frame
+      /* to get coordinates in the Presampler frame */
 
       const G4NavigationHistory* g4navigation = a_step->GetPreStepPoint()->GetTouchable()->GetHistory();
       const G4ThreeVector ploc = g4navigation->GetTransform(ind).TransformPoint(p);
@@ -193,16 +194,16 @@ namespace LArG4 {
       const G4int zSide(this->determineZSide(isTestBeam, p.z()));
 
       CalcData currentCellData;
-      /*bool status=*/this->findCell(currentCellData,ploc.x(),ploc.y(),ploc.z());
+      (void)this->findCell(currentCellData,ploc.x(),ploc.y(),ploc.z());
 
       if( zSide == -1 )
-        //following code for an Y-axis rotation to define the side C half-barrel
+        /** following code for an Y-axis rotation to define the side C half-barrel */
         {
           currentCellData.phiBin = 31 - currentCellData.phiBin;
           if(currentCellData.phiBin < 0 ) currentCellData.phiBin += 64;
         }
 
-      // Append the cell ID to the (empty) identifier.
+      /** Append the cell ID to the (empty) identifier. */
       PSActiveID   << 4          // LArCalorimeter
                    << 1          // LArEM
                    << zSide
@@ -256,14 +257,14 @@ namespace LArG4 {
       ATH_MSG_VERBOSE("Eta and Phi in the atlas frame                  --> " << p.eta() << " " << p.phi());
 #endif
 
-      // to get coordinates in local half barrel frame, independently
-      // of overall presampler position/rotation
+      /** to get coordinates in local half barrel frame, independently
+          of overall presampler position/rotation */
 
       const G4NavigationHistory* g4navigation = a_step->GetPreStepPoint()->GetTouchable()->GetHistory();
       const G4ThreeVector ploc = g4navigation->GetTransform(ind).TransformPoint(p);
       const G4double radius=sqrt(ploc.x()*ploc.x() + ploc.y()*ploc.y());
 
-      // shift z such that z=0 is eta=0 in Atlas standard frame
+      /** shift z such that z=0 is eta=0 in Atlas standard frame*/
       const G4ThreeVector ploc2(ploc.x(),ploc.y(),ploc.z()+m_zpres+m_zminPS);
 
 #ifdef  DEBUGHITS
@@ -274,15 +275,18 @@ namespace LArG4 {
       // 01-Feb-2001 WGS: Add zSide calculation.
       const G4int zSide(this->determineZSide(isTestBeam, p.z()));
 
-      // eta,phi in "local" half barrel coordinates
+      /** eta,phi in "local" half barrel coordinates */
       const G4double phi = (ploc2.phi() < 0.) ? ploc2.phi()+2.*M_PI : ploc2.phi();
       const G4double eta = ploc2.eta();
       //G4double z2=fabs(ploc2.z());
 
-      // chek if the hit is in front of the active layer of the presampler in order to distinguish
-      // between regin 2 and 3: WARNING the method is temporary!
-      // PSModuleRmean = 1420 is the distance between the middle of the active layer (LAr) of the PS
-      // modules and the interaction point
+      /** check if the hit is in front of the active layer of the
+      presampler in order to distinguish between regin 2 and 3:
+      WARNING the method is temporary!
+
+      PSModuleRmean = 1420 is the distance between the middle of the
+      active layer (LAr) of the PS modules and the interaction
+      point */
 
       const G4int numberPhiMod = 32;
       const G4double dphi = ( 2.*M_PI ) / numberPhiMod;
@@ -312,7 +316,7 @@ namespace LArG4 {
       // 07-Jul-2005 WGS: Handle an extremely rare rounding problem.
       if ( currentCellData.phiBin == 64 ) currentCellData.phiBin = 0;
 
-      // Fill identifier.
+      /** Fill identifier.*/
       LArG4Identifier PS_DM_ID = LArG4Identifier();
       PS_DM_ID     << 10               // ATLAS
                    << zSide*4          // LArEM
@@ -333,29 +337,31 @@ namespace LArG4 {
       return PS_DM_ID ;
     }
 
-    //===============================================================================
-    // bool findCell(xloc,yloc,zloc) const
-    //
-    // From local PS coordinates (half barrel tube mother volume)
-    //  compute etaBin,phiBin,sampling,region
-    //  as well as gap number, distance to closest electrode and projection
-    //  along electrode axis
-    //
-    // Takes into account for complexity of eta segmentation
-    //
-    // Return true if where are really within the 13mm LAr gap
-    // Return false for the few steps which are in the safety region at the
-    //   edges of module
-    // Assume that hit is in the "active" LAr
+    /**===============================================================================
+     bool findCell(xloc,yloc,zloc) const
 
-    // note that here phiBin is computed for the + half barrel
-    // some care has to be taken to convert to the - half barrel, taking into
-    // account the rotation
+     From local PS coordinates (half barrel tube mother volume)
+      compute etaBin,phiBin,sampling,region
+      as well as gap number, distance to closest electrode and projection
+      along electrode axis
 
-    // findCell always fill valids currentCellData.region, currentCellData.sampling , currentCellData.etaBin, currentCellData.phiBin
-    // it returns true if the hit is in the normal 13mm Ar gap, within a real module
-    // it returns false otherwise
-    //
+     Takes into account for complexity of eta segmentation
+
+     Return true if where are really within the 13mm LAr gap
+     Return false for the few steps which are in the safety region at the
+       edges of module
+     Assume that hit is in the "active" LAr
+
+     note that here phiBin is computed for the + half barrel
+     some care has to be taken to convert to the - half barrel, taking into
+     account the rotation
+
+     findCell always fills valid currentCellData.region,
+     currentCellData.sampling, currentCellData.etaBin,
+     currentCellData.phiBin it returns true if the hit is in the
+     normal 13mm Ar gap, within a real module it returns false
+     otherwise
+    */
 
     bool  Geometry::findCell(CalcData & currentCellData, G4double xloc,G4double yloc,G4double zloc) const
     {
@@ -363,23 +369,23 @@ namespace LArG4 {
       currentCellData.sampling = 0;
       currentCellData.region   = 0;
 
-      // eta,phi in "local" Atlas like half barrel coordinates
+      /** eta,phi in "local" Atlas like half barrel coordinates */
       G4double phi = atan2(yloc,xloc);
       if ( phi < 0. ) phi += 2.*M_PI;
       const G4double z2=fabs(zloc+m_zpres+m_zminPS);
 
-      // According to the memo, phi is divided into 64 regions [0..63].
+      /** According to the memo, phi is divided into 64 regions [0..63]. */
       const G4int numberPhiBins = 64;
       const G4double dphi = ( 2.*M_PI ) / numberPhiBins;
       const G4double inv_dphi = 1. / dphi;
-      // Convert  phi into integer bins.
+      /** Convert phi into integer bins. */
       currentCellData.phiBin = G4int( phi * inv_dphi );
       if (currentCellData.phiBin >63) currentCellData.phiBin=63;
       if (currentCellData.phiBin <0)  currentCellData.phiBin=0;
 
-      // if inside LAr but outside a module, returns some etaBin value for
-      //  the DM identifier, but function return false to veto this step
-      //  in the normal calculator
+      /** if inside LAr but outside a module, returns some etaBin
+        value for the DM identifier, but function return false to veto
+        this step in the normal calculator */
       if (z2 < m_zminPS ) {
         currentCellData.etaBin=0;
         return false;
@@ -389,7 +395,7 @@ namespace LArG4 {
         return false;
       }
 
-      // find in which module in z the hit is
+      /** find in which module in z the hit is */
       currentCellData.module=0;
       for (int i=1;i<8;i++) {
         if (m_first_cathod[i]>=z2) break;
@@ -403,7 +409,7 @@ namespace LArG4 {
           return false;
         }
 
-      // compute signed distance from middle of active layer along layer height axis
+      /** compute signed distance from middle of active layer along layer height axis */
       const G4int isect=G4int(phi*m_nsectors/(2.*M_PI));
       const G4double phi0= ((double)isect+0.5)*2.*M_PI/((double) m_nsectors);
       static const G4double r0=1420.4*CLHEP::mm;   // FIXME should be recomputed from database
@@ -412,11 +418,11 @@ namespace LArG4 {
 #ifdef DEBUGHITS
       ATH_MSG_VERBOSE("sector number, dist along height " << isect << " " << currentCellData.dist);
       ATH_MSG_VERBOSE("z2,module number,m_first_cathod " << z2 << " " << currentCellData.module << " "
-                << m_first_cathod[currentCellData.module]);
+                      << m_first_cathod[currentCellData.module]);
 #endif
 
-      // compute z distance from first cathode of module to step, taking into
-      //   account the m_tilt angle of the cathode
+      /** compute z distance from first cathode of module to step,
+         taking into account the m_tilt angle of the cathode */
       G4double deltaz=z2-(m_first_cathod[currentCellData.module]+currentCellData.dist*tan(m_tilt[currentCellData.module]));
       if (deltaz<0 ) {
         if (currentCellData.module>0) {
@@ -426,17 +432,17 @@ namespace LArG4 {
         else deltaz=0;
       }
 
-      // compute gap number
+      /** compute gap number */
       currentCellData.gap = ((int)(deltaz/m_pitch[currentCellData.module]));
 
 #ifdef DEBUGHITS
       ATH_MSG_VERBOSE("deltaz from first cathode,gap number " << deltaz << " " << currentCellData.gap);
 #endif
 
-      // compute cell number in eta
+      /** compute cell number in eta */
       currentCellData.etaBin= currentCellData.gap/m_ngap_cell[currentCellData.module];
 #ifdef DEBUGHITS
-      ATH_MSG_VERBOSE("etaBin inside module " << currentCellData.etaBin;
+      ATH_MSG_VERBOSE("etaBin inside module " << currentCellData.etaBin);
 #endif
       if (currentCellData.etaBin >= m_ncell_module[currentCellData.module]) currentCellData.etaBin=m_ncell_module[currentCellData.module]-1;
 
@@ -449,12 +455,12 @@ namespace LArG4 {
         ATH_MSG_WARNING("LArBarrelPresamplerGeometry::findCell  etaBin outside range " << currentCellData.etaBin);
       }
 
-      // z of the centre of the anode of the gap
+      /** z of the centre of the anode of the gap */
       const G4double zmiddle=m_first_cathod[currentCellData.module]+((double)(currentCellData.gap+0.5))*m_pitch[currentCellData.module];
 
-      // compute step position in electrode reference frame
-      //   currentCellData.distElec => signed distance to electrode
-      //   currentCellData.xElec => projection along electrode axis
+      /** compute step position in electrode reference frame
+         currentCellData.distElec => signed distance to electrode
+         currentCellData.xElec => projection along electrode axis */
       currentCellData.xElec=currentCellData.dist*cos(m_tilt[currentCellData.module])+(z2-zmiddle)*sin(m_tilt[currentCellData.module]);
       currentCellData.distElec=(z2-zmiddle)*cos(m_tilt[currentCellData.module]) - currentCellData.dist*sin(m_tilt[currentCellData.module]);
 #ifdef DEBUGHITS
@@ -472,6 +478,6 @@ namespace LArG4 {
       return status;
     }
 
-  } //end of BarrelPresampler namespace
+  } /** end of BarrelPresampler namespace */
 
-} // end of LArG4 namespace
+} /** end of LArG4 namespace */

@@ -22,7 +22,6 @@ public:
   int  Region(int region, int sampling, int eta) const;
   CurrMap* GetMap(int ifold, int ielecregion) const;
   CurrMap* GetMap(int ifold, int region, int sampling, int eta) const;
-  //CurrMap* Map() const {return m_curr;}
   float GetXmin(int ifold) const {
     if (ifold<m_nmax && ifold >=0) return m_xmin[ifold];
     else return -999.;}
