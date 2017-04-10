@@ -39,6 +39,7 @@ private:
   bool m_DumpIDMap;
 
   int m_IBLMode;
+  bool m_ITkMode;
   bool m_fixEndcapL0; //fix for endcap L0 in clustering
 
 };

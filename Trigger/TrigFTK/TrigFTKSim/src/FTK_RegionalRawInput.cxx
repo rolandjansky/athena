@@ -174,6 +174,8 @@ const char* FTK_RegionalRawInput::getCurrentRoadFileName(int bank) {
     reset the related flag */
 int FTK_RegionalRawInput::nextFile()
 {
+   if (m_read_FTKhits_directly) FTKSetup::PrintMessageFmt(ftk::info,"Reading hits in directly as FTKHits, skipping FTKRawHits.\n");
+
    if (!m_init) { 
     m_current_path = m_files_path.begin();
     m_init = true;
@@ -200,9 +202,16 @@ int FTK_RegionalRawInput::nextFile()
        if (m_hittree) {
           m_evtnumE = m_hittree->GetEntries();
           for (int ireg=0;ireg!=m_nregions;++ireg) {
-             m_original_reghits[ireg] = 0x0;
-             m_hittree_branch[ireg] = 0x0;
-             m_hittree->SetBranchAddress(Form("RawHits%d",ireg),&m_original_reghits[ireg],&m_hittree_branch[ireg]);
+             if (m_read_FTKhits_directly) {
+               m_reghits_read[ireg] = 0x0;
+               m_hittree_branch[ireg] = 0x0;
+               m_hittree->SetBranchAddress(Form("Hits%d",ireg),&m_reghits_read[ireg],&m_hittree_branch[ireg]);
+             }
+             else {
+               m_original_reghits[ireg] = 0x0;
+               m_hittree_branch[ireg] = 0x0;
+               m_hittree->SetBranchAddress(Form("RawHits%d",ireg),&m_original_reghits[ireg],&m_hittree_branch[ireg]);
+             }
           }
        }
        // get and connect the event info TTree
@@ -250,6 +259,7 @@ int FTK_RegionalRawInput::init(bool *goodRegions)
   // prepare the objects read the file
   m_hittree_branch = new TBranch*[m_nregions];
   m_original_reghits = new vector<FTKRawHit>*[m_nregions];
+  m_reghits_read = new vector<FTKHit*>*[m_nregions];
   m_reghits = new vector<FTKHit>[m_nregions];
 
   // path iterator point to the first item
