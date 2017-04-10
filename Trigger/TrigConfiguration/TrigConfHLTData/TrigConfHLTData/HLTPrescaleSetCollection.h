@@ -13,8 +13,7 @@
 #include <vector>
 #include <utility>
 #include <exception>
-
-#include <boost/thread/recursive_mutex.hpp>
+#include <mutex>
 
 namespace TrigConf {
    class HLTPrescaleSet;
@@ -101,7 +100,7 @@ namespace TrigConf {
 
       std::list<cont> m_prescaleSets;         //!< all prescale sets with start lb      
 
-      mutable boost::recursive_mutex m_prescaleSetCollection_mutex;  //!< Mutex for m_prescaleSetCollection
+      mutable std::recursive_mutex m_prescaleSetCollection_mutex;  //!< Mutex for m_prescaleSetCollection
      
       friend std::ostream & operator<<(std::ostream &, const HLTPrescaleSetCollection &);
 

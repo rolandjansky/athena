@@ -136,7 +136,7 @@ private:
   mutable Athena::MsgStreamMember m_msg;
 
   ///protect db failling
-  std::recursive_mutex m_regMutex;
+  std::mutex m_regMutex;
 };
 
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>

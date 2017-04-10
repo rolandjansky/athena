@@ -111,7 +111,7 @@ protected: // data
    const Token*          m_i_poolToken;
    const Token*          m_o_poolToken;
 
-   typedef std::recursive_mutex CallMutex;
+   typedef std::mutex CallMutex;
    mutable CallMutex m_conv_mut;
 };
 

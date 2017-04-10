@@ -106,7 +106,7 @@ ClassIDSvc::initialize()
 
 bool ClassIDSvc::getRegistryEntries(const std::string& moduleName) {
 
-  std::lock_guard<std::recursive_mutex> lock(m_regMutex);
+  std::lock_guard<std::mutex> lock(m_regMutex);
 
   //not only this is fast, but is necessary to prevent recursion
   if (!CLIDRegistry::hasNewEntries()) return true;
@@ -542,7 +542,7 @@ ClassIDSvc::dump() const {
 
 StatusCode
 ClassIDSvc::fillDB() {
-  std::lock_guard<std::recursive_mutex> lock(m_regMutex);
+  std::lock_guard<std::mutex> lock(m_regMutex);
   // Process the various clid dbs according to user's request
   vector< string >::const_iterator f(m_DBFiles.begin()), fE(m_DBFiles.end());
   bool allOK(true);
