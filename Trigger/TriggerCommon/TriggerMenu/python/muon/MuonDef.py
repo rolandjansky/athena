@@ -1020,17 +1020,17 @@ class L2EFChain_mu(L2EFChainDef):
 
     self.TErenamingDict = {
       'L2_mu_step1': mergeRemovingOverlap('L2_mu_SA_', L2AlgName+muFastThresh+'_'+self.L2InputTE),
-      'EF_mu_step1': mergeRemovingOverlap('EF_SuperEF_',   self.chainPartNameNoMult),
+      'EF_mu_step1': mergeRemovingOverlap('EF_SuperEF_',   self.chainPartNameNoMult+'_'+self.L2InputTE),
       }
     if (self.chainPart['isoInfo']):
-      self.TErenamingDict.update({'EF_mu_step2': mergeRemovingOverlap('EF_EFIDInsideOut_', self.chainPartNameNoMult.replace('_'+self.chainPart['isoInfo'],'')),
-                                  'EF_mu_step3': mergeRemovingOverlap('EF_trkIso_',       self.chainPartNameNoMult)})
+      self.TErenamingDict.update({'EF_mu_step2': mergeRemovingOverlap('EF_EFIDInsideOut_', self.chainPartNameNoMult.replace('_'+self.chainPart['isoInfo'],'')+'_'+self.L2InputTE),
+                                  'EF_mu_step3': mergeRemovingOverlap('EF_trkIso_',       self.chainPartNameNoMult+'_'+self.L2InputTE)})
 
 
     if self.doOvlpRm:
-      self.TErenamingDict.update({'L2_mu_step1_wOvlpRm'  : mergeRemovingOverlap('L2_mu_SAOvlpRm_',    L2AlgName+muFastThresh+'_'+self.L2InputTE+'_wOvlpRm' ),
-                                  'EF_mu_step1': mergeRemovingOverlap('EF_SuperEF_', self.chainPartNameNoMult+'_wOvlpRm'),
-				  'EF_mu_step1_wOvlpRm': mergeRemovingOverlap('EF_SuperEFOvlpRm_', self.chainPartNameNoMult+'_wEFOvlpRm')})
+      self.TErenamingDict.update({'L2_mu_step1_wOvlpRm'  : mergeRemovingOverlap('L2_mu_SAOvlpRm_',    L2AlgName+muFastThresh+'_'+self.L2InputTE+'_wOvlpRm'+'_'+self.L2InputTE ),
+                                  'EF_mu_step1': mergeRemovingOverlap('EF_SuperEF_', self.chainPartNameNoMult+'_wOvlpRm'+'_'+self.L2InputTE),
+				  'EF_mu_step1_wOvlpRm': mergeRemovingOverlap('EF_SuperEFOvlpRm_', self.chainPartNameNoMult+'_wEFOvlpRm'+'_'+self.L2InputTE)})
                                           
   #################################################################################################
   def setup_muXX_MGOnly(self):

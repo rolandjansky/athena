@@ -115,7 +115,7 @@ JetChainParts = {
                       'cleanLA','cleanTA','cleanLLPA', 'noCleaning'
                       ],
     'recoAlg'      : ["a3","a4", "a10", "a10r", "a10t"],
-    'dataType'     : ['TT', 'tc', 'cc', 'ion'],
+    'dataType'     : ['TT', 'tc', 'cc', 'ion', 'sktc'],
     'calib'        : ["had","lcw","em"],
     'jetCalib'     : ["jes","sub","subjes","subjesIS", "nojcalib"],
     'scan'         : ['FS','PS'],
@@ -131,8 +131,7 @@ JetChainParts = {
 #    'bMatching'    : ['mu4antidr05', 'mu6antidr05'],
     'bMatching'    : ['antimatchdr05mu'],
     'dataScouting' : ['ds1', 'ds2'],
-    'smc'          : ['30smcINF', 'nosmc'],
-    'trkopt'       : ['notrk', 'ftk', 'ftkrefit'],
+    'smc'          : ['30smcINF', 'nosmc']
 }
 
 
@@ -160,7 +159,6 @@ JetChainParts_Default = {
     'bMatching'    : [],
     'dataScouting' : '',
     'smc'          : 'nosmc',
-    'trkopt'       : 'notrk',
     }
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -370,7 +368,7 @@ ElectronChainParts = {
     'threshold'      : '',
     'etaRange'       : ['0eta250', '250eta490'],
     'IDinfo'         : ['loose', 'medium', 'tight', 'lhloose', 'lhmedium', 'lhtight', 'loose1', 'medium1', 'tight1', 'vloose', 'lhvloose', 'mergedtight'],
-    'isoInfo'        : [ 'iloose','ivarloose','ivarmedium','ivartight'],
+    'isoInfo'        : [ 'iloose','ivarloose','ivarmedium','ivartight','icalovloose','icaloloose','icalomedium','icalotight'],
     'trkInfo'        : ['fasttr', 'hlttr', 'IDTrkNoCut','FwdBackTrk','idperf'],
     'caloInfo'       : ['L2EFCalo','HLTCalo'],
     'lhInfo'         : ['cutd0dphideta','nod0','nodphires','nodeta','smooth'],
@@ -389,7 +387,7 @@ ElectronChainParts_Default = {
     'extra'          : '',
     'IDinfoType'     : '',
     'IDinfo'         : '',
-    'isoInfo'        : '',
+    'isoInfo'        : [],
     'reccalibInfo'   : '',
     'trkInfo'        : '',
     'caloInfo'       : '',   
@@ -415,7 +413,7 @@ PhotonChainParts = {
     'threshold'      : '',
     'extra'          : ['i', 'i5', 'i6', 'ns', 'Tvh', 'ion'],
     'IDinfo'         : ['loose', 'medium', 'tight', 'NoCut', 'nocut','loose1', 'medium1', 'tight1'],
-    'isoInfo'        : ['ivloose', 'iloose', 'itight'],
+    'isoInfo'        : ['ivloose','iloose','imedium','itight','icalovloose','icaloloose','icalomedium','icalotight'],
     'reccalibInfo'   : ['MSonly', 'MGonly'],
     'trkInfo'        : ['fasttr', 'hlttr', 'ftk'],
     'caloInfo'       : ['HLTCalo'],
@@ -434,7 +432,7 @@ PhotonChainParts_Default = {
     'threshold'      : '',
     'extra'          : '',
     'IDinfo'         : '',
-    'isoInfo'        : '',
+    'isoInfo'        : [],
     'reccalibInfo'   : '',
     'trkInfo'        : '',
     'caloInfo'       : '',    

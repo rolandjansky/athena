@@ -47,7 +47,8 @@ class EFMissingETFromClustersPUC : public EFMissingETBaseTool
                                const xAOD::CaloClusterContainer *caloCluster,
                                const xAOD::JetContainer *jets,
                                const xAOD::TrackParticleContainer *track,
-                               const xAOD::VertexContainer *vertex);
+                               const xAOD::VertexContainer *vertex,
+                               const xAOD::MuonContainer *muon);
 
   private:
     bool m_saveuncalibrated;

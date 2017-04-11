@@ -8,12 +8,7 @@ namespace jet {
 
   TrackVertexAssociation::TrackVertexAssociation(const xAOD::TrackParticleContainer* trkCont)  : 
     m_trackContainer(trkCont) {
-    // Check if this is a view container, in which case we need to use the size of the owning container.
-    size_t Ntracks = trkCont->size();
-    if(Ntracks>0 && trkCont->ownPolicy() != SG::OWN_ELEMENTS) {
-      Ntracks = trkCont->front()->container()->size_v();
-    }
-    m_vertex.resize(Ntracks, 0 );
+    m_vertex.resize(trkCont->size(), 0 );
   }
 
   void TrackVertexAssociation::associate(const xAOD::TrackParticle* trk, const xAOD::Vertex* vtx){

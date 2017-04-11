@@ -1,8 +1,8 @@
-﻿<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <!DOCTYPE ArgList>
 <ArgList>
 
-  <ToolInfo date="Tue Nov  9 18:49:00 2010&#xA;" toolID="CollAppend.exe">
+  <ToolInfo date="Tue Nov  9 18:49:00 2010&#xA;" toolID="AthCollAppend">
     <CliArg name="QueryInfo" option="-query">
       <datum/>
     <CliArg name="DstInfo" option="-dst">

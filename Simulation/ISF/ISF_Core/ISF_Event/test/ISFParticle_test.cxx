@@ -9,7 +9,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "AtlasDetDescr/AtlasRegion.h"
-#include "BarcodeInterfaces/Barcode.h"
+#include "BarcodeEvent/Barcode.h"
 
 void testConstructors() {
     Amg::Vector3D pos(1., 0., 2.);

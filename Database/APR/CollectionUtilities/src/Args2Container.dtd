@@ -7,7 +7,7 @@
 <!DOCTYPE ArgList>
 <ArgList>
 
-  <ToolInfo date="Mon May 24 18:13:30 2010&#xA;" toolID="CollAppend.exe">
+  <ToolInfo date="Mon May 24 18:13:30 2010&#xA;" toolID="AthCollAppend">
     <CliArg name="QueryInfo" option="-query">
       <datum>RunNumber=153200 AND (bitand(L1PassedTrigMaskTAV7, power(2,36)) = 0)</datum>
     </CliArg>

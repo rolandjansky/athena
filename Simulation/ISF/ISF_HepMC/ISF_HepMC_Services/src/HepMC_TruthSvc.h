@@ -24,7 +24,7 @@
 #include "AtlasDetDescr/AtlasRegion.h"
 
 // Barcode
-#include "BarcodeInterfaces/Barcode.h"
+#include "BarcodeEvent/Barcode.h"
 
 // McEventCollection
 #include "GeneratorObjects/McEventCollection.h"

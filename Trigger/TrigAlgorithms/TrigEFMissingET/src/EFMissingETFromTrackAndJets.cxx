@@ -105,7 +105,8 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
         const xAOD::CaloClusterContainer * /* caloCluster */,
         const xAOD::JetContainer *MHTJetContainer,
         const xAOD::TrackParticleContainer *trackContainer,
-        const xAOD::VertexContainer *vertexContainer)
+        const xAOD::VertexContainer *vertexContainer,
+        const xAOD::MuonContainer *muonContainer)
 {
 
   ATH_MSG_DEBUG( "called EFMissingETFromTrackAndJets::execute()" ); // EFMissingET_Fex_Jets
@@ -136,9 +137,34 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
   std::vector<const xAOD::Vertex*> VertexVec(vertexContainer->begin(), vertexContainer->end());
   ATH_MSG_DEBUG( "num of vertices: " << VertexVec.size() );
 
+  std::vector<const xAOD::Muon*> MuonVec;
+  if(muonContainer!=nullptr) {
+        for (auto muon : *muonContainer) {
+            MuonVec.push_back(muon);
+        }
+  }
+  ATH_MSG_DEBUG( "num of muons: " << MuonVec.size() );
 
 
   //#################################################################
+  std::vector<const xAOD::TrackParticle*> vecOfMuonTrk;
+  for (const xAOD::Muon* muon : MuonVec) {
+        const xAOD::Muon::MuonType muontype = muon->muonType();
+        // combined or segment tagged muon
+        if(muontype == xAOD::Muon::MuonType::Combined || muontype == xAOD::Muon::MuonType::SegmentTagged ) {
+            const xAOD::TrackParticle* idtrk = muon->trackParticle( xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle );
+            if(idtrk==0) continue;
+            if(fabs(muon->pt())<5000) continue;
+
+            ATH_MSG_DEBUG( "Found muon " << "pt = " << muon->pt()/1000. << " eta= " <<
+                           muon->eta() << " phi= " << muon->phi() );
+
+            vecOfMuonTrk.push_back(idtrk);
+        }
+  }
+
+
+
   //bool hasGoodVtx = false;
   const xAOD::Vertex* primaryVertex =  nullptr;
   for (const xAOD::Vertex* vertex : VertexVec) {
@@ -212,7 +238,16 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
       if(!isfromPV) continue;
       if(fabs(track->eta())>2.4 || track->pt()/1000. < m_track_ptcut) continue;
       if(!m_trackselTool->accept(*track,primaryVertex)) continue;
-      if(m_muontrackselTool->accept(*track,primaryVertex)) continue;
+            
+      //remove muon tracks
+      //if(m_muontrackselTool->accept(*track,primaryVertex)) continue;
+      float mindeltaR_trackj(999.);
+      for (const xAOD::TrackParticle* muontrk: vecOfMuonTrk) {
+      	  float deltaR_trackj = track->p4().DeltaR(muontrk->p4());
+      	  if(deltaR_trackj<mindeltaR_trackj) mindeltaR_trackj=deltaR_trackj;
+      }
+      if(mindeltaR_trackj<0.1) continue;
+
 
       ATH_MSG_DEBUG( "\ttrack pt: " << track->pt()/1000. << "\teta: " << track->eta() << "\tphi: " << track->phi()
                      << "\tvertex: " << track->vertex()

@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           DetectorDescription/GeoPrimitives
+                          Simulation/Barcode/BarcodeEvent
                           Simulation/Barcode/BarcodeInterfaces
                           Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimInterfaces
                           PRIVATE

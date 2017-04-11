@@ -16,7 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           GaudiKernel
                           LArCalorimeter/LArElecCalib
-                          Simulation/Barcode/BarcodeInterfaces
+                          Simulation/Barcode/BarcodeEvent
                           Simulation/ISF/ISF_Core/ISF_Interfaces
                           Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimEvent
                           Tracking/TrkEvent/TrkEventPrimitives

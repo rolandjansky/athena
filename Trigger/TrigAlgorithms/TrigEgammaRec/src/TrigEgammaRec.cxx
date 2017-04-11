@@ -1080,17 +1080,27 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
                 CaloIsoHelp isoH = itc->second;
                 std::string flav = itc->first;
                 bool bsc = false;
-                if (flav == "etcone" && pCaloCellContainer)
+                bool tbsc = false;
+                if (flav == "etcone" && pCaloCellContainer){
                     bsc = m_caloCellIsolationTool->decorateParticle_caloCellIso(*eg, isoH.help.isoTypes, isoH.CorrList, pCaloCellContainer);
-                /*else if (flav == "topoetcone" )
+                }
+                else if (flav == "topoetcone" && topoClusTrue){
                     // Add check for topoclusters (when available);
-                    //bsc = m_topoIsolationTool->decorateParticle_topoClusterIso(*eg, isoH.help.isoTypes, isoH.CorrList, pTopoClusterContainer);*/
-                if (!bsc && flav=="etcone") 
+                    tbsc = m_topoIsolationTool->decorateParticle_topoClusterIso(*eg, isoH.help.isoTypes, isoH.CorrList, pTopoClusterContainer);
+                }
+                if (!bsc && m_doCaloCellIsolation && flav=="etcone") {
                     ATH_MSG_WARNING("Call to CaloIsolationTool failed for flavour " << flav);
+                }
+                if (!tbsc && m_doTopoIsolation && flav =="topoetcone") {
+                    ATH_MSG_WARNING("Call to CaloTopoIsolationTool failed for flavour " << flav);
+                }
             }
             ATH_MSG_DEBUG(" REGTEST: etcone20   =  " << getIsolation_etcone20(eg));
             ATH_MSG_DEBUG(" REGTEST: etcone30   =  " << getIsolation_etcone30(eg));
             ATH_MSG_DEBUG(" REGTEST: etcone40   =  " << getIsolation_etcone40(eg));
+            ATH_MSG_DEBUG(" REGTEST: topoetcone20   =  " << getIsolation_topoetcone20(eg));
+            ATH_MSG_DEBUG(" REGTEST: topoetcone30   =  " << getIsolation_topoetcone30(eg));
+            ATH_MSG_DEBUG(" REGTEST: topoetcone40   =  " << getIsolation_topoetcone40(eg));
             if (timerSvc()) m_timerIsoTool2->stop(); //timer
         }
         if(m_doTrackIsolation){
