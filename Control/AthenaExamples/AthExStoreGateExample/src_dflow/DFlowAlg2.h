@@ -18,7 +18,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-#include "StoreGate/UpdateHandle.h"
 
 namespace AthEx {
 
@@ -67,7 +66,7 @@ class DFlowAlg2
   
   // vars
   SG::ReadHandle<int>  m_r_int;
-  SG::UpdateHandle<int> m_rw_int;
+  SG::WriteHandle<int> m_w_int;
   SG::WriteHandle<std::vector<int> > m_ints;
 }; 
 
