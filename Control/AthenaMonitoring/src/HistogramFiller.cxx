@@ -52,10 +52,9 @@ HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
     histo2DProfile = dynamic_cast<TProfile2D*>(histo);
   }
   
-  if (histo == 0 ) {
-//    ATH_MSG_WARNING("Can not create yet histogram of type: " << def.type);
-//    ATH_MSG_WARNING("Try one of: TH1[F,D,I], TH2[F,D,I], TProfile, TProfile2D");
-    return nullptr;
+  if (histo == 0) {
+    throw HistogramFillerCreateException("Can not create yet histogram of type: " + def.type + "\n" +
+                                         "Try one of: TH1[F,D,I], TH2[F,D,I], TProfile, TProfile2D");
   }
 
   setLabels(histo, def.labels);
@@ -63,44 +62,22 @@ HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
 
   HistogramFiller* result(0);
 
-  if ( histo1D && !histoProfile){
+  if ( histo1D ){
     if ( def.opt.find("kCumulative") != std::string::npos ) {
-//      ATH_MSG_DEBUG("Variable: " << def.name[0] << " from parent algorithm: "
-//                    << m_groupName << " will be histogrammed in Cummulative histogram");
-
       result = new CumulativeHistogramFiller1D(histo1D, def);
     } else if (def.opt.find("kVecUO") != std::string::npos) {
-//      ATH_MSG_DEBUG("Variable: " << def.name << " from parent algorithm: "
-//                    << m_groupName << " will be added to histogram");
-
       result = new VecHistogramFiller1DWithOverflows(histo1D, def);
     } else if (def.opt.find("kVec") != std::string::npos) {
-//      ATH_MSG_DEBUG("Variable: " << def.name << " from parent algorithm: "
-//                    << m_groupName << " will be added to histogram");
-
       result = new VecHistogramFiller1D(histo1D, def);
     } else {
-//      ATH_MSG_DEBUG("Variable: " << def.name << " from parent algorithm: " << m_groupName
-//                    <<  " will be histogrammed");
-
       result = new HistogramFiller1D(histo1D, def);
     }
+  } else if ( histoProfile ){
+      result = new HistogramFillerProfile(histoProfile, def);
   } else if ( histo2DProfile ) {
-//      ATH_MSG_DEBUG("Variables: " << def.name[0] << "," << def.name[1] << "," << def.name[2]
-//                    << " from parent algorithm: " << m_groupName
-//                    << " will be histogrammed in 2D Profile histogram");
-
       result = new HistogramFiller2DProfile(histo2DProfile, def);
-  } else if ( histo2D || histoProfile ){
-//      ATH_MSG_DEBUG("Variables: " << def.name[0] << "," << def.name[1]
-//                    << " from parent algorithm: " << m_groupName
-//                    << " will be histogrammed in 2D histogram");
-
-      if (histo2D) {
-        result = new HistogramFiller2D(histo2D, def);
-      } else {       
-        result = new HistogramFillerProfile(histoProfile, def);
-      }
+  } else if ( histo2D ) {
+      result = new HistogramFiller2D(histo2D, def);
   }
   
   return result;

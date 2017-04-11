@@ -57,6 +57,11 @@ namespace Monitored {
     HistogramFiller& operator=(HistogramFiller const&) = delete;
   };
   
+  struct HistogramFillerCreateException: public std::runtime_error {
+    HistogramFillerCreateException(std::string const& message)
+      : std::runtime_error(message) {}
+  };
+  
   class HistogramFillerFactory {
   private:
     class MonitoringGroup {
