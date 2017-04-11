@@ -82,6 +82,7 @@ namespace Trk {
        double                                       m_d0Max;
        double                                       m_z0Min;
        double                                       m_z0Max;
+       std::vector<float>                           m_z0Values;
      
        double                                       m_etaMin;
        double                                       m_etaMax;

@@ -110,8 +110,11 @@ template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::runTestT()
         // create the start parameters
         double d0 = m_smearProductionVertex ? (m_smearFlatOriginT ? (m_d0Min + (m_d0Max-m_d0Min)*Trk::TrkExUnitTestBase::m_flatDist->shoot()) : Trk::TrkExUnitTestBase::m_gaussDist->shoot()*m_sigmaOriginT) : 0.;
         double z0 = m_smearProductionVertex ? (m_smearFlatOriginZ ? (m_z0Min + (m_z0Max-m_z0Min)*Trk::TrkExUnitTestBase::m_flatDist->shoot()) : Trk::TrkExUnitTestBase::m_gaussDist->shoot()*m_sigmaOriginZ) : 0.;
-        // create the start parameters
-        P startParameters(d0,z0, phi, theta, q/p, Trk::PerigeeSurface(Amg::Vector3D(0.,0.,0.)));
+        if (not m_z0Values.empty())
+	   z0 = m_z0Values.at(it%m_z0Values.size());	   
+
+	// create the start parameters
+	P startParameters(d0,z0, phi, theta, q/p, Trk::PerigeeSurface(Amg::Vector3D(0.,0.,0.)));
         
         m_startPositionX = startParameters.position().x();
         m_startPositionY = startParameters.position().y();

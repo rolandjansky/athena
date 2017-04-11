@@ -29,6 +29,7 @@ Trk::ExtrapolationEngineTest::ExtrapolationEngineTest(const std::string& name, I
  m_d0Max(0.),
  m_z0Min(0.),
  m_z0Max(0.),
+ m_z0Values(0),
  m_etaMin(-3.),
  m_etaMax(3.),
  m_phiMin(-M_PI),
@@ -159,6 +160,7 @@ Trk::ExtrapolationEngineTest::ExtrapolationEngineTest(const std::string& name, I
     // z0 min / max values for flat smearing
     declareProperty("Z0Min",                    m_z0Min);
     declareProperty("Z0Max",                    m_z0Max);
+    declareProperty("Z0Values",                 m_z0Values);
     // eta min / max values
     declareProperty("EtaMin",                   m_etaMin);
     declareProperty("EtaMax",                   m_etaMax);
