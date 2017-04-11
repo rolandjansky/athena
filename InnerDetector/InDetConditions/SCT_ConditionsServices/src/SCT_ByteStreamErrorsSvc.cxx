@@ -119,7 +119,7 @@ SCT_ByteStreamErrorsSvc::initialize(){
     } 
   }
 
-  m_firstTempMaskedChips = new std::map<IdentifierHash, int>;
+  m_firstTempMaskedChips = new std::map<IdentifierHash, unsigned int>;
   m_tempMaskedChips = new std::map<Identifier, unsigned int>;
 
   resetCounts();
@@ -579,106 +579,122 @@ SCT_ByteStreamErrorsSvc::getRODOuts() const {
   return rodOuts;
 }
 
-void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashId, const int firstTempMaskedChip) {
-  std::map<IdentifierHash, int>::const_iterator it = m_firstTempMaskedChips->find(hashId);
-  if(it!=m_firstTempMaskedChips->end()) {
-    ATH_MSG_WARNING("setFirstTempMaskedChip duplication: hashId " << hashId << " firstTempMaskedChip is " << it->second << " and " << firstTempMaskedChip);
-  } else {
-    (*m_firstTempMaskedChips)[hashId] = firstTempMaskedChip;
-
-    const Identifier wafId = m_sct_id->wafer_id(hashId);
-    ATH_MSG_VERBOSE("SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip Hash " << hashId 
-		    << " SerialNumber " << m_cabling->getSerialNumberFromHash(hashId).str() 
-		    << " barrel_ec " << m_sct_id->barrel_ec(wafId) 
-		    << " layer_disk " << m_sct_id->layer_disk(wafId) 
-		    << " eta_module " << m_sct_id->eta_module(wafId) 
-		    << " phi_module " << m_sct_id->phi_module(wafId) 
-		    << " side " << m_sct_id->side(wafId) 
-		    << " firstTempMaskedChip " << firstTempMaskedChip);
+void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashId, const unsigned int firstTempMaskedChip) {
+  if(firstTempMaskedChip==0) {
+    ATH_MSG_WARNING("setFirstTempMaskedChip: firstTempMaskedChip should be greater than 0. firstTempMaskedChip is " << firstTempMaskedChip);
+    return;
   }
-  // unsigned int _tempMaskedChips(tempMaskedChips(m_sct_id->module_id(m_sct_id->wafer_id(hashId)))); // just for debugging
+
+  std::map<IdentifierHash, unsigned int>::const_iterator it(m_firstTempMaskedChips->find(hashId));
+  if(it!=m_firstTempMaskedChips->end()) {
+    ATH_MSG_WARNING("setFirstTempMaskedChip: already set for hashId " << hashId << " firstTempMaskedChip is " << it->second << " and you are trying to put " << firstTempMaskedChip);
+    return;
+  }
+
+  //// 1. set m_firstTempMaskedChips for this wafer
+  (*m_firstTempMaskedChips)[hashId] = firstTempMaskedChip;
+  
+  //// 2. set m_tempMaskedChips for this module
+  
+  // wafer hash -> wafer id -> module id -> wafer hash on side-0, wafer hash on side-1
+  const Identifier wafId(m_sct_id->wafer_id(hashId));
+  const Identifier moduleId(m_sct_id->module_id(wafId));
+  
+  // Side 0
+  IdentifierHash hash_side0;
+  m_sct_id->get_hash(moduleId, hash_side0, &m_cntx_sct);
+  int firstTempMaskedChip_side0(getFirstTempMaskedChip(hash_side0));
+  
+  // Side 1
+  IdentifierHash hash_side1;
+  m_sct_id->get_other_side(hash_side0, hash_side1);
+  int firstTempMaskedChip_side1(getFirstTempMaskedChip(hash_side1));
+  
+  // There should be at least one masked chip
+  if(firstTempMaskedChip_side0==0 and firstTempMaskedChip_side1==0) {
+    ATH_MSG_WARNING("setFirstTempMaskedChip: There should be at least one masked chip. Something is wrong.");
+    return;
+  }
+  
+  int type(0);
+  // Check if Rx redundancy is used or not in this module
+  if(m_rxRedundancy->find(hash_side0)!=m_rxRedundancy->end() or 
+     m_rxRedundancy->find(hash_side1)!=m_rxRedundancy->end()) {
+    // Rx redundancy is used in this module.
+    std::pair<bool, bool> links = m_config->badLinks(moduleId);
+    if(links.first and not links.second) {
+      // link-1 is broken
+      type = 1;
+    } else if(links.second and not links.first) {
+      // link-0 is broken
+      type = 2;
+    } else if(links.first and links.second) {
+      // both link-0 and link-1 are working
+      ATH_MSG_WARNING("Both link-0 and link-1 are working. But Rx redundancy is used... Why?");
+      return;
+    } else {
+      // both link-0 and link-1 are broken
+      ATH_MSG_WARNING("Both link-0 and link-1 are broken. But data are coming... Why?");
+      return;
+    }
+  }
+      
+  unsigned int _tempMaskedChips(0);
+  if(type==0) {
+    // both link-0 and link-1 are working
+    if(firstTempMaskedChip_side0>0) {
+      for(int iChip(firstTempMaskedChip_side0-1); iChip<6; iChip++) {
+	_tempMaskedChips |= (1<<iChip);
+      }
+    }
+    if(firstTempMaskedChip_side1>6) {
+      for(int iChip(firstTempMaskedChip_side1-1); iChip<12; iChip++) {
+	_tempMaskedChips |= (1<<iChip);
+      }
+    }
+  } else if(type==1) {
+    // link-1 is broken: chip 0 1 2 3 4 5 6 7 8 9 10 11
+    // first temporarily masked chip information is recorded in only link-0.
+    if(firstTempMaskedChip_side0>0) {
+      for(int iChip(firstTempMaskedChip_side0-1); iChip<12; iChip++) {
+	_tempMaskedChips |= (1<<iChip);
+      }
+    }
+  } else {
+    // link-0 is broken: chip 6 7 8 9 10 11 0 1 2 3 4 5
+    // first temporarily masked chip information is recorded in only link-0.
+    if(firstTempMaskedChip_side0>0) {
+      if(firstTempMaskedChip_side0<=6) firstTempMaskedChip_side0 += 12;
+      for(int iChip(firstTempMaskedChip_side0-1); iChip<12+6; iChip++) {
+	int jChip(iChip);
+	if(jChip>=12) jChip -= 12;
+	_tempMaskedChips |= (1<<jChip);
+      }
+    }
+  }
+  
+  ATH_MSG_VERBOSE("setFirstTempMaskedChip Hash " << hashId 
+		  << " SerialNumber " << m_cabling->getSerialNumberFromHash(hashId).str() 
+		  << " moduleId " << moduleId
+		  << " barrel_ec " << m_sct_id->barrel_ec(wafId) 
+		  << " layer_disk " << m_sct_id->layer_disk(wafId) 
+		  << " eta_module " << m_sct_id->eta_module(wafId) 
+		  << " phi_module " << m_sct_id->phi_module(wafId) 
+		  << " side " << m_sct_id->side(wafId) 
+		  << " firstTempMaskedChip " << firstTempMaskedChip
+		  << " _tempMaskedChips" << _tempMaskedChips);
+
+  (*m_tempMaskedChips)[moduleId] = _tempMaskedChips;
 }
 
-int SCT_ByteStreamErrorsSvc::getFirstTempMaskedChip(const IdentifierHash& hashId) const {
-  std::map<IdentifierHash, int>::const_iterator it = m_firstTempMaskedChips->find(hashId);
+unsigned int SCT_ByteStreamErrorsSvc::getFirstTempMaskedChip(const IdentifierHash& hashId) const {
+  std::map<IdentifierHash, unsigned int>::const_iterator it(m_firstTempMaskedChips->find(hashId));
   if(it!=m_firstTempMaskedChips->end()) return it->second;
   return 0;
 }
 
 unsigned int SCT_ByteStreamErrorsSvc::tempMaskedChips(const Identifier & moduleId) const {
-  std::map<Identifier, unsigned int>::const_iterator it = m_tempMaskedChips->find(moduleId);
+  std::map<Identifier, unsigned int>::const_iterator it(m_tempMaskedChips->find(moduleId));
   if(it!=m_tempMaskedChips->end()) return it->second;
-
-  unsigned int _tempMaskedChips(0);
-
-  // Side 0
-  IdentifierHash hash_side0;
-  m_sct_id->get_hash(moduleId, hash_side0, &m_cntx_sct);
-  int firstTempMaskedChip_side0 = getFirstTempMaskedChip(hash_side0);
-
-  // Side 1
-  IdentifierHash hash_side1;
-  m_sct_id->get_other_side(hash_side0, hash_side1);
-  int firstTempMaskedChip_side1 = getFirstTempMaskedChip(hash_side1);
-
-  // There is at least one masked chip
-  if(firstTempMaskedChip_side0>0 or firstTempMaskedChip_side1>0) {
-    int type = 0;
-    // Check if Rx redundancy is used or not in this module
-    if(m_rxRedundancy->find(hash_side0)!=m_rxRedundancy->end() or 
-       m_rxRedundancy->find(hash_side1)!=m_rxRedundancy->end()) {
-      // Rx redundancy is used in this module.
-      std::pair<bool, bool> links = m_config->badLinks(moduleId);
-      if(links.first and not links.second) {
-	// link-1 is broken
-	type = 1;
-      } else if(links.second and not links.first) {
-	// link-0 is broken
-	type = 2;
-      } else if(links.first and links.second) {
-	// both link-0 and link-1 are working
-	ATH_MSG_WARNING("Both link-0 and link-1 are working. But Rx redundancy is used... Why?");
-      } else {
-	// both link-0 and link-1 are broken
-	ATH_MSG_WARNING("Both link-0 and link-1 are broken. But data are coming... Why?");
-      }
-    }
-
-    if(type==0) {
-      // both link-0 and link-1 are working
-      if(firstTempMaskedChip_side0>0) {
-	for(int iChip=firstTempMaskedChip_side0-1; iChip<6; iChip++) {
-	  _tempMaskedChips |= (1<<iChip);
-	}
-      }
-      if(firstTempMaskedChip_side1>6) {
-	for(int iChip=firstTempMaskedChip_side1-1; iChip<12; iChip++) {
-	  _tempMaskedChips |= (1<<iChip);
-	}
-      }
-    } else if(type==1) {
-      // link-1 is broken: chip 0 1 2 3 4 5 6 7 8 9 10 11
-      // first temporarily masked chip information is recorded in only link-0.
-      if(firstTempMaskedChip_side0>0) {
-	for(int iChip=firstTempMaskedChip_side0-1; iChip<12; iChip++) {
-	  _tempMaskedChips |= (1<<iChip);
-	}
-      }
-    } else {
-      // link-0 is broken: chip 6 7 8 9 10 11 0 1 2 3 4 5
-      // first temporarily masked chip information is recorded in only link-0.
-      if(firstTempMaskedChip_side0>0) {
-	if(firstTempMaskedChip_side0<=6) firstTempMaskedChip_side0 += 12;
-	for(int iChip=firstTempMaskedChip_side0-1; iChip<12+6; iChip++) {
-	  int jChip = iChip;
-	  if(jChip>=12) jChip -= 12;
-	  _tempMaskedChips |= (1<<jChip);
-	}
-      }
-    }
-  }
-
-  (*m_tempMaskedChips)[moduleId] = _tempMaskedChips;
-
-  return _tempMaskedChips;
+  return 0;
 }

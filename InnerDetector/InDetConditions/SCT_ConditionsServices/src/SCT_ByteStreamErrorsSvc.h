@@ -100,8 +100,9 @@ public:
   virtual void setDecodedROD(const boost::uint32_t rodId);
   virtual std::vector<boost::uint32_t> getRODOuts() const;
 
-  virtual void setFirstTempMaskedChip(const IdentifierHash& hashId, const int firstTempMaskedChip);
-  virtual int getFirstTempMaskedChip(const IdentifierHash& hashId) const;
+  virtual void setFirstTempMaskedChip(const IdentifierHash& hashId, const unsigned int firstTempMaskedChip);
+  virtual unsigned int getFirstTempMaskedChip(const IdentifierHash& hashId) const;
+  virtual std::map<Identifier, unsigned int>* tempMaskedChips() const {return m_tempMaskedChips;}
   virtual unsigned int tempMaskedChips(const Identifier & moduleId) const;
 
 private:
@@ -119,7 +120,7 @@ private:
 
   std::set<IdentifierHash>* m_rxRedundancy;
 
-  std::map<IdentifierHash, int>* m_firstTempMaskedChips;
+  std::map<IdentifierHash, unsigned int>* m_firstTempMaskedChips;
   std::map<Identifier, unsigned int>* m_tempMaskedChips;
   IdContext m_cntx_sct;
 
