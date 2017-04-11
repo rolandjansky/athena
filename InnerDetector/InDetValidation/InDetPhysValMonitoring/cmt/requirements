@@ -34,6 +34,7 @@ use TrkToolInterfaces           TrkToolInterfaces-*     Tracking/TrkTools
 use AtlasROOT           AtlasROOT-*             External
 #use GeneratorUtils      GeneratorUtils-*        Generators
 use TrkParameters       TrkParameters-*         Tracking/TrkEvent
+use TrkSurfaces		TrkSurfaces-*		Tracking/TrkDetDescr
 use InDetRIO_OnTrack            InDetRIO_OnTrack-*      InnerDetector/InDetRecEvent
 use TrkEventPrimitives          TrkEventPrimitives-*    Tracking/TrkEvent
 use TrkTrack                    TrkTrack-*              Tracking/TrkEvent
