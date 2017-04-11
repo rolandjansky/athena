@@ -73,6 +73,7 @@ CaloCell_ID::CaloSample CaloDetDescrElement::getSampling() const
 {
   if(is_tile()) {
     // Tile
+      if (m_descriptor->get_calo_helper()->tile_idHelper()->sampling(identify())==4) return CaloCell_ID::TileGap1; // temporary fix for sample C in upgrade geometry
       CaloCell_ID::CaloSample sample = (CaloCell_ID::CaloSample)(m_descriptor->getSampling()+ 
 				       m_descriptor->get_calo_helper()->tile_idHelper()->sampling(identify()) )  ; 
       return sample ; 
