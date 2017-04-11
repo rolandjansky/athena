@@ -285,7 +285,7 @@ namespace InDet {
     if(!recompute){
       const Trk::TrackSummary* ts =  track->trackSummary();
       if(ts){
-	int ehbl = ts->get(Trk::expectBLayerHit); 
+	int ehbl = ts->get(Trk::expectInnermostPixelLayerHit);
 	if(0==ehbl || 1==ehbl ){
 	  ATH_MSG_DEBUG("Found expectHitInBLayer info in TrackSummary: return cached value" );
 	  return ehbl;
@@ -384,7 +384,7 @@ namespace InDet {
     if(!recompute){
       const Trk::TrackSummary* ts =  track->trackSummary();
       if(ts){
-	int ehbl = ts->get(Trk::expectBLayerHit); 
+	int ehbl = ts->get(Trk::expectInnermostPixelLayerHit);
 	if(0==ehbl || 1==ehbl ){
 	  ATH_MSG_DEBUG("Found expectHitInBLayer info in TrackSummary: return cached value" );
 	  return ehbl;

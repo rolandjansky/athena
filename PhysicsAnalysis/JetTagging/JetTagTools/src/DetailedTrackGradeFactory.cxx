@@ -216,8 +216,8 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
     //check if no hit in BLayer
     if (!m_useRun2TrackGrading) {
       uint8_t nbs;
-      if (!track.summaryValue(nbs, xAOD::numberOfBLayerHits)){
-	ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfBLayerHits for TrackGrade!");
+      if (!track.summaryValue(nbs, xAOD::numberOfInnermostPixelLayerHits)){
+	ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfInnermostPixelLayerHits for TrackGrade!");
       }
       if (nbs==0) nohitBLayer = true;
     }
@@ -251,7 +251,7 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
     if (!m_useRun2TrackGrading){
       //check if shared
       uint8_t nbs=0, nps=0, nss=0;
-      if (!track.summaryValue(nbs, xAOD::numberOfBLayerSharedHits)){
+      if (!track.summaryValue(nbs, xAOD::numberOfInnermostPixelLayerSharedHits)){
 	ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfBLayerSharedHists for TrackGrade!");
       }
       

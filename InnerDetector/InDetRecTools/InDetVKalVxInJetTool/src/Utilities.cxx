@@ -585,7 +585,7 @@ namespace InDet{
 	  //   bitH=HitPattern&((int)pow(2,Trk::pixelBarrel1));
         } else {                     // 3-layer pixel detector
           uint8_t BLhit,NPlay,NHoles,IBLhit;
-          if(!Part->summaryValue( BLhit,  xAOD::numberOfBLayerHits) )          BLhit = 0;
+          if(!Part->summaryValue( BLhit,  xAOD::numberOfInnermostPixelLayerHits) )          BLhit = 0;
           if(!Part->summaryValue(IBLhit,  xAOD::numberOfInnermostPixelLayerHits) )  IBLhit = 0; // Some safety
           BLhit=BLhit>IBLhit ? BLhit : IBLhit;                                                  // Some safety
           if(!Part->summaryValue( NPlay,  xAOD::numberOfContribPixelLayers) )  NPlay = 0;

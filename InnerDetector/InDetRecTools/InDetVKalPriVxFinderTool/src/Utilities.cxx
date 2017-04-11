@@ -296,7 +296,7 @@ namespace InDet {
 //----------------------------------- Summary tools
        if(m_SummaryToolExist) {
           const Trk::TrackSummary* testSum = m_sumSvc->createSummary(*(*i_ntrk));
-          if( testSum->get(Trk::numberOfBLayerHits) <= 0) continue;
+          if( testSum->get(Trk::numberOfInnermostPixelLayerHits) <= 0) continue;
        }
        mapTracks.insert( std::pair<double, const Trk::Track*>(pmom,(*i_ntrk)));
     }
@@ -333,7 +333,7 @@ namespace InDet {
        double pmom = sin(VectPerig[3])/fabs(VectPerig[4]);
 //----------------------------------- Summary tools
        const Trk::TrackSummary* testSum = (*i_nprt)->trackSummary();
-       if( testSum->get(Trk::numberOfBLayerHits) <=0 ) continue;
+       if( testSum->get(Trk::numberOfInnermostPixelLayerHits) <=0 ) continue;
        mapTracks.insert( std::pair<double, const Trk::TrackParticleBase*>(pmom,(*i_nprt)));
     }
 

@@ -553,7 +553,7 @@ pionQualityCuts(xAOD::TrackParticle *trkP,std::vector<Trk::Track*> &v_usedTrks)
   uint8_t dummy(-1);
   int nPix = trkP->summaryValue(dummy,xAOD::numberOfPixelHits)?dummy:-1;
   int nSCT = trkP->summaryValue(dummy,xAOD::numberOfSCTHits)?dummy:-1;
-  int nBLa = trkP->summaryValue(dummy,xAOD::numberOfBLayerHits)?dummy:-1;
+  int nBLa = trkP->summaryValue(dummy,xAOD::numberOfInnermostPixelLayerHits)?dummy:-1;
   int nTRT = trkP->summaryValue(dummy,xAOD::numberOfTRTHits)?dummy:-1;
   int nTRTOut = trkP->summaryValue(dummy,xAOD::numberOfTRTOutliers)?dummy:-1;
   float dEdX = trkP->summaryValue(dummy,xAOD::pixeldEdx)?dummy:-1;

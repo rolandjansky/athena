@@ -95,7 +95,7 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
 
       information[Trk::numberOfPixelOutliers]++;
       if (m_pixelId->is_blayer(id)){
-	information[Trk::numberOfBLayerOutliers]++;
+	information[Trk::numberOfInnermostPixelLayerOutliers]++;
       }
       if (m_pixelId->layer_disk(id)==0 && m_pixelId->is_barrel(id)){
 	information[Trk::numberOfInnermostPixelLayerOutliers]++;
@@ -108,7 +108,7 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
       if (msgLvl(MSG::DEBUG)) msg() << "Pixel info storing" << endmsg;
 
       information[Trk::numberOfPixelHits]++;
-      if ((m_pixelId->is_blayer(id))) information[Trk::numberOfBLayerHits]++; // found b layer hit
+      if ((m_pixelId->is_blayer(id))) information[Trk::numberOfInnermostPixelLayerHits]++; // found b layer hit
       if (m_pixelId->layer_disk(id)==0 && m_pixelId->is_barrel(id)) information[Trk::numberOfInnermostPixelLayerHits]++;
       if (m_pixelId->layer_disk(id)==1 && m_pixelId->is_barrel(id)) information[Trk::numberOfNextToInnermostPixelLayerHits]++;  
       

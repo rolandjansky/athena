@@ -137,9 +137,9 @@ namespace xAOD {
     /// then the function fills 'value' and returns 'true', otherwise it returns 'false', and does not touch 'value'. 
     /// See below for an example of how this is intended to be used.
     /// @code
-    /// uint8_t numberOfBLayerHits=0;
-    /// if( myParticle.summaryValue<uint8_t>(numberOfBLayerHits,numberOfBLayerHits) ){
-    ///   ATH_MSG_INFO("Successfully retrieved the integer value, numberOfBLayerHits"); 
+    /// uint8_t numberOfInnermostPixelLayerHits=0;
+    /// if( myParticle.summaryValue<uint8_t>(numberOfInnermostPixelLayerHits,numberOfInnermostPixelLayerHits) ){
+    ///   ATH_MSG_INFO("Successfully retrieved the integer value, numberOfInnermostPixelLayerHits");
     /// }
     /// float numberOfCscPhiHits=0.0; //Wrong! This is actually an int too.
     /// if( !myParticle.summaryValue<float>(numberOfCscPhiHits,numberOfCscPhiHits) ){

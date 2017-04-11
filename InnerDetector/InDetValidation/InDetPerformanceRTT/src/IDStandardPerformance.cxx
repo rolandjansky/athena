@@ -2828,7 +2828,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
     const Trk::TrackSummary* summary = m_trkSummaryTool->createSummary(**trksItr);
     if (summary) {
       // Fill impact parameter significance for different numbers of shared hits
-      if (summary->get(Trk::numberOfBLayerSharedHits)>0) {
+      if (summary->get(Trk::numberOfInnermostPixelLayerSharedHits)>0) {
         m_d0sig_pt1_sharedBL->Fill(trkd0/trkd0err);
       }
       if (summary->get(Trk::numberOfPixelSharedHits)>0) {
