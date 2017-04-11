@@ -71,6 +71,7 @@ namespace Rec {
     std::string m_caloClusters;
     std::string m_assCollection;
     double      m_coneSize;
+    bool        m_useCovariance;
 
   };
 
