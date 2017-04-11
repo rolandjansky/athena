@@ -25,6 +25,7 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/versions/JetContainer_v1.h"
 #include "xAODJet/versions/JetAuxContainer_v1.h"
+#include "xAODJet/versions/JetTrigAuxContainer_v1.h"
 #include "xAODJet/versions/JetTrigAuxContainer_v2.h"
 #include "xAODJet/versions/Jet_v1.h"
 #include "xAODJet/JetTypes.h"
