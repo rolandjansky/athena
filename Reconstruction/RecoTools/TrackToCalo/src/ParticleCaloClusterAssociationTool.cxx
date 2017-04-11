@@ -13,6 +13,8 @@
 
 #include "FourMomUtils/P4Helpers.h"
 
+#include "CaloGeoHelpers/CaloSampling.h"
+
 namespace Rec {
 
   ParticleCaloClusterAssociationTool::ParticleCaloClusterAssociationTool(const std::string& t, const std::string& n, const IInterface*  p )
@@ -27,7 +29,8 @@ namespace Rec {
     declareProperty("CaloClusterLocation",         m_caloClusters);
     declareProperty("AssociationCollectionName",   m_assCollection);
     //coneSize for including calo cells around track
-    declareProperty("ConeSize", m_coneSize = 0.1);
+    declareProperty("ConeSize",                    m_coneSize = 0.1);
+    declareProperty("UseCovariance",               m_useCovariance = true);
 
   }
 
@@ -143,20 +146,64 @@ namespace Rec {
       ATH_MSG_WARNING( " NO TrackParameters caloExtension.caloEntryLayerIntersection() ");
       return;
     } 
+    double uncertEta = 0.;
+    if(pars->covariance()) {
+      uncertEta =   -2.*sin(pars->position().theta()) / (cos(2.*pars->position().theta())-1.) * sqrt((*pars->covariance())(Trk::theta,Trk::theta));
+      // ATH_MSG_DEBUG( " TrackParameters have covariance; phi*phi " << sqrt((*pars->covariance())(Trk::phi,Trk::phi)) << " theta*theta  " << sqrt((*pars->covariance())(Trk::theta,Trk::theta)) << " eta " << uncertEta);
+    } 
 
     float eta = pars->position().eta();
     float phi = pars->position().phi();
-    ATH_MSG_DEBUG("eta trk " << eta << " phi trk " << phi );
+    // ATH_MSG_DEBUG("eta trk " << eta << " phi trk " << phi );
     if( container ){
       float dr2Cut = dr*dr;
       for( unsigned int i=0;i<container->size();++i ){
-        
         float dPhi = P4Helpers::deltaPhi( (*container)[i]->phi(), phi);
         float dEta = (*container)[i]->eta()-eta;
         float dr2  = dPhi*dPhi+ dEta*dEta;
+        if(m_useCovariance){
+            float eInSample = 0.; 
+            float eInSampleFull = 0.; 
+            float emfrac = 0.; 
+            for (int s=0;s<CaloSampling::Unknown; s++){
+                eInSampleFull += (*container)[i]->eSample(CaloSampling::CaloSample(s));
+            }
+            eInSample += (*container)[i]->eSample(CaloSampling::EMB1);
+            eInSample += (*container)[i]->eSample(CaloSampling::EMB2);
+            eInSample += (*container)[i]->eSample(CaloSampling::EMB3);
+            eInSample += (*container)[i]->eSample(CaloSampling::EME1);
+            eInSample += (*container)[i]->eSample(CaloSampling::EME2);
+            eInSample += (*container)[i]->eSample(CaloSampling::EME3);
+            eInSample += (*container)[i]->eSample(CaloSampling::FCAL1);
+            
+            emfrac  = eInSample/eInSampleFull;
+            if ( emfrac > 1.0 ) emfrac = 1.;
+            if ( emfrac < 0.0 ) emfrac = 0.;
+            
+            double rad;
+            (*container)[i]->retrieveMoment(xAOD::CaloCluster::SECOND_R,rad);
+            double cent;
+            (*container)[i]->retrieveMoment(xAOD::CaloCluster::CENTER_MAG,cent);
+            double emProb;
+            (*container)[i]->retrieveMoment(xAOD::CaloCluster::EM_PROBABILITY,emProb);
+            double sigmaWidth = atan(sqrt(rad)/cent)*cosh((*container)[i]->eta());
+            double dr2CutTmp = (sigmaWidth+uncertEta)*(sigmaWidth+uncertEta)+(sigmaWidth+sqrt((*pars->covariance())(Trk::phi,Trk::phi)))*(sigmaWidth+sqrt((*pars->covariance())(Trk::phi,Trk::phi)));
+            
+            (*container)[i]->auxdecor<double>("sigmaWidth")       = sigmaWidth;
+            (*container)[i]->auxdecor<double>("dr2CutTmp")       = sqrt(dr2CutTmp);
+            (*container)[i]->auxdecor<double>("dr2")       = sqrt(dr2);
+            (*container)[i]->auxdecor<double>("uncertEta")       = uncertEta;
+            (*container)[i]->auxdecor<double>("uncertPhi")       = sqrt((*pars->covariance())(Trk::phi,Trk::phi));
+            (*container)[i]->auxdecor<double>("emFrac")       = emfrac;
+            
+            if(sqrt(dr2)<0.1 && dr2 < dr2CutTmp) ATH_MSG_DEBUG("1. selections match! dR " << sqrt(dr2) << " new cut value " << sqrt(dr2CutTmp) << " pt trk " << pars->pT() << " sigma(phi) trk " << sqrt((*pars->covariance())(Trk::phi,Trk::phi)) << " sigma(eta) trk " << uncertEta << " energy cluster " << (*container)[i]->e() << " sigma width " << sigmaWidth << " em frac " << emfrac);
+            if(sqrt(dr2)<0.1 && dr2 > dr2CutTmp) ATH_MSG_DEBUG("2. only dR matches! dR " << sqrt(dr2) << " new cut value " << sqrt(dr2CutTmp) << " pt trk " << pars->pT() << " sigma(phi) trk " << sqrt((*pars->covariance())(Trk::phi,Trk::phi)) << " sigma(eta) trk " << uncertEta << " energy cluster " << (*container)[i]->e() << " sigma width " << sigmaWidth << " em frac " << emfrac);
+            if(sqrt(dr2)>0.1 && dr2 < dr2CutTmp) ATH_MSG_DEBUG("3. only new matches! dR " << sqrt(dr2) << " new cut value " << sqrt(dr2CutTmp) << " pt trk " << pars->pT() << " sigma(phi) trk " << sqrt((*pars->covariance())(Trk::phi,Trk::phi)) << " sigma(eta) trk " << uncertEta << " energy cluster " << (*container)[i]->e() << " sigma width " << sigmaWidth << " em frac " << emfrac);
+            
+            dr2Cut = dr2CutTmp;
+        }        
         if( dr2 < dr2Cut ){
             clusters.push_back( (*container)[i]);
-            ATH_MSG_DEBUG("eta cluster " << (*container)[i]->eta() << " phi cluster " << (*container)[i]->phi() );
         } 
       }
     }else{
@@ -165,7 +212,7 @@ namespace Rec {
         ATH_MSG_WARNING("Failed to get clusters");
       }
     }
-    ATH_MSG_DEBUG("associated clusters " << clusters.size() << " using cone " << dr );
+    // ATH_MSG_DEBUG("associated clusters " << clusters.size() << " using cone " << dr );
   }
   
   const xAOD::CaloClusterContainer* ParticleCaloClusterAssociationTool::getClusterContainer() const {

@@ -18,8 +18,8 @@ import getpass
 	 #"root://eosatlas//eos/atlas/user/n/ncalace/Samples_Physics/XAOD_Processed_Mar18/XAOD_JZ5W_5.pool.root",]
 #name = "JZ5W"
 
-FNAME = ["/afs/cern.ch/work/r/rjansky/TCC3/run/XAOD_WprimeWTVA400MeVOriginOnlyAtAssociationCreation.pool.root"]
-name = "XAOD_WprimeWTVA400MeVOriginOnlyAtAssociationCreation"
+FNAME = ["/afs/cern.ch/work/r/rjansky/TCC3/run/XAOD_WprimedRMatch.pool.root"]
+name = "XAOD_WprimedRMatch"
 
 import AthenaPoolCnvSvc.ReadAthenaPool
 svcMgr.EventSelector.InputCollections = FNAME

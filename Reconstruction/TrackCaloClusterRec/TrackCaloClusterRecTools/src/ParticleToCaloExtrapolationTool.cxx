@@ -61,7 +61,7 @@ bool ParticleToCaloExtrapolationTool::particleToCaloExtrapolate( const xAOD::IPa
   // reset input
   theExtension = 0;
 
-  ATH_MSG_DEBUG(" caloExtension: ptr " << &particle );
+  // ATH_MSG_DEBUG(" caloExtension: ptr " << &particle );
   
   // work out the type of particle and get the extension
   const xAOD::TrackParticle* trackParticle = getTrackParticle(particle);
@@ -141,16 +141,23 @@ Trk::CaloExtension* ParticleToCaloExtrapolationTool::particleToCaloExtrapolate( 
 Trk::CaloExtension* ParticleToCaloExtrapolationTool::particleToCaloExtrapolate( const xAOD::TrackParticle& particle ) const {
 
   Trk::ParticleHypothesis particleType = m_particleType;
-  
   bool idExit = true;
-  float d0     = particle.d0();
+  
+  // if(particle.perigeeParameters()){//These should always work! Why doesn't it in the DAOD_JETMET8 derivation?
+      if(fabs(particle.perigeeParameters().position().z())>6700.) idExit = false; 
+      if(particle.perigeeParameters().position().perp()>4200.) idExit = false; 
+      Trk::PropDirection propDir = idExit ? Trk::alongMomentum : Trk::oppositeMomentum;
+      Trk::CaloExtension* extension = caloExtension(particle.perigeeParameters(),propDir,particleType);
+  // }
+  
+/*   float d0     = particle.d0();
   float z0     = particle.z0();
   float phi    = particle.phi0();
   float theta  = particle.theta();
   float qOverP = particle.qOverP();
   
-  float vx = 0.;
-  float vy = 0.;
+  float vx = particle.vx() ? particle.vx() : 0.;
+  float vy = particle.vy() ? particle.vy() : 0.;
   float vz = particle.vz();
   
   // Building the perigee
@@ -162,7 +169,7 @@ Trk::CaloExtension* ParticleToCaloExtrapolationTool::particleToCaloExtrapolate( 
   Trk::PropDirection propDir = idExit ? Trk::alongMomentum : Trk::oppositeMomentum;
   
   Trk::CaloExtension* extension = caloExtension(*perigee,propDir,particleType);
-  delete perigee;
+  delete perigee; */
 
   return extension;
 }
@@ -171,8 +178,8 @@ Trk::CaloExtension* ParticleToCaloExtrapolationTool::particleToCaloExtrapolate( 
 Trk::CaloExtension* ParticleToCaloExtrapolationTool::caloExtension( const Trk::TrackParameters& startPars, Trk::PropDirection propDir,
 						      Trk::ParticleHypothesis particleType ) const {
 
-  ATH_MSG_DEBUG("looking up calo states: r " << startPars.position().perp() << " z " << startPars.position().z()
-                << " momentum " << startPars.momentum().mag() );
+  // ATH_MSG_DEBUG("looking up calo states: r " << startPars.position().perp() << " z " << startPars.position().z()
+                // << " momentum " << startPars.momentum().mag() );
 
   // pointers to hold results and go
   std::vector<const Trk::TrackStateOnSurface*>* material = 0;//new std::vector<const Trk::TrackStateOnSurface*>();
@@ -201,13 +208,13 @@ Trk::CaloExtension* ParticleToCaloExtrapolationTool::caloExtension( const Trk::T
   const Trk::TrackParameters* muonEntry = 0;
   std::vector<const Trk::CurvilinearParameters*> caloLayers;
   caloLayers.reserve(caloParameters->size()-1);
-  ATH_MSG_DEBUG( " Found calo parameters: " << caloParameters->size() );
+  // ATH_MSG_DEBUG( " Found calo parameters: " << caloParameters->size() );
   for( const auto& p : *caloParameters ){
 
     const Trk::TrackParameters* param = p.first;
     if( !param ) continue;
-    ATH_MSG_DEBUG( " param " << param << " id " << p.second /*<< " type " << p.first->type()*/ << " pos: r " << param->position().perp() << " z " << param->position().z() 
-                   << " pt " << param->momentum().perp() << " cov " << param->covariance() );
+    // ATH_MSG_DEBUG( " param " << param << " id " << p.second /*<< " type " << p.first->type()*/ << " pos: r " << param->position().perp() << " z " << param->position().z() 
+                   // << " pt " << param->momentum().perp() << " cov " << param->covariance() );
     
     // assign parameters
     if( p.second == 1 && propDir == Trk::alongMomentum)         caloEntry = p.first;
@@ -221,7 +228,7 @@ Trk::CaloExtension* ParticleToCaloExtrapolationTool::caloExtension( const Trk::T
                                                           isEntry );
       const Trk::CurvilinearParameters* cpars = dynamic_cast<const Trk::CurvilinearParameters*>(p.first);
       if( !cpars ){ /*p.first->type() == Curvilinear*/
-        cpars = new Trk::CurvilinearParameters(p.first->position(),p.first->momentum(),p.first->charge(),nullptr,id);
+        cpars = p.first->covariance() ? new Trk::CurvilinearParameters(p.first->position(),p.first->momentum(),p.first->charge(),new AmgSymMatrix(5)(*p.first->covariance()),id) : new Trk::CurvilinearParameters(p.first->position(),p.first->momentum(),p.first->charge(),nullptr,id);
         delete p.first;
       }else{
         const_cast<Trk::CurvilinearParameters*>(cpars)->m_cIdentifier = id;
