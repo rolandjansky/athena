@@ -668,11 +668,9 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
         self.trkopt = trkopt
         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
         
-<<<<<<< HEAD
-        
         self.iPseudoJetSelector = _getPseudoJetSelectorPositivePt(
             'iPseudoJetSelectorPositivePt')
-=======
+        
         secondary_label = ''
         # FTK specific: do we want FTK? Set label to GhostTrack. 
         if 'ftk' in trkopt:
@@ -682,10 +680,6 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
                 self.secondarypseudoJetGetter = _getTriggerPseudoJetGetter(secondary_label) # ghost tracks will be loaded into this getter.
         self.secondary_label = secondary_label # Used to label secondary pseudojets. If empty no attempt at association of secondary pseudojets is done.
 
-        self.iPseudoJetSelector = _getPseudoJetSelectorAll(
-            'iPseudoJetSelectorAll')
->>>>>>> 7e1ac16... Implemented changes for FTK track integration in Jet Triggers (ATR-16020).
-        
         self.jetBuildTool = _getJetBuildTool(
             float(int(merge_param))/10.,
             ptmin=ptmin,
