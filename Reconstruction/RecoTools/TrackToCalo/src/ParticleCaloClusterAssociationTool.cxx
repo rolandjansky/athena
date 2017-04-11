@@ -19,13 +19,13 @@ namespace Rec {
     : AthAlgTool(t,n,p),
       m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
       m_clustersInConeTool("xAOD::CaloClustersInConeTool/CaloClustersInConeTool"),
-      m_containerName("CaloCalTopoClusters")
+      m_caloClusters("CaloCalTopoClusters")
   {
-
     declareInterface<IParticleCaloClusterAssociationTool>(this);
     declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
     declareProperty("ClustersInConeTool",          m_clustersInConeTool);
-    declareProperty("CaloClusterLocation",         m_containerName);
+    declareProperty("CaloClusterLocation",         m_caloClusters);
+    declareProperty("AssociationCollectionName",   m_assCollection);
     //coneSize for including calo cells around track
     declareProperty("ConeSize", m_coneSize = 0.1);
 
@@ -100,31 +100,33 @@ namespace Rec {
     ParticleClusterAssociation::Data clusters;
     associateClusters(container,*caloExtension,dr,clusters);    
     
-    ParticleClusterAssociation* theAssocation = new ParticleClusterAssociation( *caloExtension, std::move(clusters), dr, container );
-
-    // now add the extension to the output collection so we are not causing any leaks
-    ParticleClusterAssociationCollection* collection = 0;
-    if( !evtStore()->contains<ParticleClusterAssociationCollection>(m_containerName) ){
-      collection = new ParticleClusterAssociationCollection();
-      if( evtStore()->record( collection, m_containerName).isFailure() ) {
-        ATH_MSG_WARNING( "Failed to record output collection, will leak the ParticleCaloExtension");
-        delete collection;
-        collection = 0;
-      }
-    }else{
-      if(evtStore()->retrieve(collection,m_containerName).isFailure()) {
-        ATH_MSG_WARNING( "Unable to retrieve " << m_containerName << " will leak the ParticleCaloExtension" );
-      }
-    }
-    if( collection ) collection->push_back(theAssocation);
-    else{
-      ATH_MSG_WARNING( "No ParticleCaloCellAssociationCollection, failing extension to avoid memory leak");
-      delete theAssocation;
-      theAssocation = 0;
-    }
-
-    association = theAssocation;
-    if( useCaching ) particle.auxdecor< ParticleClusterAssociation* >("clusterAssociation") = theAssocation;
+//     ParticleClusterAssociation* theAssocation = new ParticleClusterAssociation( *caloExtension, std::move(clusters), dr, container );
+// 
+//     // now add the extension to the output collection so we are not causing any leaks
+//     ParticleClusterAssociationCollection* collection = 0;
+//     if( !evtStore()->contains<ParticleClusterAssociationCollection>(m_assCollection) ){
+//       collection = new ParticleClusterAssociationCollection();
+//       if( evtStore()->record( collection, m_assCollection).isFailure() ) {
+//         ATH_MSG_WARNING( "Failed to record output collection, will leak the ParticleCaloExtension");
+//         delete collection;
+//         collection = 0;
+//       }
+//     }else{
+//       if(evtStore()->retrieve(collection,m_assCollection).isFailure()) {
+//         ATH_MSG_WARNING( "Unable to retrieve " << m_assCollection << " will leak the ParticleCaloExtension" );
+//       }
+//     }
+//     if( collection ) collection->push_back(theAssocation);
+//     else{
+//       ATH_MSG_WARNING( "No ParticleCaloCellAssociationCollection, failing extension to avoid memory leak");
+//       delete theAssocation;
+//       theAssocation = 0;
+//     }
+// 
+//     association = theAssocation;
+    association = new ParticleClusterAssociation( *caloExtension, std::move(clusters), dr, container );
+    
+//     if( useCaching ) particle.auxdecor< ParticleClusterAssociation* >("clusterAssociation") = theAssocation;
 
 
     return true;
@@ -170,8 +172,8 @@ namespace Rec {
 
     const xAOD::CaloClusterContainer* container = 0;
     //retrieve the cell container
-    if( evtStore()->retrieve(container, m_containerName).isFailure() || !container ) {
-      ATH_MSG_WARNING( "Unable to retrieve the cluster container  " << m_containerName << " container ptr " << container );
+    if( evtStore()->retrieve(container, m_caloClusters).isFailure() || !container ) {
+      ATH_MSG_WARNING( "Unable to retrieve the cluster container  " << m_caloClusters << " container ptr " << container );
       return 0;
     }
     if( container ) ATH_MSG_DEBUG("Retrieved cluster container " << container->size());

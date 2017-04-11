@@ -68,7 +68,8 @@ namespace Rec {
     ToolHandle< IParticleExtrapolationTool >  m_caloExtensionTool;
     // FIXME: mutable
     mutable ToolHandle< xAOD::ICaloClustersInConeTool >     m_clustersInConeTool;
-    std::string m_containerName;
+    std::string m_caloClusters;
+    std::string m_assCollection;
     double      m_coneSize;
 
   };

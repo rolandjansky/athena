@@ -578,6 +578,7 @@ void TCCPlots::make_median(TH2* h2_response, TH1* h1_resolution){
     for (int j=1; j<=h2_response->GetNbinsY(); j++){
       hold->SetBinContent(j,h2_response->GetBinContent(i,j));
     }
+    if (hold->Integral()==0.) continue;
     Double_t prob,quant16,quant84,median;
     prob=.5;
     hold->GetQuantiles(1,&median,&prob);
@@ -599,10 +600,7 @@ void TCCPlots::make_median(TH3* h3_response, TH2* h2_resolution){
       for (int k=1; k<=h3_response->GetNbinsZ(); k++){
 	hold->SetBinContent(k,h3_response->GetBinContent(i,j,k));
       }
-      if (hold->Integral()==0.) {
-	h2_resolution->SetBinContent(i,j,0.);
-	continue;
-      }
+      if (hold->Integral()==0.) continue;
       Double_t prob,quant16,quant84,median;
       prob=.5;
       hold->GetQuantiles(1,&median,&prob);
