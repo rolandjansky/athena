@@ -8,10 +8,10 @@
 #include "TrkValHistUtils/PlotBase.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "xAODBase/IParticle.h"
-#include "InDetPhysValMonitoring/SingleHistogramDefinition.h"
 #include "AthenaKernel/MsgStreamMember.h"
 
 class IHistogramDefinitionSvc;
+class SingleHistogramDefinition;
 
 class TCCPlotsBase:public PlotBase {
     public:
@@ -30,11 +30,17 @@ class TCCPlotsBase:public PlotBase {
       void book(TH2*& pHisto, const SingleHistogramDefinition& hd);
       /// Book a 2D histogram (TH2) with optional folder name
       void book(TH2*& pHisto, const std::string& histoIdentifier, const std::string& folder = "default");
+      
+      /// Book a 3D histogram (TH3)
+      void book(TH3*& pHisto, const SingleHistogramDefinition& hd);
+      /// Book a 3D histogram (TH3) with optional folder name
+      void book(TH3*& pHisto, const std::string& histoIdentifier, const std::string& folder = "default");
 
       //
       void fillHisto(TH1* pTh1, const float value);
       void fillHisto(TH1* pTh1, const float value, const float weight);
       void fillHisto(TH2* pTh2, const float xval, const float yval);
+      void fillHisto(TH3* pTh3, const float xval, const float yval, const float zval);
     
       std::string m_folder;
             
