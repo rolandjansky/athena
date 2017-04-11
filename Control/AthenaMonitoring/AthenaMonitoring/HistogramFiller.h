@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HistogramFiller_h
-#define HistogramFiller_h
+#ifndef AthenaMonitoring_HistogramFiller_h
+#define AthenaMonitoring_HistogramFiller_h
 
 #include <functional>
 #include <mutex>

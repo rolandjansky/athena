@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MonitoredCollection_h
-#define MonitoredCollection_h
+#ifndef AthenaMonitoring_MonitoredCollection_h
+#define AthenaMonitoring_MonitoredCollection_h
 
 #include <functional>
 
@@ -85,4 +85,4 @@ namespace Monitored {
     }
 }
 
-#endif /* MonitoredCollection_h */
+#endif /* AthenaMonitoring_MonitoredCollection_h */

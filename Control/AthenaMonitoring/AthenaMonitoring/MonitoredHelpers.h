@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MonitoringHelpers_h
-#define MonitoringHelpers_h
+#ifndef AthenaMonitoring_MonitoringHelpers_h
+#define AthenaMonitoring_MonitoringHelpers_h
 
 #include <type_traits>
 
@@ -36,4 +36,4 @@ namespace Monitored {
     }
 }
 
-#endif /* MonitoringHelpers_h */
+#endif /* AthenaMonitoring_MonitoringHelpers_h */

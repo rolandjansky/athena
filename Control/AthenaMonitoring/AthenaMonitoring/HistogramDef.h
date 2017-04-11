@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HistogramDef_h
-#define HistogramDef_h
+#ifndef AthenaMonitoring_HistogramDef_h
+#define AthenaMonitoring_HistogramDef_h
 
 #include <stdexcept>
 #include <vector>
@@ -47,4 +47,4 @@ namespace Monitored {
   };
 }
   
-#endif /* HistogramDef_h */
+#endif /* AthenaMonitoring_HistogramDef_h */

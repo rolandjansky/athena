@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MonitoredScalar_h
-#define MonitoredScalar_h
+#ifndef AthenaMonitoring_MonitoredScalar_h
+#define AthenaMonitoring_MonitoredScalar_h
 
 #include <vector>
 
@@ -46,4 +46,4 @@ namespace Monitored {
     }
 }
 
-#endif /* MonitoredScalar_h */
+#endif /* AthenaMonitoring_MonitoredScalar_h */

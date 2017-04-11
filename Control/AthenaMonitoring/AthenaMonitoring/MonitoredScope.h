@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MonitoredScope_h
-#define MonitoredScope_h
+#ifndef AthenaMonitoring_MonitoredScope_h
+#define AthenaMonitoring_MonitoredScope_h
 
 #include <functional>
 #include <vector>
@@ -55,4 +55,4 @@ namespace Monitored {
     };
 }
 
-#endif /* MonitoredScope_h */
+#endif /* AthenaMonitoring_MonitoredScope_h */

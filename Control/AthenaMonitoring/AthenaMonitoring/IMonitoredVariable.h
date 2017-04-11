@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef IMonitoredVariable_h
-#define IMonitoredVariable_h
+#ifndef AthenaMonitoring_IMonitoredVariable_h
+#define AthenaMonitoring_IMonitoredVariable_h
 
 #include <string>
 #include <vector>
@@ -26,4 +26,4 @@ namespace Monitored {
     };
 }
 
-#endif /* IMonitoredVariable_h */
+#endif /* AthenaMonitoring_IMonitoredVariable_h */
