@@ -798,7 +798,7 @@ BeamspotChainParts = {
     'monType'        : AllowedBeamspotChainIdentifiers,
     'location'       : ['vtx'],
 #    'addInfo'        : ['trkFS','idperf'],
-    'addInfo'        : ['trkFS', 'allTE', 'activeTE','idperf'],
+    'addInfo'        : ['trkFS', 'allTE', 'activeTE','idperf','mon'],
     'hypo'           : [],
     'l2IDAlg'        : ['L2StarB','trkfast','FTK','FTKRefit'],
     'threshold'      : '',
