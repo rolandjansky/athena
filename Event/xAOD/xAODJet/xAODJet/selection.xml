@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 658646 2015-04-02 10:29:26Z delsart $ -->
+<!-- $Id: selection.xml 796773 2017-02-12 19:01:20Z sschramm $ -->
 <lcgdict>
 
   <!-- Jet_v1 dictionaries: -->
@@ -26,6 +26,8 @@
          id="17E48A73-2219-44A0-8913-D59DB61F4B15" />
   <class name="xAOD::JetTrigAuxContainer_v1"
          id="89AE2C6B-A862-499C-8BDA-11D24FAC83F1" />
+  <class name="xAOD::JetTrigAuxContainer_v2"
+         id="6A1FD5C8-E636-4C39-A8B2-36A8D1F81D5E" />
 
   <!-- Smart pointers to Jet_v1: -->
   <class name="DataLink<xAOD::JetContainer_v1>" />
