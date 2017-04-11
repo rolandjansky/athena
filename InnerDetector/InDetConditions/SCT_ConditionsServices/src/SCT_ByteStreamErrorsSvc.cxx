@@ -596,8 +596,7 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
 		    << " side " << m_sct_id->side(wafId) 
 		    << " firstTempMaskedChip " << firstTempMaskedChip);
   }
-
-  unsigned int _tempMaskedChips(tempMaskedChips(m_sct_id->module_id(m_sct_id->wafer_id(hashId)))); // just for debugging
+  // unsigned int _tempMaskedChips(tempMaskedChips(m_sct_id->module_id(m_sct_id->wafer_id(hashId)))); // just for debugging
 }
 
 int SCT_ByteStreamErrorsSvc::getFirstTempMaskedChip(const IdentifierHash& hashId) const {
@@ -607,8 +606,8 @@ int SCT_ByteStreamErrorsSvc::getFirstTempMaskedChip(const IdentifierHash& hashId
 }
 
 unsigned int SCT_ByteStreamErrorsSvc::tempMaskedChips(const Identifier & moduleId) const {
-  //  std::map<Identifier, unsigned int>::const_iterator it = m_tempMaskedChips->find(moduleId);
-  //  if(it!=m_tempMaskedChips->end()) return it->second;
+  std::map<Identifier, unsigned int>::const_iterator it = m_tempMaskedChips->find(moduleId);
+  if(it!=m_tempMaskedChips->end()) return it->second;
 
   unsigned int _tempMaskedChips(0);
 
@@ -621,14 +620,6 @@ unsigned int SCT_ByteStreamErrorsSvc::tempMaskedChips(const Identifier & moduleI
   IdentifierHash hash_side1;
   m_sct_id->get_other_side(hash_side0, hash_side1);
   int firstTempMaskedChip_side1 = getFirstTempMaskedChip(hash_side1);
-
-  std::cout << "susumu "
-	    << " moduleId " << moduleId
-	    << " hash_side0 " << hash_side0
-	    << " hash_side1 " << hash_side1
-	    << " firstTempMaskedChip_side0 " << firstTempMaskedChip_side0
-	    << " firstTempMaskedChip_side1 " << firstTempMaskedChip_side1
-	    << std::endl;
 
   // There is at least one masked chip
   if(firstTempMaskedChip_side0>0 or firstTempMaskedChip_side1>0) {
@@ -685,32 +676,6 @@ unsigned int SCT_ByteStreamErrorsSvc::tempMaskedChips(const Identifier & moduleI
 	}
       }
     }
-
-
-  std::cout << "susumu "
-	    << " moduleId " << moduleId
-	    << " barrel_ec " << m_sct_id->barrel_ec(moduleId)
-	    << " layer_disk " << m_sct_id->layer_disk(moduleId)
-	    << " eta_module " << m_sct_id->eta_module(moduleId)
-	    << " phi_module " << m_sct_id->phi_module(moduleId)
-	    << " type " << type
-	    << " firstTempMaskedChip_side0 " << firstTempMaskedChip_side0
-	    << " firstTempMaskedChip_side1 " << firstTempMaskedChip_side1
-	    << " _tempMaskedChips " 
-	    << ((_tempMaskedChips >>  0) & 0x1)
-	    << ((_tempMaskedChips >>  1) & 0x1)
-	    << ((_tempMaskedChips >>  2) & 0x1)
-	    << ((_tempMaskedChips >>  3) & 0x1)
-	    << ((_tempMaskedChips >>  4) & 0x1)
-	    << ((_tempMaskedChips >>  5) & 0x1)
-	    << ((_tempMaskedChips >>  6) & 0x1)
-	    << ((_tempMaskedChips >>  7) & 0x1)
-	    << ((_tempMaskedChips >>  8) & 0x1)
-	    << ((_tempMaskedChips >>  9) & 0x1)
-	    << ((_tempMaskedChips >> 10) & 0x1)
-	    << ((_tempMaskedChips >> 11) & 0x1)
-	    << std::endl;
-
   }
 
   (*m_tempMaskedChips)[moduleId] = _tempMaskedChips;
