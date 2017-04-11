@@ -8,7 +8,6 @@ proxy object.
 
 The factory functions are static methods of the _AlgFactory class.
 Static methods: methods of a class that make no use of instance variables.
-
 """
 
 try:
