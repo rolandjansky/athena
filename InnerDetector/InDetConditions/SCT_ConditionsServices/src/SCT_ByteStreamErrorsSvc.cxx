@@ -596,53 +596,48 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
 		    << " side " << m_sct_id->side(wafId) 
 		    << " firstTempMaskedChip " << firstTempMaskedChip);
   }
-  const Identifier wafId = m_sct_id->wafer_id(hashId);
-  const Identifier moduleId = m_sct_id->module_id(wafId);
+
   unsigned int _tempMaskedChips(tempMaskedChips(m_sct_id->module_id(m_sct_id->wafer_id(hashId)))); // just for debugging
-  std::cout << "susumu setFirstTempMaskedChip hashId " << hashId << " wafId " << wafId << " moduleId " << moduleId << " firstTempMaskedChip " << firstTempMaskedChip << " _tempMaskedChips " << _tempMaskedChips << std::endl;
 }
 
 int SCT_ByteStreamErrorsSvc::getFirstTempMaskedChip(const IdentifierHash& hashId) const {
-  std::cout << "susumu " << "getFirstTempMaskedChip hashId " << hashId << std::endl;
   std::map<IdentifierHash, int>::const_iterator it = m_firstTempMaskedChips->find(hashId);
   if(it!=m_firstTempMaskedChips->end()) return it->second;
-  return -1;
+  return 0;
 }
 
 unsigned int SCT_ByteStreamErrorsSvc::tempMaskedChips(const Identifier & moduleId) const {
-  std::cout << "susumu " << "tempMaskedChip moduleId " << moduleId << std::endl;
-
-  std::map<Identifier, unsigned int>::const_iterator it = m_tempMaskedChips->find(moduleId);
-  if(it!=m_tempMaskedChips->end()) return it->second;
+  //  std::map<Identifier, unsigned int>::const_iterator it = m_tempMaskedChips->find(moduleId);
+  //  if(it!=m_tempMaskedChips->end()) return it->second;
 
   unsigned int _tempMaskedChips(0);
 
   // Side 0
   IdentifierHash hash_side0;
   m_sct_id->get_hash(moduleId, hash_side0, &m_cntx_sct);
-  if(m_sct_id->side(m_sct_id->wafer_id(hash_side0))!=0) {
-    ATH_MSG_WARNING("SCT_ByteStreamErrorsSvc::badChips not side 0");
-  }
   int firstTempMaskedChip_side0 = getFirstTempMaskedChip(hash_side0);
 
   // Side 1
   IdentifierHash hash_side1;
   m_sct_id->get_other_side(hash_side0, hash_side1);
-  if(m_sct_id->side(m_sct_id->wafer_id(hash_side1))!=1) {
-    ATH_MSG_WARNING("SCT_ByteStreamErrorsSvc::badChips not side 1");
-  }
   int firstTempMaskedChip_side1 = getFirstTempMaskedChip(hash_side1);
 
-  std::cout << "susumu tempMaskedChip moduleId " << moduleId << " hash_side0 " << hash_side0 << " hash_side1 " << hash_side1 << " firstTempMaskedChip_side0 " << firstTempMaskedChip_side0 << " firstTempMaskedChip_side1 " << firstTempMaskedChip_side1 << std::endl;
+  std::cout << "susumu "
+	    << " moduleId " << moduleId
+	    << " hash_side0 " << hash_side0
+	    << " hash_side1 " << hash_side1
+	    << " firstTempMaskedChip_side0 " << firstTempMaskedChip_side0
+	    << " firstTempMaskedChip_side1 " << firstTempMaskedChip_side1
+	    << std::endl;
 
   // There is at least one masked chip
   if(firstTempMaskedChip_side0>0 or firstTempMaskedChip_side1>0) {
     int type = 0;
     // Check if Rx redundancy is used or not in this module
-    if(m_rxRedundancy->find(hash_side0)!=m_rxRedundancy->end()) {
+    if(m_rxRedundancy->find(hash_side0)!=m_rxRedundancy->end() or 
+       m_rxRedundancy->find(hash_side1)!=m_rxRedundancy->end()) {
       // Rx redundancy is used in this module.
       std::pair<bool, bool> links = m_config->badLinks(moduleId);
-      std::cout << "susumu C " << links.first << " " << links.second << std::endl;
       if(links.first and not links.second) {
 	// link-1 is broken
 	type = 1;
@@ -660,31 +655,65 @@ unsigned int SCT_ByteStreamErrorsSvc::tempMaskedChips(const Identifier & moduleI
 
     if(type==0) {
       // both link-0 and link-1 are working
-      for(int iChip=firstTempMaskedChip_side0-1; iChip<6; iChip++) {
-	_tempMaskedChips |= (1<<iChip);
+      if(firstTempMaskedChip_side0>0) {
+	for(int iChip=firstTempMaskedChip_side0-1; iChip<6; iChip++) {
+	  _tempMaskedChips |= (1<<iChip);
+	}
       }
-      for(int iChip=firstTempMaskedChip_side1-1; iChip<12; iChip++) {
-	_tempMaskedChips |= (1<<iChip);
+      if(firstTempMaskedChip_side1>6) {
+	for(int iChip=firstTempMaskedChip_side1-1; iChip<12; iChip++) {
+	  _tempMaskedChips |= (1<<iChip);
+	}
       }
     } else if(type==1) {
       // link-1 is broken: chip 0 1 2 3 4 5 6 7 8 9 10 11
-      for(int iChip=firstTempMaskedChip_side0-1; iChip<12; iChip++) {
-	_tempMaskedChips |= (1<<iChip);
+      // first temporarily masked chip information is recorded in only link-0.
+      if(firstTempMaskedChip_side0>0) {
+	for(int iChip=firstTempMaskedChip_side0-1; iChip<12; iChip++) {
+	  _tempMaskedChips |= (1<<iChip);
+	}
       }
     } else {
       // link-0 is broken: chip 6 7 8 9 10 11 0 1 2 3 4 5
-      if(firstTempMaskedChip_side1<=6) firstTempMaskedChip_side1 += 12;
-      for(int iChip=firstTempMaskedChip_side1-1; iChip<12+6; iChip++) {
-	int jChip = iChip;
-	if(jChip>=12) jChip -= 12;
-	_tempMaskedChips |= (1<<jChip);
+      // first temporarily masked chip information is recorded in only link-0.
+      if(firstTempMaskedChip_side0>0) {
+	if(firstTempMaskedChip_side0<=6) firstTempMaskedChip_side0 += 12;
+	for(int iChip=firstTempMaskedChip_side0-1; iChip<12+6; iChip++) {
+	  int jChip = iChip;
+	  if(jChip>=12) jChip -= 12;
+	  _tempMaskedChips |= (1<<jChip);
+	}
       }
     }
+
+
+  std::cout << "susumu "
+	    << " moduleId " << moduleId
+	    << " barrel_ec " << m_sct_id->barrel_ec(moduleId)
+	    << " layer_disk " << m_sct_id->layer_disk(moduleId)
+	    << " eta_module " << m_sct_id->eta_module(moduleId)
+	    << " phi_module " << m_sct_id->phi_module(moduleId)
+	    << " type " << type
+	    << " firstTempMaskedChip_side0 " << firstTempMaskedChip_side0
+	    << " firstTempMaskedChip_side1 " << firstTempMaskedChip_side1
+	    << " _tempMaskedChips " 
+	    << ((_tempMaskedChips >>  0) & 0x1)
+	    << ((_tempMaskedChips >>  1) & 0x1)
+	    << ((_tempMaskedChips >>  2) & 0x1)
+	    << ((_tempMaskedChips >>  3) & 0x1)
+	    << ((_tempMaskedChips >>  4) & 0x1)
+	    << ((_tempMaskedChips >>  5) & 0x1)
+	    << ((_tempMaskedChips >>  6) & 0x1)
+	    << ((_tempMaskedChips >>  7) & 0x1)
+	    << ((_tempMaskedChips >>  8) & 0x1)
+	    << ((_tempMaskedChips >>  9) & 0x1)
+	    << ((_tempMaskedChips >> 10) & 0x1)
+	    << ((_tempMaskedChips >> 11) & 0x1)
+	    << std::endl;
+
   }
 
   (*m_tempMaskedChips)[moduleId] = _tempMaskedChips;
-
-  std::cout << "susumu tempMaskedChip _tempMaskedChips " << _tempMaskedChips << std::endl;
 
   return _tempMaskedChips;
 }
