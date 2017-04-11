@@ -146,12 +146,7 @@ namespace Rec {
       ATH_MSG_WARNING( " NO TrackParameters caloExtension.caloEntryLayerIntersection() ");
       return;
     } 
-    double uncertEta = 0.;
-    if(pars->covariance()) {
-      uncertEta =   -2.*sin(pars->position().theta()) / (cos(2.*pars->position().theta())-1.) * sqrt((*pars->covariance())(Trk::theta,Trk::theta));
-      // ATH_MSG_DEBUG( " TrackParameters have covariance; phi*phi " << sqrt((*pars->covariance())(Trk::phi,Trk::phi)) << " theta*theta  " << sqrt((*pars->covariance())(Trk::theta,Trk::theta)) << " eta " << uncertEta);
-    } 
-
+    
     float eta = pars->position().eta();
     float phi = pars->position().phi();
     // ATH_MSG_DEBUG("eta trk " << eta << " phi trk " << phi );
@@ -161,7 +156,16 @@ namespace Rec {
         float dPhi = P4Helpers::deltaPhi( (*container)[i]->phi(), phi);
         float dEta = (*container)[i]->eta()-eta;
         float dr2  = dPhi*dPhi+ dEta*dEta;
+        
         if(m_useCovariance){
+            double uncertEta = 0.;
+            double uncertPhi = 0.;
+            if(pars->covariance()) {
+              uncertEta = -2.*sin(pars->position().theta()) / (cos(2.*pars->position().theta())-1.) * sqrt((*pars->covariance())(Trk::theta,Trk::theta));
+              uncertPhi = sqrt((*pars->covariance())(Trk::phi,Trk::phi));
+              // ATH_MSG_DEBUG( " TrackParameters have covariance; phi*phi " << sqrt((*pars->covariance())(Trk::phi,Trk::phi)) << " theta*theta  " << sqrt((*pars->covariance())(Trk::theta,Trk::theta)) << " eta " << uncertEta);
+            } 
+            
             float eInSample = 0.; 
             float eInSampleFull = 0.; 
             float emfrac = 0.; 
@@ -184,24 +188,22 @@ namespace Rec {
             (*container)[i]->retrieveMoment(xAOD::CaloCluster::SECOND_R,rad);
             double cent;
             (*container)[i]->retrieveMoment(xAOD::CaloCluster::CENTER_MAG,cent);
-            double emProb;
-            (*container)[i]->retrieveMoment(xAOD::CaloCluster::EM_PROBABILITY,emProb);
             double sigmaWidth = atan(sqrt(rad)/cent)*cosh((*container)[i]->eta());
-            double dr2CutTmp = (sigmaWidth+uncertEta)*(sigmaWidth+uncertEta)+(sigmaWidth+sqrt((*pars->covariance())(Trk::phi,Trk::phi)))*(sigmaWidth+sqrt((*pars->covariance())(Trk::phi,Trk::phi)));
+            double uncertExtrp = uncertEta*uncertEta + uncertPhi*uncertPhi;
+            double uncertClus  = 2.*sigmaWidth*sigmaWidth;
+            if(uncertExtrp>uncertClus){
+                ATH_MSG_DEBUG("Extrapolation uncertainty larger than cluster width! Returning without association.");
+                return;
+            }
+            double dr2CutTmp = (sigmaWidth+uncertEta)*(sigmaWidth+uncertEta)+(sigmaWidth+uncertPhi)*(sigmaWidth+uncertPhi);
             
-            (*container)[i]->auxdecor<double>("sigmaWidth")       = sigmaWidth;
-            (*container)[i]->auxdecor<double>("dr2CutTmp")       = sqrt(dr2CutTmp);
-            (*container)[i]->auxdecor<double>("dr2")       = sqrt(dr2);
-            (*container)[i]->auxdecor<double>("uncertEta")       = uncertEta;
-            (*container)[i]->auxdecor<double>("uncertPhi")       = sqrt((*pars->covariance())(Trk::phi,Trk::phi));
-            (*container)[i]->auxdecor<double>("emFrac")       = emfrac;
-            
-            if(sqrt(dr2)<0.1 && dr2 < dr2CutTmp) ATH_MSG_DEBUG("1. selections match! dR " << sqrt(dr2) << " new cut value " << sqrt(dr2CutTmp) << " pt trk " << pars->pT() << " sigma(phi) trk " << sqrt((*pars->covariance())(Trk::phi,Trk::phi)) << " sigma(eta) trk " << uncertEta << " energy cluster " << (*container)[i]->e() << " sigma width " << sigmaWidth << " em frac " << emfrac);
-            if(sqrt(dr2)<0.1 && dr2 > dr2CutTmp) ATH_MSG_DEBUG("2. only dR matches! dR " << sqrt(dr2) << " new cut value " << sqrt(dr2CutTmp) << " pt trk " << pars->pT() << " sigma(phi) trk " << sqrt((*pars->covariance())(Trk::phi,Trk::phi)) << " sigma(eta) trk " << uncertEta << " energy cluster " << (*container)[i]->e() << " sigma width " << sigmaWidth << " em frac " << emfrac);
-            if(sqrt(dr2)>0.1 && dr2 < dr2CutTmp) ATH_MSG_DEBUG("3. only new matches! dR " << sqrt(dr2) << " new cut value " << sqrt(dr2CutTmp) << " pt trk " << pars->pT() << " sigma(phi) trk " << sqrt((*pars->covariance())(Trk::phi,Trk::phi)) << " sigma(eta) trk " << uncertEta << " energy cluster " << (*container)[i]->e() << " sigma width " << sigmaWidth << " em frac " << emfrac);
+            if(sqrt(dr2)<sqrt(dr2Cut) && dr2 < dr2CutTmp) ATH_MSG_DEBUG("1. selections match! dR " << sqrt(dr2) << " new cut value " << sqrt(dr2CutTmp) << " pt trk " << pars->pT() << " sigma(phi) trk " << uncertPhi << " sigma(eta) trk " << uncertEta << " energy cluster " << (*container)[i]->e() << " sigma width " << sigmaWidth << " em frac " << emfrac);
+            if(sqrt(dr2)<sqrt(dr2Cut) && dr2 > dr2CutTmp) ATH_MSG_DEBUG("2. only dR matches! dR " << sqrt(dr2) << " new cut value " << sqrt(dr2CutTmp) << " pt trk " << pars->pT() << " sigma(phi) trk " << uncertPhi << " sigma(eta) trk " << uncertEta << " energy cluster " << (*container)[i]->e() << " sigma width " << sigmaWidth << " em frac " << emfrac);
+            if(sqrt(dr2)>sqrt(dr2Cut) && dr2 < dr2CutTmp) ATH_MSG_DEBUG("3. only new matches! dR " << sqrt(dr2) << " new cut value " << sqrt(dr2CutTmp) << " pt trk " << pars->pT() << " sigma(phi) trk " << uncertPhi << " sigma(eta) trk " << uncertEta << " energy cluster " << (*container)[i]->e() << " sigma width " << sigmaWidth << " em frac " << emfrac);
             
             dr2Cut = dr2CutTmp;
-        }        
+        }
+        
         if( dr2 < dr2Cut ){
             clusters.push_back( (*container)[i]);
         } 
