@@ -289,7 +289,6 @@ class JetSequencesBuilder(object):
 
         return AlgList(algs, alias=alias)
 
-<<<<<<< HEAD
     def make_sk(self):
         """Return SoftKiller Alg"""
         fex_params = self.chain_config.menu_data.fex_params
@@ -299,7 +298,7 @@ class JetSequencesBuilder(object):
         [algs.extend(f()) for f in (self.alg_factory.softKillerAlg,)]
 
         return AlgList(algs,alias=alias)
-=======
+
     def make_ftk(self):
         """Return FTK sequence"""
         alias = 'ftktracking'
@@ -323,7 +322,6 @@ class JetSequencesBuilder(object):
         alias = 'trkmomhelpers'
 
         return AlgList(alg_list=self.alg_factory.trackmoment_helpers(), alias=alias)
->>>>>>> 7e1ac16... Implemented changes for FTK track integration in Jet Triggers (ATR-16020).
 
     def make_cm(self):
         """Return cellmaker for non partial scan running.
