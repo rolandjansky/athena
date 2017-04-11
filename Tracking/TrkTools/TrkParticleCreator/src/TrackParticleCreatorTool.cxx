@@ -117,7 +117,6 @@ namespace Trk
     m_copyEProbabilities{},
     m_decorateEProbabilities{},
     m_decorateSummaryTypes{},
-    m_minTRThitsForTRTdEdx{},
     m_doIBL(false),
     m_useTrackSummaryTool (true),
     m_useMuonSummaryTool  (false),
