@@ -6,11 +6,10 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
-//#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
 #include "AthenaMonitoring/HistogramDef.h"
 
 using namespace std;
+using namespace Monitored;
 
 const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
   /* Parse histogram defintion
@@ -18,13 +17,12 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
      1D: "EXPERT, TH1I, Name, Title;Alias, nBins, xmin, xmax, BinLabel1:BinLabel2:BinLabel3, kCumulative"
   */
 
-//  ATH_MSG_DEBUG("parseJobOptHistogram(\"" << jobOpts << "\")");
-  
   // convert histogram definition string to an array of strings
   list<string> histProperty;
   typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
   boost::char_separator<char> sep(","); 
   tokenizer_t tokens(jobOpts, sep);
+  
   for (tokenizer_t::iterator itr = tokens.begin(); itr != tokens.end(); ++itr) {
     string word = *itr;
     boost::trim(word);
@@ -44,7 +42,7 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
   else
     histPar.path = "EXPERT";
   
-//  const char* warning = " NOT booked: ";
+  const char* warning = " NOT booked: ";
   histPar.ok   = false;
   histPar.ycut = false;
   histPar.zcut = false;
@@ -88,8 +86,7 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
   itr = histProperty.erase(itr);
   
   if (histProperty.size() < 2) {
-//    ATH_MSG_WARNING(histPar.alias << warning << "NOT enough parameters for defining 1-D histogram");
-    return histPar;   
+    throw HistogramDefParseException(histPar.alias + warning + "NOT enough parameters for defining 1-D histogram");
   }
   
   try {
@@ -97,13 +94,13 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
     itr = histProperty.erase(itr);
   }
   catch (boost::bad_lexical_cast&) {
-//    ATH_MSG_WARNING(histPar.alias << warning << "int expected for xbins while got"  << histProperty);
-    return histPar;
+    stringstream ss;
+    copy(histProperty.begin(), histProperty.end(), ostream_iterator<string>(ss, ","));
+    throw HistogramDefParseException(histPar.alias + warning + "int expected for xbins while got" + ss.str());
   }
   
   if (histProperty.size() < 2) {
-//    ATH_MSG_WARNING(histPar.name[0] << warning << "xmin and xmax expected");
-    return histPar;
+    throw HistogramDefParseException(histPar.name[0] + warning + "xmin and xmax expected");
   }
   
   try {
@@ -111,8 +108,7 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
     itr = histProperty.erase(itr);
   }
   catch (boost::bad_lexical_cast&) {
-//    ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for xmin");
-    return histPar;
+    throw HistogramDefParseException(histPar.name[0] + warning + "double expected for xmin");
   }
   
   try {
@@ -120,14 +116,12 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
     itr = histProperty.erase(itr);
   }
   catch (boost::bad_lexical_cast&) {
-//    ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for xmax");
-    return histPar;
+    throw HistogramDefParseException(histPar.name[0] + warning + "double expected for xmax");
   }
 
   if (histPar.type.find("TH2") == 0) {
     if (histProperty.size() < 2) {
-//      ATH_MSG_WARNING(histPar.name[0] << warning << "y-axis definition expected for TH2");
-      return histPar;
+      throw HistogramDefParseException(histPar.name[0] + warning + "y-axis definition expected for TH2");
     }
     
     try {
@@ -135,13 +129,11 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
       itr = histProperty.erase(itr);
     }
     catch (boost::bad_lexical_cast&) {
-//      ATH_MSG_WARNING(histPar.name[0] << warning << "int expected for ybins");
-      return histPar;
+      throw HistogramDefParseException(histPar.name[0] + warning + "int expected for ybins");
     }
     
     if (histProperty.size() < 2) {
-//      ATH_MSG_WARNING(histPar.name[0] << warning << "ymin and ymax expected");
-      return histPar;
+      throw HistogramDefParseException(histPar.name[0] + warning + "ymin and ymax expected");
     }
     
     try {
@@ -149,8 +141,7 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
       itr = histProperty.erase(itr);
     }
     catch (boost::bad_lexical_cast&) {
-//      ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for ymin");
-      return histPar;
+      throw HistogramDefParseException(histPar.name[0] + warning + "double expected for ymin");
     }
     
     try {
@@ -158,8 +149,7 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
       itr = histProperty.erase(itr);
     }
     catch (boost::bad_lexical_cast&) {
-//      ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for ymax");
-      return histPar;
+      throw HistogramDefParseException(histPar.name[0] + warning + "double expected for ymax");
     }
   } //-end of TH2
   //TProfile
@@ -170,8 +160,7 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
       itr = histProperty.erase(itr);
     }
     catch (boost::bad_lexical_cast&) {
-//      ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for ymin of TProfile");
-      return histPar;
+      throw HistogramDefParseException(histPar.name[0] + warning + "double expected for ymin of TProfile");
     }
     
     try {
@@ -179,8 +168,7 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
       itr = histProperty.erase(itr);
     }
     catch (boost::bad_lexical_cast&) {
-//      ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for ymax of TProfile");
-      return histPar;
+      throw HistogramDefParseException(histPar.name[0] + warning + "double expected for ymax of TProfile");
     }
     histPar.ybins = 0; // not used
     histPar.ycut = true;
@@ -189,8 +177,7 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
   else if (histPar.type == "TProfile2D"){
 
     if (histProperty.size() < 2) {
-//      ATH_MSG_WARNING(histPar.name[0] << warning << "y-axis definition expected for TProfile2D");
-      return histPar;
+      throw HistogramDefParseException(histPar.name[0] + warning + "y-axis definition expected for TProfile2D");
     }
     
     try {
@@ -198,13 +185,11 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
       itr = histProperty.erase(itr);
     }
     catch (boost::bad_lexical_cast&) {
-//      ATH_MSG_WARNING(histPar.name[0] << warning << "int expected for ybins");
-      return histPar;
+      throw HistogramDefParseException(histPar.name[0] + warning + "int expected for ybins");
     }
     
     if (histProperty.size() < 2) {
-//      ATH_MSG_WARNING(histPar.name[0] << warning << "ymin and ymax expected");
-      return histPar;
+      throw HistogramDefParseException(histPar.name[0] + warning + "ymin and ymax expected");
     }
     
     try {
@@ -212,8 +197,7 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
       itr = histProperty.erase(itr);
     }
     catch (boost::bad_lexical_cast&) {
-//      ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for ymin");
-      return histPar;
+      throw HistogramDefParseException(histPar.name[0] + warning + "double expected for ymin");
     }
     
     try {
@@ -221,8 +205,7 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
       itr = histProperty.erase(itr);
     }
     catch (boost::bad_lexical_cast&) {
-//      ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for ymax");
-      return histPar;
+      throw HistogramDefParseException(histPar.name[0] + warning + "double expected for ymax");
     }
     //For limited z range
     if(histProperty.size() >= 2){
@@ -231,8 +214,7 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
         itr = histProperty.erase(itr);
       }
       catch (boost::bad_lexical_cast&) {
-//        ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for zmin of TProfile2D");
-        return histPar;
+        throw HistogramDefParseException(histPar.name[0] + warning + "double expected for zmin of TProfile2D");
       }
     
       try {
@@ -240,8 +222,7 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
         itr = histProperty.erase(itr);
       }
       catch (boost::bad_lexical_cast&) {
-//        ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for zmax of TProfile2D");
-        return histPar;
+        throw HistogramDefParseException(histPar.name[0] + warning + "double expected for zmax of TProfile2D");
       }
 
       histPar.zcut = true;

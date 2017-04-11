@@ -24,6 +24,7 @@ from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram
 from AthenaMonitoring.AthenaMonitoringConf import GenericMonitoringTool
 
 genericMonTool = GenericMonitoringTool('monitoringTool')
+genericMonTool.HistogramsGroupName = "TestGroup"
 genericMonTool.Histograms += [defineHistogram('phi',
                                          type='TH1D',
                                          title="PHI",

@@ -15,7 +15,7 @@ using namespace std;
 using namespace Monitored;
 
 GenericMonitoringToolTest::GenericMonitoringToolTest(const string& name, ISvcLocator* pSvcLocator)
-	: AthAlgorithm(name, pSvcLocator) {
+	: AthAlgorithm(name, pSvcLocator), m_monitoringTool("") {
     declareProperty("GenericMonitoringTool", m_monitoringTool, "Generic monitored variables tool");
 }
 

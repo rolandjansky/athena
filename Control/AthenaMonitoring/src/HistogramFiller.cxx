@@ -5,6 +5,7 @@
 #include "AthenaMonitoring/HistogramFiller.h"
 
 using namespace std;
+using namespace Monitored;
 
 HistogramFillerFactory::HistogramFillerFactory(ServiceHandle<ITHistSvc> histSvc, std::string groupName)
     : m_histSvc(histSvc), m_groupName(std::move(groupName)), m_histogramCategory({
@@ -119,7 +120,6 @@ HBASE* HistogramFillerFactory::create(const HistogramDef& def, Types&&... hargs)
   HBASE* histo = m_histogramCategory[def.path]->template getHist<HBASE>(def.alias);
 
   if (histo) {
-//    ATH_MSG_DEBUG("Histogram " << def.alias << " already exists. Re-using it.");
     return histo;
   }
 
@@ -177,13 +177,11 @@ void HistogramFillerFactory::setLabels(TH1* hist, const vector<string>& labels) 
   for ( int i = 0; i < std::min( (int)labels.size(), (int)hist->GetNbinsX() ); ++i ) {
     int bin = i+1;
     hist->GetXaxis()->SetBinLabel(bin, labels[i].c_str());
-//    ATH_MSG_DEBUG("setting label X" <<  labels[i] << " for bin " << bin);
   }
 
   for ( int i = (int)hist->GetNbinsX(); i < std::min( (int)labels.size(), (int)hist->GetNbinsX()+(int)hist->GetNbinsY() ); ++i ) {
     int bin = i+1-(int)hist->GetNbinsX();
     hist->GetYaxis()->SetBinLabel(bin, labels[i].c_str());
-//    ATH_MSG_DEBUG("setting label Y" <<  labels[i] << " for bin " << bin);
   }
 }
 

@@ -51,7 +51,7 @@ namespace Monitored {
           : mTool(tool), 
             mAutoSave(true), 
             mScopeMonitored(scopeMonitored), 
-            mHistogramsFillers(mTool.retrieve().isSuccess() ? mTool->getHistogramsFillers(mScopeMonitored) : std::vector<HistogramFiller*>()) { }
+            mHistogramsFillers(!mTool.empty() ? mTool->getHistogramsFillers(mScopeMonitored) : std::vector<HistogramFiller*>()) { }
     };
 }
 

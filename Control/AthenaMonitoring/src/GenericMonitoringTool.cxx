@@ -13,6 +13,7 @@
 #include "AthenaMonitoring/HistogramDef.h"
 
 using namespace std;
+using namespace Monitored;
 
 const InterfaceID& GenericMonitoringTool::interfaceID() {
 	static InterfaceID GenericMonitoringTool_ID("GenericMonitoringTool", 1, 0);

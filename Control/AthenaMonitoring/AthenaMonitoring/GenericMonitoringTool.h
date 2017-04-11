@@ -67,10 +67,10 @@ public:
   virtual ~GenericMonitoringTool();
   
   virtual StatusCode initialize();
-  virtual std::vector<HistogramFiller*> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables);
+  virtual std::vector<Monitored::HistogramFiller*> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables);
 private:   
   ServiceHandle<ITHistSvc> m_histSvc;  
-  std::vector<HistogramFiller*> m_fillers;                         //!< list of fillers
+  std::vector<Monitored::HistogramFiller*> m_fillers;              //!< list of fillers
   std::string m_histogramsGroupName;                               //!< property (name of group to which histograms would be generated)
   std::vector<std::string> m_histograms;                           //!< property (list of histogram definitions)
 };
