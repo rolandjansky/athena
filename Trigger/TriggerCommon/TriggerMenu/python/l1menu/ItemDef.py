@@ -1385,6 +1385,16 @@ class ItemDef:
                     LVL1MenuItem('L1_J40_DPHI-J20XE50'  ).setLogic( J40 & TOPO_10MINDPHI_J20ab_XE50  & physcond) 
                     LVL1MenuItem('L1_J40_DPHI-CJ20XE50' ).setLogic( J40 & TOPO_10MINDPHI_CJ20ab_XE50 & physcond) 
 
+                    #ATR-15243 Higgsino
+                    LVL1MenuItem('L1_2MU4_J40_XE50'  ).setLogic( MU4.x(2) & J40 & XE50  & physcond).setTriggerType(TT.calo)
+                    LVL1MenuItem('L1_2MU4_J20_XE40_DPHI-J20s2XE30').setLogic( MU4.x(2) & J20 & XE40 & TOPO_10MINDPHI_J20s2_XE30  & physcond)
+                    LVL1MenuItem('L1_2MU4_J20_XE50_DPHI-J20s2XE30').setLogic( MU4.x(2) & J20 & XE50 & TOPO_10MINDPHI_J20s2_XE30  & physcond)
+
+                    LVL1MenuItem('L1_MU4_J30_XE40_DPHI-J20s2XE30').setLogic( MU4 & J30 & XE40 & TOPO_10MINDPHI_J20s2_XE30  & physcond)
+                    LVL1MenuItem('L1_MU4_J50_XE50_DPHI-J20s2XE30').setLogic( MU4 & J50 & XE50 & TOPO_10MINDPHI_J20s2_XE30  & physcond)
+                    LVL1MenuItem('L1_MU4_XE60'  ).setLogic( MU4 & XE60  & physcond).setTriggerType(TT.calo)
+                    LVL1MenuItem('L1_2MU4_XE60'  ).setLogic( MU4.x(2) & XE60  & physcond).setTriggerType(TT.calo)
+
                     # HT
                     #LVL1MenuItem('L1_HT0-J0.ETA49'     ).setLogic( TOPO_HT0_AJ0allETA49    & physcond)
                     LVL1MenuItem('L1_HT190-J15.ETA21'  ).setLogic( TOPO_HT190_AJ15allETA21 & physcond)
