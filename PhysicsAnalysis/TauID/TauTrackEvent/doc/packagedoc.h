@@ -3,7 +3,7 @@
 */
 
 /**
-@mainpage The TauTrackEvent package
+@page TauTrackEvent_page TauTrackEvent package
  * The EDM class package for TauTrackTools.
  *
  * @author Sebastian.Fleischmann@cern.ch

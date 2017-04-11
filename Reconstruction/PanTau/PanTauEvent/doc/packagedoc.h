@@ -3,7 +3,7 @@
 */
 
 /**
-@mainpage The PanTauEvent package
+@page PanTauEvent_page PanTauEvent package
  * The EDM class package for PanTau.
  *
  * @author Sebastian.Fleischmann@cern.ch

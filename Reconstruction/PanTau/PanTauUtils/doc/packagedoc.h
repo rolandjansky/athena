@@ -3,7 +3,7 @@
 */
 
 /**
-@mainpage The PanTauUtils package
+@page PanTauUtils_page PanTauUtils package
  * The utils package for PanTau.
  *
  * @author Sebastian.Fleischmann@cern.ch

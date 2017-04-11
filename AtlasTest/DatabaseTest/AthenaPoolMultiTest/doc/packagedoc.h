@@ -3,7 +3,7 @@
 */
 
 /**
-@mainpage The AthenaPoolMultiTest package
+@page AthenaPoolMultiTest_page AthenaPoolMultiTest package
  *
  * @date 26 May 2009
  * @author J. Cranshaw

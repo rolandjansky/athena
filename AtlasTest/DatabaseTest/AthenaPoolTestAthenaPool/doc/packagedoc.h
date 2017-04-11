@@ -4,7 +4,7 @@
 
 /**
  *
-@mainpage The AthenaPoolTestAthenaPool package
+@page AthenaPoolTestAthenaPool_page AthenaPoolTestAthenaPool package
  *
 @section AthenaPoolTestAthenaPool_@section purpose Purpose: POOL CONVERTERS
  * 
