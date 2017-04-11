@@ -35,7 +35,7 @@ EFMissingETFromTrackAndJets::EFMissingETFromTrackAndJets(const std::string& type
         const std::string& name,
         const IInterface* parent) :
     EFMissingETBaseTool(type, name, parent),
-    m_trackselTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this ),
+    m_trackselTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this )
 {
     declareProperty("EtaSeparation", m_etacut = 2.2 ,"Cut to split into forward and central jets -- needs to be positive");
     declareProperty("CentralpTCut", m_central_ptcut = 0.0 ,"pT Cut for central jets");
