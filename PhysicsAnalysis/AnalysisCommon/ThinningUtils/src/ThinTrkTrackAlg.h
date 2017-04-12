@@ -1,4 +1,10 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
 #ifndef THINNINGUTILS_ThinTrkTrackAlg_H
 #define THINNINGUTILS_ThinTrkTrackAlg_H 
 /**

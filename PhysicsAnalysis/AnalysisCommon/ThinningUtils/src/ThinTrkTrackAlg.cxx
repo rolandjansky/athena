@@ -1,4 +1,9 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // ThinTrkTrackAlg.cxx
 // Author: Christos
 // Lets see if we can write Trk::Tracks in xAOD
