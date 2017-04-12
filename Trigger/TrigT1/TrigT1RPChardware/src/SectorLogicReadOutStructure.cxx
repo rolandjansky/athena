@@ -8,13 +8,13 @@
 #include "TrigT1RPChardware/SectorLogicReadOutStructure.h"
 
 //  header structure
-const ubit16 SectorLogicReadOutStructure::headerPos[headerNum] ={ 12, 0};
-const ubit16 SectorLogicReadOutStructure::headerLen[headerNum] ={  4,12};
-const ubit16 SectorLogicReadOutStructure::headerVal=0x000d;  
+const ubit16 SectorLogicReadOutStructure::s_headerPos[s_headerNum] ={ 12, 0};
+const ubit16 SectorLogicReadOutStructure::s_headerLen[s_headerNum] ={  4,12};
+const ubit16 SectorLogicReadOutStructure::s_headerVal=0x000d;  
 //  footer structure
-const ubit16 SectorLogicReadOutStructure::footerPos[footerNum]={ 12, 0};
-const ubit16 SectorLogicReadOutStructure::footerLen[footerNum]={  4,12};
-const ubit16 SectorLogicReadOutStructure::footerVal=0x000f;
+const ubit16 SectorLogicReadOutStructure::s_footerPos[s_footerNum]={ 12, 0};
+const ubit16 SectorLogicReadOutStructure::s_footerLen[s_footerNum]={  4,12};
+const ubit16 SectorLogicReadOutStructure::s_footerVal=0x000f;
 
 //----------------------------------------------------------------------------//
 SectorLogicReadOutStructure::SectorLogicReadOutStructure() {
@@ -37,12 +37,12 @@ void SectorLogicReadOutStructure::setInit() {
 //----------------------------------------------------------------------------//
 
 ubit16 SectorLogicReadOutStructure::makeHeader(ubit16 *inputData) {
-  m_word   = set16Bits(headerNum, headerPos, inputData);//theHeader);
+  m_word   = set16Bits(s_headerNum, s_headerPos, inputData);//theHeader);
   return m_word;
 }
 //----------------------------------------------------------------------------//
 ubit16 SectorLogicReadOutStructure::makeFooter(ubit16 *inputData) {
-  m_word =  set16Bits(footerNum,footerPos,inputData);
+  m_word =  set16Bits(s_footerNum,s_footerPos,inputData);
   return m_word;
 }
 //----------------------------------------------------------------------------//
@@ -55,10 +55,10 @@ ubit16 SectorLogicReadOutStructure::decodeFragment(ubit16 inputWord, char &field
   // errorCode=0;
   if(isHeader()) {
     m_field = 'H';
-    m_secid     = get16Bits(inputWord,headerPos[1],headerLen[1]);
+    m_secid     = get16Bits(inputWord,s_headerPos[1],s_headerLen[1]);
   } else  if(isFooter()) {
     m_field = 'F';
-    m_footer = get16Bits(inputWord,footerPos[1],footerLen[1]);
+    m_footer = get16Bits(inputWord,s_footerPos[1],s_footerLen[1]);
  } else {
     m_field = 'B';
   }
@@ -70,16 +70,16 @@ ubit16 SectorLogicReadOutStructure::decodeFragment(ubit16 inputWord, char &field
 bool SectorLogicReadOutStructure::isBody()
 {
   ubit16 theword = (m_word&0xf000)>>12;
-  if( (theword != headerVal) && 
-      (theword != footerVal) ) return true;
-                               return false;
+  if( (theword != s_headerVal) && 
+      (theword != s_footerVal) ) return true;
+  return false;
 }
 //----------------------------------------------------------------------------//
 bool SectorLogicReadOutStructure::isHeader()
 {
   bool status= false;
-  ubit16 theHeader[headerNum]={headerVal};
-  if( (m_word&last4bitsON)== set16Bits(1,headerPos,theHeader)) status=true;
+  ubit16 theHeader[s_headerNum]={s_headerVal};
+  if( (m_word&s_last4bitsON)== set16Bits(1,s_headerPos,theHeader)) status=true;
   return status;
 }
 
@@ -87,7 +87,7 @@ bool SectorLogicReadOutStructure::isHeader()
 bool SectorLogicReadOutStructure::isFooter()
 {
   bool status= false;
-  ubit16 theFooter[footerNum]={footerVal};
-  if( (m_word&last4bitsON)== set16Bits(1,footerPos,theFooter)) status=true;
+  ubit16 theFooter[s_footerNum]={s_footerVal};
+  if( (m_word&s_last4bitsON)== set16Bits(1,s_footerPos,theFooter)) status=true;
   return status;
 }
