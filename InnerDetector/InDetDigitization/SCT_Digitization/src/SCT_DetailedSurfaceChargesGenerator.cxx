@@ -53,11 +53,11 @@ SCT_DetailedSurfaceChargesGenerator::SCT_DetailedSurfaceChargesGenerator(const s
     m_doTrapping(false),
     
     m_thistSvc(nullptr),
-    h_efieldz(nullptr),
-    h_yzRamo(nullptr),
-    h_yzEfield(nullptr),
-    h_yEfield(nullptr),
-    h_zEfield(nullptr),
+    m_h_efieldz(nullptr),
+    m_h_yzRamo(nullptr),
+    m_h_yzEfield(nullptr),
+    m_h_yEfield(nullptr),
+    m_h_zEfield(nullptr),
     
     m_hashId(0),
     m_bulk_depth(0.0285), //<!285 micron, expressed in cm units
@@ -165,32 +165,32 @@ StatusCode SCT_DetailedSurfaceChargesGenerator::initialize() {
       return StatusCode::FAILURE;
     }
     if (m_doHistoTrap){
-      h_efieldz = new TProfile("efieldz", "", 50, 0., 0.03);
-      rc = m_thistSvc->regHist("/file1/efieldz", h_efieldz);
+      m_h_efieldz = new TProfile("efieldz", "", 50, 0., 0.03);
+      rc = m_thistSvc->regHist("/file1/efieldz", m_h_efieldz);
       if (rc.isFailure()) {
 	ATH_MSG_FATAL ("Unable to retrieve pointer to THistSvc");
 	return StatusCode::FAILURE;
       }
-      h_yzRamo = new TProfile2D("yzRamo", "", 60, -0.44, 0.44, 60, 0., 0.285);
-      rc = m_thistSvc->regHist("/file1/yzRamo", h_yzRamo);
+      m_h_yzRamo = new TProfile2D("yzRamo", "", 60, -0.44, 0.44, 60, 0., 0.285);
+      rc = m_thistSvc->regHist("/file1/yzRamo", m_h_yzRamo);
       if (rc.isFailure()) {
 	ATH_MSG_FATAL ("Unable to retrieve pointer to THistSvc");
 	return StatusCode::FAILURE;
       }
-      h_yzEfield = new TProfile2D("yzEfield", "", 40, -0.004, 0.004, 60, 0., 0.0285);
-      rc = m_thistSvc->regHist("/file1/yzEfield", h_yzEfield);
+      m_h_yzEfield = new TProfile2D("yzEfield", "", 40, -0.004, 0.004, 60, 0., 0.0285);
+      rc = m_thistSvc->regHist("/file1/yzEfield", m_h_yzEfield);
       if (rc.isFailure()) {
 	ATH_MSG_FATAL ("Unable to retrieve pointer to THistSvc");
 	return StatusCode::FAILURE;
       }
-      h_yEfield = new TProfile2D("yEfield", "", 40, -0.004, 0.004, 60, 0., 0.0285);
-      rc = m_thistSvc->regHist("/file1/yEfield", h_yEfield);
+      m_h_yEfield = new TProfile2D("yEfield", "", 40, -0.004, 0.004, 60, 0., 0.0285);
+      rc = m_thistSvc->regHist("/file1/yEfield", m_h_yEfield);
       if (rc.isFailure()) {
 	ATH_MSG_FATAL ("Unable to retrieve pointer to THistSvc");
 	return StatusCode::FAILURE;
       }
-      h_zEfield = new TProfile2D("zEfield", "", 40, -0.004, 0.004, 60, 0., 0.0285);
-      rc = m_thistSvc->regHist("/file1/zEfield", h_zEfield);
+      m_h_zEfield = new TProfile2D("zEfield", "", 40, -0.004, 0.004, 60, 0., 0.0285);
+      rc = m_thistSvc->regHist("/file1/zEfield", m_h_zEfield);
       if (rc.isFailure()) {
 	ATH_MSG_FATAL ("Unable to retrieve pointer to THistSvc");
 	return StatusCode::FAILURE;
@@ -406,7 +406,7 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiHit& phit, const 
   //---**************************************
 
   //Get HashId
-  IdentifierHash m_hashId = m_element->identifyHash();
+  IdentifierHash hashId = m_element->identifyHash();
 
   //get sensor thickness and tg lorentz from SiDetectorDesign
   const float sensorThickness  = p_design->thickness();  
@@ -428,7 +428,7 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiHit& phit, const 
   int numberOfSteps = int(LargeStep/m_smallStepLength) + 1 ;
   float steps= static_cast<float>(m_numberOfCharges*numberOfSteps);
   float e1=phit.energyLoss()/steps;
-  float q1=e1*m_siPropertiesSvc->getSiProperties(m_hashId).electronHolePairsPerEnergy();
+  float q1=e1*m_siPropertiesSvc->getSiProperties(hashId).electronHolePairsPerEnergy();
 
   //in the following, to test the code, we will use the original coordinate system of the SCTtest3SurfaceChargesGenerator x is eta y is phi z is depth 
   float xhit = xEta ;
@@ -438,8 +438,8 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiHit& phit, const 
   if(m_doDistortions){
     if(m_element->isBarrel() == 1){//Only apply distortions to barrel modules
       Amg::Vector2D BOW; 
-      BOW[0] = (m_distortionsTool->correctSimulation(m_hashId, xhit, yhit, cEta, cPhi, cDep))[0];
-      BOW[1] = (m_distortionsTool->correctSimulation(m_hashId, xhit, yhit, cEta, cPhi, cDep))[1];
+      BOW[0] = (m_distortionsTool->correctSimulation(hashId, xhit, yhit, cEta, cPhi, cDep))[0];
+      BOW[1] = (m_distortionsTool->correctSimulation(hashId, xhit, yhit, cEta, cPhi, cDep))[1];
       xhit = BOW.x();
       yhit = BOW.y();
     }
@@ -761,13 +761,13 @@ void SCT_DetailedSurfaceChargesGenerator::initExEyArray() {
       m_ExValue150[ix][iy] = ExValue150(ix,iy);
       m_EyValue150[ix][iy] = EyValue150(ix,iy);
       if (m_doHistoTrap){   
-	h_yzEfield->Fill(ix*0.00025,iy*0.00025,sqrt(ExValue150(ix,iy)*ExValue150(ix,iy)+EyValue150(ix,iy)*EyValue150(ix,iy)));
-	h_yzEfield->Fill(-ix*0.00025,iy*0.00025,sqrt(ExValue150(ix,iy)*ExValue150(ix,iy)+EyValue150(ix,iy)*EyValue150(ix,iy)));
-	h_yEfield->Fill(ix*0.0005,iy*0.00025,ExValue150(ix,iy));
-	h_yEfield->Fill(-ix*0.0005,iy*0.00025,ExValue150(ix,iy));
-	h_zEfield->Fill(ix*0.0005,iy*0.00025,EyValue150(ix,iy));
-	h_zEfield->Fill(-ix*0.0005,iy*0.00025,EyValue150(ix,iy));
-	//	h_yzEfield->Fill(-ix*0.0025,iy*0.0025,GetPotentialValue(ix,iy));
+	m_h_yzEfield->Fill(ix*0.00025,iy*0.00025,sqrt(ExValue150(ix,iy)*ExValue150(ix,iy)+EyValue150(ix,iy)*EyValue150(ix,iy)));
+	m_h_yzEfield->Fill(-ix*0.00025,iy*0.00025,sqrt(ExValue150(ix,iy)*ExValue150(ix,iy)+EyValue150(ix,iy)*EyValue150(ix,iy)));
+	m_h_yEfield->Fill(ix*0.0005,iy*0.00025,ExValue150(ix,iy));
+	m_h_yEfield->Fill(-ix*0.0005,iy*0.00025,ExValue150(ix,iy));
+	m_h_zEfield->Fill(ix*0.0005,iy*0.00025,EyValue150(ix,iy));
+	m_h_zEfield->Fill(-ix*0.0005,iy*0.00025,EyValue150(ix,iy));
+	//	m_h_yzEfield->Fill(-ix*0.0025,iy*0.0025,GetPotentialValue(ix,iy));
       }
     }
   }
@@ -781,8 +781,8 @@ void SCT_DetailedSurfaceChargesGenerator::initPotentialValue() {
     for (int iy=0 ; iy<115 ; iy++ ) {
       m_PotentialValue[ix][iy] = GetPotentialValue(ix,iy);
       if (m_doHistoTrap){   
-	h_yzRamo->Fill(ix*0.005,iy*0.0025,GetPotentialValue(ix,iy));
-	h_yzRamo->Fill(-ix*0.005,iy*0.0025,GetPotentialValue(ix,iy));
+	m_h_yzRamo->Fill(ix*0.005,iy*0.0025,GetPotentialValue(ix,iy));
+	m_h_yzRamo->Fill(-ix*0.005,iy*0.0025,GetPotentialValue(ix,iy));
       }
     }
   }
@@ -826,7 +826,7 @@ bool SCT_DetailedSurfaceChargesGenerator::hole(double x_h, double y_h, double &v
   EField( x_h, y_h, Ex, Ey);  // [V/cm]
 
   if (m_doHistoTrap){
-    h_efieldz->Fill(y_h,Ey);
+    m_h_efieldz->Fill(y_h,Ey);
   }
 
   if( Ey > 0.) {
