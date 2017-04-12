@@ -305,15 +305,7 @@ namespace MuonCombined {
 	    if(nBadSmall==nBadLarge) countHits=true;
 	  }
 	}
-	//check for CSC unspoiled clusters: if none, and this is an endcap track that includes the CSC, reduce nGoodPrec by one
 	//as we arbitrarily declare this to be a barrel track if there are equal numbers of good barrel and endcap chambers, we need not worry about that situation
-	if(isEnd && chamberQual.count(Muon::MuonStationIndex::CSS)>0 || chamberQual.count(Muon::MuonStationIndex::CSL)>0){
-	  if(mu->auxdata<int>("nUnspoiledCscHits")==0){
-	    ATH_MSG_DEBUG("found no unspoiled csc hits, reduce # of good precision layers");
-	    nGoodPrec--;
-	  }
-	  else ATH_MSG_DEBUG("found "<<mu->auxdata<int>("nUnspoiledCscHits")<<" unspoiled csc hits, don't change nGoodPrecisionLayers");
-	}
 	if(countHits){ //decide large-small by counting hits
 	  uint8_t sumval=0;
 	  int nSmallHits=0,nLargeHits=0;
@@ -609,6 +601,8 @@ namespace MuonCombined {
           }
           // for the purpose of the truth matching, set the track link to point to the ID track
           //tp->setTrackLink(candidate.indetTrackParticle().trackLink());
+	  const ElementLink< TrackCollection >* tracklink=new ElementLink<TrackCollection>();
+          tp->setTrackLink(*tracklink);
         }
       } //endif outputData.combinedTrackParticleContainer 
     }
