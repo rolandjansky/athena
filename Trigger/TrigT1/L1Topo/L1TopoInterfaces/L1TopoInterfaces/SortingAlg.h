@@ -26,13 +26,13 @@ namespace TCS {
       virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output) = 0;
       virtual TCS::StatusCode sortBitCorrect(const InputTOBArray & input, TOBArray & output);
       /**
-         @brief whether an overlflow occurred during the execution
+         @brief whether an overlflow occurred
 
-         In theory overflows should occur only for the '*Abbreviated' algorithms.
-         In practice they can happen in any of the *Select and *Sort algorithms,
-         since we apply a limit on the number of output tobs also there.
+         In practice propagate the overflow bits from the input collections
        */
       bool overflow() const { return m_overflow; }
+      /// setter, to propagate bit from input event
+      SortingAlg& setOverflow(const bool v) { m_overflow = v; }
 
    protected:
 
