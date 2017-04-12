@@ -32,7 +32,7 @@ namespace TCS {
        */
       bool overflow() const { return m_overflow; }
       /// setter, to propagate bit from input event
-      SortingAlg& setOverflow(const bool v) { m_overflow = v; }
+      SortingAlg& setOverflow(const bool v) { m_overflow = v; return *this; }
 
    protected:
 
