@@ -48,7 +48,7 @@ void eflowEEtaBinnedParameters::initialise(const std::vector<double>& eBinBounds
   /* Create all the bins */
   int nEBins = getNumEBins();
   int nEtaBins = getNumEtaBins()-1;
-  eflowParameters* dummy = 0;
+  eflowParameters* dummy = nullptr;
   m_bins.assign(nEBins, std::vector<eflowParameters*>(nEtaBins, dummy));
   for (int iEBin = 0; iEBin < nEBins; iEBin++) {
     for (int iEtaBin = 0; iEtaBin < nEtaBins; iEtaBin++) {
@@ -66,8 +66,8 @@ void eflowEEtaBinnedParameters::initialise(const std::vector<double>& eBinBounds
 
   /* Check for invalid bins */
   if (eBin < 0 || etaBin < 0) {
-    *bin1 = 0;
-    *bin2 = 0;
+    *bin1 = nullptr;
+    *bin2 = nullptr;
     weight = -1.0;
     return weight;
   }
