@@ -25,7 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArRawEvent
                           LArCalorimeter/LArRawUtils
                           LArCalorimeter/LArSimEvent
-                          LArCalorimeter/LArTools
+                          LArCalorimeter/LArCabling
                           TestPolicy )
 
 # External dependencies:
@@ -38,7 +38,7 @@ atlas_add_component( CaloTests
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} CaloDetDescrLib CaloIdentifier AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel CaloEvent CaloGeoHelpers CaloSimEvent AthenaKernel AtlasDetDescr GeneratorObjects LArIdentifier LArRawEvent LArRawUtilsLib LArSimEvent LArToolsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} CaloDetDescrLib CaloIdentifier AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel CaloEvent CaloGeoHelpers CaloSimEvent AthenaKernel AtlasDetDescr GeneratorObjects LArIdentifier LArRawEvent LArRawUtilsLib LArSimEvent LArCablingLib )
 
 # Install files from the package:
 atlas_install_headers( CaloTests )
