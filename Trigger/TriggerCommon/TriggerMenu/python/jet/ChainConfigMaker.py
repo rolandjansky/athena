@@ -17,9 +17,8 @@ from ChainConfig import ChainConfig
 from MenuData import MenuData
 
 
-err_hdr = 'ChainConfigXML error: '
-
-
+err_hdr = 'ChainConfigMaker error: '
+    
 def _check_smc(smc_min, smc_max):
     if smc_min == 'INF' and smc_max != 'INF':
         return 'min smc > max smc'
@@ -132,7 +131,78 @@ def _get_test_flag(parts):
 
     msg = '%s: multiple test flags set' % err_hdr
     raise RuntimeError(msg)
+
+
+def _set_jet_build_calib(key, value):
+    """extract a float from the string value for calibration name 'key' """
+
+    defaults = {'recoCutCalib': 7.0,
+                'recoCutUncalib': 7.0,}
+
+    if key not in defaults:
+        msg = '%s no default for jet calib label %s' % (err_hdr, key)
+        raise RuntimeError(msg)
+
+    val = None
+    if 'Default' in value:
+        val = defaults.get(key)
+    else:
+        try:
+            val = float(value[3:])
+        except:
+            msg = '%s val for  jet calib not a float %s' % (err_hdr, value)
+            raise RuntimeError(msg)
+
+    _update_cache(key, val)
+    return val
+
+    
+def _get_reco_cut(key, parts):
+    """(de)cache and return a jet build tool ET jet cut"""
+
+    
+    if key not in ('recoCutCalib', 'recoCutUncalib'):
+        msg = '%s unkown jet reco calib cut  %s' % (err_hdr, key)
+        raise RuntimeError(msg)
         
+
+    val = cache.get(key)
+    if val is not None: return val
+
+    # it is a error to have different values if > 1 chain part
+    vals = set([])
+    for part in parts:
+        val = part.get(key)
+        if val is not None:
+            vals.add(val)
+
+
+    logical_defaults = {'recoCutCalib': 'rccDefault',
+                        'recoCutUncalib': 'rcuDefault',}
+
+    # not specified? use default
+    if not vals:
+        return _set_jet_build_calib(key, logical_defaults.get(key))
+
+    if len(vals) == 1:
+        # non default values are never used for standard jet chains.
+        # they are needed by MET, which _always_ uses j0 (no hypo) chains
+        val= vals.pop()
+        chain_name = cache['chain_name']
+        if  (val not in logical_defaults.values() and
+             not cache['chain_name'].startswith('j0')):
+            
+            msg = '%s: attempting to set a non-default reco cut %s for '\
+            'a non j0 chain %s'
+            msg = msg % (err_hdr, val, chain_name)
+            raise RuntimeError(msg)
+        else:
+            return _set_jet_build_calib(key, val)
+
+
+    msg = '%s: more than one reco cut set for %s' % (err_hdr, key)
+    raise RuntimeError(msg)
+
 
 def _get_tla_string(parts):
 
@@ -424,29 +494,34 @@ def _get_fex_params(parts):
         args['fex_alg_name'] = fex_alg_name
         args['fex_type'] = fex_type
 
+
     cluster_calib = _get_cluster_calib(parts)  #  ignored: in common sequence
     args['cluster_calib'] = cluster_calib
     args['cluster_calib_fex'] = cluster_calib.upper()
     args['data_type'] = _get_data_type(parts)
     args['jet_calib'] = _get_jet_calib(parts)
 
-
     scan = _get_scan_type(parts)
-    fex_label = reduce(lambda x, y: x + y,
-                       (args['fex_alg_name'],
-                        _get_data_type(parts),
-                        cluster_calib,
-                        _get_jet_calib(parts),
-                        scan))
-   
-    args['fex_label'] = fex_label 
-
     # the trimming fex needs some further parameters
     if fex_type == 'jetrec_trimming':
         args['ptfrac'] = 0.05
         args['rclus'] = 0.2
 
-        
+
+    keys = ('recoCutCalib', 'recoCutUncalib')
+    for k in keys: args[k] = _get_reco_cut(k, parts)
+
+    fex_label = reduce(lambda x, y: x + y,
+                       (args['fex_alg_name'],
+                        _get_data_type(parts),
+                        cluster_calib,
+                        _get_jet_calib(parts),
+                        'rcu' + str(int(args['recoCutUncalib'])),
+                        'rcc' + str(int(args['recoCutCalib'])),
+                        scan))
+   
+    args['fex_label'] = fex_label 
+
     return fexparams_factory(fex_type, args)
 
 
