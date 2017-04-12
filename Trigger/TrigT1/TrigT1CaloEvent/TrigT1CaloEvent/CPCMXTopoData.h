@@ -52,12 +52,12 @@ namespace LVL1 {
    /** Set overflow flag */
    void setOverflow( bool overflow );
 
-  private:
    /** @brief count whether any transmission CPM -> CMX had too many TOBs
 
        In which case toggle m_cpm_overflow
     */
     CPCMXTopoData& checkCpmOverflow();
+  private:
     /** Data members */
     int m_crate;                             
     int m_cmx;

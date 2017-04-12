@@ -50,12 +50,13 @@ namespace LVL1 {
    /** Set overflow flag */
    void setOverflow( bool overflow );
 
-  private:
     /** @brief count whether any transmission JEM -> CMX had too many TOBs
 
        In which case toggle m_jem_overflow
     */
    JetCMXTopoData& checkJemOverflow();
+
+  private:
     /** Data members */
     int m_crate;
     bool m_overflow; ///< overflow on CMX -> L1Topo transmission
