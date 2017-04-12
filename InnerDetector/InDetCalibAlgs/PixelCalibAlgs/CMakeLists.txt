@@ -78,16 +78,6 @@ atlas_add_executable( updateDeadMaps
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} PixelConditionsData PixelCalibAlgsLib )
 
-atlas_add_executable( createDeadModuleList
-   Application/createDeadModuleList.C
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} PixelConditionsData PixelCalibAlgsLib )
-
-atlas_add_executable( hackNoiseMapsForStudyCP
-   Application/hackNoiseMapsForStudyCP.C
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} PixelConditionsData PixelCalibAlgsLib )
-
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/*.txt share/*.sh share/*.dat )
