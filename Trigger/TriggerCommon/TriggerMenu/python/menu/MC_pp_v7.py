@@ -1007,6 +1007,8 @@ def setupMenu():
         ['xe100_pueta_wEFMu_L1XE80',        'L1_XE80', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe100_pufit_wEFMu_L1XE80',        'L1_XE80', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
+        ['xe100_trkmht_FTK_L1XE50',                   'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+
 			 ]
 
     TriggerFlags.TauSlice.signatures = TriggerFlags.TauSlice.signatures() + [
