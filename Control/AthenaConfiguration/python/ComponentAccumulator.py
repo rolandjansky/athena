@@ -1,5 +1,3 @@
-
-
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import ConfigurableService,ConfigurableAlgorithm
 
@@ -84,3 +82,37 @@ class ComponentAccumulator(object):
             else: #New stream type
                 self._outputPerStream[k]=other._outputPerStream[k]
                 
+    def __iadd__(self,other):
+        merge(other)
+        
+
+    def store(self,outfile):
+        from AthenaCommon.Utils.unixtools import find_datafile
+        from collections import defaultdict
+        import pickle
+        #first load basics from the bootstrap-pickle
+        bsfilename=find_datafile("bootstrap.pkl")
+        bsfile=open(bsfilename)
+        jocat=pickle.load(bsfile)
+        jocfg=pickle.load(bsfile)
+        pycomps=pickle.load(bsfile)
+        bsfile.close()
+
+
+        #jocat=defaultdict(dict)
+        #jocfg=defaultdict(dict)
+        #pycomps=defaultdict(dict)
+        algseq=[]
+        for alg in  self._eventAlgs:
+            algname=alg.getJobOptName()
+            #jocat["AthAlgSeq"]["Members"]="["+alg.getFullName()+"]"
+            #algseqstr+="'"+alg.getFullName()+"'"
+            algseq.append(alg.getFullName())
+            for k, v in alg.getValuedProperties().items():
+                jocat[algname][k]=str(v)
+
+        jocat["AthAlgSeq"]["Members"]=str(algseq)
+
+        pickle.dump( jocat, outfile ) 
+        pickle.dump( jocfg, outfile ) 
+        pickle.dump( pycomps, outfile )     
