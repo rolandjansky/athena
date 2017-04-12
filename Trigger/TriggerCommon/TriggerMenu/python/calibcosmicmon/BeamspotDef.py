@@ -155,7 +155,10 @@ class L2EFChain_Beamspot(L2EFChainDef):
            [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", "FTF").getSequence()
            
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-           [ftk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "").getSequence()
+           [ftk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "mon").getSequence()
+        if 'mon' in self.chainPart['addInfo']:
+           from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
+           [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "mon").getSequence()
         else:   
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
            [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "").getSequence()
