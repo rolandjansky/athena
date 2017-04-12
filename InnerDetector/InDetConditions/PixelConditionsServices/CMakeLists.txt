@@ -35,6 +35,13 @@ find_package( COOL COMPONENTS CoolKernel )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS RIO Core Tree MathCore Hist pthread )
 
+atlas_add_library( PixelConditionsServicesLib    
+   PixelConditionsServices/*.h    
+   INTERFACE    
+   PUBLIC_HEADERS PixelConditionsServices    
+   LINK_LIBRARIES GaudiKernel AthenaKernel AthenaBaseComps PixelConditionsData    
+   AthenaPoolUtilities )
+
 # Component(s) in the package:
 atlas_add_component( PixelConditionsServices
    src/*.h src/*.cxx src/components/*.cxx
