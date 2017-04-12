@@ -11,43 +11,16 @@ TauEfficiencyCorrectionsTool -- Trigger
 Introduction
 ------------
 
-Tau trigger efficiency scale factors for run 2 have recently become
-available. The the current implementation is not complete and does not provide
-all features. However, the basic setup to provide scale factors for EOYE
-analysis is in place. As it is expected that there will be some changes to the
-tool handling and default behaviour it is recommended to check the README's on a
-regular basis.
-
-More information on trigger scale factors can be found in this `presentation
-<https://indico.cern.ch/event/463811/contribution/2/attachments/1192916/1732031/TauTriggerSliceMeeging_tagandprobe_23Nov2015_v2.pdf>`_.
+Latest information on trigger scale factors for analysing 2015 and 2016 data
+taking can be found in this `presentation
+<https://indico.cern.ch/event/539998/contributions/2192863/attachments/1287118/1915369/tautrig_160608.pdf>`_. Scale
+factors are only applied to reconstructed taus matched to truth hadronic tau
+decays, which is done internally and does not require action by the user if the
+requirements listed on the `twiki
+<https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauRecommendationsSummer2016#Important_prerequisites_for_appl>`_
+are fulfilled
 
 **IMPORTANT:** Use the tool only for taus matched to the trigger!
-
-To be able to use trigger scale factors from the TauEfficiencyCorrectionsTool
-one needs a separate tool instance with at least the following configuration:
-
-.. list-table::
-   :header-rows: 1
-	      
-   * - property name
-     - variable type
-     - default value
-     - explanation
-	 
-   * - TriggerName
-     - ``std::string``
-     - ``""`` (empty)
-     - trigger name, like ``"HLT_tau125_medium1_tracktwo"``, other available
-       option can be found below
-	 
-   * - IDLevel
-     - ``int``
-     - ``JETIDBDTMEDIUM`` 
-     - level of offline ID, it is the same property as for jet ID scale
-       factors. A list of supported values can be found below
-
-In addition the variable ``EfficiencyCorrectionTypes`` needs to be set to the
-value ``std::vector<int>({SFTriggerHadTau})``
 
 -----------------
 Quick start guide
@@ -60,22 +33,119 @@ To get started you can do the following::
   CHECK(TauTriggerEffTool.setProperty("EfficiencyCorrectionTypes", std::vector<int>({SFTriggerHadTau}) ));
   CHECK(TauTriggerEffTool.setProperty("TriggerName", "HLT_tau25_medium1_tracktwo" ));
   CHECK(TauTriggerEffTool.setProperty("IDLevel", (int)JETIDBDTTIGHT ));
+  CHECK(TauTriggerEffTool.setProperty("PileupReweightingTool", PileupReweightingTool ));
 
   CHECK(TauTriggerEffTool.initialize());
 
-Remember to use the cast to int for enums, like in the setting of ``IDLevel`` to
-``(int)JETIDBDTTIGHT``.
+The ``PileupReweightingTool`` is required to be a ToolHandle to the same
+PileupReweightingTool that you use for you analysis. This tool is used to obtain
+the random run number to make a decision on the year of data taking, that is
+based on the ``LumiCalcFiles``. So if you have an ``LumiCalcFiles`` based only
+on 2015(2016), then only 2015(2016) scale factors are used. If this file is for
+both data taking periods, then the scale factors are used either from 2015
+or 2016.
+
+Remember to use the cast to
+int for enums, like in the setting of ``IDLevel`` to ``(int)JETIDBDTTIGHT``.
 
 Then in your loop you can apply or get scale factors from the tool by::
 
   TauTriggerEffTool.applyEfficiencyScaleFactor(xTau);                                     // either directly appending scale factors to the xAOD tau auxiliary store
   TauTriggerEffTool.getEfficiencyScaleFactor(xTau, dEfficiencyScaleFactor);               // or storing fake factors in variable dEfficiencyScaleFactor
 
-EOYE setup
+Notes on different scale factors for 2015 and 2016
+--------------------------------------------------
+
+By default, if the ``PRWTool`` property is not set, only scale factors for 2016
+data analysis are applied. If you are only analysing 2015 data, this can be
+changed by setting the ``TriggerYear`` property of the tool to ``"2015"``,
+like::
+
+  CHECK(TauTriggerEffTool.setProperty("TriggerYear", "2015" ));
+
+--------------------
+Available properties
+--------------------
+
+To be able to use trigger scale factors from the TauEfficiencyCorrectionsTool
+one needs a separate tool instance with at least the following configuration:
+
+.. list-table::
+   :header-rows: 1
+	      
+   * - property name
+     - variable type
+     - default value
+     - explanation
+	 
+   * - ``TriggerName``
+     - ``std::string``
+     - ``""`` (empty)
+     - trigger name, like ``"HLT_tau125_medium1_tracktwo"``, other available
+       option can be found below
+	 
+   * - ``TriggerYear``
+     - ``std::string``
+     - ``"2016"``
+     - year of data taking, not necessary if PileupReweightingTool Property is used
+	 
+   * - ``PileupReweightingTool``
+     - ``ToolHandle<CP::PileupReweightingTool>``
+     - empty
+     - pass this tool to automatically decide which trigger scale factors to
+       apply
+     
+   * - ``IDLevel``
+     - ``int``
+     - ``JETIDBDTMEDIUM`` 
+     - level of offline ID, it is the same property as for jet ID scale
+       factors. A list of supported values can be found below
+
+In addition the variable ``EfficiencyCorrectionTypes`` needs to be set to the
+value ``std::vector<int>({SFTriggerHadTau})``
+
+----------------------
+Overview of Variations
+----------------------
+
+2016 fall
+---------
+
+The recommended systematic variations are as of now for 2015 or 2016 as
+indicated by the postfix number:
+
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_STATDATA2015``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_STATMC2015``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_SYST2015``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_STATDATA2016``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_STATMC2016``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_SYST2016``
+
+The following additional systematic variations are also available (**NOT recommended**):
+
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_TOTAL2015``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_TOTAL2016``
+
+2016 ICHEP
 ----------
 
-Please use tag ``TauAnalysisTools-00-01-21`` or ABR 2.3.36 for EOYE
-analyses. This includes the recommended trigger scale factors.
+The recommended systematic variations are as of now for 2015 or 2016 as
+indicated by the postfix number:
+
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_STATDATA2015``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_STATMC2015``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_SYST2015``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_TOTAL2016``
+
+The following additional systematic variations are also available (**NOT recommended**):
+
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_TOTAL2015``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_STATDATA2016``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_STATMC2016``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_SYST2016``
+
+2015 EOYE and 2016 moriond
+--------------------------
 
 The recommended systematic variations are as of now:
 
@@ -88,13 +158,26 @@ the recommended systematics is also available:
 
 * ``TAUS_TRUEHADTAU_EFF_TRIGGER_TOTAL``
 
-**IMPORTANT:** Once again, use the tool only for taus matched to the trigger!
-
 ---------------------
 Supported tau trigger
 ---------------------
 
+**IMPORTANT:** Once again, use the tool only for taus matched to the trigger!
+
 At the moment the following tau trigger are supported:
+
+2016 fall
+----------------
+
+* ``HLT_tau25_medium1_tracktwo``
+* ``HLT_tau35_medium1_tracktwo``
+* ``HLT_tau50_medium1_tracktwo_L1TAU12``
+* ``HLT_tau80_medium1_tracktwo``
+* ``HLT_tau125_medium1_tracktwo``
+* ``HLT_tau160_medium1_tracktwo``
+
+until 2016 ichep
+----------------
 
 * ``HLT_tau25_medium1_tracktwo``
 * ``HLT_tau35_medium1_tracktwo``
@@ -123,12 +206,11 @@ By default scale factors are not binned in tau-eta (this may change in the futur
 
   TauEffTool.setProperty("UseTriggerInclusiveEta", false);
 
+..
+      Binning in data periods
+      -----------------------
 
-Binning in data periods
------------------------
-
-Not implemented yet
-
+      Not implemented yet
 
 ----------
 Navigation
