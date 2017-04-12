@@ -36,6 +36,7 @@ class TrackParticleClusterAssociationAlg : public AthAlgorithm
   std::string m_trackParticleCollectionName;
   double m_ptCut;
   std::string m_outputPostFix;
+  std::string m_caloClusters;
 };
 
 
