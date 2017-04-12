@@ -281,7 +281,7 @@ L1TopoSimulation::execute() {
       topoOverflow2CTP->setCableWord2( clock, dec.overflow( 1, clock) );  // TOPO 1
    } 
    CHECK(evtStore()->record( topoDecision2CTP, m_topoCTPLocation ));
-   CHECK(evtStore()->record( topoOverflow2CTP, m_topoCTPLocation ));
+   CHECK(evtStore()->record( topoOverflow2CTP, m_topoOverflowCTPLocation ));
 
    // TODO: get the output combination data and put into SG
 
