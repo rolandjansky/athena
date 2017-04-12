@@ -1449,9 +1449,6 @@ class EFMissingET_Fex_TrackAndJets (EFMissingETBase):
         jetTool.TrackSelectionTool.CutLevel = "Loose"
         jetTool.TrackSelectionTool.maxZ0SinTheta = 1.5
         jetTool.TrackSelectionTool.maxD0overSigmaD0 = 3
-        jetTool.MuonTrackSelectionTool.CutLevel = "LooseMuon"
-        jetTool.MuonTrackSelectionTool.maxZ0SinTheta = 1.5
-        jetTool.MuonTrackSelectionTool.maxD0overSigmaD0 = 3
 
         ## chain of tools
         self.Tools = []

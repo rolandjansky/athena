@@ -68,7 +68,6 @@ class EFMissingETFromTrackAndJets : public EFMissingETBaseTool
     TH2F* m_jvtLikelihood;
 
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trackselTool;
-    ToolHandle<InDet::IInDetTrackSelectionTool> m_muontrackselTool;
 };
 
 #endif // TRIGEFMISSINGET_EFMISSINGETFROMTRACKANDJETS_H
