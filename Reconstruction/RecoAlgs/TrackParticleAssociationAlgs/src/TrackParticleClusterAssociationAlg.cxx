@@ -21,10 +21,11 @@ TrackParticleClusterAssociationAlg::TrackParticleClusterAssociationAlg(const std
   m_caloClusterAssociationTool("Rec::ParticleCaloClusterAssociationTool/ParticleCaloClusterAssociationTool"),
   m_trackSelector("InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedTrackSelectorTool") {  
 
-  declareProperty("ParticleCaloClusterAssociationTool",m_caloClusterAssociationTool);
-  declareProperty("TrackParticleContainerName",m_trackParticleCollectionName = "InDetTrackParticles" );
-  declareProperty("PtCut", m_ptCut = 25000. );
-  declareProperty("OutputCollectionPostFix", m_outputPostFix = "" );
+  declareProperty("ParticleCaloClusterAssociationTool"  ,   m_caloClusterAssociationTool);
+  declareProperty("TrackParticleContainerName"          ,   m_trackParticleCollectionName = "InDetTrackParticles" );
+  declareProperty("PtCut"                               ,   m_ptCut                       = 25000. );
+  declareProperty("OutputCollectionPostFix"             ,   m_outputPostFix               = "" );
+  declareProperty("CaloClustersLocation"                ,   m_caloClusters                = "CaloCalTopoClusters"   );
 }
 
 TrackParticleClusterAssociationAlg::~TrackParticleClusterAssociationAlg()
@@ -104,7 +105,7 @@ StatusCode TrackParticleClusterAssociationAlg::execute()
     
     for(auto cluster : association->data())
     {
-        ElementLink< xAOD::CaloClusterContainer >   clusterLink("CaloCalTopoClusters",cluster->index());
+        ElementLink< xAOD::CaloClusterContainer >   clusterLink(m_caloClusters,cluster->index());
         // if valid create TrackParticleClusterAssociation
         if( clusterLink.isValid() ){
             caloClusterLinks.push_back( clusterLink );
