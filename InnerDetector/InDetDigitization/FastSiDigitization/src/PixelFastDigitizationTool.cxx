@@ -807,14 +807,7 @@ StatusCode PixelFastDigitizationTool::digitize()
       // ---------------------------------------------------------------------------------------------
       //  PART 2: Cluster && ROT creation
       
-      // from InDetReadoutGeometry: width from eta
-      double etaWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromColumnRange(etaIndexMin, etaIndexMax);
-      // from InDetReadoutGeometry : width from phi
-       double phiWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromRowRange(phiIndexMin, phiIndexMax);
-
-      InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(m_siDeltaPhiCut,m_siDeltaEtaCut),
-                                                   Amg::Vector2D(phiWidth,etaWidth));
-
+   
       //ATTENTION      
 //       // correct shift implied by the scaling of the Lorentz angle
 //       double newshift = 0.5*thickness*tanLorAng;
@@ -826,6 +819,15 @@ StatusCode PixelFastDigitizationTool::digitize()
 	//ATTENTION this can be enabled, take a look to localDirection
 //         if (m_pixModuleDistortion &&  hitSiDetElement->isBarrel() )
 //           clusterPosition = m_pixDistortionTool->correctSimulation(hitSiDetElement->identify(), clusterPosition, localDirection);
+
+   
+	// from InDetReadoutGeometry: width from eta
+	double etaWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromColumnRange(etaIndexMin, etaIndexMax);
+	// from InDetReadoutGeometry : width from phi
+	double phiWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromRowRange(phiIndexMin, phiIndexMax);
+	
+	InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(m_siDeltaPhiCut,m_siDeltaEtaCut),
+                                                   Amg::Vector2D(phiWidth,etaWidth));
 
         // use the cluster maker from the offline software
         pixelCluster = m_clusterMaker->pixelCluster(clusterId,
@@ -839,7 +841,8 @@ StatusCode PixelFastDigitizationTool::digitize()
                                                     m_pixErrorStrategy,
                                                     *m_pixel_ID);
         if (isGanged)  pixelCluster->setGangedPixel(isGanged);
-	
+
+        delete siWidth; 	
 	
       }  else {
         ATH_MSG_WARNING("[ cluster - pix ] No pixels errors provided, but configured to use them.");
@@ -873,7 +876,8 @@ StatusCode PixelFastDigitizationTool::digitize()
 	
 	 m_pixPrdTruth->insert(std::make_pair(pixelCluster->identify(), p ));
       }
- 
+
+
       hit_vector.clear();
     } // end hit while
      
