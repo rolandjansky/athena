@@ -23,6 +23,7 @@
 #include "AthenaBaseComps/AthService.h"
 
 #include <map>
+#include <mutex>
 
 // Forward declarations
 namespace pool {
