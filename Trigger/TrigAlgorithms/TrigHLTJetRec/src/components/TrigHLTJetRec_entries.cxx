@@ -4,6 +4,7 @@
 #include "TrigHLTJetRec/TrigHLTJetRecFromTriggerTower.h"
 #include "TrigHLTJetRec/TriggerPseudoJetGetter.h"
 #include "TrigHLTJetRec/PseudoJetSelectorAll.h"
+#include "TrigHLTJetRec/PseudoJetSelectorPositivePt.h"
 #include "TrigHLTJetRec/PseudoJetSelectorEtaPt.h"
 #include "TrigHLTJetRec/IParticleSelectorAll.h"
 #include "TrigHLTJetRec/IParticleSelectorEtaPt.h"
@@ -39,6 +40,7 @@ DECLARE_ALGORITHM_FACTORY( TrigHLTJetRecGroomer)
 
 DECLARE_TOOL_FACTORY(TriggerPseudoJetGetter)
 DECLARE_TOOL_FACTORY(PseudoJetSelectorAll)
+DECLARE_TOOL_FACTORY(PseudoJetSelectorPositivePt)
 DECLARE_TOOL_FACTORY(PseudoJetSelectorEtaPt)
 DECLARE_TOOL_FACTORY(IParticleSelectorAll)
 DECLARE_TOOL_FACTORY(IParticleSelectorEtaPt)
@@ -62,6 +64,7 @@ DECLARE_FACTORY_ENTRIES(TrigHLTJetRec) {
     DECLARE_ALGORITHM( TrigHLTJetRecGroomer);
     DECLARE_TOOL(TriggerPseudoJetGetter);
     DECLARE_TOOL(PseudoJetSelectorAll);
+    DECLARE_TOOL(PseudoJetSelectorPositivePt);
     DECLARE_TOOL(PseudoJetSelectorEtaPt);
     DECLARE_TOOL(IParticleSelectorAll);
     DECLARE_TOOL(IParticleSelectorEtaPt);

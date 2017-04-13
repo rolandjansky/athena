@@ -36,9 +36,9 @@ class EFMissingETFromHelper : public EFMissingETBaseTool
 {
   public:
 
-    EFMissingETFromHelper(const std::string& type, 
-        const std::string& name, 
-        const IInterface* parent);
+    EFMissingETFromHelper(const std::string& type,
+                          const std::string& name,
+                          const IInterface* parent);
 
     ~EFMissingETFromHelper();
 
@@ -46,19 +46,13 @@ class EFMissingETFromHelper : public EFMissingETBaseTool
     virtual StatusCode finalize();
     virtual StatusCode execute();
 
-    virtual StatusCode execute(xAOD::TrigMissingET *met, 
-        TrigEFMissingEtHelper *metHelper, 
-        const xAOD::CaloClusterContainer *caloCluster,
-        const xAOD::JetContainer *jets);
- 
-
-//  private: -- these no longer are required
-//    bool m_doMonitoring;                   //!< configurable
-//    std::vector<TH2F*> m_N_vs_EtaPhi;       //!< N(eta,phi)
-//    std::vector<TH2F*> m_SumE_vs_EtaPhi;    //<! SumE(eta,phi)
-//    std::vector<TH2F*> m_SumEt_vs_EtaPhi;   //<! SumEt(eta,phi)
-//    std::vector<TH2F*> m_MET_vs_EtaPhi;     //<! MET(eta,phi)
-
+    virtual StatusCode execute(xAOD::TrigMissingET *met,
+                               TrigEFMissingEtHelper *metHelper,
+                               const xAOD::CaloClusterContainer *caloCluster,
+                               const xAOD::JetContainer *jets,
+                               const xAOD::TrackParticleContainer *track,
+                               const xAOD::VertexContainer *vertex,
+                               const xAOD::MuonContainer *muon);
 };
 
 #endif // TRIGEFMISSINGET_EFMISSINGETFROMHELPER

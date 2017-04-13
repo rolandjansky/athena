@@ -17,6 +17,7 @@ atlas_depends_on_subdirs(
                           Event/xAOD/xAODMissingET
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTracking
+                          Event/xAOD/xAODTruth
                           ForwardDetectors/LUCID/LUCID_RawEvent
                           ForwardDetectors/ZDC/ZdcEvent
                           ForwardDetectors/ZDC/ZdcIdentifier
@@ -41,6 +42,7 @@ atlas_depends_on_subdirs(
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Trigger/TrigAnalysis/TrigDecisionTool
+                          Trigger/TrigAnalysis/TrigMuonMatching
                           Trigger/TrigEvent/TrigCaloEvent
                           Trigger/TrigEvent/TrigMuonEvent
                           Trigger/TrigEvent/TrigParticle

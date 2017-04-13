@@ -34,32 +34,31 @@ class EFMissingETFromClustersPS : public EFMissingETBaseTool
   public:
 
     EFMissingETFromClustersPS(const std::string& type,
-        const std::string& name,
-        const IInterface* parent);
+                              const std::string& name,
+                              const IInterface* parent);
 
     ~EFMissingETFromClustersPS();
 
     virtual StatusCode initialize();
-    virtual StatusCode finalize(); 
+    virtual StatusCode finalize();
     virtual StatusCode execute();
 
-    virtual StatusCode execute(xAOD::TrigMissingET *met, 
-        TrigEFMissingEtHelper *metHelper, 
-        const xAOD::CaloClusterContainer *caloCluster,
-        const xAOD::JetContainer *jets);
+    virtual StatusCode execute(xAOD::TrigMissingET *met,
+                               TrigEFMissingEtHelper *metHelper,
+                               const xAOD::CaloClusterContainer *caloCluster,
+                               const xAOD::JetContainer *jets,
+                               const xAOD::TrackParticleContainer *track,
+                               const xAOD::VertexContainer *vertex,
+                               const xAOD::MuonContainer *muon);
 
   private:
-    bool m_saveuncalibrated;
-    bool m_subtractpileup;
-    bool m_pileupdebug;
-    int m_pileupnumrings;
+    bool  m_saveuncalibrated;
+    bool  m_subtractpileup;
+    bool  m_pileupdebug;
+    int   m_pileupnumrings;
     float m_pileupnumstddev;
-    int m_methelperposition;
+    int   m_methelperposition;
     xAOD::CaloCluster_v1::State m_clusterstate;
-
-    // March 6 2013
-    //int m_metType;
-
 };
 
 #endif // TRIGEFMISSINGET_EFMissingETFromClustersPS_H

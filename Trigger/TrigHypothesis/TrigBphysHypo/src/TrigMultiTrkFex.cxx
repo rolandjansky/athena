@@ -129,9 +129,12 @@ bool TrigMultiTrkFex::passNTracks(int nObjMin,
 
   unsigned int nTEs = inputTE.size();
   for ( unsigned int i=0; i < nTEs; ++i) {
-   unsigned int mTEs = inputTE[i].size();
+    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << " TE input array " << i << endmsg;
+    unsigned int mTEs = inputTE[i].size();
    for ( unsigned int j=0; j < mTEs; ++j) {
+     if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << " TE input  " << j << endmsg;
     if(getFeaturesLinks<xAOD::TrackParticleContainer,xAOD::TrackParticleContainer>(inputTE[i][j], inVecColl, collectionKey)==HLT::OK ) {
+      if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "got track container  " << inVecColl.size() << endmsg;
       for( const auto & efmu : inVecColl){	//auto const & inVec: inVecColl ) 
 	  // check for overlap
 	  bool found = false;
@@ -140,7 +143,14 @@ bool TrigMultiTrkFex::passNTracks(int nObjMin,
 	    double deta = (*part)->eta() - (*efmu)->eta();
 	    double dphi = (*part)->phi() - (*efmu)->phi();
 	    double deltaR2 = deta*deta +dphi*dphi;
-	    if( deltaR2 <= mindR2) found = true;
+	    if( deltaR2 <= mindR2){
+	      found = true;
+ 	      if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Duplicated track pt/eta/phi/q "
+						   << (*efmu)->pt()<< " /  "
+						   << (*efmu)->eta()<< " /  "
+						   << (*efmu)->phi()<< " /  "
+						   << (*efmu)->charge()<< " skip " <<deltaR2 <<  endmsg;
+	    }
 	  }
 	  if( !found ) {
 	    outVec.push_back(efmu);	    	

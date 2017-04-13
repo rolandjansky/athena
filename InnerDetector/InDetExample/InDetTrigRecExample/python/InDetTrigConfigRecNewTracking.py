@@ -300,6 +300,7 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
                                                          useSCT        = InDetTrigCutValues.useSCT(),
                                                          minTRTonTrk  = 0,    # no TRT here
                                                          DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
+                                                         doEmCaloSeed = False,
                                                          #BeamPositionSvc = default instance ,
                                                          )
 
@@ -312,7 +313,7 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
         InDetTrigScoringTool.useTRT_AmbigFcn= False
         InDetTrigScoringTool.useSigmaChi2   = True
 
-      if slice=='FTK' or slice=='FTKRefit':
+      if slice=='FTK' or slice=='FTKRefit' or slice=='FTKMon':
         InDetTrigScoringTool.minSiClusters  = FTKTrackingCuts.minClusters()
         InDetTrigScoringTool.maxSiHoles     = FTKTrackingCuts.maxHoles()
         InDetTrigScoringTool.maxPixelHoles  = FTKTrackingCuts.maxPixelHoles()
@@ -339,6 +340,7 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
                                             )
 
       InDetTrigAmbiguityProcessor.ScoringTool = InDet__InDetAmbiScoringTool('InDetTrigScoringTool_'+slice)
+
       if slice=='beamgas':
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsBeamGas import \
             InDetTrigAmbiTrackSelectionToolBeamGas
@@ -360,7 +362,7 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
         InDetTrigAmbiguityProcessor.tryBremFit  = True
         import AthenaCommon.SystemOfUnits as Units
         InDetTrigAmbiguityProcessor.pTminBrem   = 5 * Units.GeV
-      elif slice=='FTK' or slice=='FTKRefit':
+      elif slice=='FTK' or slice=='FTKRefit'  or slice=='FTKMon':
         from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigAmbiTrackSelectionToolFTK,InDetTrigTrackFitterFTK
         InDetTrigAmbiguityProcessor.SelectionTool = InDetTrigAmbiTrackSelectionToolFTK
         InDetTrigAmbiguityProcessor.Fitter=InDetTrigTrackFitterFTK
@@ -567,7 +569,7 @@ class TrigExtProcessor_EF( InDet__InDetTrigExtensProcessor ):
                                                           maxDoubleHoles=InDetTrigCutValues.maxDoubleHoles(),
                                                           usePixel      = InDetTrigCutValues.usePixel(),
                                                           useSCT        = InDetTrigCutValues.useSCT(),
-
+                                                          doEmCaloSeed = False,
                                                           minTRTonTrk  = InDetTrigCutValues.minTRTonTrk(),
                                                           #useSigmaChi2   = False # tuning from Thijs
                                                           DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
@@ -596,6 +598,7 @@ class TrigExtProcessor_EF( InDet__InDetTrigExtensProcessor ):
       
     self.TrackFitter  = InDetTrigExtensionFitter
     self.ScoringTool  = InDet__InDetAmbiScoringTool('InDetTrigExtScoringTool_'+type)
+                                                          
     self.RefitPrds    = not (InDetTrigFlags.refitROT() or (InDetTrigFlags.trtExtensionType() is 'DAF'))
     self.suppressHoleSearch = False    # does not work properly      
     if type=="cosmicsN":

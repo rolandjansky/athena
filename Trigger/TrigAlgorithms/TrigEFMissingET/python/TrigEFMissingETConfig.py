@@ -8,6 +8,7 @@ from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromClusters
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromClustersPS
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromClustersPUC
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromJets
+from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromTrackAndJets
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFlags
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromHelper
 
@@ -21,6 +22,7 @@ from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.SystemOfUnits import nanosecond
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 class EFMissingETBase (EFMissingET):
     __slots__ = []
@@ -1177,8 +1179,6 @@ class EFMissingET_Fex_topoClustersPS (EFMissingETBase):
 
         self.AthenaMonTools = [ validation, online, cosmic]
 
-
-
 ##### Use topo. clusters for noise suppression #####
 class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
     __slots__ = []
@@ -1200,13 +1200,22 @@ class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
         helperTool.ParentFexName = name
         
         clusterTool.SubtractPileup = True
+
+
+        is2016 = (TriggerFlags.run2Config() == '2016')
+
+
+        clusterTool.use2016Algo = is2016
+# N.B. - defaults for 2016 running: nSigma = 3.2 and varRhoScale = 4.0
+# N.B. - defaults for 2017 running: nSigma = 5.0 and varRhoScale = 1.0
+        clusterTool.nSigma = 3.2 if is2016 else 5.0
+        clusterTool.varRhoScale = 4.0 if is2016 else 1.0
+        clusterTool.aveEclusPU = 10000.0
         clusterTool.towerWidthInput = 0.7
         clusterTool.EtaRange = 5.0
-#        clusterTool.ptmin = 45000.0
-        clusterTool.aveEclusPU = 10000.0
         clusterTool.resE = 15.81
-        clusterTool.nSigma = 3.2
-        clusterTool.varRhoScale = 4.0
+        clusterTool.resEfloor = 50.0
+        clusterTool.trimFactor = 0.90
 
         # fraction of energy deposited in EM samplings
         flagTool.MaxEMfraction = 1.0
@@ -1366,8 +1375,6 @@ class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
 
         self.AthenaMonTools = [ validation, online, cosmic]
 
-
-
 ##### loop over jets #####
 class EFMissingET_Fex_Jets (EFMissingETBase):
     __slots__ = []
@@ -1394,6 +1401,7 @@ class EFMissingET_Fex_Jets (EFMissingETBase):
         jetTool.EtaSeparation = 2.2
         jetTool.CentralpTCut = 0.0
         jetTool.ForwardpTCut = 0.0
+        jetTool.ApplyTileGap3Correction = TriggerFlags.run2Config() != '2016' # Do not apply the TileGap3 correction for 2015+2016 data
         
         ## chain of tools
         self.Tools = []
@@ -1409,6 +1417,51 @@ class EFMissingET_Fex_Jets (EFMissingETBase):
 
         self.AthenaMonTools = [ validation, online, cosmic]
 
+##### loop over tracks and jets #####
+class EFMissingET_Fex_TrackAndJets (EFMissingETBase):
+    __slots__ = []
+    def __init__ (self, name="EFMissingET_Fex_TrackAndJets"):
+        super(EFMissingET_Fex_TrackAndJets, self).__init__(name)
+
+        # name of TrigMissingET object
+        self.MissingETOutputKey = "TrigEFMissingET_trkmht"
+        self.doJets = True
+        self.doTracks = True
+
+        # tools
+        febTool    = EFMissingETFromFEBHeader("TheFEBTool")
+        jetTool    = EFMissingETFromTrackAndJets("TheTrackAndJetTool")
+        flagTool   = EFMissingETFlags("TheFlagsTool")
+        helperTool = EFMissingETFromHelper("TheHelperTool")
+        #
+        febTool.ParentFexName = name
+        jetTool.ParentFexName = name
+        flagTool.ParentFexName = name
+        helperTool.ParentFexName = name
+        #
+
+        ## Configuration of jet fex
+        jetTool.EtaSeparation = 2.2
+        jetTool.CentralpTCut = 25 #GeV
+        jetTool.ForwardpTCut = 0.0
+        jetTool.TrackpTCut = 1 #GeV
+        jetTool.CentralJetJVTCut = 0.9
+        jetTool.TrackSelectionTool.CutLevel = "Loose"
+        jetTool.TrackSelectionTool.maxZ0SinTheta = 1.5
+        jetTool.TrackSelectionTool.maxD0overSigmaD0 = 3
+
+        ## chain of tools
+        self.Tools = []
+        self.Tools += [ jetTool ]
+        self.Tools += [ flagTool ]
+        self.Tools += [ helperTool ]
+
+        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_alt, TrigEFMissingETOnlineMonitoring_alt, TrigEFMissingETCosmicMonitoring_alt
+        validation = TrigEFMissingETValidationMonitoring_alt()
+        online = TrigEFMissingETOnlineMonitoring_alt()
+        cosmic = TrigEFMissingETCosmicMonitoring_alt()
+
+        self.AthenaMonTools = [ validation, online, cosmic]
 
 ##### THE DEFAULT FEX #####
 class EFMissingET_Fex (EFMissingET_Fex_2sidednoiseSupp):

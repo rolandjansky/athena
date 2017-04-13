@@ -35,7 +35,7 @@ class DQTLumiMonTool: public DataQualityFatherMonTool{
   bool bookDQTLumiMonTool();
 
  private:
-  bool failedBooking;
+  bool m_failedBooking;
 
   std::string m_VertexContainerKey;
   int m_MinNtracksForTight;

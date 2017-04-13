@@ -83,6 +83,7 @@ StatusCode DQTDataFlowMonTool::bookHistograms(  )
   MonGroup lb_hists( this, m_path, lumiBlock, ATTRIB_MANAGED );
   MonGroup lowStat_alpha_hists( this, m_path, lowStat, ATTRIB_MANAGED );
   MonGroup run_hists( this, m_path, run, ATTRIB_MANAGED );
+  MonGroup rolling_hists( this, m_path, run, ATTRIB_X_VS_LB, "", "merge" );
    
   //failure |= lb_hists.regHist(m_events_lb = TH1I_LW::create("events_lb", "Event Count", AthenaMonManager::altprod+1, -0.5, AthenaMonManager::altprod+0.5)).isFailure();
   failure |= lb_hists.regHist(m_events_lb = new TH1I("events_lb", "Event Count", AthenaMonManager::altprod+1, -0.5, AthenaMonManager::altprod+0.5)).isFailure();
@@ -105,7 +106,7 @@ StatusCode DQTDataFlowMonTool::bookHistograms(  )
     failure = true;
   } else {
     if (evtinfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
-      failure |= run_hists.regHist(m_sumweights = new TH1D("m_sumweights", "Sum of MC event weights", 1, 0.5, 1.5)).isFailure();
+      failure |= rolling_hists.regHist(m_sumweights = new TH1D("m_sumweights", "Sum of MC event weights", 50, 0.5, 50.5)).isFailure();
     }
   }
 
@@ -176,7 +177,7 @@ DQTDataFlowMonTool::fillHistograms()
       ATH_MSG_WARNING("Could not retrieve EventInfo");
     } else {
       if (m_sumweights) { 
-	m_sumweights->Fill(1, evtinfo->mcEventWeight()); 
+	m_sumweights->Fill(evtinfo->lumiBlock(), evtinfo->mcEventWeight()); 
       }
       EventInfo::EventFlagErrorState worststate = EventInfo::NotSet;
       for (int i = 0; i < EventInfo::nDets; i++) {

@@ -20,7 +20,6 @@
 #include "../TrigCostRootAnalysis/TrigXMLService.h"
 
 namespace TrigCostRootAnalysis {
-
   Float_t CounterSequence::s_eventTimeExecute = 0.;
 
   /**
@@ -28,10 +27,10 @@ namespace TrigCostRootAnalysis {
    * @param _name Const ref to sequence's name
    * @param _ID Sequence's index number.
    */
-  CounterSequence::CounterSequence( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel, MonitorBase* _parent )
+  CounterSequence::CounterSequence(const TrigCostData* _costData, const std::string& _name, Int_t _ID,
+                                   UInt_t _detailLevel, MonitorBase* _parent)
     : CounterBase(_costData, _name, _ID, _detailLevel, _parent),
     m_eventWeight(1.) {
-
     // Reg. variables to study.
     m_dataStore.newVariable(kVarEventsActive).setSavePerEvent();
     m_dataStore.newVariable(kVarCalls).setSavePerEvent();
@@ -39,45 +38,44 @@ namespace TrigCostRootAnalysis {
 
     // Time
     m_dataStore.newVariable(kVarTime)
-      .setSavePerCall("Sequence Total Time Per Call;Sequence Total Time per Call [ms];Calls")
-      .setSavePerEvent("Sequence Total Time Per Event;Sequence Total Time per Event [ms];Events")
-      .setSavePerEventFraction("Fractional Sequence Total Time;Sequence Total Time/Event Total Time;Events");
+     .setSavePerCall("Sequence Total Time Per Call;Sequence Total Time per Call [ms];Calls")
+     .setSavePerEvent("Sequence Total Time Per Event;Sequence Total Time per Event [ms];Events")
+     .setSavePerEventFraction("Fractional Sequence Total Time;Sequence Total Time/Event Total Time;Events");
     m_dataStore.newVariable(kVarCPUTime)
-      .setSavePerCall("Sequence CPU Time Per Call;Sequence CPU Time [ms];Calls")
-      .setSavePerEvent("Sequence CPU Time Per Event;Sequence CPU Time [ms];Events");
+     .setSavePerCall("Sequence CPU Time Per Call;Sequence CPU Time [ms];Calls")
+     .setSavePerEvent("Sequence CPU Time Per Event;Sequence CPU Time [ms];Events");
     m_dataStore.newVariable(kVarROSTime)
-      .setSavePerCall("Sequence ROB Time Per Call;Sequence ROB Time [ms];Calls")
-      .setSavePerEvent("Sequence ROB Time Per Event;Sequence ROB Time [ms];Events");
+     .setSavePerCall("Sequence ROB Time Per Call;Sequence ROB Time [ms];Calls")
+     .setSavePerEvent("Sequence ROB Time Per Event;Sequence ROB Time [ms];Events");
 
     // Cache status
     m_dataStore.newVariable(kVarAlgCalls)
-    .setSavePerCall("Number Of Alg Executions Per Sequence Call;Alg Executions per Sequence Call;Calls")
-    .setSavePerEvent("Number Of Alg Executions Per Event;Alg Executions per Event;Events");
+     .setSavePerCall("Number Of Alg Executions Per Sequence Call;Alg Executions per Sequence Call;Calls")
+     .setSavePerEvent("Number Of Alg Executions Per Event;Alg Executions per Event;Events");
     m_dataStore.newVariable(kVarAlgCaches)
-    .setSavePerCall("Number Of Cached Algs Per Sequence Call;Cached Algs per Sequence Call;Calls")
-    .setSavePerEvent("Number Of Cached Algs Per Event;Cached Algs per Event;Events");
+     .setSavePerCall("Number Of Cached Algs Per Sequence Call;Cached Algs per Sequence Call;Calls")
+     .setSavePerEvent("Number Of Cached Algs Per Event;Cached Algs per Event;Events");
 
     // ROS status
     m_dataStore.newVariable(kVarROSCalls).setSavePerCall().setSavePerEvent();
 
     m_dataStore.newVariable(kVarROBReqs)
-      .setSavePerCall("Number Of Cached ROBs Per Call;Cached ROBs;Calls")
-      .setSavePerEvent("Number Of Cached ROBs Per Event;Cached ROBs;Events");
+     .setSavePerCall("Number Of Cached ROBs Per Call;Cached ROBs;Calls")
+     .setSavePerEvent("Number Of Cached ROBs Per Event;Cached ROBs;Events");
 
     m_dataStore.newVariable(kVarROBRets)
-      .setSavePerCall("Number Of Retrieved ROBs Per Call;Retrieved ROBs;Calls")
-      .setSavePerEvent("Number Of Retrieved ROBs Per Event;Retrieved ROBS;Events");
+     .setSavePerCall("Number Of Retrieved ROBs Per Call;Retrieved ROBs;Calls")
+     .setSavePerEvent("Number Of Retrieved ROBs Per Event;Retrieved ROBS;Events");
 
     m_dataStore.newVariable(kVarROBReqSize)
-      .setSavePerCall("Size Of Cached ROBs Per Call;Cached ROBs Size [kB];Calls")
-      .setSavePerEvent("Size Of Cached ROBs Per Event;Cached ROBs Size [kB];Events");
+     .setSavePerCall("Size Of Cached ROBs Per Call;Cached ROBs Size [kB];Calls")
+     .setSavePerEvent("Size Of Cached ROBs Per Event;Cached ROBs Size [kB];Events");
 
     m_dataStore.newVariable(kVarROBRetSize)
-      .setSavePerCall("Size Of Retrieved ROBs Per Call;Retrieved ROBs Size [kB];Calls")
-      .setSavePerEvent("Size Of Retrieved ROBs Per Event;Retrieved ROBs Size [kB];Events");
+     .setSavePerCall("Size Of Retrieved ROBs Per Call;Retrieved ROBs Size [kB];Calls")
+     .setSavePerEvent("Size Of Retrieved ROBs Per Event;Retrieved ROBs Size [kB];Events");
 
     m_dataStore.newVariable(kVarROBOther).setSavePerCall().setSavePerEvent();
-
   }
 
   /**
@@ -102,18 +100,18 @@ namespace TrigCostRootAnalysis {
    */
   void CounterSequence::processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight) {
     ++m_calls;
-    UNUSED( _f );
+    UNUSED(_f);
 
     Float_t _prescaleFactor = getPrescaleFactor(_e);
     _weight *= _prescaleFactor;
     if (isZero(_weight) == kTRUE) return;
 
-    if ( Config::config().debug() ) debug(_e);
+    if (Config::config().debug()) debug(_e);
 
-    const std::string _myChain = TrigConfInterface::getHLTNameFromChainID( m_costData->getSequenceChannelCounter(_e));
-    if ( m_chainsSeen.count( _myChain ) == 0) {
+    const std::string _myChain = TrigConfInterface::getHLTNameFromChainID(m_costData->getSequenceChannelCounter(_e));
+    if (m_chainsSeen.count(_myChain) == 0) {
       m_eventWeight *= (1. - _prescaleFactor);
-      m_chainsSeen.insert( _myChain );
+      m_chainsSeen.insert(_myChain);
     }
 
     m_dataStore.store(kVarCalls, 1., _weight);
@@ -122,7 +120,7 @@ namespace TrigCostRootAnalysis {
     Float_t _rosTime = m_costData->getSeqROSTime(_e);
     Float_t _sequenceTime = m_costData->getSequenceTime(_e);
     //if ( isZero(_sequenceTime) == kTRUE ) {
-      _sequenceTime = m_costData->getSequenceAlgTotalTime(_e);
+    _sequenceTime = m_costData->getSequenceAlgTotalTime(_e);
     //}
     s_eventTimeExecute += _sequenceTime * _weight; // Add to static variable to keep track during event
     m_dataStore.store(kVarTime, _sequenceTime, _weight);
@@ -131,7 +129,7 @@ namespace TrigCostRootAnalysis {
       m_dataStore.store(kVarCPUTime, _sequenceTime - _rosTime, _weight);
     }
 
-    if ( _sequenceTime > Config::config().getInt(kSlowThreshold) ) {
+    if (_sequenceTime > Config::config().getInt(kSlowThreshold)) {
       m_dataStore.store(kVarCallsSlow, 1., _weight);
     }
 
@@ -141,18 +139,17 @@ namespace TrigCostRootAnalysis {
 
     // Get alg ROB status
     m_dataStore.store(kVarROSCalls, m_costData->getSeqROSCalls(_e), _weight);
-    if ( m_costData->getSeqROBRequests(_e) != 0 ) {
+    if (m_costData->getSeqROBRequests(_e) != 0) {
       m_dataStore.store(kVarROBReqs, m_costData->getSeqROBRequests(_e), _weight);
       m_dataStore.store(kVarROBReqSize, m_costData->getSeqROBRequestSize(_e), _weight);
     }
-    if ( m_costData->getSeqROBRetrievals(_e) != 0 ) {
+    if (m_costData->getSeqROBRetrievals(_e) != 0) {
       m_dataStore.store(kVarROBRets, m_costData->getSeqROBRetrievals(_e), _weight);
       m_dataStore.store(kVarROBRetSize, m_costData->getSeqROBRetrievalSize(_e), _weight);
     }
-    if ( m_costData->getSeqROBOthers(_e) != 0 ) {
+    if (m_costData->getSeqROBOthers(_e) != 0) {
       m_dataStore.store(kVarROBOther, m_costData->getSeqROBOthers(_e), _weight);
     }
-
   }
 
   /**
@@ -163,8 +160,8 @@ namespace TrigCostRootAnalysis {
    */
   Double_t CounterSequence::getPrescaleFactor(UInt_t _e) {
     return TrigXMLService::trigXMLService().getHLTCostWeightingFactor(
-      TrigConfInterface::getHLTNameFromChainID( m_costData->getSequenceChannelCounter(_e),
-      m_costData->getSequenceLevel(_e) ) );
+      TrigConfInterface::getHLTNameFromChainID(m_costData->getSequenceChannelCounter(_e),
+                                               m_costData->getSequenceLevel(_e)));
   }
 
   /**
@@ -180,17 +177,15 @@ namespace TrigCostRootAnalysis {
 
     m_dataStore.setVariableDenominator(kVarTime, s_eventTimeExecute);
     m_dataStore.endEvent();
-
   }
 
   /**
    * Output debug information on this call to the console
    */
   void CounterSequence::debug(UInt_t _e) {
-
     Info("CounterSequence::debug", "Seq Name:%s ID:%i Evnt:%i Lvl:%i Chnl:%i Index:%i SeqTimer:%.2f SeqAlgTimer:%.2f"
-         " isAlreadyExec:%i isExec:%i isInitial:%i isPrev:%i nAlgs:%i nAlgCalls:%i nAlgCaches:%i"
-         " ROSCall:%i ROSTime:%.2f ROBRet:%i ROBRetSize:%.2f ROBReq:%i ROBReqSize:%.2f ROBOther:%i",
+                                   " isAlreadyExec:%i isExec:%i isInitial:%i isPrev:%i nAlgs:%i nAlgCalls:%i nAlgCaches:%i"
+                                   " ROSCall:%i ROSTime:%.2f ROBRet:%i ROBRetSize:%.2f ROBReq:%i ROBReqSize:%.2f ROBOther:%i",
          m_name.c_str(),
          getID(),
          m_costData->getEventNumber(),
@@ -212,8 +207,6 @@ namespace TrigCostRootAnalysis {
          m_costData->getSeqROBRetrievalSize(_e),
          m_costData->getSeqROBRequests(_e),
          m_costData->getSeqROBRequestSize(_e),
-         m_costData->getSeqROBOthers(_e) );
-
+         m_costData->getSeqROBOthers(_e));
   }
-
 } // namespace TrigCostRootAnalysis

@@ -34,6 +34,10 @@ namespace CP {
   class IIsolationSelectionTool;
 }
 
+namespace Trig {
+  class ITrigMuonMatching;
+}
+
 class DQTGlobalWZFinderTool: public DataQualityFatherMonTool
 {
 
@@ -43,7 +47,7 @@ class DQTGlobalWZFinderTool: public DataQualityFatherMonTool
 
   ~DQTGlobalWZFinderTool();
 
-  //StatusCode initialize();
+  StatusCode initialize();
     
   virtual StatusCode bookHistograms();
   virtual StatusCode bookHistogramsRecurrent();
@@ -54,6 +58,9 @@ class DQTGlobalWZFinderTool: public DataQualityFatherMonTool
   bool bookDQTGlobalWZFinderTool();
 
 private:
+  void doMuonTriggerTP(const xAOD::Muon* , const xAOD::Muon*);
+  void doMuonTruthEff(std::vector<const xAOD::Muon*>&);
+  void doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmuonsZ, const xAOD::Vertex* pVtx);
 
       TH1F_LW *m_W_mt_ele;
       TH1F_LW *m_W_mt_mu;
@@ -72,8 +79,6 @@ private:
       TH1F_LW *m_Z_Q_ele;
       TH1F_LW *m_Z_Q_mu;
 
-      TH1F_LW *m_Z_ee_mass_lb;
-      TH1F_LW *m_Z_mm_mass_lb;
       TProfile *m_livetime_lb;
       TProfile *m_lblength_lb;
       TProfile *m_mu_lb;
@@ -86,32 +91,44 @@ private:
       TH1F_LW *m_ele_Eta;
 
       //Resonance Counters
-      float minLumiBlock;
-      float maxLumiBlock;
-      float numBins;
+      float m_minLumiBlock;
+      float m_maxLumiBlock;
+      float m_numBins;
 
       TH1F_LW *m_JPsiCounter_Mu;
       TH1F_LW *m_UpsilonCounter_Mu;
-      TH1F_LW *m_ZBosonCounter_El;
-      TH1F_LW *m_ZBosonCounter_Mu;
+      TH1F *m_ZBosonCounter_El;
+      TH1F *m_ZBosonCounter_Mu;
+
+      //Trigger T&P
+      TH1F_LW *m_mutrigtp_matches;
+
+      //Reco T&P
+      TH1F_LW *m_muloosetp_match_os;
+      TH1F_LW *m_muloosetp_match_ss;
+      TH1F_LW *m_muloosetp_nomatch_os;
+      TH1F_LW *m_muloosetp_nomatch_ss;
+      // MC truth
+      TH1F_LW *m_mcmatch;
       
       //Second component of counter array is for trigger aware counter
-      int JPsiCounterSBG[2];
-      int JPsiCounter2BG[2];
-      int JPsiCounterSignal[2];
+      int m_JPsiCounterSBG[2];
+      int m_JPsiCounter2BG[2];
+      int m_JPsiCounterSignal[2];
 
-      int UpsilonCounterSBG[2];
-      int UpsilonCounterBG[2];
-      int UpsilonCounterSignal[2];
+      int m_UpsilonCounterSBG[2];
+      int m_UpsilonCounterBG[2];
+      int m_UpsilonCounterSignal[2];
 
-      int ZBosonCounterSBG_El[2];
-      int ZBosonCounterSBG_Mu[2];
+      int m_ZBosonCounterSBG_El[2];
+      int m_ZBosonCounterSBG_Mu[2];
 
       //uint32_t lumiBlock;
       //uint32_t eventNumber;
 
-      int this_lb; //remove _t
-      int eventNumber; //remove _t
+      int m_this_lb; //remove _t
+      int m_eventNumber; //remove _t
+      Float_t m_evtWeight;
       
       std::string m_electronContainerName;
       std::string m_egDetailContainerName;
@@ -128,16 +145,18 @@ private:
       Float_t m_metCut;
       Float_t m_zCutLow;
       Float_t m_zCutHigh;
+      Float_t m_muonMaxEta;
       bool m_doTrigger;
       ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationSelectionTool;
-
+      ToolHandle<Trig::ITrigMuonMatching> m_muTrigMatchTool;
+      bool m_useOwnMuonSelection;
             
       // to guard against endless messages 
-      bool printedErrorEleContainer;
-      bool printedErrorMuColl;
-      bool printedErrorMet;
-      bool printedErrorTrackContainer;
+      bool m_printedErrorEleContainer;
+      bool m_printedErrorMuColl;
+      bool m_printedErrorMet;
+      bool m_printedErrorTrackContainer;
 
       std::vector<std::string> m_Jpsi_mm_trigger;
       std::vector<std::string> m_Z_mm_trigger;

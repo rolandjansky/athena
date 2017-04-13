@@ -78,20 +78,22 @@ HLT::ErrorCode MuonClusterIsolation::hltInitialize() {
     msg() << MSG::DEBUG << "Timers are initializated here" << endmsg;
   }
 
-  m_Timers.push_back(addTimer("ClusterMuon_Initialization"));
-  m_Timers.push_back(addTimer("ClusterMuon_ClusterIsolation"));
-  m_Timers.push_back(addTimer("ClusterMuon_JetIsolation"));
-  m_Timers.push_back(addTimer("ClusterMuon_TrackIsolation"));
-  m_Timers.push_back(addTimer("ClusterMuon_Finalization"));
+  if (doTiming()) {
+    m_Timers.push_back(addTimer("ClusterMuon_Initialization"));
+    m_Timers.push_back(addTimer("ClusterMuon_ClusterIsolation"));
+    m_Timers.push_back(addTimer("ClusterMuon_JetIsolation"));
+    m_Timers.push_back(addTimer("ClusterMuon_TrackIsolation"));
+    m_Timers.push_back(addTimer("ClusterMuon_Finalization"));
 
-  declareMonitoredObject("Initialization", *(m_Timers[ITIMER_INIT]), 
-			 &TrigTimer::elapsed);
-  declareMonitoredObject("JetIsolation", *(m_Timers[ITIMER_JETS]), 
-			 &TrigTimer::elapsed);
-  declareMonitoredObject("TrackIsolation", *(m_Timers[ITIMER_TRACKS]), 
-			 &TrigTimer::elapsed);
-  declareMonitoredObject("Finalization", *(m_Timers[ITIMER_FINAL]), 
-			 &TrigTimer::elapsed);
+    declareMonitoredObject("Initialization", *(m_Timers[ITIMER_INIT]), 
+                           &TrigTimer::elapsed);
+    declareMonitoredObject("JetIsolation", *(m_Timers[ITIMER_JETS]), 
+                           &TrigTimer::elapsed);
+    declareMonitoredObject("TrackIsolation", *(m_Timers[ITIMER_TRACKS]), 
+                           &TrigTimer::elapsed);
+    declareMonitoredObject("Finalization", *(m_Timers[ITIMER_FINAL]), 
+                           &TrigTimer::elapsed);
+  }
    
   msg() << MSG::INFO << "initialize() success" << endmsg;
 

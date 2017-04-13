@@ -64,53 +64,48 @@ def TrigIDPhysValMonitoringTool():
     ############### Electrons ###############
     name = "Electron"
     pdgid = 11
-    UseHighestPT = True
+    useHighestPT = True
     chainnames = [
-      "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_EFID",
       "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_IDTrig",
       "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_FTF"
     ]
-    outputlist += [makePhysvalMon(name, pdgid, useHighestPT, chainnames)]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
 
     ############### Muons ###############
     name = "Muon"
     pdgid = 13
     useHighestPT = True
     chainnames = [
-      "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_EFID",
       "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_IDTrig",
       "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_FTF"
     ]
-    outputlist += [makePhysvalMon(name, pdgid, useHighestPT, chainnames)]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
 
     ############### Taus ###############
     name = "Tau"
     pdgid = 15
     useHighestPT = True
     chainnames = [
-      "HLT_tau.*idperf.*:InDetTrigTrackingxAODCnv_Tau_EFID",
       "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
       "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_FTF:roi=forID",
       "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1",
       "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3"
     ]
-    outputlist += [makePhysvalMon(name, pdgid, useHighestPT, chainnames)]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
 
     ############### Bjets ###############
     name = "Bjet"
     pdgid = 5
     useHighestPT = False
     chainnames = [
-      "HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=TrigSuperRoi",
-      "HLT_j.*bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
-      "HLT_j.*bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
-      "HLT_j.*bperf_split:InDetTrigTrackingxAODCnv_Bjet_EFID",
-      "HLT_mu.*bperf_dr05:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=TrigSuperRoi",
-      "HLT_mu.*bperf_dr05:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
-      "HLT_mu.*bperf_dr05:InDetTrigTrackingxAODCnv_Bjet_EFID",
-      "HLT_mu.*bperf_dr05:InDetTrigTrackingxAODCnv_Bjet_FTF"
+      "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=TrigSuperRoi",
+      "HLT_j.*b.*perf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+      "HLT_j.*b.*perf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
+      "HLT_mu.*b.*perf_dr05:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=TrigSuperRoi",
+      "HLT_mu.*b.*perf_dr05:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+      "HLT_mu.*b.*perf_dr05:InDetTrigTrackingxAODCnv_Bjet_FTF"
     ]
-    outputlist += [makePhysvalMon(name, pdgid, useHighestPT, chainnames)]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
 
     ############### Bphys ###############
     name = "Bphys"
@@ -120,7 +115,7 @@ def TrigIDPhysValMonitoringTool():
       "HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_IDTrig",
       "HLT_.*Bmumux.*:InDetTrigTrackingxAODCnv_Bphysics_FTF"
     ]
-    outputlist += [makePhysvalMon(name, pdgid, useHighestPT, chainnames)]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
 
     ############### Cosmics ###############
     name = "Cosmic"

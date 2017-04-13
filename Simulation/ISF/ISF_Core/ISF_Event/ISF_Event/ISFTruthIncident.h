@@ -13,7 +13,7 @@
 #include <vector>
 
 // Barcode include
-#include "BarcodeInterfaces/PhysicsProcessCode.h"
+#include "BarcodeEvent/PhysicsProcessCode.h"
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"

@@ -66,7 +66,8 @@ private:
      ~ReadHLTResult() {}
 
      bool ProcessEvent(ServiceHandle<StoreGateSvc> &storeGate, 
-		       ToolHandle<HLT::Navigation> &navigation);
+		       ToolHandle<HLT::Navigation> &navigation,
+           ToolHandle<Trig::ITrigNtTool> &confTool);
      
      void PrintInit();
      void PrintEvent();
@@ -81,7 +82,13 @@ private:
 		     ToolHandle<HLT::Navigation> &navigation);
 
      bool ReadConfig(ServiceHandle<StoreGateSvc> &storeGate);
-     bool ReadEvent (ServiceHandle<StoreGateSvc> &storeGate);
+     bool ReadConfigDB(ServiceHandle<StoreGateSvc> &storeGate, 
+                       const TrigMonEvent* trigMonEvent,
+                       ToolHandle<Trig::ITrigNtTool> &confTool);
+
+     bool ReadEvent (ServiceHandle<StoreGateSvc> &storeGate, 
+                     const bool gotConfigSG, 
+                     ToolHandle<Trig::ITrigNtTool> &confTool);
 
      MsgStream& log() const { return *msgStream; }
 
@@ -115,6 +122,7 @@ private:
      unsigned                     countConfig;  // Count all extracted TrigMonConfig 
      unsigned                     resultPrint;  // Count all fully printed results
 
+
      std::set< std::pair<int,int> > exportedConfigs; // L1 and HLT keys of configurations which have already been exported to D3PD
    };
 
@@ -136,7 +144,9 @@ private:
 
    ToolHandleArray<Trig::ITrigNtTool>  m_tools;
    ToolHandleArray<Trig::ITrigNtTool>  m_toolsSave;
-   
+
+   ToolHandle<Trig::ITrigNtTool>       m_toolConf; //!< To read in TrigConf from the DB at T0
+
    // Variables   
    ReadHLTResult                       m_readL2;          // Helper class for reading L2 result
    ReadHLTResult                       m_readEF;          // Helper class for reading EF result

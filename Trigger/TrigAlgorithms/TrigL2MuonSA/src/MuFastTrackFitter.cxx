@@ -27,7 +27,8 @@ TrigL2MuonSA::MuFastTrackFitter::MuFastTrackFitter(const std::string& type,
   AthAlgTool(type,name,parent),
   m_storeGateSvc( "StoreGateSvc", name ),
   m_use_mcLUT(true),
-  m_alignmentBarrelLUTSvc(0)
+  m_alignmentBarrelLUTSvc(0),
+  m_use_endcapInnerFromBarrel(false)
 {
   declareInterface<TrigL2MuonSA::MuFastTrackFitter>(this);
 }
@@ -140,6 +141,12 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::setMCFlag(BooleanProperty use_mcLUT)
   return StatusCode::SUCCESS;
 }
 
+void TrigL2MuonSA::MuFastTrackFitter::setUseEIFromBarrel( BooleanProperty use_endcapInnerFromBarrel )
+{
+  m_use_endcapInnerFromBarrel = use_endcapInnerFromBarrel;
+  return;
+}
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -152,6 +159,7 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::findTracks(const LVL1::RecMuonRoI*  
    std::vector<TrigL2MuonSA::TrackPattern>::iterator itTrack;
    for (itTrack=v_trackPatterns.begin(); itTrack!=v_trackPatterns.end(); itTrack++) {
 
+     m_sagittaRadiusEstimate -> setUseEndcapInner( m_use_endcapInnerFromBarrel );
      sc = m_sagittaRadiusEstimate->setSagittaRadius(p_roi, rpcFitResult, *itTrack);
      if (!sc.isSuccess()) {
        ATH_MSG_WARNING("Barrel sagitta and radius estimation failed");

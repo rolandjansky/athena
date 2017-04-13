@@ -45,10 +45,10 @@ class TrigMuSuperEFConfig(TrigMuSuperEF):
         doCaloTagOnly    = kwargs["CaloTagOnly"]
         combinerOnly     = kwargs["CombinerOnly"]
         doCosmics        = jobproperties.Beam.beamType == 'cosmics'
-        
+
         # turn on seeded data decoding by default
         TriggerFlags.MuonSlice.doEFRoIDrivenAccess = True
-        
+
         # make instance
         super(TrigMuSuperEFConfig,self).__init__(name,**kwargs)
 
@@ -89,13 +89,13 @@ class TrigMuSuperEFConfig(TrigMuSuperEF):
 
 
         # always add timing monitoring
-        timetool =  TrigTimeHistToolConfig("Time") 
+        timetool =  TrigTimeHistToolConfig("Time")
         timetool.NumberOfHistBins = 100
         timetool.TimerHistLimits = [0,1000]
         monTools.append( timetool )
-        
+
         self.AthenaMonTools = monTools
-    #  end of __init__       
+    #  end of __init__
 
 
 #
@@ -103,7 +103,7 @@ class TrigMuSuperEFConfig(TrigMuSuperEF):
 #
 def TrigMuSuperEF(name="TrigMuSuperEF",**kwargs):
     return TrigMuSuperEFConfig(name,**kwargs)
-    
+
 def TrigMuSuperEF_MGfirst(name="TrigMuSuperEF_MGfirst",**kwargs):
 
     kwargs.setdefault("doInsideOut", True)
@@ -147,6 +147,12 @@ def TrigMuSuperEF_SAonly(name="TrigMuSuperEF_SAonly",**kwargs):
     kwargs.setdefault("StandaloneOnly", True)
     return TrigMuSuperEFConfig(name,**kwargs)
 
+def TrigMuSuperEF_STonly(name="TrigMuSuperEF_STonly",**kwargs):
+    kwargs.setdefault("doInsideOut", False)
+    kwargs.setdefault("doOutsideIn", True)
+    kwargs.setdefault("SegmentTagOnly", True)
+    return TrigMuSuperEFConfig(name,**kwargs)
+
 def TrigMuSuperEF_TMEFCombinerOnly(name="TrigMuSuperEF_TMEFCombinerOnly",**kwargs):
     kwargs.setdefault("doInsideOut", False)
     kwargs.setdefault("doOutsideIn", True)
@@ -156,6 +162,10 @@ def TrigMuSuperEF_TMEFCombinerOnly(name="TrigMuSuperEF_TMEFCombinerOnly",**kwarg
     kwargs.setdefault("MSonlyTrackParticleContName",  "MuonEFInfo_MSonlyTrackParticles_FullScan")
     kwargs.setdefault("CBTrackParticleContName",  "MuonEFInfo_CombTrackParticles_FullScan")
     kwargs.setdefault("MuonContName", "MuonEFInfo_FullScan" )
+    if TriggerFlags.run2Config=='2016':
+        kwargs.setdefault("DoCache", True)
+    else:
+        kwargs.setdefault("DoCache", False)
     return TrigMuSuperEFConfig(name,**kwargs)
 
 
@@ -207,7 +217,7 @@ def TrigMuSuperEF_WideCone05(name="TrigMuSuperEF_WideCone05",**kwargs):
 def TrigMuSuperEF_FSCB(name="TrigMuSuperEF_FSCB",**kwargs):
     kwargs.setdefault("doInsideOut",False)
     kwargs.setdefault("doOutsideIn",True)
-    kwargs.setdefault("fullScan",True)    
+    kwargs.setdefault("fullScan",True)
     kwargs.setdefault("UseL2Info",False)
     kwargs.setdefault("ExtrapolatedTrackParticleContName", "MuonEFInfo_ExtrapTrackParticles_FullScan")
     kwargs.setdefault("MSonlyTrackParticleContName",  "MuonEFInfo_MSonlyTrackParticles_FullScan")
@@ -266,7 +276,7 @@ def TrigMuSuperEF_MuonCaloTagTool( name='OnlineMuonCaloTagTool', **kwargs ):
     return CfgMgr.MuonCombined__MuonCaloTagTool(name,**kwargs )
 
 def TrigMuSuperEF_TrackIsolationTool( name = "TrigMuSuperEF_TrackIsolationTool", **kwargs):
-    return TrigMuonEFTrackIsolationTool(name, deltaZCut = 6.0*mm, removeSelf=True, useAnnulus=False) 
+    return TrigMuonEFTrackIsolationTool(name, deltaZCut = 6.0*mm, removeSelf=True, useAnnulus=False)
 
 def TrigMuSuperEF_TrackDepositInCaloTool(name = "TrigMuSuperEF_TrackDepositInCaloTool", **kwargs):
     kwargs.setdefault("CaloCellContainerName", "TrigCaloCellMaker")
@@ -287,4 +297,3 @@ def TrigMuSuperEF_CaloTrkSelectorTool( name = 'TrigMuSuperEF_CaloTrkSelectorTool
     kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
 
     return CfgMgr.InDet__InDetDetailedTrackSelectorTool( name, **kwargs )
-

@@ -31,5 +31,6 @@
 
   <function name="DMTest::setPluginLibrary"/>
   <function name="DMTest::setConverterLibrary"/>
+  <function name="DMTest::setTrigConverterLibrary"/>
 
 </lcgdict>

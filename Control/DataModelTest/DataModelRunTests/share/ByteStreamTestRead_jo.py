@@ -32,7 +32,9 @@ theApp.EvtMax = 20
 from TrigNavigation.TrigNavigationConf import HLT__Navigation
 from DataModelTestDataRead.DataModelTestDataReadConf import \
      DMTest__HLTResultReader, \
-     DMTest__xAODTestReadCVec
+     DMTest__xAODTestReadCView, \
+     DMTest__xAODTestReadCVec, \
+     DMTest__xAODTestReadHVec
 
 
 topSequence += DMTest__HLTResultReader \
@@ -43,6 +45,11 @@ topSequence += DMTest__HLTResultReader \
 
 topSequence += DMTest__xAODTestReadCVec ('xAODTestReadCVec',
                                          CVecKey = 'HLT_DMTest__CVec_cvec')
+topSequence += DMTest__xAODTestReadCView ('xAODTestReadCView',
+                                          CViewKey = 'HLT_DMTest__CView_cview')
+topSequence += DMTest__xAODTestReadHVec ('xAODTestReadHVec',
+                                         HVecKey = 'HLT_DMTest__HVec_hvec',
+                                         HViewKey = 'HLT_DMTest__HView_hview')
 
 
 # Note: can't autoload these.
@@ -52,6 +59,7 @@ cppyy.loadDictionary("libDataModelTestDataCommonDict")
 cppyy.loadDictionary("libDataModelTestDataReadDict")
 ROOT.DMTest.B
 ROOT.DMTest.setConverterLibrary ('libDataModelTestDataReadCnvPoolCnv.so')
+ROOT.DMTest.setTrigConverterLibrary ('libDataModelTestDataReadSerCnv.so')
 
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.BSRDOInput = ['test.bs']

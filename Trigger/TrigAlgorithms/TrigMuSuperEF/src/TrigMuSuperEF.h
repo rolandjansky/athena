@@ -50,6 +50,7 @@ namespace MuonCombined {
   class IMuonCreatorTool;
   class IMuonCombinedInDetExtensionTool;
   class IMuonCombinedTrigCaloTagExtensionTool;
+  class IMuonSegmentTagTool;
 }
 
 class TrigMuSuperEF: public virtual HLT::FexAlgo {
@@ -80,6 +81,8 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
 
   // run the standard chain of MS (possible stopping at that point), then CB
   HLT::ErrorCode runStandardChain(const HLT::TriggerElement*, HLT::TriggerElement*, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn);
+
+  HLT::ErrorCode runStandAlone(const IRoiDescriptor*, HLT::TriggerElement*, MuonCandidateCollection*, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn);
   
   // run in combiner only mode
   HLT::ErrorCode runCombinerOnly(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn);
@@ -96,6 +99,12 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   // run the MS-only reconstruction
   HLT::ErrorCode runMSReconstruction(const IRoiDescriptor* muonRoI, HLT::TriggerElement* TEout, MuonCandidateCollection& muonCandidates, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn);
 
+  HLT::ErrorCode runSegmentTaggedOnly(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout, std::unique_ptr<xAOD::MuonContainer> & muonContainer);
+
+  HLT::ErrorCode runMSSegmentTaggedReconstruction(HLT::TriggerElement* TEout, 
+						  MuonCandidateCollection& muonCandidates,
+						  InDetCandidateCollection& inDetCandidates, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn);
+
   /// Function to get ID track particle links from trigger element
   HLT::ErrorCode getIDTrackParticleLinks(const HLT::TriggerElement* te, ElementLinkVector<xAOD::TrackParticleContainer>& elv_xaodidtrks) ;
   HLT::ErrorCode getIDTrackParticleLinksL2(const HLT::TriggerElement* te, ElementLinkVector<xAOD::TrackParticleContainer>& elv_xaodidtrks) ;
@@ -105,6 +114,9 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
 				     InDetCandidateCollection& inDetCandidates,
 				     TrigMuonEFCBMonVars& monVars,
 				     std::vector<TrigTimer*>& timers);
+
+  /// Function to segment tagged candidates tracks
+  HLT::ErrorCode buildSegmentTaggedTracks(InDetCandidateCollection& inDetCandidates);
 
   // function to build xAOD muons
   HLT::ErrorCode buildMuons(const MuonCandidateCollection* muonCandidates,
@@ -119,6 +131,10 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
 			      const TrackCollection* extrapolatedTracks,
 			      xAOD::TrackParticleContainer* extrapolatedTrackParticles, std::unique_ptr<xAOD::MuonContainer> muonContainerOwn);
 
+  HLT::ErrorCode attachMuonSegmentCombinationCollection(HLT::TriggerElement* TEout);
+  HLT::ErrorCode attachSegments(HLT::TriggerElement* TEout);
+  HLT::ErrorCode attachMSTracks(HLT::TriggerElement* TEout);
+  HLT::ErrorCode attachTrackParticleContainer(HLT::TriggerElement* TEout);
   /// Utility function to attached xAOD track particle container to the trigger element
   void attachTrackParticleContainer( HLT::TriggerElement* TEout, const xAOD::TrackParticleContainer* trackParticleCont, const std::string& name);
   void setCombinedTimers(HLT::Algo* fexAlgo, std::vector<TrigTimer*>& timers);
@@ -127,6 +143,17 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
 
   TrigRoiDescriptor* createSingleTrigRoiDescriptor( double eta, double phi, double etaWidth, double phiWidth, int roiNum );
 
+  void buildInDetCandidates(const ElementLinkVector<xAOD::TrackParticleContainer>&, InDetCandidateCollection*);
+  bool buildL2InDetCandidates(const ElementLinkVector<xAOD::TrackParticleContainer>&, InDetCandidateCollection*, const xAOD::L2CombinedMuonContainer*);
+  void runMuGirl(const ElementLinkVector<xAOD::TrackParticleContainer>&, InDetCandidateCollection*);
+
+  bool retrieveFromCache(map<std::vector<std::vector<IdentifierHash> >, InternalCache*>::iterator itmap, MuonCandidateCollection* muonCandidates, xAOD::TrackParticleContainer* combTrackParticleCont, xAOD::TrackParticleContainer* saTrackParticleCont, TrackCollection* extrapolatedTracks );
+
+  void retrieveTrackContainersFromCache(InternalCache* cache, xAOD::TrackParticleContainer* combTrackParticleCont, xAOD::TrackParticleContainer* saTrackParticleCont, TrackCollection* extrapolatedTracks );
+
+  HLT::ErrorCode rebuildCache(const IRoiDescriptor*, HLT::TriggerElement*, MuonCandidateCollection* muonCandidates, InDetCandidateCollection* inDetCandidates, xAOD::TrackParticleContainer* combTrackParticleCont, xAOD::TrackParticleContainer* saTrackParticleCont, TrackCollection* extrapolatedTracks, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn, const ElementLinkVector<xAOD::TrackParticleContainer>& elv_idtrks );
+
+  HLT::ErrorCode runOutsideInOnly(const IRoiDescriptor*, HLT::TriggerElement*, MuonCandidateCollection* muonCandidates, InDetCandidateCollection* inDetCandidates, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn, const ElementLinkVector<xAOD::TrackParticleContainer>& elv_idtrks);
   void printCounterStats( const PassCounters& counter, const std::string& source, int precision = 3 ) const;
   void printTrigMuGirlStats() const;
   void printTrigMuonEFStats() const;
@@ -188,6 +215,7 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   bool m_standaloneOnly; // run only the MS reconstruction
   bool m_combinerOnly; // run only the combiner - MS reco must have been run previously
   bool m_caloTagOnly;
+  bool m_segmentTagOnly;
 
   bool m_fullScan;
   bool m_recordSegments;
@@ -214,6 +242,7 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   ToolHandle<MuonCombined::IMuonCombinedTool> m_muonCombinedTool;
   ToolHandle<MuonCombined::IMuonCombinedInDetExtensionTool> m_muGirlTool;
   ToolHandle<MuonCombined::IMuonCombinedTrigCaloTagExtensionTool> m_caloTagTool;
+  ToolHandle<MuonCombined::IMuonSegmentTagTool> m_muonSegmentTagTool;
 
   /// tool to create track particles from Trk::Tracks
   ToolHandle<Trk::ITrackParticleCreatorTool> m_TrackToTrackParticleConvTool;
@@ -224,6 +253,7 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
 
   //Timers
   std::vector<TrigTimer*> m_TMEF_SATimers;
+  std::vector<TrigTimer*> m_TMEF_STTimers;
   std::vector<TrigTimer*> m_TMEF_CBTimers;
   std::vector<TrigTimer*> m_TrigMuGirl_Timers;
 

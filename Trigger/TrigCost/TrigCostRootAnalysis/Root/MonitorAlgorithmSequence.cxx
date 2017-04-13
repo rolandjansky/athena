@@ -22,11 +22,12 @@
 #include "../TrigCostRootAnalysis/Utility.h"
 
 namespace TrigCostRootAnalysis {
-
   /**
    * Monitor constructor. Sets name and calls base constructor.
    */
-  MonitorAlgorithmSequence::MonitorAlgorithmSequence(const TrigCostData* _costData) : MonitorBase(_costData, "Sequence_Algorithm") {
+  MonitorAlgorithmSequence::MonitorAlgorithmSequence(const TrigCostData* _costData) : MonitorBase(_costData,
+                                                                                                  "Sequence_Algorithm")
+  {
     m_dummyCounter = newCounter(Config::config().getStr(kDummyString), INT_MIN);
     allowSameIDCounters();
   }
@@ -38,7 +39,7 @@ namespace TrigCostRootAnalysis {
    */
   void MonitorAlgorithmSequence::newEvent(Float_t _weight) {
     m_timer.start();
-    if ( Config::config().debug() ) Info("MonitorAlgorithmSequence::newEvent", "*** Processing Algorithms ***");
+    if (Config::config().debug()) Info("MonitorAlgorithmSequence::newEvent", "*** Processing Algorithms ***");
 
     //Now loop over the counter collections;
     for (CounterMapSetIt_t _cmsIt = m_collectionsToProcess.begin(); _cmsIt != m_collectionsToProcess.end(); ++_cmsIt) {
@@ -50,13 +51,14 @@ namespace TrigCostRootAnalysis {
       std::vector<AlgsInEvent>::iterator _itAlgs = m_algsInEvent.begin();
       for (; _itAlgs != m_algsInEvent.end(); ++_itAlgs) {
         // Here we want a counter which comprises both the chain name and the alg name
-        const std::string _seqAndAlgName = _itAlgs->m_seqName + Config::config().getStr(kDelimatorString) + _itAlgs->m_algName;
-        CounterBase* _counter = getCounter( _counterMap, _seqAndAlgName, _itAlgs->m_algNameID );
+        const std::string _seqAndAlgName = _itAlgs->m_seqName + Config::config().getStr(kDelimatorString) +
+                                           _itAlgs->m_algName;
+        CounterBase* _counter = getCounter(_counterMap, _seqAndAlgName, _itAlgs->m_algNameID);
         // If this counter is new, we can set it's secondary name which in this case is its class
         if (_counter->getCalls() == 0) {
-          _counter->decorate( kDecAlgClassName, _itAlgs->m_algClassName );
+          _counter->decorate(kDecAlgClassName, _itAlgs->m_algClassName);
         }
-        _counter->processEventCounter( _itAlgs->m_seqD3PDIndex, _itAlgs->m_algD3PDIndex, _weight );
+        _counter->processEventCounter(_itAlgs->m_seqD3PDIndex, _itAlgs->m_algD3PDIndex, _weight);
       }
 
       // Do end of event
@@ -71,11 +73,15 @@ namespace TrigCostRootAnalysis {
    * @return If this monitor should be active for a given mode.
    */
   Bool_t MonitorAlgorithmSequence::getIfActive(ConfKey_t _mode) {
-    switch(_mode) {
-      case kDoAllSummary:       return kTRUE;
-      case kDoKeySummary:       return kTRUE;
-      case kDoLumiBlockSummary: return kFALSE;
-      default: Error("MonitorAlgorithmSequence::getIfActive", "An invalid summary mode was provided (key %s)", Config::config().getName(_mode).c_str() );
+    switch (_mode) {
+    case kDoAllSummary:       return kTRUE;
+
+    case kDoKeySummary:       return kTRUE;
+
+    case kDoLumiBlockSummary: return kFALSE;
+
+    default: Error("MonitorAlgorithmSequence::getIfActive", "An invalid summary mode was provided (key %s)",
+                   Config::config().getName(_mode).c_str());
     }
     return kFALSE;
   }
@@ -84,16 +90,14 @@ namespace TrigCostRootAnalysis {
    * Save the results from this monitors counters as specified in the configuration.
    */
   void MonitorAlgorithmSequence::saveOutput() {
-
     m_filterOutput = kTRUE; // Apply any user-specified name filter to output
 
     VariableOptionVector_t _toSavePlots; //Leave blank = each counter gets asked what hists it contains
-    sharedHistogramOutputRoutine( _toSavePlots );
+    sharedHistogramOutputRoutine(_toSavePlots);
 
     std::vector<TableColumnFormatter> _toSaveTable;
-    addCommonTableEntries( _toSaveTable );
-    sharedTableOutputRoutine( _toSaveTable );
-
+    addCommonTableEntries(_toSaveTable);
+    sharedTableOutputRoutine(_toSaveTable);
   }
 
   /**
@@ -104,8 +108,7 @@ namespace TrigCostRootAnalysis {
    * @param _ID Reference to ID number of counter.
    * @returns Base class pointer to new counter object of correct serived type.
    */
-  CounterBase* MonitorAlgorithmSequence::newCounter( const std::string &_name, Int_t _ID ) {
-    return new CounterAlgorithm( m_costData, _name,  _ID, m_detailLevel, (MonitorBase*)this );
+  CounterBase* MonitorAlgorithmSequence::newCounter(const std::string& _name, Int_t _ID) {
+    return new CounterAlgorithm(m_costData, _name, _ID, m_detailLevel, (MonitorBase*) this);
   }
-
 } // namespace TrigCostRootAnalysis
