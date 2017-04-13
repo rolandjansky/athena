@@ -32,6 +32,7 @@ addAlgorithm("Digitization.DigiAlgConfig.getFastPileUpToolsAlg"      , "FastPile
 addAlgorithm("Digitization.DigiAlgConfig.getSplitPileUpToolsAlg"     , "SplitPileUpToolsAlg")
 addAlgorithm("Digitization.DigiAlgConfig.getStandardSignalOnlyTruthPileUpToolsAlg"  , "StandardSignalOnlyTruthPileUpToolsAlg")
 addAlgorithm("Digitization.DigiAlgConfig.getStandardInTimeOnlyTruthPileUpToolsAlg"  , "StandardInTimeOnlyTruthPileUpToolsAlg")
+addAlgorithm("Digitization.DigiAlgConfig.getStandardInTimeOnlyGeantinoTruthPileUpToolsAlg"  , "StandardInTimeOnlyGeantinoTruthPileUpToolsAlg")
 addAlgorithm("Digitization.DigiAlgConfig.getSplitNoMergePileUpToolsAlg"  , "SplitNoMergePileUpToolsAlg")
 addAlgorithm("Digitization.DigiAlgConfig.getSplitNoMergeSFPileUpToolsAlg"  , "SplitNoMergeSFPileUpToolsAlg")
 addAlgorithm("Digitization.DigiAlgConfig.getSplitNoMergeFSPileUpToolsAlg"  , "SplitNoMergeFSPileUpToolsAlg")

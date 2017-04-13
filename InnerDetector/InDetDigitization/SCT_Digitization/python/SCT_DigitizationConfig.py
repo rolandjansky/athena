@@ -243,6 +243,12 @@ def SCT_DigitizationTool(name="SCT_DigitizationTool", **kwargs):
 
 ######################################################################################
 
+def SCT_GeantinoTruthDigitizationTool(name="SCT_GeantinoTruthDigitizationTool", **kwargs):
+    kwargs.setdefault("ParticleBarcodeVeto", 0)
+    return SCT_DigitizationTool(name,**kwargs)
+
+######################################################################################
+
 def SCT_DigitizationToolHS(name="SCT_DigitizationToolHS",**kwargs):
     kwargs.setdefault("OutputObjectName", "SCT_RDOs")
     kwargs.setdefault("OutputSDOName", "SCT_SDO_Map")
