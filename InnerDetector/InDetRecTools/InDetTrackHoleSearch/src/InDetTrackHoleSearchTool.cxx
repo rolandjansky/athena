@@ -1032,7 +1032,7 @@ bool InDet::InDetTrackHoleSearchTool::isBadSCTChip(const Identifier& waferId,
 						   const Trk::TrackParameters* parameters, 
 						   const InDetDD::SiDetectorElement* siElement) const {
   // Check if the track passes through a bad SCT ABCD chip
-  // A chip is determined by the extraporated position.
+  // A chip is determined by the extrapolated position.
   // Algorithm is based on InnerDetector/InDetMonitoring/SCT_Monitoring/src/SCTHitEffMonTool.cxx
 
   // Check the inputs
@@ -1087,7 +1087,7 @@ bool InDet::InDetTrackHoleSearchTool::isBadSCTChip(const Identifier& waferId,
     return true;
   }
 
-  // Conversion from strip to chip: specific for present SCT
+  // Conversion from strip to chip (specific for present SCT)
   int chip(strip/128); // One ABCD chip reads 128 strips
   // Relation between chip and offline strip is determined by the swapPhiReadoutDirection method.
   // If swap is false
@@ -1105,21 +1105,8 @@ bool InDet::InDetTrackHoleSearchTool::isBadSCTChip(const Identifier& waferId,
     chip = swap ? 11 - chip : 6 + chip;
   }
   
-  // Veto if either of closest two chips is dead
+  // Check if the chip is bad
   const bool badChip(badChips & (1<<chip));
 
-  std::cout << "susumu"
-	    << " waferId " << waferId
-	    << " side " << side 
-	    << " moduleId " << moduleId 
-	    << " strip " << strip
-	    << " chip " << chip
-	    << " badChip " << badChip 
-	    << " badChips ";
-  for(unsigned int i=0; i<12; i++) {
-    std::cout << ((badChips>>i) & 0x1);
-  }
-  std::cout << std::endl;
-  
   return badChip;
 }
