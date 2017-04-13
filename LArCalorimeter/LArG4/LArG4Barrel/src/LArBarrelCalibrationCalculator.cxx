@@ -4,26 +4,24 @@
 
 /********************************************************************
 
-NAME:     PresamplerCalibrationCalculator.cxx
+NAME:     CalibrationCalculator.cxx
 PACKAGE:  offline/LArCalorimeter/LArG4/LArG4Barrel
 
 AUTHORS:  G. Unal, L. Carminati (on a template from Bill Selingman)
 CREATED:  September, 2004
 
 PURPOSE:  This class calculates the values needed for calibration hits
-          in the barrel presampler of LAr calorimeter. This calculator is
-          called in calibration runs (see LArBarrelPresamplerSDConsultant)
-          for calibration hits in the presampler volume.
+          in the barrel LAr calorimeter. This calculator is called
+          in calibration runs (see LArBarrelSDConsultant) for calibration
+          hits in the accordion (no presampler).
 
 UPDATES:
 
 ********************************************************************/
 
-// #define DEBUG_HITS
+//#define DEBUG_HITS
 
-#include "PresamplerCalibrationCalculator.h"
-
-#include "LArG4Barrel/LArBarrelPresamplerGeometry.h"
+#include "LArBarrelCalibrationCalculator.h"
 
 #include "LArG4Code/LArG4Identifier.h"
 
@@ -33,25 +31,25 @@ UPDATES:
 
 namespace LArG4 {
 
-  namespace BarrelPresampler {
+  namespace Barrel {
 
     CalibrationCalculator::CalibrationCalculator(const std::string& name, ISvcLocator *pSvcLocator)
       : LArCalibCalculatorSvcImp(name, pSvcLocator)
-      , m_geometryCalculator(nullptr)
-      , m_detectorName("LArMgr")
+      , m_geometryCalculator("LArBarrelGeometry", name)
     {
-      declareProperty("DetectorName",m_detectorName);
+      declareProperty("GeometryCalculator", m_geometryCalculator);
     }
 
     StatusCode CalibrationCalculator::initialize() {
-      // Initialize the geometry calculator
-      m_geometryCalculator = Geometry::GetInstance();
+      // Initialize the geometry calculator.
+      ATH_CHECK(m_geometryCalculator.retrieve());
       return StatusCode::SUCCESS;
     }
 
     CalibrationCalculator::~CalibrationCalculator()
     {
     }
+
 
     G4bool CalibrationCalculator::Process(const G4Step* step, LArG4Identifier & identifier,
                                           std::vector<G4double> & energies,
@@ -70,7 +68,7 @@ namespace LArG4 {
           m_energyCalculator.Energies( step, energies );
 
           // First, get the energy.
-          //m_energy = step->GetTotalEnergyDeposit();
+          //      m_energy = step->GetTotalEnergyDeposit();
         }
       else
         for (unsigned int i=0; i != 4; i++) energies.push_back( 0. );
@@ -79,7 +77,7 @@ namespace LArG4 {
       if ( process == kEnergyAndID  ||  process == kOnlyID )
         {
           // Calculate the identifier.
-          identifier = m_geometryCalculator->CalculateIdentifier( step, m_detectorName );
+          identifier = m_geometryCalculator->CalculateIdentifier( step );
         }
       else
         identifier = LArG4Identifier();

@@ -113,9 +113,9 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
   // Collection may be never used. Better only create if necessary
   // NULL value is specially important to avoid crashs in monitoring
   //m_trigElecColl = NULL;
-  xAOD::TrigElectronContainer *m_trigElecColl = new xAOD::TrigElectronContainer();
+  xAOD::TrigElectronContainer *trigElecColl = new xAOD::TrigElectronContainer();
   xAOD::TrigElectronAuxContainer trigElecAuxContainer;
-  m_trigElecColl->setStore(&trigElecAuxContainer);
+  trigElecColl->setStore(&trigElecAuxContainer);
 
   bool pass = false;
   bool result = false;
@@ -201,7 +201,7 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
   }
   
   size_t coll_size = tracks->size();
-  m_trigElecColl->reserve(coll_size);
+  trigElecColl->reserve(coll_size);
 
   // loop over tracks
   for(const auto &trkLink:v_inputTracks){
@@ -231,7 +231,7 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
                       el_t2calo_clus.getStorableObjectPointer() << " index = " << el_t2calo_clus.index() <<
                       " track = "     << trkIter << " eta = " << etaAtCalo << " phi = " << phiAtCalo); 
               xAOD::TrigElectron* trigElec = new xAOD::TrigElectron();
-              m_trigElecColl->push_back(trigElec);
+              trigElecColl->push_back(trigElec);
               trigElec->init(  initialRoI->roiWord(),
                       etaAtCalo, phiAtCalo,  etoverpt,        
                       el_t2calo_clus,
@@ -309,7 +309,7 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
                   " deta = " << dEtaCalo << "dphi = " << dPhiCalo);
 
           xAOD::TrigElectron* trigElec = new xAOD::TrigElectron();
-          m_trigElecColl->push_back(trigElec);
+          trigElecColl->push_back(trigElec);
           trigElec->init(  initialRoI->roiWord(),
                   etaAtCalo, phiAtCalo,  etoverpt,        
                   el_t2calo_clus,
@@ -335,21 +335,21 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
   if (!m_acceptAll) pass = result;
   ATH_MSG_DEBUG("acceptInput = " << pass);
 
-  if (!m_trigElecColl) {
+  if (!trigElecColl) {
       ATH_MSG_DEBUG("Execute called will NULL pointer to TrigElectronContainer");
-      m_trigElecColl = nullptr;
+      trigElecColl = nullptr;
       return  HLT::OK;
   }
 
   // attach the TrigElectronCollection to the TriggerElement so
   // it is accessible from trigger navigation
-  stat = attachFeature(outputTE, m_trigElecColl, "L2ElectronFex");
+  stat = attachFeature(outputTE, trigElecColl, "L2ElectronFex");
   if ( stat != HLT::OK ) {
       ATH_MSG_WARNING("Failed to attach TrigElectronContainer to navigation");
       return stat;
   }
   // print debug info
-  ATH_MSG_DEBUG("REGTEST:  storing a collection with size "<< m_trigElecColl->size() << ".");
+  ATH_MSG_DEBUG("REGTEST:  storing a collection with size "<< trigElecColl->size() << ".");
   return HLT::OK;
 }
 
