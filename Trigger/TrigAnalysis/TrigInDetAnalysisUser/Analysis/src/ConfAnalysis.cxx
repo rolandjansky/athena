@@ -133,8 +133,10 @@ void ConfAnalysis::initialiseInternal() {
   double  pt_a = 1;
   double  pt_b = 1;
   
-  Npt = int(40*_binConfig.pt_NScale);
-  pt_a = 3.5;
+  //  Npt = int(40*_binConfig.pt_NScale);
+  //  pt_a = 3.5;
+  Npt = int(45*_binConfig.pt_NScale);
+  pt_a = 4;
   pt_b = 2;
   // etaBins = 12;
   //  }
