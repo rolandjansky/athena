@@ -84,13 +84,14 @@ HLTBjetMonTool::HLTBjetMonTool(const std::string & type, const std::string & nam
   IHLTMonTool(type, name, parent),
   m_trackJetFinderTool("TrigTrackJetFinderTool"),
   m_TriggerChainBjet{}, m_TriggerChainMujet{},
+  m_TriggerChainBjet_x{}, m_TriggerChainMujet_x{},
   m_Chain2Dir{},
   m_Shifter_jSplit{}, m_Expert_jSplit{}, m_Shifter_jUnSplit{},  m_Expert_jUnSplit{}, m_Shifter_mujet{},m_Expert_mujet{},
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_etCut(10.), m_sv1_infosource("SV1")
 {
-  declareProperty ("monitoring_bjet",       m_TriggerChainBjet);          
-  declareProperty ("monitoring_mujet",      m_TriggerChainMujet);          
+  declareProperty ("monitoring_bjet",       m_TriggerChainBjet_x);          
+  declareProperty ("monitoring_mujet",      m_TriggerChainMujet_x);          
 }
 
 
@@ -125,114 +126,6 @@ StatusCode HLTBjetMonTool::init() {
   m_sv1_infosource = "SV1";
   ATH_MSG_INFO(" ===> in HLTBjetMonTool::init - SV1  parameters: inputSV1SourceName = "  <<  m_sv1_infosource);
 
-  int size_TriggerChainBjet = m_TriggerChainBjet.size();
-  int size_TriggerChainMujet = m_TriggerChainMujet.size();
-  std::string chainName, folderName;
-
-  ATH_MSG_DEBUG("         Chain sizes - Bjet: " << size_TriggerChainBjet << " MuJet: " << size_TriggerChainMujet );
-  for (int i =0; i<size_TriggerChainBjet; i++){
-    chainName = m_TriggerChainBjet.at(i);
-    ATH_MSG_DEBUG("         Chain number: " << i << " Bjet Chain Name: " << chainName );
-    // Investigate by the 1st character which folder should be assigned                                                                                                                  
-    if (chainName.substr(0,1) == "E") {
-      m_TriggerChainBjet.at(i) = chainName.substr (2);
-      chainName = m_TriggerChainBjet.at(i);
-      m_Chain2Dir[chainName] = "Expert";
-    } else if (chainName.substr(0,1) == "S") {
-      m_TriggerChainBjet.at(i) = chainName.substr (2);
-      chainName = m_TriggerChainBjet.at(i);
-      m_Chain2Dir[chainName] = "Shifter";
-    } else {
-      ATH_MSG_INFO("         Chain number: " << i << " Bjet Chain Name: " << chainName << " is not assigned to Expert or Shifter folders !!" );
-      return StatusCode::FAILURE;
-    } // else                                                                                                                                                                            
-    ATH_MSG_DEBUG("         Chain number: " << i << " Bjet Chain Name: " << chainName );
-  }
-  for (int i =0; i<size_TriggerChainMujet; i++){
-    chainName = m_TriggerChainMujet.at(i);
-    ATH_MSG_DEBUG("         Chain number: " << i << " Mujet Chain Name: " << chainName );
-    // Investigate by the 1st character which folder should be assigned
-    if (chainName.substr(0,1) == "E") {
-      m_TriggerChainMujet.at(i) = chainName.substr (2); 
-      chainName = m_TriggerChainMujet.at(i);
-      m_Chain2Dir[chainName] = "Expert";
-    } else if (chainName.substr(0,1) == "S") {
-      m_TriggerChainMujet.at(i) = chainName.substr (2);
-      chainName = m_TriggerChainMujet.at(i);
-      m_Chain2Dir[chainName] = "Shifter";
-    } else {
-      ATH_MSG_INFO("         Chain number: " << i << " Mujet Chain Name: " << chainName << " is not assigned to Expert or Shifter folders !!" );
-      return StatusCode::FAILURE;
-    } // else
-    ATH_MSG_DEBUG("         Chain number: " << i << " Mujet Chain Name: " << chainName );
-  }
-
-  // Check if folder assignment is made for all chains - if not stop the program
-  // Regroup chain names with identical histograms
-
-  std::map<std::string,std::string>::iterator it = m_Chain2Dir.begin();
-  while (it != m_Chain2Dir.end()) {
-    ATH_MSG_DEBUG(it->first << " :: " << it->second );
-    it++;
-  }
-  std::map<std::string,std::string>::iterator p;
-  for (const auto & chainName:m_TriggerChainBjet){     // Shaun Roe 21/9/16 
-    p = m_Chain2Dir.find(chainName);
-    if ( p != m_Chain2Dir.end() ) {
-      folderName = p->second;
-    } else {
-      ATH_MSG_INFO(" Chain Name " << chainName << " has no folder name - verify HLTBjetMonTool::init() !!!" );
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO( " Chain name " << chainName << " is in folder " << folderName);
-    if ( (folderName != "Expert") && (folderName != "Shifter") ){
-	ATH_MSG_INFO( " Chain name " << chainName << " is neither in Expert nor in Shifter folder - verify HLTBjetMonTool::init() !!!");
-	return StatusCode::FAILURE;
-      } //if
-    std::size_t found = chainName.find("split");
-    if (found!=std::string::npos) {
-      if (folderName == "Shifter") m_Shifter_jSplit.push_back(chainName);
-      if (folderName == "Expert") m_Expert_jSplit.push_back(chainName);
-    } else {
-      if (folderName == "Shifter") m_Shifter_jUnSplit.push_back(chainName);
-      if (folderName == "Expert") m_Expert_jUnSplit.push_back(chainName);
-    }
-  } //i Bjet
-  for (const auto & chainName:m_TriggerChainMujet){    // Shaun Roe 21/9/16
-    p = m_Chain2Dir.find(chainName);
-    if ( p != m_Chain2Dir.end() ) {
-      folderName = p->second;
-    } else {
-      ATH_MSG_INFO(" Chain Name " << chainName << " has no folder name - verify HLTBjetMonTool::init() !!!" );
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO( " Chain name " << chainName << " is in folder " << folderName);
-    if (folderName == "Shifter") m_Shifter_mujet.push_back(chainName); 
-    else if (folderName == "Expert") m_Expert_mujet.push_back(chainName); 
-    else {
-	ATH_MSG_INFO( " Chain name " << chainName << " is neither in Expert nor in Shifter folder - verify HLTBjetMonTool::init() !!!");
-	return StatusCode::FAILURE;
-      } //if        
-  } //i Mujet
-
-  for (unsigned int i = 0; i< m_Shifter_mujet.size(); i++) {
-    ATH_MSG_DEBUG(" m_Shifter_mujet: " << m_Shifter_mujet.at(i) );
-  }
-  for (unsigned int i = 0; i< m_Expert_mujet.size(); i++) {
-    ATH_MSG_DEBUG(" m_Expert_mujet: " << m_Expert_mujet.at(i) );
-  }
-  for (unsigned int i = 0; i< m_Shifter_jUnSplit.size(); i++) {
-    ATH_MSG_DEBUG(" m_Shifter_jUnSplit: " << m_Shifter_jUnSplit.at(i) );
-  }
-  for (unsigned int i = 0; i< m_Expert_jUnSplit.size(); i++) {
-    ATH_MSG_DEBUG(" m_Expert_jUnSplit: " << m_Expert_jUnSplit.at(i) );
-  }
-  for (unsigned int i = 0; i< m_Shifter_jSplit.size(); i++) {
-    ATH_MSG_DEBUG(" m_Shifter_jSplit: " << m_Shifter_jSplit.at(i) );
-  }
-  for (unsigned int i = 0; i< m_Expert_jSplit.size(); i++) {
-    ATH_MSG_DEBUG(" m_Expert_jSplit: " << m_Expert_jSplit.at(i) );
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -272,7 +165,159 @@ StatusCode HLTBjetMonTool::book(){
     ATH_MSG_INFO("in HLTBjetMonTool::book newRun: " << newRunFlag() );
   
 
+
     if(newRunFlag()){
+
+      //#define TestOnTrigConf
+
+      // Decode extended TriggerChain vectors from the python config file
+      // Create conventional TriggerChain vectors
+      // Verify if a chain is not configured, in that case discard it
+
+      int size_TriggerChainBjet = m_TriggerChainBjet_x.size();
+      int size_TriggerChainMujet = m_TriggerChainMujet_x.size();
+      std::string chainName, folderName;
+
+      ATH_MSG_INFO("         Extended Chain Name sizes - Bjet: " << size_TriggerChainBjet << " MuJet: " << size_TriggerChainMujet );
+      for (int i =0; i<size_TriggerChainBjet; i++){
+	chainName = m_TriggerChainBjet_x.at(i);
+	ATH_MSG_INFO("         Chain number: " << i << " Bjet Chain Name: " << chainName );
+	// Investigate by the 1st character which folder should be assigned                                                                                                      
+	if (chainName.substr(0,1) == "E") {
+	  chainName = chainName.substr (2);
+#ifdef TestOnTrigConf
+	  if ( (m_trigDec->getListOfTriggers( chainName)).empty() ) continue;
+#endif
+	  m_TriggerChainBjet.push_back(chainName);
+	  m_Chain2Dir[chainName] = "Expert";
+	} else if (chainName.substr(0,1) == "S") {
+	  chainName = chainName.substr (2);
+#ifdef TestOnTrigConf
+	  if ( (m_trigDec->getListOfTriggers( chainName)).empty() ) continue;
+#endif	  
+	  m_TriggerChainBjet.push_back(chainName);
+	  m_Chain2Dir[chainName] = "Shifter";
+	} else {
+	  ATH_MSG_INFO("         Chain number: " << i << " Bjet Chain Name: " << chainName << " is not assigned to Expert or Shifter folders !!" );
+	  return StatusCode::FAILURE;
+	} // else                                                                                                                                                                  
+	ATH_MSG_DEBUG("         Chain number: " << i << " Bjet Chain Name: " << chainName );
+      }
+      for (int i =0; i<size_TriggerChainMujet; i++){
+	chainName = m_TriggerChainMujet_x.at(i);
+	ATH_MSG_INFO("         Chain number: " << i << " Mujet Chain Name: " << chainName );
+	// Investigate by the 1st character which folder should be assigned
+	if (chainName.substr(0,1) == "E") {
+	  chainName = chainName.substr (2);
+#ifdef TestOnTrigConf
+	  if ( (m_trigDec->getListOfTriggers( chainName)).empty() ) continue;
+#endif
+	  m_TriggerChainMujet.push_back(chainName);
+	  m_Chain2Dir[chainName] = "Expert";
+	} else if (chainName.substr(0,1) == "S") {
+	  chainName = chainName.substr (2);
+#ifdef TestOnTrigConf
+	  if ( (m_trigDec->getListOfTriggers( chainName)).empty() ) continue;
+#endif	  
+	  m_TriggerChainMujet.push_back(chainName);
+	  m_Chain2Dir[chainName] = "Shifter";
+	} else {
+	  ATH_MSG_INFO("         Chain number: " << i << " Mujet Chain Name: " << chainName << " is not assigned to Expert or Shifter folders !!" );
+	  return StatusCode::FAILURE;
+	} // else
+	ATH_MSG_DEBUG("         Chain number: " << i << " Mujet Chain Name: " << chainName );
+      }
+
+
+  // Look for the created TriggerChain vector - if it is empty and if the triggers are configured
+
+      size_TriggerChainBjet = m_TriggerChainBjet.size();
+      size_TriggerChainMujet = m_TriggerChainMujet.size();
+      ATH_MSG_INFO("         Chain Name sizes - Bjet: " << size_TriggerChainBjet << " MuJet: " << size_TriggerChainMujet );
+      if ( (size_TriggerChainBjet+size_TriggerChainMujet) <= 0) {
+	ATH_MSG_INFO( " No trigger chain is configured for this run ==> Stop monitoring " );
+	return StatusCode::FAILURE;
+      }
+      for (int i =0; i<size_TriggerChainBjet; i++){
+	chainName = m_TriggerChainBjet.at(i);
+	ATH_MSG_INFO("         Chain number: " << i << " Bjet Chain Name: " << chainName );
+	std::vector<std::string> selectChains  = m_trigDec->getListOfTriggers( chainName );
+	ATH_MSG_DEBUG( " In HLTBjetMonTool::book(): Trigger chain " << chainName << " Size of selectChains " << selectChains.size());
+      }
+      for (int i =0; i<size_TriggerChainMujet; i++){
+	chainName = m_TriggerChainMujet.at(i);
+	ATH_MSG_INFO("         Chain number: " << i << " Mujet Chain Name: " << chainName );
+	std::vector<std::string> selectChains  = m_trigDec->getListOfTriggers( chainName );
+	ATH_MSG_DEBUG( " In HLTBjetMonTool::book(): Trigger chain " << chainName << " Size of selectChains " << selectChains.size());
+      }
+
+      // Check if folder assignment is made for all chains - if not stop the program
+      // Regroup chain names with identical histograms
+
+      std::map<std::string,std::string>::iterator it = m_Chain2Dir.begin();
+      while (it != m_Chain2Dir.end()) {
+	ATH_MSG_DEBUG(it->first << " :: " << it->second );
+	it++;
+      }
+      std::map<std::string,std::string>::iterator p;
+      for (const auto & chainName:m_TriggerChainBjet){     // Shaun Roe 21/9/16 
+	p = m_Chain2Dir.find(chainName);
+	if ( p != m_Chain2Dir.end() ) {
+	  folderName = p->second;
+	} else {
+	  ATH_MSG_INFO(" Chain Name " << chainName << " has no folder name - verify HLTBjetMonTool::book() !!!" );
+	  return StatusCode::FAILURE;
+	}
+	ATH_MSG_INFO( " Chain name " << chainName << " is in folder " << folderName);
+	if ( (folderName != "Expert") && (folderName != "Shifter") ){
+	  ATH_MSG_INFO( " Chain name " << chainName << " is neither in Expert nor in Shifter folder - verify HLTBjetMonTool::book() !!!");
+	  return StatusCode::FAILURE;
+	} //if
+	std::size_t found = chainName.find("split");
+	if (found!=std::string::npos) {
+	  if (folderName == "Shifter") m_Shifter_jSplit.push_back(chainName);
+	  if (folderName == "Expert") m_Expert_jSplit.push_back(chainName);
+	} else {
+	  if (folderName == "Shifter") m_Shifter_jUnSplit.push_back(chainName);
+	  if (folderName == "Expert") m_Expert_jUnSplit.push_back(chainName);
+	}
+      } //i Bjet
+      for (const auto & chainName:m_TriggerChainMujet){    // Shaun Roe 21/9/16
+	p = m_Chain2Dir.find(chainName);
+	if ( p != m_Chain2Dir.end() ) {
+	  folderName = p->second;
+	} else {
+	  ATH_MSG_INFO(" Chain Name " << chainName << " has no folder name - verify HLTBjetMonTool::book() !!!" );
+	  return StatusCode::FAILURE;
+	}
+	ATH_MSG_INFO( " Chain name " << chainName << " is in folder " << folderName);
+	if (folderName == "Shifter") m_Shifter_mujet.push_back(chainName); 
+	else if (folderName == "Expert") m_Expert_mujet.push_back(chainName); 
+	else {
+	  ATH_MSG_INFO( " Chain name " << chainName << " is neither in Expert nor in Shifter folder - verify HLTBjetMonTool::book() !!!");
+	  return StatusCode::FAILURE;
+	} //if        
+      } //i Mujet
+
+      for (unsigned int i = 0; i< m_Shifter_mujet.size(); i++) {
+	ATH_MSG_DEBUG(" m_Shifter_mujet: " << m_Shifter_mujet.at(i) );
+      }
+      for (unsigned int i = 0; i< m_Expert_mujet.size(); i++) {
+	ATH_MSG_DEBUG(" m_Expert_mujet: " << m_Expert_mujet.at(i) );
+      }
+      for (unsigned int i = 0; i< m_Shifter_jUnSplit.size(); i++) {
+	ATH_MSG_DEBUG(" m_Shifter_jUnSplit: " << m_Shifter_jUnSplit.at(i) );
+      }
+      for (unsigned int i = 0; i< m_Expert_jUnSplit.size(); i++) {
+	ATH_MSG_DEBUG(" m_Expert_jUnSplit: " << m_Expert_jUnSplit.at(i) );
+      }
+      for (unsigned int i = 0; i< m_Shifter_jSplit.size(); i++) {
+	ATH_MSG_DEBUG(" m_Shifter_jSplit: " << m_Shifter_jSplit.at(i) );
+      }
+      for (unsigned int i = 0; i< m_Expert_jSplit.size(); i++) {
+	ATH_MSG_DEBUG(" m_Expert_jSplit: " << m_Expert_jSplit.at(i) );
+      }
+
 
       // Shifter Folders
       
@@ -551,7 +596,8 @@ StatusCode HLTBjetMonTool::book(){
       chainName = m_TriggerChainBjet.at(i);
       ATH_MSG_DEBUG( " Trigger chain " << i << " " << chainName << " fired." );
       std::vector<std::string> selectChains  = m_trigDec->getListOfTriggers( chainName );
-      if ( not selectChains.empty() ) FiredChainNames.push_back(chainName); //SR
+      ATH_MSG_DEBUG( " In HLTBjetMonTool::fill(): Trigger chain " << chainName << " fired. Size of selectChains " << selectChains.size());
+      if ( not selectChains.empty() ) FiredChainNames.push_back(chainName); // test if chain is configured
     } // else
   } //i Bjet
 
@@ -562,7 +608,8 @@ StatusCode HLTBjetMonTool::book(){
       chainName = m_TriggerChainMujet.at(i);
       ATH_MSG_DEBUG( " Trigger chain " << i << " " << chainName << " fired." );
       std::vector<std::string> selectChains  = m_trigDec->getListOfTriggers( chainName );
-      if ( not selectChains.empty() ) FiredChainNames.push_back(chainName); //SR 
+      ATH_MSG_DEBUG( " In HLTBjetMonTool::fill(): Trigger chain " << chainName << " fired. Size of selectChains " << selectChains.size());
+      if ( not selectChains.empty() ) FiredChainNames.push_back(chainName); // test if chain is configured 
     } // else
   } // i Mujet
 
@@ -595,7 +642,7 @@ StatusCode HLTBjetMonTool::book(){
 
     std::string HistDir = "/Offline";
     std::string HistExt = "";
-    // Get offline PV
+    // Get offline PV - non FTK
     float offlinepvz(-1.e6);
     bool Eofflinepv(false);
     const xAOD::VertexContainer* offlinepv = 0;
@@ -614,6 +661,31 @@ StatusCode HLTBjetMonTool::book(){
 	} // j
       } // if size
     } // evtStore
+    //
+    // Get offline PV - FTK
+    float offlinepvzFTK(-1.e6);
+    bool EofflinepvFTK(false);
+    const xAOD::VertexContainer* offlinepvFTK = 0;
+    if ( evtStore()->contains<xAOD::VertexContainer>("FTK_VertexContainer") ) { 
+      ATH_CHECK( evtStore()->retrieve(offlinepvFTK, "FTK_VertexContainer") );
+      ATH_MSG_DEBUG("RETRIEVED OFFLINE PV  - size: " << offlinepvFTK->size());
+      if ( offlinepvFTK->size() ) {
+	EofflinepvFTK = true;
+	offlinepvzFTK = offlinepvFTK->front()->z();
+	ATH_MSG_INFO(" 1st zPV FTK a la Carlo: " << offlinepvzFTK);
+	/*
+	hist("nPV"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(offlinepvFTK->size());
+	for (unsigned int j = 0; j<offlinepvFTK->size(); j++){
+	  hist("PVxFTK"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(offlinepvFTK))[j]->x());
+	  hist("PVyFTK"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(offlinepvFTK))[j]->y());
+	  hist("PVzFTK"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(offlinepvFTK))[j]->z());
+	} // j
+	*/
+      } // if size
+    } // evtStore
+    //
+
+
 
     ATH_MSG_DEBUG(" Offline histograms are stored successfully !");
 
@@ -646,7 +718,19 @@ StatusCode HLTBjetMonTool::book(){
 	m_priVtxKey = "xPrimVx";
 	m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig";
       }
-      ATH_MSG_DEBUG( " Trigger chain name: " << trigItem << " m_jetKey: " << m_jetKey << " m_priVtxKey: " << m_priVtxKey << " m_trackKey: " << m_trackKey ); 
+      std::size_t found1 = trigItem.find("FTK");
+      if (found1!=std::string::npos) {
+	std::size_t found2 = trigItem.find("Refit");
+        if (found2!=std::string::npos) {
+          m_priVtxKey = "HLT_PrimVertexFTKRefit";
+          m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig";
+        }//found2                                                                                                                                                        
+	else {
+          m_priVtxKey = "HLT_PrimVertexFTK";
+          m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig";
+        }//else                                                                                                                                                           
+      }//found1                                                                                                                                                   
+      ATH_MSG_INFO( " Trigger chain name: " << trigItem << " m_jetKey: " << m_jetKey << " m_priVtxKey: " << m_priVtxKey << " m_trackKey: " << m_trackKey ); 
       ATH_MSG_DEBUG("PROCESSING TRIGITEM  -  " << trigItem);
       // Set flag MuJet
       bool MuJet = false;
@@ -678,7 +762,7 @@ StatusCode HLTBjetMonTool::book(){
 	  const xAOD::VertexContainer* onlinepv = onlinepvs[0].cptr();
 	  ATH_MSG_DEBUG("                 -   nVert: " << onlinepv->size());
 	  if( not onlinepv->empty()) {  
-            if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)                                                                
+            if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)               
 	      if(HistPV) hist("PVx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->x());
 	      if(HistPV) hist("PVy_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->y());
 	      if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z());

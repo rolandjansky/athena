@@ -61,6 +61,7 @@ class HLTBjetMonTool : public IHLTMonTool {
   ToolHandle<ITrigTrackJetFinderTool> m_trackJetFinderTool;
 
   std::vector<std::string> m_TriggerChainBjet, m_TriggerChainMujet;
+  std::vector<std::string> m_TriggerChainBjet_x, m_TriggerChainMujet_x;
  
   std::map<std::string,std::string> m_Chain2Dir;
   std::vector<std::string> m_Shifter_jSplit, m_Expert_jSplit, m_Shifter_jUnSplit,  m_Expert_jUnSplit, m_Shifter_mujet, m_Expert_mujet;
