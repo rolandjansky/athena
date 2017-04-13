@@ -28,6 +28,7 @@ atlas_depends_on_subdirs(
    Trigger/TrigSteer/TrigInterfaces
    Trigger/TrigTools/TrigTimeAlgs
    PRIVATE
+   PhysicsAnalysis/AnalysisCommon/PATCore
    PathResolver
    InDetTrackSelectionTool
    Control/CxxUtils
@@ -55,7 +56,7 @@ atlas_add_library( TrigEFMissingETLib
    LArToolsLib TrigT2CaloCommonLib TrigInterfacesLib TrigTimeAlgsLib
    PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CxxUtils Identifier
    EventKernel xAODEventInfo JetEvent TrigMuonEvent TrigSteeringEvent
-   PathResolver
+   PathResolver PATCoreLib
    TrigT1Interfaces )
 
 atlas_add_component( TrigEFMissingET
