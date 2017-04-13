@@ -58,7 +58,9 @@
 
 
 #include "AthAllocators/ArenaPoolAllocator.h"
+#include "CxxUtils/checker_macros.h"
 #include <string>
+#include <type_traits>
 
 
 namespace SG {
@@ -314,13 +316,13 @@ public:
   /**
    * @brief Return the statistics block for this allocator.
    */
-  const ArenaAllocatorBase::Stats& stats() const;
+  ArenaAllocatorBase::Stats stats() const;
 
 
   /**
    * @brief Return a pointer to the underlying allocator (may be 0).
    */
-  ArenaAllocatorBase* poolptr() const;
+  const ArenaAllocatorBase* poolptr() const;
 
 
 private:
@@ -333,7 +335,7 @@ private:
 /**
  * @brief STL-style allocator wrapper for @c ArenaPoolAllocator.
  *        This is the specialization for pointers, which uses
- *        the standard STL allocator.
+ *        the standard STL allocator.  It has no additional functionality.
  *
  * See the file-level comments for details.
  */
@@ -362,12 +364,8 @@ public:
 
   /**
    * @brief Default constructor.
-   * @param nblock Value to set in the parameters structure for the
-   *               number of elements to allocate per block.
-   * @param name   Value to set in the parameters structure for the
-   *               allocator name.
    */
-  ArenaPoolSTLAllocator (size_t nblock = 1000, const std::string& name = "");
+  ArenaPoolSTLAllocator();
 
 
   /**
@@ -381,91 +379,31 @@ public:
 
   // We don't bother to supply a more general constructor --- shouldn't
   // be needed.
-
-
-  /**
-   * @brief Return the hinted number of objects allocated per block.
-   */
-  size_t nblock() const;
-
-
-  /**
-   * @brief Return the name of this allocator.
-   */
-  const std::string& name() const;
-
-
-  /**
-   * @brief Free all allocated elements.
-   *
-   * All elements allocated are returned to the free state.
-   * @c clear should be called on them if it was provided.
-   * The elements may continue to be cached internally, without
-   * returning to the system.
-   */
-  void reset();
-
-
-  /**
-   * @brief Free all allocated elements and release memory back to the system.
-   *
-   * All elements allocated are freed, and all allocated blocks of memory
-   * are released back to the system.
-   * @c destructor should be called on them if it was provided
-   * (preceded by @c clear if provided and @c mustClear was set).
-   */
-  void erase();
-
-
-  /**
-   * @brief Set the total number of elements cached by the allocator.
-   * @param size The desired pool size.
-   *
-   * This allows changing the number of elements that are currently free
-   * but cached.  Any allocated elements are not affected by this call.
-   *
-   * If @c size is greater than the total number of elements currently
-   * cached, then more will be allocated.  This will preferably done
-   * with a single block, but that is not guaranteed; in addition, the
-   * allocator may allocate more elements than is requested.
-   *
-   * If @c size is smaller than the total number of elements currently
-   * cached, as many blocks as possible will be released back to the system.
-   * It may not be possible to release the number of elements requested;
-   * this should be implemented on a best-effort basis.
-   */
-  void reserve (size_t size);
-
-
-  /**
-   * @brief Return the statistics block for this allocator.
-   */
-  const ArenaAllocatorBase::Stats& stats() const;
-
-
-  /**
-   * @brief Return a pointer to the underlying allocator (may be 0).
-   */
-  ArenaAllocatorBase* poolptr() const;
-
-
-private:
-  /// Saved hinted number of objects per block.
-  size_t m_nblock;
-
-  /// Saved allocator name.
-  std::string m_name;
-
-  /// Point at an underlying allocator from a different specialization.
-  ArenaAllocatorBase* m_poolptr;
 };
+
+
+/// Forward declaration.
+template <class T>
+class ArenaNonConstPoolSTLAllocator;
 
 
 /**
  * @brief STL-style allocator wrapper for @c ArenaPoolAllocator.
  *        This is the specialization for the case of the vetoed type.
  *
- * See the file-level comments for details.
+ *        We want to allow calling the non-const allocator methods
+ *        reset(), erase(), and reserve() only if the corresponding
+ *        container is non-const.  However, we can't really do that,
+ *        since the get_allocator() method of containers is only const,
+ *        and returns an allocator by value.  So instead, we split up this
+ *        class.  @c ArenaPoolSTLAllocator holds a const pointer to the
+ *        underlying allocator, and supports only the const methods on it.
+ *        Then @c ArenaNonConstPoolSTLAllocator derives from it and
+ *        implements the non-const methods.  To get an instance of the
+ *        latter class, call ArenaPoolSTLAllocator::get_allocator(c),
+ *        where @c is the container --- and @c must be non-const.
+ *
+ * See the file-level comments for further details.
  */
 template <class T>
 class ArenaPoolSTLAllocator<T, T>
@@ -526,6 +464,62 @@ public:
 
 
   /**
+   * @brief Return the statistics block for this allocator.
+   */
+  ArenaAllocatorBase::Stats stats() const;
+
+
+  /**
+   * @brief Return a pointer to the underlying allocator (may be 0).
+   */
+  const ArenaAllocatorBase* poolptr() const;
+
+
+  /**
+   * @brief Return an allocator supporting non-const methods from
+   *        a non-const container reference.
+   * @param c The (non-const) container.
+   */
+  template <class CONT>
+  static
+  ArenaNonConstPoolSTLAllocator<T> get_allocator (CONT& c);
+
+
+private:
+  /// Saved hinted number of objects per block.
+  size_t m_nblock;
+
+  /// Saved allocator name.
+  std::string m_name;
+
+  /// Point at an underlying allocator from a different specialization.
+  const ArenaAllocatorBase* m_poolptr;
+};
+
+
+
+/**
+ * @brief STL-style allocator wrapper for @c ArenaPoolAllocator.
+ *        Non-const variant for the case of the vetoed type.
+ *
+ *        See documentation above for details.
+ */
+template <class T>
+class ArenaNonConstPoolSTLAllocator
+  : public ArenaPoolSTLAllocator<T, T>
+{
+public:
+  /**
+   * @brief Constructor.
+   * @param a Allocator to reference.
+   * @param poolptr_nc Non-const pointer to the underlying allocator.
+   */
+  template <class U, class V>
+  ArenaNonConstPoolSTLAllocator (const ArenaPoolSTLAllocator<U, V>& a,
+                                 ArenaAllocatorBase* poolptr_nc);
+
+
+  /**
    * @brief Free all allocated elements.
    *
    * All elements allocated are returned to the free state.
@@ -567,27 +561,9 @@ public:
   void reserve (size_t size);
 
 
-  /**
-   * @brief Return the statistics block for this allocator.
-   */
-  const ArenaAllocatorBase::Stats& stats() const;
-
-
-  /**
-   * @brief Return a pointer to the underlying allocator (may be 0).
-   */
-  ArenaAllocatorBase* poolptr() const;
-
-
 private:
-  /// Saved hinted number of objects per block.
-  size_t m_nblock;
-
-  /// Saved allocator name.
-  std::string m_name;
-
-  /// Point at an underlying allocator from a different specialization.
-  ArenaAllocatorBase* m_poolptr;
+  /// Non-const pointer to the underlying allocator.
+  ArenaAllocatorBase* m_poolptr_nc;
 };
 
 

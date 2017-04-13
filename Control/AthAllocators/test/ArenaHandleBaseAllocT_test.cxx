@@ -25,12 +25,13 @@ public:
   virtual void erase() override {}
   virtual void reserve(size_t) override {}
   virtual const std::string& name() const override { return m_params.name; }
-  virtual const Stats& stats() const override { return m_stats; }
+  virtual Stats stats() const override { return m_stats; }
   const Params& params() const { return m_params; }
   int foo() { return 42; }
 
-  static SG::ArenaAllocatorBase* makeAllocator (const Params& params)
-  { return new TestAlloc (params); }
+  static std::unique_ptr<SG::ArenaAllocatorBase>
+  makeAllocator (const Params& params)
+  { return std::make_unique<TestAlloc> (params); }
 
 private:
   Stats m_stats;
@@ -42,25 +43,109 @@ class TestHandle
 {
 public:
   typedef SG::ArenaHandleBaseAllocT<TestAlloc> Base;
-  TestHandle (SG::ArenaHeader* header, size_t index)
-    : Base (header, index) {}
-  TestHandle (SG::ArenaHeader* header, const Creator& creator)
-    : Base (header, creator) {}
+  using Base::Base;
+  using Base::makeIndex;
   int foo() { return allocator()->foo(); }
 };
+
 
 void test1()
 {
   SG::ArenaHeader head;
-  TestAlloc::Params params;
-  params.name = "foo";
-  TestHandle hand (&head, TestHandle::Creator (static_cast<TestAlloc*>(nullptr),
-                                               params));
-  assert (hand.params().name == "foo");
 
-  TestHandle hand2 (&head, 0);
-  assert (hand2.foo() == 42);
+  TestAlloc::Params params0;
+  params0.name = "foo";
+  size_t i0 = TestHandle::makeIndex<TestAlloc> (params0);
+
+  {
+    TestHandle hand (&head, i0);
+    assert (hand.params().name == "foo");
+    assert (hand.foo() == 42);
+  }
+
+  SG::ArenaBase a1 ("1");
+  SG::ArenaBase a2  ("2");
+  head.addArena (&a1);
+  head.addArena (&a2);
+  head.setArenaForSlot (1, &a1);
+  head.setArenaForSlot (2, &a2);
+
+  assert (head.reportStr() == "\
+=== 1 ===\n\
+=== 2 ===\n\
+=== default ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  foo\n");
+
+  TestAlloc::Params params1;
+  params1.name = "bar";
+  size_t i1 = TestHandle::makeIndex<TestAlloc> (params1);
+
+  {
+    TestHandle hand (&head, EventContext (0, 1), i1);
+    assert (hand.params().name == "bar");
+  }
+  assert (head.reportStr() == "\
+=== 1 ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  bar\n\
+=== 2 ===\n\
+=== default ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  foo\n");
+
+  {
+    TestHandle hand (&head, EventContext (0, 2), i1);
+    assert (hand.foo() == 42);
+  }
+  assert (head.reportStr() == "\
+=== 1 ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  bar\n\
+=== 2 ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  bar\n\
+=== default ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  foo\n");
+
+  TestAlloc::Params params2;
+  params2.name = "fee";
+  size_t i2 = TestHandle::makeIndex<TestAlloc> (params2);
+  {
+    TestHandle hand (&a1, i2);
+    assert (hand.params().name == "fee");
+  }
+  assert (head.reportStr() == "\
+=== 1 ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  bar\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  fee\n\
+=== 2 ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  bar\n\
+=== default ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  foo\n");
+
+  {
+    TestHandle hand (&a2, i2);
+    assert (hand.foo() == 42);
+  }
+  assert (head.reportStr() == "\
+=== 1 ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  bar\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  fee\n\
+=== 2 ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  bar\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  fee\n\
+=== default ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  foo\n");
 }
+
 
 int main()
 {

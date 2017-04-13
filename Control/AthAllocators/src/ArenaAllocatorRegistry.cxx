@@ -10,12 +10,14 @@
  *        Out-of-line implementation.
  */
 
-// xxx FIXME: not thread-safe.
 
 #include "AthAllocators/ArenaAllocatorRegistry.h"
 #include "AthAllocators/ArenaAllocatorCreator.h"
+#include "AthAllocators/ArenaAllocatorBase.h"
+#include "CxxUtils/checker_macros.h"
 #include <vector>
 #include <map>
+#include <mutex>
 #include <cassert>
 
 
@@ -40,7 +42,7 @@ public:
    * @return The new integer index for this allocator type.
    */
   size_t registerCreator (const std::string& name,
-                          ArenaAllocatorCreator* creator);
+                          std::unique_ptr<ArenaAllocatorCreator> creator);
 
 
   /**
@@ -57,7 +59,7 @@ public:
    * @param i The index of the allocator to create.
    * @return A newly-allocated allocator instance.
    */
-  ArenaAllocatorBase* create (size_t i);
+  std::unique_ptr<ArenaAllocatorBase> create (size_t i);
 
 
 private:
@@ -66,7 +68,12 @@ private:
   map_t m_map;
 
   /// Vector of factory instances.
-  std::vector<ArenaAllocatorCreator*> m_creators;
+  std::vector<std::unique_ptr<ArenaAllocatorCreator> > m_creators;
+
+  /// Mutex to protect the contents.
+  std::mutex m_mutex;
+
+  typedef std::lock_guard<std::mutex> lock_t;
 };
 
 
@@ -75,9 +82,6 @@ private:
  */
 ArenaAllocatorRegistryImpl::~ArenaAllocatorRegistryImpl()
 {
-  // Free the saved factory instances.
-  for (ArenaAllocatorCreator* creator : m_creators)
-    delete creator;
 }
 
 
@@ -90,8 +94,10 @@ ArenaAllocatorRegistryImpl::~ArenaAllocatorRegistryImpl()
  */
 size_t
 ArenaAllocatorRegistryImpl::registerCreator (const std::string& name,
-                                             ArenaAllocatorCreator* creator)
+                                             std::unique_ptr<ArenaAllocatorCreator> creator)
 {
+  lock_t lock (m_mutex);
+
   // The name must not already exist.
   assert (m_map.count (name) == 0);
 
@@ -100,7 +106,7 @@ ArenaAllocatorRegistryImpl::registerCreator (const std::string& name,
 
   // Remember the index and store the creator.
   m_map[name] = i;
-  m_creators.push_back (creator);
+  m_creators.push_back (std::move (creator));
   return i;
 }
 
@@ -113,6 +119,7 @@ ArenaAllocatorRegistryImpl::registerCreator (const std::string& name,
  */
 size_t ArenaAllocatorRegistryImpl::lookup (const std::string& name)
 {
+  lock_t lock (m_mutex);
   map_t::iterator it = m_map.find (name);
   if (it == m_map.end())
     return std::string::npos;
@@ -125,8 +132,10 @@ size_t ArenaAllocatorRegistryImpl::lookup (const std::string& name)
  * @param i The index of the allocator to create.
  * @return A newly-allocated allocator instance.
  */
-ArenaAllocatorBase* ArenaAllocatorRegistryImpl::create (size_t i)
+std::unique_ptr<ArenaAllocatorBase>
+ArenaAllocatorRegistryImpl::create (size_t i)
 {
+  lock_t lock (m_mutex);
   assert (i < m_creators.size());
   return m_creators[i]->create();
 }
@@ -143,9 +152,9 @@ ArenaAllocatorBase* ArenaAllocatorRegistryImpl::create (size_t i)
  */
 size_t
 ArenaAllocatorRegistry::registerCreator (const std::string& name,
-                                         ArenaAllocatorCreator* creator)
+                                         std::unique_ptr<ArenaAllocatorCreator> creator)
 {
-  return m_impl->registerCreator (name, creator);
+  return m_impl->registerCreator (name, std::move (creator));
 }
 
 
@@ -166,7 +175,7 @@ size_t ArenaAllocatorRegistry::lookup (const std::string& name)
  * @param i The index of the allocator to create.
  * @return A newly-allocated allocator instance.
  */
-ArenaAllocatorBase* ArenaAllocatorRegistry::create (size_t i)
+std::unique_ptr<ArenaAllocatorBase> ArenaAllocatorRegistry::create (size_t i)
 {
   return m_impl->create (i);
 }
@@ -177,7 +186,7 @@ ArenaAllocatorBase* ArenaAllocatorRegistry::create (size_t i)
  */
 ArenaAllocatorRegistry* ArenaAllocatorRegistry::instance()
 {
-  static ArenaAllocatorRegistry tmp;
+  static ArenaAllocatorRegistry tmp ATLAS_THREAD_SAFE;
   return &tmp;
 }
 
@@ -186,7 +195,7 @@ ArenaAllocatorRegistry* ArenaAllocatorRegistry::instance()
  * @brief Constructor.
  */
 ArenaAllocatorRegistry::ArenaAllocatorRegistry()
-  : m_impl (new ArenaAllocatorRegistryImpl)
+  : m_impl (std::make_unique<ArenaAllocatorRegistryImpl>())
 {
 }
 
@@ -196,7 +205,6 @@ ArenaAllocatorRegistry::ArenaAllocatorRegistry()
  */
 ArenaAllocatorRegistry::~ArenaAllocatorRegistry()
 {
-  delete m_impl;
 }
 
 

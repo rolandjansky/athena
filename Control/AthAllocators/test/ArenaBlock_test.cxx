@@ -10,14 +10,20 @@
  * @brief Regression tests for ArenaBlock.
  */
 
+
 #undef NDEBUG
 #include "AthAllocators/ArenaBlock.h"
+#include "CxxUtils/checker_macros.h"
 #include <cassert>
 #include <vector>
 
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
+
 //==========================================================================
 
-struct Payload
+struct Payload 
 {
   Payload();
   ~Payload();

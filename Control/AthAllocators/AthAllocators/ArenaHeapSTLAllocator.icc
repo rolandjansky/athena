@@ -370,7 +370,7 @@ void ArenaHeapSTLAllocator<T, VETO>::reserve (size_t size)
  * @brief Return the statistics block for this allocator.
  */
 template <class T, class VETO>
-const ArenaAllocatorBase::Stats& ArenaHeapSTLAllocator<T, VETO>::stats() const
+ArenaAllocatorBase::Stats ArenaHeapSTLAllocator<T, VETO>::stats() const
 {
   return m_pool.stats();
 }
@@ -380,10 +380,9 @@ const ArenaAllocatorBase::Stats& ArenaHeapSTLAllocator<T, VETO>::stats() const
  * @brief Return a pointer to the underlying allocator (may be 0).
  */
 template <class T, class VETO>
-ArenaAllocatorBase* ArenaHeapSTLAllocator<T, VETO>::poolptr() const
+const ArenaAllocatorBase* ArenaHeapSTLAllocator<T, VETO>::poolptr() const
 {
-  const ArenaAllocatorBase* tmp = &m_pool;
-  return const_cast<ArenaAllocatorBase*> (tmp);
+  return &m_pool;
 }
 
 
@@ -448,6 +447,50 @@ const std::string& ArenaHeapSTLAllocator<T, T>::name() const
 
 
 /**
+ * @brief Return the statistics block for this allocator.
+ */
+template <class T>
+ArenaAllocatorBase::Stats
+ArenaHeapSTLAllocator<T, T>::stats() const
+{
+  if (m_poolptr)
+    return m_poolptr->stats();
+  return ArenaAllocatorBase::Stats();
+}
+
+
+/**
+ * @brief Return a pointer to the underlying allocator (may be 0).
+ */
+template <class T>
+const ArenaAllocatorBase* ArenaHeapSTLAllocator<T, T>::poolptr() const
+{
+  return m_poolptr;
+}
+
+
+//****************************************************************************
+// Non-const variant.
+//
+
+
+/**
+ * @brief Constructor.
+ * @param a Allocator to reference.
+ * @param poolptr_nc Non-const pointer to the underlying allocator.
+ */
+template <class T>
+template <class U, class V>
+ArenaNonConstHeapSTLAllocator<T>::ArenaNonConstHeapSTLAllocator
+  (const ArenaHeapSTLAllocator<U, V>& a,
+   ArenaAllocatorBase* poolptr_nc)
+    : ArenaHeapSTLAllocator<T, T>(a),
+    m_poolptr_nc (poolptr_nc)
+{
+}
+
+
+/**
  * @brief Free all allocated elements.
  *
  * All elements allocated are returned to the free state.
@@ -456,10 +499,10 @@ const std::string& ArenaHeapSTLAllocator<T, T>::name() const
  * returning to the system.
  */
 template <class T>
-void ArenaHeapSTLAllocator<T, T>::reset()
+void ArenaNonConstHeapSTLAllocator<T>::reset()
 {
-  if (m_poolptr)
-    m_poolptr->reset();
+  if (m_poolptr_nc)
+    m_poolptr_nc->reset();
 }
 
 
@@ -472,10 +515,10 @@ void ArenaHeapSTLAllocator<T, T>::reset()
  * (preceded by @c clear if provided and @c mustClear was set).
  */
 template <class T>
-void ArenaHeapSTLAllocator<T, T>::erase()
+void ArenaNonConstHeapSTLAllocator<T>::erase()
 {
-  if (m_poolptr)
-    m_poolptr->erase();
+  if (m_poolptr_nc)
+    m_poolptr_nc->erase();
 }
 
 
@@ -497,34 +540,30 @@ void ArenaHeapSTLAllocator<T, T>::erase()
  * this should be implemented on a best-effort basis.
  */
 template <class T>
-void ArenaHeapSTLAllocator<T, T>::reserve (size_t size)
+void ArenaNonConstHeapSTLAllocator<T>::reserve (size_t size)
 {
-  if (m_poolptr)
-    m_poolptr->reserve (size);
+  if (m_poolptr_nc)
+    m_poolptr_nc->reserve (size);
 }
 
 
-/**
- * @brief Return the statistics block for this allocator.
- */
-template <class T>
-const ArenaAllocatorBase::Stats&
-ArenaHeapSTLAllocator<T, T>::stats() const
-{
-  if (m_poolptr)
-    return m_poolptr->stats();
-  static ArenaAllocatorBase::Stats tmp;
-  return tmp;
-}
 
 
 /**
- * @brief Return a pointer to the underlying allocator (may be 0).
+ * @brief Return an allocator supporting non-const methods from
+ *        a non-const container reference.
+ * @param c The (non-const) container.
  */
 template <class T>
-ArenaAllocatorBase* ArenaHeapSTLAllocator<T, T>::poolptr() const
+template <class CONT>
+ArenaNonConstHeapSTLAllocator<T>
+ArenaHeapSTLAllocator<T, T>::get_allocator ATLAS_NOT_CONST_THREAD_SAFE (CONT& c)
 {
-  return m_poolptr;
+  // Must be called with a non-const object.
+  typename std::remove_const<CONT>::type& cc = c;
+  ArenaHeapSTLAllocator<T, T> a (cc.get_allocator());
+  return ArenaNonConstHeapSTLAllocator<T> (a,
+                                           const_cast<ArenaAllocatorBase*>(a.poolptr()));
 }
 
 

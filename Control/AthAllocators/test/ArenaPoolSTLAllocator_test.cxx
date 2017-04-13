@@ -13,14 +13,12 @@
 
 #undef NDEBUG
 #include "AthAllocators/ArenaPoolSTLAllocator.h"
-#include "boost/assign/list_of.hpp"
+#include "CxxUtils/checker_macros.h"
 #include <vector>
 #include <cassert>
 #include <iostream>
+#include <atomic>
 #include <unordered_map>
-
-using boost::assign::list_of;
-
 
 
 //==========================================================================
@@ -35,8 +33,8 @@ struct Payload
 
   int x;
   int y;
-  static int n;
-  static std::vector<int> v;
+  static std::atomic<int> n;
+  static std::vector<int> v ATLAS_THREAD_SAFE;
 };
 
 Payload::Payload(int the_y)
@@ -64,8 +62,19 @@ void Payload::clear ()
   y = 0;
 }
 
-int Payload::n = 0;
+std::atomic<int> Payload::n;
 std::vector<int> Payload::v;
+
+
+struct CTest
+{
+  typedef SG::ArenaPoolSTLAllocator<int> allocator_type;
+  CTest (allocator_type& a) : m_alloc(a) {}
+  allocator_type get_allocator() const { return m_alloc; }
+
+  allocator_type& m_alloc;
+};
+
 
 //==========================================================================
 
@@ -85,13 +94,13 @@ void test1()
   assert (a2.nblock() == 100);
   assert (a2.name() == "a2");
 
-  SG::ArenaPoolSTLAllocator<Payload*, int> a3 (100, "a3");
-  assert (a3.nblock() == 100);
-  assert (a3.name() == "a3");
+  SG::ArenaPoolSTLAllocator<Payload*, int> a3;// (100, "a3");
+  //assert (a3.nblock() == 100);
+  //assert (a3.name() == "a3");
 
-  SG::ArenaPoolSTLAllocator<Payload, int> a4 (a3);
+  SG::ArenaPoolSTLAllocator<Payload, int> a4 (a2);
   assert (a4.nblock() == 100);
-  assert (a4.name() == "a3");
+  assert (a4.name() == "a2");
   assert (a4.poolptr() != nullptr);
 
   {
@@ -118,7 +127,7 @@ void test1()
   a4.destroy (pv[0]);
 
   assert (Payload::n == 2);
-  std::vector<int> exp1 = list_of(1)(1)(-1)(-1);
+  std::vector<int> exp1 {1, 1, -1, -1};
   assert (Payload::v == exp1);
   Payload::v.clear();
 
@@ -157,54 +166,19 @@ void test2()
   std::cout << "test2\n";
 
   SG::ArenaPoolSTLAllocator<Payload*, int> a1;
-  assert (a1.nblock() == 1000);
-  assert (a1.name() == "");
-  assert (a1.poolptr() == nullptr);
 
-  SG::ArenaPoolSTLAllocator<Payload*, int> a2 (100, "a2");
-  assert (a2.nblock() == 100);
-  assert (a2.name() == "a2");
-  assert (a2.poolptr() == nullptr);
-
-  a2.reset();
-  a2.erase();
-  a2.reserve(10);
-  assert (a2.stats().elts.total == 0);
+  SG::ArenaPoolSTLAllocator<Payload*, int> a2;// (100, "a2");
 
   SG::ArenaPoolSTLAllocator<Payload, int> a3 (500, "a3");
   a3.reserve (1000);
   SG::ArenaPoolSTLAllocator<Payload*, int> a4 (a3);
-  assert (a4.nblock() == 500);
-  assert (a4.name() == "a3");
-  assert (a4.poolptr() == a3.poolptr());
 
   (void)a3.allocate (1);
   assert (a3.stats().elts.inuse == 1);
   assert (a3.stats().elts.total == 1000);
 
-  assert (a4.stats().elts.inuse == 1);
-  assert (a4.stats().elts.total == 1000);
-  assert (&a3.stats() == &a4.stats());
-
-  a4.reset();
-  assert (a4.stats().elts.inuse == 0);
-  assert (a4.stats().elts.total == 1000);
-
-  a4.erase();
-  assert (a4.stats().elts.inuse == 0);
-  assert (a4.stats().elts.total == 0);
-
-  a4.reserve(1000);
-  assert (a4.stats().elts.inuse == 0);
-  assert (a4.stats().elts.total == 1000);
-
   Payload** p = a4.allocate (2, nullptr);
-  assert (a4.stats().elts.inuse == 0);
-  assert (a4.stats().elts.total == 1000);
-
   a4.deallocate (p, 2);
-  assert (a4.stats().elts.inuse == 0);
-  assert (a4.stats().elts.total == 1000);
 
   assert (Payload::n == 0);
   assert (Payload::v.size() == 0);
@@ -229,9 +203,6 @@ void test3()
   assert (a2.name() == "a2");
   assert (a2.poolptr() == nullptr);
 
-  a2.reset();
-  a2.erase();
-  a2.reserve(10);
   assert (a2.stats().elts.total == 0);
 
   SG::ArenaPoolSTLAllocator<Payload, int> a3 (500, "a3");
@@ -247,17 +218,18 @@ void test3()
 
   assert (a4.stats().elts.inuse == 1);
   assert (a4.stats().elts.total == 1000);
-  assert (&a3.stats() == &a4.stats());
 
-  a4.reset();
+  CTest c4 (a4);
+  auto a4_nc = SG::ArenaPoolSTLAllocator<int>::get_allocator (c4);
+  a4_nc.reset();
   assert (a4.stats().elts.inuse == 0);
   assert (a4.stats().elts.total == 1000);
 
-  a4.erase();
+  a4_nc.erase();
   assert (a4.stats().elts.inuse == 0);
   assert (a4.stats().elts.total == 0);
 
-  a4.reserve(1000);
+  a4_nc.reserve(1000);
   assert (a4.stats().elts.inuse == 0);
   assert (a4.stats().elts.total == 1000);
 
@@ -358,7 +330,7 @@ void test5()
   assert (map.get_allocator().stats().elts.total == 500);
   assert (map.get_allocator().stats().elts.inuse == 10);
 
-  map.get_allocator().reset();
+  map_t::allocator_type::get_allocator(map).reset();
   assert (map.get_allocator().stats().elts.total == 500);
   assert (map.get_allocator().stats().elts.inuse == 0);
 

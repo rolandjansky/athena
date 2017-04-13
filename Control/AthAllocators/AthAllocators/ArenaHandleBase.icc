@@ -24,9 +24,23 @@ namespace SG {
  * This is on the fast path for allocations, so keep it small and inline.
  */
 inline
-ArenaAllocatorBase* ArenaHandleBase::baseAllocator() const
+ArenaAllocatorBase* ArenaHandleBase::baseAllocator()
 {
-  return m_allocator;
+  return m_allocator.get();
+}
+
+
+/**
+ * @brief Return the current Allocator which we are referencing.
+ *
+ * This may cause a new Allocator to be created.
+ *
+ * This is on the fast path for allocations, so keep it small and inline.
+ */
+inline
+const ArenaAllocatorBase* ArenaHandleBase::baseAllocator() const
+{
+  return m_allocator.get();
 }
 
 
