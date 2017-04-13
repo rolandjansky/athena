@@ -16,6 +16,8 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/Identifier
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
+                          InnerDetector/InDetConditions/SCT_ConditionsServices
+                          InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           Tracking/TrkDetDescr/TrkDetDescrUtils
