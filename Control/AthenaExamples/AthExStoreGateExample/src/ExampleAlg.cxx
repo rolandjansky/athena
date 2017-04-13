@@ -1,3 +1,15 @@
+/*
+ * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ */
+// $Id$
+/**
+ * @file AthExStoreGateExample/src/ExampleAlg.cxx
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Apr, 2017
+ * @brief Example of using handles for data access.
+ */
+
+
 #include "ExampleAlg.h"
 
 
