@@ -77,9 +77,6 @@ class eflowObjectCreatorTool : virtual public eflowBaseAlgTool, public AthAlgToo
   /* String flag to configure for running in golden e/p match mode */
   std::string m_goldenModeString;
 
-  /* Toggle debug output */
-  int m_debug;
-
   /* Bool to toggle which jetetmiss configuration we are in - EM cluster input or LC cluster input */
   bool m_LCMode;
 

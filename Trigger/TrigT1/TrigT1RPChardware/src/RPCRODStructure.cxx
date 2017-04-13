@@ -42,8 +42,8 @@ m_RODID=           0xffff;
 RODword RPCRODStructure::getSourceID(ubit16 subsystem, 
                                                 ubit16 RODID) {
 RODword sourceIdentifier=0;
-sourceIdentifier =sourceIDreserved            <<24 |
-                  moduleType                  <<16 |
+sourceIdentifier =s_sourceIDreserved            <<24 |
+                  s_moduleType                  <<16 |
                   getSubDetectorID(subsystem) << 8 |
                   RODID;
 return sourceIdentifier;
@@ -57,7 +57,7 @@ m_RODID           =(sourceID&0x000000ff);
 }//end-of-decodeSourceID
 //----------------------------------------------------------------------------//
 ubit16 RPCRODStructure::getSubDetectorID(ubit16 subsystem) {
-ubit16        id=subDetectorIDA;
-if(subsystem) id=subDetectorIDC;
+ubit16        id=s_subDetectorIDA;
+if(subsystem) id=s_subDetectorIDC;
 return id;
 }//end-of-getSubDetectorID

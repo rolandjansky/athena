@@ -7,13 +7,14 @@ from AthenaCommon.AppMgr import ServiceMgr
 from TrigTimeMonitor.TrigTimeHistToolConfig import *
 from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import *
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 theDataPreparator    = TrigL2MuonSA__MuFastDataPreparator()
 thePatternFinder     = TrigL2MuonSA__MuFastPatternFinder()
 theStationFitter     = TrigL2MuonSA__MuFastStationFitter()
 theTrackFitter       = TrigL2MuonSA__MuFastTrackFitter()
 theTrackExtrapolator = TrigL2MuonSA__MuFastTrackExtrapolator()
-
+ptFromAlphaBeta      = TrigL2MuonSA__PtFromAlphaBeta()
 
 from AthenaCommon.AppMgr import ToolSvc
 
@@ -22,7 +23,7 @@ ToolSvc += thePatternFinder
 ToolSvc += theStationFitter
 ToolSvc += theTrackFitter
 ToolSvc += theTrackExtrapolator
-
+ToolSvc += ptFromAlphaBeta
 
 ToolSvc += MuonBackExtrapolatorForAlignedDet()
 ToolSvc += MuonBackExtrapolatorForMisalignedDet()
@@ -88,6 +89,7 @@ class TrigL2MuonSAConfig(MuFastSteering):
         self.StationFitter     = theStationFitter
         self.TrackFitter       = theTrackFitter
         self.TrackExtrapolator = theTrackExtrapolator
+        self.StationFitter.PtFromAlphaBeta = ptFromAlphaBeta
 
         self.R_WIDTH_TGC_FAILED = 200
         self.R_WIDTH_RPC_FAILED = 400
@@ -97,6 +99,11 @@ class TrigL2MuonSAConfig(MuFastSteering):
         self.USE_ROIBASEDACCESS_CSC = True
 
         self.RpcErrToDebugStream = True
+
+        if TriggerFlags.run2Config=='2016':
+          self.UseEndcapInnerFromBarrel = False
+        else:
+          self.UseEndcapInnerFromBarrel = True
 
         if ( args[0]== '900GeV' ):
             self.WinPt = 4.0
@@ -144,3 +151,11 @@ class TrigL2MuonSAConfig(MuFastSteering):
                     print self.name," using BackExtrapolatorLUT for Misligned Detector"
                 if handle.BackExtrapolator.name().find("DataBackExtrapolator")!=-1:
                     print self.name," using BackExtrapolatorLUT for Data"
+                    
+        if TriggerFlags.run2Config=='2016':
+            self.StationFitter.PtFromAlphaBeta.useCscPt = False
+            self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = True
+        else:
+            self.StationFitter.PtFromAlphaBeta.useCscPt = True
+            self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = True
+

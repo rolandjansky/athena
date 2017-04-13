@@ -70,9 +70,6 @@ private:  // methods
 
 private:  // data
 
-  int m_dumpcount;
-  int m_dumped;
-  bool m_dump;
   // Pointer muon geometry manager.
   const MuonGM::MuonDetectorManager* m_pgm;
   

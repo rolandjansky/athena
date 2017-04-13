@@ -57,7 +57,7 @@ class CscRegDict: public AthAlgTool{
   
   int get_hash(int stationname, int stationeta, int stationphi); //return a module context hashId.
   Amg::Vector3D nomalVector(int module);
-  double displacement(int module){ return m_reg_dict[module].Displacement; }
+  double displacement(int module);
   double posCorrectionR(int module, int charge);
   double posCorrectionZ(int module, int charge);
   double idealAtanNormal(int module){ return m_reg_dict[module].idealAtanNormal; }
@@ -82,6 +82,15 @@ class CscRegDict: public AthAlgTool{
   
 };
   
+
+inline double CscRegDict::displacement(int module){
+
+  return (0<=module && module <32) ? m_reg_dict[module].Displacement : 0.; 
+
+}
+
+
+
 
 inline int CscRegDict::stationName(int hash){
  

@@ -202,8 +202,8 @@ InDetRttPlots::track_vs_truth(const xAOD::TrackParticle& track,const xAOD::Truth
 }
 
 void
-InDetRttPlots::minDR(float min_dR, float prod_rad, float bestmatch, double BIDPt, double truth_pt, float cvst){
-  m_dumPlots.minDR(min_dR, prod_rad, bestmatch, BIDPt, truth_pt, cvst);
+InDetRttPlots::minDR(float min_dR, float prod_rad, float bestmatch, double BIDPt, double truth_pt){
+  m_dumPlots.minDR(min_dR, prod_rad, bestmatch, BIDPt, truth_pt);
 }
 
 void

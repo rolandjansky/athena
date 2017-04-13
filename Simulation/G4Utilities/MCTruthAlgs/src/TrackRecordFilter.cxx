@@ -4,23 +4,24 @@
 
 #include "MCTruthAlgs/TrackRecordFilter.h"
 
-// the TrackRecordCollection
-
-#include "TrackRecord/TrackRecordCollection.h"
 
 // particle prop service
 #include "GaudiKernel/IPartPropSvc.h"
-
+// particle table
+#include "HepPDT/ParticleDataTable.hh"
 // Particle data table
 #include "HepPDT/ParticleData.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 TrackRecordFilter::TrackRecordFilter(const std::string& name,
                                      ISvcLocator* pSvcLocator):
-  AthAlgorithm(name, pSvcLocator), m_pParticleTable(0)
+  AthReentrantAlgorithm(name, pSvcLocator),
+  m_inputKey("MuonEntryLayer"),
+  m_outputKey("MuonEntryLayerFilter"),
+  m_pParticleTable(0)
 {
-  declareProperty("inputName", m_inputName="MuonEntryLayer");
-  declareProperty("outputName",m_outputName="MuonEntryLayerFilter");
+  declareProperty("inputName", m_inputKey);
+  declareProperty("outputName", m_outputKey);
   declareProperty("threshold",m_cutOff=100.*CLHEP::MeV);
 }
 
@@ -28,7 +29,7 @@ StatusCode TrackRecordFilter::initialize() {
   //FIXME Old syntax
   // Get the Particle Properties Service
   IPartPropSvc* p_PartPropSvc = 0;
-  static const bool CREATEIFNOTTHERE(true);
+  constexpr bool CREATEIFNOTTHERE(true);
   StatusCode PartPropStatus = service("PartPropSvc", p_PartPropSvc, CREATEIFNOTTHERE);
   if (!PartPropStatus.isSuccess() || 0 == p_PartPropSvc) {
     ATH_MSG_ERROR ( " Could not initialize Particle Properties Service" );
@@ -36,28 +37,28 @@ StatusCode TrackRecordFilter::initialize() {
   }
   m_pParticleTable = p_PartPropSvc->PDT();
 
+  ATH_CHECK(m_inputKey.initialize());
+  ATH_CHECK(m_outputKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrackRecordFilter::execute() {
+StatusCode TrackRecordFilter::execute_r(const EventContext& ctx) const {
 
   // Get message service
   ATH_MSG_DEBUG ( "TrackRecordFilter::execute()" );
 
   // retrieve the collection
-  const TrackRecordCollection* trackCollection(0);
-  if (evtStore()->contains<TrackRecordCollection>(m_inputName)) {
-    CHECK( evtStore()->retrieve(trackCollection, m_inputName) );
-  }
-  else {
+  SG::ReadHandle<TrackRecordCollection> trackCollection(m_inputKey, ctx);
+  if (!trackCollection.isPresent() || !trackCollection.isValid()) {
     ATH_MSG_DEBUG ( "Could not find TrackRecord collection" );
     return StatusCode::SUCCESS;
   }
   ATH_MSG_DEBUG ( "There are " << trackCollection->size() << "tracks in this container " );
 
+  SG::WriteHandle<TrackRecordCollection> filterCollection(m_outputKey, ctx);
   // create and record a new collection
-  TrackRecordCollection* filterCollection = new TrackRecordCollection();
-  CHECK( evtStore()->record(filterCollection, m_outputName) );
+  CHECK( filterCollection.record(std::make_unique<TrackRecordCollection>()) );
 
   // iterate over the collection
   for (auto trkit : *trackCollection) {
@@ -67,16 +68,14 @@ StatusCode TrackRecordFilter::execute() {
     if(pdgId) { //Geant makes particle with pdgid=0...
       // get rid of neutral particles
       const HepPDT::ParticleData* particle =
-        m_pParticleTable->particle(HepPDT::ParticleID(abs(pdgId)));
+        m_pParticleTable->particle(HepPDT::ParticleID(std::abs(pdgId)));
       if(particle){
-        if(fabs(particle->charge() ) >0.5 && trkit.GetEnergy() > m_cutOff)
+        if(std::fabs(particle->charge() ) >0.5 && trkit.GetEnergy() > m_cutOff)
           filterCollection->push_back(TrackRecord(trkit));
       }
     }
   }
 
-  //lock the collection
-  CHECK( evtStore()->setConst(filterCollection) );
 
   ATH_MSG_DEBUG ( "There are " << filterCollection->size() << "that satisfy the filter " );
   return StatusCode::SUCCESS;
@@ -85,3 +84,4 @@ StatusCode TrackRecordFilter::execute() {
 StatusCode TrackRecordFilter::finalize() {
   return StatusCode::SUCCESS;
 }
+

@@ -153,8 +153,8 @@ TRTDigitizationTool::~TRTDigitizationTool() {
 StatusCode TRTDigitizationTool::initialize()
 {
 
-  //ATH_MSG_INFO ( "TRTDigitization::initialize()" );
-  ATH_MSG_DEBUG ( "TRTDigitization::initialize() begin" );
+  ATH_MSG_INFO ( "TRTDigitization::initialize() begin" );
+  //ATH_MSG_DEBUG ( "TRTDigitization::initialize() begin" );
 
   // Get the TRT Detector Manager
   if (StatusCode::SUCCESS != detStore()->retrieve(m_manager,"TRT") ) {

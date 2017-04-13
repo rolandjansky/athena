@@ -10,6 +10,8 @@
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  **/
 
+#include "GaudiKernel/StatusCode.h"
+
 #include "AthContainersInterfaces/AuxTypes.h"
 #include "DataModelRoot/RootType.h"
 
@@ -17,6 +19,8 @@
 
 // Forward declarations
 class Guid;
+class IAthenaSerializeSvc;
+class IAthenaIPCTool;
 class AthenaPoolAuxStore;
 namespace SG {
    class IAuxStoreIO;
@@ -49,6 +53,17 @@ public:
    std::string getTypeName(SG::auxid_t auxid);
 
    std::string getElemName(SG::auxid_t auxid);
+
+   /// Receive dynamic aux store variables from streaming tool
+   StatusCode receiveStore(const IAthenaSerializeSvc* serSvc, const IAthenaIPCTool* ipcTool, void* obj, int num = 0);
+
+   /// Send dynamic aux store variables to streaming tool
+   StatusCode sendStore(const IAthenaSerializeSvc* serSvc,
+	   const IAthenaIPCTool* ipcTool,
+	   const void* obj,
+	   const Guid& classId,
+	   const std::string& contName,
+	   int num = 0);
 
 private: // data
    const SG::IAuxStoreIO* m_store;

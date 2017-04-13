@@ -19,7 +19,7 @@ class Geo2G4OpticalSurfaceFactory
 
   G4OpticalSurface* Build(const GeoOpticalSurface*);
  private:
-  Geo2G4OptSurfaceMap definedOptSurfaces;
+  Geo2G4OptSurfaceMap m_definedOptSurfaces;
 };
 
 #endif

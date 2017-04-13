@@ -7,7 +7,7 @@
 // InDetTrackCuts.cxx
 // implementations and definitions of cut objects
 
-#include "src/InDetTrackCut.h"
+#include "InDetTrackCut.h"
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 
 #include <algorithm>

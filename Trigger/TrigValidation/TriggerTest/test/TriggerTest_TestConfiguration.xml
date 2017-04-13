@@ -969,7 +969,7 @@
                     <testname>CheckForTrigCostD3PD_TriggerTest</testname>
                     <arg>
                         <argname>command</argname>
-                        <argvalue>if [ -f trig_cost.root ] ; then RunTrigCostD3PD.exe -f trig_cost.root --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --monitorGlobals --monitorFullEvent --monitorROS --linkOutputDir ; else echo file trig_cost.root does not exist thus RunTrigCostD3PD.exe will not be run ; fi</argvalue>
+                        <argvalue>if [ -f trig_cost.root ] ; then RunTrigCostD3PD.exe -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir ; else echo file trig_cost.root does not exist thus RunTrigCostD3PD.exe will not be run ; fi</argvalue>
                     </arg>
                     <noalarm />
                 </test>

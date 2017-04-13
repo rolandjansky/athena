@@ -51,15 +51,15 @@ fi
 echo "---------------------------------------------------------------------------------------"
 echo "$0 : compiling posprocessing script"
 echo "---------------------------------------------------------------------------------------"
-NAME=postprocessHistos_updt
+NAME=postprocessHistos
 g++ -O2 -Wall -fPIC -std=c++11 $(root-config --cflags) -o ${NAME} ${NAME}.cxx $(root-config --libs)
 
 echo "---------------------------------------------------------------------------------------"
 echo "$0 : running postprocessing"
 echo "---------------------------------------------------------------------------------------"
-./postprocessHistos_updt $1
+./postprocessHistos $1
 if [[ "0" != "$?" ]]; then
-    echo "$0 : postprocessHistos_updt failed for file $1"
+    echo "$0 : postprocessHistos failed for file $1"
     exit 1;
 fi
 

@@ -240,7 +240,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -555,7 +555,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -863,7 +863,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -1004,20 +1004,6 @@
               <testname>ExeRunner</testname>  
               <arg> 
                 <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-all.root data-beamspot_ttbar_pu46-reference.root HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTF -d HLTL2-plots  </argvalue>
-              </arg>
-            </action>
-
-
-           <action position="03">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
                 <argvalue>TIDArun.sh</argvalue> 
               </arg>
               <arg> 
@@ -1068,7 +1054,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -1277,7 +1263,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -1515,7 +1501,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -1754,7 +1740,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -1996,7 +1982,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -2235,7 +2221,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -2477,7 +2463,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -2717,7 +2703,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -2957,7 +2943,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -3197,7 +3183,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -3431,7 +3417,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -3664,7 +3650,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -3858,7 +3844,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -4065,7 +4051,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -4260,7 +4246,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -4482,7 +4468,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -4686,7 +4672,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -4887,7 +4873,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -5096,7 +5082,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -5304,7 +5290,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -5512,7 +5498,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -5720,7 +5706,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -5928,7 +5914,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -6151,7 +6137,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -6370,7 +6356,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -6573,7 +6559,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -6779,7 +6765,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -6990,7 +6976,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -7198,7 +7184,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -7407,7 +7393,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -7616,7 +7602,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -7817,7 +7803,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -8028,7 +8014,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -8237,7 +8223,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -8478,7 +8464,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -8681,7 +8667,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -8888,7 +8874,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -9085,7 +9071,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 

@@ -870,7 +870,7 @@ bool InDet::TRT_TrackSegmentsMaker_ECcosmics::find_seed(int endcap, int zslice, 
       
       int zsl=int((fabs(sc.z())-800.)/100.);
       
-      if(fabs(zsl-zslice)<2){
+      if(std::abs(zsl-zslice)<2){
 	double pred_phi=sc.z()*p_best[0]+p_best[1];
 	double corr=sc.phi()-p_best[2];
 	
@@ -1716,7 +1716,8 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::create_segment(std::vector<const I
 
 Trk::TrackSegment* InDet::TRT_TrackSegmentsMaker_ECcosmics::next()
 {
-  if(m_segiterator!=m_segments.end()) return (*m_segiterator++); return 0;
+  if(m_segiterator!=m_segments.end()) return (*m_segiterator++);
+  return 0;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1783,7 +1784,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::retrieveHits(void)
   for(; w!=we; ++w) {
     
     Identifier ID = (*w)->identify();
-    if(fabs(m_trtid->barrel_ec(ID))!=2) continue; // only endcaps please!!!
+    if(std::abs(m_trtid->barrel_ec(ID))!=2) continue; // only endcaps please!!!
 
 
     InDet::TRT_DriftCircleCollection::const_iterator 

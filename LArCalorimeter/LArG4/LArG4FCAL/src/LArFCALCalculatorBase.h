@@ -29,8 +29,8 @@ class LArFCALCalculatorBase : public LArCalculatorSvcImp
  public:
   // constructor
   LArFCALCalculatorBase(const std::string& name, ISvcLocator *pSvcLocator);
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   /////////////////////////////////////////////
 

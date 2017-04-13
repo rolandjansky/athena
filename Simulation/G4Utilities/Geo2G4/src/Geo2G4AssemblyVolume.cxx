@@ -12,12 +12,12 @@
 
 #include <sstream>
 
-unsigned int Geo2G4AssemblyVolume::fsInstanceCounter = 0;
+unsigned int Geo2G4AssemblyVolume::s_instanceCounter = 0;
 
 // Default constructor
 //
 Geo2G4AssemblyVolume::Geo2G4AssemblyVolume()
-: fAssemblyID( 0 )
+: m_assemblyID( 0 )
 {
   InstanceCountPlus();
   SetAssemblyID( GetInstanceCount() );
@@ -28,34 +28,34 @@ Geo2G4AssemblyVolume::Geo2G4AssemblyVolume()
 //
 Geo2G4AssemblyVolume::~Geo2G4AssemblyVolume()
 {
-  unsigned int howmany = fTriplets.size();
+  unsigned int howmany = m_triplets.size();
   if( howmany != 0 )
   {
     for( unsigned int i = 0; i < howmany; i++ )
     {
-      G4RotationMatrix* pRotToClean = fTriplets[i].GetRotation();
+      G4RotationMatrix* pRotToClean = m_triplets[i].GetRotation();
       if( pRotToClean != 0 )
       {
         delete pRotToClean;
       }
     }
   }
-  fTriplets.clear();
+  m_triplets.clear();
   
-  howmany = fPVStore.size();
+  howmany = m_PVStore.size();
   if( howmany != 0 )
   {
     for( unsigned int j = 0; j < howmany; j++ )
     {
-      G4RotationMatrix* pRotToClean = fPVStore[j]->GetRotation();
+      G4RotationMatrix* pRotToClean = m_PVStore[j]->GetRotation();
       if( pRotToClean != 0 )
       {
         delete pRotToClean;
       }
-      delete fPVStore[j];
+      delete m_PVStore[j];
     }
   }
-  fPVStore.clear();
+  m_PVStore.clear();
   InstanceCountMinus();
 }
 
@@ -79,10 +79,10 @@ void Geo2G4AssemblyVolume::AddPlacedVolume( G4LogicalVolume*  pVolume,
   if( pRotation != 0 )  { *toStore = *pRotation; }
   
   Geo2G4AssemblyTriplet toAdd( pVolume, translation, toStore );
-  fTriplets.push_back( toAdd );
+  m_triplets.push_back( toAdd );
 
-  copyNumbers.push_back( copyNo );
-  userComments.push_back( userC );
+  m_copyNumbers.push_back( copyNo );
+  m_userComments.push_back( userC );
 }
 
 // Add and place the given volume according to the specified transformation
@@ -105,10 +105,10 @@ void Geo2G4AssemblyVolume::AddPlacedVolume( G4LogicalVolume*  pVolume,
   if (scale(0,0)*scale(1,1)*scale(2,2) < 0.)  { isReflection = true; }
 
   Geo2G4AssemblyTriplet toAdd( pVolume, v, r, isReflection );
-  fTriplets.push_back( toAdd );
+  m_triplets.push_back( toAdd );
 
-  copyNumbers.push_back( copyNo );
-  userComments.push_back( userC );
+  m_copyNumbers.push_back( copyNo );
+  m_userComments.push_back( userC );
 }
 
 // Add and place the given assembly volume according to the specified
@@ -123,7 +123,7 @@ void Geo2G4AssemblyVolume::AddPlacedAssembly( Geo2G4AssemblyVolume* pAssembly,
   if( pRotation != 0 )  { *toStore = *pRotation; }
   
   Geo2G4AssemblyTriplet toAdd( pAssembly, translation, toStore );
-  fTriplets.push_back( toAdd );
+  m_triplets.push_back( toAdd );
 }
 
 // Add and place the given assembly volume according to the specified 
@@ -147,7 +147,7 @@ void Geo2G4AssemblyVolume::AddPlacedAssembly( Geo2G4AssemblyVolume* pAssembly,
   if (scale(0,0)*scale(1,1)*scale(2,2) < 0.)  { isReflection = true; }
   
   Geo2G4AssemblyTriplet toAdd( pAssembly, v, r, isReflection );
-  fTriplets.push_back( toAdd );
+  m_triplets.push_back( toAdd );
 }
 
 // Create an instance of an assembly volume inside of the specified
@@ -210,7 +210,7 @@ void Geo2G4AssemblyVolume::MakeImprint( Geo2G4AssemblyVolume* pAssembly,
   numberOfDaughters++;
 
   ImprintsCountPlus();
-  std::vector<Geo2G4AssemblyTriplet> triplets = pAssembly->fTriplets;
+  std::vector<Geo2G4AssemblyTriplet> triplets = pAssembly->m_triplets;
   for( unsigned int   i = 0; i < triplets.size(); i++ )
   {
     G4Transform3D Ta( *(triplets[i].GetRotation()),
@@ -241,16 +241,16 @@ void Geo2G4AssemblyVolume::MakeImprint( Geo2G4AssemblyVolume* pAssembly,
              << triplets[i].GetVolume()->GetName().c_str()
              << "_pv_"
              << i;
-    if (i<userComments.size() && !(userComments[i].empty())) pvName<<"_"<<userComments[i];
+    if (i<m_userComments.size() && !(m_userComments[i].empty())) pvName<<"_"<<m_userComments[i];
 	pvName<<std::ends;
       // Generate a new physical volume instance inside a mother
       // (as we allow 3D transformation use G4ReflectionFactory to 
       //  take into account eventual reflection)
       //
       int ccn=numberOfDaughters + i;
-      if (i<copyNumbers.size() && copyNumbers[i]) {
-         if(ITkScheme) ccn=copyNumbers[i];
-         else ccn=copyNumbers[i]+copyNumBase;
+      if (i<m_copyNumbers.size() && m_copyNumbers[i]) {
+         if(ITkScheme) ccn=m_copyNumbers[i];
+         else ccn=m_copyNumbers[i]+copyNumBase;
       }
 
       G4PhysicalVolumesPair pvPlaced
@@ -265,8 +265,8 @@ void Geo2G4AssemblyVolume::MakeImprint( Geo2G4AssemblyVolume* pAssembly,
 
       // Register the physical volume created by us so we can delete it later
       //
-      fPVStore.push_back( pvPlaced.first );
-      if ( pvPlaced.second )  { fPVStore.push_back( pvPlaced.second ); }
+      m_PVStore.push_back( pvPlaced.first );
+      if ( pvPlaced.second )  { m_PVStore.push_back( pvPlaced.second ); }
     }
     else if ( triplets[i].GetAssembly() )
     {
@@ -331,20 +331,20 @@ void Geo2G4AssemblyVolume::MakeImprint( G4LogicalVolume*  pMotherLV,
 
 unsigned int Geo2G4AssemblyVolume::GetInstanceCount() const
 {
-  return Geo2G4AssemblyVolume::fsInstanceCounter;
+  return Geo2G4AssemblyVolume::s_instanceCounter;
 }
 
 void         Geo2G4AssemblyVolume::SetInstanceCount( unsigned int value )
 {
-  Geo2G4AssemblyVolume::fsInstanceCounter = value;
+  Geo2G4AssemblyVolume::s_instanceCounter = value;
 }
 
 void         Geo2G4AssemblyVolume::InstanceCountPlus()
 {
-  Geo2G4AssemblyVolume::fsInstanceCounter++;
+  Geo2G4AssemblyVolume::s_instanceCounter++;
 }
 
 void         Geo2G4AssemblyVolume::InstanceCountMinus()
 {
-  Geo2G4AssemblyVolume::fsInstanceCounter--;
+  Geo2G4AssemblyVolume::s_instanceCounter--;
 }

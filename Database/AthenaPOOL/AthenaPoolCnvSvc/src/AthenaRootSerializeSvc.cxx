@@ -50,17 +50,17 @@ StatusCode AthenaRootSerializeSvc::queryInterface(const InterfaceID& riid, void*
 }
 
 //___________________________________________________________________________
-void* AthenaRootSerializeSvc::serialize(const void* /*object*/, const std::string& /*name*/, size_t& /*nbytes*/) {
+void* AthenaRootSerializeSvc::serialize(const void* /*object*/, const std::string& /*name*/, size_t& /*nbytes*/) const {
    return(nullptr);
 }
 
 //___________________________________________________________________________
-void* AthenaRootSerializeSvc::serialize(const void* object, const Guid& id, size_t& nbytes) {
+void* AthenaRootSerializeSvc::serialize(const void* object, const Guid& id, size_t& nbytes) const {
    return(this->serialize(object, pool::DbReflex::forGuid(id), nbytes));
 }
 
 //___________________________________________________________________________
-void* AthenaRootSerializeSvc::serialize(const void* object, const RootType& cltype, size_t& nbytes) {
+void* AthenaRootSerializeSvc::serialize(const void* object, const RootType& cltype, size_t& nbytes) const {
    TBufferFile writeBuffer(TBuffer::kWrite);
    writeBuffer.WriteObjectAny(object, cltype);
    void* buffer = writeBuffer.Buffer();
@@ -70,20 +70,29 @@ void* AthenaRootSerializeSvc::serialize(const void* object, const RootType& clty
 }
 
 //___________________________________________________________________________
-void* AthenaRootSerializeSvc::deserialize(void* /*buffer*/, size_t& /*nbytes*/, const std::string& /*name*/) {
+void* AthenaRootSerializeSvc::deserialize(void* /*buffer*/, size_t& /*nbytes*/, const std::string& /*name*/) const {
    return(nullptr);
 }
 
 //___________________________________________________________________________
-void* AthenaRootSerializeSvc::deserialize(void* buffer, size_t& nbytes, const Guid& id) {
+void* AthenaRootSerializeSvc::deserialize(void* buffer, size_t& nbytes, const Guid& id) const {
    return(this->deserialize(buffer, nbytes, pool::DbReflex::forGuid(id)));
 }
 
 //___________________________________________________________________________
-void* AthenaRootSerializeSvc::deserialize(void* buffer, size_t& nbytes, const RootType& cltype) {
-   TBufferFile readBuffer(TBuffer::kRead, nbytes, buffer, kTRUE);
-   void* obj = readBuffer.ReadObjectAny(cltype);
-   nbytes = readBuffer.Length();
-   readBuffer.ResetBit(TBuffer::kIsOwner); readBuffer.SetBuffer(nullptr);
+void* AthenaRootSerializeSvc::deserialize(void* buffer, size_t& nbytes, const RootType& cltype) const {
+   void* obj = nullptr;
+   if (cltype.IsFundamental()) {
+      obj = new char[nbytes];
+      std::memcpy(obj, buffer, nbytes);
+   } else if (cltype.Name() == "Token") { // Token is C string
+      obj = new char[nbytes];
+      std::memcpy(obj, buffer, nbytes); static_cast<char*>(obj)[nbytes - 1] = 0;
+   } else {
+      TBufferFile readBuffer(TBuffer::kRead, nbytes, buffer, kTRUE);
+      obj = readBuffer.ReadObjectAny(cltype);
+      nbytes = readBuffer.Length();
+      readBuffer.ResetBit(TBuffer::kIsOwner); readBuffer.SetBuffer(nullptr);
+   }
    return(obj);
 }

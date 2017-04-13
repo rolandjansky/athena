@@ -17,14 +17,13 @@
 #include <fstream>
 #include <fstream>
 
-using namespace std;
-
 #include "RegSelLUT/StoreGateIDRS_ClassDEF.h" 
 
 #include "RegSelLUT/RegSelModule.h" 
 #include "RegSelLUT/RegSelSiLUT.h" 
 
 using namespace InDetDD;
+using namespace std;
 
 #define USE_STOREGATE
 
