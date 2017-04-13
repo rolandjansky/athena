@@ -936,6 +936,7 @@ bool InDet::InDetTrackHoleSearchTool::isSensitive(const Trk::TrackParameters* pa
 
 	  if(m_checkBadSCTChip and isBadSCTChip(id, parameters, siElement)) {
 	    ATH_MSG_VERBOSE ("Track is hiting a bad SCT chip, this is not a hole candidate!");
+	    isgood = false;
 	    return false;
 	  }
 
