@@ -90,17 +90,17 @@ class TilePulseForTileMuonReceiver: public AthAlgorithm {
     const TileInfo* m_tileInfo;
     const TileCablingService* m_cablingService; //!< TileCabling instance
 
-    int nSamp;          //!< Number of time slices for each channel
-    int iTrig;          //!< Index of the triggering time slice
-    int adcMax;         //!< ADC saturation value
-    double tileThresh;  //!< Actual threshold value
+    int m_nSamples;          //!< Number of time slices for each channel
+    int m_iTrig;          //!< Index of the triggering time slice
+    int m_adcMax;         //!< ADC saturation value
+    double m_tileThresh;  //!< Actual threshold value
 
     // This is used when loading a pulse from db
     //
-    int nShape;       //!< Number of bins in pulse shape
-    int nBinsPerX;    //!< Number of bins per bunch crossing in pulse shape
-    int binTime0;     //!< Index of time=0 bin for pulse shape
-    double timeStep;  //!< Time step in pulse shape: 25.0 / nBinsPerX
+    int m_nShape;       //!< Number of bins in pulse shape
+    int m_nBinsPerX;    //!< Number of bins per bunch crossing in pulse shape
+    int m_binTime0;     //!< Index of time=0 bin for pulse shape
+    double m_timeStep;  //!< Time step in pulse shape: 25.0 / nBinsPerX
 
     // vector container for the pulse shape
     //

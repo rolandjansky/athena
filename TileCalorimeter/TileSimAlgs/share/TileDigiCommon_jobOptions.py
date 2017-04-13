@@ -78,13 +78,15 @@ if doTileDigitToRawChannel:
 
     # Reconstruction method: COF or OF2-NI for collisions, OF2-I for cosmics  
     from TileRecUtils.TileRecFlags import jobproperties
-    if not (jobproperties.TileRecFlags.doTileFlat        \
-            or jobproperties.TileRecFlags.doTileFit      \
-            or jobproperties.TileRecFlags.doTileFitCool  \
-            or jobproperties.TileRecFlags.doTileOpt      \
-            or jobproperties.TileRecFlags.doTileOF1      \
-            or jobproperties.TileRecFlags.doTileOpt2     \
-            or jobproperties.TileRecFlags.doTileOptATLAS \
+    if not (jobproperties.TileRecFlags.doTileFlat                \
+            or jobproperties.TileRecFlags.doTileFit              \
+            or jobproperties.TileRecFlags.doTileFitCool          \
+            or jobproperties.TileRecFlags.doTileOpt              \
+            or jobproperties.TileRecFlags.doTileOF1              \
+            or jobproperties.TileRecFlags.doTileOpt2             \
+            or (hasattr(jobproperties.TileRecFlags, 'doTileQIE') \
+                and jobproperties.TileRecFlags.doTileQIE)        \
+            or jobproperties.TileRecFlags.doTileOptATLAS         \
             or jobproperties.TileRecFlags.doTileMF):
         if jobproperties.Beam.beamType == 'collisions':
             if OF2asDefault: 

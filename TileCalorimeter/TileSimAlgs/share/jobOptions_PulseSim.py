@@ -18,7 +18,7 @@ from AthenaCommon.AthenaCommonFlags import jobproperties
 jobproperties.AthenaCommonFlags.EvtMax=EvtMax
 
 # location of input pool files and output root files
-InputDirectory="/afs/cern.ch/user/t/tilecomm/w0/noise"
+InputDirectory="/afs/cern.ch/user/t/tilecomm/w0/noise/mc15"
 OutputDirectory="."
 
 #InputDirectory="."
@@ -31,7 +31,7 @@ if not 'Version' in dir():
 Suffix=("%d" % Version )
 
 # name of input and output pool files
-InFile=("%s/PedestalSimulation.HITS.GEO-18.root" % InputDirectory)
+InFile=("%s/HITS.pool.root" % InputDirectory)
 OutFile=("%s/PedestalSimulation.DIGITS.%s.dummy.root" % (OutputDirectory, Suffix))
 
 # Set input file
@@ -73,10 +73,26 @@ doTileDigitsFromPulse = True
 doTileDigitToRawChannel = True
 
 from TileRecUtils.TileRecFlags import jobproperties
-jobproperties.TileRecFlags.calibrateEnergy = False #Set false to use ADC counts, true to use MeV.
-jobproperties.TileRecFlags.doTileOptATLAS = True #Non-iterative method
-jobproperties.TileRecFlags.doTileOpt2 = True #Iterative method
+jobproperties.TileRecFlags.calibrateEnergy = False # Set false to use ADC counts, true to use MeV.
+jobproperties.TileRecFlags.doTileOptATLAS = True # Non-iterative method DO NOT DISABLE IT !!!
+jobproperties.TileRecFlags.doTileOpt2 = True # Iterative method
+jobproperties.TileRecFlags.doTileOF1 = True # OF1 method
+jobproperties.TileRecFlags.doTileMF = False # COF method
 
+jobproperties.TileRecFlags.correctAmplitude = False
+jobproperties.TileRecFlags.correctTime = False
+jobproperties.TileRecFlags.correctTimeNI = False
+jobproperties.TileRecFlags.OfcFromCOOL = False
+
+# get a handle on topalg
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+from AthenaCommon.AppMgr import ToolSvc
+
+from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+topSequence+=xAODMaker__EventInfoCnvAlg()
+
+include.block( "TileSimAlgs/TileMuonReceiver_jobOptions.py" ) # don't need to simulate muon receiver
 include( "Digitization/Digitization.py" )
 
 #Stream1.ItemList+=["TileDigitsContainer#TileDigitsCnt"]
@@ -85,10 +101,8 @@ streamRDO.ItemList=[]; # empty list - don't need to create output file
 
 svcMgr.AthenaPoolCnvSvc.MaxFileSizes=["16000000000"]
 
-# get a handle on topalg
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
 # don't need any hits at input
+ToolSvc.TileHitVecToCntTool.TileHitVectors = []
 del topSequence.TileHitVecToCnt
 
 # don't need any L1 or L2 algorithms
@@ -97,7 +111,7 @@ del topSequence.TileRawChannelToL2
 
 # parameters for pulse simulator algorithm
 topSequence.TileDigitsFromPulse.OutputContainer='TileDigitsCnt'
-topSequence.TileDigitsFromPulse.OutputLevel=VERBOSE
+#topSequence.TileDigitsFromPulse.OutputLevel=VERBOSE
 topSequence.TileDigitsFromPulse.InTimeAmp=100
 topSequence.TileDigitsFromPulse.OutOfTimeAmp=50
 topSequence.TileDigitsFromPulse.ImperfectionMean=1
@@ -124,9 +138,11 @@ include( "TileRec/TileNtuple_jobOptions.py" )
 TileNtuple.CalibMode = True
 TileNtuple.CalibrateEnergy = False
 TileNtuple.OfflineUnits = 0
-TileNtuple.TileRawChannelContainer  = "TileRawChannelCnt"
-TileNtuple.TileRawChannelContainerOpt = "TileRawChannelOpt2"
-TileNtuple.TileRawChannelContainerFit  = "TrueAmp" 
+TileNtuple.TileRawChannelContainer    = "TileRawChannelCnt"  if jobproperties.TileRecFlags.doTileOptATLAS() else ""
+TileNtuple.TileRawChannelContainerOpt = "TileRawChannelOpt2" if jobproperties.TileRecFlags.doTileOpt2() else ""
+TileNtuple.TileRawChannelContainerOF1 = "TileRawChannelOF1"  if jobproperties.TileRecFlags.doTileOF1() else ""
+TileNtuple.TileRawChannelContainerMF  = "TileRawChannelMF"   if jobproperties.TileRecFlags.doTileMF() else ""
+TileNtuple.TileRawChannelContainerFit = "TrueAmp" 
 
 if not 'OutputLevel' in dir():
     OutputLevel = 4
@@ -138,5 +154,3 @@ svcMgr.MessageSvc.useColors = False
 from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
 svcMgr += AthenaEventLoopMgr()
 svcMgr.AthenaEventLoopMgr.EventPrintoutInterval = 100
-
-

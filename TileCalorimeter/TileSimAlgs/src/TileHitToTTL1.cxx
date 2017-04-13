@@ -69,13 +69,13 @@ TileHitToTTL1::TileHitToTTL1(std::string name, ISvcLocator* pSvcLocator)
   , m_tileInfo(0)
   , m_TT_ID(0)
   , m_cabling(0)
-  , nSamples(0)
-  , iTrig(0)
-  , MBTSnSamples(0)
-  , MBTSiTrig(0)
-  , lastTower(0)
-  , tileNoise(false)
-  , tileThresh(false)
+  , m_nSamples(0)
+  , m_iTrig(0)
+  , m_MBTSnSamples(0)
+  , m_MBTSiTrig(0)
+  , m_lastTower(0)
+  , m_tileNoise(false)
+  , m_tileThresh(false)
   , m_pHRengine(0)
   , m_rndmSvc ("AtRndmGenSvc", name)
   , m_tileToolEmscale("TileCondToolEmscale")
@@ -171,38 +171,38 @@ StatusCode TileHitToTTL1::initialize() {
   // The pulse shape for the MBTS, L1Calo (standard) config and the 
   // cosmics config is the same
   // Right now the phase is set to zero (the pulse is centered)
-  nSamples = m_tileInfo->NdigitSamples(); // number of time slices for each chan
-  iTrig = m_tileInfo->ItrigSample();   // index of the triggering time slice
+  m_nSamples = m_tileInfo->NdigitSamples(); // number of time slices for each chan
+  m_iTrig = m_tileInfo->ItrigSample();   // index of the triggering time slice
   double phase = 0.0;
-  m_TTL1Shape.resize(nSamples, 0.);
-  m_tileInfo->ttl1Shape(nSamples, iTrig, phase, m_TTL1Shape);
+  m_TTL1Shape.resize(m_nSamples, 0.);
+  m_tileInfo->ttl1Shape(m_nSamples, m_iTrig, phase, m_TTL1Shape);
   if (msgLvl(MSG::DEBUG)) {
-    for (int jsamp = 0; jsamp < nSamples; ++jsamp) {
+    for (int jsamp = 0; jsamp < m_nSamples; ++jsamp) {
       msg(MSG::DEBUG) << "jsamp=" << jsamp << " ttl1shape=" << m_TTL1Shape[jsamp] << endmsg;
     } // end of pulse shape loading
   }
 
   // total number of towers in TileCal
-  lastTower = 15;
+  m_lastTower = 15;
 
   // Data for MBTS
   // The MBTS have a special hardware configuration. The trigger uses the tower
   // output but the high gain from the 3&1 card
-  MBTSiTrig = m_tileInfo->ItrigSample();
-  MBTSnSamples = m_tileInfo->NdigitSamples();
+  m_MBTSiTrig = m_tileInfo->ItrigSample();
+  m_MBTSnSamples = m_tileInfo->NdigitSamples();
 
   // Get TileNoise flag from TileInfo (true => generate noise in TileDigits) 
-  tileNoise = m_tileInfo->TileNoise();
+  m_tileNoise = m_tileInfo->TileNoise();
   // Get TileZeroSuppress flag from TileInfo (true => apply threshold to Digits) 
-  tileThresh = m_tileInfo->TileZeroSuppress();
+  m_tileThresh = m_tileInfo->TileZeroSuppress();
 
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << " TTL1Shape[" << iTrig << "]=" << m_TTL1Shape[iTrig] << endmsg;
+    msg(MSG::DEBUG) << " TTL1Shape[" << m_iTrig << "]=" << m_TTL1Shape[m_iTrig] << endmsg;
 
-    msg(MSG::DEBUG) << " nSamples=" << nSamples
-                    << ", iTrig=" << iTrig
-                    << ", tileNoise=" << ((tileNoise) ? "true" : "false")
-                    << ", tileThresh=" << ((tileThresh) ? "true" : "false") << endmsg;
+    msg(MSG::DEBUG) << " nSamples=" << m_nSamples
+                    << ", iTrig=" << m_iTrig
+                    << ", tileNoise=" << ((m_tileNoise) ? "true" : "false")
+                    << ", tileThresh=" << ((m_tileThresh) ? "true" : "false") << endmsg;
   }
 
   ATH_MSG_INFO( "TileHitToTTL1 initialization completed" );
@@ -256,19 +256,19 @@ StatusCode TileHitToTTL1::execute() {
   int minieta, maxieta, posneg;
 
   for (int ieta = 0; ieta < 16; ++ieta)
-    ttAmp[ieta].resize(nSamples);
-  MBTSAmp.resize(MBTSnSamples);
+    ttAmp[ieta].resize(m_nSamples);
+  MBTSAmp.resize(m_MBTSnSamples);
 
   // temporary array to make sub of all subhits in one channel 
-  std::vector<double> hitSamples(nSamples);
+  std::vector<double> hitSamples(m_nSamples);
 
   // Create array for the nSamples time-samples of a single tower.
   // If running the Cosmics configuration, put out only the peak value
   std::vector<float> ttL1samples;
   std::vector<float> MBTSsamples;
   if (m_cosmicsType) ttL1samples.resize(1);
-  else ttL1samples.resize(nSamples);
-  MBTSsamples.resize(MBTSnSamples);
+  else ttL1samples.resize(m_nSamples);
+  MBTSsamples.resize(m_MBTSnSamples);
 
   /*........................................................................*/
   // Begin loop over all collections (collection = electronic drawer). 
@@ -309,12 +309,12 @@ StatusCode TileHitToTTL1::execute() {
       case TileHWID::EXTBAR_POS:
         posneg = +1;
         minieta = 9;
-        maxieta = lastTower;
+        maxieta = m_lastTower;
         break;
       case TileHWID::EXTBAR_NEG:
         posneg = -1;
         minieta = 9;
-        maxieta = lastTower;
+        maxieta = m_lastTower;
         break;
       default:
         posneg = minieta = maxieta = 0;
@@ -323,10 +323,10 @@ StatusCode TileHitToTTL1::execute() {
 
     // Zero temporary array of trigger tower amplitudes (TTL1amp) for this collection
     for (int ieta = 0; ieta < 16; ++ieta) {
-      for (int js = 0; js < nSamples; ++js)
+      for (int js = 0; js < m_nSamples; ++js)
         ttAmp[ieta][js] = 0.0;
     }
-    for (int js = 0; js < MBTSnSamples; ++js)
+    for (int js = 0; js < m_MBTSnSamples; ++js)
       MBTSAmp[js] = 0.0;
 
     MBTSHit = false;
@@ -383,7 +383,7 @@ StatusCode TileHitToTTL1::execute() {
 
           // Loop over the subhits for this channel.  For each one,
           // convolute with shaping function and add to digitSamples.
-          for (int js = 0; js < MBTSnSamples; ++js)
+          for (int js = 0; js < m_MBTSnSamples; ++js)
             hitSamples[js] = 0.0;
 
           int n_hits = (*hitItr)->size();
@@ -391,21 +391,21 @@ StatusCode TileHitToTTL1::execute() {
             // Need to pass the negative of t_hit, this is because ttl1Shape returns the amplitude at 
             // a given phase, whereas the t_hit from t=0 when the hit took place
             double t_hit = -((*hitItr)->time(ihit));
-            m_tileInfo->ttl1Shape(MBTSnSamples, MBTSiTrig, t_hit, m_TTL1Shape);
+            m_tileInfo->ttl1Shape(m_MBTSnSamples, m_MBTSiTrig, t_hit, m_TTL1Shape);
 
             double e_hit = (*hitItr)->energy(ihit);
-            for (int js = 0; js < MBTSnSamples; ++js) {
+            for (int js = 0; js < m_MBTSnSamples; ++js) {
               hitSamples[js] += e_hit * m_TTL1Shape[js];
             } // end of loop over MBTS samples
           }  // end loop over sub-hits 
 
           if (MBTSHit) {
-            for (int js = 0; js < MBTSnSamples; ++js)
+            for (int js = 0; js < m_MBTSnSamples; ++js)
               MBTSAmp[js] += qfactor * hitSamples[js];
 
           } else {
             MBTSHit = true;
-            for (int js = 0; js < MBTSnSamples; ++js)
+            for (int js = 0; js < m_MBTSnSamples; ++js)
               MBTSAmp[js] = qfactor * hitSamples[js];
           }
 
@@ -424,7 +424,7 @@ StatusCode TileHitToTTL1::execute() {
                               << ", side=" << side
                               << ", phi=" << phi
                               << ", eta=" << eta
-                              << ", e0=" << hitSamples[MBTSiTrig] * hit_calib
+                              << ", e0=" << hitSamples[m_MBTSiTrig] * hit_calib
                               << ", chan is good=" << is_good << endmsg;
           }
         }
@@ -442,31 +442,31 @@ StatusCode TileHitToTTL1::execute() {
 
       // Loop over the subhits for this channel.  For each one,
       // convolute with shaping function and add to digitSamples.
-      for (int js = 0; js < nSamples; ++js)
+      for (int js = 0; js < m_nSamples; ++js)
         hitSamples[js] = 0.0;
       int n_hits = (*hitItr)->size();
       for (int ihit = 0; ihit < n_hits; ++ihit) {
         // Need to pass the negative of t_hit, this is because ttl1Shape returns the amplitude at 
         // a given phase, whereas the t_hit from t=0 when the hit took place
         double t_hit = -((*hitItr)->time(ihit));
-        m_tileInfo->ttl1Shape(nSamples, iTrig, t_hit, m_TTL1Shape);
+        m_tileInfo->ttl1Shape(m_nSamples, m_iTrig, t_hit, m_TTL1Shape);
 
         double e_hit = (*hitItr)->energy(ihit);
-        for (int js = 0; js < nSamples; ++js) {
+        for (int js = 0; js < m_nSamples; ++js) {
           hitSamples[js] += e_hit * m_TTL1Shape[js];
         } // end of loop over samples
       } // end loop over sub-hits
 
       // check if TT already exists, if so just add energy
       if (ttHit[ieta]) {
-        for (int js = 0; js < nSamples; ++js)
+        for (int js = 0; js < m_nSamples; ++js)
           ttAmp[ieta][js] += qfactor * hitSamples[js];
 
         // if not create new TT
       } else {
         ttId[ieta] = tt_id;
         ttHit[ieta] = true;
-        for (int js = 0; js < nSamples; ++js)
+        for (int js = 0; js < m_nSamples; ++js)
           ttAmp[ieta][js] = qfactor * hitSamples[js];
 
         if (ieta >= minieta && ieta <= maxieta)
@@ -478,9 +478,9 @@ StatusCode TileHitToTTL1::execute() {
 
       //Sum cell energy for comparison to other algos.
       if (ieta >= minieta && ieta <= maxieta && is_good) {
-        ttAmpTot += hitSamples[iTrig] * hit_calib;
+        ttAmpTot += hitSamples[m_iTrig] * hit_calib;
       } else {
-        ttAmpTotIg += hitSamples[iTrig] * hit_calib;
+        ttAmpTotIg += hitSamples[m_iTrig] * hit_calib;
       }
 
       if (msgLvl(MSG::VERBOSE)) {
@@ -500,7 +500,7 @@ StatusCode TileHitToTTL1::execute() {
                           << ", tower=" << tower
                           << ", sample=" << sample
                           << ", pmt=" << pmt
-                          << ", e0=" << hitSamples[iTrig] * hit_calib
+                          << ", e0=" << hitSamples[m_iTrig] * hit_calib
                           << ", ie=" << ieta
                           << ", ip=" << iphi
                           << ", chan is good= " << is_good;
@@ -539,7 +539,7 @@ StatusCode TileHitToTTL1::execute() {
     if (mbtsTTL1Container) {
       Identifier MBTS_id = m_cabling->drawer2MBTS_id(drawer_id);
       if (MBTS_id.is_valid()) {
-        bool Good = tileNoise || MBTSHit;
+        bool Good = m_tileNoise || MBTSHit;
         if (Good) {
           double ttL1NoiseSigma = m_tileInfo->MBTSL1NoiseSigma(MBTS_id);
           double ttL1Thresh = m_tileInfo->MBTSL1Thresh(MBTS_id);
@@ -547,12 +547,12 @@ StatusCode TileHitToTTL1::execute() {
           double ttL1Calib = m_tileInfo->MBTSL1Calib(MBTS_id);
           double ttL1Max = m_tileInfo->MBTSL1Max(MBTS_id);
 
-          if (tileNoise)
-            RandGaussQ::shootArray(m_pHRengine, MBTSnSamples, Rndm);
-          for (int jsamp = 0; jsamp < MBTSnSamples; ++jsamp) {
+          if (m_tileNoise)
+            RandGaussQ::shootArray(m_pHRengine, m_MBTSnSamples, Rndm);
+          for (int jsamp = 0; jsamp < m_MBTSnSamples; ++jsamp) {
             MBTSAmp[jsamp] *= ttL1Calib; // convert pCb to mV
             MBTSsamples[jsamp] = MBTSAmp[jsamp] + ttL1Ped;
-            if (tileNoise)
+            if (m_tileNoise)
               MBTSsamples[jsamp] += ttL1NoiseSigma * Rndm[jsamp];
 
             // check if the voltage is above the saturation point,
@@ -562,15 +562,15 @@ StatusCode TileHitToTTL1::execute() {
 
           }  // end loop over samples
 
-          if (tileThresh)
-            if (MBTSsamples[MBTSiTrig] - ttL1Ped < ttL1Thresh)
+          if (m_tileThresh)
+            if (MBTSsamples[m_MBTSiTrig] - ttL1Ped < ttL1Thresh)
               Good = false;
 
           if (Good) {
             TileTTL1 * mbtsTTL1 = new TileTTL1(MBTS_id, MBTSsamples);
             mbtsTTL1Container->push_back(mbtsTTL1);
             ATH_MSG_DEBUG( "mbtsTTL1 saved. Is MBTS hit " << MBTSHit
-                          << " Is noise " << tileNoise );
+                          << " Is noise " << m_tileNoise );
           }
         }
       }
@@ -578,7 +578,7 @@ StatusCode TileHitToTTL1::execute() {
 
     for (int ieta = minieta; ieta <= maxieta; ++ieta) {
       int iphi = drawer;
-      bool Good = tileNoise || ttHit[ieta];
+      bool Good = m_tileNoise || ttHit[ieta];
       if (Good) {
         if (!ttHit[ieta])
           ttId[ieta] = m_TT_ID->tower_id(posneg, 1, 0, ieta, drawer);
@@ -594,7 +594,7 @@ StatusCode TileHitToTTL1::execute() {
 
           double peakAmp = 0.0;
           int peakSamp = 0;
-          for (int jsamp = 0; jsamp < nSamples; ++jsamp) {
+          for (int jsamp = 0; jsamp < m_nSamples; ++jsamp) {
             ttAmp[ieta][jsamp] *= ttL1Calib; // convert pCb to mV
             ttAmp[ieta][jsamp] += ttL1Ped;
             if (ttAmp[ieta][jsamp] > peakAmp) {
@@ -603,10 +603,10 @@ StatusCode TileHitToTTL1::execute() {
             }
           }  // end loop over samples
 
-          if (tileNoise)
+          if (m_tileNoise)
             peakAmp += ttL1NoiseSigma * RandGaussQ::shoot(m_pHRengine);
           ttL1samples[0] = peakAmp;
-          if (tileThresh) {
+          if (m_tileThresh) {
             if (ttL1samples[0] - ttL1Ped < ttL1Thresh)
               Good = false;
           }
@@ -629,12 +629,12 @@ StatusCode TileHitToTTL1::execute() {
           double ttL1Calib = m_tileInfo->TTL1Calib(ttId[ieta]);
           double ttL1Max = m_tileInfo->TTL1Max(ttId[ieta]);
 
-          if (tileNoise)
-            RandGaussQ::shootArray(m_pHRengine, nSamples, Rndm);
-          for (int jsamp = 0; jsamp < nSamples; ++jsamp) {
+          if (m_tileNoise)
+            RandGaussQ::shootArray(m_pHRengine, m_nSamples, Rndm);
+          for (int jsamp = 0; jsamp < m_nSamples; ++jsamp) {
             ttAmp[ieta][jsamp] *= ttL1Calib; // convert pCb to mV
             ttL1samples[jsamp] = ttAmp[ieta][jsamp] + ttL1Ped;
-            if (tileNoise)
+            if (m_tileNoise)
               ttL1samples[jsamp] += ttL1NoiseSigma * Rndm[jsamp];
 
             // check if the voltage is above the saturation point,
@@ -644,8 +644,8 @@ StatusCode TileHitToTTL1::execute() {
 
           }  // end loop over samples
 
-          if (tileThresh) {
-            if (ttL1samples[iTrig] - ttL1Ped < ttL1Thresh)
+          if (m_tileThresh) {
+            if (ttL1samples[m_iTrig] - ttL1Ped < ttL1Thresh)
               Good = false;
           }
           if (msgLvl(MSG::DEBUG) && Good) {
@@ -655,8 +655,8 @@ StatusCode TileHitToTTL1::execute() {
                             << ", iphi=" << iphi
                             << ", hitTrue=" << ttHit[ieta]
                             << ", Good=" << Good
-                            << ", amp0=" << ttAmp[ieta][iTrig]
-                            << ", digitIn=" << ttL1samples[iTrig] << endmsg;
+                            << ", amp0=" << ttAmp[ieta][m_iTrig]
+                            << ", digitIn=" << ttL1samples[m_iTrig] << endmsg;
           }
         }
       } // end first "Good" section.

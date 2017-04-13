@@ -8,12 +8,12 @@
 // Created  : Dec 2003
 //
 // DESCRIPTION
-// 
+//
 //    TileHitVecToCnt copies all TileHits from TileHitVector (AthenaHitsVector)
 //    to TileHitContainer (identifiable container) without any corrections
 //    If pileup option is set, all hits are merged, if several hits have
 //    the same ID, energy and time from all of them is stored in vectors
-//    inside single TileHit 
+//    inside single TileHit
 //
 // Properties (JobOption Parameters):
 //
@@ -21,15 +21,15 @@
 //    TileHitContainer          string   Name of TileHitContainer to write
 //    TileInfoName              string   Name of object in TDS with all parameters
 //    PileUp                    bool     Do or not pileup
-//    HitTimeFlag               int      Working with hit times 
+//    HitTimeFlag               int      Working with hit times
 //
 // BUGS:
-//  
+//
 // History:
 //   10Jan04  Created from TileCellIDCToCell.
 //   10Feb04  pileup flag added
-///  20Feb04  renamed to TileHitVector 
-//  
+///  20Feb04  renamed to TileHitVector
+//
 //****************************************************************************
 
 #ifndef TILESIMALGS_TILEHITVECTOCNT_H

@@ -88,17 +88,17 @@ class TileHitToTTL1: public AthAlgorithm {
     std::vector<double> m_TTL1Shape;          //!< vector to store the pulse shape for the TT
 
     // Variables for the trigger towers
-    int nSamples;     //!< number of time slices for each channel
-    int iTrig;          //!< index of the triggering time slice
+    int m_nSamples;     //!< number of time slices for each channel
+    int m_iTrig;          //!< index of the triggering time slice
 
     // Variables for the MBTS
-    int MBTSnSamples; //!< number of time slices for each chan for MBTS TTL1
-    int MBTSiTrig;      //!< index of the triggering time slice for MBTS TTL1
+    int m_MBTSnSamples; //!< number of time slices for each chan for MBTS TTL1
+    int m_MBTSiTrig;      //!< index of the triggering time slice for MBTS TTL1
 
-    int lastTower;    //!< last tower (needed for the loops)
+    int m_lastTower;    //!< last tower (needed for the loops)
 
-    bool tileNoise;   //!< If true => generate noise for the TileTTL1 creation
-    bool tileThresh;  //!< If true => apply threshold on the conversion to TileTTL1
+    bool m_tileNoise;   //!< If true => generate noise for the TileTTL1 creation
+    bool m_tileThresh;  //!< If true => apply threshold on the conversion to TileTTL1
 
     CLHEP::HepRandomEngine* m_pHRengine; //!< Random number service to use
 

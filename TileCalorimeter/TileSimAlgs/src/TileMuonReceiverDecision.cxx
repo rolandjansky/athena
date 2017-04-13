@@ -159,7 +159,7 @@ StatusCode TileMuonReceiverDecision::execute() {
       int drawer = (frag_id&0xFF);
       memset(energy_HLX,0,sizeof(energy_HLX));
       memset(time_HLX,0,sizeof(time_HLX));
-      msg(MSG::VERBOSE) << "(E.0.0) Frag_id: 0x"<< MSG::hex << frag_id << MSG::dec <<" ros: "<< ros <<" drawer: "<< drawer << endreq;
+      ATH_MSG_VERBOSE( "(E.0.0) Frag_id: 0x"<< MSG::hex << frag_id << MSG::dec <<" ros: "<< ros <<" drawer: "<< drawer  );
     }
 
     float energy_d6   = 0.0;
@@ -179,7 +179,7 @@ StatusCode TileMuonReceiverDecision::execute() {
       // TMDB channel is used in COOL and goes from 0..n with n=5 for EB and n=8 in LB
       int TMDBchan = m_tileHWID->channel(adc_id) ;
       if ( TMDBchan >= upperLim ) {
-        msg(MSG::WARNING) << "(E.1."<< ich <<") hwid: "<< m_tileHWID->to_string(adc_id,-1) <<" ch: "<< TMDBchan <<" --> Tile ch: UNKNOWN" << endreq ;
+        ATH_MSG_WARNING( "(E.1."<< ich <<") hwid: "<< m_tileHWID->to_string(adc_id,-1) <<" ch: "<< TMDBchan <<" --> Tile ch: UNKNOWN"  );
         continue;
       }
       // TILE channel is the Tile HW channel
@@ -193,10 +193,8 @@ StatusCode TileMuonReceiverDecision::execute() {
       float energy = (*chanItr)->amplitude()*ADC2MeV_factor;
       float time   = (*chanItr)->time();
 
-      if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << "(E.1."<< ich <<") hwid: "<< m_tileHWID->to_string(adc_id,-1) <<" ch: "<< TMDBchan <<" --> Tile ch: "<< TILEchan << endreq ;
-        msg(MSG::DEBUG) << "        E[ADC]: "<<(*chanItr)->amplitude()<<" E[MeV]: "<<energy<<" t[ns]: "<<time<<" QF: "<<(*chanItr)->quality() << endreq;
-      }
+      ATH_MSG_DEBUG( "(E.1."<< ich <<") hwid: "<< m_tileHWID->to_string(adc_id,-1) <<" ch: "<< TMDBchan <<" --> Tile ch: "<< TILEchan  );
+      ATH_MSG_DEBUG( "        E[ADC]: "<<(*chanItr)->amplitude()<<" E[MeV]: "<<energy<<" t[ns]: "<<time<<" QF: "<<(*chanItr)->quality()  );
 
       if ( eb_ros ) {
         if ( TMDBchan<4 ) {
@@ -223,13 +221,13 @@ StatusCode TileMuonReceiverDecision::execute() {
     }
 
     if (msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "(X.0.0)   Summary of the exteded results for HL-LHC: " << endreq;
+      ATH_MSG_VERBOSE( "(X.0.0)   Summary of the exteded results for HL-LHC: "  );
       if ( eb_ros ) {
-        msg(MSG::VERBOSE) << "(X.1.0)     Energy  D-5 "<<energy_HLX[0]<<" D-6 "<<energy_HLX[1]<<" D-4 "<<energy_HLX[2]<< endreq;
-        msg(MSG::VERBOSE) << "(X.2.0)     Time    D-5 "<<time_HLX[0]/2.<<" D-6 "<<time_HLX[1]/2.<<" D-4 "<<time_HLX[2]/2.<< endreq;
+        ATH_MSG_VERBOSE( "(X.1.0)     Energy  D-5 "<<energy_HLX[0]<<" D-6 "<<energy_HLX[1]<<" D-4 "<<energy_HLX[2] );
+        ATH_MSG_VERBOSE( "(X.2.0)     Time    D-5 "<<time_HLX[0]/2.<<" D-6 "<<time_HLX[1]/2.<<" D-4 "<<time_HLX[2]/2. );
       } else {
-        msg(MSG::VERBOSE) << "(X.1.0)     Energy  D-0 "<<energy_HLX[0]<<" D-1 "<<energy_HLX[1]<<" D-2 "<<energy_HLX[2]<<" D-3 "<<energy_HLX[3]<<" BC-8 "<<energy_HLX[4]<< endreq;
-        msg(MSG::VERBOSE) << "(X.2.0)     Time    D-0 "<<time_HLX[0]<<" D-1 "<<time_HLX[1]/2.<<" D-2 "<<time_HLX[2]/2.<<" D-3 "<<time_HLX[3]/2.<<" BC-8 "<<time_HLX[4]/2.<< endreq;
+        ATH_MSG_VERBOSE( "(X.1.0)     Energy  D-0 "<<energy_HLX[0]<<" D-1 "<<energy_HLX[1]<<" D-2 "<<energy_HLX[2]<<" D-3 "<<energy_HLX[3]<<" BC-8 "<<energy_HLX[4] );
+        ATH_MSG_VERBOSE( "(X.2.0)     Time    D-0 "<<time_HLX[0]<<" D-1 "<<time_HLX[1]/2.<<" D-2 "<<time_HLX[2]/2.<<" D-3 "<<time_HLX[3]/2.<<" BC-8 "<<time_HLX[4]/2. );
       }
     }
     
@@ -263,10 +261,10 @@ StatusCode TileMuonReceiverDecision::execute() {
     tile2SL[3] = (!pass_d6_hi && pass_d6_lo);
 
     if (msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "(E.2.0)   Summary: e(d5+d6)= " << energy_d5d6 << " e(d6)= " << energy_d6 << endreq;
-      msg(MSG::VERBOSE) << "(E.3.0)   Thresholds: " << m_threshold_d5d6_lo << " " << m_threshold_d5d6_hi << " " << m_threshold_d6_lo << " " << m_threshold_d6_hi << endreq;
-      msg(MSG::VERBOSE) << "(E.4.0)   Checking which tresholds have been passed: d56 high " << pass_d5d6_hi << " d56 low " << pass_d5d6_lo << " d6 high " << pass_d6_hi << " d6 low " << pass_d6_lo << endreq;
-      msg(MSG::VERBOSE) << "(E.5.0)   Output to SL: " << tile2SL[0] << tile2SL[1] << tile2SL[2] << tile2SL[3] << endreq;
+      ATH_MSG_VERBOSE( "(E.2.0)   Summary: e(d5+d6)= " << energy_d5d6 << " e(d6)= " << energy_d6  );
+      ATH_MSG_VERBOSE( "(E.3.0)   Thresholds: " << m_threshold_d5d6_lo << " " << m_threshold_d5d6_hi << " " << m_threshold_d6_lo << " " << m_threshold_d6_hi  );
+      ATH_MSG_VERBOSE( "(E.4.0)   Checking which tresholds have been passed: d56 high " << pass_d5d6_hi << " d56 low " << pass_d5d6_lo << " d6 high " << pass_d6_hi << " d6 low " << pass_d6_lo  );
+      ATH_MSG_VERBOSE( "(E.5.0)   Output to SL: " << tile2SL[0] << tile2SL[1] << tile2SL[2] << tile2SL[3]  );
     }
     
     if (tile2SL[0] || tile2SL[1] || tile2SL[2] || tile2SL[3]) {
@@ -285,7 +283,7 @@ StatusCode TileMuonReceiverDecision::execute() {
   }
 
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "== Print TileD decision container output to SL" << endreq ; 
+    ATH_MSG_DEBUG( "== Print TileD decision container output to SL"  );
     decisionContainer->print();
   }
   CHECK(evtStore()->record( decisionContainer, m_TileMuRcvContainer, false));
