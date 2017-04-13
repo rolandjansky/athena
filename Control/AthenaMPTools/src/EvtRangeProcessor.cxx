@@ -478,19 +478,16 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
     // The seeking part is identical for Format 1 and 2
 
     // Determine the format
-    bool format2(false);
     std::string filename("");
     if(queueTokens.front().find("PFN:")==0) {
       // We have Format 2
-      format2 = true;
-      // Get the file name
+      // Update InputCollections property of the Event Selector with the file name from Event Range
       filename = queueTokens.front().substr(4);
-      queueTokens.pop();
-      // Update InputCollections property of the Event Selector
       if(setNewInputFile(filename).isFailure()) {
         all_ok=false;
         break;
       }
+      queueTokens.pop();
     }
 
     // Get the number of events to process
@@ -498,16 +495,14 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
     queueTokens.pop();
     int endEvent = std::atoi(queueTokens.front().c_str());
     queueTokens.pop();
-    if(format2) {
-      endEvent = endEvent-startEvent+1;
-      startEvent = 1;
-      ATH_MSG_INFO("Range fields. File Name: " << filename
-                   << ", First Event:" << startEvent
-                   << ", Last Event:" << endEvent);
-    }
-    else {
+    if(filename.empty()) {
       ATH_MSG_INFO("Range fields. "
                    << "First Event:" << startEvent
+                   << ", Last Event:" << endEvent);
+    } 
+    else {
+      ATH_MSG_INFO("Range fields. File Name: " << filename
+                   << ", First Event:" << startEvent
                    << ", Last Event:" << endEvent);
     }
 
