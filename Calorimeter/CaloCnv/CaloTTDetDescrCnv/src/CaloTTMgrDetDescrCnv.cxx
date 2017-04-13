@@ -30,7 +30,7 @@
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "LArTools/LArCablingService.h" 
+#include "LArCabling/LArCablingService.h" 
 #include "CaloTriggerTool/CaloTriggerTowerService.h" 
 
 // Instantiation of a static factory class used by clients to create
