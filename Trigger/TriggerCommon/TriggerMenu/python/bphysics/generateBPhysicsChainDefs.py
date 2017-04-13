@@ -113,7 +113,7 @@ def getBphysThresholds(chainDict) :
     for part in chainDict['chainParts'] :
         mult = mult + int(part['multiplicity'])
         if not 'noL1' in  part['extra'] :
-            mult_without_noL1 = mult_without_noL1 + 1
+            mult_without_noL1 = mult_without_noL1 + int(part['multiplicity'])
 
     for dictpart in chainDict['chainParts']:
         if 'mu' in dictpart['trigType']:
@@ -440,7 +440,7 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         log.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], mtopo ))
 
     # OI make sure that L2Fex is not running, when only 1 muon and therefore only 1 ID RoI is processed at L2
-    print "OI  ",chainDict['chainName'], " mult_without_noL1 ", mult_without_noL1
+    #print "OI  ",chainDict['chainName'], " mult_without_noL1 ", mult_without_noL1
     if  L2Fex != None and mult_without_noL1 > 1 :
         theChainDef.addSequence([L2Fex, L2Hypo], inputTEsL2, L2TEname, topo_start_from = topoStartFrom)
         theChainDef.addSignatureL2([L2TEname])
