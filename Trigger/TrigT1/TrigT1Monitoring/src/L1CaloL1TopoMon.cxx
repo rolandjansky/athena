@@ -191,9 +191,9 @@ StatusCode L1CaloL1TopoMon::bookHistogramsRecurrent()
     // book histograms that are only relevant for cosmics data...
   }
 
-  if ( newLumiBlock ) {}
+  //if ( newLumiBlockFlag() ) {}
 
-  if ( newRun ) {
+  if ( newRunFlag() ) {
 
     MgmtAttr_t attr = ATTRIB_UNMANAGED;
     MonGroup L1CaloL1Topo( this, m_PathInRootFile, run, attr );
@@ -858,11 +858,11 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 StatusCode L1CaloL1TopoMon::procHistograms()
 /*---------------------------------------------------------*/
 {
-  if ( endOfLumiBlock ) { }  
-  if ( endOfRun ) { }
+  //if ( endOfLumiBlockFlag() ) { }  
+  //if ( endOfRunFlag() ) { }
   
-  if ( endOfLumiBlock || endOfRun ) {
-    int eor=(endOfRun ? 1 : 0);
+  if ( endOfLumiBlockFlag() || endOfRunFlag() ) {
+    int eor=(endOfRunFlag() ? 1 : 0);
     for (int cpu=0; cpu<=3; ++cpu) {
       for (int item=1; item<=32; ++item) {
 	for (int bc=1; bc<=3; ++bc) {
