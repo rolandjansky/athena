@@ -58,6 +58,7 @@ if hasattr(runArgs,"digiSeedOffset1"): digitizationFlags.rndmSeedOffset1=int(run
 if hasattr(runArgs,"digiSeedOffset2"): digitizationFlags.rndmSeedOffset2=int(runArgs.digiSeedOffset2)
 if hasattr(runArgs,"samplingFractionDbTag"): digitizationFlags.physicsList=runArgs.samplingFractionDbTag
 if hasattr(runArgs,"digiRndmSvc"): digitizationFlags.rndmSvc=runArgs.digiRndmSvc
+if hasattr(runArgs, "AddCaloDigi"): digitizationFlags.experimentalDigi+=["AddCaloDigi"]
 
 readBS = False
 if hasattr(runArgs, 'ReadByteStream'):
