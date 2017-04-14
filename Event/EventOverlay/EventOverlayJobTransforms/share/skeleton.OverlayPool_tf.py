@@ -65,6 +65,9 @@ if hasattr(runArgs, 'ReadByteStream'):
     readBS = runArgs.ReadByteStream
 isRealData = False
 
+from RecExConfig.RecFlags import rec
+rec.projectName = 'IS_SIMULATION'
+
 if readBS:
    globalflags.InputFormat.set_Value_and_Lock('bytestream')
    DataInputCollections=runArgs.inputPileUpBSFile

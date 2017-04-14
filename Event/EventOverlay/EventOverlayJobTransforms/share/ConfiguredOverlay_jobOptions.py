@@ -58,6 +58,7 @@ pileUpEventLoopMgr.OrigSelector="EventSelector"
 pileUpEventLoopMgr.firstXing=0
 pileUpEventLoopMgr.lastXing=0
 pileUpEventLoopMgr.IsEventOverlayJob=True
+pileUpEventLoopMgr.IsEventOverlayJobMC=not isRealData
 ServiceMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
 
 # Set up MC input
