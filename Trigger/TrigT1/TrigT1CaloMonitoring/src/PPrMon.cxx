@@ -165,7 +165,7 @@ StatusCode PPrMon::bookHistogramsRecurrent()
 
   MgmtAttr_t attr = ATTRIB_UNMANAGED;
 
-  if (newRun) {
+  if (newRunFlag()) {
 
     MonGroup TT_LutCpHitMaps(this, m_PathInRootFile + "/LUT-CP/EtaPhiMaps", run,
                              attr);
@@ -584,7 +584,7 @@ StatusCode PPrMon::bookHistogramsRecurrent()
     m_histTool->numbers(m_h_ppm_had_1d_tt_adc_TriggeredSlice, 0, m_SliceNo - 1);
   }
 
-  if (newLumiBlock) {
+  if (newLumiBlockFlag()) {
 
     //---------------------------- LUT-CP Hitmaps per threshold
     //-----------------
@@ -652,7 +652,7 @@ StatusCode PPrMon::bookHistogramsRecurrent()
     }
 
     m_histTool->unsetMonGroup();
-    if (newRun)
+    if (newRunFlag())
       m_histBooked = true;
 
     //---------------------------- LUT-JEP Hitmaps per threshold
@@ -721,7 +721,7 @@ StatusCode PPrMon::bookHistogramsRecurrent()
     }
 
     m_histTool->unsetMonGroup();
-    if (newRun)
+    if (newRunFlag())
       m_histBooked = true;
   }
 
