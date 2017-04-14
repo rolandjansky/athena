@@ -480,6 +480,7 @@ StatusCode FTKMergerAlgo::execute() {
                m_banks[ib]->naoSetNroadsAMMissSCT(0);
                m_banks[ib]->naoSetNroadsMOD(0);
                m_banks[ib]->naoSetNclus(zerovec);
+               m_banks[ib]->naoSetNclus_road(zerovec);
                m_banks[ib]->naoSetNss(zerovec);
                StatusCode sc = merge_roads(m_banks[ib],m_srbanks[ib], ib, m_nsubregions);
                if (sc.isFailure()) {
@@ -501,6 +502,7 @@ StatusCode FTKMergerAlgo::execute() {
          m_banks[m_nregions]->naoSetNroadsAMMissSCT(0);
          m_banks[m_nregions]->naoSetNroadsMOD(0);
          m_banks[m_nregions]->naoSetNclus(zerovec);
+         m_banks[m_nregions]->naoSetNclus_road(zerovec);
          m_banks[m_nregions]->naoSetNss(zerovec);
          for (unsigned int ib=0;ib<m_nregions;++ib) { // bank loop
             StatusCode sc = merge_roads(m_banks[m_nregions],m_srbanks[ib], ib, m_nsubregions);
@@ -2403,6 +2405,7 @@ StatusCode FTKMergerAlgo::merge_roads(FTKRoadStream * &newbank,FTKRoadStream **o
          newbank->naoSetNhitsTot(newbank->naoGetNhitsTot()+oldbanks[isr]->naoGetNhitsTot());
          newbank->naoSetNclusTot(newbank->naoGetNclusTot()+oldbanks[isr]->naoGetNclusTot());
          newbank->naoAddNclus(oldbanks[isr]->naoGetNclus());
+         newbank->naoAddNclus_road(oldbanks[isr]->naoGetNclus_road());
          newbank->naoAddNss(oldbanks[isr]->naoGetNss());
          found = true;
       }

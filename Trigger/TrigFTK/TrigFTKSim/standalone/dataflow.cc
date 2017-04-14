@@ -178,7 +178,7 @@ void Init() {
     nFitI[i] = 0;
     nTrackI[i] = 0;
     nTrackBeforeHW[i] = 0;
-    for (int k=0; k<8; k++) { nCluster[k][i]=0; nSSID[k][i] = 0;}
+    for (int k=0; k<8; k++) { nCluster[k][i]=0; nSSID[k][i] = 0;nCluster_road[k][i]=0; }
   }
   
    ch = new TChain(TTREE_NAME);
@@ -358,6 +358,7 @@ void Process(unsigned int ientry) {
 
       for (int il = 0; il < 8; il++) {
          nCluster[il][itower] += stream[itower]->naoGetNclus(il)*divide;
+         nCluster_road[il][itower] += stream[itower]->naoGetNclus_road(il)*divide;
          nSSID[il][itower] += stream[itower]->naoGetNss(il)*divide;
       }
    ADD_TO_HIST( stream[itower]->naoGetNclus(0),"nCluster0");
@@ -368,6 +369,17 @@ void Process(unsigned int ientry) {
    ADD_TO_HIST( stream[itower]->naoGetNclus(5),"nCluster5");
    ADD_TO_HIST( stream[itower]->naoGetNclus(6),"nCluster6");
    ADD_TO_HIST( stream[itower]->naoGetNclus(7),"nCluster7");
+
+
+   ADD_TO_HIST( stream[itower]->naoGetNclus_road(0),"nCluster(road0)");
+   ADD_TO_HIST( stream[itower]->naoGetNclus_road(1),"nCluster(road1)");
+   ADD_TO_HIST( stream[itower]->naoGetNclus_road(2),"nCluster(road2)");
+   ADD_TO_HIST( stream[itower]->naoGetNclus_road(3),"nCluster(road3)");
+   ADD_TO_HIST( stream[itower]->naoGetNclus_road(4),"nCluster(road4)");
+   ADD_TO_HIST( stream[itower]->naoGetNclus_road(5),"nCluster(road5)");
+   ADD_TO_HIST( stream[itower]->naoGetNclus_road(6),"nCluster(road6)");
+   ADD_TO_HIST( stream[itower]->naoGetNclus_road(7),"nCluster(road7)");
+
 
    ADD_TO_HIST( stream[itower]->naoGetNss(0),"nSSID0");
    ADD_TO_HIST( stream[itower]->naoGetNss(1),"nSSID1");
@@ -387,18 +399,18 @@ void Process(unsigned int ientry) {
 }
 
 void Terminate() {
-
   myfile << "Type\t\tbarrelmean\t\tbarrelmax\t\tendcapmean\t\tendcapmax" << endl;
   myfile << "--------------" << endl;
-
   // kludge, can do this better but works for now
-  float temp[MAXTOWER], temp2[MAXTOWER];
+  float temp[MAXTOWER], temp2[MAXTOWER], temp3[MAXTOWER];
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < MAXTOWER; j++) {
       temp[j] = nCluster[i][j];
+      temp3[j] = nCluster_road[i][j];
       temp2[j] = nSSID[i][j];
     }
     printinfo (temp, Form("NClusterL%d",i));
+    printinfo (temp3, Form("NCluster(road)L%d",i));
     printinfo (temp2, Form("NSSIDL%d",i));
   }
   AddBreak();
@@ -422,24 +434,19 @@ void Terminate() {
   printinfo (nFitMajority, "NFitSSB Majority");
   printinfo (nFitMajoritySCT, "NFitSSB Majority missing SCT");
   printinfo (nFitMajorityPix, "NFitSSB Majority missing Pix");
-
  int size_nRoad, first_decile_pos_nRoad, last_decile_pos_nRoad, max_quickselect_nRoad, first_decile_nRoad, last_decile_nRoad ;
   int size_nFitI, first_decile_pos_nFitI, last_decile_pos_nFitI, max_quickselect_nFitI, first_decile_nFitI, last_decile_nFitI ;
-  
   // definition of the quartiles
   size_nRoad = nRoadArr.size();
   first_decile_pos_nRoad = size_nRoad/10;
   last_decile_pos_nRoad = 9*first_decile_pos_nRoad;
   max_quickselect_nRoad = size_nRoad - 1;
-
   size_nFitI = nFitIArr.size();
   first_decile_pos_nFitI = size_nFitI/10;
   last_decile_pos_nFitI = 9*first_decile_pos_nFitI;
   max_quickselect_nFitI = size_nFitI - 1;
-  
   for (int itower = 0; itower < ntower; itower++) {
-    if(!processedTower[itower]) continue;
-       
+    //    if(!processedTower[itower]) continue;
     
     // to generalize in case we run on multiple towers
     //vector<float> nRoad_perevt;

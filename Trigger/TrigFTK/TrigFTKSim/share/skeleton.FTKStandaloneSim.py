@@ -131,7 +131,7 @@ runArgsFromTrfOptionalRF = {
     'SetAMSize': 0,
     'SetAMSplit' : 5,
     'IBLMode': 0,
-    'StoreAllSS' : False,
+    'StoreAllSS' : True,
     'FixEndCapL0': False,
     'ITkMode': False,
     'PixelClusteringMode': 0,
@@ -1068,6 +1068,12 @@ if not hasattr(runArgs,'doAuxFW'):
     FTKTrackFitter.doAuxFW = False
 else:
     FTKTrackFitter.doAuxFW = getattr(runArgs,'doAuxFW')
+
+if not hasattr(runArgs,'dTIBL'):
+    FTKTrackFitter.dTIBL = -999999 # this is off
+else:
+    FTKTrackFitter.dTIBL = getattr(runArgs,'dTIBL')
+
 
 if not hasattr(runArgs,'PrintSSBConstants'):
     FTKTrackFitter.PrintSSBConstants = False

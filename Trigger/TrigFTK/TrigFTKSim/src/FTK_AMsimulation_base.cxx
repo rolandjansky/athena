@@ -51,6 +51,9 @@ void FTK_AMsimulation_base::setNPlanes(int nPlanes) {
 
 void FTK_AMsimulation_base::naoClear(void) {
    m_nao_nclus.clear();
+   m_nao_nclus_road.clear();
+   // 
+   m_nao_nclus_road.resize(m_nplanes);
    m_nao_nss.clear();
    m_nao_nroads_am = 0;
    m_nao_nroads_am_complete = 0;

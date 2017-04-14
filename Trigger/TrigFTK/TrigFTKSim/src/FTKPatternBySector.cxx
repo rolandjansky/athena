@@ -1197,6 +1197,7 @@ FTKPatternBySectorIndexedReader::FTKPatternBySectorIndexedReader
    TTree *indexTree;
    dir.GetObject(s_indexTreeName,indexTree);
    m_dataTree=0;
+   m_patternData=0;
    if(indexTree && !InitializeIndex(indexTree,sectorList)) {
       dir.GetObject(s_cdataTreeName,m_dataTree);
    }
@@ -1221,6 +1222,7 @@ FTKPatternBySectorIndexedReader::FTKPatternBySectorIndexedReader
       if(!indexChain.Add(chain[i].c_str(),0)) ++errorCount;
    }
    m_dataTree=0;
+   m_patternData=0;
    if((!errorCount) && !InitializeIndex(&indexChain,0)) {
       TChain *dataChain=new TChain(s_cdataTreeName);
       for(int i=0;i<chain.GetLength();i++) {

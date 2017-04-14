@@ -49,6 +49,7 @@ private:
   int m_nao_nhits_tot;             // total number of hits per event
   int m_nao_nclus_tot;             // total number of hits per event
   std::vector<int> m_nao_nclus;    // number of clusters routed into current region [nplanes]
+  std::vector<int> m_nao_nclus_road;    // number of clusters routed into current region [nplanes] in roads, allowing for duplicates
   std::vector<int> m_nao_nss;      // number of superstrips going into AM [nplanes]
   int m_nao_nroads_am;             // number of roads out of AM
   int m_nao_nroads_am_complete;             // number of roads out of AM, complete no missing hits
@@ -60,10 +61,15 @@ private:
   void naoSetNhitsTot(int val) { m_nao_nhits_tot=val; }
   void naoSetNclusTot(int val) { m_nao_nclus_tot=val; }
   void naoSetNclus(const std::vector<int>& val) { m_nao_nclus=val; }
+  void naoSetNclus_road(const std::vector<int>& val) { m_nao_nclus_road=val; }
   void naoSetNss(const std::vector<int>& val) { m_nao_nss=val; }
   void naoAddNclus(const std::vector<int>& val) {
     assert(val.size()==m_nao_nclus.size());
     std::transform(val.begin(),val.end(),m_nao_nclus.begin(),m_nao_nclus.begin(),std::plus<int>()); 
+  }
+  void naoAddNclus_road(const std::vector<int>& val) {
+    assert(val.size()==m_nao_nclus_road.size());
+    std::transform(val.begin(),val.end(),m_nao_nclus_road.begin(),m_nao_nclus_road.begin(),std::plus<int>()); 
   }
   void naoAddNss(const std::vector<int>& val) {
     assert(val.size()==m_nao_nss.size());
@@ -85,8 +91,10 @@ private:
   int naoGetNhitsTot() const { return m_nao_nhits_tot; }
   int naoGetNclusTot() const { return m_nao_nclus_tot; }
   int naoGetNclus(unsigned int pl) const { return m_nao_nclus.size()>pl ? m_nao_nclus[pl] : -1; }
+  int naoGetNclus_road(unsigned int pl) const { return m_nao_nclus_road.size()>pl ? m_nao_nclus_road[pl] : -1; }
   int naoGetNss(unsigned int pl) const { return m_nao_nss.size()>pl ? m_nao_nss[pl] : -1; }
   const std::vector<int>& naoGetNclus() { return m_nao_nclus; }
+  const std::vector<int>& naoGetNclus_road() { return m_nao_nclus_road; }
   const std::vector<int>& naoGetNss() { return m_nao_nss; }
   int naoGetNroadsAM() const { return m_nao_nroads_am; }
   int naoGetNroadsAMComplete() const { return m_nao_nroads_am_complete; }
@@ -190,7 +198,7 @@ public:
   FTKRoad* fetchRoad(); // get the current road and point to the next
   void rewindFitList() { m_fit_iter = m_fit_list.begin(); }
 
-  ClassDef(FTKRoadStream,11)
+  ClassDef(FTKRoadStream,12)
 };
 
 #endif // FTKROADSTREAM_H
