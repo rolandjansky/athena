@@ -103,8 +103,11 @@ class FTK_AMsimulation_base {
    void naoClear(void);
    // cluster/ss information for Naoki's timing simulation
    const std::vector<int>& naoGetNclus() { return m_nao_nclus; }
+   const std::vector<int>& naoGetNclus_road() { return m_nao_nclus_road; }
    const std::vector<int>& naoGetNss() { return m_nao_nss; }
    void naoClusPushBack(int i) { m_nao_nclus.push_back(i); }
+   void naoClusRoadAdd(unsigned int iplane, int n=1) { if (iplane < m_nao_nclus_road.size()) m_nao_nclus_road[iplane] += n;};
+
    void naoSSPushBack(int i) { m_nao_nss.push_back(i); }
    int naoGetNroadsAM() const { return m_nao_nroads_am; }
    int naoGetNroadsAMComplete() const { return m_nao_nroads_am_complete; }
@@ -203,6 +206,7 @@ class FTK_AMsimulation_base {
    FTKSSMap *m_ssmap_unused; // ss convetion map used in this bank, for unused layers
    // cluster/ss information for Naoki's timing simulation
    std::vector<int> m_nao_nclus;    // number of clusters routed into current region [nplanes]
+   std::vector<int> m_nao_nclus_road;    // number of clusters routed into current region [nplanes] IN a road, allowing for duplicates
    std::vector<int> m_nao_nss;      // number of superstrips going into AM [nplanes]
    int m_nao_nroads_am;             // number of roads out of AM
    int m_nao_nroads_am_complete;             // number of roads out of AM, no missing hits

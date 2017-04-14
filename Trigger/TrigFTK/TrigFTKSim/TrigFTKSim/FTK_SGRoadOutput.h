@@ -69,9 +69,11 @@ public:
   virtual void addUnusedSSMap(int, const std::map<int,std::map<int,FTKSS> >&);
 
   // cluster/ss information for Naoki's timing simulation
+  virtual void naoAddNclus_road(int, const std::vector<int>&) {;}
   virtual void naoSetNhitsTot(int, int) {;}
   virtual void naoSetNclusTot(int, int) {;}
   virtual void naoSetNclus(int, const std::vector<int>&) {;}
+  virtual void naoSetNclus_road(int, const std::vector<int>&) {;}
   virtual void naoSetNss(int, const std::vector<int>&) {;}
   virtual void naoSetNroadsAM(int, int) {;}
   virtual void naoSetNroadsAMComplete(int, int) {;}

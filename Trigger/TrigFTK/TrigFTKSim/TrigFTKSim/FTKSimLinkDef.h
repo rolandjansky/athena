@@ -20,6 +20,7 @@
 #pragma link C++ class FTKCoord+;
 #pragma link C++ class FTKHit+;
 #pragma link C++ class std::vector<FTKHit>+;
+#pragma link C++ class std::vector<FTKHit*>+;
 #pragma link C++ class FTKRawHit+;
 #pragma link C++ class std::vector<FTKRawHit>+;
 #pragma link C++ class FTKRoad+;
