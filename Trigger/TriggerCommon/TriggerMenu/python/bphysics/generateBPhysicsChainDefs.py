@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration 
 
 ###########################################################################
 # SliceDef file for Bphysics chains
@@ -113,7 +113,7 @@ def getBphysThresholds(chainDict) :
     for part in chainDict['chainParts'] :
         mult = mult + int(part['multiplicity'])
         if not 'noL1' in  part['extra'] :
-            mult_without_noL1 = mult_without_noL1 + 1
+            mult_without_noL1 = mult_without_noL1 + int(part['multiplicity'])
 
     for dictpart in chainDict['chainParts']:
         if 'mu' in dictpart['trigType']:
