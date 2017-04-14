@@ -17,42 +17,17 @@ using namespace LVL1RPC;
 
 StatusCode RPCRecRoiSvc::initialize (void) 
 {
+  StoreGateSvc* detStore = nullptr;
+  ATH_CHECK( service("DetectorStore",detStore) );
 
-  MsgStream log( messageService(), name() );
   m_MuonMgr  = 0;
-  StoreGateSvc* detStore;
-  StatusCode sc = service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "DetectorStore service not found !" << endmsg; 
-  } else {
-    sc = detStore->retrieve(m_MuonMgr);
-    if ( sc.isFailure() ) {
-      log << MSG::ERROR << " Cannot retrieve MuonReadoutGeometry " << endmsg;
-      return sc;
-    } else {
-      log << MSG::DEBUG << "Found the MuonDetDescrMgr " << endmsg;
-    }
-  }
+  ATH_CHECK( detStore->retrieve(m_MuonMgr) );
+  ATH_MSG_DEBUG( "Found the MuonDetDescrMgr "  );
 
   m_rPCcablingSvc = 0;
   const IRPCcablingServerSvc* RpcCabGet = 0;
-  sc = service("RPCcablingServerSvc",RpcCabGet,1);
-  if(sc.isFailure())
-   {
-      log << MSG::WARNING
-	  << "Unable to retrieve the RPC cabling Server Service"
-	  << endmsg;
-      return StatusCode::FAILURE;
-    }
- 
-  sc = RpcCabGet->giveCabling(m_rPCcablingSvc);
-  if(sc.isFailure())
-    {
-      log << MSG::WARNING
-	  << "Unable to retrieve the RPC cabling Service from the Server"
-	  << endmsg;
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( service("RPCcablingServerSvc",RpcCabGet,1) );
+  ATH_CHECK( RpcCabGet->giveCabling(m_rPCcablingSvc) );
 
   return StatusCode::SUCCESS; 
 }
@@ -151,8 +126,6 @@ void RPCRecRoiSvc::reconstruct (const unsigned int & roIWord) const
 bool
 RPCRecRoiSvc::dumpRoiMap(const std::string& filename)
 {  
-    MsgStream msg( messageService(), name() );    //get MSG service
-
     const unsigned int maxSubsystem = 2;
     const unsigned int maxLogicSector = 32;
     const unsigned int maxRoI = 32;
@@ -164,7 +137,7 @@ RPCRecRoiSvc::dumpRoiMap(const std::string& filename)
     //    roi_map.open("ROI_Mapping.txt", std::ios::out ); //try to open the file
     roi_map.open(filename.c_str(), std::ios::out ); //try to open the file
     if(!roi_map){
-        msg << MSG::WARNING << "Unable to open ROI_Mapping file!"<< endmsg;
+      ATH_MSG_WARNING( "Unable to open ROI_Mapping file!" );
     } else {
         roi_map <<"# side     sector   roi      etaMin       etaMax       phiMin       phiMax     etaMinLow    etaMaxLow    etaMinHigh   etaMaxHigh "<< std::endl;
         roi_map <<"# ------------------------------------------------------------------------------------------------------------------------------ "<< std::endl;
