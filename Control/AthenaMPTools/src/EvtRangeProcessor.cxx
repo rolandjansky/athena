@@ -404,9 +404,9 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
   std::queue<std::string> queueTokens;
 
   // Get the yampl connection channels
-  m_socketFactory = new yampl::SocketFactory();
+  yampl::ISocketFactory* socketFactory = new yampl::SocketFactory();
   std::string socket2ScattererName = m_channel2Scatterer.value() + std::string("_") + m_randStr;
-  m_socket2Scatterer = m_socketFactory->createClientSocket(yampl::Channel(socket2ScattererName,yampl::LOCAL),yampl::MOVE_DATA);
+  yampl::ISocket* socket2Scatterer = socketFactory->createClientSocket(yampl::Channel(socket2ScattererName,yampl::LOCAL),yampl::MOVE_DATA);
   ATH_MSG_INFO("Created CLIENT socket to the Scatterer: " << socket2ScattererName);
   std::ostringstream pidstr;
   pidstr << getpid();
@@ -422,14 +422,14 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
   std::string ping = pidstr.str() + std::string(" ready for event processing");
   void* message2scatterer = malloc(ping.size());
   memcpy(message2scatterer,ping.data(),ping.size());
-  m_socket2Scatterer->send(message2scatterer,ping.size());
+  socket2Scatterer->send(message2scatterer,ping.size());
   ATH_MSG_INFO("Sent a welcome message to the Scatterer");
 
   while(all_ok) {
     // Get the response - list of tokens - from the scatterer. 
     // The format of the response: | ResponseSize | RangeID, | evtEvtRange[,evtToken] |
     char *responseBuffer(0);
-    ssize_t responseSize = m_socket2Scatterer->recv(responseBuffer);
+    ssize_t responseSize = socket2Scatterer->recv(responseBuffer);
     // If response size is 0 then break the loop
     if(responseSize==1) {
       ATH_MSG_INFO("Empty range received. Terminating the loop");
@@ -457,14 +457,6 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
     // Fire an incident
     if(!queueTokens.empty()) {
       p_incidentSvc->fireIncident(FileIncident(name(),"NextEventRange",rangeID));
-
-      // Time to report the previous output
-      if(!m_outputFileReport.empty()) {
-	message2scatterer = malloc(m_outputFileReport.size());
-	memcpy(message2scatterer,m_outputFileReport.data(),m_outputFileReport.size());
-	m_socket2Scatterer->send(message2scatterer,m_outputFileReport.size());
-	m_outputFileReport.clear();
-      }
     }
 
     // Here we need to support two formats of the responseStr
@@ -559,13 +551,22 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
 			 << ",ID:" << rangeID
 			 << ",CPU:" << time_delta.cpuTime<System::Sec>()
 			 << ",WALL:" << time_delta.elapsedTime<System::Sec>();
-      m_outputFileReport = outputReportStream.str();
+      std::string outputFileReport = outputReportStream.str();
+
+      // Fire dummy NextEventRange incident in order to cut the previous output and report it
+      p_incidentSvc->fireIncident(FileIncident(name(),"NextEventRange","dummy"));
+
+      // Report the output
+      message2scatterer = malloc(outputFileReport.size());
+      memcpy(message2scatterer,outputFileReport.data(),outputFileReport.size());
+      socket2Scatterer->send(message2scatterer,outputFileReport.size());
+      ATH_MSG_INFO("Reported the output " << outputFileReport);
     }
 
     // Request the next available range
     message2scatterer = malloc(ping.size());
     memcpy(message2scatterer,ping.data(),ping.size());
-    m_socket2Scatterer->send(message2scatterer,ping.size());
+    socket2Scatterer->send(message2scatterer,ping.size());
     ATH_MSG_DEBUG("Sent a message to the scatterer: " << ping);
   } // Main "event loop"
 
@@ -593,17 +594,15 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
   // reported in the master proces
   // ...
 
+  delete socket2Scatterer;
+  delete socketFactory;
+
   return outwork;
 }
 
 std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::fin_func()
 {
   ATH_MSG_INFO("Fin function in the AthenaMP worker PID=" << getpid());
-
-  // We are not able to use private data members after the appMgr has been finalized
-  yampl::ISocket* socket2Scatterer(m_socket2Scatterer);
-  yampl::ISocketFactory* socketFactory(m_socketFactory);
-  std::string outputFileReport(m_outputFileReport);
 
   bool all_ok(true);
 
@@ -616,16 +615,6 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::fin_func()
       ATH_MSG_ERROR("Unable to finalize AppMgr");
       all_ok=false;
     }
-  }
-
-  // Report the last output file
-  if(!outputFileReport.empty()) {
-    void* message2scatterer = malloc(outputFileReport.size());
-    memcpy(message2scatterer,outputFileReport.data(),outputFileReport.size());
-    char buffer [80];
-    getLocalTime(buffer);
-    std::cout << buffer << " Reporting the output file: " << outputFileReport << std::endl;
-    socket2Scatterer->send(message2scatterer,outputFileReport.size());
   }
 
   std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
@@ -641,9 +630,6 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::fin_func()
 
   outwork->data = outdata;
   outwork->size = outsize;
-
-  delete socket2Scatterer;
-  delete socketFactory;
 
   return outwork;
 }

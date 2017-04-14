@@ -77,7 +77,6 @@ class EvtRangeProcessor : public AthenaMPToolBase
 
   yampl::ISocketFactory*            m_socketFactory;
   yampl::ISocket*                   m_socket2Scatterer;
-  std::string                       m_outputFileReport;
 
   bool m_debug;
 };
