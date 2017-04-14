@@ -161,6 +161,14 @@ namespace LVL1MUCTPI {
        // so last element in vector is highest pt, i.e. first element in vector of two after cutoff is 
        // second candidate
        candList.at(0).setptL1TopoCodeToOvFl();
+       const LVL1::MuCTPIL1TopoCandidate &c = candList.at(0);
+       REPORT_MSG( LVL1MUCTPI::ALWAYS, "DG MioctModule : setptL1TopoCodeToOvFl for candidate "
+                   <<" thr ID = " << c.getptThresholdID() << " eta = " << c.geteta() << " phi = " << c.getphi()
+                   << ", w   = " << std::hex << std::setw( 8 ) << c.getRoiID() << std::dec
+                   << " Oct = " << c.getMioctID()
+                   << " etacode=" <<  c.getetacode()
+                   << " phicode= " <<  c.getphicode()
+                   << ", Sector="<< c.getSectorName() );
      } 
     
 
