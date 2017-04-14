@@ -121,7 +121,8 @@ StatusCode EFMissingETFromFEBHeader::execute(xAOD::TrigMissingET * /* met */ ,
     TrigEFMissingEtHelper * metHelper,
     const xAOD::CaloClusterContainer * /* caloCluster */, const xAOD::JetContainer  * /* jets */,
                                         const xAOD::TrackParticleContainer * /*trackContainer*/,
-                                        const xAOD::VertexContainer * /*vertexContainer*/ )
+                                        const xAOD::VertexContainer * /*vertexContainer*/,
+                                        const xAOD::MuonContainer * /*muonContainer*/ )
 {
 
   ATH_MSG_DEBUG( "EFMissingETFromFEBHeader::execute() has been called" );

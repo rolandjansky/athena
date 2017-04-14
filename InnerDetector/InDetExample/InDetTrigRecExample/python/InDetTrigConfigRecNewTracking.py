@@ -313,7 +313,7 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
         InDetTrigScoringTool.useTRT_AmbigFcn= False
         InDetTrigScoringTool.useSigmaChi2   = True
 
-      if slice=='FTK' or slice=='FTKRefit':
+      if slice=='FTK' or slice=='FTKRefit' or slice=='FTKMon':
         InDetTrigScoringTool.minSiClusters  = FTKTrackingCuts.minClusters()
         InDetTrigScoringTool.maxSiHoles     = FTKTrackingCuts.maxHoles()
         InDetTrigScoringTool.maxPixelHoles  = FTKTrackingCuts.maxPixelHoles()
@@ -362,7 +362,7 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
         InDetTrigAmbiguityProcessor.tryBremFit  = True
         import AthenaCommon.SystemOfUnits as Units
         InDetTrigAmbiguityProcessor.pTminBrem   = 5 * Units.GeV
-      elif slice=='FTK' or slice=='FTKRefit':
+      elif slice=='FTK' or slice=='FTKRefit'  or slice=='FTKMon':
         from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigAmbiTrackSelectionToolFTK,InDetTrigTrackFitterFTK
         InDetTrigAmbiguityProcessor.SelectionTool = InDetTrigAmbiTrackSelectionToolFTK
         InDetTrigAmbiguityProcessor.Fitter=InDetTrigTrackFitterFTK

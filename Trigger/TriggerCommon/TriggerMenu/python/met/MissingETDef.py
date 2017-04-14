@@ -24,6 +24,7 @@ from TrigL2MissingET.TrigL2MissingETConfig import (L2CaloMissingET_Fex_ReadL2L1,
 
 from TrigMissingETHypo.TrigMissingETHypoConfig import (EFMetHypoJetsXE,
                                                        EFMetHypoTrackAndJetsXE,
+                                                       EFMetHypoFTKTrackAndJetsXE,
                                                        EFMetHypoTCPSXE,
                                                        EFMetHypoTCPUCXE, 
                                                        EFMetHypoTCXE,
@@ -200,7 +201,8 @@ class L2EFChain_met(L2EFChainDef):
                 ## this will be added later                                                                                                                                 
                 theEFMETMuonFex = EFTrigMissingETMuon_Fex_Jets()                                                                                                            
                 #mucorr= '_wMu' if EFmuon else ''                                                                                                                           
-                theEFMETHypo = EFMetHypoTrackAndJetsXE('EFMetHypo_TrackAndJets_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)                     
+                if "FTK" in addInfo: theEFMETHypo = EFMetHypoFTKTrackAndJetsXE('EFMetHypo_FTKTrackAndJets_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
+                else: theEFMETHypo = EFMetHypoTrackAndJetsXE('EFMetHypo_TrackAndJets_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
  
 
                 
@@ -372,7 +374,7 @@ class L2EFChain_met(L2EFChainDef):
                 from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
                 trk_algs = TrigInDetFTKSequence("FullScan", "fullScan", sequenceFlavour=["FTKVtx"]).getSequence()
                 dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
-                self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step0' ]]
+                self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0]+trk_algs[1], 'EF_xe_step0' ]]
 
             else:
                 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
@@ -380,7 +382,7 @@ class L2EFChain_met(L2EFChainDef):
                 dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
                 self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step0' ]]
 
-            self.EFsequenceList +=[[ [output4,'EF_xe_step0'], [theEFMETFex], 'EF_xe_step1' ]]                                                                               
+            self.EFsequenceList +=[[ [output4,'EF_xe_step0',muonSeed], [theEFMETFex], 'EF_xe_step1' ]]                                                                               
             self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]   
 
         #cell based MET

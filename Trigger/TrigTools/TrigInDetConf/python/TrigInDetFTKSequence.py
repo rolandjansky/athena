@@ -47,6 +47,9 @@ class TrigInDetFTKSequence(TrigInDetSequence):
     suffix = "FTK"
     if "refit" in sequenceFlavour:
         suffix = "FTKRefit"
+    if "mon" in sequenceFlavour:
+        suffix = "FTKMon"
+
 
     ftfname = ""
     roiupdater = ""
@@ -54,7 +57,6 @@ class TrigInDetFTKSequence(TrigInDetSequence):
     ftfname = "TrigFastTrackFinder_"+suffix;
     cnvname = "InDetTrigTrackingxAODCnv_%s_"+suffix;
 
-      
 
     algos = list()
 

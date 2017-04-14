@@ -152,9 +152,9 @@ private:
 
   unsigned int m_nsamples;
 
-  TH1F_LW* bcid;
+  TH1F_LW* m_bcid;
 
-  std::map<unsigned, TH1F_LW*> map_BCID_DeltaT;
+  std::map<unsigned, TH1F_LW*> m_map_BCID_DeltaT;
   
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
   std::vector<std::string> m_L1Names;
@@ -162,8 +162,8 @@ private:
 
   // Calibration for Energy. 
   // This will move to COOL 
-  std::map<Identifier::value_type, float > map_LowGain;
-  std::map<Identifier::value_type, float > map_HighGain;
+  std::map<Identifier::value_type, float > m_map_LowGain;
+  std::map<Identifier::value_type, float > m_map_HighGain;
 
 
   };

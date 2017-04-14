@@ -43,7 +43,7 @@ DQTNonCollBkg_ZDC::DQTNonCollBkg_ZDC(const std::string & type,
                                           m_complainContain(1),
                                           m_complainRetrieve(1),
 					  m_nsamples(0),
-					  bcid(nullptr)
+					  m_bcid(nullptr)
 
 {
   declareInterface<IMonitorToolBase> (this);
@@ -61,23 +61,23 @@ DQTNonCollBkg_ZDC::DQTNonCollBkg_ZDC(const std::string & type,
   m_TimeSideA.resize(4,0);
   m_TimeSideC.resize(4,0);
 
-  map_LowGain[0xec000000] =   1.00;  // verify
-  map_LowGain[0xec400000] =   5.21;
-  map_LowGain[0xec800000] =  17.40;
-  map_LowGain[0xecc00000] =  22.60;
-  map_LowGain[0xed000000] =   1.00;  // verify
-  map_LowGain[0xed400000] =   4.52;
-  map_LowGain[0xed800000] =   8.52;
-  map_LowGain[0xedc00000] =  50.90;
+  m_map_LowGain[0xec000000] =   1.00;  // verify
+  m_map_LowGain[0xec400000] =   5.21;
+  m_map_LowGain[0xec800000] =  17.40;
+  m_map_LowGain[0xecc00000] =  22.60;
+  m_map_LowGain[0xed000000] =   1.00;  // verify
+  m_map_LowGain[0xed400000] =   4.52;
+  m_map_LowGain[0xed800000] =   8.52;
+  m_map_LowGain[0xedc00000] =  50.90;
   
-  map_HighGain[0xec000000] =  0.10;  // verify
-  map_HighGain[0xec400000] =  0.55;
-  map_HighGain[0xec800000] =  1.80;
-  map_HighGain[0xecc00000] =  2.41;
-  map_HighGain[0xed000000] =  0.10;  // verify 
-  map_HighGain[0xed400000] =  0.45;
-  map_HighGain[0xed800000] =  0.93;
-  map_HighGain[0xedc00000] =  5.10;
+  m_map_HighGain[0xec000000] =  0.10;  // verify
+  m_map_HighGain[0xec400000] =  0.55;
+  m_map_HighGain[0xec800000] =  1.80;
+  m_map_HighGain[0xecc00000] =  2.41;
+  m_map_HighGain[0xed000000] =  0.10;  // verify 
+  m_map_HighGain[0xed400000] =  0.45;
+  m_map_HighGain[0xed800000] =  0.93;
+  m_map_HighGain[0xedc00000] =  5.10;
 
 }
 
@@ -96,14 +96,14 @@ StatusCode DQTNonCollBkg_ZDC::bookHistograms()
   
   MsgStream log(msgSvc(), name());
   //if (newRun)    {
-    log << MSG::INFO << "In bookHistograms(): " <<  "m_doRunCosmics = " << m_doRunCosmics << "; m_doRunBeam = "<< m_doRunBeam << endreq;
+    log << MSG::INFO << "In bookHistograms(): " <<  "m_doRunCosmics = " << m_doRunCosmics << "; m_doRunBeam = "<< m_doRunBeam << endmsg;
     
     //This will do the real booking
     failure = bookDQTNonCollBkg_ZDC();
     
     // reset the map                                                                                                                             
     // do NOT dereg (histo are not written to file)                                                                                              
-    map_BCID_DeltaT.clear();
+    m_map_BCID_DeltaT.clear();
     
   //}
   //else if (newEventsBlock || newLumiBlock)    {
@@ -120,11 +120,11 @@ StatusCode DQTNonCollBkg_ZDC::bookHistograms()
   StatusCode sc = m_trigDec.retrieve();
   
   if ( sc.isFailure() ){
-    log << MSG::ERROR << "Can't get handle on TrigDecisionTool" << endreq;
+    log << MSG::ERROR << "Can't get handle on TrigDecisionTool" << endmsg;
     return  StatusCode::FAILURE;
   }
   else {
-    log << MSG::DEBUG << "Got handle on TrigDecisionTool" << endreq;
+    log << MSG::DEBUG << "Got handle on TrigDecisionTool" << endmsg;
     return StatusCode::SUCCESS;
   }
   */
@@ -142,8 +142,8 @@ bool DQTNonCollBkg_ZDC::bookDQTNonCollBkg_ZDC()
 
   std::string  fullPath = m_path+"/ZDC";
 
-  //failure = failure | registerHist(fullPath, bcid  = TH1F_LW::create("bcid", "Events per BCID", 3564,0.5,3564.5),ManagedMonitorToolBase::shift).isFailure();
-  failure = failure | registerHist(fullPath, bcid  = TH1F_LW::create("bcid", "Events per BCID", 3564,0.5,3564.5)).isFailure();
+  //failure = failure | registerHist(fullPath, m_bcid  = TH1F_LW::create("bcid", "Events per BCID", 3564,0.5,3564.5),ManagedMonitorToolBase::shift).isFailure();
+  failure = failure | registerHist(fullPath, m_bcid  = TH1F_LW::create("bcid", "Events per BCID", 3564,0.5,3564.5)).isFailure();
 
   failure = failure | registerHist(fullPath,
 		  m_HistEnergySideA = TH1F_LW::create("m_EnergySideA",
@@ -173,7 +173,7 @@ bool DQTNonCollBkg_ZDC::bookDQTNonCollBkg_ZDC()
 
 
   if (failure) {
-     log << MSG::ERROR << "Error Booking histograms " << endreq;
+     log << MSG::ERROR << "Error Booking histograms " << endmsg;
   }
 
   return failure;
@@ -203,7 +203,7 @@ StatusCode DQTNonCollBkg_ZDC::fillHistograms()
     if( L1items[it] != "" ) {
       m_L1Names.push_back( L1items[it]);
       m_L1Trigs.push_back(0);
-      msg(MSG::DEBUG) <<"L1Chain " <<it <<" " <<L1items <<m_trigDec->isPassed(L1items[it]) <<endreq;
+      msg(MSG::DEBUG) <<"L1Chain " <<it <<" " <<L1items <<m_trigDec->isPassed(L1items[it]) <<endmsg;
     }
   }
 
@@ -211,12 +211,12 @@ StatusCode DQTNonCollBkg_ZDC::fillHistograms()
   const DataHandle<xAOD::EventInfo> event_info;
  
   if (!evtStore()->retrieve( event_info ).isSuccess() || !event_info.isValid() ) {
-    log<< MSG::ERROR << "ERROR cannot get BCID = " <<endreq;
+    log<< MSG::ERROR << "ERROR cannot get BCID = " <<endmsg;
   }
   else {
     bunch_crossing_id = event_info->bcid();
-    log<< MSG::DEBUG << "BCID = " <<  bunch_crossing_id<<endreq;
-    bcid->Fill(bunch_crossing_id);
+    log<< MSG::DEBUG << "BCID = " <<  bunch_crossing_id<<endmsg;
+    m_bcid->Fill(bunch_crossing_id);
   }
 
   
@@ -235,8 +235,8 @@ StatusCode DQTNonCollBkg_ZDC::fillHistograms()
 
 
   const ZdcDigitsCollection* digitsCollection;
-  ZdcDigitsCollection::const_iterator m_iter;
-  ZdcDigits* digits_p;
+  ZdcDigitsCollection::const_iterator iter;
+  const ZdcDigits* digits_p;
 
 
   //1) Start a set of checks for the container in evtStore
@@ -247,7 +247,7 @@ StatusCode DQTNonCollBkg_ZDC::fillHistograms()
     {
       if (m_complainContain)
         log << MSG::WARNING
-            << "--> DQT_ZDC: evtStore does not contain " << m_digitsContainerName << endreq;
+            << "--> DQT_ZDC: evtStore does not contain " << m_digitsContainerName << endmsg;
       m_complainContain = 0;
       return StatusCode::SUCCESS;
     }
@@ -259,7 +259,7 @@ StatusCode DQTNonCollBkg_ZDC::fillHistograms()
       if (m_complainRetrieve)
         log << MSG::WARNING
             << "--> DQT_ZDC: Could not retrieve " << m_digitsContainerName << " from evtStore"
-            << endreq;
+            << endmsg;
       m_complainRetrieve = 0;
       return StatusCode::SUCCESS;
     }
@@ -268,19 +268,19 @@ StatusCode DQTNonCollBkg_ZDC::fillHistograms()
   if (digitsLookupSC.isSuccess() && !digitsCollection)
     {
       log << MSG::ERROR <<
-          "--> DQT_ZDC: Storegate returned zero pointer for " << m_digitsContainerName << endreq;
+          "--> DQT_ZDC: Storegate returned zero pointer for " << m_digitsContainerName << endmsg;
       return StatusCode::SUCCESS;
     }
 
   //2) The container was sucessfully retrieved, go ahead looping over it
   //    and extract the information
   log << MSG::DEBUG <<
-      "--> DQT_ZDC: SUCCESS retrieving " << m_digitsContainerName << endreq;
+      "--> DQT_ZDC: SUCCESS retrieving " << m_digitsContainerName << endmsg;
 
   //Loop over the channels
-  for (m_iter = digitsCollection->begin(); m_iter != digitsCollection->end(); m_iter++)
+  for (iter = digitsCollection->begin(); iter != digitsCollection->end(); iter++)
     {
-      digits_p = *m_iter;
+      digits_p = *iter;
       id = digits_p->identify();
       wfm.clear();
       wfm.resize(2);
@@ -296,7 +296,7 @@ StatusCode DQTNonCollBkg_ZDC::fillHistograms()
       if (wfm[0].size() == 0)
         {
           msg(MSG::WARNING) << "ZERO SIZE g0d0 at ID  " << id.getString()
-              << endreq;
+              << endmsg;
           wfm[0].resize(m_nsamples);
         }
 
@@ -304,7 +304,7 @@ StatusCode DQTNonCollBkg_ZDC::fillHistograms()
       if (wfm[1].size() == 0)
         {
           msg(MSG::WARNING) << "ZERO SIZE g1d0 at ID  " << id.getString()
-              << endreq;
+              << endmsg;
           wfm[1].resize(7);
         }
 
@@ -368,20 +368,20 @@ StatusCode DQTNonCollBkg_ZDC::fillHistograms()
 
   m_HistTimeDeltaSidesAC->Fill(m_TimeSideA[0] - m_TimeSideC[0]);
 
-  if(map_BCID_DeltaT[bunch_crossing_id] == 0){
+  if(m_map_BCID_DeltaT[bunch_crossing_id] == 0){
 
     TString histoName ="deltaT_"; histoName+=bunch_crossing_id;
     TString histoTitle="Arrival time BCID:"; histoTitle+=bunch_crossing_id;
     std::string  fullPath=m_path+"/ZDC";
-    failure = failure | registerHist(fullPath, map_BCID_DeltaT[bunch_crossing_id] = TH1F_LW::create(histoName,histoTitle,500,-50.,50.)).isFailure();
-    //failure = failure | registerHist(fullPath, map_BCID_DeltaT[bunch_crossing_id] = TH1F_LW::create(histoName,histoTitle,500,-50.,50.),ManagedMonitorToolBase::expert).isFailure();
+    failure = failure | registerHist(fullPath, m_map_BCID_DeltaT[bunch_crossing_id] = TH1F_LW::create(histoName,histoTitle,500,-50.,50.)).isFailure();
+    //failure = failure | registerHist(fullPath, m_map_BCID_DeltaT[bunch_crossing_id] = TH1F_LW::create(histoName,histoTitle,500,-50.,50.),ManagedMonitorToolBase::expert).isFailure();
   }
 
-  if(map_BCID_DeltaT[bunch_crossing_id]) map_BCID_DeltaT[bunch_crossing_id]->Fill(m_TimeSideA[0] - m_TimeSideC[0]); // fill with the DeltaT                                                       
+  if(m_map_BCID_DeltaT[bunch_crossing_id]) m_map_BCID_DeltaT[bunch_crossing_id]->Fill(m_TimeSideA[0] - m_TimeSideC[0]); // fill with the DeltaT                                                       
   
   
   if (failure) {
-    log << MSG::ERROR << "Error Booking histograms " << endreq;
+    log << MSG::ERROR << "Error Booking histograms " << endmsg;
   }
   
   
@@ -395,7 +395,7 @@ StatusCode DQTNonCollBkg_ZDC::procHistograms( )
 //----------------------------------------------------------------------------------
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "In procHists()" << endreq;
+  log << MSG::DEBUG << "In procHists()" << endmsg;
 
   //  std::vector<TH1D*> proj;
   //  if( isEndOfRun ){
@@ -417,7 +417,7 @@ StatusCode DQTNonCollBkg_ZDC::checkHists(bool /* fromFinalize */)
 //----------------------------------------------------------------------------------
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "In checkHists()" << endreq;
+  log << MSG::DEBUG << "In checkHists()" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -441,7 +441,7 @@ int  DQTNonCollBkg_ZDC::getEnergyAndTimeByModule(const Identifier& id,
   double CFD_frac = 1.0;
   bool corr=0;
 
-  ZdcSignalSinc * m_ZdcSignalSinc;
+  ZdcSignalSinc* zdcSignalSinc;
 
   std::vector<std::vector<int> >::const_iterator vit;
   std::vector<int>::const_iterator it;
@@ -479,21 +479,21 @@ int  DQTNonCollBkg_ZDC::getEnergyAndTimeByModule(const Identifier& id,
           // This is for the sinx/x interpolation
 
           for(int I=0;I<NSlice;I++)  {Slices[I]=y[I];}
-          m_ZdcSignalSinc = new ZdcSignalSinc(NSlice);
+          zdcSignalSinc = new ZdcSignalSinc(NSlice);
 
-          m_ZdcSignalSinc->process(Slices,gain,pedestal,CFD_frac,corr);
+          zdcSignalSinc->process(Slices,gain,pedestal,CFD_frac,corr);
 
-          energy  = m_ZdcSignalSinc->getAmp() ;
-          timing  = m_ZdcSignalSinc->getTime();
-          //error   = m_ZdcSignalSinc->getError();
-          //warning = m_ZdcSignalSinc->getWarning();
+          energy  = zdcSignalSinc->getAmp() ;
+          timing  = zdcSignalSinc->getTime();
+          //error   = zdcSignalSinc->getError();
+          //warning = zdcSignalSinc->getWarning();
 
 
           //Retrieves only total energy (big PMT's) information
           if (((x >> 21) & 1) == 0)
             {
                //Use the appropriate weight for energy according to the module
-	       w = (wfmIndex == 0)	?  map_LowGain[x] :  map_HighGain[x]; 
+	       w = (wfmIndex == 0)	?  m_map_LowGain[x] :  m_map_HighGain[x]; 
 	       energy = w * energy;
        
 	       //std::cout << "ZDC+++ID " << x << std::endl;

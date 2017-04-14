@@ -128,6 +128,7 @@ class EFMissingET : public HLT::AllTEAlgo {
     const xAOD::JetContainer *m_jets;
     const xAOD::TrackParticleContainer *m_tracks;
     const xAOD::VertexContainer *m_vertices;
+    const xAOD::MuonContainer *m_muons;
 
     //    unsigned m_maskEMB_A_Missing;      //!< EMB_A absent in DetMask
     //    unsigned m_maskEMB_C_Missing;      //!< EMB_C absent in DetMask
