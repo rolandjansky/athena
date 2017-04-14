@@ -20,10 +20,11 @@ if not isRealData:
     outStream.ItemList += ["RecoTimingObj#HITStoRDO_timings"]
 
 if DetFlags.overlay.Truth_on():
-   outStream.ItemList += [
-                             "McEventCollection#*",
-                             "TrackRecordCollection#*"
-                           ]
+   outStream.ItemList += [ "McEventCollection#*", "TrackRecordCollection#*" ]
+   outStream.ItemList += [ "xAOD::JetContainer#InTimeAntiKt4TruthJets" ]
+   outStream.ItemList += [ "xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux." ]
+   outStream.ItemList += [ "xAOD::JetContainer#OutOfTimeAntiKt4TruthJets" ]
+   outStream.ItemList += [ "xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux." ]
    if DetFlags.overlay.CSC_on():
       outStream.ItemList += [ "CscSimDataCollection#CSC_SDO" ]
    if DetFlags.overlay.MDT_on():
