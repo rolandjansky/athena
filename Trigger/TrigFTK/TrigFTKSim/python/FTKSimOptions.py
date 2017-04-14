@@ -33,7 +33,7 @@ def addTrigFTKSimOptions(parser,nsubregions=4):
     parser.add_argument('--UseCompressedBank', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='use compressed bank algorithm', group='TrigFTKSim')
 
-    parser.add_argument('--ReadFTKHits', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg= True),
+    parser.add_argument('--ReadFTKHits', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                             help='Read FTKHits directly', group='TrigFTKSim')
 
     # Cannot take maxEvents as an argument from addAthenaArguments() as it will have the wrong
@@ -211,6 +211,10 @@ def addTrigFTKSimTFOptions(parser):
 
     parser.add_argument('--PrintSSBConstants', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Print SSB Constants in firmware-style", group='TrigFTKTrackFitter')
+
+    parser.add_argument('--dTIBL', type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True),
+                        help="dT for IBL temperature shifts in SSB fit.", group='TrigFTKSim')
+
 
     parser.add_argument('--doAuxFW', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Enables firmware-style constants", group='TrigFTKSim')

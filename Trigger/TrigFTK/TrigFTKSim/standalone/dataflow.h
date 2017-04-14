@@ -12,10 +12,9 @@
 
 #define MAXTOWER 64
 #define MAXL 8
+///#define HIST_MAXBINS 35
 
-#define HIST_MAXBINS 35
-
-//#define HIST_MAXBINS 100
+#define HIST_MAXBINS 100
 
 
 #define TTREE_NAME "ftkdata"
@@ -28,7 +27,7 @@ ofstream myfileTeX;
 // [tower]
 float nRoad[MAXTOWER], nFit[MAXTOWER], nFitI[MAXTOWER], nTrack[MAXTOWER], nTrackI[MAXTOWER], nTrackBeforeHW[MAXTOWER], nFitRecovery[MAXTOWER], nFitRecoveryI[MAXTOWER];
 float nFitMajority[MAXTOWER], nFitMajorityI[MAXTOWER], nFitMajorityPix[MAXTOWER], nFitMajorityPixI[MAXTOWER],  nFitMajoritySCT[MAXTOWER], nFitMajoritySCTI[MAXTOWER] ;
-float nCluster[MAXL][MAXTOWER], nSSID[8][MAXTOWER];
+float nCluster[MAXL][MAXTOWER], nCluster_road[MAXL][MAXTOWER], nSSID[8][MAXTOWER];
 float nConn[MAXTOWER], nExtrapAUX[MAXTOWER];
 FTKRoadStream *stream[MAXTOWER];
 FTKTrackStream *trackstream[MAXTOWER];

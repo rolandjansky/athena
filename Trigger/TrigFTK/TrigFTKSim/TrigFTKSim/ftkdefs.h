@@ -70,6 +70,9 @@ namespace ftk {
       const int feChipsInRowPixel = 8; ///< Number of Front-End chips in each pixel module row
       const int rowsInFEChipPerPixelModuleRow = 164; ///<Number of rows in a FE chip of a pixel module
       const int colsInFEChipPerPixelModuleRow = 18;///<Number of columns in a FE chip of a pixel module
+      const int rowsInFEChipPerIblModuleRow = 336; ///<Number of rows in a FE chip of a IBL module
+      const int colsInFEChipPerIblModuleRow = 80;///<Number of columns in a FE chip of a IBL module
+
   }
 
   const int MOD_ADLER = 65521;

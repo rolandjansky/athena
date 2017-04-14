@@ -42,10 +42,15 @@ static void printVmemUsage(char const *text) {
 
 #define PRINT_ROADS_SECTORID -1
 #define PRINT_DETAILS_NEVENT 0
-#define PRINT_SS PRINT_DETAILS_NEVENT
+//#define PRINT_DETAILS_NEVENT 100
+#define PRINT_SS 0
+//#define PRINT_SS PRINT_DETAILS_NEVENT
+#define PRINT_SS_NOROAD 0
+//#define PRINT_SS_NOROAD PRINT_DETAILS_NEVENT
 // #define PRINT_MULTIPLICITY
 // #define WRITE_DEADMODULE_TEMPLATE
 // #define TESTDCSSID 19
+//#define DEBUG_EVENT 88
 
 #define HW2_USE_TSPMAP
 
@@ -53,6 +58,10 @@ int const FTK_CompressedAMBank::MAX_NROAD=300000;
 
 int const FTK_CompressedAMBank::k_WILDCARDid=-1;
 int const FTK_CompressedAMBank::k_INVALIDid=-2;
+
+#ifdef DEBUG_EVENT
+static int g_event=0;
+#endif
 
 //using namespace std;
 
@@ -2394,13 +2403,12 @@ void FTK_CompressedAMBank::setupSectorWildcards(void) {
          } else n00++;
       } else if(nDeadPlane==2) {
          n21++;
-         // two dead planes, remove wildcard for one of them
+         // two dead planes, possibly remove wildcard for one of them
          //  -> 6/6 hits required
          for(int mask=(1<<(getNPlanes()-1));mask;mask>>=1) {
-            if(m_SectorWC[sectorID] & mask) {
-               m_SectorWC[sectorID] &= ~mask;
-               break;
-            }
+            // if there are less than 2 wildcards, stop
+            if(m_nHit16[m_SectorWC[sectorID]]<=1) break;
+            m_SectorWC[sectorID] &= ~mask;
          }
       } else {
          nSilent++;
@@ -3770,6 +3778,19 @@ void FTK_CompressedAMBank::data_organizer_r
       HitPattern_t sectorWildcard=m_SectorWC[sector];
       int hitPattern=m_sectorUsage[sector] | sectorWildcard;
       int nhit=m_nHit16[hitPattern];
+#ifdef DEBUG_EVENT
+      if(g_event==DEBUG_EVENT-1) {
+         if(sector<20) {
+            std::cout<<"sector="<<sector<<std::setbase(16)
+                     <<" wc=0x"<<(int)sectorWildcard
+                     <<" hitPattern=0x"<<(int)hitPattern
+                     <<std::setbase(10)
+                     <<" nhit="<<nhit
+                     <<" m_nhWCmin="<<(int)m_nhWCmin
+                     <<"\n";
+         }
+      }
+#endif
       if(nhit>=m_nhWCmin) {
          //
          // reset hit pattern for this sector
@@ -3859,6 +3880,13 @@ void FTK_CompressedAMBank::am_in_r
       inline void process(void) {
          HitPattern_t h0=*patternPtr;
          HitPattern_t h1=h0|mask;
+#ifdef DEBUG_EVENT
+         if(g_event==DEBUG_EVENT) {
+            std::cout<<patternPtr-base<<": 0x"<<std::setbase(16)
+                     <<(int)h0<<" -> "<<(int)h1
+                     <<std::setbase(10);
+         }
+#endif
          if( // if there are hits in other layers
             (h0 & notMask)&&
             // if this is the first hit in this layer
@@ -3870,8 +3898,18 @@ void FTK_CompressedAMBank::am_in_r
                roadCandidates[nRC++] =
                   std::make_pair(patternPtr-base,sector)
                   ;
+#ifdef DEBUG_EVENT
+               if(g_event==DEBUG_EVENT) {
+                  std::cout<<" >>> add roadCandidate";
+               }
+#endif
             }
          }
+#ifdef DEBUG_EVENT
+         if(g_event==DEBUG_EVENT) {
+            std::cout<<"\n";
+         }
+#endif
          *patternPtr =h1;
       }
       inline void update(int delta) {
@@ -3955,6 +3993,18 @@ void FTK_CompressedAMBank::am_output() {
       HitPattern_t hitmaskWithWC=m_hitPatterns[patternID];
       HitPattern_t hitmaskNoWC=hitmaskWithWC & ~m_SectorWC[sector];
       uint8_t nhWC=m_nHit16[hitmaskWithWC];
+#ifdef DEBUG_EVENT
+      if(g_event==DEBUG_EVENT) {
+         std::cout<<"am_output "<<patternID
+                  <<std::setbase(16)
+                  <<" 0x"<<(int)hitmaskWithWC
+                  <<" 0x"<<(int)hitmaskNoWC
+                  <<std::setbase(10)
+                  <<" nhWC="<<(int)nhWC
+                  <<" nhWCmin="<<m_nhWCmin
+                  <<"\n";
+      }
+#endif
       //
       // determine FTKRoads
       if(nhWC>=m_nhWCmin) {
@@ -4057,6 +4107,8 @@ void FTK_CompressedAMBank::am_output() {
                   roadSSID=(dcSSID<<nDCbits)|
                      (hbmask & (~dcMask) & ((1<<nDCbits)-1));
 #endif
+               } else {
+                  roadSSID=dcSSID;
                }
                road.setSSID(ipl,roadSSID);  //attachSS[ 655 -> 670]
                // }
@@ -4078,6 +4130,10 @@ void FTK_CompressedAMBank::am_output() {
    naoSetNroadsAMComplete(getNRoads_complete());
    naoSetNroadsAMMissPix(getNRoads_misspix());
    naoSetNroadsAMMissSCT(getNRoads_misssct());
+#ifdef DEBUG_EVENT
+   if(g_event==DEBUG_EVENT) exit(0);
+   g_event++;
+#endif
 }
 
 /*******************************************
@@ -4195,6 +4251,8 @@ const std::list<FTKRoad>& FTK_CompressedAMBank::getRoads() {
             if (item==imap.end()) { // not found
                imap[nodc_ssid|bits] = (*item0).second;
             }
+	    naoClusRoadAdd(ipl,(imap[nodc_ssid|bits]).getNHits());
+
             found++;
          }
          if((*iroad).hasHitOnLayer(ipl) && !found) {
@@ -4228,6 +4286,17 @@ const std::list<FTKRoad>& FTK_CompressedAMBank::getRoads() {
       printSector(errorSector,2,errorPattern);
       throw FTKException("FTK_CompressedAMBank::getRoads inconsistency in SSID numbering");
    }
+
+   // //JAAA now add number of hits in each plane within a road for dataflow
+   // for (int ipl = 0; ipl<getNPlanes(); ipl++) { // loop over planes
+   //   for(std::unordered_map<int,FTKSS>::const_iterator is=
+   // 	   m_UsedSSmap[ipl].begin();is!=m_UsedSSmap[ipl].end();is++) { 
+   //     ////       std::cerr << "JAAAA ipl = " << ipl << " and adding " << (*is).second.getNHits() << std::endl;
+   //     naoClusRoadAdd(ipl,(*is).second.getNHits());
+   //   }
+   // }
+
+
   static int print=PRINT_DETAILS_NEVENT;
   if(print) {
      Info("getRoads")<<"number of roads="<<m_roads.size()<<"\n";
@@ -4290,6 +4359,12 @@ const std::list<FTKRoad>& FTK_CompressedAMBank::getRoads() {
      }
      print--;
   }
+#ifdef DEBUG_EVENT
+  if(g_event==DEBUG_EVENT) {
+     printStrips(-1);
+     printSector(11,10,6310853);
+  }
+#endif
   return m_roads;
 }
 
