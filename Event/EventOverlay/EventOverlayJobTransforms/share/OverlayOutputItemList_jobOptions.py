@@ -80,9 +80,15 @@ if DetFlags.overlay.BCM_on():
    outStream.ItemList+=["BCM_RDO_Container#*"]
 
 if DetFlags.overlay.LVL1_on():
-   outStream.ItemList+=["LArTTL1Container#*"]
-   outStream.ItemList+=["TileTTL1Container#*"]
-   outStream.ItemList+=[
+   if DetFlags.simulateLVL1.LAr_on():
+      outStream.ItemList += [ "LArTTL1Container#*" ]
+   if DetFlags.simulateLVL1.Tile_on():
+      outStream.ItemList += [ "TileTTL1Container#*" ]
+      outStream.ItemList += [ "TileDigitsContainer#MuRcvDigitsCnt" ]
+      outStream.ItemList += [ "TileRawChannelContainer#MuRcvRawChCnt" ]
+      outStream.ItemList += [ "TileMuonReceiverContainer#*" ]
+   if DetFlags.digitize.LVL1_on():
+      outStream.ItemList += [
                            "ROIB::RoIBResult#*",
                            "MuCTPI_RDO#*",
                            "CTP_RDO#*",

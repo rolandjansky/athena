@@ -105,18 +105,20 @@ DetFlags.ID_setOn()
 DetFlags.Muon_setOn()
 DetFlags.LAr_setOn()
 DetFlags.Tile_setOn()
+
 if not hasattr(runArgs, "triggerConfig") or runArgs.triggerConfig=="NONE":
     DetFlags.LVL1_setOff()
 else:
     DetFlags.LVL1_setOn()
 
+DetFlags.digitize.LVL1_setOff()
+
 DetFlags.BCM_setOn()
 DetFlags.Lucid_setOn()
-DetFlags.simulateLVL1.Lucid_setOff()
-#DetFlags.simulateLVL1.LAr_setOn()
-#DetFlags.simulateLVL1.Tile_setOn()
-#DetFlags.overlay.LAr_setOff()
-DetFlags.overlay.Truth_setOn()
+DetFlags.Truth_setOn()
+DetFlags.simulateLVL1.Lucid_setOn()
+DetFlags.simulateLVL1.LAr_setOn()
+DetFlags.simulateLVL1.Tile_setOn()
 
 print "================ DetFlags ================ "
 DetFlags.Print()
