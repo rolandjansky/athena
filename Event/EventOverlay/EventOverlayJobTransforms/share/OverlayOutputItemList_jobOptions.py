@@ -14,6 +14,11 @@ print "ACH123 new OverlayOutputItemList_jobOptions.py"
 outStream.ItemList += [ "EventInfo#*", "PileUpEventInfo#*" ]
 outStream.ItemList += [ "LumiBlockCollection#*" ]
 
+# timings
+if not isRealData:
+    outStream.ItemList += ["RecoTimingObj#EVNTtoHITS_timings"]
+    outStream.ItemList += ["RecoTimingObj#HITStoRDO_timings"]
+
 if DetFlags.overlay.Truth_on():
    outStream.ItemList += [
                              "McEventCollection#*",

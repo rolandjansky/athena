@@ -32,6 +32,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonRDO
                           MuonSpectrometer/MuonSimData
                           MuonSpectrometer/MuonSimEvent
+                          Reconstruction/RecEvent
                           Simulation/G4Sim/TrackRecord
                           TileCalorimeter/TileEvent
                           TileCalorimeter/TileSimEvent
@@ -50,8 +51,7 @@ atlas_add_component( OverlayCommonAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel CaloSimEvent AthenaBaseComps AthenaKernel PileUpToolsLib StoreGateLib SGtests PersistentDataModel Identifier ByteStreamCnvSvcLib EventInfo OverlayAlgBase GeneratorObjects InDetBCM_RawData InDetRawData InDetSimData InDetSimEvent LArRawEvent LArSimEvent MuonDigitContainer MuonRDO MuonSimData MuonSimEvent TileEvent TileSimEvent TrigConfHLTData TrigSteeringEvent TrigT1CaloEventLib TrigT1Interfaces TrigT1Result )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel CaloSimEvent AthenaBaseComps AthenaKernel PileUpToolsLib StoreGateLib SGtests PersistentDataModel Identifier ByteStreamCnvSvcLib EventInfo OverlayAlgBase GeneratorObjects InDetBCM_RawData InDetRawData InDetSimData InDetSimEvent LArRawEvent LArSimEvent MuonDigitContainer MuonRDO MuonSimData MuonSimEvent RecEvent TileEvent TileSimEvent TrigConfHLTData TrigSteeringEvent TrigT1CaloEventLib TrigT1Interfaces TrigT1Result )
 
 # Install files from the package:
 atlas_install_python_modules( python/__init__.py python/OverlayFlags.py )
-

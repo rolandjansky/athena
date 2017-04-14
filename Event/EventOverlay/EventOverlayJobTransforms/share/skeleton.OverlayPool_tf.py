@@ -125,6 +125,21 @@ DetFlags.Print()
 
 globalflags.DataSource.set_Value_and_Lock('geant4')
 
+
+print "================ Start ================= "
+from AthenaCommon.AlgSequence import AlgSequence
+topSeq = AlgSequence()
+## Set Overall per-Algorithm time-limit on the AlgSequence
+topSeq.TimeOut = 43200 * Units.s
+
+# Timings
+try:
+    from RecAlgs.RecAlgsConf import TimingAlg
+    topSeq += TimingAlg("OverlayTimerBegin", TimingObjOutputName = "HITStoRDO_timings")
+except:
+    overlaylog.warning('Could not add TimingAlg, no timing info will be written out.')
+
+
 include ( "RecExCond/AllDet_detDescr.py" )
 
 from AthenaCommon.AppMgr import theApp

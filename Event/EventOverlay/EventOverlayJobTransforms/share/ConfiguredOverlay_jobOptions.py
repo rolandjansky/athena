@@ -9,6 +9,10 @@ from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 topSequence = job
 
+if not isRealData:
+    from OverlayCommonAlgs.OverlayCommonAlgsConf import CopyTimings
+    job += CopyTimings()
+
 #=======================================================================
 from AthenaCommon.AppMgr import ServiceMgr
 from PileUpComps.PileUpCompsConf import PileUpEventLoopMgr
