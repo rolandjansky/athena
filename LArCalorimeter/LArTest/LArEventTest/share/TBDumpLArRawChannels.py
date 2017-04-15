@@ -39,12 +39,6 @@ MessageSvc.OutputLevel = DEBUG
 AthenaEventLoopMgr = Service ("AthenaEventLoopMgr")
 AthenaEventLoopMgr.OutputLevel=4
 
-#Necessary DLL's 
-theApp.Dlls += [ "LArRawUtils","LArROD", "LArTools"]
-theApp.Dlls += [ "LArByteStream"]
-#theApp.Dlls += [ "CaloDetMgrDetDescrCnv" ]
-
-
 theApp.topAlg+=["LArRawChannelSimpleBuilder/TBLArRawChannelBuilder"]
 ### Liquid argon reco
 TBLArRawChannelBuilder = Algorithm("TBLArRawChannelBuilder");
