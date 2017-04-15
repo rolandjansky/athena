@@ -262,7 +262,7 @@
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
 	   
-           <athenaCommonFlags /> 
+           <athenaCommonFlags /><alwaysRunPostProc /> 
          </athena>
 
 
@@ -470,7 +470,7 @@
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
    
-         <athenaCommonFlags /> 
+         <athenaCommonFlags /><alwaysRunPostProc /> 
          </athena>
 
 
@@ -692,7 +692,7 @@
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
 
-           <athenaCommonFlags /> 
+           <athenaCommonFlags /><alwaysRunPostProc /> 
          </athena>
 	 
 
@@ -900,7 +900,7 @@
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
 
-	  <athenaCommonFlags />
+	  <athenaCommonFlags /><alwaysRunPostProc />
 	  </athena>
 
 
@@ -1101,8 +1101,8 @@
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
 
-	  <athenaCommonFlags />
-	  <alwaysRunPostProc />
+	  <athenaCommonFlags /><alwaysRunPostProc />
+
 	  </athena>
 
 
@@ -1311,8 +1311,8 @@
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
 
-          <athenaCommonFlags /> 
-	  <alwaysRunPostProc />
+          <athenaCommonFlags /><alwaysRunPostProc /> 
+
 	  </athena>
 
 
@@ -1521,7 +1521,7 @@
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
    
-         <athenaCommonFlags /> 
+         <athenaCommonFlags /><alwaysRunPostProc /> 
          </athena>
 
 
@@ -1726,8 +1726,8 @@
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
 
-	  <athenaCommonFlags />
-	  <alwaysRunPostProc />
+	  <athenaCommonFlags /><alwaysRunPostProc />
+
 	  </athena>
 
 

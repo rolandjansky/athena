@@ -106,7 +106,7 @@
 	    <auxFilePattern>Test_bin_larged0.dat</auxFilePattern>	
 
 
-         <athenaCommonFlags /> 
+         <athenaCommonFlags /><alwaysRunPostProc /> 
          </athena>
 
 

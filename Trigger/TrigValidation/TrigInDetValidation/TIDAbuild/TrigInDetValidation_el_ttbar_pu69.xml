@@ -107,7 +107,7 @@
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
 	   
-           <athenaCommonFlags /> 
+           <athenaCommonFlags /><alwaysRunPostProc /> 
          </athena>
 
 
