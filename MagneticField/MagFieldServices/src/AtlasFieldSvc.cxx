@@ -31,10 +31,6 @@
 #include "TFile.h"
 #include "TTree.h"
 
-namespace {
-    inline double atan2fast(double y, double x);
-}
-
 /** Constructor **/
 MagField::AtlasFieldSvc::AtlasFieldSvc(const std::string& name,ISvcLocator* svc) :
     AthService(name,svc),
@@ -438,8 +434,8 @@ void MagField::AtlasFieldSvc::getField(const double *xyz, double *bxyz, double *
   const double &x(xyz[0]);
   const double &y(xyz[1]);
   const double &z(xyz[2]);
-  double r = sqrt(x * x + y * y);
-  double phi = atan2fast(y, x);
+  double r = std::sqrt(x * x + y * y);
+  double phi = std::atan2(y, x);
 
   // test if the cache is valid
   if (!m_cache.inside(z, r, phi)) {
@@ -1418,62 +1414,5 @@ int MagField::AtlasFieldSvc::memSize() const
         size += m_meshZR->memSize();
     }
     return size;
-}
-
-//
-// Fast (less accurate) atan2()
-//
-namespace {
-
-double atan2fast(double y, double x)
-{
-    const double halfpi(M_PI / 2.);
-    const double sixthpi(M_PI / 6.);
-    const double tansixthpi(tan(M_PI / 6.));
-    const double tantwelfthpi(tan(M_PI / 12.));
-
-    bool complement(false);
-    bool sign(false);
-    bool region(false);
-
-    // test zeros
-    if (y == 0.0) return 0.0;
-    if (x == 0.0) return halfpi;
-
-    // normalize range to -pi/12 to pi/12
-    double z = y / x;
-    if (z < 0) {
-        z = -z;
-        sign = true;
-    }
-    if (z > 1.0) {
-        z = 1.0 / z;
-        complement = true;
-    }
-    if (z > tantwelfthpi) {
-        z = (z - tansixthpi) / (1 + tansixthpi * z);
-        region = true;
-    }
-
-    // compute approximate atan
-    const double c1 = 1.6867629106;
-    const double c2 = 0.4378497304;
-    const double c3 = 1.6867633134;
-
-    double zz = z * z;
-    double v = (z * (c1 + zz * c2) / (c3 + zz));
-
-    // go back to the original range
-    if (region) v += sixthpi;
-    if (complement) v = halfpi - v;
-    if (sign) v = -v;
-    if (x < 0.0) {
-        if (v < 0.0) v += M_PI;
-        else v -= M_PI;
-    }
-
-    return v;
-}
-
 }
 
