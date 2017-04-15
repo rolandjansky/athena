@@ -89,9 +89,9 @@ BUILDDIR=$(cd $BUILDDIR; pwd)
 
 if [ "$FORCE" = "1" ]; then
     echo "Force deleting existing build area..."
-    rm -fr ${BUILDDIR}/install/AthenaExternals ${BUILDDIR}/install/GAUDI
-    rm -fr ${BUILDDIR}/src/AthenaExternals ${BUILDDIR}/src/GAUDI
-    rm -fr ${BUILDDIR}/build/AthenaExternals ${BUILDDIR}/build/GAUDI
+    rm -fr ${BUILDDIR}/install/AthDerivationExternals ${BUILDDIR}/install/GAUDI
+    rm -fr ${BUILDDIR}/src/AthDerivationExternals ${BUILDDIR}/src/GAUDI
+    rm -fr ${BUILDDIR}/build/AthDerivationExternals ${BUILDDIR}/build/GAUDI
 fi
 
 # Create some directories:
@@ -115,26 +115,27 @@ if [ "$CI" = "1" ]; then
     RPMOPTIONS=
 fi
 
-# Read in the tag/branch to use for AthenaExternals:
-AthenaExternalsVersion=$(awk '/^AthenaExternalsVersion/{print $3}' ${thisdir}/externals.txt)
+# Read in the tag/branch to use for AthDerivationExternals:
+AthDerivationExternalsVersion=$(awk '/^AthDerivationExternalsVersion/{print $3}' ${thisdir}/externals.txt)
 
-# Check out AthenaExternals from the right branch/tag:
+# Check out AthDerivationExternals from the right branch/tag:
 ${scriptsdir}/checkout_atlasexternals.sh \
-    -t ${AthenaExternalsVersion} \
-    -s ${BUILDDIR}/src/AthenaExternals
+    -e https://:@gitlab.cern.ch:8443/akraszna/atlasexternals.git \
+    -t ${AthDerivationExternalsVersion} \
+    -s ${BUILDDIR}/src/AthDerivationExternals
 
-# Build AthenaExternals:
-export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthenaExternals
+# Build AthDerivationExternals:
+export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthDerivationExternals
 ${scriptsdir}/build_atlasexternals.sh \
-    -s ${BUILDDIR}/src/AthenaExternals \
-    -b ${BUILDDIR}/build/AthenaExternals \
-    -i ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION} \
-    -p AthenaExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
+    -s ${BUILDDIR}/src/AthDerivationExternals \
+    -b ${BUILDDIR}/build/AthDerivationExternals \
+    -i ${BUILDDIR}/install/AthDerivationExternals/${NICOS_PROJECT_VERSION} \
+    -p AthDerivationExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
     -v ${NICOS_PROJECT_VERSION}
 
-# Get the "platform name" from the directory created by the AthenaExternals
+# Get the "platform name" from the directory created by the AthDerivationExternals
 # build:
-platform=$(cd ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION}/InstallArea;ls)
+platform=$(cd ${BUILDDIR}/install/AthDerivationExternals/${NICOS_PROJECT_VERSION}/InstallArea;ls)
 
 # Read in the tag/branch to use for Gaudi:
 GaudiVersion=$(awk '/^GaudiVersion/{print $3}' ${thisdir}/externals.txt)
@@ -150,5 +151,5 @@ ${scriptsdir}/build_Gaudi.sh \
     -s ${BUILDDIR}/src/GAUDI \
     -b ${BUILDDIR}/build/GAUDI \
     -i ${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION} \
-    -e ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION}/InstallArea/${platform} \
-    -p AthenaExternals -f ${platform} ${RPMOPTIONS} -t ${BUILDTYPE}
+    -e ${BUILDDIR}/install/AthDerivationExternals/${NICOS_PROJECT_VERSION}/InstallArea/${platform} \
+    -p AthDerivationExternals -f ${platform} ${RPMOPTIONS} -t ${BUILDTYPE}

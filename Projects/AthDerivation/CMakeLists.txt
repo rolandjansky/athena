@@ -15,15 +15,11 @@ set( TDAQ-COMMON_VERSION "02-02-00" )
 set( TDAQ-COMMON_ROOT
    "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}" )
 
-set( DQM-COMMON_VERSION "01-02-00" )
-set( DQM-COMMON_ROOT
-   "$ENV{TDAQ_RELEASE_BASE}/dqm-common/dqm-common-${DQM-COMMON_VERSION}" )
-
 # Find the ATLAS CMake code:
 find_package( AtlasCMake QUIET )
 
 # Find the base project(s):
-find_package( AthenaExternals REQUIRED )
+find_package( AthDerivationExternals REQUIRED )
 find_package( Gaudi REQUIRED )
 
 # Disable the usage of the --no-undefined linker flag:
@@ -34,7 +30,7 @@ atlas_ctest_setup()
 
 # Declare project name and version
 atlas_project( AthDerivation ${ATHDERIVATION_PROJECT_VERSION}
-   USE AthenaExternals 0.0.1
+   USE AthDerivationExternals 0.0.1
    PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../
    FORTRAN )
 
@@ -67,10 +63,6 @@ string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
    TDAQ-COMMON_ROOT "${TDAQ-COMMON_ROOT}" )
 string( REPLACE "${TDAQ-COMMON_VERSION}" "\${TDAQ-COMMON_VERSION}"
    TDAQ-COMMON_ROOT "${TDAQ-COMMON_ROOT}" )
-string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
-   DQM-COMMON_ROOT "${DQM-COMMON_ROOT}" )
-string( REPLACE "${DQM-COMMON_VERSION}" "\${DQM-COMMON_VERSION}"
-   DQM-COMMON_ROOT "${DQM-COMMON_ROOT}" )
 configure_file( ${CMAKE_SOURCE_DIR}/PostConfig.cmake.in
    ${CMAKE_BINARY_DIR}/PostConfig.cmake @ONLY )
 install( FILES ${CMAKE_BINARY_DIR}/PostConfig.cmake

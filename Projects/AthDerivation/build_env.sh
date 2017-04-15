@@ -18,14 +18,14 @@ env_setup() {
     # possibly other Bourne shells
     if [ "x${BASH_SOURCE[0]}" = "x" ]; then
     # This trick should do the right thing under ZSH:
-	thisdir=$(dirname `print -P %x`)
-	if [ $? != 0 ]; then
+        thisdir=$(dirname `print -P %x`)
+        if [ $? != 0 ]; then
             echo "ERROR: This script must be sourced from BASH or ZSH"
             return 1
-	fi
+        fi
     else
     # The BASH solution is a bit more straight forward:
-	thisdir=$(dirname ${BASH_SOURCE[0]})
+        thisdir=$(dirname ${BASH_SOURCE[0]})
     fi
     AthDerivationSrcDir=$(cd ${thisdir};pwd)
 
@@ -37,7 +37,7 @@ env_setup() {
 
     # Check if the user specified any source/build directories:
     if [ "$BUILDDIR" = "" ]; then
-	BUILDDIR=${AthDerivationSrcDir}/../../../build
+        BUILDDIR=${AthDerivationSrcDir}/../../../build
     fi
 
     # Set up the environment for the build:
@@ -50,15 +50,15 @@ env_setup() {
     source ${scriptsdir}/LCG_RELEASE_BASE.sh
     source ${scriptsdir}/TDAQ_RELEASE_BASE.sh
 
-    # Set up the AthenaExternals project:
-    extDir=${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION}/InstallArea
+    # Set up the AthDerivationExternals project:
+    extDir=${BUILDDIR}/install/AthDerivationExternals/${NICOS_PROJECT_VERSION}/InstallArea
     if [ ! -d ${extDir} ]; then
-	echo "Didn't find the AthenaExternals project under ${extDir}"
+        echo "Didn't find the AthDerivationExternals project under ${extDir}"
     fi
-    echo "Setting up AthenaExternals from: ${extDir}"
+    echo "Setting up AthDerivationExternals from: ${extDir}"
     source ${extDir}/*/setup.sh
 
-    # Get the "platform name" from the directory created by the AthenaExternals
+    # Get the "platform name" from the directory created by the AthDerivationExternals
     # build:
     platform=$(cd ${extDir};ls)
 
@@ -80,19 +80,19 @@ while getopts "b:h" opt; do
         b)
             BUILDDIR=$OPTARG
             ;;
-	h)
-	    env_usage
-	    ABORT=1
-	    ;;
+        h)
+            env_usage
+            ABORT=1
+            ;;
         :)
             echo "Argument -$OPTARG requires a parameter!"
             env_usage
-	    ABORT=1
+            ABORT=1
             ;;
         ?)
             echo "Unknown argument: -$OPTARG"
             env_usage
-	    ABORT=1
+            ABORT=1
             ;;
     esac
 done

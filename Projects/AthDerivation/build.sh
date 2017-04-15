@@ -112,9 +112,13 @@ if [ "$NIGHTLY" = true ]; then
     set +e
 fi
 
-# make:
+# Build the project:
 if [ -n "$EXE_MAKE" ]; then
-    time make -k 2>&1 | tee cmake_build.log
+    EXTRAOPT=
+    if [ -n "$NIGHTLY" ]; then
+        EXTRAOPT=-k
+    fi
+    time make ${EXTRAOPT} 2>&1 | tee cmake_build.log
 fi
 
 # Install the results:
