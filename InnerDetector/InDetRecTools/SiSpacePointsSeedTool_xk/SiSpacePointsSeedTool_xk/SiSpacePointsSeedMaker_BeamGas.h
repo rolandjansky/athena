@@ -147,8 +147,8 @@ namespace InDet {
       float                       m_dzdrmax                       ;
       float                       m_zmin                          ;
       float                       m_zmax                          ;
-      float                       r_rmax                          ;
-      float                       r_rstep                         ;
+      float                       m_r_rmax                        ;
+      float                       m_r_rstep                       ;
       float                       m_dzver                         ;
       float                       m_dzdrver                       ;
       float                       m_diver                         ;
@@ -160,24 +160,24 @@ namespace InDet {
       float                       m_COF                           ;
       float                       m_K                             ;
 
-      int r_size                                                  ;
-      int rf_size                                                 ;
-      int rfz_size                                                ;
-      std::list<InDet::SiSpacePointForSeed*>* r_Sorted            ;
-      std::list<InDet::SiSpacePointForSeed*>  rf_Sorted  [    53] ; 
-      std::list<InDet::SiSpacePointForSeed*>  rfz_Sorted [   583] ;
-      std::list<InDet::SiSpacePointForSeed*>  l_spforseed         ;
-      std::list<InDet::SiSpacePointForSeed*>::iterator i_spforseed; 
+      int m_r_size                                                ;
+      int m_rf_size                                               ;
+      int m_rfz_size                                              ;
+      std::list<InDet::SiSpacePointForSeed*>* m_r_Sorted          ;
+      std::list<InDet::SiSpacePointForSeed*>  m_rf_Sorted  [    53] ; 
+      std::list<InDet::SiSpacePointForSeed*>  m_rfz_Sorted [   583] ;
+      std::list<InDet::SiSpacePointForSeed*>  m_l_spforseed       ;
+      std::list<InDet::SiSpacePointForSeed*>::iterator m_i_spforseed; 
       std::list<InDet::SiSpacePointForSeed*>::iterator m_rMin     ;
 
       int m_ns,m_nsaz                                             ;
       int m_fNmax                                                 ;
       int m_fNmin                                                 ;
       int m_zMin                                                  ;
-      int  m_nr     ; int* r_index   ; int* r_map                 ;
-      int  m_nrf    , rf_index   [ 53], rf_map   [ 53]            ;
-      int  m_nrfz   , rfz_index  [583], rfz_map  [583]            ;
-      int rfz_b[583],rfz_t[593],rfz_ib[583][12],rfz_it[583][12]   ;
+      int  m_nr     ; int* m_r_index   ; int* m_r_map             ;
+      int  m_nrf    , m_rf_index   [ 53], m_rf_map   [ 53]        ;
+      int  m_nrfz   , m_rfz_index  [583], m_rfz_map  [583]        ;
+      int m_rfz_b[583],m_rfz_t[593],m_rfz_ib[583][12],m_rfz_it[583][12]   ;
       float m_sF                                                  ;
 
       ///////////////////////////////////////////////////////////////////
@@ -193,9 +193,9 @@ namespace InDet {
       float               *  m_V                                  ;
       float               *  m_Zo                                 ; 
 
-      std::list<InDet::SiSpacePointsSeed*>           l_seeds      ;
-      std::list<InDet::SiSpacePointsSeed*>::iterator i_seed       ; 
-      std::list<InDet::SiSpacePointsSeed*>::iterator i_seede      ;
+      std::list<InDet::SiSpacePointsSeed*>           m_l_seeds    ;
+      std::list<InDet::SiSpacePointsSeed*>::iterator m_i_seed     ; 
+      std::list<InDet::SiSpacePointsSeed*>::iterator m_i_seede    ;
 
       std::multimap<float,InDet::SiSpacePointsSeed*> m_mapOneSeeds;
       InDet::SiSpacePointsSeed*                      m_OneSeeds   ;
@@ -272,10 +272,10 @@ namespace InDet {
 
   inline const SiSpacePointsSeed* SiSpacePointsSeedMaker_BeamGas::next()
     {
-      if(i_seed==i_seede) {
-	findNext(); if(i_seed==i_seede) return 0;
+      if(m_i_seed==m_i_seede) {
+	findNext(); if(m_i_seed==m_i_seede) return 0;
       } 
-      return(*i_seed++);
+      return(*m_i_seed++);
     }
     
   inline bool SiSpacePointsSeedMaker_BeamGas::isZCompatible  
@@ -295,12 +295,12 @@ namespace InDet {
 
       float r[3]; convertToBeamFrameWork(sp,r);
 
-      if(i_spforseed!=l_spforseed.end()) {
-	sps = (*i_spforseed++); sps->set(sp,r); 
+      if(m_i_spforseed!=m_l_spforseed.end()) {
+	sps = (*m_i_spforseed++); sps->set(sp,r); 
       }
       else                               {
-	l_spforseed.push_back((sps=new SiSpacePointForSeed(sp,r)));
-	i_spforseed = l_spforseed.end();	
+	m_l_spforseed.push_back((sps=new SiSpacePointForSeed(sp,r)));
+	m_i_spforseed = m_l_spforseed.end();	
       }
       
       return sps;
@@ -314,16 +314,16 @@ namespace InDet {
       (const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
        const float& z) 
     {
-      if(i_seede!=l_seeds.end()) {
-	SiSpacePointsSeed* s = (*i_seede++);
+      if(m_i_seede!=m_l_seeds.end()) {
+	SiSpacePointsSeed* s = (*m_i_seede++);
 	s->erase     (  ); 
 	s->add       (p1); 
 	s->add       (p2); 
 	s->setZVertex(double(z));
       }
       else                  {
-	l_seeds.push_back(new SiSpacePointsSeed(p1,p2,z));
-	i_seede = l_seeds.end(); 
+	m_l_seeds.push_back(new SiSpacePointsSeed(p1,p2,z));
+	m_i_seede = m_l_seeds.end(); 
       }
     }
 
@@ -335,8 +335,8 @@ namespace InDet {
       (const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
        const Trk::SpacePoint*& p3,const float& z) 
     {
-      if(i_seede!=l_seeds.end()) {
-	SiSpacePointsSeed* s = (*i_seede++);
+      if(m_i_seede!=m_l_seeds.end()) {
+	SiSpacePointsSeed* s = (*m_i_seede++);
 	s->erase     (  ); 
 	s->add       (p1); 
 	s->add       (p2); 
@@ -344,8 +344,8 @@ namespace InDet {
 	s->setZVertex(double(z));
       }
       else                  {
-	l_seeds.push_back(new SiSpacePointsSeed(p1,p2,p3,z));
-	i_seede = l_seeds.end(); 
+	m_l_seeds.push_back(new SiSpacePointsSeed(p1,p2,p3,z));
+	m_i_seede = m_l_seeds.end(); 
       }
     }
 
@@ -361,13 +361,13 @@ namespace InDet {
 
       for(; l!=le; ++l) {
 
-	if(i_seede!=l_seeds.end()) {
-	  SiSpacePointsSeed* s = (*i_seede++);
+	if(m_i_seede!=m_l_seeds.end()) {
+	  SiSpacePointsSeed* s = (*m_i_seede++);
 	  *s = *(*l).second;
 	}
 	else                  {
-	  l_seeds.push_back(new SiSpacePointsSeed(*(*l).second));
-	  i_seede = l_seeds.end(); 
+	  m_l_seeds.push_back(new SiSpacePointsSeed(*(*l).second));
+	  m_i_seede = m_l_seeds.end(); 
 	}
       }
     }
