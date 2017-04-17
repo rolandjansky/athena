@@ -75,23 +75,23 @@ StatusCode InDet::SCT_ClusterOnTrackTool::initialize()
     case  2:  msg(MSG::INFO)<< "assign tuned, angle-dependent SCT errors"; break;
     default:  msg(MSG::INFO)<< " -- NO, UNKNOWN. Pls check jobOptions!"; break;
   }
-  msg(MSG::INFO)<< " will be applied during SCT_ClusterOnTrack making" << endreq;
+  msg(MSG::INFO)<< " will be applied during SCT_ClusterOnTrack making" << endmsg;
   if (m_option_correctionStrategy == 0) {
-    msg(MSG::INFO) << "SCT cluster positions will be corrected" << endreq;
+    msg(MSG::INFO) << "SCT cluster positions will be corrected" << endmsg;
   }
 
   if ( m_errorScalingTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_errorScalingTool << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_errorScalingTool << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_errorScalingTool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_errorScalingTool << endmsg;
     m_scaleSctCov   = m_errorScalingTool->needToScaleSct();
-    if (m_scaleSctCov) msg(MSG::DEBUG) << "Detected need for scaling SCT errors." << endreq;
+    if (m_scaleSctCov) msg(MSG::DEBUG) << "Detected need for scaling SCT errors." << endmsg;
   }
 
   //Get ISCT_ModuleDistortionsTool
   if (m_distortionsTool.retrieve().isFailure()) {
-    msg(MSG::FATAL)<< "Could not retrieve distortions tool: " << m_distortionsTool.name() << endreq;
+    msg(MSG::FATAL)<< "Could not retrieve distortions tool: " << m_distortionsTool.name() << endmsg;
     return StatusCode::FAILURE;
   }
 
