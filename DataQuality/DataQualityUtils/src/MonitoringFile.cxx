@@ -77,17 +77,17 @@ bool histOKToMerge(TH1* h) {
 
 MonitoringFile::OutputMetadata::
 OutputMetadata( TTree* metadata )
-	: charArrSize(100)
+	: m_charArrSize(100)
 	, m_metadata(metadata)
 	, m_nameData(0)
 	, m_intervalData(0)
 	, m_chainData(0)
   , m_mergeData(0)
 {
-  m_nameData = new char[charArrSize];
-  m_intervalData = new char[charArrSize];
-  m_chainData = new char[charArrSize];
-  m_mergeData = new char[charArrSize];
+  m_nameData = new char[m_charArrSize];
+  m_intervalData = new char[m_charArrSize];
+  m_chainData = new char[m_charArrSize];
+  m_mergeData = new char[m_charArrSize];
   adjustAddresses( "Name", m_nameData, "Name/C" );
   adjustAddresses( "Interval", m_intervalData, "Interval/C" );
   adjustAddresses( "TriggerChain", m_chainData, "TriggerChain/C" );
@@ -137,9 +137,9 @@ copyString( char* to, const std::string& from )
 {
 	int i = 0;
 	const char* f = from.c_str();
-	while( ++i < charArrSize && (*to++ = *f++) != 0 )
+	while( ++i < m_charArrSize && (*to++ = *f++) != 0 )
 	  ;
-	if( i == charArrSize ) {
+	if( i == m_charArrSize ) {
 		*to = 0;
 	}
 }
@@ -2142,7 +2142,7 @@ int MonitoringFile::mergeLB_processLBinterval(std::vector<TDirectory*>& v_dirsSt
    return 0;
 }
 
-void MonitoringFile::buildLBToIntervalMap(std::vector<TDirectory*>& v_dirLBs, std::vector<TDirectory*>& v_dirsInterval, map_dir_vdir& m_mapping, debugLevel_t& debugLevel) {
+void MonitoringFile::buildLBToIntervalMap(std::vector<TDirectory*>& v_dirLBs, std::vector<TDirectory*>& v_dirsInterval, map_dir_vdir& mapping, debugLevel_t& debugLevel) {
   std::vector<std::string> v_splits;
   typedef std::vector<std::pair<TDirectory*, std::pair<int, int> > > range_t;
   range_t v_ranges;
@@ -2175,7 +2175,7 @@ void MonitoringFile::buildLBToIntervalMap(std::vector<TDirectory*>& v_dirLBs, st
 	 rangeit != v_ranges.end(); ++rangeit) {
       if ((*rangeit).second.first <= lbnum && 
 	  lbnum <= (*rangeit).second.second) {
-	map_dir_vdir::iterator mapit = m_mapping.find((*rangeit).first);
+	map_dir_vdir::iterator mapit = mapping.find((*rangeit).first);
 	(*mapit).second.push_back(*dirit);
       }
     }
@@ -2183,15 +2183,15 @@ void MonitoringFile::buildLBToIntervalMap(std::vector<TDirectory*>& v_dirLBs, st
 }
 
 int MonitoringFile::mergeLB_processLB(std::vector<TDirectory*>& v_dirLBs, std::vector<TDirectory*>& v_dirsInterval, debugLevel_t& debugLevel) {
-  std::map<TDirectory*,std::vector<TDirectory*> > m_mapping;
+  std::map<TDirectory*,std::vector<TDirectory*> > mapping;
   for (std::vector<TDirectory*>::const_iterator dirit = v_dirsInterval.begin();
        dirit != v_dirsInterval.end(); ++dirit) {
-    m_mapping[*dirit] = std::vector<TDirectory*>();
+    mapping[*dirit] = std::vector<TDirectory*>();
   }
-  buildLBToIntervalMap(v_dirLBs, v_dirsInterval, m_mapping, debugLevel);
+  buildLBToIntervalMap(v_dirLBs, v_dirsInterval, mapping, debugLevel);
 
-  for (map_dir_vdir::iterator mapit = m_mapping.begin();
-       mapit != m_mapping.end(); ++mapit) {
+  for (map_dir_vdir::iterator mapit = mapping.begin();
+       mapit != mapping.end(); ++mapit) {
     mergeLB_processLBinterval((*mapit).second, (*mapit).first, debugLevel);
   }
 
