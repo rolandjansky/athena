@@ -585,7 +585,7 @@ void MonitoringFile::MDTChamEff( std::string inFilename, std::string _title_, in
 
 						//std::map<TString,float>::iterator noise_itr = noise_map.find(eta_ring);
 						//std::map<TString,float>::iterator bkgrd_itr = bkgrd_map.find(eta_ring);
-						std::map<TString,int>::iterator nTubes_itr = nTubes_map.find(eta_ring);
+						//std::map<TString,int>::iterator nTubes_itr = nTubes_map.find(eta_ring);
 						/*if( noise_itr == noise_map.end() ) noise_map.insert(std::make_pair(eta_ring,noise_rate));
                          else (*noise_itr).second += noise_rate;
                          if( bkgrd_itr == bkgrd_map.end() ) bkgrd_map.insert(std::make_pair(eta_ring,bkgrd_rate));
