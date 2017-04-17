@@ -442,7 +442,7 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
       //*** correct local Y for clusters on module edge ***
       if (colmin <= 0 || colmax >= (numberOfColumns-1) ) {
         Amg::Vector3D globalPos = element->globalPosition(meanpos);
-        int expectedClusterLength = element->thickness() / design->etaPitch() * fabs(globalPos.z()) / globalPos.perp();
+        int expectedClusterLength = element->thickness() / design->etaPitch() * fabs(globalPos.z()) / globalPos.perp() + 1;
         if( (colWidth >= expectedClusterLength/2.) && (colWidth <= expectedClusterLength) ){
           if (colmin <= 0)  
             meanpos += InDetDD::SiLocalPosition( design->etaPitch()*(colWidth - expectedClusterLength) / 2., 0.);
