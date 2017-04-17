@@ -289,7 +289,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
 (const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT)
 {
 
-  if(!m_pixel && !m_sct) return; erase();
+  if(!m_pixel && !m_sct) return;
+  erase();
   m_i_spforseed = m_l_spforseed.begin();
 
   float irstep = 1./m_r_rstep;
@@ -765,7 +766,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::fillLists()
   
   for(int i=0; i!= m_r_size;  ++i) {
 
-    if(!m_r_map[i]) continue; r = m_r_Sorted[i].begin();
+    if(!m_r_map[i]) continue;
+    r = m_r_Sorted[i].begin();
 
     while(r!=m_r_Sorted[i].end()) {
       
@@ -998,7 +1000,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp
     }
   breakb:
 
-    if(!Nb || Nb==m_maxsizeSP) continue;  int Nt = Nb;
+    if(!Nb || Nb==m_maxsizeSP) continue;
+    int Nt = Nb;
     
     // Top   links production
     //
@@ -1129,7 +1132,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField
     }
   breakb:
 
-    if(!Nb || Nb==m_maxsizeSP) continue;  int Nt = Nb;
+    if(!Nb || Nb==m_maxsizeSP) continue;
+    int Nt = Nb;
     
     // Top   links production
     //

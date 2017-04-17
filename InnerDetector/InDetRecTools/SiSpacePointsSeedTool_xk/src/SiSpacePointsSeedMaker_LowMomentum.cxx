@@ -220,7 +220,8 @@ StatusCode InDet::SiSpacePointsSeedMaker_LowMomentum::finalize()
 void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent (int)
 {
   m_trigger = false;
-  if(!m_pixel && !m_sct) return; erase();
+  if(!m_pixel && !m_sct) return;
+  erase();
   m_i_spforseed   = m_l_spforseed.begin();
   buildBeamFrameWork();
 
@@ -302,7 +303,8 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
 (const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT)
 {
   m_trigger = false;
-  if(!m_pixel && !m_sct) return; erase();
+  if(!m_pixel && !m_sct) return;
+  erase();
   m_i_spforseed = m_l_spforseed.begin();
   buildBeamFrameWork();
 
@@ -494,7 +496,8 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::findVSp (const std::list<Trk::Ve
 
 MsgStream& InDet::SiSpacePointsSeedMaker_LowMomentum::dump( MsgStream& out ) const
 {
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)  return dumpEvent(out);
+  return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -939,7 +942,8 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::fillLists()
   
   for(int i=0; i!= m_r_size;  ++i) {
 
-    if(!m_r_map[i]) continue; r = m_r_Sorted[i].begin();
+    if(!m_r_map[i]) continue;
+    r = m_r_Sorted[i].begin();
 
     while(r!=m_r_Sorted[i].end()) {
       
@@ -1032,7 +1036,8 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp()
     for(; z!=11; ++z) {
 
 
-      int a  = f *11+ZI[z];  if(!m_rfz_map[a]) continue;
+      int a  = f *11+ZI[z];
+      if(!m_rfz_map[a]) continue;
       int NB = 0, NT = 0;
       for(int i=0; i!=m_rfz_b[a]; ++i) {
 	
@@ -1116,7 +1121,8 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
       }
     }
   breakb:
-    if(!Nb || Nb==m_maxsizeSP) continue;  int Nt = Nb;
+    if(!Nb || Nb==m_maxsizeSP) continue;
+    int Nt = Nb;
     
     // Top   links production
     //
