@@ -21,6 +21,7 @@
 #include "CoolKernel/Exception.h"
 #include "CoolKernel/IDatabaseSvc.h"
 #include "CoolKernel/StorageType.h"
+#include "CoolKernel/ConstRecordAdapter.h"
 
 #include <sstream>
 #include <fstream>
