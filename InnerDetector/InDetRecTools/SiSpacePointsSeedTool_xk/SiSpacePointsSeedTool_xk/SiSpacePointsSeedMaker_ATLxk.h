@@ -264,7 +264,7 @@ namespace InDet {
       void buildBeamFrameWork()                                   ;
 
       SiSpacePointForSeed* newSpacePoint
-	(Trk::SpacePoint*const&)                                  ;
+	(const Trk::SpacePoint*const&)                            ;
       void newSeed
       (SiSpacePointForSeed*&,SiSpacePointForSeed*&,float)         ; 
 
@@ -296,7 +296,7 @@ namespace InDet {
       bool newVertices(const std::list<Trk::Vertex>&)             ;
       void findNext()                                             ;
       bool isZCompatible     (float&,float&,float&)               ;
-      void convertToBeamFrameWork(Trk::SpacePoint*const&,float*)  ;
+      void convertToBeamFrameWork(const Trk::SpacePoint*const&,float*)  ;
       bool isUsed(const Trk::SpacePoint*); 
    };
 
@@ -344,7 +344,7 @@ namespace InDet {
   ///////////////////////////////////////////////////////////////////
 
   inline SiSpacePointForSeed* SiSpacePointsSeedMaker_ATLxk::newSpacePoint
-    (Trk::SpacePoint*const& sp) 
+    (const Trk::SpacePoint*const& sp) 
     {
       SiSpacePointForSeed* sps;
 

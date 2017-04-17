@@ -207,9 +207,9 @@ namespace InDet {
       void buildFrameWork()                                       ;
 
       SiSpacePointForSeed* newSpacePoint
-	(Trk::SpacePoint*const&)                                  ;
+	(const Trk::SpacePoint*const&)                            ;
       SiSpacePointForSeed* newSpacePoint
-	(Trk::SpacePoint*const&,const float*)                     ;
+	(const Trk::SpacePoint*const&,const float*)               ;
       void newSeed
       (const Trk::SpacePoint*&,const Trk::SpacePoint*&,
        const float&)                                              ;
@@ -259,7 +259,7 @@ namespace InDet {
   ///////////////////////////////////////////////////////////////////
 
   inline SiSpacePointForSeed* SiSpacePointsSeedMaker_Cosmic::newSpacePoint
-    (Trk::SpacePoint*const& sp) 
+    (const Trk::SpacePoint*const& sp) 
     {
       SiSpacePointForSeed* sps;
 
@@ -283,7 +283,7 @@ namespace InDet {
   ///////////////////////////////////////////////////////////////////
 
   inline SiSpacePointForSeed* SiSpacePointsSeedMaker_Cosmic::newSpacePoint
-    (Trk::SpacePoint*const& sp,const float* sc) 
+    (const Trk::SpacePoint*const& sp,const float* sc) 
     {
       SiSpacePointForSeed* sps;
 

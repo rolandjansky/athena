@@ -1149,7 +1149,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildBeamFrameWork()
 // Initiate beam frame work for seed generator
 ///////////////////////////////////////////////////////////////////
 void  InDet::SiSpacePointsSeedMaker_ITK::convertToBeamFrameWork
-(Trk::SpacePoint*const& sp,float* r) 
+(const  Trk::SpacePoint*const& sp,float* r)
 {
   
   r[0] = float(sp->globalPosition().x())-m_xbeam[0];

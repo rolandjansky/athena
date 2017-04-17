@@ -903,7 +903,7 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::buildBeamFrameWork()
 ///////////////////////////////////////////////////////////////////
 
 void  InDet::SiSpacePointsSeedMaker_BeamGas::convertToBeamFrameWork
-(Trk::SpacePoint*const& sp,float* r) 
+(const Trk::SpacePoint*const& sp,float* r) 
 {
   
   float x = float(sp->globalPosition().x())-m_xbeam[0];

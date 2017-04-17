@@ -241,7 +241,7 @@ namespace InDet {
       void buildBeamFrameWork()                                   ;
 
       SiSpacePointForSeed* newSpacePoint
-	(Trk::SpacePoint*const&)                                  ;
+	(const Trk::SpacePoint*const&)                            ;
       void newSeed
       (const Trk::SpacePoint*&,const Trk::SpacePoint*&,
        const float&)                                              ; 
@@ -271,7 +271,7 @@ namespace InDet {
       bool newVertices(const std::list<Trk::Vertex>&)             ;
       void findNext()                                             ;
       bool isZCompatible     (float&,float&,float&)               ;
-      void convertToBeamFrameWork(Trk::SpacePoint*const&,float*)  ;
+      void convertToBeamFrameWork(const Trk::SpacePoint*const&,float*)  ;
       float dZVertexMin(float&)                                   ;
    };
 
@@ -321,7 +321,7 @@ namespace InDet {
   ///////////////////////////////////////////////////////////////////
 
   inline SiSpacePointForSeed* SiSpacePointsSeedMaker_Trigger::newSpacePoint
-    (Trk::SpacePoint*const& sp) 
+    (const Trk::SpacePoint*const& sp) 
     {
       SiSpacePointForSeed* sps;
 

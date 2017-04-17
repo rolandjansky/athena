@@ -974,7 +974,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::buildBeamFrameWork()
 ///////////////////////////////////////////////////////////////////
 
 void  InDet::SiSpacePointsSeedMaker_HeavyIon::convertToBeamFrameWork
-(Trk::SpacePoint*const& sp,float* r) 
+(const Trk::SpacePoint*const& sp,float* r) 
 {
   r[0] = float(sp->globalPosition().x())-m_xbeam[0];
   r[1] = float(sp->globalPosition().y())-m_ybeam[0];
