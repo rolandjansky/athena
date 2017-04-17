@@ -13,7 +13,6 @@
 
 #include "PixelProcessorTool.h"
 
-#include "TimeSvc.h"
 #include "PixelConditionsServices/IPixelCalibSvc.h"
 
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
@@ -33,8 +32,8 @@ class PixelNoisyCellGenerator:public PixelProcessorTool {
   private:
     PixelNoisyCellGenerator();
 
-    ServiceHandle<TimeSvc> m_TimeSvc;
     ServiceHandle<IPixelCalibSvc> m_pixelCalibSvc;
+    double m_timeBCN;
     bool                 m_mergeCharge;
     std::vector<double>  m_noiseShape;
     void addRandomNoise(SiChargedDiodeCollection &collection, double occupancy) const;
