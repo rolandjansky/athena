@@ -937,7 +937,12 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::fillLists()
       //
       float F = (*r)->phi(); if(F<0.) F+=pi2;
 
-      int   f = int(F*m_sF); f<0 ? f = m_fNmax : f>m_fNmax ? f = 0 : f=f;
+      int   f = int(F*m_sF);
+      if (f < 0)
+        f = m_fNmax;
+      else if (f > m_fNmax)
+        f = 0;
+
       m_rf_Sorted[f].push_back(*r); if(!m_rf_map[f]++) m_rf_index[m_nrf++] = f;
 
       int z; float Z = (*r)->z();

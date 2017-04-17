@@ -1222,7 +1222,11 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillLists()
       //
       float F = (*r)->phi(); if(F<0.) F+=pi2;
 
-      int   f = int(F*m_sF); f<0 ? f = m_fNmax : f>m_fNmax ? f = 0 : f=f;
+      int   f = int(F*m_sF);
+      if (f < 0)
+        f = m_fNmax;
+      else if (f > m_fNmax)
+        f = 0;
 
       int z; float Z = (*r)->z();
 
@@ -1241,10 +1245,15 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillLists()
       if(!m_iteration && (*r)->spacepoint->clusterList().second == 0 && z>=3 && z<=7) { 
 	z<=4 ? z=0 : z>=6 ? z=2 : z=1;
 
-	// Azimutla angle and Z-coordinate sort for fast vertex search
+	// Azimuthal angle and Z-coordinate sort for fast vertex search
 	//
-	f = int(F*m_sFv); f<0 ? f+=m_fvNmax : f> m_fvNmax ? f-=m_fvNmax : f=f;
-	n = f*3+z; ++m_nsazv;
+	f = int(F*m_sFv);
+        if (f < 0)
+          f += m_fvNmax;
+        else if (f> m_fvNmax)
+          f -= m_fvNmax;
+
+        n = f*3+z; ++m_nsazv;
 	m_rfzv_Sorted[n].push_back(*r); if(!m_rfzv_map[n]++) m_rfzv_index[m_nrfzv++] = n;
       }
     }

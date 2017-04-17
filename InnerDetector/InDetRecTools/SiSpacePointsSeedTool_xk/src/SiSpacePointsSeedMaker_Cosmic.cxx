@@ -775,8 +775,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::fillLists()
       //
       float F = (*r)->phi(); if(F<0.) F+=pi2;
 
-      int   f = int(F*m_sF); f<0 ? f = m_fNmax : f>m_fNmax ? f = 0 : f=f;
-      f = 1;
+      //int   f = int(F*m_sF); f<0 ? f = m_fNmax : f>m_fNmax ? f = 0 : f=f;
+      int f = 1;
       m_rf_Sorted[f].push_back(*r); if(!m_rf_map[f]++) m_rf_index[m_nrf++] = f;
 
       int z; float Z = (*r)->z();
