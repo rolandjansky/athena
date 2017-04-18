@@ -75,9 +75,6 @@ class EvtRangeProcessor : public AthenaMPToolBase
   std::deque<pid_t>                 m_finQueue;         // PIDs of processes queued for finalization
   std::set<pid_t>                   m_execSet;          // PIDs of processes currently in EXEC
 
-  yampl::ISocketFactory*            m_socketFactory;
-  yampl::ISocket*                   m_socket2Scatterer;
-
   bool m_debug;
 };
 

@@ -53,8 +53,6 @@ EvtRangeProcessor::EvtRangeProcessor(const std::string& type
   , m_channel2EvtSel("")
   , m_sharedRankQueue(0)
   , m_sharedFailedPidQueue(0)
-  , m_socketFactory(0)
-  , m_socket2Scatterer(0)
   , m_debug(false)
 {
   declareInterface<IAthenaMPTool>(this);
