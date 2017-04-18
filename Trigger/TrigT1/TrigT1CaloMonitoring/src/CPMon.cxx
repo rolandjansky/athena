@@ -229,7 +229,7 @@ StatusCode CPMon::bookHistogramsRecurrent()
 
   MgmtAttr_t attr = ATTRIB_UNMANAGED;
 
-  if ( newRun ) {
+  if ( newRunFlag() ) {
 
     std::string errorDir(m_rootDir + "/Errors/Hardware");
 

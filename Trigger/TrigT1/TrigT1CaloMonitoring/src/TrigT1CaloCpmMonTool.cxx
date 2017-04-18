@@ -186,7 +186,7 @@ StatusCode TrigT1CaloCpmMonTool::bookHistogramsRecurrent()
 
   //if ( newLumiBlock ) { }
 
-  if ( newRun ) {
+  if ( newRunFlag() ) {
 
   MgmtAttr_t attr = ATTRIB_UNMANAGED;
   std::string dir1(m_rootDir + "/CPM");
