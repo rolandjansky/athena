@@ -51,7 +51,7 @@ topSequence += AthExThinning__CreateData(
 # Pool Persistency
 #---------------------------------------------------------------
 import AthenaPoolCnvSvc.WriteAthenaPool as wap
-outStream = wap.AthenaPoolOutputStream("StreamUSR")
+outStream = wap.AthenaPoolOutputStream("StreamUSR", noTag=True)
 outStream.ItemList  = [ "EventInfo#*"]
 outStream.ItemList += [ "AthExParticles#*" ]
 outStream.ItemList += [ "AthExDecay#*" ]
