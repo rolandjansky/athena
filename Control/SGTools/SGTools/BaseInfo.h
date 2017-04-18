@@ -873,6 +873,9 @@ public:
   static const BaseInfoBase& baseinfo ();
 
 
+  static void maybeInit ();
+
+
 private:
   /// Return a reference to the (singleton) implementation object
   /// for this class.

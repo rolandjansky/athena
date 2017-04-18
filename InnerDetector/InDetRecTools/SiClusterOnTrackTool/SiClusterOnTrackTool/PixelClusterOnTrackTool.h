@@ -37,7 +37,7 @@ class IPixelOfflineCalibSvc;
 class IModuleDistortionsTool;
 class IIncidentSvc;
 class StoreGateSvc;
-class IBLParameterSvc;
+class IIBLParameterSvc;
 
 namespace InDet {
 
@@ -182,7 +182,7 @@ public:
   ToolHandle<NnClusterizationFactory>                   m_NnClusterizationFactory;
   ServiceHandle<StoreGateSvc>                           m_storeGate;            //!< Event store
   ServiceHandle<IIncidentSvc>                           m_incidentSvc;          //!< IncidentSvc to catch begin of event and end of envent
-  ServiceHandle<IBLParameterSvc>                        m_IBLParameterSvc;
+  ServiceHandle<IIBLParameterSvc>                        m_IBLParameterSvc;
   mutable const InDet::PixelGangedClusterAmbiguities*   m_splitClusterMap;      //!< the actual split map         
   std::string                                           m_splitClusterMapName;  //!< split cluster ambiguity map
   mutable const InDet::DRMap*                           m_dRMap;      //!< the actual dR map         
