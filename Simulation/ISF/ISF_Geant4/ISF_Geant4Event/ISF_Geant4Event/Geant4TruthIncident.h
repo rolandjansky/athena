@@ -1,6 +1,6 @@
-///////////////////////////////////////////////////////////////////
-// Geant4TruthIncident.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef ISF_GEANT4TOOLS_Geant4TruthIncident_H
 #define ISF_GEANT4TOOLS_Geant4TruthIncident_H
