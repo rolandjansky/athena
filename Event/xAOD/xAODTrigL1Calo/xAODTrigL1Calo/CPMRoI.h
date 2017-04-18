@@ -5,6 +5,9 @@
 #ifndef XAODTRIGL1CALO_CPMROI_H
 #define XAODTRIGL1CALO_CPMROI_H
 
+// System include(s):
+#include <map>
+
 // Local include(s):
 #include "xAODTrigL1Calo/versions/CPMRoI_v1.h"
 
