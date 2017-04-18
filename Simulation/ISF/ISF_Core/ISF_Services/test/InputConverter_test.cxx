@@ -226,7 +226,7 @@ TEST_F(InputConverter_test, convertParticle_using_generated_mass) {
   Amg::Vector3D expectedPos(9.8, 7.65, 4.3);
   Amg::Vector3D expectedMom(12.3, 45.6, 78.9);
   ISF::DetRegionSvcIDPair expectedHistory(AtlasDetDescr::fUndefinedAtlasRegion, ISF::fEventGeneratorSimID);
-  auto expectedTruthBinding = new ISF::TruthBinding(genPart);
+  auto* expectedTruthBinding = new ISF::TruthBinding(genPart);
   ISF::ISFParticle expected(expectedPos,
                             expectedMom,
                             1234.56,
@@ -245,6 +245,8 @@ TEST_F(InputConverter_test, convertParticle_using_generated_mass) {
   ASSERT_TRUE( returned );
 
   ASSERT_EQ( expected, *returned );
+
+  delete returned;
 }
 
 
@@ -270,7 +272,7 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_photon) {
   Amg::Vector3D expectedPos(9.8, 7.65, 4.3);
   Amg::Vector3D expectedMom(12.3, 45.6, 78.9);
   ISF::DetRegionSvcIDPair expectedHistory(AtlasDetDescr::fUndefinedAtlasRegion, ISF::fEventGeneratorSimID);
-  auto expectedTruthBinding = new ISF::TruthBinding(genPart);
+  auto* expectedTruthBinding = new ISF::TruthBinding(genPart);
   ISF::ISFParticle expected(expectedPos,
                             expectedMom,
                             0., // mass from ParticleDataTable
@@ -289,6 +291,8 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_photon) {
   ASSERT_TRUE( returned );
 
   ASSERT_EQ( expected, *returned );
+
+  delete returned;
 }
 
 
@@ -314,7 +318,7 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_electron) {
   Amg::Vector3D expectedPos(9.8, 7.65, 4.3);
   Amg::Vector3D expectedMom(12.3, 45.6, 78.9);
   ISF::DetRegionSvcIDPair expectedHistory(AtlasDetDescr::fUndefinedAtlasRegion, ISF::fEventGeneratorSimID);
-  auto expectedTruthBinding = new ISF::TruthBinding(genPart);
+  auto* expectedTruthBinding = new ISF::TruthBinding(genPart);
   ISF::ISFParticle expected(expectedPos,
                             expectedMom,
                             0.51099891/Gaudi::Units::MeV, // from particle
@@ -330,10 +334,11 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_electron) {
   int bcid = 11;
   // call the InputConverter's private method
   ISF::ISFParticle* returned = convertParticle(genPart, bcid);
-  std::cout << " EMASS=" << std::setprecision(20) << returned->mass() << std::endl;
   ASSERT_TRUE( returned );
 
   ASSERT_EQ( expected, *returned );
+
+  delete returned;
 }
 
 
