@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef __TRIG_TRACK_SEED_GENERATOR_H__
 #define __TRIG_TRACK_SEED_GENERATOR_H__
 
