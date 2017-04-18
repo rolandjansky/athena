@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "ISF_Geant4Event/ISFG4GeoHelper.h"
 
 // Athena includes
