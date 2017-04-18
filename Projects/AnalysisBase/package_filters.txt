@@ -1,49 +1,89 @@
-# Package filtering rules for the AnalysisBase project build.
-+AtlasTest/TestTools
-+Calorimeter/CaloGeoHelpers
-#+Control/AthContainers
-#+Control/AthContainersInterfaces
-#+Control/AthLinks
-#+Control/AthToolSupport/AsgExampleTools
-#+Control/AthToolSupport/AsgTools
-+Control/CxxUtils
-#+Control/xAODRootAccess
-+Control/xAODRootAccessInterfaces
-+DetectorDescription/GeoPrimitives
-+Event/EventPrimitives
-#+Event/xAOD/xAODAssociations
-#+Event/xAOD/xAODBPhys
-#+Event/xAOD/xAODBTagging
-#+Event/xAOD/xAODBase
-#+Event/xAOD/xAODCaloEvent
-#+Event/xAOD/xAODCore
-#+Event/xAOD/xAODCutFlow
-#+Event/xAOD/xAODEgamma
-#+Event/xAOD/xAODEventFormat
-#+Event/xAOD/xAODEventInfo
-#+Event/xAOD/xAODEventShape
-#+Event/xAOD/xAODHIEvent
-#+Event/xAOD/xAODJet
-#+Event/xAOD/xAODLuminosity
-#+Event/xAOD/xAODMetaData
-#+Event/xAOD/xAODMetaDataCnv
-#+Event/xAOD/xAODMissingET
-#+Event/xAOD/xAODMuon
-#+Event/xAOD/xAODParticleEvent
-#+Event/xAOD/xAODPFlow
-#+Event/xAOD/xAODPrimitives
-#+Event/xAOD/xAODTau
-#+Event/xAOD/xAODTracking
-#+Event/xAOD/xAODTrigBphys
-#+Event/xAOD/xAODTrigCalo
-#+Event/xAOD/xAODTrigEgamma
-#+Event/xAOD/xAODTrigL1Calo
-#+Event/xAOD/xAODTrigMissingET
-#+Event/xAOD/xAODTrigMinBias
-#+Event/xAOD/xAODTrigMuon
-#+Event/xAOD/xAODTrigger
-#+Event/xAOD/xAODTriggerCnv
-#+Event/xAOD/xAODTrigRinger
-#+Event/xAOD/xAODTruth
-#+MuonSpectrometer/MuonIdHelpers
--.*
+#
+# Packages to build as part of AnalysisBase:
+#
++ AsgExternal/Asg_Test
++ AtlasTest/TestTools
++ Calorimeter/CaloGeoHelpers
++ Control/AthContainersInterfaces
++ Control/AthContainers
++ Control/AthLinksSA
++ Control/AthToolSupport/.*
++ Control/CxxUtils
++ Control/xAODRootAccess.*
++ DataQuality/GoodRunsLists
++ DetectorDescription/GeoPrimitives
++ DetectorDescription/IRegionSelector
++ DetectorDescription/RoiDescriptor
++ Event/EventPrimitives
++ Event/FourMomUtils
+- Event/xAOD/.*AthenaPool
++ Event/xAOD/xAODMetaDataCnv
++ Event/xAOD/xAODTriggerCnv
+- Event/xAOD/.*Cnv
++ Event/xAOD/.*
++ Generators/TruthUtils
++ InnerDetector/InDetRecTools/InDetTrackSelectionTool
++ InnerDetector/InDetRecTools/TrackVertexAssociationTool
++ MuonSpectrometer/MuonIdHelpers
++ PhysicsAnalysis/AnalysisCommon/AssociationUtils
++ PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
++ PhysicsAnalysis/AnalysisCommon/FsrUtils
++ PhysicsAnalysis/AnalysisCommon/IsolationSelection
++ PhysicsAnalysis/AnalysisCommon/PATCore
++ PhysicsAnalysis/AnalysisCommon/PATInterfaces
++ PhysicsAnalysis/AnalysisCommon/PMGTools
++ PhysicsAnalysis/AnalysisCommon/ParticleJetTools
++ PhysicsAnalysis/AnalysisCommon/PileupReweighting
++ PhysicsAnalysis/AnalysisCommon/ReweightUtils
++ PhysicsAnalysis/D3PDTools/.*
+- PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
++ PhysicsAnalysis/ElectronPhotonID/.*
++ PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
++ PhysicsAnalysis/Interfaces/.*
++ PhysicsAnalysis/JetMissingEtID/JetSelectorTools
++ PhysicsAnalysis/JetPhys/SemileptonicCorr
++ PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface
++ PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
++ PhysicsAnalysis/MCTruthClassifier
++ PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
++ PhysicsAnalysis/MuonID/MuonSelectorTools
++ PhysicsAnalysis/SUSYPhys/SUSYTools
++ PhysicsAnalysis/TauID/DiTauMassTools
++ PhysicsAnalysis/TauID/TauAnalysisTools
++ PhysicsAnalysis/TauID/TauCorrUncert
++ PhysicsAnalysis/TopPhys/QuickAna
++ PhysicsAnalysis/TrackingID/.*
++ Reconstruction/EventShapes/EventShapeInterface
+- Reconstruction/Jet/JetAnalysisTools/JetAnalysisEDM
+- Reconstruction/Jet/JetEvent.*
+- Reconstruction/Jet/JetMonitoring
++ Reconstruction/Jet/JetReclustering
+- Reconstruction/Jet/JetRec.+
+- Reconstruction/Jet/JetSimTools
+- Reconstruction/Jet/JetValidation
++ Reconstruction/Jet/Jet.*
++ Reconstruction/MET/METInterface
++ Reconstruction/MET/METUtilities
++ Reconstruction/MVAUtils
++ Reconstruction/PFlow/PFlowUtils
++ Reconstruction/egamma/egammaLayerRecalibTool
++ Reconstruction/egamma/egammaMVACalib
++ Reconstruction/egamma/egammaRecEvent
++ Reconstruction/tauRecTools
++ Tools/PathResolver
++ Trigger/TrigAnalysis/TrigAnalysisInterfaces
++ Trigger/TrigAnalysis/TrigBunchCrossingTool
++ Trigger/TrigAnalysis/TrigDecisionTool
++ Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
++ Trigger/TrigAnalysis/TriggerMatchingTool
++ Trigger/TrigConfiguration/TrigConfBase
++ Trigger/TrigConfiguration/TrigConfHLTData
++ Trigger/TrigConfiguration/TrigConfInterfaces
++ Trigger/TrigConfiguration/TrigConfL1Data
++ Trigger/TrigConfiguration/TrigConfxAOD
++ Trigger/TrigEvent/TrigDecisionInterface
++ Trigger/TrigEvent/TrigNavStructure
++ Trigger/TrigEvent/TrigRoiConversion
++ Trigger/TrigEvent/TrigSteeringEvent
++ Trigger/TrigValidation/TrigAnalysisTest
+- .*
