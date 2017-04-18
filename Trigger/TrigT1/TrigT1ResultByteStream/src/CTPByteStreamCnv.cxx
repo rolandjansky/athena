@@ -5,8 +5,6 @@
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IRegistry.h"
-
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "ByteStreamData/RawEvent.h"
 #include "ByteStreamData/ROBData.h"
@@ -63,41 +61,27 @@ StatusCode CTPByteStreamCnv::initialize() {
   //
   // Initialise the base class:
   //
-  StatusCode sc = Converter::initialize();
-  if( sc.isFailure() ) {
-    return sc;
-  }
+  ATH_CHECK(  Converter::initialize() );
 
-  MsgStream log( messageService(), "CTPByteStreamCnv" );
+  MsgStream log( msgSvc(), "CTPByteStreamCnv" );
   log << MSG::DEBUG << "CTPByteStreamCnv in initialize() " << endmsg;
 
   //
   // Get ByteStreamCnvSvc:
   //
-  sc = m_ByteStreamEventAccess.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get ByteStreamEventAccess interface" << endmsg;
-    return sc;
-  } else {
-    log << MSG::DEBUG << "Connected to ByteStreamEventAccess interface" << endmsg;
-  }
+  ATH_CHECK(  m_ByteStreamEventAccess.retrieve() );
+  log << MSG::DEBUG << "Connected to ByteStreamEventAccess interface" << endmsg;
 
   //
   // Get CTPByteStreamTool:
   //
-  sc = m_tool.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get CTPByteStreamTool" << endmsg;
-    return sc;
-  } else {
-    log << MSG::DEBUG << "Connected to CTPByteStreamTool" << endmsg;
-  }
+  ATH_CHECK( m_tool.retrieve() );
+  log << MSG::DEBUG << "Connected to CTPByteStreamTool" << endmsg;
 
   //
   // Get ROBDataProvider:
   //
-  sc = m_robDataProvider.retrieve();
-  if( sc.isFailure() ) {
+  if( m_robDataProvider.retrieve().isFailure() ) {
     log << MSG::WARNING << "Can't get ROBDataProviderSvc" << endmsg;
     // return is disabled for Write BS which does not requre ROBDataProviderSvc
   } else {
@@ -119,8 +103,7 @@ StatusCode CTPByteStreamCnv::initialize() {
  */
 StatusCode CTPByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& pObj ) {
 
-  MsgStream log( messageService(), "CTPByteStreamCnv" );
-
+  MsgStream log( msgSvc(), "CTPByteStreamCnv" );
   log << MSG::DEBUG << "createObj() called" << endmsg;
 
   ByteStreamAddress *pBS_Addr;
@@ -167,14 +150,10 @@ StatusCode CTPByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& pObj
   IROBDataProviderSvc::VROBFRAG::const_iterator it = robFrags.begin();
   CTP_RDO* result = 0;
 
-  StatusCode sc = m_tool->convert( ROBData( *it ).getROBFragment(), result );
-  if ( sc.isFailure() ) {
-    log << MSG::ERROR << " Failed to create Objects: " << *( pBS_Addr->par() ) << endmsg;
-    return sc;
-  }
+  ATH_CHECK(  m_tool->convert( ROBData( *it ).getROBFragment(), result ) );
   pObj = SG::asStorable( result ) ;
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 /**
@@ -184,8 +163,7 @@ StatusCode CTPByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& pObj
  */
 StatusCode CTPByteStreamCnv::createRep( DataObject* pObj, IOpaqueAddress*& pAddr ) {
 
-  MsgStream log( messageService(), "CTPByteStreamCnv" );
-
+  MsgStream log( msgSvc(), "CTPByteStreamCnv" );
   log << MSG::DEBUG << "createRep() called" << endmsg;
 
   RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
