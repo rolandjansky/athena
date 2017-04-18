@@ -120,7 +120,6 @@ AthDerivationExternalsVersion=$(awk '/^AthDerivationExternalsVersion/{print $3}'
 
 # Check out AthDerivationExternals from the right branch/tag:
 ${scriptsdir}/checkout_atlasexternals.sh \
-    -e https://:@gitlab.cern.ch:8443/akraszna/atlasexternals.git \
     -t ${AthDerivationExternalsVersion} \
     -s ${BUILDDIR}/src/AthDerivationExternals
 
