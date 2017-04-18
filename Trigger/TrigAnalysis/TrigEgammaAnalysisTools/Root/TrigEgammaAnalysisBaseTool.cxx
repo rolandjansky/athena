@@ -540,14 +540,17 @@ void TrigEgammaAnalysisBaseTool::setAccept(const HLT::TriggerElement *te,const T
     
     passedL1Calo = ancestorPassed<xAOD::EmTauRoI>(te);
     if(!info.trigL1){ // HLT item get full decision
+        ATH_MSG_DEBUG("Check for active features: TrigEMCluster, CaloClusterContainer");
         passedL2Calo = ancestorPassed<xAOD::TrigEMCluster>(te);
         passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(te,"TrigEFCaloCalibFex");
         if(info.trigType == "electron"){
+            ATH_MSG_DEBUG("Check for active features: TrigElectron, ElectronContainer, TrackParticleContainer");
             passedL2=ancestorPassed<xAOD::TrigElectronContainer>(te);
             passedEF = ancestorPassed<xAOD::ElectronContainer>(te);
             passedEFTrk = ancestorPassed<xAOD::TrackParticleContainer>(te,"InDetTrigTrackingxAODCnv_Electron_IDTrig");
         }
         else if(info.trigType == "photon"){
+            ATH_MSG_DEBUG("Check for active features: TrigPhoton, PhotonContainer");
             passedL2=ancestorPassed<xAOD::TrigPhotonContainer>(te);
             passedEF = ancestorPassed<xAOD::PhotonContainer>(te);
             passedEFTrk=true;// Assume true for photons
@@ -560,6 +563,13 @@ void TrigEgammaAnalysisBaseTool::setAccept(const HLT::TriggerElement *te,const T
     m_accept.setCutResult("EFCalo",passedEFCalo);
     m_accept.setCutResult("EFTrack",passedEFTrk);
     m_accept.setCutResult("HLT",passedEF);
+    ATH_MSG_DEBUG("Accept results:");
+    ATH_MSG_DEBUG("L1: "<< passedL1Calo);
+    ATH_MSG_DEBUG("L2Calo: " << passedL2Calo);
+    ATH_MSG_DEBUG("L2: "<< passedL2);
+    ATH_MSG_DEBUG("EFCalo: "<< passedEFCalo);
+    ATH_MSG_DEBUG("HLT: "<<passedEF);
+
 }
 
 float TrigEgammaAnalysisBaseTool::dR(const float eta1, const float phi1, const float eta2, const float phi2){
