@@ -611,8 +611,7 @@ namespace MuonCombined {
           }
           // for the purpose of the truth matching, set the track link to point to the ID track
           //tp->setTrackLink(candidate.indetTrackParticle().trackLink());
-	  const ElementLink< TrackCollection >* tracklink=new ElementLink<TrackCollection>();
-          tp->setTrackLink(*tracklink);
+	  tp->setTrackLink( ElementLink< TrackCollection >() );
         }
       } //endif outputData.combinedTrackParticleContainer 
     }
