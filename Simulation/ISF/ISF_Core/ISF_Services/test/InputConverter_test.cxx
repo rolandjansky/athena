@@ -92,8 +92,11 @@ class InputConverter_test: public ::testing::Test {
     ASSERT_TRUE( m_appMgr->initialize().isSuccess() );
 
     // the tested AthenaService
-    m_svc = m_svcLoc->service("ISF::InputConverter/InputConverter");
-    ASSERT_TRUE( m_svc.isValid() );
+    const auto& inputConverterTypeAndName = "ISF::InputConverter/InputConverter";
+    SmartIF<IService> svc = m_svcLoc->service(inputConverterTypeAndName);
+    m_svc = dynamic_cast<ISF::InputConverter*>(svc.get());
+    ASSERT_NE(nullptr, m_svc);
+
     ASSERT_TRUE( m_svc->setProperties().isSuccess() );
     ASSERT_TRUE( m_svc->configure().isSuccess() );
   }
@@ -171,7 +174,7 @@ class InputConverter_test: public ::testing::Test {
   SmartIF<IToolSvc>      m_toolSvc;
   SmartIF<IProperty>     m_propMgr;
 
-  SmartIF<ISF::InputConverter>   m_svc; // the tested AthenaService
+  ISF::InputConverter*   m_svc; // the tested AthenaService
 
 };  // InputConverter_test fixture
 
