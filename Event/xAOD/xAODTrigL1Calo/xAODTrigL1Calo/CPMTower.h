@@ -15,7 +15,7 @@ namespace xAOD {
    /// Define the latest version of the CPMTower class
    typedef CPMTower_v2 CPMTower;
 
-   typedef std::map<int, CPMTower*> CPMTowerMap_t;
+   typedef std::map<int, const CPMTower*> CPMTowerMap_t;
 }
 
 #include "xAODCore/CLASS_DEF.h"
