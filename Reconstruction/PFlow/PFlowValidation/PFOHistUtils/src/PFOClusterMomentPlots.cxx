@@ -37,60 +37,49 @@ namespace PFO {
 
   void PFOClusterMomentPlots::fill(const xAOD::PFO& PFO){
 
-    float moment_SECOND_R = 0.0;
-    bool gotMoment = PFO.getClusterMoment(moment_SECOND_R,xAOD::CaloCluster::SECOND_R);
-    if (true == gotMoment) m_PFO_SECOND_R->Fill(moment_SECOND_R);
-    else m_PFO_SECOND_R->Fill(-1.0);
-
-    float moment_CENTER_LAMBDA = 0.0;
-    gotMoment = PFO.getClusterMoment(moment_CENTER_LAMBDA,xAOD::CaloCluster::CENTER_LAMBDA);
-    if (true == gotMoment) m_PFO_CENTER_LAMBDA->Fill(moment_CENTER_LAMBDA);
-    else m_PFO_CENTER_LAMBDA->Fill(-1.0);
+    float moment_SECOND_R = -1.0;
+    PFO.getClusterMoment(moment_SECOND_R,xAOD::CaloCluster::SECOND_R);
+    m_PFO_SECOND_R->Fill(moment_SECOND_R);
+        
+    float moment_CENTER_LAMBDA = -1.0;
+    PFO.getClusterMoment(moment_CENTER_LAMBDA,xAOD::CaloCluster::CENTER_LAMBDA);
+    m_PFO_CENTER_LAMBDA->Fill(moment_CENTER_LAMBDA);
     
-    float moment_ISOLATION = 0.0;
-    gotMoment = PFO.getClusterMoment(moment_ISOLATION,xAOD::CaloCluster::ISOLATION);
-    if (true == gotMoment) m_PFO_ISOLATION->Fill(moment_ISOLATION);
-    else m_PFO_ISOLATION->Fill(-1.0);
+    float moment_ISOLATION = -1.0;
+    PFO.getClusterMoment(moment_ISOLATION,xAOD::CaloCluster::ISOLATION);
+    m_PFO_ISOLATION->Fill(moment_ISOLATION);
 
-    float moment_ENG_BAD_CELLS = 0.0;
-    gotMoment = PFO.getClusterMoment(moment_ENG_BAD_CELLS,xAOD::CaloCluster::ENG_BAD_CELLS);
-    if (true == gotMoment) m_PFO_ENG_BAD_CELLS->Fill(moment_ENG_BAD_CELLS);
-    else m_PFO_ENG_BAD_CELLS->Fill(-1.0);
+    float moment_ENG_BAD_CELLS = -1.0;
+    PFO.getClusterMoment(moment_ENG_BAD_CELLS,xAOD::CaloCluster::ENG_BAD_CELLS);
+    m_PFO_ENG_BAD_CELLS->Fill(moment_ENG_BAD_CELLS);
 
-    float moment_N_BAD_CELLS = 0.0;
-    gotMoment = PFO.getClusterMoment(moment_N_BAD_CELLS,xAOD::CaloCluster::N_BAD_CELLS);
-    if (true == gotMoment) m_PFO_N_BAD_CELLS->Fill(moment_N_BAD_CELLS);
-    else m_PFO_N_BAD_CELLS->Fill(-1.0);
+    float moment_N_BAD_CELLS = -1.0;
+    PFO.getClusterMoment(moment_N_BAD_CELLS,xAOD::CaloCluster::N_BAD_CELLS);
+    m_PFO_N_BAD_CELLS->Fill(moment_N_BAD_CELLS);
 
-    float moment_BADLARQ_FRAC = 0.0;
-    gotMoment = PFO.getClusterMoment(moment_BADLARQ_FRAC,xAOD::CaloCluster::BADLARQ_FRAC);
-    if (true == gotMoment) m_PFO_BADLARQ_FRAC->Fill(moment_BADLARQ_FRAC);
-    else m_PFO_BADLARQ_FRAC->Fill(-1.0);
+    float moment_BADLARQ_FRAC = -1.0;
+    PFO.getClusterMoment(moment_BADLARQ_FRAC,xAOD::CaloCluster::BADLARQ_FRAC);
+    m_PFO_BADLARQ_FRAC->Fill(moment_BADLARQ_FRAC);
 
-    float moment_ENG_POS = 0.0;
-    gotMoment = PFO.getClusterMoment(moment_ENG_POS,xAOD::CaloCluster::ENG_POS);
-    if (true == gotMoment) m_PFO_ENG_POS->Fill(moment_ENG_POS);
-    else m_PFO_ENG_POS->Fill(-1.0);
+    float moment_ENG_POS = -1.0;
+    PFO.getClusterMoment(moment_ENG_POS,xAOD::CaloCluster::ENG_POS);
+    m_PFO_ENG_POS->Fill(moment_ENG_POS);
 
-    float moment_AVG_LAR_Q = 0.0;
-    gotMoment = PFO.getClusterMoment(moment_AVG_LAR_Q,xAOD::CaloCluster::AVG_LAR_Q);
-    if (true == gotMoment) m_PFO_AVG_LAR_Q->Fill(moment_AVG_LAR_Q);
-    else m_PFO_AVG_LAR_Q->Fill(-1.0);
+    float moment_AVG_LAR_Q = -1.0;
+    PFO.getClusterMoment(moment_AVG_LAR_Q,xAOD::CaloCluster::AVG_LAR_Q);
+    m_PFO_AVG_LAR_Q->Fill(moment_AVG_LAR_Q);
 
-    float moment_AVG_TILE_Q = 0.0;
-    gotMoment = PFO.getClusterMoment(moment_AVG_TILE_Q,xAOD::CaloCluster::AVG_TILE_Q);
-    if (true == gotMoment) m_PFO_AVG_TILE_Q->Fill(moment_AVG_TILE_Q);
-    else m_PFO_AVG_TILE_Q->Fill(-1.0);
+    float moment_AVG_TILE_Q = -1.0;
+    PFO.getClusterMoment(moment_AVG_TILE_Q,xAOD::CaloCluster::AVG_TILE_Q);
+    m_PFO_AVG_TILE_Q->Fill(moment_AVG_TILE_Q);
 
-    float moment_EM_PROBABILTY = 0.0;
-    gotMoment = PFO.getClusterMoment(moment_EM_PROBABILTY,xAOD::CaloCluster::EM_PROBABILITY);
-    if (true == gotMoment) m_PFO_EM_PROBABILTY->Fill(moment_EM_PROBABILTY);
-    else m_PFO_EM_PROBABILTY->Fill(-1.0);
+    float moment_EM_PROBABILTY = -1.0;
+    PFO.getClusterMoment(moment_EM_PROBABILTY,xAOD::CaloCluster::EM_PROBABILITY);
+    m_PFO_EM_PROBABILTY->Fill(moment_EM_PROBABILTY);
     
-    float moment_SECOND_LAMBDA = 0.0;
-    gotMoment = PFO.getClusterMoment(moment_SECOND_LAMBDA,xAOD::CaloCluster::SECOND_LAMBDA);
-    if (true == gotMoment) m_PFO_SECOND_LAMBDA->Fill(moment_SECOND_LAMBDA);
-    else m_PFO_SECOND_LAMBDA->Fill(-1.0);
+    float moment_SECOND_LAMBDA = -1.0;
+    PFO.getClusterMoment(moment_SECOND_LAMBDA,xAOD::CaloCluster::SECOND_LAMBDA);
+    m_PFO_SECOND_LAMBDA->Fill(moment_SECOND_LAMBDA);
 
   }
 
