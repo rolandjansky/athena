@@ -134,8 +134,8 @@ namespace Trk
     const TrackSummary*                        trackSummary() const;   
 
     /** accessor function for FitQuality. 
-    @return The  pointer to the FitQuality for this class. Can be 0 if object was created with no FitQuality.     
-    @TODO Is this correct? Is it valid to have a TPB with no FQ?*/
+    @return The pointer to the FitQuality for this class. Can be 0 if object was created with no FitQuality.     
+    @todo Is this correct? Is it valid to have a TPB with no FQ?*/
     const FitQuality *                         fitQuality() const;
     
     /** Attempts to cast the definingParameters() to Perigee. The result is not cached, so there will be a (small) time penalty 

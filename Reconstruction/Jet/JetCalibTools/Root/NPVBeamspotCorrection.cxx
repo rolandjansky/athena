@@ -20,7 +20,7 @@
  *  see the magnitude of the effect on quantities depending on 
  *  the number of vertices, or to roughly estimate if the residual
  *  discrepancy observed in the number of reconstructed vertices after
- *  a <mu> re-weighting is consistent with this effect.
+ *  a \<mu\> re-weighting is consistent with this effect.
  *
  * Other notes: If you are in need to get the correction for 
  *  different beamspot sizes, please just get in contact with me

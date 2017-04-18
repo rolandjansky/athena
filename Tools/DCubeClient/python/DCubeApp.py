@@ -131,7 +131,7 @@ class DCubeApp( DCubeObject ):
             self.epanic("*** FAILURE ***")
             sys.exit(-1)
 
-    ## testing and plotting using <dcube> node  
+    ## testing and plotting using \<dcube\> node  
     # @param self "Me, myself and Irene"
     # @param xmlConfig dcube node from configuration file
     def runConfig( self, xmlConfig ):
@@ -277,7 +277,7 @@ class DCubeApp( DCubeObject ):
         
     ## main worker here
     # @param self "Me, myself and Irene"
-    # @param node xml <tdirectory> node
+    # @param node xml \<tdirectory\> node
     # @param path full path inside both root files
     def test( self, node, path ):
 

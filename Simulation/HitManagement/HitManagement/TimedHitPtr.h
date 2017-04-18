@@ -6,7 +6,7 @@
 #define HITMANAGEMENT_TIMEDHITPTR
 
 /** @class TimedHitPtr
- *  @bried a smart pointer to a hit that also provides access to the
+ *  @brief a smart pointer to a hit that also provides access to the
  *  extended timing info of the host event. For a pu event this is
  *  taken from the event PileUpTimeEventIndex usually accessed via
  *  PileUpMergeSvc::TimedList

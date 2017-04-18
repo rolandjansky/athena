@@ -1410,7 +1410,7 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhoton(double time,
     ISF::ISFParticleVector children(1, bremPhoton);
     ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(*parent),
                                  children,
-                                 m_processCode /*!< @TODO fix non-static */,
+                                 m_processCode /*!< @todo fix non-static */,
                                  parent->nextGeoID(),
                                  ISF::fPrimarySurvives );
     m_truthRecordSvc->registerTruthIncident( truth);

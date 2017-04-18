@@ -812,7 +812,7 @@ public:
    * @brief Return a function for casting to a derived pointer.
    * @param clid @a type_info of the class @a B from which to cast.
    * @return A function to convert a pointer to a @c B to a pointer
-   *         to a @T.  @a tinfo must be known to be a base
+   *         to a @a T.  @a tinfo must be known to be a base
    *         of @a T; otherwise, 0 will be returned.
    *         0 will also be returned if the @a dynamic_cast fails.
    */

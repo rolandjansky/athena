@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @file: AtlasGeoModel/python/GeoModelInit.py
-## @purpose: encapsulate GeoModel configuration
+## @brief: Encapsulate GeoModel configuration
  
 def _setupGeoModel():
     from AthenaCommon.JobProperties import jobproperties

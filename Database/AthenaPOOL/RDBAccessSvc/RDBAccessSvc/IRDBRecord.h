@@ -33,7 +33,7 @@ class IRDBRecord
 
   /// Check if the field value is NULL
   /// @param fieldName [IN] field name
-  /// @retun TRUE if the field is NULL, FALSE otherwise
+  /// @return TRUE if the field is NULL, FALSE otherwise
   virtual bool isFieldNull(const std::string& fieldName) const = 0;
 
   /// Get int field value

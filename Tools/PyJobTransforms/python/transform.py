@@ -39,8 +39,8 @@ from PyJobTransforms.trfGraph import executorGraph
 class transform(object):
     
     ## @brief Initialise a job transform
-    #  @param standardSignalHandlers Boolean to set signal handlers. Default @True.
-    #  @param standardValidationArgs Boolean to set standard validation options. Default @True.
+    #  @param standardSignalHandlers Boolean to set signal handlers. Default @c True.
+    #  @param standardValidationArgs Boolean to set standard validation options. Default @c True.
     #  @param trfName Name of the transform. Default is executable name with .py rstripped.
     #  @param executor Executor list
     def __init__(self, standardSignalHandlers = True, standardTrfArgs = True, standardValidationArgs=True, 

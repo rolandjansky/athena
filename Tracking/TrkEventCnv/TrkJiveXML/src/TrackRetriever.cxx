@@ -43,7 +43,7 @@ namespace JiveXML {
 		/**
 		* Obtain the perigee paramets for a given track, if available, and fill
 		* them in the corresponding data vectors. Perigee parameters are written
-		* out in the old format using \cot\theta and q/p_T
+		* out in the old format using @f$ \cot\theta @f$ and @f$ q/p_T @f$
 		* @return the perigee parameter object for further use
 		*/
 		const Trk::Perigee* getPerigeeParameters( const Trk::Track* track, 
@@ -51,8 +51,8 @@ namespace JiveXML {
 		    DataVect& cotTheta, DataVect& covMatrix){
 
 			/**
-			* Get perigee parameters in old format (d_0, z_0, \phi, \cot\theta, q/p_T),
-			* whereas tracking uses (d_0, z_0, \phi, \theta, q/p),
+			* Get perigee parameters in old format (@f$ d_0 @f$, @f$ z_0 @f$, @f$ \phi @f$, @f$ \cot\theta @f$, @f$ q/p_T @f$),
+			* whereas tracking uses (@f$ d_0 @f$, @f$ z_0 @f$, @f$ \phi @f$, @f$ \theta @f$, q/p),
 			* therefore a transformation of the covariance matrix is needed
 			*/
 			const Trk::Perigee *perigee = track->perigeeParameters();

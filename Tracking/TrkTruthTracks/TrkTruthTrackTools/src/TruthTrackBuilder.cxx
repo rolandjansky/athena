@@ -244,7 +244,7 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
        return 0;
    }
    // choose the material effects
-   //!< TODO : if we need a dedicated electron fitter is has to go in here !
+   //!< @todo : if we need a dedicated electron fitter is has to go in here !
    Trk::ParticleHypothesis mateffects;
    if (!m_materialInteractions) mateffects=Trk::nonInteracting;
    else {
@@ -258,7 +258,7 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
    // create the refitted track 
    Trk::Track *refittedtrack=m_trackFitter->fit(track,false,mateffects);
   
-   //!<  @TODO : add documentation & find out why we need the fit twice ?
+   //!<  @todo : add documentation & find out why we need the fit twice ?
    Trk::Track *refittedtrack2=0;
    if (refittedtrack && (int)clusters.size()-i>=9){
      Trk::MeasurementSet measset;

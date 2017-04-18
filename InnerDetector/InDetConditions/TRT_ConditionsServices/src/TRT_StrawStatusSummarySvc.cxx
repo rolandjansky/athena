@@ -3,7 +3,7 @@
 */
 
 /** @file TRT_StrawStatusSummarySvc.cxx
- *  @AthService to manage TRT StrawStatus, LT/HT occupancy, PID and track data
+ *  @brief AthService to manage TRT StrawStatus, LT/HT occupancy, PID and track data
  *  @author Esben Klinkby <klinkby@nbi.dk>
  **/
 

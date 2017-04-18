@@ -3,7 +3,7 @@
 */
 
 /**
-@page AthenaPoolTestData_page @mainpage
+@page AthenaPoolTestData_page AthenaPoolTestData package
  *
 @section AthenaPoolTestData_@section purpose Purpose: DATA DEFINITION
  *

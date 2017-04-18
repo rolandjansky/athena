@@ -68,7 +68,7 @@ int TrigInDetTrackTruth::addMatch(HepMcParticleLink p_tru_part,TrigIDHitStats hi
 }
 
 /** method to find if a given HepMcParticleLink already exists in "map" and, if 
-    so, what is its index; if not found retruns -1; relies on 
+    so, what is its index; if not found returns -1; relies on 
     HepMcParticleLink overloaded == method (i.e. compares only barcode) */
 int TrigInDetTrackTruth::index(HepMcParticleLink& hep_link) const {
 

@@ -453,10 +453,10 @@ namespace xAOD {
        *  using the PV. For instance, the transverse distance can be calculated wrt
        *  the default PV, the closest PV etc.
        * 
-       *  @value: PV_MAX_SUM_PT2  vertex with the largest sum Pt^2 (the default one)
-       *  @value: PV_MIN_A0       collision vertex closest in 3D to the particle's trajectory,
+       *  \@value: PV_MAX_SUM_PT2  vertex with the largest sum Pt^2 (the default one)
+       *  \@value: PV_MIN_A0       collision vertex closest in 3D to the particle's trajectory,
        *                          i.e. the vertex with the smalles 3D impact parameter a0
-       *  @value: PV_MIN_Z0       collision vertex closest in delta(z0) = pv_z - z0, where z0 
+       *  \@value: PV_MIN_Z0       collision vertex closest in delta(z0) = pv_z - z0, where z0 
        *                          is the z coordinate of the intesection of the  particle's 
        *                          trajectory with the  beam axis in the Z-rho plane.
        */

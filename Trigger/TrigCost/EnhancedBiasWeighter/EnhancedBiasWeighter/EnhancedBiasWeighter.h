@@ -92,7 +92,7 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
    virtual double getAverageLumi() const override;
 
   /**
-   * @return <mu> over all events seen
+   * @return \<mu\> over all events seen
    */
    virtual double getAverageMu() const override;
   

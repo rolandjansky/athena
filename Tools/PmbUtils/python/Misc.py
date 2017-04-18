@@ -543,16 +543,16 @@ def data_table(data,label_order=None,title=None,**kw):
 # Example of how to instrument a class MyClass:
 #
 # class MyClass(object):
-#     def __init__(self,<whatever vars>):
+#     def __init__(self,\<whatever vars\>):
 #         import recorder
 #         self.__recorder=recorder.Recorder(self)
-#         <do whatever>
-#     def method_a(self,<whatever vars>):
+#         \<do whatever\>
+#     def method_a(self,\<whatever vars\>):
 #         self.__recorder.record()
-#         <do whatever>
-#     def method_b(self,<whatever vars>):
+#         \<do whatever\>
+#     def method_b(self,\<whatever vars\>):
 #         self.__recorder.record()
-#         <do whatever>
+#         \<do whatever\>
 #     def print_records(self,objname='mcobj'):
 #         for l in self.__recorder.to_code(objname): print l
 #

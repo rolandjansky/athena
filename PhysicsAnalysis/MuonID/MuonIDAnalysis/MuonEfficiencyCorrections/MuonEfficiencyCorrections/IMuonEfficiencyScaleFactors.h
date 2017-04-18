@@ -29,7 +29,7 @@
 #include <map>
 
 /**
- * @mainpage MuonEfficiencyCorrections
+ * @page MuonEfficiencyCorrections_page MuonEfficiencyCorrections
  *
  * This package provides information about the muon efficiency and the corresponding scale factors.
  *

@@ -74,7 +74,7 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * Check to see if a chain is on the list of chains to get *exponential* scaling in <mu>
+   * Check to see if a chain is on the list of chains to get *exponential* scaling in \<mu\>
    * @param _counterName Const reference to counter name to test.
    * @result If the counter is on the list
    */

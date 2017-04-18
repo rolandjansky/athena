@@ -3,7 +3,7 @@
 */
 
 /*! \file GrubbsOutlierTest.cxx
- *  \description Determine outliers at a given significance level by defining the Grubbs test
+ *               Determine outliers at a given significance level by defining the Grubbs test
  *               statistic, and finding out the probability of each bin being an outlier. The
  *               critical value is computed for each bin and the probability is estimated 
  *               using the two tailed students T distribution. If the probability for a given bin 

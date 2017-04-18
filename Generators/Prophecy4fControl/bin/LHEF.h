@@ -2884,7 +2884,7 @@ private:
     to try it on.
 */
 
-/**\mainpage Les Houches Event File
+/** \page LHEF_page Les Houches Event File
 
 Here are some example classes for reading and writing Les Houches
 Event Files according to the
