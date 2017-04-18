@@ -78,13 +78,13 @@ get_files -xmls LVL1config.dtd
 
 
 
-p1_rel="P1HLT"
+p1_rel="AthenaP1"
 if [ $NICOS_ATLAS_RELEASE ]
 then
     p1_rel=$NICOS_ATLAS_RELEASE
 fi
 
-nightly="P1HLTTest"
+nightly="AthenaP1Test"
 if [ $NICOS_NIGHTLY_NAME ]
 then
     nightly="$NICOS_NIGHTLY_NAME"
@@ -101,7 +101,7 @@ rundate=`date +%F" "%H:%M" "`
 
 # Upload SMK
 
-cmd="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt\_\_setup1 --name 'P1HLTtest' -l INFO --SMcomment \"$\{rundate}$\{nightly}_$\{rel}\" --dbConn $DBConn -w_n 50 -w_t 60"
+cmd="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'AthenaP1Test' -l INFO --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 50 -w_t 60"
 
 echo $cmd "&> uploadSMK.log"
 eval $cmd &> uploadSMK.log
