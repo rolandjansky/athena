@@ -108,6 +108,7 @@
 #+ PhysicsAnalysis/HeavyIonPhys/.*
 #- PhysicsAnalysis/D3PDMaker/.*
 #- PhysicsAnalysis/.*Phys/.*
+- Control/AthLinksSA
 - PhysicsAnalysis/AnalysisCommon/ReweightUtils
 - PhysicsAnalysis/D3PDMaker/TruthD3PDMaker
 
