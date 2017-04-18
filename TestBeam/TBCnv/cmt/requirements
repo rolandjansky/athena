@@ -14,7 +14,7 @@ use DataCollection        DataCollection-*       External
 use GaudiInterface        GaudiInterface-*          External
 use TBEvent               TBEvent-*              TestBeam
 use CaloIdentifier        CaloIdentifier-*       Calorimeter
-use LArTools              LArTools-*             LArCalorimeter
+use LArCabling            LArCabling-*           LArCalorimeter
 use LArIdentifier         LArIdentifier-*        LArCalorimeter
 
 private
