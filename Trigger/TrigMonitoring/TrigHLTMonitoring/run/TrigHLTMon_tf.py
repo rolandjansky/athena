@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 __doc__ = """JobTransform to run TrigHLTMonitoring standalone jobs"""
 
 

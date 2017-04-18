@@ -66,8 +66,6 @@ if data_type == 'bytestream':
     # Only doGeneral monitoring from RAW
     HLTMonFlags.set_All_Off()
     HLTMonFlags.doGeneral.set_Value_and_Lock(True)
-    #HLTMonFlags.doCalo = False
-    #HLTMonFlags.doMonTier0=False
     #-- set up BS reading ------------------------------------------------------------------------------
 
     from ByteStreamCnvSvc import ReadByteStream

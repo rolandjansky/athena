@@ -1,16 +1,8 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
-# vim:fenc=utf-8
-#
-# Copyright 2017 Ryan Mackenzie White <ryan.white@cern.ch>
-#
-# Distributed under terms of the  license.
-
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 """
 Provides job setup for running RAW to HIST or AOD to HIST
 """
 
-#include("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
 import logging
 logging.basicConfig(level = logging.DEBUG)
 monLog = logging.getLogger('HLTMon_tf')
