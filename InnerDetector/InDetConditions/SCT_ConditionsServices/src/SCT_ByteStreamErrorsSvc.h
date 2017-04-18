@@ -104,6 +104,7 @@ public:
   virtual unsigned int getFirstTempMaskedChip(const IdentifierHash& hashId) const;
   virtual std::map<Identifier, unsigned int>* tempMaskedChips() const {return m_tempMaskedChips;}
   virtual unsigned int tempMaskedChips(const Identifier & moduleId) const;
+  virtual unsigned int abcdErrorChips(const Identifier & moduleId) const;
 
 private:
 

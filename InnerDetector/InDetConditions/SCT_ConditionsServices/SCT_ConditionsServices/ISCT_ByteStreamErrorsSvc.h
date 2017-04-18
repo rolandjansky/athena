@@ -109,6 +109,8 @@ public:
   virtual std::map<Identifier, unsigned int>* tempMaskedChips() const =0;
   /** Temporary status of chips for a particular module (packed as 1st 12 bits of unsigned int) */
   virtual unsigned int tempMaskedChips(const Identifier & moduleId) const =0;
+  /** Status ABCD errors of chips for a particular module (packed as 1st 12 bits of unsigned int) */
+  virtual unsigned int abcdErrorChips(const Identifier & moduleId) const =0;
 
 private:
 

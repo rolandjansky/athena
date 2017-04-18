@@ -701,3 +701,42 @@ unsigned int SCT_ByteStreamErrorsSvc::tempMaskedChips(const Identifier & moduleI
   if(it!=m_tempMaskedChips->end()) return it->second;
   return 0;
 }
+
+unsigned int SCT_ByteStreamErrorsSvc::abcdErrorChips(const Identifier & moduleId) const {
+  unsigned int _abcdErrorChips(0);
+  int chip(0);
+
+  // Side 0
+  IdentifierHash hash_side0;
+  m_sct_id->get_hash(moduleId, hash_side0, &m_cntx_sct);
+  if(std::find(m_bsErrors[SCT_ByteStreamErrors::ABCDError]->begin(),
+	       m_bsErrors[SCT_ByteStreamErrors::ABCDError]->end(),
+	       hash_side0)
+     !=m_bsErrors[SCT_ByteStreamErrors::ABCDError]->end()) {
+    for(int errType=SCT_ByteStreamErrors::ABCDError_Chip0; errType<=SCT_ByteStreamErrors::ABCDError_Chip5; errType++) {
+      if(std::find(m_bsErrors[errType]->begin(), m_bsErrors[errType]->end(), hash_side0)!=m_bsErrors[errType]->end()) {
+	_abcdErrorChips |= (1 << chip);
+      }
+      chip++;
+    }
+  } else {
+    chip = 6;
+  }
+
+  // Side 1
+  IdentifierHash hash_side1;
+  m_sct_id->get_other_side(hash_side0, hash_side1);
+  if(std::find(m_bsErrors[SCT_ByteStreamErrors::ABCDError]->begin(),
+               m_bsErrors[SCT_ByteStreamErrors::ABCDError]->end(),
+               hash_side1)
+     !=m_bsErrors[SCT_ByteStreamErrors::ABCDError]->end()) {
+    for(int errType=SCT_ByteStreamErrors::ABCDError_Chip0; errType<=SCT_ByteStreamErrors::ABCDError_Chip5; errType++) {
+      if(std::find(m_bsErrors[errType]->begin(), m_bsErrors[errType]->end(), hash_side1)!=m_bsErrors[errType]->end()) {
+	_abcdErrorChips |= (1 << chip);
+      }
+      chip++;
+    }
+  }
+
+  return _abcdErrorChips;
+}
