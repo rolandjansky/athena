@@ -31,9 +31,13 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( CLHEP )
+find_package( Eigen )
 find_package( HepMC )
 find_package( HepPDT )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( GTest )
+find_package( GMock )
+find_package( HepPDT )
 
 # Component(s) in the package:
 atlas_add_component( ISF_Services
@@ -41,6 +45,35 @@ atlas_add_component( ISF_Services
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} GaudiKernel CaloIdentifier CaloSimEvent AthenaBaseComps StoreGateLib SGtests AtlasDetDescr GeneratorObjects InDetSimEvent MuonSimEvent G4AtlasInterfaces SimHelpers ISF_Event ISF_Interfaces TileSimEvent PmbCxxUtils )
+
+atlas_add_test( InputConverter_test
+                SOURCES
+                  test/InputConverter_test.cxx src/InputConverter.cxx
+                INCLUDE_DIRS
+                  ${GTEST_INCLUDE_DIRS}
+                  ${GMOCK_INCLUDE_DIRS}
+                  ${ROOT_INCLUDE_DIRS}
+                  ${HEPMC_INCLUDE_DIRS}
+                  ${CLHEP_INCLUDE_DIRS}
+                  ${HEPPDT_INCLUDE_DIRS}
+                LINK_LIBRARIES
+                  ${GTEST_LIBRARIES}
+                  ${GMOCK_LIBRARIES}
+                  ${ROOT_LIBRARIES}
+                  ${HEPMC_LIBRARIES}
+                  ${CLHEP_LIBRARIES}
+                  ${HEPPDT_LIBRARIES}
+                  GaudiKernel
+                  CaloIdentifier
+                  CaloSimEvent
+                  AthenaBaseComps
+                  StoreGateLib
+                  InDetSimEvent
+                  MuonSimEvent
+                  ISF_Event
+                  ISF_Interfaces
+                  PmbCxxUtils
+                )
 
 # Install files from the package:
 atlas_install_headers( ISF_Services )
