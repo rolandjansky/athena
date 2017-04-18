@@ -76,16 +76,9 @@ iGeant4::ISFG4GeoHelper::nextGeoId(const G4Step* aStep, int truthVolLevel, ISF::
   if (step.PostStepBranchDepth()<truthVolLevel){
 
     const G4ThreeVector     &postPos  = postStep->GetPosition();
-    //const G4ThreeVector     &postMom  = postStep->GetMomentum();
-    //nextGeoID = m_geoIDSvcQuick->identifyNextGeoID( postPos.x(),
-    //                                                postPos.y(),
-    //                                                postPos.z(),
-    //                                                postMom.x(),
-    //                                                postMom.y(),
-    //                                                postMom.z() );
     nextGeoID = geoIDSvc->identifyGeoID( postPos.x(),
-                                                postPos.y(),
-                                                postPos.z() );
+                                         postPos.y(),
+                                         postPos.z() );
 
     return nextGeoID;
   }
