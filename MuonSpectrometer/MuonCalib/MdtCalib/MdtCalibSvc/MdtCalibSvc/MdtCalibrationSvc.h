@@ -14,6 +14,7 @@
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
+#include "Identifier/Identifier.h"
 #include "MuonPrepRawData/MdtDriftCircleStatus.h"
 
 class MdtCalibHit;
@@ -93,8 +94,8 @@ public:
   */
   bool driftRadiusFromTime( MdtCalibHit &hit, const MdtCalibrationSvcInput &inputData, bool resolFromRtrack=false  );
 
-  /** TDC bin size. (25/32 ns for Atlas) */
-  double tdcBinSize();
+  /** TDC bin size. 25/32 ns for all MDT/sMDT, except BMG=0.2ns */
+  double tdcBinSize(const Identifier &id);
 
   /** dummy function to be removed */
   void triggerCounts(int) {}
