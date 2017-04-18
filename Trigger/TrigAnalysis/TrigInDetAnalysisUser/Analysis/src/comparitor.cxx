@@ -517,8 +517,16 @@ int main(int argc, char** argv) {
       //    std::cout << "release: " << chop(release_data[0], " " ) << std::endl;
       //    std::cout << "release: " << chop(release_data[0], " " ) << std::endl;
       
-      release += "  (" + chop(release_data[0], " " );
-      release += " " + chop(release_data[0], " " ) + ")";
+      std::string nightly = chop(release_data[0], " " );
+
+      if ( contains(nightly,"private" ) ) { 
+	for ( int ic=0 ; ic<4 ; ic++ ) chop(release_data[0], " " );
+	release += "  (" + release_data[0]+")"; 
+      }
+      else {
+	release += "  (" + nightly; 
+	release += " " + chop(release_data[0], " " ) + ")";
+      }
     }
   }
   
