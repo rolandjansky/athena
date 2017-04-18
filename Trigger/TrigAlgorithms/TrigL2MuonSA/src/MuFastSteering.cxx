@@ -76,7 +76,7 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("R_WIDTH_TGC_FAILED",m_rWidth_TGC_Failed=200);
 
   declareProperty("USE_RPC", m_use_rpc = true);
-  declareProperty("USE_MDTCSM", m_use_mdtcsm = true);
+  declareProperty("USE_MDTCSM", m_use_mdtcsm = false);
   declareProperty("USE_ROIBASEDACCESS_MDT", m_use_RoIBasedDataAccess_MDT = true);
   declareProperty("USE_ROIBASEDACCESS_TGC", m_use_RoIBasedDataAccess_TGC = true);
   declareProperty("USE_ROIBASEDACCESS_RPC", m_use_RoIBasedDataAccess_RPC = true);
