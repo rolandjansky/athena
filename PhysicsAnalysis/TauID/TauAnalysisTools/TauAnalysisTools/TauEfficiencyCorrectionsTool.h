@@ -29,7 +29,7 @@
 #include "TauAnalysisTools/TauEfficiencyEleIDTool.h"
 #include "TauAnalysisTools/TauEfficiencyTriggerTool.h"
 
-#if __has_include("PileupReweighting/IPileupReweightingTool.h")
+#if __has_include("AsgAnalysisInterfaces/IPileupReweightingTool.h")
 // Tool include(s)
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 #define TAUANALYSISTOOLS_PRWTOOL_AVAILABLE
