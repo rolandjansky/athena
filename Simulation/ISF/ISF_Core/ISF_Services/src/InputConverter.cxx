@@ -66,6 +66,19 @@ ISF::InputConverter::~InputConverter()
 }
 
 
+/** Query the interfaces. */
+StatusCode ISF::InputConverter::queryInterface(const InterfaceID& riid, void** ppvInterface) {
+
+  if (IID_IInputConverter != riid) {
+    // Interface is not directly available: try out a base class
+    return AthService::queryInterface(riid, ppvInterface);
+  }
+  *ppvInterface = (IInputConverter*)this;
+  addRef();
+  return StatusCode::SUCCESS;
+}
+
+
 // Athena algtool's Hooks
 StatusCode
 ISF::InputConverter::initialize()
@@ -279,18 +292,4 @@ ISF::InputConverter::passesFilters(const HepMC::GenParticle& part) const {
   }
 
   return true;
-}
-
-
-/** Query the interfaces. */
-StatusCode ISF::InputConverter::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-
-  if ( IID_IInputConverter == riid )
-    *ppvInterface = (IInputConverter*)this;
-  else  {
-    // Interface is not directly available: try out a base class
-    return Service::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
 }

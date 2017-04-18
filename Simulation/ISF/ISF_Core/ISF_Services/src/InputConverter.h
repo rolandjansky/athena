@@ -6,8 +6,8 @@
 // InputConverter.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef ISF_INPUTCONVERTER_H
-#define ISF_INPUTCONVERTER_H 1
+#ifndef ISF_SERVICES_INPUTCONVERTER_H
+#define ISF_SERVICES_INPUTCONVERTER_H 1
 
 // STL includes
 #include <string>
@@ -47,7 +47,7 @@ namespace ISF {
 
       @author Elmar.Ritsch -at- cern.ch
      */
-  class InputConverter : public IInputConverter, public AthService {
+  class InputConverter final: public AthService, public IInputConverter {
 
     // allow test to access private data
     friend ISFTesting::InputConverter_test;
@@ -57,20 +57,17 @@ namespace ISF {
       virtual ~InputConverter();
 
       /** Athena algtool Hooks */
-      StatusCode  initialize();
-      StatusCode  finalize();
+      StatusCode  initialize() override;
+      StatusCode  finalize() override;
 
-      /** ReturnGaudi InterfaceID */
-      static const InterfaceID& interfaceID() { return IID_IInputConverter; }
+      /** Query the interfaces. **/
+      StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
       /** Convert selected particles from the given McEventCollection into ISFParticles
           and push them into the given ISFParticleContainer */
       virtual StatusCode convert(const McEventCollection& inputGenEvents,
                                  ISF::ISFParticleContainer& simParticles,
-                                 bool isPileup=false) const override final;
-
-      /** Query the interfaces. **/
-      StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+                                 bool isPileup=false) const override;
 
     private:
       /** get right GenParticle mass */
@@ -97,4 +94,4 @@ namespace ISF {
 }
 
 
-#endif //> !ISF_INPUTCONVERTER_H
+#endif //> !ISF_SERVICES_INPUTCONVERTER_H
