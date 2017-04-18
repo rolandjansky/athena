@@ -408,7 +408,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
                                 TrigFastTrackFinder_OnlineMonitoring("TrigFastTrackFinder_OnlineMonitoring", self.doResMon),
                                 timeHist ]
 
-        if type=="FTK" or type=="FTKRefit":
+        if type=="FTK" or type=="FTKRefit" or type=="FTKMon":
           from TrigFTK_RecExample.TrigFTKLoadTools import theFTK_DataProviderSvc
           self.FTK_DataProviderSvc = theFTK_DataProviderSvc
           self.FTK_Mode=True
@@ -569,3 +569,7 @@ class TrigFastTrackFinder_FTK(TrigFastTrackFinderBase):
 class TrigFastTrackFinder_FTKRefit(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_FTKRefit"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_FTKRefit","FTKRefit")
+
+class TrigFastTrackFinder_FTKMon(TrigFastTrackFinderBase):
+  def __init__(self, name = "TrigFastTrackFinder_FTKMon"):
+    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_FTKMon","FTKMon")

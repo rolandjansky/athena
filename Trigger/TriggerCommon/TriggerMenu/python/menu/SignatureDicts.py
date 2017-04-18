@@ -131,7 +131,13 @@ JetChainParts = {
 #    'bMatching'    : ['mu4antidr05', 'mu6antidr05'],
     'bMatching'    : ['antimatchdr05mu'],
     'dataScouting' : ['ds1', 'ds2'],
-    'smc'          : ['30smcINF', 'nosmc']
+    'smc'          : ['30smcINF', 'nosmc'],
+
+    # Et cut by the jet build tool (ptmin)
+    'recoCutUncalib': ['rcuDefault', 'rcu0', 'rcu5'],
+    
+    # Et cut by the jet build tool (ptminFilter)
+    'recoCutCalib': ['rccDefault', 'rcc0', 'rcc5'],
 }
 
 
@@ -159,6 +165,8 @@ JetChainParts_Default = {
     'bMatching'    : [],
     'dataScouting' : '',
     'smc'          : 'nosmc',
+    'recoCutUncalib': 'rcuDefault',
+    'recoCutCalib': 'rccDefault',
     }
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -798,7 +806,7 @@ BeamspotChainParts = {
     'monType'        : AllowedBeamspotChainIdentifiers,
     'location'       : ['vtx'],
 #    'addInfo'        : ['trkFS','idperf'],
-    'addInfo'        : ['trkFS', 'allTE', 'activeTE','idperf'],
+    'addInfo'        : ['trkFS', 'allTE', 'activeTE','idperf','mon'],
     'hypo'           : [],
     'l2IDAlg'        : ['L2StarB','trkfast','FTK','FTKRefit'],
     'threshold'      : '',

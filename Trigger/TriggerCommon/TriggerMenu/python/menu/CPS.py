@@ -50,20 +50,16 @@ def genericCPSAdder(groups, signatures, chains, level, signatureOverwritten):
 def defineCPSGroups():
     HLT_CPS_Groups = {				       
         #Egamma chains
-        "RATE:CPS:HLT_e5_vloose"  :  ['e5_lhvloose',               
-                                      'e5_lhvloose_nod0',],
-        
+        "RATE:CPS:HLT_e5_vloose"  :  ['e5_lhvloose_nod0',],
+                                      
 
         ########################################################################
 
-        "RATE:CPS:HLT_e20_vloose"        : ['e20_lhvloose', 
-                                            'e20_lhvloose_nod0'],
+        "RATE:CPS:HLT_e20_vloose"        : ['e20_lhvloose_nod0'],
 
-        "RATE:CPS:HLT_e40_vloose"        : ['e40_lhvloose', 
-                                            'e40_lhvloose_nod0'],
+        "RATE:CPS:HLT_e40_vloose"        : ['e40_lhvloose_nod0'],
 
-        "RATE:CPS:HLT_e60_vloose"        : ['e60_lhvloose', 
-                                            'e60_lhvloose_nod0'],
+        "RATE:CPS:HLT_e60_vloose"        : ['e60_lhvloose_nod0'],
 
 
 #        "RATE:CPS:HLT_e24_medium_L1EM18VH" : ['e24_lhmedium_L1EM18VH',
@@ -322,31 +318,68 @@ def defineCPSGroups():
         'RATE:CPS:HLT_e24_medium_L1EM18VH' : ['e24_lhmedium_L1EM18VH',
                                                 'e24_lhmedium_nod0_L1EM18VH',
 		],
+
+         "RATE:CPS:HLT_e10_vloose_L1EM7" : ['e10_lhvloose_L1EM7',
+                                           'e10_lhvloose_nod0_L1EM7',
+                                           'e15_lhvloose_nod0_L1EM7',
+                                           'e15_lhvloose_L1EM7',
+                                           'e15_lhvloose_nod0_L1EM7',
+                                            ],
+
+        "RATE:CPS:HLT_e20_vloose_L1EM12" : ['e20_lhvloose_L1EM12',
+                                            'e20_lhvloose_nod0_L1EM12',],
+                                            
+   
+        "RATE:CPS:HLT_e25_vloose_L1EM15" : ['e25_lhvloose_L1EM15',
+                                            'e25_lhvloose_nod0_L1EM15'],
+
+        "RATE:CPS:HLT_e30_vloose_L1EM15" : ['e30_lhvloose_L1EM15',
+                                            'e30_lhvloose_nod0_L1EM15'],
+
+        "RATE:CPS:HLT_e40_vloose_L1EM15" : ['e40_lhvloose_L1EM15',
+                                            'e40_lhvloose_nod0_L1EM15'],
+
+        "RATE:CPS:HLT_e50_vloose_L1EM15" : ['e50_lhvloose_L1EM15',
+                                            'e50_lhvloose_nod0_L1EM15'],
+        
+        "RATE:CPS:HLT_e70_vloose"        : ['e70_lhvloose',
+                                            'e70_lhvloose_nod0'],
+
+        "RATE:CPS:HLT_e80_vloose"        : ['e80_lhvloose',
+                                            'e80_lhvloose_nod0',],
+        
+        "RATE:CPS:HLT_e100_vloose"        : ['e100_lhvloose',
+                                             'e100_lhvloose_nod0'],
+        
+        "RATE:CPS:HLT_e120_vloose"        : ['e120_lhvloose',
+                                             'e120_lhvloose_nod0'],
+            
+        "RATE:CPS:HLT_e140_vloose"        : ['e140_lhvloose',
+                                             'e140_lhvloose_nod0'],
+
         })
     if "v7" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
-        'RATE:CPS:HLT_e24_medium_L1EM18VHI' : ['e24_lhmedium_L1EM18VHI',
-                                                'e24_lhmedium_nod0_L1EM18VHI',
-                ],
-            'RATE:CPS:HLT_mu_jet_L1MU6_J75' : [
-                'mu6_j260_bperf_split_dr05_dz02',
-                'mu6_j320_bperf_split_dr05_dz02',
-                'mu6_j320_bperf_split_dr05_dz99',
-                'mu6_j320_bperf_split',
-                'mu6_j400_bperf_split_dr05_dz02',     
-            ],
-            'RATE:CPS:HLT_mu_jet_L1MU6_J40' : [
-                'mu6_j150_bperf_split_dr05_dz02',
-                'mu6_j150_bperf_split_dr05_dz99',
-                'mu6_j150_bperf_split',
-                'mu6_j175_bperf_split_dr05_dz02',	
-            ],
-            'RATE:CPS:HLT_mu_jet_L1MU4' : ['mu4_j15_bperf_split_dr05_dz02',
-                                           'mu4_j25_bperf_split_dr05_dz02',
-                                           'mu4_j35_bperf_split_dr05_dz02',
-                                           'mu4_j35_bperf_split_dr05_dz99',
-                                           'mu4_j35_bperf_split',
-				       ],
+                'RATE:CPS:HLT_e24_medium_L1EM18VHI' : ['e24_lhmedium_L1EM18VHI',
+                                                       'e24_lhmedium_nod0_L1EM18VHI',
+                                                       ],
+                'RATE:CPS:HLT_mu_jet_L1MU6_J75' : ['mu6_j260_bperf_split_dr05_dz02',
+                                                   'mu6_j320_bperf_split_dr05_dz02',
+                                                   'mu6_j320_bperf_split_dr05_dz99',
+                                                   'mu6_j320_bperf_split',
+                                                   'mu6_j400_bperf_split_dr05_dz02',     
+                                                   ],
+                'RATE:CPS:HLT_mu_jet_L1MU6_J40' : ['mu6_j150_bperf_split_dr05_dz02',
+                                                   'mu6_j150_bperf_split_dr05_dz99',
+                                                   'mu6_j150_bperf_split',
+                                                   'mu6_j175_bperf_split_dr05_dz02',	
+                                                   ],
+                'RATE:CPS:HLT_mu_jet_L1MU4' : ['mu4_j15_bperf_split_dr05_dz02',
+                                               'mu4_j25_bperf_split_dr05_dz02',
+                                               'mu4_j35_bperf_split_dr05_dz02',
+                                               'mu4_j35_bperf_split_dr05_dz99',
+                                               'mu4_j35_bperf_split',
+                                               ],
 #        'RATE:CPS:HLT_xe70_L1XE50' : ['xe70_L1XE50',
 #                                      'xe75_L1XE50',
 #                                      'xe80_L1XE50',
@@ -355,7 +388,7 @@ def defineCPSGroups():
 #                                      'xe110_mht_xe75_L1XE50',
 #                                      'xe110_mht_xe80_L1XE50', 
 #                                      ],
-        })
+                })
     if "v5" in TriggerFlags.triggerMenuSetup():
      HLT_CPS_Groups.update({
         'RATE:CPS:HLT_xe35_BGRP7' : ['xe35_L1XE35_BGRP7',
@@ -560,7 +593,7 @@ def defineCPSGroups():
 	                                    'mu6_mu4_bBmumu_Lxy0',],
 	 "RATE:CPS:HLT_mu6_2mu4"         : ['mu6_2mu4_bJpsi',
                                             'mu6_2mu4_bUpsi',
-												 					    'mu6_2mu4',
+                                            'mu6_2mu4',
                                             ],
 
         'RATE:CPS:HLT_2mu6_bBmumuX'   :  ['2mu6_bBmumuxv2',
@@ -578,14 +611,6 @@ def defineCPSGroups():
                                           'mu6_mu4_bJpsimumu_Lxy0',
                                           ],
 					  					 
-         "RATE:CPS:HLT_e10_vloose_L1EM7" : ['e10_lhvloose_L1EM7',
-                                           'e10_lhvloose_nod0_L1EM7',
-                                           'e15_lhvloose_nod0_L1EM7',
-                                           'e15_lhvloose_L1EM7',
-                                           'e15_lhvloose_nod0_L1EM7',
-                                            ],
-                                           
-        
 #        "RATE:CPS:HLT_e15_vloose_L1EM7" : ['e15_lhvloose_L1EM7',
 #                                           'e15_lhvloose_nod0_L1EM7'],
 
@@ -600,38 +625,6 @@ def defineCPSGroups():
                                                 'e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35',
                                                 'e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi05_mt35',
                                                 'e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35',],
-
-        "RATE:CPS:HLT_e20_vloose_L1EM12" : ['e20_lhvloose_L1EM12',
-                                            'e20_lhvloose_nod0_L1EM12',],
-                                            
-   
-        "RATE:CPS:HLT_e25_vloose_L1EM15" : ['e25_lhvloose_L1EM15',
-                                            'e25_lhvloose_nod0_L1EM15'],
-
-        "RATE:CPS:HLT_e30_vloose_L1EM15" : ['e30_lhvloose_L1EM15',
-                                            'e30_lhvloose_nod0_L1EM15'],
-
-        "RATE:CPS:HLT_e40_vloose_L1EM15" : ['e40_lhvloose_L1EM15',
-                                            'e40_lhvloose_nod0_L1EM15'],
-
-        "RATE:CPS:HLT_e50_vloose_L1EM15" : ['e50_lhvloose_L1EM15',
-                                            'e50_lhvloose_nod0_L1EM15'],
-        
-        "RATE:CPS:HLT_e70_vloose"        : ['e70_lhvloose',
-                                            'e70_lhvloose_nod0'],
-
-        "RATE:CPS:HLT_e80_vloose"        : ['e80_lhvloose',
-                                            'e80_lhvloose_nod0',],
-        
-        "RATE:CPS:HLT_e100_vloose"        : ['e100_lhvloose',
-                                             'e100_lhvloose_nod0'],
-        
-        "RATE:CPS:HLT_e120_vloose"        : ['e120_lhvloose',
-                                             'e120_lhvloose_nod0'],
-            
-        "RATE:CPS:HLT_e140_vloose"        : ['e140_lhvloose',
-                                             'e140_lhvloose_nod0'],
-            
 
        'RATE:CPS:HLT_j300_a10_sub_L1J75':[ 'j300_a10_sub_L1J75',
                                            'j300_a10_lcw_L1J75',
@@ -746,7 +739,7 @@ def defineCPSGroups():
                                            'j300_a10r_L1J75',
                                           # 'j300_a10_lcw_sub_L1SC85'  ## can this work??
                                           # 'j300_a10_lcw_L1SC85'  ## can this work??
-       ],
+                                               ],
             
        'RATE:CPS:HLT_j260_a10_sub_L1J75':[ 'j260_a10_sub_L1J75',
                                            'j260_a10_lcw_sub_L1J75',
@@ -756,8 +749,8 @@ def defineCPSGroups():
                                            'j260_a10r_L1J75',
                                           # 'j260_a10_lcw_sub_L1SC85'  ## can this work??
                                           # 'j260_a10_lcw_L1SC85'  ## can this work??
-       ],
-            
+                                           ],
+        
         'RATE:CPS:HLT_j360_a10L1J100' : [ 'j360_a10r_L1J100' ,            
                                           'j360_a10_lcw_subjes_L1J100',],
         'RATE:CPS:HLT_j380_a10L1J100' : [ 'j380_a10r_L1J100' ,            
@@ -766,22 +759,53 @@ def defineCPSGroups():
                                    #'j400_a10_lcw_sub_L1J100',
                                    #'j400_a10_sub_L1J100',
                                    'j400_a10r_L1J100',
-        ],
+                                   ],
         'RATE:CPS:HLT_j420_a10' : ['j420_a10_lcw_subjes_L1J100',
                                    #'j420_a10_lcw_sub_L1J100',
                                    #'j420_a10_sub_L1J100',
                                    'j420_a10r_L1J100',
-        ],
+                                   ],
         
         'RATE:CPS:HLT_j440_a10' : ['j440_a10_lcw_subjes_L1J100',
                                    #'j440_a10_lcw_sub_L1J100',
                                    'j440_a10r_L1J100',
-        ],
-        'RATE:CPS:HLT_j460_a10L1J100' : [	'j460_a10_sub_L1J100',
-        																	'j460_a10_nojcalib_L1J100',
-        																	'j460_a10_lcw_nojcalib_L1J100',
-        																	'j460_a10_lcw_sub_L1J100',
-        																	'j460_a10_lcw_subjes_L1J100',],})
+                                   ],
+        'RATE:CPS:HLT_j460_a10L1J100' : ['j460_a10_sub_L1J100',
+                                         'j460_a10_nojcalib_L1J100',
+                                         'j460_a10_lcw_nojcalib_L1J100',
+                                         'j460_a10_lcw_sub_L1J100',
+                                         'j460_a10_lcw_subjes_L1J100',],
+
+        "RATE:CPS:HLT_e10_vloose_L1EM7" : ['e10_lhvloose_nod0_L1EM7',
+                                           'e15_lhvloose_nod0_L1EM7',
+                                           'e15_lhvloose_nod0_L1EM7',
+                                           ],
+        "RATE:CPS:HLT_e20_vloose_L1EM12" : ['e20_lhvloose_nod0_L1EM12',],
+
+        "RATE:CPS:HLT_e25_vloose_L1EM15" : ['e25_lhvloose_nod0_L1EM15'],
+
+        "RATE:CPS:HLT_e30_vloose_L1EM15" : ['e30_lhvloose_nod0_L1EM15'],
+                                            
+        "RATE:CPS:HLT_e40_vloose_L1EM15" : ['e40_lhvloose_nod0_L1EM15'],
+
+        "RATE:CPS:HLT_e50_vloose_L1EM15" : ['e50_lhvloose_nod0_L1EM15'],
+        
+        "RATE:CPS:HLT_e70_vloose"        : ['e70_lhvloose_nod0'],
+                                            
+        "RATE:CPS:HLT_e80_vloose"        : ['e80_lhvloose_nod0',],
+        
+        "RATE:CPS:HLT_e100_vloose"        : ['e100_lhvloose_nod0'],
+        
+        "RATE:CPS:HLT_e120_vloose"        : ['e120_lhvloose_nod0'],
+            
+        "RATE:CPS:HLT_e140_vloose"        : ['e140_lhvloose_nod0'],        
+
+        "RATE:CPS:HLT_g60_loose" : ['g60_loose',],
+
+        "RATE:CPS:HLT_g60_loose_L1EM24VHIM" : ['g60_loose_L1EM24VHIM',],
+
+
+        })
     return (HLT_CPS_Groups)
 
 def addCPS(triggerPythonConfig,signatureOverwritten):
