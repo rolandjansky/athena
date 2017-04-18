@@ -73,8 +73,8 @@
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
 
-	  <athenaCommonFlags />
-	  <alwaysRunPostProc />
+	  <athenaCommonFlags /><alwaysRunPostProc />
+
 	  </athena>
 
 
