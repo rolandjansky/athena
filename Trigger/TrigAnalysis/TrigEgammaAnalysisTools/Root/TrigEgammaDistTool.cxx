@@ -195,6 +195,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                     }
                 }
                 const auto vec_el = fc.get<xAOD::ElectronContainer>("egamma_Electrons",TrigDefs::alsoDeactivateTEs);
+                ATH_MSG_DEBUG("Retrieved egamma_Electrons: " << vec_el.size());
                 for (const auto feat : vec_el){
                     if(feat.te()==nullptr) continue;
                     const auto* cont = getFeature<xAOD::ElectronContainer>(feat.te());
@@ -217,7 +218,8 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 }
             }
             else if(info.trigType=="photon"){
-                const auto vec_ph = fc.get<xAOD::PhotonContainer>("egamma_Photons",TrigDefs::alsoDeactivateTEs);
+                const auto vec_ph = fc.get<xAOD::PhotonContainer>("",TrigDefs::alsoDeactivateTEs);
+                ATH_MSG_DEBUG("Retrieved egamma_Photons: " << vec_ph.size());
                 for (const auto feat : vec_ph){
                     if(feat.te()==nullptr) continue;
                     const auto* cont = getFeature<xAOD::PhotonContainer>(feat.te());

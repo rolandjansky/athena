@@ -24,16 +24,20 @@ from ROOT import gROOT, TStyle
 
 from TrigEgammaAnalysisTools.TrigEgammaDataQuality import TrigEgammaPlotHolder
 
+from AthenaCommon.Logging import logging
+logging.getLogger().info("Importing %s",__name__)
+log = logging.getLogger("trigEgammaDQ.py")
+log.setLevel( logging.DEBUG )
 #Configuration of macro -- needs more argument options
 # Provide plot category and names of histos
 # Mapping of triggers to make comparison plots (complist)
 dqlist = {'Efficiency':['eff_et','eff_eta','eff_phi','eff_mu']}
-dqlevel = ['HLT','L1Calo']
-complist={'L1_EM22VHI':'HLT_e26_lhtight_nod0_ivarloose',
-        'L1_EM24VHI':'HLT_e28_lhtight_nod0_ivarloose',
-        'HLT_e26_lhtight_nod0':'HLT_e26_lhtight_nod0_ivarloose',
-        'HLT_e28_lhtight_nod0_ivarloose':'HLT_e28_lhtight_smooth_ivarloose',
-        'HLT_e28_lhtight_nod0_ivarloose':'HLT_e28_lhtight_nod0_ringer_ivarloose',
+dqlevel = ['HLT']
+complist={#'L1_EM22VHI':'HLT_e26_lhtight_nod0_ivarloose',
+        #'L1_EM24VHI':'HLT_e28_lhtight_nod0_ivarloose',
+        #'HLT_e26_lhtight_nod0':'HLT_e26_lhtight_nod0_ivarloose',
+        #'HLT_e28_lhtight_nod0_ivarloose':'HLT_e28_lhtight_smooth_ivarloose',
+        'HLT_e28_lhtight_nod0_ringer_ivarloose':'HLT_e28_lhtight_nod0_ivarloose',
         }
 
 #########################################################
@@ -254,7 +258,7 @@ def setLegend2(leg,histo1,histo2,trigName,trigName2):
 
 # Main methods of program
 def montage(plotlist,name,stream):
-    print name
+    log.debug(name)
     plot_names_str = ' '.join(plotlist)
     cmd = 'montage -tile 2x2 -geometry 800x800+3+3 {0} {1}'.format(plot_names_str, name + stream + '.pdf')
     subprocess.call(cmd, shell=True)
@@ -262,9 +266,10 @@ def montage(plotlist,name,stream):
     subprocess.call(cmd, shell=True)
 
 def sortPlots(histos,path,holder):
-    
+     
     tname, tplot, run = parseName(path)
     holder.setRunNumber(run) 
+    log.debug("Sorting name: %s, plot %s, run %s, path %s",tname,tplot,run,path)
     # The following is ridiculous 
     for l in dqlevel:
         if(l in tplot):
@@ -286,12 +291,12 @@ def parseName(fpath):
     tname=""
     run=""
     flist=dlist[0].split(".")
-    print flist
+    log.debug(flist)
     if(len(flist)>2):
         run=flist[1]
     else:
         run=flist[0]
-    #print run
+    log.debug(run)
     if("Shifter" in fpath):
         tname=dlist.pop()
     elif("Expert" in fpath):  
@@ -309,22 +314,22 @@ def objectsInDir(rdir,holder):
     for key in rdir.GetListOfKeys():
         cl = key.GetClassName(); rcl = ROOT.TClass.GetClass(cl)
         if ' ' in key.GetName():
-            print 'WARNING: cannot have spaces in histogram names for han config; not including %s %s' % (cl, key.GetName())
+            log.error('WARNING: cannot have spaces in histogram names for han config; not including %s %s' % (cl, key.GetName()))
             continue
         if rcl.InheritsFrom('TDirectory'):
             recurse(key.ReadObj(),holder)
         elif rcl.InheritsFrom('TH1'):
 
             if '/' in key.GetName():
-                print 'WARNING: cannot have slashes in histogram names, encountered in directory %s, histogram %s' % (rdir.GetPath(), key.GetName())
+                log.debug('WARNING: cannot have slashes in histogram names, encountered in directory %s, histogram %s' % (rdir.GetPath(), key.GetName()))
                 continue
             if key.GetName() == 'summary':
-                print 'WARNING: cannot have histogram named summary, encountered in %s' % rdir.GetPath()
+                log.debug('WARNING: cannot have histogram named summary, encountered in %s' % rdir.GetPath())
                 continue
             histos.append(key.ReadObj())
             fpath = rdir.GetPath()
             name = (fpath + '/' + key.GetName()).lstrip('/')
-            #print name, fpath
+            log.debug('name: %s fpath: %s',name, fpath)
     if(len(histos) > 0):        
         sortPlots(histos,fpath,holder)
 
@@ -356,11 +361,13 @@ def createTriggerComparisonPlots(holder):
     slist=[]
     for key in dqlist:
         for trigger in holder.Triggers:
+            log.debug("Reference trigger %s",trigger)
             h1 = holder.getPlots(trigger,key) 
-            print h1
+            log.debug("found reference plot %s", h1)
             if(trigger in complist):
+                log.debug("Reference trigger %s",complist[trigger])
                 h2 = holder.getPlots(complist[trigger],key)
-                print h2
+                log.debug("found comparison plot %s",h2)
             i=0
             pclist=[]
             for h in h1:
@@ -410,6 +417,7 @@ def process(infname, basepath, run="", rinfname="", rbasepath=""):
             lumi=str(round(lbset.GetRecordedLumi()/(1e6),1))
 
     import re
+    log.debug("Opening file %s",infname)
     f = ROOT.TFile.Open(infname, 'READ')
     if not f.IsOpen():
         print 'ERROR: cannot open %s' % infname
