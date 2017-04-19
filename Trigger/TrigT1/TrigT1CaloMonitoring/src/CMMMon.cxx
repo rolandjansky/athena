@@ -159,7 +159,7 @@ StatusCode CMMMon::bookHistogramsRecurrent()
   
   //if ( newLumiBlock ) { }
 
-  if ( newRun ) {
+  if ( newRunFlag() ) {
 
     MgmtAttr_t attr = ATTRIB_UNMANAGED;
     MonGroup CMM_inputThresh( this, m_PathInRootFile+"/Input/Thresholds",

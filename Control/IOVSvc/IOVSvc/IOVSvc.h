@@ -220,7 +220,7 @@ private:
   ServiceHandle<ICondSvc> p_condSvc;
   ServiceHandle<IProxyProviderSvc> p_pps;
 
-  mutable std::recursive_mutex m_lock;
+  mutable std::mutex m_lock;
 
 };
 

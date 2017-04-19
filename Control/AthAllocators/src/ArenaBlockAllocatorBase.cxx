@@ -182,17 +182,18 @@ void ArenaBlockAllocatorBase::erase()
 /**
  * @brief Return the statistics block for this allocator.
  */
-const ArenaAllocatorBase::Stats& ArenaBlockAllocatorBase::stats() const
+ArenaAllocatorBase::Stats ArenaBlockAllocatorBase::stats() const
 {
   // Calculate derived statistics.
-  m_stats.elts.free = m_stats.elts.total - m_stats.elts.inuse;
-  m_stats.bytes.inuse = m_stats.elts.inuse   * m_params.eltSize +
-                        m_stats.blocks.inuse * ArenaBlock::overhead();
-  m_stats.bytes.total = m_stats.elts.total   * m_params.eltSize +
-                        m_stats.blocks.total * ArenaBlock::overhead();
-  m_stats.bytes.free  = m_stats.elts.free   * m_params.eltSize +
-                        m_stats.blocks.free * ArenaBlock::overhead();
-  return m_stats;
+  Stats stats = m_stats;
+  stats.elts.free = stats.elts.total - stats.elts.inuse;
+  stats.bytes.inuse = stats.elts.inuse   * m_params.eltSize +
+                      stats.blocks.inuse * ArenaBlock::overhead();
+  stats.bytes.total = stats.elts.total   * m_params.eltSize +
+                      stats.blocks.total * ArenaBlock::overhead();
+  stats.bytes.free  = stats.elts.free   * m_params.eltSize +
+                      stats.blocks.free * ArenaBlock::overhead();
+  return stats;
 }
 
 

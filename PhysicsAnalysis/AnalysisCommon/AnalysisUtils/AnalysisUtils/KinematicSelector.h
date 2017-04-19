@@ -8,7 +8,7 @@
 #define ANALYSISUTILS_KINEMATICSELECTOR_H
 
 /**
-   @Project: AnalysisUtils
+   @package: AnalysisUtils
  
    @class KinematicSelector
    

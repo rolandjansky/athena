@@ -16,7 +16,7 @@
 
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArCalculatorSvcImp.h"
-#include "LArG4Barrel/LArBarrelGeometry.h"
+#include "ILArBarrelGeometry.h"
 
 #include <stdexcept>
 #include <vector>
@@ -54,7 +54,7 @@ public:
 
 private:
 
-  LArG4::Barrel::Geometry* m_geometry;
+  ServiceHandle<ILArBarrelGeometry> m_geometry;
   AccMap*   m_accmap;
   std::unique_ptr<MapEta>   m_etamap1;
   std::unique_ptr<MapEta>   m_etamap2;
@@ -69,10 +69,6 @@ private:
 
   const LArG4BirksLaw *m_birksLaw;
   bool  m_doHV;
-
-
-  // detector name, for translated geometry
-  std::string m_detectorName;
 
   // global EMBarrel dimensions
   double m_etaMaxBarrel;

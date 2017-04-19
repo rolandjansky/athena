@@ -98,11 +98,8 @@ public:
    * @param owner Address of the object that owns this Header.
    * @param nblock Value to set in the parameters structure for the
    *               number of elements to allocate per block.
-   * @param name   Value to use as the base for the allocator names.
    */
-  ArenaSharedHeapSTLHeader (const void* owner,
-                            int nblock,
-                            const std::string& name);
+  ArenaSharedHeapSTLHeader (const void* owner, int nblock);
 
 
   /**
@@ -133,18 +130,14 @@ public:
    * @brief Return the name to use for an allocator for type @c T.
    */
   template <class T>
-  std::string get_name();
+  static std::string get_name();
     
 
   /**
    * @brief Return the heap allocator for type @c T.
-   * @param index Reference to the index for type @c T.
-   *              Before the first call, this should be initialized
-   *              to std::string::npos.  This should generally
-   *              be a static variable.
    */
   template <class T>
-  ArenaHeapAllocator* get_pool (size_t& index);
+  ArenaHeapAllocator* get_pool();
 
 
   /**
@@ -165,14 +158,17 @@ public:
 
 
 private:
+  /**
+   * @brief Return the allocator index to use for type @c T.
+   */
+  template <class T>
+  static size_t get_index();
+
   /// Address of the allocator that created this header.
   const void* m_owner;
 
   /// Saved value for nblock parameter.
   size_t m_nblock;
-
-  /// Saved value for base name.
-  std::string m_name;
 
   /// List of allocators.
   std::vector<ArenaHeapAllocator*> m_allocators;
@@ -222,10 +218,8 @@ public:
    * @brief Default constructor.
    * @param nblock Value to set in the parameters structure for the
    *               number of elements to allocate per block.
-   * @param name   Value to use as the base for the allocator names.
    */
-  ArenaSharedHeapSTLAllocator (size_t nblock = 1000,
-                               const std::string& name = "");
+  ArenaSharedHeapSTLAllocator (size_t nblock = 1000);
 
 
   /**
@@ -406,7 +400,7 @@ public:
   /**
    * @brief Return the statistics block for this allocator.
    */
-  const ArenaAllocatorBase::Stats& stats() const;
+  ArenaAllocatorBase::Stats stats() const;
 
 
   /**
@@ -418,9 +412,14 @@ public:
 
   /**
    * @brief Return a pointer to the underlying allocator.
-   *        This creates the allocator if needed.
    */
-  ArenaHeapAllocator* poolptr() const;
+  ArenaHeapAllocator* poolptr();
+
+
+  /**
+   * @brief Return a pointer to the underlying allocator.
+   */
+  const ArenaHeapAllocator* poolptr() const;
 
 
   /**
@@ -431,16 +430,8 @@ public:
   
 
 private:
-  /**
-   * @brief Ask the Header for the allocator to use.
-   *        This will either return an existing one or create a new one.
-   */
-  void get_pool() const;
-
   ArenaSharedHeapSTLHeader* m_header;
-  mutable ArenaHeapAllocator* m_pool;
-
-  static size_t s_index;
+  ArenaHeapAllocator* m_pool;
 };
 
 

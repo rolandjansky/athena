@@ -67,7 +67,7 @@ class I4MomDumper : public AthAlgorithm
   /////////////////////////////////////////////////////////////////// 
 
   /** Prints out (on the configured output stream) the content
-   *  of an @c INavigable4MomentumCollection object, given its @C StoreGate
+   *  of an @c INavigable4MomentumCollection object, given its @c StoreGate
    *  key.
    */
   StatusCode dump( const std::string& collName );

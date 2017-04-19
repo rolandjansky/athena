@@ -137,11 +137,11 @@ private:
 
   // -- Histograms
   ITHistSvc  *m_thistSvc; 
-  TProfile   *h_efieldz;
-  TProfile2D *h_yzRamo;
-  TProfile2D *h_yzEfield;
-  TProfile2D *h_yEfield;
-  TProfile2D *h_zEfield;
+  TProfile   *m_h_efieldz;
+  TProfile2D *m_h_yzRamo;
+  TProfile2D *m_h_yzEfield;
+  TProfile2D *m_h_yEfield;
+  TProfile2D *m_h_zEfield;
 
   IdentifierHash m_hashId;
 

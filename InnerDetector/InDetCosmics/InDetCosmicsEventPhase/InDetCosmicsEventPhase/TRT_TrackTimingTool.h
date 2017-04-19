@@ -34,9 +34,7 @@ namespace Trk{
   class ITrackFitter;
 }
 
-/** @class  
-
-    TRT_TrackTimingTool is a wrapper that passes on the track time, as measured in TRT, to MuonCombinedTimingTools
+/** @class TRT_TrackTimingTool is a wrapper that passes on the track time, as measured in TRT, to MuonCombinedTimingTools
       
     @author  Sasa Fratina, Brett Jackson
 */  

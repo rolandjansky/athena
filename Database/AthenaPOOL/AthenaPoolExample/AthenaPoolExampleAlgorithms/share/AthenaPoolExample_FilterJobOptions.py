@@ -82,7 +82,7 @@ topSequence += AthPoolEx__ReadData("ReadData")
 #---   Secondary Write portion  ----- Don't change it !!!
 #--------------------------------------------------------------
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolFile5.root" , True )
+Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolFile5.root" , True, noTag=True )
 Stream1.ItemList += [ "ExampleTrackContainer#MyTracks" ]
 Stream1.WritingTool.ProcessingTag = "Stream1_derived"
 

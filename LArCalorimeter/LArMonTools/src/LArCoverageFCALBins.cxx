@@ -4,19 +4,19 @@
 
 #include "LArMonTools/LArCoverageFCALBins.h"
 
-int LArCoverageFCALBins::getXBins(int /*iSide*/, int iSamp) const {
+int LArCoverageFCALBins::getXBins(int /*iSide*/, int iSamp) {
   static const int nbinsXFCAL[] = {240,216,200};
     
   return nbinsXFCAL[iSamp-1];
 }
 
-int LArCoverageFCALBins::getYBins(int /*iSide*/, int iSamp) const {
+int LArCoverageFCALBins::getYBins(int /*iSide*/, int iSamp) {
   static const int nbinsYFCAL[] = {138,126,114};
 
   return nbinsYFCAL[iSamp-1];
 }
 
-float LArCoverageFCALBins::getRMax(int /*iSide*/, int iSamp) const {
+float LArCoverageFCALBins::getRMax(int /*iSide*/, int iSamp) {
   // for |tan(theta)| * cos/sin(phi)
   //static const float rmaxFCAL[] = {0.0901834,
   //				   0.0821644,
@@ -29,7 +29,7 @@ float LArCoverageFCALBins::getRMax(int /*iSide*/, int iSamp) const {
   return rmaxFCAL[iSamp-1];
 }
 
-float LArCoverageFCALBins::getRMin(int /*iSide*/) const {
+float LArCoverageFCALBins::getRMin(int /*iSide*/) {
 
   // for |tan(theta)| * cos/sin(phi)
   //static const float rminFCAL   = 0.015;
@@ -38,7 +38,7 @@ float LArCoverageFCALBins::getRMin(int /*iSide*/) const {
   return rminFCAL;
 }
 
-const unsigned short * LArCoverageFCALBins::getBins(int /*iSide*/, int iSamp, int iEta, int iPhi) const {
+const unsigned short * LArCoverageFCALBins::getBins(int /*iSide*/, int iSamp, int iEta, int iPhi) {
 
   static const unsigned short dummy[] = {0};
 

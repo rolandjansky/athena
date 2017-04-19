@@ -89,7 +89,7 @@ namespace Trig {
       // Simply call the function doing the heavy lifting:
       ATH_CHECK( loadConfig() );
 
-      // Retrun gracefully:
+      // Return gracefully:
       return StatusCode::SUCCESS;
    }
 

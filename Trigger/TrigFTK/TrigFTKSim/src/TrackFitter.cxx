@@ -24,7 +24,7 @@ TrackFitter::TrackFitter() :
   m_max_ncomb(10000), m_max_nhitsperplane(-1), m_max_trkout(2000000), m_norecovery_nhits(-1),
   m_one_per_road(false), m_require_first(true), m_do_majority(1),
   // m_one_per_road(true), m_require_first(false), m_do_majority(1),
-  m_roadinput(0), m_trackoutput(0),
+  m_roadinput(0), m_trackoutput(0), m_trackoutput_pre_hw(0),
   //m_fwoutput(0), m_maxsectors_fwo(0), m_nsectors_fwo(0), // output for firmware tests
   m_nregions(0), m_nsubregions(0),
   m_constant(0),
@@ -152,6 +152,7 @@ void TrackFitter::prepareBanks(int nregions, int nsubregions)
   // propagate the number of the banks into the input and output modules
   m_roadinput->setNBanks(m_nregions);
   m_trackoutput->setNBanks(m_nregions);
+  //  m_trackoutput_pre_hw->setNBanks(m_nregions);
 
   m_constant = new FTKConstantBank**[m_nregions];
   for (int i=0;i<m_nregions;++i) { // regions loop
@@ -182,6 +183,7 @@ void TrackFitter::init()
   // propagate the initialization
   m_roadinput->init(m_goodRegion);
   m_trackoutput->init(TREE_TRACK_BUFSIZE,m_goodRegion);
+  //  m_trackoutput_pre_hw->init(TREE_TRACK_BUFSIZE,m_goodRegion);
 
   // initialize firmware output files
   //m_fwoutput->beginTrackFitterFiles();
@@ -190,6 +192,7 @@ void TrackFitter::init()
   if (!m_trackoutput->getMultiOut()) {
     // the only file in this mode has to be set before
     m_trackoutput->beginFile();
+    //    m_trackoutput_pre_hw->beginFile();
   }
   else {
     TString ofname(gSystem->BaseName(m_roadinput->getCurrentFileName()));
@@ -201,6 +204,7 @@ void TrackFitter::init()
     else
       ofname.Prepend("ftktracks_");
     m_trackoutput->beginFile(ofname.Data());
+    //    m_trackoutput_pre_hw->beginFile(ofname.Data());
   }
 
   if (m_identify_badhit) {
@@ -251,6 +255,7 @@ int TrackFitter::nextEvent()
     // syncronize the output
     if (m_trackoutput->getMultiOut()) {
        m_trackoutput->endFile();
+       //       m_trackoutput_pre_hw->endFile();
       TString ofname(gSystem->BaseName(m_roadinput->getCurrentFileName()));
       // add the prefix ftktracks_
       if (ofname.Contains("ftkroads")) {
@@ -260,11 +265,13 @@ int TrackFitter::nextEvent()
       else
 	ofname.Prepend("ftktracks_");
       m_trackoutput->beginFile(ofname.Data());
+      //      m_trackoutput_pre_hw->beginFile(ofname.Data());
     }
   }
 
   // clear the output module
   m_trackoutput->eventBegin();
+  //  m_trackoutput_pre_hw->eventBegin();
 
   for (int ibank=0;ibank!=m_nregions;++ibank) { // regions loop
 
@@ -272,7 +279,8 @@ int TrackFitter::nextEvent()
 
     m_trackoutput->setRunNumber( ibank , m_roadinput->runNumber(ibank) );
     m_trackoutput->setEventNumber( ibank , m_roadinput->eventNumber(ibank) );
-
+    // m_trackoutput_pre_hw->setRunNumber( ibank , m_roadinput->runNumber(ibank) );
+    // m_trackoutput_pre_hw->setEventNumber( ibank , m_roadinput->eventNumber(ibank) );
 
     const FTKRoad *cur_road = m_roadinput->nextRoad(ibank);
     while (cur_road) {
@@ -293,7 +301,7 @@ int TrackFitter::nextEvent()
 
   // call end event for the output module
   m_trackoutput->eventEnd();
-
+  //  m_trackoutput_pre_hw->eventEnd();
   return res;
 }
 
@@ -333,6 +341,10 @@ void TrackFitter::processor_end(int ibank)
   for (;itrack2!=m_tracks.end();itrack2 = m_tracks.erase(itrack2)) {
     m_trackoutput->addTrack(ibank,*itrack2);
   }
+  // itrack2 = m_tracks_pre_hw.begin();
+  // for (;itrack2!=m_tracks_pre_hw.end();itrack2 = m_tracks.erase(itrack2)) {
+  //   m_trackoutput_pre_hw->addTrack(ibank,*itrack2);
+  // }
   m_trackoutput->addNCombs(ibank,m_ncombs);
   m_trackoutput->addNFits(ibank,m_nfits);
   m_trackoutput->addNFitsMajority(ibank,m_nfits_maj);
@@ -344,6 +356,18 @@ void TrackFitter::processor_end(int ibank)
   m_trackoutput->addNFitsHWRejected(ibank,m_nfits_rej);
   m_trackoutput->addNFitsBadMajority(ibank,m_nfits_badmaj);
   m_trackoutput->addNFitsHWRejectedMajority(ibank,m_nfits_rejmaj);
+  
+  // m_trackoutput_pre_hw->addNCombs(ibank,m_ncombs);
+  // m_trackoutput_pre_hw->addNFits(ibank,m_nfits);
+  // m_trackoutput_pre_hw->addNFitsMajority(ibank,m_nfits_maj);
+  // m_trackoutput_pre_hw->addNFitsMajority_pix(ibank,m_nfits_maj_pix);
+  // m_trackoutput_pre_hw->addNFitsMajority_SCT(ibank,m_nfits_maj_SCT);
+  // m_trackoutput_pre_hw->addNFitsRecovery(ibank,m_nfits_rec);
+  // m_trackoutput_pre_hw->addNAddFitsRecovery(ibank,m_nfits_addrec);
+  // m_trackoutput_pre_hw->addNFitsBad(ibank,m_nfits_bad);
+  // m_trackoutput_pre_hw->addNFitsHWRejected(ibank,m_nfits_rej);
+  // m_trackoutput_pre_hw->addNFitsBadMajority(ibank,m_nfits_badmaj);
+  // m_trackoutput_pre_hw->addNFitsHWRejectedMajority(ibank,m_nfits_rejmaj);
 }
 
 

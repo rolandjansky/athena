@@ -57,5 +57,6 @@ use     LumiBlockComps  LumiBlockComps-* LumiBlock
 use     PathResolver    PathResolver-*   Tools
 use     TrigT1CaloCondSvc TrigT1CaloCondSvc-* Trigger/TrigT1
 use     xAODEventInfo   xAODEventInfo-*  Event/xAOD
+use     TrigT1CaloByteStream   TrigT1CaloByteStream-*  Trigger/TrigT1
 end_private
 

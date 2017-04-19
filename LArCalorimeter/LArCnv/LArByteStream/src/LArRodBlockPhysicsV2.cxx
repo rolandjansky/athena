@@ -11,7 +11,6 @@
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArDigit.h"
 #include "LArIdentifier/LArOnlineID.h"
-//#include "LArTools/LArCablingService.h" 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"

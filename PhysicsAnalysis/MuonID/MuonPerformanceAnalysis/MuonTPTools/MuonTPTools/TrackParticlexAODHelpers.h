@@ -267,7 +267,7 @@ namespace xAOD {
     }
 
     /// return true if the covariance matrix of the defining parameters is set, has enough elements and the q/p is valid
-    /// @TODO also check theta ? 
+    /// @todo also check theta ? 
     inline
     bool hasValidCovQoverP(const xAOD::TrackParticle *tp ) {
           if (hasValidCov(tp)) {

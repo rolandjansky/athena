@@ -1,5 +1,5 @@
 ## @file PyAthenaTests/share/pythin_mctruth_jobOptions.py
-## @purpose read an AOD POOL file and slim the truth
+## @brief read an AOD POOL file and slim the truth
 
 ###################################
 if not 'EVTMAX' in dir():

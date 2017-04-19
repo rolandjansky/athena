@@ -173,7 +173,7 @@ namespace TrigCostRootAnalysis {
     kDoNotWriteMetadata,
     kCurrentEventBunchGroupID,
     kCurrentEventEBWeight,
-    kCurrentEventWasRandomOnline, // <BEGIN> Monitors - ORDERING IS IMPORTANT HERE
+    kCurrentEventWasRandomOnline, // \<BEGIN\> Monitors - ORDERING IS IMPORTANT HERE
     kMonitorBegin, //!< This entry must be first (used in loops elsewhere). The rest of the monitors can technically
                    // come in any order, and new ones may be added
     kDoRatesUpgradeMonitor,
@@ -194,7 +194,7 @@ namespace TrigCostRootAnalysis {
     kDoGlobalsMonitor,
     kDoFullEventMonitor, //!< This entry must be after the GlobalsMonitor/ breaks the partitioning (to be fixed :( )
     kDoEventProfileMonitor,
-    kDoAllMonitor, //!< This entry must be last // <END> Monitors - ORDERING IS IMPORTANT HERE
+    kDoAllMonitor, //!< This entry must be last // \<END\> Monitors - ORDERING IS IMPORTANT HERE
     kEnableROSToAlgMatching,
     kPatternsMonitor,
     kPatternsOutput,

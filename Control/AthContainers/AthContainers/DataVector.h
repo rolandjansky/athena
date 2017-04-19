@@ -405,7 +405,7 @@
  * Calling @c clearDecorations will erase all variables marked as decorations,
  * restoring the state back to where it was when @c lock was called.
  *
- * An @c auxdecor method is also available, analogous to @x auxdata.
+ * An @c auxdecor method is also available, analogous to @c auxdata.
  *
  *
  * Index tracking
@@ -1737,7 +1737,7 @@ public:
   /**
    * @brief Convert to @c AuxVectorBase.
    *
-   * Needed to get @x AuxVectorBase from a @c ConstDataVector.
+   * Needed to get @c AuxVectorBase from a @c ConstDataVector.
    * Present in @c DataVector as well for consistency.
    * We only really need it in the base class; however, root6 fails
    * constructing a @c TMethodCall for this if there is virtual

@@ -29,7 +29,8 @@ using namespace std;
 
 //#define USEAMIN2
 //#define PRINT_SS 1
-//#define PRINT_ROADS_SECTOR 1
+//#define PRINT_ROADS_SECTOR -1
+#define PRINT_ROADS_NUM 100
 
 #ifdef TESTTBB
 #include "tbb/parallel_for.h"
@@ -949,7 +950,7 @@ const std::list<FTKRoad>& FTK_AMBank::getRoads()
 
   }
 #ifdef PRINT_ROADS_SECTOR
-  static int print=1;
+  static int print=PRINT_ROADS_NUM;
   if(print) {
      cout<<"FTK_AMBank::getRoads number of roads="<<m_roads.size()<<"\n";
      printRoads(m_roads,PRINT_ROADS_SECTOR);

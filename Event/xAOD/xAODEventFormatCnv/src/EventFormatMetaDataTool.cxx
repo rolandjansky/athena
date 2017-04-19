@@ -60,7 +60,7 @@ namespace xAODMaker {
       // Reset the internal object if it exists:
       m_format.reset();
 
-      // Retrun gracefully:
+      // Return gracefully:
       return StatusCode::SUCCESS;
    }
 
@@ -137,7 +137,7 @@ namespace xAODMaker {
                                                m_outputKey ) );
       }
 
-      // Retrun gracefully:
+      // Return gracefully:
       return StatusCode::SUCCESS;
    }
 

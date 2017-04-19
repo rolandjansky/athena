@@ -1414,8 +1414,8 @@ def compareAlgToolsSvcAuditor(alg1, alg2) :
 ## Interprets the connection string
 #  @param connectionString connection string
 #  connection string needs to be of the following format (this is also the order of checking)
-#  <ALIAS>                              -- any string without a colon ':' will be checked for in the dblookup.xml file
-#  type:<detail>                        -- no dblookup will be used, type has to be oracle, mysql, or sqlite_file
+#  \<ALIAS\>                              -- any string without a colon ':' will be checked for in the dblookup.xml file
+#  type:\<detail\>                        -- no dblookup will be used, type has to be oracle, mysql, or sqlite_file
 #  sqlite_file:filename.db              -- an sqlite file, no authentication needed, will be opened in read-only mode
 #  oracle://ATLR/ATLAS_CONF_TRIGGER_V2  -- a service description without user and password, requires lookup in authentication.xml
 #  oracle://ATLR/ATLAS_CONF_TRIGGER_V2;username=ATLAS_CONF_TRIGGER_V2_R;password=<...>  -- a service description with user and password

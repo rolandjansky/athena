@@ -188,7 +188,7 @@ void iFatras::HitCreatorTRT::createSimHit(const ISF::ISFParticle& isp, const Trk
            ATH_MSG_VERBOSE("[ trthit ] Straw center : " << hitSurface.center());
            ATH_MSG_VERBOSE("[ trthit ] Entry / exit : " << sol1raw << ", " << sol2raw );
            
-           //!< @TODO: fill information, decide which one is pre/post step point
+           //!< @todo: fill information, decide which one is pre/post step point
            int trackID              = isp.barcode();
            int pdgCode              = isp.pdgCode();
            double mass               = isp.mass();

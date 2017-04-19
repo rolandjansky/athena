@@ -2,6 +2,7 @@
 
 from AthenaCommon.CfgGetter import addTool,addService,addAlgorithm
 addTool("SCT_Digitization.SCT_DigitizationConfig.SCT_DigitizationTool"          , "SCT_DigitizationTool")
+addTool("SCT_Digitization.SCT_DigitizationConfig.SCT_GeantinoTruthDigitizationTool"          , "SCT_GeantinoTruthDigitizationTool")
 addTool("SCT_Digitization.SCT_DigitizationConfig.SCT_DigitizationToolHS"        , "SCT_DigitizationToolHS")
 addTool("SCT_Digitization.SCT_DigitizationConfig.SCT_DigitizationToolPU"        , "SCT_DigitizationToolPU")
 addTool("SCT_Digitization.SCT_DigitizationConfig.SCT_DigitizationToolSplitNoMergePU", "SCT_DigitizationToolSplitNoMergePU")

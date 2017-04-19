@@ -21,13 +21,13 @@ void compareHead();
 void compareSubh();
 void compareBody();
 void compareFoot();
-CMAword diffOut(){return diffOutput;};
+CMAword diffOut(){return m_diffOutput;};
 
 private:
 
-MatrixReadOut *hardware;
-MatrixReadOut *simulation;
-CMAword diffOutput;
+MatrixReadOut *m_hardware;
+MatrixReadOut *m_simulation;
+CMAword m_diffOutput;
 
 
 };

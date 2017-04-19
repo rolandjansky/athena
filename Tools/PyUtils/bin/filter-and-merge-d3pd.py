@@ -751,7 +751,7 @@ Accepted command line options:
 
 ###################### xmldict #########################
 # @file PyUtils/python/xmldict.py
-# @purpose converts an XML file into a python dict, back and forth
+# @brief converts an XML file into a python dict, back and forth
 # @author http://code.activestate.com/recipes/573463
 #         slightly adapted to follow PEP8 conventions
 

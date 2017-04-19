@@ -839,7 +839,7 @@ void FTKPlaneMap::WriteMapToRootFile(TDirectory* dir)
    //! Write PMap to root file
    //! PMap is stored in TDirectory* pmap
    //!    name:  "PMap"
-   //!    title:  <filename>
+   //!    title:  \<filename\>
    //! PMap is again readable using ReadMapFromRootFile()
    
    //cout<<"Writing PlaneMap to root file."<<endl;

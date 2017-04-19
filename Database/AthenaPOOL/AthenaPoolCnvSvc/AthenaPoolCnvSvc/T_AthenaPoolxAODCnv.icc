@@ -54,7 +54,7 @@ T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createObj( IOpaqueAddress* pAddr,
 template <class XAOD, class ... TPCNVS>
 XAOD* T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createPersistent( XAOD* trans )
 {
-  return new XAOD (trans->begin(), trans->end(), SG::VIEW_ELEMENTS);
+  return new XAOD (*trans);
 }
 
 

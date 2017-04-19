@@ -7,7 +7,7 @@
 #define ANALYSISUTILS_ELECTRONIDSELECTORCORE_H 
 
 /**
-   @Project: AnalysisUtils
+   @package: AnalysisUtils
  
    @class ElectronIDSelectorCore
    

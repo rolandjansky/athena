@@ -104,7 +104,7 @@ struct GenericMember {
 
     \note Define \c RAPIDJSON_NOMEMBERITERATORCLASS to fall back to a
         pointer-based implementation, if your platform doesn't provide
-        the C++ <iterator> header.
+        the C++ \<iterator\> header.
 
     \see GenericMember, GenericValue::MemberIterator, GenericValue::ConstMemberIterator
  */

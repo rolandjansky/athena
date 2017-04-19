@@ -436,7 +436,8 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::find()
 
 Trk::TrackSegment* InDet::TRT_TrackSegmentsMaker_ATLxk::next()
 {
-  if(m_segiterator!=m_segments.end()) return (*m_segiterator++); return 0;
+  if(m_segiterator!=m_segments.end()) return (*m_segiterator++);
+  return 0;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -446,7 +447,8 @@ Trk::TrackSegment* InDet::TRT_TrackSegmentsMaker_ATLxk::next()
 MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)  return dumpEvent(out);
+  return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -854,7 +856,10 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::mapStrawsProduction()
 	    double Sq = A*A+2.*D*B;  Sq>0. ? Sq=sqrt(Sq) : Sq=0.;
 	    double S1 =-(A+Sq)/B;
 	    double S2 =-(A-Sq)/B;
-	    S>S2 ? S=S2 : S<S1 ? S=S1 : S=S;
+            if (S > S2)
+              S = S2;
+            else if (S < S1)
+              S = S1;
 	  }
 	  m_slope [n] = atan2(y+S*ay,x+S*ax)*m_A; 
 	  m_islope[n] = int(m_slope[n]*m_Psi128);

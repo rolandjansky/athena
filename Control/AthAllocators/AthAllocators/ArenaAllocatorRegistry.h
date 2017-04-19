@@ -18,15 +18,16 @@
 #define ATLALLOCATORS_ARENAALLOCATORREGISTRY_H
 
 
+#include "AthAllocators/ArenaAllocatorCreator.h"
 #include <cstdlib>
 #include <string>
+#include <memory>
 
 
 namespace SG {
 
 
 class ArenaAllocatorBase;
-class ArenaAllocatorCreator;
 class ArenaAllocatorRegistryImpl;
 
 
@@ -50,7 +51,7 @@ public:
    * @return The new integer index for this allocator type.
    */
   size_t registerCreator (const std::string& name,
-                          ArenaAllocatorCreator* creator);
+                          std::unique_ptr<ArenaAllocatorCreator> creator);
 
 
   /**
@@ -67,7 +68,7 @@ public:
    * @param i The index of the allocator to create.
    * @return A newly-allocated allocator instance.
    */
-  ArenaAllocatorBase* create (size_t i);
+  std::unique_ptr<ArenaAllocatorBase> create (size_t i);
 
 
   /**
@@ -78,7 +79,7 @@ public:
 
 private:
   /// The implementation object.
-  ArenaAllocatorRegistryImpl* m_impl;
+  std::unique_ptr<ArenaAllocatorRegistryImpl> m_impl;
 
   // Disallow copying.
   ArenaAllocatorRegistry (const ArenaAllocatorRegistry&);

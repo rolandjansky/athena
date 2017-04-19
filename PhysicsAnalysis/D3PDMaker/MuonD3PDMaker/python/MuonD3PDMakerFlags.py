@@ -2,7 +2,7 @@
 
 # 
 ## @file MuonD3PDMaker/python/MuonD3PDMakerFlags.py
-## @purpose Python module to hold common flags to configure MuonD3PDMaker JobOptions
+## @brief Python module to hold common flags to configure MuonD3PDMaker JobOptions
 ##
 
 

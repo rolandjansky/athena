@@ -41,6 +41,8 @@ PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:Catalog1.xml
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
 PoolSvc              INFO Re-initializing PoolSvc
 Stream1             DEBUG Found StoreGateSvc store.
 Stream1             DEBUG Found MetaDataStore store.

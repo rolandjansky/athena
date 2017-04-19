@@ -124,7 +124,7 @@ StatusCode PPrSpareMon::bookHistogramsRecurrent()
 
   //if ( newLumiBlock) { }
 
-  if ( newRun ) {
+  if ( newRunFlag() ) {
 
     MgmtAttr_t attr = ATTRIB_UNMANAGED;
     MonGroup TT_ADC(this, m_PathInRootFile+"/ADC", run, attr);

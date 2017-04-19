@@ -10,7 +10,7 @@
  * (giacinto.piacquadio@physik.uni-freiburg.de)
  * 
  * This class provides an implementation for a primary 
- * vertex finding tool, which uses the <i>Adaptive MultiVertex</i> 
+ * vertex finding tool, which uses the \<i\>Adaptive MultiVertex\</i\> 
  * Fitter to solve the problem of finding the multiple 
  * interaction vertices and to find out the best possible 
  * assignment of the track to the vertices.
@@ -26,7 +26,7 @@
  *    are added to the new vertex candidate
  * -  the new vertex candidate is added on top of the previous fit and 
  *    the AdaptiveMultiVertexFitter is used to fit all them 
- *    together (more information in the <br><i>TrkVertexFitters</br></i>
+ *    together (more information in the \<br\>\<i\>TrkVertexFitters\</br\>\</i\>
  *    package).
  * -  the tracks already used are removed from the tracks 
  *    from which the next seed would be obtained and if there 
@@ -71,7 +71,7 @@
  *
  *   bool                              isInitialized
  *   MvfFitInfo*                       MvfFitInfo
- *   std::Vector<VxTrackAtVertex*>     VTAV
+ *   std::Vector\<VxTrackAtVertex*\>     VTAV
  *
  *   This last decoration is needed in order to be able to use MVFVxTrackAtVertex objects
  *   which have the additional information of xAOD::Vertices associated to the track

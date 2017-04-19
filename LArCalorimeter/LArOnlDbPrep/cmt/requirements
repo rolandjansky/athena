@@ -7,7 +7,7 @@ author chc
 use AtlasPolicy    AtlasPolicy-*
 use GaudiInterface GaudiInterface-* External
 
-use LArTools LArTools-* LArCalorimeter
+use LArCabling LArCabling-* LArCalorimeter
 use CaloIdentifier      CaloIdentifier-*   Calorimeter
 use CaloTriggerTool	CaloTriggerTool-*   Calorimeter
 use LArRecConditions	LArRecConditions-*  LArCalorimeter

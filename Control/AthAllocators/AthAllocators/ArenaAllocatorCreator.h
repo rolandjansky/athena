@@ -19,6 +19,9 @@
 #define ATLALLOCATORS_ARENAALLOCATORCREATOR_H
 
 
+#include <memory>
+
+
 namespace SG {
 
 
@@ -42,7 +45,7 @@ public:
   /**
    * @brief Create an allocator instance.
    */
-  virtual ArenaAllocatorBase* create() = 0;
+  virtual std::unique_ptr<ArenaAllocatorBase> create() = 0;
 };
 
 

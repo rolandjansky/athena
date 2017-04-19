@@ -170,7 +170,7 @@ namespace TrigCostRootAnalysis {
     // Maps which hold all the extrapolation data per lumi block
   public:
     IntFloatMap_t m_lumiPerLB; //!< Map of lumi block number to the inst. lumi
-    IntFloatMap_t m_muPerLB; //!< Map of lumi block to the inst. <mu>
+    IntFloatMap_t m_muPerLB; //!< Map of lumi block to the inst. \<mu\>
     IntFloatMap_t m_deadtimePerLB; //!< Map of lumi block the deadtime (only changes for Multi Run)
     IntIntMap_t m_pairedBunchesPerLB; //!< Map of lumi block to number of paired colliding bunches (only changes for
                                       // Multi Run)

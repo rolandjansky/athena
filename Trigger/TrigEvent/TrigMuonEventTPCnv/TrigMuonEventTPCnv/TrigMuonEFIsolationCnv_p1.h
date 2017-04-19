@@ -7,8 +7,7 @@
 #ifndef TRIGMUONEVENT_TRIGMUONEFISOLATIONCNV_P1_H__
 #define TRIGMUONEVENT_TRIGMUONEFISOLATIONCNV_P1_H__
 /**
- * @Project: Trigger
- * @Package: TrigMuonEventTPCnv
+ * @package: TrigMuonEventTPCnv
  * @class  : TrigMuonEFIsolationCnv_p1
  *
  * @brief T/P Converter for TrigMuonEFIsolation_p1

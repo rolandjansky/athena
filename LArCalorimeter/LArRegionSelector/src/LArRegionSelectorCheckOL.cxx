@@ -15,7 +15,7 @@
 #include "CaloTTDetDescr/CaloTTDescrManager.h"
 #include "CaloTTDetDescr/CaloTTDescrRegion.h"
 #include "CaloIdentifier/CaloLVL1_ID.h" 
-#include "LArTools/LArCablingService.h" 
+#include "LArCabling/LArCablingService.h" 
 #include "CaloTriggerTool/CaloTriggerTowerService.h" 
 
 #include "RegionSelector/IRegionLUT_Creator.h" 

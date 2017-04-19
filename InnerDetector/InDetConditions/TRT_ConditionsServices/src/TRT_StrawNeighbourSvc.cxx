@@ -3,7 +3,7 @@
 */
 
 /** @file TRT_StrawNeighbourSvc.cxx
- *  @Service to information on straws electronic grouping
+ *  @brief Service to information on straws electronic grouping
  *  Develuped for the study of noise correlations between straws
  *  @author Esben Klinkby <klinkby@nbi.dk>
  **/

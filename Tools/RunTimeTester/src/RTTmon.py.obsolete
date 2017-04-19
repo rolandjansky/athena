@@ -187,7 +187,7 @@ class RTTmon(Frame):
         self.testerStats.append(l)
     
     def makeJobFrames(self, jobs):
-        """Makes, packs and retruns the frames for each line. The frames
+        """Makes, packs and returns the frames for each line. The frames
         are returned so the can be reset during updates"""
         
         lineNo        =  0 

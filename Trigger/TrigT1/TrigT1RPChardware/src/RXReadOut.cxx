@@ -9,7 +9,6 @@
 
 using namespace std;
 
-const ubit16 numberOfPads=8;
 //----------------------------------------------------------------------------//
 RXReadOut::RXReadOut(ubit16 sectorID, PadReadOut **PROlist) 
                      : BaseObject(Hardware,"RXReadOut") {
@@ -23,7 +22,7 @@ makeFragment();
 topRXBody();
 DISP<<" Fragement done; now try to read it back "<<endl;
 DISP_DEBUG;
-for(ubit16 i=0; i<numberOfWordsInFragment; i++) {
+for(ubit16 i=0; i<m_numberOfWordsInFragment; i++) {
  DISP<<" data word is "<<hex<<readRXWord()<<dec<<endl;
  DISP_DEBUG;
 }
@@ -35,9 +34,9 @@ RXReadOut::~RXReadOut() {
 void RXReadOut::reset() {
 m_Header=0x0000;
 m_Footer=0x0000;
-for(ubit16 i=0; i<numberOfPads; i++) { m_PADFragment[i]=0;}
-numberOfPDFragments=0;
-numberOfWordsInFragment=0;
+for(ubit16 i=0; i<s_numberOfPads; i++) { m_PADFragment[i]=0;}
+m_numberOfPDFragments=0;
+m_numberOfWordsInFragment=0;
 topRXBody();
 }//end-of-RXReadOut::reset
 //----------------------------------------------------------------------------//
@@ -52,25 +51,25 @@ ubit16 headerval[3];
 headerval[0] = 0;
 headerval[1] = m_sectorID;
 headerval[2] = 0; // Status bits (to be defined yet)
-m_Header = RROS.makeHeader(headerval);
-numberOfWordsInFragment+=1;
+m_Header = m_RROS.makeHeader(headerval);
+m_numberOfWordsInFragment+=1;
 DISP<<" RX Header: "<<hex<<m_Header<<dec<<endl;
 DISP_DEBUG;
 }//end-of-makeHeader()
 //----------------------------------------------------------------------------//
 void RXReadOut::makeFooter() {
-m_Footer = RROS.makeFooter((ubit16)0);
-numberOfWordsInFragment+=1; 
+m_Footer = m_RROS.makeFooter((ubit16)0);
+m_numberOfWordsInFragment+=1; 
 }//end-of-PadReadOut::makeFooter()
 //----------------------------------------------------------------------------//
 void RXReadOut::makeBody() {
-PadReadOut *PADFragment[numberOfPads]={0};
+PadReadOut *PADFragment[s_numberOfPads]={0};
 PadReadOutStructure PROS;
 ubit16 numberOfPadWords=0;
 ubit16 i;
 DISP<<" RXReadOut makeBody "<<endl;
 DISP_DEBUG;
-for(i=0; i<numberOfPads; i++) {
+for(i=0; i<s_numberOfPads; i++) {
  DISP<<" RXReadOut:: "<<i<<" pointer to PadReadOut is "<<*(m_PROlist+i)<<endl;
  DISP_DEBUG;
  if(*(m_PROlist+i)) {
@@ -83,7 +82,7 @@ for(i=0; i<numberOfPads; i++) {
       <<" il numero di Pad words = "<<numberOfPadWords<<endl
       <<" Identificatore di questa Pad e': "<<padid<<endl;
   DISP_DEBUG;
-  if(padid<numberOfPads) {
+  if(padid<s_numberOfPads) {
    if(!PADFragment[padid]) {
     PADFragment[padid] = *(m_PROlist+i);
    } else {
@@ -96,36 +95,36 @@ for(i=0; i<numberOfPads; i++) {
   } else {
    DISP<<" RXReadOut::makeBody: padid address "<<padid<<" is bad "<<endl;
    DISP_ERROR;
-  }//end-of-if(padid<numberOfPads
+  }//end-of-if(padid<s_numberOfPads
  }//end-of-if(*(m_PROlist
 }//end-of-for
 //
 // copy PADFragment to the array data member m_PADFragment
 //
 ubit16 j=0;
-for(i=0; i<numberOfPads; i++) {
+for(i=0; i<s_numberOfPads; i++) {
  if(PADFragment[i]) {
   m_PADFragment[j]=PADFragment[i];
   DISP<<" makeBody; number of PAD WOrds="
       <<m_PADFragment[j]->numberOfFragmentWords()<<endl;
   DISP_DEBUG;
-  numberOfWordsInFragment+=m_PADFragment[j]->numberOfFragmentWords();
+  m_numberOfWordsInFragment+=m_PADFragment[j]->numberOfFragmentWords();
   j++;
  }//end-of-if(
 }//end-of-for(i
-numberOfPDFragments=j;
-DISP<<" Number of PAD Fragments= "<<numberOfPDFragments<<endl;
+m_numberOfPDFragments=j;
+DISP<<" Number of PAD Fragments= "<<m_numberOfPDFragments<<endl;
 DISP_DEBUG;
 }//end-of-RXReadOut::makeBody
 //----------------------------------------------------------------------------//
 void RXReadOut::topRXBody() {
-addressOfWordScanned=0;
-newPDIndex         =0;
-newPDRO            =1;
-numberOfWordsInPDRO=0;
-numberOfWordsRead  =0;
-endOfPDFragments   =0;
-currentPDRO        =0;
+m_addressOfWordScanned=0;
+m_newPDIndex         =0;
+m_newPDRO            =1;
+m_numberOfWordsInPDRO=0;
+m_numberOfWordsRead  =0;
+m_endOfPDFragments   =0;
+m_currentPDRO        =0;
 }//end-of-topRXBody
 //----------------------------------------------------------------------------//
 unsigned short int RXReadOut::readHeader() {
@@ -139,43 +138,43 @@ return m_Footer;
 unsigned short int RXReadOut::readBody() {
 ubit16 output=0xffff;
 
- if(newPDRO) {
+ if(m_newPDRO) {
  
-  if(newPDIndex<numberOfPads) {
-   if(m_PADFragment[newPDIndex]) {
-    currentPDRO=m_PADFragment[newPDIndex];
-    currentPDRO->topPADBody();
-    numberOfWordsInPDRO=currentPDRO->numberOfFragmentWords();
-    numberOfWordsRead=0;
-    newPDRO=0;
+  if(m_newPDIndex<s_numberOfPads) {
+   if(m_PADFragment[m_newPDIndex]) {
+    m_currentPDRO=m_PADFragment[m_newPDIndex];
+    m_currentPDRO->topPADBody();
+    m_numberOfWordsInPDRO=m_currentPDRO->numberOfFragmentWords();
+    m_numberOfWordsRead=0;
+    m_newPDRO=0;
    }//end
-   newPDIndex++;
+   m_newPDIndex++;
   } else {
-   endOfPDFragments=1;
+   m_endOfPDFragments=1;
   }//end
  
- }//end-of-if(newPDRO
+ }//end-of-if(m_newPDRO
 //
- if(!endOfPDFragments) {
-  output = currentPDRO->readPADWord();
-  numberOfWordsRead++;
-  if(numberOfWordsRead>=numberOfWordsInPDRO) newPDRO=1;
- }//end-of-if(!endOfPDFragments
+ if(!m_endOfPDFragments) {
+  output = m_currentPDRO->readPADWord();
+  m_numberOfWordsRead++;
+  if(m_numberOfWordsRead>=m_numberOfWordsInPDRO) m_newPDRO=1;
+ }//end-of-if(!m_endOfPDFragments
  return output;
 }//end-of-readBody()
 //----------------------------------------------------------------------------//
 unsigned short int RXReadOut::readRXWord() {
 ubit16 output=0xffff;
-     if(addressOfWordScanned==0)                           output=readHeader();
-else if(addressOfWordScanned==(numberOfWordsInFragment-1)) output=readFooter();
+     if(m_addressOfWordScanned==0)                           output=readHeader();
+else if(m_addressOfWordScanned==(m_numberOfWordsInFragment-1)) output=readFooter();
 else output = readBody();
-addressOfWordScanned++;
+m_addressOfWordScanned++;
 return output;
 }//end-of-readRXWord
 //----------------------------------------------------------------------------//
 void RXReadOut::bytestream(ostream &stream) {
 stream<<hex<<m_Header<<dec<<endl;               // header
-for(ubit16 i=0; i<numberOfPDFragments; i++) {
+for(ubit16 i=0; i<m_numberOfPDFragments; i++) {
  m_PADFragment[i]->bytestream(stream);          // body
 }//end-of-for(ubit16 i
 stream<<hex<<m_Footer<<dec<<endl;               // footer

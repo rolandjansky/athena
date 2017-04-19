@@ -105,13 +105,6 @@ IOVDbSvc.userPwd    = "conditions";
 # Reconstruction
 # non-ATLAS detectors
 
-theApp.Dlls += ["LArRawUtils"]
-theApp.Dlls += ["LArTools"]
-theApp.Dlls += ["LArROD"]
-theApp.Dlls += ["TBRec"]
-theApp.Dlls += [ "AthenaMonitoring"]
-theApp.Dlls += [ "LArMonitoring"]
-
 theApp.TopAlg += ["TBEventStreamer/EventInfoStreamer"]
 EventInfoStreamer = Algorithm( "EventInfoStreamer" )
 EventInfoStreamer.ToolNames += [ "TBEventInfoStreamerTool/EventTypeSelector" ]

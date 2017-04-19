@@ -2,7 +2,7 @@
 
 ##
 ## @file InDetRecExample/python/InDetKeys.py
-## @purpose Python module to hold common flags to configure JobOptions
+## @brief Python module to hold common flags to configure JobOptions
 ##
 
 """ InDetContainerKeys

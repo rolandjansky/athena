@@ -62,9 +62,6 @@ CpuCruncherAlg::~CpuCruncherAlg()
 ////////////////////////////
 StatusCode CpuCruncherAlg::initialize()
 {
-  // configure our MsgStream
-  msg().setLevel( outputLevel() );
-
   ATH_MSG_INFO ( "Initializing " << name() << "..." ) ;
   
   // retrieve random number svc

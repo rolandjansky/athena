@@ -38,7 +38,7 @@ class trfReport(object):
         pass
 
     ## @brief String representation of the job report
-    #  @detail Uses pprint module to output the python object as text
+    #  @details Uses pprint module to output the python object as text
     #  @note This is a 'property', so no @c fast option is available
     def __str__(self):
         return pprint.pformat(self.python())
@@ -323,7 +323,7 @@ class trfExecutorReport(object):
         self._exe = executor
 
     ## @brief Get a python representation of executor report
-    #  @detail Returns the python representation of this executor
+    #  @details Returns the python representation of this executor
     #  @return Python dictionary
     def python(self, fast = False):
         reportDict = {'name': self._exe.name,

@@ -13,11 +13,8 @@
 
 #include "CaloTTDetDescr/CaloTTDescrManager.h"
 #include "CaloTTDetDescr/CaloTTDescrRegion.h"
-//#include "LArIdentifier/LArReadoutModuleID.h" 
-//#include "LArTools/LArCablingService.h" 
 
 #include "LArRawUtils/LArRoI_Map.h" 
-//#include "LArByteStream/LArRodBlockStructure.h"
 #include "ByteStreamData/RawEvent.h"
 
 #include "RegionSelector/RegionSelectorLUT.h" 

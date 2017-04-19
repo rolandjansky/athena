@@ -146,7 +146,7 @@ StatusCode RODMon::bookHistogramsRecurrent()
 
   //if ( newEventsBlock || newLumiBlock ) { }
 
-  if ( newRun ) {
+  if ( newRunFlag() ) {
 
     MgmtAttr_t attr = ATTRIB_UNMANAGED;
 

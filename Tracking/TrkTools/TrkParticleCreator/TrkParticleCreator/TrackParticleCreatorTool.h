@@ -181,8 +181,6 @@ private:
   std::vector<std::pair<SG::AuxElement::Decorator<float>,Trk::eProbabilityType> > m_decorateEProbabilities; 
   std::vector<std::pair<SG::AuxElement::Decorator<uint8_t>,Trk::SummaryType> >    m_decorateSummaryTypes; 
 
-  /** Minimum number of TRT hits for which the TRT dE/dx is computed.*/
-  int m_minTRThitsForTRTdEdx;
     
   /** Name used for the decoration of the track particle with TRT dE/dx .*/
   static const std::string s_trtdEdxUsedHitsDecorationName;

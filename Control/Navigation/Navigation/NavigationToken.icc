@@ -44,8 +44,9 @@ NavigationToken<CHILD,CHILDPAR,HASH>::getParameter( const_iterator& anIter )
 template <typename CHILD, typename CHILDPAR, typename HASH>
 void NavigationToken<CHILD,CHILDPAR,HASH>::clear()
 {
+  typedef typename tokenStore::allocator_type alloc_t;
   m_data.clear();
-  m_data.get_allocator().reset();
+  alloc_t::get_allocator(m_data).reset();
   if ( m_navSelector  != 0 ) (const_cast<INavigationSelector<CHILD,CHILDPAR>*>(m_navSelector))->reset();
   if ( m_navCondition != 0 ) (const_cast<INavigationCondition*>(m_navCondition))->reset();
 }

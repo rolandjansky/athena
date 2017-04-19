@@ -40,7 +40,7 @@ from IOVDbSvc.CondDB import conddb
 ## conddb.addFolder("","<dbConnection>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=OFLP200;user=ATLAS_COOL_READER</dbConnection> /PIXEL/DCS/FSMSTATUS <tag>PixDCSFSMStatus-00-00-00</tag>")
 ## conddb.addFolder("","<dbConnection>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=OFLP200;user=ATLAS_COOL_READER</dbConnection> /PIXEL/DCS/FSMSTATE <tag>PixDCSFSMState-00-00-00</tag>")
 
-## tag = '<tag>PixDCS-00-00-00</tag>'
+# tag = '<tag>PixDCS-00-00-00</tag>'
 
 conddb.addFolder("DCS_OFL","/PIXEL/DCS/TEMPERATURE")
 conddb.addFolder("DCS_OFL","/PIXEL/DCS/HV")

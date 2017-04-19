@@ -8,7 +8,7 @@
 
 //=============================================================================
 /**
-   @Project: D2PDMaker
+   @package: D2PDMaker
  
    @class D2PDElectronSelector
  

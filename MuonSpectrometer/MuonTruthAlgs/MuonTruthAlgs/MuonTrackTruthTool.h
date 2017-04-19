@@ -150,8 +150,6 @@ namespace Muon {
     /// The number of such scatters is returned in the .second.
     const std::pair<const HepMC::GenParticle*, unsigned int> getInitialPair( const TruthTrajectory& traj, const int barcodeIn ) const;
     
-    StoreGateSvc*                       m_storeGate;
-
     const MuonGM::MuonDetectorManager*  m_detMgr;
 
     ToolHandle<Muon::MuonEDMPrinterTool>         m_printer;

@@ -20,8 +20,8 @@
  * \param AcceptPattern   - list of named bits required for acceptance
  * \param RejectPattern   - list of named bits required for rejection
  *
- * \Author Monika Wielers
- * \Date   July 28, 2004 - copy of TBPatternUnitStreamerTool adapted for H8
+ * \author Monika Wielers
+ * \date   July 28, 2004 - copy of TBPatternUnitStreamerTool adapted for H8
  */
 
 #include "TBRec/TBEventStreamerTool.h"
