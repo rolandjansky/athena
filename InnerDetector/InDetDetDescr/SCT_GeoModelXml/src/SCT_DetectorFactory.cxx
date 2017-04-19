@@ -5,7 +5,11 @@
 #include "SCT_GeoModelXml/SCT_DetectorFactory.h"
 
 #include <string>
-#include <iostream>
+#include <sstream>
+
+#include "StoreGate/StoreGateSvc.h" // For alignment getAlignableFolderType()
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "DetDescrConditions/AlignableTransformContainer.h"
 
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 #include "GeoModelKernel/GeoPhysVol.h"
@@ -27,8 +31,6 @@
 #include "GeoModelXml/GmxInterface.h"
 
 #include "PathResolver/PathResolver.h"
-
-//#include <cerrno>
 
 using namespace std;
 
@@ -74,9 +76,9 @@ SCT_DetectorFactory::~SCT_DetectorFactory() {
 }
 
 void SCT_DetectorFactory::create(GeoPhysVol *world) {
-    msg(MSG::INFO) << "C R E A T E   W O R L D" << endreq; 
+    msg(MSG::INFO) << "C R E A T E   W O R L D" << endmsg; 
    
-    msg(MSG::INFO) << m_detectorManager->getVersion().fullDescription() << endreq;
+    msg(MSG::INFO) << m_detectorManager->getVersion().fullDescription() << endmsg;
 
     SCT_GmxInterface gmxInterface(m_detectorManager, m_commonItems, &m_waferTree);
 //    To set up solid geometry only, without having to worry about sensitive detectors etc., and get loads of debug output,
@@ -87,11 +89,11 @@ void SCT_DetectorFactory::create(GeoPhysVol *world) {
     string gmxInput;
 
     if (m_options->gmxFilename() == "") {
-        msg(MSG::INFO) << "gmxFilename not set; getting .gmx from Geometry database Blob" << endreq;
+        msg(MSG::INFO) << "gmxFilename not set; getting .gmx from Geometry database Blob" << endmsg;
         flags = 0x1; // Lowest bit ==> string; next bit implies gzip'd but we decided not to gzip
         gmxInput = getBlob();
         string dtdFile = '"' + PathResolver::find_file("geomodel.dtd", "DATAPATH") + '"';
-        cout << "dtdFile = " << dtdFile << endl;
+        msg(MSG::INFO) << "dtdFile = " << dtdFile << endmsg;
         size_t index = gmxInput.find("\"geomodel.dtd\"");
         if (index != string::npos) {
             gmxInput.replace(index, 14, dtdFile);
@@ -133,16 +135,16 @@ void SCT_DetectorFactory::create(GeoPhysVol *world) {
 }
 
 string SCT_DetectorFactory::getBlob() {
-
     DecodeVersionKey versionKey(geoModelSvc(), "SCT");
     std::string versionTag  = versionKey.tag();
     std::string versionNode = versionKey.node();
-    cout << "getBlob: versionTag = " << versionTag << endl;
-    cout << "getBlob: versionNode = " << versionNode << endl;
+    msg(MSG::INFO) << "getBlob: versionTag = " << versionTag << endmsg;
+    msg(MSG::INFO) << "getBlob: versionNode = " << versionNode << endmsg;
 
     IRDBAccessSvc *accessSvc = m_athenaComps->rdbAccessSvc();
     const IRDBRecordset *recordSetSct = accessSvc->getRecordset("ITKXDD", versionTag, versionNode);
     if (!recordSetSct || recordSetSct->size() == 0) {
+        msg(MSG::FATAL) << "getBlob: Unable to obtain SCT recordSet" << endmsg;
         throw runtime_error("getBlob: Unable to obtain SCT recordSet");
     }
     const IRDBRecord *recordSct =  (*recordSetSct)[0];
@@ -203,7 +205,23 @@ void SCT_DetectorFactory::doNumerology() {
             }
         }
     }
+    msg(MSG::INFO) << endmsg;
 
+    int totalWafers = 0;
+    for (BarrelEndcap::iterator bec = m_waferTree.begin(); bec != m_waferTree.end(); ++bec) {
+        for (LayerDisk::iterator ld = bec->second.begin(); ld != bec->second.end(); ++ld) {
+            for (EtaModule::iterator eta = ld->second.begin(); eta != ld->second.end(); ++eta) {
+                for (PhiModule::iterator phi = eta->second.begin(); phi != eta->second.end(); ++phi) {
+                    for (Side::iterator side =phi->second.begin(); side != phi->second.end(); ++side) {
+                        totalWafers++;
+                    }
+                }
+            }
+        }
+    }
+    msg(MSG::INFO) << "Total number of wafers added is " << totalWafers << endmsg;
+    const SCT_ID *sctIdHelper = dynamic_cast<const SCT_ID *> (m_commonItems->getIdHelper());
+    msg(MSG::INFO) << "Total number of wafer identifiers is " << sctIdHelper->wafer_hash_max() << endmsg;
 //
 //    Used in digitization to create one vector big enough to hold all strips, whichever detector is in consideration.
 //    Anyway they are common to pixels and strips! Pixels dominate the EtaCell count (which traditionally the SCT does not set)
@@ -218,9 +236,87 @@ void SCT_DetectorFactory::doNumerology() {
 
     m_detectorManager->numerology() = n;
 
-    msg(MSG::INFO) << "End of numerology\n" << endreq;
+    msg(MSG::INFO) << "End of numerology\n" << endmsg;
+
+//
+//    Alignment preparation
+//
+    if (m_options->alignable()) {
+        msg(MSG::INFO) << "Set up alignment directories" << endmsg;
+        const std::string topFolder("/Indet/Align");
+        const std::string barrelBase("/SCTB");
+        const std::string endcapBase("/SCTE");
+        std::string baseName("");
+         
+        // Register the keys and the level corresponding to the key
+        // and whether it expects a global or local shift.
+        // level 0: sensor, level 1: module, level 2, layer/disc, level 3: whole barrel/enccap
+        InDetDD::AlignFolderType alignFolderType = getAlignFolderType();
+        m_detectorManager->addAlignFolderType(alignFolderType);
+
+        switch (alignFolderType) {
+        case InDetDD::static_run1:
+            m_detectorManager->addFolder(topFolder);
+            m_detectorManager->addChannel(topFolder + "/ID", 3, InDetDD::global);
+            m_detectorManager->addChannel(topFolder + "/SCT",2,InDetDD::global);
+            for (BarrelEndcap::iterator bec = m_waferTree.begin(); bec != m_waferTree.end(); ++bec) {
+                switch (bec->first) {
+                case -2:
+                    baseName = topFolder + endcapBase + "C";
+                break;
+                case 0:
+                    baseName = topFolder + barrelBase;
+                break;
+                case 2:
+                    baseName = topFolder + endcapBase + "A";
+                break;
+                default:
+                    msg(MSG::FATAL) << "Unknown SCT part with bec-ID " << bec->first << " encountered." << endmsg;
+                    throw std::runtime_error("Unknown SCT part for alignment.");
+                }
+                for (LayerDisk::iterator ld = bec->second.begin(); ld != bec->second.end(); ++ld) {
+                    std::ostringstream layer; 
+                    layer << ld->first + 1;
+                    m_detectorManager->addChannel(baseName + layer.str(), 1, InDetDD::local);
+                }
+            }
+        break;
+        // To be added: case InDetDD::timedependent_run2:, see SCT_GeoModel
+        default:
+            msg(MSG::FATAL) << "Alignment requested for unknown alignment folder type in SCT_DetectorFactory." << endmsg;
+            throw std::runtime_error("Wrong alignment folder type for SCT_DetectorFactory in SCT_GeoModelXml.");
+        }
+    }
 
     return;
+}
+
+// Determine which alignment folders are loaded to decide if we register old or new folders                                         
+InDetDD::AlignFolderType SCT_DetectorFactory::getAlignFolderType() const {
+
+    bool static_folderStruct = false;
+    bool timedep_folderStruct = false;
+    if (detStore()->contains<CondAttrListCollection>("/Indet/AlignL1/ID") &&
+        detStore()->contains<CondAttrListCollection>("/Indet/AlignL2/SCT") &&
+        detStore()->contains<AlignableTransformContainer>("/Indet/AlignL3") ) timedep_folderStruct = true;
+ 
+    if (detStore()->contains<AlignableTransformContainer>("/Indet/Align") ) static_folderStruct = true;
+ 
+    if (static_folderStruct && !timedep_folderStruct){
+        msg(MSG::INFO) << "Static run1 type alignment folder structure found" << endmsg;
+        return InDetDD::static_run1;
+    }
+    else if (!static_folderStruct && timedep_folderStruct){
+        msg(MSG::INFO) << " Time dependent run2 type alignment folder structure found" << endmsg;
+        return InDetDD::timedependent_run2;
+    }
+    else if (static_folderStruct && timedep_folderStruct){
+        throw std::runtime_error("Old and new alignment folders are loaded at the same time! This should not happen!");
+    }
+    else {
+        return InDetDD::none;
+    }
+ 
 }
 
 } // End namespace

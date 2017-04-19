@@ -6,6 +6,7 @@
 #define SCT_GEOMODELXML_SCT_GMXINTERFACE_H
 
 #include "GeoModelXml/GmxInterface.h"
+//#include "GaudiKernel/MsgStream.h"
 
 #include <map>
 // For template functions getparm(s):-----------
@@ -17,11 +18,13 @@
 
 #include "SCT_GeoModelXml/WaferTree.h"
 
+class MsgStream;
 namespace InDetDD {class SiDetectorDesign; class SCT_DetectorManager; class SiCommonItems;}
 
 class SCT_GmxInterface: public GmxInterface {
 public:
     SCT_GmxInterface(InDetDD::SCT_DetectorManager *detectorManager, InDetDD::SiCommonItems *commonItems, WaferTree *waferTree);
+    ~SCT_GmxInterface();
     int sensorId(std::map<std::string, int> &index);
     void addSensorType(std::string clas, std::string typeName, std::map<std::string, std::string> parameters);
     void addSensor(std::string typeName, std::map<std::string, int> &index, int sequentialId, 
@@ -70,6 +73,9 @@ private:
     InDetDD::SCT_DetectorManager *m_detectorManager;
     InDetDD::SiCommonItems *m_commonItems;
     WaferTree *m_waferTree;
+    MsgStream *m_log;
 };
+
+
 
 #endif // SCT_GEOMODELXML_SCT_GMXINTERFACE_H

@@ -19,7 +19,6 @@ class ISiLorentzAngleSvc;
 class IGeoModelSvc;
 class IRDBAccessSvc;
 class IGeometryDBSvc;
-class IInDetServMatBuilderTool;
 
 namespace InDetDD {
     class SCT_DetectorManager;
@@ -45,7 +44,6 @@ private:
     ServiceHandle<IRDBAccessSvc> m_rdbAccessSvc;
     ServiceHandle<IGeometryDBSvc> m_geometryDBSvc;
     ServiceHandle<ISiLorentzAngleSvc> m_lorentzAngleSvc;
-    ToolHandle<IInDetServMatBuilderTool> m_serviceBuilderTool;
 };
 
 #endif // SCT_GeoModelXml_SCT_SLHC_DETECTORTOOL_H

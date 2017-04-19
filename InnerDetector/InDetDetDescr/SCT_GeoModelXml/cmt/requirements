@@ -18,8 +18,8 @@ use GeometryDBSvc         GeometryDBSvc-*        DetectorDescription
 use GeoModelKernel        GeoModelKernel-*       DetectorDescription/GeoModel
 use GeoModelInterfaces    GeoModelInterfaces-*   DetectorDescription/GeoModel
 use PathResolver   	  PathResolver-*    	 Tools
-
-use PathResolver          PathResolver-*         Tools
+use AthenaPoolUtilities   AthenaPoolUtilities-*  Database/AthenaPOOL
+use DetDescrConditions    DetDescrConditions-*   DetectorDescription/DetDescrCond
 public
 
 library SCT_GeoModelXml *.cxx -s=components *.cxx

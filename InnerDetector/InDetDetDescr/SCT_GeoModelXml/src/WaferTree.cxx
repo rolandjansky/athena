@@ -3,7 +3,6 @@
 */
 
 #include "SCT_GeoModelXml/WaferTree.h"
-#include <iostream>
 
 using namespace std;
 

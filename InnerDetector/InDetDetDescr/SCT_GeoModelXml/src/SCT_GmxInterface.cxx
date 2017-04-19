@@ -5,7 +5,6 @@
 #include "SCT_GeoModelXml/SCT_GmxInterface.h"
 
 #include <cstdlib>
-#include <iostream>
 #include <sstream>
 
 //#define CANNOT_DEPEND_ON_INDETSIMEVENT
@@ -14,6 +13,10 @@
 //#else
 //#include "InDetSimEvent/SiHitIdHelper.h"
 //#endif
+
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/IMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/StripBoxDesign.h"
@@ -31,7 +34,18 @@ SCT_GmxInterface::SCT_GmxInterface(InDetDD::SCT_DetectorManager *detectorManager
                                    WaferTree *waferTree): 
     m_detectorManager(detectorManager),
     m_commonItems(commonItems),
-    m_waferTree(waferTree) {}
+    m_waferTree(waferTree) {
+    // Logging: ref https://wiki.bnl.gov/dayabay/index.php?title=Logging
+    // Turn on logging in job-options with: MessageSvc.setDebug += {"SCT_GmxInterface"}
+    ServiceHandle<IMessageSvc> msgh("MessageSvc", "SCT_GmxInterface");
+
+    m_log = new MsgStream(&(*msgh), "SCT_GmxInterface");
+}
+
+SCT_GmxInterface::~SCT_GmxInterface() {
+    delete m_log;
+}
+
 int SCT_GmxInterface::sensorId(map<string, int> &index) {
 //
 //    Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "Offline Identifiers"
@@ -39,10 +53,10 @@ int SCT_GmxInterface::sensorId(map<string, int> &index) {
 //#ifdef CANNOT_DEPEND_ON_INDETSIMEVENT
     const SiHitIdGmx id(SCT_HitIndex, index["barrel_endcap"], index["layer_wheel"], index["eta_module"], index["phi_module"], 
                         index["side"]);
-    m_commonItems->msg(MSG::DEBUG)  << "Index list: " << index["barrel_endcap"] << " " << index["layer_wheel"] << " " << 
-                                       index["eta_module"] << " " << index["phi_module"] << " " << index["side"] << endreq;
-    m_commonItems->msg(MSG::DEBUG) << "hitIdOfWafer = " << std::hex << id.id() << std::dec << endreq;
-    m_commonItems->msg(MSG::DEBUG) << id.print() << endreq;
+    *m_log << MSG::DEBUG  << "Index list: " << index["barrel_endcap"] << " " << index["layer_wheel"] << " " << 
+                                       index["eta_module"] << " " << index["phi_module"] << " " << index["side"] << endmsg;
+    *m_log << MSG::DEBUG << "hitIdOfWafer = " << std::hex << id.id() << std::dec << endmsg;
+    *m_log << MSG::DEBUG << "\n" << id.print() << endmsg;
 
     return id.id(); 
     //#else
@@ -50,14 +64,14 @@ int SCT_GmxInterface::sensorId(map<string, int> &index) {
     int hitIdOfWafer = SiHitIdHelper::GetHelper()->buildHitId(SCT_HitIndex, index["barrel_endcap"], index["layer_wheel"], 
                                                               index["eta_module"], index["phi_module"], index["side"]);
 
-    m_commonItems->msg(MSG::DEBUG)  << "Index list: " << index["barrel_endcap"] << " " << index["layer_wheel"] << " " << 
-                                       index["eta_module"] << " " << index["phi_module"] << " " << index["side"] << endreq;
-    m_commonItems->msg(MSG::DEBUG) << "hitIdOfWafer = " << std::hex << hitIdOfWafer << std::dec << endreq;
-    m_commonItems->msg(MSG::DEBUG) << " bec = " << SiHitIdHelper::GetHelper()->getBarrelEndcap(hitIdOfWafer) << 
+    *m_log << MSG::DEBUG  << "Index list: " << index["barrel_endcap"] << " " << index["layer_wheel"] << " " << 
+                                       index["eta_module"] << " " << index["phi_module"] << " " << index["side"] << endmsg;
+    *m_log << MSG::DEBUG << "hitIdOfWafer = " << std::hex << hitIdOfWafer << std::dec << endmsg;
+    *m_log << MSG::DEBUG << " bec = " << SiHitIdHelper::GetHelper()->getBarrelEndcap(hitIdOfWafer) << 
                                       " lay = " << SiHitIdHelper::GetHelper()->getLayerDisk(hitIdOfWafer) << 
                                       " eta = " << SiHitIdHelper::GetHelper()->getEtaModule(hitIdOfWafer) << 
                                       " phi = " << SiHitIdHelper::GetHelper()->getPhiModule(hitIdOfWafer) << 
-                                      " side = " << SiHitIdHelper::GetHelper()->getSide(hitIdOfWafer) << endreq; 
+                                      " side = " << SiHitIdHelper::GetHelper()->getSide(hitIdOfWafer) << endmsg; 
     return hitIdOfWafer;
     */
     //#endif
@@ -77,8 +91,8 @@ int SCT_GmxInterface::sensorId(map<string, int> &index) {
 
 void SCT_GmxInterface::addSensorType(string clas, string typeName, map<string, string> parameters) {
 
-    m_commonItems->msg(MSG::DEBUG) << "SCT_GmxInterface::addSensorType called for class " << clas << " typeName " << typeName << 
-                                      endreq;
+    *m_log << MSG::DEBUG << "SCT_GmxInterface::addSensorType called for class " << clas << " typeName " << typeName << 
+                                      endmsg;
     if (clas == "SiStripBox") {
          makeSiStripBox(typeName, parameters);
     }
@@ -86,8 +100,8 @@ void SCT_GmxInterface::addSensorType(string clas, string typeName, map<string, s
          makeStereoAnnulus(typeName, parameters);
     } // To-do: add "Annulus"
     else {
-        m_commonItems->msg(MSG::ERROR) << "SCT_GmxInterface::addSensorType: unrecognised sensor class, " << clas << endreq;
-        m_commonItems->msg(MSG::ERROR) << "No sensor design created" << endreq;
+        *m_log << MSG::ERROR << "SCT_GmxInterface::addSensorType: unrecognised sensor class, " << clas << endmsg;
+        *m_log << MSG::ERROR << "No sensor design created" << endmsg;
     }
 }
 
@@ -113,9 +127,9 @@ double length(25.0);
         carrier = InDetDD::holes;
     }
     else {
-        m_commonItems->msg(MSG::FATAL) << 
+        *m_log << MSG::FATAL << 
            "SCT_GmxInterface::makeSiStripBox: Error: parameter carrierType should be electrons or holes for " << 
-            typeName << endreq;
+            typeName << endmsg;
         exit(999);
     }
 
@@ -127,8 +141,8 @@ double length(25.0);
         readoutSide = -1;
     }
     else {
-        m_commonItems->msg(MSG::FATAL) << 
-           "SCT_GmxInterface::makeSiStripBox: Error: parameter readoutSide should be + or - for " << typeName << endreq;
+        *m_log << MSG::FATAL << 
+           "SCT_GmxInterface::makeSiStripBox: Error: parameter readoutSide should be + or - for " << typeName << endmsg;
         exit(999);
     }
 
@@ -143,8 +157,8 @@ double length(25.0);
         fieldDirection = InDetDD::SiDetectorDesign::zAxis; 
     }
     else {
-        m_commonItems->msg(MSG::FATAL) << 
-         "SCT_GmxInterface::makeSiStripBox: Error: parameter fieldDirection should be x, y, or z for " << typeName << endreq;
+        *m_log << MSG::FATAL << 
+         "SCT_GmxInterface::makeSiStripBox: Error: parameter fieldDirection should be x, y, or z for " << typeName << endmsg;
         exit(999);
     }
 
@@ -159,8 +173,8 @@ double length(25.0);
         stripDirection = InDetDD::SiDetectorDesign::zAxis; 
     }
     else {
-        m_commonItems->msg(MSG::FATAL) << 
-         "SCT_GmxInterface::makeSiStripBox: Error: parameter stripDirection should be x, y, or z for " << typeName << endreq;
+        *m_log << MSG::FATAL << 
+         "SCT_GmxInterface::makeSiStripBox: Error: parameter stripDirection should be x, y, or z for " << typeName << endmsg;
         exit(999);
     }
 
@@ -207,9 +221,9 @@ vector<double> endR;
         carrier = InDetDD::holes;
     }
     else {
-        m_commonItems->msg(MSG::FATAL) << 
+        *m_log << MSG::FATAL << 
            "SCT_GmxInterface::makeStereoAnnulus: Error: parameter carrierType should be electrons or holes for " << 
-            typeName << endreq;
+            typeName << endmsg;
         exit(999);
     }
 
@@ -221,8 +235,8 @@ vector<double> endR;
         readoutSide = -1;
     }
     else {
-        m_commonItems->msg(MSG::FATAL) << "SCT_GmxInterface::makeStereoAnnulus: Error: parameter readoutSide should be + or - for " << 
-                                          typeName << endreq;
+        *m_log << MSG::FATAL << "SCT_GmxInterface::makeStereoAnnulus: Error: parameter readoutSide should be + or - for " << 
+                                          typeName << endmsg;
         exit(999);
     }
 
@@ -237,8 +251,8 @@ vector<double> endR;
         fieldDirection = InDetDD::SiDetectorDesign::zAxis; 
     }
     else {
-        m_commonItems->msg(MSG::FATAL) << 
-          "SCT_GmxInterface::makeStereoAnnulus: Error: parameter fieldDirection should be x, y, or z for " << typeName << endreq;
+        *m_log << MSG::FATAL << 
+          "SCT_GmxInterface::makeStereoAnnulus: Error: parameter fieldDirection should be x, y, or z for " << typeName << endmsg;
         exit(999);
     }
 
@@ -253,8 +267,8 @@ vector<double> endR;
         stripDirection = InDetDD::SiDetectorDesign::zAxis; 
     }
     else {
-        m_commonItems->msg(MSG::FATAL) << 
-         "SCT_GmxInterface::makeStereoAnnulus: Error: parameter stripDirection should be x, y, or z for " << typeName << endreq;
+        *m_log << MSG::FATAL << 
+         "SCT_GmxInterface::makeStereoAnnulus: Error: parameter stripDirection should be x, y, or z for " << typeName << endmsg;
         exit(999);
     }
 
@@ -264,25 +278,25 @@ vector<double> endR;
     getparm(typeName, "nRows", par, nRows);
     getparms(typeName, "nStrips", par, nStrips);
     if (nStrips.size() != (unsigned int) nRows) {
-        m_commonItems->msg(MSG::FATAL) << 
-           "SCT_GmxInterface::makeStereoAnnulus: Error: Wrong number of nStrip's " << nStrips.size() << " " << typeName << endreq;
+        *m_log << MSG::FATAL << 
+           "SCT_GmxInterface::makeStereoAnnulus: Error: Wrong number of nStrip's " << nStrips.size() << " " << typeName << endmsg;
         exit(999);
     }
     getparms(typeName, "phiPitch", par, phiPitch);
     if (phiPitch.size() != (unsigned int) nRows) {
-        m_commonItems->msg(MSG::FATAL) << 
-          "SCT_GmxInterface::makeStereoAnnulus: Error: Wrong number of pitch's " << phiPitch.size() << " " << typeName << endreq;
+        *m_log << MSG::FATAL << 
+          "SCT_GmxInterface::makeStereoAnnulus: Error: Wrong number of pitch's " << phiPitch.size() << " " << typeName << endmsg;
         exit(999);
     }
     getparms(typeName, "startR", par, startR);
     if (startR.size() != (unsigned int) nRows) {
-        m_commonItems->msg(MSG::FATAL) << "SCT_GmxInterface::makeStereoAnnulus: Error: Wrong number of startR's " << 
-                                           typeName << endreq;
+        *m_log << MSG::FATAL << "SCT_GmxInterface::makeStereoAnnulus: Error: Wrong number of startR's " << 
+                                           typeName << endmsg;
         exit(999);
     }
     getparms(typeName, "endR", par, endR);
     if (endR.size() != (unsigned int) nRows) {
-        m_commonItems->msg(MSG::FATAL) << "SCT_GmxInterface::makeStereoAnnulus: Error: Wrong number of endR's " << typeName << endreq;
+        *m_log << MSG::FATAL << "SCT_GmxInterface::makeStereoAnnulus: Error: Wrong number of endR's " << typeName << endmsg;
         exit(999);
     }
 //
@@ -303,8 +317,8 @@ string SCT_GmxInterface::getstr(const string typeName, const string name, const 
         return found->second;
     }
     else {
-        m_commonItems->msg(MSG::FATAL) << "SCT_GmxInterface::addSensorType: Error: missing parameter " << name << " for " << 
-                                          typeName << endreq;
+        *m_log << MSG::FATAL << "SCT_GmxInterface::addSensorType: Error: missing parameter " << name << " for " << 
+                                          typeName << endmsg;
         exit(999);
     }
 
@@ -325,12 +339,12 @@ void SCT_GmxInterface::addSensor(string typeName, map<string, int> &index, int /
 //    special invalid hash-id (0xFFFFFFFF). But we don't exit the run, to help debug things quicker.
 //
     if (!hashId.is_valid()) {
-        m_commonItems->msg(MSG::ERROR) <<"Invalid id for sensitive wafer " << typeName << " volume with indices \n";
+        *m_log << MSG::ERROR <<"Invalid id for sensitive wafer " << typeName << " volume with indices \n";
         for (map<string, int>::iterator i = index.begin(); i != index.end(); ++i) {
-            m_commonItems->msg(MSG::ERROR) << i->first << " = " << i->second << "; ";
+            *m_log << MSG::ERROR << i->first << " = " << i->second << "; ";
         }
-        m_commonItems->msg(MSG::ERROR) << 
-          "\nRefusing to make it into a sensitive element. Incompatible gmx and identifier-xml files." << endreq;
+        *m_log << MSG::ERROR << 
+          "\nRefusing to make it into a sensitive element. Incompatible gmx and identifier-xml files." << endmsg;
         return;
     }
 //
@@ -338,8 +352,8 @@ void SCT_GmxInterface::addSensor(string typeName, map<string, int> &index, int /
 //
     const InDetDD::SiDetectorDesign *design = m_geometryMap[typeName];
     if (!design) {
-        m_commonItems->msg(MSG::FATAL) << "SCT_GmxInterface::addSensor: Error: Readout sensor type " << typeName << 
-          " not found.\n" << endreq;
+        *m_log << MSG::FATAL << "SCT_GmxInterface::addSensor: Error: Readout sensor type " << typeName << 
+          " not found.\n" << endmsg;
         exit(999);
     }
     InDetDD::SiDetectorElement *detector = new InDetDD::SiDetectorElement(id, design, fpv, m_commonItems);
@@ -351,12 +365,37 @@ void SCT_GmxInterface::addSensor(string typeName, map<string, int> &index, int /
     string errorMessage("");
     if (!m_waferTree->add(index["barrel_endcap"], index["layer_wheel"], index["eta_module"], 
                           index["phi_module"], index["side"], wafer, errorMessage)) {
-        m_commonItems->msg(MSG::ERROR) << errorMessage << endreq;
+        *m_log << MSG::ERROR << errorMessage << endmsg;
     }
     return;
 }
 
-void SCT_GmxInterface::addAlignable(int /*level*/, map<string, int> &/*index*/, GeoVFullPhysVol */*fpv*/, 
-                                    GeoAlignableTransform */*transform*/) {
-    m_commonItems->msg(MSG::INFO) << "SCT_GmxInterface::addAlignable called and ignored" << endreq;
+void SCT_GmxInterface::addAlignable(int level, map<string, int> &index, GeoVFullPhysVol * fpv, GeoAlignableTransform *transform) {
+    *m_log << MSG::INFO << "SCT_GmxInterface::addAlignable called" << endmsg;
+/*
+ *    Get the offline-id appropriate to the level (0 = wafer, 1 = module, 2 = wheel/cylinder, 3 = part, i.e barrel or an endcap)
+ */
+    const SCT_ID *sctIdHelper = dynamic_cast<const SCT_ID *> (m_commonItems->getIdHelper());
+    Identifier id;
+    switch (level) {
+        case 0:
+            id = sctIdHelper->wafer_id(index["barrel_endcap"], index["layer_wheel"], index["phi_module"], index["eta_module"], 
+                                       index["side"]);
+        break;
+        case 1:
+            id = sctIdHelper->wafer_id(index["barrel_endcap"], index["layer_wheel"], index["phi_module"], index["eta_module"], 0);
+        break;
+        case 2:
+            id = sctIdHelper->wafer_id(index["barrel_endcap"], index["layer_wheel"], 0, 0, 0);
+        break;
+        case 3:
+            id = sctIdHelper->wafer_id(index["barrel_endcap"], 0, 0, 0, 0);
+        break;
+        default:
+            *m_log << MSG::FATAL << "Unknown level " << level << " for alignment in SCT_GmxInterface::addAlignable" << 
+                                               endmsg;
+            exit(999);
+        break;
+    }
+    m_detectorManager->addAlignableTransform(level, id, transform, fpv);
 }
