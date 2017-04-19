@@ -397,9 +397,9 @@ InDetPerfPlot_res::finalizePlots() {
   for (unsigned int var(0); var != NPARAMS; ++var) {
     if (m_meanPlots[var]) {
       // warnings in case input histograms have large % events in under- and over- flow bins
-      vector< std::pair<unsigned int,double> > warnUOBinEtaRes;
-      vector< std::pair<unsigned int,double> > warnUOBinEtaPull;
-      vector< std::pair<unsigned int,double> > warnUOBinPtRes;
+      std::vector< std::pair<unsigned int,double> > warnUOBinEtaRes;
+      std::vector< std::pair<unsigned int,double> > warnUOBinEtaPull;
+      std::vector< std::pair<unsigned int,double> > warnUOBinPtRes;
       
       unsigned int etaBins = m_meanPlots[var]->GetNbinsX();
       auto& meanbasePlot = m_meanbasePlots[var];
