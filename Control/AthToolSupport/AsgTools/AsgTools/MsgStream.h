@@ -107,8 +107,6 @@ private:
 inline MsgStream& endmsg( MsgStream& s ) {
    return s.doOutput();
 }
-/// Backwards compatibility definition
-#define endreq endmsg
 
 #else
 #   error "What environment are we in?!?"

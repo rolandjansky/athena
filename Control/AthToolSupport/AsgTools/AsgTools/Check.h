@@ -56,9 +56,12 @@
       }                                                                 \
    } while( 0 )
 
-/// In standalone mode use the ASG specific macro as a replacement for ATH_CHECK
 #ifdef ASGTOOL_STANDALONE
+/// In standalone mode use the ASG specific macro as a replacement for ATH_CHECK
 #   define ATH_CHECK( EXP ) ASG_CHECK( EXP )
+#else
+/// Otherwise use the implementation from AthenaBaseComps
+#   include "AthenaBaseComps/AthCheckMacros.h"
 #endif
 
 #endif // ASGTOOLS_CHECK_H
