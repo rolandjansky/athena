@@ -1,0 +1,147 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef QUICK_ANA__OBJECT_TYPE_INFO_ICC
+#define QUICK_ANA__OBJECT_TYPE_INFO_ICC
+
+//        Copyright Iowa State University 2015.
+//                  Author: Nils Krumnack
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+
+// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
+// reports, feature suggestions, praise and complaints.
+
+
+#include <QuickAna/xAODInclude.h>
+#include <QuickAna/xAODEventSelect.h>
+
+namespace ana
+{
+  template<> struct ObjectTypeInfo::asXAOD<OBJECT_EVENTINFO>
+  {
+    /// \brief the actual type
+    typedef xAOD::EventInfo type;
+  };
+
+  template<> struct ObjectTypeInfo::asXAOD<OBJECT_EVENT_SELECT>
+  {
+    /// \brief the actual type
+    typedef EventSelectType type;
+  };
+
+  template<> struct ObjectTypeInfo::asXAOD<OBJECT_JET>
+  {
+    /// \brief the actual type
+    typedef xAOD::JetContainer type;
+  };
+
+  template<> struct ObjectTypeInfo::asXAOD<OBJECT_FAT_JET>
+  {
+    /// \brief the actual type
+    typedef xAOD::JetContainer type;
+  };
+
+  template<> struct ObjectTypeInfo::asXAOD<OBJECT_ELECTRON>
+  {
+    /// \brief the actual type
+    typedef xAOD::ElectronContainer type;
+  };
+
+  template<> struct ObjectTypeInfo::asXAOD<OBJECT_PHOTON>
+  {
+    /// \brief the actual type
+    typedef xAOD::PhotonContainer type;
+  };
+
+  template<> struct ObjectTypeInfo::asXAOD<OBJECT_MUON>
+  {
+    /// \brief the actual type
+    typedef xAOD::MuonContainer type;
+  };
+
+  template<> struct ObjectTypeInfo::asXAOD<OBJECT_TAU>
+  {
+    /// \brief the actual type
+    typedef xAOD::TauJetContainer type;
+  };
+
+  template<> struct ObjectTypeInfo::asXAOD<OBJECT_MET>
+  {
+    /// \brief the actual type
+    typedef xAOD::MissingETContainer type;
+  };
+
+  template<> struct ObjectTypeInfo::asXAOD<OBJECT_MET2>
+  {
+    /// \brief the actual type
+    typedef xAOD::MissingETContainer type;
+  };
+
+  template<> struct ObjectTypeInfo::fromXAOD<xAOD::EventInfo>
+  {
+    /// \brief the mask of supported types
+    static const unsigned support = (1 << OBJECT_EVENTINFO) | (1 << OBJECT_EVENT_SELECT);
+
+    /// \brief the object type to use by default
+    static const ObjectType base = OBJECT_EVENTINFO;
+  };
+
+  template<> struct ObjectTypeInfo::fromXAOD<xAOD::MuonContainer>
+  {
+    /// \brief the mask of supported types
+    static const unsigned support = 1 << OBJECT_MUON;
+
+    /// \brief the object type to use by default
+    static const ObjectType base = OBJECT_MUON;
+  };
+
+  template<> struct ObjectTypeInfo::fromXAOD<xAOD::TauJetContainer>
+  {
+    /// \brief the mask of supported types
+    static const unsigned support = 1 << OBJECT_TAU;
+
+    /// \brief the object type to use by default
+    static const ObjectType base = OBJECT_TAU;
+  };
+
+  template<> struct ObjectTypeInfo::fromXAOD<xAOD::ElectronContainer>
+  {
+    /// \brief the mask of supported types
+    static const unsigned support = 1 << OBJECT_ELECTRON;
+
+    /// \brief the object type to use by default
+    static const ObjectType base = OBJECT_ELECTRON;
+  };
+
+  template<> struct ObjectTypeInfo::fromXAOD<xAOD::PhotonContainer>
+  {
+    /// \brief the mask of supported types
+    static const unsigned support = 1 << OBJECT_PHOTON;
+
+    /// \brief the object type to use by default
+    static const ObjectType base = OBJECT_PHOTON;
+  };
+
+  template<> struct ObjectTypeInfo::fromXAOD<xAOD::JetContainer>
+  {
+    /// \brief the mask of supported types
+    static const unsigned support = (1 << OBJECT_JET) | (1 << OBJECT_FAT_JET);
+
+    /// \brief the object type to use by default
+    static const ObjectType base = OBJECT_JET;
+  };
+
+  template<> struct ObjectTypeInfo::fromXAOD<xAOD::MissingETContainer>
+  {
+    /// \brief the mask of supported types
+    static const unsigned support = (1 << OBJECT_MET) | (1 << OBJECT_MET2);
+
+    /// \brief the object type to use by default
+    static const ObjectType base = OBJECT_MET;
+  };
+}
+
+#endif

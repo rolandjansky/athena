@@ -1,0 +1,91 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include <QuickAna/IEventObjects.h>
+#include <QuickAna/ObjectTypeInfo.h>
+#include <RootCoreUtils/Assert.h>
+
+namespace ana
+{
+  template<class XAODContainer> AnaToolSelect<XAODContainer> ::
+  AnaToolSelect (const std::string& name)
+    : AsgTool (name), AnaTool (name),
+      m_type (ObjectTypeInfo::fromXAOD<XAODContainer>::base)
+  {}
+
+
+
+  template<class XAODContainer> StatusCode AnaToolSelect<XAODContainer> ::
+  setObjectType (ObjectType type, const std::string& workingPoint)
+  {
+    // TODO: needs a comment!
+    if ((ObjectTypeInfo::fromXAOD<XAODContainer>::support & (1 << type)) == 0)
+    {
+      ATH_MSG_ERROR ("unsupported object type");
+      return StatusCode::FAILURE;
+    }
+    m_type = type;
+    m_workingPoint = workingPoint;
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  template<class XAODContainer> StatusCode AnaToolSelect<XAODContainer> ::
+  useConfiguration (const InternalConfiguration& configuration)
+  {
+    ATH_CHECK (AnaTool::useConfiguration (configuration));
+    ATH_CHECK (m_selection.initialize (configuration, m_workingPoint));
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  template<class XAODContainer> AnalysisStep AnaToolSelect<XAODContainer> ::
+  step () const
+  {
+    return STEP_SELECT;
+  }
+
+
+
+  template<class XAODContainer> unsigned AnaToolSelect<XAODContainer> ::
+  inputTypes () const
+  {
+    return 1 << m_type;
+  }
+
+
+
+  template<class XAODContainer> unsigned AnaToolSelect<XAODContainer> ::
+  outputTypes () const
+  {
+    return 1 << m_type;
+  }
+
+
+
+  template<class XAODContainer> StatusCode AnaToolSelect<XAODContainer> ::
+  execute (IEventObjects& objects)
+  {
+    for (auto object : *objects.get<ContainerType>(m_type))
+    {
+      ATH_CHECK (m_selection.prepare (object));
+      if (m_selection.needSelectionTool())
+	ATH_CHECK (this->selectObject (*object));
+      m_selection.apply ();
+    }
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  template<class XAODContainer> void AnaToolSelect<XAODContainer> ::
+  registerCut (SelectionStep step, const std::string& name,
+	       SelectionCut& cut)
+  {
+    RCU_CHANGE_INVARIANT (this);
+    m_selection.registerCut (step, name, cut);
+  }
+}

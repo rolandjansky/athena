@@ -1,0 +1,85 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef QUICK_ANA__OUTPUT_TOOL_XAOD_ICC
+#define QUICK_ANA__OUTPUT_TOOL_XAOD_ICC
+
+// Shouldn't be used in Athena
+#ifdef ROOTCORE
+
+#include "QuickAna/OutputUtils.h"
+
+namespace ana
+{
+
+  //---------------------------------------------------------------------------
+  // Constructor
+  //---------------------------------------------------------------------------
+  template<class ContainerType, class AuxContainerType>
+  OutputToolXAOD<ContainerType, AuxContainerType>::
+  OutputToolXAOD(const std::string& name)
+    : asg::AsgTool(name)
+  {
+    declareProperty("WriteContainerNames", m_writeContNames);
+    declareProperty("CopyContainerNames", m_copyContNames);
+  }
+
+  //---------------------------------------------------------------------------
+  // Initialize the tool
+  //---------------------------------------------------------------------------
+  template<class ContainerType, class AuxContainerType>
+  StatusCode OutputToolXAOD<ContainerType, AuxContainerType>::
+  initialize()
+  {
+    ATH_MSG_DEBUG("Objects that will be copied from input to output persistent store:");
+    for(auto& copyName : m_copyContNames) {
+      ATH_MSG_DEBUG("  " << copyName);
+    }
+    ATH_MSG_DEBUG("Objects that will be written from transient to persistent store:");
+    for(auto& writeName : m_writeContNames) {
+      ATH_MSG_DEBUG("  " << writeName);
+    }
+    return StatusCode::SUCCESS;
+  }
+
+  //---------------------------------------------------------------------------
+  // Write containers to persistent store
+  //---------------------------------------------------------------------------
+  template<class ContainerType, class AuxContainerType>
+  StatusCode OutputToolXAOD<ContainerType, AuxContainerType>::
+  write()
+  {
+    auto outStore = evtStore()->event();
+
+    // Copy containers from input to output.
+    for(auto& copyName : m_copyContNames) {
+      ANA_CHECK( outStore->copy(copyName) );
+    }
+
+    // Write containers from transient to persistent
+    for(auto& writeName : m_writeContNames) {
+
+      // Retrieve from transient store
+      ContainerType* cont = nullptr;
+      ATH_CHECK( evtStore()->retrieve(cont, writeName) );
+
+      // Retrieve aux container
+      auto auxCont = dynamic_cast<AuxContainerType*>( cont->getStore() );
+      if(!auxCont) {
+        ATH_MSG_ERROR("Unable to cast aux container to requested type");
+        return StatusCode::FAILURE;
+      }
+
+      // Write to persistent store
+      ATH_CHECK( OutputUtils::recordContainer(cont, auxCont, *outStore, writeName) );
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+} // namespace ana
+
+#endif // ROOTCORE
+
+#endif

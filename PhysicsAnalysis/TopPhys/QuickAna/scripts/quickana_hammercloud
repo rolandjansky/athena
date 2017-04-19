@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+set -u
+
+options=""
+for file in `echo $1 | sed 's/,/ /g'`
+do
+    options="$options --el-input-file $file"
+done
+
+quickana_validate --write-summary $options output

@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+
+  <!-- Athena nightly test -->
+  <atn>
+    <TEST name="QuickAnaTest" type="athena" suite="QuickAnaAthTest">
+      <options_atn>QuickAna/AthExample.py</options_atn>
+      <timelimit>5</timelimit>
+      <author> QuickAna devs </author>
+      <mailto> atlas-sw-quickana-developers@cern.ch </mailto>
+      <expectations>
+        <errorMessage> Athena exited abnormally </errorMessage>
+         <errorMessage>FAILURE (ERROR)</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+    <TEST name="QuickAnaTest_AFII" type="athena" suite="QuickAnaAthTest">
+      <options_atn>QuickAna/AthExample_AFII.py</options_atn>
+      <timelimit>5</timelimit>
+      <author> QuickAna devs </author>
+      <mailto> atlas-sw-quickana-developers@cern.ch </mailto>
+      <expectations>
+        <errorMessage> Athena exited abnormally </errorMessage>
+         <errorMessage>FAILURE (ERROR)</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+  </atn>
+
+  <!-- RTT legacy -->
+  <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+
+    <rttContactPerson>Monica Dobre</rttContactPerson>
+    <mailto>monica.dobre@cern.ch,mehta@hep.ph.liv.ac.uk,dpluth@cern.ch</mailto>
+
+    <jobList>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>Reco</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+
+      <athena userJobId="QuickAnaTest">
+	<doc>
+	  Basic QuickAna Test
+	</doc>
+	<displayName>QuickAnaTest</displayName>
+	<options>AthExample.py</options>
+	<package>PhysicsAnalysis/TopPhys/QuickAna</package>
+	<group>QuickAnaAthTest</group>
+	<queue>medium</queue>
+	<testToRemove>
+          <jobGroupName>RTT:Top</jobGroupName>
+          <testidentifier>CheckFileRunner0</testidentifier>
+        </testToRemove>
+      </athena>
+    </jobList>
+
+    <jobGroups>
+      <jobGroup name="QuickAnaAthTest" parent="Transform">
+      </jobGroup>
+    </jobGroups>
+
+  </rtt>
+
+</unifiedTestConfiguration>
