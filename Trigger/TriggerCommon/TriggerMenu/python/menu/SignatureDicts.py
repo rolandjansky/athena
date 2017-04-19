@@ -53,7 +53,7 @@ ChainDictTemplate = {
 #==========================================================
 AllowedTopos_e = ["Jpsiee","Zeg","Zee","Heg"]
 AllowedTopos_mu = ['Jpsimumu']
-AllowedTopos_xe = ['1dphi10', '2dphi05', '6dphi05', '6dphi15', '2dphi05', '2dphi15', 'mt25', 'mt35', 'razor140', 'razor170', 'razor200','razor220','razor100','razor185','razor195']
+AllowedTopos_xe = ['1dphi10', '2dphi05', '6dphi05', '6dphi15', '2dphi05', '2dphi10', '2dphi15', 'mt25', 'mt35', 'razor140', 'razor170', 'razor200','razor220','razor100','razor185','razor195']
 AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu', 'bDimu2700', 'bNocut',
                       'bJpsimumu', 'bUpsimumu', 
                       'bBmumu', 'bBmumux', 
@@ -133,6 +133,11 @@ JetChainParts = {
     'dataScouting' : ['ds1', 'ds2'],
     'smc'          : ['30smcINF', 'nosmc'],
     'trkopt'       : ['notrk', 'ftk', 'ftkrefit'],
+    # Et cut by the jet build tool (ptmin)
+    'recoCutUncalib': ['rcuDefault', 'rcu0', 'rcu5'],
+    
+    # Et cut by the jet build tool (ptminFilter)
+    'recoCutCalib': ['rccDefault', 'rcc0', 'rcc5'],
 }
 
 
@@ -161,6 +166,8 @@ JetChainParts_Default = {
     'dataScouting' : '',
     'smc'          : 'nosmc',
     'trkopt'       : 'notrk',
+    'recoCutUncalib': 'rcuDefault',
+    'recoCutCalib': 'rccDefault',
     }
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -204,7 +211,7 @@ MuonChainParts = {
     'L2SAAlg'        : ['muFast', 'l2muonSA',],
     'L2CBAlg'        : ['muComb',],
     'EFAlg'          : ['SuperEF'],
-    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','pt2','z10','llns','noComb','zROItest'],
+    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','pt2','z10','llns','noComb','zROItest','invm1'],
     'overlapRemoval' : ['wOvlpRm', 'noOvlpRm', 'noMuCombOvlpRm'],
     'topo'           : AllowedTopos_mu,
     'flavour'        : ['hf'],
@@ -800,7 +807,7 @@ BeamspotChainParts = {
     'monType'        : AllowedBeamspotChainIdentifiers,
     'location'       : ['vtx'],
 #    'addInfo'        : ['trkFS','idperf'],
-    'addInfo'        : ['trkFS', 'allTE', 'activeTE','idperf'],
+    'addInfo'        : ['trkFS', 'allTE', 'activeTE','idperf','mon'],
     'hypo'           : [],
     'l2IDAlg'        : ['L2StarB','trkfast','FTK','FTKRefit'],
     'threshold'      : '',

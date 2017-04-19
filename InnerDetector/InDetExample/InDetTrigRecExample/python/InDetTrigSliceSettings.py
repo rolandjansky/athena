@@ -36,7 +36,7 @@ class InDetTrigSliceSettingsDB:
                'tauCore', 'tauIso',
                'beamSpot', 'cosmics',
                'bjetVtx',
-               'FTK', 'FTKRefit',
+               'FTK', 'FTKRefit', 'FTKMon',
                'bphysHighPt'
                ]
 
@@ -108,6 +108,7 @@ class InDetTrigSliceSettingsDB:
     for i in _slices:
       doresmon[i] = False 
     doresmon['muon'] = True
+    doresmon['FTKMon'] = True
     self.db['doResMon']=doresmon
 
     for i in _slices:

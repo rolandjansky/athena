@@ -42,5 +42,6 @@ atlas_add_component( TrigHLTMonitoring
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( python/scripts/*.py python/scripts/*.sh java/TrigMaMGUI_TRIGGERDBREPR.sh )
+atlas_install_runtime(run/TrigHLTMon_tf.py)
 atlas_install_generic( java/GUI/TrigMaMGUI.java
                        DESTINATION java/ )
