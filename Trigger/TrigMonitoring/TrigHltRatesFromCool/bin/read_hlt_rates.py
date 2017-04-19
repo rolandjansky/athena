@@ -2,7 +2,7 @@
 
 import argparse
 import logging
-from TrigUtils import TrigHltRates
+from TrigHltRatesFromCool import TrigHltRates
 from AthenaCommon.Logging import logging 
 logging.getLogger().info("Importing %s",__name__) 
 log = logging.getLogger("read_hlt_rates.py") 
