@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 776825 2016-10-06 11:22:55Z krasznaa $
 ################################################################################
 # Package: ElectronPhotonSelectorTools
 ################################################################################
@@ -20,11 +19,12 @@ atlas_depends_on_subdirs(
   Control/AthToolSupport/AsgTools
   Event/xAOD/xAODEgamma
   Event/xAOD/xAODTracking
-  Event/xAOD/xAODHIEvent
+  Reconstruction/MVAUtils
   PhysicsAnalysis/AnalysisCommon/PATCore
   PRIVATE
   Control/CxxUtils
   Event/FourMomUtils
+  Event/xAOD/xAODHIEvent
   Event/xAOD/xAODCaloEvent
   Event/xAOD/xAODCore
   Tools/PathResolver
@@ -40,7 +40,7 @@ atlas_add_library( ElectronPhotonSelectorToolsLib
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES AsgTools xAODEgamma xAODTracking xAODHIEvent PATCoreLib
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils FourMomUtils
-  xAODCaloEvent xAODCore PathResolver )
+  xAODCaloEvent xAODCore PathResolver MVAUtils )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( ElectronPhotonSelectorTools
@@ -74,6 +74,12 @@ if( XAOD_STANDALONE )
       util/testEMAmbiguityResolver.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma AsgTools xAODRootAccess
+      ElectronPhotonSelectorToolsLib )
+
+   atlas_add_executable( EGIdentification_testEGChargeIDSelector
+      util/testEGChargeIDSelector.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma AsgTools xAODRootAccess 
       ElectronPhotonSelectorToolsLib )
 
 endif()

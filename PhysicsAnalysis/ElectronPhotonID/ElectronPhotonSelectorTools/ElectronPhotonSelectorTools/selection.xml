@@ -16,4 +16,5 @@
   <class name="AsgElectronMultiLeptonSelector" /> 
   <class name="AsgElectronLikelihoodTool" /> 
   <class name="EGammaAmbiguityTool" /> 
+  <class name="AsgElectronChargeIDSelectorTool"/>
 </lcgdict>
