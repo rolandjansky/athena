@@ -9,7 +9,7 @@
 //
 // AUTHOR:   Andrea Coccaro
 // EMAIL:    Andrea.Coccaro@cern.ch
-// 
+//
 // REVISED for RUN2: Elemer Nagy
 // EMAIL:            Elemer.Nagy@cern.ch
 //
@@ -84,13 +84,14 @@ HLTBjetMonTool::HLTBjetMonTool(const std::string & type, const std::string & nam
   IHLTMonTool(type, name, parent),
   m_trackJetFinderTool("TrigTrackJetFinderTool"),
   m_TriggerChainBjet{}, m_TriggerChainMujet{},
+  m_TriggerChainBjet_x{}, m_TriggerChainMujet_x{},
   m_Chain2Dir{},
   m_Shifter_jSplit{}, m_Expert_jSplit{}, m_Shifter_jUnSplit{},  m_Expert_jUnSplit{}, m_Shifter_mujet{},m_Expert_mujet{},
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_etCut(10.), m_sv1_infosource("SV1")
 {
-  declareProperty ("monitoring_bjet",       m_TriggerChainBjet);          
-  declareProperty ("monitoring_mujet",      m_TriggerChainMujet);          
+  declareProperty ("monitoring_bjet",       m_TriggerChainBjet_x);
+  declareProperty ("monitoring_mujet",      m_TriggerChainMujet_x);
 }
 
 
@@ -99,7 +100,7 @@ HLTBjetMonTool::HLTBjetMonTool(const std::string & type, const std::string & nam
 
 HLTBjetMonTool::~HLTBjetMonTool() {
 
- 
+
 }
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
@@ -125,114 +126,6 @@ StatusCode HLTBjetMonTool::init() {
   m_sv1_infosource = "SV1";
   ATH_MSG_INFO(" ===> in HLTBjetMonTool::init - SV1  parameters: inputSV1SourceName = "  <<  m_sv1_infosource);
 
-  int size_TriggerChainBjet = m_TriggerChainBjet.size();
-  int size_TriggerChainMujet = m_TriggerChainMujet.size();
-  std::string chainName, folderName;
-
-  ATH_MSG_DEBUG("         Chain sizes - Bjet: " << size_TriggerChainBjet << " MuJet: " << size_TriggerChainMujet );
-  for (int i =0; i<size_TriggerChainBjet; i++){
-    chainName = m_TriggerChainBjet.at(i);
-    ATH_MSG_DEBUG("         Chain number: " << i << " Bjet Chain Name: " << chainName );
-    // Investigate by the 1st character which folder should be assigned                                                                                                                  
-    if (chainName.substr(0,1) == "E") {
-      m_TriggerChainBjet.at(i) = chainName.substr (2);
-      chainName = m_TriggerChainBjet.at(i);
-      m_Chain2Dir[chainName] = "Expert";
-    } else if (chainName.substr(0,1) == "S") {
-      m_TriggerChainBjet.at(i) = chainName.substr (2);
-      chainName = m_TriggerChainBjet.at(i);
-      m_Chain2Dir[chainName] = "Shifter";
-    } else {
-      ATH_MSG_INFO("         Chain number: " << i << " Bjet Chain Name: " << chainName << " is not assigned to Expert or Shifter folders !!" );
-      return StatusCode::FAILURE;
-    } // else                                                                                                                                                                            
-    ATH_MSG_DEBUG("         Chain number: " << i << " Bjet Chain Name: " << chainName );
-  }
-  for (int i =0; i<size_TriggerChainMujet; i++){
-    chainName = m_TriggerChainMujet.at(i);
-    ATH_MSG_DEBUG("         Chain number: " << i << " Mujet Chain Name: " << chainName );
-    // Investigate by the 1st character which folder should be assigned
-    if (chainName.substr(0,1) == "E") {
-      m_TriggerChainMujet.at(i) = chainName.substr (2); 
-      chainName = m_TriggerChainMujet.at(i);
-      m_Chain2Dir[chainName] = "Expert";
-    } else if (chainName.substr(0,1) == "S") {
-      m_TriggerChainMujet.at(i) = chainName.substr (2);
-      chainName = m_TriggerChainMujet.at(i);
-      m_Chain2Dir[chainName] = "Shifter";
-    } else {
-      ATH_MSG_INFO("         Chain number: " << i << " Mujet Chain Name: " << chainName << " is not assigned to Expert or Shifter folders !!" );
-      return StatusCode::FAILURE;
-    } // else
-    ATH_MSG_DEBUG("         Chain number: " << i << " Mujet Chain Name: " << chainName );
-  }
-
-  // Check if folder assignment is made for all chains - if not stop the program
-  // Regroup chain names with identical histograms
-
-  std::map<std::string,std::string>::iterator it = m_Chain2Dir.begin();
-  while (it != m_Chain2Dir.end()) {
-    ATH_MSG_DEBUG(it->first << " :: " << it->second );
-    it++;
-  }
-  std::map<std::string,std::string>::iterator p;
-  for (const auto & chainName:m_TriggerChainBjet){     // Shaun Roe 21/9/16 
-    p = m_Chain2Dir.find(chainName);
-    if ( p != m_Chain2Dir.end() ) {
-      folderName = p->second;
-    } else {
-      ATH_MSG_INFO(" Chain Name " << chainName << " has no folder name - verify HLTBjetMonTool::init() !!!" );
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO( " Chain name " << chainName << " is in folder " << folderName);
-    if ( (folderName != "Expert") && (folderName != "Shifter") ){
-	ATH_MSG_INFO( " Chain name " << chainName << " is neither in Expert nor in Shifter folder - verify HLTBjetMonTool::init() !!!");
-	return StatusCode::FAILURE;
-      } //if
-    std::size_t found = chainName.find("split");
-    if (found!=std::string::npos) {
-      if (folderName == "Shifter") m_Shifter_jSplit.push_back(chainName);
-      if (folderName == "Expert") m_Expert_jSplit.push_back(chainName);
-    } else {
-      if (folderName == "Shifter") m_Shifter_jUnSplit.push_back(chainName);
-      if (folderName == "Expert") m_Expert_jUnSplit.push_back(chainName);
-    }
-  } //i Bjet
-  for (const auto & chainName:m_TriggerChainMujet){    // Shaun Roe 21/9/16
-    p = m_Chain2Dir.find(chainName);
-    if ( p != m_Chain2Dir.end() ) {
-      folderName = p->second;
-    } else {
-      ATH_MSG_INFO(" Chain Name " << chainName << " has no folder name - verify HLTBjetMonTool::init() !!!" );
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO( " Chain name " << chainName << " is in folder " << folderName);
-    if (folderName == "Shifter") m_Shifter_mujet.push_back(chainName); 
-    else if (folderName == "Expert") m_Expert_mujet.push_back(chainName); 
-    else {
-	ATH_MSG_INFO( " Chain name " << chainName << " is neither in Expert nor in Shifter folder - verify HLTBjetMonTool::init() !!!");
-	return StatusCode::FAILURE;
-      } //if        
-  } //i Mujet
-
-  for (unsigned int i = 0; i< m_Shifter_mujet.size(); i++) {
-    ATH_MSG_DEBUG(" m_Shifter_mujet: " << m_Shifter_mujet.at(i) );
-  }
-  for (unsigned int i = 0; i< m_Expert_mujet.size(); i++) {
-    ATH_MSG_DEBUG(" m_Expert_mujet: " << m_Expert_mujet.at(i) );
-  }
-  for (unsigned int i = 0; i< m_Shifter_jUnSplit.size(); i++) {
-    ATH_MSG_DEBUG(" m_Shifter_jUnSplit: " << m_Shifter_jUnSplit.at(i) );
-  }
-  for (unsigned int i = 0; i< m_Expert_jUnSplit.size(); i++) {
-    ATH_MSG_DEBUG(" m_Expert_jUnSplit: " << m_Expert_jUnSplit.at(i) );
-  }
-  for (unsigned int i = 0; i< m_Shifter_jSplit.size(); i++) {
-    ATH_MSG_DEBUG(" m_Shifter_jSplit: " << m_Shifter_jSplit.at(i) );
-  }
-  for (unsigned int i = 0; i< m_Expert_jSplit.size(); i++) {
-    ATH_MSG_DEBUG(" m_Expert_jSplit: " << m_Expert_jSplit.at(i) );
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -245,9 +138,9 @@ StatusCode HLTBjetMonTool::init() {
 #ifdef ManagedMonitorToolBase_Uses_API_201401
 StatusCode HLTBjetMonTool::proc(){
 #else
-  StatusCode HLTBjetMonTool::proc(bool endOfEventsBlock, bool endOfLumiBlock, bool endOfRun){  
+  StatusCode HLTBjetMonTool::proc(bool endOfEventsBlock, bool endOfLumiBlock, bool endOfRun){
 #endif
-  
+
     ATH_MSG_INFO("in HLTBjetMonTool::proc");
 
   return StatusCode::SUCCESS;
@@ -258,24 +151,176 @@ StatusCode HLTBjetMonTool::proc(){
 #ifdef ManagedMonitorToolBase_Uses_API_201401
 StatusCode HLTBjetMonTool::book(){
 #else
-  StatusCode HLTBjetMonTool::book(bool newEventsBlock, bool newLumiBlock, bool newRun){  
+  StatusCode HLTBjetMonTool::book(bool newEventsBlock, bool newLumiBlock, bool newRun){
 #endif
 
-  
+
     ATH_MSG_INFO("HLTBjetMonTool::book");
     ATH_MSG_INFO(" entered HLTBjetMonTool::book");
 
     addMonGroup(new MonGroup(this,"HLT/BjetMon", run, ManagedMonitorToolBase::ATTRIB_MANAGED)); //EN
- 
+
     ATH_MSG_INFO("in HLTBjetMonTool::book added directory HLT/BjetMon, run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED);
 
     ATH_MSG_INFO("in HLTBjetMonTool::book newRun: " << newRunFlag() );
-  
+
+
 
     if(newRunFlag()){
 
+      //#define TestOnTrigConf
+
+      // Decode extended TriggerChain vectors from the python config file
+      // Create conventional TriggerChain vectors
+      // Verify if a chain is not configured, in that case discard it
+
+      int size_TriggerChainBjet = m_TriggerChainBjet_x.size();
+      int size_TriggerChainMujet = m_TriggerChainMujet_x.size();
+      std::string chainName, folderName;
+
+      ATH_MSG_INFO("         Extended Chain Name sizes - Bjet: " << size_TriggerChainBjet << " MuJet: " << size_TriggerChainMujet );
+      for (int i =0; i<size_TriggerChainBjet; i++){
+	chainName = m_TriggerChainBjet_x.at(i);
+	ATH_MSG_INFO("         Chain number: " << i << " Bjet Chain Name: " << chainName );
+	// Investigate by the 1st character which folder should be assigned
+	if (chainName.substr(0,1) == "E") {
+	  chainName = chainName.substr (2);
+#ifdef TestOnTrigConf
+	  if ( (m_trigDec->getListOfTriggers( chainName)).empty() ) continue;
+#endif
+	  m_TriggerChainBjet.push_back(chainName);
+	  m_Chain2Dir[chainName] = "Expert";
+	} else if (chainName.substr(0,1) == "S") {
+	  chainName = chainName.substr (2);
+#ifdef TestOnTrigConf
+	  if ( (m_trigDec->getListOfTriggers( chainName)).empty() ) continue;
+#endif
+	  m_TriggerChainBjet.push_back(chainName);
+	  m_Chain2Dir[chainName] = "Shifter";
+	} else {
+	  ATH_MSG_INFO("         Chain number: " << i << " Bjet Chain Name: " << chainName << " is not assigned to Expert or Shifter folders !!" );
+	  return StatusCode::FAILURE;
+	} // else
+	ATH_MSG_DEBUG("         Chain number: " << i << " Bjet Chain Name: " << chainName );
+      }
+      for (int i =0; i<size_TriggerChainMujet; i++){
+	chainName = m_TriggerChainMujet_x.at(i);
+	ATH_MSG_INFO("         Chain number: " << i << " Mujet Chain Name: " << chainName );
+	// Investigate by the 1st character which folder should be assigned
+	if (chainName.substr(0,1) == "E") {
+	  chainName = chainName.substr (2);
+#ifdef TestOnTrigConf
+	  if ( (m_trigDec->getListOfTriggers( chainName)).empty() ) continue;
+#endif
+	  m_TriggerChainMujet.push_back(chainName);
+	  m_Chain2Dir[chainName] = "Expert";
+	} else if (chainName.substr(0,1) == "S") {
+	  chainName = chainName.substr (2);
+#ifdef TestOnTrigConf
+	  if ( (m_trigDec->getListOfTriggers( chainName)).empty() ) continue;
+#endif
+	  m_TriggerChainMujet.push_back(chainName);
+	  m_Chain2Dir[chainName] = "Shifter";
+	} else {
+	  ATH_MSG_INFO("         Chain number: " << i << " Mujet Chain Name: " << chainName << " is not assigned to Expert or Shifter folders !!" );
+	  return StatusCode::FAILURE;
+	} // else
+	ATH_MSG_DEBUG("         Chain number: " << i << " Mujet Chain Name: " << chainName );
+      }
+
+
+  // Look for the created TriggerChain vector - if it is empty and if the triggers are configured
+
+      size_TriggerChainBjet = m_TriggerChainBjet.size();
+      size_TriggerChainMujet = m_TriggerChainMujet.size();
+      ATH_MSG_INFO("         Chain Name sizes - Bjet: " << size_TriggerChainBjet << " MuJet: " << size_TriggerChainMujet );
+      if ( (size_TriggerChainBjet+size_TriggerChainMujet) <= 0) {
+	ATH_MSG_INFO( " No trigger chain is configured for this run ==> Stop monitoring " );
+	return StatusCode::FAILURE;
+      }
+      for (int i =0; i<size_TriggerChainBjet; i++){
+	chainName = m_TriggerChainBjet.at(i);
+	ATH_MSG_INFO("         Chain number: " << i << " Bjet Chain Name: " << chainName );
+	std::vector<std::string> selectChains  = m_trigDec->getListOfTriggers( chainName );
+	ATH_MSG_DEBUG( " In HLTBjetMonTool::book(): Trigger chain " << chainName << " Size of selectChains " << selectChains.size());
+      }
+      for (int i =0; i<size_TriggerChainMujet; i++){
+	chainName = m_TriggerChainMujet.at(i);
+	ATH_MSG_INFO("         Chain number: " << i << " Mujet Chain Name: " << chainName );
+	std::vector<std::string> selectChains  = m_trigDec->getListOfTriggers( chainName );
+	ATH_MSG_DEBUG( " In HLTBjetMonTool::book(): Trigger chain " << chainName << " Size of selectChains " << selectChains.size());
+      }
+
+      // Check if folder assignment is made for all chains - if not stop the program
+      // Regroup chain names with identical histograms
+
+      std::map<std::string,std::string>::iterator it = m_Chain2Dir.begin();
+      while (it != m_Chain2Dir.end()) {
+	ATH_MSG_DEBUG(it->first << " :: " << it->second );
+	it++;
+      }
+      std::map<std::string,std::string>::iterator p;
+      for (const auto & chainName:m_TriggerChainBjet){     // Shaun Roe 21/9/16
+	p = m_Chain2Dir.find(chainName);
+	if ( p != m_Chain2Dir.end() ) {
+	  folderName = p->second;
+	} else {
+	  ATH_MSG_INFO(" Chain Name " << chainName << " has no folder name - verify HLTBjetMonTool::book() !!!" );
+	  return StatusCode::FAILURE;
+	}
+	ATH_MSG_INFO( " Chain name " << chainName << " is in folder " << folderName);
+	if ( (folderName != "Expert") && (folderName != "Shifter") ){
+	  ATH_MSG_INFO( " Chain name " << chainName << " is neither in Expert nor in Shifter folder - verify HLTBjetMonTool::book() !!!");
+	  return StatusCode::FAILURE;
+	} //if
+	std::size_t found = chainName.find("split");
+	if (found!=std::string::npos) {
+	  if (folderName == "Shifter") m_Shifter_jSplit.push_back(chainName);
+	  if (folderName == "Expert") m_Expert_jSplit.push_back(chainName);
+	} else {
+	  if (folderName == "Shifter") m_Shifter_jUnSplit.push_back(chainName);
+	  if (folderName == "Expert") m_Expert_jUnSplit.push_back(chainName);
+	}
+      } //i Bjet
+      for (const auto & chainName:m_TriggerChainMujet){    // Shaun Roe 21/9/16
+	p = m_Chain2Dir.find(chainName);
+	if ( p != m_Chain2Dir.end() ) {
+	  folderName = p->second;
+	} else {
+	  ATH_MSG_INFO(" Chain Name " << chainName << " has no folder name - verify HLTBjetMonTool::book() !!!" );
+	  return StatusCode::FAILURE;
+	}
+	ATH_MSG_INFO( " Chain name " << chainName << " is in folder " << folderName);
+	if (folderName == "Shifter") m_Shifter_mujet.push_back(chainName);
+	else if (folderName == "Expert") m_Expert_mujet.push_back(chainName);
+	else {
+	  ATH_MSG_INFO( " Chain name " << chainName << " is neither in Expert nor in Shifter folder - verify HLTBjetMonTool::book() !!!");
+	  return StatusCode::FAILURE;
+	} //if
+      } //i Mujet
+
+      for (unsigned int i = 0; i< m_Shifter_mujet.size(); i++) {
+	ATH_MSG_DEBUG(" m_Shifter_mujet: " << m_Shifter_mujet.at(i) );
+      }
+      for (unsigned int i = 0; i< m_Expert_mujet.size(); i++) {
+	ATH_MSG_DEBUG(" m_Expert_mujet: " << m_Expert_mujet.at(i) );
+      }
+      for (unsigned int i = 0; i< m_Shifter_jUnSplit.size(); i++) {
+	ATH_MSG_DEBUG(" m_Shifter_jUnSplit: " << m_Shifter_jUnSplit.at(i) );
+      }
+      for (unsigned int i = 0; i< m_Expert_jUnSplit.size(); i++) {
+	ATH_MSG_DEBUG(" m_Expert_jUnSplit: " << m_Expert_jUnSplit.at(i) );
+      }
+      for (unsigned int i = 0; i< m_Shifter_jSplit.size(); i++) {
+	ATH_MSG_DEBUG(" m_Shifter_jSplit: " << m_Shifter_jSplit.at(i) );
+      }
+      for (unsigned int i = 0; i< m_Expert_jSplit.size(); i++) {
+	ATH_MSG_DEBUG(" m_Expert_jSplit: " << m_Expert_jSplit.at(i) );
+      }
+
+
       // Shifter Folders
-      
+
       addMonGroup(new MonGroup(this,"HLT/BjetMon/Shifter", run, ManagedMonitorToolBase::ATTRIB_MANAGED)); //EN
       ATH_MSG_INFO("  in HLTBjetMonTool::book added directory HLT/BjetMon/Shifter, run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED );
 
@@ -305,7 +350,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("PVy_tr_Hist_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) yPV for EFHistoPrmVtx", 200, -1.0, 1.0));
 	addHistogram(new TH1F(("PVz_tr_Hist_"+m_Shifter_jSplit.at(i)).c_str(),"online (1st) zPV for EFHistoPrmVtx", 200, -200., 200.));
 	addHistogram(new TH1F(("diffzPV0offPVon_"+m_Shifter_jSplit.at(i)).c_str(),"z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
-	// Tracks    
+	// Tracks
 	addHistogram(new TH1F(("nTrack_"+m_Shifter_jSplit.at(i)).c_str(),"Number of tracks", 40, 0., 40.));
 	addHistogram(new TH1F(("d0_"+m_Shifter_jSplit.at(i)).c_str(),"d0 of tracks", 200, -2., 2.));
 	addHistogram(new TH1F(("z0_"+m_Shifter_jSplit.at(i)).c_str(),"z0 of tracks", 200, -200., 200.));
@@ -319,7 +364,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("nJet_"+m_Shifter_jSplit.at(i)).c_str(),"Number of jets", 40, 0., 40.));
 	addHistogram(new TH1F(("jetPt_"+m_Shifter_jSplit.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
 	addHistogram(new TH2F(("jetEtaPhi_"+m_Shifter_jSplit.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
-	//   B-jets 
+	//   B-jets
 	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
 	addHistogram(new TH1F(("IP3D_pb_tr_"+m_Shifter_jSplit.at(i)).c_str(),"IP3D_pb probability distribution", 200, 0., 1.));
 	addHistogram(new TH1F(("IP3D_pc_tr_"+m_Shifter_jSplit.at(i)).c_str(),"IP3D_pc probability distribution", 200, 0., 1.));
@@ -350,7 +395,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("PVy_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"online (1st) yPV", 200, -1.0, 1.0));
 	addHistogram(new TH1F(("PVz_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"online (1st) zPV", 200, -200., 200.));
 	addHistogram(new TH1F(("diffzPV0offPVon_"+m_Shifter_jUnSplit.at(i)).c_str(),"z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
-	// Tracks    
+	// Tracks
 	addHistogram(new TH1F(("nTrack_"+m_Shifter_jUnSplit.at(i)).c_str(),"Number of tracks", 40, 0., 40.));
 	addHistogram(new TH1F(("d0_"+m_Shifter_jUnSplit.at(i)).c_str(),"d0 of tracks", 200, -2., 2.));
 	addHistogram(new TH1F(("z0_"+m_Shifter_jUnSplit.at(i)).c_str(),"z0 of tracks", 200, -200., 200.));
@@ -364,7 +409,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("nJet_"+m_Shifter_jUnSplit.at(i)).c_str(),"Number of jets", 40, 0., 40.));
 	addHistogram(new TH1F(("jetPt_"+m_Shifter_jUnSplit.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
 	addHistogram(new TH2F(("jetEtaPhi_"+m_Shifter_jUnSplit.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
-	//   B-jets 
+	//   B-jets
 	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
 	addHistogram(new TH1F(("IP3D_pb_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"IP3D_pb probability distribution", 200, 0., 1.));
 	addHistogram(new TH1F(("IP3D_pc_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"IP3D_pc probability distribution", 200, 0., 1.));
@@ -380,7 +425,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("xMVtx_trv_"+m_Shifter_jUnSplit.at(i)).c_str(),"SV1 mass - valid SV1", 50, 0., 10.));
 	addHistogram(new TH1F(("xEVtx_trv_"+m_Shifter_jUnSplit.at(i)).c_str(),"SV1 E-fraction - valid SV1", 50, 0., 1.));
 	addHistogram(new TH1F(("xNVtx_trv_"+m_Shifter_jUnSplit.at(i)).c_str(),"Number of 2-track SV1 - valid SV1", 40, 0., 40.));
-      }  
+      }
       //    On-line MuChains
       for (unsigned int i = 0; i< m_Shifter_mujet.size(); i++) {
 	ATH_MSG_DEBUG(" m_Shifter_mujet: " << m_Shifter_mujet.at(i) );
@@ -397,7 +442,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("DeltaRAll_"+m_Shifter_mujet.at(i)).c_str(),"DeltaR between muon and any jet", 100, 0., 6.));
 	addHistogram(new TH1F(("DeltaZAll_"+m_Shifter_mujet.at(i)).c_str(),"DeltaZ between muon and any jet", 100, 0., 10.));
       }
-      
+
       // Expert Folders
 
       addMonGroup(new MonGroup(this,"HLT/BjetMon/Expert", run, ManagedMonitorToolBase::ATTRIB_MANAGED)); //EN
@@ -419,7 +464,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("PVy_tr_Hist_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) yPV for EFHistoPrmVtx", 200, -1.0, 1.0));
 	addHistogram(new TH1F(("PVz_tr_Hist_"+m_Expert_jSplit.at(i)).c_str(),"online (1st) zPV for EFHistoPrmVtx", 200, -200., 200.));
 	addHistogram(new TH1F(("diffzPV0offPVon_"+m_Expert_jSplit.at(i)).c_str(),"z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
-	// Tracks    
+	// Tracks
 	addHistogram(new TH1F(("nTrack_"+m_Expert_jSplit.at(i)).c_str(),"Number of tracks", 40, 0., 40.));
 	addHistogram(new TH1F(("d0_"+m_Expert_jSplit.at(i)).c_str(),"d0 of tracks", 200, -2., 2.));
 	addHistogram(new TH1F(("z0_"+m_Expert_jSplit.at(i)).c_str(),"z0 of tracks", 200, -200., 200.));
@@ -433,7 +478,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("nJet_"+m_Expert_jSplit.at(i)).c_str(),"Number of jets", 40, 0., 40.));
 	addHistogram(new TH1F(("jetPt_"+m_Expert_jSplit.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
 	addHistogram(new TH2F(("jetEtaPhi_"+m_Expert_jSplit.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
-	//   B-jets 
+	//   B-jets
 	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Expert_jSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
 	addHistogram(new TH1F(("IP3D_pb_tr_"+m_Expert_jSplit.at(i)).c_str(),"IP3D_pb probability distribution", 200, 0., 1.));
 	addHistogram(new TH1F(("IP3D_pc_tr_"+m_Expert_jSplit.at(i)).c_str(),"IP3D_pc probability distribution", 200, 0., 1.));
@@ -462,7 +507,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("PVy_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"online (1st) yPV", 200, -1.0, 1.0));
 	addHistogram(new TH1F(("PVz_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"online (1st) zPV", 200, -200., 200.));
 	addHistogram(new TH1F(("diffzPV0offPVon_"+m_Expert_jUnSplit.at(i)).c_str(),"z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
-	// Tracks    
+	// Tracks
 	addHistogram(new TH1F(("nTrack_"+m_Expert_jUnSplit.at(i)).c_str(),"Number of tracks", 40, 0., 40.));
 	addHistogram(new TH1F(("d0_"+m_Expert_jUnSplit.at(i)).c_str(),"d0 of tracks", 200, -2., 2.));
 	addHistogram(new TH1F(("z0_"+m_Expert_jUnSplit.at(i)).c_str(),"z0 of tracks", 200, -200., 200.));
@@ -476,7 +521,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("nJet_"+m_Expert_jUnSplit.at(i)).c_str(),"Number of jets", 40, 0., 40.));
 	addHistogram(new TH1F(("jetPt_"+m_Expert_jUnSplit.at(i)).c_str(),"Pt of jets", 100, 0., 750.));
 	addHistogram(new TH2F(("jetEtaPhi_"+m_Expert_jUnSplit.at(i)).c_str(),"Phi vs Eta of jets", 20, -5., 5., 20, -3.1416, 3.1416));
-	//   B-jets 
+	//   B-jets
 	addHistogram(new TH1F(("IP3D_pu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"IP3D_pu probability distribution", 200, 0., 1.));
 	addHistogram(new TH1F(("IP3D_pb_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"IP3D_pb probability distribution", 200, 0., 1.));
 	addHistogram(new TH1F(("IP3D_pc_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"IP3D_pc probability distribution", 200, 0., 1.));
@@ -526,7 +571,7 @@ StatusCode HLTBjetMonTool::book(){
 
     ATH_MSG_DEBUG("====> Entering HLTBjetMonTool::fill()" );
 
-  
+
   ////////////////////////////////////
   //setCurrentMonGroup("HLT/BjetMon/Shifter");
   ////////////////////////////////////
@@ -551,7 +596,8 @@ StatusCode HLTBjetMonTool::book(){
       chainName = m_TriggerChainBjet.at(i);
       ATH_MSG_DEBUG( " Trigger chain " << i << " " << chainName << " fired." );
       std::vector<std::string> selectChains  = m_trigDec->getListOfTriggers( chainName );
-      if ( not selectChains.empty() ) FiredChainNames.push_back(chainName); //SR
+      ATH_MSG_DEBUG( " In HLTBjetMonTool::fill(): Trigger chain " << chainName << " fired. Size of selectChains " << selectChains.size());
+      if ( not selectChains.empty() ) FiredChainNames.push_back(chainName); // test if chain is configured
     } // else
   } //i Bjet
 
@@ -562,7 +608,8 @@ StatusCode HLTBjetMonTool::book(){
       chainName = m_TriggerChainMujet.at(i);
       ATH_MSG_DEBUG( " Trigger chain " << i << " " << chainName << " fired." );
       std::vector<std::string> selectChains  = m_trigDec->getListOfTriggers( chainName );
-      if ( not selectChains.empty() ) FiredChainNames.push_back(chainName); //SR 
+      ATH_MSG_DEBUG( " In HLTBjetMonTool::fill(): Trigger chain " << chainName << " fired. Size of selectChains " << selectChains.size());
+      if ( not selectChains.empty() ) FiredChainNames.push_back(chainName); // test if chain is configured
     } // else
   } // i Mujet
 
@@ -573,7 +620,7 @@ StatusCode HLTBjetMonTool::book(){
 
   if ( FiredChainNames.empty() ) {
 
-    ATH_MSG_INFO(" ===> No trigger fired neither for TriggerChainBjet of size: " << size_TriggerChainBjet 
+    ATH_MSG_INFO(" ===> No trigger fired neither for TriggerChainBjet of size: " << size_TriggerChainBjet
 		 << " nor for TriggerChainMujet of size: " << size_TriggerChainMujet << " RETURN from HLTBjetMonTool::fill() ! " );
     return StatusCode::SUCCESS;
   } else {
@@ -595,11 +642,11 @@ StatusCode HLTBjetMonTool::book(){
 
     std::string HistDir = "/Offline";
     std::string HistExt = "";
-    // Get offline PV
+    // Get offline PV - non FTK
     float offlinepvz(-1.e6);
     bool Eofflinepv(false);
     const xAOD::VertexContainer* offlinepv = 0;
-    if ( evtStore()->contains<xAOD::VertexContainer>("PrimaryVertices") ) { 
+    if ( evtStore()->contains<xAOD::VertexContainer>("PrimaryVertices") ) {
       ATH_CHECK( evtStore()->retrieve(offlinepv, "PrimaryVertices") );
       ATH_MSG_DEBUG("RETRIEVED OFFLINE PV  - size: " << offlinepv->size());
       if ( offlinepv->size() ) {
@@ -614,6 +661,31 @@ StatusCode HLTBjetMonTool::book(){
 	} // j
       } // if size
     } // evtStore
+    //
+    // Get offline PV - FTK
+    float offlinepvzFTK(-1.e6);
+    bool EofflinepvFTK(false);
+    const xAOD::VertexContainer* offlinepvFTK = 0;
+    if ( evtStore()->contains<xAOD::VertexContainer>("FTK_VertexContainer") ) {
+      ATH_CHECK( evtStore()->retrieve(offlinepvFTK, "FTK_VertexContainer") );
+      ATH_MSG_DEBUG("RETRIEVED OFFLINE PV  - size: " << offlinepvFTK->size());
+      if ( offlinepvFTK->size() ) {
+	EofflinepvFTK = true;
+	offlinepvzFTK = offlinepvFTK->front()->z();
+	if (EofflinepvFTK) ATH_MSG_DEBUG(" 1st zPV FTK a la Carlo: " << offlinepvzFTK);
+	/*
+	hist("nPV"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(offlinepvFTK->size());
+	for (unsigned int j = 0; j<offlinepvFTK->size(); j++){
+	  hist("PVxFTK"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(offlinepvFTK))[j]->x());
+	  hist("PVyFTK"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(offlinepvFTK))[j]->y());
+	  hist("PVzFTK"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(offlinepvFTK))[j]->z());
+	} // j
+	*/
+      } // if size
+    } // evtStore
+    //
+
+
 
     ATH_MSG_DEBUG(" Offline histograms are stored successfully !");
 
@@ -629,7 +701,7 @@ StatusCode HLTBjetMonTool::book(){
 	HistDir = p->second+"/"+trigItem;
       } else {
 	ATH_MSG_INFO(" Fired Trigger " << trigItem << " has no folder name - verify HLTBjetMonTool::init() !!!" );
-	continue;	  
+	continue;
       }
       ATH_MSG_DEBUG(" Fired Trigger " << trigItem << " will be placed in folder " << p->second );
       HistExt = "_"+trigItem;
@@ -646,7 +718,19 @@ StatusCode HLTBjetMonTool::book(){
 	m_priVtxKey = "xPrimVx";
 	m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig";
       }
-      ATH_MSG_DEBUG( " Trigger chain name: " << trigItem << " m_jetKey: " << m_jetKey << " m_priVtxKey: " << m_priVtxKey << " m_trackKey: " << m_trackKey ); 
+      std::size_t found1 = trigItem.find("FTK");
+      if (found1!=std::string::npos) {
+	std::size_t found2 = trigItem.find("Refit");
+        if (found2!=std::string::npos) {
+          m_priVtxKey = "HLT_PrimVertexFTKRefit";
+          m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig";
+        }//found2
+	else {
+          m_priVtxKey = "HLT_PrimVertexFTK";
+          m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig";
+        }//else
+      }//found1
+      ATH_MSG_DEBUG( " Trigger chain name: " << trigItem << " m_jetKey: " << m_jetKey << " m_priVtxKey: " << m_priVtxKey << " m_trackKey: " << m_trackKey );
       ATH_MSG_DEBUG("PROCESSING TRIGITEM  -  " << trigItem);
       // Set flag MuJet
       bool MuJet = false;
@@ -669,27 +753,27 @@ StatusCode HLTBjetMonTool::book(){
 	const Trig::Combination& comb = *bjetComb;
 	ATH_MSG_DEBUG("------------ NEW COMBINATION ------------");
 	float m_zPrmVtx = 0.; // used for muon-jets
-	
+
 	// Get online PV
 	bool DummyVtx = false;
 	const std::vector< Trig::Feature<xAOD::VertexContainer> > onlinepvs = comb.get<xAOD::VertexContainer>(m_priVtxKey);
 	ATH_MSG_DEBUG("RETRIEVED PV  -   size: " << onlinepvs.size());
-	if ( not onlinepvs.empty() ) {  
+	if ( not onlinepvs.empty() ) {
 	  const xAOD::VertexContainer* onlinepv = onlinepvs[0].cptr();
 	  ATH_MSG_DEBUG("                 -   nVert: " << onlinepv->size());
-	  if( not onlinepv->empty()) {  
-            if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)                                                                
+	  if( not onlinepv->empty()) {
+            if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)
 	      if(HistPV) hist("PVx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->x());
 	      if(HistPV) hist("PVy_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->y());
 	      if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z());
 	      m_zPrmVtx = (*(onlinepv))[0]->z();
-	      if (Eofflinepv && HistPV) hist("diffzPV0offPVon"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z()-offlinepvz);  
+	      if (Eofflinepv && HistPV) hist("diffzPV0offPVon"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z()-offlinepvz);
 	      ATH_MSG_DEBUG("         Online PV -   z[0]: " << (*(onlinepv))[0]->z());
-	    } // if PV not dummy  
+	    } // if PV not dummy
 	    else {
 	      DummyVtx = true;
-	      ATH_MSG_DEBUG("  Dummy Vertex found: DummyVtx = " << DummyVtx << " m_jetKey = " << m_jetKey << " HistExt = " << HistExt << " m_priVtxKey " << m_priVtxKey ); 
-	      ATH_MSG_DEBUG(" Online dummy PV - type: " << (*(onlinepv))[0]->vertexType() << " x[0]: " << (*(onlinepv))[0]->x() 
+	      ATH_MSG_DEBUG("  Dummy Vertex found: DummyVtx = " << DummyVtx << " m_jetKey = " << m_jetKey << " HistExt = " << HistExt << " m_priVtxKey " << m_priVtxKey );
+	      ATH_MSG_DEBUG(" Online dummy PV - type: " << (*(onlinepv))[0]->vertexType() << " x[0]: " << (*(onlinepv))[0]->x()
 			   << " y[0]: " << (*(onlinepv))[0]->y() <<  " z[0]: " << (*(onlinepv))[0]->z() );
 	      int dummyflag = -1;
 	      if(HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(dummyflag);
@@ -706,7 +790,7 @@ StatusCode HLTBjetMonTool::book(){
 	    const xAOD::VertexContainer* onlinepv = onlinepvsd[0].cptr();
 	    ATH_MSG_DEBUG("                 -   nVert: " << onlinepv->size());
 	    if( not onlinepv->empty()) {
-	      if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)                                                            
+	      if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)
 		if(HistPV) hist("PVx_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->x());
 		if(HistPV) hist("PVy_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->y());
 		if(HistPV) hist("PVz_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z());
@@ -738,7 +822,7 @@ StatusCode HLTBjetMonTool::book(){
 
 	ATH_MSG_DEBUG(" Jets histograms are stored successfully !");
 
-	// Get online muon                                                                                                                                                     
+	// Get online muon
 	const std::vector< Trig::Feature<xAOD::MuonContainer> > onlinemuons = comb.get<xAOD::MuonContainer>();
 	ATH_MSG_DEBUG("RETRIEVED MUONS   -   size: " << onlinemuons.size());
 	if( not onlinemuons.empty()) {  // SR
@@ -750,9 +834,9 @@ StatusCode HLTBjetMonTool::book(){
 	    ATH_MSG_DEBUG("                 -   pt/eta/phi: " << (muon->pt())*1.e-3 << " / " << muon->eta() << " / " << muon->phi());
 	    if(HistMuJet) hist("muonPt"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((muon->pt())*1.e-3);
 	    if(HistMuJet) hist2("muonEtaPhi"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(muon->eta(),muon->phi());
-	  } // for online muon                                                                                                                                                                    
-	}//onlinemuons.size                                                                                                                                                                   
-	
+	  } // for online muon
+	}//onlinemuons.size
+
 	// Loop over muons and jets to monitor muon-jets m_deltaZ and m_dR
 	float muonEta=0, muonPhi=0, muonZ=0;
 	float jetEta=0,  jetPhi=0, jetZ=0;
@@ -764,7 +848,7 @@ StatusCode HLTBjetMonTool::book(){
 	    //	  if(onlinejets.size()) {
 	    if( not onlinejets.empty()) { // SR
 	      const xAOD::Muon::MuonType muontype = muon->muonType();
-	      if( muontype != xAOD::Muon::MuonType::Combined ) continue; // to correct coverity issue - see next commented line 
+	      if( muontype != xAOD::Muon::MuonType::Combined ) continue; // to correct coverity issue - see next commented line
 	      //	    if(!(muontype == xAOD::Muon::MuonType::Combined) ) continue;
 	      muonEta = muon->eta();
 	      muonPhi = muon->phi();
@@ -783,13 +867,13 @@ StatusCode HLTBjetMonTool::book(){
 		m_dR = sqrt(m_deltaEta*m_deltaEta + m_deltaPhi*m_deltaPhi);
 		if(HistMuJet) hist("DeltaZAll"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(m_deltaZ);
 		if(HistMuJet) hist("DeltaRAll"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(m_dR);
-	      } // for online jet                                                                                                                                                     
-	    }//onlinejets.size                                                                                                                                                                   
-	  } // for online muon                                                                                                                                                                    
-	}//onlinemuons.size                                                                                                                                                             
+	      } // for online jet
+	    }//onlinejets.size
+	  } // for online muon
+	}//onlinemuons.size
 
-	ATH_MSG_DEBUG(" Muon histograms are stored successfully !");      
-      
+	ATH_MSG_DEBUG(" Muon histograms are stored successfully !");
+
 	// Get online track particles
 	const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > onlinetracks = comb.get<xAOD::TrackParticleContainer>(m_trackKey);
 	ATH_MSG_DEBUG("RETRIEVED TRACKS -   size: " << onlinetracks.size());
@@ -837,13 +921,13 @@ StatusCode HLTBjetMonTool::book(){
 	    bjet->variable<float>("SV1", "masssvx", svp_mass);
 	    bjet->variable<float>("SV1", "efracsvx", svp_efrc);
 	    bjet->variable<int>("SV1", "N2Tpair", svp_n2t);
-	    ATH_MSG_DEBUG("                 -   Before SV1 check - MVTX / EVTX / NVTX: " << svp_mass << " / " << svp_efrc << " / " << svp_n2t ) ; 
+	    ATH_MSG_DEBUG("                 -   Before SV1 check - MVTX / EVTX / NVTX: " << svp_mass << " / " << svp_efrc << " / " << svp_n2t ) ;
 	    if (HistBjet) hist("xNVtx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(svp_n2t);
 	    if ( svp_n2t > 0 ) {
-	      if (HistBjet) hist("xMVtx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( svp_mass * 1.e-3 ); 
+	      if (HistBjet) hist("xMVtx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( svp_mass * 1.e-3 );
 	      if (HistBjet) hist("xEVtx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( svp_efrc );
 	    } // if svp_n2t
-	    // end of suggestion of LZ 
+	    // end of suggestion of LZ
 	    ATH_MSG_DEBUG("                 -   IP3Dpu / IP3Dpb / IP3Dpc: " << bjet->IP3D_pu() << " / " << bjet->IP3D_pb() << " / " << bjet->IP3D_pc() );
 	    if (HistBjet) hist("IP3D_pu_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(bjet->IP3D_pu());
 	    if (HistBjet) hist("IP3D_pb_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(bjet->IP3D_pb());
@@ -859,7 +943,7 @@ StatusCode HLTBjetMonTool::book(){
 	    if (HistBjet) hist("wMV2c20_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(wMV2c20);
 
 	    // Get SV1 secondary vtx information, see:
-	    // /PhysicsAnalysis/JetTagging/JetTagTools/src/MV2Tag.cxx#0486 and 
+	    // /PhysicsAnalysis/JetTagging/JetTagTools/src/MV2Tag.cxx#0486 and
 	    // /PhysicsAnalysis/JetTagging/JetTagTools/src/GaiaNNTool.cxx#0349
 	    std::vector< ElementLink< xAOD::VertexContainer > > myVertices;
 	    ATH_MSG_DEBUG("    SV1 info source name before calling VertexContainer: " << m_sv1_infosource ) ;
@@ -870,12 +954,12 @@ StatusCode HLTBjetMonTool::book(){
 	      bjet->variable<float>(m_sv1_infosource, "masssvx", svp_mass);
 	      bjet->variable<float>(m_sv1_infosource, "efracsvx", svp_efrc);
 	      bjet->variable<int>(m_sv1_infosource, "N2Tpair", svp_n2t);
-	      ATH_MSG_DEBUG("                 -   MVTX / EVTX / NVTX: " << svp_mass << " / " << svp_efrc << " / " << svp_n2t ) ; 	    
+	      ATH_MSG_DEBUG("                 -   MVTX / EVTX / NVTX: " << svp_mass << " / " << svp_efrc << " / " << svp_n2t ) ;
 	      if (HistBjet) hist("xNVtx_trv"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(svp_n2t);
 	      if ( svp_n2t > 0 ) {
-		if (HistBjet) hist("xMVtx_trv"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( svp_mass ); 
+		if (HistBjet) hist("xMVtx_trv"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( svp_mass );
 		if (HistBjet) hist("xEVtx_trv"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( svp_efrc );
-	      } // if svp_n2t 
+	      } // if svp_n2t
 	    } else {
 	      ATH_MSG_DEBUG("  No valid SV1 vertex found --  SV1 vertex size: " << myVertices.size() );
 	      if ( myVertices.size() > 0 ) ATH_MSG_DEBUG("  No valid SV1 vertex found -- myVertices[0].isValid(): " << myVertices[0].isValid() ) ;
@@ -893,7 +977,7 @@ StatusCode HLTBjetMonTool::book(){
   ATH_MSG_DEBUG("====> Ended successfully HLTBjetMonTool::fill()" );
 
 
-  
+
   return StatusCode::SUCCESS;
 
 }
