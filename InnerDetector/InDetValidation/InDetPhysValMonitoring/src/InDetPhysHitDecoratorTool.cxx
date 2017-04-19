@@ -101,7 +101,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle& particle, co
   typedef std::vector<SingleResult_t> TrackResult_t;
   const float invalidFloat(std::numeric_limits<float>::quiet_NaN());
   // const float invalidDouble(std::numeric_limits<double>::quiet_NaN());
-  const float invalidRes(invalidFloat), invalidPull(invalidFloat);
+  const float invalidRes(0.0), invalidPull(0.0);
   const int invalidDetector(-1);
   const int invalidRegion(-1);
   const int invalidLayer(-1);

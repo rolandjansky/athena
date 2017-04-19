@@ -396,6 +396,11 @@ InDetPerfPlot_res::finalizePlots() {
   }
   for (unsigned int var(0); var != NPARAMS; ++var) {
     if (m_meanPlots[var]) {
+      // warnings in case input histograms have large % events in under- and over- flow bins
+      vector< std::pair<unsigned int,double> > warnUOBinEtaRes;
+      vector< std::pair<unsigned int,double> > warnUOBinEtaPull;
+      vector< std::pair<unsigned int,double> > warnUOBinPtRes;
+      
       unsigned int etaBins = m_meanPlots[var]->GetNbinsX();
       auto& meanbasePlot = m_meanbasePlots[var];
       auto& pullbasePlot = m_pullbasePlots[var];
@@ -404,13 +409,33 @@ InDetPerfPlot_res::finalizePlots() {
         TH1D* temp = meanbasePlot->ProjectionY(Form("%s_projy_bin%d", "Big_Histo", j), j, j);	 
         TH1D* temp_pull = pullbasePlot->ProjectionY(Form("%s_projy_bin%d", "Pull_Histo", j), j, j);
         Refinement(temp, m_meanWidthMethod, var, j, m_meanPlots, m_resoPlots);
+	if (m_getMeanWidth.getFracUOflow()>0.)
+	  warnUOBinEtaRes.push_back(std::make_pair(j,m_getMeanWidth.getFracUOflow()));
 	Refinement(temp_pull, m_meanWidthMethod, var, j, m_pullmeanPlots, m_pullwidthPlots);
+	if (m_getMeanWidth.getFracUOflow()>0.)
+	  warnUOBinEtaPull.push_back(std::make_pair(j,m_getMeanWidth.getFracUOflow()));
+      }
+      // print warnings in case of under- and over- flows
+      if (!warnUOBinEtaRes.empty()) {
+	ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(m_meanPlots[var]->GetName(),warnUOBinEtaRes));
+	ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(m_resoPlots[var]->GetName(),warnUOBinEtaRes));
+      }
+      if (!warnUOBinEtaPull.empty()) {
+	ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(m_pullmeanPlots[var]->GetName(),warnUOBinEtaPull));
+	ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(m_pullwidthPlots[var]->GetName(),warnUOBinEtaPull));
       }
       auto& mean_vs_ptbasePlot = m_mean_vs_ptbasePlots[var];
       for (unsigned int i = 1; i <= ptBins; i++) {
         TH1D* temp = mean_vs_ptbasePlot->ProjectionY(Form("%s_projy_bin%d", "Big_Histo", i), i, i);
         Refinement(temp, m_meanWidthMethod, var, i, m_mean_vs_ptPlots, m_resptPlots);
+	if (m_getMeanWidth.getFracUOflow()>0.)
+	  warnUOBinPtRes.push_back(std::make_pair(i,m_getMeanWidth.getFracUOflow()));
+      }
+      // print warnings in case of under- and over- flows
+      if (!warnUOBinPtRes.empty()) {
+	ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(m_mean_vs_ptPlots[var]->GetName(),warnUOBinPtRes));
+	ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(m_resptPlots[var]->GetName(),warnUOBinPtRes));
       }
     }
   }
-}
+}// end of InDetPerfPlot_res::finalizePlots()

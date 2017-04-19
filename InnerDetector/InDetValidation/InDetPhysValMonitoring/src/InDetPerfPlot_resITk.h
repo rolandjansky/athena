@@ -15,7 +15,7 @@
 
 // local includes
 
-#include "TrkValHistUtils/PlotBase.h"
+#include "InDetPlotBase.h"
 #include "TProfile.h"
 // could be fwd declared?
 #include "xAODTracking/TrackParticle.h"
@@ -38,7 +38,7 @@ class IExtrapolator;
 
 
 ///class holding res plots for Inner Detector RTT Validation and implementing fill methods
-class InDetPerfPlot_resITk: public PlotBase {
+class InDetPerfPlot_resITk: public InDetPlotBase {
 public:
   enum Param {
     D0, Z0, QOVERP, QOVERPT, THETA, PHI, PT, Z0SIN, NPARAMS
@@ -57,7 +57,7 @@ public:
   };
 
 
-  InDetPerfPlot_resITk(PlotBase* pParent, const std::string& dirName);
+  InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::string& dirName);
 
   void fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt);
 //  virtual bool isDefined(TString t);

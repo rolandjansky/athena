@@ -9,6 +9,13 @@
  **/
 
 #include "GetMeanWidth.h"
+#include "TH1.h"
+#include "TFitResultPtr.h"
+#include "TFitResult.h"
+#include <cmath>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
 
 namespace IDPVM {
   
@@ -19,12 +26,17 @@ namespace IDPVM {
     m_RMSError(0.),
     m_FracOut(0.),
     m_FracOutUnc(0.),
-    m_inHistName("") {
+    m_FracUOflow(0.),
+    m_inHistName(""),
+    m_largeErrorFact(10.),
+    m_maxUOflowFrac(0.001) {
     //nop
   }
   
   bool GetMeanWidth::initialize(TH1* p_input_hist) {
 
+    if ( !m_debugs.empty())
+      m_debugs.clear();     
     if ( !m_infos.empty())
       m_infos.clear();      
     if ( !m_warnings.empty())
@@ -41,7 +53,7 @@ namespace IDPVM {
     m_inHistName = p_input_hist->GetName();
     
     if ( 0==p_input_hist->GetEntries() ) {
-      m_infos.push_back("GetMeanWidth::initialize: got input histogram with 0 entries: "+ m_inHistName);
+      m_debugs.push_back("GetMeanWidth::initialize: got input histogram with 0 entries: "+ m_inHistName);
       m_mean=m_meanError=m_RMS=m_RMSError=m_FracOut=m_FracOutUnc=0.;
       return false;
     }
@@ -52,8 +64,32 @@ namespace IDPVM {
     m_meanError = p_input_hist->GetMeanError();   
     m_FracOut = 0.;
     m_FracOutUnc = 0.;
+    double nExclUOflow = p_input_hist->Integral(1,p_input_hist->GetNbinsX());
+    double nInclUOflow = p_input_hist->Integral(0,p_input_hist->GetNbinsX()+1);
+    double fUOflow = (nExclUOflow>0.) ? (nInclUOflow-nExclUOflow)/nExclUOflow : -1.;
+    m_FracUOflow = (fUOflow>m_maxUOflowFrac) ? fUOflow : -1;
     
     return true;
+  }
+
+  void GetMeanWidth::setLargeError() {
+    std::ostringstream debugl;
+    debugl << __FILE__ << "\t\t" << m_inHistName
+	   << ": scaling mean and RMS errors by factor: " << m_largeErrorFact;
+    m_debugs.push_back(debugl.str());
+    m_meanError*=m_largeErrorFact;
+    m_RMSError*=m_largeErrorFact;
+  }
+
+  std::string GetMeanWidth::reportUOBinVal(std::string p_histName, std::vector< std::pair<unsigned int,double> > p_vecBinVal) {
+    std::ostringstream reportl;
+    if (!p_vecBinVal.empty())  {
+      reportl << "Errors scaled up for resol. hist. with large % of events in over- and under-flow: "
+	      << p_histName<<": ";
+      for ( auto it : p_vecBinVal )
+	reportl << "bin"<<it.first << ": " << std::setprecision(2) << it.second*100. << "%, ";
+    }
+    return reportl.str();
   }
   
   void GetMeanWidth::setFout(double p_nsig,double p_ntot) {
@@ -66,7 +102,7 @@ namespace IDPVM {
       }
       if (nout > 0.) {
 	m_FracOut=nout/p_nsig;
-	m_FracOutUnc=(nout / p_ntot) * TMath::Sqrt(1. / nout + 1. / p_ntot);
+	m_FracOutUnc=(nout / p_ntot) * std::sqrt(1. / nout + 1. / p_ntot);
       }
     }
     return;
@@ -90,7 +126,7 @@ namespace IDPVM {
     // get fraction of events outside 3*RMS + its ~ uncertainty
     double nSig = p_input_hist->Integral(p_input_hist->GetXaxis()->FindBin(-3.0 * m_RMS),
 					 p_input_hist->GetXaxis()->FindBin(3.0 * m_RMS));
-    double nTot = p_input_hist->Integral();
+    double nTot = p_input_hist->Integral(1,p_input_hist->GetNbinsX());
     setFout(nSig,nTot);
 
     // return fit status
@@ -112,27 +148,28 @@ namespace IDPVM {
     
     // iteration counters and helpers: 
     // min and max range of the histogram:
-    double min=0.;
-    double max=0.;
+    double xmin=0.;
+    double xmax=0.;
     // min and max bins of the histogram in previous iteration
     // 0-th iteration: range of the original histogram
     int binmin_was = 1;
     int binmax_was = p_input_hist->GetNbinsX();
     // initial number of iteration steps
     unsigned int ntries = 0;
-    
+ 
     // iteratively cut tails untill the RMS gets stable about mean
     // RMS stable: when input histogram range after cutting by 
     // +- 3*RMS is same as the range before cutting
-    while ( ntries<ntries_max ) {
+    while ( ntries<ntries_max ) {    
       ++ntries;
       RMS = p_input_hist->GetRMS();
       mean = p_input_hist->GetMean();
-      min = -1.0*nRMS_width*RMS + mean;
-      max = nRMS_width*RMS + mean;
-      // find bins corresponding to new range
-      int binmin=p_input_hist->GetXaxis()->FindFixBin(min);
-      int binmax=p_input_hist->GetXaxis()->FindFixBin(max);
+      xmin = -1.0*nRMS_width*RMS + mean;
+      xmax = nRMS_width*RMS + mean;
+      // find bins corresponding to new range, disregard underflow
+      int binmin=std::max(1,p_input_hist->GetXaxis()->FindFixBin(xmin));
+      // find bins corresponding to new range, disregard overflow
+      int binmax=std::min(p_input_hist->GetNbinsX(),p_input_hist->GetXaxis()->FindFixBin(xmax));
       // end iteration if these are same bins as in prev. iteration
       if ( binmin_was==binmin && binmax_was==binmax ) {
 	break;
@@ -152,8 +189,9 @@ namespace IDPVM {
     m_meanError=p_input_hist->GetMeanError();
     
     // get fraction of excluded events + its ~ uncertainty
-    double nSig = p_input_hist->Integral(p_input_hist->GetXaxis()->FindBin(min),
-					 p_input_hist->GetXaxis()->FindBin(max));
+    double nSig = p_input_hist->Integral(p_input_hist->GetXaxis()->FindBin(xmin),
+					 p_input_hist->GetXaxis()->FindBin(xmax));
+    // disregard under- and over- flow
     double nTot = p_input_hist->Integral(1,p_input_hist->GetNbinsX());
     setFout(nSig,nTot);
     
@@ -173,26 +211,36 @@ namespace IDPVM {
     
     if (iterRMS_convergence == p_method) {
       if ( !setIterativeConvergence(p_input_hist) ) 
-	m_warnings.push_back("GetMeanWidth::setIterativeConvergence did not converge for "+ m_inHistName);
+	m_warnings.push_back("\t\t\t* GetMeanWidth::setIterativeConvergence did not converge for "+ m_inHistName);
     }
     else if (Gauss_fit == p_method) {
       if ( !setGaussFit(p_input_hist) ) 
-	m_warnings.push_back("GetMeanWidth::setGaussFit: fit failed for "+ m_inHistName);
+	m_warnings.push_back("\t\t\t* GetMeanWidth::setGaussFit: fit failed for "+ m_inHistName);
     }
     else if (fusion_iterRMS_Gaussfit == p_method) {
       if ( !setIterativeConvergence(p_input_hist) &&
 	   !setGaussFit(p_input_hist) ) 
-	m_warnings.push_back("GetMeanWidth::fusion_iterRMS_Gaussfit both methods failed for "+ m_inHistName);
+	m_warnings.push_back("\t\t\t* GetMeanWidth::fusion_iterRMS_Gaussfit both methods failed for "+ m_inHistName);
     }
     else {
-      m_errors.push_back("GetMeanWidth::setResults: method not supported. No evaluation for "+ m_inHistName);
+      m_errors.push_back("\t\t\t* GetMeanWidth::setResults: method not supported. No evaluation for "+ m_inHistName);
     }
-    
+
+    // check if large fraction of events was in over- and under-flow
+    if ( m_FracUOflow > 0. ) {
+      std::ostringstream debugl;
+      debugl << "\tGetMeanWidth::setResults: too large fraction of out-of-range events for histogram ";
+      debugl << m_inHistName << ": " << m_FracUOflow << " > " << m_maxUOflowFrac;
+      m_debugs.push_back(debugl.str());      
+      setLargeError();
+      m_debugs.push_back("\t\t\t* GetMeanWidth::setResults: scaling errors up for "
+			 +m_inHistName+". Too many under- and over- flows.");
+    }
+
     // reset range metadata to state prior to iteration
     // this gets changed in iterative or fusion)
     p_input_hist->GetXaxis()->SetRange(1,p_input_hist->GetNbinsX());
     
     return;
   }
-
 }//end of namespace
