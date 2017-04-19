@@ -11,6 +11,7 @@
 // #include <iostream>
 #include <map>
 #include <utility>
+#include <cmath>
 
 InDetPerfPlot_resITk::InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::string& sDir)  : InDetPlotBase(pParent, sDir),
   m_meanWidthMethod(IDPVM::GetMeanWidth::iterRMS_convergence),
@@ -699,11 +700,11 @@ InDetPerfPlot_resITk::getTrackParameters(const xAOD::TrackParticle& trkprt) {
   m_trkP[D0] = trkprt.d0();
   m_trkP[Z0] = trkprt.z0();
   m_trkP[QOVERP] = trkprt.qOverP();
-  m_trkP[QOVERPT] = trkprt.qOverP() * (1 / TMath::Sin(trkprt.theta()));
+  m_trkP[QOVERPT] = trkprt.qOverP() * (1 / std::sin(trkprt.theta()));
   m_trkP[THETA] = trkprt.theta();
   m_trkP[PHI] = trkprt.phi0();
   m_trkP[PT] = trkprt.pt() / 1000.;
-  m_trkP[Z0SIN] = trkprt.z0() * TMath::Sin(trkprt.theta());
+  m_trkP[Z0SIN] = trkprt.z0() * std::sin(trkprt.theta());
 
 
   m_DEBUG_FirstHitR_d0->Fill(trkprt.radiusOfFirstHit(), m_trkP[D0]);
@@ -716,15 +717,15 @@ InDetPerfPlot_resITk::getTrackParameters(const xAOD::TrackParticle& trkprt) {
     }
   }
   // Track fit errors
-  m_trkErrP[D0] = TMath::Sqrt(trkprt.definingParametersCovMatrix()(0, 0));
-  m_trkErrP[Z0] = TMath::Sqrt(trkprt.definingParametersCovMatrix()(1, 1));
-  m_trkErrP[PHI] = TMath::Sqrt(trkprt.definingParametersCovMatrix()(2, 2));
-  m_trkErrP[THETA] = TMath::Sqrt(trkprt.definingParametersCovMatrix()(3, 3));
-  m_trkErrP[QOVERP] = TMath::Sqrt(trkprt.definingParametersCovMatrix()(4, 4));
-  m_trkErrP[QOVERPT] = m_trkErrP[QOVERP] * (1 / TMath::Sin(trkprt.theta()));
+  m_trkErrP[D0] = std::sqrt(trkprt.definingParametersCovMatrix()(0, 0));
+  m_trkErrP[Z0] = std::sqrt(trkprt.definingParametersCovMatrix()(1, 1));
+  m_trkErrP[PHI] = std::sqrt(trkprt.definingParametersCovMatrix()(2, 2));
+  m_trkErrP[THETA] = std::sqrt(trkprt.definingParametersCovMatrix()(3, 3));
+  m_trkErrP[QOVERP] = std::sqrt(trkprt.definingParametersCovMatrix()(4, 4));
+  m_trkErrP[QOVERPT] = m_trkErrP[QOVERP] * (1 / std::sin(trkprt.theta()));
   m_trkErrP[Z0SIN] =
-    TMath::Sqrt(pow(m_trkErrP[THETA] * TMath::Sin(m_trkP[THETA]),
-                    2) + pow(m_trkP[Z0] * m_trkErrP[THETA] * TMath::Cos(m_trkP[THETA]), 2));
+    std::sqrt(std::pow(m_trkErrP[THETA] * std::sin(m_trkP[THETA]),
+                    2) + std::pow(m_trkP[Z0] * m_trkErrP[THETA] * std::cos(m_trkP[THETA]), 2));
 
   // Get error on pT, taken from xAOD::TrackingHelpers.pTErr() but this function only works on a pointer input...
   if (trkprt.definingParametersCovMatrixVec().size() < 15) {
@@ -768,14 +769,14 @@ InDetPerfPlot_resITk::getTrackParameters(const xAOD::TruthParticle& truthprt) {
   (truthprt.isAvailable<float>("theta") &&
    truthprt.isAvailable<float>("qOverP")) ? m_truetrkP[QOVERPT] = truthprt.auxdata<float>("qOverP") *
                                                                   (1 /
-                                                                   TMath::Sin(truthprt.auxdata<float>("theta"))) :
+                                                                   std::sin(truthprt.auxdata<float>("theta"))) :
                                                                   m_truetrkP[QOVERPT] = -9999.;
 
 
   m_truetrkP[PT] = truthprt.pt() / 1000.;
   (truthprt.isAvailable<float>("z0") &&
    truthprt.isAvailable<float>("theta")) ? m_truetrkP[Z0SIN] = m_truetrkP[Z0] *
-                                                               TMath::Sin(m_truetrkP[THETA]) : m_truetrkP[Z0SIN] =
+                                                               std::sin(m_truetrkP[THETA]) : m_truetrkP[Z0SIN] =
                                                                  -9999.;
 }
 
@@ -837,14 +838,14 @@ InDetPerfPlot_resITk::getMeanWidthResultsModUnits(TH1* p_input_hist, std::vector
     p_result.clear();
   }
   m_getMeanWidth.setResults(p_input_hist, p_method);
-  for (auto _it : m_getMeanWidth.getDebugs())
-    ATH_MSG_DEBUG(_it);
-  for (auto _it : m_getMeanWidth.getInfos())
-    ATH_MSG_INFO(_it);
-  for (auto _it : m_getMeanWidth.getWarnings())
-    ATH_MSG_WARNING(_it);
-  for (auto _it : m_getMeanWidth.getErrors())
-    ATH_MSG_ERROR(_it);
+  for (auto it : m_getMeanWidth.getDebugs())
+    ATH_MSG_DEBUG(it);
+  for (auto it : m_getMeanWidth.getInfos())
+    ATH_MSG_INFO(it);
+  for (auto it : m_getMeanWidth.getWarnings())
+    ATH_MSG_WARNING(it);
+  for (auto it : m_getMeanWidth.getErrors())
+    ATH_MSG_ERROR(it);
   p_result.push_back(m_getMeanWidth.getRMS());
   p_result.push_back(m_getMeanWidth.getRMSError());
   p_result.push_back(m_getMeanWidth.getMean());
