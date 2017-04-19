@@ -13,8 +13,6 @@
 #include "GeoModelXml/translate.h"
 #include "GeoModelXml/GmxUtil.h"
 
-//Temp:
-#include <iostream>
 
 using namespace xercesc;
 

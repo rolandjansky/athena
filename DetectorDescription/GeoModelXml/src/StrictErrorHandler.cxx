@@ -6,36 +6,35 @@
 #include "GeoModelXml/translate.h"
 #include <xercesc/dom/DOMError.hpp>
 #include <xercesc/dom/DOMLocator.hpp>
-#include <iostream>
-
-
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IMessageSvc.h"
 
 StrictErrorHandler::StrictErrorHandler(): m_SawErrors(false) {}
 StrictErrorHandler::~StrictErrorHandler() {}
 
 bool StrictErrorHandler::handleError(const xercesc::DOMError &domError) {
 
-std::cout << "Handle an error\n";
-std::cerr << "Handle an error\n";
-
+    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+    MsgStream log(&(*msgh), "GeoModelXml");
+    log << MSG::ERROR << "StrictErrorHandler: Handle an error\n";
 
     m_SawErrors = true;
 
     switch (domError.getSeverity()) {
     case (xercesc::DOMError::DOM_SEVERITY_WARNING):
-        std::cerr << "\nWarning at file \n";
+        log << "\nWarning at file \n";
         break;
     case (xercesc::DOMError::DOM_SEVERITY_ERROR):
-        std::cerr << "\nError at file \n";
+        log << "\nError at file \n";
         break;
     default:
-        std::cerr << "\nFatal Error at file \n";
+        log << "\nFatal Error at file \n";
     }
-    std::cerr << translate(domError.getLocation()->getURI())
+    log << translate(domError.getLocation()->getURI())
          << ", line " << domError.getLocation()->getLineNumber()
          << ", char " << domError.getLocation()->getColumnNumber()
-         << "\n  Message: " << translate(domError.getMessage()) << std::endl;
+         << "\n  Message: " << translate(domError.getMessage()) << endmsg;
 
     return true;
 }
-

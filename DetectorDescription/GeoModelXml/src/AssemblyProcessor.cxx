@@ -13,7 +13,6 @@
 //
 #include "GeoModelXml/AssemblyProcessor.h"
 
-#include <iostream>
 #include <map>
 
 #include <xercesc/dom/DOM.hpp>
@@ -112,10 +111,5 @@ void AssemblyProcessor::zeroId(const xercesc_3_1::DOMElement *element) {
     if ((entry = m_map.find(name)) != m_map.end()) {
         entry->second.id = 0;
     }
-/* Not an error: it is usually just about to be made with id = 0; no action needed.
-    else { 
-         cerr << "AssemblyProcessor::zeroId called with element name " << name << 
-                " but element doesn't exist. Ignoring request.\n";
-    }
-*/
+/* else ... Not an error: it is usually just about to be made with id = 0; no action needed. */
 }

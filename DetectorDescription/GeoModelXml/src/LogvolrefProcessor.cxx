@@ -6,7 +6,9 @@
 //    Process logvolref items: basically, just find the referenced logvol and call its processor.
 //
 #include "GeoModelXml/LogvolrefProcessor.h"
-#include <iostream>
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IMessageSvc.h"
 #include <string>
 #include <xercesc/dom/DOM.hpp>
 #include "GeoModelXml/GeoNodeList.h"
@@ -33,8 +35,10 @@ char *toRelease;
     string nodeName(toRelease);
     XMLString::release(&toRelease);
     if (nodeName != string("logvol")) {
-        cerr << "Error in xml/gmx file: logvolref " << translate(idref) << " referenced a " << nodeName << 
-                " instead of a logvol.\n";
+        ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+        MsgStream log(&(*msgh), "GeoModelXml");
+        log << MSG::FATAL << "Error in xml/gmx file: logvolref " << translate(idref) << " referenced a " << nodeName << 
+                " instead of a logvol." << endmsg;
         exit(999); // Should do better...
     }
 //

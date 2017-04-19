@@ -3,7 +3,9 @@
 */
 
 #include "GeoModelXml/MakeMaterial.h"
-#include <iostream>
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IMessageSvc.h"
 #include <string>
 #include <xercesc/dom/DOM.hpp>
 #include "GeoModelKernel/RCBase.h"
@@ -21,6 +23,7 @@ MakeMaterial::MakeMaterial() {}
 const RCBase * MakeMaterial::make(const xercesc_3_1::DOMElement *element, GmxUtil &gmxUtil) const {
 char *name;
 char *density;
+char *densitySF;
 double rho;
 char *fracString;
 double fraction;
@@ -29,16 +32,33 @@ const XMLCh *ref = translate("ref");
 const XMLCh *idref;
 DOMDocument *doc = element->getOwnerDocument();
 char *toRelease;
+    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+    MsgStream log(&(*msgh), "GeoModelXml");
 //
-//   Get my density
+//    Get material density scale-factor for the block of materials this one is in 
 //
-    density = translate(element->getAttribute(translate("density")));
-    rho = gmxUtil.evaluate(density);
-    XMLString::release(&density);
+    DOMNode *parent = element->getParentNode();
+    if (XMLString::compareIString(parent->getNodeName(), translate("materials")) != 0) {
+        log << MSG::FATAL << "Asked to make a material for non-material element. Parent element was " << 
+                             translate(parent->getNodeName()) << "; error in gmx file; exiting" << endmsg;
+        exit(1);
+    }
+    double scaleFactor(1.0);
+    DOMElement *el = dynamic_cast<DOMElement *> (parent);
+//    if (el->hasAttribute(translate("densitysf"))) { // Guaranteed by DTD; don't recheck.
+        densitySF = translate(el->getAttribute(translate("densitysf")));
+        scaleFactor = gmxUtil.evaluate(densitySF);
+//    }
 //
 //    Get my name
 //
     name = translate(element->getAttribute(translate("name")));
+//
+//   Get my density
+//
+    density = translate(element->getAttribute(translate("density")));
+    rho = gmxUtil.evaluate(density) * scaleFactor;
+    XMLString::release(&density);
 //
 //    Create it
 //
@@ -58,7 +78,8 @@ char *toRelease;
         string nodeName(toRelease);
         XMLString::release(&toRelease);
         if (nodeName != string("element")) {
-            cerr << "Error in xml/gmx file: An elementref referenced a " << nodeName << " instead of an element.\n";
+            log << MSG::FATAL << "Error in xml/gmx file: An elementref referenced a " << nodeName << " instead of an element." 
+                              << endmsg;
             exit(999); // Should do better...
         }
 
@@ -83,7 +104,8 @@ char *toRelease;
         string nodeName(toRelease);
         XMLString::release(&toRelease);
         if (nodeName != string("chemical")) {
-            cerr << "Error in xml/gmx file: A chemref referenced a " << nodeName << " instead of a chemical.\n";
+            log << MSG::FATAL << "Error in xml/gmx file: A chemref referenced a " << nodeName << " instead of a chemical." << 
+                                  endmsg;
             exit(999); // Should do better...
         }
 
@@ -107,7 +129,8 @@ char *toRelease;
             string nodeName(toRelease);
             XMLString::release(&toRelease);
             if (nodeName != string("element")) {
-                cerr << "Error in xml/gmx file: An elementref referenced a " << nodeName << " instead of an element.\n";
+                log << MSG::FATAL << 
+                       "Error in xml/gmx file: An elementref referenced a " << nodeName << " instead of an element." << endmsg;
                 exit(999); // Should do better...
             }
 
@@ -121,7 +144,6 @@ char *toRelease;
             molWeight += atomicWeight.back() * formula.back();
         }
         for (int i = 0; i < nChemEls; ++i) {
-cout << "Add " << fraction * formula[i] * atomicWeight[i] / molWeight << "\n";
             material->add(geoElem[i], fraction * formula[i] * atomicWeight[i] / molWeight);
         }
     }
@@ -140,7 +162,8 @@ cout << "Add " << fraction * formula[i] * atomicWeight[i] / molWeight << "\n";
         string nodeName(toRelease);
         XMLString::release(&toRelease);
         if (nodeName != string("material")) {
-            cerr << "Error in xml/gmx file: A materialref referenced a " << nodeName << " instead of a material.\n";
+            log << MSG::FATAL << 
+                   "Error in xml/gmx file: A materialref referenced a " << nodeName << " instead of a material." << endmsg;
             exit(999); // Should do better...
         }
 

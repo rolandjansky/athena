@@ -54,7 +54,7 @@ char *tagName;
     if (alignable) { 
         int level;
         istringstream(translate(element->getAttribute(translate("alignable")))) >> level;
-cout << "\nAdd Alignable named " << ((GeoNameTag *) objectsToAdd[0])->getName() << " with id " << 
+cout << "\nTransformProcessor: Add Alignable named " << ((GeoNameTag *) objectsToAdd[0])->getName() << " with GeoModel id " << 
         ((GeoIdentifierTag *) objectsToAdd[1])->getIdentifier() << endl;
         map<string, int> index;
         gmxUtil.positionIndex.incrementLevel(); // Logvol has unfortunately already decremented this; temp. restore it

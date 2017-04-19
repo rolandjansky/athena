@@ -6,7 +6,9 @@
 //    Process transformationref items: basically, just find the referenced transform and call its processor.
 //
 #include "GeoModelXml/shape/MakeShaperef.h"
-#include <iostream>
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IMessageSvc.h"
 #include <string>
 #include <xercesc/dom/DOM.hpp>
 #include "GeoModelXml/GmxUtil.h"
@@ -27,9 +29,11 @@ const RCBase *MakeShaperef::process(const DOMElement *element, GmxUtil &gmxUtil)
 //
     DOMNode *parent = shape->getParentNode();
     if (XMLString::compareIString(parent->getNodeName(), translate("shapes")) != 0) {
-        cerr << "Error processing <shaperef> tag: An IDREF for a shape did not refer to a shape.\nShape ref was " << 
-                idref << "; exiting\n";
-            exit (1); // Need to improve...
+        ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+        MsgStream log(&(*msgh), "GeoModelXml");
+        log << MSG::FATAL << "Error processing <shaperef> tag: An IDREF for a shape did not refer to a shape.\nShape ref was " << 
+               idref << "; exiting" << endmsg;
+        exit (1); // Need to improve...
     }
 //
 //    Get what sort of shape

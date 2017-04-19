@@ -6,7 +6,9 @@
 //    Process transformationref items: basically, just find the referenced transform and call its processor.
 //
 #include "GeoModelXml/MakeTransformationref.h"
-#include <iostream>
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IMessageSvc.h"
 #include <string>
 #include <xercesc/dom/DOM.hpp>
 #include "GeoModelXml/GmxUtil.h"
@@ -33,8 +35,10 @@ char *toRelease;
     string nodeName(toRelease);
     XMLString::release(&toRelease);
     if (nodeName != string("transformation")) {
-        cerr << "Error in xml/gmx file: transformationref " << translate(idref) << " referenced a " << nodeName << 
-                " instead of a transformation.\n";
+        ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+        MsgStream log(&(*msgh), "GeoModelXml");
+        log << MSG::FATAL << "Error in xml/gmx file: transformationref " << translate(idref) << " referenced a " << nodeName << 
+                " instead of a transformation." << endmsg;
         exit(999); // Should do better...
     }
 //

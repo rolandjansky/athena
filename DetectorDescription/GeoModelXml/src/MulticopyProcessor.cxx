@@ -21,7 +21,9 @@
 //
 #include "GeoModelXml/MulticopyProcessor.h"
 
-#include <iostream>
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IMessageSvc.h"
 #include <sstream>
 #include <string>
 #include <cstdlib>
@@ -47,6 +49,9 @@ const XMLCh *ref = translate("ref");
 const XMLCh *idref;
 DOMDocument *doc = element->getOwnerDocument();
 
+    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+    MsgStream log(&(*msgh), "GeoModelXml");
+
     bool alignable = element->hasAttribute(translate("alignable"));
 //
 //    How many copies?
@@ -61,7 +66,6 @@ DOMDocument *doc = element->getOwnerDocument();
     toRelease = translate(element->getAttribute(translate("name")));
     string name(toRelease);
     XMLString::release(&toRelease);
-// cout << "multicopy::process called with name " << name << " and nCopies = " << nCopies << endl;
     map<string, GeoNodeList>::iterator entry;
     GeoNodeList *xfList;
     if ((entry = m_map.find(name)) == m_map.end()) { // Not in registry; make a new item
@@ -82,8 +86,8 @@ DOMDocument *doc = element->getOwnerDocument();
             // Check it is a vector
             firstElement = varname + "_0";
             if (!gmxUtil.eval.findVariable(firstElement.c_str())) {
-                cerr << "Error in .gmx file. Processing multicopy element with name " << name << 
-                ". Found loopvar set to " << varname << ", but no vector with that name has been defined.\n";
+                log << MSG::FATAL << "Error in .gmx file. Processing multicopy element with name " << name << 
+                ". Found loopvar set to " << varname << ", but no vector with that name has been defined." << endmsg;
                 exit(999); // Should do better
             }
         }
@@ -100,7 +104,7 @@ DOMDocument *doc = element->getOwnerDocument();
                 xFormProcessor = (Element2GeoItem *) &(gmxUtil.tagHandler.transformation);
             }
             else { // Not OK
-                cerr << "Error in .gmx file. Processing multicopy element with name " << name <<
+                log << MSG::FATAL << "Error in .gmx file. Processing multicopy element with name " << name <<
                 ". \nIt gives loopvar therefore should have a <transformation> and not a <transformationref> (despite the DTD)\n";
                 exit(999); // Should do better
             }
@@ -191,8 +195,9 @@ DOMDocument *doc = element->getOwnerDocument();
                 gmxUtil.tagHandler.assembly.zeroId(as);
             }
             else {
-                cerr << "multicopyprocessor: error in " << name << ". <transform> object was neither assemblyref nor logvolref\n";
-                cerr << "Exiting Athena\n\n\n";
+                log << MSG::FATAL << 
+                    "multicopyprocessor: error in " << name << ". <transform> object was neither assemblyref nor logvolref\n"
+                    << "Exiting Athena" << endmsg;
                 exit(999); // Should do better
             }
         }

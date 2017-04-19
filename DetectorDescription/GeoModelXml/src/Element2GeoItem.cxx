@@ -3,12 +3,13 @@
 */
 
 #include "GeoModelXml/Element2GeoItem.h"
-#include <iostream>
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IMessageSvc.h"
 #include <string>
 #include <xercesc/dom/DOM.hpp>
 #include "GeoModelXml/GmxUtil.h"
 #include "GeoModelKernel/RCBase.h"
-#include <iostream>
 #include "GeoModelXml/translate.h"
 
 using namespace std;
@@ -42,15 +43,12 @@ const RCBase * Element2GeoItem::process(const xercesc_3_1::DOMElement *element, 
     return item;
 }
 
-const RCBase * Element2GeoItem::make(const xercesc_3_1::DOMElement *element, GmxUtil &gmxUtil) const {
+const RCBase * Element2GeoItem::make(const xercesc_3_1::DOMElement *element, GmxUtil & /* gmxUtil */) const {
     char *name2release = translate(element->getNodeName());
-    std::cerr << "Oh oh: called base class make() method of Element2GeoType object; tag " << name2release << "\n";
+    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+    MsgStream log(&(*msgh), "GeoModelXml");
+    log << MSG::FATAL << "Oh oh: called base class make() method of Element2GeoType object; tag " << name2release << endmsg;
     XMLString::release(&name2release);
 
-// Just to stop "unused parameter" warning
-    if (element == 0)
-        std::cerr << "DOMelement was unitialised\n"; 
-    if (gmxUtil.getAssemblyLV() == 0) 
-        std::cerr << "GmxUtil not initialised assemblyLogVol\n";
     exit(999); // Should improve on this 
 }

@@ -4,7 +4,9 @@
 
 #include "GeoModelXml/shape/MakeUnion.h"
 #include <string>
-#include <iostream>
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IMessageSvc.h"
 #include <xercesc/dom/DOM.hpp>
 #include <CLHEP/Geometry/Transform3D.h>
 #include "GeoModelKernel/RCBase.h"
@@ -49,7 +51,9 @@ const RCBase * MakeUnion::make(const xercesc_3_1::DOMElement *element, GmxUtil &
                     break;
                 }
                 default: // More than 3 elements?
-                    cerr << "MakeUnion: Incompatible DTD? got more than 3 child elements\n";
+                    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+                    MsgStream log(&(*msgh), "GeoModelXml");
+                    log << MSG::FATAL << "MakeUnion: Incompatible DTD? got more than 3 child elements" << endmsg;
             }
             elementIndex++;
         }
