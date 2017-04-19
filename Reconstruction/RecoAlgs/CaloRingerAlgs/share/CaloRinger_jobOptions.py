@@ -81,7 +81,7 @@ else:
 # Add metadata builder/reader
 from RecExConfig.InputFilePeeker import inputFileSummary
 metaItemDict = inputFileSummary.get( 'metadata_itemsDic' )
-if CRAlgBuilder.usable() or any( ['RingSetConf' in key for key in metaItemDict ] ):
+if CRAlgBuilder.usable() or (metaItemDict and any( ['RingSetConf' in key for key in metaItemDict ] )):
   MetaDataBuilder = CaloRingerMetaDataBuilder()
 
   # Make sure all MetaData algoritms have the ringerOutputLevel
