@@ -1233,7 +1233,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillLists()
 
       int n = f*11+z; ++m_nsaz;
       rfz_Sorted[n].push_back(*r); if(!rfz_map[n]++) rfz_index[m_nrfz++] = n;
-      
+
       if(!m_iteration && (*r)->spacepoint->clusterList().second == 0 && z>=3 && z<=7) { 
 	z<=4 ? z=0 : z>=6 ? z=2 : z=1;
 

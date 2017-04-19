@@ -269,7 +269,7 @@ namespace InDet {
       float d1[3] = {m_b0[1]*d[2]-m_b0[2]*d[1],m_b0[2]*d[0]-m_b0[0]*d[2],m_b0[0]*d[1]-m_b0[1]*d[0]};
       float bd1   =  m_b1[0]*d1[0]+m_b1[1]*d1[1]+m_b1[2]*d1[2];       if(       bd1==0.        ) return false;
       float s1    = (m_dr[0]*d1[0]+m_dr[1]*d1[1]+m_dr[2]*d1[2])/bd1;  if(s1 < -.05 || s1 > 1.05) return false;
-      
+
       r[0] = m_r0[0]+m_b0[0]*s0;
       r[1] = m_r0[1]+m_b0[1]*s0;
       r[2] = m_r0[2]+m_b0[2]*s0;
