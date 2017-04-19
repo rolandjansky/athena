@@ -25,6 +25,7 @@ namespace asg
     : AsgTool (val_name)
   {
     declareProperty ("propertyInt", m_propertyInt, "the integer property");
+    declareProperty ("propertyString", m_propertyString, "the string property");
     declareProperty ("initializeFail", m_initializeFail, "whether initialize should fail");
   }
 
@@ -45,6 +46,14 @@ namespace asg
     }
     m_isInitialized = true;
     return StatusCode::SUCCESS;
+  }
+
+
+
+  std::string UnitTestTool1A ::
+  getPropertyString () const
+  {
+    return m_propertyString;
   }
 
 

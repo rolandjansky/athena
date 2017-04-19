@@ -1,4 +1,4 @@
-// $Id: AsgMessaging.cxx 615798 2014-09-09 16:02:17Z krasznaa $
+// $Id: AsgMessaging.cxx 784571 2016-11-16 14:27:23Z will $
 
 // Local include(s):
 #include "AsgTools/AsgMessaging.h"
@@ -15,7 +15,7 @@ namespace asg {
    AsgMessaging::AsgMessaging( const std::string& name )
       :
 #ifdef ASGTOOL_ATHENA
-      AthMessaging( Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),
+     AthMessaging( Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc", false ),
                     name )
 #elif defined(ASGTOOL_STANDALONE)
       m_msg( name )
@@ -29,7 +29,7 @@ namespace asg {
    AsgMessaging::AsgMessaging( const IAsgTool* tool )
       :
 #ifdef ASGTOOL_ATHENA
-      AthMessaging( Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),
+     AthMessaging( Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc", false ),
                     tool->name() )
 #elif defined(ASGTOOL_STANDALONE)
       m_msg( tool )
