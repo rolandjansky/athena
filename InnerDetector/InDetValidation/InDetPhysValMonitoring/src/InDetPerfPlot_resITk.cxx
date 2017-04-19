@@ -826,7 +826,7 @@ InDetPerfPlot_resITk::finalizePlots() {
 }
 
 void
-InDetPerfPlot_resITk::getMeanWidthResultsModUnits(TH1* p_input_hist, vector<float>& p_result,
+InDetPerfPlot_resITk::getMeanWidthResultsModUnits(TH1* p_input_hist, std::vector<float>& p_result,
 						  IDPVM::GetMeanWidth::methods p_method) {
   // LM: reason for using this function:
   //   orignial code was set up to only have resolution resuls in um,
@@ -880,7 +880,7 @@ InDetPerfPlot_resITk::makeResolutions(TH2* h, TH1* hres[4]) {
   // Should fix this in a better way
   TString hname = h->GetName();
   // warnings in case input histograms have large % events in under- and over- flow bins 
-  vector< std::pair<unsigned int,double> > warnUOBinFrac;
+  std::vector< std::pair<unsigned int,double> > warnUOBinFrac;
    
   if (hname.Contains("Helpereta")) {
     for (unsigned int ieta = 0; ieta < m_nEtaBins; ieta++) {
@@ -955,7 +955,7 @@ void
 InDetPerfPlot_resITk::makeResolutions(TH2* h, TH1* hres[4], TH1* hproj[m_nEtaBins], bool save) {
   TString hname = h->GetName();
   // warnings in case input histograms have large % events in under- and over- flow bins 
-  vector< std::pair<unsigned int,double> > warnUOBinFrac;
+  std::vector< std::pair<unsigned int,double> > warnUOBinFrac;
   
   if (hname.Contains("Helpereta")) {
     for (unsigned int ieta = 0; ieta < m_nEtaBins; ieta++) {
@@ -1045,7 +1045,7 @@ void
 InDetPerfPlot_resITk::makeResolutions(TH3* h, TH1* hres_eta[4][4], TH1* hres_pt[4][4]) {
 
   // warnings in case input histograms have large % events in under- and over- flow bins
-  vector< std::pair<unsigned int,double> > warnUOBinFrac;
+  std::vector< std::pair<unsigned int,double> > warnUOBinFrac;
   
   float BinEta[5] = {
     0.0, 1.0, 1.5, 2.7, 5.0

@@ -92,7 +92,7 @@ private:
   void makeResolutions(TH2* h, TH1* h2[m_nResHist]);
 
   void makeResolutions(TH3* h, TH1* h2[][m_nResHist], TH1* h3[][m_nResHist]);
-  void getMeanWidthResultsModUnits(TH1* p_input_hist, vector<float>& p_result,
+  void getMeanWidthResultsModUnits(TH1* p_input_hist, std::vector<float>& p_result,
 				   IDPVM::GetMeanWidth::methods p_method);
   void getTrackParameters(const xAOD::TruthParticle& truthprt);
   void getTrackParameters(const xAOD::TrackParticle& truthprt);
