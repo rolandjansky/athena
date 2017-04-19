@@ -18,23 +18,22 @@
 
 
 
-#ifeq ($(CMTCONFIG),)
-#   ARCH_TYPE = $(shell ./setarch.sh)
-    ARCH_TYPE = $(shell uname)
-#else 
-#    ARCH_TYPE = $(CMTCONFIG)
-#   ARCH_TYPE = $(ATLAS_ARCH)
-#endif
+ifeq ($(AtlasEvent_PLATFORM),)
+  ATLAS_ARCH = $(shell uname)
+else
+  ATLAS_ARCH = $(AtlasEvent_PLATFORM)
+endif
+
 
 CMTCONFIG=
 
 
 SRCDIR = .
-LIBDIR = ../lib/$(ARCH_TYPE)
-OBJDIR = ../obj/$(ARCH_TYPE)
-EXEDIR = ../exe/$(ARCH_TYPE)
+LIBDIR = ../lib/$(ATLAS_ARCH)
+OBJDIR = ../obj/$(ATLAS_ARCH)
+EXEDIR = ../exe/$(ATLAS_ARCH)
 
-# CONFIGDIR = $(shell cwd.sh)
+
 CONFIGDIR = ../config
 BASEDIR   = $(shell cwd.sh -p)
 BASENAME  = $(shell cwd.sh -s)
@@ -109,8 +108,8 @@ LIBS += -L$(LIBDIR) -lReadcards
 
 
 
-testparse : $(EXEDIR)/testparse
-$(EXEDIR)/testparse :   $(OBJECTS) lib
+testparse : dirs $(EXEDIR)/testparse
+$(EXEDIR)/testparse :  $(OBJECTS) lib
 	$(CXX) $(LDFLAGS) -o $@ $(OBJECTS) $(LIBS) $(LIBS)   $(GLIBS)
 
 

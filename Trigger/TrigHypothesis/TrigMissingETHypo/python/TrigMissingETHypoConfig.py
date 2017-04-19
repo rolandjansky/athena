@@ -275,6 +275,31 @@ class EFMetHypoTrackAndJetsXE (EFMissingETHypoBase):
         if 'xe30' in name:
             self.onlineMonitoring(True)
 
+class EFMetHypoFTKTrackAndJetsXE (EFMissingETHypoBase):
+    __slots__ = []
+    def __init__(self, name = "EFMetHypo_trkmhtxe1000",ef_thr=1000*GeV):
+        super( EFMetHypoFTKTrackAndJetsXE, self ).__init__( name )
+
+        self.SumETCut=ef_thr
+        self.MissingETCut=ef_thr
+        self.CutType=-2.0
+        self.METLabel='TrigEFMissingET_trkmhtFTK'
+        self.doMuonCorrection = False
+        self.SumETCut = 100000000*GeV
+        self.forceAccept=False
+        self.onlineMonitoring(False)
+        self.doEMScaleTC=False
+        if 'noFW' in name:
+            self.doOnlyCalcCentralMET = True
+        if 'wMu' in name:
+            self.doMuonCorrection = True
+        if 'noEF' in name:
+            self.MissingETCut=-100*GeV
+            self.SumETCut=-100*GeV
+        if 'xe30' in name:
+            self.onlineMonitoring(True)
+
+
 class EFMetHypoTCPUCXE (EFMissingETHypoBase):
     __slots__ = []
     def __init__(self, name = "EFMetHypo_tcpucxe1000",ef_thr=1000*GeV):

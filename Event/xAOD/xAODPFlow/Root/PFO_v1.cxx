@@ -509,6 +509,10 @@ namespace xAOD {
       myAttribute = xAOD::PFODetails::eflowRec_AVG_TILE_Q;
       return true;
     }
+    else if (momentType == xAOD::CaloCluster::EM_PROBABILITY){
+      myAttribute = xAOD::PFODetails::eflowRec_EM_PROBABILITY;
+      return true;
+    }    
     else return false;
 
   }

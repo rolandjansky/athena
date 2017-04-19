@@ -182,7 +182,7 @@
 #           include "TrigInDetValidation_aux.xml"
 
    
-         <athenaCommonFlags /> 
+         <athenaCommonFlags /><alwaysRunPostProc /> 
          </athena>
 
 

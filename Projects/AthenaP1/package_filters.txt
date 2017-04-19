@@ -51,6 +51,7 @@
 + Simulation/ISF/ISF_Fatras/ISF_FatrasDetDescrModel
 + Simulation/ISF/ISF_Fatras/ISF_FatrasDetDescrTools
 + Simulation/Tools/AtlasCLHEP_RandomGenerators
++ Simulation/Barcode/BarcodeEvent
 + Simulation/Barcode/BarcodeInterfaces
 + Simulation/FastSimulation/FastSimulationEvent
 + Simulation/G4Sim/TrackRecord
