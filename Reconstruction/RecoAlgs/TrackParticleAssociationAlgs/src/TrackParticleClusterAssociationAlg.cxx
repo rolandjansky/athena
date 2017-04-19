@@ -25,7 +25,7 @@ TrackParticleClusterAssociationAlg::TrackParticleClusterAssociationAlg(const std
   declareProperty("TrackParticleContainerName"          ,   m_trackParticleCollectionName = "InDetTrackParticles" );
   declareProperty("PtCut"                               ,   m_ptCut                       = 25000. );
   declareProperty("OutputCollectionPostFix"             ,   m_outputPostFix               = "" );
-  declareProperty("CaloClustersLocation"                ,   m_caloClusters                = "CaloCalTopoClusters"   );
+  declareProperty("CaloClusterLocation"                 ,   m_caloClusters                = "CaloCalTopoClusters"   );
 }
 
 TrackParticleClusterAssociationAlg::~TrackParticleClusterAssociationAlg()

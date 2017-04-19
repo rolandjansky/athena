@@ -25,8 +25,8 @@ include("RecExCond/AllDet_detDescr.py")
 
 from JetRec.JetRecConf import JetAlgorithm
 from JetRecTools.JetRecToolsConf import JetConstituentModSequence, CaloClusterConstituentsOrigin, ClusterTimeCutTool
-# ccco = CaloClusterConstituentsOrigin("JetConstit_LCOrigin") 
-# ToolSvc += ccco
+ccco = CaloClusterConstituentsOrigin("JetConstit_LCOrigin") 
+ToolSvc += ccco
 
 ctct = ClusterTimeCutTool("JetConstit_Timecut") 
 ToolSvc += ctct
@@ -35,7 +35,7 @@ PFSequence = JetConstituentModSequence("JetConstitSeq_LCOriginAndTime",
                                        InputContainer = "CaloCalTopoClusters",
                                        OutputContainer = "TimedCaloCalTopoClusters",
                                        InputType = "CaloCluster",
-                                       Modifiers = [ctct],
+                                       Modifiers = [ctct, ccco],
                                        SaveAsShallow = False
                                        )
 ToolSvc += PFSequence
@@ -47,7 +47,8 @@ ToolSvc += theAtlasExtrapolator
 
 from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import ParticleToCaloExtrapolationTool
 ParticleToCaloExtrapolationTool = ParticleToCaloExtrapolationTool(name = "ParticleToCaloExtrapolationTool", 
-									Extrapolator = theAtlasExtrapolator)
+									                              Extrapolator = theAtlasExtrapolator,
+                                                                  ParticleType = "pion" )
 ParticleToCaloExtrapolationTool.OutputLevel = DEBUG
 ToolSvc += ParticleToCaloExtrapolationTool
 
@@ -87,14 +88,16 @@ TrackParticleClusterAssociation = TrackParticleClusterAssociationAlg(name = "Tra
                                                             ParticleCaloClusterAssociationTool = ParticleCaloCellAssociation,
                                                             TrackParticleContainerName = "InDetTrackParticles",
                                                             PtCut = 400.,
-                                                            OutputCollectionPostFix = "Test")
+                                                            OutputCollectionPostFix = "Test",
+                                                            CaloClusterLocation = "TimedCaloCalTopoClusters")
 # TrackParticleClusterAssociation.OutputLevel = DEBUG
 topSequence += TrackParticleClusterAssociation
 
 print TrackParticleClusterAssociation
 
 from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import TrackCaloClusterWeightsTool
-TrackCaloClusterWeights = TrackCaloClusterWeightsTool(name                 = "TrackCaloClusterWeights")
+TrackCaloClusterWeights = TrackCaloClusterWeightsTool(name                 = "TrackCaloClusterWeights",
+                                                      UseEnergy            = True    )
 # TrackCaloClusterWeights.OutputLevel = VERBOSE
 ToolSvc+=TrackCaloClusterWeights
 print      TrackCaloClusterWeights
@@ -115,7 +118,8 @@ print      jettva
 from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import TrackCaloClusterCreatorTool
 TrackCaloClusterCreator = TrackCaloClusterCreatorTool(name                      = "TrackCaloClusterCreator",
                                                       VertexContainerName       = "PrimaryVertices",
-                                                      LooseTrackVertexAssoTool  = loosetrackvertexassotool)
+                                                      LooseTrackVertexAssoTool  = loosetrackvertexassotool,
+                                                      UseEnergy                 = True    )
 # TrackCaloClusterCreator.OutputLevel = VERBOSE
 ToolSvc+=TrackCaloClusterCreator
 print      TrackCaloClusterCreator
