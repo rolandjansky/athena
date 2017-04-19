@@ -50,7 +50,6 @@ def getStepNtupleTool(name="G4UA::StepNtupleTool", **kwargs):
     from G4DebuggingTools.G4DebuggingToolsConf import G4UA__StepNtupleTool
     return G4UA__StepNtupleTool(name, **kwargs)
 
-
 def getVolumeDebuggerTool(name="G4UA::VolumeDebuggerTool", **kwargs):
     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
 
@@ -62,3 +61,33 @@ def getVolumeDebuggerTool(name="G4UA::VolumeDebuggerTool", **kwargs):
 
     from G4DebuggingTools.G4DebuggingToolsConf import G4UA__VolumeDebuggerTool
     return G4UA__VolumeDebuggerTool(name, **kwargs)
+
+def getMassDebuggerTool(name="G4UA::MassDebuggerTool", **kwargs):
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+
+    from G4AtlasApps.SimFlags import simFlags
+    # example custom configuration
+    if name in simFlags.UserActionConfig.get_Value().keys():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+            kwargs.setdefault(prop,value)
+
+    from G4DebuggingTools.G4DebuggingToolsConf import G4UA__MassDebuggerTool
+    return G4UA__MassDebuggerTool(name, **kwargs)
+
+def getGeant4SetupCheckerTool(name="G4UA::Geant4SetupCheckerTool", **kwargs):
+    # Set reference based on geometry
+    from G4AtlasApps.SimFlags import simFlags
+    # Grab the properties that were already set
+    if name in simFlags.UserActionConfig.get_Value().keys():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+            kwargs.setdefault(prop,value)
+    default_file = '/afs/cern.ch/atlas/groups/Simulation/G4config_reference_files/default_reference.txt'
+    test_file = '/afs/cern.ch/atlas/groups/Simulation/G4config_reference_files/'
+    test_file+=simFlags.SimLayout().replace('_VALIDATION','')+'_reference.txt'
+    import os
+    if os.access(test_file,os.R_OK): default_file = test_file
+    kwargs.setdefault('ReferenceFile',default_file)
+    # Set up the user action
+    from G4DebuggingTools.G4DebuggingToolsConf import G4UA__Geant4SetupCheckerTool
+    return G4UA__Geant4SetupCheckerTool(name, **kwargs)
+
