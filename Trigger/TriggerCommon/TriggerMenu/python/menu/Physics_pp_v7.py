@@ -1940,6 +1940,13 @@ def setupMenu():
         ['mu10_bJpsi_Trkloose',           'L1_MU10', [], [PhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
         ['mu14_bJpsi_Trkloose',           'L1_MU10', [], [PhysicsStream,'express'], [RATE_BphysTag,BW_BphysTag], -1],
         ['mu20_bJpsi_Trkloose',           'L1_MU21', [], [PhysicsStream,'express'], [RATE_BphysTag,BW_BphysTag], -1],
+
+        # ATR-16163
+        ['mu4_bJpsi_TrkPEB',            'L1_MU4',  [], ['BphysPEB'], [RATE_BphysTag,BW_BphysTag], -1],
+        ['mu6_bJpsi_TrkPEB',            'L1_MU6',  [], ['BphysPEB'], [RATE_BphysTag,BW_BphysTag], -1],
+        ['mu10_bJpsi_TrkPEB',           'L1_MU10', [], ['BphysPEB'], [RATE_BphysTag,BW_BphysTag], -1],
+        ['mu14_bJpsi_TrkPEB',           'L1_MU10', [], ['BphysPEB'], [RATE_BphysTag,BW_BphysTag], -1],
+        ['mu20_bJpsi_TrkPEB',           'L1_MU21', [], ['BphysPEB'], [RATE_BphysTag,BW_BphysTag], -1],
         
         ['3mu4_bDimu',                    'L1_3MU4', [], [BMultiMuonStream], [RATE_BphysTag,BW_BphysTag], -1],
         ['3mu4_bJpsi',                    'L1_3MU4', [], [BMultiMuonStream], [RATE_BphysTag,BW_BphysTag], -1],
