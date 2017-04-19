@@ -51,14 +51,88 @@
     }								\
   } while( false )
 
-#define printUsage(ARG) MSG_ERROR( "Usage:  [--file/-f /path/to/input/file] [--runno/-r run number] [--eta/e eta] [--pt/-p pt in Mev]" \
+#define printUsage(ARG) MSG_ERROR( "Usage:  [--file/-f /path/to/input/file] [--mapfile/-m /path/to/input/mapfile] [--runno/-r run number] [--eta/e eta] [--pt/-p pt in Mev]" \
+				   << "[--keyreco/-k RecoKey] [--keyid/-d IDKey] [--keyiso/-i IsoKey] [--keytrigger/-t TriggerKey]" \
 				   << "[--type/-t FullSim/AtlFast2] [--useDefaults/-d] [--compact/-c]" << ARG ); 
 
 
 xAOD::CaloCluster* create_cluster(float eta, float phi,float e);
 
-int main( int argc, char* argv[] ) {
+void dumbProperties(const AsgElectronEfficiencyCorrectionTool& tool){
+  ///Get the properties
+  MSG_INFO("=============" );  
+  MSG_INFO( "Properties" );  
+  auto propertyMap = tool.getPropertyMgr()->getProperties();
+  for (auto  i : propertyMap){
+    MSG_INFO("=============" );  
+    MSG_INFO("Name : " <<i.first  <<  " Type : " <<i.second->typeName() );  
+    int type= i.second->type();
+    switch(type){    
+    case Property::Type::BOOL :{
+      bool value = *(tool.getProperty<bool>(i.first));
+      MSG_INFO("Value : " <<value );        
+      break;      
+    }
+    case Property::Type::INT:{
+      int value = *(tool.getProperty<int>(i.first));
+      MSG_INFO("Value : " <<value );        
+      break;
+    }
+    case Property::Type::FLOAT :{
+      float value = *(tool.getProperty<float>(i.first));
+      MSG_INFO("Value : " <<value );        
+      break;
+    }
+    case Property::Type::DOUBLE :{
+      double value = *(tool.getProperty<double>(i.first));
+      MSG_INFO("Value : " <<value );        
+      break;
+    }
+    case Property::Type::STRING :{
+      std::string value = *(tool.getProperty<std::string>(i.first));
+      MSG_INFO("Value : " <<value );        
+      break;
+    }
+    case Property::Type::STRINGVECTOR :{
+      std::vector<std::string> value= *(tool.getProperty< std::vector<std::string> > (i.first));
+      MSG_INFO("Values : ");        
+      for (auto  j : value){
+	MSG_INFO(j);        
+      }
+      break;
+    }
+    case Property::Type::FLOATVECTOR :{
+      std::vector<float> value = *(tool.getProperty< std::vector<float> > (i.first));
+      MSG_INFO("Values : ");        
+      for (auto  j : value){
+	MSG_INFO(j);        
+      }
+      break;
+    }
+    case Property::Type::INTVECTOR :{
+      std::vector<int> value = *(tool.getProperty< std::vector<int> > (i.first));
+      MSG_INFO("Values : ");        
+      for (auto  j : value){
+	MSG_INFO(j);        
+      }
+      break;
+    }
+    default :
+      if(i.first == "DefaultRandomRunNumber" ){
+	MSG_INFO("Value : " << *(tool.getProperty<unsigned int>(i.first)));
+      }
+      if(i.first == "OutputLevel" ){
+	MSG_INFO("Value : " << static_cast<int> (tool.msg().level()));
+      }
+      break;
+    }
+  }
+}
 
+
+
+int main( int argc, char* argv[] ) {
+  xAOD::TReturnCode::enableFailure();
 
   //=========================================================
   //Parse input
@@ -66,15 +140,19 @@ int main( int argc, char* argv[] ) {
   const char* APP_NAME = argv[ 0 ];
   //Set the message level
   MSG::Level mylevel=MSG::INFO;
-  MSG::Level mylevelToy=MSG::INFO;//MSG::FATAL;
 
   MSGHELPERS::getMsgStream().msg().setLevel(mylevel); 
   MSGHELPERS::getMsgStream().msg().setName(APP_NAME); 
-//  MSGHELPERS::getMsgStream().msg().setName(TElectronEffi);
+  //  MSGHELPERS::getMsgStream().msg().setName(TElectronEffi);
 
   bool useCompactDisplay = true;
   
   std::string fileName="";
+  std::string mapfileName="";
+  std::string idkey="";
+  std::string recokey="";
+  std::string isokey="";
+  std::string triggerkey="";
   int runno=-1;
   float eta=-999;
   float pt = -1;
@@ -87,18 +165,56 @@ int main( int argc, char* argv[] ) {
   p.addOption("pt","p");
   p.addOption("type","t");
   p.addOption("compact","c",false);
+  p.addOption("mapfile","m");
+  p.addOption("keyreco","k");
+  p.addOption("keyid","d");
+  p.addOption("keyiso","i");
+  p.addOption("keytrigger","t");
+
+
   p.Init(argc,argv);
 
-  TString tmp = p.getArg("f");
-
+  /// first check for mapfile
+  TString tmp = p.getArg("m");
   if (tmp != "")
-    fileName = tmp;
-  else
-    {
-      MSG_INFO("No file name given");
+    mapfileName = tmp;
+  else { 
+    tmp = p.getArg("f");
+    if (tmp != "")
+      fileName = tmp;
+    else {
+      MSG_INFO("Neither map file name nor file name given");
       printUsage(argv[0]);
       return 0;
     }
+  }
+
+  if (fileName!="" && fileName.find(".root") == std::string::npos ){
+    MSG_INFO("filename not a root file? "<< fileName );
+    return 0;
+  }
+
+  if (mapfileName!="" && mapfileName.find(".txt")  == std::string::npos){
+    MSG_INFO("mapfilename not a txt file? "<< mapfileName  );
+    return 0;
+  }
+
+  tmp = p.getArg("t");
+  if (tmp != "")
+    triggerkey = tmp;
+
+  tmp = p.getArg("i");
+  if (tmp != "")
+    isokey = tmp;
+
+  tmp = p.getArg("k");
+  if (tmp != "")
+    recokey = tmp;
+
+  tmp = p.getArg("d");
+  if (tmp != "")
+    idkey = tmp;
+
   tmp = p.getArg("r");
   if (tmp != "")
     runno = atoi(tmp.Data());
@@ -151,8 +267,7 @@ int main( int argc, char* argv[] ) {
   CHECK( xAOD::Init( APP_NAME ) );
   
   //==========================================================
-  //create dummy event
- 
+  // CREATE DUMMY INPUT
   // Create a TEvent object:
   //    //xAOD::TEvent event( xAOD::TEvent::kBranchAccess );
   xAOD::TEvent event( xAOD::TEvent::kClassAccess );
@@ -163,18 +278,9 @@ int main( int argc, char* argv[] ) {
 
   static SG::AuxElement::Decorator<unsigned int> randomrunnumber("RandomRunNumber") ;
   randomrunnumber(*ei)= runno;
-
   xAOD::TStore store;
-  store.record(ei, "EventInfo");
+  CHECK(store.record(ei, "EventInfo"));
 
-  if (!useCompactDisplay){
-    MSG_INFO("Creating new EECTool");
-  }
-
-  if (!useCompactDisplay){
-    MSG_INFO("Adding File: "<<fileName);
-  }
-  std::vector<std::string> inputFiles{fileName} ;
 
   //"Creating calo cluster container");
   xAOD::CaloClusterContainer *m_clusters = new xAOD::CaloClusterContainer();
@@ -199,8 +305,8 @@ int main( int argc, char* argv[] ) {
  
   xAOD::CaloCluster* cluster = create_cluster(eta, 0.0, e);
   m_clusters->push_back(cluster);
-  store.record( m_clusters, "MyClusters" );
-  store.record( m_clAux, "MyClustersAux." );
+  CHECK(store.record( m_clusters, "MyClusters" ));
+  CHECK(store.record( m_clAux, "MyClustersAux."));
 
   
   links_clusters.push_back(ElementLink< xAOD::CaloClusterContainer >( cluster, *m_clusters ));
@@ -210,35 +316,48 @@ int main( int argc, char* argv[] ) {
   track->setDefiningParameters(0., 0., 0.0, 2 * atan(exp(-eta)), 1.);
   m_tracks->push_back(track);
   std::vector< ElementLink< xAOD::TrackParticleContainer > > links_tracks;
-  store.record( m_tracks, "MyTrackParticles" );
-  store.record( m_tracksAux, "MyTrackParticlesAux." );
+  CHECK(store.record( m_tracks, "MyTrackParticles" ));
+  CHECK(store.record( m_tracksAux, "MyTrackParticlesAux." ));
 
   el->setTrackParticleLinks(links_tracks);
   el->setEta(eta);
   el->setPhi(0.0);
   el->setM(0);
   el->setPt(e / cosh(eta));
-  store.record( m_electrons, "MyElectrons" );
-  store.record( m_electronsAux, "MyElectronsAux." );
- //==========================================================
- 
+  CHECK(store.record( m_electrons, "MyElectrons" ));
+  CHECK(store.record( m_electronsAux, "MyElectronsAux." ));
+  //==========================================================
 
+  //Test some models 
+  if (!useCompactDisplay){
+    MSG_INFO("Adding File: "<<fileName);
+  }
+  std::vector<std::string> inputFiles{fileName} ;
+  MSG_INFO( "SimType  " << SimType );  
+  MSG_INFO("el pt " <<el->pt());
+  
   //==================================================================================
   //Test the SIMPLIFIED
-  AsgElectronEfficiencyCorrectionTool myEgCorrections ("myEgCorrections"); 
-  myEgCorrections.msg().setLevel(mylevel);
-  CHECK( myEgCorrections.setProperty("CorrectionFileNameList",inputFiles) );
-  CHECK( myEgCorrections.setProperty("ForceDataType",(int)SimType) );
-  CHECK( myEgCorrections.setProperty("CorrelationModel", "SIMPLIFIED" ));
-  
-  if (!useCompactDisplay){
-    MSG_INFO("Initializing EECTools");
-  }
-  CHECK( myEgCorrections.initialize() );  
-  if(!useCompactDisplay) {
-    MSG_INFO(el->pt());
-  }
+  AsgElectronEfficiencyCorrectionTool myEgCorrections ("myEgCorrections");  
+  MSG_INFO("using  :" << fileName);
+  if (fileName!="")  
+    CHECK( myEgCorrections.setProperty("CorrectionFileNameList",inputFiles) );
 
+  MSG_INFO("using mapfile :" << recokey);
+
+  if (mapfileName!="") CHECK( myEgCorrections.setProperty("MapFilePath", mapfileName));
+
+  // set the keys of interest for correction files
+  if ( recokey!="")  CHECK( myEgCorrections.setProperty("RecoKey", recokey));
+  MSG_INFO("using mapfile :" << recokey);
+  if ( idkey!="")   CHECK( myEgCorrections.setProperty("IdKey", idkey));
+  if ( isokey!="")   CHECK( myEgCorrections.setProperty("IsoKey", isokey));
+  if ( triggerkey!="")   CHECK( myEgCorrections.setProperty("TriggerKey", triggerkey));
+  CHECK( myEgCorrections.setProperty("ForceDataType",(int)SimType) );
+  CHECK( myEgCorrections.setProperty("CorrelationModel", "TOTAL" ));
+  myEgCorrections.msg().setLevel(mylevel);
+  CHECK( myEgCorrections.initialize() );  
+  dumbProperties(myEgCorrections);
   double SF = 0; 
   std::vector<double> unc;
   // Get a list of systematics
@@ -257,7 +376,7 @@ int main( int argc, char* argv[] ) {
     
     // Configure the tool for this systematic
     CHECK( myEgCorrections.applySystematicVariation({sys}) );
-    
+ 
     if(myEgCorrections.getEfficiencyScaleFactor(*el,systematic) == CP::CorrectionCode::Ok){
       MSG_INFO( myEgCorrections.appliedSystematics().name().c_str()<< " Result " << systematic<< " Systematic value  "<<systematic-SF );  
       unc.push_back(systematic);
@@ -278,42 +397,30 @@ int main( int argc, char* argv[] ) {
 
   MSG_INFO( "total up " << total_up  <<" total down " << total_down );
 
-  //HERE THE WEIRD USAGES
-  double systematic = 0; 
-  //Thsese should fail
-  //const std::vector<std::string>invalid1={"EL_EFF_ID_CorrUncertaintyNP8__1up","EL_EFF_ID_CorrUncertaintyNP8__1down"};
-  //CHECK( myEgCorrections.applySystematicVariation(invalid1));
-  //std::cout << myEgCorrections.appliedSystematics().name().c_str()<< " Result " << systematic<< " Systematic value  "<<SF-systematic << std::endl;  
-
-  //const std::vector<std::string>invalid2={"EL_EFF_ID_CorrUncertaintyNP8__1up","EL_EFF_ID_CorrUncertaintyNP9__1down"};
-  //CHECK( myEgCorrections.applySystematicVariation(invalid2));
-  //if(myEgCorrections.getEfficiencyScaleFactor(*el,systematic) != CP::CorrectionCode::Ok){
-  // MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactor");
-  //}
-  //std::cout << myEgCorrections.appliedSystematics().name().c_str()<< " Result " << systematic<< " Systematic value  "<<SF-systematic << std::endl;  
-
-  //This is OK , but the debug in ASG will tell you is not supported , but not a wrong syst either just not applicable
-  const std::vector<std::string>invalid3={"EL_EFF_Reco_CorrUncertaintyNP8__1up"};
-  CHECK( myEgCorrections.applySystematicVariation(invalid3));
-  if(myEgCorrections.getEfficiencyScaleFactor(*el,systematic) != CP::CorrectionCode::Ok){
-    MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactor");
-  }
-  MSG_INFO( "HERE"<< myEgCorrections.appliedSystematics().name().c_str()<< " Result " << systematic<< " Systematic value  "<<SF-systematic );  
-
+  /*
   //==================================================================================
   //Test the TOYS
   //TOYS
+  MSG::Level mylevelToy=MSG::INFO;//MSG::FATAL;
   AsgElectronEfficiencyCorrectionTool myEgCorrectionsToys ("myEgCorrectionsToys");
-  CHECK( myEgCorrectionsToys.setProperty("CorrectionFileNameList",inputFiles) );
+  if (fileName!="")   CHECK( myEgCorrectionsToys.setProperty("CorrectionFileNameList",inputFiles) );
+  if (mapfileName!="") CHECK( myEgCorrectionsToys.setProperty("MapFilePath", mapfileName));
+
+  // set the keys of interest for correction files
+  if ( recokey!="")  CHECK( myEgCorrectionsToys.setProperty("RecoKey", recokey));
+  MSG_INFO("using mapfile :" << recokey);
+  if ( idkey!="")   CHECK( myEgCorrectionsToys.setProperty("IdKey", idkey));
+  if ( isokey!="")   CHECK( myEgCorrectionsToys.setProperty("IsoKey", isokey));
+  if ( triggerkey!="")   CHECK( myEgCorrectionsToys.setProperty("TriggerKey", triggerkey));
+
   CHECK( myEgCorrectionsToys.setProperty("ForceDataType",(int)SimType) );
-   CHECK( myEgCorrectionsToys.setProperty("CorrelationModel", "MCTOYS" ));
+  CHECK( myEgCorrectionsToys.setProperty("CorrelationModel", "MCTOYS" ));
   myEgCorrectionsToys.msg().setLevel(mylevelToy);
   CHECK( myEgCorrectionsToys.initialize() );
-
-
+  dumbProperties(myEgCorrectionsToys);
   double SFToys = 0; 
-  if(myEgCorrectionsToys.getEfficiencyScaleFactor(*el,SFToys) != CP::CorrectionCode::Ok){
-  // MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactorToys");
+  if(myEgCorrectionsToys.getEfficiencyScaleFactor(*el,SFToys) == CP::CorrectionCode::Ok){
+  MSG_INFO("SF  Toys central "<< SF );
   }
   std::vector<double> uncToys;
   CP::SystematicSet recSystsToys = myEgCorrectionsToys.recommendedSystematics();
@@ -324,75 +431,17 @@ int main( int argc, char* argv[] ) {
   sysListToys.calc(recSystsToys);
   std::vector<CP::SystematicSet> sysListToys2=sysListToys.result("toys");
 
-  // Loop over systematics
- 
   /// DO TOY LOOP
   for(const auto& sysToys : sysListToys2){
-    double systematicToys = 0; 
-    
-    if(!useCompactDisplay)  {
-      // MSG_WARNING(APP_NAME<<" " << " Processing syst: " << sysToys.name().c_str());
-    }
-
-    // Configure the tool for this systematic
-    CHECK( myEgCorrectionsToys.applySystematicVariation(sysToys) );
-
-    if(!useCompactDisplay)     {   
-      // MSG_WARNING(APP_NAME<<" " << "Applied syst:  "<< toyIndex << "  "<< toy_scale);   
-  //       MSG_WARNING(APP_NAME<<" " << "Applied syst:  " <<myEgCorrectionsToys.appliedSystematics().name().c_str());
-    }
-    
-    if(myEgCorrectionsToys.getEfficiencyScaleFactor(*el,systematicToys) != CP::CorrectionCode::Ok){
-      //    MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactor");
-    }
-    
-    if(!useCompactDisplay) {
-      //    MSG_INFO(APP_NAME<<"itoys values " << systematicToys);
-    }
-    uncToys.push_back(systematicToys);
+  double systematicToys = 0; 
+  CHECK( myEgCorrectionsToys.applySystematicVariation(sysToys) );    
+  if(myEgCorrectionsToys.getEfficiencyScaleFactor(*el,systematicToys) == CP::CorrectionCode::Ok){
+  MSG_INFO("SFToys value "<< systematicToys );
+  }
+  uncToys.push_back(systematicToys);
   }
 
-  //==================================================================================
-
-  
-//std::cout << "allresults " << SF << "  "; 
-//for (int iu=0;iu<unc.size();iu++){
-
-//std::cout << (SF-unc.at(iu)) << "  ";
-//std::cout << unc.at(iu) << "  ";
-
-//	 }
-//std::cout << std::endl;
-  /*if (unc.size()==5) {
-    std::cout <<" "  <<  SF 
-	      <<" $\\pm$  " << unc.at(0) 
-	      <<" $\\pm$  " << unc.at(1) <<" $\\pm$  " <<  unc.at(2) 
-	      <<" $\\pm$  " <<  unc.at(3) <<" $\\pm$  " <<  unc.at(4) <<std::endl;
-  }
-
-  if (unc.size()==3 ) {
-    std::cout <<" "  <<  unc.at(0)
-	      << " $\\pm$  " << unc.at(0)-unc.at(1)  
-	      <<" $\\pm$  " << unc.at(2)-unc.at(0) << std::endl;
-  }*/
-  //  if (useCompactDisplay)
-  //      std::cout<<sf2.getScaleFactor()<< " $\\pm$ "<<sf2.getTotalUncertainty()<<" / $\\Delta$="<<sf2.getTotalUncertainty()-sqrt(val)<<std::endl;
-  //
-  //// calculate total uncertainty from uncorr and corr
-  // double val = uncorr*uncorr;
-
-  // for (Int_t i=test2->getFirstCorrSysPosition(); i<=(test2->getLastCorrSysPosition()); i++)
-  // {
-  //   if (!useCompactDisplay)
-  //     std::cout<<"corr "<<i<<": "<<sf2.getResult(i)<<std::endl;
-  //   val+= sf2.getResult(i)*sf2.getResult(i);
-  // }
-  // for (Int_t i=test2->getFirstToyMCPosition(); i<=(test2->getLastToyMCPosition()); i++)
-  // {
-  //   if (!useCompactDisplay)
-  //     std::cout<<"toy "<<i<<": "<<sf2.getResult(i)<<std::endl;
-  // }
- // Return gracefully:
+  */
   return 0;
 }
 
@@ -405,7 +454,7 @@ xAOD::CaloCluster* create_cluster(float eta, float phi, float e){
   const std::set<CaloSampling::CaloSample> samplings {
     CaloSampling::PreSamplerB, CaloSampling::EMB1, CaloSampling::EMB2, CaloSampling::EMB3,
       CaloSampling::PreSamplerE, CaloSampling::EME1, CaloSampling::EME2, CaloSampling::EME3 };
-
+  
   unsigned sampling_pattern = 0;
   for (auto sample : samplings) { sampling_pattern |= 0x1U << sample; }
   cluster->setSamplingPattern(sampling_pattern);
@@ -438,3 +487,4 @@ xAOD::CaloCluster* create_cluster(float eta, float phi, float e){
   cluster->insertMoment(xAOD::CaloCluster::PHICALOFRAME, phi);
   return cluster;
 }
+
