@@ -83,7 +83,7 @@ def addTruthJetsIfNotExising(truth_jets_name) :
                                                alg_type,
                                                float(alg_param_str)/10.,
                                                "truth",
-                                               ghostArea=0.0)
+                                               ptmin=5000)
 
 
             jet_tools=[]
