@@ -99,9 +99,9 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle& particle, co
 
   typedef std::tuple<int, int, int, float, float, float, float, int, int, int> SingleResult_t;
   typedef std::vector<SingleResult_t> TrackResult_t;
-  const float invalidFloat(std::numeric_limits<float>::quiet_NaN());
+  const float invalidFloat(-1);
   // const float invalidDouble(std::numeric_limits<double>::quiet_NaN());
-  const float invalidRes(-1), invalidPull(-1);
+  const float invalidRes(invalidFloat), invalidPull(invalidFloat);
   const int invalidDetector(-1);
   const int invalidRegion(-1);
   const int invalidLayer(-1);
@@ -187,8 +187,8 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle& particle, co
         }
         // Get residuals - old code, remains the same?
         // define residuals at -1 if no measurement (better way?)
-        float residualLocY(-1), pullLocY(-1);// zero by default
-        float residualLocX = -1, pullLocX = -1; // what values?
+        float residualLocY(invalidFloat), pullLocY(invalidFloat);// -1 by default
+        float residualLocX = invalidFloat, pullLocX = invalidFloat; // what values?
         int phiWidth(-1);
         int etaWidth(-1);
         std::unique_ptr<const Trk::ResidualPull> residualPull(nullptr);

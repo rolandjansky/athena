@@ -16,6 +16,8 @@
 #include <vector>
 #include <string>
 #include <utility>
+
+class TH1;
 /*
   Helper class to evaluate mean and RMS using dedicated methods
   useful eg for histograms with long tails etc.
