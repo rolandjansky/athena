@@ -47,6 +47,7 @@ class eflowMomentCalculatorToolDefault(eflowMomentCalculatorTool) :
             ,"FIRST_ENG_DENS" 
             ,"SECOND_ENG_DENS"
             ,"ISOLATION"
+            ,"EM_PROBABILITY"
             ]
 
         #ClusterMomentsMaker.AODMomentsNames = [
