@@ -1,0 +1,450 @@
+361063,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361064,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361065,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361066,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361067,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361068,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361069,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361070,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361071,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361072,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361073,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361074,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361075,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361076,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361077,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361078,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361079,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361080,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361081,25.995,0.91,1.0,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361082,25.974,0.91,1.0,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361083,12.543,0.91,1.0,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361084,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361085,7.415,0.91,1.0,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361086,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361087,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361088,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361089,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361090,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361091,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361092,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361093,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361094,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361095,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361096,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361097,,0.91,,,,,added k-factor of 0.91: corrects for the alpha_QED and EWK parameters difference between Powheg and Sherpa,
+361100,,,1.0,,XsecWplusPowPy,,No lepton filter m(lnu) above 2.5 GeV and filter efficiency fixed by hand (A.Knue),Powheg+Pythia8 EvtGen W(+) in enu production without lepton filter and AZNLO CT10 tune
+361101,,,,,XsecWplusPowPy,,No lepton filter m(lnu) above 2.5 GeV,Powheg+Pythia8 EvtGen W(+) in munu production without lepton filter and AZNLO CT10 tune
+361102,,,,,XsecWplusPowPy,,No lepton filter m(lnu) above 2.5 GeV,Powheg+Pythia8 EvtGen W(+) in taunu production without lepton filter and AZNLO CT10 tune
+361103,,,,,XsecWminusPowPy,,No lepton filter m(lnu) above 2.5 GeV,Powheg+Pythia8 EvtGen W(-) in enu production without lepton filter and AZNLO CT10 tune
+361104,,,,,XsecWminusPowPy,,No lepton filter m(lnu) above 2.5 GeV,Powheg+Pythia8 EvtGen W(-) in munu production without lepton filter and AZNLO CT10 tune
+361105,,,,,XsecWminusPowPy,,No lepton filter m(lnu) above 2.5 GeV,Powheg+Pythia8 EvtGen W(-) in taunu production without lepton filter and AZNLO CT10 tune
+361106,,,,,XsecZleptlept60PowPy,,No lepton filter m(ll) above 60. GeV,Powheg+Pythia8 EvtGen Z in ee production without lepton filter and AZNLO CT10 tune
+361107,,,,,XsecZleptlept60PowPy,,No lepton filter m(ll) above 60. GeV,Powheg+Pythia8 EvtGen Z in mumu production without lepton filter and AZNLO CT10 tune
+361108,,,,,XsecZleptlept60PowPy,,No lepton filter m(ll) above 60. GeV,Powheg+Pythia8 EvtGen Z in tautau production without lepton filter and AZNLO CT10 tune
+361300,,0.90824,0.890724,,XsecWlnuSherpa,,,
+361301,,0.90824,0.049290,,XsecWlnuSherpa,,,
+361302,,0.90824,0.059786,,XsecWlnuSherpa,,,
+361303,,0.90824,0.728829,,XsecWlnuSherpa,,,
+361304,,0.90824,0.176811,,XsecWlnuSherpa,,,
+361305,,0.90824,0.096681,,XsecWlnuSherpa,,s2586 and s2608 sim tags used for different events - to be summed to recover full stat,
+361306,,0.90824,0.681554,,XsecWlnuSherpa,,,
+361307,,0.90824,0.205907,,XsecWlnuSherpa,,,
+361308,,0.90824,0.112284,,XsecWlnuSherpa,,,
+361309,,0.99913,0.652724,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361310,,0.99913,0.221526,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361311,,0.99913,0.130994,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361312,,0.99913,0.631749,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361313,,0.99913,0.243561,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361314,,0.99913,0.155229,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361315,,0.99913,0.609620,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361316,,0.99913,0.202801,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361317,,0.99913,0.168701,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361318,,0.99913,0.629245,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361319,,0.99913,0.237991,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361320,,0.99913,0.173096,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361321,,0.99913,0.638441,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361322,,0.99913,0.272781,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361323,,0.99913,0.165186,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361324,,0.90824,0.892510,,XsecWlnuSherpa,,,
+361325,,0.90824,0.047370,,XsecWlnuSherpa,,,
+361326,,0.90824,0.059710,,XsecWlnuSherpa,,,
+361327,,0.90824,0.728418,,XsecWlnuSherpa,,,
+361328,,0.90824,0.175047,,XsecWlnuSherpa,,,
+361329,,0.90824,0.096687,,XsecWlnuSherpa,,,
+361330,,0.90824,0.684150,,XsecWlnuSherpa,,,
+361331,,0.90824,0.203512,,XsecWlnuSherpa,,,
+361332,,0.90824,0.112541,,XsecWlnuSherpa,,,
+361333,,0.99913,0.653631,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361334,,0.99913,0.222520,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361335,,0.99913,0.130709,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361336,,0.99913,0.631109,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361337,,0.99913,0.239840,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361338,,0.99913,0.163529,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361339,,0.99913,0.632602,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361340,,0.99913,0.227699,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361341,,0.99913,0.160140,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361342,,0.99913,0.597890,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361343,,0.99913,0.236425,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361344,,0.99913,0.159623,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361345,,0.99913,0.617928,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361346,0.0000308,0.99913,0.267917,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361347,,0.99913,0.192802,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361348,,0.90824,0.891411,,XsecWlnuSherpa,,,
+361349,,0.90824,0.048706,,XsecWlnuSherpa,,,
+361350,,0.90824,0.059683,,XsecWlnuSherpa,,,
+361351,,0.90824,0.726079,,XsecWlnuSherpa,,,
+361352,,0.90824,0.176273,,XsecWlnuSherpa,,,
+361353,,0.90824,0.095733,,XsecWlnuSherpa,,,
+361354,,0.90824,0.683964,,XsecWlnuSherpa,,,
+361355,,0.90824,0.204983,,XsecWlnuSherpa,,,
+361356,,0.90824,0.113070,,XsecWlnuSherpa,,,
+361357,,0.99913,0.647441,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361358,,0.99913,0.218875,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361359,,0.99913,0.132548,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361360,,0.99913,0.628862,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361361,,0.99913,0.230541,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361362,,0.99913,0.159453,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361363,,0.99913,0.627393,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361364,,0.99913,0.220035,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361365,,0.99913,0.155527,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361366,,0.99913,0.607110,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361367,,0.99913,0.237999,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361368,,0.99913,0.175976,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361369,,0.99913,0.545399,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361370,,0.99913,0.242272,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361371,,0.99913,0.196031,,XsecWlnuSherpa,,k-factor scaled by 1.1 for e4133 samples to ensure smooth pt distributions,
+361372,,0.9013,0.778989,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361373,,0.9013,0.142259,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361374,,0.9013,0.079669,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361375,,0.9013,0.646932,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361376,,0.9013,0.218226,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361377,,0.9013,0.131146,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361378,,0.9013,0.617229,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361379,,0.9013,0.244908,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361380,,0.9013,0.150367,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361381,,0.9013,0.588874,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361382,,0.9013,0.261732,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361383,,0.9013,0.156212,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361384,,0.9013,0.577255,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361385,,0.9013,0.271427,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361386,,0.9013,0.168468,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361387,,0.9013,0.566055,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361388,,0.9013,0.300167,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361389,,0.9013,0.182922,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361390,,0.9013,0.536884,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361391,,0.9013,0.309836,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361392,,0.9013,0.191868,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361393,,0.9013,0.519728,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361394,,0.9013,0.393222,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361395,,0.9013,0.222083,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361396,,0.9013,0.778381,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361397,,0.9013,0.141881,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361398,,0.9013,0.079624,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361399,,0.9013,0.649106,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361400,,0.9013,0.219295,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361401,,0.9013,0.130293,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV and s2586 and s2608 sim tags used for different events - to be summed to recover full stat,
+361402,,0.9013,0.610026,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361403,,0.9013,0.241249,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361404,,0.9013,0.148024,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361405,,0.9013,0.580841,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361406,,0.9013,0.272103,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361407,,0.9013,0.163024,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361408,,0.9013,0.566372,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361409,,0.9013,0.265874,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361410,,0.9013,0.176439,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361411,,0.9013,0.561305,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361412,,0.9013,0.288730,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361413,,0.9013,0.178631,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361414,,0.9013,0.549132,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361415,,0.9013,0.282508,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361416,,0.9013,0.198009,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361417,,0.9013,0.597261,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361418,,0.9013,0.325784,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361419,,0.9013,0.246649,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361420,,0.9013,0.778140,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV and s2586 and s2608 sim tags used for different events - to be summed to recover full stat,
+361421,,0.9013,0.142335,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361422,,0.9013,0.079215,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361423,,0.9013,0.647945,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361424,,0.9013,0.222003,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361425,,0.9013,0.131225,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361426,,0.9013,0.614503,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361427,,0.9013,0.241705,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,Sherpa Z/gamma* -> tau tau + 0/1/2j@NLO + 3/4j@LO with 140 GeV < ptV < 280 GeV with light jet filter.
+361428,,0.9013,0.142080,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361429,,0.9013,0.581019,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361430,,0.9013,0.255775,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361431,,0.9013,0.158859,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361432,,0.9013,0.563903,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361433,,0.9013,0.270431,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361434,,0.9013,0.170454,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361435,,0.9013,0.560184,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361436,,0.9013,0.298414,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361437,,0.9013,0.180118,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361438,,0.9013,0.563610,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361439,,0.9013,0.348277,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361440,,0.9013,0.168462,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361441,,0.9013,0.595406,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361442,,0.9013,0.359953,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361443,,0.9013,0.250846,,XsecZleptlept40Sherpa,,m(ll) above 40.GeV,
+361444,,0.9141,0.778461,,XsecZnunuSherpa,,,
+361445,,0.9141,0.140128,,XsecZnunuSherpa,,,
+361446,,0.9141,0.080032,,XsecZnunuSherpa,,,
+361447,,0.9141,0.649624,,XsecZnunuSherpa,,,
+361448,,0.9141,0.218402,,XsecZnunuSherpa,,,
+361449,,0.9141,0.132849,,XsecZnunuSherpa,,,
+361450,,0.9141,0.613840,,XsecZnunuSherpa,,,
+361451,,0.9141,0.239057,,XsecZnunuSherpa,,,
+361452,,0.9141,0.147665,,XsecZnunuSherpa,,,
+361453,,0.9141,0.585661,,XsecZnunuSherpa,,,
+361454,,0.9141,0.260628,,XsecZnunuSherpa,,,
+361455,,0.9141,0.161749,,XsecZnunuSherpa,,,
+361456,,0.9141,0.555049,,XsecZnunuSherpa,,,
+361457,,0.9141,0.274948,,XsecZnunuSherpa,,,
+361458,,0.9141,0.164931,,XsecZnunuSherpa,,,
+361459,,0.9141,0.557693,,XsecZnunuSherpa,,,
+361460,,0.9141,0.303868,,XsecZnunuSherpa,,,
+361461,,0.9141,0.163096,,XsecZnunuSherpa,,,
+361462,,0.9141,0.534707,,XsecZnunuSherpa,,,
+361463,,0.9141,0.312154,,XsecZnunuSherpa,,,
+361464,,0.9141,0.197191,,XsecZnunuSherpa,,,
+361465,,0.9141,0.543622,,XsecZnunuSherpa,,,
+361466,,0.9141,0.345637,,XsecZnunuSherpa,,,
+361467,,0.9141,0.215729,,XsecZnunuSherpa,,,
+361468,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361469,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361470,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361471,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361472,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361473,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361474,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361475,,0.9013,0.20095,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361476,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361477,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361478,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361479,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361480,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361481,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361482,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361483,,0.9013,0.20117,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361484,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361485,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361486,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361487,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361488,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361489,,0.9013,,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361490,,0.9013,0.84347,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361491,,0.9013,0.19323,,,Zjets_Sherpa_Mll10to40,k-factor taken from onshell Z samples,
+361499,,0.91,,,,,,
+361598,,0.91,,,,,,
+361643,,0.91,,,,,,
+361644,,0.91,,,,,,
+361645,,0.91,,,,,,
+361646,,0.91,,,,,,
+361647,,0.91,,,,,,
+361648,,0.91,,,,,,
+361649,,0.91,,,,,,
+361650,,0.91,,,,,,
+361651,,0.91,,,,,,
+361652,,0.91,,,,,,
+361653,,0.91,,,,,,
+361654,,0.91,,,,,,
+361655,,0.91,,,,,,
+361656,,0.91,,,,,,
+361657,,0.91,,,,,,
+361658,,0.91,,,,,,
+361659,,0.91,,,,,,
+361660,,0.91,,,,,,
+361661,,0.91,,,,,,
+361662,,0.91,,,,,,
+361663,,0.91,,,,,,
+361500,,1.232,,,XsecZleptlept40MG,,,
+361501,,1.232,,,XsecZleptlept40MG,,,
+361502,,1.232,,,XsecZleptlept40MG,,,
+361503,,1.232,,,XsecZleptlept40MG,,,
+361504,,1.232,,,XsecZleptlept40MG,,,
+361505,,1.232,,,XsecZleptlept40MG,,,
+361506,,1.232,,,XsecZleptlept40MG,,,
+361507,,1.232,,,XsecZleptlept40MG,,,
+361508,,1.232,,,XsecZleptlept40MG,,,
+361509,,1.232,,,XsecZleptlept40MG,,,
+361510,,1.232,,,XsecZleptlept40MG,,,
+361511,,1.232,,,XsecZleptlept40MG,,,
+361512,,1.232,,,XsecZleptlept40MG,,,
+361513,,1.232,,,XsecZleptlept40MG,,,
+361514,,1.232,,,XsecZleptlept40MG,,,
+361515,,1.2283,,,XsecZnunuMG,,,
+361516,,1.2283,,,XsecZnunuMG,,,
+361517,,1.2283,,,XsecZnunuMG,,,
+361518,,1.2283,,,XsecZnunuMG,,,
+361519,,1.2283,,,XsecZnunuMG,,,
+361520,,1.20185,,,XsecWlnuMG,Wjets_MadGraphPy8,,
+361521,,1.20185,,,XsecWlnuMG,Wjets_MadGraphPy8,,
+361522,,1.20185,,,XsecWlnuMG,Wjets_MadGraphPy8,,
+361523,,1.20185,,,XsecWlnuMG,Wjets_MadGraphPy8,,
+361524,,1.20185,,,XsecWlnuMG,Wjets_MadGraphPy8,,
+361525,,1.20185,,,XsecWlnuMG,Wjets_MadGraphPy8,,
+361526,,1.20185,,,XsecWlnuMG,Wjets_MadGraphPy8,,
+361527,,1.20185,,,XsecWlnuMG,Wjets_MadGraphPy8,,
+361528,,1.20185,,,XsecWlnuMG,Wjets_MadGraphPy8,,
+361529,,1.20185,,,XsecWlnuMG,Wjets_MadGraphPy8,,
+361530,,1.20185,,,XsecWlnuMG,Wjets_MadGraphPy8,,
+361531,,1.20185,,,XsecWlnuMG,Wjets_MadGraphPy8,,
+361532,,1.20185,,,XsecWlnuMG,Wjets_MadGraphPy8,,
+361533,,1.20185,,,XsecWlnuMG,Wjets_MadGraphPy8,,
+361534,,1.20185,,,XsecWlnuMG,Wjets_MadGraphPy8,,
+361250,,,,,,Multijet,,
+361251,,,,,,Multijet,,
+361603,,,,,,,,
+361604,,,,,,,,
+361628,,1.232,,,,,k-factor taken from onshell samples,MG+Py8 10-40 GeV mll for Zee Np0 
+361629,,1.232,,,,,k-factor taken from onshell samples,MG+Py8 10-40 GeV mll for Zee Np1
+361630,,1.232,,,,,k-factor taken from onshell samples,MG+Py8 10-40 GeV mll for Zee Np2
+361631,,1.232,,,,,k-factor taken from onshell samples,MG+Py8 10-40 GeV mll for Zee Np3
+361632,,1.232,,,,,k-factor taken from onshell samples,MG+Py8 10-40 GeV mll for Zee Np4
+361633,,1.232,,,,,k-factor taken from onshell samples,MG+Py8 10-40 GeV mll for Zmumu Np0
+361634,,1.232,,,,,k-factor taken from onshell samples,MG+Py8 10-40 GeV mll for Zmumu Np1
+361635,,1.232,,,,,k-factor taken from onshell samples,MG+Py8 10-40 GeV mll for Zmumu Np2
+361636,,1.232,,,,,k-factor taken from onshell samples,MG+Py8 10-40 GeV mll for Zmumu Np3
+361637,,1.232,,,,,k-factor taken from onshell samples,MG+Py8 10-40 GeV mll for Zmumu Np4
+361638,,1.232,,,,,k-factor taken from onshell samples,MG+Py8 10-40 GeV mll for Ztautau Np0
+361639,,1.232,,,,,k-factor taken from onshell samples,MG+Py8 10-40 GeV mll for Ztautau Np1
+361640,,1.232,,,,,k-factor taken from onshell samples,MG+Py8 10-40 GeV mll for Ztautau Np2
+361641,,1.232,,,,,k-factor taken from onshell samples,MG+Py8 10-40 GeV mll for Ztautau Np3
+361642,,1.232,,,,,k-factor taken from onshell samples,MG+Py8 10-40 GeV mll for Ztautau Np4
+361700,,1.124,,,XsecZleptleptAlpgen,,,
+361701,,1.124,,,XsecZleptleptAlpgen,,,
+361702,,1.124,,,XsecZleptleptAlpgen,,,
+361703,,1.124,,,XsecZleptleptAlpgen,,,
+361704,,1.124,,,XsecZleptleptAlpgen,,,
+361705,,1.124,,,XsecZleptleptAlpgen,,,
+361710,,1.124,,,XsecZleptleptAlpgen,,,
+361711,,1.124,,,XsecZleptleptAlpgen,,,
+361712,,1.124,,,XsecZleptleptAlpgen,,,
+361713,,1.124,,,XsecZleptleptAlpgen,,,
+361714,,1.124,,,XsecZleptleptAlpgen,,,
+361715,,1.124,,,XsecZleptleptAlpgen,,,
+361720,,1.124,,,XsecZleptleptAlpgen,,,
+361721,,1.124,,,XsecZleptleptAlpgen,,,
+361722,,1.124,,,XsecZleptleptAlpgen,,,
+361723,,1.124,,,XsecZleptleptAlpgen,,,
+361724,,1.124,,,XsecZleptleptAlpgen,,,
+361725,,1.124,,,XsecZleptleptAlpgen,,,
+361800,,1.044,,,XsecWleptnuAlpgen,,,
+361801,,1.044,,,XsecWleptnuAlpgen,,,
+361802,,1.044,,,XsecWleptnuAlpgen,,,
+361803,,1.044,,,XsecWleptnuAlpgen,,,
+361804,,1.044,,,XsecWleptnuAlpgen,,,
+361805,,1.044,,,XsecWleptnuAlpgen,,,
+361810,,1.044,,,XsecWleptnuAlpgen,,,
+361811,,1.044,,,XsecWleptnuAlpgen,,,
+361812,,1.044,,,XsecWleptnuAlpgen,,,
+361813,,1.044,,,XsecWleptnuAlpgen,,,
+361814,,1.044,,,XsecWleptnuAlpgen,,,
+361815,,1.044,,,XsecWleptnuAlpgen,,,
+361820,,1.044,,,XsecWleptnuAlpgen,,,
+361821,,1.044,,,XsecWleptnuAlpgen,,,
+361822,,1.044,,,XsecWleptnuAlpgen,,,
+361823,,1.044,,,XsecWleptnuAlpgen,,,
+361824,,1.044,,,XsecWleptnuAlpgen,,,
+361825,,1.044,,,XsecWleptnuAlpgen,,,
+361300,,0.90824,0.890724,,XsecWlnuSherpa,,,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

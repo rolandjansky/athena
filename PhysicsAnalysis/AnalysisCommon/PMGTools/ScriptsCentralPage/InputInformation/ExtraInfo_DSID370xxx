@@ -1,0 +1,604 @@
+370000,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 665 GeV m_N2 = 185 GeV m_N1 = 1 GeV
+370001,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 640 GeV m_N2 = 360 GeV m_N1 = 1 GeV
+370002,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 740 GeV m_N2 = 260 GeV m_N1 = 1 GeV
+370003,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 845 GeV m_N2 = 155 GeV m_N1 = 1 GeV
+370004,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 610 GeV m_N2 = 540 GeV m_N1 = 1 GeV
+370005,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 715 GeV m_N2 = 435 GeV m_N1 = 1 GeV
+370006,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 815 GeV m_N2 = 335 GeV m_N1 = 1 GeV
+370007,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 920 GeV m_N2 = 230 GeV m_N1 = 1 GeV
+370008,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1020 GeV m_N2 = 130 GeV m_N1 = 1 GeV
+370009,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 685 GeV m_N2 = 615 GeV m_N1 = 1 GeV
+370010,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 790 GeV m_N2 = 510 GeV m_N1 = 1 GeV
+370011,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 890 GeV m_N2 = 410 GeV m_N1 = 1 GeV
+370012,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 995 GeV m_N2 = 305 GeV m_N1 = 1 GeV
+370013,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1095 GeV m_N2 = 205 GeV m_N1 = 1 GeV
+370014,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1200 GeV m_N2 = 100 GeV m_N1 = 1 GeV
+370015,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 835 GeV m_N2 = 765 GeV m_N1 = 1 GeV
+370016,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 940 GeV m_N2 = 660 GeV m_N1 = 1 GeV
+370017,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1040 GeV m_N2 = 560 GeV m_N1 = 1 GeV
+370018,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1145 GeV m_N2 = 455 GeV m_N1 = 1 GeV
+370019,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1245 GeV m_N2 = 355 GeV m_N1 = 1 GeV
+370020,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1350 GeV m_N2 = 250 GeV m_N1 = 1 GeV
+370021,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1450 GeV m_N2 = 150 GeV m_N1 = 1 GeV
+370022,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 985 GeV m_N2 = 915 GeV m_N1 = 1 GeV
+370023,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1090 GeV m_N2 = 810 GeV m_N1 = 1 GeV
+370024,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1190 GeV m_N2 = 710 GeV m_N1 = 1 GeV
+370025,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1295 GeV m_N2 = 605 GeV m_N1 = 1 GeV
+370026,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1395 GeV m_N2 = 505 GeV m_N1 = 1 GeV
+370027,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1500 GeV m_N2 = 400 GeV m_N1 = 1 GeV
+370028,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1600 GeV m_N2 = 300 GeV m_N1 = 1 GeV
+370029,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1705 GeV m_N2 = 195 GeV m_N1 = 1 GeV
+370030,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1135 GeV m_N2 = 1065 GeV m_N1 = 1 GeV
+370031,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1240 GeV m_N2 = 960 GeV m_N1 = 1 GeV
+370032,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1340 GeV m_N2 = 860 GeV m_N1 = 1 GeV
+370033,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1445 GeV m_N2 = 755 GeV m_N1 = 1 GeV
+370034,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1545 GeV m_N2 = 655 GeV m_N1 = 1 GeV
+370035,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1650 GeV m_N2 = 550 GeV m_N1 = 1 GeV
+370036,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1750 GeV m_N2 = 450 GeV m_N1 = 1 GeV
+370037,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1285 GeV m_N2 = 1215 GeV m_N1 = 1 GeV
+370038,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1390 GeV m_N2 = 1110 GeV m_N1 = 1 GeV
+370039,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1490 GeV m_N2 = 1010 GeV m_N1 = 1 GeV
+370040,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1595 GeV m_N2 = 905 GeV m_N1 = 1 GeV
+370041,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1695 GeV m_N2 = 805 GeV m_N1 = 1 GeV
+370042,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1800 GeV m_N2 = 700 GeV m_N1 = 1 GeV
+370043,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1540 GeV m_N2 = 1260 GeV m_N1 = 1 GeV
+370044,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1640 GeV m_N2 = 1160 GeV m_N1 = 1 GeV
+370045,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1745 GeV m_N2 = 1055 GeV m_N1 = 1 GeV
+370100,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 900 GeV m_stop = 5000 GeV m_N1 = 1 GeV
+370101,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 900 GeV m_stop = 5000 GeV m_N1 = 200 GeV
+370102,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 900 GeV m_stop = 5000 GeV m_N1 = 400 GeV
+370103,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 900 GeV m_stop = 5000 GeV m_N1 = 545 GeV
+370104,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1000 GeV m_stop = 5000 GeV m_N1 = 1 GeV
+370105,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1000 GeV m_stop = 5000 GeV m_N1 = 200 GeV
+370106,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1000 GeV m_stop = 5000 GeV m_N1 = 400 GeV
+370107,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1000 GeV m_stop = 5000 GeV m_N1 = 600 GeV
+370108,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1000 GeV m_stop = 5000 GeV m_N1 = 645 GeV
+370109,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1100 GeV m_stop = 5000 GeV m_N1 = 1 GeV
+370110,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1100 GeV m_stop = 5000 GeV m_N1 = 200 GeV
+370111,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1100 GeV m_stop = 5000 GeV m_N1 = 400 GeV
+370112,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1100 GeV m_stop = 5000 GeV m_N1 = 600 GeV
+370113,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1100 GeV m_stop = 5000 GeV m_N1 = 745 GeV
+370114,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1200 GeV m_stop = 5000 GeV m_N1 = 1 GeV
+370115,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1200 GeV m_stop = 5000 GeV m_N1 = 100 GeV
+370116,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1200 GeV m_stop = 5000 GeV m_N1 = 200 GeV
+370117,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1200 GeV m_stop = 5000 GeV m_N1 = 400 GeV
+370118,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1200 GeV m_stop = 5000 GeV m_N1 = 600 GeV
+370119,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1200 GeV m_stop = 5000 GeV m_N1 = 700 GeV
+370120,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1200 GeV m_stop = 5000 GeV m_N1 = 800 GeV
+370121,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1200 GeV m_stop = 5000 GeV m_N1 = 845 GeV
+370122,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1200 GeV m_stop = 5000 GeV m_N1 = 855 GeV
+370123,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1300 GeV m_stop = 5000 GeV m_N1 = 1 GeV
+370124,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1300 GeV m_stop = 5000 GeV m_N1 = 200 GeV
+370125,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1300 GeV m_stop = 5000 GeV m_N1 = 400 GeV
+370126,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1300 GeV m_stop = 5000 GeV m_N1 = 600 GeV
+370127,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1300 GeV m_stop = 5000 GeV m_N1 = 800 GeV
+370128,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1300 GeV m_stop = 5000 GeV m_N1 = 945 GeV
+370129,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1400 GeV m_stop = 5000 GeV m_N1 = 1 GeV
+370130,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1400 GeV m_stop = 5000 GeV m_N1 = 100 GeV
+370131,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1400 GeV m_stop = 5000 GeV m_N1 = 200 GeV
+370132,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1400 GeV m_stop = 5000 GeV m_N1 = 400 GeV
+370133,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1400 GeV m_stop = 5000 GeV m_N1 = 600 GeV
+370134,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1400 GeV m_stop = 5000 GeV m_N1 = 800 GeV
+370135,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1400 GeV m_stop = 5000 GeV m_N1 = 1000 GeV
+370136,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1400 GeV m_stop = 5000 GeV m_N1 = 1045 GeV
+370137,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1500 GeV m_stop = 5000 GeV m_N1 = 1 GeV
+370138,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1500 GeV m_stop = 5000 GeV m_N1 = 200 GeV
+370139,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1500 GeV m_stop = 5000 GeV m_N1 = 400 GeV
+370140,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1500 GeV m_stop = 5000 GeV m_N1 = 600 GeV
+370141,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1500 GeV m_stop = 5000 GeV m_N1 = 800 GeV
+370142,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1500 GeV m_stop = 5000 GeV m_N1 = 1000 GeV
+370143,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1500 GeV m_stop = 5000 GeV m_N1 = 1145 GeV
+370144,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1600 GeV m_stop = 5000 GeV m_N1 = 1 GeV
+370145,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1600 GeV m_stop = 5000 GeV m_N1 = 200 GeV
+370146,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1600 GeV m_stop = 5000 GeV m_N1 = 400 GeV
+370147,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1600 GeV m_stop = 5000 GeV m_N1 = 600 GeV
+370148,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1600 GeV m_stop = 5000 GeV m_N1 = 800 GeV
+370149,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1600 GeV m_stop = 5000 GeV m_N1 = 1000 GeV
+370150,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1600 GeV m_stop = 5000 GeV m_N1 = 1200 GeV
+370151,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1600 GeV m_stop = 5000 GeV m_N1 = 1245 GeV
+370152,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1700 GeV m_stop = 5000 GeV m_N1 = 1 GeV
+370153,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1700 GeV m_stop = 5000 GeV m_N1 = 200 GeV
+370154,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1700 GeV m_stop = 5000 GeV m_N1 = 400 GeV
+370155,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1700 GeV m_stop = 5000 GeV m_N1 = 600 GeV
+370156,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1700 GeV m_stop = 5000 GeV m_N1 = 800 GeV
+370157,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1700 GeV m_stop = 5000 GeV m_N1 = 1000 GeV
+370158,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1700 GeV m_stop = 5000 GeV m_N1 = 1200 GeV
+370159,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1700 GeV m_stop = 5000 GeV m_N1 = 1345 GeV
+370160,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1800 GeV m_stop = 5000 GeV m_N1 = 1 GeV
+370161,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1800 GeV m_stop = 5000 GeV m_N1 = 200 GeV
+370162,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1800 GeV m_stop = 5000 GeV m_N1 = 400 GeV
+370163,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1800 GeV m_stop = 5000 GeV m_N1 = 600 GeV
+370164,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1800 GeV m_stop = 5000 GeV m_N1 = 800 GeV
+370165,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1800 GeV m_stop = 5000 GeV m_N1 = 1000 GeV
+370166,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1800 GeV m_stop = 5000 GeV m_N1 = 1200 GeV
+370167,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1800 GeV m_stop = 5000 GeV m_N1 = 1400 GeV
+370168,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1800 GeV m_stop = 5000 GeV m_N1 = 1445 GeV
+370169,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1900 GeV m_stop = 5000 GeV m_N1 = 1 GeV
+370170,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1900 GeV m_stop = 5000 GeV m_N1 = 200 GeV
+370171,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1900 GeV m_stop = 5000 GeV m_N1 = 400 GeV
+370172,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1900 GeV m_stop = 5000 GeV m_N1 = 600 GeV
+370173,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1900 GeV m_stop = 5000 GeV m_N1 = 800 GeV
+370174,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1900 GeV m_stop = 5000 GeV m_N1 = 1000 GeV
+370175,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1900 GeV m_stop = 5000 GeV m_N1 = 1200 GeV
+370176,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1900 GeV m_stop = 5000 GeV m_N1 = 1400 GeV
+370177,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 1900 GeV m_stop = 5000 GeV m_N1 = 1545 GeV
+370178,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 2000 GeV m_stop = 5000 GeV m_N1 = 1 GeV
+370179,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 2000 GeV m_stop = 5000 GeV m_N1 = 200 GeV
+370180,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 2000 GeV m_stop = 5000 GeV m_N1 = 400 GeV
+370181,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 2000 GeV m_stop = 5000 GeV m_N1 = 600 GeV
+370182,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 2000 GeV m_stop = 5000 GeV m_N1 = 800 GeV
+370183,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 2000 GeV m_stop = 5000 GeV m_N1 = 1000 GeV
+370184,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 2000 GeV m_stop = 5000 GeV m_N1 = 1200 GeV
+370185,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 2000 GeV m_stop = 5000 GeV m_N1 = 1400 GeV
+370186,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 2000 GeV m_stop = 5000 GeV m_N1 = 1600 GeV
+370187,,,,,,,,gluino pair production and decay to top pair and LSP via off-shell stop m_glu = 2000 GeV m_stop = 5000 GeV m_N1 = 1645 GeV
+370225,,,,,,SUSY_GG,,
+370226,,,,,,SUSY_GG,,gluino pair production and decay via an off-shell stop m_glu = 1300.0 GeV m_stop 5000.0 GeV m_N1 1065.0 GeV
+370248,,,,,,SUSY_GG,,gluino pair production and	decay via an off-shell stop m_glu = 2100.0 GeV m_stop 5000.0 GeV m_N1 1745.0 GeV
+370250,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 900 GeV m_sbottom = 5000 GeV m_N1 = 1 GeV
+370251,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 900 GeV m_sbottom = 5000 GeV m_N1 = 200 GeV
+370252,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 900 GeV m_sbottom = 5000 GeV m_N1 = 400 GeV
+370253,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 900 GeV m_sbottom = 5000 GeV m_N1 = 600 GeV
+370254,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 900 GeV m_sbottom = 5000 GeV m_N1 = 800 GeV
+370255,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 900 GeV m_sbottom = 5000 GeV m_N1 = 880 GeV
+370256,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1000 GeV m_sbottom = 5000 GeV m_N1 = 1 GeV
+370257,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1000 GeV m_sbottom = 5000 GeV m_N1 = 200 GeV
+370258,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1000 GeV m_sbottom = 5000 GeV m_N1 = 400 GeV
+370259,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1000 GeV m_sbottom = 5000 GeV m_N1 = 600 GeV
+370260,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1000 GeV m_sbottom = 5000 GeV m_N1 = 800 GeV
+370261,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1000 GeV m_sbottom = 5000 GeV m_N1 = 980 GeV
+370262,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1100 GeV m_sbottom = 5000 GeV m_N1 = 1 GeV
+370263,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1100 GeV m_sbottom = 5000 GeV m_N1 = 200 GeV
+370264,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1100 GeV m_sbottom = 5000 GeV m_N1 = 400 GeV
+370265,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1100 GeV m_sbottom = 5000 GeV m_N1 = 600 GeV
+370266,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1100 GeV m_sbottom = 5000 GeV m_N1 = 800 GeV
+370267,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1100 GeV m_sbottom = 5000 GeV m_N1 = 1000 GeV
+370268,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1100 GeV m_sbottom = 5000 GeV m_N1 = 1080 GeV
+370269,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1200 GeV m_sbottom = 5000 GeV m_N1 = 1 GeV
+370270,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1200 GeV m_sbottom = 5000 GeV m_N1 = 200 GeV
+370271,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1200 GeV m_sbottom = 5000 GeV m_N1 = 400 GeV
+370272,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1200 GeV m_sbottom = 5000 GeV m_N1 = 600 GeV
+370273,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1200 GeV m_sbottom = 5000 GeV m_N1 = 800 GeV
+370274,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1200 GeV m_sbottom = 5000 GeV m_N1 = 1000 GeV
+370275,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1200 GeV m_sbottom = 5000 GeV m_N1 = 1180 GeV
+370276,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1300 GeV m_sbottom = 5000 GeV m_N1 = 1 GeV
+370277,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1300 GeV m_sbottom = 5000 GeV m_N1 = 200 GeV
+370278,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1300 GeV m_sbottom = 5000 GeV m_N1 = 400 GeV
+370279,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1300 GeV m_sbottom = 5000 GeV m_N1 = 600 GeV
+370280,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1300 GeV m_sbottom = 5000 GeV m_N1 = 800 GeV
+370281,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1300 GeV m_sbottom = 5000 GeV m_N1 = 1000 GeV
+370282,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1300 GeV m_sbottom = 5000 GeV m_N1 = 1200 GeV
+370283,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1300 GeV m_sbottom = 5000 GeV m_N1 = 1280 GeV
+370284,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1400 GeV m_sbottom = 5000 GeV m_N1 = 1 GeV
+370285,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1400 GeV m_sbottom = 5000 GeV m_N1 = 200 GeV
+370286,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1400 GeV m_sbottom = 5000 GeV m_N1 = 400 GeV
+370287,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1400 GeV m_sbottom = 5000 GeV m_N1 = 600 GeV
+370288,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1400 GeV m_sbottom = 5000 GeV m_N1 = 800 GeV
+370289,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1400 GeV m_sbottom = 5000 GeV m_N1 = 1000 GeV
+370290,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1400 GeV m_sbottom = 5000 GeV m_N1 = 1200 GeV
+370291,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1400 GeV m_sbottom = 5000 GeV m_N1 = 1380 GeV
+370292,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1500 GeV m_sbottom = 5000 GeV m_N1 = 1 GeV
+370293,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1500 GeV m_sbottom = 5000 GeV m_N1 = 200 GeV
+370294,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1500 GeV m_sbottom = 5000 GeV m_N1 = 400 GeV
+370295,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1500 GeV m_sbottom = 5000 GeV m_N1 = 600 GeV
+370296,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1500 GeV m_sbottom = 5000 GeV m_N1 = 800 GeV
+370297,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1500 GeV m_sbottom = 5000 GeV m_N1 = 1000 GeV
+370298,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1500 GeV m_sbottom = 5000 GeV m_N1 = 1200 GeV
+370299,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1500 GeV m_sbottom = 5000 GeV m_N1 = 1400 GeV
+370300,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1500 GeV m_sbottom = 5000 GeV m_N1 = 1480 GeV
+370301,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1600 GeV m_sbottom = 5000 GeV m_N1 = 1 GeV
+370302,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1600 GeV m_sbottom = 5000 GeV m_N1 = 200 GeV
+370303,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1600 GeV m_sbottom = 5000 GeV m_N1 = 400 GeV
+370304,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1600 GeV m_sbottom = 5000 GeV m_N1 = 600 GeV
+370305,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1600 GeV m_sbottom = 5000 GeV m_N1 = 800 GeV
+370306,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1600 GeV m_sbottom = 5000 GeV m_N1 = 1000 GeV
+370307,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1600 GeV m_sbottom = 5000 GeV m_N1 = 1200 GeV
+370308,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1600 GeV m_sbottom = 5000 GeV m_N1 = 1400 GeV
+370309,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1600 GeV m_sbottom = 5000 GeV m_N1 = 1580 GeV
+370310,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1700 GeV m_sbottom = 5000 GeV m_N1 = 1 GeV
+370311,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1700 GeV m_sbottom = 5000 GeV m_N1 = 200 GeV
+370312,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1700 GeV m_sbottom = 5000 GeV m_N1 = 400 GeV
+370313,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1700 GeV m_sbottom = 5000 GeV m_N1 = 600 GeV
+370314,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1700 GeV m_sbottom = 5000 GeV m_N1 = 800 GeV
+370315,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1700 GeV m_sbottom = 5000 GeV m_N1 = 1000 GeV
+370316,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1700 GeV m_sbottom = 5000 GeV m_N1 = 1200 GeV
+370317,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1700 GeV m_sbottom = 5000 GeV m_N1 = 1400 GeV
+370318,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1700 GeV m_sbottom = 5000 GeV m_N1 = 1600 GeV
+370319,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1700 GeV m_sbottom = 5000 GeV m_N1 = 1680 GeV
+370320,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1800 GeV m_sbottom = 5000 GeV m_N1 = 1 GeV
+370321,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1800 GeV m_sbottom = 5000 GeV m_N1 = 200 GeV
+370322,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1800 GeV m_sbottom = 5000 GeV m_N1 = 400 GeV
+370323,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1800 GeV m_sbottom = 5000 GeV m_N1 = 600 GeV
+370324,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1800 GeV m_sbottom = 5000 GeV m_N1 = 800 GeV
+370325,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1800 GeV m_sbottom = 5000 GeV m_N1 = 1000 GeV
+370326,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1800 GeV m_sbottom = 5000 GeV m_N1 = 1200 GeV
+370327,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1800 GeV m_sbottom = 5000 GeV m_N1 = 1400 GeV
+370328,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1800 GeV m_sbottom = 5000 GeV m_N1 = 1600 GeV
+370329,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1800 GeV m_sbottom = 5000 GeV m_N1 = 1780 GeV
+370330,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1900 GeV m_sbottom = 5000 GeV m_N1 = 1 GeV
+370331,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1900 GeV m_sbottom = 5000 GeV m_N1 = 200 GeV
+370332,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1900 GeV m_sbottom = 5000 GeV m_N1 = 400 GeV
+370333,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1900 GeV m_sbottom = 5000 GeV m_N1 = 600 GeV
+370334,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1900 GeV m_sbottom = 5000 GeV m_N1 = 800 GeV
+370335,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1900 GeV m_sbottom = 5000 GeV m_N1 = 1000 GeV
+370336,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1900 GeV m_sbottom = 5000 GeV m_N1 = 1200 GeV
+370337,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1900 GeV m_sbottom = 5000 GeV m_N1 = 1400 GeV
+370338,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1900 GeV m_sbottom = 5000 GeV m_N1 = 1600 GeV
+370339,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1900 GeV m_sbottom = 5000 GeV m_N1 = 1800 GeV
+370340,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 1900 GeV m_sbottom = 5000 GeV m_N1 = 1880 GeV
+370341,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 2000 GeV m_sbottom = 5000 GeV m_N1 = 1 GeV
+370342,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 2000 GeV m_sbottom = 5000 GeV m_N1 = 200 GeV
+370343,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 2000 GeV m_sbottom = 5000 GeV m_N1 = 400 GeV
+370344,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 2000 GeV m_sbottom = 5000 GeV m_N1 = 600 GeV
+370345,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 2000 GeV m_sbottom = 5000 GeV m_N1 = 800 GeV
+370346,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 2000 GeV m_sbottom = 5000 GeV m_N1 = 1000 GeV
+370347,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 2000 GeV m_sbottom = 5000 GeV m_N1 = 1200 GeV
+370348,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 2000 GeV m_sbottom = 5000 GeV m_N1 = 1400 GeV
+370349,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 2000 GeV m_sbottom = 5000 GeV m_N1 = 1600 GeV
+370350,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 2000 GeV m_sbottom = 5000 GeV m_N1 = 1800 GeV
+370351,,,,,,,,gluino pair production and decay to bottom pair and LSP via off-shell sbottom m_glu = 2000 GeV m_sbottom = 5000 GeV m_N1 = 1980 GeV
+370400,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 900 GeV m_stop = 450 GeV m_N1 = 60 GeV
+370401,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 900 GeV m_stop = 650 GeV m_N1 = 60 GeV
+370402,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 900 GeV m_stop = 720 GeV m_N1 = 60 GeV
+370403,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1000 GeV m_stop = 450 GeV m_N1 = 60 GeV
+370404,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1000 GeV m_stop = 650 GeV m_N1 = 60 GeV
+370405,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1000 GeV m_stop = 820 GeV m_N1 = 60 GeV
+370406,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1100 GeV m_stop = 450 GeV m_N1 = 60 GeV
+370407,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1100 GeV m_stop = 650 GeV m_N1 = 60 GeV
+370408,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1100 GeV m_stop = 850 GeV m_N1 = 60 GeV
+370409,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1100 GeV m_stop = 920 GeV m_N1 = 60 GeV
+370410,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1200 GeV m_stop = 450 GeV m_N1 = 60 GeV
+370411,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1200 GeV m_stop = 650 GeV m_N1 = 60 GeV
+370412,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1200 GeV m_stop = 850 GeV m_N1 = 60 GeV
+370413,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1200 GeV m_stop = 1020 GeV m_N1 = 60 GeV
+370414,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1300 GeV m_stop = 450 GeV m_N1 = 60 GeV
+370415,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1300 GeV m_stop = 650 GeV m_N1 = 60 GeV
+370416,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1300 GeV m_stop = 850 GeV m_N1 = 60 GeV
+370417,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1300 GeV m_stop = 1050 GeV m_N1 = 60 GeV
+370418,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1300 GeV m_stop = 1120 GeV m_N1 = 60 GeV
+370419,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1400 GeV m_stop = 450 GeV m_N1 = 60 GeV
+370420,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1400 GeV m_stop = 650 GeV m_N1 = 60 GeV
+370421,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1400 GeV m_stop = 850 GeV m_N1 = 60 GeV
+370422,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1400 GeV m_stop = 1050 GeV m_N1 = 60 GeV
+370423,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1400 GeV m_stop = 1220 GeV m_N1 = 60 GeV
+370424,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1500 GeV m_stop = 450 GeV m_N1 = 60 GeV
+370425,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1500 GeV m_stop = 650 GeV m_N1 = 60 GeV
+370426,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1500 GeV m_stop = 850 GeV m_N1 = 60 GeV
+370427,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1500 GeV m_stop = 1050 GeV m_N1 = 60 GeV
+370428,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1500 GeV m_stop = 1250 GeV m_N1 = 60 GeV
+370429,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1500 GeV m_stop = 1320 GeV m_N1 = 60 GeV
+370430,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1600 GeV m_stop = 450 GeV m_N1 = 60 GeV
+370431,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1600 GeV m_stop = 650 GeV m_N1 = 60 GeV
+370432,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1600 GeV m_stop = 850 GeV m_N1 = 60 GeV
+370433,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1600 GeV m_stop = 1050 GeV m_N1 = 60 GeV
+370434,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1600 GeV m_stop = 1250 GeV m_N1 = 60 GeV
+370435,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1600 GeV m_stop = 1420 GeV m_N1 = 60 GeV
+370436,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1700 GeV m_stop = 450 GeV m_N1 = 60 GeV
+370437,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1700 GeV m_stop = 650 GeV m_N1 = 60 GeV
+370438,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1700 GeV m_stop = 850 GeV m_N1 = 60 GeV
+370439,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1700 GeV m_stop = 1050 GeV m_N1 = 60 GeV
+370440,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1700 GeV m_stop = 1250 GeV m_N1 = 60 GeV
+370441,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1700 GeV m_stop = 1450 GeV m_N1 = 60 GeV
+370442,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1700 GeV m_stop = 1520 GeV m_N1 = 60 GeV
+370443,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1800 GeV m_stop = 450 GeV m_N1 = 60 GeV
+370444,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1800 GeV m_stop = 650 GeV m_N1 = 60 GeV
+370445,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1800 GeV m_stop = 850 GeV m_N1 = 60 GeV
+370446,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1800 GeV m_stop = 1050 GeV m_N1 = 60 GeV
+370447,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1800 GeV m_stop = 1250 GeV m_N1 = 60 GeV
+370448,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1800 GeV m_stop = 1450 GeV m_N1 = 60 GeV
+370449,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1800 GeV m_stop = 1620 GeV m_N1 = 60 GeV
+370450,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1900 GeV m_stop = 450 GeV m_N1 = 60 GeV
+370451,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1900 GeV m_stop = 650 GeV m_N1 = 60 GeV
+370452,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1900 GeV m_stop = 850 GeV m_N1 = 60 GeV
+370453,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1900 GeV m_stop = 1050 GeV m_N1 = 60 GeV
+370454,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1900 GeV m_stop = 1250 GeV m_N1 = 60 GeV
+370455,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1900 GeV m_stop = 1450 GeV m_N1 = 60 GeV
+370456,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1900 GeV m_stop = 1650 GeV m_N1 = 60 GeV
+370457,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1900 GeV m_stop = 1720 GeV m_N1 = 60 GeV
+370458,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 2000 GeV m_stop = 450 GeV m_N1 = 60 GeV
+370459,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 2000 GeV m_stop = 650 GeV m_N1 = 60 GeV
+370460,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 2000 GeV m_stop = 850 GeV m_N1 = 60 GeV
+370461,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 2000 GeV m_stop = 1050 GeV m_N1 = 60 GeV
+370462,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 2000 GeV m_stop = 1250 GeV m_N1 = 60 GeV
+370463,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 2000 GeV m_stop = 1450 GeV m_N1 = 60 GeV
+370464,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 2000 GeV m_stop = 1650 GeV m_N1 = 60 GeV
+370465,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 2000 GeV m_stop = 1820 GeV m_N1 = 60 GeV
+370500,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 900 GeV m_stop = 450 GeV m_N1 = 250 GeV
+370501,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 900 GeV m_stop = 650 GeV m_N1 = 250 GeV
+370502,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 900 GeV m_stop = 720 GeV m_N1 = 250 GeV
+370503,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1000 GeV m_stop = 450 GeV m_N1 = 250 GeV
+370504,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1000 GeV m_stop = 650 GeV m_N1 = 250 GeV
+370505,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1000 GeV m_stop = 820 GeV m_N1 = 250 GeV
+370506,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1100 GeV m_stop = 450 GeV m_N1 = 250 GeV
+370507,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1100 GeV m_stop = 650 GeV m_N1 = 250 GeV
+370508,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1100 GeV m_stop = 850 GeV m_N1 = 250 GeV
+370509,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1100 GeV m_stop = 920 GeV m_N1 = 250 GeV
+370510,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1200 GeV m_stop = 450 GeV m_N1 = 250 GeV
+370511,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1200 GeV m_stop = 650 GeV m_N1 = 250 GeV
+370512,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1200 GeV m_stop = 850 GeV m_N1 = 250 GeV
+370513,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1200 GeV m_stop = 1020 GeV m_N1 = 250 GeV
+370514,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1300 GeV m_stop = 450 GeV m_N1 = 250 GeV
+370515,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1300 GeV m_stop = 650 GeV m_N1 = 250 GeV
+370516,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1300 GeV m_stop = 850 GeV m_N1 = 250 GeV
+370517,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1300 GeV m_stop = 1050 GeV m_N1 = 250 GeV
+370518,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1300 GeV m_stop = 1120 GeV m_N1 = 250 GeV
+370519,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1400 GeV m_stop = 450 GeV m_N1 = 250 GeV
+370520,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1400 GeV m_stop = 650 GeV m_N1 = 250 GeV
+370521,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1400 GeV m_stop = 850 GeV m_N1 = 250 GeV
+370522,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1400 GeV m_stop = 1050 GeV m_N1 = 250 GeV
+370523,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1400 GeV m_stop = 1220 GeV m_N1 = 250 GeV
+370524,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1500 GeV m_stop = 450 GeV m_N1 = 250 GeV
+370525,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1500 GeV m_stop = 650 GeV m_N1 = 250 GeV
+370526,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1500 GeV m_stop = 850 GeV m_N1 = 250 GeV
+370527,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1500 GeV m_stop = 1050 GeV m_N1 = 250 GeV
+370528,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1500 GeV m_stop = 1250 GeV m_N1 = 250 GeV
+370529,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1500 GeV m_stop = 1320 GeV m_N1 = 250 GeV
+370530,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1600 GeV m_stop = 450 GeV m_N1 = 250 GeV
+370531,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1600 GeV m_stop = 650 GeV m_N1 = 250 GeV
+370532,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1600 GeV m_stop = 850 GeV m_N1 = 250 GeV
+370533,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1600 GeV m_stop = 1050 GeV m_N1 = 250 GeV
+370534,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1600 GeV m_stop = 1250 GeV m_N1 = 250 GeV
+370535,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1600 GeV m_stop = 1420 GeV m_N1 = 250 GeV
+370536,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1700 GeV m_stop = 450 GeV m_N1 = 250 GeV
+370537,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1700 GeV m_stop = 650 GeV m_N1 = 250 GeV
+370538,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1700 GeV m_stop = 850 GeV m_N1 = 250 GeV
+370539,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1700 GeV m_stop = 1050 GeV m_N1 = 250 GeV
+370540,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1700 GeV m_stop = 1250 GeV m_N1 = 250 GeV
+370541,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1700 GeV m_stop = 1450 GeV m_N1 = 250 GeV
+370542,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1700 GeV m_stop = 1520 GeV m_N1 = 250 GeV
+370543,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1800 GeV m_stop = 450 GeV m_N1 = 250 GeV
+370544,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1800 GeV m_stop = 650 GeV m_N1 = 250 GeV
+370545,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1800 GeV m_stop = 850 GeV m_N1 = 250 GeV
+370546,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1800 GeV m_stop = 1050 GeV m_N1 = 250 GeV
+370547,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1800 GeV m_stop = 1250 GeV m_N1 = 250 GeV
+370548,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1800 GeV m_stop = 1450 GeV m_N1 = 250 GeV
+370549,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1800 GeV m_stop = 1620 GeV m_N1 = 250 GeV
+370550,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1900 GeV m_stop = 450 GeV m_N1 = 250 GeV
+370551,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1900 GeV m_stop = 650 GeV m_N1 = 250 GeV
+370552,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1900 GeV m_stop = 850 GeV m_N1 = 250 GeV
+370553,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1900 GeV m_stop = 1050 GeV m_N1 = 250 GeV
+370554,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1900 GeV m_stop = 1250 GeV m_N1 = 250 GeV
+370555,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1900 GeV m_stop = 1450 GeV m_N1 = 250 GeV
+370556,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1900 GeV m_stop = 1650 GeV m_N1 = 250 GeV
+370557,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 1900 GeV m_stop = 1720 GeV m_N1 = 250 GeV
+370558,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 2000 GeV m_stop = 450 GeV m_N1 = 250 GeV
+370559,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 2000 GeV m_stop = 650 GeV m_N1 = 250 GeV
+370560,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 2000 GeV m_stop = 850 GeV m_N1 = 250 GeV
+370561,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 2000 GeV m_stop = 1050 GeV m_N1 = 250 GeV
+370562,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 2000 GeV m_stop = 1250 GeV m_N1 = 250 GeV
+370563,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 2000 GeV m_stop = 1450 GeV m_N1 = 250 GeV
+370564,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 2000 GeV m_stop = 1650 GeV m_N1 = 250 GeV
+370565,,,,,,,,gluino pair production and decay to top pair and LSP via on-shell stop m_glu = 2000 GeV m_stop = 1820 GeV m_N1 = 250 GeV
+370600,,,,,,,,NUHM2 test model with strong production m_12 = 300 GeV
+370601,,,,,,,,NUHM2 test model with strong production m_12 = 350 GeV
+370602,,,,,,,,NUHM2 test model with strong production m_12 = 400 GeV
+370603,,,,,,,,NUHM2 test model with strong production m_12 = 500 GeV
+370604,,,,,,,,NUHM2 test model with strong production m_12 = 600 GeV
+370605,,,,,,,,NUHM2 test model with strong production m_12 = 700 GeV
+370606,,,,,,,,NUHM2 test model with strong production m_12 = 800 GeV
+370617,,,,,,,,NUHM2 test model with weak production m_12 = 300 GeV
+370618,,,,,,,,NUHM2 test model with weak production m_12 = 350 GeV
+370619,,,,,,,,NUHM2 test model with weak production m_12 = 400 GeV
+370620,,,,,,,,NUHM2 test model with weak production m_12 = 500 GeV
+370621,,,,,,,,NUHM2 test model with weak production m_12 = 600 GeV
+370622,,,,,,,,NUHM2 test model with weak production m_12 = 700 GeV
+370623,,,,,,,,NUHM2 test model with weak production m_12 = 800 GeV
+370700,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 200 GeV m_N1 = 0 GeV
+370701,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 400 GeV m_N1 = 0 GeV
+370702,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 400 GeV m_N1 = 375 GeV
+370703,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 425 GeV m_N1 = 375 GeV
+370704,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 400 GeV m_N1 = 350 GeV
+370705,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 400 GeV m_N1 = 300 GeV
+370706,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 500 GeV m_N1 = 475 GeV
+370707,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 500 GeV m_N1 = 450 GeV
+370708,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 500 GeV m_N1 = 400 GeV
+370709,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 600 GeV m_N1 = 0 GeV
+370710,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 600 GeV m_N1 = 500 GeV
+370711,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 600 GeV m_N1 = 400 GeV
+370712,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 600 GeV m_N1 = 575 GeV
+370713,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 600 GeV m_N1 = 550 GeV
+370714,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 800 GeV m_N1 = 100 GeV
+370715,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 800 GeV m_N1 = 300 GeV
+370716,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 800 GeV m_N1 = 500 GeV
+370717,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 800 GeV m_N1 = 600 GeV
+370718,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 900 GeV m_N1 = 0 GeV
+370719,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 900 GeV m_N1 = 100 GeV
+370720,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 900 GeV m_N1 = 200 GeV
+370721,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 900 GeV m_N1 = 300 GeV
+370722,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 900 GeV m_N1 = 400 GeV
+370723,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 800 GeV m_N1 = 0 GeV
+370724,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 800 GeV m_N1 = 200 GeV
+370725,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 800 GeV m_N1 = 400 GeV
+370726,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 900 GeV m_N1 = 500 GeV
+370727,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 900 GeV m_N1 = 600 GeV
+370728,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1000 GeV m_N1 = 100 GeV
+370729,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1000 GeV m_N1 = 300 GeV
+370730,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1000 GeV m_N1 = 500 GeV
+370731,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1000 GeV m_N1 = 600 GeV
+370732,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1100 GeV m_N1 = 0 GeV
+370733,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1100 GeV m_N1 = 100 GeV
+370734,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1100 GeV m_N1 = 200 GeV
+370735,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1100 GeV m_N1 = 300 GeV
+370736,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1000 GeV m_N1 = 0 GeV
+370737,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1000 GeV m_N1 = 200 GeV
+370738,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1000 GeV m_N1 = 400 GeV
+370739,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1100 GeV m_N1 = 400 GeV
+370740,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1100 GeV m_N1 = 500 GeV
+370741,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1100 GeV m_N1 = 600 GeV
+370742,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1200 GeV m_N1 = 100 GeV
+370743,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1200 GeV m_N1 = 300 GeV
+370744,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1200 GeV m_N1 = 400 GeV
+370745,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1200 GeV m_N1 = 500 GeV
+370746,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1200 GeV m_N1 = 600 GeV
+370747,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1300 GeV m_N1 = 0 GeV
+370748,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1300 GeV m_N1 = 100 GeV
+370749,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1200 GeV m_N1 = 0 GeV
+370750,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1200 GeV m_N1 = 200 GeV
+370751,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1300 GeV m_N1 = 200 GeV
+370752,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1300 GeV m_N1 = 300 GeV
+370753,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1300 GeV m_N1 = 400 GeV
+370754,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1300 GeV m_N1 = 500 GeV
+370755,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1300 GeV m_N1 = 600 GeV
+370756,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1400 GeV m_N1 = 100 GeV
+370757,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1400 GeV m_N1 = 200 GeV
+370758,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1400 GeV m_N1 = 300 GeV
+370759,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1400 GeV m_N1 = 400 GeV
+370760,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1400 GeV m_N1 = 500 GeV
+370761,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1400 GeV m_N1 = 600 GeV
+370762,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1400 GeV m_N1 = 0 GeV
+370763,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1500 GeV m_N1 = 0 GeV
+370764,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1500 GeV m_N1 = 100 GeV
+370765,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1500 GeV m_N1 = 200 GeV
+370766,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1500 GeV m_N1 = 300 GeV
+370767,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1500 GeV m_N1 = 400 GeV
+370768,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1500 GeV m_N1 = 500 GeV
+370769,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1500 GeV m_N1 = 600 GeV
+370770,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1600 GeV m_N1 = 100 GeV
+370771,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1600 GeV m_N1 = 200 GeV
+370772,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1600 GeV m_N1 = 300 GeV
+370773,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1600 GeV m_N1 = 400 GeV
+370774,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1600 GeV m_N1 = 500 GeV
+370775,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1600 GeV m_N1 = 0 GeV
+370776,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1600 GeV m_N1 = 600 GeV
+370777,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 200 GeV m_N1 = 100 GeV
+370778,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 200 GeV m_N1 = 175 GeV
+370779,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 200 GeV m_N1 = 150 GeV
+370780,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 300 GeV m_N1 = 0 GeV
+370781,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 300 GeV m_N1 = 100 GeV
+370782,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 300 GeV m_N1 = 200 GeV
+370783,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 300 GeV m_N1 = 275 GeV
+370784,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 300 GeV m_N1 = 250 GeV
+370785,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 400 GeV m_N1 = 100 GeV
+370786,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 400 GeV m_N1 = 200 GeV
+370787,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 500 GeV m_N1 = 0 GeV
+370788,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 500 GeV m_N1 = 100 GeV
+370789,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 500 GeV m_N1 = 200 GeV
+370790,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 500 GeV m_N1 = 300 GeV
+370791,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 600 GeV m_N1 = 100 GeV
+370792,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 600 GeV m_N1 = 200 GeV
+370793,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 600 GeV m_N1 = 300 GeV
+370794,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 700 GeV m_N1 = 0 GeV
+370795,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 700 GeV m_N1 = 100 GeV
+370796,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 700 GeV m_N1 = 200 GeV
+370797,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 700 GeV m_N1 = 300 GeV
+370798,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 700 GeV m_N1 = 400 GeV
+370799,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 700 GeV m_N1 = 500 GeV
+370800,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 700 GeV m_N1 = 600 GeV
+370801,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 600 GeV m_N1 = 300 GeV
+370802,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 600 GeV m_N1 = 500 GeV
+370803,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 650 GeV m_N1 = 250 GeV
+370804,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 650 GeV m_N1 = 450 GeV
+370805,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 700 GeV m_N1 = 200 GeV
+370806,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 700 GeV m_N1 = 400 GeV
+370807,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 750 GeV m_N1 = 150 GeV
+370808,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 750 GeV m_N1 = 350 GeV
+370809,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 800 GeV m_N1 = 100 GeV
+370810,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 800 GeV m_N1 = 300 GeV
+370811,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 850 GeV m_N1 = 50 GeV
+370812,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 850 GeV m_N1 = 250 GeV
+370813,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 900 GeV m_N1 = 0 GeV
+370814,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 900 GeV m_N1 = 200 GeV
+370815,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 950 GeV m_N1 = 150 GeV
+370816,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1000 GeV m_N1 = 100 GeV
+370817,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1050 GeV m_N1 = 50 GeV
+370818,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1100 GeV m_N1 = 0 GeV
+370900,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 200 GeV m_N1 = 0 GeV
+370901,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 400 GeV m_N1 = 0 GeV
+370902,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 600 GeV m_N1 = 0 GeV
+370903,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 612 GeV m_N1 = 587 GeV
+370904,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 625 GeV m_N1 = 575 GeV
+370905,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 650 GeV m_N1 = 550 GeV
+370906,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 700 GeV m_N1 = 500 GeV
+370907,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 712 GeV m_N1 = 687 GeV
+370908,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 725 GeV m_N1 = 675 GeV
+370909,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 750 GeV m_N1 = 650 GeV
+370910,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 800 GeV m_N1 = 0 GeV
+370911,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 800 GeV m_N1 = 600 GeV
+370912,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 812 GeV m_N1 = 787 GeV
+370913,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 825 GeV m_N1 = 775 GeV
+370914,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 850 GeV m_N1 = 550 GeV
+370915,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 850 GeV m_N1 = 750 GeV
+370916,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 900 GeV m_N1 = 500 GeV
+370917,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 900 GeV m_N1 = 700 GeV
+370918,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 912 GeV m_N1 = 887 GeV
+370919,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 925 GeV m_N1 = 875 GeV
+370920,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 950 GeV m_N1 = 650 GeV
+370921,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 950 GeV m_N1 = 850 GeV
+370922,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1000 GeV m_N1 = 0 GeV
+370923,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1000 GeV m_N1 = 600 GeV
+370924,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1000 GeV m_N1 = 800 GeV
+370925,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1050 GeV m_N1 = 550 GeV
+370926,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1050 GeV m_N1 = 750 GeV
+370927,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1100 GeV m_N1 = 100 GeV
+370928,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1100 GeV m_N1 = 300 GeV
+370929,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1100 GeV m_N1 = 500 GeV
+370930,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1100 GeV m_N1 = 700 GeV
+370931,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1100 GeV m_N1 = 900 GeV
+370932,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1150 GeV m_N1 = 50 GeV
+370933,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1150 GeV m_N1 = 250 GeV
+370934,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1150 GeV m_N1 = 450 GeV
+370935,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1150 GeV m_N1 = 650 GeV
+370936,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1150 GeV m_N1 = 850 GeV
+370937,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1200 GeV m_N1 = 0 GeV
+370938,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1200 GeV m_N1 = 200 GeV
+370939,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1200 GeV m_N1 = 400 GeV
+370940,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1200 GeV m_N1 = 600 GeV
+370941,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1200 GeV m_N1 = 800 GeV
+370942,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1250 GeV m_N1 = 150 GeV
+370943,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1250 GeV m_N1 = 350 GeV
+370944,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1250 GeV m_N1 = 550 GeV
+370945,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1250 GeV m_N1 = 750 GeV
+370946,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1300 GeV m_N1 = 100 GeV
+370947,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1300 GeV m_N1 = 300 GeV
+370948,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1300 GeV m_N1 = 500 GeV
+370949,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1300 GeV m_N1 = 700 GeV
+370950,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1300 GeV m_N1 = 900 GeV
+370951,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1350 GeV m_N1 = 50 GeV
+370952,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1350 GeV m_N1 = 250 GeV
+370953,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1350 GeV m_N1 = 450 GeV
+370954,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1350 GeV m_N1 = 650 GeV
+370955,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1350 GeV m_N1 = 850 GeV
+370956,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1400 GeV m_N1 = 0 GeV
+370957,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1400 GeV m_N1 = 200 GeV
+370958,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1400 GeV m_N1 = 400 GeV
+370959,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1400 GeV m_N1 = 600 GeV
+370960,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1400 GeV m_N1 = 800 GeV
+370961,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1450 GeV m_N1 = 150 GeV
+370962,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1450 GeV m_N1 = 350 GeV
+370963,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1450 GeV m_N1 = 550 GeV
+370964,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1450 GeV m_N1 = 750 GeV
+370965,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1500 GeV m_N1 = 100 GeV
+370966,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1500 GeV m_N1 = 300 GeV
+370967,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1500 GeV m_N1 = 500 GeV
+370968,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1500 GeV m_N1 = 700 GeV
+370969,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1500 GeV m_N1 = 900 GeV
+370970,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1550 GeV m_N1 = 50 GeV
+370971,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1550 GeV m_N1 = 250 GeV
+370972,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1550 GeV m_N1 = 450 GeV
+370973,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1550 GeV m_N1 = 650 GeV
+370974,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1550 GeV m_N1 = 850 GeV
+370975,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1600 GeV m_N1 = 0 GeV
+370976,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1600 GeV m_N1 = 200 GeV
+370977,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1600 GeV m_N1 = 400 GeV
+370978,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1600 GeV m_N1 = 600 GeV
+370979,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1600 GeV m_N1 = 800 GeV
+370980,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1650 GeV m_N1 = 150 GeV
+370981,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1650 GeV m_N1 = 350 GeV
+370982,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1650 GeV m_N1 = 550 GeV
+370983,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1650 GeV m_N1 = 750 GeV
+370984,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1700 GeV m_N1 = 100 GeV
+370985,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1700 GeV m_N1 = 300 GeV
+370986,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1700 GeV m_N1 = 500 GeV
+370987,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1700 GeV m_N1 = 700 GeV
+370988,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1700 GeV m_N1 = 900 GeV
+370989,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1750 GeV m_N1 = 50 GeV
+370990,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1750 GeV m_N1 = 250 GeV
+370991,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1750 GeV m_N1 = 450 GeV
+370992,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1750 GeV m_N1 = 650 GeV
+370993,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1750 GeV m_N1 = 850 GeV
+370994,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1800 GeV m_N1 = 0 GeV
+370995,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1800 GeV m_N1 = 200 GeV
+370996,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1800 GeV m_N1 = 400 GeV
+370997,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1800 GeV m_N1 = 600 GeV
+370998,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1800 GeV m_N1 = 800 GeV
+370999,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1850 GeV m_N1 = 150 GeV

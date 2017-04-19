@@ -1,0 +1,150 @@
+410000,,1.195,0.543,,XsecTTbarNominal,TTbarBulk,Filter efficiency inserted by hand since wrong in AMI (A.Knue),ttbar bulk Powheg+Py6 - hdamp=mtop - P2012 - non-allhad
+410001,,,0.543,,XsecTTbarNominal,TTbarBulk,Filter efficiency inserted by hand since wrong in AMI (A.Knue),ttbar bulk Powheg+Py6 - hdamp=2mtop - scale=0.5 - P2012radHi - non-allhad
+410002,,,0.543,,XsecTTbarNominal,TTbarBulk,Filter efficiency inserted by hand since wrong in AMI (A.Knue),ttbar bulk Powheg+Py6 - hdamp=mtop - scale=2.0 - P2012radLo - non-allhad
+410003,,,0.543,,XsecTTbarNominal,TTbarBulk,,ttbar bulk aMC@NLO+Herwig++ - UE-EE-5 tune non-allhad
+410004,,,0.543,,XsecTTbarNominal,TTbarBulk,,ttbar bulk Powheg+Herwig++ - hdamp=mtop - UE-EE-5 tune non-allhad
+410006,,,0.543,,XsecTTbarNominal,TTbarBulk,,ttbar bulk Powheg+Py8 - hdamp=mtop - A14 tune - non-allhad
+410007,,1.195,0.457,,XsecTTbarNominal,TTbarBulk,,ttbar bulk Powheg+Py6 - hdamp=mtop - P2012 - allhadronic
+410008,,,0.457,,XsecTTbarNominal,TTbarBulk,,ttbar bulk aMC@NLO+Herwig++ - UE-EE-5 tune - allhadronic
+410009,,1.195,0.10534,,XsecTTbarNominal,TTbarBulk,,
+410120,,,0.034624,,XsecTTbarNominal,TTbarBulk,,
+410121,,,0.0064567,,XsecTTbarNominal,TTbarBulk,,
+
+410011,,,,,XsecSingleTopTchanTBR,SingleTop,Higher order cross-section corrected for leptonic BR=0.1082 x 3,Powheg+Pythia6 t-channel production top with CT10 and Perugia2012 tune
+410012,,,,,XsecSingleTopTchanATBR,SingleTop,Higher order cross-section corrected for leptonic BR=0.1082 x 3,Powheg+Pythia6 t-channel production anti-top with CT10 and Perugia2012 tune
+410013,,1.054,,,XsecSingleTopWtchan,SingleTop,,Powheg+Pythia6 Wt production top (inclusive) with CT10 and Perugia2012 tune (Diagram removal)
+410014,,1.054,,,XsecSingleTopWtchan,SingleTop,,Powheg+Pythia6 Wt production anti-top (inclusive) with CT10 and Perugia2012 tune (Diagram removal)
+410015,,1.054,,,XsecSingleTopWtchan,SingleTop,,Powheg+Pythia6 Wt production top (dilepton) with CT10 and Perugia2012 tune (Diagram removal) - BR(dil)=0.1084
+410016,,1.054,,,XsecSingleTopWtchan,SingleTop,,Powheg+Pythia6 Wt production anti-top (dilepton) with CT10 and Perugia2012 tune (Diagram removal) - BR(dil)=0.1084
+410017,,,,,XsecSingleTopTchanTBR,SingleTop,Higher order cross-section corrected for leptonic BR=0.1082 x 3,
+410018,,,,,XsecSingleTopTchanTBR,SingleTop,Higher order cross-section corrected for leptonic BR=0.1082 x 3,
+410019,,,,,XsecSingleTopTchanATBR,SingleTop,Higher order cross-section corrected for leptonic BR=0.1082 x 3,
+410020,,,,,XsecSingleTopTchanATBR,SingleTop,Higher order cross-section corrected for leptonic BR=0.1082 x 3,
+410021,,1.17,,,XsecTTbarNominal,TTbarBulk,,
+410022,,1.17,,,XsecTTbarNominal,TTbarBulk,,
+410023,,1.17,,,XsecTTbarNominal,TTbarBulk,,
+410024,,1.17,,,XsecTTbarNominal,TTbarBulk,,
+410025,,,,,XsecSingleTopSchanTBR,SingleTop,Higher order cross-section corrected for leptonic BR=0.3246,
+410026,,,,,XsecSingleTopSchanATBR,SingleTop,Higher order cross-section corrected for leptonic BR=0.3246,
+410037,,,,,,TTbarBulk,,ttbar bulk Powheg+Py6 - hdamp=mtop - P2012 - non-allhad - mtop=170.0
+410038,,,,,,TTbarBulk,,ttbar bulk Powheg+Py6 - hdamp=mtop - P2012 - non-allhad - mtop=171.5
+410039,,,,,,TTbarBulk,,ttbar bulk Powheg+Py6 - hdamp=mtop - P2012 - non-allhad - mtop=173.5
+410040,,,,,,TTbarBulk,,ttbar bulk Powheg+Py6 - hdamp=mtop - P2012 - non-allhad - mtop=175.0
+410041,,,,,,TTbarBulk,,ttbar bulk Powheg+Py6 - hdamp=mtop - P2012 - non-allhad - mtop=177.5
+410042,,,,,,TTbarBulk,,ttbar bulk Powheg+Py6 - hdamp=mtop - P2012 - allhadronic - mtop=170.0
+410043,,,,,,TTbarBulk,,ttbar bulk Powheg+Py6 - hdamp=mtop - P2012 - allhadronic - mtop=171.5
+410044,,,,,,TTbarBulk,,ttbar bulk Powheg+Py6 - hdamp=mtop - P2012 - allhadronic - mtop=173.5
+410045,,,,,,TTbarBulk,,ttbar bulk Powheg+Py6 - hdamp=mtop - P2012 - allhadronic - mtop=175.0
+410046,,,,,,TTbarBulk,,ttbar bulk Powheg+Py6 - hdamp=mtop - P2012 - allhadronic - mtop=177.5
+410047,,,,,,SingleTop,,
+410048,,,,,,SingleTop,,
+410051,,,,,,TTbarBulk,,
+410052,,,,,,TTbarBulk,,
+410053,,,,,,TTbarBulk,,
+410054,,,,,,TTbarBulk,,
+410056,,,,,,TTbarBulk,,
+410057,,,,,,TTbarBulk,,
+410058,,,,,,TTbarBulk,,
+410062,,1.054,,,XsecSingleTopWtchan,SingleTop,,
+410063,,1.054,,,XsecSingleTopWtchan,SingleTop,,
+410064,,1.054,,,XsecSingleTopWtchan,SingleTop,,
+410065,,1.054,,,XsecSingleTopWtchan,SingleTop,,
+410066,,1.32,,,XsecTTbarW,,k-factor calculated wrt to Np0+Np1+Np2, MadGraph+Py8 ttW Np0
+410067,,1.32,,,XsecTTbarW,,k-factor calculated wrt to Np0+Np1+Np2, MadGraph+Py8 ttW Np1
+410068,,1.32,,,XsecTTbarW,,k-factor calculated wrt to Np0+Np1+Np2, MadGraph+Py8 ttW Np2
+410069,,1.20,,,,,DEPRECATED,ttZll + 0p MG+Py8
+410070,,1.20,,,,,DEPRECATED,ttZll + 1p MG+Py8
+410073,,1.47,,,XsecTTbarZvv,,Important: use e4631 - CKKW-L merging fix,
+410074,,1.47,,,XsecTTbarZvv,,Important: use e4631 - CKKW-L merging fix,
+410075,,1.47,,,XsecTTbarZvv,,Important: use e4631 - CKKW-L merging fix,
+410081,,,,,XsecTTbarWW,,,
+410080,,,,,Xsec4TTbar,,,
+410082,,1.47,,,XsecTTbarG,TTbarX,use same k-factor as ttZ in neutrinos,
+410083,,1.47,,,XsecTTbarG,TTbarX,use same k-factor as ttZ in neutrinos,
+410084,,1.47,,,XsecTTbarG,TTbarX,use same k-factor as ttZ in neutrinos,
+410087,,1.47,,,XsecTTbarG2,TTbarX,use same k-factor as ttZ in neutrinos,
+410088,,1.47,,,XsecTTbarG2,TTbarX,use same k-factor as ttZ in neutrinos,
+410089,,1.47,,,XsecTTbarG2,TTbarX,use same k-factor as ttZ in neutrinos,
+410099,,1.027,,,XsecSingleTopWtchan,,,
+410100,,1.073,,,XsecSingleTopWtchan,,,
+410101,,1.027,,,XsecSingleTopWtchan,,,
+410102,,1.073,,,XsecSingleTopWtchan,,,
+410103,,1.027,,,XsecSingleTopWtchan,,,
+410104,,1.073,,,XsecSingleTopWtchan,,,
+410105,,1.027,,,XsecSingleTopWtchan,,,
+410106,,1.073,,,XsecSingleTopWtchan,,,
+410111,,1.51,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 ttee Np0 onshell and offshell
+410112,,1.51,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 ttee Np1 onshell and offshell
+410113,,1.51,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 ttmumu Np0 onshell and offshell
+410114,,1.51,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 ttmumu Np1 onshell and offshell
+410115,,1.51,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 tttautau Np0 onshell and offshell
+410116,,1.51,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 tttautau Np1 onshell and offshell
+410141,,,,,,SingleTop,,
+410142,,1.09,,,XsecTTbarZll,,Sherpa 2.2 LO tt+ll,
+410143,,1.10,,,XsecTTbarZvv,,Sherpa 2.2 LO ttZ(vv and qq),
+410144,,1.12,,,XsecTTbarW,,Sherpa 2.2 LO ttW,
+410145,,0.968,,,XsecSingleTopWtchan,SingleTop,,Powheg+Herwig++ Wt production top (dilepton) (Diagram removal) - BR(dil)=0.1084 but lepton filter to be checked
+410146,,0.968,,,XsecSingleTopWtchan,SingleTop,,Powheg+Herwig++ Wt production anti-top (dilepton) (Diagram removal) - BR(dil)=0.1084 but lepton filter to be checked
+410147,,1.054,,,XsecSingleTopWtchan,SingleTop,,Powheg+Herwig++ Wt production top (Diagram removal) - inclusive (CT10 for ME and CTEQ6L1 for PS) - UEEE5 tune
+410148,,1.054,,,XsecSingleTopWtchan,SingleTop,,Powheg+Herwig++ Wt production anti-top (Diagram removal) - inclusive (CT10 for ME and CTEQ6L1 for PS) - UEEE5 tune
+410155,,1.10,,,XsecTTbarW,,,
+410156,,1.11,,,XsecTTbarZvv,,,
+410157,,1.11,,,XsecTTbarZvv,,,
+410159,,,,,XsecTTbarNominal,TTbarBulk,,
+410160,,,,,XsecTTbarNominal,TTbarBulk,,
+410164,,,,,,SingleTop,,
+410165,,,,,,SingleTop,,
+410175,,1.6239,,,XsecTTbarNominal,TTbarBulk,,
+410176,,1.6239,,,XsecTTbarNominal,TTbarBulk,,
+410178,,,,,,SingleTop,,MadGraph_Wtb with MET > 200 GeV
+410179,,,,,,SingleTop,,MadGraph_Wtb with upper MET cut 200 GeV and lower MET cut 60 GeV
+410181,,,,,,SingleTop,,MadGraph_WWbb with MET > 200 GeV 
+410182,,,,,,SingleTop,,MadGraph_WWbb with upper MET cut 200 GeV and lower MET cut 60 GeV
+410184,,,,,,TTbarX,,
+410185,,,,,,TTbarX,,
+410186,,1.1484,,,XsecTTbarNominal,TTbarBulk,,
+410187,,1.1484,,,XsecTTbarNominal,TTbarBulk,,
+410188,,1.1484,,,XsecTTbarNominal,TTbarBulk,,
+410189,,1.1484,,,XsecTTbarNominal,TTbarBulk,,
+410190,,1.47,,,XsecTTbarZvv,,Important: use e4631 - CKKW-L merging fix but TBC, MadGraph+Py8 ttZnunuqq Np0 - scale up
+410191,,1.47,,,XsecTTbarZvv,,Important: use e4631 - CKKW-L merging fix but TBC, MadGraph+Py8 ttznunuqq Np0 - scale down
+410192,,1.47,,,XsecTTbarZvv,,Important: use e4631 - CKKW-L merging fix but TBC, MadGraph+Py8 ttZnunuqq Np1 - scale up
+410193,,1.47,,,XsecTTbarZvv,,Important: use e4631 - CKKW-L merging fix but TBC, MadGraph+Py8 ttZnunuqq Np1 - scale down
+410194,,1.47,,,XsecTTbarZvv,,Important: use e4631 - CKKW-L merging fix but TBC, MadGraph+Py8 ttznunuqq Np2 - scale up
+410195,,1.47,,,XsecTTbarZvv,,Important: use e4631 - CKKW-L merging fix but TBC, MadGraph+Py8 ttZnunuqq Np2 - scale down
+410196,,1.7088,,,XsecTTbarW,,k-factor calculated wrt to Np0+Np1+Np2, MadGraph+Py8 ttW Np0 - scale up
+410197,,0.9546,,,XsecTTbarW,,k-factor calculated wrt to Np0+Np1+Np2, MadGraph+Py8 ttW Np0 - scale down
+410198,,1.7088,,,XsecTTbarW,,k-factor calculated wrt to Np0+Np1+Np2, MadGraph+Py8 ttW Np1	- scale	up
+410199,,0.9546,,,XsecTTbarW,,k-factor calculated wrt to Np0+Np1+Np2, MadGraph+Py8 ttW Np1 - scale down
+410200,,1.7088,,,XsecTTbarW,,k-factor calculated wrt to Np0+Np1+Np2, MadGraph+Py8 ttW Np2	- scale	up
+410201,,0.9546,,,XsecTTbarW,,k-factor calculated wrt to Np0+Np1+Np2, MadGraph+Py8 ttW Np2 - scale down
+410202,,2.21,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 ttee Np0 onshell and offshell - scale up
+410203,,0.95,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 ttee Np0 onshell and offshell - scale down
+410204,,2.21,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 ttee Np1 onshell and offshell - scale up
+410205,,0.95,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 ttee Np1 onshell and offshell - scale down
+410206,,2.21,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 ttmumu Np0 onshell and offshell - scale up
+410207,,0.95,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 ttmumu Np0 onshell and offshell - scale down
+410208,,2.21,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 ttmumu Np1 onshell and offshell - scale up
+410209,,0.95,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 ttmumu Np1 onshell and offshell - scale down
+410210,,2.21,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 tttautau Np0 onshell and offshell - scale up
+410211,,0.95,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 tttautau Np0 onshell and offshell - scale down
+410212,,2.21,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 tttautau Np1 onshell and offshell - scale up
+410213,,0.95,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 tttautau Np1 onshell and offshell - scale down
+410215,,,,,,PDF set used in ME is NNPDF3.0 NLO,
+410218,,1.12,,,XsecTTbarZll,,,
+410219,,1.12,,,XsecTTbarZll,,,
+410220,,1.12,,,XsecTTbarZll,,,
+410228,,,,,,SingleTop,,
+410229,,,,,,SingleTop,,
+410230,,,,,,SingleTop,,
+410233,,,,,,TTbarBulk,,
+410239,,,,,,SingleTop,,
+410240,,,,,,SingleTop,,
+410241,,,,,,SingleTop,,
+410242,,,,,,SingleTop,,
+410243,,,,,,SingleTop,,
+410249,,1.1484,,,XsecTTbarNominal,TTbarBulk,,
+410250,,1.1484,,,XsecTTbarNominal,TTbarBulk,,
+410251,,1.1484,,,XsecTTbarNominal,TTbarBulk,,
+410252,,1.1484,,,XsecTTbarNominal,TTbarBulk,,
+410500,,,0.543,,XsecTTbarNominal,TTbarBulk,Filter efficiency inserted by hand since wrong in AMI (A.Knue),ttbar bulk Powheg+Py8 - hdamp=mtop - nonallhad with improved main31 settings
