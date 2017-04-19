@@ -13,6 +13,13 @@
     6    StaveFace   0 - 1 
     7    Module      0 - 13
     8    Sensor      0
+ or for BCL:
+    3    BCL         0
+    4    Stave       0 - 11
+    5    BCL_Face    0 - 1
+    6    Module pair 0 - 4
+    7    Module      0 - 1
+    8    Sensor      0
 -->
 
 &barrelsupports;
@@ -63,12 +70,7 @@
 
 <assembly name="SS_Module">
 
-  <transform alignable="0">
-    <transformation name="BRLSensorSSdummy" alignable="true">
-      <translation/>
-    </transformation>
-    <logvolref ref="BRLSensorSS"/>
-  </transform>  
+  <logvolref ref="BRLSensorSS"/>
 
   <transform>
     <transformation name="PlaceNearHybridSS">
@@ -103,13 +105,7 @@
 
 <assembly name="MS_Module">
 
-
-  <transform alignable="0">
-    <transformation name="BRLSensorMSdummy" alignable="true">
-      <translation/>
-    </transformation>
-    <logvolref ref="BRLSensorMS"/>
-  </transform>  
+  <logvolref ref="BRLSensorMS"/>
 
   <transform>
     <transformation name="PlaceNearHybridMS">
@@ -455,42 +451,31 @@
 </logvol>
 
 <assembly name="StripB">
-  <index ref="phi_module" value="CNL_4"/>
-  
-  <transform alignable="2">
-    <transformation name="Barrel0dummy" alignable="true">
-      <translation/>
-    </transformation>
-    <logvolref ref="Barrel0"/>
-  </transform>
-  
-  <transform alignable="2">
-    <transformation name="Barrel1dummy" alignable="true">
-      <translation/>
-    </transformation>
-    <logvolref ref="Barrel1"/>
-  </transform>
-  
-  <transform alignable="2">
-    <transformation name="Barrel2dummy" alignable="true">
-      <translation/>
-    </transformation>
-    <logvolref ref="Barrel2"/>
-  </transform>
-  
-  <transform alignable="2">
-    <transformation name="Barrel3dummy" alignable="true">
-      <translation/>
-    </transformation>
-    <logvolref ref="Barrel3"/>
-  </transform>
-  
-<!--  
+  <index ref="phi_module" value="CNL_4"/> 
   <logvolref ref="Barrel0"/>
   <logvolref ref="Barrel1"/>
   <logvolref ref="Barrel2"/>
   <logvolref ref="Barrel3"/>
--->  
+
+  <index ref="eta_module" value="(CNL_5 == 0) * (B_N_SensorsPerFace - 1 + CNL_7) + 
+                                 (CNL_5 == 1) * (B_N_SensorsPerFace - CNL_7)"/>
+  <index ref="phi_module" value="CNL_4 * BCL_N_PairsPerFace + CNL_6"/>
+  <index ref="layer_wheel"      value="4"/> 
+  <transform>
+    <transformation name="PlaceBCL_PlusZ">
+      <translation z="BCL_MiddleZ"/>
+    </transformation>
+    <assemblyref ref="BCL_A" zeroid="true"/>
+  </transform>
+
+  <index ref="eta_module" value="-(CNL_5 == 1) * (B_N_SensorsPerFace - 1 + CNL_7) + 
+                                 -(CNL_5 == 0) * (B_N_SensorsPerFace - CNL_7)"/>
+  <transform>
+    <transformation name="PlaceBCL_MinusZ">
+      <translation z="-BCL_MiddleZ"/>
+    </transformation>
+    <assemblyref ref="BCL_C"/>
+  </transform>
 
 </assembly>
 

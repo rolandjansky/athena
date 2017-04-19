@@ -41,24 +41,9 @@
 
 <assembly name="PetalFace">
   <index ref="phi_module" value="2*CNL_4 + CNL_5"/> <!-- 0 to 31. -->
-  <transform alignable="0">
-    <transformation name="ESensor0dummy" alignable="true">
-      <translation/>
-    </transformation>
-    <logvolref ref="ECSensor0" zeroid="true" />
-  </transform>
-  <transform alignable="0">
-    <transformation name="ESensor1dummy" alignable="true">
-      <translation/>
-    </transformation>
-    <logvolref ref="ECSensor1" zeroid="true" />
-  </transform>
-  <transform alignable="0">
-    <transformation name="ESensor2dummy" alignable="true">
-      <translation/>
-    </transformation>
-    <logvolref ref="ECSensor2" zeroid="true" />
-  </transform>
+  <logvolref ref="ECSensor0" zeroid="true"/>
+  <logvolref ref="ECSensor1" zeroid="true"/>
+  <logvolref ref="ECSensor2" zeroid="true"/>
 
   <!-- For outer rings, we have to add or subtract the phi copy number (CNL_7) 
        according to which way round the face is in the wheel. 0 - 63. -->
@@ -68,43 +53,43 @@
                                  (CNL_5 == 0 &amp;&amp; CNL_6 == 1) * CNL_7 + 
                                  (CNL_5 == 1 &amp;&amp; CNL_6 == 0) * CNL_7 + 
                                  (CNL_5 == 1 &amp;&amp; CNL_6 == 1) * (1 - CNL_7)"/>
-  <transform alignable="0">
-    <transformation name="PlaceFaceRing3Minus" alignable="true">
+  <transform>
+    <transformation name="PlaceFaceRing3Minus">
       <rotation zcos="1.0" angle="-SensorRotation_3"/>
     </transformation>
     <logvolref ref="ECSensor3" zeroid="true"/>
   </transform>
 
-  <transform alignable="0">
-    <transformation name="PlaceFaceRing4Minus" alignable="true">
+  <transform>
+    <transformation name="PlaceFaceRing4Minus">
       <rotation zcos="1.0" angle="-SensorRotation_4"/>
     </transformation>
     <logvolref ref="ECSensor4" zeroid="true"/>
   </transform>
 
-  <transform alignable="0">
-    <transformation name="PlaceFaceRing5Minus" alignable="true">
+  <transform>
+    <transformation name="PlaceFaceRing5Minus">
       <rotation zcos="1.0" angle="-SensorRotation_5"/>
     </transformation>
     <logvolref ref="ECSensor5" zeroid="true"/>
   </transform>
 
-  <transform alignable="0">
-    <transformation name="PlaceFaceRing3Plus" alignable="true">
+  <transform>
+    <transformation name="PlaceFaceRing3Plus">
       <rotation zcos="1.0" angle="+SensorRotation_3"/>
     </transformation>
     <logvolref ref="ECSensor3" />
   </transform>
 
-  <transform alignable="0">
-    <transformation name="PlaceFaceRing4Plus" alignable="true">
+  <transform>
+    <transformation name="PlaceFaceRing4Plus">
       <rotation zcos="1.0" angle="+SensorRotation_4"/>
     </transformation>
     <logvolref ref="ECSensor4" />
   </transform>
 
-  <transform alignable="0">
-    <transformation name="PlaceFaceRing5Plus" alignable="true">
+  <transform>
+    <transformation name="PlaceFaceRing5Plus">
       <rotation zcos="1.0" angle="+SensorRotation_5"/>
     </transformation>
     <logvolref ref="ECSensor5" />
@@ -170,8 +155,8 @@
 </assembly>
 
 <assembly name="SCT_Forward">
-  <multicopy name="AddWheelsToEndcap" n="N_Wheels" loopvar="WheelZ" alignable="2">
-    <transformation name="PlaceWheels" alignable="true">
+  <multicopy name="AddWheelsToEndcap" n="N_Wheels" loopvar="WheelZ">
+    <transformation name="PlaceWheels">
       <translation z="WheelZ"/>
     </transformation>
     <assemblyref ref="Wheel"/>

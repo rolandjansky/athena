@@ -22,6 +22,7 @@
                        value  CDATA #REQUIRED>
 
   <!ELEMENT materials ((element|chemical|material)+)>
+    <!ATTLIST materials densitysf CDATA "1.0">
 
     <!ELEMENT element EMPTY>
       <!ATTLIST element name      ID      #REQUIRED

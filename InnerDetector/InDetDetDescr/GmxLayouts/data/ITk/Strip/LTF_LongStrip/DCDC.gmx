@@ -9,6 +9,14 @@
   <var name="DCDC_BoxL" value="19.0"/>
   <var name="DCDC_BoxT" value="4.5"/>
 
+  <var name="DCDC_BCL_PCB_W" value="0.5 * DCDC_PCB_L"/> <!-- Keep same vol. and material as barrel -->
+  <var name="DCDC_BCL_PCB_L" value="2.0 * DCDC_PCB_W"/>
+  <var name="DCDC_BCL_PCB_T" value="0.66"/>
+
+  <var name="DCDC_BCL_BoxW" value="DCDC_BoxL"/>
+  <var name="DCDC_BCL_BoxL" value="DCDC_BoxW"/>
+  <var name="DCDC_BCL_BoxT" value="DCDC_BoxT"/>
+
 </defines>
 
 
@@ -46,7 +54,11 @@
 <shapes>
   <box name="shDCDC_PCB"     xhalflength="DCDC_PCB_W/2"     yhalflength="DCDC_PCB_L/2"     zhalflength="DCDC_PCB_T/2 - EPS" />
   <box name="shDCDC_Box"     xhalflength="DCDC_BoxW/2"      yhalflength="DCDC_BoxL/2"      zhalflength="DCDC_BoxT/2 - EPS" />
+  <box name="shDCDC_BCL_PCB" xhalflength="DCDC_BCL_PCB_W/2" yhalflength="DCDC_BCL_PCB_L/2" zhalflength="DCDC_BCL_PCB_T/2 - EPS" />
+  <box name="shDCDC_BCL_Box" xhalflength="DCDC_BCL_BoxW/2"  yhalflength="DCDC_BCL_BoxL/2"  zhalflength="DCDC_BCL_BoxT/2 - EPS" />
 </shapes>
 
 <logvol name="DCDC_PCB" shape="shDCDC_PCB" material="matDCDC_PCB"/>
 <logvol name="DCDC_Box" shape="shDCDC_Box" material="matDCDC_Box"/>
+<logvol name="DCDC_BCL_PCB" shape="shDCDC_BCL_PCB" material="matDCDC_PCB"/>
+<logvol name="DCDC_BCL_Box" shape="shDCDC_BCL_Box" material="matDCDC_Box"/>

@@ -232,27 +232,26 @@
 </shapes>
 
 <!-- NB Sensor names use a convention; they are used in atlas_idet.py. Need to add ECSensor4 and 5 -->
-
-<logvol name="ECSensor0" shape="ShE_Sensor0" material="SiMetal" sensitive="RG_ISE_0" alignable="true">
+<logvol name="ECSensor0" shape="ShE_Sensor0" material="SiMetal" sensitive="RG_ISE_0">
   <index ref="eta_module" value="0"/>
 </logvol>
-<logvol name="ECSensor1" shape="ShE_Sensor1" material="SiMetal" sensitive="RG_ISE_1"  alignable="true">
+<logvol name="ECSensor1" shape="ShE_Sensor1" material="SiMetal" sensitive="RG_ISE_1">
   <index ref="eta_module" value="1"/>
 </logvol>
-<logvol name="ECSensor2" shape="ShE_Sensor2" material="SiMetal" sensitive="RG_ISE_2"  alignable="true">
+<logvol name="ECSensor2" shape="ShE_Sensor2" material="SiMetal" sensitive="RG_ISE_2">
   <index ref="eta_module" value="2"/>
 </logvol>
-<logvol name="ECSensor3" shape="ShE_Sensor3" material="SiMetal" sensitive="RG_ISE_3"  alignable="true">
+<logvol name="ECSensor3" shape="ShE_Sensor3" material="SiMetal" sensitive="RG_ISE_3">
   <index ref="eta_module" value="3"/>
 </logvol>
-<logvol name="ECSensor4" shape="ShE_Sensor4" material="SiMetal" sensitive="RG_ISE_4"  alignable="true">
+<logvol name="ECSensor4" shape="ShE_Sensor4" material="SiMetal" sensitive="RG_ISE_4">
   <index ref="eta_module" value="4"/>
 </logvol>
-<logvol name="ECSensor5" shape="ShE_Sensor5" material="SiMetal" sensitive="RG_ISE_5"  alignable="true">
+<logvol name="ECSensor5" shape="ShE_Sensor5" material="SiMetal" sensitive="RG_ISE_5">
   <index ref="eta_module" value="5"/>
 </logvol>
 
-<logvol name="BRLSensorSS" shape="ShBarrelSensor" material="SiMetal" sensitive="RG_ISB_SS"  alignable="true"/>
-<logvol name="BRLSensorMS" shape="ShBarrelSensor" material="SiMetal" sensitive="RG_ISB_MS"  alignable="true"/>
+<logvol name="BRLSensorSS" shape="ShBarrelSensor" material="SiMetal" sensitive="RG_ISB_SS"/>
+<logvol name="BRLSensorMS" shape="ShBarrelSensor" material="SiMetal" sensitive="RG_ISB_MS"/>
 
 

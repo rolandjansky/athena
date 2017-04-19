@@ -13,6 +13,13 @@
     6    StaveFace   0 - 1 
     7    Module      0 - 13
     8    Sensor      0
+ or for BCL:
+    3    BCL         0
+    4    Stave       0 - 11
+    5    BCL_Face    0 - 1
+    6    Module pair 0 - 4
+    7    Module      0 - 1
+    8    Sensor      0
 -->
 
 &barrelsupports;
@@ -61,55 +68,9 @@
 
 <logvol name='EOS' shape='shEOS' material='matEOS'/>
 
-<assembly name="SS_Module">
-
-  <transform alignable="0">
-    <transformation name="BRLSensorSSdummy" alignable="true">
-      <translation/>
-    </transformation>
-    <logvolref ref="BRLSensorSS"/>
-  </transform>  
-
-  <transform>
-    <transformation name="PlaceNearHybridSS">
-      <translation x="B_HybridX_Offset + B_HybridW / 2" z="(SensorThickness + B_HybridT) / 2."/>
-    </transformation>
-    <assemblyref ref="B_HybridNear"/>
-  </transform>
-
-  <transform>
-    <transformation name="PlaceFarHybridSS">
-      <translation x="-(B_HybridX_Offset + B_HybridW / 2)" z="(SensorThickness + B_HybridT) / 2."/>
-    </transformation>
-    <assemblyref ref="B_HybridFar"/>
-  </transform>
-
-  <transform>
-    <transformation name="PlaceDCDC_PCB_SS">
-      <translation y="-(B_SensorWidth - DCDC_PCB_L) / 2." z="(SensorThickness + DCDC_PCB_T) / 2."/>
-    </transformation>
-    <logvolref ref="DCDC_PCB"/>
-  </transform>
-
-  <transform>
-    <transformation name="PlaceDCDC_Box_SS">
-      <translation y="-(B_SensorWidth - DCDC_PCB_L - DCDC_PCB_L + DCDC_BoxL) / 2." 
-                   z="(SensorThickness + DCDC_BoxT) / 2. + DCDC_PCB_T"/>
-    </transformation>
-    <logvolref ref="DCDC_Box"/>
-  </transform>
-
-</assembly>
-
 <assembly name="MS_Module">
 
-
-  <transform alignable="0">
-    <transformation name="BRLSensorMSdummy" alignable="true">
-      <translation/>
-    </transformation>
-    <logvolref ref="BRLSensorMS"/>
-  </transform>  
+  <logvolref ref="BRLSensorMS"/>
 
   <transform>
     <transformation name="PlaceNearHybridMS">
@@ -133,32 +94,6 @@
     <logvolref ref="DCDC_Box"/>
   </transform>
 
-</assembly>
-
-<assembly name="SS_FaceL">
-  <index ref="side" value="CNL_5"/> 
-  <multicopy name="CopySS_InStereoFaceL" n="B_N_SensorsPerFace">
-    <transformation name="PlaceSS_InStereoFaceL">
-      <translation x="B_SensorGap + B_SensorLength"/>
-    </transformation>
-    <transform>
-      <transformationref ref="StereoRot"/>
-      <assemblyref ref="SS_Module"/>
-    </transform>
-  </multicopy>
-</assembly>
-
-<assembly name="SS_FaceR"> <!-- Modules rotated 180 deg cf L version -->
-  <index ref="side" value="1 - CNL_5"/> 
-  <multicopy name="CopySS_InStereoFaceR" n="B_N_SensorsPerFace">
-    <transformation name="PlaceSS_InStereoFaceR">
-      <translation x="B_SensorGap + B_SensorLength"/>
-    </transformation>
-    <transform>
-      <transformationref ref="RotateModulePowerEnd"/>
-      <assemblyref ref="SS_Module"/>
-    </transform>
-  </multicopy>
 </assembly>
 
 <assembly name="MS_FaceL">
@@ -185,43 +120,6 @@
       <assemblyref ref="MS_Module"/>
     </transform>
   </multicopy>
-</assembly>
-
-<assembly name="SS_Stave"> 
-  <assemblyref ref="StaveCoreSS"/>
-  <transform>
-    <transformation name="PlaceFirstSS_FaceOnCore">
-      <translation x="StaveFaceTranslation" 
-                   z="-(StavePlankT + SensorThickness)/2"/>
-      <rotation xcos="1" angle="PI"/> <!-- Strips on low-z side -->
-    </transformation>
-    <assemblyref ref="SS_FaceR" zeroid="true"/>
-  </transform>
-  <transform>
-    <transformation name="PlaceSecondSS_FaceOnCore">
-      <translation x="StaveFaceTranslation" 
-                   z="+(StavePlankT + SensorThickness)/2"/>
-    </transformation>
-    <assemblyref ref="SS_FaceL"/>
-  </transform>
-
-  <transform>
-    <transformation name="PlaceFirstEOS_OnSS_Core">
-      <translation x="(StaveCoreLength - 100.)/2"
-                   y="(StaveCoreWidth + EOSCoreWidth)/2" 
-                   z="-(StavePlankT + 5.)/2"/>
-    </transformation>
-    <logvolref ref="EOS"/>
-  </transform>
-  <transform>
-    <transformation name="PlaceSecondEOS_OnSS_Core">
-      <translation x="(StaveCoreLength - 100.)/2"
-                   y="(StaveCoreWidth + EOSCoreWidth)/2" 
-                   z="+(StavePlankT + 5.)/2"/>
-    </transformation>
-    <logvolref ref="EOS"/>
-  </transform>
-
 </assembly>
 
 <assembly name="MS_Stave"> 
@@ -260,57 +158,6 @@
     </transformation>
     <logvolref ref="EOS"/>
   </transform>
-
-</assembly>
-
-<assembly name="StavePairSS">
-
-  <index ref="eta_module" value="CNL_7 + 1"/> 
-  <transform>
-    <transformation name="PlacePlusZ_SS_Stave">
-      <translation x="StaveGapZ0 + StaveCoreLength/2"/>
-    </transformation>
-    <assemblyref ref="SS_Stave" zeroid="true"/>
-  </transform>
-
-  <multicopy name="CopyStaveMountsSS_Plus" n="NumStaveMounts">
-    <transformation name="PlaceStaveMountsSS_Plus">
-      <translation x="(StaveCoreLength - 2 * StaveMountL - 2 * 25.) / (NumStaveMounts - 1)"/>
-    </transformation>
-    <transform>
-      <transformation name="PlaceStaveMountReadySS_PlusForCopying">
-        <translation x="25. + StaveGapZ0" 
-                     y="-(StaveCoreWidth/2 + StaveMountR)"
-                     z="StaveMountR/2"/>
-        <rotation ycos="1" angle="PI/2"/>
-      </transformation>
-      <logvolref ref="StaveMount"/>
-    </transform>
-  </multicopy>
-
-  <index ref="eta_module" value="-(CNL_7 + 1)"/> 
-  <transform>
-    <transformation name="PlaceMinusZ_SS_Stave">
-      <translation x="-(StaveGapZ0 + StaveCoreLength/2)"/>
-      <rotation ycos="1" angle="PI"/>
-    </transformation>
-    <assemblyref ref="SS_Stave"/>
-  </transform>
-
-  <multicopy name="CopyStaveMountsSS_Minus" n="NumStaveMounts">
-    <transformation name="PlaceStaveMountsSS_Minus">
-      <translation x="-(StaveCoreLength - 2 * StaveMountL - 2 * 25.) / (NumStaveMounts - 1)"/>
-    </transformation>
-    <transform>
-      <transformation name="PlaceStaveMountSS_MinusReadyForCopying">
-        <translation x="-(25. + StaveGapZ0)" 
-                     y="-(StaveCoreWidth/2 + StaveMountR)"
-                     z="StaveMountR/2"/>
-        <rotation ycos="1" angle="-PI/2"/>
-      </transformation>
-      <logvolref ref="StaveMount"/>
-    </transform>
-  </multicopy>
 
 </assembly>
 
@@ -379,7 +226,7 @@
         <rotation zcos="1" angle="-TiltAngle_0"/> 
         <rotation ycos="1" angle="-PI/2"/>       
       </transformation>
-      <assemblyref ref="StavePairSS"/>
+      <assemblyref ref="StavePairMS"/>
     </transform>
   </multicopy>
 
@@ -401,7 +248,7 @@
         <rotation zcos="1" angle="-TiltAngle_1"/> 
         <rotation ycos="1" angle="-PI/2"/>       
       </transformation>
-      <assemblyref ref="StavePairSS"/>
+      <assemblyref ref="StavePairMS"/>
     </transform>
   </multicopy>
 
@@ -455,42 +302,10 @@
 </logvol>
 
 <assembly name="StripB">
-  <index ref="phi_module" value="CNL_4"/>
-  
-  <transform alignable="2">
-    <transformation name="Barrel0dummy" alignable="true">
-      <translation/>
-    </transformation>
-    <logvolref ref="Barrel0"/>
-  </transform>
-  
-  <transform alignable="2">
-    <transformation name="Barrel1dummy" alignable="true">
-      <translation/>
-    </transformation>
-    <logvolref ref="Barrel1"/>
-  </transform>
-  
-  <transform alignable="2">
-    <transformation name="Barrel2dummy" alignable="true">
-      <translation/>
-    </transformation>
-    <logvolref ref="Barrel2"/>
-  </transform>
-  
-  <transform alignable="2">
-    <transformation name="Barrel3dummy" alignable="true">
-      <translation/>
-    </transformation>
-    <logvolref ref="Barrel3"/>
-  </transform>
-  
-<!--  
+  <index ref="phi_module" value="CNL_4"/> 
   <logvolref ref="Barrel0"/>
   <logvolref ref="Barrel1"/>
   <logvolref ref="Barrel2"/>
   <logvolref ref="Barrel3"/>
--->  
-
 </assembly>
 
