@@ -180,10 +180,10 @@ namespace Muon {
 
     const MuonGM::MuonDetectorManager*  m_detMgr;
 
-    std::string m_key_mdt;                                //!< storegate location of the MdtPrepData
-    std::string m_key_csc;                                //!< storegate location of the CscPrepData
-    std::string m_key_tgc;                                //!< storegate location of the TgcPrepData
-    std::string m_key_rpc;                                //!< storegate location of the RpcPrepData
+    SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_key_mdt;                                //!< storegate location of the MdtPrepData
+    SG::ReadHandleKey<Muon::CscPrepDataContainer> m_key_csc;                                //!< storegate location of the CscPrepData
+    SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_key_tgc;                                //!< storegate location of the TgcPrepData
+    SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_key_rpc;                                //!< storegate location of the RpcPrepData
 
     mutable const Muon::MdtPrepDataContainer* m_mdtPrdContainer;  //!< pointer to the MdtPrepData container    
     mutable const Muon::CscPrepDataContainer* m_cscPrdContainer;  //!< pointer to the CscPrepData container    
