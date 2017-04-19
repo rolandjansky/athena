@@ -378,36 +378,28 @@ int Root::TElectronLikelihoodTool::LoadVarHistograms(std::string vstr,unsigned i
 }
 
 const Root::TAccept& Root::TElectronLikelihoodTool::accept( double likelihood,
-							    double eta, double eT,
-							    int nSi,int nSiDeadSensors, int nPix, int nPixDeadSensors,
-							    int nBlayer, int nBlayerOutliers, bool expectBlayer,
-							    int nNextToInnerMostLayer, int nNextToInnerMostLayerOutliers, bool expectNextToInnerMostLayer,
-							    int convBit, double d0, double deltaEta, double deltaphires, 
-							    double wstot, double EoverP, double ip
-							    ) const
+                                                            double eta, double eT,
+                                                            int nSiHitsPlusDeadSensors, int nPixHitsPlusDeadSensors,
+                                                            bool passBLayerRequirement,
+                                                            int convBit, double d0, double deltaEta, double deltaphires, 
+                                                            double wstot, double EoverP, double ip
+                                                            ) const
 {
   LikeEnum::LHAcceptVars_t vars;
   
-  vars.likelihood      = likelihood     ;
-  vars.eta             = eta            ;
-  vars.eT              = eT             ;
-  vars.nSi             = nSi            ;
-  vars.nSiDeadSensors  = nSiDeadSensors ;
-  vars.nPix            = nPix           ;
-  vars.nPixDeadSensors = nPixDeadSensors;
-  vars.nBlayer         = nBlayer        ;
-  vars.nBlayerOutliers = nBlayerOutliers;
-  vars.expectBlayer    = expectBlayer   ;
-  vars.nNextToInnerMostLayer        = nNextToInnerMostLayer        ;
-  vars.nNextToInnerMostLayerOutliers = nNextToInnerMostLayerOutliers;
-  vars.expectNextToInnerMostLayer = expectNextToInnerMostLayer   ;
-  vars.convBit         = convBit        ;
-  vars.d0              = d0             ;
-  vars.deltaEta        = deltaEta       ;
-  vars.deltaphires     = deltaphires    ;
-  vars.wstot           = wstot          ;
-  vars.EoverP          = EoverP         ;
-  vars.ip              = ip             ;
+  vars.likelihood              = likelihood;
+  vars.eta                     = eta;
+  vars.eT                      = eT;
+  vars.nSiHitsPlusDeadSensors  = nSiHitsPlusDeadSensors;
+  vars.nPixHitsPlusDeadSensors = nPixHitsPlusDeadSensors;
+  vars.passBLayerRequirement   = passBLayerRequirement;
+  vars.convBit                 = convBit;
+  vars.d0                      = d0;
+  vars.deltaEta                = deltaEta;
+  vars.deltaphires             = deltaphires;
+  vars.wstot                   = wstot;
+  vars.EoverP                  = EoverP;
+  vars.ip                      = ip;
   
   return accept(vars);
 }
@@ -465,29 +457,22 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
 
   // blayer cut
   if (CutBL.size() ) {
-    if(vars_struct.expectBlayer) {
-      if(vars_struct.nBlayer + vars_struct.nBlayerOutliers < CutBL[etabin]) {
-	ATH_MSG_DEBUG("Likelihood macro: Inner most Blayer Failed." );
-	passNBlayer = false;
-      }
-    }  
-    else if(vars_struct.expectNextToInnerMostLayer) { // When we do not expect IBL but next to inner 
-      if(vars_struct.nNextToInnerMostLayer + vars_struct.nNextToInnerMostLayerOutliers < CutBL[etabin]) {
-	ATH_MSG_DEBUG("Likelihood macro: Next Inner Failed when not expecting." );
-	passNBlayer = false;
-      } 
+    if(CutBL[etabin] == 1 && !vars_struct.passBLayerRequirement) {
+      ATH_MSG_DEBUG("Likelihood macro: Blayer cut failed.");
+      passNBlayer = false;
     }
-  }
+  }  
+  
   // pixel cut
   if (CutPi.size()){
-    if (vars_struct.nPix+vars_struct.nPixDeadSensors < CutPi[etabin]){
+    if (vars_struct.nPixHitsPlusDeadSensors < CutPi[etabin]){
       ATH_MSG_DEBUG("Likelihood macro: Pixels Failed.");
       passNPixel = false;
     }
   }
   // silicon cut
   if (CutSi.size()){
-    if (vars_struct.nSi + vars_struct.nSiDeadSensors < CutSi[etabin]){
+    if (vars_struct.nSiHitsPlusDeadSensors < CutSi[etabin]){
       ATH_MSG_DEBUG( "Likelihood macro: Silicon Failed.");
       passNSilicon = false;
     }
