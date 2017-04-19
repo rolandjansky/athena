@@ -1,0 +1,25 @@
+<lcgdict>
+<class name="AngularityTool"/>
+<class name="BoostedXbbTagTool"/>
+<class name="BosonTagTool"/>
+<class name="CenterOfMassShapesTool"/>
+<class name="DipolarityTool"/>
+<class name="EnergyCorrelatorRatiosTool"/>
+<class name="EnergyCorrelatorTool"/>
+<class name="ISubjetRecorderTool"/>
+<class name="JetChargeTool"/>
+<class name="JetPullTool"/>
+<class name="JetSubStructureMomentToolsBase"/>
+<class name="KTSplittingScaleTool"/>
+<class name="KtDeltaRTool"/>
+<class name="KtMassDropTool"/>
+<class name="NSubjettinessRatiosTool"/>
+<class name="NSubjettinessTool"/>
+<class name="PlanarFlowTool"/>
+<class name="QwTool"/>
+<class name="ShowerDeconstructionTool"/>
+<class name="SubjetFinderTool"/>
+<class name="SubjetMakerTool"/>
+<class name="SubjetRecorderTool"/>
+<class name="VolatilityTool"/>
+</lcgdict>
