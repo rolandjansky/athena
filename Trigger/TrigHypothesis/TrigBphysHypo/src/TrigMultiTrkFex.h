@@ -173,10 +173,6 @@ template<class Tin, class Tout> bool TrigMultiTrkFex::passNObjects(int nObjMin,
   //== check that muons have correct pts
   std::sort(pts.begin(), pts.end(), std::greater<float>());
 
-  std::cout << " OI check pt \n";
-  for( float pt: pts ) std::cout << pt << " " ;
-  std::cout<< std::endl;
-
   unsigned int Ncheck = std::min( nObjMin, int(ptObjMin.size()) );
   bool failMuonPt = false;
   for ( unsigned int ipt=0; ipt < Ncheck; ++ipt) {

@@ -176,9 +176,6 @@ bool TrigMultiTrkFex::passNTracks(int nObjMin,
   std::sort( std::begin(outVec), std::end(outVec), sortTracks); 
 
 
-  //std::cout << " OI: check of track pt order ";
-  //for( const auto& imupt : outVec )  std::cout << " " << (*imupt)->pt() ;
-  //std::cout << std::endl;
   unsigned int Ncheck = std::min( nObjMin, int(ptObjMin.size()) );
   bool failMuonPt = false;
   for ( unsigned int ipt=0; ipt < Ncheck; ++ipt) {
