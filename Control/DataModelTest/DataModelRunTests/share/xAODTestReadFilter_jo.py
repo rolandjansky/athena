@@ -73,7 +73,7 @@ topSequence += DMTest__xAODTestFilterCVec ('xAODTestFilterCVec')
 
 
 # Stream's output file
-Stream1_Augmented = MSMgr.NewPoolStream ('Stream1', 'xaoddata_filt.root',asAlg=True)
+Stream1_Augmented = MSMgr.NewPoolStream ('Stream1', 'xaoddata_filt.root',asAlg=True,noTag=True)
 Stream1_Augmented.AddMetaDataItem ('xAOD::EventFormat#EventFormat')
 Stream1 = Stream1_Augmented.GetEventStream()
 Stream1.WritingTool.SubLevelBranchName = '<key>'
