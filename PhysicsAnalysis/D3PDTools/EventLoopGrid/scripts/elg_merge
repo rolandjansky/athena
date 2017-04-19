@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -e
+set -u
+
+metadata_file=$1
+
+shift
+
+output_file=$1
+
+shift
+
+input_files=`echo $@ | sed 's/,/ /g'`
+
+tmp_output_file="new.$output_file"
+
+root -l -b -q \
+     "$ROOTCOREDIR/scripts/load_packages.C" \
+     "$ROOTCOREBIN/user_scripts/EventLoopGrid/elg_merge.C("\""$metadata_file"\"", "\""$tmp_output_file"\"", "\""$input_files"\"")"
+
+test -f "$tmp_output_file"
+
+#runMerge gives one of the input files as the output file,
+#doing this to avoid potential problems
+rm -f $output_file
+mv $tmp_output_file $output_file
+
+test -f "$output_file"
