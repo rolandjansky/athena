@@ -1,0 +1,21 @@
+<lcgdict>
+
+  <class name="CP::IPhotonVertexSelectionTool" />
+  <class name="CP::PhotonVertexSelectionTool" />
+
+  <class name="CP::IPhotonPointingTool" />
+  <class name="CP::PhotonPointingTool" />
+  
+  <class name="CP::IElectronRemovalTool" />
+  <class name="CP::ElectronRemovalTool" />
+
+  <class name="asg::AnaToolHandle<CP::IPhotonVertexSelectionTool>" />
+  <class name="asg::AnaToolHandle<CP::IPhotonPointingTool>" />
+  <class name="asg::AnaToolHandle<CP::IElectronRemovalTool>" />
+  
+  <function pattern="xAOD::PVHelpers::*" />
+  
+  <class name="std::pair<const xAOD::Vertex*, float>" />
+  <class name="std::vector<std::pair<const xAOD::Vertex*, float> >" />
+
+</lcgdict>
