@@ -83,10 +83,13 @@ int main( int argc, char* argv[] ) {
 
    //Likelihood
    AsgElectronEfficiencyCorrectionTool myEgCorrections ("myEgCorrections");
-   std::vector<std::string> inputFiles{"ElectronEfficiencyCorrection/efficiencySF.offline.Loose.2012.8TeV.rel17p2.v07.root"} ;
+   //std::vector<std::string> inputFiles{"ElectronEfficiencyCorrection/efficiencySF.offline.Loose.2012.8TeV.rel17p2.v07.root"} ;
+   std::vector<std::string> inputFiles{"ElectronEfficiencyCorrection/efficiencySF.offline.MediumLLH_d0z0_v11.root"} ;
    CHECK( myEgCorrections.setProperty("CorrectionFileNameList",inputFiles) );
-   CHECK( myEgCorrections.setProperty("ForceDataType",1) );
-   CHECK( myEgCorrections.setProperty("CorrelationModel", "MCTOYS100" ));
+
+   CHECK( myEgCorrections.setProperty("ForceDataType",3) );
+   CHECK( myEgCorrections.setProperty("CorrelationModel", "SIMPLIFIED" ));
+   CHECK( myEgCorrections.setProperty("UseRandomRunNumber", false ));
 
    CHECK( myEgCorrections.initialize() );
 
@@ -110,7 +113,8 @@ int main( int argc, char* argv[] ) {
      CHECK( event.retrieve( event_info, "EventInfo" ) ); 
       
      const xAOD::ElectronContainer* electrons = 0;  
-     CHECK( event.retrieve(electrons, "ElectronCollection") );
+     //CHECK( event.retrieve(electrons, "ElectronCollection") ); //For DAOD
+     CHECK( event.retrieve(electrons, "Electrons") );
 
      // Loop over systematics
      for(const auto& sys : sysList){
