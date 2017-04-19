@@ -69,12 +69,6 @@ persToTrans( const xAOD::JetTrigAuxContainer_v1* oldObj,
    }
    newInt.setStore( newObj );
 
-   /** THIS IS WHERE CONVERSION CAN BE DONE IF NEEDED
-
-       E.g. you might want to create an empty vector of ElementLinks for the new branch.
-
-    **/
-
    std::vector< std::vector< ElementLink< xAOD::IParticleContainer > > > GhostTrack;
 
    // Print what happened:

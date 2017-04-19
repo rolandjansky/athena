@@ -1,8 +1,8 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
+
+// Dear emacs, this is -*- c++ -*-
 
 // $Id: JetTrigAuxContainer_v2.h 2017-02-12 16:52 sschramm $
 #ifndef XAODJET_VERSIONS_JETTRIGAUXCONTAINER_V2_H

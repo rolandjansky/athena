@@ -61,14 +61,6 @@ class TrigHLTJetRecBase: public HLT::FexAlgo {
                                       LabelIndex* indexMap,
                                       PseudoJetVector& pjv_secondary);
 
-  /*virtual HLT::ErrorCode retrieveSecondaryPseudoJetGetter();
-  
-  virtual HLT::ErrorCode getSecondaryPseudoJets(HLT::TriggerElement* inputTE,
-                               LabelIndex* indexMap,
-                               PseudoJetVector& pjv);
-  virtual HLT::ErrorCode loadSecondaryPseudoJets(
-                               PseudoJetVector& pjv);
- */
   ToolHandle<ITriggerPseudoJetGetter>  m_secondarypseudoJetGetter; // a secondary pseudojet getter (for e.g. ghost association)
   std::string  m_secondarylabel; // to label secondary pseudojets
   //
