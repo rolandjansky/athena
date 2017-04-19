@@ -29,6 +29,9 @@ class TrackCaloClusterWeightsTool : public AthAlgTool {
    
   private:    
 
+    /// use cluster energy or pt?
+    bool m_useEnergy;
+
 };
 
 

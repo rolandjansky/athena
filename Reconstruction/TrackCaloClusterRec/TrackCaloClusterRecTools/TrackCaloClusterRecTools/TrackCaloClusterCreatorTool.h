@@ -36,11 +36,14 @@ class TrackCaloClusterCreatorTool : public AthAlgTool {
    
   private:  
   
-    // ToolHandle<IJetFromPseudojet> m_bld;  // Tool to build jets.
+   // ToolHandle<IJetFromPseudojet> m_bld;  // Tool to build jets.
   ToolHandle<CP::ITrackVertexAssociationTool> m_loosetrackvertexassoTool;
       
   ///Vertex container's name
   std::string m_vertexContname;
+
+  /// use cluster energy or pt?
+  bool m_useEnergy;
 
 };
 

@@ -2,8 +2,10 @@
 
 
 TrackCaloClusterWeightsTool::TrackCaloClusterWeightsTool(const std::string& t, const std::string& n, const IInterface*  p )
-  : AthAlgTool(t,n,p)
+  : AthAlgTool(t,n,p),
+    m_useEnergy(false)
 {
+    declareProperty("UseEnergy",        m_useEnergy );
 }
 
 TrackCaloClusterWeightsTool::~TrackCaloClusterWeightsTool() {}
@@ -49,11 +51,13 @@ void TrackCaloClusterWeightsTool::fillWeightMaps( const xAOD::TrackParticleClust
     // Create cluster-to-tracks weight map
     for (auto entry : *clusterToTracksMap)
     {
+        double cluster_pt       = m_useEnergy ? entry.first->e() : entry.first->pt();
+        double totalcluster_pt  = m_useEnergy ? TrackTotalClusterPt->at(entry.second).E() : TrackTotalClusterPt->at(entry.second).Pt();
         if(clusterToTracksWeightMap->find(entry.first)==clusterToTracksWeightMap->end()){
-            clusterToTracksWeightMap->insert(std::make_pair(entry.first, entry.second->p4() * (entry.first->pt()/(TrackTotalClusterPt->at(entry.second).Pt()))));
+            clusterToTracksWeightMap->insert(std::make_pair(entry.first, entry.second->p4() * (cluster_pt/totalcluster_pt)));
         }
         else{
-            clusterToTracksWeightMap->at(entry.first) = clusterToTracksWeightMap->at(entry.first) + entry.second->p4()* (entry.first->pt()/(TrackTotalClusterPt->at(entry.second).Pt()));
+            clusterToTracksWeightMap->at(entry.first) = clusterToTracksWeightMap->at(entry.first) + entry.second->p4() * (cluster_pt/totalcluster_pt);
         }
     }
     

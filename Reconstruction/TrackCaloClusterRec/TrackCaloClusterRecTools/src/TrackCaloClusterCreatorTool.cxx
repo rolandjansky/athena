@@ -4,10 +4,12 @@
 
 TrackCaloClusterCreatorTool::TrackCaloClusterCreatorTool(const std::string& t, const std::string& n, const IInterface*  p )
   : AthAlgTool(t,n,p),
-  m_loosetrackvertexassoTool("LooseTrackVertexAssociationTool")
+  m_loosetrackvertexassoTool("LooseTrackVertexAssociationTool"),
+  m_useEnergy(false)
 {
     declareProperty("VertexContainerName"          ,    m_vertexContname                  = "PrimaryVertices"   );
-    declareProperty("LooseTrackVertexAssoTool"     ,    m_loosetrackvertexassoTool                               );
+    declareProperty("LooseTrackVertexAssoTool"     ,    m_loosetrackvertexassoTool                              );
+    declareProperty("UseEnergy"                    ,    m_useEnergy                                             );
 }
 
 TrackCaloClusterCreatorTool::~TrackCaloClusterCreatorTool() {}
@@ -54,8 +56,10 @@ void TrackCaloClusterCreatorTool::createChargedTCCs(xAOD::TrackCaloClusterContai
         if (assocClusters->caloClusterLinks().size()) {
             for (size_t c = 0; c < assocClusters->caloClusterLinks().size(); ++c) {
                     const xAOD::CaloCluster* cluster = *(assocClusters->caloClusterLinks().at(c));
-                    tcc_4p += cluster->p4()*(( trk->pt() * cluster->pt() / (TrackTotalClusterPt->at(trk).Pt())) / ((clusterToTracksWeightMap->at(cluster)).Pt()));
-                    ATH_MSG_VERBOSE ("cluster->pt() " << cluster->pt() << " cluster->eta() " << cluster->eta() << " cluster->phi() " 
+                    double cluster_pt       = m_useEnergy ? cluster->e() : cluster->pt();
+                    double totalcluster_pt  = m_useEnergy ? TrackTotalClusterPt->at(trk).E() : TrackTotalClusterPt->at(trk).Pt();
+                    tcc_4p += cluster->p4()*(( trk->pt() * cluster_pt / totalcluster_pt) / ((clusterToTracksWeightMap->at(cluster)).Pt()));
+                    ATH_MSG_VERBOSE ("cluster->pt() " << cluster_pt << " cluster->eta() " << cluster->eta() << " cluster->phi() " 
 		    << cluster->phi() << " track pt " << trk->pt() << " (clusterToTracksWeightMap.at(cluster)).Pt() " << (clusterToTracksWeightMap->at(cluster)).Pt());
             } // for caloClusterLinks
         } // if caloClusterLinks().size
