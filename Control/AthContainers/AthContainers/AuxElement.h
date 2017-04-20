@@ -1176,4 +1176,7 @@ private:
 #include "AthContainers/AuxElement.icc"
 
 
+CLASS_DEF (SG::AuxElement, 225182422, 1)
+
+
 #endif // not ATHCONTAINERS_AUXELEMENTBASE_H
