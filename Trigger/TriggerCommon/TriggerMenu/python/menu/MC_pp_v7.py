@@ -396,6 +396,13 @@ def setupMenu():
 
 	]
 
+
+    if TriggerFlags.doFTK():
+            TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
+        ['j100_ftk',                   'L1_J25',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+	['j75_ftk_L1J20',              'L1_J20', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ] 
+
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
 
         # 

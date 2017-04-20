@@ -11,6 +11,7 @@
 
 // Local include(s):
 #include "xAODJetTrigAuxContainerCnv.h"
+#include "xAODJetTrigAuxContainerCnv_v1.h"
 #include "AthContainers/tools/copyThinned.h"
 #include "AthenaKernel/IThinningSvc.h"
 
@@ -47,14 +48,26 @@ createPersistent( xAOD::JetTrigAuxContainer* trans ) {
 
 xAOD::JetTrigAuxContainer* xAODJetTrigAuxContainerCnv::createTransient() {
 
-   // The known ID(s) for this container:
-   static const pool::Guid v1_guid( "89AE2C6B-A862-499C-8BDA-11D24FAC83F1" );
+  // The known ID(s) for this container:
+  static const pool::Guid v1_guid( "89AE2C6B-A862-499C-8BDA-11D24FAC83F1" );
+  static const pool::Guid v2_guid( "6A1FD5C8-E636-4C39-A8B2-36A8D1F81D5E" );
 
-   // Check which version of the container we're reading:
-   if( compareClassGuid( v1_guid ) ) {
-      // It's the latest version, read it directly:
-      return poolReadObject< xAOD::JetTrigAuxContainer >();
-   }
+  // Check which version of the container we're reading:
+  if( compareClassGuid( v2_guid ) ) {
+    // It's the latest version, read it directly:
+    return poolReadObject< xAOD::JetTrigAuxContainer >();
+  } else if ( compareClassGuid( v1_guid ) ) {
+    // Convert from v1
+    // The v1 converter:
+    static xAODJetTrigAuxContainerCnv_v1 converter;
+
+    // Read in the v1 version:
+    std::unique_ptr< xAOD::JetTrigAuxContainer_v1 >
+      old( poolReadObject< xAOD::JetTrigAuxContainer_v1 >() );
+
+    // Return the converted object:
+    return converter.createTransient( old.get(), msg() );
+  }
 
    // If we didn't recognise the ID:
    throw std::runtime_error( "Unsupported version of "
