@@ -12,6 +12,7 @@ from AthenaCommon.SystemOfUnits import *
 from AthenaCommon.Constants import *
 
 from TrigTauRec.TrigTauRecConf import TrigTauRecMerged
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 from AthenaCommon.AppMgr import ToolSvc
 
@@ -327,8 +328,11 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
             tools.append(taualgs.getTauVertexFinder(doUseTJVA=False)) #don't use TJVA by default
             # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)       
             tools.append(taualgs.getTauAxis())
-            # Count tracks with deltaZ0 cut of 2mm
-            tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2, prefix="TrigTauPrecision_"))
+            # Count tracks with deltaZ0 cut of 2mm for 2016 and 1mm for 2017 (see ATR-15845)
+	    if TriggerFlags.run2Config == '2016':
+                tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2, prefix="TrigTauPrecision_"))
+	    else:
+                tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1, prefix="TrigTauPrecision_"))
             # Calibrate to TES
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
