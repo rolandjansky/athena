@@ -185,10 +185,6 @@ namespace Muon {
     SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_key_tgc;                                //!< storegate location of the TgcPrepData
     SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_key_rpc;                                //!< storegate location of the RpcPrepData
 
-    mutable const Muon::MdtPrepDataContainer* m_mdtPrdContainer;  //!< pointer to the MdtPrepData container    
-    mutable const Muon::CscPrepDataContainer* m_cscPrdContainer;  //!< pointer to the CscPrepData container    
-    mutable const Muon::TgcPrepDataContainer* m_tgcPrdContainer;  //!< pointer to the TgcPrepData container    
-    mutable const Muon::RpcPrepDataContainer* m_rpcPrdContainer;  //!< pointer to the RpcPrepData container    
 
     bool m_addMeasurements;
     double m_associationPullCutEta;
