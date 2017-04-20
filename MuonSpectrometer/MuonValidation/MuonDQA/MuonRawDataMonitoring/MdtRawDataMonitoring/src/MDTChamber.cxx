@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #include "MdtRawDataMonitoring/MDTChamber.h"
 
 #include "LWHists/TH1F_LW.h"
@@ -91,6 +87,10 @@ MDTChamber::MDTChamber(std::string name) :
     ss >> m_station_phi;
     m_station_phi--;
     ss.clear();
+
+  //First there were only BMF1,2,3, then BMGs were added which are between the BMFs, so doing the eta-station assignment by hand.
+  if( m_hardware_name.substr(0, 4) == "BMF2") m_station_eta = 3; 
+  if( m_hardware_name.substr(0, 4) == "BMF3") m_station_eta = 5; 
     
     //station_phi is used as an iterator, and is thus 1 less than its value (since it always starts at 01, not 00).
 
@@ -173,6 +173,11 @@ void MDTChamber::SetMDTHitsPerChamber_IMO_Bin(TH2F* h){
 	  ecap_layer_IMO = "BC4";
 	  statphi_s = "13";
   }
+  //First there were only BMF1,2,3, then BMGs were added which are between the BMFs, so doing the ecap-layer assignment by hand.
+  if( m_hardware_name.substr(0, 5) == "BMF2A") ecap_layer_IMO  = "BA3";
+  if( m_hardware_name.substr(0, 5) == "BMF3A") ecap_layer_IMO  = "BA5";
+  if( m_hardware_name.substr(0, 5) == "BMF2C") ecap_layer_IMO = "BC3";
+  if( m_hardware_name.substr(0, 5) == "BMF3C") ecap_layer_IMO = "BC5";
 
   std::string statphi_IMO_s = m_hardware_name.substr(1,1)+","+statphi_s;
   //Separate pesky BIR/BIM 11,15
@@ -215,7 +220,12 @@ void MDTChamber::SetMDTHitsPerML_byLayer_Bins(TH2F* h_mdthitspermultilayerLumi, 
     if(m_hardware_name == "BME1C14" || m_hardware_name == "BME1C13"){
   	  ecap_layer = "BMC4";
     }
-
+  
+  // Setting BMF by hand because of irregular naming convention. BMF and BMG chambers alternate; historical BMF naming is BMF1,2,3 but BMG it is 2,4,6  
+  if( m_hardware_name.substr(0, 5) == "BMF2A") ecap_layer = "BMA3";
+  if( m_hardware_name.substr(0, 5) == "BMF3A") ecap_layer = "BMA5";
+  if( m_hardware_name.substr(0, 5) == "BMF2C") ecap_layer = "BMC3";
+  if( m_hardware_name.substr(0, 5) == "BMF3C") ecap_layer = "BMC5";
 
   int binx = h_mdthitspermultilayerLumi->GetXaxis()->FindBin(ecap_layer.c_str());
   int biny_m1 = h_mdthitspermultilayerLumi->GetYaxis()->FindBin(statphi_ml1_s.c_str());
