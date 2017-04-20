@@ -10,17 +10,23 @@
 <!--      and run make                                                               -->
 <!--                                                                                 -->
 <!-- WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING -->
+
   <atn/>
   <kv/>
+
    <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
-      <mailto>D.Emeliyanov@rl.ac.uk,jiri.masik@cern.ch</mailto>
+      <mailto>sutt@cern.ch,jiri.masik@cern.ch,kirk@stfc.ac.uk</mailto>
       <refRelease>14.5.0</refRelease>
+
+
       <jobList>
       <classification>
          <displayClass>OfflineValidation</displayClass>
          <displayProcess>Reco</displayProcess>
          <displayComponent>Trig-Other</displayComponent>
       </classification>
+
+
 
 	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_Zee_IBL_pu40'>
            <doc>Zee, pu40, IBL, run2 chains</doc>
@@ -263,6 +269,7 @@
 
 
 
+
          <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40'>
             <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
             <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
@@ -465,6 +472,7 @@
    
          <athenaCommonFlags /><alwaysRunPostProc /> 
          </athena>
+
 
 
 
@@ -690,6 +698,7 @@
 
 
 
+
          <athena trendId='muonPileupMergingTrend' userJobId='TrigInDetValidation_mu_Zmumu_IBL_pu40'>
             <doc>Z->mumu pu40, IBL, run2 chains</doc>
             <displayName>MuonSlice, Z->mumu, pu40, IBL, run2 chains</displayName>
@@ -898,6 +907,7 @@
 
 
 
+
          <athena trendId='muonBphysMergingTrend' userJobId='TrigInDetValidation_mu_bphys_IBL'>
             <doc>Muon slice B->Jpsi->mumu IBL sample, run2 chains</doc>
             <displayName>MuonSlice, B->Jpsi->mumu IBL , run2 chains</displayName>
@@ -1094,6 +1104,7 @@
 	  <athenaCommonFlags /><alwaysRunPostProc />
 
 	  </athena>
+
 
 
 
@@ -1303,6 +1314,7 @@
           <athenaCommonFlags /><alwaysRunPostProc /> 
 
 	  </athena>
+
 
 
 
@@ -1517,6 +1529,7 @@
 
 
 
+
          <athena trendId='FTKMergingTrend' userJobId='TrigInDetValidation_FTK_tau_tautau'>
             <doc>Tau slice FTK tautau sample</doc>
             <displayName>TauSlice FTK tautau sample</displayName>
@@ -1719,7 +1732,9 @@
 
 
 
+
       </jobList>
+
       <jobGroups>
          <jobGroup name="AthenaTrigInDetValidation" parent="Athena">
             <keepFilePattern displayColor="blue" info="CBNTAA">ntuple*.root</keepFilePattern>
@@ -1743,7 +1758,20 @@
             <keepFilePattern displayColor="red">TIDA*.css</keepFilePattern>
             <keepFilePattern>TIDAWeb/*</keepFilePattern>
             <keepFilePattern>TIDAWeb/build/*</keepFilePattern>
+
             <keepFilePattern>times/*</keepFilePattern>
+            <keepFilePattern>times-FTF/*</keepFilePattern>
+
+            <keepFilePattern>times/*.p*</keepFilePattern>
+            <keepFilePattern>times-FTF/*.p*</keepFilePattern>
+
+            <keepFilePattern>times/*.pdf</keepFilePattern>
+            <keepFilePattern>times/*.png</keepFilePattern>
+
+            <keepFilePattern>times-FTF/*.pdf</keepFilePattern>
+            <keepFilePattern>times-FTF/*.png</keepFilePattern>
+
+
             <keepFilePattern>*.png</keepFilePattern>
             <keepFilePattern>*.ps</keepFilePattern>
             <keepFilePattern>*.hist</keepFilePattern>
@@ -1751,37 +1779,54 @@
             <keepFilePattern>*.pool.root.2</keepFilePattern>
             <keepFilePattern>*.pdf</keepFilePattern>
             <keepFilePattern>*.jpg</keepFilePattern>
+
             <keepFilePattern>EF-plots/*.p*</keepFilePattern>
             <keepFilePattern>EF-plots-lowpt/*.p*</keepFilePattern>
             <keepFilePattern>HLTEF-plots/*.p*</keepFilePattern>
             <keepFilePattern>HLTEF-plots-lowpt/*.p*</keepFilePattern>
+
             <keepFilePattern>L2-plots/*.p*</keepFilePattern>
             <keepFilePattern>L2-plots-lowpt/*.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots/*.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots-lowpt/*.p*</keepFilePattern>
+
             <keepFilePattern>HLTEF-plots-electron/*.p*</keepFilePattern>
             <keepFilePattern>HLTEF-plots-electron-lowpt/*.p*</keepFilePattern>
+
             <keepFilePattern>HLTL2-plots-electron/*.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots-electron-lowpt/*.p*</keepFilePattern>
+
             <keepFilePattern>HLTEF-plots-muon/*.p*</keepFilePattern>
             <keepFilePattern>HLTEF-plots-muon-lowpt/*.p*</keepFilePattern>
+
             <keepFilePattern>HLTL2-plots-muon/*.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots-muon-lowpt/*.p*</keepFilePattern>
+
             <keepFilePattern>HLTEF-plots-tau/*.p*</keepFilePattern>
             <keepFilePattern>HLTEF-plots-tau-lowpt/*.p*</keepFilePattern>
+
             <keepFilePattern>HLTL2-plots-tau/*.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots-tau-lowpt/*.p*</keepFilePattern>
+
             <keepFilePattern>HLTEF-plots-bjet/*.p*</keepFilePattern>
             <keepFilePattern>HLTEF-plots-bjet-lowpt/*.p*</keepFilePattern>
+
             <keepFilePattern>HLTL2-plots-bjet/*.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots-bjet-lowpt/*.p*</keepFilePattern>
+
             <keepFilePattern>HLT-plots-PrmVtx/*.p*</keepFilePattern>
+
+            <keepFilePattern>HLTL2-vtx/*.p*</keepFilePattern>
           
             <keepFilePattern>costMonitoring*/*</keepFilePattern>
             <keepFilePattern>costMonitoring*/csv/*</keepFilePattern>
+
             <keepFilePattern>cost-per*/*.p*</keepFilePattern>
+
             <auxFilePattern>AOD.pool.root</auxFilePattern>
             <auxFilePattern>ESD.pool.root</auxFilePattern>
+
+
          </jobGroup>
          <jobGroup name="AthenaElectronSliceDNAKalman" parent="Athena">
             <keepFilePattern displayColor="blue" info="CBNTAA">ntuple*.root</keepFilePattern>
@@ -1799,5 +1844,8 @@
        </jobGroup> 
      </jobGroups>
    </rtt>
+
 </unifiedTestConfiguration>
+
 <!--  LocalWords:  eosatlas -->
+
