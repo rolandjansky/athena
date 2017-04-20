@@ -25,6 +25,7 @@ class AtlasID;
 class IInDetConditionsSvc;
 class ISCT_ConfigurationConditionsSvc;
 namespace InDet {class IInDetTestPixelLayerTool; }
+class IGeoModelSvc;
 
 namespace Trk { class RIO_OnTrack; class TrackStateOnSurface; class Track;}
 namespace Trk { class IExtrapolator;}
@@ -116,6 +117,9 @@ namespace InDet
       ServiceHandle <IInDetConditionsSvc> m_pixelCondSummarySvc, m_sctCondSummarySvc;
       ToolHandle< IInDetTestPixelLayerTool >  m_pixelLayerTool;
       ServiceHandle <ISCT_ConfigurationConditionsSvc> m_sctConfCondSvc;
+
+      /** Handle for IGeoModelSvc to retrieve geo model information */
+      ServiceHandle<IGeoModelSvc> m_geoModelSvc;
 
       const SCT_ID* m_sct_id;
 

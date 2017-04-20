@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkTools/TrkToolInterfaces
                           PRIVATE
                           DetectorDescription/AtlasDetDescr
+                          DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/Identifier
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/SCT_ConditionsServices

@@ -29,6 +29,7 @@
 #include "InDetRecToolInterfaces/IInDetTestPixelLayerTool.h"
 #include "TrkVolumes/Volume.h"
 #include "TrkVolumes/CylinderVolumeBounds.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include <set>
 
 //================ Constructor =================================================
@@ -41,6 +42,7 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   m_sctCondSummarySvc  ("SCT_ConditionsSummarySvc",n),
   m_pixelLayerTool("InDet::InDetTestPixelLayerTool"),
   m_sctConfCondSvc("SCT_ConfigurationConditionsSvc", n),
+  m_geoModelSvc("GeoModelSvc", n),
   m_sct_id(nullptr),
   m_extendedListOfHoles(false),
   m_cosmic(false),
@@ -55,6 +57,7 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   declareProperty("SctSummarySvc"        , m_sctCondSummarySvc);
   declareProperty("SctConfCondSvc"       , m_sctConfCondSvc);
   declareProperty("PixelLayerTool"       , m_pixelLayerTool);
+  declareProperty("GeoModelService"      , m_geoModelSvc);
   declareProperty("ExtendedListOfHoles"  , m_extendedListOfHoles = false);
   declareProperty("Cosmics"              , m_cosmic);
   declareProperty("usePixel"             , m_usepix);
@@ -127,6 +130,19 @@ StatusCode InDet::InDetTrackHoleSearchTool::initialize()
     if( detStore()->retrieve(m_sct_id, "SCT_ID").isFailure() ) {
       msg(MSG::FATAL) << "Cannot retrieve SCT ID helper!"  << endmsg;
       return StatusCode::FAILURE;
+    }
+  }
+
+  if(m_checkBadSCTChip) {
+    // Check if ITk Strip is used because isBadSCTChip method is valid only for SCT.
+    if(m_geoModelSvc.retrieve().isFailure()) {
+      ATH_MSG_FATAL("Could not locate GeoModelSvc");
+      return StatusCode::FAILURE;
+    }
+    if(m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN4 or
+       m_geoModelSvc->geoConfig()==GeoModel::GEO_ITk) {
+      ATH_MSG_WARNING("Since ITk Strip is used, m_checkBadSCTChip is turned off.");
+      m_checkBadSCTChip = false;
     }
   }
 
