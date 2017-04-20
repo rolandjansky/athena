@@ -21,11 +21,11 @@ void MuonParamPlots::initializePlots()
   msInnerMatchChi2 = Book1D("msInnerMatchChi2","inner match #chi^{2};inner match #chi^{2};;Entries",100,0.,100.);
   msOuterMatchChi2 = Book1D("msOuterMatchChi2","outer match #chi^{2};outer match #chi^{2};;Entries",100,0.,100.);
     
-  ELoss = Book1D("ELoss","ELoss;ELoss [GeV];Entries",50,0,10);
+  ELoss = Book1D("ELoss","ELoss;ELoss [GeV];Entries",100,0,20);
   ELossSigma = Book1D("ELossSigma","ELossSigma;ELossSgima [GeV];Entries",50,0,5);
 
   paramELoss = Book1D("paramELoss","paramELoss;paramELoss [GeV];Entries",50,0,10);
-  measELoss = Book1D("measELoss","measELoss;measELoss [GeV];Entries",50,0,10);
+  measELoss = Book1D("measELoss","measELoss;measELoss [GeV];Entries",100,0,20);
 }
 
 
