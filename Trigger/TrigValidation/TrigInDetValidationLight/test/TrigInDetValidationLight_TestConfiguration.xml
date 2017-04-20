@@ -10,23 +10,17 @@
 <!--      and run make                                                               -->
 <!--                                                                                 -->
 <!-- WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING -->
-
   <atn/>
   <kv/>
-
    <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
-      <mailto>sutt@cern.ch,jiri.masik@cern.ch,kirk@stfc.ac.uk</mailto>
+      <mailto>D.Emeliyanov@rl.ac.uk,jiri.masik@cern.ch</mailto>
       <refRelease>14.5.0</refRelease>
-
-
       <jobList>
       <classification>
          <displayClass>OfflineValidation</displayClass>
          <displayProcess>Reco</displayProcess>
          <displayComponent>Trig-Other</displayComponent>
       </classification>
-
-
 
 	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_Zee_IBL_pu40'>
            <doc>Zee, pu40, IBL, run2 chains</doc>
@@ -269,11 +263,10 @@
 
 
 
-
          <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40'>
             <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
             <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
-	    <commandLineFlags>EventMax=900;runMergedChain=True;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+	    <commandLineFlags>EventMax=900;runMergedChain=True;doBperf=True;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -318,7 +311,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_boffperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
                 </arg>
             </action>
 
@@ -334,7 +327,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root  HLT_j55_bperf_split:TrigFastTrackFinder_Jet_forID  HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
+                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.root   HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi  HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_boffperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
                 </arg>
             </action>
 
@@ -472,7 +465,6 @@
    
          <athenaCommonFlags /><alwaysRunPostProc /> 
          </athena>
-
 
 
 
@@ -698,7 +690,6 @@
 
 
 
-
          <athena trendId='muonPileupMergingTrend' userJobId='TrigInDetValidation_mu_Zmumu_IBL_pu40'>
             <doc>Z->mumu pu40, IBL, run2 chains</doc>
             <displayName>MuonSlice, Z->mumu, pu40, IBL, run2 chains</displayName>
@@ -907,7 +898,6 @@
 
 
 
-
          <athena trendId='muonBphysMergingTrend' userJobId='TrigInDetValidation_mu_bphys_IBL'>
             <doc>Muon slice B->Jpsi->mumu IBL sample, run2 chains</doc>
             <displayName>MuonSlice, B->Jpsi->mumu IBL , run2 chains</displayName>
@@ -1104,7 +1094,6 @@
 	  <athenaCommonFlags /><alwaysRunPostProc />
 
 	  </athena>
-
 
 
 
@@ -1318,7 +1307,6 @@
 
 
 
-
          <athena trendId='FTKMergingTrend' userJobId='TrigInDetValidation_FTK_bjet_ttbar'>
             <doc>Bjetslice, ttbar, FTK chains</doc>
             <displayName>BjetSlice, ttbar, FYK chains</displayName>
@@ -1369,7 +1357,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-FTK.root data-FTK_bjet_ttbar-reference.root HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_FTKVtx_InDetTrigTrackingxAODCnv_Bjet_FTF HLT_j55_bperf_split_FTK_InDetTrigTrackingxAODCnv_Bjet_FTK  HLT_j55_bperf_split_FTKRefit_InDetTrigTrackingxAODCnv_Bjet_FTKRefit -d HLTL2-plots </argvalue>
+                    <argvalue>data-bjet-FTK.root data-FTK_bjet_ttbar-reference.root HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_boffperf_split_FTKVtx_InDetTrigTrackingxAODCnv_Bjet_FTF HLT_j55_boffperf_split_FTK_InDetTrigTrackingxAODCnv_Bjet_FTK  HLT_j55_boffperf_split_FTKRefit_InDetTrigTrackingxAODCnv_Bjet_FTKRefit -d HLTL2-plots </argvalue>
                 </arg>
             </action>
 
@@ -1384,7 +1372,7 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-FTK.root data-FTK_bjet_ttbar-reference.root HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_FTKVtx_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_FTK_InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig  HLT_j55_bperf_split_FTKRefit_InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig -d HLTEF-plots </argvalue>
+                    <argvalue>data-bjet-FTK.root data-FTK_bjet_ttbar-reference.root HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_boffperf_split_FTKVtx_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_boffperf_split_FTK_InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig  HLT_j55_boffperf_split_FTKRefit_InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig -d HLTEF-plots </argvalue>
                 </arg>
             </action>
 
@@ -1523,7 +1511,6 @@
    
          <athenaCommonFlags /><alwaysRunPostProc /> 
          </athena>
-
 
 
 
@@ -1732,9 +1719,7 @@
 
 
 
-
       </jobList>
-
       <jobGroups>
          <jobGroup name="AthenaTrigInDetValidation" parent="Athena">
             <keepFilePattern displayColor="blue" info="CBNTAA">ntuple*.root</keepFilePattern>
@@ -1758,20 +1743,7 @@
             <keepFilePattern displayColor="red">TIDA*.css</keepFilePattern>
             <keepFilePattern>TIDAWeb/*</keepFilePattern>
             <keepFilePattern>TIDAWeb/build/*</keepFilePattern>
-
             <keepFilePattern>times/*</keepFilePattern>
-            <keepFilePattern>times-FTF/*</keepFilePattern>
-
-            <keepFilePattern>times/*.p*</keepFilePattern>
-            <keepFilePattern>times-FTF/*.p*</keepFilePattern>
-
-            <keepFilePattern>times/*.pdf</keepFilePattern>
-            <keepFilePattern>times/*.png</keepFilePattern>
-
-            <keepFilePattern>times-FTF/*.pdf</keepFilePattern>
-            <keepFilePattern>times-FTF/*.png</keepFilePattern>
-
-
             <keepFilePattern>*.png</keepFilePattern>
             <keepFilePattern>*.ps</keepFilePattern>
             <keepFilePattern>*.hist</keepFilePattern>
@@ -1779,54 +1751,37 @@
             <keepFilePattern>*.pool.root.2</keepFilePattern>
             <keepFilePattern>*.pdf</keepFilePattern>
             <keepFilePattern>*.jpg</keepFilePattern>
-
             <keepFilePattern>EF-plots/*.p*</keepFilePattern>
             <keepFilePattern>EF-plots-lowpt/*.p*</keepFilePattern>
             <keepFilePattern>HLTEF-plots/*.p*</keepFilePattern>
             <keepFilePattern>HLTEF-plots-lowpt/*.p*</keepFilePattern>
-
             <keepFilePattern>L2-plots/*.p*</keepFilePattern>
             <keepFilePattern>L2-plots-lowpt/*.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots/*.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots-lowpt/*.p*</keepFilePattern>
-
             <keepFilePattern>HLTEF-plots-electron/*.p*</keepFilePattern>
             <keepFilePattern>HLTEF-plots-electron-lowpt/*.p*</keepFilePattern>
-
             <keepFilePattern>HLTL2-plots-electron/*.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots-electron-lowpt/*.p*</keepFilePattern>
-
             <keepFilePattern>HLTEF-plots-muon/*.p*</keepFilePattern>
             <keepFilePattern>HLTEF-plots-muon-lowpt/*.p*</keepFilePattern>
-
             <keepFilePattern>HLTL2-plots-muon/*.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots-muon-lowpt/*.p*</keepFilePattern>
-
             <keepFilePattern>HLTEF-plots-tau/*.p*</keepFilePattern>
             <keepFilePattern>HLTEF-plots-tau-lowpt/*.p*</keepFilePattern>
-
             <keepFilePattern>HLTL2-plots-tau/*.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots-tau-lowpt/*.p*</keepFilePattern>
-
             <keepFilePattern>HLTEF-plots-bjet/*.p*</keepFilePattern>
             <keepFilePattern>HLTEF-plots-bjet-lowpt/*.p*</keepFilePattern>
-
             <keepFilePattern>HLTL2-plots-bjet/*.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots-bjet-lowpt/*.p*</keepFilePattern>
-
             <keepFilePattern>HLT-plots-PrmVtx/*.p*</keepFilePattern>
-
-            <keepFilePattern>HLTL2-vtx/*.p*</keepFilePattern>
           
             <keepFilePattern>costMonitoring*/*</keepFilePattern>
             <keepFilePattern>costMonitoring*/csv/*</keepFilePattern>
-
             <keepFilePattern>cost-per*/*.p*</keepFilePattern>
-
             <auxFilePattern>AOD.pool.root</auxFilePattern>
             <auxFilePattern>ESD.pool.root</auxFilePattern>
-
-
          </jobGroup>
          <jobGroup name="AthenaElectronSliceDNAKalman" parent="Athena">
             <keepFilePattern displayColor="blue" info="CBNTAA">ntuple*.root</keepFilePattern>
@@ -1844,8 +1799,5 @@
        </jobGroup> 
      </jobGroups>
    </rtt>
-
 </unifiedTestConfiguration>
-
 <!--  LocalWords:  eosatlas -->
-
