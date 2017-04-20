@@ -27,16 +27,22 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False 
    topSequence = AlgSequence()
 
    if not noTag:
-      key = "SimpleTag"
+      #key = "SimpleTag"
       # Tell tool to pick it up
-      outputStream.WritingTool.AttributeListKey=key
+      #outputStream.WritingTool.AttributeListKey=key
       # build eventinfo attribute list
-      from OutputStreamAthenaPoolConf import EventInfoAttListTool
-      svcMgr.ToolSvc += EventInfoAttListTool()
+      #from OutputStreamAthenaPoolConf import EventInfoAttListTool
+      #svcMgr.ToolSvc += EventInfoAttListTool()
 
-      from OutputStreamAthenaPoolConf import EventInfoTagBuilder
-      EventInfoTagBuilder   = EventInfoTagBuilder(AttributeList=key)
       if ('EventInfoTagBuilder/EventInfoTagBuilder' not in topSequence.getProperties()['Members']):
+         key = "SimpleTag"
+         # Tell tool to pick it up
+         outputStream.WritingTool.AttributeListKey=key
+         # build eventinfo attribute list
+         from OutputStreamAthenaPoolConf import EventInfoAttListTool
+         svcMgr.ToolSvc += EventInfoAttListTool()
+         from OutputStreamAthenaPoolConf import EventInfoTagBuilder
+         EventInfoTagBuilder   = EventInfoTagBuilder(AttributeList=key)
          topSequence += EventInfoTagBuilder
 
    # decide where to put outputstream in sequencing
