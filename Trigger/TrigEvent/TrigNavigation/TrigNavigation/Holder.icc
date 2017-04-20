@@ -160,7 +160,7 @@ void  HLTNavDetails::HolderImp<STORED, CONTAINER>::prepare(MsgStream* log, HLT::
   if ( auxCLID ) {
 
     if(H::m_readonly){
-      HMLOG(INFO) << "HolderImp::prepare using a read-only proxy for aux store" << endreq;
+      HMLOG(DEBUG) << "HolderImp::prepare using a read-only proxy for aux store" << endreq;
       H::m_aux = new TypelessAuxProxy();
     }
     else{
