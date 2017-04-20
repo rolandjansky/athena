@@ -250,7 +250,7 @@ StatusCode TauProcessorTool::execute(){
     if (hadronicPFOs) {
       const PFOLinks_t hadronicPFOLinks=tau->hadronicPFOLinks();
       PFOLinks_t new_hadronicPFOLinks;
-      for( auto link : hadronicPFOLinks ){
+      for( const auto& link : hadronicPFOLinks ){
         ElementLink< xAOD::PFOContainer > new_link;
         new_link.toContainedElement( *hadronicPFOs, hadronicPFOs->at(link.index()) );
         new_hadronicPFOLinks.push_back(new_link);
@@ -261,7 +261,7 @@ StatusCode TauProcessorTool::execute(){
     if (chargedPFOs){
       const PFOLinks_t chargedPFOLinks=tau->chargedPFOLinks();
       PFOLinks_t new_chargedPFOLinks;
-      for( auto link : chargedPFOLinks ){
+      for( const auto& link : chargedPFOLinks ){
         ElementLink< xAOD::PFOContainer > new_link;
         new_link.toContainedElement( *chargedPFOs, chargedPFOs->at(link.index()) );
         new_chargedPFOLinks.push_back(new_link);
@@ -272,7 +272,7 @@ StatusCode TauProcessorTool::execute(){
   if (neutralPFOs){
     const PFOLinks_t neutralPFOLinks=tau->neutralPFOLinks();
     PFOLinks_t new_neutralPFOLinks;
-    for( auto link : neutralPFOLinks ){
+    for( const auto& link : neutralPFOLinks ){
       ElementLink< xAOD::PFOContainer > new_link;
       new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
       new_neutralPFOLinks.push_back(new_link);
@@ -283,7 +283,7 @@ StatusCode TauProcessorTool::execute(){
     if (neutralPFOs){
       const PFOLinks_t pi0PFOLinks=tau->pi0PFOLinks();
       PFOLinks_t new_pi0PFOLinks;
-      for( auto link : pi0PFOLinks ){
+      for( const auto& link : pi0PFOLinks ){
         ElementLink< xAOD::PFOContainer > new_link;
         new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
         new_pi0PFOLinks.push_back(new_link);
@@ -294,7 +294,7 @@ StatusCode TauProcessorTool::execute(){
     if (chargedPFOs){
       const PFOLinks_t protoChargedPFOLinks=tau->protoChargedPFOLinks();
       PFOLinks_t new_protoChargedPFOLinks;
-      for( auto link : protoChargedPFOLinks ){
+      for( const auto& link : protoChargedPFOLinks ){
         ElementLink< xAOD::PFOContainer > new_link;
         new_link.toContainedElement( *chargedPFOs, chargedPFOs->at(link.index()) );
         new_protoChargedPFOLinks.push_back(new_link);
@@ -305,7 +305,7 @@ StatusCode TauProcessorTool::execute(){
     if (neutralPFOs){
       const PFOLinks_t protoNeutralPFOLinks=tau->protoNeutralPFOLinks();
       PFOLinks_t new_protoNeutralPFOLinks;
-      for( auto link : protoNeutralPFOLinks ){
+      for( const auto& link : protoNeutralPFOLinks ){
         ElementLink< xAOD::PFOContainer > new_link;
         new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
         new_protoNeutralPFOLinks.push_back(new_link);
@@ -316,7 +316,7 @@ StatusCode TauProcessorTool::execute(){
     if (neutralPFOs){
       const PFOLinks_t protoPi0PFOLinks=tau->protoPi0PFOLinks();
       PFOLinks_t new_protoPi0PFOLinks;
-      for( auto link : protoPi0PFOLinks ){
+      for( const auto& link : protoPi0PFOLinks ){
         ElementLink< xAOD::PFOContainer > new_link;
         new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
         new_protoPi0PFOLinks.push_back(new_link);
@@ -327,7 +327,7 @@ StatusCode TauProcessorTool::execute(){
     if (shotPFOs){
       const PFOLinks_t shotPFOLinks=tau->shotPFOLinks();
       PFOLinks_t new_shotPFOLinks;
-      for( auto link : shotPFOLinks ){
+      for( const auto& link : shotPFOLinks ){
         ElementLink< xAOD::PFOContainer > new_link;
         new_link.toContainedElement( *shotPFOs, shotPFOs->at(link.index()) );
         new_shotPFOLinks.push_back(new_link);
@@ -338,7 +338,7 @@ StatusCode TauProcessorTool::execute(){
     if (tauTracks){
       const TauTrackLinks_t tauTrackLinks=tau->allTauTrackLinks();
       TauTrackLinks_t new_tauTrackLinks;
-      for( auto link : tauTrackLinks ){
+      for( const auto& link : tauTrackLinks ){
         ElementLink< xAOD::TauTrackContainer > new_link;
         new_link.toContainedElement( *tauTracks, tauTracks->at(link.index()) );
         new_tauTrackLinks.push_back(new_link);
