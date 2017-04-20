@@ -342,7 +342,6 @@ class L2EFChain_mu(L2EFChainDef):
 
       # Run also FTK tracking
     if self.chainPart['trkInfo'] == "ftk":
-      print 'Configuring FTK tracking for isolation'
       from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
       
       [ftktrkfast, ftktrkprec] = TrigInDetFTKSequence("Muon","muonIso",sequenceFlavour=["PT"]).getSequence()    
@@ -2090,11 +2089,11 @@ class L2EFChain_mu(L2EFChainDef):
     self.EFsequenceList += [[['EF_mu_step1'],
                              [theEFAlg],
                              'EF_mu_step2']]
-    self.EFsequenceList += [[['EF_mu_step1']
+    self.EFsequenceList += [[['EF_mu_step2'],
                              [theTrigMuonEFCombinerHypoConfig],
                              'EF_mu_hypo1']]
 
-    self.EFsequenceList += [['EF_mu_step2',
+    self.EFsequenceList += [['EF_mu_hypo1',
                              [theTrigMuonIDTrackMultiHypoConfig_Muon],
                              'EF_mu_step3']] 
     
