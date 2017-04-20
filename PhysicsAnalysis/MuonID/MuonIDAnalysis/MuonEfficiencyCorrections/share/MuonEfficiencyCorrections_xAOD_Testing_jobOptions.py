@@ -4,7 +4,7 @@ import sys
 # Usage: athena -c "FNAME='<input file>'" MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py
 
 if not "FNAME" in vars() and not "FNAME" in globals():
-    print 'Usage: athena -c "FNAME=\'<input file>\'" MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py'
+    print 'Usage: athena -c "FNAME=\'<input file>\'" MuonEfficiencyCorrections/MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py'
     sys.exit(1)
 
 import AthenaPoolCnvSvc.ReadAthenaPool

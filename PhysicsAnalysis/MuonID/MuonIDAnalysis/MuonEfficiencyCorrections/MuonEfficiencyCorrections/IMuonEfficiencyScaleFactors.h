@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 /*
  * IMuonEfficiencyScaleFactors.h
@@ -29,7 +29,7 @@
 #include <map>
 
 /**
- * @page MuonEfficiencyCorrections_page MuonEfficiencyCorrections
+ * @mainpage MuonEfficiencyCorrections
  *
  * This package provides information about the muon efficiency and the corresponding scale factors.
  *
