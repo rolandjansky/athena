@@ -25,10 +25,7 @@ HepMC::GenParticle* ISF::ParticleHelper::convert( const ISF::ISFParticle &partic
   HepMC::FourVector fourMomentum( mom.x(), mom.y(), mom.z(), energy);
   int status = 1; // stable particle not decayed by EventGenerator
 
-  HepMC::Flow flow;
-  flow.set_icode( particle.barcode(), particle.getExtraBC() );
-
-  auto* hepParticle = new HepMC::GenParticle( fourMomentum, particle.pdgCode(), status, flow );
+  auto* hepParticle = new HepMC::GenParticle( fourMomentum, particle.pdgCode(), status );
   hepParticle->suggest_barcode( particle.barcode() );
 
   // return a newly created GenParticle

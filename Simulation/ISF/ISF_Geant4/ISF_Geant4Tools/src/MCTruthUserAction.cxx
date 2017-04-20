@@ -10,7 +10,6 @@
 #include "MCTruthUserAction.h"
 
 // package includes
-#include "Geant4TruthIncident.h"
 #include "ISFTrajectory.h"
 
 // ISF includes
@@ -148,7 +147,7 @@ namespace G4UA{
       //ATH_MSG_DEBUG("Starting to track a new particle");
 
       //m_sHelper.ResetNrOfSecondaries();
- 
+
       G4Track* inT = const_cast<G4Track*> (inTrack);
       TrackHelper trackHelper(inT);
 

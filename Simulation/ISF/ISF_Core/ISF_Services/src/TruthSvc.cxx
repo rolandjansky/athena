@@ -3,11 +3,11 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// HepMC_TruthSvc.cxx, (c) ATLAS Detector software
+// TruthSvc.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "HepMC_TruthSvc.h"
+#include "TruthSvc.h"
 // other ISF_HepMC includes
 #include "ISF_HepMC_Interfaces/ITruthStrategy.h"
 // ISF includes
@@ -30,22 +30,14 @@
 #include "AtlasDetDescr/AtlasRegionHelper.h"
 
 /** Constructor **/
-ISF::HepMC_TruthSvc::HepMC_TruthSvc(const std::string& name,ISvcLocator* svc) :
+ISF::TruthSvc::TruthSvc(const std::string& name,ISvcLocator* svc) :
   AthService(name,svc),
-  m_storeGate(0),
   m_barcodeSvc("BarcodeSvc",name),
-  m_barcodeSvcQuick(0),
-  m_collectionName("TruthEvent"),
-  m_mcEventCollection(0),
-  m_mcEvent(0),
   m_geoStrategies(),
   m_numStrategies(),
   m_skipIfNoChildren(true),
   m_skipIfNoParentBarcode(true),
   m_ignoreUndefinedBarcodes(false),
-  m_screenOutputPrefix("isf >> "),
-  m_screenEmptyPrefix(),
-  m_storeExtraBCs(true),
   m_passWholeVertex(true),
   m_forceEndVtxRegionsVec(),
   m_forceEndVtx(),
@@ -53,10 +45,6 @@ ISF::HepMC_TruthSvc::HepMC_TruthSvc(const std::string& name,ISvcLocator* svc) :
   m_secondaryParticleBcOffset(Barcode::fUndefinedBarcode),
   m_myLowestVertexBC(Barcode::fUndefinedBarcode)
 {
-    // the particle stack filler tool
-    declareProperty("McEventCollection",                 m_collectionName          );
-    // refine the screen output for debugging
-    declareProperty("ScreenOutputPrefix",                m_screenOutputPrefix      );
     // the barcode service (used to compute Vertex Barco des)
     declareProperty("BarcodeSvc",                        m_barcodeSvc              );
     // MCTruth writing strategies
@@ -73,16 +61,15 @@ ISF::HepMC_TruthSvc::HepMC_TruthSvc(const std::string& name,ISvcLocator* svc) :
     // attach end-vertex if parent particle dies for the different AtlasDetDescr regions
     declareProperty("ForceEndVtxInRegions",              m_forceEndVtxRegionsVec );
 
-    declareProperty("StoreExtraBarcodes",                m_storeExtraBCs);
     declareProperty("QuasiStableParticlesIncluded",      m_quasiStableParticlesIncluded);
 }
 
-ISF::HepMC_TruthSvc::~HepMC_TruthSvc()
+ISF::TruthSvc::~TruthSvc()
 {}
 
 
 /** Query the interfaces. */
-StatusCode ISF::HepMC_TruthSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
+StatusCode ISF::TruthSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
  if ( IID_ITruthSvc == riid )
     *ppvInterface = (ITruthSvc*)this;
@@ -96,36 +83,25 @@ StatusCode ISF::HepMC_TruthSvc::queryInterface(const InterfaceID& riid, void** p
 
 
 /** framework methods */
-StatusCode ISF::HepMC_TruthSvc::initialize()
+StatusCode ISF::TruthSvc::initialize()
 {
     ATH_MSG_VERBOSE( "initialize()" );
 
     // Screen output
-    for (size_t prl = 0; prl < m_screenOutputPrefix.size(); ++prl) m_screenEmptyPrefix += " ";
-    ATH_MSG_DEBUG ( m_screenOutputPrefix << "--------------------------------------------------------" );
-
-    // retrieve StoreGateSvc
-    ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-    if ( svcLocator->service("StoreGateSvc", m_storeGate).isFailure()) {
-      ATH_MSG_WARNING("AthenaHitsCollectionHelper: could not accessStoreGateSvc!");
-      return StatusCode::FAILURE;
-    }
+    ATH_MSG_DEBUG("--------------------------------------------------------");
 
     // retrieve BarcodeSvc
     if ( m_barcodeSvc.retrieve().isFailure() ) {
-      ATH_MSG_FATAL( m_screenOutputPrefix <<  "Could not retrieve BarcodeService. Abort.");
+      ATH_MSG_FATAL("Could not retrieve BarcodeService. Abort.");
       return StatusCode::FAILURE;
     }
-    // store a point directly to the BarcodeSvc class
-    // (removes the gaudi overhead in each call)
-    m_barcodeSvcQuick = &(*m_barcodeSvc);
 
     // retrieve the strategies for each atlas region (Athena Alg Tools)
     // and setup whether we want to write end-vertices in this region whenever a truth particle dies
     for ( unsigned short geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions; ++geoID) {
       if ( m_geoStrategyHandles[geoID].retrieve().isFailure() ) {
-        ATH_MSG_FATAL( m_screenOutputPrefix <<  "Could not retrieve TruthStrategy Tool Array for SimGeoID="
-                       << AtlasDetDescr::AtlasRegionHelper::getName(geoID) << ". Abort.");
+        ATH_MSG_FATAL("Could not retrieve TruthStrategy Tool Array for SimGeoID="
+                      << AtlasDetDescr::AtlasRegionHelper::getName(geoID) << ". Abort.");
         return StatusCode::FAILURE;
       }
 
@@ -145,85 +121,36 @@ StatusCode ISF::HepMC_TruthSvc::initialize()
       m_forceEndVtx[geoID] = forceEndVtx;
     }
 
-    ATH_MSG_VERBOSE( "initialize() successful" );
+    ATH_MSG_VERBOSE("initialize() successful");
     return StatusCode::SUCCESS;
 }
 
 
 /** framework methods */
-StatusCode ISF::HepMC_TruthSvc::finalize()
+StatusCode ISF::TruthSvc::finalize()
 {
-    ATH_MSG_VERBOSE ( m_screenOutputPrefix << "Finalizing ..." );
+    ATH_MSG_VERBOSE("Finalizing ...");
     return StatusCode::SUCCESS;
 }
 
 
-/** Initialize the HepMC_TruthSvc and the truthSvc */
-StatusCode ISF::HepMC_TruthSvc::initializeTruthCollection()
+/** Initialize the TruthSvc and the truthSvc */
+StatusCode ISF::TruthSvc::initializeTruthCollection()
 {
-  m_mcEventCollection = 0;
-
-  // retrieve McEventCollection from storegate
-  if ( m_collectionName.empty()) {
-    StatusCode status = m_storeGate->retrieve( m_mcEventCollection);
-    if (status.isFailure())
-        ATH_MSG_WARNING( "Unable to retrieve McEventCollection with name=" << m_collectionName);
-    else
-        ATH_MSG_DEBUG( "Sucessfully retrieved McEventCollection with name=" << m_collectionName);
-  } else {
-    if (m_storeGate->contains<McEventCollection>( m_collectionName)) {
-      StatusCode status = m_storeGate->retrieve( m_mcEventCollection, m_collectionName);
-      if (status.isFailure())
-        ATH_MSG_WARNING( "Unable to retrieve McEventCollection with name=" << m_collectionName
-                         << ". Will create new collection.");
-      else
-          ATH_MSG_DEBUG( "Sucessfully retrieved McEventCollection with name=" << m_collectionName);
-    }
-  }
-
-  // in case no McEventCollection is present in storegate -> create new one and record it on SG
-  if (! m_mcEventCollection) {
-    McEventCollection* newcoll = new McEventCollection();
-    HepMC::GenEvent *evt = new HepMC::GenEvent();
-    newcoll->push_back(evt);
-    StatusCode status = m_storeGate->record(newcoll, m_collectionName, true);
-    if (status.isFailure()) {
-      ATH_MSG_ERROR( "Unable to record newly created McEventCollection with name=" << m_collectionName);
-      return StatusCode::FAILURE;
-    }
-
-    status = m_storeGate->retrieve( m_mcEventCollection, m_collectionName);
-    if (status.isFailure()) {
-      ATH_MSG_ERROR( "Unable to retrieve newly created McEventCollection with name=" << m_collectionName);
-      return StatusCode::FAILURE;
-    }
-  }
-
-  // collect last GenEvent from McEventCollection
-  m_mcEvent = m_mcEventCollection->back();
-  if (!m_mcEvent) {
-    // no GenEvent present
-    //  -> create new (emtpy) GenEvent and add it to McEventCollection
-    m_mcEvent = new HepMC::GenEvent();
-    m_mcEventCollection->push_back( m_mcEvent);
-  }
-
-  // retrieve secondary particle barcode and vertex barcode offsets from the BarcodeService
-  m_myLowestVertexBC          = m_barcodeSvcQuick->secondaryVertexBcOffset();
-  m_secondaryParticleBcOffset = m_barcodeSvcQuick->secondaryParticleBcOffset();
+  m_myLowestVertexBC          = m_barcodeSvc->secondaryVertexBcOffset();
+  m_secondaryParticleBcOffset = m_barcodeSvc->secondaryParticleBcOffset();
 
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode ISF::HepMC_TruthSvc::releaseEvent() {
-  // set the output collection to const
-  return m_storeGate->setConst(m_mcEventCollection);
+StatusCode ISF::TruthSvc::releaseEvent() {
+  return StatusCode::SUCCESS;
 }
 
 
 /** Register a truth incident */
-void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) {
+void ISF::TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) {
 
   // pass whole vertex or individual child particles
   ti.setPassWholeVertices(m_passWholeVertex);
@@ -274,8 +201,7 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) {
     
     // attach parent particle end vertex if it gets killed by this interaction
     if ( m_forceEndVtx[geoID] && !ti.parentSurvivesIncident() ) {
-      HepMC::GenVertex *vtx = createGenVertexFromTruthIncident( ti);
-      m_mcEvent->add_vertex( vtx);
+      createGenVertexFromTruthIncident( ti);
     }
 
     //  -> assign shared barcode to all child particles (if barcode service supports it)
@@ -286,7 +212,7 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) {
 }
 
 /** Record the given truth incident to the MC Truth */
-void ISF::HepMC_TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
+void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
 
   Barcode::PhysicsProcessCode processCode = ti.physicsProcessCode();
   Barcode::ParticleBarcode       parentBC = ti.parentBarcode();
@@ -296,7 +222,7 @@ void ISF::HepMC_TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
 
   ATH_MSG_VERBOSE ( "Outgoing particles:" );
   // update parent barcode and add it to the vertex as outgoing particle
-  Barcode::ParticleBarcode newPrimBC = m_barcodeSvcQuick->incrementBarcode( parentBC, processCode);
+  Barcode::ParticleBarcode newPrimBC = m_barcodeSvc->incrementBarcode( parentBC, processCode);
   if ( newPrimBC == Barcode::fUndefinedBarcode) {
     if (m_ignoreUndefinedBarcodes) {
       ATH_MSG_WARNING("Unable to generate new Particle Barcode. Continuing due to 'IgnoreUndefinedBarcodes'==True");
@@ -312,15 +238,6 @@ void ISF::HepMC_TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
     vtx->add_particle_out( parentAfterIncident );
   }
 
-  // update all _extra_ barcodes of child particles with parent info
-  // MB: sofar extra barcode only contains parent info, so can be the same for each child
-  if (m_storeExtraBCs) {
-    // the parent particle -> get its extra barcode
-    Barcode::ParticleBarcode parentExtraBC = ti.parentExtraBarcode();
-
-    ti.setAllChildrenExtraBarcodes( parentExtraBC );
-  }
-
   // add child particles to the vertex
   unsigned short numSec = ti.numberOfChildren();
   for ( unsigned short i=0; i<numSec; ++i) {
@@ -329,7 +246,7 @@ void ISF::HepMC_TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
 
     if (writeOutChild) {
       // generate a new barcode for the child particle
-      Barcode::ParticleBarcode secBC = m_barcodeSvcQuick->newSecondary( parentBC, processCode);
+      Barcode::ParticleBarcode secBC = m_barcodeSvc->newSecondary( parentBC, processCode);
       if ( secBC == Barcode::fUndefinedBarcode) {
         if (m_ignoreUndefinedBarcodes)
           ATH_MSG_WARNING("Unable to generate new Secondary Particle Barcode. Continuing due to 'IgnoreUndefinedBarcodes'==True");
@@ -361,19 +278,16 @@ void ISF::HepMC_TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
     }
 
   } // <-- loop over all child particles
-
-  // finally add the vertex to the current GenEvent
-  m_mcEvent->add_vertex( vtx);
 }
 
 /** Record the given truth incident to the MC Truth */
-HepMC::GenVertex *ISF::HepMC_TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIncident& ti) {
+HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIncident& ti) {
 
   Barcode::PhysicsProcessCode processCode = ti.physicsProcessCode();
   Barcode::ParticleBarcode       parentBC = ti.parentBarcode();
 
   std::vector<double> weights(1);
-  Barcode::ParticleBarcode primaryBC = parentBC % m_barcodeSvcQuick->particleGenerationIncrement();
+  Barcode::ParticleBarcode primaryBC = parentBC % m_barcodeSvc->particleGenerationIncrement();
   weights[0] = static_cast<double>( primaryBC );
 
   // Check for a previous end vertex on this particle.  If one existed, then we should put down next to this
@@ -385,9 +299,14 @@ HepMC::GenVertex *ISF::HepMC_TruthSvc::createGenVertexFromTruthIncident( ISF::IT
     ATH_MSG_ERROR("Unable to write particle interaction to MC truth due to missing parent HepMC::GenParticle instance");
     abort();
   }
+  HepMC::GenEvent *mcEvent = parent->parent_event();
+  if (!mcEvent) {
+    ATH_MSG_ERROR("Unable to write particle interaction to MC truth due to missing parent HepMC::GenEvent instance");
+    abort();
+  }
 
   // generate vertex
-  Barcode::VertexBarcode vtxbcode = m_barcodeSvcQuick->newVertex( parentBC, processCode );
+  Barcode::VertexBarcode vtxbcode = m_barcodeSvc->newVertex( parentBC, processCode );
   if ( vtxbcode == Barcode::fUndefinedBarcode) {
     if (m_ignoreUndefinedBarcodes) {
       ATH_MSG_WARNING("Unable to generate new Truth Vertex Barcode. Continuing due to 'IgnoreUndefinedBarcodes'==True");
@@ -422,31 +341,24 @@ HepMC::GenVertex *ISF::HepMC_TruthSvc::createGenVertexFromTruthIncident( ISF::IT
     ATH_MSG_VERBOSE ( "Parent: " << *parent);
   }
 
+  mcEvent->add_vertex( vtx );
+
   return vtx;
 }
 
 /** Set shared barcode for child particles particles */
-void ISF::HepMC_TruthSvc::setSharedChildParticleBarcode( ISF::ITruthIncident& ti) {
+void ISF::TruthSvc::setSharedChildParticleBarcode( ISF::ITruthIncident& ti) {
   Barcode::PhysicsProcessCode processCode = ti.physicsProcessCode();
   Barcode::ParticleBarcode       parentBC = ti.parentBarcode();
 
   ATH_MSG_VERBOSE ( "End Vertex representing process: " << processCode << ". TruthIncident failed cuts. Skipping.");
 
   // generate one new barcode for all child particles
-  Barcode::ParticleBarcode childBC = m_barcodeSvcQuick->sharedChildBarcode( parentBC, processCode);
+  Barcode::ParticleBarcode childBC = m_barcodeSvc->sharedChildBarcode( parentBC, processCode);
 
   // propagate this barcode into the TruthIncident only if
   // it is a proper barcode, ie !=fUndefinedBarcode
   if (childBC != Barcode::fUndefinedBarcode) {
     ti.setAllChildrenBarcodes( childBC );
-  }
-
-  // update all _extra_ barcodes of child particles with parent info
-  // MB: sofar extra barcode only contains parent info, so can be the same for each child particle
-  if (m_storeExtraBCs) {
-    // the parent particle -> get its extra barcode
-    Barcode::ParticleBarcode parentExtraBC = ti.parentExtraBarcode();
-
-    ti.setAllChildrenExtraBarcodes( parentExtraBC );
   }
 }

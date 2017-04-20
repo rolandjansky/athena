@@ -2,12 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////
-// ISFG4Helpers.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////
-
 // class header
-#include "ISFG4Helpers.h"
+#include "ISF_Geant4Event/ISFG4Helper.h"
 
 // Geant4 includes
 #include "G4Track.hh"
@@ -27,34 +23,10 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 
-/** empty dummy constructor */
-iGeant4::ISFG4Helpers::ISFG4Helpers()
-{
-
-}
-
-/** empty dummy destructor */
-iGeant4::ISFG4Helpers::~ISFG4Helpers()
-{
-
-}
-
 /** convert the given G4Track into an ISFParticle */
 ISF::ISFParticle*
-iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track& aTrack,
+iGeant4::ISFG4Helper::convertG4TrackToISFParticle(const G4Track& aTrack,
                                                    const ISF::ISFParticle& parent,
-                                                   ISF::TruthBinding* truth)
-{
-  const ISF::DetRegionSvcIDPair regionSimSvcPair( parent.nextGeoID(), parent.nextSimID() );
-  return ISFG4Helpers::convertG4TrackToISFParticle( aTrack,
-                                                    regionSimSvcPair,
-                                                    truth );
-}
-
-/** convert the given G4Track into an ISFParticle */
-ISF::ISFParticle*
-iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track& aTrack,
-                                                   const ISF::DetRegionSvcIDPair& regionSimSvcPair,
                                                    ISF::TruthBinding* truth)
 {
   const G4ThreeVector& g4pos = aTrack.GetPosition();
@@ -78,7 +50,7 @@ iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track& aTrack,
                                                 charge,
                                                 pdgID,
                                                 gTime,
-                                                regionSimSvcPair,
+                                                parent,
                                                 barcode,
                                                 truth
                                                );
@@ -89,7 +61,7 @@ iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track& aTrack,
 
 /** return a valid UserInformation object of the G4Track for use within the ISF */
 VTrackInformation *
-iGeant4::ISFG4Helpers::getISFTrackInfo(const G4Track& aTrack) 
+iGeant4::ISFG4Helper::getISFTrackInfo(const G4Track& aTrack) 
 {
   VTrackInformation* trackInfo = static_cast<VTrackInformation*>(aTrack.GetUserInformation());
   return trackInfo;
@@ -98,7 +70,7 @@ iGeant4::ISFG4Helpers::getISFTrackInfo(const G4Track& aTrack)
 
 /** link the given G4Track to the given ISFParticle */
 TrackInformation*
-iGeant4::ISFG4Helpers::attachTrackInfoToNewG4Track( G4Track& aTrack,
+iGeant4::ISFG4Helper::attachTrackInfoToNewG4Track( G4Track& aTrack,
                                                     const ISF::ISFParticle& baseIsp,
                                                     TrackClassification classification,
                                                     HepMC::GenParticle *nonRegeneratedTruthParticle)
@@ -109,7 +81,7 @@ iGeant4::ISFG4Helpers::attachTrackInfoToNewG4Track( G4Track& aTrack,
                 << "Trying to attach new TrackInformation object to G4Track which already has a TrackUserInformation attached (trackID: "
                 << aTrack.GetTrackID() << ", track pos: "<<aTrack.GetPosition() << ", mom: "<<aTrack.GetMomentum()
                 << ", parentID " << aTrack.GetParentID() << ")";
-    G4Exception("ISFG4Helpers::attachTrackInfoToNewG4Track", "TrackUserInformationAlreadyExists", FatalException, description);
+    G4Exception("ISFG4Helper::attachTrackInfoToNewG4Track", "TrackUserInformationAlreadyExists", FatalException, description);
     return nullptr;
   }
 
@@ -120,7 +92,7 @@ iGeant4::ISFG4Helpers::attachTrackInfoToNewG4Track( G4Track& aTrack,
                 << "No TruthBinding present in base ISFParticle (trackID: "
                 << aTrack.GetTrackID() << ", track pos: "<<aTrack.GetPosition() << ", mom: "<<aTrack.GetMomentum()
                 << ", parentID " << aTrack.GetParentID() << ", ISFParticle: "<<baseIsp<<")";
-    G4Exception("ISFG4Helpers::attachTrackInfoToNewG4Track", "NoISFTruthBinding", FatalException, description);
+    G4Exception("ISFG4Helper::attachTrackInfoToNewG4Track", "NoISFTruthBinding", FatalException, description);
     return nullptr;
   }
 
@@ -136,7 +108,7 @@ iGeant4::ISFG4Helpers::attachTrackInfoToNewG4Track( G4Track& aTrack,
 
 /** return pointer to current EventInformation */
 EventInformation*
-iGeant4::ISFG4Helpers::getEventInformation()
+iGeant4::ISFG4Helper::getEventInformation()
 {
   return ( static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation()) );
 }

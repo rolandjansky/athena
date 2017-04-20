@@ -3,7 +3,7 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// HepMC_TruthSvc.h, (c) ATLAS Detector software
+// TruthSvc.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
 #ifndef ISF_SERVICES_HEPMC_TRUTHSVC_H
@@ -45,7 +45,7 @@ namespace ISF {
   class ITruthStrategy;
   typedef ToolHandleArray<ITruthStrategy>     TruthStrategyArray;
 
-  /** @class HepMC_TruthSvc
+  /** @class TruthSvc
 
       HepMC based version of the ISF::ITruthSvc,
       currently it takes an ITruthIncident base class
@@ -53,14 +53,14 @@ namespace ISF {
 
       @author Andreas.Salzburger -at- cern.ch , Elmar.Ritsch -at- cern.ch
   */
-  class HepMC_TruthSvc : public AthService, public ITruthSvc {
+  class TruthSvc : public AthService, public ITruthSvc {
   public:
 
     //** Constructor with parameters */
-    HepMC_TruthSvc( const std::string& name, ISvcLocator* pSvcLocator );
+    TruthSvc( const std::string& name, ISvcLocator* pSvcLocator );
 
     /** Destructor */
-    virtual ~HepMC_TruthSvc();
+    virtual ~TruthSvc();
 
     /** Athena algorithm's interface method initialize() */
     StatusCode  initialize() override final;
@@ -88,13 +88,7 @@ namespace ISF {
     /** Set shared barcode for child particles */
     void setSharedChildParticleBarcode( ITruthIncident& truthincident);
 
-    StoreGateSvc                             *m_storeGate;            //!< The storegate svc
     ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;           //!< The Barcode service
-    Barcode::IBarcodeSvc                     *m_barcodeSvcQuick;      //!< The Barcode service for quick access
-
-    std::string                               m_collectionName;       //!< name of the output McEventCollection
-    McEventCollection                        *m_mcEventCollection;    //!< pointer to the McEventCollection
-    HepMC::GenEvent                          *m_mcEvent;
 
     /** the truth strategie applied (as AthenaToolHandle Array) */
     TruthStrategyArray                        m_geoStrategyHandles[AtlasDetDescr::fNumAtlasRegions];
@@ -106,9 +100,6 @@ namespace ISF {
     bool                                      m_skipIfNoChildren;       //!< do not record incident if numChildren==0
     bool                                      m_skipIfNoParentBarcode;  //!< do not record if parentBarcode==fUndefinedBarcode
     bool                                      m_ignoreUndefinedBarcodes;//!< do/don't abort if retrieve an undefined barcode
-
-    std::string                               m_screenOutputPrefix;
-    std::string                               m_screenEmptyPrefix;
 
     bool                                      m_storeExtraBCs;
     bool                                      m_passWholeVertex;
