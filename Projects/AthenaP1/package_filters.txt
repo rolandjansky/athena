@@ -2,22 +2,45 @@
 # Package filtering rules for the AthenaP1 project build.
 #
 
+# Don't pick up anything from the Projects directory:
+- Projects/.*
+
 # Only pick up a few packages from the External directory:
 + External/AtlasDataArea
 + External/pyAMI
 + External/AtlasPyFwdBwdPorts
 - External/.*
 
-# Only pick up the RunTime packages from Projects:
-+ Projects/.*RunTime
-- Projects/.*
-
 # Offload service has build problems
-- External/APEGlue
 - Offloading/.*
 
 # Temporary VP1 compilation issues 
 - graphics/VP1/.*
+
+# Some analysis packages that are not part of Athena
+- AsgExternal/Asg_Test
+- PhysicsAnalysis/D3PDTools/EventLoop
+- PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
+- PhysicsAnalysis/AnalysisCommon/PMGTools
+- PhysicsAnalysis/D3PDTools/EventLoop
+- PhysicsAnalysis/D3PDTools/EventLoopAlgs
+- PhysicsAnalysis/D3PDTools/EventLoopGrid
+- PhysicsAnalysis/D3PDTools/MultiDraw
+- PhysicsAnalysis/D3PDTools/SampleHandler
+- PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
+- PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
+- PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
+- PhysicsAnalysis/JetPhys/SemileptonicCorr
+- PhysicsAnalysis/SUSYPhys/SUSYTools
+- PhysicsAnalysis/TauID/DiTauMassTools
+- PhysicsAnalysis/TauID/TauCorrUncert
+- PhysicsAnalysis/TopPhys/QuickAna
+- PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
+- Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
+- Reconstruction/Jet/JetJvtEfficiency
+- Reconstruction/Jet/JetReclustering
+- Trigger/TrigAnalysis/TrigMuonEfficiency
+- Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 
 # Remove simulation packages except those required for EDM, etc.
 - Calorimeter/CaloG4Sim
@@ -97,19 +120,24 @@
 - TileCalorimeter/TileFastCaloSim
 - Tracking/TrkG4Components/.*
 
-#Remove analysis-related and D3PD code
-#- Trigger/TrigAnalysis/TriggerMenuAnalysis
-#+ PhysicsAnalysis/D3PDMaker/D3PDMakerUtils
-#+ PhysicsAnalysis/D3PDMaker/D3PDMakerCoreComps
-#+ PhysicsAnalysis/D3PDMaker/D3PDMakerRoot
-#+ PhysicsAnalysis/D3PDMaker/D3PDMakerConfig
-#+ PhysicsAnalysis/D3PDMaker/D3PDMakerInterfaces
-#+ PhysicsAnalysis/D3PDMaker/TrigCostD3PDMaker
-#+ PhysicsAnalysis/HeavyIonPhys/.*
-#- PhysicsAnalysis/D3PDMaker/.*
-#- PhysicsAnalysis/.*Phys/.*
+# Remove analysis-related and D3PD code
+- Trigger/TrigAnalysis/TriggerMenuAnalysis
++ PhysicsAnalysis/D3PDMaker/D3PDMakerUtils
++ PhysicsAnalysis/D3PDMaker/D3PDMakerCoreComps
++ PhysicsAnalysis/D3PDMaker/D3PDMakerRoot
++ PhysicsAnalysis/D3PDMaker/D3PDMakerConfig
++ PhysicsAnalysis/D3PDMaker/D3PDMakerInterfaces
++ PhysicsAnalysis/D3PDMaker/TrigCostD3PDMaker
++ PhysicsAnalysis/HeavyIonPhys/.*
+- PhysicsAnalysis/.*Phys/.*
+- PhysicsAnalysis/D3PDMaker/.*
+- PhysicsAnalysis/D23PDMakerUtils/.*
+- PhysicsAnalysis/NTUPtoNTUP/.*
+- PhysicsAnalysis/MonteCarloReact/.*
 - PhysicsAnalysis/AnalysisCommon/ReweightUtils
-- PhysicsAnalysis/D3PDMaker/TruthD3PDMaker
++ PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
+- PhysicsAnalysis/DerivationFramework/.*
 
 # Temporarily disabled
 - HLT/HLToks
+
