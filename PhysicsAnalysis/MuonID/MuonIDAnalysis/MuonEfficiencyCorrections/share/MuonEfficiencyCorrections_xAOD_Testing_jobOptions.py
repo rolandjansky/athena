@@ -23,31 +23,35 @@ PRWTool = CfgMgr.CP__PileupReweightingTool("MyPRWTool",
                 LumiCalcFiles=["/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_data15_13TeV.periodAllYear_DetStatus-v79-repro20-02_DQDefects-00-02-02_PHYS_StandardGRL_All_Good_25ns.root", "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_data16_13TeV.periodAllYear_DetStatus-v83-pro20-15_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root"])
 ToolSvc += PRWTool
 
+CustomInputDir = ""
+
 # Add the MCP tool
 from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyScaleFactors
 tool = CP__MuonEfficiencyScaleFactors("MyMCPTool")
 tool.WorkingPoint = "Loose"
-# tool.CustomInputFolder="/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonEfficiencyCorrections/160928_PostICHEP/"
+if CustomInputDir != "":
+    tool.CustomInputFolder=CustomInputDir
 ToolSvc += tool
 
 # Add an MCP tool for TTVA SFs
 from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyScaleFactors
 TTVAtool = CP__MuonEfficiencyScaleFactors("MyMCPTTVATool")
 TTVAtool.WorkingPoint = "TTVA"
-# TTVAtool.CustomInputFolder="/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonEfficiencyCorrections/160928_PostICHEP/"
+if CustomInputDir != "":
+    TTVAtool.CustomInputFolder=CustomInputDir
 ToolSvc += TTVAtool
 
 # Add Isolaiton tool
 isotool = CP__MuonEfficiencyScaleFactors("TestIsolationSF")
 isotool.WorkingPoint = "GradientLooseIso"
 isotool.OutputLevel = VERBOSE
-# isotool.CustomInputFolder="/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonEfficiencyCorrections/160928_PostICHEP/"
+if CustomInputDir != "":
+    isotool.CustomInputFolder=CustomInputDir
 ToolSvc += isotool
 
 from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonTriggerScaleFactors
 trigsftool = CP__MuonTriggerScaleFactors("TriggerSFTool");
 trigsftool.MuonQuality = "Medium"
-# trigsftool.CustomInputFolder="/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/MuonEfficiencyCorrections/160928_PostICHEP/"
 ToolSvc += trigsftool
 
 # Add the test algorithm:
