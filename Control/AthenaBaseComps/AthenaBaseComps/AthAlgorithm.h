@@ -234,6 +234,15 @@ public:
   }
 
   
+  /**
+   * @brief Return the list of extra output dependencies.
+   *
+   * This list is extended to include symlinks implied by inheritance
+   * relations.
+   */
+  virtual const DataObjIDColl& extraOutputDeps() const override;
+
+
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
   /////////////////////////////////////////////////////////////////// 
@@ -266,6 +275,10 @@ public:
   typedef ServiceHandle<IUserDataSvc> UserDataSvc_t;
   /// Pointer to IUserDataSvc
   mutable UserDataSvc_t m_userStore;
+
+  /// Extra output dependency collection, extended by AthAlgorithmDHUpdate
+  /// to add symlinks.  Empty if no symlinks were found.
+  DataObjIDColl m_extendedExtraObjects;
 }; 
 
 /////////////////////////////////////////////////////////////////// 
