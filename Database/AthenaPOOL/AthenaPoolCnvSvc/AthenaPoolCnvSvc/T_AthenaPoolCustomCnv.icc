@@ -21,7 +21,8 @@
 #include <stdexcept>
 
 template <class TRANS, class PERS>
-T_AthenaPoolCustomCnv<TRANS, PERS>::T_AthenaPoolCustomCnv(ISvcLocator* pSvcLocator) : BaseType(pSvcLocator) {
+T_AthenaPoolCustomCnv<TRANS, PERS>::T_AthenaPoolCustomCnv(ISvcLocator* pSvcLocator,
+                                                          const char* name /*= nullptr*/) : BaseType(pSvcLocator, name) {
 }
 
 template <class TRANS, class PERS>

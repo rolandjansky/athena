@@ -34,7 +34,9 @@ public:
 protected:
    /// Constructor
    /// @param svcloc [IN] Gaudi service locator
-   T_AthenaPoolCustomCnv(ISvcLocator* pSvcLocator);
+   /// @param name [IN] Optional name, for error reporting.
+   T_AthenaPoolCustomCnv(ISvcLocator* pSvcLocator,
+                         const char* name = nullptr);
 
    // the 2 following methods are allowed to throw std::runtime_error
 

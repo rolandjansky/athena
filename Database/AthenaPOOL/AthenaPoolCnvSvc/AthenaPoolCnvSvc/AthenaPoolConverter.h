@@ -69,7 +69,8 @@ public:
 
 protected:
    /// Standard Service Constructor
-   AthenaPoolConverter(const CLID& id, ISvcLocator* pSvcLocator);
+   AthenaPoolConverter(const CLID& id, ISvcLocator* pSvcLocator,
+                       const char* name = nullptr);
 
    /// Write an object into POOL.
    /// @param pObj [IN] pointer to the transient object.
