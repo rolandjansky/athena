@@ -65,6 +65,8 @@ namespace TCS {
 
       // access all inputs by type
       const InputTOBArray * inputTOBs(TCS::inputTOBType_t) const;
+      /// @brief whether there are input overflows from Mioct for muon and from CMX for calo
+      bool hasInputOverflow(TCS::inputTOBType_t) const;
 
       // to be calles after each event
       StatusCode clear();

@@ -248,6 +248,8 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 	  //MuonInputProvider::createMuonTOB( *iMuCand );
 	  inputEvent.addMuon( MuonInputProvider::createMuonTOB( *iMuCand ) );
       if(iMuCand->moreThan2CandidatesOverflow()) inputEvent.setOverflowFromMioct(true);
+      if(iMuCand->moreThan2CandidatesOverflow())
+          ATH_MSG_DEBUG("DG inputEvent.setOverflowFromMioct");
 	}
     } else {
 
@@ -262,6 +264,8 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
       for( const MuCTPIL1TopoCandidate & cand : l1topo.getCandidates() ) {
           inputEvent.addMuon( MuonInputProvider::createMuonTOB( cand ) );
           if(cand.moreThan2CandidatesOverflow()) inputEvent.setOverflowFromMioct(true);
+          if(cand.moreThan2CandidatesOverflow())
+              ATH_MSG_DEBUG("DG inputEvent.setOverflowFromMioct");
       }
     }
     

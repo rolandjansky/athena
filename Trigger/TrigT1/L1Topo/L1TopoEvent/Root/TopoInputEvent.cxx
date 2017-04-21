@@ -95,6 +95,21 @@ TopoInputEvent::inputTOBs(inputTOBType_t tobType) const {
    return 0;
 }
 
+bool TopoInputEvent::hasInputOverflow(TCS::inputTOBType_t tobType) const
+{
+    bool inputOverflow = false;
+    switch(tobType) {
+    case CLUSTER:    inputOverflow = false;               break; // DG TODO
+    case JET:        inputOverflow = false;               break; // DG TODO
+    case MUON:       inputOverflow = overflowFromMioct(); break;
+    case LATEMUON:   inputOverflow = false;               break; // DG not sure
+    case MUONNEXTBC: inputOverflow = false;               break; // DG not sure
+    case TAU:        inputOverflow = false;               break; // DG TODO
+    case MET:        inputOverflow = false;               break;
+    default:         inputOverflow = false;
+    }
+   return inputOverflow;
+}
 
 TCS::StatusCode
 TCS::TopoInputEvent::clear() {
