@@ -3,7 +3,7 @@ RoICache_test        INFO LINE:81 Start of the test: RoIcaching test
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/test2.txt
-JobOptionsSvc        INFO # =======> /scratch/fwinkl/athena/Trigger/TrigEvent/TrigNavigation/share/../share/test2.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/t/tbold/workarea/ATR-16158/athena/Trigger/TrigEvent/TrigNavigation/share/../share/test2.txt
 JobOptionsSvc        INFO # (2,1): ApplicationMgr.DLLs += ["StoreGate", "TrigNavigation", "TrigSerializeCnvSvc"]
 JobOptionsSvc        INFO # (3,1): ApplicationMgr.ExtSvc += ["ClassIDSvc"]
 JobOptionsSvc        INFO # (4,1): ApplicationMgr.ExtSvc += ["TrigSerializeCnvSvc"]
@@ -21,19 +21,16 @@ JobOptionsSvc        INFO Job options successfully read in from ../share/test2.t
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
-                                          running on pc-tbed-pub-07.cern.ch on Thu Mar 23 10:48:44 2017
+                                          running on lxplus058.cern.ch on Fri Apr 21 08:37:06 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : StoreGate, TrigNavigation, TrigSerializeCnvSvc
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO  getRegistryEntries: read 1373 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1369 CLIDRegistry entries for module ALL
 TrigSerializeCn...   INFO initialize()
 StoreGateSvc        DEBUG Property update for OutputLevel : new value = 1
 StoreGateSvc        DEBUG Service base class initialized successfully
-StoreGateSvc      VERBOSE Initializing StoreGateSvc - package version StoreGate-00-00-00
-StoreGateSvc_Impl   DEBUG Property update for OutputLevel : new value = 1
-StoreGateSvc_Impl   DEBUG Service base class initialized successfully
-StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
-StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
+StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
+StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
 ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-00
 ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-00-00-00
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
@@ -41,8 +38,8 @@ EventLoopMgr      WARNING No events will be processed from external input.
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-RoICache_test        INFO LINE:94 Test progress fine:  SG pointer: 0x2848ef0
-RoICache_test        INFO LINE:102 Test progress fine:  ToolSvc pointer obtained: 0x284c680
+RoICache_test        INFO LINE:94 Test progress fine:  SG pointer: 0x1ea9a70
+RoICache_test        INFO LINE:102 Test progress fine:  ToolSvc pointer obtained: 0x1eae760
 ToolSvc.Navigation  DEBUG Property update for OutputLevel : new value = 1
 ToolSvc.Navigation  DEBUG Navigation::initialize() got TrigSerializeCnvSvc
 ToolSvc.NavigationVERBOSE type: TestA(6421) container: DataVector<TestA>(64210)label: "" subTypeIndex: 0 container not allocated yet
@@ -60,12 +57,11 @@ ToolSvc.Navigation  DEBUG Getting holder for type: 6421 label: initialRoI
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 6421 label: initialRoI and index: 0
 ToolSvc.Navigation  DEBUG getHolder: predefined holder got
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "initialRoI" subTypeIndex: 0 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0x2922110
-ClassIDSvc           INFO  getRegistryEntries: read 357 CLIDRegistry entries for module ALL
+ToolSvc.NavigationVERBOSE got Holder: 0x1f7f3f0
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 6421(TestA) to TE: 0 label: "initialRoI" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: initialRoI
 ToolSvc.Navigation  DEBUG Getting holder for type: 6421 label: initialRoI
-ToolSvc.NavigationVERBOSE got Holder: 0x2922110
+ToolSvc.NavigationVERBOSE got Holder: 0x1f7f3f0
 RoICache_test        INFO LINE:157 Test progress fine:  Navigation structure built
 RoICache_test:calo   INFO LINE:38 Start of the test: One algorithm test calo
 RoICache_test:calo   INFO REGTEST executing on 11
@@ -78,7 +74,7 @@ ToolSvc.Navigation  DEBUG Getting holder for type: 96422 label: made_by_calo
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 96422 label: made_by_calo and index: 0
 ToolSvc.Navigation  DEBUG getHolder: predefined holder got
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "made_by_calo" subTypeIndex: 0 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0x2926050
+ToolSvc.NavigationVERBOSE got Holder: 0x1f83030
 RoICache_test:calo   INFO LINE:60 End of the test: One algorithm test calo
 RoICache_test:calo   INFO LINE:38 Start of the test: One algorithm test calo
 RoICache_test:calo   INFO REGTEST executing on 12
@@ -100,7 +96,7 @@ ToolSvc.Navigation  DEBUG Getting holder for type: 6421
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 96422(TestBContainer) to TE: 1200 label: "made_by_calo" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: made_by_calo
 ToolSvc.Navigation  DEBUG Getting holder for type: 96422 label: made_by_calo
-ToolSvc.NavigationVERBOSE got Holder: 0x2926050
+ToolSvc.NavigationVERBOSE got Holder: 0x1f83030
 RoICache_test:calo   INFO LINE:60 End of the test: One algorithm test calo
 RoICache_test        INFO LINE:182 Test progress fine:  Executed calo on clusters
 RoICache_test:caux   INFO LINE:38 Start of the test: One algorithm test caux
@@ -114,7 +110,7 @@ ToolSvc.Navigation  DEBUG Getting holder for type: 6421 label: refined_by_aux
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 6421 label: refined_by_aux and index: 1
 ToolSvc.Navigation  DEBUG getHolder: predefined holder got
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "refined_by_aux" subTypeIndex: 1 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0x2928ed0
+ToolSvc.NavigationVERBOSE got Holder: 0x1f85d50
 RoICache_test:caux   INFO LINE:60 End of the test: One algorithm test caux
 RoICache_test:caux   INFO LINE:38 Start of the test: One algorithm test caux
 RoICache_test:caux   INFO REGTEST executing on 14
@@ -132,7 +128,7 @@ ToolSvc.Navigation  DEBUG Getting holder for type: 96422 label: made_by_calo2
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 96422 label: made_by_calo2 and index: 1
 ToolSvc.Navigation  DEBUG getHolder: predefined holder got
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "made_by_calo2" subTypeIndex: 1 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0x292ad00
+ToolSvc.NavigationVERBOSE got Holder: 0x1f87a10
 RoICache_test:c...   INFO LINE:60 End of the test: One algorithm test calo2
 RoICache_test:c...   INFO LINE:38 Start of the test: One algorithm test calo2
 RoICache_test:c...   INFO REGTEST executing on 13
@@ -147,7 +143,7 @@ RoICache_test        INFO LINE:214 Test progress fine:  got back object -34
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 96422(TestBContainer) to TE: 12 label: "made_by_calo2" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: made_by_calo2
 ToolSvc.Navigation  DEBUG Getting holder for type: 96422 label: made_by_calo2
-ToolSvc.NavigationVERBOSE got Holder: 0x292ad00
+ToolSvc.NavigationVERBOSE got Holder: 0x1f87a10
 RoICache_test:c...   INFO LINE:60 End of the test: One algorithm test calo2
 RoICache_test:c...   INFO LINE:38 Start of the test: One algorithm test calo2
 RoICache_test:c...   INFO REGTEST executing on 11
@@ -162,7 +158,7 @@ RoICache_test        INFO LINE:214 Test progress fine:  got back object -34
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 96422(TestBContainer) to TE: 1200 label: "made_by_calo2" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: made_by_calo2
 ToolSvc.Navigation  DEBUG Getting holder for type: 96422 label: made_by_calo2
-ToolSvc.NavigationVERBOSE got Holder: 0x292ad00
+ToolSvc.NavigationVERBOSE got Holder: 0x1f87a10
 RoICache_test:c...   INFO LINE:60 End of the test: One algorithm test calo2
 RoICache_test        INFO LINE:232 Test progress fine:  Executed c2 on clusters
 RoICache_test:trk    INFO LINE:38 Start of the test: One algorithm test trk
@@ -177,7 +173,7 @@ ToolSvc.Navigation  DEBUG Getting holder for type: 7800 label: made_by_trk
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 7800 label: made_by_trk and index: 0
 ToolSvc.Navigation  DEBUG getHolder: predefined holder got
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TestC(7800) container: DataVector<TestC>(78001)label: "made_by_trk" subTypeIndex: 0 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0x292eaa0
+ToolSvc.NavigationVERBOSE got Holder: 0x1f8b440
 RoICache_test:trk    INFO LINE:60 End of the test: One algorithm test trk
 RoICache_test:trk    INFO LINE:38 Start of the test: One algorithm test trk
 RoICache_test:trk    INFO REGTEST executing on 104
@@ -200,7 +196,7 @@ RoICache_test        INFO LINE:255 Test progress fine:  got back object -34
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 7800(TestC) to TE: 10100 label: "made_by_trk" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: made_by_trk
 ToolSvc.Navigation  DEBUG Getting holder for type: 7800 label: made_by_trk
-ToolSvc.NavigationVERBOSE got Holder: 0x292eaa0
+ToolSvc.NavigationVERBOSE got Holder: 0x1f8b440
 RoICache_test:trk    INFO LINE:60 End of the test: One algorithm test trk
 RoICache_test        INFO LINE:272 Test progress fine:  Executed trk
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 7800(TestC) to TE: 101 label: "made_by_tr2" memory management: 3
@@ -209,7 +205,7 @@ ToolSvc.Navigation  DEBUG Getting holder for type: 7800 label: made_by_tr2
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 7800 label: made_by_tr2 and index: 1
 ToolSvc.Navigation  DEBUG getHolder: predefined holder got
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TestC(7800) container: DataVector<TestC>(78001)label: "made_by_tr2" subTypeIndex: 1 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0x292e690
+ToolSvc.NavigationVERBOSE got Holder: 0x1f8b030
 RoICache_test:m...   INFO LINE:38 Start of the test: One algorithm test matcher
 RoICache_test:m...   INFO REGTEST executing on 1001
 RoICache_test:m...   INFO REGTEST REAL execution needed on 1001
@@ -222,7 +218,7 @@ ToolSvc.Navigation  DEBUG Getting holder for type: 96477 label: made_by_ma
 ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 96477 label: made_by_ma and index: 0
 ToolSvc.Navigation  DEBUG getHolder: predefined holder got
 ToolSvc.Navigation  DEBUG registerHolder for OK type: TestDContainer(96477) container: TestDContainer(96477)label: "made_by_ma" subTypeIndex: 0 container not allocated yet
-ToolSvc.NavigationVERBOSE got Holder: 0x2931320
+ToolSvc.NavigationVERBOSE got Holder: 0x1f8db40
 RoICache_test:m...   INFO LINE:60 End of the test: One algorithm test matcher
 RoICache_test:m...   INFO LINE:38 Start of the test: One algorithm test matcher
 RoICache_test:m...   INFO REGTEST executing on 1002
@@ -233,7 +229,7 @@ RoICache_test        INFO LINE:299 Test progress fine:  got back object 77
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 96477(TestDContainer) to TE: 1002 label: "made_by_ma" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: made_by_ma
 ToolSvc.Navigation  DEBUG Getting holder for type: 96477 label: made_by_ma
-ToolSvc.NavigationVERBOSE got Holder: 0x2931320
+ToolSvc.NavigationVERBOSE got Holder: 0x1f8db40
 RoICache_test:m...   INFO LINE:60 End of the test: One algorithm test matcher
 RoICache_test:m...   INFO LINE:38 Start of the test: One algorithm test matcher
 RoICache_test:m...   INFO REGTEST executing on 1003
@@ -252,7 +248,7 @@ RoICache_test        INFO LINE:299 Test progress fine:  got back object 77
 ToolSvc.Navigation  DEBUG attachFeature: of clid: 96477(TestDContainer) to TE: 100100 label: "made_by_ma" memory management: 3
 ToolSvc.NavigationVERBOSE getting Holder for label: made_by_ma
 ToolSvc.Navigation  DEBUG Getting holder for type: 96477 label: made_by_ma
-ToolSvc.NavigationVERBOSE got Holder: 0x2931320
+ToolSvc.NavigationVERBOSE got Holder: 0x1f8db40
 RoICache_test:m...   INFO LINE:60 End of the test: One algorithm test matcher
 RoICache_test        INFO LINE:317 Test progress fine:  Executed ma on electron TEs
 RoICache_test:o...   INFO LINE:38 Start of the test: One algorithm test overlap
