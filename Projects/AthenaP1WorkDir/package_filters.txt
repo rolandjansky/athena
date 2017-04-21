@@ -1,6 +1,0 @@
-#
-# Example configuration for only building AthExHelloWorld on top of
-# an existing nightly/release.
-#
-+Control/AthenaExamples/AthExHelloWorld
--.*

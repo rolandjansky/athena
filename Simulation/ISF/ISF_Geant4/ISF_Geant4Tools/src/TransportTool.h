@@ -20,7 +20,7 @@
 #include "ISF_Geant4Interfaces/ITransportTool.h"
 #include "ISF_Geant4Tools/IG4RunManagerHelper.h"
 #include "G4AtlasInterfaces/IPhysicsListTool.h"
-//#include "G4AtlasInterfaces/IUserAction.h"
+
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 
 #include <string>

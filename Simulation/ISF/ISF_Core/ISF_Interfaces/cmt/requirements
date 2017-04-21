@@ -13,7 +13,7 @@ use AthenaKernel                AthenaKernel-*                  Control
 use AthenaBaseComps             AthenaBaseComps-*               Control
 use StoreGate                   StoreGate-*                     Control
 use ISF_Event                   ISF_Event-*                     Simulation/ISF/ISF_Core
-use BarcodeInterfaces           BarcodeInterfaces-*             Simulation/Barcode
+use BarcodeEvent                BarcodeEvent-*                  Simulation/Barcode
 use AtlasDetDescr               AtlasDetDescr-*                 DetectorDescription
 use GeoPrimitives               GeoPrimitives-*                 DetectorDescription
 

@@ -480,7 +480,7 @@ void eflowObjectCreatorTool::addMoment(xAOD::CaloCluster::MomentType momentType,
   bool isRetrieved = theCluster->retrieveMoment(momentType, moment);
   if (true == isRetrieved) {
     xAOD::PFODetails::PFOAttributes myAttribute = pfoAttribute;
-    float float_moment = static_cast<float>(moment);    
+    float float_moment = static_cast<float>(moment);
     thePFO->setAttribute(myAttribute, float_moment);
   }
   else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Could not retrieve moment from the CaloCluster " << endmsg;

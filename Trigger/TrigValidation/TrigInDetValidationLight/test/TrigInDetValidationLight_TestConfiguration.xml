@@ -171,7 +171,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -262,7 +262,7 @@
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 
 	   
-           <athenaCommonFlags /> 
+           <athenaCommonFlags /><alwaysRunPostProc /> 
          </athena>
 
 
@@ -380,7 +380,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -470,7 +470,7 @@
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
    
-         <athenaCommonFlags /> 
+         <athenaCommonFlags /><alwaysRunPostProc /> 
          </athena>
 
 
@@ -602,7 +602,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -692,7 +692,7 @@
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
 
-           <athenaCommonFlags /> 
+           <athenaCommonFlags /><alwaysRunPostProc /> 
          </athena>
 	 
 
@@ -810,7 +810,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -900,7 +900,7 @@
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
 
-	  <athenaCommonFlags />
+	  <athenaCommonFlags /><alwaysRunPostProc />
 	  </athena>
 
 
@@ -1011,7 +1011,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -1101,8 +1101,8 @@
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
 
-	  <athenaCommonFlags />
-	  <alwaysRunPostProc />
+	  <athenaCommonFlags /><alwaysRunPostProc />
+
 	  </athena>
 
 
@@ -1221,7 +1221,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -1311,8 +1311,8 @@
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
 
-          <athenaCommonFlags /> 
-	  <alwaysRunPostProc />
+          <athenaCommonFlags /><alwaysRunPostProc /> 
+
 	  </athena>
 
 
@@ -1429,7 +1429,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -1521,7 +1521,7 @@
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 
    
-         <athenaCommonFlags /> 
+         <athenaCommonFlags /><alwaysRunPostProc /> 
          </athena>
 
 
@@ -1636,7 +1636,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --costMode --linkOutputDir </argvalue>
               </arg> 
             </action>
 
@@ -1726,8 +1726,8 @@
             <auxFilePattern>TIDAstyle.css</auxFilePattern>
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
 
-	  <athenaCommonFlags />
-	  <alwaysRunPostProc />
+	  <athenaCommonFlags /><alwaysRunPostProc />
+
 	  </athena>
 
 
