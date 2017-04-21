@@ -4,6 +4,10 @@
 WATCH_LIST = {}
 
 WATCH_LIST['^CI$']       = set(['cgumpert'])
-WATCH_LIST['Simulation'] = set(['ritsch'])
+WATCH_LIST['Simulation'] = set(['ritsch','jchapman'])
+WATCH_LIST['Digitization'] = set(['jchapman'])
+WATCH_LIST['Overlay'] = set(['jchapman','ahaas','tkharlam'])
 WATCH_LIST['TrkiPatFitter'] = set(['pop'])
 WATCH_LIST['MooPerformance'] = set(['pop'])
+WATCH_LIST['JetCalibTools'] = set(['jbossios'])
+WATCH_LIST['AFP'] = set(['ggach'])

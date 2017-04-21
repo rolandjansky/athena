@@ -35,7 +35,7 @@ def run_unit_tests(args):
     # only run tests if we found some patterns for test labels
     if pattern_list:
         # assemble ctest command
-        ctest_cmd = "ctest --output-on-failure "
+        ctest_cmd = "ctest --output-on-failure -O ctest.log "
         ctest_cmd += "-L \"" + "|".join(pattern_list) + "\""
 
         # execute
