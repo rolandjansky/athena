@@ -30,7 +30,7 @@ class SLHC_Setup_XMLReader :
                              doPix=True,
                              doSCT=False,
                              isGMX=auto_isGMX
-)
+                             )
         
 class SLHC_Setup :
     # constructor requires the SLHC_Flags

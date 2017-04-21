@@ -56,6 +56,12 @@ class doGMX(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class LayoutOption(JobProperty):
+    """Steering of SLHC jobs"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = ''
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the flag container
@@ -78,6 +84,7 @@ jobproperties.SLHC_JobProperties.add_JobProperty(LocalDictionaryBaseName)
 jobproperties.SLHC_JobProperties.add_JobProperty(LocalGeometryDbEnvName)
 jobproperties.SLHC_JobProperties.add_JobProperty(LocalGeometryDbBaseName)
 jobproperties.SLHC_JobProperties.add_JobProperty(doGMX)
+jobproperties.SLHC_JobProperties.add_JobProperty(LayoutOption)
 ##-----------------------------------------------------------------------------
 ## 5th step
 ## short-cut for lazy people

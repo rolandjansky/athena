@@ -9,7 +9,8 @@ from AthenaCommon.BeamFlags import jobproperties
 jobproperties.Beam.bunchSpacing = 25
 
 from CaloTools.CaloNoiseFlags import jobproperties
-jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(200*1.45/8*50/25)
+jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(200/2.9)
+# was (200*1.45/8*50/25) until release 20.20.9
 
 if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
     from CaloRec.CaloCellFlags import jobproperties
