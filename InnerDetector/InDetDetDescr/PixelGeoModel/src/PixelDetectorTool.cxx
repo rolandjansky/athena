@@ -28,7 +28,7 @@
 #include "GeoModelInterfaces/IGeoSubDetTool.h"
 #include "InDetGeoModelUtils/IInDetServMatBuilderTool.h"
 
-#include "CLIDSvc/tools/ClassID_traits.h"
+#include "SGTools/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
 
 using InDetDD::PixelDetectorManager; 

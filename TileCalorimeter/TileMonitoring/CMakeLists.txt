@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 767269 2016-08-10 15:10:39Z aryzhov $
 ################################################################################
 # Package: TileMonitoring
 ################################################################################
@@ -40,9 +39,15 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Graf Gpad Hist Spectrum Core Tree MathCore
-  RIO pthread Graf3d Html Postscript Gui GX11TTF GX11 )
+  RIO pthread Graf3d Html Postscript Gui GX11TTF GX11 HistPainter )
 
 # Component(s) in the package:
+atlas_add_library( TileMonitoringLib
+   TileMonitoring/I*.h
+   INTERFACE
+   PUBLIC_HEADERS TileMonitoring
+   LINK_LIBRARIES GaudiKernel )
+
 atlas_add_component( TileMonitoring
   TileMonitoring/*.h src/*.cxx src/components/*.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
@@ -51,8 +56,7 @@ atlas_add_component( TileMonitoring
   CaloEvent CaloGeoHelpers CaloIdentifier AthenaKernel
   ByteStreamCnvSvcBaseLib xAODCaloEvent xAODEventInfo xAODTrigger xAODMuon JetUtils
   TileCalibBlobObjs TileConditionsLib TileEvent TileRecUtilsLib LWHists
-  TrigDecisionToolLib TrigConfL1Data TrigT1Result )
+  TrigDecisionToolLib TrigConfL1Data TrigT1Result TileMonitoringLib )
 
 # Install files from the package:
-atlas_install_headers( TileMonitoring )
 atlas_install_joboptions( share/*.py )

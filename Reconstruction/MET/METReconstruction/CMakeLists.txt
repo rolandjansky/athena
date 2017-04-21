@@ -26,6 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/PFlow/PFlowUtils
                           Reconstruction/RecoTools/CaloClusterMatching
                           Reconstruction/RecoTools/RecoToolInterfaces
+                          PhysicsAnalysis/AnalysisCommon/PATCore
                           Calorimeter/CaloEvent
                           Control/AthContainers
                           Control/AthenaBaseComps
@@ -43,7 +44,7 @@ include_directories(src)
 atlas_add_component( METReconstruction
                      Root/*.cxx src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools FourMomUtils xAODCaloEvent xAODEgamma xAODJet xAODMissingET xAODMuon xAODPFlow xAODTracking xAODTruth GaudiKernel RecoToolInterfaces CaloEvent AthContainers AthenaBaseComps EventPrimitives xAODTau TruthUtils )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools FourMomUtils xAODCaloEvent xAODEgamma xAODJet xAODMissingET xAODMuon xAODPFlow xAODTracking xAODTruth GaudiKernel RecoToolInterfaces CaloEvent AthContainers AthenaBaseComps EventPrimitives xAODTau TruthUtils PATCoreLib )
 
 atlas_add_dictionary( METReconstructionDict
        		      METReconstruction/METReconstructionAthDict.h
