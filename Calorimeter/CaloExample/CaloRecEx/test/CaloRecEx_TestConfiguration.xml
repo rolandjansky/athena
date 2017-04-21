@@ -319,14 +319,14 @@
                <keepFilePattern>*.gif</keepFilePattern>
                <keepFilePattern>*.html</keepFilePattern>
                <keepFilePattern>*.log</keepFilePattern>
-               <keepFilePattern>rtt.css</keepFilePattern>
+               <keepFilePattern>CaloRecEx.css</keepFilePattern>
                <keepFilePattern displayColor="green">checks.html</keepFilePattern>
                <keepFilePattern>*.pmon.gz</keepFilePattern>
 
                <auxFilePattern>CaloRecEx*.C</auxFilePattern>
                <auxFilePattern>CaloRecEx_runMacro*.C</auxFilePattern>
-               <auxFilePattern>CaloRecEx_runPython2.C</auxFilePattern>
-               <auxFilePattern>rtt.css</auxFilePattern>
+               <auxFilePattern>CaloRecEx_runPython2*.C</auxFilePattern>
+               <auxFilePattern>CaloRecEx.css</auxFilePattern>
                <auxFilePattern>CaloRecEx_HistoComparison.txt</auxFilePattern>
                <auxFilePattern>CaloRecEx_check.py</auxFilePattern>
                <auxFilePattern>CaloRecEx_HistoComparison.py</auxFilePattern>
@@ -412,14 +412,14 @@
                <keepFilePattern>*.gif</keepFilePattern>
                <keepFilePattern>*.html</keepFilePattern>
                <keepFilePattern>*.log</keepFilePattern>
-               <keepFilePattern>rtt.css</keepFilePattern>
+               <keepFilePattern>CaloRecEx.css</keepFilePattern>
                <keepFilePattern displayColor="green">checks.html</keepFilePattern>
                <keepFilePattern>*.pmon.gz</keepFilePattern>
 
                <auxFilePattern>CaloRecEx*.C</auxFilePattern>
                <auxFilePattern>CaloRecEx_runMacro*.C</auxFilePattern>
-               <auxFilePattern>CaloRecEx_runPython2.C</auxFilePattern>
-               <auxFilePattern>rtt.css</auxFilePattern>
+               <auxFilePattern>CaloRecEx_runPython2*.C</auxFilePattern>
+               <auxFilePattern>CaloRecEx.css</auxFilePattern>
                <auxFilePattern>CaloRecEx_HistoComparison.txt</auxFilePattern>
                <auxFilePattern>CaloRecEx_check.py</auxFilePattern>
                <auxFilePattern>CaloRecEx_HistoComparison.py</auxFilePattern>
@@ -435,7 +435,7 @@
             <testname>ROOTMacroRunner</testname>
             <arg>
                <argname>macro</argname>
-               <argvalue>CaloRecEx_runMacros2.C</argvalue>
+               <argvalue>CaloRecEx_runMacros2R.C</argvalue>
             </arg>
          </action>
 
