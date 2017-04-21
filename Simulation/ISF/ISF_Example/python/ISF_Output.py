@@ -131,7 +131,8 @@ class ISF_HITSStream:
         ## NB. Two-arg constructor is needed, since otherwise metadata writing fails!
         stream1 = None
         if athenaCommonFlags.PoolHitsOutput.statusOn:
-            stream1 = AthenaPoolOutputStream("StreamHITS", athenaCommonFlags.PoolHitsOutput())
+            output_file = athenaCommonFlags.PoolHitsOutput()
+            stream1 = AthenaPoolOutputStream("StreamHITS", output_file, noTag=True)
             stream1.ForceRead = True
             stream1.ItemList = getHITSStreamItemList()
             ## Make stream aware of aborted events
