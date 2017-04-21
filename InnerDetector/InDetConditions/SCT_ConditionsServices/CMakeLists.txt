@@ -42,10 +42,9 @@ find_package( GMock )
 
 # Component(s) in the package:
 atlas_add_component( SCT_ConditionsServices
-                     src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier GaudiKernel SCT_ConditionsData AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities GeoModelUtilities EventInfo SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry SCT_CablingLib PathResolver )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier GaudiKernel SCT_ConditionsData AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities GeoModelUtilities EventInfo SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry SCT_CablingLib PathResolver SCT_ConditionsServicesLib )
 
 atlas_add_library ( SCT_ConditionsServicesLib
 		    src/*.cxx
