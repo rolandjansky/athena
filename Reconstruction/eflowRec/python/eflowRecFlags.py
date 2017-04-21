@@ -105,7 +105,7 @@ class useAODReductionClusterMomentList(JobProperty):
     """
     statusOn = True
     allowedTypes = ['bool']
-    StoredValue = False
+    StoredValue = True
     
 # Defines the container for the eflowRec flags
 
