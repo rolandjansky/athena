@@ -91,7 +91,8 @@ AssembleAndSave( std::string infileName, std::string outfileName )
   MiniConfig refconfig;
   refconfig.AddKeyword("reference");
   refconfig.ReadFile(infileName);
-  RefVisitor refvisitor( outfile, directories );
+  TMap refsourcedata;
+  RefVisitor refvisitor( outfile, directories, &refsourcedata );
   refconfig.SendVisitor( refvisitor );
   
   // Collect threshold definitions
@@ -137,8 +138,11 @@ AssembleAndSave( std::string infileName, std::string outfileName )
   RegionVisitor regvisitor( root, algconfig, thrconfig, refconfig, directories );
   regconfig.SendVisitor( regvisitor );
   
-  AssessmentVisitor histvisitor( root, algconfig, thrconfig, refconfig, outfile, directories );  histconfig.SendVisitor( histvisitor );
+  AssessmentVisitor histvisitor( root, algconfig, thrconfig, refconfig, outfile, 
+				 directories, &refsourcedata );  
+  histconfig.SendVisitor( histvisitor );
   
+  outfile->WriteTObject(&refsourcedata, "refsourcedata");
   outfile->cd();
   root->Write();
   outfile->Write();
@@ -283,9 +287,10 @@ GetRegexList(std::set<std::string>& regexlist)
 // *********************************************************************
 
 HanConfig::RefVisitor::
-RefVisitor( TFile* outfile_, HanConfig::DirMap_t& directories_ )
+RefVisitor( TFile* outfile_, HanConfig::DirMap_t& directories_, TMap* refsourcedata_ )
   : outfile(outfile_)
   , directories(directories_)
+  , m_refsourcedata(refsourcedata_)
 {
 }
 
@@ -297,6 +302,7 @@ Visit( const MiniConfigTreeNode* node ) const
   TObject* obj;
   std::string name = node->GetAttribute("name");
   std::string fileName = node->GetAttribute("file");
+  std::string refInfo = node->GetAttribute("info");
   if( fileName != "" && name != "" && name != "same_name" ) {
     std::auto_ptr<TFile> infile( TFile::Open(fileName.c_str()) );
     TKey* key = getObjKey( infile.get(), name );
@@ -316,6 +322,14 @@ Visit( const MiniConfigTreeNode* node ) const
     dqi::ConditionsSingleton::getInstance().setNewReferenceName(name,newHistoName);
     obj->Write(newHistoName.c_str());
     delete obj;
+    TObjString* fnameostr = new TObjString(fileName.c_str());
+    m_refsourcedata->Add(new TObjString(newHistoName.c_str()),
+			 fnameostr);
+    if (refInfo != "") {
+      if (! m_refsourcedata->FindObject(fileName.c_str())) {
+	m_refsourcedata->Add(fnameostr, new TObjString(refInfo.c_str()));
+      }  
+    }
   }
 }
 
@@ -323,13 +337,15 @@ Visit( const MiniConfigTreeNode* node ) const
 HanConfig::AssessmentVisitorBase::
 AssessmentVisitorBase( HanConfigGroup* root_, const MiniConfig& algConfig_,
                        const MiniConfig& thrConfig_, const MiniConfig& refConfig_,
-                       TFile* outfile_, HanConfig::DirMap_t& directories_ )
+                       TFile* outfile_, HanConfig::DirMap_t& directories_,
+		       TMap* refsourcedata_ )
   : root(root_)
   , algConfig(algConfig_)
   , thrConfig(thrConfig_)
   , refConfig(refConfig_)
   , outfile(outfile_)
   , directories(directories_)
+  , m_refsourcedata(refsourcedata_)
 {
 }
 
@@ -426,6 +442,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	for (const auto thisRefID : refIDVec) {
 	  std::string algRefName( refConfig.GetStringAttribute(thisRefID,"name") );
 	  std::string algRefPath( refConfig.GetStringAttribute(thisRefID,"path") );
+	  std::string algRefInfo( refConfig.GetStringAttribute(thisRefID,"info") );
 	  absAlgRefName = "";
 	  if( algRefPath != "" ) {
 	    absAlgRefName += algRefPath;
@@ -462,6 +479,15 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 		if(newRefId.empty()){
 		  newRefId=CS.getNewRefHistoName();
 		  CS.setNewReferenceName(algRefUniqueName,newRefId);
+		  auto algRefFileostr = new TObjString(algRefFile.c_str());
+		  m_refsourcedata->Add(new TObjString(newRefId.c_str()),
+				       algRefFileostr);
+		  if (algRefInfo != "") {
+		    if (! m_refsourcedata->FindObject(algRefFile.c_str())) {
+		      m_refsourcedata->Add(algRefFileostr, 
+					   new TObjString(algRefInfo.c_str()));
+		    }  
+		  }
 		}
 	      //std::cout<<"Writing algref with algrefname= "<<algRefUniqueName<<", newRefId="<<newRefId<<std::endl;
 		obj->Write(newRefId.c_str());//write object with a new reference name
@@ -485,6 +511,8 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	  if(newRefId.empty()){
 	    newRefId=CS.getNewRefHistoName();
 	    CS.setNewReferenceName(algRefUniqueName,newRefId);
+	    m_refsourcedata->Add(new TObjString(newRefId.c_str()),
+				 new TObjString("Multiple references"));
 	  }
 	  outfile->cd();
 	  toarray->Write(newRefId.c_str(), 1);//write object with a new reference name
@@ -553,7 +581,7 @@ HanConfig::RegionVisitor::
 RegionVisitor( HanConfigGroup* root_, const MiniConfig& algConfig_,
                const MiniConfig& thrConfig_, const MiniConfig& refConfig_,
                HanConfig::DirMap_t& directories_ )
-  : AssessmentVisitorBase( root_, algConfig_, thrConfig_, refConfig_, 0, directories_ )
+  : AssessmentVisitorBase( root_, algConfig_, thrConfig_, refConfig_, 0, directories_, nullptr )
 {
 }
 
@@ -621,8 +649,9 @@ Visit( const HanConfigAssessor* node, boost::shared_ptr<dqm_core::Region> ) cons
 HanConfig::AssessmentVisitor::
 AssessmentVisitor( HanConfigGroup* root_, const MiniConfig& algConfig_,
                    const MiniConfig& thrConfig_, const MiniConfig& refConfig_,
-                   TFile* outfile_, HanConfig::DirMap_t& directories_ )
-  : AssessmentVisitorBase( root_, algConfig_, thrConfig_, refConfig_, outfile_, directories_ )
+                   TFile* outfile_, HanConfig::DirMap_t& directories_,
+		   TMap* refsourcedata_ )
+  : AssessmentVisitorBase( root_, algConfig_, thrConfig_, refConfig_, outfile_, directories_, refsourcedata_ )
 {
 }
 
@@ -1032,6 +1061,13 @@ Initialize( std::string configName )
     if( config == 0 ) {
       std::cerr << "HanConfig::Initialize() cannot open file \"" << configName << "\"\n";
       return false;
+    }
+
+    TMap* refsourcedata = dynamic_cast<TMap*>(config->Get("refsourcedata"));
+    if (refsourcedata) {
+      ConditionsSingleton::getInstance().setRefSourceMapping(refsourcedata);
+    } else {
+      std::cerr << "Can't retrieve reference source info" << std::endl;
     }
     
     TIter nextKey( config->GetListOfKeys() );
