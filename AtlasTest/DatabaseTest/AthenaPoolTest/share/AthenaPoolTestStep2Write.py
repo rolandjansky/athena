@@ -66,10 +66,10 @@ include( "AthenaPoolTestAthenaPool/AthenaPoolTestAthenaPoolItemList_joboptions.p
 print fullItemList
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream( "Stream1" )
+Stream1 = AthenaPoolOutputStream( "Stream1", noTag=True )
 
 # Run OutputStream as an algorithm
-topSequence += AthenaPoolOutputStream( "Stream1" )
+topSequence += AthenaPoolOutputStream( "Stream1", noTag=True )
 # Must make sure that no OutStream's have been declared
 theApp.OutStream     = []; 
 # Stream's output file

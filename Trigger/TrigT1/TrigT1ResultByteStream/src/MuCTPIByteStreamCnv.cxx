@@ -4,9 +4,6 @@
 
 
 // Gaudi/Athena include(s):
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IRegistry.h"
-
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "ByteStreamData/RawEvent.h"
 #include "ByteStreamData/ROBData.h"
@@ -77,63 +74,40 @@ StatusCode MuCTPIByteStreamCnv::initialize() {
   //
   // Initialise the base class:
   //
-  StatusCode sc = Converter::initialize();
-  if( sc.isFailure() ) {
-    return sc;
-  }
+  ATH_CHECK(  Converter::initialize() );
 
-  MsgStream log( messageService(), "MuCTPIByteStreamCnv" );
+  MsgStream log( msgSvc(), "MuCTPIByteStreamCnv" );
   log << MSG::DEBUG << "MuCTPIByteStreamCnv in initialize() " << endmsg;
 
   //
   // Get ByteStreamCnvSvc:
   //
-  sc = m_ByteStreamEventAccess.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get ByteStreamEventAccess interface" << endmsg;
-    return sc;
-  }
+  ATH_CHECK(  m_ByteStreamEventAccess.retrieve() );
 
   //
   // Get MuCTPIByteStreamTool:
   //
-  sc = m_tool.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get MuCTPIByteStreamTool" << endmsg;
-    return sc;
-  } else {
-    log << MSG::DEBUG << "Connected to MuCTPIByteStreamTool" << endmsg;
-  }
+  ATH_CHECK(  m_tool.retrieve() );
+  log << MSG::DEBUG << "Connected to MuCTPIByteStreamTool" << endmsg;
 
 #ifdef CTP_MUCTPI_HAVE_SAME_ROS
   //
   // Get CTPByteStreamTool:
   //
-  sc = m_ctp_tool.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get CTPByteStreamTool" << endmsg;
-    return sc;
-  } else {
-    log << MSG::DEBUG << "Connected to CTPByteStreamTool" << endmsg;
-  }
+  ATH_CHECK( m_ctp_tool.retrieve() );
+  log << MSG::DEBUG << "Connected to CTPByteStreamTool" << endmsg;
 
   //
   // Get RecCTPByteStreamTool:
   //
-  sc = m_ctp_rec_tool.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get RecCTPByteStreamTool" << endmsg;
-    return sc;
-  } else {
-    log << MSG::DEBUG << "Connected to RecCTPByteStreamTool" << endmsg;
-  }
+  ATH_CHECK(  m_ctp_rec_tool.retrieve() );
+  log << MSG::DEBUG << "Connected to RecCTPByteStreamTool" << endmsg;
 #endif
 
   //
   // Get ROBDataProvider:
   //
-  sc = m_robDataProvider.retrieve();
-  if( sc.isFailure() ) {
+  if( m_robDataProvider.retrieve().isFailure() ) {
     log << MSG::WARNING << "Can't get ROBDataProviderSvc" << endmsg;
     // return is disabled for Write BS which does not requre ROBDataProviderSvc
   } else {
@@ -155,8 +129,7 @@ StatusCode MuCTPIByteStreamCnv::initialize() {
  */
 StatusCode MuCTPIByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& pObj ) {
 
-  MsgStream log( messageService(), "MuCTPIByteStreamCnv" );
-
+  MsgStream log( msgSvc(), "MuCTPIByteStreamCnv" );
   log << MSG::DEBUG << "createObj() called" << endmsg;
 
   ByteStreamAddress *pBS_Addr;
@@ -247,32 +220,15 @@ StatusCode MuCTPIByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& p
       CTP_RDO* ctp_result = 0;
       CTP_RIO* ctp_rio_result = 0;
 
-      sc = m_ctp_tool->convert( ROBData( *it ).getROBFragment(), ctp_result );
-      if ( sc.isFailure() ) {
-        log << MSG::ERROR << "Failed to create CTP_RDO " << endmsg;
-        return sc;
-      }
+      ATH_CHECK(  m_ctp_tool->convert( ROBData( *it ).getROBFragment(), ctp_result ) );
 
       SG::asStorable( ctp_result ) ;
-      sc = m_storeGate->record( ctp_result, "CTP_RDO" );
-      if( sc.isFailure() ) {
-        log << MSG::ERROR << "Cannot record CTP_RDO " << endmsg;
-        return sc;
-      }
+      ATH_CHECK(  m_storeGate->record( ctp_result, "CTP_RDO" ) );
 
-      sc = m_ctp_rec_tool->convert( ROBData( *it ).getROBFragment(), ctp_rio_result, log );
-      if( sc.isFailure() ) {
-        log << MSG::ERROR << "Failed to create CTP_RIO object" << endmsg;
-        return sc;
-      }
+      ATH_CHECK(  m_ctp_rec_tool->convert( ROBData( *it ).getROBFragment(), ctp_rio_result, log ) );
 
       SG::asStorable( ctp_rio_result ) ;
-      sc = m_storeGate->record( ctp_rio_result, "CTP_RIO" );
-      if( sc.isFailure() ) {
-        log << MSG::ERROR << "Cannot record CTP_RIO " << endmsg;
-        return sc;
-      }
-
+      ATH_CHECK(  m_storeGate->record( ctp_rio_result, "CTP_RIO" ) );
     }
 
   }
@@ -288,7 +244,7 @@ StatusCode MuCTPIByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& p
  */
 StatusCode MuCTPIByteStreamCnv::createRep( DataObject* pObj, IOpaqueAddress*& pAddr ) {
 
-  MsgStream log( messageService(), "MuCTPIByteStreamCnv" );
+  MsgStream log( msgSvc(), "MuCTPIByteStreamCnv" );
   log << MSG::DEBUG << "createRep() called" << endmsg;
 
   RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();

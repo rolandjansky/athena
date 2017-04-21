@@ -77,7 +77,7 @@ private:
 
   DataObjIDColl m_condIDs;
 
-  mutable std::recursive_mutex m_lock;
+  mutable std::mutex m_lock;
 
 };
 

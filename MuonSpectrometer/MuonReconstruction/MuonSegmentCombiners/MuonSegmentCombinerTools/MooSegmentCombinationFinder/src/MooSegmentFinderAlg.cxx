@@ -82,21 +82,12 @@ StatusCode MooSegmentFinderAlg::initialize()
     return StatusCode::FAILURE;
   }
 
-  //Nullify key from scheduler if not needed
-  if (!m_useMdt)        m_keyMdt = "";
-  if (!m_useCsc)        m_keyCsc = "";
-  if (!m_useRpc)        m_keyRpc = "";
-  if (!m_useTgcPriorBC) m_keyTgcPriorBC = "";
-  if (!m_useTgcNextBC)  m_keyTgcNextBC  = "";
-  if (!m_useTgc)        m_keyTgc = "";
-
-  // Only initialise the keys we need.
-  if (m_useCsc)         ATH_CHECK( m_keyCsc.initialize() );
-  if (m_useMdt)         ATH_CHECK( m_keyMdt.initialize() );
-  if (m_useRpc)         ATH_CHECK( m_keyRpc.initialize() );
-  if (m_useTgc)         ATH_CHECK( m_keyTgc.initialize() );
-  if (m_useTgcPriorBC)  ATH_CHECK( m_keyTgcPriorBC.initialize() );
-  if (m_useTgcNextBC)   ATH_CHECK( m_keyTgcNextBC.initialize() );
+  ATH_CHECK( m_keyMdt.initialize(m_useMdt) ); //Nullify key from scheduler if not needed
+  ATH_CHECK( m_keyCsc.initialize(m_useCsc) );
+  ATH_CHECK( m_keyRpc.initialize(m_useRpc) );
+  ATH_CHECK( m_keyTgcPriorBC.initialize(m_useTgcPriorBC) );
+  ATH_CHECK( m_keyTgcNextBC.initialize(m_useTgcNextBC) );
+  ATH_CHECK( m_keyTgc.initialize(m_useTgc) );
 
   ATH_CHECK( m_patternCombiLocation.initialize() );
   ATH_CHECK( m_segmentLocation.initialize() );

@@ -263,7 +263,7 @@ class AthAppMgr( AppMgr ):
          athOutSeq    = _as.AthSequencer ("AthOutSeq")
          athRegSeq    = _as.AthSequencer ("AthRegSeq")
          athAllAlgSeq = _as.AthSequencer ("AthAllAlgSeq")
-         athAlgEvtSeq = _as.AthSequencer ("AthAlgEvtSeq",Sequential = True)
+         athAlgEvtSeq = _as.AthSequencer ("AthAlgEvtSeq",Sequential = True, StopOverride=True)
          # transfer old TopAlg to new AthAlgSeq
          _top_alg = _as.AlgSequence("TopAlg")
          # first transfer properties

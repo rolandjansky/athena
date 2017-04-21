@@ -133,7 +133,7 @@ int TimeSvc::relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_ec, 
    * 
    * Ideally, it could be directly parameterized as a function of given ToT.
    * However, the ToT calibration was changed over 2015-2016, where newly calibrated ToT value was not available for 2016. 
-   * For instance, the b-layer charge tuning was changed from ToT30@MIP (2015) to ToT18@MIP (2016).
+   * For instance, the b-layer charge tuning was changed from ToT30\@MIP (2015) to ToT18\@MIP (2016).
    * Thus the time walk effect needs to be parameterized with more universal value, that is, charge information.
    * But it was non-trivial because of the migration effect between the border in ToT.
    * 

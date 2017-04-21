@@ -15,7 +15,7 @@ class egammaTopoClusterCopier : public egammaBaseTool, virtual public IegammaTop
 
  public:
 
-  /** @bried constructor */
+  /** @brief constructor */
   egammaTopoClusterCopier (const std::string& type,const std::string& name, const IInterface* parent);
 
   /** @brief destructor */

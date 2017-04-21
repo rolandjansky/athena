@@ -339,7 +339,6 @@ PoolSvc.Output    = "SimplePoolFile.root"
 # PoolSvc.FullConnection = "mysql://athena:insider@db1.usatlas.bnl.gov/pool_collection";
 PoolSvc.DbType          = "root";  # to define ROOT file resident collection
 PoolSvc.Collection      = "NewPoolTry"
-#PoolSvc.CheckDictionary = false;
 #--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------

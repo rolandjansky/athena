@@ -4,7 +4,7 @@
 
 /**
 * @file D3PDMaker/TrackD3PDMaker/src/TrackParticleToPixelClusterAssociationTool.cxx
-* @contact <yuriy.pylypchenko@cern.ch>
+* @author <yuriy.pylypchenko@cern.ch>
 * @date Oct, 2010
 * @brief setting up an association of tracks to clusters
 *        represented by indices. 

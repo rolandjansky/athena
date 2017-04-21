@@ -67,8 +67,6 @@ class eflowRecoverSplitShowersTool : virtual public eflowISubtractionAlgTool, pu
 
 private:
 
-  int m_debug;
-
   eflowCaloObjectContainer* m_eflowCaloObjectContainer;
   std::vector<eflowRecCluster*> m_clustersToConsider;
   std::vector<eflowRecTrack*> m_tracksToRecover;

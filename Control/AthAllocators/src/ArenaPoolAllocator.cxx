@@ -45,6 +45,31 @@ ArenaPoolAllocator_iterator_increment (ArenaPoolAllocator::pointer base,
 
 
 /**
+ * @brief Helper: common code for advancing an iterator.
+ * @param base Element pointer.
+ * @param block Block pointer.
+ */
+inline
+ArenaPoolAllocator::const_pointer
+ArenaPoolAllocator_iterator_increment (ArenaPoolAllocator::const_pointer base,
+                                       ArenaBlock* & block)
+{
+  // If we haven't yet reached the start of this block, move the iterator
+  // back one.
+  if (base > block->index(0,0))
+    return base - block->eltSize();
+  else {
+    // Move to the previous block.
+    block = block->link();
+    if (block)
+      return block->index (block->size()-1, block->eltSize());
+    else
+      return nullptr;
+  }
+}
+
+
+/**
  * @brief Move the iterator forward.
  */
 void ArenaPoolAllocator::iterator::increment()
@@ -59,8 +84,7 @@ void ArenaPoolAllocator::iterator::increment()
  */
 void ArenaPoolAllocator::const_iterator::increment()
 {
-  ArenaPoolAllocator::pointer base =
-    const_cast<ArenaPoolAllocator::pointer> (this->base_reference());
+  ArenaPoolAllocator::const_pointer base = this->base_reference();
   base = ArenaPoolAllocator_iterator_increment (base, m_block);
   this->base_reference() = base;
 }

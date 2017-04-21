@@ -5,6 +5,7 @@ from AthenaCommon.Logging import logging
 from CaloRingerAlgs.CaloRingerFlags import caloRingerFlags
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder import CaloRingerAlgorithmBuilder
 from CaloRingerAlgs.CaloRingerMetaDataBuilder import CaloRingerMetaDataBuilder
+from egammaRec.egammaRecFlags import jobproperties
 
 mlog = logging.getLogger( 'CaloRinger_joboptions.py' )
 mlog.info('Entering')
@@ -15,8 +16,7 @@ ringerOutputLevel = caloRingerFlags.OutputLevel()
 # ringer:
 if caloRingerFlags.buildCaloRingsOn():
   # Check egamma related objects:
-  from egammaRec.egammaGetter import egammaGetter
-  if not rec.doEgamma() or egammaGetter().disabled():
+  if not rec.doEgamma() or not jobproperties.egammaRecFlags.doEgammaCaloSeeded():
     if caloRingerFlags.buildElectronCaloRings():
       caloRingerFlags.buildElectronCaloRings.set_Value( False )
       caloRingerFlags.doElectronIdentification.set_Value( False )
@@ -95,5 +95,5 @@ if CRAlgBuilder.usable() or any( ['RingSetConf' in key for key in metaItemDict ]
       configWriter.OutputLevel = ringerOutputLevel
 else:
   # Otherwise we disable the metadata algorith:
-  MetaDataBuilder = CaloRingerMetaDataBuilder( disable = True)
+  MetaDataBuilder = CaloRingerMetaDataBuilder( disable = True )
 

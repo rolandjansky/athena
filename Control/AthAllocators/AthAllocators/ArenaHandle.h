@@ -21,6 +21,7 @@
 
 #include "AthAllocators/ArenaHandleBaseT.h"
 #include "AthAllocators/Arena.h"
+#include "CxxUtils/make_unique.h"
 
 
 namespace SG {
@@ -95,31 +96,43 @@ public:
 
   /**
    * @brief Constructor, passing in an optional parameter set.
-   * @param params Parameters to pass to the Allocator.
+   * @param params Parameters to pass to the Allocator,
+   *               or nullptr to use the defaults.
    */
-  ArenaHandle (const typename ALLOC::Params& params =
-               defaultParams_t());
+  ArenaHandle (const typename ALLOC::Params* params = nullptr);
 
 
   /**
    * @brief Constructor, passing in a Header and an optional parameter set.
    * @param header The group of Arenas which this Handle may reference.
    *               May be null to select the global default.
-   * @param params Parameters to pass to the Allocator.
+   * @param params Parameters to pass to the Allocator,
+   *               or nullptr to use the defaults.
    */
   ArenaHandle (ArenaHeader* header,
-               const typename ALLOC::Params& params =
-               defaultParams_t());
+               const typename ALLOC::Params* params = nullptr);
+
+
+  /**
+   * @brief Constructor, passing in a Header, context, and an optional parameter set.
+   * @param header The group of Arenas which this Handle may reference.
+   *               May be null to select the global default.
+   * @param params Parameters to pass to the Allocator,
+   *               or nullptr to use the defaults.
+   * @param ctx Event context identifying the event slot.
+   */
+  ArenaHandle (ArenaHeader* header,
+               const EventContext& ctx,
+               const typename ALLOC::Params* params = nullptr);
 
 
   /**
    * @brief Constructor, passing in an Arena and an optional parameter set.
-   * @param arena One Arena in the group which this Handle may reference.
-   *               May be null to select the global default.
-   * @param params Parameters to pass to the Allocator.
+   * @param arena The Arena in which to create the Allocator.
+   * @param params Parameters to pass to the Allocator,
+   *               or nullptr to use the defaults.
    */
-  ArenaHandle (Arena* arena, const typename ALLOC::Params& params =
-               defaultParams_t());
+  ArenaHandle (Arena* arena, const typename ALLOC::Params* params = nullptr);
 
 
   /**
@@ -128,7 +141,7 @@ public:
    * The element's constructor will not have been called; thus, the memory
    * is returned as a @c void*.
    */
-  void* allocate() const;
+  void* allocate();
 
 
   /**
@@ -136,7 +149,8 @@ public:
    * @param params The parameters for the Allocator.
    */
   static
-  ArenaAllocatorBase* makeAllocator (const typename ALLOC::Params& params);
+  std::unique_ptr<ArenaAllocatorBase>
+  makeAllocator (const typename ALLOC::Params& params);
 
 
   // The following methods are inherited:

@@ -21,15 +21,19 @@ inclusion in an event tag database.
 *****************************************************************************/
 
 /**
-  @class EventTagBuilder
+   @class EventTagBuilder
 
-  @brief Algorithm to store event tag information in an attribute list object.
+   @brief Algorithm to store event tag information in an attribute list object.
 
 */
 
-#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "EventInfoAttListTool.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "PersistentDataModel/AthenaAttributeList.h"
+#include "GaudiKernel/ToolHandle.h"
 
 class EventInfoTagBuilder : public AthAlgorithm {
 public:
@@ -46,11 +50,12 @@ public:
 
 private:
   
-  /// Attribute list name
-  std::string m_attributeListName;
-
   /// Global Event Tag Tool
   ToolHandle<EventInfoAttListTool> m_tool;
+
+  SG::ReadHandleKey<xAOD::EventInfo> m_evtKey;
+  SG::WriteHandleKey<AthenaAttributeList> m_attributeListName;
+
 };
 
 #endif // EVENTTAGALGS_EVENTINFOTAGBUILDER_H

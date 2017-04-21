@@ -7,7 +7,7 @@
 #ifndef XAODJET_JETCONSTITUENTSVECTOR_H
 #define XAODJET_JETCONSTITUENTSVECTOR_H
 /////////////////////////////////////////////////
-/// \filed JetConstituentVector.h
+/// \file JetConstituentVector.h
 /// \brief This file defines helper classes to deal with jet constituents.
 /// 
 /// Helper classes are necessary because the default 4-vectors of the constituents (ex: clusters) 

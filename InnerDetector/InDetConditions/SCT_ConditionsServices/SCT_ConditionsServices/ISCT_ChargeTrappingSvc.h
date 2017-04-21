@@ -4,7 +4,7 @@
 
 /**
  * @file ISCT_ChargeTrappingSvc.h
- * @primary author for Pixels: Carolina Deluca (carolina.deluca.silberberg@cern.ch)
+ * @note primary author for Pixels: Carolina Deluca (carolina.deluca.silberberg@cern.ch)
  * @author for SCT: Peter Vankov (peter.vankov@cern.ch) 
  *                  Marco Filipuzzi (marco.filipuzzi@cern.ch)
  **/

@@ -472,7 +472,7 @@ namespace SG {
   /**
    * @brief Output stream.
    * @param out Stream to which to write.
-   * @parma o Object to write.
+   * @param o Object to write.
    */
   std::ostream& operator<<( std::ostream& out, const VarHandleBase& o );
 

@@ -44,12 +44,11 @@ namespace EFlow_Fn{
 eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const std::string& name, const IInterface* parent) :
     AthAlgTool(type, name, parent),
     m_PFOOutputName("JetETMiss"),
-    m_chargedPFOContainer(0),
-    m_neutralPFOContainer(0),
-    m_neutralPFOContainer_nonModified(0),
+    m_chargedPFOContainer(nullptr),
+    m_neutralPFOContainer(nullptr),
+    m_neutralPFOContainer_nonModified(nullptr),
     m_eOverPMode(false),
     m_goldenModeString(""),
-    m_debug(0),
     m_LCMode(false),
     m_trackVertexAssociationTool(""),
     m_vertexContainerName("PrimaryVertices"),
@@ -243,7 +242,6 @@ void eflowObjectCreatorTool::createChargedEflowObjects(eflowCaloObject* energyFl
     /* Optionally we add the links to clusters to the xAOD::PFO */
     if (true == addClusters){
        unsigned int nClusters = energyFlowCaloObject->nClusters();
-       std::cout << " nClusters is " << nClusters << std::endl;
        for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster){
 	 eflowRecCluster* thisEfRecCluster = energyFlowCaloObject->efRecCluster(iCluster);
 	 ElementLink<xAOD::CaloClusterContainer> theClusLink = thisEfRecCluster->getClusElementLink();
@@ -467,10 +465,8 @@ void eflowObjectCreatorTool::createNeutralEflowObjects(eflowCaloObject* energyFl
     xAOD::PFODetails::PFOAttributes myAttribute_TIMING = xAOD::PFODetails::PFOAttributes::eflowRec_TIMING;
     thisEflowObject->setAttribute(myAttribute_TIMING, clusterTiming);
 
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Created neutral EFO with E, eta and phi of " << thisEflowObject->e() << ", " << thisEflowObject->eta() << " and " << thisEflowObject->phi() << std::endl;
 
-    if (m_debug){
-      std::cout << "Created neutral EFO with E, eta and phi of " << thisEflowObject->e() << ", " << thisEflowObject->eta() << " and " << thisEflowObject->phi() << std::endl;
-    }
   }
 }
 

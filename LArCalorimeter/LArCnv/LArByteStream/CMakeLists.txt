@@ -26,7 +26,7 @@ atlas_depends_on_subdirs(
    LArCalorimeter/LArRecConditions
    LArCalorimeter/LArRecEvent
    LArCalorimeter/LArRecUtils
-   LArCalorimeter/LArTools
+   LArCalorimeter/LArCabling
    PRIVATE
    Calorimeter/CaloInterface
    Control/CLIDSvc
@@ -47,7 +47,7 @@ atlas_add_library( LArByteStreamLib
    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloIdentifier AthenaBaseComps
    AthenaKernel ByteStreamData EventInfo GaudiKernel LArIdentifier LArRawEvent
    LArRecConditions LArRecEvent CaloDetDescrLib CaloUtilsLib StoreGateLib
-   ByteStreamCnvSvcBaseLib LArRODLib LArRawUtilsLib LArRecUtilsLib LArToolsLib
+   ByteStreamCnvSvcBaseLib LArRODLib LArRawUtilsLib LArRecUtilsLib LArCablingLib
    ByteStreamCnvSvcLib
    PRIVATE_LINK_LIBRARIES SGTools AtlasDetDescr Identifier LArRawConditions )
 

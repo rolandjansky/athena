@@ -25,7 +25,6 @@
 #include <TTree.h>
 
 namespace TrigCostRootAnalysis {
-
   /**
    * @file TrigCostDaa.cxx
    * Useful derived information, which is not stored directly in the D3PD is calculated upon first request
@@ -54,11 +53,10 @@ namespace TrigCostRootAnalysis {
     m_bufferEventNumber(-1),
     m_hasLumiData(kTRUE),
     m_emptySet(),
-    m_trigCostObject(0)
-  {
+    m_trigCostObject(0) {
     setup(_master, _prefix, _tree);
   }
-  
+
   /**
    * TrigCostData constructor. Empty constructor. Must subsiquently call setup()
    * @see TrigCostData(const Long64_t& _master, const char* _prefix, TTree* _tree)
@@ -70,11 +68,10 @@ namespace TrigCostRootAnalysis {
     m_hasLumiData(kTRUE),
     m_emptySet(),
     m_rosMatching(kFALSE),
-    m_trigCostObject(0)
-  {
+    m_trigCostObject(0) {
     //Nothing here
   }
-  
+
   /**
    * TrigCostData destructor, remove wrapped D3PDReader object.
    */
@@ -89,7 +86,7 @@ namespace TrigCostRootAnalysis {
   void TrigCostData::setup(const Long64_t& _master, const char* _prefix, TTree* _tree) {
     // Very important: _master is pass by ref, used directly
     m_trigCostObject = new D3PDReader::TrigCostD3PDObject(_master, _prefix);
-    m_trigCostObject->ReadFrom( _tree );
+    m_trigCostObject->ReadFrom(_tree);
 #ifdef MTHREAD
     m_trigCostObject->SetActive();
 #endif
@@ -104,7 +101,10 @@ namespace TrigCostRootAnalysis {
    */
   Float_t TrigCostData::getSeqAlgTimeStart(UInt_t _n, UInt_t _a) const {
     MUTEX_ON
-    Float_t _r = ( m_trigCostObject->seq_alg_timeStartMicroSec()->at(_n).at(_a)/1e6 + m_trigCostObject->seq_alg_timeStartSec()->at(_n).at(_a) ) ;
+    Float_t _r =
+      (m_trigCostObject->seq_alg_timeStartMicroSec()->at(_n).at(_a) / 1e6 +
+       m_trigCostObject->seq_alg_timeStartSec()->at(_n).at(_a));
+
     MUTEX_OFF
     return _r;
   }
@@ -116,17 +116,21 @@ namespace TrigCostRootAnalysis {
    */
   Float_t TrigCostData::getSeqAlgTimeStop(UInt_t _n, UInt_t _a) const {
     MUTEX_ON
-    Float_t _r = (  m_trigCostObject->seq_alg_timeStopMicroSec()->at(_n).at(_a)/1e6 + m_trigCostObject->seq_alg_timeStopSec()->at(_n).at(_a) ) ;
+    Float_t _r =
+      (m_trigCostObject->seq_alg_timeStopMicroSec()->at(_n).at(_a) / 1e6 +
+       m_trigCostObject->seq_alg_timeStopSec()->at(_n).at(_a));
+
     MUTEX_OFF
     return _r;
   }
-  
+
   /**
    * @return The event number.
    */
   Int_t TrigCostData::getEventNumber() const {
     MUTEX_ON
     Int_t _R = m_trigCostObject->eventNumber();
+
     MUTEX_OFF
     return _R;
   }
@@ -137,50 +141,57 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getBunchCrossingId() const {
     MUTEX_ON
     Int_t _R = m_trigCostObject->bunchCrossingId();
+
     MUTEX_OFF
     return _R;
   }
 
-
   /**
-   * @return The enhanced bias weight from the ntuple - note this needs to be calculated explicitly when creating the D3PD.
+   * @return The enhanced bias weight from the ntuple - note this needs to be calculated explicitly when creating the
+   *D3PD.
    * Normally this will be done centally and distributed in this package.
    */
   Float_t TrigCostData::getEBWeight() const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->ebWeight();
+
     MUTEX_OFF
     return _R;
   }
 
   /**
-   * @return The bunch group associated with the EB weight - note this needs to be calculated explicitly when creating the D3PD.
+   * @return The bunch group associated with the EB weight - note this needs to be calculated explicitly when creating
+   *the D3PD.
    * This is decoded internally, but for reference matches up with Bunch Group Set 489
    * (FILLED=1, CALREQ=2, EMPTY=3, UNPAIRED_ISO=4, UNPAIRED_NONISO=5, FIRSTEMPTY=6, UNPAIRED=7)
    */
   UInt_t TrigCostData::getEBWeightBG() const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->ebWeightBG();
+
     MUTEX_OFF
     return _R;
   }
 
   /**
-   * @return If - when writing the EB weighting file - this event, and hence this weight, corresponded to an unbiased L1 trigger
+   * @return If - when writing the EB weighting file - this event, and hence this weight, corresponded to an unbiased L1
+   *trigger
    */
   Bool_t TrigCostData::getEBUnbiased() const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->ebUnbiased();
+
     MUTEX_OFF
     return _R;
   }
 
   /**
-   * @return If this event was a full monitoring event or not. Only full monitoring events have 
+   * @return If this event was a full monitoring event or not. Only full monitoring events have
    */
   Bool_t TrigCostData::getIsMonitoringEvent() const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->ranScaleTools();
+
     MUTEX_OFF
     return _R;
   }
@@ -190,17 +201,19 @@ namespace TrigCostRootAnalysis {
    */
   Int_t TrigCostData::getRunNumber() const {
     MUTEX_ON
-    Int_t _R =  m_trigCostObject ? m_trigCostObject->runNumber() : 0;
+    Int_t _R = m_trigCostObject ? m_trigCostObject->runNumber() : 0;
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @return The lumi block number.
    */
   Int_t TrigCostData::getLumi() const {
     MUTEX_ON
     Int_t _R = m_trigCostObject->lumi();
+
     MUTEX_OFF
     return _R;
   }
@@ -215,12 +228,12 @@ namespace TrigCostRootAnalysis {
       MUTEX_OFF
       if (isZero(_lbl)) {
         m_hasLumiData = kFALSE;
-        return Config::config().getInt(kDefaultLBLength); 
+        return Config::config().getInt(kDefaultLBLength);
       }
       return _lbl;
     }
     return Config::config().getInt(kDefaultLBLength);
-  } 
+  }
 
   /**
    * @return The hash ID of the HLT processing unit which ran the execution of this event
@@ -228,6 +241,7 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getAppId() const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->appId();
+
     MUTEX_OFF
     return _R;
   }
@@ -238,6 +252,7 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getCostEvent() const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->costEvent();
+
     MUTEX_OFF
     return _R;
   }
@@ -248,6 +263,7 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getCostRunSec() const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->costRunSec();
+
     MUTEX_OFF
     return _R;
   }
@@ -258,6 +274,7 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getCostRunNsec() const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->costRunNsec();
+
     MUTEX_OFF
     return _R;
   }
@@ -268,6 +285,7 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getTimerTrigCost() const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->timerTrigCost();
+
     MUTEX_OFF
     return _R;
   }
@@ -278,6 +296,7 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getTimerEndSteer() const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->timerEndSteer();
+
     MUTEX_OFF
     return _R;
   }
@@ -288,6 +307,7 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getTimerChainProcessed() const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->timerChainProcess();
+
     MUTEX_OFF
     return _R;
   }
@@ -298,6 +318,7 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getTimerResultBuilder() const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->timerResultBuilder();
+
     MUTEX_OFF
     return _R;
   }
@@ -308,6 +329,7 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getTimerMonitoring() const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->timerMon();
+
     MUTEX_OFF
     return _R;
   }
@@ -318,10 +340,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getNChains() const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->chain_n();
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Chain index in D3PD.
    * @return The ID of the chain.
@@ -329,10 +352,11 @@ namespace TrigCostRootAnalysis {
   Int_t TrigCostData::getChainID(UInt_t _n) const {
     MUTEX_ON
     Int_t _R = m_trigCostObject->chain_counter()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Chain index in D3PD.
    * @return Numeric level of this chain (1, 2, 3).
@@ -340,10 +364,11 @@ namespace TrigCostRootAnalysis {
   Int_t TrigCostData::getChainLevel(UInt_t _n) const {
     MUTEX_ON
     Int_t _R = m_trigCostObject->chain_level()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Chain index in D3PD.
    * @return If the chain passed the physics trigger in this event.
@@ -351,10 +376,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsChainPassed(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->chain_isPassed()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Chain index in D3PD.
    * @return If the chain passed raw (before any vetoes).
@@ -362,10 +388,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsChainPassedRaw(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->chain_isPassedRaw()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Chain index in D3PD.
    * @return If the chain was accepted as passthrough.
@@ -373,10 +400,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsChainPassthrough(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->chain_isPassthrough()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Chain index in D3PD.
    * @return If the chain was resurrected from re-running the HLT.
@@ -384,10 +412,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsChainResurrected(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->chain_isResurrected()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Chain index in D3PD.
    * @return If the chain was prescaled. Use the trigger configuration classes to return the prescale value.
@@ -395,10 +424,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsChainPrescaled(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->chain_isPrescaled()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Chain index in D3PD.
    * @return If the chain was in the express stream.
@@ -406,10 +436,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsChainExpressStream(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->chain_isExpressStream()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Chain index in D3PD.
    * @return If the chain's L1 seeding item passed L1 prescales and deadtime requirements.
@@ -417,10 +448,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIfChainWasL1AfterVeto(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->chain_wasL1AfterVeto()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Chain index in D3PD.
    * @return If the chain's L1 seeding item passed before L1 prescales were applied.
@@ -428,10 +460,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIfChainWasL1BeforePrescale(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->chain_wasL1BeforePrescale()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Chain index in D3PD.
    * @return If the chain's L1 seeding item passed after L1 prescale was applied.
@@ -439,10 +472,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIfChainWasL1AfterPrescale(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->chain_wasL1AfterPrescale()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * Get time taken to execute chain as stored by the chain itself. This may not be filled.
    * @see getChainTimerFromSequences(UInt_t _n)
@@ -452,20 +486,22 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getChainTimer(UInt_t _n) const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->chain_timer()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-    
+
   /**
    * @return number of L1 items.
    */
   UInt_t TrigCostData::getNL1() const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->l1_n();
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n L1 chain index in D3PD.
    * @return CTP ID number for L1 chain.
@@ -473,10 +509,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getL1CtpId(UInt_t _n) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->l1_ctpId()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n L1 chain index in D3PD.
    * @return If chain was prescale (prescale != 1).
@@ -484,10 +521,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsL1Prescaled(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->l1_isPrescaled()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n L1 chain index in D3PD.
    * @return If chain was vetoed (due to deadtime).
@@ -495,10 +533,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsL1Vetoed(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->l1_isVetoed()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n L1 chain index in D3PD.
    * @return If L1 chain passed (caused a L1 accept)
@@ -506,10 +545,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsL1Passed(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->l1_passed()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n L1 chain index in D3PD.
    * @return If chain passed after the application of the L1 prescale.
@@ -517,10 +557,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsL1PassedAfterPrescale(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->l1_passedAfterPrescale()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n L1 chain index in D3PD.
    * @return If chain passed before L1 prescale was applied.
@@ -528,27 +569,30 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsL1PassedBeforePrescale(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->l1_passedBeforePrescale()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n L1 chain index in D3PD.
    * @return If the chain passed after the L1 veto (deadtime) was applied.
    */
-  Bool_t TrigCostData::getIsL1PassedAfterVeto (UInt_t _n) const {
+  Bool_t TrigCostData::getIsL1PassedAfterVeto(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->l1_passedAfterVeto()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @return Number of sequences in the event.
    */
   UInt_t TrigCostData::getNSequences() const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->seq_n();
+
     MUTEX_OFF
     return _R;
   }
@@ -561,10 +605,11 @@ namespace TrigCostRootAnalysis {
   Int_t TrigCostData::getSequenceIndex(UInt_t _n) const {
     MUTEX_ON
     Int_t _R = m_trigCostObject->seq_index()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Sequence index in D3PD.
    * @return The sequence's parent chain ID.
@@ -572,10 +617,11 @@ namespace TrigCostRootAnalysis {
   Int_t TrigCostData::getSequenceChannelCounter(UInt_t _n) const {
     MUTEX_ON
     Int_t _R = m_trigCostObject->seq_channelCounter()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Sequence index in D3PD.
    * @return Numeric level of this sequence (2 or 3).
@@ -583,10 +629,11 @@ namespace TrigCostRootAnalysis {
   Int_t TrigCostData::getSequenceLevel(UInt_t _n) const {
     MUTEX_ON
     Int_t _R = m_trigCostObject->seq_level()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Sequence index in D3PD.
    * @return The total time of sequence execution based on the algorithms in the sequence.
@@ -594,10 +641,11 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getSequenceAlgTotalTime(UInt_t _n) const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->seq_algTotalTime()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * This direct fetch may not be filled.
    * @see getSequenceAlgTotalTime(UInt_t _n)
@@ -607,10 +655,11 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getSequenceTime(UInt_t _n) const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->seq_timer()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * Get if this sequence Trigger Element was cached.
    * @param _n Sequence index in D3PD.
@@ -619,21 +668,23 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsSequenceAlreadyExecuted(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->seq_isAlreadyExecuted()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Sequence index in D3PD.
    * @return If the sequence's algorithms were executed for its parent chain in this event.
    */
-  Bool_t  TrigCostData::getIsSequenceExecuted(UInt_t _n) const {
+  Bool_t TrigCostData::getIsSequenceExecuted(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->seq_isExecuted()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Sequence index in D3PD.
    * @return If was initialisation of sequence execution.
@@ -641,21 +692,23 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsSequenceInitial(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->seq_isInitial()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Sequence index in D3PD.
    * @return If sequence was executed by other sequence.
    */
-  Bool_t  TrigCostData::getIsSequencePrevious(UInt_t _n) const {
+  Bool_t TrigCostData::getIsSequencePrevious(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->seq_isPrevious()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Sequence index in D3PD.
    * @return Number of algorithms in this sequence.
@@ -663,10 +716,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getNSeqAlgs(UInt_t _n) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->seq_alg_n()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Sequence index in D3PD.
    * @param _a Algorithm index in sequence.
@@ -675,6 +729,7 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getSeqAlgTimer(UInt_t _n, UInt_t _a) const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->seq_alg_timer()->at(_n).at(_a);
+
     MUTEX_OFF
     return _R;
   }
@@ -687,10 +742,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getSeqAlgTimeStartSec(UInt_t _n, UInt_t _a) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->seq_alg_timeStartSec()->at(_n).at(_a);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Sequence index in D3PD.
    * @param _a Algorithm index in sequence.
@@ -699,10 +755,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getSeqAlgTimeStartMicroSec(UInt_t _n, UInt_t _a) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->seq_alg_timeStartMicroSec()->at(_n).at(_a);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Sequence index in D3PD.
    * @param _a Algorithm index in sequence.
@@ -711,10 +768,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getSeqAlgTimeStopSec(UInt_t _n, UInt_t _a) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->seq_alg_timeStopSec()->at(_n).at(_a);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Sequence index in D3PD.
    * @param _a Algorithm index in sequence.
@@ -723,10 +781,10 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getSeqAlgTimeStopMicroSec(UInt_t _n, UInt_t _a) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->seq_alg_timeStopMicroSec()->at(_n).at(_a);
+
     MUTEX_OFF
     return _R;
   }
-
 
   /**
    * @param _n Sequence index in D3PD.
@@ -736,10 +794,11 @@ namespace TrigCostRootAnalysis {
   Int_t TrigCostData::getSeqAlgPosition(UInt_t _n, UInt_t _a) const {
     MUTEX_ON
     Int_t _R = (Int_t) m_trigCostObject->seq_alg_position()->at(_n).at(_a);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Sequence index in D3PD.
    * @param _a Algorithm index in sequence.
@@ -748,10 +807,11 @@ namespace TrigCostRootAnalysis {
   Int_t TrigCostData::getSeqAlgNRoI(UInt_t _n, UInt_t _a) const {
     MUTEX_ON
     Int_t _R = (Int_t) m_trigCostObject->seq_alg_roi_n()->at(_n).at(_a);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Sequence index in D3PD.
    * @param _a Algorithm index in sequence.
@@ -760,10 +820,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getSeqAlgIsCached(UInt_t _n, UInt_t _a) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->seq_alg_isCached()->at(_n).at(_a);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n Sequence index in D3PD.
    * @param _a Algorithm index in sequence.
@@ -772,6 +833,7 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getSeqAlgIsCalled(UInt_t _n, UInt_t _a) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->seq_alg_isCalled()->at(_n).at(_a);
+
     MUTEX_OFF
     return _R;
   }
@@ -782,10 +844,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getNROBs() const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->rob_n();
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @return Hash of requesting algorithm's name.
@@ -793,10 +856,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getROBReqID(UInt_t _n) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->rob_requestorId()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @return Time for total ROB data fetch execution.
@@ -804,6 +868,7 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getROBTimer(UInt_t _n) const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->rob_timer()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
@@ -814,7 +879,8 @@ namespace TrigCostRootAnalysis {
    */
   UInt_t TrigCostData::getROBTimeStartSec(UInt_t _n) const {
     MUTEX_ON
-    UInt_t _R = m_trigCostObject->rob_timeStartSec()->at(_n); 
+    UInt_t _R = m_trigCostObject->rob_timeStartSec()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
@@ -822,36 +888,38 @@ namespace TrigCostRootAnalysis {
   /**
    * @param _n ROB index in D3PD.
    * @return Micro second of request start.
-   */  
-  UInt_t TrigCostData::getROBTimeStartMicroSec(UInt_t _n) const { 
+   */
+  UInt_t TrigCostData::getROBTimeStartMicroSec(UInt_t _n) const {
     MUTEX_ON
-    UInt_t _R = m_trigCostObject->rob_timeStartMicroSec()->at(_n); 
+    UInt_t _R = m_trigCostObject->rob_timeStartMicroSec()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @return Second of request stop (1 hour range, 0-3599)
    */
-  UInt_t TrigCostData::getROBTimeStopSec(UInt_t _n) const { 
+  UInt_t TrigCostData::getROBTimeStopSec(UInt_t _n) const {
     MUTEX_ON
-    UInt_t _R = m_trigCostObject->rob_timeStopSec()->at(_n); 
+    UInt_t _R = m_trigCostObject->rob_timeStopSec()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @return Micro second of request stop.
-   */  
-  UInt_t TrigCostData::getROBTimeStopMicroSec(UInt_t _n) const { 
+   */
+  UInt_t TrigCostData::getROBTimeStopMicroSec(UInt_t _n) const {
     MUTEX_ON;
     UInt_t _R = m_trigCostObject->rob_timeStopMicroSec()->at(_n);
     MUTEX_OFF
-    return _R; 
+    return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @return Number of individual data requests.
@@ -859,10 +927,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getROBDataN(UInt_t _n) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->rob_data_n()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @param _r ROB Data index in ROB.
@@ -871,10 +940,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getROBDataID(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->rob_data_id()->at(_n).at(_r);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * Get size of this ROB data in kilobytes.
    * @param _n ROB index in D3PD.
@@ -884,10 +954,11 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getROBDataSize(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->rob_data_size()->at(_n).at(_r) / 1024.;
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @param _r ROB Data index in ROB.
@@ -896,10 +967,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsROBDataCached(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->rob_data_isCached()->at(_n).at(_r);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @param _r ROB Data index in ROB.
@@ -908,10 +980,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsROBDataDisabled(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->rob_data_isDisabled()->at(_n).at(_r);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @param _r ROB Data index in ROB.
@@ -920,10 +993,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsROBDataIgnored(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->rob_data_isIgnored()->at(_n).at(_r);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @param _r ROB Data index in ROB.
@@ -931,12 +1005,13 @@ namespace TrigCostRootAnalysis {
    */
   Bool_t TrigCostData::getIsROBDataRetrieved(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
-      //   std::cout << "_n    " << _n << " ||||   _r   " << _r << std::endl;
+    //   std::cout << "_n    " << _n << " ||||   _r   " << _r << std::endl;
     Bool_t _R = (Bool_t) m_trigCostObject->rob_data_isRetrieved()->at(_n).at(_r);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @param _r ROB Data index in ROB.
@@ -945,10 +1020,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsROBDataStatusOK(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->rob_data_isStatusOk()->at(_n).at(_r);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @param _r ROB Data index in ROB.
@@ -957,10 +1033,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsROBDataStatusPrefetched(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->rob_data_isStatusPrefetched()->at(_n).at(_r);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @param _r ROB Data index in ROB.
@@ -969,6 +1046,7 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsROBDataUnclassified(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->rob_data_isUnclassified()->at(_n).at(_r);
+
     MUTEX_OFF
     return _R;
   }
@@ -980,10 +1058,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getROBSumN(UInt_t _n) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->rob_sum_n()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @param _r ROB SumData index in ROB.
@@ -992,10 +1071,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getROBSumDetID(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->rob_sum_subDet()->at(_n).at(_r);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @param _r ROB SumData index in ROB.
@@ -1004,10 +1084,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getROBSumNROBs(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->rob_sum_nRob()->at(_n).at(_r);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * Get size of this ROB data in kilobytes.
    * @param _n ROB index in D3PD.
@@ -1017,10 +1098,11 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getROBSumSize(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->rob_sum_size()->at(_n).at(_r) / 1024.;
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @param _r ROB SumData index in ROB.
@@ -1029,10 +1111,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsROBSumCached(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->rob_sum_isCached()->at(_n).at(_r);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @param _r ROB SumData index in ROB.
@@ -1041,10 +1124,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsROBSumDisabled(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->rob_sum_isDisabled()->at(_n).at(_r);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @param _r ROB SumData index in ROB.
@@ -1053,10 +1137,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsROBSumIgnored(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->rob_sum_isIgnored()->at(_n).at(_r);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @param _r ROB SumData index in ROB.
@@ -1065,10 +1150,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsROBSumRetrieved(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->rob_sum_isRetrieved()->at(_n).at(_r);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n ROB index in D3PD.
    * @param _r ROB SumData index in ROB.
@@ -1077,20 +1163,22 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsROBSumUnclassified(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->rob_sum_isUnclassified()->at(_n).at(_r);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @return Number of Regions of Interest in the event.
    */
-  UInt_t TrigCostData::getNRoIs() const  {
+  UInt_t TrigCostData::getNRoIs() const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->roi_n();
+
     MUTEX_OFF
     return _R;
   }
- 
+
   /**
    * @param _n RoI index in D3PD.
    * @return Region of Interest ID number.
@@ -1098,10 +1186,11 @@ namespace TrigCostRootAnalysis {
   Int_t TrigCostData::getRoIID(Int_t _n) const {
     MUTEX_ON
     Int_t _R = m_trigCostObject->roi_id()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n RoI index in D3PD.
    * @return Region of Interest area in (eta,phi) space.
@@ -1109,10 +1198,11 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getRoIArea(UInt_t _n) const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->roi_area()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n RoI index in D3PD.
    * @return Region of Interest pseudorapidity.
@@ -1120,10 +1210,11 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getRoIEta(UInt_t _n) const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->roi_eta()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n RoI index in D3PD.
    * @return Region of Interest azimuthal angle.
@@ -1131,10 +1222,11 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getRoIPhi(UInt_t _n) const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->roi_phi()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n RoI index in D3PD.
    * @return Number of passed L1 thresholds for Region of Interest.
@@ -1142,10 +1234,11 @@ namespace TrigCostRootAnalysis {
   Int_t TrigCostData::getRoINL1Thresh(UInt_t _n) const {
     MUTEX_ON
     Int_t _R = (Int_t) m_trigCostObject->roi_nL1Thresholds()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n RoI index in D3PD.
    * @return If Region of Interest is of type electromagnetic / tau.
@@ -1153,6 +1246,7 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsRoIEmTau(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->roi_isTypeEmTau()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
@@ -1164,10 +1258,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsRoITau(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->roi_isTau()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n RoI index in D3PD.
    * @return If Region of Interest is of type energy (e.g. total, missing)
@@ -1175,10 +1270,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsRoIEnergy(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->roi_isTypeEnergy()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n RoI index in D3PD.
    * @return If Region of Interest is of type jet.
@@ -1186,10 +1282,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsRoIJet(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->roi_isTypeJet()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n RoI index in D3PD.
    * @return If Region of Interest is of type jet ET.
@@ -1197,10 +1294,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsRoIJetEt(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->roi_isTypeJetEt()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n RoI index in D3PD.
    * @return If Region of Interest is of type muon.
@@ -1208,10 +1306,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsRoIMuon(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->roi_isTypeMuon()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n RoI index in D3PD.
    * @return If Region of Interest is of type none.
@@ -1219,9 +1318,10 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsRoINone(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->roi_isTypeNone()->at(_n);
+
     MUTEX_OFF
     return _R;
-  }  
+  }
 
   /**
    * @param _n RoI index in D3PD.
@@ -1230,6 +1330,7 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getRoIEt(UInt_t _n) const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->roi_et()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
@@ -1237,20 +1338,23 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getRoIEtLarge(UInt_t _n) const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->roi_etLarge()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
 
-  Int_t   TrigCostData::getRoIMuonCharge(UInt_t _n) const {
+  Int_t TrigCostData::getRoIMuonCharge(UInt_t _n) const {
     MUTEX_ON
     Int_t _R = m_trigCostObject->roi_muCharge()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
 
-  Int_t   TrigCostData::getRoIEmTauIsoBits(UInt_t _n) const {
+  Int_t TrigCostData::getRoIEmTauIsoBits(UInt_t _n) const {
     MUTEX_ON
     Int_t _R = m_trigCostObject->roi_isoBits()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
@@ -1258,6 +1362,7 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getRoIVectorEX(UInt_t _n) const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->roi_vectorEX()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
@@ -1265,41 +1370,46 @@ namespace TrigCostRootAnalysis {
   Float_t TrigCostData::getRoIVectorEY(UInt_t _n) const {
     MUTEX_ON
     Float_t _R = m_trigCostObject->roi_vectorEY()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
 
-  Bool_t  TrigCostData::getRoIOverflowEX(UInt_t _n) const {
+  Bool_t TrigCostData::getRoIOverflowEX(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->roi_overflowEX()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
 
-  Bool_t  TrigCostData::getRoIOverflowEY(UInt_t _n) const {
+  Bool_t TrigCostData::getRoIOverflowEY(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->roi_overflowEY()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
 
-  Bool_t  TrigCostData::getRoIOverflowET(UInt_t _n) const {
+  Bool_t TrigCostData::getRoIOverflowET(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->roi_overflowET()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @return Number of trigger elements in event.
    */
   UInt_t TrigCostData::getNTEs() const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->te_n();
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @return Trigger element index.
@@ -1307,10 +1417,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getTEIndex(UInt_t _n) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->te_index()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @return Trigger element ID number.
@@ -1318,10 +1429,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getTEID(UInt_t _n) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->te_id()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @param _c Child index in TE.
@@ -1330,10 +1442,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getTEChildIndex(UInt_t _n, UInt_t _c) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->te_childIndex()->at(_n).at(_c);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @param _c Parent index in TE.
@@ -1342,10 +1455,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getTEParentIndex(UInt_t _n, UInt_t _c) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->te_parentIndex()->at(_n).at(_c);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @param _c CLID index in TE.
@@ -1354,10 +1468,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getTECLIDIndex(UInt_t _n, UInt_t _c) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->te_clid()->at(_n).at(_c);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @param _c RoI index in TE.
@@ -1366,10 +1481,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getTERoIIDIndex(UInt_t _n, UInt_t _c) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->te_roiId()->at(_n).at(_c);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @return Number of parent TEs.
@@ -1377,10 +1493,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getTEChildSize(UInt_t _n) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->te_childIndex()->at(_n).size();
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @return Number of child TEs.
@@ -1388,10 +1505,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getTEParentSize(UInt_t _n) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->te_parentIndex()->at(_n).size();
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @return Number of attached CLIDs.
@@ -1399,10 +1517,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getTECLIDSize(UInt_t _n) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->te_clid()->at(_n).size();
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @return Number of seeding RoIs.
@@ -1410,10 +1529,11 @@ namespace TrigCostRootAnalysis {
   UInt_t TrigCostData::getTERoIIDSize(UInt_t _n) const {
     MUTEX_ON
     UInt_t _R = m_trigCostObject->te_roiId()->at(_n).size();
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @return If TE was of Active state.
@@ -1421,10 +1541,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsTEActiveState(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->te_isActiveState()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @return If TE was of Error state.
@@ -1432,10 +1553,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsTEErrorState(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->te_isErrorState()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @return If was initial TE.
@@ -1443,10 +1565,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsTEInitial(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->te_isInitialTe()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @return If is L1 threshold TE attached to RoI TE.
@@ -1454,10 +1577,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsTEL1Threshold(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->te_isL1ThresholdTe()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @return If TE is output node of passed or passedRaw chain in EF.
@@ -1465,10 +1589,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsTEOutputEFNode(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->te_isOutputEFNode()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @return If TE is output node of passed or passedRaw chain in L2.
@@ -1476,10 +1601,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsTEOutputL2Node(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->te_isOutputL2Node()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @return If TE is regular TE in navigation tree.
@@ -1487,10 +1613,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsTERegularTe(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->te_isRegularTe()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @return If TE is RoI TE attached to initial TE.
@@ -1498,10 +1625,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsTERoITe(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->te_isRoITe()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @return If TE is terminal node, with no more TEs seeded from it.
@@ -1509,10 +1637,11 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsTETerminalNode(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->te_isTerminalNode()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
-  
+
   /**
    * @param _n TE index in D3PD.
    * @return If TE is TopologicalTE (and therefore has > 1 parent)
@@ -1520,6 +1649,7 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsTETopologicalTe(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->te_isTopologicalTe()->at(_n);
+
     MUTEX_OFF
     return _R;
   }
@@ -1527,15 +1657,14 @@ namespace TrigCostRootAnalysis {
   /**
    * Pointer to the process event object, for debug mostly
    */
-  ProcessEvent* TrigCostData::getParent() const { 
+  ProcessEvent* TrigCostData::getParent() const {
     return m_parent;
   }
-  
+
   /**
    * Pointer to the process event object, for debug mostly
    */
-  void TrigCostData::setParent(ProcessEvent* _parent) const { 
+  void TrigCostData::setParent(ProcessEvent* _parent) const {
     m_parent = _parent;
   }
-  
 } // namespace TrigCostRootAnalysis

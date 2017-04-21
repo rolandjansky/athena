@@ -741,6 +741,16 @@ public:
 
 
   /**
+   * @brief Cast from a @c DataVector to a @c ConstDataVector.
+   * @param dv Pointer to object to cast.
+   *
+   * Return @c DV cast to a @c ConstDataVector.
+   */
+  static
+  const ConstDataVector* fromDataVector (const DV* dv);
+
+
+  /**
    * @brief Reset indices / reorder aux data after elements have been permuted.
    * @param beg Start of the range of elements to process.
    * @param end End of the range of elements to process.

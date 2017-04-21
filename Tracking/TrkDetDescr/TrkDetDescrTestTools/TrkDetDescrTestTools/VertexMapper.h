@@ -32,7 +32,7 @@ namespace Trk {
       The vertex mapper transforms vertices from global coordinates into the local coordinate frame
       of the closest sensitive surface
     
-      @TODO add option to also map onto non-sensitive layers
+      @todo add option to also map onto non-sensitive layers
 
       @author Andreas.Salzburger@cern.ch
      */

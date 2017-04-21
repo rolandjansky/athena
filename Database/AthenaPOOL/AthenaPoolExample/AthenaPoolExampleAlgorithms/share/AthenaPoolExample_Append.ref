@@ -41,6 +41,8 @@ PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:Catalog1.xml
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
 PoolSvc              INFO Re-initializing PoolSvc
 Stream1             DEBUG Found StoreGateSvc store.
 Stream1             DEBUG Found MetaDataStore store.
@@ -633,6 +635,7 @@ RootCollection::MetadataCommit Debug Bytes written to the Metadata TTree ????
 RootCollection Info Closing open collection 'SimplePoolCollection2.root'
 RootCollectionSchemaEditor Debug ###### Writing schema....
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   UPDATE    [ROOT_All] ????
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All]
 Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize

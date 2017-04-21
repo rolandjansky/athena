@@ -129,7 +129,7 @@ protected:
 
   /* void processor_ResolutionMode(const FTKRoad &); */
   /* void processor_ResolutionMode(const FTKRoad &, std::list<FTKTrack> &); */
-  void processor_Incomplete(const FTKRoad &, std::list<FTKTrack> &);
+  void processor_Incomplete(const FTKRoad &, std::list<FTKTrack> &, std::list<FTKTrack> &);
   void processor_Extrapolate(const FTKRoad &, std::list<FTKTrack> &);
   void processor_SuperExtrapolate(const FTKRoad &, std::list<FTKTrack> &);
 
@@ -153,7 +153,6 @@ public:
 
   void setSaveIncompleteTracks(bool flag) { m_saveIncompleteTracks = flag; }
   bool getSaveIncompeteTracks() const { return m_saveIncompleteTracks; }
-
 
   void setResolutionMode(bool flag) { m_resolution_mode = flag; }
   bool getResolutionMode() const { return m_resolution_mode; }

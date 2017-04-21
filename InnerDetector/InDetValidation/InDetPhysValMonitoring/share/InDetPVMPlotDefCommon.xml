@@ -1210,6 +1210,18 @@
   <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
   <y title="Entries"/>
 </h>
+<h id="minimum_delta_R_sub300" type="TH1" title="Minimum #DeltaR for primary conversions within 300 mm of the origin">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_300_600" type="TH1" title="Minimum #DeltaR for primary conversions between 300 and 600 mm of the origin">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_overall" type="TH1" title="Minimum #DeltaR for primary conversions within 600 mm of the origin">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
 <h id="minimum_delta_R_not_found" type="TH1" title="Minimum #DeltaR for primary conversions within 100 mm of the origin with no good match">
   <x title="#DeltaR" n="350" lo="0" hi="3.50"/>
   <y title="Entries"/>
@@ -1222,17 +1234,41 @@
   <x title="#DeltaR" n="350" lo="0" hi="3.50"/>
   <y title="Entries"/>
 </h>
-<h id="delta_inverse_pt" type="TH1" title="Difference between inverse pt (GeV) for track and truth particles">
+<h id="minimum_delta_R_sub300_not_found" type="TH1" title="Minimum #DeltaR for primary conversions within 300 mm of the origin with no match &gt; 50%">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_300_600_not_found" type="TH1" title="Minimum #DeltaR for primary conversions between 300 and 600 mm of the origin with no match &gt; 50%">
+  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
+  <y title="Entries"/>
+</h>
+<h id="minimum_delta_R_not_found_overall" type="TH1" title="Minimum #DeltaR for primary conversions within 600 mm of the origin with no good match &gt; 50%">
+  <x title="#DeltaR" n="350" lo="0" hi="3.50"/>
+  <y title="Entries"/>
+</h>
+<h id="delta_inverse_pt" type="TH1" title="Difference between inverse pt (GeV) for track and truth particles for decays within 600 mm of the beamline">
   <x title="(1/p_{T})^{track} - (1/p_{T})^{truth}" n="100" lo="-2" hi="2"/>
   <y title="Entries"/>
 </h>
-<h id="delta_inverse_pt_not_found" type="TH1" title="Difference between inverse pt (GeV) for track and truth particles with no good match">
+<h id="delta_inverse_pt_not_found" type="TH1" title="Difference between inverse pt (GeV) for track and truth particles within 600 mm of the beamline with no good match &gt; 50%">
   <x title="(1/p_{T})^{track} - (1/p_{T})^{truth}" n="100" lo="-2" hi="2"/>
   <y title="Entries"/>
 </h>
 <h id="charge_vs_truth_match_rate" type="TProfile" title="Rate at which matching TrackParticle has same charge as TruthParticle vs Pt (GeV)">
   <x title="Pt (GeV)" n="100" lo="0" hi="300"/>
   <y title="Rate" n="100" lo="0" hi="1.5"/>
+</h>
+<h id="min_dR_vs_delta_inverse_pt" type="TH2" title="Minimum #DeltaR vs #Delta(1/pT) for the corresponding pair">
+  <x title="(1/p_{T})^{track} - (1/p_{T})^{truth}" n="100" lo="-2" hi="2"/>
+  <y title="#DeltaR" n="350" lo="0" hi="0.50"/>
+</h>
+<h id="charge_truth_agreement" type="TProfile" title="Agreement between same-sign minimum #DeltaR particle and traditional truth-match partner">
+  <x title="Production Radius [mm]" n="100" lo="0" hi="300"/>
+  <y title="Agreement Rate" n="100" lo="0" hi="1.25"/>
+</h>
+<h id="truth_vs_charge_product" type="TH2" title="Truth Match Probability vs Product of Track and TruthParticle charge for closest match pair">
+  <x title="Charge Product" n="10" lo="-1.0" hi="1.0"/>
+  <y title="Truth Match Probability" n="110" lo="-0.1" hi="1.0"/>
 </h>
 
 

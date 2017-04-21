@@ -33,7 +33,7 @@ namespace ISF {
 
   /** @class G4PolyconeGeoIDSvc
 
-      @TODO
+      @todo
 
       @author Elmar.Ritsch -at- cern.ch
      */
@@ -66,10 +66,10 @@ namespace ISF {
      /** Retrieve and fill in the dimensions for the different AtlasRegion */
      StatusCode fillDimensions();
 
-     /** @TODO */
+     /** @todo */
      void pushDimension(AtlasDetDescr::AtlasRegion geoID, double rin, double rou, double z);
 
-     /** @TODO */
+     /** @todo */
      void pushDimension(AtlasDetDescr::AtlasRegion geoID, double r, double z);
 
      /** Retrieve and fill in the dimensions for the different AtlasRegion */
@@ -78,7 +78,7 @@ namespace ISF {
      /** service providing the envelope dimensions for the different sub-detectors */
      ServiceHandle<IEnvelopeDefSvc>    m_envDefSvc;
 
-     /** @TODO: */
+     /** @todo: */
      G4VSolid                         *m_volume[AtlasDetDescr::fNumAtlasRegions];
 
      /** a quick way to convert G4 enum EInside to ISF::InsideType */

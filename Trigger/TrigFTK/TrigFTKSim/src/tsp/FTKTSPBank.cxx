@@ -20,6 +20,9 @@ using namespace ftk;
 using namespace std;
 using namespace boost;
 
+#define PRINT_ROADS_SECTOR -1
+#define PRINT_ROADS_NUM 100
+
 FTKTSPBank::FTKTSPBank(int bankid, int subid) :
     FTK_AMBank(bankid, subid),
     m_TSPProcessor(0x0),
@@ -458,6 +461,8 @@ int FTKTSPBank::readROOTBankCache(const char *fname)
 
     // reset the number of the TSP patterns
     m_npatternsTSP = 0;
+    int nWCtotal=0;
+    int nVETOtotal=0;
 
     cout << "Reading : [" << flush;
     for (int ipatt = 0; ipatt != m_npatterns; ++ipatt) // pattern loop
@@ -486,6 +491,35 @@ int FTKTSPBank::readROOTBankCache(const char *fname)
            {
               m_patterns[_SSPOS(ipatt, iplane)] = curpatt->getSSID(iplane);
            }
+        // translate wildcards and dead modules
+        // for HWMODEID==2
+         if (FTKSetup::getFTKSetup().getHWModeSS()==2) {
+            int nWC=0;
+            for (int iplane = 0; iplane != m_nplanes; ++iplane) {
+               if(m_patterns[_SSPOS(ipatt, iplane)] == -1) {
+                  // wildcard in HWMODEID==2
+                  nWC++;
+               }
+            }
+            for (int iplane = 0; iplane != m_nplanes; ++iplane) {
+               if(m_patterns[_SSPOS(ipatt, iplane)] == -1) {
+                  // wildcard or 
+                  if(nWC == m_nplanes) {
+                     // special pattern
+                     // ignore
+                     m_patterns[_SSPOS(ipatt, iplane)] =m_VetoID;
+                  } else {
+                     // wildcard
+                     m_patterns[_SSPOS(ipatt, iplane)] = m_WCID;
+                     nWCtotal++;
+                  }
+               } else if(m_patterns[_SSPOS(ipatt, iplane)] ==-2) {
+                  // veto
+                  m_patterns[_SSPOS(ipatt, iplane)] = m_VetoID;
+                  nVETOtotal++;
+               }
+            }
+        }
         m_patterns[_SSPOS(ipatt, m_nplanes)] = curpatt->getSectorID();
         
         if (m_SimulateTSP > 1)
@@ -495,6 +529,7 @@ int FTKTSPBank::readROOTBankCache(const char *fname)
            }
     } // end pattern loop
     cout << ']' << endl;
+    //cout<<"nVETOtotal="<<nVETOtotal<<" nWCtotal="<<nWCtotal<<"\n";
 
     ftksetup.usageStat("End AM cache read");
 
@@ -527,6 +562,7 @@ void FTKTSPBank::pattlookup_make_map() {
   FTKSetup::PrintMessage(info,"Creating the pattern LUT extracting the DC information");
 
   // Main loop, over planes
+  int nSpecial=0;
   for (int iplane=0; iplane!=m_nplanes; ++iplane) {
     const int ndcbits(m_TSPProcessor->getTSPMap().getNBits(iplane));
 
@@ -545,7 +581,14 @@ void FTKTSPBank::pattlookup_make_map() {
       localhbmask &= ~localdcmask; // where the DC is set to 0 become 1 end viceversa
 
       // the index is composed by the full SS, with highres part, and the DC
-      int iss = basess<<(ndcbits*2) | localhbmask<<ndcbits | localdcmask; // create the SS
+      // STS 26.2.2017: take care of wildcards
+      int iss;
+      if((basess==m_WCID)||(basess==m_VetoID)) {
+         iss=basess;
+         nSpecial++;
+      } else {
+         iss = basess<<(ndcbits*2) | localhbmask<<ndcbits | localdcmask; // create the SS
+      }
 #if 0
       if (i==0) {
         cout << ">>> " << basess << " " << localdcmask << " " << m_TSPProcessor->getHBMask(i,iplane) << " " << localhbmask << " " << iss <<endl;
@@ -558,6 +601,7 @@ void FTKTSPBank::pattlookup_make_map() {
       m_ss_patt_lookup_map[iplane][iss].push_back(i);
     }
     cout << endl;
+    //cout<<"Number of veto/wildcard SSIDs: "<<nSpecial<<"\n";
 
     unsigned nsslayer =  m_ss_patt_lookup_map[iplane].size();
     cout << "Number of SS in the map: " << nsslayer << endl;
@@ -590,7 +634,7 @@ void FTKTSPBank::data_organizer() {
   //FTKSetup &ftkset = FTKSetup::getFTKSetup();
   const FTKPlaneMap *pmap = m_ssmap->getPlaneMap();
 
-  for (int iplane=0; iplane<m_nplanes&&m_useWC; ++iplane) { // loop over the planes
+  for (int iplane=0; iplane<m_nplanes /* &&m_useWC */; ++iplane) { // loop over the planes
     // create the WC SS
     FTKSS WCSS;
 
@@ -666,6 +710,7 @@ void FTKTSPBank::am_in_dc() {
   m_fired_patts.clear();
 
   // send real hits into the SS
+  int nSpecial=0;
   for (int iplane=0; iplane!=m_nplanes; ++iplane) { // loop over the planes
     const unsigned int mask(1<<(iplane+m_matchword_maskshift));
 
@@ -680,10 +725,16 @@ void FTKTSPBank::am_in_dc() {
 
       // the SS from the real hits is exploded, according the DC configuration
       for (unsigned int dcconf=0;dcconf!=ndcconf;++dcconf) { // loop over the dc configurations
-        unsigned int curssid = basessid & (~dcconf); // mask to 0 all the hits where the dc is on
-        curssid <<= ndcbits; // shift to the left to make room for the dc as key
-        curssid |= dcconf; // add the DC configuration in the key
-
+         unsigned int curssid;
+         // 26.2.2017 STS: bug-fix to take care of wildcards
+         if(basessid==m_WCID) {
+            curssid=basessid;
+            nSpecial++;
+         } else {
+            curssid= basessid & (~dcconf); // mask to 0 all the hits where the dc is on
+            curssid <<= ndcbits; // shift to the left to make room for the dc as key
+            curssid |= dcconf; // add the DC configuration in the key
+         }
 #if 0
         cout << ">>> " << iplane << " " << basessid << " " << dcconf << " " << curssid << endl;
 #endif
@@ -712,6 +763,8 @@ void FTKTSPBank::am_in_dc() {
     } // end loop over the SS found in this layer
 
   } // loop over planes
+  /*cout<<"nSpecial="<<nSpecial<<"\n";
+    if(!nSpecial) exit(0); */
 
   if (FTKSetup::getDBG()) {
     for(int i=0;i!=m_nplanes;i++) {
@@ -1115,7 +1168,14 @@ const std::list<FTKRoad>& FTKTSPBank::getRoads()
     } // end loop over the layers
 
   }
-
+#ifdef PRINT_ROADS_SECTOR
+  static int print=PRINT_ROADS_NUM;
+  if(print) {
+     cout<<"FTK_AMBank::getRoads number of roads="<<m_roads.size()<<"\n";
+     printRoads(m_roads,PRINT_ROADS_SECTOR);
+     print--;
+  }
+#endif
   return m_roads;
 }
 

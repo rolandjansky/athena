@@ -59,23 +59,23 @@ class CscCalibReportSlope : public CscCalibReportBase
 
     void setBitHists(DataVector<TH1I> * somePedAmpHists);
     /** setCalGraphs - Set the pedAmpHist vector.  
-      @PARAM someCalGraphs - Pointer to DataVector of calibration graphs. Takes ownership.
+      @param someCalGraphs - Pointer to DataVector of calibration graphs. Takes ownership.
      */
     void setCalGraphs(DataVector<TGraphErrors> * someCalGraphs);
 
     /*setDeadChanges - set the changed dead channels
-      @PARAM someDeadChanges - Pointer to map of changed channels and their new value
+      @param someDeadChanges - Pointer to map of changed channels and their new value
 
       void setDeadChanges(std::set<bitChange> * someDeadChannels);
      */
 
     /**setAmpProfs - set the changed dead channels
-      @PARAM someAmpProfs - Pointer to map of changed channels and their new value
+      @param someAmpProfs - Pointer to map of changed channels and their new value
      */
     void setAmpProfs(std::map<int,TProfile*> * someAmpProfs);
 
     /**setPulsedChambers - set the pulsed chambers
-      @PARAM somePulsedChambers - Pointer to set of pulsed chambers. Takes ownership.
+      @param somePulsedChambers - Pointer to set of pulsed chambers. Takes ownership.
      */
     void setPulsedChambers(std::set<int> * somePulsedChambers);
 

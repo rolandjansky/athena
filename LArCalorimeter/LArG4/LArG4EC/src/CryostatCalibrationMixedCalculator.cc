@@ -182,8 +182,8 @@ namespace LArG4 {
     // have "mixed" identifiers:
 
     G4bool CalibrationMixedCalculator::Process (const G4Step* a_step,
-                                                LArG4Identifier & _identifier,
-                                                std::vector<G4double> & _energies,
+                                                LArG4Identifier & identifier,
+                                                std::vector<G4double> & energies,
                                                 const eCalculatorProcessing a_process) const
     {
       const static G4String volLArMgr = "LArMgr::";
@@ -199,15 +199,15 @@ namespace LArG4 {
       // identifier associated with this G4Step.  Note that the
       // default is to process both the energy and the ID.
 
-      _energies.clear();
+      energies.clear();
       if ( a_process == kEnergyAndID  ||  a_process == kOnlyEnergy ) {
-        m_energyCalculator.Energies( a_step, _energies );
+        m_energyCalculator.Energies( a_step, energies );
       } else {
-        for (unsigned int i=0; i != 4; i++) _energies.push_back( 0. );
+        for (unsigned int i=0; i != 4; i++) energies.push_back( 0. );
       }
 
 
-      _identifier.clear();
+      identifier.clear();
       if ( a_process == kEnergyAndID  ||  a_process == kOnlyID )
         {
           // Calculate the identifier.
@@ -487,7 +487,7 @@ namespace LArG4 {
             {
               // g.p. 09/05/2006
 #ifdef DEBUG_DMXYZ
-              LArG4::CalibrationDefaultCalculator::Print("UNEXP LArG4EC/CryostatCalibrationMixedCalculator",_identifier,a_step);
+              LArG4::CalibrationDefaultCalculator::Print("UNEXP LArG4EC/CryostatCalibrationMixedCalculator",identifier,a_step);
 #endif
 #if defined (DEBUG_VOLUMES) || defined (DEBUG_HITS)
               static const G4int messageMax = 1000;
@@ -513,12 +513,12 @@ namespace LArG4 {
               }
 #endif
               //m_backupCalculator->Process(a_step, kOnlyID);
-              //_identifier = m_backupCalculator->identifier();
-              std::vector<G4double> _tmpv;
-              m_backupCalculator->Process(a_step, _identifier, _tmpv, kOnlyID);
+              //identifier = m_backupCalculator->identifier();
+              std::vector<G4double> tmpv;
+              m_backupCalculator->Process(a_step, identifier, tmpv, kOnlyID);
             } else {
             // Append the cell ID to the (empty) identifier.
-            _identifier << 10         // Calorimeter
+            identifier << 10         // Calorimeter
                         << subdet     // LAr +/-4 where "+" or " -" according to the sign of Z in World coorinate
                         << type
                         << sampling
@@ -529,23 +529,23 @@ namespace LArG4 {
         } // if a_process == kEnergyAndID  ||  a_process == kOnlyID
 
 #ifdef DEBUG_HITS
-      //      G4double energy = accumulate(_energies.begin(),_energies.end(),0.);
+      //      G4double energy = accumulate(energies.begin(),energies.end(),0.);
       std::cout << "LArG4::EndcapCryostat::CalibrationMixedCalculator::Process"
-                << " ID=" << std::string(_identifier)
+                << " ID=" << std::string(identifier)
         //        << " energy=" << energy
-                << " energies=(" << _energies[0]
-                << "," << _energies[1]
-                << "," << _energies[2]
-                << "," << _energies[3] << ")"
+                << " energies=(" << energies[0]
+                << "," << energies[1]
+                << "," << energies[2]
+                << "," << energies[3] << ")"
                 << std::endl;
 #endif
 
       // g.p. 09/05/2006
 #ifdef DEBUG_DMXYZ
-      LArG4::CalibrationDefaultCalculator::Print("DMXYZ LArG4EC/CryostatCalibrationMixedCalculator",_identifier,a_step);
+      LArG4::CalibrationDefaultCalculator::Print("DMXYZ LArG4EC/CryostatCalibrationMixedCalculator",identifier,a_step);
 #endif
       // Check for bad result.
-      if ( _identifier == LArG4Identifier() ) return false;
+      if ( identifier == LArG4Identifier() ) return false;
 
       return true;
     }

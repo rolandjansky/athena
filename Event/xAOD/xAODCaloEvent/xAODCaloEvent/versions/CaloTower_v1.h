@@ -107,9 +107,9 @@ inline float xAOD::CaloTower_v1::f_val_e()    const { static ConstAccessor<float
 /// changes, only its energy content is dynamic.
 ///
 /// The full four-momentum of the calorimeter tower is calculated from its energy and direction
-/// @f{
+/// @f[
 ///       \left(E,\eta,\phi\right) \mapsto \left(E=p,p_{x},p_{y},p_{z}\right)
-/// @f}
+/// @f]
 ///
 /// Formally, this can be considered a massless pseudoparticle. If the net energy of the tower is negative, no physically
 /// meaningful four-momentum can be constructed (see below), rather the tower is represented by @f$ (0.,0., 0., 0.) @f$.

@@ -5,7 +5,7 @@
 
 @page xAODTau_page xAODTau package
 
-@author Michel Janus <janus@cern.h>
+@author Michel Janus <janus@cern.ch>
 
 $Revision: 570247 $
 $Date: 2013-11-13 18:03:12 +0100 (Wed, 13 Nov 2013) $

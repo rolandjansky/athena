@@ -8,7 +8,7 @@
 #include "RatesTrigger.h"
 
 /**
- * @breif Helper class to keep track of coherent prescales between chains in a group
+ * @brief Helper class to keep track of coherent prescales between chains in a group
  * This class knows about its group's common prescale factor and can hence apply it coherently at the end 
  */
 class RatesCPS { 

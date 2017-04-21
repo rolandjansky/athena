@@ -146,7 +146,7 @@ const Amg::RotationMatrix3D Trk::ConeSurface::measurementFrame(const Amg::Vector
     mFrame.col(1) = measY;
     mFrame.col(2) = measDepth;
     // return the rotation matrix
-    //!< @TODO fold in alpha
+    //!< @todo fold in alpha
     // return it
     return mFrame;
 }

@@ -61,6 +61,8 @@ private:
   short int ***m_maj_invkk_pow; //!
   short int ***m_maj_invkk_pow_hw; //!
 
+  double m_dTIBL; // dT (in K) for IBL compared to reference. For use in correcting for IBL bowing in x(phi) direction
+
   // function to model behavior of arithmetic shift register, used in firmware tests
   signed long long aux_asr(signed long long input, int shift, int width, bool &overflow) const;
 
@@ -84,6 +86,9 @@ public:
   float *getKaverage(int sectid) const { return m_kaverage[sectid]; }
   float **getKernel(int sectid) const { return m_kernel[sectid]; }
 
+  void setdTIBL(double t) {m_dTIBL = t;}
+  double getdTIBL() {return m_dTIBL;}
+
   void doAuxFW(bool a);
 
   static const int KAVE_SHIFT = 6; // 6
@@ -102,7 +107,19 @@ public:
   const float const_scale_map[11] = {1, 8/16.88, 1, 8/16.88, 1, 8/16.88, 4, 4, 4, 4, 4};
   // const float const_scale_map[11] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
-
+  //   const double zIBL[20] = {-322.8975,301.7925,280.6875,259.5825,228.2775,186.7725,145.2675,103.7625,62.2575,20.7525,
+  //				   20.7525,62.2575,103.7625,145.2675,186.7725,228.2775,259.5825,280.6875,301.7925,322.8975};
+  
+  const double zIBL_squared[20] = {104263,91078.7,78785.5,67383.1,52110.6,34884,21102.6,10766.7,3876,430.666,
+				   430.666,3876,10766.7,21102.6,34884,52110.6,67383.1,78785.5,91078.7,104263};
+  
+  
+  //   const double z0IBL = 366.5;
+  const double z0IBL_squared = 134322.25;
+  const double z0IBL_squared_inv = 7.4447829752702925e-06;
+  
+  const double dxdtIBL = 10.6;
+  
   int  linfit(int, FTKTrack &) const;
   void linfit_chisq(int, FTKTrack&) const;
   void linfit_pars_eval(int, FTKTrack&) const;

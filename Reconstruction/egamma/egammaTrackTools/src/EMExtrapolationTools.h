@@ -119,7 +119,7 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
   /** get the momentum of the i-th at the vertex (designed for conversions) **/
   Amg::Vector3D getMomentumAtVertex(const xAOD::Vertex&, unsigned int) const;
   
-  /** get sum of the momenta at the vertex (designed for conversions). Retrieve from auxdata if available and <reuse> is true **/
+  /** get sum of the momenta at the vertex (designed for conversions). Retrieve from auxdata if available and \<reuse\> is true **/
   Amg::Vector3D getMomentumAtVertex(const xAOD::Vertex&, bool reuse = true) const;
 
     

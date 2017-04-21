@@ -169,9 +169,9 @@ StatusCode L1CaloPMTScoresMon::bookHistogramsRecurrent()
     // book histograms that are only relevant for cosmics data...
   }
 
-  if ( newLumiBlock) { }
+  //if ( newLumiBlockFlag()) { }
 
-  if ( newRun ) {	
+  if ( newRunFlag() ) {	
 
     MgmtAttr_t attr = ATTRIB_UNMANAGED;
     MonGroup Calo_PMTScore( this, m_PathInRootFile+"/PMTGainScores",
@@ -328,9 +328,9 @@ StatusCode L1CaloPMTScoresMon::fillHistograms()
 StatusCode L1CaloPMTScoresMon::procHistograms()
 /*---------------------------------------------------------*/
 {
-  if ( endOfLumiBlock ) { }
+  //if ( endOfLumiBlockFlag() ) { }
 	
-  if ( endOfRun ) { }
+  //if ( endOfRunFlag() ) { }
   
   return StatusCode::SUCCESS;
 }

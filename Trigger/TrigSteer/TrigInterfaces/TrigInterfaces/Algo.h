@@ -354,7 +354,7 @@ namespace HLT
 
     /**
      * @brief Accessor method for the algorithm configuration.
-     * @parameter cfg new configuration object for this algorithm.
+     * @param cfg new configuration object for this algorithm.
      */
     void setConfig(AlgoConfig* cfg) { m_config = cfg; }
 

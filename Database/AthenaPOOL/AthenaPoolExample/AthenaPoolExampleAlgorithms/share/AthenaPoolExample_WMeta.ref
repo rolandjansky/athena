@@ -34,6 +34,8 @@ PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:Catalog2.xml
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
 PoolSvc              INFO Re-initializing PoolSvc
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1             DEBUG Property update for OutputLevel : new value = 2
@@ -695,6 +697,7 @@ SimplePoolFile5.root Debug ---->ClassID:????
 Stream1              INFO Records written: 21
 Stream1             DEBUG Leaving handle
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All]
 Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize

@@ -1,5 +1,5 @@
 ## @file PyAthenaTests/share/pythin_multistream_jobOptions.py
-## @purpose read a POOL file and thin out some elements
+## @brief read a POOL file and thin out some elements
 
 ###############################################
 if not 'EVTMAX' in dir():
@@ -75,7 +75,6 @@ outStream.ItemList = [
      "EventInfo#*",
      "AthExParticles#*",
      ]
-svcMgr.PoolSvc.CheckDictionary = True
 
 # Stream's output file
 outStream.OutputFile = OUTPUT_0
@@ -90,7 +89,6 @@ outStream.ItemList = [
      "EventInfo#*",
      "AthExParticles#*",
      ]
-svcMgr.PoolSvc.CheckDictionary = True
 
 # Stream's output file
 outStream.OutputFile = OUTPUT_NOTHINNING
@@ -104,7 +102,6 @@ outStream.ItemList = [
      "EventInfo#*",
      "AthExParticles#*",
      ]
-svcMgr.PoolSvc.CheckDictionary = True
 
 # Stream's output file
 outStream.OutputFile = OUTPUT_1

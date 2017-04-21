@@ -128,7 +128,7 @@ SolenoidalIntersector::circularArcLength(double 	endRadius,
 					 double&	cosPhiIntersect,
 					 double&	sinPhiIntersect)
 {
-    int		m_trapped	= 0;
+    int		trapped	= 0;
     double	radiusSquared 	= xCentre*xCentre + yCentre*yCentre;
     double	term 		= 0.5*(radiusSquared +
 				       radiusOfCurvature*radiusOfCurvature -
@@ -138,7 +138,7 @@ SolenoidalIntersector::circularArcLength(double 	endRadius,
 	double	dx2 = yCentre*yCentre * (1./(radiusSquared*term*term) - 1.);
 	if (dx2 < 0.)
 	{
-	    m_trapped = 1;
+	    trapped = 1;
 	}
 	else
 	{
@@ -158,7 +158,7 @@ SolenoidalIntersector::circularArcLength(double 	endRadius,
 	double	dy2 = xCentre*xCentre * (1./(radiusSquared*term*term) - 1.);
 	if (dy2 < 0.)
 	{
-	    m_trapped = 1;
+	    trapped = 1;
 	}
 	else
 	{
@@ -173,7 +173,7 @@ SolenoidalIntersector::circularArcLength(double 	endRadius,
 	    sinPhiIntersect	= (cosPhiIntersect*yCentre - radiusSquared*term)/xCentre;
 	}
     }
-    if (m_trapped == 0)
+    if (trapped == 0)
     {
 	double	deltaPhi;
 	double	sinDeltaPhi	= sinPhiIntersect*cosPhi - cosPhiIntersect*sinPhi;

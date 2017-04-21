@@ -146,9 +146,9 @@ StatusCode iGeant4::Geant4SimSvc::setupEvent()
 StatusCode iGeant4::Geant4SimSvc::releaseEvent()
 {
   ATH_MSG_DEBUG ( m_screenOutputPrefix << "release Event" );
-  /**@TODO : strip hits of the tracks ... */
+  /** @todo : strip hits of the tracks ... */
 
-  /* TODO: ELLI: the following is copied in from the PyG4AtlasAlg:
+  /* todo: ELLI: the following is copied in from the PyG4AtlasAlg:
      -> this somehow needs to be moved into C++
      and put into releaseEvent() ( or setupEvent() ?)
 

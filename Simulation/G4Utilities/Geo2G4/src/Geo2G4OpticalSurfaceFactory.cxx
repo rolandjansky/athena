@@ -18,8 +18,8 @@ G4OpticalSurface* Geo2G4OpticalSurfaceFactory::Build(const GeoOpticalSurface* ge
   //
   // Check if this surface has already been defined.
   //
-  if(definedOptSurfaces.find(geoOpticalSurface) != definedOptSurfaces.end())  {
-    return definedOptSurfaces[geoOpticalSurface];
+  if(m_definedOptSurfaces.find(geoOpticalSurface) != m_definedOptSurfaces.end())  {
+    return m_definedOptSurfaces[geoOpticalSurface];
   }
 
   // map enums

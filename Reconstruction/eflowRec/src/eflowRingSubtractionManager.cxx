@@ -106,8 +106,8 @@ void eflowRingSubtractionManager::setParameters(const eflowFirstIntParameters& p
 }
 
 bool eflowRingSubtractionManager::getOrdering(const eflowEEtaBinnedParameters* binnedParameters, double e, double eta, eflowFirstIntENUM j1st) {
-  const eflowParameters* bin1 = 0;
-  const eflowParameters* bin2 = 0;
+  const eflowParameters* bin1 = nullptr;
+  const eflowParameters* bin2 = nullptr;
 
   /* Get the left- and right-bin given (e,eta), return the weight of the two bins and fill the bins to &bin1 and &bin2 */
   double weight = binnedParameters->getInterpolation(&bin1, &bin2, e, eta);

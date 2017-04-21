@@ -102,6 +102,20 @@ bool HLT::NavigationCore::getFeature( const TriggerElement* te, const T*&  featu
   return true;  
 }
 
+template<class T> 
+__attribute__((__used__))
+bool HLT::NavigationCore::getFeature( const TriggerElement* te,
+                                      const ConstDataVector<T>*&  feature,
+                                      const std::string& label, std::string& sourcelabel) {
+  const T* dv = nullptr;
+  if (!getFeature (te, dv, label, sourcelabel))
+    return false;
+
+  feature = ConstDataVector<T>::fromDataVector (dv);
+  return feature != nullptr;
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 template<class C, class T> 
 __attribute__((__used__))

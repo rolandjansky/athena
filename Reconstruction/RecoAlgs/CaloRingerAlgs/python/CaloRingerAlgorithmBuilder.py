@@ -13,6 +13,7 @@ from AthenaCommon.Include import include
 from AthenaCommon import CfgMgr
 
 from RecExConfig.RecFlags import rec
+from egammaRec.egammaRecFlags import jobproperties
 from CaloRingerAlgs.CaloRingerKeys import *
 from egammaRec import egammaKeys
 
@@ -28,17 +29,6 @@ mlog.info("Entering")
 #---------------------------------------
 # CaloRinger flags
 from CaloRingerAlgs.CaloRingerFlags import caloRingerFlags
-
-def egammaBuilderAvailable():
-  " Return true if egammaBuilder is available."
-  flag = False
-  if rec.readRDO() or rec.readESD() and not rec.readAOD():
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()                     
-    if hasattr(topSequence,'egamma'):
-      flag = True
-  return flag
-
 
 def inputAvailable(inputType, inputKey):
   """ inputAvailable(inputType, inputKey) 
@@ -60,16 +50,15 @@ def checkBuildElectronCaloRings():
   expected to build electrons and it won't be possible. Return false if not
   asked to build."""
   if caloRingerFlags.buildElectronCaloRings():
+    if not rec.doESD():
+      mlog.info("Turning off ringer algorithm electron reconstruction since not doing ESD.")
+      caloRingerFlags.buildElectronCaloRings = False
+      return False
     if not inputAvailable(inputElectronType(), inputElectronKey()):
-
-      # Try to force egammaBuilder startup if it is not already started:
-      if not egammaBuilderAvailable(): 
+      if not jobproperties.egammaRecFlags.doEgammaCaloSeeded():
         mlog.warning(("Requested to build ElectronCaloRings but egamma"
-          " builder was not available. Deactivating ElectronCaloRings and electron selection.")
+          " calo seeded is off. Deactivating ElectronCaloRings and electron selection.")
           )
-        #if rec.doEgamma():
-          #__enableEgamma()
-        #else
         caloRingerFlags.buildElectronCaloRings = False
         caloRingerFlags.doElectronIdentification = False
         return False
@@ -77,7 +66,7 @@ def checkBuildElectronCaloRings():
         mlog.verbose(("Input not available in the file, but it is requested"
           " to be reconstructed so it will be build during reconstruction."))
     else:
-      if egammaBuilderAvailable():
+      if jobproperties.egammaRecFlags.doEgammaCaloSeeded():
         mlog.verbose(("There already exists the egamma objects in file, but"
           " they will be updated during reconstruction to new ones."))
       else:
@@ -124,16 +113,17 @@ def checkBuildPhotonCaloRings():
   expected to build electrons and it won't be possible. Return false if not
   asked to build."""
   if caloRingerFlags.buildPhotonCaloRings():
+    if not rec.doESD():
+      mlog.info("Turning off ringer algorithm photon reconstruction since not doing ESD.")
+      caloRingerFlags.buildPhotonCaloRings = False
+      return False
     if not inputAvailable(inputPhotonType(), inputPhotonKey()):
 
-      # Try to force egammaBuilder startup if it is not already started:
-      if not egammaBuilderAvailable(): 
+      # Deadtivate photon calo rings if egamma calo seeded is off:
+      if not jobproperties.egammaRecFlags.doEgammaCaloSeeded():
         mlog.warning(("Requested to build PhotonCaloRings but egamma"
-          " builder was not available. Deactivating buildPhotonCaloRings.")
+          " calo seeded is off. Deactivating buildPhotonCaloRings.")
             )
-        #if rec.doEgamma():
-          #__enableEgamma()
-        #else:
         caloRingerFlags.buildPhotonCaloRings = False
         #caloRingerFlags.doPhotonIdentification = False
         return False
@@ -141,7 +131,7 @@ def checkBuildPhotonCaloRings():
         mlog.verbose(("Input not available in the file. No problem: it will "
           " be reconstructed"))
     else:
-      if egammaBuilderAvailable():
+      if jobproperties.egammaRecFlags.doEgammaCaloSeeded():
         mlog.verbose(("There already exists the egamma objects in file, but"
           " they will be updated during reconstruction to new ones."))
       else:
@@ -182,20 +172,6 @@ def checkDoPhotonIdentification():
     return True
   else:
     return False
-
-def __enableEgamma():
-  " Local function to enable Egamma Reconstruction."
-  # Set egamma flags to True
-  rec.doEgamma = True
-  from egammaRec.egammaRecFlags import jobproperties
-  egammaRecFlags = jobproperties.egammaRecFlags
-  egammaRecFlags.Enabled = True 
-  egammaRecFlags.doEgammaCaloSeeded = True 
-  egammaRecFlags.doEgammaForwardSeeded = False 
-  include("egammaRec/egammaRec_jobOptions.py")
-  if not egammaBuilderAvailable(): 
-    mlog.error("Couldn't add egamma reconstruction to joboptions")
-    raise RuntimeError("Coudln't add egamma reconstruction to joboptions.")
 
 def getCaloRingerInputReaderTools():
   """ Returns a list with the CaloRinger tools to get the input objects to be

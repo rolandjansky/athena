@@ -11,27 +11,27 @@
 using namespace std;
 
 APEvtWeight::APEvtWeight(ObjType type)
-  : _k_evt_weight(0),
-    _variance(0),
-    _variance_sys(0)
+  : m_k_evt_weight(0),
+    m_variance(0),
+    m_variance_sys(0)
 {
-  _n_entries = 0;
-  _current_evt_weights = vector< vector< APWeightEntry* > >(12);
-  if (type > APEvtWeight::kDiJet) _isComputed = true;
-  else _isComputed = false;
-  _type = type;
+  m_n_entries = 0;
+  m_current_evt_weights = vector< vector< APWeightEntry* > >(12);
+  if (type > APEvtWeight::kDiJet) m_isComputed = true;
+  else m_isComputed = false;
+  m_type = type;
 }
 
 APEvtWeight::~APEvtWeight() {
-  _current_evt_weights.clear();
+  m_current_evt_weights.clear();
 }
 
 void APEvtWeight::AddWeightToEvt(APWeightEntry* weight) {
   if (weight->IsTrig()) {
-    if (_type <= APEvtWeight::kDiJet ) {
-      _current_evt_weights[_type].push_back(weight);
-      ++_n_entries;
-      _isComputed = false;
+    if (m_type <= APEvtWeight::kDiJet ) {
+      m_current_evt_weights[m_type].push_back(weight);
+      ++m_n_entries;
+      m_isComputed = false;
     } else {
       cout << "ERROR in APEvtWeight::AddWeightToEvt: Trying to add a weight entry to a combined event weight. Ignoring command (not adding weight entry)." << endl;
     }
@@ -51,77 +51,77 @@ const APEvtWeight operator&&(const APEvtWeight& a_in, const APEvtWeight& b_in) {
 
   if ( a_type != b_type ) {
     APEvtWeight ret(APEvtWeight::kMOANDed);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kMuon].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kMuon].push_back(a._current_evt_weights[APEvtWeight::kMuon][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kMuon].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kMuon].push_back(b._current_evt_weights[APEvtWeight::kMuon][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kTau].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kTau].push_back(a._current_evt_weights[APEvtWeight::kTau][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kTau].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kTau].push_back(b._current_evt_weights[APEvtWeight::kTau][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kElectron].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kElectron].push_back(a._current_evt_weights[APEvtWeight::kElectron][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kElectron].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kElectron].push_back(b._current_evt_weights[APEvtWeight::kElectron][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kJet].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kJet].push_back(a._current_evt_weights[APEvtWeight::kJet][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kJet].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kJet].push_back(b._current_evt_weights[APEvtWeight::kJet][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kMuonMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kMuonMO].push_back(a._current_evt_weights[APEvtWeight::kMuonMO][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kMuonMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kMuonMO].push_back(b._current_evt_weights[APEvtWeight::kMuonMO][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kTauMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kTauMO].push_back(a._current_evt_weights[APEvtWeight::kTauMO][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kTauMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kTauMO].push_back(b._current_evt_weights[APEvtWeight::kTauMO][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kElectronMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kElectronMO].push_back(a._current_evt_weights[APEvtWeight::kElectronMO][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kElectronMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kElectronMO].push_back(b._current_evt_weights[APEvtWeight::kElectronMO][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kJetMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kJetMO].push_back(a._current_evt_weights[APEvtWeight::kJetMO][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kJetMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kJetMO].push_back(b._current_evt_weights[APEvtWeight::kJetMO][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kDiMuon].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiMuon].push_back(a._current_evt_weights[APEvtWeight::kDiMuon][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kDiMuon].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiMuon].push_back(b._current_evt_weights[APEvtWeight::kDiMuon][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kDiTau].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiTau].push_back(a._current_evt_weights[APEvtWeight::kDiTau][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kDiTau].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiTau].push_back(b._current_evt_weights[APEvtWeight::kDiTau][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kDiElectron].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiElectron].push_back(a._current_evt_weights[APEvtWeight::kDiElectron][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kDiElectron].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiElectron].push_back(b._current_evt_weights[APEvtWeight::kDiElectron][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kDiJet].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiJet].push_back(a._current_evt_weights[APEvtWeight::kDiJet][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kDiJet].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiJet].push_back(b._current_evt_weights[APEvtWeight::kDiJet][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kMuon].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kMuon].push_back(a.m_current_evt_weights[APEvtWeight::kMuon][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kMuon].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kMuon].push_back(b.m_current_evt_weights[APEvtWeight::kMuon][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kTau].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kTau].push_back(a.m_current_evt_weights[APEvtWeight::kTau][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kTau].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kTau].push_back(b.m_current_evt_weights[APEvtWeight::kTau][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kElectron].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kElectron].push_back(a.m_current_evt_weights[APEvtWeight::kElectron][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kElectron].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kElectron].push_back(b.m_current_evt_weights[APEvtWeight::kElectron][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kJet].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kJet].push_back(a.m_current_evt_weights[APEvtWeight::kJet][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kJet].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kJet].push_back(b.m_current_evt_weights[APEvtWeight::kJet][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kMuonMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kMuonMO].push_back(a.m_current_evt_weights[APEvtWeight::kMuonMO][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kMuonMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kMuonMO].push_back(b.m_current_evt_weights[APEvtWeight::kMuonMO][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kTauMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kTauMO].push_back(a.m_current_evt_weights[APEvtWeight::kTauMO][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kTauMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kTauMO].push_back(b.m_current_evt_weights[APEvtWeight::kTauMO][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kElectronMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kElectronMO].push_back(a.m_current_evt_weights[APEvtWeight::kElectronMO][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kElectronMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kElectronMO].push_back(b.m_current_evt_weights[APEvtWeight::kElectronMO][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kJetMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kJetMO].push_back(a.m_current_evt_weights[APEvtWeight::kJetMO][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kJetMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kJetMO].push_back(b.m_current_evt_weights[APEvtWeight::kJetMO][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kDiMuon].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiMuon].push_back(a.m_current_evt_weights[APEvtWeight::kDiMuon][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kDiMuon].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiMuon].push_back(b.m_current_evt_weights[APEvtWeight::kDiMuon][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kDiTau].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiTau].push_back(a.m_current_evt_weights[APEvtWeight::kDiTau][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kDiTau].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiTau].push_back(b.m_current_evt_weights[APEvtWeight::kDiTau][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kDiElectron].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiElectron].push_back(a.m_current_evt_weights[APEvtWeight::kDiElectron][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kDiElectron].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiElectron].push_back(b.m_current_evt_weights[APEvtWeight::kDiElectron][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kDiJet].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiJet].push_back(a.m_current_evt_weights[APEvtWeight::kDiJet][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kDiJet].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiJet].push_back(b.m_current_evt_weights[APEvtWeight::kDiJet][i]);
 
-    if (!b._isComputed) b.Compute();
-    if (!a._isComputed) a.Compute();
-    ret._n_entries = a._n_entries + b._n_entries;
-    ret._k_evt_weight = a._k_evt_weight * b._k_evt_weight;
-    ret._variance = a._variance * b._k_evt_weight * b._k_evt_weight + b._variance * a._k_evt_weight * a._k_evt_weight;
-    ret._variance_sys = a._variance_sys * b._k_evt_weight * b._k_evt_weight + b._variance_sys * a._k_evt_weight * a._k_evt_weight;
+    if (!b.m_isComputed) b.Compute();
+    if (!a.m_isComputed) a.Compute();
+    ret.m_n_entries = a.m_n_entries + b.m_n_entries;
+    ret.m_k_evt_weight = a.m_k_evt_weight * b.m_k_evt_weight;
+    ret.m_variance = a.m_variance * b.m_k_evt_weight * b.m_k_evt_weight + b.m_variance * a.m_k_evt_weight * a.m_k_evt_weight;
+    ret.m_variance_sys = a.m_variance_sys * b.m_k_evt_weight * b.m_k_evt_weight + b.m_variance_sys * a.m_k_evt_weight * a.m_k_evt_weight;
     return ret;
  
   }  
   else {
     APEvtWeight ret(APEvtWeight::kANDed);
     if (a_type > APEvtWeight::kJetMO || b_type > APEvtWeight::kJetMO) {
-      if ((a._current_evt_weights[APEvtWeight::kMuon].size() > 0 && b._current_evt_weights[APEvtWeight::kMuon].size() > 0) || (a._current_evt_weights[APEvtWeight::kTau].size() > 0 && b._current_evt_weights[APEvtWeight::kTau].size() > 0) || (a._current_evt_weights[APEvtWeight::kElectron].size() > 0 && b._current_evt_weights[APEvtWeight::kElectron].size() > 0) || (a._current_evt_weights[APEvtWeight::kJet].size() > 0 && b._current_evt_weights[APEvtWeight::kJet].size() > 0) ||(a._current_evt_weights[APEvtWeight::kMuonMO].size() > 0 && b._current_evt_weights[APEvtWeight::kMuonMO].size() > 0) || (a._current_evt_weights[APEvtWeight::kTauMO].size() > 0 && b._current_evt_weights[APEvtWeight::kTauMO].size() > 0) || (a._current_evt_weights[APEvtWeight::kElectronMO].size() > 0 && b._current_evt_weights[APEvtWeight::kElectronMO].size() > 0) || (a._current_evt_weights[APEvtWeight::kJetMO].size() > 0 && b._current_evt_weights[APEvtWeight::kJetMO].size() > 0) )
+      if ((a.m_current_evt_weights[APEvtWeight::kMuon].size() > 0 && b.m_current_evt_weights[APEvtWeight::kMuon].size() > 0) || (a.m_current_evt_weights[APEvtWeight::kTau].size() > 0 && b.m_current_evt_weights[APEvtWeight::kTau].size() > 0) || (a.m_current_evt_weights[APEvtWeight::kElectron].size() > 0 && b.m_current_evt_weights[APEvtWeight::kElectron].size() > 0) || (a.m_current_evt_weights[APEvtWeight::kJet].size() > 0 && b.m_current_evt_weights[APEvtWeight::kJet].size() > 0) ||(a.m_current_evt_weights[APEvtWeight::kMuonMO].size() > 0 && b.m_current_evt_weights[APEvtWeight::kMuonMO].size() > 0) || (a.m_current_evt_weights[APEvtWeight::kTauMO].size() > 0 && b.m_current_evt_weights[APEvtWeight::kTauMO].size() > 0) || (a.m_current_evt_weights[APEvtWeight::kElectronMO].size() > 0 && b.m_current_evt_weights[APEvtWeight::kElectronMO].size() > 0) || (a.m_current_evt_weights[APEvtWeight::kJetMO].size() > 0 && b.m_current_evt_weights[APEvtWeight::kJetMO].size() > 0) )
         cout << "WARNING in APEvtWeight::operator&&: Trying to combine already combined event weights with overlapping objects. Uncertainties will be incorrect." << endl;
     }
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kMuon].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kMuon].push_back(a._current_evt_weights[APEvtWeight::kMuon][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kMuon].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kMuon].push_back(b._current_evt_weights[APEvtWeight::kMuon][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kTau].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kTau].push_back(a._current_evt_weights[APEvtWeight::kTau][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kTau].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kTau].push_back(b._current_evt_weights[APEvtWeight::kTau][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kElectron].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kElectron].push_back(a._current_evt_weights[APEvtWeight::kElectron][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kElectron].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kElectron].push_back(b._current_evt_weights[APEvtWeight::kElectron][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kJet].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kJet].push_back(a._current_evt_weights[APEvtWeight::kJet][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kJet].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kJet].push_back(b._current_evt_weights[APEvtWeight::kJet][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kMuonMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kMuonMO].push_back(a._current_evt_weights[APEvtWeight::kMuonMO][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kMuonMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kMuonMO].push_back(b._current_evt_weights[APEvtWeight::kMuonMO][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kTauMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kTauMO].push_back(a._current_evt_weights[APEvtWeight::kTauMO][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kTauMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kTauMO].push_back(b._current_evt_weights[APEvtWeight::kTauMO][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kElectronMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kElectronMO].push_back(a._current_evt_weights[APEvtWeight::kElectronMO][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kElectronMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kElectronMO].push_back(b._current_evt_weights[APEvtWeight::kElectronMO][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kJetMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kJetMO].push_back(a._current_evt_weights[APEvtWeight::kJetMO][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kJetMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kJetMO].push_back(b._current_evt_weights[APEvtWeight::kJetMO][i]); 
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kDiMuon].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiMuon].push_back(a._current_evt_weights[APEvtWeight::kDiMuon][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kDiMuon].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiMuon].push_back(b._current_evt_weights[APEvtWeight::kDiMuon][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kDiTau].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiTau].push_back(a._current_evt_weights[APEvtWeight::kDiTau][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kDiTau].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiTau].push_back(b._current_evt_weights[APEvtWeight::kDiTau][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kDiElectron].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiElectron].push_back(a._current_evt_weights[APEvtWeight::kDiElectron][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kDiElectron].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiElectron].push_back(b._current_evt_weights[APEvtWeight::kDiElectron][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kDiJet].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiJet].push_back(a._current_evt_weights[APEvtWeight::kDiJet][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kDiJet].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiJet].push_back(b._current_evt_weights[APEvtWeight::kDiJet][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kMuon].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kMuon].push_back(a.m_current_evt_weights[APEvtWeight::kMuon][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kMuon].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kMuon].push_back(b.m_current_evt_weights[APEvtWeight::kMuon][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kTau].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kTau].push_back(a.m_current_evt_weights[APEvtWeight::kTau][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kTau].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kTau].push_back(b.m_current_evt_weights[APEvtWeight::kTau][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kElectron].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kElectron].push_back(a.m_current_evt_weights[APEvtWeight::kElectron][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kElectron].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kElectron].push_back(b.m_current_evt_weights[APEvtWeight::kElectron][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kJet].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kJet].push_back(a.m_current_evt_weights[APEvtWeight::kJet][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kJet].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kJet].push_back(b.m_current_evt_weights[APEvtWeight::kJet][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kMuonMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kMuonMO].push_back(a.m_current_evt_weights[APEvtWeight::kMuonMO][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kMuonMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kMuonMO].push_back(b.m_current_evt_weights[APEvtWeight::kMuonMO][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kTauMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kTauMO].push_back(a.m_current_evt_weights[APEvtWeight::kTauMO][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kTauMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kTauMO].push_back(b.m_current_evt_weights[APEvtWeight::kTauMO][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kElectronMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kElectronMO].push_back(a.m_current_evt_weights[APEvtWeight::kElectronMO][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kElectronMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kElectronMO].push_back(b.m_current_evt_weights[APEvtWeight::kElectronMO][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kJetMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kJetMO].push_back(a.m_current_evt_weights[APEvtWeight::kJetMO][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kJetMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kJetMO].push_back(b.m_current_evt_weights[APEvtWeight::kJetMO][i]); 
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kDiMuon].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiMuon].push_back(a.m_current_evt_weights[APEvtWeight::kDiMuon][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kDiMuon].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiMuon].push_back(b.m_current_evt_weights[APEvtWeight::kDiMuon][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kDiTau].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiTau].push_back(a.m_current_evt_weights[APEvtWeight::kDiTau][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kDiTau].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiTau].push_back(b.m_current_evt_weights[APEvtWeight::kDiTau][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kDiElectron].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiElectron].push_back(a.m_current_evt_weights[APEvtWeight::kDiElectron][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kDiElectron].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiElectron].push_back(b.m_current_evt_weights[APEvtWeight::kDiElectron][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kDiJet].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiJet].push_back(a.m_current_evt_weights[APEvtWeight::kDiJet][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kDiJet].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiJet].push_back(b.m_current_evt_weights[APEvtWeight::kDiJet][i]);
 
-    if (!b._isComputed) b.Compute();
-    if (!a._isComputed) a.Compute();
-    ret._n_entries = a._n_entries + b._n_entries;
-    ret._k_evt_weight = a._k_evt_weight * b._k_evt_weight;
-    ret._variance = a._variance * b._k_evt_weight * b._k_evt_weight + b._variance * a._k_evt_weight * a._k_evt_weight;
-    ret._variance_sys = a._variance_sys * b._k_evt_weight * b._k_evt_weight + b._variance_sys * a._k_evt_weight * a._k_evt_weight;
+    if (!b.m_isComputed) b.Compute();
+    if (!a.m_isComputed) a.Compute();
+    ret.m_n_entries = a.m_n_entries + b.m_n_entries;
+    ret.m_k_evt_weight = a.m_k_evt_weight * b.m_k_evt_weight;
+    ret.m_variance = a.m_variance * b.m_k_evt_weight * b.m_k_evt_weight + b.m_variance * a.m_k_evt_weight * a.m_k_evt_weight;
+    ret.m_variance_sys = a.m_variance_sys * b.m_k_evt_weight * b.m_k_evt_weight + b.m_variance_sys * a.m_k_evt_weight * a.m_k_evt_weight;
     return ret;
   }
 }
@@ -134,79 +134,79 @@ const APEvtWeight operator||(const APEvtWeight& a_in, const APEvtWeight& b_in) {
   
   if ( (a_type != b_type) || (a_type == APEvtWeight::kElectron && b_type == APEvtWeight::kDiElectron ) || (a_type == APEvtWeight::kDiElectron && b_type == APEvtWeight::kElectron ) || (a_type == APEvtWeight::kMuon && b_type == APEvtWeight::kDiMuon ) || (a_type == APEvtWeight::kDiMuon && b_type == APEvtWeight::kMuon ) || (a_type == APEvtWeight::kTau && b_type == APEvtWeight::kDiTau ) || ( a_type == APEvtWeight::kDiTau && b_type == APEvtWeight::kTau ) || (a_type == APEvtWeight::kJet && b_type == APEvtWeight::kDiJet ) || (a_type == APEvtWeight::kDiJet && b_type == APEvtWeight::kJet ) ) {    // for what reason were all the extra conditions included?!
     APEvtWeight ret(APEvtWeight::kMOORed );
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kMuon].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kMuon].push_back(a._current_evt_weights[APEvtWeight::kMuon][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kMuon].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kMuon].push_back(b._current_evt_weights[APEvtWeight::kMuon][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kTau].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kTau].push_back(a._current_evt_weights[APEvtWeight::kTau][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kTau].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kTau].push_back(b._current_evt_weights[APEvtWeight::kTau][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kElectron].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kElectron].push_back(a._current_evt_weights[APEvtWeight::kElectron][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kElectron].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kElectron].push_back(b._current_evt_weights[APEvtWeight::kElectron][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kJet].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kJet].push_back(a._current_evt_weights[APEvtWeight::kJet][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kJet].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kJet].push_back(b._current_evt_weights[APEvtWeight::kJet][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kMuonMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kMuonMO].push_back(a._current_evt_weights[APEvtWeight::kMuonMO][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kMuonMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kMuonMO].push_back(b._current_evt_weights[APEvtWeight::kMuonMO][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kTauMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kTauMO].push_back(a._current_evt_weights[APEvtWeight::kTauMO][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kTauMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kTauMO].push_back(b._current_evt_weights[APEvtWeight::kTauMO][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kElectronMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kElectronMO].push_back(a._current_evt_weights[APEvtWeight::kElectronMO][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kElectronMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kElectronMO].push_back(b._current_evt_weights[APEvtWeight::kElectronMO][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kJetMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kJetMO].push_back(a._current_evt_weights[APEvtWeight::kJetMO][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kJetMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kJetMO].push_back(b._current_evt_weights[APEvtWeight::kJetMO][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kDiMuon].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiMuon].push_back(a._current_evt_weights[APEvtWeight::kDiMuon][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kDiMuon].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiMuon].push_back(b._current_evt_weights[APEvtWeight::kDiMuon][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kDiTau].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiTau].push_back(a._current_evt_weights[APEvtWeight::kDiTau][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kDiTau].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiTau].push_back(b._current_evt_weights[APEvtWeight::kDiTau][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kDiElectron].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiElectron].push_back(a._current_evt_weights[APEvtWeight::kDiElectron][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kDiElectron].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiElectron].push_back(b._current_evt_weights[APEvtWeight::kDiElectron][i]);
-    for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kDiJet].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiJet].push_back(a._current_evt_weights[APEvtWeight::kDiJet][i]);
-    for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kDiJet].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiJet].push_back(b._current_evt_weights[APEvtWeight::kDiJet][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kMuon].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kMuon].push_back(a.m_current_evt_weights[APEvtWeight::kMuon][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kMuon].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kMuon].push_back(b.m_current_evt_weights[APEvtWeight::kMuon][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kTau].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kTau].push_back(a.m_current_evt_weights[APEvtWeight::kTau][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kTau].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kTau].push_back(b.m_current_evt_weights[APEvtWeight::kTau][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kElectron].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kElectron].push_back(a.m_current_evt_weights[APEvtWeight::kElectron][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kElectron].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kElectron].push_back(b.m_current_evt_weights[APEvtWeight::kElectron][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kJet].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kJet].push_back(a.m_current_evt_weights[APEvtWeight::kJet][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kJet].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kJet].push_back(b.m_current_evt_weights[APEvtWeight::kJet][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kMuonMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kMuonMO].push_back(a.m_current_evt_weights[APEvtWeight::kMuonMO][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kMuonMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kMuonMO].push_back(b.m_current_evt_weights[APEvtWeight::kMuonMO][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kTauMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kTauMO].push_back(a.m_current_evt_weights[APEvtWeight::kTauMO][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kTauMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kTauMO].push_back(b.m_current_evt_weights[APEvtWeight::kTauMO][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kElectronMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kElectronMO].push_back(a.m_current_evt_weights[APEvtWeight::kElectronMO][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kElectronMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kElectronMO].push_back(b.m_current_evt_weights[APEvtWeight::kElectronMO][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kJetMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kJetMO].push_back(a.m_current_evt_weights[APEvtWeight::kJetMO][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kJetMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kJetMO].push_back(b.m_current_evt_weights[APEvtWeight::kJetMO][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kDiMuon].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiMuon].push_back(a.m_current_evt_weights[APEvtWeight::kDiMuon][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kDiMuon].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiMuon].push_back(b.m_current_evt_weights[APEvtWeight::kDiMuon][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kDiTau].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiTau].push_back(a.m_current_evt_weights[APEvtWeight::kDiTau][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kDiTau].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiTau].push_back(b.m_current_evt_weights[APEvtWeight::kDiTau][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kDiElectron].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiElectron].push_back(a.m_current_evt_weights[APEvtWeight::kDiElectron][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kDiElectron].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiElectron].push_back(b.m_current_evt_weights[APEvtWeight::kDiElectron][i]);
+    for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kDiJet].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiJet].push_back(a.m_current_evt_weights[APEvtWeight::kDiJet][i]);
+    for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kDiJet].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiJet].push_back(b.m_current_evt_weights[APEvtWeight::kDiJet][i]);
   
-    if (!b._isComputed) b.Compute();
-    if (!a._isComputed) a.Compute();
+    if (!b.m_isComputed) b.Compute();
+    if (!a.m_isComputed) a.Compute();
     
-    ret._n_entries = a._n_entries + b._n_entries;
-    ret._k_evt_weight = a._k_evt_weight + b._k_evt_weight * ( 1.0 - a._k_evt_weight );
-    ret._variance = a._variance * ( 1.0 - b._k_evt_weight ) * ( 1.0 - b._k_evt_weight ) + b._variance * ( 1.0 - a._k_evt_weight ) * ( 1.0 - a._k_evt_weight );
-    ret._variance_sys = a._variance_sys * ( 1.0 - b._k_evt_weight ) * ( 1.0 - b._k_evt_weight ) + b._variance_sys * ( 1.0 - a._k_evt_weight ) * ( 1.0 - a._k_evt_weight );
+    ret.m_n_entries = a.m_n_entries + b.m_n_entries;
+    ret.m_k_evt_weight = a.m_k_evt_weight + b.m_k_evt_weight * ( 1.0 - a.m_k_evt_weight );
+    ret.m_variance = a.m_variance * ( 1.0 - b.m_k_evt_weight ) * ( 1.0 - b.m_k_evt_weight ) + b.m_variance * ( 1.0 - a.m_k_evt_weight ) * ( 1.0 - a.m_k_evt_weight );
+    ret.m_variance_sys = a.m_variance_sys * ( 1.0 - b.m_k_evt_weight ) * ( 1.0 - b.m_k_evt_weight ) + b.m_variance_sys * ( 1.0 - a.m_k_evt_weight ) * ( 1.0 - a.m_k_evt_weight );
     return ret;
   }
   else if (a_type > APEvtWeight::kJetMO || b_type > APEvtWeight::kJetMO) {
-    if ((a._current_evt_weights[APEvtWeight::kMuon].size() > 0 && b._current_evt_weights[APEvtWeight::kMuon].size() > 0) || (a._current_evt_weights[APEvtWeight::kTau].size() > 0 && b._current_evt_weights[APEvtWeight::kTau].size() > 0) || (a._current_evt_weights[APEvtWeight::kElectron].size() > 0 && b._current_evt_weights[APEvtWeight::kElectron].size() > 0) || (a._current_evt_weights[APEvtWeight::kJet].size() > 0 && b._current_evt_weights[APEvtWeight::kJet].size() > 0) || (a._current_evt_weights[APEvtWeight::kMuonMO].size() > 0 && b._current_evt_weights[APEvtWeight::kMuonMO].size() > 0) || (a._current_evt_weights[APEvtWeight::kTauMO].size() > 0 && b._current_evt_weights[APEvtWeight::kTauMO].size() > 0) || (a._current_evt_weights[APEvtWeight::kElectronMO].size() > 0 && b._current_evt_weights[APEvtWeight::kElectronMO].size() > 0) || (a._current_evt_weights[APEvtWeight::kJetMO].size() > 0 && b._current_evt_weights[APEvtWeight::kJetMO].size() > 0) )
+    if ((a.m_current_evt_weights[APEvtWeight::kMuon].size() > 0 && b.m_current_evt_weights[APEvtWeight::kMuon].size() > 0) || (a.m_current_evt_weights[APEvtWeight::kTau].size() > 0 && b.m_current_evt_weights[APEvtWeight::kTau].size() > 0) || (a.m_current_evt_weights[APEvtWeight::kElectron].size() > 0 && b.m_current_evt_weights[APEvtWeight::kElectron].size() > 0) || (a.m_current_evt_weights[APEvtWeight::kJet].size() > 0 && b.m_current_evt_weights[APEvtWeight::kJet].size() > 0) || (a.m_current_evt_weights[APEvtWeight::kMuonMO].size() > 0 && b.m_current_evt_weights[APEvtWeight::kMuonMO].size() > 0) || (a.m_current_evt_weights[APEvtWeight::kTauMO].size() > 0 && b.m_current_evt_weights[APEvtWeight::kTauMO].size() > 0) || (a.m_current_evt_weights[APEvtWeight::kElectronMO].size() > 0 && b.m_current_evt_weights[APEvtWeight::kElectronMO].size() > 0) || (a.m_current_evt_weights[APEvtWeight::kJetMO].size() > 0 && b.m_current_evt_weights[APEvtWeight::kJetMO].size() > 0) )
       cout << "WARNING in APEvtWeight::operator||: Trying to combine already combined event weights with overlapping objects. Uncertainties will be incorrect." << endl;
   }
   
   APEvtWeight ret(APEvtWeight::kORed);
 
-  for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kMuon].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kMuon].push_back(a._current_evt_weights[APEvtWeight::kMuon][i]);
-  for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kMuon].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kMuon].push_back(b._current_evt_weights[APEvtWeight::kMuon][i]);
-  for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kTau].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kTau].push_back(a._current_evt_weights[APEvtWeight::kTau][i]);
-  for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kTau].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kTau].push_back(b._current_evt_weights[APEvtWeight::kTau][i]);
-  for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kElectron].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kElectron].push_back(a._current_evt_weights[APEvtWeight::kElectron][i]);
-  for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kElectron].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kElectron].push_back(b._current_evt_weights[APEvtWeight::kElectron][i]);
-  for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kJet].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kJet].push_back(a._current_evt_weights[APEvtWeight::kJet][i]);
-  for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kJet].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kJet].push_back(b._current_evt_weights[APEvtWeight::kJet][i]);
-  for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kMuonMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kMuonMO].push_back(a._current_evt_weights[APEvtWeight::kMuonMO][i]);
-  for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kMuonMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kMuonMO].push_back(b._current_evt_weights[APEvtWeight::kMuonMO][i]);
-  for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kTauMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kTauMO].push_back(a._current_evt_weights[APEvtWeight::kTauMO][i]);
-  for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kTauMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kTauMO].push_back(b._current_evt_weights[APEvtWeight::kTauMO][i]);
-  for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kElectronMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kElectronMO].push_back(a._current_evt_weights[APEvtWeight::kElectronMO][i]);
-  for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kElectronMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kElectronMO].push_back(b._current_evt_weights[APEvtWeight::kElectronMO][i]);
-  for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kJetMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kJetMO].push_back(a._current_evt_weights[APEvtWeight::kJetMO][i]);
-  for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kJetMO].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kJetMO].push_back(b._current_evt_weights[APEvtWeight::kJetMO][i]);
-  for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kDiMuon].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiMuon].push_back(a._current_evt_weights[APEvtWeight::kDiMuon][i]);
-  for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kDiMuon].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiMuon].push_back(b._current_evt_weights[APEvtWeight::kDiMuon][i]);
-  for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kDiTau].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiTau].push_back(a._current_evt_weights[APEvtWeight::kDiTau][i]);
-  for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kDiTau].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiTau].push_back(b._current_evt_weights[APEvtWeight::kDiTau][i]);
-  for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kDiElectron].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiElectron].push_back(a._current_evt_weights[APEvtWeight::kDiElectron][i]);
-  for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kDiElectron].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiElectron].push_back(b._current_evt_weights[APEvtWeight::kDiElectron][i]);
-  for (unsigned int i = 0, I = a._current_evt_weights[APEvtWeight::kDiJet].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiJet].push_back(a._current_evt_weights[APEvtWeight::kDiJet][i]);
-  for (unsigned int i = 0, I = b._current_evt_weights[APEvtWeight::kDiJet].size(); i < I; ++i) ret._current_evt_weights[APEvtWeight::kDiJet].push_back(b._current_evt_weights[APEvtWeight::kDiJet][i]);
+  for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kMuon].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kMuon].push_back(a.m_current_evt_weights[APEvtWeight::kMuon][i]);
+  for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kMuon].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kMuon].push_back(b.m_current_evt_weights[APEvtWeight::kMuon][i]);
+  for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kTau].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kTau].push_back(a.m_current_evt_weights[APEvtWeight::kTau][i]);
+  for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kTau].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kTau].push_back(b.m_current_evt_weights[APEvtWeight::kTau][i]);
+  for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kElectron].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kElectron].push_back(a.m_current_evt_weights[APEvtWeight::kElectron][i]);
+  for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kElectron].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kElectron].push_back(b.m_current_evt_weights[APEvtWeight::kElectron][i]);
+  for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kJet].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kJet].push_back(a.m_current_evt_weights[APEvtWeight::kJet][i]);
+  for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kJet].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kJet].push_back(b.m_current_evt_weights[APEvtWeight::kJet][i]);
+  for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kMuonMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kMuonMO].push_back(a.m_current_evt_weights[APEvtWeight::kMuonMO][i]);
+  for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kMuonMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kMuonMO].push_back(b.m_current_evt_weights[APEvtWeight::kMuonMO][i]);
+  for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kTauMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kTauMO].push_back(a.m_current_evt_weights[APEvtWeight::kTauMO][i]);
+  for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kTauMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kTauMO].push_back(b.m_current_evt_weights[APEvtWeight::kTauMO][i]);
+  for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kElectronMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kElectronMO].push_back(a.m_current_evt_weights[APEvtWeight::kElectronMO][i]);
+  for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kElectronMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kElectronMO].push_back(b.m_current_evt_weights[APEvtWeight::kElectronMO][i]);
+  for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kJetMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kJetMO].push_back(a.m_current_evt_weights[APEvtWeight::kJetMO][i]);
+  for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kJetMO].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kJetMO].push_back(b.m_current_evt_weights[APEvtWeight::kJetMO][i]);
+  for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kDiMuon].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiMuon].push_back(a.m_current_evt_weights[APEvtWeight::kDiMuon][i]);
+  for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kDiMuon].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiMuon].push_back(b.m_current_evt_weights[APEvtWeight::kDiMuon][i]);
+  for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kDiTau].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiTau].push_back(a.m_current_evt_weights[APEvtWeight::kDiTau][i]);
+  for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kDiTau].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiTau].push_back(b.m_current_evt_weights[APEvtWeight::kDiTau][i]);
+  for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kDiElectron].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiElectron].push_back(a.m_current_evt_weights[APEvtWeight::kDiElectron][i]);
+  for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kDiElectron].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiElectron].push_back(b.m_current_evt_weights[APEvtWeight::kDiElectron][i]);
+  for (unsigned int i = 0, I = a.m_current_evt_weights[APEvtWeight::kDiJet].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiJet].push_back(a.m_current_evt_weights[APEvtWeight::kDiJet][i]);
+  for (unsigned int i = 0, I = b.m_current_evt_weights[APEvtWeight::kDiJet].size(); i < I; ++i) ret.m_current_evt_weights[APEvtWeight::kDiJet].push_back(b.m_current_evt_weights[APEvtWeight::kDiJet][i]);
 
-  if (!b._isComputed) b.Compute();
-  if (!a._isComputed) a.Compute();
+  if (!b.m_isComputed) b.Compute();
+  if (!a.m_isComputed) a.Compute();
 
-  ret._n_entries = a._n_entries + b._n_entries;
-  ret._k_evt_weight = 1.0 - (1.0 - a._k_evt_weight) * (1.0 - b._k_evt_weight);
-  ret._variance = a._variance * (1.0 - b._k_evt_weight) * (1.0 - b._k_evt_weight) + b._variance * (1.0 - a._k_evt_weight) * (1.0 - a._k_evt_weight);
-  ret._variance_sys = a._variance_sys * (1.0 - b._k_evt_weight) * (1.0 - b._k_evt_weight) + b._variance_sys * (1.0 - a._k_evt_weight) * (1.0 - a._k_evt_weight);
+  ret.m_n_entries = a.m_n_entries + b.m_n_entries;
+  ret.m_k_evt_weight = 1.0 - (1.0 - a.m_k_evt_weight) * (1.0 - b.m_k_evt_weight);
+  ret.m_variance = a.m_variance * (1.0 - b.m_k_evt_weight) * (1.0 - b.m_k_evt_weight) + b.m_variance * (1.0 - a.m_k_evt_weight) * (1.0 - a.m_k_evt_weight);
+  ret.m_variance_sys = a.m_variance_sys * (1.0 - b.m_k_evt_weight) * (1.0 - b.m_k_evt_weight) + b.m_variance_sys * (1.0 - a.m_k_evt_weight) * (1.0 - a.m_k_evt_weight);
   return ret;
 }
 
@@ -214,39 +214,39 @@ const APEvtWeight operator!(const APEvtWeight& a_in ) {
 
   APEvtWeight a = a_in;
   APEvtWeight ret = a;
-  if(!a._isComputed && a.GetType() <= APEvtWeight::kDiJet ) a.Compute();
+  if(!a.m_isComputed && a.GetType() <= APEvtWeight::kDiJet ) a.Compute();
   if(ret.GetType() <= APEvtWeight::kDiJet) ret.Compute();
-  ret._k_evt_weight = 1.0 - a._k_evt_weight;
+  ret.m_k_evt_weight = 1.0 - a.m_k_evt_weight;
   return ret;
 
 }
 
 double APEvtWeight::GetWeight() {
-  if (!_isComputed) Compute();
-  //if ( _type >= APEvtWeight::kMuonMO && _type <= APEvtWeight::kJetMO ) cout << "WARNING in APEvtWeight::GetWeight: Trying to access weight for single component of multiobject trigger. You shouldn't do this!" << endl;
-  return _k_evt_weight;
+  if (!m_isComputed) Compute();
+  //if ( m_type >= APEvtWeight::kMuonMO && m_type <= APEvtWeight::kJetMO ) cout << "WARNING in APEvtWeight::GetWeight: Trying to access weight for single component of multiobject trigger. You shouldn't do this!" << endl;
+  return m_k_evt_weight;
 }
 
 double APEvtWeight::GetStdDev() {
-  if (!_isComputed) Compute();
-  //if ( _type >= APEvtWeight::kMuonMO && _type <= APEvtWeight::kJetMO ) cout << "WARNING in APEvtWeight::GetStdDev: Trying to access StdDev for single component of multiobject trigger. You shouldn't do this!" << endl;
-  return sqrt(_variance);
+  if (!m_isComputed) Compute();
+  //if ( m_type >= APEvtWeight::kMuonMO && m_type <= APEvtWeight::kJetMO ) cout << "WARNING in APEvtWeight::GetStdDev: Trying to access StdDev for single component of multiobject trigger. You shouldn't do this!" << endl;
+  return sqrt(m_variance);
 }
 
 double APEvtWeight::GetVariance() {
-  if (!_isComputed) Compute();
-  //if ( _type >= APEvtWeight::kMuonMO && _type <= APEvtWeight::kJetMO ) cout << "WARNING in APEvtWeight::GetVariance: Trying to access variance for single component of multiobject trigger. You shouldn't do this!" << endl;
-  return _variance;
+  if (!m_isComputed) Compute();
+  //if ( m_type >= APEvtWeight::kMuonMO && m_type <= APEvtWeight::kJetMO ) cout << "WARNING in APEvtWeight::GetVariance: Trying to access variance for single component of multiobject trigger. You shouldn't do this!" << endl;
+  return m_variance;
 }
 
 double APEvtWeight::GetSysUncert() {
-  if (!_isComputed) Compute();
-  return sqrt(_variance_sys);
+  if (!m_isComputed) Compute();
+  return sqrt(m_variance_sys);
 }
 
 double APEvtWeight::GetSysVariance() {
-  if (!_isComputed) Compute();
-  return _variance_sys;
+  if (!m_isComputed) Compute();
+  return m_variance_sys;
 }
 
 vector< APWeightEntry* > APEvtWeight::GetWeightObjects(ObjType type) {
@@ -254,71 +254,71 @@ vector< APWeightEntry* > APEvtWeight::GetWeightObjects(ObjType type) {
     cout << "WARNING in APEvtWeight::GetWeightObjects: Trying to get non-defined object type. Returning empty vector." << endl;
     return vector< APWeightEntry* >();
   }
-  return _current_evt_weights[type];
+  return m_current_evt_weights[type];
 }
 
 unsigned long APEvtWeight::NEntries() {
-  return _n_entries;
+  return m_n_entries;
 }
 
 APEvtWeight::ObjType APEvtWeight::GetType() {
-  return _type;
+  return m_type;
 }
 
 void APEvtWeight::Compute() {
-  if (_type > APEvtWeight::kDiJet ) {
+  if (m_type > APEvtWeight::kDiJet ) {
     cout << "ERROR in APEvtWeight::Compute: Trying to compute combined event weight. Ignoring command." << endl;
   } else {
     double evt_weight = 1.0;
     double variance = 0.0;
     double variance_sys = 0.0;
-    if ( _type <= APEvtWeight::kJetMO ) {
-      for (unsigned int i = 0, I = _current_evt_weights[_type].size(); i < I; ++i) {
+    if ( m_type <= APEvtWeight::kJetMO ) {
+      for (unsigned int i = 0, I = m_current_evt_weights[m_type].size(); i < I; ++i) {
         double variance_summand = 1.0;
-        evt_weight *= (1. - _current_evt_weights[_type][i]->GetExpectancy());
+        evt_weight *= (1. - m_current_evt_weights[m_type][i]->GetExpectancy());
         for (unsigned int k = 0; k < I; ++k) {
-          if (i != k) variance_summand *= (1. - _current_evt_weights[_type][k]->GetExpectancy());
+          if (i != k) variance_summand *= (1. - m_current_evt_weights[m_type][k]->GetExpectancy());
         }
-        variance += (variance_summand * variance_summand * _current_evt_weights[_type][i]->GetVariance());
-        variance_sys += (variance_summand * variance_summand * _current_evt_weights[_type][i]->GetSysUncert2());
+        variance += (variance_summand * variance_summand * m_current_evt_weights[m_type][i]->GetVariance());
+        variance_sys += (variance_summand * variance_summand * m_current_evt_weights[m_type][i]->GetSysUncert2());
       }
     }
-    else if ( _type <= APEvtWeight::kDiJet ) {
-      if ( _current_evt_weights[_type].size() >= 2 ) {
+    else if ( m_type <= APEvtWeight::kDiJet ) {
+      if ( m_current_evt_weights[m_type].size() >= 2 ) {
         
         /* preliminary code to implement asymmetric triggers */
         bool isAsymTrig = false;
         vector<unsigned int> temp_vec_IDs;
-        temp_vec_IDs.push_back( _current_evt_weights[_type][0]->GetID() );
-        for( unsigned int i = 1, I = _current_evt_weights[_type].size(); i < I; ++i ) {
+        temp_vec_IDs.push_back( m_current_evt_weights[m_type][0]->GetID() );
+        for( unsigned int i = 1, I = m_current_evt_weights[m_type].size(); i < I; ++i ) {
           bool knownID = false;
           for( unsigned int j = 0, J = temp_vec_IDs.size(); j < J; ++j ) {
-            if( _current_evt_weights[_type][i]->GetID() == temp_vec_IDs[j] ) { knownID = true; break; }
+            if( m_current_evt_weights[m_type][i]->GetID() == temp_vec_IDs[j] ) { knownID = true; break; }
           }
-          if( !knownID ) temp_vec_IDs.push_back( _current_evt_weights[_type][i]->GetID() );
+          if( !knownID ) temp_vec_IDs.push_back( m_current_evt_weights[m_type][i]->GetID() );
         }
         if( temp_vec_IDs.size() != 1 ) isAsymTrig = true;
         
         if( !isAsymTrig ) {
-          for( unsigned int i = 0, I = _current_evt_weights[_type].size(); i < I; ++i ) {
-            evt_weight *= (1. - _current_evt_weights[_type][i]->GetExpectancy());
+          for( unsigned int i = 0, I = m_current_evt_weights[m_type].size(); i < I; ++i ) {
+            evt_weight *= (1. - m_current_evt_weights[m_type][i]->GetExpectancy());
           }
-          for( unsigned int i = 0, I = _current_evt_weights[_type].size(); i < I; ++i ) {
+          for( unsigned int i = 0, I = m_current_evt_weights[m_type].size(); i < I; ++i ) {
             double variance_summand = 0.0;
-            double temp_weight = _current_evt_weights[_type][i]->GetExpectancy();
+            double temp_weight = m_current_evt_weights[m_type][i]->GetExpectancy();
             for( unsigned int k = 0; k < I; ++k ) {
               double temp_variance_summand = 0.0;
               if ( i != k ) {
-                temp_weight *= (1.-_current_evt_weights[_type][k]->GetExpectancy());
-                temp_variance_summand = _current_evt_weights[_type][k]->GetExpectancy();
+                temp_weight *= (1.-m_current_evt_weights[m_type][k]->GetExpectancy());
+                temp_variance_summand = m_current_evt_weights[m_type][k]->GetExpectancy();
               }  
               for( unsigned int j = 0; j < I; ++j ) {
-                if ( j != i && j != k ) temp_variance_summand *= (1.-_current_evt_weights[_type][j]->GetExpectancy());
+                if ( j != i && j != k ) temp_variance_summand *= (1.-m_current_evt_weights[m_type][j]->GetExpectancy());
               }
               variance_summand += temp_variance_summand;
             }
-            variance += (variance_summand * variance_summand * _current_evt_weights[_type][i]->GetVariance());
-            variance_sys += (variance_summand * variance_summand * _current_evt_weights[_type][i]->GetSysUncert2());
+            variance += (variance_summand * variance_summand * m_current_evt_weights[m_type][i]->GetVariance());
+            variance_sys += (variance_summand * variance_summand * m_current_evt_weights[m_type][i]->GetSysUncert2());
             evt_weight += temp_weight;
           }
         }
@@ -332,24 +332,24 @@ void APEvtWeight::Compute() {
           /* - conditional efficiecny: efficiecny of second leg under the condition the first leg did not fire */
           //std::cout << "this is an asymmetric trigger" << std::endl;
           if( temp_vec_IDs.size() != 4 ) { std::cout << "WARNING! Required exactly 4 different efficiencies, while " << temp_vec_IDs.size() << " efficiencies are provided! Please check your implementation! Weight is set to 0! " << std::endl; }
-          else if( _current_evt_weights[_type].size() < 2*temp_vec_IDs.size() ) { std::cout << "less than 2 leptons added. Weight is 0." << std::endl; }
+          else if( m_current_evt_weights[m_type].size() < 2*temp_vec_IDs.size() ) { std::cout << "less than 2 leptons added. Weight is 0." << std::endl; }
           else {
             // first the weight //
             double evt_weight_leg1 = 1.;
             double evt_weight_leg2 = 1.;
             double evt_weight_leg2_cond = 1.;
             double evt_weight_singleHit = 0.;
-            for( unsigned int i = 0, I = _current_evt_weights[_type].size(); i < I; i += 4 ) {
-              evt_weight_leg1 *= (1. - _current_evt_weights[_type][i]->GetExpectancy());
-              evt_weight_leg2 *= (1. - _current_evt_weights[_type][i+1]->GetExpectancy());
-              evt_weight_leg2_cond *= (1. - _current_evt_weights[_type][i]->GetExpectancy())*(1. - _current_evt_weights[_type][i+2]->GetExpectancy());
+            for( unsigned int i = 0, I = m_current_evt_weights[m_type].size(); i < I; i += 4 ) {
+              evt_weight_leg1 *= (1. - m_current_evt_weights[m_type][i]->GetExpectancy());
+              evt_weight_leg2 *= (1. - m_current_evt_weights[m_type][i+1]->GetExpectancy());
+              evt_weight_leg2_cond *= (1. - m_current_evt_weights[m_type][i]->GetExpectancy())*(1. - m_current_evt_weights[m_type][i+2]->GetExpectancy());
             }
-            for( unsigned int j = 0, J = _current_evt_weights[_type].size(); j < J; j += 4 ) {
+            for( unsigned int j = 0, J = m_current_evt_weights[m_type].size(); j < J; j += 4 ) {
               double temp_weight = 0.;
-              temp_weight += _current_evt_weights[_type][j]->GetExpectancy()*_current_evt_weights[_type][j+3]->GetExpectancy();
-              for( unsigned int i = 0, I = _current_evt_weights[_type].size(); i < I; i += 4 ) {
+              temp_weight += m_current_evt_weights[m_type][j]->GetExpectancy()*m_current_evt_weights[m_type][j+3]->GetExpectancy();
+              for( unsigned int i = 0, I = m_current_evt_weights[m_type].size(); i < I; i += 4 ) {
                 if( i == j ) continue;
-                temp_weight *= (1. - _current_evt_weights[_type][i]->GetExpectancy() )*(1. - _current_evt_weights[_type][i+2]->GetExpectancy() );
+                temp_weight *= (1. - m_current_evt_weights[m_type][i]->GetExpectancy() )*(1. - m_current_evt_weights[m_type][i+2]->GetExpectancy() );
               }
               evt_weight_singleHit += temp_weight;
             }
@@ -361,86 +361,86 @@ void APEvtWeight::Compute() {
             double variance_leg2_cond = 0.;
             double variance_singleHit = 0.;
             // first leg of the trigger
-            for( unsigned int k = 0, K = _current_evt_weights[_type].size(); k < K; k += 4 ) {
+            for( unsigned int k = 0, K = m_current_evt_weights[m_type].size(); k < K; k += 4 ) {
               double variance_k = 0.;
               double variance_temp = 1.;
-              for( unsigned int i = 0, I = _current_evt_weights[_type].size(); i < I; i += 4 ) {
+              for( unsigned int i = 0, I = m_current_evt_weights[m_type].size(); i < I; i += 4 ) {
                 if( i == k ) continue;
-                variance_temp *= (1. - _current_evt_weights[_type][i]->GetExpectancy());
+                variance_temp *= (1. - m_current_evt_weights[m_type][i]->GetExpectancy());
               }
               variance_k += variance_temp;
               variance_temp = -1.;
-              for( unsigned int i = 0, I = _current_evt_weights[_type].size(); i < I; i += 4 ) {
-                variance_temp *= (1.0 - _current_evt_weights[_type][i+2]->GetExpectancy());
+              for( unsigned int i = 0, I = m_current_evt_weights[m_type].size(); i < I; i += 4 ) {
+                variance_temp *= (1.0 - m_current_evt_weights[m_type][i+2]->GetExpectancy());
                 if( i == k ) continue;
-                variance_temp *= (1.0 - _current_evt_weights[_type][i]->GetExpectancy());
+                variance_temp *= (1.0 - m_current_evt_weights[m_type][i]->GetExpectancy());
               }
               variance_k += variance_temp;
-              variance_temp = -_current_evt_weights[_type][k+3]->GetExpectancy();
-              for( unsigned int i = 0, I = _current_evt_weights[_type].size(); i < I; i += 4 ) {
+              variance_temp = -m_current_evt_weights[m_type][k+3]->GetExpectancy();
+              for( unsigned int i = 0, I = m_current_evt_weights[m_type].size(); i < I; i += 4 ) {
                 if( i == k ) continue;
-                variance_temp *= (1.0 - _current_evt_weights[_type][i]->GetExpectancy())*(1.0 - _current_evt_weights[_type][i+2]->GetExpectancy());
+                variance_temp *= (1.0 - m_current_evt_weights[m_type][i]->GetExpectancy())*(1.0 - m_current_evt_weights[m_type][i+2]->GetExpectancy());
               }
               variance_k += variance_temp;
               variance_temp = 0.;
-              for( unsigned int j = 0, J = _current_evt_weights[_type].size(); j < J; j+= 4 ) {
+              for( unsigned int j = 0, J = m_current_evt_weights[m_type].size(); j < J; j+= 4 ) {
                 if( j == k ) continue;
-                double variance_ijk_temp = _current_evt_weights[_type][j]->GetExpectancy()*_current_evt_weights[_type][j+3]->GetExpectancy();
-                for( unsigned int i = 0, I = _current_evt_weights[_type].size(); i < I; i += 4 ) {
+                double variance_ijk_temp = m_current_evt_weights[m_type][j]->GetExpectancy()*m_current_evt_weights[m_type][j+3]->GetExpectancy();
+                for( unsigned int i = 0, I = m_current_evt_weights[m_type].size(); i < I; i += 4 ) {
                   if( i == j ) continue;
-                  variance_ijk_temp *= (1.0 -  _current_evt_weights[_type][i+2]->GetExpectancy());
+                  variance_ijk_temp *= (1.0 -  m_current_evt_weights[m_type][i+2]->GetExpectancy());
                   if( i == k ) continue;
-                  variance_ijk_temp *= (1.0 - _current_evt_weights[_type][i]->GetExpectancy());
+                  variance_ijk_temp *= (1.0 - m_current_evt_weights[m_type][i]->GetExpectancy());
                 }
                 variance_temp += variance_ijk_temp;
               }
               variance_k += variance_temp;
-              variance_leg1 += variance_k*variance_k*_current_evt_weights[_type][k]->GetVariance();
+              variance_leg1 += variance_k*variance_k*m_current_evt_weights[m_type][k]->GetVariance();
             }
             
             // second leg of the trigger; standalone
-            for( unsigned int k = 0, K = _current_evt_weights[_type].size(); k < K; k += 4 ) {
+            for( unsigned int k = 0, K = m_current_evt_weights[m_type].size(); k < K; k += 4 ) {
               double variance_temp = 1.;
-              for( unsigned int i = 0, I = _current_evt_weights[_type].size(); i < I; i += 4 ) {
+              for( unsigned int i = 0, I = m_current_evt_weights[m_type].size(); i < I; i += 4 ) {
                 if( i == k ) continue;
-                variance_temp *= (1. - _current_evt_weights[_type][i+1]->GetExpectancy());
+                variance_temp *= (1. - m_current_evt_weights[m_type][i+1]->GetExpectancy());
               }
-              variance_leg2 += variance_temp*variance_temp*_current_evt_weights[_type][k+1]->GetVariance();
+              variance_leg2 += variance_temp*variance_temp*m_current_evt_weights[m_type][k+1]->GetVariance();
             }
             
             // second leg of the trigger under condition of having the first leg
-            for( unsigned int k = 0, K = _current_evt_weights[_type].size(); k < K; k += 4 ) {
+            for( unsigned int k = 0, K = m_current_evt_weights[m_type].size(); k < K; k += 4 ) {
               double variance_k = 0.;
               double variance_temp = 1.;
-              for( unsigned int i = 0, I = _current_evt_weights[_type].size(); i < I; i += 4 ) {
-                variance_temp *= (1. - _current_evt_weights[_type][i]->GetExpectancy());
+              for( unsigned int i = 0, I = m_current_evt_weights[m_type].size(); i < I; i += 4 ) {
+                variance_temp *= (1. - m_current_evt_weights[m_type][i]->GetExpectancy());
                 if( i == k ) continue;
-                variance_temp *= (1. - _current_evt_weights[_type][i+2]->GetExpectancy());
+                variance_temp *= (1. - m_current_evt_weights[m_type][i+2]->GetExpectancy());
               }
               variance_k += variance_temp;
               variance_temp = 0.;
-              for( unsigned int j = 0, J = _current_evt_weights[_type].size(); j < J; j+= 4 ) {
-                double variance_ijk_temp = _current_evt_weights[_type][j]->GetExpectancy()*_current_evt_weights[_type][j+3]->GetExpectancy();
-                for( unsigned int i = 0, I = _current_evt_weights[_type].size(); i < I; i += 4 ) {
+              for( unsigned int j = 0, J = m_current_evt_weights[m_type].size(); j < J; j+= 4 ) {
+                double variance_ijk_temp = m_current_evt_weights[m_type][j]->GetExpectancy()*m_current_evt_weights[m_type][j+3]->GetExpectancy();
+                for( unsigned int i = 0, I = m_current_evt_weights[m_type].size(); i < I; i += 4 ) {
                   if( j == i ) continue;
-                  variance_ijk_temp *= (1.0 - _current_evt_weights[_type][i]->GetExpectancy());
+                  variance_ijk_temp *= (1.0 - m_current_evt_weights[m_type][i]->GetExpectancy());
                   if( i == k ) continue;
-                  variance_ijk_temp *= (1.0 -  _current_evt_weights[_type][i+2]->GetExpectancy());
+                  variance_ijk_temp *= (1.0 -  m_current_evt_weights[m_type][i+2]->GetExpectancy());
                 }
                 variance_temp += variance_ijk_temp;
               }
               variance_k += variance_temp;
-              variance_leg2_cond += variance_k*variance_k*_current_evt_weights[_type][k+2]->GetVariance();
+              variance_leg2_cond += variance_k*variance_k*m_current_evt_weights[m_type][k+2]->GetVariance();
             }
             
             // and the single Hit term
-            for( unsigned int k = 0, K = _current_evt_weights[_type].size(); k < K; k += 4 ) {
-              double variance_k = - _current_evt_weights[_type][k]->GetExpectancy();
-              for( unsigned int i = 0, I = _current_evt_weights[_type].size(); i < I; i += 4 ) {
+            for( unsigned int k = 0, K = m_current_evt_weights[m_type].size(); k < K; k += 4 ) {
+              double variance_k = - m_current_evt_weights[m_type][k]->GetExpectancy();
+              for( unsigned int i = 0, I = m_current_evt_weights[m_type].size(); i < I; i += 4 ) {
                 if( i == k ) continue;
-                variance_k *= (1.0 - _current_evt_weights[_type][i]->GetExpectancy())*(1.0 - _current_evt_weights[_type][i+3]->GetExpectancy());
+                variance_k *= (1.0 - m_current_evt_weights[m_type][i]->GetExpectancy())*(1.0 - m_current_evt_weights[m_type][i+3]->GetExpectancy());
               }
-              variance_singleHit += variance_k * variance_k *_current_evt_weights[_type][k+3]->GetVariance();
+              variance_singleHit += variance_k * variance_k *m_current_evt_weights[m_type][k+3]->GetVariance();
             }
             
             // now add everything
@@ -451,9 +451,9 @@ void APEvtWeight::Compute() {
         
       }
     }
-    _k_evt_weight = (1. - evt_weight);
-    _variance = variance;
-    _variance_sys = variance_sys;
+    m_k_evt_weight = (1. - evt_weight);
+    m_variance = variance;
+    m_variance_sys = variance_sys;
   }
-  _isComputed = true;
+  m_isComputed = true;
 }

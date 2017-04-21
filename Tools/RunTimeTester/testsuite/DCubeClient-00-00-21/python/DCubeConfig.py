@@ -570,7 +570,7 @@ class DCubeConfig( DCubeUtils.DCubeObject ):
 ##
 # @class test_DCubeConfig
 # @author Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMagh.edu.pl)
-# @rief test case for DCubeConfig class
+# @brief test case for DCubeConfig class
 class test_DCubeConfig( unittest.TestCase ):
     
 

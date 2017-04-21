@@ -15,7 +15,7 @@ class RPCRXRODDecode : public BaseObject {
 public:
 RPCRXRODDecode();
 ~RPCRXRODDecode();
-sbit32 gimeRODDataAddress() { return RODDataAddress;};
+sbit32 gimeRODDataAddress() { return m_RODDataAddress;};
 void RODAddresses(const RODword *RODData,
                   const sbit32 numberOfStatusElements,
                   const sbit32 statusBlockPosition);
@@ -29,9 +29,9 @@ void RODHeaderDisplay();
 //
 // ROD structure control flags
 //
-ubit16 gimeCMFlag(){ return CMFlag;};
-ubit16 gimePADFlag(){ return PADFlag;};
-ubit16 gimeRXFlag(){ return RXFlag;};
+ubit16 gimeCMFlag(){ return m_CMFlag;};
+ubit16 gimePADFlag(){ return m_PADFlag;};
+ubit16 gimeRXFlag(){ return m_RXFlag;};
 void enablePrintOut();
 void disablePrintOut();
 //
@@ -72,11 +72,11 @@ SectorLogicRXReadOutStructure SLROS;
 SectorLogicRXReadOut SLRO;
 
 private:
-bool isSLBody;
+bool m_isSLBody;
 //
 // ROD Data address
 //
-sbit32 RODDataAddress;
+sbit32 m_RODDataAddress;
 //
 // define "previous" type of 16-bit data record
 //
@@ -84,24 +84,24 @@ enum recType {Empty,CMHead,CMSub,CMBod,CMFoot,
               PadHead,PadSub,PadPre,PadFoot,
 	      SLHead,SLFoot,
 	      RXHead,RXFoot};
-recType previousRecord;
+recType m_previousRecord;
 //
 // RPC data markers
 //
-ubit16 field;
-ubit16 noRecord16;
-RODword noRecord32;
+ubit16 m_field;
+ubit16 m_noRecord16;
+RODword m_noRecord32;
 //ubit16 PADSubHeader;
 //ubit16 PADPreFooter;
 //ubit16 reserved3;
-ubit16 reserved4;
+ubit16 m_reserved4;
 //ubit16 reserved5;
 //
 // data structure control flags
 //
-ubit16 CMFlag;
-ubit16 PADFlag;
-ubit16 RXFlag;
+ubit16 m_CMFlag;
+ubit16 m_PADFlag;
+ubit16 m_RXFlag;
 //
 // enable printouts
 //

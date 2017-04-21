@@ -228,6 +228,8 @@ PP="$PP"'|^RalDatabaseSvc Info|^CoralApplication Info|^TRT_GeoModel +WARNING|Xto
 # ubsan
 PP="$PP"'|bits/regex.h:1545'
 
+PP="$PP"'|Cannot convert TrigRNNOutput'
+
 
 test=$1
 if [ -z "$testStatus" ]; then

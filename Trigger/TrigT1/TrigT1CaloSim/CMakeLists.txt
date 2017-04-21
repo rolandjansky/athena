@@ -31,6 +31,7 @@ atlas_depends_on_subdirs(
    Trigger/TrigT1/TrigT1CaloToolInterfaces
    Trigger/TrigT1/TrigT1CaloUtils
    Trigger/TrigT1/TrigT1Interfaces
+   Trigger/TrigT1/TrigT1CaloByteStream
    PRIVATE
    Control/AthenaKernel
    Control/CxxUtils
@@ -52,7 +53,7 @@ atlas_add_library( TrigT1CaloSimLib
    DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier CaloTTDetDescr
    AthenaBaseComps AthContainers xAODTrigL1Calo GaudiKernel LArRawEvent
-   TileEvent TrigConfL1Data TrigT1CaloCalibConditions
+   TileEvent TrigConfL1Data TrigT1CaloCalibConditions 
    TrigT1CaloCalibToolInterfaces TrigT1CaloToolInterfaces TrigT1Interfaces
    CaloDetDescrLib PileUpToolsLib StoreGateLib SGtests LArToolsLib
    TileConditionsLib TrigT1CaloEventLib TrigT1CaloUtilsLib LumiBlockCompsLib

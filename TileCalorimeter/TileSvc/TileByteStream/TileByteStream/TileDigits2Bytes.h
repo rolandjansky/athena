@@ -48,7 +48,7 @@ class TileDigits2Bytes {
   int getDigiMode(const uint32_t *data, int chipCount, int wordsPerChip) const;
   
   /**
-   * Extract gain for <chip> in chip header
+   * Extract gain for \<chip\> in chip header
    * @param data Pointer to chip header word
    * @param chan is channel number in chip (0-2)
    * return 0-low gain, 1-high gain
@@ -70,7 +70,7 @@ class TileDigits2Bytes {
   inline uint32_t calculateParity(const uint32_t *data) const;
 
   /**
-   * Verify parity for <length> words.
+   * Verify parity for \<length\> words.
    * The parity bit for each word is stored in an unsigned int
    * LSB is parity bit from first word and so on.
    * @param data Pointer to first data word
@@ -80,8 +80,8 @@ class TileDigits2Bytes {
   inline uint32_t checkParity(const uint32_t *data, int length) const;
 
   /**
-   * Check that the MSB of <length> words are equal to
-   * LSB of <startbit>
+   * Check that the MSB of \<length\> words are equal to
+   * LSB of \<startbit\>
    * @param data Pointer to forst data word
    * @param length Number of words to check
    * @param startbit Word with LSB to check against

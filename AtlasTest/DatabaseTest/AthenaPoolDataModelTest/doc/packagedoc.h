@@ -3,7 +3,7 @@
 */
 
 /**
-@page AthenaPoolDataModelTest_page @mainpage
+@page AthenaPoolDataModelTest_page AthenaPoolDataModelTest package
  *
 @section AthenaPoolDataModelTest_@section purpose Purpose: Test ESD / AOD readability
  *

@@ -239,7 +239,7 @@ StatusCode CPSimMon::bookHistogramsRecurrent() {
   //if (newEventsBlock || newLumiBlock) {
   //}
 
-  if (newRun) {
+  if (newRunFlag()) {
 
     MgmtAttr_t attr = ATTRIB_UNMANAGED;
     std::string dir1(m_rootDir + "/Errors/Transmission_Simulation");

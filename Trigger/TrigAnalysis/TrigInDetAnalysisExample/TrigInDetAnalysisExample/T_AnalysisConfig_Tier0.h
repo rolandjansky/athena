@@ -1324,6 +1324,8 @@ protected:
       if( m_testType != "" ) folder_name = folder_name + "/" + m_testType;
       
       std::string mongroup;
+
+
       
       if ( name().find("Shifter")!=std::string::npos ) {
 	/// shifter histograms - do not encode chain names
@@ -1338,9 +1340,11 @@ protected:
 
 	if ( m_chainNames.at(ic).vtx()!="" ) mongroup += "/" + m_chainNames.at(ic).vtx();
 
+	//	std::cout << "\n SUTT       " << name() << std::endl;
+	
 	//	std::cout << "\n SUTT chain " << m_chainNames.at(ic) << "\tvtx " << m_chainNames.at(ic).vtx() << "\tmongroup " << mongroup << std::endl;
 
-     }
+      }
       else { 
 	/// these are the Expert / non-Shifter histograms - encode the full chain names
 
@@ -1381,7 +1385,7 @@ protected:
 
       //      std::cout << "SUTT chain " << "\tvtx " << m_chainNames.at(ic).vtx() << "\tmongroup " << mongroup << std::endl;
       
-      m_provider->msg(MSG::INFO) << " book mongroup " << mongroup << endmsg;
+      m_provider->msg(MSG::VERBOSE) << " book mongroup " << mongroup << endmsg;
       
 #     ifdef ManagedMonitorToolBase_Uses_API_201401
       m_provider->addMonGroup( new ManagedMonitorToolBase::MonGroup( m_provider, mongroup, ManagedMonitorToolBase::run ) );

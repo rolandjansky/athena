@@ -36,6 +36,8 @@ namespace TrigL2MuonSA {
 
   void setMCFlag(BooleanProperty use_mcLUT,
 		 const AlignmentBarrelLUTSvc* alignmentBarrelLUTSvc);
+
+  void setUseEndcapInner( BooleanProperty use_endcapInner );
   
  public:
   
@@ -46,6 +48,8 @@ namespace TrigL2MuonSA {
  private:
   
   BooleanProperty  m_use_mcLUT;
+
+  BooleanProperty  m_use_endcapInner;
 
   const ToolHandle<AlignmentBarrelLUT>*    m_alignmentBarrelLUT;
   const AlignmentBarrelLUTSvc*             m_alignmentBarrelLUTSvc;

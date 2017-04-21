@@ -56,8 +56,8 @@ fullItemList+=["DMTest::BAuxVec#bauxvec"]
 fullItemList+=["DMTest::BAuxStandalone#b"]
 
 # Stream's output file
-from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream( "Stream1" )
+from OutputStreamAthenaPool.OutputStreamAthenaPool import createOutputStream
+Stream1 = createOutputStream( "Stream1", noTag = True )
 Stream1.OutputFile =   "auxdata.root"
 # List of DO's to write out
 Stream1.ItemList   += fullItemList

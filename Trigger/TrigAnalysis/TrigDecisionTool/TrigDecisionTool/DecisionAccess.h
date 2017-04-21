@@ -107,7 +107,7 @@ namespace Trig {
 
     /**
      * @brief gives back feature matching (by seeding relation)
-     * @parm te - is trigger element to start with, not that thanks to conversion operators
+     * @param te - is trigger element to start with, not that thanks to conversion operators
      * Feature object can be given here as well
      **/
     template<class T> 
@@ -116,7 +116,7 @@ namespace Trig {
     /**
      * @brief gives back features matching (by seeding relation) - will also flatten
      *        containers if necessary
-     * @parm te - is trigger element to start with, not that thanks to conversion operators
+     * @param te - is trigger element to start with, not that thanks to conversion operators
      * Feature object can be given here as well
      **/
     template<class T>

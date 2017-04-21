@@ -50,13 +50,13 @@ public:
 
 protected:
   void Compute();                                                                /*!< Calculates the event weight for the current entries. */
-  std::vector< std::vector< APWeightEntry* > > _current_evt_weights;             /*!< Holds the weights for muons, electrons and jets in the current event. */
-  unsigned long int _n_entries;                                                  /*!< Holds the original amount of unweighted counts ("sum of 1's"). */
-  double _k_evt_weight;                                                          /*!< Holds the event weight. */
-  double _variance;                                                              /*!< Holds the variance. */
-  double _variance_sys;                                                          /*!< Holds the systematic variance (from systematics assigned to weights). */
-  bool _isComputed;                                                              /*!< Flag if calculation has already been performed for current set of input weights. */
-  ObjType _type;                                                                 /*!< Holds the object type of the event weight (muon, electron, jet or combined). */
+  std::vector< std::vector< APWeightEntry* > > m_current_evt_weights;             /*!< Holds the weights for muons, electrons and jets in the current event. */
+  unsigned long int m_n_entries;                                                  /*!< Holds the original amount of unweighted counts ("sum of 1's"). */
+  double m_k_evt_weight;                                                          /*!< Holds the event weight. */
+  double m_variance;                                                              /*!< Holds the variance. */
+  double m_variance_sys;                                                          /*!< Holds the systematic variance (from systematics assigned to weights). */
+  bool m_isComputed;                                                              /*!< Flag if calculation has already been performed for current set of input weights. */
+  ObjType m_type;                                                                 /*!< Holds the object type of the event weight (muon, electron, jet or combined). */
 };
 
 #endif

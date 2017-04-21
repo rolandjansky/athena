@@ -23,15 +23,10 @@
 #include "GaudiKernel/MsgStream.h"
 #include  "StoreGate/StoreGateSvc.h"
 #include "LArIdentifier/LArOnlineID.h"
-//#include <vector>
 #include <string>
 #include <map>
 
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IToolSvc.h"
-
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"

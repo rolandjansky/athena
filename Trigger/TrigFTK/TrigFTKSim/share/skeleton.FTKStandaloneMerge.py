@@ -114,6 +114,12 @@ FTKTagOptions["HWMode2Test32Tower"] = \
 FTKTagOptions["HWMode2Test64Tower"] = \
    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
          'loadHWConf_path': 'raw_8LcIbl123.hw'}
+FTKTagOptions["64Tower2017.v1.ECFix"] = \
+   {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
+         'loadHWConf_path': 'raw_8LcIbl123.hw'}
+FTKTagOptions["64Tower2018.v1.ECFix"] = \
+   {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
+         'loadHWConf_path': 'raw_8LcIbl123.hw'}
 FTKTagOptions["64Tower2017.v1"] = \
    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
          'loadHWConf_path': 'raw_8LcIbl123.hw'}
@@ -242,6 +248,14 @@ if hasattr(runArgs,'EvtInfoTreeName'):
     FTKMerger.EvtInfoTreeName = runArgs.EvtInfoTreeName
 if hasattr(runArgs,'TruthTrackTreeName'):
     FTKMerger.TruthTrackTreeName = runArgs.TruthTrackTreeName
+
+if hasattr(runArgs, 'SaveOfflineTree'):
+    if runArgs.SaveOfflineTree == False:
+        print "SaveOfflineTrees False"
+        FTKMerger.OfflineTreeName = '' ### be safe
+    else: ## use default
+        print "SaveOfflineTrees True and setting name to default = offline_cluster_tree"
+        FTKMerger.OfflineTreeName = 'offline_cluster_tree'
 
 if hasattr(runArgs, 'SaveTruthTree'):
     if runArgs.SaveTruthTree:

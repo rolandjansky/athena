@@ -49,6 +49,7 @@ WriteDataReentrant::WriteDataReentrant(const std::string& name,
   declareProperty ("MKey", m_mKey = "mkey");
   declareProperty ("LinkVectorKey", m_linkVectorKey = "linkvec");
   declareProperty ("TestObjectKey", m_testObjectKey = "testobj");
+  declareProperty ("DObjKeyArray", m_dobjKeyArray = {"dobj_a1", "dobj_a2"});
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -68,6 +69,7 @@ StatusCode WriteDataReentrant::initialize()
   ATH_CHECK( m_mKey.initialize() );
   ATH_CHECK( m_linkVectorKey.initialize() );
   ATH_CHECK( m_testObjectKey.initialize() );
+  ATH_CHECK( m_dobjKeyArray.initialize() );
 
   m_testObject =
     SG::DataObjectSharedPtr<TestDataObject> (new TestDataObject(10));
@@ -126,6 +128,14 @@ StatusCode WriteDataReentrant::execute_r (const EventContext& ctx) const
     assert (pp == &*dobj4);
   }
 #endif
+
+  // Writing an array of objects.
+  size_t i = 0;
+  for (const SG::WriteHandleKey<MyDataObj>& k : m_dobjKeyArray) {
+    SG::WriteHandle<MyDataObj> h (k, ctx);
+    ATH_CHECK( h.record (std::make_unique<MyDataObj> (i+100)) );
+    ++i;
+  }
   
   ///////////////////////////////////////////////////////////////////////
 

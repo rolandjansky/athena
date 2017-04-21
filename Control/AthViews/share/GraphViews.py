@@ -23,6 +23,9 @@ svcMgr += AlgResourcePool( viewAlgPoolName )
 # Set of view algs
 from AthenaCommon.AlgSequence import AthSequencer
 allViewAlgorithms = AthSequencer( "allViewAlgorithms" )
+allViewAlgorithms.ModeOR = False
+allViewAlgorithms.Sequential = True
+allViewAlgorithms.StopOverride = False
 
 # Filter to stop view algs from running on whole event
 allViewAlgorithms += CfgMgr.AthPrescaler( "alwaysFail" )

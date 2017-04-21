@@ -3,6 +3,7 @@
 from AthenaCommon.CfgGetter import addTool, addAlgorithm
 addTool("TRT_Digitization.TRT_DigitizationConfig.getTRTRange"            , "TRTRange")
 addTool("TRT_Digitization.TRT_DigitizationConfig.TRTDigitizationTool"    , "TRTDigitizationTool")
+addTool("TRT_Digitization.TRT_DigitizationConfig.TRTGeantinoTruthDigitizationTool"    , "TRTGeantinoTruthDigitizationTool")
 addTool("TRT_Digitization.TRT_DigitizationConfig.TRTDigitizationToolHS"  , "TRTDigitizationToolHS")
 addTool("TRT_Digitization.TRT_DigitizationConfig.TRTDigitizationToolPU"  , "TRTDigitizationToolPU")
 addTool("TRT_Digitization.TRT_DigitizationConfig.TRTDigitizationToolSplitNoMergePU", "TRTDigitizationToolSplitNoMergePU")

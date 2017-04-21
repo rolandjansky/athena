@@ -6,7 +6,7 @@
 #define DUMPLARRAWCHANNEL_H
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
 

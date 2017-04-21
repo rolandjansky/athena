@@ -109,7 +109,7 @@ public:
   
     };
 
-    typedef std::map<int, CPMTower*> CPMTowerMap_t;
+    typedef std::map<int, const CPMTower*> CPMTowerMap_t;
   } // end of namespace
 
 #ifndef CPMTower_ClassDEF_H

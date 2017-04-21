@@ -848,7 +848,7 @@ class RenameRule(object):
   ## Apply the rule to the HLTAlgorithm list
   #  @param self The object pointer
   #  @param algs - list of HLTAlgorithms
-  #  @parame OutputLevel - obsolete
+  #  @param OutputLevel - obsolete
   def apply(self, algs, OutputLevel=3):
     messg = '\n******************************************\n'
     messg += '||       Rename Rule: Start             ||\n'
