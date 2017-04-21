@@ -390,7 +390,7 @@ GetList( TDirectory* basedir, std::map<std::string,TSeqCollection*>& mp )
   else {
     TIter nextParMap( annotations );
     HanConfigParMap *parMap;
-    parMapList = newTObjArray("annotations", 0, annotations->GetEntries()+1);
+    parMapList = newTObjArray("annotations", 0, annotations->GetEntries()+2);
     while( (parMap = dynamic_cast<HanConfigParMap*>( nextParMap() )) != 0 )
       parMapList->Add(parMap->GetList());
   }
@@ -401,6 +401,15 @@ GetList( TDirectory* basedir, std::map<std::string,TSeqCollection*>& mp )
     refSourceList->SetName("refSource");
     refSourceList->Add(new TObjString(refOrigin.c_str()));
     parMapList->Add(refSourceList);
+    if (refOrigin != "Multiple references") {
+      std::string refInfo(ConditionsSingleton::getInstance().getRefSourceData(refOrigin));
+      if (refInfo != "") {
+	refSourceList = new TList();
+	refSourceList->SetName("refInfo");
+	refSourceList->Add(new TObjString(refInfo.c_str()));
+	parMapList->Add(refSourceList);
+      }
+    }
   }
   if(!parMapList || parMapList->IsEmpty())
     delete parMapList;

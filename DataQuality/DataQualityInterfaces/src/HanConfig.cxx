@@ -302,6 +302,7 @@ Visit( const MiniConfigTreeNode* node ) const
   TObject* obj;
   std::string name = node->GetAttribute("name");
   std::string fileName = node->GetAttribute("file");
+  std::string refInfo = node->GetAttribute("info");
   if( fileName != "" && name != "" && name != "same_name" ) {
     std::auto_ptr<TFile> infile( TFile::Open(fileName.c_str()) );
     TKey* key = getObjKey( infile.get(), name );
@@ -321,8 +322,14 @@ Visit( const MiniConfigTreeNode* node ) const
     dqi::ConditionsSingleton::getInstance().setNewReferenceName(name,newHistoName);
     obj->Write(newHistoName.c_str());
     delete obj;
+    TObjString* fnameostr = new TObjString(fileName.c_str());
     m_refsourcedata->Add(new TObjString(newHistoName.c_str()),
-			 new TObjString(fileName.c_str()));
+			 fnameostr);
+    if (refInfo != "") {
+      if (! m_refsourcedata->FindObject(fileName.c_str())) {
+	m_refsourcedata->Add(fnameostr, new TObjString(refInfo.c_str()));
+      }  
+    }
   }
 }
 
@@ -435,6 +442,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	for (const auto thisRefID : refIDVec) {
 	  std::string algRefName( refConfig.GetStringAttribute(thisRefID,"name") );
 	  std::string algRefPath( refConfig.GetStringAttribute(thisRefID,"path") );
+	  std::string algRefInfo( refConfig.GetStringAttribute(thisRefID,"info") );
 	  absAlgRefName = "";
 	  if( algRefPath != "" ) {
 	    absAlgRefName += algRefPath;
@@ -471,8 +479,15 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 		if(newRefId.empty()){
 		  newRefId=CS.getNewRefHistoName();
 		  CS.setNewReferenceName(algRefUniqueName,newRefId);
+		  auto algRefFileostr = new TObjString(algRefFile.c_str());
 		  m_refsourcedata->Add(new TObjString(newRefId.c_str()),
-				       new TObjString(algRefFile.c_str()));
+				       algRefFileostr);
+		  if (algRefInfo != "") {
+		    if (! m_refsourcedata->FindObject(algRefFile.c_str())) {
+		      m_refsourcedata->Add(algRefFileostr, 
+					   new TObjString(algRefInfo.c_str()));
+		    }  
+		  }
 		}
 	      //std::cout<<"Writing algref with algrefname= "<<algRefUniqueName<<", newRefId="<<newRefId<<std::endl;
 		obj->Write(newRefId.c_str());//write object with a new reference name
