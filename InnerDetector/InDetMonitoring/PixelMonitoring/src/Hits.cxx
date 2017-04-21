@@ -50,7 +50,7 @@
 
 StatusCode PixelMainMon::BookHitsMon(void)
 {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Hits" << endreq;  
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Hits" << endmsg;  
  
    std::string path = "Pixel/Hits";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/HitsOnTrack");
@@ -101,6 +101,7 @@ StatusCode PixelMainMon::BookHitsMon(void)
    htitles = makeHisttitle("Average pixel occupancy ratio of IBL/B0 per event per LB", (atext_LB+";ratio"), false);
    sc = rdoShift.regHist(m_avgocc_ratioIBLB0_per_lumi = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
 
+
    for(int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){ // not include IBL2D and IBL3D
       hname = makeHistname(("Hits_per_lumi_"+m_modLabel_PixLayerIBL2D3D[i]), false);
       htitles = makeHisttitle(("Average number of pixel hits per event, "+m_modLabel_PixLayerIBL2D3D[i]), (atext_LB+atext_hit), false);
@@ -126,9 +127,9 @@ StatusCode PixelMainMon::BookHitsMon(void)
       htitles = makeHisttitle(("Average pixel occupancy per BCID, "+m_modLabel_PixLayerIBL2D3D[i]), (atext_BCID+atext_occ), false);
       sc = rdoExpert.regHist(m_avgocc_per_bcid_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_BCID, min_BCID, max_BCID));
 
-      hname = makeHistname(("AvgOcc_wSyncMod_per_lumi_"+m_modLabel_PixLayerIBL2D3D[i]), false);
-      htitles = makeHisttitle(("Average pixel occupancy for active and (good or sync) mod per event, "+m_modLabel_PixLayerIBL2D3D[i]), (atext_LB+atext_occ), false);
-      sc = rdoExpert.regHist(m_avgocc_wSyncMod_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
+      hname = makeHistname(("AvgOcc_active_per_lumi_"+m_modLabel_PixLayerIBL2D3D[i]), false);
+      htitles = makeHisttitle(("Average pixel occupancy for active per event, "+m_modLabel_PixLayerIBL2D3D[i]), (atext_LB+atext_occ), false);
+      sc = rdoExpert.regHist(m_avgocc_active_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
 
       hname = makeHistname(("MaxOcc_per_lumi_"+m_modLabel_PixLayerIBL2D3D[i]), false);
       htitles = makeHisttitle(("Max. pixel occupancy per event, "+m_modLabel_PixLayerIBL2D3D[i]), (atext_LB+atext_occ), false);
@@ -145,6 +146,7 @@ StatusCode PixelMainMon::BookHitsMon(void)
       hname = makeHistname(("nLargeEvent_per_lumi_"+m_modLabel_PixLayerIBL2D3D[i]), false);
       htitles = makeHisttitle(("Number of large events (hitocc > 0.7#times 10^{-3}), "+m_modLabel_PixLayerIBL2D3D[i]), (atext_LB+atext_nevt), false);
       sc = rdoShift.regHist(m_nlargeevt_per_lumi_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
+
    }
 
    for(int i=0; i<PixLayerIBL2D3DDBM::COUNT; i++){
@@ -252,29 +254,36 @@ StatusCode PixelMainMon::BookHitsMon(void)
       if(m_doLowOccupancy){ }
       if(m_doHighOccupancy){ }
    }
-   if(m_doHighOccupancy)
+   if(m_doLowOccupancy || m_doHighOccupancy)
    {
-      int max_hits = 80000;
-      int max_avhits = 100;
-      if (m_doHeavyIonMon) { max_hits = 350000; max_avhits = 2500; }
-      sc = rdoShift.regHist(m_num_hits= TH1I_LW::create("num_hits",  ("Number of pixel hits in an event" + m_histTitleExt + ";# pixel hits/event;# events").c_str(), 2500,0.,(int)max_hits));
+      int nbins_hits = 2000;  float max_hits = 80000.0;
+      int nbins_avhits = 100; float max_avhits = 100.0;
+
+      if(m_doLowOccupancy){
+         nbins_hits = 200;  max_hits = 200.0;
+         nbins_avhits = 50; max_avhits = 2.0;
+      }
+
+      if(m_doHeavyIonMon){ max_hits = 350000; max_avhits = 2500; }
+
+      sc = rdoShift.regHist(m_num_hits= TH1I_LW::create("num_hits",  ("Number of pixel hits in an event" + m_histTitleExt + ";# pixel hits/event;# events").c_str(), nbins_hits, 0., max_hits));
 
       for(int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
          hname = makeHistname(("Occupancy_Summary_"+m_modLabel_PixLayerIBL2D3D[i]), false);
          htitles = makeHisttitle(("Average hit occupancy, "+m_modLabel_PixLayerIBL2D3D[i]), ";average # hits in a module in an event;# modules", false);
-         sc = rdoExpert.regHist(m_occupancy_summary_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), 100,0.,(int)max_avhits));
+         sc = rdoExpert.regHist(m_occupancy_summary_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_avhits, 0., max_avhits));
       }
    }
-   if(m_doLowOccupancy)
-   {
-      sc = rdoShift.regHist(m_num_hits_low= TH1I_LW::create("num_hits_low_occupancy",  ("Number of pixel hits per event" + m_histTitleExt + ";# pixel hits/event;# events").c_str(), 200,-0.5,199.5));
-      
-      for(int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
-         hname = makeHistname(("Occupancy_Summary_Low_"+m_modLabel_PixLayerIBL2D3D[i]), false);
-         htitles = makeHisttitle(("Average hit occupancy(low), "+m_modLabel_PixLayerIBL2D3D[i]), ";average # hits in a module in an event;# modules", false);
-         sc = rdoExpert.regHist(m_occupancy_summary_low_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), 50, 0., 2.));
-      }
-   }
+   //if(m_doLowOccupancy)
+   //{
+   //   sc = rdoShift.regHist(m_num_hits_low= TH1I_LW::create("num_hits_low_occupancy",  ("Number of pixel hits per event" + m_histTitleExt + ";# pixel hits/event;# events").c_str(), 200,-0.5,199.5));
+   //   
+   //   for(int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
+   //      hname = makeHistname(("Occupancy_Summary_Low_"+m_modLabel_PixLayerIBL2D3D[i]), false);
+   //      htitles = makeHisttitle(("Average hit occupancy(low), "+m_modLabel_PixLayerIBL2D3D[i]), ";average # hits in a module in an event;# modules", false);
+   //      sc = rdoExpert.regHist(m_occupancy_summary_low_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), 50, 0., 2.));
+   //   }
+   //}
 
    if(m_doPixelOccupancy)
    {
@@ -320,16 +329,6 @@ StatusCode PixelMainMon::BookHitsMon(void)
       sc = rdoExpert.regHist(m_Details_mod4_ToT       = TH1F_LW::create(("Details_ToT_"+m_DetailsMod4).c_str(),  ("ToT mod4" + m_histTitleExt).c_str(), 300,-0.5,299.5));  
    }
 
-   /// Quick Status
-   hname = makeHistname("Hits_per_lumi_L0_B11_S2_C6", false);
-   htitles = makeHisttitle("Number of hits, L0_B11_S2_C6", ";lumi block;FE ID (16*(6-eta_mod) + 8*(pix_phi/164) + (eta_pix/18);#hits", false);
-   sc = rdoShift.regHist(m_nhits_L0_B11_S2_C6 = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 96, -0.5, -0.5+96));
-   m_nhits_L0_B11_S2_C6->SetOption("colz");
-
-   hname = makeHistname("Occupancy_per_lumi_L0_B11_S2_C6", false);
-   htitles = makeHisttitle("Average pixel occupancy per event, L0_B11_S2_C6", ";lumi block;FE ID (16*(6-eta_mod) + 8*(pix_phi/164) + (eta_pix/18);#hits/pixel/event", false);
-   sc = rdoShift.regHist(m_occupancy_L0_B11_S2_C6 = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 96, -0.5, -0.5+96));
-   m_occupancy_L0_B11_S2_C6->SetOption("colz");
 
    for( int i=0; i<PixLayer::COUNT; i++){
      hname   = makeHistname(("nFEswithHits_"+m_modLabel_PixLayerIBL2D3D[i]), false);
@@ -337,13 +336,38 @@ StatusCode PixelMainMon::BookHitsMon(void)
      sc = rdoExpert.regHist(m_nFEswithHits_mod[i] = new TH3F(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, nmod_eta[i], -0.5, -0.5 + nmod_eta[i], 18, -0.5, 17.5));
    }
 
-   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;         
+   if(m_doOfflineAnalysis){
+
+     /// Quick Status
+     hname = makeHistname("Hits_per_lumi_L0_B11_S2_C6", false);
+     htitles = makeHisttitle("Number of hits, L0_B11_S2_C6", ";lumi block;FE ID (16*(6-eta_mod) + 8*(pix_phi/164) + (eta_pix/18);#hits", false);
+     sc = rdoShift.regHist(m_nhits_L0_B11_S2_C6 = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 96, -0.5, -0.5+96));
+     m_nhits_L0_B11_S2_C6->SetOption("colz");
+
+     hname = makeHistname("Occupancy_per_lumi_L0_B11_S2_C6", false);
+     htitles = makeHisttitle("Average pixel occupancy per event, L0_B11_S2_C6", ";lumi block;FE ID (16*(6-eta_mod) + 8*(pix_phi/164) + (eta_pix/18);#hits/pixel/event", false);
+     sc = rdoShift.regHist(m_occupancy_L0_B11_S2_C6 = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 96, -0.5, -0.5+96));
+     m_occupancy_L0_B11_S2_C6->SetOption("colz");
+
+     for(int i=0; i<PixLayerIBL2D3D::COUNT; i++){
+        hname = makeHistname(("AvgOcc_per_BCID_per_lumi_"+m_modLabel_PixLayerIBL2D3D[i]), false);
+        htitles = makeHisttitle(("Average pixel occupancy per BCID per lumi, "+m_modLabel_PixLayerIBL2D3D[i]), (atext_LB+atext_BCID+atext_occ), false);
+        sc = rdoExpert.regHist(m_avgocc_per_bcid_per_lumi_mod[i] = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 2000, -0.5, -0.5+2000, nbins_BCID, min_BCID, max_BCID));
+
+        hname = makeHistname(("Hit_ToT_per_lumi_"+m_modLabel_PixLayerIBL2D3D[i]), false);
+        htitles = makeHisttitle(("Hit ToT per lumi, "+m_modLabel_PixLayerIBL2D3D[i]), (atext_LB+atext_tot+atext_occ), false);
+        sc = rdoExpert.regHist(m_hit_ToT_per_lumi_mod[i] = TH2F_LW::create(hname.c_str(), htitles.c_str(), 2000, -0.5, -0.5+2000, nbins_tot3, min_tot3, max_tot3));
+
+     }
+   }
+
+   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;         
    return StatusCode::SUCCESS;
 }
 
 StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
 {
-   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Hits for lowStat" << endreq;  
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Hits for lowStat" << endmsg;  
    
    std::string path = "Pixel/LumiBlock";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnTrack");
@@ -360,16 +384,15 @@ StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
    std::string atext_tot = ";ToT [BC]"; 
    std::string atext_lv1 = ";Level 1 Accept"; 
 
-   if(m_doHighOccupancy) {
+   if(m_doLowOccupancy || m_doHighOccupancy) {
+      int nbins_hits = 100;  double min_hits = -0.5; double max_hits = min_hits + 25000.0;
+      if(m_doLowOccupancy){
+         nbins_hits = 200;  max_hits = min_hits + 200.0;
+      }
       hname = makeHistname("num_hits_LB", false);
       htitles = makeHisttitle("Number of pixel hits in an event", (atext_hit+atext_nevt), false);
-      sc = lumiBlockHist.regHist(m_num_hits_LB = TH1I_LW::create(hname.c_str(), htitles.c_str(), 100, -0.5, 24999.5));
+      sc = lumiBlockHist.regHist(m_num_hits_LB = TH1I_LW::create(hname.c_str(), htitles.c_str(), nbins_hits, min_hits, max_hits));
    }
-   if(m_doLowOccupancy) {
-      hname = makeHistname("num_hits_low_LB", false);
-      htitles = makeHisttitle("Number of pixel hits in an event", (atext_hit+atext_nevt), false);
-      sc = lumiBlockHist.regHist(m_num_hits_low_LB = TH1I_LW::create(hname.c_str(), htitles.c_str(), 200, -0.5, 199.5));
-   }   
    if(m_doModules) {
       hname = makeHistname("num_Hits_mod_LB", false);
       htitles = makeHisttitle("Number of pixel hits in a module in an event", (atext_hit+atext_nevt), false);
@@ -393,7 +416,7 @@ StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
    m_occupancy_10min = new PixelMon2DMaps("Occupancy_10min", ("hit occupancy" + m_histTitleExt).c_str());
    sc = m_occupancy_10min->regHist(lumiBlockHist);
    
-   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;         
+   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;         
    return StatusCode::SUCCESS;
 }
 
@@ -403,7 +426,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
       //float mu = m_lumiTool->lbAverageInteractionsPerCrossing();
       //if(m_mu_vs_lumi) m_mu_vs_lumi->Fill( m_manager->lumiBlockNumber(),mu);
    }else{
-      msg(MSG::ERROR)  << "No lumitool found in FillHitsMon!"<<endreq;
+      msg(MSG::ERROR)  << "No lumitool found in FillHitsMon!"<<endmsg;
    }
 
 
@@ -415,7 +438,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
    
    if ( !sc.isFailure() && Pixel_BCIDColl!=0 ) 
    {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Found Pixel BCID collection"<<endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Found Pixel BCID collection"<<endmsg;
 
       for ( InDetTimeCollection::const_iterator ipix_bcid = Pixel_BCIDColl->begin(); ipix_bcid != Pixel_BCIDColl->end(); ++ipix_bcid ) 
       {
@@ -430,7 +453,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
          n_pix_bcid_nrobs++;
       } // End for loop
    }
-   if (sc.isFailure()) if(msgLvl(MSG::INFO)) {msg(MSG::INFO)  << "Could not find the data object PixelBCID" << " !" << endreq;}
+   if (sc.isFailure()) if(msgLvl(MSG::INFO)) {msg(MSG::INFO)  << "Could not find the data object PixelBCID" << " !" << endmsg;}
 
    //needed for the rodSim histos and timing/trigger histogram
    //long int extLvl1ID = -1;
@@ -441,7 +464,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
       sc=evtStore()->retrieve(thisEventInfo);
       if(sc != StatusCode::SUCCESS) 
       {
-	      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endreq;
+	      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endmsg;
       }else{
 	      if (m_doRodSim|| m_doTiming) {
 	      //extLvl1ID = thisEventInfo->trigger_info()->extendedLevel1ID();
@@ -524,15 +547,17 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 
    Identifier rdoID;
 
-   int nGood_mod[PixLayerIBL2D3D::COUNT] = {m_nGood_ECA, m_nGood_ECC, m_nGood_B0, m_nGood_B1, m_nGood_B2, (int)((2* m_nGood_IBL2D)+m_nGood_IBL3D), m_nGood_IBL2D, m_nGood_IBL3D};
+   //int nGood_mod[PixLayerIBL2D3D::COUNT] = {m_nGood_ECA, m_nGood_ECC, m_nGood_B0, m_nGood_B1, m_nGood_B2, (int)((2* m_nGood_IBL2D)+m_nGood_IBL3D), m_nGood_IBL2D, m_nGood_IBL3D};
    int nchannels[PixLayerIBL2D3D::COUNT] = {46080, 46080, 46080, 46080, 46080, 26880, 53760, 26880};
    double nactivechannels = 0.;
-   double nactivechannels_mod[PixLayerIBL2D3D::COUNT];
-   double nactivechannels_wSync_mod[PixLayerIBL2D3D::COUNT];
+   double nGoodChannels_mod[PixLayerIBL2D3D::COUNT];
+   double nActiveChannels_mod[PixLayerIBL2D3D::COUNT];
    for( int i=0; i<PixLayerIBL2D3D::COUNT; i++){
-      nactivechannels_mod[i] = 1.0*nchannels[i]*nGood_mod[i];
-      nactivechannels_wSync_mod[i] = 1.0 * nchannels[i] * m_nActivAndSync_mod[i];
-      nactivechannels =+ nactivechannels_mod[i];
+      //nGoodChannels_mod[i] = 1.0*nchannels[i]*nGood_mod[i];
+      //nActiveChannels_mod[i] = 1.0 * nchannels[i] * m_nActivAndSync_mod[i];
+      nGoodChannels_mod[i] = 1.0*nchannels[i]*m_nGood_mod[i];
+      nActiveChannels_mod[i] = 1.0 * nchannels[i] * m_nActive_mod[i];
+      nactivechannels =+ nGoodChannels_mod[i];
    }
 
 
@@ -540,11 +565,11 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
    sc=evtStore()->retrieve(m_rdocontainer,m_Pixel_RDOName);
    if (sc.isFailure() || !m_rdocontainer) 
    {
-      if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not find the data object " << m_Pixel_RDOName << " !" << endreq;
+      if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not find the data object " << m_Pixel_RDOName << " !" << endmsg;
       if(m_storegate_errors) m_storegate_errors->Fill(1.,3.);  //first entry (1). is for RDO, second (2) is for retrieve problem
       return StatusCode::SUCCESS;  //fail gracefully and keep going in the next tool
    } else {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Data object " << m_Pixel_RDOName << " found" << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Data object " << m_Pixel_RDOName << " found" << endmsg;
    }
 
    PixelRDO_Container::const_iterator colNext   = m_rdocontainer->begin();
@@ -607,7 +632,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
          /// Fill difference of Lvl1
          if(sc != StatusCode::SUCCESS)
          {
-	         if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endreq;
+	         if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endmsg;
          }else{
 	         int lvl1idMOD = (int)(*p_rdo)->getLVL1ID();
 	         int lvl1idATLAS = (int)((thisEventInfo->trigger_info()->extendedLevel1ID())&0xf);
@@ -652,6 +677,9 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
          }
          if(pixlayer != 99 && m_ToT_etaphi_mod[pixlayer] ) m_ToT_etaphi_mod[pixlayer]->Fill(m_pixelid->eta_module(rdoID), m_pixelid->phi_module(rdoID), (*p_rdo)->getToT());
 
+         /// for Pixel Operation TF
+         if(pixlayer != 99 && m_hit_ToT_per_lumi_mod[pixlayer] && nGoodChannels_mod[pixlayer]>0) m_hit_ToT_per_lumi_mod[pixlayer]->Fill(m_manager->lumiBlockNumber(), (*p_rdo)->getToT(), 1.0/nGoodChannels_mod[pixlayer]);
+         if(pixlayer == PixLayer::kIBL && m_hit_ToT_per_lumi_mod[pixlayeribl2d3d] && nGoodChannels_mod[pixlayeribl2d3d]>0) m_hit_ToT_per_lumi_mod[pixlayeribl2d3d]->Fill(m_manager->lumiBlockNumber(), (*p_rdo)->getToT(), 1.0/nGoodChannels_mod[pixlayeribl2d3d]);
 
          /// Monitoring!!
          if(m_doOnline)
@@ -732,9 +760,9 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
       FillSummaryHistos(m_occupancy, m_occupancy_summary_mod[PixLayer::kECA], m_occupancy_summary_mod[PixLayer::kECC], 
                                      m_occupancy_summary_mod[PixLayer::kIBL], m_occupancy_summary_mod[PixLayer::kB0], 
                                      m_occupancy_summary_mod[PixLayer::kB1],  m_occupancy_summary_mod[PixLayer::kB2]);
-      FillSummaryHistos(m_occupancy, m_occupancy_summary_low_mod[PixLayer::kECA], m_occupancy_summary_low_mod[PixLayer::kECC], 
-                                     m_occupancy_summary_low_mod[PixLayer::kIBL], m_occupancy_summary_low_mod[PixLayer::kB0], 
-                                     m_occupancy_summary_low_mod[PixLayer::kB1],  m_occupancy_summary_low_mod[PixLayer::kB2]);
+      //FillSummaryHistos(m_occupancy, m_occupancy_summary_low_mod[PixLayer::kECA], m_occupancy_summary_low_mod[PixLayer::kECC], 
+      //                               m_occupancy_summary_low_mod[PixLayer::kIBL], m_occupancy_summary_low_mod[PixLayer::kB0], 
+      //                               m_occupancy_summary_low_mod[PixLayer::kB1],  m_occupancy_summary_low_mod[PixLayer::kB2]);
       if(m_doRefresh) {
          for(int i=0; i<PixLayer::COUNT; i++){
             if( m_hit_ToT_Mon_mod[i] && m_hit_ToT_tmp_mod[i]) TH1FFillMonitoring(m_hit_ToT_Mon_mod[i], m_hit_ToT_tmp_mod[i]);
@@ -753,22 +781,22 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
    /// Fill average occupancy
    double avgocc = 0;
    double avgocc_mod[PixLayerIBL2D3D::COUNT] = {0};
-   double avgocc_wSync_mod[PixLayerIBL2D3D::COUNT] = {0};
+   double avgocc_active_mod[PixLayerIBL2D3D::COUNT] = {0};
    if(nactivechannels>0) avgocc = nhits/nactivechannels;
    if(m_avgocc_per_lumi) m_avgocc_per_lumi->Fill(m_manager->lumiBlockNumber(), avgocc);
 
-   //for( int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
    for( int i=0; i<PixLayerIBL2D3D::COUNT; i++){
-      if(nactivechannels_mod[i] > 0){
-         avgocc_mod[i] = nhits_mod[i]/nactivechannels_mod[i];
+      if(nGoodChannels_mod[i] > 0){
+         avgocc_mod[i] = nhits_mod[i]/nGoodChannels_mod[i];
       }
-      if( nactivechannels_wSync_mod[i] > 0){
-         avgocc_wSync_mod[i] = nhits_mod[i]/nactivechannels_wSync_mod[i];
+      if( nActiveChannels_mod[i] > 0){
+         avgocc_active_mod[i] = nhits_mod[i]/nActiveChannels_mod[i];
       }
       ///
       if(m_avgocc_per_lumi_mod[i]) m_avgocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(),avgocc_mod[i]);
       if(m_avgocc_per_bcid_mod[i]) m_avgocc_per_bcid_mod[i]->Fill(prev_pix_bcid, avgocc_mod[i]);
-      if(m_avgocc_wSyncMod_per_lumi_mod[i]) m_avgocc_wSyncMod_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(),avgocc_wSync_mod[i]);
+      if(m_avgocc_per_bcid_per_lumi_mod[i]) m_avgocc_per_bcid_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), prev_pix_bcid, avgocc_mod[i]);
+      if(m_avgocc_active_per_lumi_mod[i]) m_avgocc_active_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(),avgocc_active_mod[i]);
       if(m_maxocc_per_lumi_mod[i]) m_maxocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_mod[i]);
       if(m_maxocc_per_bcid_mod[i]){
          int bin = m_maxocc_per_bcid_mod[i]->GetXaxis()->FindBin( 1.0*prev_pix_bcid );
@@ -777,7 +805,6 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
       }
       if(m_totalhits_per_bcid_mod[i]) m_totalhits_per_bcid_mod[i]->Fill(1.0*prev_pix_bcid, nhits_mod[i]);
       if(avgocc_mod[i] > 0.0007 && m_nlargeevt_per_lumi_mod[i]) m_nlargeevt_per_lumi_mod[i]->Fill( m_lumiBlockNum );
-      //if(m_avgocc_LBvsBCID_mod[i]) m_avgocc_LBvsBCID_mod[i]->Fill(1.0*prev_pix_bcid, m_manager->lumiBlockNumber(), avgocc_mod[i] );
    }
 
    if(avgocc_mod[PixLayer::kB0] > 0 && m_avgocc_ratioIBLB0_per_lumi) 
@@ -821,10 +848,9 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
       if(m_Details_mod4_num_hits) m_Details_mod4_num_hits->Fill(nhitsM4);
      
       if(m_num_hits) m_num_hits->Fill(nhits);
-      if(m_num_hits_low) m_num_hits_low->Fill(nhits);
+      //if(m_num_hits_low) m_num_hits_low->Fill(nhits);
       if(m_doLumiBlock){ 
          if(m_num_hits_LB) m_num_hits_LB->Fill(nhits);
-         if(m_num_hits_low_LB) m_num_hits_low_LB->Fill(nhits);
       }
 
       if (m_doModules) 
@@ -865,8 +891,10 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
    }
 
    /// Quick Status
-   for(int i=0 ; i<96 ; i++){
-     if( m_occupancy_L0_B11_S2_C6 ) m_occupancy_L0_B11_S2_C6->Fill(m_manager->lumiBlockNumber(), i, (1.0*nhits_L0_B11_S2_C6[i]/(18.0*164.0)));
+   if(m_doOfflineAnalysis){
+     for(int i=0 ; i<96 ; i++){
+       if( m_occupancy_L0_B11_S2_C6 ) m_occupancy_L0_B11_S2_C6->Fill(m_manager->lumiBlockNumber(), i, (1.0*nhits_L0_B11_S2_C6[i]/(18.0*164.0)));
+     }
    }
 
    for(int i=0; i<PixLayer::COUNT; i++){
@@ -880,7 +908,6 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
              if(i==PixLayer::kB1)  nfes += fewithHits_B1[phi][eta][j];
              if(i==PixLayer::kB2)  nfes += fewithHits_B2[phi][eta][j];
            }
-           //std::cout << "DDDDD " << i << " " << phi << " " << eta << " " << nfes << std::endl;
            if(m_nFEswithHits_mod[i]) m_nFEswithHits_mod[i]->Fill(m_manager->lumiBlockNumber(), eta, nfes);
          }
        }
@@ -901,9 +928,9 @@ StatusCode PixelMainMon::ProcHitsMon(void)
    if(m_doPixelOccupancy && m_pixel_occupancy && (m_doNoiseMap||m_doSpectrum) )//flags need to be set, and the right histograms need to exist
    {
       if(msgLvl(MSG::WARNING)){
-         msg(MSG::WARNING)  << "Starting to fill pixel granularity histograms." << endreq;   
-         msg(MSG::WARNING)  << "This is very CPU and memory intensive and should not normmally be turned on" << endreq;   
-         msg(MSG::WARNING)  << "Please be patient, it will take a while to fill these histograms" << endreq;   
+         msg(MSG::WARNING)  << "Starting to fill pixel granularity histograms." << endmsg;   
+         msg(MSG::WARNING)  << "This is very CPU and memory intensive and should not normmally be turned on" << endmsg;   
+         msg(MSG::WARNING)  << "Please be patient, it will take a while to fill these histograms" << endmsg;   
       }
 
       //if(m_pixel_noise_map) m_pixel_noise_map->Reset();
@@ -941,9 +968,9 @@ StatusCode PixelMainMon::ProcHitsMon(void)
       FillSummaryHistos(m_occupancy, m_occupancy_summary_mod[PixLayer::kECA], m_occupancy_summary_mod[PixLayer::kECC], 
                                      m_occupancy_summary_mod[PixLayer::kIBL], m_occupancy_summary_mod[PixLayer::kB0], 
                                      m_occupancy_summary_mod[PixLayer::kB1],  m_occupancy_summary_mod[PixLayer::kB2]);
-      FillSummaryHistos(m_occupancy, m_occupancy_summary_low_mod[PixLayer::kECA], m_occupancy_summary_low_mod[PixLayer::kECC], 
-                                     m_occupancy_summary_low_mod[PixLayer::kIBL], m_occupancy_summary_low_mod[PixLayer::kB0], 
-                                     m_occupancy_summary_low_mod[PixLayer::kB1],  m_occupancy_summary_low_mod[PixLayer::kB2]);
+      //FillSummaryHistos(m_occupancy, m_occupancy_summary_low_mod[PixLayer::kECA], m_occupancy_summary_low_mod[PixLayer::kECC], 
+      //                               m_occupancy_summary_low_mod[PixLayer::kIBL], m_occupancy_summary_low_mod[PixLayer::kB0], 
+      //                               m_occupancy_summary_low_mod[PixLayer::kB1],  m_occupancy_summary_low_mod[PixLayer::kB2]);
    }
 
    if(m_average_pixocc) {  

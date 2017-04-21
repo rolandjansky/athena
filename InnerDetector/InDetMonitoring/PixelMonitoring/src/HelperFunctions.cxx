@@ -484,7 +484,6 @@ int PixelMainMon::ParseDetailsString(std::string & detailsMod)
 
 bool PixelMainMon :: GetFEID( int pixlayer, int phiid, int etaid, int &oufephi, int &outfeeta)
 {
-   bool dodebug = false;
    bool isValid = true;
    int npixPerFe_phi, npixPerFe_eta;
    if( pixlayer == PixLayer::kECA || pixlayer == PixLayer::kECC) {
@@ -500,6 +499,5 @@ bool PixelMainMon :: GetFEID( int pixlayer, int phiid, int etaid, int &oufephi, 
    }
    oufephi = phiid/npixPerFe_phi;
    outfeeta= etaid/npixPerFe_eta;
-   if(dodebug) std::cout << "pix phi id=" << phiid << "==> fe:" << oufephi << "  pix eta id=" << etaid << "==> fe:" << outfeeta << std::endl;
    return isValid;
 }
