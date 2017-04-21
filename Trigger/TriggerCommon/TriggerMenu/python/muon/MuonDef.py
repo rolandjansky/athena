@@ -342,7 +342,6 @@ class L2EFChain_mu(L2EFChainDef):
 
       # Run also FTK tracking
     if self.chainPart['trkInfo'] == "ftk":
-      print 'Configuring FTK tracking for isolation'
       from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
       
       [ftktrkfast, ftktrkprec] = TrigInDetFTKSequence("Muon","muonIso",sequenceFlavour=["PT"]).getSequence()    
@@ -2082,11 +2081,11 @@ class L2EFChain_mu(L2EFChainDef):
     self.EFsequenceList += [[['EF_mu_step1'],
                              [theEFAlg],
                              'EF_mu_step2']]
-    self.EFsequenceList += [[['EF_mu_step1']
+    self.EFsequenceList += [[['EF_mu_step2'],
                              [theTrigMuonEFCombinerHypoConfig],
                              'EF_mu_hypo1']]
 
-    self.EFsequenceList += [['EF_mu_step2',
+    self.EFsequenceList += [['EF_mu_hypo1',
                              [theTrigMuonIDTrackMultiHypoConfig_Muon],
                              'EF_mu_step3']] 
     
@@ -2208,7 +2207,7 @@ class L2EFChain_mu(L2EFChainDef):
 
     # OI this makes no sense , as we already cut on good tracks at L2, there is no rejection, skip it (at least in 2017)
     from TriggerJobOpts.TriggerFlags import TriggerFlags
-    if TriggerFlags.run2Config=='2016':
+    if "_v6" in TriggerFlags.triggerMenuSetup():
       self.EFsequenceList += [[['EF_mu_hypo1'],
                               [theTrigMuonIDTrackMultiHypoConfig_Muon],
                               'EF_mu_step3']]
