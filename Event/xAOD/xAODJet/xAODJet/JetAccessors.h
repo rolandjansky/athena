@@ -30,7 +30,6 @@
 #include "xAODBase/IParticle.h"
 #include "xAODJet/JetTypes.h"
 
-using SG::AuxElement;
 namespace xAOD {
 
 
