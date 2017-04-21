@@ -14,6 +14,8 @@ import re
 import os
 import math
 
+LABELS = []
+
 def GoToDirectory(directory):
   cwd = os.getcwd()
   print os.getcwd()
@@ -52,20 +54,21 @@ class Validator(object):
       self.CompareFunc = compareFunc
       self.DoNormalization = normalization
   
-  def CompareFiles(self,reference, test, dirName):
-    refFile  = TFile.Open(reference)
-    testFile = TFile.Open(test)
-    self.CompareDirectories(refFile, testFile, dirName)
+  def CompareFiles(self, fileNames, dirName):
+    openedFiles = [ TFile.Open(f) for f in fileNames ]
+    self.CompareDirectories(openedFiles, dirName)
   
-  def CompareDirectories(self, refDir, testDir, dirName):
+  def CompareDirectories(self, dirs, dirName):
     if (self.structDirs): GoToDirectory(dirName)
+    refDir = dirs[0]
     newRefDir = refDir.GetDirectory(dirName)
-    if not testDir:
-      print 'ERROR --------- test dir not found: ', dirName
-      newTestDir=0
-      return
-    else:
-      newTestDir = testDir.GetDirectory(dirName)
+    for testDir in dirs:
+      if testDir == refDir: continue
+      if not testDir:
+        print 'ERROR --------- test dir not found: ', dirName, testDir
+        return
+
+    newTestDirs = [ testDir.GetDirectory(dirName) for testDir in dirs ]
     
     theDir = newRefDir
     # if not newRefDir:
@@ -73,7 +76,7 @@ class Validator(object):
     #   theDir = newTestDir
 
     for key in theDir.GetListOfKeys():
-     
+          
       obj = key.ReadObj()
 
       #2D histograms cannot be compared; skip
@@ -82,28 +85,29 @@ class Validator(object):
       
       if obj.IsA().InheritsFrom(ROOT.TH1.Class()):
         print key.GetName()
-        testHist = newTestDir.Get(key.GetName())
-        if testHist:
-          self.CompareHistograms(obj, testHist, newRefDir.GetPath())
+        #testHist = newTestDir.Get(key.GetName())
+        testHists = [ newTestDir.Get(key.GetName()) for newTestDir in newTestDirs ]
+        self.CompareHistograms( testHists, newRefDir.GetPath())
       elif obj.IsA().InheritsFrom(ROOT.TDirectory.Class()):
-        self.CompareDirectories(newRefDir, newTestDir, obj.GetName())
+        self.CompareDirectories( newTestDirs, obj.GetName())
     if (self.structDirs): os.chdir("..")
   
-  def CompareHistograms(self, refHist, testHist, path):
+  def CompareHistograms(self, hists, path):
     # print self.excludedStrings, refHist.GetName()
     # if any(exString in refHist.GetName() for exString in self.excludedStrings): 
     #   print "Skipped " + path + "/" + refHist.GetName()
     #   return
-
     #@@@if self.CompareFunc(refHist, testHist): print path + refHist.GetName() + " looks ok"
     #else:
-    self.MakeComparisonPlot(refHist, testHist, path)
+    #self.MakeComparisonPlot(refHist, testHist, path)
+    self.MakeComparisonPlot(hists, path)
   
-  def MakeComparisonPlot(self,refHist, testHist, path):
-    def SetBounds(refHist, testHist, ymin=0, ymax=0):
+  #def MakeComparisonPlot(self,refHist, testHist, path):
+  def MakeComparisonPlot(self, hists, path):
+    def SetBounds(hists, ymin=0, ymax=0):
       if (ymin==0 and ymax==0):
-        ymin = min(refHist.GetMinimum(), testHist.GetMinimum())
-        ymax = max(refHist.GetMaximum(), testHist.GetMaximum())
+        ymin = min( [ h.GetMinimum() for h in hists ] )
+        ymax = min( [ h.GetMaximum() for h in hists ] )
         if ymin>0 and ymax>0:
           ymin = 0
         else:          
@@ -112,11 +116,11 @@ class Validator(object):
         # if ymin<0 and ymax>0:
         #     if ymax>0 and abs(minimum)>ymax:
         #   ymax = -minimum
-      refHist.SetMinimum(ymin)
-      refHist.SetMaximum(ymax)
-      return refHist
+      hists[0].SetMinimum(ymin)
+      hists[0].SetMaximum(ymax)
+      return hists[0]
     ################################## end SetBounds
-            
+          
     # try:
     #   refHist.Scale(1.0/refHist.Integral())
     #   testHist.Scale(1.0/testHist.Integral())
@@ -133,29 +137,37 @@ class Validator(object):
     padRatio.Draw()
     ROOT.TLine()
     padMain.cd()
-
-    #leg = ROOT.TLegend(0.82,0.78,0.96,0.94)
-    leg = ROOT.TLegend(0.8,0.76,0.96,0.94)  
+    
+    leg = ROOT.TLegend(0.82,0.78,0.96,0.94)  
+    #leg = ROOT.TLegend(0.52,0.76,0.96,0.94)  
     #leg.SetFillColor(ROOT.kWhite)
     leg.SetFillStyle(0)
     leg.SetBorderSize(0)
     leg.SetTextFont(43)
-    leg.SetTextSizePixels(32)
-    leg.AddEntry(refHist, "ref", 'lp')
-    leg.AddEntry(testHist, "test",'lp')
-  
+    leg.SetTextSizePixels(32)    
+    
+    refHist = hists[0]
     refHist.SetLineColor(17)
     #refHist.SetFillColor(30)
 
-    if self.DoNormalization and not "_Eff_" in refHist.GetName() and not "_eff" in refHist.GetName():
-      i1 = 1.*refHist.Integral()
-      i2 = 1.*testHist.Integral()
-      if i1>i2:
-        refHist.Scale(i2/i1)
-      elif i2>0:
-        testHist.Scale(i1/i2)
-        
-    refHist = SetBounds(refHist, testHist)
+    ## @@@ Legend!!!
+    #leg.AddEntry(hists[0], 'ref', 'lp')
+    #leg.AddEntry(hists[1], 'test', 'lp')
+    #if len(hists)>2:
+    #   for i in range(2,len(hists)):
+    #       leg.AddEntry(hists[i], 'test{0}'.format(i), 'lp')
+    for i in range(0,len(hists)):      
+      leg.AddEntry(hists[i], LABELS[i], 'lp')
+              
+    if self.DoNormalization and not "_Eff_" in refHist.GetName() and not "_eff" in refHist.GetName() and not "_Eff" in refHist.GetName():
+      for h in hists:
+        n = h.Integral()
+        if n>0:
+          h.Scale(1./n)
+          for i in range (1,h.GetXaxis().GetNbins()+1):
+            h.SetBinError(i,h.GetBinError(i)/n);
+                
+    refHist = SetBounds(hists)
     
     ref_textsize = 32./(padMain.GetWh()*padMain.GetAbsHNDC())
     refHist.GetYaxis().SetLabelSize( ref_textsize )
@@ -173,52 +185,80 @@ class Validator(object):
 
     #testHist.Rebin(2)
     #refHist.Rebin(2);
-
-    if refHist.GetMaximum()>testHist.GetMaximum():
-      refHist.DrawCopy("e")
-      testHist.DrawCopy("ehistsame")
-      refHist.DrawCopy("ehistsame")
-    else:
-      testHist.DrawCopy("ehist")
-      refHist.DrawCopy("ehistsame")
+    histmax = refHist
+    histmax.DrawCopy('e')
+    # for h in hists:
+    #   if h.GetMaximum() > refHist.GetMaximum():
+    #     histmax = h
+    #   if histmax == refHist:
+    #     histmax.DrawCopy("e")
+    #   else:
+    #     histmax.DrawCopy("ehist")
+    nh=0
+    for h in hists:
+      if h is not histmax:
+        if h==refHist:
+          h.DrawCopy('histsame')
+        else:
+          nh=nh+1
+          if nh>1:
+            h.SetMarkerStyle(0)
+            h.SetMarkerColor(0)
+            h.SetLineColor(8) # green
+            h.SetLineStyle(ROOT.kDashed)
+          h.DrawCopy('ehistsame')
+    # if refHist.GetMaximum()>histmax.GetMaximum():
+    #   refHist.DrawCopy("e")
+    #   testHist.DrawCopy("ehistsame")
+    #   refHist.DrawCopy("ehistsame")
+    # else:
+    #   testHist.DrawCopy("ehist")
+    #   refHist.DrawCopy("ehistsame")
       
     leg.Draw()
     padRatio.cd()
-    ratioHist = testHist.Clone()
-    ratioHist.Divide(refHist)
-    #ratioHist = SetBounds(ratioHist, ratioHist, 0.84,1.16)
-    ratioHist = SetBounds(ratioHist, ratioHist, 0.941,1.059)
-    for i in range(ratioHist.GetNbinsX()):
-      nref = refHist.GetBinContent(i)
-      ntest = testHist.GetBinContent(i)
-      if nref == 0 or ntest == 0:
-        ratioHist.SetBinError(i, 0)
+
+    for h in hists:
+      if h is refHist: continue
+      ratioHist = h.Clone()
+      ratioHist.Divide(refHist)
+      ratioHist = SetBounds( [ratioHist, ratioHist], 0.84,1.16) # 0.941,1.059
+      for i in range(ratioHist.GetNbinsX()):
+        nref = refHist.GetBinContent(i)
+        ntest = h.GetBinContent(i)
+        if nref == 0 or ntest == 0:
+          ratioHist.SetBinError(i, 0)
+        else:
+          #error = nref/ntest*math.sqrt((refHist.GetBinError(i)/nref)**2 + (testHist.GetBinError(i)/ntest)**2)
+          error = nref/ntest* max(refHist.GetBinError(i)/nref, h.GetBinError(i)/ntest) 
+          ratioHist.SetBinError(i, error)
+          
+      ratioHist_textsize = 32./(padRatio.GetWh()*padRatio.GetAbsHNDC())
+      ratioHist.GetYaxis().SetLabelSize( ratioHist_textsize )
+      ratioHist.GetXaxis().SetLabelSize( ratioHist_textsize )
+      ratioHist.GetXaxis().SetTitleSize( 1.2*ratioHist_textsize )
+      ratioHist.GetXaxis().SetTitleOffset(0.75)
+      ratioHist.GetXaxis().SetTitleColor(kAzure)
+      ratioHist.GetYaxis().SetTitleSize( ratioHist_textsize )
+      ratioHist.GetYaxis().SetTitleOffset(0.6)
+
+    
+      ratioHist.SetLineColor(ROOT.kBlack)
+      ratioHist.SetMarkerStyle(24)
+      ratioHist.SetYTitle("test / ref")
+      if h == hists[1]:
+        ratioHist.DrawCopy("p")
+        lineRatio = ROOT.TLine( ratioHist.GetXaxis().GetXmin(), 1, 
+                              ratioHist.GetXaxis().GetXmax(), 1 ) 
+        lineRatio.SetLineColor( ROOT.kRed )
+        lineRatio.SetLineWidth( 2 )
+        lineRatio.Draw("same")
       else:
-        #error = nref/ntest*math.sqrt((refHist.GetBinError(i)/nref)**2 + (testHist.GetBinError(i)/ntest)**2)
-        error = nref/ntest* max(refHist.GetBinError(i)/nref, testHist.GetBinError(i)/ntest) 
-        ratioHist.SetBinError(i, error)
-
-    ratioHist_textsize = 32./(padRatio.GetWh()*padRatio.GetAbsHNDC())
-    ratioHist.GetYaxis().SetLabelSize( ratioHist_textsize )
-    ratioHist.GetXaxis().SetLabelSize( ratioHist_textsize )
-    ratioHist.GetXaxis().SetTitleSize( 1.2*ratioHist_textsize )
-    ratioHist.GetXaxis().SetTitleOffset(0.75)
-    ratioHist.GetXaxis().SetTitleColor(kAzure)
-    ratioHist.GetYaxis().SetTitleSize( ratioHist_textsize )
-    ratioHist.GetYaxis().SetTitleOffset(0.6)
-
-    
-    ratioHist.SetLineColor(ROOT.kBlack)
-    ratioHist.SetMarkerStyle(24)
-    ratioHist.SetYTitle("test / ref")
-    ratioHist.Draw("p")
-    
-    lineRatio = ROOT.TLine( ratioHist.GetXaxis().GetXmin(), 1, 
-                            ratioHist.GetXaxis().GetXmax(), 1 ) 
-    lineRatio.SetLineColor( ROOT.kRed )
-    lineRatio.SetLineWidth( 2 )
-    lineRatio.Draw("same")
-
+        ratioHist.SetMarkerStyle(25)
+        ratioHist.SetMarkerColor(8)
+        ratioHist.SetLineColor(8)
+        ratioHist.DrawCopy("psame")
+      
     npath = ""
     if not self.structDirs:
       npath = path[path.find(":/")+2:] + "/"
@@ -242,23 +282,43 @@ def main( argv ):
 
   parser = argparse.ArgumentParser( description = 'Distribution Plotter' )
   parser.add_argument( '-s', '--structDirs', default = True, action = "store_true", help = ' if true, it creates directories following the same structure as in the root file to store the pdf plots')
-  parser.add_argument( '-r', '--reference', help = 'bla' )
-  parser.add_argument( '-t', '--test', help = 'Print cutflow' )
+  parser.add_argument( '-r', '--reference', help = 'The reference' )
+  parser.add_argument( '-t', '--test', help = 'The test' )
+  parser.add_argument( '-t2', '--test2', default ='', help = 'The additional test' )
   parser.add_argument( '-d', '--directory', default = "/", help = 'Print cutflow fror systematic variations' )
   parser.add_argument( '-e', '--exclude', default = "_bin_", help = 'histograms whose names contain the provided strings are not examined')
   parser.add_argument( '-n', '--normalize', default = False, action = "store_true", help = 'normalize histograms with larger stats for better comparison')
+  parser.add_argument( '-l', '--labels', default ='', help = 'Add text to legend for ref/test/test2, split with commas' )
+
   args = parser.parse_args()
+
 
   #ROOT.gROOT.Macro("rootlogon.C")
   ROOT.gROOT.SetBatch()
   #ROOT.gROOT.LoadMacro("./AtlasUtils.C") 
   ROOT.gROOT.LoadMacro("./AtlasStyle.C")
-
-  SetAtlasStyle()
+  ROOT.TH1.SetDefaultSumw2(ROOT.kTRUE)
   
+  SetAtlasStyle()
+
+  LABELS = []
+  if args.labels is '':
+    LABELS = [ 'Ref','Test' ]
+    if args.test2 is not '':
+      LABELS.append( 'Test2' )
+  else:
+    LABELS = args.labels.split(",")
+    #print LABELS
+    
+  # if you want to pass labels to legend directly from the file name...:
+  #LABELS.append( args.test.split('.')[2]+' '+args.test.split('.')[3] )
+  #
+    
   validator = Validator( args.structDirs, args.exclude, SameHist, args.normalize )
-  validator.CompareFiles(os.path.abspath(args.reference), os.path.abspath(args.test), args.directory)
-  #validator.CompareFiles(os.path.abspath(args.test), os.path.abspath(args.reference), args.directory)
+  if args.test2 == '':
+    allFiles = [ os.path.abspath(args.reference), os.path.abspath(args.test) ]
+  else:
+    allFiles = [ os.path.abspath(args.reference), os.path.abspath(args.test), os.path.abspath(args.test2) ]
  #======================================================================
 
 if __name__ == "__main__":
