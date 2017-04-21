@@ -31,6 +31,7 @@
 #include <TF1.h>
 #include <TMath.h>
 #include <THStack.h>
+#include <TImage.h>
 
 #define BINLOEDGE(h,n) h->GetXaxis()->GetBinLowEdge(n)
 #define BINWIDTH(h,n) h->GetXaxis()->GetBinWidth(n)
@@ -832,10 +833,33 @@ saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB )
   return nSaved;
 }
 
+void HanOutputFile::getImageBuffer(TImage* img, TCanvas* myC, char** x, int* y){
+  img->FromPad(myC);
+  img->GetImageBuffer(x, y, TImage::kPng);
+}
+
+bool HanOutputFile::saveHistogramToFile( std::string nameHis, std::string location, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
+  std::string name=nameHis;
+  name+=".png";
+  std::string::size_type i = location.find_last_of( '/' );
+  if( i != (location.size()-1) ) {
+    location+="/";
+  }
+  name=location + name;
+  std::ofstream outfile(name);
+  if (!outfile.is_open()) {
+    std::cerr << "Error writing file to " << name << std::endl;
+    return false;
+  }
+  std::string& tosave = getHistogramPNG(nameHis, location, groupDir, drawRefs, run_min_LB, pathName);
+  outfile << tosave;
+  outfile.close();
+  return true;
+}
 
 bool
 HanOutputFile::
-saveHistogramToFile( std::string nameHis, std::string location, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
+getHistogramPNG( std::string nameHis, std::string location, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
   dqi::DisableMustClean disabled;
   groupDir->cd();
  
@@ -860,6 +884,10 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
   gStyle->SetStatW(0.2);
   gStyle->SetStatH(0.1);
   
+  char* x;
+  int y;
+  TImage* img = TImage::Create();  
+
 
   gROOT->SetBatch();
   std::string pathname( groupDir->GetPath() );
@@ -1202,7 +1230,8 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
 
-      myC->SaveAs( name.c_str() );
+      //myC->SaveAs( name.c_str() );
+      getImageBuffer(img, myC, &x, &y);
 
     } else if( h != 0 ){
       formatTH1( myC, h );
@@ -1397,7 +1426,8 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
       tt.SetNDC();
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
-      myC->SaveAs(name.c_str());
+      //myC->SaveAs(name.c_str());
+      getImageBuffer(img, myC, &x, &y);
     }
     delete myC;
     gStyle->Reset();
@@ -1428,15 +1458,17 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
     tt.SetNDC();
     tt.SetTextSize(0.03);
     tt.DrawLatex(0.02,0.01,pathName.c_str());
-    myC->SaveAs( name.c_str() );
+    //myC->SaveAs( name.c_str() );
+    getImageBuffer(img, myC, &x, &y);
     delete myC;
     gStyle->Reset();
   }
-
+  std::string rv(x, y);
+  delete img;
   delete hobj;
   delete hRef;
   delete legend;
-  return true;
+  return rv;
 }
 
 bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::string location, 
