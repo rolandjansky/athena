@@ -38,7 +38,7 @@ find_package( ROOT COMPONENTS Core MathCore Hist )
 
 # Component(s) in the package:
 atlas_add_component( PixelMonitoring
-   PixelMonitoring/*.h src/*.cxx src/componets/*.cxx
+   PixelMonitoring/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib AtlasDetDescr
    GaudiKernel InDetRawData InDetPrepRawData LumiBlockCompsLib TrkTrack
