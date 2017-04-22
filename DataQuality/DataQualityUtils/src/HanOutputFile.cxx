@@ -10,6 +10,7 @@
 #include "DataQualityInterfaces/HanUtils.h"
 
 #include <sstream>
+#include <fstream>
 #include <cstdlib>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/lexical_cast.hpp>
@@ -833,12 +834,16 @@ saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB )
   return nSaved;
 }
 
-void HanOutputFile::getImageBuffer(TImage* img, TCanvas* myC, char** x, int* y){
+void getImageBuffer(TImage* img, TCanvas* myC, char** x, int* y){
   img->FromPad(myC);
   img->GetImageBuffer(x, y, TImage::kPng);
 }
 
 bool HanOutputFile::saveHistogramToFile( std::string nameHis, std::string location, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
+  std::string tosave = getHistogramPNG(nameHis, location, groupDir, drawRefs, run_min_LB, pathName);
+  if (tosave == "") {
+    return false;
+  }
   std::string name=nameHis;
   name+=".png";
   std::string::size_type i = location.find_last_of( '/' );
@@ -851,13 +856,12 @@ bool HanOutputFile::saveHistogramToFile( std::string nameHis, std::string locati
     std::cerr << "Error writing file to " << name << std::endl;
     return false;
   }
-  std::string& tosave = getHistogramPNG(nameHis, location, groupDir, drawRefs, run_min_LB, pathName);
   outfile << tosave;
   outfile.close();
   return true;
 }
 
-bool
+std::string
 HanOutputFile::
 getHistogramPNG( std::string nameHis, std::string location, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
   dqi::DisableMustClean disabled;
@@ -963,7 +967,7 @@ getHistogramPNG( std::string nameHis, std::string location, TDirectory* groupDir
   TKey* hkey = groupDir->FindKey( nameHis.c_str() );
   if( hkey == 0 ) {
     std::cerr << "Did not find TKey for \"" << nameHis << "\", will not save this histogram.\n";
-    return false;
+    return "";
   }
   TLegend* legend(0);
   TObject* hobj = hkey->ReadObj();
@@ -1185,14 +1189,14 @@ getHistogramPNG( std::string nameHis, std::string location, TDirectory* groupDir
                   << "Inconsistent x-axis settings:  min=" << h->GetXaxis()->GetXmin() << ", "
                   << "max=" << h->GetXaxis()->GetXmax() << ", "
                   << "Will not save this histogram.\n";
-        return false;
+        return "";
       }
       if( h->GetYaxis()->GetXmin() >= h->GetYaxis()->GetXmax() ) {
         std::cerr << "HanOutputFile::saveHistogramToFile(): "
                   << "Inconsistent y-axis settings:  min=" << h->GetYaxis()->GetXmin() << ", "
                   << "max=" << h->GetYaxis()->GetXmax() << ", "
                   << "Will not save this histogram.\n";
-        return false;
+        return "";
       }
       axisOption(display,h2);
       if (drawopt =="") {
@@ -1243,7 +1247,7 @@ getHistogramPNG( std::string nameHis, std::string location, TDirectory* groupDir
                   << "Inconsistent x-axis settings:  min=" << h->GetXaxis()->GetXmin() << ", "
                   << "max=" << h->GetXaxis()->GetXmax() << ", "
                   << "Will not save this histogram.\n";
-        return false;
+        return "";
       }
       h->SetLineColor(kBlack);
       h->SetMarkerColor(1);
