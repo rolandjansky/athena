@@ -840,7 +840,7 @@ void getImageBuffer(TImage* img, TCanvas* myC, char** x, int* y){
 }
 
 bool HanOutputFile::saveHistogramToFile( std::string nameHis, std::string location, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
-  std::string tosave = getHistogramPNG(nameHis, location, groupDir, drawRefs, run_min_LB, pathName);
+  std::string tosave = getHistogramPNG(nameHis, groupDir, drawRefs, run_min_LB, pathName);
   if (tosave == "") {
     return false;
   }
@@ -863,7 +863,7 @@ bool HanOutputFile::saveHistogramToFile( std::string nameHis, std::string locati
 
 std::string
 HanOutputFile::
-getHistogramPNG( std::string nameHis, std::string location, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
+getHistogramPNG( std::string nameHis, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
   dqi::DisableMustClean disabled;
   groupDir->cd();
  
@@ -891,7 +891,6 @@ getHistogramPNG( std::string nameHis, std::string location, TDirectory* groupDir
   char* x;
   int y;
   TImage* img = TImage::Create();  
-
 
   gROOT->SetBatch();
   std::string pathname( groupDir->GetPath() );
@@ -981,12 +980,12 @@ getHistogramPNG( std::string nameHis, std::string location, TDirectory* groupDir
   TGraph* g = dynamic_cast<TGraph*>( hobj );
 
   std::string name=nameHis;
-  name+=".png";
+  /*  name+=".png";
   std::string::size_type i = location.find_last_of( '/' );
   if( i != (location.size()-1) ) {
     location+="/";
   }
-  name=location + name;
+  name=location + name; */
   std::string AlgoName=getStringName(pathname+"/"+nameHis+"_/Config/name");
   int ww = 550;
   int wh = 490;
@@ -1234,7 +1233,6 @@ getHistogramPNG( std::string nameHis, std::string location, TDirectory* groupDir
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
 
-      //myC->SaveAs( name.c_str() );
       getImageBuffer(img, myC, &x, &y);
 
     } else if( h != 0 ){
@@ -1430,7 +1428,6 @@ getHistogramPNG( std::string nameHis, std::string location, TDirectory* groupDir
       tt.SetNDC();
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
-      //myC->SaveAs(name.c_str());
       getImageBuffer(img, myC, &x, &y);
     }
     delete myC;
