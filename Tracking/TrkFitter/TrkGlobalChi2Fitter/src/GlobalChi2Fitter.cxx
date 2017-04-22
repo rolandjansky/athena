@@ -4918,9 +4918,9 @@ public:
       int scatmax = (scatno < nscatupstream) ? nscatupstream : scatno;
       int bremmin = (bremno < nbremupstream) ? bremno : nbremupstream;
       int bremmax = (bremno < nbremupstream) ? nbremupstream : bremno;
-      HepMatrix &derivatives = state->derivatives();
 
       if (statetype == TrackState::Fittable) {
+        HepMatrix &derivatives = state->derivatives();
         double sinstereo = 0;
         if (hittype == TrackState::SCT || hittype == TrackState::TGC) {
           sinstereo = state->sinStereo();
@@ -6846,7 +6846,6 @@ public:
     GXFTrackState *prevstate = 0, *state = 0;
     for (int hitno = nstatesupstream - 1; hitno >= 0; hitno--) {
       state = states[hitno];
-      HepMatrix &derivmat = state->derivatives();
       bool fillderivmat = false;
       TrackState::TrackStateType tstype = state->trackStateType();
       if (tstype != TrackState::Scatterer && tstype != TrackState::Brem) {
@@ -6907,6 +6906,7 @@ public:
             jacscat[scatindex](4, 4) = jac[4][4] * jacscat[scatindex](4, 4);
           }
           if (fillderivmat) {
+            HepMatrix &derivmat = state->derivatives();
             for (int i = 0; i < 4; i++) {
               derivmat[i][nperpars + 2 * scatindex] = -jacscat[scatindex](i, 2);
               derivmat[i][nperpars + 2 * scatindex + 1] = -jacscat[scatindex](i, 3);
@@ -6941,6 +6941,7 @@ public:
              state->materialEffects()->momentumJacobians()[bremindex+1]=jacbrem[bremindex](4,4)*ploc*ploc/(jac[4][4]*pbrem[bremindex]*pbrem[bremindex]);
              } */
           if (fillderivmat) {
+            HepMatrix &derivmat = state->derivatives();
             // double p=pbrem[bremindex];
             // for (int i=0;i<5;i++)
             // derivmat[i][nperpars+2*nscats+bremindex]=0.001*jacbrem[bremindex](i,4)*(sign/(p*p));
@@ -6970,6 +6971,7 @@ public:
          state->materialEffects()->momentumJacobians()[0]=jacvertex(4,4)/jac[4][4];
          } */
       if (fillderivmat) {
+        HepMatrix &derivmat = state->derivatives();
         for (int i = 0; i < 4; i++) {
           for (int j = 0; j < nperpars; j++) {
             derivmat[i][j] = jacvertex(i, j);
@@ -6999,7 +7001,6 @@ public:
 
     for (int hitno = nstatesupstream; hitno < (int) states.size(); hitno++) {
       state = states[hitno];
-      HepMatrix &derivmat = state->derivatives();
       bool fillderivmat = false;
       TrackState::TrackStateType tstype = state->trackStateType();
       int imax = 3;
@@ -7064,6 +7065,7 @@ public:
             jacscat[scatindex](4, 4) = jacscat[scatindex](4, 4) * jac[4][4];
           }
           if (fillderivmat) {
+            HepMatrix &derivmat = state->derivatives();
             for (int i = 0; i <= imax; i++) {
               derivmat[i][nperpars + 2 * scatindex] = jacscat[scatindex](i, 2);
               derivmat[i][nperpars + 2 * scatindex + 1] = jacscat[scatindex](i, 3);
@@ -7100,6 +7102,7 @@ public:
              } */
 
           if (fillderivmat) {
+            HepMatrix &derivmat = state->derivatives();
             // double p=pbrem[bremindex];
             for (int i = 0; i <= 4; i++) {
               // derivmat[i][nperpars+2*nscats+bremindex]=.001*jacbrem[bremindex](i,4)*(-sign/(p*p));
@@ -7128,6 +7131,7 @@ public:
          } */
 
       if (fillderivmat) {
+        HepMatrix &derivmat = state->derivatives();
         for (int i = 0; i <= imax; i++) {
           for (int j = 0; j < nperpars; j++) {
             derivmat[i][j] = jacvertex(i, j);
