@@ -53,7 +53,7 @@
 #include "GaudiKernel/IToolSvc.h"
 
 // Gaudi includes
-#include "GaudiKernel/PropertyMgr.h"
+//#include "GaudiKernel/PropertyMgr.h"
 #include "GaudiKernel/SmartDataPtr.h"
 
 #include <set>
