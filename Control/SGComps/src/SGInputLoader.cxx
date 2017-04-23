@@ -89,7 +89,20 @@ SGInputLoader::execute()
       if (dp->transientAddress()->provider() == 0) {
 	ATH_MSG_DEBUG("   obj " << obj << " has no provider, and is only Transient" );
       }
+
+      // Tell hive about the object.
       evtStore()->addedNewTransObject(obj.clid(), obj.key());
+
+      // Also add all aliases...
+      for (const std::string& alias : dp->alias()) {
+        evtStore()->addedNewTransObject(obj.clid(), alias);
+      }
+
+      // ... and linked classes.
+      for (CLID clid2 : dp->transientAddress()->transientID()) {
+        if (clid2 != obj.clid())
+          evtStore()->addedNewTransObject(clid2, obj.key());
+      }
     } else {
       ATH_MSG_ERROR("unable to get proxy for " << obj);
     }

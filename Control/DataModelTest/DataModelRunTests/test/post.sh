@@ -186,6 +186,10 @@ PP="$PP"'|has different type than the branch'
 
 # Gaudi changes
 PP="$PP"'|INFO massageEventInfo:'
+PP="$PP"'|Loop Finished'
+
+# Hive ordering.
+PP="$PP"'|Terminating thread-pool resources'
 
 
 

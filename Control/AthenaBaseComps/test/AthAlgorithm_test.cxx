@@ -1,18 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ */
 
 // $Id$
 /**
- * @file AthenaBaseComps/test/AthReentrantAlgorithm_test.cxx
+ * @file AthenaBaseComps/test/AthAlgorithm_test.cxx
  * @author scott snyder <snyder@bnl.gov>
- * @date Feb, 2016
- * @brief Test property handling for AthReentrantAlgorithm.
+ * @date Apr, 2017
+ * @brief Test property handling for AthAlgorithm.
  */
 
 
 #undef NDEBUG
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandle.h"
 #include "TestTools/initGaudi.h"
@@ -32,16 +32,13 @@ SG_BASE (AthenaBaseCompsTest::MyObj, AthenaBaseCompsTest::MyBase);
 using AthenaBaseCompsTest::MyObj;
 
 
-IProxyDict* pdict = nullptr;
-
-
 class MyAlg
-  : public AthReentrantAlgorithm
+  : public AthAlgorithm
 {
 public:
   MyAlg (const std::string& name, ISvcLocator* svcLoc);
 
-  virtual StatusCode execute_r (const EventContext& ctx) const override;
+  virtual StatusCode execute() override;
 
   virtual void declare(Gaudi::DataHandle& hnd) override;
 
@@ -54,16 +51,15 @@ public:
 
 
 MyAlg::MyAlg  (const std::string& name, ISvcLocator* svcLoc)
-  : AthReentrantAlgorithm (name, svcLoc)
+  : AthAlgorithm (name, svcLoc)
 {
   declareProperty ("rkey", rkey);
   declareProperty ("whandle", whandle);
 }
 
 
-StatusCode MyAlg::execute_r (const EventContext& ctx) const
+StatusCode MyAlg::execute()
 {
-  pdict = ctx.proxy();
   return StatusCode::SUCCESS;
 }
 
@@ -73,7 +69,7 @@ void MyAlg::declare(Gaudi::DataHandle& hnd) {
     inputs.push_back( &hnd );
   if (hnd.mode() & Gaudi::DataHandle::Writer) 
     outputs.push_back( &hnd );
-  AthReentrantAlgorithm::declare (hnd);
+  AthAlgorithm::declare (hnd);
 }
 
 
@@ -112,7 +108,6 @@ void test1 (ISvcLocator* svcLoc)
   Gaudi::Hive::setCurrentContext (ctx);
 
   assert (alg.execute().isSuccess());
-  assert (pdict == xdict);
 
   DataObjIDColl exp = {
     { ClassID_traits<AthenaBaseCompsTest::MyObj>::ID(), "eee" },
