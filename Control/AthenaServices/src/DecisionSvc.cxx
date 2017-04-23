@@ -30,8 +30,8 @@ DecisionSvc::DecisionSvc(const std::string& name,
   m_cutflowSvc("",name),
 #else
   m_cutflowSvc("CutFlowSvc/CutFlowSvc",name),
-  m_algstateSvc("AlgExecStateSvc",name),
 #endif
+  m_algstateSvc("AlgExecStateSvc",name),
   m_eventCount(0)
 {
   declareProperty("CalcStats",m_calcStats);
