@@ -37,9 +37,10 @@ if [[ "$#" < "$NMANDARGS" ]]; then
     exit 1;
 fi    
 
+# no hadd options support (eg -f etc); keep it simple
 if [[ "$#" > "$NMANDARGS" ]]; then
     echo "---------------------------------------------------------------------------------------"
-    echo "$0 : hadd-ing histograms that do not require dedicated postprocessing"
+    echo "$0 : 1st step: hadd-ing histograms"
     echo "---------------------------------------------------------------------------------------"
     hadd $@
     if [[ "0" != "$?" ]]; then
@@ -49,13 +50,13 @@ if [[ "$#" > "$NMANDARGS" ]]; then
 fi
 
 echo "---------------------------------------------------------------------------------------"
-echo "$0 : compiling posprocessing script"
+echo "$0 : 2nd step: compiling posprocessing script"
 echo "---------------------------------------------------------------------------------------"
 NAME=postprocessHistos
 g++ -O2 -Wall -fPIC -std=c++11 $(root-config --cflags) -o ${NAME} ${NAME}.cxx $(root-config --libs)
 
 echo "---------------------------------------------------------------------------------------"
-echo "$0 : running postprocessing"
+echo "$0 : 3rd step: running postprocessing"
 echo "---------------------------------------------------------------------------------------"
 ./postprocessHistos $1
 if [[ "0" != "$?" ]]; then
