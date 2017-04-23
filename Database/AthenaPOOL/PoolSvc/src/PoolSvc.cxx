@@ -444,14 +444,17 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
 	 collection = "PFN:" + collectionName;
       }
    }
-   if (contextId >= m_persistencySvcVec.size()) {
-      contextId = IPoolSvc::kInputStream;
-   }
-   if (contextId == IPoolSvc::kInputStream && openMode != pool::ICollection::READ) {
-      contextId = IPoolSvc::kOutputStream;
-   }
    std::lock_guard<CallMutex> lock(m_pool_mut);
-   if (contextId >= m_persistencySvcVec.size() && !const_cast<PoolSvc*>(this)->reinit().isSuccess()) {
+   if (openMode != pool::ICollection::READ) {
+      contextId = IPoolSvc::kOutputStream;
+   } else {
+      if (contextId > m_persistencySvcVec.size()) {
+         contextId = IPoolSvc::kInputStream;
+      } else if (contextId == m_persistencySvcVec.size()) {
+         contextId = const_cast<PoolSvc*>(this)->getInputContext("");
+      }
+   }
+   if (contextId >= m_persistencySvcVec.size()) {
       return(nullptr);
    }
    std::lock_guard<CallMutex> lockC(*m_pers_mut[contextId]);
@@ -579,11 +582,17 @@ Token* PoolSvc::getToken(const std::string& connection,
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::connect(pool::ITransaction::Type type, unsigned int contextId) const {
+   std::lock_guard<CallMutex> lock(m_pool_mut);
    if (type != pool::ITransaction::READ) {
       contextId = IPoolSvc::kOutputStream;
+   } else {
+      if (contextId > m_persistencySvcVec.size()) {
+         contextId = IPoolSvc::kInputStream;
+      } else if (contextId == m_persistencySvcVec.size()) {
+         contextId = const_cast<PoolSvc*>(this)->getInputContext("");
+      }
    }
-   std::lock_guard<CallMutex> lock(m_pool_mut);
-   if (contextId >= m_persistencySvcVec.size() && !const_cast<PoolSvc*>(this)->reinit().isSuccess()) {
+   if (contextId >= m_persistencySvcVec.size()) {
       return(StatusCode::FAILURE);
    }
    std::lock_guard<CallMutex> lockC(*m_pers_mut[contextId]);
