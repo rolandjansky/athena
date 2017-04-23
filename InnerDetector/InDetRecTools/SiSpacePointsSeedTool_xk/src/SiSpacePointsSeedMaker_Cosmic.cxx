@@ -49,11 +49,11 @@ InDet::SiSpacePointsSeedMaker_Cosmic::SiSpacePointsSeedMaker_Cosmic
   m_zmin      = -10000. ;
   m_zmax      = +10000. ;
   m_diver     = 10.     ;
-  r_rmax      = 600.    ;
-  r_rstep     =  5.     ;
-  r_Sorted    = 0       ;
-  r_index     = 0       ;
-  r_map       = 0       ;    
+  m_r_rmax      = 600.  ;
+  m_r_rstep     =  5.   ;
+  m_r_Sorted    = 0     ;
+  m_r_index     = 0     ;
+  m_r_map       = 0     ;    
   m_maxsizeSP = 1500    ;
   m_SP        = 0       ;
   m_R         = 0       ;
@@ -74,8 +74,8 @@ InDet::SiSpacePointsSeedMaker_Cosmic::SiSpacePointsSeedMaker_Cosmic
   declareProperty("usePixel"              ,m_pixel                 );
   declareProperty("useSCT"                ,m_sct                   );
   declareProperty("pTmin"                 ,m_ptmin                 );
-  declareProperty("radMax"                ,r_rmax                  );
-  declareProperty("radStep"               ,r_rstep                 );
+  declareProperty("radMax"                ,m_r_rmax                  );
+  declareProperty("radStep"               ,m_r_rstep                 );
   declareProperty("maxSize"               ,m_maxsize               );
   declareProperty("maxSizeSP"             ,m_maxsizeSP             );
   declareProperty("minZ"                  ,m_zmin                  );
@@ -103,15 +103,15 @@ InDet::SiSpacePointsSeedMaker_Cosmic::SiSpacePointsSeedMaker_Cosmic
 
 InDet::SiSpacePointsSeedMaker_Cosmic::~SiSpacePointsSeedMaker_Cosmic()
 {
-  if(r_index ) delete [] r_index ;
-  if(r_map   ) delete [] r_map   ; 
-  if(r_Sorted) delete [] r_Sorted;
+  if(m_r_index ) delete [] m_r_index ;
+  if(m_r_map   ) delete [] m_r_map   ; 
+  if(m_r_Sorted) delete [] m_r_Sorted;
 
   // Delete space points for reconstruction
   //
-  i_spforseed=l_spforseed.begin();
-  for(; i_spforseed!=l_spforseed.end(); ++i_spforseed) {
-    delete *i_spforseed;
+  m_i_spforseed=m_l_spforseed.begin();
+  for(; m_i_spforseed!=m_l_spforseed.end(); ++m_i_spforseed) {
+    delete *m_i_spforseed;
   } 
 
   if(m_SP) delete [] m_SP;
@@ -181,10 +181,11 @@ StatusCode InDet::SiSpacePointsSeedMaker_Cosmic::finalize()
 
 void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent (int)
 {
-  if(!m_pixel && !m_sct) return; erase();
-  i_spforseed   = l_spforseed.begin();
+  if(!m_pixel && !m_sct) return;
+  erase();
+  m_i_spforseed   = m_l_spforseed.begin();
 
-  float irstep = 1./r_rstep;
+  float irstep = 1./m_r_rstep;
   float errorsc[4] = {16.,16.,100.,16.};
 
   // Get pixels space points containers from store gate 
@@ -206,14 +207,14 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent (int)
     
 	for(; sp != spe; ++sp) {
 	  
-	  float r = (*sp)->r(); if(r<0. || r>=r_rmax) continue;
+	  float r = (*sp)->r(); if(r<0. || r>=m_r_rmax) continue;
 	  if(m_useassoTool &&  isUsed(*sp)           ) continue;
 
-	  int   ir = int(((*sp)->globalPosition().y()+r_rmax)*irstep);
+	  int   ir = int(((*sp)->globalPosition().y()+m_r_rmax)*irstep);
 
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp),errorsc); 
-	  r_Sorted[ir].push_back(sps); ++r_map[ir];
-	  if(r_map[ir]==1) r_index[m_nr++] = ir;
+	  m_r_Sorted[ir].push_back(sps); ++m_r_map[ir];
+	  if(m_r_map[ir]==1) m_r_index[m_nr++] = ir;
 	  ++m_ns;
 	}
       }
@@ -238,14 +239,14 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent (int)
     
 	for(; sp != spe; ++sp) {
 
-	  float r = (*sp)->r(); if(r<0. || r>=r_rmax) continue;
+	  float r = (*sp)->r(); if(r<0. || r>=m_r_rmax) continue;
 	  if(m_useassoTool &&  isUsed(*sp)           ) continue;
 	  
-	  int   ir = int(((*sp)->globalPosition().y()+r_rmax)*irstep);
+	  int   ir = int(((*sp)->globalPosition().y()+m_r_rmax)*irstep);
 
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp),errorsc); 
-	  r_Sorted[ir].push_back(sps); ++r_map[ir];
-	  if(r_map[ir]==1) r_index[m_nr++] = ir;
+	  m_r_Sorted[ir].push_back(sps); ++m_r_map[ir];
+	  if(m_r_map[ir]==1) m_r_index[m_nr++] = ir;
 	  ++m_ns;
 	}
       }
@@ -264,14 +265,14 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent (int)
 	
 	for (; sp!=spe; ++sp) {
 
-	  float r = (*sp)->r(); if(r<0. || r>=r_rmax) continue;
+	  float r = (*sp)->r(); if(r<0. || r>=m_r_rmax) continue;
 	  if(m_useassoTool &&  isUsed(*sp)           ) continue;
 
-	  int   ir = int(((*sp)->globalPosition().y()+r_rmax)*irstep);
+	  int   ir = int(((*sp)->globalPosition().y()+m_r_rmax)*irstep);
 
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp),errorsc); 
-	  r_Sorted[ir].push_back(sps); ++r_map[ir];
-	  if(r_map[ir]==1) r_index[m_nr++] = ir;
+	  m_r_Sorted[ir].push_back(sps); ++m_r_map[ir];
+	  if(m_r_map[ir]==1) m_r_index[m_nr++] = ir;
 	  ++m_ns;
 	}
       }
@@ -288,10 +289,11 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
 (const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT)
 {
 
-  if(!m_pixel && !m_sct) return; erase();
-  i_spforseed = l_spforseed.begin();
+  if(!m_pixel && !m_sct) return;
+  erase();
+  m_i_spforseed = m_l_spforseed.begin();
 
-  float irstep = 1./r_rstep;
+  float irstep = 1./m_r_rstep;
   float errorsc[4] = {16.,16.,100.,16.};
 
   // Get pixels space points containers from store gate 
@@ -317,13 +319,13 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
 
 	for(; sp != spe; ++sp) {
 
-	  float r = (*sp)->r(); if(r<0. || r>=r_rmax) continue;
+	  float r = (*sp)->r(); if(r<0. || r>=m_r_rmax) continue;
 	  if(m_useassoTool &&  isUsed(*sp)           ) continue;
 
-	  int   ir = int(((*sp)->globalPosition().y()+r_rmax)*irstep);
+	  int   ir = int(((*sp)->globalPosition().y()+m_r_rmax)*irstep);
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp),errorsc); 
-	  r_Sorted[ir].push_back(sps); ++r_map[ir];
-	  if(r_map[ir]==1) r_index[m_nr++] = ir;
+	  m_r_Sorted[ir].push_back(sps); ++m_r_map[ir];
+	  if(m_r_map[ir]==1) m_r_index[m_nr++] = ir;
 	  ++m_ns;
 	}
       }
@@ -353,13 +355,13 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
 
 	for(; sp != spe; ++sp) {
 
-	  float r = (*sp)->r(); if(r<0. || r>=r_rmax) continue;
+	  float r = (*sp)->r(); if(r<0. || r>=m_r_rmax) continue;
 	  if(m_useassoTool &&  isUsed(*sp)           ) continue;
 
-	  int   ir = int(((*sp)->globalPosition().y()+r_rmax)*irstep);
+	  int   ir = int(((*sp)->globalPosition().y()+m_r_rmax)*irstep);
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp),errorsc); 
-	  r_Sorted[ir].push_back(sps); ++r_map[ir];
-	  if(r_map[ir]==1) r_index[m_nr++] = ir;
+	  m_r_Sorted[ir].push_back(sps); ++m_r_map[ir];
+	  if(m_r_map[ir]==1) m_r_index[m_nr++] = ir;
 	  ++m_ns;
 	}
       }
@@ -387,7 +389,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::find2Sp(const std::list<Trk::Vertex>&
 {
   int mode; lv.begin()!=lv.end() ?  mode = 1 : mode = 0;
 
-  m_nseeds = 0; l_seeds.erase(l_seeds.begin(),l_seeds.end());
+  m_nseeds = 0; m_l_seeds.erase(m_l_seeds.begin(),m_l_seeds.end());
   
   if( !m_state || m_nspoint!=2 || m_mode!=mode || m_nlist) {
 
@@ -401,8 +403,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::find2Sp(const std::list<Trk::Vertex>&
     production2Sp ();
   }
 
-  i_seed  = l_seeds.begin();
-  i_seede = l_seeds.end  ();
+  m_i_seed  = m_l_seeds.begin();
+  m_i_seede = m_l_seeds.end  ();
 
   if(m_outputlevel<=0) {
     m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
@@ -418,7 +420,7 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::find3Sp(const std::list<Trk::Vertex>&
 {
   int mode; lv.begin()!=lv.end() ? mode = 3 : mode = 2; 
 
-  m_nseeds = 0; l_seeds.erase(l_seeds.begin(),l_seeds.end());
+  m_nseeds = 0; m_l_seeds.erase(m_l_seeds.begin(),m_l_seeds.end());
 
   if(!m_state || m_nspoint!=3 || m_mode!=mode || m_nlist) {
 
@@ -432,8 +434,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::find3Sp(const std::list<Trk::Vertex>&
     production3Sp();
   }
 
-  i_seed  = l_seeds.begin();
-  i_seede = l_seeds.end  ();
+  m_i_seed  = m_l_seeds.begin();
+  m_i_seede = m_l_seeds.end  ();
 
   if(m_outputlevel<=0) {
     m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
@@ -467,8 +469,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::findVSp (const std::list<Trk::Vertex>
     production3Sp();
   }
 
-  i_seed  = l_seeds.begin();
-  i_seede = l_seeds.end  ();
+  m_i_seed  = m_l_seeds.begin();
+  m_i_seede = m_l_seeds.end  ();
 
   if(m_outputlevel<=0) {
     m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
@@ -481,7 +483,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::findVSp (const std::list<Trk::Vertex>
 
 MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dump( MsgStream& out ) const
 {
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)  return dumpEvent(out);
+  return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -525,10 +528,10 @@ MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dumpConditions( MsgStream& out 
      <<std::setw(12)<<std::setprecision(5)<<m_rapcut
      <<"                              |"<<std::endl;
   out<<"| max radius SP           | "
-     <<std::setw(12)<<std::setprecision(5)<<r_rmax 
+     <<std::setw(12)<<std::setprecision(5)<<m_r_rmax 
      <<"                              |"<<std::endl;
   out<<"| radius step             | "
-     <<std::setw(12)<<std::setprecision(5)<<r_rstep
+     <<std::setw(12)<<std::setprecision(5)<<m_r_rstep
      <<"                              |"<<std::endl;
   out<<"| min Z-vertex position   | "
      <<std::setw(12)<<std::setprecision(5)<<m_zmin
@@ -566,7 +569,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dumpEvent( MsgStream& out ) con
      <<std::setw(12)<<m_nsaz
      <<"                              |"<<std::endl;
   out<<"| seeds                   | "
-     <<std::setw(12)<<l_seeds.size()
+     <<std::setw(12)<<m_l_seeds.size()
      <<"                              |"<<std::endl;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
@@ -647,27 +650,27 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::buildFrameWork()
 
   // Build radius sorted containers
   //
-  r_size = int((r_rmax+.1)/r_rstep)*2;
-  r_Sorted = new std::list<InDet::SiSpacePointForSeed*>[r_size];
-  r_index  = new int[r_size];
-  r_map    = new int[r_size];  
-  m_nr   = 0; for(int i=0; i!=r_size; ++i) {r_index[i]=0; r_map[i]=0;}
+  m_r_size = int((m_r_rmax+.1)/m_r_rstep)*2;
+  m_r_Sorted = new std::list<InDet::SiSpacePointForSeed*>[m_r_size];
+  m_r_index  = new int[m_r_size];
+  m_r_map    = new int[m_r_size];  
+  m_nr   = 0; for(int i=0; i!=m_r_size; ++i) {m_r_index[i]=0; m_r_map[i]=0;}
 
   // Build radius-azimuthal sorted containers
   //
   const float pi2     = 2.*M_PI            ;
   const int   NFmax    = 53                ;
   const float sFmax   = float(NFmax )/pi2;
-  const float m_sFmin = 50./60.           ;
+  const float sFmin = 50./60.           ;
 
-  m_sF        = 50./60. ; if(m_sF    >sFmax ) m_sF    = sFmax  ; else if(m_sF < m_sFmin) m_sF = m_sFmin;
+  m_sF        = 50./60. ; if(m_sF    >sFmax ) m_sF    = sFmax  ; else if(m_sF < sFmin) m_sF = sFmin;
   m_fNmax     = int(pi2*m_sF); if(m_fNmax >=NFmax) m_fNmax = NFmax-1;
 
-  m_nrf   = 0; for(int i=0; i!= 53; ++i) {rf_index  [i]=0; rf_map  [i]=0;}
+  m_nrf   = 0; for(int i=0; i!= 53; ++i) {m_rf_index  [i]=0; m_rf_map  [i]=0;}
 
   // Build radius-azimuthal-Z sorted containers
   //
-  m_nrfz  = 0; for(int i=0; i!=583; ++i) {rfz_index [i]=0; rfz_map [i]=0;}
+  m_nrfz  = 0; for(int i=0; i!=583; ++i) {m_rfz_index [i]=0; m_rfz_map [i]=0;}
 
   // Build maps for radius-azimuthal-Z sorted collections 
   //
@@ -683,62 +686,62 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::buildFrameWork()
       int a        = f *11+z;
       int b        = fb*11+z;
       int c        = ft*11+z;
-      rfz_b [a]    = 3; rfz_t [a]    = 3;
-      rfz_ib[a][0] = a; rfz_it[a][0] = a; 
-      rfz_ib[a][1] = b; rfz_it[a][1] = b; 
-      rfz_ib[a][2] = c; rfz_it[a][2] = c; 
+      m_rfz_b [a]    = 3; m_rfz_t [a]    = 3;
+      m_rfz_ib[a][0] = a; m_rfz_it[a][0] = a; 
+      m_rfz_ib[a][1] = b; m_rfz_it[a][1] = b; 
+      m_rfz_ib[a][2] = c; m_rfz_it[a][2] = c; 
       if     (z==5) {
 
-	rfz_t [a]    = 9 ;   rfz_b [a]    = 9 ;
-	rfz_it[a][3] = a+1;  rfz_ib[a][3] = a+1; 
-	rfz_it[a][4] = b+1;  rfz_ib[a][4] = b+1; 
-	rfz_it[a][5] = c+1;  rfz_ib[a][5] = c+1; 
-	rfz_it[a][6] = a-1;  rfz_ib[a][6] = a-1; 
-	rfz_it[a][7] = b-1;  rfz_ib[a][7] = b-1; 
-	rfz_it[a][8] = c-1;  rfz_ib[a][8] = c-1; 
+	m_rfz_t [a]    = 9 ;   m_rfz_b [a]    = 9 ;
+	m_rfz_it[a][3] = a+1;  m_rfz_ib[a][3] = a+1; 
+	m_rfz_it[a][4] = b+1;  m_rfz_ib[a][4] = b+1; 
+	m_rfz_it[a][5] = c+1;  m_rfz_ib[a][5] = c+1; 
+	m_rfz_it[a][6] = a-1;  m_rfz_ib[a][6] = a-1; 
+	m_rfz_it[a][7] = b-1;  m_rfz_ib[a][7] = b-1; 
+	m_rfz_it[a][8] = c-1;  m_rfz_ib[a][8] = c-1; 
       }
       else if(z> 5) {
 
-	rfz_b [a]    = 6 ;   rfz_t [a]    = 6  ;
-	rfz_ib[a][3] = a-1;  rfz_it[a][3] = a-1;
-	rfz_ib[a][4] = b-1;  rfz_it[a][4] = b-1; 
-	rfz_ib[a][5] = c-1;  rfz_it[a][5] = c-1; 
+	m_rfz_b [a]    = 6 ;   m_rfz_t [a]    = 6  ;
+	m_rfz_ib[a][3] = a-1;  m_rfz_it[a][3] = a-1;
+	m_rfz_ib[a][4] = b-1;  m_rfz_it[a][4] = b-1; 
+	m_rfz_ib[a][5] = c-1;  m_rfz_it[a][5] = c-1; 
 
 	if(z<10) {
 
-	  rfz_t [a]    = 9 ;  rfz_b [a]    = 9  ;
-	  rfz_it[a][6] = a+1; rfz_ib[a][6] = a+1; 
-	  rfz_it[a][7] = b+1; rfz_ib[a][7] = b+1;
-	  rfz_it[a][8] = c+1; rfz_ib[a][8] = c+1; 
+	  m_rfz_t [a]    = 9 ;  m_rfz_b [a]    = 9  ;
+	  m_rfz_it[a][6] = a+1; m_rfz_ib[a][6] = a+1; 
+	  m_rfz_it[a][7] = b+1; m_rfz_ib[a][7] = b+1;
+	  m_rfz_it[a][8] = c+1; m_rfz_ib[a][8] = c+1; 
 	}
       }
       else {
 
-	rfz_b [a]    = 6  ;   rfz_t [a]    = 6 ;
-	rfz_ib[a][3] = a+1;   rfz_it[a][3] = a+1; 
-	rfz_ib[a][4] = b+1;   rfz_it[a][4] = b+1; 
-	rfz_ib[a][5] = c+1;   rfz_it[a][5] = c+1; 
+	m_rfz_b [a]    = 6  ;   m_rfz_t [a]    = 6 ;
+	m_rfz_ib[a][3] = a+1;   m_rfz_it[a][3] = a+1; 
+	m_rfz_ib[a][4] = b+1;   m_rfz_it[a][4] = b+1; 
+	m_rfz_ib[a][5] = c+1;   m_rfz_it[a][5] = c+1; 
 
 	if(z>0) {
 
-	  rfz_t [a]    = 9  ; rfz_b [a]    = 9 ;
-	  rfz_it[a][6] = a-1; rfz_ib[a][6] = a-1; 
-	  rfz_it[a][7] = b-1; rfz_ib[a][7] = b-1; 
-	  rfz_it[a][8] = c-1; rfz_ib[a][8] = c-1; 
+	  m_rfz_t [a]    = 9  ; m_rfz_b [a]    = 9 ;
+	  m_rfz_it[a][6] = a-1; m_rfz_ib[a][6] = a-1; 
+	  m_rfz_it[a][7] = b-1; m_rfz_ib[a][7] = b-1; 
+	  m_rfz_it[a][8] = c-1; m_rfz_ib[a][8] = c-1; 
 	}
       }
       
       if     (z==3) {
-	rfz_b[a]      = 12;  rfz_t [a]     = 12;
-	rfz_ib[a][ 9] = a+2; rfz_it[a][ 9] = a+2; 
-	rfz_ib[a][10] = b+2; rfz_it[a][10] = b+2;
-	rfz_ib[a][11] = c+2; rfz_it[a][11] = c+2; 
+	m_rfz_b[a]      = 12;  m_rfz_t [a]     = 12;
+	m_rfz_ib[a][ 9] = a+2; m_rfz_it[a][ 9] = a+2; 
+	m_rfz_ib[a][10] = b+2; m_rfz_it[a][10] = b+2;
+	m_rfz_ib[a][11] = c+2; m_rfz_it[a][11] = c+2; 
       }
       else if(z==7) {
-	rfz_b[a]      = 12;  rfz_t [a]     = 12;
-	rfz_ib[a][ 9] = a-2; rfz_it[a][ 9] = a-2;  
-	rfz_ib[a][10] = b-2; rfz_it[a][10] = b-2; 
-	rfz_ib[a][11] = c-2; rfz_it[a][11] = c-2; 
+	m_rfz_b[a]      = 12;  m_rfz_t [a]     = 12;
+	m_rfz_ib[a][ 9] = a-2; m_rfz_it[a][ 9] = a-2;  
+	m_rfz_ib[a][10] = b-2; m_rfz_it[a][10] = b-2; 
+	m_rfz_ib[a][11] = c-2; m_rfz_it[a][11] = c-2; 
       }
     }
   }
@@ -761,19 +764,20 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::fillLists()
   const float pi2 = 2.*M_PI;
   std::list<InDet::SiSpacePointForSeed*>::iterator r;
   
-  for(int i=0; i!= r_size;  ++i) {
+  for(int i=0; i!= m_r_size;  ++i) {
 
-    if(!r_map[i]) continue; r = r_Sorted[i].begin();
+    if(!m_r_map[i]) continue;
+    r = m_r_Sorted[i].begin();
 
-    while(r!=r_Sorted[i].end()) {
+    while(r!=m_r_Sorted[i].end()) {
       
       // Azimuthal angle sort
       //
       float F = (*r)->phi(); if(F<0.) F+=pi2;
 
-      int   f = int(F*m_sF); f<0 ? f = m_fNmax : f>m_fNmax ? f = 0 : f=f;
-      f = 1;
-      rf_Sorted[f].push_back(*r); if(!rf_map[f]++) rf_index[m_nrf++] = f;
+      //int   f = int(F*m_sF); f<0 ? f = m_fNmax : f>m_fNmax ? f = 0 : f=f;
+      int f = 1;
+      m_rf_Sorted[f].push_back(*r); if(!m_rf_map[f]++) m_rf_index[m_nrf++] = f;
 
       int z; float Z = (*r)->z();
 
@@ -786,10 +790,10 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::fillLists()
 	Z>-250.?z=5:Z>-450.?z=4:Z>-925.?z=3:Z>-1400.?z=2:Z>-2500.?z=1:z= 0;
       }
       int n = f*11+z; ++m_nsaz;
-      rfz_Sorted[n].push_back(*r); if(!rfz_map[n]++) rfz_index[m_nrfz++] = n;
-      r_Sorted[i].erase(r++);
+      m_rfz_Sorted[n].push_back(*r); if(!m_rfz_map[n]++) m_rfz_index[m_nrfz++] = n;
+      m_r_Sorted[i].erase(r++);
     }
-    r_map[i] = 0;
+    m_r_map[i] = 0;
   }
   m_nr    = 0;
   m_state = 0;
@@ -802,18 +806,18 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::fillLists()
 void InDet::SiSpacePointsSeedMaker_Cosmic::erase()
 {
   for(int i=0; i!=m_nr;    ++i) {
-    int n = r_index[i]; r_map[n] = 0;
-    r_Sorted[n].erase(r_Sorted[n].begin(),r_Sorted[n].end());
+    int n = m_r_index[i]; m_r_map[n] = 0;
+    m_r_Sorted[n].erase(m_r_Sorted[n].begin(),m_r_Sorted[n].end());
   }
 
   for(int i=0; i!=m_nrf;   ++i) {
-    int n = rf_index[i]; rf_map[n] = 0;
-    rf_Sorted[n].erase(rf_Sorted[n].begin(),rf_Sorted[n].end());
+    int n = m_rf_index[i]; m_rf_map[n] = 0;
+    m_rf_Sorted[n].erase(m_rf_Sorted[n].begin(),m_rf_Sorted[n].end());
   }
 
   for(int i=0; i!=m_nrfz;  ++i) {
-    int n = rfz_index[i]; rfz_map[n] = 0;
-    rfz_Sorted[n].erase(rfz_Sorted[n].begin(),rfz_Sorted[n].end());
+    int n = m_rfz_index[i]; m_rfz_map[n] = 0;
+    m_rfz_Sorted[n].erase(m_rfz_Sorted[n].begin(),m_rfz_Sorted[n].end());
   }
 
   m_state = 0;
@@ -865,19 +869,19 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp()
 
     for(; z!=11; ++z) {
 
-      int a  = f *11+ZI[z];  if(!rfz_map[a]) continue;
+      int a  = f *11+ZI[z];  if(!m_rfz_map[a]) continue;
       int NB = 0, NT = 0;
-      for(int i=0; i!=rfz_b[a]; ++i) {
+      for(int i=0; i!=m_rfz_b[a]; ++i) {
 	
-	int an =  rfz_ib[a][i];
-	if(!rfz_map[an]) continue;
-	rb [NB] = rfz_Sorted[an].begin(); rbe[NB++] = rfz_Sorted[an].end();
+	int an =  m_rfz_ib[a][i];
+	if(!m_rfz_map[an]) continue;
+	rb [NB] = m_rfz_Sorted[an].begin(); rbe[NB++] = m_rfz_Sorted[an].end();
       } 
-      for(int i=0; i!=rfz_t[a]; ++i) {
+      for(int i=0; i!=m_rfz_t[a]; ++i) {
 	
-	int an =  rfz_it[a][i];
-	if(!rfz_map[an]) continue; 
-	rt [NT] = rfz_Sorted[an].begin(); rte[NT++] = rfz_Sorted[an].end();
+	int an =  m_rfz_it[a][i];
+	if(!m_rfz_map[an]) continue; 
+	rt [NT] = m_rfz_Sorted[an].begin(); rte[NT++] = m_rfz_Sorted[an].end();
       } 
       production3Sp(rb,rbe,rt,rte,NB,NT,K,ipt);
       if(!m_endlist) {m_fNmin=f; m_zMin = z; return;} 
@@ -907,19 +911,19 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField()
 
     for(; z!=11; ++z) {
 
-      int a  = f *11+ZI[z];  if(!rfz_map[a]) continue;
+      int a  = f *11+ZI[z];  if(!m_rfz_map[a]) continue;
       int NB = 0, NT = 0;
-      for(int i=0; i!=rfz_b[a]; ++i) {
+      for(int i=0; i!=m_rfz_b[a]; ++i) {
 	
-	int an =  rfz_ib[a][i];
-	if(!rfz_map[an]) continue;
-	rb [NB] = rfz_Sorted[an].begin(); rbe[NB++] = rfz_Sorted[an].end();
+	int an =  m_rfz_ib[a][i];
+	if(!m_rfz_map[an]) continue;
+	rb [NB] = m_rfz_Sorted[an].begin(); rbe[NB++] = m_rfz_Sorted[an].end();
       } 
-      for(int i=0; i!=rfz_t[a]; ++i) {
+      for(int i=0; i!=m_rfz_t[a]; ++i) {
 	
-	int an =  rfz_it[a][i];
-	if(!rfz_map[an]) continue; 
-	rt [NT] = rfz_Sorted[an].begin(); rte[NT++] = rfz_Sorted[an].end();
+	int an =  m_rfz_it[a][i];
+	if(!m_rfz_map[an]) continue; 
+	rt [NT] = m_rfz_Sorted[an].begin(); rte[NT++] = m_rfz_Sorted[an].end();
       } 
       production3SpWithoutField(rb,rbe,rt,rte,NB,NT,ipt);
       if(!m_endlist) {m_fNmin=f; m_zMin = z; return;} 
@@ -996,7 +1000,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3Sp
     }
   breakb:
 
-    if(!Nb || Nb==m_maxsizeSP) continue;  int Nt = Nb;
+    if(!Nb || Nb==m_maxsizeSP) continue;
+    int Nt = Nb;
     
     // Top   links production
     //
@@ -1127,7 +1132,8 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::production3SpWithoutField
     }
   breakb:
 
-    if(!Nb || Nb==m_maxsizeSP) continue;  int Nt = Nb;
+    if(!Nb || Nb==m_maxsizeSP) continue;
+    int Nt = Nb;
     
     // Top   links production
     //
