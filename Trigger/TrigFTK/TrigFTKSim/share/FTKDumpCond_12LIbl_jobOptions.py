@@ -7,7 +7,7 @@ theJob = AlgSequence()
 #--------------------------------------------------------------
 # FTK algorithm inclusions
 #--------------------------------------------------------------
-from AthenaCommon.AppMgr import ToolSvc 
+from AthenaCommon.AppMgr import ToolSvc
 from TrigFTKSim.TrigFTKSimConf import FTKDetectorTool, FTKDumpCondAlgo
 
 print "Add FTKDetector tool"
@@ -22,7 +22,8 @@ FTKDumpCond = FTKDumpCondAlgo( "FTKDumpCondAlgo" , OutputLevel=INFO)
 FTKDumpCond.IBLMode = 2
 ####FTKDumpCond.DumpBadModules = True
 FTKDumpCond.DumpGlobalToLocalMap = True
-theJob += FTKDumpCond  
+#FTKDumpCond.DumpIDMap = True
+theJob += FTKDumpCond
 
 print theJob
 

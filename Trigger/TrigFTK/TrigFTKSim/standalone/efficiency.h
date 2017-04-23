@@ -44,7 +44,7 @@ double Dcurv;
 double Deta;
 double Dz0;
 double ptmincut;
-
+double dx, dy;
 
 // block of generic control histograms for the FTK tracks
 TH2F *histocoordmasketa_ftk;
@@ -55,9 +55,16 @@ TH2F *histochisqndfeta_ftk;
 
 TH1F *histontracks_ftk;
 TH1F *histod0_ftk;
+TH1F *histod0_ftks[20];
+TH1F *histod0_ftk_poseta;
+TH1F *histod0_ftk_negeta;
+TH1F *histod0_ftk_pt2;
+TH1F *histod0_ftk_pt5;
 TH1F *histoz0_ftk;
 TH1F *histophi_ftk;
 TH2F *histophid0_ftk;
+TH2F *histophid0_ftk_pt2;
+TH2F *histophid0_ftk_pt5;
 TH1F *histocurv_ftk;
 TH1F *histoeta_ftk;
 TH2F *histoetaphi_ftk;

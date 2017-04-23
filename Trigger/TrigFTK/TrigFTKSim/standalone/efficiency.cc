@@ -77,9 +77,18 @@ void Init() {
   histochisqndfeta_ftk = new TH2F("histochisqndfeta_ftk","Track probability of #chi^{2};#chi^{2}/ndf;#eta;Prob.",20,0,20,nbins,etamin,etamax);
 
   histod0_ftk = new TH1F("histod0_ftk",";d_{0} (mm);N Tracks",nbins,d0min,d0max);
+
+  for (int i = 0; i < 20; i++) histod0_ftks[i] = new TH1F(Form("histod0_ftks_%d",i-10),";d_{0} (mm);N Tracks",nbins,d0min,d0max);
+
+  histod0_ftk_poseta = new TH1F("histod0_ftk_poseta",";d_{0} (mm);N Tracks",nbins,d0min,d0max);
+  histod0_ftk_negeta = new TH1F("histod0_ftk_negeta",";d_{0} (mm);N Tracks",nbins,d0min,d0max);
+  histod0_ftk_pt2 = new TH1F("histod0_ftk_pt2",";d_{0} (mm);N Tracks",nbins,d0min,d0max);
+  histod0_ftk_pt5 = new TH1F("histod0_ftk_pt5",";d_{0} (mm);N Tracks",nbins,d0min,d0max);
   histoz0_ftk = new TH1F("histoz0_ftk",";z_{0} (mm);N Tracks",nbins,z0min,z0max);
   histophi_ftk = new TH1F("histophi_ftk",";#phi;N Tracks",nbins,phimin,phimax);
   histophid0_ftk = new TH2F("histophid0_ftk",";#phi;d_{0}",nbins,phimin,phimax,nbins,d0min,d0max);
+  histophid0_ftk_pt2 = new TH2F("histophid0_ftk_pt2",";#phi;d_{0}",nbins,phimin,phimax,nbins,d0min,d0max);
+  histophid0_ftk_pt5 = new TH2F("histophid0_ftk_pt5",";#phi;d_{0}",nbins,phimin,phimax,nbins,d0min,d0max);
   histocurv_ftk = new TH1F("histocurv_ftk",";1/(2p_{T}) (GeV^{-1});N Tracks",nbins,-abscurvmax,abscurvmax);
   histoeta_ftk = new TH1F("histoeta_ftk",";#eta;N Tracks",nbins,etamin,etamax);
   histoetaphi_ftk = new TH2F("histoetaphi_ftk",";#eta;#phi",nbins,etamin,etamax,nbins,phimin,phimax);
@@ -253,8 +262,49 @@ void Process(Long64_t ientry) {
       // const FTKTrack *curtrack = (Use1stStage ? tracks->getTrackI(itrk) : tracks->getTrack(itrk));
       curtrack = (Use1stStage ? tracks->getTrackI(itrk) : tracks->getTrack(itrk));
       //if (  TMath::Abs(curtrack->getPt())*1e-3 < ptmincut ) continue;
-      histod0_ftk->Fill(curtrack->getIP());
-      histoz0_ftk->Fill(curtrack->getZ0());
+      
+
+      double temp_phi = curtrack->getPhi();
+      double temp_d0 = curtrack->getIP();
+      double temp_z0 = curtrack->getZ0();
+
+      // double dx = -0.42;
+      // double dy = -0.53;
+
+
+      // double dx = -0.5491;
+      // double dy = -0.6557;
+
+      double thisd0 = temp_d0 + dx*sin(temp_phi)-dy*cos(temp_phi);
+      double thisz0 = temp_z0 + ((cos(temp_phi) *dx - sin(temp_phi)*dy))*curtrack->getCotTheta();
+      double thisphi = temp_phi;
+
+      histod0_ftk->Fill(thisd0);
+
+      if (curtrack->getBitmask()&(1<<0)) {
+	FTKHit hit = curtrack->getFTKHit(0);
+	if (hit.getIsBarrel()) {
+	  ///	  int module = hit.getEtaModule();
+	  int module = (hit.getSector()%1000)-10; // JAA calculation
+	  //	  std::cerr << "JAAA module = " << module << " and d0 = " << thisd0 << " and sector = " << hit.getSector() << " and my calculation = " << (hit.getSector()%1000)-10 << std::endl;
+	  //	  histod0_ftks[module+10]->Fill(thisd0);
+	  histod0_ftks[module+10]->Fill(thisd0);
+	}
+	else {
+	  histod0_ftks[19]->Fill(thisd0);
+	  //	  int module = hit.getEtaModule();
+	  // std::cerr << "zzzzzJAAA module = " << module << " and d0 = " << thisd0 << " and sector = " << hit.getSector() << " and my calculation = " << (hit.getSector()%1000)-10 << std::endl;
+	}
+      }
+      else {
+	histod0_ftks[19]->Fill(thisd0);
+      }
+
+      if (curtrack->getEta() > 0) histod0_ftk_poseta->Fill(thisd0);
+      else histod0_ftk_negeta->Fill(thisd0);
+      if (TMath::Abs(curtrack->getPt())*1e-3 > 2) histod0_ftk_pt2->Fill(thisd0);
+      if (TMath::Abs(curtrack->getPt())*1e-3 > 5) histod0_ftk_pt5->Fill(thisd0);
+      histoz0_ftk->Fill(thisz0);
       histocurv_ftk->Fill(curtrack->getHalfInvPt()*1e3);
       histocurv_ftkzoom->Fill(curtrack->getHalfInvPt()*1e3);
       histopt_ftk->Fill(TMath::Abs(curtrack->getPt())*1e-3);
@@ -264,10 +314,15 @@ void Process(Long64_t ientry) {
       double eta = curtrack->getEta();
       histoeta_ftk->Fill(eta);
       histophi_ftk->Fill(curtrack->getPhi());
-      histophid0_ftk->Fill(curtrack->getPhi(),curtrack->getIP());
-      // histophid0_ftk->Fill(curtrack->getPhi(),curtrack->getD0());
-      histoetaz0_ftk->Fill(eta,curtrack->getZ0());
-      histophiz0_ftk->Fill(curtrack->getPhi(),curtrack->getZ0());
+      histophid0_ftk->Fill(curtrack->getPhi(),thisd0);
+      
+      if (TMath::Abs(curtrack->getPt())*1e-3 > 2) histophid0_ftk_pt2->Fill(curtrack->getPhi(),thisd0);
+      if (TMath::Abs(curtrack->getPt())*1e-3 > 5) histophid0_ftk_pt5->Fill(curtrack->getPhi(),thisd0);
+
+
+      // histophid0_ftk->Fill(curtrack->getPhi(),thisd0);
+      histoetaz0_ftk->Fill(eta,thisz0);
+      histophiz0_ftk->Fill(curtrack->getPhi(),thisz0);
       histoetaphi_ftk->Fill(eta,curtrack->getPhi());
       histochisqndfeta_ftk->Fill(curtrack->getChi2ndof(),eta);
       histonmisseta_ftk->Fill(curtrack->getNMissing(),eta);
@@ -280,38 +335,38 @@ void Process(Long64_t ientry) {
       
       costtheta *= TMath::Abs(eta)/eta;
       
-      if (curtrack->getBitmask()&(1<<0)) histoetaz0det_ftk_IBL->Fill(eta,25.7*ctheta+curtrack->getZ0());
-      if (curtrack->getBitmask()&(1<<2)) histoetaz0det_ftk_PixL0->Fill(eta,50.5*ctheta+curtrack->getZ0());
-      if (curtrack->getBitmask()&(1<<4)) histoetaz0det_ftk_PixL1->Fill(eta,88.5*ctheta+curtrack->getZ0());
-      if (curtrack->getBitmask()&(1<<6)) histoetaz0det_ftk_PixL2->Fill(eta,122.5*ctheta+curtrack->getZ0());
+      if (curtrack->getBitmask()&(1<<0)) histoetaz0det_ftk_IBL->Fill(eta,25.7*ctheta+thisz0);
+      if (curtrack->getBitmask()&(1<<2)) histoetaz0det_ftk_PixL0->Fill(eta,50.5*ctheta+thisz0);
+      if (curtrack->getBitmask()&(1<<4)) histoetaz0det_ftk_PixL1->Fill(eta,88.5*ctheta+thisz0);
+      if (curtrack->getBitmask()&(1<<6)) histoetaz0det_ftk_PixL2->Fill(eta,122.5*ctheta+thisz0);
       
       if (curtrack->getBitmask()&(1<<0)) histoetaphi_ftk_IBL->Fill(eta,curtrack->getPhi());
       if (curtrack->getBitmask()&(1<<2)) histoetaphi_ftk_PixL0->Fill(eta,curtrack->getPhi());
       if (curtrack->getBitmask()&(1<<4)) histoetaphi_ftk_PixL1->Fill(eta,curtrack->getPhi());
       if (curtrack->getBitmask()&(1<<6)) histoetaphi_ftk_PixL2->Fill(eta,curtrack->getPhi());
       
-      if (curtrack->getBitmask()&(1<<0)) histoetaz0_ftk_IBL->Fill(eta,curtrack->getZ0());
-      if (curtrack->getBitmask()&(1<<2)) histoetaz0_ftk_PixL0->Fill(eta,curtrack->getZ0());
-      if (curtrack->getBitmask()&(1<<4)) histoetaz0_ftk_PixL1->Fill(eta,curtrack->getZ0());
-      if (curtrack->getBitmask()&(1<<6)) histoetaz0_ftk_PixL2->Fill(eta,curtrack->getZ0());
+      if (curtrack->getBitmask()&(1<<0)) histoetaz0_ftk_IBL->Fill(eta,thisz0);
+      if (curtrack->getBitmask()&(1<<2)) histoetaz0_ftk_PixL0->Fill(eta,thisz0);
+      if (curtrack->getBitmask()&(1<<4)) histoetaz0_ftk_PixL1->Fill(eta,thisz0);
+      if (curtrack->getBitmask()&(1<<6)) histoetaz0_ftk_PixL2->Fill(eta,thisz0);
       
-      if (curtrack->getBitmask()&(1<<0)) histophiz0_ftk_IBL->Fill(curtrack->getPhi(),curtrack->getZ0());
-      if (curtrack->getBitmask()&(1<<2)) histophiz0_ftk_PixL0->Fill(curtrack->getPhi(),curtrack->getZ0());
-      if (curtrack->getBitmask()&(1<<4)) histophiz0_ftk_PixL1->Fill(curtrack->getPhi(),curtrack->getZ0());
-      if (curtrack->getBitmask()&(1<<6)) histophiz0_ftk_PixL2->Fill(curtrack->getPhi(),curtrack->getZ0());
+      if (curtrack->getBitmask()&(1<<0)) histophiz0_ftk_IBL->Fill(curtrack->getPhi(),thisz0);
+      if (curtrack->getBitmask()&(1<<2)) histophiz0_ftk_PixL0->Fill(curtrack->getPhi(),thisz0);
+      if (curtrack->getBitmask()&(1<<4)) histophiz0_ftk_PixL1->Fill(curtrack->getPhi(),thisz0);
+      if (curtrack->getBitmask()&(1<<6)) histophiz0_ftk_PixL2->Fill(curtrack->getPhi(),thisz0);
       
       
       for (Int_t icoord=0;icoord!=curtrack->getNCoords();++icoord) {
 
 	if (curtrack->getBitmask()&(1<<icoord)){
 	  histocoordmasketa_ftk->Fill(icoord,curtrack->getEta());
-	  histocoordmaskz0_ftk->Fill(icoord,curtrack->getZ0());
+	  histocoordmaskz0_ftk->Fill(icoord,thisz0);
 	  histocoordmaskphi_ftk->Fill(icoord,curtrack->getPhi());
-	  // std::cout << "icoord, eta, z0, phi: " << icoord << ", " << curtrack->getEta() << ", " << curtrack->getZ0() << ", " << curtrack->getPhi() << std::endl;
+	  // std::cout << "icoord, eta, z0, phi: " << icoord << ", " << curtrack->getEta() << ", " << thisz0 << ", " << curtrack->getPhi() << std::endl;
 	}
 
 	// if (curtrack->getBitmask()&(1<<icoord)) histocoordmasketa_ftk->Fill(icoord,eta);
-	// if (curtrack->getBitmask()&(1<<icoord)) histocoordmaskz0_ftk->Fill(icoord,curtrack->getZ0());
+	// if (curtrack->getBitmask()&(1<<icoord)) histocoordmaskz0_ftk->Fill(icoord,thisz0);
 	// if (curtrack->getBitmask()&(1<<icoord)) histocoordmaskphi_ftk->Fill(icoord,curtrack->getPhi());
 	
 	// if (curtrack->getBitmask()&(1<<icoord)) {
@@ -321,7 +376,7 @@ void Process(Long64_t ientry) {
 	//   histocoordmaskphi_ftk->Fill(icoord,curtrack->getPhi());
 	// }
 	// if (icoord == 0 && curtrack->getBitmask()&(1<<icoord)) {
-	//   histoetaz0_ftk->Fill(eta,curtrack->getZ0());
+	//   histoetaz0_ftk->Fill(eta,thisz0);
 	// }
 
       }
@@ -339,7 +394,7 @@ void Process(Long64_t ientry) {
       double d0 = curtrack->getIP();
       if (d0<d0min || d0>d0max) continue;
       
-      double z0 = curtrack->getZ0();
+      double z0 = thisz0;
       if (z0<z0min || z0>z0max) continue;
       
       double phi = curtrack->getPhi();
@@ -670,9 +725,16 @@ void Terminate(std::string& outputname) {
   ofile->Add(histochisqndfeta_ftk);
   ofile->Add(histontracks_ftk);
   ofile->Add(histod0_ftk);
+  ofile->Add(histod0_ftk_poseta);
+  ofile->Add(histod0_ftk_negeta);
+  for (int i = 0; i < 20; i++) ofile->Add(histod0_ftks[i]);
+  ofile->Add(histod0_ftk_pt2);
+  ofile->Add(histod0_ftk_pt5);
   ofile->Add(histoz0_ftk);
   ofile->Add(histophi_ftk);
   ofile->Add(histophid0_ftk);
+  ofile->Add(histophid0_ftk_pt2);
+  ofile->Add(histophid0_ftk_pt5);
   ofile->Add(histocurv_ftk);
   ofile->Add(histoeta_ftk);
   ofile->Add(histoetaphi_ftk);
@@ -836,6 +898,8 @@ int main(int argc, char **argv) {
   std::string output;
   std::vector<std::string> files;
   ptmincut = 0;
+  dx = -0.5;
+  dy = -0.5;
 
   try {
     std::string appName = boost::filesystem::basename(argv[0]);
@@ -851,6 +915,8 @@ int main(int argc, char **argv) {
       ("use-first-stage", po::value<int>(&Use1stStage)->default_value(0), "-1: Use roads, 1: Use 1st stage tracks, 0(default): Use 2nd stage tracks")
       ("files", po::value<std::vector<std::string> >(&files)->multitoken(), "FTK NTUP files")
        ("ptmincut", po::value<double>(&ptmincut), "min pt cut on truth tracks")
+       ("dx", po::value<double>(&dx)->default_value(-0.5), "dx")
+       ("dy", po::value<double>(&dy)->default_value(-0.5), "dx")
        ("psfile", "Produce postscript file with efficieny plots");
 
     po::variables_map vm;
