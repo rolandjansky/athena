@@ -129,9 +129,11 @@ long AthenaPoolConverter::storageType() {
    return(POOL_StorageType);
 }
 //__________________________________________________________________________
-AthenaPoolConverter::AthenaPoolConverter(const CLID& myCLID, ISvcLocator* pSvcLocator) :
+AthenaPoolConverter::AthenaPoolConverter(const CLID& myCLID, ISvcLocator* pSvcLocator,
+                                         const char* name /*= nullptr*/) :
 		::Converter(POOL_StorageType, myCLID, pSvcLocator),
-		::AthMessaging((pSvcLocator != nullptr ? msgSvc() : nullptr), "AthenaPoolConverter"),
+		::AthMessaging((pSvcLocator != nullptr ? msgSvc() : nullptr),
+                               name ? name : "AthenaPoolConverter"),
 	m_athenaPoolCnvSvc("AthenaPoolCnvSvc", "AthenaPoolConverter"),
 	m_placement(nullptr),
 	m_placementHints(),

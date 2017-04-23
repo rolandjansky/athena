@@ -8,7 +8,8 @@
 // Persistent class and converter header file
 #include "InDetEventAthenaPool/InDetSimData_p1.h"
 #include "InDetSimDataCnv_p1.h"
-#include "AthenaKernel/IProxyDict.h"
+#include "AthenaBaseComps/AthMessaging.h"
+
 
 typedef std::vector<InDetSimData::Deposit>::const_iterator depositIterator;
 

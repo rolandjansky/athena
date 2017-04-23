@@ -5,7 +5,6 @@
 #include "SCT_RDO_ContainerCnv.h"
 
 #include "InDetIdentifier/SCT_ID.h"
-#include "MsgUtil.h"
 
 #include <memory>
 
@@ -37,15 +36,13 @@ namespace {
 }
 
 SCT_RDO_ContainerCnv::SCT_RDO_ContainerCnv (ISvcLocator* svcloc)
-  : SCT_RDO_ContainerCnvBase(svcloc),
+  : SCT_RDO_ContainerCnvBase(svcloc, "SCT_RDO_ContainerCnv"),
     m_converter_p0(),
     m_storeGate(nullptr)
 {}
 
 //================================================================
 StatusCode SCT_RDO_ContainerCnv::initialize() {
-   IDEvtAthPool::setMsgName(this,"SCT_RDO_ContainerCnv");//So msg() won't use name "AthenaPoolConverter" 
-
    StatusCode sc = SCT_RDO_ContainerCnvBase::initialize();
    if (sc.isFailure()) {
      ATH_MSG_FATAL("SCT_RDO_ContainerCnvBase::initialize() returned failure !");
