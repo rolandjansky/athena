@@ -21,6 +21,7 @@
 #include "CoolKernel/Exception.h"
 #include "CoolKernel/IDatabaseSvc.h"
 #include "CoolKernel/StorageType.h"
+#include "CoolKernel/ConstRecordAdapter.h"
 
 #include <sstream>
 #include <fstream>
@@ -66,7 +67,7 @@ cool::IFolderPtr
 HistogramDataCOOL::
 coolFolderInstance(std::string folderStr) {
     try {
-        cool::IFolderPtr folder = coolDb->getFolder(folderStr.c_str());
+        cool::IFolderPtr folder = m_coolDb->getFolder(folderStr.c_str());
         std::cout << "Browsing objects of '" << folderStr << "'" << std::endl;
         return folder;
     }
@@ -79,13 +80,13 @@ coolFolderInstance(std::string folderStr) {
 void 
 HistogramDataCOOL::
 setSince(cool::Int64 run, cool::Int64 lumi) {
-    since = ((run << 32) + lumi);
+    m_since = ((run << 32) + lumi);
 }
 
 void 
 HistogramDataCOOL::
 setUntil(cool::Int64 run, cool::Int64 lumi) {
-    until = ((run << 32) + lumi);
+    m_until = ((run << 32) + lumi);
 }
 
 void
@@ -108,40 +109,40 @@ setIOV(cool::Int64 run) {
 void
 HistogramDataCOOL::
 printIOV(){
-    cool::Int64 runS=since>>32;
-    cool::Int64 lumiS=since-(runS<<32);
-    cool::Int64 runU=until>>32;
-    cool::Int64 lumiU=until-(runU<<32);
-    std::cout << "Using IOVrange [(" << runS << "," << lumiS << "),("  << runU << "," << lumiU << ")] " << "[" << since << "," << until << "]" << std::endl;
+    cool::Int64 runS=m_since>>32;
+    cool::Int64 lumiS=m_since-(runS<<32);
+    cool::Int64 runU=m_until>>32;
+    cool::Int64 lumiU=m_until-(runU<<32);
+    std::cout << "Using IOVrange [(" << runS << "," << lumiS << "),("  << runU << "," << lumiU << ")] " << "[" << m_since << "," << m_until << "]" << std::endl;
 }
 
 HistogramDataCOOL::
 HistogramDataCOOL (std::string dbStr, std::string folderStr, int runS, int lumiS, int runU, int lumiU) {
-    coolDb = this->coolDbInstance(dbStr, false);
-    coolFolder = this->coolFolderInstance(folderStr);
-    coolFolderH = this->coolFolderInstance(folderStr);
+    m_coolDb = this->coolDbInstance(dbStr, false);
+    m_coolFolder = this->coolFolderInstance(folderStr);
+    m_coolFolderH = this->coolFolderInstance(folderStr);
     this->setIOV(runS, lumiS, runU, lumiU);
 }
 
 HistogramDataCOOL::
 HistogramDataCOOL (int runS, int lumiS, int runU, int lumiU) {
-    coolDb = this->coolDbInstance("COOLOFL_GLOBAL/OFLP200", false);
-    coolFolder = this->coolFolderInstance("/GLOBAL/DETSTATUS/DQMFOFL");
-    coolFolderH = this->coolFolderInstance("/GLOBAL/DETSTATUS/DQMFOFLH");
+    m_coolDb = this->coolDbInstance("COOLOFL_GLOBAL/OFLP200", false);
+    m_coolFolder = this->coolFolderInstance("/GLOBAL/DETSTATUS/DQMFOFL");
+    m_coolFolderH = this->coolFolderInstance("/GLOBAL/DETSTATUS/DQMFOFLH");
     this->setIOV(runS, lumiS, runU, lumiU);
 }
 
 HistogramDataCOOL::
 HistogramDataCOOL() {
-    coolDb = this->coolDbInstance("COOLOFL_GLOBAL/OFLP200", false);
-    coolFolder = this->coolFolderInstance("/GLOBAL/DETSTATUS/DQMFOFL");
-    coolFolderH = this->coolFolderInstance("/GLOBAL/DETSTATUS/DQMFOFLH");
+    m_coolDb = this->coolDbInstance("COOLOFL_GLOBAL/OFLP200", false);
+    m_coolFolder = this->coolFolderInstance("/GLOBAL/DETSTATUS/DQMFOFL");
+    m_coolFolderH = this->coolFolderInstance("/GLOBAL/DETSTATUS/DQMFOFLH");
     this->setIOV(0, 0, 0, 0);
 }
 
 HistogramDataCOOL::
 ~HistogramDataCOOL () {
-    coolDb->closeDatabase();
+    m_coolDb->closeDatabase();
     std::cout << "Cleared!" << std::endl;
 }
 
@@ -153,7 +154,7 @@ createSpec() {
     spec.extend("Code",cool::StorageType::Int32);
     spec.extend("deadFrac",cool::StorageType::Float);
     spec.extend("Thrust",cool::StorageType::Float);
-    if (!(spec==coolFolder->payloadSpecification())) {
+    if (!(spec==m_coolFolder->payloadSpecification())) {
         std::cout << "ERROR Source and destination folder specifications differ." << std::endl;
     }
     return spec;
@@ -187,7 +188,7 @@ createSpecH() {
     specH.extend("Par4",cool::StorageType::Float);
     specH.extend("Par5",cool::StorageType::Float);
 
-    if (!(specH==coolFolderH->payloadSpecification())) {
+    if (!(specH==m_coolFolderH->payloadSpecification())) {
       std::cout << "ERROR Source and destination folder specifications differ. histos" << std::endl;
     }
     return specH;
@@ -222,8 +223,8 @@ void
 HistogramDataCOOL::
 dump(cool::ChannelSelection selection, std::string tag_name) {      
     try {
-      //        cool::IObjectIteratorPtr objects = coolFolder->browseObjects(since, until, selection,"DetStatusDQMFOFLH-FDR2-01");
-        cool::IObjectIteratorPtr objects = coolFolder->browseObjects(since, until, selection,tag_name);
+      //        cool::IObjectIteratorPtr objects = m_coolFolder->browseObjects(m_since, m_until, selection,"DetStatusDQMFOFLH-FDR2-01");
+        cool::IObjectIteratorPtr objects = m_coolFolder->browseObjects(m_since, m_until, selection,tag_name);
         while (objects->goToNext()) {
             const cool::IObject& element = objects->currentRef();
             std::cout << element << std::endl;
@@ -254,8 +255,8 @@ dumpHisto(cool::ChannelId channelId, std::string field, std::string tag_name) {
     std::string result ="";
     try {
         cool::ChannelSelection selection = cool::ChannelSelection(channelId);
-	//        cool::IObjectIteratorPtr objects = coolFolderH->browseObjects(since, until, selection,"DetStatusDQMFOFLH-FDR2-01");
-        cool::IObjectIteratorPtr objects = coolFolderH->browseObjects(since, until, selection,tag_name);
+	//        cool::IObjectIteratorPtr objects = m_coolFolderH->browseObjects(m_since, m_until, selection,"DetStatusDQMFOFLH-FDR2-01");
+        cool::IObjectIteratorPtr objects = m_coolFolderH->browseObjects(m_since, m_until, selection,tag_name);
         while (objects->goToNext()) {
             const cool::IObject& element = objects->currentRef();
             result = element.payloadValue(field);
@@ -274,8 +275,8 @@ insertH(cool::ChannelId channelId, int code, std::string algo, int entries, floa
       cool::RecordSpecification specH = this->createSpecH();
       coral::AttributeList payloadH = this->createPayloadH(code, algo, entries, par1, par2, par3, par4, par5, specH);	
       std::cout << "Trying to store payload histos [channel " << this->getCoolFolderH()->channelName(channelId)  <<" ("<< channelId  <<")]...";
-      //      coolFolderH->storeObject(since, until, payloadH,  channelId, "DetStatusDQMFOFLH-FDR2-01", true);
-      coolFolderH->storeObject(since, until, cool::Record(coolFolder->payloadSpecification(), payloadH),  channelId, tag_name, true);
+      //      m_coolFolderH->storeObject(m_since, m_until, payloadH,  channelId, "DetStatusDQMFOFLH-FDR2-01", true);
+      m_coolFolderH->storeObject(m_since, m_until, cool::Record(m_coolFolder->payloadSpecification(), payloadH),  channelId, tag_name, true);
       std::cout << "stored!" << std::endl;       	
     }
     catch (cool::Exception& e) {
@@ -297,7 +298,7 @@ insertH(std::string channelName, int code, std::string algo, int entries, float 
 cool::IFolderPtr 
 HistogramDataCOOL::
 getCoolFolderH() {
-    return this->coolFolderH;
+    return this->m_coolFolderH;
 }
   
 void
@@ -1272,7 +1273,7 @@ formatGraph( TCanvas* c, TGraphErrors* gr ) const
 cool::IDatabasePtr 
 HistogramDataCOOL::
 getCoolDb() {
-    return this->coolDb;
+    return this->m_coolDb;
 }
 
 
