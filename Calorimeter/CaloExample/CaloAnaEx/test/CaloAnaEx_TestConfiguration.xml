@@ -188,12 +188,12 @@
                <keepFilePattern>*.gif</keepFilePattern>
                <keepFilePattern>*.html</keepFilePattern>
                <keepFilePattern>*.log</keepFilePattern>
-               <keepFilePattern>rtt.css</keepFilePattern>
+               <keepFilePattern>CaloAnaEx.css</keepFilePattern>
                <keepFilePattern displayColor="green">checks.html</keepFilePattern>
            
                <auxFilePattern>CaloAnaEx_runMacro*.C</auxFilePattern>
-               <auxFilePattern>CaloAnaEx_runPython2.C</auxFilePattern>
-               <auxFilePattern>rtt.css</auxFilePattern>
+               <auxFilePattern>CaloAnaEx_runPython2*.C</auxFilePattern>
+               <auxFilePattern>CaloAnaEx.css</auxFilePattern>
                <auxFilePattern>CaloAnaEx_HistoComparison.txt</auxFilePattern>
                <auxFilePattern>CaloAnaEx_check.py</auxFilePattern>
                <auxFilePattern>CaloAnaEx_HistoComparison.py</auxFilePattern>
@@ -209,7 +209,7 @@
             <testname>ROOTMacroRunner</testname>
             <arg>
                <argname>macro</argname>
-               <argvalue>CaloAnaEx_runMacros2.C</argvalue>
+               <argvalue>CaloAnaEx_runMacros2A.C</argvalue>
             </arg>
      </action>
                          
