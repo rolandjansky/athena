@@ -404,6 +404,19 @@ namespace SG {
                           bool quiet = defaultQuiet) const;
 
 
+    /**
+     * @brief Make a symlink or alias to the object currently referenced
+     *        by this handle.
+     * @param newClid CLID of link.
+     * @param newKey SG key of link.
+     *
+     * If newClid matches the existing clid, then make an alias.
+     * If newKey matches the existing key, then make a symlink.
+     * If neither match, it's an error.
+     */
+    StatusCode symLink_impl (CLID newClid, const std::string& newKey) const;
+
+
   protected: 
     //*************************************************************************
     // Protected data.
