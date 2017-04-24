@@ -692,7 +692,7 @@ StatusCode SCT_DigitizationTool::createAndStoreRDO(
     int barrelec(m_detID->barrel_ec(id_coll));
 
     if (!m_barrelonly || std::abs(barrelec) <= 1) {
-      if ((*m_rdoContainer).addCollection(RDOColl,
+      if (m_rdoContainer->addCollection(RDOColl,
                                           RDOColl->identifyHash()).isFailure())
         {
             ATH_MSG_FATAL(
@@ -1004,7 +1004,7 @@ void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection *collection) {
 
         // add the simdata object to the map:
         if (real_particle_hit || m_createNoiseSDO) {
-            // (*m_simDataCollMap).insert(
+            // m_simDataCollMap->insert(
                 // std::make_pair(collection->getId((*i_chargedDiode).first),
                                // InDetSimData(deposits,
                                             // (*i_chargedDiode).second.flag())));
@@ -1031,7 +1031,7 @@ void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection *collection) {
             id_readout = m_detID->strip_id(collection->identify(),row2D, strip2D);
           }
 
-          (*m_simDataCollMap).insert(
+          m_simDataCollMap->insert(
             std::make_pair(id_readout,
                            InDetSimData(deposits,
                                         (*i_chargedDiode).second.flag())));
