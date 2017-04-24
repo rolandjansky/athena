@@ -29,8 +29,8 @@ namespace PFO {
     m_PFO_N_BAD_CELLS = Book1D("PFO_N_BAD_CELLS",m_sPFOContainerName + "_N_BAD_CELLS",30,-1.0,2.0);
     m_PFO_BADLARQ_FRAC = Book1D("PFO_BADLARQ_FRAC",m_sPFOContainerName + "_BADLARQ_FRAC",25,-1.0,1.5);
     m_PFO_ENG_POS = Book1D("PFO_ENG_POS",m_sPFOContainerName + "_ENG_POS",60,-100.0,10000.0);
-    m_PFO_AVG_LAR_Q = Book1D("PFO_AVG_LAR_Q",m_sPFOContainerName + "_AVG_LAR_Q",3001,-100.0,30000.0);
-    m_PFO_AVG_TILE_Q = Book1D("PFO_AVG_TILE_Q",m_sPFOContainerName + "_AVG_TILE_Q",210,-1.0,200.0);
+    m_PFO_AVG_LAR_Q = Book1D("PFO_AVG_LAR_Q",m_sPFOContainerName + "_AVG_LAR_Q",31,-1000.0,30000.0);
+    m_PFO_AVG_TILE_Q = Book1D("PFO_AVG_TILE_Q",m_sPFOContainerName + "_AVG_TILE_Q",21,-10.0,200.0);
     m_PFO_EM_PROBABILTY = Book1D("PFO_EM_PROBABILTY",m_sPFOContainerName + "_EM_PROBABILTY",21,-1.0,1.0);
     m_PFO_SECOND_LAMBDA = Book1D("PFO_SECOND_LAMBDA",m_sPFOContainerName + "_SECOND_LAMBDA",60,-1.0,3000.0);
   }
