@@ -159,7 +159,20 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-all.root data-all_ttbar_pu46-reference.root HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig   -d HLTEF-plots-bjet </argvalue>
+                    <argvalue>data-all.root data-all_ttbar_pu46-reference.root   HLT_j55_boffperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID -d HLTEF-plots-bjet </argvalue>
+                </arg>
+            </action>
+
+           <action position="11">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDArun.sh</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-all.root data-all.root   HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_boffperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots-bjet </argvalue>
                 </arg>
             </action>
 
