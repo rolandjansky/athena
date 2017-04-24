@@ -19,6 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetSimEvent
                           Simulation/HitManagement
                           PRIVATE
+                          Control/StoreGate
                           Generators/GeneratorObjects
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/SCT_ConditionsServices

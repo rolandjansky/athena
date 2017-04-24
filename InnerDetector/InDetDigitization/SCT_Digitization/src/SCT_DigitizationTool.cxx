@@ -56,6 +56,7 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string &type,
     m_sct_FrontEnd("SCT_FrontEnd", this),
     m_sct_SurfaceChargesGenerator("SCT_SurfaceChargesGenerator", this),
     m_sct_RandomDisabledCellGenerator("SCT_RandomDisabledCellGenerator", this),
+    m_rdoContainerKey(""),
     m_rndmSvc("AtRndmGenSvc", name),
     m_mergeSvc("PileUpMergeSvc", name),
     m_rndmEngine(nullptr),
@@ -82,7 +83,7 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string &type,
 
     declareProperty("InputObjectName", m_inputObjectName = "",
                     "Input Object name");
-    declareProperty("OutputObjectName", m_outputRDOCollName = "SCT_RDOs",
+    declareProperty("OutputObjectName", m_rdoContainerKey = std::string("SCT_RDOs"),
                     "Output Object name");
     declareProperty("OutputSDOName", m_outputSDOCollName = "SCT_SDO_Map",
                     "Output SDO container name");
@@ -138,6 +139,9 @@ StatusCode SCT_DigitizationTool::initialize() {
         CHECK(initDisabledCells());
         ATH_MSG_INFO("Use of Random disabled cells");
     }
+
+    // +++ Initialize WriteHandle
+    ATH_CHECK(m_rdoContainerKey.initialize());
 
     ATH_MSG_DEBUG("SiDigitizationTool::initialize() complete");
 
@@ -323,27 +327,30 @@ StatusCode SCT_DigitizationTool::prepareEvent(unsigned int /*index*/) {
     ATH_MSG_VERBOSE("SCT_DigitizationTool::prepareEvent()");
     // Create the IdentifiableContainer to contain the digit collections Create
     // a new RDO container
-    try
-    {
-        m_rdocontainer = new SCT_RDO_Container(m_detID->wafer_hash_max());
-    }
-    catch (std::bad_alloc)
-    {
-        ATH_MSG_FATAL("Could not create a new SCT RawDataContainer !");
-        return StatusCode::FAILURE;
-    }
+    // try
+    // {
+    //     m_rdocontainer = new SCT_RDO_Container(m_detID->wafer_hash_max());
+    // }
+    // catch (std::bad_alloc)
+    // {
+    //     ATH_MSG_FATAL("Could not create a new SCT RawDataContainer !");
+    //     return StatusCode::FAILURE;
+    // }
+    m_rdoContainer = SG::makeHandle(m_rdoContainerKey);
+    m_rdoContainer = CxxUtils::make_unique<SCT_RDO_Container>(m_detID->wafer_hash_max());
+    ATH_CHECK(m_rdoContainer.isValid());
 
     // register RDO container with storegate
-    StatusCode sc = evtStore()->record(m_rdocontainer, m_outputRDOCollName);
-    if (sc.isFailure()) {
-        ATH_MSG_FATAL("Container '" << m_outputRDOCollName <<
-            "' could not be registered in StoreGate !");
-        return StatusCode::FAILURE;
-    }
+    //    StatusCode sc = evtStore()->record(m_rdocontainer, m_outputRDOCollName);
+    //    if (sc.isFailure()) {
+    //        ATH_MSG_FATAL("Container '" << m_outputRDOCollName <<
+    //            "' could not be registered in StoreGate !");
+    //        return StatusCode::FAILURE;
+    //    }
 
     // Create a map for the SDO and register it into StoreGate
     m_simDataCollMap = new  InDetSimDataCollection();
-    sc = evtStore()->record(m_simDataCollMap, m_outputSDOCollName);
+    StatusCode sc = evtStore()->record(m_simDataCollMap, m_outputSDOCollName);
     if (sc.isFailure()) {
         ATH_MSG_FATAL("InDetSimData map '" << m_outputSDOCollName <<
             "' could not be registered in StoreGate !");
@@ -707,7 +714,7 @@ StatusCode SCT_DigitizationTool::createAndStoreRDO(
     int barrelec(m_detID->barrel_ec(id_coll));
 
     if (!m_barrelonly || std::abs(barrelec) <= 1) {
-        if (m_rdocontainer->addCollection(RDOColl,
+      if ((&(*m_rdoContainer))->addCollection(RDOColl,
                                           RDOColl->identifyHash()).isFailure())
         {
             ATH_MSG_FATAL(
