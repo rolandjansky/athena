@@ -39,9 +39,9 @@ ThinTrkTrackAlg::ThinTrkTrackAlg( const std::string& name,
   m_photonsKey("Photons"),
   m_CombinedMuonsTracksKey("CombinedMuonTracks"),
   m_GSFTracksKey("GSFTracks"),
-  m_minptElectrons(0.),
-  m_minptPhotons(0.),
-  m_minptMuons(0.),
+  m_minptElectrons(4000.),
+  m_minptPhotons(4000.),
+  m_minptMuons(4000.),
   m_bestonlyElectrons(true),
   m_bestonlyPhotons(true)
 {
