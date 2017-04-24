@@ -8,6 +8,42 @@
 
 #include "PixelGeoModel/PixelDetectorDC1DC2.h"
 
+#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/PixelDiodeMatrix.h"
+#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetIdentifier/PixelID.h"
+
+#include "GeoModelUtilities/DecodeVersionKey.h"
+#include "GeoModelKernel/GeoAlignableTransform.h"
+#include "GeoModelKernel/GeoBox.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelKernel/GeoIdentifierTag.h"
+#include "GeoModelKernel/GeoLogVol.h"
+#include "GeoModelKernel/GeoMaterial.h"
+#include "GeoModelKernel/GeoNameTag.h"
+#include "GeoModelKernel/GeoPhysVol.h"
+#include "GeoModelKernel/GeoTransform.h"
+#include "GeoModelKernel/GeoTube.h"
+#include "GeoModelKernel/GeoTubs.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/StoredMaterialManager.h"
+#include "Identifier/Identifier.h"
+#include "StoreGate/DataHandle.h"
+#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "CLHEP/Units/PhysicalConstants.h"
+
+#include <vector>
+#include <sstream>
+#include <stdexcept>
+
+
 using namespace PixelGeoDC2;
 
 
@@ -17,22 +53,6 @@ using namespace PixelGeoDC2;
 //                                                   //
 //---------------------------------------------------//
 
-
-//#include "PixelGeoModel/GeoPixelBarrel.h"
-//#include "PixelGeoModel/GeoPixelLayer.h"
-//#include "PixelGeoModel/GeoPixelServices.h"
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoAlignableTransform.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "Identifier/Identifier.h"
-#include "InDetIdentifier/PixelID.h"
-
-using namespace std;
 
 GeoVPhysVol* GeoPixelBarrel::Build( ) {
 
@@ -54,7 +74,7 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
   // Build the layers inside
   //
   GeoPixelLayer layer;
-  string lname[3];
+  std::string lname[3];
   lname[0] = "InnerLayer";
   lname[1] = "CenterLayer";
   lname[2] = "OuterLayer";
@@ -102,14 +122,6 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
 //---------------------------------------------------//
 
 
-
-//#include "PixelGeoModel/GeoPixelCable.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-
-#include <sstream>
 
 GeoVPhysVol* GeoPixelCable::Build() {
   //
@@ -181,12 +193,6 @@ double GeoPixelCable::Thickness() {
 //
 // Contains: nothing
 //
-//#include "PixelGeoModel/GeoPixelChip.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
 
 GeoVPhysVol* GeoPixelChip::Build() {
   //
@@ -219,21 +225,6 @@ GeoVPhysVol* GeoPixelChip::Build() {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelDisk.h"
-//#include "PixelGeoModel/GeoPixelSubDisk.h"
-//#include "PixelGeoModel/GeoPixelDiskSupports.h"
-//#include "PixelGeoModel/GeoPixelSiCrystal.h"
-
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoTransform.h"
-#include "GeoModelKernel/GeoAlignableTransform.h"
-
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 GeoPixelDisk::GeoPixelDisk() {
 
@@ -380,16 +371,6 @@ int GeoPixelDisk::getPhiId() {
 //---------------------------------------------------//
 
 
-//#include "PixelGeoModel/GeoPixelDiskSupports.h"
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoTransform.h"
-
-#include <sstream>
-
 GeoPixelDiskSupports::GeoPixelDiskSupports() {
   //
   // Initialize the vectors
@@ -439,13 +420,6 @@ GeoVPhysVol* GeoPixelDiskSupports::Build( ) {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelECCable.h"
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-
 GeoPixelECCable::GeoPixelECCable() {
   //
   // Define the log volume in the constructor, so I do it only once.
@@ -472,21 +446,6 @@ GeoVPhysVol* GeoPixelECCable::Build( ) {
 // GeoPixelEndCap                                    //
 //                                                   //
 //---------------------------------------------------//
-
-//#include "PixelGeoModel/GeoPixelEndCap.h"
-//#include "PixelGeoModel/GeoPixelDisk.h"
-//#include "PixelGeoModel/GeoPixelECCable.h"
-//#include "PixelGeoModel/GeoPixelServices.h"
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoTransform.h"
-#include "GeoModelKernel/GeoAlignableTransform.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "Identifier/Identifier.h"
 
 
 GeoVPhysVol* GeoPixelEndCap::Build( ) {
@@ -580,21 +539,6 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelEnvelope.h"
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoTransform.h"
-#include "GeoModelKernel/GeoMaterial.h"
-
-//#include "PixelGeoModel/GeoPixelBarrel.h"
-//#include "PixelGeoModel/GeoPixelEndCap.h"
-//#include "PixelGeoModel/GeoPixelServices.h"
-//#include "PixelGeoModel/GeoPixelLadder.h"
-//#include "PixelGeoModel/GeoPixelModule.h"
-//#include "PixelGeoModel/GeoPixelTubeCables.h"
 
 GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   //
@@ -705,12 +649,6 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
 //
 // Contains: nothing
 //
-//#include "PixelGeoModel/GeoPixelHybrid.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
 
 GeoVPhysVol* GeoPixelHybrid::Build() {
   //
@@ -735,26 +673,12 @@ GeoVPhysVol* GeoPixelHybrid::Build() {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelLadder.h"
-//#include "PixelGeoModel/GeoPixelModule.h"
-//#include "PixelGeoModel/GeoPixelSiCrystal.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-
-#include "GeoModelKernel/GeoTransform.h"
-#include "GeoModelKernel/GeoAlignableTransform.h"
-
-
-using std::max;
 
 GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor) :
   m_theSensor(theSensor)
 {
+  using std::max;
+
   //
   // Define the log volume in the constructor, so I do it only once.
   //
@@ -865,14 +789,6 @@ double GeoPixelLadder::Thickness() {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelLadderStruct.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-
-
 
 GeoVPhysVol* GeoPixelLadderStruct::Build( ) {
   //
@@ -901,18 +817,6 @@ GeoVPhysVol* GeoPixelLadderStruct::Build( ) {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelLayer.h"
-//#include "PixelGeoModel/GeoPixelLadder.h"
-//#include "PixelGeoModel/GeoPixelTubeCables.h"
-//#include "PixelGeoModel/GeoPixelSiCrystal.h"
-
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoTransform.h"
 
 GeoVPhysVol* GeoPixelLayer::Build() {
 
@@ -1002,19 +906,6 @@ GeoVPhysVol* GeoPixelLayer::Build() {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelModule.h"
-//#include "PixelGeoModel/GeoPixelHybrid.h"
-//#include "PixelGeoModel/GeoPixelChip.h"
-//#include "PixelGeoModel/GeoPixelSiCrystal.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoTransform.h"
-
-using std::max;
 
 GeoPixelModule::GeoPixelModule(GeoPixelSiCrystal& theSensor) :
   m_theSensor(theSensor)
@@ -1143,13 +1034,6 @@ Identifier GeoPixelModule::getID() {
 // Contains: nothing
 //
 
-//#include "PixelGeoModel/GeoPixelServices.h"
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-
-#include <sstream>
 
 GeoPixelServices::GeoPixelServices(std::string root) {
   //
@@ -1279,24 +1163,6 @@ GeoVPhysVol* GeoPixelServices::Build( ) {
 //
 // Contains: nothing
 //
-
-//#include "PixelGeoModel/GeoPixelSiCrystal.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "Identifier/Identifier.h"
-#include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-
-#include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/PixelDiodeMatrix.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
-
-#include <vector>
 
 using namespace InDetDD;
 
@@ -1462,18 +1328,6 @@ GeoVPhysVol* GeoPixelSiCrystal::Build() {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelSubDisk.h"
-//#include "PixelGeoModel/GeoPixelChip.h"
-//#include "PixelGeoModel/GeoPixelHybrid.h"
-//#include "PixelGeoModel/GeoPixelSiCrystal.h"
-#include "GeoModelKernel/GeoTubs.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoTransform.h"
-#include "GeoModelKernel/GeoAlignableTransform.h"
 
 GeoPixelSubDisk::GeoPixelSubDisk(GeoPixelSiCrystal & theSensor) :
 m_theSensor(theSensor)
@@ -1559,16 +1413,6 @@ double GeoPixelSubDisk::Thickness() {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelTubeCables.h"
-//#include "PixelGeoModel/GeoPixelLadderStruct.h"
-//#include "PixelGeoModel/GeoPixelCable.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-// #include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoTransform.h"
 
 GeoPixelTubeCables::GeoPixelTubeCables() {
   //
@@ -1678,8 +1522,6 @@ double GeoPixelTubeCables::Thickness() {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoVPixelFactory.h"
-
 using InDetDD::PixelDetectorManager;
 
 PixelDetectorManager * GeoVPixelFactory::m_DDmgr = 0;
@@ -1706,31 +1548,6 @@ void GeoVPixelFactory::SetDDMgr(PixelDetectorManager* mgr) {
 //                                                   //
 //---------------------------------------------------//
 
-#include "GeoModelKernel/GeoMaterial.h"
-//#include "PixelGeoModel/OraclePixGeoManager.h"
-
-// to permit access to StoreGate
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/IMessageSvc.h"
-#include "AthenaKernel/getMessageSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-
-// Joe's Material Manager
-#include "GeoModelInterfaces/StoredMaterialManager.h"
-#include "GeoModelUtilities/DecodeVersionKey.h"
-
-//
-// Get the pixelDD Manager from SG.
-//
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "StoreGate/StoreGate.h"
-#include "StoreGate/DataHandle.h"
-#include "RDBAccessSvc/IRDBAccessSvc.h"
-//
-// 
-//
-#include "CLHEP/Units/PhysicalConstants.h"
 
 using InDetDD::PixelDetectorManager; 
 
@@ -2468,10 +2285,6 @@ OraclePixGeoManager::getIdHelper()
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/PixelGeometryManager.h"
-//#include "PixelGeoModel/NovaPixGeoManager.h"
-//#include "PixelGeoModel/OraclePixGeoManager.h"
-#include <stdexcept>
 PixelGeometryManager* PixelGeometryManager::s_geometry_manager = 0;
 
 using namespace std;
