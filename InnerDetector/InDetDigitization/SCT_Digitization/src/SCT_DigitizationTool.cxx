@@ -50,6 +50,7 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string &type,
     m_onlyHitElements(false),
     m_HardScatterSplittingMode(0),
     m_HardScatterSplittingSkipper(false),
+    m_ComTime("ComTime"),
     m_detID(nullptr),
     m_detMgr(nullptr),
     m_sct_FrontEnd("SCT_FrontEnd", this),
@@ -335,8 +336,8 @@ StatusCode SCT_DigitizationTool::prepareEvent(unsigned int /*index*/) {
     ATH_CHECK(m_simDataCollMap.record(std::make_unique<InDetSimDataCollection>()));
 
     if (m_useComTime) {
-        if (StatusCode::SUCCESS == evtStore()->retrieve(m_ComTime, "ComTime")) {
-            m_comTime = m_ComTime->getTime();
+      if (m_ComTime.isValid()) {
+	    m_comTime = m_ComTime->getTime();
             m_sct_SurfaceChargesGenerator->setComTime(m_comTime);
             ATH_MSG_DEBUG(
                 "Found tool for cosmic/commissioning timing: ComTime");
