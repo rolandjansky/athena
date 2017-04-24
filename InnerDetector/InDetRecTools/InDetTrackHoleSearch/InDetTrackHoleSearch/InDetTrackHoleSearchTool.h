@@ -24,6 +24,7 @@ class Identifier;
 class AtlasID;
 class IInDetConditionsSvc;
 class ISCT_ConfigurationConditionsSvc;
+class ISCT_ByteStreamErrorsSvc;
 namespace InDet {class IInDetTestPixelLayerTool; }
 class IGeoModelSvc;
 
@@ -117,6 +118,9 @@ namespace InDet
       ServiceHandle <IInDetConditionsSvc> m_pixelCondSummarySvc, m_sctCondSummarySvc;
       ToolHandle< IInDetTestPixelLayerTool >  m_pixelLayerTool;
       ServiceHandle <ISCT_ConfigurationConditionsSvc> m_sctConfCondSvc;
+
+      /** Handle to ISCT_ByteStreamErrorsSvc*/
+      ServiceHandle <ISCT_ByteStreamErrorsSvc> m_sctBsErrSvc;
 
       /** Handle for IGeoModelSvc to retrieve geo model information */
       ServiceHandle<IGeoModelSvc> m_geoModelSvc;
