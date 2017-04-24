@@ -89,7 +89,8 @@ namespace InDet {
        std::bitset<200>& hitPatternITk,
        const std::map<std::string, int>& detectorTypesITk) const;
     
-    int m_startInclined = 4; //NP: Tempary solution to indicate at what eta_module the inclined start at
+    std::string m_geometryType;
+    unsigned int m_startInclined[5] = { 4, 5, 6, 7, 8 }; //NP: Tempary solution to indicate at what eta_module the inclined start at
     void searchForHoles(const Trk::Track& track, 
 			std::vector<int>& information ,
       std::map<std::string, int>& informationITk,
