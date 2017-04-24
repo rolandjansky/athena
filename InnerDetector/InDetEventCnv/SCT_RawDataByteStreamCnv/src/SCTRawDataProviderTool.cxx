@@ -10,6 +10,7 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "EventInfo/EventInfo.h"
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
+#include "StoreGate/ReadHandle.h"
 
 //using xAOD::EventInfo;
 
@@ -134,21 +135,19 @@ StatusCode SCTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
     //// retrieve EventInfo.  
     /// First the xAOD one
     bool setOK_xAOD = false;
-    const xAOD::EventInfo* xevtInfo_const;
-    sc = evtStore()->retrieve(xevtInfo_const);  
-    if (sc==StatusCode::SUCCESS) {
+    SG::ReadHandle<xAOD::EventInfo> xevtInfo_const;
+    if (xevtInfo_const.isValid()) {
       xAOD::EventInfo* xevtInfo=0;
-      xevtInfo=const_cast<xAOD::EventInfo*>(xevtInfo_const);
+      xevtInfo=const_cast<xAOD::EventInfo*>(&*xevtInfo_const);
       setOK_xAOD = xevtInfo->setErrorState(xAOD::EventInfo::SCT, xAOD::EventInfo::Error);
     } 
 
     /// Second the old-style one
     bool setOK_old = false;
-    const EventInfo* evtInfo_const;
-    sc = evtStore()->retrieve(evtInfo_const);  
-    if (sc==StatusCode::SUCCESS) {
+    SG::ReadHandle<EventInfo> evtInfo_const;
+    if (evtInfo_const.isValid()) {
       EventInfo* evtInfo = 0;
-      evtInfo =const_cast<EventInfo*>(evtInfo_const);
+      evtInfo =const_cast<EventInfo*>(&*evtInfo_const);
       setOK_old = evtInfo->setErrorState(EventInfo::SCT, EventInfo::Error);
     }
 
