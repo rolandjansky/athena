@@ -2056,10 +2056,6 @@ ps_cosmic_list=[
     'mu4_cosmic_L1MU4_EMPTY',
     'mu4_msonly_cosmic_L1MU11_EMPTY',
     'mu4_msonly_cosmic_L1MU4_EMPTY',
-    'tau1_cosmic_ptonly_L1MU4_EMPTY',
-    'tau1_cosmic_track_L1MU4_EMPTY',
-    'tau8_cosmic_ptonly',
-    'tau8_cosmic_track',
 ]
 ps_calibmon_list=[
     'alfacalib',
