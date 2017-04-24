@@ -19,6 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
+			  Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkEvent/TrkCompetingRIOsOnTrack
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkRIO_OnTrack
@@ -28,7 +29,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetTrackSummaryHelperTool
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TRT_ConditionsServicesLib TrkEventPrimitives TrkTrackSummary TrkToolInterfaces Identifier InDetIdentifier InDetPrepRawData InDetRIO_OnTrack InDetRecToolInterfaces TrkCompetingRIOsOnTrack TrkParameters TrkRIO_OnTrack TrkTrack )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TRT_ConditionsServicesLib TrkEventPrimitives TrkTrackSummary TrkToolInterfaces Identifier InDetIdentifier InDetPrepRawData InDetRIO_OnTrack InDetRecToolInterfaces TrkGeometry TrkCompetingRIOsOnTrack TrkParameters TrkRIO_OnTrack TrkTrack )
 
 # Install files from the package:
 atlas_install_headers( InDetTrackSummaryHelperTool )

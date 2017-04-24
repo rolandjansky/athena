@@ -61,6 +61,9 @@ InDet::InDetTrackSummaryHelperTool::InDetTrackSummaryHelperTool(
    declareProperty("useSCT",              m_useSCT   = true);
    declareProperty("useTRT",              m_useTRT   = true);
    declareProperty("OverwriteIDSummary",  m_overwriteidsummary = false);
+   
+   //Needed to define where to start inclined counters ... 
+   declareProperty("GeometryType", m_geometryType="default"); // is this needed?! HMmmmm
 
 }
 
@@ -133,6 +136,14 @@ StatusCode InDet::InDetTrackSummaryHelperTool::initialize()
       return StatusCode::FAILURE;
    } else {
       if ( !m_TRTStrawSummarySvc.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummarySvc << endreq;
+   }
+   
+   if( "Inclined_Quads" == m_geometryType ){
+     m_startInclined[0] = 6; m_startInclined[1] = 6; m_startInclined[2] = 8; m_startInclined[3] = 8; m_startInclined[4] = 8;
+   } else if ( "Inclined_Alternative" == m_geometryType ) {
+     m_startInclined[0] = 6; m_startInclined[1] = 6; m_startInclined[2] = 9; m_startInclined[3] = 13; m_startInclined[4] = 17;
+   } else if ( "Inclined_LightBarrel" == m_geometryType ) {
+     m_startInclined[0] = 6; m_startInclined[1] = 6; m_startInclined[2] = 8; m_startInclined[3] = 8; m_startInclined[4] = 9;
    }
 
    msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
@@ -412,7 +423,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
 	      }
 	    }
         if ( m_pixelId->is_barrel(id) ) { //Fill ITk Barrel layers
-          int layer = m_pixelId->layer_disk(id); //+1 just to fix the counter...
+          int layer = m_pixelId->layer_disk(id);
           if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Layer:  " << layer<<endreq; 
           if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "trk::counter: " << detectorTypesITk.at("itkPixelBarrelStart")+ layer<<endreq;
           if(!hitPattern.test(layer)) information[Trk::numberOfContribPixelLayers]++;
@@ -423,18 +434,19 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
           hitPatternITk.set(detectorTypesITk.at("itkPixelBarrelStart")+layer+1);
           if(isInclined){ //NP: If inclinded layout, fill inclined module hits
             //This works fine as long as there are 5 inclinded pixel layers
-            int itkPixelInclStart[5] = { detectorTypesITk.at("itkPixelIncl0Start"), detectorTypesITk.at("itkPixelIncl1Start"), detectorTypesITk.at("itkPixelIncl2Start"),detectorTypesITk.at("itkPixelIncl3Start"),detectorTypesITk.at("itkPixelIncl4Start")};
-            int module = fabs(m_pixelId->eta_module(id));
-            if( module > (layer+1) + m_startInclined) { //NP: Slightly bit hardcoded The indices for inclined modules...how do I get the start of the inclined? ...
+            unsigned int itkPixelInclStart[5] = { detectorTypesITk.at("itkPixelIncl0Start"), detectorTypesITk.at("itkPixelIncl1Start"), detectorTypesITk.at("itkPixelIncl2Start"),detectorTypesITk.at("itkPixelIncl3Start"),detectorTypesITk.at("itkPixelIncl4Start")};
+            
+            unsigned int module = fabs(m_pixelId->eta_module(id));
+            if( module >= m_startInclined[layer]) { //NP: Slightly bit hardcoded The indices for inclined modules...how do I get the start of the inclined? ...
               if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Layer: " << layer << endreq;
               if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Module:  " << module << endreq;
-              if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "trk::counter:  " << itkPixelInclStart[layer] + (module-layer-1-m_startInclined) << endreq;
-              if(itkPixelInclStart[layer]+(module-layer-1-m_startInclined)) informationITk["numberOfPixelInclHits"]++;
-              if(!hitPatternITk.test(itkPixelInclStart[layer] + (module-layer-1-m_startInclined))) {
+              if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "trk::counter:  " << itkPixelInclStart[layer] + (module-m_startInclined[layer]) << endreq;
+              if(itkPixelInclStart[layer]+(module-m_startInclined[layer])) informationITk["numberOfPixelInclHits"]++;
+              if(!hitPatternITk.test(itkPixelInclStart[layer] + (module-m_startInclined[layer]))) {
                 informationITk["numberOfContribPixelInclined"]++;
                 if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Filling contrib pixel Incl Modules" << endreq;
               }
-              hitPatternITk.set(itkPixelInclStart[layer] + (module-layer-1-m_startInclined));
+              hitPatternITk.set(itkPixelInclStart[layer] + (module-m_startInclined[layer]));
             }
             else { informationITk["numberOfContribPixelCentral"]++; }
           }
