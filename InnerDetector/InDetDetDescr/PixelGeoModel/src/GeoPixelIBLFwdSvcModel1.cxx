@@ -26,8 +26,7 @@
 #include <iomanip> 
 using std::max;
 
-GeoPixelIBLFwdSvcModel1::GeoPixelIBLFwdSvcModel1(int section): 
-  m_section(section),
+GeoPixelIBLFwdSvcModel1::GeoPixelIBLFwdSvcModel1(int /*section*/): 
   m_supportPhysA(0),
   m_supportPhysC(0),
   m_xformSupportA(0),
