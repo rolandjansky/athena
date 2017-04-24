@@ -99,7 +99,7 @@ namespace LVL1{
 
     mapSum::iterator it_map;
 
-    LVL1::TriggerTower *tt;
+    const LVL1::TriggerTower *tt;
     TriggerTowerCollection::const_iterator p_itTT = triggerTowerCollection.begin();
     TriggerTowerCollection::const_iterator p_itTTEnd = triggerTowerCollection.end();
 
