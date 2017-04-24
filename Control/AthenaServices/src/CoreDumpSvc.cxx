@@ -288,8 +288,8 @@ void CoreDumpSvc::setCoreDumpInfo( const std::string& name, const std::string& v
 {
   auto currSlot=Gaudi::Hive::currentContext().slot();
   if(currSlot==EventContext::INVALID_CONTEXT_ID)currSlot=0;
-  auto &m_usrCoreDump=m_usrCoreDumps.at(currSlot);
-  m_usrCoreDump[name] = value;
+  auto &usrCoreDump=m_usrCoreDumps.at(currSlot);
+  usrCoreDump[name] = value;
 }
 
 
