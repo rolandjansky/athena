@@ -17,7 +17,6 @@
 
 // Hit class includes
 #include "InDetSimEvent/SiHit.h"
-#include "InDetSimData/InDetSimDataCollection.h"
 #include "Identifier/Identifier.h"
 
 // Det Descr includes
@@ -85,7 +84,7 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string &type,
                     "Input Object name");
     declareProperty("OutputObjectName", m_rdoContainerKey = std::string("SCT_RDOs"),
                     "Output Object name");
-    declareProperty("OutputSDOName", m_outputSDOCollName = "SCT_SDO_Map",
+    declareProperty("OutputSDOName", m_simDataCollMapKey = std::string("SCT_SDO_Map"),
                     "Output SDO container name");
     declareProperty("RndmSvc", m_rndmSvc,
                     "Random Number Service used in SCT & Pixel digitization");
@@ -140,8 +139,9 @@ StatusCode SCT_DigitizationTool::initialize() {
         ATH_MSG_INFO("Use of Random disabled cells");
     }
 
-    // +++ Initialize WriteHandle
+    // +++ Initialize WriteHandleKey
     ATH_CHECK(m_rdoContainerKey.initialize());
+    ATH_CHECK(m_simDataCollMapKey.initialize());
 
     ATH_MSG_DEBUG("SiDigitizationTool::initialize() complete");
 
@@ -331,13 +331,8 @@ StatusCode SCT_DigitizationTool::prepareEvent(unsigned int /*index*/) {
     ATH_CHECK(m_rdoContainer.record(std::make_unique<SCT_RDO_Container>(m_detID->wafer_hash_max())));
 
     // Create a map for the SDO and register it into StoreGate
-    m_simDataCollMap = new  InDetSimDataCollection();
-    StatusCode sc = evtStore()->record(m_simDataCollMap, m_outputSDOCollName);
-    if (sc.isFailure()) {
-        ATH_MSG_FATAL("InDetSimData map '" << m_outputSDOCollName <<
-            "' could not be registered in StoreGate !");
-        return StatusCode::FAILURE;
-    }
+    m_simDataCollMap = SG::makeHandle(m_simDataCollMapKey);
+    ATH_CHECK(m_simDataCollMap.record(std::make_unique<InDetSimDataCollection>()));
 
     if (m_useComTime) {
         if (StatusCode::SUCCESS == evtStore()->retrieve(m_ComTime, "ComTime")) {
@@ -1008,7 +1003,7 @@ void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection *collection) {
 
         // add the simdata object to the map:
         if (real_particle_hit || m_createNoiseSDO) {
-            // m_simDataCollMap->insert(
+            // (*m_simDataCollMap).insert(
                 // std::make_pair(collection->getId((*i_chargedDiode).first),
                                // InDetSimData(deposits,
                                             // (*i_chargedDiode).second.flag())));
@@ -1035,7 +1030,7 @@ void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection *collection) {
             id_readout = m_detID->strip_id(collection->identify(),row2D, strip2D);
           }
 
-          m_simDataCollMap->insert(
+          (*m_simDataCollMap).insert(
             std::make_pair(id_readout,
                            InDetSimData(deposits,
                                         (*i_chargedDiode).second.flag())));

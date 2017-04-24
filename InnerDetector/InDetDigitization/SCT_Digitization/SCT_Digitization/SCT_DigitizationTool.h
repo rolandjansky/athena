@@ -21,6 +21,7 @@
 #include "HitManagement/TimedHitCollection.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/InDetRawDataCollection.h"
+#include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimEvent/SiHitCollection.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
@@ -166,8 +167,7 @@ private:
   ComTime*        m_ComTime ; //!< Tool to retrieve commissioning timing info from SG
 
   const SCT_ID*                                      m_detID;                             //!< Handle to the ID helper
-  const InDetDD::SCT_DetectorManager*                m_detMgr;
-              //!< Handle to Si detector manager
+  const InDetDD::SCT_DetectorManager*                m_detMgr;                            //!< Handle to Si detector manager
   ToolHandle<ISCT_FrontEnd>                          m_sct_FrontEnd;                      //!< Handle the Front End Electronic tool
   ToolHandle<ISCT_SurfaceChargesGenerator>           m_sct_SurfaceChargesGenerator;       //!< Handle the surface chage generator tool
   ToolHandle<ISCT_RandomDisabledCellGenerator>       m_sct_RandomDisabledCellGenerator;   //!< Handle the Ampilifier tool for the Front End
@@ -175,11 +175,11 @@ private:
   std::vector<SiHitCollection*> m_hitCollPtrs;
 
   SG::WriteHandleKey<SCT_RDO_Container>              m_rdoContainerKey; //!< RDO container key
-  SG::WriteHandle<SCT_RDO_Container>                 m_rdoContainer;
-  InDetSimDataCollection   *                         m_simDataCollMap;                    //!< SDO Map
+  SG::WriteHandle<SCT_RDO_Container>                 m_rdoContainer; //!< RDO container handle
+  SG::WriteHandleKey<InDetSimDataCollection>         m_simDataCollMapKey; //!< SDO Map key
+  SG::WriteHandle<InDetSimDataCollection>            m_simDataCollMap; //!< SDO Map handle
 
   std::string                                        m_inputObjectName;     //! name of the sub event  hit collections.
-  std::string                                        m_outputSDOCollName;    //! name of the output SDOs.
   ServiceHandle <IAtRndmGenSvc>                      m_rndmSvc;             //!< Random number service
   ServiceHandle <PileUpMergeSvc> m_mergeSvc; //!
 
