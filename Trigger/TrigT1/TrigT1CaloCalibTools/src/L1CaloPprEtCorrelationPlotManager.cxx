@@ -73,7 +73,7 @@ StatusCode L1CaloPprEtCorrelationPlotManager::getCaloCells()
     
     const CaloCellContainer* caloCellContainer = 0;
     
-    if (!isOnline){
+    if (!m_isOnline){
       
         sc = m_storeGate->retrieve(caloCellContainer, m_caloCellContainerName);
 	if ( sc.isFailure() || !caloCellContainer) {
@@ -157,7 +157,7 @@ void L1CaloPprEtCorrelationPlotManager::loadTools()
 {
     StatusCode sc;
     
-    if (isOnline) {
+    if (m_isOnline) {
         sc = m_caloTool.retrieve();
 	if ( sc.isFailure()) {
 	    *m_log<<MSG::WARNING<<"Unable to locate tool L1CaloMonitoringCaloTool" << endmsg;
