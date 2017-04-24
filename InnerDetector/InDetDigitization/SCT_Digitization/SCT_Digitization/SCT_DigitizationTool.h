@@ -176,11 +176,9 @@ private:
 
   SG::WriteHandleKey<SCT_RDO_Container>              m_rdoContainerKey; //!< RDO container key
   SG::WriteHandle<SCT_RDO_Container>                 m_rdoContainer;
-  //  SCT_RDO_Container        *                         m_rdocontainer ;                     //!< RDO container
   InDetSimDataCollection   *                         m_simDataCollMap;                    //!< SDO Map
 
   std::string                                        m_inputObjectName;     //! name of the sub event  hit collections.
-  //  std::string                                        m_outputRDOCollName;    //! name of the output RDOs.
   std::string                                        m_outputSDOCollName;    //! name of the output SDOs.
   ServiceHandle <IAtRndmGenSvc>                      m_rndmSvc;             //!< Random number service
   ServiceHandle <PileUpMergeSvc> m_mergeSvc; //!

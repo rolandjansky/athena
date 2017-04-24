@@ -327,26 +327,8 @@ StatusCode SCT_DigitizationTool::prepareEvent(unsigned int /*index*/) {
     ATH_MSG_VERBOSE("SCT_DigitizationTool::prepareEvent()");
     // Create the IdentifiableContainer to contain the digit collections Create
     // a new RDO container
-    // try
-    // {
-    //     m_rdocontainer = new SCT_RDO_Container(m_detID->wafer_hash_max());
-    // }
-    // catch (std::bad_alloc)
-    // {
-    //     ATH_MSG_FATAL("Could not create a new SCT RawDataContainer !");
-    //     return StatusCode::FAILURE;
-    // }
     m_rdoContainer = SG::makeHandle(m_rdoContainerKey);
-    m_rdoContainer = CxxUtils::make_unique<SCT_RDO_Container>(m_detID->wafer_hash_max());
-    ATH_CHECK(m_rdoContainer.isValid());
-
-    // register RDO container with storegate
-    //    StatusCode sc = evtStore()->record(m_rdocontainer, m_outputRDOCollName);
-    //    if (sc.isFailure()) {
-    //        ATH_MSG_FATAL("Container '" << m_outputRDOCollName <<
-    //            "' could not be registered in StoreGate !");
-    //        return StatusCode::FAILURE;
-    //    }
+    ATH_CHECK(m_rdoContainer.record(std::make_unique<SCT_RDO_Container>(m_detID->wafer_hash_max())));
 
     // Create a map for the SDO and register it into StoreGate
     m_simDataCollMap = new  InDetSimDataCollection();
@@ -714,7 +696,7 @@ StatusCode SCT_DigitizationTool::createAndStoreRDO(
     int barrelec(m_detID->barrel_ec(id_coll));
 
     if (!m_barrelonly || std::abs(barrelec) <= 1) {
-      if ((&(*m_rdoContainer))->addCollection(RDOColl,
+      if ((*m_rdoContainer).addCollection(RDOColl,
                                           RDOColl->identifyHash()).isFailure())
         {
             ATH_MSG_FATAL(
