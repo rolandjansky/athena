@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/Identifier
                           InnerDetector/InDetRecTools/TRT_ToT_Tools
+			  InnerDetector/InDetDetDescr/InDetIdentifier
                           Tracking/TrkDetDescr/TrkDetElementBase
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkEvent/TrkCompetingRIOsOnTrack
@@ -29,7 +30,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TrkTrackSummaryTool
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps DataModel GaudiKernel TrkParameters TrkTrackSummary TrkToolInterfaces AtlasDetDescr Identifier TrkDetElementBase TrkGeometry TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMeasurementBase TrkRIO_OnTrack TrkTrack )
+                     LINK_LIBRARIES AthenaBaseComps DataModel GaudiKernel TrkParameters TrkTrackSummary TrkToolInterfaces AtlasDetDescr Identifier InDetIdentifier TrkDetElementBase TrkGeometry TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMeasurementBase TrkRIO_OnTrack TrkTrack )
 
 # Install files from the package:
 atlas_install_headers( TrkTrackSummaryTool )
