@@ -202,8 +202,8 @@ void TrigEgammaPlotTool::setBinning(){
     m_defaultEtabins.insert(m_defaultEtabins.end(), &default_eta_bins[0], &default_eta_bins[m_ndefaultEtabins+1]);
     m_coarseEtbins.insert(m_coarseEtbins.end(), &coarse_et_bins[0], &coarse_et_bins[m_ncoarseEtbins+1]);
     m_coarseEtabins.insert(m_coarseEtabins.end(), &coarse_eta_bins[0], &coarse_eta_bins[m_ncoarseEtabins+1]);
-    m_minBin_ringer.insert(m_minBin_ringer.end(), &minBin_ringer[0], &minBin_ringer[100+1]);
-    m_maxBin_ringer.insert(m_maxBin_ringer.end(), &maxBin_ringer[0], &maxBin_ringer[100+1]);
+    m_minBin_ringer.insert(m_minBin_ringer.end(), &minBin_ringer[0], &minBin_ringer[100]);
+    m_maxBin_ringer.insert(m_maxBin_ringer.end(), &maxBin_ringer[0], &maxBin_ringer[100]);
 }
 
 StatusCode TrigEgammaPlotTool::book(std::map<std::string,TrigInfo> trigInfo){
