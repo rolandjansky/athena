@@ -136,6 +136,19 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
         ATH_MSG_DEBUG("Fails EventWise selection");
         return StatusCode::SUCCESS;
     }
+    // Check for Rnn container in SG
+    if(m_storeGate->contains<xAOD::TrigRNNOutputContainer>("HLT_xAOD__TrigRNNOutputContainer_TrigRingerNeuralFex")){
+        setSGContainsRnn(true);
+    }
+    if(m_storeGate->contains<xAOD::TrigPhotonContainer>("HLT_xAOD__TrigPhotonContainer_L2PhotonFex")){
+        setSGContainsTrigPhoton(true);
+    }
+    ATH_MSG_DEBUG("Rnn container in SG " << getSGContainsRnn());
+    ATH_MSG_DEBUG("TrigPhotonContainer in SG " << getSGContainsTrigPhoton());
+    for( const auto& tool : m_tools) {
+        tool->setSGContainsRnn(getSGContainsRnn());
+        tool->setSGContainsTrigPhoton(getSGContainsTrigPhoton());
+    }
     // Event Wise Selection (independent of the required signatures)
     hist1(m_anatype+"_CutCounter")->Fill("EventWise",1);
     // Select TP Pairs
