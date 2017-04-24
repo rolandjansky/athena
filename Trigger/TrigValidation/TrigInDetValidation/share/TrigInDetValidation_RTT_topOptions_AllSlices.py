@@ -106,7 +106,7 @@ def resetSigs():
   TriggerFlags.BjetSlice.setAll();
   TriggerFlags.BjetSlice.signatures = bjetChainlist
 
-  TriggerFlags.MinBiasSlice.setAll();
-  TriggerFlags.MinBiasSlice.signatures = minBiasChainlist
+#  TriggerFlags.MinBiasSlice.setAll();
+#  TriggerFlags.MinBiasSlice.signatures = minBiasChainlist
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
