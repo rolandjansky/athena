@@ -48,17 +48,15 @@ class eflowMomentCalculatorToolDefault(eflowMomentCalculatorTool) :
             ,"SECOND_ENG_DENS"
             ,"ISOLATION"
             ,"EM_PROBABILITY"
+            ,"ENG_POS"
+            ,"ENG_BAD_CELLS"
+            ,"N_BAD_CELLS"
+            ,"BADLARQ_FRAC"
+            ,"AVG_LAR_Q"
+            ,"AVG_TILE_Q"
+            ,"SIGNIFICANCE"
             ]
 
-        #ClusterMomentsMaker.AODMomentsNames = [
-        #    "LATERAL"
-        #    ,"LONGITUDINAL"
-        #    ,"SECOND_R"
-        #    ,"SECOND_LAMBDA"
-        #    ,"CENTER_LAMBDA"
-        ##    ,"FIRST_ENG_DENS"
-        #    ,"ENG_FRAC_MAX"
-        #    ,"ISOLATION"]   
 
         self.CaloClusterMomentsMaker=ClusterMomentsMaker
 
