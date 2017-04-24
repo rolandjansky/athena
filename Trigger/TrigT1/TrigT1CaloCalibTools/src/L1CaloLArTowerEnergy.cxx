@@ -83,13 +83,13 @@ namespace LVL1{
     sc = m_ttTool->retrieveConditions();
     if(!sc.isSuccess()) {
       ATH_MSG_ERROR( "Cannot retrieve Conditions in L1TriggerTowerTool." );
-      return StatusCode::RECOVERABLE;
+      return false;
     }
 
     // init trigger tower to cell mapping - needed each event?
     if(!m_cells2tt->initCaloCellsTriggerTowers(caloCellContainer)) {
       ATH_MSG_ERROR( "Can not initialize L1CaloCells2TriggerTowers with CaloCellContainer "<< m_caloCellContainerName );
-      return StatusCode::RECOVERABLE;
+      return false;
     }
 
     Identifier TTid;
