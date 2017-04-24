@@ -96,8 +96,18 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     else:
         mlog.info("use high gain in Fcal digitization or overlay job")
 
+    # check if using high gain for EMEC IW or not
+    if (not jobproperties.LArDigitizationFlags.useEmecIwHighGain()) and (not isOverlay()):
+       mlog.info("do not use high gain in EMEC IW digitization ")
+       kwargs.setdefault('HighGainThreshEMECIW',0)
+
     kwargs.setdefault('RndmEvtOverlay', isOverlay() )
     kwargs.setdefault('DigitContainer', 'LArDigitContainer_MC' ) ##FIXME - should not be hard-coded
+
+    # if doing MC+MC overlay
+    from AthenaCommon.GlobalFlags import globalflags
+    if isOverlay() and globalflags.DataSource() == 'geant4':
+        kwargs.setdefault('isMcOverlay',True)
 
     from LArROD.LArRODFlags import larRODFlags
     kwargs.setdefault('Nsamples', larRODFlags.nSamples() )

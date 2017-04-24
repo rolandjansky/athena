@@ -160,9 +160,9 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   float m_WindowsPhiSize;
   float m_WindowsPtCut;
 //
-  enum CaloNum{EM,HEC,FCAL};
-  double m_LowGainThresh[3];       // energy thresholds for the low gain
-  double m_HighGainThresh[3];      // energy thresholds for the high gain
+  enum CaloNum{EM,HEC,FCAL,EMIW};
+  double m_LowGainThresh[4];       // energy thresholds for the low gain
+  double m_HighGainThresh[4];      // energy thresholds for the high gain
   double m_EnergyThresh;           // Zero suppression energy threshold
   //double m_AdcPerGeV;              // adc = UnCalibretedEnergy*Gain/m_AdcPerGeV + Pedestal
   int    m_NSamples;               // number of samples in Digit
@@ -172,6 +172,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   bool m_rndmEvtRun;               // use run,event number for random number seeding
   bool m_useTriggerTime;
   bool m_RndmEvtOverlay;         // Pileup and noise added by overlaying random events
+  bool m_isMcOverlay;             // true if input RDO for overlay are from MC, false if from data 
   bool m_useBad;
   std::string m_RandomDigitContainer; // random digit container name list
 

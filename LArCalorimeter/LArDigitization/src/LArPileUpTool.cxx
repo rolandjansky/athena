@@ -92,6 +92,8 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   m_HighGainThresh[HEC]  = 0;//-> high-gain never used for HEC
   m_LowGainThresh[FCAL]  = 2000.;//ADC counts in Medium Gain
   m_HighGainThresh[FCAL] = 1100.;//ADCcounts in MediumGain
+  m_LowGainThresh[EMIW]    = 3900;//ADC counts in MediumGain
+  m_HighGainThresh[EMIW]   = 1300;//ADC counts in MediumGain
   m_EnergyThresh      = -99.;
   m_PileUp            = false;
   m_Windows           = false;
@@ -106,6 +108,7 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   m_rndmSvc           = "AtRndmGenSvc";
   m_rndmEvtRun        = false;
   m_RndmEvtOverlay    = false;
+  m_isMcOverlay       = false;
   m_useBad            = true;
   m_RandomDigitContainer = "LArDigitContainer_Random";
   m_pedestalKey       = "LArPedestal";
@@ -147,6 +150,8 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   declareProperty("HighGainThreshHEC",m_HighGainThresh[HEC],"Medium/High gain transition in HEC");
   declareProperty("LowGainThreshFCAL",m_LowGainThresh[FCAL],"Medium/Low gain transition in FCAL");
   declareProperty("HighGainThreshFCAL",m_HighGainThresh[FCAL],"Medium/High gain transition in FCAL");
+  declareProperty("LowGainThreshEMECIW",m_LowGainThresh[EMIW],"Medium/Low gain transition in EMEC IW");
+  declareProperty("HighGainThreshEMECIW",m_HighGainThresh[EMIW],"Medium/High gain transition in EMEC IW");
   declareProperty("EnergyThresh",m_EnergyThresh,"Hit energy threshold (default=-99)");
   declareProperty("PileUp",m_PileUp,"Pileup mode (default=false)");
   declareProperty("Windows",m_Windows,"Window mode (produce digits only around true e/photon) (default=false)");
@@ -166,6 +171,7 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   declareProperty("MaskingTool",m_maskingTool,"Tool handle for dead channel masking");
   declareProperty("BadChannelTool",m_badChannelTool,"Tool handle for bad channel access");
   declareProperty("RndmEvtOverlay",m_RndmEvtOverlay,"Pileup and/or noise added by overlaying random events (default=false)");
+  declareProperty("isMcOverlay",m_isMcOverlay,"Is input Overlay from MC or data (default=false, from data)");
   declareProperty("RandomDigitContainer",m_RandomDigitContainer,"Name of random digit container");
   declareProperty("PedestalKey",m_pedestalKey,"SG Key of the LArPedestal object");
   declareProperty("UseMBTime",m_useMBTime,"use detailed hit time from MB events in addition to bunch crossing time for pileup (default=false)");
@@ -199,6 +205,8 @@ StatusCode LArPileUpTool::initialize()
     m_NoiseOnOff = false ;
     m_PileUp = true ;
     ATH_MSG_INFO(" pileup and/or noise added by overlaying digits of random events");
+    if (m_isMcOverlay) ATH_MSG_INFO("   random events are from MC ");
+    else               ATH_MSG_INFO("   random events are from data ");
   }
   else
   {
@@ -560,10 +568,10 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
     return StatusCode::FAILURE;
   }
   //
-  // ..... get OFC pointer for overlay case
+  // ..... get OFC pointer for overlay case (only for data)
 
   m_larOFC=NULL;
-  if(m_RndmEvtOverlay) {
+  if(m_RndmEvtOverlay && !m_isMcOverlay) { 
     sc=detStore()->retrieve(m_larOFC);
     if (sc.isFailure())
     {
@@ -1810,7 +1818,10 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
 
 
   int iCalo=0;
-  if(m_larem_id->is_lar_em(cellId))   iCalo=EM;
+  if(m_larem_id->is_lar_em(cellId)) {
+     if (m_larem_id->is_em_endcap_inner(cellId)) iCalo=EMIW;
+     else iCalo=EM;
+  }
   if(m_larem_id->is_lar_hec(cellId))  iCalo=HEC;
   if(m_larem_id->is_lar_fcal(cellId)) iCalo=FCAL;
 
@@ -1875,8 +1886,9 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
 
 // in case Medium or low gain, take into account ramp intercept in ADC->"energy" computation
 //   this requires to take into account the sum of the optimal filter coefficients, as they don't compute with ADC shift
+//   for MC there is no ramp intercept => not needed
      float adc0=0.;
-     if (m_larOFC && rndmEvtDigit->gain()>0) {
+     if (!m_isMcOverlay && m_larOFC && rndmEvtDigit->gain()>0) {
         ILArOFC::OFCRef_t ofc_a = m_larOFC->OFC_a(ch_id,rndmEvtDigit->gain(),0);
         float sumOfc=0.;
         if (ofc_a.size()>0) {
@@ -1969,7 +1981,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
 //
 
   int BvsEC=0;
-  if(iCalo==EM) BvsEC=abs(m_larem_id->barrel_ec(cellId));
+  if(iCalo==EM || iCalo==EMIW) BvsEC=abs(m_larem_id->barrel_ec(cellId));
 
   if(    m_NoiseOnOff
       && (    (BvsEC==1 && m_NoiseInEMB)
@@ -2022,7 +2034,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
 
 // in case Medium or low gain, take into account ramp intercept in energy->ADC computation
 //   this requires to take into account the sum of the optimal filter coefficients, as they don't compute with ADC shift
-  if(m_RndmEvtOverlay  && igain>0 && m_larOFC)
+  if(!m_isMcOverlay && m_RndmEvtOverlay  && igain>0 && m_larOFC)
   {
     float sumOfc=0.;
     ILArOFC::OFCRef_t ofc_a = m_larOFC->OFC_a(ch_id,igain,0);
