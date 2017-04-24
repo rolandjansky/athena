@@ -4,8 +4,6 @@
 
 #include "SCT_TimeWalkGenerator.h"
 
-#include "CommissionEvent/ComTime.h"
-
 // STL classes
 #include <cmath>
 
@@ -18,7 +16,7 @@
 SCT_TimeWalkGenerator::SCT_TimeWalkGenerator(const std::string& type, const std::string& name,const IInterface* parent )
   : AthAlgTool(type,name,parent),
     m_comTime(0),
-    m_ComTime(0),
+    m_ComTime("ComTime"),
     m_rndmEngine(0)
 {
   declareInterface< ISCT_TimeWalkGenerator >( this );
@@ -41,10 +39,9 @@ StatusCode SCT_TimeWalkGenerator::initialize() {
   //**  ComTime for Cosmic Simulation in Pit 
   if (m_useComTimeFlag) {
     // Retrieve Com time for Cosmic Simulation in Pit  
-    sc = evtStore()->retrieve(m_ComTime,"ComTime") ;
-    if (sc.isFailure()) {
+    if (not m_ComTime.isValid()) {
       ATH_MSG_ERROR ( "\tDid not find tool needed for cosmic/commissioning timing: ComTime "<<m_ComTime);
-      return sc ;
+      return StatusCode::FAILURE ;
     }
     m_comTime = m_ComTime->getTime() ;
     ATH_MSG_INFO ( "\tFound tool for cosmic/commissioning timing: ComTime " <<m_ComTime ) ;

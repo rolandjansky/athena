@@ -19,7 +19,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_Digitization/ISCT_TimeWalkGenerator.h"
 
-class ComTime;
+#include "CommissionEvent/ComTime.h"
+#include "StoreGate/ReadHandle.h"
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -63,7 +64,7 @@ class SCT_TimeWalkGenerator : public AthAlgTool, virtual public ISCT_TimeWalkGen
   double m_comTime;                        //!< use cosmics time for timing 
 
   bool      m_useComTimeFlag;              //!< Flag to decide the use of cosmics time for timing
-  ComTime*  m_ComTime ;                    //!< Tool to retrieve commissionning timing info from SG
+  SG::ReadHandle<ComTime> m_ComTime ;                    //!< Handle to retrieve commissionning timing info from SG
 
   CLHEP::HepRandomEngine *m_rndmEngine;    //!< random number generation engine
 
