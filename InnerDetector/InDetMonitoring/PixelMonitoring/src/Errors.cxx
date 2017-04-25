@@ -162,11 +162,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
       }
 
       for (unsigned int y = 1; y <= m_errhist_per_type_LB[i]->GetYaxis()->GetNbins(); y++) {
-         if (i < PixLayerIBL2D3D::kIBL) {
-            m_errhist_per_type_LB[i]->GetYaxis()->SetBinLabel(y, error_type_labels[y-1].second.c_str());
-         } else {
-            m_errhist_per_type_LB[i]->GetYaxis()->SetBinLabel(y, error_type_labels[y-1].second.c_str());
-         }
+         m_errhist_per_type_LB[i]->GetYaxis()->SetBinLabel(y, error_type_labels[y-1].second.c_str());
       }
 
       const std::string tmp[ErrorCategory::COUNT] = {"SyncErrorsFrac_per_event", "TruncationErrorsFrac_per_event", "OpticalErrorsFrac_per_event", "SEUErrorsFrac_per_event", "TimeoutErrorsFrac_per_event"};
