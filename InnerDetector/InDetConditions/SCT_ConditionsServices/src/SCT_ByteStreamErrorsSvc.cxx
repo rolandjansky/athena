@@ -648,11 +648,13 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
     if(firstTempMaskedChip_side0>0) {
       for(int iChip(firstTempMaskedChip_side0-1); iChip<6; iChip++) {
 	_tempMaskedChips |= (1<<iChip);
+	addError(hash_side0, SCT_ByteStreamErrors::TempMaskedChip0+iChip);
       }
     }
     if(firstTempMaskedChip_side1>6) {
       for(int iChip(firstTempMaskedChip_side1-1); iChip<12; iChip++) {
 	_tempMaskedChips |= (1<<iChip);
+	addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+iChip);
       }
     }
   } else if(type==1) {
@@ -661,6 +663,8 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
     if(firstTempMaskedChip_side0>0) {
       for(int iChip(firstTempMaskedChip_side0-1); iChip<12; iChip++) {
 	_tempMaskedChips |= (1<<iChip);
+	if(iChip<6) addError(hash_side0, SCT_ByteStreamErrors::TempMaskedChip0+iChip);
+	else        addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+iChip-6);
       }
     }
   } else {
@@ -672,6 +676,8 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
 	int jChip(iChip);
 	if(jChip>=12) jChip -= 12;
 	_tempMaskedChips |= (1<<jChip);
+	if(jChip<6) addError(hash_side0, SCT_ByteStreamErrors::TempMaskedChip0+jChip);
+	else        addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+jChip-6);
       }
     }
   }
