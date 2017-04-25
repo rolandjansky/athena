@@ -18,9 +18,12 @@
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimEvent/SiHitCollection.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
+#include "InDetRawData/SCT_RDO_Container.h"
 #include "xAODTracking/TrackMeasurementValidation.h"
+#include "xAODTracking/TrackMeasurementValidationContainer.h"
 
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 #include <string>
 
@@ -74,6 +77,9 @@ private:
   SG::ReadHandleKey<InDetSimDataCollection>  m_SDOcontainer;
   SG::ReadHandleKey<SiHitCollection>  m_sihitContainer;
   SG::ReadHandleKey<PRD_MultiTruthCollection>  m_multiTruth;
+  SG::ReadHandleKey<SCT_RDO_Container>  m_rdoContainer;
+  SG::WriteHandleKey<xAOD::TrackMeasurementValidationContainer>  m_xAodContainer;
+  SG::WriteHandleKey<std::vector<unsigned int> >  m_xAodOffset;
 
   bool  m_useTruthInfo;
   bool  m_writeRDOinformation;

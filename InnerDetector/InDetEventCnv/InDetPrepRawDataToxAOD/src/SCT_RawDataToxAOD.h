@@ -10,10 +10,14 @@
 #include <string>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/ReadHandleKey.h"
 
+// StoreGate Data Handle Key
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 // SCT ntuple container type
 #include "InDetRawData/SCT_RDO_Container.h"
+// xAOD container type
+#include "xAODTracking/SCTRawHitValidationContainer.h"
 
 class ISvcLocator;
 class SCT_ID;
@@ -33,6 +37,7 @@ private:
 
   std::string m_clustercontainer;
   SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerName;
+  SG::WriteHandleKey<xAOD::SCTRawHitValidationContainer> m_xAodRawHitContainerName;
 };
 
 #endif

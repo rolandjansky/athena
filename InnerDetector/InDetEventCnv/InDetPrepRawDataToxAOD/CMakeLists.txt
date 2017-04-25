@@ -8,9 +8,9 @@ atlas_subdir( InDetPrepRawDataToxAOD )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
-                          Control/StoreGate
                           PRIVATE
                           Control/AthenaBaseComps
+                          Control/StoreGate
                           DetectorDescription/Identifier
                           Event/xAOD/xAODTracking
                           InnerDetector/InDetConditions/PixelConditionsServices

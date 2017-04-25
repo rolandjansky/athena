@@ -9,13 +9,11 @@
 
 #include "SCT_PrepDataToxAOD.h"
 
-#include "xAODTracking/TrackMeasurementValidationContainer.h"
 #include "xAODTracking/TrackMeasurementValidationAuxContainer.h"
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
 
-#include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/SCT_RDO_Collection.h"
 
 #include "HepMC/GenParticle.h"
@@ -24,6 +22,7 @@
 #include "CLHEP/Geometry/Point3D.h"
 
 #include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -47,6 +46,9 @@ SCT_PrepDataToxAOD::SCT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSv
   declareProperty("MC_SDOs", m_SDOcontainer = std::string("SCT_SDO_Map"));
   declareProperty("MC_Hits", m_sihitContainer = std::string("SCT_Hits"));
   declareProperty("PRD_MultiTruth", m_multiTruth = std::string("PRD_MultiTruthSCT"));
+  declareProperty("SctRdoContainer", m_rdoContainer = std::string("SCT_RDOs"));
+  declareProperty("SctxAodContainer", m_xAodContainer = std::string("SCT_Clusters"));
+  declareProperty("SctxAodOffset", m_xAodOffset = std::string("SCT_ClustersOffsets"));
 
   // --- Services and Tools
 }
@@ -75,6 +77,9 @@ StatusCode SCT_PrepDataToxAOD::initialize()
   ATH_CHECK( m_SDOcontainer.initialize(m_writeSDOs) );
   ATH_CHECK( m_sihitContainer.initialize(m_writeSiHits) );
   ATH_CHECK( m_multiTruth.initialize(m_useTruthInfo) );
+  ATH_CHECK( m_rdoContainer.initialize(m_writeRDOinformation) );
+  ATH_CHECK( m_xAodContainer.initialize() );
+  ATH_CHECK( m_xAodOffset.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -86,11 +91,10 @@ StatusCode SCT_PrepDataToxAOD::initialize()
 /////////////////////////////////////////////////////////////////////
 StatusCode SCT_PrepDataToxAOD::execute() 
 {     
-  SG::ReadHandle<SCT_RDO_Container> rdoContainer("SCT_RDOs");
-   
   // the cluster ambiguity map
   if ( m_writeRDOinformation ) {
-    if(!evtStore()->contains<SCT_RDO_Container>("SCT_RDOs")){
+    SG::ReadHandle<SCT_RDO_Container> rdoContainer(m_rdoContainer);
+    if(!evtStore()->contains<SCT_RDO_Container>(m_rdoContainer.key())){
       if (m_firstEventWarnings) {
 	ATH_MSG_WARNING("RDO ASSOC: No SCT RDO container in StoreGate");
       }
@@ -132,14 +136,12 @@ StatusCode SCT_PrepDataToxAOD::execute()
   }
 
   // Create the xAOD container and its auxiliary store:
-  xAOD::TrackMeasurementValidationContainer* xaod = new xAOD::TrackMeasurementValidationContainer();
-  CHECK( evtStore()->record( xaod, m_clustercontainer.key() ) );
-  xAOD::TrackMeasurementValidationAuxContainer* aux = new xAOD::TrackMeasurementValidationAuxContainer();
-  CHECK( evtStore()->record( aux, m_clustercontainer.key() + "Aux." ) );
-  xaod->setStore( aux );
+  SG::WriteHandle<xAOD::TrackMeasurementValidationContainer> xaod(m_xAodContainer);
+  ATH_CHECK( xaod.record(std::make_unique<xAOD::TrackMeasurementValidationContainer>(),
+			 std::make_unique<xAOD::TrackMeasurementValidationAuxContainer>()) );
   
-  std::vector<unsigned int>* offsets = new std::vector<unsigned int>( m_SCTHelper->wafer_hash_max(), 0 );
-  CHECK( evtStore()->record( offsets, m_clustercontainer.key() + "Offsets" ) );
+  SG::WriteHandle<std::vector<unsigned int> > offsets(m_xAodOffset);
+  ATH_CHECK( offsets.record(std::make_unique<std::vector<unsigned int> >( m_SCTHelper->wafer_hash_max(), 0 )) );
   
   // Loop over the container
   unsigned int counter(0);
