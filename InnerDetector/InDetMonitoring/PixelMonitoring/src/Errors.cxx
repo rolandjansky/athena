@@ -168,16 +168,16 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
       }
 
       hname = makeHistname(("errors_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average number of errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
+      htitles = makeHisttitle(("Average Total Errors, "+modlabel2[i]), (atext_LB+atext_err), false);
       sc = rodHistos.regHist(m_errhist_tot_LB[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
 
       hname = makeHistname(("ErrorBit_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average Errors per module per event, "+modlabel2[i]), (atext_LB+atext_erb+atext_err), false);
+      htitles = makeHisttitle(("Average Errors by Error Bits, "+modlabel2[i]), (atext_LB+atext_erb+atext_erf), false);
       sc = rodHistos.regHist(m_errhist_per_bit_LB[i] = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB, 31, 0., 31.));
       m_errhist_per_bit_LB[i]->SetOption("colz");
 
       hname = makeHistname(("Error_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average Errors per module per event, "+modlabel2[i]), (atext_LB+atext_ers+atext_err), false);
+      htitles = makeHisttitle(("Average Errors by Error Types, "+modlabel2[i]), (atext_LB+atext_ers+atext_err), false);
       sc = rodHistos.regHist(m_errhist_per_type_LB[i] = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB, 7, 0., 7.));
       m_errhist_per_type_LB[i]->SetOption("colz");
 
@@ -198,7 +198,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
       const std::string tmp[ErrorCategory::COUNT] = {"SyncErrorsFrac_per_event", "TruncationErrorsFrac_per_event", "OpticalErrorsFrac_per_event", "SEUErrorsFrac_per_event", "TimeoutErrorsFrac_per_event"};
       for (int j = 0; j < ErrorCategory::COUNT; j++) {
          hname = makeHistname((tmp[j]+"_"+modlabel2[i]), false);
-         htitles = makeHisttitle((tmp[j]+", "+modlabel2[i]), (atext_LB+atext_erf), false);
+         htitles = makeHisttitle(("Average " + error_cat_labels[j].second + " per Module" + ", " + modlabel2[i]), (atext_LB + atext_erf), false);
          sc = rodHistos.regHist(m_errhist_errcat_avg[j][i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
       }
 
@@ -227,11 +227,11 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
 
    if (m_do2DMaps && !m_doOnline) {
       for (int i = 0; i < ErrorCategoryMODROD::COUNT - 3; i++) {
-         m_errhist_errtype_map[i] = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW(error_type_labels[i].first, (error_type_labels[i].second + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true));
+         m_errhist_errtype_map[i] = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW(error_type_labels[i].first, ("Total " + error_type_labels[i].second + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true));
          sc = m_errhist_errtype_map[i]->regHist(rodHistos);
       }
       for (int i = 0; i < ErrorCategory::COUNT; i++) {
-         m_errhist_errcat_map[i] = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW(error_cat_labels[i].first.c_str(), (error_cat_labels[i].second + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true));
+         m_errhist_errcat_map[i] = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW(error_cat_labels[i].first, ("Total " + error_cat_labels[i].second + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true));
          sc = m_errhist_errcat_map[i]->regHist(rodHistos);
       }
    }
