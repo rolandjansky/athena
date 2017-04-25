@@ -350,14 +350,14 @@ SCT_ByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
   const Identifier wafer_id(m_sct_id->wafer_id(elementIdHash));
   const Identifier module_id(m_sct_id->module_id(wafer_id));
   unsigned int badChips(m_config->badChips(module_id));
-  unsigned int _tempMaskedChips(tempMaskedChips(module_id));
+  unsigned int tempMaskedChips2(tempMaskedChips(module_id));
   const int side(m_sct_id->side(wafer_id));
   short id(side==0 ? 0 : 6);
   bool allChipsBad(true);
   for(int errType=SCT_ByteStreamErrors::ABCDError_Chip0; (errType<=SCT_ByteStreamErrors::ABCDError_Chip5) and allChipsBad; errType++) {
     bool issueABCDError = (std::find(m_bsErrors[errType]->begin(), m_bsErrors[errType]->end(), elementIdHash)!=m_bsErrors[errType]->end());
     bool isBadChip = ((badChips >> (id)) & 0x1);
-    bool isTempMaskedChip = ((_tempMaskedChips >> (id)) & 0x1);
+    bool isTempMaskedChip = ((tempMaskedChips2 >> (id)) & 0x1);
     id++;
     allChipsBad = (issueABCDError or isBadChip or isTempMaskedChip);
     if(not allChipsBad) break;
@@ -642,17 +642,17 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
     }
   }
       
-  unsigned int _tempMaskedChips(0);
+  unsigned int tempMaskedChips2(0);
   if(type==0) {
     // both link-0 and link-1 are working
     if(firstTempMaskedChip_side0>0) {
       for(int iChip(firstTempMaskedChip_side0-1); iChip<6; iChip++) {
-	_tempMaskedChips |= (1<<iChip);
+	tempMaskedChips2 |= (1<<iChip);
       }
     }
     if(firstTempMaskedChip_side1>6) {
       for(int iChip(firstTempMaskedChip_side1-1); iChip<12; iChip++) {
-	_tempMaskedChips |= (1<<iChip);
+	tempMaskedChips2 |= (1<<iChip);
       }
     }
   } else if(type==1) {
@@ -660,7 +660,7 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
     // first temporarily masked chip information is recorded in only link-0.
     if(firstTempMaskedChip_side0>0) {
       for(int iChip(firstTempMaskedChip_side0-1); iChip<12; iChip++) {
-	_tempMaskedChips |= (1<<iChip);
+	tempMaskedChips2 |= (1<<iChip);
       }
     }
   } else {
@@ -671,7 +671,7 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
       for(int iChip(firstTempMaskedChip_side0-1); iChip<12+6; iChip++) {
 	int jChip(iChip);
 	if(jChip>=12) jChip -= 12;
-	_tempMaskedChips |= (1<<jChip);
+	tempMaskedChips2 |= (1<<jChip);
       }
     }
   }
@@ -685,9 +685,9 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
 		  << " phi_module " << m_sct_id->phi_module(wafId) 
 		  << " side " << m_sct_id->side(wafId) 
 		  << " firstTempMaskedChip " << firstTempMaskedChip
-		  << " _tempMaskedChips" << _tempMaskedChips);
+		  << " tempMaskedChips2" << tempMaskedChips2);
 
-  (*m_tempMaskedChips)[moduleId] = _tempMaskedChips;
+  (*m_tempMaskedChips)[moduleId] = tempMaskedChips2;
 }
 
 unsigned int SCT_ByteStreamErrorsSvc::getFirstTempMaskedChip(const IdentifierHash& hashId) const {
@@ -703,7 +703,7 @@ unsigned int SCT_ByteStreamErrorsSvc::tempMaskedChips(const Identifier & moduleI
 }
 
 unsigned int SCT_ByteStreamErrorsSvc::abcdErrorChips(const Identifier & moduleId) const {
-  unsigned int _abcdErrorChips(0);
+  unsigned int abcdErrorChips2(0);
   int chip(0);
 
   // Side 0
@@ -715,7 +715,7 @@ unsigned int SCT_ByteStreamErrorsSvc::abcdErrorChips(const Identifier & moduleId
      !=m_bsErrors[SCT_ByteStreamErrors::ABCDError]->end()) {
     for(int errType=SCT_ByteStreamErrors::ABCDError_Chip0; errType<=SCT_ByteStreamErrors::ABCDError_Chip5; errType++) {
       if(std::find(m_bsErrors[errType]->begin(), m_bsErrors[errType]->end(), hash_side0)!=m_bsErrors[errType]->end()) {
-	_abcdErrorChips |= (1 << chip);
+	abcdErrorChips2 |= (1 << chip);
       }
       chip++;
     }
@@ -732,11 +732,11 @@ unsigned int SCT_ByteStreamErrorsSvc::abcdErrorChips(const Identifier & moduleId
      !=m_bsErrors[SCT_ByteStreamErrors::ABCDError]->end()) {
     for(int errType=SCT_ByteStreamErrors::ABCDError_Chip0; errType<=SCT_ByteStreamErrors::ABCDError_Chip5; errType++) {
       if(std::find(m_bsErrors[errType]->begin(), m_bsErrors[errType]->end(), hash_side1)!=m_bsErrors[errType]->end()) {
-	_abcdErrorChips |= (1 << chip);
+	abcdErrorChips2 |= (1 << chip);
       }
       chip++;
     }
   }
 
-  return _abcdErrorChips;
+  return abcdErrorChips2;
 }
