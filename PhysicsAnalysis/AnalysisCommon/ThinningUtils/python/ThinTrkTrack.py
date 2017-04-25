@@ -24,8 +24,7 @@ class ThinTrkTrack(Configured):
                 GSFTrackKey="GSFTracks")                
             
             from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR           
-            theTrkTrackThinner.OutputLevel=DEBUG
-            
+            #theTrkTrackThinner.OutputLevel=DEBUG            
             print theTrkTrackThinner
 
         except Exception:
