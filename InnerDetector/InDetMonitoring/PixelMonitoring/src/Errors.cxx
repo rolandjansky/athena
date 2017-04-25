@@ -133,25 +133,15 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
          sc = rodHistos.regHist(m_errhist_errcat_LB[i][j] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
       }
 
+      for (int j = 0; j < ErrorCategoryMODROD::COUNT - 3; ++j) {
+         hname = makeHistname((error_type_labels[j].first + "_per_lumi_" + modlabel2[i]), false);
+         htitles = makeHisttitle(("Average " + error_type_labels[j].second + ", " + modlabel2[i]), (atext_LB+atext_err), false);
+         sc = rodHistos.regHist(m_errhist_errtype_LB[i][j] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+      }
+
       hname = makeHistname(("errors_per_lumi_"+modlabel2[i]), false);
       htitles = makeHisttitle(("Average number of errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
       sc = rodHistos.regHist(m_errors_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
-
-      hname = makeHistname(("SyncErrors_Mod_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average Module Synchronization errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
-      sc = rodHistos.regHist(m_SyncErrors_Mod_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
-
-      hname = makeHistname(("SyncErrors_ROD_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average ROD Synchronization errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
-      sc = rodHistos.regHist(m_SyncErrors_ROD_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
-
-      hname = makeHistname(("TruncationErrors_Mod_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average Module Truncation errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
-      sc = rodHistos.regHist(m_TruncationErrors_Mod_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
-
-      hname = makeHistname(("TruncationErrors_ROD_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average ROD Truncation errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
-      sc = rodHistos.regHist(m_TruncationErrors_ROD_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
 
       hname = makeHistname(("ErrorBit_per_lumi_"+modlabel2[i]), false);
       htitles = makeHisttitle(("Average Errors per module per event, "+modlabel2[i]), (atext_LB+atext_erb+atext_err), false);
@@ -468,13 +458,13 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
 
    for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
       if (m_errors_per_lumi_mod[i]) m_errors_per_lumi_mod[i]->Fill(kLumiBlock, num_errors[i]);
-      if (m_SyncErrors_Mod_per_lumi_mod[i]) m_SyncErrors_Mod_per_lumi_mod[i]->Fill(kLumiBlock, num_errormodules_per_type[i][ErrorCategoryMODROD::kSyncMod]);
-      if (m_SyncErrors_ROD_per_lumi_mod[i]) m_SyncErrors_ROD_per_lumi_mod[i]->Fill(kLumiBlock, num_errormodules_per_type[i][ErrorCategoryMODROD::kSyncROD]);
-      if (m_TruncationErrors_Mod_per_lumi_mod[i]) m_TruncationErrors_Mod_per_lumi_mod[i]->Fill(kLumiBlock, num_errormodules_per_type[i][ErrorCategoryMODROD::kTruncMod]);
-      if (m_TruncationErrors_ROD_per_lumi_mod[i]) m_TruncationErrors_ROD_per_lumi_mod[i]->Fill(kLumiBlock, num_errormodules_per_type[i][ErrorCategoryMODROD::kTruncROD]);
 
       for (int j = 0; j < ErrorCategory::COUNT; ++j) {
         if (m_errhist_errcat_LB[i][j]) m_errhist_errcat_LB[i][j]->Fill(kLumiBlock, num_errormodules_per_cat[i][j]);
+      }
+
+      for (int j = 0; j < ErrorCategoryMODROD::COUNT - 3; ++j) {
+        if (m_errhist_errtype_LB[i][j]) m_errhist_errtype_LB[i][j]->Fill(kLumiBlock, num_errormodules_per_type[i][j]);
       }
 
       for (int j = 0; j < ErrorCategory::COUNT; j++) {

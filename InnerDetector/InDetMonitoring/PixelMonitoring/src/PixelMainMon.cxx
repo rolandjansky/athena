@@ -404,6 +404,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    memset(m_errors_per_lumi_mod, 0, sizeof(m_errors_per_lumi_mod));
    m_SyncErrors_per_lumi_PIX = 0;
    memset(m_errhist_errcat_LB, 0, sizeof(m_errhist_errcat_LB));
+   memset(m_errhist_errtype_LB, 0, sizeof(m_errhist_errtype_LB));
    m_error_time1 = 0;       
    m_error_time2 = 0;       
    m_error_time3 = 0;       
