@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 /*
  * Neural Network Implementation v3.0
  * Developed by: Dhiana Deva Cavalcanti Rocha
@@ -13,8 +14,8 @@
  * jodafons@cern.ch
  */
 
-#ifndef MULTILAYERPERCEPTRON_H
-#define MULTILAYERPERCEPTRON_H
+#ifndef TOOLS_MULTILAYERPERCEPTRON_H
+#define TOOLS_MULTILAYERPERCEPTRON_H
 
 #define BAD_WEIGHT_SIZE   101
 #define BAD_BIAS_SIZE     102

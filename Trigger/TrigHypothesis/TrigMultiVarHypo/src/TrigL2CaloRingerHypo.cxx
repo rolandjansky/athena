@@ -1,8 +1,6 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
-
 ///Local include(s)
 #include "TrigMultiVarHypo/TrigL2CaloRingerHypo.h"
 
@@ -20,61 +18,46 @@
 
 //!===============================================================================================
 TrigL2CaloRingerHypo::TrigL2CaloRingerHypo(const std::string& name, ISvcLocator* pSvcLocator):
-  HLT::HypoAlgo(name, pSvcLocator)
+  HLT::HypoAlgo(name, pSvcLocator), m_reader("TrigCaloRingerReader")
 {  
   declareProperty("AcceptAll"         , m_acceptAll = false                   );
   declareProperty("EmEtCut"           , m_emEtCut = 0.0                       );
+  declareProperty("CalibPath"         , m_calibPath = ""                      );
   declareProperty("HltFeature"        , m_hlt_feature = "TrigRingerNeuralFex" );  
-  declareProperty("Thresholds"        , m_thresholds                          );
-  declareProperty("EtaBins"           , m_etaBins                             );
-  declareProperty("EtBins"            , m_etBins                              );
   
-  // Metadata...
-  declareProperty("DoPileupCorrection"                   , m_doPileupCorrection=false                   );
-  declareProperty("UseNoActivationFunctionInTheLastLayer", m_useNoActivationFunctionInTheLastLayer=false);
-  declareProperty("LuminosityCut"                        , m_lumiCut=60                                 );
-  
-  m_nThresholds = 0;
+  m_reader.setMsgStream(msg());
+  m_useNoActivationFunctionInTheLastLayer=false;
+  m_doPileupCorrection=false;
+  m_lumiCut=50;
 }
 //!===============================================================================================
 HLT::ErrorCode TrigL2CaloRingerHypo::hltInitialize() 
 {
-  ///What is the number of discriminators?
-  m_nThresholds = m_thresholds.size();
-
-  if((m_etaBins.size() != m_nThresholds) && (m_etBins.size() != m_nThresholds)){
-    msg() << MSG::ERROR << "Eta/Et list dont match with the number of thesholds found" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  ATH_MSG_INFO("Using the activation function in the last layer? " <<  (m_useNoActivationFunctionInTheLastLayer ? "No":"Yes") );
-  
-  ///Initialize all discriminators
-  for(unsigned i=0; i<m_nThresholds; ++i)
-  {
-    ///Hold the pointer configuration
-    try{
-      m_cutDefs.push_back(new TrigCaloRingsHelper::CutDefsHelper(m_thresholds[i],m_etaBins[i][0],/*
-                                                  */m_etaBins[i][1], m_etBins[i][0],m_etBins[i][1]));
-    }catch(std::bad_alloc xa){
-      msg() << MSG::ERROR << "Can not alloc cutDefs on memory." << endreq;
+  if(!m_calibPath.empty()){
+    if(!m_reader.retrieve(m_calibPath, m_cutDefs)){
+      ATH_MSG_ERROR("Can not retrieve the information from " << m_calibPath);
       return StatusCode::FAILURE;
     }
-  }///Loop over discriminators
+    // retrieve metadata
+    m_useNoActivationFunctionInTheLastLayer = m_reader.useNoActivationFunctionInTheLastLayer();
+    m_doPileupCorrection = m_reader.doPileupCorrection();
+    m_lumiCut  = m_reader.lumiCut();
+  }
+  ATH_MSG_INFO("Using the activation function in the last layer? " <<  (m_useNoActivationFunctionInTheLastLayer ? "No":"Yes") );
+  ATH_MSG_INFO("Using pileup correction?                         " <<  (m_doPileupCorrection ? "Yes":"No") );
+  ATH_MSG_INFO("Using lumi threshold equal: "  <<  m_lumiCut);
   
-  if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "TrigL2CaloRingerHypo initialization completed successfully." << endreq;
+  ATH_MSG_INFO( "TrigL2CaloRingerHypo initialization completed successfully." );
 
   return HLT::OK;
 }
 //!===============================================================================================
 HLT::ErrorCode TrigL2CaloRingerHypo::hltFinalize() {  
   
-  for(unsigned i=0; i<m_nThresholds;++i){
+  for(unsigned i=0; i<m_cutDefs.size();++i){
     if(m_cutDefs[i])  delete m_cutDefs[i];
   } 
-  if ( msgLvl() <= MSG::INFO ) 
-    msg() << MSG::INFO << "TrigL2CaloRingerHypo finalization completed successfully." << endreq;
+  ATH_MSG_INFO( "TrigL2CaloRingerHypo finalization completed successfully." );
   return HLT::OK;
 }
 //!===============================================================================================
@@ -85,24 +68,20 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
 
   if (m_acceptAll){
     pass = true;
-    if ( msgLvl() <= MSG::DEBUG ){
-      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events"  << endreq;
-    }
+    ATH_MSG_DEBUG( "AcceptAll property is set: taking all events"  );
     return HLT::OK;
   }
 
   const xAOD::TrigRNNOutput* rnnOutput = get_rnnOutput(outputTE);
   if(!rnnOutput){
-    msg() << MSG::WARNING << "There is no xAO::TrigRNNOutput into the TriggerElement." << endreq;
+    ATH_MSG_WARNING( "There is no xAO::TrigRNNOutput into the TriggerElement." );
     return HLT::OK;
   }
 
   // TODO: Maybe this will expanded for future...
   // This was define as [avgmu, rnnOtput, rnnOutputWithoutTansig]
   if(rnnOutput->rnnDecision().size() != 3){
-    if(msgLvl() <= MSG::DEBUG){
-      msg() << MSG::DEBUG<< "Event reproved because we can not retrieve the completed information from RnnOutput to run this hypo!" << endreq;
-    }
+    ATH_MSG_DEBUG( "Event reproved because we can not retrieve the completed information from RnnOutput to run this hypo!" );
     return HLT::OK;
   }
 
@@ -112,11 +91,11 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
   if(ringerShape){
     emCluster = ringerShape->emCluster();
     if(!emCluster){
-      msg() << MSG::WARNING << "There is no link to xAOD::TrigEMCluster into the Ringer object." << endreq;
+      ATH_MSG_WARNING( "There is no link to xAOD::TrigEMCluster into the Ringer object." );
       return HLT::OK;
     }
   }else{
-    msg() << MSG::WARNING << "There is no xAOD::TrigRingerRings link into the rnnOutput object." << endreq;
+    ATH_MSG_WARNING( "There is no xAOD::TrigRingerRings link into the rnnOutput object." );
     return HLT::OK;
   }
 
@@ -128,15 +107,13 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
 
   ///Et threshold
   if(et < m_emEtCut*1e-3){
-    if(msgLvl() <= MSG::DEBUG){
-      msg() << MSG::DEBUG<< "Event reproved by Et threshold. Et = " << et << ", EtCut = " << m_emEtCut*1e-3 << endreq;
-    }
+    ATH_MSG_DEBUG( "Event reproved by Et threshold. Et = " << et << ", EtCut = " << m_emEtCut*1e-3 );
     return HLT::OK;
   }
 
-  if(m_nThresholds > 0){
+  if(m_cutDefs.size() > 0){
     ///Select the correct threshold for each eta/Et region
-    for(unsigned i=0; i<m_nThresholds;++i){
+    for(unsigned i=0; i<m_cutDefs.size();++i){
       if((et  > m_cutDefs[i]->etmin()) && (et  <= m_cutDefs[i]->etmax())){
         if((eta > m_cutDefs[i]->etamin()) && (eta <= m_cutDefs[i]->etamax())){
           
@@ -159,26 +136,20 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
             output=rnnOutput->rnnDecision().at(1);
 
           if(output >= threshold){
-            if(msgLvl() <= MSG::DEBUG){///print event information
-              msg() << MSG::DEBUG << "Event information:" << endreq;
-              msg() << MSG::DEBUG << "   " << m_cutDefs[i]->etmin() << "< Et ("<<et<<") GeV" << " <=" << m_cutDefs[i]->etmax() << endreq;
-              msg() << MSG::DEBUG << "   " << m_cutDefs[i]->etamin() << "< |Eta| ("<<eta<<") " << " <=" << m_cutDefs[i]->etamax() << endreq;
-              msg() << MSG::DEBUG << "   rnnOutput: " << output <<  " and threshold: " << m_cutDefs[i]->threshold() <<endreq;
-            }
+            ATH_MSG_DEBUG( "Event information:" );
+            ATH_MSG_DEBUG( "   " << m_cutDefs[i]->etmin() << "< Et ("<<et<<") GeV" << " <=" << m_cutDefs[i]->etmax() );
+            ATH_MSG_DEBUG( "   " << m_cutDefs[i]->etamin() << "< |Eta| ("<<eta<<") " << " <=" << m_cutDefs[i]->etamax() );
+            ATH_MSG_DEBUG( "   rnnOutput: " << output <<  " and threshold: " << m_cutDefs[i]->threshold() );
             pass=true;
           }else{
-            if(msgLvl() <= MSG::DEBUG){
-              msg() << MSG::DEBUG << "Event reproved by discriminator threshold" << endreq;
-            }
+            ATH_MSG_DEBUG( "Event reproved by discriminator threshold" );
           }///Threshold condition
           break;
         }///Loop over eta
       }///Loop over et
     }///Loop over cutDefs
   }else{
-    if(msgLvl() <= MSG::DEBUG){
-      msg() << MSG::DEBUG<< "There is no discriminator. Event approved by Et threshold." << endreq;
-    }
+    ATH_MSG_DEBUG( "There is no discriminator. Event approved by Et threshold." );
     ///Only for EtCut
     pass=true; 
   }///protection

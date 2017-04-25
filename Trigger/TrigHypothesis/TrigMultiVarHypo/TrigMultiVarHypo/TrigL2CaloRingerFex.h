@@ -1,7 +1,6 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
 #ifndef TRIGL2CALORINGERFEX_H
 #define TRIGL2CALORINGERFEX_H
 
@@ -17,12 +16,13 @@
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "xAODTrigRinger/TrigRNNOutput.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
+
 /// Luminosity tool
 #include "LumiBlockComps/ILumiBlockMuTool.h"
+#include "TrigMultiVarHypo/tools/MultiLayerPerceptron.h"
+#include "TrigMultiVarHypo/tools/TrigL2CaloRingerReader.h"
+#include "TrigMultiVarHypo/preproc/TrigRingerPreprocessor.h"
 
-
-#include "TrigMultiVarHypo/preprocessor/TrigRingerPreprocessor.h"
-#include "TrigMultiVarHypo/discriminator/MultiLayerPerceptron.h"
 
 class TrigL2CaloRingerFex: public HLT::FexAlgo {
  
@@ -49,41 +49,30 @@ class TrigL2CaloRingerFex: public HLT::FexAlgo {
     /* Helper functions for feature extraction */
     const xAOD::TrigEMCluster* get_cluster(const HLT::TriggerElement* te);
 
+    std::string m_calibPath;
     ///feature keys
     std::string m_hlt_feature;
     std::string m_feature;
     std::string m_key;
-   
-    bool        m_useLumiTool;
+
     float       m_lumiCut;
+    float       m_output;
+    bool        m_useLumiTool;
     bool        m_useEtaVar;
     bool        m_useLumiVar;
-
+    
     //LumiTool
     ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool;
-
     ///Prepoc configuration
     std::vector<unsigned int>  m_nRings;
     std::vector<unsigned int>  m_normRings;
     std::vector<unsigned int>  m_sectionRings;
     
-    ///Discriminator configuration
-    std::vector<unsigned int>                m_nodes;
-    std::vector<std::vector<double>>         m_weights;
-    std::vector<std::vector<double>>         m_bias;
-    std::vector<std::vector<double>>         m_threshold;
-    std::vector<std::vector<double>>         m_etaBins;
-    std::vector<std::vector<double>>         m_etBins;
-  
-    unsigned  m_nDiscr;
-    unsigned  m_nPreproc;
-
-    float                  m_output;
-
     ///Discriminator holder 
-    std::vector<MultiLayerPerceptron*> m_discriminators;
-    ///Pre-processing holder 
+    std::vector<MultiLayerPerceptron*>       m_discriminators;
     std::vector<TrigRingerPreprocessor*>     m_preproc; 
+    TrigL2CaloRingerReader                   m_reader;
+
 };
 //!===============================================================================================
 /// get the cluster inside of container
