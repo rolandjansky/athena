@@ -38,7 +38,6 @@ public:
   void Fill2DMon(PixelMon2DProfilesLW* oldmap);
   StatusCode regHist(ManagedMonitorToolBase::MonGroup &group, bool doIBL, bool errorHist);
 private:
-  StatusCode sc;
   void formatHist(bool doIBL, bool errorHist);
 };
 

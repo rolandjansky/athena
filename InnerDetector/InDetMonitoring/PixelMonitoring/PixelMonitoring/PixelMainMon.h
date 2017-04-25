@@ -190,8 +190,6 @@ private:
    //StoreGateSvc* m_StoreGate;
    //StoreGateSvc* m_detStore;
    const PixelID* m_pixelid; // Pixel ID helper
-   const InDetDD::PixelDetectorManager* pixelmgr;                               
-   StatusCode sc;    
    uint64_t m_event;      
    uint64_t m_event2;
 
@@ -278,7 +276,7 @@ private:
    bool m_doLumiBlock;   //store module status, error etc for each lumiblock
    bool m_doRefresh;
    bool m_doRefresh5min;
-   bool isFirstBook;
+   bool m_isFirstBook;
    bool m_doDegFactorMap;
 
    bool m_doHeavyIonMon;  //modifications for heavy ion monitoring
