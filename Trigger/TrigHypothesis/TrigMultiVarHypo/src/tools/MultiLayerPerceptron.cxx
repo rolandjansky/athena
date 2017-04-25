@@ -12,7 +12,7 @@
 
 
 ///Local include(s)
-#include "TrigMultiVarHypo/discriminator/MultiLayerPerceptron.h"
+#include "TrigMultiVarHypo/tools/MultiLayerPerceptron.h"
 
 ///std library(s)
 #include <cstddef>
