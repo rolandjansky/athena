@@ -245,20 +245,6 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
       sc = m_errhist_expert_maps[j]->regHist(rodExpert, m_doIBL, false);
    }
 
-   for (int i = 0; i < PixLayer::COUNT; i++) {
-      hname = makeHistname(("Bad_Module_Errors_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Errors for Bad Module, "+modlabel2[i]), (atext_erb+atext_erf), false);
-      sc = rodExpert.regHist(m_errhist_expert_badmod_bits[i]  = TH1I_LW::create(hname.c_str(), htitles.c_str(), nbins_ES, minbin_ES, maxbin_ES));
-
-      for (int j = 0; j < kNumErrorBits; j++) {
-         if (i < PixLayer::kIBL) {
-            m_errhist_expert_badmod_bits[i]->GetXaxis()->SetBinLabel(j+1, errorBitsPIX[j]);
-         } else {
-            m_errhist_expert_badmod_bits[i]->GetXaxis()->SetBinLabel(j+1, errorBitsIBL[j]);
-         }
-      }
-   }
-
    hname = makeHistname("ServiceRecord_Unweighted_IBL", false);
    htitles = makeHisttitle("ServiceRecord Unweighted,_IBL", ";SR;Count", false);
    sc = rodExpert.regHist(m_errhist_expert_servrec_ibl_unweighted = TH1F_LW::create(hname.c_str(), htitles.c_str(), 32, -0.5, 31.5));
@@ -361,10 +347,6 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
 
       for (unsigned int bit = 0; bit < kNumErrorBits; bit++) {
          if ((kErrorWord & (static_cast<uint64_t>(1)<<bit)) != 0) {
-            if (m_ErrorSvc->isActive(id_hash) && !m_ErrorSvc->isGood(id_hash)) {
-               m_errhist_expert_badmod_bits[kLayer]->Fill(bit);
-            }
-
             num_errors[kLayer]++;
             num_errors_per_bit[kLayer][bit]++;
             if (kLayerIBL != 99) {

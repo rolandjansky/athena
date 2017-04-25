@@ -560,7 +560,6 @@ private:
    PixelMon2DLumiMaps*   m_errhist_expert_LB_maps[kNumErrorStates];
    PixelMon2DMapsLW*     m_errhist_expert_maps[kNumErrorStates];
    TProfile_LW*          m_errhist_expert_LB[PixLayer::COUNT-1][kNumErrorStates];
-   TH1I_LW*              m_errhist_expert_badmod_bits[PixLayer::COUNT];
    TH3F*                 m_errhist_expert_fe_trunc_err_3d[PixLayer::COUNT];
    TH1F_LW*              m_errhist_expert_servrec_ibl_unweighted;
    TH1F_LW*              m_errhist_expert_servrec_ibl_weighted;
