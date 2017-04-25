@@ -60,7 +60,7 @@ StatusCode LArG4ShowerLibSvc::initialize()
 
   // iterate through filenames in list
   for (iter = m_fileNameList.value().begin(); iter != m_fileNameList.value().end(); iter++) {
-    std::string resolvedFilename = PathResolver::find_file (*iter, "CALIBPATH", PathResolver::SearchType::RecursiveSearch);
+    std::string resolvedFilename = PathResolverFindCalibFile(*iter);
     if (resolvedFilename.empty()) {
       ATH_MSG_WARNING("Could not resolve input filename " << (*iter) << ". Ignoring!");
       continue;
