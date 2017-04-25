@@ -173,7 +173,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
       for (int j = 0; j < ErrorCategory::COUNT; j++) {
          hname = makeHistname((tmp[j]+"_"+modlabel2[i]), false);
          htitles = makeHisttitle((tmp[j]+", "+modlabel2[i]), (atext_LB+atext_erf), false);
-         sc = rodHistos.regHist(m_ErrorFraction_per_evt[j][i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+         sc = rodHistos.regHist(m_errhist_errcat_avg[j][i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
       }
    }
 
@@ -469,8 +469,8 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
       }
 
       for (int j = 0; j < ErrorCategory::COUNT; j++) {
-         if (m_ErrorFraction_per_evt[j][i] && m_nActive_mod[i] > 0) {
-            m_ErrorFraction_per_evt[j][i]->Fill(kLumiBlock, (float) num_errormodules_per_cat[i][j]/m_nActive_mod[i]);
+         if (m_errhist_errcat_avg[j][i] && m_nActive_mod[i] > 0) {
+            m_errhist_errcat_avg[j][i]->Fill(kLumiBlock, (float) num_errormodules_per_cat[i][j]/m_nActive_mod[i]);
          }
       }
    }
