@@ -32,6 +32,9 @@
 #include "GaudiKernel/ServiceHandle.h"
 //#include "GaudiKernel/ToolHandle.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "InDetRawData/SCT_RDO_Container.h"
+
 // Forward declarations
 class IInterface;
 class TH1I;
@@ -59,6 +62,8 @@ class SCTRatioNoiseMonTool : public SCTMotherTrigMonTool{
  public:
   SCTRatioNoiseMonTool(const std::string & type, const std::string & name, const IInterface* parent);
   virtual ~SCTRatioNoiseMonTool();
+  // initialize
+  virtual StatusCode initialize() final;
    /**    @name Book, fill & check (reimplemented from baseclass) */
 //@{
   ///Book histograms in initialization
@@ -233,7 +238,7 @@ private:
   //@name Service members
   //@{
   /// Data object name: for the SCT this is "SCT_RDOs"
-  std::string m_dataObjectName;
+  SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName;
   ///SCT Helper class
   const SCT_ID* m_pSCTHelper;
   //SCT Detector Manager

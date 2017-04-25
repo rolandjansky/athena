@@ -28,6 +28,11 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkSpacePoint/SpacePointContainer.h"
+#include "InDetRawData/SCT_RDO_Container.h"
+#include "EventInfo/EventInfo.h"
+#include "InDetPrepRawData/SCT_ClusterContainer.h"
 
 // for CondDB
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
@@ -57,6 +62,7 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   typedef unsigned int  ChipNumberType;
   SCTHitsNoiseMonTool(const std::string & type, const std::string & name,const IInterface* parent); 
   ~SCTHitsNoiseMonTool();
+  virtual StatusCode initialize() final;
   /**    @name Book, fill & check (reimplemented from baseclass) */
   //@{
   ///Book is called at the beginning
@@ -332,7 +338,7 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   ///additional maps for track NO to compare with SP NO calc
   std::map<Identifier, int> m_RDOs;
   //CAM adds map for SP NO
-  std::string  m_SCTSPContainerName;
+  SG::ReadHandle<SpacePointContainer>  m_SCTSPContainerName;
 
   std::map<Identifier, float> m_occSumUnbiased;
   std::map<Identifier, float> m_occSumUnbiasedTrigger;
@@ -468,7 +474,7 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   //@{
   
   /// Data object name: for the SCT this is "SCT_RDOs"
-  std::string m_dataObjectName;
+  SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName;
 
   ///SCT Helper class
   const SCT_ID* m_pSCTHelper;
@@ -507,6 +513,9 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   std::string
     positionString(const Identifier & plane) const;
   //@}
+
+  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
+  SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_clusContainerKey;
 };
 
 #endif

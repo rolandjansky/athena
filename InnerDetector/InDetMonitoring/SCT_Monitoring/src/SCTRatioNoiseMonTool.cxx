@@ -232,7 +232,7 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string &type,
   m_path(""),
   m_tracksName(""), // never used?
   m_NOTrigger("L1_RD0_EMPTY"),
-  m_dataObjectName("SCT_RDOs"),
+  m_dataObjectName(std::string("SCT_RDOs")),
   m_pSCTHelper(nullptr),
   m_sctmgr(nullptr),
   m_pSummarySvc("SCT_ConditionsSummarySvc", name),
@@ -264,6 +264,14 @@ SCTRatioNoiseMonTool::~SCTRatioNoiseMonTool() {
 }
 
 // ====================================================================================================
+// ====================================================================================================
+StatusCode SCTRatioNoiseMonTool::initialize() {
+  ATH_CHECK( m_dataObjectName.initialize() );
+
+  return StatusCode::SUCCESS;
+}
+
+// ====================================================================================================
 //                       SCTRatioNoiseMonTool :: bookHistograms
 // ====================================================================================================
 StatusCode
@@ -272,7 +280,6 @@ SCTRatioNoiseMonTool::bookHistogramsRecurrent() {
   if (newRunFlag()) {
     m_numberOfEvents = 0;
   }
-  m_dataObjectName = "SCT_RDOs";
   ATH_MSG_DEBUG("initialize being called");
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
   if (m_checkBadModules) {
@@ -296,7 +303,6 @@ StatusCode
 SCTRatioNoiseMonTool::bookHistograms() {
   m_path = "";
   m_numberOfEvents = 0;
-  m_dataObjectName = "SCT_RDOs";
   ATH_MSG_DEBUG("initialize being called");
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
   if (m_checkBadModules) {

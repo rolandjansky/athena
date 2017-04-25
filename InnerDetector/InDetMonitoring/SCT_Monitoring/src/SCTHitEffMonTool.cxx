@@ -30,7 +30,6 @@
 #include "Identifier/IdentifierHash.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
 #include "StoreGate/ReadHandle.h"
 
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
@@ -52,7 +51,6 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkParameters/TrackParameters.h"
 
-#include "CommissionEvent/ComTime.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
 // SCT
@@ -136,7 +134,7 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   mgr(nullptr),
   m_pSCTHelper(0),
   m_pManager(0),
-  m_TrackName("ResolvedSCTTracks"),// original track collection
+  m_TrackName(std::string("ResolvedSCTTracks")),// original track collection
   m_chrono(nullptr),
   m_tracks(nullptr),// original tracks
   m_TrackSum(nullptr),
@@ -202,7 +200,8 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   m_badChipMap(nullptr),
   m_pixelId(nullptr),
   m_sctId(nullptr),
-  m_trtId(nullptr) {
+  m_trtId(nullptr),
+  m_comTimeName(std::string("TRT_Phase")) {
   declareProperty("TrackName", m_TrackName);
   declareProperty("IsCosmic", m_isCosmic);
   declareProperty("IsSim", m_isSim);
@@ -232,7 +231,7 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   declareProperty("RunningMode", m_RunningMode);
   declareProperty("effDistanceCut", m_effdistcut);
   declareProperty("ChronoTime", m_chronotime);
-  declareProperty("SCT_ClusterContainer", m_sctContainerName = "SCT_ClusterCollection");
+  declareProperty("SCT_ClusterContainer", m_sctContainerName = std::string("SCT_Clusters"));
   declareProperty("ROTCreator", m_rotcreator);
   declareProperty("HoleSearch", m_holeSearchTool);
   declareProperty("ResPullCalc", m_residualPullCalculator);
@@ -388,6 +387,10 @@ SCTHitEffMonTool::initialize() {
       m_minOtherHits = 3;
     }
   }
+
+  ATH_CHECK( m_comTimeName.initialize(m_useTRTPhase or m_isCosmic) );
+  ATH_CHECK( m_eventInfoKey.initialize() );
+  ATH_CHECK( m_TrackName.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -1103,26 +1106,25 @@ SCTHitEffMonTool::fillHistograms() {
   errorcheck::ReportMessage::hideErrorLocus(true);
 
   VERBOSE("SCTHitEffMonTool::fillHistograms()");
-  string m_comTimeName("TRT_Phase");
   Double_t timecor(-20.);
-  SG::ReadHandle<ComTime> theComTime(m_comTimeName);
   if (m_useTRTPhase or m_isCosmic) {
-    if (evtStore()->contains<ComTime>(m_comTimeName)) {
+    if (evtStore()->contains<ComTime>(m_comTimeName.key())) {
+      SG::ReadHandle<ComTime> theComTime(m_comTimeName);
       if (theComTime.isValid()) {
         timecor = theComTime->getTime();
-        VERBOSE("Retrieved ComTime object with name " << m_comTimeName << " found: Time = " << timecor);
+        VERBOSE("Retrieved ComTime object with name " << m_comTimeName.key() << " found: Time = " << timecor);
       } else {
         timecor = -18.;
-        WARNING("ComTime object not found with name " << m_comTimeName);
+        WARNING("ComTime object not found with name " << m_comTimeName.key());
       }
     } else {
       timecor = -16.;
-      ERROR("ComTime object not in store  with name " << m_comTimeName);
+      ERROR("ComTime object not in store  with name " << m_comTimeName.key());
     }
   }
   // If we are going to use TRT phase in anger, need run-dependent corrections.
   EventID *eventID;
-  SG::ReadHandle<EventInfo> pEvent;
+  SG::ReadHandle<EventInfo> pEvent(m_eventInfoKey);
   if (not pEvent.isValid()) {
     return ERROR("Could not find EventInfo"), StatusCode::FAILURE;
   }
@@ -1139,27 +1141,27 @@ SCTHitEffMonTool::fillHistograms() {
 
   // ---- First try if m_tracksName is a TrackCollection
   SG::ReadHandle<TrackCollection>m_tracks(m_TrackName);
-  if (evtStore()->contains<TrackCollection> (m_TrackName)) {
+  if (evtStore()->contains<TrackCollection> (m_TrackName.key())) {
     if (not m_tracks.isValid()) {
-      WARNING("Tracks not found: " << m_tracks << " / " << m_TrackName);
+      WARNING("Tracks not found: " << m_tracks << " / " << m_TrackName.key());
       if (m_chronotime) {
         m_chrono->chronoStop("SCTHitEff");
       }
       return StatusCode::SUCCESS;
     }else {
-      VERBOSE("Successfully retrieved " << m_TrackName << " : " << m_tracks->size() << " items");
+      VERBOSE("Successfully retrieved " << m_TrackName.key() << " : " << m_tracks->size() << " items");
     }
   } else {
-    WARNING("Collection " << m_TrackName << " not found");
+    WARNING("Collection " << m_TrackName.key() << " not found");
     if (m_chronotime) {
       m_chrono->chronoStop("SCTHitEff");
     }
     return StatusCode::SUCCESS;
   }
 
-  SG::ReadHandle<InDet::SCT_ClusterContainer> p_sctclcontainer("SCT_Clusters");
+  SG::ReadHandle<InDet::SCT_ClusterContainer> p_sctclcontainer(m_sctContainerName);
   if (not p_sctclcontainer.isValid()) {
-    WARNING("SCT clusters container not found: " << p_sctclcontainer);
+    WARNING("SCT clusters container not found: " << m_sctContainerName.key());
     if (m_chronotime) {
       m_chrono->chronoStop("SCTHitEff");
     }
