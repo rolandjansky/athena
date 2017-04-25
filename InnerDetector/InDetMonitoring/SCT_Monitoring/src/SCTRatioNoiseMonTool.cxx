@@ -47,6 +47,7 @@
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventInfo.h"
+#include "StoreGate/ReadHandle.h"
 
 //
 using namespace std;
@@ -322,8 +323,8 @@ SCTRatioNoiseMonTool::fillHistograms() {
   ATH_MSG_DEBUG("enters fillHistograms");
   // lets get the raw hit container
   typedef SCT_RDORawData SCTRawDataType;
-  const SCT_RDO_Container *p_rdocontainer;
-  if (evtStore()->retrieve(p_rdocontainer, m_dataObjectName).isFailure()) {
+  SG::ReadHandle<SCT_RDO_Container> p_rdocontainer(m_dataObjectName);
+  if (not p_rdocontainer.isValid()) {
     return StatusCode::FAILURE;
   }
 
@@ -364,9 +365,8 @@ SCTRatioNoiseMonTool::fillHistograms() {
     goodModules[i] = true;
   }
 
-  const EventInfo *pEvent(0);
-  CHECK(evtStore()->retrieve(pEvent));
-  if (not pEvent) {
+  SG::ReadHandle<EventInfo> pEvent;
+  if (not pEvent.isValid()) {
     return ERROR("Could not find event pointer"), StatusCode::FAILURE;
   }
 

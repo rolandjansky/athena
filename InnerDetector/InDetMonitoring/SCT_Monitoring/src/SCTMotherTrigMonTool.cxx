@@ -14,6 +14,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/TriggerInfo.h"
+#include "StoreGate/ReadHandle.h"
 
 const std::string SCTMotherTrigMonTool::m_triggerNames[] = {
   "RNDM", "BPTX", "L1CAL", "TGC", "RPC", "MBTS", "COSM", "Calib"
@@ -40,10 +41,8 @@ SCTMotherTrigMonTool::initialize() {
 // ---------------------------------------------------------
 StatusCode
 SCTMotherTrigMonTool::checkTriggers() {
-  const EventInfo *evtInfo(0);
-
   if (evtStore()->contains<EventInfo>("ByteStreamEventInfo")) {
-    evtStore()->retrieve(evtInfo, "ByteStreamEventInfo");
+    SG::ReadHandle<EventInfo> evtInfo("ByteStreamEventInfo");
     m_firedTriggers = evtInfo->trigger_info()->level1TriggerType();
 
     return StatusCode::SUCCESS;
@@ -83,10 +82,8 @@ SCTMotherTrigMonTool::isCalibrationNoise(const std::string &L1_Item) {
 
 bool
 SCTMotherTrigMonTool::isStream(const std::string &StreamName) {
-  const EventInfo *evtInfo(0);
-
   if (evtStore()->contains<EventInfo>("ByteStreamEventInfo")) {
-    evtStore()->retrieve(evtInfo, "ByteStreamEventInfo");
+    SG::ReadHandle<EventInfo> evtInfo("ByteStreamEventInfo");
 
     m_isStream = false;
 

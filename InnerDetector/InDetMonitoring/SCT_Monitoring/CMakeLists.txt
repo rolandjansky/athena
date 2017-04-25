@@ -23,6 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Commission/CommissionEvent
                           Control/AthenaKernel
                           Control/DataModel
+                          Control/StoreGate
                           DetectorDescription/Identifier
                           Event/EventInfo
                           Event/xAOD/xAODEventInfo

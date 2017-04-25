@@ -263,7 +263,6 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   unsigned int m_maxTracks;
   std::vector<Identifier> m_RDOsOnTracks;
   StatusCode makeVectorOfTrackRDOIdentifiers();
-  const DataVector<Trk::Track> *m_tracks;
   VecH2_t m_ptrackhitsHistoVector;
   VecH2_t m_ptrackhitsHistoVectorECp;
   VecH2_t m_ptrackhitsHistoVectorECm;

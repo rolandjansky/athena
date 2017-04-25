@@ -31,6 +31,7 @@
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventInfo.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
 
@@ -1104,10 +1105,10 @@ SCTHitEffMonTool::fillHistograms() {
   VERBOSE("SCTHitEffMonTool::fillHistograms()");
   string m_comTimeName("TRT_Phase");
   Double_t timecor(-20.);
-  const ComTime *theComTime;
+  SG::ReadHandle<ComTime> theComTime(m_comTimeName);
   if (m_useTRTPhase or m_isCosmic) {
     if (evtStore()->contains<ComTime>(m_comTimeName)) {
-      if (StatusCode::SUCCESS == evtStore()->retrieve(theComTime, m_comTimeName)) {
+      if (theComTime.isValid()) {
         timecor = theComTime->getTime();
         VERBOSE("Retrieved ComTime object with name " << m_comTimeName << " found: Time = " << timecor);
       } else {
@@ -1121,10 +1122,9 @@ SCTHitEffMonTool::fillHistograms() {
   }
   // If we are going to use TRT phase in anger, need run-dependent corrections.
   EventID *eventID;
-  const EventInfo *pEvent(0);
-  CHECK(evtStore()->retrieve(pEvent));
-  if (not pEvent) {
-    return ERROR("Could not find event pointer"), StatusCode::FAILURE;
+  SG::ReadHandle<EventInfo> pEvent;
+  if (not pEvent.isValid()) {
+    return ERROR("Could not find EventInfo"), StatusCode::FAILURE;
   }
   eventID = pEvent->event_ID();
   unsigned BCID = eventID->bunch_crossing_id();
@@ -1138,9 +1138,9 @@ SCTHitEffMonTool::fillHistograms() {
   }
 
   // ---- First try if m_tracksName is a TrackCollection
-  const TrackCollection *m_tracks(0);
+  SG::ReadHandle<TrackCollection>m_tracks(m_TrackName);
   if (evtStore()->contains<TrackCollection> (m_TrackName)) {
-    if (evtStore()->retrieve(m_tracks, m_TrackName).isFailure()) {
+    if (not m_tracks.isValid()) {
       WARNING("Tracks not found: " << m_tracks << " / " << m_TrackName);
       if (m_chronotime) {
         m_chrono->chronoStop("SCTHitEff");
@@ -1157,8 +1157,8 @@ SCTHitEffMonTool::fillHistograms() {
     return StatusCode::SUCCESS;
   }
 
-  const InDet::SCT_ClusterContainer *p_sctclcontainer;
-  if (evtStore()->retrieve(p_sctclcontainer, "SCT_Clusters").isFailure()) {
+  SG::ReadHandle<InDet::SCT_ClusterContainer> p_sctclcontainer("SCT_Clusters");
+  if (not p_sctclcontainer.isValid()) {
     WARNING("SCT clusters container not found: " << p_sctclcontainer);
     if (m_chronotime) {
       m_chrono->chronoStop("SCTHitEff");
@@ -1307,7 +1307,7 @@ SCTHitEffMonTool::fillHistograms() {
         }
         if (m_sctId->is_sct(surfaceID)) {
           m_NHits[bec2Index(m_sctId->barrel_ec(surfaceID))]++;
-          mapOfTrackHitResiduals[surfaceID] = getResidual(surfaceID, (*TSOSItr)->trackParameters(), p_sctclcontainer);
+          mapOfTrackHitResiduals[surfaceID] = getResidual(surfaceID, (*TSOSItr)->trackParameters(), &*p_sctclcontainer);
         }
       }
 
@@ -1374,7 +1374,7 @@ SCTHitEffMonTool::fillHistograms() {
       Float_t layerPlusHalfSide(float(layer) + float(side) * 0.5);
       Float_t dedicated_layerPlusHalfSide(float(layer) + float((side + 1) % 2) * 0.5);
       const Trk::TrackParameters *trkParamOnSurface((*TSOSItr)->trackParameters());
-      Double_t trackHitResidual(getResidual(surfaceID, trkParamOnSurface, p_sctclcontainer));
+      Double_t trackHitResidual(getResidual(surfaceID, trkParamOnSurface, &*p_sctclcontainer));
 
 
       Float_t distCut(m_effdistcut);

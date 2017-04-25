@@ -64,6 +64,8 @@
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h" // ?
 #include "cArrayUtilities.h"
 
+#include "StoreGate/ReadHandle.h"
+
 typedef Trk::SpacePoint SpacePoint;
 using namespace std;
 using namespace SCT_Monitoring;
@@ -219,7 +221,6 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string &type,
   m_booltxscan(false),
   m_current_lb(0),
   m_last_reset_lb(0),
-  m_tracks(nullptr),
   m_tbinHisto(nullptr),
   m_tbinHistoECp(nullptr),
   m_tbinHistoECm(nullptr),
@@ -538,8 +539,8 @@ StatusCode
 SCTHitsNoiseMonTool::fillHistograms() {
   ++m_numberOfEvents;
   ++m_numberOfEventsRecent;
-  const EventInfo *pEvent(0);
-  if (evtStore()->retrieve(pEvent).isFailure()) {
+  SG::ReadHandle<EventInfo> pEvent;
+  if (not pEvent.isValid()) {
     if (msgLvl(MSG::ERROR)) {
       msg(MSG::ERROR) << "Could not retrieve event info!" << endmsg;
     }
@@ -795,22 +796,22 @@ SCTHitsNoiseMonTool::checkHists(bool /*fromFinalize*/) {
 StatusCode
 SCTHitsNoiseMonTool::generalHistsandNoise() {
   typedef SCT_RDORawData SCTRawDataType;
-  const SCT_RDO_Container *p_rdocontainer;
-  const EventInfo *pEvent(0);
-  if (evtStore()->retrieve(pEvent).isFailure()) {
+  SG::ReadHandle<SCT_RDO_Container> p_rdocontainer(m_dataObjectName);
+  SG::ReadHandle<EventInfo> pEvent;
+  if (not pEvent.isValid()) {
     if (msgLvl(MSG::ERROR)) {
       msg(MSG::ERROR) << "Could not retrieve event info!" << endmsg;
     }
     return StatusCode::FAILURE;
   }
   unsigned int current_lb = pEvent->event_ID()->lumi_block();
-  if (evtStore()->retrieve(p_rdocontainer, m_dataObjectName).isFailure()) {
+  if (not p_rdocontainer.isValid()) {
     return StatusCode::FAILURE;
   }
   // Get the space point container
-  const SpacePointContainer *sctContainer;
   m_SCTSPContainerName = "SCT_SpacePoints";
-  if (evtStore()->retrieve(sctContainer, m_SCTSPContainerName).isFailure()) {
+  SG::ReadHandle<SpacePointContainer> sctContainer(m_SCTSPContainerName);
+  if (not sctContainer.isValid()) {
     return StatusCode::FAILURE;
   }
   Identifier SCT_Identifier;
@@ -1255,9 +1256,8 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
 
   // if(m_environment!=AthenaMonManager::online){ // Uncomment this line to turn off cluster hists in online
   // Fill Cluster size histogram
-  const InDet::SCT_ClusterContainer *p_clucontainer;
-  StatusCode sc = evtStore()->retrieve(p_clucontainer, "SCT_Clusters");
-  if (sc.isFailure()) {
+  SG::ReadHandle<InDet::SCT_ClusterContainer> p_clucontainer("SCT_Clusters");
+  if (not p_clucontainer.isValid()) {
     if (msgLvl(MSG::WARNING)) {
       msg(MSG::WARNING) << "Couldn't retrieve clusters" << endmsg;
     }
@@ -3058,12 +3058,10 @@ SCTHitsNoiseMonTool::bookSPvsEventNumber() {
 StatusCode
 SCTHitsNoiseMonTool::makeSPvsEventNumber() {
   // Retrieve the spacepoint collection
-  StatusCode sc;
-  const SpacePointContainer *m_SCT_spcontainer;
+  SG::ReadHandle<SpacePointContainer> SCT_spcontainer("SCT_SpacePoints");
 
   // get space points for SCT from TDS
-  sc = evtStore()->retrieve(m_SCT_spcontainer, "SCT_SpacePoints");
-  if (sc.isFailure() || !m_SCT_spcontainer) {
+  if (not SCT_spcontainer.isValid()) {
     if (msgLvl(MSG::WARNING)) {
       msg(MSG::WARNING) << "Si SpacePoint container for SCT not found" << endmsg;
     }
@@ -3071,8 +3069,8 @@ SCTHitsNoiseMonTool::makeSPvsEventNumber() {
   }
   int m_sct_nspacepoints(0);
   // loop over SCT space points collections
-  SpacePointContainer::const_iterator it = m_SCT_spcontainer->begin();
-  SpacePointContainer::const_iterator endit = m_SCT_spcontainer->end();
+  SpacePointContainer::const_iterator it = SCT_spcontainer->begin();
+  SpacePointContainer::const_iterator endit = SCT_spcontainer->end();
   for (; it != endit; ++it) {
     const SpacePointCollection *colNext = &(**it);
     if (!colNext) {
@@ -3143,9 +3141,8 @@ SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
 
   // Clear the RDOsOnTracks vector
   m_RDOsOnTracks.clear();
-  const SCT_RDO_Container *p_rdocontainer;
-  sc = evtStore()->retrieve(p_rdocontainer, m_dataObjectName);
-  if (sc.isFailure() || !p_rdocontainer) {
+  SG::ReadHandle<SCT_RDO_Container> p_rdocontainer(m_dataObjectName);
+  if (not p_rdocontainer.isValid()) {
     msg(MSG::FATAL) << "Could not find the data object " << m_dataObjectName << " !" << endmsg;
     return StatusCode::FAILURE;
   } else {
@@ -3153,14 +3150,14 @@ SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
       msg(MSG::DEBUG) << "Data object " << m_dataObjectName << " found" << endmsg;
     }
   }
-
-  sc = evtStore()->retrieve(m_tracks, m_tracksName);
-  if (sc.isFailure()) {
+  
+  SG::ReadHandle<DataVector<Trk::Track> > tracks(m_tracksName);
+  if (not tracks.isValid()) {
     msg(MSG::FATAL) << "No tracks for you!" << endmsg;
-    return sc;
+    return StatusCode::FAILURE;
   }
   // Only do for events with less than some number of tracks
-  if (m_tracks->size() > m_maxTracks) {
+  if (tracks->size() > m_maxTracks) {
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "The event has more than " << m_maxTracks
                       << " tracks. Don't do hits-on-track-hists" << endmsg;
@@ -3168,8 +3165,8 @@ SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
     return StatusCode::SUCCESS;
   }
   // assemble list of rdo ids associated with tracks
-  for (int i = 0; i < (int) m_tracks->size(); i++) {
-    const Trk::Track *track = (*m_tracks)[i];
+  for (int i = 0; i < (int) tracks->size(); i++) {
+    const Trk::Track *track = (*tracks)[i];
     if (track == 0) {
       if (msgLvl(MSG::WARNING)) {
         msg(MSG::WARNING) << "no pointer to track!!!" << endmsg;

@@ -16,6 +16,7 @@
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/IToolSvc.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -158,9 +159,9 @@ SCTLorentzMonTool::fillHistograms() {
 
   ATH_MSG_DEBUG("enters fillHistograms");
 
-  const TrackCollection *tracks(0);
+  SG::ReadHandle<TrackCollection> tracks(m_tracksName);
   if (evtStore()->contains<TrackCollection> (m_tracksName)) {
-    if (evtStore()->retrieve(tracks, m_tracksName).isFailure()) {
+    if (not tracks.isValid()) {
       msg(MSG::WARNING) << " TrackCollection not found: Exit SCTLorentzTool" << m_tracksName << endmsg;
       return StatusCode::SUCCESS;
     }

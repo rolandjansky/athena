@@ -39,6 +39,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "cArrayUtilities.h"
+#include "StoreGate/ReadHandle.h"
 #include <vector>
 #include <set>
 #include <iostream>
@@ -671,8 +672,8 @@ StatusCode
 SCTErrMonTool::fillHistograms() {
 
   typedef SCT_RDORawData SCTRawDataType;
-  const xAOD::EventInfo *pEvent(0);
-  if (evtStore()->retrieve(pEvent).isFailure()) {
+  SG::ReadHandle<xAOD::EventInfo> pEvent;
+  if (not pEvent.isValid()) {
     ATH_MSG_WARNING("Could not retrieve event info!");
     return StatusCode::RECOVERABLE;
   }
@@ -698,8 +699,7 @@ SCTErrMonTool::fillHistograms() {
   }
 
   m_NumberOfEventsVsLB->Fill(m_current_lb);
-  const SCT_RDO_Container *p_rdocontainer;
-  ATH_CHECK(evtStore()->retrieve(p_rdocontainer, m_dataObjectName));
+  SG::ReadHandle<SCT_RDO_Container> p_rdocontainer(m_dataObjectName);
   Identifier SCT_Identifier;
 
   // Define variables for error histograms
@@ -1010,10 +1010,10 @@ SCTErrMonTool::numByteStreamErrors(const std::set<IdentifierHash> *errors, int &
 StatusCode
 SCTErrMonTool::fillByteStreamErrors() {
   // Masked and ROB Fragment vs. lb
-  const xAOD::EventInfo *pEvent(0);
+  SG::ReadHandle<xAOD::EventInfo> pEvent;
   msg(MSG::INFO) << "INFO|| monitor ||INFO" << endmsg;
 
-  if (evtStore()->retrieve(pEvent).isFailure()) {
+  if (not pEvent.isValid()) {
     if (msgLvl(MSG::ERROR)) {
       msg(MSG::ERROR) << "Could not retrieve event info!" << endmsg;
     }
