@@ -2,11 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-
 ///Local include(s)
-#include "TrigMultiVarHypo/preprocessor/TrigRingerPreprocessor.h"
-#include "TrigMultiVarHypo/preprocessor/TrigRingerHelper.h"
+#include "TrigMultiVarHypo/preproc/TrigRingerPreprocessor.h"
+#include "TrigMultiVarHypo/tools/TrigRingerHelper.h"
 ///std library(s)
 #include <numeric>
 #include <cmath>
