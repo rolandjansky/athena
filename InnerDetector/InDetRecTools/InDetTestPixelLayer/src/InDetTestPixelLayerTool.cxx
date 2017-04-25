@@ -660,7 +660,8 @@ namespace InDet {
 	design->distanceToDetectorEdge(locPos, etaDist, phiDist); //// implicite cast from Amg::Vector2D to SiLocalPosition
       }
       else{
-	ATH_MSG_WARNING (  "could not get pixel module design for  " <<   m_idHelper->show_to_string(id)  );
+	ATH_MSG_WARNING (  "could not get pixel module design for  " <<   m_idHelper->show_to_string(id)  << ", returning false for getTrackStateOnPixelLayerInfo" );
+	return false;
       }
       pixelLayerInfo.distToModuleEdgePhi(phiDist);
       pixelLayerInfo.distToModuleEdgeEta(etaDist);
@@ -828,7 +829,8 @@ namespace InDet {
       etatol = std::max(etatol, design->etaPitch()+1e-6);
     }
     else{
-      ATH_MSG_WARNING (  "could not get pixel module design "  );
+      ATH_MSG_WARNING (  "could not get pixel module design, returning 0 for getFracGood"  );
+      return 0.;
     }
     
      
@@ -863,15 +865,13 @@ namespace InDet {
 
     LocPos = Amg::Vector2D(locx,locy);
 
-    Identifier centreId = sielem->identifierOfPosition(LocPos);
+    
    
     if(m_checkDisabledFEs){
       const InDetConditions::Hierarchy context = InDetConditions::PIXEL_CHIP;
-      
+      Identifier centreId = sielem->identifierOfPosition(LocPos);
       if(centreId.is_valid()){
-	
 	if( !m_pixelCondSummarySvc->isGood(centreId, context) ) return 0.;
-	
       }
       
       else ATH_MSG_WARNING (  "Invalid Identifier, skipping check of FE..."  );
