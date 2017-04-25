@@ -309,6 +309,8 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
    int num_errorFEs_B1[kNumModulesPhi[PixLayer::kB1] ][kNumModulesEta[PixLayer::kB1] ][kNumFEs] = {0};
    int num_errorFEs_B2[kNumModulesPhi[PixLayer::kB2] ][kNumModulesEta[PixLayer::kB2] ][kNumFEs] = {0};
 
+   const auto& kFeErrorWords = m_ErrorSvc->getAllFeErrors();
+
    PixelID::const_id_iterator idIt    = m_pixelid->wafer_begin();
    PixelID::const_id_iterator idItEnd = m_pixelid->wafer_end();
 
@@ -427,6 +429,16 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
             }
          } //end bit shifting
       } //end for loop over bits
+
+      // Do the same bit-shifting again, this time for FE/MCC error words.
+      if (kFeErrorWords.find(id_hash) != kFeErrorWords.end()) {
+         // Collection of: FE ID, associated error word
+         std::map<unsigned int, unsigned int> fe_errorword_map = kFeErrorWords.find(id_hash)->second;
+
+         for (const auto& map_entry : fe_errorword_map) {
+            const auto& fe_errorword = map_entry.second;
+         } // end loop over FE error words
+      }
 
       if (m_doLumiBlock) {
          if (m_errors_ModSync_mod && has_err_type[0])
