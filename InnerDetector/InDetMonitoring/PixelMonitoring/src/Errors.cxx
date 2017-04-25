@@ -118,21 +118,21 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    };
 
    const std::array <std::pair <std::string, std::string>, ErrorCategoryMODROD::COUNT> error_type_labels = {{
-       std::make_pair("SyncErrors_Mod",        "SyncErrors_Mod"),
-       std::make_pair("SyncErrors_ROD",        "SyncErrors_ROD"),
-       std::make_pair("TruncErrors_Mod",       "TruncErrors_Mod"),
-       std::make_pair("TruncErrors_ROD",       "TruncErrors_ROD"),
-       std::make_pair("OpticalErrors_RODMod",  "Preamble/headerErrors"),
-       std::make_pair("SEUErrors_RODMod",      "SEUErrors"),
-       std::make_pair("TimeoutErrors_RODMod",  "TimeoutErrors"),
+       std::make_pair("SyncErrors_Mod",        "FE/MCC Sync Errors"),
+       std::make_pair("SyncErrors_ROD",        "ROD Sync Errors"),
+       std::make_pair("TruncErrors_Mod",       "FE/MCC Trunc Errors"),
+       std::make_pair("TruncErrors_ROD",       "ROD Trunc Errors"),
+       std::make_pair("OpticalErrors_RODMod",  "Preamble/Header Errors"),
+       std::make_pair("SEUErrors_RODMod",      "SEU Errors"),
+       std::make_pair("TimeoutErrors_RODMod",  "Timeout Errors"),
      }};
 
    const std::array <std::pair <std::string, std::string>, ErrorCategory::COUNT> error_cat_labels = {{
-       std::make_pair("SyncErrors",     "SyncErrors"),
-       std::make_pair("TruncErrors",    "TruncErrors"),
-       std::make_pair("OpticalErrors",  "Preamble/headerErrors"),
-       std::make_pair("SEUErrors",      "SEUErrors"),
-       std::make_pair("TimeoutErrors",  "TimeoutErrors"),
+       std::make_pair("SyncErrors",     "Sync Errors (FE/MCC & ROD)"),
+       std::make_pair("TruncErrors",    "Trunc Errors (FE/MCC & ROD)"),
+       std::make_pair("OpticalErrors",  "Preamble/Header Errors"),
+       std::make_pair("SEUErrors",      "SEU Errors"),
+       std::make_pair("TimeoutErrors",  "Timeout Errors"),
      }};
 
    const std::string modlabel2[PixLayerIBL2D3D::COUNT] = {"ECA", "ECC", "B0", "B1", "B2", "IBL", "IBL2D", "IBL3D"};
