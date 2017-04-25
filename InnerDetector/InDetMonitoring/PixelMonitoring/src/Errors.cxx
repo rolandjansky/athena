@@ -204,10 +204,10 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    }
 
    if (m_do2DMaps && !m_doOnline) {
-     for (int j = 0; j < kNumErrorStates; j++) {
-       m_errhist_expert_LB_maps[j]  = new PixelMon2DLumiMaps(error_state_labels[j].first + "_int_LB", error_state_labels[j].second + " per event per LB" + m_histTitleExt, "# Errors", m_doIBL, false);
-       sc = m_errhist_expert_LB_maps[j]->regHist(rodExpert, m_doIBL, false);
-     }
+      for (int j = 0; j < kNumErrorStates; j++) {
+         m_errhist_expert_LB_maps[j]  = new PixelMon2DLumiMaps(error_state_labels[j].first + "_int_LB", error_state_labels[j].second + " per event per LB" + m_histTitleExt, "# Errors", m_doIBL, false);
+         sc = m_errhist_expert_LB_maps[j]->regHist(rodExpert, m_doIBL, false);
+      }
    }
 
    for (int j = 0; j < kNumErrorStates; j++) {
@@ -461,11 +461,11 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
       if (m_errhist_tot_LB[i]) m_errhist_tot_LB[i]->Fill(kLumiBlock, num_errors[i]);
 
       for (int j = 0; j < ErrorCategory::COUNT; ++j) {
-        if (m_errhist_errcat_LB[i][j]) m_errhist_errcat_LB[i][j]->Fill(kLumiBlock, num_errormodules_per_cat[i][j]);
+         if (m_errhist_errcat_LB[i][j]) m_errhist_errcat_LB[i][j]->Fill(kLumiBlock, num_errormodules_per_cat[i][j]);
       }
 
       for (int j = 0; j < ErrorCategoryMODROD::COUNT - 3; ++j) {
-        if (m_errhist_errtype_LB[i][j]) m_errhist_errtype_LB[i][j]->Fill(kLumiBlock, num_errormodules_per_type[i][j]);
+         if (m_errhist_errtype_LB[i][j]) m_errhist_errtype_LB[i][j]->Fill(kLumiBlock, num_errormodules_per_type[i][j]);
       }
 
       for (int j = 0; j < ErrorCategory::COUNT; j++) {
@@ -476,8 +476,8 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
    }
    if (m_errhist_syncerr_LB_pix) {
       m_errhist_syncerr_LB_pix->Fill(kLumiBlock, num_errormodules_per_cat[PixLayerIBL2D3D::kB0][ErrorCategory::kSync]
-                                      + num_errormodules_per_cat[PixLayerIBL2D3D::kB1][ErrorCategory::kSync]
-                                      + num_errormodules_per_cat[PixLayerIBL2D3D::kB2][ErrorCategory::kSync]);
+                                     + num_errormodules_per_cat[PixLayerIBL2D3D::kB1][ErrorCategory::kSync]
+                                     + num_errormodules_per_cat[PixLayerIBL2D3D::kB2][ErrorCategory::kSync]);
    }
 
    for (int i = 0; i < PixLayer::COUNT; i++) {
