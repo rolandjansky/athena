@@ -1,5 +1,4 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 class Norm1:
   def __init__(self):
     from TrigT2CaloEgamma.RingerConstants import Section, Normalisation
