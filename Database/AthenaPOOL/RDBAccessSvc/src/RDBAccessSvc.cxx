@@ -198,91 +198,77 @@ const IRDBRecordset* RDBAccessSvc::getRecordset(const std::string& node,
 						const std::string& tag2node,
 						const std::string& connName)
 {
+  if(!connect(connName)) {
+    msg(MSG::ERROR) << "Unable to open connection " << connName
+		    << ". Returning empty recordset" << endreq;
+    return &m_empty;
+  }
+
   std::string key = node + "::" + tag;
   if(tag2node!="")
     key += ("::" + tag2node);
 
-  RecordsetsByConn::const_iterator it_maps = m_recordsets.find(connName);
-  if(it_maps==m_recordsets.end()) {
-    if(msgLvl(MSG::DEBUG))
-      msg(MSG::DEBUG) << "Wrong name for connection " << connName
-		      << ". Unable to find recordset map. Returning empty recordset" << endreq;
-
-    return &m_empty;
-  }
-
-  RecordsetMap* recordsets = it_maps->second;
+  RecordsetMap* recordsets = m_recordsets[connName];
   RecordsetMap::const_iterator it = recordsets->find(key);
   if(it != recordsets->end()) {
     const RDBRecordset* rec = it->second;
+    disconnect(connName);
     return rec;
   }
 
   RDBRecordset* rec = new RDBRecordset(this);
-
   SessionMap::const_iterator it_sessions = m_sessions.find(connName);
+  coral::ISessionProxy* session = it_sessions->second;
 
-  if(it_sessions != m_sessions.end()) {
-    coral::ISessionProxy* session = it_sessions->second;
-
-    if(session) {
-      try {
-	// Start new readonly transaction
-	session->transaction().start(true);
-
-	// Check lookup table first
-	bool lookupFound = false;
-	std::string lookupMapKey = tag + "::" + connName;
-	GlobalTagLookupMap::const_iterator lookupmap = m_globalTagLookup.find(lookupMapKey);
-	if(lookupmap!=m_globalTagLookup.end()) {
-	  lookupFound = true;
-	  TagNameIdByNode::const_iterator childtagdet = lookupmap->second->find(node);
-	  if(childtagdet!=lookupmap->second->end()) {
-	    rec->getData(session,node,childtagdet->second.first,childtagdet->second.second);
-	  }
-	  else {
-	    if(msgLvl(MSG::DEBUG))
-	      msg(MSG::DEBUG) << "Unable to find tag for the node " << node
-			      << " in the cache of global tag " << tag << ". Returning empty recordset" << endreq;
-	  }
-	}
-
-	if(!lookupFound) {
-	  if(tag2node!="") {
-	    RDBVersionAccessor versionAccessor(node,tag2node,tag,session,msg());
-	    versionAccessor.getChildTagData();
-	    rec->getData(session,versionAccessor.getNodeName(),versionAccessor.getTagName(),versionAccessor.getTagID());
-	  }
-	  else {
-	    RDBVersionAccessor versionAccessor(node,node,tag,session,msg());
-	    versionAccessor.getChildTagData();
-	    rec->getData(session,versionAccessor.getNodeName(),versionAccessor.getTagName(),versionAccessor.getTagID());
-	  }
-	}
-	
-	// Finish the transaction
-	session->transaction().commit();
+  try {
+    // Start new readonly transaction
+    session->transaction().start(true);
+    
+    // Check lookup table first
+    bool lookupFound = false;
+    std::string lookupMapKey = tag + "::" + connName;
+    GlobalTagLookupMap::const_iterator lookupmap = m_globalTagLookup.find(lookupMapKey);
+    if(lookupmap!=m_globalTagLookup.end()) {
+      lookupFound = true;
+      TagNameIdByNode::const_iterator childtagdet = lookupmap->second->find(node);
+      if(childtagdet!=lookupmap->second->end()) {
+	rec->getData(session,node,childtagdet->second.first,childtagdet->second.second);
       }
-      catch(coral::SchemaException& se) {
-	msg(MSG::ERROR) << "Schema Exception : " << se.what() << endreq;
-      }
-      catch(std::exception& e) {
-	msg(MSG::ERROR) << e.what() << endreq;
-      }
-      catch(...) {
-	msg(MSG::ERROR) << "Exception caught(...)" << endreq;
+      else {
+	if(msgLvl(MSG::DEBUG))
+	  msg(MSG::DEBUG) << "Unable to find tag for the node " << node
+			  << " in the cache of global tag " << tag << ". Returning empty recordset" << endreq;
       }
     }
-    else {
-      msg(MSG::ERROR) << "Connection " << connName << " is not open." 
-		      << " Returning empty recordset" << endreq;
+    
+    if(!lookupFound) {
+      if(tag2node!="") {
+	RDBVersionAccessor versionAccessor(node,tag2node,tag,session,msg());
+	versionAccessor.getChildTagData();
+	rec->getData(session,versionAccessor.getNodeName(),versionAccessor.getTagName(),versionAccessor.getTagID());
+      }
+      else {
+	RDBVersionAccessor versionAccessor(node,node,tag,session,msg());
+	versionAccessor.getChildTagData();
+	rec->getData(session,versionAccessor.getNodeName(),versionAccessor.getTagName(),versionAccessor.getTagID());
+      }
     }
+    
+    // Finish the transaction
+    session->transaction().commit();
   }
-  else
-    msg(MSG::ERROR) << "Wrong name for connection " << connName
-		    << ". Unable to find session. Returning empty recordset" << endreq;
-
+  catch(coral::SchemaException& se) {
+    msg(MSG::ERROR) << "Schema Exception : " << se.what() << endreq;
+  }
+  catch(std::exception& e) {
+    msg(MSG::ERROR) << e.what() << endreq;
+  }
+  catch(...) {
+    msg(MSG::ERROR) << "Exception caught(...)" << endreq;
+  }
+  
   (*recordsets)[key] = rec;
+  disconnect(connName);
   return rec;
 }
 
@@ -298,96 +284,81 @@ IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node,
   if(msgLvl(MSG::DEBUG))
     msg(MSG::DEBUG) << "Getting RecordsetPtr with key " << key << endreq;
 
-  RecordsetPtrsByConn::const_iterator it_maps = m_recordsetptrs.find(connName);
-  if(it_maps==m_recordsetptrs.end()) {
-    if(msgLvl(MSG::DEBUG))
-      msg(MSG::DEBUG) << "Wrong name for connection " << connName
-		      << ". Unable to find recordset map. Returning empty recordset" << endreq;
-
+  if(!connect(connName)) {
+    msg(MSG::ERROR) << "Unable to open connection " << connName
+                    << ". Returning empty recordset" << endreq;
     return IRDBRecordset_ptr(new RDBRecordset(this));
   }
 
-  RecordsetPtrMap* recordsets = it_maps->second;
+  RecordsetPtrMap* recordsets = m_recordsetptrs[connName];
   RecordsetPtrMap::const_iterator it = recordsets->find(key);
   if(it != recordsets->end()) {
     if(msgLvl(MSG::DEBUG))
       msg(MSG::DEBUG) << "Reusing existing recordset" << endreq;
+    disconnect(connName);
     return it->second;
   }
 
   IRDBRecordset_ptr rec(new RDBRecordset(this));
+  coral::ISessionProxy* session = m_sessions[connName];
 
-  SessionMap::const_iterator it_sessions = m_sessions.find(connName);
-
-  if(it_sessions != m_sessions.end()) {
-    coral::ISessionProxy* session = it_sessions->second;
-
-    if(session) {
-      try {
-	// Start new readonly transaction
-	session->transaction().start(true);
-
-	// Check lookup table first
-	bool lookupFound = false;
-	std::string lookupMapKey = tag + "::" + connName;
-	GlobalTagLookupMap::const_iterator lookupmap = m_globalTagLookup.find(lookupMapKey);
-	if(lookupmap!=m_globalTagLookup.end()) {
-	  lookupFound = true;
-	  TagNameIdByNode::const_iterator childtagdet = lookupmap->second->find(node);
-	  RDBRecordset* recConcrete = dynamic_cast<RDBRecordset*>(rec.get());
-	  if(recConcrete) {
-	    if(childtagdet!=lookupmap->second->end()) {
-	      recConcrete->getData(session,node,childtagdet->second.first,childtagdet->second.second);
-	    }
-	    else {
-	      recConcrete->setNodeName(node);
-	      if(msgLvl(MSG::DEBUG))
-		msg(MSG::DEBUG) << "Unable to find tag for the node " << node
-				<< " in the cache of global tag " << tag << ". Returning empty recordset" << endreq;
-	    }
-	  }
+  try {
+    // Start new readonly transaction
+    session->transaction().start(true);
+    
+    // Check lookup table first
+    bool lookupFound = false;
+    std::string lookupMapKey = tag + "::" + connName;
+    GlobalTagLookupMap::const_iterator lookupmap = m_globalTagLookup.find(lookupMapKey);
+    if(lookupmap!=m_globalTagLookup.end()) {
+      lookupFound = true;
+      TagNameIdByNode::const_iterator childtagdet = lookupmap->second->find(node);
+      RDBRecordset* recConcrete = dynamic_cast<RDBRecordset*>(rec.get());
+      if(recConcrete) {
+	if(childtagdet!=lookupmap->second->end()) {
+	  recConcrete->getData(session,node,childtagdet->second.first,childtagdet->second.second);
 	}
-
-	if(!lookupFound) {
-	  if(tag2node!="") {
-	    RDBVersionAccessor versionAccessor(node,tag2node,tag,session,msg());
-	    versionAccessor.getChildTagData();
-	    RDBRecordset* recConcrete = dynamic_cast<RDBRecordset*>(rec.get());
-	    if(recConcrete)
-	      recConcrete->getData(session,versionAccessor.getNodeName(),versionAccessor.getTagName(),versionAccessor.getTagID());
-	  }
-	  else {
-	    RDBVersionAccessor versionAccessor(node,node,tag,session,msg());
-	    versionAccessor.getChildTagData();
-	    RDBRecordset* recConcrete = dynamic_cast<RDBRecordset*>(rec.get());
-	    if(recConcrete)
-	      recConcrete->getData(session,versionAccessor.getNodeName(),versionAccessor.getTagName(),versionAccessor.getTagID());
-	  }
+	else {
+	  recConcrete->setNodeName(node);
+	  if(msgLvl(MSG::DEBUG))
+	    msg(MSG::DEBUG) << "Unable to find tag for the node " << node
+			    << " in the cache of global tag " << tag << ". Returning empty recordset" << endreq;
 	}
+      }
+    }
+    
+    if(!lookupFound) {
+      if(tag2node!="") {
+	RDBVersionAccessor versionAccessor(node,tag2node,tag,session,msg());
+	versionAccessor.getChildTagData();
+	RDBRecordset* recConcrete = dynamic_cast<RDBRecordset*>(rec.get());
+	if(recConcrete)
+	  recConcrete->getData(session,versionAccessor.getNodeName(),versionAccessor.getTagName(),versionAccessor.getTagID());
+      }
+      else {
+	RDBVersionAccessor versionAccessor(node,node,tag,session,msg());
+	versionAccessor.getChildTagData();
+	RDBRecordset* recConcrete = dynamic_cast<RDBRecordset*>(rec.get());
+	if(recConcrete)
+	  recConcrete->getData(session,versionAccessor.getNodeName(),versionAccessor.getTagName(),versionAccessor.getTagID());
+      }
+    }
 	
-	// Finish the transaction
-	session->transaction().commit();
-      }
-      catch(coral::SchemaException& se) {
-	msg(MSG::ERROR) << "Schema Exception : " << se.what() << endreq;
-      }
-      catch(std::exception& e) {
-	msg(MSG::ERROR) << e.what() << endreq;
-      }
-      catch(...) {
-	msg(MSG::ERROR) << "Exception caught(...)" << endreq;
-      }
-    }
-    else {
-      msg(MSG::ERROR) << "Connection " << connName << " is not open." 
-	  << " Returning empty recordset" << endreq;
-    }
+    // Finish the transaction
+    session->transaction().commit();
   }
-  else
-    msg(MSG::ERROR) << "Wrong name for connection " << connName
-	<< ". Unable to find session. Returning empty recordset" << endreq;
+  catch(coral::SchemaException& se) {
+    msg(MSG::ERROR) << "Schema Exception : " << se.what() << endreq;
+  }
+  catch(std::exception& e) {
+    msg(MSG::ERROR) << e.what() << endreq;
+  }
+  catch(...) {
+    msg(MSG::ERROR) << "Exception caught(...)" << endreq;
+  }
 
   (*recordsets)[key] = rec;
+  disconnect(connName);
   return rec;
 }
 
@@ -398,70 +369,62 @@ IRDBQuery* RDBAccessSvc::getQuery(const std::string& node,
 {
   IRDBQuery* query(0);
 
-  SessionMap::const_iterator it_sessions = m_sessions.find(connName);
-  if(it_sessions != m_sessions.end()) {
-    coral::ISessionProxy* session = it_sessions->second;
-
-    if(session) {
-      try {
-	// Check lookup table first
-	std::string childTagId("");
-	bool lookupFound = false;
-	std::string lookupMapKey = tag + "::" + connName;
-	GlobalTagLookupMap::const_iterator lookupmap = m_globalTagLookup.find(lookupMapKey);
-	if(lookupmap!=m_globalTagLookup.end()) {
-	  lookupFound = true;
-	  TagNameIdByNode::const_iterator childtagdet = lookupmap->second->find(node);
-	  if(childtagdet!=lookupmap->second->end()) {
-	    childTagId = childtagdet->second.second;
-	  }
-	}
-
-	if(!lookupFound) {
-	  // Start new readonly transaction
-	  session->transaction().start(true);
-
-	  RDBVersionAccessor_ptr versionAccessor;
-	  if(tag2node.empty())
-	    versionAccessor = RDBVersionAccessor_ptr(new RDBVersionAccessor(node,node,tag,session,msg()));
-	  else
-	    versionAccessor = RDBVersionAccessor_ptr(new RDBVersionAccessor(node,tag2node,tag,session,msg()));
-
-	  versionAccessor->getChildTagData();
-	  childTagId = versionAccessor->getTagID();
-
-	  // Finish the transaction
-	  session->transaction().commit();
-	}
-
-	if(childTagId.empty()) {
-	  if(msgLvl(MSG::DEBUG))
-	    msg(MSG::DEBUG) << "Could not get the tag for " << node
-			    << " node. Returning 0 pointer to IRDBQuery" << endreq;
-	}
-	else {
-	  query = new RDBQuery(this,session,node,childTagId);
-	}
-
-      }
-      catch(coral::SchemaException& se) {
-	msg(MSG::ERROR) << "Schema Exception : " << se.what() << endreq;
-      }
-      catch(std::exception& e) {
-	msg(MSG::ERROR) << e.what() << endreq;
-      }
-      catch(...) {
-	msg(MSG::ERROR) << "Exception caught(...)" << endreq;
+  if(!connect(connName)) {
+    msg(MSG::ERROR) << "Unable to open connection " << connName
+                    << ". Returning 0 pointer to IRDBQuery" << endreq;
+    return query;
+  }
+  
+  try {
+    coral::ISessionProxy* session = m_sessions[connName];
+    // Check lookup table first
+    std::string childTagId("");
+    std::string lookupMapKey = tag + "::" + connName;
+    GlobalTagLookupMap::const_iterator lookupmap = m_globalTagLookup.find(lookupMapKey);
+    if(lookupmap!=m_globalTagLookup.end()) {
+      TagNameIdByNode::const_iterator childtagdet = lookupmap->second->find(node);
+      if(childtagdet!=lookupmap->second->end()) {
+	childTagId = childtagdet->second.second;
       }
     }
     else {
-      msg(MSG::ERROR) << "Connection " << connName << " is not open." << endreq; 
+      // Start new readonly transaction
+      session->transaction().start(true);
+      
+      RDBVersionAccessor_ptr versionAccessor;
+      if(tag2node.empty())
+	versionAccessor = RDBVersionAccessor_ptr(new RDBVersionAccessor(node,node,tag,session,msg()));
+      else
+	versionAccessor = RDBVersionAccessor_ptr(new RDBVersionAccessor(node,tag2node,tag,session,msg()));
+      
+      versionAccessor->getChildTagData();
+      childTagId = versionAccessor->getTagID();
+      
+      // Finish the transaction
+      session->transaction().commit();
     }
+    
+    if(childTagId.empty()) {
+      if(msgLvl(MSG::DEBUG))
+	msg(MSG::DEBUG) << "Could not get the tag for " << node
+			<< " node. Returning 0 pointer to IRDBQuery" << endreq;
+    }
+    else {
+      query = new RDBQuery(this,session,node,childTagId);
+    }
+    
   }
-  else
-    msg(MSG::ERROR) << "Wrong name for connection " << connName
-	<< ". Unable to find session." << endreq;
+  catch(coral::SchemaException& se) {
+    msg(MSG::ERROR) << "Schema Exception : " << se.what() << endreq;
+  }
+  catch(std::exception& e) {
+    msg(MSG::ERROR) << e.what() << endreq;
+  }
+  catch(...) {
+    msg(MSG::ERROR) << "Exception caught(...)" << endreq;
+  }
 
+  disconnect(connName);
   return query;
 }
 
@@ -479,145 +442,134 @@ std::string RDBAccessSvc::getChildTag(const std::string& childNode,
 
   if(msgLvl(MSG::DEBUG))
     msg(MSG::DEBUG) << "getChildTag for " << childNode << " " << parentTag << " " << parentNode << " " << (fetchData?"Fetch":"Nofetch") << endreq;
+  std::string childTag("");
 
-  SessionMap::const_iterator it_sessions = m_sessions.find(connName);
-
-  if(it_sessions != m_sessions.end()) {
-    coral::ISessionProxy* session = it_sessions->second;
-
-    if(session) {
-      try {
-	// Check lookup table first
-	std::string lookupMapKey = parentTag + "::" + connName;
-	GlobalTagLookupMap::const_iterator lookupmap = m_globalTagLookup.find(lookupMapKey);
-	if(lookupmap!=m_globalTagLookup.end()) {
-	  TagNameIdByNode::const_iterator childtagdet = lookupmap->second->find(childNode);
-	  if(childtagdet!=lookupmap->second->end())
-	    return childtagdet->second.first;
-	  else
-	    return std::string("");
-	}
-
-	// We don't have lookup table for given parent tag. Go into slow mode through Version Accessor
-	// Start new readonly transaction
-	session->transaction().start(true);
-
-	RDBVersionAccessor versionAccessor(childNode,parentNode,parentTag,session,msg());
-	versionAccessor.getChildTagData();
-	      
-	// Finish the transaction
-	session->transaction().commit(); 
-
-	return versionAccessor.getTagName();
-      }
-      catch(coral::SchemaException& se) {
-	msg(MSG::ERROR) << "Schema Exception : " << se.what() << endreq;
-      }
-      catch(std::exception& e) {
-	msg(MSG::ERROR) << e.what() << endreq;
-      }
-      catch(...) {
-	msg(MSG::ERROR) << "Exception caught(...)" << endreq;
-      }
-    }
-    else {
-      msg(MSG::ERROR) << "Connection " << connName << " is not open." << endreq;
-    }
+  // Check lookup table first
+  std::string lookupMapKey = parentTag + "::" + connName;
+  GlobalTagLookupMap::const_iterator lookupmap = m_globalTagLookup.find(lookupMapKey);
+  if(lookupmap!=m_globalTagLookup.end()) {
+    TagNameIdByNode::const_iterator childtagdet = lookupmap->second->find(childNode);
+    if(childtagdet!=lookupmap->second->end())
+      return childtagdet->second.first;
+    else
+      return std::string("");
   }
-  else
-    msg(MSG::ERROR) << "Wrong name for connection " << connName << endreq;
 
-  return std::string("");
+  if(connect(connName)) {
+    try {    
+      // We don't have lookup table for given parent tag. Go into slow mode through Version Accessor
+      // Start new readonly transaction
+      coral::ISessionProxy* session = m_sessions[connName];
+      session->transaction().start(true);
+      
+      RDBVersionAccessor versionAccessor(childNode,parentNode,parentTag,session,msg());
+      versionAccessor.getChildTagData();
+      
+    // Finish the transaction
+      session->transaction().commit(); 
+      
+      childTag = versionAccessor.getTagName();
+    }
+    catch(coral::SchemaException& se) {
+      msg(MSG::ERROR) << "Schema Exception : " << se.what() << endreq;
+    }
+    catch(std::exception& e) {
+      msg(MSG::ERROR) << e.what() << endreq;
+    }
+    catch(...) {
+      msg(MSG::ERROR) << "Exception caught(...)" << endreq;
+    }
+    disconnect(connName);
+  }
+  else {
+    msg(MSG::ERROR) << "Unable to open connection " << connName
+                    << ". Returning empty string" << endreq;
+  }
+
+  return childTag;
 }
  
 RDBTagDetails RDBAccessSvc::getTagDetails(const std::string& tag,
 					  const std::string& connName)
 {
   RDBTagDetails tagDetails;
+  if(connect(connName)) {
+    coral::ISessionProxy* session = m_sessions[connName];
+    try {
+      // Start new readonly transaction
+      session->transaction().start(true);
+      
+      coral::ITable& tableTag2Node = session->nominalSchema().tableHandle("HVS_TAG2NODE");
+      coral::IQuery *queryTag2Node = tableTag2Node.newQuery();
+      queryTag2Node->addToOutputList("LOCKED");
+      queryTag2Node->addToOutputList("SUPPORTED");
+      queryTag2Node->setMemoryCacheSize(1);
+      coral::AttributeList bindsTag2Node;
+      bindsTag2Node.extend<std::string>("tagN");
+      queryTag2Node->setCondition("TAG_NAME=:tagN", bindsTag2Node);
+      bindsTag2Node[0].data<std::string>() = tag;
+      
+      coral::ICursor& cursorTag2Node = queryTag2Node->execute();
+      if(cursorTag2Node.next()) {
+	tagDetails = cursorTag2Node.currentRow();
+      }
+      
+      delete queryTag2Node;
 
-  SessionMap::const_iterator it_sessions = m_sessions.find(connName);
+      // Build lookup table for the given global tag if has not been built yet
+      std::string lookupMapKey = tag + "::" + connName;
+      if(m_globalTagLookup.find(lookupMapKey)==m_globalTagLookup.end()) {
+	// Get tag contents from the database
+	TagNameIdByNode* lookup = new TagNameIdByNode();
+	
+	coral::ITable& tableRootTag2Child = session->nominalSchema().tableHandle("HVS_TAGCACHE");
+	coral::IQuery* queryRootTag2Child = tableRootTag2Child.newQuery();
+	queryRootTag2Child->addToOutputList("CHILDNODE");
+	queryRootTag2Child->addToOutputList("CHILDTAG");
+	queryRootTag2Child->addToOutputList("CHILDTAGID");
+	queryRootTag2Child->setMemoryCacheSize(1);
+	coral::AttributeList bindsRootTag2Child;
+	bindsRootTag2Child.extend<std::string>("tagN");
+	queryRootTag2Child->setCondition("ROOTTAG=:tagN", bindsRootTag2Child);
+	bindsRootTag2Child[0].data<std::string>() = tag;
+	queryRootTag2Child->addToOrderList("CHILDNODE");
 
-  if(it_sessions != m_sessions.end()) {
-    coral::ISessionProxy* session = it_sessions->second;
-
-    if(session) {
-      try {
-	// Start new readonly transaction
-	session->transaction().start(true);
-
-	coral::ITable& tableTag2Node = session->nominalSchema().tableHandle("HVS_TAG2NODE");
-	coral::IQuery *queryTag2Node = tableTag2Node.newQuery();
-	queryTag2Node->addToOutputList("LOCKED");
-	queryTag2Node->addToOutputList("SUPPORTED");
-	queryTag2Node->setMemoryCacheSize(1);
-	coral::AttributeList bindsTag2Node;
-	bindsTag2Node.extend<std::string>("tagN");
-	queryTag2Node->setCondition("TAG_NAME=:tagN", bindsTag2Node);
-	bindsTag2Node[0].data<std::string>() = tag;
-
-	coral::ICursor& cursorTag2Node = queryTag2Node->execute();
-	if(cursorTag2Node.next()) {
-	  tagDetails = cursorTag2Node.currentRow();
+	coral::ICursor& cursorRootTag2Child = queryRootTag2Child->execute();
+	while(cursorRootTag2Child.next()) {
+	  const coral::AttributeList& row = cursorRootTag2Child.currentRow();
+	  
+	  // turn TAG_ID into srting
+	  std::stringstream tagIdStream;
+	  tagIdStream << row["CHILDTAGID"].data<long long>();
+	  (*lookup)[row["CHILDNODE"].data<std::string>()]=std::make_pair(row["CHILDTAG"].data<std::string>(),tagIdStream.str());
 	}
-
-	delete queryTag2Node;
-
-	// Build lookup table for the given global tag if has not been built yet
-	std::string lookupMapKey = tag + "::" + connName;
-	if(m_globalTagLookup.find(lookupMapKey)==m_globalTagLookup.end()) {
-	  // Get tag contents from the database
-	  TagNameIdByNode* lookup = new TagNameIdByNode();
-
-	  coral::ITable& tableRootTag2Child = session->nominalSchema().tableHandle("HVS_TAGCACHE");
-	  coral::IQuery* queryRootTag2Child = tableRootTag2Child.newQuery();
-	  queryRootTag2Child->addToOutputList("CHILDNODE");
-	  queryRootTag2Child->addToOutputList("CHILDTAG");
-	  queryRootTag2Child->addToOutputList("CHILDTAGID");
-	  queryRootTag2Child->setMemoryCacheSize(1);
-	  coral::AttributeList bindsRootTag2Child;
-	  bindsRootTag2Child.extend<std::string>("tagN");
-	  queryRootTag2Child->setCondition("ROOTTAG=:tagN", bindsRootTag2Child);
-	  bindsRootTag2Child[0].data<std::string>() = tag;
-	  queryRootTag2Child->addToOrderList("CHILDNODE");
-
-	  coral::ICursor& cursorRootTag2Child = queryRootTag2Child->execute();
-	  while(cursorRootTag2Child.next()) {
-	    const coral::AttributeList& row = cursorRootTag2Child.currentRow();
-
-	    // turn TAG_ID into srting
-	    std::stringstream tagIdStream;
-	    tagIdStream << row["CHILDTAGID"].data<long long>();
-	    (*lookup)[row["CHILDNODE"].data<std::string>()]=std::make_pair(row["CHILDTAG"].data<std::string>(),tagIdStream.str());
-	  }
-
-	  delete queryRootTag2Child;
-
-	  if(lookup->size()>0)
-	    m_globalTagLookup[lookupMapKey]=lookup;
-	  else
-	    delete lookup;
-	}
+	
+	delete queryRootTag2Child;
+	
+	if(lookup->size()>0)
+	  m_globalTagLookup[lookupMapKey]=lookup;
+	else
+	  delete lookup;
       }
-      catch(coral::SchemaException& se) {
-	msg(MSG::INFO) << "Schema Exception : " << se.what() << endreq;
-      }
-      catch(std::exception& e) {
-	msg(MSG::ERROR) << e.what() << endreq;
-      }
-      catch(...) {
-	msg(MSG::ERROR) << "Exception caught(...)" << endreq;
-      }
+    }
+    catch(coral::SchemaException& se) {
+      msg(MSG::INFO) << "Schema Exception : " << se.what() << endreq;
+    }
+    catch(std::exception& e) {
+      msg(MSG::ERROR) << e.what() << endreq;
+    }
+    catch(...) {
+      msg(MSG::ERROR) << "Exception caught(...)" << endreq;
+    }
 
       // Finish the transaction
-      if(session->transaction().isActive())
-	session->transaction().commit();
-    }
-    else {
-      msg(MSG::ERROR) << "Connection " << connName << " is not open." << endreq;
-    }
+    if(session->transaction().isActive())
+      session->transaction().commit();
+
+    disconnect(connName);
   }
   else {
-    msg(MSG::ERROR) << "Wrong name for connection " << connName << endreq;
+    msg(MSG::ERROR) << "Failed to open connection " << connName << endreq;
   }
 
   return tagDetails;
@@ -627,55 +579,45 @@ void RDBAccessSvc::getAllLeafNodes(std::vector<std::string>& list,
 				   const std::string& connName)
 {
   list.clear();
-  SessionMap::const_iterator it_sessions = m_sessions.find(connName);
+  if(connect(connName)) {
+    coral::ISessionProxy* session = m_sessions[connName];
+    try {
+      // Start new readonly transaction
+      session->transaction().start(true);
 
-  if(it_sessions != m_sessions.end()) {
-    coral::ISessionProxy* session = it_sessions->second;
+      coral::ITable& tableNode = session->nominalSchema().tableHandle("HVS_NODE");
+      coral::IQuery *queryNode = tableNode.newQuery();
+      queryNode->addToOutputList("NODE_NAME");
+      queryNode->setMemoryCacheSize(1);
+      queryNode->setCondition("BRANCH_FLAG=0", coral::AttributeList());
+      queryNode->addToOrderList("NODE_NAME");
 
-    if(session) {
-      try {
-	// Start new readonly transaction
-	session->transaction().start(true);
-
-	coral::ITable& tableNode = session->nominalSchema().tableHandle("HVS_NODE");
-	coral::IQuery *queryNode = tableNode.newQuery();
-	queryNode->addToOutputList("NODE_NAME");
-	queryNode->setMemoryCacheSize(1);
-//	coral::AttributeList bindsNode;
-//	bindsNode.extend<bool>("branchF");
-	queryNode->setCondition("BRANCH_FLAG=0", coral::AttributeList());
-	queryNode->addToOrderList("NODE_NAME");
-//	bindsNode[0].data<bool>() = false;
-
-	coral::ICursor& cursorNode = queryNode->execute();
-	while(cursorNode.next()) {
-	  list.push_back(cursorNode.currentRow()["NODE_NAME"].data<std::string>());
-	}
-
-	delete queryNode;
+      coral::ICursor& cursorNode = queryNode->execute();
+      while(cursorNode.next()) {
+	list.push_back(cursorNode.currentRow()["NODE_NAME"].data<std::string>());
       }
-      catch(coral::SchemaException& se) {
-	msg(MSG::INFO) << "Schema Exception : " << se.what() << endreq;
-      }
-      catch(std::exception& e) {
-	msg(MSG::ERROR) << e.what() << endreq;
-      }
-      catch(...) {
-	msg(MSG::ERROR) << "Exception caught(...)" << endreq;
-      }
-
-      // Finish the transaction
-      if(session->transaction().isActive())
-	session->transaction().commit();
+      
+      delete queryNode;
     }
-    else {
-      msg(MSG::ERROR) << "Connection " << connName << " is not open." << endreq;
+    catch(coral::SchemaException& se) {
+      msg(MSG::INFO) << "Schema Exception : " << se.what() << endreq;
     }
+    catch(std::exception& e) {
+      msg(MSG::ERROR) << e.what() << endreq;
+    }
+    catch(...) {
+      msg(MSG::ERROR) << "Exception caught(...)" << endreq;
+    }
+
+    // Finish the transaction
+    if(session->transaction().isActive())
+      session->transaction().commit();
+    
+    disconnect(connName);
   }
   else {
-    msg(MSG::ERROR) << "Wrong name for connection " << connName << endreq;
+      msg(MSG::ERROR) << "Failed to open Connection " << connName << endreq;
   }
-
 }
 
 
