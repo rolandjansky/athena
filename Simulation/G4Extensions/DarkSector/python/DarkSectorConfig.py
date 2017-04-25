@@ -2,4 +2,4 @@
 
 from AthenaCommon import CfgMgr
 def getDarkSectorPhysicsTool(name="DarkSectorPhysicsTool", **kwargs):
-     return CfgMgr.DarkSectorPhysicsToolTool(name, **kwargs)
+     return CfgMgr.DarkSectorPhysicsTool(name, **kwargs)
