@@ -194,8 +194,8 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
 
    if (m_do2DMaps && !m_doOnline) {
       for (int i = 0; i < ErrorCategoryMODROD::COUNT - 3; i++) {
-         m_ErrorTypeMap[i] = new PixelMon2DMapsLW(error_type_labels[i].first, (error_type_labels[i].second + m_histTitleExt).c_str(), m_doIBL, false);
-         sc = m_ErrorTypeMap[i]->regHist(rodHistos, m_doIBL, false);
+         m_errhist_errtype_map[i] = new PixelMon2DMapsLW(error_type_labels[i].first, (error_type_labels[i].second + m_histTitleExt).c_str(), m_doIBL, false);
+         sc = m_errhist_errtype_map[i]->regHist(rodHistos, m_doIBL, false);
       }
       for (int i = 0; i < ErrorCategory::COUNT; i++) {
          m_ErrorCategoryMap[i] = new PixelMon2DMapsLW(error_cat_labels[i].first.c_str(), (error_cat_labels[i].second + m_histTitleExt).c_str(), m_doIBL, false);
@@ -365,8 +365,8 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
                }
 
                if (!has_err_type[error_type-1]) {
-                  if (m_ErrorTypeMap[error_type-1] && !m_doOnline) {
-                     m_ErrorTypeMap[error_type-1]->Fill(WaferID, m_pixelid, m_doIBL, false);
+                  if (m_errhist_errtype_map[error_type-1] && !m_doOnline) {
+                     m_errhist_errtype_map[error_type-1]->Fill(WaferID, m_pixelid, m_doIBL, false);
                   }
                   num_errormodules_per_type[kLayer][error_type-1]++;
                   if (kLayerIBL != 99) num_errormodules_per_type[kLayerIBL][error_type-1]++;

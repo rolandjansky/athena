@@ -409,7 +409,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_error_time2 = 0;       
    m_error_time3 = 0;       
    m_errors = 0;
-   memset(m_ErrorTypeMap, 0, sizeof(m_ErrorTypeMap));
+   memset(m_errhist_errtype_map, 0, sizeof(m_errhist_errtype_map));
    memset(m_ErrorCategoryMap, 0, sizeof(m_ErrorCategoryMap));
    memset(m_errhist_expert_maps, 0, sizeof(m_errhist_expert_maps));
    memset(m_errhist_expert_LB, 0, sizeof(m_errhist_expert_LB));
