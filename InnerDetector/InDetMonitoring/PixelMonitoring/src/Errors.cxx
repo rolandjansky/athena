@@ -124,7 +124,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
 
    hname = makeHistname("SyncErrors_per_lumi_PIX", false);
    htitles = makeHisttitle("Average Synchronization errors per event, PIXEL BARREL", (atext_LB+atext_err), false);
-   sc = rodHistos.regHist(m_SyncErrors_per_lumi_PIX = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+   sc = rodHistos.regHist(m_errhist_syncerr_LB_pix = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
 
    for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
       for (int j = 0; j < ErrorCategory::COUNT; ++j) {
@@ -474,8 +474,8 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
          }
       }
    }
-   if (m_SyncErrors_per_lumi_PIX) {
-      m_SyncErrors_per_lumi_PIX->Fill(kLumiBlock, num_errormodules_per_cat[PixLayerIBL2D3D::kB0][ErrorCategory::kSync]
+   if (m_errhist_syncerr_LB_pix) {
+      m_errhist_syncerr_LB_pix->Fill(kLumiBlock, num_errormodules_per_cat[PixLayerIBL2D3D::kB0][ErrorCategory::kSync]
                                       + num_errormodules_per_cat[PixLayerIBL2D3D::kB1][ErrorCategory::kSync]
                                       + num_errormodules_per_cat[PixLayerIBL2D3D::kB2][ErrorCategory::kSync]);
    }
