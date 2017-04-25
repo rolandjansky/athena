@@ -148,6 +148,11 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
       sc = rodHistos.regHist(m_ErrorBit_per_lumi_mod[i] = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB, 31, 0., 31.));
       m_ErrorBit_per_lumi_mod[i]->SetOption("colz");
 
+      hname = makeHistname(("Error_per_lumi_"+modlabel2[i]), false);
+      htitles = makeHisttitle(("Average Errors per module per event, "+modlabel2[i]), (atext_LB+atext_ers+atext_err), false);
+      sc = rodHistos.regHist(m_Error_per_lumi_mod[i] = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB, 7, 0., 7.));
+      m_Error_per_lumi_mod[i]->SetOption("colz");
+
       for (unsigned int y = 1; y <= m_ErrorBit_per_lumi_mod[i]->GetYaxis()->GetNbins(); y++) {
          if (i < PixLayerIBL2D3D::kIBL) {
             m_ErrorBit_per_lumi_mod[i]->GetYaxis()->SetBinLabel(y, errorBitsPIX[y-1]);
@@ -155,10 +160,6 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
             m_ErrorBit_per_lumi_mod[i]->GetYaxis()->SetBinLabel(y, errorBitsIBL[y-1]);
          }
       }
-      hname = makeHistname(("Error_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average Errors per module per event, "+modlabel2[i]), (atext_LB+atext_ers+atext_err), false);
-      sc = rodHistos.regHist(m_Error_per_lumi_mod[i] = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB, 7, 0., 7.));
-      m_Error_per_lumi_mod[i]->SetOption("colz");
 
       for (unsigned int y = 1; y <= m_Error_per_lumi_mod[i]->GetYaxis()->GetNbins(); y++) {
          if (i < PixLayerIBL2D3D::kIBL) {
