@@ -537,6 +537,7 @@ private:
    static const int      kNumErrorStates{16};
    TProfile_LW*          m_errhist_errcat_LB[PixLayerIBL2D3D::COUNT][ErrorCategory::COUNT];
    TProfile_LW*          m_errhist_errtype_LB[PixLayerIBL2D3D::COUNT][ErrorCategoryMODROD::COUNT - 3];
+   PixelMon2DMapsLW*     m_errhist_errcat_map[ErrorCategory::COUNT];
    PixelMon2DMapsLW*     m_errhist_errtype_map[ErrorCategoryMODROD::COUNT];
    TProfile_LW*          m_errhist_errcat_avg[ErrorCategory::COUNT][PixLayerIBL2D3D::COUNT];
    TProfile_LW*          m_errhist_tot_LB[PixLayerIBL2D3D::COUNT];
@@ -545,7 +546,6 @@ private:
    TProfile*             m_error_time2;       
    TProfile*             m_error_time3;       
    PixelMonModules1D*    m_errors;
-   PixelMon2DMapsLW*     m_ErrorCategoryMap[ErrorCategory::COUNT];
    TProfile2D_LW*        m_ErrorBit_per_lumi_mod[PixLayerIBL2D3D::COUNT];
    TProfile2D_LW*        m_Error_per_lumi_mod[PixLayerIBL2D3D::COUNT];
 
