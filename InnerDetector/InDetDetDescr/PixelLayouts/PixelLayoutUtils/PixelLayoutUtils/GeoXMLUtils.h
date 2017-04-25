@@ -85,10 +85,15 @@ class GeoXMLUtils {
 
   std::vector<double> getVectorDouble(const char* parentTag,int parentIndex,
 				      const char* childTag, int childIndex=0) const;
+  std::vector<double> getVectorDouble(const char* parentTag, std::vector<int> parentIndexList,
+				      const char* childTag, int childIndex=0) const;
+
   std::vector<int> getVectorInt(const char* parentTag,int parentIndex,
 				const char* childTag, int childIndex=0) const;
   std::vector<std::string> getVectorString(const char* parentTag,int parentIndex,
-					    const char* childTag, int childIndex=0) const;
+					   const char* childTag, int childIndex=0) const;
+  std::vector<std::string> getVectorString(const char* parentTag, std::vector<int> parentIndexList,
+					   const char* childTag, int childIndex=0) const;
 
  protected:
   void releaseStrings();

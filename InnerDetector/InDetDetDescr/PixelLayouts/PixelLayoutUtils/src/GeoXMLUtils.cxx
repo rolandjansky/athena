@@ -283,6 +283,29 @@ std::vector<double> GeoXMLUtils::getVectorDouble(const char* parentTag,int paren
   return res; 
 }
 
+std::vector<double> GeoXMLUtils::getVectorDouble(const char* parentTag, std::vector<int> parentIndexList,
+					      const char* childTag, int childIndex) const
+{
+  std::vector<double> res;
+  
+  try {
+    for(int i=0; i<(int)parentIndexList.size(); i++){
+      std::string tmp = getChildValue( parentTag, parentIndexList[i], childTag, childIndex);
+      if(tmp.length()>0){
+	std::istringstream s(tmp);
+	double d;
+	while (s >> d) res.push_back(d);
+      }
+    }
+    if (res.size() == 0)  std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+  }
+  catch(...){
+    std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+  }
+
+  return res; 
+}
+
 std::vector<int> GeoXMLUtils::getVectorInt(const char* parentTag,int parentIndex,
 					const char* childTag, int childIndex) const
 {
@@ -331,6 +354,28 @@ std::vector<std::string> GeoXMLUtils::getVectorString(const char* parentTag,int 
   return res; 
 }
 
+std::vector<std::string> GeoXMLUtils::getVectorString(const char* parentTag,  std::vector<int> parentIndexList,
+						   const char* childTag, int childIndex) const
+{
+  std::vector<std::string> res;
+  
+  try {
+    for(int i=0; i<(int)parentIndexList.size(); i++){
+      std::string tmp = getChildValue( parentTag, parentIndexList[i], childTag, childIndex);
+      if(tmp.length()>0){
+	std::istringstream s(tmp);
+	std::string d;
+	while (s >> d) res.push_back(d);
+      }
+    }
+    if (res.size() == 0)  std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+  }
+  catch(...){
+    std::cout << "XML: " << "Could not find "<<parentTag<<" "<<childTag<<" in XML file"<<std::endl;
+  }
+
+  return res; 
+}
 
 double GeoXMLUtils::getDouble(const char* parentTag,std::vector<int> parentIndexList,
 				const char* childTag, int childIndex,
