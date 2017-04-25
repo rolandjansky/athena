@@ -122,7 +122,7 @@ class GSCFexSplit (TrigGSCFex):
                 #print self.GSCCalibrationTool
                 myGSCTool = JetCalibrationTool("myJCTool_trigger", 
                                                JetCollection="AntiKt4EMTopo", 
-                                               ConfigFile="JES_2015dataset_recommendation_Feb2016.config", 
+                                               ConfigFile="JES_data2016_data2015_Recommendation_Dec2016_rel21.config", 
                                                CalibSequence="JetArea_EtaJES_GSC_Insitu",
                                                RhoKey="HLTKt4EMTopoEventShape",
                                                IsData=True,
