@@ -153,10 +153,12 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
       sc = rodHistos.regHist(m_errhist_per_type_LB[i] = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB, 7, 0., 7.));
       m_errhist_per_type_LB[i]->SetOption("colz");
 
-      for (unsigned int y = 1; y <= m_errhist_per_bit_LB[i]->GetYaxis()->GetNbins(); y++) {
-         if (i < PixLayerIBL2D3D::kIBL) {
+      if (i < PixLayerIBL2D3D::kIBL) {
+         for (unsigned int y = 1; y <= m_errhist_per_bit_LB[i]->GetYaxis()->GetNbins(); y++) {
             m_errhist_per_bit_LB[i]->GetYaxis()->SetBinLabel(y, errorBitsPIX[y-1]);
-         } else {
+         }
+      } else {
+         for (unsigned int y = 1; y <= m_errhist_per_bit_LB[i]->GetYaxis()->GetNbins(); y++) {
             m_errhist_per_bit_LB[i]->GetYaxis()->SetBinLabel(y, errorBitsIBL[y-1]);
          }
       }
@@ -230,13 +232,17 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    htitles = makeHisttitle("ServiceRecord Count,_IBL", ";SR;Count", false);
    sc = rodExpert.regHist(m_errhist_expert_servrec_ibl_count = TH1F_LW::create(hname.c_str(), htitles.c_str(), 100, -0.5, 99.5));
 
-   for (int i = 0; i < kNumErrorBits; i++) {
-      if (m_errhist_expert_servrec_ibl_unweighted)
+   if (m_errhist_expert_servrec_ibl_unweighted) {
+      for (int i = 0; i < kNumErrorBits; i++) {
          m_errhist_expert_servrec_ibl_unweighted->GetXaxis()->SetBinLabel(i+1, errorBitsIBL[i]);
-      if (m_errhist_expert_servrec_ibl_weighted)
-         m_errhist_expert_servrec_ibl_weighted->GetXaxis()->SetBinLabel(i+1, errorBitsIBL[i]);
+      }
    }
 
+   if (m_errhist_expert_servrec_ibl_weighted) {
+      for (int i = 0; i < kNumErrorBits; i++) {
+         m_errhist_expert_servrec_ibl_weighted->GetXaxis()->SetBinLabel(i+1, errorBitsIBL[i]);
+      }
+   }
 
    for (int i = 0; i < PixLayer::COUNT; i++) {
       hname   = makeHistname(("nFEswithTruncErr_"+m_modLabel_PixLayerIBL2D3D[i]), false);
@@ -440,13 +446,13 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
    }
 
    for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
-      for (int j = 0; j < kNumErrorBits; j++) {
-         if (m_errhist_per_bit_LB[i] && m_nActive_mod[i] > 0) {
+      if (m_errhist_per_bit_LB[i] && m_nActive_mod[i] > 0) {
+         for (int j = 0; j < kNumErrorBits; j++) {
             m_errhist_per_bit_LB[i]->Fill(kLumiBlock, j, (float) num_errors_per_bit[i][j]/m_nActive_mod[i]);
          }
       }
-      for (int j = 0; j < ErrorCategoryMODROD::COUNT; j++) {
-         if (m_errhist_per_type_LB[i] && m_nActive_mod[i] > 0) {
+      if (m_errhist_per_type_LB[i] && m_nActive_mod[i] > 0) {
+         for (int j = 0; j < ErrorCategoryMODROD::COUNT; j++) {
             m_errhist_per_type_LB[i]->Fill(kLumiBlock, j, (float) num_errormodules_per_type[i][j]/m_nActive_mod[i]);
          }
       }
