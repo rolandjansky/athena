@@ -340,6 +340,9 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
 
       for (unsigned int bit = 0; bit < kNumErrorBits; bit++) {
          if ((kErrorWord & (static_cast<uint64_t>(1)<<bit)) != 0) {
+           // For non-IBL, We deal with FE/MCC errors separately, so ignore them here!
+           if (!is_ibl && bit >= 4 && bit <=16) continue;
+
             num_errors[kLayer]++;
             num_errors_per_bit[kLayer][bit]++;
             if (kLayerIBL != 99) {
