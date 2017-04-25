@@ -895,13 +895,19 @@ def setupMenu():
         ['xe0noL1_l2fsperf_mht_em',     '',        [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe0noL1_l2fsperf_pufit',   '',        [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe0noL1_l2fsperf_trkmht',     '',        [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe0noL1_l2fsperf_trkmht_FTK', '', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
    #L1_XE35
-        ['xe50',                                   'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['xe50_tc_lcw',                            'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['xe50_tc_em',                             'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['xe50_pufit',                             'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['xe50_mht',                               'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe35', 'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe35_tc_lcw', 'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe35_tc_em', 'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe35_pufit', 'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe35_mht', 'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe35_mht_em', 'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe35_trkmht', 'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe35_trkmht_FTK', 'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+
+        ['xe50', 'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
 #Supporting MET triggers
         ['xe45_pufit_wEFMu',          'L1_XE45',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -920,14 +926,18 @@ def setupMenu():
   ## L1_XE50 ####
   ###############
 
-  	 ['xe90_pufit_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-         ['xe90_trkmht_L1XE50',                'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe90_pufit_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe90_pufit_wEFMu_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe90_trkmht_L1XE50',                'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe90_trkmht_FTK_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
-	 ['xe95_pufit_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe95_pufit_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe95_pufit_wEFMu_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
-	 ['xe100_pufit_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-         ['xe100_trkmht_L1XE50',                'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-
+        ['xe100_pufit_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe100_pufit_wEFMu_L1XE50',               'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe100_trkmht_L1XE50',                'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe100_trkmht_FTK_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe110_L1XE50',                      'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe110_wEFMu_L1XE50',               'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -943,13 +953,17 @@ def setupMenu():
  	['xe110_tc_lcw_wEFMu_L1XE50',         'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
  	['xe110_pufit_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
  	['xe110_pufit_wEFMu_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
- 
+        ['xe110_trkmht_FTK_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe110_trkmht_FTK_wEFMu_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1], 
+
         ['xe120_mht_L1XE50',                'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe120_mht_em_L1XE50',                'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe120_trkmht_L1XE50',                'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe120_tc_em_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe120_tc_lcw_L1XE50',               'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe120_pufit_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe120_pufit_wEFMu_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe120_trkmht_FTK_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe130_mht_L1XE50',                'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe130_mht_em_L1XE50',                'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -989,15 +1003,20 @@ def setupMenu():
   ##################
 
 	['xe90_pufit_L1XE55',                'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe90_pufit_wEFMu_L1XE55',                 'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe90_trkmht_L1XE55',                   'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe90_trkmht_FTK_L1XE55', 'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
 	['xe95_pufit_L1XE55',                'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe95_pufit_wEFMu_L1XE55',                 'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe100_pufit_L1XE55',                'L1_XE55', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe100_pufit_wEFMu_L1XE55',                'L1_XE55', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe100_trkmht_L1XE55',                   'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe100_trkmht_FTK_L1XE55', 'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe110_L1XE55',                      'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
- 	 ['xe110_wEFMu_L1XE55',                'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe110_wEFMu_L1XE55',                'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe110_mht_L1XE55',                   'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe110_mht_wEFMu_L1XE55','L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe110_mht_em_L1XE55',                   'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -1010,6 +1029,8 @@ def setupMenu():
  	['xe110_tc_lcw_wEFMu_L1XE55',         'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 	['xe110_pufit_L1XE55',                'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
  	['xe110_pufit_wEFMu_L1XE55',                'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe110_trkmht_FTK_L1XE55', 'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe110_trkmht_FTK_wEFMu_L1XE55', 'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe120_L1XE55',                      'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe120_mht_L1XE55','L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -1018,6 +1039,8 @@ def setupMenu():
         ['xe120_tc_em_L1XE55','L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe120_tc_lcw_L1XE55',               'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
   	['xe120_pufit_L1XE55',                'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe120_pufit_wEFMu_L1XE55',              'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe120_trkmht_FTK_L1XE55', 'L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe130_L1XE55','L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe130_mht_L1XE55','L1_XE55',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -1061,15 +1084,22 @@ def setupMenu():
   #################
 
 	['xe90_pufit_L1XE60',                'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe90_pufit_wEFMu_L1XE60',                'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 	['xe90_trkmht_L1XE60',                   'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1], 
+        ['xe90_trkmht_FTK_L1XE60', 'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
 	['xe95_pufit_L1XE60',                'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe95_pufit_wEFMu_L1XE60',                'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
 	['xe100_pufit_L1XE60',                 'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe100_pufit_wEFMu_L1XE60',               'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 	['xe100_trkmht_L1XE60',                   'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1], 
+        ['xe100_trkmht_FTK_L1XE60', 'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
  	['xe110_pufit_L1XE60',                 'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe110_pufit_wEFMu_L1XE60',               'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 	['xe110_trkmht_L1XE60',                   'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1], 
+        ['xe110_trkmht_FTK_L1XE60', 'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe120_L1XE60',                'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],  
         ['xe120_wEFMu_L1XE60',               'L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -1085,6 +1115,8 @@ def setupMenu():
         ['xe120_tc_lcw_wEFMu_L1XE60',        'L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
  	['xe120_pufit_L1XE60',                 'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe120_pufit_wEFMu_L1XE60',         'L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe120_trkmht_FTK_L1XE60', 'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe120_trkmht_FTK_wEFMu_L1XE60', 'L1_XE60', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe130_L1XE60',                'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],  
 	['xe130_mht_L1XE60',                   'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1], 
@@ -1129,14 +1161,18 @@ def setupMenu():
    ####################
 
 	['xe90_pufit_L1XE70',                 'L1_XE70',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe90_pufit_wEFMu_L1XE70',           'L1_XE70',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 	['xe90_trkmht_L1XE70',                   'L1_XE70',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1], 
 
 	['xe95_pufit_L1XE70',                 'L1_XE70',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe95_pufit_wEFMu_L1XE70',           'L1_XE70',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
 	['xe100_pufit_L1XE70',                 'L1_XE70',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe100_pufit_wEFMu_L1XE70',          'L1_XE70',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
   	['xe100_trkmht_L1XE70',                   'L1_XE70',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1], 
 
 	['xe110_pufit_L1XE70',                 'L1_XE70',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe110_pufit_wEFMu_L1XE70',          'L1_XE70',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe110_trkmht_L1XE70',                   'L1_XE70',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1], 
 
  	['xe120_mht_L1XE70',                   'L1_XE70',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1], 
@@ -1145,6 +1181,8 @@ def setupMenu():
         ['xe120_tc_em_L1XE70',         'L1_XE70', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 	['xe120_tc_lcw_L1XE70',               'L1_XE70',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 	['xe120_pufit_L1XE70',                 'L1_XE70',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe120_pufit_wEFMu_L1XE70',          'L1_XE70',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe120_trkmht_FTK_L1XE70', 'L1_XE70',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
     ## mht+cell ##
 
@@ -1174,6 +1212,7 @@ def setupMenu():
         ['xe90_pufit_L1KF-XE60', 'L1_KF-XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe100_pufit_L1KF-XE60', 'L1_KF-XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe100_trkmht_L1KF-XE60',    'L1_KF-XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe100_trkmht_FTK_L1KF-XE60', 'L1_KF-XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe110_L1KF-XE60',        'L1_KF-XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe110_mht_L1KF-XE60',    'L1_KF-XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -1182,6 +1221,7 @@ def setupMenu():
         ['xe110_tc_lcw_L1KF-XE60', 'L1_KF-XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe110_tc_em_L1KF-XE60', 'L1_KF-XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe110_pufit_L1KF-XE60', 'L1_KF-XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe110_trkmht_FTK_L1KF-XE60', 'L1_KF-XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe120_L1KF-XE60',        'L1_KF-XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe120_mht_L1KF-XE60',    'L1_KF-XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -1198,8 +1238,11 @@ def setupMenu():
 
         ['xe90_pufit_L1KF-XE65',        'L1_KF-XE65',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe90_trkmht_L1KF-XE65',    'L1_KF-XE65',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe90_trkmht_FTK_L1KF-XE65', 'L1_KF-XE65',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+
         ['xe100_pufit_L1KF-XE65',        'L1_KF-XE65',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe100_trkmht_L1KF-XE65',    'L1_KF-XE65',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe100_trkmht_FTK_L1KF-XE65', 'L1_KF-XE65',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe110_L1KF-XE65',        'L1_KF-XE65',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe110_mht_L1KF-XE65',    'L1_KF-XE65',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -1208,6 +1251,7 @@ def setupMenu():
         ['xe110_tc_lcw_L1KF-XE65', 'L1_KF-XE65',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe110_tc_em_L1KF-XE65', 'L1_KF-XE65',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe110_pufit_L1KF-XE65',        'L1_KF-XE65',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe110_trkmht_FTK_L1KF-XE65', 'L1_KF-XE65',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         
         ['xe120_L1KF-XE65',        'L1_KF-XE65',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe120_mht_L1KF-XE65',    'L1_KF-XE65',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -1224,8 +1268,11 @@ def setupMenu():
 
         ['xe90_pufit_L1KF-XE75',        'L1_KF-XE75',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe90_trkmht_L1KF-XE75',    'L1_KF-XE75',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe90_trkmht_FTK_L1KF-XE75', 'L1_KF-XE75',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+
         ['xe100_pufit_L1KF-XE75',        'L1_KF-XE75',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe100_trkmht_L1KF-XE75',    'L1_KF-XE75',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe100_trkmht_FTK_L1KF-XE75', 'L1_KF-XE75',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe110_L1KF-XE75',        'L1_KF-XE75',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe110_mht_L1KF-XE75',    'L1_KF-XE75',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -1234,6 +1281,7 @@ def setupMenu():
         ['xe110_tc_lcw_L1KF-XE75', 'L1_KF-XE75',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe110_tc_em_L1KF-XE75', 'L1_KF-XE75',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe110_pufit_L1KF-XE75',        'L1_KF-XE75',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe110_trkmht_FTK_L1KF-XE75', 'L1_KF-XE75',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe120_L1KF-XE75',        'L1_KF-XE75',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe120_mht_L1KF-XE75',    'L1_KF-XE75',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -1248,25 +1296,8 @@ def setupMenu():
     ## XS triggers ##	
         ['xs15_L1XS20',                            'L1_XS20',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xs20_L1XS30',                            'L1_XS30',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['xs30',                                   'L1_XS30',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['xs30_tc_lcw',                            'L1_XS30',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
-    ## TE triggers ## 
-        # ATR-10848 HMT min bias
-        ['te50_L1MBTS_1_1',              'L1_MBTS_1_1',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['te50_L1RD3_FILLED',            'L1_RD3_FILLED',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 	
-	#ATR-10891 HMT min bias
-	['te40_L1MBTS_1_1',              'L1_MBTS_1_1',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['te60_L1MBTS_1_1',              'L1_MBTS_1_1',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['te70_L1MBTS_1_1',              'L1_MBTS_1_1',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['te80_L1MBTS_1_1',              'L1_MBTS_1_1',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['te50_L1TE20',                  'L1_TE20',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['te60_L1TE40',                  'L1_TE40',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-	['te50_L1TE20.0ETA24',           'L1_TE20.0ETA24',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['te60_L1TE40.0ETA24',           'L1_TE40.0ETA24',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['te20',                                   'L1_TE40',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['te20_tc_lcw',                            'L1_TE40',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
     ]
     
     TriggerFlags.TauSlice.signatures = [
