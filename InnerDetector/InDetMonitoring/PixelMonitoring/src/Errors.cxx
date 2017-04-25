@@ -27,6 +27,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
 #include "PixelMonitoring/PixelMonModules.h"
+#include "PixelMonitoring/PixelMonProfiles.h"
 #include "PixelMonitoring/PixelMon2DLumiMaps.h"
 
 
@@ -222,6 +223,11 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
       htitles = makeHisttitle((error_state_labels[j].second + " per event per LB"), "", false);
       m_errhist_expert_maps[j] = new PixelMon2DMapsLW(hname.c_str(), htitles.c_str(), m_doIBL, true);
       sc = m_errhist_expert_maps[j]->regHist(rodExpert);
+   }
+
+   if (m_do2DMaps) {
+      m_errhist_femcc_errwords_map = new PixelMonProfiles("femcc_errorwords", ("Average FE/MCC Error Words" + m_histTitleExt).c_str(), m_doIBL);
+      sc = m_errhist_femcc_errwords_map->regHist(rodHistos);
    }
 
    hname = makeHistname("ServiceRecord_Unweighted_IBL", false);
@@ -430,15 +436,22 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
          } //end bit shifting
       } //end for loop over bits
 
+      unsigned int num_femcc_errwords = 0;
+
       // Do the same bit-shifting again, this time for FE/MCC error words.
       if (kFeErrorWords.find(id_hash) != kFeErrorWords.end()) {
          // Collection of: FE ID, associated error word
          std::map<unsigned int, unsigned int> fe_errorword_map = kFeErrorWords.find(id_hash)->second;
+         if (fe_errorword_map.size() > 0) {
+            num_femcc_errwords = fe_errorword_map.size();
+         }
 
          for (const auto& map_entry : fe_errorword_map) {
             const auto& fe_errorword = map_entry.second;
          } // end loop over FE error words
       }
+
+      m_errhist_femcc_errwords_map->Fill(WaferID, m_pixelid, num_femcc_errwords);
 
       if (m_doLumiBlock) {
          if (m_errors_ModSync_mod && has_err_type[0])
