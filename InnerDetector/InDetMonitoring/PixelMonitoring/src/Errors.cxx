@@ -127,13 +127,15 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    sc = rodHistos.regHist(m_SyncErrors_per_lumi_PIX = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
 
    for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
+      for (int j = 0; j < ErrorCategory::COUNT; ++j) {
+         hname = makeHistname((error_cat_labels[j].first + "_per_lumi_" + modlabel2[i]), false);
+         htitles = makeHisttitle(("Average " + error_cat_labels[j].second + ", " + modlabel2[i]), (atext_LB+atext_err), false);
+         sc = rodHistos.regHist(m_errhist_errcat_LB[i][j] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+      }
+
       hname = makeHistname(("errors_per_lumi_"+modlabel2[i]), false);
       htitles = makeHisttitle(("Average number of errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
       sc = rodHistos.regHist(m_errors_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
-
-      hname = makeHistname(("SyncErrors_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average Synchronization errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
-      sc = rodHistos.regHist(m_SyncErrors_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
 
       hname = makeHistname(("SyncErrors_Mod_per_lumi_"+modlabel2[i]), false);
       htitles = makeHisttitle(("Average Module Synchronization errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
@@ -143,18 +145,6 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
       htitles = makeHisttitle(("Average ROD Synchronization errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
       sc = rodHistos.regHist(m_SyncErrors_ROD_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
 
-      hname = makeHistname(("OpticalErrors_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average Preamble/header errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
-      sc = rodHistos.regHist(m_OpticalErrors_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
-
-      hname = makeHistname(("SEUErrors_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average SEU errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
-      sc = rodHistos.regHist(m_SEU_Errors_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
-
-      hname = makeHistname(("TruncationErrors_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average Truncation errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
-      sc = rodHistos.regHist(m_TruncationErrors_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
-
       hname = makeHistname(("TruncationErrors_Mod_per_lumi_"+modlabel2[i]), false);
       htitles = makeHisttitle(("Average Module Truncation errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
       sc = rodHistos.regHist(m_TruncationErrors_Mod_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
@@ -162,10 +152,6 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
       hname = makeHistname(("TruncationErrors_ROD_per_lumi_"+modlabel2[i]), false);
       htitles = makeHisttitle(("Average ROD Truncation errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
       sc = rodHistos.regHist(m_TruncationErrors_ROD_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
-
-      hname = makeHistname(("TimeoutErrors_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average Timeout errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
-      sc = rodHistos.regHist(m_TimeoutErrors_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
 
       hname = makeHistname(("ErrorBit_per_lumi_"+modlabel2[i]), false);
       htitles = makeHisttitle(("Average Errors per module per event, "+modlabel2[i]), (atext_LB+atext_erb+atext_err), false);
@@ -482,15 +468,14 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
 
    for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
       if (m_errors_per_lumi_mod[i]) m_errors_per_lumi_mod[i]->Fill(kLumiBlock, num_errors[i]);
-      if (m_SyncErrors_per_lumi_mod[i]) m_SyncErrors_per_lumi_mod[i]->Fill(kLumiBlock, num_errormodules_per_cat[i][ErrorCategory::kSync]);
       if (m_SyncErrors_Mod_per_lumi_mod[i]) m_SyncErrors_Mod_per_lumi_mod[i]->Fill(kLumiBlock, num_errormodules_per_type[i][ErrorCategoryMODROD::kSyncMod]);
       if (m_SyncErrors_ROD_per_lumi_mod[i]) m_SyncErrors_ROD_per_lumi_mod[i]->Fill(kLumiBlock, num_errormodules_per_type[i][ErrorCategoryMODROD::kSyncROD]);
-      if (m_OpticalErrors_per_lumi_mod[i]) m_OpticalErrors_per_lumi_mod[i]->Fill(kLumiBlock, num_errormodules_per_cat[i][ErrorCategory::kOpt]);
-      if (m_SEU_Errors_per_lumi_mod[i]) m_SEU_Errors_per_lumi_mod[i]->Fill(kLumiBlock, num_errormodules_per_cat[i][ErrorCategory::kSeu]);
-      if (m_TimeoutErrors_per_lumi_mod[i]) m_TimeoutErrors_per_lumi_mod[i]->Fill(kLumiBlock, num_errormodules_per_cat[i][ErrorCategory::kTout]);
-      if (m_TruncationErrors_per_lumi_mod[i]) m_TruncationErrors_per_lumi_mod[i]->Fill(kLumiBlock, num_errormodules_per_cat[i][ErrorCategory::kTrunc]);
       if (m_TruncationErrors_Mod_per_lumi_mod[i]) m_TruncationErrors_Mod_per_lumi_mod[i]->Fill(kLumiBlock, num_errormodules_per_type[i][ErrorCategoryMODROD::kTruncMod]);
       if (m_TruncationErrors_ROD_per_lumi_mod[i]) m_TruncationErrors_ROD_per_lumi_mod[i]->Fill(kLumiBlock, num_errormodules_per_type[i][ErrorCategoryMODROD::kTruncROD]);
+
+      for (int j = 0; j < ErrorCategory::COUNT; ++j) {
+        if (m_errhist_errcat_LB[i][j]) m_errhist_errcat_LB[i][j]->Fill(kLumiBlock, num_errormodules_per_cat[i][j]);
+      }
 
       for (int j = 0; j < ErrorCategory::COUNT; j++) {
          if (m_ErrorFraction_per_evt[j][i] && m_nActive_mod[i] > 0) {

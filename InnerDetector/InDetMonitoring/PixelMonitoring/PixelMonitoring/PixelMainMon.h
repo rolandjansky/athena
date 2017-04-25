@@ -537,16 +537,12 @@ private:
    static const int      kNumErrorStates{16};
    TProfile_LW*          m_ErrorFraction_per_evt[ErrorCategory::COUNT][PixLayerIBL2D3D::COUNT];
    TProfile_LW*          m_errors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
+   TProfile_LW*          m_errhist_errcat_LB[PixLayerIBL2D3D::COUNT][ErrorCategory::COUNT];
    TProfile_LW*          m_SyncErrors_per_lumi_PIX;
-   TProfile_LW*          m_SyncErrors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
    TProfile_LW*          m_SyncErrors_Mod_per_lumi_mod[PixLayerIBL2D3D::COUNT];
    TProfile_LW*          m_SyncErrors_ROD_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_OpticalErrors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_SEU_Errors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_TruncationErrors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
    TProfile_LW*          m_TruncationErrors_Mod_per_lumi_mod[PixLayerIBL2D3D::COUNT];
    TProfile_LW*          m_TruncationErrors_ROD_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_TimeoutErrors_per_lumi_mod[PixLayerIBL2D3D::COUNT]; 
    TProfile*             m_error_time1;       
    TProfile*             m_error_time2;       
    TProfile*             m_error_time3;       
