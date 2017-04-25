@@ -451,6 +451,13 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
 
          for (const auto& map_entry : fe_errorword_map) {
             const auto& fe_errorword = map_entry.second;
+
+            for (int bit = 0; bit < kNumErrorBits; ++bit) {
+               if ((fe_errorword & (static_cast<uint64_t>(1) << bit)) != 0) {
+                  // FE Error word contains 'bit', so take appropriate actions.
+
+               } // end bit shifting
+            } // end for loop over bits
          } // end loop over FE error words
       }
 
