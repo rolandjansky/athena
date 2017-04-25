@@ -51,9 +51,6 @@
 #include "TrkSpacePoint/SpacePointCollection.h"
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "TrkSpacePoint/SpacePointCLASS_DEF.h"
-// for TriggerType
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -303,7 +300,7 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string &type,
   m_dataObjectName(std::string("SCT_RDOs")),
   m_pSCTHelper(nullptr),
   m_ConfigurationSvc("InDetSCT_ConfigurationConditionsSvc", name),
-  m_eventInfoKey(std::string("")),
+  m_eventInfoKey(std::string("EventInfo")),
   m_clusContainerKey("SCT_Clusters") {
     /** sroe 3 Sept 2015:
 	histoPathBase is declared as a property in the base class, assigned to m_path
@@ -549,14 +546,14 @@ StatusCode
 SCTHitsNoiseMonTool::fillHistograms() {
   ++m_numberOfEvents;
   ++m_numberOfEventsRecent;
-  SG::ReadHandle<EventInfo> pEvent;
+  SG::ReadHandle<xAOD::EventInfo> pEvent(m_eventInfoKey);
   if (not pEvent.isValid()) {
     if (msgLvl(MSG::ERROR)) {
       msg(MSG::ERROR) << "Could not retrieve event info!" << endmsg;
     }
     return StatusCode::RECOVERABLE;
   }
-  int tmp_lb = pEvent->event_ID()->lumi_block();
+  int tmp_lb = pEvent->lumiBlock();
   if ((tmp_lb > m_current_lb) and (m_current_lb<=SCT_Monitoring::NBINS_LBs)) {
     m_noisyM100[m_current_lb] = 0;
     m_noisyM1000[m_current_lb] = 0;
@@ -716,7 +713,7 @@ SCTHitsNoiseMonTool::fillHistograms() {
     m_events_lb = 0;
     m_eventsTrigger_lb = 0;
   }
-  m_current_lb = pEvent->event_ID()->lumi_block();
+  m_current_lb = pEvent->lumiBlock();
   // If track hits are selected, make the vector of track rdo identifiers
   if (m_doTrackHits) {
     if (makeVectorOfTrackRDOIdentifiers().isFailure() and msgLvl(MSG::WARNING)) {
@@ -807,14 +804,14 @@ StatusCode
 SCTHitsNoiseMonTool::generalHistsandNoise() {
   typedef SCT_RDORawData SCTRawDataType;
   SG::ReadHandle<SCT_RDO_Container> p_rdocontainer(m_dataObjectName);
-  SG::ReadHandle<EventInfo> pEvent;
+  SG::ReadHandle<xAOD::EventInfo> pEvent(m_eventInfoKey);
   if (not pEvent.isValid()) {
     if (msgLvl(MSG::ERROR)) {
       msg(MSG::ERROR) << "Could not retrieve event info!" << endmsg;
     }
     return StatusCode::FAILURE;
   }
-  unsigned int current_lb = pEvent->event_ID()->lumi_block();
+  unsigned int current_lb = pEvent->lumiBlock();
   if (not p_rdocontainer.isValid()) {
     return StatusCode::FAILURE;
   }

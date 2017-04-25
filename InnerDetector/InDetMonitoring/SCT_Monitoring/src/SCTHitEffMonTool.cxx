@@ -29,7 +29,6 @@
 #include "AthenaKernel/errorcheck.h"
 #include "Identifier/IdentifierHash.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
-#include "EventInfo/EventID.h"
 #include "StoreGate/ReadHandle.h"
 
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
@@ -201,7 +200,8 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   m_pixelId(nullptr),
   m_sctId(nullptr),
   m_trtId(nullptr),
-  m_comTimeName(std::string("TRT_Phase")) {
+  m_comTimeName(std::string("TRT_Phase")),
+  m_eventInfoKey(std::string("EventInfo")){
   declareProperty("TrackName", m_TrackName);
   declareProperty("IsCosmic", m_isCosmic);
   declareProperty("IsSim", m_isSim);
@@ -1123,13 +1123,11 @@ SCTHitEffMonTool::fillHistograms() {
     }
   }
   // If we are going to use TRT phase in anger, need run-dependent corrections.
-  EventID *eventID;
-  SG::ReadHandle<EventInfo> pEvent(m_eventInfoKey);
+  SG::ReadHandle<xAOD::EventInfo> pEvent(m_eventInfoKey);
   if (not pEvent.isValid()) {
     return ERROR("Could not find EventInfo"), StatusCode::FAILURE;
   }
-  eventID = pEvent->event_ID();
-  unsigned BCID = eventID->bunch_crossing_id();
+  unsigned BCID = pEvent->bcid();
   int BCIDpos = m_bunchCrossingTool->distanceFromFront(BCID);
   bool InTrain = m_bunchCrossingTool->isInTrain(BCID);
 
@@ -1463,17 +1461,17 @@ SCTHitEffMonTool::fillHistograms() {
         }
         Double_t tmin(1.);
         Double_t tmax(40.);
-        if (eventID->run_number() > 96000) {
+        if (pEvent->runNumber() > 96000) {
           /// Guess that all this set are the same timing.
           tmin = -5;
           tmax = 20;
         }
-        if (eventID->run_number() > 110000) {
+        if (pEvent->runNumber() > 110000) {
           /// Guess that all this set are the same timing.
           tmin = -15;
           tmax = 10;
         }
-        switch (eventID->run_number()) {
+        switch (pEvent->runNumber()) {
         case  91885: tmin = 1;
           tmax = 40;
           break;
@@ -1714,16 +1712,16 @@ SCTHitEffMonTool::fillHistograms() {
       m_Eff_summaryHisto_old[isub]->Fill(layerPlusHalfSide, m_eff); // in order to calculate m_EffsummaryIncBadMod
       m_Eff_summaryHisto[isub]->Fill(dedicated_layerPlusHalfSide, m_eff); // adjustment for dedicated_title()
       m_Eff_hashCodeHisto->Fill(Double_t(sideHash), m_eff);// 15.12.2014
-      m_Eff_LumiBlockHisto[isub]->Fill(eventID->lumi_block(), m_eff);// 20.01.2015
-      m_Eff_LumiBlockHisto_Total->Fill(eventID->lumi_block(), m_eff);// 02.09.2016
+      m_Eff_LumiBlockHisto[isub]->Fill(pEvent->lumiBlock(), m_eff);// 20.01.2015
+      m_Eff_LumiBlockHisto_Total->Fill(pEvent->lumiBlock(), m_eff);// 02.09.2016
       if (BCIDpos == 0 && InTrain) {
         m_Eff_summaryHistoFirstBCID[isub]->Fill(dedicated_layerPlusHalfSide, m_eff); // adjustment for dedicated_title()
       }
       if (m_detailed) {
         m_SelectionHisto[isub]->Fill(9.); // Past bad chip
         m_Eff_SelectionHisto[isub]->Fill(9., m_eff); // Past bad chip
-        m_EventHisto[isub]->Fill(eventID->event_number());
-        m_Eff_EventHisto[isub]->Fill(eventID->event_number(), m_eff);
+        m_EventHisto[isub]->Fill(pEvent->eventNumber());
+        m_Eff_EventHisto[isub]->Fill(pEvent->eventNumber(), m_eff);
         m_hashCodeHisto->Fill(Double_t(sideHash));
         m_Unas_summaryHisto[isub]->Fill(layerPlusHalfSide, m_unas);
         m_Eff_etaHisto[isub]->Fill(eta, m_eff);
@@ -1743,7 +1741,7 @@ SCTHitEffMonTool::fillHistograms() {
         m_Eff_nGoodTrk[isub]->Fill(nTrkGood, m_eff);
       }
       if (m_superDetailed) {
-        // m_Eff_LumiBlockHisto[isub]->Fill(eventID->lumi_block(), m_eff);//20.01.2015
+        // m_Eff_LumiBlockHisto[isub]->Fill(pEvent->lumiBlock(), m_eff);//20.01.2015
         chipPos = (side == 1) ? 11 - chipPos : chipPos;
         m_inEffChip[isub]->Fill(sideHash, chipPos, int(m_eff == 0));
         m_inEffStrip[isub]->Fill(sideHash, xl / 79.95e-3 + 768. / 2., int(m_eff == 0));
@@ -1776,7 +1774,7 @@ SCTHitEffMonTool::fillHistograms() {
       const int ieta(m_sctId->eta_module(surfaceID));
       const int iphi(m_sctId->phi_module(surfaceID));
       m_effMap[histnumber][side]->Fill(ieta, iphi, m_eff);
-      m_effLumiBlock[histnumber][side]->Fill(eventID->lumi_block(), m_eff);// 23.01.2015
+      m_effLumiBlock[histnumber][side]->Fill(pEvent->lumiBlock(), m_eff);// 23.01.2015
 
       if (testOffline) {
         m_ineffMap[histnumber][side]->Fill(ieta, iphi, 1); // dummyfill for testing
@@ -1830,7 +1828,7 @@ SCTHitEffMonTool::fillHistograms() {
     m_nTrkGoodHisto->Fill(nTrkGood);
   }
   if (m_superDetailed) {
-    m_LumiBlock->Fill(eventID->lumi_block());
+    m_LumiBlock->Fill(pEvent->lumiBlock());
   }
   m_countEvent++;
   if (m_chronotime) {

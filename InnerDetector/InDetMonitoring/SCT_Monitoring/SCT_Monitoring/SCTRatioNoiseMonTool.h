@@ -34,6 +34,7 @@
 
 #include "StoreGate/ReadHandleKey.h"
 #include "InDetRawData/SCT_RDO_Container.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // Forward declarations
 class IInterface;
@@ -239,6 +240,7 @@ private:
   //@{
   /// Data object name: for the SCT this is "SCT_RDOs"
   SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
   ///SCT Helper class
   const SCT_ID* m_pSCTHelper;
   //SCT Detector Manager

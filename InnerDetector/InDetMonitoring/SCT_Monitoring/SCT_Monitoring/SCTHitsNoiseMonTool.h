@@ -31,7 +31,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "InDetRawData/SCT_RDO_Container.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 
 // for CondDB
@@ -514,7 +514,7 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
     positionString(const Identifier & plane) const;
   //@}
 
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
   SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_clusContainerKey;
 };
 

@@ -45,8 +45,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
 #include "StoreGate/ReadHandle.h"
 
 //
@@ -233,6 +231,7 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string &type,
   m_tracksName(""), // never used?
   m_NOTrigger("L1_RD0_EMPTY"),
   m_dataObjectName(std::string("SCT_RDOs")),
+  m_eventInfoKey(std::string("EventInfo")),
   m_pSCTHelper(nullptr),
   m_sctmgr(nullptr),
   m_pSummarySvc("SCT_ConditionsSummarySvc", name),
@@ -267,6 +266,7 @@ SCTRatioNoiseMonTool::~SCTRatioNoiseMonTool() {
 // ====================================================================================================
 StatusCode SCTRatioNoiseMonTool::initialize() {
   ATH_CHECK( m_dataObjectName.initialize() );
+  ATH_CHECK( m_eventInfoKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -371,13 +371,13 @@ SCTRatioNoiseMonTool::fillHistograms() {
     goodModules[i] = true;
   }
 
-  SG::ReadHandle<EventInfo> pEvent;
+  SG::ReadHandle<xAOD::EventInfo> pEvent(m_eventInfoKey);
   if (not pEvent.isValid()) {
     return ERROR("Could not find event pointer"), StatusCode::FAILURE;
   }
 
   const bool isSelectedTrigger = true;
-  int tmplb = pEvent->event_ID()->lumi_block();
+  int tmplb = pEvent->lumiBlock();
   if (tmplb > m_current_lb) {
     for (int i = 0; i < n_mod[GENERAL_INDEX]; i++) {
       nNoSides_lb[i] = 0;

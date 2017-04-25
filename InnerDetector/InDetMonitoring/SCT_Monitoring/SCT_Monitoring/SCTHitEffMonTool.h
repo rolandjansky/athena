@@ -44,7 +44,7 @@
 
 #include "StoreGate/ReadHandleKey.h"
 #include "CommissionEvent/ComTime.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 class Identifier;
 class PixelID;
@@ -293,7 +293,7 @@ private:
   const TRT_ID * m_trtId;
 
   SG::ReadHandleKey<ComTime> m_comTimeName;
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
 
   /**Convert a layer/disk number (0-21) to a bec index (0,1,2) according to position of that layer
    * Numbering is counter-intuitive, would expect C then B then A; in fact the original ordering was A, C, B

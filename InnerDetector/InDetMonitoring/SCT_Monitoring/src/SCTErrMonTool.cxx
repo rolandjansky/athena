@@ -227,7 +227,7 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   //m_DisabledDetectorCoverageVsLB{},
   //m_ErrorDetectorCoverageVsLB{},
   m_TotalDetectorCoverageVsLB{},
-  m_eventInfoKey(std::string("")) {
+  m_eventInfoKey(std::string("EventInfo")) {
      /**
       *  sroe 3 Sept 2015:
       *  histoPathBase is declared as a property in the base class, assigned to m_path
