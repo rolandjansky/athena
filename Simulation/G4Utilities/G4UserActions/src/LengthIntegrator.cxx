@@ -73,18 +73,19 @@ namespace G4UA
   //---------------------------------------------------------------------------
   LengthIntegrator::LengthIntegrator(const std::string& histSvcName)
     : m_g4pow(0),
-      m_doRL(0),m_doIL(0),m_doRZ(0),m_doXY(0),m_doEl(0),
+      m_doRL(0),m_doIL(0),m_doRZ(0),m_doXY(0),m_doEl(0),m_doDensity(0),
       m_hSvc(histSvcName, "LengthIntegrator"),
       m_etaPrimary(0), m_phiPrimary(0),
       m_zPrimary(0),m_rPrimary(0),m_nActiveSensorHits(0),m_PreviousActiveSensorHit(0),m_totalX0(0),m_totalN0(0),
       m_rzProfRL(nullptr), m_rzProfIL(nullptr)
   {
     
-    m_doRL = true;
-    m_doIL = true;
-    m_doRZ = true;
-    m_doXY = false;
-    m_doEl = true;
+    m_doRL = true;        // make radiation length (X0) plots
+    m_doIL = false;       // make nuclear interaction length (L0) plots
+    m_doRZ = true;        // make 2D r-z plots
+    m_doXY = false;       // make 2D x-y plots
+    m_doEl = true;        // make plots, splitting by elements of the periodic table
+    m_doDensity = false;  // make density plots
     
     // Protect concurrent access to the non-thread-safe hist svc
     std::lock_guard<std::mutex> lock(gHistSvcMutex);
@@ -160,7 +161,7 @@ namespace G4UA
 	const std::string name(detName+"_RL");
 	profEtaRL = new TProfile(name.c_str(), name.c_str(), 1000, -6., 6.);
 	profEtaRL->GetXaxis()->SetTitle("#eta");
-	profEtaRL->GetYaxis()->SetTitle("%X0");
+	profEtaRL->GetYaxis()->SetTitle("X0");
 	regHist(m_hSvc, pathEtaRL, profEtaRL);
       }
     }
@@ -180,7 +181,7 @@ namespace G4UA
 	const std::string name(detName+"Phi_RL");
 	profPhiRL = new TProfile(name.c_str(), name.c_str(), 500, -M_PI, M_PI);
 	profPhiRL->GetXaxis()->SetTitle("#phi");
-	profPhiRL->GetYaxis()->SetTitle("%X0");
+	profPhiRL->GetYaxis()->SetTitle("X0");
 	regHist(m_hSvc, pathPhiRL, profPhiRL);
       }
     }
@@ -200,7 +201,7 @@ namespace G4UA
 	const std::string name(detName+"Z_RL");
 	profZRL = new TProfile(name.c_str(), name.c_str(), 704, 0, 3520);
 	profZRL->GetXaxis()->SetTitle("z");
-	profZRL->GetYaxis()->SetTitle("%X0");
+	profZRL->GetYaxis()->SetTitle("X0");
 	regHist(m_hSvc, pathZRL, profZRL);
       }
     }
@@ -220,7 +221,7 @@ namespace G4UA
 	const std::string name(detName+"R_RL");
 	profRRL = new TProfile(name.c_str(), name.c_str(), 1150, 0, 1150);
 	profRRL->GetXaxis()->SetTitle("r");
-	profRRL->GetYaxis()->SetTitle("%X0");
+	profRRL->GetYaxis()->SetTitle("X0");
 	regHist(m_hSvc, pathRRL, profRRL);
       }
     }
@@ -478,6 +479,7 @@ namespace G4UA
     double radl = mat->GetRadlen();
     double intl = mat->GetNuclearInterLength();
     double stepl = aStep->GetStepLength();
+    double density = mat->GetDensity()*CLHEP::cm3/CLHEP::gram;
 
     // FIXME: using DBL_MAX just ensures double overflow below.
     double thickstepRL = radl != 0 ? stepl/radl : DBL_MAX;
@@ -488,8 +490,15 @@ namespace G4UA
     
     bool activeSensorHit = false;
     if( lv->GetMaterial()->GetName().find("Silicon") != std::string::npos || lv->GetMaterial()->GetName().find("SiMetal") != std::string::npos ) activeSensorHit = true;
-    if( activeSensorHit ) m_nActiveSensorHits++;
-    if( activeSensorHit && m_PreviousActiveSensorHit ) std::cout << "UH OH! Multiple hits in the same sensor?" << std::endl;
+    if( lv->GetMaterial()->GetName().find("ArCO2O2") != std::string::npos || lv->GetMaterial()->GetName().find("XeCO2O2") != std::string::npos ) activeSensorHit = true; // for Run2 ID TRT
+    if( activeSensorHit ){
+      if( activeSensorHit && m_PreviousActiveSensorHit ){
+	std::cout << "UH OH! Multiple hits in the same sensor? Material = " << lv->GetMaterial()->GetName() << " Volume = " << volName << std::endl;
+	activeSensorHit = false;
+      }else{
+	m_nActiveSensorHits++;
+      }
+    }
     
     bool splitModerator = true;
     bool splitPP1 = true;
@@ -549,8 +558,12 @@ namespace G4UA
 	layerNum = "_StripsEC4_";
       }else if(rHit < 975.6 && rHit > 379 && fabs(zHit) < 3014 && fabs(zHit) > 2984 ){
 	layerNum = "_StripsEC5_";
+      }else if(rHit < 320 && rHit > 145 && fabs(zHit) < 3174 && fabs(zHit) > 814 ){
+	layerNum = "_PixelEC123_";
       }
     }
+    if(rHit < 133) layerNum = "_within_IST_" + layerNum;
+    //layerNum = ""; // switching this off for the Run2 ID
     
     std::string matName = "M_" + layerNum + lv->GetMaterial()->GetName();
     //std::string matName = "M_" + lv->GetMaterial()->GetName();
@@ -587,192 +600,209 @@ namespace G4UA
 	}
       }
 
-    }
+      //}
 
-    //G4ThreeVector midPoint = (aStep->GetPreStepPoint()->GetPosition()+aStep->GetPostStepPoint()->GetPosition())*0.5;
-    //m_rzProfRL->Fill( midPoint.z() , midPoint.perp() , thickstepRL , 1. );
-    //m_rzProfIL->Fill( midPoint.z() , midPoint.perp() , thickstepIL , 1. );
+      //G4ThreeVector midPoint = (aStep->GetPreStepPoint()->GetPosition()+aStep->GetPostStepPoint()->GetPosition())*0.5;
+      //m_rzProfRL->Fill( midPoint.z() , midPoint.perp() , thickstepRL , 1. );
+      //m_rzProfIL->Fill( midPoint.z() , midPoint.perp() , thickstepIL , 1. );
 
-    G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
-    G4ThreeVector endPoint = aStep->GetPostStepPoint()->GetPosition();
+      G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
+      G4ThreeVector endPoint = aStep->GetPostStepPoint()->GetPosition();
 
-    // Protect concurrent histo filling
-    {
-      static std::mutex mutex_instance;
-      std::lock_guard<std::mutex> lock(mutex_instance);
-      m_rzProfRL->Fill( hitPoint.z() , hitPoint.perp() , thickstepRL , 1. );
-      m_rzProfIL->Fill( hitPoint.z() , hitPoint.perp() , thickstepIL , 1. );
-      m_rzProfRL->Fill( endPoint.z() , endPoint.perp() , thickstepRL , 1. );
-      m_rzProfIL->Fill( endPoint.z() , endPoint.perp() , thickstepIL , 1. );
-    }
-
-    std::vector<std::string> L;
-    L.push_back(detName_d);
-    //L.push_back(matName);
-    //L.push_back(detName_plus_matName);
-    L.push_back("Total_X0");
-    if( activeSensorHit ){
-      L.push_back("ActiveSensorHits");
-      std::string nHitsPlotName = "ActiveSensorHits_" + std::to_string(m_nActiveSensorHits); // C++11
-      L.push_back(nHitsPlotName);
-    }
-    
-    std::string specialname = "";
-    //
-    if(matName.find("Peek") != std::string::npos) specialname = "SupportStructure";
-    if(matName.find("CFRP") != std::string::npos) specialname = "SupportStructure";
-    if(matName.find("CFoam") != std::string::npos) specialname = "SupportStructure";
-    if(matName.find("K13D2U") != std::string::npos) specialname = "SupportStructure";
-    if(matName.find("Support") != std::string::npos) specialname = "SupportStructure";
-    if(matName.find("Carbon") != std::string::npos) specialname = "SupportStructure";
-    if(matName.find("Default") != std::string::npos) specialname = "SupportStructure";
-    //
-    if(matName.find("Steel") != std::string::npos) specialname = "Steel";
-    if(matName.find("BarrelStrip") != std::string::npos) specialname = "Services";
-    //if(matName.find("Brl") != std::string::npos) specialname = "Services";
-    if(matName.find("Brl") != std::string::npos && matName.find("Default") == std::string::npos && matName.find("Alpine") == std::string::npos ) specialname = "Services";
-    if(matName.find("Svc") != std::string::npos) specialname = "Services";
-    if(matName.find("InnerIST") != std::string::npos) specialname = "Services";
-    if(matName.find("InnerPST") != std::string::npos) specialname = "Services";
-    if(matName.find("BarrelPixel") != std::string::npos) specialname = "Services";
-    if(matName.find("EndcapPixel") != std::string::npos) specialname = "Services";
-    if(matName.find("InnerPixel") != std::string::npos) specialname = "Services";
-    if(matName.find("OuterPixel") != std::string::npos) specialname = "Services";
-    if(matName.find("pix::Chip") != std::string::npos) specialname = "PixelChips";
-    if(matName.find("pix::Hybrid") != std::string::npos) specialname = "PixelChips";
-    if(specialname != ""){
-      L.push_back("M_"+layerNum+specialname);
-    }else{
-      L.push_back(matName);
-    }
-
-    std::string plotstring = "";
-    if(m_doRL){
-      for (auto it : L) {
-	static std::mutex mutex_register;
-	std::lock_guard<std::mutex> lock(mutex_register);
-	plotstring = it;
-	//G4cout<<"processing string "<<plotstring<<G4endl;;
-	if(m_doRZ){
-	  if(!m_rzMapRL[plotstring]){  
-	    TString rzname = "RZRadLen_"+plotstring;
-	    std::string rznameReg = "/lengths/radLen/RZRadLen_"+plotstring;
-	    m_rzMapRL[plotstring]=getOrCreateProfile(rznameReg, rzname, "Z [mm]", 1000,-3475.,3475.,"R [mm]",1000,0.,1200.,"%X0");
-	  }
-	  m_rzMapRL[plotstring]->Fill( hitPoint.z() , hitPoint.perp() , thickstepRL , 1. );
-	  m_rzMapRL[plotstring]->Fill( endPoint.z() , endPoint.perp() , thickstepRL , 1. );
-	}
-	//
-	if(m_doXY){
-	  if(!m_xyMapRL[plotstring]){  
-	    TString xyname = "XYRadLen_"+plotstring;
-	    std::string xynameReg = "/lengths/radLen/XYRadLen_"+plotstring;
-	    m_xyMapRL[plotstring]=getOrCreateProfile(xynameReg, xyname, "X [mm]", 1000,-1200.,1200.,"Y [mm]",1000,-1200.,1200.,"%X0");
-	  }
-	  m_xyMapRL[plotstring]->Fill( hitPoint.x() , hitPoint.y() , thickstepRL , 1. );
-	  m_xyMapRL[plotstring]->Fill( endPoint.x() , endPoint.y() , thickstepRL , 1. );
-	}  
-      }
-    }
-    
-    if(m_doIL){    
-      for (auto it : L) {
+      // Protect concurrent histo filling
+      {
 	static std::mutex mutex_instance;
 	std::lock_guard<std::mutex> lock(mutex_instance);
-	plotstring = it;
-	if(m_doRZ){
-	  if(!m_rzMapIL[plotstring]){  
-	    TString rzname = "RZIntLen_"+plotstring;
-	    std::string rznameReg = "/lengths/intLen/RZIntLen_"+plotstring;
-	    m_rzMapIL[plotstring]=getOrCreateProfile(rznameReg, rzname, "Z [mm]", 1000,-3475.,3475.,"R [mm]",1000,0.,1200.,"#lambda");
-	  }
-	  m_rzMapIL[plotstring]->Fill( hitPoint.z() , hitPoint.perp() , thickstepIL , 1. );
-	  m_rzMapIL[plotstring]->Fill( endPoint.z() , endPoint.perp() , thickstepIL , 1. );
-	}
-	//
-	if(m_doXY){
-	  if(!m_xyMapIL[plotstring]){  
-	    TString xyname = "XYIntLen_"+plotstring;
-	    std::string xynameReg = "/lengths/intLen/XYIntLen_"+plotstring;
-	    m_xyMapIL[plotstring]=getOrCreateProfile(xynameReg, xyname, "X [mm]", 1000,-1200.,1200.,"Y [mm]",1000,-1200.,1200.,"#lambda");
-	  }
-	  m_xyMapIL[plotstring]->Fill( hitPoint.x() , hitPoint.y() , thickstepIL , 1. );
-	  m_xyMapIL[plotstring]->Fill( endPoint.x() , endPoint.y() , thickstepIL , 1. );
-	}  
+	m_rzProfRL->Fill( hitPoint.z() , hitPoint.perp() , thickstepRL , 1. );
+	m_rzProfIL->Fill( hitPoint.z() , hitPoint.perp() , thickstepIL , 1. );
+	m_rzProfRL->Fill( endPoint.z() , endPoint.perp() , thickstepRL , 1. );
+	m_rzProfIL->Fill( endPoint.z() , endPoint.perp() , thickstepIL , 1. );
       }
-    }
+
+      std::vector<std::string> L;
+      L.push_back(detName_d);
+      //L.push_back(matName);
+      //L.push_back(detName_plus_matName);
+      L.push_back("Total_X0");
+      if( activeSensorHit ){
+	L.push_back("ActiveSensorHits");
+	std::string nHitsPlotName = "ActiveSensorHits_" + std::to_string(m_nActiveSensorHits); // C++11
+	L.push_back(nHitsPlotName);
+      }
     
-    if(m_doEl){ 
-      const G4ElementVector* eVec = mat->GetElementVector();
-      
-      if(m_doRL){
-	for (size_t i=0 ; i < mat->GetNumberOfElements() ; ++i) {
-	  
-	  static std::mutex mutex_instance;
-	  std::lock_guard<std::mutex> lock(mutex_instance);
-	  
-	  std::string elementName = "E_" + (*eVec)[i]->GetName();
-	  double el_thickstep = stepl * (mat->GetVecNbOfAtomsPerVolume())[i] * (*eVec)[i]->GetfRadTsai() * 100.0;
-	  
-	  if(m_doRZ){
-	    if(!m_rzMapRL[elementName]){
-	      std::string rznameReg = "/lengths/radLen/RZRadLen_"+elementName;
-	      TString rzname = "RZRadLen_"+elementName;
-	      m_rzMapRL[elementName]=getOrCreateProfile(rznameReg, rzname, "Z [mm]", 1000,-3475.,3475.,"R [mm]",1000,0.,1200.,"%X0");
-	    }
-	    m_rzMapRL[elementName]->Fill( hitPoint.z() , hitPoint.perp() , el_thickstep , 1. );
-	    m_rzMapRL[elementName]->Fill( endPoint.z() , endPoint.perp() , el_thickstep , 1. );
-	  }
-	  
-	  if (m_doXY) {
-	    if(!m_xyMapRL[elementName]){
-	      std::string xynameReg = "/lengths/radLen/XYRadLen_"+elementName;
-	      TString xyname = "XYRadLen_"+elementName;
-	      m_xyMapRL[elementName]=getOrCreateProfile(xynameReg, xyname, "X [mm]", 1000,-1200.,1200.,"Y [mm]",1000,-1200.,1200.,"%X0");
-	    }
-	    m_xyMapRL[elementName]->Fill( hitPoint.x() , hitPoint.y() , el_thickstep , 1. );
-	    m_xyMapRL[elementName]->Fill( endPoint.x() , endPoint.y() , el_thickstep , 1. );
-	  }
-	}
+      std::string specialname = "";
+      //
+      if(matName.find("Peek") != std::string::npos) specialname = "SupportStructure";
+      if(matName.find("CFRP") != std::string::npos) specialname = "SupportStructure";
+      if(matName.find("CFoam") != std::string::npos) specialname = "SupportStructure";
+      if(matName.find("K13D2U") != std::string::npos) specialname = "SupportStructure";
+      if(matName.find("Support") != std::string::npos) specialname = "SupportStructure";
+      if(matName.find("Carbon") != std::string::npos) specialname = "SupportStructure";
+      if(matName.find("Default") != std::string::npos) specialname = "SupportStructure";
+      //
+      if(matName.find("Steel") != std::string::npos) specialname = "Steel";
+      if(matName.find("BarrelStrip") != std::string::npos) specialname = "Services";
+      //if(matName.find("Brl") != std::string::npos) specialname = "Services";
+      if(matName.find("Brl") != std::string::npos && matName.find("Default") == std::string::npos && matName.find("Alpine") == std::string::npos ) specialname = "Services";
+      if(matName.find("Svc") != std::string::npos) specialname = "Services";
+      if(matName.find("InnerIST") != std::string::npos) specialname = "Services";
+      if(matName.find("InnerPST") != std::string::npos) specialname = "Services";
+      if(matName.find("BarrelPixel") != std::string::npos) specialname = "Services";
+      if(matName.find("EndcapPixel") != std::string::npos) specialname = "Services";
+      if(matName.find("InnerPixel") != std::string::npos) specialname = "Services";
+      if(matName.find("OuterPixel") != std::string::npos) specialname = "Services";
+      if(matName.find("pix::Chip") != std::string::npos) specialname = "PixelChips";
+      if(matName.find("pix::Hybrid") != std::string::npos) specialname = "PixelChips";
+      if(specialname != ""){
+	L.push_back("M_"+layerNum+specialname);
+      }else{
+	L.push_back(matName);
       }
-      
-      if(m_doIL){
-	for (size_t i=0 ; i < mat->GetNumberOfElements() ; ++i) {
-	  
-	  static std::mutex mutex_instance;
-	  std::lock_guard<std::mutex> lock(mutex_instance);
-	  
-	  std::string elementName = "E_" + (*eVec)[i]->GetName();
-	  G4double lambda0 = 35*g/cm2;
-	  //G4Pow* m_g4pow = G4Pow::GetInstance();
-	  double el_thickstep = stepl * amu/lambda0 * (mat->GetVecNbOfAtomsPerVolume())[i] * m_g4pow->Z23( G4int( (*eVec)[i]->GetN() + 0.5 ) );
-	   
-	  if(m_doRZ){
-	    if(!m_rzMapIL[elementName]){  
-	      TString rzname = "RZIntLen_"+elementName;
-	      std::string rznameReg = "/lengths/intLen/RZIntLen_"+elementName;
-	      m_rzMapIL[elementName]=getOrCreateProfile(rznameReg, rzname, "Z [mm]", 1000,-3475.,3475.,"R [mm]",1000,0.,1200.,"#lambda");
-	    }
-	    m_rzMapIL[elementName]->Fill( hitPoint.z() , hitPoint.perp() , el_thickstep , 1. );
-	    m_rzMapIL[elementName]->Fill( endPoint.z() , endPoint.perp() , el_thickstep , 1. );
+
+      std::string plotstring = "";
+      if(m_doDensity){
+	for (auto it : L) {
+	  static std::mutex mutex_register;
+	  std::lock_guard<std::mutex> lock(mutex_register);
+	  plotstring = it;
+	  if(!m_rzMapDensity[plotstring]){
+	    TString rzname = "RZDensity_"+plotstring;
+	    std::string rznameReg = "/lengths/density/RZDensity_"+plotstring;
+	    m_rzMapDensity[plotstring]=getOrCreateProfile(rznameReg, rzname, "Z [mm]", 1000,-3475.,3475.,"R [mm]",1000,0.,1200.,"Density [g/cm^3]");
 	  }
-	  
-	  if(m_doXY){
-	    if(!m_xyMapIL[elementName]){  
-	      TString xyname = "XYIntLen_"+elementName;
-	      std::string xynameReg = "/lengths/intLen/XYIntLen_"+elementName;
-	      m_xyMapIL[elementName]=getOrCreateProfile(xynameReg, xyname, "X [mm]", 1000,-1200.,1200.,"Y [mm]",1000,-1200.,1200.,"#lambda");
-	    }
-	    m_xyMapIL[elementName]->Fill( hitPoint.x() , hitPoint.y() , el_thickstep , 1. );
-	    m_xyMapIL[elementName]->Fill( endPoint.x() , endPoint.y() , el_thickstep , 1. );
-	  }
+	  m_rzMapDensity[plotstring]->Fill( hitPoint.z() , hitPoint.perp() , density , 1. );	
+	  m_rzMapDensity[plotstring]->Fill( endPoint.z() , endPoint.perp() , density , 1. );	
 	}
       }
 
-      m_PreviousActiveSensorHit = activeSensorHit;
+      if(m_doRL){
+	for (auto it : L) {
+	  static std::mutex mutex_register;
+	  std::lock_guard<std::mutex> lock(mutex_register);
+	  plotstring = it;
+	  //G4cout<<"processing string "<<plotstring<<G4endl;;
+	  if(m_doRZ){
+	    if(!m_rzMapRL[plotstring]){  
+	      TString rzname = "RZRadLen_"+plotstring;
+	      std::string rznameReg = "/lengths/radLen/RZRadLen_"+plotstring;
+	      m_rzMapRL[plotstring]=getOrCreateProfile(rznameReg, rzname, "Z [mm]", 1000,-3475.,3475.,"R [mm]",1000,0.,1200.,"X0");
+	    }
+	    m_rzMapRL[plotstring]->Fill( hitPoint.z() , hitPoint.perp() , thickstepRL , 1. );
+	    m_rzMapRL[plotstring]->Fill( endPoint.z() , endPoint.perp() , thickstepRL , 1. );
+	  }
+	  //
+	  if(m_doXY){
+	    if(!m_xyMapRL[plotstring]){  
+	      TString xyname = "XYRadLen_"+plotstring;
+	      std::string xynameReg = "/lengths/radLen/XYRadLen_"+plotstring;
+	      m_xyMapRL[plotstring]=getOrCreateProfile(xynameReg, xyname, "X [mm]", 1000,-1200.,1200.,"Y [mm]",1000,-1200.,1200.,"X0");
+	    }
+	    m_xyMapRL[plotstring]->Fill( hitPoint.x() , hitPoint.y() , thickstepRL , 1. );
+	    m_xyMapRL[plotstring]->Fill( endPoint.x() , endPoint.y() , thickstepRL , 1. );
+	  }  
+	}
+      }
+    
+      if(m_doIL){    
+	for (auto it : L) {
+	  static std::mutex mutex_instance;
+	  std::lock_guard<std::mutex> lock(mutex_instance);
+	  plotstring = it;
+	  if(m_doRZ){
+	    if(!m_rzMapIL[plotstring]){  
+	      TString rzname = "RZIntLen_"+plotstring;
+	      std::string rznameReg = "/lengths/intLen/RZIntLen_"+plotstring;
+	      m_rzMapIL[plotstring]=getOrCreateProfile(rznameReg, rzname, "Z [mm]", 1000,-3475.,3475.,"R [mm]",1000,0.,1200.,"#lambda");
+	    }
+	    m_rzMapIL[plotstring]->Fill( hitPoint.z() , hitPoint.perp() , thickstepIL , 1. );
+	    m_rzMapIL[plotstring]->Fill( endPoint.z() , endPoint.perp() , thickstepIL , 1. );
+	  }
+	  //
+	  if(m_doXY){
+	    if(!m_xyMapIL[plotstring]){  
+	      TString xyname = "XYIntLen_"+plotstring;
+	      std::string xynameReg = "/lengths/intLen/XYIntLen_"+plotstring;
+	      m_xyMapIL[plotstring]=getOrCreateProfile(xynameReg, xyname, "X [mm]", 1000,-1200.,1200.,"Y [mm]",1000,-1200.,1200.,"#lambda");
+	    }
+	    m_xyMapIL[plotstring]->Fill( hitPoint.x() , hitPoint.y() , thickstepIL , 1. );
+	    m_xyMapIL[plotstring]->Fill( endPoint.x() , endPoint.y() , thickstepIL , 1. );
+	  }  
+	}
+      }
+    
+      if(m_doEl){ 
+	const G4ElementVector* eVec = mat->GetElementVector();
+      
+	if(m_doRL){
+	  for (size_t i=0 ; i < mat->GetNumberOfElements() ; ++i) {
+	  
+	    static std::mutex mutex_instance;
+	    std::lock_guard<std::mutex> lock(mutex_instance);
+	  
+	    std::string elementName = "E_" + (*eVec)[i]->GetName();
+	    double el_thickstep = stepl * (mat->GetVecNbOfAtomsPerVolume())[i] * (*eVec)[i]->GetfRadTsai() * 100.0;
+	  
+	    if(m_doRZ){
+	      if(!m_rzMapRL[elementName]){
+		std::string rznameReg = "/lengths/radLen/RZRadLen_"+elementName;
+		TString rzname = "RZRadLen_"+elementName;
+		m_rzMapRL[elementName]=getOrCreateProfile(rznameReg, rzname, "Z [mm]", 1000,-3475.,3475.,"R [mm]",1000,0.,1200.,"X0");
+	      }
+	      m_rzMapRL[elementName]->Fill( hitPoint.z() , hitPoint.perp() , el_thickstep , 1. );
+	      m_rzMapRL[elementName]->Fill( endPoint.z() , endPoint.perp() , el_thickstep , 1. );
+	    }
+	  
+	    if (m_doXY) {
+	      if(!m_xyMapRL[elementName]){
+		std::string xynameReg = "/lengths/radLen/XYRadLen_"+elementName;
+		TString xyname = "XYRadLen_"+elementName;
+		m_xyMapRL[elementName]=getOrCreateProfile(xynameReg, xyname, "X [mm]", 1000,-1200.,1200.,"Y [mm]",1000,-1200.,1200.,"X0");
+	      }
+	      m_xyMapRL[elementName]->Fill( hitPoint.x() , hitPoint.y() , el_thickstep , 1. );
+	      m_xyMapRL[elementName]->Fill( endPoint.x() , endPoint.y() , el_thickstep , 1. );
+	    }
+	  }
+	}
+      
+	if(m_doIL){
+	  for (size_t i=0 ; i < mat->GetNumberOfElements() ; ++i) {
+	  
+	    static std::mutex mutex_instance;
+	    std::lock_guard<std::mutex> lock(mutex_instance);
+	  
+	    std::string elementName = "E_" + (*eVec)[i]->GetName();
+	    G4double lambda0 = 35*g/cm2;
+	    //G4Pow* m_g4pow = G4Pow::GetInstance();
+	    double el_thickstep = stepl * amu/lambda0 * (mat->GetVecNbOfAtomsPerVolume())[i] * m_g4pow->Z23( G4int( (*eVec)[i]->GetN() + 0.5 ) );
+	   
+	    if(m_doRZ){
+	      if(!m_rzMapIL[elementName]){  
+		TString rzname = "RZIntLen_"+elementName;
+		std::string rznameReg = "/lengths/intLen/RZIntLen_"+elementName;
+		m_rzMapIL[elementName]=getOrCreateProfile(rznameReg, rzname, "Z [mm]", 1000,-3475.,3475.,"R [mm]",1000,0.,1200.,"#lambda");
+	      }
+	      m_rzMapIL[elementName]->Fill( hitPoint.z() , hitPoint.perp() , el_thickstep , 1. );
+	      m_rzMapIL[elementName]->Fill( endPoint.z() , endPoint.perp() , el_thickstep , 1. );
+	    }
+	  
+	    if(m_doXY){
+	      if(!m_xyMapIL[elementName]){  
+		TString xyname = "XYIntLen_"+elementName;
+		std::string xynameReg = "/lengths/intLen/XYIntLen_"+elementName;
+		m_xyMapIL[elementName]=getOrCreateProfile(xynameReg, xyname, "X [mm]", 1000,-1200.,1200.,"Y [mm]",1000,-1200.,1200.,"#lambda");
+	      }
+	      m_xyMapIL[elementName]->Fill( hitPoint.x() , hitPoint.y() , el_thickstep , 1. );
+	      m_xyMapIL[elementName]->Fill( endPoint.x() , endPoint.y() , el_thickstep , 1. );
+	    }
+	  }
+	}
+
+      }
+
     }
 
-  }  
+    m_PreviousActiveSensorHit = activeSensorHit;
+  }
 
 
   /// note that this should be called from a section protected by a mutex, since it talks to the THistSvc
