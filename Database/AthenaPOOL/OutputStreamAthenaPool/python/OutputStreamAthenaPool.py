@@ -18,8 +18,9 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False 
    outputStream = AthenaOutputStream(
       streamName,
       WritingTool = writingTool,
-      ItemList    = [ "EventInfo#*, xAOD::EventInfo#*, AthenaAttributeList#SimpleTag" ]
+      ItemList    = [ "EventInfo#*" ]
       )
+   outputStream.ItemList += [ "xAOD::EventInfo#*" ]
    outputStream.MetadataStore = svcMgr.MetaDataStore
    outputStream.MetadataItemList = [ "EventStreamInfo#" + streamName, "IOVMetaDataContainer#*" ]
 
@@ -27,12 +28,7 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False 
    topSequence = AlgSequence()
 
    if not noTag:
-      #key = "SimpleTag"
-      # Tell tool to pick it up
-      #outputStream.WritingTool.AttributeListKey=key
-      # build eventinfo attribute list
-      #from OutputStreamAthenaPoolConf import EventInfoAttListTool
-      #svcMgr.ToolSvc += EventInfoAttListTool()
+      outputStream.ItemList += [ "AthenaAttributeList#SimpleTag" ]
 
       if ('EventInfoTagBuilder/EventInfoTagBuilder' not in topSequence.getProperties()['Members']):
          key = "SimpleTag"
