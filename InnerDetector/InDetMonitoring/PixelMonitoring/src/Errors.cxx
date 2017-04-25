@@ -141,7 +141,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
 
       hname = makeHistname(("errors_per_lumi_"+modlabel2[i]), false);
       htitles = makeHisttitle(("Average number of errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
-      sc = rodHistos.regHist(m_errors_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+      sc = rodHistos.regHist(m_errhist_tot_LB[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
 
       hname = makeHistname(("ErrorBit_per_lumi_"+modlabel2[i]), false);
       htitles = makeHisttitle(("Average Errors per module per event, "+modlabel2[i]), (atext_LB+atext_erb+atext_err), false);
@@ -458,7 +458,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
 
 
    for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
-      if (m_errors_per_lumi_mod[i]) m_errors_per_lumi_mod[i]->Fill(kLumiBlock, num_errors[i]);
+      if (m_errhist_tot_LB[i]) m_errhist_tot_LB[i]->Fill(kLumiBlock, num_errors[i]);
 
       for (int j = 0; j < ErrorCategory::COUNT; ++j) {
         if (m_errhist_errcat_LB[i][j]) m_errhist_errcat_LB[i][j]->Fill(kLumiBlock, num_errormodules_per_cat[i][j]);

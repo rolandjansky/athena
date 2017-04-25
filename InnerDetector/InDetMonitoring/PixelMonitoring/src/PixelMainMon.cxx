@@ -401,7 +401,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    /// Errors
    ///
    memset(m_errhist_errcat_avg, 0, sizeof(m_errhist_errcat_avg));
-   memset(m_errors_per_lumi_mod, 0, sizeof(m_errors_per_lumi_mod));
+   memset(m_errhist_tot_LB, 0, sizeof(m_errhist_tot_LB));
    m_SyncErrors_per_lumi_PIX = 0;
    memset(m_errhist_errcat_LB, 0, sizeof(m_errhist_errcat_LB));
    memset(m_errhist_errtype_LB, 0, sizeof(m_errhist_errtype_LB));
