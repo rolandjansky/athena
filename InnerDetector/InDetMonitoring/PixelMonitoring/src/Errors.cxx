@@ -96,14 +96,14 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
      }};
 
    const char * errorBitsPIX[kNumErrorBits] = {
-                                    "ROD Trunc FIFO Overflow",   "ROD Trunc H/T Limit",       "2",                 "3",
-                                    "Module Trunc EoC",          "SEU Hit Parity",            "SEU Reg Parity",    "SEU Hamming Code",
-                                    "FE Warning (Bit Flip)",     "9",                         "10",                "11",
-                                    "Module Trunc Hit Overflow", "Module Trunc EoE Overflow", "Module Sync BCID1", "Module Sync BCID2",
-                                    "Module Sync LVL1ID",        "17",                        "18",                "19",
-                                    "ROD Sync BCID",             "ROD Sync LVL1ID",           "Timeout",           "Optical",
-                                    "24",                        "25",                        "26",                "27",
-                                    "28",                        "29",                        "30",                "31"
+                                    "ROD Overflow Trunc",        "ROD H/T Limit Trunc",       "2",                     "3",
+                                    "FE/MCC EoC Trunc",          "SEU Hit Parity",            "SEU Register Parity",   "SEU Hamming Code",
+                                    "FE Warning (Bit Flip)",     "9",                         "10",                    "11",
+                                    "FE/MCC Hit Overflow Trunc", "FE/MCC EoE Overflow Trunc", "FE/MCC BCID1 Sync",     "FE/MCC BCID2 Sync",
+                                    "FE/MCC LVL1ID Sync",        "17",                        "18",                    "19",
+                                    "ROD BCID Sync",             "ROD LVL1ID Sync",           "ROD Formatter Timeout", "Preamble/Header",
+                                    "24",                        "25",                        "26",                    "27",
+                                    "28",                        "29",                        "30",                    "31"
    };
 
    const char* errorBitsIBL[kNumErrorBits] = {
