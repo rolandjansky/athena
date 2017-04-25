@@ -455,7 +455,56 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
             for (int bit = 0; bit < kNumErrorBits; ++bit) {
                if ((fe_errorword & (static_cast<uint64_t>(1) << bit)) != 0) {
                   // FE Error word contains 'bit', so take appropriate actions.
+                  num_errors[kLayer]++;
+                  num_errors_per_bit[kLayer][bit]++;
 
+                  int error_type = 0;  // same definitions as above
+                  int error_cat = 0;   // same definitions as above
+
+                  if (bit == 14 || bit == 15 || bit == 16) error_type = 1;
+                  if (bit == 4  || bit == 12 || bit == 13) error_type = 3;
+                  if (bit >= 5  && bit <= 7)               error_type = 6;
+
+                  if (error_type) {  // if there were any errors we care about
+                     if (error_type == 1) error_cat = ErrorCategory::kSync;
+                     if (error_type == 3) error_cat = ErrorCategory::kTrunc;
+                     if (error_type == 6) error_cat = ErrorCategory::kSeu;
+
+                     if (m_errors) m_errors->Fill(error_type, WaferID, m_pixelid);
+
+                     if (m_doLumiBlock && m_errors_LB) {
+                        m_errors_LB->Fill(WaferID, m_pixelid);
+                     }
+
+                     // Should this stay the same? This counts '1' for errors,
+                     // regardless of how many FEs have that error type.
+                     if (!has_err_type[error_type-1]) {
+                        if (m_errhist_errtype_map[error_type-1] && !m_doOnline) {
+                           m_errhist_errtype_map[error_type-1]->Fill(WaferID, m_pixelid);
+                        }
+                        num_errormodules_per_type[kLayer][error_type-1]++;
+                        if (kLayerIBL != 99) num_errormodules_per_type[kLayerIBL][error_type-1]++;
+                        has_err_type[error_type-1] = true;
+                     }
+                     if (!has_err_cat[error_cat]) {
+                        if (m_errhist_errcat_map[error_cat] && !m_doOnline) {
+                           m_errhist_errcat_map[error_cat]->Fill(WaferID, m_pixelid);
+                        }
+                        num_errormodules_per_cat[kLayer][error_cat]++;
+                        if (kLayerIBL != 99) {
+                           num_errormodules_per_cat[kLayerIBL][error_cat]++;
+                        }
+                        has_err_cat[error_cat] = true;
+                     }
+                  }
+
+                  if (getErrorState(bit, is_ibl) != 99) {
+                     num_errors_per_state[kLayer][getErrorState(bit, is_ibl)]++;
+                     if (m_errhist_expert_maps[getErrorState(bit, is_ibl)])
+                        m_errhist_expert_maps[getErrorState(bit, is_ibl)]->Fill(WaferID, m_pixelid);
+                     if (m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)])
+                        m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)]->Fill(kLumiBlock, WaferID, m_pixelid, 1);
+                  }
                } // end bit shifting
             } // end for loop over bits
          } // end loop over FE error words
