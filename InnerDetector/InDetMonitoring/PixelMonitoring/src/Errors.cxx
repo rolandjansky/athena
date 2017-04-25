@@ -427,12 +427,12 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
                }
             } // End of if(error_type)
 
-            if (getErrorCategory(bit, is_ibl) != 99) {
-               num_errors_per_state[kLayer][getErrorCategory(bit, is_ibl)]++;
-               if (m_errhist_expert_maps[getErrorCategory(bit, is_ibl)])
-                  m_errhist_expert_maps[getErrorCategory(bit, is_ibl)]->Fill(WaferID, m_pixelid, m_doIBL, true);
-               if (m_errhist_expert_LB_maps[getErrorCategory(bit, is_ibl)])
-                  m_errhist_expert_LB_maps[getErrorCategory(bit, is_ibl)]->Fill(kLumiBlock, WaferID, m_pixelid, 1, m_doIBL, true);
+            if (getErrorState(bit, is_ibl) != 99) {
+               num_errors_per_state[kLayer][getErrorState(bit, is_ibl)]++;
+               if (m_errhist_expert_maps[getErrorState(bit, is_ibl)])
+                  m_errhist_expert_maps[getErrorState(bit, is_ibl)]->Fill(WaferID, m_pixelid, m_doIBL, true);
+               if (m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)])
+                  m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)]->Fill(kLumiBlock, WaferID, m_pixelid, 1, m_doIBL, true);
             }
 
             if (kLayer == PixLayer::kIBL) {
@@ -523,7 +523,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
    return StatusCode::SUCCESS;
 }
 
-int PixelMainMon::getErrorCategory(int bit, bool isibl)
+int PixelMainMon::getErrorState(int bit, bool isibl)
 {
    int erstate = 99;
    if (!isibl) {
