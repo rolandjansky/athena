@@ -541,6 +541,62 @@ def setupMenu():
         ['7j45_L1J4-MATCH',             'L1_J4-MATCH', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 
 
+        ### gsc multi-jet chains
+
+        ### 4j
+
+        ['4j60_gsc100_boffperf_split', 'L1_3J40', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['4j60_gsc110_boffperf_split', 'L1_3J40', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['4j70_gsc120_boffperf_split', 'L1_3J40', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+
+        ### 5j
+                                                                                                           
+        ['5j50_gsc70_boffperf_split', 'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['5j55_gsc75_boffperf_split', 'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['5j60_gsc85_boffperf_split', 'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['5j50_gsc70_boffperf_split_L14J150ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['5j55_gsc75_boffperf_split_L14J150ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['5j60_gsc85_boffperf_split_L14J150ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+
+        ### 5j, |eta|<2.4
+
+        ['5j50_gsc65_boffperf_split_0eta240', 'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['5j50_gsc70_boffperf_split_0eta240', 'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['5j55_gsc75_boffperf_split_0eta240', 'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['5j50_gsc65_boffperf_split_0eta240_L14J150ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['5j50_gsc70_boffperf_split_0eta240_L14J150ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['5j55_gsc75_boffperf_split_0eta240_L14J150ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+
+        ### 6j
+                                                                                                            
+        ['6j45_gsc60_boffperf_split', 'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['6j50_gsc65_boffperf_split', 'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['6j50_gsc70_boffperf_split', 'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['6j45_gsc60_boffperf_split_L14J150ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['6j50_gsc65_boffperf_split_L14J150ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['6j50_gsc70_boffperf_split_L14J150ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['6j45_gsc60_boffperf_split_L15J150ETA25', 'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['6j50_gsc65_boffperf_split_L15J150ETA25', 'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['6j50_gsc70_boffperf_split_L15J150ETA25', 'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+
+        ### 6j, |eta|<2.4
+
+        ['6j25_gsc45_boffperf_split_0eta240_L14J20', 'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['6j25_gsc50_boffperf_split_0eta240_L14J20', 'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['6j25_gsc45_boffperf_split_0eta240_L14J150ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['6j25_gsc50_boffperf_split_0eta240_L14J150ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['6j25_gsc45_boffperf_split_0eta240_L15J150ETA25', 'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['6j25_gsc50_boffperf_split_0eta240_L15J150ETA25', 'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+
+        ### 7j
+
+        ['7j25_gsc45_boffperf_split_L14J20', 'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['7j25_gsc45_boffperf_split_L14J150ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['7j25_gsc45_boffperf_split_L15J150ETA25', 'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['7j25_gsc45_boffperf_split_0eta240_L14J20', 'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['7j25_gsc45_boffperf_split_0eta240_L14J150ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['7j25_gsc45_boffperf_split_0eta240_L15J150ETA25', 'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+
 
         #####
         ######################### HT trigger chains
