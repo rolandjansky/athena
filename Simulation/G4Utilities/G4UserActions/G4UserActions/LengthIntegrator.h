@@ -71,6 +71,7 @@ namespace G4UA
       bool m_doRZ;
       bool m_doXY;
       bool m_doEl;
+      bool m_doDensity;
 
       // Add elements and values into the map
       void addToDetThick(std::string, double, double);
@@ -126,12 +127,14 @@ namespace G4UA
       /// Int-length profile hist in r
       std::map<std::string, TProfile*> m_rMapIL;
 
-      // 2D plots of rad-length and int-length
+      // 2D plots of rad-length, int-length, and density
       std::map<std::string,TProfile2D*,std::less<std::string> > m_rzMapRL;
       std::map<std::string,TProfile2D*,std::less<std::string> > m_xyMapRL;
 
       std::map<std::string,TProfile2D*,std::less<std::string> > m_rzMapIL;
       std::map<std::string,TProfile2D*,std::less<std::string> > m_xyMapIL;
+
+      std::map<std::string,TProfile2D*,std::less<std::string> > m_rzMapDensity;
 
   }; // class LengthIntegrator
 
