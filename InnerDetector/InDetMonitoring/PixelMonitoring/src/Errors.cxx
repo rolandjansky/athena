@@ -150,8 +150,8 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
 
       hname = makeHistname(("Error_per_lumi_"+modlabel2[i]), false);
       htitles = makeHisttitle(("Average Errors per module per event, "+modlabel2[i]), (atext_LB+atext_ers+atext_err), false);
-      sc = rodHistos.regHist(m_Error_per_lumi_mod[i] = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB, 7, 0., 7.));
-      m_Error_per_lumi_mod[i]->SetOption("colz");
+      sc = rodHistos.regHist(m_errhist_per_type_LB[i] = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB, 7, 0., 7.));
+      m_errhist_per_type_LB[i]->SetOption("colz");
 
       for (unsigned int y = 1; y <= m_errhist_per_bit_LB[i]->GetYaxis()->GetNbins(); y++) {
          if (i < PixLayerIBL2D3D::kIBL) {
@@ -161,11 +161,11 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
          }
       }
 
-      for (unsigned int y = 1; y <= m_Error_per_lumi_mod[i]->GetYaxis()->GetNbins(); y++) {
+      for (unsigned int y = 1; y <= m_errhist_per_type_LB[i]->GetYaxis()->GetNbins(); y++) {
          if (i < PixLayerIBL2D3D::kIBL) {
-            m_Error_per_lumi_mod[i]->GetYaxis()->SetBinLabel(y, error_type_labels[y-1].second.c_str());
+            m_errhist_per_type_LB[i]->GetYaxis()->SetBinLabel(y, error_type_labels[y-1].second.c_str());
          } else {
-            m_Error_per_lumi_mod[i]->GetYaxis()->SetBinLabel(y, error_type_labels[y-1].second.c_str());
+            m_errhist_per_type_LB[i]->GetYaxis()->SetBinLabel(y, error_type_labels[y-1].second.c_str());
          }
       }
 
@@ -450,8 +450,8 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
          }
       }
       for (int j = 0; j < ErrorCategoryMODROD::COUNT; j++) {
-         if (m_Error_per_lumi_mod[i] && m_nActive_mod[i] > 0) {
-            m_Error_per_lumi_mod[i]->Fill(kLumiBlock, j, (float) num_errormodules_per_type[i][j]/m_nActive_mod[i]);
+         if (m_errhist_per_type_LB[i] && m_nActive_mod[i] > 0) {
+            m_errhist_per_type_LB[i]->Fill(kLumiBlock, j, (float) num_errormodules_per_type[i][j]/m_nActive_mod[i]);
          }
       }
    }

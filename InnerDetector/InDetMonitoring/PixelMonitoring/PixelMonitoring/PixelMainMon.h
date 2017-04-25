@@ -542,12 +542,12 @@ private:
    TProfile_LW*          m_errhist_errcat_avg[ErrorCategory::COUNT][PixLayerIBL2D3D::COUNT];
    TProfile_LW*          m_errhist_tot_LB[PixLayerIBL2D3D::COUNT];
    TProfile2D_LW*        m_errhist_per_bit_LB[PixLayerIBL2D3D::COUNT];
+   TProfile2D_LW*        m_errhist_per_type_LB[PixLayerIBL2D3D::COUNT];
    TProfile_LW*          m_errhist_syncerr_LB_pix;
    TProfile*             m_error_time1;       
    TProfile*             m_error_time2;       
    TProfile*             m_error_time3;       
    PixelMonModules1D*    m_errors;
-   TProfile2D_LW*        m_Error_per_lumi_mod[PixLayerIBL2D3D::COUNT];
 
    // Histograms in 'ErrorsExpert' folder
    PixelMon2DLumiMaps*   m_errhist_expert_LB_maps[kNumErrorStates];
