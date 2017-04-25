@@ -278,15 +278,15 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    }
 
    hname = makeHistname("ServiceRecord_Unweighted_IBL", false);
-   htitles = makeHisttitle("ServiceRecord Unweighted,_IBL", ";SR;Count", false);
+   htitles = makeHisttitle("ServiceRecord Unweighted, IBL", ";SR;Count", false);
    sc = rodExpert.regHist(m_errhist_expert_servrec_ibl_unweighted = TH1F_LW::create(hname.c_str(), htitles.c_str(), 32, -0.5, 31.5));
 
    hname = makeHistname("ServiceRecord_Weighted_IBL", false);
-   htitles = makeHisttitle("ServiceRecord Weighted,_IBL", ";SR;Count", false);
+   htitles = makeHisttitle("ServiceRecord Weighted, IBL", ";SR;Count", false);
    sc = rodExpert.regHist(m_errhist_expert_servrec_ibl_weighted = TH1F_LW::create(hname.c_str(), htitles.c_str(), 32, -0.5, 31.5));
 
    hname = makeHistname("ServiceRecord_Count_IBL", false);
-   htitles = makeHisttitle("ServiceRecord Count,_IBL", ";SR;Count", false);
+   htitles = makeHisttitle("ServiceRecord Count, IBL", ";SR;Count", false);
    sc = rodExpert.regHist(m_errhist_expert_servrec_ibl_count = TH1F_LW::create(hname.c_str(), htitles.c_str(), 100, -0.5, 99.5));
 
    if (m_errhist_expert_servrec_ibl_unweighted) {
