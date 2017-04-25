@@ -770,7 +770,7 @@ StatusCode PixelMainMon::bookHistograms()
       }else{
          m_histTitleExt = "";
       }
-      if(newLumiBlock) {
+      if ( newLumiBlockFlag() ) {
          m_LBstartTime = thisEventInfo->event_ID()->time_stamp();
       }
       if( !isFirstBook ){
@@ -1078,32 +1078,26 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
 StatusCode PixelMainMon::procHistograms()
 { 
 
-   // Part 1: Get the messaging service, print where you are
-   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "finalize()" << endmsg;
-   //if(endOfEventsBlock){}
-   if(endOfLumiBlock)
-   {
-     m_LBendTime = m_currentTime;
-     //if (m_doTrack) { sc=ProcTrackMon(); }
-     if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endmsg; 
-   }
-   
-   if( m_doOnline ){
-   //   if(m_doRDO){ sc=ProcHitsMon(); }
-   //   if (m_doCluster) { sc=ProcClustersMon(); }
-   }
+  if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG)  << "finalize()" << endmsg;
 
-   if(!m_doOnline && endOfRun)
-   {
+  if ( endOfLumiBlockFlag() )
+    {
+      m_LBendTime = m_currentTime;
+      //if (m_doTrack) { sc=ProcTrackMon(); }
+      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endmsg; 
+    }
+  
+  if ( !m_doOnline && endOfRunFlag() )
+    {
       if (m_doRDO)     { sc=ProcHitsMon(); }
       if (m_doCluster) { sc=ProcClustersMon(); }
       if (m_doStatus)  { sc=ProcStatusMon(); }
       if (m_doDCS) { sc=ProcPixelDCSMon(); }
       if (m_doTrack) { sc=ProcTrackMon(); }
       if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endmsg; 
-   }
+    }
   
-   return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 
