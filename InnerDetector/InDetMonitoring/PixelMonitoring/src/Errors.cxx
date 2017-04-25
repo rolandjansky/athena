@@ -47,22 +47,22 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    MonGroup rodExpert(this, path2.c_str(), run, ATTRIB_MANAGED); //declare a group of histograms
 
    const std::array <std::pair <std::string, std::string>, kNumErrorStates > error_state_labels = {{
-       std::make_pair("Mod_Sync_BCID1_errors",         "Synchronization Module BCID1 errors"),
-       std::make_pair("Mod_Sync_BCID2_errors",         "Synchronization Module BCID2 errors"),
-       std::make_pair("Mod_Sync_LVL1ID_errors",        "Synchronization Module LVL1ID errors"),
-       std::make_pair("ROD_Sync_BCID_errors",          "Synchronization ROD BCID errors"),
-       std::make_pair("ROD_Sync_LVL1ID_errors",        "Synchronization ROD LVL1ID errors"),
-       std::make_pair("Mod_Trunc_EOC_errors",          "Truncation Module EOC errors"),
-       std::make_pair("Mod_Trunc_Hit_Overflow_errors", "Truncation Module Hit Overflow errors"),
-       std::make_pair("Mod_Trunc_EoE_Overflow_errors", "Truncation Module EoE Overflow errors"),
-       std::make_pair("ROD_Trunc_HT_Limit_errors",     "Truncation ROD H/T Limit errors"),
-       std::make_pair("ROD_Trunc_ROD_OF_errors",       "Truncation ROD Overflow errors"),
-       std::make_pair("Optical_Errors",                "Preamble/header Errors"),
-       std::make_pair("SEU_Hit_Parity",                "SEU Hit Parity errors"),
-       std::make_pair("SEU_Register_Parity",           "SEU Register Parity errors"),
-       std::make_pair("SEU_Hamming",                   "SEU Hamming Code errors"),
-       std::make_pair("ROD_Timeout",                   "ROD Formatter Timeout errors"),
-       std::make_pair("FE_Warning",                    "FE Warning errors"),
+       std::make_pair("Mod_Sync_BCID1_errors",         "FE/MCC BCID1 Sync Errors"),
+       std::make_pair("Mod_Sync_BCID2_errors",         "FE/MCC BCID2 Sync Errors"),
+       std::make_pair("Mod_Sync_LVL1ID_errors",        "FE/MCC LVL1ID Sync Errors"),
+       std::make_pair("ROD_Sync_BCID_errors",          "ROD BCID Sync Errors"),
+       std::make_pair("ROD_Sync_LVL1ID_errors",        "ROD LVL1ID Sync Errors"),
+       std::make_pair("Mod_Trunc_EOC_errors",          "FE/MCC EoC Trunc Errors"),
+       std::make_pair("Mod_Trunc_Hit_Overflow_errors", "FE/MCC Hit Overflow Trunc Errors"),
+       std::make_pair("Mod_Trunc_EoE_Overflow_errors", "FE/MCC EoE Overflow Trunc Errors"),
+       std::make_pair("ROD_Trunc_HT_Limit_errors",     "ROD H/T Limit Trunc Errors"),
+       std::make_pair("ROD_Trunc_ROD_OF_errors",       "ROD Overflow Trunc Errors"),
+       std::make_pair("Optical_Errors",                "Preamble/Header Errors"),
+       std::make_pair("SEU_Hit_Parity",                "SEU Hit Parity Errors"),
+       std::make_pair("SEU_Register_Parity",           "SEU Register Parity Errors"),
+       std::make_pair("SEU_Hamming",                   "SEU Hamming Code Errors"),
+       std::make_pair("ROD_Timeout",                   "ROD Formatter Timeout Errors"),
+       std::make_pair("FE_Warning",                    "FE Warning Errors"),
      }};
 
    std::array <std::pair <std::string, std::string>, kNumErrorStatesIBL > error_state_labelsIBL = {{
