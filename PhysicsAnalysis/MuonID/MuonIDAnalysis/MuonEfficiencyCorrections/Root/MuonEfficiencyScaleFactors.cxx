@@ -225,7 +225,11 @@ namespace CP {
             ATH_MSG_ERROR("Could not retrieve the xAOD::EventInfo. Return 999999");
             return 999999;
         }
-        static SG::AuxElement::Decorator<unsigned int> dec_rnd("RandomRunNumber");
+        if (!info->eventType(xAOD::EventInfo::IS_SIMULATION)) {
+            ATH_MSG_DEBUG("The current event is a data event. Return runNumber instead.");
+            return info->runNumber();
+        }
+        static SG::AuxElement::ConstAccessor<unsigned int> dec_rnd("RandomRunNumber");
         if (!dec_rnd.isAvailable(*info)) {
             ATH_MSG_WARNING("Failed to find the RandomRunNumber decoration. Please call the apply() method from the PileupReweightingTool before hand in order to get period dependent SFs. You'll receive SFs from the most recent period.");
             return 999999;
@@ -540,7 +544,7 @@ namespace CP {
             }
             return SystematicCode::Ok;
         } else {
-            ATH_MSG_ERROR("Illegal combination of systematics passed to the tool! Did you maybe request multiple variations at the same time? You passed "<<mySysConf.name());
+            ATH_MSG_ERROR("Illegal combination of systematics passed to the tool! Did you maybe request multiple variations at the same time? You passed " << mySysConf.name());
             ATH_MSG_DEBUG(" List of relevant systematics included in your combination:");
             for (std::set<SystematicVariation>::iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
                 ATH_MSG_DEBUG("\t" << (*t).name());

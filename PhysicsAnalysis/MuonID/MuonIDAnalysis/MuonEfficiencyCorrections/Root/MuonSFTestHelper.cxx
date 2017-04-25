@@ -1,3 +1,7 @@
+/*
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
+
 #include "MuonEfficiencyCorrections/MuonSFTestHelper.h"
 #include "PATInterfaces/SystematicsUtil.h"
 #include <TH1D.h>
