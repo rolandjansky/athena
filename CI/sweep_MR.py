@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import argparse, gitlab, logging, os, re, subprocess, sys, yaml
 from gitlab.exceptions import GitlabGetError, GitlabCreateError, GitlabCherryPickError
 from gitlab_mr_helpers import list_changed_packages
