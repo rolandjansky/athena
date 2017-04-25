@@ -36,14 +36,14 @@ namespace Athena_test {
 	m_line(l) {}
     void EXPECTED( const T& e ) {
       if ( not cmp_eq(e, m_value) ) {
-	std::cerr << m_file << ":" << m_line << " Test failed, " 
+	std::cerr << m_file << ":" << m_line << ": error: Test failed, " 
 		  << "expected: " << e << " obtained: " << m_value << "\n";
 	assert( cmp_eq(e, m_value) );
       }
     }
     void NOT_EXPECTED( const T& e ) {
       if ( cmp_eq(e, m_value) ) {
-	std::cerr << m_file << ":" << m_line << " Test failed, " 
+	std::cerr << m_file << ":" << m_line << ": error: Test failed, " 
 		  << "NOT expected: " << e << " obtained: " << m_value << "\n";
 	assert( not cmp_eq(e, m_value) );
       }
