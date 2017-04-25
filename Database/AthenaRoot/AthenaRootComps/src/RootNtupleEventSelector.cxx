@@ -269,7 +269,7 @@ RootNtupleEventSelector::RootNtupleEventSelector( const std::string& name,
     ( &RootNtupleEventSelector::setupInputCollection, this );
 
   declareProperty( "TupleName",
-                   m_tupleName = "",
+                   m_tupleName = "CollectionTree",
                    "Name of the TTree to load/read from input file(s)" );
 
   declareProperty( "SkipEvents",           
@@ -325,7 +325,7 @@ StatusCode RootNtupleEventSelector::initialize()
     ATH_MSG_INFO
       ("Selector configured to read [" << nbrInputFiles << "] file(s)..."
        << endmsg
-       << "                      tuple [" << m_tupleName.value() << "]");
+       << "                      TTree [" << m_tupleName.value() << "]");
   }
 
   {
@@ -366,6 +366,7 @@ StatusCode RootNtupleEventSelector::initialize()
   // as our branches (which need a valid m_ntuple pointer)
   // may be asked to be registered as we are a ProxyProvider.
   // retrieving the event store will poke the ProxyProviderSvc...
+  /*
   if ( !m_dataStore.retrieve().isSuccess() ) {
     ATH_MSG_ERROR
       ("Could not retrieve [" << m_dataStore.typeAndName() << "] !!");
@@ -385,6 +386,27 @@ StatusCode RootNtupleEventSelector::initialize()
       ("Could not retrieve [" << m_ometaStore.typeAndName() << "] !!");
     return StatusCode::FAILURE;
   }
+  */
+
+  //ensure the Athena::NtupleCnvSvc is in the EventPersistencySvc
+  ServiceHandle<IProperty> epSvc("EventPersistencySvc",name());
+  std::vector<std::string> propVal;
+  CHECK( Gaudi::Parsers::parse( propVal , epSvc->getProperty("CnvServices").toString() ) );
+  bool foundSvc(false);
+  for(auto s : propVal) {
+    if(s=="Athena::xAODCnvSvc") { foundSvc=true; break; }
+  }
+  if(!foundSvc) {
+    propVal.push_back("Athena::NtupleCnvSvc");
+    CHECK( epSvc->setProperty("CnvServices", Gaudi::Utils::toString( propVal ) ));
+  }
+
+  //we should also add ourself as a proxy provider
+  ServiceHandle<IProxyProviderSvc> ppSvc("ProxyProviderSvc",name());
+  CHECK( ppSvc.retrieve() );
+  ppSvc->addProvider( this );
+
+
 
   return StatusCode::SUCCESS;
 }
@@ -860,9 +882,9 @@ RootNtupleEventSelector::createRootBranchAddresses(StoreID::type storeID,
                                               TClassEdit::kDropAllDefault);
           if (!m_clidsvc->getIDOfTypeInfoName(ti_typename, id)
               .isSuccess()) {
-            ATH_MSG_INFO("** could not find a CLID from type-info ["
+            ATH_MSG_DEBUG("** could not find a CLID from type-info ["
                          << System::typeinfoName(*ti) << "]");
-            ATH_MSG_INFO("** could not find a CLID from type-info-alias ["
+            ATH_MSG_DEBUG("** could not find a CLID from type-info-alias ["
                          << ti_typename << "]");
             continue;
           }
@@ -871,13 +893,13 @@ RootNtupleEventSelector::createRootBranchAddresses(StoreID::type storeID,
         // probably a built-in type...
         if (!m_clidsvc->getIDOfTypeName(::root_typename(type_name), id)
             .isSuccess()) {
-          ATH_MSG_INFO("** could not find a CLID for type-name [" 
+          ATH_MSG_DEBUG("** could not find a CLID for type-name [" 
                        << type_name << "]");
           continue;
         }
       }
       if (id == 0) {
-        ATH_MSG_INFO("** could not find a CLID for type-name ["
+        ATH_MSG_DEBUG("** could not find a CLID for type-name ["
                      << type_name << "]");
         continue;
       }
