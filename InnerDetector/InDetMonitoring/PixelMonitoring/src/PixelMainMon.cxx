@@ -413,7 +413,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    memset(m_errhist_errcat_map, 0, sizeof(m_errhist_errcat_map));
    memset(m_errhist_expert_maps, 0, sizeof(m_errhist_expert_maps));
    memset(m_errhist_expert_LB, 0, sizeof(m_errhist_expert_LB));
-   memset(m_ErrorBit_per_lumi_mod, 0, sizeof(m_ErrorBit_per_lumi_mod));
+   memset(m_errhist_per_bit_LB, 0, sizeof(m_errhist_per_bit_LB));
    memset(m_Error_per_lumi_mod, 0, sizeof(m_Error_per_lumi_mod));
    memset(m_errhist_expert_fe_trunc_err_3d, 0, sizeof(m_errhist_expert_fe_trunc_err_3d));
    m_errhist_expert_servrec_ibl_unweighted = 0;
