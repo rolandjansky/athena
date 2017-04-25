@@ -213,7 +213,6 @@ class MuonPhysValMonitoringTool
   std::vector<const xAOD::TrackParticle*> m_vMatchedMuonTracks;
   std::vector<const xAOD::MuonSegment*> m_vMatchedMuonSegments;
   std::vector<const xAOD::TrackParticle*> m_vZmumuIDTracks;
-  std::vector<const xAOD::TrackParticle*> m_vZmumuMSTracks;
   std::vector<const xAOD::TrackParticle*> m_vZmumuMETracks;
   std::vector<const xAOD::Muon*> m_vZmumuMuons;
   std::vector<const xAOD::Muon*> m_vEFMuons;

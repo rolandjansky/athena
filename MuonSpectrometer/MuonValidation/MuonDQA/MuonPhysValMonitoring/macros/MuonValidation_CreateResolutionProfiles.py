@@ -223,6 +223,5 @@ def main( args ):
 #---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    #ROOT.gROOT.Macro("rootlogon.C")
     ROOT.gROOT.SetBatch()
     main( sys.argv )
