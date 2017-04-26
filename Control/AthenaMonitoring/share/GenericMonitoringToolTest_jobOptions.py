@@ -1,3 +1,7 @@
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 ## basic job configuration
 import AthenaCommon.AtlasUnixStandardJob
 
@@ -64,13 +68,10 @@ print svcMgr
 
 theApp.EvtMax = 1
 
-
-from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-svcMgr += ForwardSchedulerSvc()
-svcMgr.ForwardSchedulerSvc.MaxEventsInFlight = 1
-svcMgr.ForwardSchedulerSvc.MaxAlgosInFlight = 1
-svcMgr.ForwardSchedulerSvc.ThreadPoolSize = 1
-svcMgr.ForwardSchedulerSvc.CheckDependencies = True
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.ShowControlFlow( True )
+AlgScheduler.ShowDataDependencies( True )
+AlgScheduler.setThreadPoolSize( 1 )
 
 
 print "topSequence dump:", topSequence

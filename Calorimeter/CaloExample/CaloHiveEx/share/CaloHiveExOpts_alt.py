@@ -33,10 +33,10 @@ if (nThreads < 1) :
 # from GaudiHive.GaudiHiveConf import AlgResourcePool
 # svcMgr += AlgResourcePool( OutputLevel = INFO );
 
-from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-svcMgr += ForwardSchedulerSvc()
-svcMgr.ForwardSchedulerSvc.CheckDependencies = True
-# svcMgr.ForwardSchedulerSvc.OutputLevel = INFO
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.OutputLevel( INFO )
+AlgScheduler.ShowControlFlow( True )
+AlgScheduler.ShowDataDependencies( True )
 
 from RecExConfig.RecFlags import rec
 rec.doTruth.set_Value_and_Lock(False)
