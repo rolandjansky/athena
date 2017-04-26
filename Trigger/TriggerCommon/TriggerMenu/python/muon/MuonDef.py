@@ -1084,16 +1084,8 @@ class L2EFChain_mu(L2EFChainDef):
 
     log.debug("MuonDef.py define MGonly")
 
-    L2AlgName = self.getL2AlgName()
-    muFastThresh = self.getMuFastThresh()
-    EFExtrapolatorThresh = self.getEFExtrapolatorThresh()
     EFCombinerThresh = self.getEFCombinerThresh()
 
-    log.debug('L2AlgName %s', L2AlgName)
-    log.debug('muFastThresh %s', muFastThresh)
-    log.debug('EFExtrapolatorThresh %s', EFExtrapolatorThresh)
-    log.debug('EFCombinerThresh %s %s', EFCombinerThresh)
-	
     ########### L2 algos  #################
 
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
