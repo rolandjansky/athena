@@ -151,7 +151,9 @@ SCTTracksMonTool::~SCTTracksMonTool() {
 // ====================================================================================================
 // ====================================================================================================
 StatusCode SCTTracksMonTool::initialize() {
-  ATH_MSG_INFO( m_tracksName.initialize() );
+  ATH_CHECK( SCTMotherTrigMonTool::initialize() );
+
+  ATH_CHECK( m_tracksName.initialize() );
 
   return StatusCode::SUCCESS;
 }

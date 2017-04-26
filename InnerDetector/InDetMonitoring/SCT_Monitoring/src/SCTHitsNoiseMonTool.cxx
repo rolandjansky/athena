@@ -52,7 +52,6 @@
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "TrkSpacePoint/SpacePointCLASS_DEF.h"
 
-#include "TrkTrack/TrackCollection.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkEventUtils/RoT_Extractor.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h" // ?
@@ -351,10 +350,14 @@ SCTHitsNoiseMonTool::~SCTHitsNoiseMonTool() {
 // ====================================================================================================
 // ====================================================================================================
 StatusCode SCTHitsNoiseMonTool::initialize() {
+  ATH_CHECK(SCTMotherTrigMonTool::initialize());
+
   ATH_CHECK(m_SCTSPContainerName.initialize());
   ATH_CHECK(m_dataObjectName.initialize());
   ATH_CHECK(m_eventInfoKey.initialize());
   ATH_CHECK(m_clusContainerKey.initialize());
+  ATH_CHECK(m_tracksName.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -3143,8 +3146,6 @@ SCTHitsNoiseMonTool::positionString(const Identifier &plane) const {
 
 StatusCode
 SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
-  StatusCode sc;
-
   // Clear the RDOsOnTracks vector
   m_RDOsOnTracks.clear();
   SG::ReadHandle<SCT_RDO_Container> p_rdocontainer(m_dataObjectName);
@@ -3157,7 +3158,7 @@ SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
     }
   }
   
-  SG::ReadHandle<DataVector<Trk::Track> > tracks(m_tracksName);
+  SG::ReadHandle<TrackCollection> tracks(m_tracksName);
   if (not tracks.isValid()) {
     msg(MSG::FATAL) << "No tracks for you!" << endmsg;
     return StatusCode::FAILURE;

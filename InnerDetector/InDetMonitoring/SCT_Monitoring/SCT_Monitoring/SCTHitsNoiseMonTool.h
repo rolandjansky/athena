@@ -199,7 +199,7 @@ class SCTHitsNoiseMonTool : public SCTMotherTrigMonTool{
   H1_t m_hitsvsL1ID;
 
   /// Name of the Track collection to use
-  std::string m_tracksName;
+  SG::ReadHandleKey<TrackCollection> m_tracksName;
 
   /// Name of the L1 Type to use for filling the extra NO histograms
   std::string m_NOTrigger;

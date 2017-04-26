@@ -391,6 +391,7 @@ SCTHitEffMonTool::initialize() {
   ATH_CHECK( m_comTimeName.initialize(m_useTRTPhase or m_isCosmic) );
   ATH_CHECK( m_eventInfoKey.initialize() );
   ATH_CHECK( m_TrackName.initialize() );
+  ATH_CHECK( m_sctContainerName.initialize() );
 
   return StatusCode::SUCCESS;
 }

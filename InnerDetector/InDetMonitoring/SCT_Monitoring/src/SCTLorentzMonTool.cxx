@@ -77,6 +77,8 @@ SCTLorentzMonTool::~SCTLorentzMonTool() {
 // ====================================================================================================
 // ====================================================================================================
 StatusCode SCTLorentzMonTool::initialize() {
+  ATH_CHECK( SCTMotherTrigMonTool::initialize() );
+
   ATH_CHECK( m_tracksName.initialize() );
 
   return StatusCode::SUCCESS;
