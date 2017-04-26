@@ -81,7 +81,7 @@ namespace CP {
 
         declareProperty("CalibrationRelease", m_calibration_version);
         declareProperty("LowPtThreshold", m_lowpt_threshold);
-        declareProperty("UnfoldSystematics", m_seperateSystBins);
+        declareProperty("UncorrelateSystematics", m_seperateSystBins);
     }
 
     MuonEfficiencyScaleFactors::~MuonEfficiencyScaleFactors() {
