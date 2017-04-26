@@ -22,7 +22,7 @@ public:
 	virtual void Initialize()=0;
 	virtual void Terminate()=0;
 	virtual void Create() {}
-	virtual HepMC::GenEvent* GenerateAnEvent()=0;
+	virtual const HepMC::GenEvent* GenerateAnEvent()=0;
 };
 
 }	// end namespace

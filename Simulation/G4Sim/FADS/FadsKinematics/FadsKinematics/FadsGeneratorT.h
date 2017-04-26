@@ -38,7 +38,7 @@ public:
 		delete m_g;
 		m_g=0;
 	}
-	HepMC::GenEvent* GenerateAnEvent() {
+	const HepMC::GenEvent* GenerateAnEvent() {
 		if (m_g) return m_g->GenerateAnEvent();
 		return 0;
 	}
