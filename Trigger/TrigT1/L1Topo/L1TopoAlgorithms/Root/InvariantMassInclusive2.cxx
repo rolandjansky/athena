@@ -8,7 +8,6 @@
  * @param NumberLeading
 **********************************/
 
-#include <cmath>
 
 #include "L1TopoAlgorithms/InvariantMassInclusive2.h"
 #include "L1TopoCommon/Exception.h"
@@ -18,6 +17,11 @@
 #include "L1TopoSimulationUtils/Trigo.h"
 #include "L1TopoSimulationUtils/Hyperbolic.h"
 //
+#include "TH1F.h"
+#include "TH2F.h"
+
+#include <cmath>
+#include <iostream>
 
 REGISTER_ALG_TCS(InvariantMassInclusive2)
 
@@ -50,11 +54,11 @@ namespace {
       TSU::L1TopoDataTypes<11,0> bit_Et1(tob1->Et());
       TSU::L1TopoDataTypes<11,0> bit_Et2(tob2->Et());
       auto bit_invmass2 = 2*bit_Et1*bit_Et2*(bit_cosheta - bit_cosphi);
-      
+
       return int(bit_invmass2) ;
-  
+
    }
-  
+
 }
 
 
@@ -62,8 +66,8 @@ TCS::InvariantMassInclusive2::InvariantMassInclusive2(const std::string & name) 
 {
    defineParameter("InputWidth1", 9);
    defineParameter("InputWidth2", 9);
-   defineParameter("MaxTob1", 0); 
-   defineParameter("MaxTob2", 0); 
+   defineParameter("MaxTob1", 0);
+   defineParameter("MaxTob2", 0);
    defineParameter("NumResultBits", 6);
    defineParameter("MinMSqr",   0, 0);
    defineParameter("MaxMSqr", 999, 0);
@@ -111,12 +115,12 @@ TCS::InvariantMassInclusive2::initialize() {
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
       p_InvMassMin[i] = parameter("MinMSqr", i).value();
       p_InvMassMax[i] = parameter("MaxMSqr", i).value();
-   
+
       p_MinET1[i] = parameter("MinET1",i).value();
       p_MinET2[i] = parameter("MinET2",i).value();
    }
    TRG_MSG_INFO("NumberLeading1 : " << p_NumberLeading1);
-   TRG_MSG_INFO("NumberLeading2 : " << p_NumberLeading2);  
+   TRG_MSG_INFO("NumberLeading2 : " << p_NumberLeading2);
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
     TRG_MSG_INFO("InvMassMin   : " << p_InvMassMin[i]);
     TRG_MSG_INFO("InvMassMax   : " << p_InvMassMax[i]);
@@ -136,7 +140,23 @@ TCS::InvariantMassInclusive2::initialize() {
    TRG_MSG_INFO("MaxEta2     : "<<p_MaxEta2     );
 
    TRG_MSG_INFO("number output : " << numberOutputBits());
- 
+   // book histograms
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+       const int buf_len = 512;
+       char hname_accept[buf_len], hname_reject[buf_len];
+       int mass_min = sqrt(p_InvMassMin[i]);
+       int mass_max = sqrt(p_InvMassMax[i]);
+       // mass
+       snprintf(hname_accept, buf_len, "Accept_InvariantMassInclusive2_bit%d_%dM%d_Mass", i, mass_min, mass_max);
+       snprintf(hname_reject, buf_len, "Reject_InvariantMassInclusive2_bit%d_%dM%d_Mass", i, mass_min, mass_max);
+       registerHist(m_histAcceptM[i] = new TH1F(hname_accept, hname_accept, 100, 0.0, 2*mass_max));
+       registerHist(m_histRejectM[i] = new TH1F(hname_reject, hname_reject, 100, 0.0, 2*mass_max));
+       // eta2 vs. eta1
+       snprintf(hname_accept, buf_len, "Accept_InvariantMassInclusive2_bit%d_%dM%d_Eta1Eta2", i, mass_min, mass_max);
+       snprintf(hname_reject, buf_len, "Reject_InvariantMassInclusive2_bit%d_%dM%d_Eta1Eta2", i, mass_min, mass_max);
+       registerHist(m_histAcceptEta1Eta2[i] = new TH2F(hname_accept, hname_accept, 100, -50.0, +50.0, 100, -50.0, +50.0));
+       registerHist(m_histRejectEta1Eta2[i] = new TH2F(hname_reject, hname_reject, 100, -50.0, +50.0, 100, -50.0, +50.0));
+   }
    return StatusCode::SUCCESS;
 }
 
@@ -148,32 +168,39 @@ TCS::InvariantMassInclusive2::processBitCorrect( const std::vector<TCS::TOBArray
                              Decision & decison )
 {
 
-      
    if( input.size() == 2) {
-      for( TOBArray::const_iterator tob1 = input[0]->begin(); 
+      for( TOBArray::const_iterator tob1 = input[0]->begin();
            tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
            ++tob1)
          {
 
 
-            for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
+            for( TCS::TOBArray::const_iterator tob2 = input[1]->begin();
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
                 // Inv Mass calculation
                 unsigned int invmass2 = calcInvMassBW( *tob1, *tob2 );
-                unsigned int eta1 = std::abs(parType_t((*tob1)->eta()));
-                unsigned int eta2 = std::abs(parType_t((*tob2)->eta()));
+                const int eta1 = (*tob1)->eta();
+                const int eta2 = (*tob2)->eta();
+                const unsigned int aeta1 = std::abs(eta1);
+                const unsigned int aeta2 = std::abs(eta2);
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
                    bool accept = false;
                    if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
                    if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
                    if(p_ApplyEtaCut &&
-                      ((eta1 < p_MinEta1 || eta1 > p_MaxEta1 ) ||
-                       (eta2 < p_MinEta2 || eta2 > p_MaxEta2 ) ))  continue;
-                   accept = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i]; 
+                      ((aeta1 < p_MinEta1 || aeta1 > p_MaxEta1 ) ||
+                       (aeta2 < p_MinEta2 || aeta2 > p_MaxEta2 ) ))  continue;
+                   accept = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i];
                    if( accept ) {
                        decison.setBit(i, true);
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
+                       m_histAcceptM[i]->Fill(sqrt((float)invmass2));
+                       m_histAcceptEta1Eta2[i]->Fill(eta1, eta2);
+
+                   } else {
+                       m_histRejectM[i]->Fill(sqrt((float)invmass2));
+                       m_histRejectEta1Eta2[i]->Fill(eta1, eta2);
                    }
                    TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
                }
@@ -194,29 +221,36 @@ TCS::InvariantMassInclusive2::process( const std::vector<TCS::TOBArray const *> 
                              Decision & decison )
 {
 
-      
+
    if( input.size() == 2) {
-      for( TOBArray::const_iterator tob1 = input[0]->begin(); 
+      for( TOBArray::const_iterator tob1 = input[0]->begin();
            tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
            ++tob1)
          {
-            for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
+            for( TCS::TOBArray::const_iterator tob2 = input[1]->begin();
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
                 // Inv Mass calculation
                 unsigned int invmass2 = calcInvMass( *tob1, *tob2 );
-                unsigned int eta1 = std::abs(parType_t((*tob1)->eta()));
-                unsigned int eta2 = std::abs(parType_t((*tob2)->eta()));
+                const int eta1 = (*tob1)->eta();
+                const int eta2 = (*tob2)->eta();
+                const unsigned int aeta1 = std::abs(eta1);
+                const unsigned int aeta2 = std::abs(eta2);
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
                   if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
                   if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
                    if(p_ApplyEtaCut &&
-                      ((eta1 < p_MinEta1 || eta1 > p_MaxEta1 ) ||
-                       (eta2 < p_MinEta2 || eta2 > p_MaxEta2 ) )) continue;
-                  bool accept = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i]; 
+                      ((aeta1 < p_MinEta1 || aeta1 > p_MaxEta1 ) ||
+                       (aeta2 < p_MinEta2 || aeta2 > p_MaxEta2 ) )) continue;
+                  bool accept = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i];
                   if( accept ) {
                      decison.setBit(i, true);
                      output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
+                     m_histAcceptM[i]->Fill(sqrt((float)invmass2));
+                     m_histAcceptEta1Eta2[i]->Fill(eta1, eta2);
+                  } else {
+                     m_histRejectM[i]->Fill(sqrt((float)invmass2));
+                     m_histRejectEta1Eta2[i]->Fill(eta1, eta2);
                   }
                   TRG_MSG_DEBUG("Decision " << i << ": " << (accept ?"pass":"fail") << " invmass2 = " << invmass2);
                }
