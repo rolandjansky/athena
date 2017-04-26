@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #include "TrackParticleTruthAlg.h"
 
 
@@ -91,6 +87,9 @@ StatusCode TrackParticleTruthAlg::execute() {
       link.toPersistent();
       //BREAKS THREAD SAFETY FIX LATER
       const_cast<xAOD::TrackParticle*>(particle)->auxdata<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink" ) = link;
+    }
+    else{ //no truth link, add a dummy
+      const_cast<xAOD::TrackParticle*>(particle)->auxdata<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink" ) = ElementLink<xAOD::TruthParticleContainer>();
     }
     if( !m_truthClassifier.empty() ){
       //BREAKS THREAD SAFETY FIX LATER
