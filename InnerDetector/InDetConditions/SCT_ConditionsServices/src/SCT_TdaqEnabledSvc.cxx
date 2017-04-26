@@ -85,7 +85,7 @@ SCT_TdaqEnabledSvc::SCT_TdaqEnabledSvc( const std::string& name, ISvcLocator* pS
 m_filled(false), m_coolFolderName(""),m_pHelper(0),
 m_useDatabase(true), m_detStore("DetectorStore",name),
 m_storeGateSvc("StoreGateSvc",name),m_cablingSvc("SCT_CablingSvc", name), 
-m_noneBad(true) {
+m_noneBad(true), m_eventInfoKey(std::string("EventInfo")) {
   //declareProperty("BadRodIdentifiers",m_badElements);
 }
 
