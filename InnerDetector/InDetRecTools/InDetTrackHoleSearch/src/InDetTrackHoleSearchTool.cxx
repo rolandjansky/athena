@@ -25,6 +25,7 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
+#include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetRecToolInterfaces/IInDetTestPixelLayerTool.h"
 #include "TrkVolumes/Volume.h"
@@ -42,6 +43,7 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   m_sctCondSummarySvc  ("SCT_ConditionsSummarySvc",n),
   m_pixelLayerTool("InDet::InDetTestPixelLayerTool"),
   m_sctConfCondSvc("SCT_ConfigurationConditionsSvc", n),
+  m_sctBsErrSvc("SCT_ByteStreamErrorsSvc", n),
   m_geoModelSvc("GeoModelSvc", n),
   m_sct_id(nullptr),
   m_extendedListOfHoles(false),
@@ -56,6 +58,7 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   declareProperty("PixelSummarySvc"      , m_pixelCondSummarySvc);
   declareProperty("SctSummarySvc"        , m_sctCondSummarySvc);
   declareProperty("SctConfCondSvc"       , m_sctConfCondSvc);
+  declareProperty("SctBsErrSvc"          , m_sctBsErrSvc);
   declareProperty("PixelLayerTool"       , m_pixelLayerTool);
   declareProperty("GeoModelService"      , m_geoModelSvc);
   declareProperty("ExtendedListOfHoles"  , m_extendedListOfHoles = false);
@@ -127,6 +130,14 @@ StatusCode InDet::InDetTrackHoleSearchTool::initialize()
     } else {
       msg(MSG::INFO) << "Retrieved service " << m_sctConfCondSvc << endmsg;
     }
+    // Get SCT_ByteStreamErrorsSvc
+    if ( m_sctBsErrSvc.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << "Failed to retrieve service " << m_sctBsErrSvc << endmsg;
+      return StatusCode::FAILURE;
+    } else {
+      msg(MSG::INFO) << "Retrieved service " << m_sctBsErrSvc << endmsg;
+    }
+    // Get SCT_ID helper
     if( detStore()->retrieve(m_sct_id, "SCT_ID").isFailure() ) {
       msg(MSG::FATAL) << "Cannot retrieve SCT ID helper!"  << endmsg;
       return StatusCode::FAILURE;
@@ -1071,12 +1082,19 @@ bool InDet::InDetTrackHoleSearchTool::isBadSCTChip(const Identifier& waferId,
   // badChips word for the module from SCT_ConfigurationConditionsSvc
   // tempMaskedChips word for the module from SCT_ByteStreamErrorSvc should also be added.
   // https://its.cern.ch/jira/browse/ATLASRECTS-4011
-  const unsigned int badChips(m_sctConfCondSvc->badChips(moduleId));
+  unsigned int badChips(m_sctConfCondSvc->badChips(moduleId));
   // badChips holds 12 bits. 
   // bit 0 (LSB) is chip 0 for side 0.
   // bit 5 is chip 5 for side 0.
   // bit 6 is chip 6 for side 1.
   // bit 11 is chip 11 for side 1.
+  // Temporarily masked chip information from SCT_ByteStreamErrorsSvc
+  const unsigned int tempMaskedChips(m_sctBsErrSvc->tempMaskedChips(moduleId));
+  // Information of chips with ABCD errors from SCT_ByteStreamErrorsSvc
+  const unsigned int abcdErrorChips(m_sctBsErrSvc->abcdErrorChips(moduleId));
+  // Take 'OR' of badChips, tempMaskedChips and abcdErrorChips
+  badChips |= tempMaskedChips;
+  badChips |= abcdErrorChips;
 
   // If there is no bad chip, this check is done.
   if(badChips==0) return false;
