@@ -398,10 +398,10 @@ def setupMenu():
 
 
     if TriggerFlags.doFTK():
-            TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
-        ['j100_ftk',                   'L1_J25',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-	['j75_ftk_L1J20',              'L1_J20', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ] 
+        TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
+            ['j100_ftk',                   'L1_J25',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+            ['j75_ftk_L1J20',              'L1_J20', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+            ] 
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
 
@@ -667,44 +667,44 @@ def setupMenu():
     if TriggerFlags.doFTK():
         TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
            # FTK boffperf chains
-           ['j35_boffperf_split_FTK', 'L1_J15', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-           ['j150_boffperf_split_FTK', 'L1_J40', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-           ['j225_boffperf_split_FTK',    'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+            ['j35_boffperf_split_FTK', 'L1_J15', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+            ['j150_boffperf_split_FTK', 'L1_J40', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+            ['j225_boffperf_split_FTK',    'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+            
+            ['j35_boffperf_split_FTKVtx', 'L1_J15', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+            ['j150_boffperf_split_FTKVtx', 'L1_J40', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+            ['j225_boffperf_split_FTKVtx',    'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+            
+            ['j35_boffperf_split_FTKRefit', 'L1_J15', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+            ['j150_boffperf_split_FTKRefit', 'L1_J40', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+            ['j225_boffperf_split_FTKRefit',    'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+            
+            # support chains
+            ['2j35_boffperf_2j35_FTK_L14J15.0ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+            ['j150_boffperf_j50_boffperf_FTK', 'L1_J100', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+            
+            ['2j35_boffperf_2j35_FTKVtx_L14J15.0ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+            ['j150_boffperf_j50_boffperf_FTKVtx', 'L1_J100', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+            
+            ['2j35_boffperf_2j35_FTKRefit_L14J15.0ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+            ['j150_boffperf_j50_boffperf_FTKRefit', 'L1_J100', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+            
+            # FTK physics chains
+            ['2j35_bmv2c2050_2j35_FTK_L14J15.0ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+            ['j225_bmv2c2050_FTK', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+            ['j150_bmv2c2050_j50_bmv2c2050_FTK', 'L1_J100', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+            
+            ['2j35_bmv2c2050_2j35_FTKVtx_L14J15.0ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+            ['j225_bmv2c2050_FTKVtx', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+            ['j150_bmv2c2050_j50_bmv2c2050_FTKVtx', 'L1_J100', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+            
+            ['2j35_bmv2c2050_2j35_FTKRefit_L14J15.0ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+            ['j225_bmv2c2050_FTKRefit', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+            ['j150_bmv2c2050_j50_bmv2c2050_FTKRefit', 'L1_J100', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+            ] # Additional FTK for BjetSlise
 
-           ['j35_boffperf_split_FTKVtx', 'L1_J15', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-           ['j150_boffperf_split_FTKVtx', 'L1_J40', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-           ['j225_boffperf_split_FTKVtx',    'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
 
-           ['j35_boffperf_split_FTKRefit', 'L1_J15', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-           ['j150_boffperf_split_FTKRefit', 'L1_J40', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-           ['j225_boffperf_split_FTKRefit',    'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-
-           # support chains
-           ['2j35_boffperf_2j35_FTK_L14J15.0ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
-           ['j150_boffperf_j50_boffperf_FTK', 'L1_J100', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
-
-           ['2j35_boffperf_2j35_FTKVtx_L14J15.0ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
-           ['j150_boffperf_j50_boffperf_FTKVtx', 'L1_J100', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
-
-           ['2j35_boffperf_2j35_FTKRefit_L14J15.0ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
-           ['j150_boffperf_j50_boffperf_FTKRefit', 'L1_J100', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
-
-           # FTK physics chains
-           ['2j35_bmv2c2050_2j35_FTK_L14J15.0ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
-           ['j225_bmv2c2050_FTK', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-           ['j150_bmv2c2050_j50_bmv2c2050_FTK', 'L1_J100', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
-
-           ['2j35_bmv2c2050_2j35_FTKVtx_L14J15.0ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
-           ['j225_bmv2c2050_FTKVtx', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-           ['j150_bmv2c2050_j50_bmv2c2050_FTKVtx', 'L1_J100', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
-
-           ['2j35_bmv2c2050_2j35_FTKRefit_L14J15.0ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
-           ['j225_bmv2c2050_FTKRefit', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-           ['j150_bmv2c2050_j50_bmv2c2050_FTKRefit', 'L1_J100', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
-           ] # Additional FTK for BjetSlise
-        
-    TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [ 
-            	
+    TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
         ['xe90_L1XE60',                'L1_XE60',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],  
 
  	['xe95_pueta_wEFMu_L1XE50',               'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -781,8 +781,9 @@ def setupMenu():
         ['xe100_pueta_wEFMu_L1XE80',        'L1_XE80', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe100_pufit_wEFMu_L1XE80',        'L1_XE80', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
+        ]
 
-			 ]
+        
 
     TriggerFlags.TauSlice.signatures = TriggerFlags.TauSlice.signatures() + [
         ['tau35_perf_tracktwo_tau25_perf_tracktwo_ditauL', 'L1_TAU20IM_2TAU12IM' , ['L1_TAU20IM','L1_TAU12IM'],[PhysicsStream, 'express'], ['RATE:MultiTau','BW:Tau'], -1],
@@ -2529,8 +2530,13 @@ ps_rerun_list = [
     'xe0noL1_l2fsperf_pufit',
     'xe0noL1_l2fsperf_tc_em',
     'xe0noL1_l2fsperf_tc_lcw',
-    'xe0noL1_l2fsperf_trkmht_FTK',
     ]
+
+if TriggerFlags.doFTK():
+    ps_rerun_list = [
+        'xe0noL1_l2fsperf_trkmht_FTK',
+        ]
+
 ps_larnoiseburst_rerun_list = [
     'larnoiseburst_loose_rerun',
     'larnoiseburst_rerun',
@@ -2724,6 +2730,7 @@ ps_Jpsi_list = [
     'e24_lhtight_L1EM20VH_e15_etcut_L1EM7_Zee',
     'e26_lhtight_e15_etcut_L1EM7_Zee',
 ]
+
 
 ps_ftk_list = [
 ]
