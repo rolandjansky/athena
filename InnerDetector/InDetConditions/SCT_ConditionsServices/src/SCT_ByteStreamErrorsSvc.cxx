@@ -22,7 +22,9 @@
 #include "Identifier/IdentifierHash.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
-#include "InDetByteStreamErrors/InDetBSErrContainer.h"
+
+///Read Handle
+#include "StoreGate/ReadHandle.h"
 
 /** Constructor */
 SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
@@ -46,7 +48,7 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
 {
   declareProperty("EventStore",m_storeGate);
   declareProperty("DetectorStore",m_detStore);
-  declareProperty("ContainerName",m_bsErrContainerName="SCT_ByteStreamErrs");
+  declareProperty("ContainerName",m_bsErrContainerName=std::string("SCT_ByteStreamErrs"));
   declareProperty("CablingService",m_cabling);
   declareProperty("ConfigService",m_config);
   declareProperty("useDCSfromBS",m_useDCSfromBS=false);
@@ -121,6 +123,9 @@ SCT_ByteStreamErrorsSvc::initialize(){
 
   m_firstTempMaskedChips = new std::map<IdentifierHash, unsigned int>;
   m_tempMaskedChips = new std::map<Identifier, unsigned int>;
+
+  // Read Handle Key
+  ATH_CHECK(m_bsErrContainerName.initialize());
 
   resetCounts();
   return sc;
@@ -302,7 +307,7 @@ SCT_ByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
     StatusCode sc = fillData();
     if (sc.isFailure()) {
       msg(MSG::ERROR)<<"Failed to read BS errors from SG container "
-		     <<m_bsErrContainerName
+		     <<m_bsErrContainerName.key()
 		     <<endmsg;
       return true;
     }
@@ -405,7 +410,7 @@ SCT_ByteStreamErrorsSvc::getErrorSet(int errorType) {
   if (!m_filled) {
     StatusCode sc = fillData();
     if (sc.isFailure()) msg(MSG::ERROR) << "Failed to fill from SG container " 
-					<<m_bsErrContainerName
+					<<m_bsErrContainerName.key()
 					<<endmsg;
   }
   if(errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
@@ -425,21 +430,16 @@ StatusCode
 SCT_ByteStreamErrorsSvc::fillData() {
 
   if (m_lookForSGErrContainer) {
-    const InDetBSErrContainer* errCont;
+    SG::ReadHandle<InDetBSErrContainer> errCont(m_bsErrContainerName);
 
     /** When running over ESD files without BSErr container stored, don't 
      * want to flood the user with error messages.  Should just have a bunch
      * of empty sets, and keep quiet.
      */
-    bool gotErrors = m_storeGate->contains<InDetBSErrContainer>(m_bsErrContainerName);
-    if (gotErrors) {
-      StatusCode sc = m_storeGate->retrieve(errCont,m_bsErrContainerName);
-      if (sc.isFailure() ) 
-	msg(MSG::ERROR) <<"Failed to get BSError container from SG "
-			<<"even though SG::contains() says it's there.. strange."<<endmsg;
-    } else {
+    bool gotErrors = m_storeGate->contains<InDetBSErrContainer>(m_bsErrContainerName.key());
+    if ((not gotErrors) or (not errCont.isValid())) {
       msg(MSG::INFO) <<"Failed to retrieve BS error container "
-		     << m_bsErrContainerName
+		     << m_bsErrContainerName.key()
 		     <<" from StoreGate.  "
 		     <<"This is expected if you are reading an ESD file "
 		     <<"which doesn't have the ByteStreamErrors container stored, "
