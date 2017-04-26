@@ -131,7 +131,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("doNoiseMap",       m_doNoiseMap        = false);
    declareProperty("doTiming",         m_doTiming          = false);
    declareProperty("doLumiBlock",      m_doLumiBlock       = false);
-   declareProperty("doOfflineAnalysis",m_doOfflineAnalysis = true); // using more memory
+   declareProperty("doOfflineAnalysis",m_doOfflineAnalysis = false); // !!! if true using a lot of memory to be absolutely avoided for monitoring
 
    declareProperty("doRDO",           m_doRDO        = false); //flags to turn on/off parts of the code
    declareProperty("doErrors",        m_doRODError   = false);
