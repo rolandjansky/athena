@@ -140,7 +140,7 @@ StatusCode SCTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
     bool setOK_xAOD = false;
     SG::ReadHandle<xAOD::EventInfo> xevtInfo_const(xevtInfoKey);
     if (xevtInfo_const.isValid()) {
-      xAOD::EventInfo* xevtInfo = const_cast<xAOD::EventInfo*>(&*xevtInfo_const); // Should UpdateHandle be used?
+      xAOD::EventInfo* xevtInfo = const_cast<xAOD::EventInfo*>(&*xevtInfo_const);
       setOK_xAOD = xevtInfo->setErrorState(xAOD::EventInfo::SCT, xAOD::EventInfo::Error);
     } 
 
@@ -148,7 +148,7 @@ StatusCode SCTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
     bool setOK_old = false;
     SG::ReadHandle<EventInfo> evtInfo_const(evtInfoKey);
     if (evtInfo_const.isValid()) {
-      EventInfo* evtInfo = const_cast<EventInfo*>(&*evtInfo_const); // Should UpdateHandle be used?
+      EventInfo* evtInfo = const_cast<EventInfo*>(&*evtInfo_const);
       setOK_old = evtInfo->setErrorState(EventInfo::SCT, EventInfo::Error);
     }
 
