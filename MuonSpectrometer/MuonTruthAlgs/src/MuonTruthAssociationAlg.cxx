@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 ///////////////////////////////////////////////////////////////////
 // MuonTruthAssociationAlg.cxx
 //   Implementation file for class MuonTruthAssociationAlg
@@ -290,13 +286,16 @@ void MuonTruthAssociationAlg::addMuon( const xAOD::TruthParticleContainer& truth
                             break;
                         }
                     }
-                    else{
+                    else{ //no truth link, add a dummy
                         ATH_MSG_VERBOSE(" Reco muon has no truth association");
-                    }
+			const_cast<xAOD::Muon&>(*muon).auxdata<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink" )=ElementLink<xAOD::TruthParticleContainer>();
+			const_cast<xAOD::Muon&>(*muon).auxdata<int>("truthType") = -99999;
+			const_cast<xAOD::Muon&>(*muon).auxdata<int>("truthOrigin") = -99999;
+		    }
                 } catch ( SG::ExcBadAuxVar& ) {
                     ATH_MSG_WARNING("Track particle is missing truthParticleLink variable!");
                 }
-            }      
+            }
         }
         muonLink.toPersistent();
         const_cast<xAOD::TruthParticle&>(*truthParticle).auxdata<ElementLink< xAOD::MuonContainer > >("recoMuonLink") = muonLink;
