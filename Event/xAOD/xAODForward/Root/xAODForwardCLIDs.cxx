@@ -15,5 +15,7 @@
 
 #include "xAODForward/AFPSiHitContainer.h"
 #include "xAODForward/AFPSiHitAuxContainer.h"
+#include "xAODForward/AFPSiHitsClusterContainer.h"
+#include "xAODForward/AFPSiHitsClusterAuxContainer.h"
 #include "xAODForward/AFPTrackContainer.h"
 #include "xAODForward/AFPTrackAuxContainer.h"
