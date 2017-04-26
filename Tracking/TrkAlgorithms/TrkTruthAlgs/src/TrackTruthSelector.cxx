@@ -60,7 +60,7 @@ StatusCode TrackTruthSelector::execute() {
 
   TrackTruthCollection *out = new TrackTruthCollection(detailed->trackCollectionLink());
 
-  fillOutput(out, detailed);
+  fillOutput(out,detailed);
 
   ATH_CHECK(wh_output.record(std::make_unique<TrackTruthCollection>(*out)));
   
