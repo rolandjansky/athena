@@ -23,9 +23,12 @@
 
 
 namespace AthenaBaseCompsTest {
-class MyObj {};
+class MyBase {};
+class MyObj : public MyBase {};
 }
+CLASS_DEF (AthenaBaseCompsTest::MyBase, 293847296, 1)
 CLASS_DEF (AthenaBaseCompsTest::MyObj, 293847295, 1)
+SG_BASE (AthenaBaseCompsTest::MyObj, AthenaBaseCompsTest::MyBase);
 using AthenaBaseCompsTest::MyObj;
 
 
@@ -70,6 +73,7 @@ void MyAlg::declare(Gaudi::DataHandle& hnd) {
     inputs.push_back( &hnd );
   if (hnd.mode() & Gaudi::DataHandle::Writer) 
     outputs.push_back( &hnd );
+  AthReentrantAlgorithm::declare (hnd);
 }
 
 
@@ -78,7 +82,8 @@ void test1 (ISvcLocator* svcLoc)
   std::cout << "test1\n";
 
   MyAlg alg ("ralg", svcLoc);  alg.addRef();
-  assert (alg.setProperties().isSuccess());
+  //assert (alg.setProperties().isSuccess());
+  assert (alg.sysInitialize().isSuccess());
 
   assert (alg.rkey.clid() == 293847295);
   assert (alg.rkey.key() == "aaa");
@@ -108,6 +113,16 @@ void test1 (ISvcLocator* svcLoc)
 
   assert (alg.execute().isSuccess());
   assert (pdict == xdict);
+
+  DataObjIDColl exp = {
+    { ClassID_traits<AthenaBaseCompsTest::MyObj>::ID(), "eee" },
+    { ClassID_traits<AthenaBaseCompsTest::MyBase>::ID(), "eee" },
+  };
+  if (exp != alg.outputDataObjs()) {
+    for (const DataObjID& o : alg.outputDataObjs()) {
+      std::cout << "obj " << o.clid() << " " << o.key() << "\n";
+    }
+  }
 }
 
 

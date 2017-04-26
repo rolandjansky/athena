@@ -65,11 +65,7 @@ namespace Muon {
       m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
       m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-      m_mdtPrdContainer(0),
-      m_cscPrdContainer(0),
-      m_tgcPrdContainer(0),
-      m_rpcPrdContainer(0)
+      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
   {
     declareInterface<IMuonHoleRecoveryTool>(this);
     declareInterface<MuonChamberHoleRecoveryTool>(this);
@@ -166,6 +162,10 @@ namespace Muon {
       return StatusCode::FAILURE;
     }
 
+    ATH_CHECK(m_key_mdt.initialize());
+    ATH_CHECK(m_key_csc.initialize());
+    ATH_CHECK(m_key_tgc.initialize());
+    ATH_CHECK(m_key_rpc.initialize());
     
     return StatusCode::SUCCESS;
   }
@@ -1206,15 +1206,20 @@ MuonChamberHoleRecoveryTool::insertMdtsWithHoleSearch( std::vector<const Trk::Tr
 
   const MdtPrepDataCollection* MuonChamberHoleRecoveryTool::findMdtPrdCollection( const Identifier& chId ) const {
 
-    if (evtStore()->retrieve(m_mdtPrdContainer,m_key_mdt).isFailure()) {
-      ATH_MSG_WARNING("Cannot retrieve mdtPrepDataContainer " << m_key_mdt );
+    SG::ReadHandle<Muon::MdtPrepDataContainer> h_mdtPrdCont(m_key_mdt);
+    const Muon::MdtPrepDataContainer *mdtPrdContainer;
+    if (h_mdtPrdCont.isValid()) {
+      mdtPrdContainer = h_mdtPrdCont.cptr();
+    }
+    else{
+      ATH_MSG_WARNING("Cannot retrieve mdtPrepDataContainer " << m_key_mdt.key() );
       return 0;
     }
     IdentifierHash hash_id;
     m_idHelperTool->mdtIdHelper().get_module_hash(chId,hash_id );
 
-    MdtPrepDataContainer::const_iterator colIt = m_mdtPrdContainer->indexFind(hash_id);
-    if( colIt == m_mdtPrdContainer->end() ){
+    MdtPrepDataContainer::const_iterator colIt = mdtPrdContainer->indexFind(hash_id);
+    if( colIt == mdtPrdContainer->end() ){
       ATH_MSG_DEBUG(" MdtPrepDataCollection for:   " << m_idHelperTool->toStringChamber(chId) 
 			   << "  not found in container " );
       return 0;
@@ -1224,15 +1229,20 @@ MuonChamberHoleRecoveryTool::insertMdtsWithHoleSearch( std::vector<const Trk::Tr
 
   const CscPrepDataCollection* MuonChamberHoleRecoveryTool::findCscPrdCollection( const Identifier& detElId ) const {
 
-    if (evtStore()->retrieve(m_cscPrdContainer,m_key_csc).isFailure()) {
-      ATH_MSG_WARNING("Cannot retrieve cscPrepDataContainer " << m_key_csc );
+    SG::ReadHandle<Muon::CscPrepDataContainer> h_cscPrdCont(m_key_csc);
+    const Muon::CscPrepDataContainer *cscPrdContainer;
+    if (h_cscPrdCont.isValid()) {
+      cscPrdContainer = h_cscPrdCont.cptr();
+    }
+    else{
+      ATH_MSG_WARNING("Cannot retrieve cscPrepDataContainer " << m_key_csc.key() );
       return 0;
     }
     IdentifierHash hash_id;
     m_idHelperTool->cscIdHelper().get_module_hash(detElId,hash_id );
       
-    CscPrepDataContainer::const_iterator colIt = m_cscPrdContainer->indexFind(hash_id);
-    if( colIt == m_cscPrdContainer->end() ){
+    CscPrepDataContainer::const_iterator colIt = cscPrdContainer->indexFind(hash_id);
+    if( colIt == cscPrdContainer->end() ){
       ATH_MSG_DEBUG(" CscPrepDataCollection for:   " << m_idHelperTool->toStringChamber(detElId) 
 			   << "  not found in container " );
       return 0;
@@ -1241,16 +1251,21 @@ MuonChamberHoleRecoveryTool::insertMdtsWithHoleSearch( std::vector<const Trk::Tr
   }
 
   const TgcPrepDataCollection* MuonChamberHoleRecoveryTool::findTgcPrdCollection( const Identifier& detElId ) const {
-    
-    if (evtStore()->retrieve(m_tgcPrdContainer,m_key_tgc).isFailure()) {
-      ATH_MSG_WARNING("Cannot retrieve tgcPrepDataContainer " << m_key_tgc );
+
+    SG::ReadHandle<Muon::TgcPrepDataContainer> h_tgcPrdCont(m_key_tgc);
+    const Muon::TgcPrepDataContainer *tgcPrdContainer;
+    if (h_tgcPrdCont.isValid()) {
+      tgcPrdContainer = h_tgcPrdCont.cptr();
+    }
+    else{
+      ATH_MSG_WARNING("Cannot retrieve tgcPrepDataContainer " << m_key_tgc.key() );
       return 0;
     }
     IdentifierHash hash_id;
     m_idHelperTool->tgcIdHelper().get_module_hash(detElId,hash_id );
 
-    TgcPrepDataContainer::const_iterator colIt = m_tgcPrdContainer->indexFind(hash_id);
-    if( colIt == m_tgcPrdContainer->end() ){
+    TgcPrepDataContainer::const_iterator colIt = tgcPrdContainer->indexFind(hash_id);
+    if( colIt == tgcPrdContainer->end() ){
       ATH_MSG_DEBUG(" TgcPrepDataCollection for:   " << m_idHelperTool->toStringChamber(detElId)
 		    << "  not found in container " );
       return 0;
@@ -1260,15 +1275,19 @@ MuonChamberHoleRecoveryTool::insertMdtsWithHoleSearch( std::vector<const Trk::Tr
 
   const RpcPrepDataCollection* MuonChamberHoleRecoveryTool::findRpcPrdCollection( const Identifier& detElId ) const {
     
-    
-    if(evtStore()->retrieve(m_rpcPrdContainer,m_key_rpc).isFailure()) {
-      ATH_MSG_WARNING("Cannot retrieve rpcPrepDataContainer " << m_key_rpc );
+    SG::ReadHandle<Muon::RpcPrepDataContainer> h_rpcPrdCont(m_key_rpc);
+    const Muon::RpcPrepDataContainer *rpcPrdContainer;
+    if(h_rpcPrdCont.isValid()) {
+      rpcPrdContainer = h_rpcPrdCont.cptr();
+    }
+    else{
+      ATH_MSG_WARNING("Cannot retrieve rpcPrepDataContainer " << m_key_rpc.key() );
       return 0;
     }
     IdentifierHash hash_id;
     m_idHelperTool->rpcIdHelper().get_module_hash(detElId,hash_id );
-    RpcPrepDataContainer::const_iterator colIt = m_rpcPrdContainer->indexFind(hash_id);
-    if( colIt == m_rpcPrdContainer->end() ){
+    RpcPrepDataContainer::const_iterator colIt = rpcPrdContainer->indexFind(hash_id);
+    if( colIt == rpcPrdContainer->end() ){
       ATH_MSG_DEBUG(" RpcPrepDataCollection for:   " << m_idHelperTool->toStringChamber(detElId) << "  not found in container " );
       return 0;
     }

@@ -714,6 +714,8 @@ SGImplSvc::addSymLink(const CLID& linkid, DataProxy* dp)
     if (baseptr)
       this->t2pRegister (baseptr, dp).ignore();
   }
+
+  addedNewTransObject (linkid, dp->name());
   return sc;
 }
 
@@ -727,6 +729,8 @@ SGImplSvc::addAlias(const std::string& aliasKey, DataProxy* proxy)
           << endmsg;
     return StatusCode::FAILURE;
   }
+
+  addedNewTransObject (proxy->clID(), aliasKey);
 
   // add key to proxy and to ProxyStore
   return m_pStore->addAlias(aliasKey, proxy);
@@ -1642,7 +1646,19 @@ void SGImplSvc::addedNewPersObject(CLID clid, DataProxy* dp) {
   //if proxy is loading from persistency
   //add key of object to list of "newly recorded" objects
   if (0 != dp->transientAddress()->provider()) {
+    // The object itself.
     s_newObjs.insert(DataObjID(clid,dp->name()));
+
+    // Aliases.
+    for (const std::string& alias : dp->alias()) {
+      s_newObjs.insert(DataObjID(clid,alias));
+    }
+
+    // Symlinks.
+    for (CLID clid2 : dp->transientAddress()->transientID()) {
+      if (clid2 != clid)
+        s_newObjs.insert(DataObjID(clid2,dp->name()));
+    }
   }
 }
 void SGImplSvc::addedNewTransObject(CLID clid, const std::string& key) {

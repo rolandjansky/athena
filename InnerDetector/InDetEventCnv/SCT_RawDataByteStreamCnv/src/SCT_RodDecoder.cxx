@@ -713,6 +713,29 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
 	  addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::TrailerOverflowError);
 	  sc=StatusCode::RECOVERABLE;
 	}
+	if (d[n] & 0xF) { 
+	  // fisrt temporarily masked chip information
+	  // 0 means no masked chip (always has been 0 until April 2017)
+	  // 
+	  // If Rx redundacy is not used, 
+	  // 1 means chips 0-5 are temporarily masked. 
+	  // 6 means chip 5 is temporarily masked. 
+	  // 7 means chips 6-11 are temporarily masked. 
+	  // 12 means chip 11 is temporarily masked. 
+	  // 
+	  // If Rx redundacy is used and link-1 is not used,
+	  // 1 means chips 0-11 are temporarily masked. 
+	  // 6 means chips 5-11 are temporarily masked. 
+	  // 7 means chips 6-11 are temporarily masked. 
+	  // 12 means chip 11 is temporarily masked. 
+	  // 
+	  // If Rx redundacy is used and link-0 is not used,
+	  // 1 means chips 0-5 are temporarily masked. 
+	  // 6 means chip 5 is temporarily masked. 
+	  // 7 means chips 6-11, 0-5 are temporarily masked. 
+	  // 12 means chips 11, 0-5 are temporarily masked. 
+	  m_byteStreamErrSvc->setFirstTempMaskedChip(currentLinkIdHash, (d[n] & 0xF));
+	}
 	continue; 
       }
       

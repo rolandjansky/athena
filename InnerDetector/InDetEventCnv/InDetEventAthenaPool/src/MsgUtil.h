@@ -5,26 +5,6 @@
 #ifndef INDETEVENTATHENAPOOL_MSGFIX
 #define INDETEVENTATHENAPOOL_MSGFIX
 
-// A few utilities for using MSG service easily in converters. Here
-// temporarily until someone comes up with a more general approach.
-//
-// Thomas Kittelmann March 2011
-
-#include "AthenaBaseComps/AthMessaging.h"
-#include "GaudiKernel/MsgStream.h"
- 
-namespace IDEvtAthPool {
-  //Small slightly dirty workaround so we can set the source name on the
-  //AthMessaging message streams to something else than "AthenaPoolConverter""
-  class MsgStreamSourceSettable : public MsgStream {
-  public:
-    void setSource(const char*c) { if (m_source!=c) m_source=c; }
-  };
-  inline void setMsgName(AthMessaging*a,const char*c) {
-    if (a&&c) static_cast<MsgStreamSourceSettable*>(&(a->msg()))->setSource(c);
-  }
-}
-
 //Defines similar to ATH_MSG_DEBUG and ATH_MSG_VERBOSE which accepts the MsgStream as an argument: 
 #ifdef MSG_DEBUG
 #undef MSG_DEBUG

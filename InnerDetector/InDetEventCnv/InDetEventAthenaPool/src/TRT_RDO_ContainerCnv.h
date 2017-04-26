@@ -41,7 +41,7 @@ class TRT_RDO_ContainerCnv : public TRT_RDO_ContainerCnvBase {
 
 protected:
   TRT_RDO_ContainerCnv (ISvcLocator* svcloc)
-    : TRT_RDO_ContainerCnvBase(svcloc),
+    : TRT_RDO_ContainerCnvBase(svcloc, "TRT_RDO_ContainerCnv"),
       m_converter_p1(),
       m_converter_p0(),
       m_storeGate(nullptr)

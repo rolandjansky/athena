@@ -90,6 +90,12 @@ public:
   virtual void operator()(TBuffer &b, void *objp);
 
 
+  /**
+   * @brief Clone operation, required for MT.
+   */
+  virtual TClassStreamer* Generate() const override;
+
+
 private:
   /// Name of the class we read/write (for error messages).
   std::string m_className;
@@ -149,6 +155,16 @@ void PackedContainerStreamer<T>::operator() ( TBuffer& b, void* objp ) {
 
       b.SetByteCount(R__c, kTRUE);
    }
+}
+
+
+/**
+ * @brief Clone operation, required for MT.
+ */
+template <class T>
+TClassStreamer* PackedContainerStreamer<T>::Generate() const
+{
+  return new PackedContainerStreamer<T> (*this);
 }
 
 

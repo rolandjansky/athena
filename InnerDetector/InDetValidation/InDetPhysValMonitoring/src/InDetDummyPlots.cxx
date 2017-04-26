@@ -250,7 +250,10 @@ InDetDummyPlots::minDR(float min_dR, float prod_rad, float bestmatch, double BID
     fillHisto(m_minimum_delta_R_not_found_overall, min_dR);
   }
 
+  //fillHisto(m_charge_vs_truth_match_rate, truth_pt, cvst);
   fillHisto(m_min_dR_vs_delta_inverse_pt, BIDPt, min_dR);
+  //fillHisto(m_charge_truth_agreement, prod_rad, cvst);
+  //fillHisto(m_truth_vs_charge_product, charge_product, bestmatch);
 }
 
 void

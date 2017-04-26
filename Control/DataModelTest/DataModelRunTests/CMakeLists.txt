@@ -77,3 +77,13 @@ datamodel_run_test (xAODRootTestRead2
 datamodel_run_test (ByteStreamTestWrite)
 datamodel_run_test (ByteStreamTestRead DEPENDS ByteStreamTestWrite)
 
+datamodel_run_test (xAODTestSymlinks1)
+datamodel_run_test (xAODTestSymlinks1MT
+                    COMMAND "athena.py --thread=1")
+
+datamodel_run_test (xAODTestSymlinks2
+                    DEPENDS xAODTestWrite)
+datamodel_run_test (xAODTestSymlinks2MT
+                    COMMAND "athena.py --thread=1"
+                    DEPENDS xAODTestWrite)
+

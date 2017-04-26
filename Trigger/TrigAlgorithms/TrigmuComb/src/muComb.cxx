@@ -389,7 +389,7 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
    //      << " / " << std::setw(11) << y
    //      << " / " << std::setw(11) << z << endmsg;
 
-   const Trk::Perigee* muonPerigee = (Trk::Perigee*) m_backExtrapolatorG4->extrapolate(perigeeMS, beamSurface, Trk::oppositeMomentum, Trk::muon);
+   const Trk::Perigee* muonPerigee = (Trk::Perigee*) m_backExtrapolatorG4->extrapolate(perigeeMS, beamSurface, Trk::oppositeMomentum, true, Trk::muon);
 
 
    //Protection against failing extrapolation
