@@ -13,6 +13,11 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
 
+// For Read Handle
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/EventInfo.h"
+
 #include <set>
 #include <string>
 
@@ -59,6 +64,8 @@ private:
   // bookkeeping if we have decoded a ROB already
   std::set<uint32_t> m_robIdSet;
 
+  SG::ReadHandleKey<xAOD::EventInfo> xevtInfoKey;
+  SG::ReadHandleKey<EventInfo> evtInfoKey;
 };
 
 #endif
