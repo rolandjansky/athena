@@ -186,7 +186,7 @@ StatusCode HLTCaloClusterTool::fill() {
                   deltaRMatchEM = deltaRTemp;
                   MatchEM=ONEMbeg;
                }
-               hist(("DEtaUnmatchedClusters"+(*ii)).c_str())->Fill(fabsf((*ONEMbeg)->eta()-(*OFFbeg)->caloCluster()->eta()));	
+               hist(("DEtaUnmatchedClusters"+(*ii)).c_str())->Fill(std::abs((*ONEMbeg)->eta()-(*OFFbeg)->caloCluster()->eta()));	
                hist(("DPhiUnmatchedClusters"+(*ii)).c_str())->Fill(deltaPhi((*ONEMbeg)->phi(),(*OFFbeg)->caloCluster()->phi()));	
                hist2(("EtEtUnmatched"+(*ii)).c_str())->Fill((*MatchEM)->et(),(*OFFbeg)->caloCluster()->et());
                if ( fabs((*OFFbeg)->caloCluster()->et())>0.2 ){
@@ -195,7 +195,7 @@ StatusCode HLTCaloClusterTool::fill() {
                   hist2(("EtFracPhiUnmatched"+(*ii)).c_str())->Fill((*OFFbeg)->caloCluster()->phi(),(*MatchEM)->et()/(*OFFbeg)->caloCluster()->et());
                }
             }
-            hist(("DEtaCloseClusters"+(*ii)).c_str())->Fill(fabsf((*MatchEM)->eta()-(*OFFbeg)->caloCluster()->eta()));
+            hist(("DEtaCloseClusters"+(*ii)).c_str())->Fill(std::abs((*MatchEM)->eta()-(*OFFbeg)->caloCluster()->eta()));
             hist(("DPhiCloseClusters"+(*ii)).c_str())->Fill(deltaPhi((*MatchEM)->phi(),(*OFFbeg)->caloCluster()->phi()));
             hist2(("EtEtClose"+(*ii)).c_str())->Fill((*MatchEM)->et(),(*OFFbeg)->caloCluster()->et());
             if ( fabs((*OFFbeg)->caloCluster()->et())>0.2 ){
@@ -213,7 +213,7 @@ StatusCode HLTCaloClusterTool::fill() {
                }
 
 
-               hist(("DEtaClosePtCutClusters"+(*ii)).c_str())->Fill(fabsf((*MatchEM)->eta()-(*OFFbeg)->caloCluster()->eta()));
+               hist(("DEtaClosePtCutClusters"+(*ii)).c_str())->Fill(std::abs((*MatchEM)->eta()-(*OFFbeg)->caloCluster()->eta()));
                hist(("DPhiClosePtCutClusters"+(*ii)).c_str())->Fill(deltaPhi((*MatchEM)->phi(),(*OFFbeg)->caloCluster()->phi()));
                hist2(("EtEtClosePtCut"+(*ii)).c_str())->Fill((*MatchEM)->et(),(*OFFbeg)->caloCluster()->et());
                if ( fabs((*OFFbeg)->caloCluster()->et())>0.2 ){
@@ -260,7 +260,7 @@ StatusCode HLTCaloClusterTool::fill() {
                }
                if((*MatchEM)->et()/(*OFFbeg)->caloCluster()->et()<0.7||(*MatchEM)->et()/(*OFFbeg)->caloCluster()->et()>1.3) hist2(("etaphiDifferent"+(*ii)).c_str())->Fill((*MatchEM)->eta(),(*MatchEM)->phi());
                if (m_ntuple) ((TNtuple*)tree("Details"))->Fill((*MatchEM)->et(),(*MatchEM)->eta(),(*MatchEM)->phi(),(*OFFbeg)->caloCluster()->et(),(*OFFbeg)->caloCluster()->eta(),(*OFFbeg)->caloCluster()->phi() ); 
-               hist(("DEtaMatchedClusters"+(*ii)).c_str())->Fill(fabsf((*MatchEM)->eta()-(*OFFbeg)->caloCluster()->eta()));
+               hist(("DEtaMatchedClusters"+(*ii)).c_str())->Fill(std::abs((*MatchEM)->eta()-(*OFFbeg)->caloCluster()->eta()));
                hist(("DPhiMatchedClusters"+(*ii)).c_str())->Fill(deltaPhi((*MatchEM)->phi(),(*OFFbeg)->caloCluster()->phi()));
                hist2(("EtEtMatched"+(*ii)).c_str())->Fill((*MatchEM)->et(),(*OFFbeg)->caloCluster()->et());
                if ( fabs((*OFFbeg)->caloCluster()->et())>0.2 ){
@@ -313,7 +313,7 @@ StatusCode HLTCaloClusterTool::fill() {
                   deltaRMatch = deltaRTemp;
                   Match=ONbeg;
                }
-               hist(("DEtaUnmatchedClusters"+(*ii)).c_str())->Fill(fabsf((*ONbeg)->caloCluster()->eta()-(*OFFbeg)->caloCluster()->eta()));	
+               hist(("DEtaUnmatchedClusters"+(*ii)).c_str())->Fill(std::abs((*ONbeg)->caloCluster()->eta()-(*OFFbeg)->caloCluster()->eta()));	
                hist(("DPhiUnmatchedClusters"+(*ii)).c_str())->Fill(deltaPhi((*ONbeg)->caloCluster()->phi(),(*OFFbeg)->caloCluster()->phi()));	
                hist2(("EtEtUnmatched"+(*ii)).c_str())->Fill((*Match)->caloCluster()->et(),(*OFFbeg)->caloCluster()->et());
                if ( fabs((*OFFbeg)->caloCluster()->et())>0.2 ){
@@ -322,7 +322,7 @@ StatusCode HLTCaloClusterTool::fill() {
                   hist2(("EtFracPhiUnmatched"+(*ii)).c_str())->Fill((*OFFbeg)->caloCluster()->phi(),(*Match)->caloCluster()->et()/(*OFFbeg)->caloCluster()->et());
                }
             }
-            hist(("DEtaCloseClusters"+(*ii)).c_str())->Fill(fabsf((*Match)->caloCluster()->eta()-(*OFFbeg)->caloCluster()->eta()));
+            hist(("DEtaCloseClusters"+(*ii)).c_str())->Fill(std::abs((*Match)->caloCluster()->eta()-(*OFFbeg)->caloCluster()->eta()));
             hist(("DPhiCloseClusters"+(*ii)).c_str())->Fill(deltaPhi((*Match)->caloCluster()->phi(),(*OFFbeg)->caloCluster()->phi()));
             hist2(("EtEtClose"+(*ii)).c_str())->Fill((*Match)->caloCluster()->et(),(*OFFbeg)->caloCluster()->et());
             if ( fabs((*OFFbeg)->caloCluster()->et())>0.2 ){
@@ -340,7 +340,7 @@ StatusCode HLTCaloClusterTool::fill() {
                }
 
 
-               hist(("DEtaClosePtCutClusters"+(*ii)).c_str())->Fill(fabsf((*Match)->caloCluster()->eta()-(*OFFbeg)->caloCluster()->eta()));
+               hist(("DEtaClosePtCutClusters"+(*ii)).c_str())->Fill(std::abs((*Match)->caloCluster()->eta()-(*OFFbeg)->caloCluster()->eta()));
                hist(("DPhiClosePtCutClusters"+(*ii)).c_str())->Fill(deltaPhi((*Match)->caloCluster()->phi(),(*OFFbeg)->caloCluster()->phi()));
                hist2(("EtEtClosePtCut"+(*ii)).c_str())->Fill((*Match)->caloCluster()->et(),(*OFFbeg)->caloCluster()->et());
                if ( fabs((*OFFbeg)->caloCluster()->et())>0.2 ){
@@ -418,7 +418,7 @@ StatusCode HLTCaloClusterTool::fill() {
                }
                if((*Match)->caloCluster()->et()/(*OFFbeg)->caloCluster()->et()<0.7||(*Match)->caloCluster()->et()/(*OFFbeg)->caloCluster()->et()>1.3) hist2(("etaphiDifferent"+(*ii)).c_str())->Fill((*Match)->caloCluster()->eta(),(*Match)->caloCluster()->phi());
                if (m_ntuple) ((TNtuple*)tree("Details"))->Fill((*Match)->caloCluster()->et(),(*Match)->caloCluster()->eta(),(*Match)->caloCluster()->phi(),(*OFFbeg)->caloCluster()->et(),(*OFFbeg)->caloCluster()->eta(),(*OFFbeg)->caloCluster()->phi() ); 
-               hist(("DEtaMatchedClusters"+(*ii)).c_str())->Fill(fabsf((*Match)->caloCluster()->eta()-(*OFFbeg)->caloCluster()->eta()));
+               hist(("DEtaMatchedClusters"+(*ii)).c_str())->Fill(std::abs((*Match)->caloCluster()->eta()-(*OFFbeg)->caloCluster()->eta()));
                hist(("DPhiMatchedClusters"+(*ii)).c_str())->Fill(deltaPhi((*Match)->caloCluster()->phi(),(*OFFbeg)->caloCluster()->phi()));
                hist2(("EtEtMatched"+(*ii)).c_str())->Fill((*Match)->caloCluster()->et(),(*OFFbeg)->caloCluster()->et());
                if ( fabs((*OFFbeg)->caloCluster()->et())>0.2 ){

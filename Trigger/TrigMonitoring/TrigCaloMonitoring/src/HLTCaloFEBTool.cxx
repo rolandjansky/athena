@@ -876,17 +876,17 @@ void HLTCaloFEBTool::doComparison(std::vector<LArFebEnergy> &febcoll,std::map<HW
                           //float offFebE = sqrt(offFebEx*offFebEx + offFebEy*offFebEy
                                                  //+ offFebEz*offFebEz);
                           found = true;
-                          float diffx = fabsf(offFebEx
+                          float diffx = std::abs(offFebEx
                                 - (*tit).getFebEx() );
                           //float diffxp = 0;
-                          //if ( fabsf ((*tit).getFebEx()) > 0.2 )
+                          //if ( std::abs ((*tit).getFebEx()) > 0.2 )
                           //      diffxp = 100*diffx/(*tit).getFebEx();
-                          float diffy = fabsf(offFebEy
+                          float diffy = std::abs(offFebEy
                                 - (*tit).getFebEy() );
                           //float diffyp = 0;
-                          //if ( fabsf ((*tit).getFebEy()) > 0.2 )
+                          //if ( std::abs ((*tit).getFebEy()) > 0.2 )
                           //      diffyp = 100*diffy/(*tit).getFebEy();
-                          float diffz = fabsf(offFebEz
+                          float diffz = std::abs(offFebEz
                                 - (*tit).getFebEz() );
                           //float diffzp = 0;
                           //float offFebPhi = atan2f(offFebEy,offFebEx);
@@ -897,7 +897,7 @@ void HLTCaloFEBTool::doComparison(std::vector<LArFebEnergy> &febcoll,std::map<HW
                           float febex = (*tit).getFebEx();
                           float febey = (*tit).getFebEy();
                           float febez = (*tit).getFebEz();
-                          //if ( fabsf ((*tit).getFebEz()) > 0.2 )
+                          //if ( std::abs ((*tit).getFebEz()) > 0.2 )
                           //      diffzp = 100*diffz/(*tit).getFebEz();
                           if ( ((diffx >= m_difflimit) ||
                                (diffy >= m_difflimit) ||
