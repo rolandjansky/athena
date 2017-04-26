@@ -1,15 +1,14 @@
 #######################################################
-# 
+#
 # TrigHltRates Tool
 # ----------------------------
-# ATLAS Collaboration 
-# 
-# 06.04.2017 Package created 
-# 
+# ATLAS Collaboration
+#
+# 06.04.2017 Package created
+#
 # Author: Cenk YILDIZ, UCI
 # e-mail: cenk.yildiz@cern.ch
 #
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration 
 #######################################################
 
 #!/usr/bin/python
@@ -20,9 +19,14 @@ import math
 import traceback
 import array
 import datetime
+import re
 
 from PyCool import cool
 
+from AthenaCommon.Logging import logging
+msg = logging.getLogger("TrigHltRates")
+msg.setLevel(logging.INFO)
+msg.setFormat("%(asctime)s  Py:%(name)-15s %(levelname)7s %(message)s")
 
 # Global variables
 
@@ -60,10 +64,12 @@ class TrigHltRates(object):
         any HLT chain during a run. The class instance may be used by several
         users at once, thus it has an internal caching mechanism to allow faster
         access to rates once they are retrieved from COOL
-        
-        Some internal dictionaries use runnumber as key, in case that during the 
-        lifetime of an instance, users ask rates for different runs
+
+        Some internal dictionaries use runnumber as key, in case that during the
+        lifetime of an instance, users ask rates for different runs.
     """
+
+    #TODO : Add global variable here as instance counter -> Check singleton in python
 
     def __init__(self, ratetag = "TriggerHltRates-Physics-01", chaintag = "TriggerHltChains-Physics-01"):
         """ Constructor of TrigHltRates.
@@ -73,175 +79,189 @@ class TrigHltRates(object):
                 chaintag -- Cool tag for the chains folder  (default TriggerHltChains-Physics-01)
         """
         super(TrigHltRates, self).__init__()
-        self.chains = {}  # Chain dictionary with key=runnumber, value=chain_name_array
-        self.chainindex = {} # 2 dimensional chain index dictionary. 1st key: runno, 2nd key: chainname 
-                             # To get index of chainname in run=runno: chainindex[runno][chainname]
-        self.sor_eor = {} # Start/End of run time dictionary with key=runnumber, value=(SOR time,EOR time)
-        self.iov_rates = {}  # Rates dictionary with key=iov (tuple of since,until), value=list of rates for that iov
 
-        self.allrates_in_cache = []  # List of run numbers, where all rates of the run are cached (i.e. getAllRates or getRates methods are called)
-        
-        self.ratetag=ratetag   
-        self.chaintag=chaintag   
-    
-    def getAllRates(self,runno):
-        """ Retrieve and return all the chain names and rates for each IOV for a certain run.
-    
-            Arguments:
-                runno -- Run Number
+        # All members are private as we don't want to expose any of them to user
+        self.__chains = {}  # Chain dictionary with key=runnumber, value=chain_name_array
+        self.__sor_eor = {} # Start/End of run time dictionary with key=runnumber, value=(SOR time,EOR time)
 
-            Returns: (return_code, chainlist, ratelist, iov_list)
-                return_code -- Integer with following possible values
-                    Nchains -> Number of chains that were read if successful
-                    -1      -> Cool access problem
-                    -2      -> No such run number in COOL chain folder
-                    -3      -> No data for this run number in rates folder
-                chainlist -- list of chain names, with size Nchains
-                ratelist  -- 2d list of rates with size (NIOV,Nchains)
-                    entry [i][j] refers to i'th IOV, c'th chain
-                iovlist  -- list of iovs where each entry is (iovstart,iovend)
-        """
+        self.__iovs = {}  # iov dictionary. key=runnumber, value=list(iovs) where iovs=(iovstart,iovend)
+                        # self.__iovs[runnumber][i] is a tuple (iovstart,iovend) for i'th iov of runnumber
 
+        self.__chainsrates = {}   # 2 dimensional chain names and rates dictionary. 1st key=runnumber, 2nd key=chainname, value=list(rates)
+                                # self.__chainsrates[runnumber][mychain][i] is the rate for mychain during i'th iov in run "runnumber"
+
+        self.__allrates_in_cache = []  # List of run numbers, where all rates of the run are cached (i.e. getAllRates method is called)
+
+        self.__ratetag=ratetag
+        self.__chaintag=chaintag
+
+    def getIOV(self,runno,timestamp):
+        """ Get IOV index for a timestamp, return -1 if not found"""
+
+        # If timestamp is out of run start/end time
+        sor,eor = self.__get_sor_eor(runno)
+        if timestamp < sor or timestamp > eor:
+            msg.warning("Timestamp out of run boundaries")
+            return -1
+
+        if runno in self.__allrates_in_cache:
+            iovlist = self.__iovs[runno]
+
+            # If timestamp if before first IOV
+            if timestamp < iovlist[0][0]:
+                msg.warning("Timestamp before first IOV")
+                return -1
+
+            # See if timestamp falls into any IOV
+            i = 0
+            for iov in iovlist:
+                if timestamp >= iov[0] and timestamp < iov[1]:
+                    return i
+                i+=1
+
+            # If timestamp is within first and last IOVs, but doesn't fall in any IOV (can be cool writing problems)
+            if timestamp >= iovlist[0][0] and timestamp < iovlist[-1][1]:
+                msg.warning("Timestamp doesn't correspond to any IOV")
+                return -1
+
+        # If IOV of timestamp still not found, update data in cache and check again
         try:
-            iovlist,ratelist = self.__getAllRates(runno)
-        except CantAccessDB: 
-            return -1,[],[],[]
-        except NoChainData: 
-            return -2,[],[],[]
-        except NoRateData:
-            return -3,self.__getChains(runno),[],[]
+            self.__getAllRates(runno,update=True)
+        except:
+            return -1
 
-        return_code = len(self.__getChains(runno))
-        return return_code, self.chains[runno], ratelist, iovlist
-
-    def getAllRatesAtT(self,runno,timestamp):
-        """Retrieve and return all the chain names and rates for a timestamp
-            
-            Arguments:
-                runno -- Run Number
-                timestamp -- unix time stamp
-        
-            Returns: (return_code, chainlist, ratelist)
-                return_code -- Integer with following possible values
-                    Nchains -> Number of chains that were read if successful
-                    -1      -> Cool access problem
-                    -2      -> No such run number in COOL chain folder
-                    -3      -> Timestamp out of run boundaries
-                    -4      -> No IOV that contains this timestamp
-                chainlist -- list of chain names, with size Nchains
-                ratelist  -- List of rates with size Nchains
-        """
-
-        try:
-            iov,rates = self.__getAllRatesAtT(runno,timestamp)
-        except CantAccessDB: 
-            return -1,[],[]
-        except NoChainData: 
-            return -2,[],[]
-        except TimestampOutOfRunBoundaries:
-            return -3,self.__getChains(runno),[]
-        except NoRateData:
-            return -4,self.__getChains(runno),[]
-
-        return_code = len(self.__getChains(runno))
-        return return_code, self.chains[runno], rates
-
-    def getRates(self,runno,selected_chains):
-        """Retrieve and return rates for selected chains for each IOV for a certain run
-    
-            Arguments:
-                runno -- Run Number
-                selected_chains -- list of requested chain names
-
-            Returns: (return_code, ratelist, iov_list)
-                return_code -- Integer with following possible values
-                    Nchains -> Number of chains that were read if successful
-                    -1      -> Cool access problem
-                    -2      -> No such run number in COOL chain folder
-                    -3      -> No data for this run number in rates folder
-                ratelist  -- 2d list of rates with size (NIOV,len(selected_chains))
-                    entry [i][j] refers to i'th IOV, c'th chain
-                iovlist  -- list of iovs where each entry is (iovstart,iovend)
-        """
-        try:
-            iovlist,ratelist_all = self.__getAllRates(runno)
-        except CantAccessDB: 
-            return -1,[],[],[]
-        except NoChainData: 
-            return -2,[],[],[]
-        except NoRateData:
-            return -3,self.__getChains(runno),[],[]
-
-        # Calculate the indices of selected chains
-        i = 0       # index over selected chains
-        nread = 0   # number of chains that are read
-        indices = [-1] * len(selected_chains) #Initialize all indices to -1
-        for chainname in selected_chains:
-            if self.chainindex[runno].has_key(chainname):
-                index = self.chainindex[runno][chainname]
-                indices[i] = index
-                nread+= 1
-            i+= 1
-
-        k = 0 #Index over iovs
-        ratelist = []
+        iovlist = self.__iovs[runno]
+        i = 0
         for iov in iovlist:
-            rates = ratelist_all[k]
-            selected_rates = [-1]*len(selected_chains) #Initialize all rates to -1
+            if timestamp >= iov[0] and timestamp < iov[1]:
+                return i
+            i+=1
 
-            i = 0 # index over selected chains
-            for index in indices:
-                if index != -1:
-                    selected_rates[i] = rates[index]
-                i+= 1
+        # If IOV of timestamp still not found, return -1
+        return -1
 
-            ratelist.append(selected_rates) 
-            k+= 1
+    def getTimestamp(self,runno,iov):
+        """ Get start timestamp of IOVreturn -1 if IOV not found"""
 
-        return_code = nread
-        return return_code, ratelist, iovlist
+        if iov < 0:
+            return -1
 
-    def getRatesAtT(self,runno,timestamp,selected_chains):
-        """ Retrieve and return rates for selected chains for each IOV for a certain run
+        if runno in self.__allrates_in_cache:
+            iovlist = self.__iovs[runno]
+
+            if iov < len(iovlist):
+                return iovlist[iov][0]
+
+        # If IOV of timestamp still not found, update data in cache and check again
+        try:
+            self.__getAllRates(runno,update=True)
+        except:
+            return -1
+        iovlist = self.__iovs[runno]
+        if iov < len(iovlist):
+            return iovlist[iov][0]
+
+        # If IOV of timestamp still not found, return -1
+        return -1
+
+    def getRates(self,runno,chains=[".*"],iov=5):
+        """ Retrieve and return matching the chain names and rates for a single IOV for a certain run.
 
             Arguments:
                 runno -- Run Number
-                timestamp -- unix time stamp
-                selected_chains -- list of requested chain names
+                chains -- List of regex patterns to match with chain names, default=[".*"] (all chains)
+                iov -- index of IOV, default=5
 
-            Returns: (return_code, ratelist)
+            Returns: (return_code, dict_chains_rates)
                 return_code -- Integer with following possible values
                     Nchains -> Number of chains that were read if successful
                     -1      -> Cool access problem
                     -2      -> No such run number in COOL chain folder
-                    -3      -> Timestamp out of run boundaries
-                    -4      -> No IOV that contains this timestamp
-                ratelist  -- List of rates with size len(selected_chains)
+                    -3      -> No data for this IOV
+                dict_chains_rates: Dictionary with keys as matching chain names, values as a rate
+                    dict_chains_rates[mychainname] is rate for mychainname
         """
 
+        dict_chains_rates = {}
+
+        #Following is needed in case one tried to get IOV using getIOV() function for a timestamp with no IOV
+        if iov < 0:
+            return -3,dict_chains_rates
+
+        # Get rates for selected chains
+        return_code,dict_chains_rates_alliovs = self.getAllRates(runno,chains=chains,update=False)
+
+        # If there is a DB access issue or chain folder is empty, return immediately
+        if return_code in [-1,-2]:
+            return return_code, dict_chains_rates
+
+        allchains = self.__getChains(runno)
+        somechain = allchains[0]
+
+        # If rates for asked iov not in cache, update cache (check COOL again)
+        if len(self.__chainsrates[runno][somechain]) <= iov:
+            returncode,dict_chains_rates_alliovs = self.getAllRates(runno,chains=chains,update=True)
+
+        # If rates for asked iov still not cached, they don't exist
+        if len(self.__chainsrates[runno][somechain]) <= iov:
+            return -3, dict_chains_rates
+
+        for chain in dict_chains_rates_alliovs.keys():
+            dict_chains_rates[chain] = dict_chains_rates_alliovs[chain][iov]
+
+        return_code = len(dict_chains_rates.keys())
+        return return_code,dict_chains_rates
+
+    def getAllRates(self,runno,chains=[".*"],update=False):
+        """ Retrieve and return matching chain names and rates for all IOVs for a certain run.
+
+            Arguments:
+                runno -- Run Number
+                chains -- List of regex patterns to match with chain names, default value will get all chains
+                update -- If True, everything is retrieved from COOL, regardless of data in the cache.
+                          It is useful if COOL was updated in the meanwhile
+
+            Returns: (return_code, dict_chains_rates)
+                return_code -- Integer with following possible values
+                    Nchains -> Number of chains that were read if successful
+                    -1      -> Cool access problem
+                    -2      -> No such run number in COOL chain folder
+                    -3      -> No data for this run number in rates folder
+                dict_chains_rates: Dictionary with keys as matching chain names, values as list of rates for each IOV
+                    dict_chains_rates[mychainname][j] is rate of j'th IOV for mychainname
+        """
+
+        dict_chains_rates = {}
         try:
-            iov,rates = self.__getAllRatesAtT(runno,timestamp)
-        except CantAccessDB: 
-            return -1,[],[]
-        except NoChainData: 
-            return -2,[],[]
-        except TimestampOutOfRunBoundaries:
-            return -3,self.__getChains(runno),[]
+            dict_chains_rates_all = self.__getAllRates(runno,update)
+        except CantAccessDB:
+            return -1,dict_chains_rates
+        except NoChainData:
+            return -2,dict_chains_rates
         except NoRateData:
-            return -4,self.__getChains(runno), []
+            return -3,dict_chains_rates
 
-        i = 0       # index over selected chains
-        nread = 0   # number of chains that are read
-        selected_rates = [-1]*len(selected_chains) #Initialize all rates to -1
-        for chainname in selected_chains:
-            if self.chainindex[runno].has_key(chainname):
-                index = self.chainindex[runno][chainname]
-                selected_rates[i] = rates[index]
-                nread+= 1
-            i+= 1
+        # Don't do any regex matching if there is a pattern that will match everything (".*")
+        if ".*" in chains:
+            return_code = len(dict_chains_rates_all.keys())
+            return return_code, dict_chains_rates_all
 
-        return_code = nread
-        return return_code, selected_rates
+        allchains = self.__getChains(runno)
+
+        for pattern in chains:
+            for chain in allchains:
+                if chain in dict_chains_rates.keys(): #Chain name is already matched before
+                    continue
+                try:
+                    matched = bool(re.match(pattern,chain))
+                except Exception,e:
+                    msg.error("Regex matching error: {0}".format(e))
+                    matched = False
+                if matched:
+                    dict_chains_rates[chain] = dict_chains_rates_all[chain]
+
+        return_code = len(dict_chains_rates.keys())
+        return return_code, dict_chains_rates
 
     def __get_sor_eor(self,runno):
         """ Return a tuple with run start time,end time for 'runno'
@@ -254,8 +274,8 @@ class TrigHltRates(object):
         coolchannel = 0 #Folders are single channel
 
         # Check if it's already cached
-        if self.sor_eor.has_key(runno):
-            return self.sor_eor[runno]
+        if self.__sor_eor.has_key(runno):
+            return self.__sor_eor[runno]
 
         dbSvc=cool.DatabaseSvcFactory.databaseService()
 
@@ -266,9 +286,10 @@ class TrigHltRates(object):
             cfolder_sor=db.getFolder(sor_foldername)
             cfolder_eor=db.getFolder(eor_foldername)
         except Exception,e:
-            print("Can't open DB or get SOR/EOR folders: {0}".format(dbconnect))
-            print("Exception: {0}".format(e))
-            sys.exit(0)
+            msg.error("Can't open DB or get SOR/EOR folders: {0}".format(dbconnect))
+            msg.error("Exception: {0}".format(e))
+            print  "Info : --- : ", sys.exc_info()
+            raise e
 
         # Find object at lb=2 of the run
         lb=2
@@ -277,14 +298,14 @@ class TrigHltRates(object):
         try:
             obj = cfolder_sor.findObject(runlb, coolchannel)
         except Exception,e:
-            print("Can't get object from folder: {0}".format(sor_foldername))
-            print("Exception: {0}".format(e))
-            sys.exit(0)
+            msg.error("Can't get object from folder: {0}".format(sor_foldername))
+            msg.error("Exception: {0}".format(e))
+            raise e
 
         payload = obj.payload()
         sor_time = payload["SORTime"]/1E9
         #print("SOR: {0} ".format(sor_time))
-                
+
         try:
             obj = cfolder_eor.findObject(runlb,coolchannel)
             payload = obj.payload()
@@ -292,17 +313,17 @@ class TrigHltRates(object):
             #print("End of Run reached, run is stopped! EOR: {0}".format(eor_time))
         except Exception,e:
             eor_time = cool.ValidityKeyMax
-            print("End of Run NOT reached, run ongoing")
+            msg.info("End of Run NOT reached, run ongoing")
 
         # finish
         db.closeDatabase()
-        self.sor_eor[runno] = (sor_time, eor_time)
+        self.__sor_eor[runno] = (sor_time, eor_time)
         return sor_time,eor_time
 
     def __getChains(self,runno):
         """ Private method to get all chain names for a run number """
-        if self.chains.has_key(runno):
-            return self.chains[runno]
+        if self.__chains.has_key(runno):
+            return self.__chains[runno]
 
         dbSvc=cool.DatabaseSvcFactory.databaseService()
 
@@ -312,8 +333,8 @@ class TrigHltRates(object):
             db=dbSvc.openDatabase(dbconnect,readonly)
             chainfolder=db.getFolder(chain_foldername)
         except Exception,e:
-            print("Can't open DB or get chain folder")
-            print("Exception: {0}".format(e))
+            msg.error("Can't open DB or get chain folder")
+            msg.error("Exception: {0}".format(e))
             raise CantAccessDB
 
         # Chain folder is run/lumi based, using lb=2 ensures we get the entry for right IOV
@@ -321,131 +342,48 @@ class TrigHltRates(object):
         runlb = (runno << 32) + lb
 
         try:
-            chainobj = chainfolder.findObject(runlb, coolchannel, self.chaintag);
+            chainobj = chainfolder.findObject(runlb, coolchannel, self.__chaintag);
         except Exception,e:
-            print("Can't get chains object from chain folder!")
-            print("Exception: {0}".format(e))
+            msg.error("Can't get chains object from chain folder, Exception: {0}".format(e))
             raise NoChainData
 
         payload = chainobj.payload()
         chains = payload["chains"].split(",")
-        self.chains[runno]=chains
-
-        self.chainindex[runno] = {}
-        i = 0
-        for c in chains:
-            self.chainindex[runno][c] = i
-            i += 1
+        self.__chains[runno]=chains
 
         return chains
 
-    def __getAllRates(self,runno, iov_start=None,iov_end=None):
-        """ Get rates between 2 timestamps
-            
+    def __getAllRates(self,runno,update=False):
+        """ Get rates for a run for all IOVs
+
             Arguments:
                 runno -- run number
-                iov_start -- start timestamp, if None, use run start time
-                iov_end -- end timestamp, if None, use run end time
+                update -- If True, everything is retrieved from COOL, regardless of data in the cache.
+                          It is useful if COOL was updated in the meanwhile
 
-            Returns: (rates,iovs)
-                iovs -- list of tuples, where each tuple is (since,until)
-                rates -- list of lists where entry [i][j] is i'th iov, j'th chain
+            Returns: dict_chains_rates, dictionary with key: chainname, value:list(rates)
+                dict_chains_rates[mychain][i] is rate of mychain during i'th IOV
         """
 
-        self.__getChains(runno)
+        allchains = self.__getChains(runno)
 
-        start,end = self.__get_sor_eor(runno)
+        iov_start,iov_end = self.__get_sor_eor(runno)
 
-        # iov_start, iov_end is implemented in case we add a method to get rates between 2 timestamps
-        if iov_start == None:
-            iov_start = start
-        else:
-            if iov_start < start or iov_start > end:
-                raise TimestampOutOfRunBoundaries
+        # If rates are already loaded to cache and update=False don't access COOL
+        if runno in self.__allrates_in_cache and not update:
+            return self.__chainsrates[runno]
 
-        if iov_end == None:
-            iov_end = end
-        else:
-            if iov_end < start or iov_end > end:
-                raise TimestampOutOfRunBoundaries
+        if runno not in self.__chainsrates.keys():
+            self.__chainsrates[runno] = {}
 
-        ratelist = []
-        iovlist = []
+        # Reinitialize rate array for each chain
+        for chain in allchains:
+            self.__chainsrates[runno][chain] = []
 
-        # If rates are already loaded to cache, don't access COOL
-        if runno in self.allrates_in_cache:
-            iovs = self.iov_rates.keys()
-            iovs.sort()
-            for iov in iovs:
-                if iov[0] > iov_start and iov[1] < iov_end: # If entry is within the run boundaries
-                    iovlist.append(iov)
-                    ratelist.append(self.iov_rates[iov])
-        else:
-            dbSvc=cool.DatabaseSvcFactory.databaseService()
+        # reinitialize IOV list
+        self.__iovs[runno] = []
 
-            readonly = True
-
-            try:
-                db=dbSvc.openDatabase(dbconnect,readonly)
-                ratefolder=db.getFolder(rate_foldername)
-                rateobjs = ratefolder.browseObjects(int(iov_start), int(iov_end),cool.ChannelSelection(int(coolchannel)),self.ratetag)
-            except Exception,e:
-                print("Can't open DB or get folders")
-                print("Exception: {0}".format(e))
-                raise CantAccessDB
-
-            for obj in rateobjs:
-                since = obj.since()
-                until = obj.until()
-                # Discard entries that may belong to previous/next runs, or first entry of the next run, which may fall in (iov_start,iov_end)
-                # TODO(cyildiz) if iov_start and iov_end are passed as argument to this function, following may be not desirable
-                if since < iov_start or until > iov_end:
-                    continue
-
-                payload = obj.payload()
-                data = payload["rates"]
-
-                ratedata = self.__blob2rates(data,runno)
-                ratelist.append(ratedata)
-                iov = (since,until)
-                iovlist.append(iov)
-
-                if not self.iov_rates.has_key(iov):
-                    self.iov_rates[iov]=ratedata
-
-            if ratelist==[]:
-                raise NoRateData
-
-            db.closeDatabase()
-
-            # Add run number to the list,
-            self.allrates_in_cache.append(runno)
-
-        return iovlist,ratelist
-
-    def __getAllRatesAtT(self,runno, timestamp):
-        """ Get rates at a certain timestamp
-            
-            Arguments:
-                runno -- run number
-                timestamp -- timestamp
-
-            Returns: (iov,rates)
-                iov -- iov of the cool entry as a tuple: (since,until)
-                rates -- list of floats with size Nchains
-        """
-
-        self.__getChains(runno)
-
-        sor,eor=self.__get_sor_eor(runno)
-        if timestamp < sor or timestamp > eor:
-            raise TimestampOutOfRunBoundaries
-
-        #Try getting the rates from the cache first
-        for iov in self.iov_rates:
-            if timestamp<iov[1] and timestamp>iov[0]:
-                return (iov,self.iov_rates[iov])
-
+        # Else, read from COOL
         dbSvc=cool.DatabaseSvcFactory.databaseService()
 
         readonly = True
@@ -453,38 +391,53 @@ class TrigHltRates(object):
         try:
             db=dbSvc.openDatabase(dbconnect,readonly)
             ratefolder=db.getFolder(rate_foldername)
+            rateobjs = ratefolder.browseObjects(int(iov_start), int(iov_end),cool.ChannelSelection(int(coolchannel)),self.__ratetag)
         except Exception,e:
-            print("Can't open DB or get folders")
-            print("Exception: {0}".format(e))
+            msg.error("Can't open DB or get folders, Exception: {0}".format(e))
             raise CantAccessDB
 
-        try:
-            rateobj = ratefolder.findObject(timestamp, coolchannel, self.ratetag)
-        except Exception,e:
-            print ("No rate entry for timestamp")
+        ratedataexist = 0
+        for obj in rateobjs:
+            since = obj.since()
+            until = obj.until()
+            # Discard entries that may belong to previous/next runs, or first entry of the next run, which may fall in (iov_start,iov_end)
+            if since < iov_start or until > iov_end:
+                continue
+
+            ratedataexist = 1
+
+            iov = (since,until)
+
+            payload = obj.payload()
+            data = payload["rates"]
+            ratedata = self.__blob2rates(data,runno)
+
+            #Cache results
+            self.__iovs[runno].append(iov)
+            chainindex = 0
+            for chain in allchains:
+                self.__chainsrates[runno][chain].append(ratedata[chainindex])
+                chainindex+=1
+
+        if not ratedataexist:
+            msg.warning("No rate entry for timestamp")
             raise NoRateData
-
-        since = rateobj.since()
-        until = rateobj.until()
-        iov = (since,until)
-
-        payload = rateobj.payload()
-        data = payload["rates"]
-
-        ratedata = self.__blob2rates(data,runno)
 
         db.closeDatabase()
 
-        self.iov_rates[iov]=ratedata
-        return iov,ratedata
+        # Add run number to the list,
+        if runno not in self.__allrates_in_cache:
+            self.__allrates_in_cache.append(runno)
+
+        return self.__chainsrates[runno]
 
     def __blob2rates(self,blob,runno):
         """ Convert COOL blob to list of floats using the version number
-        
+
             Arguments
                 blob: cool blob
                 runno: run number, needed to get number of chains
-            
+
             Returns
                 rates: list of floats
         """
@@ -495,6 +448,3 @@ class TrigHltRates(object):
         if version == 2.0:
             data = floatarr[1:1+nchains]
         return data
-
-
-#TODO(cyildiz) In getRates() and getAllRates(), give option to user to access cool. COOL could be updated since last time method was run, and we may want to get new entries
