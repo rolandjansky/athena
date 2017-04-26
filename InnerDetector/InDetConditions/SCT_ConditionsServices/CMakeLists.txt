@@ -23,6 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoModel/GeoModelUtilities
                           Event/EventInfo
+                          Event/xAOD/xAODEventInfo
                           InnerDetector/InDetConditions/InDetByteStreamErrors
                           InnerDetector/InDetConditions/SiPropertiesSvc
                           InnerDetector/InDetDetDescr/InDetIdentifier
