@@ -1,3 +1,6 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+#!/usr/bin/env python
 import sys
 # a simple testing macro for the MuonEfficiencyCorrections_xAOD package in athena
 #
