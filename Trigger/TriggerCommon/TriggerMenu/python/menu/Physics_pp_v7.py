@@ -846,7 +846,6 @@ def setupMenu():
         #
         # L1Topo VBF MJJ bjets
         #
-        ['j80_bmv2c2070_split_j60_bmv2c2085_split_j45_320eta490',             'L1_J40.0ETA25_2J25_J20.31ETA49', [], [PhysicsStream], ['RATE:MultiBJet','BW:BJet'], -1],
         ['j55_gsc80_bmv2c2070_split_j45_gsc60_bmv2c2085_split_j45_320eta490', 'L1_J40.0ETA25_2J25_J20.31ETA49', [], [PhysicsStream], ['RATE:MultiBJet','BW:BJet'], -1],
 
         ] # BjetSlice
@@ -2824,7 +2823,8 @@ def setupMenu():
 
 	# Hbb VBF trigger (ATR-13526)
         ['j80_0eta240_j60_j45_320eta490_invm700_AND_j45_bmv2c2070_split_j45_bmv2c2077_split','L1_J40.0ETA25_2J25_J20.31ETA49', ['','','','',''], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet' ], -1, ['serial',-1,['j80_0eta240','j60','j45_320eta490_invm700_AND','j45_bmv2c2070_split','j45_bmv2c2077_split'] ]],
-        ['j80_0eta240_j60_j45_320eta490_AND_2j45_bmv2c2070_split','L1_J40.0ETA25_2J25_J20.31ETA49', ['','','','',''], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet' ], -1, ['serial',-1,['j80_0eta240','j60','j45_320eta490_AND','2j45_bmv2c2070_split'] ]],
+
+        ['j80_0eta240_j60_j45_320eta490_AND_2j25_gsc45_bmv2c2070_split','L1_J40.0ETA25_2J25_J20.31ETA49', ['','','','',''], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet' ], -1, ['serial',-1,['j80_0eta240','j60','j45_320eta490_AND','2j25_gsc45_bmv2c2070_split'] ]],
 				['j55_bmv2c2070_2j45_320eta490_L1J25.0ETA23_2J15.31ETA49','L1_J25.0ETA23_2J15.31ETA49',['',''], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet' ], -1, ['serial',-1,['j55_bmv2c2070','2j45_320eta490_L1J25.0ETA23_2J15.31ETA49'] ]],
 				['j35_gsc55_bmv2c2070_2j45_320eta490_L1J25.0ETA23_2J15.31ETA49','L1_J25.0ETA23_2J15.31ETA49',['',''], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet' ], -1, ['serial',-1,['j35_gsc55_bmv2c2070','2j45_320eta490_L1J25.0ETA23_2J15.31ETA49'] ]],
 				['j55_0eta240_2j45_320eta490_L1J25.0ETA23_2J15.31ETA49','L1_J25.0ETA23_2J15.31ETA49',['',''], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet' ], -1, ['serial',-1,['j55_0eta240','2j45_320eta490_L1J25.0ETA23_2J15.31ETA49'] ]],
