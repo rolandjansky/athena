@@ -10,7 +10,7 @@
 
 #include "LArIdentifier/LArIdManager.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 

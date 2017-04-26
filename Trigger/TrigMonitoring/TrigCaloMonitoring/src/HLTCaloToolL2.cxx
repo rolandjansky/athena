@@ -9,7 +9,7 @@
 
 #include "LArIdentifier/LArIdManager.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/TileID.h"
 
 #include "TH1F.h"
