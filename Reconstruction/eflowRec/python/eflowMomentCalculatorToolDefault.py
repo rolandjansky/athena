@@ -23,7 +23,19 @@ class eflowMomentCalculatorToolDefault(eflowMomentCalculatorTool) :
             print traceback.format_exc()
             return False
 
-        ClusterMomentsMaker.MaxAxisAngle = 30*deg
+        from CaloRec.CaloTopoClusterFlags import jobproperties
+
+        from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
+        theCaloNoiseTool = CaloNoiseToolDefault()
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += theCaloNoiseTool
+
+        ClusterMomentsMaker.MaxAxisAngle = 20*deg
+        ClusterMomentsMaker.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute() 
+        ClusterMomentsMaker.MinBadLArQuality = 4000
+        ClusterMomentsMaker.CaloNoiseTool = theCaloNoiseTool
+        ClusterMomentsMaker.UsePileUpNoise = True
+        ClusterMomentsMaker.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
         ClusterMomentsMaker.OutputLevel = INFO
         ClusterMomentsMaker.MomentsNames = [
             "FIRST_PHI" 
