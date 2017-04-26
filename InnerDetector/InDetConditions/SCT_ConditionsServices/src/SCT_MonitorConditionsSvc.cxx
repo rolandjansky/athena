@@ -33,10 +33,8 @@
 #include "InDetIdentifier/SCT_ID.h"
 
 // Event Info 
-#include "EventInfo/EventIncident.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
 
 //path resolver to find the file
 #include "PathResolver/PathResolver.h"

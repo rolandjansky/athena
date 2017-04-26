@@ -13,7 +13,6 @@
 #include "Identifier/IdentifierHash.h"
 #include "Identifier/Identifier.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "EventInfo/EventIncident.h"
 
 
 

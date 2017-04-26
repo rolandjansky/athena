@@ -10,10 +10,8 @@
 #include "SCT_ReadCalibDataSvc.h"
 
 // Include Event Info 
-#include "EventInfo/EventIncident.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
 #include "CoralBase/TimeStamp.h"
 
 
