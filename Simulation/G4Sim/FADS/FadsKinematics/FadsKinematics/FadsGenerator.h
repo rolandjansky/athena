@@ -14,10 +14,10 @@ namespace FADS {
 
 class FadsGenerator {
 private:
-	std::string name;
+	std::string m_name;
 public:
-	std::string GetName() const {return name;}
-	FadsGenerator(std::string n): name(n) {}
+	std::string GetName() const {return m_name;}
+	FadsGenerator(std::string n): m_name(n) {}
 	virtual ~FadsGenerator() {}
 	virtual void Initialize()=0;
 	virtual void Terminate()=0;
