@@ -81,7 +81,7 @@ StatusCode HLTCaloToolL2::book(bool newEventsBlock, bool newLumiBlock, bool newR
 
   addMonGroup( new MonGroup(this,"HLT/CaloMonL2",run) );
 
-  if ( newRun ) {
+  if ( newRunFlag() ) {
 
   addHistogram(new TH1F("NCellsLAr","Number of HLT LAr cells; Number of HLT Cells; Number of Events",100,1,1501) );
   addHistogram(new TH1F("NBadCellsLAr","Number of Bad LAr Cells; Number of Bad Cells; Number of Events",50,0,10000.) );
@@ -122,7 +122,7 @@ StatusCode HLTCaloToolL2::book(bool newEventsBlock, bool newLumiBlock, bool newR
   if ( m_ntuple ) 
   addTree( new TNtuple("Details","Details","et:eta:phi:gain:tet:teta:tphi:tgain:lartile") );
   
-  }else if ( newEventsBlock || newLumiBlock ){
+  }else if ( newEventsBlockFlag() || newLumiBlockFlag() ){
     return StatusCode::SUCCESS;
   }
 
