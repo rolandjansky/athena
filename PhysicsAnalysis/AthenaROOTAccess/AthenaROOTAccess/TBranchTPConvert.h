@@ -16,6 +16,7 @@
 #ifndef ATHENAROOTACCESS_TBRANCHTPCONVERT_H
 #define ATHENAROOTACCESS_TBRANCHTPCONVERT_H
 
+#include "AthenaPoolCnvSvc/AthenaPoolTopLevelTPCnvBase.h"
 #include "AthenaROOTAccess/ISetSGKey.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
@@ -25,7 +26,6 @@
 #include <string>
 
 class ITPCnvBase;
-class AthenaPoolTopLevelTPCnvBase;
 namespace SG {
 class DataProxy;
 class Arena;

@@ -10,6 +10,7 @@
  * @brief Branch to run T/P conversions.
  */
 
+#include "AthenaPoolUtilities/TPCnvTokenList_p1.h"
 #include "AthenaROOTAccess/TBranchTPConvert.h"
 #include "AthenaROOTAccess/TTreeBranchMap.h"
 #include "AthenaROOTAccess/ProxyMap.h"
@@ -19,7 +20,6 @@
 #include "AthenaROOTAccess/tpcnvLoad.h"
 #include "AuxStoreARA.h"
 #include "AthenaKernel/ITPCnvBase.h"
-#include "AthenaPoolCnvSvc/AthenaPoolTopLevelTPCnvBase.h"
 #include "AthContainersInterfaces/IAuxStoreHolder.h"
 #include "AthAllocators/Arena.h"
 #include "SGTools/DataProxy.h"

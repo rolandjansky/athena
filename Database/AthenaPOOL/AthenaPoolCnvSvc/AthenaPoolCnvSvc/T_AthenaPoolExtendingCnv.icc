@@ -75,7 +75,7 @@ template <class TRANS, class PERS>
 template <class P>
 void
 T_AthenaPoolExtendingCnv< TRANS, PERS >::
-poolReadObject( AthenaPoolTopLevelTPCnvBase& tlp_converter )
+poolReadObject( TopLevelTPCnvBase& tlp_converter )
 {
    // set which Top level TP concerter will by used for reading
    usingTPCnvForReading( tlp_converter );
