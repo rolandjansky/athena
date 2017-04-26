@@ -17,7 +17,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Event/EventInfo
                           Tools/LWHists
-                          Trigger/TrigEvent/TrigDecisionInterface )
+                          Trigger/TrigEvent/TrigDecisionInterface
+			  AtlasTest/TestTools)
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -37,6 +38,17 @@ atlas_add_component( AthenaMonitoring
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps GaudiKernel LumiBlockCompsLib AthenaKernel SGAudCore AthenaPoolUtilities EventInfo LWHists AthenaMonitoringLib )
+
+
+foreach ( name GenericMonParsing_test GenericMonFilling_test )
+
+	atlas_add_test( ${name}
+			SOURCES test/${name}.cxx
+			LINK_LIBRARIES AthenaMonitoringLib GaudiKernel TestTools AthenaKernel
+			ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
+	)
+
+endforeach()
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
