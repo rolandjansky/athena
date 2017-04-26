@@ -276,7 +276,7 @@ class ConfiguredNewTrackingCuts :
         self.__maxSctHoles             = [2, 2]
         self.__maxDoubleHoles          = [1, 1]
         self.__maxPrimaryImpact        = [2.0, 10.0]
-        self.__maxZImpact              = [250.0, 250.0]
+        self.__maxZImpact              = [200.0, 200.0]
     
         # --- general pattern cuts for NewTracking
         self.__nHolesMax               = self.__maxHoles
@@ -293,7 +293,7 @@ class ConfiguredNewTrackingCuts :
         self.__phiWidthBrem             = [0.3, 0.3]
         self.__etaWidthBrem             = [0.2, 0.2]  
 
-      elif self.__indetflags.useInDetDynamicCuts() and "BrlInclOptRing4.0_ref" == GeometryFlags.GeoType():
+      elif self.__indetflags.useInDetDynamicCuts() and ( "BrlInclOptRing4.0_ref" == GeometryFlags.GeoType() or "Inclined_Quads" == GeometryFlags.GeoType() or "Inclined_Alternative" == GeometryFlags.GeoType() or "Inclined_LightBarrel" == GeometryFlags.GeoType() ):
         self.__maxEta                  = 4.0
         self.__etaBins                 = [-1.0, 2.4, 2.6]		# last bin goes from the last value in the list up to maxEta
     
@@ -309,7 +309,7 @@ class ConfiguredNewTrackingCuts :
         self.__maxSctHoles             = [2, 2, 2]
         self.__maxDoubleHoles          = [1, 1, 1]
         self.__maxPrimaryImpact        = [2.0, 2.0, 10.0]
-        self.__maxZImpact              = [250.0, 250.0, 250.0]
+        self.__maxZImpact              = [200.0, 200.0, 200.0]
     
         # --- general pattern cuts for NewTracking
         self.__nHolesMax               = self.__maxHoles

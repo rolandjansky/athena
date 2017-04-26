@@ -139,7 +139,7 @@ if InDetFlags.loadRotCreator():
         
         minCluster = 0
         from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
-        if ("BrlIncl4.0_ref" == GeometryFlags.GeoType() or "IBrlExt4.0ref" == GeometryFlags.GeoType() or "BrlInclOptRing4.0_ref" == GeometryFlags.GeoType()):
+        if ("BrlIncl4.0_ref" == GeometryFlags.GeoType() or "IBrlExt4.0ref" == GeometryFlags.GeoType() or "BrlInclOptRing4.0_ref" == GeometryFlags.GeoType() or "Inclined_Quads" == GeometryFlags.GeoType() or "Inclined_Alternative" == GeometryFlags.GeoType() or "Inclined_LightBarrel" == GeometryFlags.GeoType()):
             minCluster = 4
         elif ("BrlExt4.0_ref" == GeometryFlags.GeoType() or "BrlExt3.2_ref" == GeometryFlags.GeoType()):
             minCluster = 2        
@@ -970,6 +970,11 @@ if InDetFlags.loadSummaryTool():
                                                                          TRTStrawSummarySvc = ""
                                                                          )
 
+    if (InDetFlags.doSLHC() ):
+      from AtlasGeoModel.InDetGMJobProperties import GeometryFlags #Might need to move this...
+      if not "LoI" in GeometryFlags.GeoType():
+        InDetTrackSummaryHelperTool.GeometryType = GeometryFlags.GeoType()
+ 
     ToolSvc += InDetTrackSummaryHelperTool
     if (InDetFlags.doPrintConfigurables()):
       print      InDetTrackSummaryHelperTool                                                                   

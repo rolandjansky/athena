@@ -303,6 +303,10 @@ class  ConfiguredNewTrackingSiPattern:
           if InDetFlags.doHeavyIon() :
            InDetSiSPSeededTrackFinder.FreeClustersCut = 2 #Heavy Ion optimization from Igor
 
+          if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" :
+           InDetSiSPSeededTrackFinder.ITKGeometry = True
+
+
          #InDetSiSPSeededTrackFinder.OutputLevel =VERBOSE 
          topSequence += InDetSiSPSeededTrackFinder
          if (InDetFlags.doPrintConfigurables()):
