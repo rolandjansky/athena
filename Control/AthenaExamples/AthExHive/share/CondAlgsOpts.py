@@ -35,29 +35,11 @@ from StoreGate.StoreGateConf import SG__HiveMgrSvc
 from GaudiHive.GaudiHiveConf import AlgResourcePool
 # svcMgr += AlgResourcePool( OutputLevel = INFO );
 
-from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-svcMgr.ForwardSchedulerSvc.OutputLevel = INFO
-svcMgr.ForwardSchedulerSvc.CheckDependencies = True
-svcMgr.ForwardSchedulerSvc.EnableConditions = True
-
-#
-## Override defaults for numStores and numAlgsInFlight 
-##   Otherwise these are BOTH EQUAL to the number of threads set with the 
-##   command line opt --threads=N
-#
-
-# numStores = 1
-# numAlgsInFlight = 1
-
-# svcMgr.EventDataSvc.NSlots = numStores
-# svcMgr.ForwardSchedulerSvc.MaxEventsInFlight = numStores
-# svcMgr.ForwardSchedulerSvc.MaxAlgosInFlight = numAlgsInFlight
-
-# ThreadPoolService thread local initialization
-# from GaudiHive.GaudiHiveConf import ThreadPoolSvc
-# svcMgr += ThreadPoolSvc("ThreadPoolSvc")
-# svcMgr.ThreadPoolSvc.ThreadInitTools = ["ThreadInitTool"]
-
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.OutputLevel( INFO )
+AlgScheduler.ShowControlFlow( True )
+AlgScheduler.ShowDataDependencies( True )
+AlgScheduler.EnableConditions( True )
 
 from IOVSvc.IOVSvcConf import CondSvc
 svcMgr += CondSvc( OutputLevel=DEBUG )
@@ -85,7 +67,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 from SGComps.SGCompsConf import SGInputLoader
-topSequence+=SGInputLoader(OutputLevel=INFO, ShowEventDump=False)
+topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
 topSequence.SGInputLoader.Load = [ ('EventInfo','McEventInfo') ]
 
 from AthExHive.AthExHiveConf import *

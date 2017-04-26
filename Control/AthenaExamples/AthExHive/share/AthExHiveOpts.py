@@ -27,22 +27,10 @@ from StoreGate.StoreGateConf import SG__HiveMgrSvc
 from GaudiHive.GaudiHiveConf import AlgResourcePool
 # svcMgr += AlgResourcePool( OutputLevel = INFO );
 
-from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-svcMgr.ForwardSchedulerSvc.OutputLevel = INFO
-svcMgr.ForwardSchedulerSvc.CheckDependencies = True
-
-#
-## Override defaults for numStores and numAlgsInFlight 
-##   Otherwise these are BOTH EQUAL to the number of threads set with the 
-##   command line opt --threads=N
-#
-
-# numStores = 1
-# numAlgsInFlight = 1
-
-# svcMgr.EventDataSvc.NSlots = numStores
-# svcMgr.ForwardSchedulerSvc.MaxEventsInFlight = numStores
-# svcMgr.ForwardSchedulerSvc.MaxAlgosInFlight = numAlgsInFlight
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.OutputLevel( INFO )
+AlgScheduler.ShowControlFlow( True )
+AlgScheduler.ShowDataDependencies( True )
 
 # ThreadPoolService thread local initialization
 from GaudiHive.GaudiHiveConf import ThreadPoolSvc

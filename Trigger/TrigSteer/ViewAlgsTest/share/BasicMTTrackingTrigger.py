@@ -1,3 +1,7 @@
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 # an example of minimal jO based on RecExCommon configuration running the FastTrackFinder 
 # to find tracks in predefined RoIs
 # 20/2/2017 Jiri.Masik@manchester.ac.uk
@@ -13,11 +17,10 @@
 # source/Trigger/TrigAlgorithms/TrigFastTrackFinder
 # with the mods to the configuration of the TrigOnlineSpacePointTool
  
-from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-# svcMgr += ForwardSchedulerSvc()
-svcMgr.ForwardSchedulerSvc.CheckDependencies = True
-svcMgr.ForwardSchedulerSvc.OutputLevel=VERBOSE
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.CheckDependencies( True )
+AlgScheduler.OutputLevel( VERBOSE )
 
 ## get a handle on the ServiceManager
 from AthenaCommon.AlgSequence import AlgSequence
