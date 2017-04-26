@@ -30,7 +30,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/WriteHandle.h"
-#include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 
 // STL headers
 #include "boost/shared_ptr.hpp"
@@ -165,7 +165,7 @@ private:
 
   void SetupRdoOutputType(Property&);
 
-  SG::ReadHandle<ComTime>        m_ComTime ; //!< Handle to retrieve commissioning timing info from SG
+  SG::ReadHandleKey<ComTime>        m_ComTimeKey ; //!< Handle to retrieve commissioning timing info from SG
 
   const SCT_ID*                                      m_detID;                             //!< Handle to the ID helper
   const InDetDD::SCT_DetectorManager*                m_detMgr;                            //!< Handle to Si detector manager

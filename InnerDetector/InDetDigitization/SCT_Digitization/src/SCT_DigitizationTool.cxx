@@ -29,6 +29,9 @@
 #include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
 #include "SCT_Digitization/ISCT_RandomDisabledCellGenerator.h"
 
+// Data Handle
+#include "StoreGate/ReadHandle.h"
+
 // C++ Standard Library
 #include <sstream>
 #include <string>
@@ -45,12 +48,12 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string &type,
                                            const IInterface *parent) :
     PileUpToolBase(type, name, parent),
     m_tfix(-999.),
-    m_comTime(0),
+    m_comTime(0.),
     m_enableHits(true),
     m_onlyHitElements(false),
     m_HardScatterSplittingMode(0),
     m_HardScatterSplittingSkipper(false),
-    m_ComTime("ComTime"),
+    m_ComTimeKey("ComTime"),
     m_detID(nullptr),
     m_detMgr(nullptr),
     m_sct_FrontEnd("SCT_FrontEnd", this),
@@ -143,6 +146,7 @@ StatusCode SCT_DigitizationTool::initialize() {
     // +++ Initialize WriteHandleKey
     ATH_CHECK(m_rdoContainerKey.initialize());
     ATH_CHECK(m_simDataCollMapKey.initialize());
+    ATH_CHECK(m_ComTimeKey.initialize(m_useComTime));
 
     ATH_MSG_DEBUG("SiDigitizationTool::initialize() complete");
 
@@ -336,8 +340,9 @@ StatusCode SCT_DigitizationTool::prepareEvent(unsigned int /*index*/) {
     ATH_CHECK(m_simDataCollMap.record(std::make_unique<InDetSimDataCollection>()));
 
     if (m_useComTime) {
-      if (m_ComTime.isValid()) {
-	    m_comTime = m_ComTime->getTime();
+      SG::ReadHandle<ComTime> comTime(m_ComTimeKey);
+      if (comTime.isValid()) {
+	    m_comTime = comTime->getTime();
             m_sct_SurfaceChargesGenerator->setComTime(m_comTime);
             ATH_MSG_DEBUG(
                 "Found tool for cosmic/commissioning timing: ComTime");
