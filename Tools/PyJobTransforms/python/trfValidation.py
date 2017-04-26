@@ -489,8 +489,11 @@ class athenaLogFileReport(logFileReport):
         # G4 exceptions can be fatal or they can be warnings...
         msg.debug('Identified G4 exception - adding to error detail report')
         if "just a warning" in g4Report:
-            self._levelCounter['WARNING'] += 1
-            self._errorDetails['WARNING'].append({'message': g4Report, 'firstLine': firstLineCount, 'count': 1})
+            if self._levelCounter['WARNING'] <= self._msgLimit:
+                self._levelCounter['WARNING'] += 1
+                self._errorDetails['WARNING'].append({'message': g4Report, 'firstLine': firstLineCount, 'count': 1})
+            elif self._levelCounter['WARNING'] == self._msgLimit + 1:
+                msg.warning("Found message number {0} at level WARNING - this and further messages will be supressed from the report".format(self._levelCounter['WARNING']))
         else:
             self._levelCounter['FATAL'] += 1
             self._errorDetails['FATAL'].append({'message': g4Report, 'firstLine': firstLineCount, 'count': 1})
@@ -511,8 +514,11 @@ class athenaLogFileReport(logFileReport):
         # G4 exceptions can be fatal or they can be warnings...
         msg.debug('Identified G4 exception - adding to error detail report')
         if "-------- WWWW -------" in g4Report:
-            self._levelCounter['WARNING'] += 1
-            self._errorDetails['WARNING'].append({'message': g4Report, 'firstLine': firstLineCount, 'count': 1})
+            if self._levelCounter['WARNING'] <= self._msgLimit:
+                self._levelCounter['WARNING'] += 1
+                self._errorDetails['WARNING'].append({'message': g4Report, 'firstLine': firstLineCount, 'count': 1})
+            elif self._levelCounter['WARNING'] == self._msgLimit + 1:
+                msg.warning("Found message number {0} at level WARNING - this and further messages will be supressed from the report".format(self._levelCounter['WARNING'])) 
         else:
             self._levelCounter['FATAL'] += 1
             self._errorDetails['FATAL'].append({'message': g4Report, 'firstLine': firstLineCount, 'count': 1})
