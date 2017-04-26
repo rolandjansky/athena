@@ -350,14 +350,14 @@ SCT_ByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
   const Identifier wafer_id(m_sct_id->wafer_id(elementIdHash));
   const Identifier module_id(m_sct_id->module_id(wafer_id));
   unsigned int badChips(m_config->badChips(module_id));
-  unsigned int _tempMaskedChips(tempMaskedChips(module_id));
+  unsigned int tempMaskedChips2(tempMaskedChips(module_id));
   const int side(m_sct_id->side(wafer_id));
   short id(side==0 ? 0 : 6);
   bool allChipsBad(true);
   for(int errType=SCT_ByteStreamErrors::ABCDError_Chip0; (errType<=SCT_ByteStreamErrors::ABCDError_Chip5) and allChipsBad; errType++) {
     bool issueABCDError = (std::find(m_bsErrors[errType]->begin(), m_bsErrors[errType]->end(), elementIdHash)!=m_bsErrors[errType]->end());
     bool isBadChip = ((badChips >> (id)) & 0x1);
-    bool isTempMaskedChip = ((_tempMaskedChips >> (id)) & 0x1);
+    bool isTempMaskedChip = ((tempMaskedChips2 >> (id)) & 0x1);
     id++;
     allChipsBad = (issueABCDError or isBadChip or isTempMaskedChip);
     if(not allChipsBad) break;

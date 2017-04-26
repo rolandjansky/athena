@@ -1,4 +1,8 @@
 #
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
+#
 # get_files LVL1config_Physics_pp_v5.xml
 # ln -s /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/atn-test/data15_13TeV.00266904.physics_EnhancedBias.merge.RAW._lb0452._SFO-1._0001.1 input.data
 # 
@@ -28,10 +32,9 @@ from AthenaCommon.ConcurrencyFlags import jobproperties as jp
 nThreads = jp.ConcurrencyFlags.NumThreads()
 
 if nThreads >= 1:
-  ## get a handle on the ForwardScheduler
-  from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-  svcMgr += ForwardSchedulerSvc()
-  svcMgr.ForwardSchedulerSvc.CheckDependencies = True
+  ## get a handle on the Scheduler
+  from AthenaCommon.AlgScheduler import AlgScheduler
+  AlgScheduler.CheckDependencies( True )
 
 # Use McEventSelector so we can run with AthenaMP
 #import AthenaCommon.AtlasUnixGeneratorJob
