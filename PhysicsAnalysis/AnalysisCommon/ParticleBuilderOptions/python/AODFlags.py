@@ -297,7 +297,8 @@ jobproperties.add_Container(AODFlagsContainer)
 # I want always the following flags in the AOD container  
 _list_AOD=[ \
     Photon,Electron,egammaTrackSlimmer, \
-    AddEgammaMuonTrkTracksInAOD, \
+    AddEgammaMuonTracksInAOD, \
+    AddEgammaTracksInMCAOD, \
     ThinGeantTruth, \
     ThinNegativeEnergyCaloClusters, \
     ThinNegativeEnergyNeutralPFOs, \
