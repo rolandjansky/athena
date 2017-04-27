@@ -330,9 +330,10 @@ class trfJobReport(trfReport):
         # Tier 0 expects the report to be in a top level dictionary under the prodsys key
         return {'prodsys' : trfDict}
 
-    # Helper method to format values to number of decimals configured by precisionDigits.
+    # Helper method to format values to number of decimals configured for this jobReport.
+    # Safely allows possible and valid None values within jobReport.
     def roundoff(self, value):
-        return round(value, self._precisionDigits)
+        return round(value, self._precisionDigits) if (value is not None) else value
 
 
 ## @brief Class to contain metadata for an executor
@@ -637,7 +638,7 @@ def exeResourceReport(exe, report):
         exeResource['nevents'] = exe.eventCount
     if exe.athenaMP:
         exeResource['mpworkers'] = exe.athenaMP
-        exeResource['cpuTimePerWorker'] = float(exe.cpuTime)/exe.athenaMP
+        exeResource['cpuTimePerWorker'] = report.roundoff(exe.cpuTime/exe.athenaMP)
     if exe.dbMonitor:
         exeResource['dbData'] = exe.dbMonitor['bytes']
         exeResource['dbTime'] = exe.dbMonitor['time']
