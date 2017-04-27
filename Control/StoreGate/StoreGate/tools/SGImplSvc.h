@@ -598,6 +598,8 @@ public:
    * @param returnExisting If true, return proxy if this key already exists.
    *                       If the object has been recorded under a different
    *                       key, then make an alias.
+   *                       If the object has been recorded under a different
+   *                       clid, then make a link.
    *
    * Full-blown record.  @c obj should usually be something
    * deriving from @c SG::DataBucket.

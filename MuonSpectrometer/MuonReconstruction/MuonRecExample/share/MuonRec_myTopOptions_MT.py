@@ -80,9 +80,9 @@ try:
     include("MuonRecExample/MuonRec_topOptions.py")
    
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-    svcMgr += ForwardSchedulerSvc()
-    svcMgr.ForwardSchedulerSvc.CheckDependencies = True
+    from AthenaCommon.AlgScheduler import AlgScheduler
+    AlgScheduler.CheckDependencies( True )
+
     from SGComps.SGCompsConf import SGInputLoader
     topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
     topSequence.SGInputLoader.Load = [ ('MdtCsmContainer','MDTCSM'), ('RpcPadContainer','RPCPAD'), ('TgcRdoContainer','TGCRDO'), ('CscRawDataContainer','CSCRDO')]

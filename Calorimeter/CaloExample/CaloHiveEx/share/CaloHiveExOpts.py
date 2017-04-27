@@ -13,9 +13,10 @@ nThreads = jp.ConcurrencyFlags.NumThreads()
 nProc = jp.ConcurrencyFlags.NumProcs()
 
 if nThreads >=1 :
-   from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-   svcMgr += ForwardSchedulerSvc()
-   svcMgr.ForwardSchedulerSvc.CheckDependencies = True
+   from AthenaCommon.AlgScheduler import AlgScheduler
+   AlgScheduler.OutputLevel( INFO )
+   AlgScheduler.ShowControlFlow( True )
+   AlgScheduler.ShowDataDependencies( True )
 
    # Support for the MT-MP hybrid mode
    if (nProc > 0) :

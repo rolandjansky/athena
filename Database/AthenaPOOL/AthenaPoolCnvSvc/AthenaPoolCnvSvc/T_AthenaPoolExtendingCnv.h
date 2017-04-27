@@ -71,7 +71,7 @@ protected:
   template <class P>
   P* 	poolReadObject();
   
-  /// @copydoc T_AthenaPoolCustomCnv::poolReadObject(AthenaPoolTopLevelTPCnvBase&)
+  /// @copydoc T_AthenaPoolCustomCnv::poolReadObject(TopLevelTPCnvBase&)
   template <class P>
   void 	poolReadObject( TopLevelTPCnvBase& tlp_converter );
 

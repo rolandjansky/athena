@@ -23,7 +23,6 @@
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "TrkTrack/TrackCollection.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
 #include "TrkParameters/TrackParameters.h"
@@ -32,6 +31,8 @@
 // for sct residuals
 // for GetKalmanUpdator
 #include "GaudiKernel/ListItem.h"
+
+#include "StoreGate/ReadHandle.h"
 
 using namespace std;
 using namespace SCT_Monitoring;
@@ -128,7 +129,7 @@ SCTTracksMonTool::SCTTracksMonTool(const string &type,
 
      declareProperty("histoPathBase", m_stream = "/stat"); **/
   m_stream = "/stat";
-  declareProperty("tracksName", m_tracksName = "SCT_Cosmic_Tracks"); // "ExtendedTracks");
+  declareProperty("tracksName", m_tracksName = std::string("SCT_Cosmic_Tracks")); // "ExtendedTracks");
   declareProperty("trackHitCut", m_trackHitCut = 3);
   declareProperty("CheckRate", m_checkrate = 1000);
   declareProperty("doPositiveEndcap", m_doPositiveEndcap = true);
@@ -145,6 +146,16 @@ SCTTracksMonTool::SCTTracksMonTool(const string &type,
 // ====================================================================================================
 SCTTracksMonTool::~SCTTracksMonTool() {
   // nop
+}
+
+// ====================================================================================================
+// ====================================================================================================
+StatusCode SCTTracksMonTool::initialize() {
+  ATH_CHECK( SCTMotherTrigMonTool::initialize() );
+
+  ATH_CHECK( m_tracksName.initialize() );
+
+  return StatusCode::SUCCESS;
 }
 
 // ====================================================================================================
@@ -273,14 +284,12 @@ SCTTracksMonTool::fillHistograms() {
   if (m_doTrigger and SCTMotherTrigMonTool::CheckTriggers() != StatusCode::SUCCESS) {
     ATH_MSG_WARNING("Triggers not found!");
   }
-  const TrackCollection *tracks(nullptr);
+  SG::ReadHandle<TrackCollection> tracks(m_tracksName);
   const bool doThisSubsystem[N_REGIONS] = {
     m_doNegativeEndcap, true, m_doPositiveEndcap
   };
-  if (evtStore()->contains<TrackCollection> (m_tracksName)) {
-    CHECK(evtStore()->retrieve(tracks, m_tracksName));
-  }else {
-    ATH_MSG_WARNING("No collection named " << m_tracksName << " in StoreGate");
+  if (not evtStore()->contains<TrackCollection> (m_tracksName.key())) {
+    ATH_MSG_WARNING("No collection named " << m_tracksName.key() << " in StoreGate");
     return StatusCode::SUCCESS;
   }
   int local_tot_trkhits(0);

@@ -45,8 +45,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
+#include "StoreGate/ReadHandle.h"
 
 //
 using namespace std;
@@ -231,7 +230,8 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string &type,
   m_path(""),
   m_tracksName(""), // never used?
   m_NOTrigger("L1_RD0_EMPTY"),
-  m_dataObjectName("SCT_RDOs"),
+  m_dataObjectName(std::string("SCT_RDOs")),
+  m_eventInfoKey(std::string("EventInfo")),
   m_pSCTHelper(nullptr),
   m_sctmgr(nullptr),
   m_pSummarySvc("SCT_ConditionsSummarySvc", name),
@@ -263,6 +263,17 @@ SCTRatioNoiseMonTool::~SCTRatioNoiseMonTool() {
 }
 
 // ====================================================================================================
+// ====================================================================================================
+StatusCode SCTRatioNoiseMonTool::initialize() {
+  ATH_CHECK( SCTMotherTrigMonTool::initialize() );
+
+  ATH_CHECK( m_dataObjectName.initialize() );
+  ATH_CHECK( m_eventInfoKey.initialize() );
+
+  return StatusCode::SUCCESS;
+}
+
+// ====================================================================================================
 //                       SCTRatioNoiseMonTool :: bookHistograms
 // ====================================================================================================
 StatusCode
@@ -271,7 +282,6 @@ SCTRatioNoiseMonTool::bookHistogramsRecurrent() {
   if (newRunFlag()) {
     m_numberOfEvents = 0;
   }
-  m_dataObjectName = "SCT_RDOs";
   ATH_MSG_DEBUG("initialize being called");
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
   if (m_checkBadModules) {
@@ -295,7 +305,6 @@ StatusCode
 SCTRatioNoiseMonTool::bookHistograms() {
   m_path = "";
   m_numberOfEvents = 0;
-  m_dataObjectName = "SCT_RDOs";
   ATH_MSG_DEBUG("initialize being called");
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
   if (m_checkBadModules) {
@@ -322,8 +331,8 @@ SCTRatioNoiseMonTool::fillHistograms() {
   ATH_MSG_DEBUG("enters fillHistograms");
   // lets get the raw hit container
   typedef SCT_RDORawData SCTRawDataType;
-  const SCT_RDO_Container *p_rdocontainer;
-  if (evtStore()->retrieve(p_rdocontainer, m_dataObjectName).isFailure()) {
+  SG::ReadHandle<SCT_RDO_Container> p_rdocontainer(m_dataObjectName);
+  if (not p_rdocontainer.isValid()) {
     return StatusCode::FAILURE;
   }
 
@@ -364,14 +373,13 @@ SCTRatioNoiseMonTool::fillHistograms() {
     goodModules[i] = true;
   }
 
-  const EventInfo *pEvent(0);
-  CHECK(evtStore()->retrieve(pEvent));
-  if (not pEvent) {
+  SG::ReadHandle<xAOD::EventInfo> pEvent(m_eventInfoKey);
+  if (not pEvent.isValid()) {
     return ERROR("Could not find event pointer"), StatusCode::FAILURE;
   }
 
   const bool isSelectedTrigger = true;
-  int tmplb = pEvent->event_ID()->lumi_block();
+  int tmplb = pEvent->lumiBlock();
   if (tmplb > m_current_lb) {
     for (int i = 0; i < n_mod[GENERAL_INDEX]; i++) {
       nNoSides_lb[i] = 0;

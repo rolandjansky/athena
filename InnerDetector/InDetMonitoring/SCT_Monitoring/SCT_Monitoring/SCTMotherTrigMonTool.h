@@ -20,6 +20,9 @@
 #include <string>
 #include <bitset>
 
+#include "StoreGate/ReadHandleKey.h"
+#include "EventInfo/EventInfo.h"
+
 //Fwd declarations
 class IInterface;
 class StatusCode;
@@ -64,6 +67,7 @@ private:
   // TrigDecisionTool
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
 
+  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
 };
 
 #endif

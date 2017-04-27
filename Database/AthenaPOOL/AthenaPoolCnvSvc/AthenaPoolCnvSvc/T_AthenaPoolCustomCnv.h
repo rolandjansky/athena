@@ -12,9 +12,13 @@
 #include "T_AthenaPoolCustCnv.h"
 #include <vector>
 
+// class TopLevelTPCnvBase;
+// need the TopLevelTPCnvBase typedef still
 #include "AthenaPoolTopLevelTPCnvBase.h"
-//class TopLevelTPCnvBase;
+
+// forward declarations:
 template <class T, class P> class T_AthenaPoolExtendingCnv;
+
 
 /** @class T_AthenaPoolCustomCnv
  *  @brief This templated class extends T_AthenaPoolCustCnv to provide management of the persistent objects
@@ -73,7 +77,7 @@ protected:
       @param tlp_converter [IN] top-level TP converter to be used when reading
    */
    template <class P>
-   void poolReadObject(AthenaPoolTopLevelTPCnvBase& tlp_converter);
+   void poolReadObject(TopLevelTPCnvBase& tlp_converter);
 
    /// Remember the POOL object to be written out (will be deleted after commit)
    /// @param obj [IN] persistent object

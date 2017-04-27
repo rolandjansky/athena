@@ -377,7 +377,54 @@ public:
   WriteHandle& operator=( std::unique_ptr<T> data );
 
 
+  /**
+   * @brief Make an alias.
+   * @param key Alternate key by which the referenced object should be known.
+   *
+   * The current handle should be valid and referencing an object
+   * (i.e., @c record should have been called on it).
+   *
+   * The object will also be known by the name given in @c key.
+   */
+  StatusCode alias (const WriteHandleKey<T>& key);
 
+
+  /**
+   * @brief Make an explicit link or alias.
+   * @param key Alternate clid/key by which the referenced object
+   *            should be known.
+   *
+   * You should generally not be using this!
+   *
+   * The current handle should be valid and referencing an object
+   * (i.e., @c record should have been called on it).
+   *
+   * If @c U is the same as @c T, then this makes an alias.
+   * The object will also be known by the name given in @c key.
+   *
+   * If the name in @c key is the same as the name for the current handle,
+   * then this makes a symlink: the object will be retrievable
+   * as a different type.
+   * 
+   * Note that if @c T and @c @U are related via @c SG_BASE and/or
+   * @c DATAVECTOR_BASE, then you shouldn't need to explicitly make a symlink;
+   * that should happen automatically.
+   *
+   * If a @c U* is not convertable to a @c T* via C++ rules, then you likely
+   * will be, at best, relying on undefined behavior.  You will probably
+   * get warnings from the undefined behavior sanitizer when if you try
+   * to dereference the @c U*.
+   *
+   * This usage is here mainly to assist in migrating some existing
+   * patterns to MT.  You should think several times before using
+   * in new code.
+   *
+   * If both types and the keys are different, then it is an error.
+   */
+  template <class U>
+  StatusCode symLink (const WriteHandleKey<U>& key);
+
+  
 private:
   /**
    * @brief Return the cached pointer directly.

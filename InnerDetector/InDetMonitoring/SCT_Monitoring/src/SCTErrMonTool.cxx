@@ -37,8 +37,8 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "cArrayUtilities.h"
+#include "StoreGate/ReadHandle.h"
 #include <vector>
 #include <set>
 #include <iostream>
@@ -180,7 +180,7 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   // m_doPerLumiErrors{}, property
   // m_doErr2DPerLumiHists{}, property
   // m_min_stat_ineff_mod{}, property
-  m_dataObjectName{},
+  m_dataObjectName(std::string("SCT_RDOs")),
   m_pSCTHelper{},
   m_ConfigurationSvc("InDetSCT_ConfigurationConditionsSvc", name),
   m_flaggedSvc("InDetSCT_FlaggedConditionSvc", name),
@@ -226,342 +226,346 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   m_ModulesThreshold( 2.5 ),
   //m_DisabledDetectorCoverageVsLB{},
   //m_ErrorDetectorCoverageVsLB{},
-  m_TotalDetectorCoverageVsLB{} {
-    /**
-     *  sroe 3 Sept 2015:
-     *  histoPathBase is declared as a property in the base class, assigned to m_path
-     *  with default as empty string.
-     *  Declaring it here as well gives rise to compilation warning
-     *  WARNING duplicated property name 'histoPathBase', see https://its.cern.ch/jira/browse/GAUDI-1023
-     *  declareProperty("histoPathBase", m_stream = "/stat");
-     **/
+  m_TotalDetectorCoverageVsLB{},
+  m_eventInfoKey(std::string("EventInfo")) {
+     /**
+      *  sroe 3 Sept 2015:
+      *  histoPathBase is declared as a property in the base class, assigned to m_path
+      *  with default as empty string.
+      *  Declaring it here as well gives rise to compilation warning
+      *  WARNING duplicated property name 'histoPathBase', see https://its.cern.ch/jira/browse/GAUDI-1023
+      *  declareProperty("histoPathBase", m_stream = "/stat");
+      **/
 
-    m_stream = "/stat";
-    declareProperty("CheckRate", m_checkrate = 1000);
-    declareProperty("runOnline", m_runOnline = false);
-    declareProperty("CheckRecent", m_checkrecent = 20);
-    declareProperty("doPositiveEndcap", m_doPositiveEndcap = true);
-    declareProperty("doNegativeEndcap", m_doNegativeEndcap = true);
-    declareProperty("EvtsBins", m_evtsbins = 5000);
-    declareProperty("MakeConfHisto", m_makeConfHisto = true);
-    declareProperty("conditionsService", m_ConfigurationSvc);
-    declareProperty("flaggedService", m_flaggedSvc);
+     m_stream = "/stat";
+     declareProperty("CheckRate", m_checkrate = 1000);
+     declareProperty("runOnline", m_runOnline = false);
+     declareProperty("CheckRecent", m_checkrecent = 20);
+     declareProperty("doPositiveEndcap", m_doPositiveEndcap = true);
+     declareProperty("doNegativeEndcap", m_doNegativeEndcap = true);
+     declareProperty("EvtsBins", m_evtsbins = 5000);
+     declareProperty("MakeConfHisto", m_makeConfHisto = true);
+     declareProperty("conditionsService", m_ConfigurationSvc);
+     declareProperty("flaggedService", m_flaggedSvc);
 
-    // Thresholds for the SCTConf histogram
-    declareProperty("error_threshold", m_errThreshold = 0.7);
-    declareProperty("efficiency_threshold", m_effThreshold = 0.9);
-    declareProperty("noise_threshold", m_noiseThreshold = 150);
-    // Min stats per layer to use for number of inefficient modules
-    declareProperty("MinStatsForInEffModules", m_min_stat_ineff_mod = 500.0);
+     // Thresholds for the SCTConf histogram
+     declareProperty("error_threshold", m_errThreshold = 0.7);
+     declareProperty("efficiency_threshold", m_effThreshold = 0.9);
+     declareProperty("noise_threshold", m_noiseThreshold = 150);
+     // Min stats per layer to use for number of inefficient modules
+     declareProperty("MinStatsForInEffModules", m_min_stat_ineff_mod = 500.0);
 
-    declareProperty("DoPerLumiErrors", m_doPerLumiErrors = true);
-    declareProperty("DoErr2DPerLumiHists", m_doErr2DPerLumiHists = false);
-    declareProperty("checkBadModules", m_checkBadModules);
-    declareProperty("IgnoreRDOCutOnline", m_ignore_RDO_cut_online);
-    //Detector Coverage Tool switch
-    declareProperty("CoverageCheck",m_CoverageCheck=false);
+     declareProperty("DoPerLumiErrors", m_doPerLumiErrors = true);
+     declareProperty("DoErr2DPerLumiHists", m_doErr2DPerLumiHists = false);
+     declareProperty("checkBadModules", m_checkBadModules);
+     declareProperty("IgnoreRDOCutOnline", m_ignore_RDO_cut_online);
+     //Detector Coverage Tool switch
+     declareProperty("CoverageCheck",m_CoverageCheck=false);
 
-  }
+   }
 
-// ====================================================================================================
-//====================================================================================================
-StatusCode SCTErrMonTool::initialize() {
-  if (detStore()->retrieve(m_sctManager, "SCT").isFailure()){
-    msg(MSG::ERROR) << "Could not retrieve SCT Detector Manager" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  return ManagedMonitorToolBase::initialize();
-}
+ // ====================================================================================================
+ //====================================================================================================
+ StatusCode SCTErrMonTool::initialize() {
+   if (detStore()->retrieve(m_sctManager, "SCT").isFailure()){
+     msg(MSG::ERROR) << "Could not retrieve SCT Detector Manager" << endmsg;
+     return StatusCode::FAILURE;
+   }
 
-//====================================================================================================
-// ====================================================================================================
-SCTErrMonTool::~SCTErrMonTool() {
+   ATH_CHECK( m_dataObjectName.initialize() );
+   ATH_CHECK( m_eventInfoKey.initialize() );
 
-  for (int reg(0); reg != NREGIONS_INC_GENERAL; ++reg) {
-    for (int layer(0); layer != SCT_Monitoring::N_ENDCAPSx2; ++layer) {
-      for (int errType(0); errType != N_ERRTYPES; ++errType) {
-	if(m_allErrsPerLumi[errType][reg][layer])LWHist::safeDelete(m_allErrsPerLumi[errType][reg][layer]);
-	if(m_pallErrsPerLumi[errType][reg][layer])LWHist::safeDelete(m_pallErrsPerLumi[errType][reg][layer]);
-      }
-    }
-  }
+   return ManagedMonitorToolBase::initialize();
+ }
 
-  free(nErrors_buf);
-  free(nLinksWithErrors_buf);
-}
+ //====================================================================================================
+ // ====================================================================================================
+ SCTErrMonTool::~SCTErrMonTool() {
 
-// ====================================================================================================
-//             SCTErrMonTool :: transfer [enum ErrorTypes] -> [SCT_ByteStreamErrors]
-// ====================================================================================================
-int
-SCTErrMonTool::errorsToGet(int errtype) {
-  if (errtype == ABCD) {
-    return SCT_ByteStreamErrors::ABCDError;
-  }
-  if (errtype == RAW) {
-    return SCT_ByteStreamErrors::RawError;
-  }
-  if (errtype == TIMEOUT) {
-    return SCT_ByteStreamErrors::TimeOutError;
-  }
-  if (errtype == LVL1ID) {
-    return SCT_ByteStreamErrors::LVL1IDError;
-  }
-  if (errtype == BCID) {
-    return SCT_ByteStreamErrors::BCIDError;
-  }
-  if (errtype == PREAMBLE) {
-    return SCT_ByteStreamErrors::PreambleError;
-  }
-  if (errtype == FORMATTER) {
-    return SCT_ByteStreamErrors::FormatterError;
-  }
-  if (errtype == MASKEDLINKS) {
-    return SCT_ByteStreamErrors::MaskedLink;
-  }
-  if (errtype == RODCLOCK) {
-    return SCT_ByteStreamErrors::RODClockError;
-  }
-  if (errtype == TRUNCATEDROD) {
-    return SCT_ByteStreamErrors::TruncatedROD;
-  }
-  if (errtype == ROBFRAG) {
-    return SCT_ByteStreamErrors::ROBFragmentError;
-  }
-  if (errtype == BSPARSE) {
-    return SCT_ByteStreamErrors::ByteStreamParseError;
-  }
-  if (errtype == MISSINGLINK) {
-    return SCT_ByteStreamErrors::MissingLinkHeaderError;
-  }
-  if (errtype == MASKEDRODS) {
-    return SCT_ByteStreamErrors::MaskedROD;
-  }
-  if (errtype == ABCDChip0) {
-    return SCT_ByteStreamErrors::ABCDError_Chip0;
-  }
-  if (errtype == ABCDChip1) {
-    return SCT_ByteStreamErrors::ABCDError_Chip1;
-  }
-  if (errtype == ABCDChip2) {
-    return SCT_ByteStreamErrors::ABCDError_Chip2;
-  }
-  if (errtype == ABCDChip3) {
-    return SCT_ByteStreamErrors::ABCDError_Chip3;
-  }
-  if (errtype == ABCDChip4) {
-    return SCT_ByteStreamErrors::ABCDError_Chip4;
-  }
-  if (errtype == ABCDChip5) {
-    return SCT_ByteStreamErrors::ABCDError_Chip5;
-  }
-  if (errtype == ABCDError1) {
-    return SCT_ByteStreamErrors::ABCDError_Error1;
-  }
-  if (errtype == ABCDError2) {
-    return SCT_ByteStreamErrors::ABCDError_Error2;
-  }
-  if (errtype == ABCDError4) {
-    return SCT_ByteStreamErrors::ABCDError_Error4;
-  }
-  return errtype;
-}
+   for (int reg(0); reg != NREGIONS_INC_GENERAL; ++reg) {
+     for (int layer(0); layer != SCT_Monitoring::N_ENDCAPSx2; ++layer) {
+       for (int errType(0); errType != N_ERRTYPES; ++errType) {
+	 if(m_allErrsPerLumi[errType][reg][layer])LWHist::safeDelete(m_allErrsPerLumi[errType][reg][layer]);
+	 if(m_pallErrsPerLumi[errType][reg][layer])LWHist::safeDelete(m_pallErrsPerLumi[errType][reg][layer]);
+       }
+     }
+   }
 
-// ====================================================================================================
-//             SCTErrMonTool :: transfer [enum ErrorTypes] -> [TString ErrorName]
-// ====================================================================================================
-TString
-SCTErrMonTool::errorsString(int errtype) {
-  if (errtype == ABCD) {
-    return "ABCDerrs";
-  }
-  if (errtype == RAW) {
-    return "Rawerrs";
-  }
-  if (errtype == TIMEOUT) {
-    return "TimeOut";
-  }
-  if (errtype == LVL1ID) {
-    return "LVL1IDerrs";
-  }
-  if (errtype == BCID) {
-    return "BCIDerrs";
-  }
-  if (errtype == PREAMBLE) {
-    return "Preamble";
-  }
-  if (errtype == FORMATTER) {
-    return "Formattererrs";
-  }
-  if (errtype == MASKEDLINKS) {
-    return "MaskedLinkLink";
-  }
-  if (errtype == RODCLOCK) {
-    return "RODClockerrs";
-  }
-  if (errtype == TRUNCATEDROD) {
-    return "TruncatedROD";
-  }
-  if (errtype == ROBFRAG) {
-    return "ROBFragment";
-  }
-  if (errtype == BSPARSE) {
-    return "BSParseerrs";
-  }
-  if (errtype == MISSINGLINK) {
-    return "MissingLink";
-  }
-  if (errtype == MASKEDRODS) {
-    return "MaskedROD";
-  }
-  if (errtype == SUMMARY) {
-    return "NumberOfErrors";
-  }
-  if (errtype == BADERR) {
-    return "NumberOfBadErrors";
-  }
-  if (errtype == LINKLEVEL) {
-    return "NumberOfLinkLevelErrors";
-  }
-  if (errtype == RODLEVEL) {
-    return "NumberOfRODLevelErrors";
-  }
-  if (errtype == MASKEDLINKALL) {
-    return "MaskedLink";
-  }
-  if (errtype == ABCDChip0) {
-    return "ABCDChip0";
-  }
-  if (errtype == ABCDChip1) {
-    return "ABCDChip1";
-  }
-  if (errtype == ABCDChip2) {
-    return "ABCDChip2";
-  }
-  if (errtype == ABCDChip3) {
-    return "ABCDChip3";
-  }
-  if (errtype == ABCDChip4) {
-    return "ABCDChip4";
-  }
-  if (errtype == ABCDChip5) {
-    return "ABCDChip5";
-  }
-  if (errtype == ABCDError1) {
-    return "ABCDError1";
-  }
-  if (errtype == ABCDError2) {
-    return "ABCDError2";
-  }
-  if (errtype == ABCDError4) {
-    return "ABCDError4";
-  }
-  return "";
-}
+   free(nErrors_buf);
+   free(nLinksWithErrors_buf);
+ }
 
-// ====================================================================================================
-//                            SCTErrMonTool :: copyHistograms
-//    This function is used for copying histograms which is required to change their directories.
-//    If you change original ones immediately, you cannot see them in the web display for a while
-// until new configuration for web display is applied.
-//    So you should copy histograms in the new directories in this function once,
-// and then if you have new configuration for the webdisplay, you can delete this function and change original histograms.
-// ====================================================================================================
-StatusCode
-SCTErrMonTool::copyHistograms() {
+ // ====================================================================================================
+ //             SCTErrMonTool :: transfer [enum ErrorTypes] -> [SCT_ByteStreamErrors]
+ // ====================================================================================================
+ int
+ SCTErrMonTool::errorsToGet(int errtype) {
+   if (errtype == ABCD) {
+     return SCT_ByteStreamErrors::ABCDError;
+   }
+   if (errtype == RAW) {
+     return SCT_ByteStreamErrors::RawError;
+   }
+   if (errtype == TIMEOUT) {
+     return SCT_ByteStreamErrors::TimeOutError;
+   }
+   if (errtype == LVL1ID) {
+     return SCT_ByteStreamErrors::LVL1IDError;
+   }
+   if (errtype == BCID) {
+     return SCT_ByteStreamErrors::BCIDError;
+   }
+   if (errtype == PREAMBLE) {
+     return SCT_ByteStreamErrors::PreambleError;
+   }
+   if (errtype == FORMATTER) {
+     return SCT_ByteStreamErrors::FormatterError;
+   }
+   if (errtype == MASKEDLINKS) {
+     return SCT_ByteStreamErrors::MaskedLink;
+   }
+   if (errtype == RODCLOCK) {
+     return SCT_ByteStreamErrors::RODClockError;
+   }
+   if (errtype == TRUNCATEDROD) {
+     return SCT_ByteStreamErrors::TruncatedROD;
+   }
+   if (errtype == ROBFRAG) {
+     return SCT_ByteStreamErrors::ROBFragmentError;
+   }
+   if (errtype == BSPARSE) {
+     return SCT_ByteStreamErrors::ByteStreamParseError;
+   }
+   if (errtype == MISSINGLINK) {
+     return SCT_ByteStreamErrors::MissingLinkHeaderError;
+   }
+   if (errtype == MASKEDRODS) {
+     return SCT_ByteStreamErrors::MaskedROD;
+   }
+   if (errtype == ABCDChip0) {
+     return SCT_ByteStreamErrors::ABCDError_Chip0;
+   }
+   if (errtype == ABCDChip1) {
+     return SCT_ByteStreamErrors::ABCDError_Chip1;
+   }
+   if (errtype == ABCDChip2) {
+     return SCT_ByteStreamErrors::ABCDError_Chip2;
+   }
+   if (errtype == ABCDChip3) {
+     return SCT_ByteStreamErrors::ABCDError_Chip3;
+   }
+   if (errtype == ABCDChip4) {
+     return SCT_ByteStreamErrors::ABCDError_Chip4;
+   }
+   if (errtype == ABCDChip5) {
+     return SCT_ByteStreamErrors::ABCDError_Chip5;
+   }
+   if (errtype == ABCDError1) {
+     return SCT_ByteStreamErrors::ABCDError_Error1;
+   }
+   if (errtype == ABCDError2) {
+     return SCT_ByteStreamErrors::ABCDError_Error2;
+   }
+   if (errtype == ABCDError4) {
+     return SCT_ByteStreamErrors::ABCDError_Error4;
+   }
+   return errtype;
+ }
 
-  // BSError histograms
-  int nlayer = 0;
-  const std::string m_errorsNames[] = {
-    "ABCD", "Raw", "TimeOut", "", "", "", "", "", "", "",
-    "", "BSParse", "MissingLink", "", "", "", "", "",
-    "", "", "", "", "", "", "summary", "badError", "", ""
-  };
-  for (int reg(0); reg != 3; ++reg) {
-    nlayer = 0;
-    if(reg==0)nlayer = N_BARRELSx2;
-    else if(reg==1||reg==2) nlayer = N_DISKSx2;
-    for (int layer(0); layer != nlayer; ++layer) {
-      for (int errType(0); errType != N_ERRTYPES; ++errType) {
-	if(m_errorsNames[errType]=="")continue;
-	if (m_doPerLumiErrors) {
-	  if (m_doErr2DPerLumiHists) {
-	    const int xbins(m_allErrsPerLumi[errType][reg][layer]->GetNbinsX() + 1);
-	    const int ybins(m_allErrsPerLumi[errType][reg][layer]->GetNbinsY() + 1);
-	    for (int xb(1); xb != xbins; ++xb) {
-	      for (int yb(1); yb != ybins; ++yb) {
-		m_pallErrsPerLumi_tmp[errType][reg][layer]
-		  ->SetBinContent(xb,yb,m_pallErrsPerLumi[errType][reg][layer]->GetBinContent(xb,yb));
-		double nentry=0;
-		double content=0;
-		double error=0;
-		m_allErrsPerLumi[errType][reg][layer]->GetBinInfo(xb,yb,nentry,content,error);
-		for(int ientry=0; ientry<nentry; ientry++){
-		  m_allErrsPerLumi_tmp[errType][reg][layer]
-		    ->Fill(m_allErrsPerLumi[errType][reg][layer]->GetXaxis()->GetBinCenter(xb),
-			   m_allErrsPerLumi[errType][reg][layer]->GetYaxis()->GetBinCenter(yb),
-			   m_allErrsPerLumi[errType][reg][layer]->GetBinContent(xb,yb));
-		}
-	      }
-	    }
-	  }
-	}
-	const int xbins(m_allErrs[errType][reg][layer]->GetNbinsX() + 1);
-	const int ybins(m_allErrs[errType][reg][layer]->GetNbinsY() + 1);
-	for (int xb(1); xb != xbins; ++xb) {
-	  for (int yb(1); yb != ybins; ++yb) {
-	    m_pallErrs_tmp[errType][reg][layer]
-	      ->SetBinContent(xb,yb,m_pallErrs[errType][reg][layer]->GetBinContent(xb,yb));
-	    double nentry=0;
-	    double content=0;
-	    double error=0;
-	    m_allErrs[errType][reg][layer]->GetBinInfo(xb,yb,nentry,content,error);
-	    if(m_allErrs[errType][reg][layer]->GetBinContent(xb,yb)>0)
-	    for(int ientry=0; ientry<nentry; ientry++){
-	      m_allErrs_tmp[errType][reg][layer]
-		->Fill(m_allErrs[errType][reg][layer]->GetXaxis()->GetBinCenter(xb),
-		       m_allErrs[errType][reg][layer]->GetYaxis()->GetBinCenter(yb),
-		       m_allErrs[errType][reg][layer]->GetBinContent(xb,yb));
-	    }
-	  }
-	}
-      }
-    }
-  }
+ // ====================================================================================================
+ //             SCTErrMonTool :: transfer [enum ErrorTypes] -> [TString ErrorName]
+ // ====================================================================================================
+ TString
+ SCTErrMonTool::errorsString(int errtype) {
+   if (errtype == ABCD) {
+     return "ABCDerrs";
+   }
+   if (errtype == RAW) {
+     return "Rawerrs";
+   }
+   if (errtype == TIMEOUT) {
+     return "TimeOut";
+   }
+   if (errtype == LVL1ID) {
+     return "LVL1IDerrs";
+   }
+   if (errtype == BCID) {
+     return "BCIDerrs";
+   }
+   if (errtype == PREAMBLE) {
+     return "Preamble";
+   }
+   if (errtype == FORMATTER) {
+     return "Formattererrs";
+   }
+   if (errtype == MASKEDLINKS) {
+     return "MaskedLinkLink";
+   }
+   if (errtype == RODCLOCK) {
+     return "RODClockerrs";
+   }
+   if (errtype == TRUNCATEDROD) {
+     return "TruncatedROD";
+   }
+   if (errtype == ROBFRAG) {
+     return "ROBFragment";
+   }
+   if (errtype == BSPARSE) {
+     return "BSParseerrs";
+   }
+   if (errtype == MISSINGLINK) {
+     return "MissingLink";
+   }
+   if (errtype == MASKEDRODS) {
+     return "MaskedROD";
+   }
+   if (errtype == SUMMARY) {
+     return "NumberOfErrors";
+   }
+   if (errtype == BADERR) {
+     return "NumberOfBadErrors";
+   }
+   if (errtype == LINKLEVEL) {
+     return "NumberOfLinkLevelErrors";
+   }
+   if (errtype == RODLEVEL) {
+     return "NumberOfRODLevelErrors";
+   }
+   if (errtype == MASKEDLINKALL) {
+     return "MaskedLink";
+   }
+   if (errtype == ABCDChip0) {
+     return "ABCDChip0";
+   }
+   if (errtype == ABCDChip1) {
+     return "ABCDChip1";
+   }
+   if (errtype == ABCDChip2) {
+     return "ABCDChip2";
+   }
+   if (errtype == ABCDChip3) {
+     return "ABCDChip3";
+   }
+   if (errtype == ABCDChip4) {
+     return "ABCDChip4";
+   }
+   if (errtype == ABCDChip5) {
+     return "ABCDChip5";
+   }
+   if (errtype == ABCDError1) {
+     return "ABCDError1";
+   }
+   if (errtype == ABCDError2) {
+     return "ABCDError2";
+   }
+   if (errtype == ABCDError4) {
+     return "ABCDError4";
+   }
+   return "";
+ }
 
-  //RODLevelErrors histograms
+ // ====================================================================================================
+ //                            SCTErrMonTool :: copyHistograms
+ //    This function is used for copying histograms which is required to change their directories.
+ //    If you change original ones immediately, you cannot see them in the web display for a while
+ // until new configuration for web display is applied.
+ //    So you should copy histograms in the new directories in this function once,
+ // and then if you have new configuration for the webdisplay, you can delete this function and change original histograms.
+ // ====================================================================================================
+ StatusCode
+ SCTErrMonTool::copyHistograms() {
 
-  for (int reg = 0; reg != NREGIONS_INC_GENERAL; ++reg) {
-    const int xbins(m_LinksWithRODErrorsVsLB_check[reg]->GetNbinsX() + 1);
-    for (int xb(1); xb != xbins; ++xb) {
-      double nentry=m_LinksWithRODErrorsVsLB[reg]->GetBinEntries(xb);
-      for(int ientry=0; ientry<nentry; ientry++){
-	m_LinksWithRODErrorsVsLB_check[reg]->Fill(m_LinksWithRODErrorsVsLB[reg]->GetXaxis()->GetBinCenter(xb),
-						  m_LinksWithRODErrorsVsLB[reg]->GetBinContent(xb));
-      }
-    }
-  }
+   // BSError histograms
+   int nlayer = 0;
+   const std::string m_errorsNames[] = {
+     "ABCD", "Raw", "TimeOut", "", "", "", "", "", "", "",
+     "", "BSParse", "MissingLink", "", "", "", "", "",
+     "", "", "", "", "", "", "summary", "badError", "", ""
+   };
+   for (int reg(0); reg != 3; ++reg) {
+     nlayer = 0;
+     if(reg==0)nlayer = N_BARRELSx2;
+     else if(reg==1||reg==2) nlayer = N_DISKSx2;
+     for (int layer(0); layer != nlayer; ++layer) {
+       for (int errType(0); errType != N_ERRTYPES; ++errType) {
+	 if(m_errorsNames[errType]=="")continue;
+	 if (m_doPerLumiErrors) {
+	   if (m_doErr2DPerLumiHists) {
+	     const int xbins(m_allErrsPerLumi[errType][reg][layer]->GetNbinsX() + 1);
+	     const int ybins(m_allErrsPerLumi[errType][reg][layer]->GetNbinsY() + 1);
+	     for (int xb(1); xb != xbins; ++xb) {
+	       for (int yb(1); yb != ybins; ++yb) {
+		 m_pallErrsPerLumi_tmp[errType][reg][layer]
+		   ->SetBinContent(xb,yb,m_pallErrsPerLumi[errType][reg][layer]->GetBinContent(xb,yb));
+		 double nentry=0;
+		 double content=0;
+		 double error=0;
+		 m_allErrsPerLumi[errType][reg][layer]->GetBinInfo(xb,yb,nentry,content,error);
+		 for(int ientry=0; ientry<nentry; ientry++){
+		   m_allErrsPerLumi_tmp[errType][reg][layer]
+		     ->Fill(m_allErrsPerLumi[errType][reg][layer]->GetXaxis()->GetBinCenter(xb),
+			    m_allErrsPerLumi[errType][reg][layer]->GetYaxis()->GetBinCenter(yb),
+			    m_allErrsPerLumi[errType][reg][layer]->GetBinContent(xb,yb));
+		 }
+	       }
+	     }
+	   }
+	 }
+	 const int xbins(m_allErrs[errType][reg][layer]->GetNbinsX() + 1);
+	 const int ybins(m_allErrs[errType][reg][layer]->GetNbinsY() + 1);
+	 for (int xb(1); xb != xbins; ++xb) {
+	   for (int yb(1); yb != ybins; ++yb) {
+	     m_pallErrs_tmp[errType][reg][layer]
+	       ->SetBinContent(xb,yb,m_pallErrs[errType][reg][layer]->GetBinContent(xb,yb));
+	     double nentry=0;
+	     double content=0;
+	     double error=0;
+	     m_allErrs[errType][reg][layer]->GetBinInfo(xb,yb,nentry,content,error);
+	     if(m_allErrs[errType][reg][layer]->GetBinContent(xb,yb)>0)
+	     for(int ientry=0; ientry<nentry; ientry++){
+	       m_allErrs_tmp[errType][reg][layer]
+		 ->Fill(m_allErrs[errType][reg][layer]->GetXaxis()->GetBinCenter(xb),
+			m_allErrs[errType][reg][layer]->GetYaxis()->GetBinCenter(yb),
+			m_allErrs[errType][reg][layer]->GetBinContent(xb,yb));
+	     }
+	   }
+	 }
+       }
+     }
+   }
 
-  return StatusCode::SUCCESS;
-}
+   //RODLevelErrors histograms
 
-// ====================================================================================================
-//                            SCTErrMonTool :: bookHistograms
-// ====================================================================================================
-StatusCode
-SCTErrMonTool::bookHistograms() {
+   for (int reg = 0; reg != NREGIONS_INC_GENERAL; ++reg) {
+     const int xbins(m_LinksWithRODErrorsVsLB_check[reg]->GetNbinsX() + 1);
+     for (int xb(1); xb != xbins; ++xb) {
+       double nentry=m_LinksWithRODErrorsVsLB[reg]->GetBinEntries(xb);
+       for(int ientry=0; ientry<nentry; ientry++){
+	 m_LinksWithRODErrorsVsLB_check[reg]->Fill(m_LinksWithRODErrorsVsLB[reg]->GetXaxis()->GetBinCenter(xb),
+						   m_LinksWithRODErrorsVsLB[reg]->GetBinContent(xb));
+       }
+     }
+   }
 
-  ATH_MSG_DEBUG(" initialize being called ");
-  if (newRunFlag()) {
-    m_numberOfEvents = 0;
-    if (AthenaMonManager::dataType() == AthenaMonManager::cosmics) {
-      m_checkrate = 100;
-    }
-  }
-  if (ManagedMonitorToolBase::newLumiBlockFlag()) {
-    m_numberOfEventsLumi = 0;
-  }
-  m_dataObjectName = "SCT_RDOs";
+   return StatusCode::SUCCESS;
+ }
+
+ // ====================================================================================================
+ //                            SCTErrMonTool :: bookHistograms
+ // ====================================================================================================
+ StatusCode
+ SCTErrMonTool::bookHistograms() {
+
+   ATH_MSG_DEBUG(" initialize being called ");
+   if (newRunFlag()) {
+     m_numberOfEvents = 0;
+     if (AthenaMonManager::dataType() == AthenaMonManager::cosmics) {
+       m_checkrate = 100;
+     }
+   }
+   if (ManagedMonitorToolBase::newLumiBlockFlag()) {
+     m_numberOfEventsLumi = 0;
+   }
   const InDetDD::SCT_DetectorManager *mgr; // confusingly this is in a dedicated namespace
   ATH_CHECK(detStore()->retrieve(mgr, "SCT"));
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
@@ -671,8 +675,8 @@ StatusCode
 SCTErrMonTool::fillHistograms() {
 
   typedef SCT_RDORawData SCTRawDataType;
-  const xAOD::EventInfo *pEvent(0);
-  if (evtStore()->retrieve(pEvent).isFailure()) {
+  SG::ReadHandle<xAOD::EventInfo> pEvent(m_eventInfoKey);
+  if (not pEvent.isValid()) {
     ATH_MSG_WARNING("Could not retrieve event info!");
     return StatusCode::RECOVERABLE;
   }
@@ -698,8 +702,7 @@ SCTErrMonTool::fillHistograms() {
   }
 
   m_NumberOfEventsVsLB->Fill(m_current_lb);
-  const SCT_RDO_Container *p_rdocontainer;
-  ATH_CHECK(evtStore()->retrieve(p_rdocontainer, m_dataObjectName));
+  SG::ReadHandle<SCT_RDO_Container> p_rdocontainer(m_dataObjectName);
   Identifier SCT_Identifier;
 
   // Define variables for error histograms
@@ -1010,10 +1013,10 @@ SCTErrMonTool::numByteStreamErrors(const std::set<IdentifierHash> *errors, int &
 StatusCode
 SCTErrMonTool::fillByteStreamErrors() {
   // Masked and ROB Fragment vs. lb
-  const xAOD::EventInfo *pEvent(0);
+  SG::ReadHandle<xAOD::EventInfo> pEvent(m_eventInfoKey);
   msg(MSG::INFO) << "INFO|| monitor ||INFO" << endmsg;
 
-  if (evtStore()->retrieve(pEvent).isFailure()) {
+  if (not pEvent.isValid()) {
     if (msgLvl(MSG::ERROR)) {
       msg(MSG::ERROR) << "Could not retrieve event info!" << endmsg;
     }

@@ -51,9 +51,11 @@ from DataModelTestDataCommon.DataModelTestDataCommonConf import \
      DMTest__xAODTestReadSymlink
 from DataModelTestDataWrite.DataModelTestDataWriteConf import \
      DMTest__xAODTestWriteCVec, \
-     DMTest__xAODTestWriteCInfo
+     DMTest__xAODTestWriteCInfo, \
+     DMTest__xAODTestWriteSymlinks
 topSequence += DMTest__xAODTestWriteCVec ("xAODTestWriteCVec")
 topSequence += DMTest__xAODTestWriteCInfo ("xAODTestWriteCInfo")
+topSequence += DMTest__xAODTestWriteSymlinks ("xAODTestWriteSymlinks")
 topSequence += DMTest__xAODTestReadSymlink ("xAODTestReadSymlink", Key='cinfo')
 
 

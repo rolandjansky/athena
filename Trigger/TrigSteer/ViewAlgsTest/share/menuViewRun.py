@@ -1,4 +1,8 @@
 #
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
+#
 # get_files -xmls LVL1config_Physics_pp_v5.xml
 # 
 # 
@@ -24,9 +28,8 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 
 #
-from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-svcMgr += ForwardSchedulerSvc()
-svcMgr.ForwardSchedulerSvc.CheckDependencies = True
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.CheckDependencies( True )
 
 # Use McEventSelector so we can run with AthenaMP
 import AthenaCommon.AtlasUnixGeneratorJob
