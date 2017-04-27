@@ -14,6 +14,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkTrackCollectionMerger/TrackCollectionMerger.h"
+#include "StoreGate/WriteHandle.h"
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -62,7 +63,10 @@ StatusCode Trk::TrackCollectionMerger::initialize()
     msg(MSG::WARNING) << "Both UpdateAdditionalInfo and UpdateSharedHitsOnly set true - UpdateAdditionalInfo includes a shared hits update. " << endmsg;
     msg(MSG::WARNING) << " If you *only* want to update shared hits, set UpdateAdditionalInfo=False and UpdateSharedHitsOnly=True" << endmsg;
   }
-  
+ 
+  ATH_CHECK(  m_tracklocation.initialize() );
+  ATH_CHECK( m_outtracklocation.initialize() );
+ 
   return StatusCode::SUCCESS;
 }
 
@@ -75,9 +79,8 @@ StatusCode Trk::TrackCollectionMerger::execute()
   // clean up association tool
   m_assoTool->reset();
   
-  // out output track collection
-  TrackCollection* outputCol = m_createViewCollection ? 
-      new TrackCollection(SG::VIEW_ELEMENTS) : new TrackCollection;
+  std::unique_ptr<TrackCollection> outputCol = m_createViewCollection ? 
+    std::make_unique<TrackCollection>(SG::VIEW_ELEMENTS) : std::make_unique<TrackCollection>();
   ATH_MSG_DEBUG("Number of Track collections " << m_tracklocation.size());
 
   // pre-loop to reserve enough space in the output collection
@@ -85,31 +88,23 @@ StatusCode Trk::TrackCollectionMerger::execute()
   trackCollections.reserve(m_tracklocation.size());
   size_t ttNumber = 0;
   for (auto& tcname : m_tracklocation){
-      const TrackCollection* trackCol;
-      ///Retrieve forward tracks from StoreGate
-      if (evtStore()->retrieve(trackCol,tcname).isFailure()){
-        ATH_MSG_DEBUG("No tracks with name " << tcname);
-      } else {
-        ATH_MSG_DEBUG("Found track collection " << tcname );
-        trackCollections.push_back(trackCol);
-        ttNumber += trackCol->size();
-      }
+    ///Retrieve forward tracks from StoreGate
+    SG::ReadHandle<TrackCollection> trackCol (tcname);
+    trackCollections.push_back(trackCol.cptr());
+    ttNumber += trackCol->size();
   }
+
   // reserve the right number of entries for the output collection
   outputCol->reserve(ttNumber);
   // merging loop
   for(auto& tciter : trackCollections){
       // merge them in
-      if(mergeTrack(tciter,outputCol).isFailure()){
+    if(mergeTrack(tciter,outputCol.get()).isFailure()){
 	     ATH_MSG_ERROR( "Failed to merge tracks! ");
       }
   }
 
   ATH_MSG_DEBUG("Size of combined tracks " << outputCol->size());
-  if( evtStore()->record(outputCol,m_outtracklocation,false).isFailure() ){
-    ATH_MSG_ERROR("Could not save the reconstructed TRT seeded Si tracks!");
-    return StatusCode::FAILURE ;
-  }
 
   ATH_MSG_DEBUG("Update summaries");  
   // now loop over all tracks and update summaries with new shared hit counts
@@ -120,6 +115,10 @@ StatusCode Trk::TrackCollectionMerger::execute()
     else if (m_updateSharedHitsOnly) m_trkSummaryTool->updateSharedHitCount(**rf);
     else  m_trkSummaryTool->updateTrack(**rf);
   }
+
+  SG::WriteHandle<TrackCollection> h_write(m_outtracklocation);
+  ATH_CHECK(h_write.record(std::move(outputCol)));	     
+
 
   //Print common event information
   if(msgLvl(MSG::DEBUG)){

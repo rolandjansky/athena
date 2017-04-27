@@ -17,6 +17,8 @@
 
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadHandleKeyArray.h"
 
 namespace Trk {
 
@@ -52,8 +54,8 @@ namespace Trk {
       ///////////////////////////////////////////////////////////////////
       /** @brief Protected data:                                       */
       ///////////////////////////////////////////////////////////////////
-      std::vector<std::string>                                     m_tracklocation     ;  /** Vector of track collections to be merged. */
-      std::string                                                  m_outtracklocation  ;  /** Combined track collection.   */
+      SG::ReadHandleKeyArray<TrackCollection>  m_tracklocation; /** Vector of track collections to be merged. */
+      SG::WriteHandleKey<TrackCollection>  m_outtracklocation  ;  /** Combined track collection.   */
 
       ToolHandle< Trk::IPRD_AssociationTool >                      m_assoTool          ;  /** association tool for PRDs */ 
       ToolHandle< Trk::ITrackSummaryTool >                         m_trkSummaryTool    ;  /** summary tool with shared hits enabled */
