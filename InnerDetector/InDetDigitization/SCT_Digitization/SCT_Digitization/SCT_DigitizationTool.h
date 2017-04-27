@@ -21,12 +21,16 @@
 #include "HitManagement/TimedHitCollection.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/InDetRawDataCollection.h"
+#include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimEvent/SiHitCollection.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
 
 // Gaudi headers
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 
 // STL headers
 #include "boost/shared_ptr.hpp"
@@ -161,23 +165,22 @@ private:
 
   void SetupRdoOutputType(Property&);
 
-  ComTime*        m_ComTime ; //!< Tool to retrieve commissioning timing info from SG
+  SG::ReadHandleKey<ComTime>        m_ComTimeKey ; //!< Handle to retrieve commissioning timing info from SG
 
   const SCT_ID*                                      m_detID;                             //!< Handle to the ID helper
-  const InDetDD::SCT_DetectorManager*                m_detMgr;
-              //!< Handle to Si detector manager
+  const InDetDD::SCT_DetectorManager*                m_detMgr;                            //!< Handle to Si detector manager
   ToolHandle<ISCT_FrontEnd>                          m_sct_FrontEnd;                      //!< Handle the Front End Electronic tool
   ToolHandle<ISCT_SurfaceChargesGenerator>           m_sct_SurfaceChargesGenerator;       //!< Handle the surface chage generator tool
   ToolHandle<ISCT_RandomDisabledCellGenerator>       m_sct_RandomDisabledCellGenerator;   //!< Handle the Ampilifier tool for the Front End
 
   std::vector<SiHitCollection*> m_hitCollPtrs;
 
-  SCT_RDO_Container        *                         m_rdocontainer ;                     //!< RDO container
-  InDetSimDataCollection   *                         m_simDataCollMap;                    //!< SDO Map
+  SG::WriteHandleKey<SCT_RDO_Container>              m_rdoContainerKey; //!< RDO container key
+  SG::WriteHandle<SCT_RDO_Container>                 m_rdoContainer; //!< RDO container handle
+  SG::WriteHandleKey<InDetSimDataCollection>         m_simDataCollMapKey; //!< SDO Map key
+  SG::WriteHandle<InDetSimDataCollection>            m_simDataCollMap; //!< SDO Map handle
 
   std::string                                        m_inputObjectName;     //! name of the sub event  hit collections.
-  std::string                                        m_outputRDOCollName;    //! name of the output RDOs.
-  std::string                                        m_outputSDOCollName;    //! name of the output SDOs.
   ServiceHandle <IAtRndmGenSvc>                      m_rndmSvc;             //!< Random number service
   ServiceHandle <PileUpMergeSvc> m_mergeSvc; //!
 
