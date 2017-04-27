@@ -5,7 +5,7 @@ import os
 from array import array
 import itertools
 import ROOT
-from CreateResolutionProfiles import *
+from MuonValidation_CreateResolutionProfiles import *
 
 #---------------------------------------------------------------------------
 
@@ -76,6 +76,5 @@ def main( args ):
 #---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    ROOT.gROOT.Macro("rootlogon.C")
     ROOT.gROOT.SetBatch()
     main( sys.argv )
