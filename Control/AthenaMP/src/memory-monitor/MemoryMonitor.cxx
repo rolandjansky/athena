@@ -167,10 +167,10 @@ int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int in
                maxValues[i] = values[i];
              lastIteration = time(0);
 
-	     avgValuesIO[i] =  (unsigned long long) valuesIO[i] / (currentTime-startTime) ;
              if (valuesIO[i] > maxValuesIO[i])
                maxValuesIO[i] = valuesIO[i];
 
+	     avgValuesIO[i] =  (unsigned long long) maxValuesIO[i] / (currentTime-startTime) ;
 
 	  }
 
