@@ -21,6 +21,8 @@
 #include "AthenaBaseComps/AthService.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 //Inner detector includes
 #include "InDetIdentifier/SCT_ID.h"
@@ -38,7 +40,6 @@ namespace InDetDD{
 class StatusCode;
 class ISvcLocator;
 class IdentifierHash;
-class EventInfo;
 
 class SCT_CalibHvSvc:virtual public ISCT_CalibHistoSvc, public AthService{
   friend class SvcFactory<SCT_CalibHvSvc>;
@@ -96,7 +97,7 @@ private:
 
   std::vector< std::vector< std::pair<int, int> > > m_summarytrips;
   std::vector< std::vector< std::pair<int, int> > > m_summarytripslb;
-  const EventInfo* m_evt;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
   bool m_outputLowHits;
   int m_lowHitCut;
  ///retrieve a service and report if it failed
