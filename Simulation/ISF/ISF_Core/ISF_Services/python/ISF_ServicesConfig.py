@@ -113,13 +113,6 @@ def getValidationTruthService(name="ISF_ValidationTruthService", **kwargs):
     kwargs.setdefault('PassWholeVertices', True)
     return getGenericTruthService(name, **kwargs)
 
-def getTruthService(name="ISF_TruthService", **kwargs):
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    if ISF_Flags.ValidationMode() :
-      return getValidationTruthService(name, **kwargs)
-    else :
-      return getMC12TruthService(name, **kwargs)
-
 
 #
 # MC12 Truth Service Configurations
@@ -150,6 +143,13 @@ def getMC12TruthService(name="ISF_MC12TruthService", **kwargs):
     kwargs.setdefault('IgnoreUndefinedBarcodes', False)
     kwargs.setdefault('PassWholeVertices', True)
     return getGenericTruthService(name, **kwargs)
+
+def getTruthService(name="ISF_TruthService", **kwargs):
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    if ISF_Flags.ValidationMode() :
+      return getValidationTruthService(name, **kwargs)
+    else:
+      return getMC12TruthService(name, **kwargs)
 
 def getMC12LLPTruthService(name="ISF_MC12TruthLLPService", **kwargs):
     llp_strategies = ['ISF_LLPTruthStrategy']
