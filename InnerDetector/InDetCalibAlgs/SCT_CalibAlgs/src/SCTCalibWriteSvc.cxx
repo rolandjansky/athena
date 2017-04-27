@@ -26,8 +26,11 @@
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 
-///Read Handle
-#include "StoreGate/ReadHandle.h"
+// Event Info 
+#include "EventInfo/EventIncident.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+#include "EventInfo/EventType.h"
 
 //path resolver to find the file
 #include "PathResolver/PathResolver.h"
@@ -79,6 +82,7 @@ SCTCalibWriteSvc::SCTCalibWriteSvc(const std::string& name, ISvcLocator* pSvcLoc
   m_endRun(IOVTime::MAXRUN),
   m_streamName("CondStreamTest"),
   
+  m_evt(0),
   m_regSvc(0),
   //m_streamer(0),
   m_streamer(((m_version == 0) ? "AthenaOutputStreamTool" : "AthenaPoolOutputStreamTool"), this),
@@ -93,8 +97,7 @@ SCTCalibWriteSvc::SCTCalibWriteSvc(const std::string& name, ISvcLocator* pSvcLoc
   m_BSErrRecorded(false),
   m_LARecorded(false),
   m_pHelper(0),
-  m_currentDefectList(""),
-  m_eventInfoKey(std::string("EventInfo"))
+  m_currentDefectList("") 
 {
   declareProperty("WriteCondObjs",        m_writeCondObjs);
   declareProperty("RegisterIOV",          m_regIOV);
@@ -159,10 +162,6 @@ StatusCode SCTCalibWriteSvc::initialize(){
   if (m_regIOV) {
     if (service("IOVRegistrationSvc", m_regSvc).isFailure()) return msg(MSG:: ERROR)<< "Unable to find IOVRegistrationSvc "<< endmsg, StatusCode::FAILURE;
   }
-
-  // Read Handle Key
-  ATH_CHECK(m_eventInfoKey.initialize(m_readWriteCool and (not m_twoStepWriteReg) and (not m_manualiov)));
-
   return StatusCode::SUCCESS;
 }
 
@@ -671,12 +670,16 @@ SCTCalibWriteSvc::registerCondObjects(const std::string& foldername,const std::s
       unsigned int beginRun;
       unsigned int endRun;
       if ( !m_manualiov ) {
-        SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfoKey);
-        if (not evt.isValid()) {
-          msg(MSG:: ERROR) << "Unable to get the EventInfo" << endmsg;
+        StoreGateSvc* pStoreGate;
+        if (service("StoreGateSvc",pStoreGate).isFailure()) {
+          msg(MSG:: FATAL) << "StoreGate service not found !" << endmsg;
           return StatusCode::FAILURE;
         }
-        beginRun = evt->runNumber();
+        if (pStoreGate->retrieve(m_evt).isFailure()) {
+          msg(MSG:: ERROR) << "Unable to get the EventSvc" << endmsg;
+          return StatusCode::FAILURE;
+        }
+        beginRun = m_evt->event_ID()->run_number();
         endRun = beginRun;
       } else {
         beginRun = m_beginRun;
