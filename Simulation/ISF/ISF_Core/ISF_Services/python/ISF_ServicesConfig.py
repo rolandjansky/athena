@@ -194,10 +194,17 @@ def getMC15TruthService(name="ISF_MC15TruthService", **kwargs):
     import ROOT, cppyy
     cppyy.loadDictionary('AtlasDetDescrDict')
     AtlasRegion = ROOT.AtlasDetDescr
-    kwargs.setdefault('BeamPipeTruthStrategies', getMC15BeamPipeTruthStrategies()) # this is used for beam pipe but not BeamPipeCentral which uses same as ID
-    kwargs.setdefault('IDTruthStrategies', getMC15IDTruthStrategies())
-    kwargs.setdefault('CaloTruthStrategies', getMC15CaloTruthStrategies())
-    kwargs.setdefault('MSTruthStrategies', getMC15MSTruthStrategies())
+
+    beam_pipe_strategies = getMC15BeamPipeTruthStrategies()
+    id_strategies = getMC15IDTruthStrategies()
+    calo_strategies = getMC15CaloTruthStrategies()
+    ms_strategies = getMC15MSTruthStrategies()
+
+    kwargs.setdefault('BeamPipeTruthStrategies', beam_pipe_strategies) # this is used for beam pipe but not BeamPipeCentral which uses same as ID
+    kwargs.setdefault('IDTruthStrategies', id_strategies)
+    kwargs.setdefault('CaloTruthStrategies', calo_strategies)
+    kwargs.setdefault('MSTruthStrategies', ms_strategies)
+
     kwargs.setdefault('IgnoreUndefinedBarcodes', False)
     kwargs.setdefault('PassWholeVertices', False) # new for MC15 - can write out partial vertices.
     kwargs.setdefault('ForceEndVtxInRegions', [AtlasRegion.fAtlasID])
