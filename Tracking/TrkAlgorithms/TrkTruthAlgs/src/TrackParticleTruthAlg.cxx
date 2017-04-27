@@ -34,6 +34,12 @@ StatusCode TrackParticleTruthAlg::finalize() {
 // -----------------------------------------------------------------------------------------------------
 StatusCode TrackParticleTruthAlg::execute() {
 
+
+  //if(!m_particles.isPresent()){ //no track particle container of this name is in SG
+  if(!evtStore()->contains<xAOD::TrackParticleContainer>(m_particles.name())){ //isPresent doesn't seem to work right now so keep the old way
+    ATH_MSG_WARNING("TrackParticleTruthAlg: "<<m_particles.name()<<" not found");
+    return StatusCode::SUCCESS;
+  }
   
   if(!m_particles.isValid()){
     ATH_MSG_ERROR("Could not read " << m_particles.name());
