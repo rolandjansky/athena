@@ -26,6 +26,10 @@
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "InDetRawData/SCT_RDO_Container.h"
+
 /** Forward declarations*/
 class IInterface;
 class TH1F;
@@ -198,7 +202,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   //@{
 
   /// Data object name: for the SCT this is "SCT_RDOs"
-  std::string m_dataObjectName;
+  SG::ReadHandle<SCT_RDO_Container> m_dataObjectName;
 
   ///SCT Helper class
   const SCT_ID* m_pSCTHelper;
@@ -295,6 +299,8 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   //TProfile * m_DisabledDetectorCoverageVsLB;
   //TProfile * m_ErrorDetectorCoverageVsLB;
   TProfile * m_TotalDetectorCoverageVsLB;
+
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
 };
 
 #endif
