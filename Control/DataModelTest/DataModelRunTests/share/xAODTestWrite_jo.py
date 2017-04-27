@@ -43,13 +43,15 @@ from DataModelTestDataWrite.DataModelTestDataWriteConf import \
      DMTest__xAODTestWriteCView, \
      DMTest__xAODTestWriteCInfo, \
      DMTest__xAODTestWriteCVecConst, \
-     DMTest__xAODTestWrite
+     DMTest__xAODTestWrite, \
+     DMTest__xAODTestWriteSymlinks
 topSequence += DMTest__xAODTestWriteCVec ("xAODTestWriteCVec")
 topSequence += DMTest__xAODTestWriteHVec ("xAODTestWriteHVec")
 topSequence += DMTest__xAODTestWriteCView ("xAODTestWriteCView")
 topSequence += DMTest__xAODTestWriteCInfo ("xAODTestWriteCInfo")
 topSequence += DMTest__xAODTestWrite ("xAODTestWrite")
 topSequence += DMTest__xAODTestWriteCVecConst ("xAODTestWriteCVecConst")
+topSequence += DMTest__xAODTestWriteSymlinks ("xAODTestWriteSymlinks")
 
 
 #--------------------------------------------------------------
@@ -80,6 +82,7 @@ fullItemList+=["DMTest::CInfoAuxContainer#cinfoAux."]
 fullItemList+=["DMTest::HVec#hvec"]
 fullItemList+=["DMTest::HAuxContainer#hvecAux."]
 fullItemList+=["DMTest::HView#hview"]
+fullItemList+=["DMTest::S2#S2"]
 
 from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatSvc
 fmtsvc = xAODMaker__EventFormatSvc (FormatNames = 

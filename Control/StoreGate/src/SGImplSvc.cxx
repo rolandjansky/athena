@@ -812,6 +812,8 @@ StatusCode SGImplSvc::addToStore (CLID id, SG::DataProxy* proxy)
  * @param returnExisting If true, return proxy if this key already exists.
  *                       If the object has been recorded under a different
  *                       key, then make an alias.
+ *                       If the object has been recorded under a different
+ *                       clid, then make a link.
  *
  * Full-blown record.  @c obj should usually be something
  * deriving from @c SG::DataBucket.
@@ -840,22 +842,61 @@ SG::DataProxy* SGImplSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
     SG::DataProxy* proxy = this->proxy (obj->clID(), key);
     if (proxy && proxy->isValid()) return proxy;
 
-    // Look for the same object recorded under a different key.
+    // Look for the same object recorded under a different key/clid.
     proxy = this->proxy (raw_ptr);
     if (proxy && proxy->isValid()) {
-      // Make an alias.
-      if (addAlias (key, proxy).isFailure()) {
+      if (proxy->transientAddress()->transientID (obj->clID())) {
+        // CLID matches.  Make an alias.
+        if (addAlias (key, proxy).isFailure()) {
+          CLID clid = proxy->clID();
+          std::string clidTypeName; 
+          m_pCLIDSvc->getTypeNameOfID(clid, clidTypeName).ignore();
+          msg() << MSG::WARNING
+                << "SGImplSvc::recordObject: addAlias fails for object "
+                << clid << "[" << clidTypeName << "] " << proxy->name()
+                << " and new key " << key
+                << endmsg;
+          
+          proxy = nullptr;
+        }
+      }
+
+      else if (key == proxy->name() ||
+               proxy->alias().count (key) > 0)
+      {
+        // key matches.  Make a symlink.
+        if (addSymLink (obj->clID(), proxy).isFailure()) {
+          CLID clid = proxy->clID();
+          std::string clidTypeName; 
+          m_pCLIDSvc->getTypeNameOfID(clid, clidTypeName).ignore();
+          CLID newclid = obj->clID();
+          std::string newclidTypeName; 
+          m_pCLIDSvc->getTypeNameOfID(newclid, newclidTypeName).ignore();
+          msg() << MSG::ERROR
+                << "SGImplSvc::recordObject: addSymLink fails for object "
+                << clid << "[" << clidTypeName << "] " << proxy->name()
+                << " and new clid " << newclid << "[" << newclidTypeName << "]"
+                << endmsg;
+          proxy = nullptr;
+        }
+      }
+
+      else {
         CLID clid = proxy->clID();
         std::string clidTypeName; 
         m_pCLIDSvc->getTypeNameOfID(clid, clidTypeName).ignore();
-        msg() << MSG::WARNING
-              << "SGImplSvc::recordObject: addAlias fails for object "
+        CLID newclid = obj->clID();
+        std::string newclidTypeName; 
+        m_pCLIDSvc->getTypeNameOfID(newclid, newclidTypeName).ignore();
+        msg() << MSG::ERROR
+              << "SGImplSvc::recordObject: existing object found with "
               << clid << "[" << clidTypeName << "] " << proxy->name()
-              << " and new key " << key
+              << " but neither clid " << newclid << "[" << newclidTypeName << "]"
+              << " nor key " << key << " match."
               << endmsg;
-
         proxy = nullptr;
       }
+
       return proxy;
     }
   }
