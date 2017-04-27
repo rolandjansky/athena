@@ -2,6 +2,14 @@
 //
 #include "xAODTruth/TruthParticle.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
+
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+#include "EventInfo/EventType.h"
+#include "EventInfo/PileUpEventInfo.h"
+#include "EventInfo/PileUpTimeEventIndex.h"
 
 #include "TCCPlots.h"
 //
@@ -31,6 +39,8 @@ TrackCaloClusterRecValidationTool::TrackCaloClusterRecValidationTool(const std::
   declareProperty("maxMass"                     , m_maxMass  = 150.*GeV);
   declareProperty("DirName"                     , m_dirName = "TCCValidation/");
   declareProperty("SubFolder"                   , m_folder);
+  declareProperty("SaveTrackInfo"               , m_saveTrackInfo = false);
+  declareProperty("TrackCollectionName"         , m_trackParticleCollectionName = "InDetTrackParticles");
   }
 
 TrackCaloClusterRecValidationTool::~TrackCaloClusterRecValidationTool() {
@@ -46,14 +56,26 @@ TrackCaloClusterRecValidationTool::initialize() {
     std::string myname = name;
     if (name.find("AntiKt10LCTopo")!= std::string::npos and name.find("My")== std::string::npos)
       myname = "My"+name;
-    m_tccPlots.insert(std::pair<std::string, TCCPlots*>(name, new TCCPlots(0, m_dirName + myname)));
+    m_tccPlots.insert(std::pair<std::string, TCCPlots*>(name, new TCCPlots(0, m_dirName + myname, "jets")));
   }
+  if (m_saveTrackInfo) {
+   ATH_MSG_INFO("Saving Plots for " << m_trackParticleCollectionName << "...");
+    m_tccPlots.insert(std::pair<std::string, TCCPlots*>(m_trackParticleCollectionName, new TCCPlots(0, m_dirName + m_trackParticleCollectionName, "tracks"))); 
+  }
+    
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode
 TrackCaloClusterRecValidationTool::fillHistograms() {
+  
+  const EventInfo* info = nullptr;
+  if (evtStore()->retrieve(info).isFailure()){
+    ATH_MSG_FATAL( "Unable to retrieve Event Info" );
+  } 
+  float mcEventWeight = info->event_type()->mc_event_weight();
+    
   ATH_MSG_DEBUG("Filling hists " << name() << "...");
   
   const auto truths = getContainer<xAOD::JetContainer>(m_truthJetContainerName);
@@ -61,6 +83,7 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
    
   // retrieve jet container
   for (auto name : m_jetContainerNames) {
+    m_tccPlots.at(name)->setEventWeight(mcEventWeight);
     ATH_MSG_DEBUG("Using Container " << name << "...");
     
     const auto jets = getContainer<xAOD::JetContainer>(name);
@@ -216,6 +239,19 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
       }
       ATH_MSG_DEBUG("SubLeading jet histograms filled! ...");
     }     
+  }
+  
+  // Getting the collections for TrackParticles
+  if (m_saveTrackInfo) {
+    const auto tracks = getContainer<xAOD::TrackParticleContainer>(m_trackParticleCollectionName);
+    if (not tracks) return StatusCode::FAILURE;
+    for (const auto& track: *tracks) {
+      m_tccPlots.at(m_trackParticleCollectionName)->fillTrackParameters(*track);
+      m_tccPlots.at(m_trackParticleCollectionName)->fillCaloEntryInfo(*track);
+      m_tccPlots.at(m_trackParticleCollectionName)->fillPerigeeInfo(*track);
+      m_tccPlots.at(m_trackParticleCollectionName)->fillPerigeeVsCaloEntry(*track);
+    }
+    
   }
   
   return StatusCode::SUCCESS;

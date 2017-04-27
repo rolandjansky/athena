@@ -118,9 +118,22 @@ void TCCPlotsBase::fillHisto(TH2* pTh2, const float xval, const float yval) {
   }
 }
 
+void TCCPlotsBase::fillHisto(TH2* pTh2, const float xval, const float yval, const float weight) {
+  if (pTh2 and validArguments(xval, yval)) {
+    pTh2->Fill(xval, yval, weight);
+  }
+}
+
+//
 void TCCPlotsBase::fillHisto(TH3* pTh3, const float xval, const float yval, const float zval) {
   if (pTh3 and validArguments(xval, yval, zval)) {
     pTh3->Fill(xval, yval, zval);
+  }
+}
+
+void TCCPlotsBase::fillHisto(TH3* pTh3, const float xval, const float yval, const float zval, const float weight) {
+  if (pTh3 and validArguments(xval, yval, zval)) {
+    pTh3->Fill(xval, yval, zval, weight);
   }
 }
   
