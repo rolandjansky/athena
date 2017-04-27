@@ -281,11 +281,8 @@ def setupMenu():
 
         # Trimmed topocluster large-R jet triggers
         ['j260_a10t_nojcalib_L1J75',        'L1_J75',  [], [PhysicsStream], ['Rate:SingleJet',  'BW:Jet'], -1],
-        ['j260_a10t_lcw_nojcalib_L1J75',    'L1_J75',  [], [PhysicsStream], ['Rate:SingleJet',  'BW:Jet'], -1],
-        ['j260_a10t_lcw_jes_L1J75',         'L1_J75',  [], [PhysicsStream], ['Rate:SingleJet',  'BW:Jet'], -1],
         ['j460_a10t_nojcalib_L1J100',       'L1_J100', [], [PhysicsStream], ['Rate:SingleJet',  'BW:Jet'], -1],
         ['j460_a10t_lcw_nojcalib_L1J100',   'L1_J100', [], [PhysicsStream], ['Rate:SingleJet',  'BW:Jet'], -1],
-        ['j460_a10t_lcw_jes_L1J100',        'L1_J100', [], [PhysicsStream], ['Rate:SingleJet',  'BW:Jet'], -1],
 
 
         
