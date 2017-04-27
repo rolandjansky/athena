@@ -19,7 +19,6 @@
 #include <string>
 
 // Forward declarations
-class EventInfo;
 class ISCT_SensorsSvc;
 class StatusCode;
 class ISvcLocator;
