@@ -55,6 +55,14 @@ class AddEgammaMuonTrkTracksInAOD(JobProperty):
     """
     statusOn=True
     allowedTypes=['bool']
+    StoredValue=True
+
+
+class AddEgammaTrkTracksInMCAOD(JobProperty):
+    """ If True, add Trk::Tracks associated with Electrons,Conversions to MC
+    """
+    statusOn=True
+    allowedTypes=['bool']
     StoredValue=False
 
 
