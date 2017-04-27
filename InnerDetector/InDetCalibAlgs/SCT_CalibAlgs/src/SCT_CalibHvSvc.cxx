@@ -9,13 +9,14 @@
 * @author Shaun Roe
 **/
 
-// Read Handle
-#include "StoreGate/ReadHandle.h"
-
 #include "SCT_CalibHvSvc.h"
 #include "SCT_CalibUtilities.h"
 #include "SCT_CalibNumbers.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"  //template parameter
+
+
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
 
 using namespace std;
 using namespace SCT_CalibAlgs;
@@ -51,7 +52,7 @@ SCT_CalibHvSvc::SCT_CalibHvSvc(const std::string &name, ISvcLocator * svc):
   m_absolutetriplimit(0),
   m_relativetriplimit(0),
   m_tq{0},
-  m_eventInfoKey(std::string("EventInfo")),
+  m_evt(0),
   m_outputLowHits(false),m_lowHitCut(100)
 {
 }
@@ -60,9 +61,6 @@ SCT_CalibHvSvc::SCT_CalibHvSvc(const std::string &name, ISvcLocator * svc):
 StatusCode 
 SCT_CalibHvSvc::initialize(){
   //if (not retrievedService(m_DCSConditionsSvc, "DCSConditionsSvc")) return StatusCode::FAILURE;
-
-  // Read Handle Key
-  ATH_CHECK( m_eventInfoKey.initialize() );
   
   return StatusCode::SUCCESS;
 
@@ -116,12 +114,7 @@ SCT_CalibHvSvc::fill(const bool fromData){
   int lumi_block(0);//fix me!;
   //int event_number;
   const int wafersize = m_sct_waferHash->size();
-  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfoKey);
-  if(not evt.isValid()) {
-    msg(MSG::ERROR) << m_eventInfoKey.key() << " cannot be retrieved" << endmsg;
-    return false;
-  }
-  int time_stamp= evt->timeStamp();
+  int time_stamp= m_evt->event_ID()->time_stamp();
   int curr_time =  time_stamp;
   int dtime = curr_time - m_phvtripPrevTime;
   int totalHits = 0;
