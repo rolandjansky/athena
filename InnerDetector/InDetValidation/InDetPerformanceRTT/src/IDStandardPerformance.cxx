@@ -20,6 +20,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IPartPropSvc.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "HepPDT/ParticleData.hh"
 #include "HepMC/GenParticle.h"
@@ -109,7 +110,7 @@ IDStandardPerformance::IDStandardPerformance( const std::string & type, const st
               m_doTruth(true), //CB
               m_doHitBasedMatching(true),
 	      m_PixeltracksName("ResolvedPixelTracks"),
-	      m_SCTtracksName("ResolvedSCTTracks"),
+	      m_SCTtracksName(std::string("ResolvedSCTTracks")),
 	      m_TRTtracksName("StandaloneTRTTracks")
 {
   declareProperty("TruthToTrackTool",         m_truthToTrack);
@@ -308,6 +309,9 @@ StatusCode IDStandardPerformance::initialize()
   if (m_plotsVsAbsEta && m_trackEtaBins%2){
     msg(MSG::WARNING) << "Plots chosen to be vs. abs(eta), but odd number of bins given, resseting to " << ++m_trackEtaBins << endmsg;
   }
+
+  // Read Handle Key
+  ATH_CHECK( m_SCTtracksName.initialize(m_doHitBasedMatching) );
 
   sc = ManagedMonitorToolBase::initialize();
   return sc;
@@ -1688,9 +1692,12 @@ StatusCode IDStandardPerformance::fillHistograms()
     }
 
     // get SCT tracklet collection
-    if (evtStore()->contains< DataVector<Trk::Track> >(m_SCTtracksName) &&
-        StatusCode::SUCCESS==evtStore()->retrieve(sct_trks,m_SCTtracksName)) {
-      if (msgLvl(MSG::VERBOSE)) msg() << "Track Collection with name " << m_SCTtracksName << " with size " << sct_trks->size() <<" found in StoreGate" << endmsg;
+    if (evtStore()->contains<TrackCollection>(m_SCTtracksName.key())) {
+      SG::ReadHandle<TrackCollection> h_sct_trks(m_SCTtracksName);
+      if(h_sct_trks.isValid()) {
+	sct_trks = &*h_sct_trks;
+	if (msgLvl(MSG::VERBOSE)) msg() << "Track Collection with name " << m_SCTtracksName.key() << " with size " << sct_trks->size() <<" found in StoreGate" << endmsg;
+      }
     }
 
     // get TRT tracklet collection
