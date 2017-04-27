@@ -5,7 +5,7 @@
 #include "MuonTrigCoinData/TgcCoinData.h"
 #include "MuonEventTPCnv/MuonTrigCoinData/TgcCoinDataCnv_p3.h"
 #include <algorithm>
-#include "DataModel/tools/IdentContIndex.h"
+#include "AthLinks/tools/IdentContIndex.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 #include "CxxUtils/make_unique.h"
 
