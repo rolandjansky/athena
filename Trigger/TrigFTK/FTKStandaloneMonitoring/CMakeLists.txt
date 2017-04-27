@@ -15,7 +15,6 @@ find_package( tdaq-common COMPONENTS eformat_write ROOT)
 
 atlas_add_library(FTKStandaloneMonitoring
 		  src/*.cxx
-		 components/*.cxx 
 		  PUBLIC_HEADERS FTKStandaloneMonitoring
 		  PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
 		  LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}   ByteStreamData  GaudiKernel TrigFTK_RawData TrigFTKSimLib TrigInDetAnalysisUtils TrigInDetAnalysis TrigFTK_RawData 
