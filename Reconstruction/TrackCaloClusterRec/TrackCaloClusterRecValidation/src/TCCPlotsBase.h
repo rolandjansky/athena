@@ -40,8 +40,10 @@ class TCCPlotsBase:public PlotBase {
       void fillHisto(TH1* pTh1, const float value);
       void fillHisto(TH1* pTh1, const float value, const float weight);
       void fillHisto(TH2* pTh2, const float xval, const float yval);
+      void fillHisto(TH2* pTh2, const float xval, const float yval, const float weight);
       void fillHisto(TH3* pTh3, const float xval, const float yval, const float zval);
-    
+      void fillHisto(TH3* pTh3, const float xval, const float yval, const float zval, const float weight);
+
       std::string m_folder;
             
     protected:

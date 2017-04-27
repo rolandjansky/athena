@@ -19,12 +19,14 @@ ParticleToCaloExtrapolationTool::ParticleToCaloExtrapolationTool(const std::stri
   : AthAlgTool(t,n,p),
     m_detID(nullptr),
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-    m_particleType(Trk::muon)
+    m_particleType(Trk::muon),
+    m_storeParameters(false)
 {
 
   declareInterface<IParticleExtrapolationTool>(this);
   declareProperty("Extrapolator",        m_extrapolator );
   declareProperty("ParticleType",        m_particleTypeName = "pion" );
+  declareProperty("StoreParameters",     m_storeParameters);
 }
 
 ParticleToCaloExtrapolationTool::~ParticleToCaloExtrapolationTool() {}
@@ -86,7 +88,7 @@ bool ParticleToCaloExtrapolationTool::particleToCaloExtrapolate( const xAOD::IPa
 Trk::CaloExtension* ParticleToCaloExtrapolationTool::particleToCaloExtrapolate( const xAOD::TruthParticle& particle ) const {
 
   // get particle type
-  Trk::ParticleHypothesis                     particleType = Trk::muon; //nonInteracting;
+  Trk::ParticleHypothesis                particleType = Trk::muon; //nonInteracting;
   if( abs(particle.pdgId()) == 11 )      particleType = Trk::muon;   // we dont want the electron to loose energy when extrpolating in the calo
   else if( abs(particle.pdgId()) == 13 ) particleType = Trk::muon;
 
@@ -142,35 +144,69 @@ Trk::CaloExtension* ParticleToCaloExtrapolationTool::particleToCaloExtrapolate( 
 
   Trk::ParticleHypothesis particleType = m_particleType;
   bool idExit = true;
-  
-  // if(particle.perigeeParameters()){//These should always work! Why doesn't it in the DAOD_JETMET8 derivation?
-      if(fabs(particle.perigeeParameters().position().z())>6700.) idExit = false; 
-      if(particle.perigeeParameters().position().perp()>4200.) idExit = false; 
-      Trk::PropDirection propDir = idExit ? Trk::alongMomentum : Trk::oppositeMomentum;
-      Trk::CaloExtension* extension = caloExtension(particle.perigeeParameters(),propDir,particleType);
-  // }
-  
-/*   float d0     = particle.d0();
-  float z0     = particle.z0();
-  float phi    = particle.phi0();
-  float theta  = particle.theta();
-  float qOverP = particle.qOverP();
-  
-  float vx = particle.vx() ? particle.vx() : 0.;
-  float vy = particle.vy() ? particle.vy() : 0.;
-  float vz = particle.vz();
-  
-  // Building the perigee
-  Trk::Perigee* perigee = new Trk::Perigee(d0, z0, phi, theta, qOverP, Trk::PerigeeSurface(Amg::Vector3D(vx, vy, vz)));
-  
-  // Muon Entry is around z 6783 and r  4255 
-  if(fabs(perigee->position().z())>6700.) idExit = false; 
-  if(perigee->position().perp()>4200.) idExit = false; 
-  Trk::PropDirection propDir = idExit ? Trk::alongMomentum : Trk::oppositeMomentum;
-  
-  Trk::CaloExtension* extension = caloExtension(*perigee,propDir,particleType);
-  delete perigee; */
 
+  const Trk::TrackParameters* startPar = nullptr;
+
+  
+  if (particle.isAvailable<std::vector<float> >( "definingParametersCovMatrix" ) and 
+      particle.isAvailable<float>( "vx" ) and particle.isAvailable<float>( "vy" ) ) {
+    startPar = &particle.perigeeParameters();
+  } else {
+    float d0     = particle.d0();
+    float z0     = particle.z0();
+    float phi    = particle.phi0();
+    float theta  = particle.theta();
+    float qOverP = particle.qOverP();
+    
+    float vx = 0.;
+    float vy = 0.;
+    float vz = particle.vz();
+    
+    // Building the perigee
+    startPar = new Trk::Perigee(d0, z0, phi, theta, qOverP, Trk::PerigeeSurface(Amg::Vector3D(vx, vy, vz)));
+  }
+
+  if(fabs(startPar->position().z())>6700.) idExit = false; 
+  if(startPar->position().perp()>4200.) idExit = false; 
+  Trk::PropDirection propDir = idExit ? Trk::alongMomentum : Trk::oppositeMomentum;
+  Trk::CaloExtension* extension = caloExtension(*startPar,propDir,particleType);
+
+  if (m_storeParameters and extension) {
+    
+    // decorating the TrackParticle with
+    // --> extrapolated parameters at the calo entry
+    // --> covariance the the calo entry
+    const Trk::TrackParameters*  pars = extension->caloEntryLayerIntersection();
+    particle.auxdecor<float>("CaloEntryPosX")   = (float)pars->position().x();
+    particle.auxdecor<float>("CaloEntryPosY")   = (float)pars->position().y();
+    particle.auxdecor<float>("CaloEntryPosZ")   = (float)pars->position().z();
+    particle.auxdecor<float>("CaloEntryPosEta") = (float)pars->position().eta();
+    particle.auxdecor<float>("CaloEntryPosPhi") = (float)pars->position().phi();
+    
+    if(pars->covariance()) {
+      particle.auxdecor<float>("CaloEntryUncEta") = (float)(-2.*sin(pars->position().theta()) / (cos(2.*pars->position().theta())-1.) * sqrt((*pars->covariance())(Trk::theta,Trk::theta)));
+      particle.auxdecor<float>("CaloEntryUncPhi") = (float)(sqrt((*pars->covariance())(Trk::phi,Trk::phi)));
+    }
+    
+    // --> parameters and covariance at the perigee
+    particle.auxdecor<float>("PerigeePosX")   = (float)startPar->position().x();
+    particle.auxdecor<float>("PerigeePosY")   = (float)startPar->position().y();
+    particle.auxdecor<float>("PerigeePosZ")   = (float)startPar->position().z();
+    particle.auxdecor<float>("PerigeePosEta") = (float)startPar->position().eta();
+    particle.auxdecor<float>("PerigeePosPhi") = (float)startPar->position().phi();
+    
+    if(startPar->covariance()) {
+      particle.auxdecor<float>("PerigeeUncEta") = (float)(-2.*sin(startPar->position().theta()) / (cos(2.*startPar->position().theta())-1.) 
+                                                          * sqrt((*startPar->covariance())(Trk::theta,Trk::theta)));
+      particle.auxdecor<float>("PerigeeUncPhi") = (float)(sqrt((*startPar->covariance())(Trk::phi,Trk::phi)));
+    }
+    
+    // --> production radius of the truth particle associated to the track
+    const xAOD::TruthParticle* assTruth = getTruthPtr(particle);
+    if (assTruth and assTruth->hasProdVtx())
+      particle.auxdecor<float>("ProductionRadius") = assTruth->prodVtx()->perp();
+  }
+  
   return extension;
 }
 

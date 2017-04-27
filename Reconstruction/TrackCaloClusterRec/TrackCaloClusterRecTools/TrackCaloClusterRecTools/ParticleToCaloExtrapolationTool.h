@@ -17,6 +17,7 @@ authors : Noemi Calace
 #include "TrkEventPrimitives/ParticleHypothesis.h" 
 #include "xAODTracking/NeutralParticle.h"
 #include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthParticleContainer.h"
 
 class AtlasDetectorID;
 
@@ -51,13 +52,30 @@ class ParticleToCaloExtrapolationTool : virtual public IParticleExtrapolationToo
     Trk::CaloExtension* particleToCaloExtrapolate( const xAOD::TruthParticle& particle ) const;
     Trk::CaloExtension* particleToCaloExtrapolate( const xAOD::NeutralParticle& particle ) const;
     Trk::CaloExtension* particleToCaloExtrapolate( const xAOD::TrackParticle& particle ) const;
+    const xAOD::TruthParticle* getTruthPtr(const xAOD::TrackParticle& trackParticle) const;
 
     const AtlasDetectorID*            m_detID;
     ToolHandle< Trk::IExtrapolator >  m_extrapolator;
     Trk::ParticleHypothesis           m_particleType;
     std::string                       m_particleTypeName;
     std::string                       m_containerName;
+    bool                              m_storeParameters;
+    
 };
+
+inline const xAOD::TruthParticle* ParticleToCaloExtrapolationTool::getTruthPtr(const xAOD::TrackParticle& trackParticle) const {
+  typedef ElementLink<xAOD::TruthParticleContainer> ElementTruthLink_t;
+  const xAOD::TruthParticle* result(nullptr);
+  // 0. is there any truth?
+  if (trackParticle.isAvailable<ElementTruthLink_t>("truthParticleLink")) {
+    // 1. ..then get link
+    const ElementTruthLink_t ptruthContainer = trackParticle.auxdata<ElementTruthLink_t>("truthParticleLink");
+    if (ptruthContainer.isValid()) {
+      result = *ptruthContainer;
+    }
+  }
+  return result;
+}
 
 
 #endif // TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECTOOLS_PARTICLETOCALOEXTRAPOLATIONTOOL_H

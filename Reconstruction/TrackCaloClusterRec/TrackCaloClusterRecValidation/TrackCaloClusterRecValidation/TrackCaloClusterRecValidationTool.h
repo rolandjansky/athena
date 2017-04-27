@@ -68,6 +68,10 @@ private:
     
     std::string m_folder;
     
+    std::string m_trackParticleCollectionName;
+   
+    bool m_saveTrackInfo;
+    
     //histograms
     std::map<std::string, TCCPlots*>    m_tccPlots;
 };

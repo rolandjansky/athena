@@ -12,10 +12,11 @@
 // local includes
 #include "TCCPlotsBase.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 class TCCPlots: public TCCPlotsBase {
 public:
-  TCCPlots(TCCPlotsBase* pParent, const std::string& dirName);
+  TCCPlots(TCCPlotsBase* pParent, const std::string& dirName, const std::string& collection = "");
   void fill(const xAOD::JetContainer& jets);
   void fill(const xAOD::Jet& jet);
   void fill(const xAOD::Jet& jet, const xAOD::Jet& truth);
@@ -41,10 +42,20 @@ public:
   void fillMomentsLeadingWithMassCut(const xAOD::Jet& jet);
   void fillMomentsSubLeadingWithMassCut(const xAOD::Jet& jet);
   
+  void fillTrackParameters(const xAOD::TrackParticle& track);
+  void fillCaloEntryInfo(const xAOD::TrackParticle& track);
+  void fillPerigeeInfo(const xAOD::TrackParticle& track);
+  void fillPerigeeVsCaloEntry(const xAOD::TrackParticle& track);
+  
   void make_median(TH2* h2_response, TH1* h1_resolution);
   void make_median(TH3* h3_response, TH2* h2_resolution);
+  void resizeHistograms();
+  
+  void setEventWeight(const float& weight);
 
-private:  
+private:
+  std::string m_collectionType             ;
+  float       m_eventWeight                ;
   TH1* m_jet_n                             ;
   TH1* m_jet_pt                            ;
   TH1* m_jet_eta                           ;
@@ -167,9 +178,50 @@ private:
   TH2* m_jet_resolution_mopt_pt_d2_leading       ;
   TH2* m_jet_resolution_mopt_pt_d2_subleading    ;
   
+  //track histograms
+  TH1* m_trk_d0                                  ;
+  TH1* m_trk_z0                                  ;
+  TH1* m_trk_theta                               ;
+  TH1* m_trk_phi                                 ;
+  TH1* m_trk_qOverP                              ;
+  TH2* m_trk_d0_eta                              ;
+  TH2* m_trk_z0_eta                              ;
+  TH2* m_trk_theta_eta                           ;
+  TH2* m_trk_phi_eta                             ;
+  TH2* m_trk_qOverP_eta                          ;
+  TH2* m_trk_d0_pt                               ;
+  TH2* m_trk_z0_pt                               ;
+  TH2* m_trk_theta_pt                            ;
+  TH2* m_trk_phi_pt                              ;
+  TH2* m_trk_qOverP_pt                           ;
+  TH1* m_trk_caloEntryEta                        ;
+  TH2* m_trk_caloEntryEtaOverEta_eta             ;
+  TH2* m_trk_caloEntryEtaOverEta_pt              ;
+  TH2* m_trk_caloEntryUncEta_caloEntryEta        ;
+  TH2* m_trk_caloEntryUncEta_eta                 ;
+  TH2* m_trk_caloEntryUncEta_pt                  ;
+  TH1* m_trk_caloEntryPhi                        ;
+  TH2* m_trk_caloEntryPhiOverPhi_eta             ;
+  TH2* m_trk_caloEntryPhiOverPhi_pt              ;
+  TH2* m_trk_caloEntryUncPhi_caloEntryPhi        ;
+  TH2* m_trk_caloEntryUncPhi_eta                 ;
+  TH2* m_trk_caloEntryUncPhi_pt                  ;
+  TH2* m_trk_caloEntryUncTot_eta                 ;
+  TH2* m_trk_caloEntryUncTot_pt                  ;
+  TH1* m_trk_perigeeEta                          ;
+  TH2* m_trk_perigeeUncEta_eta                   ;
+  TH2* m_trk_perigeeUncEta_pt                    ;
+  TH1* m_trk_perigeePhi                          ;
+  TH2*m_trk_perigeeUncPhi_eta                    ;
+  TH2*m_trk_perigeeUncPhi_pt                     ;
+  TH2*m_trk_perigeeUncTot_eta                    ;
+  TH2*m_trk_perigeeUncTot_pt                     ;
+  TH2*m_trk_perigeeUncTot_caloUncTot             ;
+  
   // plot base has nop default implementation of this; we use it to book the histos
   void initializePlots();
   void finalizePlots();
+  
 };
 
 

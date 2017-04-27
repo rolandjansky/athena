@@ -13,6 +13,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODJet
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTruth
+                          Event/xAOD/xAODEventInfo
+                          Event/EventInfo
                           GaudiKernel
                           InnerDetector/InDetValidation/InDetPhysValMonitoring
                           Tracking/TrkValidation/TrkValHistUtils
@@ -22,7 +24,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
                           Event/xAOD/xAODBase
-                          Event/xAOD/xAODEventInfo
                           Tools/PathResolver
                           )
                           
@@ -40,7 +41,7 @@ atlas_add_component( TrackCaloClusterRecValidation
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} 
                      AthenaBaseComps AthenaMonitoringLib xAODTracking xAODTruth GaudiKernel TrkValHistUtils InDetPhysValMonitoringLib
-                     AsgTools AthenaKernel GeoPrimitives EventPrimitives xAODBase xAODEventInfo xAODJet PathResolver)
+                     AsgTools AthenaKernel GeoPrimitives EventPrimitives xAODBase xAODEventInfo EventInfo xAODJet PathResolver)
 # Install files from the package:
 atlas_install_headers( TrackCaloClusterRecValidation )
 #atlas_install_python_modules( python/*.py )

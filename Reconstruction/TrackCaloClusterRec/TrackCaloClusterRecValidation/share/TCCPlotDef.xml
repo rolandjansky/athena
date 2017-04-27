@@ -679,6 +679,72 @@
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
+   
+  <!-- m_trk_d0 -->
+  <h id="trk_d0" type="TH1F" title="d_{0}">
+    <x title="Track d_{0} [mm]" n="5000"  lo="-5000." hi="5000."/>
+    <z title="Entries" />
+  </h> 
+  
+  <!-- m_trk_z0 -->
+  <h id="trk_z0" type="TH1F" title="z_{0}">
+    <x title="Track z_{0} [mm]" n="5000"  lo="-5000." hi="5000."/>
+    <z title="Entries" />
+  </h> 
+  
+  <!-- m_trk_theta -->
+  <h id="trk_theta" type="TH1F" title="#theta">
+    <x title="Track #theta [rad]" n="500"  lo="-4." hi="4."/>
+    <z title="Entries" />
+  </h>  
+  
+  <!-- m_trk_phi -->
+  <h id="trk_phi" type="TH1F" title="#phi">
+    <x title="Track #phi [rad]" n="500"  lo="-4." hi="4."/>
+    <z title="Entries" />
+  </h> 
+  
+  <!-- m_trk_qOverP -->
+  <h id="trk_qOverP" type="TH1F" title="q/p">
+    <x title="Track q/p [MeV^{-1}]" n="200"  lo="-0.00001" hi="0.00001"/>
+    <z title="Entries" />
+  </h> 
+    
+  <!--m_trk_qOverP                      
+  m_trk_d0_eta                      
+  m_trk_z0_eta                      
+  m_trk_theta_eta                   
+  m_trk_phi_eta                    
+  m_trk_qOverP_eta                  
+  m_trk_d0_pt                   
+  m_trk_z0_pt                       
+  m_trk_theta_pt                    
+  m_trk_phi_pt                     
+  m_trk_qOverP_pt                   
+  m_trk_caloEntryEta                
+  m_trk_caloEntryEtaOverEta_eta
+  m_trk_caloEntryEtaOverEta_pt      
+  m_trk_caloEntryUncEta_caloEntryEta
+  m_trk_caloEntryUncEta_eta         
+  m_trk_caloEntryUncEta_pt          
+  m_trk_caloEntryPhi                
+  m_trk_caloEntryPhiOverPhi_eta
+  m_trk_caloEntryPhiOverPhi_pt      
+  m_trk_caloEntryUncPhi_caloEntryPhi
+  m_trk_caloEntryUncPhi_eta         
+  m_trk_caloEntryUncPhi_pt          
+  m_trk_caloEntryUncTot_eta         
+  m_trk_caloEntryUncTot_pt          
+  m_trk_perigeeEta                  
+  m_trk_perigeeUncEta_eta         
+  m_trk_perigeeUncEta_pt            
+  m_trk_perigeePhi                  
+  m_trk_perigeeUncPhi_eta           
+  m_trk_perigeeUncPhi_pt            
+  m_trk_perigeeUncTot_eta           
+  m_trk_perigeeUncTot_pt            
+  m_trk_perigeeUncTot_caloUncTot -->
+  
   
 </hdef>
 
