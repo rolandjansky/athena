@@ -62,7 +62,6 @@ private:
     double				m_cosPhi0;
     double				m_cosTheta0;
     double				m_delta[ExtrapolationTypes];
-    Amg::MatrixX&			m_derivativeMatrix;
     double				m_derivQOverP0;
     double				m_derivQOverP1;
     double				m_energyResidual;
