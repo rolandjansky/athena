@@ -6,7 +6,7 @@
 Name    : EventInfoAttListTool.cxx
 Author  : Jack Cranshaw
 Created : January 2017
-Purpose : create a EventInfoTag - The Tag information associated to the event
+Purpose : create a EventInfoAttList - The Tag information associated to the event
           is built here
 
 *****************************************************************************/
@@ -17,14 +17,19 @@ Purpose : create a EventInfoTag - The Tag information associated to the event
 #include "GaudiKernel/Property.h"
 
 #include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+#include "EventInfo/EventType.h"
 #include "CoralBase/AttributeListSpecification.h"
 
 #include <sstream>
 
+
+//using xAOD::EventInfo;
+
 /** the constructor */
-EventInfoAttListTool::EventInfoAttListTool (const std::string& type, 
-                                            const std::string& name, 
-                                            const IInterface* parent) : 
+EventInfoAttListTool::EventInfoAttListTool (const std::string& type, const
+					std::string& name, const IInterface* parent) : 
   AthAlgTool( type, name, parent ) 
 {
   declareInterface<EventInfoAttListTool>( this );
@@ -51,9 +56,25 @@ StatusCode  EventInfoAttListTool::initialize() {
 }
 
 
-/** execute - called on every event */
-const AthenaAttributeList 
-EventInfoAttListTool::getAttributeList(const xAOD::EventInfo& eventInfo) {
+/* Build attribute list from EventInfo object */
+const AthenaAttributeList EventInfoAttListTool::getAttributeList(const xAOD::EventInfo& eventInfo) {
+
+  // Create attributeList with appropriate attributes
+  AthenaAttributeList eventTag( *m_attribListSpec );
+
+  StatusCode sc = this->eventTag (eventTag, eventInfo);
+  if (sc.isFailure()) {
+    ATH_MSG_WARNING("Unable to build Tag Fragments for the Event");
+  }
+
+  ATH_MSG_DEBUG("EventInfoAttListTool - getAttributeList() return success");
+
+  return eventTag;
+}
+
+
+/* Build attribute list from EventInfo object */
+const AthenaAttributeList EventInfoAttListTool::getAttributeList(const EventInfo& eventInfo) {
 
   // Create attributeList with appropriate attributes
   AthenaAttributeList eventTag( *m_attribListSpec );
@@ -69,9 +90,8 @@ EventInfoAttListTool::getAttributeList(const xAOD::EventInfo& eventInfo) {
 }
 
 /** build the tag associate to the event information */
-StatusCode 
-EventInfoAttListTool::eventTag(AthenaAttributeList& eventTag, 
-                               const xAOD::EventInfo& eventInfo) 
+StatusCode EventInfoAttListTool::eventTag(AthenaAttributeList& eventTag, 
+                                          const xAOD::EventInfo& eventInfo) 
 {
 
   /** Event Type */
@@ -104,6 +124,47 @@ EventInfoAttListTool::eventTag(AthenaAttributeList& eventTag,
   // used for event weighting in monte carlo or just an event count in data
   float evweight = 1;
   if (isSimulation) evweight = eventInfo.mcEventWeight();
+  eventTag["EventWeight"].data<float>() = evweight;
+
+  return StatusCode::SUCCESS;
+
+}
+
+/** build the tag associate to the event information */
+StatusCode EventInfoAttListTool::eventTag(AthenaAttributeList& eventTag, 
+                                          const EventInfo& eventInfo) 
+{
+
+  /** Event Type */
+  bool isSimulation  = eventInfo.event_type()->test(EventType::IS_SIMULATION);
+  bool isTestBeam    = eventInfo.event_type()->test(EventType::IS_TESTBEAM);
+  bool isCalibration = eventInfo.event_type()->test(EventType::IS_CALIBRATION);
+  eventTag["IsSimulation"] .data<bool>() = isSimulation;
+  eventTag["IsCalibration"].data<bool>() = isCalibration;
+  eventTag["IsTestBeam"]   .data<bool>() = isTestBeam;
+
+  // run number and Event number 
+  unsigned int       runNumber     = eventInfo.event_ID()->run_number();
+  unsigned int       condRunNumber = runNumber;
+  unsigned long long eventNumber   = eventInfo.event_ID()->event_number();
+  unsigned int       lumiBlock     = eventInfo.event_ID()->lumi_block();
+  if (isSimulation)  runNumber     = eventInfo.event_type()->mc_channel_number();
+  eventTag["RunNumber"]    .data<unsigned int>()       = runNumber;
+  eventTag["EventNumber"]  .data<unsigned long long>() = eventNumber;
+  eventTag["LumiBlockN"]   .data<unsigned int>()       = lumiBlock;
+  eventTag["ConditionsRun"].data<unsigned int>()       = condRunNumber;
+
+  unsigned long timeStamp   = eventInfo.event_ID()->time_stamp();
+  unsigned long timeStampNS = eventInfo.event_ID()->time_stamp_ns_offset();
+  unsigned long bunchId     = eventInfo.event_ID()->bunch_crossing_id();
+  eventTag["EventTime"]       .data<unsigned int>() = timeStamp;
+  eventTag["EventTimeNanoSec"].data<unsigned int>() = timeStampNS;
+  eventTag["BunchId"]         .data<unsigned int>() = bunchId;
+
+  // event weight 
+  // used for event weighting in monte carlo or just an event count in data
+  float evweight = 1;
+  if (isSimulation) evweight = eventInfo.event_type()->mc_event_weight();
   eventTag["EventWeight"].data<float>() = evweight;
 
   return StatusCode::SUCCESS;
