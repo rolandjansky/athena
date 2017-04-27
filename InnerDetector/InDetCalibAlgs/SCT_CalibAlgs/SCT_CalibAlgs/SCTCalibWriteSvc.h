@@ -38,11 +38,16 @@
 // local includes
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 
+///Read Handle Key
+#include "StoreGate/ReadHandleKey.h"
+
+// Event Info
+#include "xAODEventInfo/EventInfo.h"
+
 //forward declarations
 class ISvcLocator;
 class IdentifierHash;
 class SCT_ID;
-class EventInfo;
 class IIOVRegistrationSvc;
 class IAthenaOutputStreamTool;
 class CondAttrListCollection;
@@ -208,7 +213,6 @@ private:
   std::string                  m_tagID4BSErrors;
   std::string                  m_tagID4LorentzAngle;
 
-  const EventInfo*             m_evt;
   IIOVRegistrationSvc*         m_regSvc;
   //IAthenaOutputStreamTool*     m_streamer;
   ToolHandle<IAthenaOutputStreamTool> m_streamer;
@@ -227,6 +231,8 @@ private:
   // FIXME: this caches only the last call of getList.
   // creating a hash of _all_ calls may be faster, but wastes a lot of memory
   mutable std::string          m_currentDefectList;
+  // Read Handle Key
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
 };
 
 #endif // SCTCalibWriteSvc.h
