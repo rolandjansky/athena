@@ -1434,7 +1434,7 @@ if rec.doWriteAOD():
             ThinNegativeEnergyNeutralPFOs()
 
         #Thin Trk::Tracks for Electons and Muons (GSF/Combined)
-        if  AODFlags.AddEgammaMuonTrkTracksInAOD:
+        if  AODFlags.AddEgammaMuonTracksInAOD or AODFlags.AddEgammaTracksinMCAOD:
             from ThinningUtils.ThinTrkTrack import ThinTrkTrack
             ThinTrkTrack()
             
