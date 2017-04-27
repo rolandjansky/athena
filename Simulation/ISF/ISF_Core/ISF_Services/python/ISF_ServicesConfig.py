@@ -240,5 +240,8 @@ def getMC15aPlusLLPTruthService(name="ISF_MC15aPlusLLPTruthService", **kwargs):
 # MC16 Truth Service Configurations
 #
 
+def getMC16TruthService(name="ISF_MC16TruthService", **kwargs):
+    return getMC15aPlusTruthService(name, **kwargs)
+
 def getMC16LLPTruthService(name="ISF_MC16LLPTruthService", **kwargs):
     return getMC15aPlusLLPTruthService(name, **kwargs)
