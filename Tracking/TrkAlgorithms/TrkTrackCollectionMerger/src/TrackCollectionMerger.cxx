@@ -14,7 +14,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkTrackCollectionMerger/TrackCollectionMerger.h"
-#include "StoreGate/WriteHandle.h"
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -22,7 +21,7 @@
 
 Trk::TrackCollectionMerger::TrackCollectionMerger
 (const std::string& name, ISvcLocator* pSvcLocator  ) :
-  AthAlgorithm(name, pSvcLocator ),
+  AthReentrantAlgorithm(name, pSvcLocator ),
   m_createViewCollection(true),
   m_updateSharedHitsOnly(true),
   m_updateAdditionalInfo(false)
@@ -74,7 +73,7 @@ StatusCode Trk::TrackCollectionMerger::initialize()
 ///////////////////////////////////////////////////////////////////
 // Execute
 ///////////////////////////////////////////////////////////////////
-StatusCode Trk::TrackCollectionMerger::execute()
+StatusCode Trk::TrackCollectionMerger::execute_r(const EventContext& ctx) const
 {
   // clean up association tool
   m_assoTool->reset();
@@ -89,7 +88,7 @@ StatusCode Trk::TrackCollectionMerger::execute()
   size_t ttNumber = 0;
   for (auto& tcname : m_tracklocation){
     ///Retrieve forward tracks from StoreGate
-    SG::ReadHandle<TrackCollection> trackCol (tcname);
+    SG::ReadHandle<TrackCollection> trackCol (tcname,ctx);
     trackCollections.push_back(trackCol.cptr());
     ttNumber += trackCol->size();
   }
@@ -116,7 +115,7 @@ StatusCode Trk::TrackCollectionMerger::execute()
     else  m_trkSummaryTool->updateTrack(**rf);
   }
 
-  SG::WriteHandle<TrackCollection> h_write(m_outtracklocation);
+  SG::WriteHandle<TrackCollection> h_write(m_outtracklocation,ctx);
   ATH_CHECK(h_write.record(std::move(outputCol)));	     
 
 
@@ -202,7 +201,7 @@ std::ostream& Trk::operator <<
 // Merge track collections and remove duplicates
 ///////////////////////////////////////////////////////////////////
 
-StatusCode Trk::TrackCollectionMerger::mergeTrack(const TrackCollection* trackCol, TrackCollection* outputCol)
+StatusCode Trk::TrackCollectionMerger::mergeTrack(const TrackCollection* trackCol, TrackCollection* outputCol) const
 {
   // loop over forward track, accept them and add them imto association tool
   if(trackCol && trackCol->size()) {
