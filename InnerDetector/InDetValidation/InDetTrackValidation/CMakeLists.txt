@@ -10,11 +10,14 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthenaBaseComps
    Control/AthenaKernel
+   Control/StoreGate
+   Event/xAOD/xAODEventInfo
    GaudiKernel
    InnerDetector/InDetRawEvent/InDetRawData
    InnerDetector/InDetRecEvent/InDetPrepRawData
    InnerDetector/InDetSimEvent
    Tracking/TrkEvent/TrkParameters
+   Tracking/TrkEvent/TrkSpacePoint
    Tracking/TrkEvent/TrkTrack
    Tracking/TrkValidation/TrkValInterfaces
    PRIVATE
@@ -22,7 +25,6 @@ atlas_depends_on_subdirs(
    DetectorDescription/AtlasDetDescr
    DetectorDescription/GeoModel/GeoModelInterfaces
    Event/EventPrimitives
-   Event/xAOD/xAODEventInfo
    Generators/GeneratorObjects
    InnerDetector/InDetConditions/InDetBeamSpotService
    InnerDetector/InDetConditions/InDetConditionsSummaryService
@@ -41,7 +43,6 @@ atlas_depends_on_subdirs(
    Tracking/TrkEvent/TrkMeasurementBase
    Tracking/TrkEvent/TrkPrepRawData
    Tracking/TrkEvent/TrkRIO_OnTrack
-   Tracking/TrkEvent/TrkSpacePoint
    Tracking/TrkTools/TrkToolInterfaces )
 
 # External dependencies:
@@ -54,10 +55,10 @@ atlas_add_component( InDetTrackValidation
    InDetTrackValidation/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES}
-   AthenaBaseComps AthenaKernel GaudiKernel InDetRawData InDetPrepRawData
-   InDetSimEvent TrkParameters TrkTrack TrkValInterfaces DataModel AtlasDetDescr
-   EventPrimitives xAODEventInfo GeneratorObjects TRT_ConditionsData
+   AthenaBaseComps AthenaKernel StoreGate xAODEventInfo GaudiKernel InDetRawData InDetPrepRawData
+   InDetSimEvent TrkParameters TrkSpacePoint TrkTrack TrkValInterfaces DataModel AtlasDetDescr
+   EventPrimitives GeneratorObjects TRT_ConditionsData
    TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry SCT_CablingLib
    InDetRIO_OnTrack TrkSurfaces TrkEventPrimitives TrkMeasurementBase
-   TrkPrepRawData TrkRIO_OnTrack TrkSpacePoint TrkToolInterfaces
+   TrkPrepRawData TrkRIO_OnTrack TrkToolInterfaces
    PixelGeoModelLib )
