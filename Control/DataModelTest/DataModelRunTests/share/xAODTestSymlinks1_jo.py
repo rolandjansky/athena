@@ -40,8 +40,9 @@ theApp.EvtMax = 20
 from AthenaCommon.ConcurrencyFlags import jobproperties as jp
 nThreads = jp.ConcurrencyFlags.NumThreads()
 if nThreads >= 1:
-  svcMgr.ForwardSchedulerSvc.CheckDependencies = True
-  svcMgr.ForwardSchedulerSvc.DataLoaderAlg = 'SGInputLoader'
+  from AthenaCommon.AlgScheduler import AlgScheduler
+  AlgScheduler.ShowDataDependencies (True)
+  AlgScheduler.setDataLoaderAlg ('SGInputLoader')
 
   from SGComps.SGCompsConf import SGInputLoader
   topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
