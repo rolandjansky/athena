@@ -25,6 +25,8 @@
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
 #include "xAODTrigMuon/L2CombinedMuon.h"
 
+#include "xAODMuon/SlowMuon.h"
+
 // Tools
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
@@ -41,11 +43,12 @@
 #include "TriggerMuonValidationPlots.h"
 #include "MuonTrackValidationPlots.h"
 #include "MuonSegmentValidationPlots.h"
+#include "SlowMuonValidationPlots.h"
 
 // Forward declaration
 namespace Rec {
-   class IMuonPrintingTool;
- }
+  class IMuonPrintingTool;
+}
 namespace MuonPhysValMonitoring {
 
 class MuonPhysValMonitoringTool
@@ -90,7 +93,8 @@ class MuonPhysValMonitoringTool
   /// Default constructor: 
   MuonPhysValMonitoringTool();
 
-  void handleMuon(const xAOD::Muon* mu);
+  void handleMuon(const xAOD::Muon* mu,const xAOD::SlowMuon *smu=0);
+  void handleSlowMuon(const xAOD::SlowMuon *smu);
   void handleTruthMuon(const xAOD::TruthParticle* truthMu);
   void handleMuonTrack(const xAOD::TrackParticle* tp, xAOD::Muon::TrackParticleType type);
   void handleMuonSegment(const xAOD::MuonSegment* muSeg);
@@ -109,6 +113,7 @@ class MuonPhysValMonitoringTool
   
   StatusCode bookValidationPlots(PlotBase& valPlots);
   const xAOD::Muon* findRecoMuon(const xAOD::TruthParticle* truthMu);
+  const xAOD::SlowMuon* findRecoSlowMuon(const xAOD::TruthParticle* truthMu);
   const xAOD::MuonSegment* findRecoMuonSegment(const xAOD::MuonSegment* truthMuSeg);
   xAOD::Muon* getCorrectedMuon(const xAOD::Muon &mu);
     
@@ -126,6 +131,7 @@ class MuonPhysValMonitoringTool
   std::string m_tracksName;
   std::string m_fwdtracksName;
   std::string m_muonsName;
+  std::string m_slowMuonsName;
   std::string m_muonsTruthName;
   std::string m_muonTracksName;
   std::string m_muonExtrapolatedTracksName;
@@ -170,6 +176,7 @@ class MuonPhysValMonitoringTool
   std::vector<std::string> m_selectMuonCategoriesStr;
   MuonPhysValMonitoringTool::MUCATEGORY getMuonSegmentTruthCategory(const xAOD::MuonSegment* truthMuSeg, const xAOD::TruthParticleContainer* muonTruthContainer);
   MuonPhysValMonitoringTool::MUCATEGORY getMuonTruthCategory(const xAOD::IParticle* prt);
+  MuonPhysValMonitoringTool::MUCATEGORY getMuonTruthCategory(const xAOD::Muon* prt);
   bool passesAcceptanceCuts(const xAOD::IParticle* prt);
   float deltaR(const xAOD::IParticle* prt1, const xAOD::IParticle* prt2);
   void SplitString(TString x, TString delim, std::vector<TString> &v);
@@ -189,6 +196,8 @@ class MuonPhysValMonitoringTool
   Muon::RecoMuonTrackPlotOrganizer*  m_oUnmatchedRecoMuonTrackPlots;
   Muon::MuonSegmentPlots* m_oUnmatchedRecoMuonSegmentPlots;
 
+  std::vector<SlowMuonValidationPlots*> m_slowMuonValidationPlots;
+  
   //overview hists
   std::vector<TH1F*> h_overview_nObjects;
   TH1F* h_overview_reco_category;
@@ -200,6 +209,7 @@ class MuonPhysValMonitoringTool
 
   std::vector<const xAOD::TruthParticle*> m_vMatchedTruthMuons;
   std::vector<const xAOD::Muon*> m_vMatchedMuons;
+  std::vector<const xAOD::SlowMuon*> m_vMatchedSlowMuons;
   std::vector<const xAOD::TrackParticle*> m_vMatchedMuonTracks;
   std::vector<const xAOD::MuonSegment*> m_vMatchedMuonSegments;
   std::vector<const xAOD::TrackParticle*> m_vZmumuIDTracks;

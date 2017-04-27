@@ -297,15 +297,15 @@ void FTKDataInput::processRegion(int curreg, bool clearOrig)
        if (m_pmap->getMap(rawhit.getHitType(),rawhit.getBarrelEC()!=0,rawhit.getLayer()).getPlane() != -1) {
          // accept this hit
          FTKHit tmphit = rawhit.getFTKHit(m_pmap);
-         assert(rawhit.getTruth());
-         tmphit.setTruth(*(rawhit.getTruth())); // AB - attach truth data to the FTKHit.
+         if(rawhit.getTruth()!=nullptr)
+           tmphit.setTruth(*(rawhit.getTruth())); // AB - attach truth data to the FTKHit.
          planelist[tmphit.getPlane()].push_front(tmphit);
        }
        else if (m_save_unused) {
          // accept this hit
          FTKHit tmphit = rawhit.getFTKHit(m_pmap_unused);
-         assert(rawhit.getTruth());
-         tmphit.setTruth(*(rawhit.getTruth())); // AB - attach truth data to the FTKHit.
+         if(rawhit.getTruth()!=nullptr)
+           tmphit.setTruth(*(rawhit.getTruth())); // AB - attach truth data to the FTKHit.
          m_hits_unused.push_back(tmphit);
        }
      } // end loop over clusters

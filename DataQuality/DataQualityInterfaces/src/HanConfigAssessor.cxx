@@ -384,47 +384,66 @@ GetList( TDirectory* basedir, std::map<std::string,TSeqCollection*>& mp )
       configList->Add(algLimitList);
   }
 
+  TSeqCollection *parMapList(0);
   if (annotations == 0)
     std::cerr << "HanConfigAssessor::GetList(): Warning: annotations == 0\n";
   else {
     TIter nextParMap( annotations );
     HanConfigParMap *parMap;
-    TSeqCollection *parMapList = newTObjArray("annotations", 0, annotations->GetEntries());
+    parMapList = newTObjArray("annotations", 0, annotations->GetEntries()+2);
     while( (parMap = dynamic_cast<HanConfigParMap*>( nextParMap() )) != 0 )
       parMapList->Add(parMap->GetList());
-    if(parMapList->IsEmpty())
-      delete parMapList;
-    else
-      configList->Add(parMapList);
-
-    // Get the histogram
-    if (! GetIsRegex()) {
-      TKey* key = getObjKey( basedir, GetHistPath() );
-      if( key != 0 ) {
-        const char* className = key->GetClassName();
-        if( (strncmp(className, "TH", 2) == 0) || (strncmp(className, "TGraph", 6) == 0) || (strncmp(className, "TProfile", 8) == 0) ) {
-		  // TNamed* transobj = dynamic_cast<TNamed*>(key->ReadObj());
-		  // if (transobj != NULL) {
-	    std::string::size_type rslash = nameString.rfind("/");
-	    if (rslash == std::string::npos) {
-	      rslash = 0;
-	    } else {
-	      rslash += 1;
-	    }
-	    HanHistogramLink* hhl = new HanHistogramLink(basedir, GetHistPath());
-	    hhl->SetName( nameString.substr(rslash, std::string::npos).c_str() );
-	    ret->Add(hhl);
-	  	  //   transobj->SetName( nameString.substr(rslash, std::string::npos).c_str() );
-	  	  // } else {
-	  	  //   std::cerr << "TNamed* cast failed for " << GetHistPath() 
-	  	  // 	    << std::endl;
-	  	  //   ret->Add(transobj);
-	          //  }
-      
-        }
+  }
+  std::string usedAlgRef = GetAlgRefName();
+  if ( parMapList && usedAlgRef.size() ) {
+    TList* refSourceList = new TList();
+    std::string refOrigin(ConditionsSingleton::getInstance().getRefSourceData(usedAlgRef));
+    refSourceList->SetName("refSource");
+    refSourceList->Add(new TObjString(refOrigin.c_str()));
+    parMapList->Add(refSourceList);
+    if (refOrigin != "Multiple references") {
+      std::string refInfo(ConditionsSingleton::getInstance().getRefSourceData(refOrigin));
+      if (refInfo != "") {
+	refSourceList = new TList();
+	refSourceList->SetName("refInfo");
+	refSourceList->Add(new TObjString(refInfo.c_str()));
+	parMapList->Add(refSourceList);
       }
     }
   }
+  if(!parMapList || parMapList->IsEmpty())
+    delete parMapList;
+  else
+    configList->Add(parMapList);
+
+  // Get the histogram
+  if (! GetIsRegex()) {
+    TKey* key = getObjKey( basedir, GetHistPath() );
+    if( key != 0 ) {
+      const char* className = key->GetClassName();
+      if( (strncmp(className, "TH", 2) == 0) || (strncmp(className, "TGraph", 6) == 0) || (strncmp(className, "TProfile", 8) == 0) ) {
+	// TNamed* transobj = dynamic_cast<TNamed*>(key->ReadObj());
+	// if (transobj != NULL) {
+	std::string::size_type rslash = nameString.rfind("/");
+	if (rslash == std::string::npos) {
+	  rslash = 0;
+	} else {
+	  rslash += 1;
+	}
+	HanHistogramLink* hhl = new HanHistogramLink(basedir, GetHistPath());
+	hhl->SetName( nameString.substr(rslash, std::string::npos).c_str() );
+	ret->Add(hhl);
+	//   transobj->SetName( nameString.substr(rslash, std::string::npos).c_str() );
+	// } else {
+	//   std::cerr << "TNamed* cast failed for " << GetHistPath() 
+	// 	    << std::endl;
+	//   ret->Add(transobj);
+	//  }
+	
+      }
+    }
+  }
+
   
   // fill the list that we return
   ret->Add(configList);

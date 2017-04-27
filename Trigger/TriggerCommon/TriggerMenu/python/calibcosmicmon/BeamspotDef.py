@@ -152,11 +152,10 @@ class L2EFChain_Beamspot(L2EFChainDef):
            
         if 'idperf' in self.chainPart['addInfo']:
            from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-           [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", "FTF").getSequence()
-           
+           [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", "FTF").getSequence()           
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
            [ftk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "mon").getSequence()
-        if 'mon' in self.chainPart['addInfo']:
+        elif 'mon' in self.chainPart['addInfo']:
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
            [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "mon").getSequence()
         else:   
@@ -210,16 +209,23 @@ class L2EFChain_Beamspot(L2EFChainDef):
      else:
         self.L2sequenceList += [ [[""], [PESA__DummyUnseededAllTEAlgo("L2DummyAlgo")]+trk_alg, 'L2_BeamSpottracks']]
 
-     self.L2sequenceList +=[[['L2_BeamSpottracks'], [theFex], 'L2_fex']]
-     self.L2sequenceList +=[[['L2_fex'], [theAlg], 'L2_']]  
+     if ('idperf' in self.chainPart['addInfo']):
+        self.L2sequenceList +=[[['L2_BeamSpottracks'], [theAlg], 'L2_']]  
+     else:
+        self.L2sequenceList +=[[['L2_BeamSpottracks'], [theFex], 'L2_fex']]
+        self.L2sequenceList +=[[['L2_fex'], [theAlg], 'L2_']]  
 
      if ('FTK' in self.l2IDAlg and 'idperf' in self.chainPart['addInfo']):
         self.L2signatureList += [ [['L2_BeamSpotFTFtracks']] ]     
         self.L2signatureList += [ [['L2_moni']] ]     
 
      self.L2signatureList += [ [['L2_BeamSpottracks']] ]     
-     self.L2signatureList += [ [['L2_fex']] ]
-     self.L2signatureList += [ [['L2_']] ]
+
+     if ('idperf' in self.chainPart['addInfo']):
+        self.L2signatureList += [ [['L2_']] ]
+     else:
+        self.L2signatureList += [ [['L2_fex']] ]
+        self.L2signatureList += [ [['L2_']] ]
 
      self.TErenamingDict = {
        'L2_fex'           : mergeRemovingOverlap('L2_', self.chainName+'_fex'),        

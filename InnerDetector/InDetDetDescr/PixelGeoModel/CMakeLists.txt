@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 733925 2016-04-05 10:07:31Z krasznaa $
 ################################################################################
 # Package: PixelGeoModel
 ################################################################################
@@ -20,7 +19,6 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetDetDescr/InDetGeoModelUtils
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    PRIVATE
-   Control/CLIDSvc
    Control/SGTools
    Control/StoreGate
    DetectorDescription/DetDescrCond/DetDescrConditions
@@ -31,25 +29,21 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( CLHEP )
 
-# Check if the GeoModelKernel/GeoTorus.h header is available:
-#include_directories(
-#   $<TARGET_PROPERTY:PixelGeoModelPkg,INTERFACE_INCLUDE_DIRECTORIES> )
-#include( CheckIncludeFiles )
-#check_include_files( "GeoModelKernel/GeoTorus.h" HAVE_GEOTORUS_H )
-
-# For now just hardcode that GeoTorus.h is available. But later on some solution
-# will have to be found for figuring this out using CMake...
-
 # Component(s) in the package:
-atlas_add_component( PixelGeoModel
-   PixelGeoModel/*.h src/*.cxx src/components/*.cxx
+atlas_add_library( PixelGeoModelLib
+   PixelGeoModel/*.h src/*.cxx
+   PUBLIC_HEADERS PixelGeoModel
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GeoModelKernel
    GeoModelUtilities Identifier GaudiKernel InDetGeoModelUtils
-   InDetReadoutGeometry SGTools StoreGateLib DetDescrConditions
+   InDetReadoutGeometry
+   PRIVATE_LINK_LIBRARIES SGTools StoreGateLib DetDescrConditions
    InDetCondServices InDetIdentifier
-   DEFINITIONS "-DGEOTORUS=1" )
+   PRIVATE_DEFINITIONS "-DGEOTORUS=1" )
+
+atlas_add_component( PixelGeoModel
+   src/components/*.cxx
+   LINK_LIBRARIES GaudiKernel PixelGeoModelLib )
 
 # Install files from the package:
-atlas_install_headers( PixelGeoModel )
 atlas_install_python_modules( python/*.py )

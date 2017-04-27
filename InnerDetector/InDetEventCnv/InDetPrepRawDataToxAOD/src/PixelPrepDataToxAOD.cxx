@@ -332,8 +332,7 @@ StatusCode PixelPrepDataToxAOD::execute()
 		      }
 		      else
 		      {
-			  brokenDec(**clusItr) = false;
-			  assert( moduleTrackMap.insert( std::make_pair(key,*clusItr) ) );
+            brokenDec(**clusItr) = false;
 		      }
 		  }
 	      }

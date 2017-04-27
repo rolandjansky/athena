@@ -212,6 +212,10 @@ def addTrigFTKSimTFOptions(parser):
     parser.add_argument('--PrintSSBConstants', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Print SSB Constants in firmware-style", group='TrigFTKTrackFitter')
 
+    parser.add_argument('--dTIBL', type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True),
+                        help="dT for IBL temperature shifts in SSB fit.", group='TrigFTKSim')
+
+
     parser.add_argument('--doAuxFW', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Enables firmware-style constants", group='TrigFTKSim')
     parser.add_argument('--MaxNcomb', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),

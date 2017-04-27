@@ -19,10 +19,12 @@ TruthRelatedMuonPlotOrganizer::TruthRelatedMuonPlotOrganizer(PlotBase* pParent, 
 , m_oMatchedRecoPlots(NULL)
 , m_oMSHitDiffPlots(NULL)
 , m_oMuonHitDiffSummaryPlots(NULL)
+, m_oMuonTruthHitPlots(NULL)
 , m_oMuonResolutionPlots(NULL)
 , m_oDefParamPullPlots(NULL)
 , m_oMomentumTruthPullPlots_Tail(NULL)
 , m_oMomentumTruthPullPlots_NoTail(NULL)
+, m_oMatchedRecoElossPlots(NULL)
 
 {
   
@@ -50,6 +52,10 @@ TruthRelatedMuonPlotOrganizer::TruthRelatedMuonPlotOrganizer(PlotBase* pParent, 
       m_oMuonHitDiffSummaryPlots = new Muon::MuonHitDiffSummaryPlots(this,"/hits/");
       m_allPlots.push_back(m_oMuonHitDiffSummaryPlots);
       break;
+    case MUON_TRUTHHIT:
+      m_oMuonTruthHitPlots = new Muon::MuonTruthHitPlots(this,"/truthHits/");
+      m_allPlots.push_back(m_oMuonTruthHitPlots);
+      break;
     case MUON_RESOL:
       m_oMuonResolutionPlots = new Muon::MuonResolutionPlots(this, "/resolution/","",doBinnedResolutionPlots);
       m_allPlots.push_back(m_oMuonResolutionPlots);
@@ -66,6 +72,10 @@ TruthRelatedMuonPlotOrganizer::TruthRelatedMuonPlotOrganizer(PlotBase* pParent, 
       m_oMomentumTruthPullPlots_NoTail = new Muon::MomentumTruthPullPlots(this,"/momentumPulls/","NoTail");
       m_allPlots.push_back(m_oMomentumTruthPullPlots_NoTail);
       break;
+    case MUON_PARAMELOSS:
+      m_oMatchedRecoElossPlots = new Muon::MuonParamElossPlots(this,"/Eloss/");
+      m_allPlots.push_back(m_oMatchedRecoElossPlots);
+      break;
     }
   }
   
@@ -80,9 +90,13 @@ TruthRelatedMuonPlotOrganizer::~TruthRelatedMuonPlotOrganizer()
 void TruthRelatedMuonPlotOrganizer::fill(const xAOD::TruthParticle& truthMu, const xAOD::Muon& mu, const xAOD::TrackParticleContainer* MSTracks){
   if (m_oMatchedPlots) m_oMatchedPlots->fill( truthMu );
   if (m_oMuonHitDiffSummaryPlots) m_oMuonHitDiffSummaryPlots->fill(mu, truthMu);
-  
+  if (m_oMuonTruthHitPlots) m_oMuonTruthHitPlots->fill(mu);
+ 
+  //new for eloss
+  if (m_oMatchedRecoElossPlots) m_oMatchedRecoElossPlots->fill(truthMu, mu );
+ 
   // Tracking related plots
-  const xAOD::TrackParticle* primaryTrk = (mu.muonType()==xAOD::Muon::SiliconAssociatedForwardMuon)? mu.trackParticle(xAOD::Muon::CombinedTrackParticle)    : mu.trackParticle(xAOD::Muon::Primary); //fix for SiliconAssociatedForwardMuon
+  const xAOD::TrackParticle* primaryTrk = mu.trackParticle(xAOD::Muon::Primary);
   //const xAOD::TrackParticle* meTrk = mu.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
   
   if (!primaryTrk) return;

@@ -23,7 +23,7 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "SiClusterizationTool/NnClusterizationFactory.h"
 #include "EventPrimitives/EventPrimitives.h"
-#include "PixelGeoModel/IBLParameterSvc.h"
+#include "PixelGeoModel/IIBLParameterSvc.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 #include "CoralBase/AttributeListSpecification.h"

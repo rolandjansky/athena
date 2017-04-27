@@ -144,14 +144,17 @@ void TrigEgammaResolutionTool::resolutionElectron(const std::string basePath,std
 
 void TrigEgammaResolutionTool::resolutionL2Photon(const std::string dir,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
     cd(dir);
+    ATH_MSG_DEBUG("L2 Photon Resolution");
     float dRmax = 100;
     const xAOD::TrigPhoton *phL2 = nullptr;
-    if(pairObj.second){
-        if(ancestorPassed<xAOD::TrigPhotonContainer>(pairObj.second))
-            phL2=closestObject<xAOD::TrigPhoton,xAOD::TrigPhotonContainer>(pairObj,dRmax);
-        if(phL2){    
-            if(dRmax < 0.05){
-                //Do something here
+    if(getSGContainsTrigPhoton()){
+        if(pairObj.second){
+            if(ancestorPassed<xAOD::TrigPhotonContainer>(pairObj.second))
+                phL2=closestObject<xAOD::TrigPhoton,xAOD::TrigPhotonContainer>(pairObj,dRmax);
+            if(phL2){    
+                if(dRmax < 0.05){
+                    //Do something here
+                }
             }
         }
     }

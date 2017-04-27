@@ -7,9 +7,9 @@
 
 #include "TrigEgammaEmulationTool/ITrigEgammaSelectorBaseTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaSelectorBaseTool.h"
-#include "TrigMultiVarHypo/preprocessor/TrigRingerPreprocessor.h"
-#include "TrigMultiVarHypo/preprocessor/TrigRingerHelper.h"
-#include "TrigMultiVarHypo/discriminator/MultiLayerPerceptron.h"
+#include "TrigMultiVarHypo/preproc/TrigRingerPreprocessor.h"
+#include "TrigMultiVarHypo/tools/TrigRingerHelper.h"
+#include "TrigMultiVarHypo/tools/MultiLayerPerceptron.h"
 #include "AsgTools/AsgTool.h"
 #include <vector>
 
