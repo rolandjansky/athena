@@ -1509,12 +1509,12 @@ if rec.doWriteAOD():
     # StreamAOD_Augmented.AddItem( "RecoTimingObj#ESDtoAOD_mems" )
 
     # Add the Thinned Trk Tracks associated to egamma and muon objects in data
-    if  AODFlags.AddEgammaMuonTrkTracksInAOD and not rec.doTruth():
+    if  AODFlags.AddEgammaMuonTracksInAOD and not rec.doTruth():
         StreamAOD.AddItem("TrackCollection#GSFTracks")
         StreamAOD.AddItem("TrackCollection#CombinedMuonTracks")
 
     # Add the Thinned Trk Tracks associated to egamma objects in MC
-    if  AODFlags.AddEgammaTrkTracksInMCAOD and rec.doTruth():
+    if  AODFlags.AddEgammaTracksInMCAOD and rec.doTruth():
         StreamAOD.AddItem("TrackCollection#GSFTracks")
 
 

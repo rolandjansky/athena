@@ -50,7 +50,7 @@ class egammaTrackSlimmer(JobProperty):
     StoredValue=True
 
 
-class AddEgammaMuonTrkTracksInAOD(JobProperty):
+class AddEgammaMuonTracksInAOD(JobProperty):
     """ If True, add Trk::Tracks associated with Electrons,Conversions,Muons
     """
     statusOn=True
@@ -58,7 +58,7 @@ class AddEgammaMuonTrkTracksInAOD(JobProperty):
     StoredValue=True
 
 
-class AddEgammaTrkTracksInMCAOD(JobProperty):
+class AddEgammaTracksInMCAOD(JobProperty):
     """ If True, add Trk::Tracks associated with Electrons,Conversions to MC
     """
     statusOn=True
