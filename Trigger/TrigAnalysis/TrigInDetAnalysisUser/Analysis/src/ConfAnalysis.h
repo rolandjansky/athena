@@ -22,6 +22,9 @@
 #include "TrigInDetAnalysis/Efficiency.h"
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
 
+#include "TrigInDetAnalysisExample/ChainString.h"
+
+
 #include "Resplot.h"
 
 
@@ -50,8 +53,10 @@ class ConfAnalysis : public TrackAnalysis {
 
 public:
   
-  ConfAnalysis( const std::string& name ) : 
-    TrackAnalysis( clean(name) ), Nreco(0), Nref(0), Nmatched(0), m_print(false), m_roi(0), 
+  ConfAnalysis( const std::string& name, const ChainString& config ) : 
+    TrackAnalysis( clean(name) ), 
+    mconfig(config),
+    Nreco(0), Nref(0), Nmatched(0), m_print(false), m_roi(0), 
     m_initialised(false), m_initialiseFirstEvent(false) { // , m_lfirst(true)  {
     std::cout << "ConfAnalysis::ConfAnalysis() " << TrackAnalysis::name() << " ..." << std::endl;
   }  
@@ -89,6 +94,8 @@ public:
 
   void initialiseFirstEvent(bool b=true) { m_initialiseFirstEvent=b; }
 
+  const ChainString& config() const { return mconfig; }
+
 private:
   
   void addHistogram( TH1F* h ) { 
@@ -114,6 +121,7 @@ private:
 
 private:
 
+  ChainString  mconfig;
 
   TIDDirectory* mdir;
 
