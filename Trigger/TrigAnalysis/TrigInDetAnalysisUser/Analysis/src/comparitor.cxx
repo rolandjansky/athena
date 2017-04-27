@@ -506,7 +506,7 @@ int main(int argc, char** argv) {
       for (unsigned int i=0; i<dataTree->GetEntries() ; i++ ) {
 	dataTree->GetEntry(i);      
 	release_data.push_back( releaseData->Data() );
-	std::cout << "main() release data: " << release_data.back() << " " << *releaseData << std::endl;
+	std::cout << "main() release data: " << release_data.back() << " : " << *releaseData << std::endl;
       }
     }
   
@@ -525,6 +525,7 @@ int main(int argc, char** argv) {
       }
       else {
 	release += "  (" + nightly; 
+	chop( release_data[0], " " );
 	release += " " + chop(release_data[0], " " ) + ")";
       }
     }
