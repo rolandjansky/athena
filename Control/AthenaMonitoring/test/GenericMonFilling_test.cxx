@@ -26,7 +26,7 @@
 void resetHist(ITHistSvc* histSvc, const std::string& histName) {
   TH1* h(0);
   histSvc->getHist(histName, h);
-  VALUE ( h ) NOT_EXPECTED ( nullptr );
+  VALUE ( h ) NOT_EXPECTED ( (TH1*)0 );
   h->Reset();
 }
 
