@@ -5,7 +5,7 @@
 """
 
 __author__ =   "A. Salzburger"
-__version__=   "$Revision: 1.13 $"
+__version__=   "$Revision: 794337 $"
 __doc__    =   "SLHC_PathSetting"
 __all__    = [ "SLHC_PathSetting" ]
 
@@ -14,7 +14,7 @@ from os.path import exists, join
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
 
 from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
-auto_isGMX = (SLHC_Flags.doGMX()) or (GeometryFlags.StripGeoType() == "GMX")
+auto_isGMX = (SLHC_Flags.doGMX()) or (GeometryFlags.StripGeoType() == "GMX") 
 
 class SLHC_Setup_XMLReader :
     # constructor requires the SLHC_Flags
@@ -22,14 +22,14 @@ class SLHC_Setup_XMLReader :
 
         # XMLReader setup
         from SLHC_Setup_XML import SLHC_Setup_XMLReader
-        SLHC_Setup_XMLReader(PixelLayout = "LoI",
-                             PixelEndcapLayout = "LoI4",
-                             SCTLayout   = "LoI",
-                             dictionaryFileName = "",
-                             createXML = False,
+        SLHC_Setup_XMLReader(PixelLayout = "IExtBrl4Ref",
+                             PixelEndcapLayout = "ECRingInclBrl4Ref",
+                             SCTLayout = "FourLayersNoStub_23-25-dev0",
+                             dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_SLHC_IExtBrl_4.xml",
+                             createXML = True,
                              doPix=True,
-                             doSCT=False,
-                             isGMX=auto_isGMX
+                             doSCT=True,
+                             isGMX=auto_isGMX,
                              )
 
 class SLHC_Setup :
@@ -73,33 +73,24 @@ class SLHC_Setup :
             # Deprecated: this is for old SCT text files
             os.environ["LocalSlhcGeometryDatabase"]=database_full_path_name
 
-            # dictionary creation
-            from DetDescrCnvSvc.DetDescrCnvSvcConf import DetDescrCnvSvc
-            DetDescrCnvSvc = DetDescrCnvSvc()
-            DetDescrCnvSvc.IdDictFromRDB = False
-            DetDescrCnvSvc.InDetIDFileName = dict_file_path+'/'+dict_file
-
         else:
             print 'SLHC_Setup: Geometry coming fully from database'
             
-##        # Alignments have to disabled for Pixels
-##        pixelTool = svcMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
-##        pixelTool.Alignable = False
 
         # GeoModelConfiguration 
 
         xmlFileDict={}
         xmlFileDict["Pixel"]={
-            "PIXELGENERAL":"LoI_PixelGeneral_VF",
-            "PIXELSIMPLESERVICE":"LoI_PixelSimpleService_VF",
-            "PIXELSERVICEMATERIAL":"LoI_PixelServiceMaterial",
+            "PIXELGENERAL":"IExtBrl4_PixelGeneral",
+            "PIXELSIMPLESERVICE":"InclBrl_PixelSimpleService",
             "SILICONMODULES":"ITK_PixelModules",
             "SILICONREADOUT":"PixelModuleReadout",
-            "PIXELDISCSUPPORT":"LoI_PixelDiscSupport_VF",
-            "STAVESUPPORT":"LoI_PixelStaveSupport",
-            "MATERIAL":"LoI_PixelMaterial",
+            "STAVESUPPORT":"IExtBrl4_StaveSupport",
+            "PIXELDISCSUPPORT":"IExtBrl4_DiskSupport",
+            "MATERIAL":"InclBrl_Material",
+            "PIXELROUTINGSERVICE":"IExtBrl4_OptRing_PixelRoutingService",
             }
-        
+
         for subDet in ["Pixel"]:
             for key in xmlFileDict[subDet].keys():
                 fileName=xmlFileDict[subDet][key]+".xml"
@@ -107,57 +98,75 @@ class SLHC_Setup :
                 os.environ[envName]=fileName
                 print "ENV ",envName," ",fileName
 
+        print "******************************************************************************************"
+        print "PixelGeoModel - import module and design tools"
         # Service used to build module geometry
         from PixelModuleTool.PixelModuleToolConf import PixelModuleBuilder
         moduleGeomBuilder=PixelModuleBuilder(name="PixelModuleSvc")
         svcMgr+=moduleGeomBuilder
-                    
+
         # Service used to build module design
         from PixelModuleTool.PixelModuleToolConf import PixelDesignBuilder
         moduleDesignBuilder=PixelDesignBuilder(name="PixelDesignSvc")
         svcMgr+=moduleDesignBuilder
-                    
-        print "******************************************************************************************"
 
+        print "******************************************************************************************"
+        print "PixelGeoModel - import PixelServiceTool"
         from PixelServicesTool.PixelServicesToolConf import PixelServicesTool
         serviceTool=PixelServicesTool(name="PixelServicesTool")
         serviceTool.ReadSvcFromDB = True
+        serviceTool.SvcDynAutomated = False
+        serviceTool.BarrelModuleMaterial = True
         toolSvc+=serviceTool
-        
+                    
         print "******************************************************************************************"
-        
-        print "PixelGeoModel - import GeoPixelBarrelLoITool"
-        from PixelLayoutLoI.PixelLayoutLoIConf import GeoPixelBarrelLoITool
-        geoBarrelTool=GeoPixelBarrelLoITool(name="GeoPixelBarrelLoITool")
+        print "PixelGeoModel - import GeoPixelLayerInclRefTool"
+        from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerInclRefTool
+        geoLayerInnerTool=GeoPixelLayerInclRefTool(name="InnerPixelLayerTool")
+        toolSvc+=geoLayerInnerTool
+        from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerPlanarRefTool
+        geoLayerOuterTool=GeoPixelLayerPlanarRefTool(name="OuterPixelLayerTool")
+        toolSvc+=geoLayerOuterTool
+
+        print "PixelGeoModel - import GeoPixelBarrelInclRefTool"
+        from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelBarrelInclRefTool
+        geoBarrelTool=GeoPixelBarrelInclRefTool(name="GeoPixelBarrelInclRefTool")
+        geoBarrelTool.InnerPixelLayerTool = geoLayerInnerTool
+        geoBarrelTool.OuterPixelLayerTool = geoLayerOuterTool
+        geoBarrelTool.MaxInnerLayerMax = 2
         geoBarrelTool.PixelServicesTool = serviceTool
         toolSvc+=geoBarrelTool
-        
+
         print "******************************************************************************************"
+        print "PixelGeoModel - import GeoPixelLayerECRingRefTool"
+        from EndcapRingRef.EndcapRingRefConf import GeoPixelLayerECRingRefTool
+        geoECLayerTool=GeoPixelLayerECRingRefTool(name="GeoPixelLayerECRingRefTool")
+        toolSvc+=geoECLayerTool
         
-        print "PixelGeoModel - import GeoPixelEndcapLoITool"
-        from PixelLayoutLoI.PixelLayoutLoIConf import GeoPixelEndcapLoITool
-        geoEndcapTool=GeoPixelEndcapLoITool(name="GeoPixelEndcapLoITool")
+        print "PixelGeoModel - import GeoPixelEndcapECRingRefTool"
+        from EndcapRingRef.EndcapRingRefConf import GeoPixelEndcapECRingRefTool
+        geoEndcapTool=GeoPixelEndcapECRingRefTool(name="GeoPixelEndcapECRingRefTool")
+        geoEndcapTool.GeoPixelEndcapLayerTool = geoECLayerTool
         geoEndcapTool.PixelServicesTool = serviceTool
         toolSvc+=geoEndcapTool
-        
+
         print "******************************************************************************************"
-        
-        print "PixelGeoModel - import GeoPixelEnvelopeLoITool"
-        from PixelLayoutLoI.PixelLayoutLoIConf import GeoPixelEnvelopeLoITool
-        geoEnvelopeTool=GeoPixelEnvelopeLoITool(name="GeoPixelEnvelopeLoITool")
-        geoEnvelopeTool.GeoPixelBarrelTool=geoBarrelTool
-        geoEnvelopeTool.GeoPixelEndcapTool=geoEndcapTool
+        print "PixelGeoModel - import GeoPixelEnvelopeInclRefTool"
+        from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelEnvelopeInclRefTool
+        geoEnvelopeTool=GeoPixelEnvelopeInclRefTool(name="GeoPixelEnvelopeInclRefTool")
+        geoEnvelopeTool.GeoPixelBarrelTool = geoBarrelTool
+        geoEnvelopeTool.GeoPixelEndcapTool = geoEndcapTool
         geoEnvelopeTool.PixelServicesTool = serviceTool
         toolSvc+=geoEnvelopeTool
-        
+
         print "******************************************************************************************"
-        
+
         pixelTool = svcMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
         pixelTool.Alignable = False
         pixelTool.FastBuildGeoModel = True
         pixelTool.ConfigGeoAlgTool = True
         pixelTool.ReadXMLFromDB = bReadXMLfromDB
-        pixelTool.ConfigGeoBase = "GeoPixelEnvelopeLoITool"
+        pixelTool.ConfigGeoBase = "GeoPixelEnvelopeInclRefTool"
 
 
     def search_file(self,filename, search_path):
