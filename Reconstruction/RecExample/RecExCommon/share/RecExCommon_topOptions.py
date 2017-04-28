@@ -1434,7 +1434,7 @@ if rec.doWriteAOD():
             ThinNegativeEnergyNeutralPFOs()
 
         #Thin Trk::Tracks for Electons and Muons (GSF/Combined)
-        if  AODFlags.AddEgammaMuonTracksInAOD or AODFlags.AddEgammaTracksinMCAOD:
+        if  (AODFlags.AddEgammaMuonTracksInAOD and not rec.doTruth()) or (AODFlags.AddEgammaTracksInMCAOD and rec.doTruth()): 
             from ThinningUtils.ThinTrkTrack import ThinTrkTrack
             ThinTrkTrack()
             
@@ -1510,12 +1510,12 @@ if rec.doWriteAOD():
 
     # Add the Thinned Trk Tracks associated to egamma and muon objects in data
     if  AODFlags.AddEgammaMuonTracksInAOD and not rec.doTruth():
-        StreamAOD.AddItem("TrackCollection#GSFTracks")
-        StreamAOD.AddItem("TrackCollection#CombinedMuonTracks")
+        StreamAOD_Augmented.AddItem("TrackCollection#GSFTracks")
+        StreamAOD_Augmented.AddItem("TrackCollection#CombinedMuonTracks")
 
     # Add the Thinned Trk Tracks associated to egamma objects in MC
-    if  AODFlags.AddEgammaTracksInMCAOD and rec.doTruth():
-        StreamAOD.AddItem("TrackCollection#GSFTracks")
+    elif  AODFlags.AddEgammaTracksInMCAOD and rec.doTruth():
+        StreamAOD_Augmented.AddItem("TrackCollection#GSFTracks")
 
 
 if rec.doAOD() or rec.doWriteAOD():
