@@ -12,6 +12,7 @@
 
 #include "LArG4Code/LArCalibCalculatorSvcImp.h"
 #include "LArG4Code/LArG4Identifier.h"
+#include "ILArBarrelGeometry.h"
 
 #include "CaloG4Sim/SimulationEnergies.h"
 
@@ -30,8 +31,6 @@ class G4Step;
 
 
 namespace LArG4 {
-
-  class IGeometryCalculator;
 
   namespace Barrel {
 
@@ -60,13 +59,10 @@ namespace LArG4 {
     private:
 
       // Geometry calculator
-      ServiceHandle<IGeometryCalculator> m_geometryCalculator;
+      ServiceHandle<ILArBarrelGeometry> m_geometryCalculator;
 
       // Energy calculator
       CaloG4::SimulationEnergies m_energyCalculator;
-
-      // detector name, for translated geometry
-      std::string m_detectorName;
     };
 
   } // namespace Barrel
