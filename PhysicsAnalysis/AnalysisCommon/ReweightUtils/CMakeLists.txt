@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 785966 2016-11-23 12:31:31Z will $
 ################################################################################
 # Package: ReweightUtils
 ################################################################################
@@ -18,9 +19,8 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODBase
    Event/xAOD/xAODEventInfo
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
+   PhysicsAnalysis/AnalysisCommon/AsgAnalysisInterfaces
    PRIVATE
-   Control/CxxUtils
    Event/xAOD/xAODParticleEvent
    Event/xAOD/xAODTruth
    Event/xAOD/xAODEgamma
@@ -68,7 +68,7 @@ atlas_add_test( ut_ParticleScaleFactorTool_test
    SOURCES test/ut_ParticleScaleFactorTool_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AsgAnalysisInterfaces
-   PATInterfaces xAODEgamma CxxUtils )
+   PATInterfaces xAODEgamma )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

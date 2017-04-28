@@ -1,7 +1,14 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// $Id: LinkDef.h 784257 2016-11-15 11:59:07Z krasznaa $
+#ifndef REWEIGHTUTILS_LINKDEF_H
+#define REWEIGHTUTILS_LINKDEF_H
+
+// Local include(s):
 #include <ReweightUtils/APWeightEntry.h>
 #include <ReweightUtils/APReweightBase.h>
 #include <ReweightUtils/APReweight.h>
@@ -12,6 +19,8 @@
 #include <ReweightUtils/APEvtWeight.h>
 #include <ReweightUtils/APWeightSum.h>
 #include <ReweightUtils/APWeightSumEnsemble.h>
+
+#ifdef __CINT__
 
 #pragma link off all globals;
 #pragma link off all classes;
@@ -29,3 +38,5 @@
 #pragma link C++ class APWeightSum+;
 #pragma link C++ class APWeightSumEnsemble+;
 
+#endif // __CINT__
+#endif // not REWEIGHTUTILS_LINKDEF_H
