@@ -7,7 +7,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include <memory>
+
+#include "AsgTools/AsgMessaging.h"
+
 #include "TH1.h"
+#include "TH2D.h"
 #include "TFile.h"
 #include "TArrayD.h"
 
@@ -20,7 +24,7 @@
 
 */
 
-class get_MaterialResolutionEffect {
+class get_MaterialResolutionEffect : public asg::AsgMessaging {
 
  public:
   /** @brief constructor (initialization done there reading root files with resolution fit parameters */
@@ -40,11 +44,13 @@ class get_MaterialResolutionEffect {
  private:
 
   // histograms to store resolution parameters
-  TH1D* hSystPeak[4][8][3];
-  TH1D* hSystResol[4][8][3];
-  std::unique_ptr <TFile> file0;
-  const TArrayD* etaBins;
-  const TArrayD* etBins;
+  TH1D* m_hSystPeak[4][8][3];
+  TH1D* m_hSystResol[4][8][3];
+  TH2D* m_hsyst_IBL_PP0[3];
+  std::unique_ptr <TFile> m_file0;
+  //const TArrayD* m_etaBins;
+  const TArrayD* m_etBins;
+
 
 };
 
