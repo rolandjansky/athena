@@ -171,6 +171,9 @@ testChains = {
     "HLT_j55_bperf:InDetTrigParticleCreation_Bjet_EFID",
     "HLT_j55_bperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
     "HLT_j55_bperf:InDetTrigTrackingxAODCnv_Bjet_FTF:forID",
+    "HLT_j55_boffperf:InDetTrigParticleCreation_Bjet_EFID",
+    "HLT_j55_boffperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+    "HLT_j55_boffperf:InDetTrigTrackingxAODCnv_Bjet_FTF:forID",
 
     "HLT_j55_bperf:InDetTrigTrackingxAODCnv_Bjet_EFID",
     "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig:forID",
@@ -178,6 +181,13 @@ testChains = {
     "HLT_j55_bperf_split:TrigFastTrackFinder_Jet:forID",
     "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:SuperRoi:xPrimVx:post:pt=5000:rvtx=xPrimVx",
     "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:SuperRoi:EFHistoPrmVtx:post:pt=5000:rvtx=EFHistoPrmVtx",
+
+    "HLT_j55_boffperf:InDetTrigTrackingxAODCnv_Bjet_EFID",
+    "HLT_j55_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig:forID",
+    "HLT_j55_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF:forID",
+    "HLT_j55_boffperf_split:TrigFastTrackFinder_Jet:forID",
+    "HLT_j55_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:SuperRoi:xPrimVx:post:rvtx=xPrimVx",
+    "HLT_j55_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:SuperRoi:EFHistoPrmVtx:post:rvtx=EFHistoPrmVtx",
 
     "HLT_j55_EFID_bperf:InDetTrigParticleCreation_Bjet_EFID",
     "HLT_j55_EFID_bperf:InDetTrigTrackingxAODCnv_Bjet_EFID",
