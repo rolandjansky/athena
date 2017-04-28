@@ -27,7 +27,7 @@ class MenuAwareMonitoringStandalone:
         and get the current default from the database (if it exists)."""
 
         # MaM code version
-        self.version = '1.4.7'
+        self.version = '1.4.8'
         # flag for setting whether to print out anything to screen or not
         self.print_output = True
          # create oracle interaction object
