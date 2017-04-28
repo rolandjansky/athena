@@ -19,6 +19,10 @@
 #include "AthenaMonitoring/MonitoredScope.h"
 #include "AthenaMonitoring/MonitoredScalar.h"
 
+
+
+
+
 void resetHist(ITHistSvc* histSvc, const std::string& histName) {
   TH1* h(0);
   histSvc->getHist(histName, h);
@@ -35,6 +39,13 @@ double contentInBin1DHist(ITHistSvc* histSvc, const std::string& histName, int b
   VALUE ( bin >= 1 ) EXPECTED ( true );
   VALUE ( bin <= h->GetXaxis()->GetNbins()+1 ) EXPECTED ( true );
   return h->GetBinContent(bin);
+}
+
+bool noToolBehaviourCorrect(ToolHandle<GenericMonitoringTool>& monTool) {
+  using namespace Monitored;
+  auto x = MonitoredScalar::declare("x", -99.0);
+  auto monitorIt = MonitoredScope::declare(monTool, x);
+  return true;
 }
 
 
@@ -58,6 +69,15 @@ bool fillFromScalarWorked(ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc*
   return true;
 }
 
+template<typename T>
+class InvalidToolHandle : public ToolHandle<T> {
+public:
+  InvalidToolHandle() : ToolHandle<T>("") {}
+  StatusCode retrieve( T*& ) const override {
+    return StatusCode::FAILURE;
+  }
+
+};
 
 
 int main() {
@@ -70,9 +90,9 @@ int main() {
   MsgStream log(Athena::getMessageSvc(), "GenericMonFilling_test");
 
   // we need to test what happens to the monitoring when tool is not valid
-  //  ToolHandle<GenericMonitoringTool> m_emptyMon("");
-  //  VALUE ( m_emptyMon.isValid() ) EXPECTED ( true );
-  //  log << MSG::DEBUG << " mon tool validity " << m_emptyMon.isValid() << endmsg;
+  InvalidToolHandle<GenericMonitoringTool> m_emptyMon;
+  VALUE ( m_emptyMon.isValid() ) EXPECTED ( false ); // self test
+  log << MSG::DEBUG << " mon tool validity " << m_emptyMon.isValid() << endmsg;
 
   ToolHandle<GenericMonitoringTool> m_validMon("GenericMonitoringTool/MonTool");
   if ( m_validMon.retrieve().isFailure() ) {
@@ -86,7 +106,7 @@ int main() {
     return -1;
   }
   assert( fillFromScalarWorked(m_validMon, histSvc) );
-  
+  assert( noToolBehaviourCorrect(m_emptyMon) );
   log << MSG::DEBUG << "All OK"  << endmsg;
   return 0;
 }
