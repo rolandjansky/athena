@@ -55,7 +55,7 @@ atlas_add_component( InDetTrackValidation
    InDetTrackValidation/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES}
-   AthenaBaseComps AthenaKernel StoreGate xAODEventInfo GaudiKernel InDetRawData InDetPrepRawData
+   AthenaBaseComps AthenaKernel StoreGateLib SGtests xAODEventInfo GaudiKernel InDetRawData InDetPrepRawData
    InDetSimEvent TrkParameters TrkSpacePoint TrkTrack TrkValInterfaces DataModel AtlasDetDescr
    EventPrimitives GeneratorObjects TRT_ConditionsData
    TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry SCT_CablingLib
