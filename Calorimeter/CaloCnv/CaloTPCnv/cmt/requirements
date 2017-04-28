@@ -5,7 +5,8 @@ author RD Schaffer <R.D.Schaffer@cern.ch>
 
 use AtlasPolicy          AtlasPolicy-* 
 use GaudiInterface       GaudiInterface-*           External
-use DataModel            DataModel-*                Control
+use AthAllocators        AthAllocators-*            Control
+use AthLinks             AthLinks-*                 Control
 use DataModelAthenaPool  DataModelAthenaPool-*      Control
 use Navigation           Navigation-*               Control
 use AthenaKernel         AthenaKernel-*             Control

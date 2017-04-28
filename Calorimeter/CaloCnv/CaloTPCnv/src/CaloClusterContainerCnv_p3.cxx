@@ -4,7 +4,7 @@
 
 #include "CaloTPCnv/CaloClusterContainerCnv_p3.h" 
 
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
     
 #include "EventCommonTPCnv/Compressor.h"
 #include "AthenaKernel/errorcheck.h"
