@@ -15,10 +15,17 @@ template <class T> inline unsigned FlexBinChunk_stageByType() { return 0x3; }
 template <> inline unsigned FlexBinChunk_stageByType<uint8_t>() { return 0x1; }
 template <> inline unsigned FlexBinChunk_stageByType<uint16_t>() { return 0x2; }
 
+#if (__GNUC__ >= 6) && !defined(__clang__)
+# define LWHISTS_NO_SANITIZE_UNDEFINED [[gnu::no_sanitize_undefined]]
+#else
+# define LWHISTS_NO_SANITIZE_UNDEFINED
+#endif
+
 //____________________________________________________________________
 template <class T>
 template <class Told, class Tnew>
-unsigned FlexBinChunk<T>::changeBinStage(unsigned bin, unsigned offset)
+// Disable ubsan to turn off unaligned access warnings.
+unsigned FlexBinChunk<T>::changeBinStage LWHISTS_NO_SANITIZE_UNDEFINED (unsigned bin, unsigned offset)
 {
   assert(bin<FLEXBINCHUNK_NBINS);
   assert(sizeof(Told)<=sizeof(Tnew));
@@ -69,7 +76,8 @@ unsigned FlexBinChunk<T>::changeBinStage(unsigned bin, unsigned offset)
 //____________________________________________________________________
 template <class T>
 template <class T2>
-T2& FlexBinChunk<T>::getBinValRef(unsigned offset)
+// Disable ubsan to turn off unaligned access warnings.
+T2& FlexBinChunk<T>::getBinValRef LWHISTS_NO_SANITIZE_UNDEFINED (unsigned offset)
 {
   assert(m_data);
   return *(reinterpret_cast<T2*>(&(m_data[offset])));
@@ -78,7 +86,8 @@ T2& FlexBinChunk<T>::getBinValRef(unsigned offset)
 //____________________________________________________________________
 template <class T>
 template <class T2>
-T2 FlexBinChunk<T>::getBinVal(unsigned offset) const
+// Disable ubsan to turn off unaligned access warnings.
+T2 FlexBinChunk<T>::getBinVal LWHISTS_NO_SANITIZE_UNDEFINED (unsigned offset) const
 {
   assert(m_data);
   return *(reinterpret_cast<T2*>(&(m_data[offset])));
@@ -129,7 +138,8 @@ FlexBinChunk<T>::~FlexBinChunk()
 
 //____________________________________________________________________
 template <class T>
-void FlexBinChunk<T>::fill(unsigned bin)
+// Disable ubsan to turn off unaligned access warnings.
+void FlexBinChunk<T>::fill LWHISTS_NO_SANITIZE_UNDEFINED (unsigned bin)
 {
   assert(bin<FLEXBINCHUNK_NBINS);
 
@@ -387,7 +397,8 @@ T FlexBinChunk<T>::getBinContent(unsigned bin) const
 
 //____________________________________________________________________
 template <class T>
-void FlexBinChunk<T>::setBinContent(unsigned bin, const T& val)
+// Disable ubsan to turn off unaligned access warnings.
+void FlexBinChunk<T>::setBinContent LWHISTS_NO_SANITIZE_UNDEFINED (unsigned bin, const T& val)
 {
   assert(bin<FLEXBINCHUNK_NBINS);
 
