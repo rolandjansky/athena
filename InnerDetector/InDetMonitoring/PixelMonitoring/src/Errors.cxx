@@ -596,6 +596,46 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
    return StatusCode::SUCCESS;
 }
 
+double PixelMainMon::getErrorBitFraction(const Identifier& WaferID, const unsigned int& num_femcc_errwords)
+{
+   // Do an estimation of the bit fraction consumed by FE/MCC error words in the
+   // MCC output. Simplifications: hits are distributed uniformly on all FEs,
+   // errors only occur on FEs with hits. Without these simplifications, we
+   // would have to consider the FE ID bit blocks (8 bits) more carefully.
+   //
+   // The assumed bit lengths are:
+   //  - 45 bits for event ID, header, trailer
+   //  - 9 bits for each FE ID. If more than 16 hits:, count 16 FE ID blocks;
+   //    otherwise calculate max(number of hits, number of error words).
+   //  - 22 bits for each hit word
+   //  - 22 bits for each error word
+   const int layer = GetPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
+   if (layer == PixLayer::kIBL) return 0.;
+
+   unsigned int num_hits = 0;
+   if (layer == PixLayer::kB0) {
+      num_hits = m_HitPerEventArray_l0[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(6+m_pixelid->eta_module(WaferID)))];
+   } else if (layer == PixLayer::kB1) {
+      num_hits = m_HitPerEventArray_l1[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(6+m_pixelid->eta_module(WaferID)))];
+   } else if (layer == PixLayer::kB2) {
+      num_hits = m_HitPerEventArray_l2[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(6+m_pixelid->eta_module(WaferID)))];
+   } else if (layer == PixLayer::kECA) {
+      num_hits = m_HitPerEventArray_disksA[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(6+m_pixelid->eta_module(WaferID)))];
+   } else if (layer == PixLayer::kECC) {
+      num_hits = m_HitPerEventArray_disksC[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(6+m_pixelid->eta_module(WaferID)))];
+   }
+
+   int total_bits = 45;
+   if (num_hits >= 16) {
+      total_bits += 16 * 9;
+   } else {
+      total_bits += std::max(num_hits, num_femcc_errwords) * 9;
+   }
+   total_bits += num_hits * 22;
+   total_bits += num_femcc_errwords * 22;
+   return static_cast<double>(num_femcc_errwords * 22 / total_bits);
+}
+
 int PixelMainMon::getErrorState(int bit, bool isibl)
 {
    int erstate = 99;

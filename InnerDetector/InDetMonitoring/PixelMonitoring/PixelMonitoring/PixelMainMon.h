@@ -138,6 +138,7 @@ public:
    void FillSummaryHistos(PixelMon2DMaps* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2);
    int ParseDetailsString(std::string & detailsMod);
    bool OnTrack(Identifier id, bool isCluster);
+   double getErrorBitFraction(const Identifier& WaferID, const unsigned int& num_femcc_errorwords);
    int getErrorState(int bit, bool isibl);
 	std::string makeHistname(std::string set, bool ontrk);
 	std::string makeHisttitle(std::string set, std::string axis, bool ontrk);
