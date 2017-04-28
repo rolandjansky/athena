@@ -9,6 +9,7 @@
 # Author: Cenk YILDIZ, UCI
 # e-mail: cenk.yildiz@cern.ch
 #
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #######################################################
 
 #!/usr/bin/python
