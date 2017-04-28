@@ -11,7 +11,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloGeoHelpers
                           Calorimeter/CaloIdentifier
                           Control/CLIDSvc
-                          Control/DataModel
+                          Control/AthContainers
+                          Control/AthLinks
                           Control/Navigation
                           Control/SGTools
                           Event/EventKernel
@@ -44,14 +45,14 @@ atlas_add_library( egammaEvent
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier DataModel Navigation SGTools EventKernel FourMom NavFourMom ParticleEvent JetEvent Particle TrkParameters VxVertex
+                   LINK_LIBRARIES ${Boost_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier AthContainers AthLinks Navigation SGTools EventKernel FourMom NavFourMom ParticleEvent JetEvent Particle TrkParameters VxVertex
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel egammaConditions TrkSurfaces TrkMaterialOnTrack TrkNeutralParameters TrkParametersBase TrkParticleBase TrkTrack )
 
 atlas_add_dictionary( egammaEventDict
                       egammaEvent/egammaEventDict.h
                       egammaEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier DataModel Navigation SGTools EventKernel FourMom NavFourMom ParticleEvent JetEvent Particle TrkParameters VxVertex GaudiKernel egammaConditions TrkSurfaces TrkMaterialOnTrack TrkNeutralParameters TrkParametersBase TrkParticleBase TrkTrack egammaEvent
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier AthContainers AthLinks Navigation SGTools EventKernel FourMom NavFourMom ParticleEvent JetEvent Particle TrkParameters VxVertex GaudiKernel egammaConditions TrkSurfaces TrkMaterialOnTrack TrkNeutralParameters TrkParametersBase TrkParticleBase TrkTrack egammaEvent
                       NAVIGABLES egammaContainer ElectronContainer PhotonContainer EMShowerMinimalContainer
                       ELEMENT_LINKS egDetailContainer CaloRingsContainer )
 
@@ -59,5 +60,5 @@ atlas_add_dictionary( egammaEnumsDict
                       egammaEvent/egammaEnumsDict.h
                       egammaEvent/selectionEnums.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier DataModel Navigation SGTools EventKernel FourMom NavFourMom ParticleEvent JetEvent Particle TrkParameters VxVertex GaudiKernel egammaConditions TrkSurfaces TrkMaterialOnTrack TrkNeutralParameters TrkParametersBase TrkParticleBase TrkTrack egammaEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier AthContainers AthLinks Navigation SGTools EventKernel FourMom NavFourMom ParticleEvent JetEvent Particle TrkParameters VxVertex GaudiKernel egammaConditions TrkSurfaces TrkMaterialOnTrack TrkNeutralParameters TrkParametersBase TrkParticleBase TrkTrack egammaEvent )
 

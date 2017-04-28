@@ -10,7 +10,8 @@ use AtlasPolicy                AtlasPolicy-*
 use AtlasBoost                 AtlasBoost-*               External
 use NavFourMom                 NavFourMom-*               Event
 use SGTools                    SGTools-*                  Control
-use DataModel                  DataModel-*                Control
+use AthContainers              AthContainers-*            Control
+use AthLinks                   AthLinks-*                 Control
 use CaloEvent                  CaloEvent-*                Calorimeter
 use CaloIdentifier	       CaloIdentifier-*           Calorimeter
 use CaloGeoHelpers             CaloGeoHelpers-*           Calorimeter

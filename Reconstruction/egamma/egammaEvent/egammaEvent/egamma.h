@@ -29,8 +29,8 @@ UPDATED:
 #include "FourMom/Lib/P4ImplEEtaPhiM.h"
 #include "EventKernel/INavigable4Momentum.h"
 
-#include "DataModel/ElementLink.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
 
 #include "ParticleEvent/ParticleImpl.h"
 
