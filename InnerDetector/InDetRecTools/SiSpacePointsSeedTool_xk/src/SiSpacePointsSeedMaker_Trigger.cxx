@@ -264,9 +264,6 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newEvent (int)
   //
   if(m_sct) {
 
-//    m_spacepointsSCT = 0;
-//    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
-
     if(m_spacepointsSCT.isValid()) {
 
       SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
