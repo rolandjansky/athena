@@ -8,7 +8,7 @@ import sys
 import os
 import argparse
 from commands import getstatusoutput
-from config import *
+from MuonValidation_CreateSlides_config import *
 
 #############################################################################
 
@@ -305,6 +305,6 @@ if __name__ == "__main__":
         print( 'INFO This program requires Python version 2.7 or greater' )
         exit(1)
 
-    ROOT.gROOT.Macro("rootlogon.C")
+    #ROOT.gROOT.Macro("rootlogon.C")
     ROOT.gROOT.SetBatch()
     main()

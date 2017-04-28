@@ -1,4 +1,8 @@
 #
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
+#
 # get_files LVL1config_Physics_pp_v7.xml
 # 
 
@@ -66,10 +70,9 @@ nThreads = jp.ConcurrencyFlags.NumThreads()
 print ' nThreads : ',nThreads
 
 if nThreads >= 1:
-  ## get a handle on the ForwardScheduler
-  from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-  svcMgr += ForwardSchedulerSvc()
-  svcMgr.ForwardSchedulerSvc.CheckDependencies = True
+  ## get a handle on the Scheduler
+  from AthenaCommon.AlgScheduler import AlgScheduler
+  AlgScheduler.CheckDependencies( True )
 
 # Use McEventSelector so we can run with AthenaMP
 #import AthenaCommon.AtlasUnixGeneratorJob

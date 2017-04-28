@@ -17,7 +17,6 @@
 
 // Hit class includes
 #include "InDetSimEvent/SiHit.h"
-#include "InDetSimData/InDetSimDataCollection.h"
 #include "Identifier/Identifier.h"
 
 // Det Descr includes
@@ -29,6 +28,9 @@
 #include "SCT_Digitization/ISCT_FrontEnd.h"
 #include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
 #include "SCT_Digitization/ISCT_RandomDisabledCellGenerator.h"
+
+// Data Handle
+#include "StoreGate/ReadHandle.h"
 
 // C++ Standard Library
 #include <sstream>
@@ -46,16 +48,18 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string &type,
                                            const IInterface *parent) :
     PileUpToolBase(type, name, parent),
     m_tfix(-999.),
-    m_comTime(0),
+    m_comTime(0.),
     m_enableHits(true),
     m_onlyHitElements(false),
     m_HardScatterSplittingMode(0),
     m_HardScatterSplittingSkipper(false),
+    m_ComTimeKey("ComTime"),
     m_detID(nullptr),
     m_detMgr(nullptr),
     m_sct_FrontEnd("SCT_FrontEnd", this),
     m_sct_SurfaceChargesGenerator("SCT_SurfaceChargesGenerator", this),
     m_sct_RandomDisabledCellGenerator("SCT_RandomDisabledCellGenerator", this),
+    m_rdoContainerKey(""),
     m_rndmSvc("AtRndmGenSvc", name),
     m_mergeSvc("PileUpMergeSvc", name),
     m_rndmEngine(nullptr),
@@ -82,9 +86,9 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string &type,
 
     declareProperty("InputObjectName", m_inputObjectName = "",
                     "Input Object name");
-    declareProperty("OutputObjectName", m_outputRDOCollName = "SCT_RDOs",
+    declareProperty("OutputObjectName", m_rdoContainerKey = std::string("SCT_RDOs"),
                     "Output Object name");
-    declareProperty("OutputSDOName", m_outputSDOCollName = "SCT_SDO_Map",
+    declareProperty("OutputSDOName", m_simDataCollMapKey = std::string("SCT_SDO_Map"),
                     "Output SDO container name");
     declareProperty("RndmSvc", m_rndmSvc,
                     "Random Number Service used in SCT & Pixel digitization");
@@ -138,6 +142,11 @@ StatusCode SCT_DigitizationTool::initialize() {
         CHECK(initDisabledCells());
         ATH_MSG_INFO("Use of Random disabled cells");
     }
+
+    // +++ Initialize WriteHandleKey
+    ATH_CHECK(m_rdoContainerKey.initialize());
+    ATH_CHECK(m_simDataCollMapKey.initialize());
+    ATH_CHECK(m_ComTimeKey.initialize(m_useComTime));
 
     ATH_MSG_DEBUG("SiDigitizationTool::initialize() complete");
 
@@ -323,36 +332,17 @@ StatusCode SCT_DigitizationTool::prepareEvent(unsigned int /*index*/) {
     ATH_MSG_VERBOSE("SCT_DigitizationTool::prepareEvent()");
     // Create the IdentifiableContainer to contain the digit collections Create
     // a new RDO container
-    try
-    {
-        m_rdocontainer = new SCT_RDO_Container(m_detID->wafer_hash_max());
-    }
-    catch (std::bad_alloc)
-    {
-        ATH_MSG_FATAL("Could not create a new SCT RawDataContainer !");
-        return StatusCode::FAILURE;
-    }
-
-    // register RDO container with storegate
-    StatusCode sc = evtStore()->record(m_rdocontainer, m_outputRDOCollName);
-    if (sc.isFailure()) {
-        ATH_MSG_FATAL("Container '" << m_outputRDOCollName <<
-            "' could not be registered in StoreGate !");
-        return StatusCode::FAILURE;
-    }
+    m_rdoContainer = SG::makeHandle(m_rdoContainerKey);
+    ATH_CHECK(m_rdoContainer.record(std::make_unique<SCT_RDO_Container>(m_detID->wafer_hash_max())));
 
     // Create a map for the SDO and register it into StoreGate
-    m_simDataCollMap = new  InDetSimDataCollection();
-    sc = evtStore()->record(m_simDataCollMap, m_outputSDOCollName);
-    if (sc.isFailure()) {
-        ATH_MSG_FATAL("InDetSimData map '" << m_outputSDOCollName <<
-            "' could not be registered in StoreGate !");
-        return StatusCode::FAILURE;
-    }
+    m_simDataCollMap = SG::makeHandle(m_simDataCollMapKey);
+    ATH_CHECK(m_simDataCollMap.record(std::make_unique<InDetSimDataCollection>()));
 
     if (m_useComTime) {
-        if (StatusCode::SUCCESS == evtStore()->retrieve(m_ComTime, "ComTime")) {
-            m_comTime = m_ComTime->getTime();
+      SG::ReadHandle<ComTime> comTime(m_ComTimeKey);
+      if (comTime.isValid()) {
+	    m_comTime = comTime->getTime();
             m_sct_SurfaceChargesGenerator->setComTime(m_comTime);
             ATH_MSG_DEBUG(
                 "Found tool for cosmic/commissioning timing: ComTime");
@@ -707,7 +697,7 @@ StatusCode SCT_DigitizationTool::createAndStoreRDO(
     int barrelec(m_detID->barrel_ec(id_coll));
 
     if (!m_barrelonly || std::abs(barrelec) <= 1) {
-        if (m_rdocontainer->addCollection(RDOColl,
+      if (m_rdoContainer->addCollection(RDOColl,
                                           RDOColl->identifyHash()).isFailure())
         {
             ATH_MSG_FATAL(

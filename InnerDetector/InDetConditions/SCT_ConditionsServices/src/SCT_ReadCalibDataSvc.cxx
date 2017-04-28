@@ -10,12 +10,7 @@
 #include "SCT_ReadCalibDataSvc.h"
 
 // Include Event Info 
-#include "EventInfo/EventIncident.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
 #include "CoralBase/TimeStamp.h"
-
 
 // Include Athena stuff
 #include "StoreGate/StoreGateSvc.h"
@@ -27,6 +22,9 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h" 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+
+///Read Handle
+#include "StoreGate/ReadHandle.h"
 
 // Include Gaudi stuff
 #include "GaudiKernel/IIncidentSvc.h"
@@ -88,7 +86,8 @@ SCT_ReadCalibDataSvc::SCT_ReadCalibDataSvc (const std::string& name, ISvcLocator
   m_printCalibDefectMaps(false),
   m_recoOnly(true),
   m_ignoreDefects(0),
-  m_ignoreDefectParameters(0)
+  m_ignoreDefectParameters(0),
+  m_eventInfoKey(std::string("EventInfo"))
 {
   declareProperty("PrintCalibDefectMaps",  m_printCalibDefectMaps  = false, "Print data read from the Calib Defect map?");
   declareProperty("AttrListCollFolders",   m_atrcollist, "List of calibration data folder?"); 
@@ -200,6 +199,9 @@ StatusCode SCT_ReadCalibDataSvc::initialize(){
     msg(MSG:: ERROR) << "IgnoreDefect != IgnoreDefectsParameters, check job options!" << endmsg;
     return StatusCode::FAILURE;
   }
+
+  // Read Handle Key
+  ATH_CHECK( m_eventInfoKey.initialize() );
   
   return StatusCode::SUCCESS;
 } // SCT_ReadCalibDataSvc::initialize()
@@ -308,11 +310,11 @@ StatusCode SCT_ReadCalibDataSvc::fillCalibDefectData(std::list<std::string>& key
   s_defectMapIntToString[38] = "DOUBTR_HI";     //<! High double trigger noise occupancy, > 5
 
   // Get the current event and print info
-  const EventInfo* event;
-  if (m_storeGateSvc->retrieve(event)==StatusCode::SUCCESS) {
-    coral::TimeStamp::ValueType nsTime=event->event_ID()->time_stamp()*1000000000LL;
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In run/event [" << event->event_ID()->run_number() <<
-      "," << event->event_ID()->event_number() << "] timestamp " << nsTime << 
+  SG::ReadHandle<xAOD::EventInfo> event(m_eventInfoKey);
+  if (event.isValid()) {
+    coral::TimeStamp::ValueType nsTime=event->timeStamp()*1000000000LL;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In run/event [" << event->runNumber() <<
+      "," << event->eventNumber() << "] timestamp " << nsTime << 
       endmsg;
     // print the timestamp in UTC and local
     // coral::TimeStamp utctime(nsTime);

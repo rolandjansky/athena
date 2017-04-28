@@ -17,6 +17,8 @@
 #define DATAMODELTESTDATACOMMON_XAODTESTREADSYMLINK_H
 
 
+#include "DataModelTestDataCommon/S1.h"
+#include "DataModelTestDataCommon/S2.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "AthContainers/AuxElement.h"
@@ -51,6 +53,10 @@ public:
 
 private:
   SG::ReadHandleKey<SG::AuxElement> m_objKey;
+
+  SG::ReadHandleKey<DMTest::S1> m_s1Key;
+  SG::ReadHandleKey<DMTest::S2> m_s2Key;
+  SG::ReadHandleKey<DMTest::S2> m_aliasKey;
 };
 
 

@@ -76,7 +76,7 @@ namespace SG {
  * The Property object refers to an instance of @c SG::VarHandleKey
  * (the value object) and provides generic methods for manipulating it.
  */
-class GAUDI_API VarHandleKeyProperty : public PropertyWithHandlers 
+  class GAUDI_API VarHandleKeyProperty : public PropertyWithHandlers <>
 {
 public:
 

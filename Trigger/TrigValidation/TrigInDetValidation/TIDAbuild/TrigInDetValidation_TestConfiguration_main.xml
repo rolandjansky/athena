@@ -61,17 +61,19 @@
 <!-- #     include   "TrigInDetValidation_bjet.xml"  -->
 <!-- #     include   "TrigInDetValidation_bjet_pu46.xml"  -->
 #     include   "TrigInDetValidation_bjet_IBL_pu40.xml"
-#     include   "TrigInDetValidation_bjet_IBL_pu40_test.xml"
+<!-- #     include   "TrigInDetValidation_bjet_IBL_pu40_test.xml" -->
 #     include   "TrigInDetValidation_bjet_IBL_pu40_offline.xml"
 
 #     include   "TrigInDetValidation_bjet_IBL_pu46.xml"
 #     include   "TrigInDetValidation_bjet_IBL_pu80.xml"
 
-#     include   "TrigInDetValidation_bjet_IBL_pu40_trkpt2.xml"
-#     include   "TrigInDetValidation_bjet_IBL_pu40_super1.xml"
-#     include   "TrigInDetValidation_bjet_IBL_pu40_super2.xml"
-#     include   "TrigInDetValidation_bjet_IBL_pu40_super3.xml"
-#     include   "TrigInDetValidation_bjet_IBL_pu40_super4.xml"
+#     include   "TrigInDetValidation_bjet_IBL_pu40_2016config.xml"
+
+<!-- #     include   "TrigInDetValidation_bjet_IBL_pu40_trkpt2.xml"  -->
+<!-- #     include   "TrigInDetValidation_bjet_IBL_pu40_super1.xml" -->
+<!-- #     include   "TrigInDetValidation_bjet_IBL_pu40_super2.xml" -->
+<!-- #     include   "TrigInDetValidation_bjet_IBL_pu40_super3.xml" -->
+<!-- #     include   "TrigInDetValidation_bjet_IBL_pu40_super4.xml" -->
 
 
 <!-- #     include   "TrigInDetValidation_tau_pu46.xml"  -->

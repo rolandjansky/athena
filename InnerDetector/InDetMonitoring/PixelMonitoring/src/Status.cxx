@@ -43,6 +43,8 @@ StatusCode PixelMainMon::BookStatusMon(void)
    // DISABLED "BAD"  = active + bad
    // DISABLED "INACTIVE" = inactive + good/bad (inactive implicitely means bad though)
 
+   StatusCode sc;
+
    m_status = new PixelMonProfiles("Map_Of_Modules_Status", ("Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt).c_str());
    sc = m_status->regHist(statusHistos);
    m_status->SetMaxValue( 2.0 );
@@ -109,7 +111,7 @@ StatusCode PixelMainMon::BookStatusLumiBlockMon(void)
    MonGroup lumiBlockHist(this, path.c_str(), lowStat, ATTRIB_MANAGED); //declare a group of histograms
 
    m_status_LB = new PixelMonProfiles("Map_Of_Modules_Status_LB", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)"+ m_histTitleExt).c_str());
-   sc = m_status_LB->regHist(lumiBlockHist);
+   StatusCode sc = m_status_LB->regHist(lumiBlockHist);
    m_status_LB->SetMaxValue( 2.0 );
      
    if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;         

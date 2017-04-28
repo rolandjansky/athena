@@ -61,10 +61,6 @@ public:
   virtual void registerKey (sgkey_t /*key*/,
                             const std::string& /*str*/,
                             CLID /*clid*/) override;
-  virtual SG::DataProxy* recordObject (SG::DataObjectSharedPtr<DataObject> obj,
-                                       const std::string& key,
-                                       bool allowMods,
-                                       bool returnExisting) override;
   virtual StatusCode updatedObject (CLID id, const std::string& key) override;
 
   
@@ -81,6 +77,10 @@ public:
   virtual void boundHandle (IResetable* handle) override;
   virtual void unboundHandle (IResetable* handle) override;
 
+  virtual SG::DataProxy* recordObject (SG::DataObjectSharedPtr<DataObject> obj,
+                                       const std::string& key,
+                                       bool allowMods,
+                                       bool returnExisting) override;
   SG::DataProxy* record1 (const void* p, DataObject* obj,
                           CLID clid, const std::string& key);
 

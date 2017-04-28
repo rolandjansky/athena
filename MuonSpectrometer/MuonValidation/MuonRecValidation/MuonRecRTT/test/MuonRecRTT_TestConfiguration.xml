@@ -110,7 +110,7 @@
         <testname>ExeRunner</testname>
         <arg>
           <argname>exeName</argname>
-          <argvalue>runPostProcessMacros.sh</argvalue> 
+          <argvalue>MuonValidation_runPostProcessMacrosRtt.sh</argvalue> 
         </arg>
         <arg>
           <argname>exeParamString</argname>
