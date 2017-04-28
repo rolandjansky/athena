@@ -1,0 +1,40 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace ana
+{
+  template<class T> void Configuration ::
+  declareConfigProperties (T& obj)
+  {
+#ifdef ROOTCORE
+    obj.declareProperty ("isDataFlag", isDataFlag, "flag to indicate whether we are running on data");
+    obj.declareProperty ("isAFIIFlag", isAFIIFlag, "flag to indicate whether we are running on AFII MC");
+#endif
+    obj.declareProperty ("toolMsgLevel", msgLevel, "message level for internal tools");
+    obj.declareProperty ("eventinfoDef", eventinfoDef, "event info object definition");
+    obj.declareProperty ("eventSelectDef", eventSelectDef, "event select definition");
+    obj.declareProperty ("electronDef", electronDef, "electron object definition");
+    obj.declareProperty ("electronKine", electronKine, "electron kinematic selection");
+    obj.declareProperty ("photonDef", photonDef, "photon object definition");
+    obj.declareProperty ("photonKine", photonKine, "photon kinematic selection");
+    obj.declareProperty ("muonDef", muonDef, "muon object definition");
+    obj.declareProperty ("muonKine", muonKine, "muon kinematic selection");
+    obj.declareProperty ("tauDef", tauDef, "tau object definition");
+    obj.declareProperty ("tauKine", tauKine, "tau kinematic selection");
+    obj.declareProperty ("jetDef", jetDef, "jet object definition");
+    obj.declareProperty ("jetKine", jetKine, "jet kinematic selection");
+    obj.declareProperty ("fatJetDef", fatJetDef, "fat jet object definition");
+    obj.declareProperty ("fatJetKine", fatJetKine, "fat jet kinematic selection");
+    obj.declareProperty ("metDef", metDef, "met definition");
+    obj.declareProperty ("met2Def", met2Def, "second met definition");
+    obj.declareProperty ("orDef", orDef, "overlap removal definition");
+    obj.declareProperty ("triggerDef", triggerDef, "trigger definition");
+    obj.declareProperty ("muDataFiles", muDataFiles, "the files with the mu distribution in data");
+    obj.declareProperty ("muMcFiles", muMcFiles, "the files with the mu distribution in MC");
+    obj.declareProperty ("schedulerDef", schedulerDef, "scheduler definition");
+    obj.declareProperty ("selectionNameMET", selectionNameMET, "the name of the selection decoration for the MET tool");
+    obj.declareProperty ("selectionNameOR", selectionNameOR, "the name of the selection decoration for the OR tool");
+    obj.declareProperty ("selectionName", selectionName, "the name of the selection decoration for the final analysis objects");
+  }
+}

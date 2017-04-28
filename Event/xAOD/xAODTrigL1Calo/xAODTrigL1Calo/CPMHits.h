@@ -5,6 +5,9 @@
 #ifndef XAODTRIGL1CALO_CPMHITS_H
 #define XAODTRIGL1CALO_CPMHITS_H
 
+// System include(s):
+#include <map>
+
 // Local include(s):
 #include "xAODTrigL1Calo/versions/CPMHits_v1.h"
 

@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+
+    <!-- Athena nightly tests -->
+    <atn>
+
+        <TEST name="AssociationUtilsUTs" type="makecheck" suite="AssociationUtilsAthTest">
+            <package>PhysicsAnalysis/AnalysisCommon/AssociationUtils</package>
+            <timelimit>5</timelimit>
+            <author> Steve Farrell </author>
+            <mailto> Steven.Farrell@cern.ch </mailto>
+            <expectations>
+                <successMessage>check ok</successMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+
+        <TEST name="OverlapRemovalTest" type="athena" suite="AssociationUtilsAthTest">
+            <options_atn>AssociationUtils/OverlapRemovalTest_jobOptions.py</options_atn>
+            <timelimit>5</timelimit>
+            <author>Steve Farrell</author>
+            <mailto>Steven.Farrell@cern.ch</mailto>
+            <expectations>
+                <errorMessage> Athena exited abnormally </errorMessage>
+                <errorMessage>FAILURE (ERROR)</errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+
+        <TEST name="ORToolBoxTest" type="athena" suite="AssociationUtilsAthTest">
+            <options_atn>AssociationUtils/ORToolBoxTest_jobOptions.py</options_atn>
+            <timelimit>5</timelimit>
+            <author>Steve Farrell</author>
+            <mailto>Steven.Farrell@cern.ch</mailto>
+            <expectations>
+                <errorMessage> Athena exited abnormally </errorMessage>
+                <errorMessage>FAILURE (ERROR)</errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+
+    </atn>
+
+</unifiedTestConfiguration>

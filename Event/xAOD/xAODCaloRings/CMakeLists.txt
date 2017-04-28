@@ -6,29 +6,22 @@
 atlas_subdir( xAODCaloRings )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloGeoHelpers
-                          Control/AthContainers
-                          Control/AthLinks
-                          Control/AthToolSupport/AsgTools
-                          Control/SGTools
-                          Event/xAOD/xAODCore )
-
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+atlas_depends_on_subdirs(
+   PUBLIC
+   Calorimeter/CaloGeoHelpers
+   Control/AthContainers
+   Control/AthLinks
+   Control/AthToolSupport/AsgTools
+   Event/xAOD/xAODCore )
 
 # Component(s) in the package:
 atlas_add_library( xAODCaloRings
-                   Root/*.cxx
-                   PUBLIC_HEADERS xAODCaloRings
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES CaloGeoHelpers AthContainers AthLinks AsgTools SGTools xAODCore
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+   xAODCaloRings/*.h xAODCaloRings/versions/*.h Root/*.cxx
+   PUBLIC_HEADERS xAODCaloRings
+   LINK_LIBRARIES CaloGeoHelpers AthContainers AthLinks AsgTools xAODCore )
 
 atlas_add_dictionary( xAODCaloRingsDict
-                      xAODCaloRings/xAODCaloRingsDict.h
-                      xAODCaloRings/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloGeoHelpers AthContainers AthLinks AsgTools SGTools xAODCore xAODCaloRings
-                      EXTRA_FILES Root/dict/*.cxx )
-
+   xAODCaloRings/xAODCaloRingsDict.h
+   xAODCaloRings/selection.xml
+   LINK_LIBRARIES xAODCaloRings
+   EXTRA_FILES Root/dict/*.cxx )

@@ -192,6 +192,7 @@
 + PhysicsAnalysis/DerivationFramework/.*
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
++ PhysicsAnalysis/Interfaces/.*
 + PhysicsAnalysis/JetTagging/JetTagAlgs/.*
 + PhysicsAnalysis/JetTagging/JetTagCalibUtils/.*
 + PhysicsAnalysis/JetTagging/JetTagCalibration

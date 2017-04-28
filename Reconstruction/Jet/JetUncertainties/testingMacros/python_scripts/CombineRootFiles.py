@@ -31,11 +31,17 @@ for aFileName in inFileNames:
 
 outFile = TFile(outFileName,"RECREATE")
 
+#foundValid=False
 for aFileName in inFileNames:
     print "Reading file:",aFileName
     aFile = TFile(aFileName,"READ")
     
     for histName in aFile.GetKeyNames():
+        #if histName.startswith("ValidRange"):
+        #    if foundValid:
+        #        continue
+        #    else:
+        #        foundValid = True
         hist = aFile.Get(histName)
         outFile.cd()
         hist.Write(histName)

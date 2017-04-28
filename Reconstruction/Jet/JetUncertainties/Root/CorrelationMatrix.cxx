@@ -75,6 +75,10 @@ StatusCode CorrelationMatrix::initializeForPt(const JetUncertaintiesTool& uncToo
     const double kinLimit1 = sqrtS > 0 ? (sqrtS/2.) / cosh(m_fixedVal1) : 1e99;
     const double kinLimit2 = sqrtS > 0 ? (sqrtS/2.) / cosh(m_fixedVal2) : 1e99;
 
+    std::cout << "Initializing for Pt with fixedVal1, fixedVal2 " << m_fixedVal1 << " " << m_fixedVal2 << std::endl;
+    std::cout << "Corresponding to kinematic limits " << kinLimit1 << " " << kinLimit2 << std::endl;
+
+
     // Build the correlation matrix
     m_corrMat = buildMatrix(utils::getLogBins(m_numBins,m_minVal,m_maxVal));
 
@@ -99,9 +103,11 @@ StatusCode CorrelationMatrix::initializeForPt(const JetUncertaintiesTool& uncToo
             const double valY = m_corrMat->GetYaxis()->GetBinCenter(binY);
 
             // Check for the kinematic limit (simple case)
-            if (valX > kinLimit1 || valY > kinLimit2 )
+            if (valX > kinLimit1 || valY > kinLimit2 ) {
+//                std::cout << "Setting error code in space 2" << std::endl;
+//                std::cout << "Values, kin limits are " << valX << " " << kinLimit1 << " " << valY << " " << kinLimit2 << std::endl;
                 m_corrMat->SetBinContent(binX,binY,JESUNC_ERROR_CODE);
-            else
+            } else
             {
                 // Set the jet values, (pT, eta, phi, m)
                 // note that only pT and eta matter right now
@@ -159,9 +165,9 @@ StatusCode CorrelationMatrix::initializeForEta(const JetUncertaintiesTool& uncTo
             const double valY = m_corrMat->GetYaxis()->GetBinCenter(binY);
 
             // Check for the kinematic limit (simple case)
-            if (valX > kinLimit1 || valY > kinLimit2)
+            if (valX > kinLimit1 || valY > kinLimit2) {
                 m_corrMat->SetBinContent(binX,binY,JESUNC_ERROR_CODE);
-            else
+            } else
             {
                 // Set the jet values, (pT, eta, phi, m)
                 // note that only pT and eta matter right now
@@ -255,6 +261,7 @@ StatusCode CorrelationMatrix::clearStore()
 
 StatusCode CorrelationMatrix::setDefaultProperties(const JetUncertaintiesTool& uncTool)
 {
+
     // TODO make this part of a common file
     static SG::AuxElement::Accessor<int> Nsegments("GhostMuonSegmentCount");
     static SG::AuxElement::Accessor<char> IsBjet("IsBjet");
@@ -290,6 +297,15 @@ StatusCode CorrelationMatrix::setDefaultProperties(const JetUncertaintiesTool& u
         // Kate, Jan 31 2016
         sigmaMu = 1.9;
         sigmaNPV = 2.9;
+    }
+    else if (config.Contains("_2016"))
+    {
+        // Kate, Nov 2016 
+        // via Eric Corrigan's pileup studies
+        // Scaling term taken from 
+        // https://indico.cern.ch/event/437993/contributions/1925644/attachments/1138739/1630981/spagan_MuRescaling.pdf
+        sigmaMu = 5.35;
+        sigmaNPV = 3.49;
     }
     else
     {

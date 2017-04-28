@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+set -u
+
+options=""
+for file in `cat input.txt`
+do
+    options="$options --el-input-file $file"
+done
+
+quickana_validate --write-summary $options output

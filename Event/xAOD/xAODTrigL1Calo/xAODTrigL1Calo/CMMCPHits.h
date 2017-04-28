@@ -5,6 +5,9 @@
 #ifndef XAODTRIGL1CALO_CMMCPHITS_H
 #define XAODTRIGL1CALO_CMMCPHITS_H
 
+// System include(s):
+#include <map>
+
 // Local include(s):
 #include "xAODTrigL1Calo/versions/CMMCPHits_v1.h"
 

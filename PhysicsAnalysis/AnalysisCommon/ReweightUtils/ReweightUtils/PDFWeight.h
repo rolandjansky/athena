@@ -13,8 +13,9 @@
 // Include the base class
 #include "ReweightUtils/WeightToolBase.h"
 
-#include "LHAPDF/LHAPDF.h"
-#include "LHAPDF/PDFSet.h"
+namespace LHAPDF {
+class PDF;
+}
 
 class PDFWeight : public WeightToolBase
   {
@@ -46,7 +47,7 @@ class PDFWeight : public WeightToolBase
     std::string m_eventInfoName;
     float m_weight;
 
-    std::unique_ptr<LHAPDF::PDF> m_pdf;
+    LHAPDF::PDF* m_pdf = 0;
 
     int m_index;
 };

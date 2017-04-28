@@ -8,7 +8,7 @@
 
 static  asg::AsgMessaging dummymsg("");
 
-#define DUMMY_MSG( lvl, ARG ) {dummymsg.msg(lvl)<<ARG<<"\n"<<endmsg ;}
+#define DUMMY_MSG( lvl, ARG ) {dummymsg.msg(lvl)<<ARG<<endmsg ;}
 #define MSG_DEBUG( ARG ) {DUMMY_MSG(MSG::DEBUG, ARG);}
 #define MSG_INFO( ARG ) {DUMMY_MSG(MSG::INFO, ARG);}
 #define MSG_WARNING( ARG ) {DUMMY_MSG(MSG::WARNING, ARG);}

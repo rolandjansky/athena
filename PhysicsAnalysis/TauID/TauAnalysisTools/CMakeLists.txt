@@ -5,46 +5,85 @@
 # Declare the package name:
 atlas_subdir( TauAnalysisTools )
 
+# Extra dependencies, based on the build environment:
+set( extra_deps )
+if( XAOD_STANDALONE )
+   set( extra_deps Control/xAODRootAccess )
+else()
+   set( extra_deps GaudiKernel
+      PhysicsAnalysis/POOLRootAccess
+      Control/AthenaBaseComps
+      Control/AthAnalysisBaseComps )
+endif()
+
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthLinks
-                          Control/AthToolSupport/AsgTools
-                          Event/xAOD/xAODEgamma
-                          Event/xAOD/xAODJet
-                          Event/xAOD/xAODTau
-                          Event/xAOD/xAODTracking
-                          Event/xAOD/xAODTruth
-                          Generators/TruthUtils
-                          PhysicsAnalysis/AnalysisCommon/PATCore
-                          PhysicsAnalysis/AnalysisCommon/PATInterfaces
-                          PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Event/xAOD/xAODCore
-                          Event/xAOD/xAODEventInfo
-                          GaudiKernel
-                          Tools/PathResolver )
+atlas_depends_on_subdirs(
+   PUBLIC
+   Control/AthToolSupport/AsgTools
+   Event/xAOD/xAODEgamma
+   Event/xAOD/xAODMuon
+   Event/xAOD/xAODJet
+   Event/xAOD/xAODTau
+   Event/xAOD/xAODTracking
+   Event/xAOD/xAODTruth
+   Generators/TruthUtils
+   PhysicsAnalysis/AnalysisCommon/PATCore
+   PhysicsAnalysis/AnalysisCommon/PATInterfaces
+   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
+   PhysicsAnalysis/MCTruthClassifier
+   Reconstruction/tauRecTools
+   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
+   PRIVATE
+   Control/AthLinks
+   Event/xAOD/xAODCore
+   Event/xAOD/xAODEventInfo
+   Event/xAOD/xAODMetaData
+   Tools/PathResolver
+   PhysicsAnalysis/AnalysisCommon/PileupReweighting
+   ${extra_deps} )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO )
 
-
-
-# Component(s) in the package:
+# Libraries in the package:
 atlas_add_library( TauAnalysisToolsLib
-                     Root/*.cxx
-		     PUBLIC_HEADERS TauAnalysisTools
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthLinks AsgTools xAODEgamma xAODJet xAODTau xAODTracking xAODTruth TruthUtils PATCoreLib PATInterfaces ElectronPhotonSelectorToolsLib AthenaBaseComps xAODCore xAODEventInfo GaudiKernel PathResolver )
+   TauAnalysisTools/*.h Root/*.cxx
+   PUBLIC_HEADERS TauAnalysisTools
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODMuon xAODJet
+   xAODTau xAODTracking xAODTruth TruthUtils PATCoreLib PATInterfaces
+   ElectronPhotonSelectorToolsLib tauRecToolsLib MCTruthClassifierLib
+   PRIVATE_LINK_LIBRARIES AthLinks xAODEventInfo xAODMetaData PathResolver )
 
-atlas_add_component( TauAnalysisTools
-		     src/*.cxx
-                     src/components/*.cxx		     
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthLinks AsgTools xAODEgamma xAODJet xAODTau xAODTracking xAODTruth TruthUtils PATCoreLib PATInterfaces ElectronPhotonSelectorToolsLib AthenaBaseComps xAODCore xAODEventInfo GaudiKernel PathResolver TauAnalysisToolsLib )
+if( NOT XAOD_STANDALONE )
+   atlas_add_component( TauAnalysisTools
+      src/*.cxx src/components/*.cxx
+      LINK_LIBRARIES AthenaBaseComps AsgTools xAODTau GaudiKernel
+      TauAnalysisToolsLib )
+endif()
+
+atlas_add_dictionary( TauAnalysisToolsDict
+   TauAnalysisTools/TauAnalysisToolsDict.h
+   TauAnalysisTools/selection.xml
+   LINK_LIBRARIES TauAnalysisToolsLib )
+
+# Executable(s) in the package:
+if( XAOD_STANDALONE )
+   atlas_add_executable( TauAnalysisToolsExample
+      util/TauAnalysisToolsExample.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODCore xAODEventInfo
+      xAODTau AsgTools PileupReweightingLib TauAnalysisToolsLib )
+endif()
+
+# Test(s) in the package:
+if( NOT XAOD_STANDALONE )
+   atlas_add_test( ut_TauAnalysisTools_test
+      SOURCES test/ut_TauAnalysisTools_test.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccess
+      GaudiKernel AsgTools xAODTau TauAnalysisToolsLib )
+endif()
 
 # Install files from the package:
-atlas_install_headers( TauAnalysisTools )
 atlas_install_joboptions( share/*.py )
-

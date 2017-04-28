@@ -48,6 +48,9 @@ class UncertaintyGroup : public asg::AsgMessaging
         virtual size_t                    getNumSubgroups()  const { return m_subgroups.size();  }
         virtual size_t                    getNumComponents() const;
 
+        virtual std::vector<UncertaintyComponent*> getComponents() const { return m_components;  }
+        virtual std::vector<UncertaintyGroup*> getSubgroups() const { return m_subgroups;        }
+  
         // Access to information on the constituent components
         virtual std::set<CompScaleVar::TypeEnum> getScaleVars() const;
 

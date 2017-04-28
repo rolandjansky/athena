@@ -46,7 +46,7 @@ namespace TrigConf {
                                       ( ! menu->container()->hasStore() ) ) ) {
          msg << MSG::FATAL << "prepareTriggerMenu(...) Received "
              << "xAOD::TriggerMenu object is not connected to an auxiliary "
-             << "store" << endreq;
+             << "store" << endmsg;
          return StatusCode::FAILURE;
       }
 
@@ -63,7 +63,7 @@ namespace TrigConf {
          ctpConfig.menu().addTriggerItem( item );
          if( menu->itemPrescalesAvailable() ) {
             ctpConfig.prescaleSet().setPrescale( menu->itemCtpIds()[ i ],
-						 static_cast< float >( menu->itemPrescales()[ i ] ) );
+                                                 static_cast< float >( menu->itemPrescales()[ i ] ) );
          }
       }
 
@@ -88,7 +88,7 @@ namespace TrigConf {
          } else {
             msg << MSG::WARNING << "prepareTriggerMenu(...): "
                 << "Couldn't figure out 'level' for chain: "
-                << menu->chainNames()[ i ] << endreq;
+                << menu->chainNames()[ i ] << endmsg;
          }
          // An empty signature list for the chain:
          std::vector< HLTSignature* > signatures;
@@ -116,7 +116,7 @@ namespace TrigConf {
 
             if( msg.level() <= MSG::VERBOSE ) {
                msg << MSG::VERBOSE << "chain has " << counters.size()
-                   << " signatures" << endreq;
+                   << " signatures" << endmsg;
             }
             for( size_t sig = 0; sig < counters.size(); ++sig ) {
                std::vector< HLTTriggerElement* > outTEs;
@@ -131,13 +131,13 @@ namespace TrigConf {
                signatures.push_back( signature );
                if( msg.level() <= MSG::VERBOSE ) {
                   msg << MSG::VERBOSE << "prepared signature: "
-                      << *( signatures.back() ) << endreq;
+                      << *( signatures.back() ) << endmsg;
                }
             }
          } else if( ! signatureWarningPrinted ) {
             msg << MSG::WARNING << "prepareTriggerMenu(...): "
                 << "HLT Signature information not available on the input"
-                << endreq;
+                << endmsg;
             signatureWarningPrinted = true;
          }
 
@@ -163,7 +163,7 @@ namespace TrigConf {
          if( ! chainList.addHLTChain( chain ) ) {
             msg << MSG::FATAL << "prepareTriggerMenu(...): "
                 << "Couldn't add chain \"" << chain->name()
-                << "\"" << endreq;
+                << "\"" << endmsg;
             delete chain;
             return StatusCode::FAILURE;
          }
@@ -192,7 +192,7 @@ namespace TrigConf {
          }
       } else {
          msg << MSG::WARNING << "prepareTriggerMenu(...): "
-             << "HLT Sequence information not available on the input" << endreq;
+             << "HLT Sequence information not available on the input" << endmsg;
       }
 
       // Check if bunch-groups are available:
@@ -226,14 +226,14 @@ namespace TrigConf {
       } else {
          msg << MSG::WARNING << "prepareTriggerMenu(...): "
              << "Bunch-group information not available on the "
-             << "input" << endreq;
+             << "input" << endmsg;
       }
 
       // Let the user know what happened:
-      msg << MSG::INFO << "Loaded configuration:" << endreq;
+      msg << MSG::INFO << "Loaded configuration:" << endmsg;
       msg << MSG::INFO << "  SMK = " << menu->smk()
           << ", L1PSK = " << menu->l1psk()
-          << ", HLTPSK = " << menu->hltpsk() << endreq;
+          << ", HLTPSK = " << menu->hltpsk() << endmsg;
 
       // Return gracefully:
       return StatusCode::SUCCESS;

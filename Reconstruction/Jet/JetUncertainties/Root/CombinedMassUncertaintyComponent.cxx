@@ -157,10 +157,8 @@ StatusCode CombinedMassUncertaintyComponent::setCombWeightMassDefs(const CompMas
     switch (caloMassDef)
     {
         case CompMassDef::CaloMass:
-            m_caloMassScale_weights = SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t>("JetJMSScaleMomentumCalo");
-            break;
         case CompMassDef::TAMass:
-            m_caloMassScale_weights = SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA");
+            m_caloMassScale_weights = JetFourMomAccessor(CompMassDef::getJetScaleString(caloMassDef).Data());
             break;
         default:
             ATH_MSG_ERROR("Unsupported mass parametrization for the combined mass calo weights: " << getName().Data());
@@ -169,10 +167,8 @@ StatusCode CombinedMassUncertaintyComponent::setCombWeightMassDefs(const CompMas
     switch (TAMassDef)
     {
         case CompMassDef::CaloMass:
-            m_TAMassScale_weights = SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t>("JetJMSScaleMomentumCalo");
-            break;
         case CompMassDef::TAMass:
-            m_TAMassScale_weights = SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA");
+            m_TAMassScale_weights = JetFourMomAccessor(CompMassDef::getJetScaleString(TAMassDef).Data());
             break;
         default:
             ATH_MSG_ERROR("Unsupported mass parametrization for the combined mass TA weights: " << getName().Data());
@@ -296,8 +292,8 @@ bool CombinedMassUncertaintyComponent::getValidityImpl(const xAOD::Jet& jet, con
 StatusCode CombinedMassUncertaintyComponent::calculateCombinedMass(const xAOD::Jet& jet, const double shiftFactorCalo, const double shiftFactorTA, double& combMass) const
 {
     // Accessors for the scales we need
-    static SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t> caloMassScale("JetJMSScaleMomentumCalo");
-    static SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t> TAMassScale("JetJMSScaleMomentumTA");
+    static JetFourMomAccessor caloMassScale(CompMassDef::getJetScaleString(CompMassDef::CaloMass).Data());
+    static JetFourMomAccessor TAMassScale(CompMassDef::getJetScaleString(CompMassDef::TAMass).Data());
 
     // Get the weight factors
     const double factorCalo = getWeightFactorCalo(jet,shiftFactorCalo);
@@ -317,12 +313,12 @@ StatusCode CombinedMassUncertaintyComponent::calculateCombinedMass(const xAOD::J
     // Watch for zero masses
     // If one mass is zero, use the other without a weight
     // If both are zero, it doesn't matter, the combined mass is zero
-    if (caloMassScale(jet).M() == 0)
-        combMass = TAMassScale(jet).M()*shiftFactorTA;
-    else if (TAMassScale(jet).M() == 0)
-        combMass = caloMassScale(jet).M()*shiftFactorCalo;
+    if (caloMassScale.m(jet) == 0)
+        combMass = TAMassScale.m(jet)*shiftFactorTA;
+    else if (TAMassScale.m(jet) == 0)
+        combMass = caloMassScale.m(jet)*shiftFactorCalo;
     else
-        combMass = (caloMassScale(jet).M()*shiftFactorCalo*caloWeight) + (TAMassScale(jet).M()*shiftFactorTA*TAWeight);
+        combMass = (caloMassScale.m(jet)*shiftFactorCalo*caloWeight) + (TAMassScale.m(jet)*shiftFactorTA*TAWeight);
 
     //if (fabs(jet.pt()*m_energyScale-700)<1 && fabs(jet.m()*m_energyScale-70)<1) ATH_MSG_INFO(Form("CombMass: %f*%f*%f + %f*%f*%f = %f",caloMassScale(jet).M()*m_energyScale,shiftFactorCalo,caloWeight,TAMassScale(jet).M()*m_energyScale,shiftFactorTA,TAWeight,combMass*m_energyScale));
 
@@ -404,12 +400,18 @@ bool CombinedMassUncertaintyComponent::getValidUncertaintyTA(double& unc, const 
 
 double CombinedMassUncertaintyComponent::getWeightFactorCalo(const xAOD::Jet& jet, const double shiftFactor) const
 {
-    return !m_caloMassWeight ? 0 : m_caloMassWeight->getValue(m_caloMassScale_weights(jet).Pt()*m_energyScale,(m_caloMassScale_weights(jet).M()*shiftFactor)/m_caloMassScale_weights(jet).Pt());
+    const double resolution = !m_caloMassWeight ? 0 : m_caloMassWeight->getValue(m_caloMassScale_weights(jet).Pt()*m_energyScale,
+                                                                                 (m_caloMassScale_weights(jet).M()*shiftFactor)/m_caloMassScale_weights(jet).Pt()
+                                                                                );
+    return resolution == 0 ? 0 : 1./(resolution*resolution);
 }
 
 double CombinedMassUncertaintyComponent::getWeightFactorTA(const xAOD::Jet& jet, const double shiftFactor) const
 {
-    return !m_TAMassWeight ? 0 : m_TAMassWeight->getValue(m_TAMassScale_weights(jet).Pt()*m_energyScale,(m_TAMassScale_weights(jet).M()*shiftFactor)/m_TAMassScale_weights(jet).Pt());
+    const double resolution = !m_TAMassWeight ? 0 : m_TAMassWeight->getValue(m_TAMassScale_weights(jet).Pt()*m_energyScale,
+                                                                             (m_TAMassScale_weights(jet).M()*shiftFactor)/m_TAMassScale_weights(jet).Pt()
+                                                                            );
+    return resolution == 0 ? 0 : 1./(resolution*resolution);
 }
 
 

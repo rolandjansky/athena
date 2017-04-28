@@ -1,0 +1,12 @@
+
+## Format: DSID, Xsec, K-Factor, FilterEff, BR, higher order xsec, SampleCategory, Comment to display on twiki, Description for Headline on Twiki
+
+Assign sample tag to one of the following available SampleCategory:
+
+* see DefineTag.py
+
+---> If not defined, sort to "Other"
+
+* if you specify here a NLO xsec by hand, put in the Comment section the citation 
+* if you specify a general commment, please add your emailadress there in case people have questions!!!
+* 

@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 778348 2016-10-13 18:53:21Z krasznaa $
 ################################################################################
 # Package: egammaRecEvent
 ################################################################################
@@ -5,28 +6,31 @@
 # Declare the package name:
 atlas_subdir( egammaRecEvent )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          Control/AthLinks
-                          Control/SGTools
-                          Event/xAOD/xAODCaloEvent
-                          Event/xAOD/xAODTracking )
+# Extra dependencies based on the environment:
+set( extra_deps )
+set( extra_libs )
+if( NOT XAOD_STANDALONE )
+   set( extra_deps Control/SGTools )
+   set( extra_libs SGTools )
+endif()
 
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+# Declare the package's dependencies:
+atlas_depends_on_subdirs(
+   PUBLIC
+   Control/AthContainers
+   Control/AthLinks
+   Event/xAOD/xAODCaloEvent
+   Event/xAOD/xAODTracking
+   ${extra_deps} )
 
 # Component(s) in the package:
 atlas_add_library( egammaRecEvent
-                   Root/*.cxx
-                   PUBLIC_HEADERS egammaRecEvent
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthContainers AthLinks SGTools xAODCaloEvent xAODTracking
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+   egammaRecEvent/*.h Root/*.cxx
+   PUBLIC_HEADERS egammaRecEvent
+   LINK_LIBRARIES AthContainers AthLinks xAODCaloEvent xAODTracking
+   ${extra_libs} )
 
 atlas_add_dictionary( egammaRecEventDict
-                      egammaRecEvent/egammaRecEventDict.h
-                      egammaRecEvent/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks SGTools xAODCaloEvent xAODTracking egammaRecEvent )
-
+   egammaRecEvent/egammaRecEventDict.h
+   egammaRecEvent/selection.xml
+   LINK_LIBRARIES egammaRecEvent )

@@ -1,0 +1,45 @@
+407009,,1.1949,0.022921,1.,XsecTTbarNominal,TTbar,Filter efficiency calculated via script and k-factor set at 1.1949 as for nominal (DSID410000),POWHEG+Pythia6 ttbar production with Powheg hdamp=mtop Perugia 2012 tune at least one  lepton filter and 600<HT<1000 GeV	        
+407010,,1.1949,0.003204335,1.,XsecTTbarNominal,TTbar,Filter efficiency calculated via script and k-factor set at 1.1949 as for nominal (DSID410000),POWHEG+Pythia6 ttbar production with Powheg hdamp=mtop Perugia 2012 tune at least one lepton filter and 1000<HT<1500 GeV  
+407011,,1.1949,0.000565234,1.,XsecTTbarNominal,TTbar,Filter efficiency calculated via script and k-factor set at 1.1949 as for nominal (DSID410000),POWHEG+Pythia6 ttbar production with Powheg hdamp equal top mass Perugia 2012 tune at least one lepton filter and HT>1500 GeV	
+407012,,1.1949,0.009219475,1.,XsecTTbarNominal,TTbar,Filter efficiency calculated via script and k-factor set at 1.1949 as for nominal (DSID410000),POWHEG+Pythia6 ttbar production with Powheg hdamp equal top mass Perugia 2012 tune at least one lepton filter and MET>200 GeV	
+407018,,1.054,0.088461215,,XsecSingleTopWtchan,SingleTop,Filter efficiency calculated via script, POWHEG+Pythia6 Wt production (top) with CT10 and Perugia2012 tune HT> 500 GeV
+407019,,1.054,0.011282481,,XsecSingleTopWtchan,SingleTop,Filter efficiency calculated via script, POWHEG+Pythia6 Wt production (top) with CT10 and Perugia2012 tune MET>200 GeV
+407020,,1.054,0.088415243,,XsecSingleTopWtchan,SingleTop,Filter efficiency calculated via script,POWHEG+Pythia6 Wt production (antitop) with CT10 and Perugia2012 tune HT> 500 GeV      
+407021,,1.054,0.011259073,,XsecSingleTopWtchan,SingleTop,Filter efficiency calculated via script,POWHEG+Pythia6 Wt production (antitop) with CT10 and Perugia2012 tune MET> 200 GeV
+407029,,1.0611,,,XsecTTbarNominal,,,
+407030,,1.0611,,,XsecTTbarNominal,,,
+407031,,1.0611,,,XsecTTbarNominal,,,
+407032,,1.0611,,,XsecTTbarNominal,,,
+407033,,1.3611,,,XsecTTbarNominal,,,
+407034,,1.3611,,,XsecTTbarNominal,,,
+407035,,1.3611,,,XsecTTbarNominal,,,
+407036,,1.3611,,,XsecTTbarNominal,,,
+407037,,1.1945,,,XsecTTbarNominal,,,
+407038,,1.1945,,,XsecTTbarNominal,,,
+407039,,1.1945,,,XsecTTbarNominal,,,
+407040,,1.1945,,,XsecTTbarNominal,,,
+407041,,1.1943,,,XsecTTbarNominal,,,
+407042,,1.1943,,,XsecTTbarNominal,,,
+407043,,1.1943,,,XsecTTbarNominal,,,
+407044,,1.1943,,,XsecTTbarNominal,,,
+407049,,1.054,,,XsecSingleTopWtchan,,, 
+407050,,1.027,,,XsecSingleTopWtchan,,, 
+407051,,1.073,,,XsecSingleTopWtchan,,, 
+407052,,1.054,,,XsecSingleTopWtchan,,, 
+407053,,1.027,,,XsecSingleTopWtchan,,, 
+407054,,1.073,,,XsecSingleTopWtchan,,, 
+407055,,1.054,,,XsecSingleTopWtchan,,, 
+407056,,1.027,,,XsecSingleTopWtchan,,, 
+407057,,1.073,,,XsecSingleTopWtchan,,, 
+407058,,1.054,,,XsecSingleTopWtchan,,, 
+407059,,1.027,,,XsecSingleTopWtchan,,, 
+407060,,1.073,,,XsecSingleTopWtchan,,, 
+407061,,1.054,,,XsecSingleTopWtchan,,,
+407062,,1.054,,,XsecSingleTopWtchan,,,
+407063,,1.054,,,XsecSingleTopWtchan,,,
+407064,,1.054,,,XsecSingleTopWtchan,,,
+407200,,1.8743,,,XsecTTbarNominal,TTbarBulk,,MG+Pythia8 ttbar + up to 2 jets with A14 NNPDF30NLO 0<MET<200 0<HT<500 
+407201,,1.8743,,,XsecTTbarNominal,TTbarBulk,,MG+Pythia8 ttbar + up to 2 jets with A14 NNPDF30NLO 0<MET<200 500<HT<700 
+407202,,1.8743,,,XsecTTbarNominal,TTbarBulk,,MG+Pythia8 ttbar + up to 2 jets with A14 NNPDF30NLO 0<MET<200 700<HT<1000 
+407203,,1.8743,,,XsecTTbarNominal,TTbarBulk,,MG+Pythia8 ttbar + up to 2 jets with A14 NNPDF30NLO MET>200 HT<1000 
+407204,,1.8743,,,XsecTTbarNominal,TTbarBulk,,MG+Pythia8 ttbar + up to 2 jets with A14 NNPDF30NLO HT>1000  

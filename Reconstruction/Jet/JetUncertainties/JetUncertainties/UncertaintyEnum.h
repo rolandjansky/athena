@@ -88,8 +88,10 @@ namespace CompScaleVar
         D23,            // The 2,3 splitting distance
         Tau21,          // The ratio on n-subjettiness 2/1
         Tau32,          // The ratio on n-subjettiness 3/2
+        Tau21WTA,       // The ratio on n-subjettiness 2/1 with WTA axis
         Tau32WTA,       // The ratio on n-subjettiness 3/2 with WTA axis
         D2Beta1,        // The value of D2^{beta=1} (ECF ratio)
+        Qw,             // The value of Qw
         
         MassRes         // The jet mass resolution
     };

@@ -1,0 +1,225 @@
+#!/bin/sh
+
+if test "$1" != "" && cd $1
+then
+    PKG=`pwd`
+else
+    echo package directory \"$1\" not found && exit 1
+    exit 1
+fi
+
+NAME=`basename $PKG`
+ALG=$2
+
+test "`echo $ALG | grep -E '^[_A-Za-z][_A-Za-z0-9]*$'`" == "" && echo algorithm name \"$ALG\" is not valid && exit 2
+
+HEADER=$PKG/$NAME/$ALG.h
+mkdir -p `dirname $HEADER`
+test -e $HEADER && echo header $HEADER already exists && exit 3
+SOURCE=$PKG/Root/$ALG.cxx
+mkdir -p `dirname $SOURCE`
+test -e $SOURCE && echo source $SOURCE already exists && exit 4
+LINKDEF=$PKG/Root/LinkDef.h
+test \! -e $LINKDEF && echo LinkDef file $LINKDEF does not exist && exit 5
+MAKEFILE=$PKG/cmt/Makefile.RootCore
+test \! -e $MAKEFILE && echo makefile $MAKEFILE does not exist && exit 6
+
+
+
+echo '#ifndef '$NAME'_'$ALG'_H' >>$HEADER
+echo '#define '$NAME'_'$ALG'_H' >>$HEADER
+echo '' >>$HEADER
+echo '#include <EventLoop/Algorithm.h>' >>$HEADER
+echo '' >>$HEADER
+echo 'class '$ALG' : public EL::Algorithm' >>$HEADER
+echo '{' >>$HEADER
+echo '  // put your configuration variables here as public variables.' >>$HEADER
+echo '  // that way they can be set directly from CINT and python.' >>$HEADER
+echo 'public:' >>$HEADER
+echo '  // float cutValue;' >>$HEADER
+echo '' >>$HEADER
+echo '' >>$HEADER
+echo '' >>$HEADER
+echo '  // variables that don'\''t get filled at submission time should be' >>$HEADER
+echo '  // protected from being send from the submission node to the worker' >>$HEADER
+echo '  // node (done by the //!)' >>$HEADER
+echo 'public:' >>$HEADER
+echo '  // Tree *myTree; //!' >>$HEADER
+echo '  // TH1 *myHist; //!' >>$HEADER
+echo '' >>$HEADER
+echo '' >>$HEADER
+echo '' >>$HEADER
+echo '  // this is a standard constructor' >>$HEADER
+echo '  '$ALG' ();' >>$HEADER
+echo '' >>$HEADER
+echo '  // these are the functions inherited from Algorithm' >>$HEADER
+echo '  virtual EL::StatusCode setupJob (EL::Job& job);' >>$HEADER
+echo '  virtual EL::StatusCode fileExecute ();' >>$HEADER
+echo '  virtual EL::StatusCode histInitialize ();' >>$HEADER
+echo '  virtual EL::StatusCode changeInput (bool firstFile);' >>$HEADER
+echo '  virtual EL::StatusCode initialize ();' >>$HEADER
+echo '  virtual EL::StatusCode execute ();' >>$HEADER
+echo '  virtual EL::StatusCode postExecute ();' >>$HEADER
+echo '  virtual EL::StatusCode finalize ();' >>$HEADER
+echo '  virtual EL::StatusCode histFinalize ();' >>$HEADER
+echo '' >>$HEADER
+echo '  // this is needed to distribute the algorithm to the workers' >>$HEADER
+echo '  ClassDef('$ALG', 1);' >>$HEADER
+echo '};' >>$HEADER
+echo '' >>$HEADER
+echo '#endif' >>$HEADER
+
+
+
+echo '#include <EventLoop/Job.h>' >>$SOURCE
+echo '#include <EventLoop/StatusCode.h>' >>$SOURCE
+echo '#include <EventLoop/Worker.h>' >>$SOURCE
+echo '#include <'$NAME'/'$ALG'.h>' >>$SOURCE
+echo '' >>$SOURCE
+echo '// this is needed to distribute the algorithm to the workers' >>$SOURCE
+echo 'ClassImp('$ALG')' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo $ALG' :: '$ALG' ()' >>$SOURCE
+echo '{' >>$SOURCE
+echo '  // Here you put any code for the base initialization of variables,' >>$SOURCE
+echo '  // e.g. initialize all pointers to 0.  Note that you should only put' >>$SOURCE
+echo '  // the most basic initialization here, since this method will be' >>$SOURCE
+echo '  // called on both the submission and the worker node.  Most of your' >>$SOURCE
+echo '  // initialization code will go into histInitialize() and' >>$SOURCE
+echo '  // initialize().' >>$SOURCE
+echo '}' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo 'EL::StatusCode '$ALG' :: setupJob (EL::Job& job)' >>$SOURCE
+echo '{' >>$SOURCE
+echo '  // Here you put code that sets up the job on the submission object' >>$SOURCE
+echo '  // so that it is ready to work with your algorithm, e.g. you can' >>$SOURCE
+echo '  // request the D3PDReader service or add output files.  Any code you' >>$SOURCE
+echo '  // put here could instead also go into the submission script.  The' >>$SOURCE
+echo '  // sole advantage of putting it here is that it gets automatically' >>$SOURCE
+echo '  // activated/deactivated when you add/remove the algorithm from your' >>$SOURCE
+echo '  // job, which may or may not be of value to you.' >>$SOURCE
+echo '  return EL::StatusCode::SUCCESS;' >>$SOURCE
+echo '}' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo 'EL::StatusCode '$ALG' :: histInitialize ()' >>$SOURCE
+echo '{' >>$SOURCE
+echo '  // Here you do everything that needs to be done at the very' >>$SOURCE
+echo '  // beginning on each worker node, e.g. create histograms and output' >>$SOURCE
+echo '  // trees.  This method gets called before any input files are' >>$SOURCE
+echo '  // connected.' >>$SOURCE
+echo '  return EL::StatusCode::SUCCESS;' >>$SOURCE
+echo '}' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo 'EL::StatusCode '$ALG' :: fileExecute ()' >>$SOURCE
+echo '{' >>$SOURCE
+echo '  // Here you do everything that needs to be done exactly once for every' >>$SOURCE
+echo '  // single file, e.g. collect a list of all lumi-blocks processed' >>$SOURCE
+echo '  return EL::StatusCode::SUCCESS;' >>$SOURCE
+echo '}' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo 'EL::StatusCode '$ALG' :: changeInput (bool firstFile)' >>$SOURCE
+echo '{' >>$SOURCE
+echo '  // Here you do everything you need to do when we change input files,' >>$SOURCE
+echo '  // e.g. resetting branch addresses on trees.  If you are using' >>$SOURCE
+echo '  // D3PDReader or a similar service this method is not needed.' >>$SOURCE
+echo '  return EL::StatusCode::SUCCESS;' >>$SOURCE
+echo '}' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo 'EL::StatusCode '$ALG' :: initialize ()' >>$SOURCE
+echo '{' >>$SOURCE
+echo '  // Here you do everything that you need to do after the first input' >>$SOURCE
+echo '  // file has been connected and before the first event is processed,' >>$SOURCE
+echo '  // e.g. create additional histograms based on which variables are' >>$SOURCE
+echo '  // available in the input files.  You can also create all of your' >>$SOURCE
+echo '  // histograms and trees in here, but be aware that this method' >>$SOURCE
+echo '  // doesn'\''t get called if no events are processed.  So any objects' >>$SOURCE
+echo '  // you create here won'\''t be available in the output if you have no' >>$SOURCE
+echo '  // input events.' >>$SOURCE
+echo '  return EL::StatusCode::SUCCESS;' >>$SOURCE
+echo '}' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo 'EL::StatusCode '$ALG' :: execute ()' >>$SOURCE
+echo '{' >>$SOURCE
+echo '  // Here you do everything that needs to be done on every single' >>$SOURCE
+echo '  // events, e.g. read input variables, apply cuts, and fill' >>$SOURCE
+echo '  // histograms and trees.  This is where most of your actual analysis' >>$SOURCE
+echo '  // code will go.' >>$SOURCE
+echo '  return EL::StatusCode::SUCCESS;' >>$SOURCE
+echo '}' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo 'EL::StatusCode '$ALG' :: postExecute ()' >>$SOURCE
+echo '{' >>$SOURCE
+echo '  // Here you do everything that needs to be done after the main event' >>$SOURCE
+echo '  // processing.  This is typically very rare, particularly in user' >>$SOURCE
+echo '  // code.  It is mainly used in implementing the NTupleSvc.' >>$SOURCE
+echo '  return EL::StatusCode::SUCCESS;' >>$SOURCE
+echo '}' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo 'EL::StatusCode '$ALG' :: finalize ()' >>$SOURCE
+echo '{' >>$SOURCE
+echo '  // This method is the mirror image of initialize(), meaning it gets' >>$SOURCE
+echo '  // called after the last event has been processed on the worker node' >>$SOURCE
+echo '  // and allows you to finish up any objects you created in' >>$SOURCE
+echo '  // initialize() before they are written to disk.  This is actually' >>$SOURCE
+echo '  // fairly rare, since this happens separately for each worker node.' >>$SOURCE
+echo '  // Most of the time you want to do your post-processing on the' >>$SOURCE
+echo '  // submission node after all your histogram outputs have been' >>$SOURCE
+echo '  // merged.  This is different from histFinalize() in that it only' >>$SOURCE
+echo '  // gets called on worker nodes that processed input events.' >>$SOURCE
+echo '  return EL::StatusCode::SUCCESS;' >>$SOURCE
+echo '}' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo '' >>$SOURCE
+echo 'EL::StatusCode '$ALG' :: histFinalize ()' >>$SOURCE
+echo '{' >>$SOURCE
+echo '  // This method is the mirror image of histInitialize(), meaning it' >>$SOURCE
+echo '  // gets called after the last event has been processed on the worker' >>$SOURCE
+echo '  // node and allows you to finish up any objects you created in' >>$SOURCE
+echo '  // histInitialize() before they are written to disk.  This is' >>$SOURCE
+echo '  // actually fairly rare, since this happens separately for each' >>$SOURCE
+echo '  // worker node.  Most of the time you want to do your' >>$SOURCE
+echo '  // post-processing on the submission node after all your histogram' >>$SOURCE
+echo '  // outputs have been merged.  This is different from finalize() in' >>$SOURCE
+echo '  // that it gets called on all worker nodes regardless of whether' >>$SOURCE
+echo '  // they processed input events.' >>$SOURCE
+echo '  return EL::StatusCode::SUCCESS;' >>$SOURCE
+echo '}' >>$SOURCE
+
+
+
+field='EventLoop'
+for pkg in `$ROOTCOREDIR/scripts/get_field.sh $MAKEFILE PACKAGE_DEP`
+do
+    test "$pkg" != "EventLoop" && field="$field $pkg"
+done
+$ROOTCOREDIR/scripts/set_field.sh $MAKEFILE PACKAGE_DEP "$field"
+
+
+
+echo '#include <'$NAME/$ALG'.h>' >$LINKDEF-
+echo '' >>$LINKDEF-
+cat $LINKDEF >>$LINKDEF-
+echo '' >>$LINKDEF-
+echo '#ifdef __CINT__' >>$LINKDEF-
+echo '#pragma link C++ class '$ALG'+;' >>$LINKDEF-
+echo '#endif' >>$LINKDEF-
+mv -f $LINKDEF- $LINKDEF

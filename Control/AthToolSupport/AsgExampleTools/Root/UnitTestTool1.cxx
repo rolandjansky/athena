@@ -14,6 +14,9 @@
 
 #include <AsgExampleTools/UnitTestTool1.h>
 
+#include <gtest/gtest.h>
+#include <map>
+
 //
 // method implementations
 //
@@ -25,7 +28,18 @@ namespace asg
     : AsgTool (val_name)
   {
     declareProperty ("propertyInt", m_propertyInt, "the integer property");
+    declareProperty ("propertyString", m_propertyString, "the string property");
     declareProperty ("initializeFail", m_initializeFail, "whether initialize should fail");
+
+    ++ instance_counts (name());
+  }
+
+
+
+  UnitTestTool1 ::
+  ~UnitTestTool1 ()
+  {
+    -- instance_counts (name());
   }
 
 
@@ -45,6 +59,14 @@ namespace asg
     }
     m_isInitialized = true;
     return StatusCode::SUCCESS;
+  }
+
+
+
+  std::string UnitTestTool1 ::
+  getPropertyString () const
+  {
+    return m_propertyString;
   }
 
 
@@ -69,5 +91,18 @@ namespace asg
   isInitialized () const
   {
     return m_isInitialized;
+  }
+
+
+
+  int& UnitTestTool1 ::
+  instance_counts (const std::string& name)
+  {
+    static std::map<std::string,int> counts;
+    auto iter = counts.find (name);
+    if (iter == counts.end())
+      iter = counts.insert (std::make_pair (name, 0)).first;
+    assert (iter != counts.end());
+    return iter->second;
   }
 }

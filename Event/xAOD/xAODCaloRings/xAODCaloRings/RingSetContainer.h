@@ -25,10 +25,8 @@ typedef std::vector< ElementLink< RingSetContainer > >
 } // namespace xAOD
 
 // Set up a CLID for the container:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::RingSetContainer , 1213110449 , 1 )
-#endif // XAOD_STANDALONE
 
 #endif // XAODCALORINGS_RINGSETCONTAINER_H
 

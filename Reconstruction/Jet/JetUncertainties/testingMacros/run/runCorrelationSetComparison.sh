@@ -8,7 +8,6 @@ jetType="AntiKt4EMTopo"
 spacing="50ns"
 isRelative="false"
 
-
 # outFile=CorrUnc.pdf configFiles="JES_2012/Final/InsituJES2012_AllNuisanceParameters.config;JES_2012/Final/InsituJES2012_StrongerCorrelations.config;JES_2012/Final/InsituJES2012_WeakerCorrelations.config" bash runMakeCorrelationMatrixPlots.sh Flexible FineGridFixedEta
 
 
@@ -133,6 +132,7 @@ if [[ $1 = generic ]] ; then
         else
             corrFile="NONE"
         fi
+        echo $corrCompScript $jetType $outFile $corrFile $isRelative $root1 $root2 $root3 $root4
         $corrCompScript $jetType $outFile $corrFile $isRelative $root1 $root2 $root3 $root4
     else
         echo "Nothing to do - output file is already up to date"

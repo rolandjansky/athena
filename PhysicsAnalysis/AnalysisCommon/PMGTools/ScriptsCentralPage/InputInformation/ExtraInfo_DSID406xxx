@@ -1,0 +1,20 @@
+406000,,,,,,,,gluino production glu->qq+LSP in simplified model m_glu = 1500 GeV m_N1 = 0 GeV
+406001,,,,,,,,squark production sq->q+LSP in simplified model m_sq = 1050 GeV m_N1 = 0 GeV
+406002,,,,,,,,stop direct pair production st->t+LSP in simplified model m_stop = 800 GeV m_N1 = 1 GeV
+406003,,,,,,,,sbottom direct pair production sb->b+LSP in simplified model m_sbottom = 800 GeV m_N1 = 1 GeV
+406004,,,,,,,,~chi1+/- ~chi20 production decay via WZ in simplified model m_C1N2 = 400 GeV m_N1 = 100 GeV
+406005,,,,,,,,~chi1+/- ~chi20 production decay via slepton in simplified model m_C1N2 = 600 GeV m_slep =  450eV m_N1 = 300 GeV
+406009,,,,,,,,stop grid generation with three-body decays m_stop = 250 GeV m_N1 = 160 GeV
+406010,,,,,,,,stop grid generation with three-body decays m_stop = 300 GeV m_N1 = 150 GeV
+406011,,,,,,,,stop grid generation with three-body decays m_stop = 300 GeV m_N1 = 180 GeV
+406012,,,,,,,,gluino production glu->bb+~chi20 chi20->Z+LSP in simplified model m_glu = 1200 GeV m_N2 = 250 GeV m_N1 = 1 GeV
+406013,,,,,,,,gluino production glu->bb+~chi20 chi20->Z+LSP in simplified model m_glu = 1400 GeV m_N2 = 135 GeV m_N1 = 1 GeV
+406014,,,,,,,,gluino production glu->bb+~chi20 chi20->Z+LSP in simplified model m_glu = 1600 GeV m_N2 = 115 GeV m_N1 = 1 GeV
+406015,,,,,,,,gluino production glu->bb+~chi20 chi20->Z+LSP in simplified model m_glu = 1800 GeV m_N2 = 95 GeV m_N1 = 1 GeV
+406016,,,,,,,,squark production sq->q+~chi20 chi20->Z+LSP in simplified model m_sq = 800 GeV m_N2 = 130 GeV m_N1 = 1 GeV
+406017,,,,,,,,squark production sq->q+~chi20 chi20->Z+LSP in simplified model m_sq = 1000 GeV m_N2 = 180 GeV m_N1 = 1 GeV
+406018,,,,,,,,squark production sq->q+~chi20 chi20->Z+LSP in simplified model m_sq = 1200 GeV m_N2 = 130 GeV m_N1 = 1 GeV
+406019,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1200 GeV m_N2 = 250 GeV m_N1 = 150 GeV
+406020,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1400 GeV m_N2 = 230 GeV m_N1 = 130 GeV
+406021,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1600 GeV m_N2 = 210 GeV m_N1 = 110 GeV
+406022,,,,,,,,gluino production glu->qq+~chi20 chi20->Z+LSP in simplified model m_glu = 1800 GeV m_N2 = 190 GeV m_N1 = 90 GeV

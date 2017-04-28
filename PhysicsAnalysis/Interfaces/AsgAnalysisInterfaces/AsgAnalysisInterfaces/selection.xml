@@ -1,0 +1,8 @@
+<!-- $Id: selection.xml 790193 2016-12-16 16:36:15Z krasznaa $ -->
+<lcgdict>
+  <namespace name="CP"/>
+  <class name="CP::IEfficiencyScaleFactorTool" />
+  <class name="CP::IPileupReweightingTool" />
+  <class name="IGoodRunsListSelectionTool" />
+  <class name="IObservableTool" />
+</lcgdict>

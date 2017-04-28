@@ -221,7 +221,7 @@ void RingSetConf_v1::print( const RawConf &raw,
       ", doEtaAxesDivision = " << raw.doEtaAxesDivision <<
       ", doPhiAxesDivision = " << raw.doPhiAxesDivision;
 
-    stream << "|" << endreq;
+    stream << "|" << endmsg;
 
   }
 }
@@ -344,7 +344,7 @@ void RingSetConf_v1::print( const RawConfCollection &rawCol,
     MsgStream &stream, MSG::Level level ) 
 {
   if( stream.level() <= level ) {
-    stream << level << "RawConfCollection is : " << endreq;
+    stream << level << "RawConfCollection is : " << endmsg;
     for (unsigned rsIdx = 0; rsIdx < rawCol.size(); ++rsIdx) {
       stream << level << "RawConf #" << rsIdx << " : ";
       RingSetConf_v1::print(rawCol.at(rsIdx),stream,level);
@@ -750,7 +750,7 @@ void RingSetConf_v1::print( MsgStream &stream, MSG::Level level ) const {
       ", doEtaAxesDivision = " << doEtaAxesDivision() << 
       ", doPhiAxesDivision = " << doPhiAxesDivision();
 
-    stream << "|" << endreq;
+    stream << "|" << endmsg;
 
   }
 }

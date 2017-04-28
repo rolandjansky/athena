@@ -15,6 +15,7 @@
 
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
+#include "ElectronPhotonSelectorTools/ElectronSelectorHelpers.h"
 #include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "TElectronLikelihoodTool.h"
 #include "EGSelectorConfigurationMapping.h"
@@ -154,7 +155,7 @@ StatusCode AsgElectronLikelihoodTool::initialize()
   std::string PDFfilename(""); //Default
 
   if(!m_WorkingPoint.empty()){
-    m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::m_LHPointToConfFile);
+    m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::LHPointToConfFile);
     ATH_MSG_INFO("operating point : " << this->getOperatingPointName());
   }
   
@@ -321,18 +322,9 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
     et  = ( cosh(eta) != 0.) ? energy/cosh(eta) : 0.;
   
   // number of track hits
-  uint8_t nSi(0);
-  uint8_t nSiDeadSensors(0);
-  uint8_t nPix(0);
-  uint8_t nSCT(0);
-  uint8_t nPixDeadSensors(0); 
-  uint8_t nSCTDeadSensors(0); 
-  uint8_t expectBlayer(true);
-  uint8_t nBlayerHits(0); 
-  uint8_t nBlayerOutliers(0); 
-  uint8_t expectNextToInnerMostLayer(true);
-  uint8_t nNextToInnerMostLayerHits(0); 
-  uint8_t nNextToInnerMostLayerOutliers(0); 
+  uint8_t nSiHitsPlusDeadSensors(0);
+  uint8_t nPixHitsPlusDeadSensors(0);
+  bool passBLayerRequirement(false); 
   float d0(0.0);
   float deltaEta=0, deltaPhiRescaled2=0;
   float wstot=0, EoverP=0;
@@ -347,28 +339,16 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   if(!m_caloOnly) {
       // retrieve associated track
       const xAOD::TrackParticle* t  = eg->trackParticle();    
-      if (t)
-        {
-           d0 = t->d0();
-           allFound = allFound && t->summaryValue(nPix, xAOD::numberOfPixelHits);
-           allFound = allFound && t->summaryValue(nSCT, xAOD::numberOfSCTHits);
-           nSi = nPix + nSCT;
-           allFound = allFound && t->summaryValue(nPixDeadSensors, xAOD::numberOfPixelDeadSensors);
-           allFound = allFound && t->summaryValue(nSCTDeadSensors, xAOD::numberOfSCTDeadSensors);
-           nSiDeadSensors = nPixDeadSensors + nSCTDeadSensors;
-
-           allFound = allFound && t->summaryValue(expectBlayer, xAOD::expectBLayerHit);
-           allFound = allFound && t->summaryValue(nBlayerHits, xAOD::numberOfBLayerHits);
-           allFound = allFound && t->summaryValue(nBlayerOutliers, xAOD::numberOfBLayerOutliers);
-	   allFound = allFound && t->summaryValue(expectNextToInnerMostLayer,  xAOD::expectNextToInnermostPixelLayerHit);
-           allFound = allFound && t->summaryValue(nNextToInnerMostLayerHits, xAOD::numberOfNextToInnermostPixelLayerHits);
-           allFound = allFound && t->summaryValue(nNextToInnerMostLayerOutliers,  xAOD::numberOfNextToInnermostPixelLayerOutliers);
-           EoverP = fabs(t->qOverP()) * energy;
-        }
-      else
-        {
-          ATH_MSG_WARNING ( "Failed, no track particle: et= " << et << "eta= " << eta );
-        }
+      if (t) {
+        nSiHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfSiliconHitsAndDeadSensors(t);
+        nPixHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(t);
+        passBLayerRequirement = ElectronSelectorHelpers::passBLayerRequirement(t);
+        d0 = t->d0();
+        EoverP = fabs(t->qOverP()) * energy;
+      }
+      else {
+        ATH_MSG_WARNING ( "Failed, no track particle: et= " << et << "eta= " << eta );
+      }
 
       allFound = allFound && eg->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1);
       allFound = allFound && eg->trackCaloMatchValue(deltaPhiRescaled2, xAOD::EgammaParameters::deltaPhiRescaled2);
@@ -388,11 +368,10 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   // for now don't cache. 
   double likelihood = calculate(eg, ip); 
 
-  ATH_MSG_VERBOSE ( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSi=%i, nSiDeadSensors=%i, nPix=%i, nPixDeadSensors=%i, nBlayerHits=%i, nBlayerOutliers=%i, expectBlayer=%i, nNextToInnerMostLayerHits=%i, nNextToInnerMostLayerOutliers=%i, expectNextToInnerMostLayer=%i, convBit=%i, d0=%8.5f, deltaEta=%8.5f, deltaphires=%5.8f, wstot=%8.5f, EoverP=%8.5f, ip=%8.5f",
+  ATH_MSG_VERBOSE ( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nHitsPlusPixDeadSensors=%i, passBLayerRequirement=%i, convBit=%i, d0=%8.5f, deltaEta=%8.5f, deltaphires=%5.8f, wstot=%8.5f, EoverP=%8.5f, ip=%8.5f",
                          likelihood, eta, et,
-                         nSi, nSiDeadSensors, nPix, nPixDeadSensors,
-                         nBlayerHits, nBlayerOutliers, expectBlayer,
-			 nNextToInnerMostLayerHits, nNextToInnerMostLayerOutliers, expectNextToInnerMostLayer,
+                         nSiHitsPlusDeadSensors, nPixHitsPlusDeadSensors, 
+                         passBLayerRequirement,
                          convBit, d0, deltaEta, deltaPhiRescaled2, 
                          wstot, EoverP, ip ) );
 
@@ -405,16 +384,9 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   return m_rootTool->accept( likelihood,
                              eta,
                              et,
-                             nSi,
-                             nSiDeadSensors,
-                             nPix,
-                             nPixDeadSensors,
-                             nBlayerHits,
-                             nBlayerOutliers,
-                             expectBlayer,
-			     nNextToInnerMostLayerHits,
-                             nNextToInnerMostLayerOutliers,
-                             expectNextToInnerMostLayer,
+                             nSiHitsPlusDeadSensors,
+                             nPixHitsPlusDeadSensors,
+                             passBLayerRequirement,
                              convBit,
                              d0,
                              deltaEta,
@@ -460,16 +432,9 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
   const double et  = ( cosh(eta) != 0.) ? energy/cosh(eta) : 0.;
   
   // Variables the EFCaloLH ignores
-  uint8_t nSi(0);
-  uint8_t nSiDeadSensors(0);
-  uint8_t nPix(0);
-  uint8_t nPixDeadSensors(0); 
-  uint8_t expectBlayer(true);
-  uint8_t nBlayerHits(0); 
-  uint8_t nBlayerOutliers(0);
-  uint8_t expectNextToInnerMostLayer(true);
-  uint8_t nNextToInnerMostLayerHits(0); 
-  uint8_t nNextToInnerMostLayerOutliers(0); 
+  uint8_t nSiHitsPlusDeadSensors(0);
+  uint8_t nPixHitsPlusDeadSensors(0);
+  bool passBLayerRequirement(false); 
   int convBit(0); // this no longer works
 
   // Get the pileup or centrality information
@@ -487,11 +452,10 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
   // for now don't cache. 
   double likelihood = calculate(eg, ip); 
 
-  ATH_MSG_VERBOSE ( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSi=%i, nSiDeadSensors=%i, nPix=%i, nPixDeadSensors=%i, nBlayerHits=%i, nBlayerOutliers=%i, expectBlayer=%i,  nNextToInnerMostLayerHits=%i, nNextToInnerMostLayerOutliers=%i, expectNextToInnerMostLayer=%i, convBit=%i, ip=%8.5f",
+  ATH_MSG_VERBOSE ( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nPixHitsPlusDeadSensors=%i, passBLayerRequirement=%i, convBit=%i, ip=%8.5f",
                          likelihood, eta, et,
-                         nSi, nSiDeadSensors, nPix, nPixDeadSensors,
-                         nBlayerHits, nBlayerOutliers, expectBlayer,
-			 nNextToInnerMostLayerHits, nNextToInnerMostLayerOutliers, expectNextToInnerMostLayer,
+                         nSiHitsPlusDeadSensors, nPixHitsPlusDeadSensors, 
+                         passBLayerRequirement,
                          convBit, ip ) );
 
   double deltaEta=0,deltaPhiRescaled2=0,d0=0;
@@ -510,16 +474,9 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
   return m_rootTool->accept( likelihood,
                              eta,
                              et,
-                             nSi,
-                             nSiDeadSensors,
-                             nPix,
-                             nPixDeadSensors,
-                             nBlayerHits,
-                             nBlayerOutliers,
-                             expectBlayer,
-			     nNextToInnerMostLayerHits,
-                             nNextToInnerMostLayerOutliers,
-                             expectNextToInnerMostLayer,
+                             nSiHitsPlusDeadSensors,
+                             nPixHitsPlusDeadSensors,
+                             passBLayerRequirement,
                              convBit,
                              d0,
                              deltaEta,

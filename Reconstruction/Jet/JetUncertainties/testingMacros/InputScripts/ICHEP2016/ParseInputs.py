@@ -61,7 +61,7 @@ if len(sys.argv) < 3:
     print "     8. Punchthrough directory path"
     exit(1)
 
-outBaselineFile = "JESUncertainty_AllComponents_Ichep2016.root"
+outBaselineFile = "JESUncertainty_AllComponents_ICHEP2016.root"
 inSituDir      = sys.argv[1]
 etaIntercalDir  = sys.argv[2]
 highPtDir       = sys.argv[3]
@@ -117,13 +117,13 @@ flavourHistos       = ReadFlavourHistograms(flavourDir,freezeFlavourInPt) # True
 bJESHistos          = ReadBJESHistograms(bJESDir)
 punchthroughHistos  = ReadPunchthroughHistograms(punchthroughDir)
 
+print nonclosureHistos
+
 # Make one mega-dictionary
 print "Merging inputs..."
-jetDefs = {"AntiKt4Topo_EMJES" : "AntiKt4EMTopo"}#,"AntiKt4Topo_LCJES","AntiKt6Topo_EMJES","AntiKt6Topo_LCJES"]
+jetDefs = {"AntiKt4Topo_EMJES" : "AntiKt4EMTopo", "AntiKt4Topo_LCJES" : "AntiKt4LCTopo"}#,"AntiKt6Topo_EMJES","AntiKt6Topo_LCJES"]
 systematics = {}
 for aJetDef in jetDefs.keys():
-
-    print etaIntercalHistos
 
     systematics[aJetDef] = dict(
                                 inSituHistos[aJetDef].items()       +

@@ -1,0 +1,17 @@
+300100,,,,,,BPhysics,,
+300101,,,,,,BPhysics,,
+300420,,,,,,BPhysics,,
+300421,,,,,,BPhysics,,
+300422,,,,,,BPhysics,,
+300423,,,,,,BPhysics,,
+300424,,,,,,BPhysics,,
+300425,,,,,,BPhysics,,
+300430,,,,,,BPhysics,,Exclusive B0 -> mu+ mu- production with muon pT threshold 3.5 GeV
+300508,,,,,,BPhysics,,hf->Negtau->3mu inclusive production with muon pT thresholds 4 GeV, 2 GeV and 1 GeV
+300509,,,,,,BPhysics,,bb->Negtau->3mu production with muon pT thresholds 4 GeV, 2 GeV and 1 GeV
+300511,,,,,,BPhysics,,hf->Postau->3mu inclusive production with muon pT thresholds 4 GeV, 2 GeV and 1 GeV
+300512,,,,,,BPhysics,,bb->Postau->3mu production with muon pT thresholds 4 GeV, 2 GeV and 1 GeV
+300513,,,,,,BPhysics,,cc->Postau->3mu production with muon pT thresholds 4 GeV, 2 GeV and 1 GeV
+300530,,,,,,BPhysics,,hf->lowmassdimu inclusive production with muon pT thresholds 2 GeV
+300531,,,,,,BPhysics,,bb->lowmassdimu inclusive production with muon pT thresholds 2 GeV
+300532,,,,,,BPhysics,,cc->lowmassdimu inclusive production with muon pT thresholds 2 GeV

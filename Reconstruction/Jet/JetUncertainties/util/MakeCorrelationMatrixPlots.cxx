@@ -33,8 +33,10 @@ double relativeMetric(const double numerator, const double denominator)
     {
         if (fabs(numerator) < 1.e-3)
             return 1;
-        else
+        else {
+            std::cout << "Setting error code in steering" << std::endl;
             return JESUNC_ERROR_CODE;
+        }
     }
     return sqrt(numerator/denominator);
 }
@@ -52,12 +54,12 @@ void DrawLabels(const TH2D* histo, const double fixedValue1, const double fixedV
     }
 
     // Add the ATLAS label
-    ATLASLabel(0.13,minRepStyle?0.825:0.905,"Internal",kBlack);
+    ATLASLabel(0.13,minRepStyle?0.825:0.955,"",kBlack);
 
     // Determine the configuration type (data year, correlation scenario, reduction if applicable)
     const TString config1 = uncTool->getConfigFile();
     const TString config2 = uncToolDiff ? uncToolDiff->getConfigFile() : "";
-    const TString year = config1.Contains("_2011/") ? "2011"/*, #sqrt{s} = 7 TeV"*/ : (config1.Contains("_2012/") ? "2012"/*, #sqrt{s} = 8 TeV"*/ : "UNKNOWN");
+    const TString year = config1.Contains("_2011/") ? "2011"/*, #sqrt{s} = 7 TeV"*/ : config1.Contains("_2012/") ? "2012": config1.Contains("_2015/") ? "2015" : "UNKNOWN";
     const TString jetDef = uncTool->getJetDef();
     const TString scenario1 = config1.Contains("StrongerCorrelations") ? "stronger" : (config1.Contains("WeakerCorrelations") ? "weaker" : "nominal");
     const TString scenario2 = config2.Contains("StrongerCorrelations") ? "stronger" : (config2.Contains("WeakerCorrelations") ? "weaker" : "nominal");
@@ -92,14 +94,14 @@ void DrawLabels(const TH2D* histo, const double fixedValue1, const double fixedV
         const TString reductionString = "str.red"; //"evdm";
         const TString selector = ""; //"#it{p}_{T}^{jet},";
         const TString scenarioString = TString(histo->GetName()).BeginsWith("diff_")?Form("Correlation difference, Rep_{full}^{%sJES} - Rep_{%s}^{%sJES}, %s",selector.Data(),reductionString.Data(),selector.Data(),fixedValString.Data()):Form("Correlation matrix, Rep_{%s}^{%sJES}, %s",TString(histo->GetName()).Contains("_0_")?"full":reductionString.Data(),selector.Data(),fixedValString.Data());
-        tex->DrawLatex(0.13,0.8751,Form("anti-k_{t} #it{R} = %s, %s+JES %s",jetDef.Contains("AntiKt4") ? "0.4" : jetDef.Contains("AntiKt6") ? "0.6" : "UNKNOWN", jetDef.Contains("EM") ? "EM" : jetDef.Contains("LC") ? "LCW" : "UNKNOWN", year.Data()));
+        tex->DrawLatex(0.13,0.8751,Form("anti-#it{k}_{t} #it{R} = %s, %s+JES %s",jetDef.Contains("AntiKt4") ? "0.4" : jetDef.Contains("AntiKt6") ? "0.6" : "UNKNOWN", jetDef.Contains("EM") ? "EM" : jetDef.Contains("LC") ? "LCW" : "UNKNOWN", year.Data()));
         tex->DrawLatex(0.13,0.9305,scenarioString.Data());
     }
     else
     {
-        tex->DrawLatex(0.13,0.955,Form("anti-k_{t} #it{R} = %s, %s+JES",jetDef.Contains("AntiKt4") ? "0.4" : jetDef.Contains("AntiKt6") ? "0.6" : "UNKNOWN", jetDef.Contains("EM") ? "EM" : jetDef.Contains("LC") ? "LCW" : "UNKNOWN"));
-        tex->DrawLatex(0.56,0.955,fixedValString.Data());
-        tex->DrawLatex(0.56,0.905,Form("Data %s, #sqrt{s} = %d TeV",year.Data(),year=="2012"?8:year=="2011"?7:year=="2015"?13:0));
+        tex->DrawLatex(0.48,0.960,Form("anti-#it{k}_{t} #it{R} = %s, %s+JES + #it{in situ}",jetDef.Contains("AntiKt4") ? "0.4" : jetDef.Contains("AntiKt6") ? "0.6" : "UNKNOWN", jetDef.Contains("EM") ? "EM" : jetDef.Contains("LC") ? "LCW" : "UNKNOWN"));
+        tex->DrawLatex(0.48,0.905,fixedValString.Data());
+        tex->DrawLatex(0.13,0.905,Form("Data %s, #sqrt{s} = %d TeV",year.Data(),year=="2012"?8:year=="2011"?7:year=="2015"||year=="2016"?13:0));
     }
 
     
@@ -113,9 +115,9 @@ void DrawLabels(const TH2D* histo, const double fixedValue1, const double fixedV
     if (addExtremumInfo && extremeX > 0 && extremeY > 0)
     {
         if (TString(histo->GetXaxis()->GetTitle()).Contains("#it{p}"))
-            tex->DrawLatex(0.01,0.015,Form("Mean value %.1f%%, max %.1f%% at (%ld,%ld) GeV",mean*100,extremum*100,lround(histo->GetXaxis()->GetBinCenter(extremeX)),lround(histo->GetYaxis()->GetBinCenter(extremeY))));
+            tex->DrawLatex(0.01,0.015,Form("Mean value %.2f, max %.2f at (%ld,%ld) GeV",round(100*mean)/100.,round(100*extremum)/100.,lround(histo->GetXaxis()->GetBinCenter(extremeX)),lround(histo->GetYaxis()->GetBinCenter(extremeY))));
         else
-            tex->DrawLatex(0.01,0.015,Form("Mean value %.1f%%, max %.1f%% at (%.2f,%.2f)",mean*100,extremum*100,histo->GetXaxis()->GetBinCenter(extremeX),histo->GetYaxis()->GetBinCenter(extremeY)));
+            tex->DrawLatex(0.01,0.015,Form("Mean value %.2f, max %.2f at (%.2f,%.2f)",round(100*mean)/100.,round(100*extremum)/100.,histo->GetXaxis()->GetBinCenter(extremeX),histo->GetYaxis()->GetBinCenter(extremeY)));
     }
 }
 
@@ -123,10 +125,10 @@ void FormatHisto(TH2D* histo)
 {
     histo->SetTitleSize(0.06,"z");
     histo->SetLabelSize(0.04,"z");
-    histo->SetTitleOffset(1.15,"x");
+    histo->SetTitleOffset(1.225,"x");
     histo->SetTitleOffset(1.05,"y");
     histo->SetTitleOffset(0.76,"z");
-    histo->SetLabelOffset(0.003,"x");
+    histo->SetLabelOffset(0.002,"x");
     histo->GetXaxis()->SetMoreLogLabels();
 }
 
@@ -168,6 +170,7 @@ void PlotCorrelationHistos(const TString& outFile,TCanvas* canvas,const std::vec
     {
         TH2D* histo = corrMats.at(iHisto);
         histo->GetZaxis()->SetTitle("correlation");
+        histo->GetZaxis()->SetRangeUser(0.0,1.0);
         FormatHisto(histo);
         histo->Draw("colz");
         DrawLabels(histo,fixedValue1,fixedValue2,providers.at(iHisto));
@@ -277,10 +280,11 @@ void MakeCorrelationPlots(const TString& outFile,TCanvas* canvas,const std::vect
             if (useRelativeMetric)
                 for (int binX = 1; binX <= corrPt.back()->GetNbinsX(); ++binX)
                     for (int binY = 1; binY <= corrPt.back()->GetNbinsY(); ++binY)
-                        if (corrPt.back()->GetBinContent(binX,binY) > -100)
+                        if (corrPt.back()->GetBinContent(binX,binY) > -100) {
                             corrPt.back()->SetBinContent(binX,binY,1-corrPt.back()->GetBinContent(binX,binY));
+          }
         }
-        
+
         // Now plot them and the difference histograms
         PlotCorrelationHistos(outFile,canvas,providers,corrPt,etaVal1,etaVal2);
 
@@ -350,7 +354,15 @@ int main (int argc, char* argv[])
     if (argc > 8)
         useRelativeMetric = jet::utils::getTypeObjFromString<bool>(std::string(argv[8]));
 
+#ifdef XAOD_STANDALONE
     StatusCode::enableFailure();
+#endif // XAOD_STANDALONE
+
+    if (!configs.size())
+    {
+        printf("Failed to find any configs: %s\n",argv[4]);
+        exit(2);
+    }
 
     // Ensure we have to do something
     if (!fixedEtaS.size() && !fixedPtS.size())
@@ -414,7 +426,7 @@ int main (int argc, char* argv[])
     SetAtlasStyle();
     gStyle->SetPalette(1);
     TCanvas* canvas = new TCanvas("canvas");
-    canvas->SetMargin(0.12,0.15,minRepStyle?0.13:0.15,minRepStyle?0.18:0.10);
+    canvas->SetMargin(0.12,0.15,minRepStyle?0.13:0.135,minRepStyle?0.18:0.115);
     canvas->SetFillStyle(4000);
     canvas->SetFillColor(0);
     canvas->SetFrameBorderMode(0);
@@ -432,6 +444,7 @@ int main (int argc, char* argv[])
 
         // Create the providers
         std::vector<JetUncertaintiesTool*> providers;
+        printf("Processing %zu config(s)...\n",configs.size());
         for (size_t iConfig = 0; iConfig < configs.size(); ++iConfig)
         {
             // Make a new provider

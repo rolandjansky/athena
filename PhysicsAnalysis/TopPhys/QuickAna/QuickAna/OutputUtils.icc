@@ -1,0 +1,37 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef QUICK_ANA__OUTPUT_UTILS_ICC
+#define QUICK_ANA__OUTPUT_UTILS_ICC
+
+#include <xAODCore/ShallowCopy.h>
+#include <QuickAna/MessageCheck.h>
+
+namespace ana
+{
+
+  namespace OutputUtils
+  {
+
+    //-------------------------------------------------------------------------
+    // Write a container and its aux to the store
+    //-------------------------------------------------------------------------
+    template<class ContainerType, class AuxContainerType, class StoreType>
+    StatusCode recordContainer(ContainerType* container,
+                               AuxContainerType* auxContainer,
+                               StoreType& store,
+                               const std::string& name)
+    {
+      using namespace ana::msgObjectDefinition;
+
+      ANA_CHECK( store.record(container, name) );
+      ANA_CHECK( store.record(auxContainer, name + "Aux.") );
+      return StatusCode::SUCCESS;
+    }
+
+  } // namespace OutputUtils
+
+} // namespace ana
+
+#endif

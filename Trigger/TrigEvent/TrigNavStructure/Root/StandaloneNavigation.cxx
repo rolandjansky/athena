@@ -2,6 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
+// System include(s):
+#include <iostream>
+
 #include "TrigNavStructure/StandaloneNavigation.h"
 #include "TrigNavStructure/TypelessHolder.h"
 

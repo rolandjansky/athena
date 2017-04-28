@@ -312,7 +312,7 @@ CaloRings_v1& CaloRings_v1::operator=(const CaloRings_v1& cl_rings )
 void CaloRings_v1::print(MsgStream &stream, MSG::Level level ) const 
 {
   if( stream.level() <= level ) {
-    stream << level << "CaloRings are : " << endreq;
+    stream << level << "CaloRings are : " << endmsg;
     for (unsigned rsIdx = 0; rsIdx < this->nRingSets(); ++rsIdx) {
       stream << level << "Ringset #" << rsIdx << " : ";
       const RingSet_v1* rs = this->at(rsIdx);

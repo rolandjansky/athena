@@ -1,0 +1,19 @@
+343212,0.002749987,,,,,,AMI xsect overwritten because not taking into account 1/3 flavor correction - see HZZ recommendations for k-factor,
+343213,0.002701973,,,,,,AMI xsect overwritten because not taking into account 1/3 flavor correction - see HZZ recommendations for k-factor,
+343278,,,,,,Higgs_VH,,
+343365,0.05343,1.0,1.0,1.0,XsecTTH,Higgs_ttH,Cross-section from yellow report,
+343366,0.22276,1.0,1.0,1.0,XsecTTH,Higgs_ttH,Cross-section from yellow report,
+343367,0.23082,1.0,1.0,1.0,XsecTTH,Higgs_ttH,Cross-section from yellow report,
+343431,,,,,,TTbarX,,
+343432,,,,,,TTbarX,,
+343433,,,,,,TTbarX,,
+343434,,,,,,TTbarX,,
+343459,,,,,,Higgs_BSM_Other,,MadGraph+Herwigpp Xhh m300 gammagamma tt 
+343637,,,0.026281,,,,Filter efficiency inserted by hand from log afterburn,
+343478,,0.91,,,,,,
+343479,,0.91,,,,,,
+343480,,0.91,,,,,,
+343481,,0.91,,,,,,
+343910,,,,,,Higgs_VH,,
+
+

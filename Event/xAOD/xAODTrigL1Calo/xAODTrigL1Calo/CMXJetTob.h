@@ -8,6 +8,9 @@
 #ifndef XAODTRIGL1CALO_CMXJETTOB_H
 #define XAODTRIGL1CALO_CMXJETTOB_H
 
+// System include(s):
+#include <map>
+
 // Local include(s):
 #include "xAODTrigL1Calo/versions/CMXJetTob_v1.h"
 

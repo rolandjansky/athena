@@ -1,0 +1,106 @@
+#!/usr/bin/env python
+
+# Set up ROOT and RootCore:
+import sys
+import os
+import ROOT
+from glob import glob
+import itertools
+import sys
+import pdb
+
+
+def run_test(qa,event):
+
+   qa.initialize().ignore()
+   print( "Number of input events: %s" % event.getEntries() )
+   for entry in xrange(event.getEntries()):
+      event.getEntry( entry )
+      qa.process().ignore()
+      if qa.muonDef != "none":
+         qa.muons()
+      if qa.electronDef != "none":
+         qa.electrons()
+      if qa.photonDef != "none":
+         qa.photons()
+      if qa.tauDef != "none":
+         qa.taus()
+      if qa.jetDef != "none":
+         qa.jets()
+      if qa.metDef != "none":
+         qa.met()
+      store.clear()
+
+def GetConfiguredQA(branches,name=""): #need a differnt quickana instance for each jet collection run
+   qa=ROOT.ana.QuickAna("QuickAna"+name)
+   qa.eventinfoDef = "default"
+   qa.muonDef = "none"
+   qa.electronDef = "none"
+   qa.photonDef = "none"
+   qa.tauDef = "none"
+   qa.jetDef = "none"
+   qa.metDef = "none"
+   qa.orDef = "default"
+   if "Muons" in branches:
+      print "found Muons"
+      qa.muonDef = "default";
+   if "Electrons" in branches:
+      print "found Electrons"
+      qa.electronDef="default"
+   if "Photons" in branches:
+      print "found Photons"
+      qa.photonDef="default"
+   if "TauJets" in branches:
+      print "found TauJets"
+      qa.tauDef="default"
+
+   jetDef=""
+   if "AntiKt4LCTopoJets" in branches:
+      print "Found instance with AntiKt4LCTopoJets"
+      jetDef="antikt04"
+   if "AntiKt4EMTopoJets" in branches:
+      print "Found instance with AntiKt4EMTopoJets"
+      if jetDef!="":print "Two jets collections found using,AntiKt4EMTopo"
+      jetDef+=" AntiKt4EMTopo"
+   print jetDef
+   if jetDef != "":
+      qa.Met="default"
+   else:
+      jetDef="none"
+      qa.Met="none"
+   qa.jetDef=jetDef
+
+
+   return qa
+
+
+
+if __name__=="__main__":
+   if len(sys.argv)!= 2:
+      print "Usage: quickana_testfile input_file.root (input file string can include wildcards)"
+      sys.exit()
+   print "start test"
+
+   ROOT.gROOT.Macro( '$ROOTCOREDIR/scripts/load_packages.C' )
+   ROOT.xAOD.Init().ignore()
+   ROOT.xAOD.AuxContainerBase()
+   event=ROOT.xAOD.TEvent();
+   store=ROOT.xAOD.TStore();
+   data_files = glob(sys.argv[1])
+   # Initialize the xAOD infrastructure:
+   if(not ROOT.xAOD.Init().isSuccess()): print "Failed xAOD.Init()"
+
+
+
+   # Set up the input files:
+   treeName = "CollectionTree" # default when making transient tree anyway
+   f=ROOT.TChain(treeName)
+
+   for d in data_files:
+      print d
+      f.Add(d)
+   print f.GetEntries()
+   event.readFrom(f)
+   branches=[i.GetName() for i in f.GetListOfBranches()]
+   qa=GetConfiguredQA(branches)
+   run_test(qa,event)

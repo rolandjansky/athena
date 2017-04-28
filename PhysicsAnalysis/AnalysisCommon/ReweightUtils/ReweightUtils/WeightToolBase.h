@@ -18,11 +18,10 @@
 #define WEIGHTOOLBASE_H 1
 
 // Include the base class
-#include "PATInterfaces/IObservableTool.h"
 #include "AsgTools/AsgTool.h"
 
 #include "PATInterfaces/IWeightTool.h"
-#include "PATInterfaces/IObservableTool.h"
+#include "AsgAnalysisInterfaces/IObservableTool.h"
 #include "xAODEventInfo/EventInfo.h"
 
 

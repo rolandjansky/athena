@@ -92,7 +92,7 @@ void RingSet_v1::copyTo(std::vector<float> &vec) const {
 void RingSet_v1::print( MsgStream &stream, MSG::Level level ) const {
   const std::vector<float> &ringsE = constAccRingsE( *this );
   if( stream.level() <= level ) {
-    stream << ringsE << endreq;
+    stream << ringsE << endmsg;
   }
 }
 

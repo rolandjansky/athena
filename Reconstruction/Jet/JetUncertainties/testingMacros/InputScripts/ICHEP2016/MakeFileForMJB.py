@@ -91,15 +91,29 @@ gROOT.cd()
 print "Reading inputs..."
 # For now, everything except flavour and cross calibration inputs
 # are read in from the final 2012 calibration files.
-theVPlusJetsHistos = ReadInSituHistograms(theVPlusJetsDir)
+theVPlusJetsHistos = ReadInSituHistograms(theVPlusJetsDir) # Check!
 etaIntercalHistos   = ReadEtaIntercalibrationHistograms(etaIntercalDir)
 pileupHistos        = ReadPileupHistograms(pileupDir)
+print "For pileup, got:"
+for jetdef in pileupHistos.keys() :
+  print "Jet def",jetdef
+  print pileupHistos[jetdef]
+
 flavourHistos       = ReadFlavourHistograms(flavourDir,freezeFlavourInPt) # True flag freezes uncertainty above pT = 2TeV (lower at higher eta)
+print "For flavour, got:"
+for jetdef in flavourHistos.keys() :
+  print "Jet def",jetdef
+  print flavourHistos[jetdef]
+
 punchthroughHistos  = ReadPunchthroughHistograms(punchthroughDir)
+print "For punchthrough, got:"
+for jetdef in punchthroughHistos.keys() :
+  print "Jet def",jetdef
+  print punchthroughHistos[jetdef]
 
 # Make one mega-dictionary
 print "Merging inputs..."
-jetDefs = {"AntiKt4Topo_EMJES" : "AntiKt4EMTopo"}#, "AntiKt4Topo_LCJES" : "AntiKt4LCTopo"}#"AntiKt6Topo_EMJES","AntiKt6Topo_LCJES"]
+jetDefs = {"AntiKt4Topo_EMJES" : "AntiKt4EMTopo", "AntiKt4Topo_LCJES" : "AntiKt4LCTopo"}#"AntiKt6Topo_EMJES","AntiKt6Topo_LCJES"]
 systematics = {}
 for aJetDef in jetDefs.keys():
 
@@ -113,21 +127,25 @@ for aJetDef in jetDefs.keys():
     for dictionary in dictsToUse :
 
       # We don't have LC inputs for some of these
-      if "LC" in aJetDef :
-        if aJetDef not in dictionary.keys() :
-          useInstead = dictionary["AntiKt4Topo_EMJES"]
+      #if "LC" in aJetDef :
+      #  if aJetDef not in dictionary.keys() :
+      #    useInstead = dictionary["AntiKt4Topo_EMJES"]
           # Need to change name & copy hists so I don't have
           # memory problems down the road
-          myNewDict = {}
-          for item in useInstead.keys() :
-            thisHist = useInstead[item].Clone()
-            thisHistName = useInstead[item].GetName().replace("EM","LC")
-            thisHist.SetName(thisHistName)
-            myNewDict[item] = thisHist
+      #    myNewDict = {}
+      #    for item in useInstead.keys() :
+      #      thisHist = useInstead[item].Clone()
+      #      thisHistName = useInstead[item].GetName().replace("EM","LC")
+      #      thisHist.SetName(thisHistName)
+      #      myNewDict[item] = thisHist
 
-          dictionary[aJetDef] = myNewDict
+      #    dictionary[aJetDef] = myNewDict
 
       systematics[aJetDef].update(dictionary[aJetDef].items())
+
+    print "\nFor jet def",aJetDef,"added:"
+    print systematics[aJetDef]
+
 
 # Loop over the mega-dictionary and write results
 print "Writing to output file",outBaselineFile,"..."

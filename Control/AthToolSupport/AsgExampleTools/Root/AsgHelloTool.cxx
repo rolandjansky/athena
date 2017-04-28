@@ -27,7 +27,10 @@ int AsgHelloTool::talk() const {
   // Create and execute a temporary tool.
   if ( name() != "tmphello" ) {
     AsgHelloTool tmptool("tmphello");
-    tmptool.setProperty("Message", "Hi from the temporary tool.");
+    if( ! tmptool.setProperty("Message", "Hi from the temporary tool.").isSuccess() ) {
+       ATH_MSG_ERROR( "Failed to set property on temporary tool" );
+       return 1;
+    }
     tmptool.talk();
   }
   return 0;
