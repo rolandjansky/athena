@@ -18,6 +18,8 @@ def ReadBJESHistograms(dirName):
     if not dirName.endswith("/"):
         dirName = dirName + "/"
 
+    print "\n\n\ndoobledoobledooble"
+
     # Run over each file (one per jet definition)
     # Skip files that don't start with bJES and contain GSC
     histos = {}
@@ -27,6 +29,9 @@ def ReadBJESHistograms(dirName):
       print "Not what I expected!"
       return None
     aFileName = files[0]
+
+    print "#######################"
+    print "Beginning bJES fetcher on file",aFileName
 
     # Read in the histograms of interest from the file
     inFile = TFile(aFileName,"READ")
@@ -63,6 +68,10 @@ def ReadBJESHistograms(dirName):
 
     # Done reading, close the file
     inFile.Close()
+
+    print "#######################"
+    print "bJES fetcher returning:"
+    print histos
 
     return histos
 

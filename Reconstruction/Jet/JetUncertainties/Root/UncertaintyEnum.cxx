@@ -206,12 +206,14 @@ namespace CompScaleVar
             case FourVec:       return "FourVec";
             case Pt:            return "Pt";
             case Mass:          return "Mass";
-            case D12:           return "D12";
-            case D23:           return "D23";
+            case D12:           return "Split12";
+            case D23:           return "Split23";
             case Tau21:         return "Tau21";
             case Tau32:         return "Tau32";
+            case Tau21WTA:      return "Tau21WTA";
             case Tau32WTA:      return "Tau32WTA";
             case D2Beta1:       return "D2Beta1";
+            case Qw:            return "Qw";
             case MassRes:       return "MassRes";
             default:            return "UNKNOWN";
         }
@@ -225,18 +227,22 @@ namespace CompScaleVar
             return Pt;
         if (!type.CompareTo("Mass",TString::kIgnoreCase))
             return Mass;
-        if (!type.CompareTo("D12",TString::kIgnoreCase))
+        if (!type.CompareTo("D12",TString::kIgnoreCase) || !type.CompareTo("Split12",TString::kIgnoreCase))
             return D12;
-        if (!type.CompareTo("D23",TString::kIgnoreCase))
+        if (!type.CompareTo("D23",TString::kIgnoreCase) || !type.CompareTo("Split23",TString::kIgnoreCase))
             return D23;
         if (!type.CompareTo("Tau21",TString::kIgnoreCase))
             return Tau21;
         if (!type.CompareTo("Tau32",TString::kIgnoreCase))
             return Tau32;
+        if (!type.CompareTo("Tau21WTA",TString::kIgnoreCase))
+            return Tau21WTA;
         if (!type.CompareTo("Tau32WTA",TString::kIgnoreCase))
             return Tau32WTA;
         if (!type.CompareTo("D2Beta1",TString::kIgnoreCase))
             return D2Beta1;
+        if (!type.CompareTo("Qw",TString::kIgnoreCase))
+            return Qw;
         if (!type.CompareTo("MassRes",TString::kIgnoreCase))
             return MassRes;
         return UNKNOWN;

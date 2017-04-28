@@ -6,6 +6,7 @@
 #define JETUNCERTAINTIES_COMBINEDMASSUNCERTAINTYCOMPONENT_H
 
 #include "JetUncertainties/UncertaintyComponent.h"
+#include "JetUncertainties/Helpers.h"
 
 namespace jet
 {
@@ -61,8 +62,8 @@ class CombinedMassUncertaintyComponent : public UncertaintyComponent
         const UncertaintyHistogram* m_caloMassWeight;
         const UncertaintyHistogram* m_TAMassWeight;
         // The two possible scale helpers
-        SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t> m_caloMassScale_weights;
-        SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t> m_TAMassScale_weights;
+        JetFourMomAccessor m_caloMassScale_weights;
+        JetFourMomAccessor m_TAMassScale_weights;
 
         // Helper functions
         virtual double getWeightFactorCalo(const xAOD::Jet& jet, const double shiftFactor) const;
