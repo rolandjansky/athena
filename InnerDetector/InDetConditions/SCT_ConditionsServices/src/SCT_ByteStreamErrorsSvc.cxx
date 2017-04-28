@@ -641,6 +641,18 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
       return;
     }
   }
+
+  if(type==1 or type==2) {
+    if(firstTempMaskedChip_side0>0 and
+       firstTempMaskedChip_side1>0 and
+       firstTempMaskedChip_side0!=firstTempMaskedChip_side1) {
+      ATH_MSG_WARNING("Rx redundancy is used. " <<
+		      "But, side 0 and side 1 have inconsistent first masked chip information. " <<
+		      " firstTempMaskedChip_side0 " << firstTempMaskedChip_side0 <<
+		      " firstTempMaskedChip_side1 " << firstTempMaskedChip_side1 <<
+		      " firstTempMaskedChip " << firstTempMaskedChip);
+    }
+  }
       
   unsigned int tempMaskedChips2(0);
   if(type==0) {
@@ -659,9 +671,8 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
     }
   } else if(type==1) {
     // link-1 is broken: chip 0 1 2 3 4 5 6 7 8 9 10 11
-    // first temporarily masked chip information is recorded in only link-0.
-    if(firstTempMaskedChip_side0>0) {
-      for(int iChip(firstTempMaskedChip_side0-1); iChip<12; iChip++) {
+    if(firstTempMaskedChip>0) {
+      for(int iChip(firstTempMaskedChip-1); iChip<12; iChip++) {
 	tempMaskedChips2 |= (1<<iChip);
 	if(iChip<6) addError(hash_side0, SCT_ByteStreamErrors::TempMaskedChip0+iChip);
 	else        addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+iChip-6);
@@ -669,10 +680,10 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
     }
   } else {
     // link-0 is broken: chip 6 7 8 9 10 11 0 1 2 3 4 5
-    // first temporarily masked chip information is recorded in only link-0.
-    if(firstTempMaskedChip_side0>0) {
-      if(firstTempMaskedChip_side0<=6) firstTempMaskedChip_side0 += 12;
-      for(int iChip(firstTempMaskedChip_side0-1); iChip<12+6; iChip++) {
+    if(firstTempMaskedChip>0) {
+      int tmpFirstTempMaskedChip(firstTempMaskedChip);
+      if(tmpFirstTempMaskedChip<=6) tmpFirstTempMaskedChip += 12;
+      for(int iChip(tmpFirstTempMaskedChip-1); iChip<12+6; iChip++) {
 	int jChip(iChip);
 	if(jChip>=12) jChip -= 12;
 	tempMaskedChips2 |= (1<<jChip);
