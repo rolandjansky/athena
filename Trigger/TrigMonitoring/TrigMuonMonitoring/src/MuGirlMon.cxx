@@ -48,8 +48,8 @@ StatusCode HLTMuonMonTool::initMuGirlDQA()
 
 StatusCode HLTMuonMonTool::bookMuGirlDQA()
 {
-  if( newRun ){
-  }else if( newLumiBlock ){
+  if( newRunFlag() ){
+  }else if( newLumiBlockFlag() ){
   }
   return StatusCode::SUCCESS;
 }
@@ -61,8 +61,8 @@ StatusCode HLTMuonMonTool::fillMuGirlDQA()
 
 StatusCode HLTMuonMonTool::procMuGirlDQA()
 {
-  if( endOfRun ){
-  }else if( endOfLumiBlock ){
+  if( endOfRunFlag() ){
+  }else if( endOfLumiBlockFlag() ){
   }
   return StatusCode::SUCCESS;
 }
