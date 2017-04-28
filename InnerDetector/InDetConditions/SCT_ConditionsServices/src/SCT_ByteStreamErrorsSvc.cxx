@@ -633,11 +633,11 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
       type = 2;
     } else if(links.first and links.second) {
       // both link-0 and link-1 are working
-      ATH_MSG_WARNING("Both link-0 and link-1 are working. But Rx redundancy is used... Why?");
+      ATH_MSG_WARNING("setFirstTempMaskedChip: Both link-0 and link-1 are working. But Rx redundancy is used... Why?");
       return;
     } else {
       // both link-0 and link-1 are broken
-      ATH_MSG_WARNING("Both link-0 and link-1 are broken. But data are coming... Why?");
+      ATH_MSG_WARNING("setFirstTempMaskedChip: Both link-0 and link-1 are broken. But data are coming... Why?");
       return;
     }
   }
@@ -646,7 +646,7 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
     if(firstTempMaskedChip_side0>0 and
        firstTempMaskedChip_side1>0 and
        firstTempMaskedChip_side0!=firstTempMaskedChip_side1) {
-      ATH_MSG_WARNING("Rx redundancy is used. " <<
+      ATH_MSG_WARNING("setFirstTempMaskedChip: Rx redundancy is used. " <<
 		      "But, side 0 and side 1 have inconsistent first masked chip information. " <<
 		      " firstTempMaskedChip_side0 " << firstTempMaskedChip_side0 <<
 		      " firstTempMaskedChip_side1 " << firstTempMaskedChip_side1 <<
@@ -666,7 +666,7 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
     if(firstTempMaskedChip_side1>6) {
       for(int iChip(firstTempMaskedChip_side1-1); iChip<12; iChip++) {
 	tempMaskedChips2 |= (1<<iChip);
-	addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+iChip);
+	addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+iChip-6);
       }
     }
   } else if(type==1) {
