@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+
 // forward declarations in namespaces
 namespace ShowerLib {
   class StepInfoCollection;
@@ -36,6 +37,7 @@ class G4AffineTransform;
    * @version \$Id: TestActionShowerLib.h 780759 2016-10-27 13:48:04Z pavol $
    *
    */
+
 
 #include "G4AtlasInterfaces/IBeginEventAction.h"
 #include "G4AtlasInterfaces/IEndEventAction.h"
