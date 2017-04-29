@@ -8,7 +8,8 @@ use  AtlasPolicy                AtlasPolicy-*
 use  AthenaPoolCnvSvc           AthenaPoolCnvSvc-*              Database/AthenaPOOL
 use  AthenaPoolUtilities        AthenaPoolUtilities-*           Database/AthenaPOOL
 use  AtlasCLHEP                 AtlasCLHEP-*                    External
-use  DataModel                  DataModel-*                     Control
+use  AthContainers              AthContainers-*                 Control
+use  AthLinks                   AthLinks-*                      Control
 use  DataModelAthenaPool        DataModelAthenaPool-*           Control
 use  EventPrimitives            EventPrimitives-*               Event
 use  GaudiInterface             GaudiInterface-*                External
