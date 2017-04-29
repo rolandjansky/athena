@@ -152,13 +152,13 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
   }
   
   delete Random3;
-  delete symCov;
-  delete EV;
-  delete MeanValues;
-  delete SigmaValues;
-  delete Gauss_means;
-  delete Gauss_rms;
-  delete LowerBounds;
+//  delete symCov;
+//  delete EV;
+//  delete MeanValues;
+//  delete SigmaValues;
+//  delete Gauss_means;
+//  delete Gauss_rms;
+//  delete LowerBounds;
   delete [] output_data;
   delete [] input_data;
   delete [] simdata;

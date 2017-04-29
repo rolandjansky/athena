@@ -135,7 +135,12 @@ StatusCode ISF::FastCaloSimSvcV2::setupEvent()
 
   //std::cout << "FastCaloSimSvcV2 writes cell container to storegate" << std::endl;
 
-  StatusCode sc = evtStore()->record(m_theContainer, m_caloCellsOutputName);
+  StatusCode sc;
+  
+  // Only record if the container has not already been recorded
+  if (!evtStore()->contains<CaloCellContainer>(m_caloCellsOutputName)) {
+    sc = evtStore()->record(m_theContainer, m_caloCellsOutputName);
+  }
   if (sc.isFailure())
   {
     ATH_MSG_FATAL( m_screenOutputPrefix << "cannot record CaloCellContainer " << m_caloCellsOutputName );
@@ -275,7 +280,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
 	    double layerE = simulstate.E(layer);
 	    int nHits=-1;
 	
-	    ATH_MSG_INFO("NOW RUNNING ON LAYER "<<layer);
+//	    ATH_MSG_INFO("NOW RUNNING ON LAYER "<<layer);
 	
 	    inputHisto = "ShapeParams/pdgid_" + std::to_string(pdgid) + "/EN_50000/eta_0_20/hEnergyDensity_layer" + std::to_string(layer) + "_pca" + std::to_string(pcabin);
 	
@@ -338,8 +343,8 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
 	      
 	      CaloCell* theCell = (CaloCell*)m_theContainer->findCell(mcell->calo_hash());
 	      	      
-	      ATH_MSG_INFO("Hit eta: " << hit_eta << " phi: " << hit_phi << " Particle eta: " << eta << " phi: " << phi << " delta_eta: " << hit_eta - eta << " delta_phi: " << hit_phi - phi);
-	      ATH_MSG_INFO("Cell from CaloGeometry: eta: " << mcell->eta() << " phi: " << mcell->phi() << " |CELL_eta - HIT_eta| " << abs(mcell->eta() - hit_eta)  << " |CELL_phi - HIT_phi| " << abs(mcell->phi() - hit_phi));
+	      //ATH_MSG_INFO("Hit eta: " << hit_eta << " phi: " << hit_phi << " Particle eta: " << eta << " phi: " << phi << " delta_eta: " << hit_eta - eta << " delta_phi: " << hit_phi - phi);
+	      //ATH_MSG_INFO("Cell from CaloGeometry: eta: " << mcell->eta() << " phi: " << mcell->phi() << " |CELL_eta - HIT_eta| " << abs(mcell->eta() - hit_eta)  << " |CELL_phi - HIT_phi| " << abs(mcell->phi() - hit_phi));
 	      
 	      //std::cout << "Hit eta: " << hit_eta << " phi: " << hit_phi << " Particle eta: " << eta << " phi: " << phi << " delta_eta: " << hit_eta - eta << " delta_phi: " << hit_phi - phi << std::endl;
 	      //std::cout << "Cell from CaloGeometry: eta: " << mcell->eta() << " phi: " << mcell->phi() << " |CELL_eta - HIT_eta| " << abs(mcell->eta() - hit_eta)  << " |CELL_phi - HIT_phi| " << abs(mcell->phi() - hit_phi) << std::endl;
