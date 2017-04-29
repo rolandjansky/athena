@@ -311,7 +311,7 @@ StatusCode IDStandardPerformance::initialize()
   }
 
   // Read Handle Key
-  ATH_CHECK( m_SCTtracksName.initialize(m_doHitBasedMatching) );
+  ATH_CHECK(m_SCTtracksName.initialize(m_doHitBasedMatching));
 
   sc = ManagedMonitorToolBase::initialize();
   return sc;
