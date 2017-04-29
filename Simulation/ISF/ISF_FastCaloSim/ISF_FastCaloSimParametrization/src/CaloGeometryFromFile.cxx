@@ -333,8 +333,8 @@ void CaloGeometryFromFile::DrawFCalGraph(int isam,int color){
 	TString name = ss.str().c_str();
 	
 	const int size=m_cells_in_sampling[isam].size();
-	double x[size];
-	double y[size];
+	double *x = new double[size];
+	double *y = new double[size];
 	//const CaloGeoDetDescrElement* cell;
 	int i=0;
 	for(auto it=m_cells_in_sampling[isam].begin();it!=m_cells_in_sampling[isam].end();it++){
@@ -356,8 +356,9 @@ void CaloGeometryFromFile::DrawFCalGraph(int isam,int color){
 	graph->GetYaxis()->SetTitle("y");
 	
 	graph->Draw("AP");
-
 	
+  delete [] x;
+  delete [] y;
 	
 }	
 		
