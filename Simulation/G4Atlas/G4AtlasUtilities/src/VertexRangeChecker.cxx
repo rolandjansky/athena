@@ -16,14 +16,14 @@ using namespace std;
 // See https://twiki.cern.ch/twiki/bin/viewauth/Atlas/AtlasG4EventFilters for more details.
 
 bool VertexRangeChecker::EditVertex(G4PrimaryVertex* v) {
-  if (!onSwitch) return true;
+  if (!m_onSwitch) return true;
   G4ThreeVector p = v->GetPosition();
-  if (verboseLevel > 0) {
+  if (m_verboseLevel > 0) {
     cout << " VertexRangeChecker::EditVertex: vertex at " << p << endl;
   }
 
   if (Z>0 && fabs(p.z()) > Z ){
-    if (verboseLevel > 0) {
+    if (m_verboseLevel > 0) {
       cout << "  vertex at " << p << " discarded because outside the valid range " << endl;
     }
     return false;
@@ -31,7 +31,7 @@ bool VertexRangeChecker::EditVertex(G4PrimaryVertex* v) {
   if (Rmax>0){
     const double rho2 = p.x()*p.x() + p.y()*p.y();
     if (rho2 < Rmin*Rmin || rho2 > Rmax*Rmax){
-      if (verboseLevel > 0) {
+      if (m_verboseLevel > 0) {
         cout << "  vertex at " << p << " discarded because outside the valid range " << endl;
       }
       return false;
@@ -61,14 +61,14 @@ bool VertexRangeChecker::EditVertex(G4PrimaryVertex* v) {
         cout << "  problems in your simulation.  Please report this error message to atlas-simulation-team@cern.ch" << endl;
         cout << "  You can \"fix\" the problem by setting both the Z and R world ranges at the same time." << endl;
       }
-      if (verboseLevel > 0) {
+      if (m_verboseLevel > 0) {
         cout << "  vertex at " << p << " discarded because outside the world volume : " << m_sWorld->DistanceToIn( p ) << " " << m_sWorld->DistanceToOut( p )  << endl;
       }
       return false;
     }
   }
 
-  if (verboseLevel > 0) {
+  if (m_verboseLevel > 0) {
     cout << "  vertex at " << p << " accepted." << endl;
   }
   return true;
