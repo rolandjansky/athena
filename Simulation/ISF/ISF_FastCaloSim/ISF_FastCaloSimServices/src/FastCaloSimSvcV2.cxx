@@ -218,7 +218,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
 	      pcabin = n + 1;
 	  }
 	
-	  std::cout<<"pca bin "<<pcabin<<std::endl;
+	  //std::cout<<"pca bin "<<pcabin<<std::endl;
 	
 	  //-----ENERGY:-----
 	
@@ -229,8 +229,8 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
 	
 	  ATH_MSG_INFO("Energy returned: " << simulstate.E());
 	  ATH_MSG_INFO("Energy fraction for layer: ");
-	  for (int s = 0; s < CaloCell_ID_FCS::MaxSample; s++)
-	    ATH_MSG_INFO(" Sampling " << s << " energy " << simulstate.E(s));
+//	  for (int s = 0; s < CaloCell_ID_FCS::MaxSample; s++)
+//	    ATH_MSG_INFO(" Sampling " << s << " energy " << simulstate.E(s));
 	
 	  //-----SHAPE:-----
 		double eta(0.), phi(0.);
@@ -259,9 +259,9 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
 	  /** get the relevant calo layers */
 	  IntArray *m_layers = m_eparas[index_epara]->get_layers();
 	  
-	  std::cout<<"CHECK layers->GetSize() "<<m_layers->GetSize()<<std::endl;
-	  for(int i=0;i<m_layers->GetSize();i++)
-	   std::cout<<"check: LAYER " <<m_layers->GetAt(i)<<std::endl;
+	  //std::cout<<"CHECK layers->GetSize() "<<m_layers->GetSize()<<std::endl;
+	  //for(int i=0;i<m_layers->GetSize();i++)
+	   //std::cout<<"check: LAYER " <<m_layers->GetAt(i)<<std::endl;
 	  
 	  
 	  /** get the appropriate input histogram */
