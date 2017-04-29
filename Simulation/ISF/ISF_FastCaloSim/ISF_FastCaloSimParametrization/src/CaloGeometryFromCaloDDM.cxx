@@ -17,9 +17,9 @@ CaloGeometryFromCaloDDM::~CaloGeometryFromCaloDDM()
 {
 }
 
-bool CaloGeometryFromCaloDDM::LoadGeometryFromCaloDDM(const CaloDetDescrManager* calo_dd_man)
+bool CaloGeometryFromCaloDDM::LoadGeometryFromCaloDDM(const CaloDetDescrManager* /*calo_dd_man*/)
 {
-  int jentry=0;
+  //int jentry=0;
   //for(CaloDetDescrManager::calo_element_const_iterator calo_iter=calo_dd_man->element_begin();calo_iter<calo_dd_man->element_end();++calo_iter) {
     //const CaloGeoDetDescrElement* pcell=*calo_iter;
     //addcell(pcell);
