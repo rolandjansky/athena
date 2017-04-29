@@ -109,7 +109,7 @@ StatusCode HLTMuonMonTool::fillMuIsoDQA()
   // Retrieve IsoMuonFeatureContainer
   SG::ConstIterator<IsoMuonFeatureContainer> isoContainer;
   SG::ConstIterator<IsoMuonFeatureContainer> lastisoContainer;
-  StatusCode sc_iso = m_storeGate->retrieve(isoContainer,lastisoContainer);
+  StatusCode sc_iso = evtStore()->retrieve(isoContainer,lastisoContainer);
   if ( sc_iso.isFailure() ) {
     ATH_MSG_DEBUG( "Failed to retrieve HLT muIso container" ); 
     return StatusCode::SUCCESS; 
@@ -122,13 +122,13 @@ StatusCode HLTMuonMonTool::fillMuIsoDQA()
   // -----------------------------
 
   std::vector<const IsoMuonFeature*> vec_isoMuonFeatures;
-
-  for(; isoContainer != lastisoContainer; isoContainer++) {
-    IsoMuonFeatureContainer::const_iterator iso     = isoContainer->begin();
-    IsoMuonFeatureContainer::const_iterator lastiso = isoContainer->end();
-    for(; iso != lastiso; iso++) {
-      if( (*iso)==0 ) continue;
-      vec_isoMuonFeatures.push_back( *iso );
+  vec_isoMuonFeatures.clear();
+  for(auto itr=isoContainer; itr!= lastisoContainer; itr++) {
+    const IsoMuonFeatureContainer* iso(nullptr);
+    ATH_CHECK( evtStore()->retrieve(iso, itr.key()));
+    for(auto jtr=iso->begin(); jtr!= iso->end(); jtr++) {
+      if( (*jtr)==nullptr ) continue;
+      vec_isoMuonFeatures.push_back( *jtr );
     }
   }
 

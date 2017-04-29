@@ -129,7 +129,7 @@ StatusCode HLTMuonMonTool::fillTileMuDQA()
 
   SG::ConstIterator<TileMuFeatureContainer> TileMuFeat;
   SG::ConstIterator<TileMuFeatureContainer> TileMuFeatEnd;
-  StatusCode sc_TileMu = m_storeGate->retrieve( TileMuFeat, TileMuFeatEnd );
+  StatusCode sc_TileMu = evtStore()->retrieve( TileMuFeat, TileMuFeatEnd );
   if( sc_TileMu.isFailure() ){
     ATH_MSG_VERBOSE( "Failed to retrieve HLT TileMu" );
     return StatusCode::SUCCESS;    
@@ -144,7 +144,7 @@ StatusCode HLTMuonMonTool::fillTileMuDQA()
   for( auto itr=TileMuFeat; itr!= TileMuFeatEnd ; itr++ ) {
     const TileMuFeatureContainer* TileMuItrE(nullptr);
     ATH_CHECK( evtStore()->retrieve(TileMuItrE, itr.key()));
-    for(auto TileMuItr=TileMuItrE->begin(); TileMuItr != TileMuItrE->end(); ++TileMuItr){
+    for(auto TileMuItr=TileMuItrE->begin(); TileMuItr != TileMuItrE->end();TileMuItr++){
       if ( (*TileMuItr)==nullptr ) continue;
       // Extract the variables and fill the histograms
       float eta = (*TileMuItr)->eta();
@@ -171,7 +171,7 @@ StatusCode HLTMuonMonTool::fillTileMuDQA()
   SG::ConstIterator< TileTrackMuFeatureContainer > TileTrackMu;
   SG::ConstIterator< TileTrackMuFeatureContainer > lastTileTrackMu;
 
-  StatusCode sc = m_storeGate->retrieve(TileTrackMu, lastTileTrackMu);
+  StatusCode sc = evtStore()->retrieve(TileTrackMu, lastTileTrackMu);
   if (sc.isFailure()) {
     ATH_MSG_VERBOSE( "Failed to retrieve HLT TileTrackMu" );
     return StatusCode::SUCCESS;    
@@ -234,7 +234,7 @@ StatusCode HLTMuonMonTool::fillTileMuDQA()
 
   std::string muonKey = "Muons";
 
-  sc = m_storeGate->retrieve(muonCont, muonKey);
+  sc = evtStore()->retrieve(muonCont, muonKey);
   if(sc.isFailure()){
     ATH_MSG_WARNING( "Container of muon particle with key " << muonKey << " not found in Store Gate" );
     return StatusCode::SUCCESS;
@@ -272,15 +272,16 @@ StatusCode HLTMuonMonTool::fillTileMuDQA()
 
   // TileMuFeature (TileMuId SA)
   NTileMu = 0.;
-  sc_TileMu = m_storeGate->retrieve( TileMuFeat, TileMuFeatEnd );
+  sc_TileMu = evtStore()->retrieve( TileMuFeat, TileMuFeatEnd );
   if( sc_TileMu.isFailure() ){
     ATH_MSG_WARNING( "Failed to retrieve HLT TileMu" );
     return StatusCode::SUCCESS;
   }
-  for( ; TileMuFeat != TileMuFeatEnd ; ++TileMuFeat ) {
-    TileMuFeatureContainer::const_iterator TileMuItr = TileMuFeat->begin();
-    TileMuFeatureContainer::const_iterator TileMuItrE = TileMuFeat->end();
-    for(;TileMuItr != TileMuItrE; ++TileMuItr){
+  for( auto itr=TileMuFeat; itr!= TileMuFeatEnd ; itr++ ) {
+    const TileMuFeatureContainer* TileMuItrE(nullptr);
+    ATH_CHECK( evtStore()->retrieve(TileMuItrE, itr.key()));
+    for(auto TileMuItr=TileMuItrE->begin(); TileMuItr != TileMuItrE->end();TileMuItr++){
+      if ( (*TileMuItr)==nullptr ) continue;
       m_eta_Tile.push_back( (*TileMuItr)->eta() );
       m_phi_Tile.push_back( (*TileMuItr)->phi() );
       NTileMu++;
@@ -314,15 +315,16 @@ StatusCode HLTMuonMonTool::fillTileMuDQA()
 
   // TileTrackMuFeature (TileMuId combined with ID)
   NTileTrackMu = 0.;
-  sc = m_storeGate->retrieve(TileTrackMu, lastTileTrackMu);
+  sc = evtStore()->retrieve(TileTrackMu, lastTileTrackMu);
   if (sc.isFailure()) {
     ATH_MSG_WARNING( "Failed to retrieve HLT TileTrackMu" );
     return StatusCode::SUCCESS;
   }
-  for( ; TileTrackMu != lastTileTrackMu ; ++TileTrackMu ) {  
-    TileTrackMuFeatureContainer::const_iterator TileTrackMuItr = TileTrackMu->begin();
-    TileTrackMuFeatureContainer::const_iterator TileTrackMuItrE= TileTrackMu->end();
-    for( ; TileTrackMuItr != TileTrackMuItrE; ++TileTrackMuItr ) {        
+  for( auto itr=TileTrackMu; itr!= lastTileTrackMu ; itr++ ) {
+    const TileTrackMuFeatureContainer* TileTrackMuItrE(nullptr);
+    ATH_CHECK( evtStore()->retrieve(TileTrackMuItrE, itr.key()));
+    for(auto TileTrackMuItr=TileTrackMuItrE->begin(); TileTrackMuItr != TileTrackMuItrE->end();TileTrackMuItr++){
+      if ( (*TileTrackMuItr)==nullptr ) continue;
       m_eta_TileTrack.push_back( (*TileTrackMuItr)->EtaTR_Trk() );
       m_phi_TileTrack.push_back( (*TileTrackMuItr)->PhiTR_Trk() );
       m_pt_TileTrack.push_back( (*TileTrackMuItr)->PtTR_Trk() );
