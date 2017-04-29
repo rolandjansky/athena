@@ -430,7 +430,7 @@ def _addMatching(theChainDef,chainDicts,listOfChainDefs):
     maxSigCounter = theChainDef.signatureList[-1]['signature_counter']
     # =========================================================
     # muon input TE to the hypo
-    muonTE = theChainDef.signatureList[3]['listOfTriggerElements']
+    muonTE = theChainDef.signatureList[5]['listOfTriggerElements']
 
     # =========================================================
     #check if jet or bjet to be matched & find hypothreshold
