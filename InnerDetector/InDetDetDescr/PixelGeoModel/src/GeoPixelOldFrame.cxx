@@ -21,7 +21,7 @@
 
 GeoPixelOldFrame::GeoPixelOldFrame()
 {
-  m_legacyManager = gmt_mgr->legacyManager();
+  m_legacyManager = m_gmt_mgr->legacyManager();
 }
 
 GeoVPhysVol* GeoPixelOldFrame::Build() 
@@ -50,8 +50,8 @@ GeoVPhysVol* GeoPixelOldFrame::BuildBox() {
   double width     = m_legacyManager->PixelBFrameHalfWidth();
   //
   const GeoBox* frameBox = new GeoBox(thickness,width,length);
-  std::string matName = gmt_mgr->getMaterialName(volumeName, 0, typenum);
-  const GeoMaterial* frameMat  = mat_mgr->getMaterialForVolume(matName, frameBox->volume());
+  std::string matName = m_gmt_mgr->getMaterialName(volumeName, 0, typenum);
+  const GeoMaterial* frameMat  = m_mat_mgr->getMaterialForVolume(matName, frameBox->volume());
   GeoLogVol* theFrame    = new GeoLogVol(logName,frameBox,frameMat);
   GeoPhysVol* framePhys  = new GeoPhysVol(theFrame);
 
@@ -95,8 +95,8 @@ GeoVPhysVol* GeoPixelOldFrame::BuildTrap() {
   //
 
   const GeoTrap* frameTrap  = new GeoTrap(length,tet,phi,widthy,widthxzn,widthxzp,al1,widthy,widthxzn,widthxzp,al2);
-  std::string matName = gmt_mgr->getMaterialName(volumeName, 0, typenum);
-  const GeoMaterial* frameMat  = mat_mgr->getMaterialForVolume(matName, frameTrap->volume());
+  std::string matName = m_gmt_mgr->getMaterialName(volumeName, 0, typenum);
+  const GeoMaterial* frameMat  = m_mat_mgr->getMaterialForVolume(matName, frameTrap->volume());
   GeoLogVol* theFrame       = new GeoLogVol(logName,frameTrap,frameMat);
   GeoPhysVol* framePhys     = new GeoPhysVol(theFrame);
  
@@ -203,8 +203,8 @@ void GeoPixelOldFrame::BuildInBarrel(GeoFullPhysVol * parent) {
 void GeoPixelOldFrame::BuildOutBarrel(GeoFullPhysVol * parent) {
 
 
-  bool endcapAPresent  = gmt_mgr->partPresent("EndcapA");
-  bool endcapCPresent  = gmt_mgr->partPresent("EndcapC");
+  bool endcapAPresent  = m_gmt_mgr->partPresent("EndcapA");
+  bool endcapCPresent  = m_gmt_mgr->partPresent("EndcapC");
 
   //
   // Add the pixel frame inside the endcap volume

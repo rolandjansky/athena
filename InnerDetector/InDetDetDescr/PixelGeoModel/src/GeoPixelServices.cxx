@@ -117,32 +117,32 @@ GeoPixelServices::GeoPixelServices(InDetDD::Zone * pixZone)
 {
   
   // Get dimensions of barrel and endcap
-  double barrelRmin = gmt_mgr->PixelBarrelRMin();
-  double barrelRmax = gmt_mgr->PixelBarrelRMax();
-  double barrelZmin = -gmt_mgr->PixelBarrelHalfLength();
-  double barrelZmax = gmt_mgr->PixelBarrelHalfLength();
-  double endcapRmin = gmt_mgr->PixelEndcapRMin();
-  double endcapRmax = gmt_mgr->PixelEndcapRMax();
-  double endcapZmin = gmt_mgr->PixelEndcapZMin();
-  double endcapZmax = gmt_mgr->PixelEndcapZMax();
+  double barrelRmin = m_gmt_mgr->PixelBarrelRMin();
+  double barrelRmax = m_gmt_mgr->PixelBarrelRMax();
+  double barrelZmin = -m_gmt_mgr->PixelBarrelHalfLength();
+  double barrelZmax = m_gmt_mgr->PixelBarrelHalfLength();
+  double endcapRmin = m_gmt_mgr->PixelEndcapRMin();
+  double endcapRmax = m_gmt_mgr->PixelEndcapRMax();
+  double endcapZmin = m_gmt_mgr->PixelEndcapZMin();
+  double endcapZmax = m_gmt_mgr->PixelEndcapZMax();
  
   double pixelRmin, pixelRmax, pixelZmax;
   if (!pixZone) {
-    pixelRmin = gmt_mgr->PixelRMin();
-    pixelRmax = gmt_mgr->PixelRMax();
-    pixelZmax = gmt_mgr->PixelHalfLength();
+    pixelRmin = m_gmt_mgr->PixelRMin();
+    pixelRmax = m_gmt_mgr->PixelRMax();
+    pixelZmax = m_gmt_mgr->PixelHalfLength();
     pixZone = new InDetDD::TubeZone("Pixel",-pixelZmax,pixelZmax,pixelRmin,pixelRmax);
   }
   else {
-    if (gmt_mgr->PixelSimpleEnvelope()) {
-      pixelRmin = gmt_mgr->PixelRMin();
-      pixelRmax = gmt_mgr->PixelRMax();
-      pixelZmax = gmt_mgr->PixelHalfLength();
+    if (m_gmt_mgr->PixelSimpleEnvelope()) {
+      pixelRmin = m_gmt_mgr->PixelRMin();
+      pixelRmax = m_gmt_mgr->PixelRMax();
+      pixelZmax = m_gmt_mgr->PixelHalfLength();
     }
     else {
-      pixelZmax = gmt_mgr->PixelEnvelopeZ(0);
-      pixelRmin = gmt_mgr->PixelEnvelopeRMin(0);
-      pixelRmax = gmt_mgr->PixelEnvelopeRMax(0);
+      pixelZmax = m_gmt_mgr->PixelEnvelopeZ(0);
+      pixelRmin = m_gmt_mgr->PixelEnvelopeRMin(0);
+      pixelRmax = m_gmt_mgr->PixelEnvelopeRMax(0);
     }
   }  
   
@@ -158,16 +158,16 @@ GeoPixelServices::GeoPixelServices(InDetDD::Zone * pixZone)
 
   // Collect the layer shifts / IBL 2mm shift
   m_layerShift.clear();
-  for(int ii = 0; ii < gmt_mgr->PixelBarrelNLayer(); ii++){
-    gmt_mgr->SetCurrentLD(ii);
-    m_layerShift.push_back(gmt_mgr->PixelLayerGlobalShift());
+  for(int ii = 0; ii < m_gmt_mgr->PixelBarrelNLayer(); ii++){
+    m_gmt_mgr->SetCurrentLD(ii);
+    m_layerShift.push_back(m_gmt_mgr->PixelLayerGlobalShift());
   }
 
 
   // We process all tables. 
-  bool barrelPresent   = gmt_mgr->partPresent("Barrel");
-  bool endcapAPresent  = gmt_mgr->partPresent("EndcapA");
-  bool endcapCPresent  = gmt_mgr->partPresent("EndcapC");
+  bool barrelPresent   = m_gmt_mgr->partPresent("Barrel");
+  bool endcapAPresent  = m_gmt_mgr->partPresent("EndcapA");
+  bool endcapCPresent  = m_gmt_mgr->partPresent("EndcapC");
 
   if (barrelPresent) initialize("barrel");
   if (endcapAPresent || endcapCPresent) initialize("endcap");
@@ -176,15 +176,15 @@ GeoPixelServices::GeoPixelServices(InDetDD::Zone * pixZone)
 
  // If not slhc, procced as usual : all services are added at a time
   //  if not SLHC, check all services vs pixel
-  if(!gmt_mgr->slhc())
+  if(!m_gmt_mgr->slhc())
     {
       m_pixServBuilder = new InDetDD::VolumeBuilder(topZone, m_services);
-      m_pixServBuilder->setMaterialManager(mat_mgr);
+      m_pixServBuilder->setMaterialManager(m_mat_mgr);
       
-      if (gmt_mgr->athenaComps()->serviceBuilderTool()) {
-	const std::vector<const InDetDD::ServiceVolume *> & services = gmt_mgr->athenaComps()->serviceBuilderTool()->getServices();
+      if (m_gmt_mgr->athenaComps()->serviceBuilderTool()) {
+	const std::vector<const InDetDD::ServiceVolume *> & services = m_gmt_mgr->athenaComps()->serviceBuilderTool()->getServices();
 	m_servMatBuilder = new InDetDD::VolumeBuilder(topZone, services);
-	m_servMatBuilder->setMaterialManager(mat_mgr);
+	m_servMatBuilder->setMaterialManager(m_mat_mgr);
       }
       return;
     }
@@ -194,10 +194,10 @@ GeoPixelServices::GeoPixelServices(InDetDD::Zone * pixZone)
   // If SLHC, proceed radially to add services (to avoid volume overlaps) : pixel - barrelstrip - PST - OuterPixel - other
 
   m_pixServBuilder = new InDetDD::VolumeBuilder(topZone, m_services);
-  m_pixServBuilder->setMaterialManager(mat_mgr);
+  m_pixServBuilder->setMaterialManager(m_mat_mgr);
    
-  if (gmt_mgr->athenaComps()->serviceBuilderTool()) {
-    const std::vector<const InDetDD::ServiceVolume *> & services = gmt_mgr->athenaComps()->serviceBuilderTool()->getServices();
+  if (m_gmt_mgr->athenaComps()->serviceBuilderTool()) {
+    const std::vector<const InDetDD::ServiceVolume *> & services = m_gmt_mgr->athenaComps()->serviceBuilderTool()->getServices();
 
     std::vector<const InDetDD::ServiceVolume *> servicesBarrelStrip;
     double svc1_rMin = 99999., svc1_rMax = 0.;
@@ -303,7 +303,7 @@ GeoPixelServices::GeoPixelServices(InDetDD::Zone * pixZone)
     m_servMatBuilder->addServices(topZoneBarrelStrip, servicesPST);
     m_servMatBuilder->addServices(topZonePST, servicesOutPix);
     m_servMatBuilder->addServices(topZoneOutPix, servicesOther);
-    m_servMatBuilder->setMaterialManager(mat_mgr);
+    m_servMatBuilder->setMaterialManager(m_mat_mgr);
 
  }
 }
@@ -341,13 +341,13 @@ void GeoPixelServices::initialize(const std::string & a)
     schema.setPixelSchema();
     label = "EC";
   } else {
-    gmt_mgr->msg(MSG::ERROR) << "Unrecognized service table type: " << a << endmsg;
+    m_gmt_mgr->msg(MSG::ERROR) << "Unrecognized service table type: " << a << endmsg;
     return;
   } 
 
-  IRDBRecordset_ptr table = gmt_mgr->getPixelServiceRecordset(a);
+  IRDBRecordset_ptr table = m_gmt_mgr->getPixelServiceRecordset(a);
  
-  InDetDD::ServiceVolumeMaker volMaker(label, table, schema, gmt_mgr->athenaComps());
+  InDetDD::ServiceVolumeMaker volMaker(label, table, schema, m_gmt_mgr->athenaComps());
   for (unsigned int i = 0; i < volMaker.numElements(); ++i) {
     m_services.push_back(volMaker.make(i));
   }
@@ -360,48 +360,48 @@ void GeoPixelServices::initializeOld(const std::string & a)
   //
   // Loop over the service elements:
   //
-  int numServices =  gmt_mgr->PixelServiceElements(a);
+  int numServices =  m_gmt_mgr->PixelServiceElements(a);
   for(int ii = 0; ii < numServices; ii++) {
     
 
     // Will return <0 if the element doesn't belong to current inside/outside zone
     // This check is removed as it now checks accroding to the dimensions.
-    //if (gmt_mgr->PixelServiceFrameNum(a, ii) < 0) continue;
+    //if (m_gmt_mgr->PixelServiceFrameNum(a, ii) < 0) continue;
     //
     //
     // Retrieve/calculate the parameters for the volume.
     //
     InDetDD::ServiceVolume param;
-    param.setMaterial(gmt_mgr->PixelServiceMaterial(a, ii));
-    param.setRmin(gmt_mgr->PixelServiceRMin(a, ii));
-    param.setRmax(gmt_mgr->PixelServiceRMax(a, ii));
-    param.setZmin(gmt_mgr->PixelServiceZMin(a, ii));
-    param.setZmax(gmt_mgr->PixelServiceZMax(a, ii));
-    param.setZsymm(gmt_mgr->PixelServiceZsymm(a, ii));
-    param.setVolName(gmt_mgr->PixelServiceName(a, ii));
+    param.setMaterial(m_gmt_mgr->PixelServiceMaterial(a, ii));
+    param.setRmin(m_gmt_mgr->PixelServiceRMin(a, ii));
+    param.setRmax(m_gmt_mgr->PixelServiceRMax(a, ii));
+    param.setZmin(m_gmt_mgr->PixelServiceZMin(a, ii));
+    param.setZmax(m_gmt_mgr->PixelServiceZMax(a, ii));
+    param.setZsymm(m_gmt_mgr->PixelServiceZsymm(a, ii));
+    param.setVolName(m_gmt_mgr->PixelServiceName(a, ii));
 
     double zShift=0.;           // the famous IBL Z shift
-    int iShiftIndex = gmt_mgr->PixelServiceShift(a, ii); 
+    int iShiftIndex = m_gmt_mgr->PixelServiceShift(a, ii); 
     if(iShiftIndex>0) zShift=m_layerShift[iShiftIndex-100];
     param.setZShift(zShift);
 
     // Service envelopes
-    int envNum=gmt_mgr->PixelServiceEnvelopeNum(a, ii);
+    int envNum=m_gmt_mgr->PixelServiceEnvelopeNum(a, ii);
     param.setEnvelopeNum(envNum);
-    int envParent=gmt_mgr->PixelServiceParentEnvelopeNum(a, ii);
+    int envParent=m_gmt_mgr->PixelServiceParentEnvelopeNum(a, ii);
     param.setParentEnvelope(envParent);
-    int volId = gmt_mgr->PixelServiceFrameNum(a, ii);
+    int volId = m_gmt_mgr->PixelServiceFrameNum(a, ii);
 
     bool needsRotation = false;
 
     // For TUBE there is no need to read the rest 
-    std::string shapeType = gmt_mgr->PixelServiceShape(a, ii);
+    std::string shapeType = m_gmt_mgr->PixelServiceShape(a, ii);
     if (!shapeType.empty() && shapeType != "TUBE") {
-      double rmin2 = gmt_mgr->PixelServiceRMin2(a, ii);
-      double rmax2 = gmt_mgr->PixelServiceRMax2(a, ii);
-      int repeat = gmt_mgr->PixelServiceRepeat(a, ii);
-      double phiLoc =  gmt_mgr->PixelServicePhiLoc(a, ii);
-      double phiWidth =  gmt_mgr->PixelServiceWidth(a, ii);
+      double rmin2 = m_gmt_mgr->PixelServiceRMin2(a, ii);
+      double rmax2 = m_gmt_mgr->PixelServiceRMax2(a, ii);
+      int repeat = m_gmt_mgr->PixelServiceRepeat(a, ii);
+      double phiLoc =  m_gmt_mgr->PixelServicePhiLoc(a, ii);
+      double phiWidth =  m_gmt_mgr->PixelServiceWidth(a, ii);
       
       // Can be in degree or CLHEP::mm. Usually it is CLHEP::deg expect for BOX, TRAP and ROD shape
       // Geometry manager makes no assumptions about units. So we must interpret here.
