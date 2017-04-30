@@ -565,27 +565,28 @@ StatusCode PixelMainMon::FillClustersMon(void)
          /// Quick Status
          int fephi=0;
          int feeta=0;
-         if( pixlayer == PixLayer::kB0 && GetFEID( pixlayer, m_pixelid->phi_index(clusID), m_pixelid->eta_index(clusID), fephi, feeta) ){
-            if(m_doOnTrack || m_doOnPixelTrack) { 
-               if(m_pixelid->phi_module(clusID) == 0 && m_pixelid->eta_module(clusID) < 0 ){
-                  if(OnTrack(clusID,true) ){
-                     if(m_clusters_onTrack_L0_B11_S2_C6) m_clusters_onTrack_L0_B11_S2_C6->Fill( m_manager->lumiBlockNumber(), (16*fabs(6+m_pixelid->eta_module(clusID)))+(8.0*fephi)+feeta );
-                  }else{
-                     if(m_clusters_offTrack_L0_B11_S2_C6) m_clusters_offTrack_L0_B11_S2_C6->Fill( m_manager->lumiBlockNumber(), (16*fabs(6+m_pixelid->eta_module(clusID)))+(8.0*fephi)+feeta );
-                  }
+	 if ( m_doOfflineAnalysis ) {
+	   if ( pixlayer == PixLayer::kB0 && GetFEID( pixlayer, m_pixelid->phi_index(clusID), m_pixelid->eta_index(clusID), fephi, feeta) ) {
+	     if ( m_doOnTrack || m_doOnPixelTrack ) { 
+               if ( m_pixelid->phi_module(clusID) == 0 && m_pixelid->eta_module(clusID) < 0 ) {
+		 if ( OnTrack(clusID,true) ) {
+		   if ( m_clusters_onTrack_L0_B11_S2_C6 ) m_clusters_onTrack_L0_B11_S2_C6->Fill( m_manager->lumiBlockNumber(), (16*fabs(6+m_pixelid->eta_module(clusID)))+(8.0*fephi)+feeta );
+		 } else {
+		   if ( m_clusters_offTrack_L0_B11_S2_C6 ) m_clusters_offTrack_L0_B11_S2_C6->Fill( m_manager->lumiBlockNumber(), (16*fabs(6+m_pixelid->eta_module(clusID)))+(8.0*fephi)+feeta );
+		 }
                }
-            }
-         }
-
+	     }
+	   }
+	 }
 
          if( (m_doOnTrack || m_doOnPixelTrack) && !OnTrack(clusID,true) ){
-	         continue;
+	   continue;
             /// if we only want hits on track, and the hit is NOT on the track, skip filling.
             /// true means doing clusters, false means rdos
-	      }
+	 }
 
 
-	      nclusters_ontrack++;
+	 nclusters_ontrack++;
 
 
          //////////////////////////////////////////////////////

@@ -204,7 +204,8 @@ StatusCode PixelMainMon::FillTrackMon(void)
    {
       const Trk::Track *track0=(*m_tracks)[i];
       if (track0 == 0) {
-         if (msgLvl(MSG::ERROR) ) msg(MSG::ERROR) << "no pointer to track!!!" << endmsg; break;
+         if (msgLvl(MSG::ERROR) ) msg(MSG::ERROR) << "no pointer to track!!!" << endmsg; 
+	 break;
       }
 
 
@@ -226,20 +227,21 @@ StatusCode PixelMainMon::FillTrackMon(void)
       ///
       /// Check the track summary if it exists to see if there are pixel hits on this track.
       /// if no hits, skip ahead
-      if(summary){
+      if (summary) {
       	if (summary->get(Trk::numberOfPixelHits)==0) continue;
       } else {
-      	if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "No Track Summary Found" << endmsg; continue;
+      	if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "No Track Summary Found" << endmsg; 
+	continue;
       }
 
       const Trk::Track* track = track0;
       
       ///
       /// get the track state on surfaces (a vector, on element per surface) and loop over it
-	   ///
+      ///
       nholes = summary->get(Trk::numberOfPixelHoles);
-      if(m_doHoleSearch && !m_doOnline && nholes>0){
-	      track = m_holeSearchTool->getTrackWithHoles(*track0);
+      if (m_doHoleSearch && !m_doOnline && nholes>0) {
+	track = m_holeSearchTool->getTrackWithHoles(*track0);
       }
 
       ///
