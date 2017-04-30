@@ -20,7 +20,7 @@
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "TrkSurfaces/Surface.h"
 
-#include "DataModel/tools/IdentContIndex.h"
+#include "AthLinks/tools/IdentContIndex.h"
 
 #include <inttypes.h>
 #include "GaudiKernel/MsgStream.h"
