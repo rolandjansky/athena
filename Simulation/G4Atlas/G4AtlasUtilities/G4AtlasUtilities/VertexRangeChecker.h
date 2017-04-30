@@ -14,27 +14,27 @@ public:
 
   VertexRangeChecker(const std::string& s)
     : VertexManipulator(s),
-      Z(-1),
-      Rmax(-1),
-      Rmin(0),
+      m_Z(-1),
+      m_Rmax(-1),
+      m_Rmin(0),
       m_sWorld(0)
   {}
 
-  void SetZ(double z) { Z = z; }
-  double GetZ() const { return Z; }
+  void SetZ(double z) { m_Z = z; }
+  double GetZ() const { return m_Z; }
 
-  void SetRmin(double r) { Rmin = r; }
-  double GetRmin() const { return Rmin; }
+  void SetRmin(double r) { m_Rmin = r; }
+  double GetRmin() const { return m_Rmin; }
 
-  void SetRmax(double R) { Rmax = R; }
-  double GetRmax() const { return Rmax; }
+  void SetRmax(double R) { m_Rmax = R; }
+  double GetRmax() const { return m_Rmax; }
 
   // For the C++ layer only
   bool EditVertex(G4PrimaryVertex *);
 
 private:
 
-  double Z, Rmax, Rmin;
+  double m_Z, m_Rmax, m_Rmin;
   G4VSolid * m_sWorld;
 
 };
