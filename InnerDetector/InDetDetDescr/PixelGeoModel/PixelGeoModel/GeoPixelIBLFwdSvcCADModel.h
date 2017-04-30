@@ -31,7 +31,6 @@ public:
 
  private:
 
-  int m_section;
   GeoPhysVol *m_supportPhysA;
   GeoPhysVol *m_supportPhysC;
   GeoTransform *m_xformSupportA;

@@ -20,24 +20,6 @@ def getSCT_RandomDisabledCellGenerator(name="SCT_RandomDisabledCellGenerator", *
 
 
 ######################################################################################
-def getSCT_TimeWalkGenerator(name="SCT_TimeWalkGenerator", **kwargs):
-    kwargs.setdefault("UseComTimeFlag", true)
-    kwargs.setdefault("TimeJitter", 0)
-    kwargs.setdefault("TimePerBCO", 25.0)
-    kwargs.setdefault("TimeZero", 5.0)
-    from SCT_Digitization.SCT_DigitizationConf import SCT_TimeWalkGenerator
-    return SCT_TimeWalkGenerator(name, **kwargs)
-
-######################################################################################
-def getSCT_StripDiscriminator(name="SCT_StripDiscriminator", **kwargs):
-    kwargs.setdefault("DiscrThresh", 4100)
-    kwargs.setdefault("DiscrThreshVar", 300)
-    kwargs.setdefault("IntimeThresh", 5000)
-    kwargs.setdefault("TimeBCN", 2)
-    from SCT_Digitization.SCT_DigitizationConf import SCT_StripDiscriminator
-    return SCT_StripDiscriminator(name, **kwargs)
-
-######################################################################################
 def getSCT_Amp(name="SCT_Amp", **kwargs):
     kwargs.setdefault("CrossFactor2sides", 0.1)
     kwargs.setdefault("CrossFactorBack", 0.07)
@@ -281,8 +263,8 @@ def SCT_DigitizationToolSplitNoMergePU(name="SCT_DigitizationToolSplitNoMergePU"
 def SCT_OverlayDigitizationTool(name="SCT_OverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     kwargs.setdefault("EvtStore", overlayFlags.evtStore())
-    kwargs.setdefault("OutputObjectName", "SCT_RDOs")
-    kwargs.setdefault("OutputSDOName", "SCT_SDO_Map")
+    kwargs.setdefault("OutputObjectName", overlayFlags.evtStore()+"/SCT_RDOs")
+    kwargs.setdefault("OutputSDOName", overlayFlags.evtStore()+"/SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return commonSCT_DigitizationConfig(name,**kwargs)
 

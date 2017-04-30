@@ -1459,6 +1459,13 @@ def dump_surface (p, f):
     return
 
 
+def dump_associatedSurface (p, f):
+    if not p.hasSurface():
+        print >> f, None,
+    else:
+        dump_surface (p.associatedSurface(), f)
+    return
+
 
 def dump_ParametersBase (info, f):
     dump_AmgVector (info.parameters(), f)
@@ -1470,7 +1477,7 @@ def dump_ParametersBase (info, f):
         print >> f, '\n          cov',
         dump_AmgMatrix (info.covariance(), f)
     print >> f, '\n          sf',
-    dump_surface (info.associatedSurface(), f)
+    dump_associatedSurface (info, f)
     return
 
 
@@ -1619,7 +1626,7 @@ def dump_MuonClusterOnTrack (p, f):
 def dump_CompetingMuonClustersOnTrack (p, f):
     dump_CompetingRIOsOnTrack (p, f)
     dump_AmgVector (p.globalPosition(), f)
-    dump_surface (p.associatedSurface(), f)
+    dump_associatedSurface (p, f)
     for r in p.containedROTs():
         print >> f, '\n    mc ',
         dump_MuonClusterOnTrack (r, f)
@@ -1655,7 +1662,7 @@ def dump_CscClusterOnTrack (p, f):
 def dump_PseudoMeasurementOnTrack (p, f):
     dump_MeasurementBase (p, f)
     dump_AmgVector (p.globalPosition(), f)
-    dump_surface (p.associatedSurface(), f)
+    dump_associatedSurface (p, f)
     return
     
 
@@ -1692,7 +1699,7 @@ def dump_measurement (p, f):
 
 def dump_MaterialEffectsBase (p, f):
     print >> f, p.dumpType(), p.thicknessInX0(),
-    dump_surface (p.associatedSurface(), f)
+    dump_associatedSurface (p, f)
     return
 
 

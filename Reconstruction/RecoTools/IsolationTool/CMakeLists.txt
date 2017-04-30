@@ -6,10 +6,21 @@
 # Declare the package name:
 atlas_subdir( IsolationTool )
 
+# Extra dependencies based on the build environment:
+set( extra_deps )
+set( extra_deps_private )
+set( extra_lib )
+set( extra_lib_private )
+if( NOT XAOD_STANDALONE )
+  set( extra_deps Calorimeter/CaloRec Reconstruction/RecoTools/ParticlesInConeTools Tracking/TrkEvent/TrkParametersIdentificationHelpers )
+  set( extra_deps_private Calorimeter/CaloEvent Calorimeter/CaloUtils Control/AthenaBaseComps Reconstruction/RecoTools/TrackToCalo Tracking/TrkEvent/TrkCaloExtension Tracking/TrkEvent/TrkParameters GaudiKernel )
+  set( extra_lib TrkParametersIdentificationHelpers CaloRecLib RecoToolInterfaces )
+  set( extra_lib_private CaloEvent CaloUtilsLib TrkCaloExtension TrkParameters TrackToCaloLib )
+endif()
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
-   Calorimeter/CaloRec
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODBase
    Event/xAOD/xAODCaloEvent
@@ -22,18 +33,11 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTracking
    InnerDetector/InDetRecTools/InDetTrackSelectionTool
    PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
-   Reconstruction/RecoTools/ParticlesInConeTools
    Reconstruction/RecoTools/RecoToolInterfaces
-   Tracking/TrkEvent/TrkParametersIdentificationHelpers
+   ${extra_deps}
    PRIVATE
-   Calorimeter/CaloEvent
    Calorimeter/CaloGeoHelpers
-   Calorimeter/CaloUtils
-   Control/AthenaBaseComps
-   Reconstruction/RecoTools/TrackToCalo
-   Tracking/TrkEvent/TrkCaloExtension
-   Tracking/TrkEvent/TrkParameters
-   GaudiKernel )
+   ${extra_deps_private} )
 
 # External dependencies:
 find_package( Boost )
@@ -45,11 +49,15 @@ atlas_add_library( IsolationToolLib
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES AsgTools xAODBase xAODCaloEvent xAODCore xAODEgamma
    xAODEventShape xAODMuon xAODPFlow xAODPrimitives xAODTracking
-   InDetTrackSelectionToolLib RecoToolInterfaces
-   TrkParametersIdentificationHelpers CaloRecLib IsolationCorrectionsLib
-   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} CaloEvent CaloGeoHelpers
-   CaloUtilsLib TrkCaloExtension TrkParameters TrackToCaloLib )
+   InDetTrackSelectionToolLib
+   IsolationCorrectionsLib
+   ${extra_lib}
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} CaloGeoHelpers
+   ${extra_lib_private}
+   )
 
-atlas_add_component( IsolationTool
-   src/*.h src/*.cxx src/components/*.cxx
-   LINK_LIBRARIES AthenaBaseComps GaudiKernel IsolationToolLib )
+if( NOT XAOD_STANDALONE )
+  atlas_add_component( IsolationTool
+    src/*.h src/*.cxx src/components/*.cxx
+    LINK_LIBRARIES AthenaBaseComps GaudiKernel IsolationToolLib )
+endif()

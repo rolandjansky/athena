@@ -20,7 +20,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTrigMissingET
    GaudiKernel
    LArCalorimeter/LArIdentifier
-   LArCalorimeter/LArTools
+   LArCalorimeter/LArCabling
    Trigger/TrigAlgorithms/TrigT2CaloCommon
    Trigger/TrigEvent/TrigCaloEvent
    Trigger/TrigEvent/TrigMissingEtEvent
@@ -50,7 +50,7 @@ atlas_add_library( TrigEFMissingETLib
    LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier
    AthenaBaseComps xAODCaloEvent xAODJet xAODTrigMissingET GaudiKernel
    LArIdentifier TrigCaloEvent TrigMissingEtEvent TrigParticle CaloDetDescrLib
-   LArToolsLib TrigT2CaloCommonLib TrigInterfacesLib TrigTimeAlgsLib
+   LArCablingLib TrigT2CaloCommonLib TrigInterfacesLib TrigTimeAlgsLib
    PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CxxUtils Identifier
    EventKernel xAODEventInfo JetEvent TrigMuonEvent TrigSteeringEvent
    TrigT1Interfaces )

@@ -19,7 +19,7 @@ PURPOSE: Data preparation from FEB Headers (Ex/Ey)
 
 #include "TrigEFMissingET/EFMissingETBaseTool.h"
 #include "TrigT2CaloCommon/TrigDataAccess.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArReadoutModuleService.h"
 #include "CaloIdentifier/CaloCell_ID.h"

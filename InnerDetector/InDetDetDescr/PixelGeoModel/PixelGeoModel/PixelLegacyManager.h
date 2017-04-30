@@ -24,37 +24,37 @@ class PixelLegacyManager {
   //
   // Description of Pixel Frame (M. Zdrazil + AR)
   //
-  IRDBRecordset_ptr pfba;
-  IRDBRecordset_ptr pbba;
-  IRDBRecordset_ptr ptba;
-  IRDBRecordset_ptr pfec;
-  IRDBRecordset_ptr pbec;
-  IRDBRecordset_ptr ptec;
-  IRDBRecordset_ptr pecn;
-  IRDBRecordset_ptr pecf;
-  IRDBRecordset_ptr pecb;
-  IRDBRecordset_ptr pect;
+  IRDBRecordset_ptr m_pfba;
+  IRDBRecordset_ptr m_pbba;
+  IRDBRecordset_ptr m_ptba;
+  IRDBRecordset_ptr m_pfec;
+  IRDBRecordset_ptr m_pbec;
+  IRDBRecordset_ptr m_ptec;
+  IRDBRecordset_ptr m_pecn;
+  IRDBRecordset_ptr m_pecf;
+  IRDBRecordset_ptr m_pecb;
+  IRDBRecordset_ptr m_pect;
   //
   // Design
   //
-  IRDBRecordset_ptr pxbi;
-  IRDBRecordset_ptr pdch;
-  IRDBRecordset_ptr pxbd;
+  IRDBRecordset_ptr m_pxbi;
+  IRDBRecordset_ptr m_pdch;
+  IRDBRecordset_ptr m_pxbd;
   //
   // Detailed ladder and services on ladder
   //
-  IRDBRecordset_ptr ptla;
-  IRDBRecordset_ptr pctr;
-  IRDBRecordset_ptr pftr;
-  IRDBRecordset_ptr pttr;
-  IRDBRecordset_ptr pome;
-  IRDBRecordset_ptr poti;
-  IRDBRecordset_ptr pobi;
-  IRDBRecordset_ptr poai;
-  IRDBRecordset_ptr poci;
-  IRDBRecordset_ptr posi;
-  IRDBRecordset_ptr pccf;
-  IRDBRecordset_ptr pcff;
+  IRDBRecordset_ptr m_ptla;
+  IRDBRecordset_ptr m_pctr;
+  IRDBRecordset_ptr m_pftr;
+  IRDBRecordset_ptr m_pttr;
+  IRDBRecordset_ptr m_pome;
+  IRDBRecordset_ptr m_poti;
+  IRDBRecordset_ptr m_pobi;
+  IRDBRecordset_ptr m_poai;
+  IRDBRecordset_ptr m_poci;
+  IRDBRecordset_ptr m_posi;
+  IRDBRecordset_ptr m_pccf;
+  IRDBRecordset_ptr m_pcff;
   
   bool m_BarrelInSFrame;
   bool m_EndcapInSFrame;

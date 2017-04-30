@@ -7,9 +7,8 @@
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "ByteStreamData/RawEvent.h" 
 #include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "EventInfo/EventInfo.h"
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
+#include "StoreGate/ReadHandle.h"
 
 //using xAOD::EventInfo;
 
@@ -25,6 +24,8 @@ SCTRawDataProviderTool::SCTRawDataProviderTool
 {
   declareProperty ("Decoder", m_decoder);
   declareProperty ("ErrorsSvc",m_bsErrSvc);
+  declareProperty ("xAODEventInfoKey", xevtInfoKey=std::string("EventInfo"));
+  declareProperty ("EventInfoKey", evtInfoKey=std::string("ByteStreamEventInfo"));
   declareInterface< ISCTRawDataProviderTool >( this );   
 }
 
@@ -66,6 +67,9 @@ StatusCode SCTRawDataProviderTool::initialize()
   if( sc.isSuccess() ) {
     incsvc->addListener( this, "BeginEvent", priority);
   }
+
+  ATH_CHECK( xevtInfoKey.initialize() );
+  ATH_CHECK( evtInfoKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -134,21 +138,17 @@ StatusCode SCTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
     //// retrieve EventInfo.  
     /// First the xAOD one
     bool setOK_xAOD = false;
-    const xAOD::EventInfo* xevtInfo_const;
-    sc = evtStore()->retrieve(xevtInfo_const);  
-    if (sc==StatusCode::SUCCESS) {
-      xAOD::EventInfo* xevtInfo=0;
-      xevtInfo=const_cast<xAOD::EventInfo*>(xevtInfo_const);
+    SG::ReadHandle<xAOD::EventInfo> xevtInfo_const(xevtInfoKey);
+    if (xevtInfo_const.isValid()) {
+      xAOD::EventInfo* xevtInfo = const_cast<xAOD::EventInfo*>(&*xevtInfo_const);
       setOK_xAOD = xevtInfo->setErrorState(xAOD::EventInfo::SCT, xAOD::EventInfo::Error);
     } 
 
     /// Second the old-style one
     bool setOK_old = false;
-    const EventInfo* evtInfo_const;
-    sc = evtStore()->retrieve(evtInfo_const);  
-    if (sc==StatusCode::SUCCESS) {
-      EventInfo* evtInfo = 0;
-      evtInfo =const_cast<EventInfo*>(evtInfo_const);
+    SG::ReadHandle<EventInfo> evtInfo_const(evtInfoKey);
+    if (evtInfo_const.isValid()) {
+      EventInfo* evtInfo = const_cast<EventInfo*>(&*evtInfo_const);
       setOK_old = evtInfo->setErrorState(EventInfo::SCT, EventInfo::Error);
     }
 

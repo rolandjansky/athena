@@ -42,22 +42,22 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer, bool isModule3D)
   //SiDetectorDesign::Axis depthAxis = SiDetectorDesign::xAxis;
 
   // Dimensions
-  double thickness = gmt_mgr->PixelBoardThickness(m_isModule3D);
-  double length = gmt_mgr->PixelBoardLength(m_isModule3D);
-  double width = gmt_mgr->PixelBoardWidth(m_isModule3D);
+  double thickness = m_gmt_mgr->PixelBoardThickness(m_isModule3D);
+  double length = m_gmt_mgr->PixelBoardLength(m_isModule3D);
+  double width = m_gmt_mgr->PixelBoardWidth(m_isModule3D);
 
-  int circuitsPhi = gmt_mgr->DesignCircuitsPhi(m_isModule3D); // Warning col/row naming opposite to chip
-  int circuitsEta = gmt_mgr->DesignCircuitsEta(m_isModule3D); // Warning col/row naming opposite to chip
-  int cellRowPerCirc = gmt_mgr->DesignCellRowsPerCircuit(m_isModule3D);
-  int cellColPerCirc = gmt_mgr->DesignCellColumnsPerCircuit(m_isModule3D);
-  int diodeRowPerCirc = gmt_mgr->DesignDiodeRowsPerCircuit(m_isModule3D);
-  int diodeColPerCirc = gmt_mgr->DesignDiodeColumnsPerCircuit(m_isModule3D);
-  int readoutSide = gmt_mgr->DesignReadoutSide(m_isModule3D);
+  int circuitsPhi = m_gmt_mgr->DesignCircuitsPhi(m_isModule3D); // Warning col/row naming opposite to chip
+  int circuitsEta = m_gmt_mgr->DesignCircuitsEta(m_isModule3D); // Warning col/row naming opposite to chip
+  int cellRowPerCirc = m_gmt_mgr->DesignCellRowsPerCircuit(m_isModule3D);
+  int cellColPerCirc = m_gmt_mgr->DesignCellColumnsPerCircuit(m_isModule3D);
+  int diodeRowPerCirc = m_gmt_mgr->DesignDiodeRowsPerCircuit(m_isModule3D);
+  int diodeColPerCirc = m_gmt_mgr->DesignDiodeColumnsPerCircuit(m_isModule3D);
+  int readoutSide = m_gmt_mgr->DesignReadoutSide(m_isModule3D);
 
-  double etaPitchLongEnd =  gmt_mgr->DesignPitchZLongEnd(m_isModule3D);
-  double etaPitchLong =  gmt_mgr->DesignPitchZLong(m_isModule3D);
-  double phiPitch = gmt_mgr->DesignPitchRP(m_isModule3D);
-  double etaPitch = gmt_mgr->DesignPitchZ(m_isModule3D);
+  double etaPitchLongEnd =  m_gmt_mgr->DesignPitchZLongEnd(m_isModule3D);
+  double etaPitchLong =  m_gmt_mgr->DesignPitchZLong(m_isModule3D);
+  double phiPitch = m_gmt_mgr->DesignPitchRP(m_isModule3D);
+  double etaPitch = m_gmt_mgr->DesignPitchZ(m_isModule3D);
 
 
 //   std::cout<<"thickness = "<<thickness<<std::endl;
@@ -92,16 +92,16 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer, bool isModule3D)
 							     readoutSide);
 
   // Multiple connections (ganged pixels)
-  if (gmt_mgr->NumberOfEmptyRows() > 0) {
-    int minRow = gmt_mgr->EmptyRows(0);
+  if (m_gmt_mgr->NumberOfEmptyRows() > 0) {
+    int minRow = m_gmt_mgr->EmptyRows(0);
     int maxRow = minRow;
  
 
-    for (int iConnect = 0; iConnect < gmt_mgr->NumberOfEmptyRows(); iConnect++){
-      minRow = std::min(minRow, gmt_mgr->EmptyRows(iConnect));
-      minRow = std::min(minRow, gmt_mgr->EmptyRowConnections(iConnect));
-      maxRow = std::max(maxRow, gmt_mgr->EmptyRows(iConnect));
-      maxRow = std::max(maxRow, gmt_mgr->EmptyRowConnections(iConnect));
+    for (int iConnect = 0; iConnect < m_gmt_mgr->NumberOfEmptyRows(); iConnect++){
+      minRow = std::min(minRow, m_gmt_mgr->EmptyRows(iConnect));
+      minRow = std::min(minRow, m_gmt_mgr->EmptyRowConnections(iConnect));
+      maxRow = std::max(maxRow, m_gmt_mgr->EmptyRows(iConnect));
+      maxRow = std::max(maxRow, m_gmt_mgr->EmptyRowConnections(iConnect));
     }
   
     std::vector <int> connections(maxRow-minRow+1);
@@ -112,8 +112,8 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer, bool isModule3D)
     }
     
     // Now make the connections.
-    for (int iConnect = 0; iConnect < gmt_mgr->NumberOfEmptyRows(); iConnect++){
-      connections[gmt_mgr->EmptyRows(iConnect)-minRow] = gmt_mgr->EmptyRowConnections(iConnect);
+    for (int iConnect = 0; iConnect < m_gmt_mgr->NumberOfEmptyRows(); iConnect++){
+      connections[m_gmt_mgr->EmptyRows(iConnect)-minRow] = m_gmt_mgr->EmptyRowConnections(iConnect);
     }
     
     //std::cout << "MinRow = " << minRow << std::endl;
@@ -126,41 +126,41 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer, bool isModule3D)
 
   } else {
     // No empty rows.
-    if (!gmt_mgr->slhc() && !gmt_mgr->ibl()) {
-      gmt_mgr->msg(MSG::WARNING) << "GeoPixelSiCrystal: No ganged pixels" << endmsg;
+    if (!m_gmt_mgr->slhc() && !m_gmt_mgr->ibl()) {
+      m_gmt_mgr->msg(MSG::WARNING) << "GeoPixelSiCrystal: No ganged pixels" << endmsg;
     } else {
-      if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) << "GeoPixelSiCrystal: No ganged pixels" << endmsg;
+      if (m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) << "GeoPixelSiCrystal: No ganged pixels" << endmsg;
     }
   }
   
   // Check that the active area seems reasonable
 //   std::cout<< "GeoPixelSiCrystal: Active area vs sensor size. Sensor: " 
 // 	   << width/CLHEP::mm << " x " << length/CLHEP::mm << ", Active: " 
-// 	   << gmt_mgr->DesignRPActiveArea(m_isModule3D)/CLHEP::mm << " x " << gmt_mgr->DesignZActiveArea(m_isModule3D)/CLHEP::mm 
+// 	   << m_gmt_mgr->DesignRPActiveArea(m_isModule3D)/CLHEP::mm << " x " << m_gmt_mgr->DesignZActiveArea(m_isModule3D)/CLHEP::mm 
 // 	   << std::endl;
-  if ( (gmt_mgr->DesignRPActiveArea(m_isModule3D) > width) ||
-       (gmt_mgr->DesignZActiveArea(m_isModule3D) >  length) || 
-       (width - gmt_mgr->DesignRPActiveArea(m_isModule3D) > 4 * CLHEP::mm) || 
-       (length - gmt_mgr->DesignZActiveArea(m_isModule3D) > 4 * CLHEP::mm) ) { 
-    gmt_mgr->msg(MSG::WARNING) << "GeoPixelSiCrystal: Active area not consistent with sensor size. Sensor: " 
+  if ( (m_gmt_mgr->DesignRPActiveArea(m_isModule3D) > width) ||
+       (m_gmt_mgr->DesignZActiveArea(m_isModule3D) >  length) || 
+       (width - m_gmt_mgr->DesignRPActiveArea(m_isModule3D) > 4 * CLHEP::mm) || 
+       (length - m_gmt_mgr->DesignZActiveArea(m_isModule3D) > 4 * CLHEP::mm) ) { 
+    m_gmt_mgr->msg(MSG::WARNING) << "GeoPixelSiCrystal: Active area not consistent with sensor size. Sensor: " 
 			       << width/CLHEP::mm << " x " << length/CLHEP::mm << ", Active: " 
-			       << gmt_mgr->DesignRPActiveArea(m_isModule3D)/CLHEP::mm << " x " << gmt_mgr->DesignZActiveArea(m_isModule3D)/CLHEP::mm 
+			       << m_gmt_mgr->DesignRPActiveArea(m_isModule3D)/CLHEP::mm << " x " << m_gmt_mgr->DesignZActiveArea(m_isModule3D)/CLHEP::mm 
 			       << endmsg;
   } else {
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) 
+    if (m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) 
       << "GeoPixelSiCrystal: Sensor: "  
       << width/CLHEP::mm << " x " << length/CLHEP::mm << ", Active: " 
-      << gmt_mgr->DesignRPActiveArea(m_isModule3D)/CLHEP::mm << " x " << gmt_mgr->DesignZActiveArea(m_isModule3D)/CLHEP::mm 
+      << m_gmt_mgr->DesignRPActiveArea(m_isModule3D)/CLHEP::mm << " x " << m_gmt_mgr->DesignZActiveArea(m_isModule3D)/CLHEP::mm 
       << endmsg;		       
   }
 
 
   m_design = p_barrelDesign2;
 
-  DDmgr->addDesign(m_design);
+  m_DDmgr->addDesign(m_design);
   
-  std::string matName = gmt_mgr->getMaterialName("Sensor");
-  const GeoMaterial* siMat = mat_mgr->getMaterial(matName);
+  std::string matName = m_gmt_mgr->getMaterialName("Sensor");
+  const GeoMaterial* siMat = m_mat_mgr->getMaterial(matName);
   const GeoBox* siBox = new GeoBox(thickness/2.,width/2.,length/2.);
   std::string logname;
   // There is not a strong need to give the blayer a different name but leave it for now. 
@@ -181,18 +181,18 @@ GeoVPhysVol* GeoPixelSiCrystal::Build() {
 
   // Build the Identifier for the silicon:
   //
-  if(gmt_mgr->isBarrel() ) brl_ec = 0;
-  if(gmt_mgr->isEndcap() ) brl_ec = 2*gmt_mgr->GetSide();
-  const PixelID * idHelper = gmt_mgr->getIdHelper();
+  if(m_gmt_mgr->isBarrel() ) brl_ec = 0;
+  if(m_gmt_mgr->isEndcap() ) brl_ec = 2*m_gmt_mgr->GetSide();
+  const PixelID * idHelper = m_gmt_mgr->getIdHelper();
   Identifier idwafer;
-  idwafer = idHelper->wafer_id(brl_ec,gmt_mgr->GetLD(),gmt_mgr->Phi(),gmt_mgr->Eta());
+  idwafer = idHelper->wafer_id(brl_ec,m_gmt_mgr->GetLD(),m_gmt_mgr->Phi(),m_gmt_mgr->Eta());
  
-  _id=idwafer;
-  SiDetectorElement * element = new SiDetectorElement(idwafer, m_design, siPhys, gmt_mgr->commonItems());
+  m_id=idwafer;
+  SiDetectorElement * element = new SiDetectorElement(idwafer, m_design, siPhys, m_gmt_mgr->commonItems());
   
   
   // add the element to the manager
-  DDmgr->addDetectorElement(element);
+  m_DDmgr->addDetectorElement(element);
   return siPhys;
 }
  
@@ -217,7 +217,7 @@ PixelDiodeMatrix *  GeoPixelSiCrystal::makeMatrix(double phiPitch, double etaPit
   
   if (etaPitchLongEnd == etaPitchLong && etaPitchLong != etaPitch) {
     // long:normal:long (standard ATLAS case)
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (long:normal:long, Standard ATLAS case)" << endmsg;
+    if (m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (long:normal:long, Standard ATLAS case)" << endmsg;
 
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
@@ -235,14 +235,14 @@ PixelDiodeMatrix *  GeoPixelSiCrystal::makeMatrix(double phiPitch, double etaPit
 				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
   } else if (etaPitchLongEnd == etaPitchLong && (etaPitchLong == etaPitch || circuitsEta == 1)) {
     // normal:normal:normal
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (normal:normal:normal)" << endmsg;
+    if (m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (normal:normal:normal)" << endmsg;
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * singleRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
 							0, normalCell, circuitsEta*diodeColPerCirc, 0);
     fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir,
 				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
   } else if (etaPitchLongEnd == etaPitch &&  etaPitchLong != etaPitch && circuitsEta > 2) {
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (normal:normal:long, > 2 chips)" << endmsg;
+    if (m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (normal:normal:long, > 2 chips)" << endmsg;
     // normal:normal:long: > 2 chips
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
@@ -268,7 +268,7 @@ PixelDiodeMatrix *  GeoPixelSiCrystal::makeMatrix(double phiPitch, double etaPit
 				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
   } else if (etaPitchLongEnd == etaPitch &&  etaPitchLong != etaPitch && circuitsEta == 2) {
     // normal:normal:long: 2 chips (current SLHC case)
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (normal:normal:long, 2 chips)" << endmsg;
+    if (m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (normal:normal:long, 2 chips)" << endmsg;
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
     
@@ -289,7 +289,7 @@ PixelDiodeMatrix *  GeoPixelSiCrystal::makeMatrix(double phiPitch, double etaPit
   } else if (circuitsEta == 1 ||  (etaPitchLongEnd != etaPitch &&  etaPitchLong == etaPitch )){ // etaPitchLongEnd != etaPitch at this stage
     // end:normal:end  (for single chip)
     // end:normal:normal  (not likely)
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (end:normal:end, single chips or end:normal:normal)" << endmsg;
+    if (m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (end:normal:end, single chips or end:normal:normal)" << endmsg;
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLongEnd); 
     
@@ -302,7 +302,7 @@ PixelDiodeMatrix *  GeoPixelSiCrystal::makeMatrix(double phiPitch, double etaPit
 				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
   } else {
     // end:normal:long    (not likely)
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (end:normal:long)" << endmsg;
+    if (m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (end:normal:long)" << endmsg;
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
     PixelDiodeMatrix * endCell = new PixelDiodeMatrix(phiPitch, etaPitchLongEnd); 

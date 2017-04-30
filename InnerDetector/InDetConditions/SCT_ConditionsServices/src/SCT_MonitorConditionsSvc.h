@@ -28,6 +28,12 @@
 #include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
 #include "SCT_ConditionsServices/ISCT_MonitorConditionsSvc.h"
 
+// Read Handle
+#include "StoreGate/ReadHandleKey.h"
+
+// Event Info
+#include "xAODEventInfo/EventInfo.h"
+
 //forward declarations
 template <class TYPE> class SvcFactory;
 class ISvcLocator;
@@ -236,7 +242,7 @@ private:
   std::string                  m_tagID4Eff;
   std::string                  m_tagID4NO;
 
-  const EventInfo*             m_evt;
+  SG::ReadHandleKey<xAOD::EventInfo> m_evtKey;
   IIOVRegistrationSvc*         m_regSvc;
   IAthenaOutputStreamTool*     m_streamer;
 

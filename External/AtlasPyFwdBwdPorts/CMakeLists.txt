@@ -82,22 +82,10 @@ _setup_python_package( Beaker
    de84e7511119dc0b8eb4ac177d3e2512
    DEPENDS distribute )
 
-# Install abc:
-_setup_python_package( abc
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/abc-2.6.1.0.tar.gz
-   a0851484aa93cb8eac113fbaf1238414
-   SINGLE_VERSION )
-
 # Install affinity:
 _setup_python_package( affinity
    ${CMAKE_CURRENT_SOURCE_DIR}/src/affinity-0.1.0.tar.gz
    cc610cdb05ca675b4089ce2f05796f57
-   DEPENDS distribute )
-
-# Install argparse:
-_setup_python_package( argparse
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/argparse-1.2.1.tar.gz
-   2fbef8cb61e506c706957ab6e135840c
    DEPENDS distribute )
 
 # Install bunch:
@@ -132,21 +120,7 @@ _setup_python_package( futures
 # Install grin:
 _setup_python_package( grin
    ${CMAKE_CURRENT_SOURCE_DIR}/src/grin-1.2.1.tar.gz
-   d894426dfbf70bc105388c2a51348199
-   DEPENDS argparse )
-
-# Install hgsvn:
-_setup_python_package( hgsvn
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/hgsvn-0.1.9.tar.gz
-   901f2fb04faad5a1e7cf84abfad564fd
-   DEPENDS distribute )
-
-# Install iterutils:
-_setup_python_package( iterutils
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/iterutils-0.1.6.tar.gz
-   e293044ec65d757ce075ac170ad9ada8
-   DEPENDS distribute
-   SINGLE_VERSION )
+   d894426dfbf70bc105388c2a51348199 )
 
 # Install jsonpickle:
 _setup_python_package( jsonpickle
@@ -161,30 +135,6 @@ _setup_python_package( keyring
    a2f0dcea7185580c163ef2db1f4fbe0c
    DEPENDS distribute
    SINGLE_VERSION )
-
-# Install mercurial:
-#_setup_python_package( mercurial
-#   ${CMAKE_CURRENT_SOURCE_DIR}/src/mercurial-2.1.2.tar.gz
-#   15354d739504ec46f68a0fee2ecfbf25
-#   SINGLE_VERSION )
-
-# Install nested_dict:
-#_setup_python_package( nested_dict
-#   ${CMAKE_CURRENT_SOURCE_DIR}/src/nested_dict-1.0.9.tar.gz 
-#   aeb571306af08142d11fee99ff569019 
-#   DEPENDS distribute )
-
-# Install ordereddict:
-_setup_python_package( ordereddict
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/ordereddict-1.1.tar.gz
-   7ff95dba551c563ad04ba7076b16607f
-   SINGLE_VERSION )
-
-# Install paramiko:
-#_setup_python_package( paramiko
-#   ${CMAKE_CURRENT_SOURCE_DIR}/src/paramiko-1.7.6.tar.gz
-#   fa144ab46f1dc639b05ab948c30efac4
-#   DEPENDS pycrypto )
 
 # Install pip:
 _setup_python_package( pip
@@ -202,8 +152,14 @@ _setup_python_package( pycrypto
 
 # Install pyflakes:
 _setup_python_package( pyflakes
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/pyflakes-1.1.0.tar.gz
-   e0bf854cd5abd4527e149692925b82eb
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/pyflakes-1.5.0.tar.gz
+   84a99f05e5409f8196325dda3f5a1b9a
+   SINGLE_VERSION )
+
+# Install flake8:
+_setup_python_package( flake8
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/flake8-3.3.0.tar.gz
+   3df622aac9bad27c04f34164609bbed8
    SINGLE_VERSION )
 
 # Install pyinotify:
@@ -221,24 +177,11 @@ _setup_python_package( pyyaml
    EXTRA_ARGS --without-libyaml
    SINGLE_VERSION )
 
-# Install ruffus:
-#_setup_python_package( ruffus
-#   ${CMAKE_CURRENT_SOURCE_DIR}/src/ruffus-2.2.tar.gz
-#   d96fc1b90ad58367f04538e7c9b07c95
-#   DEPENDS simplejson )
-
 # Install simplejson:
 _setup_python_package( simplejson
    ${CMAKE_CURRENT_SOURCE_DIR}/src/simplejson-2.1.6.tar.gz
    2f8351f6e6fe7ef25744805dfa56c0d5
    DEPENDS distribute )
 
-# Install virtualenv:
-#_setup_python_package( virtualenv
-#   ${CMAKE_CURRENT_SOURCE_DIR}/src/virtualenv-1.6.4.tar.gz
-#   1072b66d53c24e019a8f1304ac9d9fc5
-#   DEPENDS pip )
-
 # Clean up:
 unset( _setup_python_package )
-

@@ -75,6 +75,7 @@ namespace TrigCostRootAnalysis {
   }
 
   void TrigXMLService::init() {
+    m_ignoreGRL = Config::config().getInt(kIgnoreGRL);
     parseRunXML(Config::config().getInt(kRunNumber), kTRUE);
     // Is this a "multi run"? If so - load details from the LB of the other runs
     std::vector<Int_t> _multiRun = Config::config().getIntVec(kMultiRun);
@@ -865,6 +866,7 @@ namespace TrigCostRootAnalysis {
    *could affect rates prediction
    */
   Bool_t TrigXMLService::getIsLBFlaggedBad(Int_t _lb) {
+    if (m_ignoreGRL) return kFALSE;
     return (Bool_t) m_badLumiBlocks.count(_lb);
   }
 
