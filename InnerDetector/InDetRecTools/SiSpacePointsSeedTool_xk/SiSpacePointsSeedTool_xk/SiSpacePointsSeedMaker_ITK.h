@@ -185,27 +185,29 @@ namespace InDet {
       float                       m_COFK                          ;  
       float                       m_umax                          ;
       float                       m_dzmaxPPP                      ;
+      float                       m_RTmin                         ;
+      float                       m_RTmax                         ;
       int r_size                                                  ;
       int r_first                                                 ;
       int rf_size                                                 ;
       int rfz_size                                                ;
       std::list<InDet::SiSpacePointForSeedITK*>* r_Sorted            ;
-      std::list<InDet::SiSpacePointForSeedITK*>  rfz_Sorted [   583] ;
+      std::vector<InDet::SiSpacePointForSeedITK*>  rfz_Sorted [   2211] ;
       std::list<InDet::SiSpacePointForSeedITK*>  rfzv_Sorted[   300] ;
       std::list<InDet::SiSpacePointForSeedITK*>  l_spforseed         ;
       std::list<InDet::SiSpacePointForSeedITK*>::iterator i_spforseed; 
-      std::list<InDet::SiSpacePointForSeedITK*>::iterator m_rMin     ;
+      std::vector<InDet::SiSpacePointForSeedITK*>::iterator m_rMin     ;
 
       int m_ns,m_nsaz,m_nsazv                                     ;
-      int m_fNmax,m_fvNmax                                        ;
+      int m_fNmax[2],m_fvNmax                                        ;
       int m_fNmin,m_fvNmin                                        ;
       int m_zMin                                                  ;
       int  m_nr     ; int* r_index   ; int* r_map                 ;
-      int  m_nrfz   , rfz_index  [583], rfz_map  [583]            ;
+      int  m_nrfz   , rfz_index  [2211], rfz_map  [2211]            ;
       int  m_nrfzv  , rfzv_index [300], rfzv_map [300]            ;
-      int rfz_b[583],rfz_t[593],rfz_ib[583][9],rfz_it[583][9]     ;
+      int rfz_b[2][2211],rfz_t[2][2211],rfz_ib[2][2211][9],rfz_it[2][2211][9]     ;
       int rfzv_n[300],rfzv_i[300][6]                              ;
-      float m_sF                                                  ;
+      float m_sF[2]                                                  ;
       float m_sFv                                                 ;
 
       ///////////////////////////////////////////////////////////////////
@@ -268,6 +270,9 @@ namespace InDet {
       int                                               m_fillOneSeeds;
       std::set<float>                                   l_vertex     ;
       std::vector<std::pair<float,InDet::SiSpacePointForSeedITK*>> m_CmSp; 
+      std::vector<std::pair<float,int>> m_Bot;
+      std::vector<std::pair<float,int>> m_Top;
+ 
 
       ///////////////////////////////////////////////////////////////////
       // Beam geometry
@@ -316,35 +321,55 @@ namespace InDet {
 	(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float);
       void newOneSeedWithCurvaturesComparisonSSS
 	(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float);
+      void newOneSeedWithCurvaturesComparisonMIXED
+	(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float);
 
       void fillSeeds()                                            ;
       void fillLists     ()                                       ;
       void erase         ()                                       ;
       void production2Sp ()                                       ;
       void production3Sp ()                                       ;
+      void production3SpSSS     ()                                ;
+      void production3SpPPP     ()                                ;
+      void production3SpPPPold  ()                                ;
+      void production3SpMIXED   ()                                ;
+      void production3SpMIXEDold()                                ;
+
       void production3SpSSS
-	(std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
+	(std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
 	 int,int,int&);
       void production3SpPPP
-	(std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
+	(std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
 	 int,int,int&);
       void production3SpPPPold
-	(std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
+	(std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
 	 int,int,int&);
-      void production3SpTrigger
-	(std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
+      void production3SpMIXED
+	(std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 int,int,int&);
+      void production3SpMIXEDold
+	(std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 int,int,int&);
+       void production3SpTrigger
+	(std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
 	 int,int,int&);
  
       bool newVertices(const std::list<Trk::Vertex>&)             ;
@@ -354,6 +379,7 @@ namespace InDet {
       bool isUsed(const Trk::SpacePoint*); 
       bool pixInform(Trk::SpacePoint*const&,bool&,int&);
       void sctInform(Trk::SpacePoint*const&,bool&,int&,float*);
+      float AzimuthalStep(float,float,float,float);
 
       // new methods for ITK long barrel -------------------------------------
       double predictedClusterLength(const InDet::SiSpacePointForSeedITK*,  double thickness, float seed_zvx);
@@ -477,6 +503,21 @@ public:
     return i1.first < i2.first;
   }
 };
+
+//////////////////////////////////////////////////////////////////
+// Object-function for dZ/dR seeds comparison
+///////////////////////////////////////////////////////////////////
+
+class comDzDrITK  {
+public:
+  bool operator ()
+  (const std::pair<float,int>& i1, 
+   const std::pair<float,int>& i2)
+  {
+    return i1.first < i2.first;
+  }
+};
+
 
 #endif // SiSpacePointsSeedMaker_ITK_H
 
