@@ -7,7 +7,7 @@ use AtlasPolicy     	AtlasPolicy-*
 use TrkSegment                  TrkSegment-*            Tracking/TrkEvent
 use xAODCaloEvent               xAODCaloEvent-*         Event/xAOD
 use xAODJet                    xAODJet-*                 Event/xAOD
-use DataModel                  DataModel-*                Control
+use AthLinks                   AthLinks-*                 Control
 use CLIDSvc                    CLIDSvc-*                  Control
 #library RecBackgroundEvent *.cxx -s=components *.cxx
 #apply_pattern component_library
