@@ -17,47 +17,47 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(int nSample, float deltaTSample, size_t preSamp
   _forceLG(forceLG),
   _debugLevel(-1),
   _eventCount(0),
-  _moduleMask(0),
-  _moduleSum({0, 0}), 
-  _moduleSumErrSq({0, 0}), 
-  _moduleSumPreSample({0,0}),
-  _calibModuleSum({0, 0}), 
-  _calibModuleSumErrSq({0,0}),
-  _averageTime({0, 0}), 
-  _fail({false, false}),
-  _haveT0Calib(false),
   _haveECalib(false),
-  _currentLB(-1)
+  _haveT0Calib(false),
+  _currentLB(-1),
+  _moduleMask(0),
+  _moduleSum({{0, 0}}), 
+  _moduleSumErrSq({{0, 0}}), 
+  _moduleSumPreSample({{0,0}}),
+  _calibModuleSum({{0, 0}}), 
+  _calibModuleSumErrSq({{0,0}}),
+  _averageTime({{0, 0}}), 
+  _fail({{false, false}})
 {
-  _moduleDisabled[0] = {false, false, false, false};
-  _moduleDisabled[1] = {false, false, false, false};
+  _moduleDisabled[0] = {{false, false, false, false}};
+  _moduleDisabled[1] = {{false, false, false, false}};
 
-  _moduleAnalyzers[0] = {0, 0, 0, 0};
-  _moduleAnalyzers[1] = {0, 0, 0, 0};
+  _moduleAnalyzers[0] = {{0, 0, 0, 0}};
+  _moduleAnalyzers[1] = {{0, 0, 0, 0}};
 
-  _calibAmplitude[0] = {0, 0, 0, 0};
-  _calibAmplitude[1] = {0, 0, 0, 0};
+  _calibAmplitude[0] = {{0, 0, 0, 0}};
+  _calibAmplitude[1] = {{0, 0, 0, 0}};
   
-  _calibTime[0] = {0, 0, 0, 0};
-  _calibTime[1] = {0, 0, 0, 0};
+  _calibTime[0] = {{0, 0, 0, 0}};
+  _calibTime[1] = {{0, 0, 0, 0}};
 
   _dataLoaded[0] = {false, false, false, false};
   _dataLoaded[1] = {false, false, false, false};
 
   // For now we are using hard-coded gain factors and pedestals
   //
-  _HGGains[0] = {9.51122, 9.51980, 9.51122, 9.51122};
-  _HGGains[1] = {9.50842, 9.49662, 9.50853, 9.50842};
+  _HGGains[0] = {{9.51122, 9.51980, 9.51122, 9.51122}};
+  _HGGains[1] = {{9.50842, 9.49662, 9.50853, 9.50842}};
   
-  _pedestals[0] = {100, 100, 100, 100};
-  _pedestals[1] = {100, 100, 100, 100};
+  _pedestals[0] = {{100, 100, 100, 100}};
+  _pedestals[1] = {{100, 100, 100, 100}};
   
   // Default "calibrations"
   //
-  _currentECalibCoeff = {1, 1, 1, 1, 1, 1, 1, 1};
+  _currentECalibCoeff = {{{{1, 1, 1, 1}}, {{1, 1, 1, 1}}}};
 
-  _currentT0OffsetsHG = {0, 0, 0, 0, 0, 0, 0, 0};
-  _currentT0OffsetsLG = {0, 0, 0, 0, 0, 0, 0, 0};
+  _currentT0OffsetsHG = {{{{0, 0, 0, 0}}, {{0, 0, 0, 0}}}};
+  _currentT0OffsetsLG = {{{{0, 0, 0, 0}}, {{0, 0, 0, 0}}}};
 
   // Construct the per-module pulse analyzers
   //

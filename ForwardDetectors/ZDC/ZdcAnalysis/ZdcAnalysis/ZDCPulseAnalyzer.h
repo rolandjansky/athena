@@ -118,7 +118,6 @@ private:
   bool _LGUnderflow;
   bool _PSHGOverUnderflow;
   bool _prePulse;
-  bool _postPulse;
   bool _fitFailed;
   bool _badT0;
   bool _badChisq;
@@ -134,8 +133,6 @@ private:
 
   int _maxSampl;
   int _minSampl;
-  int _maxDeltaSampl;
-  int _minDeltaSampl;
 
   float _minDeriv2nd;
   int _minDeriv2ndIndex;
@@ -333,11 +330,11 @@ public:
     TGraph* theGraph = new TGraph(2*_Nsample);
     size_t npts = 0;
 
-    for (size_t ipt = 0; ipt < _fitHist->GetNbinsX(); ipt++) {
+    for (int ipt = 0; ipt < _fitHist->GetNbinsX(); ipt++) {
       theGraph->SetPoint(npts++, _fitHist->GetBinCenter(ipt + 1), _fitHist->GetBinContent(ipt + 1));
     }
 
-    for (size_t iDelayPt = 0; iDelayPt < _delayedHist->GetNbinsX(); iDelayPt++) {
+    for (int iDelayPt = 0; iDelayPt < _delayedHist->GetNbinsX(); iDelayPt++) {
       theGraph->SetPoint(npts++, _delayedHist->GetBinCenter(iDelayPt + 1), _delayedHist->GetBinContent(iDelayPt + 1) - _delayedBaselineShift);
     }
 

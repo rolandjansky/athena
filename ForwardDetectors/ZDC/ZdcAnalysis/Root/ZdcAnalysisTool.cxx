@@ -20,7 +20,7 @@ namespace ZDC
   ZdcAnalysisTool::ZdcAnalysisTool(const std::string& name) : asg::AsgTool(name), m_name(name), m_init(false), 
 							      m_writeAux(false), m_eventReady(false),
 							      m_runNumber(0), m_lumiBlock(0),
-							      m_splines{0,0,0,0,0,0,0,0}, m_zdcTriggerEfficiency(0)
+    m_splines{{{{0,0,0,0}},{{0,0,0,0}}}}, m_zdcTriggerEfficiency(0)
 {
 
 #ifndef XAOD_STANDALONE
@@ -220,9 +220,9 @@ ZDCDataAnalyzer* ZdcAnalysisTool::initializeDefault()
 
   ATH_MSG_INFO( "Default: delta t cut, value low = " << deltaT0CutLow[0][0] << ", high = " << deltaT0CutHigh[0][0] );
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {800, 800, 800, 800, 800, 800, 800, 800};
-  ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {10, 10, 10, 10, 10, 10, 10, 10};
-  ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {1020, 1020, 1020, 1020, 1020, 1020, 1020, 1020};
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {{{{800, 800, 800, 800}}, {{800, 800, 800, 800}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {{{{1020, 1020, 1020, 1020}}, {{1020, 1020, 1020, 1020}}}};
 
   //  Construct the data analyzer
   //
@@ -234,7 +234,7 @@ ZDCDataAnalyzer* ZdcAnalysisTool::initializeDefault()
   zdcDataAnalyzer->SetCutValues(chisqDivAmpCut, chisqDivAmpCut, deltaT0CutLow, deltaT0CutHigh, deltaT0CutLow, deltaT0CutHigh);
 
   if (m_combineDelay) {
-    ZDCDataAnalyzer::ZDCModuleFloatArray defaultPedestalShifts = {0, 0, 0, 0, 0, 0, 0, 0};
+    ZDCDataAnalyzer::ZDCModuleFloatArray defaultPedestalShifts = {{{{0, 0, 0, 0}}, {{0, 0, 0, 0}}}};
 
     zdcDataAnalyzer->EnableDelayed(m_delayDeltaT, defaultPedestalShifts);
   }
@@ -282,9 +282,9 @@ ZDCDataAnalyzer* ZdcAnalysisTool::initializepPb2016()
 
   //  ATH_MSG_INFO( "Default: delta t cut, value low = " << deltaT0CutLow[0][0] << ", high = " << deltaT0CutHigh[0][0] );
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {800, 800, 800, 800, 800, 800, 800, 800};
-  ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {10, 10, 10, 10, 10, 10, 10, 10};
-  ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {1020, 1020, 1020, 1020, 1020, 1020, 1020, 1020};
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {{{{800, 800, 800, 800}}, {{800, 800, 800, 800}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {{{{1020, 1020, 1020, 1020}}, {{1020, 1020, 1020, 1020}}}};
 
   //  Construct the data analyzer
   //
@@ -308,8 +308,8 @@ ZDCDataAnalyzer* ZdcAnalysisTool::initializepPb2016()
   // We allow the combineDelay to be controlled by the properties
   //
   //  if (m_combineDelay) {
-  m_combineDelay = true;
-    ZDCDataAnalyzer::ZDCModuleFloatArray defaultPedestalShifts = {0, 0, 0, 0, 0, 0, 0, 0};
+    m_combineDelay = true;
+    ZDCDataAnalyzer::ZDCModuleFloatArray defaultPedestalShifts = {{{{0, 0, 0, 0}}, {{0, 0, 0, 0}}}};
 
     zdcDataAnalyzer->EnableDelayed(-12.5, defaultPedestalShifts);
     //  }
@@ -322,25 +322,25 @@ void ZdcAnalysisTool::initialize40MHz()
   // We have a complete configuration and so we override all of the default parameters
   //
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray tau1 = {4.2, 3.8, 5.2, 5.0,
-                                               5.0, 3.7, 3.5, 3.5};
+  ZDCDataAnalyzer::ZDCModuleFloatArray tau1 = {{{{4.2, 3.8, 5.2, 5.0}},
+                                                {{5.0, 3.7, 3.5, 3.5}}}};
 
   // identical to 80 MHz -- is this right
-  ZDCDataAnalyzer::ZDCModuleFloatArray tau2 = {20.0, 20.4, 18.9, 20.8,
-                                               19.1, 21.9, 22.6, 23.4};
+  ZDCDataAnalyzer::ZDCModuleFloatArray tau2 = {{{{20.0, 20.4, 18.9, 20.8}},
+                                                {{19.1, 21.9, 22.6, 23.4}}}};
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinSamples = {1, 1, 2, 1,
-                                                                 1, 1, 1, 1};
+  ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinSamples = {{{{1, 1, 2, 1}},
+                                                                  {{1, 1, 1, 1}}}};
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsHG = {-8, -8, -8, -8,
-								      -8, -8, -8, -8};
+  ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsHG = {{{{-8, -8, -8, -8}},
+                                                                       {{-8, -8, -8, -8}}}};
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsLG = {-4, -4, -4, -4,
-								      -4, -4, -4, -4};
+  ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsLG = {{{{-4, -4, -4, -4}},
+                                                                       {{-4, -4, -4, -4}}}};
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {800, 800, 800, 800, 800, 800, 800, 800};
-  ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {10, 10, 10, 10, 10, 10, 10, 10};
-  ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {1020, 1020, 1020, 1020, 1020, 1020, 1020, 1020};
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {{{{800, 800, 800, 800}}, {{800, 800, 800, 800}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {{{{1020, 1020, 1020, 1020}}, {{1020, 1020, 1020, 1020}}}};
 
   // Set Tau and nominal timing offsets                                                                                                                          
   ZDCDataAnalyzer::ZDCModuleBoolArray fixTau1Arr, fixTau2Arr;
@@ -355,18 +355,18 @@ void ZdcAnalysisTool::initialize40MHz()
     }
   }
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray t0HG = {53.942, 49.887, 59.633, 46.497,
-					       46.314, 42.267, 50.327, 41.605};
-  ZDCDataAnalyzer::ZDCModuleFloatArray t0LG = {51.771, 47.936, 57.438, 44.191,
-					       44.295, 41.755, 48.081, 40.175};
+  ZDCDataAnalyzer::ZDCModuleFloatArray t0HG = {{{{53.942, 49.887, 59.633, 46.497}},
+                                                {{46.314, 42.267, 50.327, 41.605}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray t0LG = {{{{51.771, 47.936, 57.438, 44.191}},
+                                                {{44.295, 41.755, 48.081, 40.175}}}};
 
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutHG = {10, 10, 10, 10, 10, 10, 10, 10};
-  ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutLG = {10, 10, 10, 10, 10, 10, 10, 10};
-  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG = {-6, -5, -5, -5, -5, -5, -5, -5};
-  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighHG = {8, 8, 8, 11, 8, 10, 8, 12};
-  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowLG = {-6, -5, -5, -5, -5, -5, -5, -5};
-  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighLG = {8, 8, 8, 11, 8, 10, 8, 12};
+  ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutHG = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutLG = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG = {{{{-6, -5, -5, -5}}, {{-5, -5, -5, -5}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighHG = {{{{8, 8, 8, 11}}, {{8, 10, 8, 12}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowLG = {{{{-6, -5, -5, -5}}, {{-5, -5, -5, -5}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighLG = {{{{8, 8, 8, 11}}, {{8, 10, 8, 12}}}};
 
   std::array<std::array<std::vector<float>, 4>, 2> slewingParamsHG, slewingParamsLG;
 
@@ -416,18 +416,18 @@ void ZdcAnalysisTool::initialize80MHz()
   // We have a complete configuration and so we override all of the default parameters
   //
 
-  _peak2ndDerivMinSamples = {3, 2, 3, 2,
-                             2, 2, 2, 2};
+  _peak2ndDerivMinSamples = {{{{3, 2, 3, 2}},
+                              {{2, 2, 2, 2}}}};
 
-  _peak2ndDerivMinThresholdsHG = {-8, -8, -8, -8,
-				  -8, -8, -8, -8};
+  _peak2ndDerivMinThresholdsHG = {{{{-8, -8, -8, -8}},
+                                   {{-8, -8, -8, -8}}}};
 
-  _peak2ndDerivMinThresholdsLG = {-4, -4, -4, -4,
-				  -4, -4, -4, -4};
+  _peak2ndDerivMinThresholdsLG = {{{{-4, -4, -4, -4}},
+                                   {{-4, -4, -4, -4}}}};
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {800, 800, 800, 800, 800, 800, 800, 800};
-  ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {10, 10, 10, 10, 10, 10, 10, 10};
-  ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {950, 950, 950, 950, 950, 950, 950, 950};
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {{{{800, 800, 800, 800}}, {{800, 800, 800, 800}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {{{{950, 950, 950, 950}}, {{950, 950, 950, 950}}}};
 
   // Set Tau and nominal timing offsets                                                                                                                          
   ZDCDataAnalyzer::ZDCModuleBoolArray fixTau1Arr, fixTau2Arr;
@@ -442,24 +442,24 @@ void ZdcAnalysisTool::initialize80MHz()
     }
   }
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray tau1 = {3.9, 3.4, 4.1, 4.2,
-                                               4.2, 3.6, 3.3, 3.4};
+  ZDCDataAnalyzer::ZDCModuleFloatArray tau1 = {{{{3.9, 3.4, 4.1, 4.2}},
+                                                {{4.2, 3.6, 3.3, 3.4}}}};
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray tau2 = {20.0, 20.4, 18.9, 20.8,
-                                               19.1, 21.9, 22.6, 23.4};
+  ZDCDataAnalyzer::ZDCModuleFloatArray tau2 = {{{{20.0, 20.4, 18.9, 20.8}},
+                                                {{19.1, 21.9, 22.6, 23.4}}}};
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray t0HG = {44.24, 40.35, 49.3, 36.0,
-					       36.0, 31.1, 40.75, 30.5};
+  ZDCDataAnalyzer::ZDCModuleFloatArray t0HG = {{{{44.24, 40.35, 49.3, 36.0}},
+                                                {{36.0, 31.1, 40.75, 30.5}}}};
 					       
-  ZDCDataAnalyzer::ZDCModuleFloatArray t0LG = {42.65, 38.5, 47.4, 34,
-					       33.7, 29.9, 39.0, 29.3};
+  ZDCDataAnalyzer::ZDCModuleFloatArray t0LG = {{{{42.65, 38.5, 47.4, 34}},
+                                                {{33.7, 29.9, 39.0, 29.3}}}};
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutHG = {10, 10, 10, 10, 10, 10, 10, 10};
-  ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutLG = {10, 10, 10, 10, 10, 10, 10, 10};
-  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG = {-6, -5, -5, -5, -5, -5, -5, -5};
-  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighHG = {8, 8, 8, 11, 8, 10, 8, 12};
-  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowLG = {-6, -5, -5, -5, -5, -5, -5, -5};
-  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighLG = {8, 8, 8, 11, 8, 10, 8, 12};
+  ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutHG = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutLG = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG = {{{{-6, -5, -5, -5}}, {{-5, -5, -5, -5}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighHG = {{{{8, 8, 8, 11}}, {{8, 10, 8, 12}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowLG = {{{{-6, -5, -5, -5}}, {{-5, -5, -5, -5}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighLG = {{{{8, 8, 8, 11}}, {{8, 10, 8, 12}}}};
 
   std::array<std::array<std::vector<float>, 4>, 2> slewingParamsHG, slewingParamsLG;
 

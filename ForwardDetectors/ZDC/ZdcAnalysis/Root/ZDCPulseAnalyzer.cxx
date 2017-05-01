@@ -23,7 +23,7 @@ TH1* ZDCPulseAnalyzer::_undelayedFitHist = 0;
 TH1* ZDCPulseAnalyzer::_delayedFitHist = 0;
 TF1* ZDCPulseAnalyzer::_combinedFitFunc = 0;
 
-void ZDCPulseAnalyzer::CombinedPulsesFCN(int& numParam, double*, double& f, double* par, int flag)
+void ZDCPulseAnalyzer::CombinedPulsesFCN(int& /*numParam*/, double*, double& f, double* par, int flag)
 {
   //  The first parameter is a correction factor to account for decrease in beam intensity between x 
   //    and y scan. It is applied here and not passed to the actual fit function
@@ -38,12 +38,12 @@ void ZDCPulseAnalyzer::CombinedPulsesFCN(int& numParam, double*, double& f, doub
 
   float delayBaselineAdjust = par[0];
 
-  size_t nSamples = _undelayedFitHist->GetNbinsX();
+  int nSamples = _undelayedFitHist->GetNbinsX();
   if (_delayedFitHist->GetNbinsX() != nSamples) throw;
 
   // undelayed 
   //
-  for (size_t isample = 0; isample < nSamples; isample++) {
+  for (int isample = 0; isample < nSamples; isample++) {
     double histValue = _undelayedFitHist->GetBinContent(isample + 1);
     double histError = std::max(_undelayedFitHist->GetBinError(isample + 1), 1.0);
     double t = _undelayedFitHist->GetBinCenter(isample + 1);
@@ -58,7 +58,7 @@ void ZDCPulseAnalyzer::CombinedPulsesFCN(int& numParam, double*, double& f, doub
 
   // delayed 
   //
-  for (size_t isample = 0; isample < nSamples; isample++) {
+  for (int isample = 0; isample < nSamples; isample++) {
     double histValue = _delayedFitHist->GetBinContent(isample + 1);
     double histError = std::max(_delayedFitHist->GetBinError(isample + 1), 1.0);
     double t = _delayedFitHist->GetBinCenter(isample + 1);
@@ -78,18 +78,20 @@ void ZDCPulseAnalyzer::CombinedPulsesFCN(int& numParam, double*, double& f, doub
 ZDCPulseAnalyzer::ZDCPulseAnalyzer(std::string tag, int Nsample, float deltaTSample, size_t preSampleIdx, int pedestal, 
 				   float gainHG, std::string fitFunction, int peak2ndDerivMinSample, 
 				   float peak2ndDerivMinThreshHG, float peak2ndDerivMinThreshLG) :
-  _tag(tag), _Nsample(Nsample), _deltaTSample(deltaTSample), _preSampleIdx(preSampleIdx), 
+  _tag(tag), _Nsample(Nsample),
+  _preSampleIdx(preSampleIdx), 
+  _deltaTSample(deltaTSample),
   _pedestal(pedestal), _gainHG(gainHG), _forceLG(false), _fitFunction(fitFunction),
   _peak2ndDerivMinSample(peak2ndDerivMinSample), 
   _peak2ndDerivMinTolerance(1),
-  _peak2ndDerivMinThreshHG(peak2ndDerivMinThreshHG),
   _peak2ndDerivMinThreshLG(peak2ndDerivMinThreshLG),
+  _peak2ndDerivMinThreshHG(peak2ndDerivMinThreshHG),
   _haveTimingCorrections(false), _haveNonlinCorr(false), _initializedFits(false),
+  _defaultFitWrapper(0), _prePulseFitWrapper(0),
   _useDelayed(false), _delayedHist(0), _prePulseCombinedFitter(0), _defaultCombinedFitter(0),
   _ADCSamplesHGSub(Nsample, 0), _ADCSamplesLGSub(Nsample, 0), 
   _ADCSSampSigHG(Nsample, 1), _ADCSSampSigLG(Nsample, 1), // By default the ADC uncertainties are set to one
-  _samplesSub(Nsample, 0),
-  _defaultFitWrapper(0), _prePulseFitWrapper(0)
+  _samplesSub(Nsample, 0)
 {
   // Create the histogram used for fitting
   //
@@ -547,7 +549,7 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
     
     double baselineCorr = 0.5*(_samplesSub[1] - _samplesSub[0] + _samplesSub[3] - _samplesSub[4]); 
       
-    for (int isample = 0; isample < nSamples; isample++) {
+    for (size_t isample = 0; isample < nSamples; isample++) {
       if (isample%2) _samplesSub[isample] -= baselineCorr;
     }
       
@@ -567,8 +569,6 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
 
   _maxADCValue = *maxIter;
   _minADCValue = *minIter;
-
-  float maxMinADCDiff = _maxADCValue - _minADCValue;
 
   _maxSampl = std::distance(_samplesSub.cbegin(), maxIter);
   _minSampl = std::distance(_samplesSub.cbegin(), minIter);
@@ -599,7 +599,7 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
   //  The ket test for presence of a pulse: is the minimum 2nd derivative in the right place and is it 
   //    large enough (sufficiently negative) 
   //
-  if (std::abs(_minDeriv2ndIndex - (int) _peak2ndDerivMinSample) <= _peak2ndDerivMinTolerance  && _minDeriv2nd <= peak2ndDerivMinThresh) {
+  if (std::abs(_minDeriv2ndIndex - (int) _peak2ndDerivMinSample) <= (int)_peak2ndDerivMinTolerance  && _minDeriv2nd <= peak2ndDerivMinThresh) {
     _havePulse = true;
   }
   else {
