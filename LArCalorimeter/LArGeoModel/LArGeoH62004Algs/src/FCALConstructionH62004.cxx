@@ -84,27 +84,23 @@ LArGeo::FCALConstructionH62004::FCALConstructionH62004():
   if(m_svcLocator->service ("RDBAccessSvc",rdbAccess) == StatusCode::FAILURE)
     throw std::runtime_error("Error in FCALConstructionH62004, cannot access RDBAccessSvc");
   DecodeVersionKey larVersionKey("LAr");
-//  std::cout<<"Asking: "<<larVersionKey.tag()<<" "<<larVersionKey.node()<<std::endl;
-//  m_fcalElectrode = rdbAccess->getRecordset("LArFCalElectrodes", larVersionKey.tag(),larVersionKey.node());
 
-//  if (m_fcalElectrode->size()==0) 
-//  {
-    m_fcalElectrode = rdbAccess->getRecordset("LArFCalElectrodes","LArFCalElectrodes-H6-00");
-    if (m_fcalElectrode->size()==0)
-      throw std::runtime_error("Error getting FCAL electrode from database");
-//  }
-  m_fcalMod = rdbAccess->getRecordset("FCalMod", larVersionKey.tag(),larVersionKey.node());
+  m_fcalElectrode = rdbAccess->getRecordsetPtr("LArFCalElectrodes","LArFCalElectrodes-H6-00");
+  if (m_fcalElectrode->size()==0)
+    throw std::runtime_error("Error getting FCAL electrode from database");
+
+  m_fcalMod = rdbAccess->getRecordsetPtr("FCalMod", larVersionKey.tag(),larVersionKey.node());
   if (m_fcalMod->size()==0) {
-    m_fcalMod=rdbAccess->getRecordset("FCalMod", "FCalMod-00");
+    m_fcalMod=rdbAccess->getRecordsetPtr("FCalMod", "FCalMod-00");
     if (m_fcalMod->size()==0) {
       throw std::runtime_error("Error getting FCAL Module parameters from database");
     }
   } 
 
-  m_LArPosition  =  rdbAccess->getRecordset("LArPosition", larVersionKey.tag(), larVersionKey.node());
-  m_LArAlignment =  rdbAccess->getRecordset("LArAlignment",larVersionKey.tag(), larVersionKey.node());
+  m_LArPosition  =  rdbAccess->getRecordsetPtr("LArPosition", larVersionKey.tag(), larVersionKey.node());
+  m_LArAlignment =  rdbAccess->getRecordsetPtr("LArAlignment",larVersionKey.tag(), larVersionKey.node());
   if (m_LArPosition->size()==0 ) {
-    m_LArPosition = rdbAccess->getRecordset("LArPosition", "LArPosition-00");
+    m_LArPosition = rdbAccess->getRecordsetPtr("LArPosition", "LArPosition-00");
     if (m_LArPosition->size()==0 ) {
       throw std::runtime_error("Error, no lar position table in database!");
     }
@@ -568,11 +564,3 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
   
 }
 
-
-void LArGeo::FCALConstructionH62004::cleanMemory()
-{
-  m_fcalElectrode = 0;
-  m_fcalMod = 0;
-  m_LArPosition = 0;
-  m_LArAlignment = 0;
-}
