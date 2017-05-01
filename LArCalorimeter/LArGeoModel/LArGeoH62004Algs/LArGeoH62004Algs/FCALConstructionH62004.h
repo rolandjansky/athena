@@ -50,8 +50,6 @@ namespace LArGeo {
     ISvcLocator*      m_svcLocator;
     IRDBRecordset_ptr m_fcalElectrode;
     IRDBRecordset_ptr m_fcalMod;
-    IRDBRecordset_ptr m_LArPosition;
-    IRDBRecordset_ptr m_LArAlignment;
   };
 
  
