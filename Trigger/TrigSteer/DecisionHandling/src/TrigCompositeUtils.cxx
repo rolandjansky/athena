@@ -1,8 +1,8 @@
 #include "AthContainers/AuxElement.h"
-#include "TrigConfHLTData/HLTUtils.h"
 
 
-#include "ViewAlgs/TrigCompositeUtils.h"
+
+#include "DecisionHandling/TrigCompositeUtils.h"
 
 
 
@@ -23,11 +23,7 @@ namespace TrigCompositeUtils {
 
   }
 
-  void addDecisionID( const std::string& s, Decision* d) {
-    addDecisionID(TrigConf::HLTUtils::string2hash(s, "decision"), d);
-  }
   
-
   void decisionIDs(const Decision* d, DecisionIDContainer& destination ) {
     
     const std::vector<int>& decisions = readOnlyAccessor(*d);

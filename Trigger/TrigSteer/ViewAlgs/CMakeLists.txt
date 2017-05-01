@@ -30,9 +30,3 @@ atlas_add_library( ViewAlgsLib
 atlas_add_component( ViewAlgs
                      src/components/*.cxx
                      LINK_LIBRARIES xAODTrigger GaudiKernel AthViews AthenaBaseComps CxxUtils TrigConfHLTData TrigSteeringEvent ViewAlgsLib )
-
-
-atlas_add_test( TrigCompositeUtils_test
-                        SOURCES test/TrigCompositeUtils_test.cxx
-                        LINK_LIBRARIES  TestTools xAODTrigger ViewAlgsLib
-                        AthContainers )

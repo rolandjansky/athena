@@ -1,6 +1,6 @@
 #include <iostream>
 //#include "TestTools/expect.h"
-#include "ViewAlgs/TrigCompositeUtils.h"
+#include "DecisionHandling/TrigCompositeUtils.h"
 
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 

@@ -22,7 +22,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigT1/TrigT1Interfaces
                           Trigger/TrigT1/TrigT1Result
-			  Trigger/TrigMonitoring/TrigMonitorBase )
+			  Trigger/TrigMonitoring/TrigMonitorBase
+			  Trigger/TrigSteer/DecisionHandling )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
