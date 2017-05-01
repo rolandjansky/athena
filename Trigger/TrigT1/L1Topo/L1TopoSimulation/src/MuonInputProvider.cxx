@@ -252,7 +252,7 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
       ATH_MSG_DEBUG("Use MuCTPiToTopo granularity Muon ROIs: calculate from ROIs sent to RoIB");
       LVL1::MuCTPIL1Topo l1topo;
-      m_MuctpiSimTool->fillMuCTPIL1Topo(l1topo);
+      CHECK(m_MuctpiSimTool->fillMuCTPIL1Topo(l1topo));
 
       // std::cout << "TW: MuonInputProvider print l1topo candidates from Tool" << std::endl; 
       // l1topo.print();
