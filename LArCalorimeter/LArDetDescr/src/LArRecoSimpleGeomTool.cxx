@@ -93,15 +93,15 @@ LArRecoSimpleGeomTool::initialize()
   m_iAccessSvc->connect();
 
   m_recCryoCyl = m_iAccessSvc->getRecordsetPtr("CryoCylinders",m_tag,m_node);
-  if ( m_recCryoCyl && m_recCryoCyl->size()==0)
+  if (m_recCryoCyl->size()==0)
     m_recCryoCyl = m_iAccessSvc->getRecordsetPtr("CryoCylinders","CryoCylinders-00");
 
   m_recPresGeo = m_iAccessSvc->getRecordsetPtr("PresamplerGeometry",m_tag,m_node);
-  if ( m_recPresGeo && m_recPresGeo->size()==0)
+  if (m_recPresGeo->size()==0)
     m_recPresGeo = m_iAccessSvc->getRecordsetPtr("PresamplerGeometry","PresamplerGeometry-00");
 
   m_recBarrGeo = m_iAccessSvc->getRecordsetPtr("BarrelGeometry",m_tag,m_node);
-  if ( m_recBarrGeo && m_recBarrGeo->size()==0)
+  if (m_recBarrGeo->size()==0)
     m_recBarrGeo = m_iAccessSvc->getRecordsetPtr("BarrelGeometry","BarrelGeometry-00");
 
   if ( m_geometry == "ATLAS" ) {
@@ -115,7 +115,7 @@ LArRecoSimpleGeomTool::initialize()
   m_EmecGeo = m_iAccessSvc->getRecordsetPtr("EmecGeometry",m_tag,m_node);
 
   m_HEC = m_iAccessSvc->getRecordsetPtr("HadronicEndcap",m_tag,m_node);
-  if ( m_HEC && m_HEC->size()==0)
+  if (m_HEC->size()==0)
     m_HEC = m_iAccessSvc->getRecordsetPtr("HadronicEndcap","HadronicEndcap-00");
 
   m_iAccessSvc->disconnect();
