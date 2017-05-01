@@ -41,6 +41,9 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(int nSample, float deltaTSample, size_t preSamp
   _calibTime[0] = {0, 0, 0, 0};
   _calibTime[1] = {0, 0, 0, 0};
 
+  _dataLoaded[0] = {false, false, false, false};
+  _dataLoaded[1] = {false, false, false, false};
+
   // For now we are using hard-coded gain factors and pedestals
   //
   _HGGains[0] = {9.51122, 9.51980, 9.51122, 9.51122};
