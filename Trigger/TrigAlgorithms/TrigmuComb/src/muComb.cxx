@@ -370,7 +370,7 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
 
    double id_eptinv = id_eipt; //now taken from Track itself ...
 
-   const Trk::Perigee* muonPerigee = (Trk::Perigee*) m_backExtrapolatorG4->extrapolate(perigeeMS, beamSurface, Trk::oppositeMomentum, Trk::muon);
+   const Trk::Perigee* muonPerigee = (Trk::Perigee*) m_backExtrapolatorG4->extrapolate(perigeeMS, beamSurface, Trk::oppositeMomentum, true, Trk::muon);
 
    //Protection against failing extrapolation
    double extr_eta;
