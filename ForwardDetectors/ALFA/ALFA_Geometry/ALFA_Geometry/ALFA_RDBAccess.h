@@ -6,7 +6,6 @@
 #define ALFA_RDBAccess_h
 
 #include "GaudiKernel/Algorithm.h"
-//#include "GeoModelSvc/IGeoModelSvc.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -37,8 +36,6 @@ typedef struct _FIBERDATA
 	double fZPos;
 } FIBERDATA, *PFIBERDATA;
 
-class IRDBRecordset;
-
 class ALFA_RDBAccess
 {
 	public:
@@ -53,8 +50,7 @@ class ALFA_RDBAccess
 		bool ReadGeometry(const eRPotName eRPName, eFiberType eFType, std::string element, std::string tag, std::string node);
 		
 	private:
-		const IRDBRecordset* m_fiberGeometry;
-		const IRDBRecordset* m_alfaParams;
+		IRDBRecordset_ptr m_fiberGeometry;
 		ISvcLocator* m_svcLocator;
 
 	public:

@@ -92,31 +92,31 @@ LArRecoSimpleGeomTool::initialize()
 
   m_iAccessSvc->connect();
 
-  m_recCryoCyl = m_iAccessSvc->getRecordset("CryoCylinders",m_tag,m_node);
+  m_recCryoCyl = m_iAccessSvc->getRecordsetPtr("CryoCylinders",m_tag,m_node);
   if ( m_recCryoCyl && m_recCryoCyl->size()==0)
-    m_recCryoCyl = m_iAccessSvc->getRecordset("CryoCylinders","CryoCylinders-00");
+    m_recCryoCyl = m_iAccessSvc->getRecordsetPtr("CryoCylinders","CryoCylinders-00");
 
-  m_recPresGeo = m_iAccessSvc->getRecordset("PresamplerGeometry",m_tag,m_node);
+  m_recPresGeo = m_iAccessSvc->getRecordsetPtr("PresamplerGeometry",m_tag,m_node);
   if ( m_recPresGeo && m_recPresGeo->size()==0)
-    m_recPresGeo = m_iAccessSvc->getRecordset("PresamplerGeometry","PresamplerGeometry-00");
+    m_recPresGeo = m_iAccessSvc->getRecordsetPtr("PresamplerGeometry","PresamplerGeometry-00");
 
-  m_recBarrGeo = m_iAccessSvc->getRecordset("BarrelGeometry",m_tag,m_node);
+  m_recBarrGeo = m_iAccessSvc->getRecordsetPtr("BarrelGeometry",m_tag,m_node);
   if ( m_recBarrGeo && m_recBarrGeo->size()==0)
-    m_recBarrGeo = m_iAccessSvc->getRecordset("BarrelGeometry","BarrelGeometry-00");
+    m_recBarrGeo = m_iAccessSvc->getRecordsetPtr("BarrelGeometry","BarrelGeometry-00");
 
   if ( m_geometry == "ATLAS" ) {
     DecodeVersionKey detectorKeyAtl = DecodeVersionKey(m_geoModelSvc, "ATLAS");
-    m_recPresPos = m_iAccessSvc->getRecordset("PresamplerPosition",detectorKeyAtl.tag(),detectorKeyAtl.node());
+    m_recPresPos = m_iAccessSvc->getRecordsetPtr("PresamplerPosition",detectorKeyAtl.tag(),detectorKeyAtl.node());
   }
   else {
-    m_recPresPos = m_iAccessSvc->getRecordset("PresamplerPosition",m_tag,m_node);
+    m_recPresPos = m_iAccessSvc->getRecordsetPtr("PresamplerPosition",m_tag,m_node);
   }
 
-  m_EmecGeo = m_iAccessSvc->getRecordset("EmecGeometry",m_tag,m_node);
+  m_EmecGeo = m_iAccessSvc->getRecordsetPtr("EmecGeometry",m_tag,m_node);
 
-  m_HEC = m_iAccessSvc->getRecordset("HadronicEndcap",m_tag,m_node);
+  m_HEC = m_iAccessSvc->getRecordsetPtr("HadronicEndcap",m_tag,m_node);
   if ( m_HEC && m_HEC->size()==0)
-    m_HEC = m_iAccessSvc->getRecordset("HadronicEndcap","HadronicEndcap-00");
+    m_HEC = m_iAccessSvc->getRecordsetPtr("HadronicEndcap","HadronicEndcap-00");
 
   m_iAccessSvc->disconnect();
 
@@ -173,8 +173,8 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
   if ( alvol == CaloSubdetNames::SOLENOID ) {
     
     // DDDb : LAr / CryoCylinders / CryoMother nb 11 & 12 & 13
-    const IRDBRecordset* lar = m_recCryoCyl;
-    if ( !lar || lar->size()<14) return false;
+    IRDBRecordset_ptr lar = m_recCryoCyl;
+    if (lar->size()<14) return false;
 
     const IRDBRecord* rec = (*lar)[11];
     rad =  rec->getDouble("RMIN")*CLHEP::cm;
@@ -199,8 +199,8 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
     
     // DDDb : LAr / CryoCylinders
 	
-    const IRDBRecordset* lar = m_recCryoCyl;
-    if ( !lar || lar->size()<15) return false;
+    IRDBRecordset_ptr lar = m_recCryoCyl;
+    if (lar->size()<15) return false;
 
     //  CryoMother nb 10
     const IRDBRecord* rec = (*lar)[10];
@@ -265,8 +265,8 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
     
     // DDDb : LAr / PresamplerGeometry / rmin, rmax
     //        LAr / BarrelGeometry / zmax
-    const IRDBRecordset* lar = m_recPresGeo;
-    if ( !lar || lar->size()==0) return false;
+    IRDBRecordset_ptr lar = m_recPresGeo;
+    if (lar->size()==0) return false;
     
     const IRDBRecord* rec = (*lar)[0];
     rad =  rec->getDouble("RMIN")*CLHEP::cm;
@@ -293,8 +293,8 @@ LArRecoSimpleGeomTool::get_cylinder_surface (CaloSubdetNames::ALIGNVOL alvol,
 
     // DDDb : LAr / BarrelGeometry / rmin, rmax, zmax
     
-    const IRDBRecordset* lar = m_recBarrGeo;
-    if ( !lar || lar->size()==0) return false;
+    IRDBRecordset_ptr lar = m_recBarrGeo;
+    if (lar->size()==0) return false;
 
     const IRDBRecord* rec = (*lar)[0];
     rad =  rec->getDouble("RMIN")*CLHEP::cm;
@@ -358,8 +358,8 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
      
    // DDDb : LAr / CryoCylinders / Endcap nb 11
 
-    const IRDBRecordset* lar = m_recCryoCyl;
-    if ( !lar || lar->size()<60) return false;
+    IRDBRecordset_ptr lar = m_recCryoCyl;
+    if (lar->size()<60) return false;
 
     const IRDBRecord* rec = (*lar)[49];
 
@@ -405,8 +405,7 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
        alvol == CaloSubdetNames::PRESAMPLER_EC_NEG ) {
     
     // DDDb Cryostat / PresamplerPosition
-    const IRDBRecordset* lar = m_recPresPos;
-    if (!lar) return false;
+    IRDBRecordset_ptr lar = m_recPresPos;
 
     const IRDBRecord* rec = (*lar)[0];
 
@@ -433,8 +432,7 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
        alvol == CaloSubdetNames::EMEC_NEG ) {
     
     // handcoded copy of dddb : LAr / EmecGeometry / z1, etot, rmin, rmax
-    const IRDBRecordset* lar = m_EmecGeo;
-    if ( !lar ) return false;
+    IRDBRecordset_ptr lar = m_EmecGeo;
 
     const IRDBRecord* rec = (*lar)[0];
 
@@ -461,8 +459,8 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
     
     // DDDb numbers : LAr / HadronicEndcap / zstart, roorig, rend
     //                + for depth, see LArNumberHelper
-    const IRDBRecordset* lar = m_HEC;
-    if ( !lar || lar->size()==0) return false;
+    IRDBRecordset_ptr lar = m_HEC;
+    if (lar->size()==0) return false;
 
     const IRDBRecord* rec = (*lar)[0];
 
@@ -493,8 +491,8 @@ LArRecoSimpleGeomTool::get_disk_surface (CaloSubdetNames::ALIGNVOL alvol,
     // DDDb numbers : LAr / HadronicEndcap / zstart, roorig, rend
     //                + for depth, see LArNumberHelper
 
-    const IRDBRecordset* lar = m_HEC;
-    if ( !lar || lar->size()==0) return false;
+    IRDBRecordset_ptr lar = m_HEC;
+    if (lar->size()==0) return false;
 
     const IRDBRecord* rec = (*lar)[0];
 
