@@ -11,13 +11,6 @@
 #include <algorithm>
 
 // Gaudi includes
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/ServiceLocatorHelper.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/IAlgTool.h"
-#include "GaudiKernel/IAlgManager.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
 // Athena includes
