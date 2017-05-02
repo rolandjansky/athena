@@ -639,8 +639,10 @@ int main(int argc, char** argv) {
     //  { "pT",  "p_{T}",     "xaxis:lin:0.7:100",  "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
     { "pT",      "p_{T}",     "xaxis:lin:auto:1:100",     "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
     { "pT_rec",  "p_{T} rec", "xaxis:lin:auto:1:100",   "Trigger p_{T} [GeV]",   "yaxis:log:auto",  ""  },
-    { "a0",      "a0",        "xaxis:lin:-2:2",     "Offline a_{0} [mm]",    "yaxis:log:auto",  ""  },
-    { "a0_rec",  "a0 rec",    "xaxis:lin:-2:2",     "Trigger a_{0} [mm]",    "yaxis:log:auto",  ""  },
+    { "a0",      "a0",        "xaxis:lin:-3:3",     "Offline a_{0} [mm]",    "yaxis:log:auto",  ""  },
+    { "a0_rec",  "a0 rec",    "xaxis:lin:-3:3",     "Trigger a_{0} [mm]",    "yaxis:log:auto",  ""  },
+    //{ "a0",      "a0",        "xaxis:lin:autosym",     "Offline a_{0} [mm]",    "yaxis:log:auto",  ""  },
+    //{ "a0_rec",  "a0 rec",    "xaxis:lin:autosym",     "Trigger a_{0} [mm]",    "yaxis:log:auto",  ""  },
     { "z0",      "z0",        "xaxis:lin:-250:250", "z_{0} [mm]",            "yaxis:log:auto",  ""  },
 
     /// efficiencies - 10 
