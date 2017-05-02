@@ -288,7 +288,7 @@ def getStandardInTimeOnlyTruthPileUpToolsList():
     ## Forward Detector Digitization
     PileUpToolsList += getStandardForwardPileUpTools()
     ## Inner Detector Digitization
-    PileUpToolsList += getStandardTruthInDetPileUpTools()
+    PileUpToolsList += getStandardInDetPileUpTools()
     ## Calo Digitization
     PileUpToolsList += getStandardCaloPileUpTools()
     ## Muon System Digitization
