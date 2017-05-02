@@ -269,6 +269,7 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
               inputEvent.setOverflowFromMuonInput(true);
               ATH_MSG_DEBUG("setOverflowFromMuonInput : true (MuCTPIL1TopoCandidate from MuctpiSimTool)");
           }
+      }
     }
     
     //BC+1 ... this can only come from simulation, in data taking this is collected by the L1Topo at its input
