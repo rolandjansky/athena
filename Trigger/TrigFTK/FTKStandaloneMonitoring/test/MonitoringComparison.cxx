@@ -35,8 +35,6 @@ using namespace std;
 int verbose = FALSE;
 int readfile = FALSE;
 char filename[200] = {0};
-std::string inputfilename;
-uint32_t checkword=0xaa1234aa;
 
 
 
@@ -59,13 +57,14 @@ int main(int argc, char **argv)
 /*****************************/
 {
 
+  //default files
   std::string inputfilenameBS= "/afs/cern.ch/user/g/giulini/workdir/public/FTKcomparison/compareInputs/OUT.BS_FTK.root";
   std::string inputfilenameNTUPFTK= "/afs/cern.ch/user/g/giulini/workdir/public/FTKcomparison/compareInputs/OUT.NTUP_FTK.root";
   //evtinfo TTree NTUP_FTK
   int c;
   int evtmax=0;
   static struct option long_options[] = {"DVS", no_argument, NULL, '1'}; 
-  while ((c = getopt_long(argc, argv, "f:n:v:m:h", long_options, NULL)) != -1)
+  while ((c = getopt_long(argc, argv, "f:n:m:vh", long_options, NULL)) != -1)
     switch (c) 
     {
     case 'h':
@@ -89,13 +88,14 @@ int main(int argc, char **argv)
       inputfilenameNTUPFTK.append(filename);
       std::cout << "read NTUP_FTK data from file: "<< std::endl << inputfilenameNTUPFTK<< std::endl << std::endl;
       break;
-      
+            
     case 'm':   
       sscanf(optarg,"%d", &evtmax);
       std::cout << "maximum number of events: "<< evtmax << std::endl << std::endl;
       break;
       
-    case 'v': verbose = TRUE;               break;
+    case 'v': verbose = TRUE;  break;
+
 
     default:
       std::cout << "Invalid option " << c << std::endl;
@@ -104,29 +104,43 @@ int main(int argc, char **argv)
       exit (-1);
     }
   ;
-  
+
+
+  // initialization of the class to compare FTK events of HW (BS_FTK) and SW (NTUP_FTK)
   CompareFTKEvents *comparison= new CompareFTKEvents(inputfilenameBS,inputfilenameNTUPFTK);
-  comparison->PrintFiles();      
   if (verbose) comparison->SetVerbose();  
   if (evtmax!=0)    comparison->SetNEvents(evtmax);
-  std::string str= "prova";
-  std::vector<std::string> variable_list={"pt","eta","phi","d0","z0","chi2","ETA_PHI"};
-  
+  // create list of histograms to be published on oh
+  std::vector<std::string> variable_list={"pt","eta","phi","d0","z0","chi2","ETA_PHI"};//  
   std::vector<std::string> histo_list;
   for (auto & istr: variable_list){
       std::stringstream ss;
-      ss << "HWSW_" << istr;
+      ss << "HWSW_" << istr; // labels for FTK tracks completely matched (= same track parameters) btw HW and SW
       std::stringstream ss2;
-      ss2 << "HWonly_" << istr;
+      ss2 << "HWonly_" << istr; // labels for HW FTK tracks not matched to any SW track
+      std::stringstream ss3;
+      ss3 << "SWonly_" << istr; // labels for SW FTK tracks not matched to any HW track
+      std::stringstream ss4;
+      ss4 << "HWvsSWhw_" << istr; // labels for HW FTK tracks geometrically matched to SW tracks but with different track parameters
+      std::stringstream ss5;
+      ss5 << "HWvsSWsw_" << istr; // labels for SW FTK tracks geometrically matched to HW tracks but with different track parameters
       histo_list.push_back(ss.str());
       histo_list.push_back(ss2.str());
+      histo_list.push_back(ss3.str());
+      histo_list.push_back(ss4.str());
+      histo_list.push_back(ss5.str());
+      if (istr!="ETA_PHI"){
+          std::stringstream ss6;
+          ss6 << "HWvsSWdiff_" << istr; // resolution distributions for FTK tracks matched btw HW and SW but with different track parameters
+          histo_list.push_back(ss6.str());
+      }
   }
-  histo_list.push_back("m_res_pt");
-  histo_list.push_back("m_res_d0");
   histo_list.push_back("nTrk_same_hw_sw");
   histo_list.push_back("nTrk_different_hw_sw");
   histo_list.push_back("nTrk_only_hw");
   histo_list.push_back("nTrk_only_sw");
+  histo_list.push_back("nTrk_HW");
+  histo_list.push_back("nTrk_SW");
   comparison->SetHistos(histo_list);
   comparison->Execute();      
   return 0;

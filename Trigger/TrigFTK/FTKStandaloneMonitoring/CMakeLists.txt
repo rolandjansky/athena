@@ -1,29 +1,28 @@
 atlas_subdir(FTKStandaloneMonitoring)
-#include(ATLAS)
+
 atlas_depends_on_subdirs( PUBLIC
                           Event/ByteStreamData
                           Trigger/TrigFTK/TrigFTK_RawData
 			  Trigger/TrigAnalysis/TrigInDetAnalysis
 			  Trigger/TrigAnalysis/TrigInDetAnalysisUtils
-			  GaudiKernel	
                           PRIVATE
                           Trigger/TrigFTK/TrigFTKSim
                           )
 
 # External dependencies:
-find_package( tdaq-common COMPONENTS eformat_write ROOT) 
+find_package( tdaq-common COMPONENTS eformat_write ) 
 
 atlas_add_library(FTKStandaloneMonitoring
-		  src/*.cxx
-		  PUBLIC_HEADERS FTKStandaloneMonitoring
-		  PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-		  LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}   ByteStreamData  GaudiKernel TrigFTK_RawData TrigFTKSimLib TrigInDetAnalysisUtils TrigInDetAnalysis TrigFTK_RawData 
+                  src/*.cxx
+                  PUBLIC_HEADERS FTKStandaloneMonitoring
+                  PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                  LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}   ByteStreamData   TrigFTK_RawData TrigFTKSimLib TrigInDetAnalysisUtils TrigInDetAnalysis TrigFTK_RawData
                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_executable(MonitoringFTKHWSWComparison
                      test/MonitoringComparison.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} GaudiKernel  ByteStreamData TrigFTK_RawData TrigFTKSimLib TrigInDetAnalysisUtils TrigInDetAnalysis TrigFTK_RawData FTKStandaloneMonitoring  
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}   ByteStreamData TrigFTK_RawData TrigFTKSimLib TrigInDetAnalysisUtils TrigInDetAnalysis TrigFTK_RawData FTKStandaloneMonitoring
 		     )
 
 atlas_install_headers( FTKStandaloneMonitoring )

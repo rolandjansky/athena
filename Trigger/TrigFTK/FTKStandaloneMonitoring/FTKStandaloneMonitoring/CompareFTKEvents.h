@@ -1,12 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-/* CompareFTKEvents class
- * author: Maddalena.Giulini@cern.ch
- * started: 27/02/2017
- *
- * Class to compare BS file and NTUP_FTK transformed file
- */
 #ifndef __CompareFTKEvents__
 #define __CompareFTKEvents__
 
@@ -19,9 +13,8 @@
 #include <cmath>
 #include "TTree.h"
 #include "TFile.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/MsgStream.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+
+
 #include "ByteStreamData/RawEvent.h"
 #include "TrigFTKSim/FTKTrackStream.h"
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
@@ -29,7 +22,6 @@
 #include "TrigFTK_RawData/FTK_RawSCT_Cluster.h"
 #include "FTKStandaloneMonitoring/FTKTrkAssoc.h"
 #include "FTKStandaloneMonitoring/CompareFTKTracks.h"
-
 class CompareFTKEvents{
   public:
     CompareFTKEvents();
@@ -76,8 +68,8 @@ class CompareFTKEvents{
     FTKTrackStream *m_ft;
     bool m_allmatched=true;
     bool m_verbose=false;
+    bool m_setup_partition=false;
     CompareFTKTracks * m_compTrk;
-    std::vector<TH1D *> vec_histo;
     std::vector<std::string> m_histo_list;
     std::map<std::string , TH1D * > map_histo;
     std::map<std::string , TH2D * > map_histo_2D;
@@ -87,6 +79,7 @@ class CompareFTKEvents{
     std::string m_str_tree_evtinfo="evtinfo";
     std::string m_str_tree_ftkdata="ftkdata";
     std::string m_str_tree_ftkstream="FTKMergedTracksStream";
+    std::string m_partition_name="";
     std::map<std::string, std::vector<double> > histo_param={{"pt",{1000.,0.,100000.}},
                                                               {"eta",{100.,-2.5,2.5}},
 							      {"phi",{100.,-3.2,3.2}},
@@ -94,6 +87,6 @@ class CompareFTKEvents{
 							      {"z0",{100,-50,50}},
 							      {"chi2",{100,0,50}},
 							      {"ETA_PHI",{100,-2.5,2.5,100,-3.2,3.2}}};
-    std::vector<std::string> variable_list={"pt","eta","phi","d0","z0","chi2","ETA_PHI"};
+    std::vector<std::string> variable_list={"pt","eta","phi","d0","z0","chi2","ETA_PHI"};    
   };
 #endif //__CompareFTKEvents__

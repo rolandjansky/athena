@@ -20,18 +20,8 @@ CompareFTKEvents::CompareFTKEvents(const std::string &BSfile, const std::string 
         std::cout << "ERROR! cannot open file "<<m_BSfile.c_str();
 	m_myBSfile.clear( );
     }
-}
-void CompareFTKEvents::CreateHistos(){
-    TH1D * h_res_pt= new TH1D("h_res_pt","#Delta p_{T} (test-ref)/ p_{T}^{ref};( p_{T}^{test} - p_{T}^{ref} )/ p_{T}^{ref};FTK Tracks",2000,-1.,1.);
-    TH1D * h_res_d0= new TH1D("h_res_d0","#Delta d_{0} (test-ref)/ d_{0}^{ref};( d_{0}^{test} - d_{0}^{ref} )/ d_{0}^{ref};FTK Tracks",4000,-2.,2.);
-    TH1D * h_ref_ntrk= new TH1D("h_ref_ntrk","Reference Nr. of tracks;N_{trk}^{ref};Events",100,0,100);
-    TH1D * h_test_ntrk= new TH1D("h_test_ntrk","Test Nr. of tracks;N_{trk}^{test};Events",100,0,100);
-    vec_histo.push_back(h_res_pt);
-    vec_histo.push_back(h_res_d0);
-    vec_histo.push_back(h_ref_ntrk);
-    vec_histo.push_back(h_test_ntrk);
-
-}
+}    
+// defining histograms
 void CompareFTKEvents::SetHistos(std::vector<std::string> histo_list){
     m_histo_list=histo_list;
     for (auto & istr : m_histo_list){
@@ -40,26 +30,50 @@ void CompareFTKEvents::SetHistos(std::vector<std::string> histo_list){
         std::stringstream ss;
         if (istr.find("HWSW")!=std::string::npos)        ss<<"HW=SIM;"<<str3<<";FTK HW=SIM Tracks";
         else if (istr.find("HWonly")!=std::string::npos) ss<<"HW only;"<<str3<<";FTK HW Tracks w/o SW match";
-        else if (istr.find("nTrk")!=std::string::npos) ss<<istr<<";N tracks;Events";
+        else if (istr.find("SWonly")!=std::string::npos) ss<<"SW only;"<<str3<<";FTK SW Tracks w/o HW match";
+        else if (istr.find("HWvsSWhw")!=std::string::npos) ss<<"Matched Tracks but HW!=SW; HW "<<str3<<";FTK HW Tracks w/ SW match "<<str3;
+        else if (istr.find("HWvsSWsw")!=std::string::npos) ss<<"Matched Tracks but HW!=SW; SW "<<str3<<";FTK SW Tracks w/ HW match "<<str3;
+	//else if (istr.find("res")!=std::string::npos)  ss<<"Matched Tracks but HW!=SW, #Delta  (SW-HW)/ HW;"<<str3<<";FTK HW Tracks w/ SW match";
+	else if (istr.find("nTrk")!=std::string::npos) ss<<istr<<";N tracks;Events";
 	std::string title = ss.str();
+	//if histo is not eta vs phi 2D histo
         if (istr.find("ETA_PHI")==std::string::npos){
             if (istr.find("nTrk")!=std::string::npos) map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D(istr.c_str(),title.c_str(),100,0,100)));
- 	    else if (istr.find("HWSW")!=std::string::npos|| istr.find("HWonly")!=std::string::npos) map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D(istr.c_str(),title.c_str(),histo_param[str3].at(0),histo_param[str3].at(1),histo_param[str3].at(2))));
-            if (istr.find("res_pt")!=std::string::npos){
-		map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D("m_res_pt","#Delta p_{T} (test-ref)/ p_{T}^{ref};( p_{T}^{test} - p_{T}^{ref} )/ p_{T}^{ref};FTK Tracks",2000,-1.,1.)));
-	    }
-            if (istr.find("res_d0")!=std::string::npos) 
-		map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D("m_res_d0","#Delta d_{0} (test-ref)/ d_{0}^{ref};( d_{0}^{test} - d_{0}^{ref} )/ d_{0}^{ref};FTK Tracks",4000,-2.,2.)));
+ 	    else if (istr.find("HWSW")!=std::string::npos|| istr.find("HWonly")!=std::string::npos||istr.find("SWonly")!=std::string::npos||(istr.find("HWvsSW")!=std::string::npos&&istr.find("diff")==std::string::npos))
+	       map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D(istr.c_str(),title.c_str(),histo_param[str3].at(0),histo_param[str3].at(1),histo_param[str3].at(2))));
+            else if (istr.find("HWvsSWdiff_pt")!=std::string::npos)
+		map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D(istr.c_str(),"#Delta p_{T} (test-ref); p_{T}^{test} - p_{T}^{ref} ;FTK Tracks",1000,-5000,5000)));
+            else if (istr.find("HWvsSWdiff_eta")!=std::string::npos)
+		map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D(istr.c_str(),"#Delta #eta (test-ref); #eta^{test} - #eta^{ref} ;FTK Tracks",2000,-0.1,0.1)));
+            else if (istr.find("HWvsSWdiff_phi")!=std::string::npos)
+		map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D(istr.c_str(),"#Delta #phi (test-ref); #phi^{test} - #phi^{ref} ;FTK Tracks",2000,-0.1,0.1)));
+            else if (istr.find("HWvsSWdiff_d0")!=std::string::npos) 
+		map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D(istr.c_str(),"#Delta d_{0} (test-ref); d_{0}^{test} - d_{0}^{ref} ;FTK Tracks",4000,-5.,5.)));
+            else if (istr.find("HWvsSWdiff_z0")!=std::string::npos) 
+		map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D(istr.c_str(),"#Delta z_{0} (test-ref); z_{0}^{test} - z_{0}^{ref} ;FTK Tracks",4000,-2.,2.)));
+            else if (istr.find("HWvsSWdiff_chi2")!=std::string::npos) 
+		map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D(istr.c_str(),"#Delta chi2 (test-ref); chi2^{test} - chi2^{ref} ;FTK Tracks",4000,-5.,5.)));
+            else if (istr.find("res_pt")!=std::string::npos)
+		map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D(istr.c_str(),"#Delta p_{T} (test-ref)/ p_{T}^{ref};( p_{T}^{test} - p_{T}^{ref} )/ p_{T}^{ref};FTK Tracks",2000,-1.,1.)));
+            else if (istr.find("res_eta")!=std::string::npos)
+		map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D(istr.c_str(),"#Delta #eta (test-ref)/ #eta^{ref};( #eta^{test} - #eta^{ref} )/ #eta^{ref};FTK Tracks",2000,-1.,1.)));
+            else if (istr.find("res_phi")!=std::string::npos)
+		map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D(istr.c_str(),"#Delta #phi (test-ref)/ #phi^{ref};( #phi^{test} - #phi^{ref} )/ #phi^{ref};FTK Tracks",2000,-1.,1.)));
+            else if (istr.find("res_d0")!=std::string::npos) 
+		map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D(istr.c_str(),"#Delta d_{0} (test-ref)/ d_{0}^{ref};( d_{0}^{test} - d_{0}^{ref} )/ d_{0}^{ref};FTK Tracks",4000,-2.,2.)));
+            else if (istr.find("res_z0")!=std::string::npos) 
+		map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D(istr.c_str(),"#Delta z_{0} (test-ref)/ z_{0}^{ref};( z_{0}^{test} - z_{0}^{ref} )/ z_{0}^{ref};FTK Tracks",4000,-2.,2.)));
+            else if (istr.find("res_chi2")!=std::string::npos) 
+		map_histo.insert(std::map<std::string, TH1D *>::value_type(istr, new TH1D(istr.c_str(),"#Delta chi2 (test-ref)/ chi2^{ref};( chi2^{test} - chi2^{ref} )/ chi2^{ref};FTK Tracks",4000,-2.,2.)));
 	}
 	else {
  	    map_histo_2D.insert(std::map<std::string, TH2D *>::value_type(istr, new TH2D(istr.c_str(),title.c_str(),100,-2.5,2.5,100,-3.2,3.2)));	
 	}
     }	
-    
 }
+// reading BS file, starting loop on events and writing histograms
 void CompareFTKEvents::Execute()
 {
-    CreateHistos();
     m_Nevents_BS=GetNEventsBS();
     std::cout<<"Input BS file has N events: "<<m_Nevents_BS<<std::endl;
     readNTUP_FTKfile();
@@ -70,6 +84,7 @@ void CompareFTKEvents::Execute()
     EventLoop();
     WriteHistos();
 }
+// reading the SW NTUP_FTK TTrees
 void CompareFTKEvents::readNTUP_FTKfile()
 {
     std::cout<<"Reading NTUP_FTK file "<<m_NTUP_FTK_file<<std::endl;
@@ -91,6 +106,7 @@ void CompareFTKEvents::readNTUP_FTKfile()
     branch->SetAddress(&m_ft);
     m_Nevents_NTUPFTK=m_theTree->GetEntries();
 }
+// decoding functions from FTKByteStreamDecoderEncoder
 StatusCode CompareFTKEvents::decode(uint32_t nTracks, OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result) {
 
   result->reserve(result->size() + nTracks);
@@ -126,6 +142,7 @@ void CompareFTKEvents::unpackPixCluster(OFFLINE_FRAGMENTS_NAMESPACE::PointerType
   cluster.setWordA(*data);
   cluster.setWordB(*(data+1));
 }
+// Looping over events of the HW (BS_FTK) and SW (NTUP_FTK files) and collecting track info
 void CompareFTKEvents::EventLoop()
 {
     std::cout<<"Starting Loop"<<std::endl;
@@ -184,7 +201,9 @@ void CompareFTKEvents::EventLoop()
 	   }
 	   nrob+=1;	  
        }
-       vec_histo.at(2)->Fill(nTrks);
+       auto search = map_histo.find("nTrk_HW");
+       if(search != map_histo.end()) search->second->Fill(nTrks);
+       else  std::cout << "Not found "<<search->first<<std::endl;
        if (nrob>1){std::cout<<"!!!!!!!!!!SOMETHING WRONG number of robs >1:"<<nrob<<std::endl;}
        std::cout<<"Event "<<ievent<<" N tracks BS file "<<trkcontainer->size()<<std::endl;
        // end reading info from BS file
@@ -195,7 +214,9 @@ void CompareFTKEvents::EventLoop()
        std::vector<const FTK_RawTrack *> ftkNTUPtest;
        int NTracksNTUP;
        NTracksNTUP=m_ft->getNTracks();
-       vec_histo.at(3)->Fill(NTracksNTUP);
+       auto search_SW = map_histo.find("nTrk_SW");
+       if(search_SW != map_histo.end()) search_SW->second->Fill(NTracksNTUP);
+       else  std::cout << "Not found "<<search_SW->first<<std::endl;
        for(int it=0; it<NTracksNTUP;it++){
          FTKTrack* ftktrk=m_ft->getTrack(it);
          FTK_RawTrack* rawftktrk=new FTK_RawTrack();
@@ -224,24 +245,26 @@ void CompareFTKEvents::EventLoop()
            if(trkcontainerNTUP->at(i)->getD0()!=0&&trkcontainerNTUP->at(i)->getZ0()!=0&&trkcontainerNTUP->at(i)->getInvPt()!=0&&
 	      trkcontainerNTUP->at(i)->getPhi()!=0&&trkcontainerNTUP->at(i)->getCotTh()!=0&&trkcontainerNTUP->at(i)->getChi2()!=0
 	      &&(
-	       abs(trkcontainer->at(i)->getD0()/trkcontainerNTUP->at(i)->getD0()-1.)>0.001||
-               abs(trkcontainer->at(i)->getZ0()/trkcontainerNTUP->at(i)->getZ0()-1.)>0.001||
-               abs(trkcontainer->at(i)->getInvPt()/trkcontainerNTUP->at(i)->getInvPt()-1.)>0.001||
-               abs(trkcontainer->at(i)->getPhi()/trkcontainerNTUP->at(i)->getPhi()-1.)>0.001||
-               abs(trkcontainer->at(i)->getCotTh()/trkcontainerNTUP->at(i)->getCotTh()-1.)>0.001||
-               abs(trkcontainer->at(i)->getChi2()/trkcontainerNTUP->at(i)->getChi2()-1.)>0.001)){
-		   std::cout<<"Difference in comparing trk "<<i<<std::endl;
-		   std::cout<<"\td0 : \t"<<trkcontainer->at(i)->getD0()<<"\t"<<trkcontainerNTUP->at(i)->getD0()<<std::endl;
-		   std::cout<<"\tz0 : \t"<<trkcontainer->at(i)->getZ0()<<"\t"<<trkcontainerNTUP->at(i)->getZ0()<<std::endl;
-		   std::cout<<"\tipt : \t"<<trkcontainer->at(i)->getInvPt()<<"\t"<<trkcontainerNTUP->at(i)->getInvPt()<<std::endl;
-		   std::cout<<"\tPhi : \t"<<trkcontainer->at(i)->getPhi()<<"\t"<<trkcontainerNTUP->at(i)->getPhi()<<std::endl;
-		   std::cout<<"\tCotTh : \t"<<trkcontainer->at(i)->getCotTh()<<"\t"<<trkcontainerNTUP->at(i)->getCotTh()<<std::endl;
-		   std::cout<<"\tChi2 : \t"<<trkcontainer->at(i)->getChi2()<<"\t"<<trkcontainerNTUP->at(i)->getChi2()<<std::endl;
+	       fabs(trkcontainer->at(i)->getD0()/trkcontainerNTUP->at(i)->getD0()-1.)>0.001||
+               fabs(trkcontainer->at(i)->getZ0()/trkcontainerNTUP->at(i)->getZ0()-1.)>0.001||
+               fabs(trkcontainer->at(i)->getInvPt()/trkcontainerNTUP->at(i)->getInvPt()-1.)>0.001||
+               fabs(trkcontainer->at(i)->getPhi()/trkcontainerNTUP->at(i)->getPhi()-1.)>0.001||
+               fabs(trkcontainer->at(i)->getCotTh()/trkcontainerNTUP->at(i)->getCotTh()-1.)>0.001||
+               fabs(trkcontainer->at(i)->getChi2()/trkcontainerNTUP->at(i)->getChi2()-1.)>0.001)){
+		   if (m_verbose){
+		       std::cout<<"Difference in comparing trk "<<i<<std::endl;
+		       std::cout<<"\td0 : \t"<<trkcontainer->at(i)->getD0()<<"\t"<<trkcontainerNTUP->at(i)->getD0()<<std::endl;
+		       std::cout<<"\tz0 : \t"<<trkcontainer->at(i)->getZ0()<<"\t"<<trkcontainerNTUP->at(i)->getZ0()<<std::endl;
+		       std::cout<<"\tipt : \t"<<trkcontainer->at(i)->getInvPt()<<"\t"<<trkcontainerNTUP->at(i)->getInvPt()<<std::endl;
+		       std::cout<<"\tPhi : \t"<<trkcontainer->at(i)->getPhi()<<"\t"<<trkcontainerNTUP->at(i)->getPhi()<<std::endl;
+		       std::cout<<"\tCotTh : \t"<<trkcontainer->at(i)->getCotTh()<<"\t"<<trkcontainerNTUP->at(i)->getCotTh()<<std::endl;
+		       std::cout<<"\tChi2 : \t"<<trkcontainer->at(i)->getChi2()<<"\t"<<trkcontainerNTUP->at(i)->getChi2()<<std::endl;
+		   }    
 		   m_allmatched=false;
                }
 	   else {if (i%std::min(nTrks,NTracksNTUP)==0 && m_allmatched){std::cout<<"Track Parameters btw BS_FTK and NTUP_FTK are the same: good!"<<std::endl;}}
        }
-       m_compTrk= new CompareFTKTracks(ftkBSref,ftkNTUPtest,vec_histo, map_histo, map_histo_2D);
+       m_compTrk= new CompareFTKTracks(ftkBSref,ftkNTUPtest, map_histo, map_histo_2D);
        m_compTrk->AssociateTracks();
        m_compTrk->FillHistos();
        delete data32;
@@ -250,10 +273,10 @@ void CompareFTKEvents::EventLoop()
 void CompareFTKEvents::WriteHistos(){
     m_fout= new TFile("./out.histo.root","RECREATE");
     m_fout->cd();
-    for(unsigned int ih=0; ih<vec_histo.size();ih++){
-        vec_histo.at(ih)->Write();
-    }
     for(auto & imap : map_histo){
+        imap.second->Write();
+    }
+    for(auto & imap : map_histo_2D){
         imap.second->Write();
     }
     m_fout->Write();
