@@ -504,7 +504,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
    ///}//end doModules
 
    double nhits=0;
-   double nhits_mod[PixLayer::COUNT]={0};
+   double nhits_mod[PixLayerIBL2D3D::COUNT]={0};
    int nhits_L0_B11_S2_C6[96] = {0};
 
    int fewithHits_EA[ nmod_phi[PixLayer::kECA]][ nmod_eta[PixLayer::kECA]][16];
