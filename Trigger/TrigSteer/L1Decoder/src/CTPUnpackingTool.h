@@ -26,8 +26,16 @@ public:
   CTPUnpackingTool( const std::string& type,
 		    const std::string& name, 
 		    const IInterface* parent );
-  virtual ~CTPUnpackingTool();  
-  StatusCode decode(const ROIB::RoIBResult*, const HLT::IDtoVIDMap& ctpToChain, std::vector<HLT::Identifier>& activeChains) const;
+  virtual ~CTPUnpackingTool();
+  typedef std::map<size_t, std::vector<HLT::Identifier>> IndexToIdentifiers;
+
+  /*
+    @brief The method decodes CTP bits content of the RoIBResult and fills the list of chains which are activated by those bits
+    The mapping ctpToChain is expected to contain the CTP bit number mapping to the chain identifiers
+    @warning if the mapping is empty it means an empty menu. This condition is NOT checked and not reported.
+    @warning if none of CTP bits is set this is also an error condition, this is the event should not have been passed to HLT
+   */
+  StatusCode decode(const ROIB::RoIBResult*, const IndexToIdentifiers& ctpToChain, std::vector<HLT::Identifier>& enabledChains) const;
 
   StatusCode initialize(){ return StatusCode::SUCCESS; }
 
