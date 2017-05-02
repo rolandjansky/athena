@@ -396,11 +396,11 @@ namespace xAODMaker {
                 ATH_MSG_WARNING("TruthEventContainer " <<  m_xaodTruthEventContainerName << " not found");
                 return StatusCode::SUCCESS;
             }
-            xAOD::TruthEventContainer* xTruthEventContainer = 0;
+            const xAOD::TruthEventContainer* xTruthEventContainer = 0;
             CHECK( evtStore()->retrieve( xTruthEventContainer, m_xaodTruthEventContainerName ) );
             
             // Loop over events and particles
-            for (auto evt : *xTruthEventContainer) {
+            for (const xAOD::TruthEvent* evt : *xTruthEventContainer) {
                 for (const auto& par : evt->truthParticleLinks()) {
                     if ( !par.isValid() ) {
                         //ATH_MSG_WARNING("Found invalid particle element link in TruthEvent " << evt->eventNumber());
