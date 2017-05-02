@@ -457,36 +457,36 @@ def setupMenu():
         ['j480_a10t_lcw_jes_L1HT190-J15s5.ETA21',   'L1_HT190-J15s5.ETA21', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
         # Trimmed + mass-cut single-jet triggers
-        ['j375_a10t_lcw_jes_30smcINF_L1J100',               'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j375_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',    'L1_HT190-J15.ETA21', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j375_a10t_lcw_jes_30smcINF_L1SC111',              'L1_SC111', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j390_a10t_lcw_jes_30smcINF_L1J100',               'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j390_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',    'L1_HT190-J15.ETA21', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j390_a10t_lcw_jes_30smcINF_L1SC111',              'L1_SC111', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+        ['j375_a10t_lcw_jes_30smcINF_L1J100',               'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j375_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',    'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j375_a10t_lcw_jes_30smcINF_L1SC111',              'L1_SC111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j390_a10t_lcw_jes_30smcINF_L1J100',               'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j390_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',    'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j390_a10t_lcw_jes_30smcINF_L1SC111',              'L1_SC111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
         # Trimmed + mass-cut single-jet support triggers (for mass efficiency bootstrap)
-        ['j375_a10t_lcw_jes_L1J100',                        'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j375_a10t_lcw_jes_L1HT190-J15.ETA21',             'L1_HT190-J15.ETA21', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j375_a10t_lcw_jes_L1SC111',                       'L1_SC111', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j390_a10t_lcw_jes_L1J100',                        'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j390_a10t_lcw_jes_L1HT190-J15.ETA21',             'L1_HT190-J15.ETA21', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['j390_a10t_lcw_jes_L1SC111',                       'L1_SC111', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+        ['j375_a10t_lcw_jes_L1J100',                        'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j375_a10t_lcw_jes_L1HT190-J15.ETA21',             'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j375_a10t_lcw_jes_L1SC111',                       'L1_SC111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j390_a10t_lcw_jes_L1J100',                        'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j390_a10t_lcw_jes_L1HT190-J15.ETA21',             'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j390_a10t_lcw_jes_L1SC111',                       'L1_SC111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
         # Trimmed + mass-cut di-jet triggers
-        ['2j330_a10t_lcw_jes_30smcINF_L1J100',              'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['2j330_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',   'L1_HT190-J15.ETA21', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['2j330_a10t_lcw_jes_30smcINF_L1SC111',             'L1_SC111', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['2j340_a10t_lcw_jes_30smcINF_L1J100',              'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['2j340_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',   'L1_HT190-J15.ETA21', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['2j340_a10t_lcw_jes_30smcINF_L1SC111',             'L1_SC111', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+        ['2j330_a10t_lcw_jes_30smcINF_L1J100',              'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['2j330_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',   'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['2j330_a10t_lcw_jes_30smcINF_L1SC111',             'L1_SC111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['2j340_a10t_lcw_jes_30smcINF_L1J100',              'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['2j340_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',   'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['2j340_a10t_lcw_jes_30smcINF_L1SC111',             'L1_SC111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
         # Trimmed + mass-cut di-jet support triggers (for mass efficiency bootstrap)
-        ['2j330_a10t_lcw_jes_L1J100',                       'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['2j330_a10t_lcw_jes_L1HT190-J15.ETA21',            'L1_HT190-J15.ETA21', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['2j330_a10t_lcw_jes_L1SC111',                      'L1_SC111', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['2j340_a10t_lcw_jes_L1J100',                       'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['2j340_a10t_lcw_jes_L1HT190-J15.ETA21',            'L1_HT190-J15.ETA21', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-        ['2j340_a10t_lcw_jes_L1SC111',                      'L1_SC111', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
+        ['2j330_a10t_lcw_jes_L1J100',                       'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['2j330_a10t_lcw_jes_L1HT190-J15.ETA21',            'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['2j330_a10t_lcw_jes_L1SC111',                      'L1_SC111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['2j340_a10t_lcw_jes_L1J100',                       'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['2j340_a10t_lcw_jes_L1HT190-J15.ETA21',            'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['2j340_a10t_lcw_jes_L1SC111',                      'L1_SC111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
 
 
@@ -508,9 +508,9 @@ def setupMenu():
         ['4j130',                       'L1_3J50', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
 
         # 4-jet gsc single threshold triggers
-        ['4j60_gsc100_boffperf_split',  'L1_3J50', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['4j60_gsc110_boffperf_split',  'L1_3J50', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['4j70_gsc120_boffperf_split',  'L1_3J50', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['4j60_gsc100_boffperf_split',  'L1_3J50', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['4j60_gsc110_boffperf_split',  'L1_3J50', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['4j70_gsc120_boffperf_split',  'L1_3J50', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
 
         # 4-jet single threshold alternative calibration triggers
         ['4j45_subjes',                 'L1_3J15', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
@@ -538,14 +538,14 @@ def setupMenu():
         ['5j100',                       'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         
         # 5-jet gsc single threshold triggers
-        ['5j50_gsc70_boffperf_split_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['5j50_gsc70_boffperf_split',               'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['5j55_gsc75_boffperf_split_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['5j55_gsc75_boffperf_split',               'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['5j60_gsc85_boffperf_split_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['5j60_gsc85_boffperf_split',               'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['5j65_gsc90_boffperf_split_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['5j65_gsc90_boffperf_split',               'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['5j50_gsc70_boffperf_split_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['5j50_gsc70_boffperf_split',               'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['5j55_gsc75_boffperf_split_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['5j55_gsc75_boffperf_split',               'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['5j60_gsc85_boffperf_split_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['5j60_gsc85_boffperf_split',               'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['5j65_gsc90_boffperf_split_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['5j65_gsc90_boffperf_split',               'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         
         # 5-jet single threshold restricted eta range triggers
         ['5j65_0eta240_L14J15',         'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
@@ -558,12 +558,12 @@ def setupMenu():
         ['5j85_0eta240',                'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
  
         # 5-jet gsc single threshold restricted eta range triggers
-        ['5j50_gsc65_boffperf_split_0eta240_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['5j50_gsc65_boffperf_split_0eta240',               'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['5j50_gsc70_boffperf_split_0eta240_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['5j50_gsc70_boffperf_split_0eta240',               'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['5j55_gsc75_boffperf_split_0eta240_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['5j55_gsc75_boffperf_split_0eta240',               'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['5j50_gsc65_boffperf_split_0eta240_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['5j50_gsc65_boffperf_split_0eta240',               'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['5j50_gsc70_boffperf_split_0eta240_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['5j50_gsc70_boffperf_split_0eta240',               'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['5j55_gsc75_boffperf_split_0eta240_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['5j55_gsc75_boffperf_split_0eta240',               'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         
         # 6-jet single threshold triggers
         ['6j25',                        'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],        
@@ -578,18 +578,18 @@ def setupMenu():
         ['6j85',                        'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         
         # 6-jet gsc single threshold triggers
-        ['6j45_gsc60_boffperf_split_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j45_gsc60_boffperf_split',               'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j45_gsc60_boffperf_split_L15J150ETA25',  'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j50_gsc65_boffperf_split_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j50_gsc65_boffperf_split',               'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j50_gsc65_boffperf_split_L15J150ETA25',  'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j50_gsc70_boffperf_split',               'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j50_gsc70_boffperf_split_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j50_gsc70_boffperf_split_L15J150ETA25',  'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j60_gsc85_boffperf_split',               'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j60_gsc85_boffperf_split_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j60_gsc85_boffperf_split_L15J150ETA25',  'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['6j45_gsc60_boffperf_split_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j45_gsc60_boffperf_split',               'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j45_gsc60_boffperf_split_L15J150ETA25',  'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j50_gsc65_boffperf_split_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j50_gsc65_boffperf_split',               'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j50_gsc65_boffperf_split_L15J150ETA25',  'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j50_gsc70_boffperf_split',               'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j50_gsc70_boffperf_split_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j50_gsc70_boffperf_split_L15J150ETA25',  'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j60_gsc85_boffperf_split',               'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j60_gsc85_boffperf_split_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j60_gsc85_boffperf_split_L15J150ETA25',  'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
 
         # 6-jet single threshold restricted eta range triggers
         ['6j45_0eta240',                'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
@@ -606,15 +606,15 @@ def setupMenu():
         ['6j55_0eta240_L15J150ETA25',   'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         
         # 6-jet gsc single threshold restricted eta range triggers
-        ['6j25_gsc45_boffperf_split_0eta240_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j25_gsc45_boffperf_split_0eta240_L14J20',        'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j25_gsc45_boffperf_split_0eta240_L15J150ETA25',  'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j25_gsc50_boffperf_split_0eta240_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j25_gsc50_boffperf_split_0eta240_L14J20',        'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j25_gsc50_boffperf_split_0eta240_L15J150ETA25',  'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j35_gsc55_boffperf_split_0eta240_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j35_gsc55_boffperf_split_0eta240_L14J20',        'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['6j35_gsc55_boffperf_split_0eta240_L15J150ETA25',  'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['6j25_gsc45_boffperf_split_0eta240_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j25_gsc45_boffperf_split_0eta240_L14J20',        'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j25_gsc45_boffperf_split_0eta240_L15J150ETA25',  'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j25_gsc50_boffperf_split_0eta240_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j25_gsc50_boffperf_split_0eta240_L14J20',        'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j25_gsc50_boffperf_split_0eta240_L15J150ETA25',  'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j35_gsc55_boffperf_split_0eta240_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j35_gsc55_boffperf_split_0eta240_L14J20',        'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['6j35_gsc55_boffperf_split_0eta240_L15J150ETA25',  'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
 
         # 6-jet single threshold alternative calibration triggers
         ['6j45_subjes',                 'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
@@ -638,12 +638,12 @@ def setupMenu():
         ['7j50',                        'L1_6J15', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         
         # 7-jet gsc single threshold triggers
-        ['7j25_gsc45_boffperf_split_L14J150ETA25',          'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['7j25_gsc45_boffperf_split_L14J20',                'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['7j25_gsc45_boffperf_split_L15J150ETA25',          'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['7j25_gsc50_boffperf_split_L14J150ETA25',          'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['7j25_gsc50_boffperf_split_L14J20',                'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['7j25_gsc50_boffperf_split_L15J150ETA25',          'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['7j25_gsc45_boffperf_split_L14J150ETA25',          'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['7j25_gsc45_boffperf_split_L14J20',                'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['7j25_gsc45_boffperf_split_L15J150ETA25',          'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['7j25_gsc50_boffperf_split_L14J150ETA25',          'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['7j25_gsc50_boffperf_split_L14J20',                'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['7j25_gsc50_boffperf_split_L15J150ETA25',          'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         
         # 7-jet single-threshold restricted eta range triggers
         ['7j45_0eta240_L14J150ETA25',   'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
@@ -652,9 +652,9 @@ def setupMenu():
         ['7j45_0eta240',                'L1_6J15', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         
         # 7-jet gsc single threshold restricted eta range triggers
-        ['7j25_gsc45_boffperf_split_0eta240_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['7j25_gsc45_boffperf_split_0eta240_L14J20',        'L1_4J20', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
-        ['7j25_gsc45_boffperf_split_0eta240_L15J150ETA25',  'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE: MultiJet',  'BW:Jet'], -1],
+        ['7j25_gsc45_boffperf_split_0eta240_L14J150ETA25',  'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['7j25_gsc45_boffperf_split_0eta240_L14J20',        'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['7j25_gsc45_boffperf_split_0eta240_L15J150ETA25',  'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
 
         # 10-jet single-threshold triggers
         ['10j40_L14J15',                'L1_4J15' , [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
