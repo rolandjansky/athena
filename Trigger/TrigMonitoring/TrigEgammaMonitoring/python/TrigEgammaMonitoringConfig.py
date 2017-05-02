@@ -52,7 +52,7 @@ class TrigEgammaMonToolBuilder:
     data_type = ''
 
     basePath = 'HLT/Egamma'
-    debugLevel = DEBUG
+    debugLevel = INFO
     detailLevel = False
     
     # Add a flag to enable emulation
