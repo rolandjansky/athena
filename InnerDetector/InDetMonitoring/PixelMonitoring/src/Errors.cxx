@@ -114,10 +114,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    std::string atext_erf = ";# errors/module/event";
    std::string atext_erb = ";Error bit";
    std::string atext_ers = ";Error state";
-   std::string axisTitle_LB = ";lumi block;# errors/event";
-   std::string axisTitle_ES = ";Error State;# Errors";
    int nbins_LB = m_lbRange; float minbin_LB = -0.5; float maxbin_LB = minbin_LB + (1.0*nbins_LB);
-   int nbins_ES = 32; float minbin_ES = -0.5; float maxbin_ES = minbin_ES + (1.0*nbins_ES);
    std::string hname;
    std::string htitles;
 
