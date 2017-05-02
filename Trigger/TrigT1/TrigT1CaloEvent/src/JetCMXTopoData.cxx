@@ -133,28 +133,17 @@ namespace LVL1 {
 
 JetCMXTopoData& JetCMXTopoData::checkJemOverflow()
 {
-    using std::cout;
-    using std::endl;
     const size_t max_jem_index = 15; // as indicated in JetTopoTOB::jem()
     std::vector<uint32_t> counters_tob_per_jem(max_jem_index, 0);
-    cout<<"Now calling JetCMXTopoData::checkJemOverflow"
-        <<" (crate "<<m_crate<<", "<<m_tobWords.size()<<", words)"<<endl;
     for(const uint32_t word : m_tobWords) {
         JetTopoTOB tob(m_crate, word);
         const size_t iJem = tob.jem();
         counters_tob_per_jem[iJem] += 1;
-        cout<<"tob "<<tob.roiWord()
-            <<" crate "<<tob.crate()
-            <<" jem "<<tob.jem()
-            <<" incremented counters_tob_per_jem["<<iJem<<"]: "<<counters_tob_per_jem[iJem]
-            <<endl;
     }
-    cout<<"JetCMXTopoData overflow: before "<<m_jem_overflow;
     m_jem_overflow = (m_jem_overflow ||
                       std::any_of(counters_tob_per_jem.begin(),
                                   counters_tob_per_jem.end(),
                                   [](const uint32_t &c) { return (c >= s_maxTOBsPerJem); }));
-    cout<<" after "<<m_jem_overflow<<endl;
     return *this;
 }
   

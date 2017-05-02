@@ -153,25 +153,15 @@ CPCMXTopoData& CPCMXTopoData::checkCpmOverflow()
     using std::endl;
     const size_t max_cpm_index = 14; // as indicated in CPTopoTOB::cpm(), but we start from 0, not 1
     std::vector<uint32_t> counters_tob_per_cpm(max_cpm_index, 0);
-    cout<<"Now calling CPCMXTopoData::checkCpmOverflow"
-        <<" (crate "<<m_crate<<", cmx "<<m_cmx<<", "<<m_tobWords.size()<<" words)"<<endl;
     for(const uint32_t word : m_tobWords) {
         CPTopoTOB tob(m_crate, m_cmx, word);
         const size_t iCpm = tob.cpm()-1;
         counters_tob_per_cpm[iCpm] += 1;
-        cout<<"tob "<<tob.roiWord()
-            <<" crate "<<tob.crate()
-            <<" cmx "<<tob.cmx()
-            <<" cpm "<<tob.cpm()
-            <<" incremented counters_tob_per_cpm["<<iCpm<<"]: "<<counters_tob_per_cpm[iCpm]
-            <<endl;
     }
-    cout<<"CPMCMXData overflow: before "<<m_cpm_overflow;
     m_cpm_overflow = (m_cpm_overflow ||
                       std::any_of(counters_tob_per_cpm.begin(),
                                   counters_tob_per_cpm.end(),
                                   [](const uint32_t &c) { return (c >= s_maxTOBsPerCpm); }));
-    cout<<" after "<<m_cpm_overflow<<endl;
     return *this;
 }
   
