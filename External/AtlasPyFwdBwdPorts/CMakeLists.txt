@@ -185,4 +185,3 @@ _setup_python_package( simplejson
 
 # Clean up:
 unset( _setup_python_package )
-
