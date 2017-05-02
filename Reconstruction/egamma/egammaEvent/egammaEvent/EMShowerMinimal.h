@@ -34,7 +34,7 @@ UPDATED:
 ********************************************************************/
 #include "CLIDSvc/CLASS_DEF.h"
 #include "CaloEvent/CaloClusterContainer.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "Navigation/NavigableTerminalNode.h"
 
 class CaloCluster; 
