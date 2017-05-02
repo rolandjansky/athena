@@ -51,8 +51,15 @@ namespace TCS {
       uint32_t event_number()      const { return m_evtNo; }
       uint32_t lumi_block()        const { return m_lumiB; }
       uint32_t bunch_crossing_id() const { return m_BCID;  }
-      bool overflowFromMuonInput() const { return m_overflowFromMuonInput; }
-      
+      /** @defgroup groupOverflowGetters
+       *  @brief getter function for overflow bits
+       *  @{
+       */
+      bool overflowFromEmtauInput () const { return m_overflowFromEmtauInput ; }
+      bool overflowFromJetInput   () const { return m_overflowFromJetInput   ; }
+      bool overflowFromEnergyInput() const { return m_overflowFromEnergyInput; }
+      bool overflowFromMuonInput  () const { return m_overflowFromMuonInput  ; }
+      /** @} */ // end of groupOverflowGetters
       StatusCode addCluster(const ClusterTOB & cluster);
       StatusCode addTau(const ClusterTOB & tau);
       StatusCode addMuon(const MuonTOB & muon);
@@ -61,8 +68,16 @@ namespace TCS {
       StatusCode addJet(const JetTOB & jet);
       StatusCode setMET(const MetTOB & met);
       StatusCode setEventInfo(const uint32_t runNo, const uint32_t evtNo, const uint32_t lumiB, const uint32_t BCID);
-      void setOverflowFromMuonInput(const bool &v);
-
+      /** @defgroup groupOverflowSetters
+       *  @brief setter function for overflow bits
+       *  The bits are being propagated from the input providers.
+       *  @{
+       */
+      void setOverflowFromEmtauInput (const bool &v);
+      void setOverflowFromJetInput   (const bool &v);
+      void setOverflowFromEnergyInput(const bool &v);
+      void setOverflowFromMuonInput  (const bool &v);
+      /** @} */ // end of groupOverflowSetters
       // access all inputs by type
       const InputTOBArray * inputTOBs(TCS::inputTOBType_t) const;
       /// @brief whether there are input overflows from Mioct for muon and from CMX for calo
@@ -95,6 +110,9 @@ namespace TCS {
       uint32_t          m_runNo, m_evtNo, m_lumiB, m_BCID;
 
       bool              m_dumpEnabled { false };
+      bool              m_overflowFromEmtauInput { false };
+      bool              m_overflowFromJetInput { false };
+      bool              m_overflowFromEnergyInput { false };
       bool              m_overflowFromMuonInput { false };
       std::string       m_inputDumpFile { "" };
 
