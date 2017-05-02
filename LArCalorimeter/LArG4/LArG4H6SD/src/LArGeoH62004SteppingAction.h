@@ -6,33 +6,35 @@
 // EMEC/HEC/FCAL TB stepping action,
 // do not stopping the particle in leakage det. !!!!
 //=====================================
-#ifndef LArGeoH62004SteppingAction_h
-#define LArGeoH62004SteppingAction_h 1
+#ifndef LARG4H6SD_LArGeoH62004SteppingAction_h
+#define LARG4H6SD_LArGeoH62004SteppingAction_h 1
 
-#include "G4AtlasTools/UserActionBase.h"
 
-#include <string>
-#include <vector>
+#include "G4AtlasInterfaces/ISteppingAction.h"
 
-class LArGeoTB2004Options;
-
-class LArGeoH62004SteppingAction final: public UserActionBase
+namespace G4UA
 {
+  /// @brief NEEDS DOCUMENTATION
+  class LArGeoH62004SteppingAction final: public ISteppingAction
+  {
   public:
-    LArGeoH62004SteppingAction(const std::string& type, const std::string& name, const IInterface* parent);
-    void ClearVector(){ m_tracks.clear(); }
-    ~LArGeoH62004SteppingAction();
 
-  public:
-    virtual void Step(const G4Step* theStep) override;
-    virtual StatusCode queryInterface(const InterfaceID&, void**);
-    virtual StatusCode initialize() override;
+    struct Config
+    {
+      float yTable=0.0;
+      bool checkprim=false;
+      bool printstep=false;
+    };
+
+    LArGeoH62004SteppingAction(const Config& config);
+    virtual void processStep(const G4Step*) override;
 
   private:
-    std::vector<int> m_tracks;
-    const LArGeoTB2004Options *m_largeoTB2004Options;
-    bool m_ownOptions;
     float m_yTable;
-};
+    bool m_checkprim;
+    bool m_printstep;
+  }; // class LArGeoH62004SteppingAction
+
+} // namespace G4UA
 
 #endif
