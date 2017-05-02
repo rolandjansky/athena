@@ -320,9 +320,9 @@ persToTrans( const xAOD::TauJetAuxContainer_v2* oldObj,
         newTau->addTauTrackLink(linkToTauTrack);
       }
 
-
-      newTau->setDetail(xAOD::TauJetParameters::nChargedTracks, (int) newTau->nTracks());
-      newTau->setDetail(xAOD::TauJetParameters::nIsolatedTracks, (int) newTau->nTracks(xAOD::TauJetParameters::classifiedIsolation));
+      
+      newTau->setDetail(xAOD::TauJetParameters::nChargedTracks, (int) oldTau->nTracks());
+      newTau->setDetail(xAOD::TauJetParameters::nIsolatedTracks, (int) oldTau->nWideTracks());
 
    }
    
