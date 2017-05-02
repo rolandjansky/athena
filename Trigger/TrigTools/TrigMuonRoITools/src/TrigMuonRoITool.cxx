@@ -312,7 +312,7 @@ void TrigMuonRoITool::decodeMuCTPi() {
 
       ////////////////////////////////
       ///// TEST TO BE REMOVED!!!!!
-      m_outOfTime_muCTPIRoIs.push_back( std::pair<ROIB::MuCTPIRoI,int>(roI,(int(daqRoI.getBCID())-int(roiEventBCID))) );
+      //m_outOfTime_muCTPIRoIs.push_back( std::pair<ROIB::MuCTPIRoI,int>(roI,(int(daqRoI.getBCID())-int(roiEventBCID))) );
       ////////////////////////////////
 
     } else {
