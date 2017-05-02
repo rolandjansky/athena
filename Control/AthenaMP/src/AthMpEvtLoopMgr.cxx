@@ -29,6 +29,8 @@
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 
+#include "dmtcp.h"
+
 namespace athenaMP_MemHelper
 {
   int getPss(pid_t, unsigned long&, unsigned long&, unsigned long&, unsigned long&, bool verbose=false);
@@ -235,6 +237,32 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
 
   // Flush stream buffers
   fflush(NULL);
+
+  int dmtcp_enabled = dmtcp_is_enabled();
+  if(dmtcp_enabled) {
+    ATH_MSG_INFO("DMTCP is enabled. Preparing to checkpoint ...");
+    unsigned original_generation = dmtcp_get_generation();
+    int retval = dmtcp_checkpoint();
+    if(retval == DMTCP_AFTER_CHECKPOINT){
+      // Wait long enough for checkpoint request to be written out
+      while(dmtcp_get_generation() == original_generation){
+	usleep(1000000);
+      }
+      // We are done at this point. Exit
+      ATH_MSG_INFO("Done checkpointing. Exiting ...");
+      exit(0);
+    }
+    else if(retval == DMTCP_AFTER_RESTART) {
+      ATH_MSG_INFO("AthenaMP restarted from the checkpoint image");
+    }
+    else if(retval == DMTCP_NOT_PRESENT) {
+      ATH_MSG_WARNING("Attempted to checkpoint, but DMTCP is not running. Skipping checkpoint ...");
+    }
+    
+  }
+  else {
+    ATH_MSG_INFO("DMTCP is not enabled. Proceeding with forking the workers ...");
+  }
 
   ToolHandleArray<IAthenaMPTool>::iterator it = m_tools.begin(),
     itLast = m_tools.end();
@@ -473,12 +501,14 @@ boost::shared_ptr<AthenaInterprocess::FdsRegistry> AthMpEvtLoopMgr::extractFds()
   // 2. Skip also stdout and stderr
 
   std::vector<std::string> excludePatterns;
-  excludePatterns.reserve(5);
+  excludePatterns.reserve(7);
   excludePatterns.push_back("/root/etc/plugins/");
   excludePatterns.push_back("/root/cint/cint/");
   excludePatterns.push_back("/root/include/");
   excludePatterns.push_back("/var/tmp/");
   excludePatterns.push_back("/var/lock/");
+  excludePatterns.push_back("/tmp/dmtcp");
+  excludePatterns.push_back("/dmtcp-");
 
   path fdPath("/proc/self/fd");
   for(directory_iterator fdIt(fdPath); fdIt!=directory_iterator(); fdIt++) {

@@ -1303,7 +1303,12 @@ class athenaExecutor(scriptExecutor):
                 else:
                     msg.info('Valgrind not engaged')
                     # run Athena command
-                    print >>wrapper, ' '.join(self._cmd)
+                    if 'checkpoint' in self.conf.argdict and self.conf._argdict['checkpoint'].value is True:
+                        print >>wrapper,'dmtcp_launch -p 7777 ', ' '.join(self._cmd)
+                    elif 'restart' in self.conf.argdict and self.conf._argdict['restart'].value is not None and 'MergeAthenaMP' not in self.name:
+                        print >>wrapper, './dmtcp_restart_script.sh -p 7777'
+                    else:
+                        print >>wrapper, ' '.join(self._cmd)
             os.chmod(self._wrapperFile, 0755)
         except (IOError, OSError) as e:
             errMsg = 'error writing athena wrapper {fileName}: {error}'.format(
