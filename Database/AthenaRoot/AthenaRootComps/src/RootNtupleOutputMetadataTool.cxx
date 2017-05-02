@@ -13,10 +13,6 @@
 #include "RootNtupleOutputMetadataTool.h"
 #include "RootBranchAddress.h"
 
-// stl
-#include "CxxUtils/unordered_set.h" // move to stl
-#include "CxxUtils/make_unique.h"
-
 // Gaudi
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IOpaqueAddress.h"
@@ -272,7 +268,7 @@ RootNtupleOutputMetadataTool::copyMetadata()
   if (pc.isSuccess()) {
     for (; titer != tend; titer++) {
       if (titer.cptr()!=0) {
-        auto toCopy = CxxUtils::make_unique<TransferTree>(*titer);
+        auto toCopy = std::make_unique<TransferTree>(*titer);
         if (!m_ometaStore->contains<TransferTree>(titer.key())) {
           if (m_ometaStore->record(std::move(toCopy),titer.key()).isFailure()) failure=true;
         }
