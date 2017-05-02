@@ -890,6 +890,10 @@ def setupMenu():
         ['j110_gsc150_boffperf_split_2j35_gsc55_bmv2c2070_split', 'L1_J75_3J20', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
         ['j110_gsc150_boffperf_split_2j35_gsc55_bmv2c2077_split', 'L1_J75_3J20', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
 
+        ['j110_gsc150_boffperf_split_2j35_gsc55_bmv2c2070_split_L1J85_3J30', 'L1_J85_3J30', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+        ['j110_gsc150_boffperf_split_2j35_gsc55_bmv2c2077_split_L1J85_3J30', 'L1_J85_3J30', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+        ['j110_gsc150_boffperf_split_2j35_gsc55_boffperf_split_L1J85_3J30', 'L1_J85_3J30', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+
         ['2j55_gsc75_boffperf_split_j55_gsc75_boffperf_split',         'L1_3J25.0ETA23', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
         ['2j55_gsc75_bmv2c2050_split_j55_gsc75_boffperf_split',        'L1_3J25.0ETA23', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
         ['2j55_gsc75_bmv2c2060_split_j55_gsc75_boffperf_split',        'L1_3J25.0ETA23', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
