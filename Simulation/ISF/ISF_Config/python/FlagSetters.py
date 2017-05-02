@@ -110,6 +110,13 @@ def configureFlagsATLFASTII():
     ISF_Flags.UsingGeant4 = True
     return
 
+def configureFlagsATLFASTII_PileUp():
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "ATLFASTII_PileUp"
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    ISF_Flags.UsingGeant4 = True
+    return
+
 ## methods for simulators which use Fatras + FastCaloSim
 
 def configureFlagsATLFASTIIF():
@@ -120,6 +127,16 @@ def configureFlagsATLFASTIIF():
     DetFlags.geometry.BCM_setOff()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "ATLFASTIIF"
+    return
+
+def configureFlagsATLFASTIIF_newExtrapolation_ID():
+    from AthenaCommon.DetFlags import DetFlags
+    # BCM simulation not supported in FATRAS. Currently it is the
+    # geometry task which is used to determine whether a detector has
+    # been simulated (see ISF_Example/python/ISF_Output.py)
+    DetFlags.geometry.BCM_setOff()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "ATLFASTIIF_newExtrapolation_ID"
     return
 
 def configureFlagsFatras_newExtrapolation():
