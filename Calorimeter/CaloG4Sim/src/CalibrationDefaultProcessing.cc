@@ -41,8 +41,6 @@ namespace G4UA {
       // retrieve the SD from G4SDManager
       // done here instead of in initialize to leave more flexibility to the rest of the G4 init
 
-      G4SDManager* SDman = G4SDManager::GetSDMpointer();
-
       m_defaultSD = G4SDManager::GetSDMpointer()-> FindSensitiveDetector(m_config.SDName);
 
       if(!m_defaultSD) ATH_MSG_ERROR("No valid SD name specified. The job will continue, but you should check your configuration");
