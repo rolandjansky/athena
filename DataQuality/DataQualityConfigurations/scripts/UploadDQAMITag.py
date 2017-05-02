@@ -164,8 +164,10 @@ def update_dict_for_release(updict, release):
     extraSetup = " oracleCOOL"
     if relProj == "AtlasProduction":
         extraSetup += " AtlasProduction"
+    elif relProj == "Athena":
+        extraSetup += " Athena"
     elif relProj != "AtlasOffline":
-        s="ERROR: The project specified (" + relProj +") is not AtlasOffline or AtlasProduction. Are you sure?"
+        s="ERROR: The project specified (" + relProj +") is not Athena, AtlasOffline or AtlasProduction. Are you sure?"
         raise RuntimeError(s)
 
     # update dictionary
