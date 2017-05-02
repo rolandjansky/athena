@@ -1,3 +1,7 @@
+2017-05-02 Dag Gillberg
+	* TruthWeightTools-01-04-01
+	* Modifications to CMakeLists.txt by Kurt Brendlinger to make compatible with AnalysisBase
+
 2017-04-05 Dag Gillberg <dag.gillberg@cern.h>
 	* Tagging TruthWeightTools-01-04-00
 	* Changed names of accessors: QCD uncertatinites only relevant to ggF now called
