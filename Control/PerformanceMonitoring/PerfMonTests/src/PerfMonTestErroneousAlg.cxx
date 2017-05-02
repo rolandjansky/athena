@@ -110,6 +110,9 @@ bool ErroneousAlg::invalidRead()
   return true;
 }
 
+#ifdef __clang__
+#pragma GCC diagnostic ignored "-Wmismatched-new-delete"
+#endif
 bool ErroneousAlg::mismatchedFree()
 {
   const unsigned int maximum=8192;
