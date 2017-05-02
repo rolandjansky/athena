@@ -1,3 +1,7 @@
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // GUI for TriggerHLTMonitoring MenuAwareMonitoring
 // Author: Xanthe Hoad (xanthe.hoad@cern.ch)
 // See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more information
