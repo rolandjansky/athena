@@ -633,12 +633,24 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
       type = 2;
     } else if(links.first and links.second) {
       // both link-0 and link-1 are working
-      ATH_MSG_WARNING("Both link-0 and link-1 are working. But Rx redundancy is used... Why?");
+      ATH_MSG_WARNING("setFirstTempMaskedChip: Both link-0 and link-1 are working. But Rx redundancy is used... Why?");
       return;
     } else {
       // both link-0 and link-1 are broken
-      ATH_MSG_WARNING("Both link-0 and link-1 are broken. But data are coming... Why?");
+      ATH_MSG_WARNING("setFirstTempMaskedChip: Both link-0 and link-1 are broken. But data are coming... Why?");
       return;
+    }
+  }
+
+  if(type==1 or type==2) {
+    if(firstTempMaskedChip_side0>0 and
+       firstTempMaskedChip_side1>0 and
+       firstTempMaskedChip_side0!=firstTempMaskedChip_side1) {
+      ATH_MSG_WARNING("setFirstTempMaskedChip: Rx redundancy is used. " <<
+		      "But, side 0 and side 1 have inconsistent first masked chip information. " <<
+		      " firstTempMaskedChip_side0 " << firstTempMaskedChip_side0 <<
+		      " firstTempMaskedChip_side1 " << firstTempMaskedChip_side1 <<
+		      " firstTempMaskedChip " << firstTempMaskedChip);
     }
   }
       
@@ -648,30 +660,35 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
     if(firstTempMaskedChip_side0>0) {
       for(int iChip(firstTempMaskedChip_side0-1); iChip<6; iChip++) {
 	tempMaskedChips2 |= (1<<iChip);
+	addError(hash_side0, SCT_ByteStreamErrors::TempMaskedChip0+iChip);
       }
     }
     if(firstTempMaskedChip_side1>6) {
       for(int iChip(firstTempMaskedChip_side1-1); iChip<12; iChip++) {
 	tempMaskedChips2 |= (1<<iChip);
+	addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+iChip-6);
       }
     }
   } else if(type==1) {
     // link-1 is broken: chip 0 1 2 3 4 5 6 7 8 9 10 11
-    // first temporarily masked chip information is recorded in only link-0.
-    if(firstTempMaskedChip_side0>0) {
-      for(int iChip(firstTempMaskedChip_side0-1); iChip<12; iChip++) {
+    if(firstTempMaskedChip>0) {
+      for(int iChip(firstTempMaskedChip-1); iChip<12; iChip++) {
 	tempMaskedChips2 |= (1<<iChip);
+	if(iChip<6) addError(hash_side0, SCT_ByteStreamErrors::TempMaskedChip0+iChip);
+	else        addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+iChip-6);
       }
     }
   } else {
     // link-0 is broken: chip 6 7 8 9 10 11 0 1 2 3 4 5
-    // first temporarily masked chip information is recorded in only link-0.
-    if(firstTempMaskedChip_side0>0) {
-      if(firstTempMaskedChip_side0<=6) firstTempMaskedChip_side0 += 12;
-      for(int iChip(firstTempMaskedChip_side0-1); iChip<12+6; iChip++) {
+    if(firstTempMaskedChip>0) {
+      int tmpFirstTempMaskedChip(firstTempMaskedChip);
+      if(tmpFirstTempMaskedChip<=6) tmpFirstTempMaskedChip += 12;
+      for(int iChip(tmpFirstTempMaskedChip-1); iChip<12+6; iChip++) {
 	int jChip(iChip);
 	if(jChip>=12) jChip -= 12;
 	tempMaskedChips2 |= (1<<jChip);
+	if(jChip<6) addError(hash_side0, SCT_ByteStreamErrors::TempMaskedChip0+jChip);
+	else        addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+jChip-6);
       }
     }
   }
@@ -685,7 +702,7 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
 		  << " phi_module " << m_sct_id->phi_module(wafId) 
 		  << " side " << m_sct_id->side(wafId) 
 		  << " firstTempMaskedChip " << firstTempMaskedChip
-		  << " tempMaskedChips2" << tempMaskedChips2);
+		  << " tempMaskedChips2 " << tempMaskedChips2);
 
   (*m_tempMaskedChips)[moduleId] = tempMaskedChips2;
 }
