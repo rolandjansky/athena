@@ -6,6 +6,7 @@
 #include "AthenaInterprocess/ProcessGroup.h"
 
 #include "AthenaKernel/IEventShare.h"
+#include "AthenaKernel/IDataShare.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IIoComponentMgr.h"
@@ -16,7 +17,6 @@ SharedWriterTool::SharedWriterTool(const std::string& type
 				   , const std::string& name
 				   , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
-  , m_evtShare(0)
   , m_cnvSvc(0)
 {
   m_subprocDirPrefix = "shared_writer";
@@ -32,12 +32,6 @@ StatusCode SharedWriterTool::initialize()
 
   StatusCode sc = AthenaMPToolBase::initialize();
   if(!sc.isSuccess()) return sc;
-
-  sc = serviceLocator()->service(m_evtSelName,m_evtShare);
-  if(sc.isFailure() || m_evtShare==0) {
-    ATH_MSG_ERROR("Error retrieving IEventShare");
-    return StatusCode::FAILURE;
-  }
 
 //FIXME: AthenaPool dependent for now
   sc = serviceLocator()->service("AthenaPoolCnvSvc", m_cnvSvc);
@@ -153,13 +147,14 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::bootstrap_f
 
   ATH_MSG_INFO("File descriptors re-opened in the AthenaMP Shared Writer PID=" << getpid());
 
-  // FIXME: IEventShare ...
-  if(!m_evtShare->makeServer(-m_nprocs).isSuccess()) {
-    ATH_MSG_ERROR("Failed to make the event selector a share server");
+  // Use IDataShare to make ConversionSvc a Share Server
+  IDataShare* cnvSvc = dynamic_cast<IDataShare*>(m_cnvSvc);
+  if (cnvSvc == 0 || !cnvSvc->makeServer(-m_nprocs - 1).isSuccess()) {
+    ATH_MSG_ERROR("Failed to make the conversion service a share server");
     return outwork;
   }
   else {
-    ATH_MSG_DEBUG("Successfully made the event selector a share server");
+    ATH_MSG_DEBUG("Successfully made the conversion service a share server");
   }
 
   // ________________________ I/O reinit ________________________
