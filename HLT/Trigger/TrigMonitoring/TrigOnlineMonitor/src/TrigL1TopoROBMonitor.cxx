@@ -111,6 +111,8 @@ TrigL1TopoROBMonitor::TrigL1TopoROBMonitor(const std::string& name, ISvcLocator*
   declareProperty("doWriteValData", m_doWriteValData = true, "write L1Topo simulation/validation data into HLTResult"); 
   declareProperty("useDetMask", m_useDetMask = true, "only monitor if L1Topo is included in the event according to the detector mask; this can disable monitoring automatically in spite of other options");
   declareProperty("SimTopoCTPLocation", m_simTopoCTPLocation = LVL1::DEFAULT_L1TopoCTPLocation, "StoreGate key of simulated topo decision output for CTP, defaults to default output key of L1TopoSimulation" );
+  declareProperty("SimTopoOverflowCTPLocation", m_simTopoOverflowCTPLocation = LVL1::DEFAULT_L1TopoOverflowCTPLocation,
+                  "StoreGate key of simulated topo overflow output for CTP" );
   declareProperty("HLTResultName", m_HltResultName = "HLTResult_HLT", "StoreGate key of HLT result" );
 }
 
@@ -195,6 +197,7 @@ StatusCode TrigL1TopoROBMonitor::execute() {
 
   if (m_doSimMon){
     CHECK( doSimMon(prescaleForDAQROBAccess) );
+    CHECK( doOverflowSimMon() );
   }
  
   if (m_doWriteValData){
@@ -672,7 +675,7 @@ StatusCode TrigL1TopoROBMonitor::doSimMon(bool prescalForDAQROBAccess){
   ATH_MSG_DEBUG( "doSimMon" );
   // Retrieve L1Topo CTP simulated decision if present
   if ( ! evtStore()->contains<LVL1::FrontPanelCTP>(m_simTopoCTPLocation.value()) ){
-    ATH_MSG_INFO("Could not retrieve LVL1::FrontPanelCTP with key " << m_simTopoCTPLocation.value() << ". Perhaps it was prescaled? Skipping simulation comparison." );
+    ATH_MSG_INFO("Could not retrieve LVL1::FrontPanelCTP with key '" << m_simTopoCTPLocation.value() << "'. Perhaps it was prescaled? Skipping simulation comparison." );
   }
   else {
     const DataHandle< LVL1::FrontPanelCTP > simTopoCTP; ///! simulation output
@@ -860,9 +863,6 @@ void TrigL1TopoROBMonitor::compBitSets(std::string leftLabel, std::string rightL
 
 StatusCode TrigL1TopoROBMonitor::doOverflowSimMon()
 {
-//   return StatusCode::SUCCESS;
-// }
-
     ATH_MSG_DEBUG( "doOverflowSimMon" );
     if(evtStore()->contains<LVL1::FrontPanelCTP>(m_simTopoOverflowCTPLocation.value())){
         const DataHandle< LVL1::FrontPanelCTP > simTopoOverflowCTP;
@@ -884,11 +884,11 @@ StatusCode TrigL1TopoROBMonitor::doOverflowSimMon()
             // debug printout
             const auto sw8 = std::setw( 8 );
             const auto sf0 = std::setfill('0');
-            ATH_MSG_DEBUG("Simulated output from L1Topo from StoreGate with key "<< m_simTopoCTPLocation);
-            ATH_MSG_DEBUG("L1Topo word 1 at clock 0 is: 0x"<< std::hex << sw8 << sf0<< simTopoOverflowCTP->cableWord1(0));
-            ATH_MSG_DEBUG("L1Topo word 2 at clock 0 is: 0x"<< std::hex << sw8 << sf0<< simTopoOverflowCTP->cableWord2(0));
-            ATH_MSG_DEBUG("L1Topo word 1 at clock 1 is: 0x"<< std::hex << sw8 << sf0<< simTopoOverflowCTP->cableWord1(1));
-            ATH_MSG_DEBUG("L1Topo word 2 at clock 1 is: 0x"<< std::hex << sw8 << sf0<< simTopoOverflowCTP->cableWord2(1));
+            ATH_MSG_DEBUG("Simulated overflow from L1Topo from StoreGate with key "<< m_simTopoOverflowCTPLocation);
+            ATH_MSG_DEBUG("L1Topo overflow word 1 clk 0 : 0x"<< std::hex << sw8 << sf0<< simTopoOverflowCTP->cableWord1(0));
+            ATH_MSG_DEBUG("L1Topo overflow word 2 clk 0 : 0x"<< std::hex << sw8 << sf0<< simTopoOverflowCTP->cableWord2(0));
+            ATH_MSG_DEBUG("L1Topo overflow word 1 clk 1 : 0x"<< std::hex << sw8 << sf0<< simTopoOverflowCTP->cableWord1(1));
+            ATH_MSG_DEBUG("L1Topo overflow word 2 clk 1 : 0x"<< std::hex << sw8 << sf0<< simTopoOverflowCTP->cableWord2(1));
             compBitSets("L1Topo hardware", "L1Topo simulation",
                         m_overflowBits,
                         m_topoSimOverfl,
@@ -897,7 +897,7 @@ StatusCode TrigL1TopoROBMonitor::doOverflowSimMon()
             ATH_MSG_INFO("Oveflow bits from LVL1::FrontPanelCTP not available. Skipping overflow comparison.");
         }
     } else {
-        ATH_MSG_INFO("Could not retrieve LVL1::FrontPanelCTP with key " << m_simTopoOverflowCTPLocation.value()<<"."
+        ATH_MSG_INFO("Could not retrieve LVL1::FrontPanelCTP with key '" << m_simTopoOverflowCTPLocation.value()<<"'."
                      <<" Skipping simulation comparison.");
     }
     return StatusCode::SUCCESS;
