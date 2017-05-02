@@ -157,13 +157,22 @@ testChains = {
     "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig:forID",
     "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF:forID",
     "HLT_j55_bperf_split:TrigFastTrackFinder_Jet:forID",
+#ifdef OFFLINE
+    "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:SuperRoi:xPrimVx:post:pt=5000:rvtx=xPrimVx",
+    "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:SuperRoi:EFHistoPrmVtx:post:pt=5000:rvtx=EFHistoPrmVtx",
+#else 
     "HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:SuperRoi:post:pt=5000",
+#endif
     "HLT_j55_boffperf:InDetTrigTrackingxAODCnv_Bjet_EFID",
     "HLT_j55_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig:forID",
     "HLT_j55_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF:forID",
     "HLT_j55_boffperf_split:TrigFastTrackFinder_Jet:forID",
+#ifdef OFFLINE
+    "HLT_j55_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:SuperRoi:xPrimVx:post:pt=5000:rvtx=xPrimVx",
+    "HLT_j55_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:SuperRoi:EFHistoPrmVtx:post:pt=5000:rvtx=EFHistoPrmVtx",
+#else 
     "HLT_j55_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:SuperRoi:post:pt=5000",
-
+#endif
     "HLT_j55_bperf_split_FTKVtx:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
     "HLT_j55_bperf_split_FTKVtx:InDetTrigTrackingxAODCnv_Bjet_FTF",
     "HLT_j55_bperf_split_FTK:InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig",

@@ -1,5 +1,7 @@
 // emacs: this is -*- c++ -*-
 
+#define OFFLINE
+
 #include "TIDAdata_cuts.dat"
 
 

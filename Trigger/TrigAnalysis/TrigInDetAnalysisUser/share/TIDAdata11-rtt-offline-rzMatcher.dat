@@ -1,5 +1,7 @@
 // emacs: this is -*- c++ -*-
 
+#define OFFLINE
+
 UseMatcher = "DeltaRZ";
 Matcher_deta = 0.02;
 Matcher_dphi = 0.03;
