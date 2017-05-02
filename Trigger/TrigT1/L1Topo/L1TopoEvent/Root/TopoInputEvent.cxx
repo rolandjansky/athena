@@ -75,9 +75,9 @@ StatusCode TopoInputEvent::setEventInfo(const uint32_t runNo, const uint32_t evt
    return StatusCode::SUCCESS;
 }
 
-void TopoInputEvent::setOverflowFromMioct(const bool &v)
+void TopoInputEvent::setOverflowFromMuonInput(const bool &v)
 {
-    m_overflowFromMioct = v;
+    m_overflowFromMuonInput = v;
 }
 
 // access to data for the steering
@@ -99,13 +99,13 @@ bool TopoInputEvent::hasInputOverflow(TCS::inputTOBType_t tobType) const
 {
     bool inputOverflow = false;
     switch(tobType) {
-    case CLUSTER:    inputOverflow = false;               break; // DG TODO
-    case JET:        inputOverflow = false;               break; // DG TODO
-    case MUON:       inputOverflow = overflowFromMioct(); break;
-    case LATEMUON:   inputOverflow = false;               break; // DG not sure
-    case MUONNEXTBC: inputOverflow = false;               break; // DG not sure
-    case TAU:        inputOverflow = false;               break; // DG TODO
-    case MET:        inputOverflow = false;               break;
+    case CLUSTER:    inputOverflow = false;                   break; // DG TODO
+    case JET:        inputOverflow = false;                   break; // DG TODO
+    case MUON:       inputOverflow = overflowFromMuonInput(); break;
+    case LATEMUON:   inputOverflow = false;                   break; // DG not sure
+    case MUONNEXTBC: inputOverflow = false;                   break; // DG not sure
+    case TAU:        inputOverflow = false;                   break; // DG TODO
+    case MET:        inputOverflow = false;                   break;
     default:         inputOverflow = false;
     }
    return inputOverflow;
@@ -130,7 +130,7 @@ TCS::TopoInputEvent::clear() {
 
    setMET(MetTOB(0,0,0)); // default MET
 
-   m_overflowFromMioct = false;
+   m_overflowFromMuonInput = false;
 
    return StatusCode::SUCCESS;
 }
@@ -231,7 +231,7 @@ std::ostream & operator<<(std::ostream &o, const TCS::TopoInputEvent &evt) {
    o << "LateMuon input vector (" << evt.lateMuons().name() << "):" << endl << evt.lateMuons();
    o << "MuonNextBC input vector (" << evt.muonsNextBC().name() << "):" << endl << evt.muonsNextBC();
    o << "MET input (" << evt.m_met.name() << "):" << endl << evt.m_met;
-   o << "Overflow: from Mioct "<<evt.overflowFromMioct() << endl;
+   o << "Overflow: from MuonInput "<<evt.overflowFromMuonInput() << endl;
    o << "Event info: " << evt.run_number() << "  " << evt.event_number() << "  " << evt.lumi_block() << "  " << evt.bunch_crossing_id();
 
    return o;
@@ -266,7 +266,7 @@ TopoInputEvent::print() const {
    for(auto * x : muonsNextBC()) TRG_MSG_DEBUG("      " << *x);
    TRG_MSG_DEBUG("MET input (" << m_met.name() << "):");// << endl << m_met;
    for(auto * x : m_met) TRG_MSG_DEBUG("      " << *x);
-   TRG_MSG_DEBUG("Overflow bits: from mioct "<<m_overflowFromMioct);
+   TRG_MSG_DEBUG("Overflow bits: from muon "<<m_overflowFromMuonInput);
    TRG_MSG_DEBUG("Event info:");
    TRG_MSG_DEBUG("      runNo: " << run_number() << "  evtNo: " << event_number() << "  lumiBlock: " << lumi_block() << "  BCID: " << bunch_crossing_id());
 }

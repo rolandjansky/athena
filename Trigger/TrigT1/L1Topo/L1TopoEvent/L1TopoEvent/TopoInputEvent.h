@@ -51,7 +51,7 @@ namespace TCS {
       uint32_t event_number()      const { return m_evtNo; }
       uint32_t lumi_block()        const { return m_lumiB; }
       uint32_t bunch_crossing_id() const { return m_BCID;  }
-      bool overflowFromMioct() const { return m_overflowFromMioct; }
+      bool overflowFromMuonInput() const { return m_overflowFromMuonInput; }
       
       StatusCode addCluster(const ClusterTOB & cluster);
       StatusCode addTau(const ClusterTOB & tau);
@@ -61,7 +61,7 @@ namespace TCS {
       StatusCode addJet(const JetTOB & jet);
       StatusCode setMET(const MetTOB & met);
       StatusCode setEventInfo(const uint32_t runNo, const uint32_t evtNo, const uint32_t lumiB, const uint32_t BCID);
-      void setOverflowFromMioct(const bool &v);
+      void setOverflowFromMuonInput(const bool &v);
 
       // access all inputs by type
       const InputTOBArray * inputTOBs(TCS::inputTOBType_t) const;
@@ -95,7 +95,7 @@ namespace TCS {
       uint32_t          m_runNo, m_evtNo, m_lumiB, m_BCID;
 
       bool              m_dumpEnabled { false };
-      bool              m_overflowFromMioct { false };
+      bool              m_overflowFromMuonInput { false };
       std::string       m_inputDumpFile { "" };
 
    };
