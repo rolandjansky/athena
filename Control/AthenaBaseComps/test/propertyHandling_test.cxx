@@ -17,6 +17,10 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/UpdateHandleKey.h"
+#include "StoreGate/ReadDecorHandleKey.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/WriteCondHandleKey.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/UpdateHandle.h"
@@ -51,13 +55,21 @@ public:
   SG::WriteHandle<MyObj> whandle;
   SG::UpdateHandle<MyObj> uhandle;
 
+  SG::ReadDecorHandleKey<MyObj> rdkey;
+  SG::WriteDecorHandleKey<MyObj> wdkey;
+
+  SG::ReadCondHandleKey<MyObj> rckey;
+  SG::WriteCondHandleKey<MyObj> wckey;
+
   std::vector<Gaudi::DataHandle*> inputs;
   std::vector<Gaudi::DataHandle*> outputs;
 };
 
 
 MyAthAlgorithm::MyAthAlgorithm  (const std::string& name, ISvcLocator* svcLoc)
-  : AthAlgorithm (name, svcLoc)
+  : AthAlgorithm (name, svcLoc),
+    rckey ("rc"),
+    wckey ("wc", "dbkey")
 {
   declareProperty ("rkey", rkey);
   declareProperty ("wkey", wkey);
@@ -65,6 +77,10 @@ MyAthAlgorithm::MyAthAlgorithm  (const std::string& name, ISvcLocator* svcLoc)
   declareProperty ("rhandle", rhandle);
   declareProperty ("whandle", whandle);
   declareProperty ("uhandle", uhandle);
+  declareProperty ("rdkey", rdkey);
+  declareProperty ("wdkey", wdkey);
+  declareProperty ("rckey", rckey);
+  declareProperty ("wckey", wckey);
 }
 
 
@@ -99,6 +115,12 @@ public:
   SG::WriteHandle<MyObj> whandle;
   SG::UpdateHandle<MyObj> uhandle;
 
+  SG::ReadDecorHandleKey<MyObj> rdkey;
+  SG::WriteDecorHandleKey<MyObj> wdkey;
+
+  SG::ReadCondHandleKey<MyObj> rckey;
+  SG::WriteCondHandleKey<MyObj> wckey;
+
   std::vector<Gaudi::DataHandle*> inputs;
   std::vector<Gaudi::DataHandle*> outputs;
 };
@@ -107,7 +129,9 @@ public:
 MyAthAlgTool::MyAthAlgTool  (const std::string& type,
                              const std::string& name,
                              IInterface* parent)
-  : AthAlgTool (type, name, parent)
+  : AthAlgTool (type, name, parent),
+    rckey ("rc"),
+    wckey ("wc", "dbkey")
 {
   declareProperty ("rkey", rkey);
   declareProperty ("wkey", wkey);
@@ -115,6 +139,10 @@ MyAthAlgTool::MyAthAlgTool  (const std::string& type,
   declareProperty ("rhandle", rhandle);
   declareProperty ("whandle", whandle);
   declareProperty ("uhandle", uhandle);
+  declareProperty ("rdkey", rdkey = "aaa.bbb");
+  declareProperty ("wdkey", wdkey);
+  declareProperty ("rckey", rckey);
+  declareProperty ("wckey", wckey);
 }
 
 
@@ -148,6 +176,28 @@ void test1 (ISvcLocator* svcLoc)
   assert (alg.ukey.storeHandle().name() == "StoreGateSvc");
   assert (alg.ukey.mode() == Gaudi::DataHandle::Updater);
 
+  assert (alg.rdkey.clid() == 293847295);
+  assert (alg.rdkey.key() == "ggg.qqq");
+  assert (alg.rdkey.storeHandle().name() == "FooSvc");
+  assert (alg.rdkey.mode() == Gaudi::DataHandle::Reader);
+
+  assert (alg.wdkey.clid() == 293847295);
+  assert (alg.wdkey.key() == "hhh.rrr");
+  assert (alg.wdkey.storeHandle().name() == "BarSvc");
+  assert (alg.wdkey.mode() == Gaudi::DataHandle::Writer);
+  assert (alg.wdkey.contHandleKey().clid() == 293847295);
+  assert (alg.wdkey.contHandleKey().key() == "hhh");
+  assert (alg.wdkey.contHandleKey().storeHandle().name() == "BarSvc");
+  assert (alg.wdkey.contHandleKey().mode() == Gaudi::DataHandle::Reader);
+
+  assert (alg.rckey.clid() == 293847295);
+  assert (alg.rckey.key() == "iii");
+  assert (alg.rckey.mode() == Gaudi::DataHandle::Reader);
+
+  assert (alg.wckey.clid() == 293847295);
+  assert (alg.wckey.key() == "jjj");
+  assert (alg.wckey.mode() == Gaudi::DataHandle::Writer);
+
   assert (alg.rhandle.clid() == 293847295);
   assert (alg.rhandle.key() == "ddd");
   assert (alg.rhandle.storeHandle().name() == "FooSvc");
@@ -163,15 +213,21 @@ void test1 (ISvcLocator* svcLoc)
   assert (alg.uhandle.storeHandle().name() == "StoreGateSvc");
   assert (alg.uhandle.mode() == Gaudi::DataHandle::Updater);
 
-  std::vector<std::string> inputKeys { "aaa", "ccc", "ddd", "fff" };
+  std::vector<std::string> inputKeys { "aaa", "ccc", "ddd", "fff",
+                                       "ggg.qqq", "hhh", "iii" };
   assert (alg.inputs.size() == inputKeys.size());
-  for (size_t i = 0; i < inputKeys.size(); i++)
+  for (size_t i = 0; i < alg.inputs.size(); i++) {
+    //std::cout << "inp " << alg.inputs[i]->objKey() << "\n";
     assert (alg.inputs[i]->objKey() == inputKeys[i]);
+  }
 
-  std::vector<std::string> outputKeys { "bbb", "ccc", "eee", "fff" };
+  std::vector<std::string> outputKeys { "bbb", "ccc", "eee", "fff",
+                                        "hhh.rrr", "jjj" };
   assert (alg.outputs.size() == outputKeys.size());
-  for (size_t i = 0; i < outputKeys.size(); i++)
+  for (size_t i = 0; i < alg.outputs.size(); i++) {
+    //std::cout << "out " << alg.outputs[i]->objKey() << "\n";
     assert (alg.outputs[i]->objKey() == outputKeys[i]);
+  }
 }
 
 
@@ -198,6 +254,27 @@ void test2 (ISvcLocator* svcLoc)
   assert (tool.ukey.storeHandle().name() == "StoreGateSvc");
   assert (tool.ukey.mode() == Gaudi::DataHandle::Updater);
 
+  assert (tool.rdkey.clid() == 293847295);
+  assert (tool.rdkey.key() == "tgg.qqq");
+  assert (tool.rdkey.storeHandle().name() == "FooSvc");
+  assert (tool.rdkey.mode() == Gaudi::DataHandle::Reader);
+
+  assert (tool.wdkey.clid() == 293847295);
+  assert (tool.wdkey.key() == "thh.rrr");
+  assert (tool.wdkey.storeHandle().name() == "BarSvc");
+  assert (tool.wdkey.mode() == Gaudi::DataHandle::Writer);
+  assert (tool.wdkey.contHandleKey().clid() == 293847295);
+  assert (tool.wdkey.contHandleKey().key() == "thh");
+  assert (tool.wdkey.contHandleKey().storeHandle().name() == "BarSvc");
+  assert (tool.wdkey.contHandleKey().mode() == Gaudi::DataHandle::Reader);
+
+  assert (tool.rckey.clid() == 293847295);
+  assert (tool.rckey.key() == "tii");
+  assert (tool.rckey.mode() == Gaudi::DataHandle::Reader);
+
+  assert (tool.wckey.clid() == 293847295);
+  assert (tool.wckey.key() == "tjj");
+  assert (tool.wckey.mode() == Gaudi::DataHandle::Writer);
 
   assert (tool.rhandle.clid() == 293847295);
   assert (tool.rhandle.key() == "tdd");
@@ -214,15 +291,21 @@ void test2 (ISvcLocator* svcLoc)
   assert (tool.uhandle.storeHandle().name() == "StoreGateSvc");
   assert (tool.uhandle.mode() == Gaudi::DataHandle::Updater);
 
-  std::vector<std::string> inputKeys { "taa", "tcc", "tdd", "tff" };
+  std::vector<std::string> inputKeys { "taa", "tcc", "tdd", "tff",
+                                       "tgg.qqq", "thh", "tii" };
   assert (tool.inputs.size() == inputKeys.size());
-  for (size_t i = 0; i < inputKeys.size(); i++)
+  for (size_t i = 0; i < tool.inputs.size(); i++) {
+    //std::cout << "inp " << tool.inputs[i]->objKey() << "\n";
     assert (tool.inputs[i]->objKey() == inputKeys[i]);
+  }
 
-  std::vector<std::string> outputKeys { "tbb", "tcc", "tee", "tff" };
+  std::vector<std::string> outputKeys { "tbb", "tcc", "tee", "tff",
+                                        "thh.rrr", "tjj" };
   assert (tool.outputs.size() == outputKeys.size());
-  for (size_t i = 0; i < outputKeys.size(); i++)
+  for (size_t i = 0; i < tool.outputs.size(); i++) {
+    //std::cout << "out " << tool.outputs[i]->objKey() << "\n";
     assert (tool.outputs[i]->objKey() == outputKeys[i]);
+  }
 }
 
 
