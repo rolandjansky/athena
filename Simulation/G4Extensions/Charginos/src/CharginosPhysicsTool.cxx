@@ -98,7 +98,7 @@ CharginosPhysicsTool* CharginosPhysicsTool::GetPhysicsOption()
 
 void CharginosPhysicsTool::ConstructParticle()
 {
-  ATH_MSG_DEBUG(" ConstructParticle for the Charginos being run");
+  ATH_MSG_DEBUG("ConstructParticle for the Charginos being run");
 
   m_theCharginoPlus = AMSBCharginoPlus::Definition(m_CharginoPlusMass, m_CharginoPlusWidth, m_CharginoPlusCharge, m_CharginoPlusPDGCode, m_CharginoPlusStable, m_CharginoPlusLifetime, m_CharginoPlusShortlived );
 
@@ -110,19 +110,13 @@ void CharginosPhysicsTool::ConstructParticle()
 
 void CharginosPhysicsTool::ConstructProcess()
 {
-  ATH_MSG_DEBUG(" ConstructProcess for Charginos being run");
-
-  G4hIonisation *theIonisation = new G4hIonisation;
-  G4hMultipleScattering *theMSC = new G4hMultipleScattering;
-  G4Transportation *theTransportation=new G4Transportation;
+  ATH_MSG_DEBUG("ConstructProcess for Charginos being run");
 
   G4ProcessManager *charginoPlus = m_theCharginoPlus->GetProcessManager();
   G4ProcessManager *charginoMinus = m_theCharginoMinus->GetProcessManager();
 
-  charginoPlus->AddProcess(theTransportation);
-  charginoMinus->AddProcess(theTransportation);
-  charginoPlus->AddProcess(theMSC,-1,1,1);
-  charginoMinus->AddProcess(theMSC,-1,1,1);
-  charginoPlus->AddProcess(theIonisation,-1,2,2);
-  charginoMinus->AddProcess(theIonisation,-1,2,2);
+  charginoPlus->AddProcess(new G4hMultipleScattering,-1,1,1);
+  charginoMinus->AddProcess(new G4hMultipleScattering,-1,1,1);
+  charginoPlus->AddProcess(new G4hIonisation,-1,2,2);
+  charginoMinus->AddProcess(new G4hIonisation,-1,2,2);
 }
