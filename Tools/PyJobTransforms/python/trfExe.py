@@ -1306,6 +1306,8 @@ class athenaExecutor(scriptExecutor):
                     if 'checkpoint' in self.conf.argdict and self.conf._argdict['checkpoint'].value is True:
                         print >>wrapper,'dmtcp_launch -p 7777 ', ' '.join(self._cmd)
                     elif 'restart' in self.conf.argdict and self.conf._argdict['restart'].value is not None and 'MergeAthenaMP' not in self.name:
+                        restartTarball = self.conf._argdict['restart'].value
+                        print >>wrapper, 'tar -xf %s -C .' % restartTarball
                         print >>wrapper, './dmtcp_restart_script.sh -p 7777'
                     else:
                         print >>wrapper, ' '.join(self._cmd)
