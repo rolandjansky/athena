@@ -22,10 +22,16 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "TrigFTK_RawData/FTK_RawSCT_Cluster.h"
 #include "FTKStandaloneMonitoring/FTKTrkAssoc.h"
 #include "FTKStandaloneMonitoring/CompareFTKTracks.h"
+#include "RunControl/Common/OnlineServices.h"
+#include "ipc/partition.h"
+#include "ipc/core.h"
+#include "oh/OHRootProvider.h"	
+#include "RunControl/Common/Exceptions.h"
 class CompareFTKEvents{
   public:
     CompareFTKEvents();
     CompareFTKEvents(const std::string &BSfile, const std::string &NTUP_FTK_file);
+    void SetupPartition(const std::string &partition_name);
     std::streampos readBSevent(int ievent,std::streampos startbufpos);
     void readNTUP_FTKfile();
     void PrintFiles();
@@ -88,5 +94,9 @@ class CompareFTKEvents{
 							      {"chi2",{100,0,50}},
 							      {"ETA_PHI",{100,-2.5,2.5,100,-3.2,3.2}}};
     std::vector<std::string> variable_list={"pt","eta","phi","d0","z0","chi2","ETA_PHI"};    
+    IPCPartition                                    m_ipcpartition;     // Partition 
+    std::string                         m_name="HLmon_HWSWcomp";
+    OHRootProvider                      *m_ohProvider;
+    TH1F                                *m_histogram;       // Histogram
   };
 #endif //__CompareFTKEvents__

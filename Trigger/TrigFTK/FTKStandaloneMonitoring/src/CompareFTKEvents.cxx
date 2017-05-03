@@ -21,6 +21,37 @@ CompareFTKEvents::CompareFTKEvents(const std::string &BSfile, const std::string 
 	m_myBSfile.clear( );
     }
 }    
+// setting up partition
+void CompareFTKEvents::SetupPartition(const std::string &partition_name)
+{   
+    m_partition_name=partition_name;
+    m_setup_partition=true;
+    // initialization of IPCParition
+    try {
+       m_ipcpartition      = daq::rc::OnlineServices::instance().getIPCPartition();
+       std::cout<<"==> Getting partition from Online Service Instance: you are running in a partition"<<std::endl;
+    }
+    catch ( daq::rc::Exception & ex ){	    
+       ers::warning(ex);  //or throw e; 
+       m_ipcpartition = IPCPartition( m_partition_name );
+       std::cout<<"==> Setting up partition from the name you provided in the command line: "<<m_partition_name<<std::endl;
+       if (m_partition_name.empty()) std::cout<<"!!!! Empty partition name => you should provide it with \"-p [partition_name]\" as argument while executing"<<std::endl;
+    }
+    // Creating the Histogramming provider
+    std::string OHServer("Histogramming"); 
+    std::string OHName("FTK_" + m_name);   
+    std::cout<<"partition initialized"<<std::endl;
+    //initialization of the OH provider
+    try {
+      m_ohProvider = new OHRootProvider ( m_ipcpartition , OHServer, OHName );
+      ERS_LOG("OH: publishing in " << OHServer << "." << m_name );
+    }
+    catch ( daq::oh::Exception & ex)
+    { // Raise a warning or throw an exception.
+      std::cout<<"OH error exception"<<std::endl;
+      ers::warning(ex);  
+    }  
+}
 // defining histograms
 void CompareFTKEvents::SetHistos(std::vector<std::string> histo_list){
     m_histo_list=histo_list;
@@ -275,6 +306,14 @@ void CompareFTKEvents::WriteHistos(){
     m_fout->cd();
     for(auto & imap : map_histo){
         imap.second->Write();
+	if (m_setup_partition){
+	   try { m_ohProvider->publish( imap.second, imap.second->GetName(), true ); }
+	   catch ( daq::oh::Exception & ex)
+	   { // Raise a warning or throw an exception.
+	     std::cout<<"ERROR: OH provider error"<<std::endl;
+	     ers::warning(ex);  //or throw e; 
+	   }
+	}
     }
     for(auto & imap : map_histo_2D){
         imap.second->Write();
