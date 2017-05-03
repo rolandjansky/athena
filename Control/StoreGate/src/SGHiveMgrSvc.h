@@ -64,7 +64,7 @@ public:
    */
   virtual size_t getNumberOfStores() const;
  
-  /** Get the latest new data objects registred in store.
+  /** Get the latest new data objects registered in store.
    *
    * @param  products     [IN]     Slot number (event slot)   *
    * @return Status code indicating failure or success.
