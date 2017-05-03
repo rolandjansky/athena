@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 ///////////////////////////////////////////////////////////////////////////
 //Utils for the main MdtRawDataValAlg.cxx
 //Part of MdtRawDataValAlg.h
@@ -88,12 +92,6 @@ StatusCode MdtRawDataValAlg::binMdtGlobal( TH2* &h, char ecap ) {
     putBox(h, 0, 112, 2, 116); putLine(h,2,112,2,116); putLine(h,0,112,2,112); 
 
     putLine(h,2,52,2,106);
-    //BML 12,13,14    
-    //putBox(h, 2, 74, 5, 76); putLine(h,5,74,5,76);putLine(h,5,78,5,80); putLine(h,2,74,5,74); putLine(h,2,76,5,76);putLine(h,2,76,2,78);
-    //putBox(h, 4, 76, 5, 78);  //putLine(h,4,76,4,78);
-    //putBox(h, 2, 78, 5, 80); putLine(h,2,80,5,80); putLine(h,2,78,5,78); //putLine(h,5,74,5,76);
-    
-    //putLine(h,2,80,2,106);
 
     //Mid Section
     putBox(h, 8, 0, 9, 106); putLine(h,8,0,8,106); putLine(h,8,106,9,106); putLine(h,9,0,9,106);
@@ -117,12 +115,6 @@ StatusCode MdtRawDataValAlg::binMdtGlobal( TH2* &h, char ecap ) {
     putBox(h, 15, 112, 17, 116);   putLine(h,15,112,15,116); putLine(h,15,112,17,112); 			 
 
     putLine(h,15,52,15,106);
-    //BML 12,13,14
-    //putBox(h, 12, 74, 17, 76); putLine(h,12,74,12,76); putLine(h,15,74,12,74); putLine(h,15,76,12,76);
-    //putBox(h, 15, 76, 17, 78); //putBox(h, 12, 76, 13, 78);
-    //putLine(h,15,76,15,78); //putLine(h,13,76,13,78); putLine(h,12,76,12,78);
-    //putBox(h, 12, 78, 17, 80); putLine(h,15,78,12,78); putLine(h,15,80,12,80); putLine(h,12,78,12,80);
-    //putLine(h,15,80,15,106);
 
     //Draw TickMarks
     for(int i = 0; i < 59; i +=1){
@@ -312,30 +304,6 @@ StatusCode  MdtRawDataValAlg::binMdtRegional( TH2* &h, string &xAxis){
     putLine(h, 2, 0, 2, 44); putLine(h, 0, 44, 2, 44);
     putLine(h, 1, 48, 1, 52); putLine(h, 0, 48, 1, 48); putLine(h, 0, 52, 1, 52);
     putLine(h, 2, 56, 2, 64); putLine(h, 0, 56, 2, 56);
-  }
-  if(xAxis=="BMA") {
-    //putBox(h, 3, 44, 6, 48);
-    //putBox(h, 5, 48, 6, 52);
-    //putBox(h, 3, 52, 6, 56);  
-    //putLine(h, 3, 44, 6, 44);
-    //putLine(h, 3, 44, 3, 48);
-    //putLine(h, 3, 48, 6, 48);
-    //putLine(h, 5, 48, 5, 52);
-    //putLine(h, 3, 52, 6, 52);
-    //putLine(h, 3, 52, 3, 56);
-    //putLine(h, 3, 56, 6, 56);
-  }
-  if(xAxis=="BMC") {
-    //putBox(h, 0, 44, 3, 48);
-    //putBox(h, 0, 48, 1, 52);
-    //putBox(h, 0, 52, 3, 56);  
-    //putLine(h, 0, 44, 3, 44);
-    //putLine(h, 3, 44, 3, 48);
-    //putLine(h, 0, 48, 3, 48);
-    //putLine(h, 1, 48, 1, 52);
-    //putLine(h, 0, 52, 3, 52);
-    //putLine(h, 3, 52, 3, 56);
-    //putLine(h, 0, 56, 3, 56);
   }
   if(xAxis=="BIA") {
     putBox(h, 6, 0, 8, 4); putLine(h, 6, 0, 8, 0); putLine(h, 6, 0, 6, 4); putLine(h, 6, 4, 8, 4); //phi 1
@@ -1137,17 +1105,6 @@ int MdtRawDataValAlg::get_bin_for_LB_hist(int region, int layer, int phi, int et
       if(eta == 6 && phi > 11 ) return 16*(eta-1) + phi - 1;
       else return 16*(eta-1) + phi;
 
-      //if(eta < 4 || (eta == 4 && phi < 12)) return 16*(eta-1) + phi;
-      //else if( eta == 4 && phi == 12) return 59;
-      //else if( eta == 4 && phi == 14) return 60;
-      //else if( eta == 4 && phi == 15) return 61;
-      //else if( eta == 5 && phi < 12) return 62 + phi;
-      //else if( eta == 5 && phi == 12) return 73;
-      //else if( eta == 5 && phi == 14) return 74;
-      //else if( eta == 5 && phi == 15) return 75;
-      //else if( eta == 6 && phi < 12) return 76 + phi;
-      //else if( eta == 6 && phi == 14) return 87;
-      //else if( eta == 6 && phi == 15) return 88;
     }
     else if(layer == 2 && region == 0){ // Outer, side A (must be separated due to presence of eta=0 chambers)
       if(eta == 0 && phi == 11) return 0;

@@ -351,25 +351,6 @@ dqm_algorithms::OccupancyHoleFinder::getMDTChamberName(const TH2* histo, int bin
             }
         }
 
-      //if(etaStat <= 3){
-	//if(phiStat%2==0) stat_type = 'S';
-	//else stat_type = 'L';
-	//if(phiStat == 12 || phiStat == 14) stat_type = 'F';
-      //}
-      //else if(etaStat <= 5){
-	//if(phiStat%2 == 0) stat_type = 'S';
-	//else if(phiStat%2 == 1) stat_type = 'L';
-	////fix phiStat
-	//if(phiStat>=13) phiStat+=2;
-	//if(phiStat==12) { stat_type = 'L'; phiStat++; }
-      //}
-      //else {
-	//if(phiStat%2 == 0) stat_type = 'S';
-	//else if(phiStat%2 == 1) stat_type = 'L';
-	//if(phiStat == 12) {stat_type = 'L'; phiStat=15;}
-	//if(phiStat == 13) {stat_type = 'S'; phiStat=16;}
-      //}
-
     }
     else {//'O'
       if( etaStat == 0 ) {
