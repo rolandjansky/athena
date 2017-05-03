@@ -88,6 +88,8 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   , m_RChType(TileFragHash::Default)
   , m_RChUnit(TileRawChannelUnit::ADCcounts)
   , m_maxTimeCorr(75.0)
+  , m_notUpgradeCabling(true)
+  , m_run2(false)
 {
   declareInterface<ICaloCellMakerTool>( this );
   declareInterface<TileCellBuilder>( this );
@@ -234,13 +236,22 @@ StatusCode TileCellBuilder::geoInit(IOVSVC_CALLBACK_ARGS) {
 
   reset(true, false);
 
+  m_run2 = ((TileCablingService::getInstance())->getCablingType() == TileCablingService::RUN2Cabling
+            || (TileCablingService::getInstance())->getCablingType() == TileCablingService::UpgradeABC);
+
   if (m_MBTSContainer.size() > 0)
     ATH_MSG_INFO( "Storing MBTS cells in " << m_MBTSContainer );
 
-  if ( (TileCablingService::getInstance())->getCablingType() != TileCablingService::RUN2Cabling)
+  if (!m_run2) {
     m_E4prContainer = ""; // no E4' container for RUN1
-  else if (m_E4prContainer.size() > 0)
+  } else if (m_E4prContainer.size() > 0) {
     ATH_MSG_INFO( "Storing E4'  cells in " << m_E4prContainer );
+  }
+
+  if ((TileCablingService::getInstance())->getCablingType() == TileCablingService::UpgradeABC) {
+    m_towerE1 = E1_TOWER_UPGRADE_ABC;
+    m_notUpgradeCabling = false;
+  }
 
   ATH_MSG_INFO( "TileCellBuilder initialization completed" );
 
@@ -763,7 +774,7 @@ bool TileCellBuilder::maskBadChannel(TileCell* pCell, HWIdentifier hwid) {
     bad = chStatus.isBad();
 
     // Now checking the DQ status
-    if (!bad) {
+    if (!bad && m_notUpgradeCabling) {
       bad = !(m_DQstatus->isAdcDQgood(ros, drawer, chan, gain)
             && m_beamInfo->isChanDCSgood(ros, drawer, chan));
     }
@@ -827,7 +838,7 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
     bad1 = (gain1 < 0) || chStatus1.isBad();
 
     // Now checking the DQ status
-    if (!bad1) {
+    if (!bad1 && m_notUpgradeCabling) {
       bad1 = !(m_DQstatus->isAdcDQgood(ros1, drawer1, chan1, gain1)
               && m_beamInfo->isChanDCSgood(ros1, drawer1, chan1));
     }
@@ -879,14 +890,14 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
       bad2 = (gain2 < 0) || chStatus2.isBad();
 
       // Now checking the DQ status
-      if (!bad2) {
+      if (!bad2 && m_notUpgradeCabling) {
         bad2 = !(m_DQstatus->isAdcDQgood(ros2, drawer2, chan2, gain2)
                 && m_beamInfo->isChanDCSgood(ros2, drawer2, chan2));
       }
     }
 
     static const TileCablingService * s_cabling = TileCablingService::getInstance();
-    static const bool run2 = (s_cabling->getCablingType() == TileCablingService::RUN2Cabling);
+
     single_PMT_C10 = (((ros2 == TileHWID::EXTBAR_POS && chan1 == 4)
                       || (ros2 == TileHWID::EXTBAR_NEG && chan2 == 4))
                       && !s_cabling->C10_connected(drawer2));
@@ -903,12 +914,12 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
         << drawer2+1 << " status " << chan1 << "/" << chan2 << " "
         << (chStatus1.isBad()?"bad":"good") << "/"
         << (chStatus2.isBad()?"bad":"good") << "/"
-        << ((run2)?" RUN2 cabling": "RUN1 cabling")
+        << ((m_run2)?" RUN2 cabling": "RUN1 cabling")
         << std::endl;
       }
 #endif
       if (chan1 == 4) {
-        if (run2 || !chStatus1.isBad()) {
+        if (m_run2 || !chStatus1.isBad()) {
 #ifdef ALLOW_DEBUG_COUT
           if (cnt < 17) {
             std::cout << "Ene of chan1 was " << pCell->ene1() << " changing to half of " << pCell->ene2()
@@ -921,7 +932,7 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
           --m_drawerEvtStatus[ros1][drawer1].nMaskedChannels; // since it's fake masking, decrease counter by 1 in advance
         }
       } else {
-        if (run2 || !chStatus2.isBad()) {
+        if (m_run2 || !chStatus2.isBad()) {
 #ifdef ALLOW_DEBUG_COUT
           if (cnt < 17) {
             std::cout << "Ene of chan2 was " << pCell->ene2() << " changing to half of " << pCell->ene1()
@@ -1037,7 +1048,7 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
   m_tileTBID->set_do_checks(false);
 
   // Now retrieve the TileDQStatus
-  m_DQstatus = m_beamInfo->getDQstatus();
+  if(m_notUpgradeCabling) m_DQstatus = m_beamInfo->getDQstatus();
 
   /* zero all counters and sums */
   int nTwo = 0;
@@ -1149,6 +1160,10 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
     if (m_useDemoCabling == 2015 && ros == 4 && drawer == 1) {
         int pmt2channel[48] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,
                                26,25,24,29,31,32,27,28,30,35,34,33,38,37,43,44,41,40,39,36,42,47,46,45};
+        channel1 = pmt2channel[channel];
+    } else if ( m_useDemoCabling == 2016 && (/* (ros == 1 && drawer == 0) || */ (ros == 2 && drawer == 1) || (drawer>2) )) {
+        int pmt2channel[48] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,
+                               26,25,24,29,28,27,32,31,30,35,34,33,38,37,36,41,40,39,44,43,42,47,46,45};
         channel1 = pmt2channel[channel];
     }
     Identifier cell_id = (TileCablingService::getInstance())->h2s_cell_id_index (ros, drawer, channel1, index, pmt);
@@ -1271,13 +1286,12 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
           , overflow, underflow, overfit);
 
 
-      if ((TileCablingService::getInstance())->getCablingType() == TileCablingService::RUN2Cabling
-          && channel == E1_CHANNEL && ros > 2) { // Raw channel -> E1 cell.
+      if (m_run2 && channel == E1_CHANNEL && ros > 2) { // Raw channel -> E1 cell.
 
        int drawer2 = (TileCablingService::getInstance())->E1_merged_with_run2(ros,drawer);
        if (drawer2 != 0) { // Raw channel splitted into two E1 cells for Run 2.
          int side = (ros == 3) ? 1 : -1;
-         Identifier cell_id2 = m_tileID->cell_id(TileID::GAPDET, side, drawer2, E1_TOWER, TileID::SAMP_E);
+         Identifier cell_id2 = m_tileID->cell_id(TileID::GAPDET, side, drawer2, m_towerE1, TileID::SAMP_E);
          int index2 = m_tileID->cell_hash(cell_id2);
          TileCell* pCell2 = tileCellsP.nextElementPtr();
          ++nCell;

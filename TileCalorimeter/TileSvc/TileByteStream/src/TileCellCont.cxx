@@ -12,6 +12,7 @@
 #include "TileDetDescr/TileDetDescrManager.h"
 #include "TileEvent/TileCellCollection.h"
 #include "TileEvent/TileCell.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 
 #include "TileByteStream/TileHid2RESrcID.h"
 #include "TileByteStream/TileCellCont.h"
@@ -89,7 +90,8 @@ StatusCode TileCellCont::initialize() {
   }
 
   // Get pointer to TileCablingService
-  TileCablingService * cabling = TileCablingService::getInstance();
+  TileCablingService* cabling = TileCablingService::getInstance();
+  int maxChannels = cabling->getMaxChannels();
 
   m_hash.initialize(0);
   m_mbts_rods.clear();
@@ -98,9 +100,9 @@ StatusCode TileCellCont::initialize() {
   int ID_of_Col = 0;
   TileHid2RESrcID src(tileHWID);
   m_MBTS = new TileCellCollection(ID_of_Col, SG::OWN_ELEMENTS);
-  for (int section = 1; section <= 4; ++section) {
-    for (int drawer = 0; drawer < 64; ++drawer) {
-      int frag = tileHWID->frag(section, drawer);
+  for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
+    for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
+      int frag = tileHWID->frag(ros, drawer);
       m_mapMBTS[frag] = 0xFFFF;
       // One event number per collection
       m_eventNumber.push_back(0xFFFFFFFF);
@@ -108,18 +110,18 @@ StatusCode TileCellCont::initialize() {
       // Tries to find the TileRawChannel -> TileCell correpondence
       int index, pmt, cell_hash;
       std::vector<int> Rw2Pmt;
-      Rw2Pmt.resize(48, -1);
+      Rw2Pmt.resize(maxChannels, -1);
       std::vector<int> Rw2Cell;
-      Rw2Cell.resize(48, -1);
+      Rw2Cell.resize(maxChannels, -1);
       std::vector<int_pair> tmp;
 
       bool one_good = false;
-      for (int channel = 0; channel < 48; ++channel) {
-        HWIdentifier channelID = tileHWID->channel_id(section, drawer, channel);
+      for (int channel = 0; channel < maxChannels; ++channel) {
+        HWIdentifier channelID = tileHWID->channel_id(ros, drawer, channel);
         Identifier cell_id = cabling->h2s_cell_id_index(channelID, index, pmt);
         if (index == -2) { // MBTS cell, only one per drawer
           m_mbts_rods.push_back(src.getRodID(frag));
-          m_mbts_IDs.push_back(((section - 1) * 64 + drawer));
+          m_mbts_IDs.push_back(((ros - 1) * TileCalibUtils::MAX_DRAWER + drawer));
           CaloDetDescrElement * caloDDE = (mbtsMgr) ? mbtsMgr->get_element(cell_id) : NULL;
           TileCell* myMBTSCell = new TileCell(caloDDE, cell_id, 0.0, 0.0, 0, 0, CaloGain::TILEONELOW);
           m_MBTS->push_back(myMBTSCell);
@@ -129,7 +131,7 @@ StatusCode TileCellCont::initialize() {
         } else if (index >= 0) { // normal cell
           one_good = one_good || (!badChanTool->getChannelStatus(channelID).isBad());
           Rw2Pmt[channel] = pmt;
-          if (channel > 0 || section != 2) { // ignoring D0 (first channel) in negative barrel 
+          if (channel > 0 || ros != 2) { // ignoring D0 (first channel) in negative barrel 
             cell_hash = tileID->cell_hash(cell_id);
             tmp.push_back(int_pair(channel, cell_hash));
           }
@@ -159,7 +161,7 @@ StatusCode TileCellCont::initialize() {
         }
       }
 
-      if (drawer == 0 || section == 3 || section == 4) {
+      if (drawer == 0 || ros == 3 || ros == 4) {
 #ifndef NDEBUG
         int idxraw = 0;
         for (std::vector<int>::iterator i = Rw2Cell.begin(); i != Rw2Cell.end(); ++i) {
@@ -168,13 +170,13 @@ StatusCode TileCellCont::initialize() {
 #endif
         // One needs to keep track of Rw2Cell
         for (std::vector<int>::iterator i = Rw2Cell.begin(); i != Rw2Cell.end(); ++i)
-          m_Rw2Cell[section - 1].push_back(*i);
+          m_Rw2Cell[ros - 1].push_back(*i);
         for (std::vector<int>::iterator i = Rw2Pmt.begin(); i != Rw2Pmt.end(); ++i)
-          m_Rw2Pmt[section - 1].push_back(*i);
+          m_Rw2Pmt[ros - 1].push_back(*i);
       } // End of if first drawer of Barrel or Ext
 
     } // end of drawer for
-  } // end of section for
+  } // end of ros for
 #ifndef NDEBUG
   std::cout << "Number of RODs is : " << m_mbts_rods.size() << std::endl;
   for (unsigned int k = 0; k < m_mbts_rods.size(); k++)

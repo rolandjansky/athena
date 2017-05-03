@@ -246,7 +246,7 @@ def coolTimeFromRunLumi(runNum, lbkNum):
 #______________________________________________________________________
 def decodeTimeString(timeString):
     """
-    Returns UNIX time stamp given an input time string
+    Retruns UNIX time stamp given an input time string
     """
     return int(time.mktime(time.strptime(timeString,"%Y-%m-%d %H:%M:%S")))
 

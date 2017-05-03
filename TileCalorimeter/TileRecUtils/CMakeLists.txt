@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           TileCalorimeter/TileConditions
                           TileCalorimeter/TileEvent
+                          TileCalorimeter/TileSimEvent
                           TileCalorimeter/TileIdentifier
                           PRIVATE
                           Calorimeter/CaloDetDescr
@@ -41,13 +42,13 @@ atlas_add_library( TileRecUtilsLib
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel Identifier GaudiKernel TileEvent TileIdentifier CaloUtilsLib TileConditionsLib CaloDetDescrLib StoreGateLib SGtests
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel Identifier GaudiKernel TileEvent TileSimEvent TileIdentifier CaloUtilsLib TileConditionsLib CaloDetDescrLib StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} CaloEvent AthAllocators xAODEventInfo TileCalibBlobObjs TileDetDescr PathResolver )
 
 atlas_add_component( TileRecUtils
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier CaloUtilsLib AthenaBaseComps AthenaKernel Identifier GaudiKernel TileConditionsLib TileEvent TileIdentifier CaloDetDescrLib CaloEvent AthAllocators StoreGateLib SGtests xAODEventInfo TileCalibBlobObjs TileDetDescr PathResolver TileRecUtilsLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier CaloUtilsLib AthenaBaseComps AthenaKernel Identifier GaudiKernel TileConditionsLib TileEvent TileSimEvent TileIdentifier CaloDetDescrLib CaloEvent AthAllocators StoreGateLib SGtests xAODEventInfo TileCalibBlobObjs TileDetDescr PathResolver TileRecUtilsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

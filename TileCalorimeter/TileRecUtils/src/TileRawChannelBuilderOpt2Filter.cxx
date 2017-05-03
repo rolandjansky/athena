@@ -89,6 +89,8 @@ TileRawChannelBuilderOpt2Filter::TileRawChannelBuilderOpt2Filter(const std::stri
   declareProperty("TimeCorrection", m_correctTimeNI = false);
   declareProperty("BestPhase",m_bestPhase = false);
   declareProperty("EmulateDSP",m_emulateDsp = false);
+  declareProperty("NoiseThresholdHG",m_noiseThresholdHG = 5);
+  declareProperty("NoiseThresholdLG",m_noiseThresholdLG = 3);
 }
 
 
@@ -422,9 +424,9 @@ double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
     } else { // With iterations => 3 cases defined for correct pedestal treatment
 
       // values used for pedestal-like events when iterations are performed
-      const int sigma_hi = 5;
-      const int sigma_lo = 3;
-      int sigma = (gain) ? sigma_hi : sigma_lo;
+      //const int sigma_hi = 5;
+      //const int sigma_lo = 3;
+      int sigma = (gain) ? m_noiseThresholdHG : m_noiseThresholdLG;
       int digits_size_1 = m_digits.size() - 1;
 
       // Signal events: OF with iterations
