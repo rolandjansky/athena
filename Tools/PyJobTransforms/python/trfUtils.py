@@ -1239,3 +1239,20 @@ def ValgrindCommand(
             format = returnFormat
         ))
         raise(Exception)
+
+
+# calculate cpuTime from os.times() times tuple
+def calcCpuTime(start, stop):
+    cpuTime = None
+    if start and stop:
+        cpuTime = reduce(lambda x1, x2: x1+x2, map(lambda x1, x2: x2-x1, start[2:4], stop[2:4]))
+
+    return cpuTime
+
+# calculate wallTime from os.times() times tuple
+def calcWallTime(start, stop):
+    wallTime = None
+    if start and stop:
+        wallTime = stop[4] - start[4]
+
+    return wallTime
