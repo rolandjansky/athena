@@ -2216,6 +2216,9 @@ def setupMenu():
         ['2mu10_bJpsimumu',               'L1_2MU10', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
         ['2mu10_bUpsimumu',               'L1_2MU10', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
 
+        ['mu6_2mu4_bNocut_L1MU6_3MU4', 'L1_MU6_3MU4', ['L1_MU6','L1_2MU4'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1],
+        ['2mu6_mu4_bNocut_L12MU6_3MU4', 'L1_2MU6_3MU4', ['L1_2MU6','L1_MU4'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1],
+
 
         ['mu11_2mu4noL1_bTau_L1MU11_2MU6', 'L1_MU11_2MU6', ['L1_MU11','L2_mu11'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','2mu4noL1']]],
         ['mu11_mu6noL1_bTau_L1MU11_2MU6',  'L1_MU11_2MU6', ['L1_MU11','L2_mu6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','mu6noL1']]],
