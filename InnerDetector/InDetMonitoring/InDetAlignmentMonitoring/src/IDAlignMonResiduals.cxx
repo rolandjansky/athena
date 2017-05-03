@@ -2415,7 +2415,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
       
       if ( nIBLHitsPerLB > m_minIBLhits )
 	{
-	  TH1F* projection_lumiblock = (TH1F*) m_pix_b0_resXvsetaLumiBlock->ProjectionY(("iblBowingProjection_lumiblock_"+intToString(lumibin-1)).c_str(),lumibin,lumibin);
+	  TH1D* projection_lumiblock = (TH1D*) m_pix_b0_resXvsetaLumiBlock->ProjectionY(("iblBowingProjection_lumiblock_"+intToString(lumibin-1)).c_str(),lumibin,lumibin);
 	  //if (projection_lumiblock->GetEntries() > min_entries)
 	  //{
 	  MakeStaveShapeFit(mag,mag_er,base,base_er,projection_lumiblock);
