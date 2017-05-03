@@ -834,7 +834,31 @@ def defineCPSGroups():
                                             ],
 
         'RATE:CPS:HLT_j390_a10t_SMC_L1HT' : [ 'j390_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',
-                                                'j390_a10t_lcw_jes_L1HT190-J15.ETA21',
+                                              'j390_a10t_lcw_jes_L1HT190-J15.ETA21',
+                                            ],
+
+        'RATE:CPS:HLT_j420_a10t_SMC_L1J100' : [ 'j420_a10t_lcw_jes_30smcINF_L1J100',
+                                                'j420_a10t_lcw_jes_L1J100',
+                                            ],
+
+        'RATE:CPS:HLT_j420_a10t_SMC_L1SC111': [ 'j420_a10t_lcw_jes_30smcINF_L1SC111',
+                                                'j420_a10t_lcw_jes_L1SC111',
+                                            ],
+
+        'RATE:CPS:HLT_j420_a10t_SMC_L1HT' : [ 'j420_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',
+                                              'j420_a10t_lcw_jes_L1HT190-J15.ETA21',
+                                            ],
+
+        'RATE:CPS:HLT_j440_a10t_SMC_L1J100' : [ 'j440_a10t_lcw_jes_30smcINF_L1J100',
+                                                'j440_a10t_lcw_jes_L1J100',
+                                            ],
+
+        'RATE:CPS:HLT_j440_a10t_SMC_L1SC111': [ 'j440_a10t_lcw_jes_30smcINF_L1SC111',
+                                                'j440_a10t_lcw_jes_L1SC111',
+                                            ],
+
+        'RATE:CPS:HLT_j440_a10t_SMC_L1HT' : [ 'j440_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',
+                                              'j440_a10t_lcw_jes_L1HT190-J15.ETA21',
                                             ],
 
         'RATE:CPS:HLT_2j330_a10t_SMC_L1J100': [ '2j330_a10t_lcw_jes_30smcINF_L1J100',
@@ -859,6 +883,18 @@ def defineCPSGroups():
 
         'RATE:CPS:HLT_2j340_a10t_SMC_L1HT'  : [ '2j340_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',
                                                 '2j340_a10t_lcw_jes_L1HT190-J15.ETA21',
+                                            ],
+
+        'RATE:CPS:HLT_2j350_a10t_SMC_L1J100': [ '2j350_a10t_lcw_jes_30smcINF_L1J100',
+                                                '2j350_a10t_lcw_jes_L1J100',
+                                            ],
+
+        'RATE:CPS:HLT_2j350_a10t_SMC_L1SC111':[ '2j350_a10t_lcw_jes_30smcINF_L1SC111',
+                                                '2j350_a10t_lcw_jes_L1SC111',
+                                            ],
+
+        'RATE:CPS:HLT_2j350_a10t_SMC_L1HT'  : [ '2j350_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',
+                                                '2j350_a10t_lcw_jes_L1HT190-J15.ETA21',
                                             ],
 
         # Multi-jet chains
