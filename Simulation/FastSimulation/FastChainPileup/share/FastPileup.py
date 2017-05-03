@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 # FastPileup.py - set up fast pileup emulation using in-time generator
 # Richard Hawkings, Vladimir Lyubushkin, 23/4/15
 
