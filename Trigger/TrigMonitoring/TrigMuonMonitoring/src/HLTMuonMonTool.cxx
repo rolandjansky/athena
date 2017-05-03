@@ -51,7 +51,7 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
    m_bunchTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool")
    //   m_muonSelectorTool("Rec::MuonSelectorTool") // YY added -> removed
    
-  //initialization of muFast parameters
+  //initialization of L2MuonSA parameters
 
   //initialization of muComb parameters
 
@@ -77,7 +77,7 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   declareProperty("monitoring_muon_Support", m_chainSupport);
   declareProperty("HI_pp_mode", m_HI_pp_mode);
   
-  //construction of muFast parameters
+  //construction of L2MuonSA parameters
 
   //construction of muComb parameters
 
@@ -101,7 +101,7 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   m_maxindep = 0;
   m_maxESbr = 0;
   m_requestESchains = 0;
-  m_fMuFast = 0;
+  m_fL2MuonSA = 0;
   m_fMuComb = 0;
   m_fEFCB = 0;
   m_fMuGirl = 0;
@@ -121,7 +121,7 @@ HLTMuonMonTool::~HLTMuonMonTool()
   ATH_MSG_VERBOSE(" destruction of HLTMuonMonTool");
   //destruction of common parameters
 
-  //destruction of muFast parameters
+  //destruction of L2MuonSA parameters
 
   //destruction of muComb parameters
 
@@ -146,7 +146,6 @@ StatusCode HLTMuonMonTool::init()
   ATH_MSG_DEBUG("init being called");
   // some switches and flags
   m_requestESchains = true;
-  
   //initialization for common tools
   StatusCode scAS;
 
@@ -477,7 +476,7 @@ StatusCode HLTMuonMonTool::init()
   m_allESchain.push_back("HLT_Jpsimumu_idperf");
 
   // initialising algorithm index for summary histos
-  m_fMuFast = (float)iMuFast;
+  m_fL2MuonSA = (float)iL2MuonSA;
   m_fMuComb = (float)iMuComb;
   m_fEFCB = (float)iEFCB;
   m_fEFSA = (float)iEFSA;
@@ -496,10 +495,10 @@ StatusCode HLTMuonMonTool::init()
     m_iMSL = 54;  // 60 GeV
     m_iMSH = 75;  // 100 GeV  
   }else{
-    m_iSTDL = 91;  // 40 GeV
-  m_iSTDH = 120; // 100 GeV
-  m_iMSL = 105;  // 60 GeV
-  m_iMSH = 120;  // 100 GeV
+    m_iSTDL = 105;//60GeV 91;  // 40 GeV
+    m_iSTDH = 120; // 100 GeV
+    m_iMSL = 105;  // 60 GeV
+    m_iMSH = 120;  // 100 GeV
   /* m_iSTDL = 71;  // 22.5 GeV
   m_iSTDH = 100;  // 50 GeV
   m_iMSL = 91;  // 40 GeV
@@ -557,11 +556,11 @@ StatusCode HLTMuonMonTool::init()
     m_bins_phi[iphi] = (dphi*static_cast<Double_t>(iphi)-(TMath::Pi()));
   }
 
-  //muFast
-  StatusCode scMuFast;
-  scMuFast=initMuFastDQA();
-  if( scMuFast.isFailure() ){
-    ATH_MSG_VERBOSE("initMuFastDQA failed");
+  //L2MuonSA
+  StatusCode scL2MuonSA;
+  scL2MuonSA=initL2MuonSADQA();
+  if( scL2MuonSA.isFailure() ){
+    ATH_MSG_VERBOSE("initL2MuonSADQA failed");
   }
   //muComb
   StatusCode scMuComb;
@@ -600,7 +599,7 @@ StatusCode HLTMuonMonTool::init()
     ATH_MSG_VERBOSE("initMuZTPDQA failed");
   }
 
-  int sc = scMuFast * scMuComb * scMuIso * scTileMu * scMuonEF * scMuGirl * scMuZTP;
+  int sc = scL2MuonSA * scMuComb * scMuIso * scTileMu * scMuonEF * scMuGirl * scMuZTP;
 
   if(sc==1){
     return StatusCode::SUCCESS;
@@ -621,7 +620,7 @@ StatusCode HLTMuonMonTool::book()
   ATH_MSG_DEBUG("book being called");
   
   m_histdir="HLT/MuonMon/Common";
-  m_histdirmufast="HLT/MuonMon/muFast";
+  m_histdirmufast="HLT/MuonMon/L2MuonSA";
   m_histdirmucomb="HLT/MuonMon/muComb";
   m_histdirmuiso="HLT/MuonMon/muIso";
   m_histdirtilemu="HLT/MuonMon/TileMu";
@@ -673,11 +672,11 @@ StatusCode HLTMuonMonTool::book()
     ATH_MSG_VERBOSE("bookChainDQA failed");
   }
 
-  //muFast
-  StatusCode scMuFast;
-  scMuFast=bookMuFastDQA();
-  if( scMuFast.isFailure() ){
-    ATH_MSG_VERBOSE("bookMuFastDQA failed");
+  //L2MuonSA
+  StatusCode scL2MuonSA;
+  scL2MuonSA=bookL2MuonSADQA();
+  if( scL2MuonSA.isFailure() ){
+    ATH_MSG_VERBOSE("bookL2MuonSADQA failed");
   }
   //muComb
   StatusCode scMuComb;
@@ -716,7 +715,7 @@ StatusCode HLTMuonMonTool::book()
     ATH_MSG_VERBOSE("bookMuZTPDQA failed");
   }
 
-  int sc = scCommon * scChain * scMuFast * scMuComb * scMuIso * scTileMu * scMuonEF * scMuGirl * scMuZTP;
+  int sc = scCommon * scChain * scL2MuonSA * scMuComb * scMuIso * scTileMu * scMuonEF * scMuGirl * scMuZTP;
 
   if(sc==1){
     return StatusCode::SUCCESS;
@@ -749,13 +748,12 @@ StatusCode HLTMuonMonTool::fill()
   }
   hist("Common_Counter", m_histdir )->Fill((float)EVENT);
   if(!m_HI_pp_mode)hist("HI_PP_Flag", m_histdir)->Fill(0);
-
   /*
   auto chainGroup = getTDT()->getChainGroup("HLT_mu.*");
   for(auto &trig : chainGroup->getListOfTriggers()) {
     auto cg = getTDT()->getChainGroup(trig);
     std::string thisTrig = trig;
-    std::cout<<"testchenyhlt chainlist "<<thisTrig.c_str()<<std::endl;
+    ATH_MSG_DEBUG("muonhlt chainlist "<<thisTrig.c_str());
   }*/
   std::vector<std::string>::const_iterator it;
   int itr;
@@ -786,17 +784,17 @@ StatusCode HLTMuonMonTool::fill()
     scChain=StatusCode::RECOVERABLE;
   }
 
-  // muFast
-  StatusCode scMuFast;
+  // L2MuonSA
+  StatusCode scL2MuonSA;
   try {
-    scMuFast=fillMuFastDQA();
-    if( scMuFast.isFailure() ) {
-      ATH_MSG_VERBOSE("fillMuFastDQA failed");
+    scL2MuonSA=fillL2MuonSADQA();
+    if( scL2MuonSA.isFailure() ) {
+      ATH_MSG_VERBOSE("fillL2MuonSADQA failed");
     }
   }
   catch(...) {
-    ATH_MSG_ERROR("Exception thrown by fillMuFastDQA");
-    scMuFast=StatusCode::RECOVERABLE;
+    ATH_MSG_ERROR("Exception thrown by fillL2MuonSADQA");
+    scL2MuonSA=StatusCode::RECOVERABLE;
   }
 
   // muComb
@@ -878,12 +876,12 @@ StatusCode HLTMuonMonTool::fill()
     scMuZTP=StatusCode::RECOVERABLE;
   }
 
-  int sc = scCommon * scRecMuon * scChain * scMuFast * scMuComb * scMuIso * scTileMu * scMuonEF * scMuGirl * scMuZTP;
+  int sc = scCommon * scRecMuon * scChain * scL2MuonSA * scMuComb * scMuIso * scTileMu * scMuonEF * scMuGirl * scMuZTP;
 
   ATH_MSG_DEBUG( " scCommon " << scCommon  
 		<< " scRecMuon " << scRecMuon 
 		<< " scChain " << scChain
-                << " scMuFast " << scMuFast
+                << " scL2MuonSA " << scL2MuonSA
                 << " scMuComb " << scMuComb
                 << " scMuIso " << scMuIso
                 << " scTileMu " << scTileMu
@@ -923,17 +921,17 @@ StatusCode HLTMuonMonTool::proc()
     scChain=StatusCode::RECOVERABLE;
   }
 
-  // muFast
-  StatusCode scMuFast;
+  // L2MuonSA
+  StatusCode scL2MuonSA;
   try {
-    scMuFast=procMuFastDQA();
-    if( scMuFast.isFailure() ){
-      ATH_MSG_VERBOSE("procMuFastDQA failed");
+    scL2MuonSA=procL2MuonSADQA();
+    if( scL2MuonSA.isFailure() ){
+      ATH_MSG_VERBOSE("procL2MuonSADQA failed");
     }
   }
   catch(...) {
-    ATH_MSG_ERROR("Exception thrown by procMuFastDQA");
-    scMuFast=StatusCode::RECOVERABLE;
+    ATH_MSG_ERROR("Exception thrown by procL2MuonSADQA");
+    scL2MuonSA=StatusCode::RECOVERABLE;
   }
 
   // muComb
@@ -1016,7 +1014,7 @@ StatusCode HLTMuonMonTool::proc()
 
   //
 
-  int sc = scChain * scMuFast * scMuComb * scMuIso * scTileMu * scMuonEF * scMuGirl * scMuZTP;
+  int sc = scChain * scL2MuonSA * scMuComb * scMuIso * scTileMu * scMuonEF * scMuGirl * scMuZTP;
 
   if(sc==1){
     return StatusCode::SUCCESS;
