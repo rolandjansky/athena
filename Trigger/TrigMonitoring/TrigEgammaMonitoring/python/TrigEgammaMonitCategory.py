@@ -3,13 +3,13 @@
 #Categories currently used by offline Egamma TO monitoring tool
 #Important to keep lists updated
 primary_single_ele = ['HLT_e24_lhtight_nod0','HLT_e26_lhtight_nod0','HLT_e60_lhmedium_nod0','HLT_e120_lhloose_nod0','HLT_e140_lhloose_nod0']
-primary_single_ele_iso =['HLT_e24_lhtight_nod0_ivarloose','HLT_e26_lhtight_nod0_ivarloose']
+primary_single_ele_iso =['HLT_e24_lhtight_nod0_ivarloose','HLT_e26_lhtight_nod0_ivarloose','HLT_e28_lhtight_nod0_ivarloose']
 monitoring_Zee = ['HLT_e26_lhtight_nod0_e15_etcut_Zee']
 monitoring_Jpsiee = ['HLT_e5_lhtight_nod0_e4_etcut','HLT_e5_lhtight_nod0_e4_etcut_Jpsiee']
 primary_single_pho = ['HLT_g120_loose','g140_loose']
 
 #Other categories
-primary_double_ele = ['HLT_2e17_lhvloose_nod0']
+primary_double_ele = ['HLT_2e17_lhvloose_nod0','HLT_2e19_lhvloose_nod0']
 monitoring_ele_idperf = ['HLT_e26_lhtight_idperf']
 primary_double_pho = ['HLT_g35_loose_g25_loose','HLT_g35_medium_g25_medium','HLT_2g20_tight','HLT_2g22_tight']
 
@@ -82,7 +82,6 @@ monitoring_mam = {'primary_single_ele_iso':'HLT_e26_lhtight_nod0_ivarloose',
     'primary_single_pho':'HLT_g140_loose',
     'monitoring_Jpsiee' : 'HLT_e5_lhtight_nod0'}
     #'monitoring_Zee':'HLT_e26_lhtight_nod0_e15_etcut_Zee',
-monitoring_mam = {} 
 
 # Cosmic items
 monitoring_electron_cosmic=['HLT_e0_perf_L1EM3_EMPTY']

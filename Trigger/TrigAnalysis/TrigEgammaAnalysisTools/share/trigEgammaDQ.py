@@ -36,11 +36,11 @@ dqlist = {'Efficiency':
         ['eff_et','eff_eta','eff_phi','eff_mu',
             'IneffisEMLHTight','IneffisEMLHMedium','IneffisEMLHLoose']}
 dqlevel = ['HLT']
-complist={#'L1_EM22VHI':'HLT_e26_lhtight_nod0_ivarloose',
-        #'L1_EM24VHI':'HLT_e28_lhtight_nod0_ivarloose',
-        #'HLT_e26_lhtight_nod0':'HLT_e26_lhtight_nod0_ivarloose',
-        #'HLT_e28_lhtight_nod0_ivarloose':'HLT_e28_lhtight_smooth_ivarloose',
+complist={'HLT_e17_lhvloose_nod0_ringer_L1EM15VHI':'HLT_e17_lhvloose_nod0_L1EM15VHI',
+        'HLT_e26_lhtight_nod0_ivarloose_L1EM22VHIM':'HLT_e26_lhtight_nod0_ivarloose',
+        'HLT_e26_lhtight_nod0_ivarloose':'HLT_e26_lhmedium_nod0_ivarmedium_icalomedium',
         'HLT_e28_lhtight_nod0_ringer_ivarloose':'HLT_e28_lhtight_nod0_ivarloose',
+        'HLT_e26_lhmedium_nod0_ivarmedium_icalomedium':'HLT_e26_lhmedium_nod0_ringer_ivarmedium_icalomedium'
         }
 
 #########################################################
@@ -201,8 +201,10 @@ def makeCanvas(h1,trigger,name,run="",lumi=""):
     leg = TLegend(0.4,0.2,0.70,0.30)
     setLegend1(leg,h1,trigger)
     ATLASLabel(0.2,0.87,"Internal")
-    ATLASRunNumberLabel(0.7,0.85,run)
-    ATLASLumiLabel(0.2,0.85,lumi)
+    if run:
+        ATLASRunNumberLabel(0.7,0.85,run)
+    if lumi:
+        ATLASLumiLabel(0.2,0.85,lumi)
     oname="plot_Run_"+run+"_"+hname+"_"+trigger+"_"+name+".eps"
     #oname2="plot_Run_"+trigger+"_"+hname+"_"+name+".C"
     gPad.RedrawAxis()
@@ -237,14 +239,21 @@ def makeCanvas2(h1,h2,title,name,name2,run="",lumi="",run2=""):
     
     h1.Draw()
     h2.Draw("SAME")
-    leg = TLegend(0.4,0.2,0.7,0.40)
-    if not run2:
+    
+    if 'Ineff' in hname:
+        leg = TLegend(0.2,0.7,0.5,0.56)
+        setLegend2(leg,h1,h2,name,name2)
+    elif not run2:
+        leg = TLegend(0.4,0.2,0.7,0.40)
         setLegend2(leg,h1,h2,name,name2)
     else:
+        leg = TLegend(0.4,0.2,0.7,0.40)
         setLegend2(leg,h1,h2,name,run2)
     ATLASLabel(0.2,0.85,"Internal")
-    ATLASRunNumberLabel(0.7,0.85,run)
-    ATLASLumiLabel(0.2,0.85,lumi)
+    if run:
+        ATLASRunNumberLabel(0.7,0.85,run)
+    if lumi:
+        ATLASLumiLabel(0.2,0.85,lumi)
     oname="plot_Run_"+run+"_"+hname+"_"+name+"_"+name2+".eps"
     #oname2="plot_Run_"+run+"_"+hname+"_"+name+"_"+name2+".C"
     gPad.RedrawAxis()
@@ -304,7 +313,7 @@ def setLegend1(leg,histo1,trigName):
    #TLegend *leg = new TLegend(0.40,0.25,0.75,0.35,NULL,"brNDC");
     leg.SetBorderSize(0)
     leg.SetTextFont(42)
-    leg.SetTextSize(0.042)
+    leg.SetTextSize(0.032)
     leg.SetLineColor(1)
     leg.SetLineStyle(1)
     leg.SetLineWidth(1)
@@ -317,7 +326,7 @@ def setLegend2(leg,histo1,histo2,trigName,trigName2):
    #TLegend *leg = new TLegend(0.40,0.25,0.75,0.35,NULL,"brNDC");
     leg.SetBorderSize(0)
     leg.SetTextFont(42)
-    leg.SetTextSize(0.042)
+    leg.SetTextSize(0.032)
     leg.SetLineColor(1)
     leg.SetLineStyle(1)
     leg.SetLineWidth(1)
@@ -331,14 +340,6 @@ def setLegend2(leg,histo1,histo2,trigName,trigName2):
 def montage(plotlist,name,stream):
     log.debug(name)
     plot_names_str = ' '.join(plotlist)
-    #outstream=open(name + stream + 'html','w')
-    #for plot in plotlist:
-    #    try:
-    #        width, height = Image.open( image_name ).size
-    #        print >> outstream, '<img src="%s" width="%s" height="%s">'%(image_name,width,height)
-    #    except:
-    #        log.error('Unexpected error for file %s.'%plot)
-    #outstream.close()
     cmd = 'montage -tile 2x2 -geometry 800x800+3+3 {0} {1}'.format(plot_names_str, name + stream + '.pdf')
     subprocess.call(cmd, shell=True)
     cmd = 'tar -czf {0} *.eps --remove-files'.format(name + stream + '.tar.gz')
@@ -451,7 +452,11 @@ def createTriggerSeqPlots(holders):
                     if len(holders[seq].getPlots(trigger,key)) == 0:
                         log.warning('Empty holder for %s, %s',trigger,key)
                         continue;
-                    h[seq]=holders[seq].getPlots(trigger,key)[i]
+                    seq_plots=holders[seq].getPlots(trigger,key)
+                    for plot in seq_plots:
+                        if 'Ineff' in plot.GetName():
+                            seq_plots.remove(plot)
+                    h[seq]=seq_plots[i]
                 if h:
                     pname=makeCanvasLevels(h,trigger,holders['HLT'].RunNumber)
                     slist.append(pname)
@@ -468,6 +473,8 @@ def createTriggerComparisonPlots(holder):
             if(trigger in complist):
                 log.debug("Reference trigger %s",complist[trigger])
                 h2 = holder.getPlots(complist[trigger],key)
+                if not h2:
+                    continue
                 log.debug("found comparison plot %s",h2)
             i=0
             pclist=[]
@@ -511,7 +518,10 @@ def process(infname, basepath, doLumi=False,run="", rinfname="", rbasepath=""):
     if run:
         if doLumi:
             from TrigCostPython import TrigCostCool
-            lbset=TrigCostCool.GetLumiblocks(int(run),-1,-1,"")
+            try:
+                lbset=TrigCostCool.GetLumiblocks(int(run),-1,-1,"")
+            except:
+                log.warning('Unable to retrieve lumi')
     
             if(lbset): 
                 print "%-40s % 9.2g %-10s" % ("Recorded Luminosity:  ",lbset.GetRecordedLumi()/(1e6),"pb^{-1}")
@@ -540,9 +550,9 @@ def process(infname, basepath, doLumi=False,run="", rinfname="", rbasepath=""):
         holders[key].setSequence(key)
         holders[key].setRunNumber(run) 
         recurse(topindir,holders[key],key)
-        #print holder.Efficiency
-        print holders[key].RunNumber
-        print holders[key].Triggers
+        log.info(holders[key].name)
+        log.info(holders[key].RunNumber)
+        log.info(holders[key].Triggers)
         createPlots(holders[key],stream)
     log.info("Creating Sequence comparison")
     slist=createTriggerSeqPlots(holders) 
