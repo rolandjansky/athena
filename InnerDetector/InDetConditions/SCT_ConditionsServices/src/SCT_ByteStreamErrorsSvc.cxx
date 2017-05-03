@@ -657,6 +657,16 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
   unsigned int tempMaskedChips2(0);
   if(type==0) {
     // both link-0 and link-1 are working
+
+    // Some modules send hits on side 0 via link 1 and hits on side 1 via link 0.
+    // In that case, information is swapped.
+    if((6<firstTempMaskedChip_side0 and firstTempMaskedChip_side0<=12) or
+       (0<firstTempMaskedChip_side1 and firstTempMaskedChip_side1<= 6)) {
+      int swapFirstTempMaskedChip_side0(firstTempMaskedChip_side0);
+      firstTempMaskedChip_side0 = firstTempMaskedChip_side1;
+      firstTempMaskedChip_side1 = swapFirstTempMaskedChip_side0;
+    }
+
     if(firstTempMaskedChip_side0>0) {
       for(int iChip(firstTempMaskedChip_side0-1); iChip<6; iChip++) {
 	tempMaskedChips2 |= (1<<iChip);
