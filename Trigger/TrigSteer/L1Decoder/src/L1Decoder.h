@@ -32,8 +32,13 @@ protected: // protected to support unit testing
   //  StatusCode flagPassingRoIs(TrigCompositeUtils::DecisionContainer* rois,
   //			     const xAOD::TrigCompositeUtils* chains) const;
   virtual StatusCode readConfiguration(); 
-  StatusCode prescaleChains(const std::vector<HLT::Identifier>& active,
-			    std::vector<HLT::Identifier>& prescaled) const;
+  StatusCode prescaleChains(const HLT::IDVec& active,
+			    HLT::IDVec& prescaled) const;
+
+  StatusCode saveChainsInfo(const HLT::IDVec& chains,
+			    xAOD::TrigCompositeContainer* storage,
+			    const std::string& type) const;
+
   
 private:
   SG::ReadHandleKey<ROIB::RoIBResult> m_RoIBResultKey;
@@ -44,7 +49,7 @@ private:
   //  ToolHandleArray<RoIUnpackingTool> m_roiUnpackers;
   
   CTPUnpackingTool::IndexToIdentifiers m_ctpIDToChain;
-  HLT::IDtoVIDMap m_thresholdToChain;
+  HLT::IDtoIDVecMap m_thresholdToChain;
   std::map<HLT::Identifier, float> m_prescalingInfo;
 
 

@@ -47,7 +47,8 @@ private:
   static bool s_reportStringIDs;
   
 };
-typedef std::map<HLT::Identifier, std::vector<HLT::Identifier> > IDtoVIDMap;
+ typedef std::vector<HLT::Identifier> IDVec;
+ typedef std::map<HLT::Identifier,  IDVec> IDtoIDVecMap;
 }
 
 MsgStream& operator<< ( MsgStream& m, const HLT::Identifier& id );

@@ -33,9 +33,9 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
   // this should realy be: const ROIB::RoIBResult* roib = SG::INPUT_PTR (m_RoIBResultKey, ctx);
   // or const ROIB::RoIBResult& roib = SG::INPUT_REF (m_RoIBResultKey, ctx);
 
-  auto chains = CxxUtils::make_unique<xAOD::TrigCompositeContainer>();
-  auto chainsAux = CxxUtils::make_unique<xAOD::TrigCompositeAuxContainer>();
-  chains->setStore(chainsAux.get());
+  auto chainsInfo = CxxUtils::make_unique<xAOD::TrigCompositeContainer>();
+  auto chainsInfoAux = CxxUtils::make_unique<xAOD::TrigCompositeAuxContainer>();
+  chainsInfo->setStore(chainsInfoAux.get());
   
   std::vector<HLT::Identifier> l1SeededChains;
   CHECK( m_ctpUnpacker->decode(roibH.get(), m_ctpIDToChain, l1SeededChains) );
@@ -43,7 +43,8 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
   std::vector<HLT::Identifier> activeChains;
   activeChains.reserve(l1SeededChains.size()); // an optimisation, max we get as many active chains as were seeded by L1, rarely the condition, but allows to avoid couple of reallocations
   CHECK( prescaleChains(l1SeededChains, activeChains));
-
+  CHECK( saveChainsInfo(l1SeededChains, chainsInfo.get(), "l1seeded") );
+  CHECK( saveChainsInfo(activeChains, chainsInfo.get(), "unprescaled") );
 
   //  for ( auto unpacker: m_roiUnpackers ) {
   //    CHECK( unpacker->unpack(roib, unprescaledChains) );
@@ -51,7 +52,7 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
 
   
   SG::WriteHandle<xAOD::TrigCompositeContainer> chainsH(m_chainsKey, ctx);
-  ATH_CHECK( chainsH.record( std::move(chains), std::move(chainsAux) ));
+  ATH_CHECK( chainsH.record( std::move(chainsInfo), std::move(chainsInfoAux) ));
   // this should realy be as simple as this: ATH_CHECK( SG::OUTPUT(m_chainsKey, ctx) << xAODContainer(chains, chainsAux)); 
   
   // TODO add monitoring
@@ -63,8 +64,8 @@ StatusCode L1Decoder::finalize() {
 }
 
 
-StatusCode L1Decoder::prescaleChains(const std::vector<HLT::Identifier>& active,
-				     std::vector<HLT::Identifier>& notPrescaled) const {
+StatusCode L1Decoder::prescaleChains(const HLT::IDVec& active,
+				     HLT::IDVec& notPrescaled) const {
 
   // intention is to use the same RNG scalers as in current steering version but it has to be refactored as follows
   // read in the CTP info and get the time
@@ -88,3 +89,11 @@ StatusCode L1Decoder::prescaleChains(const std::vector<HLT::Identifier>& active,
   return StatusCode::SUCCESS;
 }
 
+StatusCode L1Decoder::saveChainsInfo(const HLT::IDVec& chains, xAOD::TrigCompositeContainer* storage, const std::string& type) const {
+  using namespace TrigCompositeUtils;
+  Decision* d = newDecisionIn(storage);
+  d->setName(type);
+  for ( auto c: chains)
+    addDecisionID(c.numeric(), d);
+  return StatusCode::SUCCESS;
+}

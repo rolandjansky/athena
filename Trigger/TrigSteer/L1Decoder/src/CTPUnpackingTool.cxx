@@ -10,7 +10,7 @@ using namespace HLT;
 CTPUnpackingTool::~CTPUnpackingTool()
 {}
 
-StatusCode CTPUnpackingTool::decode(const ROIB::RoIBResult* roib, const IndexToIdentifiers& ctpToChain, std::vector<Identifier>& enabledChains) const {
+StatusCode CTPUnpackingTool::decode(const ROIB::RoIBResult* roib, const IndexToIdentifiers& ctpToChain, HLT::IDVec& enabledChains) const {
   size_t numberPfActivatedBits= 0;
   
   auto tav = roib->cTPResult().TAV();
