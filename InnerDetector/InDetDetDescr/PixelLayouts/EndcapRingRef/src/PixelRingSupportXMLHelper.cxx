@@ -105,6 +105,34 @@ int PixelRingSupportXMLHelper::getNbLayerSupport(int layer)
   return 1;
 }
 
+std::vector<int> PixelRingSupportXMLHelper::getNbLayerSupportIndex(int layer)
+{
+  std::vector<int> layers;
+  
+  if(!m_bXMLfileExist) return layers;
+
+  int layerIndex = getChildValue_Index("PixelLayerSupport", "Layer", layer);
+  std::string ringGeoName = getString("PixelLayerSupport", layerIndex, "LayerSupportGeo");
+  
+  std::cout << "ringGeoName = " << ringGeoName << std::endl;
+    
+  // using the first name support to get the layer index
+  std::stringstream ss(ringGeoName);
+  std::string item;
+  
+  while (ss>>item) {
+    if(item.size()==0) continue;
+    
+    std::cout << "item = " << item << std::endl;
+    
+    m_ringGeoIndex = (ringGeoName!="None")? getChildValue_Index("PixelLayerSupportGeo", "name", -1, item) : -1;
+    std::cout << "checking m_ringGeoIndex = " << m_ringGeoIndex << "   at name " << ringGeoName << std::endl;
+
+    layers.push_back(m_ringGeoIndex);
+  }
+  return layers;
+}
+
 std::vector<double> PixelRingSupportXMLHelper::getLayerSupportRadius(int /*iSupport*/) const
 {
   std::vector<double> v = getVectorDouble("PixelLayerSupportGeo",m_ringGeoIndex,"r");
@@ -122,5 +150,24 @@ std::string PixelRingSupportXMLHelper::getLayerSupportMaterial(int iSupport) con
   std::vector<std::string> v = getVectorString("PixelLayerSupportGeo",m_ringGeoIndex,"material");
   int index = (v.size()==1)? 0 : iSupport;
   return v[index];
+}
+
+std::vector<double> PixelRingSupportXMLHelper::getLayerSupportRadiusAtIndex(int index) const
+{
+  std::vector<double> v = getVectorDouble("PixelLayerSupportGeo",index,"r");
+  return v;
+}
+
+std::vector<double> PixelRingSupportXMLHelper::getLayerSupportZAtIndex(int index) const
+{
+  std::vector<double> v = getVectorDouble("PixelLayerSupportGeo",index,"z");
+  return v;
+}
+
+std::string PixelRingSupportXMLHelper::getLayerSupportMaterialAtIndex(int index) const
+{
+  std::vector<std::string> v = getVectorString("PixelLayerSupportGeo",index,"material");
+  int myIndex = (v.size()==1)? 0 : index;
+  return v[myIndex];
 }
 

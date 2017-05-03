@@ -96,7 +96,7 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
   m_ringPos.clear();
   m_ringListF.clear();
   m_ringListB.clear();
-
+  
   InDet::EndcapLayerTmp* discTmp = m_xmlReader->getPixelEndcapLayerTemplate(m_layer); 
 
   double rLayerMin = 9999999.;
@@ -261,7 +261,7 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
   for(int i=0; i<2*nrings; i++)
     {
       double zPos = m_ringPos[i]-zMiddle;
-      //    std::cout<<" -> add ring (minmax): "<<i<<" "<<zPos+zMiddle<<"    vs ring minmax"<<std::endl;
+      //      std::cout<<" -> add ring (minmax): "<<i<<" "<<zPos+zMiddle<<"    vs ring minmax"<<std::endl;
       GeoAlignableTransform* xform = new GeoAlignableTransform(HepGeom::TranslateZ3D(zPos));
       
       int tagId = i;
@@ -275,54 +275,75 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
       ecPhys->add(xform);
       ecPhys->add(ringList_PV[i]);
       
-      if(i%2==0){
+      if(i%2==0 and nbSvcSupport>0){
+	// std::cout<<" -> I should add some supports for disc i = " << i << std::endl;
 	// Add ring supports
-	for(int iSvc=0; iSvc<nbSvcSupport; iSvc++){
-	  
-	  double rminSvc = ringHelper.getRingSupportRMin(iSvc);
-	  double rmaxSvc = ringHelper.getRingSupportRMax(iSvc);
-	  double thick = ringHelper.getRingSupportThickness(iSvc);
-	  std::string matName = ringHelper.getRingSupportMaterial(iSvc);
-
-	  const GeoTube* supTube = new GeoTube(rminSvc,rmaxSvc,thick*.5);
-	  double matVolume = supTube->volume();
-
-	  //std::cout << "Ring support?: matName = " << matName << " matVolume = " << matVolume << " rminSvc = " << rminSvc << " rmaxSvc = " << rmaxSvc << " thick = " << thick << std::endl;
-
-	  const GeoMaterial* supMat = basics->matMgr()->getMaterialForVolume(matName,matVolume);
-	  ATH_MSG_DEBUG("Density = " << supMat->getDensity() << " Mass = " << ( matVolume * supMat->getDensity() ));
-	  GeoLogVol* _supLog = new GeoLogVol("supLog",supTube,supMat);
-	  GeoPhysVol* supPhys = new GeoPhysVol(_supLog);
-	  
-	  GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., (m_ringPos[i]+m_ringPos[i+1])*.5-zMiddle));
-	  ecPhys->add(xform);
-	  ecPhys->add(supPhys);
-	}
+	int iSvc = i/2<nbSvcSupport ? i/2 : nbSvcSupport-1;
+	double rminSvc = ringHelper.getRingSupportRMin(iSvc);
+	double rmaxSvc = ringHelper.getRingSupportRMax(iSvc);
+	double thick = ringHelper.getRingSupportThickness(iSvc);
+	std::string matName = ringHelper.getRingSupportMaterial(iSvc);
+	
+	const GeoTube* supTube = new GeoTube(rminSvc,rmaxSvc,thick*.5);
+	double matVolume = supTube->volume();
+	
+	// std::cout << "Ring support?: matName = " << matName << " matVolume = " << matVolume << " rminSvc = " << rminSvc << " rmaxSvc = " << rmaxSvc << " thick = " << thick << std::endl;
+	
+	const GeoMaterial* supMat = basics->matMgr()->getMaterialForVolume(matName,matVolume);
+	ATH_MSG_DEBUG("Density = " << supMat->getDensity() << " Mass = " << ( matVolume * supMat->getDensity() ));
+	GeoLogVol* _supLog = new GeoLogVol("supLog",supTube,supMat);
+	GeoPhysVol* supPhys = new GeoPhysVol(_supLog);
+	
+	GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., (m_ringPos[i]+m_ringPos[i+1])*.5-zMiddle));
+	ecPhys->add(xform);
+	ecPhys->add(supPhys);
       }
     }
 
   // Place the layer services
-  nbSvcSupport = ringHelper.getNbLayerSupport(m_layer);
-  for(int iSvc=0; iSvc<nbSvcSupport; iSvc++)
+  //nbSvcSupport = ringHelper.getNbLayerSupport(m_layer);
+  
+//   for(int iSvc=0; iSvc<nbSvcSupport; iSvc++)
+//     {
+//       std::vector<double> r = ringHelper.getLayerSupportRadius(iSvc);
+//       std::vector<double> z = ringHelper.getLayerSupportZ(iSvc);
+//       std::string matName = ringHelper.getLayerSupportMaterial(iSvc);
+// 
+//       const GeoTube* supTube = new GeoTube(r[0],r[1],(z[1]-z[0])*.5);
+//       double matVolume = supTube->volume();
+//
+//       const GeoMaterial* supMat = basics->matMgr()->getMaterial(matName);
+//       GeoLogVol* _supLog = new GeoLogVol("supLog",supTube,supMat);
+//       GeoPhysVol* supPhys = new GeoPhysVol(_supLog);
+//       
+//       GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., 0.));
+//       ecPhys->add(xform);
+//       ecPhys->add(supPhys);
+// 
+//     }
+
+  std::vector<int> Layers = ringHelper.getNbLayerSupportIndex(m_layer);
+  for(unsigned int iSvc=0; iSvc<Layers.size(); iSvc++)
     {
-      std::vector<double> r = ringHelper.getLayerSupportRadius(iSvc);
-      std::vector<double> z = ringHelper.getLayerSupportZ(iSvc);
-      std::string matName = ringHelper.getLayerSupportMaterial(iSvc);
+      if (Layers.at(iSvc)<0) continue;
+
+      std::vector<double> r = ringHelper.getLayerSupportRadiusAtIndex(Layers.at(iSvc));
+      std::vector<double> z = ringHelper.getLayerSupportZAtIndex(Layers.at(iSvc));
+      std::string matName = ringHelper.getLayerSupportMaterialAtIndex(Layers.at(iSvc));
 
       const GeoTube* supTube = new GeoTube(r[0],r[1],(z[1]-z[0])*.5);
-      //double matVolume = supTube->volume();
-
-      //std::cout << "Ring layer support?: matName = " << matName << " matVolume = " << matVolume << " r[0] = " << r[0] << " r[1] = " << r[1] << " z[0] = " << z[0] << " z[1] = " << z[1] << std::endl;
+      double matVolume = supTube->volume();
 
       const GeoMaterial* supMat = basics->matMgr()->getMaterial(matName);
       GeoLogVol* _supLog = new GeoLogVol("supLog",supTube,supMat);
       GeoPhysVol* supPhys = new GeoPhysVol(_supLog);
       
-      GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., 0.));
+      GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., (z[0]+z[1])*0.5-zMiddle));
       ecPhys->add(xform);
       ecPhys->add(supPhys);
 
     }
+
 
   ATH_MSG_DEBUG("Layer minmax global : "<<m_layerZMin<<" "<<m_layerZMax<<" / "<<m_layerZMin<<" "<<m_layerZMax);
 
