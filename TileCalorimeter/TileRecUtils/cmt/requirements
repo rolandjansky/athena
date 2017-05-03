@@ -33,6 +33,7 @@ use CaloDetDescr	CaloDetDescr-*		Calorimeter
 
 use TileCalibBlobObjs	TileCalibBlobObjs-*	TileCalorimeter/TileCalib
 use TileDetDescr	TileDetDescr-*		TileCalorimeter
+use TileSimEvent	TileSimEvent-*		TileCalorimeter
 
 end_private
 

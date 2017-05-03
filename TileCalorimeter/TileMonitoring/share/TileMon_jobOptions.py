@@ -221,6 +221,9 @@ if  tileRawMon:
                                           , histoPathBase            = "/Tile/DMUErrors")
 
 
+    if globalflags.InputFormat() == 'pool':
+        ToolSvc.TileDQFragMon.TileDigitsContainer = 'TileDigitsFlt'
+
     ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileDQFragMon ]
 
 topSequence += ManagedAthenaTileMon;

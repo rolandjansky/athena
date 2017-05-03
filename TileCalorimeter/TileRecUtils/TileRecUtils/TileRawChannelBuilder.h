@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef TILERECUTILS_ITILERAWCHANNELBUILDER_H
 #define TILERECUTILS_ITILERAWCHANNELBUILDER_H
 
@@ -198,6 +197,8 @@ class TileRawChannelBuilder: public AthAlgTool {
     static int s_dmuerr[MAX_DMUS];
     static int s_lastDrawer;
     static bool s_badDrawer;
+    
+    bool m_notUpgradeCabling;
 };
 
 #endif
