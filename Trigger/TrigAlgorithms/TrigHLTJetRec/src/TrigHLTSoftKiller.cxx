@@ -110,10 +110,14 @@ HLT::ErrorCode TrigHLTSoftKiller::hltExecute(const HLT::TriggerElement* inputTE,
 
 
     // Write the resulting container
+    auto auxStore = outputclusters->getStore();
     std::string key = "";
     status = recordAndAttachFeature(outputTE,outputclusters,key,m_outputCollectionLabel);
     if (status == HLT::OK)
+    {
         ATH_MSG_DEBUG("Attached SK cluster container to output TE");
+        delete auxStore;
+    }
     else
         ATH_MSG_ERROR("Failed to attach SK cluster container to output TE, status " << status);
     return status;
