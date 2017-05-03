@@ -19,7 +19,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigConfiguration/TrigConfHLTData
                           #Trigger/TrigEvent/TrigSteeringEvent
                           #Trigger/TrigSteer/L1Decoder
-			  AtlasTest/TestTools	
+			  AtlasTest/TestTools
+			  Control/StoreGate
 			  )
 
 # Component(s) in the package:

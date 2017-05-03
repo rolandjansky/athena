@@ -7,16 +7,14 @@
 int main() {
   using namespace TrigCompositeUtils;
 
-  auto dc = new DecisionContainer;
-  auto aux = new xAOD::TrigCompositeAuxContainer;
-  dc->setStore(aux);
+  auto dc = DecisionOutput();
 
   // try insertions
-  auto d1 = newDecisionIn(dc);
+  auto d1 = newDecisionIn(dc.decisions.get());
   addDecisionID( 1, d1 );
   addDecisionID( 2, d1 );
 
-  auto d2 = newDecisionIn(dc);
+  auto d2 = newDecisionIn(dc.decisions.get());
   addDecisionID( 1, d2 );
   addDecisionID( 3, d2 );
 

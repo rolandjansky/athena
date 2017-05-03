@@ -22,38 +22,44 @@ StatusCode L1Decoder::initialize() {
   return StatusCode::SUCCESS;
 }
 
+StatusCode L1Decoder::beginRun() {
+  //  for ( auto t: m_roiUnpackers )
+  //    CHECK( t->beginRun() );
+  return StatusCode::SUCCESS;
+}
+
 StatusCode L1Decoder::readConfiguration() {
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode L1Decoder::execute_r (const EventContext& ctx) const {  
+StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
+  using namespace TrigCompositeUtils;
   SG::ReadHandle<ROIB::RoIBResult> roibH(m_RoIBResultKey, ctx);
 
   // this should realy be: const ROIB::RoIBResult* roib = SG::INPUT_PTR (m_RoIBResultKey, ctx);
   // or const ROIB::RoIBResult& roib = SG::INPUT_REF (m_RoIBResultKey, ctx);
 
-  auto chainsInfo = CxxUtils::make_unique<xAOD::TrigCompositeContainer>();
-  auto chainsInfoAux = CxxUtils::make_unique<xAOD::TrigCompositeAuxContainer>();
-  chainsInfo->setStore(chainsInfoAux.get());
+  DecisionOutput chainsInfo;
   
-  std::vector<HLT::Identifier> l1SeededChains;
-  CHECK( m_ctpUnpacker->decode(roibH.get(), m_ctpIDToChain, l1SeededChains) );
+  HLT::IDVec l1SeededChains;
+  CHECK( m_ctpUnpacker->decode(*roibH, m_ctpIDToChain, l1SeededChains) );
   sort(l1SeededChains.begin(), l1SeededChains.end()); // do so that following scaling is reproducable
-  std::vector<HLT::Identifier> activeChains;
+
+  HLT::IDVec activeChains;
   activeChains.reserve(l1SeededChains.size()); // an optimisation, max we get as many active chains as were seeded by L1, rarely the condition, but allows to avoid couple of reallocations
   CHECK( prescaleChains(l1SeededChains, activeChains));
-  CHECK( saveChainsInfo(l1SeededChains, chainsInfo.get(), "l1seeded") );
-  CHECK( saveChainsInfo(activeChains, chainsInfo.get(), "unprescaled") );
+  
+  CHECK( saveChainsInfo(l1SeededChains, chainsInfo.decisions.get(), "l1seeded") );
+  CHECK( saveChainsInfo(activeChains, chainsInfo.decisions.get(), "unprescaled") );
 
-  //  for ( auto unpacker: m_roiUnpackers ) {
-  //    CHECK( unpacker->unpack(roib, unprescaledChains) );
-  //  }
+  for ( auto unpacker: m_roiUnpackers ) {
+    CHECK( unpacker->unpack( ctx, *roibH, activeChains ) );
+  }
 
   
-  SG::WriteHandle<xAOD::TrigCompositeContainer> chainsH(m_chainsKey, ctx);
-  ATH_CHECK( chainsH.record( std::move(chainsInfo), std::move(chainsInfoAux) ));
-  // this should realy be as simple as this: ATH_CHECK( SG::OUTPUT(m_chainsKey, ctx) << xAODContainer(chains, chainsAux)); 
+
+  ATH_CHECK( chainsInfo.record( ctx, m_chainsKey ) );
+
   
   // TODO add monitoring
   return StatusCode::SUCCESS;

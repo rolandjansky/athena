@@ -7,6 +7,7 @@
 #include "CxxUtils/make_unique.h"
 #include "L1Decoder/TrigIdentifiers.h"
 #include "TrigT1Interfaces/RecEmTauRoI.h"
+
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigSteeringEvent/Lvl1Result.h"
 #include "TrigT1Result/RoIBResult.h"
@@ -69,11 +70,7 @@ StatusCode L1CaloDecoder::execute() {
     return StatusCode::RECOVERABLE;
   }
   
-  // create view (BEN: for now don't do it until we've got the scheduling going)
-  /*  m_view = CxxUtils::make_unique< std::vector<SG::View*>>();
-  IProxyDict * view = new SG::View("L1CaloDecoderView");
-  m_view->push_back(view);
-  */
+
   IProxyDict * view = 0;
 
   // redirect handles to that view

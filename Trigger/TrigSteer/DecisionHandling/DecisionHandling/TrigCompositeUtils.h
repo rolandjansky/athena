@@ -6,23 +6,58 @@
 #define DecisionHandling_TrigCompositeUtils_h
 
 #include <set>
+#include <memory>
+#include "GaudiKernel/EventContext.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
+
 #include "xAODTrigger/TrigCompositeContainer.h"
+#include "xAODTrigger/TrigCompositeAuxContainer.h"
 
 namespace TrigCompositeUtils {
 
   // alias types, for readability and to simplify future evolution
-  typedef xAOD::TrigComposite Decision; 
+  typedef xAOD::TrigComposite Decision;
   typedef xAOD::TrigCompositeContainer DecisionContainer;
+  typedef xAOD::TrigCompositeAuxContainer DecisionAuxContainer;
 
+  /*
+    @brief Helper struct for output decision handling
+    usage:
+    DecisionOutput o;
+    fill(o.decisions); //
+    CEHCK(o.record(ctx, key));
+   */
+  struct DecisionOutput {
+    DecisionOutput();
+    // TODO reading    DecisionStorage(const SG::ReadHandleKey<DecisionContainer>& key); 
+    StatusCode record(const EventContext& ctx, const SG::WriteHandleKey<DecisionContainer>& key);
+    std::unique_ptr<DecisionContainer> decisions;
+    std::unique_ptr<DecisionAuxContainer> aux;
+  };
+
+  /*
+    @brief Helper struct for retrieveing (and holding) decision container
+    usage:
+    DecisionInput i;
+    CHECK(i.retrieve(ctx, key));
+    i.decisions->size();
+   */
+  
+  struct DecisionInput {
+    StatusCode retrieve(const EventContext& ctx, const SG::ReadHandleKey<DecisionContainer>& key);
+    const DecisionContainer* decisions = nullptr;
+  };
+  
   /*
     @brief helper method to that created the Decision objects, places it in the container and returns
     This is to make this:
     auto d = newDecisionIn(output);
     instead of:
     auto d = new Decision; 
-    output->push_back(d);
-    
+    output->push_back(d);    
    */
+  
   Decision* newDecisionIn (DecisionContainer* dc);
 
   // aliases for the decision IDs, in fact this are just ints

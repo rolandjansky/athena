@@ -12,6 +12,7 @@
 #include "TrigT1Result/RoIBResult.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "CTPUnpackingTool.h"
+#include "IRoIsUnpackingTool.h"
 
 
 /*
@@ -25,6 +26,7 @@ class L1Decoder : public AthReentrantAlgorithm {
 public:
   L1Decoder(const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
+  StatusCode beginRun();
   StatusCode execute_r (const EventContext& ctx) const override;
   StatusCode finalize();
 
@@ -42,14 +44,13 @@ protected: // protected to support unit testing
   
 private:
   SG::ReadHandleKey<ROIB::RoIBResult> m_RoIBResultKey;
-  SG::WriteHandleKey< xAOD::TrigCompositeContainer > m_chainsKey;
+  SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_chainsKey;
 
   ToolHandle<CTPUnpackingTool> m_ctpUnpacker;  
   //  ToolHandle<PrescalingTool> m_prescaler;
-  //  ToolHandleArray<RoIUnpackingTool> m_roiUnpackers;
+  ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers;
   
   CTPUnpackingTool::IndexToIdentifiers m_ctpIDToChain;
-  HLT::IDtoIDVecMap m_thresholdToChain;
   std::map<HLT::Identifier, float> m_prescalingInfo;
 
 

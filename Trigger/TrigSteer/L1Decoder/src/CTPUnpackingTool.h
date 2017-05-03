@@ -22,6 +22,7 @@ class CTPUnpackingTool
 { 
 public:
   static const InterfaceID& interfaceID();
+
   
   CTPUnpackingTool( const std::string& type,
 		    const std::string& name, 
@@ -35,7 +36,7 @@ public:
     @warning if the mapping is empty it means an empty menu. This condition is NOT checked and not reported.
     @warning if none of CTP bits is set this is also an error condition, this is the event should not have been passed to HLT
    */
-  StatusCode decode(const ROIB::RoIBResult*, const IndexToIdentifiers& ctpToChain, HLT::IDVec& enabledChains) const;
+  StatusCode decode(const ROIB::RoIBResult&, const IndexToIdentifiers& ctpToChain, HLT::IDVec& enabledChains) const;
 
   StatusCode initialize(){ return StatusCode::SUCCESS; }
 
