@@ -1080,30 +1080,6 @@ class L2EFChain_mu(L2EFChainDef):
 				  'EF_mu_step1_wOvlpRm': mergeRemovingOverlap('EF_SuperEFOvlpRm_', self.chainPartNameNoMult+'_wEFOvlpRm'+'_'+self.L2InputTE)})
                                           
   #################################################################################################
-  def setup_muXX_MGOnly(self):
-
-    log.debug("MuonDef.py define MGonly")
-
-    EFCombinerThresh = self.getEFCombinerThresh()
-
-    ########### L2 algos  #################
-
-    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-    [trkfast, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig").getSequence()
-
-    ########### EF algos  #################
-
-    if 'SuperEF' in self.chainPart['EFAlg']:
-      theTrigMuSuperEF = CfgGetter.getAlgorithm("TrigMuSuperEF_MGonly")
-      EFRecoAlgName = "Muon"
-    else:
-      log.error("Chain built with %s but so far only SuperEF is supported." % (self.chainPart['EFAlg']))
-      return False
-
-    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoConfig
-    theTrigMuonEFCombinerHypoConfig = TrigMuonEFCombinerHypoConfig(EFRecoAlgName,EFCombinerThresh)   
-
-  #################################################################################################
   #################################################################################################
   def setup_muXX_noL1(self):
 
@@ -2213,3 +2189,46 @@ class L2EFChain_mu(L2EFChainDef):
                               'EF_mu_step3']]
       self.EFsignatureList += [ [['EF_mu_step3']          ] ]
       self.TErenamingDict['EF_mu_step3'] = mergeRemovingOverlap('EF_mutrkmulti_', idmulti+'_'+self.chainPartNameNoMult.replace(self.chainPart['specialStream'], '')+'_'+self.L2InputTE).replace('__', '_')
+
+###########################################
+## Adding new late-muon chain
+###########################################
+
+  def setup_muXX_MGOnly(self):
+    ########### L2 algos  #################
+    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+    [trkfast, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig").getSequence()
+
+    from TrigmuRoI.TrigmuRoIConfig import TrigmuRoIConfig
+    Roimaker = TrigmuRoIConfig("TrigMuRoIMGonly")
+
+    ########### EF algos  #################
+    print self.chainPart['EFAlg']
+    if 'SuperEF' in self.chainPart['EFAlg']:
+      from AthenaCommon import CfgGetter
+      theTrigMuSuperEF = CfgGetter.getAlgorithm("TrigMuSuperEF_MGonly")
+      EFRecoAlgName = "Muon"
+      EFCombinerThresh = self.getEFCombinerThresh()
+      theEFAlg = theTrigMuSuperEF
+    else:
+      log.error("Chain built with %s but so far only SuperEF is supported." % (self.chainPart['EFAlg']))
+      return False
+
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoConfig
+    theTrigMuonEFCombinerHypoConfig = TrigMuonEFCombinerHypoConfig(EFRecoAlgName,EFCombinerThresh)
+    self.EFsequenceList += [[ '' , [Roimaker], 'EF_mu_step2a' ]]
+    self.EFsequenceList += [[ 'EF_mu_step2a' , trkfast+trkprec, 'EF_mu_step2b']]
+    self.EFsequenceList += [[ 'EF_mu_step2b' , [theEFAlg], 'EF_mu_step2']]
+    self.EFsequenceList += [[ 'EF_mu_step2'  , [theTrigMuonEFCombinerHypoConfig], 'EF_mu_step3']]
+    self.EFsignatureList += [ [['EF_mu_step2a']] ]
+    self.EFsignatureList += [ [['EF_mu_step2b']] ]
+    self.EFsignatureList += [ [['EF_mu_step2']] ]
+    self.EFsignatureList += [ [['EF_mu_step3']] ]
+
+    self.TErenamingDict = {
+      'EF_mu_step2a': mergeRemovingOverlap('EF_SuperEF_MGOnly_L1x',  self.L2InputTE ),
+      'EF_mu_step2b': mergeRemovingOverlap('EF_SuperEF_MGOnly_',  '2b' + self.L2InputTE ),
+      'EF_mu_step2':  mergeRemovingOverlap('EF_SuperEF_MGOnly',  self.chainPartNameNoMult),
+      'EF_mu_step3':  mergeRemovingOverlap('EF_SuperEFHypo_MGOnly',  self.chainPartNameNoMult)
+      }
+
