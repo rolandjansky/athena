@@ -322,20 +322,20 @@ StatusCode MdtRawDataValAlg::initialize()
 }
 
 /*----------------------------------------------------------------------------------*/
-StatusCode MdtRawDataValAlg::bookHistogramsRecurrent( /*bool isNewEventsBlock, bool newLumiBlock, bool newRun */)
+StatusCode MdtRawDataValAlg::bookHistogramsRecurrent( /*bool isNewEventsBlock, bool newLumiBlockFlag(), bool newRunFlag() */)
 /*----------------------------------------------------------------------------------*/
 {
   //changed for booking unmanaged histograms for MIG2
 
   StatusCode sc = StatusCode::SUCCESS;
 
-  if(newRun || newLowStatInterval){
-    sc = bookMDTSummaryHistograms(/* isNewEventsBlock,*/ newLumiBlock, newRun);
+  if(newRunFlag() || newLowStatIntervalFlag()){
+    sc = bookMDTSummaryHistograms(/* isNewEventsBlock,*/ newLumiBlockFlag(), newRunFlag());
     if(sc.isFailure()) { 
       ATH_MSG_FATAL("Failed to bookMDTSummaryHistograms" );
       return sc;
     }
-    sc = bookMDTOverviewHistograms(/* isNewEventsBlock,*/ newLumiBlock, newRun);
+    sc = bookMDTOverviewHistograms(/* isNewEventsBlock,*/ newLumiBlockFlag(), newRunFlag());
     if(sc.isFailure()) { 
       ATH_MSG_FATAL("Failed to bookMDTOverviewHistograms" );
       return sc;
@@ -343,11 +343,11 @@ StatusCode MdtRawDataValAlg::bookHistogramsRecurrent( /*bool isNewEventsBlock, b
   }
 
   //if(isNewEventsBlock) {}
-  if(newLumiBlock) {}
-  if(newRun) {      
-    ATH_MSG_DEBUG("MDT RawData Monitoring from ESD : newRun" );    
+  if(newLumiBlockFlag()) {}
+  if(newRunFlag()) {      
+    ATH_MSG_DEBUG("MDT RawData Monitoring from ESD : newRunFlag()" );    
     //Book All Chambers
-    //Protection against newRun()
+    //Protection against newRunFlag()()
     clear_hist_map();
     int counter = 0;
       sc= GetTimingInfo();
@@ -385,7 +385,7 @@ StatusCode MdtRawDataValAlg::bookHistogramsRecurrent( /*bool isNewEventsBlock, b
       }
     }
     
-  }//if newRun
+  }//if newRunFlag()
 
   return sc; 
 } 
@@ -676,9 +676,9 @@ StatusCode MdtRawDataValAlg::procHistograms(/*bool isEndOfEventsBlock, bool isEn
 
   StatusCode sc = StatusCode::SUCCESS; 
   //if(isEndOfEventsBlock) {}
-  if(endOfLumiBlock) {}
+  if(endOfLumiBlockFlag()) {}
   //Replicate lowStat histograms to run directory if stable beam
-  if( endOfLumiBlock && isATLASReady() && !m_isOnline ){
+  if( endOfLumiBlockFlag() && isATLASReady() && !m_isOnline ){
     //Book tdc adccut per region per lowStat
     sc = regHist((TH1F*) overalltdccut_segm_PR_Lumi[enumBarrelA]->Clone(), mg->mongroup_brA_shift);
     sc = regHist((TH1F*) overalltdccut_segm_PR_Lumi[enumBarrelC]->Clone(), mg->mongroup_brC_shift);
@@ -851,7 +851,7 @@ StatusCode MdtRawDataValAlg::procHistograms(/*bool isEndOfEventsBlock, bool isEn
 
 
 
-  if(endOfRun) {
+  if(endOfRunFlag()) {
 
     ATH_MSG_DEBUG("********Reached Last Event in MdtRawDataValAlg !!!" );   
     ATH_MSG_DEBUG("MdtRawDataValAlg finalize()" );
@@ -894,7 +894,7 @@ StatusCode MdtRawDataValAlg::procHistograms(/*bool isEndOfEventsBlock, bool isEn
       if( mdtchamberstatphislice[j] ) mdtchamberstatphislice[j]->LabelsDeflate("X");
     }
 
-  } // endOfRun
+  } // endOfRunFlag()
 
   return sc;
 }  
@@ -1093,7 +1093,7 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
   //if( isNewEventsBlock ){}
   if( newLumiBlock ){}
   //book these histos as lowStat interval if not online monitoring
-  if( (newLowStatInterval && !m_isOnline) || (m_isOnline && newRun) ){
+  if( (newLowStatIntervalFlag() && !m_isOnline) || (m_isOnline && newRun) ){
     //Book tdc adccut per region per lowStat
     sc = bookMDTHisto_overview(overalltdccut_segm_PR_Lumi[enumBarrelA], "MDTTDC_segm_Summary_ADCCut_BA", "[nsec]", "Number of Entries",
         120, 0., 2000.,mg->mongroup_brA_shiftLumi);
@@ -1232,7 +1232,7 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
         } // end if(ilayer==0&&(iecap==0||iecap==2) )
       }//layer
     }//ecap
-  }//newLowStatInterval
+  }//newLowStatIntervalFlag()
 
   if(newRun){
     //     //Book t0 tmax tdrift summary plots
@@ -1491,7 +1491,7 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
       } // loop in phi
     } // loop in layer
   } // loop in ecap 
-}//newRun
+}//newRunFlag()
 
 ATH_MSG_DEBUG("LEAVING MDTSUMMARYBOOK");
 return sc;
@@ -1503,7 +1503,7 @@ StatusCode MdtRawDataValAlg::bookMDTOverviewHistograms(/* bool isNewEventsBlock,
   //if( isNewEventsBlock ){}
   if( newLumiBlock ){}
   //book these histos as lowStat interval if not online monitoring
-  if( (newLowStatInterval && !m_isOnline) || (m_isOnline && newRun) ){
+  if( (newLowStatIntervalFlag() && !m_isOnline) || (m_isOnline && newRun) ){
     ////////////////////////////////////////////////////////////////////////////////////// 
     //histo path for overall tdccut spectrum
     sc = bookMDTHisto_overview(overalltdccutLumi, "Overall_TDC_ADCCut_spectrum", "[nsec]", "Number of Entries",
