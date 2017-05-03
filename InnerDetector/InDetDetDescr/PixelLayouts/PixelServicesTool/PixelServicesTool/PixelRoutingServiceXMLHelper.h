@@ -40,7 +40,7 @@ class PixelRoutingServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder
   int getRouteEOSCardIndex(int) const;
 
   double getZGap(int iRoute) const;
-
+  double getRGap(int iRoute) const;
 
  private:
 

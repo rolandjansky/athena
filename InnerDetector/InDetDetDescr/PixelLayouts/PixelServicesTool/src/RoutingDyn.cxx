@@ -152,10 +152,10 @@ void RoutingDyn::createRouteFromXML(int iRoute)
       bool bFirst=(iseg==0);
       bool bLast=(iseg==nbSegment-1);
       RouteParameter param(iRoute,iseg,bBarrel,r[iseg],r[iseg+1], z[iseg],z[iseg+1], layerList, svcThick, bFirst, bLast, svcType, EOScardLength, zShift);
-      createRouteSegment(param);
+	createRouteSegment(param);
     }
-
 }
+
 
 
 void RoutingDyn::createRouteSegment(const RouteParameter& param)
@@ -168,14 +168,17 @@ void RoutingDyn::createRouteSegment(const RouteParameter& param)
   std::vector<int> layerIndices = param.getLayerIndices();
   //  double svcThick = param.getSvcThickness();
 
+//   std::cout << "--> Parameters: " << r1 << ", " << r2 << ", " << z1 << ", " << z2 << std::endl;
   // horizontal route
   if(r1.compare(r2)==0){
+//     std::cout << "   --> createHorizontalRoute" << std::endl;
     createHorizontalRoute(param);
     return;
   }
   
   // vertical route
   if(z1.compare(z2)==0){
+//     std::cout << "   --> createVerticalRoute" << std::endl;
     createVerticalRoute(param);
     return;
   }
@@ -568,6 +571,13 @@ void RoutingDyn::createVerticalRoute(const RouteParameter& param)
 
 }
 
+void RoutingDyn::AddRGap(std::string r, int routeId){
+  float m = DecodeLayerMarginPosition(r)+m_svcRoutingXMLHelper->getRGap(routeId);
+  std::size_t found=r.find_first_of("+-");
+  r=r.substr(0,found);
+  r+='+'+std::to_string(m);
+}
+
 
 void RoutingDyn::createHorizontalRoute(const RouteParameter& param)
 {
@@ -584,6 +594,8 @@ void RoutingDyn::createHorizontalRoute(const RouteParameter& param)
   bool bBarrel = param.isBarrel();
   std::string type = (param.getType()=="endcap")?"Ec":"Brl";
 
+  if (not bBarrel) AddRGap(r1,param.getRouteId());
+    
   MinMaxHelper boxZR = getLayerMinMaxBox(bBarrel,layerIndices, EOScardLength, EOSlength);
   double rMin = boxZR.getRMin();
   double rMax = boxZR.getRMax();

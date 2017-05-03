@@ -71,6 +71,8 @@ class PixelServicesTool : virtual public IPixelServicesTool, public AthAlgTool {
   bool svcRouteAuto() const { return (m_dynServices!=0&&!m_bSvcDynAutomated); }
   //    std::vector<InDet::GeoServiceAssembly* > getServiceAssemblies();
   //    std::vector<InDet::GeoSimpleObject* > getServiceObjects();
+
+ InDetMaterialManager* materialMgr() const {return m_matMgr;}
   
  private:
   
