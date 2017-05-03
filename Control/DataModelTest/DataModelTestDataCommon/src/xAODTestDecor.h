@@ -6,18 +6,23 @@
 
 // $Id$
 /**
- * @file src/xAODTestDecor.h
+ * @file DataModelTestDataCommon/src/xAODTestDecor.h
  * @author scott snyder <snyder@bnl.gov>
  * @date May, 2014
  * @brief Algorithm to test adding decorations to xAOD types.
  */
 
 
-#ifndef DATAMODELTESTDATAREAD_XAODTESTDECOR_H
-#define DATAMODELTESTDATAREAD_XAODTESTDECOR_H
+#ifndef DATAMODELTESTDATACOMMON_XAODTESTDECOR_H
+#define DATAMODELTESTDATACOMMON_XAODTESTDECOR_H
 
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "DataModelTestDataCommon/C.h"
+#include "DataModelTestDataCommon/CVec.h"
+#include "EventInfo/EventInfo.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 
 
 namespace DMTest {
@@ -27,7 +32,7 @@ namespace DMTest {
  * @brief Algorithm to test adding decorations to xAOD data.
  */
 class xAODTestDecor
-  : public AthAlgorithm
+  : public AthReentrantAlgorithm
 {
 public:
   /**
@@ -41,19 +46,19 @@ public:
   /**
    * @brief Algorithm initialization; called at the beginning of the job.
    */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
 
   /**
    * @brief Algorithm event processing.
    */
-  virtual StatusCode execute(); 
+  virtual StatusCode execute_r (const EventContext& ctx) const override; 
 
 
   /**
    * @brief Algorithm finalization; called at the end of the job.
    */
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
 
 private:
@@ -65,10 +70,21 @@ private:
 
   /// Parameter: Offset to be applied to decoration.
   int m_offset;
+
+  /// Flags.
+  bool m_doCVec;
+  bool m_doCInfo;
+  bool m_doCTrig;
+
+  /// Handles for writing decorations.
+  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
+  SG::WriteDecorHandleKey<CVec> m_cvecDecorKey;
+  SG::WriteDecorHandleKey<C>    m_cinfoDecorKey;
+  SG::WriteDecorHandleKey<CVec> m_ctrigDecorKey;
 };
 
 
 } // namespace DMTest
 
 
-#endif // not DATAMODELTESTDATAREAD_XAODTESTDECOR_H
+#endif // not DATAMODELTESTDATACOMMON_XAODTESTDECOR_H
