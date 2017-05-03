@@ -23,10 +23,14 @@
 #include "AthenaBaseComps/AthService.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
+#include "InDetByteStreamErrors/InDetBSErrContainer.h"
 /** needs to be included here for gcc 4.3 compatibility */
 #include "StoreGate/StoreGateSvc.h"
 
 #include "Identifier/IdContext.h"
+
+/** Read Handle Key */
+#include "StoreGate/ReadHandleKey.h"
 
 /** forward declarations */
 template <class TYPE> class SvcFactory;
@@ -129,7 +133,7 @@ private:
 
   bool m_isRODSimulatedData;
 
-  std::string m_bsErrContainerName;
+  SG::ReadHandleKey<InDetBSErrContainer> m_bsErrContainerName;
 
   bool m_useDCSfromBS;
   int m_numRODsHVon;
