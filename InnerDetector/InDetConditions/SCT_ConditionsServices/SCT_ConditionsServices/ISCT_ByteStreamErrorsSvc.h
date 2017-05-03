@@ -101,6 +101,17 @@ public:
   virtual void setDecodedROD(const boost::uint32_t rodId) = 0;
   virtual std::vector<boost::uint32_t> getRODOuts() const = 0;
 
+  /** Set first temporarily masked chip information from byte stream trailer */
+  virtual void setFirstTempMaskedChip(const IdentifierHash& hashId, const unsigned int firstTempMaskedChip)=0;
+  /** Get first temporarily masked chip information */
+  virtual unsigned int getFirstTempMaskedChip(const IdentifierHash& hashId) const =0;
+  /** Map of temporary chip status for all modules with at least one bad chip (packed as 1st 12 bits of unsigned int) */
+  virtual std::map<Identifier, unsigned int>* tempMaskedChips() const =0;
+  /** Temporary status of chips for a particular module (packed as 1st 12 bits of unsigned int) */
+  virtual unsigned int tempMaskedChips(const Identifier & moduleId) const =0;
+  /** Status ABCD errors of chips for a particular module (packed as 1st 12 bits of unsigned int) */
+  virtual unsigned int abcdErrorChips(const Identifier & moduleId) const =0;
+
 private:
 
 };
