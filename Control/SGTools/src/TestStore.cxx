@@ -87,12 +87,14 @@ SG::DataProxy* TestStore::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
     if (obj->clID() == proxy->clID()) {
       // Alias?
       m_kmap[sgkey] = proxy;
+      proxy->addRef();
       proxy->transientAddress()->setAlias (key);
       return proxy;
     }
     if (key == proxy->name()) {
       // Symlink?
       m_kmap[sgkey] = proxy;
+      proxy->addRef();
       proxy->transientAddress()->setTransientID (obj->clID());
       return proxy;
     }
@@ -231,6 +233,16 @@ void TestStore::remap (sgkey_t sgkey_in, sgkey_t sgkey_out,
 {
   m_remap[TestStoreRemap(sgkey_in, index_in)] =
     TestStoreRemap(sgkey_out, index_out);
+}
+
+
+void TestStore::alias (SG::DataProxy* proxy,
+                       const std::string& newKey)
+{
+  sgkey_t sgkey = stringToKey (newKey, proxy->clID());
+  m_kmap[sgkey] = proxy;
+  proxy->addRef();
+  proxy->transientAddress()->setAlias (newKey);
 }
 
 
