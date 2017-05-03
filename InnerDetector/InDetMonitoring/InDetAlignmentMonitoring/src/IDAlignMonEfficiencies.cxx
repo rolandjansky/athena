@@ -447,11 +447,9 @@ StatusCode IDAlignMonEfficiencies::bookHistograms()
   
   
 
-  if ( newLowStat ) {  
-  }
-  if ( newLumiBlock ) {  
-  }
-  if ( newRun ) {  
+  //if ( newLowStatFlag() ) {    }
+  //if ( newLumiBlockFlag() ) {  }
+  if ( newRunFlag() ) {  
     
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job
@@ -1800,11 +1798,9 @@ void IDAlignMonEfficiencies::makeEffHistoWithCut(TH2F* h_num, TH2F* h_denom, TPr
 StatusCode IDAlignMonEfficiencies::procHistograms()
 {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In procHistograms" << endmsg;
-  if( endOfLowStat ) {
-  }
-  if( endOfLumiBlock ) {
-  }
-  if( endOfRun || ( ( AthenaMonManager::environment() == AthenaMonManager::online ) && endOfLumiBlock ) ) {
+  //if( endOfLowStatFlag() ) {  }
+  //if( endOfLumiBlockFlag() ) {  }
+  if( endOfRunFlag() || ( ( AthenaMonManager::environment() == AthenaMonManager::online ) && endOfLumiBlockFlag() ) ) {
     // -----------------------------------------------------------------------
     //
     // normalize: divide measurement / outliers / holes by number of possible hits

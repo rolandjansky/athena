@@ -120,11 +120,9 @@ StatusCode IDAlignMonTruthComparison::bookHistograms()
   std::string outputDirName = "IDAlignMon/" + m_tracksName + "_NoTriggerSelection/TruthComparison";
   MonGroup al_mon ( this, outputDirName, run );
 
-  if ( newLowStat ) {  
-  }
-  if ( newLumiBlock ) {  
-  }
-  if( newRun ) { 
+  //if ( newLowStatFlag() ) {    }
+  //if ( newLumiBlockFlag() ) {   }
+  if( newRunFlag() ) { 
     
     // increase d0 and z0 range for cosmics
     if (AthenaMonManager::dataType() == AthenaMonManager::cosmics ) {
@@ -687,11 +685,9 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
 
 StatusCode IDAlignMonTruthComparison::procHistograms()
 {
-  if( endOfLowStat ) {
-  }
-  if( endOfLumiBlock ) {
-  }
-  if( endOfRun ) {
+  //if( endOfLowStatFlag() ) {  }
+  //if( endOfLumiBlockFlag() ) {  }
+  if( endOfRunFlag() ) {
 
     // deta vs eta
     m_Deta_vs_eta->FitSlicesY(0,1,0,10);

@@ -742,11 +742,9 @@ StatusCode IDAlignMonResiduals::bookHistograms()
 
   MonGroup al_mon ( this, outputDirName, run );
 	
-  if ( newLowStat ) {  
-  }
-  if ( newLumiBlock ) {  
-  }
-  if ( newRun ) {
+  //if ( newLowStatFlag() ) {    }
+  //if ( newLumiBlockFlag() ) {    }
+  if ( newRunFlag() ) {
 	  
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job
@@ -2457,12 +2455,9 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 
 StatusCode IDAlignMonResiduals::procHistograms()
 {  
-  if( endOfLowStat ) {
-  }
-  if( endOfLumiBlock ) {
-    
-  }
-  if( endOfRun || ( ( AthenaMonManager::environment() == AthenaMonManager::online ) && endOfLumiBlock ) ) { 
+  //if( endOfLowStatFlag() ) {  }
+  //if( endOfLumiBlockFlag() ) {      }
+  if( endOfRunFlag() || ( ( AthenaMonManager::environment() == AthenaMonManager::online ) && endOfLumiBlockFlag() ) ) { 
     for(unsigned int side=0;side<3;++side){
       
       //single TRT residuals
@@ -5268,7 +5263,7 @@ unsigned int IDAlignMonResiduals::getRing(unsigned int wheel,unsigned int strawl
 }
 
 
-void IDAlignMonResiduals::MakeStaveShapeFit(float& mag, float& mag_er, float& base, float& base_er, TH1F* projection)
+void IDAlignMonResiduals::MakeStaveShapeFit(float& mag, float& mag_er, float& base, float& base_er, TH1* projection)
 {
   TGraphErrors* g = ConvertHistoInGraph(projection);
   TF1 fit("fit", "[1] - ([2]*(x*x-[0]*[0]))/([0]*[0])",-m_z_fix,m_z_fix);
@@ -5289,7 +5284,7 @@ void IDAlignMonResiduals::MakeStaveShapeFit(float& mag, float& mag_er, float& ba
   return;
 }
 
-TGraphErrors* IDAlignMonResiduals::ConvertHistoInGraph(TH1F* histo)
+TGraphErrors* IDAlignMonResiduals::ConvertHistoInGraph(TH1* histo)
 {
   TGraphErrors* graph = new TGraphErrors();
   std::vector<int> filled_bins;
