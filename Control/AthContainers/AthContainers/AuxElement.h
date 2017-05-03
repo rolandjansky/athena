@@ -648,12 +648,19 @@ public:
     /**
      * @brief Get a pointer to the start of the auxiliary data array.
      * @param container The container from which to fetch the variable.
+     */
+    const_container_pointer_type getDataArray (const AuxVectorData& container) const;
+    
+
+    /**
+     * @brief Get a pointer to the start of the auxiliary data array.
+     * @param container The container from which to fetch the variable.
      *
      * If the container is locked, this will allow fetching only variables
      * that do not yet exist (in which case they will be marked as decorations)
      * or variables already marked as decorations.
      */
-    const_container_pointer_type getDataArray (const AuxVectorData& container) const;
+    container_pointer_type getDecorationArray (const AuxVectorData& container) const;
     
 
     /**
