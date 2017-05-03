@@ -139,7 +139,7 @@ TileCablingService::setCablingType(TileCablingService::TileCablingType type)
 
   m_maxGains = std::round(((double) m_tileID->adc_hash_max()) / m_tileID->pmt_hash_max());
 
-  ATH_MSG_ALWAYS("Detected maximum number of gains: " << m_maxGains);
+  ATH_MSG_DEBUG("Detected maximum number of gains: " << m_maxGains);
 
   if (TileCablingService::TestBeam == type || TileCablingService::OldSim == type) {
     // old cabling for simulation - no special EB modules, wrong numbers for E1-E4

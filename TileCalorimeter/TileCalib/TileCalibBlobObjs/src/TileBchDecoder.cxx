@@ -100,6 +100,7 @@ TileBchDecoder::init_BitPat_ofl01()
   m_bitToPrbAdc[11] = TileBchPrbs::BadCis;
   m_bitToPrbAdc[12] = TileBchPrbs::SevereStuckBit;
   m_bitToPrbAdc[13] = TileBchPrbs::SevereDataCorruption;
+  m_bitToPrbAdc[14] = TileBchPrbs::IgnoredByDQV;
 
   //=== initialize problem to word/bit map
   initPrbToBit();
