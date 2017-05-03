@@ -212,6 +212,8 @@ StatusCode CscSegmentUtilTool::initialize()
 
 
 ///////////////////
+//Note: this code was required for old MuGirl but is not used by the current reconstruction
+//Leaving it in place for backwards compatibility
 std::vector<const MuonSegment*>* CscSegmentUtilTool::
 getMuonSegments(Identifier eta_id, Identifier phi_id,
                 ICscSegmentFinder::ChamberTrkClusters& eta_clus,
@@ -273,29 +275,32 @@ MuonSegmentCombination* CscSegmentUtilTool::
 get2dMuonSegmentCombination(  Identifier eta_id, Identifier phi_id,
                               ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                               ICscSegmentFinder::ChamberTrkClusters& phi_clus,
-                              const Amg::Vector3D& lpos000, bool use2Lay, int badLay1, int badLay2 ) const {
-  if (! enoughHitLayers(eta_clus, phi_clus) ) {
-    ATH_MSG_DEBUG (" Could not find at least two individual layer hits! ");
+                              const Amg::Vector3D& lpos000, int etaStat, int phiStat ) const {
+
+  int nGoodEta=0,nGoodPhi=0;
+  for (int i=0; i<4; ++i){
+    ATH_MSG_DEBUG ( "get2dMuonSegmentCombination2: No of clusters in layer " << i << " " << eta_clus[i].size() << " " << phi_clus[i].size() );
+    if((etaStat%(int)pow(10,i+1))/(int)pow(10,i)==0) nGoodEta++;
+    if((phiStat%(int)pow(10,i+1))/(int)pow(10,i)==0) nGoodPhi++;
+  }
+
+  if(nGoodEta<2 && nGoodPhi<2){
+    ATH_MSG_DEBUG (" Not enough hits in either eta or phi to form a segment");
     MuonSegmentCombination* pcol = 0;
     return pcol;
   }
 
-  for (int i=0; i<4; ++i) 
-    ATH_MSG_DEBUG ( "get2dMuonSegmentCombination2: No of clusters in layer " << i << " " << eta_clus[i].size() << " " << phi_clus[i].size() );
-  
-
   MuonSegmentCombination* pcol = new MuonSegmentCombination;
-  if(use2Lay) pcol->setUse2LayerSegments(use2Lay);
+  pcol->setNGoodCscLayers(nGoodPhi,nGoodEta);
   // Find 2D segments.
   ICscSegmentFinder::Segments eta_segs;
   ICscSegmentFinder::Segments phi_segs;
 
   // get2dSegments does : find_2dsegments -> find_2dseg3hit -> add_2dsegments
-  get2dSegments(eta_id, phi_id, eta_clus, phi_clus, eta_segs, phi_segs, lpos000, use2Lay, badLay1, badLay2);
+  get2dSegments(eta_id, phi_id, eta_clus, phi_clus, eta_segs, phi_segs, lpos000, etaStat, phiStat);
   MuonSegmentCombination::SegmentVec* psegs = new MuonSegmentCombination::SegmentVec;
-  for ( ICscSegmentFinder::Segments::const_iterator iseg=eta_segs.begin();
-        iseg!=eta_segs.end(); ++iseg ) {
-    MuonSegment* pseg = build_segment(*iseg, false, eta_id, use2Lay); // build_segment does getRios
+  for ( ICscSegmentFinder::Segments::const_iterator iseg=eta_segs.begin(); iseg!=eta_segs.end(); ++iseg ) {
+    MuonSegment* pseg = build_segment(*iseg, false, eta_id, nGoodEta==2); // build_segment does getRios
     if (pseg) {
       psegs->push_back(pseg);
       ATH_MSG_DEBUG( " =============================> get2dMuonSegmentCombination::  MuonSegment time (eta) from build_segment is " << pseg->time() );
@@ -307,9 +312,8 @@ get2dMuonSegmentCombination(  Identifier eta_id, Identifier phi_id,
    
   // Insert phi-segments.
   psegs = new MuonSegmentCombination::SegmentVec;
-  for ( ICscSegmentFinder::Segments::const_iterator iseg=phi_segs.begin();
-        iseg!=phi_segs.end(); ++iseg ) {
-    MuonSegment* pseg = build_segment(*iseg, true, phi_id, use2Lay);
+  for ( ICscSegmentFinder::Segments::const_iterator iseg=phi_segs.begin(); iseg!=phi_segs.end(); ++iseg ) {
+    MuonSegment* pseg = build_segment(*iseg, true, phi_id, nGoodPhi==2);
     if (pseg) {
       psegs->push_back(pseg);
       ATH_MSG_DEBUG( " get2dMuonSegmentCombination::  MuonSegment time (phi) from build_segment is " << pseg->time() );
@@ -1468,13 +1472,13 @@ void CscSegmentUtilTool::add_2dsegments(ICscSegmentFinder::Segments &segs4, ICsc
 
 /////////////////////////////////////////
 //stores 2-hit segments
-void CscSegmentUtilTool::add_2dseg2hits(ICscSegmentFinder::Segments &segs, ICscSegmentFinder::Segments &segs2, std::vector<int> layStat) const {
+void CscSegmentUtilTool::add_2dseg2hits(ICscSegmentFinder::Segments &segs, ICscSegmentFinder::Segments &segs2, int layStat) const {
   if(segs2.size()==0) return;
   ATH_MSG_DEBUG(" Total Input 2-layer segment size " << segs2.size());
 
   int lay0=-1, lay1=-1;
   for(int i=0;i<4;i++){
-    if(layStat[i]==1){
+    if((layStat%(int)pow(10,i+1))/(int)pow(10,i)==0){
       if(lay0==-1) lay0=i;
       else if(lay1==-1) lay1=i;
     }
@@ -1550,7 +1554,7 @@ void CscSegmentUtilTool::add_2dseg2hits(ICscSegmentFinder::Segments &segs, ICscS
       for (int iclus=0; iclus<iseg->nclus; iclus++) {
         const Muon::CscClusterOnTrack* cot = iseg->clus[iclus].cl;
 	int wlay=m_phelper->wireLayer(cot->identify());
-	if(layStat[wlay]==-1){ //this 3-layer segment has a hit in a bad layer: dump it
+	if((layStat%(int)pow(10,wlay+1))/(int)pow(10,wlay)==1){ //this 3-layer segment has a hit in a bad layer: dump it
 	  nhits_common=-1;
 	  break;
 	}
@@ -1699,7 +1703,7 @@ find_2dseg3hit(bool measphi, int station,  int eta, int phi,
 
 }
 void CscSegmentUtilTool::
-find_2dseg2hit(bool measphi, int station,  int eta, int phi, std::vector<int> layStat,
+find_2dseg2hit(bool measphi, int station,  int eta, int phi, int layStat,
                const ICscSegmentFinder::ChamberTrkClusters& chclus, const Amg::Vector3D& lpos000, 
                ICscSegmentFinder::Segments& segs,
                double lpos, double lslope) const {
@@ -1712,7 +1716,7 @@ find_2dseg2hit(bool measphi, int station,  int eta, int phi, std::vector<int> la
       
   int lay0=-1, lay1=-1;
   for(int i=0;i<4;i++){
-    if(layStat[i]==1){
+    if((layStat%(int)pow(10,i+1))/(int)pow(10,i)==0){
       if(lay0==-1) lay0=i;
       else if(lay1==-1) lay1=i;
       else{
@@ -1852,8 +1856,9 @@ get4dMuonSegmentCombination( const MuonSegmentCombination* insegs ) const {
   MuonSegmentCombination* pcol = 0;
 
   ATH_MSG_DEBUG ( "  Combination has r/phi segments " << rsegs.size() << " / " << phisegs.size() );
+  ATH_MSG_DEBUG("chamber has "<<insegs->getNGoodCscLayers(1)<<" good eta layers and "<<insegs->getNGoodCscLayers(0)<<" good phi layers");
   
-  if( rsegs.empty() || phisegs.empty() ){
+  if( (rsegs.empty() && insegs->useStripsInSegment(1)) || (phisegs.empty() && insegs->useStripsInSegment(0)) ){
     ATH_MSG_DEBUG ( "  Station does not have a r/phi segment, cannot make 4d segment " ); 
     return pcol;
   }
@@ -1864,8 +1869,6 @@ get4dMuonSegmentCombination( const MuonSegmentCombination* insegs ) const {
     ATH_MSG_ERROR("Could not retrieve event info from TDS.");
     return 0;
   }
-  //FIXME!
-  bool use2LaySegFinding=insegs->use2LayerSegments();
 
   ICscSegmentFinder::SegmentVec* pnewsegs = new ICscSegmentFinder::SegmentVec;
   for ( ICscSegmentFinder::SegmentVec::const_iterator irsg=rsegs.begin();
@@ -1903,8 +1906,15 @@ get4dMuonSegmentCombination( const MuonSegmentCombination* insegs ) const {
         ATH_MSG_DEBUG ( "Segment rejected too low likelihood: " << xylike);
         continue;
       }
-      MuonSegment* pseg = make_4dMuonSegment(rsg, psg, use2LaySegFinding);
-      if( pseg ) pnewsegs->push_back(pseg);
+      MuonSegment* pseg = 0;
+      //if don't use phi, make segments from eta only; if don't use eta, make segments from phi only; else make segments from both
+      if(!insegs->useStripsInSegment(0)) pseg=make_4dMuonSegmentSingle(rsg,insegs->use2LayerSegments(1),true);
+      else if(!insegs->useStripsInSegment(1)) pseg=make_4dMuonSegmentSingle(psg,insegs->use2LayerSegments(0),false);
+      else pseg=make_4dMuonSegment(rsg, psg, insegs->use2LayerSegments(1), insegs->use2LayerSegments(0));
+      if( pseg ){
+	ATH_MSG_DEBUG("created new 4d segment");
+	pnewsegs->push_back(pseg);
+      }
     } // for phisegs
   } // for rsegs
 
@@ -1913,6 +1923,7 @@ get4dMuonSegmentCombination( const MuonSegmentCombination* insegs ) const {
     pnewsegs=0;
     return pcol;
   }
+  else ATH_MSG_DEBUG("created "<<pnewsegs->size()<<" new 4d segments");
 
   pcol =new MuonSegmentCombination;
   pcol->addSegments(pnewsegs);
@@ -1921,7 +1932,7 @@ get4dMuonSegmentCombination( const MuonSegmentCombination* insegs ) const {
 }
 
 
-///////////////////
+/////////////////// This code is perhaps not used any more?
 MuonSegmentCombination* CscSegmentUtilTool::
 get4dMuonSegmentCombination(  Identifier eta_id, Identifier phi_id,
                               ICscSegmentFinder::ChamberTrkClusters& eta_clus,
@@ -1944,7 +1955,7 @@ get4dMuonSegmentCombination(  Identifier eta_id, Identifier phi_id,
 
 /*************** PRIVATE FUNCTION *******************/
 MuonSegment* CscSegmentUtilTool::
-make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LaySegs) const {
+make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LaySegsEta, bool use2LaySegsPhi) const {
 
   ATH_MSG_DEBUG("make_4dMuonSegment called");
   // if(use2LaySegs) std::cout<<"make 4d segment"<<std::endl;
@@ -2031,9 +2042,10 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
   // RIO's eta1 phi1 eta2 .... to make fitting easier.
   
   // ECC - allow for 3-hit segments.
-  unsigned int nMinRIOs=3;
-  if(use2LaySegs) nMinRIOs=2;
-  if ( etarios.size()>=nMinRIOs && phirios.size()>=nMinRIOs ) {
+  unsigned int nMinRIOsEta=3,nMinRIOsPhi=3;
+  if(use2LaySegsEta) nMinRIOsEta=2;
+  if(use2LaySegsPhi) nMinRIOsPhi=2;
+  if ( etarios.size()>=nMinRIOsEta && phirios.size()>=nMinRIOsPhi ) {
     ATH_MSG_DEBUG ( "Using new RIO order." );
     ATH_MSG_DEBUG ( " eta/phi segment sizes: " << etarios.size() << " " << phirios.size() );
     // if(use2LaySegs) std::cout<<" eta/phi segment sizes: " << etarios.size() << " " << phirios.size()<<std::endl;
@@ -2217,7 +2229,7 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
   } //if ( etarios.size()>2 && phirios.size()>2 ) 
   
   unsigned int nMinRIOsTot=5;
-  if(use2LaySegs) nMinRIOsTot=4;
+  if(use2LaySegsEta || use2LaySegsPhi) nMinRIOsTot=4;
   if( rios->size() < nMinRIOsTot ){
     ATH_MSG_WARNING( "too few CSC hits collected, not making segment: rios " << rios->size() );
     delete rios;
@@ -2237,13 +2249,65 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
   return pseg;
 }
 
+//No eta or phi, so just use one or the other
+MuonSegment* CscSegmentUtilTool::
+make_4dMuonSegmentSingle(const MuonSegment& sg, bool use2LaySegs, bool isEta) const {
+
+  ATH_MSG_DEBUG("make_4dMuonSegmentSingle called");
+  if(isEta) ATH_MSG_DEBUG("make 4d segment from eta information only");
+  else ATH_MSG_DEBUG("make 4d segment from phi information only");
+
+  unsigned int nMinRIOs=3;
+  if(use2LaySegs) nMinRIOs=2;
+  const ICscSegmentFinder::RioList& rio_list = sg.containedROTs();
+  if ( rio_list.size()<nMinRIOs){
+    ATH_MSG_DEBUG("only "<<rio_list.size()<<", RIO's, insufficient to build the 4d segment from a single eta/phi segment");
+    return 0;
+  }
+
+  double rpos,phipos;
+  if(isEta){
+    rpos = sg.localParameters()[Trk::locX];
+    phipos = sg.localParameters()[Trk::locY];
+  }
+  else{
+    rpos = sg.localParameters()[Trk::locY];
+    phipos = sg.localParameters()[Trk::locX];
+  }
+  Amg::Vector2D pos(phipos, rpos);
+  double time= sg.time();
+  double errorTime = sg.errorTime();
+
+  const Amg::MatrixX& cov = sg.localCovariance();
+  Trk::PlaneSurface* psrf = new Trk::PlaneSurface(sg.associatedSurface());
+  Trk::FitQuality* pfq = new Trk::FitQuality(*sg.fitQuality());
+
+  // Local position and direction.
+  Trk::LocalDirection pdir=sg.localDirection();
+
+  ICscSegmentFinder::MbaseList* rios = new ICscSegmentFinder::MbaseList;
+
+  ATH_MSG_DEBUG("make_4dMuonSegmentSingle:: seg time " << sg.time());
+  for (unsigned int irio=0; irio<rio_list.size(); irio++) {
+    const Trk::RIO_OnTrack* pold = rio_list[irio];
+    const Trk::RIO_OnTrack* newrot = m_rotCreator->createRIO_OnTrack(*pold->prepRawData(), pold->globalPosition(), sg.globalDirection());
+    rios->push_back(newrot);
+  }
+
+  MuonSegment* pseg = new MuonSegment(pos, pdir, cov, psrf, rios, pfq, Trk::Segment::Csc4dSegmentMaker);
+  pseg->setT0Error(time, errorTime);
+  ATH_MSG_DEBUG ( "Segment " << rios->size() << " : ");
+
+  return pseg;
+}
+
 ///////////////////////////////////////////////////////
 void CscSegmentUtilTool::
 get2dSegments(  Identifier eta_id, Identifier phi_id,
                 ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                 ICscSegmentFinder::ChamberTrkClusters& phi_clus,
                 ICscSegmentFinder::Segments& eta_segs, ICscSegmentFinder::Segments& phi_segs,
-                const Amg::Vector3D& lpos000, bool use2Lay, int badLay1, int badLay2 ) const {
+                const Amg::Vector3D& lpos000, int etaStat, int phiStat ) const {
   
   if( !eta_id.is_valid() && !phi_id.is_valid() ){
     ATH_MSG_WARNING("in get2dSegments: got two invalid identifiers" );
@@ -2258,6 +2322,7 @@ get2dSegments(  Identifier eta_id, Identifier phi_id,
 
   ATH_MSG_DEBUG ( "get2dSegments called  " << eta_id << "  " << phi_id << "  "
                   << col_station << "  " << col_eta <<  " " << col_phisec << "  "
+		  << etaStat << " " << phiStat<< " "
                   << "  Counts: "  << eta_clus[0].size() << " " << eta_clus[1].size() << " "
                   << eta_clus[2].size() << " " << eta_clus[3].size() );
 
@@ -2282,30 +2347,30 @@ get2dSegments(  Identifier eta_id, Identifier phi_id,
   add_2dsegments(eta_segs, eta_segs3hit);
   add_2dsegments(phi_segs, phi_segs3hit);
 
-  if(use2Lay){
-    //1=use for 2-layer segment finding, 0=potentially working but don't use for 2-layer segment finding, -1=bad
-    //this way we can reject hits in dead layers due to noise or cross-talk; rejection is done as part of overlap removal
-    std::vector<int> layStat(4,0);
-    for(int i=0;i<4;i++){
-      if(i==badLay1 || i==badLay2) layStat[i]=-1;
-      else layStat[i]=1;
-    }
-    // Find 2-hit 2D segments.
-    ICscSegmentFinder::Segments eta_segs2hit, phi_segs2hit;
+  int nGoodEta=0,nGoodPhi=0;
+  for (int i=0; i<4; ++i){
+    if((etaStat%(int)pow(10,i+1))/(int)pow(10,i)==0) nGoodEta++;
+    if((phiStat%(int)pow(10,i+1))/(int)pow(10,i)==0) nGoodPhi++;
+  }
+  if(nGoodEta==2){
+    // Find 2-hit 2D segments for eta.
+    ICscSegmentFinder::Segments eta_segs2hit;
 
     ATH_MSG_VERBOSE ( " start find_2dseg2hit eta ");
-    find_2dseg2hit(false, col_station, col_eta, col_phisec, layStat, eta_clus, lpos000, eta_segs2hit, pos_eta, slope_eta);
-    ATH_MSG_VERBOSE ( " start find_2dseg2hit phi ");
-    find_2dseg2hit(true,  col_station, col_eta, col_phisec, layStat, phi_clus, lpos000, phi_segs2hit, pos_phi, slope_phi);
+    find_2dseg2hit(false, col_station, col_eta, col_phisec, etaStat, eta_clus, lpos000, eta_segs2hit, pos_eta, slope_eta);
 	  
     // store 2-hit segments
     ATH_MSG_VERBOSE ( " store 2hit eta segments");
-    add_2dseg2hits(eta_segs, eta_segs2hit, layStat);
+    add_2dseg2hits(eta_segs, eta_segs2hit, etaStat);
+  }
+  if(nGoodPhi==2){
+    // Find 2-hit 2D segments for eta.
+    ICscSegmentFinder::Segments phi_segs2hit;
+    ATH_MSG_VERBOSE ( " start find_2dseg2hit phi ");
+    find_2dseg2hit(true,  col_station, col_eta, col_phisec, phiStat, phi_clus, lpos000, phi_segs2hit, pos_phi, slope_phi);
     ATH_MSG_VERBOSE ( " store 2hit phi segments");
-    add_2dseg2hits(phi_segs, phi_segs2hit, layStat);
-    ATH_MSG_VERBOSE ( " finished find_2dseg2hit phi ");
-  } 
-
+    add_2dseg2hits(phi_segs, phi_segs2hit, phiStat);
+  }
 
 }
 

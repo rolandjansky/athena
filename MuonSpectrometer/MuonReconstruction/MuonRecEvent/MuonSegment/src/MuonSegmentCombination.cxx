@@ -10,7 +10,7 @@ namespace Muon {
 
   MuonSegmentCombination::MuonSegmentCombination()
   {
-    m_use2LayerSegs=false;
+    nGood[0]=4; nGood[1]=4;
   }
     
   MuonSegmentCombination::~MuonSegmentCombination()
