@@ -425,11 +425,20 @@ class ThresholdDef:
 
         ## AFP
 
+#        if not '_v6' in TriggerFlags.triggerMenuSetup(): # first 2017 config
+#            tc.registerThr('AFP_C_SPECTOF', 'NIM', mapping=2).addThrValue(50)        
+#            tc.registerThr('AFP_C', 'NIM', mapping=3).addThrValue(50)        
+#            tc.registerThr('AFP_A_SPECTOF', 'NIM', mapping=4).addThrValue(50)        
+#            tc.registerThr('AFP_A', 'NIM', mapping=5).addThrValue(50)  
         if not '_v6' in TriggerFlags.triggerMenuSetup():
-            tc.registerThr('AFP_C_SPECTOF', 'NIM', mapping=2).addThrValue(50)        
-            tc.registerThr('AFP_C', 'NIM', mapping=3).addThrValue(50)        
-            tc.registerThr('AFP_A_SPECTOF', 'NIM', mapping=4).addThrValue(50)        
-            tc.registerThr('AFP_A', 'NIM', mapping=5).addThrValue(50)  
+            tc.registerThr('AFP_NSC', 'NIM', mapping=2).addThrValue(50)        
+            tc.registerThr('AFP_NSA', 'NIM', mapping=3).addThrValue(50)        
+            tc.registerThr('AFP_FSA_SIT', 'NIM', mapping=4).addThrValue(50)        
+            tc.registerThr('AFP_FSA_TOF', 'NIM', mapping=5).addThrValue(50)  
+            tc.registerThr('AFP_FSA_LOG', 'NIM', mapping=6).addThrValue(50)        
+            tc.registerThr('AFP_FSC_SIT', 'NIM', mapping=7).addThrValue(50)        
+            tc.registerThr('AFP_FSC_TOF', 'NIM', mapping=8).addThrValue(50)        
+            tc.registerThr('AFP_FSC_LOG', 'NIM', mapping=9).addThrValue(50)  
         else:
             tc.registerThr('AFP_NSC', 'NIM', mapping=2).addThrValue(50)
             tc.registerThr('AFP_FSC', 'NIM', mapping=3).addThrValue(50)
