@@ -29,15 +29,12 @@ class MdtHptdcReadOut : public MdtReadOut {
   uint16_t m_wcnt;
 
   // Data info:
-  uint16_t m_jt;
   uint16_t m_channel;
   uint16_t m_coarse;
   uint16_t m_fine;
   uint16_t m_width;
   bool     m_errflag;
-  uint16_t m_errstatus;
 
-  uint32_t m_masked;
   bool     m_leading;
 
   // Define the data structure and the word header values
@@ -56,19 +53,14 @@ class MdtHptdcReadOut : public MdtReadOut {
   static const uint16_t EOTvalue   = 0xc;
 
   // TDC single measurement
-  static const uint16_t TMCvalue   = 0x2;
-
-  // TDC single measurement
-  static const uint16_t TSMvalue   = 0x3;
+  static const uint16_t TSMvalue_lead   = 0x4;
+  static const uint16_t TSMvalue_tail   = 0x5;
 
   // TDC combined measurement
-  static const uint16_t TCMvalue   = 0x4;
+  static const uint16_t TCMvalue   = 0x9;
 
   // TDC error status
   static const uint16_t TESvalue   = 0x6;
-
-  // add the CSM trailer word count for operation with TDC trailer suppression
-  static const uint16_t TWCvalue   = 0x8;
 
  public:
 
@@ -82,47 +74,39 @@ class MdtHptdcReadOut : public MdtReadOut {
 
   // Methods to identify the word type
   // Beginning of TDC
-  bool is_BOT() {return ((m_wordHeader == BOTvalue1) || (m_wordHeader == BOTvalue2));};
+  bool is_BOT() {return ((m_wordHeader == BOTvalue1) ||
+                         (m_wordHeader == BOTvalue2));};
   // End of TDC
   bool is_EOT() {return (m_wordHeader == EOTvalue);};
-  // TDC masked channels
-  bool is_TMC() {return (m_wordHeader == TMCvalue);};
   // TDC single measurement
-  bool is_TSM() {return (m_wordHeader == TSMvalue);};
+  bool is_TSM() {return ( (m_wordHeader == TSMvalue_lead) ||
+                          (m_wordHeader == TSMvalue_tail) );};
   // TDC combined measurement
   bool is_TCM() {return (m_wordHeader == TCMvalue);};
   // TDC error status
   bool is_TES() {return (m_wordHeader == TESvalue);};
-
-  // trailer word count (actually a CSM word)
-  bool is_TWC() {return (m_wordHeader == TWCvalue);};
 
   // Methods to retrieve the decoded word content
   uint16_t tdcId() {return m_tdcId;}
   uint16_t ecnt()  {return m_ecnt;}
   uint16_t bcId()  {return m_bcId;}
 
-  uint16_t jt()        {return m_jt;}
   uint16_t channel()   {return m_channel;}
   uint16_t coarse()    {return m_coarse;}
   uint16_t fine()      {return m_fine;}
   uint16_t width()     {return m_width;}
   bool     errflag()   {return m_errflag;}
-  uint16_t errstatus() {return m_errstatus;}
-  uint32_t masked()    {return m_masked;}
   bool     isLeading() {return m_leading;}
 
   // Methods to encode data in 32 bits words
 
   uint32_t makeBOT(uint16_t tdcId, uint16_t ecnt, uint16_t bcid);
-  uint32_t makeEOT(uint16_t jt, uint16_t ecnt, uint16_t wcnt);
-  uint32_t makeTSM(uint16_t jt, uint16_t channel, bool leading, bool errflag,
+  uint32_t makeEOT(uint16_t tdcId, uint16_t ecnt, uint16_t wcnt);
+  uint32_t makeTSM(uint16_t tdcId, uint16_t channel, bool leading,
 		   uint16_t coarse, uint16_t fine);
 
-  uint32_t makeTCM(uint16_t jt, uint16_t channel, uint16_t width,
+  uint32_t makeTCM(uint16_t tdcId, uint16_t channel, uint16_t width,
 		   uint16_t coarse, uint16_t fine);
-
-  uint32_t makeTMC(uint16_t jt, uint32_t masked);
 
  private:
 

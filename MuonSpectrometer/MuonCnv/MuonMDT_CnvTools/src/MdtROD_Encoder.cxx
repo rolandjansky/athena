@@ -153,7 +153,7 @@ void MdtROD_Encoder::fillROD(std::vector<uint32_t>& v)
 
       // Masked channels flags
       if (maskedFlags != 0) {
-	v.push_back( (isBMG ? hptdcReadOut->makeTMC(jt, maskedFlags) : amtReadOut->makeTMC(jt, maskedFlags)) );
+	v.push_back( (isBMG ? 0 : amtReadOut->makeTMC(jt, maskedFlags)) );
 	++ctwc;
 	++wcnt;
       }
@@ -170,13 +170,14 @@ void MdtROD_Encoder::fillROD(std::vector<uint32_t>& v)
 	uint16_t coarse = (*it_amtvec)->coarse();
 	uint16_t fine   = (*it_amtvec)->fine();
 	uint16_t width  = (*it_amtvec)->width();
+	uint16_t tdcId  = (*it_amtvec)->tdcId();
 
 	// Add a "Single Measurement" word
-	// v.push_back( isBMG ? hptdcReadOut->makeTSM(jt, chan, leading, errflag, coarse, fine)
+	// v.push_back( isBMG ? hptdcReadOut->makeTSM(tdcId, chan, leading, coarse, fine)
 	//                    : amtReadOut->makeTSM(jt, chan, leading, errflag, coarse, fine) );
 
 	// Add a combined measurement data word
-	v.push_back( (isBMG ? hptdcReadOut->makeTCM(jt, chan, width, coarse, fine)
+	v.push_back( (isBMG ? hptdcReadOut->makeTCM(tdcId, chan, width, coarse, fine)
 	                    : amtReadOut->makeTCM(jt, chan, width, coarse, fine) ) );
 
 	++ctwc;  // CSM word count
@@ -184,9 +185,10 @@ void MdtROD_Encoder::fillROD(std::vector<uint32_t>& v)
       }
       
       uint16_t jt   = 0;
+      uint16_t tdcId= 0;
       uint16_t ecnt = 0;    // Event counter
       // End of TDC trailer
-      v.push_back( (isBMG ? hptdcReadOut->makeEOT(jt,ecnt,wcnt+2) : amtReadOut->makeEOT(jt,ecnt,wcnt+2)));
+      v.push_back( (isBMG ? hptdcReadOut->makeEOT(tdcId,ecnt,wcnt+2) : amtReadOut->makeEOT(jt,ecnt,wcnt+2)));
       ++ctwc;
     }    
     
