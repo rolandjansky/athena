@@ -1,13 +1,13 @@
-         <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40_2016config'>
-            <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
-            <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
-	    <commandLineFlags>EventMax=900;runMergedChain=True;minVtxTrackpT=1000;bjetEtaHalfWidth=0.2;bjetPhiHalfWidth=0.2;splitZHalfWidth=20;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+         <athena trendId='FTKMergingTrend' userJobId='TrigInDetValidation_FTK_bjet_ttbar_offline'>
+            <doc>Bjetslice, ttbar, FTK chains</doc>
+            <displayName>BjetSlice, ttbar, FTK chains</displayName>
+	    <commandLineFlags>EventMax=500;doIDNewTracking=True;runMergedChain=True;doFTK=True</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
 	   
-#          include "samples/TrigInDetValidation_ttbar_sample1.xml"
+#          include "samples/TrigInDetValidation_FTK_ttbar_sample2.xml"
 
 
 
@@ -20,7 +20,7 @@
                 </arg>
                 <arg>
                     <argname>exeParamString</argname>
-                    <argvalue>TIDAdata11-rtt.dat -f data-bjet-pileup-merging.root -b Test_bin.dat </argvalue>
+                    <argvalue>TIDAdata11-rtt-offline.dat -f data-bjet-FTK.root -b Test_bin.dat </argvalue>
                 </arg>
             </action>
 
@@ -35,14 +35,13 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40_2016config-reference.root  HLT_j55_boffperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID  -d HLTEF-plots </argvalue>
+                    <argvalue>data-bjet-FTK.root data-FTK_bjet_ttbar_offline-reference.root HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_boffperf_split_FTKVtx_InDetTrigTrackingxAODCnv_Bjet_FTF HLT_j55_boffperf_split_FTK_InDetTrigTrackingxAODCnv_Bjet_FTK  HLT_j55_boffperf_split_FTKRefit_InDetTrigTrackingxAODCnv_Bjet_FTKRefit -d HLTL2-plots </argvalue>
                 </arg>
             </action>
 
 
 
-
-            <action position="03">
+           <action position="03">
                 <modulename>RttLibraryTools</modulename> 
                 <testname>ExeRunner</testname> 
                 <arg> 
@@ -51,10 +50,9 @@
                 </arg>
                 <arg> 
                     <argname>exeParamString</argname>
-                    <argvalue>data-bjet-pileup-merging.root data-bjet_IBL_pu40_2016config-reference.root   HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_boffperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots </argvalue>
+                    <argvalue>data-bjet-FTK.root data-FTK_bjet_ttbar_offline-reference.root HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_boffperf_split_FTKVtx_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_boffperf_split_FTK_InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig  HLT_j55_boffperf_split_FTKRefit_InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig -d HLTEF-plots </argvalue>
                 </arg>
             </action>
-
 
 
 
@@ -63,6 +61,8 @@
 #         include "TrigInDetValidation_extra.xml"
 
 
+
+        
 
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>

@@ -68,6 +68,7 @@
 #     include   "TrigInDetValidation_bjet_IBL_pu80.xml"
 
 #     include   "TrigInDetValidation_bjet_IBL_pu40_2016config.xml"
+#     include   "TrigInDetValidation_bjet_IBL_pu40_offline_2016config.xml"
 
 <!-- #     include   "TrigInDetValidation_bjet_IBL_pu40_trkpt2.xml"  -->
 <!-- #     include   "TrigInDetValidation_bjet_IBL_pu40_super1.xml" -->
@@ -101,6 +102,8 @@
 #     include   "TrigInDetValidation_FTK_tau_tautau.xml"
 #     include   "TrigInDetValidation_FTK_bjet_ttbar.xml"
 #     include   "TrigInDetValidation_FTK_beamspot_ttbar.xml"
+#     include   "TrigInDetValidation_FTK_mu_ttbar_offline.xml"
+#     include   "TrigInDetValidation_FTK_bjet_ttbar_offline.xml"
 
       </jobList>
 
