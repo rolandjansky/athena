@@ -527,17 +527,19 @@ class header {
 
 public:
 
-  header( ) { 
+  header( const std::string& configname="", const std::string& slicename="" ) { 
 
     std::string user = std::getenv("USER");
 
     (*outp) << "######################################################################\n";
-    (*outp) << "# $Id: collisions_run.config " << date() << " " << user << " $\n";
+    if ( configname=="" )  (*outp) << "# $Id: collisions_run.config " << date() << " " << user << " $\n";
+    else                   (*outp) << "# $Id: " << configname << "  " << date() << " " << user << " $\n";
     (*outp) << "######################################################################\n";
     
     (*outp) << "\n";
     (*outp) << "#######################\n";
-    (*outp) << "# HLTidtrk\n";
+    if ( slicename=="" ) (*outp) << "# HLTidtrk\n";
+    else                 (*outp) << "# " << slicename << "\n";
     (*outp) << "#######################\n";
 
     (*outp) << "\n\n";
@@ -1037,6 +1039,7 @@ int usage(std::ostream& s, int , char** argv, int status=-1) {
   s << "    -b,   --base   DIR       \tuse directory DIR as the base for the han config\n";
   s << "    -d,   --dir    DIR       \tonly directories below DIR where DIR is a structure such as HLT/TRIDT etc\n";
   s << "    -x,            DIR       \texclude directory DIR\n";
+  s << "    -s,   --slice  SLICE     \ttrigger signature name (for comments)\n"; 
   s << "    -r             SRC DST   \tremap directory SRC to directory DST\n"; 
   s << "    -ds,  --desc   DESCRIP   \tuse DESCRIP as the description\n"; 
   s << "    -t,   --tag    VALUE     \tadd the VALUE to the list of command per histogram\n";
@@ -1106,6 +1109,8 @@ int main(int argc, char** argv) {
   bool relocate  = false;
 
   std::string outfile = "";
+  std::string   slice = "";
+
 
   int offset = 1;
 
@@ -1137,6 +1142,11 @@ int main(int argc, char** argv) {
     else if ( std::string(argv[i])=="-rc" || std::string(argv[i])=="-refconf" ) {
       ++i;
       if ( i<argc-offset ) referenceblock( argv[i] );
+      else  return usage( std::cerr, argc, argv );
+    } 
+    else if ( std::string(argv[i])=="-s" || std::string(argv[i])=="--slice" ) {
+      ++i;
+      if ( i<argc-offset ) slice = argv[i];
       else  return usage( std::cerr, argc, argv );
     } 
     else if ( std::string(argv[i])=="-dr"  || std::string(argv[i])=="--deleteref" ) deleteref = true;
@@ -1239,7 +1249,7 @@ int main(int argc, char** argv) {
 
   if ( outfile!="" ) outp = new std::ofstream(outfile.c_str()); 
 
-  header h;
+  header h( outfile, slice );
 
   for ( unsigned ir=0 ; ir<references.size() ; ir++ ) (*outp) << references[ir] << std::endl; 
 
