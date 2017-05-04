@@ -1,8 +1,8 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef MUONEFFCORECTIONSPROVIDER
 #define MUONEFFCORECTIONSPROVIDER
@@ -18,26 +18,27 @@ namespace CP {
 
 /// decorates a muon collection with efficiency and scale factor
 
-class MuonEfficiencyCorrectionsProvider : public AthAlgorithm {
+    class MuonEfficiencyCorrectionsProvider: public AthAlgorithm {
 
-public:
-    /// Regular Algorithm constructor
-    MuonEfficiencyCorrectionsProvider( const std::string& name, ISvcLocator* svcLoc );
+        public:
+            /// Regular Algorithm constructor
+            MuonEfficiencyCorrectionsProvider(const std::string& name, ISvcLocator* svcLoc);
 
-    /// Function initialising the algorithm
-    virtual StatusCode initialize();
-    /// Function executing the algorithm
-    virtual StatusCode execute();
+            /// Function initialising the algorithm
+            virtual StatusCode initialize();
+            /// Function executing the algorithm
+            virtual StatusCode execute();
 
-private:
-    /// muon container
-    std::string m_sgKey;
+        private:
+            /// muon container
+            std::string m_sgKey;
 
-    /// Scale factor tool
-    ToolHandle< IMuonEfficiencyScaleFactors > m_sf_Tool;
+            /// Scale factor tool
+            ToolHandle<IMuonEfficiencyScaleFactors> m_sf_Tool;
 
-}; // class
+    };
+// class
 
-} // namespace CP
+}// namespace CP
 
 #endif //
