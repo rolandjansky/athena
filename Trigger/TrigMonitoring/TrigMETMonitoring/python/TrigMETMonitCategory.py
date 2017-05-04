@@ -13,7 +13,7 @@ met_triggers_l1 = [
 # 
 met_triggers_hlt = [
         ##      "HLT_mu30",
-        "HLT_xe140_pufit_L1XE50",
+        "HLT_xe100_pufit_L1XE50",
         "HLT_xe110_mht_L1XE50",
         #"HLT_xs30",    
         #"HLT_xe70_tc_lcw",    
