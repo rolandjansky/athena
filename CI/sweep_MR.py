@@ -77,7 +77,7 @@ def get_sweep_target_branch_rules(src_branch):
     
     return target_branch_rules
 
-def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project):
+def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project,dry_run=False):
     # keep track of successful and failed cherry-picks
     good_branches = set()
     failed_branches = set()
@@ -122,7 +122,9 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project):
 
     labels.add("sweep:done")
     mr_handle.labels = list(labels)
-    mr_handle.save()
+    # update labels only if this is for real
+    if not dry_run:
+        mr_handle.save()
 
     # get list of affected packages for this MR
     affected_packages = list_changed_packages(mr_handle)
@@ -141,8 +143,11 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project):
         else:
             logging.debug("skip branches for rule '%s'",rule)
 
-    logging.info("MR %d is swept to %d branches",MR_IID,len(target_branches))
-    logging.debug("sweep target branches: %r",target_branches)
+    logging.info("MR %d [%s] is swept to %d branches: %r",MR_IID,merge_commit,len(target_branches),list(target_branches))
+
+    # if this is a test run, we can stop here
+    if dry_run:
+        return
 
     # get initial MR commit title and description
     _,mr_title,_ = execute_command_with_retry('git show {0} --pretty=format:"%s"'.format(merge_commit))
@@ -212,6 +217,7 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project):
 def main():
     parser = argparse.ArgumentParser(description="GitLab merge request commentator",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-b","--branch",required=True,help="remote branch whose merge commits should be swept (e.g. origin/master)")
+    parser.add_argument("-d","--dry-run",dest="dry_run",action='store_true',help="only perform a test run without actually modifying anything")
     parser.add_argument("-p","--project-name",dest="project_name",required=True,help="GitLab project with namespace (e.g. user/my-project)")
     parser.add_argument("-s","--since",default="1 day ago",help="start of time interval for sweeping MR (e.g. 1 week ago)")
     parser.add_argument("-t","--token",required=True,help="private GitLab user token")
@@ -229,6 +235,9 @@ def main():
                         level=logging.getLevelName(args.verbose))
 
     logging.debug("parsed arguments:\n" + repr(args))
+
+    if args.dry_run:
+        logging.info("running in TEST mode")
 
     # we only support porting merge commits from remote branches since we expect
     # them to be created through the Gitlab web interface
@@ -276,12 +285,13 @@ def main():
     # get list of MRs in relevant period
     MR_list = get_list_of_merge_commits(args.branch,args.since,args.until)
     if not MR_list:
-        logging.info("no MRs to '%s' found during last %s",args.branch,args.since)
+        logging.info("no MRs to '%s' found in period from %s until %s",args.branch,args.since,args.until)
         sys.exit(0)
 
     # do the actual cherry-picking
     for mr in MR_list:
-        cherry_pick_mr(mr,args.branch,target_branch_rules,project)
+        cherry_pick_mr(mr,args.branch,target_branch_rules,project,args.dry_run)
+
     # change back to initial directory
     os.chdir(current_dir)
 
