@@ -1,6 +1,6 @@
 ####################################################################################
 ## This configuration replicates the beam configuration in the
-## following file: XXX. See the
+## following file: 25ns_2556b_2544_2205_2308_144bpi_20inj.csv. See the
 ## following ticket for more details:
 ## https://its.cern.ch/jira/browse/ATLASSIM-3302
 ## Any of the filled bunch crossings can be chosen as the central
