@@ -53,7 +53,7 @@ def defineMenu():
         #--------------------------
 
         # 16 x TAU
-        'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA20IT', 'HA25', 'HA25IT', 'HA30', 'HA40', 'HA60', 'HA100', 
+        'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA20IT', 'HA25', 'HA25IM', 'HA30', 'HA40', 'HA60', 'HA100', 
 
         #----------------------
         # SLOT 8 / CON 0 (JET1)
@@ -416,7 +416,8 @@ def defineMenu():
         # combined tau - jet
 #        "L1_TAU25IT_2TAU12IT_2J25_3J12", 
 
-        "L1_TAU20IM_2TAU12IM_J25_2J20_3J12", 
+        "L1_TAU20IM_2TAU12IM_J25_2J20_3J12",
+        "L1_TAU25IM_2TAU20IM_2J25_3J20", 
         'L1_J25_2J20_3J12_BOX-TAU20ITAU12I',  
         'L1_DR-MU10TAU12I_TAU12I-J25', 
         "L1_MU10_TAU12I-J25",
@@ -990,6 +991,7 @@ def defineMenu():
         'L1_MU10_TAU20IM_J25_2J20' : 377,
 
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12' : 70,
+        'L1_TAU25IM_2TAU20IM_2J25_3J20' : 398,
         'L1_J25_2J20_3J12_BOX-TAU20ITAU12I' : 71,
         'L1_DR-MU10TAU12I_TAU12I-J25' : 72,
         'L1_MU10_TAU12I-J25' : 73,
