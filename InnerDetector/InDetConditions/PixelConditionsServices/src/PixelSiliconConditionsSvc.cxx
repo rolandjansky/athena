@@ -222,7 +222,7 @@ PixelSiliconConditionsSvc::setConditionsFromGeoModel()
   DecodeVersionKey versionKey(&*m_geoModelSvc, "Pixel");
   msg(MSG::DEBUG) << "Checking GeoModel Version Tag: "<<  versionKey.tag() << " at Node: " << versionKey.node() << endmsg;
 
-  const IRDBRecordset * pixelConditionsSet = m_rdbSvc->getRecordset("PixelConditions",  versionKey.tag(), versionKey.node());
+  IRDBRecordset_ptr  pixelConditionsSet = m_rdbSvc->getRecordsetPtr("PixelConditions",  versionKey.tag(), versionKey.node());
   if (pixelConditionsSet->size()) {
     msg(MSG::DEBUG) << "Default conditions available from GeoModel."  << endmsg;
     const IRDBRecord * defaultConditions = (*pixelConditionsSet)[0];
@@ -237,7 +237,7 @@ PixelSiliconConditionsSvc::setConditionsFromGeoModel()
     }
   } else {
     // PixelConditions table doesn't exist so try old table
-    const IRDBRecordset * plor = m_rdbSvc->getRecordset("PLOR",  versionKey.tag(), versionKey.node());
+    IRDBRecordset_ptr  plor = m_rdbSvc->getRecordsetPtr("PLOR",  versionKey.tag(), versionKey.node());
     if (plor->size() != 0) {
       msg(MSG::DEBUG) << "Default conditions available from GeoModel."  << endmsg;
       m_geoModelTemperature = (*plor)[0]->getDouble("TEMPC");

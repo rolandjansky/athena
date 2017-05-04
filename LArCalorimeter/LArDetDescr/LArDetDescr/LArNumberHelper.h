@@ -6,14 +6,12 @@
 #define LArNumberHelper_H
 
 #include "Identifier/Identifier.h"
-
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 class StoreGateSvc;
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
 
-class IRDBAccessSvc;
-class IRDBRecordset;
 class IRDBRecord;
 class LArCellVolumes;
 class IGeoModelSvc;
@@ -134,7 +132,7 @@ public :
   StoreGateSvc* m_pDetStore;   
 
   IRDBAccessSvc* m_iAccessSvc;
-  const IRDBRecordset* m_lar;
+  IRDBRecordset_ptr m_lar;
   const IRDBRecord* m_rec;
   const IGeoModelSvc* m_geoModelSvc;
 
