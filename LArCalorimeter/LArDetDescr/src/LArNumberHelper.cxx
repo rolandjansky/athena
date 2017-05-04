@@ -30,6 +30,7 @@ LArNumberHelper::LArNumberHelper(const std::string geometry) :
   m_geometry(geometry),
   m_pDetStore(0),
   m_iAccessSvc(0),
+  m_lar(0),
   m_rec(0),
   m_geoModelSvc(0),
   m_cellVolumes(0),
@@ -115,7 +116,7 @@ LArNumberHelper::LArNumberHelper(const std::string geometry) :
 	db_nb_hec();
 	db_nb_fcal();
 	
-	IRDBRecordset_ptr recCellVolumes = m_iAccessSvc->getRecordsetPtr("LArCellVolumes",m_tag,m_node);
+	const IRDBRecordset* recCellVolumes = m_iAccessSvc->getRecordset("LArCellVolumes",m_tag,m_node);
 	
 	if(recCellVolumes->size()==0)
 	  {
@@ -123,7 +124,7 @@ LArNumberHelper::LArNumberHelper(const std::string geometry) :
 	    // That probably means the LArCellVolumes node does not exist for this
 	    // particular version of atlas geometry. Make another try
 	    
-	    recCellVolumes = m_iAccessSvc->getRecordsetPtr("LArCellVolumes","LArCellVolumes-00");
+	    recCellVolumes = m_iAccessSvc->getRecordset("LArCellVolumes","LArCellVolumes-00");
 	  }
 	
 	if(recCellVolumes->size())
@@ -334,7 +335,7 @@ LArNumberHelper::prepare_arrays()
     phiEMBShift = cellnb * cellsize / 2. ;
   }  
   else {
-    m_lar = m_iAccessSvc->getRecordsetPtr("BarrelGeometry",m_tag,m_node);
+    m_lar = m_iAccessSvc->getRecordset("BarrelGeometry",m_tag,m_node);
     if (m_lar->size()) {
       m_rec = (*m_lar)[0];
       phiEMBShift = -1.*m_rec->getDouble("PHIFIRST");
@@ -503,7 +504,7 @@ LArNumberHelper::db_nb_em()
   // m_emb_psin = 141.23*CLHEP::cm;    // this is the TDR number 1385 mm + 27.3 mm   
   //  ----> overwritten
 
-  m_lar = m_iAccessSvc->getRecordsetPtr("PresamplerGeometry","ATLAS-00","ATLAS");
+  m_lar = m_iAccessSvc->getRecordset("PresamplerGeometry","ATLAS-00","ATLAS");
 
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];
@@ -514,7 +515,7 @@ LArNumberHelper::db_nb_em()
   // m_accg_rin_ac = 144.73*CLHEP::cm; // 1385mm + 27.3mm + 35mm
   // m_accg_rout_ac = 200.35*CLHEP::cm; // end of active material
   //  ----> overwritten
-  m_lar = m_iAccessSvc->getRecordsetPtr("BarrelGeometry",m_tag,m_node);
+  m_lar = m_iAccessSvc->getRecordset("BarrelGeometry",m_tag,m_node);
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];  
     m_accg_rin_ac = m_rec->getDouble("RMIN") *CLHEP::cm;
@@ -532,7 +533,7 @@ LArNumberHelper::db_nb_em()
   // m_acco_rmx12[6] = 153.23*CLHEP::cm;
   // m_acco_rmx12[7] = 153.23*CLHEP::cm;
   //  ----> overwritten
-  m_lar = m_iAccessSvc->getRecordsetPtr("BarrelLongDiv",m_tag,m_node);
+  m_lar = m_iAccessSvc->getRecordset("BarrelLongDiv",m_tag,m_node);
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];  
     m_acco_rmx12[0] = m_rec->getDouble("RMX12_0")*CLHEP::cm;
@@ -555,7 +556,7 @@ LArNumberHelper::db_nb_em()
   // m_acco_ee12[6] = 1.3531;
   // m_acco_ee12[7] = 1.6;
   //  ----> overwritten
-  m_lar = m_iAccessSvc->getRecordsetPtr("BarrelLongDiv",m_tag,m_node);
+  m_lar = m_iAccessSvc->getRecordset("BarrelLongDiv",m_tag,m_node);
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];  
     m_acco_ee12[0] = m_rec->getDouble("EE_0");
@@ -574,7 +575,7 @@ LArNumberHelper::db_nb_em()
     m_acco_rmx23[52] = 178.89*CLHEP::cm;
   */
   //  ----> overwritten
-  m_lar = m_iAccessSvc->getRecordsetPtr("BarrelLongDiv",m_tag,m_node);
+  m_lar = m_iAccessSvc->getRecordset("BarrelLongDiv",m_tag,m_node);
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];  
     m_acco_rmx23[0] = m_rec->getDouble("RMX23_0")*CLHEP::cm;
@@ -636,7 +637,7 @@ LArNumberHelper::db_nb_em()
   // m_endg_zorig = 369.1*CLHEP::cm; // this is the NOVA/Oracle number
   // m_emb_iwout = 422.7*CLHEP::cm;  // 369.1*CLHEP::cm + 53.6*CLHEP::cm is the end of the active part
   // m_emec_out = 422.7*CLHEP::cm;  // 369.1*CLHEP::cm + 53.6*CLHEP::cm is the end of the active part
-  m_lar = m_iAccessSvc->getRecordsetPtr("EmecGeometry",m_tag,m_node);
+  m_lar = m_iAccessSvc->getRecordset("EmecGeometry",m_tag,m_node);
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];
     m_endg_zorig = m_rec->getDouble("Z1")*CLHEP::cm;
@@ -650,10 +651,10 @@ LArNumberHelper::db_nb_em()
   // m_emec_psin = 362.5*CLHEP::cm; // notch in cold wall of cryostat
   if ( m_geometry == "Atlas" ) {
     DecodeVersionKey detectorKeyAtl = DecodeVersionKey(m_geoModelSvc, "ATLAS");
-    m_lar = m_iAccessSvc->getRecordsetPtr("PresamplerPosition",detectorKeyAtl.tag(),detectorKeyAtl.node());
+    m_lar = m_iAccessSvc->getRecordset("PresamplerPosition",detectorKeyAtl.tag(),detectorKeyAtl.node());
   }
   else {
-    m_lar = m_iAccessSvc->getRecordsetPtr("PresamplerPosition",m_tag,m_node);
+    m_lar = m_iAccessSvc->getRecordset("PresamplerPosition",m_tag,m_node);
   }
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];
@@ -670,7 +671,7 @@ LArNumberHelper::db_nb_em()
   // m_esep_iw23[5] = 407.510*CLHEP::cm;
   // m_esep_iw23[6] = 404.730*CLHEP::cm;
   //  ----> overwritten
-  m_lar = m_iAccessSvc->getRecordsetPtr("EmecSamplingSep",m_tag,m_node);
+  m_lar = m_iAccessSvc->getRecordset("EmecSamplingSep",m_tag,m_node);
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];  
     m_esep_iw23[0] = m_rec->getDouble("ZIW_0")*CLHEP::cm;
@@ -686,7 +687,7 @@ LArNumberHelper::db_nb_em()
   // Note that in the gometryDB this is an array, but
   // of very similar numbers -> Zebra was using 1rst value only
   //  ----> overwritten
-  m_lar = m_iAccessSvc->getRecordsetPtr("EmecSamplingSep",m_tag,m_node);
+  m_lar = m_iAccessSvc->getRecordset("EmecSamplingSep",m_tag,m_node);
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];  
     m_esep_zsep12 = m_rec->getDouble("ZSEP12_0")*CLHEP::cm;
@@ -700,7 +701,7 @@ LArNumberHelper::db_nb_em()
   m_esep_zsep23 [21] = 401.153*CLHEP::cm;
   */
   //  ----> overwritten
-  m_lar = m_iAccessSvc->getRecordsetPtr("EmecSamplingSep",m_tag,m_node);
+  m_lar = m_iAccessSvc->getRecordset("EmecSamplingSep",m_tag,m_node);
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];  
     m_esep_zsep23 [0] = m_rec->getDouble("ZSEP23_0")*CLHEP::cm;
@@ -753,7 +754,7 @@ LArNumberHelper::db_nb_hec()
  
   // ---- Overwrite with real NOVA/Oracle numbers :
   
-  m_lar = m_iAccessSvc->getRecordsetPtr("HadronicEndcap",m_tag,m_node);
+  m_lar = m_iAccessSvc->getRecordset("HadronicEndcap",m_tag,m_node);
   
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];
@@ -1126,7 +1127,7 @@ LArNumberHelper::sagging_param( std::vector<double>& Rhocen, std::vector<double>
 
   m_iAccessSvc->connect();
 
-  m_lar = m_iAccessSvc->getRecordsetPtr("BarrelGeometry",m_tag,m_node);
+  m_lar = m_iAccessSvc->getRecordset("BarrelGeometry",m_tag,m_node);
   
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];
@@ -1148,7 +1149,7 @@ LArNumberHelper::sagging_param( std::vector<double>& Rhocen, std::vector<double>
     Rhocen.push_back(m_rec->getDouble("RHOCEN_14")*CLHEP::cm);
   }
  
-  m_lar = m_iAccessSvc->getRecordsetPtr("BarrelSagging",m_tag,m_node);
+  m_lar = m_iAccessSvc->getRecordset("BarrelSagging",m_tag,m_node);
   
   if (m_lar->size()) {
     m_rec = (*m_lar)[0];

@@ -38,6 +38,7 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   m_lookForSGErrContainer(true),
   //
   m_rxRedundancy(0),
+  m_firstTempMaskedChips(nullptr),
   m_tempMaskedChips(nullptr),
   m_isRODSimulatedData(false),
   m_numRODsHVon(0),
@@ -120,6 +121,7 @@ SCT_ByteStreamErrorsSvc::initialize(){
     } 
   }
 
+  m_firstTempMaskedChips = new std::map<IdentifierHash, unsigned int>;
   m_tempMaskedChips = new std::map<Identifier, unsigned int>;
 
   // Read Handle Key
@@ -140,6 +142,8 @@ SCT_ByteStreamErrorsSvc::finalize(){
   delete m_rxRedundancy;
   m_rxRedundancy = 0;
 
+  delete m_firstTempMaskedChips;
+  m_firstTempMaskedChips = nullptr;
   delete m_tempMaskedChips;
   m_tempMaskedChips = nullptr;
 
@@ -196,7 +200,7 @@ SCT_ByteStreamErrorsSvc::handle(const Incident& inc) {
     for(auto& rodDecodeStatus: m_rodDecodeStatuses) {
       rodDecodeStatus.second = false;
     }
-    m_firstTempMaskedChips.clear();
+    m_firstTempMaskedChips->clear();
     m_tempMaskedChips->clear();
   }
   return;
@@ -584,15 +588,14 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
     return;
   }
 
-  //// 1. set m_firstTempMaskedChips for this wafer
-  std::pair<std::map<IdentifierHash, unsigned int>::const_iterator, bool>
-    ret(m_firstTempMaskedChips.insert(std::make_pair(hashId, firstTempMaskedChip)));
-  if(not ret.second) {
-    ATH_MSG_WARNING("setFirstTempMaskedChip: already set for hashId " << hashId << 
-		    " firstTempMaskedChip is " << ret.first->second << 
-		    " and you are trying to put " << firstTempMaskedChip);
+  std::map<IdentifierHash, unsigned int>::const_iterator it(m_firstTempMaskedChips->find(hashId));
+  if(it!=m_firstTempMaskedChips->end()) {
+    ATH_MSG_WARNING("setFirstTempMaskedChip: already set for hashId " << hashId << " firstTempMaskedChip is " << it->second << " and you are trying to put " << firstTempMaskedChip);
     return;
   }
+
+  //// 1. set m_firstTempMaskedChips for this wafer
+  (*m_firstTempMaskedChips)[hashId] = firstTempMaskedChip;
   
   //// 2. set m_tempMaskedChips for this module
   
@@ -654,24 +657,6 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
   unsigned int tempMaskedChips2(0);
   if(type==0) {
     // both link-0 and link-1 are working
-
-    // Chips 0-5 are on side 0 and chips 6-11 are on side 1.
-    // Normally, modules send hits on side 0 via link-0 and side 1 via link-1. 
-    // The first temporally masked chip value is the id of the chip that is 
-    // first masked in the readout chain "plus one". 
-    // If the value is in between 1 to  6, it indicates side 0.
-    // If the value is in between 7 to 12, it indicates side 1.
-    // However, some special modules send hits on side 0 via link-1 and hits on
-    // side 1 via link-0. If the first masked chip value on side 1 (0) is 
-    // between 1 to 6 (7 to 12), it indicates the module is a special one.  
-    // In that case, information is swapped.
-    if((6<firstTempMaskedChip_side0 and firstTempMaskedChip_side0<=12) or
-       (0<firstTempMaskedChip_side1 and firstTempMaskedChip_side1<= 6)) {
-      int swapFirstTempMaskedChip_side0(firstTempMaskedChip_side0);
-      firstTempMaskedChip_side0 = firstTempMaskedChip_side1;
-      firstTempMaskedChip_side1 = swapFirstTempMaskedChip_side0;
-    }
-
     if(firstTempMaskedChip_side0>0) {
       for(int iChip(firstTempMaskedChip_side0-1); iChip<6; iChip++) {
 	tempMaskedChips2 |= (1<<iChip);
@@ -723,8 +708,8 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
 }
 
 unsigned int SCT_ByteStreamErrorsSvc::getFirstTempMaskedChip(const IdentifierHash& hashId) const {
-  std::map<IdentifierHash, unsigned int>::const_iterator it(m_firstTempMaskedChips.find(hashId));
-  if(it!=m_firstTempMaskedChips.end()) return it->second;
+  std::map<IdentifierHash, unsigned int>::const_iterator it(m_firstTempMaskedChips->find(hashId));
+  if(it!=m_firstTempMaskedChips->end()) return it->second;
   return 0;
 }
 

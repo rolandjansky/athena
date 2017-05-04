@@ -167,13 +167,15 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionTBEC::GetEnvelope()
   std::string detectorKey  = larVersion.tag();
   std::string detectorNode = larVersion.node();
 
+  /*const IRDBRecordset *emecGeometry   =*/ m_pAccessSvc->getRecordset("EmecGeometry",detectorKey, detectorNode); 
+
   // Default values....
   m_hasLeadCompensator = false;
   m_hasPresampler = false;
   m_ModuleRotation = 0.*CLHEP::deg;
   m_YShift = 0.*CLHEP::mm;
  
-  IRDBRecordset_ptr tbecGeometry   = m_pAccessSvc->getRecordsetPtr("TBECGeometry",detectorKey, detectorNode); 
+  const IRDBRecordset *tbecGeometry   = m_pAccessSvc->getRecordset("TBECGeometry",detectorKey, detectorNode); 
   if ((*tbecGeometry).size()!=0) {
     m_hasLeadCompensator = (*tbecGeometry)[0]->getInt("LEADCOMPENSATOR");
     m_hasPresampler      = (*tbecGeometry)[0]->getInt("PRESAMPLER");

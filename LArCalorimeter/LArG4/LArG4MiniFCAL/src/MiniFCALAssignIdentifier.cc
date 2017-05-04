@@ -101,17 +101,17 @@ namespace LArG4 {
       }
 
       //--- Get geometry information from database:
-      IRDBRecordset_ptr recEnvelope = pAccessSvc->getRecordsetPtr("MiniFcalEnvelope",detectorKey,detectorNode);
+      const IRDBRecordset* recEnvelope = pAccessSvc->getRecordset("MiniFcalEnvelope",detectorKey,detectorNode);
       if(recEnvelope->size()==0) {
         log << MSG::ERROR << "Unable to get envelope parameters from the database" << endmsg;
       }
 
-      IRDBRecordset_ptr recCommon = pAccessSvc->getRecordsetPtr("MiniFcalCommon",detectorKey,detectorNode);
+      const IRDBRecordset* recCommon = pAccessSvc->getRecordset("MiniFcalCommon",detectorKey,detectorNode);
       if(recCommon->size()==0) {
         log << MSG::ERROR << "Unable to get MiniFcalCommon from the database" << endmsg;
       }
 
-      IRDBRecordset_ptr recRings = pAccessSvc->getRecordsetPtr("MiniFcalRings",detectorKey,detectorNode);
+      const IRDBRecordset* recRings = pAccessSvc->getRecordset("MiniFcalRings",detectorKey,detectorNode);
       if(recRings->size()==0) {
         log << MSG::ERROR << "Unable to get MiniFcalRings from the database" << endmsg;
       }

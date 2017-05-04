@@ -39,7 +39,6 @@ s/(\.cxx|\.cpp|\.h|\.icc|LINE):[0-9]+/\\\\1/
 s/.[[][?]1034h//
 s/([0-9][0-9]* ms)/(xx ms)/
 s/([0-9][0-9]* ms total)/(xx ms total)/
-s/[[][0-9;]*m//g
 EOF
 
 # ignore diff annotations

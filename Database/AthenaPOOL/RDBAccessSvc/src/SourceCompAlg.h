@@ -8,13 +8,14 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
-#include <memory>
+#include "boost/shared_ptr.hpp"
+
 #include <string>
 #include <map>
 #include <vector>
 
 typedef std::map<std::string,IRDBRecordset_ptr> NodeToRecordsetMap;
-typedef std::shared_ptr<NodeToRecordsetMap> NodeToRecordsetMap_ptr;
+typedef boost::shared_ptr<NodeToRecordsetMap> NodeToRecordsetMap_ptr;
 typedef std::vector<NodeToRecordsetMap_ptr> NodeToRecordsetMapsVec;
 
 class SourceCompAlg : public AthAlgorithm 

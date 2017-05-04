@@ -1,0 +1,18 @@
+#!/usr/bin/expect -f
+set 0 [lindex $argv 0]
+set 1 [lindex $argv 1]
+set 2 [lindex $argv 2]
+
+# connect via scp
+spawn scp $0 $1
+#######################
+expect {
+-re ".*es.*o.*" {
+exp_send "yes\r"
+exp_continue
+}
+-re ".*sword.*" {
+exp_send "$2\r"
+}
+}
+interact

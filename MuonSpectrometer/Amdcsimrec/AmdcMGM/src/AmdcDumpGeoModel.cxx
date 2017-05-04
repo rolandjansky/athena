@@ -4,6 +4,7 @@
 
 #include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/PropertyMgr.h"
 
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/IDataProviderSvc.h"

@@ -6,7 +6,8 @@
 #define LUCID_RDBAaccess_h
 
 #include "GaudiKernel/Algorithm.h"
-#include "RDBAccessSvc/IRDBAccessSvc.h"
+
+class IRDBRecordset;
 
 class LUCID_RDBAccess { 
 
@@ -66,7 +67,7 @@ class LUCID_RDBAccess {
 
  private: 
   
-  IRDBRecordset_ptr lucidParams; 
+  const IRDBRecordset* lucidParams; 
   ISvcLocator* svcLocator; 
 }; 
 

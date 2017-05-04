@@ -7,9 +7,10 @@
 
 
 ALFA_RDBAccess::ALFA_RDBAccess()
-  : m_svcLocator(nullptr)
 {
-
+	m_fiberGeometry=NULL;
+	m_alfaParams=NULL;
+	m_svcLocator=NULL;
 }
 
 ALFA_RDBAccess::~ALFA_RDBAccess()
@@ -62,7 +63,7 @@ bool ALFA_RDBAccess::ReadFiberGeometry(IRDBAccessSvc* iAccessSvc, std::string el
 	std::list<FIBERDATA> listFData;
 	listFData.clear();
 
-	m_fiberGeometry = iAccessSvc->getRecordsetPtr(element, tag, node);
+	m_fiberGeometry = iAccessSvc->getRecordset(element, tag, node);
 	
 	if (!m_fiberGeometry->size())
 	{

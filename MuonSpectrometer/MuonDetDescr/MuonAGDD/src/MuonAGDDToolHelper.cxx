@@ -83,7 +83,7 @@ std::vector<std::string>& MuonAGDDToolHelper::ReadAGDDFlags()
 //     m_AGDD2GeoSwitchesStamp = m_AGDD2GeoSwitchesStamp + 1;
      std::string TheKEYNAME;
      int TheKEYVALUE;
-     IRDBRecordset_ptr pIRDBRecordset = p_RDBAccessSvc->getRecordsetPtr("AGDD2GeoSwitches",p_GeoModelSvc->muonVersion(),"MuonSpectrometer");
+     const IRDBRecordset* pIRDBRecordset = p_RDBAccessSvc->getRecordset("AGDD2GeoSwitches",p_GeoModelSvc->muonVersion(),"MuonSpectrometer");
      for(unsigned int i=0; i<pIRDBRecordset->size(); i++) 
      {
        const IRDBRecord* record = (*pIRDBRecordset)[i];
@@ -123,7 +123,7 @@ std::string MuonAGDDToolHelper::GetAGDD(bool dumpIt)
    } 
 
 
-   IRDBRecordset_ptr recordsetAGDD = accessSvc->getRecordsetPtr("AGDD",detectorKey,detectorNode);
+   const IRDBRecordset *recordsetAGDD = accessSvc->getRecordset("AGDD",detectorKey,detectorNode);
 
    const IRDBRecord *recordAGDD =  (*recordsetAGDD)[0];
    std::string AgddString = recordAGDD->getString("DATA");

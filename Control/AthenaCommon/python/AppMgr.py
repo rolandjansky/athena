@@ -254,7 +254,7 @@ class AthAppMgr( AppMgr ):
 
       def _build():
          Logging.log.debug ("building master sequence...")
-         athMasterSeq = _as.AthSequencer ("AthMasterSeq",Sequential = True, StopOverride=True)
+         athMasterSeq = _as.AthSequencer ("AthMasterSeq",Sequential = True)
          athFilterSeq = _as.AthSequencer ("AthFilterSeq"); 
          athBeginSeq  = _as.AthSequencer ("AthBeginSeq",Sequential=True)
          athCondSeq   = _as.AthSequencer ("AthCondSeq")

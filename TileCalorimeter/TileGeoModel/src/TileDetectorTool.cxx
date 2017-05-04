@@ -132,6 +132,13 @@ StatusCode TileDetectorTool::create(StoreGateSvc* detStore)
     }
     else
     {
+//      service("RDBAccessSvc",raccess);
+//      const IRDBRecordset* switches = raccess->getRecordset("TileSwitches",versionTag,versionNode);
+//      if ((*switches).size()==0) return StatusCode::SUCCESS; 
+//      m_computeCellDim = (*switches)[0]->getInt("COMPUTECELLDIM");
+//      m_buildGap = (*switches)[0]->getInt("BUILDGAP");
+//      m_buildCrack = (*switches)[0]->getInt("BUILDCRACK");
+//
       TileDetectorFactory theTileFactory(detStore,m_manager,m_addPlates,m_Ushape,&log);
       theTileFactory.create(world);
     }

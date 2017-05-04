@@ -336,21 +336,24 @@ dqm_algorithms::OccupancyHoleFinder::getMDTChamberName(const TH2* histo, int bin
       }
     }
     else if(name[1] == 'M') {
-        if(phiStat%2==0) stat_type = 'S';
-        if(phiStat%2==1) stat_type = 'L';
-        if(etaStat==6 && phiStat>12) phiStat = phiStat+1; //there is no phi=13 in eta=6, therefore phi=14,15,16
-                                                          //was moved one bin down in the histogram we are looking at 
-        if(phiStat==12 || phiStat==14){ //BMF and BMG
-            if(etaStat%2==0) stat_type='G';
-            //BMF naming does not correspond to the actual eta station. BMF eta station is 1,3,5 but the chambers are named
-            //BMF1, BMF2, BMF3. We set etaStat such that the proper name comes out at the end.
-            if(etaStat%2==1) {
-                stat_type = 'F';
-                if(etaStat==3) etaStat=2;
-                if(etaStat==5) etaStat=3;
-            }
-        }
-
+      if(etaStat <= 3){
+	if(phiStat%2==0) stat_type = 'S';
+	else stat_type = 'L';
+	if(phiStat == 12 || phiStat == 14) stat_type = 'F';
+      }
+      else if(etaStat <= 5){
+	if(phiStat%2 == 0) stat_type = 'S';
+	else if(phiStat%2 == 1) stat_type = 'L';
+	//fix phiStat
+	if(phiStat>=13) phiStat+=2;
+	if(phiStat==12) { stat_type = 'L'; phiStat++; }
+      }
+      else {
+	if(phiStat%2 == 0) stat_type = 'S';
+	else if(phiStat%2 == 1) stat_type = 'L';
+	if(phiStat == 12) {stat_type = 'L'; phiStat=15;}
+	if(phiStat == 13) {stat_type = 'S'; phiStat=16;}
+      }
     }
     else {//'O'
       if( etaStat == 0 ) {
@@ -485,34 +488,30 @@ dqm_algorithms::OccupancyHoleFinder::getMDTChamberNameByCrate(int biny, std::str
   } else if(crate.substr(0,1) == "B" && crate.substr(2,2) == "03"){
 	int cOffset = 0;
 	if (crate.substr(1,1) == "C"){ cOffset = 1;}
-	if( (biny-74 + cOffset) > 0) { // BOS
+	if( (biny-71 + cOffset) > 0) { // BOS
 		chamber_str = "BOS";
-		etaStat = (biny - 74 + cOffset);
+		etaStat = (biny - 71 + cOffset);
 		phiStat =  10;
-	} else if ( (biny-62 + cOffset) > 0){ //BOL
+	} else if ( (biny-59 + cOffset) > 0){ //BOL
 		chamber_str = "BOL";
-		etaStat = (biny+1 - 62 + cOffset)/2;
-		phiStat =  2*(biny - 2*etaStat - 62 + cOffset) + 11;
-	} else if ( (biny - 57 ) > 0){
+		etaStat = (biny+1 - 59 + cOffset)/2;
+		phiStat =  2*(biny - 2*etaStat - 59 + cOffset) + 11;
+	} else if ( (biny - 54 ) > 0){
 		chamber_str = "BOG";
-		etaStat = 2*(biny - 57) - 2 + 2*cOffset;
+		etaStat = 2*(biny - 54) - 2 + 2*cOffset;
 		phiStat = 12;
-	} else if ( (biny-53) > 0){
+	} else if ( (biny-50) > 0){
 		chamber_str = "BOF";
-		etaStat = 2*(biny - 53) - 1;
+		etaStat = 2*(biny - 50) - 1;
 		phiStat = 12;
-	} else if( (biny-47) > 0){ // BMS
+	} else if( (biny-44) > 0){ // BMS
 		chamber_str = "BMS";
-		etaStat = biny - 47;
+		etaStat = biny - 44;
 		phiStat =  10;
-	} else if ( (biny-35) > 0){ //BML
+	} else if ( (biny-32) > 0){ //BML
 		chamber_str = "BML";
-		etaStat = (biny+1 - 35)/2;
-		phiStat =  2*(biny - 2*etaStat - 35) + 11;
-	} else if ( (biny - 32) > 0){ //BMG
-		chamber_str = "BMG";
-		etaStat = (biny - 32)*2 ; //because its BMG2, BMG4, BMG6
-		phiStat = 12;
+		etaStat = (biny+1 - 32)/2;
+		phiStat =  2*(biny - 2*etaStat - 32) + 11;
 	} else if ( (biny - 29) > 0){ //BMF
 		chamber_str = "BMF";
 		etaStat = biny - 29;
@@ -537,38 +536,34 @@ dqm_algorithms::OccupancyHoleFinder::getMDTChamberNameByCrate(int biny, std::str
   } else if(crate.substr(0,1) == "B" && crate.substr(2,2) == "04"){
 	int cOffset = 0;
 	if (crate.substr(1,1) == "C"){ cOffset = 1;}
-	if( (biny-74 + cOffset) > 0) { // BOS
+	if( (biny-71 + cOffset) > 0) { // BOS
 		chamber_str = "BOS";
-		etaStat = (biny - 74 + cOffset);
+		etaStat = (biny - 71 + cOffset);
 		phiStat =  16;
-	} else if ( (biny-61 + cOffset) > 0){ //BOL
+	} else if ( (biny-58 + cOffset) > 0){ //BOL
 		chamber_str = "BOL";
-		etaStat = (biny+1 - 61 + cOffset)/2;
-		phiStat =  2*(biny - 2*etaStat - 61 + cOffset) + 15;
-	} else if ( (biny - 56 ) > 0){
+		etaStat = (biny+1 - 58 + cOffset)/2;
+		phiStat =  2*(biny - 2*etaStat - 58 + cOffset) + 15;
+	} else if ( (biny - 53 ) > 0){
 		chamber_str = "BOG";
-		etaStat = 2*(biny - 56) - 2 + 2*cOffset;
+		etaStat = 2*(biny - 53) - 2 + 2*cOffset;
 		phiStat = 14;
-	} else if ( (biny-52) > 0){
+	} else if ( (biny-49) > 0){
 		chamber_str = "BOF";
-		etaStat = 2*(biny - 52) - 1;
+		etaStat = 2*(biny - 49) - 1;
 		phiStat = 14;
-	} else if( (biny-46) > 0){ // BMS
+	} else if( (biny-43) > 0){ // BMS
 		chamber_str = "BMS";
 		etaStat = biny - 43;
 		phiStat =  16;
-	} else if ( (biny - 45) > 0){
+	} else if ( (biny - 42) > 0){
 		chamber_str = "BML";
 		etaStat = 6;
 		phiStat = 15;
-	} else if ( (biny-35) > 0){ //BML
+	} else if ( (biny-32) > 0){ //BML
 		chamber_str = "BML";
-		etaStat = (biny+1 - 35)/2;
-		phiStat =  2*(biny - 2*etaStat - 35) + 15;
-	} else if ( (biny - 32) > 0){ //BMG
-		chamber_str = "BMG";
-		etaStat = (biny - 32)*2;
-		phiStat = 14;
+		etaStat = (biny+1 - 32)/2;
+		phiStat =  2*(biny - 2*etaStat - 32) + 15;
 	} else if ( (biny - 29) > 0){ //BMF
 		chamber_str = "BMF";
 		etaStat = biny - 29;

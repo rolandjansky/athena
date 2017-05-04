@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/PoolSvc )
 
 # External dependencies:
+find_package( Boost COMPONENTS filesystem thread system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 
 # tag NEEDS_CORAL_BASE was not recognized in automatic conversion in cmt2cmake
@@ -27,18 +28,18 @@ atlas_add_component( RDBAccessSvc
                      src/SourceCompAlg.cxx
                      src/components/RDBAccessSvc_entries.cxx
                      src/components/RDBAccessSvc_load.cxx
-                     INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} GaudiKernel AthenaBaseComps )
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} GaudiKernel AthenaBaseComps )
 
 atlas_add_executable( geomdb2sqlite
                       replicator/geomdb2sqlite.cpp
-                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${CORAL_LIBRARIES} GaudiKernel AthenaBaseComps )
+                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} GaudiKernel AthenaBaseComps )
 
 atlas_add_executable( geomdb2oracle
                       replicator/geomdb2oracle.cpp
-                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${CORAL_LIBRARIES} GaudiKernel AthenaBaseComps )
+                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} GaudiKernel AthenaBaseComps )
 
 # Install files from the package:
 atlas_install_headers( RDBAccessSvc )
