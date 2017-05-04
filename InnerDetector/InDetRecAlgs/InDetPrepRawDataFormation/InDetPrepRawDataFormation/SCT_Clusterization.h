@@ -29,6 +29,7 @@
 #include "Identifier/Identifier.h"
 //Next contains a typedef so cannot be fwd declared
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
+#include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 //tool/service handle template parameters
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
@@ -92,6 +93,7 @@ private:
   
   
   SG::WriteHandleKey<SCT_ClusterContainer> m_clusterContainerKey;
+  SG::WriteHandleKey<SiClusterContainer> m_clusterContainerLinkKey;
   const InDetDD::SiDetectorManager*        m_manager;
   unsigned int                             m_maxRDOs;
   ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
