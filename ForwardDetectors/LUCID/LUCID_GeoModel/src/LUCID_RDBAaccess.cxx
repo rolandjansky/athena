@@ -53,7 +53,7 @@ void LUCID_RDBAccess::ReadDB() {
   
   iAccessSvc->connect();
   
-  lucidParams = iAccessSvc->getRecordset("LucidParams", AtlasVersion, "ATLAS");
+  lucidParams = iAccessSvc->getRecordsetPtr("LucidParams", AtlasVersion, "ATLAS");
   
   if (!lucidParams->size()) std::cerr << " ERROR: Unable to retrieve LucidParams data "<< std::endl;
 

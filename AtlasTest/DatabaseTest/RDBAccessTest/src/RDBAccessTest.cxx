@@ -38,7 +38,7 @@ StatusCode RDBAccessTest::initialize()
   iAccessSvc->connect();
   ATH_MSG_INFO( " Tag for TIFG is " << iAccessSvc->getChildTag("TIFG","ATLAS-00","ATLAS",false) );
 
-  m_tifg = iAccessSvc->getRecordset("TIFG","ATLAS-00","ATLAS");
+  m_tifg = iAccessSvc->getRecordsetPtr("TIFG","ATLAS-00","ATLAS");
   iAccessSvc->disconnect();
 
   ATH_MSG_INFO( " TIFG data corresponding to ATLAS-00 fetched " );

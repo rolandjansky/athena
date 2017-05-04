@@ -92,20 +92,20 @@ namespace LArG4 {
 
       pAccessSvc->connect();
       // getting HEC table
-      const IRDBRecordset *hecNominals = pAccessSvc->getRecordset("HecNominals",detectorKey,detectorNode);
+      IRDBRecordset_ptr hecNominals = pAccessSvc->getRecordsetPtr("HecNominals",detectorKey,detectorNode);
       if (hecNominals->size()==0) {
-        hecNominals = pAccessSvc->getRecordset("HecNominals","HecNominals-00");
+        hecNominals = pAccessSvc->getRecordsetPtr("HecNominals","HecNominals-00");
         if (hecNominals->size()==0) {
           throw std::runtime_error("LArG4EC/CryostatCalibrationMixedCalculator -> Can't find the HecNominals table.");
         }
       }
       // getting emec table
-      const IRDBRecordset *emecGeometry = pAccessSvc->getRecordset("EmecGeometry",detectorKey,detectorNode);
+      IRDBRecordset_ptr emecGeometry = pAccessSvc->getRecordsetPtr("EmecGeometry",detectorKey,detectorNode);
       if (emecGeometry->size()==0) {
         throw std::runtime_error("LArG4EC/CryostatCalibrationMixedCalculator -> Can't find the EmecGeometry table.");
       }
       // getting FCAL parameters
-      const IRDBRecordset *fcalMod = pAccessSvc->getRecordset("FCalMod",detectorKey,detectorNode);
+      IRDBRecordset_ptr fcalMod = pAccessSvc->getRecordsetPtr("FCalMod",detectorKey,detectorNode);
       if (fcalMod->size()==0) {
         throw std::runtime_error("LArG4EC/CryostatCalibrationMixedCalculator -> Can't find FCalMod table.");
       }
