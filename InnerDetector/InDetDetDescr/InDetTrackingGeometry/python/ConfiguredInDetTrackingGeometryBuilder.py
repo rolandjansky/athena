@@ -104,7 +104,6 @@ class ConfiguredInDetTrackingGeometryBuilder( InDet__RobustTrackingGeometryBuild
 
 
         if DetFlags.TRT_on():                                                  
-          print "AKMAKMAKM TRT is enabled" 
           from InDetTrackingGeometry.InDetTrackingGeometryConf import InDet__TRT_LayerBuilder
           TRT_LayerBuilder = InDet__TRT_LayerBuilder(name=namePrefix+'TRT_LayerBuilder')
           # TRT barrel specifications
