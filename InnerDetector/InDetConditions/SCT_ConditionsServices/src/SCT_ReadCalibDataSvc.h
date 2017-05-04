@@ -27,12 +27,6 @@
 #include "StoreGate/DataHandle.h"
 #include "AthenaKernel/IIOVDbSvc.h" 
 
-// Include Event Info 
-#include "xAODEventInfo/EventInfo.h"
-
-///Read Handle
-#include "StoreGate/ReadHandleKey.h"
-
 // Include STL stuff
 #include <string>
 #include <list>
@@ -135,9 +129,6 @@ class SCT_ReadCalibDataSvc: virtual public ISCT_ReadCalibDataSvc, virtual public
   const DataHandle<CondAttrListCollection> m_CalibDefects_NO;
   // Key for DataHandle
   std::string m_key;
-
-  // Read Handle Key
-  SG::ReadHandle<xAOD::EventInfo> m_eventInfoKey;
   
   //  BooleanProperty                   m_printCalibDefectMaps;         //!< Print the calib defect maps?
 };

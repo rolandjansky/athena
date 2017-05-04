@@ -32,11 +32,14 @@
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 
+// Event Info 
+#include "EventInfo/EventIncident.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+#include "EventInfo/EventType.h"
+
 //path resolver to find the file
 #include "PathResolver/PathResolver.h"
-
-// Read Handle
-#include "StoreGate/ReadHandle.h"
 
 #include <fstream>
 #include <iterator>
@@ -91,7 +94,7 @@ SCT_MonitorConditionsSvc::SCT_MonitorConditionsSvc( const std::string& name,ISvc
   m_beginRun(IOVTime::MINRUN),
   m_endRun(IOVTime::MAXRUN),
   m_streamName("CondStreamTest"),
-  m_evtKey(std::string("EventInfo")),
+  m_evt(0),
   m_regSvc(0),
   m_streamer(0),
   m_filled(false),
@@ -168,9 +171,6 @@ StatusCode SCT_MonitorConditionsSvc::initialize(){
     return msg(MSG:: ERROR)<< "Failed to register callback" << endmsg, StatusCode::FAILURE;
   // This should not be here and causes a SG WARNING (CBG)
   //  m_IOVDbSvc->dropObject(s_defectFolderName,false);
-
-  // Read Handle Key
-  ATH_CHECK( m_evtKey.initialize(m_readWriteCool and (not m_twoStepWriteReg) and (not m_manualiov)) );
   
   return StatusCode::SUCCESS;
 }
@@ -783,12 +783,18 @@ SCT_MonitorConditionsSvc::registerCondObjects(const std::string& foldername,cons
       unsigned int beginRun;
       unsigned int endRun;
       if ( !m_manualiov ) {
-	SG::ReadHandle<xAOD::EventInfo> evt(m_evtKey);
-        if (not evt.isValid()) {
-          msg(MSG:: ERROR) << "Unable to get the EventInfo" << endmsg;
+        StoreGateSvc* pStoreGate;
+        sc = service("StoreGateSvc",pStoreGate);
+        if (sc.isFailure()) {
+          msg(MSG:: FATAL) << "StoreGate service not found !" << endmsg;
           return StatusCode::FAILURE;
         }
-        beginRun = evt->runNumber();
+        sc = pStoreGate->retrieve(m_evt);
+        if (sc.isFailure()) {
+          msg(MSG:: ERROR) << "Unable to get the EventSvc" << endmsg;
+          return sc;
+        }
+        beginRun = m_evt->event_ID()->run_number();
         endRun = beginRun;
       } else {
         beginRun = m_beginRun;
