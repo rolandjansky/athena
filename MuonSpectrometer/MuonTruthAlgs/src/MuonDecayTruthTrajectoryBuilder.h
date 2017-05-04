@@ -47,9 +47,9 @@ namespace Muon {
      * between mother and daughter particles; i.e. TruthTrajectories
      * are not allowed to branch.
      */
-    MotherDaughter truthTrajectoryCuts(const HepMC::GenVertex *vtx);
+    MotherDaughter truthTrajectoryCuts(const HepMC::GenVertex *vtx) const;
 
-    bool m_isDecayIntoTwoMuons;
+    // mutable bool m_isDecayIntoTwoMuons; // Really don't think this does anything? EJWM.
   };
   
 } // end namespace Trk
