@@ -134,7 +134,7 @@ class TileInfo : public DataObject {
   /** Returns the input amplitude corrected with the laser calibration. */
   double LaserCalib(const HWIdentifier& channel_id, double amplitude=1.0) const;
 
-  /** Returns the input amplitude corrected with the CIS calibration. 
+  /** Retruns the input amplitude corrected with the CIS calibration. 
       @param adc_id The adc of interest
       @param filterType The reco-method applied, specified by TileFragHash::[ Digitizer | FlatFilter | OptFilter | FitFilter | ManyAmps ]
       @param adcAmplitude Amplitude of pulse in units of ADC counts

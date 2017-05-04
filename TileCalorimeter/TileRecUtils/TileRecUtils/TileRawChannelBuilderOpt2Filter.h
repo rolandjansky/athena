@@ -108,6 +108,9 @@ class TileRawChannelBuilderOpt2Filter: public TileRawChannelBuilder {
 
 
     std::vector<float> m_digits;
+
+    int m_noiseThresholdHG;
+    int m_noiseThresholdLG;
 };
 
 #endif

@@ -32,6 +32,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <iomanip>
 #include <cmath>
 #include <algorithm>
@@ -43,11 +44,13 @@ TileTBMonTool::TileTBMonTool(const std::string & type, const std::string & name,
   , m_tileTBHitMapLBC01(0)
   , m_tileTBHitMapEBC02(0)
   , m_isFirstEvent(true)
+  , m_maskedChannels{0}
 
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
   declareProperty("CellContainer", m_cellContainer = "AllCalo"); //SG Cell Container
+  declareProperty("Masked", m_masked); // Masked channels in the following format: "LBA01 1,2,3,4,5"
 
   m_path = "/Tile/TestBeam"; //ROOT File relative directory
 }
@@ -62,8 +65,54 @@ TileTBMonTool::~TileTBMonTool() {
 StatusCode TileTBMonTool:: initialize() {
 /*---------------------------------------------------------*/
 
-
   ATH_MSG_INFO( "in initialize()" );
+
+  std::map<std::string, unsigned int> roses = { {"AUX", 0}, {"LBA", 1}, {"LBC", 2}, {"EBA", 3}, {"EBC", 4} };
+  
+  for (std::string maskedModuleChannels : m_masked) {
+    
+    std::string module = maskedModuleChannels.substr(0, 5);
+    std::string partition = module.substr(0, 3);
+    if (roses.count(partition) != 1) {
+      ATH_MSG_WARNING("There no such partition: " << partition << " in module: " << module
+		      << " => skip because of bad format: " << maskedModuleChannels);
+      continue;
+    }
+    
+    int drawer = std::stoi(module.substr(3, 2)) - 1;
+    if (drawer < 0 || drawer > 63) {
+      ATH_MSG_WARNING("There no such drawer: " << drawer + 1 << " in module: " << module 
+		      << " => skip because of bad format: " << maskedModuleChannels);
+      continue;
+    }
+
+    unsigned int ros = roses.at(partition);
+    unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
+
+    std::string gain = maskedModuleChannels.substr(5,7);
+    unsigned int adc = std::stoi(gain);
+
+    if (adc > 1) {
+      ATH_MSG_WARNING("There no such gain: " << gain << " => skip because of bad format: " << maskedModuleChannels);
+      continue;
+    }
+
+    std::stringstream channels(maskedModuleChannels.substr(7));
+    std::string channel;
+    while (std::getline(channels, channel, ',')) {
+      if (!channel.empty()) {
+	int chan = std::stoi(channel);
+	if (chan < 0 || chan > 48) {
+	  ATH_MSG_WARNING("There no such channel: " << chan << " in channels: " << channels.str() 
+			  << " => skip because of bad format: " << maskedModuleChannels);
+	  continue;
+	}
+	m_maskedChannels[drawerIdx][chan] |= (1U << adc);
+	ATH_MSG_INFO(TileCalibUtils::getDrawerString(ros, drawer) << " ch" << chan << (adc ? " HG" : " LG") << ": masked!");
+      }
+    }
+
+  }
 
   return TileFatherMonTool::initialize();
 }
@@ -113,8 +162,51 @@ StatusCode TileTBMonTool::fillHistograms() {
     int sample = m_tileID->sample(cell->ID());
 
 
-    double energy = cell->energy() * 0.001; // keep energy in pC
-    total_energy += energy;
+    double energy = 0.0;
+
+
+    const CaloDetDescrElement* caloDDE = cell->caloDDE();
+    
+    IdentifierHash hash1 = caloDDE->onl1();
+    IdentifierHash hash2 = caloDDE->onl2();
+    
+    int gain1 = tile_cell->gain1();
+    
+    HWIdentifier ch_id1 = m_tileHWID->channel_id(hash1);
+
+    int ros1 = m_tileHWID->ros(ch_id1);
+    int drawer1 = m_tileHWID->drawer(ch_id1);
+    int chan1 = m_tileHWID->channel(ch_id1);
+    int drawerIdx1 = TileCalibUtils::getDrawerIdx(ros1, drawer1);
+    
+    if (hash2 == TileHWID::NOT_VALID_HASH) {
+      if (!(m_maskedChannels[drawerIdx1][chan1] >> gain1) & 1U) {
+	energy = cell->energy(); 
+      }
+    } else { 
+
+      int gain2 = tile_cell->gain2();
+
+      HWIdentifier ch_id2 = m_tileHWID->channel_id(hash2);
+      int ros2 = m_tileHWID->ros(ch_id2);
+      int drawer2 = m_tileHWID->drawer(ch_id2);
+      int chan2 = m_tileHWID->channel(ch_id2);
+      int drawerIdx2 = TileCalibUtils::getDrawerIdx(ros2, drawer2);
+
+      if ((m_maskedChannels[drawerIdx1][chan1] >> gain1) & 1U) {
+	if (!(m_maskedChannels[drawerIdx2][chan2] >> gain2) & 1U) {
+	  energy = tile_cell->ene2() * 2; 
+	}
+      } else if ((m_maskedChannels[drawerIdx2][chan2] >> gain2) & 1U) {
+	if (!(m_maskedChannels[drawerIdx1][chan1] >> gain1) & 1U) {
+	  energy =tile_cell->ene1() * 2; 
+	}
+      } else {
+	energy = cell->energy(); 
+      }
+    }
+    
+    total_energy += energy * 0.001; // keep energy in pC
     
     fillHitMap(side, section, module, tower, sample, energy);
 
@@ -211,7 +303,7 @@ void TileTBMonTool::initFirstEvent() {
   std::string runNumber = getRunNumStr();
 
   m_tileTotalEventEnergy = book1F("", "TileTBTotalEventEnergy", "Run " + runNumber + ": Total TileCal Event Energy"
-                                  ,1000, -2., 200., run, ATTRIB_MANAGED, "", "mergeRebinned");
+                                  ,500, -2., 150., run, ATTRIB_MANAGED, "", "mergeRebinned");
 
   m_tileTotalEventEnergy->GetXaxis()->SetTitle("Event Energy [pC]");
 
