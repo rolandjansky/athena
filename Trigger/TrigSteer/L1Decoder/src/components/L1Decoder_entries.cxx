@@ -4,13 +4,19 @@
 #include "../FakeRoI.h"
 #include "../FakeRoIView.h"
 //#include "../RoIGraph.h"
+#include "../L1Decoder.h"
 #include "../FakeCTP.h"
+#include "../CTPUnpackingTool.h"
+#include "../EMRoIsUnpackingTool.h"
 
 DECLARE_ALGORITHM_FACTORY(L1CaloDecoder)
 DECLARE_ALGORITHM_FACTORY(FakeRoI)
 //DECLARE_ALGORITHM_FACTORY(RoIGraph)
 DECLARE_ALGORITHM_FACTORY(FakeCTP)
+DECLARE_ALGORITHM_FACTORY(L1Decoder)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( AthViews, FakeRoIView )
+DECLARE_TOOL_FACTORY(CTPUnpackingTool)
+DECLARE_TOOL_FACTORY(EMRoIsUnpackingTool)
 
 DECLARE_FACTORY_ENTRIES( L1Decoder )
 {
@@ -18,5 +24,8 @@ DECLARE_FACTORY_ENTRIES( L1Decoder )
     DECLARE_ALGORITHM(FakeRoI)
       //  DECLARE_ALGORITHM(RoIGraph)
     DECLARE_ALGORITHM(FakeCTP)
+      DECLARE_ALGORITHM(L1Decoder)
     DECLARE_NAMESPACE_ALGORITHM( AthViews, FakeRoIView )
+      DECLARE_TOOL(CTPUnpackingTool)
+      DECLARE_TOOL(EMRoIsUnpackingTool)
 }

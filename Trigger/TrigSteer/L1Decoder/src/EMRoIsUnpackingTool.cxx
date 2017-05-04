@@ -16,9 +16,10 @@ EMRoIsUnpackingTool::EMRoIsUnpackingTool( const std::string& type,
   : AthAlgTool ( type, name, parent ),
     m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name) {
 
-  declareProperty( "Decisions", m_decisionsKey, "Decisions for each RoI" );
-  declareProperty("OutputRoIs", m_trigRoIsKey, "Name of the RoIs object produced by the unpacker");
-  declareProperty("OutputRecEMTauRoIs", m_recEMTauRoIsKey, "Name of the RoIs object produced by the unpacker");
+  declareProperty( "Decisions", m_decisionsKey="RoIDecisions", "Decisions for each RoI" );
+  declareProperty("ThresholdToChainMapping", m_thresholdToChainProperty, "Mapping from the threshold name to chain in the form: 'EM3:HLT_e5', 'EM3:HLT_e5tight', ...");
+  declareProperty("OutputRoIs", m_trigRoIsKey="EMRoIs", "Name of the RoIs object produced by the unpacker");
+  declareProperty("OutputRecEMTauRoIs", m_recEMTauRoIsKey="RecEMRoIs", "Name of the RoIs object produced by the unpacker");
   declareProperty("RoIWidth", m_roIWidth = 0.1, "Size of RoI in eta/ phi");
 }
 
@@ -28,8 +29,11 @@ EMRoIsUnpackingTool::~EMRoIsUnpackingTool(){
 
 
 StatusCode EMRoIsUnpackingTool::initialize() {  
-  CHECK(m_configSvc.retrieve());
+  CHECK( m_configSvc.retrieve() );
+  CHECK( m_trigRoIsKey.initialize() );
+  CHECK( m_recEMTauRoIsKey.initialize() );
   //TODO add mapping retrieval
+  CHECK( decodeMapping() );
   return StatusCode::SUCCESS;
 }
 

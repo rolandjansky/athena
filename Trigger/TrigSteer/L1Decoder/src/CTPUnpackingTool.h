@@ -1,3 +1,4 @@
+// -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -28,7 +29,7 @@ public:
 		    const std::string& name, 
 		    const IInterface* parent );
   virtual ~CTPUnpackingTool();
-  typedef std::map<size_t, HLT::IDVec> IndexToIdentifiers;
+
 
   /*
     @brief The method decodes CTP bits content of the RoIBResult and fills the list of chains which are activated by those bits
@@ -36,11 +37,17 @@ public:
     @warning if the mapping is empty it means an empty menu. This condition is NOT checked and not reported.
     @warning if none of CTP bits is set this is also an error condition, this is the event should not have been passed to HLT
    */
-  StatusCode decode(const ROIB::RoIBResult&, const IndexToIdentifiers& ctpToChain, HLT::IDVec& enabledChains) const;
+  StatusCode decode(const ROIB::RoIBResult& roib, HLT::IDVec& enabledChains) const;
 
-  StatusCode initialize(){ return StatusCode::SUCCESS; }
-
-protected: 
+  StatusCode initialize(){ return decodeCTPToChainMapping(); }
+  
+  
+protected:
+  StatusCode decodeCTPToChainMapping();
+private:
+  typedef std::map<size_t, HLT::IDVec> IndexToIdentifiers;
+  IndexToIdentifiers       m_ctpToChain;
+  std::vector<std::string> m_ctpToChainProperty;
 
 }; 
 

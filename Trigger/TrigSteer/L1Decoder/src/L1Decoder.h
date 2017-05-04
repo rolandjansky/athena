@@ -40,23 +40,14 @@ protected: // protected to support unit testing
   StatusCode saveChainsInfo(const HLT::IDVec& chains,
 			    xAOD::TrigCompositeContainer* storage,
 			    const std::string& type) const;
-
   
 private:
   SG::ReadHandleKey<ROIB::RoIBResult> m_RoIBResultKey;
   SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_chainsKey;
 
-  ToolHandle<CTPUnpackingTool> m_ctpUnpacker;  
-  //  ToolHandle<PrescalingTool> m_prescaler;
-  ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers;
-  
-  CTPUnpackingTool::IndexToIdentifiers m_ctpIDToChain;
-  std::map<HLT::Identifier, float> m_prescalingInfo;
-
-
-  
+  ToolHandle<CTPUnpackingTool> m_ctpUnpacker; // = ToolHandle<CTPUnpackingTool>("CTPUnpackingTool/CTPUnpackingTool", this); // last arg makes it private tool    
+  //  ToolHandle<PrescalingTool> m_prescaler = ToolHandle<PrescalingTool>("PrescalingTool/PrescalingTool", this); 
+  ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers;  // = ToolHandleArray<IRoIsUnpackingTool>(this);    
+  std::map<HLT::Identifier, float> m_prescalingInfo;  
 };
-
-
-
 #endif

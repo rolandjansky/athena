@@ -7,6 +7,9 @@
 # ln -s /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/atn-test/data15_13TeV.00266904.physics_EnhancedBias.merge.RAW._lb0452._SFO-1._0001.1 input.data
 # 
 
+import os.path
+assert os.path.isfile('input.data'), 'No input file: see the JO to see how to get it'
+
 ## @file L1Topo_ReadBS_test.py
 ## @brief Example job options file to read BS file to test a converter
 ## $Id: decodeBS.parallel.py 717359 2016-01-12 14:40:21Z bwynne $
@@ -80,18 +83,25 @@ if nThreads >= 1:
   topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
   topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
 
-
+from L1Decoder.L1DecoderConf import *
+l1Decoder = L1Decoder()
+l1Decoder.ctpUnpacker = CTPUnpackingTool()
+l1Decoder.ctpUnpacker.CTPToChainMapping = ["1:HLT_e3", "2:HLT_e5"]
+emUnpacker = EMRoIsUnpackingTool()
+emUnpacker.ThresholdToChainMapping = ["EM3:HLT_e3", "EM3:HLT_e5"]
+l1Decoder.roiUnpackers = []
+topSequence += l1Decoder
 #Run calo decoder
-from L1Decoder.L1DecoderConf import L1CaloDecoder
-caloDecoder = L1CaloDecoder() # by default it is steered towards the RoIBResult of the name above
-caloDecoder.OutputLevel=VERBOSE
-topSequence += caloDecoder
 
-#Dumper
-from ViewAlgs.ViewAlgsConf import DumpDecisions
-dumper = DumpDecisions("L1CaloDecisions")
-dumper.OutputLevel=VERBOSE
-topSequence += dumper
+# caloDecoder = L1CaloDecoder() # by default it is steered towards the RoIBResult of the name above
+# caloDecoder.OutputLevel=VERBOSE
+# topSequence += caloDecoder
+
+# #Dumper
+# from ViewAlgs.ViewAlgsConf import DumpDecisions
+# dumper = DumpDecisions("L1CaloDecisions")
+# dumper.OutputLevel=VERBOSE
+# topSequence += dumper
 
 
 #--------------------------------------------------------------

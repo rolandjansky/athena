@@ -7,11 +7,41 @@
 
 using namespace HLT;
 
+
+CTPUnpackingTool::CTPUnpackingTool( const std::string& type,
+				    const std::string& name, 
+				    const IInterface* parent ) 
+  : AthAlgTool(type, name, parent) {
+  declareProperty("CTPToChainMapping", m_ctpToChainProperty, "Mapping of the form: '34:HLT_x', '35:HLT_y', ..., both CTP ID and chain may appear many times");
+}
+
+
 CTPUnpackingTool::~CTPUnpackingTool()
 {}
 
+StatusCode CTPUnpackingTool::decodeCTPToChainMapping() {
+  std::istringstream input;
+  for ( auto entry: m_ctpToChainProperty) {
+    input.clear();
+    input.str(entry);
+    size_t ctpId;
+    input >> ctpId;
+    char delim;
+    input >> delim;    
+    if ( delim != ':' ) {
+      ATH_MSG_ERROR("Error in conf. entry: " << entry << " missing ':'");
+      return StatusCode::FAILURE;
+    }
+    std::string chainName;
+    input >> chainName;
+    ATH_MSG_DEBUG("Chain " << chainName << " seeded from CTP item of ID " << ctpId);
+    m_ctpToChain[ctpId].push_back(HLT::Identifier(chainName));
+  }
+  return StatusCode::SUCCESS;
+}
 
-StatusCode CTPUnpackingTool::decode(const ROIB::RoIBResult& roib, const IndexToIdentifiers& ctpToChain, HLT::IDVec& enabledChains) const {
+
+StatusCode CTPUnpackingTool::decode(const ROIB::RoIBResult& roib,  HLT::IDVec& enabledChains) const {
   size_t numberPfActivatedBits= 0;
   
   auto tav = roib.cTPResult().TAV();
@@ -23,8 +53,8 @@ StatusCode CTPUnpackingTool::decode(const ROIB::RoIBResult& roib, const IndexToI
       const bool decision = (tav[wordCounter].roIWord() & (1 << bitCounter)) > 0;
       if ( decision == true ) {
 	numberPfActivatedBits++;
-	auto itr = ctpToChain.find(ctpIndex);
-	if ( itr != ctpToChain.end() ) 
+	auto itr = m_ctpToChain.find(ctpIndex);
+	if ( itr != m_ctpToChain.end() ) 
 	  enabledChains.insert(enabledChains.end(), itr->second.begin(), itr->second.end());
       }
     }    

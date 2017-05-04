@@ -5,20 +5,26 @@
 #include "./L1Decoder.h"
 
 L1Decoder::L1Decoder(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthReentrantAlgorithm(name, pSvcLocator) {
+  : AthReentrantAlgorithm(name, pSvcLocator),
+    m_ctpUnpacker("CTPUnpackingTool/CTPUnpackingTool", this),
+    m_roiUnpackers(this) {
+  
   declareProperty("RoIBResult", m_RoIBResultKey="RoIBResult", "Name of RoIBResult");
   declareProperty("Chains", m_chainsKey="HLTChains", "Chains status after L1 and prescaling");
+  declareProperty("ctpUnpacker", m_ctpUnpacker, "Tool used to unpack the CTP info");
+  declareProperty("roiUnpackers", m_roiUnpackers, "Tools unpacking RoIs");
 }
 
 StatusCode L1Decoder::initialize() {
   CHECK( m_RoIBResultKey.initialize() );
   CHECK( m_chainsKey.initialize() );
+
   CHECK( m_ctpUnpacker.retrieve() );
-  //  CHECK( m_roisUnpacker.retrieve() );
+  CHECK( m_roiUnpackers.retrieve() );
   //  CHECK( m_prescaler.retrieve() );
 
   
-  CHECK(readConfiguration());
+
   return StatusCode::SUCCESS;
 }
 
@@ -27,6 +33,7 @@ StatusCode L1Decoder::beginRun() {
   //    CHECK( t->beginRun() );
   return StatusCode::SUCCESS;
 }
+
 
 StatusCode L1Decoder::readConfiguration() {
   return StatusCode::SUCCESS;
@@ -42,7 +49,7 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
   DecisionOutput chainsInfo;
   
   HLT::IDVec l1SeededChains;
-  CHECK( m_ctpUnpacker->decode(*roibH, m_ctpIDToChain, l1SeededChains) );
+  CHECK( m_ctpUnpacker->decode(*roibH, l1SeededChains) );
   sort(l1SeededChains.begin(), l1SeededChains.end()); // do so that following scaling is reproducable
 
   HLT::IDVec activeChains;
@@ -81,16 +88,17 @@ StatusCode L1Decoder::prescaleChains(const HLT::IDVec& active,
   for ( auto c: active ) {
     auto psInfo = m_prescalingInfo.find(c);
     if ( psInfo == m_prescalingInfo.end() )  {
-      ATH_MSG_ERROR("No prescaling information for the chain " << c);
-      return StatusCode::FAILURE;
-    }
+      ATH_MSG_INFO("No prescaling information for the chain, enabling it " << c);
+      notPrescaled.push_back(c);
+    } else {
     
-    // this code should then work
-    //    if ( scaler.decision( state, psInfo.second ) ) {
-    //      notPrescaled.push_back(c);
-    //      ATH_MSG_DEBUG("Chain " << c << " remained active after the HTL prescaling");
-    // but for now
-    notPrescaled.push_back(c);
+      // this code should then work
+      //    if ( scaler.decision( state, psInfo.second ) ) {
+      //      notPrescaled.push_back(c);
+      //      ATH_MSG_DEBUG("Chain " << c << " remained active after the HTL prescaling");
+      // but for now
+      notPrescaled.push_back(c);
+    }
   }
   return StatusCode::SUCCESS;
 }
