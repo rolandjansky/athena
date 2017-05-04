@@ -11,6 +11,8 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "RDBAccessSvc/IRDBRecord.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
 
 LArDetectorToolTBEC::LArDetectorToolTBEC(const std::string& type, 
 				 const std::string& name, 

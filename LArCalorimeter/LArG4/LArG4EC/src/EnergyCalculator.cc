@@ -442,12 +442,14 @@ StatusCode EnergyCalculator::initialize()
 
   pAccessSvc->connect();
 
-  IRDBRecordset_ptr emecSamplingSep = pAccessSvc->getRecordsetPtr("EmecSamplingSep", larVersionKey.tag(), larVersionKey.node());
+  const IRDBRecordset *emecSamplingSep =
+    pAccessSvc->getRecordset("EmecSamplingSep", larVersionKey.tag(), larVersionKey.node());
   if (emecSamplingSep->size()==0) {
     throw std::runtime_error("Cannot find the EmecSamplingSep Table");
   }
 
-  IRDBRecordset_ptr emecGeometry = pAccessSvc->getRecordsetPtr("EmecGeometry", larVersionKey.tag(), larVersionKey.node());
+  const IRDBRecordset *emecGeometry =
+    pAccessSvc->getRecordset("EmecGeometry", larVersionKey.tag(), larVersionKey.node());
   if (emecGeometry->size()==0) {
     throw std::runtime_error("Cannot find the EmecGeometry Table");
   }

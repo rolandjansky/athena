@@ -117,11 +117,11 @@ StatusCode MDT_MapConversion::initialize()
 //   }
  
 
-  IRDBRecordset_ptr switchSet = accessSvc->getRecordsetPtr("HwSwIdMapping", detectorKey, detectorNode);
+  const IRDBRecordset *switchSet = accessSvc->getRecordset("HwSwIdMapping", detectorKey, detectorNode);
 
   if ((*switchSet).size()==0) {
     log<< MSG::WARNING <<"Old Atlas Version : "<< AtlasVersion << " Only Online Identifier. Falling back to HwSwIdMapping-00 tag"<<endmsg;
-    switchSet = accessSvc->getRecordsetPtr("HwSwIdMapping","HwSwIdMapping-00");
+    switchSet = accessSvc->getRecordset("HwSwIdMapping","HwSwIdMapping-00");
   } 
   
 

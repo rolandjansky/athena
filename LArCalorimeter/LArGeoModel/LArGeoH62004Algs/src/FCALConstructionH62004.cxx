@@ -76,7 +76,7 @@ LArGeo::FCALConstructionH62004::FCALConstructionH62004():
   m_absPhysical1(0),
   m_absPhysical2(0),
   m_absPhysical3(0),
-  m_VisLimit(0)
+  m_VisLimit(0),m_fcalElectrode(0)
 {
   m_svcLocator = Gaudi::svcLocator();
   IRDBAccessSvc* rdbAccess;
@@ -84,18 +84,32 @@ LArGeo::FCALConstructionH62004::FCALConstructionH62004():
   if(m_svcLocator->service ("RDBAccessSvc",rdbAccess) == StatusCode::FAILURE)
     throw std::runtime_error("Error in FCALConstructionH62004, cannot access RDBAccessSvc");
   DecodeVersionKey larVersionKey("LAr");
+//  std::cout<<"Asking: "<<larVersionKey.tag()<<" "<<larVersionKey.node()<<std::endl;
+//  m_fcalElectrode = rdbAccess->getRecordset("LArFCalElectrodes", larVersionKey.tag(),larVersionKey.node());
 
-  m_fcalElectrode = rdbAccess->getRecordsetPtr("LArFCalElectrodes","LArFCalElectrodes-H6-00");
-  if (m_fcalElectrode->size()==0)
-    throw std::runtime_error("Error getting FCAL electrode from database");
-
-  m_fcalMod = rdbAccess->getRecordsetPtr("FCalMod", larVersionKey.tag(),larVersionKey.node());
+//  if (m_fcalElectrode->size()==0) 
+//  {
+    m_fcalElectrode = rdbAccess->getRecordset("LArFCalElectrodes","LArFCalElectrodes-H6-00");
+    if (m_fcalElectrode->size()==0)
+      throw std::runtime_error("Error getting FCAL electrode from database");
+//  }
+  m_fcalMod = rdbAccess->getRecordset("FCalMod", larVersionKey.tag(),larVersionKey.node());
   if (m_fcalMod->size()==0) {
-    m_fcalMod=rdbAccess->getRecordsetPtr("FCalMod", "FCalMod-00");
+    m_fcalMod=rdbAccess->getRecordset("FCalMod", "FCalMod-00");
     if (m_fcalMod->size()==0) {
       throw std::runtime_error("Error getting FCAL Module parameters from database");
     }
   } 
+
+  m_LArPosition  =  rdbAccess->getRecordset("LArPosition", larVersionKey.tag(), larVersionKey.node());
+  m_LArAlignment =  rdbAccess->getRecordset("LArAlignment",larVersionKey.tag(), larVersionKey.node());
+  if (m_LArPosition->size()==0 ) {
+    m_LArPosition = rdbAccess->getRecordset("LArPosition", "LArPosition-00");
+    if (m_LArPosition->size()==0 ) {
+      throw std::runtime_error("Error, no lar position table in database!");
+    }
+  }
+
 
 }  
 
@@ -311,33 +325,34 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 	  
 	  // Electrodes:
 	  int myGroup=1;
-	  if ((*m_fcalElectrode).size()>0) {
-	    for (unsigned int i=0;i<(*m_fcalElectrode).size();i++) {
-	      const IRDBRecord * record = (*m_fcalElectrode)[i];
+	  if (m_fcalElectrode) {
+	    if ((*m_fcalElectrode).size()>0) {
+	      for (unsigned int i=0;i<(*m_fcalElectrode).size();i++) {
+		const IRDBRecord * record = (*m_fcalElectrode)[i];
 		
-	      int    thisGroup=record->getInt("MODNUMBER");
-	      if (thisGroup!=myGroup) continue;
-	      double thisTubeX= record->getDouble("X");
-	      double thisTubeY= record->getDouble("Y");
-	      if (!(thisTubeX<0. && thisTubeY>0.)) continue;
-	      
-	      std::string thisTileStr=record->getString("TILENAME");
-	      int    thisTubeI=record->getInt("I");
-	      int    thisTubeJ= record->getInt("J");
-	      int    thisTubeID = record->getInt("ID");
-	      int    thisTubeMod = record->getInt("MODNUMBER");
-	      
-	      cmap->add_tube(thisTileStr, thisTubeMod, thisTubeID, thisTubeI,thisTubeJ, thisTubeX, thisTubeY);
+		int    thisGroup=record->getInt("MODNUMBER");
+		if (thisGroup!=myGroup) continue;
+		double thisTubeX= record->getDouble("X");
+		double thisTubeY= record->getDouble("Y");
+                if (!(thisTubeX<0. && thisTubeY>0.)) continue;
 		
-	      if (m_VisLimit != -1 && (counter++ > m_VisLimit)) continue;
-	      //std::cout<<thisTileStr<<" "<<thisTubeX<<" "<<thisTubeY<<std::endl;
-	      
-	      GeoTransform *xf = new GeoTransform(HepGeom::Translate3D(thisTubeX*CLHEP::cm, thisTubeY*CLHEP::cm,0));
-	      modPhysical->add(xf);
-	      modPhysical->add(physVol);
+		std::string thisTileStr=record->getString("TILENAME");
+		int    thisTubeI=record->getInt("I");
+		int    thisTubeJ= record->getInt("J");
+		int    thisTubeID = record->getInt("ID");
+		int    thisTubeMod = record->getInt("MODNUMBER");
+		
+		cmap->add_tube(thisTileStr, thisTubeMod, thisTubeID, thisTubeI,thisTubeJ, thisTubeX, thisTubeY);
+		
+		if (m_VisLimit != -1 && (counter++ > m_VisLimit)) continue;
+                //std::cout<<thisTileStr<<" "<<thisTubeX<<" "<<thisTubeY<<std::endl;
+		
+		GeoTransform *xf = new GeoTransform(HepGeom::Translate3D(thisTubeX*CLHEP::cm, thisTubeY*CLHEP::cm,0));
+		modPhysical->add(xf);
+		modPhysical->add(physVol);
+	      }
 	    }
 	  }
-	  
 	  
 	  m_absPhysical1 = modPhysical;
 	} // if (F1)
@@ -414,31 +429,33 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
 	modPhysical->add(new GeoSerialIdentifier(0));
 	
 	int myGroup=2;
-	if ((*m_fcalElectrode).size()>0) {
-	  for (unsigned int i=0;i<(*m_fcalElectrode).size();i++) {
-	    const IRDBRecord * record = (*m_fcalElectrode)[i];
+	if (m_fcalElectrode) {
+	  if ((*m_fcalElectrode).size()>0) {
+	    for (unsigned int i=0;i<(*m_fcalElectrode).size();i++) {
+	      const IRDBRecord * record = (*m_fcalElectrode)[i];
+	      
+	      int    thisGroup=record->getInt("MODNUMBER");
+	      if (thisGroup!=myGroup) continue;
+	      
+	      double thisTubeX= record->getDouble("X");
+	      double thisTubeY= record->getDouble("Y");
+
+              if (!(thisTubeX<0. && thisTubeY>0.)) continue;
+
+	      std::string thisTileStr=record->getString("TILENAME");
+	      int    thisTubeI=record->getInt("I");
+	      int    thisTubeJ= record->getInt("J");
+	      int    thisTubeID = record->getInt("ID");
+	      int    thisTubeMod = record->getInt("MODNUMBER");
+	      
+	      cmap->add_tube(thisTileStr, thisTubeMod, thisTubeID, thisTubeI,thisTubeJ, thisTubeX, thisTubeY);
+
+	      if (m_VisLimit!=-1 && (counter++ > m_VisLimit)) continue;
 	    
-	    int    thisGroup=record->getInt("MODNUMBER");
-	    if (thisGroup!=myGroup) continue;
-	    
-	    double thisTubeX= record->getDouble("X");
-	    double thisTubeY= record->getDouble("Y");
-	    
-	    if (!(thisTubeX<0. && thisTubeY>0.)) continue;
-	    
-	    std::string thisTileStr=record->getString("TILENAME");
-	    int    thisTubeI=record->getInt("I");
-	    int    thisTubeJ= record->getInt("J");
-	    int    thisTubeID = record->getInt("ID");
-	    int    thisTubeMod = record->getInt("MODNUMBER");
-	    
-	    cmap->add_tube(thisTileStr, thisTubeMod, thisTubeID, thisTubeI,thisTubeJ, thisTubeX, thisTubeY);
-	    
-	    if (m_VisLimit!=-1 && (counter++ > m_VisLimit)) continue;
-	    
-	    GeoTransform *xf = new GeoTransform(HepGeom::Translate3D(thisTubeX*CLHEP::cm, thisTubeY*CLHEP::cm,0));
-	    modPhysical->add(xf);
-	    modPhysical->add(gapPhys);
+	      GeoTransform *xf = new GeoTransform(HepGeom::Translate3D(thisTubeX*CLHEP::cm, thisTubeY*CLHEP::cm,0));
+	      modPhysical->add(xf);
+	      modPhysical->add(gapPhys);
+	    }
 	  }
 	}
 	m_absPhysical2 = modPhysical;
@@ -551,3 +568,11 @@ GeoVFullPhysVol* LArGeo::FCALConstructionH62004::GetEnvelope()
   
 }
 
+
+void LArGeo::FCALConstructionH62004::cleanMemory()
+{
+  m_fcalElectrode = 0;
+  m_fcalMod = 0;
+  m_LArPosition = 0;
+  m_LArAlignment = 0;
+}

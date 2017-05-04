@@ -223,8 +223,8 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 
   if(LArPhysical != 0)
     {
-      IRDBRecordset_ptr larTBPos = 
-	pAccessSvc->getRecordsetPtr("LArTBPosition", detectorKey, detectorNode);
+      const IRDBRecordset* larTBPos = 
+	pAccessSvc->getRecordset("LArTBPosition", detectorKey, detectorNode);
           
       LArG4TBPosOptions *posOptions = NULL;
       StatusCode status = detStore->retrieve(posOptions,"LArG4TBPosOptions");
@@ -394,10 +394,10 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 	}
 
       // uses LArGeoFcal/FCALConstruction.cxx: */
-      IRDBRecordset_ptr fcalMod = 
-	pAccessSvc->getRecordsetPtr("FCalMod", detectorKey,detectorNode);
+      const IRDBRecordset* fcalMod = 
+	pAccessSvc->getRecordset("FCalMod", detectorKey,detectorNode);
       if (fcalMod->size()==0) {
-	fcalMod=pAccessSvc->getRecordsetPtr("FCalMod", "FCalMod-00");
+	fcalMod=pAccessSvc->getRecordset("FCalMod", "FCalMod-00");
 	if (fcalMod->size()==0) {
 	  throw std::runtime_error("Error getting FCAL Module parameters from database");
 	}
@@ -492,8 +492,8 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
     }
 
   // Beam chambers
-  IRDBRecordset_ptr ScintGeom = 
-	  pAccessSvc->getRecordsetPtr("LArScintTB",detectorKey, detectorNode); 
+  const IRDBRecordset *ScintGeom = 
+	  pAccessSvc->getRecordset("LArScintTB",detectorKey, detectorNode); 
   // If nothing is in the database, we don't build. 
   if (ScintGeom->size()!=0) {    
 	  

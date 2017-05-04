@@ -577,7 +577,7 @@ StatusCode AmdcsimrecAthenaSvc::initializeFromOracle()
       << " (node) " << m_detectorNode 
       ) ;
 
-  IRDBRecordset_ptr recordsetAMDC = pIRDBAccessSvc->getRecordsetPtr("AMDC",m_detectorKey,m_detectorNode);
+  const IRDBRecordset *recordsetAMDC = pIRDBAccessSvc->getRecordset("AMDC",m_detectorKey,m_detectorNode);
   if (recordsetAMDC->size()==0){
     ATH_MSG_FATAL( "recordsetAMDC->size() is 0" ) ;
     return StatusCode::FAILURE;
@@ -586,7 +586,7 @@ StatusCode AmdcsimrecAthenaSvc::initializeFromOracle()
   std::string AmdcString = recordAMDC->getString("DATA");
   ATH_MSG_DEBUG( "        AMDC::VNAME " << recordAMDC->getString("VNAME") ) ;
 
-  IRDBRecordset_ptr recordsetAGDD = pIRDBAccessSvc->getRecordsetPtr("AGDD",m_detectorKey,m_detectorNode);
+  const IRDBRecordset *recordsetAGDD = pIRDBAccessSvc->getRecordset("AGDD",m_detectorKey,m_detectorNode);
   if (recordsetAGDD->size()==0){
     ATH_MSG_FATAL( "        recordsetAGDD->size() is 0" ) ;
     return StatusCode::FAILURE;
@@ -603,7 +603,7 @@ StatusCode AmdcsimrecAthenaSvc::initializeFromOracle()
     m_AGDD2GeoSwitchesStamp = m_AGDD2GeoSwitchesStamp + 1;
     std::string TheKEYNAME;
     int TheKEYVALUE; 
-    IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr("AGDD2GeoSwitches",m_detectorKey,m_detectorNode);
+    const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset("AGDD2GeoSwitches",m_detectorKey,m_detectorNode);
     for(unsigned int i=0; i<pIRDBRecordset->size(); i++) {
       const IRDBRecord* record = (*pIRDBRecordset)[i];
       TheKEYNAME = record->getString("KEYNAME");

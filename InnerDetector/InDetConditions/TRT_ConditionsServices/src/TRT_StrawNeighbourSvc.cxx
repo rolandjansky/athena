@@ -121,10 +121,10 @@ StatusCode TRT_StrawNeighbourSvc::initialize()
   DecodeVersionKey versionKey(geoModel, "TRT");
   std::string detectorKey  = versionKey.tag();
   std::string detectorNode = versionKey.node();
-  IRDBRecordset_ptr RDB_TRTElec  = iAccessSvc->getRecordsetPtr("TRTBarElecToStrawRel",detectorKey,detectorNode);
+  const IRDBRecordset* RDB_TRTElec  = iAccessSvc->getRecordset("TRTBarElecToStrawRel",detectorKey,detectorNode);
   
   if (RDB_TRTElec->size()==0) {
-    RDB_TRTElec = iAccessSvc->getRecordsetPtr("TRTBarElecToStrawRel","TRTBarElecToStrawRel-02");
+    RDB_TRTElec = iAccessSvc->getRecordset("TRTBarElecToStrawRel","TRTBarElecToStrawRel-02");
     msg(MSG::INFO) << "The folder: InnerDetector->TRT->TRTBarrel->TRTBarrelElectronics not found in DetDesc tag. Using hardcoded tag: TRTBarElecToStrawRel-02" << endmsg;
   }
   

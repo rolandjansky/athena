@@ -5,10 +5,9 @@
 #ifndef LARCELL_VOLUMES_H
 #define LARCELL_VOLUMES_H
 
-#include "RDBAccessSvc/IRDBAccessSvc.h"
-
 class Identifier;
 class CaloCell_ID;
+class IRDBRecordset;
 
 /** This class builds a vector of LArCellVolumeDB objects, read from 
     the Oracle database ( see constructor), and uses it to provide 
@@ -26,7 +25,7 @@ class LArCellVolumes
 public:
 
   // Constructors:
-  LArCellVolumes(IRDBRecordset_ptr cellVolRec);
+  LArCellVolumes(const IRDBRecordset* cellVolRec);
 
   virtual ~LArCellVolumes();
 

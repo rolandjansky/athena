@@ -8,13 +8,13 @@
 #include "LArG4Code/LArCalibCalculatorSvcImp.h"
 #include "LArG4Code/LArG4Identifier.h"
 #include "CaloG4Sim/SimulationEnergies.h"
-#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "globals.hh"
 #include <vector>
 
 // Forward declaration for namespace CaloG4.
 class G4Step;
 class FCAL_ChannelMap;
+class IRDBRecordset;
 
 class LArFCALH62004CalibCalculatorBase : public LArCalibCalculatorSvcImp {
 
@@ -41,7 +41,7 @@ private:
 
   FCAL_ChannelMap   *m_ChannelMap;
 
-  IRDBRecordset_ptr m_fcalMod;
+  const IRDBRecordset* m_fcalMod;
   float m_Zshift;
 
 };

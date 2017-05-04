@@ -11,6 +11,7 @@
 #include "GaudiKernel/Bootstrap.h"
 
 #include "PathResolver/PathResolver.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
@@ -73,6 +74,7 @@ LArFCALH62004CalibCalculatorBase::LArFCALH62004CalibCalculatorBase(const std::st
   , m_deltaY(0.0)
   , m_FCalSampling(0)
   , m_ChannelMap(nullptr)
+  , m_fcalMod(nullptr)
   , m_Zshift(0.0)
 {
   declareProperty("deltaX"            , m_deltaX);
@@ -98,9 +100,9 @@ StatusCode LArFCALH62004CalibCalculatorBase::initialize()
     throw std::runtime_error("Error in FCALConstruction, cannot access RDBAccessSvc");
   DecodeVersionKey larVersionKey(geoModel, "LAr");
 
-  m_fcalMod = rdbAccess->getRecordsetPtr("FCalMod", larVersionKey.tag(),larVersionKey.node());
+  m_fcalMod = rdbAccess->getRecordset("FCalMod", larVersionKey.tag(),larVersionKey.node());
   if (m_fcalMod->size()==0) {
-    m_fcalMod=rdbAccess->getRecordsetPtr("FCalMod", "FCalMod-00");
+    m_fcalMod=rdbAccess->getRecordset("FCalMod", "FCalMod-00");
     if (m_fcalMod->size()==0) {
       throw std::runtime_error("Error getting FCAL Module parameters from database");
     }

@@ -17,7 +17,8 @@
 
 #include "GaudiKernel/IInterface.h"
 #include <string>
-#include <memory>
+
+#include "boost/shared_ptr.hpp"
 
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
@@ -25,7 +26,7 @@
 class IRDBRecordset;
 class IRDBQuery;
 
-typedef std::shared_ptr<IRDBRecordset> IRDBRecordset_ptr;
+typedef boost::shared_ptr<IRDBRecordset> IRDBRecordset_ptr;
 
 typedef coral::AttributeList RDBTagDetails;
 

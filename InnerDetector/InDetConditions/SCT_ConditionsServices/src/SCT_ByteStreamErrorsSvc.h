@@ -125,7 +125,7 @@ private:
 
   std::set<IdentifierHash>* m_rxRedundancy;
 
-  std::map<IdentifierHash, unsigned int> m_firstTempMaskedChips;
+  std::map<IdentifierHash, unsigned int>* m_firstTempMaskedChips;
   std::map<Identifier, unsigned int>* m_tempMaskedChips;
   IdContext m_cntx_sct;
 

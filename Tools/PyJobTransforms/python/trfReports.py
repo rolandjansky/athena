@@ -27,7 +27,7 @@ import PyJobTransforms.trfExceptions as trfExceptions
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
 from PyJobTransforms.trfExitCodes import trfExit
-from PyJobTransforms.trfUtils import shQuoteStrings, isodate, prettyXML, calcCpuTime, calcWallTime
+from PyJobTransforms.trfUtils import shQuoteStrings, isodate, prettyXML
 
 ## @brief Default values for file reporting
 defaultFileReport = {'input': 'name', 'temporary': None, 'output': 'full'}
@@ -105,7 +105,7 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '2.0.9'
+    _reportVersion = '2.0.7'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
@@ -116,7 +116,6 @@ class trfJobReport(trfReport):
     #  @param parentTrf Mandatory link to the transform this job report represents
     def __init__(self, parentTrf):
         self._trf = parentTrf
-        self._precisionDigits = 3
 
     ## @brief generate the python transform job report
     #  @param type The general type of this report (e.g. fast)
@@ -171,10 +170,10 @@ class trfJobReport(trfReport):
                     myDict['resource']['executor'][mergeStep.name] = exeResourceReport(mergeStep, self)
             if self._dbDataTotal > 0 or self._dbTimeTotal > 0:
                 myDict['resource']['dbDataTotal'] = self._dbDataTotal
-                myDict['resource']['dbTimeTotal'] = self.roundoff(self._dbTimeTotal)
+                myDict['resource']['dbTimeTotal'] = self._dbTimeTotal
         # Resource consumption
         reportTime = os.times()
-
+ 
         # Calculate total cpu time we used -
         myCpuTime = reportTime[0] + reportTime[1]
         childCpuTime = reportTime[2] + reportTime[3]
@@ -206,30 +205,17 @@ class trfJobReport(trfReport):
                 pass
 
         msg.debug('maxWorkers: {0}, cpuTimeTotal: {1}, cpuTimePerWorker: {2}'.format(maxWorkers, cpuTime, cpuTimePerWorker))
-        reportGenerationCpuTime = reportGenerationWallTime = None
-        if self._trf.outFileValidationStop and reportTime:
-            reportGenerationCpuTime = calcCpuTime(self._trf.outFileValidationStop, reportTime)
-            reportGenerationWallTime = calcWallTime(self._trf.outFileValidationStop, reportTime)
-
-        myDict['resource']['transform'] = {'cpuTime': self.roundoff(myCpuTime),
-                                           'cpuTimeTotal': self.roundoff(cpuTimeTotal),
-                                           'externalCpuTime': self.roundoff(childCpuTime),
-                                           'wallTime': self.roundoff(wallTime),
-                                           'transformSetup': {'cpuTime': self.roundoff(self._trf.transformSetupCpuTime),
-                                                              'wallTime': self.roundoff(self._trf.transformSetupWallTime)},
-                                           'inFileValidation': {'cpuTime': self.roundoff(self._trf.inFileValidationCpuTime),
-                                                                'wallTime': self.roundoff(self._trf.inFileValidationWallTime)},
-                                           'outFileValidation': {'cpuTime': self.roundoff(self._trf.outFileValidationCpuTime),
-                                                                 'wallTime': self.roundoff(self._trf.outFileValidationWallTime)},
-                                           'reportGeneration': {'cpuTime': self.roundoff(reportGenerationCpuTime),
-                                                                'wallTime': self.roundoff(reportGenerationWallTime)}, }
+        myDict['resource']['transform'] = {'cpuTime': int(myCpuTime + 0.5),
+                              'cpuTimeTotal': int(cpuTimeTotal + 0.5),
+                              'externalCpuTime': int(childCpuTime + 0.5),
+                              'wallTime': int(wallTime + 0.5),}
         if self._trf.processedEvents:
-            myDict['resource']['transform']['processedEvents'] = self._trf.processedEvents
+            myDict['resource']['transform']['processedEvents'] = self._trf.processedEvents   
         myDict['resource']['transform']['trfPredata'] = self._trf.trfPredata
         # check for devision by zero for fast jobs, unit tests
-        if wallTime > 0:
-            myDict['resource']['transform']['cpuEfficiency'] = round(cpuTime/maxWorkers/wallTime, 4)
-            myDict['resource']['transform']['cpuPWEfficiency'] = round(cpuTimePerWorker/wallTime, 4)
+        if int(wallTime+0.5) > 0:
+            myDict['resource']['transform']['cpuEfficiency'] = round(int(cpuTime + 0.5)*1.0/maxWorkers/int(wallTime+0.5), 4)
+            myDict['resource']['transform']['cpuPWEfficiency'] = round(int(cpuTimePerWorker + 0.5)*1.0/int(wallTime+0.5), 4)
         myDict['resource']['machine'] = machineReport().python(fast = fast)
 
         return myDict
@@ -329,11 +315,6 @@ class trfJobReport(trfReport):
 
         # Tier 0 expects the report to be in a top level dictionary under the prodsys key
         return {'prodsys' : trfDict}
-
-    # Helper method to format values to number of decimals configured for this jobReport.
-    # Safely allows possible and valid None values within jobReport.
-    def roundoff(self, value):
-        return round(value, self._precisionDigits) if (value is not None) else value
 
 
 ## @brief Class to contain metadata for an executor
@@ -573,7 +554,7 @@ class machineReport(object):
                 machine[attr] = getattr(platform, attr).__call__()
             except AttributeError, e:
                 msg.error('Failed to get "{0}" attribute from platform module: {1}'.format(attr, e))
-
+                
         # Now try to get processor information from /proc/cpuinfo
         try:
             with open('/proc/cpuinfo') as cpuinfo:
@@ -612,23 +593,23 @@ def pyJobReportToFileDict(jobReport, io = 'all'):
 
 
 def exeResourceReport(exe, report):
-    exeResource = {'cpuTime': report.roundoff(exe.cpuTime),
-                   'wallTime': report.roundoff(exe.wallTime),
+    exeResource = {'cpuTime': exe.cpuTime, 
+                   'wallTime': exe.wallTime,
                    'preExe': {
-                       'cpuTime': report.roundoff(exe.preExeCpuTime),
-                       'wallTime': report.roundoff(exe.preExeWallTime),
+                       'cpuTime': exe.preExeCpuTime,
+                       'wallTime': exe.preExeWallTime,
                        },
                    'postExe': {
-                       'cpuTime': report.roundoff(exe.postExeCpuTime),
-                       'wallTime': report.roundoff(exe.postExeWallTime),
+                       'cpuTime': exe.postExeCpuTime,
+                       'wallTime': exe.postExeWallTime,
                        },
                    'validation': {
-                       'cpuTime': report.roundoff(exe.validationCpuTime),
-                       'wallTime': report.roundoff(exe.validationWallTime),
+                       'cpuTime': exe.validationCpuTime,
+                       'wallTime': exe.validationWallTime,
                        },
                    'total': {
-                       'cpuTime': report.roundoff(exe.cpuTimeTotal),
-                       'wallTime': report.roundoff(exe.wallTimeTotal),
+                       'cpuTime': exe.cpuTimeTotal,
+                       'wallTime': exe.wallTimeTotal,
                        },
                    }
 
@@ -638,7 +619,7 @@ def exeResourceReport(exe, report):
         exeResource['nevents'] = exe.eventCount
     if exe.athenaMP:
         exeResource['mpworkers'] = exe.athenaMP
-        exeResource['cpuTimePerWorker'] = report.roundoff(exe.cpuTime/exe.athenaMP)
+        exeResource['cpuTimePerWorker'] = float(exe.cpuTime)/exe.athenaMP
     if exe.dbMonitor:
         exeResource['dbData'] = exe.dbMonitor['bytes']
         exeResource['dbTime'] = exe.dbMonitor['time']

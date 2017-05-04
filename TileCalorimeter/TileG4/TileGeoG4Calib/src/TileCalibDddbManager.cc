@@ -38,22 +38,22 @@ TileCalibDddbManager::TileCalibDddbManager(ServiceHandle<IRDBAccessSvc> &access,
 
   access->connect();
 
-  m_tile = access->getRecordsetPtr("TILE", m_tag, m_node);
+  m_tile = access->getRecordset("TILE", m_tag, m_node);
   m_nTile = m_tile->size();
 
-  m_tileSection = access->getRecordsetPtr("TileCalibSections", m_tag, m_node);
+  m_tileSection = access->getRecordset("TileCalibSections", m_tag, m_node);
   m_nTileSect = m_tileSection->size();
 
-  m_tileCell = access->getRecordsetPtr("TileCalibCells", m_tag, m_node);
+  m_tileCell = access->getRecordset("TileCalibCells", m_tag, m_node);
   m_nTileCell = m_tileCell->size();
 
-  m_tilePlateCell = access->getRecordsetPtr("TileCalibPlateCells", m_tag, m_node);
+  m_tilePlateCell = access->getRecordset("TileCalibPlateCells", m_tag, m_node);
   m_nTilePCell = m_tilePlateCell->size();
 
-  m_tileGirderCell = access->getRecordsetPtr("TileCalibGirderCells", m_tag, m_node);
+  m_tileGirderCell = access->getRecordset("TileCalibGirderCells", m_tag, m_node);
   m_nTileGCell = m_tileGirderCell->size();
 
-  m_switches = access->getRecordsetPtr("TileSwitches", m_tag, m_node);
+  m_switches = access->getRecordset("TileSwitches", m_tag, m_node);
 
   access->disconnect();
 

@@ -6,12 +6,12 @@
 #define _RDBQUERY_H_
 
 #include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
+#include "boost/shared_ptr.hpp"
 #include <vector>
 #include <string>
 
 class RDBVersionAccessor;
-typedef std::shared_ptr<RDBVersionAccessor> RDBVersionAccessor_ptr;
+typedef boost::shared_ptr<RDBVersionAccessor> RDBVersionAccessor_ptr;
 
 namespace coral
 {
