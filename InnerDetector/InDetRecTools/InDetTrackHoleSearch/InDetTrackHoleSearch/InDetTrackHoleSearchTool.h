@@ -188,7 +188,7 @@ namespace InDet
 					 std::vector<const Trk::TrackStateOnSurface*>* listOfHoles) const;
 
       /** This method checks the SCT ABCD chip where the track passes through is bad or not */
-      bool isBadSCTChip(const Identifier& waferId, const Trk::TrackParameters* parameters, const InDetDD::SiDetectorElement* siElement) const;
+      bool isBadSCTChip(const Identifier& waferId, const Trk::TrackParameters& parameters, const InDetDD::SiDetectorElement& siElement) const;
     };
 
 } // end of namespace
