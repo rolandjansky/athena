@@ -1045,7 +1045,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 	if ( m_monitor_signal ) {
 	  std::string his_name  = detector_str( det ) + "_signal" + "_AVG";
 	  std::string dir_name  = m_path + "/" + detector_str( det );
-	  LWHist2D* histo = static_cast<LWHist2D*>( the_det_histo_factories[sig_h]->create( his_name ) );
+	  TProfile2D_LW* histo = static_cast<TProfile2D_LW*>( the_det_histo_factories[sig_h]->create( his_name ) );
 	  if ( registerHistogram( histo, dir_name ) ) {
 // 	    pair_det_th2ptr dummy = make_pair(det, histo );
 // 	    per_det_sign.insert( dummy );
@@ -1054,7 +1054,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 
           his_name  = detector_str( det ) + "_gain";
           dir_name  = m_path + "/" + detector_str( det );
-          LWHist2D* histog = static_cast<LWHist2D*>( the_det_histo_factories[gain_h]->create( his_name ) );
+          TProfile2D_LW* histog = static_cast<TProfile2D_LW*>( the_det_histo_factories[gain_h]->create( his_name ) );
           if ( registerHistogram( histog, dir_name ) ) {
 //          pair_det_th2ptr dummy = make_pair(det, histo );
 //          per_det_sign.insert( dummy );
@@ -1065,7 +1065,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 	if ( m_monitor_positive_noise ) {
 	  std::string his_name  = detector_str( det ) + "_acceptance" + "_AVG";
 	  std::string dir_name  = m_path + "/" + detector_str( det );
-	  LWHist2D* histo = static_cast<LWHist2D*>( the_det_histo_factories[pos_noise_h]->create( his_name ) );
+	  TProfile2D_LW* histo = static_cast<TProfile2D_LW*>( the_det_histo_factories[pos_noise_h]->create( his_name ) );
 	  //TK: REMOVED//histo->Sumw2();
 	  //	  if ( registerHistogram( histo, dir_name, "", "effAsPerCent" ) ) {
 	  if ( registerHistogram( histo, dir_name ) ) {
@@ -1077,7 +1077,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 	if ( m_monitor_negative_noise ) {
 	  std::string his_name  = detector_str( det ) + "_noise_acceptance" + "_AVG";
 	  std::string dir_name  = m_path + "/" + detector_str( det );
-	  LWHist2D* histo = static_cast<LWHist2D*>( the_det_histo_factories[neg_noise_h]->create( his_name ) );
+	  TProfile2D_LW* histo = static_cast<TProfile2D_LW*>( the_det_histo_factories[neg_noise_h]->create( his_name ) );
 	  //TK: REMOVED//histo->Sumw2();
 	  if ( registerHistogram( histo, dir_name ) ) {
 	    per_det_negn[det] = shared_ptr<IHistoProxyBase>( createLWHistProxy(histo) );
