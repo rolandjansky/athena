@@ -38,7 +38,6 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   m_lookForSGErrContainer(true),
   //
   m_rxRedundancy(0),
-  m_firstTempMaskedChips(nullptr),
   m_tempMaskedChips(nullptr),
   m_isRODSimulatedData(false),
   m_numRODsHVon(0),
@@ -121,7 +120,6 @@ SCT_ByteStreamErrorsSvc::initialize(){
     } 
   }
 
-  m_firstTempMaskedChips = new std::map<IdentifierHash, unsigned int>;
   m_tempMaskedChips = new std::map<Identifier, unsigned int>;
 
   // Read Handle Key
@@ -142,8 +140,6 @@ SCT_ByteStreamErrorsSvc::finalize(){
   delete m_rxRedundancy;
   m_rxRedundancy = 0;
 
-  delete m_firstTempMaskedChips;
-  m_firstTempMaskedChips = nullptr;
   delete m_tempMaskedChips;
   m_tempMaskedChips = nullptr;
 
@@ -200,7 +196,7 @@ SCT_ByteStreamErrorsSvc::handle(const Incident& inc) {
     for(auto& rodDecodeStatus: m_rodDecodeStatuses) {
       rodDecodeStatus.second = false;
     }
-    m_firstTempMaskedChips->clear();
+    m_firstTempMaskedChips.clear();
     m_tempMaskedChips->clear();
   }
   return;
@@ -590,7 +586,7 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
 
   //// 1. set m_firstTempMaskedChips for this wafer
   std::pair<std::map<IdentifierHash, unsigned int>::const_iterator, bool>
-    ret(m_firstTempMaskedChips->insert(std::make_pair(hashId, firstTempMaskedChip)));
+    ret(m_firstTempMaskedChips.insert(std::make_pair(hashId, firstTempMaskedChip)));
   if(not ret.second) {
     ATH_MSG_WARNING("setFirstTempMaskedChip: already set for hashId " << hashId << 
 		    " firstTempMaskedChip is " << ret.first->second << 
@@ -719,8 +715,8 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
 }
 
 unsigned int SCT_ByteStreamErrorsSvc::getFirstTempMaskedChip(const IdentifierHash& hashId) const {
-  std::map<IdentifierHash, unsigned int>::const_iterator it(m_firstTempMaskedChips->find(hashId));
-  if(it!=m_firstTempMaskedChips->end()) return it->second;
+  std::map<IdentifierHash, unsigned int>::const_iterator it(m_firstTempMaskedChips.find(hashId));
+  if(it!=m_firstTempMaskedChips.end()) return it->second;
   return 0;
 }
 
