@@ -8,15 +8,14 @@
 
 #include "DataModel/DataVector.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "InDetReadoutGeometry/SCT_DetectorManager.h" 
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "TrkSpacePoint/SpacePoint.h"
 #include "TrkSpacePoint/SpacePointCollection.h"
-#include "TrkSpacePoint/SpacePointContainer.h"
 #include "TrkSpacePoint/SpacePointCLASS_DEF.h"
 #include "TrkPrepRawData/PrepRawData.h"
-#include "TrkTruthData/PRD_MultiTruthCollection.h"
 
 namespace JiveXML 
 {
@@ -36,10 +35,10 @@ namespace JiveXML
     declareInterface<IDataRetriever>(this);
     
     //And the properties
-    declareProperty("PixelSpacePoints"     , m_PixelSPContainerName = "PixelSpacePoints");
-    declareProperty("SCTSpacePoints"       , m_SCTSPContainerName = "SCT_SpacePoints");
-    declareProperty("PRD_TruthPixel"       , m_PixelPRDTruthName = "PRD_MultiTruthPixel"); 
-    declareProperty("PRD_TruthSCT"         , m_SCTPRDTruthName = "PRD_MultiTruthSCT");   
+    declareProperty("PixelSpacePoints"     , m_PixelSPContainerName = std::string("PixelSpacePoints"));
+    declareProperty("SCTSpacePoints"       , m_SCTSPContainerName = std::string("SCT_SpacePoints"));
+    declareProperty("PRD_TruthPixel"       , m_PixelPRDTruthName = std::string("PRD_MultiTruthPixel")); 
+    declareProperty("PRD_TruthSCT"         , m_SCTPRDTruthName = std::string("PRD_MultiTruthSCT"));   
   }
 
   //Namespace for the helper functions
@@ -116,26 +115,21 @@ namespace JiveXML
     /**
      * Try to retrieve all the relevant collections first
      */
-    const PRD_MultiTruthCollection* PixelPRDTruthColl = NULL;
-    const SpacePointContainer* PixelSPContainer;
-    const PRD_MultiTruthCollection* SCTPRDTruthColl = NULL;
-    const SpacePointContainer* SCTSPContainer;
+    SG::ReadHandle<PRD_MultiTruthCollection> PixelPRDTruthColl(m_PixelPRDTruthName);
+    SG::ReadHandle<SpacePointContainer> PixelSPContainer(m_PixelSPContainerName);
+    SG::ReadHandle<PRD_MultiTruthCollection> SCTPRDTruthColl(m_SCTPRDTruthName);
+    SG::ReadHandle<SpacePointContainer> SCTSPContainer(m_SCTSPContainerName);
 
     //Try to retrieve all four from store gate
-    if ( evtStore()->retrieve(PixelSPContainer, m_PixelSPContainerName).isFailure() )
-       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unable to retrieve SpacePoint container with name " << m_PixelSPContainerName << endmsg;
+    if ( not PixelSPContainer.isValid() )
+      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unable to retrieve SpacePoint container with name " << m_PixelSPContainerName.key() << endmsg;
+    if ( not PixelPRDTruthColl.isValid() )
+      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unable to retrieve PRD_MultiTruth collection with name " << m_PixelPRDTruthName.key() << endmsg;
+    if ( not SCTSPContainer.isValid() )
+      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unable to retrieve SpacePoint container with name " << m_SCTSPContainerName.key() << endmsg;
+    if ( not SCTPRDTruthColl.isValid() )        
+      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unable to retrieve PRD_MultiTruth collection with name " << m_SCTPRDTruthName.key() << endmsg;
 
-    if ( evtStore()->contains<PRD_MultiTruthCollection>(m_PixelPRDTruthName) ){
-      if ( evtStore()->retrieve(PixelPRDTruthColl, m_PixelPRDTruthName).isFailure() )
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unable to retrieve PRD_MultiTruth collection with name " << m_PixelPRDTruthName << endmsg;
-    }
-    if ( evtStore()->retrieve(SCTSPContainer, m_SCTSPContainerName).isFailure() )
-       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unable to retrieve SpacePoint container with name " << m_SCTSPContainerName << endmsg;
-
-    if ( evtStore()->contains<PRD_MultiTruthCollection>(m_SCTPRDTruthName) ){
-      if ( evtStore()->retrieve(SCTPRDTruthColl, m_SCTPRDTruthName).isFailure() )        
-         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Unable to retrieve PRD_MultiTruth collection with name " << m_SCTPRDTruthName << endmsg;
-    }    
     /**
      * Now make a list of SpacePoint - PRDTruth collection pairs to run over
      */
@@ -143,12 +137,12 @@ namespace JiveXML
     std::vector<SpacePointTruthPair> SpacePointTruthPairList;
 
     //Add Pixel if there is a collection
-    if (PixelSPContainer)
-      SpacePointTruthPairList.push_back(SpacePointTruthPair(PixelSPContainer,PixelPRDTruthColl));
+    if (PixelSPContainer.isValid() and PixelPRDTruthColl.isValid())
+      SpacePointTruthPairList.push_back(SpacePointTruthPair(&*PixelSPContainer,&*PixelPRDTruthColl));
     
     //Add SCT if there is a collection
-    if (SCTSPContainer)
-      SpacePointTruthPairList.push_back(SpacePointTruthPair(SCTSPContainer,SCTPRDTruthColl));
+    if (SCTSPContainer.isValid() and SCTPRDTruthColl.isValid())
+      SpacePointTruthPairList.push_back(SpacePointTruthPair(&*SCTSPContainer,&*SCTPRDTruthColl));
     
     /**
      * Found out how much space we will need
@@ -258,6 +252,16 @@ namespace JiveXML
 
      //forward data to formating tool and return
     return FormatTool->AddToEvent(dataTypeName(), "", &dataMap);
+  }
+
+  StatusCode SiSpacePointRetriever::initialize() {
+    // Read Handle Key
+    ATH_CHECK(m_PixelSPContainerName.initialize());
+    ATH_CHECK(m_SCTSPContainerName.initialize());
+    ATH_CHECK(m_PixelPRDTruthName.initialize());
+    ATH_CHECK(m_SCTPRDTruthName.initialize());
+
+    return geo.retrieve();
   }
   
 } //namespace
