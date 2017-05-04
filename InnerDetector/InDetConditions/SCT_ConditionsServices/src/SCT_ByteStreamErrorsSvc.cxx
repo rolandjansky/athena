@@ -588,14 +588,15 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
     return;
   }
 
-  std::map<IdentifierHash, unsigned int>::const_iterator it(m_firstTempMaskedChips->find(hashId));
-  if(it!=m_firstTempMaskedChips->end()) {
-    ATH_MSG_WARNING("setFirstTempMaskedChip: already set for hashId " << hashId << " firstTempMaskedChip is " << it->second << " and you are trying to put " << firstTempMaskedChip);
+  //// 1. set m_firstTempMaskedChips for this wafer
+  std::pair<std::map<IdentifierHash, unsigned int>::const_iterator, bool>
+    ret(m_firstTempMaskedChips->insert(std::make_pair(hashId, firstTempMaskedChip)));
+  if(not ret.second) {
+    ATH_MSG_WARNING("setFirstTempMaskedChip: already set for hashId " << hashId << 
+		    " firstTempMaskedChip is " << ret.first->second << 
+		    " and you are trying to put " << firstTempMaskedChip);
     return;
   }
-
-  //// 1. set m_firstTempMaskedChips for this wafer
-  (*m_firstTempMaskedChips)[hashId] = firstTempMaskedChip;
   
   //// 2. set m_tempMaskedChips for this module
   
