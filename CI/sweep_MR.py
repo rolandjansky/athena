@@ -26,9 +26,9 @@ def execute_command_with_retry(cmd,max_attempts=3):
         
     return status,out,err
     
-def get_list_of_merge_commits(branch,since):
+def get_list_of_merge_commits(branch,since,until):
     logging.info("looking for merge commits on '%s' since '%s'",branch,since)
-    git_cmd = 'git log --merges --first-parent --oneline --since="{0}" {1}'.format(since,branch)
+    git_cmd = 'git log --merges --first-parent --oneline --since="{0}" --until="{1}" {2}'.format(since,until,branch)
     status,out,_ = execute_command_with_retry(git_cmd)
 
     # bail out in case of errors
@@ -213,9 +213,10 @@ def main():
     parser = argparse.ArgumentParser(description="GitLab merge request commentator",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-b","--branch",required=True,help="remote branch whose merge commits should be swept (e.g. origin/master)")
     parser.add_argument("-p","--project-name",dest="project_name",required=True,help="GitLab project with namespace (e.g. user/my-project)")
-    parser.add_argument("-s","--since",default="1 day",help="time interval for sweeping MR (e.g. 1 week)")
+    parser.add_argument("-s","--since",default="1 day ago",help="start of time interval for sweeping MR (e.g. 1 week ago)")
     parser.add_argument("-t","--token",required=True,help="private GitLab user token")
-    parser.add_argument("-u","--url",default="https://gitlab.cern.ch",help="URL of GitLab instance")
+    parser.add_argument("-u","--until",default="now",help="end of time interval for sweeping MR (e.g. 1 hour ago)")
+    parser.add_argument("--url",default="https://gitlab.cern.ch",help="URL of GitLab instance")
     parser.add_argument("-v","--verbose",default="INFO",choices=["DEBUG","INFO","WARNING","ERROR","CRITICAL"],help="verbosity level")
     parser.add_argument("--repository-root",dest="root",default=os.path.dirname(os.path.abspath(os.path.join(os.path.realpath(__file__),'../'))),help="path to root directory of git repository")
 
@@ -273,7 +274,7 @@ def main():
         sys.exit(0)
 
     # get list of MRs in relevant period
-    MR_list = get_list_of_merge_commits(args.branch,args.since)
+    MR_list = get_list_of_merge_commits(args.branch,args.since,args.until)
     if not MR_list:
         logging.info("no MRs to '%s' found during last %s",args.branch,args.since)
         sys.exit(0)
