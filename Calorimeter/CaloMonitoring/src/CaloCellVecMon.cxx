@@ -470,7 +470,7 @@ void CaloCellVecMon::initPointers(){
 }
 
 CaloCellVecMon::~CaloCellVecMon() {
-
+  deleteArray();
 }
 
 ////////////////////////////////////////////
@@ -4729,31 +4729,6 @@ StatusCode CaloCellVecMon::deleteSummHists(){
   return StatusCode::SUCCESS;
 }
 
-//////////////////////////////////////////////////////////////////
-StatusCode CaloCellVecMon::finalHists()
-{
-
-//  ATH_MSG_INFO("CaloCellVecMon finalHists() is starting");
-  // This assumes that the end of a file will naturally end a run, which is not always true.
-  // A merging application run afterwards should be able to put parts of a run together.
-
-/*
-  ATH_MSG_INFO("before call procHistograms in finalHists()");
-  ATH_CHECK( procHistograms(true,true,true) );
-  ATH_MSG_INFO("after call procHistograms in finalHists()");
-
-  ATH_MSG_INFO("before call deleteHistograms in finalHists()");
-  ATH_CHECK(  deleteHistograms() );
-  ATH_MSG_INFO("after call deleteHistograms in finalHists()");
-*/
-
-//  ATH_MSG_INFO("before call deleteArray in finalHists()");
-  deleteArray();
-//  ATH_MSG_INFO("after call deleteArray in finalHists()");
-
-  return StatusCode::SUCCESS;
-//  ATH_MSG_INFO("CaloCellVecMon finalHists() is done");
-}
 
 void CaloCellVecMon::deleteArray(){
 
