@@ -97,6 +97,26 @@ namespace InDet{
     return (Vrt.x()*JetDir.Px() + Vrt.y()*JetDir.Py())/JetDir.Pt();
   }
 
+  bool InDetVKalVxInJetTool::insideMatLayer(float xvt,float yvt) const
+  {
+        float Dist2DBP=sqrt( (xvt-m_Xbeampipe)*(xvt-m_Xbeampipe) + (yvt-m_Ybeampipe)*(yvt-m_Ybeampipe) ); 
+        float Dist2DBL=sqrt( (xvt-m_XlayerB)*(xvt-m_XlayerB) + (yvt-m_YlayerB)*(yvt-m_YlayerB) ); 
+        float Dist2DL1=sqrt( (xvt-m_Xlayer1)*(xvt-m_Xlayer1) + (yvt-m_Ylayer1)*(yvt-m_Ylayer1) );
+        float Dist2DL2=sqrt( (xvt-m_Xlayer2)*(xvt-m_Xlayer2) + (yvt-m_Ylayer2)*(yvt-m_Ylayer2) );
+        if(m_existIBL){              // 4-layer pixel detector
+               if( fabs(Dist2DBP-m_Rbeampipe)< 1.0)  return true;           // Beam Pipe removal  
+               if( fabs(Dist2DBL-m_RlayerB)  < 2.5)     return true;
+               if( fabs(Dist2DL1-m_Rlayer1)  < 3.0)      return true;
+               if( fabs(Dist2DL2-m_Rlayer2)  < 3.0)      return true;
+               //if( fabs(Dist2DL2-m_Rlayer3)  < 4.0)      return true;
+        }else{                       // 3-layer pixel detector
+               if( fabs(Dist2DBP-m_Rbeampipe)< 1.5)  return true;           // Beam Pipe removal  
+               if( fabs(Dist2DBL-m_RlayerB)  < 3.5)     return true;
+               if( fabs(Dist2DL1-m_Rlayer1)  < 4.0)      return true;
+               if( fabs(Dist2DL2-m_Rlayer2)  < 5.0)      return true;
+        }
+        return false; 
+  }
 
   double InDetVKalVxInJetTool::VrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, 
                                           const std::vector<double> SecVrtErr, double& Signif)
