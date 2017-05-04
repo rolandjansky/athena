@@ -347,8 +347,10 @@ class ItemDef:
         LVL1MenuItem('L1_TAU20C' ).setLogic( HA20C  & physcond).setTriggerType( TT.calo ) 
 
         LVL1MenuItem('L1_TAU25' ).setLogic( HA25  & physcond).setTriggerType( TT.calo )
-        LVL1MenuItem('L1_TAU25IT' ).setLogic( HA25IT  & physcond).setTriggerType( TT.calo )
-
+        if '_v6' in TriggerFlags.triggerMenuSetup() or '_HI' in TriggerFlags.triggerMenuSetup():
+           LVL1MenuItem('L1_TAU25IT' ).setLogic( HA25IT  & physcond).setTriggerType( TT.calo )
+        else:
+           LVL1MenuItem('L1_TAU25IM' ).setLogic( HA25IM  & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_TAU30' ).setLogic( HA30  & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_TAU40' ).setLogic( HA40  & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_TAU60' ).setLogic( HA60  & physcond).setTriggerType( TT.calo )
@@ -426,7 +428,10 @@ class ItemDef:
         LVL1MenuItem('L1_TAU20IM_2TAU12IM_J25_2J20_3J12').setLogic( HA20IM & HA12IM.x(2)     & J25 & J20.x(2) & J12.x(3) & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_TAU20IL_2TAU12IL_J25_2J20_3J12').setLogic( HA20IL & HA12IL.x(2)     & J25 & J20.x(2) & J12.x(3) & physcond).setTriggerType( TT.calo )
 
-        LVL1MenuItem('L1_TAU25IT_2TAU12IT_2J25_3J12').setLogic( HA25IT & HA12IT.x(2)     & J25.x(2)  & J12.x(3) & physcond).setTriggerType( TT.calo )
+        if '_v6' in TriggerFlags.triggerMenuSetup() or '_HI' in TriggerFlags.triggerMenuSetup():
+           LVL1MenuItem('L1_TAU25IT_2TAU12IT_2J25_3J12').setLogic( HA25IT & HA12IT.x(2)     & J25.x(2)  & J12.x(3) & physcond).setTriggerType( TT.calo )
+        else:
+           LVL1MenuItem('L1_TAU25IM_2TAU20IM_2J25_3J20').setLogic( HA25IM & HA20IM.x(2)     & J25.x(2)  & J20.x(3) & physcond).setTriggerType( TT.calo )
 
         LVL1MenuItem('L1_2TAU12I_TAU20_J25_2J15_3J12'  ).setLogic( HA12I.x(2)   & HA20  & J25 & J15.x(2) & J12.x(3) & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_TAU20_2J20_XE45'              ).setLogic( HA20    & J20.x(2)   & XE45 & physcond).setTriggerType( TT.calo )

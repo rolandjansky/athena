@@ -932,11 +932,6 @@ def setupMenu():
 
 
         ['e60_lhmedium_cutd0dphideta',         'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e60_lhmedium_nod0_ringer',           'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e60_lhmedium_nod0_ringer_L1EM24VHI', 'L1_EM24VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-
-        ['e140_lhloose_nod0_ringer',           'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e140_lhloose_nod0_ringer_L1EM24VHI', 'L1_EM24VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
 
         # Di-electron triggers
 
@@ -1608,14 +1603,9 @@ def setupMenu():
         ### ATR-15062 L1Topo
         ['g20_tight_ivloose_j35_0eta490_bmv2c2077_3j35_0eta490_invm500', 'L1_EM18VHI_MJJ-300', ['','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g20_tight_ivloose","j35_0eta490_bmv2c2077","3j35_0eta490_invm500"]]],
         ['g20_tight_ivloose_4j35_0eta490_invm500', 'L1_EM18VHI_MJJ-300', ['',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g20_tight_ivloose","4j35_0eta490_invm500"]]],
-        ### ATR-15758
-        ['g20_tight_iloose_j35_0eta490_bmv2c2077_3j35_0eta490_invm500', 'L1_EM18VHI_MJJ-300', ['','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g20_tight_iloose","j35_0eta490_bmv2c2077","3j35_0eta490_invm500"]]],
-
 
         ### ATR-15062 Non-L1Topo
         ['g27_medium_L1EM24VHI_2j25_0eta490_bmv2c2077_2j25_0eta490_invm500', 'L1_EM24VHI', ['L1_EM24VHI','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g27_medium_L1EM24VHI","2j25_0eta490_bmv2c2077","2j25_0eta490_invm500"]]],
-        ['g27_medium_L1EM24VHI_j35_0eta490_bmv2c2077_split_3j35_0eta490_invm700', 'L1_EM24VHI', ['L1_EM24VHI','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g27_medium_L1EM24VHI","j35_0eta490_bmv2c2077_split","3j35_0eta490_invm700"]]],
-        ['g27_medium_L1EM24VHI_2j35_0eta490_bmv2c2077_split_2j35_0eta490', 'L1_EM24VHI', ['L1_EM24VHI','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g27_medium_L1EM24VHI","2j35_0eta490_bmv2c2077_split","2j35_0eta490"]]],
 
 
         ['j80_bmv2c2077_split_L12J50_XE40','L1_2J50_XE40',  ['L1_2J50_XE40',''],  [PhysicsStream], ['RATE:JetMET', 'BW:MET', 'BW:Jet'], -1],
