@@ -124,6 +124,8 @@ def TrigMuSuperEF_MGonly(name="TrigMuSuperEF_MGonly",**kwargs):
     kwargs.setdefault("doOutsideIn", False)
     kwargs.setdefault("UseL2Info",False)
     kwargs.setdefault("DoCache", False)
+    #kwargs.setdefault("MuGirlTool", getPublicTool("TMEF_MuonStauRecoTool"))
+    kwargs.setdefault("MuGirlTool", "TMEF_MuonStauRecoTool")
     return TrigMuSuperEFConfig(name,**kwargs)
 
 

@@ -93,45 +93,49 @@ std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator TrigMuonRoITool::e
 
 /// helper to decode MuCTPi information
 void TrigMuonRoITool::decodeMuCTPi() {
-  // save input stream flags
-  std::ios_base::fmtflags log_flags_save = (msg().stream()).flags();
-  char log_fill_char_save = (msg().stream()).fill();
+
+  //std::cout<<"Calling TrigMuonRoITool::decodeMuCTPi"<<std::endl;
+
+   // save input stream flags
+  //std::ios_base::fmtflags log_flags_save = (msg().stream()).flags();
+  //char log_fill_char_save = (msg().stream()).fill();
 
   // check if data are still valid
   // retrieve the event info information and check its validity
   // get EventInfo
-  const EventInfo* p_EventInfo(0);
-  // StatusCode sc = m_storeGateSvc->retrieve(p_EventInfo);
-  StatusCode sc = evtStore()->retrieve(p_EventInfo);
-  if ((sc.isFailure()) || (p_EventInfo == 0)) {
-    msg(MSG::WARNING) << "Can't get EventInfo object for checking data validity." << endreq;
-    m_inTime_muCTPIRoIs.clear();
-    m_outOfTime_muCTPIRoIs.clear();
-    return;
-  } else {
-    // check event parameters for validity. The check for run/event number is not sufficient since
-    // in L2 the event number = L1 ID, which may be identical to a previous one after an ECR.
-    // Only if all parameters match the present info is still valid
-    if ( (m_run_no               == p_EventInfo->event_ID()->run_number()) &&
-	 (m_event_number         == p_EventInfo->event_ID()->event_number()) &&
-	 (m_bunch_crossing_id    == p_EventInfo->event_ID()->bunch_crossing_id()) &&
-	 (m_time_stamp           == p_EventInfo->event_ID()->time_stamp()) &&
-	 (m_time_stamp_ns_offset == p_EventInfo->event_ID()->time_stamp_ns_offset()) &&
-	 (m_lumi_block           == p_EventInfo->event_ID()->lumi_block()) ) {
-      // information is still valid
-      if (msgLvl(MSG::DEBUG)) {
-	msg(MSG::DEBUG) << " decodeMuCTPi: Stored information is still valid. Complete EventID = " 
-	    << *(p_EventInfo->event_ID()) << endreq; 
-      }
-      return ;
-    } else {
-      // information is outdated
-      if (msgLvl(MSG::DEBUG)) {
-	msg(MSG::DEBUG) << " decodeMuCTPi: Stored information needs to be updated. Complete EventID = " 
-	    << *(p_EventInfo->event_ID()) << endreq; 
-      }
-    }
-  }
+  // const EventInfo* p_EventInfo(0);
+  // // StatusCode sc = m_storeGateSvc->retrieve(p_EventInfo);
+  // StatusCode sc = evtStore()->retrieve(p_EventInfo);
+
+  // if ((sc.isFailure()) || (p_EventInfo == 0)) {
+  //   msg(MSG::WARNING) << "Can't get EventInfo object for checking data validity." << endreq;
+  //   m_inTime_muCTPIRoIs.clear();
+  //   m_outOfTime_muCTPIRoIs.clear();
+  //   return;
+  // } else {
+  //   // check event parameters for validity. The check for run/event number is not sufficient since
+  //   // in L2 the event number = L1 ID, which may be identical to a previous one after an ECR.
+  //   // Only if all parameters match the present info is still valid
+  //   if ( (m_run_no               == p_EventInfo->event_ID()->run_number()) &&
+  // 	 (m_event_number         == p_EventInfo->event_ID()->event_number()) &&
+  // 	 (m_bunch_crossing_id    == p_EventInfo->event_ID()->bunch_crossing_id()) &&
+  // 	 (m_time_stamp           == p_EventInfo->event_ID()->time_stamp()) &&
+  // 	 (m_time_stamp_ns_offset == p_EventInfo->event_ID()->time_stamp_ns_offset()) &&
+  // 	 (m_lumi_block           == p_EventInfo->event_ID()->lumi_block()) ) {
+  //     // information is still valid
+  //     if (msgLvl(MSG::DEBUG)) {
+  // 	msg(MSG::DEBUG) << " decodeMuCTPi: Stored information is still valid. Complete EventID = " 
+  // 	    << *(p_EventInfo->event_ID()) << endreq; 
+  //     }
+  //     return ;
+  //   } else {
+  //     // information is outdated
+  //     if (msgLvl(MSG::DEBUG)) {
+  // 	msg(MSG::DEBUG) << " decodeMuCTPi: Stored information needs to be updated. Complete EventID = " 
+  // 	    << *(p_EventInfo->event_ID()) << endreq; 
+  //     }
+  //   }
+  // }
 
   //
   // --- Update information from DAQ ROB
@@ -140,13 +144,23 @@ void TrigMuonRoITool::decodeMuCTPi() {
   m_inTime_muCTPIRoIs.clear();
   m_outOfTime_muCTPIRoIs.clear();
 
+
+  /*
+
   // in L2 the DAQ muCTPi ROB needs to be retreived first from the ROS
   m_robDataProviderSvc->addROBData(m_muCTPiRobIds);
 
   // get the muCTPi ROB fragment
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> muCTPiRobFragmentVec;
+
+  std::cout<<"m_muCTPiRobIds.size() = "<<m_muCTPiRobIds.size()<<std::endl;
+
   muCTPiRobFragmentVec.reserve(m_muCTPiRobIds.size());
+
   m_robDataProviderSvc->getROBData(m_muCTPiRobIds,muCTPiRobFragmentVec);
+
+  
+
   if (muCTPiRobFragmentVec.size()==0) {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " decodeMuCTPi: No muCTPi ROB found." << endreq;
     return;
@@ -195,11 +209,11 @@ void TrigMuonRoITool::decodeMuCTPi() {
 
   const uint32_t* status;
   muCTPiRobFragmentVec[0]->rod_status( status );
-  /* nstatus, errorStat not used, cause compilation warning
-  uint32_t nstatus = muCTPiRobFragmentVec[0]->rod_nstatus();
-  uint32_t errorStat( 0 );
-  if( nstatus > 0 ) errorStat = static_cast< uint32_t >( *status );
-  */
+  // nstatus, errorStat not used, cause compilation warning
+  //uint32_t nstatus = muCTPiRobFragmentVec[0]->rod_nstatus();
+  //uint32_t errorStat( 0 );
+  //if( nstatus > 0 ) errorStat = static_cast< uint32_t >( *status );
+  //
 
   if (msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << "ROB ID 0x" << MSG::hex << robId <<  " ROD ID 0x"
@@ -246,12 +260,29 @@ void TrigMuonRoITool::decodeMuCTPi() {
 
   // create MuCTPI RDO
   MuCTPI_RDO daqmuCTPIResult( candidateMultiplicity, dataWord );       // DAQ  muCTPi Result
+  */
 
+
+  //std::cout<<"TrigMuonRoITool::decodeMuCTPi retreive MUCTPI_RDO from evtstore"<<std::endl;
+  
+  // Retrieve the MuCTPI RDO
+  const MuCTPI_RDO* daqmuCTPIResult = 0;
+  StatusCode sc = evtStore()->retrieve(daqmuCTPIResult,"MUCTPI_RDO");
+  if ((sc.isFailure()) || (daqmuCTPIResult == 0)) {
+    msg(MSG::WARNING) << "Can't get MUCTPI_RDO object from event store." << endreq;
+    m_inTime_muCTPIRoIs.clear();
+    m_outOfTime_muCTPIRoIs.clear();
+    return;
+  }
+
+  //std::cout<<"TrigMuonRoITool::decodeMuCTPi retreived MUCTPI_RDO from evtstore !!!!"<<std::endl;
+
+  
   // print contents
   if (msgLvl(MSG::DEBUG)) {
-    MuCTPI_MultiplicityWord_Decoder(daqmuCTPIResult.candidateMultiplicity()).dumpData(msg());
-    for(std::vector< uint32_t >::const_iterator it = daqmuCTPIResult.dataWord().begin();
-	it != daqmuCTPIResult.dataWord().end(); ++it) {
+    MuCTPI_MultiplicityWord_Decoder(daqmuCTPIResult->candidateMultiplicity()).dumpData(msg());
+    for(std::vector< uint32_t >::const_iterator it = daqmuCTPIResult->dataWord().begin();
+	it != daqmuCTPIResult->dataWord().end(); ++it) {
       MuCTPI_DataWord_Decoder(*it).dumpData(msg());
       dumpRoIBDataWord(mirodToRoIBDataWord(*it));
     }
@@ -259,14 +290,17 @@ void TrigMuonRoITool::decodeMuCTPi() {
 
   // now select out the RoI candidates for the BCID which triggered the event and save them in 
   // a special list indexed by RoI ID
-  uint16_t roiEventBCID = MuCTPI_MultiplicityWord_Decoder(daqmuCTPIResult.candidateMultiplicity()).getBCID();
-  uint16_t roiEventNCan = MuCTPI_MultiplicityWord_Decoder(daqmuCTPIResult.candidateMultiplicity()).getNCandidates();
+  uint16_t roiEventBCID = MuCTPI_MultiplicityWord_Decoder(daqmuCTPIResult->candidateMultiplicity()).getBCID();
+  uint16_t roiEventNCan = MuCTPI_MultiplicityWord_Decoder(daqmuCTPIResult->candidateMultiplicity()).getNCandidates();
 
+  // std::cout<<"TrigMuonRoITool::decodeMuCTPi roiEventBCID "<<roiEventBCID<<std::endl;
+  // std::cout<<"TrigMuonRoITool::decodeMuCTPi roiEventNCan "<<roiEventNCan<<std::endl;
+  
   m_inTime_muCTPIRoIs.reserve( roiEventNCan );
   m_outOfTime_muCTPIRoIs.reserve( roiEventNCan );
 
-  for(std::vector< uint32_t >::const_iterator it = daqmuCTPIResult.dataWord().begin();
-      it != daqmuCTPIResult.dataWord().end(); ++it) {
+  for(std::vector< uint32_t >::const_iterator it = daqmuCTPIResult->dataWord().begin();
+      it != daqmuCTPIResult->dataWord().end(); ++it) {
     // decode the RDO data word
     MuCTPI_DataWord_Decoder daqRoI(*it);
 
@@ -275,6 +309,12 @@ void TrigMuonRoITool::decodeMuCTPi() {
 
     if (roiEventBCID == daqRoI.getBCID()) { // RoI matches event BCID
       m_inTime_muCTPIRoIs.push_back(roI);
+
+      ////////////////////////////////
+      ///// TEST TO BE REMOVED!!!!!
+      //m_outOfTime_muCTPIRoIs.push_back( std::pair<ROIB::MuCTPIRoI,int>(roI,(int(daqRoI.getBCID())-int(roiEventBCID))) );
+      ////////////////////////////////
+
     } else {
       m_outOfTime_muCTPIRoIs.push_back( std::pair<ROIB::MuCTPIRoI,int>(roI,(int(daqRoI.getBCID())-int(roiEventBCID))) );
     }
@@ -300,7 +340,7 @@ void TrigMuonRoITool::decodeMuCTPi() {
   }
 
   // reset msg() stream flags to original values
-  msg().flags(log_flags_save);
+  //msg().flags(log_flags_save);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
