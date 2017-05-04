@@ -67,11 +67,16 @@ def get_sweep_target_branch_rules(src_branch):
         logging.critical("failed to interpret the following text as YAML:\n%s",out)
         return None
 
-    if not 'sweep-targets' in CI_config or not CI_config['sweep-targets']:
-        logging.info("no sweep targets for branch '%s' configured",src_branch)
+    # get branch name without remote repository name
+    branch_wo_remote = src_branch.split('/')[1]
+    # make sure we have a valid sweeping configuration
+    has_sweep_targets = 'sweep-targets' in CI_config
+    has_targets_for_branch = has_sweep_targets and branch_wo_remote in CI_config['sweep-targets']
+    has_target_rules = has_targets_for_branch and CI_config['sweep-targets'][branch_wo_remote]
+    if not has_target_rules:
         return None
 
-    target_branch_rules = CI_config['sweep-targets']
+    target_branch_rules = CI_config['sweep-targets'][branch_wo_remote]
     logging.info("read %d sweeping rules for MRs to '%s",len(target_branch_rules),src_branch)
     logging.debug("sweeping rules: %r",target_branch_rules)
     
