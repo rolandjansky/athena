@@ -179,8 +179,6 @@ private:  // data
 
   Muon::MuonSegment* make_4dMuonSegment(const Muon::MuonSegment& rsg, const Muon::MuonSegment& psg, bool use2LaySegsEta, bool use2LaySegsPhi) const;
 
-  Muon::MuonSegment* make_4dMuonSegmentSingle(const Muon::MuonSegment& sg, bool use2LaySegs, bool isEta) const;
-
   /***** Find outlier cluster *****/
   /* It finds the biggest chisquare contributing cluster:
      returns 'n' th cluster ( n = 0-3 )

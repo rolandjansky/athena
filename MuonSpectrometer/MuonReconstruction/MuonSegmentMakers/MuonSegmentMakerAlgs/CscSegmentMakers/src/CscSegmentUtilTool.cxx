@@ -291,7 +291,7 @@ get2dMuonSegmentCombination(  Identifier eta_id, Identifier phi_id,
   }
 
   MuonSegmentCombination* pcol = new MuonSegmentCombination;
-  pcol->setNGoodCscLayers(nGoodPhi,nGoodEta);
+  pcol->setNGoodCscLayers(nGoodEta,nGoodPhi);
   // Find 2D segments.
   ICscSegmentFinder::Segments eta_segs;
   ICscSegmentFinder::Segments phi_segs;
@@ -1871,52 +1871,79 @@ get4dMuonSegmentCombination( const MuonSegmentCombination* insegs ) const {
   }
 
   ICscSegmentFinder::SegmentVec* pnewsegs = new ICscSegmentFinder::SegmentVec;
-  for ( ICscSegmentFinder::SegmentVec::const_iterator irsg=rsegs.begin();
-        irsg!=rsegs.end(); ++irsg ) {
-    
-    for ( ICscSegmentFinder::SegmentVec::const_iterator ipsg=phisegs.begin();
-          ipsg!=phisegs.end(); ++ipsg ) {
-      // If there are too many segments, we break from the inner loop.
-      // There will be one additional message for each remaining entry in
-      // the outer loop.
-      if ( pnewsegs->size() >= m_max_seg_per_chamber ) {
-        ATH_MSG_DEBUG ( "Too many segments: Discarding segments m_max_seg_per_chamber="
-                        << m_max_seg_per_chamber );
-        break;
-      }
+  if(insegs->useStripsInSegment(1) && insegs->useStripsInSegment(0)){
+    for ( ICscSegmentFinder::SegmentVec::const_iterator irsg=rsegs.begin();
+	  irsg!=rsegs.end(); ++irsg ) {
+      
+      for ( ICscSegmentFinder::SegmentVec::const_iterator ipsg=phisegs.begin();
+	    ipsg!=phisegs.end(); ++ipsg ) {
+	// If there are too many segments, we break from the inner loop.
+	// There will be one additional message for each remaining entry in
+	// the outer loop.
+	if ( pnewsegs->size() >= m_max_seg_per_chamber ) {
+	  ATH_MSG_DEBUG ( "Too many segments: Discarding segments m_max_seg_per_chamber="
+			  << m_max_seg_per_chamber );
+	  break;
+	}
+	const MuonSegment& rsg = **irsg;
+	const MuonSegment& psg = **ipsg;
+	const Trk::FitQuality& rfq   = *rsg.fitQuality();
+	ATH_MSG_DEBUG("got fit quality for r segment");
+	const Trk::FitQuality& phifq = *psg.fitQuality();
+	ATH_MSG_DEBUG("and phi segment");
+	// Fit quality.
+	double chsq = rfq.chiSquared() + phifq.chiSquared();
+	ATH_MSG_DEBUG("total chi2="<<chsq);
+	if ( chsq > m_max_chisquare ) {
+	  ATH_MSG_DEBUG ( "Segment rejected too large chsq: " << chsq);
+	  continue;
+	}
+	// ECC - require good x-y matching.
+	//     - a better way would be to calculate this value for all segments,
+	//       sort the segments (best to worst) and keep only the top N best ones.
+	double xylike = matchLikelihood(rsg, psg);
+	ATH_MSG_DEBUG ( "xy likelihood: " << xylike << " min: " << m_min_xylike);
+	if (xylike < m_min_xylike) {
+	  ATH_MSG_DEBUG ( "Segment rejected too low likelihood: " << xylike);
+	  continue;
+	}
+	//if don't use phi, make segments from eta only; if don't use eta, make segments from phi only; else make segments from both
+	MuonSegment* pseg=make_4dMuonSegment(rsg, psg, insegs->use2LayerSegments(1), insegs->use2LayerSegments(0));
+	if( pseg ){
+	  ATH_MSG_DEBUG("created new 4d segment");
+	  pnewsegs->push_back(pseg);
+	}
+      } // for phisegs
+    } // for rsegs
+  }
+  else if(!insegs->useStripsInSegment(0)){
+    for ( ICscSegmentFinder::SegmentVec::const_iterator irsg=rsegs.begin();irsg!=rsegs.end(); ++irsg ) {
       const MuonSegment& rsg = **irsg;
+      unsigned int nMinRIOs=3;
+      if(insegs->use2LayerSegments(1)) nMinRIOs=2;
+      if ( rsg.containedROTs().size()<nMinRIOs){
+	ATH_MSG_DEBUG("only "<<rsg.containedROTs().size()<<", RIO's, insufficient to build the 4d segment from a single eta segment");
+	continue;
+      }
+      MuonSegment* pseg=new MuonSegment(rsg);
+      ATH_MSG_DEBUG("created new 4d segment from eta hits only");
+      pnewsegs->push_back(pseg);
+    }
+  }
+  else if(!insegs->useStripsInSegment(1)){
+    for ( ICscSegmentFinder::SegmentVec::const_iterator ipsg=phisegs.begin();ipsg!=phisegs.end(); ++ipsg ) {
       const MuonSegment& psg = **ipsg;
-      const Trk::FitQuality& rfq   = *rsg.fitQuality();
-      ATH_MSG_DEBUG("got fit quality for r segment");
-      const Trk::FitQuality& phifq = *psg.fitQuality();
-      ATH_MSG_DEBUG("and phi segment");
-      // Fit quality.
-      double chsq = rfq.chiSquared() + phifq.chiSquared();
-      ATH_MSG_DEBUG("total chi2="<<chsq);
-      if ( chsq > m_max_chisquare ) {
-        ATH_MSG_DEBUG ( "Segment rejected too large chsq: " << chsq);
+      unsigned int nMinRIOs=3;
+      if(insegs->use2LayerSegments(0)) nMinRIOs=2;
+      if ( psg.containedROTs().size()<nMinRIOs){
+	ATH_MSG_DEBUG("only "<<psg.containedROTs().size()<<", RIO's, insufficient to build the 4d segment from a single phi segment");
         continue;
       }
-      // ECC - require good x-y matching.
-      //     - a better way would be to calculate this value for all segments,
-      //       sort the segments (best to worst) and keep only the top N best ones.
-      double xylike = matchLikelihood(rsg, psg);
-      ATH_MSG_DEBUG ( "xy likelihood: " << xylike << " min: " << m_min_xylike);
-      if (xylike < m_min_xylike) {
-        ATH_MSG_DEBUG ( "Segment rejected too low likelihood: " << xylike);
-        continue;
-      }
-      MuonSegment* pseg = 0;
-      //if don't use phi, make segments from eta only; if don't use eta, make segments from phi only; else make segments from both
-      if(!insegs->useStripsInSegment(0)) pseg=make_4dMuonSegmentSingle(rsg,insegs->use2LayerSegments(1),true);
-      else if(!insegs->useStripsInSegment(1)) pseg=make_4dMuonSegmentSingle(psg,insegs->use2LayerSegments(0),false);
-      else pseg=make_4dMuonSegment(rsg, psg, insegs->use2LayerSegments(1), insegs->use2LayerSegments(0));
-      if( pseg ){
-	ATH_MSG_DEBUG("created new 4d segment");
-	pnewsegs->push_back(pseg);
-      }
-    } // for phisegs
-  } // for rsegs
+      MuonSegment* pseg=new MuonSegment(psg);
+      ATH_MSG_DEBUG("created new 4d segment from phi hits only");
+      pnewsegs->push_back(pseg);
+    }
+  }
 
   if (pnewsegs->empty()) {
     delete pnewsegs;
@@ -2246,58 +2273,6 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
   // if(use2LaySegs) std::cout<<"segment from "<< rios->size()<<" rios"<<std::endl;
   
   
-  return pseg;
-}
-
-//No eta or phi, so just use one or the other
-MuonSegment* CscSegmentUtilTool::
-make_4dMuonSegmentSingle(const MuonSegment& sg, bool use2LaySegs, bool isEta) const {
-
-  ATH_MSG_DEBUG("make_4dMuonSegmentSingle called");
-  if(isEta) ATH_MSG_DEBUG("make 4d segment from eta information only");
-  else ATH_MSG_DEBUG("make 4d segment from phi information only");
-
-  unsigned int nMinRIOs=3;
-  if(use2LaySegs) nMinRIOs=2;
-  const ICscSegmentFinder::RioList& rio_list = sg.containedROTs();
-  if ( rio_list.size()<nMinRIOs){
-    ATH_MSG_DEBUG("only "<<rio_list.size()<<", RIO's, insufficient to build the 4d segment from a single eta/phi segment");
-    return 0;
-  }
-
-  double rpos,phipos;
-  if(isEta){
-    rpos = sg.localParameters()[Trk::locX];
-    phipos = sg.localParameters()[Trk::locY];
-  }
-  else{
-    rpos = sg.localParameters()[Trk::locY];
-    phipos = sg.localParameters()[Trk::locX];
-  }
-  Amg::Vector2D pos(phipos, rpos);
-  double time= sg.time();
-  double errorTime = sg.errorTime();
-
-  const Amg::MatrixX& cov = sg.localCovariance();
-  Trk::PlaneSurface* psrf = new Trk::PlaneSurface(sg.associatedSurface());
-  Trk::FitQuality* pfq = new Trk::FitQuality(*sg.fitQuality());
-
-  // Local position and direction.
-  Trk::LocalDirection pdir=sg.localDirection();
-
-  ICscSegmentFinder::MbaseList* rios = new ICscSegmentFinder::MbaseList;
-
-  ATH_MSG_DEBUG("make_4dMuonSegmentSingle:: seg time " << sg.time());
-  for (unsigned int irio=0; irio<rio_list.size(); irio++) {
-    const Trk::RIO_OnTrack* pold = rio_list[irio];
-    const Trk::RIO_OnTrack* newrot = m_rotCreator->createRIO_OnTrack(*pold->prepRawData(), pold->globalPosition(), sg.globalDirection());
-    rios->push_back(newrot);
-  }
-
-  MuonSegment* pseg = new MuonSegment(pos, pdir, cov, psrf, rios, pfq, Trk::Segment::Csc4dSegmentMaker);
-  pseg->setT0Error(time, errorTime);
-  ATH_MSG_DEBUG ( "Segment " << rios->size() << " : ");
-
   return pseg;
 }
 
