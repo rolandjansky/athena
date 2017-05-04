@@ -217,7 +217,8 @@ class ItemDef:
         LVL1MenuItem('L1_MU6'  ).setLogic( MU6  & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_MU10' ).setLogic( MU10 & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_MU11' ).setLogic( MU11 & physcond).setTriggerType(TT.muon)
-        LVL1MenuItem('L1_MU15' ).setLogic( MU15 & physcond).setTriggerType(TT.muon)
+        if '_v7' not in TriggerFlags.triggerMenuSetup():
+          LVL1MenuItem('L1_MU15' ).setLogic( MU15 & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_MU20' ).setLogic( MU20 & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_MU21' ).setLogic( (MU20 | MU21) & physcond).setTriggerType(TT.muon)
 
@@ -306,15 +307,22 @@ class ItemDef:
 
         #FTK items
         LVL1MenuItem('L1_MU6_FTK').setLogic( MU6  & physcond).setTriggerType(TT.ftk)
-        LVL1MenuItem('L1_MU15_FTK').setLogic( MU15  & physcond).setTriggerType(TT.ftk)
+        if '_v7' not in TriggerFlags.triggerMenuSetup():
+          LVL1MenuItem('L1_MU15_FTK').setLogic( MU15  & physcond).setTriggerType(TT.ftk)
         LVL1MenuItem('L1_MU20_FTK').setLogic( MU20  & physcond).setTriggerType(TT.ftk)
         LVL1MenuItem('L1_MU21_FTK').setLogic( (MU20 | MU21)  & physcond).setTriggerType(TT.ftk)
             
         # EM and MU
         LVL1MenuItem('L1_EM6_MU10'   ).setLogic( EM6        & MU10     & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_EM7_MU10'   ).setLogic( EM7        & MU10     & physcond).setTriggerType(TT.muon)
-        LVL1MenuItem('L1_EM7_MU15'   ).setLogic( EM7        & MU15     & physcond).setTriggerType(TT.muon)
-        LVL1MenuItem('L1_EM8VH_MU15' ).setLogic( EM8VH      & MU15     & physcond).setTriggerType(TT.muon)
+        if '_v7' not in TriggerFlags.triggerMenuSetup():
+          LVL1MenuItem('L1_EM7_MU15'   ).setLogic( EM7        & MU15     & physcond).setTriggerType(TT.muon)
+          LVL1MenuItem('L1_EM8VH_MU15' ).setLogic( EM8VH      & MU15     & physcond).setTriggerType(TT.muon)
+        else:
+          LVL1MenuItem('L1_EM7_MU20'   ).setLogic( EM7        & MU20     & physcond).setTriggerType(TT.muon)
+          LVL1MenuItem('L1_EM8VH_MU20' ).setLogic( EM8VH      & MU20     & physcond).setTriggerType(TT.muon)
+
+        LVL1MenuItem('L1_EM7_MU11' ).setLogic( EM7        & MU11     & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_EM8_MU10'   ).setLogic( EM8        & MU10     & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_EM8I_MU10'  ).setLogic( EM8I       & MU10     & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_EM15I_MU4'   ).setLogic( EM15  & EM8I     & MU4      & physcond).setTriggerType(TT.muon)
