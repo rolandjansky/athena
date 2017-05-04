@@ -655,7 +655,15 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
   if(type==0) {
     // both link-0 and link-1 are working
 
-    // Some modules send hits on side 0 via link 1 and hits on side 1 via link 0.
+    // Chips 0-5 are on side 0 and chips 6-11 are on side 1.
+    // Normally, modules send hits on side 0 via link-0 and side 1 via link-1. 
+    // The first temporally masked chip value is the id of the chip that is 
+    // first masked in the readout chain "plus one". 
+    // If the value is in between 1 to  6, it indicates side 0.
+    // If the value is in between 7 to 12, it indicates side 1.
+    // However, some special modules send hits on side 0 via link-1 and hits on
+    // side 1 via link-0. If the first masked chip value on side 1 (0) is 
+    // between 1 to 6 (7 to 12), it indicates the module is a special one.  
     // In that case, information is swapped.
     if((6<firstTempMaskedChip_side0 and firstTempMaskedChip_side0<=12) or
        (0<firstTempMaskedChip_side1 and firstTempMaskedChip_side1<= 6)) {
