@@ -137,12 +137,12 @@ namespace JiveXML
     std::vector<SpacePointTruthPair> SpacePointTruthPairList;
 
     //Add Pixel if there is a collection
-    if (PixelSPContainer.isValid() and PixelPRDTruthColl.isValid())
-      SpacePointTruthPairList.push_back(SpacePointTruthPair(&*PixelSPContainer,&*PixelPRDTruthColl));
+    if (PixelSPContainer.isValid())
+      SpacePointTruthPairList.push_back(SpacePointTruthPair(&*PixelSPContainer,PixelPRDTruthColl.cptr()));
     
     //Add SCT if there is a collection
-    if (SCTSPContainer.isValid() and SCTPRDTruthColl.isValid())
-      SpacePointTruthPairList.push_back(SpacePointTruthPair(&*SCTSPContainer,&*SCTPRDTruthColl));
+    if (SCTSPContainer.isValid())
+      SpacePointTruthPairList.push_back(SpacePointTruthPair(&*SCTSPContainer,SCTPRDTruthColl.cptr()));
     
     /**
      * Found out how much space we will need
