@@ -304,6 +304,7 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
     if (eta_clus[i].size() >0) ++nHitLayer_eta;
     if (phi_clus[i].size() >0) ++nHitLayer_phi;
   }
+  ATH_MSG_DEBUG("there are "<<nHitLayer_eta<<" eta hit layers and "<<nHitLayer_phi<<" phi hit layers");
 
   //  MuonSegmentCombination* pcol;
   MuonSegmentCombination* pcol = 0;
