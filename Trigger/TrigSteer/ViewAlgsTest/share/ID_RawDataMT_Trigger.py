@@ -2,9 +2,6 @@
 #  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
 
-#inputfile="MemGrowEvents.data"
-
-
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo.set_Value_and_Lock('atlas')
 globalflags.Luminosity.set_Value_and_Lock('zero')
@@ -60,8 +57,11 @@ from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.FilesInput=[inputfile,]
 
 from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
+from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+
 l1svc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
-l1svc.XMLMenuFile = "LVL1config_Physics_pp_v7.xml"
+l1svc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
 svcMgr += l1svc
 
 if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
