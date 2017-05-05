@@ -535,6 +535,7 @@ void SimpleIDNtupleTool::fillHits(const Trk::AlignTrack * alignTrack)
                 break;
               case Trk::AlignModule::BowZ:
                 m_hit_derivx_bowz[nhits] = derivative;
+                break;
               default:
                 ATH_MSG_WARNING("Unknown parameter type "<<ptype);
             }
