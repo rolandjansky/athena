@@ -53,7 +53,7 @@ def defineMenu():
         #--------------------------
 
         # 16 x TAU
-        'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA20IT', 'HA25', 'HA25IT', 'HA30', 'HA40', 'HA60', 'HA100', 
+        'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA20IT', 'HA25', 'HA25IM', 'HA30', 'HA40', 'HA60', 'HA100', 
 
         #----------------------
         # SLOT 8 / CON 0 (JET1)
@@ -182,8 +182,9 @@ def defineMenu():
         'NIMTRT',
 
         # AFP
-        'AFP_C_SPECTOF', 'AFP_C',
-        'AFP_A_SPECTOF', 'AFP_A',
+        'AFP_NSC', 'AFP_NSA',
+        'AFP_FSA_SIT', 'AFP_FSA_TOF', 'AFP_FSA_LOG',
+        'AFP_FSC_SIT', 'AFP_FSC_TOF', 'AFP_FSC_LOG',
 
         #-------------------------------------------------------------------
         #L1 TOPO inputs 
@@ -415,7 +416,8 @@ def defineMenu():
         # combined tau - jet
 #        "L1_TAU25IT_2TAU12IT_2J25_3J12", 
 
-        "L1_TAU20IM_2TAU12IM_J25_2J20_3J12", 
+        "L1_TAU20IM_2TAU12IM_J25_2J20_3J12",
+        "L1_TAU25IM_2TAU20IM_2J25_3J20", 
         'L1_J25_2J20_3J12_BOX-TAU20ITAU12I',  
         'L1_DR-MU10TAU12I_TAU12I-J25', 
         "L1_MU10_TAU12I-J25",
@@ -598,6 +600,7 @@ def defineMenu():
         'L1_AFP_A_BGRP0','L1_AFP_A_SPECTOF_BGRP0','L1_AFP_C_BGRP0','L1_AFP_C_SPECTOF_BGRP0', 
         'L1_AFP_A_OR_C_UNPAIRED_ISO', 'L1_AFP_A_OR_C_UNPAIRED_NONISO', 
         'L1_AFP_A_OR_C_EMPTY', 'L1_AFP_A_OR_C_FIRSTEMPTY',
+        'L1_AFP_A_AND_C_SPECTOF',
         'L1_AFP_A_AND_C','L1_AFP_A_OR_C', 'L1_AFP_A', 'L1_AFP_C',
         'L1_AFP_A_AND_C_MBTS_2','L1_AFP_A_OR_C_MBTS_2',
         'L1_AFP_A_AND_C_J12','L1_AFP_A_OR_C_J12',
@@ -606,7 +609,7 @@ def defineMenu():
         'L1_AFP_A_AND_C_TE5','L1_AFP_A_OR_C_TE5',
         'L1_AFP_A_AND_C_J50','L1_AFP_A_AND_C_SPECTOF_J50',
         'L1_AFP_A_AND_C_J75','L1_AFP_A_AND_C_SPECTOF_J75',
-        'L1_AFP_A_AND_C_J100',
+        'L1_AFP_A_AND_C_J100','L1_AFP_A_AND_C_SPECTOF_J100',
 
 
         #--------------------------------
@@ -992,6 +995,7 @@ def defineMenu():
         'L1_MU10_TAU20IM_J25_2J20' : 377,
 
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12' : 70,
+        'L1_TAU25IM_2TAU20IM_2J25_3J20' : 398,
         'L1_J25_2J20_3J12_BOX-TAU20ITAU12I' : 71,
         'L1_DR-MU10TAU12I_TAU12I-J25' : 72,
         'L1_MU10_TAU12I-J25' : 73,
@@ -1184,6 +1188,7 @@ def defineMenu():
         'L1_AFP_A_OR_C_UNPAIRED_NONISO': 191, 
         'L1_AFP_A_OR_C_EMPTY': 192, 
         'L1_AFP_A_OR_C_FIRSTEMPTY': 193,
+        'L1_AFP_A_AND_C_SPECTOF': 456,
         'L1_AFP_A_AND_C': 448,
         'L1_AFP_A_OR_C': 276, 
         'L1_AFP_A': 283, 
@@ -1203,6 +1208,7 @@ def defineMenu():
         'L1_AFP_A_AND_C_J75': 445,
         'L1_AFP_A_AND_C_SPECTOF_J75': 446,
         'L1_AFP_A_AND_C_J100': 447,
+        'L1_AFP_A_AND_C_SPECTOF_J100': 457,
        
 #        'L1_EM8I' : 183,
 #        'L1_EM15I': 184,

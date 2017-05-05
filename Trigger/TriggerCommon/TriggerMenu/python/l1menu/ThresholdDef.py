@@ -254,13 +254,21 @@ class ThresholdDef:
             tc.registerThr('HA%iIL' % thrV, 'TAU').addThrValue(thrV)
 
         ThresholdValue.setDefaults('TAU', {'isobits' : '00010', 'use_relIso' : True })
-        for thrV in [12,20]:
-            tc.registerThr('HA%iIM' % thrV, 'TAU').addThrValue(thrV)
+        if '_v6' in TriggerFlags.triggerMenuSetup() or '_HI' in TriggerFlags.triggerMenuSetup():
+            for thrV in [12,20]:
+                tc.registerThr('HA%iIM' % thrV, 'TAU').addThrValue(thrV)
+        else:
+            for thrV in [12,20,25]:
+                tc.registerThr('HA%iIM' % thrV, 'TAU').addThrValue(thrV)   
 
         ThresholdValue.setDefaults('TAU', {'isobits' : '00100', 'use_relIso' : True })
-        for thrV in [12,20,25]:
-            tc.registerThr('HA%iIT' % thrV, 'TAU').addThrValue(thrV)
-
+        if '_v6' in TriggerFlags.triggerMenuSetup() or '_HI' in TriggerFlags.triggerMenuSetup():
+            for thrV in [12,20,25]:
+                tc.registerThr('HA%iIT' % thrV, 'TAU').addThrValue(thrV)
+        else:
+            for thrV in [12,20]:
+                tc.registerThr('HA%iIT' % thrV, 'TAU').addThrValue(thrV)
+  
         ThresholdValue.setDefaults('TAU', {'isobits' : '01000', 'use_relIso' : True })
         for thrV in [12,20]:
             tc.registerThr('HA%iI' % thrV, 'TAU').addThrValue(thrV)
@@ -425,11 +433,20 @@ class ThresholdDef:
 
         ## AFP
 
+#        if not '_v6' in TriggerFlags.triggerMenuSetup(): # first 2017 config
+#            tc.registerThr('AFP_C_SPECTOF', 'NIM', mapping=2).addThrValue(50)        
+#            tc.registerThr('AFP_C', 'NIM', mapping=3).addThrValue(50)        
+#            tc.registerThr('AFP_A_SPECTOF', 'NIM', mapping=4).addThrValue(50)        
+#            tc.registerThr('AFP_A', 'NIM', mapping=5).addThrValue(50)  
         if not '_v6' in TriggerFlags.triggerMenuSetup():
-            tc.registerThr('AFP_C_SPECTOF', 'NIM', mapping=2).addThrValue(50)        
-            tc.registerThr('AFP_C', 'NIM', mapping=3).addThrValue(50)        
-            tc.registerThr('AFP_A_SPECTOF', 'NIM', mapping=4).addThrValue(50)        
-            tc.registerThr('AFP_A', 'NIM', mapping=5).addThrValue(50)  
+            tc.registerThr('AFP_NSC', 'NIM', mapping=2).addThrValue(50)        
+            tc.registerThr('AFP_NSA', 'NIM', mapping=3).addThrValue(50)        
+            tc.registerThr('AFP_FSA_SIT', 'NIM', mapping=4).addThrValue(50)        
+            tc.registerThr('AFP_FSA_TOF', 'NIM', mapping=5).addThrValue(50)  
+            tc.registerThr('AFP_FSA_LOG', 'NIM', mapping=6).addThrValue(50)        
+            tc.registerThr('AFP_FSC_SIT', 'NIM', mapping=7).addThrValue(50)        
+            tc.registerThr('AFP_FSC_TOF', 'NIM', mapping=8).addThrValue(50)        
+            tc.registerThr('AFP_FSC_LOG', 'NIM', mapping=9).addThrValue(50)  
         else:
             tc.registerThr('AFP_NSC', 'NIM', mapping=2).addThrValue(50)
             tc.registerThr('AFP_FSC', 'NIM', mapping=3).addThrValue(50)
