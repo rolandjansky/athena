@@ -74,84 +74,113 @@ TCCPlots::TCCPlots(TCCPlotsBase* pParent, const std::string& sDir, const std::st
   m_jet_resolution_m_2leadings      (nullptr),
   m_jet_resolution_m_leading        (nullptr),
   m_jet_resolution_m_subleading     (nullptr),
-  m_jet_mopt_pt_response_m                  (nullptr),  
-  m_jet_mopt_pt_response_m_2leadings        (nullptr),  
-  m_jet_mopt_pt_response_m_leading          (nullptr),  
-  m_jet_mopt_pt_response_m_subleading       (nullptr),  
-  m_jet_mopt_pt_response_pt                 (nullptr),  
-  m_jet_mopt_pt_response_pt_2leadings       (nullptr),  
-  m_jet_mopt_pt_response_pt_leading         (nullptr),  
-  m_jet_mopt_pt_response_pt_subleading      (nullptr),  
-  m_jet_mopt_pt_response_phi                (nullptr),  
-  m_jet_mopt_pt_response_phi_2leadings      (nullptr),  
-  m_jet_mopt_pt_response_phi_leading        (nullptr),  
-  m_jet_mopt_pt_response_phi_subleading     (nullptr),  
-  m_jet_mopt_pt_response_eta                (nullptr),  
-  m_jet_mopt_pt_response_eta_2leadings      (nullptr),  
-  m_jet_mopt_pt_response_eta_leading        (nullptr),  
-  m_jet_mopt_pt_response_eta_subleading     (nullptr),  
-  m_jet_mopt_pt_response_d2                 (nullptr),  
-  m_jet_mopt_pt_response_d2_2leadings       (nullptr),  
-  m_jet_mopt_pt_response_d2_leading         (nullptr),  
-  m_jet_mopt_pt_response_d2_subleading      (nullptr),  
-  m_jet_resolution_mopt_pt_m                (nullptr),  
-  m_jet_resolution_mopt_pt_m_2leadings      (nullptr),  
-  m_jet_resolution_mopt_pt_m_leading        (nullptr),  
-  m_jet_resolution_mopt_pt_m_subleading     (nullptr),  
-  m_jet_resolution_mopt_pt_pt               (nullptr),  
-  m_jet_resolution_mopt_pt_pt_2leadings     (nullptr),  
-  m_jet_resolution_mopt_pt_pt_leading       (nullptr),  
-  m_jet_resolution_mopt_pt_pt_subleading    (nullptr),  
-  m_jet_resolution_mopt_pt_phi              (nullptr),  
-  m_jet_resolution_mopt_pt_phi_2leadings    (nullptr),  
-  m_jet_resolution_mopt_pt_phi_leading      (nullptr),  
-  m_jet_resolution_mopt_pt_phi_subleading   (nullptr),  
-  m_jet_resolution_mopt_pt_eta              (nullptr),  
-  m_jet_resolution_mopt_pt_eta_2leadings    (nullptr),  
-  m_jet_resolution_mopt_pt_eta_leading      (nullptr),  
-  m_jet_resolution_mopt_pt_eta_subleading   (nullptr),  
-  m_jet_resolution_mopt_pt_d2               (nullptr),  
-  m_jet_resolution_mopt_pt_d2_2leadings     (nullptr),  
-  m_jet_resolution_mopt_pt_d2_leading       (nullptr),  
-  m_jet_resolution_mopt_pt_d2_subleading    (nullptr),
-  m_trk_d0                                  (nullptr),
-  m_trk_z0                                  (nullptr),
-  m_trk_theta                               (nullptr),
-  m_trk_phi                                 (nullptr),
-  m_trk_qOverP                              (nullptr),
-  m_trk_d0_eta                              (nullptr),
-  m_trk_z0_eta                              (nullptr),
-  m_trk_theta_eta                           (nullptr),
-  m_trk_phi_eta                             (nullptr),
-  m_trk_qOverP_eta                          (nullptr),
-  m_trk_d0_pt                               (nullptr),
-  m_trk_z0_pt                               (nullptr),
-  m_trk_theta_pt                            (nullptr),
-  m_trk_phi_pt                              (nullptr),
-  m_trk_qOverP_pt                           (nullptr),
-  m_trk_caloEntryEta                        (nullptr),
-  m_trk_caloEntryEtaOverEta_eta             (nullptr),
-  m_trk_caloEntryEtaOverEta_pt              (nullptr),
-  m_trk_caloEntryUncEta_caloEntryEta        (nullptr),
-  m_trk_caloEntryUncEta_eta                 (nullptr),
-  m_trk_caloEntryUncEta_pt                  (nullptr),
-  m_trk_caloEntryPhi                        (nullptr),
-  m_trk_caloEntryPhiOverPhi_eta             (nullptr),
-  m_trk_caloEntryPhiOverPhi_pt              (nullptr),
-  m_trk_caloEntryUncPhi_caloEntryPhi        (nullptr),
-  m_trk_caloEntryUncPhi_eta                 (nullptr),
-  m_trk_caloEntryUncPhi_pt                  (nullptr),
-  m_trk_caloEntryUncTot_eta                 (nullptr),
-  m_trk_caloEntryUncTot_pt                  (nullptr),
-  m_trk_perigeeEta                          (nullptr),
-  m_trk_perigeeUncEta_eta                   (nullptr),
-  m_trk_perigeeUncEta_pt                    (nullptr),
-  m_trk_perigeePhi                          (nullptr),
-  m_trk_perigeeUncPhi_eta                   (nullptr),
-  m_trk_perigeeUncPhi_pt                    (nullptr),
-  m_trk_perigeeUncTot_eta                   (nullptr),
-  m_trk_perigeeUncTot_pt                    (nullptr),
-  m_trk_perigeeUncTot_caloUncTot            (nullptr) {
+  m_jet_mopt_pt_response_m                   (nullptr),  
+  m_jet_mopt_pt_response_m_2leadings         (nullptr),  
+  m_jet_mopt_pt_response_m_leading           (nullptr),  
+  m_jet_mopt_pt_response_m_subleading        (nullptr),  
+  m_jet_mopt_pt_response_pt                  (nullptr),  
+  m_jet_mopt_pt_response_pt_2leadings        (nullptr),  
+  m_jet_mopt_pt_response_pt_leading          (nullptr),  
+  m_jet_mopt_pt_response_pt_subleading       (nullptr),  
+  m_jet_mopt_pt_response_phi                 (nullptr),  
+  m_jet_mopt_pt_response_phi_2leadings       (nullptr),  
+  m_jet_mopt_pt_response_phi_leading         (nullptr),  
+  m_jet_mopt_pt_response_phi_subleading      (nullptr),  
+  m_jet_mopt_pt_response_eta                 (nullptr),  
+  m_jet_mopt_pt_response_eta_2leadings       (nullptr),  
+  m_jet_mopt_pt_response_eta_leading         (nullptr),  
+  m_jet_mopt_pt_response_eta_subleading      (nullptr),  
+  m_jet_mopt_pt_response_d2                  (nullptr),  
+  m_jet_mopt_pt_response_d2_2leadings        (nullptr),  
+  m_jet_mopt_pt_response_d2_leading          (nullptr),  
+  m_jet_mopt_pt_response_d2_subleading       (nullptr),  
+  m_jet_resolution_mopt_pt_m                 (nullptr),  
+  m_jet_resolution_mopt_pt_m_2leadings       (nullptr),  
+  m_jet_resolution_mopt_pt_m_leading         (nullptr),  
+  m_jet_resolution_mopt_pt_m_subleading      (nullptr),  
+  m_jet_resolution_mopt_pt_pt                (nullptr),  
+  m_jet_resolution_mopt_pt_pt_2leadings      (nullptr),  
+  m_jet_resolution_mopt_pt_pt_leading        (nullptr),  
+  m_jet_resolution_mopt_pt_pt_subleading     (nullptr),  
+  m_jet_resolution_mopt_pt_phi               (nullptr),  
+  m_jet_resolution_mopt_pt_phi_2leadings     (nullptr),  
+  m_jet_resolution_mopt_pt_phi_leading       (nullptr),  
+  m_jet_resolution_mopt_pt_phi_subleading    (nullptr),  
+  m_jet_resolution_mopt_pt_eta               (nullptr),  
+  m_jet_resolution_mopt_pt_eta_2leadings     (nullptr),  
+  m_jet_resolution_mopt_pt_eta_leading       (nullptr),  
+  m_jet_resolution_mopt_pt_eta_subleading    (nullptr),  
+  m_jet_resolution_mopt_pt_d2                (nullptr),  
+  m_jet_resolution_mopt_pt_d2_2leadings      (nullptr),  
+  m_jet_resolution_mopt_pt_d2_leading        (nullptr),  
+  m_jet_resolution_mopt_pt_d2_subleading     (nullptr),
+  m_trk_d0                                   (nullptr),
+  m_trk_z0                                   (nullptr),
+  m_trk_theta                                (nullptr),
+  m_trk_phi                                  (nullptr),
+  m_trk_qOverP                               (nullptr),
+  m_trk_d0_eta                               (nullptr),
+  m_trk_z0_eta                               (nullptr),
+  m_trk_theta_eta                            (nullptr),
+  m_trk_phi_eta                              (nullptr),
+  m_trk_qOverP_eta                           (nullptr),
+  m_trk_d0_pt                                (nullptr),
+  m_trk_z0_pt                                (nullptr),
+  m_trk_theta_pt                             (nullptr),
+  m_trk_phi_pt                               (nullptr),
+  m_trk_qOverP_pt                            (nullptr),
+  m_trk_caloEntryEta                         (nullptr),
+  m_trk_caloEntryEtaOverEta_eta              (nullptr),
+  m_trk_caloEntryEtaOverEta_pt               (nullptr),
+  m_trk_caloEntryUncEta_caloEntryEta         (nullptr),
+  m_trk_caloEntryUncEta_eta                  (nullptr),
+  m_trk_caloEntryUncEta_pt                   (nullptr),
+  m_trk_caloEntryUncTheta_eta                (nullptr),
+  m_trk_caloEntryUncTheta_pt                 (nullptr),
+  m_trk_caloEntryPhi                         (nullptr),
+  m_trk_caloEntryPhiOverPhi_eta              (nullptr),
+  m_trk_caloEntryPhiOverPhi_pt               (nullptr),
+  m_trk_caloEntryUncPhi_caloEntryPhi         (nullptr),
+  m_trk_caloEntryUncPhi_eta                  (nullptr),
+  m_trk_caloEntryUncPhi_pt                   (nullptr),
+  m_trk_caloEntryUncTot_eta                  (nullptr),
+  m_trk_caloEntryUncTot_pt                   (nullptr),
+  m_trk_perigeeEta                           (nullptr),
+  m_trk_perigeeUncEta_eta                    (nullptr),
+  m_trk_perigeeUncEta_pt                     (nullptr),
+  m_trk_perigeeUncTheta_eta                  (nullptr),
+  m_trk_perigeeUncTheta_pt                   (nullptr),
+  m_trk_perigeePhi                           (nullptr),
+  m_trk_perigeeUncPhi_eta                    (nullptr),
+  m_trk_perigeeUncPhi_pt                     (nullptr),
+  m_trk_perigeeUncTot_eta                    (nullptr),
+  m_trk_perigeeUncTot_pt                     (nullptr),
+  m_trk_perigeeUncEta_caloUncEta             (nullptr),
+  m_trk_perigeeUncTheta_caloUncTheta         (nullptr),
+  m_trk_perigeeUncPhi_caloUncPhi             (nullptr),
+  m_trk_perigeeUncTot_caloUncTot             (nullptr),
+  m_trk_perigeeUncEta_prodRadius             (nullptr),
+  m_trk_perigeeUncTheta_prodRadius           (nullptr),
+  m_trk_perigeeUncPhi_prodRadius             (nullptr), 
+  m_trk_perigeeUncTot_prodRadius             (nullptr), 
+  m_trk_caloEntryUncEta_prodRadius           (nullptr), 
+  m_trk_caloEntryUncTheta_prodRadius         (nullptr), 
+  m_trk_caloEntryUncPhi_prodRadius           (nullptr), 
+  m_trk_caloEntryUncTot_prodRadius           (nullptr),
+  m_trk_delta_perigeeEta_caloEntryEta        (nullptr),
+  m_trk_delta_perigeePhi_caloEntryPhi        (nullptr),
+  m_trk_delta_perigeeEta_caloEntryEta_pt_eta (nullptr),
+  m_trk_delta_perigeePhi_caloEntryPhi_pt_eta (nullptr),
+  m_trk_delta_perigeeEta_caloEntryEta_eta    (nullptr),
+  m_trk_delta_perigeePhi_caloEntryPhi_eta    (nullptr),
+  m_trk_delta_perigeeEta_caloEntryEta_pt     (nullptr),
+  m_trk_delta_perigeePhi_caloEntryPhi_pt     (nullptr),
+  m_trk_delta_trackEta_caloEntryEta          (nullptr),
+  m_trk_delta_trackPhi_caloEntryPhi          (nullptr),
+  m_trk_delta_trackEta_caloEntryEta_eta      (nullptr),
+  m_trk_delta_trackPhi_caloEntryPhi_eta      (nullptr),
+  m_trk_delta_trackEta_caloEntryEta_pt       (nullptr),
+  m_trk_delta_trackPhi_caloEntryPhi_pt       (nullptr) {
 }
 
 void TCCPlots::setEventWeight(const float& weight) {
@@ -294,6 +323,8 @@ void TCCPlots::initializePlots() {
     book(m_trk_caloEntryUncEta_caloEntryEta , "trk_caloEntryUncEta_caloEntryEta" );
     book(m_trk_caloEntryUncEta_eta          , "trk_caloEntryUncEta_eta"          );
     book(m_trk_caloEntryUncEta_pt           , "trk_caloEntryUncEta_pt"           );
+    book(m_trk_caloEntryUncTheta_eta        , "trk_caloEntryUncTheta_eta"        );
+    book(m_trk_caloEntryUncTheta_pt         , "trk_caloEntryUncTheta_pt"         );
     book(m_trk_caloEntryPhi                 , "trk_caloEntryPhi"                 );
     book(m_trk_caloEntryPhiOverPhi_eta      , "trk_caloEntryPhiOverPhi_eta"      );
     book(m_trk_caloEntryPhiOverPhi_pt       , "trk_caloEntryPhiOverPhi_pt"       );
@@ -305,12 +336,39 @@ void TCCPlots::initializePlots() {
     book(m_trk_perigeeEta                   , "trk_perigeeEta"                   );
     book(m_trk_perigeeUncEta_eta            , "trk_perigeeUncEta_eta"            );
     book(m_trk_perigeeUncEta_pt             , "trk_perigeeUncEta_pt"             );
+    book(m_trk_perigeeUncTheta_eta          , "trk_perigeeUncTheta_eta"          );
+    book(m_trk_perigeeUncTheta_pt           , "trk_perigeeUncTheta_pt"           );
     book(m_trk_perigeePhi                   , "trk_perigeePhi"                   );
     book(m_trk_perigeeUncPhi_eta            , "trk_perigeeUncPhi_eta"            );
     book(m_trk_perigeeUncPhi_pt             , "trk_perigeeUncPhi_pt"             );
     book(m_trk_perigeeUncTot_eta            , "trk_perigeeUncTot_eta"            );
     book(m_trk_perigeeUncTot_pt             , "trk_perigeeUncTot_pt"             );
+    book(m_trk_perigeeUncEta_caloUncEta     , "trk_perigeeUncEta_caloUncEta"     );
+    book(m_trk_perigeeUncTheta_caloUncTheta , "trk_perigeeUncTheta_caloUncTheta" );
+    book(m_trk_perigeeUncPhi_caloUncPhi     , "trk_perigeeUncPhi_caloUncPhi"     );
     book(m_trk_perigeeUncTot_caloUncTot     , "trk_perigeeUncTot_caloUncTot"     );
+    book(m_trk_perigeeUncEta_prodRadius     , "trk_perigeeUncEta_prodRadius"     ); 
+    book(m_trk_perigeeUncTheta_prodRadius   , "trk_perigeeUncTheta_prodRadius"   ); 
+    book(m_trk_perigeeUncPhi_prodRadius     , "trk_perigeeUncPhi_prodRadius"     );
+    book(m_trk_perigeeUncTot_prodRadius     , "trk_perigeeUncTot_prodRadius"     );
+    book(m_trk_caloEntryUncEta_prodRadius   , "trk_caloEntryUncEta_prodRadius"   );
+    book(m_trk_caloEntryUncTheta_prodRadius , "trk_caloEntryUncTheta_prodRadius" );
+    book(m_trk_caloEntryUncPhi_prodRadius   , "trk_caloEntryUncPhi_prodRadius"   );
+    book(m_trk_caloEntryUncTot_prodRadius   , "trk_caloEntryUncTot_prodRadius"   );
+    book(m_trk_delta_perigeeEta_caloEntryEta, "trk_delta_perigeeEta_caloEntryEta");
+    book(m_trk_delta_perigeePhi_caloEntryPhi, "trk_delta_perigeePhi_caloEntryPhi");
+    book(m_trk_delta_perigeeEta_caloEntryEta_pt_eta , "trk_delta_perigeeEta_caloEntryEta_pt_eta");
+    book(m_trk_delta_perigeePhi_caloEntryPhi_pt_eta , "trk_delta_perigeePhi_caloEntryPhi_pt_eta");
+    book(m_trk_delta_perigeeEta_caloEntryEta_eta    , "trk_delta_perigeeEta_caloEntryEta_eta"   );   
+    book(m_trk_delta_perigeePhi_caloEntryPhi_eta    , "trk_delta_perigeePhi_caloEntryPhi_eta"   );   
+    book(m_trk_delta_perigeeEta_caloEntryEta_pt     , "trk_delta_perigeeEta_caloEntryEta_pt"    );    
+    book(m_trk_delta_perigeePhi_caloEntryPhi_pt     , "trk_delta_perigeePhi_caloEntryPhi_pt"    ); 
+    book(m_trk_delta_trackEta_caloEntryEta          , "trk_delta_trackEta_caloEntryEta"         );
+    book(m_trk_delta_trackPhi_caloEntryPhi          , "trk_delta_trackPhi_caloEntryPhi"         );
+    book(m_trk_delta_trackEta_caloEntryEta_eta      , "trk_delta_trackEta_caloEntryEta_eta"     );
+    book(m_trk_delta_trackPhi_caloEntryPhi_eta      , "trk_delta_trackPhi_caloEntryPhi_eta"     );
+    book(m_trk_delta_trackEta_caloEntryEta_pt       , "trk_delta_trackEta_caloEntryEta_pt"      );
+    book(m_trk_delta_trackPhi_caloEntryPhi_pt       , "trk_delta_trackPhi_caloEntryPhi_pt"      );
     
   } else
     std::cout << "WARNING: TCCPlots configured with unkown collection. Please check if you are using jets or tracks!" << std::endl;    
@@ -519,6 +577,112 @@ void TCCPlots::fillPseudoResponseSubLeading(const xAOD::Jet& jet, const xAOD::Je
   fillHisto(m_jet_pseudoresponse_pt_2leadings   , jet.pt()/calo.pt(), m_eventWeight);
 }
       
+void TCCPlots::fillTrackParametersAllPt(const xAOD::TrackParticle& track) {  
+  fillHisto(m_trk_d0_pt      , track.pt()/GeV, track.d0()    , m_eventWeight);
+  fillHisto(m_trk_z0_pt      , track.pt()/GeV, track.z0()    , m_eventWeight);
+  fillHisto(m_trk_theta_pt   , track.pt()/GeV, track.theta() , m_eventWeight);
+  fillHisto(m_trk_phi_pt     , track.pt()/GeV, track.phi()   , m_eventWeight);
+  fillHisto(m_trk_qOverP_pt  , track.pt()/GeV, track.qOverP(), m_eventWeight);
+}
+
+void TCCPlots::fillCaloEntryInfoAllPt(const xAOD::TrackParticle& track) {    
+  static SG::AuxElement::Accessor< float > acc_caloEntryPosEta( "CaloEntryPosEta" );
+  static SG::AuxElement::Accessor< float > acc_caloEntryUncEta( "CaloEntryUncEta" );
+  static SG::AuxElement::Accessor< float > acc_caloEntryUncTheta( "CaloEntryUncTheta" );
+  if (acc_caloEntryPosEta.isAvailable(track)) {
+    float caloEntryEta = acc_caloEntryPosEta(track);
+    fillHisto(m_trk_caloEntryEtaOverEta_pt , track.pt()/GeV , caloEntryEta/track.eta(), m_eventWeight);
+  }
+  
+  if (acc_caloEntryUncEta.isAvailable(track)) {
+    float caloEntryUncEta = acc_caloEntryUncEta(track);
+    fillHisto(m_trk_caloEntryUncEta_pt          , track.pt()/GeV  , caloEntryUncEta, m_eventWeight);
+  }
+  if (acc_caloEntryUncTheta.isAvailable(track)) {
+    float caloEntryUncTheta = acc_caloEntryUncTheta(track);
+    fillHisto(m_trk_caloEntryUncTheta_pt          , track.pt()/GeV  , caloEntryUncTheta, m_eventWeight);
+  }  
+  
+  static SG::AuxElement::Accessor< float > acc_caloEntryPosPhi( "CaloEntryPosPhi" );
+  static SG::AuxElement::Accessor< float > acc_caloEntryUncPhi( "CaloEntryUncPhi" );
+  if (acc_caloEntryPosPhi.isAvailable(track)) {
+    float caloEntryPhi = acc_caloEntryPosPhi(track);
+    fillHisto(m_trk_caloEntryPhiOverPhi_pt , track.pt()/GeV , caloEntryPhi/track.phi(), m_eventWeight);
+  }
+  
+  if (acc_caloEntryUncPhi.isAvailable(track)) {
+    float caloEntryUncPhi = acc_caloEntryUncPhi(track);
+    fillHisto(m_trk_caloEntryUncPhi_pt          , track.pt()/GeV  , caloEntryUncPhi, m_eventWeight);
+  }
+  
+  if (acc_caloEntryUncEta.isAvailable(track) and acc_caloEntryUncPhi.isAvailable(track)) {
+    float caloEntryUncEta = acc_caloEntryUncEta(track);
+    float caloEntryUncPhi = acc_caloEntryUncPhi(track);
+    float totUnc = sqrt(caloEntryUncEta*caloEntryUncEta+caloEntryUncPhi*caloEntryUncPhi);
+    fillHisto(m_trk_caloEntryUncTot_pt          , track.pt()/GeV  , totUnc, m_eventWeight);    
+  }
+}
+
+void TCCPlots::fillPerigeeInfoAllPt(const xAOD::TrackParticle& track) {
+  
+  static SG::AuxElement::Accessor< float > acc_perigeePosEta( "PerigeePosEta" );
+  static SG::AuxElement::Accessor< float > acc_perigeeUncEta( "PerigeeUncEta" );
+  static SG::AuxElement::Accessor< float > acc_perigeeUncTheta( "PerigeeUncTheta" );
+  if (acc_perigeeUncEta.isAvailable(track)) {
+    float perigeeUncEta = acc_perigeeUncEta(track);
+    fillHisto(m_trk_perigeeUncEta_pt          , track.pt()/GeV  , perigeeUncEta, m_eventWeight);
+  }
+  if (acc_perigeeUncTheta.isAvailable(track)) {
+    float perigeeUncTheta = acc_perigeeUncTheta(track);
+    fillHisto(m_trk_perigeeUncTheta_pt          , track.pt()/GeV  , perigeeUncTheta, m_eventWeight);
+  }
+  
+  static SG::AuxElement::Accessor< float > acc_perigeePosPhi( "PerigeePosPhi" );
+  static SG::AuxElement::Accessor< float > acc_perigeeUncPhi( "PerigeeUncPhi" );
+  if (acc_perigeeUncPhi.isAvailable(track)) {
+    float perigeeUncPhi = acc_perigeeUncPhi(track);
+    fillHisto(m_trk_perigeeUncPhi_pt          , track.pt()/GeV  , perigeeUncPhi, m_eventWeight);
+  }
+  
+  if (acc_perigeeUncEta.isAvailable(track) and acc_perigeeUncPhi.isAvailable(track)) {
+    float perigeeUncEta = acc_perigeeUncEta(track);
+    float perigeeUncPhi = acc_perigeeUncPhi(track);
+    float totUnc = sqrt(perigeeUncEta*perigeeUncEta+perigeeUncPhi*perigeeUncPhi);
+    fillHisto(m_trk_perigeeUncTot_pt          , track.pt()/GeV  , totUnc, m_eventWeight);
+  }
+}
+
+void TCCPlots::fillPerigeeVsCaloEntryAllPt(const xAOD::TrackParticle& track) {
+  static SG::AuxElement::Accessor< float > acc_perigeeEta( "PerigeePosEta" );
+  static SG::AuxElement::Accessor< float > acc_perigeePhi( "PerigeePosPhi" );
+  static SG::AuxElement::Accessor< float > acc_caloEntryEta( "CaloEntryPosEta" );
+  static SG::AuxElement::Accessor< float > acc_caloEntryPhi( "CaloEntryPosPhi" );
+  
+  if (acc_perigeeEta.isAvailable(track) and acc_perigeePhi.isAvailable(track) and acc_caloEntryEta.isAvailable(track) and acc_caloEntryPhi.isAvailable(track)) {
+    float delta_eta = acc_caloEntryEta(track) - acc_perigeeEta(track);
+    float delta_phi = acc_caloEntryPhi(track) - acc_perigeePhi(track);
+    
+    if (delta_phi > +M_PI) delta_phi -= 2. * M_PI;
+    if (delta_phi < -M_PI) delta_phi += 2. * M_PI;
+    
+    fillHisto(m_trk_delta_perigeeEta_caloEntryEta_pt_eta    , track.eta()  , track.pt()/GeV , delta_eta*m_eventWeight);
+    fillHisto(m_trk_delta_perigeePhi_caloEntryPhi_pt_eta    , track.eta()  , track.pt()/GeV , delta_phi*m_eventWeight);
+    
+    fillHisto(m_trk_delta_perigeeEta_caloEntryEta_pt        , track.pt()/GeV   , delta_eta   , m_eventWeight);
+    fillHisto(m_trk_delta_perigeePhi_caloEntryPhi_pt        , track.pt()/GeV   , delta_phi   , m_eventWeight);
+    
+    
+    delta_eta = acc_caloEntryEta(track) - track.eta();
+    delta_phi = acc_caloEntryPhi(track) - track.phi();
+    
+    if (delta_phi > +M_PI) delta_phi -= 2. * M_PI;
+    if (delta_phi < -M_PI) delta_phi += 2. * M_PI;
+               
+    fillHisto(m_trk_delta_trackEta_caloEntryEta_pt , track.pt()/GeV, delta_eta, m_eventWeight);
+    fillHisto(m_trk_delta_trackPhi_caloEntryPhi_pt , track.pt()/GeV, delta_phi, m_eventWeight);
+  }
+}
+
 void TCCPlots::fillTrackParameters(const xAOD::TrackParticle& track) {
   fillHisto(m_trk_d0      , track.d0()    , m_eventWeight);
   fillHisto(m_trk_z0      , track.z0()    , m_eventWeight);
@@ -532,38 +696,35 @@ void TCCPlots::fillTrackParameters(const xAOD::TrackParticle& track) {
   fillHisto(m_trk_phi_eta     , track.eta(), track.phi()   , m_eventWeight);
   fillHisto(m_trk_qOverP_eta  , track.eta(), track.qOverP(), m_eventWeight);  
   
-  fillHisto(m_trk_d0_pt      , track.pt(), track.d0()    , m_eventWeight);
-  fillHisto(m_trk_z0_pt      , track.pt(), track.z0()    , m_eventWeight);
-  fillHisto(m_trk_theta_pt   , track.pt(), track.theta() , m_eventWeight);
-  fillHisto(m_trk_phi_pt     , track.pt(), track.phi()   , m_eventWeight);
-  fillHisto(m_trk_qOverP_pt  , track.pt(), track.qOverP(), m_eventWeight);
 }
 
-void TCCPlots::fillCaloEntryInfo(const xAOD::TrackParticle& track) {  
+void TCCPlots::fillCaloEntryInfo(const xAOD::TrackParticle& track) {    
   static SG::AuxElement::Accessor< float > acc_caloEntryPosEta( "CaloEntryPosEta" );
   static SG::AuxElement::Accessor< float > acc_caloEntryUncEta( "CaloEntryUncEta" );
+  static SG::AuxElement::Accessor< float > acc_caloEntryUncTheta( "CaloEntryUncTheta" );
   if (acc_caloEntryPosEta.isAvailable(track)) {
     float caloEntryEta = acc_caloEntryPosEta(track);
     fillHisto(m_trk_caloEntryEta           , caloEntryEta , m_eventWeight);
-    fillHisto(m_trk_caloEntryEtaOverEta_eta, caloEntryEta/track.eta(), track.eta(), m_eventWeight);
-    fillHisto(m_trk_caloEntryEtaOverEta_pt , caloEntryEta/track.eta(), track.pt() , m_eventWeight);
+    fillHisto(m_trk_caloEntryEtaOverEta_eta, track.eta()    , caloEntryEta/track.eta(), m_eventWeight);
   }
   
   if (acc_caloEntryPosEta.isAvailable(track) and acc_caloEntryUncEta.isAvailable(track)) {
     float caloEntryEta    = acc_caloEntryPosEta(track);
     float caloEntryUncEta = acc_caloEntryUncEta(track);
-    fillHisto(m_trk_caloEntryUncEta_caloEntryEta, caloEntryEta, caloEntryUncEta, m_eventWeight);
-    fillHisto(m_trk_caloEntryUncEta_eta         , track.eta() , caloEntryUncEta, m_eventWeight);
-    fillHisto(m_trk_caloEntryUncEta_pt          , track.pt()  , caloEntryUncEta, m_eventWeight);
+    fillHisto(m_trk_caloEntryUncEta_caloEntryEta, caloEntryEta    , caloEntryUncEta, m_eventWeight);
+    fillHisto(m_trk_caloEntryUncEta_eta         , track.eta()     , caloEntryUncEta, m_eventWeight);
   }
+  if (acc_caloEntryUncTheta.isAvailable(track)) {
+    float caloEntryUncTheta = acc_caloEntryUncTheta(track);
+    fillHisto(m_trk_caloEntryUncTheta_eta         , track.eta()     , caloEntryUncTheta, m_eventWeight);
+  }  
   
   static SG::AuxElement::Accessor< float > acc_caloEntryPosPhi( "CaloEntryPosPhi" );
   static SG::AuxElement::Accessor< float > acc_caloEntryUncPhi( "CaloEntryUncPhi" );
   if (acc_caloEntryPosPhi.isAvailable(track)) {
     float caloEntryPhi = acc_caloEntryPosPhi(track);
     fillHisto(m_trk_caloEntryPhi           , caloEntryPhi, m_eventWeight);
-    fillHisto(m_trk_caloEntryPhiOverPhi_eta, caloEntryPhi/track.phi(), track.eta(), m_eventWeight);
-    fillHisto(m_trk_caloEntryPhiOverPhi_pt , caloEntryPhi/track.phi(), track.pt() , m_eventWeight);
+    fillHisto(m_trk_caloEntryPhiOverPhi_eta, track.eta()    , caloEntryPhi/track.phi(), m_eventWeight);
   }
   
   if (acc_caloEntryPosPhi.isAvailable(track) and acc_caloEntryUncPhi.isAvailable(track)) {
@@ -571,7 +732,6 @@ void TCCPlots::fillCaloEntryInfo(const xAOD::TrackParticle& track) {
     float caloEntryUncPhi = acc_caloEntryUncPhi(track);
     fillHisto(m_trk_caloEntryUncPhi_caloEntryPhi, caloEntryPhi, caloEntryUncPhi, m_eventWeight);
     fillHisto(m_trk_caloEntryUncPhi_eta         , track.eta() , caloEntryUncPhi, m_eventWeight);
-    fillHisto(m_trk_caloEntryUncPhi_pt          , track.pt()  , caloEntryUncPhi, m_eventWeight);
   }
   
   if (acc_caloEntryUncEta.isAvailable(track) and acc_caloEntryUncPhi.isAvailable(track)) {
@@ -579,7 +739,14 @@ void TCCPlots::fillCaloEntryInfo(const xAOD::TrackParticle& track) {
     float caloEntryUncPhi = acc_caloEntryUncPhi(track);
     float totUnc = sqrt(caloEntryUncEta*caloEntryUncEta+caloEntryUncPhi*caloEntryUncPhi);
     fillHisto(m_trk_caloEntryUncTot_eta         , track.eta() , totUnc, m_eventWeight);
-    fillHisto(m_trk_caloEntryUncTot_pt          , track.pt()  , totUnc, m_eventWeight);
+    static SG::AuxElement::Accessor< float > acc_prodRadius( "ProductionRadius" );
+    if (acc_prodRadius.isAvailable(track)) {
+      fillHisto(m_trk_caloEntryUncEta_prodRadius, acc_prodRadius(track), caloEntryUncEta, m_eventWeight);
+      fillHisto(m_trk_caloEntryUncPhi_prodRadius, acc_prodRadius(track), caloEntryUncPhi, m_eventWeight);
+      fillHisto(m_trk_caloEntryUncTot_prodRadius, acc_prodRadius(track), totUnc         , m_eventWeight);
+      if (acc_caloEntryUncTheta.isAvailable(track))
+	fillHisto(m_trk_caloEntryUncTheta_prodRadius, acc_prodRadius(track),  acc_caloEntryUncTheta(track), m_eventWeight);
+    }    
   }
 }
 
@@ -587,18 +754,22 @@ void TCCPlots::fillPerigeeInfo(const xAOD::TrackParticle& track) {
   
   static SG::AuxElement::Accessor< float > acc_perigeePosEta( "PerigeePosEta" );
   static SG::AuxElement::Accessor< float > acc_perigeeUncEta( "PerigeeUncEta" );
+  static SG::AuxElement::Accessor< float > acc_perigeeUncTheta( "PerigeeUncTheta" );
   if (acc_perigeePosEta.isAvailable(track)) {
     float perigeeEta = acc_perigeePosEta(track);
     fillHisto(m_trk_perigeeEta           , perigeeEta, m_eventWeight);
   }
   if (acc_perigeeUncEta.isAvailable(track)) {
     float perigeeUncEta = acc_perigeeUncEta(track);
-    fillHisto(m_trk_perigeeUncEta_eta         , track.eta() , perigeeUncEta, m_eventWeight);
-    fillHisto(m_trk_perigeeUncEta_pt          , track.pt()  , perigeeUncEta, m_eventWeight);
+    fillHisto(m_trk_perigeeUncEta_eta         , track.eta()     , perigeeUncEta, m_eventWeight);
+  }
+  if (acc_perigeeUncTheta.isAvailable(track)) {
+    float perigeeUncTheta = acc_perigeeUncTheta(track);
+    fillHisto(m_trk_perigeeUncTheta_eta         , track.eta()     , perigeeUncTheta, m_eventWeight);
   }
   
-  static SG::AuxElement::Accessor< float > acc_perigeePosPhi( "CaloEntryPosPhi" );
-  static SG::AuxElement::Accessor< float > acc_perigeeUncPhi( "CaloEntryUncPhi" );
+  static SG::AuxElement::Accessor< float > acc_perigeePosPhi( "PerigeePosPhi" );
+  static SG::AuxElement::Accessor< float > acc_perigeeUncPhi( "PerigeeUncPhi" );
   if (acc_perigeePosPhi.isAvailable(track)) {
     float perigeePhi = acc_perigeePosPhi(track);
     fillHisto(m_trk_perigeePhi           , perigeePhi, m_eventWeight);
@@ -607,7 +778,6 @@ void TCCPlots::fillPerigeeInfo(const xAOD::TrackParticle& track) {
   if (acc_perigeeUncPhi.isAvailable(track)) {
     float perigeeUncPhi = acc_perigeeUncPhi(track);
     fillHisto(m_trk_perigeeUncPhi_eta         , track.eta() , perigeeUncPhi, m_eventWeight);
-    fillHisto(m_trk_perigeeUncPhi_pt          , track.pt()  , perigeeUncPhi, m_eventWeight);
   }
   
   if (acc_perigeeUncEta.isAvailable(track) and acc_perigeeUncPhi.isAvailable(track)) {
@@ -615,59 +785,106 @@ void TCCPlots::fillPerigeeInfo(const xAOD::TrackParticle& track) {
     float perigeeUncPhi = acc_perigeeUncPhi(track);
     float totUnc = sqrt(perigeeUncEta*perigeeUncEta+perigeeUncPhi*perigeeUncPhi);
     fillHisto(m_trk_perigeeUncTot_eta         , track.eta() , totUnc, m_eventWeight);
-    fillHisto(m_trk_perigeeUncTot_pt          , track.pt()  , totUnc, m_eventWeight);
+    static SG::AuxElement::Accessor< float > acc_prodRadius( "ProductionRadius" );
+    if (acc_prodRadius.isAvailable(track)) {
+      fillHisto(m_trk_perigeeUncEta_prodRadius, acc_prodRadius(track), perigeeUncEta, m_eventWeight);
+      fillHisto(m_trk_perigeeUncPhi_prodRadius, acc_prodRadius(track), perigeeUncPhi, m_eventWeight);
+      fillHisto(m_trk_perigeeUncTot_prodRadius, acc_prodRadius(track), totUnc       , m_eventWeight);
+      if (acc_perigeeUncTheta.isAvailable(track))
+	fillHisto(m_trk_perigeeUncTheta_prodRadius, acc_prodRadius(track),  acc_perigeeUncTheta(track), m_eventWeight);
+    }
   }
 }
 
 void TCCPlots::fillPerigeeVsCaloEntry(const xAOD::TrackParticle& track) {
   static SG::AuxElement::Accessor< float > acc_perigeeUncEta( "PerigeeUncEta" );
+  static SG::AuxElement::Accessor< float > acc_perigeeUncTheta( "PerigeeUncTheta" );
   static SG::AuxElement::Accessor< float > acc_perigeeUncPhi( "PerigeeUncPhi" );
   static SG::AuxElement::Accessor< float > acc_caloEntryUncEta( "CaloEntryUncEta" );
+  static SG::AuxElement::Accessor< float > acc_caloEntryUncTheta( "CaloEntryUncTheta" );
   static SG::AuxElement::Accessor< float > acc_caloEntryUncPhi( "CaloEntryUncPhi" );
   
-  if (acc_perigeeUncEta.isAvailable(track) and acc_perigeeUncPhi.isAvailable(track) and acc_caloEntryUncEta.isAvailable(track) and acc_caloEntryUncPhi.isAvailable(track)) {
+  if (acc_perigeeUncEta.isAvailable(track) and acc_perigeeUncPhi.isAvailable(track) and acc_perigeeUncTheta.isAvailable(track) 
+      and acc_caloEntryUncEta.isAvailable(track) and acc_caloEntryUncPhi.isAvailable(track) and acc_caloEntryUncTheta.isAvailable(track)) {
     float caloEntryUncEta = acc_caloEntryUncEta(track);
+    float CaloEntryUncTheta = acc_caloEntryUncTheta(track);
     float caloEntryUncPhi = acc_caloEntryUncPhi(track);
     float caloTotUnc = sqrt(caloEntryUncEta*caloEntryUncEta+caloEntryUncPhi*caloEntryUncPhi);
-    float perigeeUncEta = acc_perigeeUncEta(track);
+    float perigeeUncEta = acc_perigeeUncEta(track);  
+    float perigeeUncTheta = acc_perigeeUncTheta(track);
     float perigeeUncPhi = acc_perigeeUncPhi(track);
     float perigeeTotUnc = sqrt(perigeeUncEta*perigeeUncEta+perigeeUncPhi*perigeeUncPhi);
-    fillHisto(m_trk_perigeeUncTot_caloUncTot  , caloTotUnc , perigeeTotUnc, m_eventWeight);
+    fillHisto(m_trk_perigeeUncEta_caloUncEta    , caloEntryUncEta  , perigeeUncEta  , m_eventWeight);
+    fillHisto(m_trk_perigeeUncTheta_caloUncTheta, CaloEntryUncTheta, perigeeUncTheta, m_eventWeight);
+    fillHisto(m_trk_perigeeUncPhi_caloUncPhi    , caloEntryUncPhi  , perigeeUncPhi  , m_eventWeight);
+    fillHisto(m_trk_perigeeUncTot_caloUncTot    , caloTotUnc       , perigeeTotUnc  , m_eventWeight);
+  }
+  
+  static SG::AuxElement::Accessor< float > acc_perigeeEta( "PerigeePosEta" );
+  static SG::AuxElement::Accessor< float > acc_perigeePhi( "PerigeePosPhi" );
+  static SG::AuxElement::Accessor< float > acc_caloEntryEta( "CaloEntryPosEta" );
+  static SG::AuxElement::Accessor< float > acc_caloEntryPhi( "CaloEntryPosPhi" );
+  
+  if (acc_perigeeEta.isAvailable(track) and acc_perigeePhi.isAvailable(track) and acc_caloEntryEta.isAvailable(track) and acc_caloEntryPhi.isAvailable(track)) {
+    float delta_eta = acc_caloEntryEta(track) - acc_perigeeEta(track);
+    float delta_phi = acc_caloEntryPhi(track) - acc_perigeePhi(track);
+    
+    if (delta_phi > +M_PI) delta_phi -= 2. * M_PI;
+    if (delta_phi < -M_PI) delta_phi += 2. * M_PI;
+               
+    fillHisto(m_trk_delta_perigeeEta_caloEntryEta, delta_eta, m_eventWeight);
+    fillHisto(m_trk_delta_perigeePhi_caloEntryPhi, delta_phi, m_eventWeight);
+    
+    fillHisto(m_trk_delta_perigeeEta_caloEntryEta_eta       , track.eta()  , delta_eta   , m_eventWeight);
+    fillHisto(m_trk_delta_perigeePhi_caloEntryPhi_eta       , track.eta()  , delta_phi   , m_eventWeight);
+    
+    delta_eta = acc_caloEntryEta(track) - track.eta();
+    delta_phi = acc_caloEntryPhi(track) - track.phi();
+    
+    if (delta_phi > +M_PI) delta_phi -= 2. * M_PI;
+    if (delta_phi < -M_PI) delta_phi += 2. * M_PI;
+               
+    fillHisto(m_trk_delta_trackEta_caloEntryEta    , delta_eta, m_eventWeight);
+    fillHisto(m_trk_delta_trackPhi_caloEntryPhi    , delta_phi, m_eventWeight);
+    fillHisto(m_trk_delta_trackEta_caloEntryEta_eta, track.eta()   , delta_eta, m_eventWeight);
+    fillHisto(m_trk_delta_trackPhi_caloEntryPhi_eta, track.eta()   , delta_phi, m_eventWeight);
   }
 }
 
 
 void TCCPlots::finalizePlots() {
-  make_median(m_jet_response_m_pt           , m_jet_resolution_m            );
-  make_median(m_jet_response_m_pt_2leadings , m_jet_resolution_m_2leadings  );  
-  make_median(m_jet_response_m_pt_leading   , m_jet_resolution_m_leading    );
-  make_median(m_jet_response_m_pt_subleading, m_jet_resolution_m_subleading );
-  
-  make_median(m_jet_mopt_pt_response_m                 , m_jet_resolution_mopt_pt_m               );
-  make_median(m_jet_mopt_pt_response_m_2leadings       , m_jet_resolution_mopt_pt_m_2leadings     );
-
-  make_median(m_jet_mopt_pt_response_m_leading         , m_jet_resolution_mopt_pt_m_leading       );
-  make_median(m_jet_mopt_pt_response_m_subleading      , m_jet_resolution_mopt_pt_m_subleading    );
-
-  make_median(m_jet_mopt_pt_response_pt                , m_jet_resolution_mopt_pt_pt              );
-  make_median(m_jet_mopt_pt_response_pt_2leadings      , m_jet_resolution_mopt_pt_pt_2leadings    );
-  make_median(m_jet_mopt_pt_response_pt_leading        , m_jet_resolution_mopt_pt_pt_leading      );
-  make_median(m_jet_mopt_pt_response_pt_subleading     , m_jet_resolution_mopt_pt_pt_subleading   );
-
-  make_median(m_jet_mopt_pt_response_eta               , m_jet_resolution_mopt_pt_eta             );
-  make_median(m_jet_mopt_pt_response_eta_2leadings     , m_jet_resolution_mopt_pt_eta_2leadings   );
-  make_median(m_jet_mopt_pt_response_eta_leading       , m_jet_resolution_mopt_pt_eta_leading     );
-  make_median(m_jet_mopt_pt_response_eta_subleading    , m_jet_resolution_mopt_pt_eta_subleading  );
-
-  make_median(m_jet_mopt_pt_response_phi               , m_jet_resolution_mopt_pt_phi             );
-  make_median(m_jet_mopt_pt_response_phi_2leadings     , m_jet_resolution_mopt_pt_phi_2leadings   );
-  make_median(m_jet_mopt_pt_response_phi_leading       , m_jet_resolution_mopt_pt_phi_leading     );
-  make_median(m_jet_mopt_pt_response_phi_subleading    , m_jet_resolution_mopt_pt_phi_subleading  );
-
-  make_median(m_jet_mopt_pt_response_d2                , m_jet_resolution_mopt_pt_d2              );
-  make_median(m_jet_mopt_pt_response_d2_2leadings      , m_jet_resolution_mopt_pt_d2_2leadings    );
-  make_median(m_jet_mopt_pt_response_d2_leading        , m_jet_resolution_mopt_pt_d2_leading      );
-  make_median(m_jet_mopt_pt_response_d2_subleading     , m_jet_resolution_mopt_pt_d2_subleading   );  
+  if (m_collectionType == "jets") {
+    make_median(m_jet_response_m_pt                      , m_jet_resolution_m                       );
+    make_median(m_jet_response_m_pt_2leadings            , m_jet_resolution_m_2leadings             );  
+    make_median(m_jet_response_m_pt_leading              , m_jet_resolution_m_leading               );
+    make_median(m_jet_response_m_pt_subleading           , m_jet_resolution_m_subleading            );
+    
+    make_median(m_jet_mopt_pt_response_m                 , m_jet_resolution_mopt_pt_m               );
+    make_median(m_jet_mopt_pt_response_m_2leadings       , m_jet_resolution_mopt_pt_m_2leadings     );
+    
+    make_median(m_jet_mopt_pt_response_m_leading         , m_jet_resolution_mopt_pt_m_leading       );
+    make_median(m_jet_mopt_pt_response_m_subleading      , m_jet_resolution_mopt_pt_m_subleading    );
+    
+    make_median(m_jet_mopt_pt_response_pt                , m_jet_resolution_mopt_pt_pt              );
+    make_median(m_jet_mopt_pt_response_pt_2leadings      , m_jet_resolution_mopt_pt_pt_2leadings    );
+    make_median(m_jet_mopt_pt_response_pt_leading        , m_jet_resolution_mopt_pt_pt_leading      );
+    make_median(m_jet_mopt_pt_response_pt_subleading     , m_jet_resolution_mopt_pt_pt_subleading   );
+    
+    make_median(m_jet_mopt_pt_response_eta               , m_jet_resolution_mopt_pt_eta             );
+    make_median(m_jet_mopt_pt_response_eta_2leadings     , m_jet_resolution_mopt_pt_eta_2leadings   );
+    make_median(m_jet_mopt_pt_response_eta_leading       , m_jet_resolution_mopt_pt_eta_leading     );
+    make_median(m_jet_mopt_pt_response_eta_subleading    , m_jet_resolution_mopt_pt_eta_subleading  );
+    
+    make_median(m_jet_mopt_pt_response_phi               , m_jet_resolution_mopt_pt_phi             );
+    make_median(m_jet_mopt_pt_response_phi_2leadings     , m_jet_resolution_mopt_pt_phi_2leadings   );
+    make_median(m_jet_mopt_pt_response_phi_leading       , m_jet_resolution_mopt_pt_phi_leading     );
+    make_median(m_jet_mopt_pt_response_phi_subleading    , m_jet_resolution_mopt_pt_phi_subleading  );
+    
+    make_median(m_jet_mopt_pt_response_d2                , m_jet_resolution_mopt_pt_d2              );
+    make_median(m_jet_mopt_pt_response_d2_2leadings      , m_jet_resolution_mopt_pt_d2_2leadings    );
+    make_median(m_jet_mopt_pt_response_d2_leading        , m_jet_resolution_mopt_pt_d2_leading      );
+    make_median(m_jet_mopt_pt_response_d2_subleading     , m_jet_resolution_mopt_pt_d2_subleading   );  
+  }
 }
 
 void TCCPlots::make_median(TH2* h2_response, TH1* h1_resolution){

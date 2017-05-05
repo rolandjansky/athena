@@ -1,15 +1,24 @@
 #include "TrackCaloClusterRecTools/TrackCaloClusterCreatorTool.h"
+#include "TrackCaloClusterRecTools/IParticleToCaloExtensionMap.h"
+#include "TrkCaloExtension/CaloExtension.h"
 
 #include "xAODTracking/VertexContainer.h"
+
+#include "CxxUtils/sincos.h"
+#include <cmath>
 
 TrackCaloClusterCreatorTool::TrackCaloClusterCreatorTool(const std::string& t, const std::string& n, const IInterface*  p )
   : AthAlgTool(t,n,p),
   m_loosetrackvertexassoTool("LooseTrackVertexAssociationTool"),
-  m_useEnergy(false)
+  m_caloEntryMapName("ParticleToCaloExtensionMap"),
+  m_useEnergy(false),
+  m_doOriginCorrection(true)
 {
     declareProperty("VertexContainerName"          ,    m_vertexContname                  = "PrimaryVertices"   );
+    declareProperty("ParticleCaloEntryMapName"     ,    m_caloEntryMapName                                      );
     declareProperty("LooseTrackVertexAssoTool"     ,    m_loosetrackvertexassoTool                              );
     declareProperty("UseEnergy"                    ,    m_useEnergy                                             );
+    declareProperty("DoOriginCorrection"           ,    m_doOriginCorrection                                    );
 }
 
 TrackCaloClusterCreatorTool::~TrackCaloClusterCreatorTool() {}
@@ -39,15 +48,13 @@ void TrackCaloClusterCreatorTool::createChargedTCCs(xAOD::TrackCaloClusterContai
             trk = *(assocClusters->trackParticleLink());
             bool isMatched = true;
             if (vxCont && vxCont->size()!=0) {
-                isMatched = m_loosetrackvertexassoTool->isCompatible(*trk, *(vxCont->at(0)) );
-            }
-            else{
-                ATH_MSG_WARNING ("Vertex container " << m_vertexContname << " is empty! Can't perform TVA!");
+	      isMatched = m_loosetrackvertexassoTool->isCompatible(*trk, *(vxCont->at(0)) );
+            } else {
+	      ATH_MSG_WARNING ("Vertex container " << m_vertexContname << " is empty! Can't perform TVA!");
             }
             if (!isMatched) continue;
-        }
-        else {
-            ATH_MSG_ERROR ("trackParticleLink is not valid! " );
+        } else {
+	  ATH_MSG_ERROR ("trackParticleLink is not valid! " );
         }
         xAOD::TrackCaloCluster* tcc = new xAOD::TrackCaloCluster;
         FourMom_t tcc_4p(0.,0.,0.,0.);
@@ -64,7 +71,23 @@ void TrackCaloClusterCreatorTool::createChargedTCCs(xAOD::TrackCaloClusterContai
             } // for caloClusterLinks
         } // if caloClusterLinks().size
         
-        tcc->setP4(tcc_4p.Pt(),trk->eta(),trk->phi(),tcc_4p.M());
+        // retrieve the caloExtensionContainer to get the track direction at the calo entrance
+        IParticleToCaloExtensionMap * caloExtensionMap = 0;
+	if(evtStore()->retrieve(caloExtensionMap,m_caloEntryMapName).isFailure())
+	  ATH_MSG_WARNING( "Unable to retrieve " << m_caloEntryMapName << " will leak the ParticleCaloExtension" );
+	
+	const Trk::TrackParameters* pars = caloExtensionMap->readCaloEntry(trk);
+	
+	double eta = pars->position().eta();
+	double phi = pars->position().phi();
+	
+	if (m_doOriginCorrection)
+	  computeVertexCorr(eta, phi, (vxCont->at(0))->position(), pars->position().perp());
+	
+// 	std::cout << "Element = " << trk << " --- eta --> " << pars->position().eta() << "      " << trk->eta()  << "    --- delta = " << (pars->position().eta() - trk->eta())<< std::endl;
+// 	std::cout << "Element = " << trk << " --- phi --> " << pars->position().phi() << "      " << trk->phi()  << "    --- delta = " << (pars->position().phi() - trk->phi())<< std::endl;
+        
+        tcc->setP4(tcc_4p.Pt(),eta,phi,tcc_4p.M());
         tcc->setTaste(xAOD::TrackCaloCluster::Taste::Charged);
         tccContainer->push_back(tcc);
         ATH_MSG_VERBOSE ("Created TCC with pt " << tcc->pt() << " eta " << tcc->eta() << " phi " << tcc->phi() << " mass " << tcc->m() << " taste " << tcc->getTaste());
@@ -116,3 +139,14 @@ void TrackCaloClusterCreatorTool::createTrackOnlyTCCs(xAOD::TrackCaloClusterCont
     
 }
 
+void TrackCaloClusterCreatorTool::computeVertexCorr(double& eta, double& phi, const Amg::Vector3D& vertex, double radius) {
+  
+  if (radius<1.) return;
+  
+  if (std::fabs(eta)>10. || std::fabs(phi)>10.) return;
+  
+  CxxUtils::sincos sc (phi);
+  double iradius = 1 / radius;
+  eta += (-vertex[2]/std::cosh(eta) + sc.apply (vertex[1], vertex[0])*std::tanh(eta)) * iradius;
+  phi += sc.apply (vertex[0], -vertex[1]) * iradius;
+}

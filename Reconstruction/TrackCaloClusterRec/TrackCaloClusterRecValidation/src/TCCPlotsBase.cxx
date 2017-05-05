@@ -139,6 +139,8 @@ void TCCPlotsBase::fillHisto(TH3* pTh3, const float xval, const float yval, cons
   
 SingleHistogramDefinition TCCPlotsBase::retrieveDefinition(const std::string& histoIdentifier, const std::string& folder) {
   SingleHistogramDefinition s; // invalid result
+  
+  ATH_MSG_DEBUG("Retrieving SingleHistogramDefinition for "<< histoIdentifier);
 
   if (not m_histoDefSvc) {
     ISvcLocator* svcLoc = Gaudi::svcLocator();

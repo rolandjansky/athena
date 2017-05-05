@@ -28,6 +28,7 @@ TrackCaloClusterRecValidationTool::TrackCaloClusterRecValidationTool(const std::
 								     const IInterface* parent) :
   ManagedMonitorToolBase(type, name, parent)
   {
+  declareProperty("SaveJetInfo"                 , m_saveJetInfo = true);
   declareProperty("JetTruthContainerName"       , m_truthJetContainerName);
   declareProperty("JetContainerNames"           , m_jetContainerNames);
   declareProperty("TopoJetReferenceName"        , m_topoJetReferenceName = "AntiKt10LCTopoJets");
@@ -41,6 +42,7 @@ TrackCaloClusterRecValidationTool::TrackCaloClusterRecValidationTool(const std::
   declareProperty("SubFolder"                   , m_folder);
   declareProperty("SaveTrackInfo"               , m_saveTrackInfo = false);
   declareProperty("TrackCollectionName"         , m_trackParticleCollectionName = "InDetTrackParticles");
+  declareProperty("TrackPtMin"                  , m_trackPtMin = 20.*GeV);
   }
 
 TrackCaloClusterRecValidationTool::~TrackCaloClusterRecValidationTool() {
@@ -51,13 +53,16 @@ TrackCaloClusterRecValidationTool::initialize() {
   ATH_MSG_DEBUG("Initializing " << name() << "...");
   ATH_CHECK(ManagedMonitorToolBase::initialize());
   
-  for (auto name : m_jetContainerNames) {
-    ATH_MSG_INFO("Saving Plots for " << name << "...");
-    std::string myname = name;
-    if (name.find("AntiKt10LCTopo")!= std::string::npos and name.find("My")== std::string::npos)
-      myname = "My"+name;
-    m_tccPlots.insert(std::pair<std::string, TCCPlots*>(name, new TCCPlots(0, m_dirName + myname, "jets")));
+  if (m_saveJetInfo) {
+    for (auto name : m_jetContainerNames) {
+      ATH_MSG_INFO("Saving Plots for " << name << "...");
+      std::string myname = name;
+      if (name.find("AntiKt10LCTopo")!= std::string::npos and name.find("My")== std::string::npos)
+	myname = "My"+name;
+      m_tccPlots.insert(std::pair<std::string, TCCPlots*>(name, new TCCPlots(0, m_dirName + myname, "jets")));
+    }
   }
+  
   if (m_saveTrackInfo) {
    ATH_MSG_INFO("Saving Plots for " << m_trackParticleCollectionName << "...");
     m_tccPlots.insert(std::pair<std::string, TCCPlots*>(m_trackParticleCollectionName, new TCCPlots(0, m_dirName + m_trackParticleCollectionName, "tracks"))); 
@@ -75,104 +80,105 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
     ATH_MSG_FATAL( "Unable to retrieve Event Info" );
   } 
   float mcEventWeight = info->event_type()->mc_event_weight();
-    
-  ATH_MSG_DEBUG("Filling hists " << name() << "...");
   
-  const auto truths = getContainer<xAOD::JetContainer>(m_truthJetContainerName);
-  if (not truths) return StatusCode::FAILURE;
-   
-  // retrieve jet container
-  for (auto name : m_jetContainerNames) {
-    m_tccPlots.at(name)->setEventWeight(mcEventWeight);
-    ATH_MSG_DEBUG("Using Container " << name << "...");
+  if (m_saveJetInfo) {
+    ATH_MSG_DEBUG("Filling hists " << name() << "...");
     
-    const auto jets = getContainer<xAOD::JetContainer>(name);
-    if (not jets) return StatusCode::FAILURE;
+    const auto truths = getContainer<xAOD::JetContainer>(m_truthJetContainerName);
+    if (not truths) return StatusCode::FAILURE;
     
-    // Getting the collections for the pseudo response
-    const auto caloclusters = (name.find("Trimmed")== std::string::npos) ?
-				 getContainer<xAOD::JetContainer>(m_topoJetReferenceName) :
-				 getContainer<xAOD::JetContainer>(m_topoTrimmedJetReferenceName);
-    if (not caloclusters) return StatusCode::FAILURE;
-        
-    m_tccPlots.at(name)->fill(*jets);
-            
-    for (const auto& jet: *jets) {
-      // conditions to be satisfied to select jets
-      if (fabs(jet->eta())>m_maxEta) continue;
+    // retrieve jet container
+    for (auto name : m_jetContainerNames) {
+      m_tccPlots.at(name)->setEventWeight(mcEventWeight);
+      ATH_MSG_DEBUG("Using Container " << name << "...");
+    
+      const auto jets = getContainer<xAOD::JetContainer>(name);
+      if (not jets) return StatusCode::FAILURE;
+    
+      // Getting the collections for the pseudo response
+      const auto caloclusters = (name.find("Trimmed")== std::string::npos) ?
+                                 getContainer<xAOD::JetContainer>(m_topoJetReferenceName) :
+                                 getContainer<xAOD::JetContainer>(m_topoTrimmedJetReferenceName);
+      if (not caloclusters) return StatusCode::FAILURE;
       
-      // get the truth matched
-      const xAOD::Jet* truth_matched_nocuts = ClusterMatched(jet,truths);
-      // if truth_matched exists, fill the response w/o pt and mass cuts
-      if (truth_matched_nocuts)
-	m_tccPlots.at(name)->fillResponseNoPtNoMassCuts(*jet,*truth_matched_nocuts);
+      m_tccPlots.at(name)->fill(*jets);
       
-      if (fabs(jet->pt())<m_minPt) continue;
-            
-      // fill all jets histograms
-      m_tccPlots.at(name)->fill(*jet);
-      m_tccPlots.at(name)->fillMoments(*jet);
+      for (const auto& jet: *jets) {
+	// conditions to be satisfied to select jets
+	if (fabs(jet->eta())>m_maxEta) continue;
       
-      // fill all jets histograms + truth
-      for (const auto& truth: *truths)
+	// get the truth matched
+	const xAOD::Jet* truth_matched_nocuts = ClusterMatched(jet,truths);
+	// if truth_matched exists, fill the response w/o pt and mass cuts
+	if (truth_matched_nocuts)
+	  m_tccPlots.at(name)->fillResponseNoPtNoMassCuts(*jet,*truth_matched_nocuts);
+	
+	if (fabs(jet->pt())<m_minPt) continue;
+	
+	// fill all jets histograms
+	m_tccPlots.at(name)->fill(*jet);
+	m_tccPlots.at(name)->fillMoments(*jet);
+	
+	// fill all jets histograms + truth
+	for (const auto& truth: *truths)
 	m_tccPlots.at(name)->fill(*jet,*truth);
-            
-      // get the truth matched
-      const xAOD::Jet* truth_matched = ClusterMatched(jet,truths);
-      
-      // apply mass requirement on the truth jet once you have matched
-      if (not truth_matched or (truth_matched->m()<m_minMass or truth_matched->m()>m_maxMass))
-	continue;
-      
-      // if truth_matched exists, fill the jet histograms + truth matched
-      m_tccPlots.at(name)->fillResponse(*jet,*truth_matched);
-      m_tccPlots.at(name)->fillMomentsWithMassCut(*jet);
-            
-      // get the calo matched
-      const xAOD::Jet* calo_matched = ClusterMatched(jet,caloclusters);
-      // if calo_matched exists, fill the jet histograms + calo matched
-      if (calo_matched)
-	m_tccPlots.at(name)->fillPseudoResponse(*jet,*calo_matched);
-    }
+	
+	// get the truth matched
+	const xAOD::Jet* truth_matched = ClusterMatched(jet,truths);
+	
+	// apply mass requirement on the truth jet once you have matched
+	if (not truth_matched or (truth_matched->m()<m_minMass or truth_matched->m()>m_maxMass))
+	  continue;
+	
+	// if truth_matched exists, fill the jet histograms + truth matched
+	m_tccPlots.at(name)->fillResponse(*jet,*truth_matched);
+	m_tccPlots.at(name)->fillMomentsWithMassCut(*jet);
+	
+	// get the calo matched
+	const xAOD::Jet* calo_matched = ClusterMatched(jet,caloclusters);
+	// if calo_matched exists, fill the jet histograms + calo matched
+	if (calo_matched)
+	  m_tccPlots.at(name)->fillPseudoResponse(*jet,*calo_matched);
+      }
     
     
-    ATH_MSG_DEBUG("All jets histograms filled! ...");
+      ATH_MSG_DEBUG("All jets histograms filled! ...");
     
-    // evaluate the leadings in mass of the leadings is pt
-    std::vector<const xAOD::Jet*> leadings = {nullptr, nullptr};
-    std::vector<const xAOD::Jet*> leadings_nocuts = {nullptr, nullptr};
+      // evaluate the leadings in mass of the leadings is pt
+      std::vector<const xAOD::Jet*> leadings = {nullptr, nullptr};
+      std::vector<const xAOD::Jet*> leadings_nocuts = {nullptr, nullptr};
     
-    std::vector<const xAOD::Jet*> tmp_leadings;
-    if (jets->size()>0)
-      tmp_leadings.push_back(jets->at(0));
-    if (jets->size()>1)
-      tmp_leadings.push_back(jets->at(1));
+      std::vector<const xAOD::Jet*> tmp_leadings;
+      if (jets->size()>0)
+	tmp_leadings.push_back(jets->at(0));
+      if (jets->size()>1)
+	tmp_leadings.push_back(jets->at(1));
     
-    if (tmp_leadings.size()>1 and tmp_leadings.at(0)->m()<tmp_leadings.at(1)->m()) std::swap(tmp_leadings.at(0), tmp_leadings.at(1));
+      if (tmp_leadings.size()>1 and tmp_leadings.at(0)->m()<tmp_leadings.at(1)->m()) std::swap(tmp_leadings.at(0), tmp_leadings.at(1));
     
-    // fill the leadings jets if they satisfy the eta requirement
-    if (tmp_leadings.size()>0 
-      and fabs(tmp_leadings.at(0)->eta())<m_maxEta)
-      leadings_nocuts.at(0) = tmp_leadings.at(0);
+      // fill the leadings jets if they satisfy the eta requirement
+      if (tmp_leadings.size()>0 
+	and fabs(tmp_leadings.at(0)->eta())<m_maxEta)
+	leadings_nocuts.at(0) = tmp_leadings.at(0);
     
-    if (tmp_leadings.size()>1 
-      and fabs(tmp_leadings.at(1)->eta())<m_maxEta)
-      leadings_nocuts.at(1) = tmp_leadings.at(1);
+      if (tmp_leadings.size()>1 
+	and fabs(tmp_leadings.at(1)->eta())<m_maxEta)
+	leadings_nocuts.at(1) = tmp_leadings.at(1);
     
-    std::vector<const xAOD::Jet*> truth_matches_nocuts  = {nullptr, nullptr};
-    unsigned int pos = 0;
-    for (const auto& jet: leadings_nocuts) {
-      pos++;
-      if (not jet) continue;
-      const xAOD::Jet* truth_matched_nocuts = ClusterMatched(jet,truths);
-      if (truth_matched_nocuts)
-	truth_matches_nocuts.at(pos-1) = truth_matched_nocuts;
-    }
+      std::vector<const xAOD::Jet*> truth_matches_nocuts  = {nullptr, nullptr};
+      unsigned int pos = 0;
+      for (const auto& jet: leadings_nocuts) {
+	pos++;
+	if (not jet) continue;
+	const xAOD::Jet* truth_matched_nocuts = ClusterMatched(jet,truths);
+	if (truth_matched_nocuts)
+	  truth_matches_nocuts.at(pos-1) = truth_matched_nocuts;
+      }
     
-    if (leadings_nocuts.at(0)) {
-      ATH_MSG_DEBUG(" ---> fillLeading w/o cuts ...");
-      if (truth_matches_nocuts.at(0)) 
-	m_tccPlots.at(name)->fillResponseNoPtNoMassCutsLeading(*leadings_nocuts.at(0),*truth_matches_nocuts.at(0));
+      if (leadings_nocuts.at(0)) {
+	ATH_MSG_DEBUG(" ---> fillLeading w/o cuts ...");
+	if (truth_matches_nocuts.at(0)) 
+	  m_tccPlots.at(name)->fillResponseNoPtNoMassCutsLeading(*leadings_nocuts.at(0),*truth_matches_nocuts.at(0));
       ATH_MSG_DEBUG("Leading jet w/o cuts histograms filled! ...");
     }
     
@@ -180,65 +186,66 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
       ATH_MSG_DEBUG(" ---> fillSubLeading w/o cuts ...");
       if (truth_matches_nocuts.at(1)) 
 	m_tccPlots.at(name)->fillResponseNoPtNoMassCutsSubLeading(*leadings_nocuts.at(1),*truth_matches_nocuts.at(1));
-      ATH_MSG_DEBUG("SubLeading jet w/o cuts histograms filled! ...");
-    }     
+	ATH_MSG_DEBUG("SubLeading jet w/o cuts histograms filled! ...");
+    }  
     
-    // fill the leadings jets if they satisfy the eta and pt requirements
-    if (tmp_leadings.size()>0 
-      and fabs(tmp_leadings.at(0)->eta())<m_maxEta 
-      and tmp_leadings.at(0)->pt()>m_minPt)
-      leadings.at(0) = tmp_leadings.at(0);
+      // fill the leadings jets if they satisfy the eta and pt requirements
+      if (tmp_leadings.size()>0 
+	and fabs(tmp_leadings.at(0)->eta())<m_maxEta 
+	and tmp_leadings.at(0)->pt()>m_minPt)
+	leadings.at(0) = tmp_leadings.at(0);
     
-    if (tmp_leadings.size()>1 
-      and fabs(tmp_leadings.at(1)->eta())<m_maxEta 
-      and tmp_leadings.at(1)->pt()>m_minPt)
-      leadings.at(1) = tmp_leadings.at(1);
+      if (tmp_leadings.size()>1 
+	and fabs(tmp_leadings.at(1)->eta())<m_maxEta 
+	and tmp_leadings.at(1)->pt()>m_minPt)
+	leadings.at(1) = tmp_leadings.at(1);
     
-    if (leadings.at(0)) {
-      m_tccPlots.at(name)->fillLeading(*leadings.at(0));
-      m_tccPlots.at(name)->fillMomentsLeading(*leadings.at(0));
-    }
+      if (leadings.at(0)) {
+	m_tccPlots.at(name)->fillLeading(*leadings.at(0));
+	m_tccPlots.at(name)->fillMomentsLeading(*leadings.at(0));
+      }
     
-    if (leadings.at(1)) {
-      m_tccPlots.at(name)->fillSubLeading(*leadings.at(1));
-      m_tccPlots.at(name)->fillMomentsSubLeading(*leadings.at(1));
-    }
+      if (leadings.at(1)) {
+	m_tccPlots.at(name)->fillSubLeading(*leadings.at(1));
+	m_tccPlots.at(name)->fillMomentsSubLeading(*leadings.at(1));
+      }
        
-    std::vector<const xAOD::Jet*> truth_matches         = {nullptr, nullptr};
-    std::vector<const xAOD::Jet*>  calo_matches         = {nullptr, nullptr};
-    pos = 0;
-    for (const auto& jet: leadings) {
-      pos++;
-      if (not jet) continue;
-      const xAOD::Jet* truth_matched = ClusterMatched(jet,truths);
-      if (truth_matched)
-	truth_matches.at(pos-1) = truth_matched;
-      const xAOD::Jet* calo_matched  = ClusterMatched(jet,caloclusters);
-      if (calo_matched)
-	calo_matches.at(pos-1) = calo_matched;
-    }
-    
-    if (leadings.at(0)) {
-      ATH_MSG_DEBUG(" ---> fillLeading ...");
-      if (truth_matches.at(0) and (truth_matches.at(0)->m()>m_minMass and truth_matches.at(0)->m()<m_maxMass)) {
-	m_tccPlots.at(name)->fillMomentsLeadingWithMassCut(*leadings.at(0));
-	m_tccPlots.at(name)->fillResponseLeading(*leadings.at(0),*truth_matches.at(0));
-	if (calo_matches.at(0))
-	  m_tccPlots.at(name)->fillPseudoResponseLeading(*leadings.at(0),*calo_matches.at(0));
+      std::vector<const xAOD::Jet*> truth_matches         = {nullptr, nullptr};
+      std::vector<const xAOD::Jet*>  calo_matches         = {nullptr, nullptr};
+      pos = 0;
+      for (const auto& jet: leadings) {
+	pos++;
+	if (not jet) continue;
+	const xAOD::Jet* truth_matched = ClusterMatched(jet,truths);
+	if (truth_matched)
+	  truth_matches.at(pos-1) = truth_matched;
+	const xAOD::Jet* calo_matched  = ClusterMatched(jet,caloclusters);
+	if (calo_matched)
+	  calo_matches.at(pos-1) = calo_matched;
       }
-      ATH_MSG_DEBUG("Leading jet histograms filled! ...");
-    }
     
-    if (leadings.at(1)) {
-      ATH_MSG_DEBUG(" ---> fillSubLeading ...");
-      if (truth_matches.at(1) and (truth_matches.at(1)->m()>m_minMass and truth_matches.at(1)->m()<m_maxMass)) {
-	m_tccPlots.at(name)->fillMomentsSubLeadingWithMassCut(*leadings.at(1));
-	m_tccPlots.at(name)->fillResponseSubLeading(*leadings.at(1),*truth_matches.at(1));
-	if (calo_matches.at(1))
-	  m_tccPlots.at(name)->fillPseudoResponseSubLeading(*leadings.at(1),*calo_matches.at(1));
+      if (leadings.at(0)) {
+	ATH_MSG_DEBUG(" ---> fillLeading ...");
+	if (truth_matches.at(0) and (truth_matches.at(0)->m()>m_minMass and truth_matches.at(0)->m()<m_maxMass)) {
+	  m_tccPlots.at(name)->fillMomentsLeadingWithMassCut(*leadings.at(0));
+	  m_tccPlots.at(name)->fillResponseLeading(*leadings.at(0),*truth_matches.at(0));
+	  if (calo_matches.at(0))
+	    m_tccPlots.at(name)->fillPseudoResponseLeading(*leadings.at(0),*calo_matches.at(0));
+	}
+	ATH_MSG_DEBUG("Leading jet histograms filled! ...");
       }
-      ATH_MSG_DEBUG("SubLeading jet histograms filled! ...");
-    }     
+    
+      if (leadings.at(1)) {
+	ATH_MSG_DEBUG(" ---> fillSubLeading ...");
+	if (truth_matches.at(1) and (truth_matches.at(1)->m()>m_minMass and truth_matches.at(1)->m()<m_maxMass)) {
+	  m_tccPlots.at(name)->fillMomentsSubLeadingWithMassCut(*leadings.at(1));
+	  m_tccPlots.at(name)->fillResponseSubLeading(*leadings.at(1),*truth_matches.at(1));
+	  if (calo_matches.at(1))
+	    m_tccPlots.at(name)->fillPseudoResponseSubLeading(*leadings.at(1),*calo_matches.at(1));
+	}
+	ATH_MSG_DEBUG("SubLeading jet histograms filled! ...");
+      }     
+    }
   }
   
   // Getting the collections for TrackParticles
@@ -246,6 +253,11 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
     const auto tracks = getContainer<xAOD::TrackParticleContainer>(m_trackParticleCollectionName);
     if (not tracks) return StatusCode::FAILURE;
     for (const auto& track: *tracks) {
+      m_tccPlots.at(m_trackParticleCollectionName)->fillTrackParametersAllPt(*track);
+      m_tccPlots.at(m_trackParticleCollectionName)->fillCaloEntryInfoAllPt(*track);
+      m_tccPlots.at(m_trackParticleCollectionName)->fillPerigeeInfoAllPt(*track);
+      m_tccPlots.at(m_trackParticleCollectionName)->fillPerigeeVsCaloEntryAllPt(*track);
+      if (track->pt()<m_trackPtMin) continue;
       m_tccPlots.at(m_trackParticleCollectionName)->fillTrackParameters(*track);
       m_tccPlots.at(m_trackParticleCollectionName)->fillCaloEntryInfo(*track);
       m_tccPlots.at(m_trackParticleCollectionName)->fillPerigeeInfo(*track);
