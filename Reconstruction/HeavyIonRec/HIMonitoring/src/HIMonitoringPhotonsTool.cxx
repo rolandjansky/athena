@@ -333,13 +333,10 @@ StatusCode HIMonitoringPhotonsTool::fillHistograms()
 StatusCode HIMonitoringPhotonsTool::procHistograms( )
 {
    
-	if( endOfLowStat || endOfLumiBlock ) 
-	{
-	   
-	}
+	//if( endOfLowStatFlag() || endOfLumiBlockFlag() ) { }
 
 
-	if( endOfRun ) 
+	if( endOfRunFlag() ) 
 	{
         if(h_photon_reta_ptCut_all->GetEntries() > 0) h_photon_reta_ptCut_all->Scale(1./h_photon_reta_ptCut_all->GetEntries());
         if(h_photon_reta_ptCut_loose->GetEntries() > 0) h_photon_reta_ptCut_loose->Scale(1./h_photon_reta_ptCut_loose->GetEntries());

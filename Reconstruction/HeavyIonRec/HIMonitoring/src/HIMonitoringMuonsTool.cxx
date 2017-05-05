@@ -133,13 +133,9 @@ StatusCode HIMonitoringMuonsTool::fillHistograms()
 StatusCode HIMonitoringMuonsTool::procHistograms( )
 {
    
-	if( endOfLowStat || endOfLumiBlock ) 
-	{
-	   
-	}
+	//if( endOfLowStatFlag() || endOfLumiBlock() ) { }
 
-
-	if( endOfRun ) 
+	if( endOfRunFlag() ) 
 	{
         if(h_Auth_fcal->GetEntries() > 0) h_Auth_fcal->Scale(1./h_Auth_fcal->GetEntries());
         if(h_Type_fcal->GetEntries() > 0) h_Type_fcal->Scale(1./h_Type_fcal->GetEntries());

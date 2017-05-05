@@ -378,13 +378,10 @@ StatusCode HIMonitoringElectronsTool::fillHistograms()
 StatusCode HIMonitoringElectronsTool::procHistograms( )
 {
    
-	if( endOfLowStat || endOfLumiBlock ) 
-	{
-	   
-	}
+        //if( endOfLowStatFlag() || endOfLumiBlockFlag() ) {	}
 
 
-	if( endOfRun ) 
+        if( endOfRunFlag() ) 
 	{
           if(h_FCalEt_looseLH->GetEntries() > 0) h_FCalEt_looseLH->Scale(1./h_FCalEt_looseLH->GetEntries());
           if(h_FCalEt_mediumLH->GetEntries() > 0) h_FCalEt_mediumLH->Scale(1./h_FCalEt_mediumLH->GetEntries());

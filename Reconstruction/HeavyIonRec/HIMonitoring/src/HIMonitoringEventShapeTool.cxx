@@ -122,13 +122,9 @@ StatusCode HIMonitoringEventShapeTool::fillHistograms()
 StatusCode HIMonitoringEventShapeTool::procHistograms( )
 {
    
-	if( endOfLowStat || endOfLumiBlock ) 
-	{
-	   
-	}
+        //if( endOfLowStatFlag() || endOfLumiBlockFlag() )  { }
 
-
-	if( endOfRun ) 
+	if( endOfRunFlag() ) 
 	{
         if(h_FCalEt->GetEntries() > 0) h_FCalEt->Scale(1./h_FCalEt->GetEntries());
         

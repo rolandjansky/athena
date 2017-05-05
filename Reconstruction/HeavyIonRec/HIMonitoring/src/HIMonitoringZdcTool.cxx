@@ -182,13 +182,9 @@ StatusCode HIMonitoringZdcTool::fillHistograms()
 StatusCode HIMonitoringZdcTool::procHistograms( )
 {
    
-	if( endOfLowStat || endOfLumiBlock ) 
-	{
-	   
-	}
+	//if( endOfLowStatFlag() || endOfLumiBlockFlag() ) {  }
 
-
-	if( endOfRun ) 
+	if( endOfRunFlag() ) 
 	{
         for(int k = 0; k < Nside; k++)
         {
