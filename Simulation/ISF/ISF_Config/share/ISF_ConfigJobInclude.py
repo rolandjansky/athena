@@ -167,6 +167,12 @@ from ISF_Example.ISF_Output import ISF_HITSStream
 from ISF_Example.ISF_Metadata import createSimulationParametersMetadata, configureRunNumberOverrides
 createSimulationParametersMetadata()
 configureRunNumberOverrides()
+
+
+collection_merger_alg = getAlgorithm('ISF_CollectionMerger')
+topSequence += collection_merger_alg
+
+
 #--------------------------------------------------------------
 # Post kernel configuration
 #--------------------------------------------------------------
