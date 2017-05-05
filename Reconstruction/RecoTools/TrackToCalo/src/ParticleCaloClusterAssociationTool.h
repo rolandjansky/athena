@@ -70,6 +70,7 @@ namespace Rec {
     mutable ToolHandle< xAOD::ICaloClustersInConeTool >     m_clustersInConeTool;
     std::string m_caloClusters;
     std::string m_assCollection;
+    std::string m_caloEntryMapName;
     double      m_coneSize;
     bool        m_useCovariance;
 

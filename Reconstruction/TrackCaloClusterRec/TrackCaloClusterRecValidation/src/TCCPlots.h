@@ -47,6 +47,11 @@ public:
   void fillPerigeeInfo(const xAOD::TrackParticle& track);
   void fillPerigeeVsCaloEntry(const xAOD::TrackParticle& track);
   
+  void fillTrackParametersAllPt(const xAOD::TrackParticle& track);
+  void fillCaloEntryInfoAllPt(const xAOD::TrackParticle& track);
+  void fillPerigeeInfoAllPt(const xAOD::TrackParticle& track);
+  void fillPerigeeVsCaloEntryAllPt(const xAOD::TrackParticle& track);
+    
   void make_median(TH2* h2_response, TH1* h1_resolution);
   void make_median(TH3* h3_response, TH2* h2_resolution);
   void resizeHistograms();
@@ -200,6 +205,8 @@ private:
   TH2* m_trk_caloEntryUncEta_caloEntryEta        ;
   TH2* m_trk_caloEntryUncEta_eta                 ;
   TH2* m_trk_caloEntryUncEta_pt                  ;
+  TH2* m_trk_caloEntryUncTheta_eta               ;
+  TH2* m_trk_caloEntryUncTheta_pt                ;
   TH1* m_trk_caloEntryPhi                        ;
   TH2* m_trk_caloEntryPhiOverPhi_eta             ;
   TH2* m_trk_caloEntryPhiOverPhi_pt              ;
@@ -211,12 +218,42 @@ private:
   TH1* m_trk_perigeeEta                          ;
   TH2* m_trk_perigeeUncEta_eta                   ;
   TH2* m_trk_perigeeUncEta_pt                    ;
+  TH2* m_trk_perigeeUncTheta_eta                 ;
+  TH2* m_trk_perigeeUncTheta_pt                  ;
   TH1* m_trk_perigeePhi                          ;
-  TH2*m_trk_perigeeUncPhi_eta                    ;
-  TH2*m_trk_perigeeUncPhi_pt                     ;
-  TH2*m_trk_perigeeUncTot_eta                    ;
-  TH2*m_trk_perigeeUncTot_pt                     ;
-  TH2*m_trk_perigeeUncTot_caloUncTot             ;
+  TH2* m_trk_perigeeUncPhi_eta                   ;
+  TH2* m_trk_perigeeUncPhi_pt                    ;
+  TH2* m_trk_perigeeUncTot_eta                   ;
+  TH2* m_trk_perigeeUncTot_pt                    ;
+  TH2* m_trk_perigeeUncEta_caloUncEta            ;
+  TH2* m_trk_perigeeUncTheta_caloUncTheta        ;
+  TH2* m_trk_perigeeUncPhi_caloUncPhi            ;
+  TH2* m_trk_perigeeUncTot_caloUncTot            ;
+  
+  TH2* m_trk_perigeeUncEta_prodRadius            ;
+  TH2* m_trk_perigeeUncTheta_prodRadius          ;
+  TH2* m_trk_perigeeUncPhi_prodRadius            ;
+  TH2* m_trk_perigeeUncTot_prodRadius            ;
+  TH2* m_trk_caloEntryUncEta_prodRadius          ;
+  TH2* m_trk_caloEntryUncTheta_prodRadius        ;  
+  TH2* m_trk_caloEntryUncPhi_prodRadius          ;
+  TH2* m_trk_caloEntryUncTot_prodRadius          ;
+  
+  TH1* m_trk_delta_perigeeEta_caloEntryEta       ;
+  TH1* m_trk_delta_perigeePhi_caloEntryPhi       ;
+  TH2* m_trk_delta_perigeeEta_caloEntryEta_pt_eta;
+  TH2* m_trk_delta_perigeePhi_caloEntryPhi_pt_eta;
+  TH2* m_trk_delta_perigeeEta_caloEntryEta_eta   ;
+  TH2* m_trk_delta_perigeePhi_caloEntryPhi_eta   ;
+  TH2* m_trk_delta_perigeeEta_caloEntryEta_pt    ;
+  TH2* m_trk_delta_perigeePhi_caloEntryPhi_pt    ;
+  
+  TH1* m_trk_delta_trackEta_caloEntryEta         ;
+  TH1* m_trk_delta_trackPhi_caloEntryPhi         ;
+  TH2* m_trk_delta_trackEta_caloEntryEta_eta     ;
+  TH2* m_trk_delta_trackPhi_caloEntryPhi_eta     ;
+  TH2* m_trk_delta_trackEta_caloEntryEta_pt      ;
+  TH2* m_trk_delta_trackPhi_caloEntryPhi_pt      ;
   
   // plot base has nop default implementation of this; we use it to book the histos
   void initializePlots();

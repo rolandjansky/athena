@@ -41,6 +41,7 @@ StatusCode ParticleToCaloExtrapolationTool::initialize() {
   else if( m_particleTypeName == "pion" )      m_particleType = Trk::pion;
   else ATH_MSG_WARNING("Unsupported particle type, using muon " << m_particleTypeName );
   ATH_MSG_INFO(" Using particle type " << m_particleTypeName << " enum value " << m_particleType );
+     
   return StatusCode::SUCCESS;
 }
 
@@ -80,7 +81,7 @@ bool ParticleToCaloExtrapolationTool::particleToCaloExtrapolate( const xAOD::IPa
       }
     }
   }
-  
+
   // return false is extension failed
   return theExtension != nullptr;
 }
@@ -182,23 +183,27 @@ Trk::CaloExtension* ParticleToCaloExtrapolationTool::particleToCaloExtrapolate( 
     particle.auxdecor<float>("CaloEntryPosZ")   = (float)pars->position().z();
     particle.auxdecor<float>("CaloEntryPosEta") = (float)pars->position().eta();
     particle.auxdecor<float>("CaloEntryPosPhi") = (float)pars->position().phi();
+    particle.auxdecor<float>("CaloEntryDirEta") = (float)pars->momentum().eta();
+    particle.auxdecor<float>("CaloEntryDirPhi") = (float)pars->momentum().phi();
     
     if(pars->covariance()) {
-      particle.auxdecor<float>("CaloEntryUncEta") = (float)(-2.*sin(pars->position().theta()) / (cos(2.*pars->position().theta())-1.) * sqrt((*pars->covariance())(Trk::theta,Trk::theta)));
-      particle.auxdecor<float>("CaloEntryUncPhi") = (float)(sqrt((*pars->covariance())(Trk::phi,Trk::phi)));
+      particle.auxdecor<float>("CaloEntryUncEta")   = (float)(fabs(2.*sin(pars->position().theta()) / (cos(2.*pars->position().theta())-1.)) * sqrt((*pars->covariance())(Trk::theta,Trk::theta)));
+      particle.auxdecor<float>("CaloEntryUncPhi")   = (float)(sqrt((*pars->covariance())(Trk::phi,Trk::phi)));
+      particle.auxdecor<float>("CaloEntryUncTheta") = (float)(sqrt((*pars->covariance())(Trk::theta,Trk::theta)));
     }
     
     // --> parameters and covariance at the perigee
     particle.auxdecor<float>("PerigeePosX")   = (float)startPar->position().x();
     particle.auxdecor<float>("PerigeePosY")   = (float)startPar->position().y();
     particle.auxdecor<float>("PerigeePosZ")   = (float)startPar->position().z();
-    particle.auxdecor<float>("PerigeePosEta") = (float)startPar->position().eta();
-    particle.auxdecor<float>("PerigeePosPhi") = (float)startPar->position().phi();
+    particle.auxdecor<float>("PerigeePosEta") = (float)startPar->momentum().eta();
+    particle.auxdecor<float>("PerigeePosPhi") = (float)startPar->momentum().phi();
     
     if(startPar->covariance()) {
-      particle.auxdecor<float>("PerigeeUncEta") = (float)(-2.*sin(startPar->position().theta()) / (cos(2.*startPar->position().theta())-1.) 
-                                                          * sqrt((*startPar->covariance())(Trk::theta,Trk::theta)));
-      particle.auxdecor<float>("PerigeeUncPhi") = (float)(sqrt((*startPar->covariance())(Trk::phi,Trk::phi)));
+//       particle.auxdecor<float>("PerigeeUncEta")   = (float)(fabs(2.*sin(startPar->position().theta()) / (cos(2.*startPar->position().theta())-1.))* sqrt((*startPar->covariance())(Trk::theta,Trk::theta)));
+      particle.auxdecor<float>("PerigeeUncEta")   = (float)(fabs(2.*sin(startPar->momentum().theta()) / (cos(2.*startPar->momentum().theta())-1.))* sqrt((*startPar->covariance())(Trk::theta,Trk::theta)));
+      particle.auxdecor<float>("PerigeeUncPhi")   = (float)(sqrt((*startPar->covariance())(Trk::phi,Trk::phi)));
+      particle.auxdecor<float>("PerigeeUncTheta") = (float)(sqrt((*startPar->covariance())(Trk::theta,Trk::theta)));
     }
     
     // --> production radius of the truth particle associated to the track

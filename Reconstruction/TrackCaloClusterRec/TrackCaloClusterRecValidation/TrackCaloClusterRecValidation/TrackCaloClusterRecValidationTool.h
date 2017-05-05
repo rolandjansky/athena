@@ -50,6 +50,7 @@ private:
     // Get a data container; implementation at end of this header file
     template<class T> const T* getContainer( const std::string & containerName);
         
+    bool m_saveJetInfo;
     ///Truth jet container's name
     std::string m_truthJetContainerName;
     
@@ -70,7 +71,8 @@ private:
     
     std::string m_trackParticleCollectionName;
    
-    bool m_saveTrackInfo;
+    bool  m_saveTrackInfo;
+    float m_trackPtMin;
     
     //histograms
     std::map<std::string, TCCPlots*>    m_tccPlots;

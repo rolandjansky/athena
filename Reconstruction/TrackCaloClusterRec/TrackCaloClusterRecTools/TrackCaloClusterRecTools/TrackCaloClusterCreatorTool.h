@@ -35,15 +35,23 @@ class TrackCaloClusterCreatorTool : public AthAlgTool {
     void createTrackOnlyTCCs(xAOD::TrackCaloClusterContainer* tccContainer, const xAOD::TrackParticleContainer* assocContainer, std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt   );
    
   private:  
-  
-   // ToolHandle<IJetFromPseudojet> m_bld;  // Tool to build jets.
-  ToolHandle<CP::ITrackVertexAssociationTool> m_loosetrackvertexassoTool;
-      
-  ///Vertex container's name
-  std::string m_vertexContname;
-
-  /// use cluster energy or pt?
-  bool m_useEnergy;
+    
+    void computeVertexCorr(double& eta, double& phi, const Amg::Vector3D& vertex, double radius);
+    
+    // ToolHandle<IJetFromPseudojet> m_bld;  // Tool to build jets.
+    ToolHandle<CP::ITrackVertexAssociationTool> m_loosetrackvertexassoTool;
+    
+    /// Vertex container's name
+    std::string m_vertexContname;
+    
+    /// Particle to CaloEntry container name
+    std::string m_caloEntryMapName;
+    
+    /// use cluster energy or pt?
+    bool m_useEnergy;
+    
+    // enable origin correction
+    bool m_doOriginCorrection;
 
 };
 

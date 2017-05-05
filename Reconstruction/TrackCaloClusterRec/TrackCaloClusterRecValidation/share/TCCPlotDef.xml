@@ -682,68 +682,408 @@
    
   <!-- m_trk_d0 -->
   <h id="trk_d0" type="TH1F" title="d_{0}">
-    <x title="Track d_{0} [mm]" n="5000"  lo="-5000." hi="5000."/>
-    <z title="Entries" />
+    <x title="Track d_{0} [mm]" n="1000"  lo="-100." hi="100."/>
+    <y title="Entries" />
   </h> 
   
   <!-- m_trk_z0 -->
   <h id="trk_z0" type="TH1F" title="z_{0}">
     <x title="Track z_{0} [mm]" n="5000"  lo="-5000." hi="5000."/>
-    <z title="Entries" />
+    <y title="Entries" />
   </h> 
   
   <!-- m_trk_theta -->
   <h id="trk_theta" type="TH1F" title="#theta">
-    <x title="Track #theta [rad]" n="500"  lo="-4." hi="4."/>
-    <z title="Entries" />
+    <x title="Track #theta [rad]" n="250"  lo="0." hi="4."/>
+    <y title="Entries" />
   </h>  
   
   <!-- m_trk_phi -->
   <h id="trk_phi" type="TH1F" title="#phi">
     <x title="Track #phi [rad]" n="500"  lo="-4." hi="4."/>
-    <z title="Entries" />
+    <y title="Entries" />
   </h> 
   
   <!-- m_trk_qOverP -->
   <h id="trk_qOverP" type="TH1F" title="q/p">
-    <x title="Track q/p [MeV^{-1}]" n="200"  lo="-0.00001" hi="0.00001"/>
-    <z title="Entries" />
+    <x title="Track q/p [MeV^{-1}]" n="200"  lo="-0.001" hi="0.001"/>
+    <y title="Entries" />
   </h> 
     
-  <!--m_trk_qOverP                      
-  m_trk_d0_eta                      
-  m_trk_z0_eta                      
-  m_trk_theta_eta                   
-  m_trk_phi_eta                    
-  m_trk_qOverP_eta                  
-  m_trk_d0_pt                   
-  m_trk_z0_pt                       
-  m_trk_theta_pt                    
-  m_trk_phi_pt                     
-  m_trk_qOverP_pt                   
-  m_trk_caloEntryEta                
-  m_trk_caloEntryEtaOverEta_eta
-  m_trk_caloEntryEtaOverEta_pt      
-  m_trk_caloEntryUncEta_caloEntryEta
-  m_trk_caloEntryUncEta_eta         
-  m_trk_caloEntryUncEta_pt          
-  m_trk_caloEntryPhi                
-  m_trk_caloEntryPhiOverPhi_eta
-  m_trk_caloEntryPhiOverPhi_pt      
-  m_trk_caloEntryUncPhi_caloEntryPhi
-  m_trk_caloEntryUncPhi_eta         
-  m_trk_caloEntryUncPhi_pt          
-  m_trk_caloEntryUncTot_eta         
-  m_trk_caloEntryUncTot_pt          
-  m_trk_perigeeEta                  
-  m_trk_perigeeUncEta_eta         
-  m_trk_perigeeUncEta_pt            
-  m_trk_perigeePhi                  
-  m_trk_perigeeUncPhi_eta           
-  m_trk_perigeeUncPhi_pt            
-  m_trk_perigeeUncTot_eta           
-  m_trk_perigeeUncTot_pt            
-  m_trk_perigeeUncTot_caloUncTot -->
+  <!-- m_trk_d0_eta -->
+  <h id="trk_d0_eta" type="TH2F" title="d_{0} vs track #eta">
+    <x title="Track #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Track d_{0} [mm]" n="1000"  lo="-100." hi="100."/>
+  </h>
+  
+  <!-- m_trk_z0_eta -->
+  <h id="trk_z0_eta" type="TH2F" title="z_{0} vs track #eta">
+    <x title="Track #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Track z_{0} [mm]" n="300"  lo="-300." hi="300."/>
+  </h> 
+  
+  <!-- m_trk_theta_eta -->
+  <h id="trk_theta_eta" type="TH2F" title="#theta vs track #eta">
+    <x title="Track #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Track #theta [rad]" n="250"  lo="0." hi="4."/>
+  </h>  
+  
+  <!-- m_trk_phi_eta -->
+  <h id="trk_phi_eta" type="TH2F" title="#phi vs track #eta">
+    <x title="Track #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Track #phi [rad]" n="500"  lo="-4." hi="4."/>
+  </h> 
+  
+  <!-- m_trk_qOverP_eta -->
+  <h id="trk_qOverP_eta" type="TH2F" title="q/p vs track #eta">
+    <x title="Track #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Track q/p [MeV^{-1}]" n="200"  lo="-0.00001" hi="0.00001"/>
+  </h> 
+  
+  <!-- m_trk_d0_pt -->
+  <h id="trk_d0_pt" type="TH2F" title="d_{0} vs track p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="Track d_{0} [mm]" n="1000"  lo="-100." hi="100."/>
+  </h>
+  
+  <!-- m_trk_z0_pt -->
+  <h id="trk_z0_pt" type="TH2F" title="z_{0} vs track p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="Track z_{0} [mm]" n="5000"  lo="-5000." hi="5000."/>
+  </h> 
+  
+  <!-- m_trk_theta_pt -->
+  <h id="trk_theta_pt" type="TH2F" title="#theta vs track p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="Track #theta [rad]" n="250"  lo="0." hi="4."/>
+  </h>  
+  
+  <!-- m_trk_phi_pt -->
+  <h id="trk_phi_pt" type="TH2F" title="#phi vs track p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="Track #phi [rad]" n="500"  lo="-4." hi="4."/>
+  </h> 
+  
+  <!-- m_trk_qOverP_pt -->
+  <h id="trk_qOverP_pt" type="TH2F" title="q/p vs track p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="Track q/p [MeV^{-1}]" n="200"  lo="-0.00001" hi="0.00001"/>
+  </h> 
+  
+  
+  <!-- m_trk_caloEntryEta -->
+  <h id="trk_caloEntryEta" type="TH1F" title="calo entry #eta">
+    <x title="Calo Entry #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h> 
+  
+  <!-- m_trk_caloEntryEtaOverEta_eta -->
+  <h id="trk_caloEntryEtaOverEta_eta" type="TH2F" title="calo entry #eta/track #eta vs track #eta">
+    <x title="Track #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Calo Entry #eta / track #eta" n="500" lo="-4." hi="4."/>
+  </h>
+
+  <!-- m_trk_caloEntryEtaOverEta_pt -->
+  <h id="trk_caloEntryEtaOverEta_pt" type="TH2F" title="calo entry #eta/track #eta vs track p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="Calo Entry #eta / track #eta" n="500" lo="-4." hi="4."/>
+  </h>
+  
+  <!-- m_trk_caloEntryPhi -->
+  <h id="trk_caloEntryPhi" type="TH1F" title="calo entry #phi">
+    <x title="Calo Entry #phi [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h> 
+  
+  <!-- m_trk_caloEntryPhiOverEta_eta -->
+  <h id="trk_caloEntryPhiOverPhi_eta" type="TH2F" title="calo entry #phi/track #phi vs track #eta">
+    <x title="Track #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Calo Entry #phi / track #phi" n="500" lo="-4." hi="4."/>
+  </h>
+
+  <!-- m_trk_caloEntryPhiOverEta_pt -->
+  <h id="trk_caloEntryPhiOverPhi_pt" type="TH2F" title="calo entry #phi/track #phi vs track p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="Calo Entry #phi / track #phi" n="500" lo="-4." hi="4."/>
+  </h>
+   
+  <!-- m_trk_caloEntryUncEta_caloEntryEta -->
+  <h id="trk_caloEntryUncEta_caloEntryEta" type="TH2F" title="calo entry #sigma(#eta) vs calo entry #eta">
+    <x title="Calo Entry #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Calo Entry #sigma(#eta)" n="500" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_caloEntryUncEta_eta -->
+  <h id="trk_caloEntryUncEta_eta" type="TH2F" title="calo entry #sigma(#eta) vs track #eta">
+    <x title="track #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Calo Entry #sigma(#eta)" n="500" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_caloEntryUncEta_pt -->
+  <h id="trk_caloEntryUncEta_pt" type="TH2F" title="calo entry #sigma(#eta) vs track p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="Calo Entry #sigma(#eta)" n="500" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_caloEntryUncTheta_eta -->
+  <h id="trk_caloEntryUncTheta_eta" type="TH2F" title="calo entry #sigma(#theta) vs track #eta">
+    <x title="track #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Calo Entry #sigma(#theta)" n="500" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_caloEntryUncTheta_pt -->
+  <h id="trk_caloEntryUncTheta_pt" type="TH2F" title="calo entry #sigma(#theta) vs track p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="Calo Entry #sigma(#theta)" n="500" lo="0" hi="1."/>
+  </h>
+    
+  <!-- m_trk_caloEntryUncEta_prodRadius -->
+  <h id="trk_caloEntryUncEta_prodRadius" type="TH2F" title="calo entry #sigma(#eta) vs truth production radius">
+    <x title="Truth Production Radius [mm]" n="1500" lo="0." hi="1500."/>
+    <y title="Calo Entry #sigma(#eta)" n="500" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_caloEntryUncTheta_prodRadius -->
+  <h id="trk_caloEntryUncTheta_prodRadius" type="TH2F" title="calo entry #sigma(#theta) vs truth production radius">
+    <x title="Truth Production Radius [mm]" n="1500" lo="0." hi="1500."/>
+    <y title="Calo Entry #sigma(#theta)" n="500" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_caloEntryUncPhi_caloEntryPhi -->
+  <h id="trk_caloEntryUncPhi_caloEntryPhi" type="TH2F" title="calo entry #sigma(#phi) vs calo entry #eta">
+    <x title="Calo Entry #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Calo Entry #sigma(#phi)" n="500" lo="0" hi="0.1"/>
+  </h>
+  
+  <!-- m_trk_caloEntryUncPhi_eta -->
+  <h id="trk_caloEntryUncPhi_eta" type="TH2F" title="calo entry #sigma(#phi) vs track #eta">
+    <x title="track #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Calo Entry #sigma(#phi)" n="500" lo="0" hi="0.1"/>
+  </h>
+  
+  <!-- m_trk_caloEntryUncPhi_pt -->
+  <h id="trk_caloEntryUncPhi_pt" type="TH2F" title="calo entry #sigma(#phi) vs track p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="Calo Entry #sigma(#phi)" n="500" lo="0" hi="0.1"/>
+  </h>
+    
+  <!-- m_trk_caloEntryUncPhi_prodRadius -->
+  <h id="trk_caloEntryUncPhi_prodRadius" type="TH2F" title="calo entry #sigma(#phi) vs truth production radius">
+    <x title="Truth Production Radius [mm]" n="1500" lo="0." hi="1500."/>
+    <y title="Calo Entry #sigma(#phi)" n="500" lo="0" hi="0.1"/>
+  </h>
+  
+  <!-- m_trk_caloEntryUncTot_eta -->
+  <h id="trk_caloEntryUncTot_eta" type="TH2F" title="calo entry #sigma(#Delta R) vs track #eta">
+    <x title="track #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_caloEntryUncTot_pt -->
+  <h id="trk_caloEntryUncTot_pt" type="TH2F" title="calo entry #sigma(#Delta R) vs track p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+  </h>
+    
+  <!-- m_trk_caloEntryUncTot_prodRadius -->
+  <h id="trk_caloEntryUncTot_prodRadius" type="TH2F" title="calo entry #sigma(#Delta R) vs truth production radius">
+    <x title="Truth Production Radius [mm]" n="1500" lo="0." hi="1500."/>
+    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_perigeeEta -->
+  <h id="trk_perigeeEta" type="TH1F" title="Perigee #eta">
+    <x title="Perigee #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h> 
+  
+  <!-- m_trk_perigeeUncEta_eta -->
+  <h id="trk_perigeeUncEta_eta" type="TH2F" title="perigee #sigma(#eta) vs track #eta">
+    <x title="track #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Perigee #sigma(#eta)" n="5000" lo="0" hi="10."/>
+  </h>
+  
+  <!-- m_trk_perigeeUncEta_pt -->
+  <h id="trk_perigeeUncEta_pt" type="TH2F" title="perigee #sigma(#eta) vs track p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="Perigee #sigma(#eta)" n="5000" lo="0" hi="10."/>
+  </h>
+  
+  <!-- m_trk_perigeeUncTheta_eta -->
+  <h id="trk_perigeeUncTheta_eta" type="TH2F" title="perigee #sigma(#theta) vs track #eta">
+    <x title="track #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Perigee #sigma(#theta)" n="500" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_perigeeUncTheta_pt -->
+  <h id="trk_perigeeUncTheta_pt" type="TH2F" title="perigee #sigma(#theta) vs track p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="Perigee #sigma(#theta)" n="500" lo="0" hi="1."/>
+  </h>
+    
+  <!-- m_trk_perigeeUncEta_prodRadius -->
+  <h id="trk_perigeeUncEta_prodRadius" type="TH2F" title="perigee #sigma(#eta) vs truth production radius">
+    <x title="Truth Production Radius [mm]" n="1500" lo="0." hi="1500."/>
+    <y title="Perigee #sigma(#eta)" n="5000" lo="0" hi="10."/>
+  </h>
+  
+  <!-- m_trk_perigeeUncTheta_prodRadius -->
+  <h id="trk_perigeeUncTheta_prodRadius" type="TH2F" title="perigee #sigma(#theta) vs truth production radius">
+    <x title="Truth Production Radius [mm]" n="1500" lo="0." hi="1500."/>
+    <y title="Perigee #sigma(#theta)" n="500" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_perigeePhi -->
+  <h id="trk_perigeePhi" type="TH1F" title="Perigee #phi">
+    <x title="Perigee #phi [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h> 
+  
+  <!-- m_trk_perigeeUncPhi_eta -->
+  <h id="trk_perigeeUncPhi_eta" type="TH2F" title="perigee #sigma(#phi) vs track #eta">
+    <x title="track #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Perigee #sigma(#phi)" n="500" lo="0" hi="0.1"/>
+  </h>
+  
+  <!-- m_trk_perigeeUncPhi_pt -->
+  <h id="trk_perigeeUncPhi_pt" type="TH2F" title="perigee #sigma(#phi) vs track p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="Perigee #sigma(#phi)" n="500" lo="0" hi="0.1"/>
+  </h>
+    
+  <!-- m_trk_perigeeUncPhi_prodRadius -->
+  <h id="trk_perigeeUncPhi_prodRadius" type="TH2F" title="perigee #sigma(#phi) vs truth production radius">
+    <x title="Truth Production Radius [mm]" n="1500" lo="0." hi="1500."/>
+    <y title="Perigee #sigma(#phi)" n="500" lo="0" hi="0.1"/>
+  </h>
+  
+  <!-- m_trk_perigeeUncTot_eta -->
+  <h id="trk_perigeeUncTot_eta" type="TH2F" title="perigee #sigma(#Delta R) vs track #eta">
+    <x title="track #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Perigee #sigma(#Delta R)" n="5000" lo="0" hi="10."/>
+  </h>
+  
+  <!-- m_trk_perigeeUncTot_pt -->
+  <h id="trk_perigeeUncTot_pt" type="TH2F" title="perigee #sigma(#Delta R) vs track p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="Perigee #sigma(#Delta R)" n="5000" lo="0" hi="10."/>
+  </h>
+    
+  <!-- m_trk_perigeeUncTot_prodRadius -->
+  <h id="trk_perigeeUncTot_prodRadius" type="TH2F" title="perigee #sigma(#Delta R) vs truth production radius">
+    <x title="Truth Production Radius [mm]" n="1500" lo="0." hi="1500."/>
+    <y title="Perigee #sigma(#Delta R)" n="5000" lo="0" hi="10."/>
+  </h>
+  
+  <!-- m_trk_perigeeUncEta_caloUncEta   -->
+  <h id="trk_perigeeUncEta_caloUncEta" type="TH2F" title="perigee #sigma(#eta) vs calo entry #sigma(#eta)">
+    <x title="Calo Entry #sigma(#eta)" n="500"  lo="0" hi="1."/>
+    <y title="Perigee #sigma(#eta)"    n="5000" lo="0" hi="10."/>
+  </h>
+  
+  <!-- m_trk_perigeeUncTheta_caloUncTheta   -->
+  <h id="trk_perigeeUncTheta_caloUncTheta" type="TH2F" title="perigee #sigma(#theta) vs calo entry #sigma(#theta)">
+    <x title="Calo Entry #sigma(#theta)"  n="500" lo="0" hi="1."/>
+    <y title="Perigee #sigma(#theta)"     n="500" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_perigeeUncPhi_caloUncPhi   -->
+  <h id="trk_perigeeUncPhi_caloUncPhi" type="TH2F" title="perigee #sigma(#phi) vs calo entry #sigma(#phi)">
+    <x title="Calo Entry #sigma(#phi)" n="500" lo="0" hi="0.1"/>
+    <y title="Perigee #sigma(#phi)"    n="500" lo="0" hi="0.1"/>
+  </h>
+  
+  <!-- m_trk_perigeeUncTot_caloUncTot   -->
+  <h id="trk_perigeeUncTot_caloUncTot" type="TH2F" title="perigee #sigma(#Delta R) vs calo entry #sigma(#Delta R)">
+    <x title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+    <y title="Perigee #sigma(#Delta R)" n="5000" lo="0" hi="10."/>
+  </h>
+  
+  <!-- trk_delta_perigeeEta_caloEntryEta -->
+  <h id="trk_delta_perigeeEta_caloEntryEta" type="TH1F" title="(calo entry #eta - perigee #eta)">
+    <x title="calo entry #eta - perigee #eta"  n="500" lo="-4." hi="4."/>
+    <y title="Entries" />
+  </h>
+  
+  <!-- trk_delta_perigeePhi_caloEntryPhi -->
+  <h id="trk_delta_perigeePhi_caloEntryPhi" type="TH1F" title="(calo entry #phi - perigee #phi)">
+    <x title="calo entry #phi - perigee #phi"  n="500" lo="-4." hi="4."/>
+    <y title="Entries" />
+  </h>
+  
+  <!-- trk_delta_perigeeEta_caloEntryEta_pt_eta -->
+  <h id="trk_delta_perigeeEta_caloEntryEta_pt_eta" type="TH2F" title="(calo entry #eta - perigee #eta) vs (p_{T}, #eta)">
+    <x title="track #eta [rad]"  n="500" lo="-4." hi="4."/>
+    <y title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <z title="(calo entry #eta - perigee #eta)"/>
+  </h>
+  
+  <!-- trk_delta_perigeePhi_caloEntryPhi_pt_eta -->
+  <h id="trk_delta_perigeePhi_caloEntryPhi_pt_eta" type="TH2F" title="(calo entry #phi - perigee #phi) vs (p_{T}, #eta)">
+    <x title="track #eta [rad]"  n="500" lo="-4." hi="4."/>
+    <y title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <z title="(calo entry #phi - perigee #phi)"/>
+  </h>
+  
+  <!-- trk_delta_perigeeEta_caloEntryEta_eta" -->
+  <h id="trk_delta_perigeeEta_caloEntryEta_eta" type="TH2F" title="(calo entry #eta - perigee #eta) vs #eta">
+    <x title="track #eta [rad]"  n="500" lo="-4." hi="4."/>
+    <y title="(calo entry #eta - perigee #eta)" n="500" lo="-4." hi="4."/>
+  </h>
+  
+  <!-- trk_delta_perigeePhi_caloEntryPhi_eta" -->
+  <h id="trk_delta_perigeePhi_caloEntryPhi_eta" type="TH2F" title="(calo entry #phi - perigee #phi) vs #eta">
+    <x title="track #eta [rad]"  n="500" lo="-4." hi="4."/>
+    <y title="(calo entry #phi - perigee #phi)" n="500" lo="-4." hi="4."/>
+  </h>
+  
+  <!-- trk_delta_perigeeEta_caloEntryEta_pt" -->
+  <h id="trk_delta_perigeeEta_caloEntryEta_pt" type="TH2F" title="(calo entry #eta - perigee #eta) vs p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="(calo entry #eta - perigee #eta)" n="500" lo="-4." hi="4."/>
+  </h>
+  
+  <!-- trk_delta_perigeePhi_caloEntryPhi_pt" -->
+  <h id="trk_delta_perigeePhi_caloEntryPhi_pt" type="TH2F" title="(calo entry #phi - perigee #phi) vs p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="(calo entry #phi - perigee #phi)" n="500" lo="-4." hi="4."/>
+  </h>
+  
+  <!-- trk_delta_trackEta_caloEntryEta -->
+  <h id="trk_delta_trackEta_caloEntryEta" type="TH1F" title="(calo entry dir #eta - track #eta)">
+    <x title="calo entry #eta - track #eta"  n="500" lo="-4." hi="4."/>
+    <y title="Entries" />
+  </h>
+  
+  <!-- trk_delta_trackPhi_caloEntryPhi -->
+  <h id="trk_delta_trackPhi_caloEntryPhi" type="TH1F" title="(calo entry dir #phi - track #phi)">
+    <x title="calo entry #phi - track #phi"  n="200" lo="-0.1" hi="0.1"/>
+    <y title="Entries" />
+  </h>
+  
+  <!-- trk_delta_trackEta_caloEntryEta_eta" -->
+  <h id="trk_delta_trackEta_caloEntryEta_eta" type="TH2F" title="(calo entry #eta - track #eta) vs #eta">
+    <x title="track #eta [rad]"  n="500" lo="-4." hi="4."/>
+    <y title="(calo entry #eta - track #eta)" n="500" lo="-4." hi="4."/>
+  </h>
+  
+  <!-- trk_delta_trackPhi_caloEntryPhi_eta" -->
+  <h id="trk_delta_trackPhi_caloEntryPhi_eta" type="TH2F" title="(calo entry #phi - track #phi) vs #eta">
+    <x title="track #eta [rad]"  n="500" lo="-4." hi="4."/>
+    <y title="(calo entry #phi - track #phi)" n="200" lo="-0.1" hi="0.1"/>
+  </h>
+  
+  <!-- trk_delta_trackEta_caloEntryEta_pt" -->
+  <h id="trk_delta_trackEta_caloEntryEta_pt" type="TH2F" title="(calo entry #eta - track #eta) vs p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="(calo entry #eta - track #eta)" n="500" lo="-4." hi="4."/>
+  </h>
+  
+  <!-- trk_delta_trackPhi_caloEntryPhi_pt" -->
+  <h id="trk_delta_trackPhi_caloEntryPhi_pt" type="TH2F" title="(calo entry #phi - track #phi) vs p_{T}">
+    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <y title="(calo entry #phi - track #phi)" n="200" lo="-0.1" hi="0.1"/>
+  </h>
   
   
 </hdef>
