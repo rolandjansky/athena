@@ -1,12 +1,16 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool
-#addTool("LArG4H6SD.LArG4H6SDTools.LArGeoH62004EventActionTool", "G4UA::LArGeoH62004EventActionTool")
-#addTool("LArG4H6SD.LArG4H6SDTools.LArGeoH62004SteppingActionTool", "G4UA::LArGeoH62004SteppingActionTool")
-#addTool("LArG4H6SD.LArG4H6SDTools.LArHitsH6EventActionTool", "G4UA::LArHitsH6EventActionTool")
-#addAlgorithm("LArG4H6SD.LArG4H6SDTools.LArTBH6BeamInfo", "LArTBH6BeamInfo")
+
+# Algorithms without CfgGetter methods:
+# LArTBH6BeamInfo
+
+# UserAction tools without CfgGetter methods:
+# G4UA::LArGeoH62004EventActionTool,
+# G4UA::LArGeoH62004SteppingActionTool,
+# G4UA::LArHitsH6EventActionTool, G4UA::RadLenNtupleTool
+
 addTool("LArG4H6SD.LArG4H6SDTools.LArTBH6TriggerTimeTool", "LArTBH6TriggerTimeTool")
-#addTool("LArG4H6SD.LArG4H6SDTools.RadLenNtupleTool", "G4UA::RadLenNtupleTool")
 
 # Sensitive detector tools
 addTool("LArG4H6SD.LArG4H6SDConfig.getLArG4TBECBeamChSDTool", "LArG4TBECBeamChSensitiveDetector")
