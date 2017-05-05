@@ -165,16 +165,25 @@ if (useEmon and (partitionName == 'ATLAS' or partitionName == 'ATLAS_MP1')):
     logRecExOnline_globalconfig.info("solenoidCurrent = %f", solenoidCurrent.value)
     logRecExOnline_globalconfig.info("solenoidInvalid = %f", solenoidInvalid.value)
 
+    #from BFieldAth.BFieldAthConf import MagFieldAthenaSvc
+    #svcMgr += MagFieldAthenaSvc(SetupCOOL=True, NameOfTheSource='COOL_HLT', onlineSolCur=solenoidCurrent.value, onlineTorCur=toroidCurrent.value)
     import MagFieldServices.SetupField # New magnetic field service. 5 May 2017
 
     try:
         p3 = IPCPartition(partitionName)
-        x = ISObject(p3, 'LargParams.LArg.RunLogger.GlobalParams', 'GlobalParamsInfo')
+        x = ISObject(p3, 'LArParams.LAr.RunLogger.GlobalParams', 'GlobalParamsInfo')
         x.checkout()
         FirstSample = x.firstSample
         NSamples = x.nbOfSamples
+        Format = x.format
     except:
-        logRecExOnline_globalconfig.info("Could not find IS Parameters for LargParams.LArg.RunLogger.GlobalParams - Set default flags (FirstSample=3, NSamples=5")
+        logRecExOnline_globalconfig.info("Could not find IS Parameters for LArParams.LAr.RunLogger.GlobalParams - Set default flags (FirstSample=3, NSamples=5")
+
+    # for beam splash when LAr in "transparent" ROD mode  (5 May 2017)
+    if 'Format' in dir() and Format == 0:
+        from LArROD.LArRODFlags import larRODFlags
+        larRODFlags.keepDSPRaw.set_Value_and_Lock(False)
+
 
 
 
