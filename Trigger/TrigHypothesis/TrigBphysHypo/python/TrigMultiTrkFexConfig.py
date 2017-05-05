@@ -367,8 +367,8 @@ class TrigMultiTrkFex_Vtx2 (TrigMultiTrkFexPy):
         self.trkMass = 105.6583745  # looking for di-muon resonances       
         self.nTrkVertexChi2 = 100 # very loose here, tighter at Hypo
         self.nTrkCharge = -1
-        self.nTrkMassMin = []
-        self.nTrkMassMax = [] 
+        self.nTrkMassMin = [0.]  
+        self.nTrkMassMax = [1e+8] # should be safe at LHC, no? 
         self.ptTrkMin = [3750., 3750. ] # set minimal pt of tracks for 2mu passing L1
         self.diTrkMassMin = []   # phi window
         self.diTrkMassMax = []

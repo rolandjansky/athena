@@ -89,7 +89,7 @@ class EFMultiMuHypo_Vtx20 (TrigEFMultiMuHypo):
         
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
-        self.LowerMassCut      = 0.
+        self.LowerMassCut      = -1.
         self.UpperMassCut     = 1e+10
         self.ApplyUpperMassCut     = False
         self.ApplyChi2Cut      = True
