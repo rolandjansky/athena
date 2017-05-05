@@ -51,7 +51,7 @@ if (partitionName == 'ATLAS' or partitionName == 'ATLAS_MP1'):
     obj = ispy.ISObject(ispy.IPCPartition(partitionName), 'RunParams.RunParams', 'RunParams')
     obj.checkout()
     ### if ( obj.T0_project_tag == 'data15_comm' or obj.T0_project_tag == 'data15_13TeV'):
-    if ( obj.T0_project_tag == 'data15_comm' or obj.T0_project_tag == 'data15_13TeV' or obj.T0_project_tag == 'data15_5TeV' or obj.T0_project_tag == 'data16_comm' or obj.T0_project_tag == 'data16_13TeV' or obj.T0_project_tag == 'data16_5TeV' or obj.T0_project_tag == 'data16_1beam' or obj.T0_project_tag == 'data16_hip' or obj.T0_project_tag == 'data16_hip5TeV' or obj.T0_project_tag == 'data16_hip8TeV'):
+    if ( obj.T0_project_tag == 'data17_comm' or obj.T0_project_tag == 'data17_13TeV' or obj.T0_project_tag == 'data17_1beam' or obj.T0_project_tag == 'data16_comm' or obj.T0_project_tag == 'data16_13TeV' or obj.T0_project_tag == 'data16_5TeV' or obj.T0_project_tag == 'data16_1beam' or obj.T0_project_tag == 'data16_hip' or obj.T0_project_tag == 'data16_hip5TeV' or obj.T0_project_tag == 'data16_hip8TeV'):
         #streamName        = 'MinBias'
         #streamName        = 'Main' # Switching due to missingg Minbias stream -= 13/06/2015 AK
         try:
