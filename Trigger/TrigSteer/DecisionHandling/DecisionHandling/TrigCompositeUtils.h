@@ -31,7 +31,7 @@ namespace TrigCompositeUtils {
   struct DecisionOutput {
     DecisionOutput();
     // TODO reading    DecisionStorage(const SG::ReadHandleKey<DecisionContainer>& key); 
-    StatusCode record(const EventContext& ctx, const SG::WriteHandleKey<DecisionContainer>& key);
+    StatusCode record(const SG::WriteHandleKey<DecisionContainer>& key, const EventContext& ctx );
     std::unique_ptr<DecisionContainer> decisions;
     std::unique_ptr<DecisionAuxContainer> aux;
   };
@@ -45,7 +45,7 @@ namespace TrigCompositeUtils {
    */
   
   struct DecisionInput {
-    StatusCode retrieve(const EventContext& ctx, const SG::ReadHandleKey<DecisionContainer>& key);
+    StatusCode retrieve(const SG::ReadHandleKey<DecisionContainer>& key, const EventContext& ctx );
     const DecisionContainer* decisions = nullptr;
   };
   
@@ -68,6 +68,7 @@ namespace TrigCompositeUtils {
     @brief Appends the decision (given as ID) to the decision object
    */
   void addDecisionID( DecisionID id,  Decision* d);
+
       
   /*
     @brief Extracts DecisionIDs stored in the Decsion object 

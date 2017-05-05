@@ -38,7 +38,7 @@ atlas_add_library( L1DecoderLib
 		   GaudiKernel AthViews AthenaBaseComps  CxxUtils
 		   xAODTrigger TrigConfHLTData TrigConfL1Data
 		   TrigSteeringEvent TrigT1Interfaces TrigT1Result
-		   TrigMonitorBaseLib DecisionHandling
+		   TrigMonitorBaseLib DecisionHandlingLib
                    )
                    
 atlas_add_component( L1Decoder

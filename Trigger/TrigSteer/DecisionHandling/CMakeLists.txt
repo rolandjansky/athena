@@ -23,16 +23,23 @@ atlas_depends_on_subdirs( PUBLIC
 			  Control/StoreGate
 			  )
 
-# Component(s) in the package:
-atlas_add_library( DecisionHandling
+
+atlas_add_library( DecisionHandlingLib
                    src/*.cxx
                    PUBLIC_HEADERS DecisionHandling
                    LINK_LIBRARIES xAODTrigger GaudiKernel
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData TrigSteeringEvent )
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData )
 
+# Component(s) in the package:
+atlas_add_component( DecisionHandling
+                     src/components/*.cxx
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${Boost_LIBRARIES}
+		     ${ROOT_LIBRARIES} GaudiKernel AthViews  AthenaBaseComps CxxUtils xAODTrigger DecisionHandlingLib
+                     )
 
 
 atlas_add_test( TrigCompositeUtils_test
                         SOURCES test/TrigCompositeUtils_test.cxx
-                        LINK_LIBRARIES  TestTools xAODTrigger DecisionHandling
+                        LINK_LIBRARIES  TestTools xAODTrigger DecisionHandlingLib
                         AthContainers )

@@ -1,17 +1,14 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-// L1Decoder includes
-#include "TAURoIsUnpackingTool.h"
+// DecisionHandling includes
 
-// STL includes
+
+#include "DecisionHandling/HLTIdentifier.h"
 
 // FrameWork includes
-#include "GaudiKernel/IToolSvc.h"
-
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
-
+#include "GaudiKernel/Property.h"
+#include "DumpDecisions.h"
 
 
 /////////////////////////////////////////////////////////////////// 
@@ -20,45 +17,55 @@
 
 // Constructors
 ////////////////
-TAURoIsUnpackingTool::TAURoIsUnpackingTool( const std::string& type, 
-		      const std::string& name, 
-		      const IInterface* parent ) : 
-  ::AthAlgTool  ( type, name, parent   ),
-  m_storeGate( "StoreGateSvc", name )
+DumpDecisions::DumpDecisions( const std::string& name, 
+			      ISvcLocator* pSvcLocator )
+  : AthReentrantAlgorithm( name, pSvcLocator )
 {
-  //
-  // Property declaration
-  // 
-  //declareProperty( "Property", m_nProperty );
-
+  declareProperty( "Decisions", m_decisionKey, "Input Decisions" );
+  declareProperty( "VerbosityLevel", m_verbosityLevel, "3 - tries to print as much possible, 2 - only list of objects and their decisions, 1 - only list of active objets");
 }
 
 // Destructor
 ///////////////
-TAURoIsUnpackingTool::~TAURoIsUnpackingTool()
+DumpDecisions::~DumpDecisions()
 {}
 
-// Athena algtool's Hooks
+// Athena Algorithm's Hooks
 ////////////////////////////
-StatusCode TAURoIsUnpackingTool::initialize()
+StatusCode DumpDecisions::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
-
-  // Get pointer to StoreGateSvc and cache it :
-  if ( !m_storeGate.retrieve().isSuccess() ) {
-    ATH_MSG_ERROR ("Unable to retrieve pointer to StoreGateSvc");
-    return StatusCode::FAILURE;
-  }
-  
+  CHECK( m_decisionKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
-StatusCode TAURoIsUnpackingTool::finalize()
-{
+StatusCode DumpDecisions::finalize() {
   ATH_MSG_INFO ("Finalizing " << name() << "...");
 
   return StatusCode::SUCCESS;
 }
+
+StatusCode DumpDecisions:: execute_r( const EventContext& ctx ) const {  
+  using namespace TrigCompositeUtils;
+  DecisionInput decisionInput;
+  CHECK ( decisionInput.retrieve( m_decisionKey, ctx) );
+  
+  for ( auto d: *decisionInput.decisions ) {
+
+    DecisionIDContainer ids;
+    TrigCompositeUtils::decisionIDs( d, ids );
+    if ( not ids.empty() ) {
+      ATH_MSG_DEBUG( "Decision object" );
+      if ( m_verbosityLevel >= 2 ) {
+	for ( auto id: ids ) {
+	  ATH_MSG_DEBUG( "Passing decision " << HLT::Identifier(id) );
+	}
+      }
+    }
+  }
+  return StatusCode::SUCCESS;
+}
+  
 
 /////////////////////////////////////////////////////////////////// 
 // Const methods: 

@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 // L1Decoder includes
 #include "EMRoIsUnpackingTool.h"
 #include "TrigT1Result/RoIBResult.h"
@@ -14,13 +17,13 @@ EMRoIsUnpackingTool::EMRoIsUnpackingTool( const std::string& type,
 					  const std::string& name, 
 					  const IInterface* parent ) 
   : AthAlgTool ( type, name, parent ),
-    m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name) {
+    m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ) {
 
-  declareProperty( "Decisions", m_decisionsKey="RoIDecisions", "Decisions for each RoI" );
-  declareProperty("ThresholdToChainMapping", m_thresholdToChainProperty, "Mapping from the threshold name to chain in the form: 'EM3:HLT_e5', 'EM3:HLT_e5tight', ...");
-  declareProperty("OutputRoIs", m_trigRoIsKey="EMRoIs", "Name of the RoIs object produced by the unpacker");
-  declareProperty("OutputRecEMTauRoIs", m_recEMTauRoIsKey="RecEMRoIs", "Name of the RoIs object produced by the unpacker");
-  declareProperty("RoIWidth", m_roIWidth = 0.1, "Size of RoI in eta/ phi");
+  declareProperty( "Decisions", m_decisionsKey="EMRoIDecisions", "Decisions for each RoI" );
+  declareProperty( "ThresholdToChainMapping", m_thresholdToChainProperty, "Mapping from the threshold name to chain in the form: 'EM3 : HLT_e5', 'EM3 : HLT_e5tight', ..., (note spaces)" );
+  declareProperty( "OutputTrigRoIs", m_trigRoIsKey="EMRoIs", "Name of the RoIs object produced by the unpacker" );
+  declareProperty( "OutputRecRoIs", m_recRoIsKey="RecEMRoIs", "Name of the RoIs object produced by the unpacker" );
+  declareProperty( "RoIWidth", m_roIWidth = 0.1, "Size of RoI in eta/ phi" );
 }
 
 
@@ -30,10 +33,14 @@ EMRoIsUnpackingTool::~EMRoIsUnpackingTool(){
 
 StatusCode EMRoIsUnpackingTool::initialize() {  
   CHECK( m_configSvc.retrieve() );
+  CHECK( m_decisionsKey.initialize() );
   CHECK( m_trigRoIsKey.initialize() );
-  CHECK( m_recEMTauRoIsKey.initialize() );
+  CHECK( m_recRoIsKey.initialize() );
   //TODO add mapping retrieval
-  CHECK( decodeMapping() );
+  if (decodeMapping().isFailure() ) {
+    ATH_MSG_ERROR( "Failed to decode threshold to chains mapping, is the format th : chain?" );
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -44,7 +51,7 @@ StatusCode EMRoIsUnpackingTool::beginRun() {
   for( auto caloType : std::vector<L1DataDef::TriggerType>{ L1DataDef::EM/*, L1DataDef::TAU*/} ) {    
     for (TriggerThreshold * th : thresholdConfig->getThresholdVector( caloType ) ) {
       if ( th != nullptr ) {
-        ATH_MSG_DEBUG("Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier(th->name()).numeric()); 
+        ATH_MSG_DEBUG( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier(th->name()).numeric() ); 
         m_emThresholds.push_back(th);
       }
     }
@@ -59,43 +66,44 @@ StatusCode EMRoIsUnpackingTool::finalize()
 }
 
 
-StatusCode EMRoIsUnpackingTool::unpack(const EventContext& ctx,
-				       const ROIB::RoIBResult& roib,
-				       const HLT::IDVec& activeChains) const {
+StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
+					const ROIB::RoIBResult& roib,
+					const HLT::IDSet& activeChains ) const {
 
-  TrigCompositeUtils::DecisionOutput decisionsOutput;
+  TrigCompositeUtils::DecisionOutput decisionOutput;
   auto trigRoIs = CxxUtils::make_unique< TrigRoiDescriptorCollection >();
-  auto recEMTauRoIs = CxxUtils::make_unique< DataVector<LVL1::RecEmTauRoI> >();
+  auto recRoIs = CxxUtils::make_unique< DataVector<LVL1::RecEmTauRoI> >();
 
   // RoIBResult contains vector of EM fragments
   for ( auto& emTauFragment : roib.eMTauResult() ) {
-    for ( auto& roi : emTauFragment.roIVec()  ) {
+    for ( auto& roi : emTauFragment.roIVec() ) {
       uint32_t roIWord = roi.roIWord();      
-      if ( not (LVL1::TrigT1CaloDefs::EMRoIWordType == roi.roIType()) )  {
-	ATH_MSG_DEBUG("Skipping RoI as it is not EM threshold " << roIWord );
+      if ( not ( LVL1::TrigT1CaloDefs::EMRoIWordType == roi.roIType() ) )  {
+	ATH_MSG_DEBUG( "Skipping RoI as it is not EM threshold " << roIWord );
 	continue;
       }
       
       auto recRoI = new LVL1::RecEmTauRoI( roIWord, &m_emThresholds );
-      recEMTauRoIs->push_back(recRoI);
+      recRoIs->push_back( recRoI );
       
-      auto trigRoI = new TrigRoiDescriptor(recRoI->roiWord(), 0u ,0u,
-					   recRoI->eta(), recRoI->eta()-m_roIWidth, recRoI->eta()+m_roIWidth,
-					   recRoI->phi(), recRoI->phi()-m_roIWidth, recRoI->phi()+m_roIWidth);
-      trigRoIs->push_back(trigRoI);
+      auto trigRoI = new TrigRoiDescriptor( roIWord, 0u ,0u,
+					    recRoI->eta(), recRoI->eta()-m_roIWidth, recRoI->eta()+m_roIWidth,
+					    recRoI->phi(), recRoI->phi()-m_roIWidth, recRoI->phi()+m_roIWidth );
+      trigRoIs->push_back( trigRoI );
 			  
-      ATH_MSG_DEBUG("RoI word: 0x" << MSG::hex << std::setw(8) << roIWord << ", threshold pattern " << MSG::dec);
+      ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw(8) << roIWord << ", threshold pattern " << MSG::dec );
       
-      auto decision  = TrigCompositeUtils::newDecisionIn(decisionsOutput.decisions.get());
+      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.decisions.get() );
       for ( auto th: m_emThresholds ) {
-	if ( recRoI->passedThreshold(th->thresholdNumber()) ) {
-	  TrigCompositeUtils::addDecisionID( HLT::Identifier(th->name()).numeric(), decision );
+	if ( recRoI->passedThreshold( th->thresholdNumber() ) ) {
+	  addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
 	}
       }
-            
-      decision->setObjectLink("initialRoI", ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), trigRoIs->size()-1 ));
-      decision->setObjectLink("initialRecRoI", ElementLink<DataVector<LVL1::RecEmTauRoI>>(m_recEMTauRoIsKey.key(), recEMTauRoIs->size()-1));      
-    }
+      
+      // TODO would be nice to have this. Requires modifying the TC class: decision->setDetail("Thresholds", passedThresholds); // record passing threshold names (for easy debugging)            
+      decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
+      decision->setObjectLink( "initialRecRoI", ElementLink<DataVector<LVL1::RecEmTauRoI>>(m_recRoIsKey.key(), recRoIs->size()-1) );
+    }     
   }
   for ( auto roi: *trigRoIs ) {
     ATH_MSG_DEBUG("RoI Eta: " << roi->eta() << " Phi: " << roi->phi() << " RoIWord: " << roi->roiWord());
@@ -104,13 +112,13 @@ StatusCode EMRoIsUnpackingTool::unpack(const EventContext& ctx,
   // recording
   {
     SG::WriteHandle<TrigRoiDescriptorCollection> handle(m_trigRoIsKey, ctx);
-    CHECK( handle.record(std::move(trigRoIs)) );
+    CHECK( handle.record (std::move(trigRoIs)) );
   }
   {
-    SG::WriteHandle<DataVector<LVL1::RecEmTauRoI>> handle(m_recEMTauRoIsKey, ctx);
-    CHECK( handle.record(std::move(recEMTauRoIs)) );    
+    SG::WriteHandle<DataVector<LVL1::RecEmTauRoI>> handle(m_recRoIsKey, ctx);
+    CHECK( handle.record( std::move(recRoIs)) );    
   }
-  
+  CHECK( decisionOutput.record( m_decisionsKey, ctx) );
   return StatusCode::SUCCESS; // what else
   
 

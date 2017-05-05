@@ -36,14 +36,20 @@ class IRoIsUnpackingTool
    */
   virtual StatusCode unpack(const EventContext& ctx,
 			    const ROIB::RoIBResult& roib,
-			    const HLT::IDVec& activeChains) const = 0;
+			    const HLT::IDSet& activeChains) const = 0;
 
-  StatusCode decodeMapping();
+
   
 protected:
+  
   SG::WriteHandleKey<  TrigCompositeUtils::DecisionContainer> m_decisionsKey;
   std::vector<std::string>              m_thresholdToChainProperty;
   std::map<HLT::Identifier, HLT::IDVec> m_thresholdToChainMapping;
+
+  StatusCode decodeMapping();
+  void addChainsToDecision( HLT::Identifier thresholdId,
+			    TrigCompositeUtils::Decision* d,
+			    const HLT::IDSet& activeChains ) const;
 }; 
 
 inline const InterfaceID& IRoIsUnpackingTool::interfaceID() { 

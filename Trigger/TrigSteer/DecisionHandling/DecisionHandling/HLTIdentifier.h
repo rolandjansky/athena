@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <map>
 
 
@@ -29,6 +30,11 @@ public:
   Identifier(const std::string& stringID);
 
   /*
+    @brief Construct wiht numeric ID
+   */
+ Identifier(unsigned id) : m_id(id) {}
+
+  /*
     @brief reports human redable name if it is enabled or, empty string
    */  
   std::string name() const;
@@ -48,6 +54,7 @@ private:
   
 };
  typedef std::vector<HLT::Identifier> IDVec;
+ typedef std::set<HLT::Identifier> IDSet;
  typedef std::map<HLT::Identifier,  IDVec> IDtoIDVecMap;
 }
 
