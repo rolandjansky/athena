@@ -418,7 +418,6 @@ def TMEF_MuonInsideOutRecoTool(name="TMEF_MuonInsideOutRecoTool",**kwargs):
 
 def TMEF_MuonStauRecoTool( name='TMEF_MuonStauRecoTool', **kwargs ):
    kwargs.setdefault('DoSummary', True)
-   kwargs.setdefault('OutputLevel', 'VERBOSE')
    kwargs.setdefault('ConsideredPDGs', [13,-13,1000015,-1000015])
    kwargs.setdefault('DoTruth', rec.doTruth() )
    kwargs.setdefault('DoSummary', muonCombinedRecFlags.printSummary() )
