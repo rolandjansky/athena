@@ -66,7 +66,7 @@ IDAlignMonNtuple::IDAlignMonNtuple( const std::string & type, const std::string 
    m_pixelID(0),
    m_sctID(0),
    m_ntupleSvc(0),
-   ntuple(0)
+   m_ntuple(0)
 {
   m_iUpdator = ToolHandle<Trk::IUpdator>("Trk::KalmanUpdator");
   m_propagator = ToolHandle<Trk::IPropagator>("Trk::RungeKuttaPropagator");
@@ -124,81 +124,81 @@ StatusCode IDAlignMonNtuple::bookHistograms()
   //NTupleFilePtr file( m_ntupleSvc, directoryStructure );
   NTuplePtr nt(m_ntupleSvc, fullNtuplePath );
   
-  //booking ntuple
+  //booking m_ntuple
   if (!nt)    {    // Check if already booked
     
     nt = m_ntupleSvc->book(fullNtuplePath, CLID_ColumnWiseTuple,"tree" );
     if(nt) {
       
-      ntuple=nt;
-      msg(MSG::INFO) << "Alignment monitoring ntuple booked." << endmsg;
+      m_ntuple=nt;
+      msg(MSG::INFO) << "Alignment monitoring m_ntuple booked." << endmsg;
       
       //information per event
-      sc = ntuple->addItem("event_ntracks",m_nt_ntrks,0,s_n_maxTracks);		
-      sc = ntuple->addItem("event_nhits",m_nt_nhits,0,s_n_maxEventHits);
-      sc = ntuple->addItem("event_nvtx",m_nt_nvtx,0,1000);	
-      sc = ntuple->addItem("event_goodvtxfound",m_nt_goodvtx,0,1000);	
-      sc = ntuple->addItem("event_vtxntrks",m_nt_vtxntrks,0,s_n_maxTracks);	
-      sc = ntuple->addItem("event_vtxX",m_nt_vtxX,-1000,1000);	
-      sc = ntuple->addItem("event_vtxY",m_nt_vtxY,-1000,1000);	
-      sc = ntuple->addItem("event_vtxZ",m_nt_vtxZ,-1000,1000);	
+      sc = m_ntuple->addItem("event_ntracks",m_nt_ntrks,0,s_n_maxTracks);		
+      sc = m_ntuple->addItem("event_nhits",m_nt_nhits,0,s_n_maxEventHits);
+      sc = m_ntuple->addItem("event_nvtx",m_nt_nvtx,0,1000);	
+      sc = m_ntuple->addItem("event_goodvtxfound",m_nt_goodvtx,0,1000);	
+      sc = m_ntuple->addItem("event_vtxntrks",m_nt_vtxntrks,0,s_n_maxTracks);	
+      sc = m_ntuple->addItem("event_vtxX",m_nt_vtxX,-1000,1000);	
+      sc = m_ntuple->addItem("event_vtxY",m_nt_vtxY,-1000,1000);	
+      sc = m_ntuple->addItem("event_vtxZ",m_nt_vtxZ,-1000,1000);	
 	
       //information per track
-      sc = ntuple->addIndexedItem("track_nhits",m_nt_ntrks,m_nt_trknhits);
-      sc = ntuple->addIndexedItem("track_qoverpt",m_nt_ntrks,m_nt_trkqoverpt);
-      sc = ntuple->addIndexedItem("track_eta",m_nt_ntrks,m_nt_trketa);
-      sc = ntuple->addIndexedItem("track_theta",m_nt_ntrks,m_nt_trktheta);
-      sc = ntuple->addIndexedItem("track_phi",m_nt_ntrks,m_nt_trkphi);
-      sc = ntuple->addIndexedItem("track_d0",m_nt_ntrks,m_nt_trkd0);
-      sc = ntuple->addIndexedItem("track_z0",m_nt_ntrks,m_nt_trkz0);
-      sc = ntuple->addIndexedItem("track_charge",m_nt_ntrks,m_nt_trkcharge);
-      sc = ntuple->addIndexedItem("track_chi2",m_nt_ntrks,m_nt_trkchi2);
-      sc = ntuple->addIndexedItem("track_dof",m_nt_ntrks,m_nt_trkdof);
-      sc = ntuple->addIndexedItem("track_vtxd0",m_nt_ntrks,m_nt_trkvtxd0);
+      sc = m_ntuple->addIndexedItem("track_nhits",m_nt_ntrks,m_nt_trknhits);
+      sc = m_ntuple->addIndexedItem("track_qoverpt",m_nt_ntrks,m_nt_trkqoverpt);
+      sc = m_ntuple->addIndexedItem("track_eta",m_nt_ntrks,m_nt_trketa);
+      sc = m_ntuple->addIndexedItem("track_theta",m_nt_ntrks,m_nt_trktheta);
+      sc = m_ntuple->addIndexedItem("track_phi",m_nt_ntrks,m_nt_trkphi);
+      sc = m_ntuple->addIndexedItem("track_d0",m_nt_ntrks,m_nt_trkd0);
+      sc = m_ntuple->addIndexedItem("track_z0",m_nt_ntrks,m_nt_trkz0);
+      sc = m_ntuple->addIndexedItem("track_charge",m_nt_ntrks,m_nt_trkcharge);
+      sc = m_ntuple->addIndexedItem("track_chi2",m_nt_ntrks,m_nt_trkchi2);
+      sc = m_ntuple->addIndexedItem("track_dof",m_nt_ntrks,m_nt_trkdof);
+      sc = m_ntuple->addIndexedItem("track_vtxd0",m_nt_ntrks,m_nt_trkvtxd0);
 
       //truth information per track
-      sc = ntuple->addIndexedItem("track_istruth",m_nt_ntrks,m_nt_trkistruth);
-      sc = ntuple->addIndexedItem("track_truthprob",m_nt_ntrks,m_nt_trktruthprob);
-      sc = ntuple->addIndexedItem("track_truthpt",m_nt_ntrks,m_nt_trktruthpt);
-      sc = ntuple->addIndexedItem("track_truthphi",m_nt_ntrks,m_nt_trktruthphi);
-      sc = ntuple->addIndexedItem("track_trutheta",m_nt_ntrks,m_nt_trktrutheta);
-      sc = ntuple->addIndexedItem("track_truthpdg",m_nt_ntrks,m_nt_trktruthpdg);
+      sc = m_ntuple->addIndexedItem("track_istruth",m_nt_ntrks,m_nt_trkistruth);
+      sc = m_ntuple->addIndexedItem("track_truthprob",m_nt_ntrks,m_nt_trktruthprob);
+      sc = m_ntuple->addIndexedItem("track_truthpt",m_nt_ntrks,m_nt_trktruthpt);
+      sc = m_ntuple->addIndexedItem("track_truthphi",m_nt_ntrks,m_nt_trktruthphi);
+      sc = m_ntuple->addIndexedItem("track_trutheta",m_nt_ntrks,m_nt_trktrutheta);
+      sc = m_ntuple->addIndexedItem("track_truthpdg",m_nt_ntrks,m_nt_trktruthpdg);
       
-      sc = ntuple->addIndexedItem("track_truthphi0",m_nt_ntrks,m_nt_trktruthphi0);
-      sc = ntuple->addIndexedItem("track_truthd0",m_nt_ntrks,m_nt_trktruthd0);
-      sc = ntuple->addIndexedItem("track_truthz0",m_nt_ntrks,m_nt_trktruthz0);
-      sc = ntuple->addIndexedItem("track_trutheta0",m_nt_ntrks,m_nt_trktrutheta0);
-      sc = ntuple->addIndexedItem("track_truthqoverpt",m_nt_ntrks,m_nt_trktruthqoverpt);
-      sc = ntuple->addIndexedItem("track_truthpt0",m_nt_ntrks,m_nt_trktruthpt0);
-      sc = ntuple->addIndexedItem("track_truthcharge",m_nt_ntrks,m_nt_trktruthcharge);
-      sc = ntuple->addIndexedItem("track_truthvtxX",m_nt_ntrks,m_nt_trktruthvtxX);
-      sc = ntuple->addIndexedItem("track_truthvtxY",m_nt_ntrks,m_nt_trktruthvtxY);
-      sc = ntuple->addIndexedItem("track_truthvtxZ",m_nt_ntrks,m_nt_trktruthvtxZ);
+      sc = m_ntuple->addIndexedItem("track_truthphi0",m_nt_ntrks,m_nt_trktruthphi0);
+      sc = m_ntuple->addIndexedItem("track_truthd0",m_nt_ntrks,m_nt_trktruthd0);
+      sc = m_ntuple->addIndexedItem("track_truthz0",m_nt_ntrks,m_nt_trktruthz0);
+      sc = m_ntuple->addIndexedItem("track_trutheta0",m_nt_ntrks,m_nt_trktrutheta0);
+      sc = m_ntuple->addIndexedItem("track_truthqoverpt",m_nt_ntrks,m_nt_trktruthqoverpt);
+      sc = m_ntuple->addIndexedItem("track_truthpt0",m_nt_ntrks,m_nt_trktruthpt0);
+      sc = m_ntuple->addIndexedItem("track_truthcharge",m_nt_ntrks,m_nt_trktruthcharge);
+      sc = m_ntuple->addIndexedItem("track_truthvtxX",m_nt_ntrks,m_nt_trktruthvtxX);
+      sc = m_ntuple->addIndexedItem("track_truthvtxY",m_nt_ntrks,m_nt_trktruthvtxY);
+      sc = m_ntuple->addIndexedItem("track_truthvtxZ",m_nt_ntrks,m_nt_trktruthvtxZ);
 
       //int max_hits = 5000;//do not make this smaller!
 
       //information per hit per track
-      sc = ntuple->addItem("hit_dettype",m_nt_ntrks,m_nt_dettype,s_n_maxHits);		
-      sc = ntuple->addItem("hit_isbarrel",m_nt_ntrks,m_nt_isbarrel,s_n_maxHits);		
-      sc = ntuple->addItem("hit_layer",m_nt_ntrks,m_nt_layer,s_n_maxHits);		
-      sc = ntuple->addItem("hit_modphi",m_nt_ntrks,m_nt_hitmodphi,s_n_maxHits);		
-      sc = ntuple->addItem("hit_modeta",m_nt_ntrks,m_nt_hitmodeta,s_n_maxHits);		
-      sc = ntuple->addItem("hit_hitx",m_nt_ntrks,m_nt_hitx,s_n_maxHits);		
-      sc = ntuple->addItem("hit_hity",m_nt_ntrks,m_nt_hity,s_n_maxHits);		
-      sc = ntuple->addItem("hit_residualx",m_nt_ntrks,m_nt_residualx,s_n_maxHits);		
-      sc = ntuple->addItem("hit_residualy",m_nt_ntrks,m_nt_residualy,s_n_maxHits);		
-      sc = ntuple->addItem("hit_biasedresidualx",m_nt_ntrks,m_nt_biasedresidualx,s_n_maxHits);		
-      sc = ntuple->addItem("hit_biasedresidualy",m_nt_ntrks,m_nt_biasedresidualy,s_n_maxHits);	
-      sc = ntuple->addItem("hit_hittype",m_nt_ntrks,m_nt_hittype,s_n_maxHits);		
-      sc = ntuple->addItem("hit_errorx",m_nt_ntrks,m_nt_errorx,s_n_maxHits);		
-      sc = ntuple->addItem("hit_errory",m_nt_ntrks,m_nt_errory,s_n_maxHits);		
-      sc = ntuple->addItem("hit_hitxwidth",m_nt_ntrks,m_nt_hitxwidth,s_n_maxHits);		
-      sc = ntuple->addItem("hit_hitywidth",m_nt_ntrks,m_nt_hitywidth,s_n_maxHits);	
-      sc = ntuple->addItem("hit_hitolegwidth",m_nt_ntrks,m_nt_hitolegwidth,s_n_maxHits);
-      sc = ntuple->addItem("hit_incidangle",m_nt_ntrks,m_nt_hitincidangle,s_n_maxHits);
+      sc = m_ntuple->addItem("hit_dettype",m_nt_ntrks,m_nt_dettype,s_n_maxHits);		
+      sc = m_ntuple->addItem("hit_isbarrel",m_nt_ntrks,m_nt_isbarrel,s_n_maxHits);		
+      sc = m_ntuple->addItem("hit_layer",m_nt_ntrks,m_nt_layer,s_n_maxHits);		
+      sc = m_ntuple->addItem("hit_modphi",m_nt_ntrks,m_nt_hitmodphi,s_n_maxHits);		
+      sc = m_ntuple->addItem("hit_modeta",m_nt_ntrks,m_nt_hitmodeta,s_n_maxHits);		
+      sc = m_ntuple->addItem("hit_hitx",m_nt_ntrks,m_nt_hitx,s_n_maxHits);		
+      sc = m_ntuple->addItem("hit_hity",m_nt_ntrks,m_nt_hity,s_n_maxHits);		
+      sc = m_ntuple->addItem("hit_residualx",m_nt_ntrks,m_nt_residualx,s_n_maxHits);		
+      sc = m_ntuple->addItem("hit_residualy",m_nt_ntrks,m_nt_residualy,s_n_maxHits);		
+      sc = m_ntuple->addItem("hit_biasedresidualx",m_nt_ntrks,m_nt_biasedresidualx,s_n_maxHits);		
+      sc = m_ntuple->addItem("hit_biasedresidualy",m_nt_ntrks,m_nt_biasedresidualy,s_n_maxHits);	
+      sc = m_ntuple->addItem("hit_hittype",m_nt_ntrks,m_nt_hittype,s_n_maxHits);		
+      sc = m_ntuple->addItem("hit_errorx",m_nt_ntrks,m_nt_errorx,s_n_maxHits);		
+      sc = m_ntuple->addItem("hit_errory",m_nt_ntrks,m_nt_errory,s_n_maxHits);		
+      sc = m_ntuple->addItem("hit_hitxwidth",m_nt_ntrks,m_nt_hitxwidth,s_n_maxHits);		
+      sc = m_ntuple->addItem("hit_hitywidth",m_nt_ntrks,m_nt_hitywidth,s_n_maxHits);	
+      sc = m_ntuple->addItem("hit_hitolegwidth",m_nt_ntrks,m_nt_hitolegwidth,s_n_maxHits);
+      sc = m_ntuple->addItem("hit_incidangle",m_nt_ntrks,m_nt_hitincidangle,s_n_maxHits);
 
     } else { 
-      msg(MSG::ERROR) << "Failed to book Alignment monitoring ntuple." << endmsg;
+      msg(MSG::ERROR) << "Failed to book Alignment monitoring m_ntuple." << endmsg;
     }
   }
 
@@ -255,7 +255,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
   m_nt_nvtx = nVtx;
   m_nt_vtxntrks = ntrkMax;
   //these quantities are only 0,0,0 if something has gone wrong with vtx finding
-  //so we don't want these in the ntuple
+  //so we don't want these in the m_ntuple
   if(!(xv==0.0 && yv==0.0 && zv==0.0)){
     m_nt_vtxX = xv;   m_nt_vtxY = yv;   m_nt_vtxZ = zv;
     m_nt_goodvtx = 1;
@@ -313,7 +313,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
       continue;
     }
 
-    //sets all track ntuple variables to error values
+    //sets all track m_ntuple variables to error values
     //variables will be overwritten later if can be defined
     setTrackErrorValues(nTracks);
 
@@ -529,7 +529,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 	else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackParameters associated with TrkSurface "<< nHits << ", hit type = " << hitType << endmsg; 
       }
 
-      //filling ntuple
+      //filling m_ntuple
       m_nt_hittype[nTracks][nHits] = hitType;
       m_nt_dettype[nTracks][nHits] = detType;
       m_nt_isbarrel[nTracks][nHits] = barrelEC;
@@ -563,7 +563,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
     
     m_nt_trknhits[nTracks] = nHits; 
     
-    //filling ntuple with some track parameters
+    //filling m_ntuple with some track parameters
     const Trk::Perigee* startPerigee = track->perigeeParameters();
     float theta = startPerigee->parameters()[Trk::theta];  
     float d0 = startPerigee->parameters()[Trk::d0];
@@ -672,7 +672,7 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 
   //bounds checking
   if (nTracks >= s_n_maxTracks) {
-    msg(MSG::ERROR) << "WATCH OUT: There are more TRACKS in this events than fit in the ntuple tracks matrix!" << endmsg;
+    msg(MSG::ERROR) << "WATCH OUT: There are more TRACKS in this events than fit in the m_ntuple tracks matrix!" << endmsg;
     msg(MSG::ERROR) << "Set max tracks per event = " <<  s_n_maxTracks << ", current event has " << nTracks << " or more tracks!" << endmsg;
     return StatusCode::FAILURE;
   }
@@ -688,9 +688,9 @@ StatusCode IDAlignMonNtuple::fillHistograms()
   }
   else m_nt_nhits = nHitsEvent;
   
-  //write the ntuple record 
-  if (!(m_ntupleSvc->writeRecord(ntuple)).isSuccess()) {
-    msg(MSG::ERROR) << "problems writing ntuple record" << endmsg;
+  //write the m_ntuple record 
+  if (!(m_ntupleSvc->writeRecord(m_ntuple)).isSuccess()) {
+    msg(MSG::ERROR) << "problems writing m_ntuple record" << endmsg;
   }
 
 
