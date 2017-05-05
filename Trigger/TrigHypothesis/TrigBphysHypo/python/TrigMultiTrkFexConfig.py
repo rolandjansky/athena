@@ -358,6 +358,41 @@ class TrigMultiTrkFex_DiMu_noVtx_noM_SS (TrigMultiTrkFex_DiMu):
         self.nTrkMassMin = [0.]  # OI not sure if this will work...
         self.nTrkMassMax = [1e+8] # should be safe at LHC, no? 
 
+#############################################################################
+class TrigMultiTrkFex_Vtx2 (TrigMultiTrkFexPy):
+    __slots__ = []
+    def __init__(self, name = "TrigMultiTrkFex_Vtx2"):
+        super( TrigMultiTrkFex_Vtx2, self ).__init__( name )
+        self.nTrk = 2
+        self.trkMass = 105.6583745  # looking for di-muon resonances       
+        self.nTrkVertexChi2 = 100 # very loose here, tighter at Hypo
+        self.nTrkCharge = -1
+        self.nTrkMassMin = []
+        self.nTrkMassMax = [] 
+        self.ptTrkMin = [3750., 3750. ] # set minimal pt of tracks for 2mu passing L1
+        self.diTrkMassMin = []   # phi window
+        self.diTrkMassMax = []
+        self.diTrkCharge = -1
+
+        # muons are not matched to tracks, but still require to be present in TE
+        self.nEfMuon = 0
+        self.nL2CombMuon = 0
+        self.nL2SAMuon = 0  # as we run on muon RoIs all necessary muons are already requested.
+        self.ptMuonMin = [] #[3600.]
+        #self.overlapdR  = 0.005 
+
+        time = TrigTimeHistToolConfig("Time")
+        validation = TrigMultiTrkFexValidationMonitoring()
+        online = TrigMultiTrkFexOnlineMonitoring()
+                                
+        self.AthenaMonTools = [ validation, online, time ]
+
+class TrigMultiTrkFex_Vtx3 (TrigMultiTrkFexPy):
+    __slots__ = []
+    def __init__(self, name = "TrigMultiTrkFex_Vtx3"):
+        super( TrigMultiTrkFex_Vtx3, self ).__init__( name )
+        self.nTrk = 3
+        self.ptTrkMin = [3750., 3750., 3750. ] # set minimal pt of tracks for 3mu passing L1
 
 #############################################################################
 class TrigMultiTrkFex_Jpsi (TrigMultiTrkFexPy):
