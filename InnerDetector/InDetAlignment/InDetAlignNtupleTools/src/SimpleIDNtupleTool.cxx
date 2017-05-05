@@ -180,13 +180,13 @@ StatusCode SimpleIDNtupleTool::initialize()
 //________________________________________________________________________
 StatusCode SimpleIDNtupleTool::fillNtuple()
 {
-  int success = 1;
   if (m_file && m_file->IsOpen()) {
     m_file->cd();
     if (m_tree) 
       m_tree->Write();
-  }
-  return success>0 ? StatusCode::SUCCESS : StatusCode::FAILURE;
+    else ATH_MSG_WARNING("Variable m_tree not set, nothing to write.");
+  } else ATH_MSG_WARNING("Variable m_file not set or not pointing to open output file.");
+  return StatusCode::SUCCESS;
 }
 
 //________________________________________________________________________
