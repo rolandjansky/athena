@@ -112,6 +112,12 @@ from AthenaCommon.BFieldFlags import jobproperties
 FirstSample = 3
 NSamples = 5
 
+### initialize flags before SetupField to choose correct condition tag database. 5 May 2017
+from AthenaCommon.GlobalFlags import globalflags
+from AthenaCommon.AthenaCommonFlags import jobproperties,athenaCommonFlags
+globalflags.DataSource.set_Value_and_Lock(DataSource)
+athenaCommonFlags.isOnline = isOnline
+
 if (useEmon and (partitionName == 'ATLAS' or partitionName == 'ATLAS_MP1')):
     import ispy
     from ispy import *
@@ -159,8 +165,7 @@ if (useEmon and (partitionName == 'ATLAS' or partitionName == 'ATLAS_MP1')):
     logRecExOnline_globalconfig.info("solenoidCurrent = %f", solenoidCurrent.value)
     logRecExOnline_globalconfig.info("solenoidInvalid = %f", solenoidInvalid.value)
 
-    from BFieldAth.BFieldAthConf import MagFieldAthenaSvc
-    svcMgr += MagFieldAthenaSvc(SetupCOOL=True, NameOfTheSource='COOL_HLT', onlineSolCur=solenoidCurrent.value, onlineTorCur=toroidCurrent.value)
+    import MagFieldServices.SetupField # New magnetic field service. 5 May 2017
 
     try:
         p3 = IPCPartition(partitionName)
@@ -176,10 +181,6 @@ if (useEmon and (partitionName == 'ATLAS' or partitionName == 'ATLAS_MP1')):
 # ----------------------------------------------- Set Run configuration
 
 ## Second, fall back to manual configuration or default values
-from AthenaCommon.GlobalFlags import globalflags
-from AthenaCommon.AthenaCommonFlags import jobproperties,athenaCommonFlags
-
-globalflags.DataSource.set_Value_and_Lock(DataSource)
 globalflags.InputFormat.set_Value_and_Lock(InputFormat)
 
 if not useEmon:
@@ -196,8 +197,6 @@ from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doPixelClusterSplitting.set_Value(False) # does not work online
 
 # ----------------------------------------------- Online flag
-
-athenaCommonFlags.isOnline = isOnline
 athenaCommonFlags.EvtMax.set_Value_and_Lock(evtMax)
 athenaCommonFlags.isOnlineStateless = isOnlineStateless
 # ----------------------------------------------- Remove DCS problems
