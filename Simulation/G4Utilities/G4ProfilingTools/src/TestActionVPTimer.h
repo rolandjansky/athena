@@ -2,25 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//////////////////////////////////////////////////////////////////
-//                                                              //
-//$Id:TestActionVPTimer.h,v 1.0 2008/07/08 13:46:47 zmarshal Exp $//
-//                                                              //
-//                      TestActionVPTimer                        //
-//      Code for text output (into log file)                    //
-//      of information about the time spent simulating          //
-//      various pieces of the detector and particles.           //
-//                                                              //
-//      Written by                                              //
-//         Zachary Marshall, Caltech, USA                       //
-//         Wolfgang Ehrenfeld, University of Hamburg, Germany   //
-//      Revised by						//
-//         Kevin Sapp, Pitt, USA				//
-//                                                              //
-//      @version $Revision: 660034 $ 				//
-//                                                              //
-//////////////////////////////////////////////////////////////////
-
 #ifndef TestActionVPTimer_H
 #define TestActionVPTimer_H
 
@@ -51,7 +32,12 @@ class Algorithm;
 #include "G4AtlasInterfaces/ISteppingAction.h"
 namespace G4UA{
 
-  
+  /*! @class TestActionVPTimer
+      @brief Code for text output (into log file) of information about
+the time spent simulating various pieces of the detector and
+particles.
+  */
+
   class TestActionVPTimer:
   public IBeginEventAction,  public IEndEventAction,  public IBeginRunAction,  public IEndRunAction,  public ISteppingAction
   {
