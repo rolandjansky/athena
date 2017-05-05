@@ -8,6 +8,12 @@ globalflags.Luminosity.set_Value_and_Lock('zero')
 globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
 globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
+
+
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.OutputLevel( INFO )
+AlgScheduler.ShowControlFlow( True )
+AlgScheduler.ShowDataDependencies( True )
  
 from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
@@ -85,7 +91,6 @@ ServiceMgr += ROBDataProviderSvc()
 #Run calo decoder
 from L1Decoder.L1DecoderConf import L1CaloDecoder
 caloDecoder = L1CaloDecoder() # by default it is steered towards the RoIBResult of the name above
-caloDecoder.OutputLevel=VERBOSE
 topSequence += caloDecoder
 
 from InDetRecExample.InDetJobProperties import InDetFlags
@@ -284,5 +289,4 @@ theFTFMT = TrigFastTrackFinderMT_eGamma()
 theFTFMT.outputLevel=VERBOSE
 
 #topSequence += theFTFMT
-
 

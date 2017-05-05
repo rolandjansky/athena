@@ -63,17 +63,6 @@ class TrigFastTrackFinderMTBase(TrigFastTrackFinderMT):
             self.Doublet_FilterRZ = False
 
 
-          ## SCT and Pixel detector elements road builder
-          from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
-          InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMaker.clone('InDetTrigSiDetElementsRoadMaker_FTF')
-          InDetTrigSiDetElementsRoadMaker_FTF.RoadWidth = 10.0
-          InDetTrigSiDetElementsRoadMaker_FTF.usePixel = True
-          InDetTrigSiDetElementsRoadMaker_FTF.useSCT = True
-          if remapped_type=="cosmics":
-            from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigSiDetElementsRoadMakerCosmics
-            InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMakerCosmics.clone('InDetTrigSiDetElementsRoadMaker_FTF')
-          ToolSvc += InDetTrigSiDetElementsRoadMaker_FTF
-
           from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
           TrackingCuts = EFIDTrackingCuts
           if remapped_type=="cosmics":
@@ -102,7 +91,6 @@ class TrigFastTrackFinderMTBase(TrigFastTrackFinderMT):
           ToolSvc += PixelClusterOnTrackToolDigital
           from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
           SCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("InDetSCT_ClusterOnTrackTool",
-                                                                  #CorrectionStrategy = -1,  # no position correction (test for bug #56477)
                                                                   CorrectionStrategy = 0,  # do correct position bias
                                                                   ErrorStrategy      = 2)  # do use phi dependent errors
           ToolSvc += SCT_ClusterOnTrackTool
@@ -180,8 +168,7 @@ class TrigFastTrackFinderMTBase(TrigFastTrackFinderMT):
 
             
 
-          from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigRotCreator
-          theTrigInDetTrackFitter.ROTcreator = InDetTrigRotCreator
+          theTrigInDetTrackFitter.ROTcreator = InDetRotCreatorDigital
           ToolSvc += theTrigInDetTrackFitter
           self.trigInDetTrackFitter = theTrigInDetTrackFitter
           from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
@@ -216,6 +203,7 @@ class TrigFastTrackFinderMTBase(TrigFastTrackFinderMT):
           ToolSvc += resCalc
           self.TrigL2ResidualCalculator = resCalc
           self.doCloneRemoval = InDetTrigSliceSettings[('doCloneRemoval',remapped_type)]
+          print self
 
 class TrigFastTrackFinderMT_eGamma(TrigFastTrackFinderMTBase):
   def __init__(self, name = "TrigFastTrackFinderMT_eGamma"):
