@@ -19,7 +19,6 @@ HIMonitoringMuonsTool::
 HIMonitoringMuonsTool( const std::string & type, const std::string & name,
 const IInterface* parent ): ManagedMonitorToolBase( type, name, parent )   	     	  
 {
-	m_FCalEt=0;
 }
 
 
@@ -94,8 +93,8 @@ StatusCode HIMonitoringMuonsTool::fillHistograms()
 	    // pt cut
 	    if((*muon_itr)->pt()*1.e-3 <6.)continue;
 
-	    auth = (*muon_itr)->author();
-        type = (*muon_itr)->muonType();
+	    xAOD::Muon::Author  auth = (*muon_itr)->author();
+        float type = (*muon_itr)->muonType();
 
 
 
@@ -105,6 +104,10 @@ StatusCode HIMonitoringMuonsTool::fillHistograms()
         const xAOD::TrackParticle* IDtrackParticle   = (*muon_itr)->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
 
 
+        float chi2ndof = 0;
+        float chi2ndofID = 0;
+        float chi2ndofMS = 0;
+        float chi2ndofME = 0;
 	    if(primTrackParticle)  {chi2ndof   = primTrackParticle->chiSquared()/primTrackParticle->numberDoF();    } 
 	    if(IDtrackParticle)    {chi2ndofID = IDtrackParticle->chiSquared()/IDtrackParticle->numberDoF();	    }
 	    if(MStrackParticle)    {chi2ndofMS = MStrackParticle->chiSquared()/MStrackParticle->numberDoF();	    }
@@ -114,12 +117,12 @@ StatusCode HIMonitoringMuonsTool::fillHistograms()
 
 
 
-        h_Auth_fcal->Fill(auth);
-        h_Type_fcal->Fill(type);
-        h_Chi2ndf_fcal->Fill(chi2ndof);
-		h_Chi2ndfID_fcal->Fill(chi2ndofID);
-		h_Chi2ndfMS_fcal->Fill(chi2ndofMS);
-		h_Chi2ndfME_fcal->Fill(chi2ndofME);
+        m_h_Auth_fcal->Fill(auth);
+        m_h_Type_fcal->Fill(type);
+        m_h_Chi2ndf_fcal->Fill(chi2ndof);
+        m_h_Chi2ndfID_fcal->Fill(chi2ndofID);
+        m_h_Chi2ndfMS_fcal->Fill(chi2ndofMS);
+        m_h_Chi2ndfME_fcal->Fill(chi2ndofME);
 
 
     }//for
@@ -137,12 +140,12 @@ StatusCode HIMonitoringMuonsTool::procHistograms( )
 
 	if( endOfRunFlag() ) 
 	{
-        if(h_Auth_fcal->GetEntries() > 0) h_Auth_fcal->Scale(1./h_Auth_fcal->GetEntries());
-        if(h_Type_fcal->GetEntries() > 0) h_Type_fcal->Scale(1./h_Type_fcal->GetEntries());
-        if(h_Chi2ndf_fcal->GetEntries() > 0) h_Chi2ndf_fcal->Scale(1./h_Chi2ndf_fcal->GetEntries());
-        if(h_Chi2ndfID_fcal->GetEntries() > 0) h_Chi2ndfID_fcal->Scale(1./h_Chi2ndfID_fcal->GetEntries());
-        if(h_Chi2ndfMS_fcal->GetEntries() > 0) h_Chi2ndfMS_fcal->Scale(1./h_Chi2ndfMS_fcal->GetEntries());
-        if(h_Chi2ndfME_fcal->GetEntries() > 0) h_Chi2ndfME_fcal->Scale(1./h_Chi2ndfME_fcal->GetEntries());
+        if(m_h_Auth_fcal->GetEntries() > 0) m_h_Auth_fcal->Scale(1./m_h_Auth_fcal->GetEntries());
+        if(m_h_Type_fcal->GetEntries() > 0) m_h_Type_fcal->Scale(1./m_h_Type_fcal->GetEntries());
+        if(m_h_Chi2ndf_fcal->GetEntries() > 0) m_h_Chi2ndf_fcal->Scale(1./m_h_Chi2ndf_fcal->GetEntries());
+        if(m_h_Chi2ndfID_fcal->GetEntries() > 0) m_h_Chi2ndfID_fcal->Scale(1./m_h_Chi2ndfID_fcal->GetEntries());
+        if(m_h_Chi2ndfMS_fcal->GetEntries() > 0) m_h_Chi2ndfMS_fcal->Scale(1./m_h_Chi2ndfMS_fcal->GetEntries());
+        if(m_h_Chi2ndfME_fcal->GetEntries() > 0) m_h_Chi2ndfME_fcal->Scale(1./m_h_Chi2ndfME_fcal->GetEntries());
 	}
 
 	return StatusCode::SUCCESS;
@@ -154,23 +157,23 @@ void HIMonitoringMuonsTool::book_hist()
 {
 	std::string path = "HeavyIon/Muons"; 
 
-    h_Auth_fcal = new TH1D( "h_Auth_fcal", ";author;counts" , 12 , 0 , 12);
-	regHist(h_Auth_fcal, path, run).ignore();
+    m_h_Auth_fcal = new TH1D( "h_Auth_fcal", ";author;counts" , 12 , 0 , 12);
+	regHist(m_h_Auth_fcal, path, run).ignore();
 
-    h_Type_fcal = new TH1D( "h_Type_fcal", ";type;counts" , 5 , 0 , 5);
-	regHist(h_Type_fcal, path, run).ignore();
+    m_h_Type_fcal = new TH1D( "h_Type_fcal", ";type;counts" , 5 , 0 , 5);
+	regHist(m_h_Type_fcal, path, run).ignore();
 
-    h_Chi2ndf_fcal = new TH1D( "h_Chi2ndf_fcal", ";chi2/ndf;counts" , 100 , 0 , 10);
-	regHist(h_Chi2ndf_fcal, path, run).ignore();
+    m_h_Chi2ndf_fcal = new TH1D( "h_Chi2ndf_fcal", ";chi2/ndf;counts" , 100 , 0 , 10);
+	regHist(m_h_Chi2ndf_fcal, path, run).ignore();
 
-    h_Chi2ndfID_fcal = new TH1D( "h_Chi2ndfID_fcal", ";ID chi2/ndf;counts" , 100 , 0 , 10);
-	regHist(h_Chi2ndfID_fcal, path, run).ignore();
+    m_h_Chi2ndfID_fcal = new TH1D( "h_Chi2ndfID_fcal", ";ID chi2/ndf;counts" , 100 , 0 , 10);
+	regHist(m_h_Chi2ndfID_fcal, path, run).ignore();
 
-    h_Chi2ndfMS_fcal = new TH1D( "h_Chi2ndfMS_fcal", ";MS chi2/ndf;counts" , 100 , 0 , 10);
-	regHist(h_Chi2ndfMS_fcal, path, run).ignore();
+    m_h_Chi2ndfMS_fcal = new TH1D( "h_Chi2ndfMS_fcal", ";MS chi2/ndf;counts" , 100 , 0 , 10);
+	regHist(m_h_Chi2ndfMS_fcal, path, run).ignore();
 
-    h_Chi2ndfME_fcal = new TH1D( "h_Chi2ndfME_fcal", ";ME chi2/ndf;counts" , 100 , 0 , 10);
-	regHist(h_Chi2ndfME_fcal, path, run).ignore();
+    m_h_Chi2ndfME_fcal = new TH1D( "h_Chi2ndfME_fcal", ";ME chi2/ndf;counts" , 100 , 0 , 10);
+	regHist(m_h_Chi2ndfME_fcal, path, run).ignore();
 
 
 

@@ -24,13 +24,13 @@ const IInterface* parent ): ManagedMonitorToolBase( type, name, parent )
 	m_FCalEt_C=0;	
     m_ZDC_HG=0;
     m_ZDC_LG=0;
-	h_FCalEt=0;
-	h_FCalEt_vs_eta=0; 	
+	m_h_FCalEt=0;
+	m_h_FCalEt_vs_eta=0; 	
 	m_FCalEt_nbins=95;
 	m_low_FCalEt=-0.15;
 	m_high_FCalEt=0.8;
 	m_nbins_phi=64; 		  
-	m_nbins_eta=c_num_of_eta_bins;
+	m_nbins_eta=s_num_of_eta_bins;
 	m_eta_range=5.0;
 	m_Pi = 3.14159265359; 
 	declareProperty( "ZDCmon", m_ZDCmon=true);
@@ -126,11 +126,11 @@ StatusCode HIMonitoringEventShapeTool::procHistograms( )
 
 	if( endOfRunFlag() ) 
 	{
-        if(h_FCalEt->GetEntries() > 0) h_FCalEt->Scale(1./h_FCalEt->GetEntries());
+        if(m_h_FCalEt->GetEntries() > 0) m_h_FCalEt->Scale(1./m_h_FCalEt->GetEntries());
         
         for(int i=0; i<2; i++)
         {
-            if(h_FCalEt_sides[i]->GetEntries() > 0) h_FCalEt_sides[i]->Scale(1./h_FCalEt_sides[i]->GetEntries());
+            if(m_h_FCalEt_sides[i]->GetEntries() > 0) m_h_FCalEt_sides[i]->Scale(1./m_h_FCalEt_sides[i]->GetEntries());
         }
 	}
 
@@ -143,28 +143,28 @@ void HIMonitoringEventShapeTool::bookFCalEt_hist()
 {
 	std::string path = "HeavyIon/FCal"; 
 	
-	h_FCalEt = new TH1D( "h_FCalEt", "; FCal #Sigma E_{T} [TeV]; entries", m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt);
-	regHist(h_FCalEt, path, run).ignore();
+	m_h_FCalEt = new TH1D( "h_FCalEt", "; FCal #Sigma E_{T} [TeV]; entries", m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt);
+	regHist(m_h_FCalEt, path, run).ignore();
 	
 
-	h_FCalEt_vs_eta = TProfile_LW::create( "h_FCalEt_vs_eta", "; #eta; < FCal #Sigma E_{T} > [TeV]", m_nbins_eta, -m_eta_range, m_eta_range); 
-	regHist(h_FCalEt_vs_eta, path, run).ignore(); 
+	m_h_FCalEt_vs_eta = TProfile_LW::create( "h_FCalEt_vs_eta", "; #eta; < FCal #Sigma E_{T} > [TeV]", m_nbins_eta, -m_eta_range, m_eta_range); 
+	regHist(m_h_FCalEt_vs_eta, path, run).ignore(); 
 	
-	h_FCalEt_A_vs_C = TH2D_LW::create("h_FCalEt_A_vs_C",  "; FCal #Sigma E_{T} Sice A [TeV]; FCal #Sigma E_{T} Sice C [TeV]", m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt);
-	regHist(h_FCalEt_A_vs_C, path, run).ignore(); 
+	m_h_FCalEt_A_vs_C = TH2D_LW::create("h_FCalEt_A_vs_C",  "; FCal #Sigma E_{T} Sice A [TeV]; FCal #Sigma E_{T} Sice C [TeV]", m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt);
+	regHist(m_h_FCalEt_A_vs_C, path, run).ignore(); 
 	
 	for(int i=0; i<2; i++)
 	{
-		TString hist_name =  "h_FCalEt_side"+side_id[i]; 
-		TString hist_aixis = "; FCal Side "+side_id[i]+ " #Sigma E_{T} [TeV]; entries";
-		h_FCalEt_sides[i] = new TH1D(hist_name, hist_aixis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt);
-		regHist(h_FCalEt_sides[i], path, run).ignore();
+		TString hist_name =  "h_FCalEt_side"+m_side_id[i]; 
+		TString hist_aixis = "; FCal Side "+m_side_id[i]+ " #Sigma E_{T} [TeV]; entries";
+		m_h_FCalEt_sides[i] = new TH1D(hist_name, hist_aixis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt);
+		regHist(m_h_FCalEt_sides[i], path, run).ignore();
 	}	
 }
 
 void HIMonitoringEventShapeTool::getFCalEt(const xAOD::HIEventShapeContainer* evtShape)
 {
-	for(int i=0; i<c_num_of_eta_bins; i++) m_FCalEt_eta[i]=0.0; 
+	for(int i=0; i<s_num_of_eta_bins; i++) m_FCalEt_eta[i]=0.0; 
 	
 	int size=evtShape->size();
 	for(int i=0;i<size;i++)
@@ -175,7 +175,7 @@ void HIMonitoringEventShapeTool::getFCalEt(const xAOD::HIEventShapeContainer* ev
 		{
 			m_FCalEt += sh->et();
 			m_FCalEt_eta[ES_eta_layer2bin(slice_eta)] += sh->et(); 
-			// h_FCalEt_vs_eta->Fill(slice_eta, sh->et());
+			// m_h_FCalEt_vs_eta->Fill(slice_eta, sh->et());
 			if(slice_eta>0) m_FCalEt_A += sh->et();
 			else m_FCalEt_C += sh->et();
 		} 
@@ -184,7 +184,7 @@ void HIMonitoringEventShapeTool::getFCalEt(const xAOD::HIEventShapeContainer* ev
 	m_FCalEt = m_FCalEt/1000000.;
 	m_FCalEt_A = m_FCalEt_A/1000000.;
 	m_FCalEt_C = m_FCalEt_C/1000000.;
-	for(int i=0; i<c_num_of_eta_bins; i++) 
+	for(int i=0; i<s_num_of_eta_bins; i++) 
 		if(m_FCalEt_eta[i]!= 0)
 			m_FCalEt_eta[i]=m_FCalEt_eta[i]/1000000.0;  
 			
@@ -193,13 +193,13 @@ void HIMonitoringEventShapeTool::getFCalEt(const xAOD::HIEventShapeContainer* ev
 
 void HIMonitoringEventShapeTool::fillFCalEt_hist()
 {
-	h_FCalEt->Fill(m_FCalEt);
-	h_FCalEt_sides[0]->Fill(m_FCalEt_A);
-	h_FCalEt_sides[1]->Fill(m_FCalEt_C);
-	h_FCalEt_A_vs_C->Fill(m_FCalEt_A, m_FCalEt_C);
-	for(int i=0; i<c_num_of_eta_bins; i++)
+	m_h_FCalEt->Fill(m_FCalEt);
+	m_h_FCalEt_sides[0]->Fill(m_FCalEt_A);
+	m_h_FCalEt_sides[1]->Fill(m_FCalEt_C);
+	m_h_FCalEt_A_vs_C->Fill(m_FCalEt_A, m_FCalEt_C);
+	for(int i=0; i<s_num_of_eta_bins; i++)
 	{
-		h_FCalEt_vs_eta->Fill(ES_bin2eta_layer(i), m_FCalEt_eta[i]);
+		m_h_FCalEt_vs_eta->Fill(ES_bin2eta_layer(i), m_FCalEt_eta[i]);
 	}
 	
 }
@@ -212,81 +212,81 @@ void HIMonitoringEventShapeTool::bookES_hist()
 	TString hist_name = ""; 
 	TString hist_axis = "";
 	
-	for(int i=0; i<c_num_of_harm; i++)
+	for(int i=0; i<s_num_of_harm; i++)
 	{
-		std::string fullpath = path+"/q"+sqn_num[i]; 
+		std::string fullpath = path+"/q"+m_sqn_num[i]; 
 		
-		hist_name =  "h_q"+sqn_num[i]+"x_vs_FCalEt"; 
-		hist_axis = "; FCal #Sigma E_{T} [TeV]; q_{"+sqn_num[i]+",x}";
-		h_qnx_vs_FCalEt[i] = TProfile_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt);
-		regHist(h_qnx_vs_FCalEt[i], fullpath, run).ignore();
+		hist_name =  "h_q"+m_sqn_num[i]+"x_vs_FCalEt"; 
+		hist_axis = "; FCal #Sigma E_{T} [TeV]; q_{"+m_sqn_num[i]+",x}";
+		m_h_qnx_vs_FCalEt[i] = TProfile_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt);
+		regHist(m_h_qnx_vs_FCalEt[i], fullpath, run).ignore();
 		
-		hist_name =  "h_q"+sqn_num[i]+"y_vs_FCalEt"; 
-		hist_axis = "; FCal #Sigma E_{T} [TeV]; q_{"+sqn_num[i]+",y}";
-		h_qny_vs_FCalEt[i] = TProfile_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
-		regHist(h_qny_vs_FCalEt[i], fullpath, run).ignore();
+		hist_name =  "h_q"+m_sqn_num[i]+"y_vs_FCalEt"; 
+		hist_axis = "; FCal #Sigma E_{T} [TeV]; q_{"+m_sqn_num[i]+",y}";
+		m_h_qny_vs_FCalEt[i] = TProfile_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
+		regHist(m_h_qny_vs_FCalEt[i], fullpath, run).ignore();
 		
-		hist_name =  "h_q"+sqn_num[i]+"x_A_vs_FCalEt"; 
-		hist_axis = "; FCal #Sigma E_{T} [TeV]; q_{"+sqn_num[i]+",x} Side A";
-		h_qnx_A_vs_FCalEt[i] = TProfile_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
-		regHist(h_qnx_A_vs_FCalEt[i], fullpath, run).ignore();
+		hist_name =  "h_q"+m_sqn_num[i]+"x_A_vs_FCalEt"; 
+		hist_axis = "; FCal #Sigma E_{T} [TeV]; q_{"+m_sqn_num[i]+",x} Side A";
+		m_h_qnx_A_vs_FCalEt[i] = TProfile_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
+		regHist(m_h_qnx_A_vs_FCalEt[i], fullpath, run).ignore();
 		
-		hist_name =  "h_q"+sqn_num[i]+"y_A_vs_FCalEt"; 
-		hist_axis = "; FCal #Sigma E_{T} [TeV]; q_{"+sqn_num[i]+",y} Side A";
-		h_qny_A_vs_FCalEt[i] = TProfile_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
-		regHist(h_qny_A_vs_FCalEt[i], fullpath, run).ignore();
+		hist_name =  "h_q"+m_sqn_num[i]+"y_A_vs_FCalEt"; 
+		hist_axis = "; FCal #Sigma E_{T} [TeV]; q_{"+m_sqn_num[i]+",y} Side A";
+		m_h_qny_A_vs_FCalEt[i] = TProfile_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
+		regHist(m_h_qny_A_vs_FCalEt[i], fullpath, run).ignore();
 		
-		hist_name =  "h_q"+sqn_num[i]+"x_C_vs_FCalEt"; 
-		hist_axis = "; FCal #Sigma E_{T} [TeV]; q_{"+sqn_num[i]+",x} Side C";
-		h_qnx_C_vs_FCalEt[i] = TProfile_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
-		regHist(h_qnx_C_vs_FCalEt[i], fullpath, run).ignore();
+		hist_name =  "h_q"+m_sqn_num[i]+"x_C_vs_FCalEt"; 
+		hist_axis = "; FCal #Sigma E_{T} [TeV]; q_{"+m_sqn_num[i]+",x} Side C";
+		m_h_qnx_C_vs_FCalEt[i] = TProfile_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
+		regHist(m_h_qnx_C_vs_FCalEt[i], fullpath, run).ignore();
 		
-		hist_name =  "h_q"+sqn_num[i]+"y_C_vs_FCalEt"; 
-		hist_axis = "; FCal #Sigma E_{T} [TeV]; q_{"+sqn_num[i]+",y} Side C";
-		h_qny_C_vs_FCalEt[i] = TProfile_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
-		regHist(h_qny_C_vs_FCalEt[i], fullpath, run).ignore();
+		hist_name =  "h_q"+m_sqn_num[i]+"y_C_vs_FCalEt"; 
+		hist_axis = "; FCal #Sigma E_{T} [TeV]; q_{"+m_sqn_num[i]+",y} Side C";
+		m_h_qny_C_vs_FCalEt[i] = TProfile_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
+		regHist(m_h_qny_C_vs_FCalEt[i], fullpath, run).ignore();
 		
-		hist_name =  "h_q"+sqn_num[i]+"x_vs_eta"; 
-		hist_axis = "; #eta; q_{"+sqn_num[i]+",x}";
-		h_qnx_vs_eta[i] = TProfile_LW::create(hist_name, hist_axis, m_nbins_eta, -m_eta_range, m_eta_range); 
-		regHist(h_qnx_vs_eta[i], fullpath, run).ignore();
+		hist_name =  "h_q"+m_sqn_num[i]+"x_vs_eta"; 
+		hist_axis = "; #eta; q_{"+m_sqn_num[i]+",x}";
+		m_h_qnx_vs_eta[i] = TProfile_LW::create(hist_name, hist_axis, m_nbins_eta, -m_eta_range, m_eta_range); 
+		regHist(m_h_qnx_vs_eta[i], fullpath, run).ignore();
 		
-		hist_name =  "h_q"+sqn_num[i]+"y_vs_eta";
-		hist_axis = "; #eta; q_{"+sqn_num[i]+",y}";
-		h_qny_vs_eta[i] = TProfile_LW::create(hist_name, hist_axis, m_nbins_eta, -m_eta_range, m_eta_range); 
-		regHist(h_qny_vs_eta[i], fullpath, run).ignore();
+		hist_name =  "h_q"+m_sqn_num[i]+"y_vs_eta";
+		hist_axis = "; #eta; q_{"+m_sqn_num[i]+",y}";
+		m_h_qny_vs_eta[i] = TProfile_LW::create(hist_name, hist_axis, m_nbins_eta, -m_eta_range, m_eta_range); 
+		regHist(m_h_qny_vs_eta[i], fullpath, run).ignore();
 		
-		hist_name =  "h_q"+sqn_num[i]+"_vs_FCalEt"; 
-		hist_axis = "; FCal #Sigma E_{T} [TeV]; q_{"+sqn_num[i]+"}";
-		h_qn_vs_FCalEt[i] = TH2D_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt, 300, 0.0, 1.0); 
-		regHist(h_qn_vs_FCalEt[i], fullpath, run).ignore();
+		hist_name =  "h_q"+m_sqn_num[i]+"_vs_FCalEt"; 
+		hist_axis = "; FCal #Sigma E_{T} [TeV]; q_{"+m_sqn_num[i]+"}";
+		m_h_qn_vs_FCalEt[i] = TH2D_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt, 300, 0.0, 1.0); 
+		regHist(m_h_qn_vs_FCalEt[i], fullpath, run).ignore();
 		
-		hist_name =  "h_psi"+sqn_num[i]+"_A_vs_FCalEt"; 
-		hist_axis = "; FCal #Sigma E_{T} [TeV]; #psi_{"+sqn_num[i]+"} Side A";
-		h_psin_A_vs_FCalEt[i] = TH2D_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt, m_nbins_phi, -m_Pi/(i+1), m_Pi/(i+1)); 
-		regHist(h_psin_A_vs_FCalEt[i], fullpath, run).ignore();
+		hist_name =  "h_psi"+m_sqn_num[i]+"_A_vs_FCalEt"; 
+		hist_axis = "; FCal #Sigma E_{T} [TeV]; #psi_{"+m_sqn_num[i]+"} Side A";
+		m_h_psin_A_vs_FCalEt[i] = TH2D_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt, m_nbins_phi, -m_Pi/(i+1), m_Pi/(i+1)); 
+		regHist(m_h_psin_A_vs_FCalEt[i], fullpath, run).ignore();
 		
-		hist_name =  "h_psi"+sqn_num[i]+"_C_vs_FCalEt";  
-		hist_axis = "; FCal #Sigma E_{T} [TeV]; #psi_{"+sqn_num[i]+"} Side C";
-		h_psin_C_vs_FCalEt[i] = TH2D_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt, m_nbins_phi, -m_Pi/(i+1), m_Pi/(i+1)); 
-		regHist(h_psin_C_vs_FCalEt[i], fullpath, run).ignore();
+		hist_name =  "h_psi"+m_sqn_num[i]+"_C_vs_FCalEt";  
+		hist_axis = "; FCal #Sigma E_{T} [TeV]; #psi_{"+m_sqn_num[i]+"} Side C";
+		m_h_psin_C_vs_FCalEt[i] = TH2D_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt, m_nbins_phi, -m_Pi/(i+1), m_Pi/(i+1)); 
+		regHist(m_h_psin_C_vs_FCalEt[i], fullpath, run).ignore();
 		
-		hist_name =  "h_psi"+sqn_num[i]+"_ACdiff_vs_FCalEt";  
-		hist_axis = "; FCal #Sigma E_{T} [TeV]; #psi_{"+sqn_num[i]+"} Side A - #psi_{"+sqn_num[i]+"} Side C";
-		h_psin_ACdiff_vs_FCalEt[i] = TH2D_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt, m_nbins_phi, -m_Pi/(i+1), m_Pi/(i+1)); 
-		regHist(h_psin_ACdiff_vs_FCalEt[i], fullpath, run).ignore();
+		hist_name =  "h_psi"+m_sqn_num[i]+"_ACdiff_vs_FCalEt";  
+		hist_axis = "; FCal #Sigma E_{T} [TeV]; #psi_{"+m_sqn_num[i]+"} Side A - #psi_{"+m_sqn_num[i]+"} Side C";
+		m_h_psin_ACdiff_vs_FCalEt[i] = TH2D_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt, m_nbins_phi, -m_Pi/(i+1), m_Pi/(i+1)); 
+		regHist(m_h_psin_ACdiff_vs_FCalEt[i], fullpath, run).ignore();
 		
-		hist_name =  "h_psi"+sqn_num[i]+"_R_vs_FCalEt";  
-		hist_axis = "; FCal #Sigma E_{T} [TeV]; < cos "+sqn_num[i]+"(#psi_{"+sqn_num[i]+"}^{A} - #psi_{"+sqn_num[i]+"}^{C}) >";
-		h_psin_R_vs_FCalEt[i] =  TProfile_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
-		regHist(h_psin_R_vs_FCalEt[i], fullpath, run).ignore();
+		hist_name =  "h_psi"+m_sqn_num[i]+"_R_vs_FCalEt";  
+		hist_axis = "; FCal #Sigma E_{T} [TeV]; < cos "+m_sqn_num[i]+"(#psi_{"+m_sqn_num[i]+"}^{A} - #psi_{"+m_sqn_num[i]+"}^{C}) >";
+		m_h_psin_R_vs_FCalEt[i] =  TProfile_LW::create(hist_name, hist_axis, m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
+		regHist(m_h_psin_R_vs_FCalEt[i], fullpath, run).ignore();
 	} 
 }
 
 void HIMonitoringEventShapeTool::getES(const xAOD::HIEventShapeContainer* evtShape)
 {
   
-	for(int i=0; i<c_num_of_harm; i++)
+	for(int i=0; i<s_num_of_harm; i++)
 	{
 		m_qnx[i] = 0;
 		m_qny[i] = 0;
@@ -295,7 +295,7 @@ void HIMonitoringEventShapeTool::getES(const xAOD::HIEventShapeContainer* evtSha
 		m_qny_A[i] = 0;
 		m_qnx_C[i] = 0;
 		m_qny_C[i] = 0;
-		for(int j=0; j<c_num_of_eta_bins; j++)
+		for(int j=0; j<s_num_of_eta_bins; j++)
 		{
 			m_qnx_eta[i][j]=0;
 			m_qny_eta[i][j]=0;
@@ -316,7 +316,7 @@ void HIMonitoringEventShapeTool::getES(const xAOD::HIEventShapeContainer* evtSha
 			sh->layer() == 22 ||
 				sh->layer() == 23) //FCal Only
 		{
-			for(int i=0; i<c_num_of_harm; i++)
+			for(int i=0; i<s_num_of_harm; i++)
 			{
 				m_qnx[i] += sh->etCos().at(i);
 				m_qny[i] += sh->etSin().at(i);
@@ -337,7 +337,7 @@ void HIMonitoringEventShapeTool::getES(const xAOD::HIEventShapeContainer* evtSha
 		}	   
 	} 
 
-	for(int i=0; i<c_num_of_harm; i++)
+	for(int i=0; i<s_num_of_harm; i++)
 	{
 		m_qnx[i] = m_qnx[i]/(m_FCalEt*1000000.0);
 		m_qny[i] = m_qny[i]/(m_FCalEt*1000000.0);
@@ -352,7 +352,7 @@ void HIMonitoringEventShapeTool::getES(const xAOD::HIEventShapeContainer* evtSha
 		m_psin_A[i] = calc_psin(i, m_qnx_A[i],m_qny_A[i]);
 		m_psin_C[i] = calc_psin(i, m_qnx_C[i],m_qny_C[i]);
 	  
-		for(int j=0; j<c_num_of_eta_bins; j++)
+		for(int j=0; j<s_num_of_eta_bins; j++)
 		{
 			if(m_FCalEt_eta[j]!=0)
 			{
@@ -365,29 +365,29 @@ void HIMonitoringEventShapeTool::getES(const xAOD::HIEventShapeContainer* evtSha
 
 void HIMonitoringEventShapeTool::fillES_hist()
 {
-	for(int i=0; i<c_num_of_harm; i++)
+	for(int i=0; i<s_num_of_harm; i++)
 	{
-		h_qnx_vs_FCalEt[i]->Fill(m_FCalEt, m_qnx[i]);
-		h_qny_vs_FCalEt[i]->Fill(m_FCalEt, m_qny[i]);
-		h_qn_vs_FCalEt[i]->Fill(m_FCalEt, m_qn[i]);
+		m_h_qnx_vs_FCalEt[i]->Fill(m_FCalEt, m_qnx[i]);
+		m_h_qny_vs_FCalEt[i]->Fill(m_FCalEt, m_qny[i]);
+		m_h_qn_vs_FCalEt[i]->Fill(m_FCalEt, m_qn[i]);
 	  
-		h_qnx_A_vs_FCalEt[i]->Fill(m_FCalEt, m_qnx_A[i]);
-		h_qny_A_vs_FCalEt[i]->Fill(m_FCalEt, m_qny_A[i]);
+		m_h_qnx_A_vs_FCalEt[i]->Fill(m_FCalEt, m_qnx_A[i]);
+		m_h_qny_A_vs_FCalEt[i]->Fill(m_FCalEt, m_qny_A[i]);
 
-		h_qnx_C_vs_FCalEt[i]->Fill(m_FCalEt, m_qnx_C[i]);
-		h_qny_C_vs_FCalEt[i]->Fill(m_FCalEt, m_qny_C[i]);
+		m_h_qnx_C_vs_FCalEt[i]->Fill(m_FCalEt, m_qnx_C[i]);
+		m_h_qny_C_vs_FCalEt[i]->Fill(m_FCalEt, m_qny_C[i]);
 	  
-		h_psin_A_vs_FCalEt[i]->Fill(m_FCalEt, m_psin_A[i]);
-		h_psin_C_vs_FCalEt[i]->Fill(m_FCalEt, m_psin_C[i]);
-		h_psin_ACdiff_vs_FCalEt[i]->Fill(m_FCalEt, calc_psin_diff(i, m_psin_A[i], m_psin_C[i]));
-		h_psin_R_vs_FCalEt[i]->Fill(m_FCalEt, cos((i+1)*calc_psin_diff(i, m_psin_A[i], m_psin_C[i])));
+		m_h_psin_A_vs_FCalEt[i]->Fill(m_FCalEt, m_psin_A[i]);
+		m_h_psin_C_vs_FCalEt[i]->Fill(m_FCalEt, m_psin_C[i]);
+		m_h_psin_ACdiff_vs_FCalEt[i]->Fill(m_FCalEt, calc_psin_diff(i, m_psin_A[i], m_psin_C[i]));
+		m_h_psin_R_vs_FCalEt[i]->Fill(m_FCalEt, cos((i+1)*calc_psin_diff(i, m_psin_A[i], m_psin_C[i])));
 	  
 		if(m_FCalEt > m_FCalEt_eta_hist_cut)
 		{
-			for(int j=0; j<c_num_of_eta_bins; j++)
+			for(int j=0; j<s_num_of_eta_bins; j++)
 			{
-				h_qnx_vs_eta[i]->Fill(ES_bin2eta_layer(j), m_qnx_eta[i][j]); 
-				h_qny_vs_eta[i]->Fill(ES_bin2eta_layer(j), m_qny_eta[i][j]); 
+				m_h_qnx_vs_eta[i]->Fill(ES_bin2eta_layer(j), m_qnx_eta[i][j]); 
+				m_h_qny_vs_eta[i]->Fill(ES_bin2eta_layer(j), m_qny_eta[i][j]); 
 			}	  	
 		}
 	}	
@@ -400,10 +400,10 @@ void HIMonitoringEventShapeTool::bookZDC_hist()
 	std::string path = "HeavyIon/FCal"; 
 	TString hist_name = ""; 
 	
-	h_FCalEt_vs_ZDC_HG = TH2D_LW::create("h_FCalEt_vs_ZDC_HG", "; FCal #Sigma E_{T} [TeV]; ZDC high gain ", m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt, 100, 0, 10);
-	regHist(h_FCalEt_vs_ZDC_HG, path, run).ignore(); 
-	h_FCalEt_vs_ZDC_LG = TH2D_LW::create("h_FCalEt_vs_ZDC_LG", "; FCal #Sigma E_{T} [TeV]; ZDC low gain ", m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt, 100, 0, 10);
-	regHist(h_FCalEt_vs_ZDC_LG, path, run).ignore(); 
+	m_h_FCalEt_vs_ZDC_HG = TH2D_LW::create("h_FCalEt_vs_ZDC_HG", "; FCal #Sigma E_{T} [TeV]; ZDC high gain ", m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt, 100, 0, 10);
+	regHist(m_h_FCalEt_vs_ZDC_HG, path, run).ignore(); 
+	m_h_FCalEt_vs_ZDC_LG = TH2D_LW::create("h_FCalEt_vs_ZDC_LG", "; FCal #Sigma E_{T} [TeV]; ZDC low gain ", m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt, 100, 0, 10);
+	regHist(m_h_FCalEt_vs_ZDC_LG, path, run).ignore(); 
 		
 }
 
@@ -426,8 +426,8 @@ void HIMonitoringEventShapeTool::getZDC(const xAOD::TrigT2ZdcSignalsContainer* T
 
 void HIMonitoringEventShapeTool::fillZDC_hist()
 {
-	h_FCalEt_vs_ZDC_HG->Fill( m_FCalEt, m_ZDC_HG);
-	h_FCalEt_vs_ZDC_LG->Fill( m_FCalEt, m_ZDC_LG);  
+	m_h_FCalEt_vs_ZDC_HG->Fill( m_FCalEt, m_ZDC_HG);
+	m_h_FCalEt_vs_ZDC_LG->Fill( m_FCalEt, m_ZDC_LG);  
 }
 
 
