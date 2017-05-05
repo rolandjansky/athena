@@ -39,7 +39,7 @@ streamLogic       = 'Or'
 # When using ATLAS partition
 # Use different streams for "atlas standby" and "atlas ready"
 #
-if (partitionName == 'ATLAS'):
+if (partitionName == 'ATLAS' or partitionName == 'ATLAS_MP1'):
     streamLogic       = 'Or'
     
     import RecExOnline.OnlineISConfiguration
@@ -76,11 +76,11 @@ else:
 #
 # When NOT using ATLAS partition
 #
-if (partitionName != 'ATLAS'):
+if (partitionName != 'ATLAS' and partitionName != 'ATLAS_MP1'):
     if isHI_2016:
-       publishName     = 'lshi_hiconf_pp_20_11_2_2_1'
+       publishName     = 'GMTest_hiconf'
     else:
-       publishName     = 'lshi_ppconf_pp_20_11_2_2_1'
+       publishName     = 'GMTest_ppconf'
     isserverName    = 'Histogramming'
 
 
@@ -117,10 +117,10 @@ useAtlantisEmon   = False
 ### evtMax            = -1
 ### evtMax            = 50
 
-if (partitionName == 'ATLAS'):
+if (partitionName == 'ATLAS' or partitionName == 'ATLAS_MP1'):
     evtMax            = -1
 
-if (partitionName != 'ATLAS'):
+if (partitionName != 'ATLAS' and partitionName != 'ATLAS_MP1'):
     # evtMax            = 200
     evtMax            = -1 # lshi: for Gatherer test
 

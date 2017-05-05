@@ -112,8 +112,7 @@ from AthenaCommon.BFieldFlags import jobproperties
 FirstSample = 3
 NSamples = 5
 
-#if (useEmon and (partitionName == 'ATLAS' or partitionName == 'GMTestPartitionM7')):
-if (useEmon and (partitionName == 'ATLAS')):
+if (useEmon and (partitionName == 'ATLAS' or partitionName == 'ATLAS_MP1')):
     import ispy
     from ispy import *
     from ipc import IPCPartition
@@ -128,9 +127,6 @@ if (useEmon and (partitionName == 'ATLAS')):
     logRecExOnline_globalconfig.info("is_run_number = %s" % is_run_number)
     logRecExOnline_globalconfig.info("is_beam_type = %s" % is_beam_type)
     logRecExOnline_globalconfig.info("is_T0_project_tag = %s" % is_T0_project_tag)
-##     print 'is_run_number', is_run_number
-##     print 'is_beam_type', is_beam_type
-##     print 'is_T0_project_tag', is_T0_project_tag
 
     part_name = 'initial'
     p = IPCPartition(part_name)
@@ -167,7 +163,7 @@ if (useEmon and (partitionName == 'ATLAS')):
     svcMgr += MagFieldAthenaSvc(SetupCOOL=True, NameOfTheSource='COOL_HLT', onlineSolCur=solenoidCurrent.value, onlineTorCur=toroidCurrent.value)
 
     try:
-        p3 = IPCPartition("ATLAS")
+        p3 = IPCPartition(partitionName)
         x = ISObject(p3, 'LargParams.LArg.RunLogger.GlobalParams', 'GlobalParamsInfo')
         x.checkout()
         FirstSample = x.firstSample
@@ -237,7 +233,7 @@ if doPixelOnlyMon:
 # ----------------------------------------------- Output flags
 from RecExConfig.RecFlags import rec
 
-if (isOnline and useEmon and (partitionName == 'ATLAS' or partitionName == 'TDAQ')):
+if (isOnline and useEmon and (partitionName == 'ATLAS' or partitionName == 'ATLAS_MP1' or partitionName == 'TDAQ')):
     rec.projectName.set_Value_and_Lock(is_T0_project_tag)
     from AthenaCommon.BeamFlags import jobproperties
     jobproperties.Beam.beamType.set_Value_and_Lock(beamType)
@@ -260,7 +256,7 @@ if (isOnline and useEmon and (partitionName == 'ATLAS' or partitionName == 'TDAQ
     #logRecExOnline_globalconfig.info("RecExOnline: BeamEnergy = %s" %BeamEnergy)
     #logRecExOnline_globalconfig.info("RecExOnline: LumiFlags = %s" %LumiFlags)
 
-if (isOnline and useEmon and (partitionName != 'ATLAS' and partitionName != 'TDAQ')):
+if (isOnline and useEmon and (partitionName != 'ATLAS' and partitionName != 'ATLAS_MP1' and partitionName != 'TDAQ')):
     from AthenaCommon.BeamFlags import jobproperties
     jobproperties.Beam.beamType.set_Value_and_Lock(beamType)
     globalflags.ConditionsTag.set_Value_and_Lock(ConditionsTag)
