@@ -14,7 +14,7 @@ use LArRecEvent         LArRecEvent-*                LArCalorimeter
 use GaudiInterface      GaudiInterface-*             External
 use CaloIdentifier      CaloIdentifier-*             Calorimeter
 use LArIdentifier       LArIdentifier-*              LArCalorimeter
-use LArTools            LArTools-*                   LArCalorimeter
+use LArCabling          LArCabling-*                 LArCalorimeter
 use xAODTrigMissingET   xAODTrigMissingET-*          Event/xAOD
  
 private
