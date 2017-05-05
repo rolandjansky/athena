@@ -220,6 +220,8 @@ StatusCode TrigDataAccess::beginRunHandle(IOVSVC_CALLBACK_ARGS){
           m_selfcalem = new LArTT_Selector<LArCellCont>(m_roiMap,m_larcell);
         }
 	m_tilecell = new TileCellCont();
+	if ( m_fullTileRODs ) m_tilecell->forceRun(318001); // force hard
+	else m_tilecell->forceRun(0);
         if ( (m_tilecell->initialize()).isFailure() ){
 	      ATH_MSG_FATAL("Could not init tilecell");
         }
