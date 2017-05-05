@@ -64,7 +64,6 @@ namespace G4UA
     m_report.HIPevts++;
     if(!m_HIPacc)
       {
-        //anEvent->SetEventAborted();
         G4RunManagerKernel *rmk = G4RunManagerKernel::GetRunManagerKernel();
         rmk->GetEventManager()->AbortCurrentEvent();
         rmk->GetEventManager()->GetNonconstCurrentEvent()->SetEventAborted();

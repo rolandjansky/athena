@@ -87,6 +87,7 @@ namespace G4UA
       if (m_config.SetError){
 	
 	// Set error state in eventInfo
+        // @todo This will not work in the 21.0 and master branches!!
 	SG::WriteHandle<EventInfo> eic("McEventInfo");
 	if (! eic.isValid()){
 	  ATH_MSG_WARNING( "Failed to retrieve EventInfo" );

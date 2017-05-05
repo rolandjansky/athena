@@ -174,14 +174,7 @@ namespace G4UA{
         }
       }
 
-      if (hit){
-        /*
-          if (myIndex!=-1)
-          std::cout << "Particle moving from ( " << r1 << " , " << z1 << " ) to ( " << r2 << " , " << z2
-          << " ) appears to cross boundaries " << myIndex << " and " << i << " with " << myZ1
-          << " , " << myZ2 << " , " << myR1 << " , " << myR2 << " via " << hit << " of dim "
-          << dim[i][0] << " , " << dim[i][1] << " , " << dim[i][2] << " , " << dim[i][3] << std::endl;
-        */
+      if (hit) {
         m_list.push_back(i);
       } // if we scored
     } // Loop over all volumes

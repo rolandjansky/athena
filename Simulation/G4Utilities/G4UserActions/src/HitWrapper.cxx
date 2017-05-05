@@ -40,7 +40,9 @@ namespace G4UA
   //---------------------------------------------------------------------------
   void HitWrapper::endOfEvent(const G4Event*)
   {
-    
+    // @todo This syntax will not work at runtime in the master
+    // branch. The HitWrapper should become a separate algorithm which
+    // runs after G4AtlasAlg or ISF_Kernel.
 
     SG::WriteHandle<CSCSimHitCollection> csc("CSC_Hits");
     SG::WriteHandle<MDTSimHitCollection> mdt("MDT_Hits");

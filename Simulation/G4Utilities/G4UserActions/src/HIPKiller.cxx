@@ -34,9 +34,6 @@ namespace G4UA
     if ( ((abs(PDGcode)/100000==41) && (PDGcode/10000000==0)) ||
          ((int)(abs(PDGcode)/10000000) == 1) )
     {
-      //std::cout << "SB: HIPKiller Step:" << PDGcode << ", energy="
-      //          << aStep->GetTrack()->GetKineticEnergy() << std::endl;
-
       // Kill if energy is less than 1MeV
       if (aStep->GetTrack()->GetKineticEnergy() < 1.0) {
         aStep->GetTrack()->SetTrackStatus( fStopAndKill );

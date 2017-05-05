@@ -137,12 +137,20 @@ namespace G4UA
 
     } // Loop over detectors
 
-    /////////////////////////////////////////////////
-    // Putting this here, as normally I'd add the following code into a finalize function (as has been done above for the Athena(non-MP) code), but I'm not sure if overloading the finalize function in AthenaMP will break the histogram merging at the end of the job. If it wont, then the following code can be put in a finalize function, which will speed up AthenaMP jobs.
 
-    // Adding zeros to TProfile bins, so that each bin contains the same number of entries,
-    // so that a THStack of all the material TProfile plots (or all the element plots) will equal the Total_X0 TProfile plot
-    // It's because each plot (for each material, say) is only filled if a Geantion hits it, not if it's not hit in an event 
+    /// Putting this here, as normally I'd add the following code into
+    /// a finalize function (as has been done above for the
+    /// Athena(non-MP) code), but I'm not sure if overloading the
+    /// finalize function in AthenaMP will break the histogram merging
+    /// at the end of the job. If it wont, then the following code can
+    /// be put in a finalize function, which will speed up AthenaMP
+    /// jobs.
+    /// Adding zeros to TProfile bins, so that each bin contains the
+    /// same number of entries, so that a THStack of all the material
+    /// TProfile plots (or all the element plots) will equal the
+    /// Total_X0 TProfile plot It's because each plot (for each
+    /// material, say) is only filled if a Geantion hits it, not if
+    /// it's not hit in an event
 
     TProfile* totalEtaRL = m_etaMapRL["Total_X0"];
     int nbins = totalEtaRL->GetNbinsX();
@@ -270,10 +278,6 @@ namespace G4UA
 
     }
   
-    //G4ThreeVector midPoint = (aStep->GetPreStepPoint()->GetPosition()+aStep->GetPostStepPoint()->GetPosition())*0.5;
-    //m_rzProfRL->Fill( midPoint.z() , midPoint.perp() , thickstepRL , 1. );
-    //m_rzProfIL->Fill( midPoint.z() , midPoint.perp() , thickstepIL , 1. );
-
     G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
     G4ThreeVector endPoint = aStep->GetPostStepPoint()->GetPosition();
 
@@ -289,8 +293,6 @@ namespace G4UA
 
     std::vector<std::string> L;
     L.push_back(detName_d);
-    //L.push_back(matName);
-    //L.push_back(detName_plus_matName);
     L.push_back("Total_X0");
 
     std::string specialname = "";
@@ -321,8 +323,6 @@ namespace G4UA
       std::lock_guard<std::mutex> lock(mutex_register);
       
       plotstring = it;
-      
-      //G4cout<<"processing string "<<plotstring<<G4endl;;
       
       if(!m_rzMapRL[plotstring]){  
 
@@ -406,7 +406,6 @@ namespace G4UA
 
       std::string elementName = "E_" + (*eVec)[i]->GetName();
       G4double lambda0 = 35*g/cm2;
-      //G4Pow* m_g4pow = G4Pow::GetInstance();
       double el_thickstep = stepl * amu/lambda0 * (mat->GetVecNbOfAtomsPerVolume())[i] * m_g4pow->Z23( G4int( (*eVec)[i]->GetN() + 0.5 ) );
 
       if(!m_rzMapIL[elementName]){  
@@ -434,21 +433,17 @@ namespace G4UA
   
   TProfile2D* LengthIntegrator::getOrCreateProfile(std::string regName, TString histoname, TString xtitle, int nbinsx, float xmin, float xmax, TString ytitle, int nbinsy,float ymin, float ymax,TString ztitle){
 
-    //G4cout<<"histo "<<histoname<<" not found. checking for  "<<regName<<G4endl;
-
     if(m_hSvc->exists(regName)){
       TH2* histo=nullptr;
       if(m_hSvc->getHist(regName,histo).isSuccess())
 	return dynamic_cast<TProfile2D*>(histo);
     } else {
-      //G4cout<<"...... creating  "<<regName<<G4endl;
       TProfile2D* result= new TProfile2D(histoname,histoname,nbinsx,xmin,xmax,nbinsy,ymin,ymax);
       result->GetXaxis()->SetTitle(xtitle);
       result->GetYaxis()->SetTitle(ytitle);
       result->GetZaxis()->SetTitle(ztitle);
       
       if (m_hSvc && m_hSvc->regHist(regName,result).isFailure()){
-	//ATH_MSG_FATAL( "Registration of histogram " << rznameReg << " failed" );
 	throw GaudiException("Registration of histogram " + regName + " failed", "RegHistErr", StatusCode::FAILURE);
       }
       return result;

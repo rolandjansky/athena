@@ -37,10 +37,10 @@ namespace G4UA
 #else
     if (!m_trackRecordCollection.isValid()) m_trackRecordCollection = CxxUtils::make_unique<TrackRecordCollection>(m_trackRecordCollection.name());
 #endif
-    //FIXME need a nice way of getting the maximum size of the ID envelope in R and Z.
-    //EnvelopeGeometryManager *gm=EnvelopeGeometryManager::GetGeometryManager();
-    //m_idR = gm->IdetOuterRadius();
-    //m_idZ = gm->IdetMaxZ();
+    // @todo need a nice way of getting the maximum size of the ID
+    // envelope in R and Z.
+    // EnvelopeGeometryManager *gm=EnvelopeGeometryManager::GetGeometryManager();
+    //m_idR = gm->IdetOuterRadius(); m_idZ = gm->IdetMaxZ();
   }
 
   //---------------------------------------------------------------------------

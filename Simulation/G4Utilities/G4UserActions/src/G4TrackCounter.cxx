@@ -30,8 +30,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   void G4TrackCounter::beginOfEvent(const G4Event* /*event*/)
   {
-    //G4cout << "G4TrackCounter@" << this << "::beginOfEvent" << G4endl;
-    m_report.nEvents++;
+     m_report.nEvents++;
   }
 
   //---------------------------------------------------------------------------
@@ -39,8 +38,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   void G4TrackCounter::preTracking(const G4Track* track)
   {
-    //G4cout << "G4TrackCounter@" << this << "::preTracking" << G4endl;
-    m_report.nTotalTracks++;
+     m_report.nTotalTracks++;
     TrackHelper helper(track);
 
     // Primary tracks

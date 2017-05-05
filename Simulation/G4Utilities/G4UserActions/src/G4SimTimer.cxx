@@ -43,7 +43,6 @@ namespace G4UA
   //---------------------------------------------------------------------------
   void G4SimTimer::beginOfEvent(const G4Event* /*event*/)
   {
-    //ATH_MSG_INFO("beginOfEvent");
     m_eventTimer.Start();
   }
 

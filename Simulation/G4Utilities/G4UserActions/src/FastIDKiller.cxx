@@ -41,7 +41,7 @@ namespace G4UA
                   << "\t (e/gamma will not be killed above " << m_energyCut/1000. << " GeV." );
 
 
-    //FIXME need a nice way of getting the maximum size of the ID envelope in R and Z.
+    // @todo need a nice way of getting the maximum size of the ID envelope in R and Z.
     // EnvelopeGeometryManager *gm=EnvelopeGeometryManager::GetGeometryManager();
 
     // // if not set through jobOptions, get values from envelope manager
