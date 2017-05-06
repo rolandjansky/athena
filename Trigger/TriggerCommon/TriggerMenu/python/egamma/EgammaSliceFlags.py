@@ -63,9 +63,9 @@ _flags.append(doRinger)
 
 class ringerVersion (JobProperty):
     """ Version ringer tunes """
-    statusOn=False
-    allowedTypes=['str','None']
-    StoreValues=None
+    statusOn=True
+    allowedTypes=['str']
+    StoreValues='RingerSelectorTools/TrigL2_20170221_v6'
 
 _flags.append(ringerVersion)
 
@@ -119,11 +119,13 @@ EgammaSliceFlags = TriggerFlags.EgammaSlice
 def run2ConfigAction(run2Flag):
     if run2Flag=='2016':
         log.info('EgammaSliceFlags set for %s',run2Flag)
+        EgammaSliceFlags.ringerVersion = 'RingerSelectorTools/TrigL2_20170221_v6'
         EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20170217_mc16a/'
         EgammaSliceFlags.clusterCorrectionVersion = 'v12phiflip_noecorrnogap'
         EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v6'
     elif run2Flag=='2017':
         log.info('EgammaSliceFlags set for %s',run2Flag)
+        EgammaSliceFlags.ringerVersion = 'RingerSelectorTools/TrigL2_20170221_v6'
         EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20170217/'
         EgammaSliceFlags.clusterCorrectionVersion = 'v12phiflip_noecorrnogap'
         EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v6'
