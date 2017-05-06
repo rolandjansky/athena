@@ -315,6 +315,10 @@ class ItemDef:
         LVL1MenuItem('L1_EM7_MU10'   ).setLogic( EM7        & MU10     & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_EM7_MU15'   ).setLogic( EM7        & MU15     & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_EM8VH_MU15' ).setLogic( EM8VH      & MU15     & physcond).setTriggerType(TT.muon)
+        LVL1MenuItem('L1_EM7_MU20'   ).setLogic( EM7        & MU20     & physcond).setTriggerType(TT.muon)
+        LVL1MenuItem('L1_EM8VH_MU20' ).setLogic( EM8VH      & MU20     & physcond).setTriggerType(TT.muon)
+
+        LVL1MenuItem('L1_EM7_MU11' ).setLogic( EM7        & MU11     & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_EM8_MU10'   ).setLogic( EM8        & MU10     & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_EM8I_MU10'  ).setLogic( EM8I       & MU10     & physcond).setTriggerType(TT.muon)
         LVL1MenuItem('L1_EM15I_MU4'   ).setLogic( EM15  & EM8I     & MU4      & physcond).setTriggerType(TT.muon)
@@ -1115,20 +1119,25 @@ class ItemDef:
         #LVL1MenuItem('L1_AFP_C_ALFA_C').setLogic( AFP_C &  ALFA_C & physcond )
         #LVL1MenuItem('L1_AFP_C_ALFA_A').setLogic( AFP_C &  ALFA_A & physcond )
 
-        #AFP
+        #AFP 
+        #new naming convention ATR-15881 AFP_C = AFP_NSC && AFP_FSC_SIT,  AFP_C_SPECTOF = AFP_FSC_TOF
         if not '_v6' in TriggerFlags.triggerMenuSetup():
-            AFP_A_AND_C_SPECTOF = (AFP_A_SPECTOF & AFP_C_SPECTOF)          #new naming convention ATR-15881 AFP_FSC = AFP_C AFP_NSC = AFP_C_SPECTOF
+            AFP_A = (AFP_NSA & AFP_FSA_SIT)
+            AFP_C = (AFP_NSC & AFP_FSC_SIT)
+            AFP_A_AND_C_SPECTOF = (AFP_FSA_TOF & AFP_FSC_TOF)
 
             LVL1MenuItem('L1_AFP_A_BGRP0').setLogic( AFP_A & BGRP0)
-            LVL1MenuItem('L1_AFP_A_SPECTOF_BGRP0').setLogic( AFP_A_SPECTOF & BGRP0)
+            LVL1MenuItem('L1_AFP_A_SPECTOF_BGRP0').setLogic( AFP_FSA_TOF & BGRP0)
             LVL1MenuItem('L1_AFP_C_BGRP0').setLogic( AFP_C & BGRP0)
-            LVL1MenuItem('L1_AFP_C_SPECTOF_BGRP0').setLogic( AFP_C_SPECTOF & BGRP0)
+            LVL1MenuItem('L1_AFP_C_SPECTOF_BGRP0').setLogic( AFP_FSC_TOF & BGRP0)
 
             LVL1MenuItem('L1_AFP_A_OR_C_UNPAIRED_ISO').setLogic( (AFP_A | AFP_C)  & unpaired_isocond )
             LVL1MenuItem('L1_AFP_A_OR_C_UNPAIRED_NONISO').setLogic( (AFP_A | AFP_C)  & unpaired_nonisocond )
 
             LVL1MenuItem('L1_AFP_A_OR_C_EMPTY').setLogic( (AFP_A | AFP_C) & cosmiccond)
             LVL1MenuItem('L1_AFP_A_OR_C_FIRSTEMPTY').setLogic( (AFP_A | AFP_C) & firstempty)
+            
+            LVL1MenuItem('L1_AFP_A_AND_C_SPECTOF').setLogic( AFP_A_AND_C_SPECTOF & physcond )
 
             LVL1MenuItem('L1_AFP_A_AND_C').setLogic( AFP_A & AFP_C & physcond )
             LVL1MenuItem('L1_AFP_A_OR_C').setLogic( (AFP_A | AFP_C) & physcond )
@@ -1151,6 +1160,7 @@ class ItemDef:
             LVL1MenuItem('L1_AFP_A_AND_C_J75').setLogic( AFP_A & AFP_C & J75 & physcond )
             LVL1MenuItem('L1_AFP_A_AND_C_SPECTOF_J75').setLogic( AFP_A_AND_C_SPECTOF & J75 & physcond )
             LVL1MenuItem('L1_AFP_A_AND_C_J100').setLogic( AFP_A & AFP_C & J100 & physcond )
+            LVL1MenuItem('L1_AFP_A_AND_C_SPECTOF_J100').setLogic( AFP_A_AND_C_SPECTOF & J100 & physcond )
 
         else:    
             LVL1MenuItem('L1_AFP_NSC').setLogic( AFP_NSC & physcond )
