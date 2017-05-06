@@ -3,13 +3,8 @@
 */
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/IDataProviderSvc.h"
 #include "MuonCondInterface/IMuonAlignmentDbTool.h"
 #include "MuonCondSvc/MuonAlignmentDbSvc.h"
 
