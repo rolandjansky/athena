@@ -2330,6 +2330,8 @@ def setupMenu():
        ['mu6_mu4_bDimu_novtx_noos_L1BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4','L1_BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4', ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
 
         ['3mu4_bNocut',          'L1_3MU4',           [], [BPhysicsStream], [RATE_BMultiMuonTag, 'BW:Muon'], -1],
+        ['3mu4_bVertex2',          'L1_3MU4',           [], [BPhysicsStream], [RATE_BMultiMuonTag, 'BW:Muon'], -1],
+        ['3mu4_bVertex3',          'L1_3MU4',           [], [BPhysicsStream], [RATE_BMultiMuonTag, 'BW:Muon'], -1],
         ['3mu3_mu3noL1_bNocut_L13MU4', 'L1_3MU4', ['L1_3MU4',''], [BPhysicsStream], [RATE_BMultiMuonTag,'BW:Muon'], -1,['serial',-1,['3mu3','mu3noL1']]],
         ['2mu4_mu3_mu2noL1_bNocut_L13MU4', 'L1_3MU4', ['L1_2MU4','L1_MU4',''], [BPhysicsStream], [RATE_BMultiMuonTag,'BW:Muon'], -1,['serial',-1,['2mu4','mu3','mu2noL1']]],
         ['2mu6_mu4_bUpsi', 'L1_2MU6_3MU4', ['L1_2MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag, BW_BphysTag], -1],
