@@ -3,13 +3,13 @@
 #Categories currently used by offline Egamma TO monitoring tool
 #Important to keep lists updated
 primary_single_ele = ['HLT_e24_lhtight_nod0','HLT_e26_lhtight_nod0','HLT_e60_lhmedium_nod0','HLT_e120_lhloose_nod0','HLT_e140_lhloose_nod0']
-primary_single_ele_iso =['HLT_e24_lhtight_nod0_ivarloose','HLT_e26_lhtight_nod0_ivarloose']
+primary_single_ele_iso =['HLT_e24_lhtight_nod0_ivarloose','HLT_e26_lhtight_nod0_ivarloose','HLT_e28_lhtight_nod0_ivarloose']
 monitoring_Zee = ['HLT_e26_lhtight_nod0_e15_etcut_Zee']
 monitoring_Jpsiee = ['HLT_e5_lhtight_nod0_e4_etcut','HLT_e5_lhtight_nod0_e4_etcut_Jpsiee']
 primary_single_pho = ['HLT_g120_loose','g140_loose']
 
 #Other categories
-primary_double_ele = ['HLT_2e17_lhvloose_nod0']
+primary_double_ele = ['HLT_2e17_lhvloose_nod0','HLT_2e19_lhvloose_nod0']
 monitoring_ele_idperf = ['HLT_e26_lhtight_idperf']
 primary_double_pho = ['HLT_g35_loose_g25_loose','HLT_g35_medium_g25_medium','HLT_2g20_tight','HLT_2g22_tight']
 
@@ -36,7 +36,9 @@ plots_distribution = ["et","eta","Reta","Rphi","Rhad","f1","f3","eratio","deta2"
 plots_resolution = ["res_et","res_Rphi","res_Reta","res_Rhad","res_ptvarcone20","res_deta2"]
 
 # Define triggers for tagging 
-monitoring_tags = ['HLT_e24_lhtight_nod0_ivarloose','HLT_e26_lhtight_nod0_ivarloose']
+monitoring_tags = ['HLT_e24_lhtight_nod0_ivarloose',
+    'HLT_e26_lhtight_nod0_ivarloose',
+    'HLT_e28_lhtight_nod0_ivarloose']
 
 monitoring_jpsitags = ['HLT_e5_lhtight_nod0_e4_etcut','HLT_e9_lhtight_nod0_e4_etcut',
     'HLT_e14_lhtight_nod0_e4_etcut',
@@ -45,15 +47,35 @@ monitoring_jpsitags = ['HLT_e5_lhtight_nod0_e4_etcut','HLT_e9_lhtight_nod0_e4_et
                         
 # pp 'collisions' monitoring configuration, default
 # L1 trigger items to monitor from inclusive offline electrons
-monitoring_L1Calo = ['L1_EM22VHI','L1_EM24VHI']
+#monitoring_L1Calo = ['L1_EM22VHI','L1_EM24VHI']
+monitoring_L1Calo = []
 # Startup and high-pt electrons to monitor from inclusive electrons
-monitoring_electron = ['HLT_e60_lhmedium_nod0','HLT_e140_lhloose_nod0']
-# 2016 single electrons triggers to monitor from Zee TP, includes rerun
-monitoringTP_electron = ['HLT_e17_lhvloose_nod0','HLT_e26_lhtight_nod0_ivarloose',
-    'HLT_e28_lhtight_nod0_ivarloose','HLT_e28_lhtight_smooth_ivarloose','HLT_e28_lhtight_nod0_ringer_ivarloose',
-    'HLT_e26_lhtight_cutd0detadphi_ivarloose']
+commission_electron = ['HLT_e60_lhmedium_ringer_nod0',
+        'HLT_e140_lhloose_ringer_nod0']
+monitoring_electron = ['HLT_e60_lhmedium_nod0',
+        'HLT_e140_lhloose_nod0']
+monitoring_electron += commission_electron
+
+# 2017 single electrons triggers to monitor from Zee TP, includes rerun
+commissionTP_electron = ['HLT_e17_lhvloose_nod0_ringer_L1EM15VHI',
+        'HLT_e26_lhtight_nod0_ringer_ivarloose',
+        'HLT_e28_lhtight_nod0_ringer_ivarloose',
+        'HLT_e26_lhtight_cutd0detadphi_ivarloose',
+        'HLT_e26_lhtight_nod0_ivarloose_L1EM22VHIM',
+        'HLT_e28_lhtight_nod0_ivarloose_L1EM24VHIM',
+        'HLT_e26_lhmedium_nod0_ringer_ivarmedium_icalomedium',
+        'HLT_e26_lhmedium_nod0_ivarmedium_icalomedium' 
+        ]
+monitoringTP_electron = [ 'HLT_e17_lhvloose_nod0_L1EM15VHI',
+        'HLT_e26_lhtight_nod0_ivarloose',
+        'HLT_e28_lhtight_nod0_ivarloose']
+monitoringTP_electron += commissionTP_electron
+
 monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]    
-monitoring_photon = ['HLT_g25_medium','HLT_g140_loose']
+monitoring_photon = ['HLT_g25_medium',
+    'HLT_g140_loose',
+    'HLT_g20_tight_icalovloose_L1EM15VHI',
+    'HLT_g20_tight_L1EM15VHI']
 #Add the Menu-Aware monitoring; maps a trigger to a category
 monitoring_mam = {'primary_single_ele_iso':'HLT_e26_lhtight_nod0_ivarloose',
     'primary_double_pho':'HLT_g25_medium',
@@ -81,6 +103,16 @@ validation_electron=[
 validation_electron.extend(monitoring_electron)
 validationTP_Jpsiee = ['HLT_e5_lhtight_nod0','HLT_e9_lhtight_nod0','HLT_e14_lhtight_nod0']
 validationTP_electron = ['HLT_e0_perf_L1EM15',
+        'HLT_e26_lhmedium_nod0_ringer_ivarmedium_icalomedium',
+        'HLT_e26_lhmedium_nod0_ivarmedium_icalomedium',
+        'HLT_e28_lhmedium_nod0_ringer_ivarmedium_icalomedium',
+        'HLT_e28_lhmedium_nod0_ivarmedium_icalomedium',
+        'HLT_e26_lhloose_nod0_ringer',
+        'HLT_e26_lhmedium_nod0_ringer',
+        'HLT_e26_lhtight_nod0_ringer',
+        'HLT_e26_lhloose_nod0',
+        'HLT_e26_lhmedium_nod0',
+        'HLT_e26_lhtight_nod0',
     'HLT_e24_lhmedium_L1EM20VH','HLT_e24_lhtight_idperf_L1EM20VH',
     'HLT_e26_lhtight_idperf','HLT_e28_lhtight_idperf',
     'HLT_e17_lhvloose_nod0_ringer',
