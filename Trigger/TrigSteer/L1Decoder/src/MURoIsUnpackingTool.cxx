@@ -68,7 +68,10 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
 					const ROIB::RoIBResult& roib,
 					const HLT::IDSet& activeChains ) const {
   using namespace TrigCompositeUtils;
-  DecisionOutput decisionOutput;
+  auto decisionOutput = std::make_unique<DecisionContainer>();
+  auto decisionAux = std::make_unique<DecisionAuxContainer>();
+  decisionOutput->setStore(decisionAux.get());
+
   auto trigRoIs = CxxUtils::make_unique< TrigRoiDescriptorCollection >();
   auto recRoIs  = CxxUtils::make_unique< DataVector<LVL1::RecMuonRoI> >();
 
@@ -89,10 +92,10 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
 			  
       ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw(8) << roIWord << ", threshold pattern ");
 
-      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.decisions.get() );
+      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );
 
       for ( auto th: m_muonThresholds ) {
-	if ( th->thresholdNumber() <= thresholdNumber )  { // TODO vrify if here should be <= or <
+	if ( th->thresholdNumber() <= thresholdNumber )  { // TODO verify if here should be <= or <
 	  // this code suggests <= https://gitlab.cern.ch/atlas/athena/blob/master/Trigger/TrigSteer/TrigSteering/src/Lvl1ResultAccessTool.cxx#L654
 	  addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
 	}
@@ -101,14 +104,17 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
   
   // recording
   {
-    SG::WriteHandle<TrigRoiDescriptorCollection> handle(m_trigRoIsKey, ctx);
+    auto handle = SG::makeHandle( m_trigRoIsKey, ctx );
     CHECK( handle.record( std::move(trigRoIs) ) );
   }
   {
-    SG::WriteHandle<DataVector<LVL1::RecMuonRoI>> handle(m_recRoIsKey, ctx);
+    auto handle = SG::makeHandle( m_recRoIsKey, ctx );
     CHECK( handle.record( std::move(recRoIs) ) );
   }
-  CHECK( decisionOutput.record(m_decisionsKey, ctx) );
+  {
+    auto handle = SG::makeHandle(  m_decisionsKey, ctx );
+    CHECK( handle.record( std::move(decisionOutput) ) );
+  }
   return StatusCode::SUCCESS;
 }
 

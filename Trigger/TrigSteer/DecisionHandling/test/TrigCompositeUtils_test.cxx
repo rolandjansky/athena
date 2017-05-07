@@ -11,14 +11,17 @@
 int main() {
   using namespace TrigCompositeUtils;
 
-  auto dc = DecisionOutput();
+  auto dc = std::make_unique<DecisionContainer>();
+  auto decisionAux = std::make_unique<DecisionAuxContainer>();
+  dc->setStore(decisionAux.get());  
+
 
   // try insertions
-  auto d1 = newDecisionIn(dc.decisions.get());
+  auto d1 = newDecisionIn(dc.get());
   addDecisionID( 1, d1 );
   addDecisionID( 2, d1 );
 
-  auto d2 = newDecisionIn(dc.decisions.get());
+  auto d2 = newDecisionIn(dc.get());
   addDecisionID( 1, d2 );
   addDecisionID( 3, d2 );
 

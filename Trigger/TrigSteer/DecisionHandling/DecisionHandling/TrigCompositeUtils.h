@@ -10,6 +10,8 @@
 #include "GaudiKernel/EventContext.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
@@ -21,33 +23,12 @@ namespace TrigCompositeUtils {
   typedef xAOD::TrigCompositeContainer DecisionContainer;
   typedef xAOD::TrigCompositeAuxContainer DecisionAuxContainer;
 
+  typedef SG::WriteHandle<DecisionContainer> DecisionWriteHandle;
   /*
-    @brief Helper struct for output decision handling
-    usage:
-    DecisionOutput o;
-    fill(o.decisions); //
-    CEHCK(o.record(ctx, key));
-   */
-  struct DecisionOutput {
-    DecisionOutput();
-    // TODO reading    DecisionStorage(const SG::ReadHandleKey<DecisionContainer>& key); 
-    StatusCode record(const SG::WriteHandleKey<DecisionContainer>& key, const EventContext& ctx );
-    std::unique_ptr<DecisionContainer> decisions;
-    std::unique_ptr<DecisionAuxContainer> aux;
-  };
+    creates and right away stores the DecisionContainer under the key
+  */
+  DecisionWriteHandle createAndStore(const SG::WriteHandleKey<DecisionContainer>& key, const EventContext& ctx);
 
-  /*
-    @brief Helper struct for retrieveing (and holding) decision container
-    usage:
-    DecisionInput i;
-    CHECK(i.retrieve(ctx, key));
-    i.decisions->size();
-   */
-  
-  struct DecisionInput {
-    StatusCode retrieve(const SG::ReadHandleKey<DecisionContainer>& key, const EventContext& ctx );
-    const DecisionContainer* decisions = nullptr;
-  };
   
   /*
     @brief helper method to that created the Decision objects, places it in the container and returns

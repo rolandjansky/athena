@@ -36,7 +36,7 @@ StatusCode EMRoIsUnpackingTool::initialize() {
   CHECK( m_decisionsKey.initialize() );
   CHECK( m_trigRoIsKey.initialize() );
   CHECK( m_recRoIsKey.initialize() );
-  //TODO add mapping retrieval
+
   if (decodeMapping().isFailure() ) {
     ATH_MSG_ERROR( "Failed to decode threshold to chains mapping, is the format th : chain?" );
     return StatusCode::FAILURE;
@@ -69,8 +69,10 @@ StatusCode EMRoIsUnpackingTool::finalize()
 StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
 					const ROIB::RoIBResult& roib,
 					const HLT::IDSet& activeChains ) const {
-
-  TrigCompositeUtils::DecisionOutput decisionOutput;
+  using namespace TrigCompositeUtils;
+  auto decisionOutput = std::make_unique<DecisionContainer>();
+  auto decisionAux = std::make_unique<DecisionAuxContainer>();
+  decisionOutput->setStore(decisionAux.get());  
   auto trigRoIs = CxxUtils::make_unique< TrigRoiDescriptorCollection >();
   auto recRoIs = CxxUtils::make_unique< DataVector<LVL1::RecEmTauRoI> >();
 
@@ -93,9 +95,10 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
 			  
       ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw(8) << roIWord << ", threshold pattern " << MSG::dec );
       
-      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.decisions.get() );
+      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );
       for ( auto th: m_emThresholds ) {
 	if ( recRoI->passedThreshold( th->thresholdNumber() ) ) {
+	  ATH_MSG_DEBUG("Passed Threshold name " << th->name());
 	  addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
 	}
       }
@@ -118,7 +121,10 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
     SG::WriteHandle<DataVector<LVL1::RecEmTauRoI>> handle(m_recRoIsKey, ctx);
     CHECK( handle.record( std::move(recRoIs)) );    
   }
-  CHECK( decisionOutput.record( m_decisionsKey, ctx) );
+  {
+    auto handle = SG::makeHandle(m_decisionsKey, ctx);
+    CHECK ( handle.record( std::move( decisionOutput ), std::move( decisionAux )  ) );
+  }
   return StatusCode::SUCCESS; // what else
   
 

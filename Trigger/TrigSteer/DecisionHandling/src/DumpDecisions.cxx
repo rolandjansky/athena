@@ -47,20 +47,20 @@ StatusCode DumpDecisions::finalize() {
 
 StatusCode DumpDecisions:: execute_r( const EventContext& ctx ) const {  
   using namespace TrigCompositeUtils;
-  DecisionInput decisionInput;
-  CHECK ( decisionInput.retrieve( m_decisionKey, ctx) );
-  
-  for ( auto d: *decisionInput.decisions ) {
-
+  //  DecisionInput decisionInput;
+  auto decisionInput = SG::makeHandle(m_decisionKey, ctx);
+  //  CHECK( decisionInput.retrieve()  );
+  //  CHECK ( decisionInput.retrieve( m_decisionKey, ctx) );
+  ATH_MSG_DEBUG( "Retrieved decision with the key " << m_decisionKey.key() );
+  ATH_MSG_DEBUG( "Pointer value " << decisionInput.cptr() );
+  for ( auto d: *decisionInput ) {
     DecisionIDContainer ids;
     TrigCompositeUtils::decisionIDs( d, ids );
-    if ( not ids.empty() ) {
-      ATH_MSG_DEBUG( "Decision object" );
-      if ( m_verbosityLevel >= 2 ) {
-	for ( auto id: ids ) {
-	  ATH_MSG_DEBUG( "Passing decision " << HLT::Identifier(id) );
-	}
-      }
+    ATH_MSG_DEBUG( "Decision object with " << ids.size() << " decisions" );
+    if ( m_verbosityLevel >= 2 ) {
+      for ( auto id: ids ) {
+	ATH_MSG_DEBUG( "Passing decision " << HLT::Identifier(id) );
+      }      
     }
   }
   return StatusCode::SUCCESS;

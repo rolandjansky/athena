@@ -97,13 +97,20 @@ muUnpacker.ThresholdToChainMapping = ["MU6 : HLT_mu6", "MU6 : HLT_mu6idperf", "M
 # do not know yet how to configure the services for it
 
 l1Decoder.roiUnpackers = [emUnpacker]
+l1Decoder.Chains="HLTChainsResult"
 topSequence += l1Decoder
 #Run calo decoder
 
 from DecisionHandling.DecisionHandlingConf import *
-emDecisionsDumper = DumpDecisions("EML1RoIs")
+emDecisionsDumper = DumpDecisions("DumpEML1RoIs", OutputLevel=DEBUG)
 emDecisionsDumper.Decisions = "EMRoIDecisions"
-#topSequence += emDecisionsDumper
+topSequence += emDecisionsDumper
+
+chainSeedingDumper = DumpDecisions("ChainSeedingDumper", OutputLevel=DEBUG)
+chainSeedingDumper.Decisions = "HLTChainsResult"
+topSequence += chainSeedingDumper
+
+
 
 # caloDecoder = L1CaloDecoder() # by default it is steered towards the RoIBResult of the name above
 # caloDecoder.OutputLevel=VERBOSE

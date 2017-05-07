@@ -46,8 +46,12 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
   // this should realy be: const ROIB::RoIBResult* roib = SG::INPUT_PTR (m_RoIBResultKey, ctx);
   // or const ROIB::RoIBResult& roib = SG::INPUT_REF (m_RoIBResultKey, ctx);
 
-  DecisionOutput chainsInfo;
-  
+
+
+  auto chainsInfo = std::make_unique<DecisionContainer>();
+  auto chainsAux = std::make_unique<DecisionAuxContainer>();
+  chainsInfo->setStore(chainsAux.get());  
+
   HLT::IDVec l1SeededChains;
   CHECK( m_ctpUnpacker->decode( *roibH, l1SeededChains ) );
   sort( l1SeededChains.begin(), l1SeededChains.end() ); // do so that following scaling is reproducable
@@ -56,22 +60,24 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
   activeChains.reserve( l1SeededChains.size() ); // an optimisation, max we get as many active chains as were seeded by L1, rarely the condition, but allows to avoid couple of reallocations
   CHECK( prescaleChains( l1SeededChains, activeChains) );
   
-  CHECK( saveChainsInfo( l1SeededChains, chainsInfo.decisions.get(), "l1seeded" ) );
-  CHECK( saveChainsInfo( activeChains, chainsInfo.decisions.get(), "unprescaled" ) );
+  CHECK( saveChainsInfo( l1SeededChains, chainsInfo.get(), "l1seeded" ) );
+  CHECK( saveChainsInfo( activeChains, chainsInfo.get(), "unprescaled" ) );
 
   HLT::IDSet activeChainSet( activeChains.begin(), activeChains.end() );
   for ( auto unpacker: m_roiUnpackers ) {
     CHECK( unpacker->unpack( ctx, *roibH, activeChainSet ) );
   }
   ATH_MSG_DEBUG("Recording chains");
-  CHECK( chainsInfo.record( m_chainsKey, ctx ) );
+
+  auto handle = SG::makeHandle( m_chainsKey, ctx );
+  CHECK( handle.record( std::move( chainsInfo ), std::move( chainsAux ) ) );
 
   return StatusCode::SUCCESS;  
 }
+
 StatusCode L1Decoder::finalize() {
   return StatusCode::SUCCESS;
 }
-
 
 StatusCode L1Decoder::prescaleChains( const HLT::IDVec& active,
 				      HLT::IDVec& notPrescaled ) const {
