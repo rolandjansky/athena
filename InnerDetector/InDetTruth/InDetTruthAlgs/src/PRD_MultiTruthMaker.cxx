@@ -28,7 +28,7 @@ PRD_MultiTruthMaker::PRD_MultiTruthMaker(const std::string &name, ISvcLocator *p
   declareProperty("SimDataMapNameSCT",          m_simDataMapNameSCT=std::string("SCT_SDO_Map"));
   declareProperty("SimDataMapNameTRT",          m_simDataMapNameTRT="TRT_SDO_Map");
   declareProperty("TruthNamePixel",             m_PRDTruthNamePixel="PRD_MultiTruthPixel");
-  declareProperty("TruthNameSCT",               m_PRDTruthNameSCT="PRD_MultiTruthSCT");
+  declareProperty("TruthNameSCT",               m_PRDTruthNameSCT=std::string("PRD_MultiTruthSCT"));
   declareProperty("TruthNameTRT",               m_PRDTruthNameTRT="PRD_MultiTruthTRT");
   declareProperty("PRDTruthTool",               m_PRDTruthTool);
 }
@@ -49,6 +49,7 @@ StatusCode PRD_MultiTruthMaker::initialize()
   // Read Handle Key
   ATH_CHECK(m_SCTClustersName.initialize(not m_SCTClustersName.key().empty()));
   ATH_CHECK(m_simDataMapNameSCT.initialize(not m_simDataMapNameSCT.key().empty()));
+  ATH_CHECK(m_PRDTruthNameSCT.initialize(not m_PRDTruthNameSCT.key().empty()));
 
   return StatusCode::SUCCESS;
 }
@@ -104,7 +105,7 @@ StatusCode PRD_MultiTruthMaker::execute() {
   }
 
   // work on SCT
-  if(!m_SCTClustersName.key().empty() && !m_simDataMapNameSCT.key().empty() && !m_PRDTruthNameSCT.empty()) {
+  if(!m_SCTClustersName.key().empty() && !m_simDataMapNameSCT.key().empty() && !m_PRDTruthNameSCT.key().empty()) {
     // retrieve SCT cluster container
     SG::ReadHandle<InDet::SiClusterContainer> prdContainer(m_SCTClustersName);
     if (not prdContainer.isValid()){
@@ -125,12 +126,12 @@ StatusCode PRD_MultiTruthMaker::execute() {
 
 	// And register it with the StoreGate
 	bool allow_modifications;
-	sc=evtStore()->record(prdt_sct, m_PRDTruthNameSCT, allow_modifications=true);
+	sc=evtStore()->record(prdt_sct, m_PRDTruthNameSCT.key(), allow_modifications=false);
 	if (sc.isFailure()) {
-	  ATH_MSG_ERROR ("PRD truth structure '" << m_PRDTruthNameSCT << "' could not be registered in StoreGate !");
+	  ATH_MSG_ERROR ("PRD truth structure '" << m_PRDTruthNameSCT.key() << "' could not be registered in StoreGate !");
 	  return StatusCode::FAILURE;
 	} else {
-	  ATH_MSG_DEBUG ("PRD truth structure '" << m_PRDTruthNameSCT << "' is registered in StoreGate, size="<<prdt_sct->size());
+	  ATH_MSG_DEBUG ("PRD truth structure '" << m_PRDTruthNameSCT.key() << "' is registered in StoreGate, size="<<prdt_sct->size());
 	}
       }
     } 

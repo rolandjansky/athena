@@ -17,6 +17,7 @@
 #include "InDetTruthInterfaces/IPRD_MultiTruthBuilder.h"
 
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
@@ -41,7 +42,7 @@ private:
   std::string m_simDataMapNameTRT;
 
   std::string m_PRDTruthNamePixel;
-  std::string m_PRDTruthNameSCT;
+  SG::WriteHandleKey<PRD_MultiTruthCollection> m_PRDTruthNameSCT;
   std::string m_PRDTruthNameTRT;
 
   ToolHandle<InDet::IPRD_MultiTruthBuilder> m_PRDTruthTool;
