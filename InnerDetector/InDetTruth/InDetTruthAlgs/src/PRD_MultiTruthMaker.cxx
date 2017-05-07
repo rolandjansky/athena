@@ -11,6 +11,7 @@
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 
 #include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 #include <iterator>
 
@@ -49,6 +50,7 @@ StatusCode PRD_MultiTruthMaker::initialize()
   // Read Handle Key
   ATH_CHECK(m_SCTClustersName.initialize(not m_SCTClustersName.key().empty()));
   ATH_CHECK(m_simDataMapNameSCT.initialize(not m_simDataMapNameSCT.key().empty()));
+  // Write Handle Key
   ATH_CHECK(m_PRDTruthNameSCT.initialize(not m_PRDTruthNameSCT.key().empty()));
 
   return StatusCode::SUCCESS;
@@ -121,13 +123,13 @@ StatusCode PRD_MultiTruthMaker::execute() {
 	ATH_MSG_DEBUG ("Found InDetSimDataSCT, do association");
       
 	// Create and fill the PRD truth structure
-	PRD_MultiTruthCollection *prdt_sct = new PRD_MultiTruthCollection;
+	SG::WriteHandle<PRD_MultiTruthCollection> h_prdt_sct(m_PRDTruthNameSCT);
+	ATH_CHECK(h_prdt_sct.record(std::make_unique<PRD_MultiTruthCollection>()));
+	PRD_MultiTruthCollection *prdt_sct = h_prdt_sct.ptr();
 	addPRDCollections(prdt_sct, prdContainer->begin(), prdContainer->end(), simDataMap.cptr(), false);
 
 	// And register it with the StoreGate
-	bool allow_modifications;
-	sc=evtStore()->record(prdt_sct, m_PRDTruthNameSCT.key(), allow_modifications=false);
-	if (sc.isFailure()) {
+	if (not h_prdt_sct.isValid()) {
 	  ATH_MSG_ERROR ("PRD truth structure '" << m_PRDTruthNameSCT.key() << "' could not be registered in StoreGate !");
 	  return StatusCode::FAILURE;
 	} else {
