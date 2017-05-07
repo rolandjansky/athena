@@ -131,11 +131,13 @@ void TrigEgammaResolutionTool::resolutionElectron(const std::string basePath,std
             }
         } 
         // L1 resolutions
-        auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(pairObj.second);
-        const xAOD::EmTauRoI *l1 = itEmTau.cptr();
-        if (l1) {
-            fillL1CaloResolution(dir7, l1, pairObj.first);
-            fillL1CaloAbsResolution(dir8, l1, pairObj.first);
+        if(m_detailedHists){
+            auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(pairObj.second);
+            const xAOD::EmTauRoI *l1 = itEmTau.cptr();
+            if (l1) {
+                fillL1CaloResolution(dir7, l1, pairObj.first);
+                fillL1CaloAbsResolution(dir8, l1, pairObj.first);
+            }
         }
     }
 }
