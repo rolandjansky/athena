@@ -150,11 +150,11 @@ class TileTBCellMonTool: public TileFatherMonTool {
 	*  bins=4 corresponding name in cellHitMap
 	*  bins=5 whether or not there is C cell for long barrel
 	*/
-	int cellHitMapEB[48][5];
-	int cellHitMapLB[48][6];
-	int cellHitMapLB_C[8][4];
-	std::string cellHitMapNameEB[14];
-	std::string cellHitMapNameLB[23];
+	int m_cellHitMapEB[48][5];
+	int m_cellHitMapLB[48][6];
+	int m_cellHitMapLB_C[8][4];
+	std::string m_cellHitMapNameEB[14];
+	std::string m_cellHitMapNameLB[23];
 /*
 	//E3
 	cellHitMapEB[0][0]=-1;
