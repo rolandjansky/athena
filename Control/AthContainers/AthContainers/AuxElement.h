@@ -1176,7 +1176,9 @@ private:
 #include "AthContainers/AuxElement.icc"
 
 
+#ifndef XAOD_STANDALONE
 CLASS_DEF (SG::AuxElement, 225182422, 1)
+#endif // not XAOD_STANDALONE
 
 
 #endif // not ATHCONTAINERS_AUXELEMENTBASE_H
