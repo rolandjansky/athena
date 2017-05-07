@@ -123,13 +123,12 @@ StatusCode PRD_MultiTruthMaker::execute() {
 	ATH_MSG_DEBUG ("Found InDetSimDataSCT, do association");
       
 	// Create and fill the PRD truth structure
-	SG::WriteHandle<PRD_MultiTruthCollection> h_prdt_sct(m_PRDTruthNameSCT);
-	ATH_CHECK(h_prdt_sct.record(std::make_unique<PRD_MultiTruthCollection>()));
-	PRD_MultiTruthCollection *prdt_sct = h_prdt_sct.ptr();
-	addPRDCollections(prdt_sct, prdContainer->begin(), prdContainer->end(), simDataMap.cptr(), false);
+	SG::WriteHandle<PRD_MultiTruthCollection> prdt_sct(m_PRDTruthNameSCT);
+	ATH_CHECK(prdt_sct.record(std::make_unique<PRD_MultiTruthCollection>()));
+	addPRDCollections(prdt_sct.ptr(), prdContainer->begin(), prdContainer->end(), simDataMap.cptr(), false);
 
 	// And register it with the StoreGate
-	if (not h_prdt_sct.isValid()) {
+	if (not prdt_sct.isValid()) {
 	  ATH_MSG_ERROR ("PRD truth structure '" << m_PRDTruthNameSCT.key() << "' could not be registered in StoreGate !");
 	  return StatusCode::FAILURE;
 	} else {
