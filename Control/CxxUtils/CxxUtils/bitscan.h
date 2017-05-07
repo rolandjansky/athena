@@ -27,7 +27,7 @@ namespace CxxUtils {
    * @param x Number to check
    * @return Number of trailing zeros, 0 if x==0
    */
-  inline unsigned count_trailing_zeros(unsigned x) {
+  inline unsigned count_trailing_zeros(uint32_t x) {
 #if defined (__GNUC__) || defined(__clang__)
     return (x!=0 ? __builtin_ctz(x) : 0);
 #else
@@ -35,7 +35,7 @@ namespace CxxUtils {
 #endif
   }
 
-  inline unsigned count_trailing_zeros(unsigned long x) {
+  inline unsigned count_trailing_zeros(uint64_t x) {
 #if defined (__GNUC__) || defined(__clang__)
     return (x!=0 ? __builtin_ctzl(x) : 0);
 #else

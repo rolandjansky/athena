@@ -44,11 +44,11 @@ int check(const std::vector<T>& v)
 int main()
 {
   // Some test data for 32 and 64 bit
-  std::vector<unsigned> t1 = {0x0, 0x1, 0x80000000, 
+  std::vector<uint32_t> t1 = {0x0, 0x1, 0x80000000, 
                               0xcbaa3f00, 0xff1c2301, 0x1aff04};
 
-  std::vector<unsigned long> t2 = {0x0, 0x1, 0x8000000000000000, 
-                                   0x12345678cbaa3f00, 0x10000000, 0x1000000000};
+  std::vector<uint64_t> t2 = {0x0, 0x1, 0x8000000000000000, 
+                              0x12345678cbaa3f00, 0x10000000, 0x1000000000};
 
   int rc(0);
   rc += check(t1);
