@@ -102,13 +102,15 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
             const TrigRoiDescriptor *roi = feat.cptr();
             cd(dir+"HLT");
             hist1("rejection")->Fill("L1Calo",1);
-            cd(dir+"RoI");
-            hist1("roi_eta")->Fill(roi->eta());
-            hist1("roi_phi")->Fill(roi->phi());
-            auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(feat);
-            const xAOD::EmTauRoI *l1 = itEmTau.cptr();
-            if(l1==nullptr) continue;
-            fillL1Calo(dir+"L1Calo",l1);
+            if(m_detailedHists){               
+                cd(dir+"RoI");
+                hist1("roi_eta")->Fill(roi->eta());
+                hist1("roi_phi")->Fill(roi->phi());
+                auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(feat);
+                const xAOD::EmTauRoI *l1 = itEmTau.cptr();
+                if(l1==nullptr) continue;
+                fillL1Calo(dir+"L1Calo",l1);
+            }
         }
 
         // Only fill distributions for TP triggers 

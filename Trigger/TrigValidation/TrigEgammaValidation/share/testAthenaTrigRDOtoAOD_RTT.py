@@ -43,11 +43,16 @@ else:
 #TriggerFlags.triggerMenuSetup = 'default'
 TriggerFlags.readHLTconfigFromXML=False
 TriggerFlags.readLVL1configFromXML=False
-if  ('menu' in dir()):
-    TriggerFlags.triggerMenuSetup=menu 
+#if  ('menu' in dir()):
+   # TiriggerFlags.triggerMenuSetup=menu 
 
+#include("TrigEgammaValidation/TrigEgammaValidation_RTT_Chains.py") # uncomment to get used-defined trigger list
+
+#egammatrigChainlist=electronChains() #Retrieve trigger menu to run from TrigEgammaValidation_RTT_Chains.py
+#TriggerFlags.triggerMenuSetup="MC_pp_v5"
 TriggerFlags.Slices_all_setOff()
 TriggerFlags.EgammaSlice.setAll()
+#TriggerFlags.EgammaSlice.signatures = egammatrigChainlist
 
 
 TriggerFlags.doHLT=True
@@ -56,6 +61,18 @@ TriggerFlags.HLTPrescaleSet = ''
 TriggerFlags.AODEDMSet="AODFULL"
 
 #-------------end of flag for tests-------------------
+
+#------------ This is a temporary fix ---------------
+#from RecExConfig.RecConfFlags import recConfFlags
+#recConfFlags.AllowIgnoreConfigError=False
+#athenaCommonFlags.AllowIgnoreConfigError=False
+#-------------end of temporary fix-------------------
+
+#from ParticleBuilderOptions.AODFlags import AODFlags 
+#AODFlags.FastSimulation=False 
+# see comments in https://savannah.cern.ch/bugs/?83735
+#AODFlags.MuonTrackSlimmer=False
+#print AODFlags.Print()
 
 #-----------------------------------------------------------
 include("RecExCommon/RecExCommon_topOptions.py")
