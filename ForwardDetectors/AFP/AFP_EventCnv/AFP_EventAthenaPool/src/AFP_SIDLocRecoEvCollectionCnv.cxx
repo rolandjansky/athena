@@ -8,7 +8,7 @@
  
 
 AFP_SIDLocRecoEvCollection_PERS* AFP_SIDLocRecoEvCollectionCnv::createPersistent(AFP_SIDLocRecoEvCollection* transCont) {
-    MsgStream mlog(messageService(), "AFP_SIDLocRecoEvCollectionConverter" );
+    MsgStream mlog(msgSvc(), "AFP_SIDLocRecoEvCollectionConverter" );
     AFP_SIDLocRecoEvCollectionCnv_p1   TPConverter;
     AFP_SIDLocRecoEvCollection_PERS *persObj = TPConverter.createPersistent( transCont, mlog );
     return persObj;
@@ -16,7 +16,7 @@ AFP_SIDLocRecoEvCollection_PERS* AFP_SIDLocRecoEvCollectionCnv::createPersistent
 
 
 AFP_SIDLocRecoEvCollection* AFP_SIDLocRecoEvCollectionCnv::createTransient() {
-    MsgStream mlog(messageService(), "AFP_SIDLocRecoEvCollectionConverter" );
+    MsgStream mlog(msgSvc(), "AFP_SIDLocRecoEvCollectionConverter" );
     
     AFP_SIDLocRecoEvCollectionCnv_p1   TPConverter_p1;
 
