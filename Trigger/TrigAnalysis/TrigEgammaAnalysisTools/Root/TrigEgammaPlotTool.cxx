@@ -1191,7 +1191,7 @@ void TrigEgammaPlotTool::bookExpertHistos(TrigInfo trigInfo){
     std::string dirname;
     std::vector <std::string> dirnames;
 
-    bookL1Histos(trigInfo);
+    if(m_detailedHists) bookL1Histos(trigInfo);
     
     std::vector <std::string> algnames;
     algnames.push_back("Efficiency"); // Default

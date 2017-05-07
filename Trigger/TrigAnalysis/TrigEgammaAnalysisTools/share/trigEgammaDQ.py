@@ -9,8 +9,7 @@ Recurvsively search input HIST file starting from HLT/Egamma and generate perfor
 """
 
 parser = argparse.ArgumentParser(description = __doc__)
-parser.add_argument('--file', type=str,help='input file')
-parser.add_argument('--lumi', type=bool,default=False,help='calculate Lumi')
+parser.add_argument('--file', type=str,help='input file') 
 parser.add_argument('--run', type=str,default="",help='run number')
 parser.add_argument('--t0', type=bool,default=False,help='t0 input file')
 parser.add_argument('--ref', type=str,default="",help='reference file') 
@@ -32,15 +31,13 @@ log.setLevel( logging.DEBUG )
 #Configuration of macro -- needs more argument options
 # Provide plot category and names of histos
 # Mapping of triggers to make comparison plots (complist)
-dqlist = {'Efficiency':
-        ['eff_et','eff_eta','eff_phi','eff_mu',
-            'IneffisEMLHTight','IneffisEMLHMedium','IneffisEMLHLoose']}
+dqlist = {'Efficiency':['eff_et','eff_eta','eff_phi','eff_mu']}
 dqlevel = ['HLT']
-complist={'HLT_e17_lhvloose_nod0_ringer_L1EM15VHI':'HLT_e17_lhvloose_nod0_L1EM15VHI',
-        'HLT_e26_lhtight_nod0_ivarloose_L1EM22VHIM':'HLT_e26_lhtight_nod0_ivarloose',
-        'HLT_e26_lhtight_nod0_ivarloose':'HLT_e26_lhmedium_nod0_ivarmedium_icalomedium',
+complist={#'L1_EM22VHI':'HLT_e26_lhtight_nod0_ivarloose',
+        #'L1_EM24VHI':'HLT_e28_lhtight_nod0_ivarloose',
+        #'HLT_e26_lhtight_nod0':'HLT_e26_lhtight_nod0_ivarloose',
+        #'HLT_e28_lhtight_nod0_ivarloose':'HLT_e28_lhtight_smooth_ivarloose',
         'HLT_e28_lhtight_nod0_ringer_ivarloose':'HLT_e28_lhtight_nod0_ivarloose',
-        'HLT_e26_lhmedium_nod0_ivarmedium_icalomedium':'HLT_e26_lhmedium_nod0_ringer_ivarmedium_icalomedium'
         }
 
 #########################################################
@@ -148,16 +145,6 @@ def ATLASRunNumberLabel(x,y,runnumber,color=1):
     label="Run " + runnumber
     l.DrawLatex(x,y-dely,label);
 
-def ATLASTriggerLabel(x,y,trigger,color=1):
-    l = TLatex()
-    l.SetNDC();
-    l.SetTextFont(42);
-    l.SetTextSize(0.045);
-    l.SetTextColor(color);
-    dely = 0.115*472*gPad.GetWh()/(506*gPad.GetWw());
-    label=trigger
-    l.DrawLatex(x,y-dely,label);
-
 def ATLASLumiLabel(x,y,lumi="78",color=1):   
     l = TLatex()
     l.SetNDC();
@@ -186,11 +173,7 @@ def setCanvas(c):
 def makeCanvas(h1,trigger,name,run="",lumi=""):
     c = TCanvas()
     hname=h1.GetName()
-    if('Ineff' in hname):
-        h1.SetMaximum(0.15)
-        h1.SetMinimum(0.)
-        h1.GetYaxis().SetTitle("Inefficiency")
-    elif('eff' in hname):
+    if('eff' in hname):
         h1.SetMaximum(1.4)
         h1.SetMinimum(0.)
         h1.GetYaxis().SetTitle("Efficiency")
@@ -201,10 +184,8 @@ def makeCanvas(h1,trigger,name,run="",lumi=""):
     leg = TLegend(0.4,0.2,0.70,0.30)
     setLegend1(leg,h1,trigger)
     ATLASLabel(0.2,0.87,"Internal")
-    if run:
-        ATLASRunNumberLabel(0.7,0.85,run)
-    if lumi:
-        ATLASLumiLabel(0.2,0.85,lumi)
+    ATLASRunNumberLabel(0.7,0.85,run)
+    ATLASLumiLabel(0.2,0.85,lumi)
     oname="plot_Run_"+run+"_"+hname+"_"+trigger+"_"+name+".eps"
     #oname2="plot_Run_"+trigger+"_"+hname+"_"+name+".C"
     gPad.RedrawAxis()
@@ -215,13 +196,7 @@ def makeCanvas(h1,trigger,name,run="",lumi=""):
 def makeCanvas2(h1,h2,title,name,name2,run="",lumi="",run2=""):
     c = TCanvas()
     hname=h1.GetName()
-    if('Ineff' in hname):
-        h1.SetMaximum(0.15)
-        h1.SetMinimum(0.)
-        h1.GetYaxis().SetTitle("Inefficiency")
-        h2.SetMaximum(0.15)
-        h2.SetMinimum(0.)
-    elif('eff' in hname):
+    if('eff' in hname):
         h1.SetMaximum(1.4)
         h1.SetMinimum(0.)
         h1.GetYaxis().SetTitle("Efficiency")
@@ -239,21 +214,14 @@ def makeCanvas2(h1,h2,title,name,name2,run="",lumi="",run2=""):
     
     h1.Draw()
     h2.Draw("SAME")
-    
-    if 'Ineff' in hname:
-        leg = TLegend(0.2,0.7,0.5,0.56)
-        setLegend2(leg,h1,h2,name,name2)
-    elif not run2:
-        leg = TLegend(0.4,0.2,0.7,0.40)
+    leg = TLegend(0.4,0.2,0.7,0.40)
+    if not run2:
         setLegend2(leg,h1,h2,name,name2)
     else:
-        leg = TLegend(0.4,0.2,0.7,0.40)
         setLegend2(leg,h1,h2,name,run2)
     ATLASLabel(0.2,0.85,"Internal")
-    if run:
-        ATLASRunNumberLabel(0.7,0.85,run)
-    if lumi:
-        ATLASLumiLabel(0.2,0.85,lumi)
+    ATLASRunNumberLabel(0.7,0.85,run)
+    ATLASLumiLabel(0.2,0.85,lumi)
     oname="plot_Run_"+run+"_"+hname+"_"+name+"_"+name2+".eps"
     #oname2="plot_Run_"+run+"_"+hname+"_"+name+"_"+name2+".C"
     gPad.RedrawAxis()
@@ -261,59 +229,11 @@ def makeCanvas2(h1,h2,title,name,name2,run="",lumi="",run2=""):
     #c.SaveAs(oname2)
     return oname
 
-def makeCanvasLevels(h,trigger,run=""):
-    c = TCanvas()
-    hname=h['HLT'].GetName()
-    color_init=1
-    marker_init=20
-    if('eff' in hname):
-        for key in h:
-            h[key].SetMaximum(1.4)
-            h[key].SetMinimum(0.4)
-            h[key].GetYaxis().SetTitle("Efficiency")
-            h[key].SetMarkerStyle(marker_init)
-            h[key].SetMarkerColor(color_init)
-            h[key].SetLineColor(color_init)
-            marker_init += 1
-            color_init += 1
-    else:
-        TGaxis.SetMaxDigits(2);
-    
-    
-    h['HLT'].Draw()
-    for key in h:
-        if h[key] == h['HLT']:
-            continue
-        h[key].Draw("SAME")
-    
-    leg = TLegend(0.4,0.2,0.7,0.40)
-    setLegends(leg,h)
-    ATLASLabel(0.2,0.85,"Internal")
-    ATLASTriggerLabel(0.2,0.85,trigger)
-    oname="plot_Run_"+run+"_"+hname+"_"+trigger+"_seq.eps"
-    gPad.RedrawAxis()
-    c.Print(oname)
-    return oname
-
-def setLegends(leg,h):
-   #TLegend *leg = new TLegend(0.40,0.25,0.75,0.35,NULL,"brNDC");
-    leg.SetBorderSize(0)
-    leg.SetTextFont(42)
-    leg.SetTextSize(0.042)
-    leg.SetLineColor(1)
-    leg.SetLineStyle(1)
-    leg.SetLineWidth(1)
-    leg.SetFillColor(0)
-    leg.SetFillStyle(0)
-    for key in h:
-        leg.AddEntry(h[key],key,"p")
-    leg.Draw()
-
 def setLegend1(leg,histo1,trigName):
    #TLegend *leg = new TLegend(0.40,0.25,0.75,0.35,NULL,"brNDC");
     leg.SetBorderSize(0)
     leg.SetTextFont(42)
-    leg.SetTextSize(0.032)
+    leg.SetTextSize(0.042)
     leg.SetLineColor(1)
     leg.SetLineStyle(1)
     leg.SetLineWidth(1)
@@ -326,7 +246,7 @@ def setLegend2(leg,histo1,histo2,trigName,trigName2):
    #TLegend *leg = new TLegend(0.40,0.25,0.75,0.35,NULL,"brNDC");
     leg.SetBorderSize(0)
     leg.SetTextFont(42)
-    leg.SetTextSize(0.032)
+    leg.SetTextSize(0.042)
     leg.SetLineColor(1)
     leg.SetLineStyle(1)
     leg.SetLineWidth(1)
@@ -348,25 +268,25 @@ def montage(plotlist,name,stream):
 def sortPlots(histos,path,holder):
      
     tname, tplot, run = parseName(path)
-    #holder.setRunNumber(run) 
+    holder.setRunNumber(run) 
     log.debug("Sorting name: %s, plot %s, run %s, path %s",tname,tplot,run,path)
     # The following is ridiculous 
-    holder.updateTriggers(tname)
-    for t in dqlist.keys():
-        if(t in tplot):
-            toplot=dqlist[t]
-            plotlist=[]
-            hlist=[]
-            for h in histos:
-                if(h.GetName() in toplot):
-                    hlist.append(h)
-            holder.updatePlots(tname,tplot,hlist)
+    for l in dqlevel:
+        if(l in tplot):
+            holder.updateTriggers(tname)
+            for t in dqlist.keys():
+                if(t in tplot):
+                    toplot=dqlist[t]
+                    plotlist=[]
+                    hlist=[]
+                    for h in histos:
+                        if(h.GetName() in toplot):
+                            hlist.append(h)
+                    holder.updatePlots(tname,tplot,hlist)
     
 
 def parseName(fpath):
-    log.debug('parseName')
     dlist=fpath.split("/")
-    log.debug(dlist)
     tplot=""
     tname=""
     run=""
@@ -389,16 +309,15 @@ def parseName(fpath):
             tname = l
     return tname, tplot, run    
 
-def objectsInDir(rdir,holder,level):
+def objectsInDir(rdir,holder):
     histos=[]
-    lastdir=""
     for key in rdir.GetListOfKeys():
         cl = key.GetClassName(); rcl = ROOT.TClass.GetClass(cl)
         if ' ' in key.GetName():
             log.error('WARNING: cannot have spaces in histogram names for han config; not including %s %s' % (cl, key.GetName()))
             continue
         if rcl.InheritsFrom('TDirectory'):
-            recurse(key.ReadObj(),holder,level)
+            recurse(key.ReadObj(),holder)
         elif rcl.InheritsFrom('TH1'):
 
             if '/' in key.GetName():
@@ -407,24 +326,21 @@ def objectsInDir(rdir,holder,level):
             if key.GetName() == 'summary':
                 log.debug('WARNING: cannot have histogram named summary, encountered in %s' % rdir.GetPath())
                 continue
-            fpath = rdir.GetPath()
-            lastdir=fpath.split('/')[-1]
-            if level != lastdir:
-                continue 
             histos.append(key.ReadObj())
+            fpath = rdir.GetPath()
             name = (fpath + '/' + key.GetName()).lstrip('/')
-            log.debug('name: %s fpath: %s, lastdir %s',name, fpath,lastdir)
+            log.debug('name: %s fpath: %s',name, fpath)
     if(len(histos) > 0):        
         sortPlots(histos,fpath,holder)
 
-def recurse(rdir,holder,level):
+def recurse(rdir,holder):
     for key in rdir.GetListOfKeys():
         cl = key.GetClassName(); rcl = ROOT.TClass.GetClass(cl); kname=key.GetName()
         if ' ' in kname:
             print 'WARNING: cannot have spaces in histogram names for han config; not including %s %s' % (cl, key.GetName())
             continue
         elif rcl.InheritsFrom('TDirectory'):
-            objectsInDir(key.ReadObj(),holder,level)
+            objectsInDir(key.ReadObj(),holder)
 
 def createTriggerPlots(holder):
     slist=[]
@@ -434,34 +350,12 @@ def createTriggerPlots(holder):
             print h1
             plist=[]
             for h in h1:
-                pname1=makeCanvas(h,trigger,key+'_'+holder.Sequence,holder.RunNumber,holder.Lumi)
+                pname1=makeCanvas(h,trigger,key,holder.RunNumber,holder.Lumi)
                 plist.append(pname1)
                 slist.append(pname1)
             #if(len(h1)>0):
                 #montage(plist,trigger+'_'+key)       
     return slist
-
-def createTriggerSeqPlots(holders):
-    itr=[0,1,2,3]
-    slist=[]
-    for i in itr:
-        for key in dqlist:
-            for trigger in holders['HLT'].Triggers:
-                h={}
-                for seq in holders:
-                    if len(holders[seq].getPlots(trigger,key)) == 0:
-                        log.warning('Empty holder for %s, %s',trigger,key)
-                        continue;
-                    seq_plots=holders[seq].getPlots(trigger,key)
-                    for plot in seq_plots:
-                        if 'Ineff' in plot.GetName():
-                            seq_plots.remove(plot)
-                    h[seq]=seq_plots[i]
-                if h:
-                    pname=makeCanvasLevels(h,trigger,holders['HLT'].RunNumber)
-                    slist.append(pname)
-    return slist               
-
 
 def createTriggerComparisonPlots(holder):
     slist=[]
@@ -473,14 +367,12 @@ def createTriggerComparisonPlots(holder):
             if(trigger in complist):
                 log.debug("Reference trigger %s",complist[trigger])
                 h2 = holder.getPlots(complist[trigger],key)
-                if not h2:
-                    continue
                 log.debug("found comparison plot %s",h2)
             i=0
             pclist=[]
             for h in h1:
                 if(trigger in complist):
-                    pname2=makeCanvas2(h,h2[i],h.GetName()+'_'+holder.Sequence,trigger+'_'+holder.Sequence,complist[trigger],holder.RunNumber,holder.Lumi)
+                    pname2=makeCanvas2(h,h2[i],h.GetName(),trigger,complist[trigger],holder.RunNumber,holder.Lumi)
                     pclist.append(pname2)
                     slist.append(pname2)
                 i+=1
@@ -488,44 +380,41 @@ def createTriggerComparisonPlots(holder):
                 #montage(pclist,trigger+"_"+complist[trigger])   
     return slist           
 
-def createReferencePlots(holder,rholder,label="Ref"):
+def createReferencePlots(holder,rholder):
     slist=[]
     for key in dqlist:
         for trigger in holder.Triggers:
             h1 = holder.getPlots(trigger,key)
             h2 = rholder.getPlots(trigger,key) 
+            print h1
             plist=[]
+            i=0
             if h2:
                 for h in h1:
-                    for hh in h2:
-                        if h.GetName() == hh.GetName():
-                            pname1=makeCanvas2(h,hh,h.GetName(),trigger,label,holder.RunNumber,holder.Lumi,rholder.RunNumber)
-                            plist.append(pname1)
-                            slist.append(pname1)
+                    pname1=makeCanvas2(h,h2[i],h.GetName(),trigger,"Ref",holder.RunNumber,holder.Lumi,rholder.RunNumber)
+                    plist.append(pname1)
+                    slist.append(pname1)
+                    i+=1
     return slist
 
 def createPlots(holder,stream):
     slist1 = createTriggerPlots(holder)
     slist2 = createTriggerComparisonPlots(holder)
     slist=slist1+slist2
-    mname='TrigEgammaDQSummary_Run_'+holder.RunNumber+'_'+holder.name
+    mname='TrigEgammaDQSummary_Run_'+holder.RunNumber
     montage(slist,mname,stream)
 
 
-def process(infname, basepath, doLumi=False,run="", rinfname="", rbasepath=""):
+def process(infname, basepath, run="", rinfname="", rbasepath=""):
     lumi=""
     lbset=""
     if run:
-        if doLumi:
-            from TrigCostPython import TrigCostCool
-            try:
-                lbset=TrigCostCool.GetLumiblocks(int(run),-1,-1,"")
-            except:
-                log.warning('Unable to retrieve lumi')
+        from TrigCostPython import TrigCostCool
+        lbset=TrigCostCool.GetLumiblocks(int(run),-1,-1,"")
     
-            if(lbset): 
-                print "%-40s % 9.2g %-10s" % ("Recorded Luminosity:  ",lbset.GetRecordedLumi()/(1e6),"pb^{-1}")
-                lumi=str(round(lbset.GetRecordedLumi()/(1e6),1))
+        if(lbset): 
+            print "%-40s % 9.2g %-10s" % ("Recorded Luminosity:  ",lbset.GetRecordedLumi()/(1e6),"pb^{-1}")
+            lumi=str(round(lbset.GetRecordedLumi()/(1e6),1))
 
     import re
     log.debug("Opening file %s",infname)
@@ -536,31 +425,20 @@ def process(infname, basepath, doLumi=False,run="", rinfname="", rbasepath=""):
     topindir = f.Get(basepath)
     if not topindir:
         raise ValueError("Path %s doesn't exist in input file" % basepath)
-    holders={} 
-    sequence=['HLT','EFCalo','L2','L2Calo','L1Calo']
-    for step in sequence:
-        holders[step] = TrigEgammaPlotHolder(step)
+    holder = TrigEgammaPlotHolder('holder')
+    holder.setLumi(lumi)
+    recurse(topindir,holder)
+    #print holder.Efficiency
+    print holder.RunNumber
+    print holder.Triggers
+    
     stream = ""
     if "express" in infname:
       stream = "_express_express"
     if "physics_Main" in infname:
       stream = "_physics_Main"
-    for key in holders:
-        holders[key].setLumi(lumi)
-        holders[key].setSequence(key)
-        holders[key].setRunNumber(run) 
-        recurse(topindir,holders[key],key)
-        log.info(holders[key].name)
-        log.info(holders[key].RunNumber)
-        log.info(holders[key].Triggers)
-        createPlots(holders[key],stream)
-    log.info("Creating Sequence comparison")
-    slist=createTriggerSeqPlots(holders) 
-    mname='TrigEgammaDQSummary_Run_'+holders['HLT'].RunNumber+'_sequences'
-    montage(slist,mname,stream)
+    createPlots(holder,stream)
 
-
-    # Comparison to reference run for HLT-only plots 
     if rinfname:
         f2 = ROOT.TFile.Open(rinfname, 'READ')
         if not f2.IsOpen():
@@ -572,11 +450,11 @@ def process(infname, basepath, doLumi=False,run="", rinfname="", rbasepath=""):
         rholder = TrigEgammaPlotHolder('rholder')
         rholder.setLumi(lumi)
         #print rholder.Efficiency
-        recurse(rtopindir,rholder,'HLT')
+        recurse(rtopindir,rholder)
         print rholder.RunNumber
         print rholder.Triggers
-        slist=createReferencePlots(holders['HLT'],rholder)
-        mname='TrigEgammaDQSummary_Run_'+holders['HLT'].RunNumber+'_refRun_'+rholder.RunNumber
+        slist=createReferencePlots(holder,rholder)
+        mname='TrigEgammaDQSummary_Run_'+holder.RunNumber+'_refRun_'+rholder.RunNumber
         stream = ""
         if "express" in rinfname:
           stream = "_express_express"
@@ -605,7 +483,7 @@ def setDefaults():
 def main():
     
     setDefaults()
-        
+    
     if(args.t0):
         if not args.run:
             print 'Run number not given'
@@ -622,9 +500,9 @@ def main():
             rpath='run_'+args.refrun+'/HLT/Egamma/Expert'
         else:
             rpath='HLT/Egamma/Expert'
-        process(args.file,path,args.lumi,args.run,args.ref,rpath)
+        process(args.file,path,args.run,args.ref,rpath)
     else:
-        process(args.file,path,args.lumi,args.run)
+        process(args.file,path,args.run)
 
 if __name__=="__main__":
     #os.environ['TDAQ_ERS_NO_SIGNAL_HANDLERS']='1'
