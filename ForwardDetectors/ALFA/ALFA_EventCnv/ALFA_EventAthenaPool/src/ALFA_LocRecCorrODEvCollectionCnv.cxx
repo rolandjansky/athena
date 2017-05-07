@@ -8,7 +8,7 @@
  
 
 ALFA_LocRecCorrODEvCollection_PERS* ALFA_LocRecCorrODEvCollectionCnv::createPersistent(ALFA_LocRecCorrODEvCollection* transCont) {
-    MsgStream mlog(messageService(), "ALFA_LocRecCorrODEvCollectionConverter" );
+    MsgStream mlog(msgSvc(), "ALFA_LocRecCorrODEvCollectionConverter" );
     ALFA_LocRecCorrODEvCollectionCnv_p1   TPConverter;
     ALFA_LocRecCorrODEvCollection_PERS *persObj = TPConverter.createPersistent( transCont, mlog );
     return persObj;
@@ -16,7 +16,7 @@ ALFA_LocRecCorrODEvCollection_PERS* ALFA_LocRecCorrODEvCollectionCnv::createPers
 
 
 ALFA_LocRecCorrODEvCollection* ALFA_LocRecCorrODEvCollectionCnv::createTransient() {
-    MsgStream mlog(messageService(), "ALFA_LocRecCorrODEvCollectionConverter" );
+    MsgStream mlog(msgSvc(), "ALFA_LocRecCorrODEvCollectionConverter" );
     
     ALFA_LocRecCorrODEvCollectionCnv_p1   TPConverter_p1;
 
