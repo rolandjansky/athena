@@ -174,7 +174,7 @@ class HLTMonTriggerList:
         # set the tau triggers to the default values
         self.monitoring_tau = tau.monitoring_tau
         self.monitoring_singleTau = tau.monitoring_singleTau
-        self.monitoring_singleTau = tau.monitoring_singleTau_cosmic
+
 
     # Config of monitoring lists which are dependent on running mode
     def set_HLTMonTrigList_pp(self):
@@ -228,7 +228,7 @@ class HLTMonTriggerList:
         self.monitoring_met = met.monitoring_met_cosmic
 
         self.monitoring_tau = tau.monitoring_tau_cosmic
-
+        self.monitoring_singleTau = tau.monitoring_singleTau_cosmic
 
     def set_HLTMonTrigList_mc(self):
         self.monitoring_bjet = bjet.monitoring_bjet_validation
