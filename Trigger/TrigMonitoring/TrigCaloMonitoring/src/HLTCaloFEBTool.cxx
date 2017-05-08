@@ -109,7 +109,11 @@ StatusCode HLTCaloFEBTool::book(bool newEventsBlock, bool newLumiBlock, bool new
 
   addMonGroup( new MonGroup(this,"HLT/CaloFEBMon",run) );
 
+#ifdef ManagedMonitorToolBase_Uses_API_201401
+  if ( newRunFlag() ) {
+#else
   if ( newRun ) {
+#endif
 
   addHistogram(new TH1I("NEMLArFEBs","Number of HLT EM LAr FEBs; Number of HLT FEBs; Number of Events",100,0,1500));
   addHistogram(new TH1I("NHECLArFEBs","Number of HLT HEC LAr FEBs; Number of HLT FEBs; Number of Events",100,0,500));
@@ -188,7 +192,11 @@ StatusCode HLTCaloFEBTool::book(bool newEventsBlock, bool newLumiBlock, bool new
   if ( m_ntuple ) 
     addTree( new TNtuple("Details","Details","et:eta:phi:gain:tet:teta:tphi:tgain:lartile") );
   
+#ifdef ManagedMonitorToolBase_Uses_API_201401
+  }else if ( newEventsBlockFlag() || newLumiBlockFlag() ){
+#else
   }else if ( newEventsBlock || newLumiBlock ){
+#endif
     return StatusCode::SUCCESS;
   }
 
