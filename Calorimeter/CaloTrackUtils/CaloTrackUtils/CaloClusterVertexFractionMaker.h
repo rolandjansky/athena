@@ -25,10 +25,6 @@ class CaloClusterVertexFractionMaker: public AthAlgTool, virtual public CaloClus
                              xAOD::CaloClusterContainer* theClusColl) const override;
   virtual StatusCode finalize() override;
 
-  /** Callback added to handle Data-driven GeoModel initialisation
-   */
-//   virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
  private:
   double calculateDPhi(double phi1, double phi2) const;
 

@@ -15,7 +15,6 @@
 #include "ISF_Interfaces/ITruthSvc.h"
 #include "ISF_Event/ISFParticle.h"
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 #include "ISF_Geant4Interfaces/ITransportTool.h"
 
@@ -27,7 +26,6 @@
 /** Constructor **/
 iGeant4::Geant4SimSvc::Geant4SimSvc(const std::string& name,ISvcLocator* svc) :
   BaseSimulationSvc(name, svc),
-  m_geoModelSvc("GeoModelSvc",name),
   m_detGeoSvc("DetectorGeometrySvc", name),
   m_simulationTool("ISFG4TransportTool"),
   m_configTool(""),
@@ -39,7 +37,6 @@ iGeant4::Geant4SimSvc::Geant4SimSvc(const std::string& name,ISvcLocator* svc) :
   m_eventTimer(0)
 {
   declareProperty("SimulationTool" ,      m_simulationTool );
-  declareProperty("GeoModelService",      m_geoModelSvc    );
   declareProperty("DetectorGeometrySvc",  m_detGeoSvc      );
   declareProperty("G4ConfigTool"   ,      m_configTool     );
 
@@ -69,32 +66,9 @@ StatusCode iGeant4::Geant4SimSvc::initialize()
 
   ATH_MSG_INFO ( m_screenOutputPrefix << m_simulationTool->name() );
 
-  // Need to make sure that trackingGeometryInit gets called after IGeoModelSvc::geoInit
-  if ( m_geoModelSvc.retrieve().isFailure() ){
-    ATH_MSG_FATAL(  m_screenOutputPrefix << " Cannot retrieve GeoModelSvc! Abort." );
+  if (m_detGeoSvc.retrieve().isFailure()) {
+    ATH_MSG_FATAL("Could not retrieve DetectorGeometrySvc.");
     return StatusCode::FAILURE;
-  }
-
-  const IGeoModelSvc* geoModelSvc = &(*m_geoModelSvc);
-  if (!geoModelSvc->geoInitialized()) {
-    // register the callback from the IGeoModelSvc
-    ATH_MSG_INFO("registering callback to ISimulationSvc::geoInit");
-    if ( (detStore()->regFcn(&IGeoModelSvc::geoInit,
-                             geoModelSvc,
-                             &ISimulationSvc::geoInit,
-                             dynamic_cast<ISimulationSvc*>(this))).isFailure() ){
-      ATH_MSG_FATAL( m_screenOutputPrefix << " Cannot register Callback to GeoModelSvc! Abort." );
-      return StatusCode::FAILURE;
-    }
-  } else {
-    // call with dummy parameters
-    int par1 = 0;
-    std::list<std::string> par2;
-    ATH_MSG_INFO("calling geoInit");
-    if ( geoInit(par1,par2).isFailure() ){
-      ATH_MSG_FATAL( m_screenOutputPrefix << " Cannot call geometry init although GeoModelSvc is initialized." );
-      return StatusCode::FAILURE;
-    }
   }
 
   // retrieve (and run) the Geant4 Python Config tool
@@ -215,14 +189,3 @@ StatusCode iGeant4::Geant4SimSvc::simulateVector(const ISF::ConstISFParticleVect
   return success;
 }
 
-StatusCode iGeant4::Geant4SimSvc::geoInit(IOVSVC_CALLBACK_ARGS)
-{
-  ATH_MSG_INFO( m_screenOutputPrefix << "ATLAS Geometry is initialized, calling Geo2G4 converter." );
-  if (m_detGeoSvc.retrieve().isFailure())
-    {
-      ATH_MSG_FATAL("Could not retrieve DetectorGeometrySvc.");
-      return StatusCode::FAILURE;
-    }
-
-  return StatusCode::SUCCESS;
-}

@@ -92,10 +92,6 @@ public:
   StatusCode finalize();
   void handle(const Incident&); 
 
-  /** Callback added to handle Data-driven GeoModel initialisation
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
 private: 
 
   void MakeTheCell(CaloCellContainer* & cellcoll, Identifier & id,

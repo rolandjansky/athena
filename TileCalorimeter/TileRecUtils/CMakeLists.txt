@@ -24,7 +24,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
                           Control/AthAllocators
                           Control/StoreGate
-                          DetectorDescription/GeoModel/GeoModelInterfaces
                           Event/EventContainers
                           Event/xAOD/xAODEventInfo
                           TileCalorimeter/TileCalib/TileCalibBlobObjs

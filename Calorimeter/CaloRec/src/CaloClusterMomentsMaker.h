@@ -57,10 +57,6 @@ class CaloClusterMomentsMaker: public AthAlgTool, virtual public CaloClusterColl
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
   
-  /** Callback added to handle Data-driven GeoModel initialisation
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
  private: 
   
   /** 

@@ -29,9 +29,6 @@
 
 #include "StoreGate/StoreGate.h"
 
-//#include "GeoModelSvc/IGeoModelSvc.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
-
 #include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
 
 #include "SCT_ElectricFieldTool.h"
@@ -44,7 +41,6 @@ SCT_ChargeTrappingSvc::SCT_ChargeTrappingSvc( const std::string& name,  ISvcLoca
   AthService(name, pSvcLocator),
   m_siConditionsSvc("SCT_SiliconConditionsSvc", name),
   m_detStore("StoreGateSvc/DetectorStore", name),
-  m_geoModelSvc("GeoModelSvc", name),
   m_conditionsSvcValid(false),
   m_conditionsSvcWarning(false),
   m_isSCT(true),
@@ -66,7 +62,6 @@ SCT_ChargeTrappingSvc::SCT_ChargeTrappingSvc( const std::string& name,  ISvcLoca
   // declareProperty("IgnoreLocalPos", m_ignoreLocalPos = false,  "Treat methods that take a local position as if one "
 // 		  "called the methods without a local position" );
   declareProperty("DetStore", m_detStore);
-  declareProperty("GeoModelSvc", m_geoModelSvc);
   declareProperty("SCT_ElectricFieldTool",m_electricFieldTool);
   
   // -- Radiation damage specific
@@ -98,12 +93,6 @@ SCT_ChargeTrappingSvc::initialize()
     return StatusCode::FAILURE;
   }
   
-  // GeoModelSvc
-  if (m_geoModelSvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
   //ElectricFieldTool
   if (m_electricFieldTool.retrieve().isFailure())
   {
@@ -112,37 +101,11 @@ SCT_ChargeTrappingSvc::initialize()
   }
   
   
-  if(m_geoModelSvc->geoInitialized()) {
-    sc = geoInitialize();
-    
-  } else {
-    sc =  m_detStore->regFcn(&IGeoModelSvc::geoInit,  &*m_geoModelSvc,
-			     &SCT_ChargeTrappingSvc::geoInitCallback,  this);
-    
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Cannot register geoInitCallback function  "  << endmsg;
-    } else {
-    }
-  }
-  
-  return sc;
-}
-
-StatusCode SCT_ChargeTrappingSvc::geoInitCallback(IOVSVC_CALLBACK_ARGS)
-{
-  return geoInitialize();
-}
-
-StatusCode SCT_ChargeTrappingSvc::geoInitialize()
-{
-  
   if (m_detectorName != "SCT") {
     msg(MSG::FATAL) << "Invalid detector name: " << m_detectorName  << ". Must be SCT." << endmsg;
     return StatusCode::FAILURE;
   }
   m_isSCT = (m_detectorName == "SCT");
-  
-  StatusCode sc;
   
   // Get conditions summary service.
   m_conditionsSvcValid = false;

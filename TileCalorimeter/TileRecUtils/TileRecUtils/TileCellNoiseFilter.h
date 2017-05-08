@@ -54,9 +54,6 @@ class TileCellNoiseFilter: public AthAlgTool, virtual public ICaloCellMakerTool 
     /** proceed the coherent noise subtruction algorithm and correct Tile cell energies */
     virtual StatusCode process(CaloCellContainer *cellcoll);
 
-    /** Callback to handle Data-driven GeoModel initialisation */
-    virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
   private:
 
     // set common-mode subtructed energy
