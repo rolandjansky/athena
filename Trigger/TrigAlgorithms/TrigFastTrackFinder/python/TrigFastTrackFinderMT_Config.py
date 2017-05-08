@@ -82,7 +82,7 @@ class TrigFastTrackFinderMTBase(TrigFastTrackFinderMT):
                                                                    DisableDistortions = False,
                                                                    applyNNcorrection = False,
                                                                    NNIBLcorrection = False,
-                                                                   SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
+                                                                   SplitClusterAmbiguityMap = "",
                                                                    RunningTIDE_Ambi = False,
                                                                    ErrorStrategy = 2,
                                                                    PositionStrategy = 1 

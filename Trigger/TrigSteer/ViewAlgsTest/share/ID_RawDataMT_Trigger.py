@@ -12,6 +12,7 @@ globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
 
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.OutputLevel( INFO )
+AlgScheduler.CheckDependencies( True )
 AlgScheduler.ShowControlFlow( True )
 AlgScheduler.ShowDataDependencies( True )
  
@@ -55,6 +56,15 @@ from AtlasGeoModel import GeoModelInit
 
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()
+
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+
+if not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) :
+    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+    condSeq+=xAODMaker__EventInfoCnvAlg()
+    pass
+
 
 include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 inputfile="root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data16_13TeV.00309640.physics_EnhancedBias.merge.RAW/data16_13TeV.00309640.physics_EnhancedBias.merge.RAW._lb0628._SFO-1._0001.1"

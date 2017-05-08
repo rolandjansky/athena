@@ -21,6 +21,7 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.CheckDependencies( True )
 AlgScheduler.OutputLevel( VERBOSE )
+AlgScheduler.ShowDataDependencies( True )
 
 ## get a handle on the ServiceManager
 from AthenaCommon.AlgSequence import AlgSequence
@@ -219,8 +220,8 @@ InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name          
                                                                   SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
                                                                   PixelsClustersName     = InDetKeys.PixelClusters(),
                                                                   SCT_ClustersName       = InDetKeys.SCT_Clusters(),
-                                                                  SpacePointsPixelName   = 'PixelTrigSpacePoints',
-                                                                  SpacePointsSCTName     = 'SCT_TrigSpacePoints',
+                                                                  SpacePointsPixelName   = InDetKeys.PixelSpacePoints(),
+                                                                  SpacePointsSCTName     = InDetKeys.SCT_SpacePoints(),
                                                                   SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                                   ProcessPixels          = DetFlags.haveRIO.pixel_on(),
                                                                   ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
@@ -231,7 +232,7 @@ topSequence += InDetSiTrackerSpacePointFinder
 from TrigFastTrackFinder.TrigFastTrackFinderMT_Config import TrigFastTrackFinderMT_eGamma
 theFTFMT = TrigFastTrackFinderMT_eGamma()
 
-#topSequence += theFTFMT
+topSequence += theFTFMT
 log.info(theFTFMT)
 
 #probably initialized only in trigger=True?
