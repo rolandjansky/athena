@@ -41,7 +41,7 @@ public:
   
  private:
   /// Inline method
-  StatusCode doElectrons() ;
+  StatusCode doEGamma() ;
   StatusCode doMuons() ;
   
   /// Pointer to IThinningSvc
@@ -49,13 +49,22 @@ public:
   
   /// Should the thinning run?
   bool m_doElectrons;
+  bool m_doPhotons;
   bool m_doMuons;
   ///Names of the containers of Objects of interest Electron/Muon
   std::string m_muonsKey;
   std::string m_electronsKey;
+  std::string m_photonsKey;
   /// Names of the containers to thin
   std::string m_CombinedMuonsTracksKey;
   std::string m_GSFTracksKey;
+  //pT cuts for the objects
+  double m_minptElectrons;
+  double m_minptPhotons;
+  double m_minptMuons;
+  //Should we only keep the best match?
+  bool m_bestonlyElectrons;
+  bool m_bestonlyPhotons;
 
 };
 
