@@ -70,12 +70,12 @@ class TrigMuSuperEFConfig(TrigMuSuperEF):
         from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone
         self.StauCreatorTool = getPublicToolClone("TMEF_StauCreatorTool","TMEF_MuonCreatorTool",BuildStauContainer=True)
         # only add TrigMuGirl monitoring if it is run
-        if doTrigMuGirl:
-            self.MuGirlTool = getPublicTool("TMEF_MuonInsideOutRecoTool")
-            #from TrigMuGirl.TrigMuGirlMonitoring import TrigMuGirlToolMonitoring
-            #montool = TrigMuGirlToolMonitoring()
-            #print montool
-            #monTools.append( montool )
+        # if doTrigMuGirl:
+        kwargs.setdefault("MuGirlTool", getPublicTool("TMEF_MuonInsideOutRecoTool"))
+        #from TrigMuGirl.TrigMuGirlMonitoring import TrigMuGirlToolMonitoring
+        #montool = TrigMuGirlToolMonitoring()
+        #print montool
+        #monTools.append( montool )
 
         # turn off PrepRawData decoders in MuGirl
         if doTrigMuGirl:
@@ -124,8 +124,7 @@ def TrigMuSuperEF_MGonly(name="TrigMuSuperEF_MGonly",**kwargs):
     kwargs.setdefault("doOutsideIn", False)
     kwargs.setdefault("UseL2Info",False)
     kwargs.setdefault("DoCache", False)
-    #kwargs.setdefault("MuGirlTool", getPublicTool("TMEF_MuonStauRecoTool"))
-    kwargs.setdefault("MuGirlTool", "TMEF_MuonStauRecoTool")
+    kwargs.setdefault("MuGirlTool", getPublicTool("TMEF_MuonStauRecoTool"))
     return TrigMuSuperEFConfig(name,**kwargs)
 
 
