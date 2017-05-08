@@ -22,8 +22,8 @@ namespace G4UA
   //---------------------------------------------------------------------------
   AthenaTrackingAction::AthenaTrackingAction(MSG::Level lvl,
                                              int secondarySavingLevel)
-    : m_msg("AthenaTrackingAction"),
-      m_secondarySavingLevel(secondarySavingLevel)
+    : m_msg("AthenaTrackingAction")
+    , m_secondarySavingLevel(secondarySavingLevel)
   {
     m_msg.get().setLevel(lvl);
   }

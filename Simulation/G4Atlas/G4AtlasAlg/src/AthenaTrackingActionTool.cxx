@@ -13,8 +13,8 @@ namespace G4UA
   AthenaTrackingActionTool::
   AthenaTrackingActionTool(const std::string& type, const std::string& name,
                            const IInterface* parent)
-    : ActionToolBase<AthenaTrackingAction>(type, name, parent),
-      m_secondarySavingLevel(2)
+    : ActionToolBase<AthenaTrackingAction>(type, name, parent)
+    ,  m_secondarySavingLevel(2)
   {
     declareInterface<IG4TrackingActionTool>(this);
     declareProperty("SecondarySavingLevel", m_secondarySavingLevel,
