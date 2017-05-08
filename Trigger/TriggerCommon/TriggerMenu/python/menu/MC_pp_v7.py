@@ -942,7 +942,6 @@ def setupMenu():
 
         ['2e17_lhloose_nod0',                    'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
         ['2e17_lhloose_cutd0dphideta',           'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
-        ['2e17_lhvloose_nod0_ringer',          'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiElectron',  'BW:Egamma'],-1],
 
         # Trielectron triggers
 
@@ -951,7 +950,6 @@ def setupMenu():
         # cut-based version of the following triggers staying in MC menu. The LH-based version kept in Physics menu. (ATR-14059)
 
         # 2e34 rerun items (e+MET triggers)
-        ['e17_lhvloose_nod0_ringer',           'L1_EM15VH',  [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e17_lhloose_nod0_ringer',            'L1_EM15VH',  [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
 
         # 2e34 rerun items (e+MET triggers)
@@ -967,9 +965,7 @@ def setupMenu():
         ['2g20_tight_icaloloose',            'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
         ['2g20_tight_icalotight',            'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
 
-        ['2g22_tight_icalovloose',           'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
         ['2g22_tight_icaloloose',            'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
-        ['2g22_tight_icalotight',            'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
 
         ['2g24_tight',                   'L1_2EM20VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
         ['2g24_tight_icalovloose',           'L1_2EM20VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
@@ -982,9 +978,7 @@ def setupMenu():
         ['g20_tight_icaloloose',             'L1_EM15VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g20_tight_icalotight',             'L1_EM15VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
 
-        ['g22_tight_icalovloose',            'L1_EM15VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g22_tight_icaloloose',             'L1_EM15VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g22_tight_icalotight',             'L1_EM15VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
 
         ['g24_tight',                    'L1_EM20VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1], 
         ['g24_tight_icalovloose',            'L1_EM20VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
@@ -1006,7 +1000,6 @@ def setupMenu():
         ['e25_mergedtight',                      'L1_EM20VH', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
         ['e30_mergedtight',                      'L1_EM20VH', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 
-        ['g35_medium_L1EM20VH',                  'L1_EM20VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
 
         # Fall-back if problem with new tracking kept as before)
         ['e17_etcut_L1EM15',                      'L1_EM15', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
@@ -1023,8 +1016,6 @@ def setupMenu():
         ['e17_lhmedium_nod0_ivarloose',                  'L1_EM15VH',  [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
 
         ['g30_loose',                     'L1_EM15VH',  [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g35_loose_L1EM20VH',            'L1_EM20VH',  [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g25_medium_L1EM20VH',           'L1_EM20VH',  [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['e24_lhmedium_nod0_g35_loose',   'L1_2EM20VH', [], [PhysicsStream], ['RATE:ElectronPhoton', 'BW:Egamma'], -1,['parallel',-1,[] ]], 
 
         
@@ -1600,8 +1591,8 @@ def setupMenu():
 
 
         ### ATR-15062 L1Topo
-        ['g20_tight_ivloose_j35_0eta490_bmv2c2077_3j35_0eta490_invm500', 'L1_EM18VHI_MJJ-300', ['','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g20_tight_ivloose","j35_0eta490_bmv2c2077","3j35_0eta490_invm500"]]],
-        ['g20_tight_ivloose_4j35_0eta490_invm500', 'L1_EM18VHI_MJJ-300', ['',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g20_tight_ivloose","4j35_0eta490_invm500"]]],
+        ['g20_tight_icalovloose_j35_0eta490_bmv2c2077_3j35_0eta490_invm500', 'L1_EM18VHI_MJJ-300', ['','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g20_tight_icalovloose","j35_0eta490_bmv2c2077","3j35_0eta490_invm500"]]],
+        ['g20_tight_icalovloose_4j35_0eta490_invm500', 'L1_EM18VHI_MJJ-300', ['',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g20_tight_icalovloose","4j35_0eta490_invm500"]]],
 
         ### ATR-15062 Non-L1Topo
         ['g27_medium_L1EM24VHI_2j25_0eta490_bmv2c2077_2j25_0eta490_invm500', 'L1_EM24VHI', ['L1_EM24VHI','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g27_medium_L1EM24VHI","2j25_0eta490_bmv2c2077","2j25_0eta490_invm500"]]],
