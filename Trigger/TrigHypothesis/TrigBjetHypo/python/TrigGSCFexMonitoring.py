@@ -28,8 +28,16 @@ class TrigGSCFexMonitoring(TrigGenericMonitoringToolConfig):
         #                                     xbins=200, xmin=-50.0, xmax=50.0) ]
         #self.Histograms += [ defineHistogram('tag_MV2c20', type='TH1F', title="GSCFex MV2c20 Discriminant",
         #                                     xbins=200, xmin=-50.0, xmax=50.0) ]
-
-
+        self.Histograms += [ defineHistogram('gsc_ntrk', type='TH1I', title="GSCFex Number of tracks",
+                                             xbins=21, xmin=-0.5, xmax=30.5) ]
+        self.Histograms += [ defineHistogram('gsc_width', type='TH1F', title="GSCFex Track width",
+                                             xbins=200, xmin=-2.0, xmax=2.0) ]
+        self.Histograms += [ defineHistogram('gsc_ptsum', type='TH1F', title="GSCFex Sum of transverse momentum of tracks",
+                                             xbins=200, xmin=-100.0, xmax=600000.0) ]
+        self.Histograms += [ defineHistogram('gsc_ptdiff', type='TH1F', title="GSCFex PT difference between uncal jet and cal jets",
+                                             xbins=200, xmin=-100000.0, xmax=100000.0) ]
+        self.Histograms += [ defineHistogram('gsc_ptratio', type='TH1F', title="GSCFex PT ratio",
+                                             xbins=200, xmin=-1.0, xmax=1.0) ]
 
 class TrigEFGSCFexValidationMonitoring(TrigGSCFexMonitoring):
     def __init__ (self, name="TrigEFGSCFexValidationMonitoring"):
