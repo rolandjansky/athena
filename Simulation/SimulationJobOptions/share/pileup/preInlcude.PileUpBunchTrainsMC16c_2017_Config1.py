@@ -263,7 +263,7 @@ digitizationFlags.BeamIntensityPattern = [0.0, # bunch crossing zero is always e
 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,
-0.0,0.0,0.0] # Starting BCID: 3434 - Abort gap
+0.0,0.0] # Starting BCID: 3434 - Abort gap
 
 from AthenaCommon.BeamFlags import jobproperties
 jobproperties.Beam.bunchSpacing = 25 # Set this to the spacing between filled bunch-crossings within the train.
