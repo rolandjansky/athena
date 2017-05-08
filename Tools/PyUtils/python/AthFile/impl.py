@@ -406,7 +406,7 @@ class AthFileServer(object):
         # speed-up by tampering LD_LIBRARY_PATH to not load reflex-dicts
         import re, os
         restrictedProjects = ['AtlasCore']
-        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulation_VERSION" in os.environ: restrictedProjects=[] #special cases
+        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             with H.ShutUp(filters=[
                 re.compile(
@@ -1038,7 +1038,7 @@ class FilePeeker(object):
         import PyUtils.Helpers as H
         restrictedProjects = ['AtlasCore']
         import os
-        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulation_VERSION" in os.environ: restrictedProjects=[] #special cases
+        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             root = self.pyroot
             import re
@@ -1079,7 +1079,7 @@ class FilePeeker(object):
         import PyUtils.Helpers as H
         restrictedProjects = ['AtlasCore']
         import os
-        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulation_VERSION" in os.environ: restrictedProjects=[] #special cases
+        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             root = self.pyroot
             do_close = True
@@ -1146,7 +1146,7 @@ class FilePeeker(object):
         import PyUtils.Helpers as H
         restrictedProjects = ['AtlasCore']
         import os
-        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulation_VERSION" in os.environ: restrictedProjects=[] #special cases
+        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             root = self.pyroot
             do_close = True
@@ -1169,7 +1169,7 @@ class FilePeeker(object):
      
     def _process_call(self, fname, evtmax, projects=['AtlasCore']):
         import os
-        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulation_VERSION" in os.environ: projects=[] #special cases
+        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: projects=[] #special cases
         msg = self.msg()
         import PyUtils.Helpers as H
         f = _create_file_infos()
