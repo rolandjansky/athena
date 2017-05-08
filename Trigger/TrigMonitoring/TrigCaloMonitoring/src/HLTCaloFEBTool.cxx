@@ -212,7 +212,7 @@ StatusCode HLTCaloFEBTool::fill() {
   	     if ( m_log->level() <= MSG::DEBUG )
 		(*m_log) << MSG::DEBUG << "No Calo Cell Container found"
                         << endmsg;
-		return StatusCode::SUCCESS;
+	     return StatusCode::SUCCESS;
 	}
 #ifndef NDEBUG
   	if ( m_log->level() <= MSG::DEBUG ){
