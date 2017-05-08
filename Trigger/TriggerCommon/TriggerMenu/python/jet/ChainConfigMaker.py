@@ -885,14 +885,13 @@ if __name__ == '__main__':
         from triggerMenuXML_dicts import MC_pp_V5_dicts
 
         bad = []
-        ngood = 0
         for d in MC_pp_V5_dicts: 
             d['run_rtt_diags'] = False
             print d['chainName']
             try:
-                ChainConfigMaker(d)
+                chainConfigMaker(d)
             except Exception, e:
                 
                 bad.append(d['chainName'])
 
-            print 'bad', str(bad)
+                print 'bad', str(bad), str(e)
