@@ -65,17 +65,17 @@ StatusCode BcmCollisionTimeAlg::execute()
    std::vector<deltat_data> deltaTdataA_HG;
    std::vector<deltat_data> deltaTdataC_HG;
 
-   const BCM_RDO_Container *m_bcmRDO=0;
-   if (StatusCode::SUCCESS!=evtStore()->retrieve(m_bcmRDO,"BCM_RDOs")) {
+   const BCM_RDO_Container *bcmRDO=0;
+   if (StatusCode::SUCCESS!=evtStore()->retrieve(bcmRDO,"BCM_RDOs")) {
      ATH_MSG_WARNING("Cannot find BCM RDO! " );
    }   else {
-     int num_collect = m_bcmRDO->size();
+     int num_collect = bcmRDO->size();
      if ( num_collect != 16 ){
        ATH_MSG_WARNING( " Number of collections: " << num_collect );
      }
    
-     BCM_RDO_Container::const_iterator chan_itr = m_bcmRDO->begin();
-     BCM_RDO_Container::const_iterator chan_itr_end = m_bcmRDO->end();
+     BCM_RDO_Container::const_iterator chan_itr = bcmRDO->begin();
+     BCM_RDO_Container::const_iterator chan_itr_end = bcmRDO->end();
      
      int channelID=0;
      
