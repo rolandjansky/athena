@@ -192,7 +192,7 @@ namespace Rec {
             double uncertClus  = 2.*sigmaWidth*sigmaWidth;
             if(uncertExtrp>uncertClus){
                 ATH_MSG_DEBUG("Extrapolation uncertainty larger than cluster width! Returning without association.");
-                return;
+                continue;
             }
             double dr2CutTmp = (sigmaWidth+uncertEta)*(sigmaWidth+uncertEta)+(sigmaWidth+uncertPhi)*(sigmaWidth+uncertPhi);
             
