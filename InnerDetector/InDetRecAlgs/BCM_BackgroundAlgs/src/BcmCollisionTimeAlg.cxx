@@ -43,8 +43,7 @@ StatusCode BcmCollisionTimeAlg::initialize()
 //__________________________________________________________________________
 StatusCode BcmCollisionTimeAlg::finalize()
   {
-    MsgStream log( messageService(), name() );
-    log << MSG::DEBUG <<"BcmCollisionTimeAlg finalize()" << endmsg;
+    ATH_MSG_DEBUG("BcmCollisionTimeAlg finalize()"  );
     return StatusCode::SUCCESS; 
   }
   
