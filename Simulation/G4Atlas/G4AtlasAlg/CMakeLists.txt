@@ -22,7 +22,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/G4Sim/FADS/FadsKinematics
                           Simulation/G4Sim/MCTruth
                           Simulation/G4Sim/MCTruthBase
-                          Simulation/G4Sim/SimHelpers )
+                          Simulation/G4Sim/SimHelpers
+                          Simulation/ISF/ISF_Core/ISF_Interfaces)
 
 # External dependencies:
 find_package( CLHEP )

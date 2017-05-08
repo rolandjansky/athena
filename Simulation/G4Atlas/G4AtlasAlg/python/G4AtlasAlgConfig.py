@@ -9,6 +9,7 @@ def getAthenaStackingActionTool(name='G4UA::AthenaStackingActionTool', **kwargs)
     return CfgMgr.G4UA__AthenaStackingActionTool(name,**kwargs)
 
 def getAthenaTrackingActionTool(name='G4UA::AthenaTrackingActionTool', **kwargs):
+    kwargs.setdefault('SecondarySavingLevel', 2)
     return CfgMgr.G4UA__AthenaTrackingActionTool(name,**kwargs)
 
 def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
@@ -50,6 +51,9 @@ def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
         is_hive = False
     kwargs.setdefault('MultiThreading', is_hive)
 
+    kwargs.setdefault('TruthRecordService', 'ISF_MC12TruthService')
+    kwargs.setdefault('GeoIDSvc', 'ISF_GeoIDSvc')
+
     ## G4AtlasAlg verbosities (available domains = Navigator, Propagator, Tracking, Stepping, Stacking, Event)
     ## Set stepper verbose = 1 if the Athena logging level is <= DEBUG
     # TODO: Why does it complain that G4AtlasAlgConf.G4AtlasAlg has no "Verbosities" object? Fix.
@@ -59,4 +63,8 @@ def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
     #    verbosities["Tracking"]='1'
     #    print verbosities
     kwargs.setdefault('Verbosities', verbosities)
+
+    # Set commands for the G4AtlasAlg
+    kwargs.setdefault("G4Commands", simFlags.G4Commands.get_Value())
+
     return CfgMgr.G4AtlasAlg(name, **kwargs)
