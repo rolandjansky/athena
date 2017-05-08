@@ -32,11 +32,18 @@ ThinTrkTrackAlg::ThinTrkTrackAlg( const std::string& name,
   ::AthAlgorithm( name, pSvcLocator ),
   m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
   m_doElectrons(true),
+  m_doPhotons(true),
   m_doMuons(true),
   m_muonsKey("Muons"),
   m_electronsKey("Electrons"),
+  m_photonsKey("Photons"),
   m_CombinedMuonsTracksKey("CombinedMuonTracks"),
-  m_GSFTracksKey("GSFTracks")
+  m_GSFTracksKey("GSFTracks"),
+  m_minptElectrons(4000.),
+  m_minptPhotons(4000.),
+  m_minptMuons(4000.),
+  m_bestonlyElectrons(true),
+  m_bestonlyPhotons(true)
 {
     
   declareProperty("ThinningSvc", m_thinningSvc,
@@ -44,6 +51,9 @@ ThinTrkTrackAlg::ThinTrkTrackAlg( const std::string& name,
 
   declareProperty("doElectrons", m_doElectrons,
 		  "Flag to Thin the Electron GSF tracks");
+
+  declareProperty("doPhotons", m_doPhotons,
+		  "Flag to Thin the Photon GSF tracks");
 
   declareProperty("doMuons", m_doMuons,
 		  "Flag to Thin the Muon Combinedtracks");
@@ -54,11 +64,29 @@ ThinTrkTrackAlg::ThinTrkTrackAlg( const std::string& name,
   declareProperty("ElectronsKey",m_electronsKey ,
 		  "StoreGate key for electrons container");
 
+  declareProperty("PhotonsKey",m_photonsKey ,
+		  "StoreGate key for photon container");
+
   declareProperty("CombinedMuonsTrackKey", m_CombinedMuonsTracksKey,
 		  "StoreGate key for combined muons Trk::Track container");
 
   declareProperty("GSFTrackKey", m_GSFTracksKey,
 		  "StoreGate key for GSF Trk::Track container");
+
+  declareProperty("minptElectrons", m_minptElectrons,
+		  "Minimum pT for electrons to have their tracks included");
+
+  declareProperty("minptPhotons", m_minptPhotons,
+		  "Minimum pT for photons to have their tracks included");
+
+  declareProperty("minptMuons", m_minptMuons,
+		  "Minimum pT for muons to have their tracks included");
+
+  declareProperty("OnlyBestElectrons", m_bestonlyElectrons,
+		  "Include only the best match for electrons");
+
+  declareProperty("OnlyBestPhotons", m_bestonlyPhotons,
+		  "Include only the best match for photons");
 
 
 }
@@ -82,7 +110,10 @@ StatusCode ThinTrkTrackAlg::initialize(){
 
     // Is truth thinning required?
     if (m_doElectrons) {
-      ATH_MSG_INFO("Will thin " << m_electronsKey << " Trk::Tracks with key " << m_GSFTracksKey);
+      ATH_MSG_INFO("Will thin " << m_electronsKey << " Trk::Tracks with key (electrons) " << m_GSFTracksKey);
+    }
+    if (m_doPhotons) {
+      ATH_MSG_INFO("Will thin " << m_photonsKey << " Trk::Tracks with key (photons) " << m_GSFTracksKey);
     }
     if (m_doMuons) {
       ATH_MSG_INFO("Will thin " << m_muonsKey << " Trk::Tracks with key " << m_CombinedMuonsTracksKey);
@@ -100,8 +131,8 @@ StatusCode ThinTrkTrackAlg::finalize(){
 
 StatusCode ThinTrkTrackAlg::execute(){
   
-    if (m_doElectrons) {
-      CHECK(doElectrons());
+    if (m_doElectrons || m_doPhotons) {
+      CHECK(doEGamma());
     }
     if (m_doMuons) {
       CHECK(doMuons());
@@ -109,7 +140,7 @@ StatusCode ThinTrkTrackAlg::execute(){
     return StatusCode::SUCCESS;
 }
 
-StatusCode ThinTrkTrackAlg::doElectrons(){
+StatusCode ThinTrkTrackAlg::doEGamma(){
 
   //Prepare for the Thinning of Trk::Tracks
   IThinningSvc::VecFilter_t keptTracks;
@@ -118,8 +149,9 @@ StatusCode ThinTrkTrackAlg::doElectrons(){
     ATH_CHECK(evtStore()->retrieve(trackPC,m_GSFTracksKey));
   }
   else{
-    ATH_MSG_WARNING ("No " << m_GSFTracksKey << " found , disabling electrons");
+    ATH_MSG_WARNING ("No " << m_GSFTracksKey << " found , disabling electrons and photons");
     m_doElectrons=false;
+    m_doPhotons=false;
     return StatusCode::SUCCESS;
   }
   ATH_MSG_DEBUG("Number of " << m_GSFTracksKey << " " << trackPC->size());
@@ -127,31 +159,80 @@ StatusCode ThinTrkTrackAlg::doElectrons(){
     keptTracks.resize( trackPC->size(), false );
   }
 
-  //Get the electrons
-  const xAOD::ElectronContainer* electrons =
-    evtStore()->retrieve< const xAOD::ElectronContainer >(m_electronsKey);
-  if( ! electrons ) {
-    ATH_MSG_ERROR( "Couldn't retrieve electron container with key: "<< m_electronsKey);
-    return StatusCode::FAILURE;
-  }
-
-  //Loop over electrons
   size_t kept(0);
-  for(auto el: *electrons) {
-    const xAOD::TrackParticle* tp=el->trackParticle();
-    if ( ! tp || !tp->trackLink().isValid() ){
-      continue;
+
+  if(m_doElectrons){
+    //Get the electrons
+    const xAOD::ElectronContainer* electrons =
+      evtStore()->retrieve< const xAOD::ElectronContainer >(m_electronsKey);
+    if( ! electrons ) {
+      ATH_MSG_ERROR( "Couldn't retrieve electron container with key: "<< m_electronsKey);
+      return StatusCode::FAILURE;
     }
-    size_t index=  tp->trackLink().index();
-    keptTracks[index]=true;
-    ++kept;
+    
+    //Loop over electrons
+    for(auto el: *electrons) {
+      if(el->pt() < m_minptElectrons){ 
+	continue;
+      }
+      size_t nel = el->nTrackParticles();
+      if(m_bestonlyElectrons && nel > 1){ 
+	nel = 1;
+      }
+      for(size_t i=0; i<nel; i++){
+	const xAOD::TrackParticle* tp=el->trackParticle(i);
+	if ( ! tp || !tp->trackLink().isValid() ){
+	  continue;
+	}
+	size_t index=  tp->trackLink().index();
+	keptTracks[index]=true;
+	++kept;
+      }
+    }
   }
 
+  if(m_doPhotons){
+    //Get the photons
+    const xAOD::PhotonContainer* photons =
+      evtStore()->retrieve< const xAOD::PhotonContainer >(m_photonsKey);
+    if( ! photons ) {
+      ATH_MSG_ERROR( "Couldn't retrieve photon container with key: "<< m_photonsKey);
+      return StatusCode::FAILURE;
+    }
+    
+    //Loop over photons
+    for(auto ph: *photons) {
+      if(ph->pt() < m_minptPhotons){
+	continue;
+      }
+      size_t nvx = ph->nVertices();
+      if(m_bestonlyPhotons && nvx > 1){
+	nvx = 1;
+      }
+      for(size_t i=0; i<nvx; i++){
+	const xAOD::Vertex* vx=ph->vertex(i);
+	if(vx){
+	  size_t ntp = vx->nTrackParticles();
+	  for(size_t j=0; j<ntp; j++){
+	    const xAOD::TrackParticle* tp=vx->trackParticle(j);
+	    if ( ! tp || !tp->trackLink().isValid() ){
+	      continue;
+	    }
+	    size_t index=  tp->trackLink().index();
+	    keptTracks[index]=true;
+	    ++kept;
+	  }
+	}
+      }
+    }
+  }
+    
   ATH_MSG_DEBUG("keep " << kept << " out of " <<keptTracks.size());
   ATH_MSG_DEBUG("Do the Thinning");
   CHECK( m_thinningSvc->filter( *trackPC, keptTracks,IThinningSvc::Operator::Or) );
   return StatusCode::SUCCESS;
 }
+
 
 
 StatusCode ThinTrkTrackAlg::doMuons(){
@@ -186,6 +267,9 @@ StatusCode ThinTrkTrackAlg::doMuons(){
   //Loop over muons
   size_t kept(0);
   for(auto mu: *muons) {
+    if(mu->pt() < m_minptMuons){
+	continue;
+      }
     static SG::AuxElement::Accessor<ElementLink< xAOD::TrackParticleContainer>> acc( "combinedTrackParticleLink" );
     if( ! acc.isAvailable(*mu) ) {
       continue;
