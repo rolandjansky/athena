@@ -28,7 +28,7 @@
 #include "AthenaKernel/IIOVDbSvc.h" 
 
 // Include Event Info 
-#include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/EventInfo.h"
 
 ///Read Handle
 #include "StoreGate/ReadHandleKey.h"
@@ -137,7 +137,7 @@ class SCT_ReadCalibDataSvc: virtual public ISCT_ReadCalibDataSvc, virtual public
   std::string m_key;
 
   // Read Handle Key
-  SG::ReadHandle<xAOD::EventInfo> m_eventInfoKey;
+  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
   
   //  BooleanProperty                   m_printCalibDefectMaps;         //!< Print the calib defect maps?
 };

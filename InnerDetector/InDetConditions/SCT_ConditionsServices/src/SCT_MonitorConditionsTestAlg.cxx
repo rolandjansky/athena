@@ -26,7 +26,7 @@
 SCT_MonitorConditionsTestAlg::SCT_MonitorConditionsTestAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthAlgorithm( name, pSvcLocator ), 
   m_pMonitorConditionsSvc("SCT_MonitorConditionsSvc",name),
-  m_sctId(0),
+  m_sctId{nullptr},
   m_evtKey(std::string("EventInfo")),
   m_select_run(1),
   m_select_event(1)

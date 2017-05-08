@@ -16,9 +16,9 @@
 SCT_FlaggedConditionSvc::SCT_FlaggedConditionSvc( const std::string& name, ISvcLocator* pSvcLocator ): 
   AthService(name, pSvcLocator),
   m_filled(false),
-  m_badIds(0),
+  m_badIds{nullptr},
   m_detStore("DetectorStore", name),
-  m_sctID(0)
+  m_sctID{nullptr}
 {/* Do nothing */}
 
 // Initialize

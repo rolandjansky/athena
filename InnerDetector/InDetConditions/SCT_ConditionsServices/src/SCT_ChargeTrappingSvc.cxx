@@ -48,7 +48,7 @@ SCT_ChargeTrappingSvc::SCT_ChargeTrappingSvc( const std::string& name,  ISvcLoca
   m_conditionsSvcValid(false),
   m_conditionsSvcWarning(false),
   m_isSCT(true),
-  m_detManager(0),
+  m_detManager{nullptr},
   m_getdoCTrap(false),
   m_PotentialValue{{0.}},
   m_electricFieldTool("SCT_ElectricFieldTool", this)

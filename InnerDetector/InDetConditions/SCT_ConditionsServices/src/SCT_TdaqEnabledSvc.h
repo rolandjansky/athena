@@ -29,7 +29,7 @@
 #include "StoreGate/ReadHandleKey.h"
 
 // Event Info
-#include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/EventInfo.h"
 
 class Identifier;
 class IdentifierHash;
@@ -93,7 +93,7 @@ private:
    const DataHandle<CondAttrListCollection>   m_dbList;                   //!< implies multi channel folder used
    bool m_noneBad;
 
-   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
+   SG::ReadHandleKey<EventInfo> m_eventInfoKey;
 
    bool unfilledRun() const;  //!<Before run 119253, the folder was never filled so it looks like a disabled detector: this is to flag that condition
    ///The folder name changed from run 1 to run 2; this function looks to see which folder has been pre-loaded

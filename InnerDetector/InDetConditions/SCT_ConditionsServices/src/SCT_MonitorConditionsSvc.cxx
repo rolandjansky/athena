@@ -32,6 +32,8 @@
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 
+#include "EventInfo/EventID.h"
+
 //path resolver to find the file
 #include "PathResolver/PathResolver.h"
 
@@ -72,10 +74,10 @@ string SCT_MonitorConditionsSvc::s_noFolderName = string("/SCT/Derived/NoiseOccu
 
 SCT_MonitorConditionsSvc::SCT_MonitorConditionsSvc( const std::string& name,ISvcLocator* pSvcLocator ) :
   AthService( name, pSvcLocator ),
-  m_attrListCollection(0),
-  m_attrListColl(0),
-  m_attrListColl_eff(0),
-  m_attrListColl_no(0),
+  m_attrListCollection{nullptr},
+  m_attrListColl{nullptr},
+  m_attrListColl_eff{nullptr},
+  m_attrListColl_no{nullptr},
   m_detStore("DetectorStore", name),
   m_IOVDbSvc("IOVDbSvc", name),
   m_writeCondObjs(false),
@@ -91,14 +93,13 @@ SCT_MonitorConditionsSvc::SCT_MonitorConditionsSvc( const std::string& name,ISvc
   m_beginRun(IOVTime::MINRUN),
   m_endRun(IOVTime::MAXRUN),
   m_streamName("CondStreamTest"),
-  m_evtKey(std::string("EventInfo")),
-  m_regSvc(0),
-  m_streamer(0),
+  m_regSvc{nullptr},
+  m_streamer{nullptr},
   m_filled(false),
   m_defectRecorded(false),
   m_effRecorded(false),
   m_noRecorded(false),
-  m_pHelper(0),
+  m_pHelper{nullptr},
   m_currentDefectList("")
 {
   declareProperty("WriteCondObjs",     m_writeCondObjs);
@@ -117,6 +118,7 @@ SCT_MonitorConditionsSvc::SCT_MonitorConditionsSvc( const std::string& name,ISvc
   declareProperty("TagID4List",        m_tagID4List);
   declareProperty("TagID4Eff",         m_tagID4Eff);
   declareProperty("TagID4NO",          m_tagID4NO);
+  declareProperty("EventInfoKey",      m_evtKey=std::string("ByteStreamEventInfo"));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -783,12 +785,12 @@ SCT_MonitorConditionsSvc::registerCondObjects(const std::string& foldername,cons
       unsigned int beginRun;
       unsigned int endRun;
       if ( !m_manualiov ) {
-	SG::ReadHandle<xAOD::EventInfo> evt(m_evtKey);
+	SG::ReadHandle<EventInfo> evt(m_evtKey);
         if (not evt.isValid()) {
           msg(MSG:: ERROR) << "Unable to get the EventInfo" << endmsg;
           return StatusCode::FAILURE;
         }
-        beginRun = evt->runNumber();
+        beginRun = evt->event_ID()->run_number();
         endRun = beginRun;
       } else {
         beginRun = m_beginRun;

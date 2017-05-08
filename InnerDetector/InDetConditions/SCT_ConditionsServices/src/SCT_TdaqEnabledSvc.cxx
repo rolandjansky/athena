@@ -22,6 +22,9 @@
 // Read Handle
 #include "StoreGate/ReadHandle.h"
 
+// Event Info
+#include "EventInfo/EventID.h"
+
 //Gaudi includes
 #include "GaudiKernel/StatusCode.h"
 
@@ -82,11 +85,12 @@ namespace{ //anonymous namespace to introduce file scope
 }
 // Constructor
 SCT_TdaqEnabledSvc::SCT_TdaqEnabledSvc( const std::string& name, ISvcLocator* pSvcLocator ) : AthService(name, pSvcLocator), 
-m_filled(false), m_coolFolderName(""),m_pHelper(0),
+m_filled(false), m_coolFolderName(""),m_pHelper{nullptr},
 m_useDatabase(true), m_detStore("DetectorStore",name),
 m_storeGateSvc("StoreGateSvc",name),m_cablingSvc("SCT_CablingSvc", name), 
-m_noneBad(true), m_eventInfoKey(std::string("EventInfo")) {
+m_noneBad(true) {
   //declareProperty("BadRodIdentifiers",m_badElements);
+  declareProperty("EventInfoKey", m_eventInfoKey=std::string("ByteStreamEventInfo"));
 }
 
 //Initialize
@@ -234,9 +238,9 @@ SCT_TdaqEnabledSvc::filled() const{
 
 bool
 SCT_TdaqEnabledSvc::unfilledRun() const{
-  SG::ReadHandle<xAOD::EventInfo> event(m_eventInfoKey);
+  SG::ReadHandle<EventInfo> event(m_eventInfoKey);
   if (event.isValid()) {
-    const unsigned int runNumber=event->runNumber();
+    const unsigned int runNumber=event->event_ID()->run_number();
     const bool noDataExpected=(runNumber < earliestRunForFolder);
     if (noDataExpected) ATH_MSG_INFO("This run occurred before the /TDAQ/EnabledResources/ATLAS/SCT/Robins folder was filled in COOL; assuming the SCT is all ok.");
     return noDataExpected;

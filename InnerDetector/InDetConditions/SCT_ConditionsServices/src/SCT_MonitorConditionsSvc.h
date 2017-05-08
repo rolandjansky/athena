@@ -32,7 +32,7 @@
 #include "StoreGate/ReadHandleKey.h"
 
 // Event Info
-#include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/EventInfo.h"
 
 //forward declarations
 template <class TYPE> class SvcFactory;
@@ -242,7 +242,7 @@ private:
   std::string                  m_tagID4Eff;
   std::string                  m_tagID4NO;
 
-  SG::ReadHandleKey<xAOD::EventInfo> m_evtKey;
+  SG::ReadHandleKey<EventInfo> m_evtKey;
   IIOVRegistrationSvc*         m_regSvc;
   IAthenaOutputStreamTool*     m_streamer;
 
