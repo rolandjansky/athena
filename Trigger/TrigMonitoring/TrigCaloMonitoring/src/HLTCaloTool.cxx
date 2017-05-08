@@ -142,16 +142,16 @@ StatusCode HLTCaloTool::fill() {
 	   (*m_log) << MSG::DEBUG << "Tool name : " 
 		<< (*itrtcr).name() << endmsg;
 	}
-	phimin=-M_PI;
-	phimax=M_PI;
+	phimin=-M_PI+0.001;
+	phimax=M_PI-0.001;
 	// Fix for stupid RS problem
 	if ( (*itrtcr).name().find("Tile")!=std::string::npos ){
-		phimin=0;
-		phimax=2*M_PI;
+		phimin=0+0.001;
+		phimax=2*M_PI-0.001;
 	}
 	StatusCode sc;
-	float eta0=(etamax+etamin)/2;
-	float phi0=(phimax+phimin)/2;
+	double eta0=(etamax+etamin)/2;
+	double phi0=(phimax+phimin)/2;
 	if((*itrtcr).name() == "FullCaloCellContMaker") {
 		sc= (*itrtcr)->execute(*pCaloCellContainer);
 	} else {

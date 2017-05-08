@@ -139,12 +139,13 @@ TileRegionSelectorTable::fillMaps()
       //unsigned int rod=ROD[i]+j/4;
       //unsigned int coll=(i+1)*256+j;
       //unsigned int hash=i*64+j;
+      int rod;
       if ( m_2017RODs ) {
       int new_j=0;
       if ( (j%2)==1 ) new_j=1;
-      int rod=ROD[i]+2*(j/4)+new_j;
+      rod=ROD[i]+2*(j/4)+new_j;
       } else {
-      int rod=ROD[i]+j/4;
+      rod=ROD[i]+j/4;
       }
 
       int coll=(i+1)*256+j;
