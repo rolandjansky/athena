@@ -189,14 +189,14 @@ StatusCode TileCellCont::initialize() {
 #endif
   m_hash.initialize(0,rodids);
 
-//#ifndef NDEBUG
+#ifndef NDEBUG
   for (int i = 0; i < m_hash.max(); ++i) {
     TileCellCollection *aa = this->at(i);
     TileCell* bb = aa->at(0);
     std::cout << "TileCellCont\t\t DEBUG \t" << i << " " << std::hex << m_hash.identifier(i) << std::dec << " " << aa->identify() << " " << bb->eta() << " " <<  bb->phi() << std::endl;
     // A collection per ROD/ROB/HashId
   } // end of for id
-//#endif
+#endif
   m_it = new std::vector<TileCellCollection*>::const_iterator();
 
   return StatusCode::SUCCESS;
