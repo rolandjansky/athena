@@ -322,20 +322,20 @@ StatusCode MdtRawDataValAlg::initialize()
 }
 
 /*----------------------------------------------------------------------------------*/
-StatusCode MdtRawDataValAlg::bookHistogramsRecurrent( /*bool isNewEventsBlock, bool newLumiBlock, bool newRun */)
+StatusCode MdtRawDataValAlg::bookHistogramsRecurrent( /*bool isNewEventsBlock, bool newLumiBlockFlag(), bool newRunFlag() */)
 /*----------------------------------------------------------------------------------*/
 {
   //changed for booking unmanaged histograms for MIG2
 
   StatusCode sc = StatusCode::SUCCESS;
 
-  if(newRun || newLowStatInterval){
-    sc = bookMDTSummaryHistograms(/* isNewEventsBlock,*/ newLumiBlock, newRun);
+  if(newRunFlag() || newLowStatIntervalFlag()){
+    sc = bookMDTSummaryHistograms(/* isNewEventsBlock,*/ newLumiBlockFlag(), newRunFlag());
     if(sc.isFailure()) { 
       ATH_MSG_FATAL("Failed to bookMDTSummaryHistograms" );
       return sc;
     }
-    sc = bookMDTOverviewHistograms(/* isNewEventsBlock,*/ newLumiBlock, newRun);
+    sc = bookMDTOverviewHistograms(/* isNewEventsBlock,*/ newLumiBlockFlag(), newRunFlag());
     if(sc.isFailure()) { 
       ATH_MSG_FATAL("Failed to bookMDTOverviewHistograms" );
       return sc;
@@ -343,11 +343,11 @@ StatusCode MdtRawDataValAlg::bookHistogramsRecurrent( /*bool isNewEventsBlock, b
   }
 
   //if(isNewEventsBlock) {}
-  if(newLumiBlock) {}
-  if(newRun) {      
-    ATH_MSG_DEBUG("MDT RawData Monitoring from ESD : newRun" );    
+  if(newLumiBlockFlag()) {}
+  if(newRunFlag()) {      
+    ATH_MSG_DEBUG("MDT RawData Monitoring from ESD : newRunFlag()" );    
     //Book All Chambers
-    //Protection against newRun()
+    //Protection against newRunFlag()()
     clear_hist_map();
     int counter = 0;
       sc= GetTimingInfo();
@@ -385,7 +385,7 @@ StatusCode MdtRawDataValAlg::bookHistogramsRecurrent( /*bool isNewEventsBlock, b
       }
     }
     
-  }//if newRun
+  }//if newRunFlag()
 
   return sc; 
 } 
@@ -504,7 +504,6 @@ StatusCode MdtRawDataValAlg::fillHistograms()
       for (Muon::MdtPrepDataContainer::const_iterator containerIt = mdt_container->begin(); containerIt != mdt_container->end(); ++containerIt) {
         if (containerIt == mdt_container->end() || (*containerIt)->size()==0) continue;  //check if there are counts  
         m_nColl++;
-
         
         bool isHit_above_ADCCut = false;
         // loop over hits
@@ -516,10 +515,9 @@ StatusCode MdtRawDataValAlg::fillHistograms()
             m_nPrdcut++;
             isHit_above_ADCCut = true;
           }
-
           //      Identifier digcoll_id = (*mdtCollection)->identify();
           hardware_name = getChamberName(*mdtCollection);
-           
+
 
           //Relic from cosmic days nolonger relevant      
           //      if (selectChambersRange(hardware_name, m_chamberName, m_mdtIdHelper->stationEta(digcoll_id), m_StationEta, m_mdtIdHelper->stationPhi(digcoll_id), m_StationPhi, m_StationSize) ) 
@@ -543,7 +541,6 @@ StatusCode MdtRawDataValAlg::fillHistograms()
             ATH_MSG_ERROR("Failed to Fill MDTSummaryHistograms" ); 
             return sc; 
           }
-
 
           if(m_doChamberHists){
             if(isATLASReady()) sc = fillMDTHistograms(*mdtCollection);
@@ -679,9 +676,9 @@ StatusCode MdtRawDataValAlg::procHistograms(/*bool isEndOfEventsBlock, bool isEn
 
   StatusCode sc = StatusCode::SUCCESS; 
   //if(isEndOfEventsBlock) {}
-  if(endOfLumiBlock) {}
+  if(endOfLumiBlockFlag()) {}
   //Replicate lowStat histograms to run directory if stable beam
-  if( endOfLumiBlock && isATLASReady() && !m_isOnline ){
+  if( endOfLumiBlockFlag() && isATLASReady() && !m_isOnline ){
     //Book tdc adccut per region per lowStat
     sc = regHist((TH1F*) overalltdccut_segm_PR_Lumi[enumBarrelA]->Clone(), mg->mongroup_brA_shift);
     sc = regHist((TH1F*) overalltdccut_segm_PR_Lumi[enumBarrelC]->Clone(), mg->mongroup_brC_shift);
@@ -854,7 +851,7 @@ StatusCode MdtRawDataValAlg::procHistograms(/*bool isEndOfEventsBlock, bool isEn
 
 
 
-  if(endOfRun) {
+  if(endOfRunFlag()) {
 
     ATH_MSG_DEBUG("********Reached Last Event in MdtRawDataValAlg !!!" );   
     ATH_MSG_DEBUG("MdtRawDataValAlg finalize()" );
@@ -897,7 +894,7 @@ StatusCode MdtRawDataValAlg::procHistograms(/*bool isEndOfEventsBlock, bool isEn
       if( mdtchamberstatphislice[j] ) mdtchamberstatphislice[j]->LabelsDeflate("X");
     }
 
-  } // endOfRun
+  } // endOfRunFlag()
 
   return sc;
 }  
@@ -1096,7 +1093,7 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
   //if( isNewEventsBlock ){}
   if( newLumiBlock ){}
   //book these histos as lowStat interval if not online monitoring
-  if( (newLowStatInterval && !m_isOnline) || (m_isOnline && newRun) ){
+  if( (newLowStatIntervalFlag() && !m_isOnline) || (m_isOnline && newRun) ){
     //Book tdc adccut per region per lowStat
     sc = bookMDTHisto_overview(overalltdccut_segm_PR_Lumi[enumBarrelA], "MDTTDC_segm_Summary_ADCCut_BA", "[nsec]", "Number of Entries",
         120, 0., 2000.,mg->mongroup_brA_shiftLumi);
@@ -1235,7 +1232,7 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
         } // end if(ilayer==0&&(iecap==0||iecap==2) )
       }//layer
     }//ecap
-  }//newLowStatInterval
+  }//newLowStatIntervalFlag()
 
   if(newRun){
     //     //Book t0 tmax tdrift summary plots
@@ -1494,7 +1491,7 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
       } // loop in phi
     } // loop in layer
   } // loop in ecap 
-}//newRun
+}//newRunFlag()
 
 ATH_MSG_DEBUG("LEAVING MDTSUMMARYBOOK");
 return sc;
@@ -1506,7 +1503,7 @@ StatusCode MdtRawDataValAlg::bookMDTOverviewHistograms(/* bool isNewEventsBlock,
   //if( isNewEventsBlock ){}
   if( newLumiBlock ){}
   //book these histos as lowStat interval if not online monitoring
-  if( (newLowStatInterval && !m_isOnline) || (m_isOnline && newRun) ){
+  if( (newLowStatIntervalFlag() && !m_isOnline) || (m_isOnline && newRun) ){
     ////////////////////////////////////////////////////////////////////////////////////// 
     //histo path for overall tdccut spectrum
     sc = bookMDTHisto_overview(overalltdccutLumi, "Overall_TDC_ADCCut_spectrum", "[nsec]", "Number of Entries",
@@ -1699,6 +1696,8 @@ StatusCode MdtRawDataValAlg::fillMDTHistograms( const Muon::MdtPrepData* mdtColl
 
 
   float tdc = mdtCollection->tdc()*25.0/32.0;
+  // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
+  if(hardware_name.substr(0,3)=="BMG") tdc = mdtCollection->tdc() * 0.2;
   float adc = mdtCollection->adc();
 
   if (chamber->mdttdc) {
@@ -1749,7 +1748,6 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
     ATH_MSG_ERROR( "Could Not Retrieve MDTChamber w/ ID " << digcoll_idHash );
     return sc;
   }
-
   bool isNoisy = m_masked_tubes->isNoisy( mdtCollection );
 
   int ibarrel = chamber->GetBarrelEndcapEnum();
@@ -1762,7 +1760,10 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
   bool isBIM = (chambername.at(2)=='M');
 
   float tdc = mdtCollection->tdc()*25.0/32.0;
+  // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
+  if(chambername.substr(0,3)=="BMG") tdc = mdtCollection->tdc() * 0.2;
   float adc = mdtCollection->adc();
+
 
   if( mdtChamberHits[iregion][ilayer][stationPhi] && adc > m_ADCCut )
     mdtChamberHits[iregion][ilayer][stationPhi]->Fill(std::abs(stationEta));
@@ -1843,6 +1844,8 @@ StatusCode MdtRawDataValAlg::fillMDTOverviewHistograms( const Muon::MdtPrepData*
   float mdt_tube_perp = mdtgPos.perp();
 
   float tdc = mdtCollection->tdc()*25.0/32.0;
+  // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
+  if(hardware_name.substr(0,3)=="BMG") tdc = mdtCollection->tdc() * 0.2;
   float adc = mdtCollection->adc();
 
   //Barrel -->Fill MDT Global RZ and YX
@@ -1938,27 +1941,29 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
         MDTChamber* chamber = 0;
         m_mdtIdHelper->get_module_hash( tmpid, idHash );  
         sc = getChamber(idHash, chamber);
-
+        std::string chambername = chamber->getName();
         if(overalladc_segm_Lumi) overalladc_segm_Lumi->Fill(mrot->prepRawData()->adc());
         if( store_ROTs.find(tmpid) == store_ROTs.end() ) { // Let's not double-count hits belonging to multiple segments
           store_ROTs.insert(tmpid);   
 
           double tdc = mrot->prepRawData()->tdc()*25.0/32.0;
-          //      double tdc = mrot->driftTime()+500;
+          // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
+          if(chambername.substr(0,3)=="BMG") tdc = mrot->prepRawData()->tdc() * 0.2;
+              //      double tdc = mrot->driftTime()+500;
 
-          int iregion = chamber->GetRegionEnum();
-          int ilayer = chamber->GetLayerEnum();
-          int statphi = chamber->GetStationPhi();
-          int ibarrel_endcap = chamber->GetBarrelEndcapEnum();
-          if(overalladc_segm_PR_Lumi[iregion]) overalladc_segm_PR_Lumi[iregion]->Fill(mrot->prepRawData()->adc());        
+              int iregion = chamber->GetRegionEnum();
+              int ilayer = chamber->GetLayerEnum();
+              int statphi = chamber->GetStationPhi();
+              int ibarrel_endcap = chamber->GetBarrelEndcapEnum();
+              if(overalladc_segm_PR_Lumi[iregion]) overalladc_segm_PR_Lumi[iregion]->Fill(mrot->prepRawData()->adc());        
 
-          if(mrot->prepRawData()->adc()>m_ADCCut) { // This is somewhat redundant because this is usual cut for segment-reconstruction, but that's OK
-            if(statphi > 15) {
-              ATH_MSG_ERROR( "MDT StationPhi: " << statphi << " Is too high.  Chamber name: " << chamber->getName() );
-              continue;
-            }
+              if(mrot->prepRawData()->adc()>m_ADCCut) { // This is somewhat redundant because this is usual cut for segment-reconstruction, but that's OK
+                if(statphi > 15) {
+                  ATH_MSG_ERROR( "MDT StationPhi: " << statphi << " Is too high.  Chamber name: " << chamber->getName() );
+                  continue;
+                }
 
-            if( mdttdccut_sector[iregion][ilayer][statphi] ) mdttdccut_sector[iregion][ilayer][statphi]->Fill(tdc);
+                if( mdttdccut_sector[iregion][ilayer][statphi] ) mdttdccut_sector[iregion][ilayer][statphi]->Fill(tdc);
             //Fill Overview Plots
             if(overalltdccut_segm_Lumi) overalltdccut_segm_Lumi->Fill(tdc);
             if(overalltdccut_segm_PR_Lumi[iregion]) overalltdccut_segm_PR_Lumi[iregion]->Fill(tdc);
