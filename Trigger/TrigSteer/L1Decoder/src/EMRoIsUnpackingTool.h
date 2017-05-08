@@ -37,7 +37,7 @@ class EMRoIsUnpackingTool : virtual public AthAlgTool, virtual public IRoIsUnpac
   
   // Athena algtool's Hooks
   StatusCode  initialize() override;
-  StatusCode  beginRun();
+  StatusCode  updateConfiguration() override;
   StatusCode  finalize() override;
   
  private: 

@@ -44,16 +44,18 @@ StatusCode EMRoIsUnpackingTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode EMRoIsUnpackingTool::beginRun() {
+StatusCode EMRoIsUnpackingTool::updateConfiguration() {
   using namespace TrigConf;
 
   const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
-  for( auto caloType : std::vector<L1DataDef::TriggerType>{ L1DataDef::EM/*, L1DataDef::TAU*/} ) {    
-    for (TriggerThreshold * th : thresholdConfig->getThresholdVector( caloType ) ) {
-      if ( th != nullptr ) {
-        ATH_MSG_DEBUG( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier(th->name()).numeric() ); 
-        m_emThresholds.push_back(th);
-      }
+  auto filteredThresholds= thresholdConfig->getThresholdVector( L1DataDef::EM );
+  ATH_MSG_DEBUG( "Number of filtered thresholds " << filteredThresholds.size() );
+  for (auto th :  filteredThresholds ) {
+    if ( th != nullptr ) {
+      ATH_MSG_DEBUG( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier(th->name()).numeric() ); 
+      m_emThresholds.push_back(th);
+    } else {
+      ATH_MSG_DEBUG( "Nullptr to the threshood" ); 
     }
   }
   return StatusCode::SUCCESS;
@@ -93,10 +95,12 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
 					    recRoI->phi(), recRoI->phi()-m_roIWidth, recRoI->phi()+m_roIWidth );
       trigRoIs->push_back( trigRoI );
 			  
-      ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw(8) << roIWord << ", threshold pattern " << MSG::dec );
-      
+      ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw(8) << roIWord << MSG::dec );      
+
       auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );
+      
       for ( auto th: m_emThresholds ) {
+	ATH_MSG_VERBOSE( "Checking if the threshold " << th->name() << " passed" );
 	if ( recRoI->passedThreshold( th->thresholdNumber() ) ) {
 	  ATH_MSG_DEBUG("Passed Threshold name " << th->name());
 	  addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );

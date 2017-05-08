@@ -44,9 +44,9 @@ class MURoIsUnpackingTool
   virtual ~MURoIsUnpackingTool(); 
   
   // Athena algtool's Hooks
-  StatusCode  initialize() override;
-  StatusCode beginRun();
-  StatusCode  finalize() override;
+  StatusCode initialize() override;
+  StatusCode updateConfiguration() override;
+  StatusCode finalize() override;
   StatusCode unpack(const EventContext& ctx,
 		    const ROIB::RoIBResult& roib,
 		    const HLT::IDSet& activeChains) const override;

@@ -28,6 +28,12 @@ class IRoIsUnpackingTool
   typedef HLT::IDtoIDVecMap ThresholdToIdentifiers;
   
   static const InterfaceID& interfaceID();
+
+  /*
+    @brief Invoked when there is a potential change of the configuration. Typically beginRun.
+   */
+  virtual StatusCode updateConfiguration() = 0; 
+
   
   /*
     @brief The methods reads the RoIB result object and unpacks fragment of it, depending of the implementation (i.e. EM, J..)

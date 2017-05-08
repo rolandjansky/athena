@@ -48,7 +48,7 @@ StatusCode MURoIsUnpackingTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MURoIsUnpackingTool::beginRun() {
+StatusCode MURoIsUnpackingTool::updateConfiguration() {
   using namespace TrigConf;
   const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
   for (TriggerThreshold * th : thresholdConfig->getThresholdVector( L1DataDef::MUON ) ) {

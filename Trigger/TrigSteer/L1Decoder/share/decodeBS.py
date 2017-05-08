@@ -85,8 +85,9 @@ if nThreads >= 1:
 
 from L1Decoder.L1DecoderConf import *
 l1Decoder = L1Decoder( OutputLevel=DEBUG )
-l1Decoder.ctpUnpacker = CTPUnpackingTool()
-l1Decoder.ctpUnpacker.CTPToChainMapping = ["0:HLT_e3",  "0:HLT_g5", "1:HLT_e7", "15:HLT_mu6", "33:HLT_2mu6", "15:HLT_mu6idperf", "42:HLT_e15mu4"]
+l1Decoder.ctpUnpacker = CTPUnpackingTool( OutputLevel =  DEBUG, ForceEnableAllChains=True )
+
+l1Decoder.ctpUnpacker.CTPToChainMapping = ["0:HLT_e3",  "0:HLT_g5", "1:HLT_e7", "15:HLT_mu6", "33:HLT_2mu6", "15:HLT_mu6idperf", "42:HLT_e15mu4"] # this are real IDs of L1_* items in pp_v5 menu
 
 emUnpacker = EMRoIsUnpackingTool( OutputLevel=DEBUG )
 emUnpacker.ThresholdToChainMapping = ["EM3 : HLT_e3", "EM3 : HLT_g5",  "EM7 : HLT_e7", "EM15 : HLT_e15mu4" ]

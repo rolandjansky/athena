@@ -38,7 +38,7 @@ class TAURoIsUnpackingTool
 
   /// Destructor: 
   virtual ~TAURoIsUnpackingTool(); 
-
+  StatusCode  updateConfiguration() override { return StatusCode::SUCCESS; }
   // Athena algtool's Hooks
   virtual StatusCode  initialize();
   virtual StatusCode  finalize();

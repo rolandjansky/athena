@@ -29,8 +29,8 @@ StatusCode L1Decoder::initialize() {
 }
 
 StatusCode L1Decoder::beginRun() {
-  //  for ( auto t: m_roiUnpackers )
-  //    CHECK( t->beginRun() );
+  for ( auto t: m_roiUnpackers )
+    CHECK( t->updateConfiguration() );
   return StatusCode::SUCCESS;
 }
 
@@ -42,7 +42,7 @@ StatusCode L1Decoder::readConfiguration() {
 StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
   using namespace TrigCompositeUtils;
   SG::ReadHandle<ROIB::RoIBResult> roibH( m_RoIBResultKey, ctx );
-
+  ATH_MSG_DEBUG( "Obtained ROIB result" );
   // this should realy be: const ROIB::RoIBResult* roib = SG::INPUT_PTR (m_RoIBResultKey, ctx);
   // or const ROIB::RoIBResult& roib = SG::INPUT_REF (m_RoIBResultKey, ctx);
 

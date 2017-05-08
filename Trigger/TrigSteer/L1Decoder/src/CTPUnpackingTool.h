@@ -48,7 +48,7 @@ private:
   typedef std::map<size_t, HLT::IDVec> IndexToIdentifiers;
   IndexToIdentifiers       m_ctpToChain;
   std::vector<std::string> m_ctpToChainProperty;
-
+  bool m_forceEnable; 
 }; 
 
 inline const InterfaceID& CTPUnpackingTool::interfaceID() 
