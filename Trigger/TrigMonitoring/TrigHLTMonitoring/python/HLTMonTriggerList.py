@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import TrigBjetMonitoring.TrigBjetMonitCategory as bjet
@@ -173,7 +174,7 @@ class HLTMonTriggerList:
         # set the tau triggers to the default values
         self.monitoring_tau = tau.monitoring_tau
         self.monitoring_singleTau = tau.monitoring_singleTau
-
+        self.monitoring_singleTau = tau.monitoring_singleTau_cosmic
 
     # Config of monitoring lists which are dependent on running mode
     def set_HLTMonTrigList_pp(self):
