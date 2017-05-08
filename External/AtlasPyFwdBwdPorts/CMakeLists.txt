@@ -120,7 +120,8 @@ _setup_python_package( futures
 # Install grin:
 _setup_python_package( grin
    ${CMAKE_CURRENT_SOURCE_DIR}/src/grin-1.2.1.tar.gz
-   d894426dfbf70bc105388c2a51348199 )
+   d894426dfbf70bc105388c2a51348199
+   DEPENDS distribute )
 
 # Install jsonpickle:
 _setup_python_package( jsonpickle
@@ -160,6 +161,7 @@ _setup_python_package( pyflakes
 _setup_python_package( flake8
    ${CMAKE_CURRENT_SOURCE_DIR}/src/flake8-3.3.0.tar.gz
    3df622aac9bad27c04f34164609bbed8
+   DEPENDS pyflakes
    SINGLE_VERSION )
 
 # Install configparser:
