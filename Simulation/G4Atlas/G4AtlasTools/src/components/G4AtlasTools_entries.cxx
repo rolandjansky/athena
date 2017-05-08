@@ -1,4 +1,4 @@
-e#include "GaudiKernel/DeclareFactoryEntries.h"
+#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include "G4AtlasTools/PhysicsListToolBase.h"
 #include "G4AtlasTools/DetectorGeometryBase.h"
