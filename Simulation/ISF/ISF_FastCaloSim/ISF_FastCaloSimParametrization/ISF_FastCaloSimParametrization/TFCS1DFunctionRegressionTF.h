@@ -26,7 +26,8 @@ class TFCS1DFunctionRegressionTF:public TFCS1DFunctionRegression
     float m_rangeval;
     float m_startval;
 		
-  ClassDef(TFCS1DFunctionRegressionTF,1)
+  public:
+    ClassDef(TFCS1DFunctionRegressionTF,1)
   
 };
 
