@@ -907,7 +907,7 @@ namespace met {
 	} // is not from muon FSR
       } // association exists
       else {
-	ATH_MSG_WARNING( "WARNING: Jet without association found!" );
+	ATH_MSG_WARNING( "Jet without association found!" );
       }
     } // jet loop
 
