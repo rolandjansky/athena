@@ -39,7 +39,8 @@ class JetQuarkLabel : public asg::AsgTool, virtual public IJetTruthMatching {
     public:
         JetQuarkLabel(const std::string& name);
         virtual ~JetQuarkLabel();
-        virtual StatusCode initialize() override;
+        StatusCode initialize();
+        StatusCode finalize();
 
         /* Method to truth tag a jet.
          * NB: for this particular algorithm, matchJet is TRUE if the jet is matched 
@@ -47,11 +48,31 @@ class JetQuarkLabel : public asg::AsgTool, virtual public IJetTruthMatching {
          * longer a job option.
          */
 
-         virtual bool matchJet(const xAOD::Jet& myJet,
-                               MatchInfo* info = nullptr) const override;
+        virtual bool matchJet(const xAOD::Jet& myJet);
 
-        virtual void printParameterSettings() const override;
+        virtual void m_printParameterSettings();
 
+        /** NEXT METHODS ARE ONLY ACCESSIBLE AFTER CASTING!! */
+
+        /** Return barcode */
+        int barcode() const;
+
+        /** Return pdg to match */
+        int pdgCode() const;
+
+        /** Return the predefined name to label the jets passing the matching: */
+        inline const int& jetLabel() const { return m_jetLabel; }
+
+        /** Return the min distance to quarks: */
+        double deltaRMinTo(const std::string&) const;
+        inline const std::map<std::string, double>& distanceToQuarks() const { return m_distanceToQuarks; }
+
+        /** Return the B decay vertex position: */
+        inline const Eigen::Vector3d& BDecVtx() const { return m_BDecVtx; }
+        int Bpdg() const { return m_Bpdg; }
+
+        /** Get the number of MC Events in the McEventCollection: */
+        inline int NEventInCollection() const { return m_NEventInCollection; }
         inline void EventSelection(short s) { m_inTime = s; }
         inline short EventSelection() const { return m_inTime; }
 
@@ -61,10 +82,21 @@ class JetQuarkLabel : public asg::AsgTool, virtual public IJetTruthMatching {
         double m_ptCut;     //!< pT cut for partons
         bool   m_noDoc;
         short  m_inTime;
-        bool testJet(const xAOD::Jet&, const xAOD::TruthEventContainer*,
-                     MatchInfo* info) const;
+        bool m_testJet(const xAOD::Jet&, const xAOD::TruthEventContainer*);
+        int m_jetLabel; //!< label to use for matching jets
+        std::map<std::string, double> m_distanceToQuarks; //!< keep track of distances to quarks
+        Eigen::Vector3d m_BDecVtx; //!< positon of the lowest lying B hadron vertex decay
+        int    m_pdg;       //!< pdg code of the parton/baryon the jet has been matched to (which was closest)
+        int    m_barcode;   //!< barcode of the matched parton (to be able to find the parton in the McEventColl)
+        int m_Bpdg;
+        int m_NEventInCollection;
 };
 
+/** Return barcode */
+inline int JetQuarkLabel::barcode()  const { return m_barcode; }
+
+/** Return pdg to match */
+inline int JetQuarkLabel::pdgCode()  const { return m_pdg; }
 
 }
 #endif // TRUTHMATCHTOOLS_JETQUARKLABEL_H
