@@ -28,6 +28,7 @@ find_package( XercesC )
 # Component(s) in the package:
 atlas_add_library( ISF_Geant4Event
                    src/*.cxx
+                   PUBLIC_HEADERS ISF_Geant4Event
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    ${HEPMC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}
@@ -37,11 +38,6 @@ atlas_add_library( ISF_Geant4Event
                    ${GEANT4_LIBRARIES} ${EIGEN_LIBRARIES} ISF_Event
                    SimHelpers GeoPrimitives MCTruth)
 
-# Install files from the package:
-atlas_install_headers( ISF_Geant4Event )   
-
-
-            
 #atlas_add_test(SOURCES
 #               INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
 #              ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
