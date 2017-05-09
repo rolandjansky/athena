@@ -14,6 +14,8 @@
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
+#include "CaloEvent/CaloCellTowerLink.h"
+
 
 CaloTowerxAODAlgoBase::CaloTowerxAODAlgoBase(const std::string& name,ISvcLocator* pSvcLocator)
   : AthAlgorithm(name,pSvcLocator) {
@@ -23,6 +25,8 @@ CaloTowerxAODAlgoBase::CaloTowerxAODAlgoBase(const std::string& name,ISvcLocator
   declareProperty("nEta",m_nEtaBins=100,"Tower-grid: number of phi bins");
   declareProperty("nPhi",m_nPhiBins=64,"Tower-grid: number of phi bins");
   declareProperty("doCrossChecks",m_doxCheck=false,"Turn on internal checks (debugging)");
+  declareProperty("registerLinks",m_registerLinks=false,"Register cell-to-tower links in detector store");
+
 }
 
 CaloTowerxAODAlgoBase::~CaloTowerxAODAlgoBase()
@@ -231,26 +235,63 @@ StatusCode CaloTowerxAODAlgoBase::fillIndexCache() {
     for (size_t i=0;i<m_cellToTower.size(); ++i) {
       const auto& towerinfo=m_cellToTower[i];
       if (towerinfo.size()) 
-	ATH_MSG_DEBUG("Cell with index " << i << " contributes to " << towerinfo.size() << " Towers.");
+        ATH_MSG_DEBUG("Cell with index " << i << " contributes to " << towerinfo.size() << " Towers.");
       else {
-	const Identifier id=caloCellId->cell_id(i);
-	ATH_MSG_ERROR("Cell with index " << i << ", id=0x" 
-		      << std::hex << id.get_identifier32().get_compact() << std::dec 
-		      << "does not contribute to any tower!");
+        const Identifier id=caloCellId->cell_id(i);
+        ATH_MSG_ERROR("Cell with index " << i << ", id=0x" 
+                      << std::hex << id.get_identifier32().get_compact() << std::dec 
+                      << "does not contribute to any tower!");
 
-}
+      }
       double sumWeight=0;
       for (const  cellToTower_t& ct : towerinfo) 
-	sumWeight+=ct.m_weight;
+        sumWeight+=ct.m_weight;
       if (fabs(sumWeight-1)>0.001) {
-	const Identifier id=caloCellId->cell_id(i);
-	msg(MSG::ERROR) << "Cell with index " << i << ", id=0x" 
-			<< std::hex << id.get_identifier32().get_compact() << std::dec 
-			<< ": Weights don't add up to 1.0, got " << sumWeight << endreq;
+        const Identifier id=caloCellId->cell_id(i);
+        msg(MSG::ERROR) << "Cell with index " << i << ", id=0x" 
+                        << std::hex << id.get_identifier32().get_compact() << std::dec 
+                        << ": Weights don't add up to 1.0, got " << sumWeight << endreq;
       }
     }//end loop over cells
   }//end if doxCheck
 
+  // optional: save cell-to-tower links in detector store
+  if ( m_registerLinks ) {
+    // check if container already in detector store
+    std::string linkMapKey(m_caloTowerContainerKey+CaloCellTowerLink::extTag);
+    CaloCellTowerLink::Map* linkMap = new CaloCellTowerLink::Map(m_cellToTower.size());
+    if ( detStore()->contains<CaloCellTowerLink::Map>(linkMapKey) ) { 
+      ATH_MSG_INFO("Attempt to overwrite CaloCellTowerLink::Map <"<<linkMapKey<<">");
+      CHECK(detStore()->overwrite(linkMap,linkMapKey));
+    } else {
+      ATH_MSG_INFO("Record CaloCellTowerLink::Map <"<<linkMapKey<<">");
+      CHECK(detStore()->record(linkMap,linkMapKey));
+    }
+    //
+    CaloCellTowerLink::index_vec_t  indices; indices.reserve(1024);
+    CaloCellTowerLink::weight_vec_t weights; weights.reserve(1024);
+    // loop all cells
+    for ( size_t cellidx(0); cellidx < m_cellToTower.size(); ++cellidx ) {
+      indices.resize(m_cellToTower.at(cellidx).size(),0);
+      weights.resize(m_cellToTower.at(cellidx).size(),0.);
+      // loop all links of cell to tower and retrieve tower indices and geometrical weights
+      for ( size_t linkidx(0); linkidx<m_cellToTower.at(cellidx).size(); ++linkidx ) { 
+        indices[linkidx] = m_cellToTower.at(cellidx).at(linkidx).m_towerIdx;
+        weights[linkidx] = m_cellToTower.at(cellidx).at(linkidx).m_weight;
+        ATH_MSG_DEBUG("Cell id "<<cellidx<<" tower index "<<indices.at(linkidx)<<" weight "<<weights.at(linkidx)<<" added");
+      }
+      // add cell links to lookup 
+      linkMap->setCell(cellidx,indices,weights);
+    }
+    if ( (detStore()->setConst(linkMap)).isFailure() ) { 
+      ATH_MSG_ERROR("Cannot set CaloCellTowerLink::Map object <" << linkMapKey << "> to const access only");
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO("Filled CaloCellTowerlink::Map object <" << linkMapKey << "> at " << linkMap << " containing cell-to-tower links for " << linkMap->size() << " cells in detector store");
+  } // end register links
+
+
+  
   ATH_MSG_DEBUG("Built CelltoTower index table. nCells=" << m_cellToTower.size() << ", nTowers=" << nTowers);
 
   return StatusCode::SUCCESS;
