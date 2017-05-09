@@ -91,12 +91,7 @@ StatusCode MdtRawDataValAlg::binMdtGlobal( TH2* &h, char ecap ) {
     putBox(h, 0, 108, 1, 110); putLine(h,1,108,1,110); putLine(h,0,108,1,108); putLine(h,0,110,1,110);
     putBox(h, 0, 112, 2, 116); putLine(h,2,112,2,116); putLine(h,0,112,2,112); 
 
-    putLine(h,2,52,2,74);
-    //BML 12,13,14
-    putBox(h, 2, 74, 5, 76); putLine(h,5,74,5,76);putLine(h,5,78,5,80); putLine(h,2,74,5,74); putLine(h,2,76,5,76);putLine(h,2,76,2,78);
-    //putBox(h, 4, 76, 5, 78);  //putLine(h,4,76,4,78);
-    putBox(h, 2, 78, 5, 80); putLine(h,2,80,5,80); putLine(h,2,78,5,78); //putLine(h,5,74,5,76);
-    putLine(h,2,80,2,106);
+    putLine(h,2,52,2,106);
 
     //Mid Section
     putBox(h, 8, 0, 9, 106); putLine(h,8,0,8,106); putLine(h,8,106,9,106); putLine(h,9,0,9,106);
@@ -119,13 +114,7 @@ StatusCode MdtRawDataValAlg::binMdtGlobal( TH2* &h, char ecap ) {
     putBox(h, 16, 108, 17, 110);   putLine(h,16,108,16,110); putLine(h,16,108,17,108); putLine(h,16,110,17,110);
     putBox(h, 15, 112, 17, 116);   putLine(h,15,112,15,116); putLine(h,15,112,17,112); 			 
 
-    putLine(h,15,52,15,74);
-    //BML 12,13,14
-    putBox(h, 12, 74, 17, 76); putLine(h,12,74,12,76); putLine(h,15,74,12,74); putLine(h,15,76,12,76);
-    putBox(h, 15, 76, 17, 78); //putBox(h, 12, 76, 13, 78);
-    putLine(h,15,76,15,78); //putLine(h,13,76,13,78); putLine(h,12,76,12,78);
-    putBox(h, 12, 78, 17, 80); putLine(h,15,78,12,78); putLine(h,15,80,12,80); putLine(h,12,78,12,80);
-    putLine(h,15,80,15,106);
+    putLine(h,15,52,15,106);
 
     //Draw TickMarks
     for(int i = 0; i < 59; i +=1){
@@ -315,30 +304,6 @@ StatusCode  MdtRawDataValAlg::binMdtRegional( TH2* &h, string &xAxis){
     putLine(h, 2, 0, 2, 44); putLine(h, 0, 44, 2, 44);
     putLine(h, 1, 48, 1, 52); putLine(h, 0, 48, 1, 48); putLine(h, 0, 52, 1, 52);
     putLine(h, 2, 56, 2, 64); putLine(h, 0, 56, 2, 56);
-  }
-  if(xAxis=="BMA") {
-    putBox(h, 3, 44, 6, 48);
-    //putBox(h, 5, 48, 6, 52);
-    putBox(h, 3, 52, 6, 56);  
-    putLine(h, 3, 44, 6, 44);
-    putLine(h, 3, 44, 3, 48);
-    putLine(h, 3, 48, 6, 48);
-    //putLine(h, 5, 48, 5, 52);
-    putLine(h, 3, 52, 6, 52);
-    putLine(h, 3, 52, 3, 56);
-    putLine(h, 3, 56, 6, 56);
-  }
-  if(xAxis=="BMC") {
-    putBox(h, 0, 44, 3, 48);
-    //putBox(h, 0, 48, 1, 52);
-    putBox(h, 0, 52, 3, 56);  
-    putLine(h, 0, 44, 3, 44);
-    putLine(h, 3, 44, 3, 48);
-    putLine(h, 0, 48, 3, 48);
-    //putLine(h, 1, 48, 1, 52);
-    putLine(h, 0, 52, 3, 52);
-    putLine(h, 3, 52, 3, 56);
-    putLine(h, 0, 56, 3, 56);
   }
   if(xAxis=="BIA") {
     putBox(h, 6, 0, 8, 4); putLine(h, 6, 0, 8, 0); putLine(h, 6, 0, 6, 4); putLine(h, 6, 4, 8, 4); //phi 1
@@ -1134,17 +1099,12 @@ int MdtRawDataValAlg::get_bin_for_LB_hist(int region, int layer, int phi, int et
     }
 
     else if(layer == 1){ //Middle
-      if(eta < 4 || (eta == 4 && phi < 12)) return 16*(eta-1) + phi;
-      else if( eta == 4 && phi == 12) return 59;
-      else if( eta == 4 && phi == 14) return 60;
-      else if( eta == 4 && phi == 15) return 61;
-      else if( eta == 5 && phi < 12) return 62 + phi;
-      else if( eta == 5 && phi == 12) return 73;
-      else if( eta == 5 && phi == 14) return 74;
-      else if( eta == 5 && phi == 15) return 75;
-      else if( eta == 6 && phi < 12) return 76 + phi;
-      else if( eta == 6 && phi == 14) return 87;
-      else if( eta == 6 && phi == 15) return 88;
+      // 95 = 1 + 16 + 16 + 16 + 16 + 16 + 14   total number of phi sectors (+1)
+      // in the last eta-sector (6) there is no phi-sector 13; ie there are no chambers BML6A13 and BML6C13, so there are only 14 phi sectos
+      // we move the bin of phi=14 directly above phi=12 so there is no white line in the histogram
+      if(eta == 6 && phi > 11 ) return 16*(eta-1) + phi - 1;
+      else return 16*(eta-1) + phi;
+
     }
     else if(layer == 2 && region == 0){ // Outer, side A (must be separated due to presence of eta=0 chambers)
       if(eta == 0 && phi == 11) return 0;
@@ -1240,25 +1200,27 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB(TH2* &h, int region, int layer){
     }
 
     else if(layer == 1){ //Middle
-      h->SetBins(834,1,2502,89,0,89);
+      h->SetBins(834,1,2502,95,0,95);   // 95 = 1 + 16 + 16 + 16 + 16 + 16 + 14   total number of phi sectors (+1)
+                                        // in the last eta-sector (6) there is no phi-sector 13; ie there arent chambers BML6A13 and BML6C13
+                                        // so there are only 14 phi sectors
       //Add Labels
       h->GetYaxis()->SetBinLabel(1,"BM1");
       h->GetYaxis()->SetBinLabel(17,"BM2");
       h->GetYaxis()->SetBinLabel(33,"BM3");
       h->GetYaxis()->SetBinLabel(49,"BM4");
-      h->GetYaxis()->SetBinLabel(63,"BM5");
-      h->GetYaxis()->SetBinLabel(77,"BM6");
+      h->GetYaxis()->SetBinLabel(65,"BM5");
+      h->GetYaxis()->SetBinLabel(81,"BM6");
       //Add lines
       h->GetYaxis()->SetTickLength(0);
-      for(int i = 1; i < 89; i++){
+      for(int i = 1; i < 95; i++){
 	TLine* l = new TLine(1,i,20,i);
 	h->GetListOfFunctions()->Add(l);
       }
       TLine* l1 = new TLine(1,16,50,16); h->GetListOfFunctions()->Add(l1);
       TLine* l2 = new TLine(1,32,50,32); h->GetListOfFunctions()->Add(l2);
       TLine* l3 = new TLine(1,48,50,48); h->GetListOfFunctions()->Add(l3);
-      TLine* l4 = new TLine(1,62,50,62); h->GetListOfFunctions()->Add(l4);
-      TLine* l5 = new TLine(1,76,50,76); h->GetListOfFunctions()->Add(l5);
+      TLine* l4 = new TLine(1,64,50,64); h->GetListOfFunctions()->Add(l4);
+      TLine* l5 = new TLine(1,80,50,80); h->GetListOfFunctions()->Add(l5);
     }
 
     else if(layer == 2 && region == 0){ //Outer, side A 
@@ -1475,88 +1437,92 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
     }
     else if(crate == 2){ //BA03, BC03
      //Add Labels
-      h->SetBins(834,1,2502,77,0,77);
+      h->SetBins(834,1,2502,80,0,80);
       h->GetYaxis()->SetBinLabel(1,"BIL");
       h->GetYaxis()->SetBinLabel(7,"BIM");
       h->GetYaxis()->SetBinLabel(12,"BIR");
       h->GetYaxis()->SetBinLabel(18,"BIS");
       h->GetYaxis()->SetBinLabel(30,"BMF");
-      h->GetYaxis()->SetBinLabel(33,"BML");
-      h->GetYaxis()->SetBinLabel(45,"BMS");
-      h->GetYaxis()->SetBinLabel(51,"BOF");
-      h->GetYaxis()->SetBinLabel(55,"BOG");
+      h->GetYaxis()->SetBinLabel(33,"BMG");
+      h->GetYaxis()->SetBinLabel(36,"BML");
+      h->GetYaxis()->SetBinLabel(48,"BMS");
+      h->GetYaxis()->SetBinLabel(54,"BOF");
+      h->GetYaxis()->SetBinLabel(58,"BOG");
       if(region == 0){
-        h->GetYaxis()->SetBinLabel(60,"BOL");
-        h->GetYaxis()->SetBinLabel(72,"BOS");
+        h->GetYaxis()->SetBinLabel(63,"BOL");
+        h->GetYaxis()->SetBinLabel(75,"BOS");
       } else if (region == 1){
-        h->GetYaxis()->SetBinLabel(59,"BOL");
-        h->GetYaxis()->SetBinLabel(71,"BOS");    	  
+        h->GetYaxis()->SetBinLabel(62,"BOL");
+        h->GetYaxis()->SetBinLabel(74,"BOS");    	  
       }
       //Add lines
       h->GetYaxis()->SetTickLength(0);
-      for(int i = 0; i < 77; i++){
+      for(int i = 0; i < 80; i++){
 	     TLine* l = new TLine(1,i,20,i);
 	     h->GetListOfFunctions()->Add(l);
-      }
+      } ////change line positions!
       TLine* l2 = new TLine(1,6,50,6); h->GetListOfFunctions()->Add(l2);
       TLine* l3 = new TLine(1,11,50,11);  h->GetListOfFunctions()->Add(l3);
       TLine* l3b = new TLine(1,17,50,17);  h->GetListOfFunctions()->Add(l3b);
-      TLine* l4 = new TLine(1,26,50,26);  h->GetListOfFunctions()->Add(l4);
+      //TLine* l4 = new TLine(1,26,50,26);  h->GetListOfFunctions()->Add(l4); //removed this line because it doesnt correspond to anything
       TLine* l5 = new TLine(1,29,50,29);  h->GetListOfFunctions()->Add(l5);
       TLine* l6 = new TLine(1,32,50,32);  h->GetListOfFunctions()->Add(l6);
-      TLine* l7 = new TLine(1,44,50,44);  h->GetListOfFunctions()->Add(l7);
-      TLine* l8 = new TLine(1,50,50,50);  h->GetListOfFunctions()->Add(l8);
-      TLine* l9 = new TLine(1,54,50,54);  h->GetListOfFunctions()->Add(l9);
+      TLine* l7 = new TLine(1,35,50,35);  h->GetListOfFunctions()->Add(l7);
+      TLine* l8 = new TLine(1,47,50,47);  h->GetListOfFunctions()->Add(l8);
+      TLine* l9 = new TLine(1,53,50,53);  h->GetListOfFunctions()->Add(l9);
+      TLine* l9b = new TLine(1,57,50,57);  h->GetListOfFunctions()->Add(l9b);
       if(region == 0) {
-    	  TLine* l10 = new TLine(1,59,50,59);  h->GetListOfFunctions()->Add(l10);
-          TLine* l11 = new TLine(1,71,50,71);  h->GetListOfFunctions()->Add(l11);
+    	  TLine* l10 = new TLine(1,62,50,62);  h->GetListOfFunctions()->Add(l10);
+          TLine* l11 = new TLine(1,74,50,74);  h->GetListOfFunctions()->Add(l11);
       } else if (region == 1){
-          TLine* l10 = new TLine(1,58,50,58);  h->GetListOfFunctions()->Add(l10);
-          TLine* l11 = new TLine(1,70,50,70);  h->GetListOfFunctions()->Add(l11);
+          TLine* l10 = new TLine(1,61,50,61);  h->GetListOfFunctions()->Add(l10);
+          TLine* l11 = new TLine(1,73,50,73);  h->GetListOfFunctions()->Add(l11);
       }
     }
 
-    else if(crate == 3){ //BA04, BC04
+    else if(crate == 3){ //BA04, BC04 
      //Add Labels
-      h->SetBins(834,1,2502,76,0,76);
+      h->SetBins(834,1,2502,79,0,79);
       h->GetYaxis()->SetBinLabel(1,"BIL");
       h->GetYaxis()->SetBinLabel(7,"BIM");
       h->GetYaxis()->SetBinLabel(12,"BIR");
       h->GetYaxis()->SetBinLabel(18,"BIS");
       h->GetYaxis()->SetBinLabel(30,"BMF");
-      h->GetYaxis()->SetBinLabel(33,"BML");
-      h->GetYaxis()->SetBinLabel(44,"BMS");
-      h->GetYaxis()->SetBinLabel(50,"BOF");
-      h->GetYaxis()->SetBinLabel(54,"BOG");
+      h->GetYaxis()->SetBinLabel(33,"BMG");
+      h->GetYaxis()->SetBinLabel(36,"BML");
+      h->GetYaxis()->SetBinLabel(47,"BMS");
+      h->GetYaxis()->SetBinLabel(53,"BOF");
+      h->GetYaxis()->SetBinLabel(57,"BOG");
       if (region == 0){
-          h->GetYaxis()->SetBinLabel(59,"BOL");
-          h->GetYaxis()->SetBinLabel(72,"BOS");
+          h->GetYaxis()->SetBinLabel(62,"BOL");
+          h->GetYaxis()->SetBinLabel(75,"BOS");
       } else if (region == 1){
-          h->GetYaxis()->SetBinLabel(58,"BOL");
-          h->GetYaxis()->SetBinLabel(71,"BOS");
+          h->GetYaxis()->SetBinLabel(61,"BOL");
+          h->GetYaxis()->SetBinLabel(74,"BOS");
       }
       
       //Add lines
       h->GetYaxis()->SetTickLength(0);
-      for(int i = 0; i < 76; i++){
+      for(int i = 0; i < 79; i++){
 	TLine* l = new TLine(1,i,20,i);
 	h->GetListOfFunctions()->Add(l);
       }
       TLine* l2 = new TLine(1,6,50,6); h->GetListOfFunctions()->Add(l2);
       TLine* l3 = new TLine(1,11,50,11);  h->GetListOfFunctions()->Add(l3);
       TLine* l3b = new TLine(1,17,50,17);  h->GetListOfFunctions()->Add(l3b);
-      TLine* l4 = new TLine(1,26,50,26);  h->GetListOfFunctions()->Add(l4);
+      //TLine* l4 = new TLine(1,26,50,26);  h->GetListOfFunctions()->Add(l4);//removed this line because it doesnt correspond to anything
       TLine* l5 = new TLine(1,29,50,29);  h->GetListOfFunctions()->Add(l5);
       TLine* l6 = new TLine(1,32,50,32);  h->GetListOfFunctions()->Add(l6);
-      TLine* l7 = new TLine(1,43,50,43);  h->GetListOfFunctions()->Add(l7);
-      TLine* l8 = new TLine(1,49,50,49);  h->GetListOfFunctions()->Add(l8);
-      TLine* l9 = new TLine(1,53,50,53);  h->GetListOfFunctions()->Add(l9);
+      TLine* l7 = new TLine(1,35,50,35);  h->GetListOfFunctions()->Add(l7);
+      TLine* l8 = new TLine(1,46,50,46);  h->GetListOfFunctions()->Add(l8);
+      TLine* l9 = new TLine(1,52,50,52);  h->GetListOfFunctions()->Add(l9);
+      TLine* l9b = new TLine(1,56,50,56);  h->GetListOfFunctions()->Add(l9b);
       if(region == 0){
-    	  TLine* l10 = new TLine(1,58,50,58);  h->GetListOfFunctions()->Add(l10);
-          TLine* l11 = new TLine(1,71,50,71);  h->GetListOfFunctions()->Add(l11);
+    	  TLine* l10 = new TLine(1,61,50,61);  h->GetListOfFunctions()->Add(l10);
+          TLine* l11 = new TLine(1,74,50,74);  h->GetListOfFunctions()->Add(l11);
       } else if (region == 1 ){
-    	  TLine* l10 = new TLine(1,57,50,57);  h->GetListOfFunctions()->Add(l10);
-          TLine* l11 = new TLine(1,70,50,70);  h->GetListOfFunctions()->Add(l11);
+    	  TLine* l10 = new TLine(1,60,50,60);  h->GetListOfFunctions()->Add(l10);
+          TLine* l11 = new TLine(1,73,50,73);  h->GetListOfFunctions()->Add(l11);
       }
     }
   }
@@ -1685,14 +1651,15 @@ int MdtRawDataValAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, 
 	else if(chamber.substr(0,3)=="BIM") binNum = 6 + eta;
 	else if(chamber.substr(0,3)=="BIR") binNum = 11 + eta;
 	else if(chamber.substr(0,3)=="BIS") binNum = 17 + 2*eta + (phi-10)/2-1;
-	else if(chamber.substr(0,3)=="BMF") binNum = 29 + eta;
-	else if(chamber.substr(0,3)=="BML") binNum = 32 + 2*eta + (phi-9)/2-1;
-	else if(chamber.substr(0,3)=="BMS") binNum = 44 + eta;
-	else if(chamber.substr(0,3)=="BOF") binNum = 50 + (eta+1)/2;
-	else if(chamber.substr(0,4)=="BOG0" && region == 0 ) binNum = 55;
-	else if(chamber.substr(0,3)=="BOG") binNum = 55 + eta/2 - region;
-	else if(chamber.substr(0,3)=="BOL") binNum = 59 + 2*eta + (phi-9)/2-1 - region;
-	else if(chamber.substr(0,3)=="BOS") binNum = 71 + eta - region;
+	else if(chamber.substr(0,3)=="BMF") binNum = 29 + (eta+1)/2;
+	else if(chamber.substr(0,3)=="BMG") binNum = 32 + eta/2;
+	else if(chamber.substr(0,3)=="BML") binNum = 35 + 2*eta + (phi-9)/2-1;
+	else if(chamber.substr(0,3)=="BMS") binNum = 47 + eta;
+	else if(chamber.substr(0,3)=="BOF") binNum = 53 + (eta+1)/2;
+	else if(chamber.substr(0,4)=="BOG0" && region == 0 ) binNum = 58;
+	else if(chamber.substr(0,3)=="BOG") binNum = 58 + eta/2 - region;
+	else if(chamber.substr(0,3)=="BOL") binNum = 62 + 2*eta + (phi-9)/2-1 - region;
+	else if(chamber.substr(0,3)=="BOS") binNum = 74 + eta - region;
 	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Bx03");
 	return binNum - 1;
     } else if(crate == 4){//BA04, BC04
@@ -1701,15 +1668,16 @@ int MdtRawDataValAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, 
 	else if(chamber.substr(0,3)=="BIM") binNum = 6 + eta;
 	else if(chamber.substr(0,3)=="BIR") binNum = 11 + eta;
 	else if(chamber.substr(0,3)=="BIS") binNum = 17 + 2*eta + (phi-14)/2-1;
-	else if(chamber.substr(0,3)=="BMF") binNum = 29 + eta;
-	else if(chamber.substr(0,3)=="BML" && eta < 6) binNum = 32 + 2*eta + (phi-13)/2-1;
-	else if(chamber.substr(0,7)=="BML6A15" || chamber.substr(0,7)=="BML6C15" ) binNum = 43;
-	else if(chamber.substr(0,3)=="BMS") binNum = 43 + eta;
-	else if(chamber.substr(0,3)=="BOF") binNum = 49 + (eta+1)/2;
-	else if(chamber.substr(0,4)=="BOG0" && region == 0) binNum = 54;
-	else if(chamber.substr(0,3)=="BOG") binNum = 54 + eta/2 - region;
-	else if(chamber.substr(0,3)=="BOL") binNum = 58 + 2*eta + (phi-13)/2-1 - region;
-	else if(chamber.substr(0,3)=="BOS") binNum = 71 + eta - region;
+	else if(chamber.substr(0,3)=="BMF") binNum = 29 + (eta+1)/2;
+	else if(chamber.substr(0,3)=="BMG") binNum = 32 + eta/2;
+	else if(chamber.substr(0,3)=="BML" && eta < 6) binNum = 35 + 2*eta + (phi-13)/2-1;
+	else if(chamber.substr(0,7)=="BML6A15" || chamber.substr(0,7)=="BML6C15" ) binNum = 46;
+	else if(chamber.substr(0,3)=="BMS") binNum = 46 + eta;
+	else if(chamber.substr(0,3)=="BOF") binNum = 52 + (eta+1)/2;
+	else if(chamber.substr(0,4)=="BOG0" && region == 0) binNum = 57;
+	else if(chamber.substr(0,3)=="BOG") binNum = 57 + eta/2 - region;
+	else if(chamber.substr(0,3)=="BOL") binNum = 61 + 2*eta + (phi-13)/2-1 - region;
+	else if(chamber.substr(0,3)=="BOS") binNum = 74 + eta - region;
 	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Bx04");
 	return binNum - 1;
     }

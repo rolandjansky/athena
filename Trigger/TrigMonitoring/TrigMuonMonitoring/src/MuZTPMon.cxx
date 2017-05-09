@@ -125,7 +125,7 @@ StatusCode HLTMuonMonTool::initMuZTPDQA()
 
 StatusCode HLTMuonMonTool::bookMuZTPDQA()
 {
-  if( newRun ){
+  if( newRunFlag() ){
     m_ztp_newrun=true;
     for(std::map<std::string, std::string>::iterator itmap=m_ztpmap.begin();itmap!=m_ztpmap.end();++itmap){
       
@@ -143,7 +143,7 @@ StatusCode HLTMuonMonTool::bookMuZTPDQA()
       }else{
 	ptbins[0] = 0;
 	ptbins[1] = 30;
-	ptbins[2] = 50;
+	ptbins[2] = 60;
 	ptbins[3] = 100;
 	ptbins[4] = 500;
       }	
@@ -250,7 +250,7 @@ StatusCode HLTMuonMonTool::bookMuZTPDQA()
       }//var
     }//trigger vector
     
-  }else if( newLumiBlock ){
+  }else if( newLumiBlockFlag() ){
   }
   return StatusCode::SUCCESS;
 }
@@ -496,20 +496,20 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	}
       }//!isMSonlychain
 
-      //muFast
-      std::vector< Trig::Feature<xAOD::L2StandAloneMuonContainer> > muFastL2Feature = (*jL2).get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);
-      if (muFastL2Feature.size() != 1) {
-	ATH_MSG_DEBUG( "Vector of L2 muFast InfoContainers size is not 1" );	
+      //L2MuonSA
+      std::vector< Trig::Feature<xAOD::L2StandAloneMuonContainer> > L2MuonSAL2Feature = (*jL2).get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);
+      if (L2MuonSAL2Feature.size() != 1) {
+	ATH_MSG_DEBUG( "Vector of L2 L2MuonSA InfoContainers size is not 1" );	
       } else {
-	const xAOD::L2StandAloneMuonContainer* muFastL2 = muFastL2Feature[0];
-	if (!muFastL2) {
+	const xAOD::L2StandAloneMuonContainer* L2MuonSAL2 = L2MuonSAL2Feature[0];
+	if (!L2MuonSAL2) {
 	  ATH_MSG_DEBUG( "No mufast track found" );
 	} else {
-	  ATH_MSG_DEBUG( " muFast muon exists " );
-	  //	  L2SAActive = muFastL2.te()->getActiveState();
-	  L2Expt.push_back( muFastL2->at(0)->pt());
-	  L2Exeta.push_back(muFastL2->at(0)->eta());
-	  L2Exphi.push_back(muFastL2->at(0)->phi());
+	  ATH_MSG_DEBUG( " L2MuonSA muon exists " );
+	  //	  L2SAActive = L2MuonSAL2.te()->getActiveState();
+	  L2Expt.push_back( L2MuonSAL2->at(0)->pt());
+	  L2Exeta.push_back(L2MuonSAL2->at(0)->eta());
+	  L2Exphi.push_back(L2MuonSAL2->at(0)->phi());
 	}
       }
     }//jL2
@@ -643,7 +643,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	if (recMuon->combinedTrackParticleLink()!=0 ){
 	  
 	  ATH_MSG_DEBUG(  "CB muon found" );
-	if(recMuon->muonType() != xAOD::Muon::MuonType::Combined) ATH_MSG_WARNING( " Combined track link found, but not a combined muon!!!!");
+	  if(recMuon->muonType() != xAOD::Muon::MuonType::Combined) ATH_MSG_DEBUG( " Combined track link found, but not a combined muon!!!!");
 	  
 	  n_RecCBmuon++;
 
@@ -768,7 +768,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	    hist2(("muZTP_EtaPhi_L1_" + itmap->second).c_str(), histdirmuztp)->Fill(probeeta, probephi);
 	  }
 	  //L2
-	  if(isTriggered_L2 && isMSonlychain && passedSAchainL2[probe] && passedchainL1[probe]) { //muFast
+	  if(isTriggered_L2 && isMSonlychain && passedSAchainL2[probe] && passedchainL1[probe]) { //L2MuonSA
 	    hist(("muZTP_Pt_L2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
 	    hist(("muZTP_Pt_4bins_L2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
 	    if( isEndcap ) hist(("muZTP_Pt_EC_L2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
@@ -963,7 +963,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 
 StatusCode HLTMuonMonTool::procMuZTPDQA()
 {
-  if( endOfRun ){
+  if( endOfRunFlag() ){
 
     for(std::map<std::string, std::string>::iterator itmap=m_ztpmap.begin();itmap!=m_ztpmap.end();++itmap){
 
@@ -996,7 +996,7 @@ StatusCode HLTMuonMonTool::procMuZTPDQA()
       }//var
     }
     
-  }else if( endOfLumiBlock ){
+  }else if( endOfLumiBlockFlag() ){
   }
   return StatusCode::SUCCESS;
 }

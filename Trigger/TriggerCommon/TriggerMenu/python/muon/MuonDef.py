@@ -1472,7 +1472,7 @@ class L2EFChain_mu(L2EFChainDef):
     if self.chainPart['isoInfo'] == "iloosems":
       theTrigMuonEFTrackIsolationHypoConfig = TrigMuonEFTrackIsolationHypoConfig("Muon","MSEFOnlyLooseWide")
 
-    name = 'Muon'
+    name = 'MuonNS'
     if "noComb" in self.chainPart['addInfo']:
       name = 'Muon_noComb'
     if "nscan05" in self.chainPart['FSinfo']:
@@ -1482,19 +1482,19 @@ class L2EFChain_mu(L2EFChainDef):
 
     if len(self.allMuThrs) == 1:
       theTrigMuonEFCombinerMultiHypoConfigNS = TrigMuonEFCombinerHypoConfig(name, self.allMuThrs[0])
-      theTrigMuonEFExtrapolatorMultiHypoConfigNS = TrigMuonEFExtrapolatorHypoConfig('Muon', self.allMuThrs[0])      
+      theTrigMuonEFExtrapolatorMultiHypoConfigNS = TrigMuonEFExtrapolatorHypoConfig('MuonNS', self.allMuThrs[0])      
       try: hypocut = '%s' %(self.allMuThrs[0].split("GeV")[0])
       except:  hypocut = '%s' %(self.allMuThrs[0])
 
     elif len(self.allMuThrs) == 2:
       theTrigMuonEFCombinerMultiHypoConfigNS = TrigMuonEFCombinerMultiHypoConfig(name,self.allMuThrs[0], self.allMuThrs[1]) 
-      theTrigMuonEFExtrapolatorMultiHypoConfigNS = TrigMuonEFExtrapolatorMultiHypoConfig('Muon',self.allMuThrs[0], self.allMuThrs[1])       
+      theTrigMuonEFExtrapolatorMultiHypoConfigNS = TrigMuonEFExtrapolatorMultiHypoConfig('MuonNS',self.allMuThrs[0], self.allMuThrs[1])       
       try: hypocut = '%s_%s' %(self.allMuThrs[0].split("GeV")[0], self.allMuThrs[1].split("GeV")[0])                  
       except:hypocut = '%s_%s' %(self.allMuThrs[0], self.allMuThrs[1])                  
 
     elif len(self.allMuThrs) == 3:
       theTrigMuonEFCombinerMultiHypoConfigNS = TrigMuonEFCombinerMultiHypoConfig(name,self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2])
-      theTrigMuonEFExtrapolatorMultiHypoConfigNS = TrigMuonEFExtrapolatorMultiHypoConfig('Muon',self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2])
+      theTrigMuonEFExtrapolatorMultiHypoConfigNS = TrigMuonEFExtrapolatorMultiHypoConfig('MuonNS',self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2])
       try: hypocut = '%s_%s_%s' %(self.allMuThrs[0].split("GeV")[0], self.allMuThrs[1].split("GeV")[0],self.allMuThrs[2].split("GeV")[0])      
       except: hypocut = '%s_%s_%s' %(self.allMuThrs[0], self.allMuThrs[1],self.allMuThrs[2])                                  
     else:

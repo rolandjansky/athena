@@ -57,13 +57,13 @@ StatusCode HLTMuonMonTool::initTileMuDQA()
 StatusCode HLTMuonMonTool::bookTileMuDQA()
 {
   //histograms in each 10LBs 
-  if( newRun || newLowStat ){
+  if( newRunFlag() || newLowStatFlag() ){
 
     addHistogram( new TH2F("TileMu_eta_vs_phi_in_10LBs",           "TileMu eta vs phi in 10LBs; #eta ; #phi",           27, -2.7, 2.7, 16, -CLHEP::pi, CLHEP::pi), m_histdircoverage );
 
   }
 
-  if( newRun ){
+  if( newRunFlag() ){
 
     addHistogram(new TH1F("TileMu_N",  "TileMu Nmuons; number of muons; Entries", 10, 0., 10.), m_histdirtilemu);
     addHistogram(new TH1F("TileMu_Eta","TileMu Eta; #eta; Entries", 34, -1.7,  1.7), m_histdirtilemu);
@@ -115,7 +115,7 @@ StatusCode HLTMuonMonTool::bookTileMuDQA()
     addHistogram(new TH1F("TileTrackMu_RecCBMuon_EffPt", "Efficiency on p_{T} (TileTrackMuFeature wrt Offline); p_{T}; Efficiency", 200, 0., 20.), m_histdireff);
 
 
-  }else if( newLumiBlock ){
+  }else if( newLumiBlockFlag() ){
   }
   return StatusCode::SUCCESS;
 }
@@ -127,12 +127,12 @@ StatusCode HLTMuonMonTool::fillTileMuDQA()
 
   // Retrieve muons from TileMuFeatureContainer
 
-  const DataHandle<TileMuFeatureContainer> TileMuFeat;
-  const DataHandle<TileMuFeatureContainer> TileMuFeatEnd;
-
-  StatusCode sc_TileMu = m_storeGate->retrieve( TileMuFeat, TileMuFeatEnd );
+  SG::ConstIterator<TileMuFeatureContainer> TileMuFeat;
+  SG::ConstIterator<TileMuFeatureContainer> TileMuFeatEnd;
+  StatusCode sc_TileMu = evtStore()->retrieve( TileMuFeat, TileMuFeatEnd );
   if( sc_TileMu.isFailure() ){
     ATH_MSG_VERBOSE( "Failed to retrieve HLT TileMu" );
+    return StatusCode::SUCCESS;    
   } else {
     ATH_MSG_DEBUG( " ====== START HLTMuon TileMu MonTool ====== " );
   } 
@@ -141,13 +141,11 @@ StatusCode HLTMuonMonTool::fillTileMuDQA()
 
   float NTileMu = 0.;
 
-  for( ; TileMuFeat != TileMuFeatEnd ; ++TileMuFeat ) {
-
-    TileMuFeatureContainer::const_iterator TileMuItr = TileMuFeat->begin();
-    TileMuFeatureContainer::const_iterator TileMuItrE = TileMuFeat->end();
-
-    for(;TileMuItr != TileMuItrE; ++TileMuItr){
-
+  for( auto itr=TileMuFeat; itr!= TileMuFeatEnd ; itr++ ) {
+    const TileMuFeatureContainer* TileMuItrE(nullptr);
+    ATH_CHECK( evtStore()->retrieve(TileMuItrE, itr.key()));
+    for(auto TileMuItr=TileMuItrE->begin(); TileMuItr != TileMuItrE->end();TileMuItr++){
+      if ( (*TileMuItr)==nullptr ) continue;
       // Extract the variables and fill the histograms
       float eta = (*TileMuItr)->eta();
       float phi = (*TileMuItr)->phi();
@@ -170,12 +168,13 @@ StatusCode HLTMuonMonTool::fillTileMuDQA()
 
   // Retrieve muons from TileTrackMuFeatureContainer
 
-  const DataHandle< TileTrackMuFeatureContainer > TileTrackMu;
-  const DataHandle< TileTrackMuFeatureContainer > lastTileTrackMu;
+  SG::ConstIterator< TileTrackMuFeatureContainer > TileTrackMu;
+  SG::ConstIterator< TileTrackMuFeatureContainer > lastTileTrackMu;
 
-  StatusCode sc = m_storeGate->retrieve(TileTrackMu, lastTileTrackMu);
+  StatusCode sc = evtStore()->retrieve(TileTrackMu, lastTileTrackMu);
   if (sc.isFailure()) {
     ATH_MSG_VERBOSE( "Failed to retrieve HLT TileTrackMu" );
+    return StatusCode::SUCCESS;    
   } else {
     ATH_MSG_DEBUG( " ====== START HLTMuon TileTrackMu MonTool ====== " );
   }
@@ -184,13 +183,11 @@ StatusCode HLTMuonMonTool::fillTileMuDQA()
 
   float NTileTrackMu = 0.;
 
-  for( ; TileTrackMu != lastTileTrackMu ; ++TileTrackMu ) {  
-
-    TileTrackMuFeatureContainer::const_iterator TileTrackMuItr = TileTrackMu->begin();
-    TileTrackMuFeatureContainer::const_iterator TileTrackMuItrE= TileTrackMu->end();
-
-    for( ; TileTrackMuItr != TileTrackMuItrE; ++TileTrackMuItr ) {        
-
+  for( auto jtr=TileTrackMu; jtr != lastTileTrackMu ; jtr++ ) {  
+    const TileTrackMuFeatureContainer* TileTrackMuItrE(nullptr);
+    ATH_CHECK( evtStore()->retrieve(TileTrackMuItrE, jtr.key()));
+    for(auto TileTrackMuItr =TileTrackMuItrE->begin(); TileTrackMuItr != TileTrackMuItrE->end(); TileTrackMuItr++ ) {        
+      if( (*TileTrackMuItr)==nullptr ) continue;
       float absPtTrk = std::abs((*TileTrackMuItr)->PtTR_Trk());      
 
       ElementLink<TileMuFeatureContainer> TileMuEL = (*TileTrackMuItr)->TileMuLink();       
@@ -237,7 +234,7 @@ StatusCode HLTMuonMonTool::fillTileMuDQA()
 
   std::string muonKey = "Muons";
 
-  sc = m_storeGate->retrieve(muonCont, muonKey);
+  sc = evtStore()->retrieve(muonCont, muonKey);
   if(sc.isFailure()){
     ATH_MSG_WARNING( "Container of muon particle with key " << muonKey << " not found in Store Gate" );
     return StatusCode::SUCCESS;
@@ -275,15 +272,16 @@ StatusCode HLTMuonMonTool::fillTileMuDQA()
 
   // TileMuFeature (TileMuId SA)
   NTileMu = 0.;
-  sc_TileMu = m_storeGate->retrieve( TileMuFeat, TileMuFeatEnd );
+  sc_TileMu = evtStore()->retrieve( TileMuFeat, TileMuFeatEnd );
   if( sc_TileMu.isFailure() ){
     ATH_MSG_WARNING( "Failed to retrieve HLT TileMu" );
     return StatusCode::SUCCESS;
   }
-  for( ; TileMuFeat != TileMuFeatEnd ; ++TileMuFeat ) {
-    TileMuFeatureContainer::const_iterator TileMuItr = TileMuFeat->begin();
-    TileMuFeatureContainer::const_iterator TileMuItrE = TileMuFeat->end();
-    for(;TileMuItr != TileMuItrE; ++TileMuItr){
+  for( auto itr=TileMuFeat; itr!= TileMuFeatEnd ; itr++ ) {
+    const TileMuFeatureContainer* TileMuItrE(nullptr);
+    ATH_CHECK( evtStore()->retrieve(TileMuItrE, itr.key()));
+    for(auto TileMuItr=TileMuItrE->begin(); TileMuItr != TileMuItrE->end();TileMuItr++){
+      if ( (*TileMuItr)==nullptr ) continue;
       m_eta_Tile.push_back( (*TileMuItr)->eta() );
       m_phi_Tile.push_back( (*TileMuItr)->phi() );
       NTileMu++;
@@ -317,15 +315,16 @@ StatusCode HLTMuonMonTool::fillTileMuDQA()
 
   // TileTrackMuFeature (TileMuId combined with ID)
   NTileTrackMu = 0.;
-  sc = m_storeGate->retrieve(TileTrackMu, lastTileTrackMu);
+  sc = evtStore()->retrieve(TileTrackMu, lastTileTrackMu);
   if (sc.isFailure()) {
     ATH_MSG_WARNING( "Failed to retrieve HLT TileTrackMu" );
     return StatusCode::SUCCESS;
   }
-  for( ; TileTrackMu != lastTileTrackMu ; ++TileTrackMu ) {  
-    TileTrackMuFeatureContainer::const_iterator TileTrackMuItr = TileTrackMu->begin();
-    TileTrackMuFeatureContainer::const_iterator TileTrackMuItrE= TileTrackMu->end();
-    for( ; TileTrackMuItr != TileTrackMuItrE; ++TileTrackMuItr ) {        
+  for( auto itr=TileTrackMu; itr!= lastTileTrackMu ; itr++ ) {
+    const TileTrackMuFeatureContainer* TileTrackMuItrE(nullptr);
+    ATH_CHECK( evtStore()->retrieve(TileTrackMuItrE, itr.key()));
+    for(auto TileTrackMuItr=TileTrackMuItrE->begin(); TileTrackMuItr != TileTrackMuItrE->end();TileTrackMuItr++){
+      if ( (*TileTrackMuItr)==nullptr ) continue;
       m_eta_TileTrack.push_back( (*TileTrackMuItr)->EtaTR_Trk() );
       m_phi_TileTrack.push_back( (*TileTrackMuItr)->PhiTR_Trk() );
       m_pt_TileTrack.push_back( (*TileTrackMuItr)->PtTR_Trk() );
@@ -380,7 +379,7 @@ StatusCode HLTMuonMonTool::fillTileMuDQA()
 
 StatusCode HLTMuonMonTool::procTileMuDQA()
 {
-  if( endOfRun ){
+  if(endOfRunFlag()){
 
     // TileMuFeature efficiency on eta
     hist("TileMu_RecCBMuon_EffEta", m_histdireff)->Sumw2();
@@ -413,7 +412,7 @@ StatusCode HLTMuonMonTool::procTileMuDQA()
     //removeHistogram("Rec_Phi", m_histdir);
     //removeHistogram("Rec_Pt", m_histdir);
 
-  }else if( endOfLumiBlock ){
+  }else if(endOfLumiBlockFlag()){
   }
   return StatusCode::SUCCESS;
 }
