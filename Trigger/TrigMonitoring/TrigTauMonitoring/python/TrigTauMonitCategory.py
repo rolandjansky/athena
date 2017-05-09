@@ -120,3 +120,5 @@ monitoring_tau_cosmic = [
     'tau8_cosmic_track'
 ]
 
+
+monitoring_singleTau_cosmic = 'tau8_cosmic_track'
