@@ -57,9 +57,8 @@ namespace InDet{
     return tl;
   }
 
-  void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *WrkVrtSet, const std::string name)
-  const
-  {
+  void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *, const std::string ) const {
+/*  void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *WrkVrtSet, const std::string name) const {
     int nGoodV=0;
     for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
       std::cout<<name
@@ -80,7 +79,7 @@ namespace InDet{
       std::cout<<'\n';
       if((*WrkVrtSet)[iv].Good)nGoodV++;
     }
-    std::cout<<name<<" N="<<nGoodV<<'\n';
+    std::cout<<name<<" N="<<nGoodV<<'\n';*/
   }
 
                /*  Technicalities */
