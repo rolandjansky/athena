@@ -2,7 +2,6 @@
 
 #include "G4AtlasTools/PhysicsListToolBase.h"
 #include "G4AtlasTools/DetectorGeometryBase.h"
-#include "G4AtlasTools/UserActionBase.h"
 #include "G4AtlasTools/CylindricalEnvelope.h"
 #include "G4AtlasTools/BoxEnvelope.h"
 #include "G4AtlasTools/PolyconicalEnvelope.h"
@@ -19,7 +18,6 @@
 
 DECLARE_TOOL_FACTORY( PhysicsListToolBase )
 DECLARE_TOOL_FACTORY( DetectorGeometryBase )
-DECLARE_TOOL_FACTORY( UserActionBase )
 DECLARE_TOOL_FACTORY( CylindricalEnvelope )
 DECLARE_TOOL_FACTORY( BoxEnvelope )
 DECLARE_TOOL_FACTORY( PolyconicalEnvelope )
