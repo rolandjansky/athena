@@ -23,8 +23,8 @@ using namespace std;
 //
 // this code is based on CoraCoolExample by R. Hawkings
 //
-PixCalibCoralCoolDb::PixCalibCoralCoolDb(string dbString, int verbose) :
-  m_dbstring(dbString), m_verbose(verbose)
+PixCalibCoralCoolDb::PixCalibCoralCoolDb(string dbString, int /*verbose*/) :
+  m_dbstring(dbString)
 {
 
   CoraCoolDatabaseSvc& corasvc=CoraCoolDatabaseSvcFactory::databaseService();
