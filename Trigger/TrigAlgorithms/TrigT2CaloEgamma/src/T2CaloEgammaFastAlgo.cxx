@@ -91,10 +91,6 @@ StatusCode T2CaloEgammaFastAlgo::execute()
   ATH_CHECK(m_roiCollection.isValid());
 
 
-  TrigRoiDescriptorCollection::const_iterator roi = m_roiCollection->begin();
-  TrigRoiDescriptorCollection::const_iterator roiE = m_roiCollection->end();
-
-
   const TrigRoiDescriptor* roiDescriptor = 0;
   //TrigRoiDescriptor* roiDescriptor = 0;
 
