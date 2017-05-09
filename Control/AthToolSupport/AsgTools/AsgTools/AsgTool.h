@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: AsgTool.h 790658 2016-12-20 20:54:19Z leggett $
+// $Id: AsgTool.h 790657 2016-12-20 20:54:06Z leggett $
 #ifndef ASGTOOLS_ASGTOOL_H
 #define ASGTOOLS_ASGTOOL_H
 
@@ -40,8 +40,8 @@ namespace asg {
    ///
    /// @author David Adams <dladams@bnl.gov>
    ///
-   /// $Revision: 790658 $
-   /// $Date: 2016-12-20 21:54:19 +0100 (Tue, 20 Dec 2016) $
+   /// $Revision: 790657 $
+   /// $Date: 2016-12-20 21:54:06 +0100 (Tue, 20 Dec 2016) $
    ///
    class AsgTool : public virtual IAsgTool,
                    public AsgToolBase {

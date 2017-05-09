@@ -850,10 +850,10 @@ namespace asg
 	  setType (val_type); }
       return StatusCode::SUCCESS; };
 
-  public:
-    ASG_DEPRECATED ("please use either getHandle() or declarePropertyFor() instead")
-    ToolHandle<T>& handle () {
-      return *m_handleUser;};
+  // public:
+  //   ASG_DEPRECATED ("please use either getHandle() or declarePropertyFor() instead")
+  //   ToolHandle<T>& handle () {
+  //     return *m_handleUser;};
 
 #ifdef ROOTCORE
   public:
