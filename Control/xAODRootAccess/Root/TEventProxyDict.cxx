@@ -2,10 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TEventProxyDict.cxx 788447 2016-12-07 15:16:39Z krasznaa $
+// $Id: TEventProxyDict.cxx 796514 2017-02-10 04:33:07Z ssnyder $
 //
 // File holding the implementation of the xAOD::TEvent functions that implement
-// the IProxyDictWithPool interface. Just to make TEvent.cxx a little smaller.
+// the IProxyDict interface. Just to make TEvent.cxx a little smaller.
 //
 
 // System include(s):
@@ -22,6 +22,8 @@
 #   include "SGTools/DataProxy.h"
 #   include "SGTools/TransientAddress.h"
 #   include "SGTools/DataBucketBase.h"
+#   include "GaudiKernel/Converter.h"
+#   include "GaudiKernel/GenericAddress.h"
 #endif // NOT XAOD_STANDALONE
 
 // Local include(s):
@@ -132,6 +134,59 @@ namespace xAODPrivate {
 
    }; // class THolderBucket
 
+   class TLoader
+     : public Converter
+   {
+   public:
+     TLoader (xAOD::TEvent& event,
+              const std::string& name,
+              const std::type_info& ti)
+       :  Converter (0, CLID_NULL),
+          m_event (event),
+          m_name (name),
+          m_ti (ti),
+          m_proxy (nullptr)
+     {
+     }
+
+
+     void setProxy (SG::DataProxy& proxy)
+     {
+       m_proxy = &proxy;
+     }
+
+
+     virtual StatusCode createObj(IOpaqueAddress*, DataObject*&) override;
+     virtual long repSvcType() const override { return 0; }
+
+
+   private:
+     xAOD::TEvent& m_event;
+     std::string m_name;
+     const std::type_info& m_ti;
+     SG::DataProxy* m_proxy;
+   };
+
+
+StatusCode TLoader::createObj(IOpaqueAddress* /*addr*/, DataObject*& obj)
+   {
+     static const bool SILENT = true;
+     static const bool METADATA = false;
+     
+     // Try to find the object amongst the output objects first:
+     if( m_event.getOutputObject( m_name, m_ti, METADATA ) ) {
+       obj = new xAODPrivate::THolderBucket( m_name, m_ti, m_event);
+     }
+     // If it's not on the output, try the input:
+     else if( m_event.getInputObject( m_name, m_ti, SILENT, METADATA ) ) {
+       obj = new xAODPrivate::THolderBucket( m_name, m_ti, m_event);
+       m_proxy->setConst();
+     }
+
+     return StatusCode::SUCCESS;
+   }
+
+
 } // xAODPrivate namespace
 #endif // not XAOD_STANDALONE
 
@@ -203,29 +258,6 @@ namespace xAOD {
       // Access its data proxy:
       SG::DataProxy* proxy = bi->m_proxy.get();
 
-#ifndef XAOD_STANDALONE
-      // If the proxy doesn't have data available yet:
-      if( ! proxy->accessData() ) {
-         // Prepare the variables needed for the setup:
-         const std::type_info* ti = bi->m_class->GetTypeInfo();
-         TEvent* nc_this = const_cast< TEvent* >( this );
-         const std::string& name = getName( sgkey );
-         static const bool SILENT = true;
-         static const bool METADATA = false;
-         // Try to find the object amongst the output objects first:
-         if( getOutputObject( name, *ti, METADATA ) ) {
-            proxy->setObject( new xAODPrivate::THolderBucket( name, *ti,
-                                                              *nc_this ) );
-         }
-         // If it's not on the output, try the input:
-         else if( nc_this->getInputObject( name, *ti, SILENT, METADATA ) ) {
-            proxy->setObject( new xAODPrivate::THolderBucket( name, *ti,
-                                                              *nc_this ) );
-            proxy->setConst();
-         }
-      }
-#endif // XAOD_STANDALONE
-
       // Return the proxy:
       return proxy;
    }
@@ -265,9 +297,17 @@ namespace xAOD {
 #ifndef XAOD_STANDALONE
       // Create a proper proxy for the input branch:
       SG::TransientAddress* taddr =
-         new SG::TransientAddress( CLID_NULL, efe->branchName() );
+         new SG::TransientAddress( CLID_NULL,
+                                   efe->branchName(),
+                                   new GenericAddress() );
       taddr->setSGKey( sgkey );
-      bi.m_proxy.reset( new SG::DataProxy( taddr, 0 ) );
+      TEvent* nc_this = const_cast<TEvent*>(this);
+      xAODPrivate::TLoader* loader =
+        new xAODPrivate::TLoader (*nc_this,
+                                  getName( sgkey ),
+                                  *bi.m_class->GetTypeInfo());
+      bi.m_proxy.reset( new SG::DataProxy( taddr, loader ) );
+      loader->setProxy (*bi.m_proxy.get());
 #endif // not XAOD_STANDALONE
 
       // Add the branch info to our list:

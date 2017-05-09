@@ -1,0 +1,6 @@
+Warning in <TInterpreter::ReadRootmapFile>: class  CP::IPileupReweightingTool found in libAsgAnalysisInterfacesDict.so  is already in libPileupReweightingDict.so 
+/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 192, which is not a valid value for type 'bool'
+/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 128, which is not a valid value for type 'bool'
+[?1034hut_xaodrootaccess_tpys... INFO    Environment initialised for data access
+ut_xaodrootaccess_tpystore_test    INFO AuxContainerBase/AuxInfoBase containment tests succeeded
+ut_xaodrootaccess_tpystore_test    INFO All tests succeeded

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TStore.cxx 660301 2015-04-13 16:04:18Z krasznaa $
+// $Id: TStore.cxx 796983 2017-02-14 05:09:12Z ssnyder $
 
 // ROOT include(s):
 #include <TError.h>
@@ -81,8 +81,8 @@ namespace xAOD {
 
          // Yes, it is...
          delete itr->second;
-         m_objects.erase( itr );
          m_keys.erase( Utils::hash( itr->first ) );
+         m_objects.erase( itr );
          return TReturnCode::kSuccess;
       }
 

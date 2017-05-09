@@ -1,0 +1,7 @@
+ut_xaodrootaccess_tsto... INFO    Environment initialised for data access
+xAOD::THolder::getAs      WARNING Trying to retrieve ClassB object with a ClassA pointer
+xAOD::TStore::retrieve    WARNING Couldn't (const) retrieve "ClassA/MyObjB"
+xAOD::TStore::getName     WARNING Key 0x12345678 not known by the store
+xAOD::TStore::retrieve    WARNING Couldn't (const) retrieve "ClassB/MyObjB"
+xAOD::THolder::getAs      WARNING Trying to retrieve ConstDataVector<DataVector<ClassA> > object with a DataVector<ClassA> pointer
+xAOD::TStore::retrieve    WARNING Couldn't (non-const) retrieve "DataVector<ClassA>/ConstDataVector"

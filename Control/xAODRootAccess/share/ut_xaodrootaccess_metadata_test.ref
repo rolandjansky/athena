@@ -1,0 +1,14 @@
+xAOD::Init                INFO    Environment initialised for data access
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+ut_xaodrootaccess_meta... INFO    Opened file: /home/sss/nobackup/referencefiles/xAODs/r5597/data12_8TeV.00204158.physics_JetTauEtmiss.recon.AOD.r5597/AOD.01495682._003054.pool.root.1
+xAOD::TEvent::record      ERROR   ../Root/TEvent.cxx:2048 Didn't find dictionary for type: ClassA
+ut_xaodrootaccess_meta... INFO    All tests succeeded

@@ -1,0 +1,37 @@
+xAOD::Init                INFO    Environment initialised for data access
+xAOD::TFileMerger::set... INFO    Opened "merged.root" for writing
+xAOD::TFileMerger::add... INFO    Opened "test_file1.root" for reading
+xAOD::TFileMerger::add... INFO    Opened "test_file2.root" for reading
+xAOD::TEvent::initStats   WARNING Couldn't find interface object/container "Container" belonging to branch "ContainerAux."
+xAOD::TFileMerger::mer... INFO    Copying xAOD tree "CollectionTree"
+xAOD::TFileMerger::mer... INFO    Copied 0 / 10 entries
+xAOD::TEvent::initStats   WARNING Couldn't find interface object/container "Container" belonging to branch "ContainerAux."
+xAOD::TFileMerger::mer... INFO    Copying xAOD tree "CollectionTree"
+xAOD::TFileMerger::mer... INFO    Copied 0 / 10 entries
+ut_xaodrootaccess_tfil... INFO    Test 1 passed
+xAOD::TFileMerger::set... INFO    Opened "merged.root" for writing
+xAOD::TFileMerger::add... INFO    Opened "test_file2.root" for reading
+xAOD::TFileMerger::add... INFO    Opened "test_file1.root" for reading
+xAOD::TEvent::initStats   WARNING Couldn't find interface object/container "Container" belonging to branch "ContainerAux."
+xAOD::TFileMerger::mer... INFO    Copying xAOD tree "CollectionTree"
+xAOD::TFileMerger::mer... INFO    Copied 0 / 10 entries
+xAOD::TEvent::initStats   WARNING Couldn't find interface object/container "Container" belonging to branch "ContainerAux."
+xAOD::TFileMerger::mer... INFO    Copying xAOD tree "CollectionTree"
+xAOD::TFileMerger::mer... INFO    Copied 0 / 10 entries
+ut_xaodrootaccess_tfil... INFO    Test 2 passed
+xAOD::TFileMerger::set... INFO    Opened "merged.root" for writing
+xAOD::TFileMerger::add... INFO    Opened "test_file1.root" for reading
+xAOD::TFileMerger::add... INFO    Opened "test_file2.root" for reading
+xAOD::TEvent::initStats   WARNING Couldn't find interface object/container "Container" belonging to branch "ContainerAux."
+xAOD::TFileMerger::mer... INFO    Copying xAOD tree "CollectionTree"
+xAOD::TEvent::initStats   WARNING Couldn't find interface object/container "Container" belonging to branch "ContainerAux."
+xAOD::TFileMerger::mer... INFO    Copying xAOD tree "CollectionTree"
+ut_xaodrootaccess_tfil... INFO    Test 3 passed
+xAOD::TFileMerger::set... INFO    Opened "merged.root" for writing
+xAOD::TFileMerger::add... INFO    Opened "test_file2.root" for reading
+xAOD::TFileMerger::add... INFO    Opened "test_file1.root" for reading
+xAOD::TEvent::initStats   WARNING Couldn't find interface object/container "Container" belonging to branch "ContainerAux."
+xAOD::TFileMerger::mer... INFO    Copying xAOD tree "CollectionTree"
+xAOD::TEvent::initStats   WARNING Couldn't find interface object/container "Container" belonging to branch "ContainerAux."
+xAOD::TFileMerger::mer... INFO    Copying xAOD tree "CollectionTree"
+ut_xaodrootaccess_tfil... INFO    Test 4 passed

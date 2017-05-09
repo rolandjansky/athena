@@ -2,10 +2,12 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: ut_xaodrootaccess_tpyevent_test.py 741414 2016-04-19 17:06:16Z krasznaa $
+# $Id: ut_xaodrootaccess_tpyevent_test.py 796448 2017-02-09 18:28:08Z ssnyder $
 #
 # Unit test for the xAOD::TPyEvent class.
 #
+
+import os
 
 ## C/C++ style main function
 def main():
@@ -24,9 +26,11 @@ def main():
 
     # Set up the environment:
     import ROOT
-    if ROOT.gROOT.Macro( "$ROOTCOREDIR/scripts/load_packages.C" ):
+    if (os.environ.has_key('ROOTCOREDIR') and
+        ROOT.gROOT.Macro( "$ROOTCOREDIR/scripts/load_packages.C" )):
         logger.error( "Couldn't load the RootCore packages" )
         return 1
+    ROOT.xAOD.TEvent
     if ROOT.xAOD.Init( APP_NAME ).isFailure():
         logger.error( "Failed to call xAOD::Init(...)" )
         return 1
@@ -38,7 +42,9 @@ def main():
     store = TPyStore()
 
     # Create a transient tree from a test file:
-    FNAME = "/afs/cern.ch/atlas/project/PAT/xAODs/r5591/" \
+    FPATH = os.environ.get ('ATLAS_REFERENCE_DATA',
+                            '/afs/cern.ch/atlas/project/PAT')
+    FNAME = FPATH + "/xAODs/r5591/" \
             "mc14_8TeV.117050.PowhegPythia_P2011C_ttbar.recon." \
             "AOD.e1727_s1933_s1911_r5591/AOD.01494881._105458.pool.root.1"
     ifile = ROOT.TFile.Open( FNAME, "READ" )

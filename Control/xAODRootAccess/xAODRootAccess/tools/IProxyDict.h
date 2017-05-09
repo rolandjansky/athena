@@ -4,9 +4,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IProxyDictWithPool.h 784654 2016-11-16 17:17:32Z krasznaa $
-#ifndef XAODROOTACCESS_TOOLS_IPROXYDICTWITHPOOL_H
-#define XAODROOTACCESS_TOOLS_IPROXYDICTWITHPOOL_H
+// $Id: IProxyDict.h 791122 2016-12-27 13:55:49Z ssnyder $
+#ifndef XAODROOTACCESS_TOOLS_IPROXYDICT_H
+#define XAODROOTACCESS_TOOLS_IPROXYDICT_H
 
 #ifdef XAOD_STANDALONE
 
@@ -37,21 +37,21 @@ struct DataObject {};
 /// Dummy implementation for InterfaceID
 struct InterfaceID {};
 
-/// Emulation of the offline IProxyDictWithPool interface
+/// Emulation of the offline IProxyDict interface
 ///
 /// In order to simplify the implementation of xAOD::TEvent a bit, we create
 /// a simple emulation of this offline class.
 ///
 /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 ///
-/// $Revision: 784654 $
-/// $Date: 2016-11-16 18:17:32 +0100 (Wed, 16 Nov 2016) $
+/// $Revision: 791122 $
+/// $Date: 2016-12-27 14:55:49 +0100 (Tue, 27 Dec 2016) $
 ///
-class IProxyDictWithPool {
+class IProxyDict {
 
 public:
    /// Virtual destructor
-   virtual ~IProxyDictWithPool() {}
+   virtual ~IProxyDict() {}
 
    /// In order not to clash with the standalone version of StatusCode
    typedef xAOD::TReturnCode StatusCode;
@@ -109,12 +109,12 @@ public:
    /// Set the void** to the pointer to the requested interface of the instance
    virtual StatusCode queryInterface( const InterfaceID&, void** ) = 0;
 
-}; // class IProxyDictWithPool
+}; // class IProxyDict
 
 #else
 
 // If we're in an offline build, just take the declaration from SGTools:
-#include "SGTools/IProxyDictWithPool.h"
+#include "AthenaKernel/IProxyDict.h"
 
 #endif // XAOD_STANDALONE
-#endif // XAODROOTACCESS_TOOLS_IPROXYDICTWITHPOOL_H
+#endif // XAODROOTACCESS_TOOLS_IPROXYDICT_H

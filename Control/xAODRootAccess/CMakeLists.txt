@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 797214 2017-02-14 19:51:39Z ssnyder $
 #
 # Build configuration for the xAODRootAccess package.
 #
@@ -70,28 +69,32 @@ macro( _add_test name )
       SOURCES test/${name}.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils AthContainers xAODCore xAODRootAccess
-      PROPERTIES TIMEOUT 600 )
+      PROPERTIES TIMEOUT 600
+      EXTRA_PATTERNS "Opened file:|find dictionary for type|is already in|Can't find Event|Can't find Branch|Function should only|^\*" )
 endmacro( _add_test )
 
 # Build/run unit tests for the package:
+_add_test( ut_xaodrootaccess_tauxvector_test )
+_add_test( ut_xaodrootaccess_tauxstore_test )
+_add_test( ut_xaodrootaccess_tauxstore_insertmove_test )
+_add_test( ut_xaodrootaccess_tfilemerger_test )
+_add_test( ut_xaodrootaccess_tstore_test )
 _add_test( ut_xaodrootaccess_metadata_test )
 _add_test( ut_xaodrootaccess_remap_test )
 _add_test( ut_xaodrootaccess_slimming_test )
 _add_test( ut_xaodrootaccess_stats_test )
-_add_test( ut_xaodrootaccess_tauxvector_test )
-_add_test( ut_xaodrootaccess_tauxstore_test )
-_add_test( ut_xaodrootaccess_tauxstore_insertmove_test )
 _add_test( ut_xaodrootaccess_tchain_test )
-#_add_test( ut_xaodrootaccess_tevent_test )
-_add_test( ut_xaodrootaccess_tfileaccesstracer_test )
-_add_test( ut_xaodrootaccess_tfilemerger_test )
-#_add_test( ut_xaodrootaccess_transtree_test )
-_add_test( ut_xaodrootaccess_tstore_test )
+_add_test( ut_xaodrootaccess_tevent_test )
+_add_test( ut_xaodrootaccess_transtree_test )
+
+# Needs network access; problematic outside CERN.
+#_add_test( ut_xaodrootaccess_tfileaccesstracer_test )
 
 # Run the scripted tests for the package:
-#atlas_add_test( ut_xaodrootaccess_tpyevent_test
-#   SCRIPT test/ut_xaodrootaccess_tpyevent_test.py PROPERTIES TIMEOUT 600 )
-#atlas_add_test( ut_xaodrootaccess_tpystore_test
-#   SCRIPT test/ut_xaodrootaccess_tpystore_test.py PROPERTIES TIMEOUT 600 )
-#atlas_add_test( ut_xaodrootaccess_transtree2_test
-#   SCRIPT test/ut_xaodrootaccess_transtree2_test.py PROPERTIES TIMEOUT 600 )
+atlas_add_test( ut_xaodrootaccess_tpyevent_test
+   SCRIPT test/ut_xaodrootaccess_tpyevent_test.py PROPERTIES TIMEOUT 600
+   EXTRA_PATTERNS "/Root/TAuxStore" )
+atlas_add_test( ut_xaodrootaccess_tpystore_test
+   SCRIPT test/ut_xaodrootaccess_tpystore_test.py PROPERTIES TIMEOUT 600 )
+atlas_add_test( ut_xaodrootaccess_transtree2_test
+   SCRIPT test/ut_xaodrootaccess_transtree2_test.py PROPERTIES TIMEOUT 600 )

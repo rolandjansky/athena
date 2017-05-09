@@ -1,0 +1,469 @@
+/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 240, which is not a valid value for type 'bool'
+/cvmfs/sft.cern.ch/lcg/contrib/gcc/4.9.3/x86_64-slc6/include/c++/4.9.3/bits/regex.h:1545:11: runtime error: load of value 176, which is not a valid value for type 'bool'
+TInterpreter::ReadRoot... WARNING class  CP::IPileupReweightingTool found in libAsgAnalysisInterfacesDict.so  is already in libPileupReweightingDict.so 
+ut_xaodrootaccess_teve... INFO    Environment initialised for data access
+xAOD::TEvent::getEvent... WARNING Can't find EventFormatElement for hashed SG key 971500411
+xAOD::TEvent::proxy_exact WARNING Can't find BranchInfo for 971500411.
+xAOD::TEvent::addToStore  WARNING Function should only be called through an invalid ElementLink
+xAOD::TEvent::getEvent... WARNING Can't find EventFormatElement for hashed SG key 981452424
+xAOD::TEvent::proxy_exact WARNING Can't find BranchInfo for 981452424.
+xAOD::TEvent::getEvent... WARNING Can't find EventFormatElement for hashed SG key 311645381
+xAOD::TEvent::proxy_exact WARNING Can't find BranchInfo for 311645381.
+xAOD::TEvent::getEvent... WARNING Can't find EventFormatElement for hashed SG key 582965710
+xAOD::TEvent::proxy_exact WARNING Can't find BranchInfo for 582965710.
+xAOD::TEvent::getEvent... WARNING Can't find EventFormatElement for hashed SG key 243728388
+xAOD::TEvent::proxy_exact WARNING Can't find BranchInfo for 243728388.
+ut_xaodrootaccess_teve... INFO    TEvent contents:
+
+<<<<<<<<<<<<<<<<<<<< xAOD::TEvent Dump >>>>>>>>>>>>>>>>>>>>
+ Hash: 0x2227acc2 Key: "AntiKt10LCTopoJets"
+   type: DataVector<xAOD::Jet>
+   isConst: Yes
+   Data: 0x1b3ac9c0
+ Hash: 0x2412e184 Key: "AntiKt10LCTopoJetsAux."
+   type: xAOD::JetAuxContainer
+   isConst: Yes
+   Data: 0x1b3aec20
+ Hash: 0x174fd55e Key: "AntiKt3PV0TrackJets"
+   type: DataVector<xAOD::Jet>
+   isConst: Yes
+   Data: 0x1c67cc80
+ Hash: 0x2d80f0ec Key: "AntiKt3PV0TrackJetsAux."
+   type: xAOD::JetAuxContainer
+   isConst: Yes
+   Data: 0x1d18fba0
+ Hash: 0x1cacd31a Key: "AntiKt3ZTrackJets"
+   type: DataVector<xAOD::Jet>
+   isConst: Yes
+   Data: 0x1e66ada0
+ Hash: 0x2ed388dd Key: "AntiKt3ZTrackJetsAux."
+   type: xAOD::JetAuxContainer
+   isConst: Yes
+   Data: 0x1bcfd390
+ Hash: 0x2bb14ea6 Key: "AntiKt4EMTopoJets"
+   type: DataVector<xAOD::Jet>
+   isConst: Yes
+   Data: 0x1bd0a9a0
+ Hash: 0x275970f2 Key: "AntiKt4EMTopoJetsAux."
+   type: xAOD::JetAuxContainer
+   isConst: Yes
+   Data: 0x1c7bc900
+ Hash: 0x0108c856 Key: "AntiKt4LCTopoJets"
+   type: DataVector<xAOD::Jet>
+   isConst: Yes
+   Data: 0x1bd32210
+ Hash: 0x000f8247 Key: "AntiKt4LCTopoJetsAux."
+   type: xAOD::JetAuxContainer
+   isConst: Yes
+   Data: 0x1ce49650
+ Hash: 0x2b9a1762 Key: "AntiKt4PV0TrackJets"
+   type: DataVector<xAOD::Jet>
+   isConst: Yes
+   Data: 0x1cc84c90
+ Hash: 0x275900a6 Key: "AntiKt4PV0TrackJetsAux."
+   type: xAOD::JetAuxContainer
+   isConst: Yes
+   Data: 0x19619500
+ Hash: 0x26c698d7 Key: "AntiKt4ZTrackJets"
+   type: DataVector<xAOD::Jet>
+   isConst: Yes
+   Data: 0x1cccea40
+ Hash: 0x22a53f38 Key: "AntiKt4ZTrackJetsAux."
+   type: xAOD::JetAuxContainer
+   isConst: Yes
+   Data: 0x1c78c630
+ Hash: 0x3a553049 Key: "BTagging_AntiKt10LCTopo"
+   type: DataVector<xAOD::BTagging>
+   isConst: Yes
+   Data: 0x1bd42dc0
+ Hash: 0x3ca25d10 Key: "BTagging_AntiKt10LCTopoAux."
+   type: xAOD::BTaggingAuxContainer
+   isConst: Yes
+   Data: 0x1cf489a0
+ Hash: 0x07292635 Key: "BTagging_AntiKt4EMTopo"
+   type: DataVector<xAOD::BTagging>
+   isConst: Yes
+   Data: 0x1bd7cca0
+ Hash: 0x3eaf6477 Key: "BTagging_AntiKt4EMTopoAux."
+   type: xAOD::BTaggingAuxContainer
+   isConst: Yes
+   Data: 0x1e45d640
+ Hash: 0x050a16a6 Key: "BTagging_AntiKt4LCTopo"
+   type: DataVector<xAOD::BTagging>
+   isConst: Yes
+   Data: 0x1e240b80
+ Hash: 0x1416e287 Key: "BTagging_AntiKt4LCTopoAux."
+   type: xAOD::BTaggingAuxContainer
+   isConst: Yes
+   Data: 0x1e8bf4b0
+ Hash: 0x11d293c8 Key: "CaloCalTopoCluster"
+   type: DataVector<xAOD::CaloCluster>
+   isConst: Yes
+   Data: 0x1e4a65b0
+ Hash: 0x274cdfe4 Key: "CaloCalTopoClusterAux."
+   type: xAOD::CaloClusterAuxContainer
+   isConst: Yes
+   Data: 0x1ede5ba0
+ Hash: 0x367ee0b0 Key: "CamKt12LCTopoJets"
+   type: DataVector<xAOD::Jet>
+   isConst: Yes
+   Data: 0x1e89d770
+ Hash: 0x013af561 Key: "CamKt12LCTopoJetsAux."
+   type: xAOD::JetAuxContainer
+   isConst: Yes
+   Data: 0x1e3f8eb0
+ Hash: 0x340d9196 Key: "CombinedMuonTrackParticles"
+   type: DataVector<xAOD::TrackParticle>
+   isConst: Yes
+   Data: 0x1d2b40d0
+ Hash: 0x32b4ce28 Key: "CombinedMuonTrackParticlesAux."
+   type: xAOD::TrackParticleAuxContainer
+   isConst: Yes
+   Data: 0x1e5bbb40
+ Hash: 0x31fe446d Key: "ElectronCollection"
+   type: DataVector<xAOD::Electron>
+   isConst: Yes
+   Data: 0x1e4fd720
+ Hash: 0x09bb047f Key: "ElectronCollectionAux."
+   type: xAOD::ElectronAuxContainer
+   isConst: Yes
+   Data: 0x1a3f1ce0
+ Hash: 0x02484a8b Key: "EventInfo"
+   type: xAOD::EventInfo
+   isConst: Yes
+   Data: 0x1eb7b280
+ Hash: 0x19c9cefe Key: "EventInfoAux."
+   type: xAOD::EventAuxInfo
+   isConst: Yes
+   Data: 0x1eb7c850
+ Hash: 0x14e35e9f Key: "ExtrapolatedMuonTrackParticles"
+   type: DataVector<xAOD::TrackParticle>
+   isConst: Yes
+   Data: 0x1e43b9c0
+ Hash: 0x2459d6e8 Key: "ExtrapolatedMuonTrackParticlesAux."
+   type: xAOD::TrackParticleAuxContainer
+   isConst: Yes
+   Data: 0x1e41ef40
+ Hash: 0x1ef0f37f Key: "FwdElectrons"
+   type: DataVector<xAOD::Electron>
+   isConst: Yes
+   Data: 0x1e954150
+ Hash: 0x35f7ce20 Key: "FwdElectronsAux."
+   type: xAOD::ElectronAuxContainer
+   isConst: Yes
+   Data: 0x1e954640
+ Hash: 0x1f3e85c9 Key: "GSFConversionVertices"
+   type: DataVector<xAOD::Vertex>
+   isConst: Yes
+   Data: 0x1ee51d00
+ Hash: 0x2d676284 Key: "GSFConversionVerticesAux."
+   type: xAOD::VertexAuxContainer
+   isConst: Yes
+   Data: 0x1ec9c940
+ Hash: 0x2e42db0b Key: "GSFTrackParticles"
+   type: DataVector<xAOD::TrackParticle>
+   isConst: Yes
+   Data: 0x1ee54ca0
+ Hash: 0x34297d8b Key: "GSFTrackParticlesAux."
+   type: xAOD::TrackParticleAuxContainer
+   isConst: Yes
+   Data: 0x1ea10810
+ Hash: 0x1d3890db Key: "InDetTrackParticles"
+   type: DataVector<xAOD::TrackParticle>
+   isConst: Yes
+   Data: 0x1e7c0820
+ Hash: 0x33f4b550 Key: "InDetTrackParticlesAux."
+   type: xAOD::TrackParticleAuxContainer
+   isConst: Yes
+   Data: 0x1e7c0cc0
+ Hash: 0x2599fe6a Key: "InDetTrackParticlesForward"
+   type: DataVector<xAOD::TrackParticle>
+   isConst: Yes
+   Data: 0x1e789970
+ Hash: 0x26f693e1 Key: "InDetTrackParticlesForwardAux."
+   type: xAOD::TrackParticleAuxContainer
+   isConst: Yes
+   Data: 0x1e3be020
+ Hash: 0x304f6802 Key: "LArClusterEMFrwd"
+   type: DataVector<xAOD::CaloCluster>
+   isConst: Yes
+   Data: 0x1e1f6210
+ Hash: 0x2851c708 Key: "LArClusterEMFrwdAux."
+   type: xAOD::CaloClusterAuxContainer
+   isConst: Yes
+   Data: 0x1e1f66f0
+ Hash: 0x14cd97f8 Key: "LVL1EmTauRoIs"
+   type: DataVector<xAOD::EmTauRoI>
+   isConst: Yes
+   Data: 0x1e203830
+ Hash: 0x34b8ec50 Key: "LVL1EmTauRoIsAux."
+   type: xAOD::EmTauRoIAuxContainer
+   isConst: Yes
+   Data: 0x1eb57790
+ Hash: 0x28ccc319 Key: "LVL1EnergySumRoI"
+   type: xAOD::EnergySumRoI
+   isConst: Yes
+   Data: 0x13cead90
+ Hash: 0x38eb6661 Key: "LVL1EnergySumRoIAux."
+   type: xAOD::EnergySumRoIAuxInfo
+   isConst: Yes
+   Data: 0x1ee6e130
+ Hash: 0x1317aa50 Key: "LVL1JetEtRoI"
+   type: xAOD::JetEtRoI
+   isConst: Yes
+   Data: 0x1e84af60
+ Hash: 0x0ac36047 Key: "LVL1JetEtRoIAux."
+   type: xAOD::JetEtRoIAuxInfo
+   isConst: Yes
+   Data: 0x1e858080
+ Hash: 0x319a0330 Key: "LVL1JetRoIs"
+   type: DataVector<xAOD::JetRoI>
+   isConst: Yes
+   Data: 0x2000e970
+ Hash: 0x39b6c738 Key: "LVL1JetRoIsAux."
+   type: xAOD::JetRoIAuxContainer
+   isConst: Yes
+   Data: 0x20041b90
+ Hash: 0x241a2dd5 Key: "LVL1MuonRoIs"
+   type: DataVector<xAOD::MuonRoI>
+   isConst: Yes
+   Data: 0x1ebc7320
+ Hash: 0x14b1aecd Key: "LVL1MuonRoIsAux."
+   type: xAOD::MuonRoIAuxContainer
+   isConst: Yes
+   Data: 0x1eaa1a40
+ Hash: 0x14655f2e Key: "METMap_LocHadTopo"
+   type: xAOD::MissingETComponentMap
+   isConst: Yes
+   Data: 0x1e1afd60
+ Hash: 0x16f4592d Key: "METMap_LocHadTopoAux."
+   type: xAOD::MissingETAuxComponentMap
+   isConst: Yes
+   Data: 0x1e992610
+ Hash: 0x2cf94457 Key: "METMap_LocHadTopoRegions"
+   type: xAOD::MissingETComponentMap
+   isConst: Yes
+   Data: 0x1e9e6380
+ Hash: 0x09fa4793 Key: "METMap_LocHadTopoRegionsAux."
+   type: xAOD::MissingETAuxComponentMap
+   isConst: Yes
+   Data: 0x203928f0
+ Hash: 0x1e61ada5 Key: "METMap_RefFinal"
+   type: xAOD::MissingETComponentMap
+   isConst: Yes
+   Data: 0x139f6280
+ Hash: 0x2a6037e7 Key: "METMap_RefFinalAux."
+   type: xAOD::MissingETAuxComponentMap
+   isConst: Yes
+   Data: 0x20175c90
+ Hash: 0x357237a1 Key: "METMap_RefFinalRegions"
+   type: xAOD::MissingETComponentMap
+   isConst: Yes
+   Data: 0x1e9a3850
+ Hash: 0x361d5365 Key: "METMap_RefFinalRegionsAux."
+   type: xAOD::MissingETAuxComponentMap
+   isConst: Yes
+   Data: 0x1ecf0a60
+ Hash: 0x368d51cd Key: "METMap_Track"
+   type: xAOD::MissingETComponentMap
+   isConst: Yes
+   Data: 0x20135f90
+ Hash: 0x0d6ccdf8 Key: "METMap_TrackAux."
+   type: xAOD::MissingETAuxComponentMap
+   isConst: Yes
+   Data: 0x1b37ccd0
+ Hash: 0x283ffdf0 Key: "MET_LocHadTopo"
+   type: xAOD::MissingETContainer
+   isConst: Yes
+   Data: 0x20346a30
+ Hash: 0x04122a8c Key: "MET_LocHadTopoAux."
+   type: xAOD::MissingETAuxContainer
+   isConst: Yes
+   Data: 0x202a7400
+ Hash: 0x2119c18d Key: "MET_LocHadTopoRegions"
+   type: xAOD::MissingETContainer
+   isConst: Yes
+   Data: 0x20381be0
+ Hash: 0x073fecef Key: "MET_LocHadTopoRegionsAux."
+   type: xAOD::MissingETAuxContainer
+   isConst: Yes
+   Data: 0x201be9f0
+ Hash: 0x10ad48d0 Key: "MET_RefFinal"
+   type: xAOD::MissingETContainer
+   isConst: Yes
+   Data: 0x20353f50
+ Hash: 0x392ea45d Key: "MET_RefFinalAux."
+   type: xAOD::MissingETAuxContainer
+   isConst: Yes
+   Data: 0x2029e460
+ Hash: 0x2fb70ce7 Key: "MET_RefFinalRegions"
+   type: xAOD::MissingETContainer
+   isConst: Yes
+   Data: 0x201abfa0
+ Hash: 0x03029811 Key: "MET_RefFinalRegionsAux."
+   type: xAOD::MissingETAuxContainer
+   isConst: Yes
+   Data: 0x20173750
+ Hash: 0x34a2d246 Key: "MET_Track"
+   type: xAOD::MissingETContainer
+   isConst: Yes
+   Data: 0x2022bd50
+ Hash: 0x372adc68 Key: "MET_TrackAux."
+   type: xAOD::MissingETAuxContainer
+   isConst: Yes
+   Data: 0x201e8d60
+ Hash: 0x025d6c54 Key: "MuonSegments"
+   type: DataVector<xAOD::MuonSegment>
+   isConst: Yes
+   Data: 0x1b278550
+ Hash: 0x21067705 Key: "MuonSegmentsAux."
+   type: xAOD::MuonSegmentAuxContainer
+   isConst: Yes
+   Data: 0x1b277110
+ Hash: 0x21748eec Key: "Muons"
+   type: DataVector<xAOD::Muon>
+   isConst: Yes
+   Data: 0x20168fe0
+ Hash: 0x03c9285a Key: "MuonsAux."
+   type: xAOD::MuonAuxContainer
+   isConst: Yes
+   Data: 0x1b37f060
+ Hash: 0x2564a80c Key: "PhotonCollection"
+   type: DataVector<xAOD::Photon>
+   isConst: Yes
+   Data: 0x2016b100
+ Hash: 0x2d63c16b Key: "PhotonCollectionAux."
+   type: xAOD::PhotonAuxContainer
+   isConst: Yes
+   Data: 0x2017a0d0
+ Hash: 0x37d14597 Key: "PrimaryVertices"
+   type: DataVector<xAOD::Vertex>
+   isConst: Yes
+   Data: 0x200bfd30
+ Hash: 0x0693b198 Key: "PrimaryVerticesAux."
+   type: xAOD::VertexAuxContainer
+   isConst: Yes
+   Data: 0x202ae1f0
+ Hash: 0x2c0062c1 Key: "TauPi0ChargedPFOContainer"
+   type: DataVector<xAOD::PFO>
+   isConst: Yes
+   Data: 0x201d3f80
+ Hash: 0x3f7b09cb Key: "TauPi0ChargedPFOContainerAux."
+   type: xAOD::PFOAuxContainer
+   isConst: Yes
+   Data: 0x200c0810
+ Hash: 0x0d6e8c91 Key: "TauPi0NeutralPFOContainer"
+   type: DataVector<xAOD::PFO>
+   isConst: Yes
+   Data: 0x203d67c0
+ Hash: 0x0857b733 Key: "TauPi0NeutralPFOContainerAux."
+   type: xAOD::PFOAuxContainer
+   isConst: Yes
+   Data: 0x20739d10
+ Hash: 0x3f146726 Key: "TauRecContainer"
+   type: DataVector<xAOD::TauJet>
+   isConst: Yes
+   Data: 0x20324d30
+ Hash: 0x35fd2985 Key: "TauRecContainerAux."
+   type: xAOD::TauJetAuxContainer
+   isConst: Yes
+   Data: 0x207f52b0
+ Hash: 0x1c4d8e40 Key: "TauSecondaryVertexContainer"
+   type: DataVector<xAOD::Vertex>
+   isConst: Yes
+   Data: 0x213d4930
+ Hash: 0x26e88a79 Key: "TauSecondaryVertexContainerAux."
+   type: xAOD::VertexAuxContainer
+   isConst: Yes
+   Data: 0x214ca560
+ Hash: 0x01309c76 Key: "TauShotPFOContainer"
+   type: DataVector<xAOD::PFO>
+   isConst: Yes
+   Data: 0x215dda20
+ Hash: 0x361cf529 Key: "TauShotPFOContainerAux."
+   type: xAOD::PFOAuxContainer
+   isConst: Yes
+   Data: 0x2161f9e0
+ Hash: 0x1c09cf12 Key: "TrigConfKeys"
+   type: xAOD::TrigConfKeys
+   isConst: Yes
+   Data: 0x213701c0
+ Hash: 0x32c7ac69 Key: "chargedJetETMissPFO_eflowRec"
+   type: DataVector<xAOD::PFO>
+   isConst: Yes
+   Data: 0x21543ee0
+ Hash: 0x0a3711fa Key: "chargedJetETMissPFO_eflowRecAux."
+   type: xAOD::PFOAuxContainer
+   isConst: Yes
+   Data: 0x215259c0
+ Hash: 0x3c338e6d Key: "chargedTauPFO_eflowRec"
+   type: DataVector<xAOD::PFO>
+   isConst: Yes
+   Data: 0x215ac3d0
+ Hash: 0x0eb5c2d3 Key: "chargedTauPFO_eflowRecAux."
+   type: xAOD::PFOAuxContainer
+   isConst: Yes
+   Data: 0x21543080
+ Hash: 0x0defa24f Key: "egClusterCollection"
+   type: DataVector<xAOD::CaloCluster>
+   isConst: Yes
+   Data: 0x214781d0
+ Hash: 0x16507339 Key: "egClusterCollectionAux."
+   type: xAOD::CaloClusterAuxContainer
+   isConst: Yes
+   Data: 0x215dacf0
+ Hash: 0x06d58ada Key: "neutralJetETMissPFO_eflowRec"
+   type: DataVector<xAOD::PFO>
+   isConst: Yes
+   Data: 0x2151ea50
+ Hash: 0x3a2fa8ee Key: "neutralJetETMissPFO_eflowRecAux."
+   type: xAOD::PFOAuxContainer
+   isConst: Yes
+   Data: 0x214ac640
+ Hash: 0x1ed46fcb Key: "neutralJetETMiss_LCPFO_NonModified_eflowRec"
+   type: DataVector<xAOD::PFO>
+   isConst: Yes
+   Data: 0x1e6b3dd0
+ Hash: 0x1daa3653 Key: "neutralJetETMiss_LCPFO_NonModified_eflowRecAux."
+   type: xAOD::PFOAuxContainer
+   isConst: Yes
+   Data: 0x1e6b4150
+ Hash: 0x18c103ac Key: "neutralJetETMiss_LCPFO_eflowRec"
+   type: DataVector<xAOD::PFO>
+   isConst: Yes
+   Data: 0x21725a80
+ Hash: 0x1332c40c Key: "neutralJetETMiss_LCPFO_eflowRecAux."
+   type: xAOD::PFOAuxContainer
+   isConst: Yes
+   Data: 0x21725b90
+ Hash: 0x31fa7a64 Key: "neutralTauPFO_eflowRec"
+   type: DataVector<xAOD::PFO>
+   isConst: Yes
+   Data: 0x2177eb70
+ Hash: 0x336e7f0c Key: "neutralTauPFO_eflowRecAux."
+   type: xAOD::PFOAuxContainer
+   isConst: Yes
+   Data: 0x2177f090
+ Hash: 0x08e0ace8 Key: "xTrigDecision"
+   type: xAOD::TrigDecision
+   isConst: Yes
+   Data: 0x21791ac0
+ Hash: 0x26664450 Key: "xTrigDecisionAux."
+   type: xAOD::TrigDecisionAuxInfo
+   isConst: Yes
+   Data: 0x21740e10
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+xAOD::TEvent::getInput... WARNING Key 0x00001234 unknown
+xAOD::TVirtualEvent::r... WARNING Couldn't retrieve 6ClassA/0x00001234
+xAOD::TEvent::getName     WARNING Didn't find object with pointer 0x12345678 in the event
+xAOD::TEvent::connectB... WARNING No metadata available for branch: MyObjB
+xAOD::TEvent::connectB... WARNING Branch "MyObjB" not available on input
+xAOD::TEvent::retrieve    WARNING Couldn't (const) retrieve "ClassA/MyObjB"
+xAOD::TEvent::connectB... WARNING No metadata available for branch: MyObjB
+xAOD::TEvent::connectB... WARNING Branch "MyObjB" not available on input
+xAOD::TEvent::retrieve    WARNING Couldn't (const) retrieve "ClassB/MyObjB"
+xAOD::TEvent::retrieve    WARNING Couldn't (non-const) retrieve "DataVector<ClassA>/ConstDataVector"
+xAOD::TEvent::fill        ERROR   /afs/cern.ch/user/s/ssnyder/atlas-work3e/Control/xAODRootAccess/Root/TEvent.cxx:1452 The following objects were not set in the current event: "Container2Aux.", "FloatVec"
+xAOD::TEvent::record      ERROR   /afs/cern.ch/user/s/ssnyder/atlas-work3e/Control/xAODRootAccess/Root/TEvent.cxx:2087 Didn't find dictionary for type: ClassA

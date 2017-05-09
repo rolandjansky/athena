@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/// $Id: xAODMerge.cxx 673572 2015-06-09 08:40:47Z krasznaa $
+/// $Id: xAODMerge.cxx 796983 2017-02-14 05:09:12Z ssnyder $
 ///
 /// @brief Executable replacing "hadd" for merging xAOD files in standalone mode
 ///
@@ -13,8 +13,8 @@
 ///
 /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 ///
-/// $Revision: 673572 $
-/// $Date: 2015-06-09 10:40:47 +0200 (Tue, 09 Jun 2015) $
+/// $Revision: 796983 $
+/// $Date: 2017-02-14 06:09:12 +0100 (Tue, 14 Feb 2017) $
 
 // System include(s):
 #include <cstring>
@@ -121,6 +121,11 @@ int main( int argc, char* argv[] ) {
       } else {
          inputNames.push_back( argv[ i ] );
       }
+   }
+
+   if (!outputName) {
+     ::Error( APP_NAME, "No output name provided." );
+     return 1;
    }
 
    // Set up the file merger object:

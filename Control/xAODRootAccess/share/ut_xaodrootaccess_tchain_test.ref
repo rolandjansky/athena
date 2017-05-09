@@ -1,0 +1,171 @@
+ut_xaodrootaccess_tcha... INFO    Environment initialised for data access
+ut_xaodrootaccess_tcha... INFO    Processing mc14_8TeV chain...
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+process                   INFO    Processed 0 / 1000 events
+process                   INFO    Processed 100 / 1000 events
+process                   INFO    Processed 200 / 1000 events
+process                   INFO    Processed 300 / 1000 events
+process                   INFO    Processed 400 / 1000 events
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+process                   INFO    Processed 500 / 1000 events
+process                   INFO    Processed 600 / 1000 events
+process                   INFO    Processed 700 / 1000 events
+process                   INFO    Processed 800 / 1000 events
+process                   INFO    Processed 900 / 1000 events
+ut_xaodrootaccess_tcha... INFO    Processing mc14_13TeV chain...
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+process                   INFO    Processed 0 / 10000 events
+process                   INFO    Processed 100 / 10000 events
+process                   INFO    Processed 200 / 10000 events
+process                   INFO    Processed 300 / 10000 events
+process                   INFO    Processed 400 / 10000 events
+process                   INFO    Processed 500 / 10000 events
+process                   INFO    Processed 600 / 10000 events
+process                   INFO    Processed 700 / 10000 events
+process                   INFO    Processed 800 / 10000 events
+process                   INFO    Processed 900 / 10000 events
+process                   INFO    Processed 1000 / 10000 events
+process                   INFO    Processed 1100 / 10000 events
+process                   INFO    Processed 1200 / 10000 events
+process                   INFO    Processed 1300 / 10000 events
+process                   INFO    Processed 1400 / 10000 events
+process                   INFO    Processed 1500 / 10000 events
+process                   INFO    Processed 1600 / 10000 events
+process                   INFO    Processed 1700 / 10000 events
+process                   INFO    Processed 1800 / 10000 events
+process                   INFO    Processed 1900 / 10000 events
+process                   INFO    Processed 2000 / 10000 events
+process                   INFO    Processed 2100 / 10000 events
+process                   INFO    Processed 2200 / 10000 events
+process                   INFO    Processed 2300 / 10000 events
+process                   INFO    Processed 2400 / 10000 events
+process                   INFO    Processed 2500 / 10000 events
+process                   INFO    Processed 2600 / 10000 events
+process                   INFO    Processed 2700 / 10000 events
+process                   INFO    Processed 2800 / 10000 events
+process                   INFO    Processed 2900 / 10000 events
+process                   INFO    Processed 3000 / 10000 events
+process                   INFO    Processed 3100 / 10000 events
+process                   INFO    Processed 3200 / 10000 events
+process                   INFO    Processed 3300 / 10000 events
+process                   INFO    Processed 3400 / 10000 events
+process                   INFO    Processed 3500 / 10000 events
+process                   INFO    Processed 3600 / 10000 events
+process                   INFO    Processed 3700 / 10000 events
+process                   INFO    Processed 3800 / 10000 events
+process                   INFO    Processed 3900 / 10000 events
+process                   INFO    Processed 4000 / 10000 events
+process                   INFO    Processed 4100 / 10000 events
+process                   INFO    Processed 4200 / 10000 events
+process                   INFO    Processed 4300 / 10000 events
+process                   INFO    Processed 4400 / 10000 events
+process                   INFO    Processed 4500 / 10000 events
+process                   INFO    Processed 4600 / 10000 events
+process                   INFO    Processed 4700 / 10000 events
+process                   INFO    Processed 4800 / 10000 events
+process                   INFO    Processed 4900 / 10000 events
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETComponentMap_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+xAOD::TEvent::initStats   WARNING Couldn't find dictionary for type "xAOD::MissingETContainer_v1"
+process                   INFO    Processed 5000 / 10000 events
+process                   INFO    Processed 5100 / 10000 events
+process                   INFO    Processed 5200 / 10000 events
+process                   INFO    Processed 5300 / 10000 events
+process                   INFO    Processed 5400 / 10000 events
+process                   INFO    Processed 5500 / 10000 events
+process                   INFO    Processed 5600 / 10000 events
+process                   INFO    Processed 5700 / 10000 events
+process                   INFO    Processed 5800 / 10000 events
+process                   INFO    Processed 5900 / 10000 events
+process                   INFO    Processed 6000 / 10000 events
+process                   INFO    Processed 6100 / 10000 events
+process                   INFO    Processed 6200 / 10000 events
+process                   INFO    Processed 6300 / 10000 events
+process                   INFO    Processed 6400 / 10000 events
+process                   INFO    Processed 6500 / 10000 events
+process                   INFO    Processed 6600 / 10000 events
+process                   INFO    Processed 6700 / 10000 events
+process                   INFO    Processed 6800 / 10000 events
+process                   INFO    Processed 6900 / 10000 events
+process                   INFO    Processed 7000 / 10000 events
+process                   INFO    Processed 7100 / 10000 events
+process                   INFO    Processed 7200 / 10000 events
+process                   INFO    Processed 7300 / 10000 events
+process                   INFO    Processed 7400 / 10000 events
+process                   INFO    Processed 7500 / 10000 events
+process                   INFO    Processed 7600 / 10000 events
+process                   INFO    Processed 7700 / 10000 events
+process                   INFO    Processed 7800 / 10000 events
+process                   INFO    Processed 7900 / 10000 events
+process                   INFO    Processed 8000 / 10000 events
+process                   INFO    Processed 8100 / 10000 events
+process                   INFO    Processed 8200 / 10000 events
+process                   INFO    Processed 8300 / 10000 events
+process                   INFO    Processed 8400 / 10000 events
+process                   INFO    Processed 8500 / 10000 events
+process                   INFO    Processed 8600 / 10000 events
+process                   INFO    Processed 8700 / 10000 events
+process                   INFO    Processed 8800 / 10000 events
+process                   INFO    Processed 8900 / 10000 events
+process                   INFO    Processed 9000 / 10000 events
+process                   INFO    Processed 9100 / 10000 events
+process                   INFO    Processed 9200 / 10000 events
+process                   INFO    Processed 9300 / 10000 events
+process                   INFO    Processed 9400 / 10000 events
+process                   INFO    Processed 9500 / 10000 events
+process                   INFO    Processed 9600 / 10000 events
+process                   INFO    Processed 9700 / 10000 events
+process                   INFO    Processed 9800 / 10000 events
+process                   INFO    Processed 9900 / 10000 events
