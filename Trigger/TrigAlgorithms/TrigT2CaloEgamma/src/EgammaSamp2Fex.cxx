@@ -117,11 +117,11 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   for(m_it = m_iBegin;m_it != m_iEnd; ++m_it) {
       larcell=(*m_it);
       if (larcell->energy() > seedEnergy) { // Hottest cell seach
-	float deta=fabsf(etaL1-larcell->eta());
+	float deta=std::abs(etaL1-larcell->eta());
 	if ( deta < m_maxHotCellDeta ){ // Eta check is faster. Do it First
-	   float dphi=fabsf(phiL1-larcell->phi());
-	   dphi = fabsf ( M_PI - dphi );
-	   dphi = fabsf ( M_PI - dphi );
+           float dphi=std::abs(phiL1-larcell->phi());
+	   dphi = std::abs ( M_PI - dphi );
+	   dphi = std::abs ( M_PI - dphi );
 	   if ( dphi < m_maxHotCellDphi ) {
         	seedEnergy = larcell->energy();
 		seedCell=larcell;
@@ -147,11 +147,11 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
     std::map<const LArCell*,float> windows;
     for(m_it = m_iBegin;m_it != m_iEnd; ++m_it) {
       larcell=(*m_it);
-        float deta=fabsf(seedEta-larcell->eta());
+        float deta=std::abs(seedEta-larcell->eta());
         if ( deta < 0.025+0.002 ){ // Eta check is faster. Do it First
-           float dphi=fabsf(seedPhi-larcell->phi());
-           dphi = fabsf ( M_PI - dphi );
-           dphi = fabsf ( M_PI - dphi );
+           float dphi=std::abs(seedPhi-larcell->phi());
+           dphi = std::abs ( M_PI - dphi );
+           dphi = std::abs ( M_PI - dphi );
            if ( dphi < 0.025+0.002 ) {
 		if ( windows.find(larcell) == windows.end() ){
 			windows[larcell]=0.0;
