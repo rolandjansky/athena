@@ -47,11 +47,25 @@ if not 'TileUseDCS' in dir():
         from AthenaCommon.DetFlags import DetFlags
         from RecExConfig.RecFlags import rec
         TileUseDCS = DetFlags.dcs.Tile_on() and rec.doESD and (not rec.readESD)
- 
+        TileCheckOFC=True
+
     if TileUseDCS:
         from RecExConfig.AutoConfiguration import GetRunNumber
         rn=GetRunNumber()
         TileUseDCS = ((rn>171194 and rn<222222) or rn>232498); # use DCS only for 2011 data and later, excluding shutdown period
+
+if TileUseDCS or ('TileCheckOFC' in dir() and TileCheckOFC) or ('RunOflOFC' in dir()):
+    if not 'RunNumber' in dir():
+        from RecExConfig.AutoConfiguration import GetRunNumber
+        rn=GetRunNumber()
+    else:
+        rn=RunNumber
+    if not 'RunOflOFC' in dir():
+        RunOflOFC=314450
+    if rn<RunOflOFC: # use OFC stored in online folder for all runs before 2017
+        from TileConditions.TileCoolMgr import tileCoolMgr
+        tileCoolMgr.addSource('OfcOf2Phy', '/TILE/ONL01/FILTER/OF2/PHY', 'TILE', "", '/TILE/ONL01/FILTER/OF2/PHY', 'SplitMC')
+        tileCoolMgr.addSource('OfcOf1Phy', '/TILE/ONL01/FILTER/OF1/PHY', 'TILE', "", '/TILE/ONL01/FILTER/OF1/PHY', 'SplitMC')
 
 msg.info("Adjusting TileInfo for %s samples" % TileFrameLength )
 tileInfoConfigurator.NSamples = TileFrameLength
