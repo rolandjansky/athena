@@ -182,8 +182,9 @@ def defineMenu():
         'NIMTRT',
 
         # AFP
-        'AFP_C_SPECTOF', 'AFP_C',
-        'AFP_A_SPECTOF', 'AFP_A',
+        'AFP_NSC', 'AFP_NSA',
+        'AFP_FSA_SIT', 'AFP_FSA_TOF', 'AFP_FSA_LOG',
+        'AFP_FSC_SIT', 'AFP_FSC_TOF', 'AFP_FSC_LOG',
 
         #-------------------------------------------------------------------
         #L1 TOPO inputs 
@@ -388,8 +389,7 @@ def defineMenu():
         "L1_EM7_MU10",
         "L1_2MU4", "L1_2MU6", "L1_2MU10", "L1_2MU20_OVERLAY", "L1_MU10_2MU6", "L1_MU11_2MU6", "L1_3MU4", "L1_MU6_2MU4", "L1_3MU6",  "L1_4MU4", "L1_MU6_3MU4", "L1_2MU6_3MU4",
 
-        "L1_EM8I_MU10", "L1_EM15I_MU4", "L1_2EM8VH_MU10", "L1_EM15VH_MU10", 
-
+        "L1_EM8I_MU10", "L1_EM15I_MU4", "L1_2EM8VH_MU10", "L1_EM15VH_MU10", "L1_EM7_MU11", "L1_EM7_MU20", "L1_EM8VH_MU20",
 
         # single tau
         "L1_TAU12", "L1_TAU12IM",  "L1_TAU20", "L1_TAU20IM",
@@ -397,7 +397,7 @@ def defineMenu():
         "L1_TAU8_UNPAIRED_ISO","L1_TAU8_FIRSTEMPTY","L1_TAU8_UNPAIRED_NONISO",
 
         # multi tau
-        "L1_TAU20IM_2TAU12IM", "L1_TAU20_2TAU12", "L1_TAU40_2TAU20IM",
+        "L1_TAU20IM_2TAU12IM", "L1_TAU20_2TAU12", "L1_TAU40_2TAU20IM", "L1_TAU60_2TAU40",
 
         # combined tau - lepton
         "L1_EM15VHI_2TAU12IM",          
@@ -417,6 +417,7 @@ def defineMenu():
 #        "L1_TAU25IT_2TAU12IT_2J25_3J12", 
 
         "L1_TAU20IM_2TAU12IM_J25_2J20_3J12",
+        "L1_TAU20IM_2TAU12IM_4J12",
         "L1_TAU25IM_2TAU20IM_2J25_3J20", 
         'L1_J25_2J20_3J12_BOX-TAU20ITAU12I',  
         'L1_DR-MU10TAU12I_TAU12I-J25', 
@@ -600,6 +601,7 @@ def defineMenu():
         'L1_AFP_A_BGRP0','L1_AFP_A_SPECTOF_BGRP0','L1_AFP_C_BGRP0','L1_AFP_C_SPECTOF_BGRP0', 
         'L1_AFP_A_OR_C_UNPAIRED_ISO', 'L1_AFP_A_OR_C_UNPAIRED_NONISO', 
         'L1_AFP_A_OR_C_EMPTY', 'L1_AFP_A_OR_C_FIRSTEMPTY',
+        'L1_AFP_A_AND_C_SPECTOF',
         'L1_AFP_A_AND_C','L1_AFP_A_OR_C', 'L1_AFP_A', 'L1_AFP_C',
         'L1_AFP_A_AND_C_MBTS_2','L1_AFP_A_OR_C_MBTS_2',
         'L1_AFP_A_AND_C_J12','L1_AFP_A_OR_C_J12',
@@ -608,7 +610,7 @@ def defineMenu():
         'L1_AFP_A_AND_C_TE5','L1_AFP_A_OR_C_TE5',
         'L1_AFP_A_AND_C_J50','L1_AFP_A_AND_C_SPECTOF_J50',
         'L1_AFP_A_AND_C_J75','L1_AFP_A_AND_C_SPECTOF_J75',
-        'L1_AFP_A_AND_C_J100',
+        'L1_AFP_A_AND_C_J100','L1_AFP_A_AND_C_SPECTOF_J100',
 
 
         #--------------------------------
@@ -888,7 +890,7 @@ def defineMenu():
         'L1_MU21_FTK',
         'L1_TAU12IM_FTK', 
         'L1_TAU20IM_FTK',
-        'L1_MU20_TAU12IM_FTK', 
+        'L1_MU21_TAU12IM_FTK', 
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12_FTK',
         'L1_DR-TAU20ITAU12I-J25_FTK',
         'L1_4J15_FTK',
@@ -963,6 +965,9 @@ def defineMenu():
         'L1_EM15I_MU4' : 42,
         'L1_2EM8VH_MU10' : 43,
         'L1_EM15VH_MU10' : 44,
+        'L1_EM7_MU20' : 483,
+        'L1_EM8VH_MU20' : 484,
+        'L1_EM7_MU11' : 485,
         'L1_TAU12' : 45,
         'L1_TAU12IM' : 47,
         'L1_TAU20' : 49,
@@ -992,6 +997,7 @@ def defineMenu():
 
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12' : 70,
         'L1_TAU25IM_2TAU20IM_2J25_3J20' : 398,
+        'L1_TAU20IM_2TAU12IM_4J12' : 408,
         'L1_J25_2J20_3J12_BOX-TAU20ITAU12I' : 71,
         'L1_DR-MU10TAU12I_TAU12I-J25' : 72,
         'L1_MU10_TAU12I-J25' : 73,
@@ -1124,6 +1130,7 @@ def defineMenu():
         'L1_J40.0ETA25_XE50' : 177,
         'L1_MU10_2J20' : 278,
 	'L1_TAU40_2TAU20IM' : 254,
+        'L1_TAU60_2TAU40' : 458,
         'L1_MU10_2J15_J20' : 255,
 # freeing some CTPIDs  
 #        'L1_MBTSA0' : 170,
@@ -1184,6 +1191,7 @@ def defineMenu():
         'L1_AFP_A_OR_C_UNPAIRED_NONISO': 191, 
         'L1_AFP_A_OR_C_EMPTY': 192, 
         'L1_AFP_A_OR_C_FIRSTEMPTY': 193,
+        'L1_AFP_A_AND_C_SPECTOF': 456,
         'L1_AFP_A_AND_C': 448,
         'L1_AFP_A_OR_C': 276, 
         'L1_AFP_A': 283, 
@@ -1203,6 +1211,7 @@ def defineMenu():
         'L1_AFP_A_AND_C_J75': 445,
         'L1_AFP_A_AND_C_SPECTOF_J75': 446,
         'L1_AFP_A_AND_C_J100': 447,
+        'L1_AFP_A_AND_C_SPECTOF_J100': 457,
        
 #        'L1_EM8I' : 183,
 #        'L1_EM15I': 184,
@@ -1596,7 +1605,7 @@ def defineMenu():
         'L1_J15_FTK'                           : 506,
         'L1_J40_FTK'                           : 507,
         'L1_J100_FTK'                          : 508,           
-        'L1_MU20_TAU12IM_FTK'                  : 498,
+        'L1_MU21_TAU12IM_FTK'                  : 498,
 #        'L1_ALFA_B7L1U_OD' : 497,
 #        'L1_ALFA_B7L1L_OD' : 498,
 #        'L1_ALFA_A7L1U_OD' : 499,

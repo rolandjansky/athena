@@ -1,7 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-#!/usr/bin/env python
-
 # an example of how to run the MuonEfficiencyCorrections tool in athena
 
 # Set up the file reading:

@@ -36,6 +36,7 @@ MuonRPC_CablingSvc::MuonRPC_CablingSvc(const std::string& name, ISvcLocator* pSv
     m_condDataTool("RPCCablingDbTool"),
     m_condTriggerTool("RPCTriggerDbTool")
 {
+    declareProperty( "ConfFilePath", m_conf_filepath="MuonRPC_Cabling/" );
     declareProperty( "ConfFileName", m_conf_filename="LVL1confAtlas.data" );
     declareProperty( "CorrFileName", m_corr_filename="LVL1confAtlas.corr" );    
     declareProperty( "CosmicConfiguration", m_cosmic_configuration=false );
@@ -897,17 +898,18 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
     {
       // implement the search of LVL1conf.data trought the pathresolver utility.
       std::string conf_filename;
-      conf_filename = PathResolver::find_file (m_conf_filename, "DATAPATH");
+      std::string conf_str = m_conf_filepath;
+      conf_filename = PathResolverFindCalibFile ( conf_str.append( std::string(m_conf_filename)) );
       if (conf_filename.empty())
       {
 	  msg(MSG::ERROR) 
-		<< "Cannot locate " << m_conf_filename 
-		<< " from ${DATAPATH}" << endmsg;
+		<< "Cannot locate " << conf_str
+		<< " from ${CALIBPATH}" << endmsg;
 	  return StatusCode::FAILURE;
       }
       else msg(MSG::INFO)
-	<< "Cabling conf file <" << m_conf_filename
-	<< "> located at ${DATAPATH}" << endmsg;
+	<< "Cabling conf file <" << conf_str
+	<< "> located at ${CALIBPATH}" << endmsg;
 
       std::string corr_filename;
       corr_filename = PathResolver::find_file (m_corr_filename, "DATAPATH");
@@ -1148,12 +1150,13 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
             
 	    // implement the search of LVL1conf.data trought the pathresolver utility.
 	    std::string conf_filename;
-	    conf_filename = PathResolver::find_file (m_conf_filename, "DATAPATH");
+	    std::string conf_str = m_conf_filepath;
+	    conf_filename = PathResolverFindCalibFile ( conf_str.append( std::string(m_conf_filename)) );
             if (conf_filename.empty())
 	    {
 	      msg(MSG::ERROR) 
-		<< "Cannot locate " << m_conf_filename 
-		<< " from ${DATAPATH}" << endmsg;
+		<< "Cannot locate " << conf_str
+		<< " from ${CALIBPATH}" << endmsg;
 	      return StatusCode::FAILURE;
 	    }
 
