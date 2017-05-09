@@ -22,10 +22,10 @@ namespace CP {
     public:
 
     /** Fills theContainer with PFO from EM or LC mode in eflowRec */
-    virtual const xAOD::PFOContainer* retrievePFO(const CP::PFO_JetMETConfig_inputScale& theScale) = 0;
+    virtual const xAOD::PFOContainer* retrievePFO(const CP::PFO_JetMETConfig_inputScale& theScale) const = 0;
     
      /** Fills theContainer with PFO from EM or LC mode in eflowRec - additionally allows to choose one of charged, neutral or all PFO configurations */
-    virtual const xAOD::PFOContainer* retrievePFO(const CP::PFO_JetMETConfig_inputScale& theScale, const CP::PFO_JetMETConfig_charge& theCharge) = 0;
+    virtual const xAOD::PFOContainer* retrievePFO(const CP::PFO_JetMETConfig_inputScale& theScale, const CP::PFO_JetMETConfig_charge& theCharge) const = 0;
 
   };
 

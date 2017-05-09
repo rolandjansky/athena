@@ -34,7 +34,7 @@ namespace CP {
   // Subtraction not applied (inDenseEnvironment==true)
   // All Pt ranges: weight = 0
   
-  StatusCode WeightPFOTool::fillWeight( const xAOD::PFO& cpfo, float& weight ) {
+  StatusCode WeightPFOTool::fillWeight( const xAOD::PFO& cpfo, float& weight ) const {
 
     //we need to convert the string scale back to the enum
     PFO_JetMETConfig_inputScale theNeutralPFOScale = CP::EM;
