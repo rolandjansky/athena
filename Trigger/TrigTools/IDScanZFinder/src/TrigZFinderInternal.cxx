@@ -10,8 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-TrigZFinderInternal::TrigZFinderInternal( const std::string& type, 
-    const std::string& name)  
+TrigZFinderInternal::TrigZFinderInternal( const std::string& type, const std::string& name)  
 {
   mType = type;
   mName = name;
@@ -309,15 +308,17 @@ long TrigZFinderInternal::fillVectors (const std::vector<TrigSiSpacePointBase>& 
     /// DOES NOT span the phi=pi boundary
     for(long i=0; i<nSPs; ++i, ++SpItr) 
     {
+      if ( SpItr->layer()>m_maxLayer ) continue;
+
       double _phi = SpItr->phi() - roiPhiMin;
 
       if ( _phi>=0 && _phi<dphi ) { 
-        phi[i] = _phi;
-        rho[i] = SpItr->r();
-        zed[i] = SpItr->z();
-        lyr[i] = m_new2old[SpItr->layer()];
-        lcount[lyr[i]]=true;
-        ++icount;
+        phi[icount] = _phi;
+        rho[icount] = SpItr->r();
+        zed[icount] = SpItr->z();
+        lyr[icount] = m_new2old[SpItr->layer()];
+        lcount[lyr[icount]]=true;
+        icount++;
       }
     }
   }
@@ -326,16 +327,18 @@ long TrigZFinderInternal::fillVectors (const std::vector<TrigSiSpacePointBase>& 
     /// DOES span the phi=pi boundary
     for(long i=0; i<nSPs; ++i, ++SpItr) 
     {
+      if ( SpItr->layer()>m_maxLayer ) continue;
+
       double _phi = SpItr->phi() - roiPhiMin;
       if( _phi<0.0) _phi+=2*M_PI;
 
       if ( _phi>=0 && _phi<dphi ) { 
-        phi[i] = _phi;
-        rho[i] = SpItr->r();
-        zed[i] = SpItr->z();
-        lyr[i] = m_new2old[SpItr->layer()];
-        lcount[lyr[i]]=true;
-        ++icount;
+        phi[icount] = _phi;
+        rho[icount] = SpItr->r();
+        zed[icount] = SpItr->z();
+        lyr[icount] = m_new2old[SpItr->layer()];
+        lcount[lyr[icount]]=true;
+        icount++;
       }
     }
   }
@@ -475,52 +478,46 @@ std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInt
       nHisto[0][sliceIndex].resize( NumZhistoBins + 1 );
       zHisto[0][sliceIndex].resize( NumZhistoBins + 1 );
     }
-    if ( m_chargeAware )
-    {
-      for ( unsigned int sliceIndex = 0; sliceIndex < m_NumPhiSlices; sliceIndex++ )
-      {
-        nHisto[1][sliceIndex].resize( NumZhistoBins + 1 );
-        zHisto[1][sliceIndex].resize( NumZhistoBins + 1 );
+    if ( m_chargeAware ) {
+      for ( unsigned int sliceIndex = 0; sliceIndex < m_NumPhiSlices; sliceIndex++ ) {
+	  nHisto[1][sliceIndex].resize( NumZhistoBins + 1 );
+	  zHisto[1][sliceIndex].resize( NumZhistoBins + 1 );
       }
     }
-
+    
     //Populate the histograms
-    for ( unsigned int sliceIndex = 0; sliceIndex < m_NumPhiSlices; sliceIndex++ )
-    {
+    for ( unsigned int sliceIndex = 0; sliceIndex < m_NumPhiSlices; sliceIndex++ )  {
       allSlices[ sliceIndex ]->GetHistogram( &( nHisto[0][sliceIndex] ), &( zHisto[0][sliceIndex] ),
-          &( nHisto[1][sliceIndex] ), &( zHisto[1][sliceIndex] ),
-          extraPhi, extraPhiNeg, m_nFirstLayers, m_tripletMode, m_chargeAware, nHisto, zHisto );
+					     &( nHisto[1][sliceIndex] ), &( zHisto[1][sliceIndex] ),
+					     extraPhi, extraPhiNeg, m_nFirstLayers, m_tripletMode, m_chargeAware, nHisto, zHisto );
       //Note the extra arguments here - pointers to the whole histogram collection
       //This allows the filling of neighbouring slice histograms as required, but breaks thread safety
-
+      
       delete allSlices[ sliceIndex ];
     }
   }
-  else
-  {
+  else {
     //Allocate the z-axis histograms
     nHisto[0][0].resize( NumZhistoBins + 1 );
     zHisto[0][0].resize( NumZhistoBins + 1 );
-    if ( m_chargeAware )
-    {
+    if ( m_chargeAware )  {
       nHisto[1][0].resize( NumZhistoBins + 1 );
       zHisto[1][0].resize( NumZhistoBins + 1 );
     }
-
+    
     //Populate the histogram - fast and memory-efficient, but not thread safe (use MakeHistogram for thread safety)
-    for ( unsigned int sliceIndex = 0; sliceIndex < m_NumPhiSlices; sliceIndex++ )
-    {
+    for ( unsigned int sliceIndex = 0; sliceIndex < m_NumPhiSlices; sliceIndex++ ) {
       allSlices[ sliceIndex ]->GetHistogram( &( nHisto[0][0] ), &( zHisto[0][0] ),
-          &( nHisto[1][0] ), &( zHisto[1][0] ),
-          extraPhi, extraPhiNeg, m_nFirstLayers, m_tripletMode, m_chargeAware );
+					     &( nHisto[1][0] ), &( zHisto[1][0] ),
+					     extraPhi, extraPhiNeg, m_nFirstLayers, m_tripletMode, m_chargeAware );
       delete allSlices[ sliceIndex ];
     }
   }
+  
 
 
-
-  /// First calculate the pedestal to be subtracted (only used in the HI 
-  /// case at the moment)
+  /// First calculate the pedestal to be subtracted 
+  /// (only used in the HI case at the moment)
 
   double pedestal = 0;
 
@@ -546,9 +543,38 @@ std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInt
     }
 
     if ( count>0 ) pedestal /= count;
-
+    
   }
 
+
+  /// calculate the vertex significance: 
+  /// First sort the n entries in each bin in to order, then 
+  /// calculate the mean bg excluding the largest (1-m_percentile), 
+  /// then the significance for each peak will be 
+  ///    sig = (ypeak - bg)/sqrt(bg)
+  /// and we can keep only those where sig > m_minVtxSignificance
+
+  double bg = 0; 
+      
+  if ( m_minVtxSignificance > 0 ) { 
+
+    if ( !m_chargeAware ) {  
+
+      std::vector<long>& n = nHisto[0][0];
+      
+      std::vector<long>  n3( nHisto[0][0].size()-2, 0);
+      
+      for( unsigned i=n.size()-2 ; i-- ;  ) n3[i] = ( n[i+2] + n[i+2] + n[i] );
+      std::sort( n3.begin(), n3.end() );
+      
+      unsigned nmax = unsigned(n3.size()*m_percentile);
+
+      for( unsigned i=nmax ; i-- ;  ) bg += n3[i];
+      
+      if ( nmax>0 ) bg /= nmax;
+      
+    }
+  }
 
 
 
@@ -604,9 +630,9 @@ std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInt
         //   ...and compute the "entries-weighted" average bin position
 
         double weightedMax = ( zHisto[bending][bestPhi][binMax] +
-            zHisto[bending][bestPhi][binMax+1] +
-            zHisto[bending][bestPhi][binMax-1] ) /maxh;
-
+			       zHisto[bending][bestPhi][binMax+1] +
+			       zHisto[bending][bestPhi][binMax-1] ) /maxh;
+	
         /// if found a vertex flag the bins so we don't use them again 
         if ( m_numberOfPeaks>1 ) { 
           nHisto[bending][bestPhi][binMax]   = -1;
@@ -619,20 +645,33 @@ std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInt
 
         int closestVtx = -1; // find the closest vertex already put into the output list
         float dist2closestVtx = 1000; // should be larger than m_ZFinder_MaxZ*2
-        for ( size_t iv = 0; iv < zoutput.size(); ++iv )
+        for ( size_t iv = 0; iv < zoutput.size(); ++iv ) {
           if ( fabs(weightedMax-zoutput[iv]) < dist2closestVtx ) {
             closestVtx = iv;
             dist2closestVtx = fabs(weightedMax-zoutput[iv]); 
           }
+	}
 
-        if ( dist2closestVtx < m_nvrtxSeparation * ZBinSize ||
-            dist2closestVtx < fabs(weightedMax) * m_vrtxDistCut ) {
+        if ( dist2closestVtx < m_nvrtxSeparation*ZBinSize || dist2closestVtx < fabs(weightedMax)*m_vrtxDistCut ) {
           zoutput[closestVtx] = m_vrtxMixing * weightedMax + (1.0 - m_vrtxMixing) * zoutput[closestVtx] ;
           woutput[closestVtx] = m_vrtxMixing * maxh        + (1.0 - m_vrtxMixing) * woutput[closestVtx] ;
-        }  else  {
-          zoutput.push_back( weightedMax );
-          woutput.push_back( maxh );
-        }
+        }  
+	else  {
+
+	  /// here we reject those vertex candidates 
+	  /// where significance < m_minVtxSignificance
+	  bool addvtx = true;
+	  double significance = 0;
+	  if ( bg>0 ) { 
+	    significance = (maxh-bg)/std::sqrt(bg);
+	    if ( significance < m_minVtxSignificance ) addvtx = false;
+	  }
+
+	  if ( addvtx ) { 
+	    zoutput.push_back( weightedMax );
+	    woutput.push_back( maxh );
+	  }
+	}
 
       } // end of "b" loop, the loop over m_numberOfPeaks
 
@@ -672,5 +711,5 @@ std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInt
       //  for ( unsigned i=0 ; i<zoutput.size() ; i++ ) std::cout << "SUTT zoutput        " << i << "\t" << zoutput[i] << std::endl;
 
       return output;
-    }
+}
 

@@ -56,6 +56,10 @@ TrigZFinder::TrigZFinder( const std::string& type, const std::string& name, cons
   declareProperty( "TripletDK",          m_tripletDK        = 0.005 );
   declareProperty( "TripletDP",          m_tripletDP        = 0.05  );
   declareProperty( "WeightThreshold",    m_weightThreshold  = 0     );
+  declareProperty( "MaxLayer",           m_maxLayer        = 32    );
+  declareProperty( "MinVtxSignificance", m_minVtxSignificance  = 0  );
+  declareProperty( "Percentile",         m_percentile          = 1  );
+
 
   declareProperty( "LayerNumberTool", m_numberingTool);
 
@@ -127,34 +131,41 @@ StatusCode TrigZFinder::initialize()
 
   initializeInternal(maxSiliconLayerNum,offsetEndcapPixels-1);
 
-  athenaLog << MSG::INFO << "TrigZFinder constructed:     name()  "    << name()             << endreq;
-  athenaLog << MSG::INFO << "TrigZFinder::PixOnly        set to   "    << m_pixOnly          << endreq;
-  athenaLog << MSG::INFO << "TrigZFinder::FullScanMode            "    << m_fullScanMode     << endreq;
-  athenaLog << MSG::INFO << "TrigZFinder::PhiBinSize     set to   "    << m_phiBinSize       << endreq;
-  athenaLog << MSG::INFO << "TrigZFinder::# of peaks to consider: "    << m_numberOfPeaks    << endreq;
-  athenaLog << MSG::INFO << "TrigZFinder::z bin size              "    << m_minZBinSize      << endreq;
-  athenaLog << MSG::INFO << "TrigZFinder::eta coeff               "    << m_zBinSizeEtaCoeff << endreq;
+  athenaLog << MSG::INFO << "TrigZFinder constructed:     name()  "    << name()             << endmsg;
+  athenaLog << MSG::INFO << "TrigZFinder::PixOnly        set to   "    << m_pixOnly          << endmsg;
+  athenaLog << MSG::INFO << "TrigZFinder::FullScanMode            "    << m_fullScanMode     << endmsg;
+  athenaLog << MSG::INFO << "TrigZFinder::PhiBinSize     set to   "    << m_phiBinSize       << endmsg;
+  athenaLog << MSG::INFO << "TrigZFinder::# of peaks to consider: "    << m_numberOfPeaks    << endmsg;
+  athenaLog << MSG::INFO << "TrigZFinder::z bin size              "    << m_minZBinSize      << endmsg;
+  athenaLog << MSG::INFO << "TrigZFinder::eta coeff               "    << m_zBinSizeEtaCoeff << endmsg;
   
-  athenaLog << MSG::INFO << "TrigZFinder::m_nFirstLayers     = " << m_nFirstLayers     << endreq;
-  athenaLog << MSG::INFO << "TrigZFinder::m_invPhiSliceSize  = " << m_invPhiSliceSize  << endreq;
-  athenaLog << MSG::INFO << "TrigZFinder::m_phiBinSize       = " << m_phiBinSize       << endreq;
-  athenaLog << MSG::INFO << "TrigZFinder::m_dphideta         = " << m_dphideta         << endreq;
-  athenaLog << MSG::INFO << "TrigZFinder::m_neighborMultiplier = " << m_neighborMultiplier << endreq;
-  athenaLog << MSG::INFO << "TrigZFinder::m_minZBinSize      = " << m_minZBinSize      << endreq;
-  athenaLog << MSG::INFO << "TrigZFinder::m_zBinSizeEtaCoeff = " << m_zBinSizeEtaCoeff << endreq;
-  athenaLog << MSG::INFO << "TrigZFinder::m_chargeAware      = " << m_chargeAware      << endreq;
-  athenaLog << MSG::INFO << "TrigZFinder::m_zHistoPerPhi     = " << m_zHistoPerPhi     << endreq;
+  athenaLog << MSG::INFO << "TrigZFinder::m_nFirstLayers     = " << m_nFirstLayers     << endmsg;
+  athenaLog << MSG::INFO << "TrigZFinder::m_invPhiSliceSize  = " << m_invPhiSliceSize  << endmsg;
+  athenaLog << MSG::INFO << "TrigZFinder::m_phiBinSize       = " << m_phiBinSize       << endmsg;
+  athenaLog << MSG::INFO << "TrigZFinder::m_dphideta         = " << m_dphideta         << endmsg;
+  athenaLog << MSG::INFO << "TrigZFinder::m_neighborMultiplier = " << m_neighborMultiplier << endmsg;
+  athenaLog << MSG::INFO << "TrigZFinder::m_minZBinSize      = " << m_minZBinSize      << endmsg;
+  athenaLog << MSG::INFO << "TrigZFinder::m_zBinSizeEtaCoeff = " << m_zBinSizeEtaCoeff << endmsg;
+  athenaLog << MSG::INFO << "TrigZFinder::m_chargeAware      = " << m_chargeAware      << endmsg;
+  athenaLog << MSG::INFO << "TrigZFinder::m_zHistoPerPhi     = " << m_zHistoPerPhi     << endmsg;
 
-  athenaLog << MSG::INFO << "TrigZFinder::m_nvrtxSeparation  = " << m_nvrtxSeparation  << endreq;
-  athenaLog << MSG::INFO << "TrigZFinder::m_vrtxDistCut      = " << m_vrtxDistCut      << endreq;
-  athenaLog << MSG::INFO << "TrigZFinder::m_vrtxMixing       = " << m_vrtxMixing       << endreq;
-  athenaLog << MSG::INFO << "TrigZFinder::m_preferCentralZ   = " << m_preferCentralZ   << endreq;
+  athenaLog << MSG::INFO << "TrigZFinder::m_nvrtxSeparation  = " << m_nvrtxSeparation  << endmsg;
+  athenaLog << MSG::INFO << "TrigZFinder::m_vrtxDistCut      = " << m_vrtxDistCut      << endmsg;
+  athenaLog << MSG::INFO << "TrigZFinder::m_vrtxMixing       = " << m_vrtxMixing       << endmsg;
+  athenaLog << MSG::INFO << "TrigZFinder::m_preferCentralZ   = " << m_preferCentralZ   << endmsg;
 
-  athenaLog << MSG::INFO << "TrigZFinder::m_trustSPprovider  = " << m_trustSPprovider  << endreq;
+  athenaLog << MSG::INFO << "TrigZFinder::m_trustSPprovider  = " << m_trustSPprovider  << endmsg;
+  athenaLog << MSG::INFO << "TrigZFinder::m_tripletMode      = " << m_tripletMode      << endmsg;
 
-  athenaLog << MSG::INFO << "TrigZFinder::m_tripletMode      = " << m_tripletMode      << endreq;
+  athenaLog << MSG::INFO << "TrigZFinder::m_maxLayer         = " << m_maxLayer        << endmsg;
 
-  athenaLog << MSG::INFO << "TrigZFinder::m_weigthThreshold  = " << m_weightThreshold  << endreq;
+  athenaLog << MSG::INFO << "TrigZFinder::m_minVtxSignificance = " << m_minVtxSignificance  << endmsg;
+
+  if ( m_minSignificance>0 ) { 
+    athenaLog << MSG::INFO << "TrigZFinder::m_percentile     = " << m_percentile  << endmsg;
+  }
+
+  athenaLog << MSG::INFO << "TrigZFinder::m_weigthThreshold  = " << m_weightThreshold  << endmsg;
 
   return sc;
 }
@@ -169,22 +180,16 @@ TrigVertexCollection* TrigZFinder::findZ( const std::vector<TrigSiSpacePointBase
   MsgStream athenaLog( msgSvc(), name() );
 
   TrigVertexCollection* output = new TrigVertexCollection;
-  //  int outputLevel = msgSvc()->outputLevel( name() );
 
   std::vector<vertex>* vertices = findZInternal( spVec, roi);
-  //athenaLog << MSG::INFO << "RoI: " << *RoI << endreq;
-  //athenaLog << MSG::INFO << "RoI->phi0(): " << RoI->phi0() << endreq;
 
-
-  athenaLog << MSG::DEBUG << "roi: "    << roi << endreq;
-  athenaLog << MSG::DEBUG << "m_NumPhiSlices: " << m_NumPhiSlices << endreq;
+  athenaLog << MSG::DEBUG << "roi: "    << roi << endmsg;
+  athenaLog << MSG::DEBUG << "m_NumPhiSlices: " << m_NumPhiSlices << endmsg;
  
 
   if ( GetInternalStatus()==-1 ) { 
-    //    athenaLog << MSG::ERROR << "phi of spacepoint out of range!" << endreq;
-    //    athenaLog << MSG::ERROR << "Exiting ZFinder..." << endreq;
-    athenaLog << MSG::WARNING << "phi of spacepoint out of range! phi=" << GetReturnValue() << endreq;
-    athenaLog << MSG::WARNING << "Exiting ZFinder..." << endreq;
+    athenaLog << MSG::WARNING << "phi of spacepoint out of range! phi=" << GetReturnValue() << endmsg;
+    athenaLog << MSG::WARNING << "Exiting ZFinder..." << endmsg;
   }
 
   for ( unsigned int i=0 ; i<vertices->size() ; i++ ) { 
