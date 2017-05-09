@@ -75,10 +75,16 @@ namespace CP {
             bool CheckConsistency() const;
             // Get the number of the bins
             int nBinsSF() const;
+
             int nBinsEfficiency() const;
+
+
+            std::string GetBinName(int bin) const;
+            int FindBinSF(const xAOD::Muon & mu) const;
 
             //The function letting the world implode... Fixes the bin to which the systematic will be applied
             bool SetSystematicBin(int bin);
+
             /// the important bits - extract SF info
 
             /// scale factors...

@@ -59,6 +59,8 @@ namespace CP {
             //Function that changes from Implementation to implementation
             virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const = 0;
             virtual int NBins() const = 0;
+            virtual std::string GetBinName(unsigned int bin) const=0;
+
             virtual ~HistHandler();
             protected:
             HistHandler(TH1* Hist);
@@ -79,6 +81,7 @@ namespace CP {
             virtual ~HistHandler_TH1F();
 
             virtual int NBins() const;
+            virtual std::string GetBinName(unsigned int bin) const;
             virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
             private:
             AxisHandler *m_x_handler;
@@ -94,6 +97,8 @@ namespace CP {
             virtual ~HistHandler_TH2F();
 
             virtual int NBins() const;
+            virtual std::string GetBinName(unsigned int bin) const;
+
             virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
             private:
             TH2F* m_h;
@@ -109,7 +114,10 @@ namespace CP {
             HistHandler_TH3F(const HistHandler_TH3F & other);
             virtual HistHandler_TH3F & operator =(const HistHandler_TH3F & other);
             virtual ~HistHandler_TH3F();
+
             virtual int NBins() const;
+            virtual std::string GetBinName(unsigned int bin) const;
+
             virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
 
         private:
@@ -127,7 +135,10 @@ namespace CP {
             HistHandler_TH2Poly(const HistHandler_TH2Poly & other);
             virtual HistHandler_TH2Poly & operator =(const HistHandler_TH2Poly & other);
             virtual ~HistHandler_TH2Poly();
+
             virtual int NBins() const;
+            virtual std::string GetBinName(unsigned int bin) const;
+
             virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
 
         private:

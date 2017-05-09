@@ -22,45 +22,45 @@ namespace CP {
 //    static std::string CURRENT_MEC_VERSION = "MuonEfficiencyCorrections-03-03-17";
 
     MuonEfficiencyScaleFactors::MuonEfficiencyScaleFactors(const std::string& name) :
-                    asg::AsgTool(name),
-                    m_wp("Medium"),
-                    m_sf_sets(),
-                    m_current_sf(0),
-                    m_custom_dir(),
-                    m_custom_file_Combined(),
-                    m_custom_file_Calo(),
-                    m_custom_file_HighEta(),
-                    m_custom_file_LowPt(),
-                    m_custom_file_LowPtCalo(),
-                    m_version_string(),
-                    m_sys_string(),
-                    m_filtered_sys_sets(),
-                    m_efficiency_decoration_name_data(),
-                    m_efficiency_decoration_name_mc(),
-                    m_sf_decoration_name(),
-                    m_sf_replica_decoration_name(),
-                    m_eff_replica_decoration_name(),
-                    m_mc_eff_replica_decoration_name(),
-                    m_calibration_version("170410_Moriond"),
-                    m_lowpt_threshold(15.e3),
-                    m_effDec(0),
-                    m_MCeffDec(0),
-                    m_sfDec(0),
-                    m_sfrDec(0),
-                    m_effrDec(0),
-                    m_MCeffrDec(0),
-                    m_affectingSys(),
-                    m_Sys1Down(NULL),
-                    m_Sys1Up(NULL),
-                    m_Stat1Down(NULL),
-                    m_Stat1Up(NULL),
-                    m_LowPtSys1Down(NULL),
-                    m_LowPtSys1Up(NULL),
-                    m_LowPtStat1Down(NULL),
-                    m_LowPtStat1Up(NULL),
-                    m_init(false),
-                    m_seperateSystBins(false),
-                    m_Type(CP::MuonEfficiencyType::Undefined) {
+                asg::AsgTool(name),
+                m_wp("Medium"),
+                m_sf_sets(),
+                m_current_sf(0),
+                m_custom_dir(),
+                m_custom_file_Combined(),
+                m_custom_file_Calo(),
+                m_custom_file_HighEta(),
+                m_custom_file_LowPt(),
+                m_custom_file_LowPtCalo(),
+                m_version_string(),
+                m_sys_string(),
+                m_filtered_sys_sets(),
+                m_efficiency_decoration_name_data(),
+                m_efficiency_decoration_name_mc(),
+                m_sf_decoration_name(),
+                m_sf_replica_decoration_name(),
+                m_eff_replica_decoration_name(),
+                m_mc_eff_replica_decoration_name(),
+                m_calibration_version("170410_Moriond"),
+                m_lowpt_threshold(15.e3),
+                m_effDec(0),
+                m_MCeffDec(0),
+                m_sfDec(0),
+                m_sfrDec(0),
+                m_effrDec(0),
+                m_MCeffrDec(0),
+                m_affectingSys(),
+                m_Sys1Down(NULL),
+                m_Sys1Up(NULL),
+                m_Stat1Down(NULL),
+                m_Stat1Up(NULL),
+                m_LowPtSys1Down(NULL),
+                m_LowPtSys1Up(NULL),
+                m_LowPtStat1Down(NULL),
+                m_LowPtStat1Up(NULL),
+                m_init(false),
+                m_seperateSystBins(false),
+                m_Type(CP::MuonEfficiencyType::Undefined) {
 
         declareProperty("WorkingPoint", m_wp);
 
@@ -465,15 +465,15 @@ namespace CP {
             for (int bin = 1; bin < nBins; ++bin) {
                 // toyScale has to be toyScale > 0
                 if (!m_sf_sets.at(MuonEfficiencySystType::Nominal)->IsLowPtBin(bin)) {
-                    CP::SystematicVariation StatUpBin = CP::SystematicVariation::makeToyVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT", bin, MuonEfficiencySystType::Stat1Up);
+                    CP::SystematicVariation StatUpBin = CP::SystematicVariation::makeToyVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + getUncorrelatedSysBinName(bin) + "_STAT", bin, MuonEfficiencySystType::Stat1Up);
                     result.insert(StatUpBin);
-                    CP::SystematicVariation StatUpDown = CP::SystematicVariation::makeToyVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT", bin, MuonEfficiencySystType::Stat1Down);
+                    CP::SystematicVariation StatUpDown = CP::SystematicVariation::makeToyVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + getUncorrelatedSysBinName(bin) + "_STAT", bin, MuonEfficiencySystType::Stat1Down);
                     result.insert(StatUpDown);
                 }
                 if ((m_sf_sets.at(MuonEfficiencySystType::Nominal)->IsLowPtBin(bin) || m_sf_sets.at(MuonEfficiencySystType::Nominal)->IsForwardBin(bin)) && (m_Type == MuonEfficiencyType::Reco && m_lowpt_threshold > 0)) {
-                    CP::SystematicVariation StatUpBinLowPt = CP::SystematicVariation::makeToyVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT_LOWPT", bin, MuonEfficiencySystType::LowPtStat1Up);
+                    CP::SystematicVariation StatUpBinLowPt = CP::SystematicVariation::makeToyVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + getUncorrelatedSysBinName(bin) + "_STAT_LOWPT", bin, MuonEfficiencySystType::LowPtStat1Up);
                     result.insert(StatUpBinLowPt);
-                    CP::SystematicVariation StatUpDownLowPt = CP::SystematicVariation::makeToyVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + "_STAT_LOWPT", bin, MuonEfficiencySystType::LowPtStat1Down);
+                    CP::SystematicVariation StatUpDownLowPt = CP::SystematicVariation::makeToyVariation("MUON_EFF_" + EfficiencyTypeName(m_Type) + getUncorrelatedSysBinName(bin) + "_STAT_LOWPT", bin, MuonEfficiencySystType::LowPtStat1Down);
                     result.insert(StatUpDownLowPt);
                 }
             }
@@ -553,7 +553,7 @@ namespace CP {
         }
     }
     MuonEfficiencyScaleFactors::MuonEfficiencyScaleFactors(const MuonEfficiencyScaleFactors& toCopy) :
-                    MuonEfficiencyScaleFactors(toCopy.name() + "_copy") {
+                MuonEfficiencyScaleFactors(toCopy.name() + "_copy") {
         CopyInformation(toCopy);
 
     }
@@ -599,6 +599,35 @@ namespace CP {
         }
         CopyInformation(tocopy);
         return *this;
+    }
+
+    std::string MuonEfficiencyScaleFactors::getUncorrelatedSysBinName(unsigned int Bin) const {
+        if (!m_init) {
+            ATH_MSG_ERROR("The tool is not initialized yet. Return 'not initialized'");
+            return "not initialized";
+        }
+        return m_sf_sets.at(MuonEfficiencySystType::Nominal)->GetBinName(Bin);
+    }
+    std::string MuonEfficiencyScaleFactors::getUncorrelatedSysBinName(const SystematicSet& systConfig) const {
+        for (std::set<SystematicVariation>::iterator t = systConfig.begin(); t != systConfig.end(); ++t) {
+            if ((*t).isToyVariation()) {
+                std::pair<unsigned, float> m_pair = (*t).getToyVariation();
+                return getUncorrelatedSysBinName(m_pair.first);
+
+            }
+        }
+        ATH_MSG_ERROR("The given systematic " << systConfig.name() << " is not an unfolded one. Return  unknown bin ");
+        return "unknown bin";
+    }
+    int MuonEfficiencyScaleFactors::getUnCorrelatedSystBin(const xAOD::Muon& mu) const{
+        if (!m_init){
+            ATH_MSG_ERROR("The tool is not initialized yet");
+            return -1;
+
+        }
+        return m_sf_sets.at(MuonEfficiencySystType::Nominal)->getUnCorrelatedSystBin(mu);
 
     }
+
+
 } /* namespace CP */

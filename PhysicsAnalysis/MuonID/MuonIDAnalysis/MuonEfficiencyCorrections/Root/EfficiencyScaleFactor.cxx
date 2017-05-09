@@ -14,30 +14,30 @@
 #include <TClass.h>
 namespace CP {
     EfficiencyScaleFactor::EfficiencyScaleFactor() :
-                    m_sf(0),
-                    m_eff(0),
-                    m_mc_eff(0),
-                    m_sf_sys(0),
-                    m_eff_sys(0),
-                    m_mc_eff_sys(0),
-                    m_sf_KineDepsys(0),
-                    m_eff_KineDepsys(0),
-                    m_sf_replicas(),
-                    m_eff_replicas(),
-                    m_mc_eff_replicas(),
-                    m_etaphi(),
-                    m_sysType(),
-                    m_is_lowpt(false),
-                    m_respond_to_kineDepSyst(false),
-                    m_default_eff(1.),
-                    m_default_eff_ttva(1.),
-                    m_Type(CP::MuonEfficiencyType::Undefined),
-                    m_NominalFallBack(NULL),
-                    m_SystematicBin(-1) {
+                m_sf(0),
+                m_eff(0),
+                m_mc_eff(0),
+                m_sf_sys(0),
+                m_eff_sys(0),
+                m_mc_eff_sys(0),
+                m_sf_KineDepsys(0),
+                m_eff_KineDepsys(0),
+                m_sf_replicas(),
+                m_eff_replicas(),
+                m_mc_eff_replicas(),
+                m_etaphi(),
+                m_sysType(),
+                m_is_lowpt(false),
+                m_respond_to_kineDepSyst(false),
+                m_default_eff(1.),
+                m_default_eff_ttva(1.),
+                m_Type(CP::MuonEfficiencyType::Undefined),
+                m_NominalFallBack(NULL),
+                m_SystematicBin(-1) {
     }
 
     EfficiencyScaleFactor::EfficiencyScaleFactor(const std::string &file, const std::string &time_unit, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, bool isLowPt, bool hasPtDepSys) :
-                    EfficiencyScaleFactor() {
+                EfficiencyScaleFactor() {
         m_sysType = sysType;
         m_Type = effType;
         m_is_lowpt = isLowPt;
@@ -52,7 +52,7 @@ namespace CP {
         }
     }
     EfficiencyScaleFactor::EfficiencyScaleFactor(EfficiencyScaleFactor* Nominal, const std::string &file, const std::string &time_unit, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, bool is_lowpt, bool hasPtDepSys) :
-                    EfficiencyScaleFactor::EfficiencyScaleFactor(file, time_unit, sysType, effType, is_lowpt, hasPtDepSys) {
+                EfficiencyScaleFactor::EfficiencyScaleFactor(file, time_unit, sysType, effType, is_lowpt, hasPtDepSys) {
         m_NominalFallBack = Nominal;
 
     }
@@ -429,6 +429,21 @@ namespace CP {
         }
         m_SystematicBin = bin;
         return true;
+    }
+    std::string EfficiencyScaleFactor::GetBinName(int bin) const {
+        if (bin < 1 || bin > nBinsSF()) {
+            Error("EfficiencyScaleFactor::GetBinName()", "The current bin %i is out of the maximum range %u ", bin, nBinsSF());
+            return "Out of range";
+        }
+        return m_sf->GetBinName(bin);
+    }
+    int EfficiencyScaleFactor::FindBinSF(const xAOD::Muon & mu) const {
+        int bin = -1;
+        CorrectionCode cc = m_sf->FindBin(mu, bin);
+        if (cc == CP::CorrectionCode::Error) {
+            return -1;
+        }
+        return bin;
     }
 
 } /* namespace CP */
