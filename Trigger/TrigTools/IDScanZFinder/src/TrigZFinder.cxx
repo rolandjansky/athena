@@ -161,7 +161,7 @@ StatusCode TrigZFinder::initialize()
 
   athenaLog << MSG::INFO << "TrigZFinder::m_minVtxSignificance = " << m_minVtxSignificance  << endmsg;
 
-  if ( m_minSignificance>0 ) { 
+  if ( m_minVtxSignificance>0 ) { 
     athenaLog << MSG::INFO << "TrigZFinder::m_percentile     = " << m_percentile  << endmsg;
   }
 
