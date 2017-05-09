@@ -800,6 +800,23 @@ def setupMenu():
         # Trigger tower (TT) jet triggers
         # See ATR-14446 for details of the request
         ['j60_TT', 'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+
+        #AFP + jet chains ATR-16124
+
+        ['j10_L1AFP_A_OR_C',                        'L1_AFP_A_OR_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['j20_L1AFP_A_OR_C',                        'L1_AFP_A_OR_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['noalg_L1AFP_A_OR_C_J12',                        'L1_AFP_A_OR_C_J12',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['j20_L1AFP_A_OR_C_J12',                        'L1_AFP_A_OR_C_J12',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+
+        ['j10_L1AFP_A_AND_C',                        'L1_AFP_A_AND_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['j20_L1AFP_A_AND_C',                        'L1_AFP_A_AND_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['noalg_L1AFP_A_AND_C_J12',                        'L1_AFP_A_AND_C_J12',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['j20_L1AFP_A_AND_C_J12',                        'L1_AFP_A_AND_C_J12',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+
+        ['j10_320eta490_L1AFP_A_OR_C',                        'L1_AFP_A_OR_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['2j10_deta20_L1AFP_A_OR_C',                        'L1_AFP_A_OR_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['j10_320eta490_L1AFP_A_AND_C',                        'L1_AFP_A_AND_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['2j10_deta20_L1AFP_A_AND_C',                        'L1_AFP_A_AND_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         
     ]
 
@@ -3672,7 +3689,24 @@ def setupMenu():
         #AFP (ATR-14833) (removed ATR-15881)
         ['mb_sptrk_trk80_L1MBTS_2',                   'L1_MBTS_2',                     [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['mb_sptrk_pt2_L1MBTS_2',                     'L1_MBTS_2',                     [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-                        
+
+        #AFP ATR-16124
+        ['noalg_L1AFP_A_OR_C',                      'L1_AFP_A_OR_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_A',                      'L1_AFP_A',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_C',                      'L1_AFP_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_A_OR_C_MBTS_2',                      'L1_AFP_A_OR_C_MBTS_2',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_A_AND_C',                      'L1_AFP_A_AND_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_A_AND_C_MBTS_2',                      'L1_AFP_A_AND_C_MBTS_2',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+
+        ['mb_sptrk_pt2_L1AFP_A_OR_C',                     'L1_AFP_A_OR_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sptrk_pt4_L1AFP_A_OR_C',                     'L1_AFP_A_OR_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sptrk_pt6_L1AFP_A_OR_C',                     'L1_AFP_A_OR_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sptrk_pt8_L1AFP_A_OR_C',                     'L1_AFP_A_OR_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sptrk_pt2_L1AFP_A_AND_C',                     'L1_AFP_A_AND_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sptrk_pt4_L1AFP_A_AND_C',                     'L1_AFP_A_AND_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sptrk_pt6_L1AFP_A_AND_C',                     'L1_AFP_A_AND_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sptrk_pt8_L1AFP_A_AND_C',                     'L1_AFP_A_AND_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+
         ]
         
     TriggerFlags.CalibSlice.signatures   = [
@@ -3763,6 +3797,26 @@ def setupMenu():
         ['satu20em_l1satmon_L1EM22VHI_FIRSTEMPTY',  'L1_EM22VHI_FIRSTEMPTY',     [], ['L1Calo'], ['RATE:Calibration', 'BW:Detector'],-1],
         ['satu20em_l1satmon_L1J100',  'L1_J100',     [], ['L1Calo'], ['RATE:Calibration', 'BW:Detector'],-1],
         ['satu20em_l1satmon_L1J100.31ETA49',  'L1_J100.31ETA49',     [], ['L1Calo'], ['RATE:Calibration', 'BW:Detector'],-1],
+
+        #AFP calib ATR-16124
+        ['calibAFP_L1AFP_A_BGRP0',                   'L1_AFP_A_BGRP0'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1AFP_A_SPECTOF_BGRP0',                   'L1_AFP_A_SPECTOF_BGRP0'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1AFP_C_BGRP0',                   'L1_AFP_C_BGRP0'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1AFP_C_SPECTOF_BGRP0',                   'L1_AFP_C_SPECTOF_BGRP0'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+
+        ['calibAFP_L1AFP_A_OR_C_UNPAIRED_ISO',                   'L1_AFP_A_OR_C_UNPAIRED_ISO'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1AFP_A_OR_C_UNPAIRED_NONISO',                   'L1_AFP_A_OR_C_UNPAIRED_NONISO'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+
+        ['calibAFP_L1AFP_A_OR_C_EMPTY',                   'L1_AFP_A_OR_C_EMPTY'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1AFP_A_OR_C_FIRSTEMPTY',                   'L1_AFP_A_OR_C_FIRSTEMPTY'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+
+        ['calibAFP_L1AFP_A_AND_C',                   'L1_AFP_A_AND_C'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1AFP_A_OR_C',                   'L1_AFP_A_OR_C'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1AFP_A_AND_C_SPECTOF',                   'L1_AFP_A_AND_C_SPECTOF'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+
+        ['calibAFP_L1AFP_A',                   'L1_AFP_A'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1AFP_C',                   'L1_AFP_C'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+
 
         ]
 
