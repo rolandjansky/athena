@@ -42,41 +42,41 @@ public:
    * @param  slot     [IN]     Slot number (event slot)   *
    * @return Status code indicating failure or success.
    */
-  virtual StatusCode selectStore(size_t slotIndex);
+  virtual StatusCode selectStore(size_t slotIndex) override;
 
   /** Clear a given 'slot'.
    *
    * @param  slot     [IN]     Slot number (event slot)   *
    * @return Status code indicating failure or success.
    */
-  virtual StatusCode clearStore(size_t slotIndex);
+  virtual StatusCode clearStore(size_t slotIndex) override;
   
   /** Set the number of 'slots'.
    *
    * @param  slot     [IN]     Slot number (event slot)   *
    * @return Status code indicating failure or success.
    */
-  virtual StatusCode setNumberOfStores(size_t slots);
+  virtual StatusCode setNumberOfStores(size_t slots) override;
 
   /** Get the number of 'slots'.
    * 
    * @return Number of event stores allocated in the whiteboard
    */
-  virtual size_t getNumberOfStores() const;
+  virtual size_t getNumberOfStores() const override;
  
   /** Get the latest new data objects registred in store.
    *
    * @param  products     [IN]     Slot number (event slot)   *
    * @return Status code indicating failure or success.
    */
-  virtual StatusCode getNewDataObjects(DataObjIDColl& products);
+  virtual StatusCode getNewDataObjects(DataObjIDColl& products) override;
 
   /** Check if something is new in the whiteboard without getting the products.
    *
    * @param  products     [IN]     Slot number (event slot)   *
    * @return Boolean indicating the presence of new products
    */
-  virtual bool newDataObjectsPresent(); 
+  virtual bool newDataObjectsPresent() override;
   
   /** Allocate a store slot for new event
    *
@@ -84,14 +84,14 @@ public:
    * @param     slot     [OUT]    Returned slot or slot number
    * @return Slot number (npos to indicate an error).
    */
-  virtual size_t allocateStore( int evtnumber );
+  virtual size_t allocateStore( int evtnumber ) override;
   
   /** Free a store slot
    *
    * @param     slot     [IN]     Slot number
    * @return Status code indicating failure or success.
    */
-  virtual StatusCode freeStore( size_t slotIndex );
+  virtual StatusCode freeStore( size_t slotIndex ) override;
   
   
   /** Get the slot number corresponding to a given event
@@ -99,11 +99,12 @@ public:
    * @param     evtnumber     [IN]     Event number
    * @return    slot number (npos to indicate an error).
    */
-  virtual size_t getPartitionNumber(int eventnumber) const;
+  virtual size_t getPartitionNumber(int eventnumber) const override;
+  
   //@{ @name Gaudi Service boilerplate
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
   //@}
 
     //handle incidents
