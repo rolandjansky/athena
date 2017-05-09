@@ -3862,9 +3862,12 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="498" partition="1" name="L1_MU20_TAU12IM_FTK" complex_deadtime="0" definition="(MU20[x1]&amp;HA12IM[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10100000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="498" partition="1" name="L1_MU21_TAU12IM_FTK" complex_deadtime="0" definition="((MU20[x1]|MU21[x1])&amp;HA12IM[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10100000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="MU20_x1" triggerthreshold="MU20"/>
+        <OR>
+          <TriggerCondition multi="1" name="MU20_x1" triggerthreshold="MU20"/>
+          <TriggerCondition multi="1" name="MU21_x1" triggerthreshold="MU21"/>
+        </OR>
         <TriggerCondition multi="1" name="HA12IM_x1" triggerthreshold="HA12IM"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
