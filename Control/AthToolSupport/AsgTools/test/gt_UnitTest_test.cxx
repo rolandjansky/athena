@@ -43,6 +43,12 @@ namespace asg
     return StatusCode::FAILURE;
   }
 
+  StatusCode functionFailure (const std::string& message)
+  {
+    ANA_MSG_ERROR (message);
+    return StatusCode::FAILURE;
+  }
+
   StatusCode functionThrow ()
   {
     throw std::runtime_error ("runtime error");
@@ -78,6 +84,41 @@ namespace asg
   TEST (AssertTest, failure_throw)
   {
     EXPECT_ANY_THROW (ASSERT_FAILURE (functionThrow()));
+  }
+
+
+
+  TEST (AssertTest, failure_regex_success)
+  {
+    EXPECT_FATAL_FAILURE (ASSERT_FAILURE_REGEX (functionSuccess(), ".*match.*"), "functionSuccess()");
+  }
+
+  TEST (AssertTest, failure_regex_failure_match)
+  {
+    EXPECT_FAILURE_REGEX (functionFailure("match"),".*match.*");
+  }
+
+#ifdef ROOTCORE
+  TEST (AssertTest, failure_regex_failure_missmatch)
+#else
+  TEST (AssertTest, DISABLED_failure_regex_failure_missmatch)
+#endif
+  {
+    EXPECT_FATAL_FAILURE (ASSERT_FAILURE_REGEX (functionFailure("text 1"),".*different text.*"), "functionFailure");
+  }
+
+#ifdef ROOTCORE
+  TEST (AssertTest, failure_regex_failure_missing)
+#else
+  TEST (AssertTest, DISABLED_failure_regex_failure_missing)
+#endif
+  {
+    EXPECT_FATAL_FAILURE (ASSERT_FAILURE_REGEX (functionFailure(),".*match.*"), "functionFailure()");
+  }
+
+  TEST (AssertTest, failure_REGEX_throw)
+  {
+    EXPECT_ANY_THROW (ASSERT_FAILURE_REGEX (functionThrow(),".*match.*"));
   }
 
 
@@ -148,6 +189,41 @@ namespace asg
   TEST (ExpectTest, failure_throw)
   {
     EXPECT_ANY_THROW (EXPECT_FAILURE (functionThrow()));
+  }
+
+
+
+  TEST (ExpectTest, failure_regex_success)
+  {
+    EXPECT_NONFATAL_FAILURE (EXPECT_FAILURE_REGEX (functionSuccess(), ".*match.*"), "functionSuccess()");
+  }
+
+  TEST (ExpectTest, failure_regex_failure_match)
+  {
+    EXPECT_FAILURE_REGEX (functionFailure("match"),".*match.*");
+  }
+
+#ifdef ROOTCORE
+  TEST (ExpectTest, failure_regex_failure_missmatch)
+#else
+  TEST (ExpectTest, DISABLED_failure_regex_failure_missmatch)
+#endif
+  {
+    EXPECT_NONFATAL_FAILURE (EXPECT_FAILURE_REGEX (functionFailure("text 1"),".*different text.*"), "functionFailure");
+  }
+
+#ifdef ROOTCORE
+  TEST (ExpectTest, failure_regex_failure_missing)
+#else
+  TEST (ExpectTest, DISABLED_failure_regex_failure_missing)
+#endif
+  {
+    EXPECT_NONFATAL_FAILURE (EXPECT_FAILURE_REGEX (functionFailure(),".*match.*"), "functionFailure()");
+  }
+
+  TEST (ExpectTest, failure_REGEX_throw)
+  {
+    EXPECT_ANY_THROW (EXPECT_FAILURE_REGEX (functionThrow(),".*match.*"));
   }
 
 
