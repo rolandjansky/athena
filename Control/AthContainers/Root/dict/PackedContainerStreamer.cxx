@@ -87,7 +87,7 @@ public:
    * @param b Buffer from/to which to read/write.
    * @param objp Object instance.
    */
-  virtual void operator()(TBuffer &b, void *objp);
+  virtual void operator()(TBuffer &b, void *objp) override;
 
 
   /**
