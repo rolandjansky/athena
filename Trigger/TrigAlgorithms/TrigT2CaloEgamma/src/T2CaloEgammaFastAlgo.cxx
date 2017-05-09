@@ -238,12 +238,12 @@ StatusCode T2CaloEgammaFastAlgo::execute()
   (*m_log) << MSG::INFO  << " ptrigEmCluster->setxxx : DONE  "<< endmsg;
   if ( caloDDE != 0 ){
     if ( caloDDE->is_lar_em_barrel() ){
-      for( ToolHandleArray<IEgammaCalibration>::const_iterator
+      for( ToolHandleArray<IEgammaCalibration>::iterator
   		  ical=m_calibsBarrel.begin();
   		  ical != m_calibsBarrel.end(); ++ical )
   	  (*ical)->makeCorrection(ptrigEmCluster,caloDDE);
     }else{
-    for( ToolHandleArray<IEgammaCalibration>::const_iterator
+    for( ToolHandleArray<IEgammaCalibration>::iterator
   		ical=m_calibsEndcap.begin();
   		ical != m_calibsEndcap.end(); ++ical )
   	(*ical)->makeCorrection(ptrigEmCluster,caloDDE);
