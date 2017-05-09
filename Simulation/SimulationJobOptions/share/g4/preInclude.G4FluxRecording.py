@@ -7,8 +7,8 @@ simFlags.NeutronTimeCut = int(2**31 - 1) #probably not required.
 simFlags.NeutronTimeCut.set_Off()
 simFlags.CavernBG = 'Write'
 if 'runArgs' in dir():
-    if hasattr(runArgs,'outputEVNT_CAVERNTRFile'):
-        simFlags.WriteTR = runArgs.outputEVNT_CAVERNTRFile
+    if hasattr(runArgs,'outputEVNT_TRFile'):
+        simFlags.WriteTR = runArgs.outputEVNT_TRFile
     elif hasattr(runArgs,'outputTrackRecordFile'):
         simFlags.WriteTR = runArgs.outputTrackRecordFile
     elif hasattr(runArgs,'outputEvgenFile'):
