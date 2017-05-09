@@ -35,7 +35,7 @@ T2CaloEgammaFastAlgo::T2CaloEgammaFastAlgo(const std::string & name, ISvcLocator
     m_calibsBarrel(this), 
     m_calibsEndcap(this),
     m_storeCells(false),
-    mroiCollection("OutputRoIs"),
+    m_roiCollection("OutputRoIs"),
     m_trigEmClusterCollection("CaloClusters"),
     m_regionSelector("RegSelSvc", name)
 {
@@ -88,19 +88,19 @@ StatusCode T2CaloEgammaFastAlgo::execute()
 
   ATH_CHECK( m_trigEmClusterCollection.record( CxxUtils::make_unique<xAOD::TrigEMClusterContainer>(), CxxUtils::make_unique<xAOD::TrigEMClusterAuxContainer>() ) );
 
-  ATH_CHECK(mroiCollection.isValid());
+  ATH_CHECK(m_roiCollection.isValid());
 
 
-  TrigRoiDescriptorCollection::const_iterator roi = mroiCollection->begin();
-  TrigRoiDescriptorCollection::const_iterator roiE = mroiCollection->end();
+  TrigRoiDescriptorCollection::const_iterator roi = m_roiCollection->begin();
+  TrigRoiDescriptorCollection::const_iterator roiE = m_roiCollection->end();
 
 
   const TrigRoiDescriptor* roiDescriptor = 0;
   //TrigRoiDescriptor* roiDescriptor = 0;
 
   // datahandle 
-  TrigRoiDescriptorCollection::const_iterator  roiCollectionIt  = mroiCollection->begin(); 
-  for(; roiCollectionIt!=mroiCollection->end(); ++roiCollectionIt){
+  TrigRoiDescriptorCollection::const_iterator  roiCollectionIt  = m_roiCollection->begin(); 
+  for(; roiCollectionIt!=m_roiCollection->end(); ++roiCollectionIt){
 	roiDescriptor = *roiCollectionIt;
 
   float etaL1, phiL1;
