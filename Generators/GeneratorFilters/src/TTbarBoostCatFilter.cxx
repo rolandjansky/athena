@@ -282,7 +282,6 @@ TTbarBoostCatFilter::~TTbarBoostCatFilter(){
 //---------------------------------------------------------------------------
 StatusCode TTbarBoostCatFilter::filterInitialize() {
   //---------------------------------------------------------------------------
-  MsgStream log(messageService(), name());
   return StatusCode::SUCCESS;
 }
 

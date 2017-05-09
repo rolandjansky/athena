@@ -61,22 +61,19 @@ TrimuMassRangeFilter::~TrimuMassRangeFilter(){
 //---------------------------------------------------------------------------
 StatusCode TrimuMassRangeFilter::filterInitialize() {
   //---------------------------------------------------------------------------
-  MsgStream log(messageService(), name());
-
-  log << MSG::INFO
-      << "TrimuMassRangeFilter "  << endmsg
-      << " PtCut1     " << m_Ptmin1 << endmsg
-      << " PtCut2     " << m_Ptmin2 << endmsg
-      << " PtCut3     " << m_Ptmin3 << endmsg
-      << " EtaCut1    " << m_EtaRange1 << endmsg
-      << " EtaCut2    " << m_EtaRange2 << endmsg
-      << " EtaCut3    " << m_EtaRange3 << endmsg
-      << " InvMassMin " << m_InvMassMin << endmsg
-      << " InvMassMax " << m_InvMassMax << endmsg
-      << " PartId1    " << m_PartId1 << endmsg
-      << " PartId2    " << m_PartId2 << endmsg
-      << " PartId3    " << m_PartId3 << endmsg
-      << " PartStatus " << m_PartStatus << endmsg;
+  ATH_MSG_INFO( "TrimuMassRangeFilter "   );
+  ATH_MSG_INFO( " PtCut1     " << m_Ptmin1 );
+  ATH_MSG_INFO( " PtCut2     " << m_Ptmin2 );
+  ATH_MSG_INFO( " PtCut3     " << m_Ptmin3 );
+  ATH_MSG_INFO( " EtaCut1    " << m_EtaRange1 );
+  ATH_MSG_INFO( " EtaCut2    " << m_EtaRange2 );
+  ATH_MSG_INFO( " EtaCut3    " << m_EtaRange3 );
+  ATH_MSG_INFO( " InvMassMin " << m_InvMassMin );
+  ATH_MSG_INFO( " InvMassMax " << m_InvMassMax );
+  ATH_MSG_INFO( " PartId1    " << m_PartId1 );
+  ATH_MSG_INFO( " PartId2    " << m_PartId2 );
+  ATH_MSG_INFO( " PartId3    " << m_PartId3 );
+  ATH_MSG_INFO( " PartStatus " << m_PartStatus );
 
   return StatusCode::SUCCESS;
  }
@@ -92,8 +89,7 @@ StatusCode TrimuMassRangeFilter::filterFinalize() {
 StatusCode TrimuMassRangeFilter::filterEvent() {
   //---------------------------------------------------------------------------
 
-  MsgStream log(messageService(), name());
-  log << MSG::INFO << " TEST MESSAGE " << endmsg;
+  ATH_MSG_INFO( " TEST MESSAGE "  );
 
   // Loop over all events in McEventCollection
 
@@ -115,9 +111,9 @@ StatusCode TrimuMassRangeFilter::filterEvent() {
           fabs((*pitr1)->momentum().pseudoRapidity()) > m_EtaRange1
         ) continue;//eta cut
           
-      log << MSG::INFO << "   type1 " << (*pitr1)->pdg_id() << " pT1 " << (*pitr1)->momentum().perp()
-          << " eta1 " << (*pitr1)->momentum().pseudoRapidity() << " phi1 " << (*pitr1)->momentum().phi()
-          << " stat1 " << (*pitr1)->status() << endmsg;
+      ATH_MSG_INFO( "   type1 " << (*pitr1)->pdg_id() << " pT1 " << (*pitr1)->momentum().perp()
+                    << " eta1 " << (*pitr1)->momentum().pseudoRapidity() << " phi1 " << (*pitr1)->momentum().phi()
+                    << " stat1 " << (*pitr1)->status()  );
 
       HepMC::GenEvent::particle_const_iterator pitr2 = genEvt->particles_begin();
       if( samePDGID12 ){
@@ -136,9 +132,9 @@ StatusCode TrimuMassRangeFilter::filterEvent() {
           ) continue;//eta cut
         if( samePDGID12 && !samePDGID123 && (*pitr1)->pdg_id()==(*pitr2)->pdg_id()) continue;
           
-        log << MSG::INFO << "   type2 " << (*pitr2)->pdg_id() << " pT2 " << (*pitr2)->momentum().perp()
-            << " eta2 " << (*pitr2)->momentum().pseudoRapidity() << " phi2 " << (*pitr2)->momentum().phi()
-            << " stat2 " << (*pitr2)->status() << endmsg;
+        ATH_MSG_INFO( "   type2 " << (*pitr2)->pdg_id() << " pT2 " << (*pitr2)->momentum().perp()
+                      << " eta2 " << (*pitr2)->momentum().pseudoRapidity() << " phi2 " << (*pitr2)->momentum().phi()
+                      << " stat2 " << (*pitr2)->status()  );
 
         HepMC::GenEvent::particle_const_iterator pitr3 = genEvt->particles_begin();
         if( samePDGID123 ){
@@ -156,9 +152,9 @@ StatusCode TrimuMassRangeFilter::filterEvent() {
               fabs((*pitr3)->momentum().pseudoRapidity()) > m_EtaRange3
             ) continue;//eta cut
           
-          log << MSG::INFO << "   type3 " << (*pitr3)->pdg_id() << " pT3 " << (*pitr3)->momentum().perp()
-              << " eta3 " << (*pitr3)->momentum().pseudoRapidity() << " phi3 " << (*pitr3)->momentum().phi()
-              << " stat3 " << (*pitr3)->status() << endmsg;
+          ATH_MSG_INFO( "   type3 " << (*pitr3)->pdg_id() << " pT3 " << (*pitr3)->momentum().perp()
+                        << " eta3 " << (*pitr3)->momentum().pseudoRapidity() << " phi3 " << (*pitr3)->momentum().phi()
+                        << " stat3 " << (*pitr3)->status()  );
 
           if( ( std::abs(m_PartId1) != 99999 && std::abs(m_PartId2) != 99999 && std::abs(m_PartId3) != 99999 ) &&
               ( (*pitr1)->pdg_id() + (*pitr2)->pdg_id() + (*pitr3)->pdg_id() != m_PartId1 + m_PartId2 + m_PartId3 ) ) continue;
@@ -169,20 +165,20 @@ StatusCode TrimuMassRangeFilter::filterEvent() {
           
           double invMass = vec.m();
           
-          log << MSG::INFO << " Mass " << invMass << endmsg;
+          ATH_MSG_INFO( " Mass " << invMass  );
           
           if( m_InvMassMin<=invMass && invMass<m_InvMassMax ){
-            log << MSG::INFO << "TrimuMassRangeFilter passed : MassMin <= Mass < MassMax " << m_InvMassMin << " <= " << invMass << " < " << m_InvMassMax << endmsg;;
+            ATH_MSG_INFO( "TrimuMassRangeFilter passed : MassMin <= Mass < MassMax " << m_InvMassMin << " <= " << invMass << " < " << m_InvMassMax  );
             return StatusCode::SUCCESS;
           }
-          log << MSG::INFO << "TrimuMassRangeFilter not passed : MassMin <= Mass < MassMax " << m_InvMassMin << " <= " << invMass << " < " << m_InvMassMax << endmsg;;
+          ATH_MSG_INFO( "TrimuMassRangeFilter not passed : MassMin <= Mass < MassMax " << m_InvMassMin << " <= " << invMass << " < " << m_InvMassMax  );
         
         }//pitr3
       }//pitr2
     }//pitr1
   }//McEventCollection
 
-  log << MSG::INFO << "TrimuMassRangeFilter not passed at all" << endmsg;;
+  ATH_MSG_INFO( "TrimuMassRangeFilter not passed at all"  );
 
   //Haven't found anything...
   setFilterPassed(false);

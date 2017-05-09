@@ -93,7 +93,6 @@ LeptonPairFilter::LeptonPairFilter(const std::string& name,
 //---------------------------------------------------------------------------
 StatusCode LeptonPairFilter::filterInitialize() {
 //---------------------------------------------------------------------------
-  MsgStream log(messageService(), name());
  return StatusCode::SUCCESS;
 }
 
@@ -107,8 +106,6 @@ StatusCode LeptonPairFilter::filterFinalize() {
 //---------------------------------------------------------------------------
 StatusCode LeptonPairFilter::filterEvent() {
 //---------------------------------------------------------------------------
-
-  MsgStream log(messageService(), name());
 
   // Loop over all events in McEventCollection
   std::vector<int> vLeptonPDGIDs;
@@ -174,8 +171,8 @@ StatusCode LeptonPairFilter::filterEvent() {
   //Filter automatically passes if number of leptons is different than expected
   if (!(  (nLeptons >= m_nLeptons_Min) && 
   	  (m_nLeptons_Max < 0 || nLeptons <= m_nLeptons_Max) )) {
-          log << MSG::INFO <<"# Lep = "<<nLeptons << " Pass" << endmsg;
-    	  return StatusCode::SUCCESS;
+    ATH_MSG_INFO("# Lep = "<<nLeptons << " Pass"  );
+    return StatusCode::SUCCESS;
   }
 
   int nSFOS = 0;
@@ -199,7 +196,7 @@ StatusCode LeptonPairFilter::filterEvent() {
 	else if(abs(id1)==abs(id2) && id1*id2 > 0) nSFSS+=1;
 	else if(abs(id1)!=abs(id2) && id1*id2 < 0) nOFOS+=1;
 	else if(abs(id1)!=abs(id2) && id1*id2 > 0) nOFSS+=1;
-	else log << MSG::ERROR << "Couldn't classify lepton pair" << endmsg;
+	else ATH_MSG_ERROR( "Couldn't classify lepton pair"  );
     }
   }
 
@@ -222,7 +219,7 @@ StatusCode LeptonPairFilter::filterEvent() {
   //Test if number of lepton pairs satisfies requirements
   //The maximum requirement is ignored if it is negative
   //No requirement is made if both min and max values are negative
-  log << MSG::INFO <<"# Lep " << vLeptonPDGIDs.size() << ", "<< nSFOS << " SFOS, "<<nSFSS<< " SFSS, " << nOFOS << " OFOS, " << nOFSS << " OFSS pairs ," << nPairSum << "summed pairs" << endmsg;
+  ATH_MSG_INFO("# Lep " << vLeptonPDGIDs.size() << ", "<< nSFOS << " SFOS, "<<nSFSS<< " SFSS, " << nOFOS << " OFOS, " << nOFSS << " OFSS pairs ," << nPairSum << "summed pairs"  );
 
   if(nSFOS >= m_nSFOS_Min && (m_nSFOS_Max<0 || nSFOS <= m_nSFOS_Max)) passSFOS=true;
   if(nSFSS >= m_nSFSS_Min && (m_nSFSS_Max<0 || nSFSS <= m_nSFSS_Max)) passSFSS=true;
@@ -231,20 +228,20 @@ StatusCode LeptonPairFilter::filterEvent() {
   if(nPairSum >= m_nPairSum_Min && (m_nPairSum_Max<0 || nPairSum <= m_nPairSum_Max)) passPairSum=true;
 
   if(passSFOS && passSFSS && passOFOS && passOFSS && passPairSum){
-    log << MSG::INFO <<"Pass" << endmsg;
+    ATH_MSG_INFO("Pass"  );
     for (unsigned int i = 0;i<vLeptonPDGIDs.size();i++){
        int pdg = vLeptonPDGIDs[i];
        double pt = vLeptonPt[i];
        double eta = vLeptonEta[i];
-       log << MSG::DEBUG << pdg << ": Pt = "<<pt<<", Eta = "<<eta << ", Parent PDG: ";
-       for (unsigned int j=0;j<vLeptonParentPDGIDs[i].size();j++) log << MSG::DEBUG << vLeptonParentPDGIDs[i][j];
-       log << MSG::DEBUG << endmsg;
+       msg(MSG::DEBUG) << pdg << ": Pt = "<<pt<<", Eta = "<<eta << ", Parent PDG: ";
+       for (unsigned int j=0;j<vLeptonParentPDGIDs[i].size();j++) msg(MSG::DEBUG) << vLeptonParentPDGIDs[i][j];
+       msg(MSG::DEBUG) << endmsg;
     }
     return StatusCode::SUCCESS;
   }
 
   // if we get here we have failed
   setFilterPassed(false);
-  log << MSG::INFO <<"Fail" << endmsg;
+  ATH_MSG_INFO("Fail"  );
   return StatusCode::SUCCESS;
 }
