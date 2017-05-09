@@ -10,7 +10,7 @@
 #include "LArBadChannelTool/LArBadChanTool.h"
 #include "LArBadChannelTool/LArBadChannelDBTools.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include <fstream>
 
 LArBadChannel2Ascii::LArBadChannel2Ascii(const std::string& name, ISvcLocator* pSvcLocator) :
