@@ -21,11 +21,9 @@ class GenTypes:
 
 class Templates:
     isvc_hdr_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.h 
-// Header file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef %(guard)s 
 #define %(guard)s 1 
 
@@ -84,12 +82,9 @@ inline const InterfaceID& %(klass)s::interfaceID()
 """
 
     isvc_cxx_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.cxx 
-// Implementation file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
-
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 // %(pkg)s includes
 #include "%(pkg)s/%(klass)s.h"
 
@@ -131,11 +126,9 @@ inline const InterfaceID& %(klass)s::interfaceID()
 """
 
     itool_hdr_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.h 
-// Header file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef %(guard)s
 #define %(guard)s 1
 
@@ -197,12 +190,9 @@ inline const InterfaceID& %(klass)s::interfaceID()
 """
 
     itool_cxx_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.cxx 
-// Implementation file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
-
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 // Framework includes
 //#include "GaudiKernel/MsgStream.h"
 
@@ -246,11 +236,9 @@ inline const InterfaceID& %(klass)s::interfaceID()
 %(namespace_end)s
 """
     object_hdr_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.h 
-// Header file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef %(guard)s
 #define %(guard)s 1
 
@@ -311,12 +299,9 @@ class %(klass)s
 """
 
     object_cxx_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.cxx 
-// Implementation file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
-
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 // %(pkg)s includes
 #include "%(pkg)s/%(klass)s.h"
 
@@ -350,11 +335,9 @@ class %(klass)s
 """
 
     svc_hdr_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.h 
-// Header file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef %(guard)s
 #define %(guard)s 1
 
@@ -444,12 +427,9 @@ inline const InterfaceID& %(klass)s::interfaceID()
 """
 
     svc_cxx_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.cxx 
-// Implementation file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
-
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 // %(pkg)s includes
 #include "%(klass)s.h"
 
@@ -540,11 +520,9 @@ StatusCode
 """
 
     alg_hdr_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.h 
-// Header file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef %(guard)s
 #define %(guard)s 1
 
@@ -613,12 +591,12 @@ class %(klass)s
 #endif //> !%(guard)s
 """
 
+
+    
     alg_cxx_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.cxx 
-// Implementation file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 // %(pkg)s includes
 #include "%(klass)s.h"
@@ -698,12 +676,107 @@ StatusCode %(klass)s::execute()
 %(namespace_end)s
 """
 
+    ralg_hdr_template = """\
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+#ifndef %(guard)s
+#define %(guard)s 1
+
+// STL includes
+#include <string>
+
+// FrameWork includes
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+
+%(namespace_begin)s
+
+class %(klass)s
+  : public ::AthReentrantAlgorithm
+{ 
+
+  /////////////////////////////////////////////////////////////////// 
+  // Public methods: 
+  /////////////////////////////////////////////////////////////////// 
+ public: 
+
+  %(klass)s( const std::string& name, ISvcLocator* pSvcLocator );
+
+  virtual ~%(klass)s(); 
+
+
+  //%(klass)s &operator=(const %(klass)s &alg); 
+
+  // Athena algorithm's Hooks
+  StatusCode  initialize() override;
+  StatusCode  execute_r(const EventContest& context) const override;
+  StatusCode  finalize() override;
+ 
+ private: 
+  %(klass)s();
+ 
+}; 
+
+%(namespace_end)s
+#endif //> !%(guard)s
+"""
+
+
+    
+    ralg_cxx_template = """\
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "GaudiKernel/Property.h"
+#include "%(klass)s.h"
+
+%(namespace_begin)s
+
+%(klass)s::%(klass)s( const std::string& name, 
+			  ISvcLocator* pSvcLocator ) : 
+  ::AthReentrantAlgorithm( name, pSvcLocator )
+{
+  //declareProperty( "Property", m_nProperty );
+
+}
+
+// Destructor
+///////////////
+%(klass)s::~%(klass)s()
+{}
+
+// Athena Algorithm's Hooks
+////////////////////////////
+StatusCode %(klass)s::initialize()
+{
+  ATH_MSG_INFO ("Initializing " << name() << "...");
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode %(klass)s::finalize()
+{
+  ATH_MSG_INFO ("Finalizing " << name() << "...");
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode %(klass)s::execute_r(const EventContest& context)
+{  
+  ATH_MSG_DEBUG ("Executing " << name() << "...");
+
+  return StatusCode::SUCCESS;
+}
+
+%(namespace_end)s
+"""
+
+    
     tool_hdr_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.h 
-// Header file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef %(guard)s
 #define %(guard)s 1
 
@@ -716,9 +789,6 @@ StatusCode %(klass)s::execute()
 
 // %(ipkg)s includes
 #include "%(ipkg)s/%(iklass)s.h"
-
-// Forward declaration
-class StoreGateSvc;
 
 %(namespace_begin)s
 
@@ -762,10 +832,6 @@ class %(klass)s
   /// Default constructor: 
   %(klass)s();
 
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-  /// Pointer to the StoreGate service
-  StoreGateSvc_t m_storeGate;
-
   // Containers
   
 
@@ -783,12 +849,9 @@ class %(klass)s
 """
 
     tool_cxx_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.cxx 
-// Implementation file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
-
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 // %(pkg)s includes
 #include "%(klass)s.h"
 
@@ -797,8 +860,6 @@ class %(klass)s
 // FrameWork includes
 #include "GaudiKernel/IToolSvc.h"
 
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
 
 %(namespace_begin)s
 
@@ -811,8 +872,7 @@ class %(klass)s
 %(klass)s::%(klass)s( const std::string& type, 
 		      const std::string& name, 
 		      const IInterface* parent ) : 
-  ::AthAlgTool  ( type, name, parent   ),
-  m_storeGate( "StoreGateSvc", name )
+  ::AthAlgTool  ( type, name, parent   )
 {
   //
   // Property declaration
@@ -832,11 +892,6 @@ StatusCode %(klass)s::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
-  // Get pointer to StoreGateSvc and cache it :
-  if ( !m_storeGate.retrieve().isSuccess() ) {
-    ATH_MSG_ERROR ("Unable to retrieve pointer to StoreGateSvc");
-    return StatusCode::FAILURE;
-  }
   
   return StatusCode::SUCCESS;
 }
@@ -872,6 +927,10 @@ StatusCode %(klass)s::finalize()
 """
 
     pyalg_template = """\
+#
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 # @file:    %(pkg)s/python/%(fname)s
 # @purpose: <put some purpose here>
 # @author:  Sebastien Binet <binet@cern.ch>
@@ -910,6 +969,10 @@ class %(klass)s (PyAthena.Alg):
 """
 
     pysvc_template = """\
+#
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 # @file:    %(pkg)s/python/%(fname)s
 # @purpose: <put some purpose here>
 # @author:  Sebastien Binet <binet@cern.ch>
@@ -945,6 +1008,10 @@ class %(klass)s (PyAthena.Svc):
 """
 
     pytool_template = """\
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 # @file:    %(pkg)s/python/%(fname)s
 # @purpose: <put some purpose here>
 # @author:  Sebastien Binet <binet@cern.ch>
@@ -980,6 +1047,10 @@ class %(klass)s (PyAthena.AlgTool):
 """
 
     pyaud_template = """\
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 # @file:    %(pkg)s/python/%(fname)s
 # @purpose: <put some purpose here>
 # @author:  Sebastien Binet <binet@cern.ch>
