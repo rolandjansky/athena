@@ -163,35 +163,6 @@ namespace MuonGM {
 	//             log<<MSG::WARNING<<"                       => overwriting UseRDB flag"<<endmsg;
 	//             m_rdb = 1;
 	//         }
-        if (m_layout == "Q02_initial") 
-	  {
-            m_includeCutouts = 0;
-            m_includeCutoutsBog = 0;
-            log<<MSG::INFO<<"MuonLayout set to <"<<m_layout<<"> = Preliminary version for Rome workshop "<<endmsg;
-            log<<MSG::INFO<<"                   BOG chambers are shorter; no cutouts implemented"<<endmsg;
-	  }            
-        if (m_layout == "Q02_initial_pro") 
-	  {
-            m_includeCutouts = 0;
-            m_includeCutoutsBog = 1;
-            log<<MSG::INFO<<"MuonLayout set to <"<<m_layout<<"> = Production version for Rome workshop "<<endmsg;
-            log<<MSG::INFO<<"                   BOG cutouts are activated, all other cutouts are disabled"<<endmsg;
-            m_layout = "Q02_initial";
-            log<<MSG::INFO<<"                   Setting internal Layout Name to "<<m_layout<<endmsg;
-            log<<MSG::INFO<<"                           includeCutouts and includeCutoutsBog to "
-               <<m_includeCutouts<<" "
-               <<m_includeCutoutsBog <<endmsg;
-	  }            
-        if (m_layout == "Q02") 
-	  {
-            m_includeCutouts = 0;
-            m_includeCutoutsBog = 1;
-            log<<MSG::INFO<<"MuonLayout set to <"<<m_layout<<"> = Production version for Rome workshop "<<endmsg;
-            log<<MSG::INFO<<"                   BOG cutouts are activated, all other cutouts are disabled"<<endmsg;
-            log<<MSG::INFO<<"                   Setting includeCutouts and includeCutoutsBog to "
-               <<m_includeCutouts<<" "
-               <<m_includeCutoutsBog <<endmsg;
-	  }            
         if (m_layout.substr(0,1) == "R") 
 	  {
             m_includeCutouts = 1;
@@ -402,17 +373,7 @@ namespace MuonGM {
       //             return;
       //         }
     }
-    else if (m_layout.substr(0,11) == "Q02_initial" && m_includeCutoutsBog == 0) {
-      // Preliminary Rome ws version
-      // OracleTag = "ATLAS-Rome-Initial-01";
-      dbr = new RDBReaderAtlas(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode, m_dumpAlines, m_useCscIntAlinesFromGM, m_dumpCscIntAlines);
-    }
-    else if (m_layout.substr(0,11) == "Q02_initial" && m_includeCutoutsBog == 1) {
-      // Production Rome ws version 
-      // OracleTag = "ATLAS-Rome-Initial-02";
-      dbr = new RDBReaderAtlas(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode, m_dumpAlines, m_useCscIntAlinesFromGM, m_dumpCscIntAlines);
-    }
-    else if (m_layout == "Q02" || m_layout.substr(0,1) == "R" )       {
+    else if ( m_layout.substr(0,1) == "R" )       {
       // Production Rome Final
       // OracleTag = "ATLAS-Rome-Final-00";
       //dbr = new RDBReaderAtlas(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode);
