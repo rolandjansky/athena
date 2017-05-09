@@ -43,12 +43,14 @@ TileBadChanTool::TileBadChanTool(const std::string& type, const std::string& nam
     , m_defaultStatus(TileBchStatus())
     , m_tripsProbs(TileCalibUtils::MAX_ROS - 1, std::vector<float>(TileCalibUtils::MAX_DRAWER, 0))
     , m_useOflBch(true)
+    , m_tileHWID(nullptr)
 {
   declareInterface<ITileBadChanTool>(this);
   declareInterface<TileBadChanTool>(this);
   declareInterface<ICaloBadChanTool>(this);
   declareProperty("ProxyOnlBch", m_pryOnlBch);
   declareProperty("ProxyOflBch", m_pryOflBch);
+
 }
 
 //
@@ -126,6 +128,19 @@ StatusCode TileBadChanTool::initialize() {
                                , this, true) );
     }
   }
+
+
+  m_roses.resize(TileCalibUtils::MAX_DRAWERIDX);
+  m_drawers.resize(TileCalibUtils::MAX_DRAWERIDX);
+
+  for (unsigned int ros = 0; ros < TileCalibUtils::MAX_ROS; ++ros) {
+    for (unsigned int drawer = 0; drawer < TileCalibUtils::getMaxDrawer(ros); ++drawer) {
+      unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
+      m_roses[drawerIdx] = ros;
+      m_drawers[drawerIdx] = drawer;
+    }
+  }
+
   
   return StatusCode::SUCCESS;
 }
@@ -158,44 +173,48 @@ StatusCode TileBadChanTool::recache(IOVSVC_CALLBACK_ARGS_K(keys)) {
   try {
 
     //=== loop over the whole detector, hash affected ADCs
-    uint32_t adcBits(0), chnBits(0);
-    memset(m_adcStatus, 0, sizeof(m_adcStatus));
-    for (unsigned int drawerIdx = 0; drawerIdx < TileCalibUtils::MAX_DRAWERIDX; ++drawerIdx) {
-      if (drawerIdx == TileCalibUtils::TRIPS_DRAWERIDX) continue;
-      for (unsigned int chn = 0; chn < TileCalibUtils::MAX_CHAN; ++chn) {
-        TileBchStatus chnStatus;
-        for (unsigned int adc = 0; adc < TileCalibUtils::MAX_GAIN; ++adc) {
-          unsigned int adcIdx = TileCalibUtils::getAdcIdx(drawerIdx, chn, adc);
+    uint32_t adcBits(0), channelBits(0);
+    
+    m_tileHWID = m_tileIdTrans->getTileHWID();
 
-	  //=== online status ...         
-          const TileCalibDrawerBch* calibDrawer = m_pryOnlBch->getCalibDrawer(drawerIdx);
-          TileBchDecoder::BitPatVer bitPatVer = calibDrawer->getBitPatternVersion();
-          calibDrawer->getStatusWords(chn, adc, adcBits, chnBits);
-          TileBchStatus adcStatus(m_tileBchDecoder[bitPatVer]->decode(chnBits, adcBits));
+    IdContext adcContext = m_tileHWID->adc_context();
+    unsigned int maxAdcHash = m_tileHWID->adc_hash_max();
 
-	  if (m_useOflBch) {
-	    //=== ... add offline status
-	    calibDrawer = m_pryOflBch->getCalibDrawer(drawerIdx);
-	    bitPatVer = calibDrawer->getBitPatternVersion();
-	    calibDrawer->getStatusWords(chn, adc, adcBits, chnBits);
-	    adcStatus += m_tileBchDecoder[bitPatVer]->decode(chnBits, adcBits);
-	  }
+    unsigned int drawerIdx(0);
+    unsigned int channel(0);
+    unsigned int adc(0);
 
-          if (adcStatus.isGood()) { continue; }
-          //=== only add problematic adcs to map
-          m_statusMapAdc[adcIdx] = adcStatus;
-          chnStatus += adcStatus;
-          m_adcStatus[drawerIdx][chn] |= (1U << adc);
+    for (IdentifierHash adcHash = 0; adcHash < maxAdcHash; adcHash += 1) {
+      HWIdentifier adcId;
+      if (m_tileHWID->get_id(adcHash, adcId, &adcContext) == 0) {
+        //        ATH_MSG_ALWAYS(m_tileHWID->to_string(adcId));
+        if (m_tileHWID->ros(adcId) == 0) continue;
 
-        } //end adc
+        m_tileIdTrans->getIndices(adcId, drawerIdx, channel, adc);
 
-        if (chnStatus.isAffected()) {
-          unsigned int chnIdx = TileCalibUtils::getChanIdx(drawerIdx, chn);
-          m_statusMapChn[chnIdx] = chnStatus;
+        //=== online status ...         
+        const TileCalibDrawerBch* calibDrawer = m_pryOnlBch->getCalibDrawer(drawerIdx);
+        TileBchDecoder::BitPatVer bitPatVer = calibDrawer->getBitPatternVersion();
+        calibDrawer->getStatusWords(channel, adc, adcBits, channelBits);
+        TileBchStatus adcStatus(m_tileBchDecoder[bitPatVer]->decode(channelBits, adcBits));
+        
+        if (m_useOflBch) {
+          //=== ... add offline status
+          calibDrawer = m_pryOflBch->getCalibDrawer(drawerIdx);
+          bitPatVer = calibDrawer->getBitPatternVersion();
+          calibDrawer->getStatusWords(channel, adc, adcBits, channelBits);
+          adcStatus += m_tileBchDecoder[bitPatVer]->decode(channelBits, adcBits);
         }
+        
+        if (!adcStatus.isGood()) { 
+          //=== only add problematic adcs to map
+          m_statusMapAdc[adcId] = adcStatus;
+          HWIdentifier channelId = m_tileHWID->channel_id(adcId);
+          m_statusMapChn[channelId] += adcStatus;
+        }
+      }
+    }
 
-      } //end chn
-    } //end drawerIdx
 
     //============================================================
     //=== Set definition of bad and noisy channel if specified.
@@ -218,8 +237,8 @@ StatusCode TileBadChanTool::recache(IOVSVC_CALLBACK_ARGS_K(keys)) {
     TileBchDecoder::BitPatVer bitPatVer = definitionsCalibDrawer->getBitPatternVersion();
 
     //=== TileBchStatus.isBad() definition
-    definitionsCalibDrawer->getStatusWords(TileCalibUtils::BAD_DEFINITION_CHAN, 0, adcBits, chnBits);
-    TileBchStatus chnStatus(m_tileBchDecoder[bitPatVer]->decode(chnBits, adcBits));
+    definitionsCalibDrawer->getStatusWords(TileCalibUtils::BAD_DEFINITION_CHAN, 0, adcBits, channelBits);
+    TileBchStatus chnStatus(m_tileBchDecoder[bitPatVer]->decode(channelBits, adcBits));
     if (chnStatus.isAffected()) {
       ATH_MSG_INFO( "Updating TileBchStatus::isBad() definition from DB" );
       TileBchStatus::defineBad(chnStatus);
@@ -228,8 +247,8 @@ StatusCode TileBadChanTool::recache(IOVSVC_CALLBACK_ARGS_K(keys)) {
     }
 
     //=== TileBchStatus.isNoisy() definition
-    definitionsCalibDrawer->getStatusWords(TileCalibUtils::NOISY_DEFINITION_CHAN, 0, adcBits, chnBits);
-    chnStatus = m_tileBchDecoder[bitPatVer]->decode(chnBits, adcBits);
+    definitionsCalibDrawer->getStatusWords(TileCalibUtils::NOISY_DEFINITION_CHAN, 0, adcBits, channelBits);
+    chnStatus = m_tileBchDecoder[bitPatVer]->decode(channelBits, adcBits);
     if (chnStatus.isAffected()) {
       ATH_MSG_INFO( "Updating TileBchStatus::isNoisy() definition from DB" );
       TileBchStatus::defineNoisy(chnStatus);
@@ -238,8 +257,8 @@ StatusCode TileBadChanTool::recache(IOVSVC_CALLBACK_ARGS_K(keys)) {
     }
 
     //=== TileBchStatus.isNoGainL1() definition
-    definitionsCalibDrawer->getStatusWords(TileCalibUtils::NOGAINL1_DEFINITION_CHAN, 0, adcBits, chnBits);
-    chnStatus = m_tileBchDecoder[bitPatVer]->decode(chnBits, adcBits);
+    definitionsCalibDrawer->getStatusWords(TileCalibUtils::NOGAINL1_DEFINITION_CHAN, 0, adcBits, channelBits);
+    chnStatus = m_tileBchDecoder[bitPatVer]->decode(channelBits, adcBits);
     if (chnStatus.isAffected()) {
       ATH_MSG_INFO( "Updating TileBchStatus::isNoGainL1() definition from DB" );
       TileBchStatus::defineNoGainL1(chnStatus);
@@ -249,8 +268,8 @@ StatusCode TileBadChanTool::recache(IOVSVC_CALLBACK_ARGS_K(keys)) {
 
 
     //=== TileBchStatus.isBadTiming() definition
-    definitionsCalibDrawer->getStatusWords(TileCalibUtils::BADTIMING_DEFINITION_CHAN, 0, adcBits, chnBits);
-    chnStatus = m_tileBchDecoder[bitPatVer]->decode(chnBits, adcBits);
+    definitionsCalibDrawer->getStatusWords(TileCalibUtils::BADTIMING_DEFINITION_CHAN, 0, adcBits, channelBits);
+    chnStatus = m_tileBchDecoder[bitPatVer]->decode(channelBits, adcBits);
     if (chnStatus.isAffected()) {
       ATH_MSG_INFO( "Updating TileBchStatus::isBadTiming() definition from DB" );
       TileBchStatus::defineBadTiming(chnStatus);
@@ -343,9 +362,14 @@ CaloBadChannel TileBadChanTool::caloStatus(Identifier id) const {
 //____________________________________________________________________
 const TileBchStatus&
 TileBadChanTool::getAdcStatus(const HWIdentifier& adc_id) const {
-  unsigned int drawerIdx(0), chn(0), adc(0);
-  m_tileIdTrans->getIndices(adc_id, drawerIdx, chn, adc);
-  return getAdcStatus(drawerIdx, chn, adc);
+
+  std::map<HWIdentifier, TileBchStatus>::const_iterator iStatusMap = m_statusMapAdc.find(adc_id);
+  if (iStatusMap == m_statusMapAdc.end()) {
+    return m_defaultStatus;
+  } else {
+    return iStatusMap->second;
+  }
+
 }
 
 //
@@ -353,9 +377,8 @@ TileBadChanTool::getAdcStatus(const HWIdentifier& adc_id) const {
 const TileBchStatus&
 TileBadChanTool::getAdcStatus(IdentifierHash hash_id, unsigned int adc) const {
   if (hash_id != TileHWID::NOT_VALID_HASH) {
-    unsigned int drawerIdx(0), chn(0);
-    m_tileIdTrans->getIndices(hash_id, drawerIdx, chn);
-    return getAdcStatus(drawerIdx, chn, adc);
+    HWIdentifier adc_id = m_tileHWID->adc_id(hash_id, adc);
+    return getAdcStatus(adc_id);
   } else {
     return m_defaultStatus;
   }
@@ -366,9 +389,8 @@ TileBadChanTool::getAdcStatus(IdentifierHash hash_id, unsigned int adc) const {
 const TileBchStatus&
 TileBadChanTool::getChannelStatus(IdentifierHash hash_id) const {
   if (hash_id != TileHWID::NOT_VALID_HASH) {
-    unsigned int drawerIdx(0), chn(0);
-    m_tileIdTrans->getIndices(hash_id, drawerIdx, chn);
-    return getChannelStatus(drawerIdx, chn);
+    HWIdentifier channel_id = m_tileHWID->channel_id(hash_id);
+    return getChannelStatus(channel_id);
   } else {
     return m_defaultStatus;
   }
@@ -378,23 +400,36 @@ TileBadChanTool::getChannelStatus(IdentifierHash hash_id) const {
 //____________________________________________________________________
 const TileBchStatus&
 TileBadChanTool::getChannelStatus(const HWIdentifier& channel_id) const {
-  unsigned int drawerIdx(0), chn(0);
-  m_tileIdTrans->getIndices(channel_id, drawerIdx, chn);
-  return getChannelStatus(drawerIdx, chn);
+
+  std::map<HWIdentifier, TileBchStatus>::const_iterator iStatusMap = m_statusMapChn.find(channel_id);
+  if (iStatusMap == m_statusMapChn.end()) {
+    return m_defaultStatus;
+  } else {
+    return iStatusMap->second;
+  }
+
 }
 
 //
 //____________________________________________________________________
 const TileBchStatus&
 TileBadChanTool::getChannelStatus(unsigned int drawerIdx, unsigned int channel) const {
-  unsigned int chnIdx = TileCalibUtils::getChanIdx(drawerIdx, channel);
-  std::map<unsigned int, TileBchStatus>::const_iterator iStatusMap = m_statusMapChn.find(chnIdx);
-  if (iStatusMap == m_statusMapChn.end()) {
-    return m_defaultStatus;
-  } else {
-    return iStatusMap->second;
-  }
+
+  HWIdentifier channel_id = m_tileHWID->channel_id(m_roses[drawerIdx], m_drawers[drawerIdx], channel);
+  return getChannelStatus(channel_id);
+
 }
+
+//
+//____________________________________________________________________
+const TileBchStatus&
+TileBadChanTool::getAdcStatus(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
+
+  HWIdentifier adc_id =  m_tileHWID->adc_id(m_roses[drawerIdx], m_drawers[drawerIdx], channel, adc);
+  return getAdcStatus(adc_id);
+
+}
+
 
 uint32_t TileBadChanTool::encodeStatus(const TileBchStatus& status) const {
   uint32_t bad;

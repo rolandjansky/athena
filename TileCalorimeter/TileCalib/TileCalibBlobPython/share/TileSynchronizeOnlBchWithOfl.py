@@ -1,14 +1,18 @@
 #!/bin/env python
-# TileSynchronizeOnlBchWithOfl
+# TileSynchronizeOnlBchWithOfl.py <TAG> <RUN>
 # lukas.pribyl@cern.ch March 2010
 # sanya.solodkov@cern.ch November 2014
-# taking latest status from UPD1 tag in offline DB and prepare sqlite file for online DB
+# sanya.solodkov@cern.ch July 2016
+# taking latest status from given tag in offline DB and prepare sqlite file for online DB
+# first parameter - tag to use can be UPD1 or UPD4 (default is UPD1)
+# second parameter - run number for start of IOV in sqlite file (default is current run)
 # if ADC is bad in offline DB, OnlineGeneralMaskAdc is set in online DB for this ADC
 # and in addition IgnoredInHlt is set for both ADCs of a channel
 
 import os,sys
 
-run = None if len(sys.argv) < 2 else int(sys.argv[1])
+tag = "UPD1" if len(sys.argv) < 2 else sys.argv[1].rpartition("=")[2]
+run = None if len(sys.argv) < 3 else int(sys.argv[2].rpartition("=")[2])
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileBchTools
@@ -38,10 +42,10 @@ if run is None or run < 0:
 #--- run number and folder to synchronize to
 runOfl = MAXRUN
 folder = "/TILE/OFL02/STATUS/ADC"
-folderTag = TileCalibUtils.getFullTag(folder, "RUN2-HLT-UPD1-00")
 
 #=== get offline DB
 db1 = TileCalibTools.openDb('ORACLE', 'CONDBR2', 'READONLY', 'COOLOFL_TILE')
+folderTag = TileCalibTools.getFolderTag(db1, folder, tag)
 
 #--- create ofline bad channel manager
 mgrOfl = TileBchTools.TileBchMgr()
@@ -141,7 +145,7 @@ for ros in xrange(1,5):
 #=== commit changes
 if len(comment):
     db2 = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'RECREATE','COOLONL_TILE')
-    mgrOnl.commitToDb(db2, folderOnl, folderTagOnl, TileBchDecoder.BitPat_onl01, "tilebeam", "synchronizing with UPD1; updated channels:" + comment, (runOnl,0))
+    mgrOnl.commitToDb(db2, folderOnl, folderTagOnl, TileBchDecoder.BitPat_onl01, "tilebeam", "synchronizing with %s; updated channels:%s" %(tag, comment), (runOnl,0))
     db2.closeDatabase()
 else:
     log.warning("Folders are in sync, nothing to update")
