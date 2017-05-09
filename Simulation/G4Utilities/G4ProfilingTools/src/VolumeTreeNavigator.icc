@@ -11,11 +11,6 @@ int VolumeTreeNavigator::GetCurrentDepth()
   return distance( m_history.begin(), m_h_nav );
 }
 
-
-// typedef std::pair<G4VPhysicalVolume*,int> VolID;
-// typedef std::vector<VolID> VolTree;
-// typedef VolTree::iterator VolNav;
-
 inline
 G4VPhysicalVolume* VolumeTreeNavigator::GetVolume(int rel) const
 {

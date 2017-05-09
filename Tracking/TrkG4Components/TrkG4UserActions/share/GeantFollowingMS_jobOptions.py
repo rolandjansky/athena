@@ -1,8 +1,8 @@
-#=============================================================
+#==============================================================
 #
 #
 #		This job option runs the G4 simulation
-#		of the ATLAS detector and the GeantFollower in the Muon Spectrometer 
+#		of the ATLAS detector and the GeantFollower in the Muon Spectrometer.
 #		It can be run using athena.py
 #
 #==============================================================

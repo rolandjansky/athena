@@ -10,32 +10,6 @@
 #ifndef G4CosmicFilter_H
 #define G4CosmicFilter_H
 
-#include "G4AtlasTools/UserActionBase.h"
-
-#include <string>
-
-class G4CosmicFilter final: public UserActionBase
-{
- private:
-
-  int m_ntot,m_npass;
-  int m_PDGId;
-  std::string m_collectionName;
-
-  double m_ptMin , m_ptMax;
-
-public:
-
-  G4CosmicFilter(const std::string& type, const std::string& name, const IInterface* parent);
-
-  virtual StatusCode initialize() override;
-  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
-
-  virtual void EndOfEvent(const G4Event*) override;
-  virtual void EndOfRun(const G4Run*) override;
-
-};
-
 
 #include "G4AtlasInterfaces/IEndEventAction.h"
 #include "AthenaBaseComps/AthMessaging.h"

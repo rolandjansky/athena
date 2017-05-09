@@ -2,3 +2,4 @@
 
 from AthenaCommon.CfgGetter import addTool
 addTool("Quirks.QuirksConfig.getQuirkPhysicsTool"         , "QuirkPhysicsTool" )
+addTool("Quirks.QuirksConfig.getDebugSteppingActionTool"  , "G4UA::DebugSteppingActionTool" )

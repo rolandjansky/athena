@@ -16,73 +16,7 @@
 #include "G4EventManager.hh"
 
 #include <iostream>
-
-AthenaTrackingAction::AthenaTrackingAction(const std::string& type,
-                                           const std::string& name,
-                                           const IInterface* parent)
-  : UserActionBase(type, name, parent)
-{
-}
-
-void AthenaTrackingAction::PreTracking(const G4Track* inTrack)
-{
-  // Retrieve the saving level for secondaries.
-  // Why isn't this handled via normal configuration?
-  static int ilevel =
-    TruthStrategyManager::GetStrategyManager()->GetSecondarySavingLevel();
-  //std::cout<<" this is AthenaTrackingAction::PreUserTrackingAction"<<std::endl;
-
-  // Use the TrackHelper code to identify the kind of particle.
-  TrackHelper trackHelper(inTrack);
-  if (trackHelper.IsPrimary() || trackHelper.IsRegisteredSecondary())
-    {
-      // Why a const_cast???
-      // This is an ugly way to communicate the GenParticle...
-      HepMC::GenParticle* part =
-        const_cast<HepMC::GenParticle*>( trackHelper.GetTrackInformation()->
-                                         GetHepMCParticle() );
-      EventInformation* eventInfo =
-        TruthStrategyManager::GetStrategyManager()->GetEventInformation();
-      if (trackHelper.IsPrimary()) eventInfo->SetCurrentPrimary(part);
-      eventInfo->SetCurrentlyTraced(part);
-    }
-  if (trackHelper.IsPrimary() ||
-      (trackHelper.IsRegisteredSecondary() && ilevel>1) ||
-      (trackHelper.IsSecondary() && ilevel>2))
-    {
-      // Create a new AtlasTrajectory and store it.
-      AtlasTrajectory* temp = new AtlasTrajectory(inTrack);
-      m_fpTrackingManager->SetStoreTrajectory(true);
-      m_fpTrackingManager->SetTrajectory(temp);
-    }
-}
-
-
-void AthenaTrackingAction::PostTracking(const G4Track* /*outTrack*/)
-{
-  //std::cout <<"AthenaTrackingAction::PostUserTrackingAction"<<std::endl;
-  // We are done tracking this particle, so reset the trajectory.
-  m_fpTrackingManager->SetStoreTrajectory(false);
-}
-
-// TODO: move to use declareInterface instead.
-StatusCode AthenaTrackingAction::queryInterface(const InterfaceID& riid,
-                                                void** ppvInterface)
-{
-  if ( IUserAction::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IUserAction*>(this);
-    addRef();
-  } else {
-    // Interface is not directly available : try out a base class
-    return UserActionBase::queryInterface(riid, ppvInterface);
-  }
-  return StatusCode::SUCCESS;
-}
-
-
-//=============================================================================
-// New design for multi-threading (V2 migration) follows.
-//=============================================================================
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 namespace G4UA
 {
