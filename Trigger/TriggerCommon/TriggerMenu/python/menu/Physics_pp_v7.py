@@ -259,6 +259,9 @@ def setupMenu():
         ['3mu3_mu3noL1_calotag_0eta010_L13MU4',    'L1_3MU4', ['L1_3MU4',''], [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1,['serial',-1,['3mu3','mu3noL1_calotag_0eta010']]],
         ['3mu4_mu4noL1_calotag_0eta010',           'L1_3MU4', ['L1_3MU4',''], [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1,['serial',-1,['3mu4','mu4noL1_calotag_0eta010']]],
 
+        #AFP muons
+        ['mu4_L1MU4',                        'L1_MU4',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+
         ]
 
 
@@ -773,12 +776,6 @@ def setupMenu():
         ['j80_0eta240_j60_j45_320eta490',   'L1_J40.0ETA25_2J25_J20.31ETA49', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
         ['2j40_0eta490_invm400',            'L1_MJJ-400', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 
-        # AFP jets (removed ATR-15881)
-        ['j10_L1MBTS_2',                    'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['j10_320eta490_L1MBTS_2',          'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['2j10_deta20_L1MBTS_2',            'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['2j10_deta20_L1J12',               'L1_J12', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-
         # ATR-14356: L1Topo VBF chains
         ['ht300_2j40_0eta490_invm700_L1HT150-JJ15.ETA49_MJJ-400', 'L1_HT150-JJ15.ETA49_MJJ-400', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'],-1,['serial',-1,['ht300', '2j40_0eta490_invm700']]],
         # ATR-15044: 2017 VBF Hbb
@@ -809,15 +806,12 @@ def setupMenu():
         ['j60_TT', 'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
         #AFP + jet chains ATR-16124
-
         ['j10_L1AFP_A_OR_C',                        'L1_AFP_A_OR_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['j20_L1AFP_A_OR_C',                        'L1_AFP_A_OR_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
-        ['noalg_L1AFP_A_OR_C_J12',                        'L1_AFP_A_OR_C_J12',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['j20_L1AFP_A_OR_C_J12',                        'L1_AFP_A_OR_C_J12',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
 
         ['j10_L1AFP_A_AND_C',                        'L1_AFP_A_AND_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['j20_L1AFP_A_AND_C',                        'L1_AFP_A_AND_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
-        ['noalg_L1AFP_A_AND_C_J12',                        'L1_AFP_A_AND_C_J12',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['j20_L1AFP_A_AND_C_J12',                        'L1_AFP_A_AND_C_J12',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
 
         ['j10_320eta490_L1AFP_A_OR_C',                        'L1_AFP_A_OR_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
@@ -825,6 +819,14 @@ def setupMenu():
         ['j10_320eta490_L1AFP_A_AND_C',                        'L1_AFP_A_AND_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['2j10_deta20_L1AFP_A_AND_C',                        'L1_AFP_A_AND_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         
+        ['j10_L1MBTS_2',                    'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['j20_L1MBTS_2',                    'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['j10_L1RD0_FILLED',                    'L1_RD0_FILLED', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['j20_L1RD0_FILLED',                    'L1_RD0_FILLED', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['j20_L1J12',                    'L1_J12', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['j10_320eta490_L1MBTS_2',          'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['2j10_deta20_L1MBTS_2',            'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+
     ]
 
     TriggerFlags.BjetSlice.signatures = [
@@ -2235,15 +2237,9 @@ def setupMenu():
         ['e26_lhtight_nod0_ivarloose_L1EM22VHIM_e15_etcut_L1EM7_Zee', 'L1_EM22VHIM',  ['L1_EM22VHIM','L1_EM7'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
         ['e28_lhtight_nod0_ivarloose_L1EM24VHIM_e15_etcut_L1EM7_Zee', 'L1_EM24VHIM',  ['L1_EM24VHIM','L1_EM7'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
 
-
-        #AFP photons (removed ATR-15881)
+        #AFP egamma       
         ['g10_loose_L1EM3',                  'L1_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['g10_medium_L1EM3',                  'L1_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-
-        #AFP electrons  (removed ATR-15881)
-        ['e10_lhloose_nod0_L1EM3',                  'L1_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['e10_lhmedium_nod0_L1EM3',                  'L1_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-
+        ['e10_lhloose_L1EM3',                  'L1_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
 
 			 ]
 
@@ -3719,20 +3715,11 @@ def setupMenu():
         # ALFA
         ['mb_sptrk_vetombts2in_L1ZDC_AND',                  'L1_ZDC_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['mb_sptrk_vetombts2in_L1ZDC_A_C',                  'L1_ZDC_A_C',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        
-        
+
         #AFP (ATR-14833) (removed ATR-15881)
         ['mb_sptrk_trk80_L1MBTS_2',                   'L1_MBTS_2',                     [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['mb_sptrk_pt2_L1MBTS_2',                     'L1_MBTS_2',                     [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
 
         #AFP ATR-16124
-        ['noalg_L1AFP_A_OR_C',                      'L1_AFP_A_OR_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['noalg_L1AFP_A',                      'L1_AFP_A',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['noalg_L1AFP_C',                      'L1_AFP_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['noalg_L1AFP_A_OR_C_MBTS_2',                      'L1_AFP_A_OR_C_MBTS_2',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['noalg_L1AFP_A_AND_C',                      'L1_AFP_A_AND_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['noalg_L1AFP_A_AND_C_MBTS_2',                      'L1_AFP_A_AND_C_MBTS_2',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-
         ['mb_sptrk_pt2_L1AFP_A_OR_C',                     'L1_AFP_A_OR_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['mb_sptrk_pt4_L1AFP_A_OR_C',                     'L1_AFP_A_OR_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['mb_sptrk_pt6_L1AFP_A_OR_C',                     'L1_AFP_A_OR_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
@@ -3741,6 +3728,8 @@ def setupMenu():
         ['mb_sptrk_pt4_L1AFP_A_AND_C',                     'L1_AFP_A_AND_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['mb_sptrk_pt6_L1AFP_A_AND_C',                     'L1_AFP_A_AND_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['mb_sptrk_pt8_L1AFP_A_AND_C',                     'L1_AFP_A_AND_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+
+        ['mb_sptrk_pt2_L1MBTS_2',                     'L1_MBTS_2',                     [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
 
         ]
         
@@ -3838,6 +3827,10 @@ def setupMenu():
         ['calibAFP_L1AFP_A_SPECTOF_BGRP0',                   'L1_AFP_A_SPECTOF_BGRP0'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1AFP_C_BGRP0',                   'L1_AFP_C_BGRP0'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1AFP_C_SPECTOF_BGRP0',                   'L1_AFP_C_SPECTOF_BGRP0'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1AFP_NSA_BGRP0',                   'L1_AFP_NSA_BGRP0'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1AFP_NSC_BGRP0',                   'L1_AFP_NSC_BGRP0'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1AFP_FSA_SIT_BGRP0',                   'L1_AFP_FSA_SIT_BGRP0'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1AFP_FSC_SIT_BGRP0',                   'L1_AFP_FSC_SIT_BGRP0'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
 
         ['calibAFP_L1AFP_A_OR_C_UNPAIRED_ISO',                   'L1_AFP_A_OR_C_UNPAIRED_ISO'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1AFP_A_OR_C_UNPAIRED_NONISO',                   'L1_AFP_A_OR_C_UNPAIRED_NONISO'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
@@ -4184,7 +4177,35 @@ def setupMenu():
         ['noalg_L1LHCF',             'L1_LHCF',        [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
         ['noalg_L1LHCF_UNPAIRED_ISO','L1_LHCF_UNPAIRED_ISO',        [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
         ['noalg_L1LHCF_EMPTY',       'L1_LHCF_EMPTY',        [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
-                
+
+
+        #AFP streamers
+        ['noalg_L1AFP_A_OR_C_J12',                        'L1_AFP_A_OR_C_J12',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['noalg_L1AFP_A_AND_C_J12',                        'L1_AFP_A_AND_C_J12',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['noalg_L1AFP_A_OR_C',                      'L1_AFP_A_OR_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_A',                      'L1_AFP_A',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_C',                      'L1_AFP_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_A_OR_C_MBTS_2',                      'L1_AFP_A_OR_C_MBTS_2',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_A_AND_C',                      'L1_AFP_A_AND_C',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_A_AND_C_MBTS_2',                      'L1_AFP_A_AND_C_MBTS_2',               [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+
+        ['noalg_L1AFP_A_OR_C_EM3',                  'L1_AFP_A_OR_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_A_AND_C_EM3',                  'L1_AFP_A_AND_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_A_OR_C_MU4',                        'L1_AFP_A_OR_C_MU4',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['noalg_L1AFP_A_AND_C_MU4',                        'L1_AFP_A_AND_C_MU4',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+
+        ['noalg_L1AFP_A_OR_C_TE5',                        'L1_AFP_A_OR_C_TE5',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['noalg_L1AFP_A_AND_C_TE5',                        'L1_AFP_A_AND_C_TE5',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+
+        ['noalg_L1AFP_A_OR_C_UNPAIRED_ISO',                        'L1_AFP_A_OR_C_UNPAIRED_ISO',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['noalg_L1AFP_A_OR_C_UNPAIRED_NONISO',                        'L1_AFP_A_OR_C_UNPAIRED_NONISO',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+
+        ['noalg_L1AFP_A_OR_C_EMPTY',                        'L1_AFP_A_OR_C_EMPTY',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['noalg_L1AFP_A_OR_C_FIRSTEMPTY',                        'L1_AFP_A_OR_C_FIRSTEMPTY',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+
+        ['noalg_L1MBTS_2',                        'L1_MBTS_2',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+
+
 
         #Zero bias streamer
         ['noalg_zb_L1ZB','L1_ZB', [], ['ZeroBias'], ["BW:ZeroBias", "RATE:ZeroBias"], -1],
