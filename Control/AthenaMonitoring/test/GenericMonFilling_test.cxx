@@ -89,22 +89,25 @@ int main() {
   }
   MsgStream log(Athena::getMessageSvc(), "GenericMonFilling_test");
 
-  // we need to test what happens to the monitoring when tool is not valid
-  InvalidToolHandle<GenericMonitoringTool> m_emptyMon;
-  VALUE ( m_emptyMon.isValid() ) EXPECTED ( false ); // self test
-  log << MSG::DEBUG << " mon tool validity " << m_emptyMon.isValid() << endmsg;
-
-  ToolHandle<GenericMonitoringTool> m_validMon("GenericMonitoringTool/MonTool");
-  if ( m_validMon.retrieve().isFailure() ) {
-    log << MSG::ERROR << "Failed to acquire the MonTool tools via the ToolHandle" << endmsg;
-    return -1;
-  }
-
   ITHistSvc* histSvc;
   if( pSvcLoc->service("THistSvc", histSvc, true).isFailure()  ) {
     log << MSG::ERROR << "THistSvc not available " << endmsg;
     return -1;
   }
+  
+  // we need to test what happens to the monitoring when tool is not valid
+  InvalidToolHandle<GenericMonitoringTool> m_emptyMon;
+  VALUE ( m_emptyMon.isValid() ) EXPECTED ( false ); // self test
+  log << MSG::DEBUG << " mon tool validity " << m_emptyMon.isValid() << endmsg;
+
+    
+  
+  ToolHandle<GenericMonitoringTool> m_validMon("GenericMonitoringTool/MonTool");
+  if ( m_validMon.retrieve().isFailure() ) {
+    log << MSG::ERROR << "Failed to acquire the MonTool tools via the ToolHandle" << endmsg;
+    return -1;
+  }
+  
   assert( fillFromScalarWorked(m_validMon, histSvc) );
   assert( noToolBehaviourCorrect(m_emptyMon) );
   log << MSG::DEBUG << "All OK"  << endmsg;

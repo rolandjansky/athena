@@ -9,30 +9,19 @@ ApplicationMgr.ExtSvc += { "ToolSvc" };
 ApplicationMgr.ExtSvc += { "THistSvc/THistSvc" };
 
 AuditorSvc.Auditors  += { "AlgContextAuditor"};
-StoreGateSvc.OutputLevel = 0;
+StoreGateSvc.OutputLevel = 5;
 StoreGateSvc.ActivateHistory = false;
 //CLIDSvc.OutputLevel = 1;
 //ClassIDSvc.OutputLevel = 1;
 //MessageSvc.OutputLevel = 1;
 MessageSvc.useColors        = false;
+THistSvc.OutputLevel = 0;
+THistSvc.Output= {"EXPERT DATAFILE='expert-monitoring.root' OPT='RECREATE'" };
+ToolSvc.MonTool.OutputLevel =0;
 ToolSvc.MonTool.HistogramsGroupName="TestGroup";
 ToolSvc.MonTool.Histograms = { "EXPERT, TH1F, Eta, #eta of Clusters; #eta; number of RoIs, 2, -2.500000, 2.500000, "};
-ToolSvc.MonTool.Histograms += { "EXPERT, TH1F, Phi, #phi of Clusters; #phi; number of RoIs, 2, 3.15, 3.15, " }; // intentionally very small number of bins
-//StoreGateSvc.FolderNameList = { "MyFolder", "YourFolder" };
-//MyFolder.ItemList = {"Foo#Bla", "Bar#*"};
-//YourFolder.ItemList = {"8101", "8107#", "Baricco#*"};
-//#include "IOVSvc/IOVSvc.txt"
-//ApplicationMgr.DLLs += { "IOVSvc" };
-//ApplicationMgr.ExtSvc += { "IOVSvc" };
-//EventPersistencySvc.CnvServices += { "TrigSerializeCnvSvc" }
-//
-//Navigation.ReferenceAllClasses = 1
-//ApplicationMgr.DLLs += { "TrigCaloEvent" };
-//ToolSvc.Navigation.ReferenceAllClasses = 1;
-//ToolSvc.Navigation.ClassesToPreregister = {"TestA#EverEmptyButPresent", "TestA#AgainPresentButEmpty", "TestA#","TrigNavTest::TestBContainer#BContainer1", "TrigNavTest::TestBContainer#BContainer2", "TestDContainer#DContainer1"};
-//ToolSvc.Navigation.AuxClasses = {"TestAuxA#EverEmptyButPresent", "TrigNavTest::TestAuxB#BContainer2"};
-//ToolSvc.Navigation.OutputLevel=1;
-//Holder_test.OutputLevel=1;
-//RoICache_test.OutputLevel=3;
+ToolSvc.MonTool.Histograms += { "EXPERT, TH1F, Phi, #phi of Clusters; #phi; number of RoIs, 2, 3.15, 3.15, " };
+// intentionally a very small number of bins
+// RoICache_test.OutputLevel=3;
 
 
