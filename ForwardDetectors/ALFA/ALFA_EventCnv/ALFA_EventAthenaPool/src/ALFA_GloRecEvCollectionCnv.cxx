@@ -8,7 +8,7 @@
  
 
 ALFA_GloRecEvCollection_PERS* ALFA_GloRecEvCollectionCnv::createPersistent(ALFA_GloRecEvCollection* transCont) {
-    MsgStream mlog(messageService(), "ALFA_GloRecEvCollectionConverter" );
+    MsgStream mlog(msgSvc(), "ALFA_GloRecEvCollectionConverter" );
     ALFA_GloRecEvCollectionCnv_p1   TPConverter;
     ALFA_GloRecEvCollection_PERS *persObj = TPConverter.createPersistent( transCont, mlog );
     return persObj;
@@ -16,7 +16,7 @@ ALFA_GloRecEvCollection_PERS* ALFA_GloRecEvCollectionCnv::createPersistent(ALFA_
 
 
 ALFA_GloRecEvCollection* ALFA_GloRecEvCollectionCnv::createTransient() {
-    MsgStream mlog(messageService(), "ALFA_GloRecEvCollectionConverter" );
+    MsgStream mlog(msgSvc(), "ALFA_GloRecEvCollectionConverter" );
     
     ALFA_GloRecEvCollectionCnv_p1   TPConverter_p1;
 
