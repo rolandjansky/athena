@@ -138,11 +138,11 @@ namespace JiveXML
 
     //Add Pixel if there is a collection
     if (PixelSPContainer.isValid())
-      SpacePointTruthPairList.push_back(SpacePointTruthPair(&*PixelSPContainer,PixelPRDTruthColl.cptr()));
+      SpacePointTruthPairList.push_back(SpacePointTruthPair(PixelSPContainer.cptr(),PixelPRDTruthColl.cptr()));
     
     //Add SCT if there is a collection
     if (SCTSPContainer.isValid())
-      SpacePointTruthPairList.push_back(SpacePointTruthPair(&*SCTSPContainer,SCTPRDTruthColl.cptr()));
+      SpacePointTruthPairList.push_back(SpacePointTruthPair(SCTSPContainer.cptr(),SCTPRDTruthColl.cptr()));
     
     /**
      * Found out how much space we will need
