@@ -39,9 +39,9 @@ StatusCode FastSimulationBase::initializeFastSim(){
   // Go through the regions and hook the fast simulation up
   G4RegionStore* regionStore = G4RegionStore::GetInstance();
   bool missedOne = false;
-  for (auto myreg : m_regionNames){
+  for (const auto& myreg : m_regionNames){
     int found=0; // Regions with more than one name...
-    for (auto areg : *regionStore){
+    for (auto* areg : *regionStore){
       if (myreg.data()==areg->GetName()){
         ++found;
         G4FastSimulationManager* theFastSimulationManager = areg->GetFastSimulationManager();
