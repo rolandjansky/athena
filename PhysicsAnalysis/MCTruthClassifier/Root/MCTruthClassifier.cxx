@@ -1381,7 +1381,9 @@ ParticleOrigin MCTruthClassifier::defOrigOfMuon(const xAOD::TruthParticleContain
 
   if( abs(m_MotherPDG)==23 )                   return ZBoson;  
     
- 
+  if ( m_MotherPDG == 22 && m_NumOfDaug == 2 &&  NumOfMuMin == 1 && NumOfMuPl == 1 ){
+    return PhotonConv;
+  }
 
   //-- Exotics
   if( abs(m_MotherPDG)<7&&m_NumOfParents==2&&NumOfMuPl==1&&NumOfMuMin==1&&
