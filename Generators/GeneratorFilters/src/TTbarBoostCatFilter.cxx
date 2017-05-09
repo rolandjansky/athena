@@ -69,7 +69,7 @@ StatusCode TTbarBoostCatFilter::filterEvent() {
   for (McEventCollection::const_iterator itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
-      if (fabs((*pitr)->pdg_id()) == 6) {
+      if (std::abs((*pitr)->pdg_id()) == 6) {
         if ( (*pitr)->pdg_id() ==  6 ) N_quark_t_all++;
         if ( (*pitr)->pdg_id() == -6 ) N_quark_tbar_all++;
 
@@ -90,7 +90,7 @@ StatusCode TTbarBoostCatFilter::filterEvent() {
 
 
             //  Implicitly assume that tops always decay to W X
-            if (fabs(child_mcpart->pdg_id()) == 24) {
+            if (std::abs(child_mcpart->pdg_id()) == 24) {
               if ( (*pitr)->pdg_id() ==  6 ){
 		N_quark_t++;
 		tops.push_back(mcpart);			  
@@ -121,7 +121,7 @@ StatusCode TTbarBoostCatFilter::filterEvent() {
 			      ATH_MSG_DEBUG("W (t/tbar) has " << mcpart_n_particles_out << " children and the pdg_id of the next is " << grandchild_pid);
 
 			      // Check if the W's child is W again. If yes, then move to its next decay vertex in a decay tree
-			      if (fabs(grandchild_pid) == 24) {
+			      if (std::abs(grandchild_pid) == 24) {
 					w_decayVtx = grandchild_mcpart->end_vertex();
 
 					// If something wrong comes from truth...

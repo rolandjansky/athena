@@ -42,7 +42,7 @@ StatusCode MassRangeFilter::filterEvent() {
     for (HepMC::GenEvent::particle_const_iterator pitr1 = genEvt->particles_begin(); pitr1 != genEvt->particles_end(); ++pitr1) {
       n++;
       if ((*pitr1)->status() != m_PartStatus ) continue; //status of the particle
-      if (fabs((*pitr1)->pdg_id()) != fabs(m_PartId) ) continue; //PDG ID selection
+      if (std::abs((*pitr1)->pdg_id()) != std::abs(m_PartId) ) continue; //PDG ID selection
       if ((*pitr1)->momentum().perp() < m_Ptmin ) continue; // pT cut
       if (fabs((*pitr1)->momentum().pseudoRapidity()) > m_EtaRange) continue; //eta cut
       HepMC::GenEvent::particle_const_iterator pitr2 = genEvt->particles_begin();
@@ -53,7 +53,7 @@ StatusCode MassRangeFilter::filterEvent() {
       for (; pitr2 != genEvt->particles_end(); ++pitr2) {
         if (pitr1 == pitr2) continue; //if the pointers are the same
         if ((*pitr2)->status() != m_PartStatus) continue;  //status of the particle
-        if (fabs((*pitr2)->pdg_id()) != fabs(m_PartId2)) continue; //PDG ID selection
+        if (std::abs((*pitr2)->pdg_id()) != std::abs(m_PartId2)) continue; //PDG ID selection
         if ((*pitr2)->momentum().perp() < m_Ptmin2) continue; // pT cut
         if (fabs((*pitr2)->momentum().pseudoRapidity()) > m_EtaRange2) continue;//eta cut
 

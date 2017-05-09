@@ -62,7 +62,7 @@ StatusCode MultiElecMuTauFilter::filterEvent() {
           }
 
           // Find tau decay nu
-          if (fabs((*citr)->pdg_id()) == 16) {
+          if (std::abs((*citr)->pdg_id()) == 16) {
             taunu = *citr;
           }
         }
