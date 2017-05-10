@@ -76,6 +76,9 @@ class TileRawChannelContByteStreamTool: public AthAlgTool {
 
     /** internal array for all TileRawChannels */
     TileFastRawChannel* m_channels;
+
+    /** maximum number of channels in a drawer */
+    int m_maxChannels;
 };
 
 #endif
