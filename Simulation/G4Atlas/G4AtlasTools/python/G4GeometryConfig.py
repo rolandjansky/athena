@@ -9,7 +9,13 @@ def getBeamPipeGeoDetectorTool(name='BeamPipe', **kwargs):
 
 def getPixelGeoDetectorTool(name='Pixel', **kwargs):
     kwargs.setdefault("DetectorName", "Pixel")
+    #kwargs.setdefault("GDMLFileOut","PixelDump.gdml")
     return CfgMgr.GeoDetectorTool(name, **kwargs)
+
+def getPixelGDMLDetectorTool(name='Pixel', **kwargs):
+    kwargs.setdefault("DetectorName", "Pixel")
+    kwargs.setdefault("GDMLFileName", "PixelDump.gdml")
+    return CfgMgr.GDMLDetectorTool(name, **kwargs)
 
 def getSCTGeoDetectorTool(name='SCT', **kwargs):
     kwargs.setdefault("DetectorName", "SCT")
