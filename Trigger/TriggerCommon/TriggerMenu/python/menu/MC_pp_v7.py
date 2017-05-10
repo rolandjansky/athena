@@ -70,7 +70,6 @@ def setupMenu():
         ### ATR-14543
         ['mu14_ivarmedium_mu6noL1_msonly',    'L1_MU10',  ['L1_MU10',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu14_ivarmedium','mu6noL1_msonly']]],
         ['2mu6_mu4', 'L1_2MU6_3MU4', ['L1_2MU6','L1_MU4'], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
-        ['mu20_msonly_mu6noL1_msonly_nscan05_L1MU4_UNPAIRED_ISO','L1_MU4_UNPAIRED_ISO', ['L1_MU21','L2_mu20_msonly'], ["Late"], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20_msonly','mu6noL1_msonly_nscan05']]],
         ['mu20_msonly_mu12noL1_msonly_nscan05_noComb',   'L1_MU21',   ['L1_MU21','L2_mu20_msonly'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20_msonly','mu12noL1_msonly_nscan05_noComb']]],
 
        # not working for now                                                                                                                                                                                   
