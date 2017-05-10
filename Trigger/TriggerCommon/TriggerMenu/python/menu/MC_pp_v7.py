@@ -2481,7 +2481,6 @@ ps_rerun_list = [
     'xe0noL1_l2fsperf',
     'xe0noL1_l2fsperf_mht',
     'xe0noL1_l2fsperf_mht_em',
-    'xe0noL1_l2fsperf_trkmht',
     'xe0noL1_l2fsperf_pufit',
     'xe0noL1_l2fsperf_tc_em',
     'xe0noL1_l2fsperf_tc_lcw',
