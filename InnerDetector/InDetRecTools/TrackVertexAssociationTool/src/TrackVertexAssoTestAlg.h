@@ -66,6 +66,7 @@ class TrackVertexAssoTestAlg
 
   ToolHandle<CP::ITrackVertexAssociationTool> m_tighttrackvertexassoTool;
   ToolHandle<CP::ITrackVertexAssociationTool> m_loosetrackvertexassoTool;
+  ToolHandle<CP::ITrackVertexAssociationTool> m_electrontrackvertexassoTool;
 
   /// Containers
   
