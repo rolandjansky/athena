@@ -17,105 +17,144 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-InDet::PixelOverlapDescriptor::PixelOverlapDescriptor(bool addMoreSurfaces, int slices):
+InDet::PixelOverlapDescriptor::PixelOverlapDescriptor(bool addMoreSurfaces, int eta_slices, int phi_slices, bool addStaves):
   m_robustMode(true),
   m_addMoreSurfaces(addMoreSurfaces), 
-  m_slices(slices) {}
+  m_etaSlices(eta_slices),
+  m_phiSlices(phi_slices),
+  m_addEntireStave(addStaves) {}
 
 /** get the compatible surfaces */
 bool InDet::PixelOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceIntersection>& cSurfaces, 
                                                       const Trk::Surface& tsf,
                                                       const Amg::Vector3D& pos,
-                                                      const Amg::Vector3D&) const
+                                                      const Amg::Vector3D& ) const
                                                             
 {
-    // first add the target surface - it's always worth 
-    cSurfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(pos, 0., true),&tsf));
-        
-    // make sure the return vector is cleared
-    const InDetDD::SiDetectorElement* sElement = dynamic_cast<const InDetDD::SiDetectorElement*>(tsf.associatedDetectorElement());
-    // now get the overlap options
-    if (sElement){
-      //!< position phi and surface phi - rescale to 0 -> 2PI
-      double surfacePhi   = tsf.center().phi() + M_PI;
-      double positionPhi  = pos.phi() + M_PI;
-      double surfaceEta   = tsf.center().eta();
-      // 8-cell-connectivity depending on track/surface geometry
-      // nPhi - can be jump + or -
-      const InDetDD::SiDetectorElement* nElement = 0;
-      // robust mode --> return 9 surfaces
-      if (m_robustMode) {
-	addNextInPhi(sElement,cSurfaces);
-	addNextInEta(sElement,cSurfaces);
+  // first add the target surface - it's always worth 
+  cSurfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(pos, 0., true),&tsf));
+  
+  // make sure the return vector is cleared
+  const InDetDD::SiDetectorElement* sElement = dynamic_cast<const InDetDD::SiDetectorElement*>(tsf.associatedDetectorElement());
+  // now get the overlap options
+  if (sElement){
+    //!< position phi and surface phi - rescale to 0 -> 2PI
+    double surfacePhi   = tsf.center().phi() + M_PI;
+    double positionPhi  = pos.phi() + M_PI;
+    // 8-cell-connectivity depending on track/surface geometry
+    // nPhi - can be jump + or -
+    const InDetDD::SiDetectorElement* nElement = 0;
+    // robust mode --> return 9 surfaces
+    if (m_robustMode) {
+      
+      addNextInPhi(sElement,cSurfaces);
+      addPrevInPhi(sElement,cSurfaces);
+
+      addNextInEta(sElement,cSurfaces);
+      addPrevInEta(sElement,cSurfaces);
+      
+      nElement = sElement->nextInPhi();
+      addNextInEta(nElement,cSurfaces);
+      addPrevInEta(nElement,cSurfaces);
+      
+      nElement = sElement->prevInPhi();
+      addNextInEta(nElement,cSurfaces);
+      addPrevInEta(nElement,cSurfaces);
+      
+      
+      if (m_addMoreSurfaces and sElement->isBarrel()) {
 	
-	addPrevInPhi(sElement,cSurfaces);
-	addPrevInEta(sElement,cSurfaces);
+	unsigned int eta_slices = m_addEntireStave ? 9999 : m_etaSlices;
 	
-	nElement = sElement->nextInPhi();
-	addNextInEta(nElement,cSurfaces);
-	addPrevInEta(nElement,cSurfaces);
-	
-	nElement = sElement->prevInPhi();
-	addNextInEta(nElement,cSurfaces);
-	addPrevInEta(nElement,cSurfaces);
-	
-	if (m_addMoreSurfaces and sElement->isBarrel() and fabs(surfaceEta)>2.5) {
-	  if (surfaceEta>0.) {
-	    const InDetDD::SiDetectorElement* currentNextEta = sElement->nextInEta();
-	    for (unsigned int slice = 0; slice < (unsigned int)m_slices; slice++) {	    
-	      // Adding the current next in eta and its next and previous in phi
-	      // then change the pointer to the next in eta
-	      if (currentNextEta && currentNextEta->nextInEta()) {
-		addNextInEta(currentNextEta,cSurfaces);
-		const InDetDD::SiDetectorElement* nextCurrentNextEta = currentNextEta->nextInEta();
-		addNextInPhi(nextCurrentNextEta,cSurfaces);
-		addPrevInPhi(nextCurrentNextEta,cSurfaces);
-		currentNextEta = nextCurrentNextEta;
-	      } else break;
-	    }
-	  } else {	    
-	    const InDetDD::SiDetectorElement* currentPrevEta = sElement->prevInEta();
-	    for (unsigned int slice = 0; slice < (unsigned int)m_slices; slice++) {	    
-	      // Adding the current previous in eta and its next and previous in phi
-	      // then change the pointer to the previous in eta
-	      if (currentPrevEta && currentPrevEta->prevInEta()) {
-		addPrevInEta(currentPrevEta,cSurfaces);
-		const InDetDD::SiDetectorElement* prevCurrentPrevEta =  currentPrevEta->prevInEta();
-		addNextInPhi(prevCurrentPrevEta,cSurfaces);
-		addPrevInPhi(prevCurrentPrevEta,cSurfaces);
-		currentPrevEta = prevCurrentPrevEta;
-	      } else break;
-	    }
+	unsigned int next = 1;
+	const InDetDD::SiDetectorElement* currentElement = sElement->nextInEta();
+	while (currentElement and next<eta_slices) {
+	  addNextInEta(currentElement,cSurfaces);
+	  currentElement = currentElement->nextInEta();
+	  if (currentElement) {
+	    addNextInPhi(currentElement,cSurfaces);
+	    addPrevInPhi(currentElement,cSurfaces);
 	  }
+	  next++;
 	}
-      } else {
-        // we go next in phi            
-        if (surfacePhi < positionPhi){
-	  addNextInPhi(sElement,cSurfaces);
-	  nElement = sElement->nextInPhi();
-        } else {
-	  addPrevInPhi(sElement,cSurfaces);
-	  nElement = sElement->prevInPhi();
-        } 
-        if (sElement->isBarrel()){
-	  // get the eta information - also possible
-	  double positionEta  = pos.eta(); 
-	  double surfaceEta   = tsf.center().eta();
-	  // check the surface / position eta values
-	  if (surfaceEta < positionEta){
-	    // we go next in eta for both, the original and the phi jumped one
-	    addNextInEta(sElement,cSurfaces);
-	    addNextInEta(nElement,cSurfaces);
-	  } else {
-	    // opposite direction
-	    addPrevInEta(sElement,cSurfaces);
-	    addPrevInEta(nElement,cSurfaces);
+	
+	unsigned int prev = 1;
+	currentElement = sElement->prevInEta();
+	while (currentElement and prev<eta_slices) {
+	  addPrevInEta(currentElement,cSurfaces);
+	  currentElement = currentElement->prevInEta();
+	  if (currentElement) {
+	    addNextInPhi(currentElement,cSurfaces);
+	    addPrevInPhi(currentElement,cSurfaces);
 	  }
-        }
+	  prev++;
+	}
+	
+	unsigned int next_phi = 0;
+	const InDetDD::SiDetectorElement* currentElementNextPhi = sElement->nextInPhi()->nextInPhi();
+	const InDetDD::SiDetectorElement* currentElementPrevPhi = sElement->prevInPhi()->prevInPhi();
+	
+	while (next_phi<(unsigned int)m_phiSlices) {
+	  addSurface(currentElementNextPhi,cSurfaces);
+	  addSurface(currentElementPrevPhi,cSurfaces);
+	  
+	  unsigned int next_eta = 0;
+	  const InDetDD::SiDetectorElement* currentElement_nextPhi = currentElementNextPhi;
+	  const InDetDD::SiDetectorElement* currentElement_prevPhi = currentElementPrevPhi;
+	  while (currentElement_nextPhi and currentElement_prevPhi and next_eta<eta_slices) {
+	    addNextInEta(currentElement_nextPhi,cSurfaces);
+	    currentElement_nextPhi = currentElement_nextPhi->nextInEta();
+	    addNextInEta(currentElement_prevPhi,cSurfaces);
+	    currentElement_prevPhi = currentElement_prevPhi->nextInEta();
+	    next_eta++;
+	  }
+	  
+	  unsigned int prev_eta = 0;
+	  currentElement_nextPhi = currentElementNextPhi;
+	  currentElement_prevPhi = currentElementPrevPhi;
+	  while (currentElement_nextPhi and currentElement_prevPhi and prev_eta<eta_slices) {
+	    addPrevInEta(currentElement_nextPhi,cSurfaces);
+	    currentElement_nextPhi = currentElement_nextPhi->prevInEta();
+	    addPrevInEta(currentElement_prevPhi,cSurfaces);
+	    currentElement_prevPhi = currentElement_prevPhi->prevInEta();
+	    prev_eta++;
+	  }
+	  
+	  currentElementNextPhi = currentElementNextPhi->nextInPhi();
+	  currentElementPrevPhi = currentElementPrevPhi->prevInPhi();
+	  
+	  next_phi++;
+	}
+      }
+    } else {
+      // we go next in phi
+      if (surfacePhi < positionPhi){
+	addNextInPhi(sElement,cSurfaces);
+	nElement = sElement->nextInPhi();
+      } else {
+	addPrevInPhi(sElement,cSurfaces);
+	nElement = sElement->prevInPhi();
+      }
+      if (sElement->isBarrel()){
+	// get the eta information - also possible
+	double positionEta  = pos.eta(); 
+	double surfaceEta   = tsf.center().eta();
+	// check the surface / position eta values
+	if (surfaceEta < positionEta){
+	  // we go next in eta for both, the original and the phi jumped one
+	  addNextInEta(sElement,cSurfaces);
+	  addNextInEta(nElement,cSurfaces);
+	} else {
+	  // opposite direction
+	  addPrevInEta(sElement,cSurfaces);
+	  addPrevInEta(nElement,cSurfaces);
+	}
       }
     }
-    //dumpSurfaces(cSurfaces);
-    return false;
+  }  
+
+  //dumpSurfaces(cSurfaces);
+  return false;
 }                                                            
 
 void InDet::PixelOverlapDescriptor::dumpSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces) const {

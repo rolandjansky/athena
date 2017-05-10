@@ -52,7 +52,7 @@ namespace InDet {
        public:
          
          /** Constructor (area restriction, LC check) */
-         PixelOverlapDescriptor(bool addMoreSurfaces = true, int slices = 3);
+         PixelOverlapDescriptor(bool addMoreSurfaces = true, int eta_slices = 3, int phi_slices = 1, bool addStaves = false);
 
          /** Destructor */
          virtual ~PixelOverlapDescriptor(){}
@@ -75,7 +75,9 @@ namespace InDet {
 
 	 bool m_robustMode;
 	 bool m_addMoreSurfaces;
-	 int  m_slices;
+	 int  m_etaSlices;
+	 int  m_phiSlices;
+	 bool m_addEntireStave;
      };
 
      
