@@ -9,6 +9,7 @@
 #include "G4AtlasTools/EnvelopeTool.h"
 #include "G4AtlasTools/G4AtlasDetectorConstructionTool.h"
 #include "G4AtlasTools/GeoDetectorTool.h"
+#include "G4AtlasTools/GDMLDetectorTool.h"
 #include "G4AtlasTools/RegionCreator.h"
 #include "../UserLimitsTool.h"
 #include "G4AtlasTools/AddPhysicsDecayTool.h"
@@ -26,6 +27,7 @@ DECLARE_TOOL_FACTORY( PolyconicalEnvelope )
 DECLARE_TOOL_FACTORY( EnvelopeTool )
 DECLARE_TOOL_FACTORY( G4AtlasDetectorConstructionTool )
 DECLARE_TOOL_FACTORY( GeoDetectorTool )
+DECLARE_TOOL_FACTORY( GDMLDetectorTool )
 DECLARE_TOOL_FACTORY( RegionCreator )
 DECLARE_TOOL_FACTORY( UserLimitsTool )
 DECLARE_TOOL_FACTORY( SensitiveDetectorMasterTool )

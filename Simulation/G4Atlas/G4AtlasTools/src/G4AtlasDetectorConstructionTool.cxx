@@ -25,7 +25,6 @@
 G4AtlasDetectorConstructionTool::G4AtlasDetectorConstructionTool( const std::string& type,
                                                                   const std::string& nam,const IInterface* parent )
   : AthAlgTool( type, nam , parent )
-  , m_world(nullptr)
 {
   ATH_MSG_INFO("G4AtlasDetectorConstructionTool "<<type<<" "<<nam);
   declareInterface< IDetectorConstructionTool >( this ) ;
@@ -50,11 +49,11 @@ StatusCode G4AtlasDetectorConstructionTool::initialize( )
 
 void G4AtlasDetectorConstructionTool::SetWorld(G4VPhysicalVolume *w)
 {
-  m_world=w;
+  world=w;
 }
 G4VPhysicalVolume* G4AtlasDetectorConstructionTool::Construct()
 {
-  return m_world;
+  return world;
 }
 
 StatusCode G4AtlasDetectorConstructionTool::queryInterface(const InterfaceID& riid, void** ppvIf) {

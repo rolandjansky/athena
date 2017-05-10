@@ -109,7 +109,7 @@ void DetectorGeometryBase::SetRotationAndOffset()
       m_envelope.theRotation->rotateZ(m_rotateZ);
     }
   //Then offset the position
-  m_envelope.thePosition+=G4ThreeVector(m_offsetX,m_offsetY,m_offsetZ);
+  m_envelope.thePosition=G4ThreeVector(m_offsetX,m_offsetY,m_offsetZ);
   if (m_envelope.thePositionedVolume) m_envelope.thePositionedVolume->SetTranslation(m_envelope.thePosition);
 
   ATH_MSG_VERBOSE( name() << "::SetRotationAndOffset() (Base class method): Finished" );

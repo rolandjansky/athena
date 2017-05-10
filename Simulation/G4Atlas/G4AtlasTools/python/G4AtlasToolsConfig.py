@@ -98,7 +98,8 @@ def generateCaloSensitiveDetectorList():
                                    'LArHECSensitiveDetector','LArMiniFCALSensitiveDetector']
         if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
             SensitiveDetectorList += [ 'HGTDSensorSD' ]
-        SensitiveDetectorList += [ 'MinBiasScintillatorSD' ]
+        else:
+            SensitiveDetectorList += [ 'MinBiasScintillatorSD' ]
         from G4AtlasApps.SimFlags import simFlags
         if simFlags.CalibrationRun.get_Value() in ['LAr', 'LAr+Tile']:
             SensitiveDetectorList += [ 'LArDeadSensitiveDetector','LArInactiveSensitiveDetector','LArActiveSensitiveDetector' ]
@@ -204,6 +205,8 @@ def getEmptySensitiveDetectorMasterTool(name="EmptySensitiveDetectorMasterTool",
 
 def getPhysicsListToolBase(name="PhysicsListToolBase", **kwargs):
     PhysOptionList = ["G4StepLimitationTool"]
+    from G4AtlasApps.SimFlags import simFlags
+    PhysOptionList += simFlags.PhysicsOptions.get_Value()
     PhysDecaysList = []
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.simulate.TRT_on():
@@ -212,7 +215,6 @@ def getPhysicsListToolBase(name="PhysicsListToolBase", **kwargs):
         PhysOptionList +=["LucidPhysicsTool"]
     kwargs.setdefault("PhysOption", PhysOptionList)
     kwargs.setdefault("PhysicsDecay", PhysDecaysList)
-    from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("PhysicsList", simFlags.PhysicsList.get_Value())
     if 'PhysicsList' in kwargs:
         if kwargs['PhysicsList'].endswith('_EMV') or kwargs['PhysicsList'].endswith('_EMX'):

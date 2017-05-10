@@ -9,6 +9,7 @@ addTool("G4AtlasTools.G4AtlasToolsConfig.getPhysicsListToolBase","PhysicsListToo
 
 addTool("G4AtlasTools.G4GeometryConfig.getBeamPipeGeoDetectorTool", 'BeamPipe')
 addTool("G4AtlasTools.G4GeometryConfig.getPixelGeoDetectorTool", 'Pixel')
+#addTool("G4AtlasTools.G4GeometryConfig.getPixelGDMLDetectorTool", 'Pixel')
 addTool("G4AtlasTools.G4GeometryConfig.getSCTGeoDetectorTool", 'SCT')
 addTool("G4AtlasTools.G4GeometryConfig.getTRTGeoDetectorTool", 'TRT')
 addTool("G4AtlasTools.G4GeometryConfig.getIDetServicesMatGeoDetectorTool", 'IDetServicesMat')

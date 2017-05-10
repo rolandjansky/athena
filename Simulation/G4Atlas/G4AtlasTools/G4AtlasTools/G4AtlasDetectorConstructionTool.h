@@ -46,7 +46,7 @@ class G4AtlasDetectorConstructionTool final : public AthAlgTool, virtual public 
 
  protected:
 
-  G4VPhysicalVolume* m_world;
+  G4VPhysicalVolume* world;
 
 };
 
