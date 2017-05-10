@@ -2841,7 +2841,7 @@ def setupMenu():
 
         ['mu4_j15_gsc35_bperf_split', 'L1_MU4',     ['L1_MU4', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j15_gsc35_bperf_split'] ]],
         ['mu4_j15_gsc35_bperf_split_dr05_dz02', 'L1_MU4',     ['L1_MU4', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j15_gsc35_bperf_split'] ]],
-#        ['mu4_j35_gsc55_bperf_split_dr05_dz02',  'L1_MU4_J12', ['L1_MU4', ''], [PhysicsStream, 'express'], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j35_gsc55_bperf_split'] ]],
+#        ['mu4_j55_bperf_split_dr05_dz02',  'L1_MU4_J12', ['L1_MU4', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j55_bperf_split'] ]],
         ['mu6_j60_gsc85_bperf_split_dr05_dz02',  'L1_MU6_J20', ['L1_MU6', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j60_gsc85_bperf_split'] ]],
         ['mu6_j60_gsc110_bperf_split_dr05_dz02', 'L1_MU6_J20', ['L1_MU6', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j60_gsc110_bperf_split'] ]],
         ['mu6_j110_gsc150_bperf_split_dr05_dz02', 'L1_MU6_J40', ['L1_MU6', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j110_gsc150_bperf_split'] ]],
