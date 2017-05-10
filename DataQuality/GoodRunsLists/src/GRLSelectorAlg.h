@@ -8,7 +8,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h" //included under assumption you'll want to use some tools! Remove if you don't!
 
-#include "GoodRunsLists/IGoodRunsListSelectionTool.h"
+#include "AsgAnalysisInterfaces/IGoodRunsListSelectionTool.h"
 
 ///Author: will buttinger
 ///To use this alg in your joboptions:
