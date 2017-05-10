@@ -61,7 +61,7 @@ namespace CP {
         if (Type == CollectionType::Calo) return m_calo_eff;
         if (Type == CollectionType::CentralLowPt) return m_lowpt_central_eff;
         if (Type == CollectionType::CaloLowPt) return m_lowpt_calo_eff;
-        return NULL;
+        return nullptr;
     }
     bool EffiCollection::CheckConsistency() const {
         if (!m_central_eff || !m_central_eff->CheckConsistency()) {
@@ -152,7 +152,7 @@ namespace CP {
         EffiCollection::CollectionContainer* Cont = FindContainer(mu);
         if (Cont) return Cont->retrieve(RunNumber);
         Warning("retrieveSF()", "Invalid muon");
-        return NULL;
+        return nullptr;
     }
     std::string EffiCollection::sysname(void) const {
         if (m_central_eff) return m_central_eff->sysname();
@@ -184,7 +184,7 @@ namespace CP {
     }
     EffiCollection::CollectionContainer* EffiCollection::FindContainerFromBin(unsigned int &Bin) const {
         if (Bin > nBins()) {
-            return NULL;
+            return nullptr;
         }
         if (DoesBinFitInRange(m_central_eff, Bin)) {
             return m_central_eff;
@@ -197,7 +197,7 @@ namespace CP {
         } else if (DoesBinFitInRange(m_lowpt_calo_eff, Bin)) {
             return m_lowpt_calo_eff;
         }
-        return NULL;
+        return nullptr;
     }
     bool EffiCollection::IsLowPtBin(unsigned int Bin) const {
         if (DoesBinFitInRange(m_central_eff, Bin)) {
@@ -292,7 +292,7 @@ namespace CP {
     //                               EffiCollection::CollectionContainer
     //################################################################################
     EffiCollection::CollectionContainer::CollectionContainer(const std::string &FileName, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, EffiCollection::CollectionType FileType, bool isLowPt, bool hasPtDepSys) :
-                CollectionContainer(NULL, FileName, sysType, effType, FileType, isLowPt, hasPtDepSys) {
+                CollectionContainer(nullptr, FileName, sysType, effType, FileType, isLowPt, hasPtDepSys) {
     }
 
     EffiCollection::CollectionContainer::CollectionContainer(CollectionContainer* Nominal, const std::string &FileName, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, EffiCollection::CollectionType FileType, bool isLowPt, bool hasPtDepSys) :
@@ -373,7 +373,7 @@ namespace CP {
     EffiCollection::CollectionContainer::~CollectionContainer() {
         for (auto& period : m_SF) {
             if (period.second) delete period.second;
-            period.second = NULL;
+            period.second = nullptr;
         }
         m_SF.clear();
     }

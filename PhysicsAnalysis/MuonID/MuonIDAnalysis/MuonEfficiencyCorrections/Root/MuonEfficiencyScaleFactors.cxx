@@ -50,14 +50,14 @@ namespace CP {
                 m_effrDec(0),
                 m_MCeffrDec(0),
                 m_affectingSys(),
-                m_Sys1Down(NULL),
-                m_Sys1Up(NULL),
-                m_Stat1Down(NULL),
-                m_Stat1Up(NULL),
-                m_LowPtSys1Down(NULL),
-                m_LowPtSys1Up(NULL),
-                m_LowPtStat1Down(NULL),
-                m_LowPtStat1Up(NULL),
+                m_Sys1Down(nullptr),
+                m_Sys1Up(nullptr),
+                m_Stat1Down(nullptr),
+                m_Stat1Up(nullptr),
+                m_LowPtSys1Down(nullptr),
+                m_LowPtSys1Up(nullptr),
+                m_LowPtStat1Down(nullptr),
+                m_LowPtStat1Up(nullptr),
                 m_init(false),
                 m_seperateSystBins(false),
                 m_Type(CP::MuonEfficiencyType::Undefined) {
@@ -416,7 +416,7 @@ namespace CP {
             ATH_MSG_WARNING("Deleting SF map for MuonEfficiencySystType=" << (int) (sysType));
             delete m_sf_sets[sysType];
         }
-        EffiCollection* ec = NULL;
+        EffiCollection* ec = nullptr;
         if (!m_seperateSystBins || IsSystVariation(sysType) || sysType == MuonEfficiencySystType::Nominal) {
             ec = new EffiCollection(filename_Central(), filename_Calo(), filename_HighEta(), filename_LowPt(), filename_LowPtCalo(), sysType, m_Type, m_lowpt_threshold);
         } else {
@@ -561,7 +561,7 @@ namespace CP {
     void MuonEfficiencyScaleFactors::CopyInformation(const MuonEfficiencyScaleFactors & toCopy) {
         m_wp = toCopy.m_wp;
         m_sf_sets = toCopy.m_sf_sets;
-        m_current_sf = NULL;
+        m_current_sf = nullptr;
         m_custom_dir = toCopy.m_custom_dir;
         m_custom_file_Combined = toCopy.m_custom_file_Combined;
         m_custom_file_Calo = toCopy.m_custom_file_Calo;
@@ -579,14 +579,14 @@ namespace CP {
         m_mc_eff_replica_decoration_name = toCopy.m_mc_eff_replica_decoration_name;
         m_calibration_version = toCopy.m_calibration_version;
         m_lowpt_threshold = toCopy.m_lowpt_threshold;
-        m_Sys1Down = NULL;
-        m_Sys1Up = NULL;
-        m_Stat1Down = NULL;
-        m_Stat1Up = NULL;
-        m_LowPtSys1Down = NULL;
-        m_LowPtSys1Up = NULL;
-        m_LowPtStat1Up = NULL;
-        m_current_sf = NULL;
+        m_Sys1Down = nullptr;
+        m_Sys1Up = nullptr;
+        m_Stat1Down = nullptr;
+        m_Stat1Up = nullptr;
+        m_LowPtSys1Down = nullptr;
+        m_LowPtSys1Up = nullptr;
+        m_LowPtStat1Up = nullptr;
+        m_current_sf = nullptr;
         m_init = false;
         m_seperateSystBins = false;
         m_Type = toCopy.m_Type;

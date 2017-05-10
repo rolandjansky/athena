@@ -20,7 +20,7 @@ namespace TestMuonSF {
         File->cd();
         Histo->Write();
         delete Histo;
-        Histo = NULL;
+        Histo = nullptr;
     }
 
     MuonSFTestHelper::MuonSFTestHelper(const std::string& Name) :
@@ -66,12 +66,12 @@ namespace TestMuonSF {
     }
     void MuonSFTestHelper::CreateHistogram(CP::SystematicSet& Set) {
         TestScaleFactors Histo;
-        Histo.SF = NULL;
-        Histo.eff = NULL;
-        Histo.mceff = NULL;
-        Histo.relSystSF = NULL;
-        Histo.relSystEff = NULL;
-        Histo.relSystmcEff = NULL;
+        Histo.SF = nullptr;
+        Histo.eff = nullptr;
+        Histo.mceff = nullptr;
+        Histo.relSystSF = nullptr;
+        Histo.relSystEff = nullptr;
+        Histo.relSystmcEff = nullptr;
         if (m_FillHistos) {
             unsigned int nBins = 100000;
             Histo.SF = new TH1D(("SF_" + m_Tool.name() + Set.name()).c_str(), "", nBins, 0., 2.1);

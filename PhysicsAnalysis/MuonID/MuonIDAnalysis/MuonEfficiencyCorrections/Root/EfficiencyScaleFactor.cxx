@@ -32,7 +32,7 @@ namespace CP {
                 m_default_eff(1.),
                 m_default_eff_ttva(1.),
                 m_Type(CP::MuonEfficiencyType::Undefined),
-                m_NominalFallBack(NULL),
+                m_NominalFallBack(nullptr),
                 m_SystematicBin(-1) {
     }
 
@@ -135,7 +135,7 @@ namespace CP {
                 m_sf_KineDepsys = new PtDependentSystHandler(ReadHistFromFile("SF_PtDep_sys", f, time_unit));
                 m_eff_KineDepsys = new PtDependentSystHandler(ReadHistFromFile("Eff_PtDep_sys", f, time_unit));
             } else {
-                TDirectory* SystDir = NULL;
+                TDirectory* SystDir = nullptr;
                 f->GetObject(("KinematicSystHandler_" + time_unit).c_str(), SystDir);
                 m_sf_KineDepsys = new BadMuonVetoSystHandler(SystDir);
                 m_eff_KineDepsys = new BadMuonVetoSystHandler(SystDir);
@@ -159,7 +159,7 @@ namespace CP {
             Error("EfficiencyScaleFactor", ("The EfficiencyScaleFactor " + EfficiencyTypeName(m_Type) + " has itself as Nominal Fall back").c_str());
             return false;
         }
-        return m_sf_sys != NULL && m_sf != NULL;
+        return m_sf_sys != nullptr && m_sf != nullptr;
     }
     HistHandler* EfficiencyScaleFactor::ReadHistFromFile(std::string name, TFile* f, std::string time_unit) {
         TH1* histHolder = 0;
@@ -251,7 +251,7 @@ namespace CP {
                 return m_NominalFallBack->MCEfficiency(mu, Eff);
             }
         }
-        CorrectionCode cc = GetContentFromHist(m_mc_eff, NULL, mu, Eff, false);
+        CorrectionCode cc = GetContentFromHist(m_mc_eff, nullptr, mu, Eff, false);
         if (cc == CorrectionCode::Error) Error("EfficiencyScaleFactor", "Could not apply the Monte Carlo efficiency");
         return cc;
     }
@@ -314,7 +314,7 @@ namespace CP {
     void EfficiencyScaleFactor::DeleteOldReplicas(EfficiencyScaleFactor::SFvec &Vec, bool ClearVec) {
         for (auto &old : Vec) {
             if (old) delete old;
-            old = NULL;
+            old = nullptr;
         }
         if (ClearVec) Vec.clear();
     }
