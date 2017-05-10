@@ -1460,7 +1460,7 @@ def dump_surface (p, f):
 
 
 def dump_associatedSurface (p, f):
-    if not p.hasSurface():
+    if hasattr(p, 'hasSurface') and not p.hasSurface():
         print >> f, None,
     else:
         dump_surface (p.associatedSurface(), f)
