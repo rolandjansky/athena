@@ -445,8 +445,8 @@ class ThresholdDef:
             tc.registerThr('AFP_FSA_TOF', 'NIM', mapping=5).addThrValue(50)  
             tc.registerThr('AFP_FSA_LOG', 'NIM', mapping=6).addThrValue(50)        
             tc.registerThr('AFP_FSC_SIT', 'NIM', mapping=7).addThrValue(50)        
-            tc.registerThr('AFP_FSC_TOF', 'NIM', mapping=8).addThrValue(50)        
-            tc.registerThr('AFP_FSC_LOG', 'NIM', mapping=9).addThrValue(50)  
+            tc.registerThr('AFP_FSC_LOG', 'NIM', mapping=8).addThrValue(50)        
+            tc.registerThr('AFP_FSC_TOF', 'NIM', mapping=9).addThrValue(50)  
         else:
             tc.registerThr('AFP_NSC', 'NIM', mapping=2).addThrValue(50)
             tc.registerThr('AFP_FSC', 'NIM', mapping=3).addThrValue(50)
