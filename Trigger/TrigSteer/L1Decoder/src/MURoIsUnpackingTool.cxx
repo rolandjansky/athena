@@ -69,11 +69,11 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
 					const HLT::IDSet& activeChains ) const {
   using namespace TrigCompositeUtils;
   auto decisionOutput = std::make_unique<DecisionContainer>();
-  auto decisionAux = std::make_unique<DecisionAuxContainer>();
+  auto decisionAux    = std::make_unique<DecisionAuxContainer>();
   decisionOutput->setStore(decisionAux.get());
 
-  auto trigRoIs = CxxUtils::make_unique< TrigRoiDescriptorCollection >();
-  auto recRoIs  = CxxUtils::make_unique< DataVector<LVL1::RecMuonRoI> >();
+  auto trigRoIs = std::make_unique< TrigRoiDescriptorCollection >();
+  auto recRoIs  = std::make_unique< DataVector<LVL1::RecMuonRoI> >();
 
   for ( auto& roi : roib.muCTPIResult().roIVec() ) {    
     const uint32_t roIWord = roi.roIWord();

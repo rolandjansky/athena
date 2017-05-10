@@ -73,10 +73,10 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
 					const HLT::IDSet& activeChains ) const {
   using namespace TrigCompositeUtils;
   auto decisionOutput = std::make_unique<DecisionContainer>();
-  auto decisionAux = std::make_unique<DecisionAuxContainer>();
+  auto decisionAux    = std::make_unique<DecisionAuxContainer>();
   decisionOutput->setStore(decisionAux.get());  
-  auto trigRoIs = CxxUtils::make_unique< TrigRoiDescriptorCollection >();
-  auto recRoIs = CxxUtils::make_unique< DataVector<LVL1::RecEmTauRoI> >();
+  auto trigRoIs = std::make_unique< TrigRoiDescriptorCollection >();
+  auto recRoIs  = std::make_unique< DataVector<LVL1::RecEmTauRoI> >();
 
   // RoIBResult contains vector of EM fragments
   for ( auto& emTauFragment : roib.eMTauResult() ) {
