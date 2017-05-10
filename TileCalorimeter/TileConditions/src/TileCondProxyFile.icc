@@ -1,9 +1,15 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 // Tile includes
 #include "TileConditions/TileCondProxyFile.h"
+#include "TileConditions/TileCablingService.h"
+#include "TileConditions/TileCablingSvc.h"
+
 #include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
 #include "TileCalibBlobObjs/TileCalibDrawerBch.h"
 #include "TileCalibBlobObjs/TileBchDecoder.h"
@@ -54,7 +60,21 @@ StatusCode TileCondProxyFile<T>::initialize() {
     return StatusCode::FAILURE;
   }
 
+  ServiceHandle<TileCablingSvc> cablingSvc("TileCablingSvc", name());
+  CHECK( cablingSvc.retrieve());
+    
+  const TileCablingService* cabling = cablingSvc->cablingService();
+  if (!cabling) {
+    ATH_MSG_ERROR( "Unable to retrieve TileCablingService" );
+    return StatusCode::FAILURE;
+  }
+    
+  m_maxChannels = cabling->getMaxChannels();
+  m_maxGains = cabling->getMaxGains();
+  m_drawerCacheSize = m_maxChannels * m_maxGains;
+    
   //========================================================
+
   //=== loop through the file and fill data maps
   //========================================================
   std::map<unsigned int, unsigned int> drawerStat;
@@ -93,14 +113,14 @@ StatusCode TileCondProxyFile<T>::initialize() {
       return StatusCode::FAILURE;
     }
 
-    if (channel >= TileCalibUtils::MAX_CHAN) {
+    if (channel >= m_maxChannels) {
       ATH_MSG_ERROR( "Detected invalid channel index in file \""
                     << fileName << "\": " << channel );
 
       return StatusCode::FAILURE;
     }
 
-    if (gain >= TileCalibUtils::MAX_GAIN) {
+    if (gain >= m_maxGains) {
       ATH_MSG_ERROR( "Detected invalid gain index in file \"" << fileName << "\": " << gain );
       return StatusCode::FAILURE;
     }
@@ -131,7 +151,7 @@ StatusCode TileCondProxyFile<T>::initialize() {
     }
 
     //=== Save dataVector in map
-    unsigned int adcIdx = TileCalibUtils::getAdcIdxFromFragId(frag, channel, gain);
+    unsigned int adcIdx = cacheIndex(drawerIdx, channel, gain);
     dataMap[adcIdx] = dataVec;
 
   } // End loop over file
@@ -154,9 +174,7 @@ StatusCode TileCondProxyFile<T>::initialize() {
   //=== Initialize drawers, following the default policy
   //=== implemented in TileCalibUtils::getDefaultDrawerIdx()
   //====================================================
-  for (unsigned int ros = 0; ros < 5; ++ros) {
-    for (unsigned int drawer = 0; drawer < TileCalibUtils::getMaxDrawer(ros); ++drawer) {
-      unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
+  for (unsigned int drawerIdx = 0; drawerIdx < TileCalibUtils::MAX_DRAWERIDX; ++drawerIdx) {
 
       //=== if no data for drawer, link to default drawer...
       if (drawerStat.find(drawerIdx) == drawerStat.end()) {
@@ -169,11 +187,10 @@ StatusCode TileCondProxyFile<T>::initialize() {
         continue;
       }
 
-      unsigned int nChan = drawerStat[drawerIdx] == 0 ? 1 : TileCalibUtils::MAX_CHAN;
-      m_drawerVec[drawerIdx] = createCalibDrawer(drawerIdx, nChan, objVersion, dataMap);
+      unsigned int nChannels = drawerStat[drawerIdx] + 1;
+      m_drawerVec[drawerIdx] = createCalibDrawer(drawerIdx, nChannels, objVersion, dataMap);
 
-    }  // End drawer
-  }  // End ros
+  }  // End drawerIdx
 
   return StatusCode::SUCCESS;
 }
@@ -181,30 +198,35 @@ StatusCode TileCondProxyFile<T>::initialize() {
 //
 //_____________________________________________________________________________
 template<>
-const TileCalibDrawerFlt* TileCondProxyFile<TileCalibDrawerFlt>::createCalibDrawer(unsigned int drawerIdx, unsigned int nChan,
+const TileCalibDrawerFlt* TileCondProxyFile<TileCalibDrawerFlt>::createCalibDrawer(unsigned int drawerIdx, unsigned int nChannels,
     unsigned int objVers, const DataMap& dataMap) {
   //=== Prepare vector with defaults
   //--- Low gain is always there
   TileCalibDrawerFlt::DefType defaultVec;
-  unsigned int nGain = 1;
-  TileCondProxyFile::DataMap::const_iterator iDataMap = dataMap.find(TileCalibUtils::getAdcIdx(0, 0, 0, 0));
+  unsigned int nGains = 1;
+  TileCondProxyFile::DataMap::const_iterator iDataMap = dataMap.find(cacheIndex(0, 0, 0));
   defaultVec.push_back(iDataMap->second);
-  //--- High gain present?
-  iDataMap = dataMap.find(TileCalibUtils::getAdcIdx(0, 0, 0, 1));
-  if (iDataMap != dataMap.end()) {
-    nGain = 2;
-    defaultVec.push_back(iDataMap->second);
+
+  //--- Another gains present?
+  for (unsigned int gain = 1; gain < m_maxGains; ++gain) {
+    iDataMap = dataMap.find(cacheIndex(0, 0, gain));
+    if (iDataMap != dataMap.end()) {
+      ++nGains;
+      defaultVec.push_back(iDataMap->second);
+    } else {
+      break;
+    }
   }
 
   //=== create the calibDrawer
   coral::Blob* blob = new coral::Blob(0);
   m_blobStore.push_back(blob);
-  TileCalibDrawerFlt* calibDrawer = TileCalibDrawerFlt::getInstance(*blob, defaultVec, nChan, objVers);
+  TileCalibDrawerFlt* calibDrawer = TileCalibDrawerFlt::getInstance(*blob, defaultVec, nChannels, objVers);
 
   //=== fill calibDrawer with settings in dataMap
-  for (unsigned int chn = 0; chn < TileCalibUtils::MAX_CHAN; ++chn) {
-    for (unsigned int adc = 0; adc < nGain; ++adc) {
-      iDataMap = dataMap.find(TileCalibUtils::getAdcIdx(drawerIdx, chn, adc));
+  for (unsigned int chn = 0; chn < nChannels; ++chn) {
+    for (unsigned int adc = 0; adc < nGains; ++adc) {
+      iDataMap = dataMap.find(cacheIndex(drawerIdx, chn, adc));
       if (iDataMap != dataMap.end()) {
         calibDrawer->setData(chn, adc, iDataMap->second);
       }
@@ -217,7 +239,7 @@ const TileCalibDrawerFlt* TileCondProxyFile<TileCalibDrawerFlt>::createCalibDraw
 //
 //_____________________________________________________________________________
 template<>
-const TileCalibDrawerBch* TileCondProxyFile<TileCalibDrawerBch>::createCalibDrawer(unsigned int drawerIdx, unsigned int nChan,
+const TileCalibDrawerBch* TileCondProxyFile<TileCalibDrawerBch>::createCalibDrawer(unsigned int drawerIdx, unsigned int nChannels,
     unsigned int objVers, const DataMap& dataMap) {
   //-------------------------------------------------------------------------------
   //--- Observed special case for TileCalibDrawerBch, which always expects 3 gains:
@@ -237,16 +259,16 @@ const TileCalibDrawerBch* TileCondProxyFile<TileCalibDrawerBch>::createCalibDraw
   coral::Blob* blob = new coral::Blob(0);
   m_blobStore.push_back(blob);
   TileBchDecoder::BitPatVer bitPatVer = static_cast<TileBchDecoder::BitPatVer>(objVers);
-  TileCalibDrawerBch* calibDrawer = TileCalibDrawerBch::getInstance(*blob, defaultVec, nChan, bitPatVer);
+  TileCalibDrawerBch* calibDrawer = TileCalibDrawerBch::getInstance(*blob, defaultVec, nChannels, bitPatVer);
 
   //=== fill calibDrawer with settings in dataMap
-  for (unsigned int chn = 0; chn < TileCalibUtils::MAX_CHAN; ++chn) {
-    TileCondProxyFile::DataMap::const_iterator iDataMap = dataMap.find( TileCalibUtils::getAdcIdx(drawerIdx, chn, 0));
+  for (unsigned int channel = 0; channel < nChannels; ++channel) {
+    TileCondProxyFile::DataMap::const_iterator iDataMap = dataMap.find( cacheIndex(drawerIdx, channel, 0));
     if (iDataMap != dataMap.end()) {
       const std::vector<float>& dataVec = iDataMap->second;
       for (unsigned int idx = 0; idx < dataVec.size(); ++idx) {
         float data = dataVec[idx];
-        calibDrawer->setData(chn, idx, 0, static_cast<uint32_t>(data > 0. ? data + 0.5 : data - 0.5));
+        calibDrawer->setData(channel, idx, 0, static_cast<uint32_t>(data > 0. ? data + 0.5 : data - 0.5));
       }
     }
   }
@@ -262,14 +284,10 @@ StatusCode TileCondProxyFile<T>::finalize() {
 
   //=== Delete TileCalibDrawers (which do not own the blob)
   std::set<const T*> unique(m_drawerVec.begin(), m_drawerVec.end());
-  for (typename std::set<const T*>::iterator i = unique.begin(); i != unique.end(); ++i) {
-    delete *i;
-  }
+  for (const T* calibDrawer : unique) delete calibDrawer;
 
   //=== Delete all blobs
-  for (std::vector<coral::Blob*>::iterator i = m_blobStore.begin(); i != m_blobStore.end(); ++i) {
-    delete *i;
-  }
+  for (coral::Blob* b : m_blobStore) delete b;
 
   return StatusCode::SUCCESS;
 }
