@@ -37,21 +37,25 @@ StatusCode GenericMonitoringTool::initialize() {
   HistogramFillerFactory factory(m_histSvc, m_histogramsGroupName);
 
   for (const string& item : m_histograms) {
+    ATH_MSG_DEBUG( "Configuring monitoring from: " << item );
     bool isSuccess = false;
     HistogramDef def = HistogramDef::parse(item);
 
     if (def.ok) {
+        ATH_MSG_DEBUG( "Definition parsed correctly" );
         HistogramFiller* filler = factory.create(def);
         
         if (filler != nullptr) {
             isSuccess = true;
             m_fillers.push_back(filler);
-        }
+	    ATH_MSG_DEBUG( "Intermediate structures created" );
+        } else {
+	  ATH_MSG_WARNING( "The histogram filler can not be instantiated for: " << def.name );
+	}
+    } else {
+      ATH_MSG_WARNING( "Unparsable histogram definition: " << item );
     }
-    
-    if (!isSuccess) {
-      ATH_MSG_DEBUG("Demand to monitor variable(s): " << def.name  << " can't be satisfied");
-    }
+    ATH_MSG_DEBUG( "Monitoring for varaible " << def.name << " prepared" );
   }
 
   if ( m_fillers.empty() ) {
