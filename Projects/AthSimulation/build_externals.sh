@@ -95,7 +95,7 @@ if [ "$FORCE" = "1" ]; then
 fi
 
 # Create some directories:
-mkdir -p ${BUILDDIR}/{src,install}
+mkdir -p ${BUILDDIR}/install
 
 # Set some environment variables that the builds use internally:
 export NICOS_PROJECT_VERSION=`cat ${thisdir}/version.txt`
@@ -121,7 +121,7 @@ AthSimulationExternalsVersion=$(awk '/^AthSimulationExternalsVersion/{print $3}'
 # Check out AthSimulationExternals from the right branch/tag:
 ${scriptsdir}/checkout_atlasexternals.sh \
     -t ${AthSimulationExternalsVersion} \
-    -s ${BUILDDIR}/src/AthSimulationExternals 2>&1 | tee ${BUILDDIR}/src/checkout.AthSimulationExternals.log
+    -s ${BUILDDIR}/src/AthSimulationExternals
 
 # Build AthSimulationExternals:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthSimulationExternals
@@ -142,7 +142,7 @@ GaudiVersion=$(awk '/^GaudiVersion/{print $3}' ${thisdir}/externals.txt)
 # Check out Gaudi from the right branch/tag:
 ${scriptsdir}/checkout_Gaudi.sh \
     -t ${GaudiVersion} \
-    -s ${BUILDDIR}/src/GAUDI 2>&1 | tee ${BUILDDIR}/src/checkout.GAUDI.log
+    -s ${BUILDDIR}/src/GAUDI
 
 # Build Gaudi:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/GAUDI
