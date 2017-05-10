@@ -24,7 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           PRIVATE
                           Calorimeter/CaloTrackingGeometry
-                          Control/DataModel
+                          Control/AthAllocators
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/DetDescrCond/DetDescrCondTools
@@ -80,12 +80,12 @@ atlas_add_library( FastCaloSimLib
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel Identifier GaudiKernel LArRecEvent TileEvent TrkEventPrimitives TrkParameters TrkExInterfaces CaloDetDescrLib StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} DataModel AthenaPoolUtilities AtlasDetDescr GeoPrimitives EventKernel NavFourMom GeneratorObjects TruthUtils FastCaloSimAthenaPool PathResolver TrkGeometry TrkSurfaces TrkMaterialOnTrack )
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthAllocators AthenaPoolUtilities AtlasDetDescr GeoPrimitives EventKernel NavFourMom GeneratorObjects TruthUtils FastCaloSimAthenaPool PathResolver TrkGeometry TrkSurfaces TrkMaterialOnTrack )
 
 atlas_add_component( FastCaloSim
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier GaudiKernel LArRecEvent TileEvent TrkEventPrimitives TrkParameters TrkExInterfaces DataModel AthenaPoolUtilities AtlasDetDescr GeoPrimitives EventKernel NavFourMom GeneratorObjects TruthUtils FastCaloSimAthenaPool PathResolver TrkGeometry TrkSurfaces TrkMaterialOnTrack FastCaloSimLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier GaudiKernel LArRecEvent TileEvent TrkEventPrimitives TrkParameters TrkExInterfaces AthAllocators AthenaPoolUtilities AtlasDetDescr GeoPrimitives EventKernel NavFourMom GeneratorObjects TruthUtils FastCaloSimAthenaPool PathResolver TrkGeometry TrkSurfaces TrkMaterialOnTrack FastCaloSimLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
