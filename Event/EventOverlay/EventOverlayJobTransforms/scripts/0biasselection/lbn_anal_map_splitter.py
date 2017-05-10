@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 import sys
 
 #get the list of special run,lbn with more than 1 file
@@ -15,7 +13,13 @@ with open("runs_lbn_files.txt") as f:
         print filenm
         finfo=filenm.split(".")
         run=finfo[3]
-        lbn=finfo[7].replace("_lb","")
+	lbi=4 #index of the lbn info
+	while "_lb" not in finfo[lbi] and lbi<20:
+            lbi=lbi+1
+        if lbi>=20:
+	    print finfo[lbi], "doesnt contain _lb"
+	    exit(1)
+        lbn=finfo[lbi].replace("_lb","")
         print run+"_"+lbn
         if run+"_"+lbn in special_run_lbn:
             if filenm in special_run_lbn[run+"_"+lbn]:
