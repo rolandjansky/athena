@@ -39,7 +39,7 @@ namespace CP
     declareProperty("PhotonKey",   m_phWPKey  = "/ElectronPhoton/LHTight/el_cutValues_", "path of the cut map for photon");
 
     declareProperty("doCutInterpolationMuon", m_doInterpM = false, "flag to perform cut interpolation, muon");
-    declareProperty("doCutInterpolationElec", m_doInterpE = false, "flag to perform cut interpolation, electron");
+    declareProperty("doCutInterpolationElec", m_doInterpE = true, "flag to perform cut interpolation, electron");
   }
 
   IsolationSelectionTool::~IsolationSelectionTool(){
@@ -137,6 +137,7 @@ namespace CP
       addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30,  "99");
       addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "99");
     }else if(muWPname == "Tight"){
+      ATH_MSG_WARNING("Obsolete muon WP " << muWPname << ". Check Twiki " << m_TwikiLoc);
       addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30,  "99");
       addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "96");
     // For gradient efficiency in pT
@@ -157,9 +158,14 @@ namespace CP
     // Using fixed cuts 
     }else if(muWPname == "FixedCutTightTrackOnly"){
       wp->addCut(new IsolationConditionFormula("ptvarcone30R0p06",        xAOD::Iso::ptvarcone30,  "0.06*x"));
+    }else if(muWPname == "FixedCutTight"){
+      wp->addCut(new IsolationConditionFormula("ptvarcone30R0p06",        xAOD::Iso::ptvarcone30,  "0.06*x"));
+      wp->addCut(new IsolationConditionFormula("topoetcone20R0p06",       xAOD::Iso::topoetcone20, "0.06*x"));
     }else if(muWPname == "FixedCutLoose"){
       wp->addCut(new IsolationConditionFormula("MuonFixedCutLoose_track", xAOD::Iso::ptvarcone30,  "0.15*x"));
       wp->addCut(new IsolationConditionFormula("MuonFixedCutLoose_calo",  xAOD::Iso::topoetcone20, "0.30*x"));
+    }else if(muWPname == "FixedCutHighPtTrackOnly"){
+      wp->addCut(new IsolationConditionFormula("ptcone20_1p25",           xAOD::Iso::ptcone20,     "1.25E03"));  //units are MeV!
     }else{
       ATH_MSG_ERROR("Unknown muon isolation WP: " << muWPname);
       delete wp;
@@ -222,6 +228,7 @@ namespace CP
       addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20,  "99");
       addCutToWP(wp, m_elWPKey, xAOD::Iso::topoetcone20, "99");
     }else if(elWPname == "Tight"){
+      ATH_MSG_WARNING("Obsolete electron WP " << elWPname << ". Check Twiki " << m_TwikiLoc);
       addCutToWP(wp, m_elWPKey, xAOD::Iso::ptvarcone20,  "99");
       addCutToWP(wp, m_elWPKey, xAOD::Iso::topoetcone20, "96");
     // For gradient efficiency in pT
@@ -248,6 +255,11 @@ namespace CP
     }else if(elWPname == "FixedCutLoose"){
       wp->addCut(new IsolationConditionFormula("FixedCutLoose_track", xAOD::Iso::ptvarcone20,  "0.15*x"));
       wp->addCut(new IsolationConditionFormula("FixedCutLoose_calo",  xAOD::Iso::topoetcone20, "0.20*x"));
+    }else if(elWPname == "FixedCutHighPtCaloOnly"){
+      wp->addCut(new IsolationConditionFormula("topoetcone20_3p5",    xAOD::Iso::topoetcone20, "3.5E03")); //units are MeV!
+    }else if(elWPname == "FixedCutTrackCone40"){
+      wp->addCut(new IsolationConditionFormula("FixedCutTC40_track",  xAOD::Iso::ptvarcone40,  "0.06*x"));
+      wp->addCut(new IsolationConditionFormula("FixedCutTC40_calo",   xAOD::Iso::topoetcone20, "0.11*x"));
     }else{
       ATH_MSG_ERROR("Unknown electron isolation WP: " << elWPname);
       delete wp;
@@ -366,11 +378,43 @@ namespace CP
 
   const Root::TAccept& IsolationSelectionTool::accept(const strObj& x) const
   {
-    m_objAccept.clear();
-    for(auto i : m_objWPs){
-      if(i->accept(x)){
-        m_objAccept.setCutResult(i->name(), true);
-      }
+//     m_objAccept.clear();
+//     for(auto i : m_objWPs){
+//       if(i->accept(x)){
+//         m_objAccept.setCutResult(i->name(), true);
+//       }
+//     }
+    if(x.type == xAOD::Type::Electron) {
+    	m_electronAccept.clear();
+        for(auto i : m_elWPs){
+            if(i->accept(x)){
+                m_electronAccept.setCutResult(i->name(), true);
+            }
+        }
+        return m_electronAccept;
+    } else if(x.type == xAOD::Type::Muon) {
+        m_muonAccept.clear();
+        for(auto i : m_muWPs){
+            if(i->accept(x)){
+                m_muonAccept.setCutResult(i->name(), true);
+            }
+        }
+        return m_muonAccept;
+    } else if(x.type == xAOD::Type::Photon) {
+        m_photonAccept.clear();
+        for(auto i: m_phWPs){
+            if(i->accept(x)){
+                m_photonAccept.setCutResult(i->name(), true);
+            }
+        }   
+        return m_photonAccept;
+    } else {
+        m_objAccept.clear();
+        for(auto i : m_objWPs){
+            if(i->accept(x)){
+                m_objAccept.setCutResult(i->name(), true);
+            }
+        }
     }
     return m_objAccept;
   }

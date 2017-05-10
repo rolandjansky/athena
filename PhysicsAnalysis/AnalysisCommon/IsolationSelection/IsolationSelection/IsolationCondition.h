@@ -23,6 +23,7 @@ struct strObj{
   float pt;
   float eta;
   std::vector< float > isolationValues;
+  xAOD::Type::ObjectType type;
 };
 
 namespace CP
