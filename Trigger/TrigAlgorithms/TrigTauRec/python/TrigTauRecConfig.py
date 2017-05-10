@@ -158,6 +158,7 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
             tools.append(taualgs.getTauAxis())
             # Count tracks with deltaZ0 cut of 2mm -> Need to remove quality criteria for fast-tracks here
             # Insert bypass later?
+            # Count tracks with deltaZ0 cut of 2mm for 2016 and 1mm for 2017 (see ATR-15845)
             if TriggerFlags.run2Config == '2016':
                 tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2, prefix="TrigTauPreselection_", noSelector=False))
             else:
