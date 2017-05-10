@@ -276,7 +276,7 @@ Trk::OverlapDescriptor* iFatras::PlanarModuleProvider::getDiscOverlapDescriptor(
   return new iFatras::DiscOverlapDescriptor(binnedArray,subBinUtilities);
 }
 
-Trk::OverlapDescriptor* iFatras::PlanarModuleProvider::getPlanarOverlapDescriptor(bool) const
+Trk::OverlapDescriptor* iFatras::PlanarModuleProvider::getPlanarOverlapDescriptor(bool,bool) const
 {
   return new iFatras::PlanarOverlapDescriptor();
 }
