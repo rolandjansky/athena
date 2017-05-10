@@ -182,6 +182,7 @@ private:
 private:
   xAOD::TriggerTowerContainer* m_triggerTowers;
   std::unordered_map<uint32_t, std::unique_ptr<xAOD::TriggerTower>> m_coolIdToTriggerTowerMap;
+  std::vector<uint32_t> m_triggerTowersOrder;
 
 private:
    static const uint8_t s_crates   = 8;

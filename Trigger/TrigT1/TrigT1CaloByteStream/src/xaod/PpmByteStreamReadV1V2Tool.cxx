@@ -126,7 +126,7 @@ StatusCode PpmByteStreamReadV1V2Tool::convert(
   m_triggerTowers = ttCollection;
   m_coolIdToTriggerTowerMap.clear();
   m_coolIds.clear();
-  
+  m_triggerTowersOrder.clear();
   createEmptyTriggerTowers_();
   
   m_subDetectorID = eformat::TDAQ_CALO_PREPROC;
@@ -143,20 +143,14 @@ StatusCode PpmByteStreamReadV1V2Tool::convert(
 
     }
   }
-  m_triggerTowers->reserve(m_coolIdToTriggerTowerMap.size());
   
-  for (uint8_t crate = 0; crate < s_crates; ++crate) {
-    for (uint8_t module = 0; module < s_modules; ++module) {
-      for (uint8_t channel = 0; channel < s_channels; ++channel) {
-        auto coolId = ::coolId(crate, module, channel);
-        if (m_coolIdToTriggerTowerMap.count(coolId)){
+  m_triggerTowers->reserve(m_triggerTowersOrder.size());
+  
+  for (auto coolId: m_triggerTowersOrder) {
           auto& tt = m_coolIdToTriggerTowerMap[coolId];
           if (tt->adc().size()>0 || tt->errorWord()){
             m_triggerTowers->push_back(std::move(tt));
           }
-        }
-      }
-    }
   }
 
   // for ( auto it = m_coolIdToTriggerTowerMap.begin(); it != m_coolIdToTriggerTowerMap.end(); ++it ){
@@ -1008,7 +1002,7 @@ StatusCode PpmByteStreamReadV1V2Tool::addTriggerTowerV2_(
   }
 
   auto& tt = m_coolIdToTriggerTowerMap[coolId];
-
+  m_triggerTowersOrder.push_back(coolId);
   tt->initialize(coolId, tt->eta(), tt->phi(),
                  std::move(lcpVal), std::move(ljeVal),
                  std::move(pedCor), std::move(pedEn),
