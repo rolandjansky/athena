@@ -73,6 +73,8 @@ def getParticleKillerSvc(name="ISF_ParticleKillerSvc", **kwargs):
     return CfgMgr.ISF__ParticleKillerSimSvc(name, **kwargs)
 
 def getInputConverter(name="ISF_InputConverter", **kwargs):
+    from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault('BarcodeSvc', simFlags.TruthStrategy.BarcodeServiceName())
     kwargs.setdefault("UseGeneratedParticleMass", False)
     genParticleFilters = ['ISF_ParticleFinalStateFilter']
     from AthenaCommon.BeamFlags import jobproperties
@@ -83,11 +85,13 @@ def getInputConverter(name="ISF_InputConverter", **kwargs):
     kwargs.setdefault("GenParticleFilters", genParticleFilters)
     return CfgMgr.ISF__InputConverter(name, **kwargs)
 
+
 def getLongLivedInputConverter(name="ISF_LongLivedInputConverter", **kwargs):
     kwargs.setdefault("GenParticleFilters"      , [ 'ISF_ParticleSimWhiteList',
                                                     'ISF_ParticlePositionFilterDynamic',
                                                     'ISF_EtaPhiFilter',
                                                     'ISF_GenParticleInteractingFilter', ] )
+    kwargs.setdefault('QuasiStableParticlesIncluded', True)
     return getInputConverter(name, **kwargs)
 
 
