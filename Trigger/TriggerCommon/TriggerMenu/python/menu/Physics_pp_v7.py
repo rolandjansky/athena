@@ -4273,6 +4273,10 @@ def setupMenu():
         ['noalg_L1AFP_A_OR_C_EMPTY',                        'L1_AFP_A_OR_C_EMPTY',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['noalg_L1AFP_A_OR_C_FIRSTEMPTY',                        'L1_AFP_A_OR_C_FIRSTEMPTY',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
 
+        ['noalg_L1AFP_A_AND_C_SPECTOF_J50',                        'L1_AFP_A_AND_C_SPECTOF_J50',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['noalg_L1AFP_A_AND_C_SPECTOF_J75',                        'L1_AFP_A_AND_C_SPECTOF_J75',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['noalg_L1AFP_A_AND_C_SPECTOF_J100',                        'L1_AFP_A_AND_C_SPECTOF_J100',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+
         ['noalg_L1MBTS_2',                        'L1_MBTS_2',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
 
 
