@@ -160,17 +160,17 @@ class TileCellBuilderFromHit: public AthAlgTool, virtual public ICaloCellMakerTo
     int m_RUN2;
     int m_E1_TOWER;
 
-    static const int nSide = 2;
-    static const int nPhi = 8;
-    static const int nEta = 2;
-    static const int nCellMBTS = nSide * nPhi * nEta;
+    static const int NSIDE = 2;
+    static const int NPHI = 8;
+    static const int NETA = 2;
+    static const int NCELLMBTS = NSIDE * NPHI * NETA;
     inline int mbts_index(int side, int phi, int eta) const {
-      return (side * nPhi + phi) * nEta + eta;
+      return (side * NPHI + phi) * NETA + eta;
     }
-    static const int E4side = -1;
-    static const int E4eta  = 2;
-    static const int E4nPhi = 4;
-    static const int nCellE4pr = E4nPhi;
+    static const int E4SIDE = -1;
+    static const int E4ETA  = 2;
+    static const int E4NPHI = 4;
+    static const int NCELLE4PR = E4NPHI;
     inline int e4pr_index(int phi) const {
       return  phi;
     }

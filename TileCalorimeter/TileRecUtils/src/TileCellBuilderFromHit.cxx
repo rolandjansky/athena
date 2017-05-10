@@ -206,7 +206,7 @@ StatusCode TileCellBuilderFromHit::initialize() {
 
   if (m_MBTSContainer.size() > 0) {
     ATH_MSG_INFO( "Storing MBTS cells in " << m_MBTSContainer );
-    m_MBTSVec.resize(nCellMBTS);
+    m_MBTSVec.resize(NCELLMBTS);
   } else {
     m_MBTSVec.resize(0);
   }
@@ -216,7 +216,7 @@ StatusCode TileCellBuilderFromHit::initialize() {
 
   if ( m_RUN2 && m_E4prContainer.size() > 0) {
     ATH_MSG_INFO( "Storing E4'  cells in " << m_E4prContainer );
-    m_E4prVec.resize(nCellE4pr);
+    m_E4prVec.resize(NCELLE4PR);
   } else {
     m_E4prContainer = ""; // no E4' container for RUN1
     m_E4prVec.resize(0);
@@ -1141,9 +1141,9 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
 
   if (m_MBTSCells) {
 
-    for (int side = 0; side < nSide; ++side) {
-      for (int phi = 0; phi < nPhi; ++phi) {
-        for (int eta = 0; eta < nEta; ++eta) {
+    for (int side = 0; side < NSIDE; ++side) {
+      for (int phi = 0; phi < NPHI; ++phi) {
+        for (int eta = 0; eta < NETA; ++eta) {
 
           int index=mbts_index(side,phi,eta);
           TileCell * pCell = m_MBTSVec[index];
@@ -1178,7 +1178,7 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
 
   if (m_E4prCells) {
 
-    for (int phi = 0; phi < E4nPhi; ++phi) {
+    for (int phi = 0; phi < E4NPHI; ++phi) {
 
       int index = e4pr_index(phi);
       TileCell * pCell = m_MBTSVec[index];
@@ -1188,7 +1188,7 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
         ++nE4pr;
         m_E4prVec[index] = pCell = NEWTILECELL();
 
-        pCell->set(NULL, m_tileTBID->channel_id(E4side, phi, E4eta));
+        pCell->set(NULL, m_tileTBID->channel_id(E4SIDE, phi, E4ETA));
         pCell->setEnergy_nonvirt(0.0, 0.0, CaloGain::TILEONEHIGH, CaloGain::INVALIDGAIN); // reset energy completely
         pCell->setTime_nonvirt(0.0); // reset time completely
         pCell->setQuality(iqual, qbit, 0); // reset quality flag for first pmt
