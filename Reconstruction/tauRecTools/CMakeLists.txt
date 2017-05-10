@@ -113,7 +113,7 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       PathResolver MVAUtils ElectronPhotonSelectorToolsLib )
 else()
    atlas_add_library( tauRecToolsLib
-      tauRecTools/*.h Root/*.cxx
+      tauRecTools/*.h Root/*.cxx  ${tauRecToolsLibCintDict}
       PUBLIC_HEADERS tauRecTools
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
       ${FASTJET_INCLUDE_DIRS}
