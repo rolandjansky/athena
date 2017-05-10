@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
+
 // This should only be compiled in RootCore
 #ifdef ROOTCORE
 

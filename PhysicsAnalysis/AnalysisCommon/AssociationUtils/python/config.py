@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 """ AssociationUtils/config.py
     This file contains the configuration helper code for the overlap removal
     tools in Athena. It is a work in progress. It may in fact be possible to

@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
 /// @file OverlapRemovalTesterLegacy.cxx
 /// @brief Contains RootCore testing code for the legacy OverlapRemovalTool.
 /// It is recommended to use instead the more advanced set of tools

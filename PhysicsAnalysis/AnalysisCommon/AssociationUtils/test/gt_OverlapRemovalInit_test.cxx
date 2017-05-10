@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
+
 /** @brief Unit tests for c++ config helper functions.
  *
  *  @todo Test more features:
