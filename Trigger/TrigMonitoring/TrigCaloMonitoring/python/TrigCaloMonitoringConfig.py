@@ -19,6 +19,7 @@ def HLTCaloMonitoringTool():
 
     from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
     ToolSvc+=TrigDataAccess()
+    ToolSvc.TrigDataAccess.loadAllSamplings =True
     
     roilaremcellcontmaker  = RoILArEMCellContMaker()
     roilaremcellcontmaker.CaloNoiseTool = theCaloNoiseTool
