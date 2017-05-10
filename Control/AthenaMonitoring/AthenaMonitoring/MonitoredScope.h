@@ -23,35 +23,35 @@ namespace Monitored {
         }
         
         virtual ~MonitoredScope() {
-            if (mAutoSave) {
+            if (m_autoSave) {
                 save();
             }
 
-            for (auto filler : mHistogramsFillers) {
+            for (auto filler : m_histogramsFillers) {
                 delete filler;
             }
         }
         
         virtual void save() {
-            for (auto filler : mHistogramsFillers) {
+            for (auto filler : m_histogramsFillers) {
                 filler->fill();
             }
         }
         
         void setAutoSaveEnabled(bool isEnabled) {
-            mAutoSave = isEnabled;
+            m_autoSave = isEnabled;
         }
     protected:
-        ToolHandle<GenericMonitoringTool> mTool;
-        bool mAutoSave;
-        const std::vector<std::reference_wrapper<IMonitoredVariable>> mScopeMonitored;
-        const std::vector<HistogramFiller*> mHistogramsFillers;
+        ToolHandle<GenericMonitoringTool> m_tool;
+        bool m_autoSave;
+        const std::vector<std::reference_wrapper<IMonitoredVariable>> m_scopeMonitored;
+        const std::vector<HistogramFiller*> m_histogramsFillers;
         
         MonitoredScope(ToolHandle<GenericMonitoringTool> tool, std::initializer_list<std::reference_wrapper<IMonitoredVariable>> scopeMonitored)
-          : mTool(tool), 
-            mAutoSave(true), 
-            mScopeMonitored(scopeMonitored), 
-            mHistogramsFillers(!mTool.empty() ? mTool->getHistogramsFillers(mScopeMonitored) : std::vector<HistogramFiller*>()) { }
+          : m_tool(tool), 
+            m_autoSave(true), 
+            m_scopeMonitored(scopeMonitored), 
+            m_histogramsFillers(!m_tool.empty() ? m_tool->getHistogramsFillers(m_scopeMonitored) : std::vector<HistogramFiller*>()) { }
     };
 }
 
