@@ -33,6 +33,18 @@ public:
   virtual StatusCode execute(xAOD::CaloCluster* cluster,const xAOD::Egamma* eg)=0;
   virtual StatusCode execute(xAOD::CaloCluster* cluster,const xAOD::EgammaParameters::EgammaType egType)=0;
   virtual StatusCode hltexecute(xAOD::CaloCluster* cluster, const std::string& egType)=0;
+
+  virtual float getEnergy(const xAOD::Egamma* eg)=0;
+  virtual float getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Egamma*)=0;
+  virtual float getEnergy(const xAOD::CaloCluster* cluster, const xAOD::EgammaParameters::EgammaType egType)=0;
+
+  virtual float getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Electron*)=0;
+  virtual float getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Photon*)=0;
+  virtual float getEnergy(const xAOD::CaloCluster* cluster, const std::string&)=0;
+
+
+
+
 };
 
 #endif
