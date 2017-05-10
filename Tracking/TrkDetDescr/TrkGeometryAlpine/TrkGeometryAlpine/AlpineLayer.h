@@ -52,29 +52,8 @@ namespace Trk {
 
     // Layer has substructure if it has staves
     virtual bool hasSubStructure(bool resolveSensitive=false) const;
-
-    // get compatible surfaces starting from charged parameters
-    virtual size_t compatibleSurfaces(std::vector<SurfaceIntersection>& cSurfaces,
-				      const TrackParameters& pars,
-				      PropDirection pDir,
-				      const BoundaryCheck& bcheck,
-				      bool materialSurfacesOnly = true,
-				      const Surface* startSurface = 0,
-				      const Surface* endSurface = 0,
-				      const ICompatibilityEstimator* ice = 0) const;
-
-    // get compatible surfaces starting from neutral parameters 
-    virtual size_t compatibleSurfaces(std::vector<SurfaceIntersection>& cSurfaces,
-				      const NeutralParameters& pars,
-				      PropDirection pDir,
-				      const BoundaryCheck& bcheck,
-				      bool materialSurfacesOnly = true,
-				      const Surface* startSurface = 0,
-				      const Surface* endSurface = 0,
-				      const ICompatibilityEstimator* ice = 0) const;
- 
+    
   private:
-    std::vector<const Surface*> getCompatibleSurfaces(double phi_inner, double z_inner, double z_outer) const;
     // Find the closest staves in phi
     std::vector<int> getClosestStaves(double phi) const;
     // The layer contains staves ordered from -PI to PI

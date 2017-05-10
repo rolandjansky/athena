@@ -119,21 +119,24 @@ std::vector<const Trk::Surface*>& Trk::AlpineStave::getSurfaces(){
 // RETURN PLAIN MODULES
 void Trk::AlpineStave::pushPlainModules(std::vector<const Trk::Surface*> &v, double z_inner, double z_outer) const 
 {
-
-  if(z_outer<m_plainStart-m_plainStep) return; 
-  if(z_outer>m_plainEnd+m_plainStep)   return; 
-
-  //int n = int(m_plainModules.size());
+  if(z_inner<m_plainStart-m_plainStep) return; 
+  if(z_inner>m_plainEnd+m_plainStep)   return; 
+  
   unsigned int imodule_outer = 0;
   unsigned int imodule_inner = 0;
-  if(z_outer>m_plainStart) imodule_outer = (z_outer - m_plainStart) / m_plainStep;
-  if(z_inner>m_plainStart) imodule_inner = (z_inner - m_plainStart) / m_plainStep;
+  
+  unsigned int modules = m_plainModules.size();
+  imodule_outer = (z_outer - m_plainStart) / m_plainStep;
+
+  if (z_outer>m_plainEnd) imodule_outer = modules;
+  else if (z_outer<m_plainStart) imodule_outer = 0; 
+  
+  imodule_inner = (z_inner - m_plainStart) / m_plainStep;
 
   unsigned int istart=imodule_inner; unsigned int iend=imodule_outer;
-  if(z_inner>z_outer) {
-    istart=imodule_outer; iend=imodule_inner;
-  }
-
+  if(z_inner>z_outer) 
+    std::swap(istart,iend);
+  
   // dirty fix for missing chunks when particles enter modules through the sides 
   iend++;
   if(istart>0) istart--;
