@@ -248,12 +248,12 @@ def setupMenu():
 
         # L1Topo simple cone seeded topocluster large-R jet triggers
         # See ATR-14353 for details of the request
-        ['j300_a10_lcw_subjes_L1SC85',      'L1_SC-85', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j360_a10_lcw_subjes_L1SC111',     'L1_SC-111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j360_a10_lcw_sub_L1SC111',        'L1_SC-111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j400_a10_lcw_sub_L1SC111',        'L1_SC-111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j420_a10_lcw_sub_L1SC111',        'L1_SC-111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j460_a10_lcw_sub_L1SC111',        'L1_SC-111', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j300_a10_lcw_subjes_L1SC85',      'L1_SC85-CJ15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j360_a10_lcw_subjes_L1SC111',     'L1_SC111-CJ15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j360_a10_lcw_sub_L1SC111',        'L1_SC111-CJ15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j400_a10_lcw_sub_L1SC111',        'L1_SC111-CJ15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j420_a10_lcw_sub_L1SC111',        'L1_SC111-CJ15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j460_a10_lcw_sub_L1SC111',        'L1_SC111-CJ15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         
         # L1Topo HT seeded topocluster large-R jet triggers
         ['j360_a10_nojcalib',                       'L1_HT150-J20s5.ETA31', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],

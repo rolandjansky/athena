@@ -831,8 +831,8 @@ def defineMenu():
 
         'L1_TAU60_DR-TAU20ITAU12I',
 
-        'L1_SC-111',
-        'L1_SC-85',
+        'L1_SC111-CJ15',
+        'L1_SC85-CJ15',
         
         ##     # Partition 1
         ##     'L1_CALREQ0_P1', 'L1_CALREQ1_P1', 'L1_CALREQ2_P1',
@@ -1435,8 +1435,8 @@ def defineMenu():
         'L1_DR-EM15TAU12I' : 353,        
         'L1_LATE-MU10_XE50': 354,
         'L1_LATE-MU10_J50' : 355,
-        'L1_SC-111' : 356,
-        'L1_SC-85' : 357,
+        'L1_SC111-CJ15' : 356,
+        'L1_SC85-CJ15' : 357,
 #SX
 #        'L1_BPH-DR-2MU4-B' : 353,
 #        'L1_BPH-DR-2MU4-BO' : 354,

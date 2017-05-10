@@ -2841,14 +2841,14 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="356" partition="1" name="L1_SC-111" complex_deadtime="0" definition="(SC111-CJ15ab.ETA26[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="356" partition="1" name="L1_SC111-CJ15" complex_deadtime="0" definition="(SC111-CJ15ab.ETA26[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="SC111-CJ15ab.ETA26_x1" triggerthreshold="SC111-CJ15ab.ETA26"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="357" partition="1" name="L1_SC-85" complex_deadtime="0" definition="(SC85-CJ15ab.ETA26[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="357" partition="1" name="L1_SC85-CJ15" complex_deadtime="0" definition="(SC85-CJ15ab.ETA26[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="SC85-CJ15ab.ETA26_x1" triggerthreshold="SC85-CJ15ab.ETA26"/>
         <InternalTrigger name="BGRP0"/>

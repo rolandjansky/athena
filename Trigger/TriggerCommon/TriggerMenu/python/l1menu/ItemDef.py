@@ -1713,8 +1713,8 @@ class ItemDef:
                     LVL1MenuItem('L1_LATE-MU10_XE50').setLogic( TOPO_LATE_MU10s1 & XE50 & physcond) 
                     LVL1MenuItem('L1_LATE-MU10_J50').setLogic(  TOPO_LATE_MU10s1 & J50 & physcond)  
                     if '_v7' in TriggerFlags.triggerMenuSetup():
-                      LVL1MenuItem('L1_SC-111').setLogic(  TOPO_SC111_CJ15abETA26 & physcond)
-                      LVL1MenuItem('L1_SC-85').setLogic(  TOPO_SC85_CJ15abETA26 & physcond)
+                      LVL1MenuItem('L1_SC111-CJ15').setLogic(  TOPO_SC111_CJ15abETA26 & physcond)
+                      LVL1MenuItem('L1_SC85-CJ15').setLogic(  TOPO_SC85_CJ15abETA26 & physcond)
                     else:
                       LVL1MenuItem('L1_SC111').setLogic(  TOPO_SC111_CJ15abETA26 & physcond)
                       LVL1MenuItem('L1_SC85').setLogic(  TOPO_SC85_CJ15abETA26 & physcond)
