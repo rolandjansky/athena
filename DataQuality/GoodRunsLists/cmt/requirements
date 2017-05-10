@@ -12,6 +12,8 @@ use  GaudiInterface             GaudiInterface-*                External
 use  xAODEventInfo               xAODEventInfo-*                 Event/xAOD
 use  AsgTools                   AsgTools-*                      Control/AthToolSupport
 
+use AsgAnalysisInterfaces      AsgAnalysisInterfaces-*          PhysicsAnalysis/Interfaces
+
 private
 use  DetectorStatus             DetectorStatus-*                DetectorDescription/DetDescrCond
 use  EventInfo                  EventInfo-*                     Event
