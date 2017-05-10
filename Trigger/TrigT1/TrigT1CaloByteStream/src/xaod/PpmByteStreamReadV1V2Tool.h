@@ -11,6 +11,9 @@
 // ===========================================================================
 #include <stdint.h>
 #include <vector>
+#include <unordered_map>
+#include <unordered_set>
+
 
 // ===========================================================================
 // Athena:
@@ -128,15 +131,15 @@ private:
     const std::vector<uint16_t>& fadc
   );
 
-  StatusCode addTriggerTowerV1_(
-    uint8_t crate,
-    uint8_t module,
-    uint8_t channel,
-    std::vector<uint8_t>&& luts,
-    std::vector<uint8_t>&& lcpBcidVec,
-    std::vector<uint16_t>&& fadc,
-    std::vector<uint8_t>&& bcidExt
-  );
+  StatusCode addTriggerTowerV1_(uint8_t crate, uint8_t module, uint8_t channel,
+                                std::vector<uint8_t>&& luts,
+                                std::vector<uint8_t>&& lcpBcidVec,
+                                std::vector<uint16_t>&& fadc,
+                                std::vector<uint8_t>&& bcidExt);
+
+  void createEmptyTriggerTowers_();
+
+  void processSubBlockStatus_(uint8_t crate, uint8_t module, uint32_t word);
 
 private:
   ToolHandle<LVL1BS::L1CaloErrorByteStreamTool> m_errorTool;
@@ -148,7 +151,7 @@ private:
 private:
   CaloUserHeader m_caloUserHeader;
   SubBlockHeader m_subBlockHeader;
-  SubBlockStatus m_subBlockStatus;
+  // SubBlockStatus m_subBlockStatus;
 
   uint8_t m_subDetectorID;
   RequestType m_requestedType;
@@ -178,7 +181,12 @@ private:
 // ==========================================================================
 private:
   xAOD::TriggerTowerContainer* m_triggerTowers;
-  size_t m_maxSizeSeen;
+  std::unordered_map<uint32_t, std::unique_ptr<xAOD::TriggerTower>> m_coolIdToTriggerTowerMap;
+
+private:
+   static const uint8_t s_crates   = 8;
+   static const uint8_t s_modules  = 16;
+   static const uint8_t s_channels = 64;
 };
 
 // ===========================================================================

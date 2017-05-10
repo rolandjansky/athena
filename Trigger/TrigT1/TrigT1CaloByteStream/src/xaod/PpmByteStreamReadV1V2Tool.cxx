@@ -12,6 +12,7 @@
 // ===========================================================================
 #include "eformat/SourceIdentifier.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
+#include "TrigT1CaloUtils/DataError.h"
 #include "xAODTrigL1Calo/TriggerTowerAuxContainer.h" 
 
 #include "CaloUserHeader.h"
@@ -71,8 +72,7 @@ PpmByteStreamReadV1V2Tool::PpmByteStreamReadV1V2Tool(const std::string& name /*=
     m_verCode(0),
     m_ppPointer(0),
     m_ppMaxBit(0),
-    m_triggerTowers(nullptr),
-    m_maxSizeSeen(0)
+    m_triggerTowers(nullptr)
 {
   declareInterface<PpmByteStreamReadV1V2Tool>(this);
   declareProperty("PpmMappingTool", m_ppmMaps,
@@ -124,9 +124,11 @@ StatusCode PpmByteStreamReadV1V2Tool::convert(
     xAOD::TriggerTowerContainer* const ttCollection) {
 
   m_triggerTowers = ttCollection;
-  if (m_maxSizeSeen > m_triggerTowers->capacity())
-    m_triggerTowers->reserve (m_maxSizeSeen);
+  m_coolIdToTriggerTowerMap.clear();
   m_coolIds.clear();
+  
+  createEmptyTriggerTowers_();
+  
   m_subDetectorID = eformat::TDAQ_CALO_PREPROC;
   m_requestedType = RequestType::PPM;
 
@@ -135,12 +137,35 @@ StatusCode PpmByteStreamReadV1V2Tool::convert(
 
   int robCounter = 1;
   for (; rob != robEnd; ++rob, ++robCounter) {
+
     StatusCode sc = processRobFragment_(rob, RequestType::PPM);
     if (!sc.isSuccess()) {
 
     }
   }
-  m_maxSizeSeen = std::max (m_maxSizeSeen, m_triggerTowers->size());
+  m_triggerTowers->reserve(m_coolIdToTriggerTowerMap.size());
+  
+  for (uint8_t crate = 0; crate < s_crates; ++crate) {
+    for (uint8_t module = 0; module < s_modules; ++module) {
+      for (uint8_t channel = 0; channel < s_channels; ++channel) {
+        auto coolId = ::coolId(crate, module, channel);
+        if (m_coolIdToTriggerTowerMap.count(coolId)){
+          auto& tt = m_coolIdToTriggerTowerMap[coolId];
+          if (tt->adc().size()>0 || tt->errorWord()){
+            m_triggerTowers->push_back(std::move(tt));
+          }
+        }
+      }
+    }
+  }
+
+  // for ( auto it = m_coolIdToTriggerTowerMap.begin(); it != m_coolIdToTriggerTowerMap.end(); ++it ){
+  //   auto& tt = it->second;
+  //   if (tt->adc().size()>0 || tt->errorWord()){
+  //     m_triggerTowers->push_back(std::move(tt));
+  //   }
+  // }
+
   m_triggerTowers = nullptr;
   return StatusCode::SUCCESS;
 }
@@ -219,7 +244,6 @@ StatusCode PpmByteStreamReadV1V2Tool::processRobFragment_(
   }
 
   ATH_MSG_DEBUG("Treating crate " << rodCrate << " slink " << rodSlink);
-
   m_caloUserHeader = CaloUserHeader(*payload);
   if (!m_caloUserHeader.isValid()) {
     ATH_MSG_ERROR("Invalid or missing user header");
@@ -263,7 +287,7 @@ StatusCode PpmByteStreamReadV1V2Tool::processRobFragment_(
         );
         subBlock = blockType & 0xe;
       } else if (blockType == (subBlock | 1)) {
-        m_subBlockStatus = SubBlockStatus(*payload);
+        processSubBlockStatus_(m_subBlockHeader.crate(), m_subBlockHeader.module(), *payload);
         subBlock = 0;
       }
     } else {
@@ -586,7 +610,6 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmBlockR4V1_() {
     CHECK(processPpmStandardR4V1_());
     return StatusCode::SUCCESS;
   } else if (m_subBlockHeader.format() >= 2) {
-    // TODO: convert compressed
     CHECK(processPpmCompressedR4V1_());
     return StatusCode::SUCCESS;
   }
@@ -735,11 +758,12 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmCompressedR4V1_() {
                              std::move(ljeVal), std::move(ljeSat80Vec),
                              std::move(adcVal), std::move(adcExt),
                              std::move(pedCor), std::move(pedEn)));
-    }
+    } // for
   } catch (const std::out_of_range& ex) {
       ATH_MSG_WARNING("Excess Data in Sub-block");
       m_errorTool->rodError(m_rodSourceId, L1CaloSubBlock::UNPACK_EXCESS_DATA);
   }
+  //Check status workd
   return StatusCode::SUCCESS;
 
 }
@@ -750,7 +774,7 @@ void PpmByteStreamReadV1V2Tool::interpretPpmHeaderR4V1_(uint8_t numAdc,
 
   if (numAdc == 5) {
     minHeader = getPpmBytestreamField_(4);
-    //ATH_MSG_DEBUG("SASHA: minHeader=" << int(minHeader));
+
     minIndex = minHeader % 5;
     if (minHeader < 15){ // Encodings 0-5
       if (minHeader < 10) {
@@ -847,6 +871,7 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmStandardR4V1_() {
   m_ppMaxBit = 31 * m_ppBlock.size();
 
   for (uint8_t chan = 0; chan < 64; ++chan) {
+
     //for (uint8_t k = 0; k < 4; ++k) {
     std::vector<uint8_t> lcpVal;
     std::vector<uint8_t> lcpBcidVec;
@@ -908,6 +933,60 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmStandardR3V1_() {
     return StatusCode::SUCCESS;
 }
 
+void PpmByteStreamReadV1V2Tool::processSubBlockStatus_(uint8_t crate, uint8_t module, uint32_t payload){
+  LVL1::DataError errorBits(0);
+  errorBits.set(LVL1::DataError::SubStatusWord, payload);
+
+  const uint32_t error = errorBits.error();
+  for(uint8_t channel=0; channel < s_channels; ++channel){
+    auto coolId = ::coolId(crate, module, channel);
+    if (m_coolIdToTriggerTowerMap.count(coolId)){
+      m_coolIdToTriggerTowerMap[coolId]->setErrorWord(error);
+    }
+  }
+}
+
+void PpmByteStreamReadV1V2Tool::createEmptyTriggerTowers_() {
+  m_coolIdToTriggerTowerMap.reserve(s_crates * s_modules * s_channels);
+  std::vector<uint16_t> dummyAdcVector;
+  uint32_t dummyErrorWord = 0;
+  for (uint8_t crate = 0; crate < s_crates; ++crate) {
+    for (uint8_t module = 0; module < s_modules; ++module) {
+      for (uint8_t channel = 0; channel < s_channels; ++channel) {
+        auto coolId = ::coolId(crate, module, channel);
+        m_coolIds.insert(coolId);
+
+        int layer = 0;
+        double eta = 0.;
+        double phi = 0.;
+
+        bool isData =
+            m_ppmMaps->mapping(crate, module, channel, eta, phi, layer);
+
+        if (!isData && !m_ppmIsRetSpare && !m_ppmIsRetMuon) {
+          continue;
+        }
+
+        if (!isData) {
+          const int pin = channel % 16;
+          const int asic = channel / 16;
+          eta = 16 * crate + module;
+          phi = 4 * pin + asic;
+        }
+
+        xAOD::TriggerTower* tt = new xAOD::TriggerTower();
+        tt->makePrivateStore();
+        tt->initialize(coolId, eta, phi);
+        tt->setAdc(dummyAdcVector);
+        tt->setErrorWord(dummyErrorWord);
+        // m_triggerTowers->push_back(tt);
+        m_coolIdToTriggerTowerMap.emplace(coolId, tt);
+      }
+    }
+  }
+}
+
+
 StatusCode PpmByteStreamReadV1V2Tool::addTriggerTowerV2_(
     uint8_t crate,
     uint8_t module,
@@ -921,52 +1000,21 @@ StatusCode PpmByteStreamReadV1V2Tool::addTriggerTowerV2_(
     std::vector<int16_t>&& pedCor,
     std::vector<uint8_t>&& pedEn) {
 
-  int layer = 0;
-  int error = 0;
-  double eta = 0.;
-  double phi = 0.;
-  
-  bool isNotSpare = m_ppmMaps->mapping(crate, module, channel, eta, phi, layer);
-  if (!isNotSpare && !m_ppmIsRetSpare && !m_ppmIsRetMuon){
+  uint32_t coolId = ::coolId(crate, module, channel);
+
+
+  if (!m_coolIdToTriggerTowerMap.count(coolId)){
     return StatusCode::SUCCESS;
   }
 
-  if (!isNotSpare) {
-    const int pin  = channel % 16;
-    const int asic = channel / 16;
-    eta = 16 * crate + module;
-    phi = 4 * pin + asic;
-  }
+  auto& tt = m_coolIdToTriggerTowerMap[coolId];
 
-  uint32_t coolId = ::coolId(crate, module, channel);
-  CHECK(m_coolIds.count(coolId) == 0);
-  m_coolIds.insert(coolId);
-
-  xAOD::TriggerTower* tt = new xAOD::TriggerTower();
-  m_triggerTowers->push_back(tt);
-  // tt->initialize(
-  //         const uint_least32_t& coolId,
-  //         const uint_least8_t& layer,
-  //         const float& eta,
-  //         const float& phi,
-  //         const std::vector<uint_least8_t>& lut_cp,
-  //         const std::vector<uint_least8_t>& lut_jep,
-  //         const std::vector<int_least16_t>& correction,
-  //         const std::vector<uint_least8_t>& correctionEnabled,
-  //         const std::vector<uint_least8_t>& bcidVec,
-  //         const std::vector<uint_least16_t>& adc,
-  //         const std::vector<uint_least8_t>& bcidExt,
-  //         const std::vector<uint_least8_t>& sat80, 
-  //         const uint_least16_t& error,
-  //         const uint_least8_t& peak,
-  //         const uint_least8_t& adcPeak
-  // );
-  tt->initialize(coolId, eta, phi,
+  tt->initialize(coolId, tt->eta(), tt->phi(),
                  std::move(lcpVal), std::move(ljeVal),
                  std::move(pedCor), std::move(pedEn),
                  std::move(lcpBcidVec), std::move(adcVal),
                  std::move(adcExt), std::move(ljeSat80Vec),
-                 error, m_caloUserHeader.lut(),
+                 0, m_caloUserHeader.lut(),
       m_caloUserHeader.ppFadc());
   return StatusCode::SUCCESS;
 }
