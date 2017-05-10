@@ -5,7 +5,6 @@
 #include "MCTruthBase/TruthStrategyManager.h"
 #include "MCTruthBase/TruthStrategy.h"
 
-#include "G4AtlasInterfaces/IUserAction.h"
 #include "MCTruth/EventInformation.h"
 #include "MCTruth/TrackHelper.h"
 #include "SimHelpers/SecondaryTracksHelper.h"

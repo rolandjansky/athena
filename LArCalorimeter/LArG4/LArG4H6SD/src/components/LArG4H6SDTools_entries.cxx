@@ -2,9 +2,10 @@
 
 #include "../LArTBH6TriggerTimeTool.h"
 #include "../LArTBH6BeamInfo.h"
-#include "../LArGeoH62004EventAction.h"
-#include "../LArGeoH62004SteppingAction.h"
-#include "../RadLenNtuple.h"
+#include "../LArGeoH62004EventActionTool.h"
+#include "../LArGeoH62004SteppingActionTool.h"
+#include "../RadLenNtupleTool.h"
+
 // SDs
 #include "../LArG4H62004ActiveSDTool.h"
 #include "../LArG4H62004DeadSDTool.h"
@@ -21,9 +22,9 @@
 
 // UA tools
 DECLARE_TOOL_FACTORY( LArTBH6TriggerTimeTool )
-DECLARE_TOOL_FACTORY( LArGeoH62004EventAction )
-DECLARE_TOOL_FACTORY( LArGeoH62004SteppingAction )
-DECLARE_TOOL_FACTORY( RadLenNtuple )
+DECLARE_TOOL_FACTORY( G4UA::LArGeoH62004EventActionTool )
+DECLARE_TOOL_FACTORY( G4UA::LArGeoH62004SteppingActionTool )
+DECLARE_TOOL_FACTORY( G4UA::RadLenNtupleTool )
 
 // SD tools
 DECLARE_TOOL_FACTORY( LArG4H62004ActiveSDTool )

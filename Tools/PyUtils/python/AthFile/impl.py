@@ -7,7 +7,7 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 768237 $"
+__version__ = "$Revision: 723532 $"
 __author__  = "Sebastien Binet"
 __doc__ = "implementation of AthFile-server behind a set of proxies to isolate environments"
 

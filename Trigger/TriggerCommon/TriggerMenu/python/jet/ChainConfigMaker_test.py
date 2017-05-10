@@ -1,10 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+
 import unittest
-import copy
-from mock import MagicMock
-from ChainConfigMaker import ChainConfigMaker
-from ChainConfigMaker import JetAttributes
+from ChainConfigMaker import chainConfigMaker
 
 
 class Test_ChainConfigMaker(unittest.TestCase):
@@ -34,7 +32,9 @@ class Test_ChainConfigMaker(unittest.TestCase):
                                               'addInfo': [],
                                               'cleaning': 'noCleaning',
                                               'TLA': '',
-                                              'L1item': ''}],
+                                              'L1item': '',
+                                              'trkopt': 'notrk',
+                                              'smc': 'nosmc'}],
                               'topo': [],
                               'chainCounter': 412,
                               'groups': ['RATE:SingleJet',
@@ -63,14 +63,16 @@ class Test_ChainConfigMaker(unittest.TestCase):
                                    'trigType': 'j',
                                    'bConfig': [],
                                    'multiplicity': '1',
-                                   'extra': 'test1',
+                                   'extra': '',
                                    'dataScouting': '',
                                    'signature': 'Jet',
                                    'calib': 'lcw',
                                    'TLA': '',
                                    'cleaning': 'noCleaning',
                                    'addInfo': [],
-                                   'L1item': ''}],
+                                   'L1item': '',
+                                   'trkopt': 'notrk',
+                                   'smc': 'nosmc'}],
                               'topo': [],
                               'chainCounter': 18,
                               'groups': ['RATE:SingleJet',
@@ -84,29 +86,17 @@ class Test_ChainConfigMaker(unittest.TestCase):
     def test_0(self):
         """Create ChainConfig instance"""
 
-        ccm = ChainConfigMaker(self.from_central0)
-        chainConfig = ccm()
+        chainConfig = chainConfigMaker(self.from_central0)
         print chainConfig
         self.assertTrue(chainConfig.__class__.__name__ == 'ChainConfig')
 
     def test_1(self):
         """Create ChainConfig instance"""
 
-        ccm = ChainConfigMaker(self.from_central1)
-        chainConfig = ccm()
+        chainConfig = chainConfigMaker(self.from_central1)
         print chainConfig
         self.assertTrue(chainConfig.__class__.__name__ == 'ChainConfig')
 
-    def test_2(self):
-        """Create ChainConfig instance"""
-
-        for c in self.from_central1['chainParts']:
-            c['extra'] = 'test2'
-
-        ccm = ChainConfigMaker(self.from_central1)
-        chainConfig = ccm()
-        print chainConfig
-        self.assertTrue(chainConfig.__class__.__name__ == 'ChainConfig')
 
 
 

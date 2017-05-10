@@ -6,7 +6,7 @@ __doc__ = """JobTransform to run TrigHLTMonitoring standalone jobs"""
 
 import sys
 from PyJobTransforms.transform import transform
-from PyJobTransforms.trfExe import athenaExecutor
+from PyJobTransforms.trfExe import athenaExecutor,DQMergeExecutor
 from PyJobTransforms.trfArgs import addAthenaArguments, addDetectorArguments
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
@@ -14,8 +14,8 @@ if __name__ == '__main__':
 
     executorSet = set()
     executorSet.add(athenaExecutor(name = 'HLTMon', skeletonFile = 'TrigHLTMonitoring/skeleton.HLTMon_tf.py',
-                                   substep = 'r2a', inData = ['BS','AOD'], outData = ['HIST']))
-
+                                   substep = 'r2a', inData = ['BS','AOD'], outData = ['HIST_TEMP']))
+    executorSet.add(DQMergeExecutor(name = 'DQHistogramMerge', inData = ['HIST_TEMP'], outData = ['HIST']))
     trf = transform(executor = executorSet)
     addAthenaArguments(trf.parser)
     trf.parser.defineArgGroup('TrigHLTMon args', 'HLT Monitoring transform arguments')

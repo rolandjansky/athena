@@ -64,14 +64,11 @@ if athenaCommonFlags.FilesInput()==[]:
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Chains.py")
 
-rMC = False
-if 'runMergedChain' in dir() and runMergedChain==True:
-  rMC = True
 rID=False
 if 'doIDNewTracking' in dir() and doIDNewTracking==True:
   rID = True
 
-(idtrigChainlist, tidaAnalysischains) = electronChains(rMC,rID)
+(idtrigChainlist, tidaAnalysischains) = electronChains(rID)
 
 
 def resetSigs():

@@ -25,7 +25,7 @@ msg = logging.getLogger(__name__)
 
 from PyJobTransforms.trfJobOptions import JobOptionsTemplate
 from PyJobTransforms.trfUtils import asetupReport, unpackDBRelease, setupDBRelease, cvmfsDBReleaseCheck, forceToAlphaNum
-from PyJobTransforms.trfUtils import ValgrindCommand, isInteractiveEnv
+from PyJobTransforms.trfUtils import ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
 from PyJobTransforms.trfMPTools import detectAthenaMPProcs, athenaMPOutputHandler
@@ -309,42 +309,42 @@ class transformExecutor(object):
     @property
     def preExeCpuTime(self):
         if self._preExeStart and self._exeStart:
-            return self.calcCpuTime(self._preExeStart, self._exeStart)
+            return calcCpuTime(self._preExeStart, self._exeStart)
         else:
             return None
 
     @property
     def preExeWallTime(self):
         if self._preExeStart and self._exeStart:
-            return int(self._exeStart[4] - self._preExeStart[4] + 0.5)
+            return calcWallTime(self._preExeStart, self._exeStart)
         else:
             return None
 
     @property
     def cpuTime(self):
         if self._exeStart and self._exeStop:
-            return self.calcCpuTime(self._exeStart, self._exeStop)
+            return calcCpuTime(self._exeStart, self._exeStop)
         else:
             return None
 
     @property
     def usrTime(self):
         if self._exeStart and self._exeStop:
-            return int(self._exeStop[2] - self._exeStart[2] + 0.5)
+            return self._exeStop[2] - self._exeStart[2]
         else:
             return None
         
     @property
     def sysTime(self):
         if self._exeStart and self._exeStop:
-            return int(self._exeStop[3] - self._exeStart[3] + 0.5)
+            return self._exeStop[3] - self._exeStart[3]
         else:
             return None
 
     @property
     def wallTime(self):
         if self._exeStart and self._exeStop:
-            return int(self._exeStop[4] - self._exeStart[4] + 0.5)
+            return calcWallTime(self._exeStart, self._exeStop)
         else:
             return None
         
@@ -355,42 +355,42 @@ class transformExecutor(object):
     @property
     def postExeCpuTime(self):
         if self._exeStop and self._valStart:
-            return self.calcCpuTime(self._exeStop, self._valStart)
+            return calcCpuTime(self._exeStop, self._valStart)
         else:
             return None
 
     @property
     def postExeWallTime(self):
         if self._exeStop and self._valStart:
-            return int(self._valStart[4] - self._exeStop[4] + 0.5)
+            return calcWallTime(self._exeStop, self._valStart)
         else:
             return None
 
     @property
     def validationCpuTime(self):
         if self._valStart and self._valStop:
-            return self.calcCpuTime(self._valStart, self._valStop)
+            return calcCpuTime(self._valStart, self._valStop)
         else:
             return None
     
     @property
     def validationWallTime(self):
         if self._valStart and self._valStop:
-            return int(self._valStop[4] - self._valStart[4] + 0.5)
+            return calcWallTime(self._valStart, self._valStop)
         else:
             return None
 
     @property
     def cpuTimeTotal(self):
         if self._preExeStart and self._valStop:
-            return self.calcCpuTime(self._preExeStart, self._valStop)
+            return calcCpuTime(self._preExeStart, self._valStop)
         else:
             return None
 
     @property
     def wallTimeTotal(self):
         if self._preExeStart and self._valStop:
-            return int(self._valStop[4] - self._preExeStart[4] + 0.5)
+            return calcWallTime(self._preExeStart, self._valStop)
         else:
             return None
         
@@ -406,22 +406,17 @@ class transformExecutor(object):
     def dbMonitor(self):
         return self._dbMonitor
 
-    # calculate cpuTime from os.times() times tuple
-    def calcCpuTime(self, start, stop):
-        if start and stop:
-            return int(reduce(lambda x1, x2: x1+x2, map(lambda x1, x2: x2-x1, start[2:4], stop[2:4])) + 0.5)
-        else:
-            return None
 
     # set start times, if not set already
     def setPreExeStart(self):
         if self._preExeStart is None:
             self._preExeStart = os.times()
-            msg.debug('+++ preExeStart time is {0}'.format(self._preExeStart))
+            msg.debug('preExeStart time is {0}'.format(self._preExeStart))
+
     def setValStart(self):
         if self._valStart is None:
             self._valStart = os.times()
-            msg.debug('+++ valStart time is {0}'.format(self._valStart))
+            msg.debug('valStart time is {0}'.format(self._valStart))
 
     def preExecute(self, input = set(), output = set()):
         self.setPreExeStart()
@@ -429,14 +424,14 @@ class transformExecutor(object):
         
     def execute(self):
         self._exeStart = os.times()
-        msg.debug('+++ exeStart time is {0}'.format(self._exeStart))
+        msg.debug('exeStart time is {0}'.format(self._exeStart))
         msg.info('Starting execution of %s' % self._name)
         self._hasExecuted = True
         self._rc = 0
         self._errMsg = ''
         msg.info('%s executor returns %d' % (self._name, self._rc))
         self._exeStop = os.times()
-        msg.debug('+++ preExeStop time is {0}'.format(self._exeStop))
+        msg.debug('preExeStop time is {0}'.format(self._exeStop))
         
     def postExecute(self):
         msg.info('Postexecute for %s' % self._name)
@@ -448,7 +443,7 @@ class transformExecutor(object):
         self._isValidated = True
         self._errMsg = ''
         self._valStop = os.times()
-        msg.debug('+++ valStop time is {0}'.format(self._valStop))
+        msg.debug('valStop time is {0}'.format(self._valStop))
     
     ## Convenience function
     def doAll(self, input=set(), output=set()):
@@ -522,7 +517,7 @@ class logscanExecutor(transformExecutor):
         self._errMsg = ''        
 
         self._valStop = os.times()
-        msg.debug('+++ valStop time is {0}'.format(self._valStop))
+        msg.debug('valStop time is {0}'.format(self._valStop))
 
 
 class echoExecutor(transformExecutor):
@@ -534,7 +529,7 @@ class echoExecutor(transformExecutor):
     
     def execute(self):
         self._exeStart = os.times()
-        msg.debug('+++ exeStart time is {0}'.format(self._exeStart))
+        msg.debug('exeStart time is {0}'.format(self._exeStart))
         msg.info('Starting execution of %s' % self._name)        
         msg.info('Transform argument dictionary now follows:')
         for k, v in self.conf.argdict.iteritems():
@@ -544,7 +539,7 @@ class echoExecutor(transformExecutor):
         self._errMsg = ''
         msg.info('%s executor returns %d' % (self._name, self._rc))
         self._exeStop = os.times()
-        msg.debug('+++ exeStop time is {0}'.format(self._exeStop))
+        msg.debug('exeStop time is {0}'.format(self._exeStop))
 
 
 class scriptExecutor(transformExecutor):
@@ -655,7 +650,7 @@ class scriptExecutor(transformExecutor):
         msg.info('Starting execution of {0} ({1})'.format(self._name, self._cmd))
         
         self._exeStart = os.times()
-        msg.debug('+++ exeStart time is {0}'.format(self._exeStart))
+        msg.debug('exeStart time is {0}'.format(self._exeStart))
         if ('execOnly' in self.conf.argdict and self.conf.argdict['execOnly'] == True):
             msg.info('execOnly flag is set - execution will now switch, replacing the transform')
             os.execvp(self._cmd[0], self._cmd)
@@ -685,7 +680,7 @@ class scriptExecutor(transformExecutor):
             self._rc = p.returncode
             msg.info('%s executor returns %d' % (self._name, self._rc))
             self._exeStop = os.times()
-            msg.debug('+++ exeStop time is {0}'.format(self._exeStop))
+            msg.debug('exeStop time is {0}'.format(self._exeStop))
         except OSError as e:
             errMsg = 'Execution of {0} failed and raised OSError: {1}'.format(self._cmd[0], e)
             msg.error(errMsg)
@@ -718,7 +713,7 @@ class scriptExecutor(transformExecutor):
     def validate(self):
         if self._valStart is None:
             self._valStart = os.times()
-            msg.debug('+++ valStart time is {0}'.format(self._valStart))
+            msg.debug('valStart time is {0}'.format(self._valStart))
         self._hasValidated = True
         
         ## Check rc
@@ -751,7 +746,7 @@ class scriptExecutor(transformExecutor):
             msg.info('Event counting for substep {0} passed'.format(self.name))
 
         self._valStop = os.times()
-        msg.debug('+++ valStop time is {0}'.format(self._valStop))
+        msg.debug('valStop time is {0}'.format(self._valStop))
 
 
 
@@ -1125,7 +1120,7 @@ class athenaExecutor(scriptExecutor):
         self._isValidated = True
 
         self._valStop = os.times()
-        msg.debug('+++ valStop time is {0}'.format(self._valStop))
+        msg.debug('valStop time is {0}'.format(self._valStop))
 
     ## @brief Prepare the correct command line to be used to invoke athena
     def _prepAthenaCommandLine(self):
@@ -1426,7 +1421,7 @@ class optionalAthenaExecutor(athenaExecutor):
             self._errMsg = e.errMsg
             self._rc = e.errCode
         self._valStop = os.times()
-        msg.debug('+++ valStop time is {0}'.format(self._valStop))
+        msg.debug('valStop time is {0}'.format(self._valStop))
 
 
 class hybridPOOLMergeExecutor(athenaExecutor):
@@ -1516,7 +1511,7 @@ class hybridPOOLMergeExecutor(athenaExecutor):
         
         # Ensure we count all the mergePOOL stuff in the resource report
         self._exeStop = os.times()
-        msg.debug('+++ exeStop time is {0}'.format(self._exeStop))
+        msg.debug('exeStop time is {0}'.format(self._exeStop))
 
         # And finally...
         msg.info('Renaming {0} to {1}'.format(self._hybridMergeTmpFile, self.conf.dataDictionary[list(self._output)[0]].value[0]))
@@ -1694,7 +1689,7 @@ class DQMergeExecutor(scriptExecutor):
         self._isValidated = True
 
         self._valStop = os.times()
-        msg.debug('+++ valStop time is {0}'.format(self._valStop))
+        msg.debug('valStop time is {0}'.format(self._valStop))
 
 
 ## @brief Specialist execution class for merging NTUPLE files
@@ -1786,7 +1781,7 @@ class bsMergeExecutor(scriptExecutor):
         if self._useStubFile:
             # Need to fake execution!
             self._exeStart = os.times()
-            msg.debug('+++ exeStart time is {0}'.format(self._exeStart))
+            msg.debug('exeStart time is {0}'.format(self._exeStart))
             msg.info("Using stub file for empty BS output - execution is fake")
             if self._outputFilename != self.conf.argdict['emptyStubFile'].value:
                 os.rename(self.conf.argdict['emptyStubFile'].value, self._outputFilename)            
@@ -1794,7 +1789,7 @@ class bsMergeExecutor(scriptExecutor):
             self._hasExecuted = True
             self._rc = 0
             self._exeStop = os.times()
-            msg.debug('+++ exeStop time is {0}'.format(self._exeStop))
+            msg.debug('exeStop time is {0}'.format(self._exeStop))
         else:
             super(bsMergeExecutor, self).execute()
         
@@ -1854,7 +1849,7 @@ class tagMergeExecutor(scriptExecutor):
                         raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_LOGERROR'),
                                                                          'Exception raised while attempting to scan logfile {0}: {1}'.format(self._logFileName, e))            
         self._valStop = os.times()
-        msg.debug('+++ valStop time is {0}'.format(self._valStop))
+        msg.debug('valStop time is {0}'.format(self._valStop))
 
 
 ## @brief Archive transform - use tar
