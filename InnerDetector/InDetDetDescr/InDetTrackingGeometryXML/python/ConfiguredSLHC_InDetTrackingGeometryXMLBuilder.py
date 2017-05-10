@@ -66,7 +66,7 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
         isRingLayout       = XMLReaderFlags.isRingLayout()
         splitBarrelLayers  = XMLReaderFlags.splitBarrelLayers()
         InnerLayers        = XMLReaderFlags.InnerLayerIndices()
-        doPix              =  XMLReaderFlags.doPix()
+        doPix              = XMLReaderFlags.doPix()
         doSCT              = XMLReaderFlags.doSCT()
         readXMLfromDB      = XMLReaderFlags.readXMLfromDB()
         

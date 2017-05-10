@@ -191,9 +191,9 @@ Trk::OverlapDescriptor* InDet::SiModuleProvider::getDiscOverlapDescriptor(bool i
   return new InDet::DiscOverlapDescriptor(isPixel,binnedArray,subBinUtilities);
 }
 
-Trk::OverlapDescriptor* InDet::SiModuleProvider::getPlanarOverlapDescriptor(bool isPixel) const
+Trk::OverlapDescriptor* InDet::SiModuleProvider::getPlanarOverlapDescriptor(bool isPixel, bool isInclined) const
 {
-  return isPixel ? (Trk::OverlapDescriptor*) new InDet::PixelOverlapDescriptor() : (Trk::OverlapDescriptor*) new InDet::SCT_OverlapDescriptor();
+  return isPixel ? (Trk::OverlapDescriptor*) new InDet::PixelOverlapDescriptor(true, 3, 0, isInclined) : (Trk::OverlapDescriptor*) new InDet::SCT_OverlapDescriptor();
 }
 
 void InDet::SiModuleProvider::setPhiNeighbours(Trk::TrkDetElementBase *elem, Trk::TrkDetElementBase* prev) const

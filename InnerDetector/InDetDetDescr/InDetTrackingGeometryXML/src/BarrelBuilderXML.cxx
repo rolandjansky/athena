@@ -267,7 +267,7 @@ Trk::AlpineLayer *InDet::BarrelBuilderXML::createActiveAlpineLayer(unsigned int 
   const Trk::LayerMaterialProperties* material = barrelLayerMaterial(bound_R, support_halfLength+zOffset,staveTmpList.at(0));
   
   // prepare the active overlap descriptor       
-  Trk::OverlapDescriptor* olDescriptor = m_moduleProvider->getPlanarOverlapDescriptor(m_pixelCase);
+  Trk::OverlapDescriptor* olDescriptor = m_moduleProvider->getPlanarOverlapDescriptor(m_pixelCase, true);
 
   // create the active layer
   ATH_MSG_DEBUG("Create Trk::AlpineLayer ");

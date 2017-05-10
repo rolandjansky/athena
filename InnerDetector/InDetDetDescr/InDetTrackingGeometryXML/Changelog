@@ -1,3 +1,47 @@
+2017-05-10 Noemi Calace <Noemi.Calace@cern.ch>
+	* Updating builder to adapt changes in the AlpineLayer and PixelOverlapDescriptor
+	* Tag as InDetTrackingGeometryXML-00-00-64
+
+2017-04-27 Nathan Readioff <nathan.peter.readioff@cern.ch> (on behalf of Noemi Calace)
+	* Fixed XML for AlternativeInclined L0/L1 stave tilt
+	* Tag as InDetTrackingGeometryXML-00-00-63
+	
+2017-05-03 Noemi Calace <Noemi.Calace@cern.ch>
+	* Completing AlternativeInclined
+	* Tag as InDetTrackingGeometryXML-00-00-62
+
+2017-04-27 Nathan Readioff <nathan.peter.readioff@cern.ch>
+	* Added L3 phi rotation for InclBrl4 InclinedQuads layout
+	* Tag as InDetTrackingGeometryXML-00-00-61
+
+2017-04-25 Noemi Calace <Noemi.Calace@cern.ch>
+	* Adding xmls for AlternativeInclined
+	* Tag as InDetTrackingGeometryXML-00-00-60
+
+2017-04-21 Noemi Calace <Noemi.Calace@cern.ch>
+	* Correcting xmls for Inclined_Quads
+	* Tag as InDetTrackingGeometryXML-00-00-59
+
+2017-04-19 Nathan Readioff <nathan.peter.readioff@cern.ch>
+	* Added xml for InclBrl4 InclinedQuads layout
+	* Tag as InDetTrackingGeometryXML-00-00-58
+
+2017-03-13 Simon Viel
+        * Add optimised ring system for Inclined layout with 25x100 pixels
+        * Tag as InDetTrackingGeometryXML-00-00-57
+
+2017-02-20 Thorsten Kuhl
+        * add <chipGap> 0. </chipGap> to Frontendchips in XML where missing
+        * Tag as InDetTrackingGeometryXML-00-00-56
+
+2017-01-29 Noemi Calace <Noemi.Calace@cern.ch>
+	* Checking Optimised ring system for Inclined layout
+	* Tag as InDetTrackingGeometryXML-00-00-55
+
+2017-01-12 Noemi Calace <Noemi.Calace@cern.ch>
+	* Fixing CMakeLists.txt
+	* Tag as InDetTrackingGeometryXML-00-00-54
+
 2017-01-04 Sharka Todorova <sarka.todorova@cern.ch>
 	* Fixing Phi limits in binning
 	* Tag as InDetTrackingGeometryXML-00-00-53

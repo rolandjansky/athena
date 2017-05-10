@@ -63,7 +63,7 @@ namespace InDet {
 
     
     // Get overlap descriptors
-    virtual Trk::OverlapDescriptor* getPlanarOverlapDescriptor(bool isPixel = true) const = 0;
+    virtual Trk::OverlapDescriptor* getPlanarOverlapDescriptor(bool isPixel = true, bool isInclined = false) const = 0;
     virtual Trk::OverlapDescriptor* getDiscOverlapDescriptor(bool isPixel = false) const = 0;
     virtual Trk::OverlapDescriptor* getDiscOverlapDescriptor(bool isPixel, Trk::BinnedArray<Trk::Surface>* binnedArray, std::vector< Trk::BinUtility*>* subBinUtilities) const = 0;
 

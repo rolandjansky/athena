@@ -1,0 +1,50 @@
+<PixelEndcapLayers> 
+  <PixelEndcapRing>
+    <Name> PixelEndcapRing0 </Name>
+    <LayerNumber> 0 </LayerNumber>
+    <LayerPosition> 1 </LayerPosition>
+    <RingPositions> 1208.0  1228.0  1377.5  1420.0  1574.1  1646.0  1802.2  1913.0  2066.8  2197.8  2337.8  2487.3  2647.0  2817.6  3000.0 </RingPositions>
+    <Radius> 80. 50. 80. 50. 80. 50. 80. 50. 80. 80. 80. 80. 80. 80. 80. </Radius>
+    <RadiusType> Inner </RadiusType>
+    <NumberOfSectors> 22 16 22 16 22 16 22 16 22 22 22 22 22 22 22 </NumberOfSectors>
+    <RingModuleType> FourChip_RD53_20x19_thin </RingModuleType>
+    <RingModuleZSeparation> 6.0 </RingModuleZSeparation>
+  </PixelEndcapRing>
+
+  <PixelEndcapRing>
+    <Name> PixelEndcapRing1 </Name>
+    <LayerNumber> 1 </LayerNumber>
+    <LayerPosition> 2 </LayerPosition>
+    <RingPositions> 1208.0  1331.1  1468.6  1622.1  1793.4  1984.7  2198.3  2436.7  2702.8  3000.0 </RingPositions>
+    <Radius> 150.0 </Radius>
+    <RadiusType> Inner </RadiusType>
+    <NumberOfSectors> 32 </NumberOfSectors>
+    <RingModuleType> FourChip_RD53_20x19 </RingModuleType>
+    <RingModuleZSeparation> 6.0 </RingModuleZSeparation>
+  </PixelEndcapRing>
+
+  <PixelEndcapRing>
+    <Name> PixelEndcapRing2 </Name>
+    <LayerNumber> 2 </LayerNumber>
+    <LayerPosition> 3 </LayerPosition>
+    <RingPositions> 1208.0  1368.9  1554.3  1767.9  2014.0  2297.5  2624.1  3000.0 </RingPositions>
+    <Radius> 212.5 </Radius>
+    <RadiusType> Inner </RadiusType>
+    <NumberOfSectors> 44 </NumberOfSectors>
+    <RingModuleType> FourChip_RD53_20x19 </RingModuleType>
+    <RingModuleZSeparation> 6.0 </RingModuleZSeparation>
+  </PixelEndcapRing>
+
+  <PixelEndcapRing>
+    <Name> PixelEndcapRing3 </Name>
+    <LayerNumber> 3 </LayerNumber>
+    <LayerPosition> 4 </LayerPosition>
+    <RingPositions> 1208.0  1347.5  1505.4  1684.1  1886.4  2115.3  2374.5  2667.8  3000.0 </RingPositions>
+    <Radius> 275.0 </Radius>
+    <RadiusType> Inner </RadiusType>
+    <NumberOfSectors> 52 </NumberOfSectors>
+    <RingModuleType> FourChip_RD53_20x19 </RingModuleType>
+    <RingModuleZSeparation> 6.0 </RingModuleZSeparation>
+  </PixelEndcapRing>                      
+</PixelEndcapLayers>                      
+

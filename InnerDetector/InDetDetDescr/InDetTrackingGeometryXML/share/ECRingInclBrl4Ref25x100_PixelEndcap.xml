@@ -8,7 +8,7 @@
   <Radius> 80. </Radius>
   <RadiusType> Inner </RadiusType>
   <NumberOfSectors> 24 </NumberOfSectors>
-  <RingModuleType> FourChip_RD53_thin </RingModuleType>
+  <RingModuleType> FourChip_RD53_25x100_thin </RingModuleType>
   <RingModuleZSeparation> 6. </RingModuleZSeparation>
 </PixelEndcapRing>
 
@@ -20,7 +20,7 @@
   <Radius> 150. </Radius>
   <RadiusType> Inner </RadiusType>
   <NumberOfSectors> 36 </NumberOfSectors>
-  <RingModuleType> FourChip_RD53 </RingModuleType>
+  <RingModuleType> FourChip_RD53_25x100 </RingModuleType>
   <RingModuleZSeparation> 6. </RingModuleZSeparation>
 </PixelEndcapRing>
 
@@ -32,7 +32,7 @@
   <Radius> 212.5 </Radius>
   <RadiusType> Inner </RadiusType>
   <NumberOfSectors> 48 </NumberOfSectors>
-  <RingModuleType> FourChip_RD53 </RingModuleType>
+  <RingModuleType> FourChip_RD53_25x100 </RingModuleType>
   <RingModuleZSeparation> 6. </RingModuleZSeparation>
 </PixelEndcapRing>
 
@@ -44,7 +44,7 @@
   <RadiusType> Inner </RadiusType>
   <Radius> 275.0 </Radius>
   <NumberOfSectors> 60 </NumberOfSectors>
-  <RingModuleType> FourChip_RD53 </RingModuleType>
+  <RingModuleType> FourChip_RD53_25x100 </RingModuleType>
   <RingModuleZSeparation> 6. </RingModuleZSeparation>
 </PixelEndcapRing>
 

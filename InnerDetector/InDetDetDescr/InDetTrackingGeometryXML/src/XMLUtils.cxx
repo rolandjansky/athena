@@ -98,10 +98,9 @@ std::vector<std::string> InDet::XMLUtils::getVectorString(DOMNode *node)
 
   std::vector<std::string> v;
 
-  while (std::getline(ss, item, ' ')) {
+  while (ss >> item) 
     if(item.size()> 0) v.push_back(item);
-  }
-
+ 
   return v;
 }
 
