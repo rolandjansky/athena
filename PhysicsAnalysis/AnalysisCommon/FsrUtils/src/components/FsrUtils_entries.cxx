@@ -5,7 +5,6 @@
 
 // Local include(s):
 #include "FsrUtils/FsrPhotonTool.h"
-#include "IsolationSelection/IIsolationSelectionTool.h"
 #include "../ToolTester.h"
 
 

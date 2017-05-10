@@ -12,6 +12,7 @@ use AsgTools		AsgTools-*	Control/AthToolSupport
 use xAODMuon		xAODMuon-*	Event/xAOD
 use xAODEgamma		xAODEgamma-*	Event/xAOD 
 use PATInterfaces	PATInterfaces-*	PhysicsAnalysis/AnalysisCommon
+use IsolationSelection  IsolationSelection-*    PhysicsAnalysis/AnalysisCommon
 
 private
 
@@ -19,7 +20,6 @@ use xAODCore            xAODCore-*              Event/xAOD
 use AthenaBaseComps	AthenaBaseComps-*	Control
 use GaudiInterface	GaudiInterface-*	External
 use AtlasROOT		AtlasROOT-*		External
-use IsolationSelection  IsolationSelection-*    PhysicsAnalysis/AnalysisCommon
 
 end_private
 
