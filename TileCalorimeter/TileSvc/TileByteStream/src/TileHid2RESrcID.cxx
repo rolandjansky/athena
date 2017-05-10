@@ -25,19 +25,38 @@ using eformat::helper::SourceIdentifier;
 // implementation of Tile Frag ID to RESrcID conversion. 
 // 
 
-TileHid2RESrcID::TileHid2RESrcID(const TileHWID* tileHWID)
-{
-  setTileHWID(tileHWID);
-  setTileMuRcvHWID(tileHWID); 
-}
-
-void TileHid2RESrcID::setTileHWID(const TileHWID* tileHWID)
+TileHid2RESrcID::TileHid2RESrcID(const TileHWID* tileHWID, uint32_t runnum)
+  : m_runnum(0)
 {
   m_tileHWID = tileHWID;
-  if (!m_tileHWID) return;  
+  if (m_tileHWID) {
+    // make internal maps 
+    initialize(runnum);
+    initializeMuRcv(runnum);
+  }
+}
 
-  // make internal maps 
-  
+void TileHid2RESrcID::setTileHWID(const TileHWID* tileHWID, uint32_t runnum)
+{
+  m_tileHWID = tileHWID;
+  if (m_tileHWID) {
+    // make internal maps 
+    initialize(runnum);
+  }
+}
+
+void TileHid2RESrcID::setTileMuRcvHWID(const TileHWID* tileHWID, uint32_t runnum)
+{
+  m_tileHWID = tileHWID;
+  if (m_tileHWID) {
+    // make internal maps 
+    initializeMuRcv(runnum);
+  }
+}
+
+void TileHid2RESrcID::initialize(uint32_t runnum)
+{
+  m_runnum = runnum;
   eformat::SubDetector detid[6];
   
   detid[0] = eformat::TILECAL_LASER_CRATE;    // 0x50 - beam crate
@@ -48,38 +67,51 @@ void TileHid2RESrcID::setTileHWID(const TileHWID* tileHWID)
   detid[5] = eformat::TDAQ_BEAM_CRATE;        // 0x70 - common beam crate
   
   /** iterator over all drawer Identifiers */
-  std::vector<HWIdentifier>::const_iterator first = tileHWID->drawer_begin();
-  std::vector<HWIdentifier>::const_iterator  last = tileHWID->drawer_end();
+  std::vector<HWIdentifier>::const_iterator first = m_tileHWID->drawer_begin();
+  std::vector<HWIdentifier>::const_iterator  last = m_tileHWID->drawer_end();
 
   for ( ; first!=last; ++first) {
-    int ros    = tileHWID->ros(*first);
-    int drawer = tileHWID->drawer(*first);
-    int frag   = tileHWID->frag(*first); 
+    int ros    = m_tileHWID->ros(*first);
+    int drawer = m_tileHWID->drawer(*first);
+    int frag   = m_tileHWID->frag(*first); 
 
     uint32_t id = 0; // id is always 0 for Beam ROD (ros=0)
-    // (put 4 drawers in one ROD - remove last 2 bits)
-    if (ros > 0) id = (drawer >> 2);
-    else if (drawer>0x7 && drawer < 0xFF) ros = 5; // frags from common beam crate
+    if (ros > 0) {
+      if (runnum>318000) {
+        // new frag->ROB mapping since March 2017 
+        // put 4 drawers in two subsequent RODs
+        // odd drawers in odd ROD, even drawers in even ROD
+        id = ((drawer & 0xFC) >> 1) | (drawer & 0x1) ;
+      } else {
+        // old mapping
+        // (put 4 drawers in one ROD - remove last 2 bits)
+        id = (drawer >> 2);
+      }
+    } else if (drawer>0x7 && drawer < 0xFF) {
+      ros = 5; // frags from common beam crate
+    }
     
     // build ROD id
     SourceIdentifier sid = SourceIdentifier(detid[ros],id);    
     uint32_t rod_id =  sid.code();
 
     // add ROD id to the map
-    if (frag != 0x16)
-      m_frag2ROD[frag] = rod_id;
-    else
-      m_frag2ROD[frag] = 0x520010;
+    m_frag2ROD[frag] = rod_id;
   }
+
+  // laser fragments in specific ROB
+  if (runnum>318000) {
+    // new frag->ROB mapping since March 2017 
+    m_frag2ROD[0x16] = 0x520020;
+  } else {
+    m_frag2ROD[0x16] = 0x520010;
+  }
+  m_frag2ROD[0x17] = 0;
 }
 
-void TileHid2RESrcID::setTileMuRcvHWID(const TileHWID* tileHWID)
+void TileHid2RESrcID::initializeMuRcv(uint32_t runnum)
 {
-  m_tileHWID = tileHWID;
-  if (!m_tileHWID) return;
-
-  // make internal maps
-
+  m_runnum = runnum;
   eformat::SubDetector detid[6];
 
   detid[0] = eformat::TILECAL_LASER_CRATE;    // 0x50 - beam crate
@@ -90,13 +122,13 @@ void TileHid2RESrcID::setTileMuRcvHWID(const TileHWID* tileHWID)
   detid[5] = eformat::TDAQ_BEAM_CRATE;        // 0x70 - common beam crate
 
   // iterator over all drawer Identifiers
-  std::vector<HWIdentifier>::const_iterator first = tileHWID->drawer_begin();
-  std::vector<HWIdentifier>::const_iterator  last = tileHWID->drawer_end();
+  std::vector<HWIdentifier>::const_iterator first = m_tileHWID->drawer_begin();
+  std::vector<HWIdentifier>::const_iterator  last = m_tileHWID->drawer_end();
 
   for ( ; first!=last; ++first) {
-    int ros    = tileHWID->ros(*first);
-    int drawer = tileHWID->drawer(*first);
-    int frag   = tileHWID->frag(*first);
+    int ros    = m_tileHWID->ros(*first);
+    int drawer = m_tileHWID->drawer(*first);
+    int frag   = m_tileHWID->frag(*first);
     uint32_t id = 0;
 
     //std::cout << "TileHid2RESrcID::setTileMuRcvHWID ros:" << ros << " drawer: " << std::hex <<  drawer << " frag: " << frag << std::dec << std::endl;
@@ -131,26 +163,29 @@ void TileHid2RESrcID::setROD2ROBmap(const std::vector<std::string> & ROD2ROB,
     uint32_t rob = strtol(ROD2ROB[i].data(),NULL,0) & 0xFFFFFF;
     if ( frag < 0x1000 ) { 
       if ( rob < 0x500000 ) {
-        log << MSG::ERROR << "You are using obsolete mapping" << endreq;
-        log << MSG::ERROR << "Please, upgrade it to event format V3" << endreq;
+        log << MSG::ERROR << "You are using obsolete mapping" << endmsg;
+        log << MSG::ERROR << "Please, upgrade it to event format V3" << endmsg;
         assert(0);
         log << MSG::ERROR << "TileHid2RESrcID:: mapping frag 0x"<< MSG::hex 
-            << frag << " to ROB 0x" << rob << MSG::dec << endreq;
+            << frag << " to ROB 0x" << rob << MSG::dec << endmsg;
       }
       // this is actually remapping for fragments inside ROB, bypassing ROD ID
       m_frag2ROD[frag] = rob;
       log << MSG::INFO << "TileHid2RESrcID:: mapping frag 0x"<< MSG::hex 
-          << frag << " to ROB 0x" << rob << MSG::dec << endreq;
+          << frag << " to ROB 0x" << rob << MSG::dec << endmsg;
       ++fragCount;
     } else {
-      log << MSG::ERROR << "You are using obsolete ROD to ROB mapping" << endreq;
-      log << MSG::ERROR << "Please, replace it by frag -> ROB mapping" << endreq;
+      log << MSG::ERROR << "You are using obsolete ROD to ROB mapping" << endmsg;
+      log << MSG::ERROR << "Please, replace it by frag -> ROB mapping" << endmsg;
       assert(0);
     }    
   }
   if (fragCount > 0)
     log << MSG::INFO << "TileHid2RESrcID:: " << fragCount
-        << " frag to ROD remappings set via jobOptions" << endreq;
+        << " frag to ROD remappings set via jobOptions" << endmsg;
+
+  if (m_frag2ROD[0x17] != 0) m_frag2ROD[0x16] = m_frag2ROD[0x17];
+  else m_frag2ROD[0x17] = m_frag2ROD[0x16];
 }
 
 void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint32_t*> * event,
@@ -159,6 +194,10 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
   MSG::Level logLevel = log.level();
   bool debug = (logLevel<=MSG::DEBUG);
 
+  uint32_t runnum = event->run_no();
+  if ( (runnum>318000 && m_runnum<=318000) || (runnum<=318000 && m_runnum>318000) )
+    initialize(runnum);
+  
   uint32_t nBeamFrag=0, nRODfrag=0, nDataFrag[10]={0,0,0,0,0,0,0,0,0,0}, flags=0xFFFF, flags5=0xFFFF;
   std::map<int,int> fragMap;
   std::map<int,int> beamMap;
@@ -222,6 +261,22 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
 
                 if (fragtype >= 0x40 && fragtype < 0x50) break;
 
+                FRAGRODMAP::const_iterator it = m_frag2ROD.find(fragid); 
+                if(it == m_frag2ROD.end()){
+                  log << MSG::INFO << "New frag 0x" << MSG::hex << fragid 
+                      << " in ROB 0x" << ROBid << MSG::dec << endmsg;
+                } else {
+                  if ( (*it).second != ROBid ) {
+                    log << MSG::INFO << "Frag 0x" << MSG::hex << fragid 
+                        <<" remapping from ROB 0x" << (*it).second
+                        << " to 0x" << ROBid << endmsg;
+                  } else {
+                    log << MSG::DEBUG << "Frag 0x" << MSG::hex << fragid 
+                        <<" found in ROB 0x" << (*it).second
+                        << " as expected" << endmsg;
+                  }
+                }
+
                 if (fragid < 0xff) { // all testbeam frags and laser frag
                     ++nBeamFrag;
                     m_frag2ROD[fragid] = ROBid;
@@ -256,9 +311,9 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
   if (!cisparFound) {
     if (lascisROB) {
       m_frag2ROD[0xff] = lascisROB;
-      log << MSG::INFO << "TileHid2RESrcID: Attention! Taking CISpar from lastROD 0x" << MSG::hex << lascisROB << MSG::dec << endreq;
+      log << MSG::INFO << "TileHid2RESrcID: Attention! Taking CISpar from lastROD 0x" << MSG::hex << lascisROB << MSG::dec << endmsg;
     } else {
-      log << MSG::INFO << "TileHid2RESrcID: no CISpar in the data" << endreq;
+      log << MSG::INFO << "TileHid2RESrcID: no CISpar in the data" << endmsg;
     }
   }
   log << MSG::INFO << "TileHid2RESrcID: " << nBeamFrag << " beam sub-frags (";
@@ -275,8 +330,11 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
       if (itr->first < 10) nDataFrag[itr->first]+=itr->second; // id=0 - all digits, id=1 - digits above threshold
                                                                // id=2,3,4,5 - reco frags
   }
-  log << " ) was found in the data" << endreq;
+  log << " ) was found in the data" << endmsg;
   
+  if (m_frag2ROD[0x17] != 0) m_frag2ROD[0x16] = m_frag2ROD[0x17];
+  else m_frag2ROD[0x17] = m_frag2ROD[0x16];
+
   if ((nDataFrag[0]+nDataFrag[1]==0 || (nDataFrag[2]+nDataFrag[3]+nDataFrag[4]==0)) && nDataFrag[5] > 0 ) {
     // only frag5 in the data - make sure that TileROD_Decoder is configured properly
     StatusCode sc;
@@ -285,7 +343,7 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
     IToolSvc* toolSvc;
     sc = svcLoc->service( "ToolSvc"+threadGaudi->getThreadID(),toolSvc);
     if(sc.isFailure()){
-      log << MSG::WARNING << "TileHid2RESrcID: Can not retrieve ToolSvc" << endreq;
+      log << MSG::WARNING << "TileHid2RESrcID: Can not retrieve ToolSvc" << endmsg;
       return;
     }
 
@@ -293,7 +351,7 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
     TileROD_Decoder* rodDecoder=0;
     sc = toolSvc->retrieveTool("TileROD_Decoder",rodDecoder);
     if (sc.isFailure()) {
-      log << MSG::WARNING << "TileHid2RESrcID: Unable to retrieve algtool TileROD_Decoder" << endreq;
+      log << MSG::WARNING << "TileHid2RESrcID: Unable to retrieve algtool TileROD_Decoder" << endmsg;
       return;
     }
 
@@ -303,12 +361,12 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
       rodDecoder->setUseFrag0 (false);
       rodDecoder->setUseFrag1 (false);
       rodDecoder->setUseFrag5Raw (true);
-      log << MSG::INFO << "Setting TileROD_Decoder->useFrag5Raw to true, unit is " << unit << endreq;
+      log << MSG::INFO << "Setting TileROD_Decoder->useFrag5Raw to true, unit is " << unit << endmsg;
       std::vector<int>::const_iterator itr=fragIDs.begin();
       std::vector<int>::const_iterator end=fragIDs.end();
       for ( ; itr!=end; ++itr) {
         if (debug) 
-          log << MSG::DEBUG << "Init OFC for frag 0x" << MSG::hex << (*itr) << MSG::dec << endreq;
+          log << MSG::DEBUG << "Init OFC for frag 0x" << MSG::hex << (*itr) << MSG::dec << endmsg;
         rodDecoder->getOFW((*itr),unit);
       }
     }
@@ -316,10 +374,10 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
     if (nDataFrag[2]+nDataFrag[3]+nDataFrag[4]==0) {
       rodDecoder->setUseFrag4 (false);
       rodDecoder->setUseFrag5Reco (true);
-      log << MSG::INFO << "Setting TileROD_Decoder->useFrag5Reco to true, unit is " << unit << endreq;
+      log << MSG::INFO << "Setting TileROD_Decoder->useFrag5Reco to true, unit is " << unit << endmsg;
     }
     if (toolSvc->releaseTool(rodDecoder).isFailure()) 
-      log << MSG::WARNING << "Unable to release algtool TileROD_Decoder" << endreq;
+      log << MSG::WARNING << "Unable to release algtool TileROD_Decoder" << endmsg;
   }
 
   bool of2=true; // default for RUN1 data
@@ -330,7 +388,7 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
     if ((flags5 & 0x3000) < 0x3000) // real data
       of2 = ((flags5 & 0x400) != 0);
   }
-  log << MSG::DEBUG << "OF2 flag in data is " << ((of2)?"True":"False") << endreq;
+  log << MSG::DEBUG << "OF2 flag in data is " << ((of2)?"True":"False") << endmsg;
 
   bool do_merge = ( (nDataFrag[0]+nDataFrag[1]+nDataFrag[2]+nDataFrag[3]+nDataFrag[4]+nDataFrag[5] == 0) ||
                     nDataFrag[1] > 0 || nDataFrag[4] > 0);
@@ -342,7 +400,7 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
     IToolSvc* toolSvc;
     sc = svcLoc->service( "ToolSvc"+threadGaudi->getThreadID(),toolSvc);
     if(sc.isFailure()){
-      log << MSG::WARNING << "TileHid2RESrcID: Can not retrieve ToolSvc" << endreq;
+      log << MSG::WARNING << "TileHid2RESrcID: Can not retrieve ToolSvc" << endmsg;
       return;
     }
 
@@ -350,48 +408,47 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
     TileCellBuilder* cellBuilder=0;
     sc = toolSvc->retrieveTool("TileCellBuilder",cellBuilder);
     if (sc.isFailure()) {
-      log << MSG::WARNING << "TileHid2RESrcID: Unable to retrieve algtool TileCellBuilder " << endreq;
+      log << MSG::WARNING << "TileHid2RESrcID: Unable to retrieve algtool TileCellBuilder " << endmsg;
       return;
     }
 
     const Property& rawChannelCnt_prop = cellBuilder->getProperty ("TileRawChannelContainer");
     const Property& dspRawChannelContainer_prop = cellBuilder->getProperty ("TileDSPRawChannelContainer");
-    const PropertyWithValue<bool>& mergeChannels_prop =
-      dynamic_cast<const PropertyWithValue<bool>&> (cellBuilder->getProperty ("mergeChannels"));
+    const BooleanPropertyRef& mergeChannels_prop =
+      dynamic_cast<const BooleanPropertyRef&> (cellBuilder->getProperty ("mergeChannels"));
 
     // Get any RawChannel Builder
     if (debug)
       log << MSG::DEBUG << " looking for TileRawChannelBuilder tool which provides container with name " 
-          << rawChannelCnt_prop.toString() << endreq;
+          << rawChannelCnt_prop.toString() << endmsg;
     TileRawChannelBuilder* channelBuilder=0;
+    static const
     std::string toolType[6] = { "TileRawChannelBuilderOpt2Filter", "TileRawChannelBuilderOptFilter",
                                 "TileRawChannelBuilderFitFilter", "TileRawChannelBuilderFitFilterCool", 
                                 "TileRawChannelBuilderManyAmps", "TileRawChannelBuilderFlatFilter" };
-    for (int i=0; i<6; ++i) {
-      std::vector<std::string> toolName = toolSvc->getInstances(toolType[i]);
-      if (debug)
-        log << MSG::DEBUG << toolName.size() << " tools of type " <<  toolType[i] << " found " << endreq;
-      if (toolName.size()!=0) {
-        for (size_t j=0; j<toolName.size(); ++j) {
-          size_t found = toolName[j].find('.');
-          std::string name=(found!=std::string::npos) ? toolName[j].substr(found+1) : toolName[j];
-          if (debug)
-            log << MSG::DEBUG << " full name " << toolName[j] << " - using " << name << endreq;
-          if (toolSvc->retrieveTool(name,channelBuilder).isSuccess()) {
-            if (debug)
-              log << MSG::DEBUG << " it provides " << channelBuilder->getTileRawChannelContainerID() << endreq;
-            if (rawChannelCnt_prop.toString() == channelBuilder->getTileRawChannelContainerID()) {
-              break;
-            } else {
-              if (toolSvc->releaseTool(channelBuilder).isFailure()) 
-                log << MSG::WARNING << "Unable to release algtool " << channelBuilder << endreq;
-              channelBuilder=0;
-            }
+    static const int nTypes = sizeof(toolType)/sizeof(toolType[0]);
+
+    // FIXME: This backdoor peeking at tools is likely to cause issues
+    //        with Hive, as well as generally making things incomprehensible.
+    //        Figure out what's really going on here, and reimplement
+    //        in a sensible manner!
+    for (IAlgTool* tool : toolSvc->getTools()) {
+      const std::string* foundType = std::find (toolType, toolType+nTypes,
+                                                tool->type());
+      if (foundType != toolType+nTypes) {
+        channelBuilder = dynamic_cast<TileRawChannelBuilder*> (tool);
+        if (channelBuilder) {
+          if (rawChannelCnt_prop.toString() == channelBuilder->getTileRawChannelContainerID()) {
+            break;
+          }
+          else {
+            channelBuilder=0;
           }
         }
-        if (channelBuilder) break;
       }
     }
+    if (channelBuilder)
+      channelBuilder->addRef();
 
     if (do_merge) { // frag1 in the data - should merge offline and dsp reco
       if (rawChannelCnt_prop.toString() != dspRawChannelContainer_prop.toString() &&
@@ -400,23 +457,23 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
           log << MSG::INFO << "TileHid2RESrcID: only frag1 digi found, changing properties for TileCellBuilder";
         else 
           log << MSG::INFO << "TileHid2RESrcID: no TileCal digits found, but still changing properties for TileCellBuilder";
-        log << " mergeChannels=True" << endreq;
+        log << " mergeChannels=True" << endmsg;
         sc=cellBuilder->setProperty ("mergeChannels", true);
         if (sc.isFailure()) {
-          log << MSG::ERROR << "Failed to set mergeChannels property in TileCellBuilder" << endreq;
+          log << MSG::ERROR << "Failed to set mergeChannels property in TileCellBuilder" << endmsg;
         }
         if (channelBuilder && cellBuilder->m_noiseFilterTools.size() != channelBuilder->m_noiseFilterTools.size()) {
           log << MSG::INFO << " and number of NoiseFilterTools from " 
               << cellBuilder->m_noiseFilterTools.size() << " to " << channelBuilder->m_noiseFilterTools.size() 
               << " i.e. from " << cellBuilder->m_noiseFilterTools << " to " << channelBuilder->m_noiseFilterTools
-              << endreq;
+              << endmsg;
           cellBuilder->m_noiseFilterTools = channelBuilder->m_noiseFilterTools;
           sc=cellBuilder->m_noiseFilterTools.retrieve();
           if (sc.isFailure()) {
-            log << MSG::WARNING << "Failed to retrieve " << cellBuilder->m_noiseFilterTools << endreq;
+            log << MSG::WARNING << "Failed to retrieve " << cellBuilder->m_noiseFilterTools << endmsg;
            } else {
             if (debug)
-              log << MSG::DEBUG << "Successfully retrieved " << cellBuilder->m_noiseFilterTools << endreq;
+              log << MSG::DEBUG << "Successfully retrieved " << cellBuilder->m_noiseFilterTools << endmsg;
           }
         }
       }
@@ -428,7 +485,7 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
             << "' instead of '" << rawChannelCnt_prop.toString() << "'";
         sc=cellBuilder->setProperty ("TileRawChannelContainer",dspRawChannelContainer_prop.toString());
         if (sc.isFailure()) {
-          log << MSG::ERROR << "Failed to set TileRawChannelContainer property in TileCellBuilder" << endreq;
+          log << MSG::ERROR << "Failed to set TileRawChannelContainer property in TileCellBuilder" << endmsg;
         }
         flags = (flags>>8) & 0x3; // this is number of iterations
         if (flags == 0) { // no iterations - assume best phase was used, just need amplitude correction
@@ -442,20 +499,20 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
         }
         log << " and of2=" << ((of2)?"True":"False");
         cellBuilder->m_of2 = of2; 
-        log << endreq;
+        log << endmsg;
         if (channelBuilder && cellBuilder->m_noiseFilterTools.size() != channelBuilder->m_noiseFilterTools.size()) {
           log << MSG::INFO << " and number of NoiseFilterTools from " 
               << cellBuilder->m_noiseFilterTools.size() << " to " << channelBuilder->m_noiseFilterTools.size() 
               << " i.e. from " << cellBuilder->m_noiseFilterTools << " to " << channelBuilder->m_noiseFilterTools
-              << endreq;
+              << endmsg;
           cellBuilder->m_noiseFilterTools = channelBuilder->m_noiseFilterTools;
           sc=cellBuilder->m_noiseFilterTools.retrieve();
           if (sc.isFailure()) {
-            log << MSG::WARNING << "Failed to retrieve " << cellBuilder->m_noiseFilterTools << endreq;
+            log << MSG::WARNING << "Failed to retrieve " << cellBuilder->m_noiseFilterTools << endmsg;
           }
           else {
             if (debug)
-              log << MSG::DEBUG << "Successfully retrieved " << cellBuilder->m_noiseFilterTools << endreq;
+              log << MSG::DEBUG << "Successfully retrieved " << cellBuilder->m_noiseFilterTools << endmsg;
           }
         }
       }
@@ -464,17 +521,17 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
     if (channelBuilder) {
       if (fabs(cellBuilder->m_ampMinThresh - channelBuilder->m_ampMinThresh) > 1.e-3) {
         log << MSG::INFO << "Setting AmpMinForAmpCorrection in TileCellBuilder to " << channelBuilder->m_ampMinThresh
-            << " instead of " << cellBuilder->m_ampMinThresh << endreq;
+            << " instead of " << cellBuilder->m_ampMinThresh << endmsg;
         cellBuilder->m_ampMinThresh = channelBuilder->m_ampMinThresh;
       }
       if (fabs(cellBuilder->m_timeMinThresh - channelBuilder->m_timeMinThresh) > 1.e-3) {
         log << MSG::INFO << "Setting TimeMinForAmpCorrection in TileCellBuilder to " << channelBuilder->m_timeMinThresh
-            << " instead of " << cellBuilder->m_timeMinThresh << endreq;
+            << " instead of " << cellBuilder->m_timeMinThresh << endmsg;
         cellBuilder->m_timeMinThresh = channelBuilder->m_timeMinThresh;
       }
       if (fabs(cellBuilder->m_timeMaxThresh - channelBuilder->m_timeMaxThresh) > 1.e-3) {
         log << MSG::INFO << "Setting TimeMaxForAmpCorrection in TileCellBuilder to " << channelBuilder->m_timeMaxThresh
-            << " instead of " << cellBuilder->m_timeMaxThresh << endreq;
+            << " instead of " << cellBuilder->m_timeMaxThresh << endmsg;
         cellBuilder->m_timeMaxThresh = channelBuilder->m_timeMaxThresh;
       }
    }
@@ -483,35 +540,35 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
     TileROD_Decoder* rodDecoder=0;
     sc = toolSvc->retrieveTool("TileROD_Decoder",rodDecoder);
     if (sc.isFailure()) {
-      log << MSG::WARNING << "TileHid2RESrcID: Unable to retrieve algtool TileROD_Decoder" << endreq;
+      log << MSG::WARNING << "TileHid2RESrcID: Unable to retrieve algtool TileROD_Decoder" << endmsg;
     } else {
       if (fabs(cellBuilder->m_ampMinThresh - rodDecoder->m_ampMinThresh) > 1.e-3) {
         log << MSG::INFO << "Setting AmpMinForAmpCorrection in TileROD_Decoder to " << cellBuilder->m_ampMinThresh
-            << " instead of " << rodDecoder->m_ampMinThresh << endreq;
+            << " instead of " << rodDecoder->m_ampMinThresh << endmsg;
         rodDecoder->updateAmpThreshold(cellBuilder->m_ampMinThresh);
       }
       if (fabs(cellBuilder->m_timeMinThresh - rodDecoder->m_timeMinThresh) > 1.e-3) {
         log << MSG::INFO << "Setting TimeMinForAmpCorrection in TileROD_Decoder to " << cellBuilder->m_timeMinThresh
-            << " instead of " << rodDecoder->m_timeMinThresh << endreq;
+            << " instead of " << rodDecoder->m_timeMinThresh << endmsg;
         rodDecoder->m_timeMinThresh = cellBuilder->m_timeMinThresh;
       }
       if (fabs(cellBuilder->m_timeMaxThresh - rodDecoder->m_timeMaxThresh) > 1.e-3) {
         log << MSG::INFO << "Setting TimeMaxForAmpCorrection in TileROD_Decoder to " << cellBuilder->m_timeMaxThresh
-            << " instead of " << rodDecoder->m_timeMaxThresh << endreq;
+            << " instead of " << rodDecoder->m_timeMaxThresh << endmsg;
         rodDecoder->m_timeMaxThresh = cellBuilder->m_timeMaxThresh;
       }
       if (of2 != rodDecoder->m_of2) {
         log << MSG::INFO << "Setting OF2 flag in in TileROD_Decoder to " << ((of2)?"True":"False")
-            << " instead of " << ((rodDecoder->m_of2)?"True":"False") << endreq;
+            << " instead of " << ((rodDecoder->m_of2)?"True":"False") << endmsg;
         rodDecoder->m_of2 = of2;
       }
     }
   
     if (toolSvc->releaseTool(cellBuilder).isFailure()) 
-      log << MSG::WARNING << "Unable to release algtool TileCellBuilder" << endreq;
+      log << MSG::WARNING << "Unable to release algtool TileCellBuilder" << endmsg;
     if (channelBuilder)
       if (toolSvc->releaseTool(channelBuilder).isFailure()) 
-        log << MSG::WARNING << "Unable to release algtool TileRawChannelBuilder" << endreq;
+        log << MSG::WARNING << "Unable to release algtool TileRawChannelBuilder" << endmsg;
   }
 }
 

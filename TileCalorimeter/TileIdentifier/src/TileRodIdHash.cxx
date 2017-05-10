@@ -70,6 +70,31 @@ void TileRodIdHash::initialize( int offset )  {
   m_size = n; 
 }
 
+void TileRodIdHash::initialize( int offset, const std::vector<ID>& rmod )  {
+
+//
+
+  m_offset = offset;
+
+  std::vector<ID>::const_iterator
+    it = rmod.begin();
+  std::vector<ID>::const_iterator
+    it_end = rmod.end() ;
+
+  int n = 0;
+  for (; it!=it_end;++it) {
+    ID id = *it;
+    unsigned int i = id;
+    m_lookup[i] = n ;
+    m_int2id.push_back(id);
+    ++n;
+  }
+
+  m_size = n;
+}
+
+
+
 TileRodIdHash::ID TileRodIdHash::identifier(int index) const {
 
   return m_int2id[index] ; 
