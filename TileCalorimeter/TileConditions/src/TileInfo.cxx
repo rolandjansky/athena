@@ -272,7 +272,9 @@ TileInfo::HitCalib(const Identifier& pmt_id) const {
   } else if (m_tileID->is_tile_gap(pmt_id)) { // ITC of gap/crack scin
     int sample = m_tileID->sample(pmt_id);
     if (TileID::SAMP_E == sample) { // gap/crack scin
-      calib = m_emscaleE[m_tileID->tower(pmt_id)];
+      int tower=m_tileID->tower(pmt_id);
+      if (tower>15) tower /= 4; // fix for upgrade geometry with 0.025 granularity
+      calib = m_emscaleE[tower];
     } else if (TileID::SAMP_C == sample) { // C10 cell
       calib = m_emscaleC[m_tileID->module(pmt_id)];
     } else {

@@ -20,6 +20,7 @@
 
 #include "TileCalibBlobObjs/TileCalibDrawerBase.h"
 #include "TileCalibBlobObjs/TileCalibType.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 #include <stdint.h>
 #include <vector>
 #include <iostream>
@@ -42,7 +43,7 @@ class TileCalibDrawerDat : public TileCalibDrawerBase
   //== Data getter and setter methods
   //==================================================================
   /** @brief Returns a single T  belonging to a channel/ADC.
-      @param channel The channel number; if >= getNChans() it is reset to 0 without warning (default policy)   
+
       @param adc The gain index; if >= getNGains() it is reset to 0 without warning (default policy)   
       @param idx The index of the requested value */
   T getData(unsigned int channel, unsigned int adc, unsigned int idx) const;
@@ -88,7 +89,10 @@ class TileCalibDrawerDat : public TileCalibDrawerBase
   TileCalibDrawerDat(const coral::Blob& blob) : TileCalibDrawerBase(blob){}
 
   /** @brief Returns a pointer to the first value for the specified channel & ADC. 
-      @param channel The channel number; if >= getNChans() it is reset to 0 without warning (default policy)   
+      @param channel The channel number; If channel number >= getNChans() 
+                     it is reset to channel % (maximum number of channels in drawer) 
+                     if channel number > (maximum number of channels in drawer)
+                     otherwise it is reset to 0 without warning (default policy)   
       @param adc The gain index; if >= getNGains() it is reset to 0 without warning (default policy) */
   T* getAddress(unsigned int channel, unsigned int adc) const;
 };
@@ -136,8 +140,17 @@ TileCalibDrawerDat<T>::getData(unsigned int channel, unsigned int adc, unsigned 
   }
 
   //=== Tile Default Policy
-  if(channel >= getNChans()) {channel=0;}
-  if(    adc >= getNGains()) {adc    =0;}
+
+  if(channel >= getNChans()) {
+    if (channel <= TileCalibUtils::MAX_CHAN) {
+      channel = 0;
+    } else {
+      channel = channel % TileCalibUtils::MAX_CHAN;
+      if (channel >= getNChans()) channel = 0;
+    }
+  }
+
+  if(adc >= getNGains()) {adc = 0;}
 
   return getAddress(channel,adc)[idx];
 }
