@@ -61,7 +61,6 @@ void AthAlgorithmDHUpdate::visit (const IDataHandleHolder* dhh)
   // If we put anything in linkedObjs, also add the contents
   // of extraOutputDeps.
   if (!m_linkedObjs.empty()) {
-    DataObjIDColl ex = dhh->extraOutputDeps();
     m_linkedObjs.insert (ex.begin(), ex.end());
   }
 

@@ -77,6 +77,7 @@ public:
   std::vector<Gaudi::DataHandle*> handle_ptrs;
   DataObjIDColl outDeps;
   DataObjIDColl extraOutDeps;
+  DataObjIDColl extendedExtraOutDeps;
 };
 
 
@@ -88,6 +89,8 @@ std::vector<Gaudi::DataHandle*> TestHolder::outputHandles() const
 
 const DataObjIDColl& TestHolder::extraOutputDeps() const
 {
+  if (!extendedExtraOutDeps.empty())
+    return extendedExtraOutDeps;
   return extraOutDeps;
 }
 
@@ -125,8 +128,9 @@ void test1()
   h.outDeps.emplace (ClassID_traits<B1>::ID(), "b1");
   h.outDeps.emplace (ClassID_traits<C1>::ID(), "c1");
   h.extraOutDeps.emplace (ClassID_traits<C1>::ID(), "c1");
+  h.extraOutDeps.emplace (ClassID_traits<C1>::ID(), "d1");
 
-  DataObjIDColl linkedObjs;
+  DataObjIDColl& linkedObjs = h.extendedExtraOutDeps;
   auto chain = std::make_unique<TestChain>();
   TestChain* tc = chain.get();
   AthenaBaseComps::AthAlgorithmDHUpdate dhu (linkedObjs, std::move (chain));
@@ -139,6 +143,8 @@ void test1()
     { ClassID_traits<B2>::ID(), "b1" },
     { ClassID_traits<C1>::ID(), "c1" },
     { ClassID_traits<C2>::ID(), "c1" },
+    { ClassID_traits<C1>::ID(), "d1" },
+    { ClassID_traits<C2>::ID(), "d1" },
   };
 
   if (linkedObjs != exp) {
