@@ -25,8 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArRecConditions
                           PRIVATE
                           Generators/GeneratorObjects
-                          LArCalorimeter/LArSimEvent
-                          Simulation/Tools/AtlasCLHEP_RandomGenerators )
+                          LArCalorimeter/LArSimEvent )
 
 # External dependencies:
 find_package( CLHEP )
@@ -39,12 +38,12 @@ atlas_add_library( LArDigitizationLib
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES CaloIdentifier AthenaBaseComps AthenaKernel SGTools Identifier xAODEventInfo GaudiKernel LArIdentifier LArRawEvent LArRecConditions CaloDetDescrLib PileUpToolsLib StoreGateLib SGtests LArCablingLib
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GeneratorObjects LArSimEvent AtlasCLHEP_RandomGenerators )
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GeneratorObjects LArSimEvent )
 
 atlas_add_component( LArDigitization
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} CaloDetDescrLib CaloIdentifier AthenaBaseComps AthenaKernel PileUpToolsLib SGTools StoreGateLib SGtests Identifier xAODEventInfo GaudiKernel LArCablingLib LArIdentifier LArRawEvent LArRecConditions GeneratorObjects LArSimEvent AtlasCLHEP_RandomGenerators LArDigitizationLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} CaloDetDescrLib CaloIdentifier AthenaBaseComps AthenaKernel PileUpToolsLib SGTools StoreGateLib SGtests Identifier xAODEventInfo GaudiKernel LArCablingLib LArIdentifier LArRawEvent LArRecConditions GeneratorObjects LArSimEvent LArDigitizationLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

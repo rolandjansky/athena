@@ -21,7 +21,6 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonCalib/MuonCalibUtils/MuonCalibStl
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonIdHelpers
-                          Simulation/Tools/AtlasCLHEP_RandomGenerators
                           Tools/PathResolver )
 
 # External dependencies:
@@ -32,7 +31,7 @@ atlas_add_component( MdtCalibDbAsciiTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel MdtCalibData AthenaKernel SGTools StoreGateLib SGtests Identifier MdtCalibSvcLib MdtCalibUtils MuonReadoutGeometry MuonIdHelpersLib AtlasCLHEP_RandomGenerators PathResolver )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel MdtCalibData AthenaKernel SGTools StoreGateLib SGtests Identifier MdtCalibSvcLib MdtCalibUtils MuonReadoutGeometry MuonIdHelpersLib PathResolver )
 
 # Install files from the package:
 atlas_install_headers( MdtCalibDbAsciiTool )

@@ -28,8 +28,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetSimEvent
                           InnerDetector/InDetSimUtils/TRT_PAI_Process
                           MagneticField/MagFieldInterfaces
-                          Simulation/HitManagement
-                          Simulation/Tools/AtlasCLHEP_RandomGenerators )
+                          Simulation/HitManagement )
 
 # External dependencies:
 find_package( CLHEP )
@@ -42,7 +41,7 @@ atlas_add_component( TRT_Digitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel PileUpToolsLib AthenaPoolUtilities GeoModelUtilities GeoPrimitives Identifier EventInfo GeneratorObjects TRT_ConditionsData TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry InDetRawData InDetSimData InDetSimEvent MagFieldInterfaces HitManagement AtlasCLHEP_RandomGenerators )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel PileUpToolsLib AthenaPoolUtilities GeoModelUtilities GeoPrimitives Identifier EventInfo GeneratorObjects TRT_ConditionsData TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry InDetRawData InDetSimData InDetSimEvent MagFieldInterfaces HitManagement )
 
 # Install files from the package:
 atlas_install_headers( TRT_Digitization )
