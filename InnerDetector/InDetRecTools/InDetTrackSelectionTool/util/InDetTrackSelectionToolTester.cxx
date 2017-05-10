@@ -93,7 +93,7 @@ int main( int argc, char* argv[] ) {
    CHECK( gotFile );
 
    // Create a TEvent object:
-   xAOD::TEvent event( static_cast<TFile*>(nullptr), xAOD::TEvent::kClassAccess );
+   xAOD::TEvent event( static_cast<TFile*>(nullptr), xAOD::TEvent::kAthenaAccess );
    CHECK( static_cast<StatusCode>(event.readFrom( ifile.get() )) );
    Info( APP_NAME, "Number of events in the file: %llu", event.getEntries() );
 
