@@ -114,7 +114,7 @@ void ISF::MemoryMonitoringTool::recordCurrent( const char *infoStr) {
 /** dump all internally stored memory monitoring information */
 void ISF::MemoryMonitoringTool::dumpSummary(const char *desc) const {
 
-  ATH_MSG_INFO("*****************************************************"<<endreq<<
+  ATH_MSG_INFO("*****************************************************"<<endmsg<<
                "*  (VmMem) MEMORY SUMMARY: (kBytes)");
 
   // loop over all (infoStr,memUsage) pairs and print them
