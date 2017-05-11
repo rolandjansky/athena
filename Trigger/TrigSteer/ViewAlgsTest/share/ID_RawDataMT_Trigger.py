@@ -53,6 +53,20 @@ from AtlasGeoModel import GeoModelInit
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()
 
+# -------------------- Condition Data Access --------------------------------
+# Conditions Service for reading conditions data in serial and MT Athena
+
+from IOVSvc.IOVSvcConf import CondSvc
+svcMgr += CondSvc()
+
+# Special Condition Sequence for CondInputLoader and client Condition Algorithms
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+
+# CondInputLoader and Condition Store
+from IOVSvc.IOVSvcConf import CondInputLoader
+condSeq += CondInputLoader( "CondInputLoader")
+
 include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 inputfile="root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data16_13TeV.00309640.physics_EnhancedBias.merge.RAW/data16_13TeV.00309640.physics_EnhancedBias.merge.RAW._lb0628._SFO-1._0001.1"
 svcMgr.ByteStreamInputSvc.FullFileName=[inputfile,]
