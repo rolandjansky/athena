@@ -83,8 +83,8 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   void MakeSCTEndcapsHistograms (MonGroup& al_mon);
   void MakeSCTBarrelHistograms (MonGroup& al_mon);
 
-  void MakeStaveShapeFit(float& mag, float& mag_er,float& base,float& base_er,TH1F* projection);
-  TGraphErrors* ConvertHistoInGraph(TH1F*);
+  void MakeStaveShapeFit(float& mag, float& mag_er,float& base,float& base_er,TH1* projection);
+  TGraphErrors* ConvertHistoInGraph(TH1*);
 
   void MakeTRTHistograms(MonGroup& al_mon);
   void MakeTRTBarrelHistograms(MonGroup& al_mon);

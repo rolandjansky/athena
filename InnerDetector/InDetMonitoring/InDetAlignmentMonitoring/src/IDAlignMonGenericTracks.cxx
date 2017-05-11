@@ -560,11 +560,9 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
   MonGroup al_mon ( this, outputDirName, run );
   MonGroup al_mon_ls ( this, outputDirName, lowStat );
 
-  if ( newLowStat ) {  
-  }
-  if ( newLumiBlock ) {  
-  }
-  if ( newRun ) {  
+  //if ( newLowStatFlag ) {    }
+  //if ( newLumiBlockFlag() ) {    }
+  if ( newRunFlag() ) {  
 
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job
@@ -2467,11 +2465,9 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
 
 StatusCode IDAlignMonGenericTracks::procHistograms()
 {
-  if( endOfLowStat ) {
-  }
-  if( endOfLumiBlock ) {
-  }
-  if( endOfRun ) {
+  //if( endOfLowStatFlag() ) {  }
+  //if( endOfLumiBlockFlag() ) {  }
+  if( endOfRunFlag() ) {
 
     m_ZpT_diff->Add(m_ZpT_p,m_ZpT_n,1.,-1);
     m_pT_diff->Add(m_pT_p,m_pT_n,1.,-1);
