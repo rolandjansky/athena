@@ -22,6 +22,7 @@ thresholdsStartSequence = {
     '110GeV' : 110,
     '150GeV' : 150,
     '175GeV' : 175,
+    '225GeV' : 225,
     '260GeV' : 260,
     '320GeV' : 320,
     '400GeV' : 400,
