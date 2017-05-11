@@ -314,6 +314,7 @@ namespace Rec
 	bool                                            m_refineELossStandAloneTrackFit;
         bool                                            m_addElossID;
         bool                                            m_addIDMSerrors;
+        bool                                            m_useRefitTrackError;
         const AtlasDetectorID*                          m_DetID;
     };
  

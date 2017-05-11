@@ -5,8 +5,8 @@
 #ifndef GEO2G4_VolumeBuilder_H
 #define GEO2G4_VolumeBuilder_H
 
-#include "Geo2G4/LogicalVolume.h"
-#include "Geo2G4/Geo2G4SvcAccessor.h"
+#include "G4LogicalVolume.hh"
+#include "Geo2G4SvcAccessor.h"
 
 #include "GeoModelUtilities/GeoOpticalPhysVol.h"
 
@@ -21,7 +21,7 @@ typedef std::map< const GeoOpticalPhysVol*, G4VPhysicalVolume*,std::less< const 
 class VolumeBuilder
 {
  public:
-  VolumeBuilder(std::string k): paramOn(false), key(k)
+  VolumeBuilder(std::string k): m_paramOn(false), m_key(k)
   {
     Geo2G4SvcAccessor accessor;
     Geo2G4SvcBase *g=accessor.GetGeo2G4Svc();
@@ -35,18 +35,18 @@ class VolumeBuilder
     g->UnregisterVolumeBuilder(this);
   }
 
-  std::string GetKey() const {return key;}
+  std::string GetKey() const {return m_key;}
 
   // flag controlling Parameterization to Parameterization translation
-  void SetParam(bool flag){paramOn = flag;}
-  bool GetParam(){return paramOn;}
+  void SetParam(bool flag){m_paramOn = flag;}
+  bool GetParam(){return m_paramOn;}
 
-  virtual LogicalVolume* Build(PVConstLink pv, OpticalVolumesMap* optical_volumes = 0) const = 0;
+  virtual G4LogicalVolume* Build(PVConstLink pv, OpticalVolumesMap* optical_volumes = 0) const = 0;
 
  protected:
-  bool paramOn;
+  bool m_paramOn;
 
  private:
-  std::string key;
+  std::string m_key;
 };
 #endif

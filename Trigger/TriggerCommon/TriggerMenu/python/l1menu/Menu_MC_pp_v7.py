@@ -184,7 +184,7 @@ def defineMenu():
         # AFP
         'AFP_NSC', 'AFP_NSA',
         'AFP_FSA_SIT', 'AFP_FSA_TOF', 'AFP_FSA_LOG',
-        'AFP_FSC_SIT', 'AFP_FSC_TOF', 'AFP_FSC_LOG',
+        'AFP_FSC_SIT', 'AFP_FSC_LOG', 'AFP_FSC_TOF',
 
         #-------------------------------------------------------------------
         #L1 TOPO inputs 
@@ -598,7 +598,8 @@ def defineMenu():
 #        'L1_AFP_NSC', 'L1_AFP_FSC', 
 #        'L1_AFP_C_ANY', 'L1_AFP_C_ANY_UNPAIRED_ISO', 'L1_AFP_C_ANY_UNPAIRED_NONISO', 'L1_AFP_C_ANY_EMPTY', 'L1_AFP_C_ANY_FIRSTEMPTY', 'L1_AFP_C_AND',
 
-        'L1_AFP_A_BGRP0','L1_AFP_A_SPECTOF_BGRP0','L1_AFP_C_BGRP0','L1_AFP_C_SPECTOF_BGRP0', 
+        'L1_AFP_A_BGRP0','L1_AFP_A_SPECTOF_BGRP0','L1_AFP_C_BGRP0','L1_AFP_C_SPECTOF_BGRP0',
+        'L1_AFP_NSA_BGRP0', 'L1_AFP_NSC_BGRP0', 'L1_AFP_FSA_SIT_BGRP0', 'L1_AFP_FSC_SIT_BGRP0',
         'L1_AFP_A_OR_C_UNPAIRED_ISO', 'L1_AFP_A_OR_C_UNPAIRED_NONISO', 
         'L1_AFP_A_OR_C_EMPTY', 'L1_AFP_A_OR_C_FIRSTEMPTY',
         'L1_AFP_A_AND_C_SPECTOF',
@@ -830,8 +831,8 @@ def defineMenu():
 
         'L1_TAU60_DR-TAU20ITAU12I',
 
-        'L1_SC111',
-        'L1_SC85',
+        'L1_SC111-CJ15',
+        'L1_SC85-CJ15',
         
         ##     # Partition 1
         ##     'L1_CALREQ0_P1', 'L1_CALREQ1_P1', 'L1_CALREQ2_P1',
@@ -1187,6 +1188,10 @@ def defineMenu():
         'L1_AFP_A_SPECTOF_BGRP0': 174,
         'L1_AFP_C_BGRP0': 183,
         'L1_AFP_C_SPECTOF_BGRP0': 189, 
+        'L1_AFP_NSA_BGRP0' : 459,
+        'L1_AFP_NSC_BGRP0': 460,
+        'L1_AFP_FSA_SIT_BGRP0' : 461,
+        'L1_AFP_FSC_SIT_BGRP0' : 462,
         'L1_AFP_A_OR_C_UNPAIRED_ISO': 190, 
         'L1_AFP_A_OR_C_UNPAIRED_NONISO': 191, 
         'L1_AFP_A_OR_C_EMPTY': 192, 
@@ -1430,8 +1435,8 @@ def defineMenu():
         'L1_DR-EM15TAU12I' : 353,        
         'L1_LATE-MU10_XE50': 354,
         'L1_LATE-MU10_J50' : 355,
-        'L1_SC111' : 356,
-        'L1_SC85' : 357,
+        'L1_SC111-CJ15' : 356,
+        'L1_SC85-CJ15' : 357,
 #SX
 #        'L1_BPH-DR-2MU4-B' : 353,
 #        'L1_BPH-DR-2MU4-BO' : 354,
