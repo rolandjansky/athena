@@ -11,8 +11,8 @@
 #include "ParticleJetTools/CopyFlavorLabelTruthParticles.h"
 #include "ParticleJetTools/CopyTruthJetParticles.h"
 #include "ParticleJetTools/ParticleJetDeltaRLabelTool.h"
-#include "ParticleJetTools/JetTrackAssociation.h"
-#include "ParticleJetTools/JetTrackCenterOfMassAssociation.h"
-#include "ParticleJetTools/JetTrackShrinkingConeAssociation.h"
+#include "ParticleJetTools/JetParticleAssociation.h"
+#include "ParticleJetTools/JetParticleCenterOfMassAssociation.h"
+#include "ParticleJetTools/JetParticleShrinkingConeAssociation.h"
 
 #endif

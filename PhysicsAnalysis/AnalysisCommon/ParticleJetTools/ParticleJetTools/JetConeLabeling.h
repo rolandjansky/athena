@@ -29,7 +29,7 @@ namespace Analysis
 
   private:
 
-    mutable ToolHandle< IJetTruthMatching > m_jetTruthMatchTool;        //!< pointer to the Truth matching tool
+    ToolHandle< IJetTruthMatching > m_jetTruthMatchTool;        //!< pointer to the Truth matching tool
 
   }; // End class
 

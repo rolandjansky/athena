@@ -20,25 +20,40 @@ CopyTruthParticles::CopyTruthParticles(const std::string& name)
   declareProperty("PtMin", m_ptmin=0, "Minimum pT of particles to be accepted for tagging (in MeV)");
 }
 
-
 int CopyTruthParticles::execute() const {
+  ATH_MSG_VERBOSE("Retrieving truth event container");
+
   // Retrieve the xAOD truth objects
   const xAOD::TruthEventContainer* xTruthEventContainer = NULL;
   ASG_CHECK( evtStore()->retrieve( xTruthEventContainer, "TruthEvents"));
 
-  // Make a new TruthParticleContainer and link it to StoreGate
   if (evtStore()->contains<xAOD::TruthParticleContainer>(m_outputname))
     ATH_MSG_ERROR("Tag input TruthParticleContainer " << m_outputname << " already exists");
+
+  ATH_MSG_VERBOSE("Creating output truth particle container");
+  // Make a new TruthParticleContainer and link it to StoreGate
 
   ConstDataVector<xAOD::TruthParticleContainer> *ipc = new ConstDataVector<xAOD::TruthParticleContainer>(SG::VIEW_ELEMENTS);
   if (evtStore()->record(ipc, m_outputname).isFailure())
     ATH_MSG_ERROR("Failed to record a new TruthParticleContainer " << m_outputname);
 
+  ATH_MSG_VERBOSE("Do classification");
+
   // Classify particles for tagging and add to the TruthParticleContainer
   const xAOD::TruthEvent* evt = *xTruthEventContainer->begin();
+  if(!evt) {
+    ATH_MSG_ERROR("Null pointer received for first truth event!");
+    return 1;
+  }
   size_t numCopied = 0;
   for (unsigned int ip = 0; ip < evt->nTruthParticles(); ++ip) {
     const xAOD::TruthParticle* tp = evt->truthParticle(ip);
+    if (!tp) {
+      // This might result from a thinned truth collection, so is not
+      // an error state.
+      ATH_MSG_VERBOSE("Null pointer received for truth particle to be copied");
+      continue;
+    }
     if (tp->pt() < m_ptmin)
         continue;
 

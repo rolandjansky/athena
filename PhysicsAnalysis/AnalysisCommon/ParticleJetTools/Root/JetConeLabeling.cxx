@@ -64,6 +64,7 @@ namespace Analysis {
   }
 
   int JetConeLabeling::modifyJet(xAOD::Jet& jet) const {
+    ATH_MSG_VERBOSE("In " << name() << "::modifyJet()");
     //JetTruthMatching and setting of the TruthInfo object 
     bool jetIsMatched( true );
     //const Analysis::TruthInfo* mcinfo = NULL;//jet.tagInfo<Analysis::TruthInfo>("TruthInfo");// AA - need jet input
@@ -78,16 +79,14 @@ namespace Analysis {
 
     if (!m_jetTruthMatchTool.empty() && doTruthInfo) {
       //TruthInfo* truthInfo = new TruthInfo("TruthInfo");
-      jetIsMatched = m_jetTruthMatchTool->matchJet( jet );
-      JetQuarkLabel* jql = dynamic_cast<JetQuarkLabel*>(&(*m_jetTruthMatchTool)); // & gets the pointer out of the ToolHandle to cast it!
-      if(jql) {
-	jet.setAttribute("TruthLabelDeltaR_B",jql->deltaRMinTo("B"));
-	jet.setAttribute("TruthLabelDeltaR_C",jql->deltaRMinTo("C"));
-	jet.setAttribute("TruthLabelDeltaR_T",jql->deltaRMinTo("T"));
-      }
+      Analysis::IJetTruthMatching::MatchInfo info;
+      jetIsMatched = m_jetTruthMatchTool->matchJet( jet, &info );
+      jet.setAttribute("TruthLabelDeltaR_B",info.deltaRMinTo("B"));
+      jet.setAttribute("TruthLabelDeltaR_C",info.deltaRMinTo("C"));
+      jet.setAttribute("TruthLabelDeltaR_T",info.deltaRMinTo("T"));
       //
       if ( jetIsMatched ) {
-        thisJetTruthLabel = m_jetTruthMatchTool->jetLabel();
+        thisJetTruthLabel = info.jetLabel;
         //if(thisJetTruthLabel=="B") {
           //jet.set_pdgId(PDG::b);// AA - need jet input
 	  //if (jql) {
