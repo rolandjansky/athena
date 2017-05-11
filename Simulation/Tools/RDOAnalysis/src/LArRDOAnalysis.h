@@ -9,6 +9,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "LArRawEvent/LArTTL1Container.h"
 #include "LArRawEvent/LArDigitContainer.h"

@@ -9,6 +9,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "InDetBCM_RawData/BCM_RDO_Container.h"
 #include "InDetBCM_RawData/BCM_RDO_Collection.h"

@@ -9,6 +9,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
