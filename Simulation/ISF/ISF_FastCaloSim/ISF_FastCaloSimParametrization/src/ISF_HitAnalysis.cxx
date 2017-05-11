@@ -247,21 +247,6 @@ StatusCode ISF_HitAnalysis::updateMetaData( IOVSVC_CALLBACK_ARGS_P( I, keys ) ) 
 StatusCode ISF_HitAnalysis::initialize() {
   ATH_MSG_INFO( "Initializing ISF_HitAnalysis" );
   
-  /*
-  // get a handle of StoreGate for access to the Detector Store 
-  sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "ZH Unable to retrieve pointer to Detector Store");
-    return sc;
-  }
-  // get a handle of StoreGate for access to the Event Store 
-  sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-     ATH_MSG_ERROR( "Unable to retrieve pointer to StoreGateSvc" );
-     return sc;
-  }
-  */
-
   StatusCode sc = service("GeoModelSvc", m_geoModel);
   if(sc.isFailure())
   {
