@@ -39,6 +39,11 @@ TrigZFinderInternal::TrigZFinderInternal( const std::string& type, const std::st
   m_tripletDK        = 0.005 ;  
   m_tripletDP        = 0.05  ;
 
+  m_maxLayer         = 32;
+
+  m_minVtxSignificance = 0;
+  m_percentile         = 1;
+  
   //  m_applyWeightThreshold = false;
   m_weightThreshold      = 0;
 
