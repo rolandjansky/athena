@@ -11,14 +11,15 @@ Branches
 --------
 The following branches are currently active:
 
-Branch                                                            | Purpose                      | Main Project
+Branch                                                            | Purpose                      | Main Project, Release Series
 ------------------------------------------------------------------| ---------------------------- | ---------------------------------------
-[21.0](https://gitlab.cern.ch/atlas/athena/tree/21.0)             | Tier0 and MC16c              | Athena,21.0.X
-[21.0-mc16a](https://gitlab.cern.ch/atlas/athena/tree/21.0-mc16a) | MC16a bugfixes               | Athena,21.0.20.Y
-[21.1](https://gitlab.cern.ch/atlas/athena/tree/21.1)             | HLT and P1 monitoring        | AthenaP1,21.1.X
-[21.2](https://gitlab.cern.ch/atlas/athena/tree/21.2)             | Derivations and Analysis     | AthDerivations, (Ath)AnalysisBase, 21.2.X
-[21.3](https://gitlab.cern.ch/atlas/athena/tree/21.3)             | MC18 Simulation              | Athena, AthSimulation, 21.3.X
-[master](https://gitlab.cern.ch/atlas/athena/tree/master)         | AthenaMT development         | Athena,22.0.X
+[21.0](https://gitlab.cern.ch/atlas/athena/tree/21.0)             | Tier0 and MC16c              | Athena, 21.0.X
+[21.0-mc16a](https://gitlab.cern.ch/atlas/athena/tree/21.0-mc16a) | MC16a bugfixes               | Athena, 21.0.20.Y
+[21.1](https://gitlab.cern.ch/atlas/athena/tree/21.1)             | HLT and P1 monitoring        | AthenaP1, 21.1.X
+[21.1-dev](https://gitlab.cern.ch/atlas/athena/tree/21.1-dev)     | HLT and P1 Run 2 Developments | AthenaP1, No production releases
+[21.2](https://gitlab.cern.ch/atlas/athena/tree/21.2)             | Derivations and Analysis     | AthDerivations + (Ath)AnalysisBase, 21.2.X
+[21.3](https://gitlab.cern.ch/atlas/athena/tree/21.3)             | MC18 Simulation              | Athena + AthSimulation, 21.3.X
+[master](https://gitlab.cern.ch/atlas/athena/tree/master)         | AthenaMT development         | Athena, 22.0.X
 
 Links
 -----
