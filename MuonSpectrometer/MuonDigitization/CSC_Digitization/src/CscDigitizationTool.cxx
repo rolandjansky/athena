@@ -20,8 +20,6 @@
 #include "CSC_Digitization/CscDigitizationTool.h"
 
 #include "CLHEP/Random/RandomEngine.h"
-//#include "CLHEP/Random/RandGauss.h"
-//#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 
 #include "EventInfo/EventInfo.h"
