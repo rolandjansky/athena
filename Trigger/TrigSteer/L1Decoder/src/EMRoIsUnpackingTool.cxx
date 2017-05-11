@@ -55,7 +55,7 @@ StatusCode EMRoIsUnpackingTool::updateConfiguration() {
       ATH_MSG_DEBUG( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier(th->name()).numeric() ); 
       m_emThresholds.push_back(th);
     } else {
-      ATH_MSG_DEBUG( "Nullptr to the threshood" ); 
+      ATH_MSG_DEBUG( "Nullptr to the threshold" ); 
     }
   }
   return StatusCode::SUCCESS;

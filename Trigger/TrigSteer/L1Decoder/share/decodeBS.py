@@ -83,7 +83,7 @@ if nThreads >= 1:
   topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
   topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
 
-from L1Decoder.L1DecoderConf import *
+from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, L1Decoder, MURoIsUnpackingTool
 l1Decoder = L1Decoder( OutputLevel=DEBUG )
 l1Decoder.ctpUnpacker = CTPUnpackingTool( OutputLevel =  DEBUG, ForceEnableAllChains=True )
 
@@ -102,7 +102,7 @@ l1Decoder.Chains="HLTChainsResult"
 topSequence += l1Decoder
 #Run calo decoder
 
-from DecisionHandling.DecisionHandlingConf import *
+from DecisionHandling.DecisionHandlingConf import DumpDecisions
 emDecisionsDumper = DumpDecisions("DumpEML1RoIs", OutputLevel=DEBUG)
 emDecisionsDumper.Decisions = "EMRoIDecisions"
 topSequence += emDecisionsDumper
