@@ -23,3 +23,5 @@ apply_pattern declare_scripts files="-s=$(FastChainPileup_root)/scripts sim_reg_
 public
 macro FastChainPileup_TestConfiguration "../test/FastChainPileup_TestConfiguration.xml"
 apply_pattern declare_runtime extras="../test/FastChainPileup_TestConfiguration.xml"
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"

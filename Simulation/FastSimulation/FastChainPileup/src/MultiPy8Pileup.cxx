@@ -7,6 +7,7 @@
 // Richard Hawkings, started 20/2/15, + contributions from Vladimir Lyubushkin
 
 #include <algorithm>
+#include <numeric>
 #include <functional>
 #include <iterator>
 

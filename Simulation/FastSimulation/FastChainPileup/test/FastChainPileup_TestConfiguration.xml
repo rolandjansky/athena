@@ -707,65 +707,6 @@
 		      </jobTransform>
 		  </chainElement>
 		</sequential>
-		<sequential>
-		  <chainElement>
-		    <jobTransform userJobId="ttbarFastChain_reco_Split_fullSim_fullDigi">
-		      <doc>FastChain reco</doc>
-		      <jobTransformJobName>ttbarFastChain_reco_Split_fullSim_fullDigi</jobTransformJobName>
-		      <jobTransformCmd> 
-			  FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31  --inputRDOFile RDO_pileup_fullsim_fulldigi.pool.root --outputAODFile AOD_Split_fullSim_fullDigi.pool.root --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True);InDetFlags.doSplitReco.set_Value_and_Lock(True);"
-		      </jobTransformCmd>
-		      <group>FastChainPileup</group>
-		      <chaindataset_info>
-			  <jobTransformData />    
-			  <chaindatasetName>RDO_pileup_fullsim_fulldigi.pool.root</chaindatasetName>
-			  <!-- If the file on the previous line is not in the chain store, then use the following fallback file. -->
-			  <dataset_info>
-			      <jobTransformData />
-			      <datasetName>/afs/cern.ch/work/a/abasalae/public/FastChainRTT/fallbackRTT/RDO_pileup_fullsim_fulldigi.pool.root</datasetName>
-			  </dataset_info>
-		      </chaindataset_info>
-		      <queue>medium</queue>
-		    </jobTransform>
-		    <chainfileout>
-		      AOD_Split_fullSim_fullDigi.pool.root
-		    </chainfileout>
-		  </chainElement>
-		  <chainElement>
-		    <jobTransform userJobId="ttbarFastChain_reco_Split_fullSim_fullDigi_Reg">
-		      <doc>Regression test between releases</doc>
-		      <jobTransformJobName>ttbarFastChain_reco_Split_fullSim_fullDigi_Reg</jobTransformJobName>
-		      <jobTransformCmd>sim_reg_test.py ttbarFastChain_reco_Split_fullSim_fullDigi InDetStandardPlots.root</jobTransformCmd>
-		      <group>FastChainPileup</group>
-		      <queue>long</queue>
-			<test position="1">
-			  <modulename>RttLibraryTools</modulename>
-			  <testname>DCubeRunner</testname>
-			  <arg>
-			    <argname>DCubeCfg</argname>
-			    <argvalue>dcube_ttbarFastChain_reco_Split_fullSim_fullDigi_Reg.xml</argvalue>
-			  </arg>
-			  <arg>
-			    <argname>DCubeRef</argname>
-			    <argvalue>yesterday.InDetStandardPlots.root</argvalue>
-			  </arg>
-			  <arg>
-			    <argname>localRefFile</argname>
-			    <argvalue>True</argvalue>
-			  </arg>
-			  <arg>
-			    <argname>DCubeMon</argname>
-			    <argvalue>today.InDetStandardPlots.root</argvalue>
-			  </arg>
-			  <keepFilePattern>DCube-yesterday.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
-			</test>
-		      <testToRemove>
-			<jobGroupName>RTT:Top</jobGroupName>
-			<testidentifier>CheckFileRunner0</testidentifier>
-		      </testToRemove> 
-		      </jobTransform>
-		  </chainElement>
-		</sequential>
 		<chainElement>
 		  <jobTransform userJobId="standard_Reco_tf_fullSim_fullDigi">
 		    <doc>standard reco</doc>
@@ -1471,7 +1412,7 @@
 	    <jobTransform userJobId="standardReco_pseudoTracking_oldHits_digi_Reg">
 	      <doc>Regression test between releases</doc>
 	      <jobTransformJobName>standardReco_pseudoTracking_oldHits_digi_Reg</jobTransformJobName>
-	      <jobTransformCmd>sim_reg_test.py standardReco_pseudoTracking_oldHits RDO_truth.root RDO.pool.root</jobTransformCmd>
+	      <jobTransformCmd>sim_reg_test.py standardReco_pseudoTracking_oldHits RDO_truth.root RDO.oldhits.pool.root</jobTransformCmd>
 	      <group>FastChainPileup</group>
 	      <queue>long</queue>
 	      <test position="1">
@@ -1479,17 +1420,17 @@
 		<testname>FlexibleDiffPoolFilesRunner</testname>
 		<arg>
 		  <argname>fileName</argname>
-		  <argvalue>today.RDO.pool.root</argvalue>
+		  <argvalue>today.RDO.oldhits.pool.root</argvalue>
 		</arg>
 		<arg>
 		  <argname>refFileName</argname>
-		  <argvalue>yesterday.RDO.pool.root</argvalue>
+		  <argvalue>yesterday.RDO.oldhits.pool.root</argvalue>
 		</arg>
 		<arg>
 		  <argname>localRefFile</argname>
 		  <argvalue>True</argvalue>
 		</arg>
-		<keepFilePattern>today.RDO.pool.root_yesterday.RDO.pool.root.diffPool</keepFilePattern>
+		<keepFilePattern>today.RDO.oldhits.pool.root_yesterday.RDO.oldhits.pool.root.diffPool</keepFilePattern>
 	      </test>
 		<test position="2">
 		  <modulename>RttLibraryTools</modulename>
