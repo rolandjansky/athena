@@ -59,11 +59,14 @@ bitNames_allHLT= [
 
 
 met_alt_algorithms = [
-        "mht",
+        "mht_lcw",
+        "mht_em",
         "tc_lcw",
         "cell",
-        "pueta",
+        #"pueta",
         "pufit",
+        "trkmht_FS",
+        "trkmht_FTK",
         #"feb",
         #"fex",
 ]
