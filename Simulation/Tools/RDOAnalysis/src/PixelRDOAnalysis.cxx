@@ -95,9 +95,7 @@ StatusCode PixelRDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing PixelRDOAnalysis" );
 
   // Grab PixelID helper
-  if (detStore()->retrieve(m_pixelID, "PixelID").isFailure()) {
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve(m_pixelID, "PixelID"));
 
   // Grab Ntuple and histogramming service for tree
   ATH_CHECK(m_thistSvc.retrieve());

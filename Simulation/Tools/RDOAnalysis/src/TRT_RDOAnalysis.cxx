@@ -103,9 +103,7 @@ StatusCode TRT_RDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing TRT_RDOAnalysis" );
 
   // Grab TRT_ID helper
-  if (detStore()->retrieve(m_trtID, "TRT_ID").isFailure()) {
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve(m_trtID, "TRT_ID"));
 
   // Grab Ntuple and histogramming service for tree
   ATH_CHECK(m_thistSvc.retrieve());
