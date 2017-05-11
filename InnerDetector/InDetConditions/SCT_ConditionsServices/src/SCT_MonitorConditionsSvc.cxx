@@ -37,9 +37,6 @@
 //path resolver to find the file
 #include "PathResolver/PathResolver.h"
 
-// Read Handle
-#include "StoreGate/ReadHandle.h"
-
 #include <fstream>
 #include <iterator>
 #include <sstream>
@@ -170,9 +167,6 @@ StatusCode SCT_MonitorConditionsSvc::initialize(){
     return msg(MSG:: ERROR)<< "Failed to register callback" << endmsg, StatusCode::FAILURE;
   // This should not be here and causes a SG WARNING (CBG)
   //  m_IOVDbSvc->dropObject(s_defectFolderName,false);
-
-  // Read Handle Key
-  ATH_CHECK( m_evtKey.initialize(m_readWriteCool and (not m_twoStepWriteReg) and (not m_manualiov)) );
   
   return StatusCode::SUCCESS;
 }

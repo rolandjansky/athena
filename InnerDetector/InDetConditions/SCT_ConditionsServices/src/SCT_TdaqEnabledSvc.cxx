@@ -17,6 +17,9 @@
 #include <iterator>
 #include "boost/array.hpp"
 #include <iostream>
+//Use Event info to determine whether folder is expetd to have valid data
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
 #include "SCT_Cabling/SCT_OnlineId.h"
 
 // Read Handle
@@ -107,10 +110,6 @@ SCT_TdaqEnabledSvc::initialize(){
   ATH_CHECK(m_detStore->retrieve(m_pHelper,"SCT_ID"));
   // Retrieve cabling service
   ATH_CHECK(m_cablingSvc.retrieve());
-
-  // Read Handle Key
-  ATH_CHECK(m_eventInfoKey.initialize());
-
   return StatusCode::SUCCESS;
 }
 

@@ -29,32 +29,32 @@ namespace MuonCalib {
       operator unsigned int() const;
 
     private:
-      int type;
+      int m_type;
 
   };
 
-  inline  RpcCondParType::RpcCondParType() : type(0) {}
+  inline  RpcCondParType::RpcCondParType() : m_type(0) {}
 
   inline RpcCondParType::RpcCondParType(const unsigned int & t) {
-    type = t;
+    m_type = t;
   }
 
   inline RpcCondParType::RpcCondParType(const RpcCondParType & t) {
-    type = t;
+    m_type = t;
   }
 
   inline RpcCondParType & RpcCondParType::operator=(unsigned int t) {
-    type = t;
+    m_type = t;
     return *this;
   }
 
   inline RpcCondParType & RpcCondParType::operator=(const RpcCondParType& t) {
-    type = t;
+    m_type = t;
     return *this;
   }
 
   inline RpcCondParType::operator unsigned int() const {
-    return type;
+    return m_type;
   }
 
   inline std::ostream & operator<< (std::ostream& s , const RpcCondParType& type) {

@@ -2,15 +2,19 @@
 #  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
 
-#inputfile="MemGrowEvents.data"
-
-
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo.set_Value_and_Lock('atlas')
 globalflags.Luminosity.set_Value_and_Lock('zero')
 globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
 globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
+
+
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.OutputLevel( INFO )
+AlgScheduler.CheckDependencies( True )
+AlgScheduler.ShowControlFlow( True )
+AlgScheduler.ShowDataDependencies( True )
  
 from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
@@ -53,6 +57,15 @@ from AtlasGeoModel import GeoModelInit
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()
 
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+
+if not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) :
+    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+    condSeq+=xAODMaker__EventInfoCnvAlg()
+    pass
+
+
 include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 inputfile="root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data16_13TeV.00309640.physics_EnhancedBias.merge.RAW/data16_13TeV.00309640.physics_EnhancedBias.merge.RAW._lb0628._SFO-1._0001.1"
 svcMgr.ByteStreamInputSvc.FullFileName=[inputfile,]
@@ -60,8 +73,11 @@ from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.FilesInput=[inputfile,]
 
 from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
+from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+
 l1svc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
-l1svc.XMLMenuFile = "LVL1config_Physics_pp_v7.xml"
+l1svc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
 svcMgr += l1svc
 
 if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
@@ -85,7 +101,6 @@ ServiceMgr += ROBDataProviderSvc()
 #Run calo decoder
 from L1Decoder.L1DecoderConf import L1CaloDecoder
 caloDecoder = L1CaloDecoder() # by default it is steered towards the RoIBResult of the name above
-caloDecoder.OutputLevel=VERBOSE
 topSequence += caloDecoder
 
 from InDetRecExample.InDetJobProperties import InDetFlags
@@ -284,5 +299,4 @@ theFTFMT = TrigFastTrackFinderMT_eGamma()
 theFTFMT.outputLevel=VERBOSE
 
 #topSequence += theFTFMT
-
 

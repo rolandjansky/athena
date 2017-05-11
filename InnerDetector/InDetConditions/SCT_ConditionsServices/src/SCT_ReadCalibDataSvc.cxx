@@ -10,7 +10,12 @@
 #include "SCT_ReadCalibDataSvc.h"
 
 // Include Event Info 
+#include "EventInfo/EventIncident.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+#include "EventInfo/EventType.h"
 #include "CoralBase/TimeStamp.h"
+
 
 // Include Athena stuff
 #include "StoreGate/StoreGateSvc.h"
@@ -23,9 +28,6 @@
 #include "InDetReadoutGeometry/SCT_DetectorManager.h" 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "EventInfo/EventID.h"
-
-///Read Handle
-#include "StoreGate/ReadHandle.h"
 
 // Include Gaudi stuff
 #include "GaudiKernel/IIncidentSvc.h"
@@ -200,9 +202,6 @@ StatusCode SCT_ReadCalibDataSvc::initialize(){
     msg(MSG:: ERROR) << "IgnoreDefect != IgnoreDefectsParameters, check job options!" << endmsg;
     return StatusCode::FAILURE;
   }
-
-  // Read Handle Key
-  ATH_CHECK( m_eventInfoKey.initialize() );
   
   return StatusCode::SUCCESS;
 } // SCT_ReadCalibDataSvc::initialize()
