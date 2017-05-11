@@ -6,9 +6,30 @@
 atlas_subdir( TrigUpgradeTest )
 
 # Declare the package's dependencies:
-#atlas_depends_on_subdirs( PUBLIC
-#                          TestPolicy
-#                          )
+atlas_depends_on_subdirs( PUBLIC
+                          TestPolicy
+			  AtlasPolicy	
+			  GaudiKernel
+			  PRIVATE
+			  Control/AthenaBaseComps
+                          )
+
+find_package( Boost COMPONENTS filesystem thread system )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+
+atlas_add_library( TrigUpgradeTestLib
+                   src/*.cxx
+		   PUBLIC_HEADERS TrigUpgradeTest
+		   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+		   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
+		   GaudiKernel AthenaBaseComps )
+										                    
+atlas_add_component( TrigUpgradeTest
+                     src/components/*.cxx
+		     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+		     LINK_LIBRARIES ${Boost_LIBRARIES}
+		     ${ROOT_LIBRARIES} GaudiKernel
+		     AthenaBaseComps TrigUpgradeTestLib )
 
 atlas_add_test( GraphView1 SCRIPT scripts/GraphView.sh
                 ENVIRONMENT THREADS=1     )
