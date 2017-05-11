@@ -203,7 +203,6 @@ class TrigFastTrackFinderMTBase(TrigFastTrackFinderMT):
           ToolSvc += resCalc
           self.TrigL2ResidualCalculator = resCalc
           self.doCloneRemoval = InDetTrigSliceSettings[('doCloneRemoval',remapped_type)]
-          print self
 
 class TrigFastTrackFinderMT_eGamma(TrigFastTrackFinderMTBase):
   def __init__(self, name = "TrigFastTrackFinderMT_eGamma"):
