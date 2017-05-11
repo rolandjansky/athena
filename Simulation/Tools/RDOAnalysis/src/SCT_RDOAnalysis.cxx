@@ -327,7 +327,7 @@ StatusCode SCT_RDOAnalysis::execute() {
   m_charge_vec->clear();
 
   // RawData
-  SG::ReadHandle<SCT_RDO_Container> p_SCT_RDO_cont (m_inputContainer);
+  SG::ReadHandle<SCT_RDO_Container> p_SCT_RDO_cont (m_inputKey);
   if(p_SCT_RDO_cont.isValid()) {
     // loop over RDO container
     SCT_RDO_Container::const_iterator rdoCont_itr(p_SCT_RDO_cont->begin());

@@ -4,6 +4,7 @@
 
 
 #include "TGC_RDOAnalysis.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TTree.h"
 #include "TString.h"
@@ -15,6 +16,8 @@
 
 TGC_RDOAnalysis::TGC_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
+  , m_inputKey("TGCRDO")
+  , m_inputTruthKey("TGC_SDO")
   , m_tgcID(0)
   , m_tgcSubDetID(0)
   , m_tgcRodID(0)
@@ -105,6 +108,8 @@ TGC_RDOAnalysis::TGC_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_path("/TGC_RDOAnalysis/")
   , m_thistSvc("THistSvc", name)
 {
+  declareProperty("InputKey", m_inputKey);
+  declareProperty("InputTruthKey", m_inputTruthKey);
   declareProperty("NtupleFileName", m_ntupleFileName);
   declareProperty("NtupleDirectoryName", m_ntupleDirName);
   declareProperty("NtupleTreeName", m_ntupleTreeName);
@@ -113,6 +118,11 @@ TGC_RDOAnalysis::TGC_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
 
 StatusCode TGC_RDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing TGC_RDOAnalysis" );
+
+  // This will check that the properties were initialized
+  // properly by job configuration.
+  ATH_CHECK( m_inputKey.initialize() );
+  ATH_CHECK( m_inputTruthKey.initialize() );
 
   ATH_CHECK(m_thistSvc.retrieve());
 
@@ -349,8 +359,8 @@ StatusCode TGC_RDOAnalysis::execute() {
   m_radius_vec->clear();
   m_localZ_vec->clear();
 
-  const TgcRdoContainer* p_TGCcont;
-  if (evtStore()->retrieve(p_TGCcont, "TGCRDO") == StatusCode::SUCCESS) {
+  SG::ReadHandle<TgcRdoContainer> p_TGCcont (m_inputKey);
+  if(p_TGCcont.isValid()) {
     TgcRdoContainer::const_iterator tgcCont_itr(p_TGCcont->begin());
     const TgcRdoContainer::const_iterator tgcCont_end(p_TGCcont->end());
 
@@ -473,8 +483,8 @@ StatusCode TGC_RDOAnalysis::execute() {
   }
 
   // SimData
-  const MuonSimDataCollection* simDataMapTGC(nullptr);
-  if (evtStore()->retrieve(simDataMapTGC, "TGC_SDO") == StatusCode::SUCCESS) {
+  SG::ReadHandle<MuonSimDataCollection> simDataMapTGC (m_inputTruthKey);
+  if(simDataMapTGC.isValid()) {
     MuonSimDataCollection::const_iterator sdo_itr(simDataMapTGC->begin());
     const MuonSimDataCollection::const_iterator sdo_end(simDataMapTGC->end());
 

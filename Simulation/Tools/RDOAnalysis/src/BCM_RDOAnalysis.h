@@ -33,6 +33,8 @@ class BCM_RDOAnalysis : public AthAlgorithm {
   virtual StatusCode finalize();
 
  private:
+  SG::ReadHandleKey<BCM_RDO_Container> m_inputKey;
+  SG::ReadHandleKey<InDetSimDataCollection> m_inputTruthKey;
   // RDO
   std::vector<int>* m_word1;
   std::vector<int>* m_word2;

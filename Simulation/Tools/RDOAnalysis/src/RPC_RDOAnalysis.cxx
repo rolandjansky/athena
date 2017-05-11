@@ -4,6 +4,7 @@
 
 
 #include "RPC_RDOAnalysis.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TTree.h"
 #include "TString.h"
@@ -15,6 +16,8 @@
 
 RPC_RDOAnalysis::RPC_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
+  , m_inputKey("RPCPAD")
+  , m_inputTruthKey("RPC_SDO")
   , m_rpcID(0)
   , m_status(0)
   , m_err(0)
@@ -82,6 +85,8 @@ RPC_RDOAnalysis::RPC_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_path("/RPC_RDOAnalysis/")
   , m_thistSvc("THistSvc", name)
 {
+  declareProperty("InputKey", m_inputKey);
+  declareProperty("InputTruthKey", m_inputTruthKey);
   declareProperty("NtupleFileName", m_ntupleFileName);
   declareProperty("NtupleDirectoryName", m_ntupleDirName);
   declareProperty("NtupleTreeName", m_ntupleTreeName);
@@ -90,6 +95,11 @@ RPC_RDOAnalysis::RPC_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
 
 StatusCode RPC_RDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing RPC_RDOAnalysis" );
+
+  // This will check that the properties were initialized
+  // properly by job configuration.
+  ATH_CHECK( m_inputKey.initialize() );
+  ATH_CHECK( m_inputTruthKey.initialize() );
 
   ATH_CHECK(m_thistSvc.retrieve());
 
@@ -281,8 +291,8 @@ StatusCode RPC_RDOAnalysis::execute() {
   m_localZ_vec->clear();
 
   // RPC Pad
-  const RpcPadContainer* p_RPCpadCont;
-  if (evtStore()->retrieve(p_RPCpadCont, "RPCPAD") == StatusCode::SUCCESS) {
+  SG::ReadHandle<RpcPadContainer> p_RPCpadCont (m_inputKey);
+  if(p_RPCpadCont.isValid()) {
     // loop over RPC pad container
     RpcPadContainer::const_iterator rpc_itr(p_RPCpadCont->begin());
     const RpcPadContainer::const_iterator rpc_end(p_RPCpadCont->end());
@@ -368,8 +378,8 @@ StatusCode RPC_RDOAnalysis::execute() {
   }
 
   // SimData
-  const MuonSimDataCollection* simDataMapRPC(nullptr);
-  if (evtStore()->retrieve(simDataMapRPC, "RPC_SDO") == StatusCode::SUCCESS) {
+  SG::ReadHandle<MuonSimDataCollection> simDataMapRPC (m_inputTruthKey);
+  if(simDataMapRPC.isValid()) {
     MuonSimDataCollection::const_iterator sdo_itr(simDataMapRPC->begin());
     const MuonSimDataCollection::const_iterator sdo_end(simDataMapRPC->end());
 

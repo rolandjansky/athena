@@ -4,6 +4,7 @@
 
 
 #include "BCM_RDOAnalysis.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TTree.h"
 #include "TString.h"
@@ -15,6 +16,8 @@
 
 BCM_RDOAnalysis::BCM_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
+  , m_inputKey("BCM_RDOs")
+  , m_inputTruthKey("BCM_SDO_Map")
   , m_word1(0)
   , m_word2(0)
   , m_chan(0)
@@ -55,6 +58,8 @@ BCM_RDOAnalysis::BCM_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_path("/BCM_RDOAnalysis/")
   , m_thistSvc("THistSvc", name)
 {
+  declareProperty("InputKey", m_inputKey);
+  declareProperty("InputTruthKey", m_inputTruthKey);
   declareProperty("NtupleFileName", m_ntupleFileName);
   declareProperty("NtupleDirectoryName", m_ntupleDirName);
   declareProperty("NtupleTreeName", m_ntupleTreeName);
@@ -63,6 +68,11 @@ BCM_RDOAnalysis::BCM_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
 
 StatusCode BCM_RDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing BCM_RDOAnalysis" );
+
+  // This will check that the properties were initialized
+  // properly by job configuration.
+  ATH_CHECK( m_inputKey.initialize() );
+  ATH_CHECK( m_inputTruthKey.initialize() );
 
   // Grab Ntuple and histgoramming service for tree
   ATH_CHECK(m_thistSvc.retrieve());
@@ -174,8 +184,8 @@ StatusCode BCM_RDOAnalysis::execute() {
   m_charge_vec->clear();
   
   // RDO
-  const BCM_RDO_Container* p_BCM_RDO_cont;
-  if (evtStore()->retrieve(p_BCM_RDO_cont, "BCM_RDOs") == StatusCode::SUCCESS) {
+  SG::ReadHandle<BCM_RDO_Container> p_BCM_RDO_cont (m_inputKey);
+  if(p_BCM_RDO_cont.isValid()) {
     // loop over RDO container
     BCM_RDO_Container::const_iterator rdoCont_itr(p_BCM_RDO_cont->begin());
     const BCM_RDO_Container::const_iterator rdoCont_end(p_BCM_RDO_cont->end());
@@ -222,8 +232,8 @@ StatusCode BCM_RDOAnalysis::execute() {
   }
 
   // SDO
-  const InDetSimDataCollection* simDataMapBCM(nullptr);
-  if (evtStore()->retrieve(simDataMapBCM, "BCM_SDO_Map") == StatusCode::SUCCESS) {
+  SG::ReadHandle<InDetSimDataCollection> simDataMapBCM (m_inputTruthKey);
+  if(simDataMapBCM.isValid()) {
     // loop over SDO container
     InDetSimDataCollection::const_iterator sdo_itr(simDataMapBCM->begin());
     const InDetSimDataCollection::const_iterator sdo_end(simDataMapBCM->end());

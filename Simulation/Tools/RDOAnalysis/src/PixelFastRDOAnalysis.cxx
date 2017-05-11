@@ -4,6 +4,7 @@
 
 
 #include "PixelFastRDOAnalysis.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TTree.h"
 #include "TString.h"

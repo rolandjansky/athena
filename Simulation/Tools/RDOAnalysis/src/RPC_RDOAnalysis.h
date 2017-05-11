@@ -32,6 +32,8 @@ class RPC_RDOAnalysis : public AthAlgorithm {
   virtual StatusCode finalize();
 
  private:
+  SG::ReadHandleKey<RpcPadContainer> m_inputKey;
+  SG::ReadHandleKey<MuonSimDataCollection> m_inputTruthKey;
   std::vector<unsigned long long>* m_rpcID;
   std::vector<unsigned short int>* m_status;
   std::vector<unsigned short int>* m_err;

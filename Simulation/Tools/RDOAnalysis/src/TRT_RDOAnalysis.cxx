@@ -349,7 +349,7 @@ StatusCode TRT_RDOAnalysis::execute() {
   m_charge_vec->clear();
 
   // RawData
-  SG::ReadHandle<TRT_RDO_Container> p_TRT_RDO_cont (m_inputContainer);
+  SG::ReadHandle<TRT_RDO_Container> p_TRT_RDO_cont (m_inputKey);
   if(p_TRT_RDO_cont.isValid()) {
     // loop over RDO container
     TRT_RDO_Container::const_iterator rdoCont_itr(p_TRT_RDO_cont->begin());

@@ -4,6 +4,7 @@
 
 
 #include "MDT_RDOAnalysis.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TTree.h"
 #include "TString.h"
@@ -15,6 +16,8 @@
 
 MDT_RDOAnalysis::MDT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
+  , m_inputKey("MDTCSM")
+  , m_inputTruthKey("TGC_SDO")
   , m_mdtID(0)
   , m_mdtIDhash(0)
   , m_subID(0)
@@ -69,6 +72,8 @@ MDT_RDOAnalysis::MDT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_path("/MDT_RDOAnalysis/")
   , m_thistSvc("THistSvc", name)
 {
+  declareProperty("InputKey", m_inputKey);
+  declareProperty("InputTruthKey", m_inputTruthKey);
   declareProperty("NtupleFileName", m_ntupleFileName);
   declareProperty("NtupleDirectoryName", m_ntupleDirName);
   declareProperty("NtupleTreeName", m_ntupleTreeName);
@@ -77,6 +82,11 @@ MDT_RDOAnalysis::MDT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
 
 StatusCode MDT_RDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing MDT_RDOAnalysis" );
+
+  // This will check that the properties were initialized
+  // properly by job configuration.
+  ATH_CHECK( m_inputKey.initialize() );
+  ATH_CHECK( m_inputTruthKey.initialize() );
 
   ATH_CHECK(m_thistSvc.retrieve());
 
@@ -221,8 +231,8 @@ StatusCode MDT_RDOAnalysis::execute() {
   m_radius_vec->clear();
   m_localZ_vec->clear();
 
-  const MdtCsmContainer* p_MDTcont;
-  if (evtStore()->retrieve(p_MDTcont, "MDTCSM") == StatusCode::SUCCESS) {
+  SG::ReadHandle<MdtCsmContainer> p_MDTcont (m_inputKey);
+  if(p_MDTcont.isValid()) {
     MdtCsmContainer::const_iterator mdtCont_itr(p_MDTcont->begin());
     const MdtCsmContainer::const_iterator mdtCont_end(p_MDTcont->end());
 
@@ -282,8 +292,8 @@ StatusCode MDT_RDOAnalysis::execute() {
   }
 
   // SimData
-  const MuonSimDataCollection* simDataMapMDT(nullptr);
-  if (evtStore()->retrieve(simDataMapMDT, "MDT_SDO") == StatusCode::SUCCESS) {
+  SG::ReadHandle<MuonSimDataCollection> simDataMapMDT (m_inputTruthKey);
+  if(simDataMapMDT.isValid()) {
     MuonSimDataCollection::const_iterator sdo_itr(simDataMapMDT->begin());
     const MuonSimDataCollection::const_iterator sdo_end(simDataMapMDT->end());
 

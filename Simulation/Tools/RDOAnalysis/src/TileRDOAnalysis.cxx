@@ -4,6 +4,7 @@
 
 
 #include "TileRDOAnalysis.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TTree.h"
 #include "TString.h"

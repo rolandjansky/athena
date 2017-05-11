@@ -4,6 +4,7 @@
 
 
 #include "CSC_RDOAnalysis.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TTree.h"
 #include "TString.h"
@@ -15,6 +16,8 @@
 
 CSC_RDOAnalysis::CSC_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
+  , m_inputKey("CSCRDO")
+  , m_inputTruthKey("CSC_SDO")
   , m_collID(0)
   , m_rodID(0)
   , m_subID(0)
@@ -86,6 +89,8 @@ CSC_RDOAnalysis::CSC_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_path("/CSC_RDOAnalysis/")
   , m_thistSvc("THistSvc", name)
 {
+  declareProperty("InputKey", m_inputKey);
+  declareProperty("InputTruthKey", m_inputTruthKey);
   declareProperty("NtupleFileName", m_ntupleFileName);
   declareProperty("NtupleDirectoryName", m_ntupleDirName);
   declareProperty("NtupleTreeName", m_ntupleTreeName);
@@ -94,6 +99,11 @@ CSC_RDOAnalysis::CSC_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
 
 StatusCode CSC_RDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing CSC_RDOAnalysis" );
+
+  // This will check that the properties were initialized
+  // properly by job configuration.
+  ATH_CHECK( m_inputKey.initialize() );
+  ATH_CHECK( m_inputTruthKey.initialize() );
 
   ATH_CHECK(m_thistSvc.retrieve());
 
@@ -281,8 +291,8 @@ StatusCode CSC_RDOAnalysis::execute() {
   m_zpos_vec->clear();
   m_charge_vec->clear();
   
-  const CscRawDataContainer* p_CSCcont;
-  if (evtStore()->retrieve(p_CSCcont, "CSCRDO") == StatusCode::SUCCESS) {
+  SG::ReadHandle<CscRawDataContainer> p_CSCcont (m_inputKey);
+  if(p_CSCcont.isValid()) {
     CscRawDataContainer::const_iterator cscCont_itr(p_CSCcont->begin());
     const CscRawDataContainer::const_iterator cscCont_end(p_CSCcont->end());
 
@@ -380,8 +390,8 @@ StatusCode CSC_RDOAnalysis::execute() {
   }
 
   // SimData
-  const CscSimDataCollection* simDataMapCSC(nullptr);
-  if (evtStore()->retrieve(simDataMapCSC, "CSC_SDO") == StatusCode::SUCCESS) {
+  SG::ReadHandle<CscSimDataCollection> simDataMapCSC (m_inputTruthKey);
+  if(simDataMapCSC.isValid()) {
     CscSimDataCollection::const_iterator sdo_itr(simDataMapCSC->begin());
     const CscSimDataCollection::const_iterator sdo_end(simDataMapCSC->end());
 

@@ -4,6 +4,7 @@
 
 
 #include "PixelRDOAnalysis.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TTree.h"
 #include "TString.h"
@@ -354,7 +355,7 @@ StatusCode PixelRDOAnalysis::execute() {
   m_charge_vec->clear();
   
   // Raw Data
-  SG::ReadHandle<PixelRDO_Container> p_pixelRDO_cont (m_inputContainer);
+  SG::ReadHandle<PixelRDO_Container> p_pixelRDO_cont (m_inputKey);
   if(p_pixelRDO_cont.isValid()) {
     // loop over RDO container
     PixelRDO_Container::const_iterator rdoCont_itr(p_pixelRDO_cont->begin());

@@ -32,6 +32,8 @@ class TGC_RDOAnalysis : public AthAlgorithm {
   virtual StatusCode finalize();
   
  private:
+  SG::ReadHandleKey<TgcRdoContainer> m_inputKey;
+  SG::ReadHandleKey<MuonSimDataCollection> m_inputTruthKey;
   // TgcRdo
   std::vector<uint16_t>* m_tgcID;
   std::vector<uint16_t>* m_tgcSubDetID;

@@ -32,6 +32,8 @@ class CSC_RDOAnalysis : public AthAlgorithm {
   virtual StatusCode finalize();
 
  private:
+  SG::ReadHandleKey<CscRawDataContainer> m_inputKey;
+  SG::ReadHandleKey<CscSimDataCollection> m_inputTruthKey;
   // RDO
   // CscRawDataCollection
   std::vector<uint16_t>* m_collID; 

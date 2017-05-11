@@ -32,6 +32,8 @@ class MDT_RDOAnalysis : public AthAlgorithm {
   virtual StatusCode finalize();
 
  private:
+  SG::ReadHandleKey<MdtCsmContainer> m_inputKey;
+  SG::ReadHandleKey<MuonSimDataCollection> m_inputTruthKey;
   // RDO
   // MdtCsm - AmtHits of single Mdt chamber
   std::vector<unsigned long long>* m_mdtID; // csm offline id

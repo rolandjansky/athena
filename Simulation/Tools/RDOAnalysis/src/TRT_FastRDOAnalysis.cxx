@@ -4,6 +4,7 @@
 
 
 #include "TRT_FastRDOAnalysis.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TTree.h"
 #include "TString.h"
