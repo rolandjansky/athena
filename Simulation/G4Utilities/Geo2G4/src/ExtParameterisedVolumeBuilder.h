@@ -2,10 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ExtParameterisedVolumeBuilder_H
-#define ExtParameterisedVolumeBuilder_H
+#ifndef GEO2G4_ExtParameterisedVolumeBuilder_H
+#define GEO2G4_ExtParameterisedVolumeBuilder_H
 
-#include "Geo2G4/VolumeBuilder.h"
+#include "VolumeBuilder.h"
 #include "AthenaKernel/MsgStreamMember.h"
 #include <string>
 
@@ -17,7 +17,7 @@ class ExtParameterisedVolumeBuilder: public VolumeBuilder
 public:
   ExtParameterisedVolumeBuilder(std::string n);
   ///
-  LogicalVolume* Build(PVConstLink pv, OpticalVolumesMap* optical_volumes = 0) const;
+  G4LogicalVolume* Build(PVConstLink pv, OpticalVolumesMap* optical_volumes = 0) const;
   ///
   Geo2G4AssemblyVolume* BuildAssembly(PVConstLink pv) const;
   /// Log a message using the Athena controlled logging system
@@ -30,9 +30,9 @@ public:
   ///
   void getMatEther() const;
 
-  mutable bool               _getMatEther;
-  mutable const GeoMaterial* _matEther;
-  mutable const GeoMaterial* _matHypUr;
+  mutable bool               m_getMatEther;
+  mutable const GeoMaterial* m_matEther;
+  mutable const GeoMaterial* m_matHypUr;
   /// Private message stream member
   mutable Athena::MsgStreamMember m_msg;
 };
