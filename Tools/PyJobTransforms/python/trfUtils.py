@@ -1245,7 +1245,7 @@ def ValgrindCommand(
 def calcCpuTime(start, stop):
     cpuTime = None
     if start and stop:
-        cpuTime = int(reduce(lambda x1, x2: x1+x2, map(lambda x1, x2: x2-x1, start[2:4], stop[2:4])) + 0.5)
+        cpuTime = reduce(lambda x1, x2: x1+x2, map(lambda x1, x2: x2-x1, start[2:4], stop[2:4]))
 
     return cpuTime
 
@@ -1253,6 +1253,6 @@ def calcCpuTime(start, stop):
 def calcWallTime(start, stop):
     wallTime = None
     if start and stop:
-        wallTime = int(stop[4] - start[4] + 0.5)
+        wallTime = stop[4] - start[4]
 
     return wallTime

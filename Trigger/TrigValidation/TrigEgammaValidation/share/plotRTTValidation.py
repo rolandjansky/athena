@@ -19,7 +19,7 @@ gROOT.ProcessLine("gErrorIgnoreLevel=4000;")
 ### Set folder names and parameters
 #########################################################################################
 doReference=True
-basePathExpert="HLT/Egamma/Expert/Event/"
+basePathExpert="run_222525/HLT/Egamma/Expert/Event/"
 extraplots=["Zee_nProbes","Zee_nProbesHLT","Zee_EffHLT"]
 #tpplots=["nProbes","nProbesL1","nProbesL2Calo","nProbesEFCalo","nProbesHLT","EffL1","EffL2","EffEFCalo","EffHLT"]
 name="Analysis_Event"+".pdf"

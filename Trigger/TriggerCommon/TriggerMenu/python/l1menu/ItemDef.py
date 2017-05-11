@@ -1134,6 +1134,10 @@ class ItemDef:
             LVL1MenuItem('L1_AFP_A_SPECTOF_BGRP0').setLogic( AFP_FSA_TOF & BGRP0)
             LVL1MenuItem('L1_AFP_C_BGRP0').setLogic( AFP_C & BGRP0)
             LVL1MenuItem('L1_AFP_C_SPECTOF_BGRP0').setLogic( AFP_FSC_TOF & BGRP0)
+            LVL1MenuItem('L1_AFP_NSA_BGRP0').setLogic( AFP_NSA & BGRP0)
+            LVL1MenuItem('L1_AFP_NSC_BGRP0').setLogic( AFP_NSC & BGRP0)
+            LVL1MenuItem('L1_AFP_FSA_SIT_BGRP0').setLogic( AFP_FSA_SIT & BGRP0)
+            LVL1MenuItem('L1_AFP_FSC_SIT_BGRP0').setLogic( AFP_FSC_SIT & BGRP0)
 
             LVL1MenuItem('L1_AFP_A_OR_C_UNPAIRED_ISO').setLogic( (AFP_A | AFP_C)  & unpaired_isocond )
             LVL1MenuItem('L1_AFP_A_OR_C_UNPAIRED_NONISO').setLogic( (AFP_A | AFP_C)  & unpaired_nonisocond )

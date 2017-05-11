@@ -246,6 +246,7 @@ else:           # More data modifiers
                                 'muCTPicheck',
                                 #Monitoring L1Topo at ROB level
                                 'L1TopoCheck',
+                                'forceTileRODMap',
                               #for tests with data:
                                 #'ignoreErrorStream', #nothing goes to debug stream
                                 #'inclusiveErrorStream', #errors go to both debug and physics streams

@@ -100,7 +100,7 @@ TrigMuSuperEF::TrigMuSuperEF(const std::string& name, ISvcLocator* pSvcLocator) 
   m_debug(false),
   m_verbose(false),
   m_muonCombinedTool("MuonCombined::MuonCombinedTool/MuonCombinedTool"),
-  m_muGirlTool("MuonCombined::MuGirlTagTool/MuGirlTagTool"),
+  m_muGirlTool("TMEF_MuonInsideOutRecoTool"),
   m_caloTagTool("TrigMuSuperEF_MuonCaloTagTool"),
   m_muonSegmentTagTool("MuonCombined::MuonCombinedTool/MuonSegmentTagTool"),
   m_TrackToTrackParticleConvTool("TrackToTrackParticleConvTool",this),
