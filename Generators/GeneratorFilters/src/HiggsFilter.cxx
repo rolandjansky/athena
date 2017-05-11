@@ -74,7 +74,7 @@ StatusCode HiggsFilter::filterEvent() {
     for(; pitr!=genEvt->particles_end(); ++pitr ){
 
       // Work only with tops
-      if( fabs((*pitr)->pdg_id()) == 25 ){
+      if( std::abs((*pitr)->pdg_id()) == 25 ){
 	
 	N_Higgs_all++;
 	
@@ -99,7 +99,7 @@ StatusCode HiggsFilter::filterEvent() {
 	    HepMC::GenParticle * child_mcpart = (*child_mcpartItr);
 	    
 	    //  Implicitly, I assume that tops always decay to W X
-	    if ( fabs(child_mcpart->pdg_id()) == 5 ){
+	    if ( std::abs(child_mcpart->pdg_id()) == 5 ){
 
 	      if ( (*pitr)->pdg_id() ==  25 ) {
 		N_Higgs++;

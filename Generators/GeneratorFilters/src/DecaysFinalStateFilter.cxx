@@ -47,8 +47,6 @@ DecaysFinalStateFilter::DecaysFinalStateFilter(const std::string& name, ISvcLoca
 
 
 StatusCode DecaysFinalStateFilter::filterEvent() {
-  MsgStream log(messageService(), name());
-
   int nChargedLeptons = 0;
   int nQuarks = 0;
   int nNeutrinos = 0;

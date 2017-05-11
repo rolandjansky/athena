@@ -35,15 +35,15 @@ BSignalFilter::BSignalFilter(const std::string& name, ISvcLocator* pSvcLocator) 
   GenFilter(name, pSvcLocator)
 {
   // ** Declare the algorithm's properties **
-  declareProperty("LVL1MuonCutOn"            , localLVL1MuonCutOn = false     );
-  declareProperty("LVL2MuonCutOn"            , localLVL2MuonCutOn = false     );
-  declareProperty("LVL2ElectronCutOn"        , localLVL2ElectronCutOn = false );
-  declareProperty("LVL1MuonCutPT"            , localLVL1MuonCutPT = 0.0       );
-  declareProperty("LVL1MuonCutEta"           , localLVL1MuonCutEta = 102.5    );
-  declareProperty("LVL2MuonCutPT"            , localLVL2MuonCutPT = 0.0       );
-  declareProperty("LVL2MuonCutEta"           , localLVL2MuonCutEta = 102.5    );
-  declareProperty("LVL2ElectronCutPT"        , localLVL2ElectronCutPT = 0.0   );
-  declareProperty("LVL2ElectronCutEta"       , localLVL2ElectronCutEta = 102.5);
+  declareProperty("LVL1MuonCutOn"            , m_localLVL1MuonCutOn = false   );
+  declareProperty("LVL2MuonCutOn"            , m_localLVL2MuonCutOn = false   );
+  declareProperty("LVL2ElectronCutOn"        , m_localLVL2ElectronCutOn = false);
+  declareProperty("LVL1MuonCutPT"            , m_localLVL1MuonCutPT = 0.0     );
+  declareProperty("LVL1MuonCutEta"           , m_localLVL1MuonCutEta = 102.5  );
+  declareProperty("LVL2MuonCutPT"            , m_localLVL2MuonCutPT = 0.0     );
+  declareProperty("LVL2MuonCutEta"           , m_localLVL2MuonCutEta = 102.5  );
+  declareProperty("LVL2ElectronCutPT"        , m_localLVL2ElectronCutPT = 0.0 );
+  declareProperty("LVL2ElectronCutEta"       , m_localLVL2ElectronCutEta = 102.5);
   declareProperty("Cuts_Final_e_switch"      , m_cuts_f_e_on    = false );
   declareProperty("Cuts_Final_e_pT"          , m_cuts_f_e_pT    = 0.    );
   declareProperty("Cuts_Final_e_eta"         , m_cuts_f_e_eta   = 2.5   );
@@ -72,10 +72,10 @@ BSignalFilter::BSignalFilter(const std::string& name, ISvcLocator* pSvcLocator) 
 
   // ** Initialise event counter **
   m_EventCnt      = 0;
-  LVL1Counter     = 0;
-  LVL2Counter     = 0;
-  rejectedTrigger = 0;
-  rejectedAll     = 0;
+  m_LVL1Counter     = 0;
+  m_LVL2Counter     = 0;
+  m_rejectedTrigger = 0;
+  m_rejectedAll     = 0;
 
 }
 
@@ -114,7 +114,7 @@ StatusCode BSignalFilter::filterEvent()
       bool LVL1Passed = false;
       int LVL1MuonBarcode = 0;
       //
-      if ( localLVL1MuonCutOn )
+      if ( m_localLVL1MuonCutOn )
         {
 	  //
 	  for( pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr )
@@ -133,7 +133,7 @@ StatusCode BSignalFilter::filterEvent()
       //
       bool LVL2Passed = false;
       //
-      if ( LVL1Passed && (localLVL2MuonCutOn || localLVL2ElectronCutOn) )
+      if ( LVL1Passed && (m_localLVL2MuonCutOn || m_localLVL2ElectronCutOn) )
         {
 	  for( pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr )
             {
@@ -150,27 +150,27 @@ StatusCode BSignalFilter::filterEvent()
 
       // ** Flag event as passing LVL1 if it has passed **
       //
-      if ( localLVL1MuonCutOn && LVL1Passed )
+      if ( m_localLVL1MuonCutOn && LVL1Passed )
         {
 	  ATH_MSG_DEBUG(" LVL1 Trigger activated for event " << m_EventCnt);
-	  LVL1Counter++;
+	  m_LVL1Counter++;
         }
       // ** Flag event as passing LVL2 if it has passed **
       //
-      if ( (localLVL2MuonCutOn || localLVL2ElectronCutOn) && LVL2Passed )
+      if ( (m_localLVL2MuonCutOn || m_localLVL2ElectronCutOn) && LVL2Passed )
         {
 	  ATH_MSG_DEBUG(" LVL2 Trigger activated for event " << m_EventCnt);
-	  LVL2Counter++;
+	  m_LVL2Counter++;
         }
 
       // ** If user hasn't requested triggers then set everything to true so nothing is thrown away **
       //
-      if ( !localLVL1MuonCutOn )
+      if ( !m_localLVL1MuonCutOn )
         {
 	  LVL1Passed = true;
 	  LVL2Passed = true;
         }
-      if ( !localLVL2MuonCutOn && !localLVL2ElectronCutOn ) LVL2Passed = true;
+      if ( !m_localLVL2MuonCutOn && !m_localLVL2ElectronCutOn ) LVL2Passed = true;
 
       // ** Reject event if an undecayed quark is found **
       //
@@ -323,7 +323,7 @@ StatusCode BSignalFilter::filterEvent()
       //    --> If not requested by user these flags will be set
       //        to true so there will be no erroneous rejection
       if ( (!LVL1Passed) || (!LVL2Passed) ){
-	rejectedTrigger++;
+	m_rejectedTrigger++;
 	acceptEvent = false;
       }
 
@@ -337,7 +337,7 @@ StatusCode BSignalFilter::filterEvent()
       if( !acceptEvent )
         {
 	  setFilterPassed(false);
-	  rejectedAll++;
+	  m_rejectedAll++;
 	  ATH_MSG_DEBUG(" ==========================");
 	  ATH_MSG_DEBUG("  Event REJECTED by Filter ");
 	  ATH_MSG_DEBUG(" ==========================");
@@ -370,8 +370,8 @@ bool BSignalFilter::LVL1_Mu_Trigger(const HepMC::GenParticle* child) const
   double myPT  = child->momentum().perp();
   double myEta = child->momentum().pseudoRapidity();
 
-  if ( (abs(pID) == 13) && localLVL1MuonCutOn )
-    accept = test_cuts( myPT, localLVL1MuonCutPT, myEta, localLVL1MuonCutEta );
+  if ( (abs(pID) == 13) && m_localLVL1MuonCutOn )
+    accept = test_cuts( myPT, m_localLVL1MuonCutPT, myEta, m_localLVL1MuonCutEta );
 
   return accept;
 
@@ -385,10 +385,10 @@ bool BSignalFilter::LVL2_eMu_Trigger(const HepMC::GenParticle* child) const
   double myPT  = child->momentum().perp();
   double myEta = child->momentum().pseudoRapidity();
 
-  if ( (abs(pID) == 11) && localLVL2ElectronCutOn )
-    accept = test_cuts( myPT, localLVL2ElectronCutPT, myEta, localLVL2ElectronCutEta );
-  if ( (abs(pID) == 13) && localLVL2MuonCutOn )
-    accept = test_cuts( myPT, localLVL2MuonCutPT, myEta, localLVL2MuonCutEta );
+  if ( (abs(pID) == 11) && m_localLVL2ElectronCutOn )
+    accept = test_cuts( myPT, m_localLVL2ElectronCutPT, myEta, m_localLVL2ElectronCutEta );
+  if ( (abs(pID) == 13) && m_localLVL2MuonCutOn )
+    accept = test_cuts( myPT, m_localLVL2MuonCutPT, myEta, m_localLVL2MuonCutEta );
 
   return accept;
 }
@@ -621,52 +621,52 @@ StatusCode BSignalFilter::filterFinalize()
   ATH_MSG_ALWAYS(" I===============================================================================================");
   ATH_MSG_ALWAYS(" I                                    BSignalFilter Summary Report                               ");
   ATH_MSG_ALWAYS(" I===============================================================================================");
-  if (localLVL1MuonCutOn)
+  if (m_localLVL1MuonCutOn)
     {
       ATH_MSG_ALWAYS(" I  LVL1 muon trigger report:");
       ATH_MSG_ALWAYS(" I        Muon pT cut " << '\t' << '\t' << '\t' << '\t' << '\t' << '\t' << '\t' << '\t' << "I" << '\t'
-		     << localLVL1MuonCutPT << " MeV ");
+		     << m_localLVL1MuonCutPT << " MeV ");
       ATH_MSG_ALWAYS(" I        Muon pseudo-rapidity cut" << '\t' << '\t' << '\t' << '\t' << '\t' << '\t' << '\t' << "I" << '\t'
-		     << localLVL1MuonCutEta);
+		     << m_localLVL1MuonCutEta);
       ATH_MSG_ALWAYS(" I        No of events containing at least " << '\t' << '\t' << '\t' << '\t' << '\t' << "I");
       ATH_MSG_ALWAYS(" I        one particle satisfying these cuts " << '\t' << '\t' << '\t' << '\t' << '\t' << "I" << '\t'
-		     << LVL1Counter);
-      if (localLVL2MuonCutOn)
+		     << m_LVL1Counter);
+      if (m_localLVL2MuonCutOn)
         {
 	  ATH_MSG_ALWAYS(" I  LVL2 muon trigger report:");
 	  ATH_MSG_ALWAYS(" I        Muon pT cut " << '\t' << '\t' << '\t' << '\t' << '\t' << '\t' << '\t' << '\t' << "I" << '\t'
-			 << localLVL2MuonCutPT << " MeV ");
+			 << m_localLVL2MuonCutPT << " MeV ");
 	  ATH_MSG_ALWAYS(" I        Muon pseudo-rapidity cut " << '\t' << '\t' << '\t' << '\t' << '\t'  << '\t' << "I" << '\t'
-			 << localLVL2MuonCutEta);
+			 << m_localLVL2MuonCutEta);
         }
-      if (localLVL2ElectronCutOn)
+      if (m_localLVL2ElectronCutOn)
         {
 	  ATH_MSG_ALWAYS(" I  LVL2 electron trigger report:");
 	  ATH_MSG_ALWAYS(" I        Electron pT cut " << '\t' << '\t' << '\t' << '\t' << '\t' << '\t' << '\t' <<
-			 " I" << '\t' << localLVL2ElectronCutPT << " MeV ");
+			 " I" << '\t' << m_localLVL2ElectronCutPT << " MeV ");
 	  ATH_MSG_ALWAYS(" I        Electron pseudo-rapidity cut " << '\t' << '\t' << '\t' << '\t' << '\t' << "I"
-			 << '\t' << localLVL2ElectronCutEta);
+			 << '\t' << m_localLVL2ElectronCutEta);
         }
-      if (localLVL2MuonCutOn || localLVL2ElectronCutOn)
+      if (m_localLVL2MuonCutOn || m_localLVL2ElectronCutOn)
         {
 	  ATH_MSG_ALWAYS(" I        No of events containing at least one muon satisfying LVL1 cut" << '\t' << "I");
 	  ATH_MSG_ALWAYS(" I        and at least one separate particle passing these LVL2 cuts " << '\t' << '\t' << "I" << '\t'
-			 << LVL2Counter);
+			 << m_LVL2Counter);
         }
     }
   ATH_MSG_ALWAYS(" I  Total no of input events " << '\t'<< '\t'<< '\t'<< '\t'<< '\t'<< '\t'<< '\t' << "I" << '\t'
 		 << total);
   ATH_MSG_ALWAYS(" I  No of events rejected by trigger " << '\t' << '\t'<< '\t'<< '\t'<< '\t'<< '\t'<< '\t' << "I" << '\t'
-		 << rejectedTrigger);
+		 << m_rejectedTrigger);
   ATH_MSG_ALWAYS(" I  No of events rejected in total " << '\t' << '\t'<< '\t'<< '\t'<< '\t'<< '\t'<< '\t' << "I" << '\t'
-		 << rejectedAll);
-  if (localLVL1MuonCutOn && (!localLVL2MuonCutOn && !localLVL2ElectronCutOn))
+		 << m_rejectedAll);
+  if (m_localLVL1MuonCutOn && (!m_localLVL2MuonCutOn && !m_localLVL2ElectronCutOn))
     ATH_MSG_ALWAYS(" I  To obtain correct cross section, multiply BX in PythiaB report by " << '\t' << '\t' << "I" << '\t'
-		   << LVL1Counter / total);
-  if (localLVL1MuonCutOn && (localLVL2MuonCutOn || localLVL2ElectronCutOn))
+		   << m_LVL1Counter / total);
+  if (m_localLVL1MuonCutOn && (m_localLVL2MuonCutOn || m_localLVL2ElectronCutOn))
     ATH_MSG_ALWAYS(" I  To obtain correct cross section, multiply BX in PythiaB report by " << '\t' << '\t' << "I" << '\t'
-		   << LVL2Counter / total);
-  if (!localLVL1MuonCutOn)
+		   << m_LVL2Counter / total);
+  if (!m_localLVL1MuonCutOn)
     ATH_MSG_ALWAYS(" I  No trigger requests made");
   //
   ATH_MSG_ALWAYS(" I=========================================== End of report =====================================");
