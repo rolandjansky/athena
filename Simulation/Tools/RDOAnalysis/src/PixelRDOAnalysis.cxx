@@ -15,6 +15,8 @@
 
 PixelRDOAnalysis::PixelRDOAnalysis(const std::string& name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
+  , m_inputKey("PixelRDOs")
+  , m_inputTruthKey("PixelSDO_Map")
   , m_pixelID(nullptr)
   , m_rdoID(0)
   , m_rdoWord(0)
@@ -85,6 +87,8 @@ PixelRDOAnalysis::PixelRDOAnalysis(const std::string& name, ISvcLocator *pSvcLoc
   , m_path("/PixelRDOAnalysis/")
   , m_thistSvc("THistSvc", name)
 {
+  declareProperty("InputKey", m_inputKey);
+  declareProperty("InputTruthKey", m_inputTruthKey);
   declareProperty("NtupleFileName", m_ntupleFileName);
   declareProperty("NtupleDirectoryName", m_ntupleDirName);
   declareProperty("NtupleTreeName", m_ntupleTreeName);
@@ -93,6 +97,11 @@ PixelRDOAnalysis::PixelRDOAnalysis(const std::string& name, ISvcLocator *pSvcLoc
 
 StatusCode PixelRDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing PixelRDOAnalysis" );
+
+  // This will check that the properties were initialized
+  // properly by job configuration.
+  ATH_CHECK( m_inputKey.initialize() );
+  ATH_CHECK( m_inputTruthKey.initialize() );
 
   // Grab PixelID helper
   ATH_CHECK(detStore()->retrieve(m_pixelID, "PixelID"));
@@ -345,8 +354,8 @@ StatusCode PixelRDOAnalysis::execute() {
   m_charge_vec->clear();
   
   // Raw Data
-  const PixelRDO_Container* p_pixelRDO_cont;
-  if (evtStore()->retrieve(p_pixelRDO_cont, "PixelRDOs") == StatusCode::SUCCESS) {
+  SG::ReadHandle<PixelRDO_Container> p_pixelRDO_cont (m_inputContainer);
+  if(p_pixelRDO_cont.isValid()) {
     // loop over RDO container
     PixelRDO_Container::const_iterator rdoCont_itr(p_pixelRDO_cont->begin());
     const PixelRDO_Container::const_iterator rdoCont_end(p_pixelRDO_cont->end());
@@ -422,8 +431,8 @@ StatusCode PixelRDOAnalysis::execute() {
   }
 
   // Sim Data
-  const InDetSimDataCollection* simDataMapPixel(nullptr);
-  if (evtStore()->retrieve(simDataMapPixel, "PixelSDO_Map") == StatusCode::SUCCESS) {
+  SG::ReadHandle<InDetSimDataCollection> simDataMapPixel (m_inputTruthKey);
+  if(simDataMapPixel.isValid()) {
     // loop over SDO container
     InDetSimDataCollection::const_iterator sdo_itr(simDataMapPixel->begin());
     const InDetSimDataCollection::const_iterator sdo_end(simDataMapPixel->end());

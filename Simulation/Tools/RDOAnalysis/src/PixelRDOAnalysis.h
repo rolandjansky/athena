@@ -36,6 +36,8 @@ class PixelRDOAnalysis : public AthAlgorithm {
   virtual StatusCode finalize();
 
  private:
+  SG::ReadHandleKey<PixelRDO_Container> m_inputKey;
+  SG::ReadHandleKey<InDetSimDataCollection> m_inputTruthKey;
   const PixelID *m_pixelID;
   // RDO
   std::vector<unsigned long long>* m_rdoID;
