@@ -47,7 +47,7 @@ void testValue(double v1, double v2) {
 #ifdef XAOD_ANALYSIS
 
 #include "AsgTools/AnaToolHandle.h"
-#include "PileupReweighting/IPileupReweightingTool.h"
+#include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 
 #include "TROOT.h"
 
@@ -66,6 +66,7 @@ int main() {
    asg::AnaToolHandle<CP::IPileupReweightingTool> prwTool("CP::PileupReweightingTool/prw");
    ANA_CHECK( prwTool.setProperty( "ConfigFiles", std::vector<std::string>({"dummy1.prw.root"}) ) );
    ANA_CHECK( prwTool.setProperty( "LumiCalcFiles",  std::vector<std::string>({"dummy.None.lumicalc.root"}) ) );
+   ANA_CHECK( prwTool.setProperty( "UseMultiPeriods",true) ); //channel 2000 has periods 100 and 101
    ANA_CHECK( prwTool.initialize() );
 
    ///This is an example of retrieving the pileup weight

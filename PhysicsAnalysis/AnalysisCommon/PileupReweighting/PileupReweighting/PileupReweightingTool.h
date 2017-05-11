@@ -9,15 +9,16 @@
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
 
+#include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 
 // Local include(s):
-#include "PileupReweighting/IPileupReweightingTool.h"
+
 #include "PileupReweighting/TPileupReweighting.h"
 
 #include "AsgTools/ToolHandle.h"
 #include "PATInterfaces/IWeightTool.h"
 
-
+#include "TrigDecisionInterface/ITrigDecisionTool.h"
 
 namespace CP {
 
@@ -127,6 +128,7 @@ namespace CP {
 
    protected:
       virtual bool runLbnOK(Int_t runNbr, Int_t lbn);
+      virtual bool passTriggerBeforePrescale(const TString& trigger) const;
 
    private:
       std::string m_configStream;
@@ -150,6 +152,7 @@ namespace CP {
 
       ToolHandle<IWeightTool> m_weightTool;
       ToolHandle<IGoodRunsListSelectionTool> m_grlTool;
+      ToolHandle<Trig::ITrigDecisionTool> m_tdt;
 
       // MN:  this prevents ROOT dict generator from complaining about lack of ClassDef()
       // Note: inheriting from TObject and not having ClassDef makes this class unsuitable for I/O
