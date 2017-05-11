@@ -1,15 +1,14 @@
-410000,,1.195,0.543,,XsecTTbarNominal,TTbarBulk,Filter efficiency inserted by hand since wrong in AMI (A.Knue),ttbar bulk Powheg+Py6 - hdamp=mtop - P2012 - non-allhad
-410001,,,0.543,,XsecTTbarNominal,TTbarBulk,Filter efficiency inserted by hand since wrong in AMI (A.Knue),ttbar bulk Powheg+Py6 - hdamp=2mtop - scale=0.5 - P2012radHi - non-allhad
-410002,,,0.543,,XsecTTbarNominal,TTbarBulk,Filter efficiency inserted by hand since wrong in AMI (A.Knue),ttbar bulk Powheg+Py6 - hdamp=mtop - scale=2.0 - P2012radLo - non-allhad
-410003,,,0.543,,XsecTTbarNominal,TTbarBulk,,ttbar bulk aMC@NLO+Herwig++ - UE-EE-5 tune non-allhad
-410004,,,0.543,,XsecTTbarNominal,TTbarBulk,,ttbar bulk Powheg+Herwig++ - hdamp=mtop - UE-EE-5 tune non-allhad
-410006,,,0.543,,XsecTTbarNominal,TTbarBulk,,ttbar bulk Powheg+Py8 - hdamp=mtop - A14 tune - non-allhad
+410000,,1.195,0.5442,,XsecTTbarNominal,TTbarBulk,Filter efficiency inserted by hand since wrong in AMI (A.Knue),ttbar bulk Powheg+Py6 - hdamp=mtop - P2012 - non-allhad
+410001,,,0.5442,,XsecTTbarNominal,TTbarBulk,Filter efficiency inserted by hand since wrong in AMI (A.Knue),ttbar bulk Powheg+Py6 - hdamp=2mtop - scale=0.5 - P2012radHi - non-allhad
+410002,,,0.5442,,XsecTTbarNominal,TTbarBulk,Filter efficiency inserted by hand since wrong in AMI (A.Knue),ttbar bulk Powheg+Py6 - hdamp=mtop - scale=2.0 - P2012radLo - non-allhad
+410003,,,0.5442,,XsecTTbarNominal,TTbarBulk,,ttbar bulk aMC@NLO+Herwig++ - UE-EE-5 tune non-allhad
+410004,,,0.5442,,XsecTTbarNominal,TTbarBulk,,ttbar bulk Powheg+Herwig++ - hdamp=mtop - UE-EE-5 tune non-allhad
+410006,,,0.5442,,XsecTTbarNominal,TTbarBulk,,ttbar bulk Powheg+Py8 - hdamp=mtop - A14 tune - non-allhad
 410007,,1.195,0.457,,XsecTTbarNominal,TTbarBulk,,ttbar bulk Powheg+Py6 - hdamp=mtop - P2012 - allhadronic
 410008,,,0.457,,XsecTTbarNominal,TTbarBulk,,ttbar bulk aMC@NLO+Herwig++ - UE-EE-5 tune - allhadronic
 410009,,1.195,0.10534,,XsecTTbarNominal,TTbarBulk,,
 410120,,,0.034624,,XsecTTbarNominal,TTbarBulk,,
 410121,,,0.0064567,,XsecTTbarNominal,TTbarBulk,,
-
 410011,,,,,XsecSingleTopTchanTBR,SingleTop,Higher order cross-section corrected for leptonic BR=0.1082 x 3,Powheg+Pythia6 t-channel production top with CT10 and Perugia2012 tune
 410012,,,,,XsecSingleTopTchanATBR,SingleTop,Higher order cross-section corrected for leptonic BR=0.1082 x 3,Powheg+Pythia6 t-channel production anti-top with CT10 and Perugia2012 tune
 410013,,1.054,,,XsecSingleTopWtchan,SingleTop,,Powheg+Pythia6 Wt production top (inclusive) with CT10 and Perugia2012 tune (Diagram removal)
@@ -88,8 +87,8 @@
 410147,,1.054,,,XsecSingleTopWtchan,SingleTop,,Powheg+Herwig++ Wt production top (Diagram removal) - inclusive (CT10 for ME and CTEQ6L1 for PS) - UEEE5 tune
 410148,,1.054,,,XsecSingleTopWtchan,SingleTop,,Powheg+Herwig++ Wt production anti-top (Diagram removal) - inclusive (CT10 for ME and CTEQ6L1 for PS) - UEEE5 tune
 410155,,1.10,,,XsecTTbarW,,,
-410156,,1.11,,,XsecTTbarZvv,,,
-410157,,1.11,,,XsecTTbarZvv,,,
+410156,,1.11,,,XsecTTbarZvv,,,aMcAtNlo_ttZnunu_NLO 
+410157,,1.11,,,XsecTTbarZvv,,,aMcAtNlo_ttZqq_NLO 
 410159,,,,,XsecTTbarNominal,TTbarBulk,,
 410160,,,,,XsecTTbarNominal,TTbarBulk,,
 410164,,,,,,SingleTop,,
@@ -130,14 +129,16 @@
 410211,,0.95,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 tttautau Np0 onshell and offshell - scale down
 410212,,2.21,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 tttautau Np1 onshell and offshell - scale up
 410213,,0.95,,,XsecTTbarZll,,k-factor calculated wrt to NLO MG5 calculation,MG+Py8 tttautau Np1 onshell and offshell - scale down
-410215,,,,,,PDF set used in ME is NNPDF3.0 NLO,
+410215,,,,,,,PDF set used in ME is NNPDF3.0 NLO,
 410218,,1.12,,,XsecTTbarZll,,,
 410219,,1.12,,,XsecTTbarZll,,,
 410220,,1.12,,,XsecTTbarZll,,,
+410225,,,,,XsecTTbarNominal,TTbarBulk,,
 410228,,,,,,SingleTop,,
 410229,,,,,,SingleTop,,
 410230,,,,,,SingleTop,,
-410233,,,,,,TTbarBulk,,
+410233,,,,,XsecTTbarNominal,TTbarBulk,,
+410234,,,,,XsecTTbarNominal,TTbarBulk,,
 410239,,,,,,SingleTop,,
 410240,,,,,,SingleTop,,
 410241,,,,,,SingleTop,,
@@ -147,4 +148,23 @@
 410250,,1.1484,,,XsecTTbarNominal,TTbarBulk,,
 410251,,1.1484,,,XsecTTbarNominal,TTbarBulk,,
 410252,,1.1484,,,XsecTTbarNominal,TTbarBulk,,
-410500,,,0.543,,XsecTTbarNominal,TTbarBulk,Filter efficiency inserted by hand since wrong in AMI (A.Knue),ttbar bulk Powheg+Py8 - hdamp=mtop - nonallhad with improved main31 settings
+410500,,,,,XsecTTbarNominal,TTbarBulk,,
+410501,,,,,XsecTTbarNominal,TTbarBulk,,
+410502,249.810,1.522,1.000,0.457,XsecTTbarNominal,TTbarBulk,added branching ratio of 0.457 for k-factor calculation - please note that this process is missing parts of the phase space and hence has an artificially high k-factor!!!,
+410503,76.932,1.139,1.000,0.10537,XsecTTbarNominal,TTbarBulk,added branching ratio of 0.10537 for k-factor calculation,
+410504,730.160,1.139,0.031,1.000,XsecTTbarNominal,TTbarBulk,,
+410505,76.933,1.139,0.056,0.10537,XsecTTbarNominal,TTbarBulk,added branching ratio of 0.10537 for k-factor calculation,
+410506,249.890,1.521,1.000,0.457,XsecTTbarNominal,TTbarBulk,added branching ratio of 0.457 for k-factor calculation - please note that this process is missing parts of the phase space and hence has an artificially high k-factor!!!,
+410509,249.800,1.522,0.061,0.457,XsecTTbarNominal,TTbarBulk,added branching ratio of 0.457 for k-factor calculation - please note that this process is missing parts of the phase space and hence has an artificially high k-factor!!!,
+410521,281.980,1.348,1.000,0.457,XsecTTbarNominal,TTbarBulk,added branching ratio of 0.457 for k-factor calculation - please note that this process is missing parts of the phase space and hence has an artificially high k-factor!!!,
+410522,219.100,1.735,1.000,0.457,XsecTTbarNominal,TTbarBulk,added branching ratio of 0.457 for k-factor calculation - please note that this process is missing parts of the phase space and hence has an artificially high k-factor!!!,
+410526,249.810,1.522,1.000,0.457,XsecTTbarNominal,TTbarBulk,added branching ratio of 0.457 for k-factor calculation - please note that this process is missing parts of the phase space and hence has an artificially high k-factor!!!,
+410527,76.929,1.139,1.000,0.10537,XsecTTbarNominal,TTbarBulk,added branching ratio of 0.10537 for k-factor calculation,
+410528,730.140,1.139,0.038,1.000,XsecTTbarNominal,TTbarBulk,,
+410529,76.930,1.139,0.070,0.10537,XsecTTbarNominal,TTbarBulk,added branching ratio of 0.10537 for k-factor calculation,
+410530,249.880,1.521,1.000,0.457,XsecTTbarNominal,TTbarBulk,added branching ratio of 0.457 for k-factor calculation - please note that this process is missing parts of the phase space and hence has an artificially high k-factor!!!,
+410507,,,,,XsecTTbarNominal,TTbarBulk,,
+410508,,,,,XsecTTbarNominal,TTbarBulk,,
+410511,,,,,XsecTTbarNominal,TTbarBulk,,
+410512,,,,,XsecTTbarNominal,TTbarBulk,,
+410525,,,,,XsecTTbarNominal,TTbarBulk,,

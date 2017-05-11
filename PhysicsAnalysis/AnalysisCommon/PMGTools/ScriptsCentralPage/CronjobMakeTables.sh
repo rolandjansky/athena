@@ -5,12 +5,18 @@ export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
 source /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/user/atlasLocalSetup.sh
 localSetupPyAMI
 
-svn co svn+ssh://svn.cern.ch/reps/atlasoff/Generators/MC15JobOptions/trunk MC15JobOptions
+cd /afs/cern.ch/atlas/groups/Generators/CrossSectionInfo/ScriptsCentralPage/
+
+cd ../
+
+#svn co svn+ssh://svn.cern.ch/reps/atlasoff/Generators/MC15JobOptions/trunk MC15JobOptions
+
+#cd ScriptsCentralPage
 
 # if MC15JobOptions already exists
-#cd MC15JobOptions/
-#svn update
-#cd ../
+cd MC15JobOptions/
+svn update
+cd ../ScriptsCentralPage
 
 #localSetupPyAMI
 
@@ -34,5 +40,14 @@ python NewScripts/GetAllXsec.py
 
 python MergeDescriptions.py
 
-cp -r XsecFiles /afs/cern.ch/user/a/atltopmc/www/TopMC12twiki/TestCentralMC15ProductionPage/
+cp -r XsecFiles /afs/cern.ch/user/m/mcgensvc/www/mc15twiki/CentralMC15ProductionPage/
 
+python MakeDSID_Dictionary.py
+
+#/afs/cern.ch/user/a/atltopmc/www/TopMC12twiki/TestCentralMC15ProductionPage/
+
+#/afs/cern.ch/user/m/mcgensvc/www/CentralMC15ProductionPage/
+
+#/afs/cern.ch/user/a/atltopmc/www/TopMC12twiki/TestCentralMC15ProductionPage/
+
+#cp -r /afs/cern.ch/user/m/mcgensvc/www/CentralMC15ProductionPage/* /afs/cern.ch/user/a/atltopmc/www/TopMC12twiki/TestCentralMC15ProductionPage/

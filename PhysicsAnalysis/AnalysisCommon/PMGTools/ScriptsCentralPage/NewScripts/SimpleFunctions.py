@@ -162,14 +162,19 @@ def GetArraysFromTxtWithString(FileName, searchString):
 
     Array = []
 
+    #print "searchstring = ",searchString
+
     for line in fInputLines:
         newLine = line.replace("\n", "")
         array = newLine.split("\t")
+        #print "Simple functions = ",array
         if len(array) != 3 and len(array) != 1:
             continue
         if not searchString in array[0]:
             continue
         Array.append(array)
+
+        #print array
 
     return Array
 

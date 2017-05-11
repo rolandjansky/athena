@@ -1,4 +1,4 @@
-#! /usr/bin/python                                                                                                                                                      
+#! /usr/bin/python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 import os,sys
@@ -18,11 +18,11 @@ import DefineTags
 import StatusFiles
 import MakeInputTables
 
-# mode to debug the rest of the script without having to rerun every step                                                                                                            
-                    
+# mode to debug the rest of the script without having to rerun every step
+
 Debug = False
 
-################################################################################                                                                                                      
+################################################################################
 fLocalPath    = os.getcwd()
 MainFolder    = os.getcwd().replace("HelperScripts", "")
 ListLocation  = MainFolder+"/InputInformation/"
@@ -35,14 +35,14 @@ DerivFile     = SummaryFolder+"/ListAllDerivations.txt"
 ReducedFile   = SummaryFolder+"/ReducedInputList.txt"
 KeywordFile   = SummaryFolder+"/KeywordList.txt"
 twikiFolder   = MainFolder+"/twikiPages/"
-################################################################################  
+################################################################################
 
 # first collect all the general info
 client        = pyAMI.client.Client('atlas')
 pyAMI.atlas.api.init()
 
-# now make a folder to store all info in                                                                                                                                               
-                       
+# now make a folder to store all info in
+
 MakeFolder(MainFolder)
 MakeFolder(SummaryFolder)
 MakeFolder(twikiFolder)
@@ -57,7 +57,7 @@ ArrayDeriv = []
 #if not os.path.exists(AODFile):
 print "=========================> Get all AOD File info... "
 SuperArrayAOD  = []
-AMIInfoArray1  = pyAMI.atlas.api.list_datasets(client, "mc15_13TeV.4%merge.AOD%/", fields="events,modified")                                                           
+AMIInfoArray1  = pyAMI.atlas.api.list_datasets(client, "mc15_13TeV.4%merge.AOD%/", fields="events,modified")
 AMIInfoArray2  = pyAMI.atlas.api.list_datasets(client, "mc15_13TeV.3%merge.AOD%/", fields="events,modified")
 AMIInfoArray3  = pyAMI.atlas.api.list_datasets(client, "mc15_13TeV.187%merge.AOD%/", fields="events,modified")
 SuperArrayAOD.append(AMIInfoArray1)
@@ -69,23 +69,40 @@ ArrayAOD = SimpleFunctions.GetArraysFromTxt(AODFile)
 #    if os.path.exists(AODFile):
 #        ArrayAOD = SimpleFunctions.GetArraysFromTxt(AODFile)
 
+
+SuperArrayDAOD  = []
+AMIInfoArrayD1  = pyAMI.atlas.api.list_datasets(client, "mc15_13TeV.4%merge.DAOD_%/", fields="events,modified")
+SuperArrayDAOD.append(AMIInfoArrayD1)
+SimpleFunctions.WriteArraysToTxt(SuperArrayDAOD, DerivFile)
+ArrayDeriv = SimpleFunctions.GetArraysFromTxt(DerivFile)
+
 #for now re-make the EVNT file every time, not only if the file does not exist!
 #if not os.path.exists(EVNTFile):
 print "=========================> Get all EVNT File info... "
 SuperArrayEVNT = []
-AMIInfoArray4  = pyAMI.atlas.api.list_datasets(client, "mc15_13TeV.4%EVNT%/",      fields="events,modified")                                
-AMIInfoArray5  = pyAMI.atlas.api.list_datasets(client, "mc15_13TeV.3%EVNT%/",      fields="events,modified")                                                                          
+print "Hier 1"
+AMIInfoArray4  = pyAMI.atlas.api.list_datasets(client, "mc15_13TeV.4%EVNT%/",      fields="events,modified")
+print "Hier 2"
+AMIInfoArray5  = pyAMI.atlas.api.list_datasets(client, "mc15_13TeV.3%EVNT%/",      fields="events,modified")
+print "Hier 3"
 AMIInfoArray6  = pyAMI.atlas.api.list_datasets(client, "mc12_13TeV.187%EVNT%/",    fields="events,modified")
-SuperArrayEVNT.append(AMIInfoArray4)                                                                                                                                                 
-SuperArrayEVNT.append(AMIInfoArray5)                                                                                                                                                  
+SuperArrayEVNT.append(AMIInfoArray4)
+SuperArrayEVNT.append(AMIInfoArray5)
 SuperArrayEVNT.append(AMIInfoArray6)
 SimpleFunctions.WriteArraysToTxt(SuperArrayEVNT, EVNTFile)
 ArrayEVNT = SimpleFunctions.GetArraysFromTxt(EVNTFile)
 
-# now just get a plain list of derivations with dq2                                                                                                                                                          
-os.system("dq2-ls mc15_13TeV.*merge.DAOD_*/ | sort > "+DerivFile)  # takes about four seconds 
+print "Hier 4"
 
-ArrayDeriv = SimpleFunctions.GetArraysFromTxt(DerivFile)
+# now just get a plain list of derivations with dq2
+#os.system("dq2-ls mc15_13TeV.*merge.DAOD_*/ | sort > "+DerivFile)  # takes about four seconds
+
+
+
+print "Hier 5"
+
+
+#ArrayDeriv = SimpleFunctions.GetArraysFromTxt(DerivFile)
 
 TimeListCont = datetime.datetime.now()
 
@@ -95,7 +112,7 @@ print "==================================================================="
 print "========== Time to list containers:   "+str(TimeListCont-TimeStart)+" =============="
 print "==================================================================="
 
-# get list of all DSIDs that are used at the moment                                                                                                                                                       
+# get list of all DSIDs that are used at the moment
 FullDSIDList = GetDSIDs(ArrayEVNT)
 
 print "Number of DSIDs used: ",len(FullDSIDList)
@@ -117,25 +134,27 @@ if not Debug or not os.path.exists(ReducedFile):
         MakeFolder(SubFolder)
         # now make list with all relevant derivations
         DerivFileName = SubFolder+"/List_Derivations.txt"
+        #print DerivFileName
         ListDeriv = []
-        if not Debug or not os.path.exists(DerivFileName):
+        if not Debug:
             ListDeriv = SimpleFunctions.GetAllFilesWithStrings(ArrayDeriv, [DSID])
+            #print ListDeriv
             SimpleFunctions.WriteListToTxt(ListDeriv, DerivFileName)
         # now get all EVNT files and the latest etag
         ListEVNT  = SimpleFunctions.GetAllFilesWithStrings(ArrayEVNT, [DSID])
-        
+
         for entry in ListEVNT:
             dataset = entry
             ReducedList.append(dataset)
-            
+
     SimpleFunctions.WriteListToTxt(ReducedList, ReducedFile)
 
 else:
     ReducedList =  SimpleFunctions.GetArraysFromTxt(ReducedFile)
 
-# get full list for all DSIDs in the lists with details                                                                                                                 
-                                      
-FullDSIDInfo     = SimpleFunctions.GetFullList(InputLists, FullDSIDList) 
+# get full list for all DSIDs in the lists with details
+
+FullDSIDInfo     = SimpleFunctions.GetFullList(InputLists, FullDSIDList)
 FullDSIDInfoEVNT = SimpleFunctions.MatchEVNT(FullDSIDInfo, ReducedList)
 KeywordArray     = SimpleFunctions.GetArraysFromTxt(KeywordFile)
 
@@ -189,7 +208,7 @@ if not Debug:
         outputTwiki = twikiFolder+"/Twiki_"+SortingTag+"_"+str(DSID)+".twiki"
 
         #if os.path.exists(outputTwiki):
-        #    continue   
+        #    continue
 
         StatusFile = "StatusFile_"+SortingTag+"_"+str(DSID)+"_"+container.replace("/", "")+".txt"
 
@@ -219,13 +238,13 @@ for helpFolder in FolderList:
     SubFolderList = glob.glob(helpFolder+"/*")
 
     for SubFolder in SubFolderList:
-        
+
         # now get list of EVNT files:
         FileList = glob.glob(SubFolder+"/StatusFile*")
 
         #if not "410000" in SubFolder:
         #    continue
-    
+
         # now loop over file list and find file with largest stats:
 
         helpFile   = "bla"
@@ -246,11 +265,14 @@ for helpFolder in FolderList:
             if int(events) > int(helpEvents):
                 helpFile   = File
                 helpEvents = events
-                
+
         twikiFile = MakeInputTables.fillTables(helpFile, SubFolder, DSID, twikiFolder)
 
 
-        TwikiFolderWWW = "/afs/cern.ch/user/a/atltopmc/www/TopMC12twiki/TestCentralMC15ProductionPage/"
+        TwikiFolderWWW = "/afs/cern.ch/user/m/mcgensvc/www/mc15twiki/CentralMC15ProductionPage/"
+
+        #TwikiFolderWWW = "/afs/cern.ch/user/a/atltopmc/www/TopMC12twiki/TestCentralMC15ProductionPage/"
+        #/afs/cern.ch/user/m/mcgensvc/www/mc15twiki/CentralMC15ProductionPage/
 
         if twikiFile != "empty":
             os.system("cp "+twikiFile+" "+TwikiFolderWWW)
@@ -293,6 +315,8 @@ for Category in DefineTags.ReturnSampleCategory():
         SubTwikiFile.write("<br> \n")
         fInFile.close()
 
-os.system("cp "+twikiFolder+"/MainTwiki_* "+"/afs/cern.ch/user/a/atltopmc/www/TopMC12twiki/TestCentralMC15ProductionPage/")
+os.system("cp "+twikiFolder+"/MainTwiki_* "+"/afs/cern.ch/user/m/mcgensvc/www/mc15twiki/CentralMC15ProductionPage/")
 
+#TwikiFolderWWW = "/afs/cern.ch/user/m/mcgensvc/www/mc15twiki/CentralMC15ProductionPage/"
 
+#os.system("cp "+twikiFolder+"/MainTwiki_* "+"/afs/cern.ch/user/a/atltopmc/www/TopMC12twiki/TestCentralMC15ProductionPage/")

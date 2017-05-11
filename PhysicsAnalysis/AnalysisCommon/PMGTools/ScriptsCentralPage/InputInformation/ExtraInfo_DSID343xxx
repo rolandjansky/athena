@@ -9,7 +9,9 @@
 343433,,,,,,TTbarX,,
 343434,,,,,,TTbarX,,
 343459,,,,,,Higgs_BSM_Other,,MadGraph+Herwigpp Xhh m300 gammagamma tt 
-343637,,,0.026281,,,,Filter efficiency inserted by hand from log afterburn,
+343637,,,0.026281,,XsecTTbarNominal,TTbarBulk,Filter efficiency inserted by hand from log afterburn,
+343362,,1.195,,,,,,
+343637,,1.195,,,,,,
 343478,,0.91,,,,,,
 343479,,0.91,,,,,,
 343480,,0.91,,,,,,

@@ -9,7 +9,7 @@ import pyAMI
 import pyAMI.client
 import pyAMI.atlas.api
 
-localJoPath    = "/afs/cern.ch/atlas/groups/Generators/CrossSectionInfo/CentralStatusPageMC15/MC15JobOptions/share/"
+localJoPath    = "/afs/cern.ch/atlas/groups/Generators/CrossSectionInfo/MC15JobOptions/share/"
 joLinkPath     = "https://svnweb.cern.ch/trac/atlasoff/browser/Generators/MC15JobOptions/trunk/share/"
 
 localJoPath_12 = "/afs/cern.ch/atlas/groups/Generators/CrossSectionInfo/CentralStatusPageMC15/MC12JobOptions/share/"

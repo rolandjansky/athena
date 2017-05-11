@@ -10,8 +10,8 @@
 364109,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
 364110,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
 364111,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
-364112,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki, Sherpa Z/gamma* -> mu mu + 0,1,2j@NLO + 3,4j@LO with 500 GeV < max(HT, pTV) < 1000 GeV INCLUSIVE
-364113,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki, Sherpa Z/gamma* -> mu mu + 0,1,2j@NLO + 3,4j@LO with max(HT, pTV) > 1000 GeV INCLUSIVE
+364112,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki, Sherpa Z/gamma* -> mu mu + 0 1 2j@NLO + 3 and 4j@LO with 500 GeV < max(HT pTV) < 1000 GeV INCLUSIVE
+364113,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki, Sherpa Z/gamma* -> mu mu + 0 1 2j@NLO + 3 and 4j@LO with max(HT pTV) > 1000 GeV INCLUSIVE
 364114,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
 364115,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
 364116,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
@@ -24,22 +24,22 @@
 364123,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
 364124,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
 364125,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
-364126,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki, Sherpa Z/gamma* -> e e + 0,1,2j@NLO + 3,4j@LO with 500 GeV < max(HT, pTV) < 1000 GeV INCLUSIVE 
-364127,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki, Sherpa Z/gamma* -> e e + 0,1,2j@NLO + 3,4j@LO with max(HT, pTV) > 1000 GeV INCLUSIVE
+364126,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki, Sherpa Z/gamma* -> e e + 0 1 2j@NLO + 3 and 4j@LO with 500 GeV < max(HT pTV) < 1000 GeV INCLUSIVE 
+364127,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki, Sherpa Z/gamma* -> e e + 0 1 2j@NLO + 3 and 4j@LO with max(HT pTV) > 1000 GeV INCLUSIVE
 364128,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
 364129,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
 364130,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
 364131,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
 364132,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
-364133,,0.9751,0.110886,,XsecZleptlept40Sherpa22,k-factor from NNLO calculations as in twiki and Filter efficiency inserted by hand since NA in AMI (M.DOnofrio),
+364133,,0.9751,0.110886,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki and Filter efficiency inserted by hand since NA in AMI (M.DOnofrio),
 364134,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
 364135,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
 364136,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
 364137,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
 364138,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
 364139,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki,
-364140,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki, Sherpa Z/gamma* -> tau tau + 0,1,2j@NLO + 3,4j@LO with 500 GeV < max(HT, pTV) < 1000 GeV INCLUSIVE 
-364141,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki, Sherpa Z/gamma* -> tau tau + 0,1,2j@NLO + 3,4j@LO with max(HT, pTV) > 1000 GeV INCLUSIVE
+364140,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki, Sherpa Z/gamma* -> tau tau + 0 1 2j@NLO + 3 and 4j@LO with 500 GeV < max(HT pTV) < 1000 GeV INCLUSIVE 
+364141,,0.9751,,,XsecZleptlept40Sherpa22,,k-factor from NNLO calculations as in twiki, Sherpa Z/gamma* -> tau tau + 0 1 2j@NLO + 3 and 4j@LO with max(HT pTV) > 1000 GeV INCLUSIVE
 364142,,0.9728,,,XsecZnunuSherpa22,,k-factor from NNLO calculations as in twiki,
 364143,,0.9728,,,XsecZnunuSherpa22,,k-factor from NNLO calculations as in twiki,
 364144,,0.9728,,,XsecZnunuSherpa22,,k-factor from NNLO calculations as in twiki,
@@ -52,8 +52,8 @@
 364151,,0.9728,,,XsecZnunuSherpa22,,k-factor from NNLO calculations as in twiki,
 364152,,0.9728,,,XsecZnunuSherpa22,,k-factor from NNLO calculations as in twiki,
 364153,,0.9728,,,XsecZnunuSherpa22,,k-factor from NNLO calculations as in twiki,
-364154,,0.9728,,,XsecZnunuSherpa22,,k-factor from NNLO calculations as in twiki, Sherpa Z/gamma* -> nu nu + 0,1,2j@NLO + 3,4j@LO with 500 GeV < max(HT, pTV) < 1000 GeV INCLUSIVE
-364155,,0.9728,,,XsecZnunuSherpa22,,k-factor from NNLO calculations as in twiki, Sherpa Z/gamma* -> nu nu + 0,1,2j@NLO + 3,4j@LO with max(HT, pTV) > 1000 GeV INCLUSIVE
+364154,,0.9728,,,XsecZnunuSherpa22,,k-factor from NNLO calculations as in twiki, Sherpa Z/gamma* -> nu nu + 0 1 2j@NLO + 3 and 4j@LO with 500 GeV < max(HT pTV) < 1000 GeV INCLUSIVE
+364155,,0.9728,,,XsecZnunuSherpa22,,k-factor from NNLO calculations as in twiki, Sherpa Z/gamma* -> nu nu + 0 1 2j@NLO + 3 and 4j@LO with max(HT pTV) > 1000 GeV INCLUSIVE
 364156,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
 364157,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
 364158,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
@@ -66,8 +66,8 @@
 364165,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
 364166,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
 364167,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
-364168,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki, Sherpa W+/W- -> mu nu + 0,1,2j@NLO + 3,4j@LO with 500 GeV < max(HT, ptV) < 1000 GeV INCLUSIVE 
-364169,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki, Sherpa W+/W- -> mu nu + 0,1,2j@NLO + 3,4j@LO with max(HT, ptV) > 1000 GeV INCLUSIVE 
+364168,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki, Sherpa W+/W- -> mu nu + 0 1 2j@NLO + 3 and 4j@LO with 500 GeV < max(HT ptV) < 1000 GeV INCLUSIVE 
+364169,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki, Sherpa W+/W- -> mu nu + 0 1 2j@NLO + 3 and 4j@LO with max(HT ptV) > 1000 GeV INCLUSIVE 
 364170,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
 364171,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
 364172,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
@@ -76,11 +76,11 @@
 364175,,0.9702,0.10341,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki and Filter efficiency inserted by hand since NA in AMI (M.DOnofrio),
 364176,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
 364177,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
-364178,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
+364178,,0.9702,0.10898,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
 364179,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
 364180,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
-364181,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki, Sherpa W+/W- -> e nu + 0,1,2j@NLO + 3,4j@LO with 500 GeV < max(HT, ptV) < 1000 GeV INCLUSIVE 
-364182,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki, Sherpa W+/W- -> e nu + 0,1,2j@NLO + 3,4j@LO with max(HT, ptV) > 1000 GeV INCLUSIVE 
+364181,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki, Sherpa W+/W- -> e nu + 0 1 2j@NLO + 3 and 4j@LO with 500 GeV < max(HT ptV) < 1000 GeV INCLUSIVE 
+364182,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki, Sherpa W+/W- -> e nu + 0 1 2j@NLO + 3 and 4j@LO with max(HT ptV) > 1000 GeV INCLUSIVE 
 364183,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
 364184,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
 364185,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
@@ -94,7 +94,23 @@
 364193,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
 364194,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
 364195,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki,
-364196,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki, Sherpa W+/W- -> tau nu + 0,1,2j@NLO + 3,4j@LO with 500 GeV < max(HT, ptV) < 1000 GeV INCLUSIVE 
-364197,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki, Sherpa W+/W- -> tau nu + 0,1,2j@NLO + 3,4j@LO with max(HT, ptV) > 1000 GeV INCLUSIVE 
-
-
+364196,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki, Sherpa W+/W- -> tau nu + 0 1 2j@NLO + 3 and 4j@LO with 500 GeV < max(HT ptV) < 1000 GeV INCLUSIVE 
+364197,,0.9702,,,XsecWlnuSherpa22,,k-factor from NNLO calculations as in twiki, Sherpa W+/W- -> tau nu + 0 1 2j@NLO + 3 and 4j@LO with max(HT ptV) > 1000 GeV INCLUSIVE 
+364198,,0.9751,,,,,,
+364199,,0.9751,,,,,,
+364200,,0.9751,,,,,,
+364201,,0.9751,,,,,,
+364202,,0.9751,,,,,,
+364203,,0.9751,,,,,,
+364204,,0.9751,,,,,,
+364205,,0.9751,,,,,,
+364206,,0.9751,,,,,,
+364207,,0.9751,0.1087,,,,,
+364208,,0.9751,,,,,,
+364209,,0.9751,,,,,,
+364210,,0.9751,,,,,,
+364211,,0.9751,,,,,,
+364212,,0.9751,,,,,,
+364213,,0.9751,0.10985,,,,,
+364214,,0.9751,,,,,,
+364215,,0.9751,,,,,,
