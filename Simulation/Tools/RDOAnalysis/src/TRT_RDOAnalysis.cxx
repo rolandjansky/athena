@@ -4,6 +4,7 @@
 
 
 #include "TRT_RDOAnalysis.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TTree.h"
 #include "TString.h"
@@ -15,6 +16,8 @@
 
 TRT_RDOAnalysis::TRT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
+  , m_inputKey("TRT_RDOs")
+  , m_inputTruthKey("TRT_SDO_Map")
   , m_trtID(nullptr)
   , m_rdoID(0)
   , m_rdoWord(0)
@@ -93,6 +96,8 @@ TRT_RDOAnalysis::TRT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_path("/TRT_RDOAnalysis/")
   , m_thistSvc("THistSvc", name)
 {
+  declareProperty("InputKey", m_inputKey);
+  declareProperty("InputTruthKey", m_inputTruthKey);
   declareProperty("NtupleFileName", m_ntupleFileName);
   declareProperty("NtupleDirectoryName", m_ntupleDirName);
   declareProperty("NtupleTreeName", m_ntupleTreeName);
@@ -101,6 +106,11 @@ TRT_RDOAnalysis::TRT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
 
 StatusCode TRT_RDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing TRT_RDOAnalysis" );
+
+  // This will check that the properties were initialized
+  // properly by job configuration.
+  ATH_CHECK( m_inputKey.initialize() );
+  ATH_CHECK( m_inputTruthKey.initialize() );
 
   // Grab TRT_ID helper
   ATH_CHECK(detStore()->retrieve(m_trtID, "TRT_ID"));
@@ -339,8 +349,8 @@ StatusCode TRT_RDOAnalysis::execute() {
   m_charge_vec->clear();
 
   // RawData
-  const TRT_RDO_Container* p_TRT_RDO_cont;
-  if (evtStore()->retrieve(p_TRT_RDO_cont, "TRT_RDOs") == StatusCode::SUCCESS) {  
+  SG::ReadHandle<TRT_RDO_Container> p_TRT_RDO_cont (m_inputContainer);
+  if(p_TRT_RDO_cont.isValid()) {
     // loop over RDO container
     TRT_RDO_Container::const_iterator rdoCont_itr(p_TRT_RDO_cont->begin());
     const TRT_RDO_Container::const_iterator rdoCont_end(p_TRT_RDO_cont->end());
@@ -423,8 +433,8 @@ StatusCode TRT_RDOAnalysis::execute() {
   }
 
   // SimData
-  const InDetSimDataCollection* simDataMapTRT(nullptr);
-  if (evtStore()->retrieve(simDataMapTRT, "TRT_SDO_Map") == StatusCode::SUCCESS) {
+  SG::ReadHandle<InDetSimDataCollection> simDataMapTRT (m_inputTruthKey);
+  if(simDataMapTRT.isValid()) {
     // loop over SDO container
     InDetSimDataCollection::const_iterator sdo_itr(simDataMapTRT->begin());
     const InDetSimDataCollection::const_iterator sdo_end(simDataMapTRT->end());

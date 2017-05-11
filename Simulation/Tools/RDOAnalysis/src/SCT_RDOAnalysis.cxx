@@ -4,7 +4,7 @@
 
 
 #include "SCT_RDOAnalysis.h"
-
+#include "StoreGate/ReadHandle.h"
 #include "TTree.h"
 #include "TString.h"
 
@@ -15,6 +15,8 @@
 
 SCT_RDOAnalysis::SCT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
+  , m_inputKey("SCT_RDOs")
+  , m_inputTruthKey("SCT_SDO_Map")
   , m_sctID(nullptr)
   , m_rdoID(0)
   , m_rdoWord(0)
@@ -87,6 +89,8 @@ SCT_RDOAnalysis::SCT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_path("/SCT_RDOAnalysis/")
   , m_thistSvc("THistSvc", name)
 {
+  declareProperty("InputKey", m_inputKey);
+  declareProperty("InputTruthKey", m_inputTruthKey);
   declareProperty("NtupleFileName", m_ntupleFileName);
   declareProperty("NtupleDirectoryName", m_ntupleDirName);
   declareProperty("NtupleTreeName", m_ntupleTreeName);
@@ -95,6 +99,11 @@ SCT_RDOAnalysis::SCT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
 
 StatusCode SCT_RDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing SCT_RDOAnalysis" );
+
+  // This will check that the properties were initialized
+  // properly by job configuration.
+  ATH_CHECK( m_inputKey.initialize() );
+  ATH_CHECK( m_inputTruthKey.initialize() );
 
   // Grab SCT_ID helper
   ATH_CHECK(detStore()->retrieve(m_sctID, "SCT_ID"));
@@ -318,8 +327,8 @@ StatusCode SCT_RDOAnalysis::execute() {
   m_charge_vec->clear();
 
   // RawData
-  const SCT_RDO_Container* p_SCT_RDO_cont;
-  if (evtStore()->retrieve(p_SCT_RDO_cont, "SCT_RDOs") == StatusCode::SUCCESS) {   
+  SG::ReadHandle<SCT_RDO_Container> p_SCT_RDO_cont (m_inputContainer);
+  if(p_SCT_RDO_cont.isValid()) {
     // loop over RDO container
     SCT_RDO_Container::const_iterator rdoCont_itr(p_SCT_RDO_cont->begin());
     const SCT_RDO_Container::const_iterator rdoCont_end(p_SCT_RDO_cont->end());
@@ -385,8 +394,8 @@ StatusCode SCT_RDOAnalysis::execute() {
   }
 
   // SimData
-  const InDetSimDataCollection* simDataMapSCT(nullptr);
-  if (evtStore()->retrieve(simDataMapSCT, "SCT_SDO_Map") == StatusCode::SUCCESS) {
+  SG::ReadHandle<InDetSimDataCollection> simDataMapSCT (m_inputTruthKey);
+  if(simDataMapSCT.isValid()) {
     // loop over SDO container
     InDetSimDataCollection::const_iterator sdo_itr(simDataMapSCT->begin());
     const InDetSimDataCollection::const_iterator sdo_end(simDataMapSCT->end());

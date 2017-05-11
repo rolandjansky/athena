@@ -9,6 +9,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 #include "InDetRawData/InDetRawDataContainer.h"
@@ -36,6 +37,8 @@ class TRT_RDOAnalysis : public AthAlgorithm {
   virtual StatusCode finalize();
 
  private:
+  SG::ReadHandleKey<TRT_RDO_Container> m_inputKey;
+  SG::ReadHandleKey<InDetSimDataCollection> m_inputTruthKey;
   const TRT_ID *m_trtID;
 
   // NTUPLE BRANCHES

@@ -9,6 +9,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 #include "InDetRawData/InDetRawDataContainer.h"
@@ -36,6 +37,8 @@ class SCT_RDOAnalysis : public AthAlgorithm {
   virtual StatusCode finalize();
 
  private:
+  SG::ReadHandleKey<SCT_RDO_Container> m_inputKey;
+  SG::ReadHandleKey<InDetSimDataCollection> m_inputTruthKey;
   const SCT_ID *m_sctID;
   // RDO
   std::vector<unsigned long long>* m_rdoID;
