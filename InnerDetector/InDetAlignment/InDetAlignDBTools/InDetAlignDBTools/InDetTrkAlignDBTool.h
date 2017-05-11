@@ -42,10 +42,6 @@ namespace InDet
     /** Writes alignment parameters */
     void writeAlignPar();
 
-    /** sets ntuple to be used to write output */
-    void setNtuple(TFile * file)
-      { m_ntuple=file; }
-
   private:
 
     /** updates alignment constants in the DB */
@@ -53,8 +49,6 @@ namespace InDet
 
     ToolHandle<Trk::ITrkAlignDBTool>      m_siDBtool;
     ToolHandle<Trk::ITrkAlignDBTool>      m_trtDBtool;
-
-    TFile * m_ntuple;
 
   }; // end class
 
