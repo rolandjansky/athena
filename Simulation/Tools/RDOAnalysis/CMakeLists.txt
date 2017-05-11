@@ -37,5 +37,4 @@ atlas_add_component( RDOAnalysis
                      LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps InDetIdentifier InDetRawData InDetSimData InDetBCM_RawData InDetPrepRawData LArRawEvent MuonRDO MuonSimData TileEvent TrkSurfaces TrkTruthData )
 
 # Install files from the package:
-atlas_install_headers( RDOAnalysis )
 atlas_install_joboptions( share/*.py )

@@ -108,11 +108,11 @@ StatusCode TileRDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing TileRDOAnalysis" );
 
   // Grab Ntuple and histogramming service for tree
-  CHECK(m_thistSvc.retrieve());
+  ATH_CHECK(m_thistSvc.retrieve());
 
   m_tree = new TTree(TString(m_ntupleTreeName), "TileRDOAna");
   std::string fullNtupleName = "/" + m_ntupleFileName + "/" + m_ntupleDirName + "/" + m_ntupleTreeName;
-  CHECK(m_thistSvc->regTree(fullNtupleName, m_tree));
+  ATH_CHECK(m_thistSvc->regTree(fullNtupleName, m_tree));
   if (m_tree) {
     m_tree->Branch("adcID", &m_adcID);
     m_tree->Branch("pmtID", &m_pmtID);
@@ -166,123 +166,123 @@ StatusCode TileRDOAnalysis::initialize() {
   // HISTOGRAMS
   h_adcID = new TH1F("h_adcID", "adc ID", 100, 0, 9.25e18);
   h_adcID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_adcID->GetName(), h_adcID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_adcID->GetName(), h_adcID));
   
   h_rawAmp = new TH1F("h_rawAmp", "Raw amplitude", 100, -1200, 1200);
   h_rawAmp->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_rawAmp->GetName(), h_rawAmp));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_rawAmp->GetName(), h_rawAmp));
 
   h_rawTime = new TH1F("h_rawTime", "Raw time", 100, -90, 90);
   h_rawTime->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_rawTime->GetName(), h_rawTime));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_rawTime->GetName(), h_rawTime));
 
   h_rawQual = new TH1F("h_rawQual", "Raw quality", 100, 0, 1100);
   h_rawQual->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_rawQual->GetName(), h_rawQual));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_rawQual->GetName(), h_rawQual));
 
   h_rawPed = new TH1F("h_rawPed", "Raw pedestal", 100, 0, 2e5);
   h_rawPed->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_rawPed->GetName(), h_rawPed));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_rawPed->GetName(), h_rawPed));
 
   h_adcID_mu = new TH1F("h_adcID_mu", "MuRcv adc ID", 100, 0, 9.25e18);
   h_adcID_mu->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_adcID_mu->GetName(), h_adcID_mu));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_adcID_mu->GetName(), h_adcID_mu));
 
   h_rawAmp_mu = new TH1F("h_rawAmp_mu", "MuRcv raw amplitude", 100, -1000, 11000);
   h_rawAmp_mu->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_rawAmp_mu->GetName(), h_rawAmp_mu));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_rawAmp_mu->GetName(), h_rawAmp_mu));
 
   h_rawTime_mu = new TH1F("h_rawTime_mu", "MuRcv raw time", 100, -90, 90);
   h_rawTime_mu->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_rawTime_mu->GetName(), h_rawTime_mu));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_rawTime_mu->GetName(), h_rawTime_mu));
 
   h_rawQual_mu = new TH1F("h_rawQual_mu", "MuRcv raw quality", 100, 0, 8e34);
   h_rawQual_mu->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_rawQual_mu->GetName(), h_rawQual_mu));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_rawQual_mu->GetName(), h_rawQual_mu));
 
   h_rawPed_mu = new TH1F("h_rawPed_mu", "MuRcv raw pedestal", 100, 0, 13);
   h_rawPed_mu->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_rawPed_mu->GetName(), h_rawPed_mu));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_rawPed_mu->GetName(), h_rawPed_mu));
 
   h_muRcvID = new TH1F("h_muRcvID", "Muon receiver object ID", 100, 0, 500);
   h_muRcvID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_muRcvID->GetName(), h_muRcvID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_muRcvID->GetName(), h_muRcvID));
 
   h_muRcv_dec = new TH1F("h_muRcv_dec", "Muon receiver object decision", 100, 0, 2);
   h_muRcv_dec->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_muRcv_dec->GetName(), h_muRcv_dec));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_muRcv_dec->GetName(), h_muRcv_dec));
 
   h_muRcv_thresh = new TH1F("h_muRcv_thresh", "Muon receiver object threshold", 100, 0, 650);
   h_muRcv_thresh->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_muRcv_thresh->GetName(), h_muRcv_thresh));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_muRcv_thresh->GetName(), h_muRcv_thresh));
 
   h_muRcv_energy = new TH1F("h_muRcv_energy", "Muon receiver object energy", 100, 0, 20000);
   h_muRcv_energy->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_muRcv_energy->GetName(), h_muRcv_energy));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_muRcv_energy->GetName(), h_muRcv_energy));
 
   h_muRcv_time = new TH1F("h_muRcv_time", "Muon receiver object time", 100, -90, 90);
   h_muRcv_time->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_muRcv_time->GetName(), h_muRcv_time));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_muRcv_time->GetName(), h_muRcv_time));
 
   h_ttl1MBTS_ID = new TH1F("h_ttl1MBTS_ID", "TTL1 MBTS ID", 100, 0, 9.25e18);
   h_ttl1MBTS_ID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_ttl1MBTS_ID->GetName(), h_ttl1MBTS_ID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_ttl1MBTS_ID->GetName(), h_ttl1MBTS_ID));
 
   h_ttl1MBTS_digits = new TH1F("h_ttl1MBTS_digits", "TTL1 MBTS digits", 100, 0, 2000);
   h_ttl1MBTS_digits->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_ttl1MBTS_digits->GetName(), h_ttl1MBTS_digits));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_ttl1MBTS_digits->GetName(), h_ttl1MBTS_digits));
 
   h_ttl1_ID = new TH1F("h_ttl1_ID", "TTL1 ID", 100, 0, 2e19);
   h_ttl1_ID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_ttl1_ID->GetName(), h_ttl1_ID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_ttl1_ID->GetName(), h_ttl1_ID));
 
   h_ttl1_digits = new TH1F("h_ttl1_digits", "TTL1 digits", 100, 0, 2000);
   h_ttl1_digits->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_ttl1_digits->GetName(), h_ttl1_digits));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_ttl1_digits->GetName(), h_ttl1_digits));
 
   h_L2ID = new TH1F("h_L2ID", "L2 ID", 100, 0, 2e19);
   h_L2ID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L2ID->GetName(), h_L2ID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_L2ID->GetName(), h_L2ID));
 
   h_L2val = new TH1F("h_L2val", "L2 data values", 100, 0, 100);
   h_L2val->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L2val->GetName(), h_L2val));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_L2val->GetName(), h_L2val));
 
   h_L2eta = new TH1F("h_L2eta", "L2 eta", 100, -1.5, 1.5);
   h_L2eta->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L2eta->GetName(), h_L2eta));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_L2eta->GetName(), h_L2eta));
 
   h_L2phi = new TH1F("h_L2phi", "L2 phi", 100, -3.5, 3.5);
   h_L2phi->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L2phi->GetName(), h_L2phi));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_L2phi->GetName(), h_L2phi));
 
   h_L2energyA = new TH1F("h_L2energyA", "L2 energy in A cells", 100, 0, 12500);
   h_L2energyA->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L2energyA->GetName(), h_L2energyA));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_L2energyA->GetName(), h_L2energyA));
 
   h_L2energyBC = new TH1F("h_L2energyBC", "L2 energy in BC cells", 100, 0, 12500);
   h_L2energyBC->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L2energyBC->GetName(), h_L2energyBC));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_L2energyBC->GetName(), h_L2energyBC));
 
   h_L2energyD = new TH1F("h_L2energyD", "L2 energy in D cells", 100, 0, 12500);
   h_L2energyD->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L2energyD->GetName(), h_L2energyD));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_L2energyD->GetName(), h_L2energyD));
 
   h_L2qual = new TH1F("h_L2qual", "L2 quality", 100, 0, 2);
   h_L2qual->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L2qual->GetName(), h_L2qual));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_L2qual->GetName(), h_L2qual));
 
   h_L2sumE = new TH1F("h_L2sumE", "L2 energy sum", 100, 0, 2.25e5);
   h_L2sumE->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_L2sumE->GetName(), h_L2sumE));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_L2sumE->GetName(), h_L2sumE));
 
   h_digits = new TH1F("h_digits", "Tile digits", 100, 0, 1100);
   h_digits->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_digits->GetName(), h_digits));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_digits->GetName(), h_digits));
 
   h_muDigits = new TH1F("h_muDigits", "Tile muon receiver object digits", 100, 0, 150);
   h_muDigits->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_muDigits->GetName(), h_muDigits));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_muDigits->GetName(), h_muDigits));
 
   
 		      

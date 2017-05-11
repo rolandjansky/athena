@@ -95,11 +95,11 @@ CSC_RDOAnalysis::CSC_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
 StatusCode CSC_RDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing CSC_RDOAnalysis" );
 
-  CHECK(m_thistSvc.retrieve());
+  ATH_CHECK(m_thistSvc.retrieve());
 
   m_tree = new TTree(TString(m_ntupleTreeName), "CSC_RDOAna");
   std::string fullNtupleName = m_ntupleFileName + m_ntupleDirName + m_ntupleTreeName;
-  CHECK(m_thistSvc->regTree(fullNtupleName, m_tree));
+  ATH_CHECK(m_thistSvc->regTree(fullNtupleName, m_tree));
   if (m_tree) {
     m_tree->Branch("collID", &m_collID);
     m_tree->Branch("rodID", &m_rodID);
@@ -151,87 +151,87 @@ StatusCode CSC_RDOAnalysis::initialize() {
 
   h_collID = new TH1F("h_collID", "Collection ID", 100, 0, 35);
   h_collID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_collID->GetName(), h_collID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_collID->GetName(), h_collID));
 
   h_rodID = new TH1F("h_rodID", "Collection ROD ID", 100, 0, 150);
   h_rodID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_rodID->GetName(), h_rodID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_rodID->GetName(), h_rodID));
 
   h_subID = new TH1F("h_subID", "Collection Sub-Detector ID", 100, 0, 110);
   h_subID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_subID->GetName(), h_subID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_subID->GetName(), h_subID));
 
   h_collRpuID = new TH1F("h_collRpuID", "Collection RPU ID", 100, 0, 15);
   h_collRpuID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_collRpuID->GetName(), h_collRpuID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_collRpuID->GetName(), h_collRpuID));
 
   h_dataType = new TH1F("h_dataType", "Collection data type", 100, 0, 5);
   h_dataType->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_dataType->GetName(), h_dataType));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_dataType->GetName(), h_dataType));
 
   h_spuCt = new TH1F("h_spuCt", "Collection SPU count", 100, 0, 20);
   h_spuCt->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_spuCt->GetName(), h_spuCt));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_spuCt->GetName(), h_spuCt));
   
   h_cscRpuID = new TH1F("h_cscRpuID", "SPU ID of strip", 100, 0, 10);
   h_cscRpuID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_cscRpuID->GetName(), h_cscRpuID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_cscRpuID->GetName(), h_cscRpuID));
 
   h_cscID = new TH1F("h_cscID", "ID of strip collection", 100, 0, 35);
   h_cscID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_cscID->GetName(), h_cscID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_cscID->GetName(), h_cscID));
 
   h_cscTime = new TH1F("h_cscTime", "Time of first strip", 100, 0, 10);
   h_cscTime->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_cscTime->GetName(), h_cscTime));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_cscTime->GetName(), h_cscTime));
 
   h_cscWidth = new TH1F("h_cscWidth", "Width of strip cluster", 100, 0, 35);
   h_cscWidth->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_cscWidth->GetName(), h_cscWidth));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_cscWidth->GetName(), h_cscWidth));
 
   h_cscSmpl = new TH1F("h_cscSmpl", "ADC samples", 100, 0, 4500);
   h_cscSmpl->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_cscSmpl->GetName(), h_cscSmpl));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_cscSmpl->GetName(), h_cscSmpl));
 
   h_cscAdd = new TH1F("h_cscAdd", "ID of first strip", 100, 0, 1.5e5);
   h_cscAdd->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_cscAdd->GetName(), h_cscAdd));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_cscAdd->GetName(), h_cscAdd));
 
   h_cscHashID = new TH1F("h_cscHashID", "hash ID of strip collection", 100, 0, 65000);
   h_cscHashID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_cscHashID->GetName(), h_cscHashID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_cscHashID->GetName(), h_cscHashID));
 
   h_sdoID = new TH1F("h_sdoID", "sdoID", 100, 0, 1e19);
   h_sdoID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_sdoID->GetName(), h_sdoID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_sdoID->GetName(), h_sdoID));
 
   h_sdoWord = new TH1F("h_sdoWord", "sdoWord", 100, 0, 10);
   h_sdoWord->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_sdoWord->GetName(), h_sdoWord));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_sdoWord->GetName(), h_sdoWord));
 
   h_barcode= new TH1F("h_barcode", "Barcode (SDO)", 100, 0, 2.2e9);
   h_barcode->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_barcode->GetName(), h_barcode));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_barcode->GetName(), h_barcode));
 
   h_eventIndex = new TH1F("h_eventIndex", "Event index (SDO)", 100, 0, 1000);
   h_eventIndex->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_eventIndex->GetName(), h_eventIndex));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_eventIndex->GetName(), h_eventIndex));
 
   h_energy = new TH1F("h_energy", "Energy (SDO)", 100, 0, 0.3);
   h_energy->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_energy->GetName(), h_energy));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_energy->GetName(), h_energy));
 
   h_ypos = new TH1F("h_ypos", "y-position (SDO)", 100, -1e5, 1e5);
   h_ypos->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_ypos->GetName(), h_ypos));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_ypos->GetName(), h_ypos));
 
   h_zpos = new TH1F("h_zpos", "z-position (SDO)", 100, -1e5, 1e5);
   h_zpos->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_zpos->GetName(), h_zpos));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_zpos->GetName(), h_zpos));
 
   h_charge = new TH1F("h_charge", "Charge (SDO)", 100, 0, 1e5);
   h_charge->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_charge->GetName(), h_charge));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_charge->GetName(), h_charge));
 
   return StatusCode::SUCCESS;
 }
@@ -380,7 +380,7 @@ StatusCode CSC_RDOAnalysis::execute() {
   }
 
   // SimData
-  const CscSimDataCollection* simDataMapCSC(NULL);
+  const CscSimDataCollection* simDataMapCSC(nullptr);
   if (evtStore()->retrieve(simDataMapCSC, "CSC_SDO") == StatusCode::SUCCESS) {
     CscSimDataCollection::const_iterator sdo_itr(simDataMapCSC->begin());
     const CscSimDataCollection::const_iterator sdo_end(simDataMapCSC->end());

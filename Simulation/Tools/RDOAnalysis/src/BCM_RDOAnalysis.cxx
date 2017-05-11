@@ -65,11 +65,11 @@ StatusCode BCM_RDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing BCM_RDOAnalysis" );
 
   // Grab Ntuple and histgoramming service for tree
-  CHECK(m_thistSvc.retrieve());
+  ATH_CHECK(m_thistSvc.retrieve());
 
   m_tree = new TTree(TString(m_ntupleTreeName), "BCM_RDOAna");
   std::string fullNtupleName = "/" + m_ntupleFileName + "/" + m_ntupleDirName + "/" + m_ntupleTreeName;
-  CHECK(m_thistSvc->regTree(fullNtupleName,m_tree));
+  ATH_CHECK(m_thistSvc->regTree(fullNtupleName,m_tree));
   if (m_tree) {
     // BCM RDO
     m_tree->Branch("word1", &m_word1);
@@ -100,51 +100,51 @@ StatusCode BCM_RDOAnalysis::initialize() {
   // HISTOGRAMS
   h_word1 = new TH1F("h_word1", "word 1", 100, 0, 4.5e7);
   h_word1->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_word1->GetName(), h_word1));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_word1->GetName(), h_word1));
 
   h_word2 = new TH1F("h_word2", "word 2", 100, 0, 10);
   h_word2->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_word2->GetName(), h_word2));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_word2->GetName(), h_word2));
 
   h_chan = new TH1F("h_chan", "channel ID", 100, 0, 20);
   h_chan->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_chan->GetName(), h_chan));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_chan->GetName(), h_chan));
 
   h_pulse1Pos = new TH1F("h_pulse1Pos", "pulse 1 position", 100, 0, 70);
   h_pulse1Pos->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_pulse1Pos->GetName(), h_pulse1Pos));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_pulse1Pos->GetName(), h_pulse1Pos));
 
   h_pulse1Width = new TH1F("h_pulse1Width", "pulse 1 width", 100, 0, 30);
   h_pulse1Width->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_pulse1Width->GetName(), h_pulse1Width));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_pulse1Width->GetName(), h_pulse1Width));
 
   h_pulse2Pos = new TH1F("h_pulse2Pos", "pulse 2 position", 100, 0, 70);
   h_pulse2Pos->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_pulse2Pos->GetName(), h_pulse2Pos));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_pulse2Pos->GetName(), h_pulse2Pos));
 
   h_pulse2Width = new TH1F("h_pulse2Width", "pulse 2 width", 100, 0, 30);
   h_pulse2Width->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_pulse2Width->GetName(), h_pulse2Width));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_pulse2Width->GetName(), h_pulse2Width));
 
   h_sdoID = new TH1F("h_sdoID", "sdoID", 100, 0, 10);
   h_sdoID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_sdoID->GetName(), h_sdoID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_sdoID->GetName(), h_sdoID));
 
   h_sdoWord = new TH1F("h_sdoWord", "sdoWord", 100, 0, 10);
   h_sdoWord->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_sdoWord->GetName(), h_sdoWord));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_sdoWord->GetName(), h_sdoWord));
 
   h_barcode = new TH1F("h_barcode", "Barcode (SDO)", 100, 0, 2.2e9);
   h_barcode->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_barcode->GetName(), h_barcode));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_barcode->GetName(), h_barcode));
 
   h_eventIndex = new TH1F("h_eventIndex", "Event index (SDO)", 100, 0, 1000);
   h_eventIndex->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_eventIndex->GetName(), h_eventIndex));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_eventIndex->GetName(), h_eventIndex));
 
   h_charge = new TH1F("h_charge", "Charge (SDO)", 100, 0, 10);
   h_charge->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_charge->GetName(), h_charge));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_charge->GetName(), h_charge));
 
   return StatusCode::SUCCESS;
   
@@ -222,7 +222,7 @@ StatusCode BCM_RDOAnalysis::execute() {
   }
 
   // SDO
-  const InDetSimDataCollection* simDataMapBCM(NULL);
+  const InDetSimDataCollection* simDataMapBCM(nullptr);
   if (evtStore()->retrieve(simDataMapBCM, "BCM_SDO_Map") == StatusCode::SUCCESS) {
     // loop over SDO container
     InDetSimDataCollection::const_iterator sdo_itr(simDataMapBCM->begin());

@@ -15,7 +15,7 @@
 
 PixelRDOAnalysis::PixelRDOAnalysis(const std::string& name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-  , m_pixelID(NULL)
+  , m_pixelID(nullptr)
   , m_rdoID(0)
   , m_rdoWord(0)
   , m_barrelEndcap(0)
@@ -100,11 +100,11 @@ StatusCode PixelRDOAnalysis::initialize() {
   }
 
   // Grab Ntuple and histogramming service for tree
-  CHECK(m_thistSvc.retrieve());
+  ATH_CHECK(m_thistSvc.retrieve());
 
   m_tree = new TTree(TString(m_ntupleTreeName), "PixelRDOAna");
   std::string fullNtupleName = m_ntupleFileName + m_ntupleDirName + m_ntupleTreeName;
-  CHECK(m_thistSvc->regTree(fullNtupleName, m_tree));
+  ATH_CHECK(m_thistSvc->regTree(fullNtupleName, m_tree));
   if (m_tree) {
     // PIXEL RDO
     m_tree->Branch("rdoID", &m_rdoID);
@@ -146,167 +146,167 @@ StatusCode PixelRDOAnalysis::initialize() {
   // HISTOGRAMS
   h_rdoID = new TH1F("h_rdoID", "rdoID", 100, 0, 5e17);
   h_rdoID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_rdoID->GetName(), h_rdoID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_rdoID->GetName(), h_rdoID));
 
   h_rdoWord = new TH1F("h_rdoWord", "rdoWord", 100, 0, 350);
   h_rdoWord->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_rdoWord->GetName(), h_rdoWord));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_rdoWord->GetName(), h_rdoWord));
   
   h_barrelEndcap = new TH1F("h_barrelEndcap", "Barrel or Endcap", 100, -5, 5);
   h_barrelEndcap->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_barrelEndcap->GetName(), h_barrelEndcap));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_barrelEndcap->GetName(), h_barrelEndcap));
 
   h_layerDisk = new TH1F("h_layerDisk", "Barrel layer or Endcap disk", 100, 0, 3);
   h_layerDisk->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_layerDisk->GetName(), h_layerDisk));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_layerDisk->GetName(), h_layerDisk));
 
   h_phiModule = new TH1F("h_phiModule", "Phi module", 100, 0, 75);
   h_phiModule->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_phiModule->GetName(), h_phiModule));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_phiModule->GetName(), h_phiModule));
 
   h_etaModule = new TH1F("h_etaModule", "Eta module", 100, 0, 15);
   h_etaModule->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_etaModule->GetName(), h_etaModule));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_etaModule->GetName(), h_etaModule));
 
   h_phiIndex = new TH1F("h_phiIndex", "Phi index", 100, 0, 350);
   h_phiIndex->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_phiIndex->GetName(), h_phiIndex));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_phiIndex->GetName(), h_phiIndex));
 
   h_etaIndex = new TH1F("h_etaIndex", "Eta index", 100, 0, 225);
   h_etaIndex->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_etaIndex->GetName(), h_etaIndex));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_etaIndex->GetName(), h_etaIndex));
 
   h_ToT = new TH1F("h_ToT", "ToT", 100, 0, 250);
   h_ToT->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_ToT->GetName(), h_ToT));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_ToT->GetName(), h_ToT));
   
   h_BCID = new TH1F("h_BCID", "BCID", 100, -1.5, 1.5);
   h_BCID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_BCID->GetName(), h_BCID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_BCID->GetName(), h_BCID));
   
   h_LVL1A = new TH1F("h_LVL1A", "LVL1A", 100, -1.5, 1.5);
   h_LVL1A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_LVL1A->GetName(), h_LVL1A));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_LVL1A->GetName(), h_LVL1A));
   
   h_LVL1ID = new TH1F("h_LVL1ID", "LVL1ID", 100, -1.5, 1.5);
   h_LVL1ID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_LVL1ID->GetName(), h_LVL1ID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_LVL1ID->GetName(), h_LVL1ID));
 
   h_brlLayer = new TH1F("h_brlLayer", "Barrel layer", 100, 0, 3);
   h_brlLayer->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_brlLayer->GetName(), h_brlLayer));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_brlLayer->GetName(), h_brlLayer));
   
   h_brlPhiMod = new TH1F("h_brlPhiMod", "Barrel phi module", 100, 0, 80);
   h_brlPhiMod->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_brlPhiMod->GetName(), h_brlPhiMod));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_brlPhiMod->GetName(), h_brlPhiMod));
 
   h_brlEtaMod = new TH1F("h_brlEtaMod", "Barrel eta module", 100, 0, 15);
   h_brlEtaMod->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_brlEtaMod->GetName(), h_brlEtaMod));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_brlEtaMod->GetName(), h_brlEtaMod));
 
   h_brlPhiIndex = new TH1F("h_brlPhiIndex", "Barrel phi index", 100, 0, 350);
   h_brlPhiIndex->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_brlPhiIndex->GetName(), h_brlPhiIndex));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_brlPhiIndex->GetName(), h_brlPhiIndex));
 
   h_brlEtaIndex = new TH1F("h_brlEtaIndex", "Barrel eta index", 100, 0, 225);
   h_brlEtaIndex->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_brlEtaIndex->GetName(), h_brlEtaIndex));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_brlEtaIndex->GetName(), h_brlEtaIndex));
 
   h_brlToT = new TH1F("h_brlToT", "Barrel ToT", 100, 0, 250);
   h_brlToT->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_brlToT->GetName(), h_brlToT));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_brlToT->GetName(), h_brlToT));
   
   h_brlBCID = new TH1F("h_brlBCID", "Barrel BCID", 100, -1.5, 1.5);
   h_brlBCID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_brlBCID->GetName(), h_brlBCID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_brlBCID->GetName(), h_brlBCID));
   
   h_brlLVL1A = new TH1F("h_brlLVL1A", "Barrel LVL1A", 100, -1.5, 1.5);
   h_brlLVL1A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_brlLVL1A->GetName(), h_brlLVL1A));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_brlLVL1A->GetName(), h_brlLVL1A));
   
   h_brlLVL1ID = new TH1F("h_brlLVL1ID", "Barrel LVL1ID", 100, -1.5, 1.5);
   h_brlLVL1ID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_brlLVL1ID->GetName(), h_brlLVL1ID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_brlLVL1ID->GetName(), h_brlLVL1ID));
 
   h_ecDisk = new TH1F("h_ecDisk", "Endcap disk", 100, 0, 3);
   h_ecDisk->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_ecDisk->GetName(), h_ecDisk));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_ecDisk->GetName(), h_ecDisk));
   
   h_ecPhiMod = new TH1F("h_ecPhiMod", "Endcap phi module", 100, 0, 80);
   h_ecPhiMod->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_ecPhiMod->GetName(), h_ecPhiMod));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_ecPhiMod->GetName(), h_ecPhiMod));
 
   h_ecEtaMod = new TH1F("h_ecEtaMod", "Endcap eta module", 100, 0, 15);
   h_ecEtaMod->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_ecEtaMod->GetName(), h_ecEtaMod));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_ecEtaMod->GetName(), h_ecEtaMod));
 
   h_ecPhiIndex = new TH1F("h_ecPhiIndex", "Endcap phi index", 100, 0, 350);
   h_ecPhiIndex->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_ecPhiIndex->GetName(), h_ecPhiIndex));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_ecPhiIndex->GetName(), h_ecPhiIndex));
 
   h_ecEtaIndex = new TH1F("h_ecEtaIndex", "Endcap eta index", 100, 0, 225);
   h_ecEtaIndex->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_ecEtaIndex->GetName(), h_ecEtaIndex));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_ecEtaIndex->GetName(), h_ecEtaIndex));
 
   h_ecToT = new TH1F("h_ecToT", "EndcapToT", 100, 0, 250);
   h_ecToT->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_ecToT->GetName(), h_ecToT));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_ecToT->GetName(), h_ecToT));
   
   h_ecBCID = new TH1F("h_ecBCID", "Endcap BCID", 100, -1.5, 1.5);
   h_ecBCID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_ecBCID->GetName(), h_ecBCID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_ecBCID->GetName(), h_ecBCID));
   
   h_ecLVL1A = new TH1F("h_ecLVL1A", "Endcap LVL1A", 100, -1.5, 1.5);
   h_ecLVL1A->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_ecLVL1A->GetName(), h_ecLVL1A));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_ecLVL1A->GetName(), h_ecLVL1A));
   
   h_ecLVL1ID = new TH1F("h_ecLVL1ID", "Endcap LVL1ID", 100, -1.5, 1.5);
   h_ecLVL1ID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_ecLVL1ID->GetName(), h_ecLVL1ID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_ecLVL1ID->GetName(), h_ecLVL1ID));
 
   h_sdoID = new TH1F("h_sdoID", "sdoID", 100, 0, 5e17);
   h_sdoID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_sdoID->GetName(), h_sdoID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_sdoID->GetName(), h_sdoID));
 
   h_sdoWord = new TH1F("h_sdoWord", "sdoWord", 100, 0, 350);
   h_sdoWord->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_sdoWord->GetName(), h_sdoWord));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_sdoWord->GetName(), h_sdoWord));
   
   h_barrelEndcap_sdo = new TH1F("h_barrelEndcap_sdo", "Barrel or Endcap (SDO)", 100, -5, 5);
   h_barrelEndcap_sdo->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_barrelEndcap_sdo->GetName(), h_barrelEndcap_sdo));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_barrelEndcap_sdo->GetName(), h_barrelEndcap_sdo));
 
   h_layerDisk_sdo = new TH1F("h_layerDisk_sdo", "Barrel layer or Endcap disk (SDO)", 100, 0, 3);
   h_layerDisk_sdo->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_layerDisk_sdo->GetName(), h_layerDisk_sdo));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_layerDisk_sdo->GetName(), h_layerDisk_sdo));
 
   h_phiModule_sdo = new TH1F("h_phiModule_sdo", "Phi module (SDO)", 100, 0, 75);
   h_phiModule_sdo->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_phiModule_sdo->GetName(), h_phiModule_sdo));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_phiModule_sdo->GetName(), h_phiModule_sdo));
 
   h_etaModule_sdo = new TH1F("h_etaModule_sdo", "Eta module (SDO)", 100, 0, 15);
   h_etaModule_sdo->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_etaModule_sdo->GetName(), h_etaModule_sdo));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_etaModule_sdo->GetName(), h_etaModule_sdo));
 
   h_phiIndex_sdo = new TH1F("h_phiIndex_sdo", "Phi index (SDO)", 100, 0, 350);
   h_phiIndex_sdo->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_phiIndex_sdo->GetName(), h_phiIndex_sdo));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_phiIndex_sdo->GetName(), h_phiIndex_sdo));
 
   h_etaIndex_sdo = new TH1F("h_etaIndex_sdo", "Eta index (SDO)", 100, 0, 350);
   h_etaIndex_sdo->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_etaIndex_sdo->GetName(), h_etaIndex_sdo));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_etaIndex_sdo->GetName(), h_etaIndex_sdo));
 
   h_barcode = new TH1F("h_barcode", "Barcode (SDO)", 100, 0, 2.2e5);
   h_barcode->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_barcode->GetName(), h_barcode));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_barcode->GetName(), h_barcode));
 
   h_eventIndex = new TH1F("h_eventIndex", "Event Index (SDO)", 100, 0, 2);
   h_eventIndex->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_eventIndex->GetName(), h_eventIndex));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_eventIndex->GetName(), h_eventIndex));
 
   h_charge = new TH1F("h_charge", "Charge (SDO)", 100, 0, 1e7);
   h_charge->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_charge->GetName(), h_charge));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_charge->GetName(), h_charge));
 
   
   return StatusCode::SUCCESS;
@@ -424,7 +424,7 @@ StatusCode PixelRDOAnalysis::execute() {
   }
 
   // Sim Data
-  const InDetSimDataCollection* simDataMapPixel(NULL);
+  const InDetSimDataCollection* simDataMapPixel(nullptr);
   if (evtStore()->retrieve(simDataMapPixel, "PixelSDO_Map") == StatusCode::SUCCESS) {
     // loop over SDO container
     InDetSimDataCollection::const_iterator sdo_itr(simDataMapPixel->begin());

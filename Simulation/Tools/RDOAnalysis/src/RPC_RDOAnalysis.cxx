@@ -91,11 +91,11 @@ RPC_RDOAnalysis::RPC_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
 StatusCode RPC_RDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing RPC_RDOAnalysis" );
 
-  CHECK(m_thistSvc.retrieve());
+  ATH_CHECK(m_thistSvc.retrieve());
 
   m_tree = new TTree(TString(m_ntupleTreeName), "RPC_RDOAna");
   std::string fullNtupleName = m_ntupleFileName + m_ntupleDirName + m_ntupleTreeName;
-  CHECK(m_thistSvc->regTree(fullNtupleName, m_tree));
+  ATH_CHECK(m_thistSvc->regTree(fullNtupleName, m_tree));
   if (m_tree) {
     m_tree->Branch("rpcID", &m_rpcID);
     m_tree->Branch("status", &m_status);
@@ -136,111 +136,111 @@ StatusCode RPC_RDOAnalysis::initialize() {
   // HISTOGRAMS
   h_rpcID = new TH1F("h_rpcID", "RPC Pad ID", 100, 0, 1e19);
   h_rpcID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_rpcID->GetName(), h_rpcID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_rpcID->GetName(), h_rpcID));
 
   h_status = new TH1F("h_status", "RPC Pad Status", 100, 0, 10);
   h_status->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_status->GetName(), h_status));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_status->GetName(), h_status));
 
   h_err = new TH1F("h_err", "RPC Pad error code", 100, 0, 10);
   h_err->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_err->GetName(), h_err));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_err->GetName(), h_err));
 
   h_onlineID = new TH1F("h_onlineID", "RPC Pad online ID", 100, 0, 10);
   h_onlineID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_onlineID->GetName(), h_onlineID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_onlineID->GetName(), h_onlineID));
 
   h_lvl1ID = new TH1F("h_lvl1ID", "RPC Pad LVL1 ID", 100, 0, 10);
   h_lvl1ID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_lvl1ID->GetName(), h_lvl1ID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_lvl1ID->GetName(), h_lvl1ID));
 
   h_bcID = new TH1F("h_bcID", "RPC Pad BCID", 100, 0, 10);
   h_bcID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_bcID->GetName(), h_bcID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_bcID->GetName(), h_bcID));
 
   h_sector = new TH1F("h_sector", "RPC Pad Sector", 100, 0, 75);
   h_sector->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_sector->GetName(), h_sector));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_sector->GetName(), h_sector));
 
   h_coinRpcID = new TH1F("h_coinRpcID", "CM Pad ID", 100, 0, 1e19);
   h_coinRpcID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_coinRpcID->GetName(), h_coinRpcID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_coinRpcID->GetName(), h_coinRpcID));
 
   h_coinOnID = new TH1F("h_coinOnID", "CM Online ID", 100, 0, 10);
   h_coinOnID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_coinOnID->GetName(), h_coinOnID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_coinOnID->GetName(), h_coinOnID));
 
   h_coinCrc = new TH1F("h_coinCrc", "CM CRC", 100, 0, 300);
   h_coinCrc->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_coinCrc->GetName(), h_coinCrc));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_coinCrc->GetName(), h_coinCrc));
 
   h_coinFel1ID = new TH1F("h_coinFel1ID", "CM FEL1ID", 100, 0, 10);
   h_coinFel1ID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_coinFel1ID->GetName(), h_coinFel1ID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_coinFel1ID->GetName(), h_coinFel1ID));
 
   h_coinFebcID = new TH1F("h_coinFebcID", "CM FEBCID", 100, 0, 10);
   h_coinFebcID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_coinFebcID->GetName(), h_coinFebcID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_coinFebcID->GetName(), h_coinFebcID));
   
   h_firedBcID = new TH1F("h_firedBcID", "Fired Channel BCID", 100, 0, 10);
   h_firedBcID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_firedBcID->GetName(), h_firedBcID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_firedBcID->GetName(), h_firedBcID));
 
   h_firedTime = new TH1F("h_firedTime", "Fired Channel time", 100, 0, 10);
   h_firedTime->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_firedTime->GetName(), h_firedTime));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_firedTime->GetName(), h_firedTime));
 
   h_firedIjk = new TH1F("h_firedIjk", "Fired Channel ijk", 100, 0, 10);
   h_firedIjk->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_firedIjk->GetName(), h_firedIjk));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_firedIjk->GetName(), h_firedIjk));
 
   h_firedChan = new TH1F("h_firedChan", "Fired Channel number", 100, 0, 35);
   h_firedChan->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_firedChan->GetName(), h_firedChan));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_firedChan->GetName(), h_firedChan));
 
   h_firedOvl = new TH1F("h_firedOvl", "Fired Channel overlap", 100, 0, 10);
   h_firedOvl->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_firedOvl->GetName(), h_firedOvl));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_firedOvl->GetName(), h_firedOvl));
 
   h_firedThr = new TH1F("h_firedThr", "Fired Channel threshold", 100, 0, 5);
   h_firedThr->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_firedThr->GetName(), h_firedThr));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_firedThr->GetName(), h_firedThr));
 
   h_sdoID = new TH1F("h_sdoID", "sdoID", 100, 0, 1e19);
   h_sdoID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_sdoID->GetName(), h_sdoID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_sdoID->GetName(), h_sdoID));
 
   h_sdoWord = new TH1F("h_sdoWord", "sdoWord", 100, 0, 10);
   h_sdoWord->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_sdoWord->GetName(), h_sdoWord));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_sdoWord->GetName(), h_sdoWord));
 
   h_xPos = new TH1F("h_xPos", "Global x-position (SDO)", 100, -15000, 15000);
   h_xPos->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_xPos->GetName(), h_xPos));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_xPos->GetName(), h_xPos));
 
   h_yPos = new TH1F("h_yPos", "Global y-position (SDO)", 100, -15000, 15000);
   h_yPos->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_yPos->GetName(), h_yPos));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_yPos->GetName(), h_yPos));
 
   h_zPos = new TH1F("h_zPos", "Global z-position (SDO)", 100, -15000, 15000);
   h_zPos->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_zPos->GetName(), h_zPos));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_zPos->GetName(), h_zPos));
 
   h_barcode = new TH1F("h_barcode", "Barcode (SDO)", 100, 0, 2.2e9);
   h_barcode->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_barcode->GetName(), h_barcode));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_barcode->GetName(), h_barcode));
 
   h_eventIndex = new TH1F("h_eventIndex", "Event index (SDO)", 100, 0, 1000);
   h_eventIndex->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_eventIndex->GetName(), h_eventIndex));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_eventIndex->GetName(), h_eventIndex));
 
   h_radius = new TH1F("h_radius", "Radius (SDO)", 100, 0, 1);
   h_radius->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_radius->GetName(), h_radius));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_radius->GetName(), h_radius));
 
   h_localZ = new TH1F("h_localZ", "Local z-position (SDO)", 100, -250, 250);
   h_localZ->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_localZ->GetName(), h_localZ));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_localZ->GetName(), h_localZ));
 
   return StatusCode::SUCCESS;
 }
@@ -368,7 +368,7 @@ StatusCode RPC_RDOAnalysis::execute() {
   }
 
   // SimData
-  const MuonSimDataCollection* simDataMapRPC(NULL);
+  const MuonSimDataCollection* simDataMapRPC(nullptr);
   if (evtStore()->retrieve(simDataMapRPC, "RPC_SDO") == StatusCode::SUCCESS) {
     MuonSimDataCollection::const_iterator sdo_itr(simDataMapRPC->begin());
     const MuonSimDataCollection::const_iterator sdo_end(simDataMapRPC->end());

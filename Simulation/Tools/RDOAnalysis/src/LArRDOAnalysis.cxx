@@ -64,11 +64,11 @@ StatusCode LArRDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing LArRDOAnalysis" );
 
   // Grab Ntuple and histogramming service for tree
-  CHECK(m_thistSvc.retrieve());
+  ATH_CHECK(m_thistSvc.retrieve());
 
   m_tree = new TTree(TString(m_ntupleTreeName), "LArRDOAna");
   std::string fullNtupleName = m_ntupleFileName + m_ntupleDirName + m_ntupleTreeName;
-  CHECK(m_thistSvc->regTree(fullNtupleName, m_tree));
+  ATH_CHECK(m_thistSvc->regTree(fullNtupleName, m_tree));
   if (m_tree) {
     m_tree->Branch("larID", &m_larID);
     m_tree->Branch("energy", &m_energy);
@@ -92,63 +92,63 @@ StatusCode LArRDOAnalysis::initialize() {
 
   h_larID = new TH1F("h_larID", "LAr ID", 100, 0, 5e18);
   h_larID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_larID->GetName(), h_larID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_larID->GetName(), h_larID));
 
   h_energy = new TH1F("h_energy", "LAr energy", 100, -1e5, 5e5);
   h_energy->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_energy->GetName(), h_energy));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_energy->GetName(), h_energy));
 
   h_time = new TH1F("h_time", "LAr time", 100, -1e7, 1e7);
   h_time->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_time->GetName(), h_time));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_time->GetName(), h_time));
 
   h_qual = new TH1F("h_qual", "LAr quality", 100, 0, 70000);
   h_qual->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_qual->GetName(), h_qual));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_qual->GetName(), h_qual));
 
   h_prov = new TH1F("h_prov", "LAr provenance", 100, 0, 9000);
   h_prov->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_prov->GetName(), h_prov));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_prov->GetName(), h_prov));
 
   h_gain = new TH1F("h_gain", "LAr gain", 100, 0, 5);
   h_gain->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_gain->GetName(), h_gain));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_gain->GetName(), h_gain));
 
   h_hadOnID = new TH1F("h_hadOnID", "Had LAr TTL1 online ID", 100, 0, 3e19);
   h_hadOnID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_hadOnID->GetName(), h_hadOnID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_hadOnID->GetName(), h_hadOnID));
 
   h_hadOffID = new TH1F("h_hadOffID", "Had LAr TTL1 offline ID", 100, 0, 3e19);
   h_hadOffID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_hadOffID->GetName(), h_hadOffID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_hadOffID->GetName(), h_hadOffID));
 
   h_hadSamples = new TH1F("h_hadSamples", "Had LAr TTL1 sample values", 100, -15000, 35000);
   h_hadSamples->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_hadSamples->GetName(), h_hadSamples));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_hadSamples->GetName(), h_hadSamples));
 
   h_emOnID = new TH1F("h_emOnID", "EM LAr TTL1 online ID", 100, 0, 3e19);
   h_emOnID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_emOnID->GetName(), h_emOnID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_emOnID->GetName(), h_emOnID));
 
   h_emOffID = new TH1F("h_emOffID", "EM LAr TTL1 offline ID", 100, 0, 3e19);
   h_emOffID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_emOffID->GetName(), h_emOffID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_emOffID->GetName(), h_emOffID));
 
   h_emSamples = new TH1F("h_emSamples", "EM LAr TTL1 sample values", 100, -1e5, 3.5e5);
   h_emSamples->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_emSamples->GetName(), h_emSamples));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_emSamples->GetName(), h_emSamples));
 
   h_digiID = new TH1F("h_digiID", "LAr digit ID", 100, 0, 5e18);
   h_digiID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_digiID->GetName(), h_digiID));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_digiID->GetName(), h_digiID));
 
   h_digiGain = new TH1F("h_digiGain", "LAr digit gain", 100, 0, 5);
   h_digiGain->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_digiGain->GetName(), h_digiGain));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_digiGain->GetName(), h_digiGain));
 
   h_digiSamples = new TH1F("h_digiSamples", "LAr digit sample values", 100, 0, 5000);
   h_digiSamples->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_digiSamples->GetName(), h_digiSamples));
+  ATH_CHECK(m_thistSvc->regHist(m_path + h_digiSamples->GetName(), h_digiSamples));
 
   return StatusCode::SUCCESS;
 }
