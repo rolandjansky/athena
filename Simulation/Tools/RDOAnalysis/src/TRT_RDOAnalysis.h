@@ -1,0 +1,132 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+#ifndef TRT_RDO_ANALYSIS_H
+#define TRT_RDO_ANALYSIS_H
+
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ITHistSvc.h"
+
+#include "InDetRawData/InDetRawDataCLASS_DEF.h"
+#include "InDetRawData/InDetRawDataContainer.h"
+#include "InDetSimData/InDetSimDataCollection.h"
+#include "InDetSimData/TRT_SimHelper.h"
+#include "InDetIdentifier/TRT_ID.h"
+
+#include <string>
+#include <vector>
+#include "TH1.h"
+
+class TTree;
+class TH1;
+class TRT_ID;
+class TRT_RDORawData;
+
+class TRT_RDOAnalysis : public AthAlgorithm {
+
+ public:
+  TRT_RDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
+  ~TRT_RDOAnalysis(){}
+
+  virtual StatusCode initialize();
+  virtual StatusCode execute();
+  virtual StatusCode finalize();
+
+ private:
+  const TRT_ID *m_trtID;
+
+  // NTUPLE BRANCHES
+  // RDO
+  std::vector<unsigned long long>* m_rdoID;
+  std::vector<unsigned int>* m_rdoWord;
+  // TRT_ID
+  std::vector<int>* m_barrelEndcap;
+  std::vector<int>* m_phiModule;
+  std::vector<int>* m_layerWheel;
+  std::vector<int>* m_strawLayer;
+  std::vector<int>* m_straw;
+  // TRT_RDORawData	
+  std::vector<bool>* m_highLevel;
+  std::vector<double>* m_timeOverThreshold;
+  std::vector<int>* m_driftTimeBin;
+  std::vector<int>* m_trailEdge;
+  std::vector<bool>* m_firstBin;
+  std::vector<bool>* m_lastBin;
+  // SDO
+  std::vector<unsigned long long>* m_sdoID;
+  std::vector<int>* m_sdoWord;
+  // TRT_ID
+  std::vector<int>* m_barrelEndcap_sdo;
+  std::vector<int>* m_phiModule_sdo;
+  std::vector<int>* m_layerWheel_sdo;
+  std::vector<int>* m_strawLayer_sdo;
+  std::vector<int>* m_straw_sdo;
+  // TRT_SimHelper
+  std::vector<bool>* m_aboveThresh;
+  std::vector<bool>* m_deadChan;
+  std::vector<bool>* m_RODdata;
+  std::vector<bool>* m_validStraw;
+  std::vector<bool>* m_hit;
+  // Deposit - particle link + energy (charge)
+  std::vector<int>* m_barcode;
+  std::vector<int>* m_eventIndex;
+  std::vector<float>* m_charge;
+  std::vector< std::vector<int> >* m_barcode_vec;
+  std::vector< std::vector<int> >* m_eventIndex_vec;
+  std::vector< std::vector<float> >* m_charge_vec;
+
+  // HISTOGRAMS
+  TH1* h_rdoID;
+  TH1* h_rdoWord;
+  TH1* h_barrelEndcap;
+  TH1* h_phiModule;
+  TH1* h_layerWheel;
+  TH1* h_strawLayer;
+  TH1* h_straw;
+  TH1* h_ToT;
+  TH1* h_ToT_HL;
+  TH1* h_driftTimeBin;
+  TH1* h_trailEdge;
+  // barrel TRT
+  TH1* h_brlPhiMod;
+  TH1* h_brlLayer;
+  TH1* h_brlStrawLayer;
+  TH1* h_brlStraw;
+  TH1* h_brlToT;
+  TH1* h_brlToT_HL;
+  TH1* h_brlDriftTimeBin;
+  TH1* h_brlTrailEdge;
+  // endcap TRT
+  TH1* h_ecPhiMod;
+  TH1* h_ecWheel;
+  TH1* h_ecStrawLayer;
+  TH1* h_ecStraw;
+  TH1* h_ecToT;
+  TH1* h_ecToT_HL;
+  TH1* h_ecDriftTimeBin;
+  TH1* h_ecTrailEdge;
+  // SDO
+  TH1* h_sdoID;
+  TH1* h_sdoWord;
+  TH1* h_barrelEndcap_sdo;
+  TH1* h_phiModule_sdo;
+  TH1* h_layerWheel_sdo;
+  TH1* h_strawLayer_sdo;
+  TH1* h_straw_sdo;
+  TH1* h_barcode;
+  TH1* h_eventIndex;
+  TH1* h_charge;
+  
+  TTree* m_tree;
+  std::string m_ntupleFileName;
+  std::string m_ntupleDirName;
+  std::string m_ntupleTreeName;
+  std::string m_path;
+  ServiceHandle<ITHistSvc> m_thistSvc;
+
+};
+
+#endif // TRT_RDO_ANALYSIS_H
