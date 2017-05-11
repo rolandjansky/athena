@@ -1,4 +1,5 @@
 // -*- c++ -*- 
+/* Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration */
 #ifndef CALOREC_CALOTOPOCLUSTERFROMTOWERMAKER_H
 #define CALOREC_CALOTOPOCLUSTERFROMTOWERMAKER_H
 

@@ -1,4 +1,4 @@
-
+/* Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration */
 #include "CaloRec/CaloTopoClusterFromTowerMaker.h"
 #include "CaloRec/CaloTopoClusterFromTowerHelpers.h"
 

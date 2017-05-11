@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 # This example demonstrates how to schedule the algorithms to build LCTopoTower as CaloCluster objects
 # 
 
