@@ -5,73 +5,79 @@
 # Declare the package name:
 atlas_subdir( PileupReweighting )
 
+# Extra dependencies based on the environment:
+set( extra_dep )
+if( XAOD_STANDALONE )
+   set( extra_dep PhysicsAnalysis/AnalysisCommon/ReweightUtils )
+else()
+   set( extra_Dep GaudiKernel Control/AthenaBaseComps )
+endif()
+
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthToolSupport/AsgTools
-                          DataQuality/GoodRunsLists
-                          Event/xAOD/xAODEventInfo
-                          GaudiKernel
-                          PhysicsAnalysis/AnalysisCommon/PATInterfaces
-                          PRIVATE
-                          AtlasTest/TestTools
-                          Control/AthenaBaseComps
-                          Tools/PathResolver )
+atlas_depends_on_subdirs(
+   PUBLIC
+   Control/AthToolSupport/AsgTools
+   PhysicsAnalyis/Interfaces/AsgAnalysisInterfaces
+   Trigger/TrigEvent/TrigDecisionInterface
+   PhysicsAnalysis/AnalysisCommon/PATInterfaces
+   DataQuality/GoodRunsLists
+   PRIVATE
+   Event/xAOD/xAODEventInfo
+   Tools/PathResolver
+   ${extra_dep} )
 
 # External dependencies:
-find_package( ROOT COMPONENTS MathCore RIO Cint Core Tree Hist pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
+find_package( ROOT COMPONENTS MathCore RIO Core Tree Hist )
 
-# tag ROOTBasicLibs was not recognized in automatic conversion in cmt2cmake
+# Libraries in the package:
+atlas_add_root_dictionary( PileupReweightingLib PileupReweightingDictSource
+   ROOT_HEADERS PileupReweighting/TPileupReweighting.h Root/LinkDef.h
+   EXTERNAL_PACKAGES ROOT )
 
-# tag ROOTCintexLibs was not recognized in automatic conversion in cmt2cmake
-
-# Component(s) in the package:
-atlas_add_root_dictionary( PileupReweightingLib
-                           PileupReweightingLibDictSource
-                           ROOT_HEADERS PileupReweighting/TPileupReweighting.h Root/LinkDef.h
-                           EXTERNAL_PACKAGES ROOT )
+set( extra_libs )
+if( XAOD_STANDALONE )
+   set( extra_libs ReweightUtilsLib )
+endif()
 
 atlas_add_library( PileupReweightingLib
-                   Root/*.cxx
-                   ${PileupReweightingLibDictSource}
-                   PUBLIC_HEADERS PileupReweighting
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AsgTools xAODEventInfo GaudiKernel PATInterfaces GoodRunsListsLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools AthenaBaseComps PathResolver )
+   PileupReweighting/*.h Root/*.cxx ${PileupReweightingDictSource}
+   PUBLIC_HEADERS PileupReweighting
+   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES AsgTools PATInterfaces AsgAnalysisInterfaces
+   TrigDecisionInterface GoodRunsListsLib
+   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver ${extra_libs} )
 
-atlas_add_component( PileupReweighting
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools GoodRunsListsLib xAODEventInfo GaudiKernel PATInterfaces TestTools AthenaBaseComps PathResolver PileupReweightingLib )
+if( NOT XAOD_STANDALONE )
+   atlas_add_component( PileupReweighting
+      src/components/*.cxx
+      LINK_LIBRARIES AsgAnalysisInterfaces AthenaBaseComps xAODEventInfo
+      PATInterfaces GaudiKernel PileupReweightingLib )
+endif()
 
 atlas_add_dictionary( PileupReweightingDict
-                      PileupReweighting/PileupReweightingDict.h
-                      PileupReweighting/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools GoodRunsListsLib xAODEventInfo GaudiKernel PATInterfaces TestTools AthenaBaseComps PathResolver PileupReweightingLib )
+   PileupReweighting/PileupReweightingDict.h
+   PileupReweighting/selection.xml
+   LINK_LIBRARIES PileupReweightingLib )
 
-atlas_add_executable( testPRW
-                      src/testPRW.C
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools GoodRunsListsLib xAODEventInfo GaudiKernel PATInterfaces TestTools AthenaBaseComps PathResolver PileupReweightingLib )
+# Executable(s) in the package:
+macro( _add_exec name )
+   atlas_add_executable( ${name}
+      src/${name}.C
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
+endmacro( _add_exec )
 
-atlas_add_executable( testPRWTool
-                      src/testPRWTool.C
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools GoodRunsListsLib xAODEventInfo GaudiKernel PATInterfaces TestTools AthenaBaseComps PathResolver PileupReweightingLib )
+_add_exec( testPRW )
+_add_exec( testPRWTool )
+_add_exec( checkPRWConfigFile )
 
-atlas_add_executable( checkPRWConfigFile
-                      src/checkPRWConfigFile.C
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools GoodRunsListsLib xAODEventInfo GaudiKernel PATInterfaces TestTools AthenaBaseComps PathResolver PileupReweightingLib )
-
+# Test(s) in the package:
 atlas_add_test( ut_PRWExample_test
-                SOURCES
-                test/ut_PRWExample_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools GoodRunsListsLib xAODEventInfo GaudiKernel PATInterfaces TestTools AthenaBaseComps PathResolver PileupReweightingLib )
+   SOURCES test/ut_PRWExample_test.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.root )
-

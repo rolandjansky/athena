@@ -124,7 +124,17 @@ int main() {
 
    //now check the dataweight .. remember the runNumber is converted into a periodNumber (i.e. the weights aren't unique to a runNumber, they are unique to the periodNumber)
    std::cout << "prw TriggerA DataWeights (mu independent): " << prw1.GetDataWeight(1,"TriggerA") << " (expected=2.63415) " << prw1.GetDataWeight(2,"TriggerA") << " (expected=2.63415) " << prw1.GetDataWeight(3,"TriggerA") << " (expected=3.2727)" << std::endl;
-   std::cout << "prw TriggerA DataWeights (mu dependent): " << prw1.GetDataWeight(1,"TriggerA",0.5) << " (expected=2) " << prw1.GetDataWeight(1,"TriggerA",1.5) << " (expected=3) " << prw1.GetDataWeight(2,"TriggerA",1.5) << " (expected=3.0000) " << prw1.GetDataWeight(3,"TriggerA",1.5) << " (expected=4) " << prw1.GetDataWeight(3,"TriggerA",2.5) << " (expected=2) " << prw1.GetDataWeight(3,"TriggerA",3.5) << " (expected=nan) " << std::endl;
+   std::cout << "prw TriggerA DataWeights (mu dependent): " << prw1.GetDataWeight(1,"TriggerA",0.5) << " (expected=2) " << prw1.GetDataWeight(1,"TriggerA",1.5) << " (expected=3) " << prw1.GetDataWeight(2,"TriggerA",1.5) << " (expected=3.0000) " << prw1.GetDataWeight(3,"TriggerA",1.5) << " (expected=4) " << prw1.GetDataWeight(3,"TriggerA",2.5) << " (expected=2) " << std::endl;
+    
+    
+   //check that doing a weight for mu value that is out of range throws exception
+   try {
+      prw1.GetDataWeight(3,"TriggerA",3.5);
+   } catch(...) {
+     std::cout << "exception thrown as expected for mu value out of range in GetDataWeight" << std::endl;
+   }
+   
+   
    testValue(prw1.GetDataWeight(1,"TriggerA"),2.63415);
    testValue(prw1.GetDataWeight(2,"TriggerA"),2.63415);
    testValue(prw1.GetDataWeight(3,"TriggerA"),3.2727);
