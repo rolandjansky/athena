@@ -80,8 +80,6 @@ StoreID::type findStoreID(const string& storeNamePrefix) {
     { "StoreGateSvc", StoreID::EVENT_STORE },
     { "TagMetaDataStore", StoreID::METADATA_STORE }
       };
-  const auto BEG(NAMETOID.begin());
-  const auto END(NAMETOID.end());
 
   // Account for AthenaMT stores that start with {digits}_
   size_t ist (0);
@@ -138,15 +136,6 @@ StoreID::type findStoreID(const string& storeNamePrefix) {
     }
   }
   
-  // auto i(BEG);
-  // while (i != END) {
-  //   int comp = storeNamePrefix.compare(ist, (i->first).size(), (i->first));
-  //   //    std::cout << storeNamePrefix <<' '<< storeNamePrefix.size() <<' '<< i->first <<' '<< (i->first).size() <<' '<< comp << std::endl;
-  //   //NAMETOID is sorted so if we go past storeNamePrefix we are done
-  //   if (comp < 0) break;
-  //   else if (comp == 0) return i->second;
-  //   ++i;
-  // }
   return StoreID::UNKNOWN;
 }
 
