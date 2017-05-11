@@ -120,7 +120,7 @@ menuMap={
          'PhysicsV1':       ('Physics_pp_v1',           'TriggerMenuXML/LVL1config_Physics_pp_v1.xml'),
          'MCV1':            ('MC_pp_v1',                'TriggerMenuXML/LVL1config_Physics_pp_v1.xml'),
          'CosmicPPV1':      ('Physics_pp_v1_cosmics_prescale','TriggerMenuXML/LVL1config_Physics_pp_v1.xml'),
-         }
+}
 
 # Useful in job options beyond our control to always run the latest menu via 'testCurrentMenu=True'
 menuMap['CurrentMenu'] = menuMap['PhysicsV6']
@@ -139,11 +139,11 @@ for name in menuMap:
                 # topo menu xml explicitly given
                 setL1TopoXML=menuMap[name][2]
                 
-            if not 'setupForMC' in dir():
+            if 'setupForMC' not in dir():
                 setupForMC=(key=='MC')
                 print 'Setting setupForMC = ',setupForMC
 
-if not 'setupForMC' in dir():
+if 'setupForMC' not in dir():
     setupForMC=False
 
 if newMenuSetup>1:
@@ -176,7 +176,7 @@ defaultOptions={
     'HLTOutputLevel'   : INFO,
     'EvtMax'           : -1,
     'SkipEvents'       :  0,
-    }
+}
 
 
 #-------------------------------------------------------------
@@ -204,8 +204,8 @@ if setupForMC:   # for MC
     defaultOptions['useCOMCONDDB']=False
 else:            # for data
     defaultOptions['useCOMCONDDB']=True
-    defaultOptions['setDetDescr']='ATLAS-R2-2015-04-00-00'    
-    defaultOptions['setGlobalTag']='CONDBR2-HLTP-2016-01'
+    defaultOptions['setDetDescr']=TriggerFlags.OnlineGeoTag()
+    defaultOptions['setGlobalTag']=TriggerFlags.OnlineCondTag()
 
 # Setup list of modifiers
 defaultOptions['setModifiers']=[#Common modifiers for MC and data
@@ -222,7 +222,7 @@ defaultOptions['setModifiers']=[#Common modifiers for MC and data
                                 'openThresholdRPCCabling',
                                 #special streaming setup
                                 'enable7BitL1TTStreaming',
-                                ]
+]
 
 if setupForMC:  # MC modifiers
     defaultOptions['setModifiers']+=['BFieldFromDCS']
@@ -247,13 +247,13 @@ else:           # More data modifiers
                                 #Monitoring L1Topo at ROB level
                                 'L1TopoCheck',
                                 'forceTileRODMap',
-                              #for tests with data:
+                                #for tests with data:
                                 #'ignoreErrorStream', #nothing goes to debug stream
                                 #'inclusiveErrorStream', #errors go to both debug and physics streams
                                 #'ignoreL1Vetos',  #also run L2 prescaled and disabled L1 items
                                 #'disablePixels',
                                 #'disableSCTBarrel',
-                                ]
+    ]
 
 #make some more common trig cost operations easier to setup
 if 'enableCostD3PD' in dir() or 'enableRateD3PD' in dir():
@@ -294,7 +294,7 @@ for mod in dir(TriggerRelease.Modifiers):
     if not hasattr(getattr(TriggerRelease.Modifiers,mod),'preSetup'): continue
     if mod in dir():  #allow turning on and off modifiers by variable of same name
         if globals()[mod]:
-            if not mod in setModifiers:
+            if mod not in setModifiers:
                 setModifiers+=[mod]
         else:
             if mod in setModifiers: setModifiers.remove(mod)
@@ -438,8 +438,8 @@ if globalflags.InputFormat=='bytestream':
         _run_number = af.run_number[0]
     if _run_number>=276073:       #start of periodD1, 25ns bunch spacing 
         jobproperties.Beam.bunchSpacing=25
-        log.info('Bunch spacing set to %dns for a bytestream input. It can be overriden by BunchSpacing50ns=True' \
-                     % jobproperties.Beam.bunchSpacing()) 
+        log.info('Bunch spacing set to %dns for a bytestream input. It can be overriden by BunchSpacing50ns=True'
+                 % jobproperties.Beam.bunchSpacing())
 
 
 # RecEx flags
@@ -486,7 +486,7 @@ def enableDisableChains():
     # default signatures have been setup according to choice of menu
     for s in sliceList:
         slice=getattr(TriggerFlags,s)
-        if removeSignatures.has_key(s):
+        if s in removeSignatures:
             remove=removeSignatures[s]
             log.warn('Disabling '+str(remove)+' of '+s)
             if remove=='ALL':
@@ -494,7 +494,7 @@ def enableDisableChains():
                 slice.signatures.set_Value([])                 # Remove all chains
             else:
                 slice.disableSignatures(remove)
-        if addSignatures.has_key(s):
+        if s in addSignatures:
             add=addSignatures[s]            
             slice.enableSignatures([sig for sig in signatures_all if sig[0] in add])
             log.info('Enabled '+str(add)+' in '+s)
