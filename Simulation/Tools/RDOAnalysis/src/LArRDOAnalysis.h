@@ -33,6 +33,11 @@ class LArRDOAnalysis : public AthAlgorithm {
   virtual StatusCode finalize();
 
  private:
+  SG::ReadHandleKey<LArRawChannelContainer> m_inputRawChannelKey;
+  SG::ReadHandleKey<LArTTL1Container> m_inputTTL1HADKey;
+  SG::ReadHandleKey<LArTTL1Container> m_inputTTL1EMKey;
+  SG::ReadHandleKey<LArDigitContainer> m_inputDigitKey;
+
   // LAR RAW CHANNELS
   std::vector<unsigned long long>* m_larID;
   std::vector<int>* m_energy;

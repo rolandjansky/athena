@@ -16,6 +16,10 @@
 
 LArRDOAnalysis::LArRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
+  , m_inputRawChannelKey("LArRawChannels")
+  , m_inputTTL1HADKey("LArTTL1HAD")
+  , m_inputTTL1EMKey("LArTTL1EM")
+  , m_inputDigitKey("LArDigitContainer_MC_Thinned")
   , m_larID(0)
   , m_energy(0)
   , m_time(0)
@@ -55,6 +59,10 @@ LArRDOAnalysis::LArRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator
   , m_path("/LArRDOAnalysis/")
   , m_thistSvc("THistSvc", name)
 {
+  declareProperty("InputRawChannelKey", m_inputRawChannelKey);
+  declareProperty("InputTTL1HADKey", m_inputTTL1HADKey);
+  declareProperty("InputTTL1EMKey", m_inputTTL1EMKey);
+  declareProperty("InputDigitKey", m_inputDigitKey);
   declareProperty("NtupleFileName", m_ntupleFileName);
   declareProperty("NtupleDirectoryName", m_ntupleDirName);
   declareProperty("NtupleTreeName", m_ntupleTreeName);
@@ -63,6 +71,13 @@ LArRDOAnalysis::LArRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator
 
 StatusCode LArRDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing LArRDOAnalysis" );
+
+  // This will check that the properties were initialized
+  // properly by job configuration.
+  ATH_CHECK( m_inputRawChannelKey.initialize() );
+  ATH_CHECK( m_inputTTL1HADKey.initialize() );
+  ATH_CHECK( m_inputTTL1EMKey.initialize() );
+  ATH_CHECK( m_inputDigitKey.initialize() );
 
   // Grab Ntuple and histogramming service for tree
   ATH_CHECK(m_thistSvc.retrieve());
@@ -174,8 +189,8 @@ StatusCode LArRDOAnalysis::execute() {
   m_digiSamples->clear();
 
   // LAr Raw Channels
-  const LArRawChannelContainer* p_larRawCont;
-  if (evtStore()->retrieve(p_larRawCont, "LArRawChannels") == StatusCode::SUCCESS) {
+  SG::ReadHandle<LArRawChannelContainer> p_larRawCont(m_inputRawChannelKey);
+  if (p_larRawCont.isValid()) {
     // loop over LAr raw channels container
     LArRawChannelContainer::const_iterator lar_itr(p_larRawCont->begin());
     const LArRawChannelContainer::const_iterator lar_end(p_larRawCont->end());
@@ -207,8 +222,8 @@ StatusCode LArRDOAnalysis::execute() {
 
   
   // LAr TTL1 - Had
-  const LArTTL1Container* p_larTTL1Cont_had;
-  if (evtStore()->retrieve(p_larTTL1Cont_had, "LArTTL1HAD") == StatusCode::SUCCESS) {
+  SG::ReadHandle<LArTTL1Container> p_larTTL1Cont_had(m_inputTTL1HADKey);
+  if (p_larTTL1Cont_had.isValid()) {
     LArTTL1Container::const_iterator ttl1Had_itr(p_larTTL1Cont_had->begin());
     const LArTTL1Container::const_iterator ttl1Had_end(p_larTTL1Cont_had->end());
     for ( ; ttl1Had_itr != ttl1Had_end; ++ttl1Had_itr ) {
@@ -231,8 +246,8 @@ StatusCode LArRDOAnalysis::execute() {
   }
 
   // LAr TTL1 - EM
-  const LArTTL1Container* p_larTTL1Cont_em;
-  if (evtStore()->retrieve(p_larTTL1Cont_em, "LArTTL1EM") == StatusCode::SUCCESS) {
+  SG::ReadHandle<LArTTL1Container> p_larTTL1Cont_em(m_inputTTL1EMKey);
+  if (p_larTTL1Cont_em.isValid()) {
     LArTTL1Container::const_iterator ttl1EM_itr(p_larTTL1Cont_em->begin());
     const LArTTL1Container::const_iterator ttl1EM_end(p_larTTL1Cont_em->end());
     for ( ; ttl1EM_itr != ttl1EM_end; ++ttl1EM_itr ) {
@@ -256,8 +271,8 @@ StatusCode LArRDOAnalysis::execute() {
 
   
   // LAr Digits
-  const LArDigitContainer* p_larDigiCont;
-  if (evtStore()->retrieve(p_larDigiCont, "LArDigitContainer_MC_Thinned")) {
+  SG::ReadHandle<const LArDigitContainer> p_larDigiCont(m_inputDigitKey);
+  if (p_larDigiCont.isValid()) {
     LArDigitContainer::const_iterator digi_itr(p_larDigiCont->begin());
     const LArDigitContainer::const_iterator digi_end(p_larDigiCont->end());
     for ( ; digi_itr != digi_end; ++digi_itr ) {
