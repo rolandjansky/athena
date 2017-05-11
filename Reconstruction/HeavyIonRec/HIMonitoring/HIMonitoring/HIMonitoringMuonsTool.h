@@ -49,22 +49,17 @@ class HIMonitoringMuonsTool : public ManagedMonitorToolBase
 	  
    private:
       
-      double m_FCalEt; 
-      xAOD::Muon::Author auth;
-      float chi2ndof,chi2ndofID,chi2ndofMS,chi2ndofME;
-      float type;
-
       /// histograms 
     
-      TH1D* h_FCalEt; 
+      TH1D* m_h_FCalEt; 
 	
-      TH1D* h_Auth_fcal; 
-      TH1D* h_Type_fcal; 
-      TH1D* h_Chi2ndf_fcal; 
+      TH1D* m_h_Auth_fcal; 
+      TH1D* m_h_Type_fcal; 
+      TH1D* m_h_Chi2ndf_fcal; 
    
-      TH1D* h_Chi2ndfID_fcal; 
-      TH1D* h_Chi2ndfME_fcal; 
-      TH1D* h_Chi2ndfMS_fcal; 
+      TH1D* m_h_Chi2ndfID_fcal; 
+      TH1D* m_h_Chi2ndfME_fcal; 
+      TH1D* m_h_Chi2ndfMS_fcal; 
 };
 
 #endif
