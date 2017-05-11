@@ -61,7 +61,8 @@ namespace Rec {
     void associateClusters( const xAOD::CaloClusterContainer* container, 
                             const Trk::CaloExtension& caloExtension,
                             float dr,
-                            ParticleClusterAssociation::Data& clusters ) const;
+                            ParticleClusterAssociation::Data& clusters,
+                            const xAOD::IParticle& particle) const;
     
     const xAOD::CaloClusterContainer* getClusterContainer() const;
 
@@ -73,6 +74,7 @@ namespace Rec {
     std::string m_caloEntryMapName;
     double      m_coneSize;
     bool        m_useCovariance;
+    bool        m_storeParameters;
 
   };
 

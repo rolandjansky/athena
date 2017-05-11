@@ -12,13 +12,15 @@ TrackCaloClusterCreatorTool::TrackCaloClusterCreatorTool(const std::string& t, c
   m_loosetrackvertexassoTool("LooseTrackVertexAssociationTool"),
   m_caloEntryMapName("ParticleToCaloExtensionMap"),
   m_useEnergy(false),
-  m_doOriginCorrection(true)
+  m_doOriginCorrection(true),
+  m_storeCorrectedPosition(false)
 {
     declareProperty("VertexContainerName"          ,    m_vertexContname                  = "PrimaryVertices"   );
     declareProperty("ParticleCaloEntryMapName"     ,    m_caloEntryMapName                                      );
     declareProperty("LooseTrackVertexAssoTool"     ,    m_loosetrackvertexassoTool                              );
     declareProperty("UseEnergy"                    ,    m_useEnergy                                             );
     declareProperty("DoOriginCorrection"           ,    m_doOriginCorrection                                    );
+    declareProperty("StoreCorrectedPosition"       ,    m_storeCorrectedPosition                                );
 }
 
 TrackCaloClusterCreatorTool::~TrackCaloClusterCreatorTool() {}
@@ -83,6 +85,12 @@ void TrackCaloClusterCreatorTool::createChargedTCCs(xAOD::TrackCaloClusterContai
 	
 	if (m_doOriginCorrection)
 	  computeVertexCorr(eta, phi, (vxCont->at(0))->position(), pars->position().perp());
+	
+	if (m_storeCorrectedPosition) {
+	  trk->auxdecor<int>("Corrected") = 1;
+	  trk->auxdecor<float>("CaloEntryPosEtaCorr") = eta;
+	  trk->auxdecor<float>("CaloEntryPosPhiCorr") = phi;
+	}
 	
 // 	std::cout << "Element = " << trk << " --- eta --> " << pars->position().eta() << "      " << trk->eta()  << "    --- delta = " << (pars->position().eta() - trk->eta())<< std::endl;
 // 	std::cout << "Element = " << trk << " --- phi --> " << pars->position().phi() << "      " << trk->phi()  << "    --- delta = " << (pars->position().phi() - trk->phi())<< std::endl;

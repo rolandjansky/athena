@@ -136,7 +136,7 @@
   
 <!-- m_jet_response_m_pt -->
   <h id="jet_response_m_pt" type="TH2F" title="Mass response vs Truth jet p_{T} - all jets">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Mass response"         n="100" lo="0." hi="5."/>
   </h> 
 
@@ -166,7 +166,7 @@
   
 <!-- m_jet_response_m_pt_2leadings -->
   <h id="jet_response_m_pt_2leadings" type="TH2F" title="Mass response vs Truth jet p_{T} - 2 leading jets">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Mass response"         n="100" lo="0." hi="5."/>
   </h> 
 
@@ -196,7 +196,7 @@
   
 <!-- m_jet_response_m_pt_leading -->
   <h id="jet_response_m_pt_leading" type="TH2F" title="Mass response vs Truth jet p_{T} - leading jets">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Mass response"         n="100" lo="0." hi="5."/>
   </h> 
 
@@ -227,7 +227,7 @@
   
 <!-- m_jet_response_m_pt_subleading -->
   <h id="jet_response_m_pt_subleading" type="TH2F" title="Mass response vs Truth jet p_{T} - subleading jets">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Mass response"         n="100" lo="0." hi="5."/>
   </h> 
 
@@ -372,323 +372,323 @@
   
 <!-- m_jet_resolution_m -->
   <h id="jet_resolution_m" type="TH1F" title="Mass resolution - all jets">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_m_2leadings -->
   <h id="jet_resolution_m_2leadings" type="TH1F" title="Mass resolution - 2 leading jets">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_m_leading -->
   <h id="jet_resolution_m_leading" type="TH1F" title="Mass resolution - leading jet">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_m_subleading -->
   <h id="jet_resolution_m_subleading" type="TH1F" title="Mass resolution - subleading jet">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_mopt_pt_response_m -->
   <h id="jet_mopt_pt_response_m" type="TH3F" title="Mass response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="Mass response"                 n="500" lo="0." hi="5."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_m_2leadings -->
   <h id="jet_mopt_pt_response_m_2leadings" type="TH3F" title="Mass response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="Mass response"                 n="500" lo="0." hi="5."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_m_leading -->
   <h id="jet_mopt_pt_response_m_leading" type="TH3F" title="Mass response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="Mass response"                 n="500" lo="0." hi="5."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_m_subleading -->
   <h id="jet_mopt_pt_response_m_subleading" type="TH3F" title="Mass response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="Mass response"                 n="500" lo="0." hi="5."/>
   </h> 
 
 <!-- m_jet_mopt_pt_response_pt -->
   <h id="jet_mopt_pt_response_pt" type="TH3F" title="p_{T} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="p_{T} response"                 n="500" lo="0." hi="5."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_pt_2leadings -->
   <h id="jet_mopt_pt_response_pt_2leadings" type="TH3F" title="p_{T} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="p_{T} response"                 n="500" lo="0." hi="5."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_pt_leading -->
   <h id="jet_mopt_pt_response_pt_leading" type="TH3F" title="p_{T} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="p_{T} response"                 n="500" lo="0." hi="5."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_pt_subleading -->
   <h id="jet_mopt_pt_response_pt_subleading" type="TH3F" title="p_{T} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="p_{T} response"                 n="500" lo="0." hi="5."/>
   </h> 
 
 <!-- m_jet_mopt_pt_response_eta -->
   <h id="jet_mopt_pt_response_eta" type="TH3F" title="#eta response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="#eta response"                 n="500" lo="0." hi="5."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_eta_2leadings -->
   <h id="jet_mopt_pt_response_eta_2leadings" type="TH3F" title="#eta response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="#eta response"                 n="500" lo="0." hi="5."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_eta_leading -->
   <h id="jet_mopt_pt_response_eta_leading" type="TH3F" title="#eta response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="#eta response"                 n="500" lo="0." hi="5."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_eta_subleading -->
   <h id="jet_mopt_pt_response_eta_subleading" type="TH3F" title="#eta response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="#eta response"                 n="500" lo="0." hi="5."/>
   </h> 
 
 <!-- m_jet_mopt_pt_response_phi -->
   <h id="jet_mopt_pt_response_phi" type="TH3F" title="#phi response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="#phi response"                 n="500" lo="0." hi="5."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_phi_2leadings -->
   <h id="jet_mopt_pt_response_phi_2leadings" type="TH3F" title="#phi response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="#phi response"                 n="500" lo="0." hi="5."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_phi_leading -->
   <h id="jet_mopt_pt_response_phi_leading" type="TH3F" title="#phi response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="#phi response"                 n="500" lo="0." hi="5."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_phi_subleading -->
   <h id="jet_mopt_pt_response_phi_subleading" type="TH3F" title="#phi response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="#phi response"                 n="500" lo="0." hi="5."/>
   </h> 
 
 <!-- m_jet_mopt_pt_response_d2 -->
   <h id="jet_mopt_pt_response_d2" type="TH3F" title="D_{2} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="D_{2} response"                 n="500" lo="0." hi="5."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_d2_2leadings -->
   <h id="jet_mopt_pt_response_d2_2leadings" type="TH3F" title="D_{2} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="D_{2} response"                 n="500" lo="0." hi="5."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_d2_leading -->
   <h id="jet_mopt_pt_response_d2_leading" type="TH3F" title="D_{2} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="D_{2} response"                 n="500" lo="0." hi="5."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_d2_subleading -->
   <h id="jet_mopt_pt_response_d2_subleading" type="TH3F" title="D_{2} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
-    <x title="Truth jet p_{T} [GeV]"         n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="D_{2} response"                 n="500" lo="0." hi="5."/>
   </h> 
   
 <!-- m_jet_resolution_mopt_pt_m -->
   <h id="jet_resolution_mopt_pt_m" type="TH2F" title="Mass resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_m_2leadings -->
   <h id="jet_resolution_mopt_pt_m_2leadings" type="TH2F" title="Mass resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h>
   
 <!-- m_jet_resolution_mopt_pt_m_2leadings_test -->
   <h id="jet_resolution_mopt_pt_m_2leadings_test" type="TH1F" title="Mass resolution TEST - 2 leading jets">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_m_leading -->
   <h id="jet_resolution_mopt_pt_m_leading" type="TH2F" title="Mass resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_m_subleading -->
   <h id="jet_resolution_mopt_pt_m_subleading" type="TH2F" title="Mass resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
   
 <!-- m_jet_resolution_mopt_pt_pt -->
   <h id="jet_resolution_mopt_pt_pt" type="TH2F" title="p_{T} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_pt_2leadings -->
   <h id="jet_resolution_mopt_pt_pt_2leadings" type="TH2F" title="p_{T} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_pt_leading -->
   <h id="jet_resolution_mopt_pt_pt_leading" type="TH2F" title="p_{T} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_pt_subleading -->
   <h id="jet_resolution_mopt_pt_pt_subleading" type="TH2F" title="p_{T} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
   
 <!-- m_jet_resolution_mopt_pt_eta -->
   <h id="jet_resolution_mopt_pt_eta" type="TH2F" title="#eta resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_eta_2leadings -->
   <h id="jet_resolution_mopt_pt_eta_2leadings" type="TH2F" title="#eta resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_eta_leading -->
   <h id="jet_resolution_mopt_pt_eta_leading" type="TH2F" title="#eta resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_eta_subleading -->
   <h id="jet_resolution_mopt_pt_eta_subleading" type="TH2F" title="#eta resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
   
 <!-- m_jet_resolution_mopt_pt_phi -->
   <h id="jet_resolution_mopt_pt_phi" type="TH2F" title="#phi resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_phi_2leadings -->
   <h id="jet_resolution_mopt_pt_phi_2leadings" type="TH2F" title="#phi resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_phi_leading -->
   <h id="jet_resolution_mopt_pt_phi_leading" type="TH2F" title="#phi resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_phi_subleading -->
   <h id="jet_resolution_mopt_pt_phi_subleading" type="TH2F" title="#phi resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
   
 <!-- m_jet_resolution_mopt_pt_d2 -->
   <h id="jet_resolution_mopt_pt_d2" type="TH2F" title="D_{2} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_d2_2leadings -->
   <h id="jet_resolution_mopt_pt_d2_2leadings" type="TH2F" title="D_{2} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_d2_leading -->
   <h id="jet_resolution_mopt_pt_d2_leading" type="TH2F" title="D_{2} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_d2_subleading -->
   <h id="jet_resolution_mopt_pt_d2_subleading" type="TH2F" title="D_{2} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
-    <x title="Truth jet p_{T} [GeV]" n="17"  lo="200." hi="3000."/>
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
     <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
    
   <!-- m_trk_d0 -->
   <h id="trk_d0" type="TH1F" title="d_{0}">
-    <x title="Track d_{0} [mm]" n="1000"  lo="-100." hi="100."/>
+    <x title="Track d_{0} [mm]" n="400"  lo="-100." hi="100."/>
     <y title="Entries" />
   </h> 
   
   <!-- m_trk_z0 -->
   <h id="trk_z0" type="TH1F" title="z_{0}">
-    <x title="Track z_{0} [mm]" n="5000"  lo="-5000." hi="5000."/>
+    <x title="Track z_{0} [mm]" n="300"  lo="-300." hi="300."/>
     <y title="Entries" />
   </h> 
   
@@ -706,14 +706,14 @@
   
   <!-- m_trk_qOverP -->
   <h id="trk_qOverP" type="TH1F" title="q/p">
-    <x title="Track q/p [MeV^{-1}]" n="200"  lo="-0.001" hi="0.001"/>
+    <x title="Track q/p [MeV^{-1}]" n="200"  lo="-0.0001" hi="0.0001"/>
     <y title="Entries" />
   </h> 
     
   <!-- m_trk_d0_eta -->
   <h id="trk_d0_eta" type="TH2F" title="d_{0} vs track #eta">
     <x title="Track #eta [rad]" n="500" lo="-4." hi="4."/>
-    <y title="Track d_{0} [mm]" n="1000"  lo="-100." hi="100."/>
+    <y title="Track d_{0} [mm]" n="400"  lo="-100." hi="100."/>
   </h>
   
   <!-- m_trk_z0_eta -->
@@ -737,39 +737,38 @@
   <!-- m_trk_qOverP_eta -->
   <h id="trk_qOverP_eta" type="TH2F" title="q/p vs track #eta">
     <x title="Track #eta [rad]" n="500" lo="-4." hi="4."/>
-    <y title="Track q/p [MeV^{-1}]" n="200"  lo="-0.00001" hi="0.00001"/>
+    <y title="Track q/p [MeV^{-1}]" n="200"  lo="-0.0001" hi="0.0001"/>
   </h> 
   
   <!-- m_trk_d0_pt -->
   <h id="trk_d0_pt" type="TH2F" title="d_{0} vs track p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
-    <y title="Track d_{0} [mm]" n="1000"  lo="-100." hi="100."/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Track d_{0} [mm]" n="400"  lo="-100." hi="100."/>
   </h>
   
   <!-- m_trk_z0_pt -->
   <h id="trk_z0_pt" type="TH2F" title="z_{0} vs track p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
-    <y title="Track z_{0} [mm]" n="5000"  lo="-5000." hi="5000."/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Track z_{0} [mm]" n="300"  lo="-300." hi="300."/>
   </h> 
   
   <!-- m_trk_theta_pt -->
   <h id="trk_theta_pt" type="TH2F" title="#theta vs track p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
     <y title="Track #theta [rad]" n="250"  lo="0." hi="4."/>
   </h>  
   
   <!-- m_trk_phi_pt -->
   <h id="trk_phi_pt" type="TH2F" title="#phi vs track p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
     <y title="Track #phi [rad]" n="500"  lo="-4." hi="4."/>
   </h> 
   
   <!-- m_trk_qOverP_pt -->
   <h id="trk_qOverP_pt" type="TH2F" title="q/p vs track p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
-    <y title="Track q/p [MeV^{-1}]" n="200"  lo="-0.00001" hi="0.00001"/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Track q/p [MeV^{-1}]" n="200"  lo="-0.0001" hi="0.0001"/>
   </h> 
-  
   
   <!-- m_trk_caloEntryEta -->
   <h id="trk_caloEntryEta" type="TH1F" title="calo entry #eta">
@@ -785,7 +784,7 @@
 
   <!-- m_trk_caloEntryEtaOverEta_pt -->
   <h id="trk_caloEntryEtaOverEta_pt" type="TH2F" title="calo entry #eta/track #eta vs track p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
     <y title="Calo Entry #eta / track #eta" n="500" lo="-4." hi="4."/>
   </h>
   
@@ -803,7 +802,7 @@
 
   <!-- m_trk_caloEntryPhiOverEta_pt -->
   <h id="trk_caloEntryPhiOverPhi_pt" type="TH2F" title="calo entry #phi/track #phi vs track p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
     <y title="Calo Entry #phi / track #phi" n="500" lo="-4." hi="4."/>
   </h>
    
@@ -821,7 +820,7 @@
   
   <!-- m_trk_caloEntryUncEta_pt -->
   <h id="trk_caloEntryUncEta_pt" type="TH2F" title="calo entry #sigma(#eta) vs track p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
     <y title="Calo Entry #sigma(#eta)" n="500" lo="0" hi="1."/>
   </h>
   
@@ -833,8 +832,14 @@
   
   <!-- m_trk_caloEntryUncTheta_pt -->
   <h id="trk_caloEntryUncTheta_pt" type="TH2F" title="calo entry #sigma(#theta) vs track p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
     <y title="Calo Entry #sigma(#theta)" n="500" lo="0" hi="1."/>
+  </h>
+  
+  <!-- trk_prodRadius -->
+  <h id="trk_prodRadius" type="TH1F" title="truth production radius">
+    <x title="Truth Production Radius [mm]" n="100" lo="0." hi="2."/>
+    <y title="Entries"/>
   </h>
     
   <!-- m_trk_caloEntryUncEta_prodRadius -->
@@ -863,7 +868,7 @@
   
   <!-- m_trk_caloEntryUncPhi_pt -->
   <h id="trk_caloEntryUncPhi_pt" type="TH2F" title="calo entry #sigma(#phi) vs track p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
     <y title="Calo Entry #sigma(#phi)" n="500" lo="0" hi="0.1"/>
   </h>
     
@@ -881,7 +886,7 @@
   
   <!-- m_trk_caloEntryUncTot_pt -->
   <h id="trk_caloEntryUncTot_pt" type="TH2F" title="calo entry #sigma(#Delta R) vs track p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
     <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
   </h>
     
@@ -900,13 +905,13 @@
   <!-- m_trk_perigeeUncEta_eta -->
   <h id="trk_perigeeUncEta_eta" type="TH2F" title="perigee #sigma(#eta) vs track #eta">
     <x title="track #eta [rad]" n="500" lo="-4." hi="4."/>
-    <y title="Perigee #sigma(#eta)" n="5000" lo="0" hi="10."/>
+    <y title="Perigee #sigma(#eta)" n="500" lo="0" hi="1."/>
   </h>
   
   <!-- m_trk_perigeeUncEta_pt -->
   <h id="trk_perigeeUncEta_pt" type="TH2F" title="perigee #sigma(#eta) vs track p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
-    <y title="Perigee #sigma(#eta)" n="5000" lo="0" hi="10."/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Perigee #sigma(#eta)" n="500" lo="0" hi="1."/>
   </h>
   
   <!-- m_trk_perigeeUncTheta_eta -->
@@ -917,14 +922,14 @@
   
   <!-- m_trk_perigeeUncTheta_pt -->
   <h id="trk_perigeeUncTheta_pt" type="TH2F" title="perigee #sigma(#theta) vs track p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
     <y title="Perigee #sigma(#theta)" n="500" lo="0" hi="1."/>
   </h>
     
   <!-- m_trk_perigeeUncEta_prodRadius -->
   <h id="trk_perigeeUncEta_prodRadius" type="TH2F" title="perigee #sigma(#eta) vs truth production radius">
     <x title="Truth Production Radius [mm]" n="1500" lo="0." hi="1500."/>
-    <y title="Perigee #sigma(#eta)" n="5000" lo="0" hi="10."/>
+    <y title="Perigee #sigma(#eta)" n="500" lo="0" hi="1."/>
   </h>
   
   <!-- m_trk_perigeeUncTheta_prodRadius -->
@@ -947,7 +952,7 @@
   
   <!-- m_trk_perigeeUncPhi_pt -->
   <h id="trk_perigeeUncPhi_pt" type="TH2F" title="perigee #sigma(#phi) vs track p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
     <y title="Perigee #sigma(#phi)" n="500" lo="0" hi="0.1"/>
   </h>
     
@@ -960,131 +965,723 @@
   <!-- m_trk_perigeeUncTot_eta -->
   <h id="trk_perigeeUncTot_eta" type="TH2F" title="perigee #sigma(#Delta R) vs track #eta">
     <x title="track #eta [rad]" n="500" lo="-4." hi="4."/>
-    <y title="Perigee #sigma(#Delta R)" n="5000" lo="0" hi="10."/>
+    <y title="Perigee #sigma(#Delta R)" n="500" lo="0" hi="1."/>
   </h>
   
   <!-- m_trk_perigeeUncTot_pt -->
   <h id="trk_perigeeUncTot_pt" type="TH2F" title="perigee #sigma(#Delta R) vs track p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
-    <y title="Perigee #sigma(#Delta R)" n="5000" lo="0" hi="10."/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Perigee #sigma(#Delta R)" n="500" lo="0" hi="1."/>
   </h>
     
   <!-- m_trk_perigeeUncTot_prodRadius -->
   <h id="trk_perigeeUncTot_prodRadius" type="TH2F" title="perigee #sigma(#Delta R) vs truth production radius">
     <x title="Truth Production Radius [mm]" n="1500" lo="0." hi="1500."/>
-    <y title="Perigee #sigma(#Delta R)" n="5000" lo="0" hi="10."/>
+    <y title="Perigee #sigma(#Delta R)" n="500" lo="0" hi="1."/>
   </h>
   
   <!-- m_trk_perigeeUncEta_caloUncEta   -->
   <h id="trk_perigeeUncEta_caloUncEta" type="TH2F" title="perigee #sigma(#eta) vs calo entry #sigma(#eta)">
-    <x title="Calo Entry #sigma(#eta)" n="500"  lo="0" hi="1."/>
-    <y title="Perigee #sigma(#eta)"    n="5000" lo="0" hi="10."/>
+    <x title="Calo Entry #sigma(#eta)" n="250"  lo="0" hi="1."/>
+    <y title="Perigee #sigma(#eta)"    n="250"  lo="0" hi="1."/>
   </h>
   
   <!-- m_trk_perigeeUncTheta_caloUncTheta   -->
   <h id="trk_perigeeUncTheta_caloUncTheta" type="TH2F" title="perigee #sigma(#theta) vs calo entry #sigma(#theta)">
-    <x title="Calo Entry #sigma(#theta)"  n="500" lo="0" hi="1."/>
-    <y title="Perigee #sigma(#theta)"     n="500" lo="0" hi="1."/>
+    <x title="Calo Entry #sigma(#theta)"  n="250" lo="0" hi="1."/>
+    <y title="Perigee #sigma(#theta)"     n="250" lo="0" hi="1."/>
   </h>
   
   <!-- m_trk_perigeeUncPhi_caloUncPhi   -->
   <h id="trk_perigeeUncPhi_caloUncPhi" type="TH2F" title="perigee #sigma(#phi) vs calo entry #sigma(#phi)">
-    <x title="Calo Entry #sigma(#phi)" n="500" lo="0" hi="0.1"/>
-    <y title="Perigee #sigma(#phi)"    n="500" lo="0" hi="0.1"/>
+    <x title="Calo Entry #sigma(#phi)" n="250" lo="0" hi="0.1"/>
+    <y title="Perigee #sigma(#phi)"    n="250" lo="0" hi="0.1"/>
   </h>
   
   <!-- m_trk_perigeeUncTot_caloUncTot   -->
   <h id="trk_perigeeUncTot_caloUncTot" type="TH2F" title="perigee #sigma(#Delta R) vs calo entry #sigma(#Delta R)">
     <x title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
-    <y title="Perigee #sigma(#Delta R)" n="5000" lo="0" hi="10."/>
+    <y title="Perigee #sigma(#Delta R)"    n="500" lo="0" hi="1."/>
   </h>
   
   <!-- trk_delta_perigeeEta_caloEntryEta -->
   <h id="trk_delta_perigeeEta_caloEntryEta" type="TH1F" title="(calo entry #eta - perigee #eta)">
-    <x title="calo entry #eta - perigee #eta"  n="500" lo="-4." hi="4."/>
+    <x title="calo entry #eta - perigee #eta"  n="400" lo="-0.4" hi="0.4"/>
     <y title="Entries" />
   </h>
   
   <!-- trk_delta_perigeePhi_caloEntryPhi -->
   <h id="trk_delta_perigeePhi_caloEntryPhi" type="TH1F" title="(calo entry #phi - perigee #phi)">
-    <x title="calo entry #phi - perigee #phi"  n="500" lo="-4." hi="4."/>
+    <x title="calo entry #phi - perigee #phi"  n="100" lo="-0.1" hi="0.1"/>
     <y title="Entries" />
-  </h>
-  
-  <!-- trk_delta_perigeeEta_caloEntryEta_pt_eta -->
-  <h id="trk_delta_perigeeEta_caloEntryEta_pt_eta" type="TH2F" title="(calo entry #eta - perigee #eta) vs (p_{T}, #eta)">
-    <x title="track #eta [rad]"  n="500" lo="-4." hi="4."/>
-    <y title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
-    <z title="(calo entry #eta - perigee #eta)"/>
-  </h>
-  
-  <!-- trk_delta_perigeePhi_caloEntryPhi_pt_eta -->
-  <h id="trk_delta_perigeePhi_caloEntryPhi_pt_eta" type="TH2F" title="(calo entry #phi - perigee #phi) vs (p_{T}, #eta)">
-    <x title="track #eta [rad]"  n="500" lo="-4." hi="4."/>
-    <y title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
-    <z title="(calo entry #phi - perigee #phi)"/>
   </h>
   
   <!-- trk_delta_perigeeEta_caloEntryEta_eta" -->
   <h id="trk_delta_perigeeEta_caloEntryEta_eta" type="TH2F" title="(calo entry #eta - perigee #eta) vs #eta">
     <x title="track #eta [rad]"  n="500" lo="-4." hi="4."/>
-    <y title="(calo entry #eta - perigee #eta)" n="500" lo="-4." hi="4."/>
+    <y title="(calo entry #eta - perigee #eta)" n="400" lo="-0.4" hi="0.4"/>
   </h>
   
   <!-- trk_delta_perigeePhi_caloEntryPhi_eta" -->
   <h id="trk_delta_perigeePhi_caloEntryPhi_eta" type="TH2F" title="(calo entry #phi - perigee #phi) vs #eta">
     <x title="track #eta [rad]"  n="500" lo="-4." hi="4."/>
-    <y title="(calo entry #phi - perigee #phi)" n="500" lo="-4." hi="4."/>
+    <y title="(calo entry #phi - perigee #phi)" n="100" lo="-0.1" hi="0.1"/>
   </h>
   
   <!-- trk_delta_perigeeEta_caloEntryEta_pt" -->
   <h id="trk_delta_perigeeEta_caloEntryEta_pt" type="TH2F" title="(calo entry #eta - perigee #eta) vs p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
-    <y title="(calo entry #eta - perigee #eta)" n="500" lo="-4." hi="4."/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="(calo entry #eta - perigee #eta)" n="400" lo="-0.4" hi="0.4"/>
   </h>
   
   <!-- trk_delta_perigeePhi_caloEntryPhi_pt" -->
   <h id="trk_delta_perigeePhi_caloEntryPhi_pt" type="TH2F" title="(calo entry #phi - perigee #phi) vs p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
-    <y title="(calo entry #phi - perigee #phi)" n="500" lo="-4." hi="4."/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="(calo entry #phi - perigee #phi)" n="100" lo="-0.1" hi="0.1"/>
   </h>
   
   <!-- trk_delta_trackEta_caloEntryEta -->
-  <h id="trk_delta_trackEta_caloEntryEta" type="TH1F" title="(calo entry dir #eta - track #eta)">
-    <x title="calo entry #eta - track #eta"  n="500" lo="-4." hi="4."/>
+  <h id="trk_delta_trackEta_caloEntryEta" type="TH1F" title="(calo entry #eta - track #eta)">
+    <x title="calo entry #eta - track #eta"  n="400" lo="-0.4" hi="0.4"/>
     <y title="Entries" />
   </h>
   
   <!-- trk_delta_trackPhi_caloEntryPhi -->
-  <h id="trk_delta_trackPhi_caloEntryPhi" type="TH1F" title="(calo entry dir #phi - track #phi)">
-    <x title="calo entry #phi - track #phi"  n="200" lo="-0.1" hi="0.1"/>
+  <h id="trk_delta_trackPhi_caloEntryPhi" type="TH1F" title="(calo entry #phi - track #phi)">
+    <x title="calo entry #phi - track #phi"  n="100" lo="-0.1" hi="0.1"/>
     <y title="Entries" />
   </h>
   
   <!-- trk_delta_trackEta_caloEntryEta_eta" -->
   <h id="trk_delta_trackEta_caloEntryEta_eta" type="TH2F" title="(calo entry #eta - track #eta) vs #eta">
     <x title="track #eta [rad]"  n="500" lo="-4." hi="4."/>
-    <y title="(calo entry #eta - track #eta)" n="500" lo="-4." hi="4."/>
+    <y title="(calo entry #eta - track #eta)" n="400" lo="-0.4" hi="0.4"/>
   </h>
   
   <!-- trk_delta_trackPhi_caloEntryPhi_eta" -->
   <h id="trk_delta_trackPhi_caloEntryPhi_eta" type="TH2F" title="(calo entry #phi - track #phi) vs #eta">
     <x title="track #eta [rad]"  n="500" lo="-4." hi="4."/>
-    <y title="(calo entry #phi - track #phi)" n="200" lo="-0.1" hi="0.1"/>
+    <y title="(calo entry #phi - track #phi)" n="100" lo="-0.1" hi="0.1"/>
   </h>
   
   <!-- trk_delta_trackEta_caloEntryEta_pt" -->
   <h id="trk_delta_trackEta_caloEntryEta_pt" type="TH2F" title="(calo entry #eta - track #eta) vs p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
-    <y title="(calo entry #eta - track #eta)" n="500" lo="-4." hi="4."/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="(calo entry #eta - track #eta)" n="400" lo="-0.4" hi="0.4"/>
   </h>
   
   <!-- trk_delta_trackPhi_caloEntryPhi_pt" -->
   <h id="trk_delta_trackPhi_caloEntryPhi_pt" type="TH2F" title="(calo entry #phi - track #phi) vs p_{T}">
-    <x title="Track p_{T} [GeV]" n="200" lo="0." hi="2000."/>
-    <y title="(calo entry #phi - track #phi)" n="200" lo="-0.1" hi="0.1"/>
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="(calo entry #phi - track #phi)" n="100" lo="-0.1" hi="0.1"/>
+  </h>
+  
+  <!-- trk_delta_trackEta_caloEntryEtaCorr -->
+  <h id="trk_delta_trackEta_caloEntryEtaCorr" type="TH1F" title="(calo entry corr #eta - track #eta)">
+    <x title="calo entry corr #eta - track #eta"  n="100" lo="-0.01" hi="0.01"/>
+    <y title="Entries" />
+  </h>
+  
+  <!-- trk_delta_trackPhi_caloEntryPhiCorr -->
+  <h id="trk_delta_trackPhi_caloEntryPhiCorr" type="TH1F" title="(calo entry corr #phi - track #phi)">
+    <x title="calo entry corr #phi - track #phi"  n="100" lo="-0.1" hi="0.1"/>
+    <y title="Entries" />
+  </h>
+  
+  <!-- trk_delta_trackEta_caloEntryEtaCorr_eta" -->
+  <h id="trk_delta_trackEta_caloEntryEtaCorr_eta" type="TH2F" title="(calo entry corr #eta - track #eta) vs #eta">
+    <x title="track #eta [rad]"  n="500" lo="-4." hi="4."/>
+    <y title="(calo entry corr #eta - track #eta)" n="100" lo="-0.01" hi="0.01"/>
+  </h>
+  
+  <!-- trk_delta_trackPhi_caloEntryPhiCorr_eta" -->
+  <h id="trk_delta_trackPhi_caloEntryPhiCorr_eta" type="TH2F" title="(calo entry corr #phi - track #phi) vs #eta">
+    <x title="track #eta [rad]"  n="500" lo="-4." hi="4."/>
+    <y title="(calo entry corr #phi - track #phi)" n="100" lo="-0.1" hi="0.1"/>
+  </h>
+  
+  <!-- trk_delta_trackEta_caloEntryEtaCorr_pt" -->
+  <h id="trk_delta_trackEta_caloEntryEtaCorr_pt" type="TH2F" title="(calo entry corr #eta - track #eta) vs p_{T}">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="(calo entry corr #eta - track #eta)" n="100" lo="-0.1" hi="0.1"/>
+  </h>
+  
+  <!-- trk_delta_trackPhi_caloEntryPhiCorr_pt" -->
+  <h id="trk_delta_trackPhi_caloEntryPhiCorr_pt" type="TH2F" title="(calo entry corr #phi - track #phi) vs p_{T}">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="(calo entry corr #phi - track #phi)" n="100" lo="-0.1" hi="0.1"/>
+  </h>
+  
+  <!-- trk_delta_caloEntryEta_caloEntryEtaCorr -->
+  <h id="trk_delta_caloEntryEta_caloEntryEtaCorr" type="TH1F" title="(calo entry corr #eta - calo entry #eta)">
+    <x title="calo entry corr #eta - calo entry #eta"  n="400" lo="-0.4" hi="0.4"/>
+    <y title="Entries" />
+  </h>
+  
+  <!-- trk_delta_caloEntryPhi_caloEntryPhiCorr -->
+  <h id="trk_delta_caloEntryPhi_caloEntryPhiCorr" type="TH1F" title="(calo entry corr #phi - calo entry #phi)">
+    <x title="calo entry corr #phi - calo entry #phi"  n="100" lo="-0.00005" hi="0.00005"/>
+    <y title="Entries" />
+  </h>
+  
+  <!-- trk_delta_caloEntryEta_caloEntryEtaCorr_eta" -->
+  <h id="trk_delta_caloEntryEta_caloEntryEtaCorr_eta" type="TH2F" title="(calo entry corr #eta - calo entry #eta) vs #eta">
+    <x title="track #eta [rad]"  n="500" lo="-4." hi="4."/>
+    <y title="(calo entry corr #eta - calo entry #eta)" n="400" lo="-0.4" hi="0.4"/>
+  </h>
+  
+  <!-- trk_delta_caloEntryPhi_caloEntryPhiCorr_eta" -->
+  <h id="trk_delta_caloEntryPhi_caloEntryPhiCorr_eta" type="TH2F" title="(calo entry corr #phi - calo entry #phi) vs #eta">
+    <x title="track #eta [rad]"  n="500" lo="-4." hi="4."/>
+    <y title="(calo entry corr #phi - calo entry #phi)" n="100" lo="-0.00005" hi="0.00005"/>
+  </h>
+  
+  <!-- trk_delta_caloEntryEta_caloEntryEtaCorr_pt" -->
+  <h id="trk_delta_caloEntryEta_caloEntryEtaCorr_pt" type="TH2F" title="(calo entry corr #eta - calo entry #eta) vs p_{T}">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="(calo entry corr #eta - calo entry #eta)" n="400" lo="-0.4" hi="0.4"/>
+  </h>
+  
+  <!-- trk_delta_caloEntryPhi_caloEntryPhiCorr_pt" -->
+  <h id="trk_delta_caloEntryPhi_caloEntryPhiCorr_pt" type="TH2F" title="(calo entry corr #phi - calo entry #phi) vs p_{T}">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="(calo entry corr #phi - calo entry #phi)" n="100" lo="-0.00005" hi="0.00005"/>
   </h>
   
   
+  <!-- m_clusters_eta -->
+  <h id="clusters_eta" type="TH1F" title="#eta of all clusters">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_matched_eta -->
+  <h id="clusters_matched_eta" type="TH1F" title="#eta of matching clusters">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+ 
+  <!-- m_clusters_notMatched_eta -->
+  <h id="clusters_notMatched_eta" type="TH1F" title="#eta of not matching clusters">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matchedFraction_eta -->
+  <h id="clusters_matchedFraction_eta" type="TH1F" title="fraction of matching clusters">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_notMatchedFraction_eta -->
+  <h id="clusters_notMatchedFraction_eta" type="TH1F" title="fraction of not matching clusters">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of not matching clusters"/>
+  </h>
+
+  <!-- m_clusters_width -->
+  <h id="clusters_width" type="TH1F" title="Cluster width for all clusters">
+    <x title="Cluster width" n="100" lo="0" hi="1."/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_width_eta -->
+  <h id="clusters_width_eta" type="TH2F" title="Cluster width vs #eta for all clusters">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Cluster width" n="100" lo="0" hi="1.0"/>
+  </h>
+  
+  <!-- m_clusters_matched_eta_fix_and_var -->
+  <h id="clusters_matched_eta_fix_and_var" type="TH1F" title="#eta of matching clusters - fixed and variable #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_matched_eta_fix_or_var -->
+  <h id="clusters_matched_eta_fix_or_var" type="TH1F" title="#eta of matching clusters - fixed or variable #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matched_eta_fix -->
+  <h id="clusters_matched_eta_fix" type="TH1F" title="#eta of matching clusters - fixed #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_matched_eta_notfix -->
+  <h id="clusters_matched_eta_notfix" type="TH1F" title="#eta of not matching clusters - fixed #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_matched_eta_var -->
+  <h id="clusters_matched_eta_var" type="TH1F" title="#eta of matching clusters - variable #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matched_eta_notvar -->
+  <h id="clusters_matched_eta_notvar" type="TH1F" title="#eta of not matching clusters - variable #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matched_eta_onlyvar -->
+  <h id="clusters_matched_eta_onlyvar" type="TH1F" title="#eta of matching clusters - only variable #DeltaR">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matched_eta_onlyfix -->
+  <h id="clusters_matched_eta_onlyfix" type="TH1F" title="#eta of matching clusters - only fixed #DeltaR">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matched_eta_none -->
+  <h id="clusters_matched_eta_none" type="TH1F" title="#eta of not matching clusters">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matchedFraction_eta_fix_and_var -->
+  <h id="clusters_matchedFraction_eta_fix_and_var" type="TH1F" title="Fraction of matching clusters - fixed and variable #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedFraction_eta_fix_or_var -->
+  <h id="clusters_matchedFraction_eta_fix_or_var" type="TH1F" title="Fraction of matching clusters - fixed or variable #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedFraction_eta_fix -->
+  <h id="clusters_matchedFraction_eta_fix" type="TH1F" title="Fraction of matching clusters - fixed #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedFraction_eta_notfix -->
+  <h id="clusters_matchedFraction_eta_notfix" type="TH1F" title="Fraction of not matching clusters - fixed #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of not matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedFraction_eta_var -->
+  <h id="clusters_matchedFraction_eta_var" type="TH1F" title="Fraction of matching clusters - variable #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedFraction_eta_notvar -->
+  <h id="clusters_matchedFraction_eta_notvar" type="TH1F" title="Fraction of not matching clusters - variable #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedFraction_eta_onlyvar -->
+  <h id="clusters_matchedFraction_eta_onlyvar" type="TH1F" title="Fraction of matching clusters - only variable #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedFraction_eta_onlyfix -->
+  <h id="clusters_matchedFraction_eta_onlyfix" type="TH1F" title="Fraction of matching clusters - only fixed #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedFraction_eta_none -->
+  <h id="clusters_matchedFraction_eta_none" type="TH1F" title="Fraction of not matching clusters">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of not matching clusters"/>
+  </h>
+  
+  <!-- m_trk_total_eta -->
+  <h id="trk_total_eta" type="TH1F" title="#eta of all extrapolated tracks">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_total_pt -->
+  <h id="trk_total_pt" type="TH1F" title="p_{T} of all extrapolated tracks">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_trk_total_clusters_eta -->
+  <h id="trk_total_clusters_eta" type="TH2F" title="Number of clusters vs extrapolated track #eta">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="# Clusters" n = "500" lo = "0" hi = "500"/>
+  </h>
+
+  <!-- m_trk_total_clusters_pt -->
+  <h id="trk_total_clusters_pt" type="TH2F" title="Number of clusters vs extrapolated track p_{T}">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="# Clusters" n = "15" lo = "0" hi = "15"/>
+  </h>
+
+  <!-- m_trk_notMatching_deltar_fix_eta -->
+  <h id="trk_notMatching_deltar_fix_eta" type="TH1F" title="track #eta not matching with fixed #Delta R">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_notMatching_deltar_fix_phi -->
+  <h id="trk_notMatching_deltar_fix_phi" type="TH1F" title="track #phi not matching with fixed #Delta R">
+    <x title="Track #phi [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_trk_notMatching_deltar_fix_pt -->
+  <h id="trk_notMatching_deltar_fix_pt" type="TH1F" title="track p_{T} not matching with fixed #Delta R">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_trk_notMatching_deltar_fix_caloEntryUncTot_eta -->
+  <h id="trk_notMatching_deltar_fix_caloEntryUncTot_eta" type="TH2F" title="calo entry #sigma(#Delta R) vs track #eta - not matching with fixed #Delta R">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+  </h>
+
+  <!-- m_trk_notMatching_deltar_fix_caloEntryUncTot_pt -->
+  <h id="trk_notMatching_deltar_fix_caloEntryUncTot_pt" type="TH2F" title="calo entry #sigma(#Delta R) vs track p_{T} - not matching with fixed #Delta R">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+  </h>
+
+  <!-- m_trk_notMatching_deltar_fix_caloEntryUncTot_prodRadius -->
+  <h id="trk_notMatching_deltar_fix_caloEntryUncTot_prodRadius" type="TH2F" title="calo entry #sigma(#Delta R) vs track truth production radius - not matching with fixed #Delta R">
+    <x title="Truth Production Radius [mm]" n="1500" lo="0." hi="1500."/>
+    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_notMatching_deltar_var_eta -->
+  <h id="trk_notMatching_deltar_var_eta" type="TH1F" title="track #eta not matching with variable #Delta R">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_notMatching_deltar_var_phi -->
+  <h id="trk_notMatching_deltar_var_phi" type="TH1F" title="track #phi not matching with variable #Delta R">
+    <x title="Track #phi [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_trk_notMatching_deltar_var_pt -->
+  <h id="trk_notMatching_deltar_var_pt" type="TH1F" title="track p_{T} not matching with variable #Delta R">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_trk_notMatching_deltar_var_caloEntryUncTot_eta -->
+  <h id="trk_notMatching_deltar_var_caloEntryUncTot_eta" type="TH2F" title="calo entry #sigma(#Delta R) vs track #eta - not matching with variable #Delta R">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+  </h>
+
+  <!-- m_trk_notMatching_deltar_var_caloEntryUncTot_pt -->
+  <h id="trk_notMatching_deltar_var_caloEntryUncTot_pt" type="TH2F" title="calo entry #sigma(#Delta R) vs track p_{T} - not matching with variable #Delta R">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+  </h>
+
+  <!-- m_trk_notMatching_deltar_var_caloEntryUncTot_prodRadius -->
+  <h id="trk_notMatching_deltar_var_caloEntryUncTot_prodRadius" type="TH2F" title="calo entry #sigma(#Delta R) vs track truth production radius - not matching with variable #Delta R">
+    <x title="Truth Production Radius [mm]" n="1500" lo="0." hi="1500."/>
+    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_notMatching_deltar_none_eta -->
+  <h id="trk_notMatching_deltar_none_eta" type="TH1F" title="track #eta not matching any #Delta R">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_notMatching_deltar_none_phi -->
+  <h id="trk_notMatching_deltar_none_phi" type="TH1F" title="track #phi not matching any #Delta R">
+    <x title="Track #phi [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_trk_notMatching_deltar_none_pt -->
+  <h id="trk_notMatching_deltar_none_pt" type="TH1F" title="track p_{T} not matching any #Delta R">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_trk_notMatching_deltar_none_caloEntryUncTot_eta -->
+  <h id="trk_notMatching_deltar_none_caloEntryUncTot_eta" type="TH2F" title="calo entry #sigma(#Delta R) vs track #eta - not matching any #Delta R">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+  </h>
+
+  <!-- m_trk_notMatching_deltar_none_caloEntryUncTot_pt -->
+  <h id="trk_notMatching_deltar_none_caloEntryUncTot_pt" type="TH2F" title="calo entry #sigma(#Delta R) vs track p_{T} - not matching any #Delta R">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+  </h>
+
+  <!-- m_trk_notMatching_deltar_none_caloEntryUncTot_prodRadius -->
+  <h id="trk_notMatching_deltar_none_caloEntryUncTot_prodRadius" type="TH2F" title="calo entry #sigma(#Delta R) vs track truth production radius - not matching any #Delta R">
+    <x title="Truth Production Radius [mm]" n="1500" lo="0." hi="1500."/>
+    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_fix_eta -->
+  <h id="trk_matching_deltar_fix_eta" type="TH1F" title="matching track #eta - fixed #Delta R">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_fix_pt -->
+  <h id="trk_matching_deltar_fix_pt" type="TH1F" title="matching track p_{T} - fixed #Delta R">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_trk_matching_deltar_var_eta -->
+  <h id="trk_matching_deltar_var_eta" type="TH1F" title="matching track #eta - variable #Delta R">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_var_pt -->
+  <h id="trk_matching_deltar_var_pt" type="TH1F" title="matching track p_{T} - variable #Delta R">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_onlyfix_eta -->
+  <h id="trk_matching_deltar_onlyfix_eta" type="TH1F" title="matching track #eta - only fix #Delta R">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_onlyfix_pt -->
+  <h id="trk_matching_deltar_onlyfix_pt" type="TH1F" title="matching track p_{T} - only fix #Delta R">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_onlyvar_eta -->
+  <h id="trk_matching_deltar_onlyvar_eta" type="TH1F" title="matching track #eta - only variable #Delta R">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_onlyvar_pt -->
+  <h id="trk_matching_deltar_onlyvar_pt" type="TH1F" title="matching track p_{T} - only #Delta R">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_fix_or_var_eta -->
+  <h id="trk_matching_deltar_fix_or_var_eta" type="TH1F" title="matching track #eta - fixed or variable #Delta R">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_fix_or_var_pt -->
+  <h id="trk_matching_deltar_fix_or_var_pt" type="TH1F" title="matching track p_{T} - fixed or variable #Delta R">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_fix_and_var_eta -->
+  <h id="trk_matching_deltar_fix_and_var_eta" type="TH1F" title="matching track #eta - fixed and variable #Delta R">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_fix_and_var_pt -->
+  <h id="trk_matching_deltar_fix_and_var_pt" type="TH1F" title="matching track p_{T} - fixed and variable #Delta R">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_or_clusters_eta -->
+  <h id="trk_matching_deltar_or_clusters_eta" type="TH2F" title="Number of matched clusters vs track #eta - fixed or variable #Delta R">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="# Clusters matched" n = "15" lo = "0" hi = "15"/>
+  </h>
+
+  <!-- m_trk_matching_deltar_or_clusters_phi -->
+  <h id="trk_matching_deltar_or_clusters_phi" type="TH2F" title="Number of matched clusters vs track #phi - fixed or variable #Delta R">
+    <x title="track #phi [rad]" n="200" lo="-4." hi="4."/>
+    <y title="# Clusters matched" n = "15" lo = "0" hi = "15"/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_or_clusters_pt -->
+  <h id="trk_matching_deltar_or_clusters_pt" type="TH2F" title="Number of matched clusters vs track p_{T} - fixed or variable #Delta R">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="# Clusters matched" n = "15" lo = "0" hi = "15"/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_and_clusters_eta -->
+  <h id="trk_matching_deltar_and_clusters_eta" type="TH2F" title="Number of matched clusters vs track #eta - fixed and variable #Delta R">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="# Clusters matched" n = "15" lo = "0" hi = "15"/>
+  </h>
+
+  <!-- m_trk_matching_deltar_and_clusters_phi -->
+  <h id="trk_matching_deltar_and_clusters_phi" type="TH2F" title="Number of matched clusters vs track #phi - fixed and variable #Delta R">
+    <x title="track #phi [rad]" n="200" lo="-4." hi="4."/>
+    <y title="# Clusters matched" n = "15" lo = "0" hi = "15"/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_and_clusters_pt -->
+  <h id="trk_matching_deltar_and_clusters_pt" type="TH2F" title="Number of matched clusters vs track p_{T} - fixed and variable #Delta R">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="# Clusters matched" n = "15" lo = "0" hi = "15"/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_fix_only_clusters_eta -->
+  <h id="trk_matching_deltar_fix_only_clusters_eta" type="TH2F" title="Number of matched clusters vs track #eta - only fixed #Delta R">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="# Clusters matched" n = "15" lo = "0" hi = "15"/>
+  </h>
+
+  <!-- m_trk_matching_deltar_fix_only_clusters_phi -->
+  <h id="trk_matching_deltar_fix_only_clusters_phi" type="TH2F" title="Number of matched clusters vs track #phi - only fixed #Delta R">
+    <x title="track #phi [rad]" n="200" lo="-4." hi="4."/>
+    <y title="# Clusters matched" n = "15" lo = "0" hi = "15"/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_fix_only_clusters_pt -->
+  <h id="trk_matching_deltar_fix_only_clusters_pt" type="TH2F" title="Number of matched clusters vs track p_{T} - only fixed #Delta R">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="# Clusters matched" n = "15" lo = "0" hi = "15"/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_var_only_clusters_eta -->
+  <h id="trk_matching_deltar_var_only_clusters_eta" type="TH2F" title="Number of matched clusters vs track #eta - only variable #Delta R">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="# Clusters matched" n = "15" lo = "0" hi = "15"/>
+  </h>
+
+  <!-- m_trk_matching_deltar_var_only_clusters_phi -->
+  <h id="trk_matching_deltar_var_only_clusters_phi" type="TH2F" title="Number of matched clusters vs track #phi - only variable #Delta R">
+    <x title="track #phi [rad]" n="200" lo="-4." hi="4."/>
+    <y title="# Clusters matched" n = "15" lo = "0" hi = "15"/>
+  </h>
+  
+  <!-- m_trk_matching_deltar_var_only_clusters_pt -->
+  <h id="trk_matching_deltar_var_only_clusters_pt" type="TH2F" title="Number of matched clusters vs track p_{T} - only variable #Delta R">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="# Clusters matched" n = "15" lo = "0" hi = "15"/>
+  </h>
+  
+  <!-- m_trk_matchedFraction_eta_fix_and_var -->
+  <h id="trk_matchedFraction_eta_fix_and_var" type="TH1F" title="Fraction of matching tracks - fixed and variable #Delta R">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_matchedFraction_eta_fix_or_var -->
+  <h id="trk_matchedFraction_eta_fix_or_var" type="TH1F" title="Fraction of matching tracks - fixed or variable #Delta R">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_matchedFraction_eta_fix -->
+  <h id="trk_matchedFraction_eta_fix" type="TH1F" title="Fraction of matching tracks - fixed #Delta R">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_matchedFraction_eta_notfix -->
+  <h id="trk_matchedFraction_eta_notfix" type="TH1F" title="Fraction of not matching tracks - fixed #Delta R">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Fraction of not matching tracks"/>
+  </h>
+  
+  <!-- m_trk_matchedFraction_eta_var -->
+  <h id="trk_matchedFraction_eta_var" type="TH1F" title="Fraction of matching tracks - variable #Delta R">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_matchedFraction_eta_notvar -->
+  <h id="trk_matchedFraction_eta_notvar" type="TH1F" title="Fraction of not matching tracks - variable #Delta R">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Fraction of not matching tracks"/>
+  </h>
+  
+  <!-- m_trk_matchedFraction_eta_onlyvar -->
+  <h id="trk_matchedFraction_eta_onlyvar" type="TH1F" title="Fraction of matching tracks - only variable #Delta R">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_matchedFraction_eta_onlyfix -->
+  <h id="trk_matchedFraction_eta_onlyfix" type="TH1F" title="Fraction of matching tracks - only fixed #Delta R">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_matchedFraction_eta_none -->
+  <h id="trk_matchedFraction_eta_none" type="TH1F" title="Fraction of not matching tracks">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Fraction of not matching tracks"/>
+  </h>
+  
+  <!-- m_trk_matchedFraction_pt_fix_and_var -->
+  <h id="trk_matchedFraction_pt_fix_and_var" type="TH1F" title="Fraction of matching tracks - fixed and variable #Delta R">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_matchedFraction_pt_fix_or_var -->
+  <h id="trk_matchedFraction_pt_fix_or_var" type="TH1F" title="Fraction of matching tracks - fixed or variable #Delta R">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_matchedFraction_pt_fix -->
+  <h id="trk_matchedFraction_pt_fix" type="TH1F" title="Fraction of matching tracks - fixed #Delta R">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_matchedFraction_pt_notfix -->
+  <h id="trk_matchedFraction_pt_notfix" type="TH1F" title="Fraction of not matching tracks - fixed #Delta R">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Fraction of not matching tracks"/>
+  </h>
+  
+  <!-- m_trk_matchedFraction_pt_var -->
+  <h id="trk_matchedFraction_pt_var" type="TH1F" title="Fraction of matching tracks - variable #Delta R">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_matchedFraction_pt_notvar -->
+  <h id="trk_matchedFraction_pt_notvar" type="TH1F" title="Fraction of not matching tracks - variable #Delta R">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Fraction of not matching tracks"/>
+  </h>
+  
+  <!-- m_trk_matchedFraction_pt_onlyvar -->
+  <h id="trk_matchedFraction_pt_onlyvar" type="TH1F" title="Fraction of matching tracks - only variable #Delta R">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_matchedFraction_pt_onlyfix -->
+  <h id="trk_matchedFraction_pt_onlyfix" type="TH1F" title="Fraction of matching tracks - only fixed #Delta R">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_matchedFraction_pt_none -->
+  <h id="trk_matchedFraction_pt_none" type="TH1F" title="Fraction of not matching tracks">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Fraction of not matching tracks"/>
+  </h>
+
 </hdef>
 

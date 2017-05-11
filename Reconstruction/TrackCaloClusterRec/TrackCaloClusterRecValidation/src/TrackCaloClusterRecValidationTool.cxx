@@ -11,6 +11,8 @@
 #include "EventInfo/PileUpEventInfo.h"
 #include "EventInfo/PileUpTimeEventIndex.h"
 
+#include "xAODCaloEvent/CaloClusterContainer.h"
+
 #include "TCCPlots.h"
 //
 #include <algorithm>
@@ -41,8 +43,16 @@ TrackCaloClusterRecValidationTool::TrackCaloClusterRecValidationTool(const std::
   declareProperty("DirName"                     , m_dirName = "TCCValidation/");
   declareProperty("SubFolder"                   , m_folder);
   declareProperty("SaveTrackInfo"               , m_saveTrackInfo = false);
+  declareProperty("SaveMatchingInfo"            , m_saveMatchingInfo = false);
   declareProperty("TrackCollectionName"         , m_trackParticleCollectionName = "InDetTrackParticles");
   declareProperty("TrackPtMin"                  , m_trackPtMin = 20.*GeV);
+  declareProperty("JetPtBins"                   , m_jetPtBins           );
+  declareProperty("JetMassOverPtBins"           , m_jetMassOverPtBins   );
+  declareProperty("TrackPtBins"                 , m_trackPtBins         );
+  declareProperty("TrackProdRadiusBins"         , m_trackProdRadiusBins );
+  declareProperty("SaveClusterInfo"             , m_saveClusterInfo = false);
+  declareProperty("ClusterCollectionName"       , m_caloClusterCollectionName = "TimedCaloCalTopoClusters");
+  
   }
 
 TrackCaloClusterRecValidationTool::~TrackCaloClusterRecValidationTool() {
@@ -60,15 +70,23 @@ TrackCaloClusterRecValidationTool::initialize() {
       if (name.find("AntiKt10LCTopo")!= std::string::npos and name.find("My")== std::string::npos)
 	myname = "My"+name;
       m_tccPlots.insert(std::pair<std::string, TCCPlots*>(name, new TCCPlots(0, m_dirName + myname, "jets")));
+      m_tccPlots.at(name)->setJetPtBinning(m_jetPtBins);
+      m_tccPlots.at(name)->setJetMassOverPtBinning(m_jetMassOverPtBins);
     }
   }
   
   if (m_saveTrackInfo) {
    ATH_MSG_INFO("Saving Plots for " << m_trackParticleCollectionName << "...");
-    m_tccPlots.insert(std::pair<std::string, TCCPlots*>(m_trackParticleCollectionName, new TCCPlots(0, m_dirName + m_trackParticleCollectionName, "tracks"))); 
+    m_tccPlots.insert(std::pair<std::string, TCCPlots*>(m_trackParticleCollectionName, new TCCPlots(0, m_dirName + m_trackParticleCollectionName, "tracks")));
+    m_tccPlots.at(m_trackParticleCollectionName)->setTrackPtBinning(m_trackPtBins);
+    m_tccPlots.at(m_trackParticleCollectionName)->setTrackProdRadiusBinning(m_trackProdRadiusBins);
   }
-    
-
+  
+  if (m_saveClusterInfo) {
+    ATH_MSG_INFO("Saving Plots for " << m_caloClusterCollectionName << "...");
+    m_tccPlots.insert(std::pair<std::string, TCCPlots*>(m_caloClusterCollectionName, new TCCPlots(0, m_dirName + m_caloClusterCollectionName, "clusters")));    
+  }
+  
   return StatusCode::SUCCESS;
 }
 
@@ -253,6 +271,8 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
     const auto tracks = getContainer<xAOD::TrackParticleContainer>(m_trackParticleCollectionName);
     if (not tracks) return StatusCode::FAILURE;
     for (const auto& track: *tracks) {
+      if (m_saveMatchingInfo)
+	m_tccPlots.at(m_trackParticleCollectionName)->fillMatching(*track);
       m_tccPlots.at(m_trackParticleCollectionName)->fillTrackParametersAllPt(*track);
       m_tccPlots.at(m_trackParticleCollectionName)->fillCaloEntryInfoAllPt(*track);
       m_tccPlots.at(m_trackParticleCollectionName)->fillPerigeeInfoAllPt(*track);
@@ -264,6 +284,15 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
       m_tccPlots.at(m_trackParticleCollectionName)->fillPerigeeVsCaloEntry(*track);
     }
     
+  }
+  
+  // Getting the collections for the CaloClusters
+  if (m_saveClusterInfo) {
+   const auto clusters = getContainer<xAOD::CaloClusterContainer>(m_caloClusterCollectionName);
+   if (not clusters) return StatusCode::FAILURE;
+   for (const auto& cluster: *clusters) {
+     m_tccPlots.at(m_caloClusterCollectionName)->fillCluster(*cluster);
+   }    
   }
   
   return StatusCode::SUCCESS;

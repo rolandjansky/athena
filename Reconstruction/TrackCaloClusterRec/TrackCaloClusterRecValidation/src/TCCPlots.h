@@ -13,6 +13,8 @@
 #include "TCCPlotsBase.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 class TCCPlots: public TCCPlotsBase {
 public:
@@ -51,16 +53,30 @@ public:
   void fillCaloEntryInfoAllPt(const xAOD::TrackParticle& track);
   void fillPerigeeInfoAllPt(const xAOD::TrackParticle& track);
   void fillPerigeeVsCaloEntryAllPt(const xAOD::TrackParticle& track);
+  
+  void fillMatching(const xAOD::TrackParticle& track);
+  void fillCluster(const xAOD::CaloCluster& cluster);
     
   void make_median(TH2* h2_response, TH1* h1_resolution);
   void make_median(TH3* h3_response, TH2* h2_resolution);
-  void resizeHistograms();
   
   void setEventWeight(const float& weight);
+  void setJetPtBinning(const std::vector<float>& bins);
+  void setJetMassOverPtBinning(const std::vector<float>& bins);
+  void setTrackPtBinning(const std::vector<float>& bins);
+  void setTrackProdRadiusBinning(const std::vector<float>& bins);
 
+  void resizeHistograms();
+  
 private:
   std::string m_collectionType             ;
   float       m_eventWeight                ;
+  
+  std::vector<float> m_jetPtBins           ;
+  std::vector<float> m_jetMassOverPtBins   ;
+  std::vector<float> m_trackPtBins         ;
+  std::vector<float> m_trackProdRadiusBins ;
+  
   TH1* m_jet_n                             ;
   TH1* m_jet_pt                            ;
   TH1* m_jet_eta                           ;
@@ -230,6 +246,7 @@ private:
   TH2* m_trk_perigeeUncPhi_caloUncPhi            ;
   TH2* m_trk_perigeeUncTot_caloUncTot            ;
   
+  TH1* m_trk_prodRadius                          ;
   TH2* m_trk_perigeeUncEta_prodRadius            ;
   TH2* m_trk_perigeeUncTheta_prodRadius          ;
   TH2* m_trk_perigeeUncPhi_prodRadius            ;
@@ -241,8 +258,6 @@ private:
   
   TH1* m_trk_delta_perigeeEta_caloEntryEta       ;
   TH1* m_trk_delta_perigeePhi_caloEntryPhi       ;
-  TH2* m_trk_delta_perigeeEta_caloEntryEta_pt_eta;
-  TH2* m_trk_delta_perigeePhi_caloEntryPhi_pt_eta;
   TH2* m_trk_delta_perigeeEta_caloEntryEta_eta   ;
   TH2* m_trk_delta_perigeePhi_caloEntryPhi_eta   ;
   TH2* m_trk_delta_perigeeEta_caloEntryEta_pt    ;
@@ -254,6 +269,114 @@ private:
   TH2* m_trk_delta_trackPhi_caloEntryPhi_eta     ;
   TH2* m_trk_delta_trackEta_caloEntryEta_pt      ;
   TH2* m_trk_delta_trackPhi_caloEntryPhi_pt      ;
+  
+  TH1* m_trk_delta_trackEta_caloEntryEtaCorr     ;
+  TH1* m_trk_delta_trackPhi_caloEntryPhiCorr     ;
+  TH2* m_trk_delta_trackEta_caloEntryEtaCorr_eta ;
+  TH2* m_trk_delta_trackPhi_caloEntryPhiCorr_eta ;
+  TH2* m_trk_delta_trackEta_caloEntryEtaCorr_pt  ;
+  TH2* m_trk_delta_trackPhi_caloEntryPhiCorr_pt  ;
+  
+  TH1* m_trk_delta_caloEntryEta_caloEntryEtaCorr    ;
+  TH1* m_trk_delta_caloEntryPhi_caloEntryPhiCorr    ;
+  TH2* m_trk_delta_caloEntryEta_caloEntryEtaCorr_eta;
+  TH2* m_trk_delta_caloEntryPhi_caloEntryPhiCorr_eta;
+  TH2* m_trk_delta_caloEntryEta_caloEntryEtaCorr_pt ;
+  TH2* m_trk_delta_caloEntryPhi_caloEntryPhiCorr_pt ;
+      
+  TH1* m_clusters_eta                    ;
+  TH1* m_clusters_matched_eta            ;
+  TH1* m_clusters_notMatched_eta         ;
+  TH1* m_clusters_matchedFraction_eta    ;
+  TH1* m_clusters_notMatchedFraction_eta ;
+  TH1* m_clusters_width                  ;
+  TH2* m_clusters_width_eta              ;
+  TH1* m_clusters_matched_eta_fix_and_var        ;
+  TH1* m_clusters_matched_eta_fix_or_var         ;
+  TH1* m_clusters_matched_eta_fix                ;
+  TH1* m_clusters_matched_eta_notfix             ;
+  TH1* m_clusters_matched_eta_var                ;
+  TH1* m_clusters_matched_eta_notvar             ;
+  TH1* m_clusters_matched_eta_onlyvar            ;
+  TH1* m_clusters_matched_eta_onlyfix            ;
+  TH1* m_clusters_matched_eta_none               ;
+  TH1* m_clusters_matchedFraction_eta_fix_and_var;
+  TH1* m_clusters_matchedFraction_eta_fix_or_var ;
+  TH1* m_clusters_matchedFraction_eta_fix        ;
+  TH1* m_clusters_matchedFraction_eta_notfix     ;
+  TH1* m_clusters_matchedFraction_eta_var        ;
+  TH1* m_clusters_matchedFraction_eta_notvar     ;
+  TH1* m_clusters_matchedFraction_eta_onlyvar    ;
+  TH1* m_clusters_matchedFraction_eta_onlyfix    ;
+  TH1* m_clusters_matchedFraction_eta_none       ;  
+  
+  TH1* m_trk_total_eta                                            ;
+  TH1* m_trk_total_pt                                             ;
+  TH2* m_trk_total_clusters_eta                                   ;
+  TH2* m_trk_total_clusters_pt                                    ;
+  TH1* m_trk_notMatching_deltar_fix_eta                           ;
+  TH1* m_trk_notMatching_deltar_fix_phi                           ;
+  TH1* m_trk_notMatching_deltar_fix_pt                            ;
+  TH2* m_trk_notMatching_deltar_fix_caloEntryUncTot_eta           ;
+  TH2* m_trk_notMatching_deltar_fix_caloEntryUncTot_pt            ;
+  TH2* m_trk_notMatching_deltar_fix_caloEntryUncTot_prodRadius    ;
+  TH1* m_trk_notMatching_deltar_var_eta                           ;
+  TH1* m_trk_notMatching_deltar_var_phi                           ;
+  TH1* m_trk_notMatching_deltar_var_pt                            ;
+  TH2* m_trk_notMatching_deltar_var_caloEntryUncTot_eta           ;
+  TH2* m_trk_notMatching_deltar_var_caloEntryUncTot_pt            ;
+  TH2* m_trk_notMatching_deltar_var_caloEntryUncTot_prodRadius    ;
+  TH1* m_trk_notMatching_deltar_none_eta                          ;
+  TH1* m_trk_notMatching_deltar_none_phi                          ;
+  TH1* m_trk_notMatching_deltar_none_pt                           ;
+  TH2* m_trk_notMatching_deltar_none_caloEntryUncTot_eta          ;
+  TH2* m_trk_notMatching_deltar_none_caloEntryUncTot_pt           ;
+  TH2* m_trk_notMatching_deltar_none_caloEntryUncTot_prodRadius   ;
+  TH1* m_trk_matching_deltar_fix_eta                              ;
+  TH1* m_trk_matching_deltar_fix_pt                               ;
+  TH1* m_trk_matching_deltar_var_eta                              ;
+  TH1* m_trk_matching_deltar_var_pt                               ;
+  TH1* m_trk_matching_deltar_onlyfix_eta                          ;
+  TH1* m_trk_matching_deltar_onlyfix_pt                           ;
+  TH1* m_trk_matching_deltar_onlyvar_eta                          ;
+  TH1* m_trk_matching_deltar_onlyvar_pt                           ;
+  TH1* m_trk_matching_deltar_fix_or_var_eta                       ;
+  TH1* m_trk_matching_deltar_fix_or_var_pt                        ;
+  TH1* m_trk_matching_deltar_fix_and_var_eta                      ;
+  TH1* m_trk_matching_deltar_fix_and_var_pt                       ;
+  TH2* m_trk_matching_deltar_or_clusters_eta                      ;
+  TH2* m_trk_matching_deltar_or_clusters_phi                      ;
+  TH2* m_trk_matching_deltar_or_clusters_pt                       ;
+  TH2* m_trk_matching_deltar_and_clusters_eta                     ;
+  TH2* m_trk_matching_deltar_and_clusters_phi                     ;
+  TH2* m_trk_matching_deltar_and_clusters_pt                      ;
+  TH2* m_trk_matching_deltar_fix_only_clusters_eta                ;
+  TH2* m_trk_matching_deltar_fix_only_clusters_phi                ;
+  TH2* m_trk_matching_deltar_fix_only_clusters_pt                 ;
+  TH2* m_trk_matching_deltar_var_only_clusters_eta                ;
+  TH2* m_trk_matching_deltar_var_only_clusters_phi                ;
+  TH2* m_trk_matching_deltar_var_only_clusters_pt                 ;
+  
+  TH1* m_trk_matchedFraction_eta_fix_and_var                      ;
+  TH1* m_trk_matchedFraction_eta_fix_or_var                       ;
+  TH1* m_trk_matchedFraction_eta_fix                              ;
+  TH1* m_trk_matchedFraction_eta_notfix                           ;
+  TH1* m_trk_matchedFraction_eta_var                              ;
+  TH1* m_trk_matchedFraction_eta_notvar                           ;
+  TH1* m_trk_matchedFraction_eta_onlyvar                          ;
+  TH1* m_trk_matchedFraction_eta_onlyfix                          ;
+  TH1* m_trk_matchedFraction_eta_none                             ;
+  TH1* m_trk_matchedFraction_pt_fix_and_var                       ;
+  TH1* m_trk_matchedFraction_pt_fix_or_var                        ;
+  TH1* m_trk_matchedFraction_pt_fix                               ;
+  TH1* m_trk_matchedFraction_pt_notfix                            ;
+  TH1* m_trk_matchedFraction_pt_var                               ;
+  TH1* m_trk_matchedFraction_pt_notvar                            ;
+  TH1* m_trk_matchedFraction_pt_onlyvar                           ;
+  TH1* m_trk_matchedFraction_pt_onlyfix                           ;
+  TH1* m_trk_matchedFraction_pt_none                              ;
+  
+  
   
   // plot base has nop default implementation of this; we use it to book the histos
   void initializePlots();
