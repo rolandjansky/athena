@@ -8,20 +8,6 @@
 #ifndef TRIGROOTANALYSIS_LINKDEF_H
 #define TRIGROOTANALYSIS_LINKDEF_H
 
-// Local include(s):
-#include "../TrigRootAnalysis/IDataAccess.h"
-#include "../TrigRootAnalysis/IConfigAccess.h"
-#include "../TrigRootAnalysis/IITrigConfigSvcD3PD.h"
-#include "../TrigRootAnalysis/IITrigDecisionToolD3PD.h"
-#include "../TrigRootAnalysis/TrigConfigSvcD3PD.h"
-#include "../TrigRootAnalysis/DataAccess.h"
-#include "../TrigRootAnalysis/ConfigAccess.h"
-#include "../TrigRootAnalysis/ChainGroupHandling.h"
-#include "../TrigRootAnalysis/TrigDecisionFunctions.h"
-#include "../TrigRootAnalysis/TrigDecisionToolD3PD.h"
-#include "../TrigRootAnalysis/PyTrigDecisionToolD3PD.h"
-#include "../TrigRootAnalysis/ChainGroup.h"
-
 #ifdef __CINT__
 
 #pragma link off all globals;
@@ -62,10 +48,6 @@
 #  pragma link C++ class pair<string,string>+;
 #endif
 
-//#pragma link C++ class map<string,int>+;
-//#pragma link C++ class map<string,float>+;
-
-//#pragma link C++ class vector<short>+;
 // [TrigMonConfig] addind some more dictionaries for additional structures used saving the full trig conf.
 // Will not run without these.
 #ifdef XAOD_STANDALONE
