@@ -33,6 +33,7 @@ class PixelFastRDOAnalysis : public AthAlgorithm {
   virtual StatusCode finalize();
 
  private:
+  SG::ReadHandleKey<InDet::PixelClusterContainer> m_inputKey;
   // PixelCluster
   std::vector<float>* m_omegax;
   std::vector<float>* m_omegay;

@@ -16,6 +16,7 @@
 
 TRT_FastRDOAnalysis::TRT_FastRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
+  , m_inputKey("TRT_DriftCircles")
   , m_word(0)
   , m_driftTimeBin(0)
   , m_trailEdge(0)
@@ -123,6 +124,7 @@ TRT_FastRDOAnalysis::TRT_FastRDOAnalysis(const std::string& name, ISvcLocator* p
   , m_path("/TRT_FastRDOAnalysis/")
   , m_thistSvc("THistSvc", name)
 {
+  declareProperty("InputKey", m_inputKey);
   declareProperty("NtupleFileName", m_ntupleFileName);
   declareProperty("NtupleDirectoryName", m_ntupleDirName);
   declareProperty("NtupleTreeName", m_ntupleTreeName);
@@ -131,6 +133,10 @@ TRT_FastRDOAnalysis::TRT_FastRDOAnalysis(const std::string& name, ISvcLocator* p
 
 StatusCode TRT_FastRDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing TRT_FastRDOAnalysis" );
+
+  // This will check that the properties were initialized
+  // properly by job configuration.
+  ATH_CHECK( m_inputKey.initialize() );
 
   // Grab Ntuple and histogramming service for tree
   ATH_CHECK(m_thistSvc.retrieve());
@@ -451,8 +457,8 @@ StatusCode TRT_FastRDOAnalysis::execute() {
   m_allStrAxis_phi->clear();
 
   // get containers -- fill branches + histos
-  const InDet::TRT_DriftCircleContainer* p_trtDC_cont;
-  if (evtStore()->retrieve(p_trtDC_cont, "TRT_DriftCircles") == StatusCode::SUCCESS) {
+  SG::ReadHandle<InDet::SCT_ClusterContainer> p_trtDC_cont (m_inputKey);
+  if(p_trtDC_cont.isValid()) {
     // loop over cluster container
     InDet::TRT_DriftCircleContainer::const_iterator trtDCcont_itr(p_trtDC_cont->begin());
     const InDet::TRT_DriftCircleContainer::const_iterator trtDCcont_end(p_trtDC_cont->end());

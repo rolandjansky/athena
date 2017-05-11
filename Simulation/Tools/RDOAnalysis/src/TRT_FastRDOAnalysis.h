@@ -33,6 +33,8 @@ class TRT_FastRDOAnalysis : public AthAlgorithm {
   virtual StatusCode execute();
   virtual StatusCode finalize();
 
+private:
+  SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_inputKey;
   // TRT_DriftCircle
   std::vector<unsigned int>* m_word;
   std::vector<int>* m_driftTimeBin;
@@ -137,7 +139,6 @@ class TRT_FastRDOAnalysis : public AthAlgorithm {
   TH1* h_allStrAxis_r;
   TH1* h_allStrAxis_phi;
 
- private:
   TTree* m_tree;
   std::string m_ntupleFileName;
   std::string m_ntupleDirName;

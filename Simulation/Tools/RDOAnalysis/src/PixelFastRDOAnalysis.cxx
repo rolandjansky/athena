@@ -16,6 +16,7 @@
 
 PixelFastRDOAnalysis::PixelFastRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
+  , m_inputKey("PixelClusters")
   , m_omegax(0)
   , m_omegay(0)
   , m_tot(0)
@@ -128,6 +129,7 @@ PixelFastRDOAnalysis::PixelFastRDOAnalysis(const std::string& name, ISvcLocator*
   , m_path("/PixelFastRDOAnalysis/")
   , m_thistSvc("THistSvc", name)
 {
+  declareProperty("InputKey", m_inputKey);
   declareProperty("NtupleFileName", m_ntupleFileName);
   declareProperty("NtupleDirectoryName", m_ntupleDirName);
   declareProperty("NtupleTreeName", m_ntupleTreeName);
@@ -137,7 +139,11 @@ PixelFastRDOAnalysis::PixelFastRDOAnalysis(const std::string& name, ISvcLocator*
 StatusCode PixelFastRDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing PixelFastRDOAnalysis" );
 
-  // Grab Ntuple and histogramming service for tree
+  // This will check that the properties were initialized
+  // properly by job configuration.
+  ATH_CHECK( m_inputKey.initialize() );
+
+   // Grab Ntuple and histogramming service for tree
   ATH_CHECK(m_thistSvc.retrieve());
 
   m_tree = new TTree(TString(m_ntupleTreeName), "PixelFastRDOAna");
@@ -474,8 +480,8 @@ StatusCode PixelFastRDOAnalysis::execute() {
   
 
   // get containers -- fill branches + histos
-  const InDet::PixelClusterContainer* p_pixelClus_cont;
-  if (evtStore()->retrieve(p_pixelClus_cont, "PixelClusters") == StatusCode::SUCCESS) {
+  SG::ReadHandle<InDet::PixelClusterContainer> p_pixelClus_cont (m_inputKey);
+  if(p_pixelClus_cont.isValid()) {
     // loop over cluster container
     InDet::PixelClusterContainer::const_iterator clusCont_itr(p_pixelClus_cont->begin());
     const InDet::PixelClusterContainer::const_iterator clusCont_end(p_pixelClus_cont->end());

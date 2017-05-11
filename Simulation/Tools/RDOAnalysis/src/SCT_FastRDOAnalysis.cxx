@@ -16,8 +16,8 @@
 
 SCT_FastRDOAnalysis::SCT_FastRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
+  , m_inputKey("SCT_Clusters")
   , m_hitsTimeBin3(0)
-    
   , m_siCol(0)
   , m_siRow(0)
   , m_siPhiR(0)
@@ -102,6 +102,7 @@ SCT_FastRDOAnalysis::SCT_FastRDOAnalysis(const std::string& name, ISvcLocator* p
   , m_path("/SCT_FastRDOAnalysis/")
   , m_thistSvc("THistSvc", name)
 {
+  declareProperty("InputKey", m_inputKey);
   declareProperty("NtupleFileName", m_ntupleFileName);
   declareProperty("NtupleDirectoryName", m_ntupleDirName);
   declareProperty("NtupleTreeName", m_ntupleTreeName);
@@ -110,6 +111,10 @@ SCT_FastRDOAnalysis::SCT_FastRDOAnalysis(const std::string& name, ISvcLocator* p
 
 StatusCode SCT_FastRDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing SCT_FastRDOAnalysis" );
+
+  // This will check that the properties were initialized
+  // properly by job configuration.
+  ATH_CHECK( m_inputKey.initialize() );
 
   // Grab Ntuple and histogramming service for tree
   ATH_CHECK(m_thistSvc.retrieve());
@@ -368,8 +373,8 @@ StatusCode SCT_FastRDOAnalysis::execute() {
   m_rdoID_prd->clear();
 
   // get containers -- fill branches + histos
-  const InDet::SCT_ClusterContainer* p_sctClus_cont;
-  if (evtStore()->retrieve(p_sctClus_cont, "SCT_Clusters") == StatusCode::SUCCESS) {
+  SG::ReadHandle<InDet::SCT_ClusterContainer> p_sctClus_cont (m_inputKey);
+  if(p_sctClus_cont.isValid()) {
     // loop over cluster container
     InDet::SCT_ClusterContainer::const_iterator clusCont_itr(p_sctClus_cont->begin());
     const InDet::SCT_ClusterContainer::const_iterator clusCont_end(p_sctClus_cont->end());
