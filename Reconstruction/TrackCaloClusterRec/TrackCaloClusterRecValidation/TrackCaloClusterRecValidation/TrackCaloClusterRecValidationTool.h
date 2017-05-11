@@ -72,7 +72,16 @@ private:
     std::string m_trackParticleCollectionName;
    
     bool  m_saveTrackInfo;
+    bool  m_saveMatchingInfo;
     float m_trackPtMin;
+    
+    std::vector<float> m_jetPtBins           ;
+    std::vector<float> m_jetMassOverPtBins   ;
+    std::vector<float> m_trackPtBins         ;
+    std::vector<float> m_trackProdRadiusBins ;
+    
+    bool m_saveClusterInfo;
+    std::string m_caloClusterCollectionName;
     
     //histograms
     std::map<std::string, TCCPlots*>    m_tccPlots;

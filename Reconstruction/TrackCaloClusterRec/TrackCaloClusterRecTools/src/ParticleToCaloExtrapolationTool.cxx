@@ -173,7 +173,7 @@ Trk::CaloExtension* ParticleToCaloExtrapolationTool::particleToCaloExtrapolate( 
   Trk::CaloExtension* extension = caloExtension(*startPar,propDir,particleType);
 
   if (m_storeParameters and extension) {
-    
+    particle.auxdecor<int>("CaloExtension")   = 1;
     // decorating the TrackParticle with
     // --> extrapolated parameters at the calo entry
     // --> covariance the the calo entry
@@ -181,8 +181,8 @@ Trk::CaloExtension* ParticleToCaloExtrapolationTool::particleToCaloExtrapolate( 
     particle.auxdecor<float>("CaloEntryPosX")   = (float)pars->position().x();
     particle.auxdecor<float>("CaloEntryPosY")   = (float)pars->position().y();
     particle.auxdecor<float>("CaloEntryPosZ")   = (float)pars->position().z();
-    particle.auxdecor<float>("CaloEntryPosEta") = (float)pars->position().eta();
-    particle.auxdecor<float>("CaloEntryPosPhi") = (float)pars->position().phi();
+    particle.auxdecor<float>("CaloEntryPosEta") = (double)pars->position().eta();
+    particle.auxdecor<float>("CaloEntryPosPhi") = (double)pars->position().phi();
     particle.auxdecor<float>("CaloEntryDirEta") = (float)pars->momentum().eta();
     particle.auxdecor<float>("CaloEntryDirPhi") = (float)pars->momentum().phi();
     
@@ -200,7 +200,6 @@ Trk::CaloExtension* ParticleToCaloExtrapolationTool::particleToCaloExtrapolate( 
     particle.auxdecor<float>("PerigeePosPhi") = (float)startPar->momentum().phi();
     
     if(startPar->covariance()) {
-//       particle.auxdecor<float>("PerigeeUncEta")   = (float)(fabs(2.*sin(startPar->position().theta()) / (cos(2.*startPar->position().theta())-1.))* sqrt((*startPar->covariance())(Trk::theta,Trk::theta)));
       particle.auxdecor<float>("PerigeeUncEta")   = (float)(fabs(2.*sin(startPar->momentum().theta()) / (cos(2.*startPar->momentum().theta())-1.))* sqrt((*startPar->covariance())(Trk::theta,Trk::theta)));
       particle.auxdecor<float>("PerigeeUncPhi")   = (float)(sqrt((*startPar->covariance())(Trk::phi,Trk::phi)));
       particle.auxdecor<float>("PerigeeUncTheta") = (float)(sqrt((*startPar->covariance())(Trk::theta,Trk::theta)));

@@ -52,6 +52,7 @@ class TrackCaloClusterCreatorTool : public AthAlgTool {
     
     // enable origin correction
     bool m_doOriginCorrection;
+    bool m_storeCorrectedPosition;
 
 };
 

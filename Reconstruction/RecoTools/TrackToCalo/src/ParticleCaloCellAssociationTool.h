@@ -72,7 +72,7 @@ namespace Rec {
     mutable Trk::CaloCellSelectorLayerdR m_defaultSelector;
 
     mutable PathLengthUtils m_pathLenUtil;
-
+    
   };
 
 

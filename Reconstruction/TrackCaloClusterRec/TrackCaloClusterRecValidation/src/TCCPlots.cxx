@@ -159,6 +159,7 @@ TCCPlots::TCCPlots(TCCPlotsBase* pParent, const std::string& sDir, const std::st
   m_trk_perigeeUncTheta_caloUncTheta         (nullptr),
   m_trk_perigeeUncPhi_caloUncPhi             (nullptr),
   m_trk_perigeeUncTot_caloUncTot             (nullptr),
+  m_trk_prodRadius                           (nullptr),
   m_trk_perigeeUncEta_prodRadius             (nullptr),
   m_trk_perigeeUncTheta_prodRadius           (nullptr),
   m_trk_perigeeUncPhi_prodRadius             (nullptr), 
@@ -169,8 +170,6 @@ TCCPlots::TCCPlots(TCCPlotsBase* pParent, const std::string& sDir, const std::st
   m_trk_caloEntryUncTot_prodRadius           (nullptr),
   m_trk_delta_perigeeEta_caloEntryEta        (nullptr),
   m_trk_delta_perigeePhi_caloEntryPhi        (nullptr),
-  m_trk_delta_perigeeEta_caloEntryEta_pt_eta (nullptr),
-  m_trk_delta_perigeePhi_caloEntryPhi_pt_eta (nullptr),
   m_trk_delta_perigeeEta_caloEntryEta_eta    (nullptr),
   m_trk_delta_perigeePhi_caloEntryPhi_eta    (nullptr),
   m_trk_delta_perigeeEta_caloEntryEta_pt     (nullptr),
@@ -180,11 +179,127 @@ TCCPlots::TCCPlots(TCCPlotsBase* pParent, const std::string& sDir, const std::st
   m_trk_delta_trackEta_caloEntryEta_eta      (nullptr),
   m_trk_delta_trackPhi_caloEntryPhi_eta      (nullptr),
   m_trk_delta_trackEta_caloEntryEta_pt       (nullptr),
-  m_trk_delta_trackPhi_caloEntryPhi_pt       (nullptr) {
+  m_trk_delta_trackPhi_caloEntryPhi_pt       (nullptr),
+  m_trk_delta_trackEta_caloEntryEtaCorr      (nullptr),
+  m_trk_delta_trackPhi_caloEntryPhiCorr      (nullptr),
+  m_trk_delta_trackEta_caloEntryEtaCorr_eta  (nullptr),
+  m_trk_delta_trackPhi_caloEntryPhiCorr_eta  (nullptr),
+  m_trk_delta_trackEta_caloEntryEtaCorr_pt   (nullptr),
+  m_trk_delta_trackPhi_caloEntryPhiCorr_pt   (nullptr),
+  m_trk_delta_caloEntryEta_caloEntryEtaCorr    (nullptr),
+  m_trk_delta_caloEntryPhi_caloEntryPhiCorr    (nullptr),
+  m_trk_delta_caloEntryEta_caloEntryEtaCorr_eta(nullptr),
+  m_trk_delta_caloEntryPhi_caloEntryPhiCorr_eta(nullptr),
+  m_trk_delta_caloEntryEta_caloEntryEtaCorr_pt (nullptr),
+  m_trk_delta_caloEntryPhi_caloEntryPhiCorr_pt (nullptr),
+  m_clusters_eta                               (nullptr),
+  m_clusters_matched_eta                       (nullptr),
+  m_clusters_notMatched_eta                    (nullptr),
+  m_clusters_matchedFraction_eta               (nullptr),
+  m_clusters_notMatchedFraction_eta            (nullptr),
+  m_clusters_width                             (nullptr),
+  m_clusters_width_eta                         (nullptr),
+  m_clusters_matched_eta_fix_and_var           (nullptr),
+  m_clusters_matched_eta_fix_or_var            (nullptr),
+  m_clusters_matched_eta_fix                   (nullptr),
+  m_clusters_matched_eta_notfix                (nullptr),
+  m_clusters_matched_eta_var                   (nullptr),
+  m_clusters_matched_eta_notvar                (nullptr),
+  m_clusters_matched_eta_onlyvar               (nullptr),
+  m_clusters_matched_eta_onlyfix               (nullptr),
+  m_clusters_matched_eta_none                  (nullptr),
+  m_clusters_matchedFraction_eta_fix_and_var   (nullptr),
+  m_clusters_matchedFraction_eta_fix_or_var    (nullptr),
+  m_clusters_matchedFraction_eta_fix           (nullptr),
+  m_clusters_matchedFraction_eta_notfix        (nullptr),
+  m_clusters_matchedFraction_eta_var           (nullptr),
+  m_clusters_matchedFraction_eta_notvar        (nullptr),
+  m_clusters_matchedFraction_eta_onlyvar       (nullptr),
+  m_clusters_matchedFraction_eta_onlyfix       (nullptr),
+  m_clusters_matchedFraction_eta_none          (nullptr),
+  m_trk_total_eta                                           (nullptr),
+  m_trk_total_pt                                            (nullptr),
+  m_trk_total_clusters_eta                                  (nullptr),
+  m_trk_total_clusters_pt                                   (nullptr),
+  m_trk_notMatching_deltar_fix_eta                          (nullptr),
+  m_trk_notMatching_deltar_fix_phi                          (nullptr),
+  m_trk_notMatching_deltar_fix_pt                           (nullptr),
+  m_trk_notMatching_deltar_fix_caloEntryUncTot_eta          (nullptr),
+  m_trk_notMatching_deltar_fix_caloEntryUncTot_pt           (nullptr),
+  m_trk_notMatching_deltar_fix_caloEntryUncTot_prodRadius   (nullptr),
+  m_trk_notMatching_deltar_var_eta                          (nullptr),
+  m_trk_notMatching_deltar_var_phi                          (nullptr),
+  m_trk_notMatching_deltar_var_pt                           (nullptr),
+  m_trk_notMatching_deltar_var_caloEntryUncTot_eta          (nullptr),
+  m_trk_notMatching_deltar_var_caloEntryUncTot_pt           (nullptr),
+  m_trk_notMatching_deltar_var_caloEntryUncTot_prodRadius   (nullptr),
+  m_trk_notMatching_deltar_none_eta                         (nullptr),
+  m_trk_notMatching_deltar_none_phi                         (nullptr),
+  m_trk_notMatching_deltar_none_pt                          (nullptr),
+  m_trk_notMatching_deltar_none_caloEntryUncTot_eta         (nullptr),
+  m_trk_notMatching_deltar_none_caloEntryUncTot_pt          (nullptr),
+  m_trk_notMatching_deltar_none_caloEntryUncTot_prodRadius  (nullptr),
+  m_trk_matching_deltar_fix_eta                             (nullptr),
+  m_trk_matching_deltar_fix_pt                              (nullptr),
+  m_trk_matching_deltar_var_eta                             (nullptr),
+  m_trk_matching_deltar_var_pt                              (nullptr),
+  m_trk_matching_deltar_onlyfix_eta                         (nullptr),
+  m_trk_matching_deltar_onlyfix_pt                          (nullptr),
+  m_trk_matching_deltar_onlyvar_eta                         (nullptr),
+  m_trk_matching_deltar_onlyvar_pt                          (nullptr),
+  m_trk_matching_deltar_fix_or_var_eta                      (nullptr),
+  m_trk_matching_deltar_fix_or_var_pt                       (nullptr),
+  m_trk_matching_deltar_fix_and_var_eta                     (nullptr),
+  m_trk_matching_deltar_fix_and_var_pt                      (nullptr),
+  m_trk_matching_deltar_or_clusters_eta                     (nullptr),
+  m_trk_matching_deltar_or_clusters_phi                     (nullptr),
+  m_trk_matching_deltar_or_clusters_pt                      (nullptr),
+  m_trk_matching_deltar_and_clusters_eta                    (nullptr),
+  m_trk_matching_deltar_and_clusters_phi                    (nullptr),
+  m_trk_matching_deltar_and_clusters_pt                     (nullptr),
+  m_trk_matching_deltar_fix_only_clusters_eta               (nullptr),
+  m_trk_matching_deltar_fix_only_clusters_phi               (nullptr),
+  m_trk_matching_deltar_fix_only_clusters_pt                (nullptr),
+  m_trk_matching_deltar_var_only_clusters_eta               (nullptr),
+  m_trk_matching_deltar_var_only_clusters_phi               (nullptr),
+  m_trk_matching_deltar_var_only_clusters_pt                (nullptr),
+  m_trk_matchedFraction_eta_fix_and_var                     (nullptr),
+  m_trk_matchedFraction_eta_fix_or_var                      (nullptr),
+  m_trk_matchedFraction_eta_fix                             (nullptr),
+  m_trk_matchedFraction_eta_notfix                          (nullptr),
+  m_trk_matchedFraction_eta_var                             (nullptr),
+  m_trk_matchedFraction_eta_notvar                          (nullptr),
+  m_trk_matchedFraction_eta_onlyvar                         (nullptr),
+  m_trk_matchedFraction_eta_onlyfix                         (nullptr),
+  m_trk_matchedFraction_eta_none                            (nullptr),
+  m_trk_matchedFraction_pt_fix_and_var                      (nullptr),
+  m_trk_matchedFraction_pt_fix_or_var                       (nullptr),
+  m_trk_matchedFraction_pt_fix                              (nullptr),
+  m_trk_matchedFraction_pt_notfix                           (nullptr),
+  m_trk_matchedFraction_pt_var                              (nullptr),
+  m_trk_matchedFraction_pt_notvar                           (nullptr),
+  m_trk_matchedFraction_pt_onlyvar                          (nullptr),
+  m_trk_matchedFraction_pt_onlyfix                          (nullptr),
+  m_trk_matchedFraction_pt_none                             (nullptr)  {
 }
 
 void TCCPlots::setEventWeight(const float& weight) {
   m_eventWeight = weight;
+}
+
+void TCCPlots::setJetPtBinning(const std::vector<float>& bins) {
+  m_jetPtBins = bins;
+}
+void TCCPlots::setJetMassOverPtBinning(const std::vector<float>& bins) {
+  m_jetMassOverPtBins = bins;
+}
+
+void TCCPlots::setTrackPtBinning(const std::vector<float>& bins) {
+  m_trackPtBins = bins;
+}
+
+void TCCPlots::setTrackProdRadiusBinning(const std::vector<float>& bins) {
+  m_trackProdRadiusBins = bins;
 }
 
 void TCCPlots::initializePlots() {
@@ -296,10 +411,7 @@ void TCCPlots::initializePlots() {
     book(m_jet_resolution_mopt_pt_d2_2leadings       , "jet_resolution_mopt_pt_d2_2leadings"      );
     book(m_jet_resolution_mopt_pt_d2_leading         , "jet_resolution_mopt_pt_d2_leading"        );
     book(m_jet_resolution_mopt_pt_d2_subleading      , "jet_resolution_mopt_pt_d2_subleading"     );     
-    
-    resizeHistograms();
-    
-  
+ 
   } else if (m_collectionType == "tracks") {
    // book histograms for tracks 
     book(m_trk_d0                           , "trk_d0"                           );
@@ -347,6 +459,7 @@ void TCCPlots::initializePlots() {
     book(m_trk_perigeeUncTheta_caloUncTheta , "trk_perigeeUncTheta_caloUncTheta" );
     book(m_trk_perigeeUncPhi_caloUncPhi     , "trk_perigeeUncPhi_caloUncPhi"     );
     book(m_trk_perigeeUncTot_caloUncTot     , "trk_perigeeUncTot_caloUncTot"     );
+    book(m_trk_prodRadius                   , "trk_prodRadius"                   );
     book(m_trk_perigeeUncEta_prodRadius     , "trk_perigeeUncEta_prodRadius"     ); 
     book(m_trk_perigeeUncTheta_prodRadius   , "trk_perigeeUncTheta_prodRadius"   ); 
     book(m_trk_perigeeUncPhi_prodRadius     , "trk_perigeeUncPhi_prodRadius"     );
@@ -357,8 +470,6 @@ void TCCPlots::initializePlots() {
     book(m_trk_caloEntryUncTot_prodRadius   , "trk_caloEntryUncTot_prodRadius"   );
     book(m_trk_delta_perigeeEta_caloEntryEta, "trk_delta_perigeeEta_caloEntryEta");
     book(m_trk_delta_perigeePhi_caloEntryPhi, "trk_delta_perigeePhi_caloEntryPhi");
-    book(m_trk_delta_perigeeEta_caloEntryEta_pt_eta , "trk_delta_perigeeEta_caloEntryEta_pt_eta");
-    book(m_trk_delta_perigeePhi_caloEntryPhi_pt_eta , "trk_delta_perigeePhi_caloEntryPhi_pt_eta");
     book(m_trk_delta_perigeeEta_caloEntryEta_eta    , "trk_delta_perigeeEta_caloEntryEta_eta"   );   
     book(m_trk_delta_perigeePhi_caloEntryPhi_eta    , "trk_delta_perigeePhi_caloEntryPhi_eta"   );   
     book(m_trk_delta_perigeeEta_caloEntryEta_pt     , "trk_delta_perigeeEta_caloEntryEta_pt"    );    
@@ -369,9 +480,116 @@ void TCCPlots::initializePlots() {
     book(m_trk_delta_trackPhi_caloEntryPhi_eta      , "trk_delta_trackPhi_caloEntryPhi_eta"     );
     book(m_trk_delta_trackEta_caloEntryEta_pt       , "trk_delta_trackEta_caloEntryEta_pt"      );
     book(m_trk_delta_trackPhi_caloEntryPhi_pt       , "trk_delta_trackPhi_caloEntryPhi_pt"      );
+    book(m_trk_delta_trackEta_caloEntryEtaCorr      , "trk_delta_trackEta_caloEntryEtaCorr"     );
+    book(m_trk_delta_trackPhi_caloEntryPhiCorr      , "trk_delta_trackPhi_caloEntryPhiCorr"     );
+    book(m_trk_delta_trackEta_caloEntryEtaCorr_eta  , "trk_delta_trackEta_caloEntryEtaCorr_eta" );
+    book(m_trk_delta_trackPhi_caloEntryPhiCorr_eta  , "trk_delta_trackPhi_caloEntryPhiCorr_eta" );
+    book(m_trk_delta_trackEta_caloEntryEtaCorr_pt   , "trk_delta_trackEta_caloEntryEtaCorr_pt"  );
+    book(m_trk_delta_trackPhi_caloEntryPhiCorr_pt   , "trk_delta_trackPhi_caloEntryPhiCorr_pt"  );
+    book(m_trk_delta_caloEntryEta_caloEntryEtaCorr      , "trk_delta_caloEntryEta_caloEntryEtaCorr"     );
+    book(m_trk_delta_caloEntryPhi_caloEntryPhiCorr      , "trk_delta_caloEntryPhi_caloEntryPhiCorr"     );
+    book(m_trk_delta_caloEntryEta_caloEntryEtaCorr_eta  , "trk_delta_caloEntryEta_caloEntryEtaCorr_eta" );
+    book(m_trk_delta_caloEntryPhi_caloEntryPhiCorr_eta  , "trk_delta_caloEntryPhi_caloEntryPhiCorr_eta" );
+    book(m_trk_delta_caloEntryEta_caloEntryEtaCorr_pt   , "trk_delta_caloEntryEta_caloEntryEtaCorr_pt"  );
+    book(m_trk_delta_caloEntryPhi_caloEntryPhiCorr_pt   , "trk_delta_caloEntryPhi_caloEntryPhiCorr_pt"  );
+    
+    book(m_trk_total_eta                                          , "trk_total_eta"                                         );
+    book(m_trk_total_pt                                           , "trk_total_pt"                                          );
+    book(m_trk_total_clusters_eta                                 , "trk_total_clusters_eta"                                );
+    book(m_trk_total_clusters_pt                                  , "trk_total_clusters_pt"                                 );
+    book(m_trk_notMatching_deltar_fix_eta                         , "trk_notMatching_deltar_fix_eta"                        );
+    book(m_trk_notMatching_deltar_fix_phi                         , "trk_notMatching_deltar_fix_phi"                        );
+    book(m_trk_notMatching_deltar_fix_pt                          , "trk_notMatching_deltar_fix_pt"                         );
+    book(m_trk_notMatching_deltar_fix_caloEntryUncTot_eta         , "trk_notMatching_deltar_fix_caloEntryUncTot_eta"        );
+    book(m_trk_notMatching_deltar_fix_caloEntryUncTot_pt          , "trk_notMatching_deltar_fix_caloEntryUncTot_pt"         );
+    book(m_trk_notMatching_deltar_fix_caloEntryUncTot_prodRadius  , "trk_notMatching_deltar_fix_caloEntryUncTot_prodRadius" );
+    book(m_trk_notMatching_deltar_var_eta                         , "trk_notMatching_deltar_var_eta"                        );
+    book(m_trk_notMatching_deltar_var_phi                         , "trk_notMatching_deltar_var_phi"                        );
+    book(m_trk_notMatching_deltar_var_pt                          , "trk_notMatching_deltar_var_pt"                         );
+    book(m_trk_notMatching_deltar_var_caloEntryUncTot_eta         , "trk_notMatching_deltar_var_caloEntryUncTot_eta"        );
+    book(m_trk_notMatching_deltar_var_caloEntryUncTot_pt          , "trk_notMatching_deltar_var_caloEntryUncTot_pt"         );
+    book(m_trk_notMatching_deltar_var_caloEntryUncTot_prodRadius  , "trk_notMatching_deltar_var_caloEntryUncTot_prodRadius" );
+    book(m_trk_notMatching_deltar_none_eta                        , "trk_notMatching_deltar_none_eta"                       );
+    book(m_trk_notMatching_deltar_none_phi                        , "trk_notMatching_deltar_none_phi"                       );
+    book(m_trk_notMatching_deltar_none_pt                         , "trk_notMatching_deltar_none_pt"                        );
+    book(m_trk_notMatching_deltar_none_caloEntryUncTot_eta        , "trk_notMatching_deltar_none_caloEntryUncTot_eta"       );
+    book(m_trk_notMatching_deltar_none_caloEntryUncTot_pt         , "trk_notMatching_deltar_none_caloEntryUncTot_pt"        );
+    book(m_trk_notMatching_deltar_none_caloEntryUncTot_prodRadius , "trk_notMatching_deltar_none_caloEntryUncTot_prodRadius");
+    book(m_trk_matching_deltar_fix_eta                            , "trk_matching_deltar_fix_eta"                           );
+    book(m_trk_matching_deltar_fix_pt                             , "trk_matching_deltar_fix_pt"                            );
+    book(m_trk_matching_deltar_var_eta                            , "trk_matching_deltar_var_eta"                           );
+    book(m_trk_matching_deltar_var_pt                             , "trk_matching_deltar_var_pt"                            );
+    book(m_trk_matching_deltar_onlyfix_eta                        , "trk_matching_deltar_onlyfix_eta"                       );
+    book(m_trk_matching_deltar_onlyfix_pt                         , "trk_matching_deltar_onlyfix_pt"                        );
+    book(m_trk_matching_deltar_onlyvar_eta                        , "trk_matching_deltar_onlyvar_eta"                       );
+    book(m_trk_matching_deltar_onlyvar_pt                         , "trk_matching_deltar_onlyvar_pt"                        );
+    book(m_trk_matching_deltar_fix_or_var_eta                     , "trk_matching_deltar_fix_or_var_eta"                    );
+    book(m_trk_matching_deltar_fix_or_var_pt                      , "trk_matching_deltar_fix_or_var_pt"                     );
+    book(m_trk_matching_deltar_fix_and_var_eta                    , "trk_matching_deltar_fix_and_var_eta"                   );
+    book(m_trk_matching_deltar_fix_and_var_pt                     , "trk_matching_deltar_fix_and_var_pt"                    );
+    book(m_trk_matching_deltar_or_clusters_eta                    , "trk_matching_deltar_or_clusters_eta"                   );
+    book(m_trk_matching_deltar_or_clusters_phi                    , "trk_matching_deltar_or_clusters_phi"                   );
+    book(m_trk_matching_deltar_or_clusters_pt                     , "trk_matching_deltar_or_clusters_pt"                    );
+    book(m_trk_matching_deltar_and_clusters_eta                   , "trk_matching_deltar_and_clusters_eta"                  );
+    book(m_trk_matching_deltar_and_clusters_phi                   , "trk_matching_deltar_and_clusters_phi"                  );
+    book(m_trk_matching_deltar_and_clusters_pt                    , "trk_matching_deltar_and_clusters_pt"                   );
+    book(m_trk_matching_deltar_fix_only_clusters_eta              , "trk_matching_deltar_fix_only_clusters_eta"             );
+    book(m_trk_matching_deltar_fix_only_clusters_phi              , "trk_matching_deltar_fix_only_clusters_phi"             );
+    book(m_trk_matching_deltar_fix_only_clusters_pt               , "trk_matching_deltar_fix_only_clusters_pt"              );
+    book(m_trk_matching_deltar_var_only_clusters_eta              , "trk_matching_deltar_var_only_clusters_eta"             );
+    book(m_trk_matching_deltar_var_only_clusters_phi              , "trk_matching_deltar_var_only_clusters_phi"             );
+    book(m_trk_matching_deltar_var_only_clusters_pt               , "trk_matching_deltar_var_only_clusters_pt"              );
+    book(m_trk_matchedFraction_eta_fix_and_var                    , "trk_matchedFraction_eta_fix_and_var"                   );
+    book(m_trk_matchedFraction_eta_fix_or_var                     , "trk_matchedFraction_eta_fix_or_var"                    );
+    book(m_trk_matchedFraction_eta_fix                            , "trk_matchedFraction_eta_fix"                           );
+    book(m_trk_matchedFraction_eta_notfix                         , "trk_matchedFraction_eta_notfix"                        );
+    book(m_trk_matchedFraction_eta_var                            , "trk_matchedFraction_eta_var"                           );
+    book(m_trk_matchedFraction_eta_notvar                         , "trk_matchedFraction_eta_notvar"                        );
+    book(m_trk_matchedFraction_eta_onlyvar                        , "trk_matchedFraction_eta_onlyvar"                       );
+    book(m_trk_matchedFraction_eta_onlyfix                        , "trk_matchedFraction_eta_onlyfix"                       );
+    book(m_trk_matchedFraction_eta_none                           , "trk_matchedFraction_eta_none"                          );
+    book(m_trk_matchedFraction_pt_fix_and_var                     , "trk_matchedFraction_pt_fix_and_var"                    );
+    book(m_trk_matchedFraction_pt_fix_or_var                      , "trk_matchedFraction_pt_fix_or_var"                     );
+    book(m_trk_matchedFraction_pt_fix                             , "trk_matchedFraction_pt_fix"                            );
+    book(m_trk_matchedFraction_pt_notfix                          , "trk_matchedFraction_pt_notfix"                         );
+    book(m_trk_matchedFraction_pt_var                             , "trk_matchedFraction_pt_var"                            );
+    book(m_trk_matchedFraction_pt_notvar                          , "trk_matchedFraction_pt_notvar"                         );
+    book(m_trk_matchedFraction_pt_onlyvar                         , "trk_matchedFraction_pt_onlyvar"                        );
+    book(m_trk_matchedFraction_pt_onlyfix                         , "trk_matchedFraction_pt_onlyfix"                        );
+    book(m_trk_matchedFraction_pt_none                            , "trk_matchedFraction_pt_none"                           );
+    
+  } else if (m_collectionType == "clusters") {
+    
+    book(m_clusters_eta                    , "clusters_eta"                   );
+    book(m_clusters_matched_eta            , "clusters_matched_eta"           );
+    book(m_clusters_notMatched_eta         , "clusters_notMatched_eta"        );
+    book(m_clusters_matchedFraction_eta    , "clusters_matchedFraction_eta"   );
+    book(m_clusters_notMatchedFraction_eta , "clusters_notMatchedFraction_eta");
+    book(m_clusters_width                  , "clusters_width"                 );
+    book(m_clusters_width_eta              , "clusters_width_eta"             );
+    book(m_clusters_matched_eta_fix_and_var        , "clusters_matched_eta_fix_and_var"          );
+    book(m_clusters_matched_eta_fix_or_var         , "clusters_matched_eta_fix_or_var"           );
+    book(m_clusters_matched_eta_fix                , "clusters_matched_eta_fix"                  );
+    book(m_clusters_matched_eta_notfix             , "clusters_matched_eta_notfix"               );
+    book(m_clusters_matched_eta_var                , "clusters_matched_eta_var"                  );
+    book(m_clusters_matched_eta_notvar             , "clusters_matched_eta_notvar"               );
+    book(m_clusters_matched_eta_onlyvar            , "clusters_matched_eta_onlyvar"              );
+    book(m_clusters_matched_eta_onlyfix            , "clusters_matched_eta_onlyfix"              );
+    book(m_clusters_matched_eta_none               , "clusters_matched_eta_none"                 );
+    book(m_clusters_matchedFraction_eta_fix_and_var, "clusters_matchedFraction_eta_fix_and_var"  );
+    book(m_clusters_matchedFraction_eta_fix_or_var , "clusters_matchedFraction_eta_fix_or_var"   );
+    book(m_clusters_matchedFraction_eta_fix        , "clusters_matchedFraction_eta_fix"          );
+    book(m_clusters_matchedFraction_eta_notfix     , "clusters_matchedFraction_eta_notfix"       );
+    book(m_clusters_matchedFraction_eta_var        , "clusters_matchedFraction_eta_var"          );
+    book(m_clusters_matchedFraction_eta_notvar     , "clusters_matchedFraction_eta_notvar"       );
+    book(m_clusters_matchedFraction_eta_onlyvar    , "clusters_matchedFraction_eta_onlyvar"      );
+    book(m_clusters_matchedFraction_eta_onlyfix    , "clusters_matchedFraction_eta_onlyfix"      );
+    book(m_clusters_matchedFraction_eta_none       , "clusters_matchedFraction_eta_none"         );
     
   } else
-    std::cout << "WARNING: TCCPlots configured with unkown collection. Please check if you are using jets or tracks!" << std::endl;    
+    std::cout << "WARNING: TCCPlots configured with unkown collection. Please check if you are using jets or tracks!" << std::endl;   
+  
+  resizeHistograms();
 }
 
 void TCCPlots::fill(const xAOD::JetContainer& jets) {
@@ -665,9 +883,6 @@ void TCCPlots::fillPerigeeVsCaloEntryAllPt(const xAOD::TrackParticle& track) {
     if (delta_phi > +M_PI) delta_phi -= 2. * M_PI;
     if (delta_phi < -M_PI) delta_phi += 2. * M_PI;
     
-    fillHisto(m_trk_delta_perigeeEta_caloEntryEta_pt_eta    , track.eta()  , track.pt()/GeV , delta_eta*m_eventWeight);
-    fillHisto(m_trk_delta_perigeePhi_caloEntryPhi_pt_eta    , track.eta()  , track.pt()/GeV , delta_phi*m_eventWeight);
-    
     fillHisto(m_trk_delta_perigeeEta_caloEntryEta_pt        , track.pt()/GeV   , delta_eta   , m_eventWeight);
     fillHisto(m_trk_delta_perigeePhi_caloEntryPhi_pt        , track.pt()/GeV   , delta_phi   , m_eventWeight);
     
@@ -681,6 +896,32 @@ void TCCPlots::fillPerigeeVsCaloEntryAllPt(const xAOD::TrackParticle& track) {
     fillHisto(m_trk_delta_trackEta_caloEntryEta_pt , track.pt()/GeV, delta_eta, m_eventWeight);
     fillHisto(m_trk_delta_trackPhi_caloEntryPhi_pt , track.pt()/GeV, delta_phi, m_eventWeight);
   }
+  
+  static SG::AuxElement::Accessor< int > acc_caloEntryCorr( "Corrected" );
+  static SG::AuxElement::Accessor< float > acc_caloEntryEtaCorr( "CaloEntryPosEtaCorr" );
+  static SG::AuxElement::Accessor< float > acc_caloEntryPhiCorr( "CaloEntryPosPhiCorr" );
+  
+  if (acc_caloEntryCorr.isAvailable(track) and acc_caloEntryCorr(track)>0) {
+    float delta_eta = acc_caloEntryEtaCorr(track) - track.eta();
+    float delta_phi = acc_caloEntryPhiCorr(track) - track.phi();
+    
+    if (delta_phi > +M_PI) delta_phi -= 2. * M_PI;    
+    if (delta_phi < -M_PI) delta_phi += 2. * M_PI;
+               
+    fillHisto(m_trk_delta_trackEta_caloEntryEtaCorr_pt, track.pt()/GeV   , delta_eta, m_eventWeight);
+    fillHisto(m_trk_delta_trackPhi_caloEntryPhiCorr_pt, track.pt()/GeV   , delta_phi, m_eventWeight);
+  }
+  
+  if (acc_caloEntryEta.isAvailable(track) and acc_caloEntryPhi.isAvailable(track) and acc_caloEntryCorr.isAvailable(track) and acc_caloEntryCorr(track)>0) {
+    float delta_eta = acc_caloEntryEtaCorr(track) - acc_caloEntryEta(track);
+    float delta_phi = acc_caloEntryPhiCorr(track) - acc_caloEntryPhi(track);
+    
+    if (delta_phi > +M_PI) delta_phi -= 2. * M_PI;    
+    if (delta_phi < -M_PI) delta_phi += 2. * M_PI;
+               
+    fillHisto(m_trk_delta_caloEntryEta_caloEntryEtaCorr_pt, track.pt()/GeV   , delta_eta, m_eventWeight);
+    fillHisto(m_trk_delta_caloEntryPhi_caloEntryPhiCorr_pt, track.pt()/GeV   , delta_phi, m_eventWeight);
+  }  
 }
 
 void TCCPlots::fillTrackParameters(const xAOD::TrackParticle& track) {
@@ -790,6 +1031,7 @@ void TCCPlots::fillPerigeeInfo(const xAOD::TrackParticle& track) {
       fillHisto(m_trk_perigeeUncEta_prodRadius, acc_prodRadius(track), perigeeUncEta, m_eventWeight);
       fillHisto(m_trk_perigeeUncPhi_prodRadius, acc_prodRadius(track), perigeeUncPhi, m_eventWeight);
       fillHisto(m_trk_perigeeUncTot_prodRadius, acc_prodRadius(track), totUnc       , m_eventWeight);
+      fillHisto(m_trk_prodRadius              , acc_prodRadius(track), m_eventWeight);
       if (acc_perigeeUncTheta.isAvailable(track))
 	fillHisto(m_trk_perigeeUncTheta_prodRadius, acc_prodRadius(track),  acc_perigeeUncTheta(track), m_eventWeight);
     }
@@ -849,11 +1091,233 @@ void TCCPlots::fillPerigeeVsCaloEntry(const xAOD::TrackParticle& track) {
     fillHisto(m_trk_delta_trackEta_caloEntryEta_eta, track.eta()   , delta_eta, m_eventWeight);
     fillHisto(m_trk_delta_trackPhi_caloEntryPhi_eta, track.eta()   , delta_phi, m_eventWeight);
   }
+  
+  static SG::AuxElement::Accessor< int > acc_caloEntryCorr( "Corrected" );
+  static SG::AuxElement::Accessor< float > acc_caloEntryEtaCorr( "CaloEntryPosEtaCorr" );
+  static SG::AuxElement::Accessor< float > acc_caloEntryPhiCorr( "CaloEntryPosPhiCorr" );
+  
+  if (acc_caloEntryCorr.isAvailable(track) and acc_caloEntryCorr(track)>0) {
+    float delta_eta = acc_caloEntryEtaCorr(track) - track.eta();
+    float delta_phi = acc_caloEntryPhiCorr(track) - track.phi();
+    
+    if (delta_phi > +M_PI) delta_phi -= 2. * M_PI;    
+    if (delta_phi < -M_PI) delta_phi += 2. * M_PI;
+               
+    fillHisto(m_trk_delta_trackEta_caloEntryEtaCorr    , delta_eta, m_eventWeight);
+    fillHisto(m_trk_delta_trackPhi_caloEntryPhiCorr    , delta_phi, m_eventWeight);
+    fillHisto(m_trk_delta_trackEta_caloEntryEtaCorr_eta, track.eta()   , delta_eta, m_eventWeight);
+    fillHisto(m_trk_delta_trackPhi_caloEntryPhiCorr_eta, track.eta()   , delta_phi, m_eventWeight);
+  }
+  
+ 
+  if (acc_caloEntryEta.isAvailable(track) and acc_caloEntryPhi.isAvailable(track) and acc_caloEntryCorr.isAvailable(track) and acc_caloEntryCorr(track)>0) {
+    float delta_eta = acc_caloEntryEtaCorr(track) - acc_caloEntryEta(track);
+    float delta_phi = acc_caloEntryPhiCorr(track) - acc_caloEntryPhi(track);
+          
+    if (delta_phi > +M_PI) delta_phi -= 2. * M_PI;    
+    if (delta_phi < -M_PI) delta_phi += 2. * M_PI;
+          
+    fillHisto(m_trk_delta_caloEntryEta_caloEntryEtaCorr    , delta_eta, m_eventWeight);
+    fillHisto(m_trk_delta_caloEntryPhi_caloEntryPhiCorr    , delta_phi, m_eventWeight);
+    fillHisto(m_trk_delta_caloEntryEta_caloEntryEtaCorr_eta, track.eta()   , delta_eta, m_eventWeight);
+    fillHisto(m_trk_delta_caloEntryPhi_caloEntryPhiCorr_eta, track.eta()   , delta_phi, m_eventWeight);
+  }  
+  
 }
 
+void TCCPlots::fillMatching(const xAOD::TrackParticle& track) {
+  // I should fill stats for the tracks 
+  static SG::AuxElement::Accessor< int > acc_assTool( "ParticleCaloClusterAssociationTool" );
+  if (not acc_assTool.isAvailable(track)) return;
+  if (acc_assTool(track)==0) return;
+  
+  // maybe fill here the tracks w/o extrapolation
+
+  // tracks w/ extrapolation
+  
+  fillHisto(m_trk_total_eta, track.eta()   , m_eventWeight);
+  fillHisto(m_trk_total_pt , track.pt()/GeV, m_eventWeight);
+  
+  static SG::AuxElement::Accessor< float > acc_caloEntryUncEta( "CaloEntryUncEta" );
+  static SG::AuxElement::Accessor< float > acc_caloEntryUncPhi( "CaloEntryUncPhi" );
+  float caloEntryUncEta = acc_caloEntryUncEta(track);
+  float caloEntryUncPhi = acc_caloEntryUncPhi(track);
+  float totUnc = sqrt(caloEntryUncEta*caloEntryUncEta+caloEntryUncPhi*caloEntryUncPhi);
+  static SG::AuxElement::Accessor< float > acc_prodRadius( "ProductionRadius" );
+  
+//   static SG::AuxElement::Accessor< std::vector<int> > acc_matched( "IsMatched" );
+//   static SG::AuxElement::Accessor< std::vector<int> > acc_mode( "MatchingMode" );
+  
+  static SG::AuxElement::Accessor< int > acc_allClusters( "AllClusters" );
+  
+  static SG::AuxElement::Accessor< int > acc_clusters_dr_fix      ( "Match_deltaR_fixed"        );
+  static SG::AuxElement::Accessor< int > acc_clusters_dr_var      ( "Match_deltaR_variable"     );
+  
+  fillHisto(m_trk_total_clusters_eta, track.eta()   , acc_allClusters(track), m_eventWeight);
+  fillHisto(m_trk_total_clusters_pt , track.pt()/GeV, acc_allClusters(track), m_eventWeight);
+    
+  if (acc_clusters_dr_fix(track)==0) {    
+    fillHisto(m_trk_notMatching_deltar_fix_eta , track.eta()   , m_eventWeight);
+    fillHisto(m_trk_notMatching_deltar_fix_phi , track.phi()   , m_eventWeight);
+    fillHisto(m_trk_notMatching_deltar_fix_pt  , track.pt()/GeV, m_eventWeight);
+    fillHisto(m_trk_notMatching_deltar_fix_caloEntryUncTot_eta, track.eta()   , totUnc, m_eventWeight);
+    fillHisto(m_trk_notMatching_deltar_fix_caloEntryUncTot_pt , track.pt()/GeV, totUnc, m_eventWeight);
+    fillHisto(m_trk_notMatching_deltar_fix_caloEntryUncTot_prodRadius, acc_prodRadius(track), totUnc       , m_eventWeight);
+  } else {
+    fillHisto(m_trk_matching_deltar_fix_eta , track.eta()   , m_eventWeight);
+    fillHisto(m_trk_matching_deltar_fix_pt  , track.pt()/GeV, m_eventWeight);
+  }
+  
+  if (acc_clusters_dr_var(track)==0) {    
+    fillHisto(m_trk_notMatching_deltar_var_eta , track.eta()   , m_eventWeight);
+    fillHisto(m_trk_notMatching_deltar_var_phi , track.phi()   , m_eventWeight);
+    fillHisto(m_trk_notMatching_deltar_var_pt  , track.pt()/GeV, m_eventWeight);
+    fillHisto(m_trk_notMatching_deltar_var_caloEntryUncTot_eta, track.eta()   , totUnc, m_eventWeight);
+    fillHisto(m_trk_notMatching_deltar_var_caloEntryUncTot_pt , track.pt()/GeV, totUnc, m_eventWeight);
+    fillHisto(m_trk_notMatching_deltar_var_caloEntryUncTot_prodRadius, acc_prodRadius(track), totUnc       , m_eventWeight);  
+  } else {
+    fillHisto(m_trk_matching_deltar_var_eta , track.eta()   , m_eventWeight);
+    fillHisto(m_trk_matching_deltar_var_pt  , track.pt()/GeV, m_eventWeight);
+  }
+  
+  if (acc_clusters_dr_fix(track)==0 and acc_clusters_dr_var(track)==0) {    
+    fillHisto(m_trk_notMatching_deltar_none_eta , track.eta()   , m_eventWeight);
+    fillHisto(m_trk_notMatching_deltar_none_phi , track.phi()   , m_eventWeight);
+    fillHisto(m_trk_notMatching_deltar_none_pt  , track.pt()/GeV, m_eventWeight);
+    fillHisto(m_trk_notMatching_deltar_none_caloEntryUncTot_eta, track.eta()   , totUnc, m_eventWeight);
+    fillHisto(m_trk_notMatching_deltar_none_caloEntryUncTot_pt , track.pt()/GeV, totUnc, m_eventWeight);
+    fillHisto(m_trk_notMatching_deltar_none_caloEntryUncTot_prodRadius, acc_prodRadius(track), totUnc       , m_eventWeight);
+  }
+  
+ if (acc_clusters_dr_fix(track)>0 and acc_clusters_dr_var(track)>0) {
+    fillHisto(m_trk_matching_deltar_fix_and_var_eta  , track.eta()   , m_eventWeight);
+    fillHisto(m_trk_matching_deltar_fix_and_var_pt   , track.pt()/GeV, m_eventWeight);
+  }
+  
+  if (acc_clusters_dr_fix(track)>0 or acc_clusters_dr_var(track)>0) {
+    fillHisto(m_trk_matching_deltar_fix_or_var_eta   , track.eta()   , m_eventWeight);
+    fillHisto(m_trk_matching_deltar_fix_or_var_pt    , track.pt()/GeV, m_eventWeight);
+  }
+  
+  if (acc_clusters_dr_fix(track)>0 and acc_clusters_dr_var(track)==0) {
+    fillHisto(m_trk_matching_deltar_onlyfix_eta      , track.eta()   , m_eventWeight);
+    fillHisto(m_trk_matching_deltar_onlyfix_pt       , track.pt()/GeV, m_eventWeight);
+  }
+  
+  if (acc_clusters_dr_fix(track)==0 and acc_clusters_dr_var(track)>0) {
+    fillHisto(m_trk_matching_deltar_onlyvar_eta      , track.eta()   , m_eventWeight);
+    fillHisto(m_trk_matching_deltar_onlyvar_pt       , track.pt()/GeV, m_eventWeight);
+  }
+  
+  static SG::AuxElement::Accessor< int > acc_clusters_dr_or       ( "Match_deltaR"             );
+  static SG::AuxElement::Accessor< int > acc_clusters_dr_and      ( "Match_deltaR_both"        );
+  static SG::AuxElement::Accessor< int > acc_clusters_dr_fix_only ( "Match_deltaR_fixedOnly"   );
+  static SG::AuxElement::Accessor< int > acc_clusters_dr_var_only ( "Match_deltaR_variableOnly");
+
+  // matching dr fixed or dr variable
+  fillHisto(m_trk_matching_deltar_or_clusters_eta , track.eta()   , acc_clusters_dr_or(track), m_eventWeight);
+  fillHisto(m_trk_matching_deltar_or_clusters_phi , track.phi()   , acc_clusters_dr_or(track), m_eventWeight);
+  fillHisto(m_trk_matching_deltar_or_clusters_pt  , track.pt()/GeV, acc_clusters_dr_or(track), m_eventWeight);
+  
+  // matching dr fixed and dr variable
+  fillHisto(m_trk_matching_deltar_and_clusters_eta , track.eta()   , acc_clusters_dr_and(track), m_eventWeight);
+  fillHisto(m_trk_matching_deltar_and_clusters_phi , track.phi()   , acc_clusters_dr_and(track), m_eventWeight);
+  fillHisto(m_trk_matching_deltar_and_clusters_pt  , track.pt()/GeV, acc_clusters_dr_and(track), m_eventWeight);
+    
+  //matching only dr fix
+  fillHisto(m_trk_matching_deltar_fix_only_clusters_eta , track.eta()   , acc_clusters_dr_fix_only(track), m_eventWeight);
+  fillHisto(m_trk_matching_deltar_fix_only_clusters_phi , track.phi()   , acc_clusters_dr_fix_only(track), m_eventWeight);
+  fillHisto(m_trk_matching_deltar_fix_only_clusters_pt  , track.pt()/GeV, acc_clusters_dr_fix_only(track), m_eventWeight);
+  
+  //matching only dr variable
+  fillHisto(m_trk_matching_deltar_var_only_clusters_eta , track.eta()   , acc_clusters_dr_var_only(track), m_eventWeight);
+  fillHisto(m_trk_matching_deltar_var_only_clusters_phi , track.phi()   , acc_clusters_dr_var_only(track), m_eventWeight);
+  fillHisto(m_trk_matching_deltar_var_only_clusters_pt  , track.pt()/GeV, acc_clusters_dr_var_only(track), m_eventWeight);
+     
+}
+
+void TCCPlots::fillCluster(const xAOD::CaloCluster& cluster) {
+  // here I fill the clusters
+  static SG::AuxElement::Accessor< int > acc_assTool( "ParticleCaloClusterAssociationTool" );
+  if (not acc_assTool.isAvailable(cluster)) return;
+  if (acc_assTool(cluster)==0) return;
+  
+  static SG::AuxElement::Accessor< float > acc_eta( "ClusterEta" );
+  static SG::AuxElement::Accessor< float > acc_unc( "ClusterUnc" );
+  
+  static SG::AuxElement::Accessor< float > acc_weight( "ClusterWeight" );
+ 
+  fillHisto(m_clusters_eta                     , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+  fillHisto(m_clusters_width                   , acc_unc(cluster), acc_weight(cluster)*m_eventWeight);
+  fillHisto(m_clusters_width_eta               , acc_eta(cluster), acc_unc(cluster), acc_weight(cluster)*m_eventWeight);
+  
+  static SG::AuxElement::Accessor< int > acc_matched( "ClusterMatched" );
+  if (acc_matched(cluster)==1)
+    fillHisto(m_clusters_matched_eta             , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+  else
+    fillHisto(m_clusters_notMatched_eta          , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);  
+  
+  static SG::AuxElement::Accessor< int > acc_dr_fix_match( "ClusterMatchedFixedDeltaR" );
+  static SG::AuxElement::Accessor< int > acc_dr_var_match ( "ClusterMatchedVariableDeltaR" );
+  
+  
+  if (acc_dr_fix_match(cluster)==1 and acc_dr_var_match(cluster)==1)
+    fillHisto(m_clusters_matched_eta_fix_and_var  , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+  
+  if (acc_dr_fix_match(cluster)==1 or acc_dr_var_match(cluster)==1)
+    fillHisto(m_clusters_matched_eta_fix_or_var  , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+  
+  if (acc_dr_fix_match(cluster)==1)
+    fillHisto(m_clusters_matched_eta_fix         , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+  else 
+    fillHisto(m_clusters_matched_eta_notfix      , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+  
+  if (acc_dr_var_match(cluster)==1)
+    fillHisto(m_clusters_matched_eta_var         , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+  else
+    fillHisto(m_clusters_matched_eta_notvar      , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+      
+  if (acc_dr_fix_match(cluster)==0 and acc_dr_var_match(cluster)==1)
+    fillHisto(m_clusters_matched_eta_onlyvar     , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+  
+  if (acc_dr_fix_match(cluster)==1 and acc_dr_var_match(cluster)==0)
+    fillHisto(m_clusters_matched_eta_onlyfix     , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+  
+  if (acc_dr_fix_match(cluster)==0 and acc_dr_var_match(cluster)==0)
+    fillHisto(m_clusters_matched_eta_none        , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+  
+}
 
 void TCCPlots::finalizePlots() {
   if (m_collectionType == "jets") {
+    
+    std::vector < TH2* > th2f = { m_jet_response_m_pt, m_jet_response_m_pt_2leadings, 
+      m_jet_response_m_pt_leading, m_jet_response_m_pt_subleading };
+      
+    std::vector < TH3* > th3f = { m_jet_mopt_pt_response_m, m_jet_mopt_pt_response_m_2leadings,
+      m_jet_mopt_pt_response_m_leading, m_jet_mopt_pt_response_m_subleading,
+      m_jet_mopt_pt_response_pt, m_jet_mopt_pt_response_pt_2leadings,
+      m_jet_mopt_pt_response_pt_leading, m_jet_mopt_pt_response_pt_subleading,
+      m_jet_mopt_pt_response_eta, m_jet_mopt_pt_response_eta_2leadings, 
+      m_jet_mopt_pt_response_eta_leading, m_jet_mopt_pt_response_eta_subleading, 
+      m_jet_mopt_pt_response_phi, m_jet_mopt_pt_response_phi_2leadings,
+      m_jet_mopt_pt_response_phi_leading, m_jet_mopt_pt_response_phi_subleading,
+      m_jet_mopt_pt_response_d2, m_jet_mopt_pt_response_d2_2leadings,
+      m_jet_mopt_pt_response_d2_leading, m_jet_mopt_pt_response_d2_subleading };
+      
+    for ( auto& histo : th2f ) {
+      for (int j = 1; j <= histo->GetNbinsY(); j++)
+	for (int i = 1; i <= histo->GetNbinsX(); i++) 
+	  histo->SetBinContent(i,j,histo->GetBinContent(i,j)/(histo->GetXaxis()->GetBinWidth(i)*histo->GetYaxis()->GetBinWidth(j)));
+    }
+    
+    for ( auto& histo : th3f ) {
+      for (int k = 1; k <= histo->GetNbinsZ(); k++)
+	for (int j = 1; j <= histo->GetNbinsY(); j++)
+	  for (int i = 1; i <= histo->GetNbinsX(); i++) 
+	    histo->SetBinContent(i,j,k,histo->GetBinContent(i,j,k)/(histo->GetXaxis()->GetBinWidth(i)*histo->GetYaxis()->GetBinWidth(j)*histo->GetZaxis()->GetBinWidth(k)));
+    }
+
     make_median(m_jet_response_m_pt                      , m_jet_resolution_m                       );
     make_median(m_jet_response_m_pt_2leadings            , m_jet_resolution_m_2leadings             );  
     make_median(m_jet_response_m_pt_leading              , m_jet_resolution_m_leading               );
@@ -884,6 +1348,81 @@ void TCCPlots::finalizePlots() {
     make_median(m_jet_mopt_pt_response_d2_2leadings      , m_jet_resolution_mopt_pt_d2_2leadings    );
     make_median(m_jet_mopt_pt_response_d2_leading        , m_jet_resolution_mopt_pt_d2_leading      );
     make_median(m_jet_mopt_pt_response_d2_subleading     , m_jet_resolution_mopt_pt_d2_subleading   );  
+  
+  }
+  
+  if (m_collectionType == "tracks") {
+    //pt + prod radius th2
+    std::vector < TH2* > th2f = { m_trk_d0_pt, m_trk_z0_pt, m_trk_theta_pt, m_trk_phi_pt, m_trk_qOverP_pt, 
+      m_trk_caloEntryEtaOverEta_pt, m_trk_caloEntryUncEta_pt, m_trk_caloEntryUncTheta_pt, m_trk_caloEntryPhiOverPhi_pt,
+      m_trk_caloEntryUncPhi_pt, m_trk_caloEntryUncTot_pt, m_trk_perigeeUncEta_pt, m_trk_perigeeUncTheta_pt, 
+      m_trk_perigeeUncPhi_pt, m_trk_perigeeUncTot_pt, m_trk_delta_perigeeEta_caloEntryEta_pt, 
+      m_trk_delta_perigeePhi_caloEntryPhi_pt, m_trk_delta_trackEta_caloEntryEta_pt, m_trk_delta_trackPhi_caloEntryPhi_pt,
+      m_trk_delta_trackEta_caloEntryEtaCorr_pt, m_trk_delta_trackPhi_caloEntryPhiCorr_pt, 
+      m_trk_delta_caloEntryEta_caloEntryEtaCorr_pt, m_trk_delta_caloEntryPhi_caloEntryPhiCorr_pt,
+      m_trk_matching_deltar_or_clusters_pt, m_trk_matching_deltar_and_clusters_pt, 
+      m_trk_matching_deltar_fix_only_clusters_pt, m_trk_matching_deltar_var_only_clusters_pt, m_trk_total_clusters_pt,
+      m_trk_notMatching_deltar_fix_caloEntryUncTot_pt, m_trk_notMatching_deltar_var_caloEntryUncTot_pt, 
+      m_trk_notMatching_deltar_none_caloEntryUncTot_pt,
+      m_trk_perigeeUncEta_prodRadius, m_trk_perigeeUncTheta_prodRadius, m_trk_perigeeUncPhi_prodRadius,
+      m_trk_perigeeUncTot_prodRadius, m_trk_caloEntryUncEta_prodRadius, m_trk_caloEntryUncTheta_prodRadius,
+      m_trk_caloEntryUncPhi_prodRadius, m_trk_caloEntryUncTot_prodRadius, 
+      m_trk_notMatching_deltar_fix_caloEntryUncTot_prodRadius, m_trk_notMatching_deltar_var_caloEntryUncTot_prodRadius, 
+      m_trk_notMatching_deltar_none_caloEntryUncTot_prodRadius };
+
+    //pt + prod radius th1
+    std::vector < TH1* > th1f = { m_trk_total_pt, m_trk_notMatching_deltar_fix_pt,
+      m_trk_notMatching_deltar_var_pt, m_trk_notMatching_deltar_none_pt, m_trk_prodRadius,
+      m_trk_matching_deltar_fix_and_var_pt, m_trk_matching_deltar_fix_or_var_pt, 
+      m_trk_matching_deltar_fix_pt, m_trk_matching_deltar_var_pt, 
+      m_trk_matching_deltar_onlyfix_pt, m_trk_matching_deltar_onlyvar_pt };
+      
+     
+    for ( auto& histo : th2f ) {
+      for (int j = 1; j <= histo->GetNbinsY(); j++)
+	for (int i = 1; i <= histo->GetNbinsX(); i++) 
+	  histo->SetBinContent(i,j,histo->GetBinContent(i,j)/(histo->GetXaxis()->GetBinWidth(i)*histo->GetYaxis()->GetBinWidth(j)));
+    }
+     
+    for ( auto& histo : th1f ) {
+      for (int i = 1; i <= histo->GetNbinsX(); i++)
+	histo->SetBinContent(i,histo->GetBinContent(i)/histo->GetBinWidth(i));       
+    }
+    
+    m_trk_matchedFraction_eta_fix_and_var ->Divide( m_trk_matching_deltar_fix_and_var_eta    , m_trk_total_eta, 1., 1., "B");
+    m_trk_matchedFraction_eta_fix_or_var  ->Divide( m_trk_matching_deltar_fix_or_var_eta     , m_trk_total_eta, 1., 1., "B");
+    m_trk_matchedFraction_eta_fix         ->Divide( m_trk_matching_deltar_fix_eta            , m_trk_total_eta, 1., 1., "B");
+    m_trk_matchedFraction_eta_notfix      ->Divide( m_trk_notMatching_deltar_fix_eta         , m_trk_total_eta, 1., 1., "B");
+    m_trk_matchedFraction_eta_var         ->Divide( m_trk_matching_deltar_var_eta            , m_trk_total_eta, 1., 1., "B");
+    m_trk_matchedFraction_eta_notvar      ->Divide( m_trk_notMatching_deltar_var_eta         , m_trk_total_eta, 1., 1., "B");
+    m_trk_matchedFraction_eta_onlyvar     ->Divide( m_trk_matching_deltar_onlyvar_eta        , m_trk_total_eta, 1., 1., "B");
+    m_trk_matchedFraction_eta_onlyfix     ->Divide( m_trk_matching_deltar_onlyfix_eta        , m_trk_total_eta, 1., 1., "B");
+    m_trk_matchedFraction_eta_none        ->Divide( m_trk_notMatching_deltar_none_eta        , m_trk_total_eta, 1., 1., "B");
+    
+    m_trk_matchedFraction_pt_fix_and_var  ->Divide( m_trk_matching_deltar_fix_and_var_pt     , m_trk_total_pt , 1., 1., "B");
+    m_trk_matchedFraction_pt_fix_or_var   ->Divide( m_trk_matching_deltar_fix_or_var_pt      , m_trk_total_pt , 1., 1., "B");
+    m_trk_matchedFraction_pt_fix          ->Divide( m_trk_matching_deltar_fix_pt             , m_trk_total_pt , 1., 1., "B");
+    m_trk_matchedFraction_pt_notfix       ->Divide( m_trk_notMatching_deltar_fix_pt          , m_trk_total_pt , 1., 1., "B");
+    m_trk_matchedFraction_pt_var          ->Divide( m_trk_matching_deltar_var_pt             , m_trk_total_pt , 1., 1., "B");
+    m_trk_matchedFraction_pt_notvar       ->Divide( m_trk_notMatching_deltar_var_pt          , m_trk_total_pt , 1., 1., "B");
+    m_trk_matchedFraction_pt_onlyvar      ->Divide( m_trk_matching_deltar_onlyvar_pt         , m_trk_total_pt , 1., 1., "B");
+    m_trk_matchedFraction_pt_onlyfix      ->Divide( m_trk_matching_deltar_onlyfix_pt         , m_trk_total_pt , 1., 1., "B");
+    m_trk_matchedFraction_pt_none         ->Divide( m_trk_notMatching_deltar_none_pt         , m_trk_total_pt , 1., 1., "B");
+    
+  }
+  
+  if (m_collectionType == "clusters") {
+    m_clusters_matchedFraction_eta             ->Divide(m_clusters_matched_eta             , m_clusters_eta, 1., 1., "B");
+    m_clusters_notMatchedFraction_eta          ->Divide(m_clusters_notMatched_eta          , m_clusters_eta, 1., 1., "B");
+    m_clusters_matchedFraction_eta_fix_and_var ->Divide(m_clusters_matched_eta_fix_and_var , m_clusters_eta, 1., 1., "B");
+    m_clusters_matchedFraction_eta_fix_or_var  ->Divide(m_clusters_matched_eta_fix_or_var  , m_clusters_eta, 1., 1., "B");
+    m_clusters_matchedFraction_eta_fix         ->Divide(m_clusters_matched_eta_fix         , m_clusters_eta, 1., 1., "B");
+    m_clusters_matchedFraction_eta_notfix      ->Divide(m_clusters_matched_eta_notfix      , m_clusters_eta, 1., 1., "B");
+    m_clusters_matchedFraction_eta_var         ->Divide(m_clusters_matched_eta_var         , m_clusters_eta, 1., 1., "B");
+    m_clusters_matchedFraction_eta_notvar      ->Divide(m_clusters_matched_eta_notvar      , m_clusters_eta, 1., 1., "B");
+    m_clusters_matchedFraction_eta_onlyvar     ->Divide(m_clusters_matched_eta_onlyvar     , m_clusters_eta, 1., 1., "B");
+    m_clusters_matchedFraction_eta_onlyfix     ->Divide(m_clusters_matched_eta_onlyfix     , m_clusters_eta, 1., 1., "B");
+    m_clusters_matchedFraction_eta_none        ->Divide(m_clusters_matched_eta_none        , m_clusters_eta, 1., 1., "B");
   }
 }
 
@@ -932,117 +1471,207 @@ void TCCPlots::make_median(TH3* h3_response, TH2* h2_resolution){
 
 void TCCPlots::resizeHistograms() {
   
-  // set pT binning
-    float ptBins[18] = { 200., 300., 400., 500.,
-      600., 700., 800., 900.,
-      1000., 1100., 1200., 1300.,
-      1500., 1700., 1900., 2100.,
-      2500., 3000. };
+  if (m_collectionType == "tracks") {
+    
+    if (m_trackPtBins.size()>0) {
+     
+      const float* ptBins = m_trackPtBins.data();
+      int           nBins = m_trackPtBins.size()-1;
       
-    // set massOverPt binning
-    float massOverPtBins[21] = {0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 
-      0.06, 0.07, 0.08, 0.09, 0.10,
-      0.12, 0.14, 0.16, 0.18, 0.20,
-      0.25, 0.30, 0.40, 0.50, 1.00 };
+      m_trk_d0_pt                                      ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_z0_pt                                      ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_theta_pt                                   ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_phi_pt                                     ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_qOverP_pt                                  ->GetXaxis()->Set(nBins, ptBins);    
+      m_trk_caloEntryEtaOverEta_pt                     ->GetXaxis()->Set(nBins, ptBins);    
+      m_trk_caloEntryUncEta_pt                         ->GetXaxis()->Set(nBins, ptBins);    
+      m_trk_caloEntryUncTheta_pt                       ->GetXaxis()->Set(nBins, ptBins);    
+      m_trk_caloEntryPhiOverPhi_pt                     ->GetXaxis()->Set(nBins, ptBins);    
+      m_trk_caloEntryUncPhi_pt                         ->GetXaxis()->Set(nBins, ptBins);    
+      m_trk_caloEntryUncTot_pt                         ->GetXaxis()->Set(nBins, ptBins);    
+      m_trk_perigeeUncEta_pt                           ->GetXaxis()->Set(nBins, ptBins);    
+      m_trk_perigeeUncTheta_pt                         ->GetXaxis()->Set(nBins, ptBins);    
+      m_trk_perigeeUncPhi_pt                           ->GetXaxis()->Set(nBins, ptBins);    
+      m_trk_perigeeUncTot_pt                           ->GetXaxis()->Set(nBins, ptBins);    
+      m_trk_delta_perigeeEta_caloEntryEta_pt           ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_delta_perigeePhi_caloEntryPhi_pt           ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_delta_trackEta_caloEntryEta_pt             ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_delta_trackPhi_caloEntryPhi_pt             ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_delta_trackEta_caloEntryEtaCorr_pt         ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_delta_trackPhi_caloEntryPhiCorr_pt         ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_delta_caloEntryEta_caloEntryEtaCorr_pt     ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_delta_caloEntryPhi_caloEntryPhiCorr_pt     ->GetXaxis()->Set(nBins, ptBins);
+      
+      m_trk_total_pt                                   ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_total_clusters_pt                          ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_notMatching_deltar_fix_pt                  ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_notMatching_deltar_fix_caloEntryUncTot_pt  ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_notMatching_deltar_var_pt                  ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_notMatching_deltar_var_caloEntryUncTot_pt  ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_notMatching_deltar_none_pt                 ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_notMatching_deltar_none_caloEntryUncTot_pt ->GetXaxis()->Set(nBins, ptBins);
+      
+      m_trk_matching_deltar_or_clusters_pt             ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_matching_deltar_and_clusters_pt            ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_matching_deltar_fix_only_clusters_pt       ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_matching_deltar_var_only_clusters_pt       ->GetXaxis()->Set(nBins, ptBins);
+      
+      m_trk_matching_deltar_fix_and_var_pt             ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_matching_deltar_fix_or_var_pt              ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_matching_deltar_fix_pt                     ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_matching_deltar_var_pt                     ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_matching_deltar_onlyfix_pt                 ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_matching_deltar_onlyvar_pt                 ->GetXaxis()->Set(nBins, ptBins);
+              
+      m_trk_matchedFraction_pt_fix_and_var             ->GetXaxis()->Set(nBins, ptBins);         
+      m_trk_matchedFraction_pt_fix_or_var              ->GetXaxis()->Set(nBins, ptBins);         
+      m_trk_matchedFraction_pt_fix                     ->GetXaxis()->Set(nBins, ptBins);         
+      m_trk_matchedFraction_pt_notfix                  ->GetXaxis()->Set(nBins, ptBins);         
+      m_trk_matchedFraction_pt_var                     ->GetXaxis()->Set(nBins, ptBins);         
+      m_trk_matchedFraction_pt_notvar                  ->GetXaxis()->Set(nBins, ptBins);         
+      m_trk_matchedFraction_pt_onlyvar                 ->GetXaxis()->Set(nBins, ptBins);         
+      m_trk_matchedFraction_pt_onlyfix                 ->GetXaxis()->Set(nBins, ptBins);         
+      m_trk_matchedFraction_pt_none                    ->GetXaxis()->Set(nBins, ptBins);         
+      
+    }
     
-    // define the different binning
-    m_jet_response_m_pt            ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);
-    m_jet_response_m_pt_2leadings  ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);
-    m_jet_response_m_pt_leading    ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);
-    m_jet_response_m_pt_subleading ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);  
-    m_jet_resolution_m             ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);          
-    m_jet_resolution_m_2leadings   ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);
-    m_jet_resolution_m_leading     ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);
-    m_jet_resolution_m_subleading  ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);
+    if (m_trackProdRadiusBins.size()>0) {
+      const float* radiusBins = m_trackProdRadiusBins.data();
+      int               nBins = m_trackProdRadiusBins.size()-1;
+      
+      m_trk_prodRadius                                         ->GetXaxis()->Set(nBins, radiusBins);
+      m_trk_perigeeUncEta_prodRadius                           ->GetXaxis()->Set(nBins, radiusBins);
+      m_trk_perigeeUncTheta_prodRadius                         ->GetXaxis()->Set(nBins, radiusBins);
+      m_trk_perigeeUncPhi_prodRadius                           ->GetXaxis()->Set(nBins, radiusBins);
+      m_trk_perigeeUncTot_prodRadius                           ->GetXaxis()->Set(nBins, radiusBins);
+      m_trk_caloEntryUncEta_prodRadius                         ->GetXaxis()->Set(nBins, radiusBins);
+      m_trk_caloEntryUncTheta_prodRadius                       ->GetXaxis()->Set(nBins, radiusBins);
+      m_trk_caloEntryUncPhi_prodRadius                         ->GetXaxis()->Set(nBins, radiusBins);
+      m_trk_caloEntryUncTot_prodRadius                         ->GetXaxis()->Set(nBins, radiusBins);
+      
+      m_trk_notMatching_deltar_fix_caloEntryUncTot_prodRadius  ->GetXaxis()->Set(nBins, radiusBins);
+      m_trk_notMatching_deltar_var_caloEntryUncTot_prodRadius  ->GetXaxis()->Set(nBins, radiusBins);
+      m_trk_notMatching_deltar_none_caloEntryUncTot_prodRadius ->GetXaxis()->Set(nBins, radiusBins);
+      
+    }
+  }
+  
+  
+  if(m_collectionType == "jets")  {
+        
+    if (m_jetPtBins.size()>0) {
+      
+      float* ptBins = m_jetPtBins.data();
+      int     nBins = m_jetPtBins.size()-1;
+       
+      m_jet_response_m_pt            ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_response_m_pt_2leadings  ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_response_m_pt_leading    ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_response_m_pt_subleading ->GetXaxis()->Set(nBins, ptBins);  
+      m_jet_resolution_m             ->GetXaxis()->Set(nBins, ptBins);          
+      m_jet_resolution_m_2leadings   ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_resolution_m_leading     ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_resolution_m_subleading  ->GetXaxis()->Set(nBins, ptBins);
+    }
     
-    m_jet_mopt_pt_response_m                ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);
-    m_jet_mopt_pt_response_m                ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);
-    m_jet_mopt_pt_response_m_2leadings      ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);
-    m_jet_mopt_pt_response_m_2leadings      ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);
-    m_jet_mopt_pt_response_m_leading        ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);
-    m_jet_mopt_pt_response_m_leading        ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);
-    m_jet_mopt_pt_response_m_subleading     ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);
-    m_jet_mopt_pt_response_m_subleading     ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);
-                                            
-    m_jet_mopt_pt_response_pt               ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins); 
-    m_jet_mopt_pt_response_pt               ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins); 
-    m_jet_mopt_pt_response_pt_2leadings     ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins); 
-    m_jet_mopt_pt_response_pt_2leadings     ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins); 
-    m_jet_mopt_pt_response_pt_leading       ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins); 
-    m_jet_mopt_pt_response_pt_leading       ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins); 
-    m_jet_mopt_pt_response_pt_subleading    ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins); 
-    m_jet_mopt_pt_response_pt_subleading    ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins); 
-                                            
-    m_jet_mopt_pt_response_eta              ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);  
-    m_jet_mopt_pt_response_eta              ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);  
-    m_jet_mopt_pt_response_eta_2leadings    ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);  
-    m_jet_mopt_pt_response_eta_2leadings    ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);  
-    m_jet_mopt_pt_response_eta_leading      ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);  
-    m_jet_mopt_pt_response_eta_leading      ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);  
-    m_jet_mopt_pt_response_eta_subleading   ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);  
-    m_jet_mopt_pt_response_eta_subleading   ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);  
-                                            
-    m_jet_mopt_pt_response_phi              ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);  
-    m_jet_mopt_pt_response_phi              ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);  
-    m_jet_mopt_pt_response_phi_2leadings    ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);  
-    m_jet_mopt_pt_response_phi_2leadings    ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);  
-    m_jet_mopt_pt_response_phi_leading      ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);  
-    m_jet_mopt_pt_response_phi_leading      ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);  
-    m_jet_mopt_pt_response_phi_subleading   ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);  
-    m_jet_mopt_pt_response_phi_subleading   ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);  
-                                            
-    m_jet_mopt_pt_response_d2               ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins); 
-    m_jet_mopt_pt_response_d2               ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins); 
-    m_jet_mopt_pt_response_d2_2leadings     ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins); 
-    m_jet_mopt_pt_response_d2_2leadings     ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins); 
-    m_jet_mopt_pt_response_d2_leading       ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins); 
-    m_jet_mopt_pt_response_d2_leading       ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins); 
-    m_jet_mopt_pt_response_d2_subleading    ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins); 
-    m_jet_mopt_pt_response_d2_subleading    ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins); 
-                                            
-    m_jet_resolution_mopt_pt_m              ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);
-    m_jet_resolution_mopt_pt_m              ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);
-    m_jet_resolution_mopt_pt_m_2leadings    ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);
-    m_jet_resolution_mopt_pt_m_2leadings    ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);
-    m_jet_resolution_mopt_pt_m_leading      ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);
-    m_jet_resolution_mopt_pt_m_leading      ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);
-    m_jet_resolution_mopt_pt_m_subleading   ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);
-    m_jet_resolution_mopt_pt_m_subleading   ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);
-                                            
-    m_jet_resolution_mopt_pt_pt             ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins); 
-    m_jet_resolution_mopt_pt_pt             ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins); 
-    m_jet_resolution_mopt_pt_pt_2leadings   ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins); 
-    m_jet_resolution_mopt_pt_pt_2leadings   ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins); 
-    m_jet_resolution_mopt_pt_pt_leading     ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins); 
-    m_jet_resolution_mopt_pt_pt_leading     ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins); 
-    m_jet_resolution_mopt_pt_pt_subleading  ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);
-    m_jet_resolution_mopt_pt_pt_subleading  ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);
-                                            
-    m_jet_resolution_mopt_pt_eta            ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);  
-    m_jet_resolution_mopt_pt_eta            ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);  
-    m_jet_resolution_mopt_pt_eta_2leadings  ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);  
-    m_jet_resolution_mopt_pt_eta_2leadings  ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);  
-    m_jet_resolution_mopt_pt_eta_leading    ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);  
-    m_jet_resolution_mopt_pt_eta_leading    ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);  
-    m_jet_resolution_mopt_pt_eta_subleading ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins); 
-    m_jet_resolution_mopt_pt_eta_subleading ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins); 
-                                            
-    m_jet_resolution_mopt_pt_phi            ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);  
-    m_jet_resolution_mopt_pt_phi            ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);  
-    m_jet_resolution_mopt_pt_phi_2leadings  ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);  
-    m_jet_resolution_mopt_pt_phi_2leadings  ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);  
-    m_jet_resolution_mopt_pt_phi_leading    ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);  
-    m_jet_resolution_mopt_pt_phi_leading    ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);  
-    m_jet_resolution_mopt_pt_phi_subleading ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins); 
-    m_jet_resolution_mopt_pt_phi_subleading ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins); 
-                                            
-    m_jet_resolution_mopt_pt_d2             ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins); 
-    m_jet_resolution_mopt_pt_d2             ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins); 
-    m_jet_resolution_mopt_pt_d2_2leadings   ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins); 
-    m_jet_resolution_mopt_pt_d2_2leadings   ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins); 
-    m_jet_resolution_mopt_pt_d2_leading     ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins); 
-    m_jet_resolution_mopt_pt_d2_leading     ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins); 
-    m_jet_resolution_mopt_pt_d2_subleading  ->GetXaxis()->Set(sizeof(ptBins)/sizeof(*ptBins)-1, ptBins);
-    m_jet_resolution_mopt_pt_d2_subleading  ->GetYaxis()->Set(sizeof(massOverPtBins)/sizeof(*massOverPtBins)-1, massOverPtBins);
-    
+    if (m_jetPtBins.size()>0 and m_jetMassOverPtBins.size()>0) {
+      
+      float* ptBins = m_jetPtBins.data();
+      int   nBinsPt = m_jetPtBins.size()-1;
+      
+      float* massOverPtBins = m_jetMassOverPtBins.data();
+      int   nBinsMassOverPt = m_jetMassOverPtBins.size()-1;
+      
+      
+      m_jet_mopt_pt_response_m                ->GetXaxis()->Set(nBinsPt, ptBins);
+      m_jet_mopt_pt_response_m                ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);
+      m_jet_mopt_pt_response_m_2leadings      ->GetXaxis()->Set(nBinsPt, ptBins);
+      m_jet_mopt_pt_response_m_2leadings      ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);
+      m_jet_mopt_pt_response_m_leading        ->GetXaxis()->Set(nBinsPt, ptBins);
+      m_jet_mopt_pt_response_m_leading        ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);
+      m_jet_mopt_pt_response_m_subleading     ->GetXaxis()->Set(nBinsPt, ptBins);
+      m_jet_mopt_pt_response_m_subleading     ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);
+                                              
+      m_jet_mopt_pt_response_pt               ->GetXaxis()->Set(nBinsPt, ptBins); 
+      m_jet_mopt_pt_response_pt               ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins); 
+      m_jet_mopt_pt_response_pt_2leadings     ->GetXaxis()->Set(nBinsPt, ptBins); 
+      m_jet_mopt_pt_response_pt_2leadings     ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins); 
+      m_jet_mopt_pt_response_pt_leading       ->GetXaxis()->Set(nBinsPt, ptBins); 
+      m_jet_mopt_pt_response_pt_leading       ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins); 
+      m_jet_mopt_pt_response_pt_subleading    ->GetXaxis()->Set(nBinsPt, ptBins); 
+      m_jet_mopt_pt_response_pt_subleading    ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins); 
+                                              
+      m_jet_mopt_pt_response_eta              ->GetXaxis()->Set(nBinsPt, ptBins);  
+      m_jet_mopt_pt_response_eta              ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);  
+      m_jet_mopt_pt_response_eta_2leadings    ->GetXaxis()->Set(nBinsPt, ptBins);  
+      m_jet_mopt_pt_response_eta_2leadings    ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);  
+      m_jet_mopt_pt_response_eta_leading      ->GetXaxis()->Set(nBinsPt, ptBins);  
+      m_jet_mopt_pt_response_eta_leading      ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);  
+      m_jet_mopt_pt_response_eta_subleading   ->GetXaxis()->Set(nBinsPt, ptBins);  
+      m_jet_mopt_pt_response_eta_subleading   ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);  
+                                              
+      m_jet_mopt_pt_response_phi              ->GetXaxis()->Set(nBinsPt, ptBins);  
+      m_jet_mopt_pt_response_phi              ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);  
+      m_jet_mopt_pt_response_phi_2leadings    ->GetXaxis()->Set(nBinsPt, ptBins);  
+      m_jet_mopt_pt_response_phi_2leadings    ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);  
+      m_jet_mopt_pt_response_phi_leading      ->GetXaxis()->Set(nBinsPt, ptBins);  
+      m_jet_mopt_pt_response_phi_leading      ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);  
+      m_jet_mopt_pt_response_phi_subleading   ->GetXaxis()->Set(nBinsPt, ptBins);  
+      m_jet_mopt_pt_response_phi_subleading   ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);  
+                                              
+      m_jet_mopt_pt_response_d2               ->GetXaxis()->Set(nBinsPt, ptBins); 
+      m_jet_mopt_pt_response_d2               ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins); 
+      m_jet_mopt_pt_response_d2_2leadings     ->GetXaxis()->Set(nBinsPt, ptBins); 
+      m_jet_mopt_pt_response_d2_2leadings     ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins); 
+      m_jet_mopt_pt_response_d2_leading       ->GetXaxis()->Set(nBinsPt, ptBins); 
+      m_jet_mopt_pt_response_d2_leading       ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins); 
+      m_jet_mopt_pt_response_d2_subleading    ->GetXaxis()->Set(nBinsPt, ptBins); 
+      m_jet_mopt_pt_response_d2_subleading    ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins); 
+                                              
+      m_jet_resolution_mopt_pt_m              ->GetXaxis()->Set(nBinsPt, ptBins);
+      m_jet_resolution_mopt_pt_m              ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);
+      m_jet_resolution_mopt_pt_m_2leadings    ->GetXaxis()->Set(nBinsPt, ptBins);
+      m_jet_resolution_mopt_pt_m_2leadings    ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);
+      m_jet_resolution_mopt_pt_m_leading      ->GetXaxis()->Set(nBinsPt, ptBins);
+      m_jet_resolution_mopt_pt_m_leading      ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);
+      m_jet_resolution_mopt_pt_m_subleading   ->GetXaxis()->Set(nBinsPt, ptBins);
+      m_jet_resolution_mopt_pt_m_subleading   ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);
+                                              
+      m_jet_resolution_mopt_pt_pt             ->GetXaxis()->Set(nBinsPt, ptBins); 
+      m_jet_resolution_mopt_pt_pt             ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins); 
+      m_jet_resolution_mopt_pt_pt_2leadings   ->GetXaxis()->Set(nBinsPt, ptBins); 
+      m_jet_resolution_mopt_pt_pt_2leadings   ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins); 
+      m_jet_resolution_mopt_pt_pt_leading     ->GetXaxis()->Set(nBinsPt, ptBins); 
+      m_jet_resolution_mopt_pt_pt_leading     ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins); 
+      m_jet_resolution_mopt_pt_pt_subleading  ->GetXaxis()->Set(nBinsPt, ptBins);
+      m_jet_resolution_mopt_pt_pt_subleading  ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);
+                                              
+      m_jet_resolution_mopt_pt_eta            ->GetXaxis()->Set(nBinsPt, ptBins);  
+      m_jet_resolution_mopt_pt_eta            ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);  
+      m_jet_resolution_mopt_pt_eta_2leadings  ->GetXaxis()->Set(nBinsPt, ptBins);  
+      m_jet_resolution_mopt_pt_eta_2leadings  ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);  
+      m_jet_resolution_mopt_pt_eta_leading    ->GetXaxis()->Set(nBinsPt, ptBins);  
+      m_jet_resolution_mopt_pt_eta_leading    ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);  
+      m_jet_resolution_mopt_pt_eta_subleading ->GetXaxis()->Set(nBinsPt, ptBins); 
+      m_jet_resolution_mopt_pt_eta_subleading ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins); 
+                                              
+      m_jet_resolution_mopt_pt_phi            ->GetXaxis()->Set(nBinsPt, ptBins);  
+      m_jet_resolution_mopt_pt_phi            ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);  
+      m_jet_resolution_mopt_pt_phi_2leadings  ->GetXaxis()->Set(nBinsPt, ptBins);  
+      m_jet_resolution_mopt_pt_phi_2leadings  ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);  
+      m_jet_resolution_mopt_pt_phi_leading    ->GetXaxis()->Set(nBinsPt, ptBins);  
+      m_jet_resolution_mopt_pt_phi_leading    ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);  
+      m_jet_resolution_mopt_pt_phi_subleading ->GetXaxis()->Set(nBinsPt, ptBins); 
+      m_jet_resolution_mopt_pt_phi_subleading ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins); 
+                                              
+      m_jet_resolution_mopt_pt_d2             ->GetXaxis()->Set(nBinsPt, ptBins); 
+      m_jet_resolution_mopt_pt_d2             ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins); 
+      m_jet_resolution_mopt_pt_d2_2leadings   ->GetXaxis()->Set(nBinsPt, ptBins); 
+      m_jet_resolution_mopt_pt_d2_2leadings   ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins); 
+      m_jet_resolution_mopt_pt_d2_leading     ->GetXaxis()->Set(nBinsPt, ptBins); 
+      m_jet_resolution_mopt_pt_d2_leading     ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins); 
+      m_jet_resolution_mopt_pt_d2_subleading  ->GetXaxis()->Set(nBinsPt, ptBins);
+      m_jet_resolution_mopt_pt_d2_subleading  ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);
+    }
+  }  
 }
