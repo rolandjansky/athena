@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Init.cxx 796983 2017-02-14 05:09:12Z ssnyder $
+// $Id: Init.cxx 687014 2015-08-03 09:30:27Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -22,7 +22,6 @@
 
 // Local include(s):
 #include "xAODRootAccess/Init.h"
-#include "CxxUtils/unused.h"
 
 // Integrate with Apple's crash reporter. Taken directly from ROOT's TError.cxx.
 // Disabled for now, as it doesn't seem to make any difference on top of 6.02/12
@@ -72,7 +71,10 @@ namespace xAOD {
       // of the xAOD dictionaries.
       if( ! gApplication ) {
          if( argc && argv ) {
-            static ::TApplication UNUSED(sApplication)( appname, argc, argv );
+            static ::TApplication sApplication( appname, argc, argv );
+            // This is just here to avoid a warning about not using this
+            // static variable:
+            sApplication.Argc();
          } else {
             ::TApplication::CreateApplication();
          }

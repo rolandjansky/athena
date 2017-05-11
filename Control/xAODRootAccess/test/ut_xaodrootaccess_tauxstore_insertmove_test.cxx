@@ -85,12 +85,13 @@ int test1()
     m1_2[i] = MoveTest(i+10);
   }
 
-  SG::auxid_set_t ignore { ityp4 };
+  SG::auxid_set_t ignore;
+  ignore.insert (ityp4);
 
   s1.insertMove (3, s2, ignore);
   assert (s1.size() == 10);
   s1.reserve(20);
-  //  assert (s1.getData(ityp4) == nullptr);
+  assert (s1.getData(ityp4) == nullptr);
   const int* i3 = reinterpret_cast<const int*> (s1.getData(ityp3));
   assert (i3 != 0);
   i1 = reinterpret_cast<int*> (s1.getData(ityp1, 5, 20));

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TAuxVectorFactory.cxx 793319 2017-01-21 16:21:46Z ssnyder $
+// $Id: TAuxVectorFactory.cxx 797214 2017-02-14 19:51:39Z ssnyder $
 
 // ROOT include(s):
 #include <TClass.h>

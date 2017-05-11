@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MakeTransientTree.cxx 796518 2017-02-10 05:11:37Z ssnyder $
+// $Id: MakeTransientTree.cxx 752002 2016-06-03 07:55:49Z krasznaa $
 
 // System include(s):
 #include <cstring>
@@ -45,8 +45,8 @@ namespace {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 796518 $
-   /// $Date: 2017-02-10 06:11:37 +0100 (Fri, 10 Feb 2017) $
+   /// $Revision: 752002 $
+   /// $Date: 2016-06-03 09:55:49 +0200 (Fri, 03 Jun 2016) $
    ///
    class TEventNotifier : public ::TObject {
 
@@ -104,8 +104,8 @@ namespace {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 796518 $
-   /// $Date: 2017-02-10 06:11:37 +0100 (Fri, 10 Feb 2017) $
+   /// $Revision: 752002 $
+   /// $Date: 2016-06-03 09:55:49 +0200 (Fri, 03 Jun 2016) $
    ///
    class TTransObjectHolder {
 
@@ -135,9 +135,6 @@ namespace {
 #endif // ROOT_VERSION
                m_obj.release();
             }
-            // If we're in global cleanup, then they may also have been deleted.
-            if (TTransObjectHolder::s_inCleanup)
-              m_obj.release();
          }
       private:
          std::unique_ptr< T > m_obj;
@@ -161,21 +158,11 @@ namespace {
          return;
       }
 
-      // Used to flag that we're cleaning up global objects at the end
-      // of the job.
-      struct Canary
-      {
-        ~Canary() { TTransObjectHolder::s_inCleanup = true; }
-      };
    private:
       /// The managed transient objects
       std::vector< std::unique_ptr< TVirtualTransObject > > m_objects;
 
-      /// Are we cleaning up global objects at the end of the job?
-      static bool s_inCleanup;
    }; // class TTransObjectHolder
-
-   bool TTransObjectHolder::s_inCleanup = false;
 
 } // private namespace
 
@@ -183,8 +170,6 @@ namespace xAOD {
 
    /// Object managing all the transient objects created on the heap
    static ::TTransObjectHolder s_objectHolder;
-   /// To flag when we're in global cleanup.  Must come after s_objectHolder.
-   static ::TTransObjectHolder::Canary s_canary;
 
    //
    // Forward declare the private functions:

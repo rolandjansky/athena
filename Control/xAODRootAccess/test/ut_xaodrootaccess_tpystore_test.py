@@ -2,15 +2,10 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: ut_xaodrootaccess_tpystore_test.py 796448 2017-02-09 18:28:08Z ssnyder $
+# $Id: ut_xaodrootaccess_tpystore_test.py 653595 2015-03-12 11:27:57Z krasznaa $
 #
 # Unit test for the TPyStore class.
 #
-
-import os
-import ROOT
-import cppyy
-ROOT.xAOD.ElectronAuxContainer_v1
 
 ## C/C++ style main function
 def main():
@@ -29,11 +24,9 @@ def main():
 
     # Set up the environment:
     import ROOT
-    if (os.environ.has_key('ROOTCOREDIR') and
-        ROOT.gROOT.Macro( "$ROOTCOREDIR/scripts/load_packages.C" )):
+    if ROOT.gROOT.Macro( "$ROOTCOREDIR/scripts/load_packages.C" ):
         logger.error( "Couldn't load the RootCore packages" )
         return 1
-    ROOT.xAOD.TEvent
     if ROOT.xAOD.Init( APP_NAME ).isFailure():
         logger.error( "Failed to call xAOD::Init(...)" )
         return 1

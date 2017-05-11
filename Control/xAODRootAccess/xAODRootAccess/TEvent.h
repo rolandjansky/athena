@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TEvent.h 796516 2017-02-10 04:45:05Z ssnyder $
+// $Id: TEvent.h 784654 2016-11-16 17:17:32Z krasznaa $
 #ifndef XAODROOTACCESS_TEVENT_H
 #define XAODROOTACCESS_TEVENT_H
 
@@ -28,7 +28,7 @@
 
 // Local include(s):
 #include "xAODRootAccess/tools/TReturnCode.h"
-#include "xAODRootAccess/tools/IProxyDict.h"
+#include "xAODRootAccess/tools/IProxyDictWithPool.h"
 
 // Forward declaration(s):
 class TFile;
@@ -42,7 +42,6 @@ namespace SG {
 }
 namespace xAODPrivate {
    class THolderBucket;
-   class TLoader;
 }
 
 namespace xAOD {
@@ -73,11 +72,11 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 796516 $
-   /// $Date: 2017-02-10 05:45:05 +0100 (Fri, 10 Feb 2017) $
+   /// $Revision: 784654 $
+   /// $Date: 2016-11-16 18:17:32 +0100 (Wed, 16 Nov 2016) $
    ///
    class TEvent : public TVirtualEvent,
-                  public IProxyDict {
+                  public IProxyDictWithPool {
 
       // Declare the friend functions/classes:
       friend ::TTree* MakeTransientTree( TEvent&, const char* );
@@ -86,7 +85,6 @@ namespace xAOD {
       friend class xAOD::TFileMerger;
       friend class xAOD::TTreeMgr;
       friend class xAODPrivate::THolderBucket;
-      friend class xAODPrivate::TLoader;
 
    public:
       /// Auxiliary store "mode"
@@ -280,7 +278,7 @@ namespace xAOD {
 
       /// @}
 
-      /// @name Functions implementing the IProxyDict interface
+      /// @name Functions implementing the IProxyDictWithPool interface
       /// @{
 
       /// get proxy for a given data object address in memory
@@ -349,9 +347,6 @@ namespace xAOD {
                                   const std::type_info& ti,
                                   ::Bool_t silent = kFALSE,
                                   ::Bool_t metadata = kFALSE );
-
-   public:
-      // Make this public for calling from python.
       /// Internal function for recording an object into the output
       TReturnCode record( void* obj, const std::string& typeName,
                           const std::string& key,
@@ -359,8 +354,6 @@ namespace xAOD {
                           ::Bool_t overwrite = kFALSE,
                           ::Bool_t metadata = kFALSE,
                           ::Bool_t isOwner = kTRUE );
-
-   protected:
       /// Internal function for adding an auxiliary store object to the output
       TReturnCode record( TAuxStore* store, const std::string& key,
                           ::Int_t basketSize, ::Int_t splitLevel,
@@ -461,10 +454,10 @@ namespace xAOD {
       /// Container name re-mapping rules
       std::map< std::string, std::string > m_nameRemapping;
 
-      /// @name Variable(s) used in the IProxyDict implementation
+      /// @name Variable(s) used in the IProxyDictWithPool implementation
       /// @{
 
-      /// Helper struct used by the IProxyDict code
+      /// Helper struct used by the IProxyDictWithPool code
       struct BranchInfo {
          /// Data proxy describing this branch/object
          std::unique_ptr< SG::DataProxy > m_proxy;
@@ -477,7 +470,7 @@ namespace xAOD {
 
       /// @}
 
-      /// @name Helper functions for the IProxyDict interface
+      /// @name Helper functions for the IProxyDictWithPool interface
       /// @{
 
       /// Get the metadata object for a given "SG key"

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ut_xaodrootaccess_transtree_test.cxx 796448 2017-02-09 18:28:08Z ssnyder $
+// $Id: ut_xaodrootaccess_transtree_test.cxx 728645 2016-03-09 12:19:46Z krasznaa $
 
 // System include(s):
 #include <memory>
@@ -30,22 +30,19 @@ int main() {
    RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
 
    // The files used in the test:
-   const char* ref = getenv ("ATLAS_REFERENCE_DATA");
-   std::string FPATH =
-     ref ? ref : "/afs/cern.ch/atlas/project/PAT";
-   std::string FNAME1 = FPATH + "/xAODs/r5787/"
+   static const char* FNAME1 = "/afs/cern.ch/atlas/project/PAT/xAODs/r5787/"
       "mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge.AOD."
       "e2928_s1982_s2008_r5787_r5853_tid01597980_00/"
       "AOD.01597980._000098.pool.root.1";
-   std::string FNAME2 = FPATH + "/xAODs/r5787/"
+   static const char* FNAME2 = "/afs/cern.ch/atlas/project/PAT/xAODs/r5787/"
       "mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge.AOD."
       "e2928_s1982_s2008_r5787_r5853_tid01597980_00/"
       "AOD.01597980._000420.pool.root.1";
 
    // Open it using a TFile:
-   std::unique_ptr< ::TFile > ifile( ::TFile::Open( FNAME1.c_str(), "READ" ) );
+   std::unique_ptr< ::TFile > ifile( ::TFile::Open( FNAME1, "READ" ) );
    if( ! ifile.get() ) {
-     ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't open file: %s" ), FNAME1.c_str() );
+      ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't open file: %s" ), FNAME1 );
       return 1;
    }
 
@@ -54,7 +51,7 @@ int main() {
    if( ! tree ) {
       ::Error( APP_NAME,
                XAOD_MESSAGE( "Couldn't create transient tree from file: %s" ),
-               FNAME1.c_str() );
+               FNAME1 );
       return 1;
    }
 
@@ -73,8 +70,8 @@ int main() {
 
    // Set up a chain with this one file:
    ::TChain eventChain( "CollectionTree" );
-   eventChain.Add( FNAME1.c_str() );
-   eventChain.Add( FNAME2.c_str() );
+   eventChain.Add( FNAME1 );
+   eventChain.Add( FNAME2 );
 
    // Create a transient tree using it:
    tree = xAOD::MakeTransientTree( &eventChain );
@@ -104,7 +101,7 @@ int main() {
       ::Error( APP_NAME,
                XAOD_MESSAGE( "Couldn't create transient metadata tree from "
                              "file: %s" ),
-               FNAME1.c_str() );
+               FNAME1 );
       return 1;
    }
 
@@ -119,8 +116,8 @@ int main() {
 
    // Set up a chain with this one file:
    ::TChain metaChain( "MetaData" );
-   metaChain.Add( FNAME1.c_str() );
-   metaChain.Add( FNAME2.c_str() );
+   metaChain.Add( FNAME1 );
+   metaChain.Add( FNAME2 );
 
    // Create a transient tree using it:
    tree = xAOD::MakeTransientMetaTree( &metaChain );
