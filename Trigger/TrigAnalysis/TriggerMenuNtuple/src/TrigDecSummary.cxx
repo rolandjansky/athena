@@ -12,7 +12,6 @@
 using namespace std;
 
 const int kNL1Words=8;
-const int kNHltWords=256;
 
 TrigDecSummary::TrigDecSummary() : 
   mL1_TBP(kNL1Words, 0), mL1_TAP(kNL1Words, 0), mL1_TAV(kNL1Words, 0), 
