@@ -418,14 +418,8 @@ StatusCode TauProcessorTool::execute(){
   // Finalize tools for this event
   //-------------------------------------------------------------------------
 
-  itT = m_tools.begin();
-  itTE = m_tools.end();
-  for (; itT != itTE; ++itT) {
-    sc = (*itT)->eventFinalize();
-    if (sc != StatusCode::SUCCESS)
-      return StatusCode::FAILURE;
-  }
-
+  for (auto tool : m_tools)
+    ATH_CHECK(tool->eventFinalize());
 
   ///////////////////////////////////////////////////////
   // locking of containers is moved to separate tau tool
@@ -436,6 +430,8 @@ StatusCode TauProcessorTool::execute(){
 
 //________________________________________
 StatusCode TauProcessorTool::finalize(){
+  for (auto tool : m_tools)
+    ATH_CHECK(tool->finalize());
 
   return StatusCode::SUCCESS;
 }
