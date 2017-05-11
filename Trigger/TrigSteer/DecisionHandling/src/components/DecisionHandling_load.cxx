@@ -3,4 +3,4 @@
 */
 #include "GaudiKernel/LoadFactoryEntries.h"
 
-LOAD_FACTORY_ENTRIES( L1Decoder )
+LOAD_FACTORY_ENTRIES( DecisionHandling )

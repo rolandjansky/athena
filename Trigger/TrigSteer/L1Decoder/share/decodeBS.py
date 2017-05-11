@@ -5,7 +5,10 @@
 #
 # get_files LVL1config_Physics_pp_v5.xml
 # ln -s /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/atn-test/data15_13TeV.00266904.physics_EnhancedBias.merge.RAW._lb0452._SFO-1._0001.1 input.data
-# 
+# exact config for this data is: https://atlas-trigconf.cern.ch/run2/smkey/2142/l1key/1077/hltkey/765/
+
+import os.path
+assert os.path.isfile('input.data'), 'No input file: see the JO to see how to get it'
 
 ## @file L1Topo_ReadBS_test.py
 ## @brief Example job options file to read BS file to test a converter
@@ -80,18 +83,45 @@ if nThreads >= 1:
   topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
   topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
 
+from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, L1Decoder, MURoIsUnpackingTool
+l1Decoder = L1Decoder( OutputLevel=DEBUG )
+l1Decoder.ctpUnpacker = CTPUnpackingTool( OutputLevel =  DEBUG, ForceEnableAllChains=True )
 
+l1Decoder.ctpUnpacker.CTPToChainMapping = ["0:HLT_e3",  "0:HLT_g5", "1:HLT_e7", "15:HLT_mu6", "33:HLT_2mu6", "15:HLT_mu6idperf", "42:HLT_e15mu4"] # this are real IDs of L1_* items in pp_v5 menu
+
+emUnpacker = EMRoIsUnpackingTool( OutputLevel=DEBUG )
+emUnpacker.ThresholdToChainMapping = ["EM3 : HLT_e3", "EM3 : HLT_g5",  "EM7 : HLT_e7", "EM15 : HLT_e15mu4" ]
+
+
+muUnpacker = MURoIsUnpackingTool( OutputLevel=DEBUG )
+muUnpacker.ThresholdToChainMapping = ["MU6 : HLT_mu6", "MU6 : HLT_mu6idperf", "MU4 : HLT_e15mu4"] 
+# do not know yet how to configure the services for it
+
+l1Decoder.roiUnpackers = [emUnpacker]
+l1Decoder.Chains="HLTChainsResult"
+topSequence += l1Decoder
 #Run calo decoder
-from L1Decoder.L1DecoderConf import L1CaloDecoder
-caloDecoder = L1CaloDecoder() # by default it is steered towards the RoIBResult of the name above
-caloDecoder.OutputLevel=VERBOSE
-topSequence += caloDecoder
 
-#Dumper
-from ViewAlgs.ViewAlgsConf import DumpDecisions
-dumper = DumpDecisions("L1CaloDecisions")
-dumper.OutputLevel=VERBOSE
-topSequence += dumper
+from DecisionHandling.DecisionHandlingConf import DumpDecisions
+emDecisionsDumper = DumpDecisions("DumpEML1RoIs", OutputLevel=DEBUG)
+emDecisionsDumper.Decisions = "EMRoIDecisions"
+topSequence += emDecisionsDumper
+
+chainSeedingDumper = DumpDecisions("ChainSeedingDumper", OutputLevel=DEBUG)
+chainSeedingDumper.Decisions = "HLTChainsResult"
+topSequence += chainSeedingDumper
+
+
+
+# caloDecoder = L1CaloDecoder() # by default it is steered towards the RoIBResult of the name above
+# caloDecoder.OutputLevel=VERBOSE
+# topSequence += caloDecoder
+
+# #Dumper
+# from ViewAlgs.ViewAlgsConf import DumpDecisions
+# dumper = DumpDecisions("L1CaloDecisions")
+# dumper.OutputLevel=VERBOSE
+# topSequence += dumper
 
 
 #--------------------------------------------------------------
