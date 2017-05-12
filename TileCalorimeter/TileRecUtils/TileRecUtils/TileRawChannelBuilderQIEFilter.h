@@ -59,9 +59,6 @@ class TileRawChannelBuilderQIEFilter: public TileRawChannelBuilder {
 
   private:
 
-    //!< Callback added to handle Data-driven GeoModel initialization
-    //virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
     //ToolHandle<TileCondToolTiming> m_tileToolTiming;
     //ToolHandle<ITileCondToolOfc> m_tileCondToolOfc;
     //ToolHandle<TileCondToolOfcCool> m_tileCondToolOfcCool;

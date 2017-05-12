@@ -15,7 +15,6 @@
 #include "StoreGate/StoreGate.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
 
 #include <algorithm>
@@ -28,7 +27,6 @@ SiLorentzAngleSvc::SiLorentzAngleSvc( const std::string& name, ISvcLocator* pSvc
   m_siConditionsSvc("PixelSiliconConditionsSvc", name),
   m_magFieldSvc("AtlasFieldSvc", name),
   m_detStore("StoreGateSvc/DetectorStore", name),
-  m_geoModelSvc("GeoModelSvc", name),
   m_isPixel(true),
   m_magFieldInit(false),
   m_detManager(0)
@@ -56,7 +54,6 @@ SiLorentzAngleSvc::SiLorentzAngleSvc( const std::string& name, ISvcLocator* pSvc
   declareProperty("CalcEtaComponent", m_calcEta = false);
   declareProperty("DetStore", m_detStore);
   declareProperty("MagFieldSvc", m_magFieldSvc);
-  declareProperty("GeoModelSvc", m_geoModelSvc);
   declareProperty("BFieldFolders", m_bfieldFolders,"Magnetic field folders which may trigger  ");
 
   declareProperty("CorrDBFolder",m_corrDBFolder="");
@@ -75,48 +72,6 @@ StatusCode SiLorentzAngleSvc::initialize() {
 
   // Detector store
   CHECK(m_detStore.retrieve());
-
-  // GeoModelSvc
-  CHECK(m_geoModelSvc.retrieve()); 
-
-  if (m_geoModelSvc->geoInitialized()) {
-    ATH_MSG_INFO("Geometry already initialized. Call geoInitialize.");
-    CHECK(geoInitialize());
-  } 
-  else {
-    ATH_MSG_INFO( "Geometry not yet initialized. Registering callback.");
-    // Register callback to check when TagInfo has changed
-    CHECK(m_detStore->regFcn(&IGeoModelSvc::geoInit,&*m_geoModelSvc,&SiLorentzAngleSvc::geoInitCallback,this));
-    ATH_MSG_DEBUG("Registered geoInitCallback callback.");
-  }
-
-  // MagneticFieldSvc handles updates itself
-  if (!m_useMagFieldSvc) {
-    ATH_MSG_DEBUG("Not using MagneticFieldSvc - Will be using Nominal Field!");
-  } else if (m_magFieldSvc.retrieve().isFailure()) {
-    ATH_MSG_WARNING("Could not retrieve MagneticFieldSvc - Will be using Nominal Field!");
-    m_useMagFieldSvc = false;
-    //return StatusCode::FAILURE;
-  }
-  
-  // DB for corrections
-  if (m_corrDBFolder.size()>0) {
-    ATH_MSG_INFO("Loading lorentz angle correction value from database folder " << m_corrDBFolder);
-    CHECK(m_detStore->regFcn(&SiLorentzAngleSvc::corrFolderCallBack,this,m_dbData,m_corrDBFolder));
-  } else {
-    ATH_MSG_INFO("No database folder set for lorentz angle correction. Use value from jobOptions");
-  }
-
-  return StatusCode::SUCCESS;
-}    
-
-StatusCode SiLorentzAngleSvc::geoInitCallback(IOVSVC_CALLBACK_ARGS) {
-  ATH_MSG_INFO("geoInitCallback is called by callback."); 
-  return geoInitialize();
-}
-
-StatusCode SiLorentzAngleSvc::geoInitialize() {
-  ATH_MSG_INFO("SiLorentzAngleSvc geoInitialize");
 
   if (m_detectorName != "Pixel" && m_detectorName != "SCT") {
     ATH_MSG_FATAL("Invalid detector name: " << m_detectorName << ". Must be Pixel or SCT." );
@@ -173,8 +128,25 @@ StatusCode SiLorentzAngleSvc::geoInitialize() {
   m_magFieldCacheValid.resize(maxHash); // initialized to false
   m_outOfRangeWarning.resize(maxHash); // initialized to false
 
+  // MagneticFieldSvc handles updates itself
+  if (!m_useMagFieldSvc) {
+    ATH_MSG_DEBUG("Not using MagneticFieldSvc - Will be using Nominal Field!");
+  } else if (m_magFieldSvc.retrieve().isFailure()) {
+    ATH_MSG_WARNING("Could not retrieve MagneticFieldSvc - Will be using Nominal Field!");
+    m_useMagFieldSvc = false;
+    //return StatusCode::FAILURE;
+  }
+  
+  // DB for corrections
+  if (m_corrDBFolder.size()>0) {
+    ATH_MSG_INFO("Loading lorentz angle correction value from database folder " << m_corrDBFolder);
+    CHECK(m_detStore->regFcn(&SiLorentzAngleSvc::corrFolderCallBack,this,m_dbData,m_corrDBFolder));
+  } else {
+    ATH_MSG_INFO("No database folder set for lorentz angle correction. Use value from jobOptions");
+  }
+
   return StatusCode::SUCCESS;
-}
+}    
 
 StatusCode SiLorentzAngleSvc::finalize() {
   // Count number of modules that produced out of range errors.

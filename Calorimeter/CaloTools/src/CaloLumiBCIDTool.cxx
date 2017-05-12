@@ -7,7 +7,6 @@
 #include "CaloEvent/CaloCell.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 //#include "xAODEventInfo/EventID.h"
 #include "xAODEventInfo/EventInfo.h"
 #include <sys/time.h>
@@ -65,34 +64,8 @@ StatusCode CaloLumiBCIDTool::initialize() {
   incSvc->addListener(this,"BeginEvent",priority);
 
 
-  const IGeoModelSvc *geoModel=nullptr;
-  ATH_CHECK( service("GeoModelSvc", geoModel) );
-
   m_lumiVec.reserve(m_bcidMax);
   m_lumiVec.assign(m_bcidMax,0.0);
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
-                                  geoModel,
-                                  &CaloLumiBCIDTool::geoInit,this) );
-  }
-  return StatusCode::SUCCESS;
-}
-
-// ------------------------------------------------------------------------------
-
-StatusCode CaloLumiBCIDTool::geoInit(IOVSVC_CALLBACK_ARGS) {
-
-  ATH_MSG_INFO( " geoInit "  );
 
 // callback for Shape
 

@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkDetDescr/TrkGeometry
                           PRIVATE
                           Control/StoreGate
-                          DetectorDescription/GeoModel/GeoModelInterfaces
                           Event/EventInfo
                           Tracking/TrkDetDescr/TrkVolumes )
 

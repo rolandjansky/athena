@@ -75,9 +75,6 @@ class TileCellBuilderFromHit: public AthAlgTool, virtual public ICaloCellMakerTo
 
     virtual StatusCode initialize();                     //!< initialize mehtod
 
-    //!< Callback added to handle Data-driven GeoModel initialisation
-    virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
     virtual StatusCode finalize(); //!< finalize method
 
     virtual StatusCode process(CaloCellContainer* theCellContainer); // method to process all raw channels and store them in container

@@ -26,7 +26,6 @@
 //#include "GaudiKernel/Bootstrap.h"
 
 // Atlas includes
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "AthAllocators/DataPool.h"
 // access all RawChannels inside container
 #include "EventContainers/SelectAllObject.h" 
@@ -185,24 +184,6 @@ TileCellBuilder::~TileCellBuilder(){
  * Initializer
  */
 StatusCode TileCellBuilder::initialize() {
-  
-  const IGeoModelSvc *geoModel = 0;
-  CHECK( service("GeoModelSvc", geoModel) );
-  
-  // dummy parameters for the callback:
-  int dummyInt = 0;
-  std::list<std::string> dummyList;
-  
-  if (geoModel->geoInitialized()) {
-    return geoInit(dummyInt, dummyList);
-  } else {
-    CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit, geoModel, &TileCellBuilder::geoInit, this) );
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TileCellBuilder::geoInit(IOVSVC_CALLBACK_ARGS) {
   
   // retrieve MBTS and Tile detector manager, TileID helper and TileIfno from det store
   if (m_MBTSContainer.size() > 0) {

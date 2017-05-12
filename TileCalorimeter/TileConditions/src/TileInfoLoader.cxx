@@ -236,28 +236,6 @@ StatusCode TileInfoLoader::initialize() {
   //=== Find the detector store service.
   CHECK( m_detStore.retrieve() );
 
-  const IGeoModelSvc *geoModel = 0;
-  CHECK( service("GeoModelSvc", geoModel) );
-
-  // dummy parameters for the callback:
-  int dummyInt = 0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized()) {
-    return geoInit(dummyInt,dummyList);
-  } else  {
-    CHECK( m_detStore->regFcn(&IGeoModelSvc::geoInit, geoModel
-                              , &TileInfoLoader::geoInit,this ) );
-
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TileInfoLoader::geoInit(IOVSVC_CALLBACK_ARGS) {
-
-  ATH_MSG_INFO( name() << " in geoInit() ..." );
-
   // initialize sampling fraction for all C10 cells to default value
   for (int i=0; i<64; ++i) {
     m_info->m_emscaleC[i] =  m_info->m_emscaleA;

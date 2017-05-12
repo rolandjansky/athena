@@ -57,10 +57,6 @@ private:
 
   virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS);
 
-  /** Callback added to handle Data-driven GeoModel initialisation
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
 public:    
   
   CaloMBAverageTool(const std::string& type, 
