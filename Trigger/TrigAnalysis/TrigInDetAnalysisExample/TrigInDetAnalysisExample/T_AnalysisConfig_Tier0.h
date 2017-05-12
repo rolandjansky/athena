@@ -138,6 +138,7 @@ public:
 			 testFilter, referenceFilter,
 			 associator,
 			 analysis ),
+    m_useBeamCondSvc(false),
     m_doOffline(true),
     m_doMuons(false),
     m_doElectrons(false),
@@ -170,6 +171,8 @@ public:
   virtual ~T_AnalysisConfig_Tier0() { delete m_event; }
 
   void setRunPurity( bool b ) { m_runPurity=b; }
+
+  void useBeamCondSvc( bool b ) { m_useBeamCondSvc = b; }
 
 public:
 
@@ -1202,11 +1205,12 @@ protected:
     // get the beam condition services - one for online and one for offline
 
     m_iBeamCondSvc = 0;
-    if ( m_provider->service( "BeamCondSvc", m_iBeamCondSvc ).isFailure() ) {
-      if(m_provider->msg().level() <= MSG::ERROR)
-        m_provider->msg(MSG::ERROR) << " failed to retrieve BeamCondSvc " << endmsg;
+    if ( m_useBeamCondSvc ) { 
+      if ( m_provider->service( "BeamCondSvc", m_iBeamCondSvc ).isFailure() && m_provider->msg().level() <= MSG::ERROR ) {
+	m_provider->msg(MSG::ERROR) << " failed to retrieve BeamCondSvc " << endmsg;
+      }
     }
-
+    
     // get the TriggerDecisionTool
 
     if( m_tdt->retrieve().isFailure() ) {
@@ -1452,6 +1456,8 @@ protected:
 
   IBeamCondSvc*  m_iBeamCondSvc;
   IBeamCondSvc*  m_iOnlineBeamCondSvc;
+
+  bool           m_useBeamCondSvc;
 
   TIDA::Event*  m_event;
 
