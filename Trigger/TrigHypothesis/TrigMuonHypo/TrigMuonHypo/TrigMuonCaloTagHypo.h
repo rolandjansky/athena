@@ -31,8 +31,15 @@ private:
   float m_lhCut;
   bool m_doTight;
   int m_maxMissedCells;
-
+  float m_cbthresh;
   std::string m_ctTrackContName;
+
+  std::vector<float> m_tmp_eta;
+  std::vector<float> m_tmp_phi;
+  std::vector<float> m_tmp_etaCT;
+  std::vector<float> m_tmp_phiCT;
+  float getdphi(float phi1, float phi2);
+
 
 };
 
