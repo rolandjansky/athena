@@ -61,13 +61,13 @@ private:
 	MultiHisto(){};
 
 	// the histograms
-	const ht *model;
-	std::vector<ht*> myhistos;
+	const ht *m_model;
+	std::vector<ht*> m_myhistos;
 	
 	// std::vector of bins for divisions
-	std::vector<int> div_Nbins;
-	std::vector<std::string> div_names;
-	std::vector<double*> div_bins;
+	std::vector<int> m_div_Nbins;
+	std::vector<std::string> m_div_names;
+	std::vector<double*> m_div_bins;
 
 	// functions to compose titles & names during allocation
 	std::string ComposeName(const std::vector<int> &indexes);

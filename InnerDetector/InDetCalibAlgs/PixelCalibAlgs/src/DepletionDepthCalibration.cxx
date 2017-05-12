@@ -21,39 +21,39 @@
 namespace PixelCalib{
 
 DepletionDepthCalibration::DepletionDepthCalibration(int layer,std::string cosmicORbeam):
-	curLayer(layer),curType(cosmicORbeam){
+	m_curLayer(layer),m_curType(cosmicORbeam){
 	
-  EtaModule = 0;
-  PhiModule = 0;
+  m_EtaModule = 0;
+  m_PhiModule = 0;
 
-	if(curType != "cosmic") curType = "beam";
+	if(m_curType != "cosmic") m_curType = "beam";
 
 	double *etaBins, *phiBins;
 	int netaBins, nphiBins;
 	
-	if(curLayer == 5){
-		layername = "Disk2";
+	if(m_curLayer == 5){
+		m_layername = "Disk2";
 		nphiBins = DiskPhiModuleBins(phiBins);
 		netaBins = DiskEtaModuleBins(etaBins);
-	}else if(curLayer == 4){
-		layername = "Disk1";
+	}else if(m_curLayer == 4){
+		m_layername = "Disk1";
 		nphiBins = DiskPhiModuleBins(phiBins);
 		netaBins = DiskEtaModuleBins(etaBins);
-	}else if(curLayer == 3){
-		layername = "Disk0";
+	}else if(m_curLayer == 3){
+		m_layername = "Disk0";
 		nphiBins = DiskPhiModuleBins(phiBins);
 		netaBins = DiskEtaModuleBins(etaBins);
-	}else if(curLayer == 2){
-		layername = "Layer2";
+	}else if(m_curLayer == 2){
+		m_layername = "Layer2";
 		nphiBins = Layer2PhiModuleBins(phiBins);
 		netaBins = EtaModuleBins(etaBins);		
-	}else if(curLayer == 1){
-		layername = "Layer1";
+	}else if(m_curLayer == 1){
+		m_layername = "Layer1";
 		nphiBins = Layer1PhiModuleBins(phiBins);
 		netaBins = EtaModuleBins(etaBins);		
 	}else{
-		curLayer = 0;
-		layername = "bLayer";
+		m_curLayer = 0;
+		m_layername = "bLayer";
 		nphiBins = BlayerPhiModuleBins(phiBins);
 		netaBins = EtaModuleBins(etaBins);
 	}
@@ -61,41 +61,41 @@ DepletionDepthCalibration::DepletionDepthCalibration(int layer,std::string cosmi
 	std::vector <std::string> NameDiv;
 	std::vector <int> NDiv;
 	std::vector <double *> BinsDiv;
-	TProfile *Profmodel = new TProfile((layername + "ClusterSizeVsTheta").c_str(),
-				(layername + " Cluster Size Vs #theta").c_str(), 50, -90, 90);
+	TProfile *Profmodel = new TProfile((m_layername + "ClusterSizeVsTheta").c_str(),
+				(m_layername + " Cluster Size Vs #theta").c_str(), 50, -90, 90);
 	// second division good for all!!
 	NameDiv.push_back("etaModule");
 	NDiv.push_back(netaBins);
 	BinsDiv.push_back(etaBins);
 	// first division will change for each layer:
-	if(curType != "cosmic"){
+	if(m_curType != "cosmic"){
 		NameDiv.push_back("phiModule");
 		NDiv.push_back(nphiBins);
 		BinsDiv.push_back(phiBins);
 	}
 
-	LayerProfile = new MultiHisto<TProfile>(*Profmodel,NameDiv,NDiv,BinsDiv);
+	m_LayerProfile = new MultiHisto<TProfile>(*Profmodel,NameDiv,NDiv,BinsDiv);
 	
-	int nhistos = LayerProfile->GetNhistos();
-	DepletionDepth0 = new TVectorT<double>(nhistos);
-	DepletionDepth0Error = new TVectorT<double>(nhistos);
-	DepletionDepth1 = new TVectorT<double>(nhistos);
-	DepletionDepth1Error = new TVectorT<double>(nhistos);
-	DepletionDepth2 = new TVectorT<double>(nhistos);
-	DepletionDepth2Error = new TVectorT<double>(nhistos);
-	EtaModule = new TVectorT<double>(nhistos);
-	if(curType != "cosmic") PhiModule = new TVectorT<double>(nhistos);
+	int nhistos = m_LayerProfile->GetNhistos();
+	m_DepletionDepth0 = new TVectorT<double>(nhistos);
+	m_DepletionDepth0Error = new TVectorT<double>(nhistos);
+	m_DepletionDepth1 = new TVectorT<double>(nhistos);
+	m_DepletionDepth1Error = new TVectorT<double>(nhistos);
+	m_DepletionDepth2 = new TVectorT<double>(nhistos);
+	m_DepletionDepth2Error = new TVectorT<double>(nhistos);
+	m_EtaModule = new TVectorT<double>(nhistos);
+	if(m_curType != "cosmic") m_PhiModule = new TVectorT<double>(nhistos);
 	
 	for(int i = 0; i < nhistos; i++){
-		std::vector<int> indexes = LayerProfile->GetDivisionsIndexes(i);
-		if(curType != "cosmic") (*PhiModule)(i) = phiBins[indexes[1]];
-		(*EtaModule)(i) = etaBins[indexes[0]];
-		(*DepletionDepth0)(i) = 0;
-		(*DepletionDepth0Error)(i) = 0;
-		(*DepletionDepth1)(i) = 0;
-		(*DepletionDepth1Error)(i) = 0;
-		(*DepletionDepth2)(i) = 0;
-		(*DepletionDepth2Error)(i) = 0;
+		std::vector<int> indexes = m_LayerProfile->GetDivisionsIndexes(i);
+		if(m_curType != "cosmic") (*m_PhiModule)(i) = phiBins[indexes[1]];
+		(*m_EtaModule)(i) = etaBins[indexes[0]];
+		(*m_DepletionDepth0)(i) = 0;
+		(*m_DepletionDepth0Error)(i) = 0;
+		(*m_DepletionDepth1)(i) = 0;
+		(*m_DepletionDepth1Error)(i) = 0;
+		(*m_DepletionDepth2)(i) = 0;
+		(*m_DepletionDepth2Error)(i) = 0;
 	}
 
 	delete[] etaBins;
@@ -107,35 +107,35 @@ DepletionDepthCalibration::DepletionDepthCalibration(int layer,std::string cosmi
 
 int DepletionDepthCalibration::Read(){
 	
-	DepletionDepth0->Read((layername + "DepletionDepth0").c_str());
-	DepletionDepth0Error->Read((layername + "DepletionDepth0Errors").c_str());
-	DepletionDepth1->Read((layername + "DepletionDepth1").c_str());
-	DepletionDepth1Error->Read((layername + "DepletionDepth1Errors").c_str());
-	DepletionDepth2->Read((layername + "DepletionDepth2").c_str());
-	DepletionDepth2Error->Read((layername + "DepletionDepthErrors2").c_str());
-	EtaModule->Read((layername + "EtaModule").c_str());
-	if(curType != "cosmic") PhiModule->Read((layername + "PhiModule").c_str());
+	m_DepletionDepth0->Read((m_layername + "m_DepletionDepth0").c_str());
+	m_DepletionDepth0Error->Read((m_layername + "DepletionDepth0Errors").c_str());
+	m_DepletionDepth1->Read((m_layername + "m_DepletionDepth1").c_str());
+	m_DepletionDepth1Error->Read((m_layername + "DepletionDepth1Errors").c_str());
+	m_DepletionDepth2->Read((m_layername + "m_DepletionDepth2").c_str());
+	m_DepletionDepth2Error->Read((m_layername + "DepletionDepthErrors2").c_str());
+	m_EtaModule->Read((m_layername + "m_EtaModule").c_str());
+	if(m_curType != "cosmic") m_PhiModule->Read((m_layername + "m_PhiModule").c_str());
 
-	TDirectory *histodir = (TDirectory *)gDirectory->Get(LayerProfile->GetName());
+	TDirectory *histodir = (TDirectory *)gDirectory->Get(m_LayerProfile->GetName());
 
-	return LayerProfile->FillFromFile(histodir);
+	return m_LayerProfile->FillFromFile(histodir);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
 int DepletionDepthCalibration::Write(){
 	
-	LayerProfile->Write();
-	DepletionDepth0->Write((layername + "DepletionDepth0").c_str());
-	DepletionDepth0Error->Write((layername + "DepletionDepth0Errors").c_str());
-	DepletionDepth1->Write((layername + "DepletionDepth1").c_str());
-	DepletionDepth1Error->Write((layername + "DepletionDepth1Errors").c_str());
-	DepletionDepth2->Write((layername + "DepletionDepth2").c_str());
-	DepletionDepth2Error->Write((layername + "DepletionDepthErrors2").c_str());
-	EtaModule->Write((layername + "EtaModule").c_str());
-	if(curType != "cosmic") PhiModule->Write((layername + "PhiModule").c_str());
+	m_LayerProfile->Write();
+	m_DepletionDepth0->Write((m_layername + "m_DepletionDepth0").c_str());
+	m_DepletionDepth0Error->Write((m_layername + "DepletionDepth0Errors").c_str());
+	m_DepletionDepth1->Write((m_layername + "m_DepletionDepth1").c_str());
+	m_DepletionDepth1Error->Write((m_layername + "DepletionDepth1Errors").c_str());
+	m_DepletionDepth2->Write((m_layername + "m_DepletionDepth2").c_str());
+	m_DepletionDepth2Error->Write((m_layername + "DepletionDepthErrors2").c_str());
+	m_EtaModule->Write((m_layername + "m_EtaModule").c_str());
+	if(m_curType != "cosmic") m_PhiModule->Write((m_layername + "m_PhiModule").c_str());
 
-	return LayerProfile->GetNhistos();
+	return m_LayerProfile->GetNhistos();
 
 }
 
@@ -146,7 +146,7 @@ bool DepletionDepthCalibration::Fill(Int_t Layer, Int_t EtaIndex, Int_t PhiIndex
 
 	bool passed = kFALSE;
 	double theta = 180.* 2. * atan(exp(- Eta)) / M_PI;
-	if(  Layer == curLayer ){
+	if(  Layer == m_curLayer ){
 		passed = kTRUE;
 		static std::vector<Double_t> Pars(2);
 		Pars[1] = PhiIndex;
@@ -161,7 +161,7 @@ bool DepletionDepthCalibration::Fill(Int_t Layer, Int_t EtaIndex, Int_t PhiIndex
 			theta = 180 - theta;
 		}
 
-		LayerProfile->Fill(theta,ClusterSize,Pars);
+		m_LayerProfile->Fill(theta,ClusterSize,Pars);
 	}
 	return passed;
 }
@@ -170,13 +170,13 @@ bool DepletionDepthCalibration::Fill(Int_t Layer, Int_t EtaIndex, Int_t PhiIndex
 int DepletionDepthCalibration::Analyze(ofstream &logfile){
 
 	int nfits = 0;	
-	for(unsigned int i = 0; i < LayerProfile->GetNhistos(); i++){
-		TProfile *swap = LayerProfile->GetHisto(i);
-		double eta = (*EtaModule)(i);
+	for(unsigned int i = 0; i < m_LayerProfile->GetNhistos(); i++){
+		TProfile *swap = m_LayerProfile->GetHisto(i);
+		double eta = (*m_EtaModule)(i);
 		int sign = int(eta/fabs(eta));
 		double lowlimit = -60;
 		double highlimit = 60;
-		if(curType != "cosmic"){
+		if(m_curType != "cosmic"){
 			if(fabs(eta) > 4){
 				lowlimit = sign * 85;
 				highlimit = sign * 50;
@@ -199,12 +199,12 @@ int DepletionDepthCalibration::Analyze(ofstream &logfile){
 		//fitfunc->SetParameter(1,1.05);
 		if(swap->Fit("fitfunc","QR") == 0){
 			nfits++;
-			(*DepletionDepth0)(i) = fitfunc->GetParameter(0);
-			(*DepletionDepth0Error)(i) = fitfunc->GetParError(0);
-			(*DepletionDepth1)(i) = fitfunc->GetParameter(1);
-			(*DepletionDepth1Error)(i) = fitfunc->GetParError(1);
-			(*DepletionDepth2)(i) = fitfunc->GetParameter(2);
-			(*DepletionDepth2Error)(i) = fitfunc->GetParError(2);
+			(*m_DepletionDepth0)(i) = fitfunc->GetParameter(0);
+			(*m_DepletionDepth0Error)(i) = fitfunc->GetParError(0);
+			(*m_DepletionDepth1)(i) = fitfunc->GetParameter(1);
+			(*m_DepletionDepth1Error)(i) = fitfunc->GetParError(1);
+			(*m_DepletionDepth2)(i) = fitfunc->GetParameter(2);
+			(*m_DepletionDepth2Error)(i) = fitfunc->GetParError(2);
 			logfile << swap->GetTitle() << " --> " << std::endl;
 		}else logfile << swap->GetTitle() << " --> Failing fit!" << std::endl;
 	}
@@ -215,24 +215,24 @@ int DepletionDepthCalibration::Analyze(ofstream &logfile){
 
 void DepletionDepthCalibration::PlotValidation(TCanvas *c1, std::string outname){
 
-	int nmodules = DepletionDepth0->GetNrows();
-	TH1D *graph0 = new TH1D( (layername + "DepletionDepth0Histo").c_str(),
-			(layername + " Width vs Module Index").c_str(),
+	int nmodules = m_DepletionDepth0->GetNrows();
+	TH1D *graph0 = new TH1D( (m_layername + "DepletionDepth0Histo").c_str(),
+			(m_layername + " Width vs Module Index").c_str(),
 			nmodules,0,nmodules);
-	TH1D *graph1 = new TH1D( (layername + "DepletionDepth1Histo").c_str(),
-			(layername + " Vertex x-coordinate vs Module Index").c_str(),
+	TH1D *graph1 = new TH1D( (m_layername + "DepletionDepth1Histo").c_str(),
+			(m_layername + " Vertex x-coordinate vs Module Index").c_str(),
 			nmodules,0,nmodules);
-	TH1D *graph2 = new TH1D( (layername + "DepletionDepth2Histo").c_str(),
-			(layername + " Vertex y-coordinate vs Module Index").c_str(),
+	TH1D *graph2 = new TH1D( (m_layername + "DepletionDepth2Histo").c_str(),
+			(m_layername + " Vertex y-coordinate vs Module Index").c_str(),
 			nmodules,0,nmodules);
 
 	for(int i = 0; i < nmodules; i++){
-		double par0 = (*DepletionDepth0)[i];
-		double error0 = (*DepletionDepth0Error)[i];
-		double par1 = (*DepletionDepth1)[i];
-		double error1 = (*DepletionDepth1Error)[i];
-		double par2 = (*DepletionDepth2)[i];
-		double error2 = (*DepletionDepth2Error)[i];
+		double par0 = (*m_DepletionDepth0)[i];
+		double error0 = (*m_DepletionDepth0Error)[i];
+		double par1 = (*m_DepletionDepth1)[i];
+		double error1 = (*m_DepletionDepth1Error)[i];
+		double par2 = (*m_DepletionDepth2)[i];
+		double error2 = (*m_DepletionDepth2Error)[i];
 		graph0->SetBinContent(i,par0);
 		graph0->SetBinError(i,error0);
 		graph1->SetBinContent(i,par1);
@@ -256,7 +256,7 @@ void DepletionDepthCalibration::PlotValidation(TCanvas *c1, std::string outname)
 	graph2->DrawCopy();
 	for (int i = 0; i < nmodules; i++){
 		int color = 2;
-		if( int( (*EtaModule)[i] ) %2 ) color = 3;
+		if( int( (*m_EtaModule)[i] ) %2 ) color = 3;
 		graph0->SetFillColor(color);
 		graph0->SetLineColor(color);
 		graph0->SetMarkerStyle(20);

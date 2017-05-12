@@ -27,18 +27,18 @@ public :
 	void PlotValidation(TCanvas *c1, std::string outname);
 	
 private:
-	int curLayer;
-	std::string curType;
-	std::string layername;
-	MultiHisto<TProfile> *LayerProfile;
-	TVectorT<double> *LorentzAngle0;
-	TVectorT<double> *LorentzAngle0Errors;
-	TVectorT<double> *LorentzAngle1;
-	TVectorT<double> *LorentzAngle1Errors;
-	TVectorT<double> *LorentzAngle2;
-	TVectorT<double> *LorentzAngle2Errors;
-	TVectorT<double> *EtaModule;
-	TVectorT<double> *PhiModule;
+	int m_curLayer;
+	std::string m_curType;
+	std::string m_layername;
+	MultiHisto<TProfile> *m_LayerProfile;
+	TVectorT<double> *m_LorentzAngle0;
+	TVectorT<double> *m_LorentzAngle0Errors;
+	TVectorT<double> *m_LorentzAngle1;
+	TVectorT<double> *m_LorentzAngle1Errors;
+	TVectorT<double> *m_LorentzAngle2;
+	TVectorT<double> *m_LorentzAngle2Errors;
+	TVectorT<double> *m_EtaModule;
+	TVectorT<double> *m_PhiModule;
 
 };
 
