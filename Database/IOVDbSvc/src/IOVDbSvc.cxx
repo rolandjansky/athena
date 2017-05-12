@@ -691,6 +691,21 @@ StatusCode IOVDbSvc::signalBeginRun(const IOVTime& beginRunTime) {
   // Begin run - set state and save time for later use
   m_state=IOVDbSvc::BEGIN_RUN;
   m_iovTime=beginRunTime;
+
+  // For a MC event, the run number we need to use to look up the conditions
+  // may be different from that of the event itself.  If we have
+  // a ConditionsRun attribute defined, use that to override
+  // the event number.
+  const AthenaAttributeList* attr = nullptr;
+  if (m_h_sgSvc->contains<AthenaAttributeList> ("Input") &&
+      m_h_sgSvc->retrieve(attr, "Input").isSuccess())
+  {
+    if (attr->exists ("ConditionsRun"))
+      m_iovTime.setRunEvent
+        ((*attr)["ConditionsRun"].data<unsigned int>(),
+         m_iovTime.event());
+  }
+
   if (m_log->level()<MSG::DEBUG) 
     *m_log << MSG::DEBUG << "signalBeginRun> begin run time " << m_iovTime 
            << endmsg;
