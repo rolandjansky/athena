@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // EDM includes
 #include "AthContainers/AuxElement.h"
 #include "xAODEgamma/ElectronxAODHelpers.h"

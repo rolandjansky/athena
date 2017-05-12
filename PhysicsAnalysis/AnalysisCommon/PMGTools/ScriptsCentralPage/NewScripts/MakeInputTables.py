@@ -62,7 +62,12 @@ def ReturnAMILink(DSID, Type, Tag):
 
 def ReturnExpandedListFilesDetail(ListFiles, iEntry, DSID, Type):
 
-  #print iEntry
+
+  #print iEntry,"   ",ListFiles
+
+  if len(ListFiles) < 1:
+    return ""
+
   if len(ListFiles[iEntry]) < 4:
     return ""
 
@@ -98,7 +103,7 @@ def GetAllTags(ListOfAllFiles):
 
     if len(fileName) == 0:
       continue
-    if not "_p" in fileName:
+    if not "_p" in fileName[0]:
       continue
 
     tag = fileName[0].split("_p")[1]
@@ -158,6 +163,7 @@ def fillTables(inputFileName, inputFolder, DSID, twikiFolder):
   #DAODList = SimpleFunctions.GetArraysFromTxt(inputFolder+"/List_Derivations.txt")
   DAODList = SimpleFunctions.GetArraysFromTxtWithString(DerivFile, DSID)
 
+  #print DAODList
 
   #print AODMap
 
@@ -197,7 +203,7 @@ def fillTables(inputFileName, inputFolder, DSID, twikiFolder):
   #print DSID,title
   timestamp       = datetime.datetime.now()
 
-  pandaLink       = " <br> " + '[['+Prodq+'mc15_13TeV.'+DSID+'*][PANDA link]]'
+  pandaLink       = " <br> " + '[['+Prodq+'mc15_13TeV.'+DSID+'.*][PANDA link]]'
 
   DSIDFill         = str(DSID)
   DescrFill        = "Gen+PS: "+genName+" <br> Tune: "+genTune+" <br> PDF in ME: "+PDF
@@ -298,7 +304,9 @@ def fillTables(inputFileName, inputFolder, DSID, twikiFolder):
   TagsFS_MC15b  = ["r7267_r6282", "r7326_r6282", "r7360_r6282"] # default tag
   TagsAF2_MC15b = ["a810_r6282"] # not defined yet
   TagsFS_MC15c  = ["r7725_r7676", "r7772_r7676","r8084_r7676","r8112_r7676","r8129_r7676"]
-  TagsAF2_MC15c = ["a818_r7676","a821_r7676"]
+  TagsAF2_MC15c = ["a818_r7676","a821_r7676","a77"]
+
+
   
 # Andrea: I do not show: r7051, r7050 (both no pileup)
 
@@ -498,6 +506,8 @@ def fillTables(inputFileName, inputFolder, DSID, twikiFolder):
   DerivList = DefineTags.ReturnDerivationTags()
 
   allTags   = GetAllTags(DAODList)
+
+  #print "Get all tags = ", allTags
 
   for deriv in DerivList:
 

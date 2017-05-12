@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PFlowUtils/ParticleFlowEventFilter_r207.h"
+#include "ParticleFlowEventFilter_r207.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetConstituentVector.h"

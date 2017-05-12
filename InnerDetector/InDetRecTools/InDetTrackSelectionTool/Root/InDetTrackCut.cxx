@@ -916,6 +916,74 @@ bool InDet::EtaDependentSiliconHitsCut::result() const
   return true;
 }
 
+InDet::EtaDependentPtCut::EtaDependentPtCut(InDet::InDetTrackSelectionTool* tool,
+                                                    std::vector<Double_t> eta, std::vector<Double_t> pt)
+  : InDet::TrackCut(tool)
+  , m_etaCutoffs(eta)
+  , m_ptCuts(pt)
+  , m_etaAccessor(nullptr)
+  , m_ptAccessor(nullptr)
+{
+}
+
+StatusCode InDet::EtaDependentPtCut::initialize()
+{
+  ATH_CHECK( TrackCut::initialize() );
+
+  if (m_etaCutoffs.size() != m_ptCuts.size()) {
+    ATH_MSG_ERROR( "Eta cutoffs and transverse momentum cuts must be the same size" );
+    return StatusCode::FAILURE;
+  }
+  for (size_t i_cuts = 0; i_cuts<m_etaCutoffs.size()-1; ++i_cuts) {
+    if (std::fabs(m_etaCutoffs.at(i_cuts)) >= std::fabs(m_etaCutoffs.at(i_cuts+1))) {
+      ATH_MSG_ERROR( "Eta cutoffs must be increasing" );
+      return StatusCode::FAILURE;
+    }
+  }
+
+  ATH_CHECK( getAccessor("eta", m_etaAccessor) );
+  ATH_CHECK( getAccessor("pt", m_ptAccessor) );
+  return StatusCode::SUCCESS;
+}
+
+bool InDet::EtaDependentPtCut::result() const
+{
+
+  if (!m_etaAccessor) {
+    ATH_MSG_WARNING( "eta accessor not valid. Track will not pass." );
+    return false;
+  }
+  if (!m_ptAccessor) {
+    ATH_MSG_WARNING( "pt accessor not valid. Track will not pass." );
+    return false;
+  }
+  float trkpt = std::fabs(m_ptAccessor->getValue());
+  float trketa = std::fabs(m_etaAccessor->getValue());
+  static int cutVecSize = m_etaCutoffs.size();
+
+  for (int i_etabin = cutVecSize-1; i_etabin >= 0; --i_etabin) {
+
+    float etaMax =5.0;
+    if(i_etabin<cutVecSize-1) etaMax = std::fabs(m_etaCutoffs.at(i_etabin+1));
+
+    if (  (trketa >= std::fabs(m_etaCutoffs.at(i_etabin)) && trketa < etaMax )) {
+
+      if ( trkpt < m_ptCuts.at(i_etabin)) {
+        //     ATH_MSG_INFO("returning false");                                                                                                                                                                  
+	return false;
+      }
+      else {
+        //      ATH_MSG_INFO("returning true");                                                                                                                                                                  
+	return true;
+      }
+    }
+  }
+
+  //  ATH_MSG_INFO("returning true");                                                                                                                                                                            
+  return true;
+}
+
+
 // ---------------- PtDependentSctHitsCut ----------------
 InDet::PtDependentSctHitsCut::PtDependentSctHitsCut(InDet::InDetTrackSelectionTool* tool,
 						    std::vector<Double_t> pt, std::vector<Int_t> sct)

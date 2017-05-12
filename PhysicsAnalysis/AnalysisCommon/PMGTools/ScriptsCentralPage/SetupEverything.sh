@@ -1,9 +1,10 @@
 #!/bin/bash
- 
-export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
+
+#export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
 source /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/user/atlasLocalSetup.sh --quiet
 
 localSetupPyAMI
+export RUCIO_ACCOUNT=aknue
 
 PROXY=/tmp/x509up_u`id -u`
 voms-proxy-init -valid 720:00 -out $PROXY

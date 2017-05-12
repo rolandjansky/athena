@@ -3,30 +3,40 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 
-import optparse, sys, math, subprocess
+import optparse, sys, math, subprocess, os
 from collections import OrderedDict
 
 parser = optparse.OptionParser(usage=__doc__)
 parser.add_option("-i", "--input", default="-", dest="INPUT_FILE", metavar="PATH",   help="input logfile")
 parser.add_option("-N", "--Ntotal", default=0, dest="TOTAL_EVENTS", metavar="", help="Total number of events")
+parser.add_option("-u", "--user", dest="USER", default="-", help="Specify CERN Username in case your system user is different")
+parser.add_option("-m", "--mcver", dest="MC_VER", default="MC15", help="Specify MCXX campaign")
 parser.add_option("-s", "--nosvn", action="store_true", dest="NO_SVN", default=False, help="Turn off any checks that require SVN access")
 parser.add_option("-c", "--nocolour", action="store_true", dest="NO_COLOUR", default=False, help="Turn off colour for copying to file")
 
+
 opts, fileargs = parser.parse_args()
 
+MCJobOptions='%sJobOptions'%opts.MC_VER
+MCXX='%s.'%opts.MC_VER
+
+
 def main():
+    """logParser.py script for parsing log.generate files to check MC production settings and output
+     - Written by Josh McFayden <mcfayden@cern.ch> Nov 2016 """
 
 
     if opts.INPUT_FILE=="-":
         parser.print_help()
         return 
     
+        
     # define dictionaries with keys as variables to be searched for and values to store the results
     
     JOsDict={
         'using release':[],
-        "including file \"MC15JobOptions/":[],
-        "including file \"MC15.":[]
+        "including file \""+MCJobOptions+"/":[],
+        "including file \""+MCXX:[]
         }
     
     testHepMCDict={
@@ -48,18 +58,19 @@ def main():
         }
     
     metaDataDict={ 
-        'physicsComment':[],
-        'generatorName':[],
+        'physicsComment =':[],
+        'generatorName =':[],
         'generatorTune':[],
-        'keywords':[],
-        'specialConfig':[],
-        'contactPhysicist':[],
-        'randomSeed':[],
-        'genFilterNames':[],
-        'cross-section (nb)':[],
-        'generator':[],
-        'weights':[],
-        'GenFiltEff':[]
+        'keywords =':[],
+        'specialConfig =':[],
+        'contactPhysicist =':[],
+#        'randomSeed':[],
+        'genFilterNames = ':[],
+        'cross-section (nb)=':[],
+        'generator =':[],
+        'weights =':[],
+        'PDF =':[],
+        'GenFiltEff =':[]
         }
     
     generateDict={
@@ -70,7 +81,10 @@ def main():
         'snapshot_post_fin':[],
         'last -evt vmem':[]
         }
-    
+
+    # Set username 
+    if opts.USER == "-":
+        opts.USER = os.environ['USER']
     
     # open and read log file
     file=open(opts.INPUT_FILE,"r")
@@ -104,15 +118,14 @@ def main():
     #Checking jobOptions
     JOsList=getJOsList(JOsDict)
     if not len(JOsList):
-        JOsErrors.append("including file \"MC15JobOptions/")
-        JOsErrors.append("including file \"MC15.")
+        JOsErrors.append("including file \""+MCJobOptions+"/")
+        JOsErrors.append("including file \""+MCXX)
     else:
-    
-        
-        if not len(JOsDict["including file \"MC15JobOptions/"]):                                                                                                          
-            JOsErrors.append("including file \"MC15JobOptions/")
-        if not len(JOsDict["including file \"MC15."]):
-            JOsErrors.append("including file \"MC15.")
+          
+        if not len(JOsDict["including file \""+MCJobOptions+"/"]):
+            JOsErrors.append("including file \""+MCJobOptions+"/")
+        if not len(JOsDict["including file \""+MCXX]):
+            JOsErrors.append("including file \""+MCXX)
     
         DSIDxxx=''
         topJO=''
@@ -120,7 +133,7 @@ def main():
         loginfo( '- jobOptions =',"")
         for jo in JOsList:
             pieces=jo.replace('.py','').split('.')
-            if len(pieces) and pieces[0]=='MC15':
+            if len(pieces) and pieces[0]==MCXX.replace('.',''):
                 ##This is top JO
                 nTopJO=nTopJO+1
                 topJO=jo
@@ -128,12 +141,12 @@ def main():
                 DSIDxxx="DSID"+DSID[:3]+"xxx"
     
         if nTopJO!=1:
-            logerr( "","ERROR: More than one \"top\" JO file found!")
-            raise RuntimeError("More than one \"top\" JO file found")
+            logerr( "","ERROR: !=1 (%i) \"top\" JO files found!"%nTopJO)
+            raise RuntimeError("!= 1 \"top\" JO file found")
         else:
             #Check if JOs are in SVN!
             if not opts.NO_SVN:
-                svnexcomm="svn ls --depth infinity svn+ssh://mcfayden@svn.cern.ch/reps/atlasoff/Generators/MC15JobOptions/trunk/"
+                svnexcomm="svn ls --depth infinity svn+ssh://"+opts.USER+"@svn.cern.ch/reps/atlasoff/Generators/"+MCJobOptions+"/trunk/"
                 retcode = subprocess.Popen(svnexcomm, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE).communicate()
                 svnJOs=retcode[0].split()
                 if len(retcode[1]):
@@ -173,8 +186,9 @@ def main():
         val=tmp.replace('[','').replace(']','')
         #checkForBlacklist
         if not opts.NO_SVN:
-            if checkBlackList(val.split('-')[0],val.split('-')[1],'MC15JobOptions',".",JOsList) :
-                logerr( '- '+name+' = ',"".join(val)+" <-- ERROR: Cache is blacklisted for this generator")
+            blacklisted=checkBlackList(val.split('-')[0],val.split('-')[1],MCJobOptions,".",JOsList) 
+            if blacklisted:
+                logerr( '- '+name+' = ',"".join(val)+" <-- ERROR: %s"%blacklisted)
             else:
                 loggood( '- '+name+' = ',"".join(val))
         else:
@@ -186,11 +200,11 @@ def main():
         print "---------------------"            
         print "MISSING JOs:"
         for i in JOsErrors:
-            if i == "including file \"MC15.":
+            if i == "including file \""+MCXX:
                 #do nothing
                 logwarn("","INFO: local version of JOs used?")
             else:
-                logerr("","ERROR: %s is missing!"%i)
+                logwarn("","ERROR: %s is missing!"%i)
     
     
     ###
@@ -227,23 +241,50 @@ def main():
     print "Metadata:"
     print "---------------------"
     for key in metaDataDict:
-        name=key
+        name=key.replace("=","").strip()
         val=metaDataDict[key]
         if not len(val):
             metaDataErrors.append(name)
         else:
-            if name=="contactPhysicist":
-                if not '@' in val:
+            if name=="contactPhysicist =":
+                if '@' in "".join(val):
+                    loggood( '- '+name+' = ',"".join(val))
+                else:
                     logerr( '- '+name+' = ',"".join(val)+"  <-- ERROR: No email found")
                 continue
     
+            if name=="keywords =":
+                keywords = 'svn export svn+ssh://'+opts.USER+'@svn.cern.ch/reps/atlasoff/Generators/'+MCJobOptions+'/trunk/common/evgenkeywords.txt'
+                tmpkeyword= "evgenkeywords.txt"
+                svnexcomm='%s %s' % (keywords,tmpkeyword)
+                retcode = subprocess.Popen(svnexcomm, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE).communicate()
+
+                kfile = open(tmpkeyword)
+                klines = kfile.readlines()
+                foundkeywordlist=""
+                for keyword in (",".join(val)).split(','):
+                    keywordfound=False
+                    for line in klines:
+                        if line.strip().lower()==keyword.strip().lower():
+                            keywordfound=True
+                            break
+                    if not keywordfound:
+                        logwarn( '- '+name+' = ',keyword.strip()+"  <-- WARNING: keyword not found in "+MCJobOptions+"/common/evgenkeywords.txt")
+                    else:
+                        if len(foundkeywordlist): foundkeywordlist+=","+keyword
+                        else: foundkeywordlist=keyword
+                if len(foundkeywordlist): loggood( '- '+name+' = ',foundkeywordlist)
+                        
+                continue
+                
+
             loginfo( '- '+name+' = ',"".join(val))
     
     if len(metaDataErrors):
         print "---------------------"            
         print "MISSING Metadata:"
         for i in metaDataErrors:
-            if i=="weights":
+            if i=="weights" or i=="genFilterNames" or i=="generator" or i=="PDF":
                 loginfo("INFO:","%s is missing"%i)
             else:
                 logerr("","ERROR: %s is missing!"%i)
@@ -330,7 +371,9 @@ def main():
                     continue
     
                 if dictkey=="TestHepMC" and name=="Efficiency":
-                    if float(val[0].replace('%',''))<100.:
+                    if float(val[0].replace('%',''))<100. and float(val[0].replace('%',''))>=98.:
+                        logwarn( '- '+dictkey+" "+name+' = ',"".join(val))
+                    elif float(val[0].replace('%',''))<100.:
                         logerr( '- '+dictkey+" "+name+' = ',"".join(val))
                     else:
                         loggood( '- '+dictkey+" "+name+' = ',"".join(val))
@@ -346,7 +389,10 @@ def main():
             if i =="SimTimeEstimate RUN INFORMATION":
                 logwarn("","WARNING: %s is missing!"%i)
             else:
-                logerr("","ERROR: %s is missing!"%i)
+                if "TestHepMC" in i and "Sherpa" in metaDataDict['generatorName =']:
+                    logwarn("","WARNING: %s is missing, but expected as it's Sherpa!"%i)
+                else:
+                    logerr("","ERROR: %s is missing!"%i)
     
     
     ## Add equivalent lumi information
@@ -357,7 +403,7 @@ def main():
         print " Others:"
     
     if opts.TOTAL_EVENTS:
-        xs_nb=float(metaDataDict['cross-section (nb)'][0])
+        xs_nb=float(metaDataDict['cross-section (nb)='][0])
         eff_lumi_fb=float(opts.TOTAL_EVENTS)/(1.E+06*xs_nb)
         if eff_lumi_fb > 1000.:
             logwarn("- Effective lumi (fb-1):",str(eff_lumi_fb))
@@ -368,17 +414,19 @@ def main():
         minevents=int(generateDict['minevents'])
         #int(countHepMCDict['Events passing all checks and written'][0])
         loginfo("- Number of jobs:",int(opts.TOTAL_EVENTS)/minevents)
+        if int(opts.TOTAL_EVENTS) < 20000:
+            logwarn("- Total no. of events:",opts.TOTAL_EVENTS+" <-- This total is low enough that the mu profile may be problematic - INFORM MC PROD")
     
     if not opts.TOTAL_EVENTS or opts.NO_SVN:
         print ""
         print ""
         print "---------------------"        
-        print "Incomplete:"
+        print "Incomplete tests:"
         if not opts.TOTAL_EVENTS:
-            logwarn("","WARNING: --Ntotal (-N) flag is not used - total number of events not given - impossible to calculated effective lumi.")
+            logerr("","ERROR: --Ntotal (-N) flag is not used - total number of events not given - impossible to calculated effective lumi.")
         if opts.NO_SVN:
-            logwarn("","WARNING: --nosvn (-x) flag is used - could not check that SVN JOs are registered or whether release is blacklisted.")
-    
+            logerr("","ERROR: --nosvn (-x) flag is used - could not check that SVN JOs are registered or whether release is blacklisted.")
+
     print ""
     return 
     
@@ -386,11 +434,12 @@ def main():
 
 def getJOsList(JOsDict):
     liststr=''
-    if len(JOsDict["including file \"MC15JobOptions/"]):
-        liststr+="|".join(JOsDict["including file \"MC15JobOptions/"]).replace("nonStandard/","")
-    if len(JOsDict["including file \"MC15."]):
-        liststr+="|".join(JOsDict["including file \"MC15."].replace("nonStandard/",""))
-    liststr=liststr.replace('MC15JobOptions/','').replace('"','').replace('including file','').replace(' ','')
+    if len(JOsDict["including file \""+MCJobOptions+"/"]):
+        liststr+="|".join(JOsDict["including file \""+MCJobOptions+"/"]).replace("nonStandard/","")
+    if len(JOsDict["including file \""+MCXX]):
+        if len(liststr): liststr+="|"
+        liststr+="|".join(JOsDict["including file \""+MCXX]).replace("nonStandard/","")
+    liststr=liststr.replace(MCJobOptions+'/','').replace('"','').replace('including file','').replace(' ','')
     tmplist=liststr.split('|')
     return tmplist
 
@@ -402,47 +451,65 @@ def checkBlackList(branch,cache,MCJobOptions,outnamedir,JOsList) :
 
     aJOs=[]
     for l in JOsList:
-        if "MC15." in l:
+        if MCXX in l:
             aJOs.append(l)   
-    print "JOSH",aJOs
     ## Black List Caches MC15
-    blacklist = 'svn export svn+ssh://svn.cern.ch/reps/atlasoff/Generators/'+MCJobOptions+'/trunk/common/BlackList_caches.txt'
+    blacklist = 'svn export svn+ssh://'+opts.USER+'@svn.cern.ch/reps/atlasoff/Generators/'+MCJobOptions+'/trunk/common/BlackList_caches.txt'
     tmpblackfile = "%s/BlackList_caches.txt" % (outnamedir)
         
-    isError = False
-    if 'MC15' in MCJobOptions :
-        svnexcomm='%s %s' % (blacklist,tmpblackfile)
-        retcode = subprocess.Popen(svnexcomm, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE).communicate()
-        if retcode[1].find("exist") != -1 or retcode[1].find("cannot") != -1 :
-            logerr("","export failed= BlackList_caches.txt" )
-            isError = True
+    isError = None
+    svnexcomm='%s %s' % (blacklist,tmpblackfile)
+    retcode = subprocess.Popen(svnexcomm, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE).communicate()
+    if retcode[1].find("exist") != -1 or retcode[1].find("cannot") != -1 :
+        logerr("","export failed= BlackList_caches.txt" )
+        isError = "export failed= BlackList_caches.txt"
+    
+    bfile = open(tmpblackfile)
+    blines=bfile.readlines()
+    for line in blines:
+        if not line.strip():
+            continue
+
+        bad = "".join(line.split()).split(",")
         
-        bfile = open(tmpblackfile)
-        for line in bfile:
-            if not line.strip():
-                continue
+        badgens=[bad[2]]
+        if bad[2]=="Pythia8":
+            badgens.append("Py8")
+        if bad[2]=="Pythia":
+            badgens.append("Py")
+        if bad[2]=="MadGraph":
+            badgens.append("MG")
+        if bad[2]=="Powheg":
+            badgens.append("Ph")
+        if bad[2]=="Herwigpp":
+            badgens.append("Hpp")
+        if bad[2]=="Herwig7":
+            badgens.append("H7")
+        if bad[2]=="Sherpa":
+            badgens.append("Sh")
+        if bad[2]=="Alpgen":
+            badgens.append("Ag")
+        if bad[2]=="EvtGen":
+            badgens.append("EG")
+        if bad[2]=="ParticleGun":
+            badgens.append("PG")
+        
+        #Match Generator and release type e.g. AtlasProduction, MCProd
+        if any( badgen in s.split('_')[0] for s in aJOs for badgen in badgens ) and branch in bad[0]:
+            #Match cache
+            cacheMatch=True               
+            for i,c in enumerate(cache.split('.')):
+                if not c == bad[1].split('.')[i]:
+                    cacheMatch=False
+                    break
 
-            bad = "".join(line.split()).split(",")
+            if cacheMatch:            
+                #logerr("", "Combination %s_%s for %s it is blacklisted"%(bad[0],bad[1],bad[2]))
+                isError = "%s_%s is blacklisted for %s"%(bad[0],bad[1],bad[2])
+                return isError
+
             
-            #Match Generator and release type e.g. AtlasProduction, MCProd
-            if any( bad[2] in s for s in aJOs ) and branch in bad[0]:
-                #Match cache
-                cacheMatch=True               
-                for i,c in enumerate(cache.split('.')):
-                    if not c == bad[1].split('.')[i]:
-                        cacheMatch=False
-                        break
-
-                if cacheMatch:            
-                    #logerr("", "Combination %s_%s for %s it is NOT allowed"%(bad[0],bad[1],bad[2]))
-                    isError = True
-                    return isError
-
-                
-        return isError
-    else:
-        return False
-                                        
+    return isError
 
 class bcolors:
     if not opts.NO_COLOUR:
@@ -481,13 +548,22 @@ def logwarn(out1,out2):
 def checkLine(line, lineIdentifier, dict, splitby ):
     if lineIdentifier in line:
         for param in dict:
-            if param in line:
-                if len(line.split(splitby))==0:
-                    raise RuntimeError("Found bad entry %s"%line)
-                else:
-                    thing="".join(line.split(lineIdentifier)[1].split(splitby)[1:]).strip()     
-                    dict[param].append(thing)
-                break
+            if param=="including file \""+MCXX:
+                if "including file" in line and MCXX in line:
+                    if len(line.split(splitby))==0:
+                        raise RuntimeError("Found bad entry %s"%line)
+                    else:
+                        thing="".join(line.split(lineIdentifier)[1].split(splitby)[1:]).split("/")[-1].strip()
+                        dict[param].append(thing)
+                    break
+            else:
+                if param in line:
+                    if len(line.split(splitby))==0:
+                        raise RuntimeError("Found bad entry %s"%line)
+                    else:
+                        thing="".join(line.split(lineIdentifier)[1].split(splitby)[1:]).strip()     
+                        dict[param].append(thing)
+                    break
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: testIsolationSelectionTool.cxx 697464 2015-09-29 17:27:13Z dzhang $
+// $Id: testIsolationSelectionTool.cxx 800557 2017-03-14 12:59:06Z jpoveda $
 
 // Mindlessly copied from CPAnalysisExamples
 #ifndef CPANALYSISEXAMPLES_ERRORCHECK_H
@@ -95,12 +95,10 @@ int main( int argc, char* argv[] ) {
 
   // The most simple case, just select electron and muon
   CP::IsolationSelectionTool iso_1( "iso_1" );
-//   CHECK( iso_1.setProperty("MuonWP","Loose") );
-  CHECK( iso_1.setProperty("MuonWP","MuonFixedCutLoose") );
-//   CHECK( iso_1.setProperty("ElectronWP","Tight") );
-  CHECK( iso_1.setProperty("ElectronWP","ElecFixedCutLoose") );
+  CHECK( iso_1.setProperty("MuonWP","Gradient") );
+  CHECK( iso_1.setProperty("ElectronWP","Gradient") );
   CHECK( iso_1.setProperty("PhotonWP","Cone40") );
-  CHECK( iso_1.setProperty("doCutInterpolation",true) );
+//   CHECK( iso_1.setProperty("doCutInterpolation",true) );
   CHECK( iso_1.initialize() );
 
   // use a user configured Muon WP?
@@ -174,7 +172,7 @@ int main( int argc, char* argv[] ) {
 
       if (x->pt() > 7000.) {
         if (fabs(x->eta()) < 2.5) {
-          if (iso_1.accept( strMuon )) {
+          if (iso_1.accept( *x )) {
             Info(APP_NAME," Muon passes Isolation");
           }
         }

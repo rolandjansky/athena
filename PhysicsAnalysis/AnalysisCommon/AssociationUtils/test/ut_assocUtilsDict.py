@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 # Test the reflex dictionary usage in PyROOT to
 # instantiate and configure the overlap removal tool(s).
 

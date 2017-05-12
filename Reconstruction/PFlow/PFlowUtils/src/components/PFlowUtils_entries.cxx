@@ -1,7 +1,7 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "PFlowUtils/RetrievePFOTool.h"
 #include "PFlowUtils/WeightPFOTool.h"
-#include "PFlowUtils/ParticleFlowEventFilter_r207.h"
+#include "../ParticleFlowEventFilter_r207.h"
 
 DECLARE_NAMESPACE_TOOL_FACTORY( CP, RetrievePFOTool)
 DECLARE_NAMESPACE_TOOL_FACTORY( CP, WeightPFOTool)

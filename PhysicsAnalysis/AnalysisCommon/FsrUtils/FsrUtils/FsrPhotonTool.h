@@ -8,15 +8,10 @@
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
+#include "IsolationSelection/IsolationSelectionTool.h"
 
 // Local include(s):
 #include "FsrUtils/IFsrPhotonTool.h"
-
-// Forward declarations
-namespace CP
-{
-    class IIsolationSelectionTool;
-}
 
 namespace FSR {
 

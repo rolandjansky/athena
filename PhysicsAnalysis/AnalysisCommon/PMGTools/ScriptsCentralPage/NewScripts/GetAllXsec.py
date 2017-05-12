@@ -78,6 +78,8 @@ for entry in AllFolders:
         kFactor = "1.0"
         
     if not "Undefined" in xsec and not "Undefined" in filterEff and not "division" in filterEff and not "Error" in filterEff:
+        if "N/A" in xsec or "N/A" in filterEff:
+            continue
         if float(xsec) > 0.0 and float(filterEff) > 0.0:
             SampleLumi = round(float(totalEvents)/(float(xsec)*float(filterEff))/1000.0, 2)
 

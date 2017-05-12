@@ -72,7 +72,7 @@
 362071,55.762,0.9290755808,0.147658164484,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt140 280 BFilter qsf4	        
 362072,4.0858,1.00540058346,0.587491787963,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CVetoBVeto ckkw15	
 362073,4.5538,1.01882044433,0.592543568865,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CVetoBVeto ckkw30	
-362074,4.2209,1.01882044433,0.592536524617,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CVetoBVeto fac025	
+362074,4.2209,1.0502,0.592536524617,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CVetoBVeto fac025	
 362075,4.3314,0.994593864036,0.592064000029,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CVetoBVeto fac4	
 362076,4.9611,0.985870319001,0.577459922442,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CVetoBVeto renorm025	
 362077,3.7251,1.03327716933,0.600966946445,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CVetoBVeto renorm4	
@@ -80,7 +80,7 @@
 362079,3.9494,1.02198313891,0.593295358833,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CVetoBVeto qsf4	
 362080,4.0858,1.00540058346,0.254297414609,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CFilterBVeto ckkw15	
 362081,4.5538,1.01882044433,0.255710492515,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CFilterBVeto ckkw30	
-362082,4.2209,1.01882044433,0.254695532029,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CFilterBVeto fac025	
+362082,4.2209,1.0502,0.254695532029,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CFilterBVeto fac025	
 362083,4.3314,0.994593864036,0.25633657288,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CFilterBVeto fac4	
 362084,4.9611,0.985870319001,0.263411672357,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CFilterBVeto renorm025
 362085,3.7251,1.03327716933,0.250161120148,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CFilterBVeto renorm4	
@@ -88,7 +88,7 @@
 362087,3.9494,1.02198313891,0.256854977896,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 CFilterBVeto qsf4	
 362088,4.0858,1.00540058346,0.15996479835,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 BFilter ckkw15	
 362089,4.5538,1.01882044433,0.153922233338,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 BFilter ckkw30	
-362090,4.2209,1.01882044433,0.154176399783,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 BFilter fac025	
+362090,4.2209,1.0502,0.154176399783,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 BFilter fac025	
 362091,4.3314,0.994593864036,0.154736363249,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 BFilter fac4	        
 362092,4.9611,0.985870319001,0.162051184157,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 BFilter renorm025	
 362093,3.7251,1.03327716933,0.150057688999,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 BFilter renorm4	
@@ -96,7 +96,7 @@
 362095,3.9494,1.02198313891,0.154541842117,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt280 500 BFilter qsf4	        
 362096,0.2406,1.00540058346,0.570787983713,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CVetoBVeto ckkw15	
 362097,0.27605,1.01882044433,0.5647048299,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CVetoBVeto ckkw30	
-362098,0.24999,1.01882044433,0.575062192381,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CVetoBVeto fac025	
+362098,0.24999,1.0502,0.575062192381,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CVetoBVeto fac025	
 362099,0.26229,0.994593864036,0.573597134784,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CVetoBVeto fac4	
 362100,0.30541,0.985870319001,0.561190231605,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CVetoBVeto renorm025	
 362101,0.21846,1.03327716933,0.584427212438,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CVetoBVeto renorm4	
@@ -104,7 +104,7 @@
 362103,0.244756,1.02198313891,0.57211714949,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CVetoBVeto qsf4	
 362104,0.2406,1.00540058346,0.271911602052,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CFilterBVeto ckkw15	
 362105,0.27605,1.01882044433,0.274285026002,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CFilterBVeto ckkw30	
-362106,0.24999,1.01882044433,0.266841289273,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CFilterBVeto fac025	
+362106,0.24999,1.0502,0.266841289273,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CFilterBVeto fac025	
 362107,0.26229,0.994593864036,0.267347528848,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CFilterBVeto fac4	
 362108,0.30541,0.985870319001,0.278944342941,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CFilterBVeto renorm025
 362109,0.21846,1.03327716933,0.262360373162,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CFilterBVeto renorm4	
@@ -112,7 +112,7 @@
 362111,0.24475,1.02198313891,0.269136141708,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 CFilterBVeto qsf4	
 362112,0.2406,1.00540058346,0.165059465048,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 BFilter ckkw15	
 362113,0.27605,1.01882044433,0.161010440654,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 BFilter ckkw30	
-362114,0.24999,1.01882044433,0.163825025992,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 BFilter fac025	
+362114,0.24999,1.0502,0.163825025992,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 BFilter fac025	
 362115,0.26229,0.994593864036,0.159719731161,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 BFilter fac4	        
 362116,0.30541,0.985870319001,0.17084247703,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 BFilter renorm025	
 362117,0.21846,1.03327716933,0.156288935475,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 BFilter renorm4	
@@ -120,7 +120,7 @@
 362119,0.24475,1.02198313891,0.163020466847,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt500 700 BFilter qsf4	        
 362120,0.04239,1.00540058346,0.5579299003,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CVetoBVeto ckkw15	
 362121,0.048281,1.01882044433,0.566702316276,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CVetoBVeto ckkw30	
-362122,0.043051,1.01882044433,0.561984037575,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CVetoBVeto fac025	
+362122,0.043051,1.0502,0.561984037575,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CVetoBVeto fac025	
 362123,0.045436,0.994593864036,0.564276042466,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CVetoBVeto fac4	
 362124,0.054108,0.985870319001,0.549524462912,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CVetoBVeto renorm025
 362125,0.037861,1.03327716933,0.569202280004,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CVetoBVeto renorm4	
@@ -128,7 +128,7 @@
 362127,0.042971,1.02198313891,0.57250240854,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CVetoBVeto qsf4	
 362128,0.04239,1.00540058346,0.274170870872,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CFilterBVeto ckkw15	
 362129,0.048281,1.01882044433,0.281985108775,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CFilterBVeto ckkw30	
-362130,0.043051,1.01882044433,0.283978715812,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CFilterBVeto fac025	
+362130,0.043051,1.0502,0.283978715812,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CFilterBVeto fac025	
 362131,0.045436,0.994593864036,0.272576817976,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CFilterBVeto fac4	
 362132,0.054108,0.985870319001,0.289093394579,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CFilterBVeto renorm025
 362133,0.037861,1.03327716933,0.272019020139,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CFilterBVeto renorm4
@@ -136,7 +136,7 @@
 362135,0.042971,1.02198313891,0.278700773259,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 CFilterBVeto qsf4	
 362136,0.04239,1.00540058346,0.16789912883,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 BFilter ckkw15	
 362137,0.048281,1.01882044433,0.163905263851,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 BFilter ckkw30	
-362138,0.043051,1.01882044433,0.168358723453,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 BFilter fac025	
+362138,0.043051,1.0502,0.168358723453,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 BFilter fac025	
 362139,0.045436,0.994593864036,0.16182048573,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 BFilter fac4	
 362140,0.054108,0.985870319001,0.175383226512,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 BFilter renorm025	
 362141,0.037861,1.03327716933,0.160130444076,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 BFilter renorm4	
@@ -144,7 +144,7 @@
 362143,0.042971,1.02198313891,0.1487968182,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt700 1000 BFilter qsf4	
 362144,0.0055365,1.00540058346,0.567730846499,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CVetoBVeto ckkw15	
 362145,0.006498,1.01882044433,0.5331860718,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CVetoBVeto ckkw30	
-362146,0.0055228,1.01882044433,0.560245671319,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CVetoBVeto fac025	
+362146,0.0055228,1.0502,0.560245671319,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CVetoBVeto fac025	
 362147,0.0057948,0.994593864036,0.554757766218,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CVetoBVeto fac4	
 362148,0.0079666,0.985870319001,0.546057088844,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CVetoBVeto renorm025
 362149,0.0047702,1.03327716933,0.563621148156,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CVetoBVeto renorm4	
@@ -152,7 +152,7 @@
 362151,0.0056805,1.02198313891,0.562349414867,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CVetoBVeto qsf4	
 362152,0.0055365,1.00540058346,0.286149330107,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CFilterBVeto ckkw15
 362153,0.006498,1.01882044433,0.284678680228,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CFilterBVeto ckkw30
-362154,0.0055228,1.01882044433,0.290795153797,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CFilterBVeto fac025
+362154,0.0055228,1.0502,0.290795153797,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CFilterBVeto fac025
 362155,0.0057948,0.994593864036,0.288045886249,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CFilterBVeto fac4	
 362156,0.0079666,0.985870319001,0.303383129822,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CFilterBVeto renorm025
 362157,0.0047702,1.03327716933,0.279505366243,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CFilterBVeto renorm4
@@ -160,7 +160,7 @@
 362159,0.0056805,1.02198313891,0.286103030225,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 CFilterBVeto qsf4	
 362160,0.0055365,1.00540058346,0.188112386588,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 BFilter ckkw15	
 362161,0.006498,1.01882044433,0.182135247986,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 BFilter ckkw30	
-362162,0.0055228,1.01882044433,0.176658372573,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 BFilter fac025	
+362162,0.0055228,1.0502,0.176658372573,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 BFilter fac025	
 362163,0.0057948,0.994593864036,0.166768551671,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 BFilter fac4	
 362164,0.0079666,0.985870319001,0.1505597299,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 BFilter renorm025	
 362165,0.0047702,1.03327716933,0.164662317462,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 BFilter renorm4	
@@ -168,7 +168,7 @@
 362167,0.0056805,1.02198313891,0.174198487034,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt1000 2000 BFilter qsf4	
 362168,2.3732e-05,1.00540058346,0.59533280364,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CVetoBVeto ckkw15	
 362169,2.9202e-05,1.01882044433,0.61727183394,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CVetoBVeto ckkw30	
-362170,2.3913e-05,1.01882044433,0.605546297095,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CVetoBVeto fac025	
+362170,2.3913e-05,1.0502,0.605546297095,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CVetoBVeto fac025	
 362171,2.45e-05,0.994593864036,0.558684028092,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CVetoBVeto fac4	
 362172,3.075e-05,0.985870319001,0.605515446282,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CVetoBVeto renorm025
 362173,1.9847e-05,1.03327716933,0.575228546666,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CVetoBVeto renorm4
@@ -176,7 +176,7 @@
 362175,2.6213e-05,1.02198313891,0.574770713437,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CVetoBVeto qsf4	
 362176,2.3732e-05,1.00540058346,0.349681181291,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CFilterBVeto ckkw15
 362177,2.9202e-05,1.01882044433,0.3361276411,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CFilterBVeto ckkw30
-362178,2.3913e-05,1.01882044433,0.335660853573,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CFilterBVeto fac025
+362178,2.3913e-05,1.0502,0.335660853573,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CFilterBVeto fac025
 362179,2.45e-05,0.994593864036,0.288612388042,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CFilterBVeto fac4	
 362180,3.075e-05,0.985870319001,0.3480191997,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CFilterBVeto renorm025
 362181,1.9847e-05,1.03327716933,0.309290609325,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CFilterBVeto renorm4
@@ -184,7 +184,7 @@
 362183,2.6213e-05,1.02198313891,0.32266660355,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS CFilterBVeto qsf4	
 362184,2.3732e-05,1.00540058346,0.211726111126,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS BFilter ckkw15	
 362185,2.9202e-05,1.01882044433,0.21466434553,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS BFilter ckkw30	
-362186,2.3913e-05,1.01882044433,0.23566734739,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS BFilter fac025	
+362186,2.3913e-05,1.0502,0.23566734739,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS BFilter fac025	
 362187,2.45e-05,0.994593864036,0.185984186573,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS BFilter fac4	
 362188,3.075e-05,0.985870319001,0.220474953877,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS BFilter renorm025	
 362189,1.9847e-05,1.03327716933,0.190020404334,,XsecZnunuSherpa,Zjets_Sherpa_Systematics,,Systematics variations Znunu Pt2000 E CMS BFilter renorm4	

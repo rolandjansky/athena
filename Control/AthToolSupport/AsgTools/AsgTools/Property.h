@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: Property.h 612908 2014-08-21 16:19:03Z krasznaa $
+// $Id: Property.h 802972 2017-04-15 18:13:17Z krumnack $
 #ifndef ASGTOOLS_PROPERTY_H
 #define ASGTOOLS_PROPERTY_H
 
@@ -7,14 +7,16 @@
 #include <string>
 #include <vector>
 
+class StatusCode;
+
 /// Support class for PropertyMgr
 ///
 /// Base class for all property types that can be set on a tool.
 ///
 /// @author David Adams <dladams@bnl.gov>
 ///
-/// $Revision: 612908 $
-/// $Date: 2014-08-21 18:19:03 +0200 (Thu, 21 Aug 2014) $
+/// $Revision: 802972 $
+/// $Date: 2017-04-15 20:13:17 +0200 (Sat, 15 Apr 2017) $
 ///
 class Property {
 
@@ -65,6 +67,23 @@ public:
    // Returns 0 for success.
    // The implementation here fails with error -1.
    virtual int setFrom( const Property& rhs );
+
+
+  /// \brief get the property as a string
+  /// \par Guarantee
+  ///   strong
+  /// \par Failures
+  ///   no string conversion available
+  virtual StatusCode getString (std::string& result) const;
+
+  /// \brief set the property from a string
+  /// \par Guarantee
+  ///   basic
+  /// \par Failures
+  ///   no string conversion available\n
+  ///   format errors
+  virtual StatusCode setString (const std::string& value);
+
 
 private:
    /// The type of the property

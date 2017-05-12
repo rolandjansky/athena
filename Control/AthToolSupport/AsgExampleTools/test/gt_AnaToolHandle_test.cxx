@@ -487,13 +487,13 @@ namespace asg
     ASSERT_MATCH_REGEX ("^(ToolSvc.)?" + tool.name() + "$", mytool->name());
   }
 
-#ifndef NDEBUG
   // check get() (and by implication * and ->)
   TEST_F (AnaToolHandleMakeTest, get)
   {
-    ASSERT_DEATH (tool.get(), "");
+    IUnitTestTool1 *mytool = tool.get();
+    ASSERT_TRUE (mytool != nullptr);
+    ASSERT_MATCH_REGEX ("^(ToolSvc.)?" + tool.name() + "$", mytool->name());
   }
-#endif
 
 
 
@@ -553,6 +553,43 @@ namespace asg
       EXPECT_TRUE (tool1.isConfigurable());
 
       AnaToolHandle<IUnitTestTool1> tool2 ("asg::UnitTestTool1/" + name);
+      EXPECT_TRUE (tool2.isUserConfigured());
+      EXPECT_FALSE (tool2.isConfigurable());
+      ASSERT_SUCCESS (tool2.setProperty<int> ("propertyInt", 7));
+      EXPECT_TRUE (tool2.isUserConfigured());
+      EXPECT_FALSE (tool2.isConfigurable());
+      ASSERT_SUCCESS (tool2.initialize());
+      EXPECT_TRUE (tool2.isUserConfigured());
+      EXPECT_FALSE (tool2.isConfigurable());
+
+      ASSERT_EQ (tool1.get(), tool2.get());
+      ASSERT_EQ (42, tool1->getPropertyInt());
+    }
+  }
+
+
+
+  // check that a tool gets shared between two AnaToolHandle objects
+  // if they are given the same name via setType/setName.
+  TEST (AnaToolHandleTest, shared_tool_setName)
+  {
+    std::string name = makeUniqueName();
+    {
+      AnaToolHandle<IUnitTestTool1> tool1;
+      tool1.setType ("asg::UnitTestTool1");
+      tool1.setName (name);
+      EXPECT_FALSE (tool1.isUserConfigured());
+      EXPECT_TRUE (tool1.isConfigurable());
+      ASSERT_SUCCESS (tool1.setProperty<int> ("propertyInt", 42));
+      EXPECT_FALSE (tool1.isUserConfigured());
+      EXPECT_TRUE (tool1.isConfigurable());
+      ASSERT_SUCCESS (tool1.initialize());
+      EXPECT_FALSE (tool1.isUserConfigured());
+      EXPECT_TRUE (tool1.isConfigurable());
+
+      AnaToolHandle<IUnitTestTool1> tool2;
+      tool2.setType ("asg::UnitTestTool1");
+      tool2.setName (name);
       EXPECT_TRUE (tool2.isUserConfigured());
       EXPECT_FALSE (tool2.isConfigurable());
       ASSERT_SUCCESS (tool2.setProperty<int> ("propertyInt", 7));

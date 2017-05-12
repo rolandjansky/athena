@@ -39,7 +39,7 @@ def HTMLify(Title):
 
     return htmlified
 
-twikiFolder   = "/afs/cern.ch/user/a/atltopmc/www/TopMC12twiki/TestCentralMC15ProductionPage/"
+twikiFolder   = "/afs/cern.ch/user/m/mcgensvc/www/mc15twiki/CentralMC15ProductionPage/"
 
 TwikiList = glob.glob(twikiFolder+"/MainTwiki_Exotics*")
 #TwikiList = glob.glob(twikiFolder+"/test.*")

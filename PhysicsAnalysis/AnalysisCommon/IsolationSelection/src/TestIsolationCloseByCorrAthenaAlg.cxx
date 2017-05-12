@@ -89,17 +89,19 @@ namespace CP {
 
         for(auto muon: *muons){
             Info(APP_NAME, "---------NEW MUON -------");
-        
-            if (m_isoCloseByCorrTool->acceptCorrected(*muon, muonsVec)) {
-                Info(APP_NAME, "Muon passes Loose working point after correction.");
+            
+            unsigned int decision = m_isoSelectorTool->accept(*muon).getCutResultBitSet().to_ulong();
+            if ((decision&0x01) == 1) {
+                Info(APP_NAME, "Muon passes FixedCutLoose working point before correction.");
             } else {
-                Info(APP_NAME, "Muon does not pass Loose working point after correction.");
+                Info(APP_NAME, "Muon does not pass FixedCutLoose working point before correction.");
             }
-        
-            if (m_isoSelectorTool->accept(*muon)) {
-                Info(APP_NAME, "Muon passes Loose working point before correction.");
+            
+            unsigned int decisionCorr = m_isoCloseByCorrTool->acceptCorrected(*muon, muonsVec).getCutResultBitSet().to_ulong();
+            if ((decisionCorr&0x01) == 1) {
+                Info(APP_NAME, "Muon passes FixedCutLoose working point after correction.");
             } else {
-                Info(APP_NAME, "Muon does not pass Loose working point before correction.");
+                Info(APP_NAME, "Muon does not pass FixedCutLoose working point after correction.");
             }
       
             // Calculates the corrections.
@@ -121,16 +123,18 @@ namespace CP {
         for(auto electron: *electrons){
             Info(APP_NAME, "---------NEW ELECTRON -------");
         
-            if (m_isoCloseByCorrTool->acceptCorrected(*electron, electronsVec)) {
-                Info(APP_NAME, "Electron passes Loose working point after correction.");
-            } else {
-                Info(APP_NAME, "Electron does not pass Loose working point after correction.");
-            }
-        
-            if (m_isoSelectorTool->accept(*electron)) {
+            unsigned int decision = m_isoSelectorTool->accept(*electron).getCutResultBitSet().to_ulong();
+            if ((decision&0x01) == 1) {
                 Info(APP_NAME, "Electron passes Loose working point before correction.");
             } else {
                 Info(APP_NAME, "Electron does not pass Loose working point before correction.");
+            }
+            
+            unsigned int decisionCorr = m_isoCloseByCorrTool->acceptCorrected(*electron, electronsVec).getCutResultBitSet().to_ulong();
+            if ((decisionCorr&0x01) == 1) {
+                Info(APP_NAME, "Electron passes Loose working point after correction.");
+            } else {
+                Info(APP_NAME, "Electron does not pass Loose working point after correction.");
             }
       
             // Calculates the corrections.
@@ -152,16 +156,18 @@ namespace CP {
         for(auto photon: *photons){
             Info(APP_NAME, "---------NEW PHOTON -------");
         
-            if (m_isoCloseByCorrTool->acceptCorrected(*photon, photonsVec)) {
-                Info(APP_NAME, "Photon passes FixedCutTightCaloOnly working point after correction.");
-            } else {
-                Info(APP_NAME, "Photon does not pass FixedCutTightCaloOnly working point after correction.");
-            }
-        
-            if (m_isoSelectorTool->accept(*photon)) {
+            unsigned int decision = m_isoSelectorTool->accept(*photon).getCutResultBitSet().to_ulong();
+            if ((decision&0x01) == 1) {
                 Info(APP_NAME, "Photon passes FixedCutTightCaloOnly working point before correction.");
             } else {
                 Info(APP_NAME, "Photon does not pass FixedCutTightCaloOnly working point before correction.");
+            }
+            
+            unsigned int decisionCorr = m_isoCloseByCorrTool->acceptCorrected(*photon, photonsVec).getCutResultBitSet().to_ulong();
+            if ((decisionCorr&0x01) == 1) {
+                Info(APP_NAME, "Photon passes FixedCutTightCaloOnly working point after correction.");
+            } else {
+                Info(APP_NAME, "Photon does not pass FixedCutTightCaloOnly working point after correction.");
             }
       
             // Calculates the corrections.
@@ -180,7 +186,7 @@ namespace CP {
             }
         }
   
-        Info(APP_NAME, "Finished successfully!");
+//         Info(APP_NAME, "Finished successfully!");
     
         return StatusCode::SUCCESS;  
     }

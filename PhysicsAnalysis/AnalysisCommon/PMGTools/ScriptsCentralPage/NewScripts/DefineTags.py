@@ -19,12 +19,14 @@ def ReturnProductionTags():
     Tags = ["mc15_13TeV"]
     return Tags
 
+    
 def ReturnSampleCategory():
     Tags = ["TTbar", "TTbarBulk", "SingleTop",
-            "Wjets_PowPy8_incl", "Wjets_PowPy8_slice", "Wjets_Sherpa_light", "Wjets_Sherpa_Cfilter", "Wjets_Sherpa_Bfilter", "Wjets_Sherpa22_light", "Wjets_Sherpa22_Cfilter", "Wjets_Sherpa22_Bfilter", "Wjets_Sherpa221_light", "Wjets_Sherpa221_Cfilter", "Wjets_Sherpa221_Bfilter",
+            "Wjets_PowPy8_incl", "Wjets_PowPy8_slice", "Wjets_Sherpa_light", "Wjets_Sherpa_Cfilter", "Wjets_Sherpa_Bfilter", "Wjets_Sherpa22_light", "Wjets_Sherpa22_Cfilter", "Wjets_Sherpa22_Bfilter", "Wjets_Sherpa221",  
+            #"Wjets_Sherpa221_Cfilter", "Wjets_Sherpa221_Bfilter",
             "Wjets_AlpgenPy6", "Wjets_MadGraphPy8", "Wjets_Sherpa_Systematics","Wjets_Other",
             "Zjets_PowPy8_incl", "Zjets_PowPy8_slice", "Zjets_Sherpa_light", "Zjets_Sherpa_Cfilter", "Zjets_Sherpa_Bfilter",
-            "Zjets_Sherpa22_light", "Zjets_Sherpa22_Cfilter", "Zjets_Sherpa22_Bfilter", "Zjets_Sherpa221_light", "Zjets_Sherpa221_Cfilter", "Zjets_Sherpa221_Bfilter",
+            "Zjets_Sherpa22_light", "Zjets_Sherpa22_Cfilter", "Zjets_Sherpa22_Bfilter", "Zjets_Sherpa221", #"Zjets_Sherpa221_Cfilter", "Zjets_Sherpa221_Bfilter",
             "Zjets_MadGraphPy8", "Zjets_Sherpa_Systematics", "Zjets_Sherpa_Mll10to40", "Zjets_AlpgenPy6","Zjets_Other",
             "Diboson_DC14_MC15sim", "Diboson_Sherpa_Nominal", "Diboson_Sherpa_MassSlice", "Diboson_Sherpa_Systematic", "Diboson_Powheg", "Diboson_Other",
             "SUSY_GG","SUSY_SS","SUSY_TT_BB","SUSY_EWK","SUSY_Other",
@@ -32,6 +34,7 @@ def ReturnSampleCategory():
             "Higgs_ggH", "Higgs_VBF", "Higgs_ttH", "Higgs_VH", "Higgs_BSM_ggH", "Higgs_BSM_VBF", "Higgs_BSM_Other",
             "Multijet", "Minbias", "Triboson", "TTbarX", "BTag", "Performance", "Upgrade", "SingleParticle", "GammaJets", "DrellYan", "BPhysics","Unsorted",]
     return Tags
+
 
 def ReturnSystKeywords():
     Keys = ["renormalization", "systematic", "scale", "scaleDown", "scaleUp", "muF", "muR", "muFup", "muRup", "muFdown", "muRdown"]
@@ -153,9 +156,9 @@ def SortStringToSampleCategory(AODname, Keywords, Type):
         Zjets_Sherpa22_l_Map     = [["Sherpa_NNPDF", "CVetoBVeto."]]
         Zjets_Sherpa22_c_Map     = [["Sherpa_NNPDF", "CFilterBVeto."]]
         Zjets_Sherpa22_b_Map     = [["Sherpa_NNPDF", "BFilter."]]
-        Zjets_Sherpa221_l_Map     = [["Sherpa_221_NNPDF", ["CVetoBVeto.","_MAXHTPTV500_1000","_MAXHTPTV1000_E_CMS"]]]
-        Zjets_Sherpa221_c_Map     = [["Sherpa_221_NNPDF", "CFilterBVeto."]]
-        Zjets_Sherpa221_b_Map     = [["Sherpa_221_NNPDF", "BFilter."]]
+        Zjets_Sherpa221_l_Map     = [["Sherpa_221_NNPDF"], ["_MAXHTPTV500_1000","_MAXHTPTV1000_E_CMS"]]
+        #Zjets_Sherpa221_c_Map     = ["Sherpa_221_NNPDF", "CFilterBVeto."]
+        #Zjets_Sherpa221_b_Map     = ["Sherpa_221_NNPDF", "BFilter."]
         Zjets_Sherpa_Syst_Map  = [["Sherpa_", "CVetoBVeto_"], ["Sherpa_","CFilterBVeto_"], ["Sherpa_","BFilter_"]]
         Zjets_Sherpa_Mll10to40_Map = [["Sherpa_","Mll10to40_"]]
         Zjets_MadGraph_Map     = [["MadGraphPythia8"],["MGPy8EG_N30NLO"]]
@@ -177,11 +180,11 @@ def SortStringToSampleCategory(AODname, Keywords, Type):
         elif StringsAreInFile(AODname, Zjets_Sherpa22_b_Map):
             return "Zjets_Sherpa22_Bfilter"
         elif StringsAreInFile(AODname, Zjets_Sherpa221_l_Map):
-            return "Zjets_Sherpa221_light"
-        elif StringsAreInFile(AODname, Zjets_Sherpa221_c_Map):
-            return "Zjets_Sherpa221_Cfilter"
-        elif StringsAreInFile(AODname, Zjets_Sherpa221_b_Map):
-            return "Zjets_Sherpa221_Bfilter"
+            return "Zjets_Sherpa221"
+        #elif StringsAreInFile(AODname, Zjets_Sherpa221_c_Map):
+        #    return "Zjets_Sherpa221_Cfilter"
+        #elif StringsAreInFile(AODname, Zjets_Sherpa221_b_Map):
+        #    return "Zjets_Sherpa221_Bfilter"
         elif StringsAreInFile(AODname, Zjets_Sherpa_Syst_Map):
             return "Zjets_Sherpa_Systematics"
         elif StringsAreInFile(AODname, Zjets_Sherpa_Mll10to40_Map):
@@ -199,14 +202,14 @@ def SortStringToSampleCategory(AODname, Keywords, Type):
         Wjets_Sherpa_l_Map     = [["Sherpa_CT10", "CVetoBVeto."]]
         Wjets_Sherpa_c_Map     = [["Sherpa_CT10", "CFilterBVeto."]]
         Wjets_Sherpa_b_Map     = [["Sherpa_CT10", "BFilter."]]
-        Wjets_Sherpa22_l_Map     = [["Sherpa_NNPDF", "CVetoBVeto."]]
-        Wjets_Sherpa22_c_Map     = [["Sherpa_NNPDF", "CFilterBVeto."]]
-        Wjets_Sherpa22_b_Map     = [["Sherpa_NNPDF", "BFilter."]]
-        Wjets_Sherpa221_l_Map     = [["Sherpa_221_NNPDF", ["CVetoBVeto.","_MAXHTPTV500_1000","_MAXHTPTV1000_E_CMS"]]]
-        Wjets_Sherpa221_c_Map     = [["Sherpa_221_NNPDF", "CFilterBVeto."]]
-        Wjets_Sherpa221_b_Map     = [["Sherpa_221_NNPDF", "BFilter."]]
+        Wjets_Sherpa22_l_Map   = [["Sherpa_NNPDF", "CVetoBVeto."]]
+        Wjets_Sherpa22_c_Map   = [["Sherpa_NNPDF", "CFilterBVeto."]]
+        Wjets_Sherpa22_b_Map   = [["Sherpa_NNPDF", "BFilter."]]
+        Wjets_Sherpa221_l_Map  = [["Sherpa_221_NNPDF"], ["_MAXHTPTV500_1000","_MAXHTPTV1000_E_CMS"]]
+        #Wjets_Sherpa221_c_Map  = [["Sherpa_221_NNPDF", "CFilterBVeto."]]
+        #Wjets_Sherpa221_b_Map  = [["Sherpa_221_NNPDF", "BFilter."]]
         Wjets_Sherpa_Syst_Map  = [["Sherpa_", "CVetoBVeto_"], ["Sherpa_","CFilterBVeto_"], ["Sherpa_","BFilter_"]]
-        Wjets_AlpgenPy6_Map     = [["Alpgen"]]
+        Wjets_AlpgenPy6_Map    = [["Alpgen"]]
         Wjets_MadGraph_Map     = [["MadGraphPythia8"],["MGPy8EG_N30NLO"]]
         if StringsAreInFile(AODname,   Wjets_PowPy8_incl_Map):
             return "Wjets_PowPy8_incl"
@@ -225,11 +228,11 @@ def SortStringToSampleCategory(AODname, Keywords, Type):
         elif StringsAreInFile(AODname, Wjets_Sherpa22_b_Map):
             return "Wjets_Sherpa22_Bfilter"
         elif StringsAreInFile(AODname, Wjets_Sherpa221_l_Map):
-            return "Wjets_Sherpa221_light"
-        elif StringsAreInFile(AODname, Wjets_Sherpa221_c_Map):
-            return "Wjets_Sherpa221_Cfilter"
-        elif StringsAreInFile(AODname, Wjets_Sherpa221_b_Map):
-            return "Wjets_Sherpa221_Bfilter"
+            return "Wjets_Sherpa221"
+        #elif StringsAreInFile(AODname, Wjets_Sherpa221_c_Map):
+        #    return "Wjets_Sherpa221_Cfilter"
+        #elif StringsAreInFile(AODname, Wjets_Sherpa221_b_Map):
+        #    return "Wjets_Sherpa221_Bfilter"
         elif StringsAreInFile(AODname, Wjets_MadGraph_Map):
             return "Wjets_MadGraphPy8"
         elif StringsAreInFile(AODname, Wjets_AlpgenPy6_Map):

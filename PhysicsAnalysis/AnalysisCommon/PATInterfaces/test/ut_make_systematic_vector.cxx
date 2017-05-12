@@ -12,6 +12,8 @@
 // includes
 //
 
+#undef NDEBUG
+
 #include <PATInterfaces/MakeSystematicsVector.h>
 
 #include <RootCoreUtils/Assert.h>

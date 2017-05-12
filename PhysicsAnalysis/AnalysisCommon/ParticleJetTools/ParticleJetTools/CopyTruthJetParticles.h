@@ -65,7 +65,7 @@ private:
 
   float m_photonCone;
 
-  ToolHandle<IMCTruthClassifier> m_classif;
+  mutable ToolHandle<IMCTruthClassifier> m_classif;
 };
 
 

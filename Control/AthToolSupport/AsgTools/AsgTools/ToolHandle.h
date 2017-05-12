@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: ToolHandle.h 724296 2016-02-16 16:24:42Z will $
+// $Id: ToolHandle.h 784417 2016-11-15 19:50:05Z krumnack $
 #ifndef ASGTOOLS_TOOLHANDLE_H
 #define ASGTOOLS_TOOLHANDLE_H
 
@@ -29,8 +29,8 @@ namespace asg {
 ///
 /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 ///
-/// $Revision: 724296 $
-/// $Date: 2016-02-16 17:24:42 +0100 (Tue, 16 Feb 2016) $
+/// $Revision: 784417 $
+/// $Date: 2016-11-15 20:50:05 +0100 (Tue, 15 Nov 2016) $
 ///
 class ToolHandleBase {
 
@@ -72,8 +72,8 @@ protected:
 /// @author David Adams <dladams@bnl.gov>
 /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 ///
-/// $Revision: 724296 $
-/// $Date: 2016-02-16 17:24:42 +0100 (Tue, 16 Feb 2016) $
+/// $Revision: 784417 $
+/// $Date: 2016-11-15 20:50:05 +0100 (Tue, 15 Nov 2016) $
 ///
 template< class T >
 class ToolHandle : public ToolHandleBase {
@@ -89,9 +89,13 @@ public:
    ToolHandle( const std::string& toolname, asg::IAsgTool* parent = 0 );
 
    /// Dereferencing operator
-   T& operator*() const;
+   T& operator*();
    /// Dereferencing operator
-   T* operator->() const;
+   const T& operator*() const;
+   /// Dereferencing operator
+   T* operator->();
+   /// Dereferencing operator
+   const T* operator->() const;
 
    /// Retrieve tool.
    /// For compatibility with Gaudi.

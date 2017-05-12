@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASSOCIATIONUTILS_ORTOOLBOX_H
 #define ASSOCIATIONUTILS_ORTOOLBOX_H
 
