@@ -144,7 +144,6 @@ class PixelConditionsServicesSetup:
     if self.useDCS or self.onlineMode:
       #sim
       if globalflags.DataSource() == 'geant4' or (not athenaCommonFlags.isOnline()):      
-        print 'InDetTrigConfigConditions: requesting folders /PIXEL/DCS/TEMPERATURE /PIXEL/DCS/HV /PIXEL/DCS/FSMSTATE'
         if not conddb.folderRequested('/PIXEL/DCS/TEMPERATURE'):
           conddb.addFolder("DCS_OFL","/PIXEL/DCS/TEMPERATURE")
         if not conddb.folderRequested('/PIXEL/DCS/HV'):
@@ -154,7 +153,6 @@ class PixelConditionsServicesSetup:
         if not conddb.folderRequested('/PIXEL/DCS/FSMSTATE'):
           conddb.addFolder("DCS_OFL","/PIXEL/DCS/FSMSTATE")
       else:
-        print 'InDetTrigConfigConditions: requesting folders /PIXEL/HLT/DCS/TEMPERATURE /PIXEL/HLT/DCS/HV'
         if not conddb.folderRequested('/PIXEL/HLT/DCS/TEMPERATURE'):
           conddb.addFolder("PIXEL_ONL","/PIXEL/HLT/DCS/TEMPERATURE")
           #conddb.addFolder("PIXEL","/PIXEL/HLT/DCS/TEMPERATURE <tag>PixDCSTemp-UPD1-00</tag>")
@@ -180,11 +178,9 @@ class PixelConditionsServicesSetup:
 
       if globalflags.DataSource() == 'data':
         if (not athenaCommonFlags.isOnline()):
-          print 'InDetTrigConfigConditions: setting InDetPixelDCSSvc TemperatureFolder=/PIXEL/DCS/TEMPERATURE and HVFolder=/PIXEL/DCS/HV'
           InDetPixelDCSSvc.TemperatureFolder = "/PIXEL/DCS/TEMPERATURE"
           InDetPixelDCSSvc.HVFolder = "/PIXEL/DCS/HV"
         else:
-          print 'InDetTrigConfigConditions: setting InDetPixelDCSSvc TemperatureFolder=/PIXEL/HLT/DCS/TEMPERATURE and HVFolder=/PIXEL/HLT/DCS/HV'
           InDetPixelDCSSvc.TemperatureFolder = "/PIXEL/HLT/DCS/TEMPERATURE"
           InDetPixelDCSSvc.HVFolder = "/PIXEL/HLT/DCS/HV"
         

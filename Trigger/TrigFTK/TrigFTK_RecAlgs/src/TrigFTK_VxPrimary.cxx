@@ -134,18 +134,19 @@ HLT::ErrorCode TrigFTK_VxPrimary::hltExecute(const HLT::TriggerElement*, HLT::Tr
   // This can be removed once the conversion to use ViewVectors is completed.
 
   xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer();
-  xAOD::VertexAuxContainer* theVertexContainerAux =new xAOD::VertexAuxContainer();
-  theVertexContainer->setStore(theVertexContainerAux);
-  for (auto pv =  viewVertexContainer->begin(); pv !=  viewVertexContainer->end(); ++pv) {
-    xAOD::Vertex* vert = new xAOD::Vertex(*(*pv));
-    theVertexContainer->push_back(vert);
+  xAOD::VertexAuxContainer    theVertexContainerAux;
+  theVertexContainer->setStore(&theVertexContainerAux);
+  if (viewVertexContainer != nullptr) {
+    for (auto pv =  viewVertexContainer->begin(); pv !=  viewVertexContainer->end(); ++pv) {
+      xAOD::Vertex* vert = new xAOD::Vertex(*(*pv));
+      theVertexContainer->push_back(vert);
+    }
+    delete  viewVertexContainer;
   }
-  delete  viewVertexContainer;
-
 
   if ( HLT::OK !=  attachFeature(outputTE, theVertexContainer, m_vertexContainerName) ) {
     msg() << MSG::ERROR << "Could not attach feature to the TE" << endmsg;
-    
+    delete theVertexContainer;
     return HLT::NAV_ERROR;
   }
   

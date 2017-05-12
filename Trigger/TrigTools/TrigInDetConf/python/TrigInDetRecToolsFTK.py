@@ -42,6 +42,8 @@ from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
 from FTK_RecTools.FTK_RecToolsConf import FTK_PixelClusterOnTrackTool, FTK_SCTClusterOnTrackTool
 
+from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
+ 
 InDetTrigBroadPixelClusterOnTrackToolFTK = \
                                          FTK_PixelClusterOnTrackTool("InDetTrigBroadPixelClusterOnTrackToolFTK",
                                                                      PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
