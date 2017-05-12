@@ -403,6 +403,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
 
       // Data preparation
       m_rpcHits.clear();
+      m_tgcHits.clear();     
       sc = m_dataPreparator->prepareData(*p_roi,
                                          *p_roids,
                                          m_rpcHits,
@@ -474,6 +475,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       ATH_MSG_DEBUG("Endcap");
 
       // Data preparation
+      m_rpcHits.clear();
       m_tgcHits.clear();     
       sc = m_dataPreparator->prepareData(*p_roi,
                                          *p_roids,
