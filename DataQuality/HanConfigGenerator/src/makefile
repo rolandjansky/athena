@@ -9,7 +9,7 @@ SOURCES = hcg.cxx addnode.cxx
 # 	cp hcg $(HOME)/bin 
 
 hcg : $(SOURCES) 
-	g++ $(ROOTCFLAGS) -o $@ $(SOURCES) $(ROOTLIBS)
+	g++ $(ROOTCFLAGS) -O3 -o $@ $(SOURCES) $(ROOTLIBS) $(READLIB)
 
 archive :  $(SOURCES) node.h addnode.h simpletimer.h spacer.h makefile README
 	tar -czf hcg.tgz $?
@@ -17,3 +17,5 @@ archive :  $(SOURCES) node.h addnode.h simpletimer.h spacer.h makefile README
 install : hcg
 	cp hcg $(HOME)/bin
 
+clean : 
+	rm hcg

@@ -1,13 +1,14 @@
 //
-//   @file    hanconfig.cxx         
+//   @file    hcg.cxx
 //            navigates through the directory structure of a monitoring 
 //            root files and write out some han config boiler plate
 //            
 //   @author M.Sutton
 // 
+//   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 //   Copyright (C) 2013 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: hanconfig.cxx, v0.0   Thu  12 March 2015 14:13:47 CEST sutt $
+//   $Id: hcg.cxx  Fri 12 May 2017 17:30:36 CEST sutt$
 
 
 #include <iostream>
@@ -50,8 +51,17 @@ std::vector<TFile*>      fptr;
 std::vector<std::string> savedhistos;
 std::vector<std::string> mapped;
 
+/// store any user string descriptions
+std::map<std::string,std::string> descriptions;
 
-/// sadly, includes a return at the end 
+/// store any user string descriptions
+std::map<std::string,std::string> displays;
+
+/// store any user string descriptions
+std::map<std::string,std::string> algorithms;
+
+
+/// get the date *without* the return
 std::string date() { 
   time_t _t;
   time(&_t);
@@ -327,6 +337,138 @@ void depunctuate(std::string& s, const std::string& regex=":")
   
 
 
+
+std::string chopto( std::string& s, const std::string& pattern ) { 
+  std::string tag;
+  std::string::size_type pos = s.find_first_of( pattern );
+  if ( pos==std::string::npos ) { 
+    tag = s;
+    s = "";
+  }
+  else { 
+    tag = s.substr(0,pos);
+    s.erase( 0, pos ); 
+  }
+  return tag;
+}
+
+
+// remove strings from a string
+bool remove( std::string& s, const std::string& s2 ) 
+{
+  std::string::size_type ssize = s.size();
+  std::string::size_type pos;
+  while ( (pos=s.find(s2))==0 ) s.erase(pos, s2.size());
+  if ( ssize!=s.size() ) return true;
+  else                   return false;
+} 
+
+
+
+void error( int i, std::ostream& s ) {  s << std::endl; std::exit(i);  }
+
+
+
+/// parse and individual line - must have the syntax: tag = "value";  
+
+bool parse( const std::string _line, std::string& tag, std::string& val, bool requirequotes=true ) {
+  
+  std::string line = _line;
+
+  tag = "";
+  val = "";
+
+  remove( line, " " ); 
+  if ( line.size()==0 ) return false;
+  tag = chopto( line, " =" );
+  remove( line, " " );  
+  if ( !remove( line, "=" ) ) error( 1, std::cerr << "error : tag incorrectly specified\n\t" << _line ); 
+  remove( line, " " ); 
+  if ( requirequotes ) { 
+    if ( !( line.size()>1 && (val += line[0])=="\"" ) ) error( 1, std::cerr << "error : incorrect value syntax - no opening quote\n\t" << _line );
+    remove( line, "\"" );
+    val += chopto( line, "\"" )+"\"";
+    if ( !( line.size()>0 && line[0]=='"' ) )  error( 1, std::cerr << "error : incorrect value syntax - no closing quote\n\t" << _line ); 
+    remove( line, "\"" );
+  }
+  else { 
+    val += chopto( line, ";" );
+  }
+  remove( line, " " );
+  if ( line.size()<1 || line[0]!=';' )  error( 1, std::cerr << "error : incorrect value syntax - line not correctly terminated\n\t" << _line );
+
+  return true;
+}
+
+
+
+
+
+std::map<std::string, std::string> parse( const std::string& filename, bool requirequotes=true ) {
+
+  std::map< std::string, std::string > lookup;
+
+  std::fstream file( filename );
+  
+  std::vector<std::string> lines;
+  
+  std::string buffer;
+  
+
+  /// add some padding at the beginning and end, extraxt file 
+  /// contents to a more easily managed string 
+  char c;
+  buffer = " ";
+  while ( file.get(c) ) buffer += c;
+  buffer += " ";
+
+  //  std::cout << "buffer: " << buffer << std::endl;
+
+  /// remove all comments and line breaks
+
+  int quotecount = 0;
+
+  bool terminated = true;
+
+  for ( unsigned i=1 ; i<buffer.size() ; i++ ) {
+
+    /// check we are not still inside a quote 
+    if ( buffer[i]=='"' ) quotecount++;
+
+    /// remove comments
+    if ( quotecount%2==0 && buffer[i]=='/' && buffer[i+1]=='/' ) {
+      for ( unsigned j=i+2; j<buffer.size() ; j++, i++ ) if ( buffer[j]==10 ) { i++; break; }
+    }
+    //    else if ( quotecount%2==1 || buffer[i]>31 ) { 
+    else if ( buffer[i]>31 ) { 
+      /// check whether we have an end of line or not
+      if ( quotecount%2!=0 || buffer[i]!=';' ) { 
+	if ( terminated ) lines.push_back("");
+	terminated = false;
+	lines.back() += buffer[i];
+      }
+      else { 
+	lines.back() += ";";
+	terminated = true;
+      }
+    }
+  }
+
+
+  /// now parse each line 
+    
+  for ( unsigned i=0 ; i<lines.size() ; i++ ) { 
+    std::string tag   = "";
+    std::string value = "";
+    if ( parse( lines[i], tag, value, requirequotes ) ) lookup.insert( std::map<std::string,std::string>::value_type( tag, value ) );
+  }
+
+  return lookup;
+}
+
+
+
+
 std::vector<std::string> maphist( const std::vector<std::string>& v ) {   
   mapped.clear();
   for ( unsigned i=0 ; i<v.size() ; i++ ) { 
@@ -532,8 +674,8 @@ public:
     std::string user = std::getenv("USER");
 
     (*outp) << "######################################################################\n";
-    if ( configname=="" )  (*outp) << "# $Id: collisions_run.config " << date() << " " << user << " $\n";
-    else                   (*outp) << "# $Id: " << configname << "  " << date() << " " << user << " $\n";
+    if ( configname=="" )  (*outp) << "# file  collisions_run.config " << date() << " " << user << "\n";
+    else                   (*outp) << "# file  " << configname << "  " << date() << " " << user << "\n";
     (*outp) << "######################################################################\n";
     
     (*outp) << "\n";
@@ -697,11 +839,30 @@ public:
 	    first_hists = false;
 	  }
 	  else { 
+	    
+	    std::string _algorithm = algorithm;
+	    if ( algorithms.size() ) { 
+	      std::map<std::string,std::string>::const_iterator itr = algorithms.find(n[i]->name());
+	      if ( itr!=algorithms.end() ) _algorithm = itr->second;
+	    }
+
+	    std::string _description = description;
+	    if ( descriptions.size() ) { 
+	      std::map<std::string,std::string>::const_iterator itr = descriptions.find(n[i]->name());
+	      if ( itr!=descriptions.end() ) _description = itr->second;
+	    }
+
+	    std::string _display = "StatBox";
+	    if ( displays.size() ) { 
+	      std::map<std::string,std::string>::const_iterator itr = displays.find(n[i]->name());
+	      if ( itr!=displays.end() ) _display = itr->second;
+	    }
+
 	    (*outp) << space << "\t"   << "hist " << n[i]->name() << " {\n";
-	    (*outp) << space << "\t\t" << "algorithm   \t= " << algorithm << "\n";
-	    (*outp) << space << "\t\t" << "description \t= " << description << "\n";
+	    (*outp) << space << "\t\t" << "algorithm   \t= " << _algorithm << "\n";
+	    (*outp) << space << "\t\t" << "description \t= " << _description << "\n";
 	    (*outp) << space << "\t\t" << "output      \t= " << path << "\n";
-	    (*outp) << space << "\t\t" << "display     \t= StatBox\n";
+	    (*outp) << space << "\t\t" << "display     \t= " << _display << "\n";
 	    /// extra user specified tags
 	    for ( unsigned it=0 ; it<tags.size() ; it++ ) (*outp) << space << "\t\t" << replace(tags[it],"=","\t=") << "\n";
 	    (*outp) << space << "\t"   << "}\n";
@@ -1035,23 +1196,26 @@ int cost( std::vector<std::string>& files, node& n, const std::string& directory
 
 int usage(std::ostream& s, int , char** argv, int status=-1) { 
   s << "Usage: " << argv[0] << " [OPTIONS] input1.root ... inputN.root\n\n";
-  s << "    -o             FILENAME  \tname of output (filename required)\n";
-  s << "    -b,   --base   DIR       \tuse directory DIR as the base for the han config\n";
-  s << "    -d,   --dir    DIR       \tonly directories below DIR where DIR is a structure such as HLT/TRIDT etc\n";
-  s << "    -x,            DIR       \texclude directory DIR\n";
-  s << "    -s,   --slice  SLICE     \ttrigger signature name (for comments)\n"; 
-  s << "    -r             SRC DST   \tremap directory SRC to directory DST\n"; 
-  s << "    -ds,  --desc   DESCRIP   \tuse DESCRIP as the description\n"; 
-  s << "    -t,   --tag    VALUE     \tadd the VALUE to the list of command per histogram\n";
-  s << "    -a,   --algorithm VALUE  \tuse VALUE as the execution algorithm for each histogram\n";
-  s << "    -wc,  --wildcard         \tprint use hist * rather than a separate entry for each histogram\n";
-  s << "    -dr,  --deleteref        \tdelete unselected histograms\n";
-  s << "    -or,  --outref FILENAME  \tdelete file to write reduced output to (overwrites input otherwise) \n";
-  s << "    -rh,  --relocate         \trelocate selected histograms\n";
-  s << "    -ref, --reference TAG FILE \tadd FILE as a reference file with tag TAG\n";
-  s << "    -rc,  --refconf       FILE \tadd FILE to the config as a reference block\n";
-  s << "    -v,   --verbose          \tprint verbose output\n";
-  s << "    -h,   --help             \tdisplay this help\n";
+  s << "    -o                FILENAME  \tname of output (filename required)\n";
+  s << "    -b,   --base      DIR       \tuse directory DIR as the base for the han config\n";
+  s << "    -d,   --dir       DIR       \tonly directories below DIR where DIR is a structure such as HLT/TRIDT etc\n";
+  s << "    -x,   --exclude   DIR       \texclude directory DIR\n";
+  s << "    -s,   --slice     SLICE     \ttrigger signature name (for comments)\n"; 
+  s << "    -r,   --remap     SRC DST   \tremap directory SRC to directory DST\n"; 
+  s << "    -a,   --algorithm VALUE     \tuse VALUE as the execution algorithm for each histogram\n";
+  s << "    -af,  --algfile   FILENAME  \tread algorithm information from FILENAME\n";
+  s << "    -ds,  --desc      DESCRIP   \tuse DESCRIP as the description\n"; 
+  s << "    -df,  --descfile  FILENAME  \tread descriptions from FILENAME\n"; 
+  s << "    -dp,  --dispfile  FILENAME  \tread display information from FILENAME\n"; 
+  s << "    -t,   --tag       VALUE     \tadd the VALUE to the list of command per histogram\n";
+  s << "    -wc,  --wildcard            \tprint use hist * rather than a separate entry for each histogram\n";
+  s << "    -dr,  --deleteref           \tdelete unselected histograms\n";
+  s << "    -or,  --outref   FILENAME   \tfile to write reduced output to (overwrites input otherwise) \n";
+  s << "    -rh,  --relocate            \trelocate selected histograms\n";
+  s << "    -ref, --reference TAG FILE  \tadd FILE as a reference file with tag TAG\n";
+  s << "    -rc,  --refconf       FILE  \tadd FILE to the config as a reference block\n";
+  s << "    -v,   --verbose             \tprint verbose output\n";
+  s << "    -h,   --help                \tdisplay this help\n";
   s << std::endl;
   return status;
 }
@@ -1065,18 +1229,13 @@ void referenceblock( const std::string& file ) {
 } 
 
 
+
 int main(int argc, char** argv) { 
-
-  //  std::string cock = "HLT_j150_bperf_split/InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi/Chain"; 
-
-  //  replace 
-
-  //  std::cout << replace 
 
   gStyle->SetPadRightMargin(0.05);
   gStyle->SetPadTopMargin(0.075);
 
-  //  TCanvas* tg = new TCanvas("tg", "tg", 650, 900 );
+
   TCanvas* tg = new TCanvas("tg", "tg", 700, 600 );
   tg->cd();
 
@@ -1089,16 +1248,16 @@ int main(int argc, char** argv) {
   gStyle->SetStatH(0.16);      
 
 
-  //  if ( argc<3 ) usage( std::cerr << "not enough command options", argc, argv );
   if ( argc<2 ) return usage( std::cerr, argc, argv );
 
+  /// handle the help message option before dealing with
+  /// any other arguments 
 
   for ( int i=1 ; i<argc ; i++ ) { 
     if ( std::string(argv[i])=="-h" || std::string(argv[i])=="--help" )  return usage( *outp, argc, argv, 0 ); 
-    //    if ( std::string(argv[i])=="-v" || std::string(argv[i])=="--version" ) {
-    //      (*outp) << argv[0] << " APPLgrid version " << PACKAGE_VERSION << std::endl; 
-    //  return 0;
   }
+
+  /// now properly parse cmdline options and configure
   
   std::string dir = "";
 
@@ -1111,96 +1270,92 @@ int main(int argc, char** argv) {
   std::string outfile = "";
   std::string   slice = "";
 
+  std::string descriptionfile = "";
+  std::string displayfile     = "";
+  std::string algfile         = "";
+
 
   int offset = 1;
 
 
   for ( int i=1 ; i<argc ; i++ ) { 
-    if      ( std::string(argv[i])=="-v" || std::string(argv[i])=="--verbose" ) verbose = true;
-    else if ( std::string(argv[i])=="-o" ) {
-      ++i;
-      if ( i<argc-offset ) outfile = argv[i];
+
+    std::string argvi = std::string(argv[i]);
+
+    if      ( argvi=="-v" || argvi=="--verbose" ) verbose = true;
+    else if ( argvi=="-o" ) {
+      if ( ++i<argc-offset ) outfile = argv[i];
       else  return usage( std::cerr, argc, argv );
     } 
-    else if ( std::string(argv[i])=="-or" || std::string(argv[i])=="--outrefr" ) {
-      ++i;
-      if ( i<argc-offset ) outref = argv[i];
+    else if ( argvi=="-or" || argvi=="--outref" ) {
+      if ( ++i<argc-offset ) outref = argv[i];
       else  return usage( std::cerr, argc, argv );
     } 
-    else if ( std::string(argv[i])=="-ref" || std::string(argv[i])=="--reference" ) {
+    else if ( argvi=="-ref" || argvi=="--reference" ) {
       std::string reftag;
       std::string reffile;
-      ++i;
-      if ( i<argc-offset ) reftag = argv[i];
+      if ( ++i<argc-offset ) reftag = argv[i];
       else  return usage( std::cerr, argc, argv );
-      ++i;
-      if ( i<argc-offset ) reffile = argv[i];
+      if ( ++i<argc-offset ) reffile = argv[i];
       else  return usage( std::cerr, argc, argv );
       references.push_back( reference( reftag, reffile ) ); 
       //      std::cerr << references.back() << std::endl;
     } 
-    else if ( std::string(argv[i])=="-rc" || std::string(argv[i])=="-refconf" ) {
-      ++i;
-      if ( i<argc-offset ) referenceblock( argv[i] );
+    else if ( argvi=="-rc" || argvi=="--refconf" ) {
+      if ( ++i<argc-offset ) referenceblock( argv[i] );
       else  return usage( std::cerr, argc, argv );
     } 
-    else if ( std::string(argv[i])=="-s" || std::string(argv[i])=="--slice" ) {
-      ++i;
-      if ( i<argc-offset ) slice = argv[i];
+    else if ( argvi=="-s" || argvi=="--slice" ) {
+      if ( ++i<argc-offset ) slice = argv[i];
       else  return usage( std::cerr, argc, argv );
     } 
-    else if ( std::string(argv[i])=="-dr"  || std::string(argv[i])=="--deleteref" ) deleteref = true;
-    else if ( std::string(argv[i])=="-rh"  || std::string(argv[i])=="--relocate" )  relocate  = true;
-    else if ( std::string(argv[i])=="-wc"  || std::string(argv[i])=="--wildcard"  )  allhists = false;
-    else if ( std::string(argv[i])=="-d"   || std::string(argv[i])=="--dir"       ) {
-      ++i;
-      
-      if ( i<argc-offset ) { 
+    else if ( argvi=="-dr"  || argvi=="--deleteref" ) deleteref = true;
+    else if ( argvi=="-rh"  || argvi=="--relocate" )  relocate  = true;
+    else if ( argvi=="-wc"  || argvi=="--wildcard"  )  allhists = false;
+    else if ( argvi=="-d"   || argvi=="--dir"       ) {
+      if ( ++i<argc-offset ) { 
 	  dirs.insert( std::map<std::string,int>::value_type( argv[i], count( argv[i], "/" ) ) );
-	  
 	  std::string tdir = argv[i];
-	  
-	  //	  std::cerr << "dirs " << argv[i] << std::endl;
-	  
 	  do { 
 	    subdirs.push_back( chop( tdir, "/" ) );
-	    //   std::cerr << "chop  " << subdirs.back() << std::endl;
 	  }
 	  while ( tdir.size() ); 
       }
       else  return usage( std::cerr, argc, argv );
     } 
-    else if ( std::string(argv[i])=="-x" ) {
-      ++i;
-      if ( i<argc-offset ) exclude.insert( argv[i] );
+    else if ( argvi=="-x" || argvi=="--exclude" ) {
+      if ( ++i<argc-offset ) exclude.insert( argv[i] );
       else  return usage( std::cerr, argc, argv );
     } 
-    else if ( std::string(argv[i])=="-ds" || std::string(argv[i]).find("--desc")==0 ) {
-      ++i;
-      if ( i<argc-offset ) description = argv[i];
+    else if ( argvi=="-ds" || argvi.find("--desc")==0 ) {
+      if ( ++i<argc-offset ) description = argv[i];
       else  return usage( std::cerr, argc, argv );
     } 
-    else if ( std::string(argv[i])=="-b" || std::string(argv[i])=="--base" ) {
-      ++i;
-      if ( i<argc-offset ) base = argv[i] ;
+    else if ( argvi=="-df" || argvi.find("--descfile")==0 ) {
+      if ( ++i<argc-offset ) descriptionfile = argv[i];
       else  return usage( std::cerr, argc, argv );
     } 
-    else if ( std::string(argv[i])=="-a" || std::string(argv[i])=="--algorithm" ) {
-      ++i;
-      if ( i<argc-offset ) algorithm = argv[i] ;
+    else if ( argvi=="-af" || argvi.find("--algfile")==0 ) {
+      if ( ++i<argc-offset ) algfile = argv[i];
       else  return usage( std::cerr, argc, argv );
     } 
-    //    else if ( std::string(argv[i])=="-o" ) { 
-    //    ++i;
-    //    if ( i<argc ) output_file = argv[i];
-    //   else  return usage( std::cerr, argc, argv );
-    //   }
-    else if ( std::string(argv[i])=="-t" || std::string(argv[i])=="--tag" ) {
-      ++i;
-      if ( i<argc-offset ) tags.push_back( argv[i] );
+    else if ( argvi=="-dp" || argvi.find("--dispfile")==0 ) {
+      if ( ++i<argc-offset ) displayfile = argv[i];
       else  return usage( std::cerr, argc, argv );
     } 
-    else if ( std::string(argv[i])=="-r" ) { 
+    else if ( argvi=="-b" || argvi=="--base" ) {
+      if ( ++i<argc-offset ) base = argv[i] ;
+      else  return usage( std::cerr, argc, argv );
+    } 
+    else if ( argvi=="-a" || argvi=="--algorithm" ) {
+      if ( ++i<argc-offset ) algorithm = argv[i] ;
+      else  return usage( std::cerr, argc, argv );
+    } 
+    else if ( argvi=="-t" || argvi=="--tag" ) {
+      if ( ++i<argc-offset ) tags.push_back( argv[i] );
+      else  return usage( std::cerr, argc, argv );
+    } 
+    else if ( argvi=="-r" || argvi=="--remap" ) { 
       std::string src;
       std::string dest;
       if ( i<argc+2-offset ) { 
@@ -1215,20 +1370,42 @@ int main(int argc, char** argv) {
     }
   }
 
+
   //  std::cout << "tags " << tags.size() << " " << tags << std::endl;
 
   if ( base == "" ) base = dir;
 
-  /// if output file is not defined
-  //  if ( output_file == "" ) return usage( std::cerr, argc, argv );
-  
-  //  dataset data("test_EF");
-  //  files = data.datafiles();
-  
   /// check some input files
 
   if ( files.size()<1 ) return usage( std::cerr, argc, argv );
   
+
+  /// get algorithm information from a file if required 
+
+  if ( algfile!="" ) { 
+    std::cerr << "reading algorithm information from : \t" << algfile << std::endl; 
+    if ( !file_exists( algfile ) ) error( 1, std::cerr << "algorithm file " << algfile << " does not esist" ); 
+    algorithms = parse( algfile, false );
+  }
+
+
+  /// get descriptions from a file if required
+
+  if ( descriptionfile!="" ) { 
+    std::cerr << "reading decriptions from : \t\t" << descriptionfile << std::endl; 
+    if ( !file_exists( descriptionfile ) ) error( 1, std::cerr << "decription file " << descriptionfile << " does not esist" ); 
+    descriptions = parse( descriptionfile );
+  }
+
+
+  /// get display information from file if required
+
+  if ( displayfile!="" ) { 
+    std::cerr << "reading display information from : \t" << displayfile << std::endl; 
+    if ( !file_exists( displayfile ) ) error( 1, std::cerr << "display file " << displayfile << " does not esist" ); 
+    displays = parse( displayfile, false );
+  }
+
 
   //  time the actual running of the cost() routine
   
