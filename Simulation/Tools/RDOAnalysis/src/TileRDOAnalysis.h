@@ -35,6 +35,14 @@ class TileRDOAnalysis : public AthAlgorithm {
   virtual StatusCode finalize();
 
  private:
+  SG::ReadHandleKey<TileRawChannelContainer> m_inputRawChKey;
+  SG::ReadHandleKey<TileRawChannelContainer> m_inputMuRcvRawChKey;
+  SG::ReadHandleKey<TileMuonReceiverContainer> m_inputMuRcvKey;
+  SG::ReadHandleKey<TileTTL1Container> m_inputMBTS_TTL1Key;
+  SG::ReadHandleKey<TileTTl1Container> m_inputTileTTL1Key;
+  SG::ReadHandleKey<TileL2Container> m_inputL2Key;
+  SG::ReadHandleKey<TileDigitsContainer> m_inputDigitsFltKey;
+  SG::ReadHandleKey<TileDigitsContainer> m_inputDigitsMuRcvKey;
   // TileRawChannel
   // AMP, TIME, QUAL REALLY VECTORS - CHECK SIZE/OUTPUT
   std::vector<unsigned long long>* m_adcID;

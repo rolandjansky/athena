@@ -16,6 +16,14 @@
 
 TileRDOAnalysis::TileRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
+  , m_inputRawChKey("TileRawChannelCnt")
+  , m_inputMuRcvRawChKey("TileRawChannelCnt")
+  , m_inputMuRcvKey("TileMuRcvCnt")
+  , m_inputMBTS_TTL1Key("TileTTL1MBTS")
+  , m_inputTileTTL1Key("TileTTL1Cnt")
+  , m_inputL2Key("TileL2Cnt")
+  , m_inputDigitsFltKey("TileDigitsFlt")
+  , m_inputDigitsMuRcvKey("MuRcvDigitsCnt")
   , m_adcID(0)
   , m_pmtID(0)
   , m_cellID(0)
@@ -99,6 +107,14 @@ TileRDOAnalysis::TileRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocat
   , m_path("/TileRDOAnalysis/")
   , m_thistSvc("THistSvc", name)
 {
+  declareProperty("InputRawChKey", m_inputRawChKey);
+  declareProperty("InputMuRcvRawChKey", m_inputMuRcvRawChKey);
+  declareProperty("InputMuRcvKey", m_inputMuRcvKey);
+  declareProperty("InputMBTS_TTL1Key", m_inputMBTS_TTL1Key);
+  declareProperty("InputTileTTL1Key", m_inputTileTTL1Key);
+  declareProperty("InputL2Key", m_inputL2Key);
+  declareProperty("InputDigitsFltKey", m_inputDigitsFltKey);
+  declareProperty("InputDigitsMuRcvKey", m_inputDigitsMuRcvKey);
   declareProperty("NtupleFileName", m_ntupleFileName);
   declareProperty("NtupleDirectoryName", m_ntupleDirName);
   declareProperty("NtupleTreeName", m_ntupleTreeName);
@@ -107,6 +123,18 @@ TileRDOAnalysis::TileRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocat
 
 StatusCode TileRDOAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing TileRDOAnalysis" );
+
+
+  // This will check that the properties were initialized
+  // properly by job configuration.
+  ATH_CHECK( m_inputRawChKey.initialize() );
+  ATH_CHECK( m_inputMuRcvRawChKey.initialize() );
+  ATH_CHECK( m_inputMuRcvKey.initialize() );
+  ATH_CHECK( m_inputMBTS_TTL1Key.initialize() );
+  ATH_CHECK( m_inputTileTTL1Key.initialize() );
+  ATH_CHECK( m_inputL2Key.initialize() );
+  ATH_CHECK( m_inputDigitsFltKey.initialize() );
+  ATH_CHECK( m_inputDigitsMuRcvKey.initialize() );
 
   // Grab Ntuple and histogramming service for tree
   ATH_CHECK(m_thistSvc.retrieve());
@@ -341,8 +369,8 @@ StatusCode TileRDOAnalysis::execute() {
   // Tile Raw Channels
   // Raw info (pulse height, time, quality) for in-time beam crossing in Tile
 
-  const TileRawChannelContainer* p_rawCont;
-  if (evtStore()->retrieve(p_rawCont, "TileRawChannelCnt") == StatusCode::SUCCESS) {
+  SG::ReadHandle<TileRawChannelContainer> p_rawCont(m_inputRawChKey);
+  if (p_rawCont.isValid()) {
     // loop over tile raw channels container
     TileRawChannelContainer::const_iterator rawCont_itr(p_rawCont->begin());
     const TileRawChannelContainer::const_iterator rawCont_end(p_rawCont->end());
@@ -395,8 +423,8 @@ StatusCode TileRDOAnalysis::execute() {
   }
    
   // Muon Receiver Raw Channels
-  const TileRawChannelContainer* p_mu_rawCont;
-  if (evtStore()->retrieve(p_mu_rawCont, "MuRcvRawChCnt") == StatusCode::SUCCESS) {
+  SG::ReadHandle<TileRawChannelContainer> p_mu_rawCont(m_inputMuRcvRawChKey);
+  if (p_mu_rawCont.isValid()) {
     // loop over muon receiver raw channels container
     TileRawChannelContainer::const_iterator muRawCont_itr(p_mu_rawCont->begin());
     const TileRawChannelContainer::const_iterator muRawCont_end(p_mu_rawCont->end());
@@ -450,8 +478,8 @@ StatusCode TileRDOAnalysis::execute() {
 
   
   // Tile Container - TileMuonReceiverContainer
-  const TileMuonReceiverContainer* p_muRcv_cont;
-  if (evtStore()->retrieve(p_muRcv_cont, "TileMuRcvCnt") == StatusCode::SUCCESS) {
+  SG::ReadHandle<TileMuonReceiverContainer> p_muRcv_cont(m_inputMuRcvKey);
+  if (p_muRcv_cont.isValid()) {
     // loop over muon receiver container
     TileMuonReceiverContainer::const_iterator muRcv_itr(p_muRcv_cont->begin());
     const TileMuonReceiverContainer::const_iterator muRcv_end(p_muRcv_cont->end());
@@ -488,8 +516,8 @@ StatusCode TileRDOAnalysis::execute() {
   
   // Tile Container - TileTTL1Container
   // Raw Tile L1 Trigger Towers
-  const TileTTL1Container* p_ttl1MBTS_cont;
-  if (evtStore()->retrieve(p_ttl1MBTS_cont, "TileTTL1MBTS") == StatusCode::SUCCESS) {
+  SG::ReadHandle<TileTTL1Container> p_ttl1MBTS_cont(m_inputMBTS_TTL1Key);
+  if (p_ttl1MBTS_cont.isValid()) {
     // loop over TTL1 MBTS container
     TileTTL1Container::const_iterator ttl1MBTS_itr(p_ttl1MBTS_cont->begin());
     const TileTTL1Container::const_iterator ttl1MBTS_end(p_ttl1MBTS_cont->end());
@@ -509,8 +537,8 @@ StatusCode TileRDOAnalysis::execute() {
       h_ttl1MBTS_ID->Fill(ttl1MBTS_ID_int);
     }
   }
-  const TileTTL1Container* p_ttl1Cont;
-  if (evtStore()->retrieve(p_ttl1Cont, "TileTTL1Cnt") == StatusCode::SUCCESS) {
+  SG::ReadHandle<TileTTL1Container> p_ttl1Cont(m_inputTileTTL1Key);
+  if (p_ttl1Cont.isValid()) {
     // loop over TTL1 container
     TileTTL1Container::const_iterator ttl1_itr(p_ttl1Cont->begin());
     const TileTTL1Container::const_iterator ttl1_end(p_ttl1Cont->end());
@@ -541,8 +569,8 @@ StatusCode TileRDOAnalysis::execute() {
   std::vector<unsigned int> qual_vec;
   std::vector<float> sumE_vec;
   
-  const TileL2Container* p_L2Cont;
-  if (evtStore()->retrieve(p_L2Cont, "TileL2Cnt") == StatusCode::SUCCESS) {
+  SG::ReadHandle<TileL2Container> p_L2Cont(m_inputL2Key);
+  if (p_L2Cont.isValid()) {
     // loop over L2 container
     TileL2Container::const_iterator L2_itr(p_L2Cont->begin());
     const TileL2Container::const_iterator L2_end(p_L2Cont->end());
@@ -601,8 +629,8 @@ StatusCode TileRDOAnalysis::execute() {
 
   
   // TileDigitsContainer - TileDigitsFlt
-  const TileDigitsContainer* p_digiCont;
-  if (evtStore()->retrieve(p_digiCont, "TileDigitsFlt") == StatusCode::SUCCESS) {
+  SG::ReadHandle<TileDigitsContainer> p_digiCont(m_inputDigitsFltKey);
+  if (p_digiCont.isValid()) {
     // loop over tile digits container
     TileDigitsContainer::const_iterator digiCont_itr(p_digiCont->begin());
     const TileDigitsContainer::const_iterator digiCont_end(p_digiCont->end());
@@ -628,8 +656,8 @@ StatusCode TileRDOAnalysis::execute() {
   }
 
   // TileDigitsContainer - MuRcvDigitsCnt
-  const TileDigitsContainer* p_mu_digiCont;
-  if (evtStore()->retrieve(p_mu_digiCont, "MuRcvDigitsCnt") == StatusCode::SUCCESS) {
+  SG::ReadHandle<TileDigitsContainer> p_mu_digiCont(m_inputDigitsMuRcvKey);
+  if (p_mu_digiCont.isValid()) {
     // loop over tile digits container
     TileDigitsContainer::const_iterator muDigiCont_itr(p_mu_digiCont->begin());
     const TileDigitsContainer::const_iterator muDigiCont_end(p_mu_digiCont->end());
