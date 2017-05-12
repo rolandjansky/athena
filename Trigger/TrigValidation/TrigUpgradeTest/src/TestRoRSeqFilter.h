@@ -7,17 +7,18 @@
 
 #include <string>
 
-#include "AthenaBaseComps/AthFilterAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 namespace HLTTest {
 
 /**
- * @class $(klass)s
- * @brief 
+ * @class TestRoRSeqFilter for validation of the CF sequencers barrier concept 
+ * @brief This alg will read in implicit data, potentially merge, but above all it will decide to accep/reject 
+ * and thus to continue reco in the sequence
  **/
 
 class TestRoRSeqFilter
-  : public ::AthFilterAlgorithm
+  : public ::AthAlgorithm
 { 
  public: 
   TestRoRSeqFilter( const std::string& name, ISvcLocator* pSvcLocator );
@@ -27,12 +28,12 @@ class TestRoRSeqFilter
   //TestRoRSeqFilter &operator=(const TestRoRSeqFilter &alg); 
 
   StatusCode  initialize() override;
-  StatusCode  execute() override;
+  StatusCode  execute( ) override;
   StatusCode  finalize() override;
 
  private: 
   TestRoRSeqFilter();
-
+  std::vector<std::string> m_inputs;
 }; 
 
 } //> end namespace HLTTest
