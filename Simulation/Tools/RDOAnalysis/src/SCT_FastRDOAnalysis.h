@@ -27,9 +27,9 @@ public:
   SCT_FastRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~SCT_FastRDOAnalysis(){}
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
+  virtual StatusCode finalize() override final;
 
 private:
   SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_inputKey;

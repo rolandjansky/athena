@@ -27,9 +27,9 @@ public:
   TGC_RDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~TGC_RDOAnalysis(){}
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
+  virtual StatusCode finalize() override final;
 
 private:
   SG::ReadHandleKey<TgcRdoContainer> m_inputKey;

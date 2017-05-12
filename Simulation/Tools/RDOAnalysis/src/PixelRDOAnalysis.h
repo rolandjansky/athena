@@ -31,9 +31,9 @@ public:
   PixelRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~PixelRDOAnalysis(){}
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
+  virtual StatusCode finalize() override final;
 
 private:
   SG::ReadHandleKey<PixelRDO_Container> m_inputKey;

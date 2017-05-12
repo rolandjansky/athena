@@ -27,9 +27,9 @@ public:
   MDT_RDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~MDT_RDOAnalysis(){}
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
+  virtual StatusCode finalize() override final;
 
 private:
   SG::ReadHandleKey<MdtCsmContainer> m_inputKey;

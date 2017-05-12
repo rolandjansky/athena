@@ -28,9 +28,9 @@ public:
   BCM_RDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~BCM_RDOAnalysis(){}
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
+  virtual StatusCode finalize() override final;
 
 private:
   SG::ReadHandleKey<BCM_RDO_Container> m_inputKey;

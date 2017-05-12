@@ -28,9 +28,9 @@ public:
   PixelFastRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~PixelFastRDOAnalysis(){}
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
+  virtual StatusCode finalize() override final;
 
 private:
   SG::ReadHandleKey<InDet::PixelClusterContainer> m_inputKey;
