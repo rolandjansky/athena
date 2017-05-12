@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 import sys
 
 #get the list of special run,lbn with more than 1 file
