@@ -88,9 +88,9 @@ private:
   IIOVSvc* m_IOVSvc; 
   const PixelID* m_pixid; 
   const InDetDD::PixelDetectorManager* m_pixman; 
-  std::string par_calibfolder; 
-  std::string par_caliblocation; 
-  BooleanProperty par_writedb;
+  std::string m_par_calibfolder; 
+  std::string m_par_caliblocation; 
+  BooleanProperty m_par_writedb;
 
   // added -- A.X.
   int m_useCoral;

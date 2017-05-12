@@ -25,16 +25,16 @@ PixelRecoDbTestWriteRead::PixelRecoDbTestWriteRead(const std::string& name, ISvc
      // m_calibdbtool(0),
      m_calibdbtool("PixelRecoDbTool"),
      m_setup(false),
-     par_read(false),
-     par_write(false),
-     par_rfile("")
+     m_par_read(false),
+     m_par_write(false),
+     m_par_rfile("")
 {
  
   // declare algorithm parameters
-  declareProperty("Read",par_read);
-  declareProperty("Write",par_write);
-  // declareProperty("OutputTextFile",par_rfile);
-  // declareProperty("InputTextFile",par_wfile);
+  declareProperty("Read",m_par_read);
+  declareProperty("Write",m_par_write);
+  // declareProperty("OutputTextFile",m_par_rfile);
+  // declareProperty("InputTextFile",m_par_wfile);
 }
 
 
@@ -77,16 +77,16 @@ StatusCode PixelRecoDbTestWriteRead::execute() {
     m_setup = true; 
     // write calibration text file into database 
     // the name of the file is a property of the PixelRecoDbTool
-    if (par_write){
+    if (m_par_write){
       msg(MSG::INFO)<<" Write pixel calibration file into DB "<<endmsg; 
       sc=m_calibdbtool->writePixelCalibTextFiletoDB();
       if(sc!=StatusCode::SUCCESS) {
-	msg(MSG::ERROR) <<" Could not write Pixel Calibration file: "<<par_wfile<<" into database. "<< endmsg;
+	msg(MSG::ERROR) <<" Could not write Pixel Calibration file: "<<m_par_wfile<<" into database. "<< endmsg;
 	return StatusCode::FAILURE;
       }
     }
     // read calibration constants from database 
-    if (par_read){
+    if (m_par_read){
       msg(MSG::INFO)<<" Read pixel calibration from database into a file: "<<endmsg; 
       sc=m_calibdbtool->readPixelCalibDBtoTextFile();
       if(sc!=StatusCode::SUCCESS) {

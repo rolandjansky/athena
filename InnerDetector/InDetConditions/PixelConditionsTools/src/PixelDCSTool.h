@@ -129,10 +129,10 @@ class PixelDCSTool: virtual public AthAlgTool,
   std::string m_FSMStatusFile;
   std::string m_FSMStateFile;
 
-  std::string par_temperatureField;
-  std::string par_HVField;
-  std::string par_FSMStatusField;
-  std::string par_FSMStateField;
+  std::string m_par_temperatureField;
+  std::string m_par_HVField;
+  std::string m_par_FSMStatusField;
+  std::string m_par_FSMStateField;
 
   std::string m_temperatureTag;
   std::string m_HVTag;
