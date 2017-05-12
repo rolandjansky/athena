@@ -4,6 +4,9 @@
 
 #include <TauAnalysisTools/TauTruthTrackMatchingTool.h>
 
+// EDM include(s)
+#include "xAODTruth/TruthParticle.h"
+
 using namespace TauAnalysisTools;
 
 //=================================PUBLIC-PART==================================
@@ -23,7 +26,6 @@ TauTruthTrackMatchingTool::~TauTruthTrackMatchingTool( )
 //______________________________________________________________________________
 StatusCode TauTruthTrackMatchingTool::initialize()
 {
-  ATH_MSG_INFO( "Initializing TauTruthTrackMatchingTool" );
   return StatusCode::SUCCESS;
 }
 
@@ -44,8 +46,8 @@ StatusCode TauTruthTrackMatchingTool::classifyTrack(const TAUTRACKPARTICLE& xTra
   if (m_bIsHadronicTrackAvailable)
     return StatusCode::SUCCESS;
 
-  checkTrackIsTauInheritant(xTrackParticle);
-  checkTrackSpuriousType(xTrackParticle);
+  ATH_CHECK(checkTrackIsTauInheritant(xTrackParticle));
+  ATH_CHECK(checkTrackType(xTrackParticle));
   return StatusCode::SUCCESS;
 }
 
@@ -54,48 +56,120 @@ StatusCode TauTruthTrackMatchingTool::classifyTracks(std::vector<const TAUTRACKP
 {
   for (auto xTrackParticle : vTrackParticles)
   {
-    checkTrackIsTauInheritant(*xTrackParticle);
-    checkTrackSpuriousType(*xTrackParticle);
+    ATH_CHECK(checkTrackIsTauInheritant(*xTrackParticle));
+    ATH_CHECK(checkTrackType(*xTrackParticle));
   }
   return StatusCode::SUCCESS;
 }
 
 //=================================PRIVATE-PART=================================
 //______________________________________________________________________________
-void TauTruthTrackMatchingTool::checkTrackSpuriousType(const TAUTRACKPARTICLE& xTrackParticle)
+StatusCode TauTruthTrackMatchingTool::checkTrackType(const TAUTRACKPARTICLE& xTrackParticle)
 {
   const xAOD::TruthParticle* xTruthParticle = getTruthParticle(xTrackParticle);
 
-  static SG::AuxElement::Decorator<int> decSpuriousType("SpuriousType");
-  // if not truth track is available -> unclassified
+  static SG::AuxElement::Decorator<int> decTruthType("TruthType");
   if (!xTruthParticle)
   {
-    decSpuriousType(xTrackParticle) = TauAnalysisTools::UnclassifiedTrack;
-    return;
+    decTruthType(xTrackParticle) = TauAnalysisTools::UnclassifiedTrack;
+    return StatusCode::SUCCESS;
+  }
+
+  static SG::AuxElement::ConstAccessor<float> accTruthMatchProbability("truthMatchProbability");
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+  if (accTruthMatchProbability(xTrackParticle) < 0.5)
+#else
+  if (accTruthMatchProbability(*(xTrackParticle.track())) < 0.5)
+#endif // not XAODTAU_VERSIONS_TAUJET_V3_H
+  {
+    decTruthType(xTrackParticle) = TauAnalysisTools::FakeTrack;
+    return StatusCode::SUCCESS;
+  }
+
+  static SG::AuxElement::ConstAccessor< char > accIsHadronicTrack("IsHadronicTrack");
+  static SG::AuxElement::ConstAccessor< int > accIsHadronicTrackDecayDepth("IsHadronicTrackDecayDepth");
+  if ((bool)accIsHadronicTrack(xTrackParticle) and accIsHadronicTrackDecayDepth(xTrackParticle) == 0)
+  {
+    decTruthType(xTrackParticle) = TauAnalysisTools::TauTrack;
+    return StatusCode::SUCCESS;
   }
 
   int iBarcode = xTruthParticle->barcode();
-  static SG::AuxElement::ConstAccessor<float> accTruthMatchProbability("truthMatchProbability");
-  if (accTruthMatchProbability(xTrackParticle) >= 0.5)
-  {
-    if (iBarcode >= 10000 && iBarcode < 200000) decSpuriousType(xTrackParticle) = TauAnalysisTools::PileupTrack;
-    else if (iBarcode >= 200000)                decSpuriousType(xTrackParticle) = TauAnalysisTools::ConversionTrack;
-    else if (iBarcode > 0 && iBarcode < 10000)  decSpuriousType(xTrackParticle) = TauAnalysisTools::UnderlyingEventTrack;
-    else if (iBarcode == 0)                     decSpuriousType(xTrackParticle) = TauAnalysisTools::FakeTrack;
-  }
-  else
-  {
-    if (iBarcode < 200000)                      decSpuriousType(xTrackParticle) = TauAnalysisTools::FakeTrack;
-    else                                        decSpuriousType(xTrackParticle) = TauAnalysisTools::ConversionTrack;
-  }
+  if (iBarcode > 0 && iBarcode < 10000)            decTruthType(xTrackParticle) = TauAnalysisTools::UnderlyingEventTrack;
+  else if (iBarcode >= 10000 && iBarcode < 200000) decTruthType(xTrackParticle) = TauAnalysisTools::PileupTrack;
+  else if (iBarcode == 0)                          decTruthType(xTrackParticle) = TauAnalysisTools::FakeTrack;
+  else if (iBarcode >= 200000)                     ATH_CHECK(classifyConversion(xTrackParticle, *xTruthParticle));
+  else ATH_MSG_WARNING("No truth classification possible for barcode "<<iBarcode);
+
+  return StatusCode::SUCCESS;
 }
 
+//______________________________________________________________________________
+StatusCode TauTruthTrackMatchingTool::classifyConversion(const TAUTRACKPARTICLE& xTrackParticle, const xAOD::TruthParticle& xTruthParticle)
+{
+  static SG::AuxElement::Decorator<int> decTruthType("TruthType");
+  if (!xTruthParticle.isElectron())
+  {
+    decTruthType(xTrackParticle) = TauAnalysisTools::SecondaryTrack;
+    return StatusCode::SUCCESS;
+  }
+  const xAOD::TruthVertex* xProdVertex = xTruthParticle.prodVtx();
+  if ( !xProdVertex )
+  {
+    decTruthType(xTrackParticle) = TauAnalysisTools::SecondaryTrack;
+    return StatusCode::SUCCESS;
+  }
+  for ( size_t iIncomingParticle = 0; iIncomingParticle < xProdVertex->nIncomingParticles(); ++iIncomingParticle )
+  {
+    const xAOD::TruthParticle* xTruthParent = xProdVertex->incomingParticle(iIncomingParticle);
+    if (!xTruthParent)
+    {
+      ATH_MSG_FATAL("Truth parent of tau decay was not found in TruthParticles container. Please ensure that this container has the full tau decay information or produce the TruthTaus container in AtlasDerivation.\nInformation on how to do this can be found here:\nhttps://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauPreRecommendations2015#Accessing_Tau_Truth_Information");
+      return StatusCode::SUCCESS;
+    }
+
+    if (!xTruthParent->isPhoton())
+    {
+      decTruthType(xTrackParticle) = TauAnalysisTools::SecondaryTrack;
+      return StatusCode::SUCCESS;
+    }
+  }
+
+  size_t iElectrons = 0;
+  for ( size_t iOutgoingParticle = 0; iOutgoingParticle < xProdVertex->nOutgoingParticles(); ++iOutgoingParticle )
+  {
+    const xAOD::TruthParticle* xTruthDaughter = xProdVertex->outgoingParticle(iOutgoingParticle);
+    if (!xTruthDaughter)
+    {
+      ATH_MSG_FATAL("Truth daughter of tau decay was not found in TruthParticles container. Please ensure that this container has the full tau decay information or produce the TruthTaus container in AtlasDerivation.\nInformation on how to do this can be found here:\nhttps://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauPreRecommendations2015#Accessing_Tau_Truth_Information");
+      return StatusCode::SUCCESS;
+    }
+
+    if (!xTruthDaughter->isElectron())
+    {
+      decTruthType(xTrackParticle) = TauAnalysisTools::SecondaryTrack;
+      return StatusCode::SUCCESS;
+    }
+    iElectrons++;
+  }
+  if (iElectrons != 2)
+  {
+    decTruthType(xTrackParticle) = TauAnalysisTools::SecondaryTrack;
+    return StatusCode::SUCCESS;
+  }
+  decTruthType(xTrackParticle) = TauAnalysisTools::ConversionTrack;
+  return StatusCode::SUCCESS;
+}
 
 //______________________________________________________________________________
 const xAOD::TruthParticle* TauTruthTrackMatchingTool::getTruthParticle(const TAUTRACKPARTICLE& xTrackParticle)
 {
   static SG::AuxElement::ConstAccessor< ElementLink<xAOD::TruthParticleContainer> > accTruthParticleLink("truthParticleLink");
+#ifdef XAODTAU_VERSIONS_TAUJET_V3_H
+  auto xTruthParticleContainer = accTruthParticleLink(*(xTrackParticle.track()));
+#else
   auto xTruthParticleContainer = accTruthParticleLink(xTrackParticle);
+#endif // XAODTAU_VERSIONS_TAUJET_V3_H
   //check validity of truth particle element link
   if (xTruthParticleContainer.isValid())
     return (*xTruthParticleContainer);
@@ -103,7 +177,7 @@ const xAOD::TruthParticle* TauTruthTrackMatchingTool::getTruthParticle(const TAU
 }
 
 //______________________________________________________________________________
-void TauTruthTrackMatchingTool::checkTrackIsTauInheritant(const TAUTRACKPARTICLE& xTrackParticle)
+StatusCode TauTruthTrackMatchingTool::checkTrackIsTauInheritant(const TAUTRACKPARTICLE& xTrackParticle)
 {
   static SG::AuxElement::Decorator< char > decIsHadronicTrack("IsHadronicTrack");
   static SG::AuxElement::Decorator< int > decIsHadronicTrackDecayDepth("IsHadronicTrackDecayDepth");
@@ -122,6 +196,8 @@ void TauTruthTrackMatchingTool::checkTrackIsTauInheritant(const TAUTRACKPARTICLE
   }
   decIsHadronicTrackDecayDepth(xTrackParticle) = iDepth;
   decDecayHistory(xTrackParticle) = sHistory;
+
+  return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________

@@ -20,20 +20,13 @@
 // Framework include(s):
 #include "AsgTools/IAsgTool.h"
 
-// Core include(s):
-#include "AthLinks/ElementLink.h"
-
 // xAOD include(s):
 #include "xAODTracking/TrackParticle.h"
-#include "xAODTruth/TruthParticle.h"
-#include "xAODTruth/TruthParticleContainer.h"
-#include "xAODTruth/TruthVertex.h"
 #include "xAODTau/TauJet.h"
+#include "xAODTruth/TruthParticleContainer.h"
 
 // EDM include(s):
 #include "PATInterfaces/CorrectionCode.h"
-
-// Local include(s):
 
 namespace TauAnalysisTools
 {
