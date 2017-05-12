@@ -81,6 +81,7 @@ fi
 
 #FIXME: simplify error counting:
 
+
 # Configure the build:
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
@@ -88,7 +89,7 @@ error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
     ${EXTRACONF} \
     ${SOURCEDIR}/Projects/${PROJECT}/ || touch $error_stamp
 } 2>&1 | tee cmake_config.log 
-test -f $error_stamp && ((ERROR_COUNT++))
+test -f $error_stamp && ((ERROR_COUNT++)) 
 rm -f $error_stamp #FIXME: w/o $error_stamp one can't pass the status outside  { ... } | tee ... shell
 
 # Build it:
@@ -96,7 +97,7 @@ error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
  make -k || touch $error_stamp
 } 2>&1 | tee cmake_build.log
-test -f $error_stamp && ((ERROR_COUNT++))
+test -f $error_stamp && ((ERROR_COUNT++)) 
 rm -f $error_stamp 
 
 # Install it:
@@ -104,7 +105,7 @@ error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
  make -k install/fast DESTDIR=${INSTALLDIR} || touch $error_stamp
 } 2>&1 | tee cmake_install.log
-test -f $error_stamp && ((ERROR_COUNT++))
+test -f $error_stamp && ((ERROR_COUNT++)) 
 rm -f $error_stamp 
  
 
@@ -118,16 +119,17 @@ error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
 cpack || touch $error_stamp
 } 2>&1 | tee cmake_cpack.log
-test -f $error_stamp && ((ERROR_COUNT++))
+test -f $error_stamp && ((ERROR_COUNT++)) 
 rm -f $error_stamp 
     
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
  mkdir -p ${RPMDIR} && \
- FILES=$(ls ${PROJECT}*.rpm ${PROJECT}*.tar.gz ${PROJECT}*.dmg 2> /dev/null) && \
+ FILES=`ls ${PROJECT}*.rpm  ${PROJECT}*.tar.gz  ${PROJECT}*.dmg 2>/dev/null ; true ;` && \
+ test "X$FILES" != "X" && \
  cp ${FILES} ${RPMDIR} || touch $error_stamp
 } 2>&1 | tee cp_rpm.log
-test -f $error_stamp && ((ERROR_COUNT++))
+test -f $error_stamp && ((ERROR_COUNT++)) 
 rm -f $error_stamp 
 
 if [ $ERROR_COUNT -ne 0 ]; then
