@@ -20,7 +20,7 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False 
       WritingTool = writingTool,
       ItemList    = [ "EventInfo#*" ]
       )
-   outputStream.ItemList += [ "xAOD::EventInfo#*" ]
+   #outputStream.ItemList += [ "xAOD::EventInfo#*" ]
    outputStream.MetadataStore = svcMgr.MetaDataStore
    outputStream.MetadataItemList = [ "EventStreamInfo#" + streamName, "IOVMetaDataContainer#*" ]
 
