@@ -40,7 +40,7 @@ OfflineCalibrationLoop::OfflineCalibrationLoop(std::string starting_tag,
 			+ starting_tag.substr(pos+16,std::string::npos);
 	}
 
-	if(ifstream(constantsfile.c_str()).fail()){
+	if(std::ifstream(constantsfile.c_str()).fail()){
 		std::cout << "Failing to open " << constantsfile <<
 			" for initialization..." << std::endl;
 		abort();

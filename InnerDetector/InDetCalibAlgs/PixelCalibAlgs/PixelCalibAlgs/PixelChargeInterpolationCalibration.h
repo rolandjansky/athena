@@ -9,8 +9,6 @@ class string;
 template < class T, class Allocator > class vector;
 class TDirectory;
 
-using namespace std;
-
 namespace PixelCalib{
 
 class PixelChargeInterpolationHistograms;

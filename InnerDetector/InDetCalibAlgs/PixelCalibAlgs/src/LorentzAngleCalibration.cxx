@@ -154,7 +154,7 @@ bool LorentzAngleCalibration::Fill(Int_t Layer, Int_t EtaIndex, Int_t PhiIndex,
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-int LorentzAngleCalibration::Analyze(ofstream &logfile){
+int LorentzAngleCalibration::Analyze(std::ofstream &logfile){
 	
 	int nfits = 0;
 	for(unsigned int i = 0; i < m_LayerProfile->GetNhistos(); i++){
