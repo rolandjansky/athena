@@ -5,10 +5,6 @@
 # Declare the package name:
 atlas_subdir( MDT_Response )
 
-# Declare the package's dependencies:
-#atlas_depends_on_subdirs( PUBLIC
-#                          Simulation/Tools/AtlasCLHEP_RandomGenerators )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS RIO Core Tree MathCore Hist pthread )
