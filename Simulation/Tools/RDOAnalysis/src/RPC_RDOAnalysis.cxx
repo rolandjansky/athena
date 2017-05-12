@@ -35,7 +35,7 @@ RPC_RDOAnalysis::RPC_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_firedIjk(0)
   , m_firedChan(0)
   , m_firedOvl(0)
-  , m_firedThr(0)    
+  , m_firedThr(0)
   , m_sdoID(0)
   , m_sdoWord(0)
   , m_xPos(0)
@@ -77,7 +77,7 @@ RPC_RDOAnalysis::RPC_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , h_eventIndex(0)
   , h_radius(0)
   , h_localZ(0)
-    
+
   , m_tree(0)
   , m_ntupleFileName("/ntuples/file1")
   , m_ntupleDirName("/RPC_RDOAnalysis/")
@@ -137,7 +137,7 @@ StatusCode RPC_RDOAnalysis::initialize() {
     m_tree->Branch("barcode_vec", &m_barcode_vec);
     m_tree->Branch("eventIndex_vec", &m_eventIndex_vec);
     m_tree->Branch("radius_vec", &m_radius_vec);
-    m_tree->Branch("localZ_vec", &m_localZ_vec); 
+    m_tree->Branch("localZ_vec", &m_localZ_vec);
   }
   else {
     ATH_MSG_ERROR("No tree found!");
@@ -191,7 +191,7 @@ StatusCode RPC_RDOAnalysis::initialize() {
   h_coinFebcID = new TH1F("h_coinFebcID", "CM FEBCID", 100, 0, 10);
   h_coinFebcID->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_coinFebcID->GetName(), h_coinFebcID));
-  
+
   h_firedBcID = new TH1F("h_firedBcID", "Fired Channel BCID", 100, 0, 10);
   h_firedBcID->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_firedBcID->GetName(), h_firedBcID));
@@ -304,7 +304,7 @@ StatusCode RPC_RDOAnalysis::execute() {
       const unsigned short int padLVL1ID((*rpc_itr)->lvl1Id());
       const unsigned short int padBCID((*rpc_itr)->bcId());
       const int padSec((*rpc_itr)->sector());
-      
+
       const unsigned long long rpcID_int = rpcID.get_compact();
       m_rpcID->push_back(rpcID_int);
       m_status->push_back(padStat);
@@ -325,54 +325,54 @@ StatusCode RPC_RDOAnalysis::execute() {
       // RPC Coincidence Matrix
       const RpcPad* p_rpcCoin(*rpc_itr);
       RpcPad::const_iterator rpcCoin_itr(p_rpcCoin->begin());
-      const RpcPad::const_iterator rpcCoin_end(p_rpcCoin->end()); 
+      const RpcPad::const_iterator rpcCoin_end(p_rpcCoin->end());
       for ( ; rpcCoin_itr != rpcCoin_end; ++rpcCoin_itr ) {
-	const Identifier coinRpcID((*rpcCoin_itr)->identify());
-	const unsigned short int coinOnID((*rpcCoin_itr)->onlineId());
-	const unsigned short int coinCrc((*rpcCoin_itr)->crc());
-	const unsigned short int coinFel1ID((*rpcCoin_itr)->fel1Id());
-	const unsigned short int coinFebcID((*rpcCoin_itr)->febcId());
+        const Identifier coinRpcID((*rpcCoin_itr)->identify());
+        const unsigned short int coinOnID((*rpcCoin_itr)->onlineId());
+        const unsigned short int coinCrc((*rpcCoin_itr)->crc());
+        const unsigned short int coinFel1ID((*rpcCoin_itr)->fel1Id());
+        const unsigned short int coinFebcID((*rpcCoin_itr)->febcId());
 
-	const unsigned long long coinRpcID_int = coinRpcID.get_compact();
-	m_coinRpcID->push_back(coinRpcID_int);
-	m_coinOnID->push_back(coinOnID);
-	m_coinCrc->push_back(coinCrc);
-	m_coinFel1ID->push_back(coinFel1ID);
-	m_coinFebcID->push_back(coinFebcID);
+        const unsigned long long coinRpcID_int = coinRpcID.get_compact();
+        m_coinRpcID->push_back(coinRpcID_int);
+        m_coinOnID->push_back(coinOnID);
+        m_coinCrc->push_back(coinCrc);
+        m_coinFel1ID->push_back(coinFel1ID);
+        m_coinFebcID->push_back(coinFebcID);
 
-	h_coinRpcID->Fill(coinRpcID_int);
-	h_coinOnID->Fill(coinOnID);
-	h_coinCrc->Fill(coinCrc);
-	h_coinFel1ID->Fill(coinFel1ID);
-	h_coinFebcID->Fill(coinFebcID);
+        h_coinRpcID->Fill(coinRpcID_int);
+        h_coinOnID->Fill(coinOnID);
+        h_coinCrc->Fill(coinCrc);
+        h_coinFel1ID->Fill(coinFel1ID);
+        h_coinFebcID->Fill(coinFebcID);
 
-	// RPC Fired Channel
-	const RpcCoinMatrix *p_rpcFired(*rpcCoin_itr);
-	RpcCoinMatrix::const_iterator rpcFired_itr(p_rpcFired->begin());
-	const RpcCoinMatrix::const_iterator rpcFired_end(p_rpcFired->end());
-	for ( ; rpcFired_itr != rpcFired_end; ++rpcFired_itr ) {
-	  const unsigned short int firedBcID((*rpcFired_itr)->bcid());
-	  const unsigned short int firedTime((*rpcFired_itr)->time());
-	  const unsigned short int firedIjk((*rpcFired_itr)->ijk());
-	  const unsigned short int firedChan((*rpcFired_itr)->channel());
-	  const unsigned short int firedOvl((*rpcFired_itr)->ovl());
-	  const unsigned short int firedThr((*rpcFired_itr)->thr());
+        // RPC Fired Channel
+        const RpcCoinMatrix *p_rpcFired(*rpcCoin_itr);
+        RpcCoinMatrix::const_iterator rpcFired_itr(p_rpcFired->begin());
+        const RpcCoinMatrix::const_iterator rpcFired_end(p_rpcFired->end());
+        for ( ; rpcFired_itr != rpcFired_end; ++rpcFired_itr ) {
+          const unsigned short int firedBcID((*rpcFired_itr)->bcid());
+          const unsigned short int firedTime((*rpcFired_itr)->time());
+          const unsigned short int firedIjk((*rpcFired_itr)->ijk());
+          const unsigned short int firedChan((*rpcFired_itr)->channel());
+          const unsigned short int firedOvl((*rpcFired_itr)->ovl());
+          const unsigned short int firedThr((*rpcFired_itr)->thr());
 
-	  m_firedBcID->push_back(firedBcID);
-	  m_firedTime->push_back(firedTime);
-	  m_firedIjk->push_back(firedIjk);
-	  m_firedChan->push_back(firedChan);
-	  m_firedOvl->push_back(firedOvl);
-	  m_firedThr->push_back(firedThr);
+          m_firedBcID->push_back(firedBcID);
+          m_firedTime->push_back(firedTime);
+          m_firedIjk->push_back(firedIjk);
+          m_firedChan->push_back(firedChan);
+          m_firedOvl->push_back(firedOvl);
+          m_firedThr->push_back(firedThr);
 
-	  h_firedBcID->Fill(firedBcID);
-	  h_firedTime->Fill(firedTime);
-	  h_firedIjk->Fill(firedIjk);
-	  h_firedChan->Fill(firedChan);
-	  h_firedOvl->Fill(firedOvl);
-	  h_firedThr->Fill(firedThr);
+          h_firedBcID->Fill(firedBcID);
+          h_firedTime->Fill(firedTime);
+          h_firedIjk->Fill(firedIjk);
+          h_firedChan->Fill(firedChan);
+          h_firedOvl->Fill(firedOvl);
+          h_firedThr->Fill(firedThr);
 
-	}
+        }
       }
     }
   }
@@ -397,7 +397,7 @@ StatusCode RPC_RDOAnalysis::execute() {
       const float xPos(gPos.x());
       const float yPos(gPos.y());
       const float zPos(gPos.z());
-      
+
       m_sdoID->push_back(sdoID_int);
       m_sdoWord->push_back(sdoWord);
       m_xPos->push_back(xPos);
@@ -415,27 +415,27 @@ StatusCode RPC_RDOAnalysis::execute() {
       std::vector<MuonSimData::Deposit>::const_iterator dep_itr(deposits.begin());
       const std::vector<MuonSimData::Deposit>::const_iterator dep_end(deposits.end());
       for ( ; dep_itr != dep_end; ++dep_itr ) {
-	const HepMcParticleLink& particleLink = (*dep_itr).first;
-	const int bar(particleLink.barcode());
-	const int eventIx(particleLink.eventIndex());
-	const MuonMCData& data = (*dep_itr).second;
-	const double radius(data.firstEntry());
-	const float localZ(data.secondEntry());
-	
-	m_barcode->push_back(bar);
-	m_eventIndex->push_back(eventIx);
-	m_radius->push_back(radius);
-	m_localZ->push_back(localZ);
+        const HepMcParticleLink& particleLink = (*dep_itr).first;
+        const int bar(particleLink.barcode());
+        const int eventIx(particleLink.eventIndex());
+        const MuonMCData& data = (*dep_itr).second;
+        const double radius(data.firstEntry());
+        const float localZ(data.secondEntry());
 
-	h_barcode->Fill(bar);
-	h_eventIndex->Fill(eventIx);
-	h_radius->Fill(radius);
-	h_localZ->Fill(localZ);
-	
-	barcode_vec.push_back(bar);
-	eventIndex_vec.push_back(eventIx);
-	radius_vec.push_back(radius);
-	localZ_vec.push_back(localZ);
+        m_barcode->push_back(bar);
+        m_eventIndex->push_back(eventIx);
+        m_radius->push_back(radius);
+        m_localZ->push_back(localZ);
+
+        h_barcode->Fill(bar);
+        h_eventIndex->Fill(eventIx);
+        h_radius->Fill(radius);
+        h_localZ->Fill(localZ);
+
+        barcode_vec.push_back(bar);
+        eventIndex_vec.push_back(eventIx);
+        radius_vec.push_back(radius);
+        localZ_vec.push_back(localZ);
       }
       m_barcode_vec->push_back(barcode_vec);
       m_eventIndex_vec->push_back(eventIndex_vec);

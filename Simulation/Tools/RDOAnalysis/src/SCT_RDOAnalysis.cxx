@@ -81,7 +81,7 @@ SCT_RDOAnalysis::SCT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , h_eventIndex(0)
   , h_charge(0)
   , h_phi_v_eta_sdo(0)
-    
+
   , m_tree(0)
   , m_ntupleFileName("/ntuples/file1")
   , m_ntupleDirName("/SCT_RDOAnalysis/")
@@ -156,7 +156,7 @@ StatusCode SCT_RDOAnalysis::initialize() {
   h_rdoWord = new TH1F("h_rdoWord", "rdoWord", 100, 0, 1e7);
   h_rdoWord->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_rdoWord->GetName(), h_rdoWord));
-  
+
   h_barrelEndcap = new TH1F("h_barrelEndcap", "Barrel or Endcap", 100, -3, 3);
   h_barrelEndcap->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_barrelEndcap->GetName(), h_barrelEndcap));
@@ -192,7 +192,7 @@ StatusCode SCT_RDOAnalysis::initialize() {
   h_brlLayer = new TH1F("h_brlLayer", "Barrel layer", 100, 0, 10);
   h_brlLayer->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_brlLayer->GetName(), h_brlLayer));
-  
+
   h_brlPhiMod = new TH1F("h_brlPhiMod", "Barrel phi module", 100, 0, 60);
   h_brlPhiMod->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_brlPhiMod->GetName(), h_brlPhiMod));
@@ -220,7 +220,7 @@ StatusCode SCT_RDOAnalysis::initialize() {
   h_ecDisk = new TH1F("h_ecDisk", "Endcap disk", 100, 0, 10);
   h_ecDisk->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_ecDisk->GetName(), h_ecDisk));
-  
+
   h_ecPhiMod = new TH1F("h_ecPhiMod", "Endcap phi module", 100, 0, 60);
   h_ecPhiMod->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_ecPhiMod->GetName(), h_ecPhiMod));
@@ -252,7 +252,7 @@ StatusCode SCT_RDOAnalysis::initialize() {
   h_sdoWord = new TH1F("h_sdoWord", "sdoWord", 100, 0, 1e7);
   h_sdoWord->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_sdoWord->GetName(), h_sdoWord));
-  
+
   h_barrelEndcap_sdo = new TH1F("h_barrelEndcap_sdo", "Barrel or Endcap (SDO)", 100, -3, 3);
   h_barrelEndcap_sdo->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_barrelEndcap_sdo->GetName(), h_barrelEndcap_sdo));
@@ -337,58 +337,58 @@ StatusCode SCT_RDOAnalysis::execute() {
       const SCT_RDO_Collection* p_SCT_RDO_coll(*rdoCont_itr);
       SCT_RDO_Collection::const_iterator rdo_itr(p_SCT_RDO_coll->begin());
       const SCT_RDO_Collection::const_iterator rdo_end(p_SCT_RDO_coll->end());
-      
+
       for ( ; rdo_itr != rdo_end; ++rdo_itr ) {
-	const Identifier rdoID((*rdo_itr)->identify());
-	const unsigned int rdoWord((*rdo_itr)->getWord());
-	const int sctBrlEc(m_sctID->barrel_ec(rdoID));
-	const int sctLayerDisk(m_sctID->layer_disk(rdoID));
-	const int sctPhiMod(m_sctID->phi_module(rdoID));
-	const int sctEtaMod(m_sctID->eta_module(rdoID));
-	const int sctSide(m_sctID->side(rdoID));
-	const int sctStrip(m_sctID->strip(rdoID));
-	const int sctGroupSize((*rdo_itr)->getGroupSize());
+        const Identifier rdoID((*rdo_itr)->identify());
+        const unsigned int rdoWord((*rdo_itr)->getWord());
+        const int sctBrlEc(m_sctID->barrel_ec(rdoID));
+        const int sctLayerDisk(m_sctID->layer_disk(rdoID));
+        const int sctPhiMod(m_sctID->phi_module(rdoID));
+        const int sctEtaMod(m_sctID->eta_module(rdoID));
+        const int sctSide(m_sctID->side(rdoID));
+        const int sctStrip(m_sctID->strip(rdoID));
+        const int sctGroupSize((*rdo_itr)->getGroupSize());
 
-	const unsigned long long rdoID_int = rdoID.get_compact();
-	m_rdoID->push_back(rdoID_int);
-	m_rdoWord->push_back(rdoWord);
-	m_barrelEndcap->push_back(sctBrlEc);
-	m_layerDisk->push_back(sctLayerDisk);
-	m_phiModule->push_back(sctPhiMod);
-	m_etaModule->push_back(sctEtaMod);
-	m_side->push_back(sctSide);
-	m_strip->push_back(sctStrip);
-	m_groupSize->push_back(sctGroupSize);
+        const unsigned long long rdoID_int = rdoID.get_compact();
+        m_rdoID->push_back(rdoID_int);
+        m_rdoWord->push_back(rdoWord);
+        m_barrelEndcap->push_back(sctBrlEc);
+        m_layerDisk->push_back(sctLayerDisk);
+        m_phiModule->push_back(sctPhiMod);
+        m_etaModule->push_back(sctEtaMod);
+        m_side->push_back(sctSide);
+        m_strip->push_back(sctStrip);
+        m_groupSize->push_back(sctGroupSize);
 
-	h_rdoID->Fill(rdoID_int);
-	h_rdoWord->Fill(rdoWord);
-	h_barrelEndcap->Fill(sctBrlEc);
-	h_layerDisk->Fill(sctLayerDisk);
-	h_phiModule->Fill(sctPhiMod);
-	h_etaModule->Fill(sctEtaMod);
-	h_side->Fill(sctSide);
-	h_strip->Fill(sctStrip);
-	h_groupSize->Fill(sctGroupSize);
-	h_phi_v_eta->Fill(sctEtaMod, sctPhiMod);
+        h_rdoID->Fill(rdoID_int);
+        h_rdoWord->Fill(rdoWord);
+        h_barrelEndcap->Fill(sctBrlEc);
+        h_layerDisk->Fill(sctLayerDisk);
+        h_phiModule->Fill(sctPhiMod);
+        h_etaModule->Fill(sctEtaMod);
+        h_side->Fill(sctSide);
+        h_strip->Fill(sctStrip);
+        h_groupSize->Fill(sctGroupSize);
+        h_phi_v_eta->Fill(sctEtaMod, sctPhiMod);
 
-	if (sctBrlEc == 0) {
-	  h_brlLayer->Fill(sctLayerDisk);
-	  h_brlPhiMod->Fill(sctPhiMod);
-	  h_brlEtaMod->Fill(sctEtaMod);
-	  h_brlSide->Fill(sctSide);
-	  h_brlStrip->Fill(sctStrip);
-	  h_brlGroupSize->Fill(sctGroupSize);
-	  h_brl_phi_v_eta->Fill(sctEtaMod, sctPhiMod);
-	}
-	else if (abs(sctBrlEc) == 2) {
-	  h_ecDisk->Fill(sctLayerDisk);
-	  h_ecPhiMod->Fill(sctPhiMod);
-	  h_ecEtaMod->Fill(sctEtaMod);
-	  h_ecSide->Fill(sctSide);
-	  h_ecStrip->Fill(sctStrip);
-	  h_ecGroupSize->Fill(sctGroupSize);
-	  h_ec_phi_v_eta->Fill(sctEtaMod, sctPhiMod);
-	}
+        if (sctBrlEc == 0) {
+          h_brlLayer->Fill(sctLayerDisk);
+          h_brlPhiMod->Fill(sctPhiMod);
+          h_brlEtaMod->Fill(sctEtaMod);
+          h_brlSide->Fill(sctSide);
+          h_brlStrip->Fill(sctStrip);
+          h_brlGroupSize->Fill(sctGroupSize);
+          h_brl_phi_v_eta->Fill(sctEtaMod, sctPhiMod);
+        }
+        else if (abs(sctBrlEc) == 2) {
+          h_ecDisk->Fill(sctLayerDisk);
+          h_ecPhiMod->Fill(sctPhiMod);
+          h_ecEtaMod->Fill(sctEtaMod);
+          h_ecSide->Fill(sctSide);
+          h_ecStrip->Fill(sctStrip);
+          h_ecGroupSize->Fill(sctGroupSize);
+          h_ec_phi_v_eta->Fill(sctEtaMod, sctPhiMod);
+        }
       }
     }
   }
@@ -417,7 +417,7 @@ StatusCode SCT_RDOAnalysis::execute() {
       const bool noise(SCT_SimHelper::isNoise(sdo));
       const bool belowThresh(SCT_SimHelper::isBelowThreshold(sdo));
       const bool disabled(SCT_SimHelper::isDisabled(sdo));
-      
+
       m_sdoID->push_back(sdoID_int);
       m_sdoWord->push_back(sdoWord);
       m_barrelEndcap_sdo->push_back(sctBrlEc_sdo);
@@ -445,24 +445,24 @@ StatusCode SCT_RDOAnalysis::execute() {
       const std::vector<InDetSimData::Deposit>& deposits = sdo.getdeposits();
       std::vector<InDetSimData::Deposit>::const_iterator dep_itr(deposits.begin());
       const std::vector<InDetSimData::Deposit>::const_iterator dep_end(deposits.end());
-      
-      for ( ; dep_itr != dep_end; ++dep_itr ) {
-	const HepMcParticleLink& particleLink = (*dep_itr).first;
-	const int bar(particleLink.barcode());
-	const int eventIx(particleLink.eventIndex());
-	const float charge((*dep_itr).second);
-	
-	m_barcode->push_back(bar);
-	m_eventIndex->push_back(eventIx);
-	m_charge->push_back(charge);
 
-	h_barcode->Fill(bar);
-	h_eventIndex->Fill(eventIx);
-	h_charge->Fill(charge);
-	
-	barcode_vec.push_back(bar);
-	eventIndex_vec.push_back(eventIx);
-	charge_vec.push_back(charge);
+      for ( ; dep_itr != dep_end; ++dep_itr ) {
+        const HepMcParticleLink& particleLink = (*dep_itr).first;
+        const int bar(particleLink.barcode());
+        const int eventIx(particleLink.eventIndex());
+        const float charge((*dep_itr).second);
+
+        m_barcode->push_back(bar);
+        m_eventIndex->push_back(eventIx);
+        m_charge->push_back(charge);
+
+        h_barcode->Fill(bar);
+        h_eventIndex->Fill(eventIx);
+        h_charge->Fill(charge);
+
+        barcode_vec.push_back(bar);
+        eventIndex_vec.push_back(eventIx);
+        charge_vec.push_back(charge);
       }
       m_barcode_vec->push_back(barcode_vec);
       m_eventIndex_vec->push_back(eventIndex_vec);
@@ -476,12 +476,12 @@ StatusCode SCT_RDOAnalysis::execute() {
   if (m_tree) {
     m_tree->Fill();
   }
-  
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode SCT_RDOAnalysis::finalize() {
 
   return StatusCode::SUCCESS;
-  
+
 }

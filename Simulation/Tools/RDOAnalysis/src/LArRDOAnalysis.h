@@ -24,7 +24,7 @@ class TH1;
 
 class LArRDOAnalysis : public AthAlgorithm {
 
- public:
+public:
   LArRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~LArRDOAnalysis(){}
 
@@ -32,7 +32,7 @@ class LArRDOAnalysis : public AthAlgorithm {
   virtual StatusCode execute();
   virtual StatusCode finalize();
 
- private:
+private:
   SG::ReadHandleKey<LArRawChannelContainer> m_inputRawChannelKey;
   SG::ReadHandleKey<LArTTL1Container> m_inputTTL1HADKey;
   SG::ReadHandleKey<LArTTL1Container> m_inputTTL1EMKey;
@@ -73,7 +73,7 @@ class LArRDOAnalysis : public AthAlgorithm {
   TH1* h_digiID;
   TH1* h_digiGain;
   TH1* h_digiSamples;
-  
+
   TTree *m_tree;
   std::string m_ntupleFileName;
   std::string m_ntupleDirName;

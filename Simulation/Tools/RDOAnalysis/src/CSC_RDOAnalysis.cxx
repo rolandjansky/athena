@@ -81,7 +81,7 @@ CSC_RDOAnalysis::CSC_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , h_ypos(0)
   , h_zpos(0)
   , h_charge(0)
-    
+
   , m_tree(0)
   , m_ntupleFileName("/ntuples/file1")
   , m_ntupleDirName("/CSC_RDOAnalysis/")
@@ -182,7 +182,7 @@ StatusCode CSC_RDOAnalysis::initialize() {
   h_spuCt = new TH1F("h_spuCt", "Collection SPU count", 100, 0, 20);
   h_spuCt->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_spuCt->GetName(), h_spuCt));
-  
+
   h_cscRpuID = new TH1F("h_cscRpuID", "SPU ID of strip", 100, 0, 10);
   h_cscRpuID->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_cscRpuID->GetName(), h_cscRpuID));
@@ -290,7 +290,7 @@ StatusCode CSC_RDOAnalysis::execute() {
   m_ypos_vec->clear();
   m_zpos_vec->clear();
   m_charge_vec->clear();
-  
+
   SG::ReadHandle<CscRawDataContainer> p_CSCcont (m_inputKey);
   if(p_CSCcont.isValid()) {
     CscRawDataContainer::const_iterator cscCont_itr(p_CSCcont->begin());
@@ -316,20 +316,20 @@ StatusCode CSC_RDOAnalysis::execute() {
       const bool sparse((*cscCont_itr)->sparsified());
       const bool neut((*cscCont_itr)->neutron());
       const bool calEn((*cscCont_itr)->calEnabled());
-      
+
       m_collID->push_back(collID);
       m_rodID->push_back(rodID);
       m_subID->push_back(subID);
-      
+
       for (std::vector<uint16_t>::size_type i = 0; i != collRpuID.size(); ++i) {
-	m_collRpuID->push_back(collRpuID.at(i));
-	h_collRpuID->Fill(collRpuID.at(i));
+        m_collRpuID->push_back(collRpuID.at(i));
+        h_collRpuID->Fill(collRpuID.at(i));
       }
       for (std::vector<uint8_t>::size_type j = 0; j != dataType.size(); ++j) {
-	m_dataType->push_back(dataType.at(j));
-	h_dataType->Fill(dataType.at(j));
+        m_dataType->push_back(dataType.at(j));
+        h_dataType->Fill(dataType.at(j));
       }
-      
+
       m_smplPhase->push_back((*cscCont_itr)->samplingPhase());
       m_trigType->push_back((*cscCont_itr)->triggerType());
       m_firstBitSum->push_back((*cscCont_itr)->firstBitSummary());
@@ -343,10 +343,10 @@ StatusCode CSC_RDOAnalysis::execute() {
       m_sparse->push_back((*cscCont_itr)->sparsified());
       m_neutron->push_back((*cscCont_itr)->neutron());
       m_calEn->push_back((*cscCont_itr)->calEnabled());
-      
+
       for (unsigned int k = 0; k != 10; ++k) {
-	m_spuCt->push_back((*cscCont_itr)->spuCount(k));
-	h_spuCt->Fill((*cscCont_itr)->spuCount(k));
+        m_spuCt->push_back((*cscCont_itr)->spuCount(k));
+        h_spuCt->Fill((*cscCont_itr)->spuCount(k));
       }
 
       h_collID->Fill(collID);
@@ -358,33 +358,33 @@ StatusCode CSC_RDOAnalysis::execute() {
       const CscRawDataCollection::const_iterator csc_end(p_CSCcoll->end());
       for ( ; csc_itr != csc_end; ++csc_itr ) {
 
-	const uint16_t cscRpuID((*csc_itr)->rpuID());
-      	const uint16_t cscID((*csc_itr)->identify());
-      	const uint16_t cscTime((*csc_itr)->time());
-      	const uint16_t cscWidth((*csc_itr)->width());
-      	const bool cscTimeComp((*csc_itr)->isTimeComputed());
-      	const std::vector<uint16_t> cscSmpl_vec((*csc_itr)->samples());
-      	const uint32_t cscAdd((*csc_itr)->address());
-      	const uint32_t cscHashID((*csc_itr)->hashId());
-	
-	m_cscRpuID->push_back(cscRpuID);
-      	m_cscID->push_back(cscID);
-      	m_cscTime->push_back(cscTime);
-      	m_cscWidth->push_back(cscWidth);
-      	m_cscTimeComp->push_back(cscTimeComp);
-      	m_cscSmpl->push_back(cscSmpl_vec);
-      	m_cscAdd->push_back(cscAdd);
-      	m_cscHashID->push_back(cscHashID);
+        const uint16_t cscRpuID((*csc_itr)->rpuID());
+        const uint16_t cscID((*csc_itr)->identify());
+        const uint16_t cscTime((*csc_itr)->time());
+        const uint16_t cscWidth((*csc_itr)->width());
+        const bool cscTimeComp((*csc_itr)->isTimeComputed());
+        const std::vector<uint16_t> cscSmpl_vec((*csc_itr)->samples());
+        const uint32_t cscAdd((*csc_itr)->address());
+        const uint32_t cscHashID((*csc_itr)->hashId());
 
-	h_cscRpuID->Fill(cscRpuID);
-	h_cscID->Fill(cscID);
-      	h_cscTime->Fill(cscTime);
-      	h_cscWidth->Fill(cscWidth);
-	for (std::vector<uint16_t>::size_type l = 0; l != cscSmpl_vec.size(); ++l) {
-	  h_cscSmpl->Fill(cscSmpl_vec.at(l));
-	}
-	h_cscAdd->Fill(cscAdd);
-	h_cscHashID->Fill(cscHashID);
+        m_cscRpuID->push_back(cscRpuID);
+        m_cscID->push_back(cscID);
+        m_cscTime->push_back(cscTime);
+        m_cscWidth->push_back(cscWidth);
+        m_cscTimeComp->push_back(cscTimeComp);
+        m_cscSmpl->push_back(cscSmpl_vec);
+        m_cscAdd->push_back(cscAdd);
+        m_cscHashID->push_back(cscHashID);
+
+        h_cscRpuID->Fill(cscRpuID);
+        h_cscID->Fill(cscID);
+        h_cscTime->Fill(cscTime);
+        h_cscWidth->Fill(cscWidth);
+        for (std::vector<uint16_t>::size_type l = 0; l != cscSmpl_vec.size(); ++l) {
+          h_cscSmpl->Fill(cscSmpl_vec.at(l));
+        }
+        h_cscAdd->Fill(cscAdd);
+        h_cscHashID->Fill(cscHashID);
       }
     }
   }
@@ -416,35 +416,35 @@ StatusCode CSC_RDOAnalysis::execute() {
       std::vector<CscSimData::Deposit>::const_iterator dep_itr(deposits.begin());
       const std::vector<CscSimData::Deposit>::const_iterator dep_end(deposits.end());
       for ( ; dep_itr != dep_end; ++dep_itr ) {
-	const HepMcParticleLink& particleLink = (*dep_itr).first;
-	const int bar(particleLink.barcode());
-	const int eventIx(particleLink.eventIndex());
-	const CscMcData& data = (*dep_itr).second;
-	const float sdoEnergy(data.energy());
-	const float sdoYpos(data.ypos());
-	const float sdoZpos(data.zpos());
-	const float sdoCharge(data.charge());
-	
-	m_barcode->push_back(bar);
-	m_eventIndex->push_back(eventIx);
-	m_energy->push_back(sdoEnergy);
-	m_ypos->push_back(sdoYpos);
-	m_zpos->push_back(sdoZpos);
-	m_charge->push_back(sdoCharge);
+        const HepMcParticleLink& particleLink = (*dep_itr).first;
+        const int bar(particleLink.barcode());
+        const int eventIx(particleLink.eventIndex());
+        const CscMcData& data = (*dep_itr).second;
+        const float sdoEnergy(data.energy());
+        const float sdoYpos(data.ypos());
+        const float sdoZpos(data.zpos());
+        const float sdoCharge(data.charge());
 
-	h_barcode->Fill(bar);
-	h_eventIndex->Fill(eventIx);
-	h_energy->Fill(sdoEnergy);
-	h_ypos->Fill(sdoYpos);
-	h_zpos->Fill(sdoZpos);
-	h_charge->Fill(sdoCharge);
-	
-	barcode_vec.push_back(bar);
-	eventIndex_vec.push_back(eventIx);
-	energy_vec.push_back(sdoEnergy);
-	ypos_vec.push_back(sdoYpos);
-	zpos_vec.push_back(sdoZpos);
-	charge_vec.push_back(sdoCharge);
+        m_barcode->push_back(bar);
+        m_eventIndex->push_back(eventIx);
+        m_energy->push_back(sdoEnergy);
+        m_ypos->push_back(sdoYpos);
+        m_zpos->push_back(sdoZpos);
+        m_charge->push_back(sdoCharge);
+
+        h_barcode->Fill(bar);
+        h_eventIndex->Fill(eventIx);
+        h_energy->Fill(sdoEnergy);
+        h_ypos->Fill(sdoYpos);
+        h_zpos->Fill(sdoZpos);
+        h_charge->Fill(sdoCharge);
+
+        barcode_vec.push_back(bar);
+        eventIndex_vec.push_back(eventIx);
+        energy_vec.push_back(sdoEnergy);
+        ypos_vec.push_back(sdoYpos);
+        zpos_vec.push_back(sdoZpos);
+        charge_vec.push_back(sdoCharge);
       }
       m_barcode_vec->push_back(barcode_vec);
       m_eventIndex_vec->push_back(eventIndex_vec);

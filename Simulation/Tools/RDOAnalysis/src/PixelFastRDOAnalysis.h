@@ -24,7 +24,7 @@ class TH1;
 
 class PixelFastRDOAnalysis : public AthAlgorithm {
 
- public:
+public:
   PixelFastRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~PixelFastRDOAnalysis(){}
 
@@ -32,7 +32,7 @@ class PixelFastRDOAnalysis : public AthAlgorithm {
   virtual StatusCode execute();
   virtual StatusCode finalize();
 
- private:
+private:
   SG::ReadHandleKey<InDet::PixelClusterContainer> m_inputKey;
   // PixelCluster
   std::vector<float>* m_omegax;
@@ -143,9 +143,9 @@ class PixelFastRDOAnalysis : public AthAlgorithm {
   TH1* h_locpos_x;
   TH1* h_locpos_y;
   TH1* h_rdoID_prd;
-  
 
-  
+
+
   TTree* m_tree;
   std::string m_ntupleFileName;
   std::string m_ntupleDirName;

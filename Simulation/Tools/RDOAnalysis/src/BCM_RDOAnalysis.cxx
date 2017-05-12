@@ -50,7 +50,7 @@ BCM_RDOAnalysis::BCM_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , h_barcode(0)
   , h_eventIndex(0)
   , h_charge(0)
-    
+
   , m_tree(0)
   , m_ntupleFileName("/ntuples/file1")
   , m_ntupleDirName("/BCM_RDOAnalysis/")
@@ -157,7 +157,7 @@ StatusCode BCM_RDOAnalysis::initialize() {
   ATH_CHECK(m_thistSvc->regHist(m_path + h_charge->GetName(), h_charge));
 
   return StatusCode::SUCCESS;
-  
+
 }
 
 StatusCode BCM_RDOAnalysis::execute() {
@@ -182,7 +182,7 @@ StatusCode BCM_RDOAnalysis::execute() {
   m_barcode_vec->clear();
   m_eventIndex_vec->clear();
   m_charge_vec->clear();
-  
+
   // RDO
   SG::ReadHandle<BCM_RDO_Container> p_BCM_RDO_cont (m_inputKey);
   if(p_BCM_RDO_cont.isValid()) {
@@ -196,37 +196,37 @@ StatusCode BCM_RDOAnalysis::execute() {
       const DataVector<BCM_RawData>::const_iterator rdo_end(p_BCM_RDO_coll->end());
 
       for ( ; rdo_itr != rdo_end; ++rdo_itr ) {
-	const int word1((*rdo_itr)->getWord1());
-	const int word2((*rdo_itr)->getWord2());
-	const int chan((*rdo_itr)->getChannel());
-	const int pulse1Pos((*rdo_itr)->getPulse1Position());
-	const int pulse1Width((*rdo_itr)->getPulse1Width());
-	const int pulse2Pos((*rdo_itr)->getPulse2Position());
-	const int pulse2Width((*rdo_itr)->getPulse2Width());
-	const int LVL1A((*rdo_itr)->getLVL1A());
-	const int BCID((*rdo_itr)->getBCID());
-	const int LVL1ID((*rdo_itr)->getLVL1ID());
-	const int err((*rdo_itr)->getError());
-	
-	m_word1->push_back(word1);
-	m_word2->push_back(word2);
-	m_chan->push_back(chan);
-	m_pulse1Pos->push_back(pulse1Pos);
-	m_pulse1Width->push_back(pulse1Width);
-	m_pulse2Pos->push_back(pulse2Pos);
-	m_pulse2Width->push_back(pulse2Width);
-	m_LVL1A->push_back(LVL1A);
-	m_BCID->push_back(BCID);
-	m_LVL1ID->push_back(LVL1ID);
-	m_err->push_back(err);
+        const int word1((*rdo_itr)->getWord1());
+        const int word2((*rdo_itr)->getWord2());
+        const int chan((*rdo_itr)->getChannel());
+        const int pulse1Pos((*rdo_itr)->getPulse1Position());
+        const int pulse1Width((*rdo_itr)->getPulse1Width());
+        const int pulse2Pos((*rdo_itr)->getPulse2Position());
+        const int pulse2Width((*rdo_itr)->getPulse2Width());
+        const int LVL1A((*rdo_itr)->getLVL1A());
+        const int BCID((*rdo_itr)->getBCID());
+        const int LVL1ID((*rdo_itr)->getLVL1ID());
+        const int err((*rdo_itr)->getError());
 
-	h_word1->Fill(word1);
-	h_word2->Fill(word2);
-	h_chan->Fill(chan);
-	h_pulse1Pos->Fill(pulse1Pos);
-	h_pulse1Width->Fill(pulse1Width);
-	h_pulse2Pos->Fill(pulse2Pos);
-	h_pulse2Width->Fill(pulse2Width);
+        m_word1->push_back(word1);
+        m_word2->push_back(word2);
+        m_chan->push_back(chan);
+        m_pulse1Pos->push_back(pulse1Pos);
+        m_pulse1Width->push_back(pulse1Width);
+        m_pulse2Pos->push_back(pulse2Pos);
+        m_pulse2Width->push_back(pulse2Width);
+        m_LVL1A->push_back(LVL1A);
+        m_BCID->push_back(BCID);
+        m_LVL1ID->push_back(LVL1ID);
+        m_err->push_back(err);
+
+        h_word1->Fill(word1);
+        h_word2->Fill(word2);
+        h_chan->Fill(chan);
+        h_pulse1Pos->Fill(pulse1Pos);
+        h_pulse1Width->Fill(pulse1Width);
+        h_pulse2Pos->Fill(pulse2Pos);
+        h_pulse2Width->Fill(pulse2Width);
       }
     }
   }
@@ -244,10 +244,10 @@ StatusCode BCM_RDOAnalysis::execute() {
     for ( ; sdo_itr != sdo_end; ++sdo_itr ) {
       const Identifier sdoID((*sdo_itr).first);
       const InDetSimData& sdo((*sdo_itr).second);
-      
+
       const unsigned long long sdoID_int = sdoID.get_compact();
       const int sdoWord(sdo.word());
-      
+
       m_sdoID->push_back(sdoID_int);
       m_sdoWord->push_back(sdoWord);
 
@@ -260,22 +260,22 @@ StatusCode BCM_RDOAnalysis::execute() {
       const std::vector<InDetSimData::Deposit>::const_iterator dep_end(deposits.end());
 
       for ( ; dep_itr != dep_end; ++dep_itr ) {
-	const HepMcParticleLink& particleLink = (*dep_itr).first;
-	const int bar(particleLink.barcode());
-	const int eventIx(particleLink.eventIndex());
-	const float charge((*dep_itr).second);
-	
-	m_barcode->push_back(bar);
-	m_eventIndex->push_back(eventIx);
-	m_charge->push_back(charge);
+        const HepMcParticleLink& particleLink = (*dep_itr).first;
+        const int bar(particleLink.barcode());
+        const int eventIx(particleLink.eventIndex());
+        const float charge((*dep_itr).second);
 
-	h_barcode->Fill(bar);
-	h_eventIndex->Fill(eventIx);
-	h_charge->Fill(charge);
-	
-	barcode_vec.push_back(bar);
-	eventIndex_vec.push_back(eventIx);
-	charge_vec.push_back(charge);
+        m_barcode->push_back(bar);
+        m_eventIndex->push_back(eventIx);
+        m_charge->push_back(charge);
+
+        h_barcode->Fill(bar);
+        h_eventIndex->Fill(eventIx);
+        h_charge->Fill(charge);
+
+        barcode_vec.push_back(bar);
+        eventIndex_vec.push_back(eventIx);
+        charge_vec.push_back(charge);
       }
       m_barcode_vec->push_back(barcode_vec);
       m_eventIndex_vec->push_back(eventIndex_vec);
@@ -289,9 +289,9 @@ StatusCode BCM_RDOAnalysis::execute() {
   if (m_tree) {
     m_tree->Fill();
   }
-  
+
   return StatusCode::SUCCESS;
-  
+
 }
 
 StatusCode BCM_RDOAnalysis::finalize() {

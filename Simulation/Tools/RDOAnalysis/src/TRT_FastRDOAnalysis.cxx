@@ -116,7 +116,7 @@ TRT_FastRDOAnalysis::TRT_FastRDOAnalysis(const std::string& name, ISvcLocator* p
   , h_allStrAxis_z(0)
   , h_allStrAxis_r(0)
   , h_allStrAxis_phi(0)
-    
+
   , m_tree(0)
   , m_ntupleFileName("/ntuples/file1")
   , m_ntupleDirName("/TRT_FastRDOAnalysis/")
@@ -467,197 +467,197 @@ StatusCode TRT_FastRDOAnalysis::execute() {
       InDet::TRT_DriftCircleCollection::const_iterator trtDC_itr(p_trtDC_coll->begin());
       const InDet::TRT_DriftCircleCollection::const_iterator trtDC_end(p_trtDC_coll->end());
       for ( ; trtDC_itr != trtDC_end; ++trtDC_itr ) {
-	// TRT_DriftCircle
-	const unsigned int word((*trtDC_itr)->getWord());
-	const int driftTimeBin((*trtDC_itr)->driftTimeBin());
-	const int trailEdge((*trtDC_itr)->trailingEdge());
-	const bool HL((*trtDC_itr)->highLevel());
-	const bool firstBin((*trtDC_itr)->firstBinHigh());
-	const bool lastBin((*trtDC_itr)->lastBinHigh());
-	const double ToT((*trtDC_itr)->timeOverThreshold());
-	const double rawDriftTime((*trtDC_itr)->rawDriftTime());
-	const bool driftTimeValid((*trtDC_itr)->driftTimeValid());
-	const bool noise((*trtDC_itr)->isNoise());
+        // TRT_DriftCircle
+        const unsigned int word((*trtDC_itr)->getWord());
+        const int driftTimeBin((*trtDC_itr)->driftTimeBin());
+        const int trailEdge((*trtDC_itr)->trailingEdge());
+        const bool HL((*trtDC_itr)->highLevel());
+        const bool firstBin((*trtDC_itr)->firstBinHigh());
+        const bool lastBin((*trtDC_itr)->lastBinHigh());
+        const double ToT((*trtDC_itr)->timeOverThreshold());
+        const double rawDriftTime((*trtDC_itr)->rawDriftTime());
+        const bool driftTimeValid((*trtDC_itr)->driftTimeValid());
+        const bool noise((*trtDC_itr)->isNoise());
 
-	m_word->push_back(word);
-	m_driftTimeBin->push_back(driftTimeBin);
-	m_trailEdge->push_back(trailEdge);
-	m_highLevel->push_back(HL);
-	m_firstBin->push_back(firstBin);
-	m_lastBin->push_back(lastBin);
-	m_timeOverThreshold->push_back(ToT);
-	m_rawDriftTime->push_back(rawDriftTime);
-	m_driftTimeValid->push_back(driftTimeValid);
-	m_noise->push_back(noise);
+        m_word->push_back(word);
+        m_driftTimeBin->push_back(driftTimeBin);
+        m_trailEdge->push_back(trailEdge);
+        m_highLevel->push_back(HL);
+        m_firstBin->push_back(firstBin);
+        m_lastBin->push_back(lastBin);
+        m_timeOverThreshold->push_back(ToT);
+        m_rawDriftTime->push_back(rawDriftTime);
+        m_driftTimeValid->push_back(driftTimeValid);
+        m_noise->push_back(noise);
 
-	h_word->Fill(word);
-	h_driftTimeBin->Fill(driftTimeBin);
-	h_trailEdge->Fill(trailEdge);
-	h_highLevel->Fill(HL);
-	h_firstBin->Fill(firstBin);
-	h_lastBin->Fill(lastBin);
-	h_timeOverThreshold->Fill(ToT);
-	h_rawDriftTime->Fill(rawDriftTime);
-	h_driftTimeValid->Fill(driftTimeValid);
-	h_noise->Fill(noise);
+        h_word->Fill(word);
+        h_driftTimeBin->Fill(driftTimeBin);
+        h_trailEdge->Fill(trailEdge);
+        h_highLevel->Fill(HL);
+        h_firstBin->Fill(firstBin);
+        h_lastBin->Fill(lastBin);
+        h_timeOverThreshold->Fill(ToT);
+        h_rawDriftTime->Fill(rawDriftTime);
+        h_driftTimeValid->Fill(driftTimeValid);
+        h_noise->Fill(noise);
 
-	// ---------------
-	// TRT_BaseElement
-	// ---------------
-	const InDetDD::TRT_BaseElement* detElement((*trtDC_itr)->detectorElement());
-	// type info --> BARREL or ENDCAP
-	const int brl_ec((*detElement).type());
-	const Identifier trtID((*detElement).identify());
-	const unsigned long long trtID_int = trtID.get_compact();
+        // ---------------
+        // TRT_BaseElement
+        // ---------------
+        const InDetDD::TRT_BaseElement* detElement((*trtDC_itr)->detectorElement());
+        // type info --> BARREL or ENDCAP
+        const int brl_ec((*detElement).type());
+        const Identifier trtID((*detElement).identify());
+        const unsigned long long trtID_int = trtID.get_compact();
 
-	// Surface & Tracking info
-	// -- element surface (straw layer)
-	const Trk::Surface& surf((*detElement).surface());
-	const int surfType(surf.type());
-	
-	const Trk::SurfaceBounds& bnds((*detElement).bounds());
-	const int bndsType(bnds.type());
-	
-	const Amg::Vector3D& cntr((*detElement).center());
-	const float cntr_x(cntr.x());
-	const float cntr_y(cntr.y());
-	const float cntr_z(cntr.z());
-	const float cntr_r(cntr.perp());
-	const float cntr_phi(cntr.phi());
-	
-	const Amg::Vector3D& norm((*detElement).normal());
-	const float norm_x(norm.x());
-	const float norm_y(norm.y());
-	const float norm_z(norm.z());
-	const float norm_r(norm.perp());
-	const float norm_phi(norm.phi());
-	
-	// -- straw surface (first straw in layer?)
-	const Trk::Surface& strSurf((*detElement).surface(trtID));
-	const int strSurfType(strSurf.type());	
-	
-	const Trk::SurfaceBounds& strBnds((*detElement).bounds(trtID));
-	const int strBndsType(strBnds.type());
-	
-	const Amg::Vector3D& strCntr((*detElement).center(trtID));
-	const float strCntr_x(strCntr.x());
-	const float strCntr_y(strCntr.y());
-	const float strCntr_z(strCntr.z());
-	const float strCntr_r(strCntr.perp());
-	const float strCntr_phi(strCntr.phi());
-	
-	const Amg::Vector3D& strNorm((*detElement).normal(trtID));
-	const float strNorm_x(strNorm.x());
-	const float strNorm_y(strNorm.y());
-	const float strNorm_z(strNorm.z());
-	const float strNorm_r(strNorm.perp());
-	const float strNorm_phi(strNorm.phi());
+        // Surface & Tracking info
+        // -- element surface (straw layer)
+        const Trk::Surface& surf((*detElement).surface());
+        const int surfType(surf.type());
 
-	const unsigned int strawN((*detElement).nStraws());
-	const double& strawL((*detElement).strawLength());
-	const int strawD((*detElement).strawDirection());
+        const Trk::SurfaceBounds& bnds((*detElement).bounds());
+        const int bndsType(bnds.type());
 
-	// all straws in layer
-	for (int i = 0; i != strawN; ++i) {
-	  const Amg::Vector3D& strawCenter((*detElement).strawCenter(i));
-	  const float strawCenter_x(strawCenter.x());
-	  const float strawCenter_y(strawCenter.y());
-	  const float strawCenter_z(strawCenter.z());
-	  const float strawCenter_r(strawCenter.perp());
-	  const float strawCenter_phi(strawCenter.phi());
+        const Amg::Vector3D& cntr((*detElement).center());
+        const float cntr_x(cntr.x());
+        const float cntr_y(cntr.y());
+        const float cntr_z(cntr.z());
+        const float cntr_r(cntr.perp());
+        const float cntr_phi(cntr.phi());
 
-	  const Amg::Vector3D& strawAxis((*detElement).strawAxis(i));
-	  const float strawAxis_x(strawAxis.x());
-	  const float strawAxis_y(strawAxis.y());
-	  const float strawAxis_z(strawAxis.z());
-	  const float strawAxis_r(strawAxis.perp());
-	  const float strawAxis_phi(strawAxis.phi());
+        const Amg::Vector3D& norm((*detElement).normal());
+        const float norm_x(norm.x());
+        const float norm_y(norm.y());
+        const float norm_z(norm.z());
+        const float norm_r(norm.perp());
+        const float norm_phi(norm.phi());
 
-	  m_allStrCntr_x->push_back(strawCenter_x);
-	  m_allStrCntr_y->push_back(strawCenter_y);
-	  m_allStrCntr_z->push_back(strawCenter_z);
-	  m_allStrCntr_r->push_back(strawCenter_r);
-	  m_allStrCntr_phi->push_back(strawCenter_phi);
+        // -- straw surface (first straw in layer?)
+        const Trk::Surface& strSurf((*detElement).surface(trtID));
+        const int strSurfType(strSurf.type());
 
-	  m_allStrAxis_x->push_back(strawAxis_x);
-	  m_allStrAxis_y->push_back(strawAxis_y);
-	  m_allStrAxis_z->push_back(strawAxis_z);
-	  m_allStrAxis_r->push_back(strawAxis_r);
-	  m_allStrAxis_phi->push_back(strawAxis_phi);
+        const Trk::SurfaceBounds& strBnds((*detElement).bounds(trtID));
+        const int strBndsType(strBnds.type());
 
-	  h_allStrCntr_x->Fill(strawCenter_x);
-	  h_allStrCntr_y->Fill(strawCenter_y);
-	  h_allStrCntr_z->Fill(strawCenter_z);
-	  h_allStrCntr_r->Fill(strawCenter_r);
-	  h_allStrCntr_phi->Fill(strawCenter_phi);
+        const Amg::Vector3D& strCntr((*detElement).center(trtID));
+        const float strCntr_x(strCntr.x());
+        const float strCntr_y(strCntr.y());
+        const float strCntr_z(strCntr.z());
+        const float strCntr_r(strCntr.perp());
+        const float strCntr_phi(strCntr.phi());
 
-	  h_allStrAxis_x->Fill(strawAxis_x);
-	  h_allStrAxis_y->Fill(strawAxis_y);
-	  h_allStrAxis_z->Fill(strawAxis_z);
-	  h_allStrAxis_r->Fill(strawAxis_r);
-	  h_allStrAxis_phi->Fill(strawAxis_phi);
-	}
-	
-	m_brl_ec->push_back(brl_ec);
-	m_trtID->push_back(trtID_int);
-	m_surfType->push_back(surfType);
-	m_bndsType->push_back(bndsType);
-	m_cntr_x->push_back(cntr_x);
-	m_cntr_y->push_back(cntr_y);
-	m_cntr_z->push_back(cntr_z);
-	m_cntr_r->push_back(cntr_r);
-	m_cntr_phi->push_back(cntr_phi);
-	m_norm_x->push_back(norm_x);
-	m_norm_y->push_back(norm_y);
-	m_norm_z->push_back(norm_z);
-	m_norm_r->push_back(norm_r);
-	m_norm_phi->push_back(norm_phi);
-	m_strSurfType->push_back(strSurfType);
-	m_strBndsType->push_back(strBndsType);
-	m_strCntr_x->push_back(strCntr_x);
-	m_strCntr_y->push_back(strCntr_y);
-	m_strCntr_z->push_back(strCntr_z);
-	m_strCntr_r->push_back(strCntr_r);
-	m_strCntr_phi->push_back(strCntr_phi);
-	m_strNorm_x->push_back(strNorm_x);
-	m_strNorm_y->push_back(strNorm_y);
-	m_strNorm_z->push_back(strNorm_z);
-	m_strNorm_r->push_back(strNorm_r);
-	m_strNorm_phi->push_back(strNorm_phi);
-	m_strawN->push_back(strawN);
-	m_strawL->push_back(strawL);
-	m_strawD->push_back(strawD);
+        const Amg::Vector3D& strNorm((*detElement).normal(trtID));
+        const float strNorm_x(strNorm.x());
+        const float strNorm_y(strNorm.y());
+        const float strNorm_z(strNorm.z());
+        const float strNorm_r(strNorm.perp());
+        const float strNorm_phi(strNorm.phi());
 
-	h_brl_ec->Fill(brl_ec);
-	h_trtID->Fill(trtID_int);
-	h_surfType->Fill(surfType);
-	h_bndsType->Fill(bndsType);
-	h_cntr_x->Fill(cntr_x);
-	h_cntr_y->Fill(cntr_y);
-	h_cntr_z->Fill(cntr_z);
-	h_cntr_r->Fill(cntr_r);
-	h_cntr_phi->Fill(cntr_phi);
-	h_norm_x->Fill(norm_x);
-	h_norm_y->Fill(norm_y);
-	h_norm_z->Fill(norm_z);
-	h_norm_r->Fill(norm_r);
-	h_norm_phi->Fill(norm_phi);
-	h_strSurfType->Fill(strSurfType);
-	h_strBndsType->Fill(strBndsType);
-	h_strCntr_x->Fill(strCntr_x);
-	h_strCntr_y->Fill(strCntr_y);
-	h_strCntr_z->Fill(strCntr_z);
-	h_strCntr_r->Fill(strCntr_r);
-	h_strCntr_phi->Fill(strCntr_phi);
-	h_strNorm_x->Fill(strNorm_x);
-	h_strNorm_y->Fill(strNorm_y);
-	h_strNorm_z->Fill(strNorm_z);
-	h_strNorm_r->Fill(strNorm_r);
-	h_strNorm_phi->Fill(strNorm_phi);
-	h_strawN->Fill(strawN);
-	h_strawL->Fill(strawL);
-	h_strawD->Fill(strawD);
-	
+        const unsigned int strawN((*detElement).nStraws());
+        const double& strawL((*detElement).strawLength());
+        const int strawD((*detElement).strawDirection());
+
+        // all straws in layer
+        for (int i = 0; i != strawN; ++i) {
+          const Amg::Vector3D& strawCenter((*detElement).strawCenter(i));
+          const float strawCenter_x(strawCenter.x());
+          const float strawCenter_y(strawCenter.y());
+          const float strawCenter_z(strawCenter.z());
+          const float strawCenter_r(strawCenter.perp());
+          const float strawCenter_phi(strawCenter.phi());
+
+          const Amg::Vector3D& strawAxis((*detElement).strawAxis(i));
+          const float strawAxis_x(strawAxis.x());
+          const float strawAxis_y(strawAxis.y());
+          const float strawAxis_z(strawAxis.z());
+          const float strawAxis_r(strawAxis.perp());
+          const float strawAxis_phi(strawAxis.phi());
+
+          m_allStrCntr_x->push_back(strawCenter_x);
+          m_allStrCntr_y->push_back(strawCenter_y);
+          m_allStrCntr_z->push_back(strawCenter_z);
+          m_allStrCntr_r->push_back(strawCenter_r);
+          m_allStrCntr_phi->push_back(strawCenter_phi);
+
+          m_allStrAxis_x->push_back(strawAxis_x);
+          m_allStrAxis_y->push_back(strawAxis_y);
+          m_allStrAxis_z->push_back(strawAxis_z);
+          m_allStrAxis_r->push_back(strawAxis_r);
+          m_allStrAxis_phi->push_back(strawAxis_phi);
+
+          h_allStrCntr_x->Fill(strawCenter_x);
+          h_allStrCntr_y->Fill(strawCenter_y);
+          h_allStrCntr_z->Fill(strawCenter_z);
+          h_allStrCntr_r->Fill(strawCenter_r);
+          h_allStrCntr_phi->Fill(strawCenter_phi);
+
+          h_allStrAxis_x->Fill(strawAxis_x);
+          h_allStrAxis_y->Fill(strawAxis_y);
+          h_allStrAxis_z->Fill(strawAxis_z);
+          h_allStrAxis_r->Fill(strawAxis_r);
+          h_allStrAxis_phi->Fill(strawAxis_phi);
+        }
+
+        m_brl_ec->push_back(brl_ec);
+        m_trtID->push_back(trtID_int);
+        m_surfType->push_back(surfType);
+        m_bndsType->push_back(bndsType);
+        m_cntr_x->push_back(cntr_x);
+        m_cntr_y->push_back(cntr_y);
+        m_cntr_z->push_back(cntr_z);
+        m_cntr_r->push_back(cntr_r);
+        m_cntr_phi->push_back(cntr_phi);
+        m_norm_x->push_back(norm_x);
+        m_norm_y->push_back(norm_y);
+        m_norm_z->push_back(norm_z);
+        m_norm_r->push_back(norm_r);
+        m_norm_phi->push_back(norm_phi);
+        m_strSurfType->push_back(strSurfType);
+        m_strBndsType->push_back(strBndsType);
+        m_strCntr_x->push_back(strCntr_x);
+        m_strCntr_y->push_back(strCntr_y);
+        m_strCntr_z->push_back(strCntr_z);
+        m_strCntr_r->push_back(strCntr_r);
+        m_strCntr_phi->push_back(strCntr_phi);
+        m_strNorm_x->push_back(strNorm_x);
+        m_strNorm_y->push_back(strNorm_y);
+        m_strNorm_z->push_back(strNorm_z);
+        m_strNorm_r->push_back(strNorm_r);
+        m_strNorm_phi->push_back(strNorm_phi);
+        m_strawN->push_back(strawN);
+        m_strawL->push_back(strawL);
+        m_strawD->push_back(strawD);
+
+        h_brl_ec->Fill(brl_ec);
+        h_trtID->Fill(trtID_int);
+        h_surfType->Fill(surfType);
+        h_bndsType->Fill(bndsType);
+        h_cntr_x->Fill(cntr_x);
+        h_cntr_y->Fill(cntr_y);
+        h_cntr_z->Fill(cntr_z);
+        h_cntr_r->Fill(cntr_r);
+        h_cntr_phi->Fill(cntr_phi);
+        h_norm_x->Fill(norm_x);
+        h_norm_y->Fill(norm_y);
+        h_norm_z->Fill(norm_z);
+        h_norm_r->Fill(norm_r);
+        h_norm_phi->Fill(norm_phi);
+        h_strSurfType->Fill(strSurfType);
+        h_strBndsType->Fill(strBndsType);
+        h_strCntr_x->Fill(strCntr_x);
+        h_strCntr_y->Fill(strCntr_y);
+        h_strCntr_z->Fill(strCntr_z);
+        h_strCntr_r->Fill(strCntr_r);
+        h_strCntr_phi->Fill(strCntr_phi);
+        h_strNorm_x->Fill(strNorm_x);
+        h_strNorm_y->Fill(strNorm_y);
+        h_strNorm_z->Fill(strNorm_z);
+        h_strNorm_r->Fill(strNorm_r);
+        h_strNorm_phi->Fill(strNorm_phi);
+        h_strawN->Fill(strawN);
+        h_strawL->Fill(strawL);
+        h_strawD->Fill(strawD);
+
       }
     }
   }

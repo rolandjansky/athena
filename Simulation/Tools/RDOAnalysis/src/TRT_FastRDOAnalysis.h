@@ -25,7 +25,7 @@ class TH1;
 
 class TRT_FastRDOAnalysis : public AthAlgorithm {
 
- public:
+public:
   TRT_FastRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~TRT_FastRDOAnalysis(){}
 

@@ -121,7 +121,7 @@ PixelFastRDOAnalysis::PixelFastRDOAnalysis(const std::string& name, ISvcLocator*
   , h_locpos_x(0)
   , h_locpos_y(0)
   , h_rdoID_prd(0)
-    
+
   , m_tree(0)
   , m_ntupleFileName("/ntuples/file1")
   , m_ntupleDirName("/PixelFastRDOAnalysis/")
@@ -143,7 +143,7 @@ StatusCode PixelFastRDOAnalysis::initialize() {
   // properly by job configuration.
   ATH_CHECK( m_inputKey.initialize() );
 
-   // Grab Ntuple and histogramming service for tree
+  // Grab Ntuple and histogramming service for tree
   ATH_CHECK(m_thistSvc.retrieve());
 
   m_tree = new TTree(TString(m_ntupleTreeName), "PixelFastRDOAna");
@@ -288,11 +288,11 @@ StatusCode PixelFastRDOAnalysis::initialize() {
   h_siPos_x = new TH1F("h_siPos_x", "siPos_x", 100, -600, 600);
   h_siPos_x->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_siPos_x->GetName(), h_siPos_x));
-  
+
   h_siPos_y = new TH1F("h_siPos_y", "siPos_y", 100, -600, 600);
   h_siPos_y->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_siPos_y->GetName(), h_siPos_y));
-  
+
   h_siPos_z = new TH1F("h_siPos_z", "siPos_z", 100, -3000, 3000);
   h_siPos_z->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_siPos_z->GetName(), h_siPos_z));
@@ -477,7 +477,7 @@ StatusCode PixelFastRDOAnalysis::execute() {
   m_locpos_x->clear();
   m_locpos_y->clear();
   m_rdoID_prd->clear();
-  
+
 
   // get containers -- fill branches + histos
   SG::ReadHandle<InDet::PixelClusterContainer> p_pixelClus_cont (m_inputKey);
@@ -490,192 +490,192 @@ StatusCode PixelFastRDOAnalysis::execute() {
       InDet::PixelClusterCollection::const_iterator clus_itr(p_pixelClus_coll->begin());
       const InDet::PixelClusterCollection::const_iterator clus_end(p_pixelClus_coll->end());
       for ( ; clus_itr != clus_end; ++clus_itr ) {
-	// PixelCluster
-	const float omegax((*clus_itr)->omegax());
-	const float omegay((*clus_itr)->omegay());
-	const std::vector<int>& tot_v((*clus_itr)->totList());
-	const int totalTot((*clus_itr)->totalToT());
-	const std::vector<float>& charge_v((*clus_itr)->chargeList());
-	const float totalCharge((*clus_itr)->totalCharge());
-	const float eLoss((*clus_itr)->energyLoss());
-	const bool fake((*clus_itr)->isFake());
-	const bool ambig((*clus_itr)->isAmbiguous());
-	const bool split((*clus_itr)->isSplit());
-	const double splitProb1((*clus_itr)->splitProbability1());
-	const double splitProb2((*clus_itr)->splitProbability2());
-	//const int splitInfoRaw((*clus_itr)->splitInfoRaw());
-	const int LVL1A((*clus_itr)->LVL1A());
+        // PixelCluster
+        const float omegax((*clus_itr)->omegax());
+        const float omegay((*clus_itr)->omegay());
+        const std::vector<int>& tot_v((*clus_itr)->totList());
+        const int totalTot((*clus_itr)->totalToT());
+        const std::vector<float>& charge_v((*clus_itr)->chargeList());
+        const float totalCharge((*clus_itr)->totalCharge());
+        const float eLoss((*clus_itr)->energyLoss());
+        const bool fake((*clus_itr)->isFake());
+        const bool ambig((*clus_itr)->isAmbiguous());
+        const bool split((*clus_itr)->isSplit());
+        const double splitProb1((*clus_itr)->splitProbability1());
+        const double splitProb2((*clus_itr)->splitProbability2());
+        //const int splitInfoRaw((*clus_itr)->splitInfoRaw());
+        const int LVL1A((*clus_itr)->LVL1A());
 
-	m_omegax->push_back(omegax);
-	m_omegay->push_back(omegay);
-	for (size_t i = 0; i != tot_v.size(); ++i) {
-	  m_tot->push_back(tot_v.at(i));
-	  h_tot->Fill(tot_v.at(i));
-	}
-	m_totalTot->push_back(totalTot);
-	for (size_t j = 0; j != charge_v.size(); ++j) {
-	  m_charge->push_back(charge_v.at(j));
-	  h_charge->Fill(charge_v.at(j));
-	}
-	m_totalCharge->push_back(totalCharge);
-	m_eLoss->push_back(eLoss);
-	m_fake->push_back(fake);
-	m_ambig->push_back(ambig);
-	m_split->push_back(split);
-	m_splitProb1->push_back(splitProb1);
-	m_splitProb2->push_back(splitProb2);
-	//m_splitInfoRaw->push_back(splitInfoRaw);
-	m_LVL1A->push_back(LVL1A);
+        m_omegax->push_back(omegax);
+        m_omegay->push_back(omegay);
+        for (size_t i = 0; i != tot_v.size(); ++i) {
+          m_tot->push_back(tot_v.at(i));
+          h_tot->Fill(tot_v.at(i));
+        }
+        m_totalTot->push_back(totalTot);
+        for (size_t j = 0; j != charge_v.size(); ++j) {
+          m_charge->push_back(charge_v.at(j));
+          h_charge->Fill(charge_v.at(j));
+        }
+        m_totalCharge->push_back(totalCharge);
+        m_eLoss->push_back(eLoss);
+        m_fake->push_back(fake);
+        m_ambig->push_back(ambig);
+        m_split->push_back(split);
+        m_splitProb1->push_back(splitProb1);
+        m_splitProb2->push_back(splitProb2);
+        //m_splitInfoRaw->push_back(splitInfoRaw);
+        m_LVL1A->push_back(LVL1A);
 
-	h_omegax->Fill(omegax);
-	h_omegay->Fill(omegay);
-	h_totalTot->Fill(totalTot);
-	h_totalCharge->Fill(totalCharge);
-	h_eLoss->Fill(eLoss);
-	h_fake->Fill(fake);
-	h_ambig->Fill(ambig);
-	h_split->Fill(split);
-	h_splitProb1->Fill(splitProb1);
-	h_splitProb2->Fill(splitProb2);
-	//h_splitInfoRaw->Fill(splitInfoRaw);
-	h_LVL1A->Fill(LVL1A);
+        h_omegax->Fill(omegax);
+        h_omegay->Fill(omegay);
+        h_totalTot->Fill(totalTot);
+        h_totalCharge->Fill(totalCharge);
+        h_eLoss->Fill(eLoss);
+        h_fake->Fill(fake);
+        h_ambig->Fill(ambig);
+        h_split->Fill(split);
+        h_splitProb1->Fill(splitProb1);
+        h_splitProb2->Fill(splitProb2);
+        //h_splitInfoRaw->Fill(splitInfoRaw);
+        h_LVL1A->Fill(LVL1A);
 
-	// SiCluster
-	const InDet::SiWidth& siWidth((*clus_itr)->SiCluster::width());
-	const Amg::Vector2D& siColRow(siWidth.colRow());
-	const float siCol(siColRow.x());
-	const float siRow(siColRow.y());
-	const Amg::Vector2D& siPhiRZ(siWidth.widthPhiRZ());
-	const float siPhiR(siPhiRZ.x());
-	const float siZ(siPhiRZ.y());
-	
-	const Amg::Vector3D& siPos((*clus_itr)->SiCluster::globalPosition());
-	const float siPos_x(siPos.x());
-	const float siPos_y(siPos.y());
-	const float siPos_z(siPos.z());
-	
-	const bool siGangPix((*clus_itr)->SiCluster::gangedPixel());
-	
-	const InDetDD::SiDetectorElement* siDetEl((*clus_itr)->SiCluster::detectorElement());
-	const Identifier siDetID((*siDetEl).identify());
-	//const AtlasDetectorID* siDetAtlasID((*siDetEl).getIdHelper());
-	const bool siDetPix((*siDetEl).isPixel());
-	const bool siDetSCT((*siDetEl).isSCT());
-	const bool siDetBrl((*siDetEl).isBarrel());
-	const bool siDetEc((*siDetEl).isEndcap());
-	const bool siDetBlay((*siDetEl).isBlayer());
-	const bool siDetInPixLay((*siDetEl).isInnermostPixelLayer());
-	const bool siDetNtInPixLay((*siDetEl).isNextToInnermostPixelLayer());
-	const bool siDetDBM((*siDetEl).isDBM());
-	const double siDetHitDepthDir((*siDetEl).hitDepthDirection());
-	const double siDetHitPhiDir((*siDetEl).hitPhiDirection());
-	const double siDetHitEtaDir((*siDetEl).hitEtaDirection());
-	const double siDetMinR((*siDetEl).rMin());
-	const double siDetMaxR((*siDetEl).rMax());
-	const double siDetMinZ((*siDetEl).zMin());
-	const double siDetMaxZ((*siDetEl).zMax());
-	const double siDetMinPhi((*siDetEl).phiMin());
-	const double siDetMaxPhi((*siDetEl).phiMax());
-	const double siDetWidth((*siDetEl).width());
-	const double siDetMinWidth((*siDetEl).minWidth());
-	const double siDetMaxWidth((*siDetEl).maxWidth());
-	const double siDetLength((*siDetEl).length());
-	const double siDetThick((*siDetEl).thickness());
-	const double siDetEtaPitch((*siDetEl).etaPitch());
-	const double siDetPhiPitch((*siDetEl).phiPitch());
+        // SiCluster
+        const InDet::SiWidth& siWidth((*clus_itr)->SiCluster::width());
+        const Amg::Vector2D& siColRow(siWidth.colRow());
+        const float siCol(siColRow.x());
+        const float siRow(siColRow.y());
+        const Amg::Vector2D& siPhiRZ(siWidth.widthPhiRZ());
+        const float siPhiR(siPhiRZ.x());
+        const float siZ(siPhiRZ.y());
 
-	const unsigned long long siDetID_int = siDetID.get_compact();
+        const Amg::Vector3D& siPos((*clus_itr)->SiCluster::globalPosition());
+        const float siPos_x(siPos.x());
+        const float siPos_y(siPos.y());
+        const float siPos_z(siPos.z());
 
-	m_siCol->push_back(siCol);
-	m_siRow->push_back(siRow);
-	m_siPhiR->push_back(siPhiR);
-	m_siZ->push_back(siZ);
-	m_siPos_x->push_back(siPos_x);
-	m_siPos_y->push_back(siPos_y);
-	m_siPos_z->push_back(siPos_z);
-	m_siGangPix->push_back(siGangPix);
-	m_siDetID->push_back(siDetID_int);
-	m_siDetPix->push_back(siDetPix);
-	m_siDetSCT->push_back(siDetSCT);
-	m_siDetBrl->push_back(siDetBrl);
-	m_siDetEc->push_back(siDetEc);
-	m_siDetBlay->push_back(siDetBlay);
-	m_siDetInPixLay->push_back(siDetInPixLay);
-	m_siDetNtInPixLay->push_back(siDetNtInPixLay);
-	m_siDetDBM->push_back(siDetDBM);
-	m_siDetHitDepthDir->push_back(siDetHitDepthDir);
-	m_siDetHitPhiDir->push_back(siDetHitPhiDir);
-	m_siDetHitEtaDir->push_back(siDetHitEtaDir);
-	m_siDetMinR->push_back(siDetMinR);
-	m_siDetMaxR->push_back(siDetMaxR);
-	m_siDetMinZ->push_back(siDetMinZ);
-	m_siDetMaxZ->push_back(siDetMaxZ);
-	m_siDetMinPhi->push_back(siDetMinPhi);
-	m_siDetMaxPhi->push_back(siDetMaxPhi);
-	m_siDetWidth->push_back(siDetWidth);
-	m_siDetMinWidth->push_back(siDetMinWidth);
-	m_siDetMaxWidth->push_back(siDetMaxWidth);
-	m_siDetLength->push_back(siDetLength);
-	m_siDetThick->push_back(siDetThick);
-	m_siDetEtaPitch->push_back(siDetEtaPitch);
-	m_siDetPhiPitch->push_back(siDetPhiPitch);
+        const bool siGangPix((*clus_itr)->SiCluster::gangedPixel());
 
-	h_siCol->Fill(siCol);
-	h_siRow->Fill(siRow);
-	h_siPhiR->Fill(siPhiR);
-	h_siZ->Fill(siZ);
-	h_siPos_x->Fill(siPos_x);
-	h_siPos_y->Fill(siPos_y);
-	h_siPos_z->Fill(siPos_z);
-	h_siGangPix->Fill(siGangPix);
-	h_siDetID->Fill(siDetID_int);
-	h_siDetPix->Fill(siDetPix);
-	h_siDetSCT->Fill(siDetSCT);
-	h_siDetBrl->Fill(siDetBrl);
-	h_siDetEc->Fill(siDetEc);
-	h_siDetBlay->Fill(siDetBlay);
-	h_siDetInPixLay->Fill(siDetInPixLay);
-	h_siDetNtInPixLay->Fill(siDetNtInPixLay);
-	h_siDetDBM->Fill(siDetDBM);
-	h_siDetHitDepthDir->Fill(siDetHitDepthDir);
-	h_siDetHitPhiDir->Fill(siDetHitPhiDir);
-	h_siDetHitEtaDir->Fill(siDetHitEtaDir);
-	h_siDetMinR->Fill(siDetMinR);
-	h_siDetMaxR->Fill(siDetMaxR);
-	h_siDetMinZ->Fill(siDetMinZ);
-	h_siDetMaxZ->Fill(siDetMaxZ);
-	h_siDetMinPhi->Fill(siDetMinPhi);
-	h_siDetMaxPhi->Fill(siDetMaxPhi);
-	h_siDetWidth->Fill(siDetWidth);
-	h_siDetMinWidth->Fill(siDetMinWidth);
-	h_siDetMaxWidth->Fill(siDetMaxWidth);
-	h_siDetLength->Fill(siDetLength);
-	h_siDetThick->Fill(siDetThick);
-	h_siDetEtaPitch->Fill(siDetEtaPitch);
-	h_siDetPhiPitch->Fill(siDetPhiPitch);
-	
-	// Trk::PrepRawData
-	const Identifier clusID((*clus_itr)->PrepRawData::identify());
-	const unsigned long long clusID_int = clusID.get_compact();
-	
-	const Amg::Vector2D& locPos((*clus_itr)->PrepRawData::localPosition());
-	float locpos_x(locPos.x());
-	float locpos_y(locPos.y());
-	
-	const std::vector<Identifier>& rdoID_v((*clus_itr)->PrepRawData::rdoList());
+        const InDetDD::SiDetectorElement* siDetEl((*clus_itr)->SiCluster::detectorElement());
+        const Identifier siDetID((*siDetEl).identify());
+        //const AtlasDetectorID* siDetAtlasID((*siDetEl).getIdHelper());
+        const bool siDetPix((*siDetEl).isPixel());
+        const bool siDetSCT((*siDetEl).isSCT());
+        const bool siDetBrl((*siDetEl).isBarrel());
+        const bool siDetEc((*siDetEl).isEndcap());
+        const bool siDetBlay((*siDetEl).isBlayer());
+        const bool siDetInPixLay((*siDetEl).isInnermostPixelLayer());
+        const bool siDetNtInPixLay((*siDetEl).isNextToInnermostPixelLayer());
+        const bool siDetDBM((*siDetEl).isDBM());
+        const double siDetHitDepthDir((*siDetEl).hitDepthDirection());
+        const double siDetHitPhiDir((*siDetEl).hitPhiDirection());
+        const double siDetHitEtaDir((*siDetEl).hitEtaDirection());
+        const double siDetMinR((*siDetEl).rMin());
+        const double siDetMaxR((*siDetEl).rMax());
+        const double siDetMinZ((*siDetEl).zMin());
+        const double siDetMaxZ((*siDetEl).zMax());
+        const double siDetMinPhi((*siDetEl).phiMin());
+        const double siDetMaxPhi((*siDetEl).phiMax());
+        const double siDetWidth((*siDetEl).width());
+        const double siDetMinWidth((*siDetEl).minWidth());
+        const double siDetMaxWidth((*siDetEl).maxWidth());
+        const double siDetLength((*siDetEl).length());
+        const double siDetThick((*siDetEl).thickness());
+        const double siDetEtaPitch((*siDetEl).etaPitch());
+        const double siDetPhiPitch((*siDetEl).phiPitch());
 
-	m_clusID->push_back(clusID_int);
-	m_locpos_x->push_back(locpos_x);
-	m_locpos_y->push_back(locpos_y);
-	for (size_t k = 0; k != rdoID_v.size(); ++k) {
-	  const unsigned long long rdoID_prd_int = rdoID_v.at(k).get_compact();
-	  m_rdoID_prd->push_back(rdoID_prd_int);
-	  h_rdoID_prd->Fill(rdoID_prd_int);
-	}
+        const unsigned long long siDetID_int = siDetID.get_compact();
 
-	h_clusID->Fill(clusID_int);
-	h_locpos_x->Fill(locpos_x);
-	h_locpos_y->Fill(locpos_y);
+        m_siCol->push_back(siCol);
+        m_siRow->push_back(siRow);
+        m_siPhiR->push_back(siPhiR);
+        m_siZ->push_back(siZ);
+        m_siPos_x->push_back(siPos_x);
+        m_siPos_y->push_back(siPos_y);
+        m_siPos_z->push_back(siPos_z);
+        m_siGangPix->push_back(siGangPix);
+        m_siDetID->push_back(siDetID_int);
+        m_siDetPix->push_back(siDetPix);
+        m_siDetSCT->push_back(siDetSCT);
+        m_siDetBrl->push_back(siDetBrl);
+        m_siDetEc->push_back(siDetEc);
+        m_siDetBlay->push_back(siDetBlay);
+        m_siDetInPixLay->push_back(siDetInPixLay);
+        m_siDetNtInPixLay->push_back(siDetNtInPixLay);
+        m_siDetDBM->push_back(siDetDBM);
+        m_siDetHitDepthDir->push_back(siDetHitDepthDir);
+        m_siDetHitPhiDir->push_back(siDetHitPhiDir);
+        m_siDetHitEtaDir->push_back(siDetHitEtaDir);
+        m_siDetMinR->push_back(siDetMinR);
+        m_siDetMaxR->push_back(siDetMaxR);
+        m_siDetMinZ->push_back(siDetMinZ);
+        m_siDetMaxZ->push_back(siDetMaxZ);
+        m_siDetMinPhi->push_back(siDetMinPhi);
+        m_siDetMaxPhi->push_back(siDetMaxPhi);
+        m_siDetWidth->push_back(siDetWidth);
+        m_siDetMinWidth->push_back(siDetMinWidth);
+        m_siDetMaxWidth->push_back(siDetMaxWidth);
+        m_siDetLength->push_back(siDetLength);
+        m_siDetThick->push_back(siDetThick);
+        m_siDetEtaPitch->push_back(siDetEtaPitch);
+        m_siDetPhiPitch->push_back(siDetPhiPitch);
+
+        h_siCol->Fill(siCol);
+        h_siRow->Fill(siRow);
+        h_siPhiR->Fill(siPhiR);
+        h_siZ->Fill(siZ);
+        h_siPos_x->Fill(siPos_x);
+        h_siPos_y->Fill(siPos_y);
+        h_siPos_z->Fill(siPos_z);
+        h_siGangPix->Fill(siGangPix);
+        h_siDetID->Fill(siDetID_int);
+        h_siDetPix->Fill(siDetPix);
+        h_siDetSCT->Fill(siDetSCT);
+        h_siDetBrl->Fill(siDetBrl);
+        h_siDetEc->Fill(siDetEc);
+        h_siDetBlay->Fill(siDetBlay);
+        h_siDetInPixLay->Fill(siDetInPixLay);
+        h_siDetNtInPixLay->Fill(siDetNtInPixLay);
+        h_siDetDBM->Fill(siDetDBM);
+        h_siDetHitDepthDir->Fill(siDetHitDepthDir);
+        h_siDetHitPhiDir->Fill(siDetHitPhiDir);
+        h_siDetHitEtaDir->Fill(siDetHitEtaDir);
+        h_siDetMinR->Fill(siDetMinR);
+        h_siDetMaxR->Fill(siDetMaxR);
+        h_siDetMinZ->Fill(siDetMinZ);
+        h_siDetMaxZ->Fill(siDetMaxZ);
+        h_siDetMinPhi->Fill(siDetMinPhi);
+        h_siDetMaxPhi->Fill(siDetMaxPhi);
+        h_siDetWidth->Fill(siDetWidth);
+        h_siDetMinWidth->Fill(siDetMinWidth);
+        h_siDetMaxWidth->Fill(siDetMaxWidth);
+        h_siDetLength->Fill(siDetLength);
+        h_siDetThick->Fill(siDetThick);
+        h_siDetEtaPitch->Fill(siDetEtaPitch);
+        h_siDetPhiPitch->Fill(siDetPhiPitch);
+
+        // Trk::PrepRawData
+        const Identifier clusID((*clus_itr)->PrepRawData::identify());
+        const unsigned long long clusID_int = clusID.get_compact();
+
+        const Amg::Vector2D& locPos((*clus_itr)->PrepRawData::localPosition());
+        float locpos_x(locPos.x());
+        float locpos_y(locPos.y());
+
+        const std::vector<Identifier>& rdoID_v((*clus_itr)->PrepRawData::rdoList());
+
+        m_clusID->push_back(clusID_int);
+        m_locpos_x->push_back(locpos_x);
+        m_locpos_y->push_back(locpos_y);
+        for (size_t k = 0; k != rdoID_v.size(); ++k) {
+          const unsigned long long rdoID_prd_int = rdoID_v.at(k).get_compact();
+          m_rdoID_prd->push_back(rdoID_prd_int);
+          h_rdoID_prd->Fill(rdoID_prd_int);
+        }
+
+        h_clusID->Fill(clusID_int);
+        h_locpos_x->Fill(locpos_x);
+        h_locpos_y->Fill(locpos_y);
       }
     }
   }

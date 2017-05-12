@@ -23,7 +23,7 @@ class TH1;
 
 class CSC_RDOAnalysis : public AthAlgorithm {
 
- public:
+public:
   CSC_RDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~CSC_RDOAnalysis(){}
 
@@ -31,12 +31,12 @@ class CSC_RDOAnalysis : public AthAlgorithm {
   virtual StatusCode execute();
   virtual StatusCode finalize();
 
- private:
+private:
   SG::ReadHandleKey<CscRawDataContainer> m_inputKey;
   SG::ReadHandleKey<CscSimDataCollection> m_inputTruthKey;
   // RDO
   // CscRawDataCollection
-  std::vector<uint16_t>* m_collID; 
+  std::vector<uint16_t>* m_collID;
   std::vector<uint16_t>* m_rodID;
   std::vector<uint16_t>* m_subID;
   std::vector<uint16_t>* m_collRpuID;
@@ -110,7 +110,7 @@ class CSC_RDOAnalysis : public AthAlgorithm {
   std::string m_ntupleTreeName;
   std::string m_path;
   ServiceHandle<ITHistSvc> m_thistSvc;
-  
+
 };
 
 #endif // CSC_RDO_ANALYSIS_H

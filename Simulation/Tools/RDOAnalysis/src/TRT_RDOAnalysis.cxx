@@ -50,7 +50,7 @@ TRT_RDOAnalysis::TRT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_barcode_vec(0)
   , m_eventIndex_vec(0)
   , m_charge_vec(0)
- 
+
   , h_rdoID(0)
   , h_rdoWord(0)
   , h_barrelEndcap(0)
@@ -130,7 +130,7 @@ StatusCode TRT_RDOAnalysis::initialize() {
     m_tree->Branch("phiModule", &m_phiModule);
     m_tree->Branch("layerWheel", &m_layerWheel);
     m_tree->Branch("strawLayer", &m_strawLayer);
-    m_tree->Branch("straw", &m_straw);	  
+    m_tree->Branch("straw", &m_straw);
     m_tree->Branch("highLevel", &m_highLevel);
     m_tree->Branch("timeOverThreshold", &m_timeOverThreshold);
     m_tree->Branch("driftTimeBin", &m_driftTimeBin);
@@ -169,7 +169,7 @@ StatusCode TRT_RDOAnalysis::initialize() {
   h_rdoWord = new TH1F("h_rdoWord", "rdoWord", 100, 0, 1.5e8);
   h_rdoWord->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_rdoWord->GetName(), h_rdoWord));
-  
+
   h_barrelEndcap = new TH1F("h_barrelEndcap", "Barrel or Endcap", 100, -3.5, 3.5);
   h_barrelEndcap->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_barrelEndcap->GetName(), h_barrelEndcap));
@@ -189,15 +189,15 @@ StatusCode TRT_RDOAnalysis::initialize() {
   h_straw = new TH1F("h_straw", "Straw", 100, 0, 1000);
   h_straw->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_straw->GetName(), h_straw));
-   
+
   h_ToT = new TH1F("h_ToT", "Time over Threshold", 100, 0, 100);
   h_ToT->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_ToT->GetName(), h_ToT));
-  
+
   h_ToT_HL = new TH1F("h_ToT_HL", "Time over Threshold (highLevel)", 100, 0, 100);
   h_ToT_HL->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_ToT_HL->GetName(), h_ToT_HL));
-  
+
   h_driftTimeBin = new TH1F("h_driftTimeBin", "Drift Time Bin", 100, 0, 30);
   h_driftTimeBin->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_driftTimeBin->GetName(), h_driftTimeBin));
@@ -221,15 +221,15 @@ StatusCode TRT_RDOAnalysis::initialize() {
   h_brlStraw = new TH1F("h_brlStraw", "Barrel straw", 100, 0, 1000);
   h_brlStraw->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_brlStraw->GetName(), h_brlStraw));
-   
+
   h_brlToT = new TH1F("h_brlToT", "Barrel Time over Threshold", 100, 0, 100);
   h_brlToT->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_brlToT->GetName(), h_brlToT));
-  
+
   h_brlToT_HL = new TH1F("h_brlToT_HL", "Barrel Time over Threshold (highLevel)", 100, 0, 100);
   h_brlToT_HL->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_brlToT_HL->GetName(), h_brlToT_HL));
-  
+
   h_brlDriftTimeBin = new TH1F("h_brlDriftTimeBin", "Barrel Drift Time Bin", 100, 0, 30);
   h_brlDriftTimeBin->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_brlDriftTimeBin->GetName(), h_brlDriftTimeBin));
@@ -253,15 +253,15 @@ StatusCode TRT_RDOAnalysis::initialize() {
   h_ecStraw = new TH1F("h_ecStraw", "Endcap straw", 100, 0, 1000);
   h_ecStraw->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_ecStraw->GetName(), h_ecStraw));
-   
+
   h_ecToT = new TH1F("h_ecToT", "Endcap Time over Threshold", 100, 0, 100);
   h_ecToT->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_ecToT->GetName(), h_ecToT));
-  
+
   h_ecToT_HL = new TH1F("h_ecToT_HL", "Endcap Time over Threshold (highLevel)", 100, 0, 100);
   h_ecToT_HL->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_ecToT_HL->GetName(), h_ecToT_HL));
-  
+
   h_ecDriftTimeBin = new TH1F("h_ecDriftTimeBin", "Endcap Drift Time Bin", 100, 0, 30);
   h_ecDriftTimeBin->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_ecDriftTimeBin->GetName(), h_ecDriftTimeBin));
@@ -277,7 +277,7 @@ StatusCode TRT_RDOAnalysis::initialize() {
   h_sdoWord = new TH1F("h_sdoWord", "sdoWord", 100, 0, 10);
   h_sdoWord->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_sdoWord->GetName(), h_sdoWord));
-  
+
   h_barrelEndcap_sdo = new TH1F("h_barrelEndcap_sdo", "Barrel or Endcap (sdo)", 100, -3.5, 3.5);
   h_barrelEndcap_sdo->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_barrelEndcap_sdo->GetName(), h_barrelEndcap_sdo));
@@ -354,80 +354,80 @@ StatusCode TRT_RDOAnalysis::execute() {
     // loop over RDO container
     TRT_RDO_Container::const_iterator rdoCont_itr(p_TRT_RDO_cont->begin());
     const TRT_RDO_Container::const_iterator rdoCont_end(p_TRT_RDO_cont->end());
-    
+
     for ( ; rdoCont_itr != rdoCont_end; ++rdoCont_itr ) {
       const TRT_RDO_Collection* p_TRT_RDO_coll(*rdoCont_itr);
       TRT_RDO_Collection::const_iterator rdo_itr(p_TRT_RDO_coll->begin());
       const TRT_RDO_Collection::const_iterator rdo_end(p_TRT_RDO_coll->end());
-      
+
       for ( ; rdo_itr != rdo_end; ++rdo_itr ) {
-	const Identifier rdoID((*rdo_itr)->identify());
-	const unsigned int rdoWord((*rdo_itr)->getWord());
-	const int trtBrlEc(m_trtID->barrel_ec(rdoID));
-	const int trtPhiMod(m_trtID->phi_module(rdoID));
-	const int trtLayerWheel(m_trtID->layer_or_wheel(rdoID));
-	const int trtStrawLayer(m_trtID->straw_layer(rdoID));
-	const int trtStraw(m_trtID->straw(rdoID));
+        const Identifier rdoID((*rdo_itr)->identify());
+        const unsigned int rdoWord((*rdo_itr)->getWord());
+        const int trtBrlEc(m_trtID->barrel_ec(rdoID));
+        const int trtPhiMod(m_trtID->phi_module(rdoID));
+        const int trtLayerWheel(m_trtID->layer_or_wheel(rdoID));
+        const int trtStrawLayer(m_trtID->straw_layer(rdoID));
+        const int trtStraw(m_trtID->straw(rdoID));
         const bool trtHL((*rdo_itr)->highLevel());
-	const double trtToT((*rdo_itr)->timeOverThreshold());
-	const int trtDriftTimeBin((*rdo_itr)->driftTimeBin());
-	const int trtTrailEdge = dynamic_cast<const TRT_LoLumRawData*>(*rdo_itr)->trailingEdge();
-	const bool trtFirstBin = dynamic_cast<const TRT_LoLumRawData*>(*rdo_itr)->firstBinHigh();
-	const bool trtLastBin = dynamic_cast<const TRT_LoLumRawData*>(*rdo_itr)->lastBinHigh();
+        const double trtToT((*rdo_itr)->timeOverThreshold());
+        const int trtDriftTimeBin((*rdo_itr)->driftTimeBin());
+        const int trtTrailEdge = dynamic_cast<const TRT_LoLumRawData*>(*rdo_itr)->trailingEdge();
+        const bool trtFirstBin = dynamic_cast<const TRT_LoLumRawData*>(*rdo_itr)->firstBinHigh();
+        const bool trtLastBin = dynamic_cast<const TRT_LoLumRawData*>(*rdo_itr)->lastBinHigh();
 
-	const unsigned long long rdoID_int = rdoID.get_compact();
-	m_rdoID->push_back(rdoID_int);
-	m_rdoWord->push_back(rdoWord);
-	m_barrelEndcap->push_back(trtBrlEc);
-	m_phiModule->push_back(trtPhiMod);
-	m_layerWheel->push_back(trtLayerWheel);
-	m_strawLayer->push_back(trtStrawLayer);
-	m_straw->push_back(trtStraw);
-	m_highLevel->push_back(trtHL);
-	m_timeOverThreshold->push_back(trtToT);
-	m_driftTimeBin->push_back(trtDriftTimeBin);
-	m_trailEdge->push_back(trtTrailEdge);
-	m_firstBin->push_back(trtFirstBin);
-	m_lastBin->push_back(trtLastBin);
+        const unsigned long long rdoID_int = rdoID.get_compact();
+        m_rdoID->push_back(rdoID_int);
+        m_rdoWord->push_back(rdoWord);
+        m_barrelEndcap->push_back(trtBrlEc);
+        m_phiModule->push_back(trtPhiMod);
+        m_layerWheel->push_back(trtLayerWheel);
+        m_strawLayer->push_back(trtStrawLayer);
+        m_straw->push_back(trtStraw);
+        m_highLevel->push_back(trtHL);
+        m_timeOverThreshold->push_back(trtToT);
+        m_driftTimeBin->push_back(trtDriftTimeBin);
+        m_trailEdge->push_back(trtTrailEdge);
+        m_firstBin->push_back(trtFirstBin);
+        m_lastBin->push_back(trtLastBin);
 
-	h_rdoID->Fill(rdoID_int);
-	h_rdoWord->Fill(rdoWord);
-	h_barrelEndcap->Fill(trtBrlEc);
-	h_phiModule->Fill(trtPhiMod);
-	h_layerWheel->Fill(trtLayerWheel);
-	h_strawLayer->Fill(trtStrawLayer);
-	h_straw->Fill(trtStraw);
-	h_ToT->Fill(trtToT);
-	if (trtHL) {
-	  h_ToT_HL->Fill(trtToT);
-	}
-	h_driftTimeBin->Fill(trtDriftTimeBin);
-	h_trailEdge->Fill(trtTrailEdge);
+        h_rdoID->Fill(rdoID_int);
+        h_rdoWord->Fill(rdoWord);
+        h_barrelEndcap->Fill(trtBrlEc);
+        h_phiModule->Fill(trtPhiMod);
+        h_layerWheel->Fill(trtLayerWheel);
+        h_strawLayer->Fill(trtStrawLayer);
+        h_straw->Fill(trtStraw);
+        h_ToT->Fill(trtToT);
+        if (trtHL) {
+          h_ToT_HL->Fill(trtToT);
+        }
+        h_driftTimeBin->Fill(trtDriftTimeBin);
+        h_trailEdge->Fill(trtTrailEdge);
 
-	if (abs(trtBrlEc) == 1) {
-	  h_brlPhiMod->Fill(trtPhiMod);
-	  h_brlLayer->Fill(trtLayerWheel);
-	  h_brlStrawLayer->Fill(trtStrawLayer);
-	  h_brlStraw->Fill(trtStraw);
-	  h_brlToT->Fill(trtToT);
-	  if (trtHL) {
-	    h_brlToT_HL->Fill(trtToT);
-	  }
-	  h_brlDriftTimeBin->Fill(trtDriftTimeBin);
-	  h_brlTrailEdge->Fill(trtTrailEdge);
-	}
-	else if (abs(trtBrlEc) == 2) {
-	  h_ecPhiMod->Fill(trtPhiMod);
-	  h_ecWheel->Fill(trtLayerWheel);
-	  h_ecStrawLayer->Fill(trtStrawLayer);
-	  h_ecStraw->Fill(trtStraw);
-	  h_ecToT->Fill(trtToT);
-	  if (trtHL) {
-	    h_ecToT_HL->Fill(trtToT);
-	  }
-	  h_ecDriftTimeBin->Fill(trtDriftTimeBin);
-	  h_ecTrailEdge->Fill(trtTrailEdge);
-	}
+        if (abs(trtBrlEc) == 1) {
+          h_brlPhiMod->Fill(trtPhiMod);
+          h_brlLayer->Fill(trtLayerWheel);
+          h_brlStrawLayer->Fill(trtStrawLayer);
+          h_brlStraw->Fill(trtStraw);
+          h_brlToT->Fill(trtToT);
+          if (trtHL) {
+            h_brlToT_HL->Fill(trtToT);
+          }
+          h_brlDriftTimeBin->Fill(trtDriftTimeBin);
+          h_brlTrailEdge->Fill(trtTrailEdge);
+        }
+        else if (abs(trtBrlEc) == 2) {
+          h_ecPhiMod->Fill(trtPhiMod);
+          h_ecWheel->Fill(trtLayerWheel);
+          h_ecStrawLayer->Fill(trtStrawLayer);
+          h_ecStraw->Fill(trtStraw);
+          h_ecToT->Fill(trtToT);
+          if (trtHL) {
+            h_ecToT_HL->Fill(trtToT);
+          }
+          h_ecDriftTimeBin->Fill(trtDriftTimeBin);
+          h_ecTrailEdge->Fill(trtTrailEdge);
+        }
       }
     }
   }
@@ -445,7 +445,7 @@ StatusCode TRT_RDOAnalysis::execute() {
     for ( ; sdo_itr != sdo_end; ++sdo_itr ) {
       const Identifier sdoID((*sdo_itr).first);
       const InDetSimData& sdo((*sdo_itr).second);
-      
+
       const unsigned long long sdoID_int = sdoID.get_compact();
       const int sdoWord(sdo.word());
       const int trtBrlEc_sdo(m_trtID->barrel_ec(sdoID));
@@ -485,24 +485,24 @@ StatusCode TRT_RDOAnalysis::execute() {
       const std::vector<InDetSimData::Deposit>& deposits = sdo.getdeposits();
       std::vector<InDetSimData::Deposit>::const_iterator dep_itr(deposits.begin());
       const std::vector<InDetSimData::Deposit>::const_iterator dep_end(deposits.end());
-      
-      for ( ; dep_itr != dep_end; ++dep_itr ) {
-	const HepMcParticleLink& particleLink = (*dep_itr).first;
-	const int bar(particleLink.barcode());
-	const int eventIx(particleLink.eventIndex());
-	const float charge((*dep_itr).second);
-	
-	m_barcode->push_back(bar);
-	m_eventIndex->push_back(eventIx);
-	m_charge->push_back(charge);
 
-	h_barcode->Fill(bar);
-	h_eventIndex->Fill(eventIx);
-	h_charge->Fill(charge);
-	
-	barcode_vec.push_back(bar);
-	eventIndex_vec.push_back(eventIx);
-	charge_vec.push_back(charge);
+      for ( ; dep_itr != dep_end; ++dep_itr ) {
+        const HepMcParticleLink& particleLink = (*dep_itr).first;
+        const int bar(particleLink.barcode());
+        const int eventIx(particleLink.eventIndex());
+        const float charge((*dep_itr).second);
+
+        m_barcode->push_back(bar);
+        m_eventIndex->push_back(eventIx);
+        m_charge->push_back(charge);
+
+        h_barcode->Fill(bar);
+        h_eventIndex->Fill(eventIx);
+        h_charge->Fill(charge);
+
+        barcode_vec.push_back(bar);
+        eventIndex_vec.push_back(eventIx);
+        charge_vec.push_back(charge);
       }
       m_barcode_vec->push_back(barcode_vec);
       m_eventIndex_vec->push_back(eventIndex_vec);
@@ -512,7 +512,7 @@ StatusCode TRT_RDOAnalysis::execute() {
       charge_vec.clear();
     }
   }
-  
+
   if (m_tree) {
     m_tree->Fill();
   }
@@ -523,5 +523,5 @@ StatusCode TRT_RDOAnalysis::execute() {
 StatusCode TRT_RDOAnalysis::finalize() {
 
   return StatusCode::SUCCESS;
-  
+
 }

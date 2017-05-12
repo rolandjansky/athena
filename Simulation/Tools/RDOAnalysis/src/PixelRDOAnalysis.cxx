@@ -80,7 +80,7 @@ PixelRDOAnalysis::PixelRDOAnalysis(const std::string& name, ISvcLocator *pSvcLoc
   , h_ecBCID(0)
   , h_ecLVL1A(0)
   , h_ecLVL1ID(0)
-    
+
   , m_tree(0)
   , m_ntupleFileName("/ntuples/file1")
   , m_ntupleDirName("/PixelRDOAnalysis/")
@@ -159,7 +159,7 @@ StatusCode PixelRDOAnalysis::initialize() {
   h_rdoWord = new TH1F("h_rdoWord", "rdoWord", 100, 0, 350);
   h_rdoWord->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_rdoWord->GetName(), h_rdoWord));
-  
+
   h_barrelEndcap = new TH1F("h_barrelEndcap", "Barrel or Endcap", 100, -5, 5);
   h_barrelEndcap->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_barrelEndcap->GetName(), h_barrelEndcap));
@@ -187,15 +187,15 @@ StatusCode PixelRDOAnalysis::initialize() {
   h_ToT = new TH1F("h_ToT", "ToT", 100, 0, 250);
   h_ToT->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_ToT->GetName(), h_ToT));
-  
+
   h_BCID = new TH1F("h_BCID", "BCID", 100, -1.5, 1.5);
   h_BCID->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_BCID->GetName(), h_BCID));
-  
+
   h_LVL1A = new TH1F("h_LVL1A", "LVL1A", 100, -1.5, 1.5);
   h_LVL1A->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_LVL1A->GetName(), h_LVL1A));
-  
+
   h_LVL1ID = new TH1F("h_LVL1ID", "LVL1ID", 100, -1.5, 1.5);
   h_LVL1ID->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_LVL1ID->GetName(), h_LVL1ID));
@@ -203,7 +203,7 @@ StatusCode PixelRDOAnalysis::initialize() {
   h_brlLayer = new TH1F("h_brlLayer", "Barrel layer", 100, 0, 3);
   h_brlLayer->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_brlLayer->GetName(), h_brlLayer));
-  
+
   h_brlPhiMod = new TH1F("h_brlPhiMod", "Barrel phi module", 100, 0, 80);
   h_brlPhiMod->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_brlPhiMod->GetName(), h_brlPhiMod));
@@ -223,15 +223,15 @@ StatusCode PixelRDOAnalysis::initialize() {
   h_brlToT = new TH1F("h_brlToT", "Barrel ToT", 100, 0, 250);
   h_brlToT->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_brlToT->GetName(), h_brlToT));
-  
+
   h_brlBCID = new TH1F("h_brlBCID", "Barrel BCID", 100, -1.5, 1.5);
   h_brlBCID->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_brlBCID->GetName(), h_brlBCID));
-  
+
   h_brlLVL1A = new TH1F("h_brlLVL1A", "Barrel LVL1A", 100, -1.5, 1.5);
   h_brlLVL1A->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_brlLVL1A->GetName(), h_brlLVL1A));
-  
+
   h_brlLVL1ID = new TH1F("h_brlLVL1ID", "Barrel LVL1ID", 100, -1.5, 1.5);
   h_brlLVL1ID->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_brlLVL1ID->GetName(), h_brlLVL1ID));
@@ -239,7 +239,7 @@ StatusCode PixelRDOAnalysis::initialize() {
   h_ecDisk = new TH1F("h_ecDisk", "Endcap disk", 100, 0, 3);
   h_ecDisk->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_ecDisk->GetName(), h_ecDisk));
-  
+
   h_ecPhiMod = new TH1F("h_ecPhiMod", "Endcap phi module", 100, 0, 80);
   h_ecPhiMod->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_ecPhiMod->GetName(), h_ecPhiMod));
@@ -259,15 +259,15 @@ StatusCode PixelRDOAnalysis::initialize() {
   h_ecToT = new TH1F("h_ecToT", "EndcapToT", 100, 0, 250);
   h_ecToT->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_ecToT->GetName(), h_ecToT));
-  
+
   h_ecBCID = new TH1F("h_ecBCID", "Endcap BCID", 100, -1.5, 1.5);
   h_ecBCID->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_ecBCID->GetName(), h_ecBCID));
-  
+
   h_ecLVL1A = new TH1F("h_ecLVL1A", "Endcap LVL1A", 100, -1.5, 1.5);
   h_ecLVL1A->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_ecLVL1A->GetName(), h_ecLVL1A));
-  
+
   h_ecLVL1ID = new TH1F("h_ecLVL1ID", "Endcap LVL1ID", 100, -1.5, 1.5);
   h_ecLVL1ID->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_ecLVL1ID->GetName(), h_ecLVL1ID));
@@ -279,7 +279,7 @@ StatusCode PixelRDOAnalysis::initialize() {
   h_sdoWord = new TH1F("h_sdoWord", "sdoWord", 100, 0, 350);
   h_sdoWord->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_sdoWord->GetName(), h_sdoWord));
-  
+
   h_barrelEndcap_sdo = new TH1F("h_barrelEndcap_sdo", "Barrel or Endcap (SDO)", 100, -5, 5);
   h_barrelEndcap_sdo->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_barrelEndcap_sdo->GetName(), h_barrelEndcap_sdo));
@@ -316,7 +316,7 @@ StatusCode PixelRDOAnalysis::initialize() {
   h_charge->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_charge->GetName(), h_charge));
 
-  
+
   return StatusCode::SUCCESS;
 }
 
@@ -353,7 +353,7 @@ StatusCode PixelRDOAnalysis::execute() {
   m_barcode_vec->clear();
   m_eventIndex_vec->clear();
   m_charge_vec->clear();
-  
+
   // Raw Data
   SG::ReadHandle<PixelRDO_Container> p_pixelRDO_cont (m_inputKey);
   if(p_pixelRDO_cont.isValid()) {
@@ -365,68 +365,68 @@ StatusCode PixelRDOAnalysis::execute() {
       PixelRDO_Collection::const_iterator rdo_itr(p_pixelRDO_coll->begin());
       const PixelRDO_Collection::const_iterator rdo_end(p_pixelRDO_coll->end());
       for ( ; rdo_itr != rdo_end; ++rdo_itr ) {
-	const Identifier rdoID((*rdo_itr)->identify());
-	const int pixBrlEc(m_pixelID->barrel_ec(rdoID));
-	const unsigned int rdoWord((*rdo_itr)->getWord());
-	const int pixLayerDisk(m_pixelID->layer_disk(rdoID));
+        const Identifier rdoID((*rdo_itr)->identify());
+        const int pixBrlEc(m_pixelID->barrel_ec(rdoID));
+        const unsigned int rdoWord((*rdo_itr)->getWord());
+        const int pixLayerDisk(m_pixelID->layer_disk(rdoID));
         const int pixPhiMod(m_pixelID->phi_module(rdoID));
-	const int pixEtaMod(m_pixelID->eta_module(rdoID));
-	const int pixPhiIx(m_pixelID->phi_index(rdoID));
-	const int pixEtaIx(m_pixelID->eta_index(rdoID));
-	const int pixToT((*rdo_itr)->getToT());
-	const int pixBCID((*rdo_itr)->getBCID());
-	const int pixLVL1A((*rdo_itr)->getLVL1A());
-	const int pixLVL1ID((*rdo_itr)->getLVL1ID());
+        const int pixEtaMod(m_pixelID->eta_module(rdoID));
+        const int pixPhiIx(m_pixelID->phi_index(rdoID));
+        const int pixEtaIx(m_pixelID->eta_index(rdoID));
+        const int pixToT((*rdo_itr)->getToT());
+        const int pixBCID((*rdo_itr)->getBCID());
+        const int pixLVL1A((*rdo_itr)->getLVL1A());
+        const int pixLVL1ID((*rdo_itr)->getLVL1ID());
 
-	const unsigned long long rdoID_int = rdoID.get_compact();
-	m_rdoID->push_back(rdoID_int);
-	m_rdoWord->push_back(rdoWord);
-	m_barrelEndcap->push_back(pixBrlEc);
-	m_layerDisk->push_back(pixLayerDisk);
-	m_phiModule->push_back(pixPhiMod);
-	m_etaModule->push_back(pixEtaMod);
-	m_phiIndex->push_back(pixPhiIx);
-	m_etaIndex->push_back(pixEtaIx);
-	m_ToT->push_back(pixToT);
-	m_BCID->push_back(pixBCID);
-	m_LVL1A->push_back(pixLVL1A);
-	m_LVL1ID->push_back(pixLVL1ID);
+        const unsigned long long rdoID_int = rdoID.get_compact();
+        m_rdoID->push_back(rdoID_int);
+        m_rdoWord->push_back(rdoWord);
+        m_barrelEndcap->push_back(pixBrlEc);
+        m_layerDisk->push_back(pixLayerDisk);
+        m_phiModule->push_back(pixPhiMod);
+        m_etaModule->push_back(pixEtaMod);
+        m_phiIndex->push_back(pixPhiIx);
+        m_etaIndex->push_back(pixEtaIx);
+        m_ToT->push_back(pixToT);
+        m_BCID->push_back(pixBCID);
+        m_LVL1A->push_back(pixLVL1A);
+        m_LVL1ID->push_back(pixLVL1ID);
 
-	h_rdoID->Fill(rdoID_int);
-	h_rdoWord->Fill(rdoWord);
-	h_barrelEndcap->Fill(pixBrlEc);
-	h_layerDisk->Fill(pixLayerDisk);
-	h_phiModule->Fill(pixPhiMod);
-	h_etaModule->Fill(pixEtaMod);
-	h_phiIndex->Fill(pixPhiIx);
-	h_etaIndex->Fill(pixEtaIx);
-	h_ToT->Fill(pixToT);
-	h_BCID->Fill(pixBCID);
-	h_LVL1A->Fill(pixLVL1A);
-	h_LVL1ID->Fill(pixLVL1ID);
+        h_rdoID->Fill(rdoID_int);
+        h_rdoWord->Fill(rdoWord);
+        h_barrelEndcap->Fill(pixBrlEc);
+        h_layerDisk->Fill(pixLayerDisk);
+        h_phiModule->Fill(pixPhiMod);
+        h_etaModule->Fill(pixEtaMod);
+        h_phiIndex->Fill(pixPhiIx);
+        h_etaIndex->Fill(pixEtaIx);
+        h_ToT->Fill(pixToT);
+        h_BCID->Fill(pixBCID);
+        h_LVL1A->Fill(pixLVL1A);
+        h_LVL1ID->Fill(pixLVL1ID);
 
-	if (pixBrlEc == 0) {
-	  h_brlLayer->Fill(pixLayerDisk);
-	  h_brlPhiMod->Fill(pixPhiMod);
-	  h_brlEtaMod->Fill(pixEtaMod);
-	  h_brlPhiIndex->Fill(pixPhiIx);
-	  h_brlEtaIndex->Fill(pixEtaIx);
-	  h_brlToT->Fill(pixToT);
-	  h_brlBCID->Fill(pixBCID);
-	  h_brlLVL1A->Fill(pixLVL1A);
-	  h_brlLVL1ID->Fill(pixLVL1ID);
-	}
-	else if (abs(pixBrlEc) == 4) {
-	  h_ecDisk->Fill(pixLayerDisk);
-	  h_ecPhiMod->Fill(pixPhiMod);
-	  h_ecEtaMod->Fill(pixEtaMod);
-	  h_ecPhiIndex->Fill(pixPhiIx);
-	  h_ecEtaIndex->Fill(pixEtaIx);
-	  h_ecToT->Fill(pixToT);
-	  h_ecBCID->Fill(pixBCID);
-	  h_ecLVL1A->Fill(pixLVL1A);
-	  h_ecLVL1ID->Fill(pixLVL1ID);
-	}
+        if (pixBrlEc == 0) {
+          h_brlLayer->Fill(pixLayerDisk);
+          h_brlPhiMod->Fill(pixPhiMod);
+          h_brlEtaMod->Fill(pixEtaMod);
+          h_brlPhiIndex->Fill(pixPhiIx);
+          h_brlEtaIndex->Fill(pixEtaIx);
+          h_brlToT->Fill(pixToT);
+          h_brlBCID->Fill(pixBCID);
+          h_brlLVL1A->Fill(pixLVL1A);
+          h_brlLVL1ID->Fill(pixLVL1ID);
+        }
+        else if (abs(pixBrlEc) == 4) {
+          h_ecDisk->Fill(pixLayerDisk);
+          h_ecPhiMod->Fill(pixPhiMod);
+          h_ecEtaMod->Fill(pixEtaMod);
+          h_ecPhiIndex->Fill(pixPhiIx);
+          h_ecEtaIndex->Fill(pixEtaIx);
+          h_ecToT->Fill(pixToT);
+          h_ecBCID->Fill(pixBCID);
+          h_ecLVL1A->Fill(pixLVL1A);
+          h_ecLVL1ID->Fill(pixLVL1ID);
+        }
       }
     }
   }
@@ -456,7 +456,7 @@ StatusCode PixelRDOAnalysis::execute() {
       const bool belowThresh(PixelSimHelper::isBelowThreshold(sdo));
       const bool disabled(PixelSimHelper::isDisabled(sdo));
       const bool badTOT(PixelSimHelper::hasBadTOT(sdo));
-      
+
       m_sdoID->push_back(sdoID_int);
       m_sdoWord->push_back(sdoWord);
       m_barrelEndcap_sdo->push_back(pixBrlEc_sdo);
@@ -484,22 +484,22 @@ StatusCode PixelRDOAnalysis::execute() {
       std::vector<InDetSimData::Deposit>::const_iterator dep_itr(deposits.begin());
       const std::vector<InDetSimData::Deposit>::const_iterator dep_end(deposits.end());
       for ( ; dep_itr != dep_end; ++dep_itr ) {
-      	const HepMcParticleLink& particleLink = (*dep_itr).first;
-	const int bar(particleLink.barcode());
-	const int eventIx(particleLink.eventIndex());
-	const int charge((*dep_itr).second);
-	
-      	m_barcode->push_back(bar);
-      	m_eventIndex->push_back(eventIx);
-      	m_charge->push_back(charge);
+        const HepMcParticleLink& particleLink = (*dep_itr).first;
+        const int bar(particleLink.barcode());
+        const int eventIx(particleLink.eventIndex());
+        const int charge((*dep_itr).second);
 
-	h_barcode->Fill(bar);
-	h_eventIndex->Fill(eventIx);
-	h_charge->Fill(charge);
-	
-	barcode_vec.push_back(bar);
-	eventIndex_vec.push_back(eventIx);
-	charge_vec.push_back(charge);
+        m_barcode->push_back(bar);
+        m_eventIndex->push_back(eventIx);
+        m_charge->push_back(charge);
+
+        h_barcode->Fill(bar);
+        h_eventIndex->Fill(eventIx);
+        h_charge->Fill(charge);
+
+        barcode_vec.push_back(bar);
+        eventIndex_vec.push_back(eventIx);
+        charge_vec.push_back(charge);
       }
       m_barcode_vec->push_back(barcode_vec);
       m_eventIndex_vec->push_back(eventIndex_vec);
@@ -513,7 +513,7 @@ StatusCode PixelRDOAnalysis::execute() {
   if (m_tree) {
     m_tree->Fill();
   }
-  
+
   return StatusCode::SUCCESS;
 }
 

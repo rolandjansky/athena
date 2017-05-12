@@ -26,7 +26,7 @@ TGC_RDOAnalysis::TGC_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_tgcL1ID(0)
   , m_tgcOrbit(0)
   , m_tgcVersion(0)
-  , m_bcTag(0)  
+  , m_bcTag(0)
   , m_subDetID(0)
   , m_rodID(0)
   , m_sswID(0)
@@ -34,7 +34,7 @@ TGC_RDOAnalysis::TGC_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_bcID(0)
   , m_l1ID(0)
   , m_type(0)
-  , m_slbType(0)  
+  , m_slbType(0)
   , m_coinc(0)
   , m_bitPos(0)
   , m_track(0)
@@ -183,7 +183,7 @@ StatusCode TGC_RDOAnalysis::initialize() {
     m_tree->Branch("barcode_vec", &m_barcode_vec);
     m_tree->Branch("eventIndex_vec", &m_eventIndex_vec);
     m_tree->Branch("radius_vec", &m_radius_vec);
-    m_tree->Branch("localZ_vec", &m_localZ_vec); 
+    m_tree->Branch("localZ_vec", &m_localZ_vec);
   }
   else {
     ATH_MSG_ERROR("No tree found!");
@@ -249,7 +249,7 @@ StatusCode TGC_RDOAnalysis::initialize() {
   h_slbType = new TH1F("h_slbType", "SLB type", 100, 0, 10);
   h_slbType->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_slbType->GetName(), h_slbType));
-  
+
   h_bitPos = new TH1F("h_bitPos", "Bitmap position", 100, 0, 220);
   h_bitPos->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_bitPos->GetName(), h_bitPos));
@@ -376,7 +376,7 @@ StatusCode TGC_RDOAnalysis::execute() {
       const TgcRdo::LocalStatus& tgcLocalStat = (*tgcCont_itr)->localStatus();
       const uint32_t tgcOrbit((*tgcCont_itr)->orbit());
       const uint16_t tgcVersion((*tgcCont_itr)->version());
-      
+
       m_tgcID->push_back(tgcID);
       m_tgcSubDetID->push_back(tgcSubDetID);
       m_tgcRodID->push_back(tgcRodID);
@@ -396,88 +396,88 @@ StatusCode TGC_RDOAnalysis::execute() {
       const TgcRdo* p_TGCraw(*tgcCont_itr);
       TgcRdo::const_iterator tgc_itr(p_TGCraw->begin());
       const TgcRdo::const_iterator tgc_end(p_TGCraw->end());
-      
+
       for ( ; tgc_itr != tgc_end; ++tgc_itr ) {
-	const uint16_t bctag((*tgc_itr)->bcTag());
-	const uint16_t subDetID((*tgc_itr)->subDetectorId());
-	const uint16_t rodID((*tgc_itr)->rodId());
-	const uint16_t sswID((*tgc_itr)->sswId());
-	const uint16_t slbID((*tgc_itr)->slbId());
-	const uint16_t bcID((*tgc_itr)->bcId());
-	const uint16_t l1ID((*tgc_itr)->l1Id());
-	TgcRawData::DataType type_var = (*tgc_itr)->type();
-	TgcRawData::SlbType slbType_var = (*tgc_itr)->slbType();
-	const bool coinc((*tgc_itr)->isCoincidence());
-	const uint16_t bitPos((*tgc_itr)->bitpos());
-	const uint16_t track((*tgc_itr)->tracklet());
-	const bool adj((*tgc_itr)->isAdjacent());
-	const bool forward((*tgc_itr)->isForward());
-	const uint16_t ix((*tgc_itr)->index());
-	const uint16_t pos((*tgc_itr)->position());
-	const uint16_t del((*tgc_itr)->delta());
-	const uint16_t seg((*tgc_itr)->segment());
-	const uint16_t subMat((*tgc_itr)->subMatrix());
-	const uint16_t sector((*tgc_itr)->sector());
-	const uint16_t chip((*tgc_itr)->chip());
-	const bool hipt((*tgc_itr)->isHipt());
-	const uint16_t hitID((*tgc_itr)->hitId());
-	const uint16_t hsub((*tgc_itr)->hsub());
-	const bool strip((*tgc_itr)->isStrip());
-	//const uint16_t inner((*tgc_itr)->inner());
-	const bool cand3plus((*tgc_itr)->cand3plus());
-	const bool muplus((*tgc_itr)->isMuplus());
-	const bool thresh((*tgc_itr)->threshold());
-	const bool overlap((*tgc_itr)->isOverlap());
-	const bool veto((*tgc_itr)->isVeto());
-	const uint16_t roi((*tgc_itr)->roi());
+        const uint16_t bctag((*tgc_itr)->bcTag());
+        const uint16_t subDetID((*tgc_itr)->subDetectorId());
+        const uint16_t rodID((*tgc_itr)->rodId());
+        const uint16_t sswID((*tgc_itr)->sswId());
+        const uint16_t slbID((*tgc_itr)->slbId());
+        const uint16_t bcID((*tgc_itr)->bcId());
+        const uint16_t l1ID((*tgc_itr)->l1Id());
+        TgcRawData::DataType type_var = (*tgc_itr)->type();
+        TgcRawData::SlbType slbType_var = (*tgc_itr)->slbType();
+        const bool coinc((*tgc_itr)->isCoincidence());
+        const uint16_t bitPos((*tgc_itr)->bitpos());
+        const uint16_t track((*tgc_itr)->tracklet());
+        const bool adj((*tgc_itr)->isAdjacent());
+        const bool forward((*tgc_itr)->isForward());
+        const uint16_t ix((*tgc_itr)->index());
+        const uint16_t pos((*tgc_itr)->position());
+        const uint16_t del((*tgc_itr)->delta());
+        const uint16_t seg((*tgc_itr)->segment());
+        const uint16_t subMat((*tgc_itr)->subMatrix());
+        const uint16_t sector((*tgc_itr)->sector());
+        const uint16_t chip((*tgc_itr)->chip());
+        const bool hipt((*tgc_itr)->isHipt());
+        const uint16_t hitID((*tgc_itr)->hitId());
+        const uint16_t hsub((*tgc_itr)->hsub());
+        const bool strip((*tgc_itr)->isStrip());
+        //const uint16_t inner((*tgc_itr)->inner());
+        const bool cand3plus((*tgc_itr)->cand3plus());
+        const bool muplus((*tgc_itr)->isMuplus());
+        const bool thresh((*tgc_itr)->threshold());
+        const bool overlap((*tgc_itr)->isOverlap());
+        const bool veto((*tgc_itr)->isVeto());
+        const uint16_t roi((*tgc_itr)->roi());
 
-	m_bcTag->push_back(bctag);
-	m_subDetID->push_back(subDetID);
-	m_rodID->push_back(rodID);
-	m_sswID->push_back(sswID);
-	m_slbID->push_back(slbID);
-	m_bcID->push_back(bcID);
-	m_l1ID->push_back(l1ID);
-	m_type->push_back(int(type_var));
-	m_slbType->push_back(int(slbType_var));
-	m_coinc->push_back(coinc);
-	m_bitPos->push_back(bitPos);
-	m_track->push_back(track);
-	m_adj->push_back(adj);
-	m_forward->push_back(forward);
-	m_index->push_back(ix);
-	m_pos->push_back(pos);
-	m_delta->push_back(del);
-	m_segment->push_back(seg);
-	m_subMat->push_back(subMat);
-	m_sector->push_back(sector);
-	m_chip->push_back(chip);
-	m_hipt->push_back(hipt);
-	m_hitID->push_back(hitID);
-	m_hsub->push_back(hsub);
-	m_strip->push_back(strip);
-	//m_inner->push_back(inner);
-	m_cand3plus->push_back(cand3plus);
-	m_muplus->push_back(muplus);
-	m_thresh->push_back(thresh);
-	m_overlap->push_back(overlap);
-	m_veto->push_back(veto);
-	m_roi->push_back(roi);
+        m_bcTag->push_back(bctag);
+        m_subDetID->push_back(subDetID);
+        m_rodID->push_back(rodID);
+        m_sswID->push_back(sswID);
+        m_slbID->push_back(slbID);
+        m_bcID->push_back(bcID);
+        m_l1ID->push_back(l1ID);
+        m_type->push_back(int(type_var));
+        m_slbType->push_back(int(slbType_var));
+        m_coinc->push_back(coinc);
+        m_bitPos->push_back(bitPos);
+        m_track->push_back(track);
+        m_adj->push_back(adj);
+        m_forward->push_back(forward);
+        m_index->push_back(ix);
+        m_pos->push_back(pos);
+        m_delta->push_back(del);
+        m_segment->push_back(seg);
+        m_subMat->push_back(subMat);
+        m_sector->push_back(sector);
+        m_chip->push_back(chip);
+        m_hipt->push_back(hipt);
+        m_hitID->push_back(hitID);
+        m_hsub->push_back(hsub);
+        m_strip->push_back(strip);
+        //m_inner->push_back(inner);
+        m_cand3plus->push_back(cand3plus);
+        m_muplus->push_back(muplus);
+        m_thresh->push_back(thresh);
+        m_overlap->push_back(overlap);
+        m_veto->push_back(veto);
+        m_roi->push_back(roi);
 
-	h_bcTag->Fill(bctag);
-	h_subDetID->Fill(subDetID);
-	h_rodID->Fill(rodID);
-	h_sswID->Fill(sswID);
-	h_slbID->Fill(slbID);
-	h_bcID->Fill(bcID);
-	h_l1ID->Fill(l1ID);
-	h_type->Fill(int(type_var));
-	h_slbType->Fill(int(slbType_var));
-	if (int(type_var) == 0) {
-	  h_bitPos->Fill(bitPos);
-	  h_track->Fill(track);
-	  h_adj->Fill(adj);
-	}
+        h_bcTag->Fill(bctag);
+        h_subDetID->Fill(subDetID);
+        h_rodID->Fill(rodID);
+        h_sswID->Fill(sswID);
+        h_slbID->Fill(slbID);
+        h_bcID->Fill(bcID);
+        h_l1ID->Fill(l1ID);
+        h_type->Fill(int(type_var));
+        h_slbType->Fill(int(slbType_var));
+        if (int(type_var) == 0) {
+          h_bitPos->Fill(bitPos);
+          h_track->Fill(track);
+          h_adj->Fill(adj);
+        }
       }
     }
   }
@@ -502,7 +502,7 @@ StatusCode TGC_RDOAnalysis::execute() {
       const float xPos(gPos.x());
       const float yPos(gPos.y());
       const float zPos(gPos.z());
-      
+
       m_sdoID->push_back(sdoID_int);
       m_sdoWord->push_back(sdoWord);
       m_xPos->push_back(xPos);
@@ -520,27 +520,27 @@ StatusCode TGC_RDOAnalysis::execute() {
       std::vector<MuonSimData::Deposit>::const_iterator dep_itr(deposits.begin());
       const std::vector<MuonSimData::Deposit>::const_iterator dep_end(deposits.end());
       for ( ; dep_itr != dep_end; ++dep_itr ) {
-	const HepMcParticleLink& particleLink = (*dep_itr).first;
-	const int bar(particleLink.barcode());
-	const int eventIx(particleLink.eventIndex());
-	const MuonMCData& data = (*dep_itr).second;
-	const double radius(data.firstEntry());
-	const float localZ(data.secondEntry());
-	
-	m_barcode->push_back(bar);
-	m_eventIndex->push_back(eventIx);
-	m_radius->push_back(radius);
-	m_localZ->push_back(localZ);
+        const HepMcParticleLink& particleLink = (*dep_itr).first;
+        const int bar(particleLink.barcode());
+        const int eventIx(particleLink.eventIndex());
+        const MuonMCData& data = (*dep_itr).second;
+        const double radius(data.firstEntry());
+        const float localZ(data.secondEntry());
 
-	h_barcode->Fill(bar);
-	h_eventIndex->Fill(eventIx);
-	h_radius->Fill(radius);
-	h_localZ->Fill(localZ);
-	
-	barcode_vec.push_back(bar);
-	eventIndex_vec.push_back(eventIx);
-	radius_vec.push_back(radius);
-	localZ_vec.push_back(localZ);
+        m_barcode->push_back(bar);
+        m_eventIndex->push_back(eventIx);
+        m_radius->push_back(radius);
+        m_localZ->push_back(localZ);
+
+        h_barcode->Fill(bar);
+        h_eventIndex->Fill(eventIx);
+        h_radius->Fill(radius);
+        h_localZ->Fill(localZ);
+
+        barcode_vec.push_back(bar);
+        eventIndex_vec.push_back(eventIx);
+        radius_vec.push_back(radius);
+        localZ_vec.push_back(localZ);
       }
       m_barcode_vec->push_back(barcode_vec);
       m_eventIndex_vec->push_back(eventIndex_vec);

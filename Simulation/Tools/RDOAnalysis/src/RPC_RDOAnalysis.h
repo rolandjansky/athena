@@ -23,7 +23,7 @@ class TH1;
 
 class RPC_RDOAnalysis : public AthAlgorithm {
 
- public:
+public:
   RPC_RDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~RPC_RDOAnalysis(){}
 
@@ -31,7 +31,7 @@ class RPC_RDOAnalysis : public AthAlgorithm {
   virtual StatusCode execute();
   virtual StatusCode finalize();
 
- private:
+private:
   SG::ReadHandleKey<RpcPadContainer> m_inputKey;
   SG::ReadHandleKey<MuonSimDataCollection> m_inputTruthKey;
   std::vector<unsigned long long>* m_rpcID;
@@ -84,7 +84,7 @@ class RPC_RDOAnalysis : public AthAlgorithm {
   TH1* h_coinCrc;
   TH1* h_coinFel1ID;
   TH1* h_coinFebcID;
-  
+
   TH1* h_firedBcID;
   TH1* h_firedTime;
   TH1* h_firedIjk;
@@ -101,14 +101,14 @@ class RPC_RDOAnalysis : public AthAlgorithm {
   TH1* h_eventIndex;
   TH1* h_radius;
   TH1* h_localZ;
-  
+
   TTree* m_tree;
   std::string m_ntupleFileName;
   std::string m_ntupleDirName;
   std::string m_ntupleTreeName;
   std::string m_path;
   ServiceHandle<ITHistSvc> m_thistSvc;
-  
+
 };
 
 #endif // RPC_RDO_ANALYSIS_H

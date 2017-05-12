@@ -23,7 +23,7 @@ class TH1;
 
 class MDT_RDOAnalysis : public AthAlgorithm {
 
- public:
+public:
   MDT_RDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~MDT_RDOAnalysis(){}
 
@@ -31,7 +31,7 @@ class MDT_RDOAnalysis : public AthAlgorithm {
   virtual StatusCode execute();
   virtual StatusCode finalize();
 
- private:
+private:
   SG::ReadHandleKey<MdtCsmContainer> m_inputKey;
   SG::ReadHandleKey<MuonSimDataCollection> m_inputTruthKey;
   // RDO
@@ -41,7 +41,7 @@ class MDT_RDOAnalysis : public AthAlgorithm {
   std::vector<uint16_t>* m_subID; // sub-detector id
   std::vector<uint16_t>* m_mrodID; // mrod id from csm header
   std::vector<uint16_t>* m_csmID; // csm online id
-  // MdtAmtHit - single channel of AMT (Atlas Muon TDC) 
+  // MdtAmtHit - single channel of AMT (Atlas Muon TDC)
   std::vector<uint16_t>* m_tdcID;
   std::vector<uint16_t>* m_chanID;
   std::vector<uint16_t>* m_coarse;
@@ -94,7 +94,7 @@ class MDT_RDOAnalysis : public AthAlgorithm {
   std::string m_ntupleTreeName;
   std::string m_path;
   ServiceHandle<ITHistSvc> m_thistSvc;
-  
+
 };
 
 #endif // MDT_RDO_ANALYSIS_H

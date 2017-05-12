@@ -28,7 +28,7 @@ class SCT_RDORawData;
 
 class SCT_RDOAnalysis : public AthAlgorithm {
 
- public:
+public:
   SCT_RDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~SCT_RDOAnalysis(){}
 
@@ -36,7 +36,7 @@ class SCT_RDOAnalysis : public AthAlgorithm {
   virtual StatusCode execute();
   virtual StatusCode finalize();
 
- private:
+private:
   SG::ReadHandleKey<SCT_RDO_Container> m_inputKey;
   SG::ReadHandleKey<InDetSimDataCollection> m_inputTruthKey;
   const SCT_ID *m_sctID;
@@ -121,7 +121,7 @@ class SCT_RDOAnalysis : public AthAlgorithm {
   std::string m_ntupleTreeName;
   std::string m_path;
   ServiceHandle<ITHistSvc> m_thistSvc;
-  
+
 };
 
 #endif // SCT_RDO_ANALYSIS_H

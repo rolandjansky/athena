@@ -23,15 +23,15 @@ class TH1;
 
 class TGC_RDOAnalysis : public AthAlgorithm {
 
- public:
+public:
   TGC_RDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~TGC_RDOAnalysis(){}
 
   virtual StatusCode initialize();
   virtual StatusCode execute();
   virtual StatusCode finalize();
-  
- private:
+
+private:
   SG::ReadHandleKey<TgcRdoContainer> m_inputKey;
   SG::ReadHandleKey<MuonSimDataCollection> m_inputTruthKey;
   // TgcRdo
@@ -47,7 +47,7 @@ class TGC_RDOAnalysis : public AthAlgorithm {
   std::vector<uint32_t>* m_tgcOrbit;
   std::vector<uint16_t>* m_tgcVersion;
   //calculateOnlineId?
- 
+
   // TgcRawData
   // bc tag (central, next, previous)
   std::vector<uint16_t>* m_bcTag;
@@ -95,7 +95,7 @@ class TGC_RDOAnalysis : public AthAlgorithm {
   std::vector<bool>* m_veto;
   std::vector<uint16_t>* m_roi;
 
-  
+
   // SDO
   std::vector<unsigned long long>* m_sdoID;
   std::vector<int>* m_sdoWord;
@@ -141,14 +141,14 @@ class TGC_RDOAnalysis : public AthAlgorithm {
   TH1* h_eventIndex;
   TH1* h_radius;
   TH1* h_localZ;
-    
+
   TTree* m_tree;
   std::string m_ntupleFileName;
   std::string m_ntupleDirName;
   std::string m_ntupleTreeName;
   std::string m_path;
   ServiceHandle<ITHistSvc> m_thistSvc;
-  
+
 };
 
 #endif // TGC_RDO_ANALYSIS_H

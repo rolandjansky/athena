@@ -35,7 +35,7 @@ LArRDOAnalysis::LArRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator
   , m_digiID(0)
   , m_digiGain(0)
   , m_digiSamples(0)
-    
+
   , h_larID(0)
   , h_energy(0)
   , h_time(0)
@@ -51,7 +51,7 @@ LArRDOAnalysis::LArRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator
   , h_digiID(0)
   , h_digiGain(0)
   , h_digiSamples(0)
-    
+
   , m_tree(0)
   , m_ntupleFileName("/ntuples/file1")
   , m_ntupleDirName("/LArRDOAnalysis/")
@@ -220,7 +220,7 @@ StatusCode LArRDOAnalysis::execute() {
     }
   }
 
-  
+
   // LAr TTL1 - Had
   SG::ReadHandle<LArTTL1Container> p_larTTL1Cont_had(m_inputTTL1HADKey);
   if (p_larTTL1Cont_had.isValid()) {
@@ -236,8 +236,8 @@ StatusCode LArRDOAnalysis::execute() {
       m_hadOnID->push_back(hadOnID_int);
       m_hadOffID->push_back(hadOffID_int);
       for (std::vector<float>::size_type i = 0; i != hadSamples.size(); ++i) {
-	m_hadSamples->push_back(hadSamples.at(i));
-	h_hadSamples->Fill(hadSamples.at(i));
+        m_hadSamples->push_back(hadSamples.at(i));
+        h_hadSamples->Fill(hadSamples.at(i));
       }
 
       h_hadOnID->Fill(hadOnID_int);
@@ -260,8 +260,8 @@ StatusCode LArRDOAnalysis::execute() {
       m_emOnID->push_back(emOnID_int);
       m_emOffID->push_back(emOffID_int);
       for (std::vector<float>::size_type j = 0; j != emSamples.size(); ++j) {
-	m_emSamples->push_back(emSamples.at(j));
-	h_emSamples->Fill(emSamples.at(j));
+        m_emSamples->push_back(emSamples.at(j));
+        h_emSamples->Fill(emSamples.at(j));
       }
 
       h_emOnID->Fill(emOnID_int);
@@ -269,7 +269,7 @@ StatusCode LArRDOAnalysis::execute() {
     }
   }
 
-  
+
   // LAr Digits
   SG::ReadHandle<const LArDigitContainer> p_larDigiCont(m_inputDigitKey);
   if (p_larDigiCont.isValid()) {
@@ -285,8 +285,8 @@ StatusCode LArRDOAnalysis::execute() {
       m_digiID->push_back(digiID_int);
       m_digiGain->push_back(digiGain_int);
       for (std::vector<short>::size_type k = 0; k != digiSamples.size(); ++k) {
-	m_digiSamples->push_back(digiSamples.at(k));
-	h_digiSamples->Fill(digiSamples.at(k));
+        m_digiSamples->push_back(digiSamples.at(k));
+        h_digiSamples->Fill(digiSamples.at(k));
       }
 
       h_digiID->Fill(digiID_int);

@@ -24,7 +24,7 @@ class TH1;
 
 class BCM_RDOAnalysis : public AthAlgorithm {
 
- public:
+public:
   BCM_RDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~BCM_RDOAnalysis(){}
 
@@ -32,7 +32,7 @@ class BCM_RDOAnalysis : public AthAlgorithm {
   virtual StatusCode execute();
   virtual StatusCode finalize();
 
- private:
+private:
   SG::ReadHandleKey<BCM_RDO_Container> m_inputKey;
   SG::ReadHandleKey<InDetSimDataCollection> m_inputTruthKey;
   // RDO

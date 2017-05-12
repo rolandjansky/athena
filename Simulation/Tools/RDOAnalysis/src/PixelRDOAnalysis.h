@@ -27,7 +27,7 @@ class PixelRDORawData;
 
 class PixelRDOAnalysis : public AthAlgorithm {
 
- public:
+public:
   PixelRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~PixelRDOAnalysis(){}
 
@@ -35,7 +35,7 @@ class PixelRDOAnalysis : public AthAlgorithm {
   virtual StatusCode execute();
   virtual StatusCode finalize();
 
- private:
+private:
   SG::ReadHandleKey<PixelRDO_Container> m_inputKey;
   SG::ReadHandleKey<InDetSimDataCollection> m_inputTruthKey;
   const PixelID *m_pixelID;
@@ -133,4 +133,3 @@ class PixelRDOAnalysis : public AthAlgorithm {
 };
 
 #endif // PIXEL_RDO_ANALYSIS_H
-

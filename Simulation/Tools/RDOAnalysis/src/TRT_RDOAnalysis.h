@@ -28,7 +28,7 @@ class TRT_RDORawData;
 
 class TRT_RDOAnalysis : public AthAlgorithm {
 
- public:
+public:
   TRT_RDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~TRT_RDOAnalysis(){}
 
@@ -36,7 +36,7 @@ class TRT_RDOAnalysis : public AthAlgorithm {
   virtual StatusCode execute();
   virtual StatusCode finalize();
 
- private:
+private:
   SG::ReadHandleKey<TRT_RDO_Container> m_inputKey;
   SG::ReadHandleKey<InDetSimDataCollection> m_inputTruthKey;
   const TRT_ID *m_trtID;
@@ -51,7 +51,7 @@ class TRT_RDOAnalysis : public AthAlgorithm {
   std::vector<int>* m_layerWheel;
   std::vector<int>* m_strawLayer;
   std::vector<int>* m_straw;
-  // TRT_RDORawData	
+  // TRT_RDORawData
   std::vector<bool>* m_highLevel;
   std::vector<double>* m_timeOverThreshold;
   std::vector<int>* m_driftTimeBin;
@@ -122,7 +122,7 @@ class TRT_RDOAnalysis : public AthAlgorithm {
   TH1* h_barcode;
   TH1* h_eventIndex;
   TH1* h_charge;
-  
+
   TTree* m_tree;
   std::string m_ntupleFileName;
   std::string m_ntupleDirName;

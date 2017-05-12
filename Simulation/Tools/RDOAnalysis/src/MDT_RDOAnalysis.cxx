@@ -67,7 +67,7 @@ MDT_RDOAnalysis::MDT_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_tree(0)
   , m_ntupleFileName("/ntuples/file1")
   , m_ntupleDirName("/MDT_RDOAnalysis/")
-    //, m_ntupleDirName("MDT_RDOAnalysis")
+  //, m_ntupleDirName("MDT_RDOAnalysis")
   , m_ntupleTreeName("MDT_RDOAna")
   , m_path("/MDT_RDOAnalysis/")
   , m_thistSvc("THistSvc", name)
@@ -129,7 +129,7 @@ StatusCode MDT_RDOAnalysis::initialize() {
   h_mdtID = new TH1F("h_mdtID", "MDT ID", 100, 0, 1e19);
   h_mdtID->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_mdtID->GetName(), h_mdtID));
-      
+
   h_subID = new TH1F("h_subID", "Sub-detector ID", 100, 0, 150);
   h_subID->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_subID->GetName(), h_subID));
@@ -141,23 +141,23 @@ StatusCode MDT_RDOAnalysis::initialize() {
   h_csmID = new TH1F("h_csmID", "CSM ID", 100, 0, 10);
   h_csmID->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_csmID->GetName(), h_csmID));
-  
+
   h_tdcID = new TH1F("h_tdcID", "TDC ID", 100, 0, 50);
   h_tdcID->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_tdcID->GetName(), h_tdcID));
-	      
+
   h_chanID = new TH1F("h_chanID", "Channel ID", 100, 0, 50);
   h_chanID->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_chanID->GetName(), h_chanID));
-    
+
   h_coarse = new TH1F("h_coarse", "Drift time (coarse)", 100, 0, 100);
   h_coarse->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_coarse->GetName(), h_coarse));
-  
+
   h_fine = new TH1F("h_fine", "Drift time (fine)", 100, 0, 50);
   h_fine->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_fine->GetName(), h_fine));
-    
+
   h_width = new TH1F("h_width", "Width", 100, 0, 500);
   h_width->StatOverflows();
   ATH_CHECK(m_thistSvc->regHist(m_path + h_width->GetName(), h_width));
@@ -242,7 +242,7 @@ StatusCode MDT_RDOAnalysis::execute() {
       const uint16_t subID((*mdtCont_itr)->SubDetId());
       const uint16_t mrodID((*mdtCont_itr)->MrodId());
       const uint16_t csmID((*mdtCont_itr)->CsmId());
-      
+
       unsigned long long mdtID_int = mdtID.get_compact();
       unsigned int mdtIDhash_int = mdtIDhash.value();
       m_mdtID->push_back(mdtID_int);
@@ -255,38 +255,38 @@ StatusCode MDT_RDOAnalysis::execute() {
       h_subID->Fill(subID);
       h_mrodID->Fill(mrodID);
       h_csmID->Fill(csmID);
-      
+
       const MdtCsm* p_mdtAmt(*mdtCont_itr);
       MdtCsm::const_iterator mdt_itr(p_mdtAmt->begin());
       const MdtCsm::const_iterator mdt_end(p_mdtAmt->end());
       for ( ; mdt_itr != mdt_end; ++mdt_itr ) {
-	
-	const uint16_t tdcID((*mdt_itr)->tdcId());
-	const uint16_t chanID((*mdt_itr)->channelId());
-	const uint16_t coarseTime((*mdt_itr)->coarse());
-	const uint16_t fineTime((*mdt_itr)->fine());
-	const uint16_t widthComb((*mdt_itr)->width());
-	const bool lead((*mdt_itr)->leading());
-	const bool masked((*mdt_itr)->isMasked());
-	const std::vector<uint32_t>* dataWords_vec = (*mdt_itr)->dataWords();
-		
-	m_tdcID->push_back(tdcID);
-	m_chanID->push_back(chanID);
-	m_coarse->push_back(coarseTime);
-	m_fine->push_back(fineTime);
-	m_width->push_back(widthComb);
-	m_leading->push_back(lead);
-	m_isMasked->push_back(masked);	
-	for (std::vector<uint32_t>::size_type i = 0; i != dataWords_vec->size(); ++i) {
-	  m_dataWords->push_back(dataWords_vec->at(i));
-	}
 
-	h_tdcID->Fill(tdcID);
-	h_chanID->Fill(chanID);
-	h_coarse->Fill(coarseTime);
-	h_fine->Fill(fineTime);
-	h_width->Fill(widthComb);
-	
+        const uint16_t tdcID((*mdt_itr)->tdcId());
+        const uint16_t chanID((*mdt_itr)->channelId());
+        const uint16_t coarseTime((*mdt_itr)->coarse());
+        const uint16_t fineTime((*mdt_itr)->fine());
+        const uint16_t widthComb((*mdt_itr)->width());
+        const bool lead((*mdt_itr)->leading());
+        const bool masked((*mdt_itr)->isMasked());
+        const std::vector<uint32_t>* dataWords_vec = (*mdt_itr)->dataWords();
+
+        m_tdcID->push_back(tdcID);
+        m_chanID->push_back(chanID);
+        m_coarse->push_back(coarseTime);
+        m_fine->push_back(fineTime);
+        m_width->push_back(widthComb);
+        m_leading->push_back(lead);
+        m_isMasked->push_back(masked);
+        for (std::vector<uint32_t>::size_type i = 0; i != dataWords_vec->size(); ++i) {
+          m_dataWords->push_back(dataWords_vec->at(i));
+        }
+
+        h_tdcID->Fill(tdcID);
+        h_chanID->Fill(chanID);
+        h_coarse->Fill(coarseTime);
+        h_fine->Fill(fineTime);
+        h_width->Fill(widthComb);
+
       }
     }
   }
@@ -310,7 +310,7 @@ StatusCode MDT_RDOAnalysis::execute() {
       const float xPos(gPos.x());
       const float yPos(gPos.y());
       const float zPos(gPos.z());
-      
+
       m_sdoID->push_back(sdoID_int);
       m_sdoWord->push_back(sdoWord);
       m_xPos->push_back(xPos);
@@ -327,28 +327,28 @@ StatusCode MDT_RDOAnalysis::execute() {
       const std::vector<MuonSimData::Deposit>& deposits = sdo.getdeposits();
       std::vector<MuonSimData::Deposit>::const_iterator dep_itr(deposits.begin());
       const std::vector<MuonSimData::Deposit>::const_iterator dep_end(deposits.end());
-      for ( ; dep_itr != dep_end; ++dep_itr ) {	
-	const HepMcParticleLink& particleLink = (*dep_itr).first;
-	const int bar(particleLink.barcode());
-	const int eventIx(particleLink.eventIndex());
-	const MuonMCData& data = (*dep_itr).second;
-	const double radius(data.firstEntry());
-	const float localZ(data.secondEntry());
-	
-	m_barcode->push_back(bar);
-	m_eventIndex->push_back(eventIx);
-	m_radius->push_back(radius); // radius?
-	m_localZ->push_back(localZ); // local z-pos?
+      for ( ; dep_itr != dep_end; ++dep_itr ) {
+        const HepMcParticleLink& particleLink = (*dep_itr).first;
+        const int bar(particleLink.barcode());
+        const int eventIx(particleLink.eventIndex());
+        const MuonMCData& data = (*dep_itr).second;
+        const double radius(data.firstEntry());
+        const float localZ(data.secondEntry());
 
-	h_barcode->Fill(bar);
-	h_eventIndex->Fill(eventIx);
-	h_radius->Fill(radius);
-	h_localZ->Fill(localZ);
-	
-	barcode_vec.push_back(bar);
-	eventIndex_vec.push_back(eventIx);
-	radius_vec.push_back(radius);
-	localZ_vec.push_back(localZ);
+        m_barcode->push_back(bar);
+        m_eventIndex->push_back(eventIx);
+        m_radius->push_back(radius); // radius?
+        m_localZ->push_back(localZ); // local z-pos?
+
+        h_barcode->Fill(bar);
+        h_eventIndex->Fill(eventIx);
+        h_radius->Fill(radius);
+        h_localZ->Fill(localZ);
+
+        barcode_vec.push_back(bar);
+        eventIndex_vec.push_back(eventIx);
+        radius_vec.push_back(radius);
+        localZ_vec.push_back(localZ);
       }
       m_barcode_vec->push_back(barcode_vec);
       m_eventIndex_vec->push_back(eventIndex_vec);

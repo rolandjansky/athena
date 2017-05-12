@@ -26,7 +26,7 @@ class TH1;
 
 class TileRDOAnalysis : public AthAlgorithm {
 
- public:
+public:
   TileRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~TileRDOAnalysis(){}
 
@@ -34,7 +34,7 @@ class TileRDOAnalysis : public AthAlgorithm {
   virtual StatusCode execute();
   virtual StatusCode finalize();
 
- private:
+private:
   SG::ReadHandleKey<TileRawChannelContainer> m_inputRawChKey;
   SG::ReadHandleKey<TileRawChannelContainer> m_inputMuRcvRawChKey;
   SG::ReadHandleKey<TileMuonReceiverContainer> m_inputMuRcvKey;
@@ -126,7 +126,7 @@ class TileRDOAnalysis : public AthAlgorithm {
   TH1* h_digits;
   TH1* h_muDigits;
 
-  
+
   TTree *m_tree;
   std::string m_ntupleFileName;
   std::string m_ntupleDirName;

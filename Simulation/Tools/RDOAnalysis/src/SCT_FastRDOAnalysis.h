@@ -23,7 +23,7 @@ class TH1;
 
 class SCT_FastRDOAnalysis : public AthAlgorithm {
 
- public:
+public:
   SCT_FastRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator);
   ~SCT_FastRDOAnalysis(){}
 
@@ -31,11 +31,11 @@ class SCT_FastRDOAnalysis : public AthAlgorithm {
   virtual StatusCode execute();
   virtual StatusCode finalize();
 
- private:
+private:
   SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_inputKey;
   // SCT_Cluster
   std::vector<uint16_t>* m_hitsTimeBin3;
-  
+
   // SiCluster - SiWidth + SiDetectorElement
   std::vector<float>* m_siCol;
   std::vector<float>* m_siRow;
@@ -116,7 +116,7 @@ class SCT_FastRDOAnalysis : public AthAlgorithm {
   TH1* h_locpos_x;
   TH1* h_locpos_y;
   TH1* h_rdoID_prd;
-  
+
   TTree* m_tree;
   std::string m_ntupleFileName;
   std::string m_ntupleDirName;
