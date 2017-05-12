@@ -1,3 +1,5 @@
+
+
 #
 # Package filtering rules for the AthDerivation project build.
 #
@@ -46,6 +48,7 @@
 + Database/AthenaPOOL/.*
 + Database/AtlasSealCLHEP
 + Database/ConnectionManagement/.*
++ Database/CoolConvUtilities
 + Database/CoolLumiUtilities
 + Database/CoraCool
 + Database/CoralDB
@@ -311,6 +314,7 @@
 + Trigger/TrigConfiguration/.*
 + Trigger/TriggerCommon/TrigEDMConfig
 + Trigger/TriggerCommon/TriggerJobOpts
++ Trigger/TriggerCommon/TrigTier0
 + Trigger/TrigDataAccess/TrigSerialize.*
 + Trigger/TrigEvent/Trig.*Event
 + Trigger/TrigEvent/Trig.*TPCnv
