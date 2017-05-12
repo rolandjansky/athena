@@ -20,7 +20,7 @@
 
 // For the Athena-based random numbers.
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include <CLHEP/Random/Randomize.h>
 
 #include "TrigConfL1Data/ThresholdConfig.h"

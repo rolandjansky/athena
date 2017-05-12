@@ -12,7 +12,7 @@
 #include "TRRegionXMLHandler.h"
 
 // Athena includes
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"//Material Manager
 #include "GeoModelInterfaces/StoredMaterialManager.h"//Material Manager

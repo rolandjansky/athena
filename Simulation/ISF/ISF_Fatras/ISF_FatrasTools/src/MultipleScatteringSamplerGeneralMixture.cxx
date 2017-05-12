@@ -10,7 +10,7 @@
 #include "TrkGeometry/MaterialProperties.h"
 
 #include "ISF_FatrasTools/MultipleScatteringSamplerGeneralMixture.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 // static particle masses
 Trk::ParticleMasses iFatras::MultipleScatteringSamplerGeneralMixture::s_particleMasses;

@@ -9,7 +9,7 @@
 #include "InDetSimEvent/SiTotalCharge.h"
 #include <cmath>
 #include "CLHEP/Random/RandomEngine.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "TimeSvc.h"

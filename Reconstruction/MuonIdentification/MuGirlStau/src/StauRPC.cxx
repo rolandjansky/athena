@@ -4,7 +4,7 @@
 
 #include "MuGirlStau/StauRPC.h"
 #include "MuGirlStau/StauCalibration.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 
 //================ Constructor =================================================
