@@ -204,12 +204,6 @@ public:
 
   StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS);
 
-
-  /** Callback added to handle Data-driven GeoModel initialisation 
-      ( even needed to retrieve Identifiers )
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
 private: 
   
 

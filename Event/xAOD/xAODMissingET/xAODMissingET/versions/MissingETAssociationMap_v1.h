@@ -162,7 +162,7 @@ namespace xAOD
     /*!@{*/
     void resetObjSelectionFlags() const;
     /*@}*/
-    void resetAssocCache() const;
+    void resetAssocCache();
 
   protected:
 

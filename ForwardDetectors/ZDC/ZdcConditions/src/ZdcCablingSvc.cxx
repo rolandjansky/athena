@@ -66,43 +66,6 @@ ZdcCablingSvc::initialize()
     log << MSG::ERROR << "Unable to retrieve " << m_detStore << endmsg;
     return StatusCode::FAILURE;
   }
-
-  IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    log << MSG::ERROR << "Could not locate GeoModelSvc" << endmsg;
-    return sc;
-  }
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    sc = m_detStore->regFcn(&IGeoModelSvc::geoInit,
-			    geoModel,
-			    &ZdcCablingSvc::geoInit,this);
-    if(sc.isFailure())
-    {
-      log << MSG::ERROR << "Could not register geoInit callback" << endmsg;
-      return sc;
-    }
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-ZdcCablingSvc::geoInit(IOVSVC_CALLBACK_ARGS)
-{
-  MsgStream log(msgSvc(),name());
-  log <<MSG::DEBUG <<"In geoInit() " << endmsg;
-
   //=== retrieve all helpers from detector store
 
   /*

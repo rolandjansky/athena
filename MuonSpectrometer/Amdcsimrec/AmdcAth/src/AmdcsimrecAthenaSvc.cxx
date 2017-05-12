@@ -286,34 +286,15 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
   if ( (m_NameOfTheSource=="POOL" || m_NameOfTheSource=="GEOMODEL" ) && m_AlignmentSource == 3 ){
     ATH_MSG_DEBUG( "=>Strings come from Geomodel and A/B line stores as well<=" ) ;
     
-    if(p_IGeoModelSvc->geoInitialized()) {
+    m_IsInitialized = true ;
+    m_IsUsable      = true ;
     
-      ATH_MSG_DEBUG( "      p_IGeoModelSvc->geoInitialized() true "  ) ;
-      m_IsInitialized = true ;
-      m_IsUsable      = true ;
-    
-      sc = initializeFromGeomodel();
-      if ( sc.isFailure() ) {
-        ATH_MSG_FATAL("initializeFromGeomodel failed" ) ;
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG( "Done: initializeFromGeomodel " ) ;
-
-    }else{
-    
-      ATH_MSG_DEBUG( "      p_IGeoModelSvc->geoInitialized() false "  ) ;
-      m_IsInitialized = false ;
-      m_IsUsable      = false ;
-
-      sc = regFcninitializeFromGeomodel();
-      if ( sc.isFailure() ) {
-        ATH_MSG_FATAL("regFcninitializeFromGeomodel failed" ) ;
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG( "Done: regFcninitializeFromGeomodel " ) ;
-
+    sc = initializeFromGeomodel();
+    if ( sc.isFailure() ) {
+      ATH_MSG_FATAL("initializeFromGeomodel failed" ) ;
+      return StatusCode::FAILURE;
     }
-
+    ATH_MSG_DEBUG( "Done: initializeFromGeomodel " ) ;
   }
   
 //Strings come from Geomodel and A/B line stores from cool
@@ -322,36 +303,21 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
     m_IsInitialized = false ;
     m_IsUsable      = false ;
 
-    if(p_IGeoModelSvc->geoInitialized()) {
+    ATH_MSG_DEBUG( "      p_IGeoModelSvc->geoInitialized() true "  ) ;
 
-      ATH_MSG_DEBUG( "      p_IGeoModelSvc->geoInitialized() true "  ) ;
-
-      sc = initializeFromGeomodel();
-      if ( sc.isFailure() ) {
-        ATH_MSG_FATAL("initializeFromGeomodel failed" ) ;
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG( "Done: initializeFromGeomodel " ) ;
-      
-      sc=regFcnSetAmdcABlineFromCool();
-      if ( sc.isFailure() ) {
-        ATH_MSG_FATAL("regFcnSetAmdcABlineFromCool failed" ) ;
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG( "Done: regFcnSetAmdcABlineFromCool " ) ;
-
-    }else{
-
-      ATH_MSG_DEBUG( "      p_IGeoModelSvc->geoInitialized() false  "  ) ;
-
-      sc=regFcninitializeFromGeomodelSetAmdcABlineFromCool();
-      if ( sc.isFailure() ) {
-        ATH_MSG_FATAL("regFcninitializeFromGeomodelSetAmdcABlineFromCool failed" ) ;
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG( "Done: regFcninitializeFromGeomodelSetAmdcABlineFromCool " ) ;
-
+    sc = initializeFromGeomodel();
+    if ( sc.isFailure() ) {
+      ATH_MSG_FATAL("initializeFromGeomodel failed" ) ;
+      return StatusCode::FAILURE;
     }
+    ATH_MSG_DEBUG( "Done: initializeFromGeomodel " ) ;
+    
+    sc=regFcnSetAmdcABlineFromCool();
+    if ( sc.isFailure() ) {
+      ATH_MSG_FATAL("regFcnSetAmdcABlineFromCool failed" ) ;
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG( "Done: regFcnSetAmdcABlineFromCool " ) ;
 
   }
   

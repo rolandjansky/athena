@@ -82,8 +82,8 @@ private:
 
   bool m_beforeFilter;
   int m_findmode;
-  int nSubproc[nSubprocMax];
-  std::string beforeORafter;
+  int m_nSubproc[nSubprocMax];
+  std::string m_beforeORafter;
 
   bool m_verbose;
   std::string m_verbose_mode;

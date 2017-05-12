@@ -71,8 +71,6 @@ class TileInfoLoader: public AthService, virtual public IIncidentListener {
                                , std::vector<double> &FullShape, std::vector<double> &Shape);
     void buildCovMatrix();
 
-    StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
     virtual void handle(const Incident&);   //!< Callback for Incident service
 
   private:

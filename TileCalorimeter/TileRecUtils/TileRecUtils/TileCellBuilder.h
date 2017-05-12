@@ -104,9 +104,6 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
 
     virtual StatusCode initialize();                     //!< initialize mehtod
 
-    //!< Callback added to handle Data-driven GeoModel initialisation
-    virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
     void reset(bool fullSizeCont, bool printReset = true); //!< Method to reset the options of the TileCellContainer
 
     /**

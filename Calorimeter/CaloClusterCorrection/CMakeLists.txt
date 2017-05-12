@@ -28,7 +28,6 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArCabling
                           Control/AthContainers
-                          DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/Identifier
                           Event/EventKernel
                           Tools/PathResolver )

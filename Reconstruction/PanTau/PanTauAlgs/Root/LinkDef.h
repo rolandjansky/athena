@@ -2,9 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __PANTAUALGS__
-#define __PANTAUALGS__
-
 #include "PanTauAlgs/PanTauSeed.h"
 #include "PanTauAlgs/TauClassificationTypes.h"
 /* #include "PanTauAlgs/TauConstituent.h" */
@@ -61,5 +58,4 @@
 
 //#pragma link C++ enum TauID::Types::MethodType;
 
-#endif
 #endif

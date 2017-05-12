@@ -114,11 +114,9 @@ StatusCode IDAlignMonNtuple::bookHistograms()
 {
   StatusCode sc;
 
-  if ( newLowStat ) {  
-  }
-  if ( newLumiBlock ) {  
-  }
-  if ( newRun ) {  }
+  //if ( newLowStatFlag() ) {    }
+  //if ( newLumiBlockFlag() ) {  }
+  if ( newRunFlag() ) {  }
   
   std::string directoryStructure = "/NTUPLES/ALIGNMONITOR";
   //std::string fullNtuplePath = "/NTUPLES/ALIGNMONITOR/Alignment/tree";
@@ -704,11 +702,9 @@ StatusCode IDAlignMonNtuple::fillHistograms()
 StatusCode IDAlignMonNtuple::procHistograms()
 {
 
-  if( endOfLowStat ) {
-  }
-  if( endOfLumiBlock ) {
-  }
-  if( endOfRun ) {}
+  //if( endOfLowStatFlag() ) {  }
+  //if( endOfLumiBlockFlag() ) {  }
+  //if( endOfRunFlag() ) {}
   
   return StatusCode::SUCCESS;
 }

@@ -76,10 +76,6 @@ public:
    */
   virtual StatusCode initialize() override;
 
-  /** Callback added to handle Data-driven GeoModel initialization
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-  
   /**
    * @brief CaloClusterCorrection virtual method
    * @param ctx     The event context.
