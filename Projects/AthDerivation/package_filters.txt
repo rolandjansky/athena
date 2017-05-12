@@ -1,5 +1,3 @@
-
-
 #
 # Package filtering rules for the AthDerivation project build.
 #
