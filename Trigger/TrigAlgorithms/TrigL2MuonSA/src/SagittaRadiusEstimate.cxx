@@ -26,8 +26,7 @@ TrigL2MuonSA::SagittaRadiusEstimate::SagittaRadiusEstimate(const std::string& ty
 							   const IInterface*  parent):
   AthAlgTool(type, name, parent), 
   m_use_mcLUT(0),
-  m_alignmentBarrelLUT(0),
-  m_alignmentBarrelLUTSvc(0)
+  m_alignmentBarrelLUT(0)
 {
   declareInterface<TrigL2MuonSA::SagittaRadiusEstimate>(this);
 }

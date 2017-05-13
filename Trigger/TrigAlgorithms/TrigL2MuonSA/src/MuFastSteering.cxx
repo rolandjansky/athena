@@ -46,7 +46,6 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
     m_rpcFitResult(), m_tgcFitResult(),
     m_mdtHits_normal(), m_mdtHits_overlap(),
     m_cscHits(),
-    m_ptBarrelLUTSvc(0), m_ptEndcapLUTSvc(0),
     m_jobOptionsSvc(0), m_trigCompositeContainer(0)
 {
   declareProperty("DataPreparator",    m_dataPreparator,    "data preparator");
@@ -1026,7 +1025,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
           if ( tgcFitResult.tgcMid1[3]==0. || tgcFitResult.tgcMid2[3]==0. ) {
             if ( fabs(tgcFitResult.tgcMid1[3]) > ZERO_LIMIT ) phi = phi1;
             if ( fabs(tgcFitResult.tgcMid2[3]) > ZERO_LIMIT ) phi = phi2;
-          } else if( phi1*phi2 < 0 && fabsf(phi1)>(CLHEP::pi/2.) ) {
+          } else if( phi1*phi2 < 0 && std::abs(phi1)>(CLHEP::pi/2.) ) {
             double tmp1 = (phi1>0)? phi1 - CLHEP::pi : phi1 + CLHEP::pi;
             double tmp2 = (phi2>0)? phi2 - CLHEP::pi : phi2 + CLHEP::pi;
             double tmp  = (tmp1+tmp2)/2.;

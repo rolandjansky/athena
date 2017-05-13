@@ -151,9 +151,6 @@ class MuFastSteering : public HLT::FexAlgo,
   TrigL2MuonSA::MdtHits      m_mdtHits_overlap;
   TrigL2MuonSA::CscHits      m_cscHits;
   
-  TrigL2MuonSA::PtBarrelLUTSvc* m_ptBarrelLUTSvc;
-  TrigL2MuonSA::PtEndcapLUTSvc* m_ptEndcapLUTSvc;
-    
   float m_scaleRoadBarrelInner;
   float m_scaleRoadBarrelMiddle;
   float m_scaleRoadBarrelOuter;

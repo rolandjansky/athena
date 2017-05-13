@@ -86,15 +86,12 @@ class RpcDataPreparator: public AthAlgTool
       
       // Region Selector
       IRegSelSvc*          m_regionSelector;
-      // ROB DataProvider
-      ROBDataProviderSvc*  m_robDataProvider;
 
       // RPC cabling service
       const IRPCcablingSvc* m_rpcCabling;
       const CablingRPCBase* m_rpcCablingSvc;
       
       const MuonGM::MuonDetectorManager* m_muonMgr;
-      const MuonGM::RpcReadoutElement* m_rpcReadout;
       // Muon Id Helpers
       const RpcIdHelper* m_rpcIdHelper;
 

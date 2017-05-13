@@ -653,15 +653,15 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
      
      double dphi  = 0;
      double cphi  = muonRoad.phi[chamber][0];
-     if( cPhip*cphi>0 ) dphi = fabsf(cPhip - cphi);
+     if( cPhip*cphi>0 ) dphi = std::abs(cPhip - cphi);
      else {
        if(fabs(cphi) > CLHEP::pi/2.) {
 	 double phi1 = (cPhip>0.)? cPhip-CLHEP::pi : cPhip+CLHEP::pi;
 	 double phi2 = (cphi >0.)? cphi -CLHEP::pi : cphi +CLHEP::pi;
-	 dphi = fabsf(phi1) + fabsf(phi2); 
+	 dphi = std::abs(phi1) + std::abs(phi2); 
        }
        else {
-	 dphi = fabsf(cPhip) + fabsf(cphi);
+	 dphi = std::abs(cPhip) + std::abs(cphi);
        }
      }
      
@@ -672,7 +672,7 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
        Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );	    
      double Rmin =(trans*OrigOfMdtInAmdbFrame).perp();	
 
-     float cInCo = 1./cos(fabsf(atan(OrtoRadialPos/Rmin)));
+     float cInCo = 1./cos(std::abs(atan(OrtoRadialPos/Rmin)));
      float cPhi0 = cPhip - atan(OrtoRadialPos/Rmin);
      if(cPhi0 > CLHEP::pi) cPhip -= 2*CLHEP::pi;
      if(cPhip<0. && (fabs(CLHEP::pi+cPhip) < 0.05) ) cPhip = acos(0.)*2.;
@@ -1032,15 +1032,15 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
       double dphi  = 0;
       double cphi  = muonRoad.phi[chamber][0];
       if( cPhip*cphi>0 ) {
-	dphi = fabsf(cPhip - cphi);
+	dphi = std::abs(cPhip - cphi);
       } else {
 	if(fabs(cphi) > CLHEP::pi/2.) {
 	  double phi1 = (cPhip>0.)? cPhip-CLHEP::pi : cPhip+CLHEP::pi;
 	  double phi2 = (cphi >0.)? cphi -CLHEP::pi : cphi +CLHEP::pi;
-	  dphi = fabsf(phi1) + fabsf(phi2); 
+	  dphi = std::abs(phi1) + std::abs(phi2); 
 	}
 	else {
-	  dphi = fabsf(cPhip) + fabsf(cphi);
+	  dphi = std::abs(cPhip) + std::abs(cphi);
 	}
       }
       
@@ -1051,7 +1051,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 	Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );      
       double Rmin =(trans*OrigOfMdtInAmdbFrame).perp();  
       
-      float cInCo = 1./cos(fabsf(atan(OrtoRadialPos/Rmin)));
+      float cInCo = 1./cos(std::abs(atan(OrtoRadialPos/Rmin)));
       float cPhi0 = cPhip - atan(OrtoRadialPos/Rmin);
       if(cPhi0 > CLHEP::pi) cPhip -= 2*CLHEP::pi;
       if(cPhip<0. && (fabs(CLHEP::pi+cPhip) < 0.05) ) cPhip = acos(0.)*2.;
