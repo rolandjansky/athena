@@ -217,15 +217,15 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
   if(m_BMGpresent){
     ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
     m_BMGid = m_mdtHelper->stationNameIndex("BMG");
-  }
-
-  for(int phi=6; phi<8; phi++) { // phi sectors
-    for(int eta=1; eta<4; eta++) { // eta sectors
-      for(int side=-1; side<2; side+=2) { // side
-        for(int roe=1; roe<=( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements(); roe++) { // iterate on readout elemets
-          const MdtReadoutElement* mdtRE =
-                dynamic_cast<const MdtReadoutElement*> ( ( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
-          if(mdtRE) initDeadChannels(mdtRE);
+    for(int phi=6; phi<8; phi++) { // phi sectors
+      for(int eta=1; eta<4; eta++) { // eta sectors
+        for(int side=-1; side<2; side+=2) { // side
+          if( !m_muonMgr->getMuonStation("BMG", side*eta, phi) ) continue;
+          for(int roe=1; roe<=( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements(); roe++) { // iterate on readout elemets
+            const MdtReadoutElement* mdtRE =
+                  dynamic_cast<const MdtReadoutElement*> ( ( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
+            if(mdtRE) initDeadChannels(mdtRE);
+          }
         }
       }
     }
@@ -828,7 +828,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::processCsm(const MdtCsm *rdoColl, std::ve
 
   if ( m_mdtPrepDataContainer->indexFind(mdtHashId) != m_mdtPrepDataContainer->end() ) {
     // for elevator chambers there are 2 CSMs to be filled in the same collection
-    if ( m_mdtHelper->stationName(elementId) == m_BMEid ) {
+    if ( m_mdtHelper->stationName(elementId) == m_BMEid && m_BMEpresent) {
       driftCircleColl = const_cast<MdtPrepDataCollection*>(&(**m_mdtPrepDataContainer->indexFind(mdtHashId)));
       ATH_MSG_DEBUG("In ProcessCSM - collection already contained in IDC, but BME! Taking it.");
     } 
@@ -889,7 +889,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::processCsm(const MdtCsm *rdoColl, std::ve
     // Do something with it
       Identifier     channelId   = newDigit->identify();
       Identifier     parentId    = m_mdtHelper->parentID(channelId);
-      if( m_mdtHelper->stationName(parentId) == m_BMGid ) {
+      if( m_mdtHelper->stationName(parentId) == m_BMGid && m_BMGpresent) {
         std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find(m_muonMgr->getMdtReadoutElement(channelId)->identify());
         if( myIt != m_DeadChannels.end() ){
           if( std::find( (myIt->second).begin(), (myIt->second).end(), channelId) != (myIt->second).end() ) {
@@ -1142,7 +1142,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::processCsmTwin(const MdtCsm *rdoColl, std
       Identifier channelId = newDigit->identify();
       //IdentifierHash channelHash = newDigit->identifyHash();
 
-      if( m_mdtHelper->stationName(channelId) == m_BMGid ) {
+      if( m_mdtHelper->stationName(channelId) == m_BMGid && m_BMGpresent) {
         std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find(m_muonMgr->getMdtReadoutElement(channelId)->identify());
         if( myIt != m_DeadChannels.end() ){
           if( std::find( (myIt->second).begin(), (myIt->second).end(), channelId) != (myIt->second).end() ) {
