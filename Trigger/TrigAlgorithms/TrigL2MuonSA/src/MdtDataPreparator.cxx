@@ -793,7 +793,7 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
        << etaMaxChamber[chamber] << "/"
        << phiMinChamber[chamber] << "/"
        << phiMaxChamber[chamber] );
-     TrigRoiDescriptor _roi( 0.5*(etaMinChamber[chamber]+etaMaxChamber[chamber]),
+     TrigRoiDescriptor roi2( 0.5*(etaMinChamber[chamber]+etaMaxChamber[chamber]),
                              etaMinChamber[chamber], etaMaxChamber[chamber],
                              HLT::phiMean(phiMinChamber[chamber],phiMaxChamber[chamber]),
                              phiMinChamber[chamber], phiMaxChamber[chamber] );
@@ -802,7 +802,7 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
          idList.clear();
          ATH_MSG_DEBUG( "chamber/sector=" << chamber << "/" << i_sector );
 	 m_regionSelector->DetHashIDList(MDT,static_cast<TYPEID>(mdtRegion.chamberType[chamber][i_sector][i_type]),
-					 _roi, idList);
+					 roi2, idList);
 	 ATH_MSG_DEBUG( "...chamberType=" << mdtRegion.chamberType[chamber][i_sector][i_type] );
 	 ATH_MSG_DEBUG( "...size IDlist=" << idList.size() );
 	 std::vector<IdentifierHash>::const_iterator it = idList.begin();
@@ -863,7 +863,7 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesEndcap(const TrigL2MuonSA::M
        << etaMaxChamber[chamber] << "/"
        << phiMinChamber[chamber] << "/"
        << phiMaxChamber[chamber] );
-     TrigRoiDescriptor _roi( 0.5*(etaMinChamber[chamber]+etaMaxChamber[chamber]),
+     TrigRoiDescriptor roi2( 0.5*(etaMinChamber[chamber]+etaMaxChamber[chamber]),
                              etaMinChamber[chamber], etaMaxChamber[chamber],
                              HLT::phiMean(phiMinChamber[chamber],phiMaxChamber[chamber]),
                              phiMinChamber[chamber], phiMaxChamber[chamber] );
@@ -873,7 +873,7 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesEndcap(const TrigL2MuonSA::M
 	 ATH_MSG_DEBUG( "chamber/sector=" << chamber << "/" << i_sector );
 	 
 	 m_regionSelector->DetHashIDList(MDT,static_cast<TYPEID>(mdtRegion.chamberType[chamber][i_sector][i_type]),
-					 _roi, idList);
+					 roi2, idList);
 	 ATH_MSG_DEBUG( "...chamberType=" << mdtRegion.chamberType[chamber][i_sector][i_type] );
 	 ATH_MSG_DEBUG( "...size IDlist=" << idList.size() );
 	 std::vector<IdentifierHash>::const_iterator it = idList.begin();

@@ -382,7 +382,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
 
     ATH_MSG_DEBUG("RoI eta/phi=" << roiEta << "/" << roiPhi);
     
-    std::vector<TrigL2MuonSA::TrackPattern> m_trackPatterns;
+    std::vector<TrigL2MuonSA::TrackPattern> trackPatterns;
     m_mdtHits_normal.clear();
     m_mdtHits_overlap.clear();
     m_cscHits.clear();
@@ -414,9 +414,9 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Data preparation failed");
 	TrigL2MuonSA::TrackPattern trackPattern;
-	m_trackPatterns.push_back(trackPattern);
+	trackPatterns.push_back(trackPattern);
 	updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-		       m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
+		       m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
 	return HLT::OK;
       }
       if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->pause();
@@ -424,9 +424,9 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       if ( m_rpcErrToDebugStream && m_dataPreparator->isRpcFakeRoi() ) {
         ATH_MSG_WARNING("Invalid RoI in RPC data found: event to debug stream");
 	TrigL2MuonSA::TrackPattern trackPattern;
-	m_trackPatterns.push_back(trackPattern);
+	trackPatterns.push_back(trackPattern);
 	updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-		       m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
+		       m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
 	return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::UNKNOWN);
       } 
 
@@ -434,11 +434,11 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       if (m_timerSvc) m_timers[ITIMER_PATTERN_FINDER]->resume();
       sc = m_patternFinder->findPatterns(m_muonRoad,
                                          m_mdtHits_normal,
-                                         m_trackPatterns);
+                                         trackPatterns);
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Pattern finder failed");
          updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
+                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
          return HLT::OK;
       }
       if (m_timerSvc) m_timers[ITIMER_PATTERN_FINDER]->pause();
@@ -447,11 +447,11 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       if (m_timerSvc) m_timers[ITIMER_STATION_FITTER]->resume();      
       sc = m_stationFitter->findSuperPoints(*p_roi,
                                             m_rpcFitResult,
-                                            m_trackPatterns);
+                                            trackPatterns);
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Super point fitter failed");
          updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
+                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
          return HLT::OK;
       }
       if (m_timerSvc) m_timers[ITIMER_STATION_FITTER]->pause();      
@@ -460,12 +460,12 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       if (m_timerSvc) m_timers[ITIMER_TRACK_FITTER]->resume();      
       sc = m_trackFitter->findTracks(*p_roi,
                                      m_rpcFitResult,
-                                     m_trackPatterns);
+                                     trackPatterns);
                                      
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Track fitter failed");
          updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
+                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
          return HLT::OK;
       }
       if (m_timerSvc) m_timers[ITIMER_TRACK_FITTER]->pause();      
@@ -488,9 +488,9 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Data preparation failed");
 	TrigL2MuonSA::TrackPattern trackPattern;
-	m_trackPatterns.push_back(trackPattern);
+	trackPatterns.push_back(trackPattern);
 	updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-		       m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
+		       m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
 	return HLT::OK;
       }
       if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->pause();
@@ -499,13 +499,13 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       if (m_timerSvc) m_timers[ITIMER_PATTERN_FINDER]->resume();
       sc = m_patternFinder->findPatterns(m_muonRoad,
                                          m_mdtHits_normal,
-                                         m_trackPatterns);
+                                         trackPatterns);
 
 
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Pattern finder failed");
          updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
+                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
          return HLT::OK;
       }
       if (m_timerSvc) m_timers[ITIMER_PATTERN_FINDER]->pause();
@@ -515,20 +515,20 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       if(!m_use_new_segmentfit){
         sc = m_stationFitter->findSuperPoints(*p_roi,
                                               m_tgcFitResult,
-                                              m_trackPatterns);
+                                              trackPatterns);
       }else{
         sc = m_stationFitter->findSuperPoints(*p_roi,
                                               m_muonRoad,
                                               m_tgcFitResult,
-                                              m_trackPatterns);
+                                              trackPatterns);
       }
       /////csc SuperPoint
-      m_cscsegmaker->FindSuperPointCsc(m_cscHits,m_trackPatterns,m_tgcFitResult,m_muonRoad);
+      m_cscsegmaker->FindSuperPointCsc(m_cscHits,trackPatterns,m_tgcFitResult,m_muonRoad);
 
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Super point fitter failed");
          updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
+                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
          return HLT::OK;
       }
 
@@ -538,61 +538,61 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       if (m_timerSvc) m_timers[ITIMER_TRACK_FITTER]->resume();     
       sc = m_trackFitter->findTracks(*p_roi,
                                      m_tgcFitResult,
-                                     m_trackPatterns,
+                                     trackPatterns,
                                      m_muonRoad);
 
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Track fitter failed");
          updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
+                        m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
          return HLT::OK;
       }
       if (m_timerSvc) m_timers[ITIMER_TRACK_FITTER]->pause();      
     }
     
     // fix if eta is strange
-    for (unsigned int i=0 ;i<m_trackPatterns.size(); i++) {
-       TrigL2MuonSA::TrackPattern track = m_trackPatterns[i]; 
+    for (unsigned int i=0 ;i<trackPatterns.size(); i++) {
+       TrigL2MuonSA::TrackPattern track = trackPatterns[i]; 
        const float ETA_LIMIT       = 2.8;
        const float DELTA_ETA_LIMIT = 1.0;
        float roiEta = (*p_roi)->eta();
        const float ZERO_LIMIT = 1.e-5;
        if (fabs(track.pt) > ZERO_LIMIT
            && ( fabs(track.etaMap) > ETA_LIMIT || fabs(track.etaMap-roiEta) > DELTA_ETA_LIMIT ) ) {
-          m_trackPatterns[i].etaMap = roiEta;
+          trackPatterns[i].etaMap = roiEta;
        }
     }
 
     // Track extrapolation for ID combined
     if (m_timerSvc) m_timers[ITIMER_TRACK_EXTRAPOLATOR]->resume();
 
-    sc = m_trackExtrapolator->extrapolateTrack(m_trackPatterns, m_winPt);
+    sc = m_trackExtrapolator->extrapolateTrack(trackPatterns, m_winPt);
 
     if (sc != StatusCode::SUCCESS) {
       ATH_MSG_WARNING("Track extrapolator failed");
        updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                      m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
+                      m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
        return HLT::OK;
     }
     if (m_timerSvc) m_timers[ITIMER_TRACK_EXTRAPOLATOR]->pause();
     
     // Update monitoring variables
-    sc = updateMonitor(*p_roi, m_mdtHits_normal, m_trackPatterns);
+    sc = updateMonitor(*p_roi, m_mdtHits_normal, trackPatterns);
     if (sc != StatusCode::SUCCESS) {
       ATH_MSG_WARNING("Failed to update monitoring variables");
        updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                      m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
+                      m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
        return HLT::OK;
     }
 
     // Update output trigger element
     updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
-                   m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
+                   m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, trackPatterns);
             
 
     // call the calibration streamer 
-    if (m_doCalStream && m_trackPatterns.size()>0 ) { 
-      TrigL2MuonSA::TrackPattern tp = m_trackPatterns[0];
+    if (m_doCalStream && trackPatterns.size()>0 ) { 
+      TrigL2MuonSA::TrackPattern tp = trackPatterns[0];
       if (m_timerSvc) m_timers[ITIMER_CALIBRATION_STREAMER]->resume();                                                    
       //      m_calStreamer->setInstanceName(this->name());
       
