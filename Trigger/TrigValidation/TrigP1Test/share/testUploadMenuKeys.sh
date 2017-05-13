@@ -145,7 +145,7 @@ echo "Generating RuleBook_HLTPS_Physics${lumi}.xml by running\ncnvXML.py --ps_na
 cnvXML.py --ps_name=Physics${lumi} --ps_xml=prescales${lumi}.xml
 
 # Upload
-java -jar TriggerTool.jar -dbConn $DBConn -psup RuleBook_HLTPS_Physics${lumi}.xml -smk $smk -w_n 50 -w_t 60 &> uploadPSK.log
+afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup RuleBook_HLTPS_Physics${lumi}.xml -smk $smk -w_n 50 -w_t 60 &> uploadPSK.log
 hltpsk2=`grep 'HLT Prescale set saved with id' uploadPSK.log | sed 's#.*: \([0-9]*\)\.#\1#'`
 if [ -z "$hltpsk2" ]; then
     echo "ERROR Upload of prescale key failed"
