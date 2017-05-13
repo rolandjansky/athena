@@ -65,8 +65,6 @@ class T2CaloCosmic: public T2CaloBase {
     /** Forced LVL1 phi */
     float m_l1phi;
 
-    int m_index;
-
     // Properties:
     std::string m_trigEmClusterKey;
     /** Will monitoring be used or not */
