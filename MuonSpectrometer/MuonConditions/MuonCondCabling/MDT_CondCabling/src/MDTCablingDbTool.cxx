@@ -417,7 +417,7 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
     for(int i=0; i<9; i++) // ML1
        m_cablingData->addMezzanine(         60, stationIndex,   1,   6,          1,     4,(i*6)+1,            97,   50,   0, 2*i+1,         0);
     for(int i=0; i<9; i++) // ML2
-       m_cablingData->addMezzanine(         60, stationIndex,   1,   6,          2,     4,(i*6)+1,            97,   50,   0,   2*1,         0);
+       m_cablingData->addMezzanine(         60, stationIndex,   1,   6,          2,     4,(i*6)+1,            97,   50,   0,   2*i,         0);
     // BMG2A12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
     for(int i=0; i<9; i++) // ML1
        m_cablingData->addMezzanine(         60, stationIndex,   2,   6,          1,     4,(i*6)+1,            97,   50,   1, 2*i+1,         0);
