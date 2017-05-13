@@ -667,7 +667,7 @@ double MdtCalibrationSvc::tdcBinSize(const Identifier &id) {
     //return 0.2;    
 // Alternative method if you don't like hardcoding BMG stationName (54)
   if( m_imp->m_mdtIdHelper->stationNameString( m_imp->m_mdtIdHelper->stationName(id) ) == "BMG" ) 
-    return 0.2;
+    return 0.1953125; // 25/128
   return 0.78125;  //25/32; exact number: (1000.0/40.079)/32.0 
 }
 

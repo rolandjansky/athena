@@ -33,16 +33,16 @@ void MdtHptdcReadOut::decodeWord(uint32_t dataWord)
       m_leading = ! ((bool) getBits(28,28));
       m_tdcId   = getBits(27,24);
       m_channel = getBits(23,19);
-      m_coarse  = getBits(18,0);
-      m_fine    = 0;
+      m_coarse  = getBits(18,5);
+      m_fine    = getBits(4,0);
     }
   else if (is_TCM())         // TDC combined measurement
     {
       m_tdcId   = getBits(27,24);
       m_channel = getBits(23,19);
       m_width   = getBits(18,12);
-      m_coarse  = getBits(11,0);
-      m_fine    = 0;
+      m_coarse  = getBits(11,5);
+      m_fine    = getBits(4,0);
     }
   else if (is_BOT())               // Beginning of TDC
     {
