@@ -370,10 +370,14 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
   m_mon_tag_MV2c00  = trigBTagging->auxdata<double>("MV2c00_discriminant");
   m_mon_tag_MV2c10  = trigBTagging->auxdata<double>("MV2c10_discriminant");
   m_mon_tag_MV2c20  = trigBTagging->auxdata<double>("MV2c20_discriminant");
-  m_mon_tag_IP2_c   = log(( trigBTagging->IP2D_pb() )/( trigBTagging->IP2D_pc() ));
-  m_mon_tag_IP2_cu  = log(( trigBTagging->IP2D_pc() )/( trigBTagging->IP2D_pu() ));
-  m_mon_tag_IP3_c   = log(( trigBTagging->IP3D_pb() )/( trigBTagging->IP3D_pc() ));
-  m_mon_tag_IP3_cu  = log(( trigBTagging->IP3D_pc() )/( trigBTagging->IP3D_pu() ));
+  if( trigBTagging->IP2D_pc() != 0 ) m_mon_tag_IP2_c   = log(( trigBTagging->IP2D_pb() )/( trigBTagging->IP2D_pc() ));
+  else m_mon_tag_IP2_c   = -999.;
+  if( trigBTagging->IP2D_pu() != 0 ) m_mon_tag_IP2_cu  = log(( trigBTagging->IP2D_pc() )/( trigBTagging->IP2D_pu() ));
+  else m_mon_tag_IP2_cu  = -999.;
+  if( trigBTagging->IP3D_pc() != 0 ) m_mon_tag_IP3_c   = log(( trigBTagging->IP3D_pb() )/( trigBTagging->IP3D_pc() ));
+  else m_mon_tag_IP3_c   = -999.;
+  if( trigBTagging->IP3D_pu() != 0 ) m_mon_tag_IP3_cu  = log(( trigBTagging->IP3D_pc() )/( trigBTagging->IP3D_pu() ));
+  else m_mon_tag_IP3_cu  = -999.;
 
   trigBTagging->variable<int>  ("JetFitter", "N2Tpair",  m_mon_jf_n2tv);
   trigBTagging->variable<int>  ("JetFitter", "nTracksAtVtx",  m_mon_jf_ntrkv);
