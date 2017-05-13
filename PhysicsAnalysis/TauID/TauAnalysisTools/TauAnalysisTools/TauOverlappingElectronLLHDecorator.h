@@ -57,31 +57,27 @@ public:
 
   virtual StatusCode initializeEvent() __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauOverlappingElectronLLHDecorator.rst")));
 
-  virtual StatusCode decorate(const xAOD::TauJet& xTau) const;
-
-  virtual StatusCode setEleOlrPassDecorationName(const std::string& name);
-  virtual StatusCode setEleOlrLhScoreDecorationName(const std::string& name);
+  virtual StatusCode decorate(const xAOD::TauJet& xTau);
 
 private:
   AsgElectronLikelihoodTool* m_tEMLHTool;
-  mutable const xAOD::ElectronContainer* m_xElectronContainer;
+  const xAOD::ElectronContainer* m_xElectronContainer;
   std::string m_sElectronContainerName;
   bool m_bElectonsAvailable;
   std::string m_sEleOLRFilePath;
   TH2D* m_hCutValues;
 
 private:
-  float getCutVal(float fEta, float fPt) const;
-  StatusCode retrieveElectrons() const;
+  float getCutVal(float fEta, float fPt);
+  StatusCode retrieveElectrons();
   virtual StatusCode beginEvent();
 
 private:
-  mutable bool m_bEleOLRMatchAvailable;
-  mutable bool m_bNewEvent;
+  bool m_bEleOLRMatchAvailable;
+  bool m_bEleOLRMatchAvailableChecked;
+  bool m_bNewEvent;
 
   std::string m_sElectronPhotonSelectorToolsConfigFile;
-  std::string m_sEleOlrPassDecorationName;
-  std::string m_sEleOlrLhScoreDecorationName;
 
 }; // class TauOverlappingElectronLLHDecorator
 

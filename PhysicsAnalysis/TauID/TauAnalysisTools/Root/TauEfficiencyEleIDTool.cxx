@@ -9,23 +9,21 @@ using namespace TauAnalysisTools;
 
 //=================================PUBLIC-PART==================================
 //______________________________________________________________________________
-TauEfficiencyEleIDTool::TauEfficiencyEleIDTool(std::string sName)
-  : CommonEfficiencyTool(sName)
-  , m_sWorkingPoint_1p("")
-  , m_sWorkingPoint_3p("")
+TauEfficiencyEleIDTool::TauEfficiencyEleIDTool(std::string sName) :
+  CommonEfficiencyTool(sName)
+  , m_iIDLevelCache(JETIDNONEUNCONFIGURED)
+  , m_iEVLevelCache(ELEIDNONEUNCONFIGURED)
+  , m_iOLRLevelCache(ELEIDNONEUNCONFIGURED)
 {
   m_sSystematicSet = new CP::SystematicSet();
+  m_iSysDirection = 0;
+
+  ATH_MSG_WARNING("implement string caching!!!");
 }
 
 //______________________________________________________________________________
 TauEfficiencyEleIDTool::~TauEfficiencyEleIDTool()
 {
-}
-
-StatusCode TauEfficiencyEleIDTool::initialize()
-{
-  setupWorkingPointSubstrings();
-  return CommonEfficiencyTool::initialize();
 }
 
 //______________________________________________________________________________
@@ -37,6 +35,16 @@ CP::CorrectionCode TauEfficiencyEleIDTool::getEfficiencyScaleFactor(const xAOD::
   {
     dEfficiencyScaleFactor = 1.;
     return CP::CorrectionCode::Ok;
+  }
+
+  // only recreate m_sIDLevel if user changed the IDLevel through the tool
+  // properties
+  if (m_iIDLevelCache != m_tTECT->m_iIDLevel && m_iEVLevelCache != m_tTECT->m_iEVLevel &&  m_iOLRLevelCache != m_tTECT->m_iOLRLevel)
+  {
+    m_iIDLevelCache = m_tTECT->m_iIDLevel;
+    m_iEVLevelCache = m_tTECT->m_iEVLevel;
+    m_iOLRLevelCache = m_tTECT->m_iOLRLevel;
+    setupWorkingPointSubstrings();
   }
 
   // get prong extension for histogram name
@@ -96,29 +104,25 @@ CP::CorrectionCode TauEfficiencyEleIDTool::getEfficiencyScaleFactor(const xAOD::
 //______________________________________________________________________________
 void TauEfficiencyEleIDTool::setupWorkingPointSubstrings()
 {
-  std::string sIDLevel = convertIDToString(m_iIDLevel);
-  std::string sEVLevel = convertEVetoToString(m_iEVLevel);
-  std::string sOLRLevel = convertOLRToString(m_iOLRLevel);
+  m_sIDLevel = convertIDToString(m_tTECT->m_iIDLevel);
+  m_sEVLevel = convertEVetoToString(m_tTECT->m_iEVLevel);
+  m_sOLRLevel = convertOLRToString(m_tTECT->m_iOLRLevel);
 
-  std::string sIDLevel_eveto3p;
-  std::string sEVLevel_eveto3p;
-  std::string sOLRLevel_eveto3p;
-
-  if(m_iIDLevel != JETIDBDTMEDIUM || m_iEVLevel != ELEIDBDTLOOSE || m_iOLRLevel != OLRTIGHTPP)
+  if(m_tTECT->m_iIDLevel != JETIDBDTMEDIUM || m_tTECT->m_iEVLevel != ELEIDBDTLOOSE || m_tTECT->m_iOLRLevel != OLRTIGHTPP)
   {
-    sIDLevel_eveto3p = convertIDToString(JETIDBDTOTHER);
-    sEVLevel_eveto3p = convertEVetoToString(ELEIDOTHER);
-    sOLRLevel_eveto3p = convertOLRToString(OLROTHER);
+    m_sIDLevel_eveto3p = convertIDToString(JETIDBDTOTHER);
+    m_sEVLevel_eveto3p = convertEVetoToString(ELEIDOTHER);
+    m_sOLRLevel_eveto3p = convertOLRToString(OLROTHER);
   }
   else
   {
-    sIDLevel_eveto3p = sIDLevel;
-    sEVLevel_eveto3p = sEVLevel;
-    sOLRLevel_eveto3p = sOLRLevel;
+    m_sIDLevel_eveto3p = m_sIDLevel;
+    m_sEVLevel_eveto3p = m_sEVLevel;
+    m_sOLRLevel_eveto3p = m_sOLRLevel;
   }
 
-  m_sWorkingPoint_1p = "_"+sIDLevel+"_"+sEVLevel+"_"+sOLRLevel;
-  m_sWorkingPoint_3p = "_"+sIDLevel_eveto3p+"_"+sEVLevel_eveto3p+"_"+sOLRLevel_eveto3p;
+  m_sWorkingPoint_1p = "_"+m_sIDLevel+"_"+m_sEVLevel+"_"+m_sOLRLevel;
+  m_sWorkingPoint_3p = "_"+m_sIDLevel_eveto3p+"_"+m_sEVLevel_eveto3p+"_"+m_sOLRLevel_eveto3p;
 }
 
 //______________________________________________________________________________

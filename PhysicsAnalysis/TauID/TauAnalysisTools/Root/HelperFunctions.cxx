@@ -70,39 +70,6 @@ void TauAnalysisTools::split(TEnv& rEnv, const std::string& sKey, const char cDe
 }
 
 //______________________________________________________________________________
-double TauAnalysisTools::caloTauPt(const xAOD::TauJet& xTau)
-{
-  // return calo based tau pt in GeV
-  return xTau.auxdata<float>("ptTauEtaCalib")/1000.;
-}
-
-//______________________________________________________________________________
-double TauAnalysisTools::caloTauEta(const xAOD::TauJet& xTau)
-{
-  // return calo based tau eta
-  return xTau.auxdata<float>("etaTauEtaCalib");
-}
-
-//______________________________________________________________________________
-double TauAnalysisTools::caloTauAbsEta(const xAOD::TauJet& xTau)
-{
-  // return calo based absolute tau eta
-  return std::abs(xTau.auxdata<float>("etaTauEtaCalib"));
-}
-
-//______________________________________________________________________________
-double TauAnalysisTools::caloTauP(const xAOD::TauJet& xTau)
-{
-  TLorentzVector tlv;
-  tlv.SetPtEtaPhiM( xTau.auxdata<float>("ptTauEtaCalib"),
-                    xTau.auxdata<float>("etaTauEtaCalib"),
-                    xTau.auxdata<float>("phiTauEtaCalib"),
-                    xTau.auxdata<float>("mTauEtaCalib") );
-  // return tau P in GeV
-  return tlv.P()/1000.;
-}
-
-//______________________________________________________________________________
 double TauAnalysisTools::tauPt(const xAOD::TauJet& xTau)
 {
   // return tau pt in GeV
@@ -127,7 +94,7 @@ double TauAnalysisTools::tauEta(const xAOD::TauJet& xTau)
 double TauAnalysisTools::tauAbsEta(const xAOD::TauJet& xTau)
 {
   // return absolute tau eta
-  return std::abs(xTau.eta());
+  return fabs(xTau.eta());
 }
 
 //______________________________________________________________________________
@@ -190,6 +157,9 @@ void TauAnalysisTools::createPi0Vectors(const xAOD::TauJet* xTau, std::vector<TL
   // reset the pi0s
   vPi0s.clear();
 
+  // // not needed
+  // xAOD::Vertex xPrimaryVertex = *xTau->vertex();
+
   // Since the PFO links as they come out of reconstruction, only correspond to
   // calorimeter clusters, whereas we want the consts_pi0 vectors to correspond
   // to real pi0s, we need to be careful to collect the PFOs correctly to pi0s
@@ -197,12 +167,7 @@ void TauAnalysisTools::createPi0Vectors(const xAOD::TauJet* xTau, std::vector<TL
   size_t iNumPi0PFO = xTau->nPi0PFOs();
 
   int iDecayMode = -1;
-
-  if (!(xTau->panTauDetail(PANTAU_DECAYMODE, iDecayMode)))
-  {
-    std::cerr <<"Failed to retrieve panTauDetail decay mode\n";
-    return;
-  }
+  xTau->panTauDetail(PANTAU_DECAYMODE, iDecayMode);
 
   if (iDecayMode == xAOD::TauJetParameters::DecayMode::Mode_1p1n && iNumPi0PFO > 1)
   {
