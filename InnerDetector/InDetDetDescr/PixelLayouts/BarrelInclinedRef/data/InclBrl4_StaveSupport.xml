@@ -2,6 +2,7 @@
 
   <PixelStaveGeo>
     <Layer>all</Layer>
+    <StandardStave> true </StandardStave>
     <ClearanceX> .1 </ClearanceX>
     <ClearanceY> 0 </ClearanceY>
     <StaggerDist> 0. </StaggerDist>

@@ -8,6 +8,7 @@
     <StaggerSign> 0. </StaggerSign>
     <ModuleCenterShift> 0. </ModuleCenterShift>
     <MountainEdge> 5. </MountainEdge>
+    <StandardStave> true </StandardStave>
   </PixelStaveGeo>
 
   <PixelStaveGeo>

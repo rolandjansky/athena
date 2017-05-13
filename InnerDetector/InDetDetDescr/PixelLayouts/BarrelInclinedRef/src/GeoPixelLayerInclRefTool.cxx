@@ -2,7 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "BarrelInclinedRef/PixelInclRefStaveXMLHelper.h"
 #include "BarrelInclinedRef/GeoPixelLayerInclRefTool.h"
+#include "BarrelInclinedRef/GeoPixelSlimStaveSupportInclRef.h"
+#include "PixelInterfaces/IPixelLayerValidationTool.h"
+//#include "PixelServicesTool/PixelSimpleServiceXMLHelper.h"
 
 #include "InDetGeoModelUtils/ExtraMaterial.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
@@ -33,9 +37,14 @@ GeoPixelLayerInclRefTool::GeoPixelLayerInclRefTool(const std::string& type, cons
     m_layer(-1),
     m_bPreBuild(false),
     //    m_IDserviceTool("InDetservicesTool/PixelServicesTool"),
-    m_xmlReader("InDet::XMLReaderSvc/InDetXMLReaderSvc","XMLReaderSvc")
+    m_xmlReader("InDet::XMLReaderSvc/InDetXMLReaderSvc","XMLReaderSvc"),
+    m_validationTool("LayerValidationTool"),
+    m_validationMode(false)
 {
   declareInterface<IGeoPixelLayerTool>(this);
+
+  declareProperty("LayerValidationTool", m_validationTool);
+  declareProperty("LayerValidation", m_validationMode);
 }
 
 GeoPixelLayerInclRefTool::~GeoPixelLayerInclRefTool()
@@ -56,7 +65,7 @@ StatusCode GeoPixelLayerInclRefTool::initialize()
 //     msg(MSG::ERROR) << "Could not retrieve " <<  m_IDserviceTool << ",  some services will not be built." << endreq;
 //     return sc;
 //   }
-//   msg(MSG::INFO) << "Service builder tool retrieved: " << endreq;
+//   msg(MSG::DEBUG) << "Service builder tool retrieved: " << endreq;
 
   if (m_xmlReader.retrieve().isSuccess()){
     ATH_MSG_DEBUG("ITkXMLReader successfully retrieved " << m_xmlReader );
@@ -64,6 +73,14 @@ StatusCode GeoPixelLayerInclRefTool::initialize()
     ATH_MSG_WARNING("ITkXMLReader: Couldn't retrieve " << m_xmlReader );
   }
 
+  if (m_validationMode) {
+    if (m_validationTool.retrieve().isSuccess()){
+      ATH_MSG_DEBUG("Layer validation tool successfully retrieved " << m_validationTool );
+    } else {
+      ATH_MSG_INFO("layer validation tool: Couldn't retrieve " << m_validationTool );
+    }
+  }
+    
   return StatusCode::SUCCESS;
 }
 
@@ -123,8 +140,9 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
   double ladderTilt        = layerTmp->stave_tilt;
   double staveOffset       = layerTmp->stave_zoffset;   
   std::string staveType    = layerTmp->stave_type;
-
-  double phiOfStaveZero = 0.;
+  double phiOfStaveZero    = layerTmp->phioffset;
+  int nSectorsLastLayer = (m_layer == 0) ? 0 : m_xmlReader->getPixelBarrelLayerTemplate(m_layer-1)->stave_n; 
+  int nSectorsNextLayer = (m_layer == int(m_xmlReader->nbOfPixelBarrelLayers())-1) ? 0 : m_xmlReader->getPixelBarrelLayerTemplate(m_layer+1)->stave_n; 
 
   msg(MSG::DEBUG)<<layerName<<" "<<staveType<<" "<<nSectors<<endreq;
   msg(MSG::DEBUG)<<"*****************************************************************************"<<endreq;
@@ -139,7 +157,7 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
   int nbLadderType = staveTmp.size();
   for(int iLadder=0; iLadder<nbLadderType; iLadder++)
     {
-      vPixelLadder.push_back( new GeoPixelLadderInclRef(basics, staveTmp[iLadder], m_layer, transRadiusAndTilt)); 
+      vPixelLadder.push_back( new GeoPixelLadderInclRef(basics, staveTmp[iLadder], m_layer, nSectors, nSectorsLastLayer, nSectorsNextLayer, phiOfStaveZero, transRadiusAndTilt)); 
       if(iLadder==0)ComputeLayerThickness(*vPixelLadder[iLadder], ladderTilt, layerRadius);
     }
 
@@ -161,7 +179,7 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
 
     if(ii==0){
 
-      double safety = 0.01 * CLHEP::mm;
+      double safety = 5. * CLHEP::mm;
       //      double rmin =  layerRadius-m_layerThicknessN - safety;
       //      double rmax =  layerRadius+m_layerThicknessP + safety;
       double rmin =  vPixelLadder[ladderCmpt]->rmin()-safety;
@@ -170,15 +188,23 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
 
       msg(MSG::DEBUG)<<"Layer "<<m_layer<<" in/out radius init "<<rmin<<"  "<<rmax<<endreq;
 
-      if(iLayer==0){
-	rmin=35.; rmax=60.;
+
+      // Enlarge layer envelope if longerons are being built.
+      PixelInclRefStaveXMLHelper staveHelperCurrLayer(m_layer, basics);
+      if (staveHelperCurrLayer.doSlimStave()) {
+	rmax = staveHelperCurrLayer.getRadialMidpointAtEOS();
+	
+	// Last layer longeron conects to PST, so extend envelope some more (refine this!)
+	if (m_layer == int(m_xmlReader->nbOfPixelBarrelLayers())-1) rmax += fabs(staveHelperCurrLayer.getRadialMidpointAtEOS() - layerRadius);
       }
-      else if(iLayer==1){
-	rmin=80.; rmax=105.;
+
+      // If previous layer used a longeron, extend this layer's envelope down to meet it
+      if (m_layer>0) {
+	PixelInclRefStaveXMLHelper staveHelperLastLayer(m_layer-1, basics);
+	if (staveHelperLastLayer.doSlimStave()) rmin = staveHelperLastLayer.getRadialMidpointAtEOS();
       }
 
       // Now make the layer envelope
-      // 
       msg(MSG::DEBUG)<<"Layer "<<m_layer<<" in/out radius "<<rmin<<"  "<<rmax<<endreq;
       const GeoMaterial* air = basics->matMgr()->getMaterial("std::Air");
       std::ostringstream lname;
@@ -186,7 +212,6 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
       const GeoTube* layerTube = new GeoTube(rmin,rmax,0.5*ladderLength); //solid
       const GeoLogVol* layerLog = new GeoLogVol(lname.str(),layerTube,air); //log volume
       layerPhys = new GeoFullPhysVol(layerLog); // phys vol
-
     }
 
     double ladderOffset = (ii%2==0)? staveOffset: -staveOffset;
@@ -209,6 +234,84 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
     if(ladderCmpt>nbLadderType-1) ladderCmpt=0;
   }
 
+
+
+
+  // Shorthand for enum (should this be in header?)
+  typedef GeoPixelSlimStaveSupportInclRef::halfStaveType halfStaveType;
+
+  // Check both sides of the layer to see if a half-stave shape is needed
+  for (auto staveHalf : std::vector<halfStaveType> {halfStaveType::INNER, halfStaveType::OUTER}){
+    bool buildStave = false;
+
+    int innerLayerID = -1;
+    int owningLayerID = -1; // Phi rotation done relative to this layer ID
+    
+    PixelInclRefStaveXMLHelper staveDBHelper(m_layer, basics);
+
+    // Last layer is a special case (stave links to PST, so full stave built and owned by one layer)
+    if (m_layer == m_xmlReader->nbOfPixelBarrelLayers()-1  && staveDBHelper.doSlimStave()) {
+      buildStave = true;
+      innerLayerID = m_layer;
+      owningLayerID = staveDBHelper.getOwningLayer();
+      //PixelSimpleServiceXMLHelper *simpleSrvXMLHelper = new PixelSimpleServiceXMLHelper("PIXEL_PIXELSIMPLESERVICE_GEO_XML",basics);
+      //outerRadius = simpleSrvXMLHelper->SupportTubeRMin("PST");
+      //delete simpleSrvXMLHelper;
+    }
+    else {
+      // Do we need an inner shell to complete the outer shell built on previous layer?
+      if (staveHalf == halfStaveType::INNER && m_layer != 0 ) {
+	PixelInclRefStaveXMLHelper staveDBHelper_LastLayer(m_layer-1, basics);
+	if (staveDBHelper_LastLayer.doSlimStave()) {
+	  buildStave = true;
+	  innerLayerID = m_layer-1;
+	  owningLayerID = staveDBHelper_LastLayer.getOwningLayer();
+	}
+      }
+
+      // Default - build a stave half-shell going outwards
+      if (staveHalf == halfStaveType::OUTER  &&  staveDBHelper.doSlimStave()) {
+	buildStave = true;
+	innerLayerID = m_layer;
+	owningLayerID = staveDBHelper.getOwningLayer();
+      }
+    }
+  
+
+   
+    // Construct the actual stave shape - should this take into account owning layer starting phi?
+    if (buildStave) {
+      double gapPlanarStave = (m_layer > 1) ? 4.0 : 0; // Why hardcoded?
+
+      int nOwningLayerStaves = m_xmlReader->getPixelBarrelLayerTemplate(owningLayerID)->stave_n;
+      double staveDeltaPhi = (360.0*CLHEP::deg) / double(nOwningLayerStaves);
+
+      PixelInclRefStaveXMLHelper innerLayerStaveDBHelper(innerLayerID, basics);
+      double currentPhi = staveDeltaPhi * innerLayerStaveDBHelper.getStartPhi();
+      double maxPhi     = (currentPhi < 0) ?  360.*CLHEP::deg + currentPhi : 360.*CLHEP::deg;
+      
+      int staveShapeIndex = 0;
+      while (currentPhi < maxPhi){
+	GeoPixelSlimStaveSupportInclRef *m_staveSupport = new GeoPixelSlimStaveSupportInclRef(basics, innerLayerID, gapPlanarStave, staveHalf, staveShapeIndex);
+	GeoVPhysVol *stavePhys = m_staveSupport->Build();
+	
+	// Computer phi angle of stave
+	HepGeom::Transform3D staveTransform = HepGeom::RotateZ3D(currentPhi) * m_staveSupport->transform();
+	GeoTransform* xformStave = new GeoTransform(staveTransform);
+
+	layerPhys->add(xformStave);
+	layerPhys->add(stavePhys);
+
+	// update phi angle for next module
+	currentPhi   += staveDeltaPhi * innerLayerStaveDBHelper.getPhiStepSize(staveShapeIndex);
+	staveShapeIndex++;
+	if (staveShapeIndex == innerLayerStaveDBHelper.getNStaveShapes()) staveShapeIndex = 0;
+      }
+    }
+  }
+
+
+  if (m_validationMode && m_validationTool) m_validationTool->printInfo(layerPhys,iLayer);
 
   return layerPhys;
 

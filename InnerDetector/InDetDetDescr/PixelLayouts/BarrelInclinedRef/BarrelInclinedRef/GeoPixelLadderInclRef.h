@@ -35,7 +35,7 @@ class GeoDetModulePixelBuilder;
 class GeoPixelLadderInclRef : public PixelGeoBuilder {
 
  public:
-  GeoPixelLadderInclRef(const PixelGeoBuilderBasics* basics, const InDet::StaveTmp *staveTmp, int iLayer, HepGeom::Transform3D trf);
+  GeoPixelLadderInclRef(const PixelGeoBuilderBasics* basics, const InDet::StaveTmp *staveTmp, int iLayer, int nSectors, int nSectorsLastLayer, int nSectorsNextLayer, double phiOfStaveZero, HepGeom::Transform3D trf);
   virtual GeoVPhysVol* Build();
   virtual void preBuild();
 
@@ -49,7 +49,7 @@ class GeoPixelLadderInclRef : public PixelGeoBuilder {
   double rmax() const {return m_rmax; }
 
   void setSector(int sector) {m_sector = sector; }
-
+  
  private:
 
   std::vector<HepGeom::Point3D<double> > DecodeEndCapModulePositions(double xPos, double yPos, std::vector<double> v0,std::vector<double> v1); 
@@ -57,7 +57,8 @@ class GeoPixelLadderInclRef : public PixelGeoBuilder {
   double calcThickness();
   double calcWidth();
   GeoPhysVol* createServiceVolume(double length, double thick, double width, std::vector<int> nModuleSvc);
-  void BuildAndPlaceModuleService(std::vector<int> moduleNumber, double zInit, double zFinal, double locTilt, GeoPhysVol* volPhys, std::string type, double side=1.);
+  void BuildAndPlaceModuleService(std::vector<int> moduleNumber, double zInit, double zFinal, double locTilt, GeoPhysVol* volPhys, std::string type);
+  std::vector<double> ConstructAndPlaceModuleService(std::vector<int> moduleNumber, double zInit, double zFinal, double locTilt, GeoPhysVol* volPhys, std::string type, bool  build=false);
 
   GeoVPhysVol* m_physVol;
   const GeoLogVol* m_theLadder;
@@ -65,10 +66,15 @@ class GeoPixelLadderInclRef : public PixelGeoBuilder {
   const InDet::StaveTmp* m_staveTmp;
  
   int m_layer;
+  int m_nSectors;
+  int m_nSectorsLastLayer;
+  int m_nSectorsNextLayer;
+  double m_phiOfStaveZero;
   HepGeom::Transform3D m_localTrf;
   int m_sector;
   HepGeom::Transform3D m_ladderTransform;
 
+  std::string m_svcRouting; 
   std::string m_layerName;
   double m_thickness;
   double m_thicknessP;

@@ -16,7 +16,7 @@ class GeoDetModulePixel;
 class GeoPixelEndcapModuleSvcRef : public PixelGeoBuilder {
  public:
   
-  GeoPixelEndcapModuleSvcRef(const PixelGeoBuilderBasics* basics, GeoPixelStaveSupportInclRef* staveSupport,
+  GeoPixelEndcapModuleSvcRef(const PixelGeoBuilderBasics* basics, double staveSupportWidth,
 			   int iLayer, const GeoDetModulePixel* transModule, const GeoDetModulePixel* endcapModule,
 			   double endcapTilt, double transTilt);
 			   
@@ -30,7 +30,7 @@ class GeoPixelEndcapModuleSvcRef : public PixelGeoBuilder {
 
  private:
 
-  GeoPixelStaveSupportInclRef* m_staveSupport;
+  double m_staveSupportWidth;
   int m_layer;
   const GeoDetModulePixel *m_endcapModule;
   const GeoDetModulePixel *m_transModule;

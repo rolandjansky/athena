@@ -30,12 +30,31 @@ class PixelInclRefStaveXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  
   double getStaveSupportLength() const;
   double getStaveSupportWidth() const;
   double getStaveSupportThick() const;
-  std::string getStaveSupportMaterial() const;
+  std::string getStaveSupportMaterial(int shapeIndex = 0) const;
   double getServiceOffsetX() const;
   double getServiceECOffsetX() const;
   double getServiceOffsetY() const;
   std::string getSvcRoutingPos() const;
   double getMountainEdge() const; 
+  double getMountainWidth() const;
+  bool doStandardStave() const;
+
+  bool   doSlimStave()            const;
+  int    getNStaveShapes()        const;
+  double getRadialMidpointAtEOS() const;
+  double getStartPhi()            const;
+  double getOwningLayer()         const;
+  double getBaseWidthAtEOS   (int shapeIndex) const;
+  double getTopWidthAtEOS    (int shapeIndex) const;
+  double getBarrelWidth      (int shapeIndex) const;
+  double getBarrelZMax       (int shapeIndex) const;
+  double getBarrelZMaxHighR  (int shapeIndex) const;
+  double getRadialLengthAtEOS(int shapeIndex) const;
+  double getShellThickness   (int shapeIndex) const;
+  double getXStepLowR        (int shapeIndex) const;
+  double getXStepHighR       (int shapeIndex) const;
+  double getPhiStepSize      (int shapeIndex) const;
+  double getGapPlanarStave() const;
   
  private:
   int m_layer;

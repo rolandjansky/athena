@@ -17,6 +17,7 @@
 
 class GeoPhysVol;
 class GeoTransform;
+class IPixelLayerValidationTool;
 
 class GeoPixelLayerInclRefTool : virtual public IGeoPixelLayerTool, public AthAlgTool {
 
@@ -52,6 +53,8 @@ class GeoPixelLayerInclRefTool : virtual public IGeoPixelLayerTool, public AthAl
   std::vector<InDetDD::TubeZone*> m_layerSvcRegions;
 
   ServiceHandle<InDet::XMLReaderSvc> m_xmlReader;
+  ToolHandle<IPixelLayerValidationTool> m_validationTool;
+  bool                                  m_validationMode;
 };
 
 #endif

@@ -92,9 +92,12 @@ double PixelInclRefStaveXMLHelper::getStaveSupportThick() const
   return getDouble("PixelStaveGeo", m_layerIndices, "LadderThickness");
 }
 
-std::string PixelInclRefStaveXMLHelper::getStaveSupportMaterial() const
+std::string PixelInclRefStaveXMLHelper::getStaveSupportMaterial(int shapeIndex) const
 {
-  return getString("PixelStaveGeo", m_layerIndices, "StaveSupportMaterialGeo");
+  std::vector<std::string> vec = getVectorString("PixelStaveGeo", m_layerIndices, "StaveSupportMaterialGeo");
+  if (vec.size() != 0) return vec.at(shapeIndex);
+  return "";
+  //return getString("PixelStaveGeo", m_layerIndices, "StaveSupportMaterialGeo");
 }
 
 double PixelInclRefStaveXMLHelper::getServiceOffsetX() const
@@ -120,4 +123,124 @@ std::string PixelInclRefStaveXMLHelper::getSvcRoutingPos() const
 double PixelInclRefStaveXMLHelper::getMountainEdge() const
 {
   return getDouble("PixelStaveGeo", m_layerIndices, "MountainEdge");
+}
+
+double PixelInclRefStaveXMLHelper::getMountainWidth() const
+{
+  return getDouble("PixelStaveGeo", m_layerIndices, "MountainWidth", 0.0, -1.0);
+}
+
+// getBoolean doesn't work (does not accept std::vector<int>&, wants int only).
+// Is there a better fix?
+bool PixelInclRefStaveXMLHelper::doStandardStave() const
+{
+  std::string tmp = getString("PixelStaveGeo", m_layerIndices, "StandardStave");
+  tmp.erase(std::remove(tmp.begin(),tmp.end(),' '),tmp.end());
+  return tmp.compare("true") == 0 ? true : false;
+}
+
+bool PixelInclRefStaveXMLHelper::doSlimStave() const
+{
+  std::string tmp = getString("PixelStaveGeo", m_layerIndices, "SlimStave");
+  tmp.erase(std::remove(tmp.begin(),tmp.end(),' '),tmp.end());
+  return tmp.compare("true") == 0 ? true : false;
+}
+
+// Would prefer this to use getInt - but getInt does not accept m_layerIndices
+int PixelInclRefStaveXMLHelper::getNStaveShapes() const
+{
+  return int(getDouble("PixelStaveGeo", m_layerIndices, "NStaveShapes"));
+}
+
+double PixelInclRefStaveXMLHelper::getRadialMidpointAtEOS() const
+{
+  return getDouble("PixelStaveGeo", m_layerIndices, "RadialMidpointEOS");
+}
+
+double PixelInclRefStaveXMLHelper::getBaseWidthAtEOS(int shapeIndex) const
+{
+  // Check all "layer indices" (i.e. "all" and layer <n>", the first valid vector returned gioves the parameter
+  std::vector<double> vec = getVectorDouble("PixelStaveGeo", m_layerIndices, "BaseWidthEOS");
+  if (vec.size() != 0) return vec.at(shapeIndex);
+  return 0.0;
+}
+
+double PixelInclRefStaveXMLHelper::getTopWidthAtEOS(int shapeIndex) const
+{
+  std::vector<double> vec = getVectorDouble("PixelStaveGeo", m_layerIndices, "TopWidthEOS");
+  if (vec.size() != 0) return vec.at(shapeIndex);
+  return 0.0;
+}
+
+double PixelInclRefStaveXMLHelper::getBarrelWidth(int shapeIndex) const
+{
+  std::vector<double> vec = getVectorDouble("PixelStaveGeo", m_layerIndices, "BarrelWidth");
+  if (vec.size() != 0) return vec.at(shapeIndex);
+  return 0.0;
+}
+
+double PixelInclRefStaveXMLHelper::getBarrelZMax(int shapeIndex) const
+{
+  std::vector<double> vec = getVectorDouble("PixelStaveGeo", m_layerIndices, "BarrelZMax");
+  if (vec.size() != 0) return vec.at(shapeIndex);
+  return 0.0;
+}
+
+double PixelInclRefStaveXMLHelper::getBarrelZMaxHighR(int shapeIndex) const
+{
+  std::vector<double> vec = getVectorDouble("PixelStaveGeo", m_layerIndices, "BarrelZMaxHighR");
+  if (vec.size() != 0) return vec.at(shapeIndex);
+  msg(MSG::INFO) << "BarrelZMaxHighR not found: going to use BarrelZMax instead..." << endreq;
+  return getBarrelZMax(shapeIndex);
+}
+
+
+double PixelInclRefStaveXMLHelper::getRadialLengthAtEOS(int shapeIndex) const
+{
+  std::vector<double> vec = getVectorDouble("PixelStaveGeo", m_layerIndices, "RadialLengthEOS");
+  if (vec.size() != 0) return vec.at(shapeIndex);
+  return 0.0;
+}
+
+double PixelInclRefStaveXMLHelper::getShellThickness(int shapeIndex) const
+{ 
+  std::vector<double> vec = getVectorDouble("PixelStaveGeo", m_layerIndices, "ShellThickness");
+  if (vec.size() != 0) return vec.at(shapeIndex);
+  return 0.0;
+}
+
+double PixelInclRefStaveXMLHelper::getXStepLowR(int shapeIndex) const
+{
+  std::vector<double> vec = getVectorDouble("PixelStaveGeo", m_layerIndices, "XStepLowR");
+  if (vec.size() != 0) return vec.at(shapeIndex);
+  return 0.0;
+}
+
+double PixelInclRefStaveXMLHelper::getXStepHighR(int shapeIndex) const
+{
+  std::vector<double> vec = getVectorDouble("PixelStaveGeo", m_layerIndices, "XStepHighR");
+  if (vec.size() != 0) return vec.at(shapeIndex);
+  return 0.0;
+}
+
+double PixelInclRefStaveXMLHelper::getStartPhi() const
+{
+  return getDouble("PixelStaveGeo", m_layerIndices, "StartPhi");
+}
+
+double PixelInclRefStaveXMLHelper::getOwningLayer() const
+{
+  return getDouble("PixelStaveGeo", m_layerIndices, "PhiFromLayer");
+}
+
+double PixelInclRefStaveXMLHelper::getPhiStepSize(int shapeIndex) const
+{
+  std::vector<double> vec = getVectorDouble("PixelStaveGeo", m_layerIndices, "PhiStepSize");
+  if (vec.size() != 0) return vec.at(shapeIndex);
+  return 0.0;
+}
+
+double PixelInclRefStaveXMLHelper::getGapPlanarStave() const
+{
+  return getDouble("PixelStaveGeo", m_layerIndices, "GapPlanarStave");
 }

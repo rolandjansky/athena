@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/PixelLayouts/PixelLayoutUtils
                           PRIVATE
                           DetectorDescription/GeoModel/GeoModelInterfaces
+ 			  DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
                           InnerDetector/InDetDetDescr/InDetGeoModelUtils
                           InnerDetector/InDetDetDescr/InDetIdentifier
@@ -27,13 +28,14 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( CLHEP )
 find_package( XercesC )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_component( BarrelInclinedRef
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} 
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} 
 		     AthenaBaseComps AthenaKernel GeoModelKernel GaudiKernel
 		     PixelGeoModelModule PixelLayoutUtils
 		     PRIVATE_LINK_LIBRARIES Identifier InDetGeoModelUtils InDetIdentifier InDetReadoutGeometry PathResolver )

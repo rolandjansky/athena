@@ -20,12 +20,12 @@
 
 							
 GeoPixelEndcapModuleSvcRef::GeoPixelEndcapModuleSvcRef(const PixelGeoBuilderBasics* basics,
-						       GeoPixelStaveSupportInclRef* staveSupport,
+						       double staveSupportWidth,
 						   int iLayer, 
 						   const GeoDetModulePixel* endcapModule, const GeoDetModulePixel* transModule, 
 						   double endcapTilt, double transTilt)
 						   
-  : PixelGeoBuilder(basics), m_staveSupport(staveSupport),
+  : PixelGeoBuilder(basics), m_staveSupportWidth(staveSupportWidth),
     m_layer(iLayer), m_endcapModule(endcapModule), m_transModule(transModule), 
     m_endcapTiltAngle(endcapTilt), m_transTiltAngle(transTilt),
     m_endcapFoam(0),m_transFoam(0)
@@ -42,7 +42,8 @@ void GeoPixelEndcapModuleSvcRef::preBuild()
   // Access XML file
   PixelInclRefStaveXMLHelper staveDBHelper(m_layer, getBasics());
 
-  m_FoamBaseWidth = m_staveSupport->width();     // ST stave width not in XML, get it from stave object 
+  m_FoamBaseWidth = staveDBHelper.getMountainWidth();
+  if (m_FoamBaseWidth < 0.0) m_FoamBaseWidth = m_staveSupportWidth;     // ST stave width not in XML, get it from stave object 
   m_MountainEdge = staveDBHelper.getMountainEdge();
   m_svcRouting = staveDBHelper.getSvcRoutingPos()=="inner" ? -1. : 1.;
 
@@ -69,6 +70,15 @@ void GeoPixelEndcapModuleSvcRef::buildFoamModules()
 
   // ***** geometry  **************************************
 
+  double quadModuleSizeCutoffValue = 25.0; // size (length) in mm that defines whether an inclined  module is treated as a quad or not (curly pipe narrow supports)
+
+  if( m_endcapModule->Length() > quadModuleSizeCutoffValue ){
+    // This is too big a module (>25mm) to be an M1 or M2 inclined module, so it must be an inclined quad.
+    // We will therefore build the inclined support for this module to model the 'curly pipe' design.
+    m_FoamBaseWidth += -5.;
+    msg(MSG::DEBUG) <<"Foam base width for layer " << m_layer << " shrunk to "<< m_FoamBaseWidth<<endreq;
+  }
+
   GeoSimplePolygonBrep *shapeBrep = new GeoSimplePolygonBrep(m_FoamBaseWidth*.5);
 
   double yShift = m_svcRouting<0. ? 0. : modH;
@@ -92,11 +102,16 @@ void GeoPixelEndcapModuleSvcRef::buildFoamModules()
     shapeBrep->addVertex(foam4x,foam4y);
 
   } else {
-    double dz = -modZ;
-    double foam1y = yShift,                        foam1x = dz;
-    double foam2y = yShift,                        foam2x = dz + m_FoamBaseThick;
-    double foam3y = yShift-modH*m_svcRouting,      foam3x = dz - modZ + m_FoamBaseThick ;
-    double foam4y = yShift-modH*m_svcRouting,      foam4x = dz;
+    // double dz = -modZ;
+    //double foam1y = yShift,                        foam1x = dz;
+    //double foam2y = yShift,                        foam2x = dz + m_FoamBaseThick;
+    //double foam3y = yShift-modH*m_svcRouting,      foam3x = dz - modZ + m_FoamBaseThick ;
+    //double foam4y = yShift-modH*m_svcRouting,      foam4x = dz;
+    double dz = -m_FoamBaseThick;
+    double foam1y = yShift,                        foam1x = dz + 0.5*modZ;
+    double foam2y = yShift,                        foam2x = 0.5*modZ;
+    double foam3y = yShift-modH*m_svcRouting,      foam3x = -0.5*modZ ;
+    double foam4y = yShift-modH*m_svcRouting,      foam4x = dz + 0.5*modZ;
     // Construct global object 2D envelope
     shapeBrep->addVertex(foam1x,foam1y);
     shapeBrep->addVertex(foam2x,foam2y);
@@ -110,12 +125,37 @@ void GeoPixelEndcapModuleSvcRef::buildFoamModules()
       
 
   // ***** material  **************************************
-  const GeoMaterial* foam_material = matMgr()->getMaterial("pix::CarbonFoamMountain");
-  GeoLogVol * foam_logVol = new GeoLogVol("FoamSupport",shapeBrep,foam_material);
+  
+  const GeoMaterial* foam_material = NULL;
+
+  std::string inclinedSupportMaterialName = "pix::CarbonFoamMountain";
+  std::string inclinedSupportLogVolName = "FoamSupport";
+  std::string inclinedTransitionSupportLogVolName = "FoamSupportTransition";
+  if( m_endcapModule->Length() > quadModuleSizeCutoffValue ){
+    // This is too big a module (>25mm) to be an M1 or M2 inclined module, so it must be an inclined quad.
+    // We will therefore build the inclined support for this module to model the 'curly pipe' design.
+
+    //inclinedSupportMaterialName = "pix::CurlyPipeMountain"; // for use with matMgr()->getMaterial (fixed density)
+    inclinedSupportMaterialName = "pix::CurlyPipeMountain_Fixed_Weight"; // for use with matMgr()->getMaterialForVolume (fixed mass)
+    inclinedSupportLogVolName = "CurlyPipeSupport";
+    inclinedTransitionSupportLogVolName = "CurlyPipeSupportTransition";
+
+    double matVolume = shapeBrep->volume();
+    foam_material = matMgr()->getMaterialForVolume(inclinedSupportMaterialName,matVolume);
+  }else{
+    foam_material = matMgr()->getMaterial(inclinedSupportMaterialName);
+  }
+
+  //const GeoMaterial* foam_material = matMgr()->getMaterial(inclinedSupportMaterialName);
+  GeoLogVol * foam_logVol = new GeoLogVol(inclinedSupportLogVolName,shapeBrep,foam_material);
   m_endcapFoam  = new GeoPhysVol(foam_logVol);
+
+  //std::cout << "BEN m_endcapModule->Length() = " << m_endcapModule->Length() << " mm" << std::endl; 
 
   // build the transition foam support
   if (!m_transModule) return;
+
+  //std::cout << "BEN m_transModule->Length() = " << m_transModule->Length() << " mm" << std::endl; 
 
   double modZ_t = m_transModule->Length()*sin(m_transTiltAngle);
   double modH_t = m_transModule->Length()*cos(m_transTiltAngle);
@@ -162,7 +202,7 @@ void GeoPixelEndcapModuleSvcRef::buildFoamModules()
   
   m_zTransFoamShift += 0.5*m_svcRouting;
     
-  GeoLogVol * foam_logVol_t = new GeoLogVol("FoamSupportTransition",shapeBrep_t,foam_material);
+  GeoLogVol * foam_logVol_t = new GeoLogVol(inclinedTransitionSupportLogVolName,shapeBrep_t,foam_material);
   m_transFoam  = new GeoPhysVol(foam_logVol_t);
 
 }

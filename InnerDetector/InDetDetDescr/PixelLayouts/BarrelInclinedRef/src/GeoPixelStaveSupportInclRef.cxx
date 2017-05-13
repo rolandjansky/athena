@@ -52,7 +52,7 @@ void GeoPixelStaveSupportInclRef::preBuild() {
   // Access XML file
   PixelInclRefStaveXMLHelper staveDBHelper(m_layer, getBasics());
 
-  msg(MSG::INFO) <<"Build detailed stave support description :  layout "<<m_layer<<endreq;
+  msg(MSG::DEBUG) <<"Build detailed stave support description :  layout "<<m_layer<<endreq;
 
   double thickness = staveDBHelper.getStaveSupportThick();
   double width     = staveDBHelper.getStaveSupportWidth();
