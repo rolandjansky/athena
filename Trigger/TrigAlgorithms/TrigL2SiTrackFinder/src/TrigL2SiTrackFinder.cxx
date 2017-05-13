@@ -303,22 +303,22 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltInitialize() {
   }
 
   if ( m_outputCollectionSuffix != "" )  {
-    m_attachedFeatureName = string("TrigL2SiTrackFinder_") + m_outputCollectionSuffix;  
-    m_attachedFeatureName2 = string("TrigL2SiTrackFinder_TrkTrack_") + m_outputCollectionSuffix;  
+    m_attachedFeatureName = std::string("TrigL2SiTrackFinder_") + m_outputCollectionSuffix;  
+    m_attachedFeatureName2 = std::string("TrigL2SiTrackFinder_TrkTrack_") + m_outputCollectionSuffix;  
 
   }
   else {
-    string namestr = name();
+    std::string namestr = name();
     std::transform(namestr.begin(), namestr.end(),
 		   namestr.begin(), (int(*)(int)) std::tolower);
-    if ( namestr.find("cosmic") == string::npos ) {
+    if ( namestr.find("cosmic") == std::string::npos ) {
       m_attachedFeatureName = name();
       m_attachedFeatureName2 = m_attachedFeatureName; 
       m_attachedFeatureName2.append("_TrkTrack"); 
     }
     else {
-      m_attachedFeatureName = string("TrigL2SiTrackFinder");
-      m_attachedFeatureName2 = string("TrigL2SiTrackFinder_TrkTrack");
+      m_attachedFeatureName = std::string("TrigL2SiTrackFinder");
+      m_attachedFeatureName2 = std::string("TrigL2SiTrackFinder_TrkTrack");
     }
   }
   msg() << MSG::DEBUG << " Features recorded with Key " << m_attachedFeatureName << endmsg;
