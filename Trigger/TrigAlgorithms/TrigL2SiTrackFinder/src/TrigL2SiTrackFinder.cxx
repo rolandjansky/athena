@@ -15,9 +15,7 @@
 #include <iostream>
 #include <algorithm>
 
-#include "GaudiKernel/PropertyMgr.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IssueSeverity.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
