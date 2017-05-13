@@ -526,10 +526,10 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
 	  msg() << MSG::WARNING << "REGTEST / RoI width not set properly" << " " << *roi << endmsg;
 	  m_roiWidthWarning=true;
 	}
-	TrigRoiDescriptor* _roi = new TrigRoiDescriptor( m_roiEta, m_roiEta-m_etaHalfWidth, m_roiEta+m_etaHalfWidth, 
+	TrigRoiDescriptor* newroi = new TrigRoiDescriptor( m_roiEta, m_roiEta-m_etaHalfWidth, m_roiEta+m_etaHalfWidth, 
 							 m_roiPhi, m_roiPhi-m_phiHalfWidth, m_roiPhi+m_phiHalfWidth ); 
-	attachFeature( outputTE, _roi );
-	internalRoI = _roi;
+	attachFeature( outputTE, newroi );
+	internalRoI = newroi;
       }
 
      
