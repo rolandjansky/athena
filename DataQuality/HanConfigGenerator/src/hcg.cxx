@@ -8,7 +8,7 @@
 //   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 //   Copyright (C) 2013 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: hcg.cxx  Fri 12 May 2017 17:30:36 CEST sutt$
+//   $Id: hcg.cxx  Sat 13 May 2017 15:07:09 CEST sutt$
 
 
 #include <iostream>
@@ -50,15 +50,6 @@ std::vector<TFile*>      fptr;
 
 std::vector<std::string> savedhistos;
 std::vector<std::string> mapped;
-
-/// store any user string descriptions
-std::map<std::string,std::string> descriptions;
-
-/// store any user string descriptions
-std::map<std::string,std::string> displays;
-
-/// store any user string descriptions
-std::map<std::string,std::string> algorithms;
 
 
 /// get the date *without* the return
@@ -364,14 +355,93 @@ bool remove( std::string& s, const std::string& s2 )
 } 
 
 
+class histogram : public std::string { 
+  
+public:
 
+  histogram( std::string s="" ) : std::string(s) { construct( s ); }
+  histogram( const char* s    ) : std::string(s) { construct( std::string(s) ); }
+  
+  std::vector<std::string>&       dirs()       { return mdirs; }
+  const std::vector<std::string>& dirs() const { return mdirs; }
+
+private:
+  
+  void construct( std::string s ) { 
+    std::string::size_type pos = s.find("/");
+    while ( pos!=std::string::npos ) { 
+      std::string s0 = chop( s, "/" );
+      mdirs.push_back(s0);
+      pos = s.find("/");
+    } 
+    mdirs.push_back(s);
+  } 
+
+protected:
+
+  std::vector<std::string> mdirs;
+
+};
+
+
+
+/// simple error reporting class - should probably throw an exception, 
+/// only this is simpler
 void error( int i, std::ostream& s ) {  s << std::endl; std::exit(i);  }
 
+
+/// map instances to allow setting of the algorithms 
+/// and descriptions
+
+typedef  std::map<histogram,std::string> hmap_t;
+
+/// store any user histogram to algorithm mapping
+hmap_t algorithms;
+
+/// store any user histogram to description mapping
+hmap_t descriptions;
+
+/// store any user histogram to display mapping
+hmap_t displays;
+
+
+
+/// look in a histogram name map and return the mapped property name
+/// allows up to 2 subdirectory names of additional specialisation for 
+/// the histogram names  
+/// NB: with a little thought, this could be rewritten recursively
+ 
+std::string find( const hmap_t& m, const node* n, const std::string& property ) {  
+
+  std::string _property = property;
+  
+  /// don't do anything is the map is empty
+  if ( m.size() ) {
+    
+    /// default value to help steer choice
+    hmap_t::const_iterator itr = m.end();
+
+    /// allow up to two parent directories
+    if ( n && n->parent() && n->parent()->parent() ) itr = m.find( n->parent()->parent()->name()+"/"+n->parent()->name()+"/"+n->name() );
+    if ( itr!=m.end() ) _property = itr->second;
+    else { 
+      if ( n && n->parent() ) itr = m.find( n->parent()->name()+"/"+n->name() );
+      if ( itr!=m.end() ) _property = itr->second;
+      else { 
+	if ( n )  itr = m.find( n->name() );
+	if ( itr!=m.end() ) _property = itr->second;
+      }
+    }
+  }
+
+  return _property;
+
+}
 
 
 /// parse and individual line - must have the syntax: tag = "value";  
 
-bool parse( const std::string _line, std::string& tag, std::string& val, bool requirequotes=true ) {
+bool parse( const std::string _line, histogram& tag, std::string& val, bool requirequotes=true ) {
   
   std::string line = _line;
 
@@ -404,9 +474,9 @@ bool parse( const std::string _line, std::string& tag, std::string& val, bool re
 
 
 
-std::map<std::string, std::string> parse( const std::string& filename, bool requirequotes=true ) {
+hmap_t  parse( const std::string& filename, bool requirequotes=true ) {
 
-  std::map< std::string, std::string > lookup;
+  hmap_t       lookup;
 
   std::fstream file( filename );
   
@@ -458,9 +528,9 @@ std::map<std::string, std::string> parse( const std::string& filename, bool requ
   /// now parse each line 
     
   for ( unsigned i=0 ; i<lines.size() ; i++ ) { 
-    std::string tag   = "";
+    histogram     tag = "";
     std::string value = "";
-    if ( parse( lines[i], tag, value, requirequotes ) ) lookup.insert( std::map<std::string,std::string>::value_type( tag, value ) );
+    if ( parse( lines[i], tag, value, requirequotes ) ) lookup.insert( hmap_t::value_type( tag, value ) );
   }
 
   return lookup;
@@ -840,23 +910,9 @@ public:
 	  }
 	  else { 
 	    
-	    std::string _algorithm = algorithm;
-	    if ( algorithms.size() ) { 
-	      std::map<std::string,std::string>::const_iterator itr = algorithms.find(n[i]->name());
-	      if ( itr!=algorithms.end() ) _algorithm = itr->second;
-	    }
-
-	    std::string _description = description;
-	    if ( descriptions.size() ) { 
-	      std::map<std::string,std::string>::const_iterator itr = descriptions.find(n[i]->name());
-	      if ( itr!=descriptions.end() ) _description = itr->second;
-	    }
-
-	    std::string _display = "StatBox";
-	    if ( displays.size() ) { 
-	      std::map<std::string,std::string>::const_iterator itr = displays.find(n[i]->name());
-	      if ( itr!=displays.end() ) _display = itr->second;
-	    }
+	    std::string _algorithm   = find( algorithms,   n[i], algorithm );
+	    std::string _description = find( descriptions, n[i], description );
+	    std::string _display     = find( displays,     n[i], "StatBox" );
 
 	    (*outp) << space << "\t"   << "hist " << n[i]->name() << " {\n";
 	    (*outp) << space << "\t\t" << "algorithm   \t= " << _algorithm << "\n";
