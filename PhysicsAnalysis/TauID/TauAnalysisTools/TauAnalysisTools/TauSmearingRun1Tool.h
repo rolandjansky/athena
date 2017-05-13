@@ -27,14 +27,15 @@
 #include "TH1D.h"
 #include "TFile.h"
 
+// BOOST include(s):
+#include <boost/unordered_map.hpp>
+
 namespace TauAnalysisTools
 {
 
 class TauSmearingRun1Tool
   : public CommonSmearingTool
 {
-  ASG_TOOL_CLASS( TauSmearingRun1Tool,
-                  TauAnalysisTools::ITauSmearingTool )
 
 public:
   /// Create a constructor for standalone usage
@@ -94,7 +95,7 @@ public:
   };
 
 private:
-  const double m_GeV;
+  const double GeV;
   const unsigned int m_iEtaBins;
   //in-situ uncertainties
   const double m_dInSituStat1P;

@@ -36,6 +36,9 @@
 #include "TF1.h"
 #include "TKey.h"
 
+// BOOST include(s):
+#include <boost/unordered_map.hpp>
+
 namespace TauAnalysisTools
 {
 
@@ -63,6 +66,8 @@ public:
   virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& tau, double& dEfficiencyScaleFactor);
   virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::TauJet& xTau);
 
+  virtual void setParent(TauEfficiencyCorrectionsTool* tTECT);
+
   /// returns: whether this tool is affected by the given systematis
   virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
 
@@ -77,12 +82,6 @@ public:
   /// ignored (unless they
   virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& sSystematicSet);
 
-  virtual bool isSupportedRunNumber( int iRunNumber )
-  {
-    (void) iRunNumber;
-    return true;
-  };
-
 protected:
 
   std::string ConvertProngToString(const int& iProngness);
@@ -95,7 +94,8 @@ protected:
   typedef std::map<std::string, tTupleObjectFunc > tSFMAP;
   tSFMAP* m_mSF;
 
-  std::unordered_map < CP::SystematicSet, std::string > m_mSystematicSets;
+  TauEfficiencyCorrectionsTool* m_tTECT;
+  boost::unordered_map < CP::SystematicSet, std::string > m_mSystematicSets;
   const CP::SystematicSet* m_sSystematicSet;
   std::map<std::string, int> m_mSystematics;
   std::map<std::string, std::string> m_mSystematicsHistNames;
@@ -130,31 +130,19 @@ protected:
   e_TruthMatchedParticleType checkTruthMatch(const xAOD::TauJet& xTau) const;
   void generateSystematicSets();
 
-protected:
-
-  CP::SystematicSet m_sAffectingSystematics;
-  CP::SystematicSet m_sRecommendedSystematics;
-
   std::string m_sInputFilePath;
   std::string m_sInputFileName;
   std::string m_sWP;
   std::string m_sVarName;
-  std::string m_sSFHistName;
   bool m_bSkipTruthMatchCheck;
-  bool m_bUseHighPtUncert;
-  bool m_bNoMultiprong;
-  bool m_bUseInclusiveEta;
-  int m_iIDLevel;
-  int m_iEVLevel;
-  int m_iOLRLevel;
-  int m_iContSysType;
-
+  std::string m_sSFHistName;
   e_TruthMatchedParticleType m_eCheckTruth;
+  bool m_bNoMultiprong;
+  CP::SystematicSet m_sAffectingSystematics;
+  CP::SystematicSet m_sRecommendedSystematics;
 
   bool m_bSFIsAvailable;
   bool m_bSFIsAvailableChecked;
-  bool m_bPtTauEtaCalibIsAvailable;
-  bool m_bPtTauEtaCalibIsAvailableIsChecked;
 };
 } // namespace TauAnalysisTools
 

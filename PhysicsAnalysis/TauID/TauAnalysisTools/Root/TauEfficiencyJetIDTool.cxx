@@ -11,6 +11,8 @@ using namespace TauAnalysisTools;
 //______________________________________________________________________________
 TauEfficiencyJetIDTool::TauEfficiencyJetIDTool(std::string sName)
   : CommonEfficiencyTool(sName)
+  , m_sIDLevel("")
+  , m_iIDLevelCache(-1)
 {
 }
 
@@ -29,12 +31,22 @@ CP::CorrectionCode TauEfficiencyJetIDTool::getEfficiencyScaleFactor(const xAOD::
     return CP::CorrectionCode::Ok;
   }
 
+  // only recreate m_sIDLevel if user changed the IDLevel through the tool
+  // properties
+  if (m_iIDLevelCache != m_tTECT->m_iIDLevel)
+  {
+    m_iIDLevelCache = m_tTECT->m_iIDLevel;
+    m_sIDLevel = "_"+m_tTECT->ConvertJetIDToString(m_iIDLevelCache);
+    if (m_tTECT->m_bUseIDExclusiveSF)
+      m_sIDLevel+="_excl";
+  }
+
   // get prong extension for histogram name
   std::string sProng = (xTau.nTracks() == 1) ? "_1p" : "_3p";
 
   // get standard scale factor
   CP::CorrectionCode tmpCorrectionCode;
-  tmpCorrectionCode = getValue("sf"+m_sWP+sProng,
+  tmpCorrectionCode = getValue("sf"+m_sIDLevel+sProng,
                                xTau,
                                dEfficiencyScaleFactor);
   // return correction code if histogram is not available
@@ -55,7 +67,7 @@ CP::CorrectionCode TauEfficiencyJetIDTool::getEfficiencyScaleFactor(const xAOD::
 
     // get uncertainty value
     double dUncertaintySyst = 0;
-    tmpCorrectionCode = getValue(it->second+m_sWP+sProng,
+    tmpCorrectionCode = getValue(it->second+m_sIDLevel+sProng,
                                  xTau,
                                  dUncertaintySyst);
 
@@ -73,7 +85,7 @@ CP::CorrectionCode TauEfficiencyJetIDTool::getEfficiencyScaleFactor(const xAOD::
     dTotalSystematic2 += dUncertaintySyst * dUncertaintySyst;
 
     // add high pt inflation in quadrature to TAUS_EFF_JETID_SYST
-    if(m_bUseHighPtUncert && xTau.pt() > 100000. && syst.basename() == "TAUS_EFF_JETID_SYST" )
+    if(m_tTECT->m_bUseHighPtUncert && xTau.pt() > 100000. && syst.basename() == "TAUS_EFF_JETID_SYST" )
     {
       double dHighPtInflation = 0.;
       if(xTau.nTracks() == 1)
