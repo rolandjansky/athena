@@ -259,8 +259,9 @@ HLT::ErrorCode TrigGSCFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
   m_mon_gsc_width = width;
   m_mon_gsc_ptsum = ptsum; 
   m_mon_gsc_ptdiff = jet.p4().Pt() - jc->back()->p4().Pt(); 
-  m_mon_gsc_ptratio = ( m_mon_gsc_ptdiff )/( jc->back()->p4().Pt() ) ; 
-
+  if( jc->back()->p4().Pt() != 0 ) m_mon_gsc_ptratio = ( m_mon_gsc_ptdiff )/( jc->back()->p4().Pt() ) ; 
+  else m_mon_gsc_ptratio = -999.;
+  
   return HLT::OK;
 }
 
