@@ -26,6 +26,7 @@
 #include <algorithm>
 
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 
@@ -254,6 +255,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
     }
     else if(retval == DMTCP_AFTER_RESTART) {
       ATH_MSG_INFO("AthenaMP restarted from the checkpoint image");
+      ATH_CHECK(afterRestart());
     }
     else if(retval == DMTCP_NOT_PRESENT) {
       ATH_MSG_WARNING("Attempted to checkpoint, but DMTCP is not running. Skipping checkpoint ...");
@@ -550,4 +552,77 @@ boost::shared_ptr<AthenaInterprocess::FdsRegistry> AthMpEvtLoopMgr::extractFds()
     ATH_MSG_DEBUG((*registry)[ii].fd << " " << (*registry)[ii].name);
 
   return registry;
+}
+
+StatusCode AthMpEvtLoopMgr::afterRestart()
+{
+  // In this function we parse runargs.* script and update several configuration parameters:
+  //   1. Number of Workers
+
+  // ___________________________________ Get the runargs.* file _____________________________________
+  std::string runargsFileName("");
+  for(boost::filesystem::directory_iterator fdIt(boost::filesystem::current_path()); fdIt!=boost::filesystem::directory_iterator(); fdIt++) {
+    if(fdIt->path().string().find("runargs.")!=std::string::npos) {
+      runargsFileName = fdIt->path().string();
+      break;
+    }
+  }
+
+  if(runargsFileName.empty()) {
+    ATH_MSG_WARNING("No file named runargs.* in the run directory. AthenaMP configuration will not be updated");
+    return StatusCode::SUCCESS;
+  }
+
+  // ___________________________________ Parse the runargs.* file _____________________________________
+  std::map<std::string,std::string> tokens;
+  tokens["nprocs"]=std::string("");
+  tokens["randomSeed"]=std::string("");
+  tokens["skipEvents"]=std::string("");
+  tokens["maxEvents"]=std::string("");
+  tokens["inputEVNTFile"]=std::string("");
+  tokens["outputHITSFile"]=std::string("");
+
+  std::fstream runargsFile(runargsFileName.c_str(),std::fstream::in);
+  std::string line;
+  while(!runargsFile.eof()) {
+    std::getline(runargsFile,line);
+    for(auto it=tokens.cbegin(); it!=tokens.cend(); ++it) {
+      if(line.find(it->first+std::string(" ="))!=std::string::npos
+	 || line.find(it->first+std::string("="))!=std::string::npos) {
+	// Get token value
+	std::string tokenVal("");
+	size_t eqpos = line.rfind("=");
+	if(eqpos!=std::string::npos) {
+	  tokenVal=line.substr(eqpos+1);
+	  boost::trim(tokenVal);
+	}
+	if(!tokenVal.empty()){
+	  tokens[it->first]=tokenVal;
+	}
+	break;
+      }
+    }
+  }
+
+  ATH_MSG_INFO("Read new configurations from the runargs file:");
+  for(auto it=tokens.cbegin(); it!=tokens.cend(); ++it) {
+    ATH_MSG_INFO(it->first<<"="<<it->second);
+  }
+
+  // _______________________ Update m_nWorkers ___________________________
+  const std::string& nprocs = tokens["nprocs"];
+  if(!nprocs.empty()) {
+    int nWorkers = atoi(nprocs.c_str());
+    if(nWorkers!=0) {
+      ATH_MSG_INFO("Retrieved number of workers from runargs.*: " << nWorkers);
+      m_nWorkers = nWorkers;
+    }
+    else {
+      ATH_MSG_WARNING("Unable to retrieve non-zero number of workers from runargs.*");
+    }
+  }
+
+  ATH_MSG_INFO("AthenaMP will continue by forking " << m_nWorkers << " workers");
+
+  return StatusCode::SUCCESS;
 }
