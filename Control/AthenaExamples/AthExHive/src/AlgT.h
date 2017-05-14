@@ -24,6 +24,8 @@ public:
   AlgT (const std::string& name, ISvcLocator* pSvcLocator);
   ~AlgT ();
   
+  bool isClonable() const override { return true; }
+
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
