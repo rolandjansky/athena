@@ -20,6 +20,8 @@ public:
   
   AlgA (const std::string& name, ISvcLocator* pSvcLocator);
   ~AlgA ();
+
+  bool isClonable() const override { return true; }
   
   StatusCode initialize();
   StatusCode execute();

@@ -45,6 +45,9 @@ namespace Simulation {
     /** Destructor */
     virtual ~BeamEffectsAlg();
 
+    /** can clone for AthenaMT **/
+    bool isClonable() const override { return true; }
+
     /** Athena algorithm's interface method initialize() */
     StatusCode  initialize() override final; /** Athena algorithm's interface method execute() */
     StatusCode  execute() override final;

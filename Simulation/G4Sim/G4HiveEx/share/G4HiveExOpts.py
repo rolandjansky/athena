@@ -213,10 +213,7 @@ if (algCardinality != 1):
     for alg in topSeq:
         name = alg.name()
         if name in ["StreamHITS"]:
-            print 'Disabling cloning/cardinality for', name
-            # Don't clone these algs
+            # suppress INFO message about Alg unclonability
             alg.Cardinality = 1
-            alg.IsClonable = False
         else:
             alg.Cardinality = algCardinality
-            alg.IsClonable = True
