@@ -111,7 +111,7 @@ class JobBrowser(BeamSpotWebPage):
             table += "</tr>\n"
         table += "</tbody></table>\n"
         return table
- 
+
 
 # Code to test or run locally
 if __name__ == '__main__':

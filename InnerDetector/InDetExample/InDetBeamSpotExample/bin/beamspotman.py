@@ -153,7 +153,6 @@ def getFullCastorPath(run):
     return os.path.normpath('/'.join([castorPath,'%08i' % int(run)])) + '/'   # Run numbers are now 8 digits in castor paths
     #return '/'.join([castorPath,'%07i' % int(run)])   # For now, run numbers are 7 digits in castor paths
 
-
 def getT0DbConnection():
     try:
         connstring = open(os.environ.get('HOME')+tier0dbinfofile,'r').read().strip()
@@ -255,10 +254,10 @@ if cmd=='runMon' and len(args)==3:
             sys.exit(1)
         dsname = '.'.join(datasets[0].split('.')[:3])
     else:
-        if options.eospath=='': 
+        if options.eospath=='':
           datasets.append(options.filelist.rstrip())
         else :
-          datasets.append('root://eosatlas/' + options.filelist.rstrip() ) 
+          datasets.append('root://eosatlas/' + options.filelist.rstrip() )
         dsname=options.project+'.'+run+'.'+options.stream
 
     if not options.beamspottag:
@@ -282,7 +281,7 @@ if cmd=='runMon' and len(args)==3:
     else:
         cmd = 'runJobs.py --lbperjob 10 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,'/'.join([c,datasets[0]]))
         os.system(cmd)
-        
+
     sys.exit(0)
 
 
@@ -727,7 +726,7 @@ if cmd=='runMonJobs' and len(args)<3:
         if a!='y':
             sys.exit('ERROR: Running of monitoring tasks aborted by user')
         print
- 
+
     oracle = getT0DbConnection()
     for t in taskList:
         dsname = t['DSNAME']
@@ -890,10 +889,9 @@ if cmd=='resubmit' and len(args)==4:
             continue
         print dir
         jobname=dir
-        if options.mon: 
+        if options.mon:
            jobname= dsname+'-'+taskname+'-'+dir
         fullpath = os.getcwd()+'/'+dsname+'/'+taskname+'/'+dir
-        
 
         isRunning = False
         isFailed = False
@@ -904,14 +902,13 @@ if cmd=='resubmit' and len(args)==4:
             statusFile  = open( fullpath+'/'+jobname + '.exitstatus.dat', 'r')
             status  = statusFile.read(1)
             print status
-            if status != "0": 
+            if status != "0":
               isFailed  = True
               isRunning = False
 
         if (isRunning or not isFailed) and not options.resubAll:
           continue
-        
-        
+
         for f in os.listdir(fullpath):
           if re.search('.exitstatus.', f):
             os.remove(os.path.join(fullpath, f))
@@ -982,7 +979,7 @@ if cmd=='reproc' and len(args)==5:
             protocol = 'root://castoratlas/'
         elif inputdata.split('/')[1]=='eos':
             protocol = 'root://eosatlas/'
-        
+
         flist = open(options.filelist)
         files = sorted(['%s%s/%s' % (protocol,inputdata,f.strip('\n')) for f in flist if pattern.search(f)])
 
@@ -998,7 +995,7 @@ if cmd=='reproc' and len(args)==5:
           # read in the file names from the text file
           for line in open(inputdata,'r'):
              files.append('root://eosatlas/'+line.rstrip())
-      
+
         elif inputdata.split('/')[1] in ('castor', 'eos'):
             inputdata = os.path.normpath(inputdata)+'/'
             castorfiles = DiskUtils.filelist(inputdata, prefix=options.prefix if options.prefix else True)
@@ -1023,13 +1020,13 @@ if cmd=='reproc' and len(args)==5:
                 fileAndExt[fname].append(ext)
             except KeyError:
                 fileAndExt[fname] = [ext]
-                
+
         files = []
         for fname,ext in fileAndExt.items():
             files.append(fname+'.'+ext[-1])
 
         print 'Removed ', (nWithDup - len(files)), 'duplicates'
-    
+
     # Get file-LB mapping
     lbMap = {}
     if options.lbfilemap:
@@ -1038,7 +1035,7 @@ if cmd=='reproc' and len(args)==5:
         for line in lbfilemap:
             fname = line.split(' ')[0]
             lbs   = [int(l) for l in line.split(' ')[1].split(',')]
-            
+
             lbMap[fname] = lbs
     else:
         from InDetBeamSpotExample.ExtractLBFileMap import extract,extractFromFiles
@@ -1062,13 +1059,13 @@ if cmd=='reproc' and len(args)==5:
                 sys.exit('No mapping for file %s' % f.split('/')[-1])
 
             jobLBDict[jobId].extend(lbs)
-    else:                
+    else:
         for f in files:
             try:
                 lbs = sorted(lbMap[f.split('/')[-1]])
             except KeyError:
                 sys.exit('No mapping for file %s' % f.split('/')[-1])
-                
+
             for lbnr in lbs:
                 jobId = int((lbnr-1)/lbperjob)
 
@@ -1126,7 +1123,7 @@ if cmd=='reproc' and len(args)==5:
 # Run beam spot reprocessing jobs
 # Defines one task with several jobs where the splitting into groups of 5 LBs is done by hand
 #
-if cmd=='reproc' and len(args)==5: 
+if cmd=='reproc' and len(args)==5:
     from InDetBeamSpotExample import LSFJobRunner
 
     jobopts   = args[1]
@@ -1160,7 +1157,7 @@ if cmd=='reproc' and len(args)==5:
             protocol = 'root://castoratlas/'
         elif inputdata.split('/')[1]=='eos':
             protocol = 'root://eosatlas/'
-        
+
         flist = open(options.filelist)
         files = sorted(['%s%s/%s' % (protocol,inputdata,f.strip('\n')) for f in flist if pattern.search(f)])
 
@@ -1176,7 +1173,7 @@ if cmd=='reproc' and len(args)==5:
           # read in the file names from the text file
           for line in open(inputdata,'r'):
              files.append('root://eosatlas/'+line.rstrip())
-      
+
         elif inputdata.split('/')[1] in ('castor', 'eos'):
             inputdata = os.path.normpath(inputdata)+'/'
             castorfiles = DiskUtils.filelist(inputdata, prefix=options.prefix if options.prefix else True)
@@ -1201,13 +1198,13 @@ if cmd=='reproc' and len(args)==5:
                 fileAndExt[fname].append(ext)
             except KeyError:
                 fileAndExt[fname] = [ext]
-                
+
         files = []
         for fname,ext in fileAndExt.items():
             files.append(fname+'.'+ext[-1])
 
         print 'Removed ', (nWithDup - len(files)), 'duplicates'
-    
+
     # Get file-LB mapping
     lbMap = {}
     if options.lbfilemap:
@@ -1216,7 +1213,7 @@ if cmd=='reproc' and len(args)==5:
         for line in lbfilemap:
             fname = line.split(' ')[0]
             lbs   = [int(l) for l in line.split(' ')[1].split(',')]
-            
+
             lbMap[fname] = lbs
     else:
         from InDetBeamSpotExample.ExtractLBFileMap import extract,extractFromFiles
@@ -1240,13 +1237,13 @@ if cmd=='reproc' and len(args)==5:
                 sys.exit('No mapping for file %s' % f.split('/')[-1])
 
             jobLBDict[jobId].extend(lbs)
-    else:                
+    else:
         for f in files:
             try:
                 lbs = sorted(lbMap[f.split('/')[-1]])
             except KeyError:
                 sys.exit('No mapping for file %s' % f.split('/')[-1])
-                
+
             for lbnr in lbs:
                 jobId = int((lbnr-1)/lbperjob)
 
@@ -1312,7 +1309,7 @@ if cmd=='runaod' and len(args)==5:
     dsname    = args[2]
     taskname  = args[3]
     inputdata = args[4]
-    
+
     lbperjob  = options.lbperjob
     params    = {'LumiRange': lbperjob}
 
@@ -1350,12 +1347,11 @@ if cmd=='runaod' and len(args)==5:
     elif os.path.isfile(inputdata):
         # read in the file names from the text file
         for line in open(inputdata,'r'):
-          
-          if line.split('/')[1] == 'castor': 
+          if line.split('/')[1] == 'castor':
             files.append('root://castoratlas/'+line.rstrip())
           else:
             files.append('root://eosatlas/'+line.rstrip())
-    
+
     # Check if files, matching pattern, exist
     if not files: sys.exit('No files existing in directory %s matching "%s"' % (inputdata, options.filter))
 
@@ -1367,7 +1363,6 @@ if cmd=='runaod' and len(args)==5:
         for line in lbfilemap:
             fname = line.split(' ')[0]
             lbs   = [int(l) for l in line.split(' ')[1].split(',')]
-            
             lbMap[fname] = lbs
     else:
         from InDetBeamSpotExample.ExtractLBFileMap import extract
@@ -1385,15 +1380,15 @@ if cmd=='runaod' and len(args)==5:
         # Extract start and end times of real LBs
         from InDetBeamSpotExample.COOLUtils import COOLQuery
         coolQuery = COOLQuery()
-        from InDetBeamSpotExample.Utils import getRunFromName        
-        lbTimes = coolQuery.getLbTimes( getRunFromName(dsname, None, True) ) 
-           
+        from InDetBeamSpotExample.Utils import getRunFromName
+        lbTimes = coolQuery.getLbTimes( getRunFromName(dsname, None, True) )
+
         # Loop over pseudo LBs
-        with open(options.pseudoLbFile) as pLbFile:            
+        with open(options.pseudoLbFile) as pLbFile:
             for line in pLbFile:
                 if line[0] == '#': continue
-                
-                tokens = line.split()                
+
+                tokens = line.split()
                 plbnr,tstart,tend = int(tokens[0]),int(tokens[1]),int(tokens[2])
                 jobId = int(plbnr/lbperjob)
 
@@ -1419,7 +1414,7 @@ if cmd=='runaod' and len(args)==5:
                     filenames.append(f)
                 try:
                     jobLBDict[jobId].extend([lb for lb in rlbs if not lb in jobLBDict[jobId]])
-                    jobFileDict[jobId].extend([f for f in filenames if not f in jobFileDict[jobId]])                     
+                    jobFileDict[jobId].extend([f for f in filenames if not f in jobFileDict[jobId]])
                     jobParams[jobId]['lbData'].append(line.strip('\n').strip())
                 except KeyError:
                     jobLBDict[jobId] = rlbs
@@ -1663,7 +1658,7 @@ if cmd=='runBCIDJobs' and len(args)<3:
         if a!='y':
             sys.exit('ERROR: Running of BCID tasks aborted by user')
         print
- 
+
     oracle = getT0DbConnection()
     for t in taskList:
         dsname = t['DSNAME']
@@ -1705,7 +1700,7 @@ if cmd=='runBCIDJobs' and len(args)<3:
 #  beamspotman.py -t IndetBeampos-7TeV-PeriodD-SmallWidth-001 mctag -- 0 0.1 1.1 -5 0.045 0.048 63 0.00043 -4e-05 9e-05
 #
 if cmd=='mctag' and len(args)<12:
-    
+
     from InDetBeamSpotExample.COOLUtils import *
 
     if not options.beamspottag:
@@ -1715,15 +1710,15 @@ if cmd=='mctag' and len(args)<12:
     folderHandle = openBeamSpotDbFile(dbfile, dbName = 'OFLP200', forceNew = True)
 
     runMin = options.runMin if options.runMin is not None else 0
-    runMax = options.runMax if options.runMax is not None else (1 << 31)-1      
-    
+    runMax = options.runMax if options.runMax is not None else (1 << 31)-1
+
     writeBeamSpotEntry(folderHandle, tag=options.beamspottag,
                        runMin=runMin, runMax=runMax,
                        status=int(args[1]),
                        posX=float(args[2]), posY=float(args[3]), posZ=float(args[4]),
                        sigmaX=float(args[5]), sigmaY=float(args[6]), sigmaZ=float(args[7]),
                        tiltX=float(args[8]) if len(args)>8 else 0.,
-                       tiltY=float(args[9]) if len(args)>9 else 0.,                       
+                       tiltY=float(args[9]) if len(args)>9 else 0.,
                        sigmaXY=float(args[10]) if len(args)>10 else 0.,
                        posXErr=0., posYErr=0., posZErr=0.,
                        sigmaXErr=0., sigmaYErr=0., sigmaZErr=0.,

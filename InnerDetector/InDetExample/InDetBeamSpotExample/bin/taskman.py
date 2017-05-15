@@ -492,7 +492,7 @@ if cmd=='notifyFailed' and len(args)<3:
         statusWidth = len(max([t['STATUS'] for t in taskList],key=len))
 
         bodyFormat  = '%%(DSNAME)%ss %%(TASKNAME)%ss %%(STATUS)%ss' %(dsWidth, taskWidth, statusWidth)
-        
+
         mailBody = 'The following %s tasks have reported failures' % len(taskList)
         if len(args)==2:
             hours = round(float(args[1])/3600.)
@@ -503,14 +503,14 @@ if cmd=='notifyFailed' and len(args)<3:
 
         if stat:
             print '\nERROR: Unable to send mail\n'
-    
+
     sys.exit(0)
 
 #
 # Debugging (for experts only!)
 #
 # This must be the last command. If we end up here, it's either debugging
-# or an illeage command.
+# or an illegal command.
 #
 if cmd=='debug' and len(args)==1:
     taskman.debug = True

@@ -105,7 +105,7 @@ class JobDetails(BeamSpotWebPage):
             p += "</tr>\n"
         p += "</tbody></table>\n"
         return p
- 
+
 
 # Code to test or run locally
 if __name__ == '__main__':

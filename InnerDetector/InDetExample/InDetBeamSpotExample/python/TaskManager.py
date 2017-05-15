@@ -82,7 +82,7 @@ def getFullTaskNames(taskman,dsname,taskname,requireSingleTask=False,confirmWith
         m += "    %-50s  %s\n" % ('DATASET NAME','TASK NAME')
         m += "    %s\n" % (75*'-')
         for t in taskList:
-            m += "    %-50s  %s\n" % (t[0],t[1])  
+            m += "    %-50s  %s\n" % (t[0],t[1])
         m += '\n'
         raise TaskManagerCheckError, m
     if confirmWithUser:
@@ -90,7 +90,7 @@ def getFullTaskNames(taskman,dsname,taskname,requireSingleTask=False,confirmWith
         print "    %-50s  %s" % ('DATASET NAME','TASK NAME')
         print "    %s" % (75*'-')
         for t in taskList:
-            print "    %-50s  %s" % (t[0],t[1])  
+            print "    %-50s  %s" % (t[0],t[1])
         a = raw_input('\nARE YOU SURE [n] ? ')
         if a!='y':
             raise TaskManagerCheckError, 'ERROR: Aborted by user'
@@ -402,7 +402,7 @@ end;
                 updateStr = ['update TASKS set UPDATED =',DbParam(tstamp),
                              ', NJOBS = ',DbParam(task['NJOBS']+njobs),
                              ', ONDISK = ',DbParam(onDisk)]
-                
+
                 if not release in task['ATLREL']:
                     print 'WARNING: Updating task using different release: DSNAME = %s, TASKNAME = %s, release = = %s vs %s' % (dsName,taskName,task['ATLREL'],release)
                     release = '; '.join([task['ATLREL'],release])
@@ -413,7 +413,7 @@ end;
 
                 updateStr += ['where DSNAME = ',DbParam(dsName),'and TASKNAME = ',DbParam(taskName)]
 
-                self.execute( updateStr)    
+                self.execute( updateStr)
 
         else:
             # New task entry
@@ -513,7 +513,7 @@ end;
         q = [ 'select count(*) from TASKS' ]
         q.extend(qual)
         return self.execute(q).fetchone()[0]
-        
+
     def getTaskValue(self, dsName,taskName, what):
         """Get a single value from the task database. If the query results in more than one value, only
            the first value is returned."""
