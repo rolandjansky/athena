@@ -81,7 +81,7 @@ monitoring_electron += commission_electron
 
 commissionTP_electron = ['HLT_e17_lhvloose_nod0_ringer_L1EM15VHI',
                          'HLT_e24_lhvloose_nod0',
-                         #        'HLT_e26_lhtight_nod0_ringer_ivarloose',
+                         'HLT_e26_lhtight_nod0_ringer_ivarloose',
                          'HLT_e26_lhtight_cutd0dphideta_ivarloose',
                          'HLT_e28_lhtight_nod0_ringer_ivarloose',
                          #'HLT_e26_lhtight_cutd0detadphi_ivarloose',
