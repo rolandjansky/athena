@@ -204,6 +204,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
     ftfname = ""
     roiupdater = ""
     cnvname = "InDetTrigTrackingxAODCnv_%s_FTF"
+    cnvptname = ""
 
     if sequenceFlavour=="2step":
       ftfname = "TrigFastTrackFinder_%sCore";  ftf2name = "TrigFastTrackFinder_%sIso"; 
@@ -218,8 +219,10 @@ class TrigInDetSequence(TrigInDetSequenceBase):
           ftfname = "TrigFastTrackFinder_%s_IDTrig";  ftf2name = "TrigFastTrackFinder_%sIso_IDTrig"; 
           cnvname = "InDetTrigTrackingxAODCnv_%s_FTF";  cnv2name = "InDetTrigTrackingxAODCnv_%sIso_FTF";  
           roiupdater = "IDTrigRoiUpdater_%s_IDTrig";  roi2updater="IDTrigRoiUpdater_%sIso_IDTrig"
-          
-        
+    
+    if self.__signature__=="bphysHighPt":
+      cnvname = "InDetTrigTrackingxAODCnv_Bphysics_FTF"
+      cnvptname = "InDetTrigTrackingxAODCnv_Bphysics_%s" % sequenceType
 
     if sequenceType=="IDTrig":
 
@@ -262,7 +265,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
                  ("TRTTrackExtAlg",""),
                  ("TrigExtProcessor",""),
                  #("InDetTrigTrackSlimmer",""),
-                 ("InDetTrigTrackingxAODCnv",""),
+                 ("InDetTrigTrackingxAODCnv",cnvptname),
                  ("InDetTrigDetailedTrackTruthMaker",""),
                  #("TrigVxPrimary",""),
                  #("InDetTrigParticleCreation",""),
