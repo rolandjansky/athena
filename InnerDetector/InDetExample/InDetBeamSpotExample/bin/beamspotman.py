@@ -31,7 +31,7 @@ reproc TEMPLATE DSNAME TASKNAME INPUTDIR Run reprocessing task consisting of sev
                                         over the files in INPUTDIR
 runaod TEMPLATE DSNAME TASKNAME INPUTDIR Run over AOD, splitting jobs into sets of N LBs (similar
                                         to reproc command, except for variable params)
-resubmit DSNAME TASKNAME QUEUE          Rerun jobs of a specific task on specifc batch queue
+resubmit DSNAME TASKNAME                Rerun jobs of a specific task (choose queue with -q QUEUE)
 dqflag DBFILE                           Upload DQ SQLite file into COOL (independent of task)
 dqflag DSNAME TASKNAME                  Upload result of beam spot DQ flag determination into COOL
 runBCID  RUNNR TAG                      Run standard beam spot BCID job
@@ -118,7 +118,8 @@ parser.add_option('', '--ru', dest='runMax', type='int', default=None, help='Max
 parser.add_option('', '--rucio', dest='rucio', action='store_true', default=False, help='rucio directory structure')
 parser.add_option('', '--noCheckAcqFlag', dest='noCheckAcqFlag', action='store_true', default=False, help='Don\'t check acqFlag when submitting VdM jobs')
 parser.add_option('', '--mon', dest='mon', action='store_true', default=False, help='mon directory structure')
-parser.add_option('', '--resubAll', dest='resubAll', action='store_true', default=False, help='Resubmit all jobs irrespective of status') 
+parser.add_option('', '--resubAll', dest='resubAll', action='store_true', default=False, help='Resubmit all jobs irrespective of status')
+parser.add_option('-q', '--queue', dest='batch_queue', default=None, help='Name of batch queue to use (default is context-specific)')
 
 (options,args) = parser.parse_args()
 if len(args) < 1:
@@ -873,14 +874,19 @@ if cmd=='archive' and len(args)==3:
 # Double check directory structure is appropriate for you
 #
 
-if cmd=='resubmit' and len(args)==4: 
+if cmd=='resubmit' and len(args) in [3,4]:
 
     dsname    = args[1]
     taskname  = args[2]
-    queue     = args[3]
 
-    # Form bunched jobs
-    # Submit bunched jobs
+    # for backwards compatibility these are equivalent:
+    #   $0 resubmit DSNAME TASKNAME QUEUE
+    #   $0 -q QUEUE resubmit DSNAME TASKNAME
+    queue = args[3] if len(args) == 4 else options.batch_queue
+    if not queue:
+        print 'ERROR: No queue was specified (use -q)'
+        sys.exit(1)
+
     basepath = os.getcwd()+'/'+dsname+'/'+taskname+'/'
     dircontents = os.listdir( basepath )
 
@@ -1076,7 +1082,7 @@ if cmd=='reproc' and len(args)==5:
                     if not f in jobFileDict[jobId]:
                         jobFileDict[jobId].append(f)
                     jobLBDict[jobId].append(lbnr)
-    
+
     # Submit bunched jobs
     for i in  sorted(jobFileDict.keys()):
         jobnr = i*lbperjob+1  # use first LB number as job number
@@ -1090,6 +1096,7 @@ if cmd=='reproc' and len(args)==5:
         params['lbList'] = intlbs
         jobname=dsname+'-'+taskname+'-lb%03i' % jobnr
 
+        queue = options.batch_queue or 'atlasb1_long'
         runner = LSFJobRunner.LSFJobRunner(jobnr=jobnr,
                                            jobdir=os.getcwd()+'/'+dsname+'/'+taskname+'/'+jobname,
                                            jobname=jobname,
@@ -1097,7 +1104,7 @@ if cmd=='reproc' and len(args)==5:
                                            inputfiles=files,
                                            joboptionpath=jobopts,
                                            filesperjob=len(files),
-                                           batchqueue='atlasb1_long',
+                                           batchqueue=queue,
                                            addinputtopoolcatalog=True,
                                            taskpostprocsteps='ReprocVertexDefaultProcessing',
                                            #outputfilelist=['dpd.root', 'nt.root', 'monitoring,root', 'beamspot.db'],
@@ -1254,7 +1261,7 @@ if cmd=='reproc' and len(args)==5:
                     if not f in jobFileDict[jobId]:
                         jobFileDict[jobId].append(f)
                     jobLBDict[jobId].append(lbnr)
-    
+
     # Submit bunched jobs
     for i in  sorted(jobFileDict.keys()):
         jobnr = i*lbperjob+1  # use first LB number as job number
@@ -1268,6 +1275,7 @@ if cmd=='reproc' and len(args)==5:
         params['lbList'] = intlbs
         jobname=dsname+'-'+taskname+'-lb%03i' % jobnr
 
+        queue = options.batch_queue or '2nd'
         runner = LSFJobRunner.LSFJobRunner(jobnr=jobnr,
                                            jobdir=os.getcwd()+'/'+dsname+'/'+taskname+'/'+jobname,
                                            jobname=jobname,
@@ -1275,7 +1283,7 @@ if cmd=='reproc' and len(args)==5:
                                            inputfiles=files,
                                            joboptionpath=jobopts,
                                            filesperjob=len(files),
-                                           batchqueue='2nd',
+                                           batchqueue=queue,
                                            addinputtopoolcatalog=True,
                                            taskpostprocsteps='ReprocVertexDefaultProcessing',
                                            #outputfilelist=['dpd.root', 'nt.root', 'monitoring,root', 'beamspot.db'],
@@ -1440,13 +1448,13 @@ if cmd=='runaod' and len(args)==5:
                     if not f in jobFileDict[jobId]:
                         jobFileDict[jobId].append(f)
                     jobLBDict[jobId].append(lbnr)
-    
+
     # Submit bunched jobs
     for i in  sorted(jobFileDict.keys()):
         jobnr = i*lbperjob+1  # use first LB number as job number
         files=jobFileDict[i]
         lbs = sorted(set(jobLBDict[i]))
-        
+
         intlbs = []
         for lbnr in lbs:
             intlbs.append(int(lbnr))
@@ -1461,6 +1469,10 @@ if cmd=='runaod' and len(args)==5:
 
         jobname=dsname+'-'+taskname+'-lb%03i' % jobnr
 
+        queue = options.batch_queue
+        if queue is None:
+            # run on a different queue for VdM to avoid clogging up the normal queue
+            queue = 'atlasb1_long' if options.pseudoLbFile else 'atlasb1'
         runner = LSFJobRunner.LSFJobRunner(jobnr=jobnr,
                                            jobdir=os.getcwd()+'/'+dsname+'/'+taskname+'/'+jobname,
                                            jobname=jobname,
@@ -1468,7 +1480,7 @@ if cmd=='runaod' and len(args)==5:
                                            inputfiles=files,
                                            joboptionpath=jobopts,
                                            filesperjob=len(files),
-                                           batchqueue='atlasb1_long' if options.pseudoLbFile else 'atlasb1', # run on different queue for VdM scans to avoid cloggin up normal queue # '1nw' '2nd'
+                                           batchqueue=queue,
                                            addinputtopoolcatalog=True,
                                            taskpostprocsteps=options.postprocsteps,
                                            autoconfparams='DetDescrVersion',
