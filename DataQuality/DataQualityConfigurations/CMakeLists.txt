@@ -36,7 +36,8 @@ foreach( hanfile collisions_run collisions_minutes10
 
    # Get a list of all files used by han-config-gen:
    file( GLOB configInputFiles
-      ${CMAKE_CURRENT_SOURCE_DIR}/config/*/${hanfile}.config )
+      ${CMAKE_CURRENT_SOURCE_DIR}/config/*/${hanfile}.config
+      ${CMAKE_CURRENT_SOURCE_DIR}/config/*/*/${hanfile}.config )
 
    # The name of the generated config file:
    set( configOutputFile
