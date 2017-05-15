@@ -29,7 +29,7 @@
 /** Constructor */
 SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator), 
-  m_sct_id(0),
+  m_sct_id{nullptr},
   m_storeGate("StoreGateSvc",name),
   m_detStore("DetectorStore",name),
   m_cabling("SCT_CablingSvc",name),
@@ -37,8 +37,8 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   m_filled(false) ,
   m_lookForSGErrContainer(true),
   //
-  m_rxRedundancy(0),
-  m_tempMaskedChips(nullptr),
+  m_rxRedundancy{nullptr},
+  m_tempMaskedChips{nullptr},
   m_isRODSimulatedData(false),
   m_numRODsHVon(0),
   m_numRODsTotal(0),

@@ -27,6 +27,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h" 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "EventInfo/EventID.h"
 
 // Include Gaudi stuff
 #include "GaudiKernel/IIncidentSvc.h"
@@ -79,12 +80,12 @@ SCT_ReadCalibDataSvc::SCT_ReadCalibDataSvc (const std::string& name, ISvcLocator
   m_detStoreSvc("DetectorStore", name),
   m_IOVDbSvc("IOVDbSvc", name),
   m_cabling("SCT_CablingSvc",name),
-  m_SCTdetMgr(0),
-  m_attrListColl(0),
-  m_id_sct(0),
+  m_SCTdetMgr{nullptr},
+  m_attrListColl{nullptr},
+  m_id_sct{nullptr},
   m_dataFilled(false),
-  m_NPGDefects(0),
-  m_NODefects(0),
+  m_NPGDefects{nullptr},
+  m_NODefects{nullptr},
   m_printCalibDefectMaps(false),
   m_recoOnly(true),
   m_ignoreDefects(0),
@@ -93,6 +94,7 @@ SCT_ReadCalibDataSvc::SCT_ReadCalibDataSvc (const std::string& name, ISvcLocator
   declareProperty("PrintCalibDefectMaps",  m_printCalibDefectMaps  = false, "Print data read from the Calib Defect map?");
   declareProperty("AttrListCollFolders",   m_atrcollist, "List of calibration data folder?"); 
   declareProperty("RecoOnly",              m_recoOnly, "Use new improved isGood method, all other methods defunct"); 
+  declareProperty("EventInfoKey",          m_eventInfoKey=std::string("ByteStreamEventInfo"), "Key of EventInfo container");
   std::vector<std::string> names(2);
   names[0] = std::string("/SCT/DAQ/Calibration/NPtGainDefects");
   names[1] = std::string("/SCT/DAQ/Calibration/NoiseOccupancyDefects");
@@ -308,19 +310,13 @@ StatusCode SCT_ReadCalibDataSvc::fillCalibDefectData(std::list<std::string>& key
   s_defectMapIntToString[38] = "DOUBTR_HI";     //<! High double trigger noise occupancy, > 5
 
   // Get the current event and print info
-  const EventInfo* event;
-  if (m_storeGateSvc->retrieve(event)==StatusCode::SUCCESS) {
+  SG::ReadHandle<EventInfo> event(m_eventInfoKey);
+  if (event.isValid()) {
     coral::TimeStamp::ValueType nsTime=event->event_ID()->time_stamp()*1000000000LL;
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In run/event [" << event->event_ID()->run_number() <<
-      "," << event->event_ID()->event_number() << "] timestamp " << nsTime << 
-      endmsg;
-    // print the timestamp in UTC and local
-    // coral::TimeStamp utctime(nsTime);
-    // coral::TimeStamp localtime(utctime.time(), true); // get ptime and convert to local
-    // if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Timestamp UTC: " << utctime.toString() << 
-    //  " local: " << localtime.toString() << endmsg;
+    ATH_MSG_VERBOSE( "In run/event [" << event->event_ID()->run_number() <<
+		     "," << event->event_ID()->event_number() << "] timestamp " << nsTime ); 
   } else {
-    msg(MSG:: ERROR) << "Could not get pointer to event" << endmsg;
+    ATH_MSG_ERROR( "Could not get pointer to event" );
   }
 
   if (!m_recoOnly){

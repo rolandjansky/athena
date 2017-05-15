@@ -23,7 +23,7 @@
 SCT_ConfigurationConditionsTestAlg::SCT_ConfigurationConditionsTestAlg(const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthAlgorithm( name, pSvcLocator ),
   m_configConditions("SCT_ConfigurationConditionsSvc",name),
-  m_sctId(0)
+  m_sctId{nullptr}
 {
   declareProperty("ConfigConditions" , m_configConditions);
 }
