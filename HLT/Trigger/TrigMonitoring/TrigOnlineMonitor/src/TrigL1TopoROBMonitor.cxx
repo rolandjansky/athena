@@ -97,6 +97,10 @@ TrigL1TopoROBMonitor::TrigL1TopoROBMonitor(const std::string& name, ISvcLocator*
   m_histTopoHdwResult(0),
   m_histTopoSimNotHdwResult(0),
   m_histTopoHdwNotSimResult(0),
+  m_histTopoSimOverflow(0),
+  m_histTopoHdwOverflow(0),
+  m_histTopoSimNotHdwOverflow(0),
+  m_histTopoHdwNotSimOverflow(0),
   m_histTopoProblems(0),
   m_histInputLinkCRCfromROIConv(0),
   m_setTopoSimResult(false)
@@ -284,6 +288,10 @@ StatusCode TrigL1TopoROBMonitor::beginRun() {
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoHdwResult, "HdwResults", "L1Topo hardware accepts, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimNotHdwResult, "SimNotHdwResult", "L1Topo events with simulation accept and hardware fail, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoHdwNotSimResult, "HdwNotSimResult", "L1Topo events with hardware accept and simulation fail, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimOverflow, "SimOverflows", "L1Topo simulation overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoHdwOverflow, "HdwOverflows", "L1Topo hardware overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimNotHdwOverflow, "SimNotHdwOverflow", "L1Topo events with overflow simulation=1  and hardware=0", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoHdwNotSimOverflow, "HdwNotSimOverflow", "L1Topo events with overflow hardware=1  and simulation=0", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
   unsigned int nProblems=m_problems.size();
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoProblems, "Problems", "Counts of various problems", nProblems, 0, nProblems) ) ;
   CHECK( bookAndRegisterHist(rootHistSvc, m_histInputLinkCRCfromROIConv, "InputLinkCRCs","CRC flags for input links, from ROI via converter", 5, 0, 5) );
@@ -343,6 +351,10 @@ StatusCode TrigL1TopoROBMonitor::beginRun() {
       m_histTopoHdwResult->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histTopoSimNotHdwResult->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histTopoHdwNotSimResult->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
+      m_histTopoSimOverflow->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
+      m_histTopoHdwOverflow->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
+      m_histTopoSimNotHdwOverflow->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
+      m_histTopoHdwNotSimOverflow->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histTopoSimHdwStatComparison->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histTopoSimHdwEventComparison->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histTopoSimHdwEventOverflowComparison->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
@@ -876,10 +888,10 @@ StatusCode TrigL1TopoROBMonitor::doOverflowSimMon()
                 if( (simTopoOverflowCTP->cableWord2(1) & mask) != 0 ) m_topoSimOverfl[96 + i] = 1; // cable 2, clock 1
             }
             for (unsigned int i=0; i< m_nTopoCTPOutputs; ++i){ // fill histograms
-                m_histTopoHdwResult->Fill(i,m_triggerBits.test(i));
-                m_histTopoSimResult->Fill(i,m_topoSimResult.test(i));
-                m_histTopoSimNotHdwResult->Fill(i, m_topoSimResult.test(i) and not m_triggerBits.test(i));
-                m_histTopoHdwNotSimResult->Fill(i, m_triggerBits.test(i) and not m_topoSimResult.test(i));
+                m_histTopoHdwOverflow->Fill(i,m_overflowBits.test(i));
+                m_histTopoSimOverflow->Fill(i,m_topoSimOverfl.test(i));
+                m_histTopoSimNotHdwOverflow->Fill(i, m_topoSimOverfl.test(i) and not m_overflowBits.test(i));
+                m_histTopoHdwNotSimOverflow->Fill(i, m_overflowBits.test(i) and not m_topoSimOverfl.test(i));
             }
             // debug printout
             const auto sw8 = std::setw( 8 );

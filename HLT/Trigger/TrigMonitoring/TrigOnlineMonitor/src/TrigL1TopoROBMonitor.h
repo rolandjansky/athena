@@ -90,6 +90,10 @@ class TrigL1TopoROBMonitor:public AthAlgorithm {
   TH1F* m_histTopoHdwResult;
   TH1F* m_histTopoSimNotHdwResult;
   TH1F* m_histTopoHdwNotSimResult;
+  TH1F* m_histTopoSimOverflow;
+  TH1F* m_histTopoHdwOverflow;
+  TH1F* m_histTopoSimNotHdwOverflow;
+  TH1F* m_histTopoHdwNotSimOverflow;
   TH1F* m_histTopoProblems;
   TH1F* m_histInputLinkCRCfromROIConv;
   TH1F* m_histTopoSimOverfl;
