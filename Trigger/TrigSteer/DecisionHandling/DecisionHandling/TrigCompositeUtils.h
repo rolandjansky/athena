@@ -7,11 +7,12 @@
 
 #include <set>
 #include <memory>
+#include "AthLinks/ElementLink.h"
 #include "GaudiKernel/EventContext.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandle.h"
-#include "StoreGate/ReadHandle.h"
+//#include "StoreGate/ReadHandle.h"
 
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
@@ -25,6 +26,7 @@ namespace TrigCompositeUtils {
   typedef SG::WriteHandle<DecisionContainer> DecisionWriteHandle;
   /*
     creates and right away stores the DecisionContainer under the key
+    @warning to be deleted
   */
   DecisionWriteHandle createAndStore(const SG::WriteHandleKey<DecisionContainer>& key, const EventContext& ctx);
 
@@ -60,6 +62,22 @@ namespace TrigCompositeUtils {
     @brief Checks if any of the DecisionIDs passed in arg required is availble in Decision object
   */
   bool passingIDs( const Decision* d,  const DecisionIDContainer& required);
+
+  /*
+    @brief Links to the previous object
+    Typical usage: for ( auto 
+   */
+  void linkToPrevious(Decision* d, const std::string& previousCollectionKey, size_t previousIndex);
+
+  /*
+    @brief checks if there is a link to previous object
+   */
+  bool hasLinkToPrevious(const Decision* d);
+
+  /*
+    @brief returns link to previous decision object
+   */
+  ElementLink<DecisionContainer> linkToPrevious(const Decision*);
   
 }
 
