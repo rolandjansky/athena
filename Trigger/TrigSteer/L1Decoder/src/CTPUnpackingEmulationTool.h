@@ -3,28 +3,32 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef L1DECODER_CTPUNPACKINGTOOL_H
-#define L1DECODER_CTPUNPACKINGTOOL_H 1
+#ifndef L1DECODER_CTPUNPACKINGEMULATIONTOOL_H
+#define L1DECODER_CTPUNPACKINGEMULATIONTOOL_H 1
 
 #include "GaudiKernel/IAlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DecisionHandling/HLTIdentifier.h"
+#include "TrigConfHLTData/HLTUtils.h"
 
 #include "./ICTPUnpackingTool.h"
+#include "./CTPUnpackingTool.h"
 
 namespace ROIB {
   class RoIBResult;
 }
 
 
-class CTPUnpackingTool:  public AthAlgTool, virtual public ::ICTPUnpackingTool{
+
+class CTPUnpackingEmulationTool  : public AthAlgTool, virtual public ::ICTPUnpackingTool{
 
 public:
-  
-  CTPUnpackingTool( const std::string& type,
+
+  CTPUnpackingEmulationTool( const std::string& type,
 		    const std::string& name, 
 		    const IInterface* parent );
-  virtual ~CTPUnpackingTool();
+
+  virtual ~CTPUnpackingEmulationTool();
 
 
   /*
@@ -35,13 +39,21 @@ public:
    */
   StatusCode decode(const ROIB::RoIBResult& roib, HLT::IDVec& enabledChains) const override;
 
-  StatusCode initialize() override { return decodeCTPToChainMapping(); }
+ // Athena algtool's Hooks
+  StatusCode  initialize() override;
+  StatusCode  finalize() override;
+ 
   
-  
+ 
 
 private:
- 
+
+  std::string              m_inputFileName;
+  // @brief returns names oc the chains (iner vector) to activate for each event (outer vector) 
+  std::vector < std::set< size_t > > m_events; // list of CTPID enabled, per event
+  StatusCode parseInputFile() ;
+
 }; 
 
 
-#endif // L1DECODER_CTPUNPACKINGTOOL_H
+#endif // L1DECODER_CTPUNPACKINGTOOLEMULATION_H

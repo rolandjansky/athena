@@ -10,7 +10,9 @@
 #include "../L1Decoder.h"
 #include "../FakeCTP.h"
 #include "../CTPUnpackingTool.h"
+#include "../CTPUnpackingEmulationTool.h"
 #include "../EMRoIsUnpackingTool.h"
+#include "../RoIsUnpackingEmulationTool.h"
 #include "../MURoIsUnpackingTool.h"
 
 DECLARE_ALGORITHM_FACTORY(L1CaloDecoder)
@@ -20,7 +22,9 @@ DECLARE_ALGORITHM_FACTORY(FakeCTP)
 DECLARE_ALGORITHM_FACTORY(L1Decoder)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( AthViews, FakeRoIView )
 DECLARE_TOOL_FACTORY(CTPUnpackingTool)
+DECLARE_TOOL_FACTORY(CTPUnpackingEmulationTool)
 DECLARE_TOOL_FACTORY(EMRoIsUnpackingTool)
+DECLARE_TOOL_FACTORY(RoIsUnpackingEmulationTool)
 DECLARE_TOOL_FACTORY(MURoIsUnpackingTool)
 
 DECLARE_FACTORY_ENTRIES( L1Decoder )
@@ -31,6 +35,8 @@ DECLARE_FACTORY_ENTRIES( L1Decoder )
     DECLARE_ALGORITHM(L1Decoder)
     DECLARE_NAMESPACE_ALGORITHM( AthViews, FakeRoIView )
     DECLARE_TOOL(CTPUnpackingTool)
+    DECLARE_TOOL(CTPUnpackingEmultionTool)
     DECLARE_TOOL(EMRoIsUnpackingTool)
+    DECLARE_TOOL(RoIsUnpackingEmulationTool)
     DECLARE_TOOL(MURoIsUnpackingTool)
 }
