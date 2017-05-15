@@ -6,7 +6,7 @@
 #include "MuonRPC_Cabling/SectorLogicSetup.h"
 
 using namespace MuonRPC_Cabling;
-const std::map<std::string, std::string>* MuonRPC_Cabling::SectorLogicSetup::p_trigroads = 0; 
+const std::map<std::string, std::string>* MuonRPC_Cabling::SectorLogicSetup::s_trigroads = 0; 
 SectorLogicSetup::SectorLogicSetup() : BaseObject(Logic,"Sector Logic Map"),
     m_positive_sector(""),m_negative_sector(""),m_sector_type(0),
     m_online_database(""),m_layout(""),m_cosmic(false)
@@ -33,11 +33,11 @@ SectorLogicSetup::SectorLogicSetup(const SectorLogicSetup& sec) :
 
     m_sectors = sec.sectors();
 
-    RPCs    = sec.giveRPC();
-    WORs    = sec.giveWOR();
-    etaCMAs = sec.giveEtaCMA();
-    evenphiCMAs = sec.giveEvenPhiCMA();
-    oddphiCMAs  = sec.giveOddPhiCMA();
+    m_RPCs    = sec.giveRPC();
+    m_WORs    = sec.giveWOR();
+    m_etaCMAs = sec.giveEtaCMA();
+    m_evenphiCMAs = sec.giveEvenPhiCMA();
+    m_oddphiCMAs  = sec.giveOddPhiCMA();
     
     m_online_database = sec.online_database();
     m_layout = sec.layout();
@@ -58,17 +58,17 @@ SectorLogicSetup::operator=(const SectorLogicSetup& sec)
       m_sectors.clear();
       m_sectors = sec.sectors();
 
-      RPCs.clear(); 
-      RPCs = sec.giveRPC();
-      WORs.clear();
-      WORs = sec.giveWOR();
+      m_RPCs.clear(); 
+      m_RPCs = sec.giveRPC();
+      m_WORs.clear();
+      m_WORs = sec.giveWOR();
 
-      etaCMAs.clear();
-      etaCMAs = sec.giveEtaCMA();
-      evenphiCMAs.clear();
-      evenphiCMAs = sec.giveEvenPhiCMA();
-      oddphiCMAs.clear();
-      oddphiCMAs = sec.giveOddPhiCMA();
+      m_etaCMAs.clear();
+      m_etaCMAs = sec.giveEtaCMA();
+      m_evenphiCMAs.clear();
+      m_evenphiCMAs = sec.giveEvenPhiCMA();
+      m_oddphiCMAs.clear();
+      m_oddphiCMAs = sec.giveOddPhiCMA();
      
       m_online_database = sec.online_database();
       m_layout = sec.layout();
@@ -82,11 +82,11 @@ SectorLogicSetup::~SectorLogicSetup()
 {
     m_stations.clear();
     m_sectors.clear();
-    RPCs.clear();
-    WORs.clear();
-    etaCMAs.clear();
-    evenphiCMAs.clear();
-    oddphiCMAs.clear();
+    m_RPCs.clear();
+    m_WORs.clear();
+    m_etaCMAs.clear();
+    m_evenphiCMAs.clear();
+    m_oddphiCMAs.clear();
 }
 
 void
@@ -129,9 +129,9 @@ SectorLogicSetup::setup(void)
     for (sIter it = m_stations.begin();it != m_stations.end(); ++it)
     {
         int key  = (*it).second * 100;
-        //int size = distance(RPCs.lower_bound(key),RPCs.upper_bound(key+99));
-	RPCmap::iterator lower = RPCs.lower_bound(key);
-	RPCmap::iterator upper = RPCs.upper_bound(key + 99);
+        //int size = distance(m_RPCs.lower_bound(key),m_RPCs.upper_bound(key+99));
+	RPCmap::iterator lower = m_RPCs.lower_bound(key);
+	RPCmap::iterator upper = m_RPCs.upper_bound(key + 99);
 	int size = distance(lower,upper);
 	//int ijk_eta = (*lower).second.ijk_etaReadout();
 	//int ijk_phi = (*lower).second.ijk_phiReadout();
@@ -147,8 +147,8 @@ SectorLogicSetup::setup(void)
     for(sIter it = m_stations.begin();it != m_stations.end(); ++it)
     {
         int key  = (*it).second * 100;
-	WORmap::iterator lower = WORs.lower_bound(key);
-        WORmap::iterator upper = WORs.upper_bound(key + 99);
+	WORmap::iterator lower = m_WORs.lower_bound(key);
+        WORmap::iterator upper = m_WORs.upper_bound(key + 99);
         int size = distance(lower,upper);
         if(size) 
         {
@@ -162,10 +162,10 @@ SectorLogicSetup::setup(void)
     bool EvenPhiCMAsetup = true;
     bool OddPhiCMAsetup = true;
     ////////////////////////////////////////// <-------------- CMAs setup    
-    if(etaCMAs.size()) 
+    if(m_etaCMAs.size()) 
     {
         SectorLogicSetup::EtaCMAmap::iterator it;
-        for(it = etaCMAs.begin();it != etaCMAs.end();++it)
+        for(it = m_etaCMAs.begin();it != m_etaCMAs.end();++it)
 	{
 	    EtaCMAsetup &= (*it).second.setup(*this);
 	    //if((*it).second.inversion()) (*it).first.inversion();
@@ -174,19 +174,19 @@ SectorLogicSetup::setup(void)
     }
     else {no_elements("EtaCMA",0); EtaCMAsetup = false;}
 
-    if(evenphiCMAs.size()) 
+    if(m_evenphiCMAs.size()) 
     {
         SectorLogicSetup::EvenPhiCMAmap::iterator it;
-        for(it = evenphiCMAs.begin();it != evenphiCMAs.end();++it)
+        for(it = m_evenphiCMAs.begin();it != m_evenphiCMAs.end();++it)
 	    EvenPhiCMAsetup &= (*it).second.setup(*this);
     }
     // removed checks on existence of PhiCMAs. Some sectors now cover only 1 side
     //else {no_elements("EvenPhiCMA",0); EvenPhiCMAsetup = false;}
 
-    if(oddphiCMAs.size()) 
+    if(m_oddphiCMAs.size()) 
     {
         SectorLogicSetup::OddPhiCMAmap::iterator it;
-        for(it = oddphiCMAs.begin();it != oddphiCMAs.end();++it)
+        for(it = m_oddphiCMAs.begin();it != m_oddphiCMAs.end();++it)
 	    OddPhiCMAsetup &= (*it).second.setup(*this);
     }
     // removed checks on existence of PhiCMAs. Some sectors now cover only 1 side
@@ -209,7 +209,7 @@ SectorLogicSetup::check(void)
     {
         int Lkey = (*stat).second * 100;
         int Ukey = (*stat).second * 100 + 99;
-        for(rIter it=RPCs.lower_bound(Lkey);it != RPCs.upper_bound(Ukey);++it)
+        for(rIter it=m_RPCs.lower_bound(Lkey);it != m_RPCs.upper_bound(Ukey);++it)
 	{
 	    RPCcheck &= (*it).second.check();
 	}
@@ -221,7 +221,7 @@ SectorLogicSetup::check(void)
     {
         int Lkey = (*stat).second * 100;
         int Ukey = (*stat).second * 100 + 99;
-        for(wIter it=WORs.lower_bound(Lkey);it != WORs.upper_bound(Ukey);++it) 
+        for(wIter it=m_WORs.lower_bound(Lkey);it != m_WORs.upper_bound(Ukey);++it) 
         {
 	  //WORcheck &= (*it).second.check();
 	}
@@ -233,16 +233,16 @@ SectorLogicSetup::check(void)
 RPCchamber*
 SectorLogicSetup::find_chamber(int stat, int num)
 {
-    RPCmap::iterator result = RPCs.find(stat*100 + num);
-    if (result != RPCs.end() ) return &(*result).second;
+    RPCmap::iterator result = m_RPCs.find(stat*100 + num);
+    if (result != m_RPCs.end() ) return &(*result).second;
     else return 0;
 }
 
 const RPCchamber*
 SectorLogicSetup::find_chamber(int stat, int num) const
 {
-    RPCmap::const_iterator result = RPCs.find(stat*100 + num);
-    if (result != RPCs.end() ) return &(*result).second;
+    RPCmap::const_iterator result = m_RPCs.find(stat*100 + num);
+    if (result != m_RPCs.end() ) return &(*result).second;
     else return 0;
 }
 
@@ -250,17 +250,17 @@ SectorLogicSetup::find_chamber(int stat, int num) const
 WiredOR*
 SectorLogicSetup::find_wor(int stat, int num)
 {
-    WORmap::iterator result = WORs.find(stat*100 + num);
-    if (result != WORs.end() ) return &(*result).second;
+    WORmap::iterator result = m_WORs.find(stat*100 + num);
+    if (result != m_WORs.end() ) return &(*result).second;
     else return 0;
 }
 
 WiredOR* 
 SectorLogicSetup::previousWOR(const WiredOR& wor)
 {
-    WORmap::iterator result = WORs.find(wor.station()*100 + wor.number());
-    WORmap::iterator begin  = WORs.lower_bound(wor.station()*100);
-    if(result == WORs.end() || result == begin) return 0;
+    WORmap::iterator result = m_WORs.find(wor.station()*100 + wor.number());
+    WORmap::iterator begin  = m_WORs.lower_bound(wor.station()*100);
+    if(result == m_WORs.end() || result == begin) return 0;
     --result;
     return &(*result).second;
 }
@@ -268,8 +268,8 @@ SectorLogicSetup::previousWOR(const WiredOR& wor)
 EtaCMA* 
 SectorLogicSetup::previousCMA(const EtaCMA& cma)
 {
-    EtaCMAmap::iterator result = etaCMAs.find(cma.id());
-    if(result == etaCMAs.end() || result == etaCMAs.begin()) return 0;
+    EtaCMAmap::iterator result = m_etaCMAs.find(cma.id());
+    if(result == m_etaCMAs.end() || result == m_etaCMAs.begin()) return 0;
     --result;
     return &(*result).second;
 }
@@ -278,8 +278,8 @@ SectorLogicSetup::previousCMA(const EtaCMA& cma)
 EvenPhiCMA* 
 SectorLogicSetup::previousCMA(const EvenPhiCMA& cma)
 {
-    EvenPhiCMAmap::iterator result = evenphiCMAs.find(cma.id());
-    if(result == evenphiCMAs.end() || result == evenphiCMAs.begin()) return 0;
+    EvenPhiCMAmap::iterator result = m_evenphiCMAs.find(cma.id());
+    if(result == m_evenphiCMAs.end() || result == m_evenphiCMAs.begin()) return 0;
     --result;
     return &(*result).second;
 }
@@ -287,8 +287,8 @@ SectorLogicSetup::previousCMA(const EvenPhiCMA& cma)
 OddPhiCMA* 
 SectorLogicSetup::previousCMA(const OddPhiCMA& cma)
 {
-    OddPhiCMAmap::iterator result = oddphiCMAs.find(cma.id());
-    if(result == oddphiCMAs.end() || result == oddphiCMAs.begin()) return 0;
+    OddPhiCMAmap::iterator result = m_oddphiCMAs.find(cma.id());
+    if(result == m_oddphiCMAs.end() || result == m_oddphiCMAs.begin()) return 0;
     --result;
     return &(*result).second;
 }
@@ -297,8 +297,8 @@ std::list < const EtaCMA* >
 SectorLogicSetup::find_eta_CMAs_in_PAD(int pad)
 {
     std::list < const EtaCMA* > CMAlist;
-    EtaCMAmap::const_iterator it = etaCMAs.begin();
-    while(it != etaCMAs.end())
+    EtaCMAmap::const_iterator it = m_etaCMAs.begin();
+    while(it != m_etaCMAs.end())
     {
         const EtaCMA* cma = &(*it).second;
 	if(cma->id().PAD_index() == pad) CMAlist.push_back(cma);
@@ -311,97 +311,97 @@ SectorLogicSetup::find_eta_CMAs_in_PAD(int pad)
 SectorLogicSetup::EvenPhiCMAmap::const_iterator
 SectorLogicSetup::find_evenphiCMA(int PAD,int Ixx) const
 {
-    EvenPhiCMAmap::const_iterator it = evenphiCMAs.begin();
-    while(it != evenphiCMAs.end())
+    EvenPhiCMAmap::const_iterator it = m_evenphiCMAs.begin();
+    while(it != m_evenphiCMAs.end())
     {
         const EvenPhiCMA* cma = &(*it).second;
 	if(cma->id().PAD_index() == PAD && 
 	   cma->id().Ixx_index() == Ixx) return it;
         ++it;
     }
-    return evenphiCMAs.end();
+    return m_evenphiCMAs.end();
 }
 
 
 SectorLogicSetup::OddPhiCMAmap::const_iterator
 SectorLogicSetup::find_oddphiCMA(int PAD,int Ixx) const
 {
-    OddPhiCMAmap::const_iterator it = oddphiCMAs.begin();
-    while(it != oddphiCMAs.end())
+    OddPhiCMAmap::const_iterator it = m_oddphiCMAs.begin();
+    while(it != m_oddphiCMAs.end())
     {
         const OddPhiCMA* cma = &(*it).second;
 	if(cma->id().PAD_index() == PAD && 
 	   cma->id().Ixx_index() == Ixx) return it;
         ++it;
     }
-    return oddphiCMAs.end();
+    return m_oddphiCMAs.end();
 }
 
 
 SectorLogicSetup::EtaCMAmap::const_iterator
 SectorLogicSetup::find_etaCMA(int PAD,int Ixx) const
 {
-    EtaCMAmap::const_iterator it = etaCMAs.begin();
-    while(it != etaCMAs.end())
+    EtaCMAmap::const_iterator it = m_etaCMAs.begin();
+    while(it != m_etaCMAs.end())
     {
         const EtaCMA* cma = &(*it).second;
 	if(cma->id().PAD_index() == PAD && 
 	   cma->id().Ixx_index() == Ixx) return it;
         ++it;
     }
-    return etaCMAs.end();
+    return m_etaCMAs.end();
 }
 
 SectorLogicSetup::EvenPhiCMAmap::iterator
 SectorLogicSetup::find_evenphiCMA(int PAD,int Ixx)
 {
-    EvenPhiCMAmap::iterator it = evenphiCMAs.begin();
-    while(it != evenphiCMAs.end())
+    EvenPhiCMAmap::iterator it = m_evenphiCMAs.begin();
+    while(it != m_evenphiCMAs.end())
     {
         const EvenPhiCMA* cma = &(*it).second;
 	if(cma->id().PAD_index() == PAD && 
 	   cma->id().Ixx_index() == Ixx) return it;
         ++it;
     }
-    return evenphiCMAs.end();
+    return m_evenphiCMAs.end();
 }
 
 
 SectorLogicSetup::OddPhiCMAmap::iterator
 SectorLogicSetup::find_oddphiCMA(int PAD,int Ixx)
 {
-    OddPhiCMAmap::iterator it = oddphiCMAs.begin();
-    while(it != oddphiCMAs.end())
+    OddPhiCMAmap::iterator it = m_oddphiCMAs.begin();
+    while(it != m_oddphiCMAs.end())
     {
         const OddPhiCMA* cma = &(*it).second;
 	if(cma->id().PAD_index() == PAD && 
 	   cma->id().Ixx_index() == Ixx) return it;
         ++it;
     }
-    return oddphiCMAs.end();
+    return m_oddphiCMAs.end();
 }
 
 
 SectorLogicSetup::EtaCMAmap::iterator
 SectorLogicSetup::find_etaCMA(int PAD,int Ixx)
 {
-    EtaCMAmap::iterator it = etaCMAs.begin();
-    while(it != etaCMAs.end())
+    EtaCMAmap::iterator it = m_etaCMAs.begin();
+    while(it != m_etaCMAs.end())
     {
         const EtaCMA* cma = &(*it).second;
 	if(cma->id().PAD_index() == PAD && 
 	   cma->id().Ixx_index() == Ixx) return it;
         ++it;
     }
-    return etaCMAs.end();
+    return m_etaCMAs.end();
 }
 
 bool 
 SectorLogicSetup::global_strip_add(ViewType side,HalfType h_barrel,int station,
 int rpc_index, int strip_number, int& global_address) const
 {
-    RPCmap::const_iterator result = RPCs.find(station*100 + rpc_index);
-    if(result == RPCs.end()) return false;
+    RPCmap::const_iterator result = m_RPCs.find(station*100 + rpc_index);
+    if(result == m_RPCs.end()) return false;
     return (*result).second.global_strip(side,h_barrel,strip_number,
                                          global_address);
 }
@@ -412,8 +412,8 @@ SectorLogicSetup::local_strip_add(ViewType side,int station,
 {
     if(side == Eta)
     {
-        RPCmap::const_iterator it = RPCs.lower_bound(station*100);
-	while(it != RPCs.upper_bound(station*100 + 99))
+        RPCmap::const_iterator it = m_RPCs.lower_bound(station*100);
+	while(it != m_RPCs.upper_bound(station*100 + 99))
 	{
 	    if((*it).second.Gstrip_2_Lnumber(side,global_address,strip_number))
 	    {
@@ -436,8 +436,8 @@ SectorLogicSetup::global_conn_add (ViewType side, HalfType h_barrel,
               int station,int rpc_index,int strip_number, int& global_address, 
               int& low_eta_strips, int& hi_eta_strips) const
 {
-    RPCmap::const_iterator result = RPCs.find(station*100 + rpc_index);
-    if(result == RPCs.end()) return false;
+    RPCmap::const_iterator result = m_RPCs.find(station*100 + rpc_index);
+    if(result == m_RPCs.end()) return false;
     return (*result).second.global_connector(side,h_barrel,strip_number,
                                   global_address,low_eta_strips,hi_eta_strips);
 }
@@ -449,8 +449,8 @@ int& c_number,int& rpc_index, int& strip_number) const
 {
     if(side == Eta)
     {
-        RPCmap::const_iterator it = RPCs.lower_bound(station*100);
-	while(it != RPCs.upper_bound(station*100 + 99))
+        RPCmap::const_iterator it = m_RPCs.lower_bound(station*100);
+	while(it != m_RPCs.upper_bound(station*100 + 99))
 	{
 	    if((*it).second.Gconn_2_Lnumber(side,global_address,c_number,
                                           strip_number))
@@ -476,8 +476,8 @@ SectorLogicSetup::give_CMAs(const int sector,const ViewType side,
     CMAparameters::CMAlist list;
     if(side == Eta)
     {
-        EtaCMAmap::const_iterator it = etaCMAs.begin();
-        while(it != etaCMAs.end())
+        EtaCMAmap::const_iterator it = m_etaCMAs.begin();
+        while(it != m_etaCMAs.end())
 	{
 	    const CMAinput IO = (*it).second.whichCMAinput(station);
             const CMAparameters* cma = (*it).second.test(IO,cabling_code);
@@ -489,8 +489,8 @@ SectorLogicSetup::give_CMAs(const int sector,const ViewType side,
     {
         if(sector%2)
 	{//odd
-            OddPhiCMAmap::const_iterator it = oddphiCMAs.begin();
-            while(it != oddphiCMAs.end())
+            OddPhiCMAmap::const_iterator it = m_oddphiCMAs.begin();
+            while(it != m_oddphiCMAs.end())
 	    {
 	        const CMAinput IO = (*it).second.whichCMAinput(station);
                 const CMAparameters* cma = (*it).second.test(IO,cabling_code);
@@ -500,8 +500,8 @@ SectorLogicSetup::give_CMAs(const int sector,const ViewType side,
 	}
         else
 	{//even
-            EvenPhiCMAmap::const_iterator it = evenphiCMAs.begin();
-            while(it != evenphiCMAs.end())
+            EvenPhiCMAmap::const_iterator it = m_evenphiCMAs.begin();
+            while(it != m_evenphiCMAs.end())
 	    {
 	        const CMAinput IO = (*it).second.whichCMAinput(station);
                 const CMAparameters* cma = (*it).second.test(IO,cabling_code);
@@ -522,7 +522,7 @@ SectorLogicSetup::give_RoI_borders(CMAidentity ETA,CMAidentity PHI,
 {
     EtaCMAmap::const_iterator etaCMA =
                                    find_etaCMA(ETA.PAD_index(),ETA.Ixx_index());
-    if(etaCMA == etaCMAs.end()) return false;
+    if(etaCMA == m_etaCMAs.end()) return false;
     
     firstEtaCode = (*etaCMA).second.first_pivot_code();
     lastEtaCode  = (*etaCMA).second.last_pivot_code();
@@ -531,7 +531,7 @@ SectorLogicSetup::give_RoI_borders(CMAidentity ETA,CMAidentity PHI,
     {
         OddPhiCMAmap::const_iterator phiCMA =
 	                        find_oddphiCMA(PHI.PAD_index(),PHI.Ixx_index());
-	if(phiCMA == oddphiCMAs.end()) return false;
+	if(phiCMA == m_oddphiCMAs.end()) return false;
         firstPhiCode = (*phiCMA).second.first_pivot_code();
         lastPhiCode  = (*phiCMA).second.last_pivot_code();	
     }
@@ -539,7 +539,7 @@ SectorLogicSetup::give_RoI_borders(CMAidentity ETA,CMAidentity PHI,
     {
         EvenPhiCMAmap::const_iterator phiCMA =
 	                       find_evenphiCMA(PHI.PAD_index(),PHI.Ixx_index());
-	if(phiCMA == evenphiCMAs.end()) return false;
+	if(phiCMA == m_evenphiCMAs.end()) return false;
         firstPhiCode = (*phiCMA).second.first_pivot_code();
         lastPhiCode  = (*phiCMA).second.last_pivot_code();	
     }
@@ -560,7 +560,7 @@ SectorLogicSetup::give_LowPt_borders(CMAidentity ETA,CMAidentity PHI,
 {
     EtaCMAmap::const_iterator etaCMA =
                                    find_etaCMA(ETA.PAD_index(),ETA.Ixx_index());
-    if(etaCMA == etaCMAs.end()) return false;
+    if(etaCMA == m_etaCMAs.end()) return false;
 
     firstEtaCode = (*etaCMA).second.first_lowPt_code();
     lastEtaCode  = (*etaCMA).second.last_lowPt_code();
@@ -569,7 +569,7 @@ SectorLogicSetup::give_LowPt_borders(CMAidentity ETA,CMAidentity PHI,
     {
         OddPhiCMAmap::const_iterator phiCMA =
 	                        find_oddphiCMA(PHI.PAD_index(),PHI.Ixx_index());
-	if(phiCMA == oddphiCMAs.end()) return false;
+	if(phiCMA == m_oddphiCMAs.end()) return false;
         firstPhiCode = (*phiCMA).second.first_lowPt_code();
         lastPhiCode  = (*phiCMA).second.last_lowPt_code();	
     }
@@ -577,7 +577,7 @@ SectorLogicSetup::give_LowPt_borders(CMAidentity ETA,CMAidentity PHI,
     {
         EvenPhiCMAmap::const_iterator phiCMA =
 	                       find_evenphiCMA(PHI.PAD_index(),PHI.Ixx_index());
-	if(phiCMA == evenphiCMAs.end()) return false;
+	if(phiCMA == m_evenphiCMAs.end()) return false;
         firstPhiCode = (*phiCMA).second.first_lowPt_code();
         lastPhiCode  = (*phiCMA).second.last_lowPt_code();	
     }
@@ -595,7 +595,7 @@ SectorLogicSetup::give_HighPt_borders(CMAidentity ETA,CMAidentity PHI,
 {
     EtaCMAmap::const_iterator etaCMA =
                                    find_etaCMA(ETA.PAD_index(),ETA.Ixx_index());
-    if(etaCMA == etaCMAs.end()) return false;
+    if(etaCMA == m_etaCMAs.end()) return false;
 
     firstEtaCode = (*etaCMA).second.first_highPt_code();
     lastEtaCode  = (*etaCMA).second.last_highPt_code();
@@ -604,7 +604,7 @@ SectorLogicSetup::give_HighPt_borders(CMAidentity ETA,CMAidentity PHI,
     {
         OddPhiCMAmap::const_iterator phiCMA =
 	                        find_oddphiCMA(PHI.PAD_index(),PHI.Ixx_index());
-	if(phiCMA == oddphiCMAs.end()) return false;
+	if(phiCMA == m_oddphiCMAs.end()) return false;
         firstPhiCode = (*phiCMA).second.first_highPt_code();
         lastPhiCode  = (*phiCMA).second.last_highPt_code();	
     }
@@ -612,7 +612,7 @@ SectorLogicSetup::give_HighPt_borders(CMAidentity ETA,CMAidentity PHI,
     {
         EvenPhiCMAmap::const_iterator phiCMA =
 	                       find_evenphiCMA(PHI.PAD_index(),PHI.Ixx_index());
-	if(phiCMA == evenphiCMAs.end()) return false;
+	if(phiCMA == m_evenphiCMAs.end()) return false;
         firstPhiCode = (*phiCMA).second.first_highPt_code();
         lastPhiCode  = (*phiCMA).second.last_highPt_code();	
     }
@@ -636,7 +636,7 @@ SectorLogicSetup::give_LowPt_layout(CMAidentity ID,
     {
         EtaCMAmap::const_iterator etaCMA =
                                    find_etaCMA(ID.PAD_index(),ID.Ixx_index());
-        if(etaCMA == etaCMAs.end()) return false;
+        if(etaCMA == m_etaCMAs.end()) return false;
     
         start_pivot_code = (*etaCMA).second.first_pivot_code();
         stop_pivot_code  = (*etaCMA).second.last_pivot_code();
@@ -654,7 +654,7 @@ SectorLogicSetup::give_LowPt_layout(CMAidentity ID,
 	{
 	    OddPhiCMAmap::const_iterator phiCMA =
 	                        find_oddphiCMA(ID.PAD_index(),ID.Ixx_index());
-	    if(phiCMA == oddphiCMAs.end()) return false;
+	    if(phiCMA == m_oddphiCMAs.end()) return false;
 	    
             start_pivot_code = (*phiCMA).second.first_pivot_code();
             stop_pivot_code  = (*phiCMA).second.last_pivot_code();
@@ -670,7 +670,7 @@ SectorLogicSetup::give_LowPt_layout(CMAidentity ID,
 	{
 	    EvenPhiCMAmap::const_iterator phiCMA =
 	                       find_evenphiCMA(ID.PAD_index(),ID.Ixx_index());
-	    if(phiCMA == evenphiCMAs.end()) return false;
+	    if(phiCMA == m_evenphiCMAs.end()) return false;
             start_pivot_code = (*phiCMA).second.first_pivot_code();
             stop_pivot_code  = (*phiCMA).second.last_pivot_code();
 	    start_confirm_code = (*phiCMA).second.first_lowPt_code();
@@ -703,7 +703,7 @@ SectorLogicSetup::give_HighPt_layout(CMAidentity ID,
     {
         EtaCMAmap::const_iterator etaCMA =
                                    find_etaCMA(ID.PAD_index(),ID.Ixx_index());
-        if(etaCMA == etaCMAs.end()) return false;
+        if(etaCMA == m_etaCMAs.end()) return false;
     
         start_pivot_code = (*etaCMA).second.first_pivot_code();
         stop_pivot_code  = (*etaCMA).second.last_pivot_code();
@@ -721,7 +721,7 @@ SectorLogicSetup::give_HighPt_layout(CMAidentity ID,
 	{
 	    OddPhiCMAmap::const_iterator phiCMA =
 	                        find_oddphiCMA(ID.PAD_index(),ID.Ixx_index());
-	    if(phiCMA == oddphiCMAs.end()) return false;
+	    if(phiCMA == m_oddphiCMAs.end()) return false;
 	    
             start_pivot_code = (*phiCMA).second.first_pivot_code();
             stop_pivot_code  = (*phiCMA).second.last_pivot_code();
@@ -737,7 +737,7 @@ SectorLogicSetup::give_HighPt_layout(CMAidentity ID,
 	{
 	    EvenPhiCMAmap::const_iterator phiCMA =
 	                       find_evenphiCMA(ID.PAD_index(),ID.Ixx_index());
-	    if(phiCMA == evenphiCMAs.end()) return false;
+	    if(phiCMA == m_evenphiCMAs.end()) return false;
             start_pivot_code = (*phiCMA).second.first_pivot_code();
             stop_pivot_code  = (*phiCMA).second.last_pivot_code();
 	    start_confirm_code = (*phiCMA).second.first_highPt_code();
@@ -761,7 +761,7 @@ SectorLogicSetup::give_CMA(CMAidentity CMA) const
     {
         EtaCMAmap::const_iterator etaCMA =
                                   find_etaCMA(CMA.PAD_index(),CMA.Ixx_index());
-        return (etaCMA!=etaCMAs.end())? &((*etaCMA).second) : 0;
+        return (etaCMA!=m_etaCMAs.end())? &((*etaCMA).second) : 0;
     }
     if(CMA.type() == Phi)
     {
@@ -769,13 +769,13 @@ SectorLogicSetup::give_CMA(CMAidentity CMA) const
 	{
             EvenPhiCMAmap::const_iterator phiCMA =
 	                      find_evenphiCMA(CMA.PAD_index(),CMA.Ixx_index());
-            return (phiCMA!=evenphiCMAs.end())? &((*phiCMA).second) : 0;
+            return (phiCMA!=m_evenphiCMAs.end())? &((*phiCMA).second) : 0;
 	}
         if(CMA.coverage() == OddSectors)
 	{        
             OddPhiCMAmap::const_iterator phiCMA =
 	                       find_oddphiCMA(CMA.PAD_index(),CMA.Ixx_index());
-            return (phiCMA!=oddphiCMAs.end())? &((*phiCMA)).second : 0;
+            return (phiCMA!=m_oddphiCMAs.end())? &((*phiCMA)).second : 0;
 	}
     }
 
@@ -830,7 +830,7 @@ SectorLogicSetup::give_strip_code(CMAidentity CMA,int logic_sector,
         EtaCMAmap::const_iterator etaCMA =
                                   find_etaCMA(CMA.PAD_index(),CMA.Ixx_index());
         
-	if(etaCMA==etaCMAs.end()) return StripCodes;
+	if(etaCMA==m_etaCMAs.end()) return StripCodes;
 	(*etaCMA).second.give_strip_code(logic_sector,lh,ijk,Channel,
                                          StripCodes);
     }
@@ -840,7 +840,7 @@ SectorLogicSetup::give_strip_code(CMAidentity CMA,int logic_sector,
 	{
             EvenPhiCMAmap::const_iterator phiCMA =
 	                      find_evenphiCMA(CMA.PAD_index(),CMA.Ixx_index());
-	    if(phiCMA==evenphiCMAs.end()) return StripCodes;
+	    if(phiCMA==m_evenphiCMAs.end()) return StripCodes;
 	    (*phiCMA).second.give_strip_code(logic_sector,lh,ijk,Channel,
                                              StripCodes);
 	}
@@ -848,7 +848,7 @@ SectorLogicSetup::give_strip_code(CMAidentity CMA,int logic_sector,
 	{        
             OddPhiCMAmap::const_iterator phiCMA =
 	                       find_oddphiCMA(CMA.PAD_index(),CMA.Ixx_index());
-	    if(phiCMA==oddphiCMAs.end()) return StripCodes;
+	    if(phiCMA==m_oddphiCMAs.end()) return StripCodes;
 	    (*phiCMA).second.give_strip_code(logic_sector,lh,ijk,Channel,
                                              StripCodes);
 	}
@@ -889,11 +889,11 @@ SectorLogicSetup::PrintElement (std::ostream& stream,int station,std::string ele
     bool all     = (ele == name() || ele == "")? true : false;
     bool printed = false;
 
-    bool nRPC = RPCs.size();
-    bool nWOR = WORs.size();
-    bool nEtaCMA     = etaCMAs.size();
-    bool nEvenPhiCMA = evenphiCMAs.size();
-    bool nOddPhiCMA  = oddphiCMAs.size();
+    bool nRPC = m_RPCs.size();
+    bool nWOR = m_WORs.size();
+    bool nEtaCMA     = m_etaCMAs.size();
+    bool nEvenPhiCMA = m_evenphiCMAs.size();
+    bool nOddPhiCMA  = m_oddphiCMAs.size();
 
     stream << name() << " type n. " << sector_type() << std::endl;
     stream << "It applies to negative logic sector n. ";
@@ -902,11 +902,11 @@ SectorLogicSetup::PrintElement (std::ostream& stream,int station,std::string ele
     stream << positive_sector() << std::endl;
 
 
-    if(nRPC && (ele == (*RPCs.begin()).second.name() || all ))
+    if(nRPC && (ele == (*m_RPCs.begin()).second.name() || all ))
     {
         printed = true;
-        RPCmap::const_iterator low  = RPCs.lower_bound(klw);
-        RPCmap::const_iterator high = RPCs.upper_bound(khg);
+        RPCmap::const_iterator low  = m_RPCs.lower_bound(klw);
+        RPCmap::const_iterator high = m_RPCs.upper_bound(khg);
         stream << "It contains " << distance(low,high);
         stream << " RPCs chamber on station " << station << std::endl;
 
@@ -918,11 +918,11 @@ SectorLogicSetup::PrintElement (std::ostream& stream,int station,std::string ele
 	}
     }
 
-    if(nWOR && (ele == (*WORs.begin()).second.name() || all ))
+    if(nWOR && (ele == (*m_WORs.begin()).second.name() || all ))
     {
         printed = true;
-        WORmap::const_iterator low  = WORs.lower_bound(klw);
-        WORmap::const_iterator high = WORs.upper_bound(khg);
+        WORmap::const_iterator low  = m_WORs.lower_bound(klw);
+        WORmap::const_iterator high = m_WORs.upper_bound(khg);
         stream << "It contains " << distance(low,high);
         stream << " WORs links on station " << station << std::endl;
 
@@ -934,12 +934,12 @@ SectorLogicSetup::PrintElement (std::ostream& stream,int station,std::string ele
 	}
     }
 
-    if(nEtaCMA&&(ele==(*etaCMAs.begin()).second.name() || all ))
+    if(nEtaCMA&&(ele==(*m_etaCMAs.begin()).second.name() || all ))
     {
         printed = true;
-        stream << "It contains " << etaCMAs.size() << " eta CMA:" << std::endl;
+        stream << "It contains " << m_etaCMAs.size() << " eta CMA:" << std::endl;
         EtaCMAmap::const_iterator ei;	
-        for(ei=etaCMAs.begin(); ei != etaCMAs.end(); ++ei)
+        for(ei=m_etaCMAs.begin(); ei != m_etaCMAs.end(); ++ei)
 	{
             if(!obj) (*ei).second.Print(stream,detail);
 	    else if (obj==(*ei).second.number())
@@ -947,14 +947,14 @@ SectorLogicSetup::PrintElement (std::ostream& stream,int station,std::string ele
 	}
     }
 
-    if(nEvenPhiCMA && (ele==(*evenphiCMAs.begin()).second.name() || all))
+    if(nEvenPhiCMA && (ele==(*m_evenphiCMAs.begin()).second.name() || all))
     {
         printed = true;
         stream << "It contains ";
-        stream << evenphiCMAs.size() << " even phi CMA:" << std::endl;
+        stream << m_evenphiCMAs.size() << " even phi CMA:" << std::endl;
         EvenPhiCMAmap::const_iterator ev;
 
-        for(ev=evenphiCMAs.begin(); ev != evenphiCMAs.end();++ev)
+        for(ev=m_evenphiCMAs.begin(); ev != m_evenphiCMAs.end();++ev)
 	{
             if(!obj) (*ev).second.Print(stream,detail);
 	    else if (obj==(*ev).second.number())
@@ -962,14 +962,14 @@ SectorLogicSetup::PrintElement (std::ostream& stream,int station,std::string ele
 	}
      }
 
-     if(nOddPhiCMA && (ele==(*oddphiCMAs.begin()).second.name() || all))
+     if(nOddPhiCMA && (ele==(*m_oddphiCMAs.begin()).second.name() || all))
      {
         printed = true;
         stream << "It contains ";
-        stream << oddphiCMAs.size() << " odd phi CMA:" << std::endl;
+        stream << m_oddphiCMAs.size() << " odd phi CMA:" << std::endl;
         OddPhiCMAmap::const_iterator od;
 
-        for(od=oddphiCMAs.begin(); od != oddphiCMAs.end();++od)
+        for(od=m_oddphiCMAs.begin(); od != m_oddphiCMAs.end();++od)
 	{
             if(!obj) (*od).second.Print(stream,detail);
 	    else if (obj==(*od).second.number())
@@ -981,10 +981,10 @@ SectorLogicSetup::PrintElement (std::ostream& stream,int station,std::string ele
     {   
         printed = true;
 
-        stream << "It contains " << etaCMAs.size() << " eta CMA:" << std::endl;
+        stream << "It contains " << m_etaCMAs.size() << " eta CMA:" << std::endl;
         EtaCMAmap::const_iterator ei;
-	stream << "nome=" << (*etaCMAs.begin()).second.name() << std::endl;
-        for(ei = etaCMAs.begin(); ei != etaCMAs.end(); ++ei)
+	stream << "nome=" << (*m_etaCMAs.begin()).second.name() << std::endl;
+        for(ei = m_etaCMAs.begin(); ei != m_etaCMAs.end(); ++ei)
 	{
             if(!obj) (*ei).second.Print(stream,detail);
 	    else if (obj==(*ei).second.number())
@@ -992,9 +992,9 @@ SectorLogicSetup::PrintElement (std::ostream& stream,int station,std::string ele
 	}
 
         stream << "plus ";
-        stream << evenphiCMAs.size() << " even phi CMA:" << std::endl;
+        stream << m_evenphiCMAs.size() << " even phi CMA:" << std::endl;
         EvenPhiCMAmap::const_iterator ev;
-        for(ev = evenphiCMAs.begin(); ev != evenphiCMAs.end(); ++ev)
+        for(ev = m_evenphiCMAs.begin(); ev != m_evenphiCMAs.end(); ++ev)
 	{
             if(!obj) (*ev).second.Print(stream,detail);
 	    else if (obj==(*ev).second.number())
@@ -1002,9 +1002,9 @@ SectorLogicSetup::PrintElement (std::ostream& stream,int station,std::string ele
 	}
 
         stream << "plus ";
-        stream << oddphiCMAs.size() << " odd phi CMA:" << std::endl;
+        stream << m_oddphiCMAs.size() << " odd phi CMA:" << std::endl;
         OddPhiCMAmap::const_iterator od;
-        for(od = oddphiCMAs.begin(); od != oddphiCMAs.end(); ++od)
+        for(od = m_oddphiCMAs.begin(); od != m_oddphiCMAs.end(); ++od)
 	{
             if(!obj) (*od).second.Print(stream,detail);
 	    else if (obj==(*od).second.number())
@@ -1036,10 +1036,10 @@ SectorLogicSetup::operator+=(RPCchamberdata& data)
     {
         int key = data.station()*100;
         std::pair < RPCmap::iterator, bool> ins = 
-            RPCs.insert(RPCmap::value_type(key + cham->number(),*cham));
+            m_RPCs.insert(RPCmap::value_type(key + cham->number(),*cham));
 
-	RPCmap::iterator lower = RPCs.lower_bound(key);
-	RPCmap::iterator upper = RPCs.upper_bound(key+99);
+	RPCmap::iterator lower = m_RPCs.lower_bound(key);
+	RPCmap::iterator upper = m_RPCs.upper_bound(key+99);
         RPCmap::iterator current = (ins.first);
 
         if (ins.second)
@@ -1054,7 +1054,7 @@ SectorLogicSetup::operator+=(RPCchamberdata& data)
                 int eta_co_of = (*current).second.eta_conn_global()/div;
 	        
 		current++;
-		if (current != RPCs.end())
+		if (current != m_RPCs.end())
                 {
 		    (*current).second.set_eta_st_global(eta_st + eta_st_of);
                     (*current).second.set_eta_co_global(eta_co + eta_co_of);
@@ -1083,7 +1083,7 @@ SectorLogicSetup::operator+=(WiredORdata& data)
     {
         int key = data.station() * 100;
         std::pair < WORmap::iterator, bool> ins = 
-        WORs.insert(WORmap::value_type(key + Wor->number(),*Wor));
+        m_WORs.insert(WORmap::value_type(key + Wor->number(),*Wor));
 
         if(!ins.second)
         {
@@ -1105,11 +1105,11 @@ SectorLogicSetup::operator+=(CMApivotdata& data)
     while(EtaCMA* CMA = data.give_eta_cma())
     {
         std::pair < EtaCMAmap::iterator, bool> ins = 
-        etaCMAs.insert(EtaCMAmap::value_type(CMA->id(),*CMA));
+        m_etaCMAs.insert(EtaCMAmap::value_type(CMA->id(),*CMA));
         if(!ins.second)
         {
 	    std::cout << CMA->id() << std::endl;
-	    EtaCMAmap::iterator inserted = etaCMAs.find(CMA->id());
+	    EtaCMAmap::iterator inserted = m_etaCMAs.find(CMA->id());
             
             int cma_start = CMA->pivot_start_ch();
             int ins_start = (*inserted).second.pivot_start_ch();
@@ -1135,7 +1135,7 @@ SectorLogicSetup::operator+=(CMApivotdata& data)
     while(EvenPhiCMA* CMA = data.give_evenphi_cma())
     {
         std::pair < EvenPhiCMAmap::iterator, bool> ins = 
-        evenphiCMAs.insert(EvenPhiCMAmap::value_type(CMA->id(),*CMA));
+        m_evenphiCMAs.insert(EvenPhiCMAmap::value_type(CMA->id(),*CMA));
         if(!ins.second)
         {
 	        DISP << "Error in inserting even Phi CMA:" << std::endl
@@ -1151,7 +1151,7 @@ SectorLogicSetup::operator+=(CMApivotdata& data)
     while(OddPhiCMA* CMA = data.give_oddphi_cma())
     {
         std::pair < OddPhiCMAmap::iterator, bool> ins = 
-        oddphiCMAs.insert(OddPhiCMAmap::value_type(CMA->id(),*CMA));
+        m_oddphiCMAs.insert(OddPhiCMAmap::value_type(CMA->id(),*CMA));
         if(!ins.second)
         {
 	        DISP << "Error in inserting odd Phi CMA:" << std::endl
@@ -1174,10 +1174,10 @@ SectorLogicSetup::operator+=(CMAcablingdata& data)
     while(EtaCMA* CMA = data.give_eta_cma())
     {
         std::pair < EtaCMAmap::iterator, bool> ins = 
-        etaCMAs.insert(EtaCMAmap::value_type(CMA->id(),*CMA));
+        m_etaCMAs.insert(EtaCMAmap::value_type(CMA->id(),*CMA));
         if(!ins.second)
         {
-	    EtaCMAmap::iterator inserted = etaCMAs.find(CMA->id());
+	    EtaCMAmap::iterator inserted = m_etaCMAs.find(CMA->id());
             
             int cma_start = CMA->pivot_start_ch();
             int ins_start = (*inserted).second.pivot_start_ch();
@@ -1209,5 +1209,5 @@ SectorLogicSetup::side() const
 void
 SectorLogicSetup::SetPtoTrigRoads(const std::map<std::string, std::string>* RPC_trigroads) 
 {
-  p_trigroads=RPC_trigroads;
+  s_trigroads=RPC_trigroads;
 }

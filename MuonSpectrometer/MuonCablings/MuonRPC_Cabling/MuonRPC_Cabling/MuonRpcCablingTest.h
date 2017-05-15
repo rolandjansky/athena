@@ -51,7 +51,7 @@ public:
 
 private:
 
-    bool first;
+    bool m_first;
     const RpcIdHelper*            m_idHelper;
     const IRPCcablingSvc*         m_cablingSvc;
     // RpcPadIdHash helper 	
