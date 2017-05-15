@@ -59,6 +59,7 @@ def MuonCombinedParticleCreator(name="MuonCombinedParticleCreator",**kwargs):
     kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary ) #getPublicTool("CombinedMuonTrackSummary") )
     kwargs.setdefault("KeepAllPerigee",True )
     kwargs.setdefault("UseMuonSummaryTool",True )
+    kwargs.setdefault("PerigeeExpression","Origin")
     return CfgMgr.Trk__TrackParticleCreatorTool(name,**kwargs)
 
 def MuonCaloParticleCreator(name="MuonCaloParticleCreator",**kwargs):
