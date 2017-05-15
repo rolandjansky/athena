@@ -22,6 +22,7 @@ from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.SystemOfUnits import nanosecond
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 class EFMissingETBase (EFMissingET):
     __slots__ = []
@@ -167,7 +168,7 @@ class EFMissingET_Fex_allCells (EFMissingETBase):
         self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0 ]       # Jet
         self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
+        self.ComponentFlags += [ 0,0 ]       
         self.ComponentFlags += [ 0 ]       # PUC
         self.ComponentFlags += [ 0 ]       # PUC prior correction
         self.ComponentFlags += [ 0 ]       # Muons
@@ -209,7 +210,7 @@ class EFMissingET_Fex_allCells (EFMissingETBase):
         self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00 ]                # Jet
         self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
+        self.ComponentCalib1 += [ 1.00,1.00 ]      
         self.ComponentCalib1 += [ 1.00 ]                # PUC
         self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
         self.ComponentCalib1 += [ 1.00 ]                # Muons
@@ -363,7 +364,7 @@ class EFMissingET_Fex_noiseSupp (EFMissingETBase):
         self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0 ]       # Jet
         self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
+        self.ComponentFlags += [ 0,0 ]   
         self.ComponentFlags += [ 0 ]       # PUC
         self.ComponentFlags += [ 0 ]       # PUC prior correction
         self.ComponentFlags += [ 0 ]       # Muons
@@ -384,7 +385,7 @@ class EFMissingET_Fex_noiseSupp (EFMissingETBase):
         self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0 ]       # Jet
         self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
+        self.ComponentCalib0 += [ 0, 0 ]        
         self.ComponentCalib0 += [ 0 ]       # PUC
         self.ComponentCalib0 += [ 0 ]       # PUC prior correction
         self.ComponentCalib0 += [ 0 ]       # Muons
@@ -579,7 +580,7 @@ class EFMissingET_Fex_2sidednoiseSupp (EFMissingETBase):
         self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0 ]       # Jet
         self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
+        self.ComponentCalib0 += [ 0, 0 ]     
         self.ComponentCalib0 += [ 0 ]       # PUC
         self.ComponentCalib0 += [ 0 ]       # PUC prior correction
         self.ComponentCalib0 += [ 0 ]       # Muons
@@ -1197,15 +1198,24 @@ class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
         clusterTool.ParentFexName = name
         flagTool.ParentFexName = name
         helperTool.ParentFexName = name
-
+        
         clusterTool.SubtractPileup = True
+
+
+        is2016 = (TriggerFlags.run2Config() == '2016')
+
+
+        clusterTool.use2016Algo = is2016
+# N.B. - defaults for 2016 running: nSigma = 3.2 and varRhoScale = 4.0
+# N.B. - defaults for 2017 running: nSigma = 5.0 and varRhoScale = 1.0
+        clusterTool.nSigma = 3.2 if is2016 else 5.0
+        clusterTool.varRhoScale = 4.0 if is2016 else 1.0
+        clusterTool.aveEclusPU = 10000.0
         clusterTool.towerWidthInput = 0.7
         clusterTool.EtaRange = 5.0
-#        clusterTool.ptmin = 45000.0
-        clusterTool.aveEclusPU = 10000.0
         clusterTool.resE = 15.81
-        clusterTool.nSigma = 3.2
-        clusterTool.varRhoScale = 4.0
+        clusterTool.resEfloor = 50.0
+        clusterTool.trimFactor = 0.90
 
         # fraction of energy deposited in EM samplings
         flagTool.MaxEMfraction = 1.0
@@ -1374,9 +1384,9 @@ class EFMissingET_Fex_Jets (EFMissingETBase):
         # name of TrigMissingET object
         self.MissingETOutputKey = "TrigEFMissingET_mht"
         self.doJets = True
-
+                
         # tools
-        febTool    = EFMissingETFromFEBHeader("TheFEBTool")
+        febTool    = EFMissingETFromFEBHeader("TheFEBTool") 
         jetTool    = EFMissingETFromJets("TheJetTool")
         flagTool   = EFMissingETFlags("TheFlagsTool")
         helperTool = EFMissingETFromHelper("TheHelperTool")
@@ -1386,12 +1396,13 @@ class EFMissingET_Fex_Jets (EFMissingETBase):
         flagTool.ParentFexName = name
         helperTool.ParentFexName = name
         #
-
+        
         ## Configuration of jet fex
         jetTool.EtaSeparation = 2.2
         jetTool.CentralpTCut = 0.0
         jetTool.ForwardpTCut = 0.0
-
+        jetTool.ApplyTileGap3Correction = TriggerFlags.run2Config() != '2016' # Do not apply the TileGap3 correction for 2015+2016 data
+        
         ## chain of tools
         self.Tools = []
         self.Tools += [ jetTool ]
