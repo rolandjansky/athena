@@ -14,14 +14,6 @@
 #ifndef MUONGEOMODEL_MUONRPCCABLINGTEST_H
 # define MUONGEOMODEL_MUONRPCCABLINGTEST_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
-
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 class StoreGateSvc;
@@ -36,8 +28,6 @@ namespace MuonGM
     class MuonDetectorManager;
 }
 
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 class MuonRpcCablingTest: public AthAlgorithm
 {
 public:

@@ -11,8 +11,6 @@
 //<doc><file>	$Id: MuonRpcCablingTest.cxx,v 1.43 2009/03/28 10:59:01 stefspa Exp $
 //<version>	$Name:  $
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "MuonRPC_Cabling/MuonRpcCablingTest.h"
 
 #include "MuonIdHelpers/RpcIdHelper.h"
@@ -27,16 +25,6 @@
 #include <fstream>
 #include <sstream>
 typedef std::istringstream mystream;
-
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 
 MuonRpcCablingTest::MuonRpcCablingTest(const std::string& name, ISvcLocator* pSvcLocator)
