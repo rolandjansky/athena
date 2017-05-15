@@ -27,8 +27,8 @@ PURPOSE:  Pile-up fit
 #include <string>
 using namespace std;
 
-EFMissingETFromClustersPUC::EFMissingETFromClustersPUC(const std::string& type, 
-    const std::string& name, 
+EFMissingETFromClustersPUC::EFMissingETFromClustersPUC(const std::string& type,
+    const std::string& name,
     const IInterface* parent) :
   EFMissingETBaseTool(type, name, parent)
 {
@@ -41,11 +41,11 @@ EFMissingETFromClustersPUC::EFMissingETFromClustersPUC(const std::string& type,
   declareProperty("resE", m_rese = 15.81 ,"calo energy resoln in sqrt(MeV)");
   declareProperty("nSigma", m_nsigma = 3.2 ,"tower ET significance");
   declareProperty("varRhoScale", m_varrhoscale = 4.0 ,"adjustment factor for weighting rho errors in fit");
-  
+
   // declare configurables
-  
+
   m_fextype = FexType::TOPO;
-  
+
   m_methelperposition = 3;
 
   // Determine number of phi & eta bins, and number of towers
@@ -55,8 +55,8 @@ EFMissingETFromClustersPUC::EFMissingETFromClustersPUC(const std::string& type,
 
   //initialization to make coverity happy:
   m_clusterstate = xAOD::CaloCluster_v1::UNCALIBRATED;
- 
-  
+
+
 }
 
 
@@ -68,13 +68,12 @@ EFMissingETFromClustersPUC::~EFMissingETFromClustersPUC()
 StatusCode EFMissingETFromClustersPUC::initialize()
 {
 
-  if(msgLvl(MSG::DEBUG)) 
-    msg(MSG::DEBUG) << "called EFMissingETFromClustersPUC::initialize()" << endmsg;
-  
+  ATH_MSG_DEBUG( "called EFMissingETFromClustersPUC::initialize()" );
+
   /// timers
-  if( service( "TrigTimerSvc", m_timersvc).isFailure() ) 
-    msg(MSG::WARNING) << name() << ": Unable to locate TrigTimer Service" << endmsg;
-  
+  if( service( "TrigTimerSvc", m_timersvc).isFailure() )
+    ATH_MSG_WARNING( name() << ": Unable to locate TrigTimer Service" );
+
   if (m_timersvc) {
     // global time
     std::string basename=name()+".TotalTime";
@@ -95,40 +94,38 @@ StatusCode EFMissingETFromClustersPUC::execute()
 
 StatusCode EFMissingETFromClustersPUC::finalize()
 {
-  if(msgLvl(MSG::DEBUG)) 
-    msg(MSG::DEBUG) << "called EFMissingETFromClustersPUC::finalize()" << endmsg;
+  ATH_MSG_DEBUG( "called EFMissingETFromClustersPUC::finalize()" );
 
   return StatusCode::SUCCESS;
-  
+
 }
 
 StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
     TrigEFMissingEtHelper *metHelper ,
-    const xAOD::CaloClusterContainer *caloCluster, const xAOD::JetContainer * /* jets */)
+    const xAOD::CaloClusterContainer *caloCluster, const xAOD::JetContainer * /* jets */,
+                                        const xAOD::TrackParticleContainer * /*trackContainer*/,
+                                        const xAOD::VertexContainer * /*vertexContainer*/ )
 {
 
-  if(msgLvl(MSG::DEBUG)) 
-    msg(MSG::DEBUG) << "called EFMissingETFromClustersPUC::execute()" << endmsg;
-  
+  ATH_MSG_DEBUG( "called EFMissingETFromClustersPUC::execute()" );
+
   if(m_timersvc)
     m_glob_timer->start(); // total time
 
   /// fetching the topo. cluster component
-  TrigEFMissingEtComponent* metComp = 0;
+  TrigEFMissingEtComponent* metComp = nullptr;
   metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition); // fetch Cluster component
   if (metComp==0) {
-    msg(MSG::ERROR) << "cannot fetch Topo. cluster component!" << endmsg;
+    ATH_MSG_ERROR( "cannot fetch Topo. cluster component!" );
     return StatusCode::FAILURE;
   }
   if(string(metComp->m_name).substr(0,2)!="TC"){
-    msg(MSG::ERROR) << "fetched " << metComp->m_name
-	     << " instead of the Clusters component!" << endmsg;
+    ATH_MSG_ERROR( "fetched " << metComp->m_name << " instead of the Clusters component!" );
     return StatusCode::FAILURE;
   }
 
-  if(msgLvl(MSG::DEBUG)) 
-    msg(MSG::DEBUG) << "fetched metHelper component \"" << metComp->m_name << "\"" << endmsg;
-  
+  ATH_MSG_DEBUG( "fetched metHelper component \"" << metComp->m_name << "\"" );
+
 
   if ( (metComp->m_status & m_maskProcessed)==0 ){ // not yet processed
     metComp->Reset();  // reset component...
@@ -139,11 +136,11 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
 
   // set status to Processing
   metComp->m_status |= m_maskProcessing;
-  
+
   metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition ); // fetch Cluster component
 
-  if (metComp==0) {  msg(MSG::ERROR) << "cannot fetch Topo. cluster component!" << endmsg;  return StatusCode::FAILURE; }
-  if(string(metComp->m_name).substr(0,2)!="TC"){ msg(MSG::ERROR) << "fetched " << metComp->m_name << " instead of the Clusters component!" << endmsg; return StatusCode::FAILURE; }
+  if (metComp==0) {  ATH_MSG_ERROR( "cannot fetch Topo. cluster component!" );  return StatusCode::FAILURE; }
+  if(string(metComp->m_name).substr(0,2)!="TC"){ ATH_MSG_ERROR( "fetched " << metComp->m_name << " instead of the Clusters component!" ); return StatusCode::FAILURE; }
 
   // Variables
   double MExEta = 0, MEyEta = 0, MEzEta = 0, MExFull = 0, MEyFull = 0, MEzFull = 0, METEta = 0, MET = 0;
@@ -157,20 +154,20 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
   vector<int> indexOfMask;
 
   // Calculate initial energy
-  for (xAOD::CaloClusterContainer::const_iterator it = caloCluster->begin(); it != caloCluster->end(); ++it ) {
-      float phi = (*it)->phi(m_clusterstate), eta = (*it)->eta(m_clusterstate), Et  = (*it)->pt(m_clusterstate), 
-            E = (*it)->p4(m_clusterstate).E();
+  for (const auto& clus : *caloCluster) {
+      float phi = clus->phi(m_clusterstate), eta = clus->eta(m_clusterstate), Et  = clus->pt(m_clusterstate),
+            E = clus->p4(m_clusterstate).E();
       float cosPhi, sinPhi; sincosf(phi, &sinPhi, &cosPhi);
       float Ex = Et*cosPhi, Ey = Et*sinPhi, Ez = Et*sinhf(eta);
       // calculate full granularity Ex, Ey
       MExFull += Ex; MEyFull += Ey; MEzFull += Ez; sumEtFull += Et; sumEFull += E;
-      // collect clusters into fixed-position towers    
+      // collect clusters into fixed-position towers
       if(eta > (-1) * m_etarange && eta < m_etarange) { // eta cut
         MExEta += Ex; MEyEta += Ey; MEzEta += Ez; sumEtEta += Et; sumEEta += E;
-       int binEta = (eta + m_etarange)/(2*m_etarange)*m_netabins, 
+       int binEta = (eta + m_etarange)/(2*m_etarange)*m_netabins,
            binPhi = (fmod(phi+TMath::TwoPi(),TMath::TwoPi()) / TMath::TwoPi())*m_nphibins,
            index = binEta*m_nphibins + binPhi;
-       int binEta1 = (fmod(eta + m_etarange*(1+0.5/m_netabins),2*m_etarange))/(2*m_etarange)*m_netabins, 
+       int binEta1 = (fmod(eta + m_etarange*(1+0.5/m_netabins),2*m_etarange))/(2*m_etarange)*m_netabins,
 	   binPhi1 = (fmod(phi+TMath::TwoPi()*(1+0.5/m_nphibins),TMath::TwoPi()) / TMath::TwoPi())*m_nphibins,
            index1 = binEta1*m_nphibins + binPhi,
            index2 = binEta *m_nphibins + binPhi1,
@@ -180,7 +177,7 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
        ExTower2[index2] += Ex; EyTower2[index2] += Ey; EtTower2[index2] += Et;
        ExTower3[index3] += Ex; EyTower3[index3] += Ey; EtTower3[index3] += Et;
       }
-   } // end topo. loop.   
+   } // end topo. loop.
   double varEtOneTowerNow = m_aveecluspu*sumEtEta/m_ntowers * 2;
   double threshEtOneTowerNow = sumEtEta/m_ntowers + m_nsigma*sqrt(abs(varEtOneTowerNow));
 
@@ -211,7 +208,7 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
   // threshold to reduce sensitivity to high_pt
   double varEtOneTower = m_aveecluspu*(sumEtEta-EtMaxSumNow)/(m_ntowers-aboveNow) * 2;
   double threshEtOneTower = (sumEtEta-EtMaxSumNow)/(m_ntowers-aboveNow) + m_nsigma*sqrt(abs(varEtOneTower));
-  
+
   // Missing transverse energy from fixed position tower
   METEta = sqrt(MExEta*MExEta + MEyEta*MEyEta); MET = sqrt(MExFull*MExFull + MEyFull*MEyFull);
 
@@ -258,7 +255,7 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
         covEtobs[0][0] -= E1res2*cosphi1*cosphi1;
         covEtobs[1][0] -= E1res2*sinphi1*cosphi1;
         covEtobs[1][1] -= E1res2*sinphi1*sinphi1;
-    }  
+    }
     covEtobs[0][1] = covEtobs[1][0];
     TMatrixD covEtobsinv(covEtobs); covEtobsinv.Invert();
     double areaobs = areatot - arealost, rhoobs = sumEtobs/areaobs;
@@ -309,50 +306,50 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
       // TMatrixD dMETdEval(nummasks,1);  TMatrixD dMETdphi(nummasks,1);
       // for (int k=0; k<nummasks; k++) {
       // 	double cosphi1 = ExInMask[k]/EtInMask[k];  double sinphi1 = EyInMask[k]/EtInMask[k];
-      // 	dMETdEval[k][0] = 1/METfitcor*( 
+      // 	dMETdEval[k][0] = 1/METfitcor*(
       // 	  ETfitcor[0][0]*(-cosphi1) + ETfitcor[1][0]*(-sinphi1) );
-      // 	dMETdphi[k][0] = 1/METfitcor*(					
+      // 	dMETdphi[k][0] = 1/METfitcor*(
       // 	  ETfitcor[0][0]*(+Evals[k][0]*sinphi1) + ETfitcor[1][0]*(-Evals[k][0]*cosphi1) );
-      // }      
+      // }
       // double varMET = ((covFit*dMETdEval).T()*dMETdEval)[0][0];
       // double varPhi = TMath::TwoPi()/nPhiBins*TMath::TwoPi()/nPhiBins/12;
       // for (int k=0; k<nummasks; k++) { varMET += dMETdphi[k][0]*dMETdphi[k][0]*varPhi; }
       // signif = sqrt(METfitcor*METfitcor/varMET);
 
-      msg() << MSG::DEBUG << " METEta = " << METEta << "\t METfitcor = " << METfitcor << "\t MET= " << MET << endmsg;
+      ATH_MSG_DEBUG( " METEta = " << METEta << "\t METfitcor = " << METfitcor << "\t MET= " << MET );
 
       ETobscor[0][0]=MExEta; ETobscor[1][0]=MEyEta;
 
       metComp->m_ex = -(float) ETfitcor[0][0];
-      metComp->m_ey = -(float) ETfitcor[1][0];  
-      // For the rest we add in the default quantities 
+      metComp->m_ey = -(float) ETfitcor[1][0];
+      // For the rest we add in the default quantities
       metComp->m_ez = -MEzEta;
       metComp->m_sumEt = sumEtEta;
       metComp->m_sumE  = sumEEta;
       metComp->m_usedChannels += 1;
 
       metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition + 1 ); // fetch first auxiliary component to store uncorrected MET
-    
+
       metComp->m_ex = -(float) ETobscor[0][0];
-      metComp->m_ey = -(float) ETobscor[1][0];  
-      // For the rest we add in the default quantities 
+      metComp->m_ey = -(float) ETobscor[1][0];
+      // For the rest we add in the default quantities
       metComp->m_ez = -MEzEta;
       metComp->m_sumEt = sumEtEta;
       metComp->m_sumE  = sumEEta;
-      metComp->m_usedChannels += 1;     
+      metComp->m_usedChannels += 1;
 
   } else {
-  
-      // Just store zero energies for the clusters 
+
+      // Just store zero energies for the clusters
       metComp->m_ex = 0.;
       metComp->m_ey = 0.;
       metComp->m_ey = 0.;
       metComp->m_sumEt = 0.;
       metComp->m_sumE  = 0.;
       metComp->m_usedChannels += 1;
-      
+
       metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition + 1 ); // fetch first auxiliary component to store uncorrected MET
-      
+
       metComp->m_ex = -MExEta;
       metComp->m_ey = -MEyEta;
       metComp->m_ez = -MEzEta;
@@ -361,7 +358,7 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
       metComp->m_usedChannels += 1;
 
   }
-  
+
   // --------------------------------------------------------------------------------------
 
   // move from "processing" to "processed" state
