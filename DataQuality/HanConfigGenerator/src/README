@@ -1,30 +1,37 @@
 utils
 -----
 
-contains makefile and src to build the hc executable, for 
+contains makefile and src to build the hcg executable, for 
 writing tamplate han config files from input root files ...
 
-% hc
-Usage: hanconfig [OPTIONS] input1.root ... inputN.root
+Usage: hcg [OPTIONS] input1.root ... inputN.root
 
-    -o           FILENAME	name of output (filename required)
-    -b,   --base DIR     	use directory DIR as the base for the han config
-    -d,   --dir  DIR     	only directories below DIR where DIR is a structure such as HLT/TRIDT etc
-    -x,          DIR     	exclude directory DIR
-    -r           SRC DST 	remap directory SRC to directory DST
-    -ds,  --desc DESCRIP 	use DESCRIP as the description
-    -t,   --tag  VALUE   	add the VALUE to the list of command per histogram
-    -wc,  --wildcard     	print use hist * rather than a separate entry for each histogram
-    -dr,  --deleteref    	delete unselected histograms
-    -rh,  --relocate     	relocate selected histograms
-    -v,   --verbose      	print verbose output
-    -h,   --help         	display this help
+    -o                FILENAME  	name of output (filename required)
+    -b,   --base      DIR       	use directory DIR as the base for the han config
+    -d,   --dir       DIR       	only directories below DIR where DIR is a structure such as HLT/TRIDT etc
+    -x,   --exclude   DIR       	exclude directory DIR
+    -s,   --slice     SLICE     	trigger signature name (for comments)
+    -r,   --remap     SRC DST   	remap directory SRC to directory DST
+    -a,   --algorithm VALUE     	use VALUE as the execution algorithm for each histogram
+    -af,  --algfile   FILENAME  	read algorithm information from FILENAME
+    -ds,  --desc      DESCRIP   	use DESCRIP as the description
+    -df,  --descfile  FILENAME  	read descriptions from FILENAME
+    -dp,  --dispfile  FILENAME  	read display information from FILENAME
+    -t,   --tag       VALUE     	add the VALUE to the list of command per histogram
+    -wc,  --wildcard            	print use hist * rather than a separate entry for each histogram
+    -dr,  --deleteref           	delete unselected histograms
+    -or,  --outref   FILENAME   	file to write reduced output to (overwrites input otherwise) 
+    -rh,  --relocate            	relocate selected histograms
+    -ref, --reference TAG FILE  	add FILE as a reference file with tag TAG
+    -rc,  --refconf       FILE  	add FILE to the config as a reference block
+    -v,   --verbose             	print verbose output
+    -h,   --help                	display this help
 
 
 
 for instance ...
 
- hc hid_shifter.root -d HLT/TRIDT -x TestMon > hc.config
+ hcg  hid_shifter.root  -d HLT/TRIDT -x TestMon -o  hc.config
 
 will take the directory structure in file eg
 
@@ -57,9 +64,18 @@ provided configuration before using this option. It does save the
 original file in FILEMAN.bak however for emergencies
 
 
+There are options to be able to specify algorithms, and descriptions 
+for specific histograms from a file. Using a c++ like format file 
+with options such as 
+
+SomeHistogram = SomeAlgorithm&GetherData ;
+
+Comments starting with // are allowed.
+The layout can be free formatted.
+
 ** NB: If a config output file in not given in the command line it writes **
 **     the config to stdout, and all other documentation and debugging    **
-**     information is written to stderr                          **
+**     information is written to stderr                                     **
 
-12-05-2016
+12-05-2017
 
