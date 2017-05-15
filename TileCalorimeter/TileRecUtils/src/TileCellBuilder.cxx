@@ -649,6 +649,12 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
   xAOD::EventInfo* eventInfo = 0;
   if (eventInfo_c) {
     eventInfo = const_cast<xAOD::EventInfo*>(eventInfo_c);
+    if (!eventInfo->getStore()) {
+      const SG::IAuxStore* store = dynamic_cast<const SG::IAuxStore*> (eventInfo->getConstStore());
+      if (store) {
+        eventInfo->setStore (const_cast<SG::IAuxStore*> (store));
+      }
+    }
   }
 
   if (eventInfo) {
