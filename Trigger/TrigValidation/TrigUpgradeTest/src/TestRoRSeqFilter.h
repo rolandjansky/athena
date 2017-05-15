@@ -6,9 +6,10 @@
 
 
 #include <string>
-
+#include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+using namespace TrigCompositeUtils;
 namespace HLTTest {
 
 /**
@@ -17,6 +18,7 @@ namespace HLTTest {
  * and thus to continue reco in the sequence
  **/
 
+  
 class TestRoRSeqFilter
   : public ::AthAlgorithm
 { 
@@ -34,6 +36,8 @@ class TestRoRSeqFilter
  private: 
   TestRoRSeqFilter();
   std::vector<std::string> m_inputs;
+  std::vector<std::string> m_chainsProperty;
+  DecisionIDContainer  m_chains; // this is the set of chains we care about in this filter
 }; 
 
 } //> end namespace HLTTest

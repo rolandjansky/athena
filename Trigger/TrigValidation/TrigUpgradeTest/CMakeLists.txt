@@ -22,7 +22,7 @@ atlas_add_library( TrigUpgradeTestLib
 		   PUBLIC_HEADERS TrigUpgradeTest
 		   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
 		   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
-		   GaudiKernel AthenaBaseComps )
+		   GaudiKernel AthenaBaseComps DecisionHandlingLib )
 										                    
 atlas_add_component( TrigUpgradeTest
                      src/components/*.cxx
