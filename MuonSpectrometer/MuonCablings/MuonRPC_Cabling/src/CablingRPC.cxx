@@ -1833,7 +1833,7 @@ unsigned int CablingRPC::computeZIndexInCablingStation(std::string stationName, 
   unsigned int zIndexInCablingStation = 999;
 
   int iStat=0;
-  int astEta = fabs(stationEta);
+  int astEta = std::abs(stationEta);
   // bool nBOE = true;
   // if (stationName=="BOL" && astEta==8 ) nBOE=false;
   

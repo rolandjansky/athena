@@ -52,7 +52,6 @@ public:
 private:
 
     bool first;
-    const MuonGM::MuonDetectorManager*	p_MuonMgr;
     const RpcIdHelper*            m_idHelper;
     const IRPCcablingSvc*         m_cablingSvc;
     // RpcPadIdHash helper 	

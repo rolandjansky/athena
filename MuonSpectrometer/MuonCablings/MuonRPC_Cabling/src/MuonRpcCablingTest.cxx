@@ -41,7 +41,6 @@ typedef std::istringstream mystream;
 
 MuonRpcCablingTest::MuonRpcCablingTest(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm            ( name, pSvcLocator ),
-    p_MuonMgr		    ( 0 ),
     m_idHelper              ( 0 ),
     m_cablingSvc            ( NULL ),
     m_padHashIdHelper       ( NULL ),
