@@ -227,6 +227,9 @@ def setupMenu():
         ['j60_tc_lcw_nojcalib',     'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j60_tc_lcw_sub',          'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
+        # Moved from Physics menu
+        ['j35_sktc_lcw_nojcalib',       'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+
 
 
         #####
