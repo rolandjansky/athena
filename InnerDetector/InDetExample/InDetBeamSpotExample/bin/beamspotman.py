@@ -68,8 +68,16 @@ from InDetBeamSpotExample import BeamSpotPostProcessing
 from InDetBeamSpotExample import COOLUtils
 from InDetBeamSpotExample import DiskUtils
 
-from optparse import OptionParser
-parser = OptionParser(usage=__usage__, version=__version__)
+from copy import copy
+from optparse import Option,OptionParser
+def check_commsep(option, opt, value):
+    return re.split('\s*,\s*|\s+', value)
+class BeamSpotOption(Option):
+    TYPES = Option.TYPES + ('commsep',)
+    TYPE_CHECKER = copy(Option.TYPE_CHECKER)
+    TYPE_CHECKER['commsep'] = check_commsep
+
+parser = OptionParser(usage=__usage__, version=__version__, option_class=BeamSpotOption)
 parser.add_option('-t', '--beamspottag', dest='beamspottag', default=beamspottag, help='beam spot tag')
 parser.add_option('-c', '--castorpath', dest='castorpath', default='/castor/cern.ch/grid/atlas/tzero/prod1/perm', help='castor path (excluding project and stream name)')
 parser.add_option('-e', '--eospath', dest='eospath', default='/eos/atlas/atlastier0/rucio', help='eos path (excluding project and stream name)')
@@ -99,7 +107,7 @@ parser.add_option('', '--incremental', dest='incremental', action='store_true', 
 parser.add_option('', '--lbfilemap', dest='lbfilemap', default='', help='text file with mapping between filename and lumi blocks')
 parser.add_option('', '--lbperjob', dest='lbperjob', type='int', default=5, help='number of luminosity blocks per job (default: 5)')
 parser.add_option('', '--params', dest='params', default='', help='job option parameters to pass to job option template')
-parser.add_option('-z', '--postprocsteps', dest='postprocsteps', default='JobPostProcessing', help='Task-level postprocessing steps (Default: JobPostProcessing)')
+parser.add_option('-z', '--postprocsteps', dest='postprocsteps', type='commsep', default=['JobPostProcessing'], help='Task-level postprocessing steps, comma-separated (Default: JobPostProcessing)')
 parser.add_option('', '--srcdqtag', dest='srcdqtag', default='nominal', help='source DQ tag (default: nominal)')
 parser.add_option('', '--dqtag', dest='dqtag', default='HEAD', help='beam spot DQ tag')
 parser.add_option('', '--destdqdbname', dest='destdqdbname', default='CONDBR2', help='DQ destination database instance name (default: CONDBR2)')
@@ -809,7 +817,7 @@ if cmd=='archive' and len(args)==3:
             print '         - all except the results files *** WILL BE DELETED ***'
         else:
             print '         - will be marked as ARCHIVED in the task database'
-            print '         - all its files *** WILL BE DELETED ***'            
+            print '         - all its files *** WILL BE DELETED ***'
         print
     try:
         taskList = getFullTaskNames(taskman,args[1],args[2],confirmWithUser=not options.batch,addWildCards=not options.nowildcards)
@@ -1482,7 +1490,7 @@ if cmd=='runaod' and len(args)==5:
                                            filesperjob=len(files),
                                            batchqueue=queue,
                                            addinputtopoolcatalog=True,
-                                           taskpostprocsteps=options.postprocsteps,
+                                           taskpostprocsteps=' '.join(options.postprocsteps),
                                            autoconfparams='DetDescrVersion',
                                            returnstatuscode=True,
                                            comment=cmd,
