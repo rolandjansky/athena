@@ -10,6 +10,7 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIoComponentMgr.h"
+#include "GaudiKernel/IIoComponent.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include <sys/stat.h>
@@ -24,6 +25,7 @@
 #include <time.h>
 #include <chrono>
 #include <algorithm>
+#include <functional>
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
@@ -623,6 +625,80 @@ StatusCode AthMpEvtLoopMgr::afterRestart()
   }
 
   ATH_MSG_INFO("AthenaMP will continue by forking " << m_nWorkers << " workers");
+
+  // _______________________ Update Input File(s) ___________________________
+  const std::string& inputEvntFile = tokens["inputEVNTFile"];
+  
+  // Parse the token value
+  std::vector<std::string> inpFiles;
+  size_t comapos = inputEvntFile.find(",");
+  size_t startpos = 0;
+  while(comapos!=std::string::npos) {
+    inpFiles.push_back(inputEvntFile.substr(startpos,comapos-startpos));
+    startpos = comapos+1;
+    comapos = inputEvntFile.find(",",startpos);
+  }
+  inpFiles.push_back(inputEvntFile.substr(startpos));
+
+  // Trim the strings. Remove '[', ']', '\"', '\'' and spaces
+  for(std::string& inp : inpFiles) {
+    auto pos1 = std::find_if(inp.begin(),inp.end(),[](char ch){return (ch!=' ' && ch!='[' && ch!=']' && ch!='\'' && ch!='\"');});
+    inp.erase(inp.begin(),pos1);
+    auto pos2 = std::find_if(inp.rbegin(),inp.rend(),[](char ch){return (ch!=' ' && ch!='[' && ch!=']' && ch!='\'' && ch!='\"');});
+    inp.erase(pos2.base(),inp.end());
+  }
+
+  ATH_MSG_INFO("Retrieved new list of input files:");
+  for(const std::string& inp : inpFiles) {
+    if(!inp.empty()) {
+      ATH_MSG_INFO(" ... " << inp);
+    }
+  }
+
+  // Change the InputCollections property of the event selector
+  SmartIF<IProperty> prpMgr(serviceLocator());
+  IService* evtSelector(0);
+  if(prpMgr.isValid()) {
+    std::string evtSelName = prpMgr->getProperty("EvtSel").toString();
+    ATH_CHECK(serviceLocator()->service(evtSelName,evtSelector));
+  }
+  else {
+    ATH_MSG_ERROR("Failed to get hold of the Property Manager");
+    return StatusCode::FAILURE;
+  }
+
+  IProperty* propertyServer = dynamic_cast<IProperty*>(evtSelector);
+  if(!propertyServer) {
+    ATH_MSG_ERROR("Unable to dyn-cast the event selector to IProperty");
+    return StatusCode::FAILURE;
+  }
+  std::string propertyName("InputCollections");
+  StringArrayProperty newInputFileList(propertyName, inpFiles);
+  if(propertyServer->setProperty(newInputFileList).isFailure()) {
+    ATH_MSG_ERROR("Unable to update " << newInputFileList.name() << " property on the Event Selector");
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_INFO("Updated the InputCollections property of the event selector");
+
+  // Register new input files with the I/O component manager
+  IIoComponent* iocomp = dynamic_cast<IIoComponent*>(evtSelector);
+  if(iocomp==nullptr) {
+    ATH_MSG_FATAL("Unable to dyn-cast Event Selector to IIoComponent");
+    return StatusCode::FAILURE;
+  }
+  ServiceHandle<IIoComponentMgr> ioMgr("IoComponentMgr",name());
+  ATH_CHECK(ioMgr.retrieve());
+  for(const std::string& inp :inpFiles) {
+    if(inp.empty()) continue;
+    if(!ioMgr->io_register(iocomp, IIoComponentMgr::IoMode::READ,inp,inp).isSuccess()) {
+      ATH_MSG_FATAL("Unable to register " << inp << " with IoComponentMgr");
+      return StatusCode::FAILURE;
+    }
+  }
+  
+  ATH_MSG_INFO("Successfully registered new input with IoComponentMgr");
+
+
 
   return StatusCode::SUCCESS;
 }
