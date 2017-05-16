@@ -40,13 +40,6 @@ namespace TrigTauEmul {
     m_name_parser = new Parser(name + "_ChainParser");
     m_l1orl_tool = new TrigTauORLTool(name + "_orl_tool");
     m_l1topo_tool = new Level1TopoSelectionTool(name + "_topo_tool");
-
-    // This is a fallback initialization mostly meant for athena running - in RootCore, TriggerValidation does this already
-    if(Utils::toolStoreContains<ToolsRegistry>("ToolsRegistry")) {
-      m_registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
-    } else {
-      m_registry = new ToolsRegistry("ToolsRegistry");
-    } 
   }
 
   // Copy constructor
@@ -85,6 +78,13 @@ namespace TrigTauEmul {
 
   // Initialize
   StatusCode Level1EmulationTool::initialize() {
+    // This is a fallback initialization mostly meant for athena running - in RootCore, TriggerValidation does this already
+    if(Utils::toolStoreContains<ToolsRegistry>("ToolsRegistry")) {
+      m_registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
+    } else {
+      m_registry = new ToolsRegistry("ToolsRegistry");
+    } 
+
     // initialize parser
     ATH_CHECK(m_name_parser->initialize());
     m_name_parser->msg().setLevel(this->msg().level());
