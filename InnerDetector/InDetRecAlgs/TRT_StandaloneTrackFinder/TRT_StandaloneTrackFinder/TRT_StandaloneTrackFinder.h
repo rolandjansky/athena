@@ -68,14 +68,14 @@ namespace InDet {
       /* Private data                                                */
       ///////////////////////////////////////////////////////////////////
      
-      int                                m_nprint             ;
-      int                                m_ntracks            ;  //!< Number of tracks found
+      int    m_nprint             ;
+      int    m_ntracks = 0        ;  //!< Number of tracks found
 
-      int                                m_minNumDriftCircles ;  //!< Minimum number of drift circles for TRT segment tracks
-      double                             m_minPt              ;  //!< Minimum pt cut for TRT only (used in preselection * 0.9)
-      bool                               m_resetPRD           ;  //!< Reset PRD association tool during the sub-detector pattern
-      int                                m_matEffects         ;  //!< Particle hypothesis for track fitting
-      bool                               m_oldLogic           ;  //!< use old transition region hit logic 
+      int    m_minNumDriftCircles ;  //!< Minimum number of drift circles for TRT segment tracks
+      double m_minPt              ;  //!< Minimum pt cut for TRT only (used in preselection * 0.9)
+      bool   m_resetPRD           ;  //!< Reset PRD association tool during the sub-detector pattern
+      int    m_matEffects         ;  //!< Particle hypothesis for track fitting
+      bool   m_oldLogic           ;  //!< use old transition region hit logic 
 
       ToolHandle< ITRT_SegmentToTrackTool > m_segToTrackTool; //!< Segment to track tool
 
@@ -86,22 +86,22 @@ namespace InDet {
       SG::WriteHandle<TrackCollection> m_finalTracks;
 
       /** Global Counters for final algorithm statistics */
-      int m_nTrtSeg          ;  //!< Number of input TRT segments to be investigated per event
-      int m_nUsedSeg         ;  //!< Number of TRT segments excluded at input (by BackTracking tracks)
-      int m_nRejectedSeg     ;  //!< Number of segments rejected in selection at input 
-      int m_nTrtSegGood      ;  //!< Number of input TRT segments after cuts per event
-      int m_nSegFailed       ;  //!< Number of segments failing to translate to a track (inclusing refit)
+      int m_nTrtSeg  = 0        ;  //!< Number of input TRT segments to be investigated per event
+      int m_nUsedSeg = 0        ;  //!< Number of TRT segments excluded at input (by BackTracking tracks)
+      int m_nRejectedSeg = 0    ;  //!< Number of segments rejected in selection at input 
+      int m_nTrtSegGood = 0     ;  //!< Number of input TRT segments after cuts per event
+      int m_nSegFailed  = 0     ;  //!< Number of segments failing to translate to a track (inclusing refit)
 
       /** Total in counters */
 
-      int m_nTrtSegTotal          ;  //!< Number of input TRT segments to be investigated per event
-      int m_nUsedSegTotal         ;  //!< Number of TRT segments excluded at input (by BackTracking tracks)
-      int m_nRejectedSegTotal     ;  //!< Number of segments reduce in selection at input 
-      int m_nTrtSegGoodTotal      ;  //!< Number of input TRT segments after cuts per event
-      int m_nSegFailedTotal       ;  //!< Number of segments failing to translate to a track 
-      int m_nTrkScoreZeroTotal    ;  //!< Number of tracks rejected by score zero
-      int m_nTrkSegUsedTotal      ;  //!< Number of excluded segments by other TRT segments
-      int m_nTRTTrkTotal          ;  //!< Number of TRT-only tracks on output
+      int m_nTrtSegTotal =    0       ;  //!< Number of input TRT segments to be investigated per event
+      int m_nUsedSegTotal =  0        ;  //!< Number of TRT segments excluded at input (by BackTracking tracks)
+      int m_nRejectedSegTotal = 0     ;  //!< Number of segments reduce in selection at input 
+      int m_nTrtSegGoodTotal =  0     ;  //!< Number of input TRT segments after cuts per event
+      int m_nSegFailedTotal =  0      ;  //!< Number of segments failing to translate to a track 
+      int m_nTrkScoreZeroTotal =  0   ;  //!< Number of tracks rejected by score zero
+      int m_nTrkSegUsedTotal =  0     ;  //!< Number of excluded segments by other TRT segments
+      int m_nTRTTrkTotal =  0         ;  //!< Number of TRT-only tracks on output
 
       MsgStream&    dumptools(MsgStream&    out) const;
       MsgStream&    dumpevent(MsgStream&    out) const;
