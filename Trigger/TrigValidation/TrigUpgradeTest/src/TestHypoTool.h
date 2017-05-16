@@ -7,41 +7,43 @@
 // STL includes
 #include <string>
 
-// FrameWork includes
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
 
-// TrigUpgradeTest includes
+#include "AthenaBaseComps/AthAlgTool.h"
+
+#include "DecisionHandling/HLTIdentifier.h"
+
 #include "./ITestHypoTool.h"
 
 namespace HLTTest {
 
-/**
- * @class $(klass)s
- * @brief 
- **/
+  /**
+   * @class TestHypoTool
+   * @brief Tool taking the decision for inclusive selection (one decision per object)
+   **/
 
-class TestHypoTool
-  : virtual public ::HLTTest::ITestHypoTool,
-            public ::AthAlgTool
-{ 
+  class TestHypoTool : virtual public ITestHypoTool, public AthAlgTool
+  { 
 
- public: 
+  public: 
 
-  TestHypoTool( const std::string& type,
-	     const std::string& name, 
-	     const IInterface* parent );
+    TestHypoTool( const std::string& type,
+		  const std::string& name, 
+		  const IInterface* parent );
 
-  virtual ~TestHypoTool(); 
+    virtual ~TestHypoTool(); 
 
-  virtual StatusCode  initialize();
-  virtual StatusCode  finalize();
+    StatusCode  initialize() override;
+    StatusCode  finalize() override;
 
- private: 
+    StatusCode decide( DecisionContainer* decisions ) const override;
+  
+  private: 
 
-  TestHypoTool();
-
-}; 
+    TestHypoTool();
+    float m_threshold;
+    std::string m_property;
+    HLT::Identifier m_decisionId;
+  }; 
 
 } //> end namespace HLTTest
 #endif //> !TRIGUPGRADETEST_TESTHYPOTOOL_H

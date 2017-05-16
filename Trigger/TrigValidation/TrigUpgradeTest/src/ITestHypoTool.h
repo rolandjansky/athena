@@ -4,37 +4,43 @@
 #ifndef TRIGUPGRADETEST_ITESTHYPOTOOL_H
 #define TRIGUPGRADETEST_ITESTHYPOTOOL_H 1
 
+#include "DecisionHandling/TrigCompositeUtils.h"
 #include "GaudiKernel/IAlgTool.h"
 
 namespace HLTTest {
 
-static const InterfaceID IID_ITestHypoTool("ITestHypoTool", 1, 0);
+  using namespace TrigCompositeUtils;
+  static const InterfaceID IID_ITestHypoTool("ITestHypoTool", 1, 0);
 
-/**
- * @class $(klass)s
- * @brief 
- **/
+  /**
+   * @class $(klass)s
+   * @brief 
+   **/
 
-class ITestHypoTool
-  : virtual public ::IAlgTool
-{ 
+  class ITestHypoTool
+    : virtual public ::IAlgTool
+  { 
 
- public: 
+  public: 
 
-  virtual ~ITestHypoTool();
+    virtual ~ITestHypoTool();
 
-  static const InterfaceID& interfaceID();
+    static const InterfaceID& interfaceID();
+    
+    /** 
+     * @brief method invoked to work out the decisions per object
+     * @warning it is up to the tool implementation to store correct identifiers
+     * The object passed to the tool have to have actual object linked via EL named "feature"
+     * This is by no means suggested interface, in fact it involved constructing a link etc.
+     **/
+    virtual StatusCode decide( DecisionContainer* decisions ) const = 0;
+  
+  }; 
 
- protected: 
-
- private:
-
-}; 
-
-inline const InterfaceID& ITestHypoTool::interfaceID() 
-{ 
-   return IID_ITestHypoTool; 
-}
+  inline const InterfaceID& ITestHypoTool::interfaceID() 
+  { 
+    return IID_ITestHypoTool; 
+  }
 
 } //> end namespace HLTTest
 #endif //> !TRIGUPGRADETEST_ITESTHYPOTOOL_H

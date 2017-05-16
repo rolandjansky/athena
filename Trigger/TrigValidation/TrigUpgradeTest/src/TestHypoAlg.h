@@ -6,34 +6,40 @@
 
 
 #include <string>
-
+#include "xAODTrigger/TrigCompositeContainer.h"
+#include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-
+//#include "GaudiKernel/ToolHandle.h"
+#include "ITestHypoTool.h"
 namespace HLTTest {
 
-/**
- * @class $(klass)s
- * @brief 
- **/
+  /**
+   * @class TestHypoAlg
+   * @brief Invokes HypoTools and stores the result of the decision
+   **/
 
-class TestHypoAlg
-  : public ::AthAlgorithm
-{ 
- public: 
-  TestHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
+  using namespace TrigCompositeUtils;
+  
+  class TestHypoAlg
+    : public ::AthAlgorithm
+  { 
+  public: 
+    TestHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual ~TestHypoAlg(); 
+    virtual ~TestHypoAlg(); 
 
-  //TestHypoAlg &operator=(const TestHypoAlg &alg); 
+    //TestHypoAlg &operator=(const TestHypoAlg &alg); 
 
-  StatusCode  initialize() override;
-  StatusCode  execute() override;
-  StatusCode  finalize() override;
+    StatusCode  initialize() override;
+    StatusCode  execute() override;
+    StatusCode  finalize() override;
 
- private: 
-  TestHypoAlg();
-
-}; 
+  private: 
+    TestHypoAlg();
+    ToolHandleArray<ITestHypoTool> m_tools;
+    SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_recoInput;
+    SG::WriteHandleKey<DecisionContainer> m_output;
+  }; 
 
 } //> end namespace HLTTest
 #endif //> !TRIGUPGRADETEST_TESTHYPOALG_H

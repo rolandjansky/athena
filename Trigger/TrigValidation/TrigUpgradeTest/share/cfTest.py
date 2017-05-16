@@ -78,8 +78,8 @@ def reco(name, FileName, Output):
     return HLTTest__TestRecoAlg("R_"+name, OutputLevel = DEBUG, FileName=FileName, Output=Output)
 
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
-def hypo(name):
-    return HLTTest__TestHypoAlg("H_"+name, OutputLevel = DEBUG)
+def hypo(name, Input, Output):
+    return HLTTest__TestHypoAlg("H_"+name, OutputLevel = DEBUG, Input=Input, Output=Output)
 
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRoRSeqFilter
 allFilters={}
@@ -95,16 +95,26 @@ def pick(name):
     global allFilters
     return allFilters[name]
 
+from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
+def emhtool(name):
+    v = int(name[5:])*1000
+    return HLTTest__TestHypoTool(name, OutputLevel=DEBUG, Threshold=v, Property="et")
+
 stepNo = 0
 steps[stepNo] += seqFilter( "Step1MU", Inputs=["L1MU"], Outputs=["step0MU"])
 steps[stepNo] += seqFilter( "Step1MU_E", Inputs=["L1MU", "L1EM"], Outputs=["step0MU","step0EM"])
 steps[stepNo] += seqFilter( "Step1EM", Inputs=["L1EM"], Outputs=["step0EM"])
 
+emHypo = hypo("Step1ElGamHypo", Input="EMClusters", Output="EMDecisions")
+emHypoTools = [ emhtool("HLT_e2"), emhtool("HLT_e3"), emhtool("HLT_e5"),
+                emhtool("HLT_g5"), emhtool("HLT_g7"), emhtool("HLT_g15") ]
+emHypo.HypoTools = emHypoTools 
+emHypo += emHypoTools
 
 stepNo += 1 
 em1 = stepSeq( "em1", pick("Step1EM"), [ reco("EMRoIs", FileName="noreco.dat", Output="EMRoIs"),
                                          reco("CaloClustering", FileName="emclusters.dat", Output="EMClusters"),
-                                         hypo("Step1ElGamHypo") ] )
+                                         emHypo ] )
 steps[stepNo] += em1
 
 # mu1 = stepSeq("mu1", pick("Step1MU"), [ reco("MURoIs", "noreco.dat"), reco("muMSRecAlg", "msmu.dat"), hypo("Step1MuHypo") ] )
