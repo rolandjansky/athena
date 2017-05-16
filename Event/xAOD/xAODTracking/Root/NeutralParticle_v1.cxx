@@ -19,17 +19,17 @@ namespace xAOD {
 
   NeutralParticle_v1::NeutralParticle_v1()
   : IParticle(), m_p4(), m_p4Cached( false ), m_perigeeCached(false) {
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
     m_perigeeParameters=0;
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_ANALYSIS
   }
   
   NeutralParticle_v1::NeutralParticle_v1(const NeutralParticle_v1& tp ) 
   : IParticle( tp ), m_p4(tp.m_p4), m_p4Cached( tp.m_p4Cached ), m_perigeeCached(tp.m_perigeeCached) {
     makePrivateStore( tp );
-    #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+    #ifndef XAOD_ANALYSIS
     m_perigeeParameters = tp.m_perigeeParameters;
-    #endif // not XAOD_STANDALONE and not XAOD_MANACORE
+    #endif // not XAOD_ANALYSIS
   }
   
   NeutralParticle_v1& NeutralParticle_v1::operator=(const NeutralParticle_v1& tp ){
@@ -37,16 +37,16 @@ namespace xAOD {
     
     if(!hasStore() ) makePrivateStore();
     this->IParticle::operator=( tp );
-    #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+    #ifndef XAOD_ANALYSIS
     m_perigeeParameters = tp.m_perigeeParameters;
-    #endif // not XAOD_STANDALONE and not XAOD_MANACORE
+    #endif // not XAOD_ANALYSIS
     return *this;
   }
 
   NeutralParticle_v1::~NeutralParticle_v1(){
-    #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+    #ifndef XAOD_ANALYSIS
     delete m_perigeeParameters;
-    #endif // not XAOD_STANDALONE and not XAOD_MANACORE
+    #endif // not XAOD_ANALYSIS
   }
   
   double NeutralParticle_v1::pt() const {
@@ -110,10 +110,10 @@ namespace xAOD {
 
   void NeutralParticle_v1::setDefiningParameters(float d0, float z0, float phi0, float theta, float oneOverP) {
     m_perigeeCached=false;
-    #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+    #ifndef XAOD_ANALYSIS
     delete m_perigeeParameters;
     m_perigeeParameters=0;
-    #endif // not XAOD_STANDALONE and not XAOD_MANACORE
+    #endif // not XAOD_ANALYSIS
     static Accessor< float > acc1( "d0" );
     acc1( *this ) = d0;
 
@@ -135,10 +135,10 @@ namespace xAOD {
 
   void NeutralParticle_v1::setDefiningParametersCovMatrix(const xAOD::ParametersCovMatrix_t& cov){
     m_perigeeCached=false;
-    #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+    #ifndef XAOD_ANALYSIS
     delete m_perigeeParameters;
     m_perigeeParameters=0;
-    #endif // not XAOD_STANDALONE and not XAOD_MANACORE
+    #endif // not XAOD_ANALYSIS
     
     static Accessor< std::vector<float> > acc( "definingParametersCovMatrix" );
     std::vector<float>& v = acc(*this);
@@ -184,7 +184,7 @@ namespace xAOD {
     acc3( *this ) = z;
   }
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
   const Trk::NeutralPerigee& NeutralParticle_v1::perigeeParameters() const {
     
     static Accessor< float > acc1( "d0" );
@@ -203,7 +203,7 @@ namespace xAOD {
     return *m_perigeeParameters;
     
   }
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_ANALYSIS
 
   // AUXSTORE_OBJECT_SETTER_AND_GETTER(NeutralParticle_v1, ElementLink< VertexContainer >, vertex, setVertex)
 

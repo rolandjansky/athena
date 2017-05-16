@@ -167,7 +167,7 @@ namespace xAOD {
    AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( Vertex_v1, short, VxType::VertexType,
                                         vertexType, setVertexType )
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
    /// Helper object for implementing the vxTrackAtVertex functions
    static SG::AuxElement::Accessor< std::vector< Trk::VxTrackAtVertex > >
    vxVertAcc( "vxTrackAtVertex" );
@@ -212,7 +212,7 @@ namespace xAOD {
 
       return vxVertAcc.isAvailable( *this );
    }
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_ANALYSIS
 
    /////////////////////////////////////////////////////////////////////////////
    //

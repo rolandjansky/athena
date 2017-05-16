@@ -70,7 +70,7 @@ namespace {
      std::vector< ElementLinkVector< xAOD::NeutralParticleContainer_v1 > >          nl6;
      std::vector< std::vector< ElementLink< xAOD::NeutralParticleContainer_v1 > > > nl7;
      
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
      std::bitset< 11 >                                                            dummy1;
      TrackCollection                                                              c2;
      ElementLink<TrackCollection>                                                 l8;

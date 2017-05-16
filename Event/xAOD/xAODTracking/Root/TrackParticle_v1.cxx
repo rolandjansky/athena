@@ -25,7 +25,7 @@ namespace xAOD {
   TrackParticle_v1::TrackParticle_v1()
   : IParticle(), m_p4(), m_p4Cached( false ), m_perigeeCached(false) {
     // std::cout<<"TrackParticle_v1 CTOR this="<<this<<", \tm_perigeeCached="<<m_perigeeCached<<", \tm_perigeeParameters="<<m_perigeeParameters<<std::endl;
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
     m_perigeeParameters=0;
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
   }
@@ -33,7 +33,7 @@ namespace xAOD {
   TrackParticle_v1::TrackParticle_v1(const TrackParticle_v1& tp ) 
   : IParticle( tp ), m_p4(tp.m_p4), m_p4Cached( tp.m_p4Cached ), m_perigeeCached(tp.m_perigeeCached) {
     makePrivateStore( tp );
-    #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+    #ifndef XAOD_ANALYSIS
     m_perigeeParameters = tp.m_perigeeParameters;
     #endif // not XAOD_STANDALONE and not XAOD_MANACORE
   }
@@ -45,7 +45,7 @@ namespace xAOD {
        makePrivateStore();
     }
     this->IParticle::operator=( tp );
-    #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+    #ifndef XAOD_ANALYSIS
     m_perigeeParameters = tp.m_perigeeParameters;
     #endif // not XAOD_STANDALONE and not XAOD_MANACORE
     return *this;
@@ -54,7 +54,7 @@ namespace xAOD {
   TrackParticle_v1::~TrackParticle_v1(){
     // std::cout<<"TrackParticle_v1 DTOR this="<<this<<", \tm_perigeeCached="<<m_perigeeCached<<", \tm_perigeeParameters="<<m_perigeeParameters<<std::endl;
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
     delete m_perigeeParameters;
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
   }
@@ -129,7 +129,7 @@ namespace xAOD {
 
   void TrackParticle_v1::setDefiningParameters(float d0, float z0, float phi0, float theta, float qOverP) {
     m_perigeeCached=false;
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
     delete m_perigeeParameters;
     m_perigeeParameters=0;
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
@@ -154,7 +154,7 @@ namespace xAOD {
 
   void TrackParticle_v1::setDefiningParametersCovMatrix(const xAOD::ParametersCovMatrix_t& cov){
     m_perigeeCached=false;
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
     delete m_perigeeParameters;
     m_perigeeParameters=0;
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
@@ -198,7 +198,7 @@ namespace xAOD {
     acc3( *this ) = z;
   }
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
   const Trk::Perigee& TrackParticle_v1::perigeeParameters() const {
     if (m_perigeeCached)
       return *m_perigeeParameters;
@@ -380,7 +380,7 @@ namespace xAOD {
     acc( *this ).at(index) = static_cast<uint8_t>(pos);
   }
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
   const Trk::CurvilinearParameters TrackParticle_v1::curvilinearParameters(unsigned int index) const {    
 
     static Accessor< std::vector<float>  > acc( "trackParameterCovarianceMatrices" );
@@ -462,7 +462,7 @@ namespace xAOD {
   }
  
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
    /// The function will return an invalid ElementLink in case nothing was set
    /// for it yet. This is to avoid users having to always check both for
    /// the decoration being available, and the link being valid.
