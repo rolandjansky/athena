@@ -79,7 +79,7 @@ tidaAnalysischains = []
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Chains.py")
 
-(electronChainlist, electronAnalysischains) = electronChains(rMC, rID)
+(electronChainlist, electronAnalysischains) = electronChains(rID)
 tidaAnalysischains += electronAnalysischains
 
 (muonChainlist, muonAnalysischains) = muonChains(rMC, rID, rFTK)

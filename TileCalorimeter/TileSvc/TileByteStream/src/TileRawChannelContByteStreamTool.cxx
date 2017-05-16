@@ -17,6 +17,7 @@
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/ITileBadChanTool.h"
+#include "TileConditions/TileCablingService.h"
 
 #include <map> 
 #include <stdint.h>
@@ -36,7 +37,8 @@ TileRawChannelContByteStreamTool::TileRawChannelContByteStreamTool(const std::st
     , m_verbose(false)
     , m_tileToolEmscale("TileCondToolEmscale")
     , m_tileBadChanTool("TileBadChanTool")
-    , m_channels(0)
+    , m_channels(nullptr)
+    , m_maxChannels(TileCalibUtils::MAX_CHAN)
 {
   declareInterface<TileRawChannelContByteStreamTool>(this);
   declareProperty("DoFragType4", m_doFragType4 = true);
@@ -67,6 +69,8 @@ StatusCode TileRawChannelContByteStreamTool::initialize() {
 
   // get TileBadChanTool
   CHECK( m_tileBadChanTool.retrieve() );
+
+  m_maxChannels = TileCalibUtils::MAX_CHAN; // TileCablingService::getInstance()->getMaxChannels();
 
   m_channels = new TileFastRawChannel[m_tileHWID->channel_hash_max()];
 
@@ -108,6 +112,7 @@ StatusCode TileRawChannelContByteStreamTool::convert(CONTAINER* rawChannelContai
 
     mapEncoder[reid].setTileHWID(m_tileHWID, m_verbose, 4);
     mapEncoder[reid].setTypeAndUnit(contType, outputUnit);
+    mapEncoder[reid].setMaxChannels(m_maxChannels);
 
     HWIdentifier drawer_id = m_tileHWID->drawer_id(frag_id);
 

@@ -64,9 +64,13 @@ namespace Muon {
     /** Number of ambiguities */
     unsigned int numberOfAmbiguities() const;
 
-    void setUse2LayerSegments(bool use2Lay){use2LayerSegs=use2Lay;}
+    void setNGoodCscLayers(int nEta, int nPhi){nGood[0]=nPhi; nGood[1]=nEta;}
 
-    bool use2LayerSegments() const;
+    int getNGoodCscLayers(int isEta) const; //isEta=0 means phi
+
+    bool use2LayerSegments(int isEta) const; //isEta=0 means phi
+
+    bool useStripsInSegment(int isEta) const; //isEta=0 means phi
 
   private:
     /** clear data */
@@ -77,13 +81,25 @@ namespace Muon {
 
     SegmentVecVec         m_segmentsPerStation;
 
-    //if the station is a CSC station with 2-layer segment finding enabled
-    bool use2LayerSegs;
+    //if the station is a CSC station, this tells us how many good eta and phi layers it has
+    int nGood[2];
   };
 
-  inline bool MuonSegmentCombination::use2LayerSegments() const
+  //if there are only 2 good layers for eta or phi those segments may be 2-layer segments
+  inline bool MuonSegmentCombination::use2LayerSegments(int isEta) const
     {
-      return use2LayerSegs;
+      return nGood[isEta]==2;
+    }
+
+  //if there are fewer than 2 good layers for eta or phi we don't try to use eta or phi to build segments
+  inline bool MuonSegmentCombination::useStripsInSegment(int isEta) const
+    {
+      return nGood[isEta]>1;
+    }
+
+  inline int MuonSegmentCombination::getNGoodCscLayers(int isEta) const
+    {
+      return nGood[isEta];
     }
 
   inline  bool MuonSegmentCombination::addSegments( SegmentVec* segs )

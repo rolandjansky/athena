@@ -206,6 +206,16 @@
                 <returnValue>0</returnValue> 
             </expectations> 
         </TEST> 
+
+        <TEST name="HLT_physicsV7_FTK" type="script" suite="TP1phys2"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV7_FTK --rundir HLT_physicsV7_FTK --conf TrigP1Test.conf</options_atn> 
+            <timelimit>20</timelimit> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+
         
         <TEST name="HLT_physicsV7_ALFAMon" type="script" suite="TP1phys2"> 
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV7_ALFAMon --rundir HLT_physicsV7_ALFAMon --conf TrigP1Test.conf</options_atn> 
@@ -303,7 +313,7 @@
         
         <TEST name="UploadMenuKeys" type="script" suite="TP1menu">
             <options_atn>trigtest.pl --cleardir  --test UploadMenuKeys --rundir UploadMenuKeys --conf TrigP1Test.conf</options_atn>
-            <timelimit>40</timelimit>
+            <timelimit>120</timelimit>
             <platform>opt</platform>
             <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
             <!--<mailto>joerg.stelzer@cern.ch</mailto>-->    
@@ -363,7 +373,7 @@
         
         <TEST name="UploadMenuKeys_rerunLVL1" type="script" suite="TP1menuRL1">
             <options_atn>trigtest.pl --cleardir  --test UploadMenuKeys_rerunLVL1 --rundir UploadMenuKeys_rerunLVL1 --conf TrigP1Test.conf</options_atn>
-            <timelimit>59</timelimit>
+            <timelimit>120</timelimit>
             <!--<mailto>joerg.stelzer@cern.ch</mailto>-->    
             <platform>opt</platform>
             <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>

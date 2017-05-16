@@ -362,6 +362,22 @@ class ESDEDMSet(JobProperty):
 
 _flags.append(ESDEDMSet)
 
+class OnlineCondTag(JobProperty):
+    """ Default (online) HLT conditions tag """
+    statusOn=True
+    allowedType=['str']
+    StoredValue='CONDBR2-HLTP-2016-01'
+
+_flags.append(OnlineCondTag)
+
+class OnlineGeoTag(JobProperty):
+    """ Default (online) HLT geometry tag """
+    statusOn=True
+    allowedType=['str']
+    StoredValue='ATLAS-R2-2015-04-00-00'
+    
+_flags.append(OnlineGeoTag)
+
 # =========
 #
 # trigger flags used by trigger configuration
@@ -1030,7 +1046,7 @@ class triggerMenuSetup(JobProperty):
         'MC_pp_v7','Physics_pp_v7','MC_pp_v7_no_prescale', 'MC_pp_v7_tight_mc_prescale', 'MC_pp_v7_tightperf_mc_prescale', 'MC_pp_v7_loose_mc_prescale','Physics_pp_v7_tight_physics_prescale',
         ]
 
-    _default_menu='MC_pp_v6_tight_mc_prescale'
+    _default_menu='MC_pp_v7_tight_mc_prescale'
     _default_cosmic_menu='Physics_pp_v5_cosmics_prescale'
     _default_InitialBeam_menu='MC_InitialBeam_v3_no_prescale'
     

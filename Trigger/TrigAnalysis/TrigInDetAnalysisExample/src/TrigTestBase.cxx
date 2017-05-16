@@ -35,6 +35,7 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
      m_useHighestPT(false),
      m_vtxIndex(-1),
      m_runPurity(false),
+     m_shifter(false),
      m_shifterChains(1),
      m_sliceTag("")
 {
@@ -70,22 +71,15 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
   declareProperty( "trtHitsOffline",    m_trtHitsOffline    = -2 );
   declareProperty( "strawHitsOffline",  m_strawHitsOffline  = -2 );
 
-
-  //  declareProperty( "phiWidth", m_phiWidth = 0.1 );
-  //  declareProperty( "etaWidth", m_etaWidth = 0.1 );
-  //  declareProperty( "zedWidth", m_zedWidth = 168 );
-
   declareProperty( "matchR",   m_matchR   = 0.1 );
   declareProperty( "matchPhi", m_matchPhi = 0.1 );
 
-  // declareProperty( "chainNames",        m_chainNames );
   declareProperty( "ntupleChainNames",  m_ntupleChainNames );
   declareProperty( "releaseMetaData",   m_releaseMetaData );
 
   declareProperty( "buildNtuple",   m_buildNtuple = false );
   declareProperty( "mcTruth",       m_mcTruth = false );
 
-  // declareProperty( "outputFileName", m_outputFileName = "TrkNtuple.root");
   declareProperty( "AnalysisConfig", m_analysis_config = "Ntuple");
 
   declareProperty( "SelectTruthPdgId", m_selectTruthPdgId = 0 );
@@ -96,6 +90,8 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
   declareProperty( "VtxIndex",         m_vtxIndex = -1 );
 
   declareProperty( "RunPurity",        m_runPurity = false );
+  declareProperty( "Shifter",          m_shifter = false );
+
   declareProperty( "ShifterChains",    m_shifterChains = 1 );
 
 
@@ -161,13 +157,10 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 
 
 
-#ifdef ManagedMonitorToolBase_Uses_API_201401
-#if 0
-  // #ifndef ManagedMonitorToolBase_CXX
+#ifdef ManagedMonitorToolBase_Uses_API_201704
   bool newEventsBlock = newEventsBlockFlag();
   bool newLumiBlock   = newLumiBlockFlag();
   bool newRun         = newRunFlag();
-#endif
 #endif
 
 
@@ -242,8 +235,6 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 
       while ( chainitr!=m_ntupleChainNames.end() ) {
   
-       	//	if ( shifter_ftf>1 && shifter_efid>1 ) break;
-
 	/// get chain
         ChainString chainName = (*chainitr);
 
@@ -297,7 +288,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	    int shifterChains = m_shifterChains;
 	    if ( chainName.vtx()=="" ) shifterChains = ( m_shifterChains>1 ? 1 : m_shifterChains );
 	    
-	    if ( m_sliceTag.find("Shifter")!=std::string::npos ) { 
+	    if ( m_sliceTag.find("Shifter")!=std::string::npos || m_shifter ) { 
 	      /// shifter histograms 
 	      if ( chainName.tail().find("_FTF")!=std::string::npos ) { 
 		/// FTF chain
@@ -361,6 +352,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 								    new Analysis_Tier0( m_chainNames[i], m_pTCut, m_etaCut, m_d0Cut, m_z0Cut ) );
 
 	analysis->setRunPurity(m_runPurity);
+	analysis->setShifter(m_shifter);
       
         m_sequences.push_back( analysis );
 
@@ -467,11 +459,8 @@ StatusCode TrigTestBase::proc(bool /*endOfEventsBlock*/, bool /*endOfLumiBlock*/
 #endif
   // StatusCode TrigTestBase::procHistograms() {
 
-#ifdef ManagedMonitorToolBase_Uses_API_201401
-#if 0
-  // #ifndef ManagedMonitorToolBase_CXX
+#ifdef ManagedMonitorToolBase_Uses_API_201704
   bool endOfRun       = endOfRunFlag();
-#endif
 #endif
 
   msg(MSG::INFO) << " ----- enter proc() ----- " << endmsg;
