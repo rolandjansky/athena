@@ -35,6 +35,7 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
      m_useHighestPT(false),
      m_vtxIndex(-1),
      m_runPurity(false),
+     m_shifter(false),
      m_shifterChains(1),
      m_sliceTag("")
 {
@@ -86,10 +87,11 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
   declareProperty( "InitialisePerRun", m_initialisePerRun = false );
   declareProperty( "KeepAllEvents",    m_keepAllEvents = false );
   declareProperty( "UseHighestPT",     m_useHighestPT = false );
-  declareProperty( "Shifter",          m_shifter = false );
   declareProperty( "VtxIndex",         m_vtxIndex = -1 );
 
   declareProperty( "RunPurity",        m_runPurity = false );
+  declareProperty( "Shifter",          m_shifter = false );
+
   declareProperty( "ShifterChains",    m_shifterChains = 1 );
 
 
@@ -155,13 +157,10 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 
 
 
-#ifdef ManagedMonitorToolBase_Uses_API_201401
-#if 0
-  // #ifndef ManagedMonitorToolBase_CXX
+#ifdef ManagedMonitorToolBase_Uses_API_201704
   bool newEventsBlock = newEventsBlockFlag();
   bool newLumiBlock   = newLumiBlockFlag();
   bool newRun         = newRunFlag();
-#endif
 #endif
 
 
@@ -460,11 +459,8 @@ StatusCode TrigTestBase::proc(bool /*endOfEventsBlock*/, bool /*endOfLumiBlock*/
 #endif
   // StatusCode TrigTestBase::procHistograms() {
 
-#ifdef ManagedMonitorToolBase_Uses_API_201401
-#if 0
-  // #ifndef ManagedMonitorToolBase_CXX
+#ifdef ManagedMonitorToolBase_Uses_API_201704
   bool endOfRun       = endOfRunFlag();
-#endif
 #endif
 
   msg(MSG::INFO) << " ----- enter proc() ----- " << endmsg;
