@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/Jet/JetEvent
                           PRIVATE
                           Control/AthenaKernel
-                          Control/DataModel
+                          Control/AthAllocators
                           PhysicsAnalysis/MuonID/MuonIDEvent
                           Reconstruction/egamma/egammaEvent
                           Tracking/TrkEvent/VxVertex )
@@ -30,17 +30,17 @@ atlas_add_tpcnv_library( JetEventTPCnv
                          PUBLIC_HEADERS JetEventTPCnv
                          INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                         LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities EventCommonTPCnv ParticleEventTPCnv JetEvent AthenaKernel DataModel MuonIDEvent egammaEvent VxVertex )
+                         LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities EventCommonTPCnv ParticleEventTPCnv JetEvent AthenaKernel AthAllocators MuonIDEvent egammaEvent VxVertex )
 
 atlas_add_dictionary( JetEventTPCnvDict
                       JetEventTPCnv/JetEventTPCnvDict.h
                       JetEventTPCnv/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities EventCommonTPCnv ParticleEventTPCnv JetEvent AthenaKernel DataModel MuonIDEvent egammaEvent VxVertex JetEventTPCnv )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities EventCommonTPCnv ParticleEventTPCnv JetEvent AthenaKernel AthAllocators MuonIDEvent egammaEvent VxVertex JetEventTPCnv )
 
 atlas_add_dictionary( OLD_JetEventTPCnvDict
                       JetEventTPCnv/JetEventTPCnvDict.h
                       JetEventTPCnv/OLD_selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities EventCommonTPCnv ParticleEventTPCnv JetEvent AthenaKernel DataModel MuonIDEvent egammaEvent VxVertex JetEventTPCnv )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities EventCommonTPCnv ParticleEventTPCnv JetEvent AthenaKernel AthAllocators MuonIDEvent egammaEvent VxVertex JetEventTPCnv )
 
