@@ -134,7 +134,7 @@ TrackMVABDT::TrackMVABDT(const std::string& sName)
 //______________________________________________________________________________
 TrackMVABDT::~TrackMVABDT()
 {
-  delete m_rReader;
+  if (m_rReader) delete m_rReader;
 }
 
 //______________________________________________________________________________
