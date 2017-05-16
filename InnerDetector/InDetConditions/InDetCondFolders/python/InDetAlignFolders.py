@@ -31,18 +31,13 @@ conddb.addFolderSplitOnline("INDET","/Indet/Onl/PixelDist","/Indet/PixelDist")
 # IBL stave distortions 
 conddb.addFolderSplitOnline("INDET","/Indet/Onl/IBLDist","/Indet/IBLDist")
 
-# Adding protection against new dynamic folder scheme;
+# Control loading of the dynamic folder scheme;
 # In future we might want to add also to MC DB
-# Solution below is not pretty but in response to JIRA ATLASSIM-2746
-useDynamicAlignFolders = False
-try:
-    from InDetRecExample.InDetJobProperties import InDetFlags
-    if InDetFlags.useDynamicAlignFolders and conddb.dbdata == "CONDBR2":
-        useDynamicAlignFolders = True
-except ImportError:
-    pass
-if useDynamicAlignFolders:
-    conddb.addFolderSplitOnline("INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID",className="CondAttrListCollection")
+# related to JIRA ATLASSIM-2746
+
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
+if InDetGeometryFlags.useDynamicAlignFolders():
+    conddb.addFolderSplitOnline("INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID")
     conddb.addFolderSplitOnline("INDET","/Indet/Onl/AlignL2/PIX","/Indet/AlignL2/PIX")
     conddb.addFolderSplitOnline("INDET","/Indet/Onl/AlignL2/SCT","/Indet/AlignL2/SCT",className="CondAttrListCollection")
     conddb.addFolderSplitOnline("INDET","/Indet/Onl/AlignL3","/Indet/AlignL3",className="AlignableTransformContainer")
@@ -58,9 +53,8 @@ condSeq = AthSequencer("AthCondSeq")
 if not hasattr(condSeq, "SCT_AlignCondAlg"):
     from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
     condSeq += SCT_AlignCondAlg(name = "SCT_AlignCondAlg",
-                                UseDynamicAlignFolders = useDynamicAlignFolders)
+                                UseDynamicAlignFolders =  InDetGeometryFlags.useDynamicAlignFolders())
 if not hasattr(condSeq, "SCT_DetectorElementCondAlg"):
     from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
     condSeq += SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg")
 
-del useDynamicAlignFolders #tidy up
