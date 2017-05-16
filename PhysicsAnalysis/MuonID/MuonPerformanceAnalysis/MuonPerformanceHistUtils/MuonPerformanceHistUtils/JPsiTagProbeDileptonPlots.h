@@ -24,18 +24,18 @@ class JPsiTagProbeDileptonPlots: public MuonTPEfficiencyPlotBase {
   bool m_isMatched;
 
   TH1* m_ll;
-  TH1* opening_angle;
-  TH1* jpsi_pt;
+  TH1* m_opening_angle;
+  TH1* m_jpsi_pt;
 
-  TH3* pem_num;
-  TH3* pem_num_etaq;
+  TH3* m_pem_num;
+  TH3* m_pem_num_etaq;
 
-  TH3* fem_num; 
-  TH3* fem_num_etaq;
+  TH3* m_fem_num; 
+  TH3* m_fem_num_etaq;
 
-  TH3* pfm_num; 
+  TH3* m_pfm_num; 
 
-  long double pi = TMath::Pi();
+  long double m_pi = TMath::Pi();
 
 };
 

@@ -24,9 +24,9 @@ class ZmumuDetRegionEfficiencyPlots: public MuonTPEfficiencyPlotBase {
  private:
 
   bool m_isMatched;
-  TH1* detregions;
-  TH1* detregions_A;
-  TH1* detregions_C;
+  TH1* m_detregions;
+  TH1* m_detregions_A;
+  TH1* m_detregions_C;
   DetRegionBinning m_etaphi;
 
 };
