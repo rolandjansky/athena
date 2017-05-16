@@ -50,7 +50,7 @@ class Extension {
     // one virtual method to make dynamic_cast work
     virtual ~Extension() {}
 
-    E copy(CopyArgs&& ... args) {
+    E copy(CopyArgs&& ... /*args*/) {
         return nullptr;
     }
 };
