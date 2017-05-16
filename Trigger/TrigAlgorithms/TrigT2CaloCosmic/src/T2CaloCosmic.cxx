@@ -33,7 +33,7 @@
 class ISvcLocator;
 
 T2CaloCosmic::T2CaloCosmic(const std::string & name, ISvcLocator* pSvcLocator)
-  : T2CaloBase(name, pSvcLocator),  m_log(0)
+  : T2CaloBase(name, pSvcLocator)
 {
     declareProperty("TrigEMClusterKey",m_trigEmClusterKey = "T2CaloTrigEMCluster");
     declareProperty("L1ForceEta",m_l1eta = -10.0);
@@ -46,14 +46,11 @@ T2CaloCosmic::T2CaloCosmic(const std::string & name, ISvcLocator* pSvcLocator)
 
 T2CaloCosmic::~T2CaloCosmic()
 {
-  delete m_log;
 }
 
 
 HLT::ErrorCode T2CaloCosmic::hltInitialize()
 {
-  if (!m_log) m_log = new MsgStream(messageService(), name());
-
   // Support for new monitoring
   declareMonitoredObject("Eta",
 			m_monitoredCluster,&TrigEMCluster::eta);
