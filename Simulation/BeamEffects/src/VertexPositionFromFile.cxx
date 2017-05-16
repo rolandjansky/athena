@@ -199,14 +199,16 @@ CLHEP::HepLorentzVector *Simulation::VertexPositionFromFile::generate() const
   else {
     ATH_MSG_DEBUG("Retrieving event info from SG");
     SG::ReadHandle<EventInfo> eventInfo(m_eventInfoKey);
-    if (eventInfo.retrieve().isFailure()) {
+    if (eventInfo.isValid()) {
+      // read out run/event number
+      const EventID *curEventID = eventInfo->event_ID();
+      runNumber   = curEventID->run_number();
+      eventNumber = curEventID->event_number();
+    }
+    else {
       ATH_MSG_ERROR("Could not retrieve event info from SG");
       return nullptr;
     }
-    // read out run/event number
-    const EventID *curEventID = eventInfo->event_ID();
-    runNumber   = curEventID->run_number();
-    eventNumber = curEventID->event_number();
   }
   ATH_MSG_DEBUG("Got run/event: "<<runNumber<<"/"<<eventNumber);
   // read the (x,y,z) coordinates for the current (run,event)
