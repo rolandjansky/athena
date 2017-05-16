@@ -119,13 +119,13 @@ namespace DerivationFramework{
     const xAOD::TruthParticle*  partonToHadron(const xAOD::TruthParticle* parton);
 
     
-    std::set<const xAOD::TruthParticle*> usedHadron;
-    std::map<const xAOD::TruthParticle*,int> mainHadronMap; //maps main hadrons with flavor
+    std::set<const xAOD::TruthParticle*> m_usedHadron;
+    std::map<const xAOD::TruthParticle*,int> m_mainHadronMap; //maps main hadrons with flavor
     
     
-    std::map<const xAOD::TruthParticle*, HF_id> partonsOrigin; //parton, category
-    std::map<const xAOD::TruthParticle*, const xAOD::TruthParticle*> hadronsPartons; //hadron, category
-    std::map<const xAOD::TruthParticle*, HF_id> hadronsOrigin; //hadron, category
+    std::map<const xAOD::TruthParticle*, HF_id> m_partonsOrigin; //parton, category
+    std::map<const xAOD::TruthParticle*, const xAOD::TruthParticle*> m_hadronsPartons; //hadron, category
+    std::map<const xAOD::TruthParticle*, HF_id> m_hadronsOrigin; //hadron, category
 
     std::string m_mcName;
     double m_HadronPtMinCut;
