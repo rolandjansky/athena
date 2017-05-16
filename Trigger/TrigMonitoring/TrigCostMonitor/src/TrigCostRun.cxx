@@ -563,7 +563,7 @@ bool TrigCostRun::ReadHLTResult::ReadConfigDB(ServiceHandle<StoreGateSvc> &store
 
   // Look at all events in this container event which come from a different LB
   for (const TrigMonEvent* trigMonEvent : trigMonEvents) {
-    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << " Get config for event " << trigMonEvent->getEvent() << " lumi " << trigMonEvents->getLumi() << endmsg;
+    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << " Get config for event " << trigMonEvent->getEvent() << " lumi " << trigMonEvent->getLumi() << endmsg;
 
     TrigMonConfig* trigMonConfig = new TrigMonConfig();
 
