@@ -47,9 +47,9 @@ ToolSvc += theAtlasExtrapolator
 
 from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import ParticleToCaloExtrapolationTool
 ParticleToCaloExtrapolationTool = ParticleToCaloExtrapolationTool(name = "ParticleToCaloExtrapolationTool", 
-									                              Extrapolator = theAtlasExtrapolator,
+                                                                  Extrapolator = theAtlasExtrapolator,
                                                                   ParticleType = "pion" )
-ParticleToCaloExtrapolationTool.OutputLevel = DEBUG
+#ParticleToCaloExtrapolationTool.OutputLevel = DEBUG
 ToolSvc += ParticleToCaloExtrapolationTool
 
 print ParticleToCaloExtrapolationTool
@@ -115,10 +115,23 @@ jettva  =   TrackVertexAssociationTool( name                    = "tvassoc",
 ToolSvc+=jettva 
 print      jettva
 
+from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import ClusterFilterTool
+clusterfiltertool = ClusterFilterTool(name                       = "clusterfiltertool",
+                                      LooseTrackVertexAssoTool   = loosetrackvertexassotool,
+                                      TrackParticleContainerName = "InDetTrackParticles",
+                                      ConeSize                   = 0.2,
+                                      StoreParameters            = False)
+
+ToolSvc+=clusterfiltertool
+#clusterfiltertool.OutputLevel = VERBOSE
+print clusterfiltertool
+
 from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import TrackCaloClusterCreatorTool
 TrackCaloClusterCreator = TrackCaloClusterCreatorTool(name                      = "TrackCaloClusterCreator",
                                                       VertexContainerName       = "PrimaryVertices",
                                                       LooseTrackVertexAssoTool  = loosetrackvertexassotool,
+                                                      ApplyClusterFilter        = True,
+                                                      ClusterFilterTool         = clusterfiltertool,
                                                       UseEnergy                 = True    )
 # TrackCaloClusterCreator.OutputLevel = VERBOSE
 ToolSvc+=TrackCaloClusterCreator
@@ -229,7 +242,7 @@ if 1:
   subjetfinder.SubjetRecorder = subjetrecorder
    
   clname = "TrackCaloClusters"
-  clname1 = "TrackCaloClustersCharged"
+  clname1 = "TrackCaloClustersCombined"
   clname2 = "TrackCaloClustersAll"
   clname3 = "TrackCaloClustersAllTrack"
   
@@ -486,8 +499,8 @@ xaodStream = MSMgr.NewPoolRootStream( "StreamAOD", "XAOD_"+Name+".pool.root" )
 # xaodStream.AddItem("xAOD::VertexContainer#PrimaryVertices")
 # xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClusters")
 # xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersAux.")
-# xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClustersCharged")
-# xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersChargedAux.")
+# xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClustersCombined")
+# xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersCombinedAux.")
 # xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClustersAll")
 # xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersAllAux.")
 # xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClustersAllTrack")

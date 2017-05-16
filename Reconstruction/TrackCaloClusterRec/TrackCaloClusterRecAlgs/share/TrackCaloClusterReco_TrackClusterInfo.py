@@ -114,6 +114,17 @@ jettva  =   TrackVertexAssociationTool( name                    = "tvassoc",
 ToolSvc+=jettva 
 print      jettva
 
+from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import ClusterFilterTool
+clusterfiltertool = ClusterFilterTool(name                       = "clusterfiltertool",
+                                      LooseTrackVertexAssoTool   = loosetrackvertexassotool,
+                                      TrackParticleContainerName = "InDetTrackParticles",
+                                      ConeSize                   = 0.2,
+                                      StoreParameters            = False)
+
+ToolSvc+=clusterfiltertool
+#clusterfiltertool.OutputLevel = VERBOSE
+print clusterfiltertool
+
 from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import TrackCaloClusterCreatorTool
 TrackCaloClusterCreator = TrackCaloClusterCreatorTool(name                      = "TrackCaloClusterCreator",
                                                       VertexContainerName       = "PrimaryVertices",
