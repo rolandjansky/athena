@@ -18,7 +18,7 @@ bool EffWriteManager::save(const Efficiency& eff) {
 
   // add mcr files from directory path and all subdirectories to the file list
   vector<string> files ;
-  m_addFilesToList(m_path.c_str(), files) ;    
+  addFilesToList(m_path.c_str(), files) ;    
   
   EffInfo request = eff.getInfo() ;
   string FileName = request.makeFileName();
@@ -69,7 +69,7 @@ bool EffWriteManager::save(const Efficiency& eff) {
 }
 
 
-void EffWriteManager::m_addFilesToList(const char* path, vector<string>& files) {
+void EffWriteManager::addFilesToList(const char* path, vector<string>& files) {
   
    void* work_dir = 0 ;
    work_dir = gSystem->OpenDirectory(path)  ;
@@ -88,7 +88,7 @@ void EffWriteManager::m_addFilesToList(const char* path, vector<string>& files) 
      string file_name = file_name_c ;
      if (file_name == "." || file_name == "..") continue ;      
      if ( (flags & 2) == 2) {
-       m_addFilesToList(gSystem->ConcatFileName(path,file_name_c), files) ;
+       addFilesToList(gSystem->ConcatFileName(path,file_name_c), files) ;
        continue ;
      }
      if ( file_name.find(".mcr") == string::npos ) continue ;           
