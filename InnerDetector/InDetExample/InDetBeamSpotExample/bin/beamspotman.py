@@ -5,7 +5,7 @@
 beamspotman is a command line utility to do typical beam spot related tasks.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: beamspotman.py 780766 2016-10-27 14:03:02Z amorley $'
+__version__ = 'beamspotman.py atlas/athena'
 __usage__   = '''%prog [options] command [args ...]
 
 Commands are:

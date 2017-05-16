@@ -5,7 +5,7 @@ ATLAS beam spot web page for displaying details of beam spot jobs.
 """
 
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: JobDetails.py 467432 2011-11-10 16:36:27Z beringer $'
+__version__ = 'JobDetails.py atlas/athena'
 
 from BeamSpotWebPage import BeamSpotWebPage
 from InDetBeamSpotExample.TaskManager import *
