@@ -1,0 +1,10 @@
+#
+# Package filtering rules for the AthAnalysis project build.
+#
+
+# Testing package(s):
++ AtlasTest/TestTools
+
+
+# Don't build anything else:
+- .*
