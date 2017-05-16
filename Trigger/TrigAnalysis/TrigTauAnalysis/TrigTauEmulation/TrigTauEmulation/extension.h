@@ -90,7 +90,7 @@ class ExtensionContainer {
         }
     };
   protected:
-    ExtensionStack extensions;
+    ExtensionStack m_extensions;
   public:
     ExtensionContainer() {
     }
@@ -98,13 +98,13 @@ class ExtensionContainer {
     ExtensionContainer(const ExtensionContainer& c) {
         // otherwise wrong order will be used, can matter
         ExtensionStack toBeAdded;
-        for (Element ext : c.extensions) {
+        for (Element ext : c.m_extensions) {
             Element copy = ext->copy();
             if (copy)
                 toBeAdded.push(copy);
         }
         while (!toBeAdded.empty())
-            extensions.push(toBeAdded.pop());
+            m_extensions.push(toBeAdded.pop());
     }
 
     ExtensionContainer(ExtensionContainer&& c) = default;
@@ -114,48 +114,48 @@ class ExtensionContainer {
         // otherwise wrong order will be used, can matter
         ExtensionContainer retval;
         ExtensionStack toBeAdded;
-        for (Element ext : c.extensions) {
+        for (Element ext : c.m_extensions) {
             Element copy = ext->copy(std::forward<CopyArgs...>(args...));
             if (copy)
                 toBeAdded.push(copy);
         }
         while (!toBeAdded.empty())
-            retval.extensions.push(toBeAdded.pop());
+            retval.m_extensions.push(toBeAdded.pop());
         return retval;
     }
 
     ExtensionStack& getAllExtensions() {
-        return extensions;
+        return m_extensions;
     }
 
     template <class T>
     T getExtension() const {
-        return extensions.first(Match<T>());
+        return m_extensions.first(Match<T>());
     }
 
     template <class T>
     T getExtensionOfBaseType() const {
-        return extensions.first(MatchDynamic<T>());
+        return m_extensions.first(MatchDynamic<T>());
     }
 
     template <class T>
-    auto selectExtensions() const -> decltype(extensions.select(std::declval<Match<T>&&>())) {
-        return extensions.template select(Match<T>());
+    auto selectExtensions() const -> decltype(m_extensions.select(std::declval<Match<T>&&>())) {
+        return m_extensions.template select(Match<T>());
     }
     
     template <class T>
-    auto selectExtensions() -> decltype(extensions.select(std::declval<Match<T>&&>())) {
-        return extensions.template select(Match<T>());
+    auto selectExtensions() -> decltype(m_extensions.select(std::declval<Match<T>&&>())) {
+        return m_extensions.template select(Match<T>());
     }
 
     template <class T>
-    auto selectExtensionsOfBaseType() const -> decltype(extensions.select(std::declval<MatchDynamic<T>&&>())) {
-        return extensions.template select(MatchDynamic<T>());
+    auto selectExtensionsOfBaseType() const -> decltype(m_extensions.select(std::declval<MatchDynamic<T>&&>())) {
+        return m_extensions.template select(MatchDynamic<T>());
     }
     
     template <class T>
-    auto selectExtensionsOfBaseType() -> decltype(extensions.select(std::declval<MatchDynamic<T>&&>())) {
-        return extensions.template select(MatchDynamic<T>());
+    auto selectExtensionsOfBaseType() -> decltype(m_extensions.select(std::declval<MatchDynamic<T>&&>())) {
+        return m_extensions.template select(MatchDynamic<T>());
     }
 
     template <class T>
@@ -166,13 +166,13 @@ class ExtensionContainer {
         //extension->type = FastType<typename std::remove_pointer<T>::type>::value;
         extension->Extension<E>::type = FastType<typename std::remove_pointer<T>::type>::value;
 #endif
-        extensions.push_back(extension);
+        m_extensions.push_back(extension);
     }
 
     template <class T>
     T removeExtension() {
         Match<T> m;
-        for (auto it = extensions.select(std::ref(m)).begin(); it != extensions.end(); )
+        for (auto it = m_extensions.select(std::ref(m)).begin(); it != m_extensions.end(); )
             return it.erase();
         return nullptr;
     }
@@ -180,13 +180,13 @@ class ExtensionContainer {
     template <class T>
     T removeExtensionOfBaseType() {
         MatchDynamic<T> m;
-        for (auto it = extensions.select(std::ref(m)).begin(); it != extensions.end(); )
+        for (auto it = m_extensions.select(std::ref(m)).begin(); it != m_extensions.end(); )
             return it.erase();
         return nullptr;
     }
 
     ExtensionStack clearExtensions() {
-        return extensions.pop_all();
+        return m_extensions.pop_all();
     }
 };
 
