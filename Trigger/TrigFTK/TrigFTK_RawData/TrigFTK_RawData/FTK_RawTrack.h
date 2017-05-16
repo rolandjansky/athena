@@ -109,19 +109,19 @@ class FTK_RawTrack {
   std::vector<FTK_RawSCT_Cluster>  m_sct_clusters;
   signed long m_barcode;
 
-  static const int npixlayers = 4; 
-  static const int nsctlayers = 8;
-  static const int nlayers=12;
-  static const int sixteen_bit_offset = 32767; // 2**15 -1 
-  static const int sixteen_bit_max = 65535; // 2**16 -1 
-  static const float d0_multiplier;
-  static const float z0_multiplier;
-  static const float phi_multiplier;
-  static const float curv_multiplier;
-  static const float cot_multiplier;
-  static const float chi2_multiplier;
-  //  static const float quality_multiplier;
-  static const float invpt_multiplier;
+  static const int s_npixlayers = 4; 
+  static const int s_nsctlayers = 8;
+  static const int s_nlayers=12;
+  static const int s_sixteen_bit_offset = 32767; // 2**15 -1 
+  static const int s_sixteen_bit_max = 65535; // 2**16 -1 
+  static const float s_d0_multiplier;
+  static const float s_z0_multiplier;
+  static const float s_phi_multiplier;
+  static const float s_curv_multiplier;
+  static const float s_cot_multiplier;
+  static const float s_chi2_multiplier;
+  //  static const float s_quality_multiplier;
+  static const float s_invpt_multiplier;
 
 
 };
