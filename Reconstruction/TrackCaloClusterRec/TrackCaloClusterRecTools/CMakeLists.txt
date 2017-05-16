@@ -9,17 +9,18 @@ atlas_subdir( TrackCaloClusterRecTools )
 atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           GaudiKernel
+                          Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecInterfaces                         
                           Tracking/TrkEvent/TrkCaloExtension
                           Tracking/TrkEvent/TrkParametersIdentificationHelpers
                           PRIVATE
                           Control/AthenaBaseComps
                           DetectorDescription/AtlasDetDescr
+                          Event/FourMomUtils
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTruth
                           Event/xAOD/xAODTrackCaloCluster
                           Event/xAOD/xAODAssociations
-                          Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecInterfaces                         
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
@@ -37,10 +38,14 @@ atlas_add_library( TrackCaloClusterRecToolsLib
                    PUBLIC_HEADERS TrackCaloClusterRecTools
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel TrkCaloExtension TrkParametersIdentificationHelpers 
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps AtlasDetDescr xAODMuon xAODTracking xAODTruth xAODTrackCaloCluster xAODAssociations TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrackVertexAssociationTool)
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps AtlasDetDescr FourMomUtils xAODMuon xAODTracking xAODTruth 
+                   xAODTrackCaloCluster xAODAssociations TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack 
+                   TrkExInterfaces TrackVertexAssociationTool)
 
 atlas_add_component( TrackCaloClusterRecTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel TrkCaloExtension TrkParametersIdentificationHelpers 
-                     AthenaBaseComps AtlasDetDescr xAODMuon xAODTracking xAODTruth xAODTrackCaloCluster xAODAssociations TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrackVertexAssociationTool TrackCaloClusterRecToolsLib )
+                     AthenaBaseComps AtlasDetDescr xAODMuon xAODTracking xAODTruth xAODTrackCaloCluster xAODAssociations 
+                     TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrackVertexAssociationTool 
+                     TrackCaloClusterRecToolsLib )

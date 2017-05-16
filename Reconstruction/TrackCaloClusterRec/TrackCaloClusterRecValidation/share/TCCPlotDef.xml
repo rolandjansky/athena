@@ -1150,155 +1150,329 @@
   
   
   <!-- m_clusters_eta -->
-  <h id="clusters_eta" type="TH1F" title="#eta of all clusters">
+  <h id="clusters_eta" type="TH1F" title="#eta of all clusters - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Entries"/>
   </h>
   
   <!-- m_clusters_matched_eta -->
-  <h id="clusters_matched_eta" type="TH1F" title="#eta of matching clusters">
+  <h id="clusters_matched_eta" type="TH1F" title="#eta of matching clusters - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Entries"/>
   </h>
  
   <!-- m_clusters_notMatched_eta -->
-  <h id="clusters_notMatched_eta" type="TH1F" title="#eta of not matching clusters">
+  <h id="clusters_notMatched_eta" type="TH1F" title="#eta of not matching clusters - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Entries"/>
   </h>
 
   <!-- m_clusters_matchedFraction_eta -->
-  <h id="clusters_matchedFraction_eta" type="TH1F" title="fraction of matching clusters">
+  <h id="clusters_matchedFraction_eta" type="TH1F" title="fraction of matching clusters - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Fraction of matching clusters"/>
   </h>
 
   <!-- m_clusters_notMatchedFraction_eta -->
-  <h id="clusters_notMatchedFraction_eta" type="TH1F" title="fraction of not matching clusters">
+  <h id="clusters_notMatchedFraction_eta" type="TH1F" title="fraction of not matching clusters - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Fraction of not matching clusters"/>
   </h>
 
   <!-- m_clusters_width -->
-  <h id="clusters_width" type="TH1F" title="Cluster width for all clusters">
+  <h id="clusters_width" type="TH1F" title="Cluster width for all clusters - Energy weight">
     <x title="Cluster width" n="100" lo="0" hi="1."/>
     <y title="Entries"/>
   </h>
 
   <!-- m_clusters_width_eta -->
-  <h id="clusters_width_eta" type="TH2F" title="Cluster width vs #eta for all clusters">
+  <h id="clusters_width_eta" type="TH2F" title="Cluster width vs #eta for all clusters - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Cluster width" n="100" lo="0" hi="1.0"/>
   </h>
   
   <!-- m_clusters_matched_eta_fix_and_var -->
-  <h id="clusters_matched_eta_fix_and_var" type="TH1F" title="#eta of matching clusters - fixed and variable #Delta R">
+  <h id="clusters_matched_eta_fix_and_var" type="TH1F" title="#eta of matching clusters - fixed and variable #Delta R - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Entries"/>
   </h>
   
   <!-- m_clusters_matched_eta_fix_or_var -->
-  <h id="clusters_matched_eta_fix_or_var" type="TH1F" title="#eta of matching clusters - fixed or variable #Delta R">
+  <h id="clusters_matched_eta_fix_or_var" type="TH1F" title="#eta of matching clusters - fixed or variable #Delta R - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Entries"/>
   </h>
 
   <!-- m_clusters_matched_eta_fix -->
-  <h id="clusters_matched_eta_fix" type="TH1F" title="#eta of matching clusters - fixed #Delta R">
+  <h id="clusters_matched_eta_fix" type="TH1F" title="#eta of matching clusters - fixed #Delta R - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Entries"/>
   </h>
   
   <!-- m_clusters_matched_eta_notfix -->
-  <h id="clusters_matched_eta_notfix" type="TH1F" title="#eta of not matching clusters - fixed #Delta R">
+  <h id="clusters_matched_eta_notfix" type="TH1F" title="#eta of not matching clusters - fixed #Delta R - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Entries"/>
   </h>
   
   <!-- m_clusters_matched_eta_var -->
-  <h id="clusters_matched_eta_var" type="TH1F" title="#eta of matching clusters - variable #Delta R">
+  <h id="clusters_matched_eta_var" type="TH1F" title="#eta of matching clusters - variable #Delta R - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Entries"/>
   </h>
 
   <!-- m_clusters_matched_eta_notvar -->
-  <h id="clusters_matched_eta_notvar" type="TH1F" title="#eta of not matching clusters - variable #Delta R">
+  <h id="clusters_matched_eta_notvar" type="TH1F" title="#eta of not matching clusters - variable #Delta R - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Entries"/>
   </h>
 
   <!-- m_clusters_matched_eta_onlyvar -->
-  <h id="clusters_matched_eta_onlyvar" type="TH1F" title="#eta of matching clusters - only variable #DeltaR">
+  <h id="clusters_matched_eta_onlyvar" type="TH1F" title="#eta of matching clusters - only variable #DeltaR - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Entries"/>
   </h>
 
   <!-- m_clusters_matched_eta_onlyfix -->
-  <h id="clusters_matched_eta_onlyfix" type="TH1F" title="#eta of matching clusters - only fixed #DeltaR">
+  <h id="clusters_matched_eta_onlyfix" type="TH1F" title="#eta of matching clusters - only fixed #DeltaR - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Entries"/>
   </h>
 
   <!-- m_clusters_matched_eta_none -->
-  <h id="clusters_matched_eta_none" type="TH1F" title="#eta of not matching clusters">
+  <h id="clusters_matched_eta_none" type="TH1F" title="#eta of not matching clusters - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Entries"/>
   </h>
 
   <!-- m_clusters_matchedFraction_eta_fix_and_var -->
-  <h id="clusters_matchedFraction_eta_fix_and_var" type="TH1F" title="Fraction of matching clusters - fixed and variable #Delta R">
+  <h id="clusters_matchedFraction_eta_fix_and_var" type="TH1F" title="Fraction of matching clusters - fixed and variable #Delta R - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Fraction of matching clusters"/>
   </h>
 
   <!-- m_clusters_matchedFraction_eta_fix_or_var -->
-  <h id="clusters_matchedFraction_eta_fix_or_var" type="TH1F" title="Fraction of matching clusters - fixed or variable #Delta R">
+  <h id="clusters_matchedFraction_eta_fix_or_var" type="TH1F" title="Fraction of matching clusters - fixed or variable #Delta R - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Fraction of matching clusters"/>
   </h>
 
   <!-- m_clusters_matchedFraction_eta_fix -->
-  <h id="clusters_matchedFraction_eta_fix" type="TH1F" title="Fraction of matching clusters - fixed #Delta R">
+  <h id="clusters_matchedFraction_eta_fix" type="TH1F" title="Fraction of matching clusters - fixed #Delta R - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Fraction of matching clusters"/>
   </h>
 
   <!-- m_clusters_matchedFraction_eta_notfix -->
-  <h id="clusters_matchedFraction_eta_notfix" type="TH1F" title="Fraction of not matching clusters - fixed #Delta R">
+  <h id="clusters_matchedFraction_eta_notfix" type="TH1F" title="Fraction of not matching clusters - fixed #Delta R - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Fraction of not matching clusters"/>
   </h>
 
   <!-- m_clusters_matchedFraction_eta_var -->
-  <h id="clusters_matchedFraction_eta_var" type="TH1F" title="Fraction of matching clusters - variable #Delta R">
+  <h id="clusters_matchedFraction_eta_var" type="TH1F" title="Fraction of matching clusters - variable #Delta R - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Fraction of matching clusters"/>
   </h>
 
   <!-- m_clusters_matchedFraction_eta_notvar -->
-  <h id="clusters_matchedFraction_eta_notvar" type="TH1F" title="Fraction of not matching clusters - variable #Delta R">
+  <h id="clusters_matchedFraction_eta_notvar" type="TH1F" title="Fraction of not matching clusters - variable #Delta R - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Fraction of matching clusters"/>
   </h>
 
   <!-- m_clusters_matchedFraction_eta_onlyvar -->
-  <h id="clusters_matchedFraction_eta_onlyvar" type="TH1F" title="Fraction of matching clusters - only variable #Delta R">
+  <h id="clusters_matchedFraction_eta_onlyvar" type="TH1F" title="Fraction of matching clusters - only variable #Delta R - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Fraction of matching clusters"/>
   </h>
 
   <!-- m_clusters_matchedFraction_eta_onlyfix -->
-  <h id="clusters_matchedFraction_eta_onlyfix" type="TH1F" title="Fraction of matching clusters - only fixed #Delta R">
+  <h id="clusters_matchedFraction_eta_onlyfix" type="TH1F" title="Fraction of matching clusters - only fixed #Delta R - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Fraction of matching clusters"/>
   </h>
 
   <!-- m_clusters_matchedFraction_eta_none -->
-  <h id="clusters_matchedFraction_eta_none" type="TH1F" title="Fraction of not matching clusters">
+  <h id="clusters_matchedFraction_eta_none" type="TH1F" title="Fraction of not matching clusters - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
     <y title="Fraction of not matching clusters"/>
   </h>
   
+  <!-- m_clusters_abs_eta -->
+  <h id="clusters_abs_eta" type="TH1F" title="#eta of all clusters">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_abs_matched_eta -->
+  <h id="clusters_abs_matched_eta" type="TH1F" title="#eta of matching clusters">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+ 
+  <!-- m_clusters_abs_notMatched_eta -->
+  <h id="clusters_abs_notMatched_eta" type="TH1F" title="#eta of not matching clusters">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedFraction_eta -->
+  <h id="clusters_abs_matchedFraction_eta" type="TH1F" title="fraction of matching clusters">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_notMatchedFraction_eta -->
+  <h id="clusters_abs_notMatchedFraction_eta" type="TH1F" title="fraction of not matching clusters">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of not matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_width -->
+  <h id="clusters_abs_width" type="TH1F" title="Cluster width for all clusters">
+    <x title="Cluster width" n="100" lo="0" hi="1."/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_width_eta -->
+  <h id="clusters_abs_width_eta" type="TH2F" title="Cluster width vs #eta for all clusters">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Cluster width" n="100" lo="0" hi="1.0"/>
+  </h>
+  
+  <!-- m_clusters_abs_matched_eta_fix_and_var -->
+  <h id="clusters_abs_matched_eta_fix_and_var" type="TH1F" title="#eta of matching clusters - fixed and variable #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_abs_matched_eta_fix_or_var -->
+  <h id="clusters_abs_matched_eta_fix_or_var" type="TH1F" title="#eta of matching clusters - fixed or variable #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matched_eta_fix -->
+  <h id="clusters_abs_matched_eta_fix" type="TH1F" title="#eta of matching clusters - fixed #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_abs_matched_eta_notfix -->
+  <h id="clusters_abs_matched_eta_notfix" type="TH1F" title="#eta of not matching clusters - fixed #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_abs_matched_eta_var -->
+  <h id="clusters_abs_matched_eta_var" type="TH1F" title="#eta of matching clusters - variable #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matched_eta_notvar -->
+  <h id="clusters_abs_matched_eta_notvar" type="TH1F" title="#eta of not matching clusters - variable #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matched_eta_onlyvar -->
+  <h id="clusters_abs_matched_eta_onlyvar" type="TH1F" title="#eta of matching clusters - only variable #DeltaR">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matched_eta_onlyfix -->
+  <h id="clusters_abs_matched_eta_onlyfix" type="TH1F" title="#eta of matching clusters - only fixed #DeltaR">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matched_eta_none -->
+  <h id="clusters_abs_matched_eta_none" type="TH1F" title="#eta of not matching clusters">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedFraction_eta_fix_and_var -->
+  <h id="clusters_abs_matchedFraction_eta_fix_and_var" type="TH1F" title="Fraction of matching clusters - fixed and variable #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedFraction_eta_fix_or_var -->
+  <h id="clusters_abs_matchedFraction_eta_fix_or_var" type="TH1F" title="Fraction of matching clusters - fixed or variable #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedFraction_eta_fix -->
+  <h id="clusters_abs_matchedFraction_eta_fix" type="TH1F" title="Fraction of matching clusters - fixed #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedFraction_eta_notfix -->
+  <h id="clusters_abs_matchedFraction_eta_notfix" type="TH1F" title="Fraction of not matching clusters - fixed #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of not matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedFraction_eta_var -->
+  <h id="clusters_abs_matchedFraction_eta_var" type="TH1F" title="Fraction of matching clusters - variable #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedFraction_eta_notvar -->
+  <h id="clusters_abs_matchedFraction_eta_notvar" type="TH1F" title="Fraction of not matching clusters - variable #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedFraction_eta_onlyvar -->
+  <h id="clusters_abs_matchedFraction_eta_onlyvar" type="TH1F" title="Fraction of matching clusters - only variable #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedFraction_eta_onlyfix -->
+  <h id="clusters_abs_matchedFraction_eta_onlyfix" type="TH1F" title="Fraction of matching clusters - only fixed #Delta R">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedFraction_eta_none -->
+  <h id="clusters_abs_matchedFraction_eta_none" type="TH1F" title="Fraction of not matching clusters">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of not matching clusters"/>
+  </h>
+  
+  <!-- m_clusters_pt_fraction_e -->
+  <h id="clusters_pt_fraction_e" type="TH2F" title="p_{T} fraction at PV0 - all clusters">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="p_{T} fraction at PV0" n="1000" lo="0." hi="1."/>
+  </h>
+  
+  <!-- m_clusters_PV0_pt_fraction_e -->
+  <h id="clusters_PV0_pt_fraction_e" type="TH2F" title="p_{T} fraction at PV0 - cluster matched PV0">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="p_{T} fraction at PV0" n="1000" lo="0." hi="1."/>
+  </h>
+  
+  <!-- m_clusters_PVX_pt_fraction_e -->
+  <h id="clusters_PVX_pt_fraction_e" type="TH2F" title="p_{T} fraction at PV0 - cluster matched PVX">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="p_{T} fraction at PV0" n="1000" lo="0." hi="1."/>
+  </h>
+  
+  <!-- m_clusters_rejected_pt_fraction_e -->
+  <h id="clusters_rejected_pt_fraction_e" type="TH2F" title="p_{T} fraction at PV0 - rejected clusters">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="p_{T} fraction at PV0" n="1000" lo="0." hi="1."/>
+  </h>
+      
   <!-- m_trk_total_eta -->
   <h id="trk_total_eta" type="TH1F" title="#eta of all extrapolated tracks">
     <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
@@ -1310,7 +1484,7 @@
     <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
     <y title="Entries"/>
   </h>
-
+  
   <!-- m_trk_total_clusters_eta -->
   <h id="trk_total_clusters_eta" type="TH2F" title="Number of clusters vs extrapolated track #eta">
     <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
@@ -1683,5 +1857,119 @@
     <y title="Fraction of not matching tracks"/>
   </h>
 
+  <!-- trk_tcc_reco_pt_response -->
+  <h id="trk_tcc_reco_pt_response" type="TH1F" title="p_{T} response">
+    <x title="Track p_{T} response" n="100" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_tcc_reco_pt_truth_pt -->
+  <h id="trk_tcc_reco_pt_truth_pt" type="TH2F" title="Track p_{T} vs Truth p_{T}">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Truth p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+  </h>
+
+  <!-- m_tcc_pt -->
+  <h id="tcc_pt" type="TH1F" title="TCC p_{T}">
+    <x title="TrackCaloCluster p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Entries" />
+  </h> 
+  
+  <!-- m_tcc_eta -->
+  <h id="tcc_eta" type="TH1F" title="TCC #eta">
+    <x title="TrackCaloCluster #eta [rad]" n="500"  lo="-4." hi="4."/>
+    <y title="Entries" />
+  </h>  
+  
+  <!-- m_tcc_phi -->
+  <h id="tcc_phi" type="TH1F" title="TCC #phi">
+    <x title="TrackCaloCluster #phi [rad]" n="500"  lo="-4." hi="4."/>
+    <y title="Entries" />
+  </h> 
+  
+  <!-- m_tcc_m -->
+  <h id="tcc_m" type="TH1F" title="TCC mass">
+    <x title="TrackCaloCluster mass [GeV]" n="100" lo="0." hi="100."/>
+    <y title="Entries" />
+  </h> 
+
+  <!-- m_tcc_taste -->
+  <h id="tcc_taste" type="TH1F" title="TCC Taste">
+    <x title="TrackCaloCluster Taste" n="5" lo="0" hi="5"/>
+    <y title="Entries" />
+  </h> 
+
+  <!-- m_tcc_pt_pseudoresponse -->
+  <h id="tcc_pt_pseudoresponse" type="TH1F" title="TCC p_{T} pseudoresponse">
+    <x title="TrackCaloCluster p_{T} pseudoresponse" n="100" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_tcc_pt_response -->
+  <h id="tcc_pt_response" type="TH1F" title="TCC p_{T} response">
+    <x title="TrackCaloCluster p_{T} response" n="100" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_tcc_pt_track_pt -->
+  <h id="tcc_pt_track_pt" type="TH2F" title="TCC p_{T} vs Track p_{T}">
+    <x title="TrackCaloCluster p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+  </h>
+  
+  <!-- m_tcc_pt_truth_pt -->
+  <h id="tcc_pt_truth_pt" type="TH2F" title="TCC p_{T} vs Truth p_{T}">
+    <x title="TrackCaloCluster p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Truth p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+  </h>
+  
+  <!-- m_clusters_all_neutral_eta -->
+  <h id="clusters_all_neutral_eta" type="TH1F" title="Cluster #eta - all Neutral">
+    <x title="Cluster #eta [rad]" n="200"  lo="-4." hi="4."/>
+    <y title="Entries" />
+  </h>
+  
+  <!-- m_clusters_all_neutral_e-->
+  <h id="clusters_all_neutral_e" type="TH1F" title="Cluster Energy - all Neutral">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Entries" />
+  </h>
+     
+  <!-- m_clusters_all_neutral_PV0_eta -->
+  <h id="clusters_all_neutral_PV0_eta" type="TH1F" title="Cluster #eta - all Neutral from PV0">
+    <x title="Cluster #eta [rad]" n="200"  lo="-4." hi="4."/>
+    <y title="Entries" />
+  </h>
+  
+  <!-- m_clusters_all_neutral_PV0_e-->
+  <h id="clusters_all_neutral_PV0_e" type="TH1F" title="Cluster Energy - all Neutral from PV0">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Entries" />
+  </h>
+  
+  <!-- m_clusters_all_neutral_notPV0_eta -->
+  <h id="clusters_all_neutral_notPV0_eta" type="TH1F" title="Cluster #eta - all Neutral not PV0">
+    <x title="Cluster #eta [rad]" n="200"  lo="-4." hi="4."/>
+    <y title="Entries" />
+  </h>
+  
+  <!-- m_clusters_all_neutral_notPV0_e-->
+  <h id="clusters_all_neutral_notPV0_e" type="TH1F" title="Cluster Energy - all Neutral not PV0">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Entries" />
+  </h>
+  
+  <!-- m_clusters_all_neutral_neutral_eta -->
+  <h id="clusters_all_neutral_neutral_eta" type="TH1F" title="Cluster #eta - all Neutral real">
+    <x title="Cluster #eta [rad]" n="200"  lo="-4." hi="4."/>
+    <y title="Entries" />
+  </h>
+  
+  <!-- m_clusters_all_neutral_neutral_e-->
+  <h id="clusters_all_neutral_neutral_e" type="TH1F" title="Cluster Energy - all Neutral real">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Entries" />
+  </h>
+  
 </hdef>
 

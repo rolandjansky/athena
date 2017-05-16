@@ -15,6 +15,8 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODTrackCaloCluster/TrackCaloClusterContainer.h"
+#include "xAODTruth/TruthParticleContainer.h"
 
 class TCCPlots: public TCCPlotsBase {
 public:
@@ -56,6 +58,8 @@ public:
   
   void fillMatching(const xAOD::TrackParticle& track);
   void fillCluster(const xAOD::CaloCluster& cluster);
+  
+  void fillTCC(const xAOD::TrackCaloCluster& tcc);
     
   void make_median(TH2* h2_response, TH1* h1_resolution);
   void make_median(TH3* h3_response, TH2* h2_resolution);
@@ -67,6 +71,10 @@ public:
   void setTrackProdRadiusBinning(const std::vector<float>& bins);
 
   void resizeHistograms();
+  
+  const xAOD::TruthParticle* getTruthPtr(const xAOD::TrackParticle& trackParticle) const;
+  const xAOD::TrackParticle* getTrackParticlePtr(const xAOD::TrackCaloCluster& tcc) const;
+
   
 private:
   std::string m_collectionType             ;
@@ -308,7 +316,47 @@ private:
   TH1* m_clusters_matchedFraction_eta_notvar     ;
   TH1* m_clusters_matchedFraction_eta_onlyvar    ;
   TH1* m_clusters_matchedFraction_eta_onlyfix    ;
-  TH1* m_clusters_matchedFraction_eta_none       ;  
+  TH1* m_clusters_matchedFraction_eta_none       ; 
+  
+  TH1* m_clusters_abs_eta                    ;
+  TH1* m_clusters_abs_matched_eta            ;
+  TH1* m_clusters_abs_notMatched_eta         ;
+  TH1* m_clusters_abs_matchedFraction_eta    ;
+  TH1* m_clusters_abs_notMatchedFraction_eta ;
+  TH1* m_clusters_abs_width                  ;
+  TH2* m_clusters_abs_width_eta              ;
+  TH1* m_clusters_abs_matched_eta_fix_and_var        ;
+  TH1* m_clusters_abs_matched_eta_fix_or_var         ;
+  TH1* m_clusters_abs_matched_eta_fix                ;
+  TH1* m_clusters_abs_matched_eta_notfix             ;
+  TH1* m_clusters_abs_matched_eta_var                ;
+  TH1* m_clusters_abs_matched_eta_notvar             ;
+  TH1* m_clusters_abs_matched_eta_onlyvar            ;
+  TH1* m_clusters_abs_matched_eta_onlyfix            ;
+  TH1* m_clusters_abs_matched_eta_none               ;
+  TH1* m_clusters_abs_matchedFraction_eta_fix_and_var;
+  TH1* m_clusters_abs_matchedFraction_eta_fix_or_var ;
+  TH1* m_clusters_abs_matchedFraction_eta_fix        ;
+  TH1* m_clusters_abs_matchedFraction_eta_notfix     ;
+  TH1* m_clusters_abs_matchedFraction_eta_var        ;
+  TH1* m_clusters_abs_matchedFraction_eta_notvar     ;
+  TH1* m_clusters_abs_matchedFraction_eta_onlyvar    ;
+  TH1* m_clusters_abs_matchedFraction_eta_onlyfix    ;
+  TH1* m_clusters_abs_matchedFraction_eta_none       ; 
+  
+  TH2* m_clusters_pt_fraction_e                      ;
+  TH2* m_clusters_PV0_pt_fraction_e                  ;
+  TH2* m_clusters_PVX_pt_fraction_e                  ;
+  TH2* m_clusters_rejected_pt_fraction_e             ;
+  
+  TH1* m_clusters_all_neutral_eta                    ;
+  TH1* m_clusters_all_neutral_e                      ;
+  TH1* m_clusters_all_neutral_PV0_eta                ;
+  TH1* m_clusters_all_neutral_PV0_e                  ;
+  TH1* m_clusters_all_neutral_notPV0_eta             ;
+  TH1* m_clusters_all_neutral_notPV0_e               ;
+  TH1* m_clusters_all_neutral_neutral_eta            ;
+  TH1* m_clusters_all_neutral_neutral_e              ;
   
   TH1* m_trk_total_eta                                            ;
   TH1* m_trk_total_pt                                             ;
@@ -375,15 +423,53 @@ private:
   TH1* m_trk_matchedFraction_pt_onlyvar                           ;
   TH1* m_trk_matchedFraction_pt_onlyfix                           ;
   TH1* m_trk_matchedFraction_pt_none                              ;
+    
+  TH1* m_tcc_pt                                                   ;
+  TH1* m_tcc_phi                                                  ;
+  TH1* m_tcc_eta                                                  ;
+  TH1* m_tcc_m                                                    ;
+  TH1* m_tcc_taste                                                ;
+  TH2* m_tcc_pt_truth_pt                                          ;
+  TH1* m_tcc_pt_response                                          ;
+  TH2* m_tcc_pt_track_pt                                          ;
+  TH1* m_tcc_pt_pseudoresponse                                    ;
   
-  
-  
+  TH2* m_trk_tcc_reco_pt_truth_pt                                 ;
+  TH1* m_trk_tcc_reco_pt_response                                 ;   
+      
   // plot base has nop default implementation of this; we use it to book the histos
   void initializePlots();
   void finalizePlots();
   
 };
 
+inline const xAOD::TruthParticle* TCCPlots::getTruthPtr(const xAOD::TrackParticle& trackParticle) const {
+  typedef ElementLink<xAOD::TruthParticleContainer> ElementTruthLink_t;
+  const xAOD::TruthParticle* result(nullptr);
+  // 0. is there any truth?
+  if (trackParticle.isAvailable<ElementTruthLink_t>("truthParticleLink")) {
+    // 1. ..then get link
+    const ElementTruthLink_t ptruthContainer = trackParticle.auxdata<ElementTruthLink_t>("truthParticleLink");
+    if (ptruthContainer.isValid()) {
+      result = *ptruthContainer;
+    }
+  }
+  return result;
+}
+
+inline const xAOD::TrackParticle* TCCPlots::getTrackParticlePtr(const xAOD::TrackCaloCluster& tcc) const {
+  typedef ElementLink<xAOD::TrackParticleContainer> ElementTruthLink_t;
+  const xAOD::TrackParticle* result(nullptr);
+  // 0. is there any truth?
+  if (tcc.isAvailable<ElementTruthLink_t>("trackParticleLink")) {
+    // 1. ..then get link
+    const ElementTruthLink_t ptrackContainer = tcc.auxdata<ElementTruthLink_t>("trackParticleLink");
+    if (ptrackContainer.isValid()) {
+      result = *ptrackContainer;
+    }
+  }
+  return result;
+}
 
 
 

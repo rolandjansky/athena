@@ -9,6 +9,7 @@ atlas_subdir( TrackCaloClusterRecInterfaces )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Event/xAOD/xAODBase
+                          Event/xAOD/xAODCaloEvent
                           Tracking/TrkEvent/TrkCaloExtension
                           Tracking/TrkEvent/TrkEventPrimitives )
 

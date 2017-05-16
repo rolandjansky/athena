@@ -44,14 +44,14 @@ StatusCode TrackCaloClusterRecAlg::execute() {
     std::map <const xAOD::TrackParticle*, FourMom_t> TrackTotalClusterPt;
     std::map <const xAOD::CaloCluster*, FourMom_t> clusterToTracksWeightMap;
     
-    // Charged
+    // Combined
     xAOD::TrackCaloClusterContainer* tccContainer = new xAOD::TrackCaloClusterContainer();
-    ATH_CHECK( evtStore()->record( tccContainer, m_trackCaloClusterContainerName + "Charged" ) );
+    ATH_CHECK( evtStore()->record( tccContainer, m_trackCaloClusterContainerName + "Combined" ) );
 
     xAOD::TrackCaloClusterAuxContainer* tccContainerAux = new xAOD::TrackCaloClusterAuxContainer();
-    ATH_CHECK( evtStore()->record( tccContainerAux, m_trackCaloClusterContainerName + "Charged" + "Aux." ) );
+    ATH_CHECK( evtStore()->record( tccContainerAux, m_trackCaloClusterContainerName + "Combined" + "Aux." ) );
     tccContainer->setStore( tccContainerAux );
-    ATH_MSG_DEBUG( "Recorded TrackCaloClusterContainer with key: " << m_trackCaloClusterContainerName + "Charged" );    
+    ATH_MSG_DEBUG( "Recorded TrackCaloClusterContainer with key: " << m_trackCaloClusterContainerName + "Combined" );    
 
     // Look at associated clusters
     if ( !evtStore()->contains<xAOD::TrackParticleClusterAssociationContainer>( m_trkParticleName+"ClusterAssociations"+m_outputPostFix) ) {
@@ -81,10 +81,9 @@ StatusCode TrackCaloClusterRecAlg::execute() {
     m_trackCaloClusterWeightsTool->fillWeightMaps(associatedClusters, &clusterToTracksMap, &TrackTotalClusterPt, &clusterToTracksWeightMap);
     
     // Create charged xAOD::TCC
-    m_trackCaloClusterCreatorTool->createChargedTCCs(tccContainer, associatedClusters, &TrackTotalClusterPt, &clusterToTracksWeightMap);
+    m_trackCaloClusterCreatorTool->createCombinedTCCs(tccContainer, associatedClusters, &TrackTotalClusterPt, &clusterToTracksWeightMap);
     
-    // Charged + Neutral
-    //xAOD::TrackCaloClusterContainer* tccContainer1 = new xAOD::TrackCaloClusterContainer(*tccContainer);
+    // Combined + ClusterOnly
     xAOD::TrackCaloClusterContainer* tccContainer1 = new xAOD::TrackCaloClusterContainer;
     ATH_CHECK( evtStore()->record( tccContainer1, m_trackCaloClusterContainerName ) );
 
@@ -99,10 +98,9 @@ StatusCode TrackCaloClusterRecAlg::execute() {
     }
     
     // Create neutral xAOD::TCC
-    m_trackCaloClusterCreatorTool->createNeutralTCCs(tccContainer1, allClusters, &clusterToTracksWeightMap);
+    m_trackCaloClusterCreatorTool->createClusterOnlyTCCs(tccContainer1, allClusters, &clusterToTracksWeightMap);
     
-    // Charged + Neutral + TrackOnly
-    //xAOD::TrackCaloClusterContainer* tccContainer2 = new xAOD::TrackCaloClusterContainer(*tccContainer1);
+    // Combined + ClusterOnly + TrackOnly
     xAOD::TrackCaloClusterContainer* tccContainer2 = new xAOD::TrackCaloClusterContainer;
     ATH_CHECK( evtStore()->record( tccContainer2, m_trackCaloClusterContainerName + "All" ) );
 
@@ -119,7 +117,7 @@ StatusCode TrackCaloClusterRecAlg::execute() {
     // Create trackonly xAOD::TCC
     m_trackCaloClusterCreatorTool->createTrackOnlyTCCs(tccContainer2, allTracks, &TrackTotalClusterPt);
     
-    // Charged + TrackOnly
+    // Combined + TrackOnly
     xAOD::TrackCaloClusterContainer* tccContainer3 = new xAOD::TrackCaloClusterContainer;
     ATH_CHECK( evtStore()->record( tccContainer3, m_trackCaloClusterContainerName + "AllTrack" ) );
 

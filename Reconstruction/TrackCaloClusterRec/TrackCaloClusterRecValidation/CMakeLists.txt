@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTruth
                           Event/xAOD/xAODEventInfo
+                          Event/xAOD/xAODTrackCaloCluster
                           Event/EventInfo
                           GaudiKernel
                           InnerDetector/InDetValidation/InDetPhysValMonitoring
@@ -40,7 +41,7 @@ atlas_add_component( TrackCaloClusterRecValidation
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} 
-                     AthenaBaseComps AthenaMonitoringLib xAODTracking xAODTruth GaudiKernel TrkValHistUtils InDetPhysValMonitoringLib
+                     AthenaBaseComps AthenaMonitoringLib xAODTracking xAODTruth xAODTrackCaloCluster GaudiKernel TrkValHistUtils InDetPhysValMonitoringLib
                      AsgTools AthenaKernel GeoPrimitives EventPrimitives xAODBase xAODEventInfo EventInfo xAODJet PathResolver)
 # Install files from the package:
 atlas_install_headers( TrackCaloClusterRecValidation )

@@ -9,6 +9,8 @@
 
 // xAOD include(s):
 #include "xAODBase/IParticle.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 namespace xAOD {
   /** Class describing a TrackCaloCluster 
@@ -22,7 +24,7 @@ namespace xAOD {
   public: 
     
     /// Type of TrackCaloCluster - Charged - Neutral - Both
-    enum Taste { TrackOnly = 0, Neutral, Charged };
+    enum Taste { TrackOnly = 0, ClusterOnly, Combined };
     
     // Default Constructor
     TrackCaloCluster_v1();
@@ -43,6 +45,8 @@ namespace xAOD {
     virtual double           e() const;
     /// The true rapidity (y) of the particle.
     virtual double           rapidity() const;
+    /// The taste of the particle
+    virtual int              taste() const;
     
     /// Definition of the 4-momentum type.
     typedef IParticle::FourMom_t FourMom_t;
@@ -57,35 +61,37 @@ namespace xAOD {
     /// @name Defining parameters functions
     /// The 'defining parameters' are key to the concept of a TrackCaloCluster, and give the values for the IParticle interface
     /// ( pt(), phi(), eta() etc.).
-    /// They use the Trk::Perigee coordinate system, and are defined as:
-    ///  \f$( d_0, z_0, \phi, \theta, q/p )\f$.
-    /// The parameters are expressed with respect to an origin (returned by vx(), vy() and vy() ), currently intended to be the 'beamspot'.
-    /// This origin is expected to be the same for all track particles in a collection (and this may be be enforced).
     /// The \f$\phi\f$ parameter is returned by either the phi() or the phi0() methods, the difference just being whether it is returned as a float or a double (it is stored as a float)
     /// @{
-    /// Returns the charge.
-    float charge() const;
-    /// Returns the \f$\phi\f$ parameter, which has range \f$-\pi\f$ to \f$+\pi\f$.
-    float phi0() const;
-    /// Returns the \f$\theta\f$  parameter, which has range 0 to \f$\pi\f$.
-    float theta() const;
-    /// Returns the \f$q/p\f$  parameter
-    float qOverP() const;
-    /// Set the taste of the TrackCaloCluster
-    void setTaste(Taste);
+    void setParameters(float pt, float eta, float phi, float m, TrackCaloCluster_v1::Taste taste, 
+		       const ElementLink<xAOD::TrackParticleContainer> particle, 
+		       const std::vector< ElementLink< xAOD::CaloClusterContainer > > clusters);       
     /// set the 4-vec
-    void setP4(double pt, double eta, double phi, double m);
-    /// Get the taste of the TrackCaloCluster
-    Taste& getTaste() const;
+    void setP4(float pt, float eta, float phi, float m);
+    /// Set the defining parameters.             
+    void setDefiningParameters(float pt, float eta, float phi0, float m);
     /// @}
+    
+    /// @name Links       
+    /// @{
+    /// @brief Returns a link (which can be invalid) to the xAOD::TrackParticle associated with this TrackCaloCluster.
+    const ElementLink<xAOD::TrackParticleContainer>& trackParticleLink() const;
+    /// @brief Set the link to the TrackParticle
+    void setTrackParticleLink(const ElementLink< xAOD::TrackParticleContainer >& particle);
+    /// @brief Returns a pointer (which can be NULL) to the xAOD::TrackParticle associated with this TrackCaloCluster.
+    const xAOD::TrackParticle* trackParticle() const;       
+    /// @brief Returns a vector to the links (which can be invalid) to the xAOD::CaloClusters associated with this TrackCaloCluster.
+    const std::vector< ElementLink<xAOD::CaloClusterContainer> > & caloClusterLinks() const;
+    /// @brief Set the links to the CaloClusters
+    void setCaloClusterLinks(const std::vector< ElementLink< xAOD::CaloClusterContainer > >& caloClusterLinks);
+    /// @}   
+    
     
   private:
     /// Cached 4-momentum object.
     mutable FourMom_t m_p4;
-
-    /// This is caching the Type of TrackCaloCluster - Charged - Neutral - Both
-    mutable TrackCaloCluster_v1::Taste m_taste;
-    
+    mutable bool m_p4Cached;
+            
   }; 
   
 }
