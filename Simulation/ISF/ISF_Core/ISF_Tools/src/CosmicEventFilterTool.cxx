@@ -11,6 +11,7 @@
 
 //Athena includes
 #include "TrackRecord/TrackRecordCollection.h"
+#include "StoreGate/ReadHandle.h"
 
 // stl includes
 #include <vector>
@@ -19,14 +20,15 @@
 /** Constructor **/
 ISF::CosmicEventFilterTool::CosmicEventFilterTool( const std::string& t,
                                                    const std::string& n,
-                                                   const IInterface* p ) :
-  AthAlgTool(t,n,p),
-  m_ntot(0),
-  m_npass(0),
-  m_useANDFilter(true),
-  m_magicID(0),
-  m_ptMin(-1),
-  m_ptMax(-1)
+                                                   const IInterface* p )
+  :AthAlgTool(t,n,p)
+  , m_ntot(0)
+  , m_npass(0)
+  , m_VolumeNames{""}
+  , m_useANDFilter(true)
+  , m_magicID(0)
+  , m_ptMin(-1)
+  , m_ptMax(-1)
 {
   declareInterface<ISF::IEventFilterTool>(this);
   declareProperty("UseAndFilter", m_useANDFilter, "Use an AND Filter over all the Volumes, if false use an OR filter");
@@ -45,7 +47,7 @@ ISF::CosmicEventFilterTool::~CosmicEventFilterTool() {
 StatusCode  ISF::CosmicEventFilterTool::initialize()
 {
   ATH_MSG_VERBOSE("initialize() ...");
-
+  ATH_CHECK(m_VolumeNames.initialize());
   ATH_MSG_VERBOSE("initialize() successful");
   return StatusCode::SUCCESS;
 }
@@ -66,14 +68,11 @@ bool ISF::CosmicEventFilterTool::eventPassesFilter() const
 {
 
   ++m_ntot;
-  if (m_VolumeNames.value().empty()) { ++m_npass; return true;}
+  if (m_VolumeNames.empty()) { ++m_npass; return true;}
   bool evtPassesFilter(m_useANDFilter);
-  const DataHandle <TrackRecordCollection> coll;
-  const std::vector<std::string>::const_iterator endOfVolumes = m_VolumeNames.value().end();
-  for (std::vector<std::string>::const_iterator volumeIter = m_VolumeNames.value().begin();
-       volumeIter != endOfVolumes; ++volumeIter)
-    {
-      if (evtStore()->retrieve(coll,*volumeIter).isFailure() || !coll)
+  auto trackRecordCollectionHandles = m_VolumeNames.makeHandles();
+  for(auto& coll : trackRecordCollectionHandles) {
+    if (!coll.isValid())
         {
           ATH_MSG_DEBUG("Cannot retrieve TrackRecordCollection " << *volumeIter);
           return false;
