@@ -52,7 +52,7 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   m_overlayedIBLDCNoiseMap(nullptr),
   m_overlayedIBLSCNoiseMap(nullptr),
   m_pixelID(0),
-  m_pixman(0), // kazuki
+  m_pixman(0), 
   m_disk1ACut(1.e-3),
   m_disk2ACut(1.e-3),
   m_disk3ACut(1.e-3),
@@ -102,6 +102,22 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
 NoiseMapBuilder::~NoiseMapBuilder(){}
 
 
+std::string NoiseMapBuilder::getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta){
+  for(unsigned int ii = 0; ii < m_pixelMapping.size(); ii++) {
+    if (m_pixelMapping[ii].second.size() != 4) {
+      std::cout << "getDCSIDFromPosition: Vector size is not 4!" << std::endl;
+      return std::string("Error!");
+    }
+    if (m_pixelMapping[ii].second[0] != barrel_ec) continue;
+    if (m_pixelMapping[ii].second[1] != layer) continue;
+    if (m_pixelMapping[ii].second[2] != module_phi) continue;
+    if (m_pixelMapping[ii].second[3] != module_eta) continue;
+    return m_pixelMapping[ii].first;
+  }
+  std::cout << "Not found!" << std::endl;
+  return std::string("Error!");
+}
+
 
 StatusCode NoiseMapBuilder::initialize(){
   ATH_MSG_INFO( "Initializing NoiseMapBuilder" );
@@ -112,19 +128,17 @@ StatusCode NoiseMapBuilder::initialize(){
     return StatusCode::FAILURE;
   }
 
-  // kazuki ==>
   sc = m_specialPixelMapSvc.retrieve();
   if( !sc.isSuccess() ){
     ATH_MSG_FATAL( "Unable to retrieve SpecialPixelMapSvc" );
     return StatusCode::FAILURE;
   }
-
+  
   sc = detStore()->retrieve( m_pixman, "Pixel" );
   if( !sc.isSuccess() ){
     ATH_MSG_FATAL( "Unable to retrieve pixel ID manager" );
     return StatusCode::FAILURE;
   }
-  // <== //
 
   sc = m_tHistSvc.retrieve();
   if( !sc.isSuccess() ){
@@ -167,9 +181,11 @@ StatusCode NoiseMapBuilder::initialize(){
   std::ifstream ifs;
   for (const auto& x : paths){
     if(is_file_exist((x + "/PixelMapping_Run2.dat").c_str())){
+
       if(m_isIBL){
         ifs.open(x + "/PixelMapping_Run2.dat");
-      } else {
+      } 
+      else {
         ifs.open(x + "/PixelMapping_May08.dat");
       }
       int tmp_barrel_ec; int tmp_layer; int tmp_module_phi; int tmp_module_eta; std::string tmp_module_name;
@@ -1477,19 +1493,3 @@ StatusCode NoiseMapBuilder::finalize() {
 
   return StatusCode::SUCCESS;
 } // end finalize
-
-std::string NoiseMapBuilder::getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta){
-  for(unsigned int ii = 0; ii < m_pixelMapping.size(); ii++) {
-    if (m_pixelMapping[ii].second.size() != 4) {
-      std::cout << "getDCSIDFromPosition: Vector size is not 4!" << std::endl;
-      return std::string("Error!");
-    }
-    if (m_pixelMapping[ii].second[0] != barrel_ec) continue;
-    if (m_pixelMapping[ii].second[1] != layer) continue;
-    if (m_pixelMapping[ii].second[2] != module_phi) continue;
-    if (m_pixelMapping[ii].second[3] != module_eta) continue;
-    return m_pixelMapping[ii].first;
-  }
-  std::cout << "Not found!" << std::endl;
-  return std::string("Error!");
-}

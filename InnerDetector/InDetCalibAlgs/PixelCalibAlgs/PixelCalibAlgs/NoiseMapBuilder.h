@@ -5,7 +5,6 @@
 #ifndef PIXELCONDITIONSALGS_NOISEMAPBUILDER_H
 #define PIXELCONDITIONSALGS_NOISEMAPBUILDER_H
 
-
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -27,7 +26,6 @@ namespace InDetDD{ // kazuki
   class PixelDetectorManager;
 }
 
-
 /**
  *
  * NoiseMapBuilder.h
@@ -42,30 +40,58 @@ namespace InDetDD{ // kazuki
  */
 
 
-class NoiseMapBuilder: public AthAlgorithm{
+class NoiseMapBuilder: public AthAlgorithm {
 
  public:
   NoiseMapBuilder (const std::string& name, ISvcLocator* pSvcLocator);
   ~NoiseMapBuilder();
-
+  
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
 
  private:
-  ServiceHandle< ITHistSvc > m_tHistSvc;
-  ServiceHandle< IInDetConditionsSvc > m_pixelConditionsSummarySvc;
-  ServiceHandle< IPixelByteStreamErrorsSvc > m_BSErrorsSvc;
-  ServiceHandle< ISpecialPixelMapSvc > m_specialPixelMapSvc; // kazuki
+  // vector of modulename and vector(barrel/endcap, layer, phi, eta)
+  std::vector< std::pair< std::string, std::vector<int> > > m_pixelMapping;
+  
+  //std::vector<int> getPositionFromDCSID (std::string DCSID);
+  std::string getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
 
+  std::vector<std::string> &splitter(const std::string &s, char delim, std::vector<std::string> &elems) {
+    std::stringstream ss(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+      elems.push_back(item);
+    }
+    return elems;
+  }
+  
+  std::vector<std::string> splitter(const std::string &s, char delim) {
+    std::vector<std::string> elems;
+    splitter(s, delim, elems);
+    return elems;
+  }
+
+  bool is_file_exist(const char *fileName){
+    std::ifstream infile;
+    infile.open(fileName);
+    return infile.good();
+  }
+  
+ private:
+  ServiceHandle <ITHistSvc> m_tHistSvc;
+  ServiceHandle <IInDetConditionsSvc> m_pixelConditionsSummarySvc;
+  ServiceHandle <IPixelByteStreamErrorsSvc> m_BSErrorsSvc;
+  ServiceHandle <ISpecialPixelMapSvc> m_specialPixelMapSvc; 
+  
   std::string m_pixelRDOKey;
-
+  
   bool m_isIBL; // kazuki
   std::vector<int> m_moduleHashList;
-
+  
   double m_nEvents;
-//  double m_occupancyCut;
-
+  //  double m_occupancyCut;
+  
   TH1D* m_nEventsHist;
   TH1D* m_nEventsLBHist;
   std::vector<TH2D*> m_hitMaps;
@@ -73,7 +99,7 @@ class NoiseMapBuilder: public AthAlgorithm{
   std::vector<TH1D*> m_LBdependence;
   std::vector<TH1D*> m_BCIDdependence;
   std::vector<TH1D*> m_TOTdistributions;
-
+  
   TH1D* m_disabledModules;
   TH2D* m_overlayedPixelNoiseMap;
   TH2D* m_overlayedIBLDCNoiseMap; // Planar Double Chip
@@ -100,8 +126,8 @@ class NoiseMapBuilder: public AthAlgorithm{
   double m_longPixelMultiplier;
   double m_gangedPixelMultiplier;
 
-//  int m_maxLVL1A;
-
+  //  int m_maxLVL1A;
+  
   bool m_occupancyPerBC;
 
   unsigned int m_nBCReadout;
@@ -110,34 +136,6 @@ class NoiseMapBuilder: public AthAlgorithm{
   int m_lbMax;
 
   bool m_calculateNoiseMaps;
-
-  // vector of modulename and vector(barrel/endcap, layer, phi, eta)
-  std::vector< std::pair< std::string, std::vector<int> > > m_pixelMapping;
-
-  //std::vector<int> getPositionFromDCSID (std::string DCSID);
-  std::string getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
-
-  std::vector<std::string> &splitter(const std::string &s, char delim, std::vector<std::string> &elems) {
-    std::stringstream ss(s);
-    std::string item;
-    while (std::getline(ss, item, delim)) {
-      elems.push_back(item);
-    }
-    return elems;
-  };
-
-  std::vector<std::string> splitter(const std::string &s, char delim) {
-    std::vector<std::string> elems;
-    splitter(s, delim, elems);
-    return elems;
-  };
-
-  bool is_file_exist(const char *fileName)
-  {
-    std::ifstream infile;
-    infile.open(fileName);
-    return infile.good();
-  };
 };
 
-#endif
+#endif // PIXELCONDITIONSALGS_NOISEMAPBUILDER_H
