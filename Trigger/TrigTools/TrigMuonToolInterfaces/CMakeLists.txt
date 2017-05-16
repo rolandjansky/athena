@@ -7,7 +7,8 @@ atlas_subdir( TrigMuonToolInterfaces )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/DataModel
+                          Control/AthContainers
+                          Control/AthLinks
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODMuon
 			  Event/xAOD/xAODTrigMuon
