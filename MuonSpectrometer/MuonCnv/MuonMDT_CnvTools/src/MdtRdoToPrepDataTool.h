@@ -146,6 +146,9 @@ namespace Muon
         bool m_isTestBeam; //!< Support for test beam data (twin tubes)
 
         bool m_BMEpresent;
+        bool m_BMGpresent;
+        int m_BMEid;
+        int m_BMGid;
 
         // + TWIN TUBE
         bool   m_useTwin;
@@ -157,6 +160,10 @@ namespace Muon
         int twin_chamber[2][3][36];
         int secondaryHit_twin_chamber[2][3][36];
         // - TWIN TUBE
+
+        std::map<Identifier, std::vector<Identifier> > m_DeadChannels;
+        void initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl);
+
     }; 
 } // end of namespace
 
