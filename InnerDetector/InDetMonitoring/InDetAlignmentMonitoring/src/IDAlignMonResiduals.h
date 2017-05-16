@@ -90,9 +90,9 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   void MakeTRTBarrelHistograms(MonGroup& al_mon);
   void MakeTRTEndcapHistograms(MonGroup& al_mon);
   void MakeSiliconHistograms(MonGroup&);
-  void fillTRTHistograms(int m_barrel_ec, int m_layer_or_wheel, int m_phi_module, int m_straw_layer,float perdictR, float hitR, float hitZ, float hitGlobalR, float residualR, float pullR, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
-  void fillTRTBarrelHistograms(int m_barrel_ec, int m_layer_or_wheel, int m_phi_module, int m_straw_layer,float perdictR, float hitR, float hitZ, float residualR, float pullR, bool LRcorrect, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
-  void fillTRTEndcapHistograms(int m_barrel_ec, int m_layer_or_wheel, int m_phi_module, int m_straw_layer,float perdictR, float hitR, float hitGlobalR, float residualR, float pullR, bool LRcorrect, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
+  void fillTRTHistograms(int barrel_ec, int layer_or_wheel, int phi_module, int straw_layer,float perdictR, float hitR, float hitZ, float hitGlobalR, float residualR, float pullR, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
+  void fillTRTBarrelHistograms(int barrel_ec, int layer_or_wheel, int phi_module, int straw_layer,float perdictR, float hitR, float hitZ, float residualR, float pullR, bool LRcorrect, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
+  void fillTRTEndcapHistograms(int barrel_ec, int layer_or_wheel, int phi_module, int straw_layer,float perdictR, float hitR, float hitGlobalR, float residualR, float pullR, bool LRcorrect, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
   unsigned int getRing(unsigned int wheel,unsigned int strawlayer);
 
   /** Convert from an int to a string */
@@ -117,7 +117,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
 
 
  protected:
-  const ComTime *theComTime;
+  const ComTime *m_theComTime;
   std::string m_comTimeObjectName;
   ServiceHandle<ITRT_CalDbSvc> m_trtcaldbSvc ;
  private:
@@ -173,10 +173,10 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   float m_RangeOfPullHistos;
   float m_PtRange;
   float m_ClusterSizeRange;
-  float PixelBarrelXSize;
-  float PixelBarrelYSize;
-  float SCTBarrelXSize;
-  float SCTBarrelYSize;
+  float m_PixelBarrelXSize;
+  float m_PixelBarrelYSize;
+  float m_SCTBarrelXSize;
+  float m_SCTBarrelYSize;
   float m_IncidentThetaRange;
   float m_IncidentPhiRange;
   int m_nBinsPtRange;
@@ -430,10 +430,10 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   int m_nBinsLB;
   float m_LBRangeMin;
   float m_LBRangeMax;
-  int nIBLHitsPerLB;
+  int m_nIBLHitsPerLB;
   
   
-  int lumiblock;
+  int m_lumiblock;
 
   TProfile2D*   m_pix_b0_resXvsetaLumiBlock;
   TProfile2D*   m_pix_b0_resXvsetaLumiBlock_planars;
@@ -885,7 +885,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::string m_hWeightHistName;
 
   //I don't like an itialisation here.
-  float z_axis[20] = {-322.8975, -301.7925, -280.6875,-259.5825,-228.2775,-186.7725,-145.2675,-103.7625,-62.2575,-20.7525,20.7525,62.2575,103.7625,145.2675,186.7725,228.2775,259.5825,280.6875,301.7925,322.8975};
+  float m_z_axis[20] = {-322.8975, -301.7925, -280.6875,-259.5825,-228.2775,-186.7725,-145.2675,-103.7625,-62.2575,-20.7525,20.7525,62.2575,103.7625,145.2675,186.7725,228.2775,259.5825,280.6875,301.7925,322.8975};
   float m_z_fix;
   int m_minIBLhits;
   bool m_doIBLLBPlots;

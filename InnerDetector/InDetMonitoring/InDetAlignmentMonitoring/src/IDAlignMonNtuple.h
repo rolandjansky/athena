@@ -90,7 +90,7 @@ protected:
 
 
 	//Ntuple related
-	NTuple::Tuple* ntuple;  
+	NTuple::Tuple* m_ntuple;  
 	NTuple::Item<long> m_nt_ntrks;
 	NTuple::Item<long> m_nt_nhits;
 	NTuple::Item<long> m_nt_nvtx;
