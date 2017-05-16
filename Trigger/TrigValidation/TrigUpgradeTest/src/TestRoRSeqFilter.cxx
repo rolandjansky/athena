@@ -18,7 +18,8 @@ namespace HLTTest {
   {
     declareProperty( "Inputs", m_inputs );
     declareProperty( "Outputs", m_outputs );
-    declareProperty( "Chains", m_chainsProperty, "Chains to filter the object on");
+    declareProperty( "Chains", m_chainsProperty, "Chains to filter the object on" );
+    declareProperty( "AlwaysPass", m_alwaysPass, "Override negative decision" );
   }
 
   TestRoRSeqFilter::~TestRoRSeqFilter()
@@ -38,7 +39,7 @@ namespace HLTTest {
       m_chains.insert( HLT::Identifier(el).numeric() );
     
     // minimal validity crosscheck
-    if ( m_chainsProperty.size() == 0 ) {
+    if ( m_chainsProperty.size() == 0 and m_alwaysPass == false ) {
       ATH_MSG_WARNING("This filter will always reject as it has no chains of interest configured");
     }
   
@@ -78,11 +79,9 @@ namespace HLTTest {
       }
     }
 
-    ATH_MSG_DEBUG("The overall decision is : " << ( pass ? "positive" : "negative") );
-
-
+    ATH_MSG_DEBUG( "The overall decision is : " << ( pass or m_alwaysPass ? "positive" : "negative") );
     
-    setFilterPassed( pass );
+    setFilterPassed( pass or m_alwaysPass );
     return StatusCode::SUCCESS;
   }
 
@@ -113,7 +112,7 @@ namespace HLTTest {
 	auto d = newDecisionIn( output );
 	linkToPrevious( d, inputKey, counter );
       } else {
-	ATH_MSG_DEBUG( "skipping object as it passed no chain of interest to this filter" );
+	ATH_MSG_DEBUG( "Skipping object as it passed no chain of interest to this filter" );
       }
     }
   }
