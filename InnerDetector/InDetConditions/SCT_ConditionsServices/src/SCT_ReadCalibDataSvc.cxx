@@ -202,6 +202,9 @@ StatusCode SCT_ReadCalibDataSvc::initialize(){
     msg(MSG:: ERROR) << "IgnoreDefect != IgnoreDefectsParameters, check job options!" << endmsg;
     return StatusCode::FAILURE;
   }
+
+  // Read Handle Key
+  ATH_CHECK(m_evtKey.initialize());
   
   return StatusCode::SUCCESS;
 } // SCT_ReadCalibDataSvc::initialize()

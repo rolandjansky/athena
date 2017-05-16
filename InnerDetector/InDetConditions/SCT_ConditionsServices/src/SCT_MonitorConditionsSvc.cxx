@@ -168,6 +168,9 @@ StatusCode SCT_MonitorConditionsSvc::initialize(){
   // This should not be here and causes a SG WARNING (CBG)
   //  m_IOVDbSvc->dropObject(s_defectFolderName,false);
   
+  // Read Handle Key
+  ATH_CHECK(m_evtKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
