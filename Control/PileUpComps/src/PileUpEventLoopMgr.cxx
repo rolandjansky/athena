@@ -347,7 +347,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
         }
 
       PileUpEventInfo *pOverEvent = new PileUpEventInfo(pOvrID, pOvrEt);
-      if(m_isEmbedding)
+      if(m_isEmbedding || m_isEventOverlayJobMC)
         {
           pOverEvent->setActualInteractionsPerCrossing(pEvent->actualInteractionsPerCrossing());
           pOverEvent->setAverageInteractionsPerCrossing(pEvent->averageInteractionsPerCrossing());
@@ -355,7 +355,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       ATH_MSG_VERBOSE ( "BCID =" << pOverEvent->event_ID()->bunch_crossing_id() );
       //  register as sub event of the overlaid
       bool addpEvent(true);
-      if(m_isEmbedding)
+      if(m_isEmbedding || m_isEventOverlayJobMC)
         {
           const PileUpEventInfo* pOldEvent(dynamic_cast<const PileUpEventInfo*>(pEvent));
           if(pOldEvent)
@@ -393,7 +393,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       bool needupdate;
       float sf = m_beamLumi->scaleFactor(pEvent->event_ID()->run_number(), pEvent->event_ID()->lumi_block(), needupdate );
       float currentaveragemu(sf*m_maxCollPerXing);
-      if(!m_isEmbedding)
+      if(!m_isEmbedding && !m_isEventOverlayJobMC)
         {
           pOverEvent->setAverageInteractionsPerCrossing(currentaveragemu);
           //FIXME check whether actualInteractionsPerCrossing should be set
