@@ -229,6 +229,15 @@ class PhysicsList(JobProperty):
         JobProperty.__setattr__(self, name, n_value)
 
 
+class PhysicsOptions(JobProperty):
+    """
+    PhysicsOptionTools to be used in this job
+    """
+    statusOn = True
+    allowedTypes = ['list']
+    StoredValue = []
+
+
 class SimLayout(JobProperty):
     """
     Simulation layout tag to use: specifies the geometry to be used.

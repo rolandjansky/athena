@@ -173,15 +173,6 @@ class VertexTimeOffset(JobProperty):
     StoredValue = False
 
 
-class PhysicsOptions(JobProperty):
-    """
-    PhysicsOptionTools to be used in this job
-    """
-    statusOn = True
-    allowedTypes = ['list']
-    StoredValue = []
-
-
 class CavernBG(JobProperty):
     """
     Flag to turn on the simulation of cavern background (and all that goes with it)
