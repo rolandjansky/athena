@@ -105,9 +105,6 @@ private:
   std::string m_textFileName1;
   std::string m_textFileName2;
   std::string m_textFileName3;
-  int m_PixelClusterErrorDataVersion;
-  int m_PixelClusterOnTrackErrorDataVersion;
-  int m_PixelChargeInterpolationDataVersion;
   int m_dump;
   mutable PixelCalib::PixelOfflineCalibData* m_calibData; 
   SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_calibDataKey;  

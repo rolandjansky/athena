@@ -44,10 +44,7 @@ PixelRecoDbTool::PixelRecoDbTool(const std::string& type,
   AthAlgTool(type, name, parent),
   m_toolsvc(nullptr),
   m_IOVSvc(nullptr),
-  par_caliblocation("PixRecoKey"),
-  m_PixelClusterErrorDataVersion(0),
-  m_PixelClusterOnTrackErrorDataVersion(0),
-  m_PixelChargeInterpolationDataVersion(0),
+  m_par_caliblocation("PixRecoKey"),
   m_calibData(0),
   m_calibDataKey("PixelOfflineCalibData")
 {
