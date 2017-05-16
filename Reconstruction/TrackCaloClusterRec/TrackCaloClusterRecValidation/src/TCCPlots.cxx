@@ -217,6 +217,43 @@ TCCPlots::TCCPlots(TCCPlotsBase* pParent, const std::string& sDir, const std::st
   m_clusters_matchedFraction_eta_onlyvar       (nullptr),
   m_clusters_matchedFraction_eta_onlyfix       (nullptr),
   m_clusters_matchedFraction_eta_none          (nullptr),
+  m_clusters_abs_eta                               (nullptr),
+  m_clusters_abs_matched_eta                       (nullptr),
+  m_clusters_abs_notMatched_eta                    (nullptr),
+  m_clusters_abs_matchedFraction_eta               (nullptr),
+  m_clusters_abs_notMatchedFraction_eta            (nullptr),
+  m_clusters_abs_width                             (nullptr),
+  m_clusters_abs_width_eta                         (nullptr),
+  m_clusters_abs_matched_eta_fix_and_var           (nullptr),
+  m_clusters_abs_matched_eta_fix_or_var            (nullptr),
+  m_clusters_abs_matched_eta_fix                   (nullptr),
+  m_clusters_abs_matched_eta_notfix                (nullptr),
+  m_clusters_abs_matched_eta_var                   (nullptr),
+  m_clusters_abs_matched_eta_notvar                (nullptr),
+  m_clusters_abs_matched_eta_onlyvar               (nullptr),
+  m_clusters_abs_matched_eta_onlyfix               (nullptr),
+  m_clusters_abs_matched_eta_none                  (nullptr),
+  m_clusters_abs_matchedFraction_eta_fix_and_var   (nullptr),
+  m_clusters_abs_matchedFraction_eta_fix_or_var    (nullptr),
+  m_clusters_abs_matchedFraction_eta_fix           (nullptr),
+  m_clusters_abs_matchedFraction_eta_notfix        (nullptr),
+  m_clusters_abs_matchedFraction_eta_var           (nullptr),
+  m_clusters_abs_matchedFraction_eta_notvar        (nullptr),
+  m_clusters_abs_matchedFraction_eta_onlyvar       (nullptr),
+  m_clusters_abs_matchedFraction_eta_onlyfix       (nullptr),
+  m_clusters_abs_matchedFraction_eta_none          (nullptr),
+  m_clusters_pt_fraction_e                         (nullptr),
+  m_clusters_PV0_pt_fraction_e                     (nullptr),
+  m_clusters_PVX_pt_fraction_e                     (nullptr),
+  m_clusters_rejected_pt_fraction_e                (nullptr),
+  m_clusters_all_neutral_eta                       (nullptr),
+  m_clusters_all_neutral_e                         (nullptr),
+  m_clusters_all_neutral_PV0_eta                   (nullptr),
+  m_clusters_all_neutral_PV0_e                     (nullptr),
+  m_clusters_all_neutral_notPV0_eta                (nullptr),
+  m_clusters_all_neutral_notPV0_e                  (nullptr),
+  m_clusters_all_neutral_neutral_eta               (nullptr),
+  m_clusters_all_neutral_neutral_e                 (nullptr),
   m_trk_total_eta                                           (nullptr),
   m_trk_total_pt                                            (nullptr),
   m_trk_total_clusters_eta                                  (nullptr),
@@ -280,7 +317,18 @@ TCCPlots::TCCPlots(TCCPlotsBase* pParent, const std::string& sDir, const std::st
   m_trk_matchedFraction_pt_notvar                           (nullptr),
   m_trk_matchedFraction_pt_onlyvar                          (nullptr),
   m_trk_matchedFraction_pt_onlyfix                          (nullptr),
-  m_trk_matchedFraction_pt_none                             (nullptr)  {
+  m_trk_matchedFraction_pt_none                             (nullptr),
+  m_tcc_pt                                                  (nullptr),
+  m_tcc_phi                                                 (nullptr),
+  m_tcc_eta                                                 (nullptr),
+  m_tcc_m                                                   (nullptr),
+  m_tcc_taste                                               (nullptr),
+  m_tcc_pt_truth_pt                                         (nullptr),
+  m_tcc_pt_response                                         (nullptr),
+  m_tcc_pt_track_pt                                         (nullptr),
+  m_tcc_pt_pseudoresponse                                   (nullptr),
+  m_trk_tcc_reco_pt_truth_pt                                (nullptr),
+  m_trk_tcc_reco_pt_response                                (nullptr) {
 }
 
 void TCCPlots::setEventWeight(const float& weight) {
@@ -492,7 +540,7 @@ void TCCPlots::initializePlots() {
     book(m_trk_delta_caloEntryPhi_caloEntryPhiCorr_eta  , "trk_delta_caloEntryPhi_caloEntryPhiCorr_eta" );
     book(m_trk_delta_caloEntryEta_caloEntryEtaCorr_pt   , "trk_delta_caloEntryEta_caloEntryEtaCorr_pt"  );
     book(m_trk_delta_caloEntryPhi_caloEntryPhiCorr_pt   , "trk_delta_caloEntryPhi_caloEntryPhiCorr_pt"  );
-    
+        
     book(m_trk_total_eta                                          , "trk_total_eta"                                         );
     book(m_trk_total_pt                                           , "trk_total_pt"                                          );
     book(m_trk_total_clusters_eta                                 , "trk_total_clusters_eta"                                );
@@ -560,13 +608,13 @@ void TCCPlots::initializePlots() {
     
   } else if (m_collectionType == "clusters") {
     
-    book(m_clusters_eta                    , "clusters_eta"                   );
-    book(m_clusters_matched_eta            , "clusters_matched_eta"           );
-    book(m_clusters_notMatched_eta         , "clusters_notMatched_eta"        );
-    book(m_clusters_matchedFraction_eta    , "clusters_matchedFraction_eta"   );
-    book(m_clusters_notMatchedFraction_eta , "clusters_notMatchedFraction_eta");
-    book(m_clusters_width                  , "clusters_width"                 );
-    book(m_clusters_width_eta              , "clusters_width_eta"             );
+    book(m_clusters_eta                            , "clusters_eta"                   );
+    book(m_clusters_matched_eta                    , "clusters_matched_eta"           );
+    book(m_clusters_notMatched_eta                 , "clusters_notMatched_eta"        );
+    book(m_clusters_matchedFraction_eta            , "clusters_matchedFraction_eta"   );
+    book(m_clusters_notMatchedFraction_eta         , "clusters_notMatchedFraction_eta");
+    book(m_clusters_width                          , "clusters_width"                 );
+    book(m_clusters_width_eta                      , "clusters_width_eta"             );
     book(m_clusters_matched_eta_fix_and_var        , "clusters_matched_eta_fix_and_var"          );
     book(m_clusters_matched_eta_fix_or_var         , "clusters_matched_eta_fix_or_var"           );
     book(m_clusters_matched_eta_fix                , "clusters_matched_eta_fix"                  );
@@ -584,8 +632,62 @@ void TCCPlots::initializePlots() {
     book(m_clusters_matchedFraction_eta_notvar     , "clusters_matchedFraction_eta_notvar"       );
     book(m_clusters_matchedFraction_eta_onlyvar    , "clusters_matchedFraction_eta_onlyvar"      );
     book(m_clusters_matchedFraction_eta_onlyfix    , "clusters_matchedFraction_eta_onlyfix"      );
-    book(m_clusters_matchedFraction_eta_none       , "clusters_matchedFraction_eta_none"         );
+    book(m_clusters_matchedFraction_eta_none       , "clusters_matchedFraction_eta_none"         );    
     
+    book(m_clusters_abs_eta                            , "clusters_abs_eta"                   );
+    book(m_clusters_abs_matched_eta                    , "clusters_abs_matched_eta"           );
+    book(m_clusters_abs_notMatched_eta                 , "clusters_abs_notMatched_eta"        );
+    book(m_clusters_abs_matchedFraction_eta            , "clusters_abs_matchedFraction_eta"   );
+    book(m_clusters_abs_notMatchedFraction_eta         , "clusters_abs_notMatchedFraction_eta");
+    book(m_clusters_abs_width                          , "clusters_abs_width"                 );
+    book(m_clusters_abs_width_eta                      , "clusters_abs_width_eta"             );
+    book(m_clusters_abs_matched_eta_fix_and_var        , "clusters_abs_matched_eta_fix_and_var"          );
+    book(m_clusters_abs_matched_eta_fix_or_var         , "clusters_abs_matched_eta_fix_or_var"           );
+    book(m_clusters_abs_matched_eta_fix                , "clusters_abs_matched_eta_fix"                  );
+    book(m_clusters_abs_matched_eta_notfix             , "clusters_abs_matched_eta_notfix"               );
+    book(m_clusters_abs_matched_eta_var                , "clusters_abs_matched_eta_var"                  );
+    book(m_clusters_abs_matched_eta_notvar             , "clusters_abs_matched_eta_notvar"               );
+    book(m_clusters_abs_matched_eta_onlyvar            , "clusters_abs_matched_eta_onlyvar"              );
+    book(m_clusters_abs_matched_eta_onlyfix            , "clusters_abs_matched_eta_onlyfix"              );
+    book(m_clusters_abs_matched_eta_none               , "clusters_abs_matched_eta_none"                 );
+    book(m_clusters_abs_matchedFraction_eta_fix_and_var, "clusters_abs_matchedFraction_eta_fix_and_var"  );
+    book(m_clusters_abs_matchedFraction_eta_fix_or_var , "clusters_abs_matchedFraction_eta_fix_or_var"   );
+    book(m_clusters_abs_matchedFraction_eta_fix        , "clusters_abs_matchedFraction_eta_fix"          );
+    book(m_clusters_abs_matchedFraction_eta_notfix     , "clusters_abs_matchedFraction_eta_notfix"       );
+    book(m_clusters_abs_matchedFraction_eta_var        , "clusters_abs_matchedFraction_eta_var"          );
+    book(m_clusters_abs_matchedFraction_eta_notvar     , "clusters_abs_matchedFraction_eta_notvar"       );
+    book(m_clusters_abs_matchedFraction_eta_onlyvar    , "clusters_abs_matchedFraction_eta_onlyvar"      );
+    book(m_clusters_abs_matchedFraction_eta_onlyfix    , "clusters_abs_matchedFraction_eta_onlyfix"      );
+    book(m_clusters_abs_matchedFraction_eta_none       , "clusters_abs_matchedFraction_eta_none"         );
+    
+    book(m_clusters_pt_fraction_e                      ,  "clusters_pt_fraction_e"          );
+    book(m_clusters_PV0_pt_fraction_e                  ,  "clusters_PV0_pt_fraction_e"      );
+    book(m_clusters_PVX_pt_fraction_e                  ,  "clusters_PVX_pt_fraction_e"      );
+    book(m_clusters_rejected_pt_fraction_e             ,  "clusters_rejected_pt_fraction_e" );    
+    
+    book(m_clusters_all_neutral_eta                    , "clusters_all_neutral_eta"         );
+    book(m_clusters_all_neutral_e                      , "clusters_all_neutral_e"           );
+    book(m_clusters_all_neutral_PV0_eta                , "clusters_all_neutral_PV0_eta"     );
+    book(m_clusters_all_neutral_PV0_e                  , "clusters_all_neutral_PV0_e"       );
+    book(m_clusters_all_neutral_notPV0_eta             , "clusters_all_neutral_notPV0_eta"  );
+    book(m_clusters_all_neutral_notPV0_e               , "clusters_all_neutral_notPV0_e"    );
+    book(m_clusters_all_neutral_neutral_eta            , "clusters_all_neutral_neutral_eta"  );
+    book(m_clusters_all_neutral_neutral_e              , "clusters_all_neutral_neutral_e"    );
+    
+  } else if (m_collectionType == "tccs") {
+    book(m_tcc_pt                         , "tcc_pt"                               );
+    book(m_tcc_phi                        , "tcc_phi"                              );
+    book(m_tcc_eta                        , "tcc_eta"                              );
+    book(m_tcc_m                          , "tcc_m"                                );
+    book(m_tcc_taste                      , "tcc_taste"                            );
+    book(m_tcc_pt_pseudoresponse          , "tcc_pt_pseudoresponse"                );
+    book(m_tcc_pt_track_pt                , "tcc_pt_track_pt"                      );
+    book(m_tcc_pt_truth_pt                , "tcc_pt_truth_pt"                      );
+    book(m_tcc_pt_response                , "tcc_pt_response"                      );
+    
+    book(m_trk_tcc_reco_pt_truth_pt                                  , "trk_tcc_reco_pt_truth_pt"                                 );
+    book(m_trk_tcc_reco_pt_response                                  , "trk_tcc_reco_pt_response"                                 );
+        
   } else
     std::cout << "WARNING: TCCPlots configured with unkown collection. Please check if you are using jets or tracks!" << std::endl;   
   
@@ -1131,13 +1233,11 @@ void TCCPlots::fillMatching(const xAOD::TrackParticle& track) {
   if (not acc_assTool.isAvailable(track)) return;
   if (acc_assTool(track)==0) return;
   
-  // maybe fill here the tracks w/o extrapolation
-
   // tracks w/ extrapolation
   
   fillHisto(m_trk_total_eta, track.eta()   , m_eventWeight);
   fillHisto(m_trk_total_pt , track.pt()/GeV, m_eventWeight);
-  
+      
   static SG::AuxElement::Accessor< float > acc_caloEntryUncEta( "CaloEntryUncEta" );
   static SG::AuxElement::Accessor< float > acc_caloEntryUncPhi( "CaloEntryUncPhi" );
   float caloEntryUncEta = acc_caloEntryUncEta(track);
@@ -1248,47 +1348,129 @@ void TCCPlots::fillCluster(const xAOD::CaloCluster& cluster) {
   static SG::AuxElement::Accessor< float > acc_weight( "ClusterWeight" );
  
   fillHisto(m_clusters_eta                     , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+  fillHisto(m_clusters_abs_eta                 , acc_eta(cluster), m_eventWeight);
   fillHisto(m_clusters_width                   , acc_unc(cluster), acc_weight(cluster)*m_eventWeight);
+  fillHisto(m_clusters_abs_width               , acc_unc(cluster), m_eventWeight);
   fillHisto(m_clusters_width_eta               , acc_eta(cluster), acc_unc(cluster), acc_weight(cluster)*m_eventWeight);
+  fillHisto(m_clusters_abs_width_eta           , acc_eta(cluster), acc_unc(cluster), m_eventWeight);
   
   static SG::AuxElement::Accessor< int > acc_matched( "ClusterMatched" );
-  if (acc_matched(cluster)==1)
+  if (acc_matched(cluster)==1) {
     fillHisto(m_clusters_matched_eta             , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
-  else
+    fillHisto(m_clusters_abs_matched_eta         , acc_eta(cluster), m_eventWeight);
+  } else {
     fillHisto(m_clusters_notMatched_eta          , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);  
+    fillHisto(m_clusters_abs_notMatched_eta      , acc_eta(cluster), m_eventWeight);  
+  }
   
   static SG::AuxElement::Accessor< int > acc_dr_fix_match( "ClusterMatchedFixedDeltaR" );
   static SG::AuxElement::Accessor< int > acc_dr_var_match ( "ClusterMatchedVariableDeltaR" );
   
   
-  if (acc_dr_fix_match(cluster)==1 and acc_dr_var_match(cluster)==1)
-    fillHisto(m_clusters_matched_eta_fix_and_var  , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+  if (acc_dr_fix_match(cluster)==1 and acc_dr_var_match(cluster)==1) {
+    fillHisto(m_clusters_matched_eta_fix_and_var      , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+    fillHisto(m_clusters_abs_matched_eta_fix_and_var  , acc_eta(cluster), m_eventWeight);
+  }
   
-  if (acc_dr_fix_match(cluster)==1 or acc_dr_var_match(cluster)==1)
-    fillHisto(m_clusters_matched_eta_fix_or_var  , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+  if (acc_dr_fix_match(cluster)==1 or acc_dr_var_match(cluster)==1) {
+    fillHisto(m_clusters_matched_eta_fix_or_var      , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+    fillHisto(m_clusters_abs_matched_eta_fix_or_var  , acc_eta(cluster), m_eventWeight);
+  }
   
-  if (acc_dr_fix_match(cluster)==1)
+  if (acc_dr_fix_match(cluster)==1) {
     fillHisto(m_clusters_matched_eta_fix         , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
-  else 
+    fillHisto(m_clusters_abs_matched_eta_fix     , acc_eta(cluster), m_eventWeight);
+  } else {
     fillHisto(m_clusters_matched_eta_notfix      , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+    fillHisto(m_clusters_abs_matched_eta_notfix  , acc_eta(cluster), m_eventWeight);
+  }
   
-  if (acc_dr_var_match(cluster)==1)
+  if (acc_dr_var_match(cluster)==1) {
     fillHisto(m_clusters_matched_eta_var         , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
-  else
+    fillHisto(m_clusters_abs_matched_eta_var     , acc_eta(cluster), m_eventWeight);
+  } else {
     fillHisto(m_clusters_matched_eta_notvar      , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+    fillHisto(m_clusters_abs_matched_eta_notvar  , acc_eta(cluster), m_eventWeight);
+  }
       
-  if (acc_dr_fix_match(cluster)==0 and acc_dr_var_match(cluster)==1)
+  if (acc_dr_fix_match(cluster)==0 and acc_dr_var_match(cluster)==1) {
     fillHisto(m_clusters_matched_eta_onlyvar     , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+    fillHisto(m_clusters_abs_matched_eta_onlyvar , acc_eta(cluster), m_eventWeight);
+  }
   
-  if (acc_dr_fix_match(cluster)==1 and acc_dr_var_match(cluster)==0)
+  if (acc_dr_fix_match(cluster)==1 and acc_dr_var_match(cluster)==0) {
     fillHisto(m_clusters_matched_eta_onlyfix     , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+    fillHisto(m_clusters_abs_matched_eta_onlyfix , acc_eta(cluster), m_eventWeight);
+  }
   
-  if (acc_dr_fix_match(cluster)==0 and acc_dr_var_match(cluster)==0)
+  if (acc_dr_fix_match(cluster)==0 and acc_dr_var_match(cluster)==0) {
     fillHisto(m_clusters_matched_eta_none        , acc_eta(cluster), acc_weight(cluster)*m_eventWeight);
+    fillHisto(m_clusters_abs_matched_eta_none    , acc_eta(cluster), m_eventWeight);
+  }
   
+  static SG::AuxElement::Accessor< int > acc_neutral( "isNeutral" );
+  static SG::AuxElement::Accessor< float > acc_pt_fraction( "ptFraction" );
+  static SG::AuxElement::Accessor< int > acc_rejected( "isRejected" );
+  static SG::AuxElement::Accessor< int > acc_isPV0( "isPV0" );
+  static SG::AuxElement::Accessor< int > acc_isPVX( "isPVX" );
+  
+  static SG::AuxElement::Accessor< float > acc_calE( "calE" );
+  
+  if (acc_calE.isAvailable(cluster) and acc_neutral(cluster)==1) {
+    fillHisto(m_clusters_pt_fraction_e, cluster.e()/GeV, acc_pt_fraction(cluster), m_eventWeight);
+    if (acc_isPV0(cluster)==1)
+      fillHisto(m_clusters_PV0_pt_fraction_e, cluster.e()/GeV, acc_pt_fraction(cluster), m_eventWeight);
+    else
+      fillHisto(m_clusters_PVX_pt_fraction_e, cluster.e()/GeV, acc_pt_fraction(cluster), m_eventWeight);
+    if (acc_rejected(cluster)==1)
+      fillHisto(m_clusters_rejected_pt_fraction_e, cluster.e()/GeV, acc_pt_fraction(cluster), m_eventWeight);
+  
+    fillHisto(m_clusters_all_neutral_e           , cluster.e()/GeV , m_eventWeight);
+    if (acc_isPV0(cluster)==1)
+      fillHisto(m_clusters_all_neutral_PV0_e     , cluster.e()/GeV , m_eventWeight);
+    else if (acc_isPVX(cluster)==1)                                                        
+      fillHisto(m_clusters_all_neutral_notPV0_e  , cluster.e()/GeV , m_eventWeight);
+    else 
+      fillHisto(m_clusters_all_neutral_neutral_e , cluster.e()/GeV , m_eventWeight);
+    
+    fillHisto(m_clusters_all_neutral_eta          , acc_eta(cluster), m_eventWeight);
+    if (acc_isPV0(cluster)==1)
+      fillHisto(m_clusters_all_neutral_PV0_eta    , acc_eta(cluster), m_eventWeight);
+    else if (acc_isPVX(cluster)==1)
+      fillHisto(m_clusters_all_neutral_notPV0_eta , acc_eta(cluster), m_eventWeight);
+    else
+      fillHisto(m_clusters_all_neutral_neutral_eta, acc_eta(cluster), m_eventWeight);
+    
+  }  
+}
+
+void TCCPlots::fillTCC(const xAOD::TrackCaloCluster& tcc) {
+    fillHisto(m_tcc_eta  , tcc.eta()   , m_eventWeight);
+    fillHisto(m_tcc_phi  , tcc.phi()   , m_eventWeight);
+    fillHisto(m_tcc_pt   , tcc.pt()/GeV, m_eventWeight);
+    fillHisto(m_tcc_m    , tcc.m()/GeV , m_eventWeight);
+    fillHisto(m_tcc_taste, tcc.taste() , m_eventWeight);
+    
+    const xAOD::TrackParticle* track = getTrackParticlePtr(tcc);
+    if (track) {
+      fillHisto(m_tcc_pt_pseudoresponse, tcc.pt()/track->pt()          , m_eventWeight);
+      fillHisto(m_tcc_pt_track_pt, tcc.pt()/GeV, track->pt()/GeV , m_eventWeight);
+      
+      const xAOD::TruthParticle* assTruth = getTruthPtr(*track);
+      if (assTruth) {
+	fillHisto(m_tcc_pt_response, tcc.pt()/assTruth->pt()          , m_eventWeight);
+	fillHisto(m_tcc_pt_truth_pt, tcc.pt()/GeV, assTruth->pt()/GeV , m_eventWeight);
+	
+        fillHisto(m_trk_tcc_reco_pt_truth_pt, track->pt()/GeV, assTruth->pt()/GeV, m_eventWeight);
+        fillHisto(m_trk_tcc_reco_pt_response, track->pt()/assTruth->pt()         , m_eventWeight);
+      }
+    }
 }
 
 void TCCPlots::finalizePlots() {
+  if (m_collectionType!= "")
+    std::cout << "Finalising " << m_collectionType << std::endl;
+  
   if (m_collectionType == "jets") {
     
     std::vector < TH2* > th2f = { m_jet_response_m_pt, m_jet_response_m_pt_2leadings, 
@@ -1349,9 +1531,7 @@ void TCCPlots::finalizePlots() {
     make_median(m_jet_mopt_pt_response_d2_leading        , m_jet_resolution_mopt_pt_d2_leading      );
     make_median(m_jet_mopt_pt_response_d2_subleading     , m_jet_resolution_mopt_pt_d2_subleading   );  
   
-  }
-  
-  if (m_collectionType == "tracks") {
+  } else if (m_collectionType == "tracks") {
     //pt + prod radius th2
     std::vector < TH2* > th2f = { m_trk_d0_pt, m_trk_z0_pt, m_trk_theta_pt, m_trk_phi_pt, m_trk_qOverP_pt, 
       m_trk_caloEntryEtaOverEta_pt, m_trk_caloEntryUncEta_pt, m_trk_caloEntryUncTheta_pt, m_trk_caloEntryPhiOverPhi_pt,
@@ -1409,9 +1589,8 @@ void TCCPlots::finalizePlots() {
     m_trk_matchedFraction_pt_onlyfix      ->Divide( m_trk_matching_deltar_onlyfix_pt         , m_trk_total_pt , 1., 1., "B");
     m_trk_matchedFraction_pt_none         ->Divide( m_trk_notMatching_deltar_none_pt         , m_trk_total_pt , 1., 1., "B");
     
-  }
-  
-  if (m_collectionType == "clusters") {
+  } else if (m_collectionType == "clusters") {
+    
     m_clusters_matchedFraction_eta             ->Divide(m_clusters_matched_eta             , m_clusters_eta, 1., 1., "B");
     m_clusters_notMatchedFraction_eta          ->Divide(m_clusters_notMatched_eta          , m_clusters_eta, 1., 1., "B");
     m_clusters_matchedFraction_eta_fix_and_var ->Divide(m_clusters_matched_eta_fix_and_var , m_clusters_eta, 1., 1., "B");
@@ -1423,7 +1602,38 @@ void TCCPlots::finalizePlots() {
     m_clusters_matchedFraction_eta_onlyvar     ->Divide(m_clusters_matched_eta_onlyvar     , m_clusters_eta, 1., 1., "B");
     m_clusters_matchedFraction_eta_onlyfix     ->Divide(m_clusters_matched_eta_onlyfix     , m_clusters_eta, 1., 1., "B");
     m_clusters_matchedFraction_eta_none        ->Divide(m_clusters_matched_eta_none        , m_clusters_eta, 1., 1., "B");
-  }
+    
+    m_clusters_abs_matchedFraction_eta             ->Divide(m_clusters_abs_matched_eta             , m_clusters_abs_eta, 1., 1., "B");
+    m_clusters_abs_notMatchedFraction_eta          ->Divide(m_clusters_abs_notMatched_eta          , m_clusters_abs_eta, 1., 1., "B");
+    m_clusters_abs_matchedFraction_eta_fix_and_var ->Divide(m_clusters_abs_matched_eta_fix_and_var , m_clusters_abs_eta, 1., 1., "B");
+    m_clusters_abs_matchedFraction_eta_fix_or_var  ->Divide(m_clusters_abs_matched_eta_fix_or_var  , m_clusters_abs_eta, 1., 1., "B");
+    m_clusters_abs_matchedFraction_eta_fix         ->Divide(m_clusters_abs_matched_eta_fix         , m_clusters_abs_eta, 1., 1., "B");
+    m_clusters_abs_matchedFraction_eta_notfix      ->Divide(m_clusters_abs_matched_eta_notfix      , m_clusters_abs_eta, 1., 1., "B");
+    m_clusters_abs_matchedFraction_eta_var         ->Divide(m_clusters_abs_matched_eta_var         , m_clusters_abs_eta, 1., 1., "B");
+    m_clusters_abs_matchedFraction_eta_notvar      ->Divide(m_clusters_abs_matched_eta_notvar      , m_clusters_abs_eta, 1., 1., "B");
+    m_clusters_abs_matchedFraction_eta_onlyvar     ->Divide(m_clusters_abs_matched_eta_onlyvar     , m_clusters_abs_eta, 1., 1., "B");
+    m_clusters_abs_matchedFraction_eta_onlyfix     ->Divide(m_clusters_abs_matched_eta_onlyfix     , m_clusters_abs_eta, 1., 1., "B");
+    m_clusters_abs_matchedFraction_eta_none        ->Divide(m_clusters_abs_matched_eta_none        , m_clusters_abs_eta, 1., 1., "B");
+  
+  } else if (m_collectionType == "tccs") {
+    std::vector < TH2* > th2f = { m_tcc_pt_track_pt, m_trk_tcc_reco_pt_truth_pt,
+                                  m_tcc_pt_truth_pt };
+
+    //pt + prod radius th1
+    std::vector < TH1* > th1f = { m_tcc_pt };
+
+    for ( auto& histo : th2f ) {
+      for (int j = 1; j <= histo->GetNbinsY(); j++)
+	for (int i = 1; i <= histo->GetNbinsX(); i++)
+	  histo->SetBinContent(i,j,histo->GetBinContent(i,j)/(histo->GetXaxis()->GetBinWidth(i)*histo->GetYaxis()->GetBinWidth(j)));
+    }
+     
+    for ( auto& histo : th1f ) {
+      for (int i = 1; i <= histo->GetNbinsX(); i++)
+	histo->SetBinContent(i,histo->GetBinContent(i)/histo->GetBinWidth(i));       
+    }
+  } else return;
+  
 }
 
 void TCCPlots::make_median(TH2* h2_response, TH1* h1_resolution){
@@ -1531,7 +1741,7 @@ void TCCPlots::resizeHistograms() {
       m_trk_matchedFraction_pt_notvar                  ->GetXaxis()->Set(nBins, ptBins);         
       m_trk_matchedFraction_pt_onlyvar                 ->GetXaxis()->Set(nBins, ptBins);         
       m_trk_matchedFraction_pt_onlyfix                 ->GetXaxis()->Set(nBins, ptBins);         
-      m_trk_matchedFraction_pt_none                    ->GetXaxis()->Set(nBins, ptBins);         
+      m_trk_matchedFraction_pt_none                    ->GetXaxis()->Set(nBins, ptBins);
       
     }
     
@@ -1554,10 +1764,7 @@ void TCCPlots::resizeHistograms() {
       m_trk_notMatching_deltar_none_caloEntryUncTot_prodRadius ->GetXaxis()->Set(nBins, radiusBins);
       
     }
-  }
-  
-  
-  if(m_collectionType == "jets")  {
+  } else if (m_collectionType == "jets")  {
         
     if (m_jetPtBins.size()>0) {
       
@@ -1673,5 +1880,24 @@ void TCCPlots::resizeHistograms() {
       m_jet_resolution_mopt_pt_d2_subleading  ->GetXaxis()->Set(nBinsPt, ptBins);
       m_jet_resolution_mopt_pt_d2_subleading  ->GetYaxis()->Set(nBinsMassOverPt, massOverPtBins);
     }
-  }  
+  } else if (m_collectionType == "tccs") {
+    if (m_trackPtBins.size()>0) {  
+      float* ptBins = m_trackPtBins.data();
+      int     nBins = m_trackPtBins.size()-1;
+      
+      m_tcc_pt              ->GetXaxis()->Set(nBins, ptBins);
+      m_tcc_pt_track_pt     ->GetXaxis()->Set(nBins, ptBins);
+      m_tcc_pt_track_pt     ->GetYaxis()->Set(nBins, ptBins);
+      m_tcc_pt_truth_pt     ->GetXaxis()->Set(nBins, ptBins);
+      m_tcc_pt_truth_pt     ->GetYaxis()->Set(nBins, ptBins);
+             
+      m_trk_tcc_reco_pt_truth_pt  ->GetXaxis()->Set(nBins, ptBins); 
+      m_trk_tcc_reco_pt_truth_pt  ->GetYaxis()->Set(nBins, ptBins); 
+              
+    }
+  } else return;
 }
+
+   
+   
+   

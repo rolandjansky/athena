@@ -15,6 +15,8 @@ authors : Roland Jansky
 
 #include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
 
+#include "TrackCaloClusterRecInterfaces/IClusterFilterTool.h"
+
 class TrackCaloClusterCreatorTool : public AthAlgTool {
   public:
     TrackCaloClusterCreatorTool(const std::string&,const std::string&,const IInterface*);
@@ -28,11 +30,18 @@ class TrackCaloClusterCreatorTool : public AthAlgTool {
 
     /** Method to calculate weights for TCC
      */
-    void createChargedTCCs(xAOD::TrackCaloClusterContainer* tccContainer, const xAOD::TrackParticleClusterAssociationContainer* assocContainer, std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt, std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap    );
+    void createCombinedTCCs(xAOD::TrackCaloClusterContainer* tccContainer, 
+			    const xAOD::TrackParticleClusterAssociationContainer* assocContainer, 
+			    std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt, 
+			    std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap    );
     
-    void createNeutralTCCs(xAOD::TrackCaloClusterContainer* tccContainer, const xAOD::CaloClusterContainer* assocContainer, std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap    );
+    void createClusterOnlyTCCs(xAOD::TrackCaloClusterContainer* tccContainer, 
+			       const xAOD::CaloClusterContainer* assocContainer, 
+			       std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap    );
     
-    void createTrackOnlyTCCs(xAOD::TrackCaloClusterContainer* tccContainer, const xAOD::TrackParticleContainer* assocContainer, std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt   );
+    void createTrackOnlyTCCs(xAOD::TrackCaloClusterContainer* tccContainer, 
+			     const xAOD::TrackParticleContainer* assocContainer, 
+			     std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt   );
    
   private:  
     
@@ -53,6 +62,10 @@ class TrackCaloClusterCreatorTool : public AthAlgTool {
     // enable origin correction
     bool m_doOriginCorrection;
     bool m_storeCorrectedPosition;
+    
+    // enable cluster filtering on the neutralOnly collection
+    bool m_applyFilter;
+    ToolHandle<IClusterFilterTool> m_clusterFilterTool;
 
 };
 

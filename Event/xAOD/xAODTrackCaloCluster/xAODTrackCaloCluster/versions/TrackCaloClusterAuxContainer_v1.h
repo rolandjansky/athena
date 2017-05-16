@@ -11,6 +11,10 @@
 #include "xAODCore/AuxContainerBase.h"
 #include "AthLinks/ElementLink.h"
 
+// xAOD include(s):
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+
 namespace xAOD {
  
    /// Temporary container used until we have I/O for AuxStoreInternal
@@ -30,6 +34,22 @@ namespace xAOD {
       void dump() const;
        
    private:
+     
+     /// @name Defining parameters 
+     /// @{
+     std::vector< float > pt;
+     std::vector< float > eta;
+     std::vector< float > phi;
+     std::vector< float > m;
+     std::vector< int >    taste;
+     /// @}
+     
+     /// @name Links
+     /// @{
+     std::vector<ElementLink< xAOD::TrackParticleContainer > >               trackParticleLink;
+     std::vector<std::vector< ElementLink< xAOD::CaloClusterContainer > > >  caloClusterLinks;
+     /// @}
+     
 
    }; // class TrackCaloClusterAuxContainer_v1
  

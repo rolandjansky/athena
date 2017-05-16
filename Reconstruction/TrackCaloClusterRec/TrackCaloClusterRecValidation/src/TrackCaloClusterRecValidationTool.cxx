@@ -12,6 +12,7 @@
 #include "EventInfo/PileUpTimeEventIndex.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODTrackCaloCluster/TrackCaloClusterContainer.h"
 
 #include "TCCPlots.h"
 //
@@ -52,6 +53,8 @@ TrackCaloClusterRecValidationTool::TrackCaloClusterRecValidationTool(const std::
   declareProperty("TrackProdRadiusBins"         , m_trackProdRadiusBins );
   declareProperty("SaveClusterInfo"             , m_saveClusterInfo = false);
   declareProperty("ClusterCollectionName"       , m_caloClusterCollectionName = "TimedCaloCalTopoClusters");
+  declareProperty("SaveTrackCaloClusterInfo"    , m_saveTCCInfo = false);
+  declareProperty("TCCCombinedCollectionName"   , m_TCCCombinedCollectionName = "TrackCaloClustersCombined");
   
   }
 
@@ -85,6 +88,12 @@ TrackCaloClusterRecValidationTool::initialize() {
   if (m_saveClusterInfo) {
     ATH_MSG_INFO("Saving Plots for " << m_caloClusterCollectionName << "...");
     m_tccPlots.insert(std::pair<std::string, TCCPlots*>(m_caloClusterCollectionName, new TCCPlots(0, m_dirName + m_caloClusterCollectionName, "clusters")));    
+  }
+  
+  if (m_saveTCCInfo) {
+    ATH_MSG_INFO("Saving Plots for " << m_TCCCombinedCollectionName << "...");
+    m_tccPlots.insert(std::pair<std::string, TCCPlots*>(m_TCCCombinedCollectionName, new TCCPlots(0, m_dirName + m_TCCCombinedCollectionName, "tccs")));    
+    m_tccPlots.at(m_TCCCombinedCollectionName)->setTrackPtBinning(m_trackPtBins);
   }
   
   return StatusCode::SUCCESS;
@@ -292,6 +301,15 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
    if (not clusters) return StatusCode::FAILURE;
    for (const auto& cluster: *clusters) {
      m_tccPlots.at(m_caloClusterCollectionName)->fillCluster(*cluster);
+   }    
+  }
+  
+  // Getting the collections for the TrackCaloClusters
+  if (m_saveTCCInfo) {
+   const auto tccs = getContainer<xAOD::TrackCaloClusterContainer>(m_TCCCombinedCollectionName);
+   if (not tccs) return StatusCode::FAILURE;
+   for (const auto& tcc: *tccs) {
+     m_tccPlots.at(m_TCCCombinedCollectionName)->fillTCC(*tcc);
    }    
   }
   

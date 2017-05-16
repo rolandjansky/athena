@@ -13,7 +13,9 @@ TrackCaloClusterCreatorTool::TrackCaloClusterCreatorTool(const std::string& t, c
   m_caloEntryMapName("ParticleToCaloExtensionMap"),
   m_useEnergy(false),
   m_doOriginCorrection(true),
-  m_storeCorrectedPosition(false)
+  m_storeCorrectedPosition(false),
+  m_applyFilter(true),
+  m_clusterFilterTool("ClusterFilterTool")
 {
     declareProperty("VertexContainerName"          ,    m_vertexContname                  = "PrimaryVertices"   );
     declareProperty("ParticleCaloEntryMapName"     ,    m_caloEntryMapName                                      );
@@ -21,6 +23,8 @@ TrackCaloClusterCreatorTool::TrackCaloClusterCreatorTool(const std::string& t, c
     declareProperty("UseEnergy"                    ,    m_useEnergy                                             );
     declareProperty("DoOriginCorrection"           ,    m_doOriginCorrection                                    );
     declareProperty("StoreCorrectedPosition"       ,    m_storeCorrectedPosition                                );
+    declareProperty("ApplyClusterFilter"           ,    m_applyFilter                                           );
+    declareProperty("ClusterFilterTool"            ,    m_clusterFilterTool                                     );
 }
 
 TrackCaloClusterCreatorTool::~TrackCaloClusterCreatorTool() {}
@@ -34,7 +38,10 @@ StatusCode TrackCaloClusterCreatorTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-void TrackCaloClusterCreatorTool::createChargedTCCs(xAOD::TrackCaloClusterContainer* tccContainer, const xAOD::TrackParticleClusterAssociationContainer* assocContainer, std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt, std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap ) {
+void TrackCaloClusterCreatorTool::createCombinedTCCs(xAOD::TrackCaloClusterContainer* tccContainer, 
+						     const xAOD::TrackParticleClusterAssociationContainer* assocContainer, 
+						     std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt, 
+						     std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap ) {
     
     const xAOD::VertexContainer *vxCont=0;
     StatusCode sc = evtStore()->retrieve(vxCont, m_vertexContname);
@@ -58,8 +65,7 @@ void TrackCaloClusterCreatorTool::createChargedTCCs(xAOD::TrackCaloClusterContai
         } else {
 	  ATH_MSG_ERROR ("trackParticleLink is not valid! " );
         }
-        xAOD::TrackCaloCluster* tcc = new xAOD::TrackCaloCluster;
-        FourMom_t tcc_4p(0.,0.,0.,0.);
+	FourMom_t tcc_4p(0.,0.,0.,0.);
         // follow the link to the calorimeter clusters
         ATH_MSG_VERBOSE ("#(CaloCluster) = " << assocClusters->caloClusterLinks().size());
         if (assocClusters->caloClusterLinks().size()) {
@@ -94,32 +100,36 @@ void TrackCaloClusterCreatorTool::createChargedTCCs(xAOD::TrackCaloClusterContai
 	
 // 	std::cout << "Element = " << trk << " --- eta --> " << pars->position().eta() << "      " << trk->eta()  << "    --- delta = " << (pars->position().eta() - trk->eta())<< std::endl;
 // 	std::cout << "Element = " << trk << " --- phi --> " << pars->position().phi() << "      " << trk->phi()  << "    --- delta = " << (pars->position().phi() - trk->phi())<< std::endl;
-        
-        tcc->setP4(tcc_4p.Pt(),eta,phi,tcc_4p.M());
-        tcc->setTaste(xAOD::TrackCaloCluster::Taste::Charged);
+        xAOD::TrackCaloCluster* tcc = new xAOD::TrackCaloCluster;
         tccContainer->push_back(tcc);
-        ATH_MSG_VERBOSE ("Created TCC with pt " << tcc->pt() << " eta " << tcc->eta() << " phi " << tcc->phi() << " mass " << tcc->m() << " taste " << tcc->getTaste());
+        tcc->setParameters(tcc_4p.Pt(),eta,phi,tcc_4p.M(),xAOD::TrackCaloCluster::Taste::Combined,assocClusters->trackParticleLink(),assocClusters->caloClusterLinks());
+        
+        ATH_MSG_VERBOSE ("Created TCC with pt " << tcc->pt() << " eta " << tcc->eta() << " phi " << tcc->phi() << " mass " << tcc->m() << " taste " << tcc->taste());
     } // for assoc clusters
     
 }
 
-void TrackCaloClusterCreatorTool::createNeutralTCCs(xAOD::TrackCaloClusterContainer* tccContainer, 
-						    const xAOD::CaloClusterContainer* assocContainer, 
-						    std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap  ) {
-
-    for ( const auto* cluster : *assocContainer ) {
-        if(clusterToTracksWeightMap->find(cluster)==clusterToTracksWeightMap->end()){
-            xAOD::TrackCaloCluster* tcc = new xAOD::TrackCaloCluster;
-            tccContainer->push_back(tcc);
-            tcc->setP4(cluster->pt(),cluster->eta(),cluster->phi(),cluster->m());
-            tcc->setTaste(xAOD::TrackCaloCluster::Taste::Neutral);
-            ATH_MSG_VERBOSE ("Created TCC with pt " << tcc->pt() << " eta " << tcc->eta() << " phi " << tcc->phi() << " mass " << tcc->m() << " taste " << tcc->getTaste());
-        }
-    } // for all clusters
-    
+void TrackCaloClusterCreatorTool::createClusterOnlyTCCs(xAOD::TrackCaloClusterContainer* tccContainer, 
+							const xAOD::CaloClusterContainer* assocContainer, 
+							std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap  ) {
+  unsigned int i = 0;
+  for ( const auto* cluster : *assocContainer ) {
+      if(clusterToTracksWeightMap->find(cluster)==clusterToTracksWeightMap->end()){
+	  if (m_applyFilter and m_clusterFilterTool->rejectCluster(*cluster)) continue;
+          xAOD::TrackCaloCluster* tcc = new xAOD::TrackCaloCluster;
+          tccContainer->push_back(tcc);
+	  ElementLink< xAOD::CaloClusterContainer > clusterLink(*assocContainer,i);
+	  const std::vector< ElementLink<xAOD::CaloClusterContainer> > ClusterLink {clusterLink};
+	  tcc->setParameters(cluster->pt(),cluster->eta(),cluster->phi(),cluster->m(),xAOD::TrackCaloCluster::Taste::ClusterOnly,ElementLink<xAOD::TrackParticleContainer>(),ClusterLink);
+          ATH_MSG_VERBOSE ("Created TCC with pt " << tcc->pt() << " eta " << tcc->eta() << " phi " << tcc->phi() << " mass " << tcc->m() << " taste " << tcc->taste());
+      }
+      i++;
+  } // for all clusters
 }
 
-void TrackCaloClusterCreatorTool::createTrackOnlyTCCs(xAOD::TrackCaloClusterContainer* tccContainer, const xAOD::TrackParticleContainer* assocContainer, std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt  ) {
+void TrackCaloClusterCreatorTool::createTrackOnlyTCCs(xAOD::TrackCaloClusterContainer* tccContainer, 
+						      const xAOD::TrackParticleContainer* assocContainer, 
+						      std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt  ) {
     
     const xAOD::VertexContainer *vxCont=0;
     StatusCode sc = evtStore()->retrieve(vxCont, m_vertexContname);
@@ -127,6 +137,7 @@ void TrackCaloClusterCreatorTool::createTrackOnlyTCCs(xAOD::TrackCaloClusterCont
         ATH_MSG_WARNING ("Vertex container " << m_vertexContname << " not found! Can't perform TVA!");
     }
 
+    unsigned int i = 0;
     for ( const auto* track : *assocContainer ) {
         if(TrackTotalClusterPt->find(track)==TrackTotalClusterPt->end()){
             bool isMatched = true;
@@ -139,11 +150,12 @@ void TrackCaloClusterCreatorTool::createTrackOnlyTCCs(xAOD::TrackCaloClusterCont
             if (!isMatched) continue;
             xAOD::TrackCaloCluster* tcc = new xAOD::TrackCaloCluster;
             tccContainer->push_back(tcc);
-            tcc->setP4(track->pt(),track->eta(),track->phi(),track->m());
-            tcc->setTaste(xAOD::TrackCaloCluster::Taste::TrackOnly);
-            ATH_MSG_VERBOSE ("Created TCC with pt " << tcc->pt() << " eta " << tcc->eta() << " phi " << tcc->phi() << " mass " << tcc->m() << " taste " << tcc->getTaste());
+	    ElementLink< xAOD::TrackParticleContainer > trkLink(*assocContainer,i);
+            tcc->setParameters(track->pt(),track->eta(),track->phi(),track->m(),xAOD::TrackCaloCluster::Taste::TrackOnly,trkLink,std::vector<ElementLink<xAOD::CaloClusterContainer>>());
+            ATH_MSG_VERBOSE ("Created TCC with pt " << tcc->pt() << " eta " << tcc->eta() << " phi " << tcc->phi() << " mass " << tcc->m() << " taste " << tcc->taste());
         }
-    } // for all clusters
+        i++;
+    } // for all tracks
     
 }
 
@@ -158,3 +170,4 @@ void TrackCaloClusterCreatorTool::computeVertexCorr(double& eta, double& phi, co
   eta += (-vertex[2]/std::cosh(eta) + sc.apply (vertex[1], vertex[0])*std::tanh(eta)) * iradius;
   phi += sc.apply (vertex[0], -vertex[1]) * iradius;
 }
+

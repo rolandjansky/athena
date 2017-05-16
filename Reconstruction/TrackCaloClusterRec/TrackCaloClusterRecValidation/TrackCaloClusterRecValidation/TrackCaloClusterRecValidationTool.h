@@ -83,6 +83,9 @@ private:
     bool m_saveClusterInfo;
     std::string m_caloClusterCollectionName;
     
+    bool m_saveTCCInfo;
+    std::string m_TCCCombinedCollectionName;
+    
     //histograms
     std::map<std::string, TCCPlots*>    m_tccPlots;
 };

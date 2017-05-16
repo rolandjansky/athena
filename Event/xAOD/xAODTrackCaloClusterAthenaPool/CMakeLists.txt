@@ -13,8 +13,7 @@ atlas_depends_on_subdirs(
    Control/AthenaKernel
    Database/AthenaPOOL/AthenaPoolCnvSvc
    Database/AthenaPOOL/AthenaPoolUtilities
-   Event/xAOD/xAODTrackCaloCluster
-   Event/xAOD/xAODTrackCaloClusterCnv )
+   Event/xAOD/xAODTrackCaloCluster )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core )
@@ -29,4 +28,4 @@ atlas_add_poolcnv_library( xAODTrackCaloClusterAthenaPoolPoolCnv
    CNV_PFX xAOD
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthenaKernel
-   AthenaPoolCnvSvcLib AthenaPoolUtilities xAODTrackCaloCluster xAODTrackCaloClusterCnvLib )
+   AthenaPoolCnvSvcLib AthenaPoolUtilities xAODTrackCaloCluster )
