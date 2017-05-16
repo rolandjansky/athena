@@ -415,7 +415,7 @@ if cmd=='show' and len(args)==2:
 # Postprocessing: for all tasks requiring it, or for a selected set of tasks
 #
 if cmd=='postproc' and len(args)==1:
-    for t in taskman.taskIterDict(qual=['where STATUS > %i and STATUS <= %i order by UPDATED' % (TaskManager.StatusCodes['SUBMITTED'],TaskManager.StatusCodes['POSTPROCESSING'])]):
+    for t in taskman.taskIterDict(qual=['where STATUS > %i and STATUS <= %i order by UPDATED' % (TaskManager.StatusCodes['RUNNING'],TaskManager.StatusCodes['POSTPROCESSING'])]):
         doPostProcessing(taskman,t,t['TASKPOSTPROCSTEPS'].split(),BeamSpotPostProcessing)
     sys.exit(0)
 
