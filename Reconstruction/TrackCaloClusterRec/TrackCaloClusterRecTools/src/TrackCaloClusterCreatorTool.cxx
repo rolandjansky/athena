@@ -109,7 +109,7 @@ void TrackCaloClusterCreatorTool::createCombinedTCCs(xAOD::TrackCaloClusterConta
     
 }
 
-void TrackCaloClusterCreatorTool::createClusterOnlyTCCs(xAOD::TrackCaloClusterContainer* tccContainer, 
+void TrackCaloClusterCreatorTool::createNeutralTCCs(xAOD::TrackCaloClusterContainer* tccContainer, 
 							const xAOD::CaloClusterContainer* assocContainer, 
 							std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap  ) {
   unsigned int i = 0;
@@ -120,14 +120,14 @@ void TrackCaloClusterCreatorTool::createClusterOnlyTCCs(xAOD::TrackCaloClusterCo
           tccContainer->push_back(tcc);
 	  ElementLink< xAOD::CaloClusterContainer > clusterLink(*assocContainer,i);
 	  const std::vector< ElementLink<xAOD::CaloClusterContainer> > ClusterLink {clusterLink};
-	  tcc->setParameters(cluster->pt(),cluster->eta(),cluster->phi(),cluster->m(),xAOD::TrackCaloCluster::Taste::ClusterOnly,ElementLink<xAOD::TrackParticleContainer>(),ClusterLink);
+	  tcc->setParameters(cluster->pt(),cluster->eta(),cluster->phi(),cluster->m(),xAOD::TrackCaloCluster::Taste::Neutral,ElementLink<xAOD::TrackParticleContainer>(),ClusterLink);
           ATH_MSG_VERBOSE ("Created TCC with pt " << tcc->pt() << " eta " << tcc->eta() << " phi " << tcc->phi() << " mass " << tcc->m() << " taste " << tcc->taste());
       }
       i++;
   } // for all clusters
 }
 
-void TrackCaloClusterCreatorTool::createTrackOnlyTCCs(xAOD::TrackCaloClusterContainer* tccContainer, 
+void TrackCaloClusterCreatorTool::createChargedTCCs(xAOD::TrackCaloClusterContainer* tccContainer, 
 						      const xAOD::TrackParticleContainer* assocContainer, 
 						      std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt  ) {
     
@@ -151,7 +151,7 @@ void TrackCaloClusterCreatorTool::createTrackOnlyTCCs(xAOD::TrackCaloClusterCont
             xAOD::TrackCaloCluster* tcc = new xAOD::TrackCaloCluster;
             tccContainer->push_back(tcc);
 	    ElementLink< xAOD::TrackParticleContainer > trkLink(*assocContainer,i);
-            tcc->setParameters(track->pt(),track->eta(),track->phi(),track->m(),xAOD::TrackCaloCluster::Taste::TrackOnly,trkLink,std::vector<ElementLink<xAOD::CaloClusterContainer>>());
+            tcc->setParameters(track->pt(),track->eta(),track->phi(),track->m(),xAOD::TrackCaloCluster::Taste::Charged,trkLink,std::vector<ElementLink<xAOD::CaloClusterContainer>>());
             ATH_MSG_VERBOSE ("Created TCC with pt " << tcc->pt() << " eta " << tcc->eta() << " phi " << tcc->phi() << " mass " << tcc->m() << " taste " << tcc->taste());
         }
         i++;
