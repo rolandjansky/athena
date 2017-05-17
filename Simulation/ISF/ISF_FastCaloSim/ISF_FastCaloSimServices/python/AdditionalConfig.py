@@ -790,18 +790,6 @@ def getPileupFastShowerCellBuilderTool(name="ISF_PileupFastShowerCellBuilderTool
     return getFastShowerCellBuilderTool(name, **kwargs)
 
 def getFastHitConvertTool(name="ISF_FastHitConvertTool",**kwargs):
-    kwargs.setdefault( 'embHitContainername' , 'LArHitEMB_FastCaloSim'  )
-    kwargs.setdefault( 'emecHitContainername', 'LArHitEMEC_FastCaloSim' )
-    kwargs.setdefault( 'fcalHitContainername', 'LArHitFCAL_FastCaloSim' )
-    kwargs.setdefault( 'hecHitContainername' , 'LArHitHEC_FastCaloSim'  )
-    kwargs.setdefault( 'tileHitContainername', 'TileHitVec_FastCaloSim' )
-    # make sure the FastCaloSim hits get merged into the main output collections
-    collectionMerger = getAlgorithm('ISF_CollectionMerger')
-    collectionMerger.InputLArEMBHits  += kwargs['embHitContainername' ]
-    collectionMerger.InputLArEMECHits += kwargs['emecHitContainername']
-    collectionMerger.InputLArFCALHits += kwargs['fcalHitContainername']
-    collectionMerger.InputLArHECHits  += kwargs['hecHitContainername' ]
-    collectionMerger.InputTileHits    += kwargs['tileHitContainername']
     from FastCaloSimHit.FastCaloSimHitConf import FastHitConvertTool
     return FastHitConvertTool(name,**kwargs)
 
