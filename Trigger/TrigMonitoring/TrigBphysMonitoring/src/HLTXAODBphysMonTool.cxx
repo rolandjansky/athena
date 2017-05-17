@@ -1582,7 +1582,7 @@ StatusCode HLTXAODBphysMonTool::fillContainers(){
     for (const auto& containerItem: m_containerList) {
         
         const xAOD::TrigBphysContainer*  trigBphysContainer(nullptr);
-        StatusCode sc = m_storeGate->retrieve(trigBphysContainer,containerItem); //"HLT_xAOD__TrigBphysContainer_EFBMuMuFex"
+        StatusCode sc = evtStore()->retrieve(trigBphysContainer,containerItem); //"HLT_xAOD__TrigBphysContainer_EFBMuMuFex"
         if (sc.isFailure() || ! trigBphysContainer) {
             ATH_MSG_WARNING("No TrigBphysContainer found with tag: "<< containerItem);
             continue;
