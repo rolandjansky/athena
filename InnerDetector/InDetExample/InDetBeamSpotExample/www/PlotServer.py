@@ -5,7 +5,7 @@ ATLAS beam spot plot server.
 """
 
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: DebugPage.py 307672 2010-06-29 10:00:50Z atlidbs $'
+__version__ = 'DebugPage.py atlas/athena'
 
 from BeamSpotWebPage import BeamSpotWebPage
 from InDetBeamSpotExample.TaskManager import *

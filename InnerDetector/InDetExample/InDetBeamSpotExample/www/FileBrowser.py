@@ -5,7 +5,7 @@ ATLAS beam spot web page for browsing directories with beam spot job data.
 """
 
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: FileBrowser.py 467432 2011-11-10 16:36:27Z beringer $'
+__version__ = 'FileBrowser.py atlas/athena'
 
 from BeamSpotWebPage import BeamSpotWebPage
 

@@ -4,7 +4,7 @@
 # Front-end script to run JobRunner jobs
 
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: runJobs.py 676234 2015-06-18 00:29:52Z mhance $'
+__version__ = 'runJobs.py atlas/athena'
 __usage__   = """%prog [options] JOBOPTIONTEMPLATE DATASET TASK INPUTDATA
 
 Templates:  - InDetBeamSpotExample/ESDToDPDTemplate.py

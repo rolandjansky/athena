@@ -5,7 +5,7 @@
 Utilities for writing job transforms for use at T0 and at the CAF Task Management System.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: TrfUtils.py 616574 2014-09-12 20:43:28Z btamadio $'
+__version__ = 'TrfUtils.py atlas/athena'
 
 
 import commands, os, sys, pprint
