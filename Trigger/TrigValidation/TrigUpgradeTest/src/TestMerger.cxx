@@ -1,7 +1,6 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
 // TrigUpgradeTest includes
 #include "TestMerger.h"
 
@@ -22,17 +21,18 @@ namespace HLTTest {
     ::AthAlgorithm( name, pSvcLocator )
   {
     declareProperty( "Inputs", m_inputs );
+    declareProperty( "Output", m_outputKey );
   }
 
 
-  TestMerger::~TestMerger()
-  {}
+  //  TestMerger::~TestMerger()
+  //  {}
 
 
   StatusCode TestMerger::initialize()
   {
     ATH_MSG_INFO ("Initializing " << name() << "...");
-
+    CHECK( m_outputKey.initialize() );
     return StatusCode::SUCCESS;
   }
 
@@ -47,6 +47,26 @@ namespace HLTTest {
   {  
     ATH_MSG_DEBUG ("Executing " << name() << "...");
 
+    auto output = std::make_unique<DecisionContainer>();
+    auto aux    = std::make_unique<DecisionAuxContainer>();
+    output->setStore( aux.get() );
+
+    for ( auto input: m_inputs ) {
+      auto iHandle = SG::ReadHandle<DecisionContainer>(input);
+      if ( iHandle.isValid() ) {
+	ATH_MSG_DEBUG( "Input " << input << " present" );
+	size_t counter = 0;
+	for ( auto iDecisionIter  = iHandle->begin(); iDecisionIter != iHandle->end(); ++iDecisionIter, ++counter ) {
+	  auto d = newDecisionIn(output.get());
+	  linkToPrevious(d, input, counter );
+	}
+      } else {
+	ATH_MSG_DEBUG( "Input " << input << " not present" );
+      }
+    }
+
+    auto outputHandle = SG::makeHandle(m_outputKey);
+    CHECK( outputHandle.record( std::move(output), std::move(aux) ) );
     return StatusCode::SUCCESS;
   }
 

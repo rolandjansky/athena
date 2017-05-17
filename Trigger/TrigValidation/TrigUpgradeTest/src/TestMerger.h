@@ -9,37 +9,30 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
-
+#include "DecisionHandling/TrigCompositeUtils.h"
 namespace HLTTest {
-
+  using namespace TrigCompositeUtils;
   class TestMerger
     : public ::AthAlgorithm
   { 
 
   public: 
 
-    // Copy constructor: 
-
-    /// Constructor with parameters: 
     TestMerger( const std::string& name, ISvcLocator* pSvcLocator );
 
-    /// Destructor: 
-    virtual ~TestMerger(); 
+    //    virtual ~TestMerger(){}
 
-    // Assignment operator: 
-    //TestMerger &operator=(const TestMerger &alg); 
 
-    // Athena algorithm's Hooks
     StatusCode  initialize() override;
     StatusCode  execute() override;
     StatusCode  finalize() override;
 
   private: 
 
-    /// Default constructor: 
+
     TestMerger();
     std::vector<std::string> m_inputs;
-
+    SG::WriteHandleKey<DecisionContainer> m_outputKey;
   }; 
 
 } //> end namespace HLTTest
