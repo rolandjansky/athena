@@ -49,13 +49,13 @@ StatusCode HLTMuonMonTool::initMuCombDQA()
 StatusCode HLTMuonMonTool::bookMuCombDQA()
 {
   //histograms in each 10LBs 
-  if( newRun || newLowStat){
+  if( newRunFlag() || newLowStatFlag()){
 
     addHistogram( new TH2F("muComb_eta_vs_phi_in_10LBs",           "muComb eta vs phi in 10LBs; #eta ; #phi",           27, -2.7, 2.7, 16, -CLHEP::pi, CLHEP::pi), m_histdircoverage );
 
   }
 
-  if( newRun ){
+  if( newRunFlag() ){
 
     //  basic EDM
     addHistogram( new TH1F("muComb_pt_all",          "muComb pt (GeV/c); p_{T}[GeV/c]; Entries",                  210, -105., 105.), m_histdirmucomb );
@@ -122,8 +122,8 @@ StatusCode HLTMuonMonTool::bookMuCombDQA()
     addHistogram( new TH1F("muComb_effi_toOffl_phi_numer",     "muComb effi phi numer; #phi[rad]; Entries", 32, -CLHEP::pi, CLHEP::pi), m_histdirmucomb );
     addHistogram( new TH1F("muComb_effi_toOffl_phi_denom",     "muComb effi phi denom; #phi[rad]; Entries", 32, -CLHEP::pi, CLHEP::pi), m_histdirmucomb );
 
-  }else if( newLumiBlock ){
   }
+  //else if( newLumiBlockFlag() ){  }
 
   return StatusCode::SUCCESS;
 }
@@ -562,7 +562,7 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 
 StatusCode HLTMuonMonTool::procMuCombDQA()
 {
-  if( endOfRun ){
+  if( endOfRunFlag() ){
 
     hist("muComb_effi_toOffl_pt", m_histdireff)->Sumw2();
     hist("muComb_effi_toOffl_pt", m_histdireff)->Divide( hist("muComb_effi_toOffl_pt_numer", m_histdirmucomb), hist("muComb_effi_toOffl_pt_denom", m_histdirmucomb), 1, 1, "B" );
@@ -579,7 +579,7 @@ StatusCode HLTMuonMonTool::procMuCombDQA()
     hist("muComb_effi_toOffl_phi", m_histdireff)->Sumw2();
     hist("muComb_effi_toOffl_phi", m_histdireff)->Divide( hist("muComb_effi_toOffl_phi_numer", m_histdirmucomb), hist("muComb_effi_toOffl_phi_denom", m_histdirmucomb), 1, 1, "B" );
 
-  }else if( endOfLumiBlock ){
   }
+  //else if( endOfLumiBlockFlag() ){  }
   return StatusCode::SUCCESS;
 }

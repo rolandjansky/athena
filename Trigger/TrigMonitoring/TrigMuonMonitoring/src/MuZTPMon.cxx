@@ -125,7 +125,7 @@ StatusCode HLTMuonMonTool::initMuZTPDQA()
 
 StatusCode HLTMuonMonTool::bookMuZTPDQA()
 {
-  if( newRun ){
+  if( newRunFlag() ){
     m_ztp_newrun=true;
     for(std::map<std::string, std::string>::iterator itmap=m_ztpmap.begin();itmap!=m_ztpmap.end();++itmap){
       
@@ -250,8 +250,8 @@ StatusCode HLTMuonMonTool::bookMuZTPDQA()
       }//var
     }//trigger vector
     
-  }else if( newLumiBlock ){
   }
+  //else if( newLumiBlockFlag() ){  }
   return StatusCode::SUCCESS;
 }
 
@@ -963,7 +963,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 
 StatusCode HLTMuonMonTool::procMuZTPDQA()
 {
-  if( endOfRun ){
+  if( endOfRunFlag() ){
 
     for(std::map<std::string, std::string>::iterator itmap=m_ztpmap.begin();itmap!=m_ztpmap.end();++itmap){
 
@@ -996,8 +996,8 @@ StatusCode HLTMuonMonTool::procMuZTPDQA()
       }//var
     }
     
-  }else if( endOfLumiBlock ){
   }
+  //else if( endOfLumiBlockFlag() ){  }
   return StatusCode::SUCCESS;
 }
 

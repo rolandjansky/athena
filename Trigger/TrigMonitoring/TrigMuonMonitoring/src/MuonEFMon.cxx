@@ -60,7 +60,7 @@ StatusCode HLTMuonMonTool::initMuonEFDQA()
 StatusCode HLTMuonMonTool::bookMuonEFDQA()
 {
   //histograms in each 10LBs 
-  if( newRun || newLowStat ){
+  if( newRunFlag() || newLowStatFlag() ){
 
     addHistogram( new TH2F("EFMS_eta_vs_phi_in_10LBs",           "TrigMuonEF TrackBuilder eta vs phi in 10LBs; #eta ; #phi",           27, -2.7, 2.7, 16, -CLHEP::pi, CLHEP::pi), m_histdircoverage );
     addHistogram( new TH2F("EFSA_eta_vs_phi_in_10LBs",           "TrigMuonEF Extrapolator eta vs phi in 10LBs; #eta ; #phi",           27, -2.7, 2.7, 16, -CLHEP::pi, CLHEP::pi), m_histdircoverage );
@@ -68,7 +68,7 @@ StatusCode HLTMuonMonTool::bookMuonEFDQA()
 
   }
 
-  if( newRun ){
+  if( newRunFlag() ){
 
     addHistogram( new TH1F("EFMS_pt",    "TrigMuonEF TrackBuilder pT; p_{T}[GeV/c]; Entries",    105, 0.,105.), m_histdirmuonef );
     addHistogram( new TH1F("EFMS_signed_pt",    "TrigMuonEF TrackBuilder signed pT; signed p_{T}[GeV/c]; Entries",    210, -105.,105.), m_histdirmuonef );
@@ -226,8 +226,8 @@ StatusCode HLTMuonMonTool::bookMuonEFDQA()
     addHistogram( new TH1F("EF_SA_Over_Moore_SA_10GeV_Cut",     "EF_SA_Over_Moore_SA_10GeV_Cut; LB ; Ratio",  400, 1., 801.), m_histdirrateratio );
     addHistogram( new TH1F("EF_CB_Over_Muid_10GeV_Cut",         "EF_CB_Over_Muid_10GeV_Cut; LB ; Ratio",  400, 1., 801.), m_histdirrateratio );
 
-  }else if( newLumiBlock ){
   }
+  //else if( newLumiBlockFlag() ){  }
   return StatusCode::SUCCESS;
 }
 
@@ -1432,7 +1432,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 
 StatusCode HLTMuonMonTool::procMuonEFDQA()
 {
-  if( endOfRun ){
+  if( endOfRunFlag() ){
 
     ATH_MSG_DEBUG("procMuonEFDQA");
 
@@ -1481,7 +1481,7 @@ StatusCode HLTMuonMonTool::procMuonEFDQA()
 
     
 
-  }else if( endOfLumiBlock ){
   }
+  //else if( endOfLumiBlockFlag() ){  }
   return StatusCode::SUCCESS;
 }

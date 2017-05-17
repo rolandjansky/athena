@@ -107,7 +107,7 @@ float CalculateDeltaR(float off_eta, float off_phi,float on_eta, float on_phi);
 StatusCode HLTMuonMonTool::bookCommonDQA()
 {
 
-  if( newRun ){
+  if( newRunFlag() ){
 
     ATH_MSG_INFO("start booking Common histograms for newRun");
 
@@ -268,8 +268,8 @@ StatusCode HLTMuonMonTool::bookCommonDQA()
 
     ATH_MSG_INFO("finished booking Common histograms for newRun");
 
-  }else if( newLumiBlock ){
   }
+  //else if( newLumiBlockFlag() ){  }
 
   return StatusCode::SUCCESS;
 }
@@ -323,7 +323,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
 {
   std::string chainName = cName;  // YY modified 26.06.2011
 
-  if( newRun ) {
+  if( newRunFlag() ) {
 
     ATH_MSG_DEBUG("bookChainDQA_MSonly for chain=" << chainName );
 
@@ -643,8 +643,8 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
     }
     ATH_MSG_DEBUG("end bookChainDQA_MSonly for chain=" << chainName );
 
-  } else if(newLumiBlock ){
   }
+  //else if(newLumiBlockFlag() ){  }
 
   return StatusCode::SUCCESS;
 }
@@ -653,7 +653,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
 {
   std::string chainName = cName;  // YY modified 26.06.2011
 
-  if( newRun ) {
+  if( newRunFlag() ) {
 
     ATH_MSG_DEBUG("bookChainDQA_standard for chain=" << chainName ); 
 
@@ -873,8 +873,8 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
     }
     //*****************************************//
 
-  } else if( newLumiBlock ){
   }
+  //else if( newLumiBlockFlag() ){  }
 
   return StatusCode::SUCCESS;
 }
@@ -885,7 +885,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 {
   std::string chainName = cName;  // YY modified 26.06.2011
 
-  if( newRun ) {
+  if( newRunFlag() ) {
 
     ATH_MSG_DEBUG("bookChainDQA_generic for chain=" << chainName ); 
 
@@ -1316,8 +1316,8 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
     }
     ATH_MSG_DEBUG("end bookChainDQA_standard for chain=" << chainName );
 
-  } else if( newLumiBlock ){
   }
+  //else if( newLumiBlockFlag() ){  }
 
   return StatusCode::SUCCESS;
   }
@@ -3315,7 +3315,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	  }
 
 
-	  if(endOfRun){
+	  if(endOfRunFlag()){
 	    //triggers/event
 	    for(std::map<std::string, std::string>::iterator it=m_ztpmap.begin(); it != m_ztpmap.end() ; it++ ){
 
@@ -3338,7 +3338,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	  std::string numer;
 	  std::string effi;
 
-	  if( endOfRun ){
+	  if( endOfRunFlag() ){
 
 	    std::string monalg[3]={"_MuFast", "_MuonEFMS", "_MuonEFSA"};
 
@@ -3471,7 +3471,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	      refill_2d1d_coarse(h2d, h1d);
 	    }
 
-	  } else if( endOfLumiBlock ){
+	  } else if( endOfLumiBlockFlag() ){
 	  }
 
 	  return StatusCode::SUCCESS;
@@ -3495,7 +3495,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    iSTDH = 120;
 	  }
 
-	  if( endOfRun ){
+	  if( endOfRunFlag() ){
 
 
 	    // add by Yuan :  to book the histogram //
@@ -3609,7 +3609,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 
 	    }
 
-	  } else if( endOfLumiBlock ){
+	  } else if( endOfLumiBlockFlag() ){
 	  }
 	  return StatusCode::SUCCESS;
 	  //*****************************************//
@@ -3624,7 +3624,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	  std::string numer;
 	  std::string effi;
 
-	  if( endOfRun ){
+	  if( endOfRunFlag() ){
 	    std::string monalg[3]={"_MuFast", "_MuComb", "_EFmuon"};
 
 	    std::string wrtalg[3]={"_L1", "_MuFast", "_MuComb"};
@@ -3763,7 +3763,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		TH1F *h1d = (TH1F *)hist(numer, m_histdirdist2d);
 		refill_2d1d_coarse(h2d, h1d);
 	      }
-	    } else if( endOfLumiBlock ){
+           } else if( endOfLumiBlockFlag() ){
 	    }
 
 	    return StatusCode::SUCCESS;
@@ -3833,7 +3833,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    //    return StatusCode::SUCCESS;
 	    //  }
 
-	    if (endOfRun) {
+	    if (endOfRunFlag()) {
 	      for (int ialg = 0; ialg < MAXARR; ialg++) {
 		std::string chainName = charr[ialg];
 		std::string MoniAlg = monarr[ialg];
@@ -3947,7 +3947,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		}
 	      }
 
-	    } else if (endOfLumiBlock) {
+	    } else if (endOfLumiBlockFlag()) {
 	    }
 	    return StatusCode::SUCCESS;
 	  }
