@@ -14,6 +14,7 @@
 #pragma link C++ class firstPCA;
 #pragma link C++ class secondPCA;
 #pragma link C++ class DetailedShowerShape;
+#pragma link C++ class ShowerShapeBinning; 
 #pragma link C++ class TFCS2DFunction;
 #pragma link C++ class TFCS2Function;
 #pragma link C++ class FitDetailedShape;

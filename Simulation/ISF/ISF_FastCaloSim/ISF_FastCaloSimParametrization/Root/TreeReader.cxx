@@ -22,11 +22,8 @@
 Class for Tree reading through TFormula.
 ______________________________________________________________________________*/
 
-ClassImp(TreeReader) // Integrate this class into ROOT
 
-//============================================================
 TreeReader::TreeReader()
-  //============================================================
 {
   // Default constructor.
   m_isChain = false;
@@ -36,6 +33,12 @@ TreeReader::TreeReader()
   m_entries = -1;
 }
 
+TreeReader::~TreeReader()
+{
+  m_formulae.clear();
+}
+
+
 //============================================================
 TreeReader::TreeReader(TTree* n)
   //============================================================
@@ -44,14 +47,6 @@ TreeReader::TreeReader(TTree* n)
   m_tree = 0;
   m_entries = -1;
   SetTree(n);
-}
-
-//============================================================
-TreeReader::~TreeReader()
-  //============================================================
-{
-  // Destructor.
-  m_formulae.clear();
 }
 
 //============================================================
@@ -139,4 +134,8 @@ int TreeReader::GetEntry(int entry)
     }
   return 0;
 }
+
+
+
+//ClassImp(TreeReader) // Integrate this class into ROOT
 

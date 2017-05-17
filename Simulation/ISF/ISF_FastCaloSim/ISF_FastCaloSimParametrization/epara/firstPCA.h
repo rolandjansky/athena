@@ -7,6 +7,8 @@
 #include "TChain.h"
 #include "ISF_FastCaloSimParametrization/TreeReader.h"
 
+using namespace std;
+
 class firstPCA
 {
   public:
@@ -42,6 +44,10 @@ class firstPCA
   ClassDef(firstPCA,1);
   
 };
+
+#if defined(__MAKECINT__)
+#pragma link C++ class firstPCA+;
+#endif
 
 #endif
 
