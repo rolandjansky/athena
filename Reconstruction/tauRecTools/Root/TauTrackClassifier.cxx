@@ -134,13 +134,14 @@ TrackMVABDT::TrackMVABDT(const std::string& sName)
 //______________________________________________________________________________
 TrackMVABDT::~TrackMVABDT()
 {
-  if (m_rReader) delete m_rReader;
+  delete m_rReader;
 }
 
 //______________________________________________________________________________
 StatusCode TrackMVABDT::finalize()
 {
   delete m_rReader;
+  m_rReader = nullptr;
   for( std::pair<TString, float*> p : m_mAvailableVars ) delete p.second;
   m_mAvailableVars.clear();
   return StatusCode::SUCCESS;
