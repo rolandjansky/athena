@@ -60,8 +60,8 @@ class BphysTrigDiMuDecoratorTool :
   virtual ~BphysTrigDiMuDecoratorTool(); 
 
   // Athena algtool's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  finalize();
+  virtual StatusCode  initialize() override;
+  virtual StatusCode  finalize() override;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
