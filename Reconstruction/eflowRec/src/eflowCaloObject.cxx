@@ -77,7 +77,7 @@ void eflowCaloObject::simulateShower(eflowLayerIntegrator *integrator, eflowEEta
     integrator->measureNewClus(matchedClusters, thisEfRecTrack);
     eflowFirstIntENUM j1st = integrator->getFirstIntLayer();
     
-    //Alex trying to save j1st info
+    /*Save j1st info */
     thisEfRecTrack->setLayerHED(j1st);
 
     /* Get parameters for j1st */

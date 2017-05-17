@@ -227,57 +227,23 @@ void eflowObjectCreatorTool::createChargedEflowObjects(eflowCaloObject* energyFl
        * (needed for analysis of EOverP Data) */
         etaPhi = efRecTrack->getTrackCaloPoints().getEM2etaPhi();
         
-//         std::vector<int> vector_test = {1, 3, 5, 7};
-//         
-//         myEflowObject->setLayer(vector_test);
-      
-        //add information to xAOD
+
+        /*add information to xAOD*/
         xAOD::PFODetails::PFOAttributes myAttribute_layerHED = xAOD::PFODetails::PFOAttributes::eflowRec_layerHED;
         myEflowObject->setAttribute<int>(myAttribute_layerHED,efRecTrack->getLayerHED() );
-//   std::cout << "DEBUG: Add variable " << efRecTrack->getLayerHED() << std::endl;
 
-//         xAOD::PFODetails::PFOAttributes myAttribute_layerCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_layerCellOrdering;
-//         myEflowObject->setAttribute<int>(myAttribute_layerCellOrdering,efRecTrack->getLayerCellOrder() );
-
-//         std::vector<int> FakeVectorInt(100,-555);
-//         std::vector<float> FakeVectorFloat(100,-555.0);
-//         efRecTrack->setLayerCellOrderVector(FakeVectorInt);
-//         std::cout << "layer fake is" << efRecTrack->getLayerCellOrderVector()[0] << std::endl;
-//         efRecTrack->setRadiusCellOrderVector(FakeVectorFloat);
-//         efRecTrack->setAvgEDensityCellOrderVector(FakeVectorFloat);
-
-
-        std::cout << "Creator Tool / eOverPMode / itrack is" << iTrack << " / " <<nTracks << std::endl;
-        std::cout << "DEBUG: Add variable layer vector" << std::endl;
-//         std::cout << "layer vector is" << efRecTrack->getLayerCellOrderVector() << std::endl;
         xAOD::PFODetails::PFOAttributes myAttribute_layerVectorCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_layerVectorCellOrdering;
-        std::cout << "DEBUG: Before set attribute layer" << std::endl;
-        std::cout << " Creator Tool / eOverPMode / size of layer vector is " << efRecTrack->getLayerCellOrderVector().size() << std::endl;
         myEflowObject->setAttribute<std::vector<int> >(myAttribute_layerVectorCellOrdering,efRecTrack->getLayerCellOrderVector() );
 
         
-        std::cout << "DEBUG: Add variable radius vector" << std::endl;
-        // std::cout << "radius vector is" << efRecTrack->getRadiusCellOrderVector()[0] << std::endl;
         xAOD::PFODetails::PFOAttributes myAttribute_radiusVectorCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_radiusVectorCellOrdering;
-        std::cout << "DEBUG: Before set attribute radius" << std::endl;
-        std::cout << " Creator Tool / eOverPMode / size of radius vector is " << efRecTrack->getRadiusCellOrderVector().size() << std::endl;
-        myEflowObject->setAttribute<std::vector<float> >(myAttribute_radiusVectorCellOrdering,efRecTrack->getRadiusCellOrderVector() );
+       myEflowObject->setAttribute<std::vector<float> >(myAttribute_radiusVectorCellOrdering,efRecTrack->getRadiusCellOrderVector() );
 
         
-        std::cout << "DEBUG: Add variable avg. E density vector" << std::endl;
-        // std::cout << "energy density vector is" << efRecTrack->getAvgEDensityCellOrderVector()[0] << std::endl;
         xAOD::PFODetails::PFOAttributes myAttribute_avgEdensityVectorCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_avgEdensityVectorCellOrdering;
-        std::cout << "DEBUG: Before set attribute avg E density" << std::endl;
-        std::cout << " Creator Tool / eOverPMode / size of avg E density vector is " << efRecTrack->getAvgEDensityCellOrderVector().size() << std::endl;
         myEflowObject->setAttribute<std::vector<float> >(myAttribute_avgEdensityVectorCellOrdering,efRecTrack->getAvgEDensityCellOrderVector() );
         
         
-//         xAOD::PFODetails::PFOAttributes myAttribute_radiusCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_radiusCellOrdering;
-//         myEflowObject->setAttribute<int>(myAttribute_radiusCellOrdering,efRecTrack->getRadiusCellOrder() );
-//         
-//         xAOD::PFODetails::PFOAttributes myAttribute_avgEdensityCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_avgEdensityCellOrdering;
-//         myEflowObject->setAttribute<int>(myAttribute_avgEdensityCellOrdering,efRecTrack->getAverageEnergyDensity() );
-
     } else {
       /* In normal mode we want te track eta,phi at the perigee */
       etaPhi.first = efRecTrack->getTrack()->eta();

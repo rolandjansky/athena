@@ -136,7 +136,6 @@ void eflowCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCa
   m_eflowTrackContainer = recTrackContainer;
   m_eflowClusterContainer = recClusterContainer;
 
-//is matching the same as done for E/p
 
   /* Add each track to its best matching cluster's eflowCaloObject */
   matchAndCreateEflowCaloObj(m_nMatchesInCellLevelSubtraction);
@@ -148,13 +147,12 @@ void eflowCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCa
 
 
   /* Check e/p mode - only perform subtraction if not in this mode */
-  if (!m_calcEOverP) performSubtraction();
+  if (!m_calcEOverP) {performSubtraction();}
 
    
   /* Check e/p mode - only perform radial profiles calculations if in this mode */
-  if (m_calcEOverP) calculateRadialEnergyProfiles();
+  if (m_calcEOverP) {calculateRadialEnergyProfiles();}
 
-//     std::cout<<"After calculating radial energy profile function"<<std::endl;
 
 }
 
@@ -211,72 +209,53 @@ int eflowCellLevelSubtractionTool::matchAndCreateEflowCaloObj(int n) {
 
 void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
 
-  std::cout<<"Accessed radial energy profile function"<<std::endl;
+  msg(MSG::DEBUG)  << "Accessed radial energy profile function" << std::endl;
 
   unsigned int nEFCaloObs = m_eflowCaloObjectContainer->size();
   
-  std::cout<<"Before iEFCalOb loop"<<std::endl;
   for (unsigned int iEFCalOb = 0; iEFCalOb < nEFCaloObs; ++iEFCalOb) {
   
     eflowCaloObject* thisEflowCaloObject = m_eflowCaloObjectContainer->at(iEFCalOb);
-    std::cout<<"Within iEFCalOb loop"<<std::endl;
     
     unsigned int nClusters = thisEflowCaloObject->nClusters();
     
     if (nClusters < 1) {
-      std::cout<<"if nClusters < 1"<<std::endl;
     continue;
     }
     
-    std::cout<<"Within iEFCalOb loop"<<std::endl;
     const std::vector<eflowTrackClusterLink*>& matchedTrackList = thisEflowCaloObject->efRecLink();
-    std::cout<<"After efRecLink"<<std::endl;
 
     int nTrackMatches = thisEflowCaloObject->nTracks();
-    std::cout<<"nTrackMatches = "<< nTrackMatches <<std::endl;
-     for (int iTrack = 0; iTrack < nTrackMatches; ++iTrack) {
-        std::cout<<"Within iTrack loop"<<std::endl;
+    
+    for (int iTrack = 0; iTrack < nTrackMatches; ++iTrack) {
 
-        std::cout<<"Matched Track List["<<iTrack<<"]"<<std::endl;
-        
-//         CHECK( matchedTrackList[iTrack]->getTrack() );
-        std::cout<<"Matched Track List["<<iTrack<<"] is "<< matchedTrackList[iTrack] <<std::endl;
         eflowRecTrack* efRecTrack = matchedTrackList[iTrack]->getTrack();
         
-        std::cout<<"After get Track"<<std::endl;
+        
         std::vector<eflowRecCluster*> matchedClusters;
-        std::cout<<"After matched Clusters"<<std::endl;
         matchedClusters.clear();
-        std::cout<<"After matched Clusters clear"<<std::endl;
         std::vector<eflowTrackClusterLink*> links = efRecTrack->getClusterMatches();
-        std::cout<<"After get matched Clusters"<<std::endl;
         std::vector<eflowTrackClusterLink*>::iterator itLink = links.begin();
         std::vector<eflowTrackClusterLink*>::iterator endLink = links.end();
-        std::cout<<"After defining links"<<std::endl;
+        
         
         
         for (; itLink != endLink; ++itLink) {
-          std::cout<<"Within itLINK loop"<<std::endl;
           matchedClusters.push_back((*itLink)->getCluster());
         }
+        
         std::vector<xAOD::CaloCluster*> clusterSubtractionList;
         std::vector<eflowRecCluster*>::const_iterator itCluster = matchedClusters.begin();
         std::vector<eflowRecCluster*>::const_iterator endCluster = matchedClusters.end();
         for (; itCluster != endCluster; ++itCluster) {
-          std::cout<<"Within itCluster loop"<<std::endl; 
           clusterSubtractionList.push_back(
               (*itCluster)->getClusterForModification(eflowCaloObject::getClusterContainerPtr()));
         }
 
-    std::cout<<"before calo cell list"<<std::endl;
 	eflowCellList calorimeterCellList;
 	Subtractor::makeOrderedCellList(efRecTrack->getTrackCaloPoints(),clusterSubtractionList,calorimeterCellList);
-	
-    std::cout<<"after calo cell list"<<std::endl;
     
 	eflowRingThicknesses ringThicknessGenerator;
-
-	
 
     std::vector<int> layerToStoreVector;
     std::vector<float> radiusToStoreVector;
@@ -285,15 +264,14 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
 	for (int i=0; i < eflowCalo::nRegions ;i++){
 	
         eflowCaloENUM layer = (eflowCaloENUM)i;
-        std::cout<<"layer is "<<layer<<std::endl;
+        msg(MSG::DEBUG)  <<"layer is "<<layer<<std::endl;
         double ringThickness = ringThicknessGenerator.ringThickness((eflowCaloENUM)i);
-        std::cout<<"after layer def'n"<<std::endl;
-        std::cout<<"ring thickness is "<<ringThickness<<std::endl;
+        msg(MSG::DEBUG)  <<"ring thickness is "<<ringThickness<<std::endl;
         
         double eta_extr = calorimeterCellList.etaFF(layer);
-        std::cout<<"extrapolated eta ["<<layer<<"] is "<<eta_extr<<std::endl;
+        msg(MSG::DEBUG)  <<"extrapolated eta ["<<layer<<"] is "<<eta_extr<<std::endl;
         double phi_extr = calorimeterCellList.phiFF(layer);
-        std::cout<<"extrapolated phi ["<<layer<<"] is "<<phi_extr<<std::endl;
+        msg(MSG::DEBUG)  <<"extrapolated phi ["<<layer<<"] is "<<phi_extr<<std::endl;
         
         
         
@@ -328,8 +306,6 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
                 }
         
               indexofRing += 1;
-              std::cout<<"Ring Number "<<indexofRing<< std::endl;
-              std::cout<<"within ring loop "<< std::endl;
               std::vector<std::pair<CaloCell*,int> > tempVector = (*beginRing).second;
               std::vector<std::pair<CaloCell*,int> >::iterator firstPair = tempVector.begin();
               std::vector<std::pair<CaloCell*,int> >::iterator lastPair = tempVector.end();
@@ -339,7 +315,6 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
               double averageEnergyDensityPerRing = 0;
       
               for (; firstPair != lastPair; ++firstPair) {
-                    std::cout<<"within pair loop"<<std::endl;
                     const CaloDetDescrElement* DDE = ((*firstPair).first)->caloDDE();
                     CaloCell_ID::CaloSample sampling = DDE->getSampling();
                 
@@ -349,21 +324,13 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
                     }
                 
                 
-                    std::cout << " cell eta and phi are " << ((*firstPair).first)->eta() << " and " << ((*firstPair).first)->phi() << " with index " << (*firstPair).second << " and sampling of " << sampling << std::endl;
-                    std::cout << " cell energy is " << ((*firstPair).first)->energy()<<std::endl;
+                    msg(MSG::DEBUG)  << " cell eta and phi are " << ((*firstPair).first)->eta() << " and " << ((*firstPair).first)->phi() << " with index " << (*firstPair).second << " and sampling of " << sampling << std::endl;
+                    msg(MSG::DEBUG)  << " cell energy is " << ((*firstPair).first)->energy()<<std::endl;
                 
                     previouseta = ((*firstPair).first)->eta();
                     previousphi = ((*firstPair).first)->phi();
                 
                     double celltrackdist = calorimeterCellList.dR(previouseta,previousphi,layer);
-                
-                
-                    double hand_dR2 = (((*firstPair).first)->eta()-eta_extr)*(((*firstPair).first)->eta()-eta_extr) + (((*firstPair).first)->phi()-phi_extr)*(((*firstPair).first)->phi()-phi_extr);
-                    double hand_dR = sqrt(hand_dR2);
-                
-                    std::cout << " hand dR2 is " << hand_dR2 <<std::endl;
-                    std::cout << " hand_dR is " << hand_dR <<std::endl;
-                    std::cout << " cell-track distance is " << celltrackdist <<std::endl;
                 
                 
                 
@@ -372,49 +339,38 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
         
                     totalEnergyPerRing += ((*firstPair).first)->energy();
                     totalEnergyPerCell = ((*firstPair).first)->energy();
-                    std::cout << " Total E per Cell is " << totalEnergyPerCell<<std::endl;
-                    std::cout << " Total E per Ring is " << totalEnergyPerRing<<std::endl;
+                    msg(MSG::DEBUG)  << " Total E per Cell is " << totalEnergyPerCell<<std::endl;
+                    msg(MSG::DEBUG)  << " Total E per Ring is " << totalEnergyPerRing<<std::endl;
         
-                    //implement track E here and divide cluster E by track E to have energy ratio
-            // 	    indexofCell = (*firstPair).second;
-            // check that volume units are OK -- volume from database
+
                     cellVolume = DDE->volume();
-                    std::cout << " cell volume is " << cellVolume/1000.<<std::endl;
+                    msg(MSG::DEBUG)  << " cell volume is " << cellVolume/1000.<<std::endl;
         
                     energyDensityPerCell = totalEnergyPerCell/(cellVolume/1000.);
-                    std::cout << " E density per Cell is " << energyDensityPerCell<<std::endl;
-                    std::cout << " Initial added E density per Cell is " << energyDensityPerRing<<std::endl;
+                    msg(MSG::DEBUG)  << " E density per Cell is " << energyDensityPerCell<<std::endl;
+                    msg(MSG::DEBUG)  << " Initial added E density per Cell is " << energyDensityPerRing<<std::endl;
                     energyDensityPerRing += energyDensityPerCell;
-                    std::cout << " Final added E density per Cell is " << energyDensityPerRing<<std::endl;
+                    msg(MSG::DEBUG)  << " Final added E density per Cell is " << energyDensityPerRing<<std::endl;
                     averageEnergyDensityPerRing = energyDensityPerRing/((totalCellsinRing)*(efRecTrack->getTrack()->e()/1000.));
-            // 	    std::cout << " Added cell E densities are " << energyDensityPerRing<<std::endl;
         
 
-                
-                    if (radiusToStore > celltrackdist){
-                        std::cout<<"cell-track distance is smaller than ring radius. GOOD!"<<std::endl;
-                    
-                    }
-                    else { std::cout<<"cell-track distance is NOT smaller than ring radius. NOT GOOD!"<<std::endl; ;}
-      
+            
                   }
 
-            std::cout << " track E is " << efRecTrack->getTrack()->e()/1000.;
-            std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
+            msg(MSG::DEBUG)  << " track E is " << efRecTrack->getTrack()->e()/1000.;
+            msg(MSG::DEBUG)  << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
         
             if (averageEnergyDensityPerRing != 0){
-                std::cout<<"indexofRing is "<< indexofRing << std::endl;
-                std::cout << " Average E density per Ring is " << averageEnergyDensityPerRing<<std::endl;
                 avgEdensityToStoreVector.push_back(averageEnergyDensityPerRing);
                 layerToStore = (eflowCaloENUM)i;
-                std::cout<<"layerToStore is "<< layerToStore << std::endl;
+                msg(MSG::DEBUG)  <<"layerToStore is "<< layerToStore << std::endl;
                 layerToStoreVector.push_back(layerToStore);
                 radiusToStore = (indexofRing)*ringThickness;
-                std::cout<<"radiusToStore is "<< radiusToStore << std::endl;
+                msg(MSG::DEBUG)  <<"radiusToStore is "<< radiusToStore << std::endl;
                 radiusToStoreVector.push_back(radiusToStore);
             }
 
-            else {std::cout<<"averageEnergyDensityPerRing = 0"<<std::endl;}
+            else {msg(MSG::DEBUG)  <<"averageEnergyDensityPerRing = 0"<<std::endl;}
         
         
         }
@@ -426,7 +382,6 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
 	    }
 	    
 	    
-	    std::cout<<" size of layertostorevector is" << layerToStoreVector.size() << " & itrack is" << iTrack << std::endl;
 	    
 	    efRecTrack->setLayerCellOrderVector(layerToStoreVector);
         efRecTrack->setRadiusCellOrderVector(radiusToStoreVector);
