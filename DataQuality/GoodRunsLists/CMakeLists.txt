@@ -24,6 +24,11 @@ atlas_add_library( GoodRunsListsLib
    PRIVATE_LINK_LIBRARIES ${LIBXML2_LIBRARIES} PathResolver )
 
 if( NOT XAOD_STANDALONE )
+   if( XAOD_ANALYSIS )
+     set( extra_libs )
+   else()
+     set( extra_libs DetectorStatusLib )
+   endif()
    atlas_add_component( GoodRunsLists
       src/*.cxx src/components/*.cxx
       LINK_LIBRARIES AthenaBaseComps AthenaKernel EventInfo GaudiKernel GoodRunsListsLib PathResolver StoreGateLib xAODEventInfo )
