@@ -26,6 +26,10 @@ log.info("Beam type %s",beam_type)
 log.info("Trigger stream %s",rec.triggerStream())
 #log.info("Event type %s",evt_type)
 
+# enable PerfMon
+from PerfMonComps.PerfMonFlags import jobproperties
+jobproperties.PerfMonFlags.doFastMon = True
+
 #set up DQMonFlags required for HLTMonitoring
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 if globalflags.DataSource.get_Value() == 'geant4':
@@ -131,12 +135,11 @@ if data_type == 'pool':
         HLTMonFlags.doBjet    = True
         HLTMonFlags.doTau     = True
         HLTMonFlags.doMuon    = True
-        HLTMonFlags.doIDtrk   = False
+        HLTMonFlags.doIDtrk   = True
+        HLTMonFlags.doIDJpsiMon = True
         HLTMonFlags.doCalo    = True
         HLTMonFlags.doBphys   = False
         HLTMonFlags.doMinBias = False
-        HLTMonFlags.doIDJpsiMon = False
-
    
     #-- setup DQTDataFlow ------------------------------------------------------------------------------
     from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
@@ -162,6 +165,7 @@ if data_type == 'pool':
     ManagedAthenaGlobalMon.AthenaMonTools += [ DQTDataFlowMon ]
 
 #-- set up output histogram file ------------------------------------------------------------------------------
+log.info('HLTFlags %s', HLTMonFlags)
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 svcMgr += THistSvc()
