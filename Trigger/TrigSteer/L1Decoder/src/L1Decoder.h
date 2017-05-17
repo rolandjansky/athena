@@ -11,7 +11,7 @@
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "CTPUnpackingTool.h"
+#include "ICTPUnpackingTool.h"
 #include "IRoIsUnpackingTool.h"
 
 
@@ -45,7 +45,7 @@ private:
   SG::ReadHandleKey<ROIB::RoIBResult> m_RoIBResultKey;
   SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_chainsKey;
 
-  ToolHandle<CTPUnpackingTool> m_ctpUnpacker; // = ToolHandle<CTPUnpackingTool>("CTPUnpackingTool/CTPUnpackingTool", this); // last arg makes it private tool    
+  ToolHandle<ICTPUnpackingTool> m_ctpUnpacker; // = ToolHandle<CTPUnpackingTool>("CTPUnpackingTool/CTPUnpackingTool", this); // last arg makes it private tool    
   //  ToolHandle<PrescalingTool> m_prescaler = ToolHandle<PrescalingTool>("PrescalingTool/PrescalingTool", this); 
   ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers;  // = ToolHandleArray<IRoIsUnpackingTool>(this);    
   std::map<HLT::Identifier, float> m_prescalingInfo;  
