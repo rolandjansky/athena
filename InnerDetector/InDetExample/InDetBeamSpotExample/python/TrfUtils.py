@@ -255,14 +255,14 @@ class JobRunnerTransform:
     def addTaskToDatabase(self,comment=''):
         if self.prodTaskDb:
             try:
-                taskman = TaskManager.TaskManager(self.prodTaskDb)
-                taskman.addTask(self.dataset,
-                                self.taskname,
-                                self.runner.getParam('joboptionpath'),
-                                self.runner.getParam('release'),
-                                self.runner.getNJobs(),
-                                self.runner.getParam('taskpostprocsteps'),
-                                comment=comment)
+                with TaskManager(self.prodTaskDb) as taskman:
+                    taskman.addTask(self.dataset,
+                                    self.taskname,
+                                    self.runner.getParam('joboptionpath'),
+                                    self.runner.getParam('release'),
+                                    self.runner.getNJobs(),
+                                    self.runner.getParam('taskpostprocsteps'),
+                                    comment=comment)
             except Exception,e:
                 print 'ERROR: Unable to add task to task manager database '+self.prodTaskDb
                 print 'DEBUG: Exception =',e

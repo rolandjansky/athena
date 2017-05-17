@@ -240,9 +240,8 @@ if not options.testonly:
     runner.configure()
     if options.taskdb!='None':
         try:
-            taskman = TaskManager.TaskManager(options.taskdb)
-            taskman.addTask(dsname,taskname,joboptiontemplate,runner.getParam('release'),runner.getNJobs(),options.postprocsteps,comment=cmd)
-            del taskman
+            with TaskManager.TaskManager(options.taskdb) as taskman:
+                taskman.addTask(dsname,taskname,joboptiontemplate,runner.getParam('release'),runner.getNJobs(),options.postprocsteps,comment=cmd)
         except:
             print 'WARNING: Unable to add task to task manager database '+options.taskdb
     runner.run()

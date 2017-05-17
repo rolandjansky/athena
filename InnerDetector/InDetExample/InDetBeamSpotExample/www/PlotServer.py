@@ -29,9 +29,9 @@ class PlotServer(BeamSpotWebPage):
         """Return a summary gif image for the run specified in the URL. If no such image exists (or the run
            doesn't exist), currently returns a zero-length image."""
         cherrypy.response.headers['Content-Type'] = "image/gif"
-        taskman = TaskManager(self.globalConfig['taskDb'])
         try:
-            t = taskman.taskIterDict('*',['where RUNNR =',DbParam(int(run)),"and TASKNAME like 'DB_BEAMSPOT%%' order by UPDATED desc"]).next()
+            with TaskManager(self.globalConfig['taskDb']) as taskman:
+                t = taskman.taskIterDict('*',['where RUNNR =',DbParam(int(run)),"and TASKNAME like 'DB_BEAMSPOT%%' order by UPDATED desc"]).next()
             wantedFile = 'PlotBeamSpot.gif'
             for f in t['RESULTFILES'].split():
                 if f[-len(wantedFile):] == wantedFile: break
