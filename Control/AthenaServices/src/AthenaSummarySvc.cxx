@@ -22,7 +22,9 @@
 #include "GaudiKernel/System.h"
 
 #include "PerfMonKernel/IPerfMonSvc.h"
-//#include "PerfMonEvent/DataModel.h"
+#ifndef XAOD_ANALYSIS
+#include "PerfMonEvent/DataModel.h"
+#endif
 #include "AthenaKernel/ILoggedMessageSvc.h"
 #include "AthenaKernel/ICoreDumpSvc.h"
 
