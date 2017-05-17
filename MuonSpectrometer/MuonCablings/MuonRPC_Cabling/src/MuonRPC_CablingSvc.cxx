@@ -462,7 +462,7 @@ Identifier MuonRPC_CablingSvc::protected_strip_OffId_fromCode (unsigned long int
   RPCofflineId rpc_strip  = CablingRPC::s_instance->strip_id_fromCode (strip_code);
   if (rpc_strip.stationName=="BOG")
     {
-      if (fabs(rpc_strip.stationEta)==4 && rpc_strip.doubletR==2 && rpc_strip.measuresPhi==1)
+      if (std::abs(rpc_strip.stationEta)==4 && rpc_strip.doubletR==2 && rpc_strip.measuresPhi==1)
 	{
 	  if (rpc_strip.strip>48) rpc_strip.strip=48;
 	}

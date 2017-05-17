@@ -36,7 +36,7 @@ CMAcablingdata::CMAcablingdata(DBline& data, int type) :
 	        EtaCMA cma(m_number,m_station,m_type,m_eta_index,m_phi_index,
                         m_lowPt_start_co,m_lowPt_stop_co,m_lowPt_number_co,
 			m_highPt_start_co,m_highPt_stop_co,m_highPt_number_co);
-                etaCMA.push_back(cma);
+                m_etaCMA.push_back(cma);
 	    }
 	}
         data++;
@@ -45,7 +45,7 @@ CMAcablingdata::CMAcablingdata(DBline& data, int type) :
 
 CMAcablingdata::~CMAcablingdata()
 {
-    etaCMA.clear();
+    m_etaCMA.clear();
 }
 
 void
@@ -169,10 +169,10 @@ CMAcablingdata::get_data(DBline& data)
 EtaCMA*
 CMAcablingdata::give_eta_cma()
 {    
-    if(etaCMA.size())
+    if(m_etaCMA.size())
     {
-        EtaCMA* CMA = new EtaCMA(etaCMA.front());
-	etaCMA.pop_front();
+        EtaCMA* CMA = new EtaCMA(m_etaCMA.front());
+	m_etaCMA.pop_front();
 	return CMA;
     }
     return 0;
@@ -184,9 +184,9 @@ CMAcablingdata::Print(std::ostream& stream,bool detail) const
     stream << "CMA cabling data ";
     stream << " belonging to sector type " << m_type << std::endl;
 
-    stream << "It contains " << etaCMA.size();
+    stream << "It contains " << m_etaCMA.size();
     stream << " eta CMAs:" << std::endl;
     ETAlist::const_iterator ei;
-    for(ei = etaCMA.begin();ei!= etaCMA.end();++ei) 
+    for(ei = m_etaCMA.begin();ei!= m_etaCMA.end();++ei) 
         stream << ShowRequest<EtaCMA>(*ei,detail);
 }
