@@ -173,18 +173,18 @@ DecisionSvc::interpretAlgMap()
   std::set<std::string> uniStreams;
   m_streamNames->clear();
   // first take list of streams from accept streams
-  for(auto iter = m_stream_accept.begin();
-           iter != m_stream_accept.end(); ++iter){
+  for(std::map<std::string, std::vector<std::string> >::iterator iter = m_stream_accept.begin();
+                                                                 iter != m_stream_accept.end(); ++iter){
     uniStreams.insert(iter->first);
   }
   // then require
-  for(auto iter = m_stream_require.begin();
-           iter != m_stream_require.end(); ++iter){
+  for(std::map<std::string, std::vector<std::string> >::iterator iter = m_stream_require.begin();
+                                                                 iter != m_stream_require.end(); ++iter){
     uniStreams.insert(iter->first);
   }
   // then veto
-  for(auto iter = m_stream_veto.begin();
-           iter != m_stream_veto.end(); ++iter){
+  for(std::map<std::string, std::vector<std::string> >::iterator iter = m_stream_veto.begin();
+                                                                 iter != m_stream_veto.end(); ++iter){
     uniStreams.insert(iter->first);
   }
   std::copy(uniStreams.begin(),uniStreams.end(),std::back_inserter(*m_streamNames));
@@ -204,7 +204,7 @@ DecisionSvc::addStream(const std::string& stream)
   StatusCode status = StatusCode::SUCCESS;
   if(m_frozen != true){
     // check if this stream already exist
-    auto it = m_stream_accept.find(stream);
+    std::map<std::string, std::vector<std::string> >::iterator it = m_stream_accept.find(stream);
     if(it != m_stream_accept.end()){
       // ok, it exists, then do nothing
       msg(MSG::WARNING) << "Stream name : " << stream << " already been registered!" << endreq;
@@ -225,6 +225,19 @@ StatusCode
 DecisionSvc::fillMap(std::map<std::string, std::vector<std::string> >& streamsModeMap,
                      const std::string& name, const std::string& stream)
 {
+  // Check if Alg exists.
+  IAlgManager* theAlgMgr;
+  StatusCode result = serviceLocator( )->getService("ApplicationMgr",
+                                                    IAlgManager::interfaceID(),
+                                                    *pp_cast<IInterface>(&theAlgMgr));
+
+  if ( result.isSuccess( ) ) {
+
+    IAlgorithm* theIAlg;
+    result = theAlgMgr->getAlgorithm( name, theIAlg );
+    if ( result.isSuccess( ) ) {
+
+      if (m_frozen != true) {
 
 	// check if this stream already exist
 	std::map<std::string, std::vector<std::string> >::iterator it = streamsModeMap.find(stream);
@@ -236,8 +249,8 @@ DecisionSvc::fillMap(std::map<std::string, std::vector<std::string> >& streamsMo
 
 	  bool algexist = false;
           // Check if alg already registered for this stream
-	  for(auto vit = (it->second).begin();
-                   vit != (it->second).end(); ++vit) {
+	  for(std::vector<std::string>::iterator vit = (it->second).begin();
+                                                 vit != (it->second).end(); ++vit) {
 	    if((*vit) == name){
 	      algexist = true;
 	      // it seems the alg was already inserted, warn the user
@@ -263,6 +276,15 @@ DecisionSvc::fillMap(std::map<std::string, std::vector<std::string> >& streamsMo
 	  tmpvec.push_back(name);
 	  streamsModeMap.insert(std::make_pair(stream, tmpvec));
 	}
+      }else{
+
+	msg(MSG::WARNING) << "State of DecisionSvc is " << m_frozen << " ( " << false << " - open, " << true << " - frozen )" << endreq;
+	msg(MSG::WARNING) << "Adding Algs not allowed anymore!"<< endreq;
+      }
+    } else{
+      msg(MSG::WARNING) << "Algorithm " << name << " doesn't exist - ignored" << endreq;
+    }
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -270,13 +292,6 @@ DecisionSvc::fillMap(std::map<std::string, std::vector<std::string> >& streamsMo
 StatusCode
 DecisionSvc::addAcceptAlg(const std::string& name, const std::string& stream)
 {
-<<<<<<< HEAD
-=======
-  // Add alg to list of streams
-  auto it = std::find(m_streamNames.begin(), m_streamNames.end(),stream);
-  if (it != m_streamNames.end()) m_streamNames.push_back(stream);
-  // Fill map of stream to alg
->>>>>>> 709733a407... Merging AthenaServices-01-60-45-03 with the trunk (AthenaServices-01-60-48)
   return fillMap(m_stream_accept,name,stream);
 }
 
@@ -284,13 +299,6 @@ StatusCode
 DecisionSvc::addRequireAlg(const std::string& name,
                            const std::string& stream)
 {
-<<<<<<< HEAD
-=======
-  // Add alg to list of streams
-  auto it = std::find(m_streamNames.begin(), m_streamNames.end(),stream);
-  if (it != m_streamNames.end()) m_streamNames.push_back(stream);
-  // Fill map of stream to alg
->>>>>>> 709733a407... Merging AthenaServices-01-60-45-03 with the trunk (AthenaServices-01-60-48)
   return fillMap(m_stream_require,name,stream);
 }
 
@@ -298,13 +306,6 @@ StatusCode
 DecisionSvc::addVetoAlg(const std::string& name,
                         const std::string& stream)
 {
-<<<<<<< HEAD
-=======
-  // Add alg to list of streams
-  auto it = std::find(m_streamNames.begin(), m_streamNames.end(),stream);
-  if (it != m_streamNames.end()) m_streamNames.push_back(stream);
-  // Fill map of stream to alg
->>>>>>> 709733a407... Merging AthenaServices-01-60-45-03 with the trunk (AthenaServices-01-60-48)
   return fillMap(m_stream_veto,name,stream);
 }
 
@@ -495,11 +496,7 @@ DecisionSvc::isEventAccepted( const std::string& stream ) const
   if(itAlgs != m_stream_acceptAlgs.end()){
     found_accept = true;
     // get a handle of the streams' algos vector
-<<<<<<< HEAD
     std::vector<Algorithm*> vecAlgs = itAlgs->second;
-=======
-    auto vecAlgs = itAlgs->second;
->>>>>>> 709733a407... Merging AthenaServices-01-60-45-03 with the trunk (AthenaServices-01-60-48)
     // Loop over all Algorithms in the list to see
     // whether any have been executed and have their filter
     // passed flag set. Any match causes the event to be
@@ -532,7 +529,6 @@ DecisionSvc::isEventAccepted( const std::string& stream ) const
   if(itAlgs != m_stream_requireAlgs.end()){
     found_require = true;
     // get a handle of the streams' algos vector
-<<<<<<< HEAD
     std::vector<Algorithm*> vecAlgs = itAlgs->second;
    // Loop over all Algorithms in the required list to see
    // whether all have been executed and have their filter
@@ -557,29 +553,6 @@ DecisionSvc::isEventAccepted( const std::string& stream ) const
          break;
        }
      }
-=======
-    auto vecAlgs = itAlgs->second;
-    // Loop over all Algorithms in the list to see
-    // whether any have been executed and have their filter
-    // passed flag set. Any match causes the event to be
-    // provisionally accepted.
-    if ( ! vecAlgs.empty( ) ) {
-      for (auto it = vecAlgs.begin(); it != vecAlgs.end(); it++) {
-        bool isE,fp;
-        if (ectx.valid()) {
-          isE = m_algstateSvc->algExecState(*it,ectx).isExecuted();
-          fp = m_algstateSvc->algExecState(*it,ectx).filterPassed();
-        }
-        else {  
-          isE = m_algstateSvc->algExecState(*it).isExecuted();
-          fp = m_algstateSvc->algExecState(*it).filterPassed();
-        }
-        if (!isE || !fp) {
-          result = false;
-          break;
-        }
-      }
->>>>>>> 709733a407... Merging AthenaServices-01-60-45-03 with the trunk (AthenaServices-01-60-48)
     }
   }
 
@@ -588,13 +561,8 @@ DecisionSvc::isEventAccepted( const std::string& stream ) const
   if(itAlgs != m_stream_vetoAlgs.end()){
     found_veto = true;
     // get a handle of the streams' algos vector
-<<<<<<< HEAD
     std::vector<Algorithm*>  vecAlgs = itAlgs->second;
     // Loop over all Algorithms in the veto list to see
-=======
-    auto vecAlgs = itAlgs->second;
-    // Loop over all Algorithms in the list to see
->>>>>>> 709733a407... Merging AthenaServices-01-60-45-03 with the trunk (AthenaServices-01-60-48)
     // whether any have been executed and have their filter
     // passed flag set. Any match causes the event to be
     // rejected.
@@ -695,21 +663,8 @@ StatusCode DecisionSvc::start()
     }
   }
 
-<<<<<<< HEAD
   //Retrieve CutFlowSvc if (and only if) needed
   if( m_SacceptAlgNames->size()>0 or m_SrequireAlgNames->size()>0 or m_SvetoAlgNames->size()>0 ){
-=======
-  // lambda to return true if second element is non-empty
-  auto teststreams = [](const auto& m)
-    {
-      for (const auto& p : m)
-	if (!p.second.empty()) return true;
-      return false;
-    };
-  
-  //Retrieve CutFlowSvc if (and only if) needed
-  if( teststreams(m_stream_accept) || teststreams(m_stream_require) || teststreams(m_stream_veto)) {
->>>>>>> 709733a407... Merging AthenaServices-01-60-45-03 with the trunk (AthenaServices-01-60-48)
     if (!m_cutflowSvc.empty())
       {
         if (m_cutflowSvc.retrieve().isFailure())
@@ -728,16 +683,8 @@ StatusCode DecisionSvc::start()
 
 void DecisionSvc::DeclareToCutFlowSvc()
 {
-<<<<<<< HEAD
   for(std::vector<std::string>::const_iterator ait  = m_streamNames->begin();
                                             ait != m_streamNames->end(); ++ait) {
-=======
-  // Declare all decisions to CutFlowSvc for bookkeeping
-  
-  // Loop over all streams
-  for(auto ait  = m_streamNames.begin();
-           ait != m_streamNames.end(); ++ait) {
->>>>>>> 709733a407... Merging AthenaServices-01-60-45-03 with the trunk (AthenaServices-01-60-48)
     std::string streamName=*ait;
     std::vector<std::string> accFilt;
     std::vector<std::string> reqFilt;
@@ -756,20 +703,18 @@ void DecisionSvc::DeclareToCutFlowSvc()
       totFilt.push_back(&vetFilt);
     }
 
-    // Now build logicalKey as string of filt ||, &&, ! based on 
-    // whether it is accept, require, veto
     std::string accstring(""), reqstring(""), vetstring("");
-    for (auto it = accFilt.begin(); it != accFilt.end(); ++it) {
+    for (std::vector<std::string>::const_iterator it = accFilt.begin(); it != accFilt.end(); ++it) {
       if(accstring.size()>0) accstring += "||";
       else accstring += "(";
       accstring+=*it;
     }
-    for (auto it = reqFilt.begin(); it != reqFilt.end(); ++it) {
+    for (std::vector<std::string>::const_iterator it = reqFilt.begin(); it != reqFilt.end(); ++it) {
       if(reqstring.size()>0) reqstring += "&&";
       else reqstring += "(";
       reqstring+=*it;
     }
-    for (auto it = vetFilt.begin(); it != vetFilt.end(); ++it) {
+    for (std::vector<std::string>::const_iterator it = vetFilt.begin(); it != vetFilt.end(); ++it) {
       if(vetstring.size()>0) vetstring += "||";
       else vetstring += "(";
       vetstring+=*it;
@@ -789,16 +734,13 @@ void DecisionSvc::DeclareToCutFlowSvc()
       if (logicalKey.size()>0) logicalKey += "&&";
       logicalKey = logicalKey + "!" + vetstring;
     }
-    // If no filters, mark as PasThru
     if (logicalKey.size()==0) logicalKey="PassThru";
     ATH_MSG_DEBUG("stream " << streamName << " uses logic " << logicalKey);
-
-    // Now actually declare to the cutflowsvc
-    for(auto vec  = totFilt.begin();
-             vec != totFilt.end(); ++vec) {
+    for(std::vector< std::vector<std::string>* >::const_iterator vec  = totFilt.begin();
+                                                                 vec != totFilt.end(); ++vec) {
       ATH_MSG_DEBUG("Declaring logic " << logicalKey << " for " << streamName);
-      for (auto filter  = (*vec)->begin();
-                filter != (*vec)->end(); ++filter) {
+      for (std::vector<std::string>::const_iterator filter  = (*vec)->begin();
+                                                    filter != (*vec)->end(); ++filter) {
         if(!m_cutflowSvc.empty()) {m_cutflowSvc->registerTopFilter( (*filter), logicalKey, 2, streamName ); }
       }
     }
