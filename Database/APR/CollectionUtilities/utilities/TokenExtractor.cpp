@@ -1,3 +1,6 @@
+//hide from analysis releases because of yampl dependence!
+#ifndef XAOD_ANALYSIS
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -478,3 +481,4 @@ int main(int argc, char *argv[])
   delete socket;
   return 0;  
 }
+#endif //XAOD_ANALYSIS

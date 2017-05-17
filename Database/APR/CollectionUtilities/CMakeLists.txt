@@ -21,7 +21,11 @@ atlas_depends_on_subdirs(
 find_package( Boost )
 find_package( CORAL COMPONENTS CoralBase )
 find_package( XercesC )
-find_package( yampl )
+
+if( NOT XAOD_ANALYSIS )
+  find_package( yampl )
+endif()
+
 find_package( CURL )
 
 # Component(s) in the package:
