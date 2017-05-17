@@ -53,9 +53,12 @@ parser.add_option('', '--proddir', dest='proddir', default='.', help='production
 parser.add_option('-p', '--pretty', dest='pretty', action='store_true', default=False, help='try to nicely format output')
 parser.add_option('', '--runtaskname', dest='runtaskname', default='CB_BEAMSPOT', help='task name')
 (options,args) = parser.parse_args()
+
 if len(args) < 1:
     parser.error('wrong number of command line arguments')
 cmd = args[0]
+cmdargs = args[1:]
+
 proddir = options.proddir
 if not os.path.exists(proddir):
     sys.exit('ERROR: Job directory %s does not exist or is unreadable' % proddir)
@@ -73,7 +76,7 @@ def getTaskManager(dbconn=None):
 # Initialize a new task database
 #
 if cmd == 'init':
-    if len(args) > 1: parser.error('Command init does not take arguments')
+    if cmdargs: parser.error('Command init does not take arguments')
     try:
         dbtype, dbname = TaskManager.parseConnectionInfo(options.dbconn)
     except ValueError as e:
@@ -101,7 +104,8 @@ if cmd == 'init':
 #
 # Check integrity of sqlite database and vacuum, if necessary
 #
-if cmd=='checkdb' and len(args)==1:
+if cmd == 'checkdb':
+    if cmdargs: parser.error('Command checkdb does not take arguments')
     try:
         dbtype, dbfile = TaskManager.parseConnectionInfo(options.dbconn)
     except ValueError:
@@ -141,7 +145,8 @@ if cmd=='checkdb' and len(args)==1:
 #
 # Check database for duplicate entries and remove duplicates, if necessary
 #
-if cmd=='checkdup' and len(args)==1:
+if cmd == 'checkdup':
+    if cmdargs: parser.error('Command checkdup does not take arguments')
     #q = ['select dsname,taskname,count(*) from tasks group by dsname,taskname']
     nDuplicates = 0
     with getTaskManager() as taskman:
@@ -161,40 +166,43 @@ if cmd=='checkdup' and len(args)==1:
 #
 # Dump contents of task database
 #
-if cmd=='dump' and len(args)==1:
-    with getTaskManager() as taskman:
-        print taskman.getNTasks(),'task(s) found:\n'
-        if options.pretty:
-            for t in taskman.taskIterDict():
-                print '\n\nTask {}  /  {}:\n'.format(
-                        t['DSNAME'],
-                        t['TASKNAME'])
-                print pprint.pformat(t)
-        else:
-            for t in taskman.taskIter():
-                print t
-    sys.exit(0)
-
-if cmd=='dump' and len(args)==3:
-    dsname = cmdargs[0]
-    taskname = cmdargs[1]
-
-    with getTaskManager() as taskman:
-        try:
-            taskList = getFullTaskNames(taskman, dsname, taskname,
-                    addWildCards=not options.nowildcards)
-        except TaskManagerCheckError, e:
-            sys.exit(e)
-        for t in taskList:
-            taskEntry = taskman.getTaskDict(t[0], t[1])
-            if options.pretty is None or options.pretty:
-                print '\n\nTask {}  /  {}:\n'.format(
-                        taskEntry['DSNAME'],
-                        taskEntry['TASKNAME'])
-                print pprint.pformat(taskEntry)
+if cmd == 'dump':
+    if not cmdargs:
+        with getTaskManager() as taskman:
+            print taskman.getNTasks(),'task(s) found:\n'
+            if options.pretty:
+                for t in taskman.taskIterDict():
+                    print '\n\nTask {}  /  {}:\n'.format(
+                            t['DSNAME'],
+                            t['TASKNAME'])
+                    print pprint.pformat(t)
             else:
-                print taskEntry
-    sys.exit(0)
+                for t in taskman.taskIter():
+                    print t
+        sys.exit(0)
+
+    elif len(cmdargs) == 2:
+        dsname = cmdargs[0]
+        taskname = cmdargs[1]
+
+        with getTaskManager() as taskman:
+            try:
+                taskList = getFullTaskNames(taskman, dsname, taskname,
+                        addWildCards=not options.nowildcards)
+            except TaskManagerCheckError, e:
+                sys.exit(e)
+            for t in taskList:
+                taskEntry = taskman.getTaskDict(t[0], t[1])
+                if options.pretty is None or options.pretty:
+                    print '\n\nTask {}  /  {}:\n'.format(
+                            taskEntry['DSNAME'],
+                            taskEntry['TASKNAME'])
+                    print pprint.pformat(taskEntry)
+                else:
+                    print taskEntry
+        sys.exit(0)
+
+    else: parser.error('Command dump takes either 0 or 2 arguments')
 
 
 #
@@ -222,6 +230,8 @@ if cmd=='show' and (len(args)==2 or len(args)==3):
 # Update task database entries based on task files on disk
 #
 if cmd=='update' and len(args)==1:
+    if cmdargs: parser.error('Command update does not take any arguments')
+
     with getTaskManager() as taskman:
         for t in taskman.taskIterDict('DSNAME,TASKNAME', [
             'where STATUS < {:d} and ONDISK < {:d}'.format(
@@ -257,13 +267,14 @@ if cmd=='update' and len(args)==3:
 # Rebuild task database entries based on task files on disk
 #
 if cmd == 'rebuild':
-    if len(args) == 3:
-        dsname = args[1]
-        taskname = args[2]
+    if len(cmdargs) == 2:
+        dsname = cmdargs[0]
+        taskname = cmdargs[1]
         taskpath = os.path.join(proddir, dsname, taskname)
-    elif len(args) == 1:
+    elif not cmdargs:
         taskpath = os.path.join(proddir, '*', '*')
     else:
+        parser.error('Command rebuild takes 0 or 2 arguments')
 
     print 'Will reconstruct database from directory: {}'.format(taskpath)
     print
@@ -419,13 +430,17 @@ if cmd=='import' and len(args)==2:
 #
 # Set task status
 #
-if cmd=='setstatus' and len(args)==4:
-    statusName = args[3].upper()
-    status = TaskManager.StatusCodes.get(statusName,None)
+if cmd == 'setstatus':
+    if len(cmdargs) != 3: parser.error('Command setstatus takes 3 arguments')
+    dsname = cmdargs[0]
+    taskname = cmdargs[1]
+    statusName = cmdargs[2].upper()
+
+    status = TaskManager.StatusCodes.get(statusName)
     if status:
-        print 'Setting task status to %s   (code %i)' % (statusName,status)
+        print 'Setting task status to {} (code {:d})'.format(statusName,status)
     else:
-        sys.exit('ERROR: Illegal status code name %s' % args[3])
+        sys.exit('ERROR: Illegal status code name {}'.format(statusName))
     print
 
     with getTaskManager() as taskman:
@@ -447,11 +462,11 @@ if cmd=='setstatus' and len(args)==4:
 # Set database field
 #
 if cmd == 'setfield':
-    if len(args) != 5: parser.error('Command setfield takes 4 arguments')
-    dsname = args[1]
-    taskname = args[2]
-    fieldName = args[3].upper()
-    fieldValue = args[4]
+    if len(cmdargs) != 4: parser.error('Command setfield takes 4 arguments')
+    dsname = cmdargs[0]
+    taskname = cmdargs[1]
+    fieldName = cmdargs[2].upper()
+    fieldValue = cmdargs[3]
 
     print 'Setting field %s to:   %s' % (fieldName,fieldValue)
     print
