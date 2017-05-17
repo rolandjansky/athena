@@ -346,73 +346,73 @@ void PixelMon2DProfilesLW::FillFromMap(PixelMon2DMaps* inputmap, bool clear_inpu
   //   for(int y=1; y<=DBMA->GetNbinsY(); y++){
   //      float content = inputmap->DBMA->GetBinContent(x, y);
   //      DBMA->Fill(inputmap->DBMA->GetXaxis()->GetBinCenter(x), inputmap->DBMA->GetYaxis()->GetBinCenter(y), content*weightIBL);
-  //      if (clear_inputmap) inputmap->DBMA->SetBinContent(x, y, 0);
   //   }
   //}
+  if (clear_inputmap) inputmap->DBMA->Reset(); 
   //for(int x=1; x<=DBMC->GetNbinsX(); x++){
   //   for(int y=1; y<=DBMC->GetNbinsY(); y++){
   //      float content = inputmap->DBMC->GetBinContent(x, y);
   //      DBMC->Fill(inputmap->DBMC->GetXaxis()->GetBinCenter(x), inputmap->DBMC->GetYaxis()->GetBinCenter(y), content*weightIBL);
-  //      if (clear_inputmap) inputmap->DBMC->SetBinContent(x, y, 0);
   //   }
   //}
+  if (clear_inputmap) inputmap->DBMC->Reset();
   
   for(unsigned int x=1; x<=A->GetNbinsX(); x++){
     for(unsigned int y=1; y<=A->GetNbinsY(); y++){
       float content = inputmap->A->GetBinContent(x, y);
       A->Fill(inputmap->A->GetXaxis()->GetBinCenter(x), inputmap->A->GetYaxis()->GetBinCenter(y), content*weightPixel);
-      if (clear_inputmap) inputmap->A->SetBinContent(x, y, 0);
     }
   }
+  if (clear_inputmap) inputmap->A->Reset();
   for(unsigned int x=1; x<=C->GetNbinsX(); x++){
     for(unsigned int y=1; y<=C->GetNbinsY(); y++){
       float content = inputmap->C->GetBinContent(x, y);
       C->Fill(inputmap->C->GetXaxis()->GetBinCenter(x), inputmap->C->GetYaxis()->GetBinCenter(y), content*weightPixel);
-      if (clear_inputmap) inputmap->C->SetBinContent(x, y, 0);
     }
   }
+  if (clear_inputmap) inputmap->C->Reset();
   for(unsigned int x=1; x<=B0->GetNbinsX(); x++){
     for(unsigned int y=1; y<=B0->GetNbinsY(); y++){
       float content = inputmap->B0->GetBinContent(x, y);
       B0->Fill(inputmap->B0->GetXaxis()->GetBinCenter(x), inputmap->B0->GetYaxis()->GetBinCenter(y), content*weightPixel);
-      if (clear_inputmap) inputmap->B0->SetBinContent(x, y, 0);
     }
   }
+  if (clear_inputmap) inputmap->B0->Reset();
   for(unsigned int x=1; x<=B1->GetNbinsX(); x++){
     for(unsigned int y=1; y<=B1->GetNbinsY(); y++){
       float content = inputmap->B1->GetBinContent(x, y);
       B1->Fill(inputmap->B1->GetXaxis()->GetBinCenter(x), inputmap->B1->GetYaxis()->GetBinCenter(y), content*weightPixel);
-      if (clear_inputmap) inputmap->B1->SetBinContent(x, y, 0);
     }
   }
+  if (clear_inputmap) inputmap->B1->Reset();
   for(unsigned int x=1; x<=B2->GetNbinsX(); x++){
     for(unsigned int y=1; y<=B2->GetNbinsY(); y++){
       float content = inputmap->B2->GetBinContent(x, y);
       B2->Fill(inputmap->B2->GetXaxis()->GetBinCenter(x), inputmap->B2->GetYaxis()->GetBinCenter(y), content*weightPixel);
-      if (clear_inputmap) inputmap->B2->SetBinContent(x, y, 0);
     }
   }
+  if (clear_inputmap) inputmap->B2->Reset();
   for(unsigned int x=1; x<=IBL->GetNbinsX(); x++){
     for(unsigned int y=1; y<=IBL->GetNbinsY(); y++){
       float content = inputmap->IBL->GetBinContent(x, y);
       IBL->Fill(inputmap->IBL->GetXaxis()->GetBinCenter(x), inputmap->IBL->GetYaxis()->GetBinCenter(y), content*weightIBL);
-      if (clear_inputmap) inputmap->IBL->SetBinContent(x, y, 0);
     }
   }
+  if (clear_inputmap) inputmap->IBL->Reset();
   for(unsigned int x=1; x<=IBL2D->GetNbinsX(); x++){
     for(unsigned int y=1; y<=IBL2D->GetNbinsY(); y++){
       float content = inputmap->IBL2D->GetBinContent(x, y);
-      IBL2D->Fill(inputmap->IBL2D->GetXaxis()->GetBinCenter(x), inputmap->IBL2D->GetYaxis()->GetBinCenter(y), content*weightIBL);
-      if (clear_inputmap) inputmap->IBL2D->SetBinContent(x, y, 0);
+      IBL2D->Fill(inputmap->IBL2D->GetXaxis()->GetBinCenter(x), inputmap->IBL2D->GetYaxis()->GetBinCenter(y), content*weightIBL*0.5);
     }
   }
+  if (clear_inputmap) inputmap->IBL2D->Reset();
   for(unsigned int x=1; x<=IBL3D->GetNbinsX(); x++){
     for(unsigned int y=1; y<=IBL3D->GetNbinsY(); y++){
       float content = inputmap->IBL3D->GetBinContent(x, y);
       IBL3D->Fill(inputmap->IBL3D->GetXaxis()->GetBinCenter(x), inputmap->IBL3D->GetYaxis()->GetBinCenter(y), content*weightIBL);
-      if (clear_inputmap) inputmap->IBL3D->SetBinContent(x, y, 0);
     }
   }
+  if (clear_inputmap) inputmap->IBL3D->Reset();
 }
 
 
