@@ -3430,7 +3430,7 @@ def setupMenu():
         ['beamspot_allTE_trkfast_peb_L1TRT_EMPTY',           'L1_TRT_EMPTY', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
 
 
-        ['beamspot_allTE_trkfast_peb',           'L1_4J15', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
+        ['beamspot_allTE_trkfast_peb',           'L1_4J20', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
 
         ##trkFS --> no selection, add TRT to PEB events        
 
@@ -3441,7 +3441,7 @@ def setupMenu():
 
 # taking this out all together, not needed and even with PS=-1 makes histograms
 
-        ['beamspot_allTE_trkfast_pebTRT',           'L1_4J15', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
+        ['beamspot_allTE_trkfast_pebTRT',           'L1_4J20', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
 
 
         ##trkFS --> select good vertices, and write out PEB events
@@ -3453,7 +3453,7 @@ def setupMenu():
 
 
 
-        ['beamspot_activeTE_trkfast_peb',           'L1_4J15', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
+        ['beamspot_activeTE_trkfast_peb',           'L1_4J20', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
 
         ##trkFS --> select good vertices, add TRT data to PEB events
 
@@ -3464,7 +3464,7 @@ def setupMenu():
 
 # taking this out all together, not needed and even with PS=-1 makes histograms
 
-        ['beamspot_activeTE_trkfast_pebTRT',           'L1_4J15', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
+        ['beamspot_activeTE_trkfast_pebTRT',           'L1_4J20', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
 
         ##trkFS --> online beam-spot determination
 
