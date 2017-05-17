@@ -7,8 +7,10 @@
 atlas_subdir( xAODTriggerCnv )
 
 # Extra dependencies, based on the build environment:
-if( XAOD_ANALYSIS )
+if( XAOD_STANDALONE )
    set( extra_deps PRIVATE Control/xAODRootAccess )
+elseif( XAOD_ANALYSIS )
+   set( extra_deps PRIVATE Control/xAODRootAccess Database/AthenaPOOL/AthenaPoolKernel )
 else()
    set( extra_deps GaudiKernel
       PRIVATE

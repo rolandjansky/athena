@@ -74,7 +74,10 @@ collection_utility( CollListToken )
 collection_utility( CollQuery )
 collection_utility( CollRemove )
 collection_utility( CollSplitByGUID )
-collection_utility( TokenExtractor )
+
+if( NOT XAOD_ANALYSIS )
+  collection_utility( TokenExtractor )
+endif()
 
 # Install files from the package:
 atlas_install_scripts( scripts/*.exe scripts/*.py )

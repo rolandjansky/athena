@@ -1,3 +1,5 @@
+#ifndef XAOD_ANALYSIS
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -480,3 +482,4 @@ GoodRunsListSelectorTool::registerGRLSelector(const std::string& name, const std
   return true;
 }
 
+#endif
