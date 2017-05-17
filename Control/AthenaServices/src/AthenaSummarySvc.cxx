@@ -22,7 +22,7 @@
 #include "GaudiKernel/System.h"
 
 #include "PerfMonKernel/IPerfMonSvc.h"
-#include "PerfMonEvent/DataModel.h"
+//#include "PerfMonEvent/DataModel.h"
 #include "AthenaKernel/ILoggedMessageSvc.h"
 #include "AthenaKernel/ICoreDumpSvc.h"
 
@@ -753,7 +753,7 @@ AthenaSummarySvc::createDict( std::ofstream& ofd) {
 	  << "unable to get the PerfMonSvc: not printing perf summaries" 
 	  << endreq;
   } else {
-
+#ifndef XAOD_ANALYSIS
     PD mon,ini,exe,fin;
     vector<string>::const_iterator itr;
 
@@ -796,7 +796,7 @@ AthenaSummarySvc::createDict( std::ofstream& ofd) {
     mon.add("exe",exe);
 
     p.add("monitored components",mon);
-
+#endif
   }
 
   p.add("exit",m_status);

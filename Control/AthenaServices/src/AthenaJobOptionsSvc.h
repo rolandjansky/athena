@@ -79,13 +79,13 @@ class JobOptionsSvc
                                                   const std::string& name );
   /// Get the properties associated to a given client
 
-  virtual const std::vector<const Gaudi::Details::PropertyBase*>*
+  virtual const std::vector<const Property*>*
   getProperties( const std::string& client) const; 
 
   /// Get a property for a client
-  virtual const Gaudi::Details::PropertyBase*
-  getClientProperty( const std::string& client,
-		     const std::string& name ) const;
+//   virtual const Gaudi::Details::PropertyBase*
+//   getClientProperty( const std::string& client,
+// 		     const std::string& name ) const;
 
 
   /// Get the list of clients

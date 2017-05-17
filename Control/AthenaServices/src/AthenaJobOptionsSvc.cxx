@@ -316,19 +316,19 @@ JobOptionsSvc::removePropertyFromCatalogue( const std::string& client,
 }
 
 /// Get the properties associated to a given client
-const std::vector<const Gaudi::Details::PropertyBase*>*
+const std::vector<const Property*>*
 JobOptionsSvc::getProperties( const std::string& client) const
 {
   return m_jobosvc->getProperties(client);
 }
 
 
-const Gaudi::Details::PropertyBase*
-JobOptionsSvc::getClientProperty( const std::string& client,
-                                  const std::string& name ) const 
-{
-  return m_jobosvc->getClientProperty(client, name);
-}
+// const Gaudi::Details::PropertyBase*
+// JobOptionsSvc::getClientProperty( const std::string& client,
+//                                   const std::string& name ) const 
+// {
+//   return m_jobosvc->getClientProperty(client, name);
+// }
 
 
 /// Get the list of clients
