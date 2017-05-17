@@ -285,7 +285,7 @@ StatusCode HLTXAODBphysMonTool::book()
 {
     ATH_MSG_DEBUG ("Booking... ");
 
-    if (!newRun) {
+    if (!newRunFlag()) {
         ATH_MSG_DEBUG ("Booking... not a new run, continuing");
         return StatusCode::SUCCESS;
     }
@@ -354,7 +354,7 @@ StatusCode HLTXAODBphysMonTool::fill()
 StatusCode HLTXAODBphysMonTool::proc() {
     ATH_MSG_DEBUG ("proc... ");
     
-    if (!endOfRun)
+    if (!endOfRunFlag())
     {
         ATH_MSG_DEBUG ("proc... Not end-of-run, returning");
         return StatusCode::SUCCESS;
