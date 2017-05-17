@@ -10,7 +10,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/CLIDSvc
-                          Control/DataModel
+                          Control/AthContainers
+                          Control/AthLinks
                           Control/SGTools
                           Control/StoreGate
                           GaudiKernel
@@ -50,19 +51,19 @@ atlas_add_library( TriggerMenuAnalysisLib
                    src/*.cxx
                    PUBLIC_HEADERS TriggerMenuAnalysis
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel DataModel SGTools GaudiKernel AnalysisTriggerEvent TileEvent TrigNtupleBase TriggerMenuNtuple TrigConfHLTData TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigParticle TrigSteeringEvent StoreGateLib SGtests TrigDecisionToolLib TrigNavigationLib TrigConfigSvcLib
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel AthLinks AthContainers SGTools GaudiKernel AnalysisTriggerEvent TileEvent TrigNtupleBase TriggerMenuNtuple TrigConfHLTData TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigParticle TrigSteeringEvent StoreGateLib SGtests TrigDecisionToolLib TrigNavigationLib TrigConfigSvcLib
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} EventInfo MuonTrigCoinData JetEvent muonEvent Particle egammaEvent tauEvent VxVertex TrigConfL1Data TrigMissingEtEvent TrigT1Interfaces )
 
 atlas_add_component( TriggerMenuAnalysis
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel DataModel SGTools StoreGateLib SGtests GaudiKernel AnalysisTriggerEvent TileEvent TrigDecisionToolLib TrigNtupleBase TriggerMenuNtuple TrigConfHLTData TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigNavigationLib TrigParticle TrigSteeringEvent EventInfo MuonTrigCoinData JetEvent muonEvent Particle egammaEvent tauEvent VxVertex TrigConfL1Data TrigConfigSvcLib TrigMissingEtEvent TrigT1Interfaces TriggerMenuAnalysisLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel AthContainers AthLinks SGTools StoreGateLib SGtests GaudiKernel AnalysisTriggerEvent TileEvent TrigDecisionToolLib TrigNtupleBase TriggerMenuNtuple TrigConfHLTData TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigNavigationLib TrigParticle TrigSteeringEvent EventInfo MuonTrigCoinData JetEvent muonEvent Particle egammaEvent tauEvent VxVertex TrigConfL1Data TrigConfigSvcLib TrigMissingEtEvent TrigT1Interfaces TriggerMenuAnalysisLib )
 
 atlas_add_dictionary( TriggerMenuAnalysisDict
                       TriggerMenuAnalysis/TriggerMenuAnalysisDict.h
                       TriggerMenuAnalysis/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel DataModel SGTools StoreGateLib SGtests GaudiKernel AnalysisTriggerEvent TileEvent TrigDecisionToolLib TrigNtupleBase TriggerMenuNtuple TrigConfHLTData TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigNavigationLib TrigParticle TrigSteeringEvent EventInfo MuonTrigCoinData JetEvent muonEvent Particle egammaEvent tauEvent VxVertex TrigConfL1Data TrigConfigSvcLib TrigMissingEtEvent TrigT1Interfaces TriggerMenuAnalysisLib )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel AthContainers AthLinks SGTools StoreGateLib SGtests GaudiKernel AnalysisTriggerEvent TileEvent TrigDecisionToolLib TrigNtupleBase TriggerMenuNtuple TrigConfHLTData TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigNavigationLib TrigParticle TrigSteeringEvent EventInfo MuonTrigCoinData JetEvent muonEvent Particle egammaEvent tauEvent VxVertex TrigConfL1Data TrigConfigSvcLib TrigMissingEtEvent TrigT1Interfaces TriggerMenuAnalysisLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
