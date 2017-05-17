@@ -39,6 +39,9 @@ namespace TCS {
       uint32_t decision(unsigned int module, unsigned int clock) const;
 
       bool passed(unsigned int module, unsigned int bit) const { return ( ( (uint64_t)0x1 << bit) & m_decision[module]) != 0; }
+      uint64_t overflow(unsigned int module) const { return m_overflow[module]; }
+      uint32_t overflow(unsigned int module, unsigned int clock) const;
+      bool overflowed(unsigned int module, unsigned int bit) const { return ( ( (uint64_t)0x1 << bit) & m_overflow[module]) != 0; }
 
       const Decision & decision(const std::string & algName) const;
 
@@ -57,6 +60,8 @@ namespace TCS {
 
       // 64 bit decision bit field
       uint64_t m_decision[3] {0,0,0};
+      // 64 bit overflow bit field
+      uint64_t m_overflow[3] {0,0,0};
 
       // flags if the decision field is up to date
       // set by @collectDecision(), unset by @resetDecision()
