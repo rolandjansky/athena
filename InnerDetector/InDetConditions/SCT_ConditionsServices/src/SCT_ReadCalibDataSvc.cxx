@@ -204,7 +204,7 @@ StatusCode SCT_ReadCalibDataSvc::initialize(){
   }
 
   // Read Handle Key
-  ATH_CHECK(m_evtKey.initialize());
+  ATH_CHECK(m_eventInfoKey.initialize());
   
   return StatusCode::SUCCESS;
 } // SCT_ReadCalibDataSvc::initialize()
