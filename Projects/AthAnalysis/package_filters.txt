@@ -3,7 +3,140 @@
 #
 
 # Testing package(s):
++ AsgExternal/Asg_Test
 + AtlasTest/TestTools
+
+# Core xAOD reading:
++ Control/AthContainersInterfaces
++ Control/AthContainers
++ Control/AthLinks
++ Control/AthToolSupport/.*
++ Control/CxxUtils
++ Control/xAODRootAccess.*
+
+
+# EDM:
++ Event/EventPrimitives
++ Event/FourMomUtils
+- Event/xAOD/.*AthenaPool
++ Event/xAOD/xAODMetaDataCnv
++ Event/xAOD/xAODTriggerCnv
+- Event/xAOD/.*Cnv
++ Event/xAOD/.*
+
+# Others:
++ Calorimeter/CaloGeoHelpers
++ DetectorDescription/GeoPrimitives
++ DetectorDescription/IRegionSelector
++ DetectorDescription/RoiDescriptor
+
+# Analysis Tools:
++ DataQuality/GoodRunsLists
++ Generators/TruthUtils
++ InnerDetector/InDetRecTools/InDetTrackSelectionTool
++ InnerDetector/InDetRecTools/TrackVertexAssociationTool
++ MuonSpectrometer/MuonIdHelpers
++ PhysicsAnalysis/AnalysisCommon/AssociationUtils
++ PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
++ PhysicsAnalysis/AnalysisCommon/FsrUtils
++ PhysicsAnalysis/AnalysisCommon/IsolationSelection
++ PhysicsAnalysis/AnalysisCommon/PATCore
++ PhysicsAnalysis/AnalysisCommon/PATInterfaces
++ PhysicsAnalysis/AnalysisCommon/PMGTools
++ PhysicsAnalysis/AnalysisCommon/ParticleJetTools
++ PhysicsAnalysis/AnalysisCommon/PileupReweighting
++ PhysicsAnalysis/AnalysisCommon/ReweightUtils
++ PhysicsAnalysis/D3PDTools/.*
+- PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
++ PhysicsAnalysis/ElectronPhotonID/.*
++ PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
++ PhysicsAnalysis/Interfaces/.*
++ PhysicsAnalysis/JetMissingEtID/JetSelectorTools
++ PhysicsAnalysis/JetPhys/SemileptonicCorr
++ PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface
++ PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
++ PhysicsAnalysis/MCTruthClassifier
++ PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
++ PhysicsAnalysis/MuonID/MuonSelectorTools
++ PhysicsAnalysis/SUSYPhys/SUSYTools
++ PhysicsAnalysis/TauID/DiTauMassTools
++ PhysicsAnalysis/TauID/TauAnalysisTools
++ PhysicsAnalysis/TauID/TauCorrUncert
++ PhysicsAnalysis/TopPhys/QuickAna
++ PhysicsAnalysis/TrackingID/.*
++ Reconstruction/EventShapes/EventShapeInterface
+- Reconstruction/Jet/JetAnalysisTools/JetAnalysisEDM
+- Reconstruction/Jet/JetEvent.*
+- Reconstruction/Jet/JetMonitoring
++ Reconstruction/Jet/JetReclustering
+- Reconstruction/Jet/JetRec.+
+- Reconstruction/Jet/JetSimTools
+- Reconstruction/Jet/JetValidation
++ Reconstruction/Jet/Jet.*
++ Reconstruction/MET/METInterface
++ Reconstruction/MET/METUtilities
++ Reconstruction/MVAUtils
++ Reconstruction/PFlow/PFlowUtils
++ Reconstruction/egamma/egammaLayerRecalibTool
++ Reconstruction/egamma/egammaMVACalib
++ Reconstruction/egamma/egammaRecEvent
++ Reconstruction/tauRecTools
++ Tools/PathResolver
++ Trigger/TrigAnalysis/TrigAnalysisInterfaces
++ Trigger/TrigAnalysis/TrigBunchCrossingTool
++ Trigger/TrigAnalysis/TrigDecisionTool
++ Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
++ Trigger/TrigAnalysis/TriggerMatchingTool
++ Trigger/TrigConfiguration/TrigConfBase
++ Trigger/TrigConfiguration/TrigConfHLTData
++ Trigger/TrigConfiguration/TrigConfInterfaces
++ Trigger/TrigConfiguration/TrigConfL1Data
++ Trigger/TrigConfiguration/TrigConfxAOD
++ Trigger/TrigEvent/TrigDecisionInterface
++ Trigger/TrigEvent/TrigNavStructure
++ Trigger/TrigEvent/TrigRoiConversion
++ Trigger/TrigEvent/TrigSteeringEvent
++ Trigger/TrigValidation/TrigAnalysisTest
+
+### Here follows the Athena-specific parts of the analysis release
+
+# Core Athena:
++ Control/AthAllocators
++ Control/AthenaServices
++ Control/StoreGate
++ Control/SGComps
++ Control/SGTools
++ Control/StoreGateBindings
++ Control/SGMon/SGAudCore
++ Control/AthenaBaseComps
++ Control/AthAnalysisBaseComps
++ Control/AthenaCommon
++ Control/AthenaKernel
++ Control/AthenaPython
++ Control/CLID.*
++ Control/GaudiSequencer
++ Control/DataModel
++ Control/DataModelRoot
++ Control/RootUtils
++ Control/PerformanceMonitoring/PerfMonKernel
+
++ PhysicsAnalysis/POOLRootAccess
+
+# POOL Support: 
++ Database/APR/.*
++ Database/AthenaRoot/.*
+- Database/AthenaPOOL/.*Tools
++ Database/AthenaPOOL/DBDataModel
++ Database/AthenaPOOL/.*
++ Database/IOVDb.*
++ Database/PersistentDataModel.*
++ Database/TPTools
+
+
+# Other extras:
++ Event/EventInfo
++ DetectorDescription/Identifier
+
 
 
 # Don't build anything else:

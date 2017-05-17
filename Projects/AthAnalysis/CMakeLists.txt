@@ -24,6 +24,13 @@ find_package( Gaudi REQUIRED )
 
 # Conditional compile flags:
 add_definitions( -DXAOD_ANALYSIS )
+add_definitions( -DROOTCORE_RELEASE_SERIES=25 )
+
+# And the same variables for CMake as well:
+set( XAOD_ANALYSIS TRUE CACHE BOOL
+   "Flag specifying that this is an analysis release" )
+
+
 
 # Load all the files from the externals/ subdirectory:
 file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )
