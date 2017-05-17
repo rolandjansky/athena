@@ -926,6 +926,9 @@ void SGImplSvc::setSlotNumber (int slot, int numSlots)
 {
   m_slotNumber = slot;
   m_numSlots = numSlots;
+
+  SG::ArenaHeader* header = SG::ArenaHeader::defaultHeader();
+  header->setArenaForSlot (slot, &m_arena);
 }
 
 
