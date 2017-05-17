@@ -1,4 +1,4 @@
-/** @file    Analysis_Tier0.h
+/** @file    Analysis_Tier0.h */
 
 #ifndef TrigInDetAnalysisExample_Analysis_Tier0_H
 #define TrigInDetAnalysisExample_Analysis_Tier0_H
@@ -172,11 +172,11 @@ class Analysis_Tier0 : public TrackAnalysis {
   double m_d0Cut;
   double m_z0Cut;
 
-  int m_nVtx;
+  int      m_nVtx;
 
-  bool m_debug;
+  bool     m_debug;
 
-  int  m_eventid;
+  unsigned m_eventid;
 
   VtxAnalysis* m_vtxanal;
 
