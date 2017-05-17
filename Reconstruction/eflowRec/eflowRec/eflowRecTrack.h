@@ -94,13 +94,6 @@ public:
   void setAvgEDensityCellOrderVector(std::vector<float> avgEdensityToStoreVector) { m_avgEdensityCellOrderVector = avgEdensityToStoreVector; }
   
   
-//   int getLayerCellOrder() const { return m_layerCellOrder; }
-//   void setLayerCellOrder(int layerToStore) { m_layerCellOrder = layerToStore; }
-//   int getRadiusCellOrder() const { return m_radiusCellOrder; }
-//   void setRadiusCellOrder(int radiusToStore) { m_radiusCellOrder = radiusToStore; }
-//   int getAverageEnergyDensity() const { return m_avgEdensityCellOrder; }
-//   void setAverageEnergyDensity(int averageEnergyDensityPerRing) { m_avgEdensityCellOrder = averageEnergyDensityPerRing; }
-
   bool isInDenseEnvironment() const { return m_isInDenseEnvironment;}
   void setIsInDenseEnvironment() { m_isInDenseEnvironment = true; }
   
