@@ -129,10 +129,10 @@ parser.add_option('', '--mon', dest='mon', action='store_true', default=False, h
 parser.add_option('', '--resubAll', dest='resubAll', action='store_true', default=False, help='Resubmit all jobs irrespective of status')
 parser.add_option('-q', '--queue', dest='batch_queue', default=None, help='Name of batch queue to use (default is context-specific)')
 
-(options,args) = parser.parse_args()
-if len(args) < 1:
-    parser.error('wrong number of command line arguments')
+(options, args) = parser.parse_args()
+if len(args) < 1: parser.error('wrong number of command line arguments')
 cmd = args[0]
+cmdargs = args[1:]
 
 # General error checking (skipped in expert mode to allow testing)
 if not options.expertmode:
@@ -189,7 +189,7 @@ def getT0DbConnection():
 #
 # Upload any SQLite file to COOL (independent of task, w/o book keeping)
 #
-if cmd=='upload' and len(args)==2:
+if cmd == 'upload' and len(cmdargs) == 1:
     dbfile = args[1]
     if not options.beamspottag:
         sys.exit('ERROR: No beam spot tag specified')
@@ -365,7 +365,7 @@ if cmd=='backup' and len(args)==2:
 #
 # List backup directory on castor
 #
-if cmd=='lsbackup' and len(args)==1:
+if cmd == 'lsbackup' and not cmdargs:
     backuppath = castorarchivepath if options.archive else castorbackuppath
     backuppath = os.path.normpath(backuppath)+'/'
     print '\nCASTOR directory %s:\n' % backuppath
@@ -389,8 +389,9 @@ except:
 #
 # Show available data sets
 #
-if cmd=='show' and len(args)==2:
-    run = args[1]
+if cmd == 'show' and len(cmdargs)==1:
+    run = cmdargs[0]
+
     c = getFullCastorPath(run)
     print '\nCASTOR base path:   ', options.castorpath
     print   'Project tag:        ', options.project
@@ -414,29 +415,38 @@ if cmd=='show' and len(args)==2:
 #
 # Postprocessing: for all tasks requiring it, or for a selected set of tasks
 #
-if cmd=='postproc' and len(args)==1:
+if cmd == 'postproc' and not cmdargs:
     for t in taskman.taskIterDict(qual=['where STATUS > %i and STATUS <= %i order by UPDATED' % (TaskManager.StatusCodes['RUNNING'],TaskManager.StatusCodes['POSTPROCESSING'])]):
         doPostProcessing(taskman,t,t['TASKPOSTPROCSTEPS'].split(),BeamSpotPostProcessing)
     sys.exit(0)
 
-if cmd=='postproc' and len(args)>=3 and len(args)<=4:
-    whatList = args[3].split(',') if len(args)>3 else None
-    if whatList:
-        print 'Executing postprocessing tasks:',whatList
+if cmd == 'postproc' and len(cmdargs) in [2,3]:
+    dsname = cmdargs[0]
+    taskname = cmdargs[1]
+
+    # for backwards compatibility these are equivalent:
+    #   $0 postproc DSNAME TASKNAME POSTPROCSTEPS
+    #   $0 -z POSTPROCSTEPS postproc DSNAME TASKNAME
+    steps = options.postprocsteps if len(cmdargs) < 3 else cmdargs[2].split(',')
+    if steps:
+        print 'Executing postprocessing tasks:', steps
     else:
         print 'Executing postprocessing tasks as specified in task database'
     print
-    try:
-        taskList = getFullTaskNames(taskman,args[1],args[2],confirmWithUser=not options.batch,addWildCards=not options.nowildcards)
+        taskList = getFullTaskNames(taskman,
+                dsname,
+                taskname,
+                confirmWithUser=not options.batch,
+                addWildCards=not options.nowildcards)
     except TaskManagerCheckError, e:
         print e
         sys.exit(1)
     for taskName in taskList:
         t = taskman.getTaskDict(taskName[0],taskName[1])
-        if whatList:
-            doPostProcessing(taskman,t,whatList,BeamSpotPostProcessing,True)
+        if steps:
+            doPostProcessing(taskman, t, steps, BeamSpotPostProcessing, forceRun=True)
         else:
-            doPostProcessing(taskman,t,t['TASKPOSTPROCSTEPS'].split(),BeamSpotPostProcessing,True)
+            doPostProcessing(taskman, t, t['TASKPOSTPROCSTEPS'].split(), BeamSpotPostProcessing, forceRun=True)
     sys.exit(0)
 
 
