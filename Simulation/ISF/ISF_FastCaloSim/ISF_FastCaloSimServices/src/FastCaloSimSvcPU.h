@@ -3,11 +3,11 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// FastCaloSimSvc.h, (c) ATLAS Detector software
+// FastCaloSimSvcPU.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef ISF_FASTCALOSIMSVC_H
-#define ISF_FASTCALOSIMSVC_H 1
+#ifndef ISF_FASTCALOSIMSVCPU_H
+#define ISF_FASTCALOSIMSVCPU_H 1
 
 // STL includes
 #include <string>
@@ -27,38 +27,45 @@
 #include "TrkExInterfaces/ITimedExtrapolator.h"
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 
+#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "CaloIdentifier/LArEM_ID.h"
+
 // forward declarations
 class ITrackingGeometrySvc;
 class CaloCellContainer;
 
-namespace HepMC {
+namespace HepMC
+{
     class GenEvent;
 }
 
-namespace Trk {
+namespace Trk
+{
     class TrackingVolume;
     class TrackingGeometry;
 }
 
-namespace ISF {
+namespace ISF
+{
 
   class ISFParticle;
   class IParticleBroker;
   class ITruthSvc;
   class IPunchThroughTool;
 
-  /** @class FastCaloSimSvc
+  /** @class FastCaloSimSvcPU
+  @author Michael.Duehrssen -at- cern.ch
+  */
   
-      @author Michael.Duehrssen -at- cern.ch
-     */
-  class FastCaloSimSvc : public BaseSimulationSvc { 
+  class FastCaloSimSvcPU : public BaseSimulationSvc
+  { 
     public: 
       
       //** Constructor with parameters */
-      FastCaloSimSvc( const std::string& name, ISvcLocator* pSvcLocator );
+      FastCaloSimSvcPU( const std::string& name, ISvcLocator* pSvcLocator );
       
       /** Destructor */
-      virtual ~FastCaloSimSvc(); 
+      virtual ~FastCaloSimSvcPU(); 
       
       /** Athena algorithm's interface methods */
       StatusCode  initialize();
@@ -72,11 +79,13 @@ namespace ISF {
 
       /** Release Event chain - in case of an end-of event action is needed */
       StatusCode releaseEvent();
-
+      
+      AtlasDetectorID* detID;
+      LArEM_ID* larID;
 
     private:     
       /** Default constructor */
-      FastCaloSimSvc();
+      FastCaloSimSvcPU();
 
       /** process the given particle */
       StatusCode processOneParticle( const ISF::ISFParticle &isfp);
@@ -91,9 +100,9 @@ namespace ISF {
       int m_ownPolicy;
 
       // particle processing mode
-      bool                                m_batchProcessMcTruth;       //!< process particles from McTruth at end of event
+      bool m_batchProcessMcTruth;       //!< process particles from McTruth at end of event
 
-      bool                                m_simulateUndefinedBCs;      //!< do/don't simulate undefined barcode particles
+      bool m_simulateUndefinedBCs;      //!< do/don't simulate undefined barcode particles
 
       std::string  m_caloCellsOutputName;
 
@@ -101,7 +110,7 @@ namespace ISF {
       bool m_caloCellHack ;
       //check if punch through simulation is used
       bool m_doPunchThrough;
-
+      
       Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
 
       // list of tools to be used
@@ -109,10 +118,23 @@ namespace ISF {
       ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerTools_simulate ;
       ToolHandleArray<ICaloCellMakerTool> m_caloCellMakerTools_release ;
       ToolHandle< IPunchThroughTool >     m_punchThroughTool;
-      CaloCellContainer * 		  m_theContainer;
+      
+      CaloCellContainer* 		  m_theContainer;
+      
       ServiceHandle<ISF::IParticleBroker> m_particleBroker;
+      
+      //->PU Development:
+      std::vector<CaloCellContainer*> m_puCellContainer;
+      //std::vector<float> m_puEnergyWeights;
+      
+      std::vector<float> m_puEnergyWeights_lar_bapre;
+      std::vector<float> m_puEnergyWeights_lar_hec;
+      std::vector<float> m_puEnergyWeights_lar_em;
+      std::vector<float> m_puEnergyWeights_tile;
+      	      //<-
 
   }; 
+  
 }
 
-#endif //> !ISF_FASTCALOSIMSVC_H
+#endif //> !ISF_FASTCALOSIMSVCPU_H
