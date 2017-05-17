@@ -29,7 +29,7 @@
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 
-using namespace TrigL2MuonSA;
+//using namespace TrigL2MuonSA;
 
 class IRegSelSvc;
 class IJobOptionsSvc;
@@ -91,14 +91,14 @@ class MuFastSteering : public HLT::FexAlgo,
 		      const HLT::TriggerElement*               inputTE,
 		      const LVL1::RecMuonRoI*                  roi,
 		      const TrigRoiDescriptor*                 roids,
-		      const MuonRoad&                          muonRoad,
-		      const MdtRegion&                         mdtRegion,
+		      const TrigL2MuonSA::MuonRoad&            muonRoad,
+		      const TrigL2MuonSA::MdtRegion&           mdtRegion,
 		      const TrigL2MuonSA::RpcHits&             rpcHits,
 		      const TrigL2MuonSA::TgcHits&             /*tgcHits*/,
-		      const RpcFitResult&                      rpcFitResult,
-		      const TgcFitResult&                      tgcFitResult,
-		      const MdtHits&                           mdtHits,
-		      const CscHits&                           cscHits,
+		      const TrigL2MuonSA::RpcFitResult&        rpcFitResult,
+		      const TrigL2MuonSA::TgcFitResult&        tgcFitResult,
+		      const TrigL2MuonSA::MdtHits&             mdtHits,
+		      const TrigL2MuonSA::CscHits&             cscHits,
 		      std::vector<TrigL2MuonSA::TrackPattern>& m_trackPatterns);
 
   /**
@@ -121,23 +121,23 @@ class MuFastSteering : public HLT::FexAlgo,
   IRegSelSvc*        m_regionSelector;
   
   // Tools
-  ToolHandle<MuFastDataPreparator>     m_dataPreparator;
-  ToolHandle<MuFastPatternFinder>      m_patternFinder;
-  ToolHandle<MuFastStationFitter>      m_stationFitter;
-  ToolHandle<MuFastTrackFitter>        m_trackFitter;
-  ToolHandle<MuFastTrackExtrapolator>  m_trackExtrapolator;
+  ToolHandle<TrigL2MuonSA::MuFastDataPreparator>     m_dataPreparator;
+  ToolHandle<TrigL2MuonSA::MuFastPatternFinder>      m_patternFinder;
+  ToolHandle<TrigL2MuonSA::MuFastStationFitter>      m_stationFitter;
+  ToolHandle<TrigL2MuonSA::MuFastTrackFitter>        m_trackFitter;
+  ToolHandle<TrigL2MuonSA::MuFastTrackExtrapolator>  m_trackExtrapolator;
 
   /** Handle to MuonBackExtrapolator tool */
   ToolHandle<ITrigMuonBackExtrapolator> m_backExtrapolatorTool;
   
   // calibration streamer tool
-  ToolHandle<MuCalStreamerTool>        m_calStreamer;
+  ToolHandle<TrigL2MuonSA::MuCalStreamerTool>        m_calStreamer;
 
   // Utils
   TrigL2MuonSA::RecMuonRoIUtils  m_recMuonRoIUtils;
 
   //Tools for CSC
-  ToolHandle<CscSegmentMaker> m_cscsegmaker;
+  ToolHandle<TrigL2MuonSA::CscSegmentMaker> m_cscsegmaker;
 
 
  private:
@@ -151,9 +151,6 @@ class MuFastSteering : public HLT::FexAlgo,
   TrigL2MuonSA::MdtHits      m_mdtHits_overlap;
   TrigL2MuonSA::CscHits      m_cscHits;
   
-  TrigL2MuonSA::PtBarrelLUTSvc* m_ptBarrelLUTSvc;
-  TrigL2MuonSA::PtEndcapLUTSvc* m_ptEndcapLUTSvc;
-    
   float m_scaleRoadBarrelInner;
   float m_scaleRoadBarrelMiddle;
   float m_scaleRoadBarrelOuter;
