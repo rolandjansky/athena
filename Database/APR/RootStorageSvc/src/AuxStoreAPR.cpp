@@ -3,7 +3,7 @@
 */
 
 #include "AuxStoreAPR.h"
-#include "RootAuxVectorFactory.h"
+#include "AthContainersRoot/RootAuxVectorFactory.h"
 #include "AthContainers/tools/error.h"
 
 #include "AthContainers/AuxTypeRegistry.h"
@@ -186,7 +186,7 @@ AuxStoreAPR::AuxStoreAPR(RootTreeContainer &container, long long entry, bool sta
           TClass* vec_class = TClass::GetClass (vec_name.c_str());
 
           if (vec_class) {
-            SG::IAuxTypeVectorFactory* fac = new RootAuxVectorFactory (vec_class);
+            SG::IAuxTypeVectorFactory* fac = new SG::RootAuxVectorFactory (vec_class);
             r.addFactory (*ti, fac);
             auxid = r.getAuxID(*ti, attr);
           }
