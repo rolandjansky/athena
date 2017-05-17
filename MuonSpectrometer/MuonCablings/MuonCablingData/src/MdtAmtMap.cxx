@@ -93,16 +93,42 @@ bool MdtAmtMap::initMap(const MdtMezzanineType* mezType, uint8_t chanZero, int l
     int layer=0;
     int tube=0;
 
-    // special case of the BME of end 2013
+    // special case of the BME of end 2013 and BMG 2017
+    /*
+     * cases 50 and 60 follow the same rules. hedgehog card 50 is the mirror image of card 60,
+     * but the rules concerning how to decode the tube mapping are the same.
+     * channel 0 of a mezzanine card for case 50 is either top right or bottom left,
+     * while for case 60 it is top left or bottom right.
+     * Another thing to keep in mind for BMG is, that tube counting in some cases is along |z|,
+     * while in some other cases it is opposite.
+     */
     if ( mezType->type()==50 ) {
-
-      layer = 4-chan%4 ;
-      tube = tubeZero - int ( chan/4 );
-
+        if ( layerZero == 1 ) {
+          layer = chan%4 + 1 ;
+        }
+        else {
+          layer = 4-chan%4 ;
+        }
+        if ( tubeZero == 1) {
+          tube = tubeZero + int ( chan/4 );
+        }
+        else {
+          tube = tubeZero - int ( chan/4 );
+        }
     }
     else if ( mezType->type()==60 ) {
-      layer = chan%4+1 ;
-      tube = tubeZero + int ( chan/4 );
+        if ( layerZero == 1 ) {
+          layer = chan%4 + 1 ;
+        }
+        else {
+          layer = 4-chan%4 ;
+        }
+        if ( tubeZero == 1) {
+          tube = tubeZero + int ( chan/4 );
+        }
+        else {
+          tube = tubeZero - int ( chan/4 );
+        }
     }
     else {
             
