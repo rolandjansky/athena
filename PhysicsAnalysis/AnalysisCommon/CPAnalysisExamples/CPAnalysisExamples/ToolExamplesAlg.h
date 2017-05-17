@@ -8,8 +8,8 @@
 #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
 
 ///General
-#include "GoodRunsLists/IGoodRunsListSelectionTool.h"
-#include "PileupReweighting/PileupReweightingTool.h"
+#include "AsgAnalysisInterfaces/IGoodRunsListSelectionTool.h"
+#include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TriggerMatchingTool/IMatchingTool.h"
 #include "AssociationUtils/IOverlapRemovalTool.h"
