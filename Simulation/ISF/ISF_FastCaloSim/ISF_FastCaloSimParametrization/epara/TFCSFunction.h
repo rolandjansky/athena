@@ -10,9 +10,12 @@
 class TFCSFunction
 {
   public:
-    TFCSFunction();
-    virtual ~TFCSFunction() {}
+    TFCSFunction() {};
+    //virtual ~TFCSFunction() {};
+    ~TFCSFunction() {};
+    
     static TFCS1DFunction* Create(TH1* hist,int,int,int,double,double,int);
+  
   private:
 
   ClassDef(TFCSFunction,1)

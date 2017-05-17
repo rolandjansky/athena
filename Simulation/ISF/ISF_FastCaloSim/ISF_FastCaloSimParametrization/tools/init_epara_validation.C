@@ -9,9 +9,9 @@
 #include "TLorentzVector.h"
 #include "TMatrixD.h"
 
-void init_epara();
+void init_epara_validation();
 
-void init_epara()
+void init_epara_validation()
 {
  
  cout<<"hello"<<endl;
@@ -20,22 +20,19 @@ void init_epara()
  TMatrixD *m;
  
  gInterpreter->AddIncludePath("..");
- gInterpreter->AddIncludePath("../epara");
  gInterpreter->AddIncludePath("../../ISF_FastCaloSimEvent");
- 
- gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/IntArray.cxx+");
+
  gROOT->LoadMacro("../Root/TreeReader.cxx+");
- gROOT->LoadMacro("../epara/firstPCA.cxx+");
+ 
  gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCS1DFunction.cxx+");
  gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCS1DFunctionRegression.cxx+");
  gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCS1DFunctionRegressionTF.cxx+");
  gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCS1DFunctionHistogram.cxx+");
- gROOT->LoadMacro("../epara/TFCSFunction.cxx+");
- gROOT->LoadMacro("../epara/TFCS1DRegression.cxx+");
- gROOT->LoadMacro("../epara/secondPCA.cxx+");
  
- /*
+ gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/IntArray.cxx+");
+ 
  gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSExtrapolationState.cxx+");
+ 
  gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSTruthState.cxx+");
  gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSSimulationState.cxx+");
  gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSParametrizationBase.cxx+");
@@ -43,7 +40,6 @@ void init_epara()
  gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSEnergyParametrization.cxx+");
  gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSPCAEnergyParametrization.cxx+");
  gROOT->LoadMacro("../Root/EnergyParametrizationValidation.cxx+");
- */
  
  cout<<"init done"<<endl;
  

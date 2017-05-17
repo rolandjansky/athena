@@ -6,13 +6,11 @@
 #define secondPCA_h
 
 #include "ISF_FastCaloSimParametrization/TreeReader.h"
-#include "ISF_FastCaloSimParametrization/firstPCA.h"
-//#include "ISF_FastCaloSimEvent/TFCS1DFunction.h"
-//#include "ISF_FastCaloSimParametrization/TFCS1DFunction.h"
+#include "firstPCA.h"
 
 using namespace std;
 
-class secondPCA:public firstPCA
+class secondPCA: public firstPCA
 {
   public:
   	

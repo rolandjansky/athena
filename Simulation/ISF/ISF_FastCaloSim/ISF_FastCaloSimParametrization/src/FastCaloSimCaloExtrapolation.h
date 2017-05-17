@@ -9,16 +9,20 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
-namespace Trk {
+namespace Trk
+{
   class TrackingVolume;
 }
+
 #include "TrkExInterfaces/ITimedExtrapolator.h" 
+#include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 
 class ICaloSurfaceBuilder;
 class ICaloSurfaceHelper;
 class ICaloCoordinateTool;
 
-namespace HepPDT {
+namespace HepPDT
+{
   class ParticleDataTable;
 }  
 
@@ -28,8 +32,9 @@ namespace HepPDT {
 
 class IFastCaloSimGeometryHelper;
 
-
-class FastCaloSimCaloExtrapolation:public AthAlgTool, public IFastCaloSimCaloExtrapolation {
+class FastCaloSimCaloExtrapolation:public AthAlgTool, public IFastCaloSimCaloExtrapolation
+{
+ 
  public:
    FastCaloSimCaloExtrapolation( const std::string& t, const std::string& n, const IInterface* p );
    ~FastCaloSimCaloExtrapolation();
@@ -38,8 +43,20 @@ class FastCaloSimCaloExtrapolation:public AthAlgTool, public IFastCaloSimCaloExt
    virtual StatusCode finalize();
 
    IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
-
+   enum SUBPOS { SUBPOS_MID = TFCSExtrapolationState::SUBPOS_MID, SUBPOS_ENT = TFCSExtrapolationState::SUBPOS_ENT, SUBPOS_EXT = TFCSExtrapolationState::SUBPOS_EXT}; //MID=middle, ENT=entrance, EXT=exit of cal layer
+	 
+	 virtual void extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth);
+	
  protected:
+
+   // extrapolation through Calo
+   std::vector<Trk::HitInfo>* caloHits(const TFCSTruthState* truth) const;
+   void extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth,std::vector<Trk::HitInfo>* hitVector);
+   void extrapolate_to_ID(TFCSExtrapolationState& result,const TFCSTruthState* truth,std::vector<Trk::HitInfo>* hitVector);
+   bool get_calo_etaphi(TFCSExtrapolationState& result,std::vector<Trk::HitInfo>* hitVector,int sample,int subpos=SUBPOS_MID);
+   bool get_calo_surface(TFCSExtrapolationState& result,std::vector<Trk::HitInfo>* hitVector);
+   bool rz_cylinder_get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, double cylR, double cylZ, Amg::Vector3D& pos, Amg::Vector3D& mom);  
+
    bool   isCaloBarrel(int sample) const;
    double deta(int sample,double eta) const;
    void   minmaxeta(int sample,double eta,double& mineta,double& maxeta) const;
@@ -62,16 +79,21 @@ class FastCaloSimCaloExtrapolation:public AthAlgTool, public IFastCaloSimCaloExt
    double m_CaloBoundaryZ;
    double m_calomargin;
 
-   /** The new Extrapolator setup */
+   std::vector< int > m_surfacelist;
+
+   // The new Extrapolator setup
    ToolHandle<Trk::ITimedExtrapolator> m_extrapolator;          
    ToolHandle<ICaloSurfaceHelper>      m_caloSurfaceHelper;
    mutable const Trk::TrackingVolume*  m_caloEntrance;
    std::string                         m_caloEntranceName; 
 
-   /** The FastCaloSimGeometryHelper tool */
+   Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
+
+   // The FastCaloSimGeometryHelper tool
    ToolHandle<IFastCaloSimGeometryHelper> m_CaloGeometryHelper;
 };
 
 #endif // FastCaloSimCaloExtrapolation_H
+
 
 

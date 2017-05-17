@@ -7,6 +7,7 @@
 
 #include "ISF_FastCaloSimParametrization/CaloGeometry.h"
 
+
 class CaloGeometryFromFile:public CaloGeometry {
 public :
    CaloGeometryFromFile();

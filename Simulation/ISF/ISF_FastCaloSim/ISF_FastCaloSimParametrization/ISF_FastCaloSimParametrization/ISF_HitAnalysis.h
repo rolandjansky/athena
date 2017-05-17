@@ -25,13 +25,15 @@
 #include "TrkParameters/TrackParameters.h"
 //#####################################
 
-#include "ISF_FastCaloSimParametrization/FastCaloSimCaloExtrapolation.h"
+#include "ISF_FastCaloSimParametrization/IFastCaloSimCaloExtrapolation.h"
 #include "ISF_FastCaloSimParametrization/IFastCaloSimGeometryHelper.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 
-namespace Trk {
+namespace Trk
+{
   class TrackingVolume;
 }
+
 #include "TrkExInterfaces/ITimedExtrapolator.h" 
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 class ICaloSurfaceHelper;
@@ -199,9 +201,13 @@ class ISF_HitAnalysis : public AthAlgorithm {
    std::vector< CaloCell_ID_FCS::CaloSample > m_surfacelist;
    
    //CaloGeometryFromCaloDDM* m_CaloGeometry;
+   
    /** The FastCaloSimGeometryHelper tool */
    ToolHandle<IFastCaloSimGeometryHelper> m_CaloGeometryHelper;
 
+   /** The FastCaloSimCaloExtrapolation tool */
+   ToolHandle<IFastCaloSimCaloExtrapolation> m_FastCaloSimCaloExtrapolation;
+ 
    bool   isCaloBarrel(int sample) const;
    double deta(int sample,double eta) const;
    void   minmaxeta(int sample,double eta,double& mineta,double& maxeta) const;

@@ -18,11 +18,11 @@
 #include "TPrincipal.h"
 #include "TMath.h"
 #include "TBrowser.h"
-#include "ISF_FastCaloSimParametrization/secondPCA.h"
-#include "ISF_FastCaloSimParametrization/firstPCA.h"
-#include "ISF_FastCaloSimParametrization/TreeReader.h"
-#include "ISF_FastCaloSimParametrization/TFCSFunction.h"
+#include "secondPCA.h"
+#include "firstPCA.h"
+#include "TFCSFunction.h"
 #include "ISF_FastCaloSimEvent/TFCS1DFunction.h"
+#include "ISF_FastCaloSimParametrization/TreeReader.h"
 #include "ISF_FastCaloSimEvent/IntArray.h"
 
 #include <iostream>
@@ -302,10 +302,8 @@ void secondPCA::do_pca(vector<string> layer, int bin, TreeReader* read_inputTree
  for (auto it = h_data_PCA.begin(); it != h_data_PCA.end(); ++it)
   delete *it;
  h_data_PCA.clear();
-
  
  //get the lower ranges and store them:
-
  double* lowerBound=new double[layer.size()];
  for(unsigned int l=0;l<layer.size();l++)
  {
@@ -366,6 +364,7 @@ void secondPCA::do_pca(vector<string> layer, int bin, TreeReader* read_inputTree
 double secondPCA::get_lowerBound(TH1D* h_cumulative)
 {
  
+ /*
  double range_low=0;
  int bin_start,bin_end;
  bin_start=bin_end=-1;
@@ -382,8 +381,9 @@ double secondPCA::get_lowerBound(TH1D* h_cumulative)
  	 bin_end=b;
  	}
  }
- 
  return range_low;
+ */
+ return h_cumulative->GetBinContent(1);
  
 }
 

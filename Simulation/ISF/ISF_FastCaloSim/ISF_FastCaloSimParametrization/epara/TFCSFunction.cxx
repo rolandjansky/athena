@@ -2,29 +2,28 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "ISF_FastCaloSimEvent/TFCS1DFunctionRegression.h"
+#include "ISF_FastCaloSimEvent/TFCS1DFunctionRegressionTF.h"
+#include "ISF_FastCaloSimEvent/TFCS1DFunctionHistogram.h"
 #include "ISF_FastCaloSimEvent/TFCS1DFunction.h"
-#include "ISF_FastCaloSimParametrization/TFCSFunction.h"
-#include "ISF_FastCaloSimParametrization/TFCS1DFunctionRegression.h"
-#include "ISF_FastCaloSimParametrization/TFCS1DFunctionRegressionTF.h"
-#include "ISF_FastCaloSimParametrization/TFCS1DFunctionHistogram.h"
 
-#include "TMVA/Config.h"
-#include "TMVA/Tools.h"
-#include "TMVA/Reader.h"
-#include "TMVA/Factory.h"
-#include "TMVA/DataLoader.h"
+#include "TFCSFunction.h"
+#include "TFCS1DRegression.h"
+
 #include "TFile.h"
-
 #include "TRandom1.h"
+
+
+#include <iostream>
+
+//#include <string>
+#include <sstream>
+
+using namespace std;
 
 //=============================================
 //======= TFCSFunction =========
 //=============================================
-
-TFCSFunction::TFCSFunction()
-{
-  
-}
 
 
 TFCS1DFunction* TFCSFunction::Create(TH1* hist,int skip_regression,int neurons_start, int neurons_end, double maxdev_regression, double maxdev_smartrebin, int ntoys)
@@ -45,20 +44,25 @@ TFCS1DFunction* TFCSFunction::Create(TH1* hist,int skip_regression,int neurons_s
  string xmlweightfilename="regressionweights"+myrandstr;
  string outfilename="TMVAReg"+myrandstr+".root";
  float rangeval, startval;
- TFCS1DFunction* fct=new TFCS1DFunction(hist);
+ 
  TFCS1DFunctionRegression* freg=0;
  TFCS1DFunctionRegressionTF* fregTF=0;
  TFCS1DFunctionHistogram* fhis=0;
+ 
  int status=3;
  
- status=fct->testHisto(hist,xmlweightfilename,rangeval,startval,outfilename,skip_regression,neurons_start,neurons_end,maxdev_regression,ntoys);
+ if(!skip_regression)
+  status=TFCS1DRegression::testHisto(hist,xmlweightfilename,rangeval,startval,outfilename,neurons_start,neurons_end,maxdev_regression,ntoys);
  
  if(verbose_level==1) cout<<"--- testHisto status="<<status<<endl;
  if(status==1)
  {
  	if(verbose_level==1) cout<<"Regression"<<endl;
   freg=new TFCS1DFunctionRegression();
-  freg->storeRegression(xmlweightfilename);
+  vector<vector<double> > fWeightMatrix0to1;
+  vector<vector<double> > fWeightMatrix1to2;
+  TFCS1DRegression::storeRegression(xmlweightfilename, fWeightMatrix0to1, fWeightMatrix1to2);
+  freg->set_weights(fWeightMatrix0to1, fWeightMatrix1to2);
   remove(outfilename.c_str());
   remove(Form("dl/%s/TMVARegression_MLP.weights.xml",xmlweightfilename.c_str()));
   remove(Form("dl/%s",xmlweightfilename.c_str()));
@@ -67,8 +71,11 @@ TFCS1DFunction* TFCSFunction::Create(TH1* hist,int skip_regression,int neurons_s
  if(status==2)
  {
  	if(verbose_level==1) cout<<"Regression and Transformation"<<endl;
-  fregTF=new TFCS1DFunctionRegressionTF();
-  fregTF->storeRegression(xmlweightfilename,rangeval,startval);
+  fregTF=new TFCS1DFunctionRegressionTF(rangeval,startval);
+  vector<vector<double> > fWeightMatrix0to1;
+  vector<vector<double> > fWeightMatrix1to2;
+  TFCS1DRegression::storeRegression(xmlweightfilename, fWeightMatrix0to1, fWeightMatrix1to2);
+  fregTF->set_weights(fWeightMatrix0to1, fWeightMatrix1to2);
   remove(outfilename.c_str());
   remove(Form("dl/%s/TMVARegression_MLP.weights.xml",xmlweightfilename.c_str()));
   remove(Form("dl/%s",xmlweightfilename.c_str()));
@@ -93,10 +100,4 @@ TFCS1DFunction* TFCSFunction::Create(TH1* hist,int skip_regression,int neurons_s
  return 0;
  
 }
-
-//=============================================
-//========== ROOT persistency stuff ===========
-//=============================================
-
-//ClassImp(TFCSFunction)
 

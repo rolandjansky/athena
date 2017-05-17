@@ -3,6 +3,8 @@
 */
 
 #include "ISF_FastCaloSimParametrization/ISF_HitAnalysis.h"
+#include "ISF_FastCaloSimEvent/TFCSTruthState.h"
+#include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
 
 // Section of includes for LAr calo tests
 #include "LArSimEvent/LArHitContainer.h"
@@ -172,6 +174,8 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("GeoFileName", m_geoFileName); 
   declareProperty("MetadataTreeName", m_metadataTreeName); 
   declareProperty("NTruthParticles", m_NtruthParticles=1, "Number of truth particles saved from the truth collection, -1 to save all");
+
+  declareProperty("FastCaloSimCaloExtrapolation",   m_FastCaloSimCaloExtrapolation );
 
   //###########################
   //declareProperty("ExtrapolatorName",               m_extrapolatorName );
@@ -362,6 +366,13 @@ StatusCode ISF_HitAnalysis::initialize() {
     ATH_MSG_ERROR("CaloGeometryHelper not found ");
     return StatusCode::FAILURE;
   }
+
+  // Get FastCaloSimCaloExtrapolation
+  if (m_FastCaloSimCaloExtrapolation.retrieve().isFailure()) {
+    ATH_MSG_ERROR("FastCaloSimCaloExtrapolation not found ");
+    return StatusCode::FAILURE;
+  }
+
 
   // Grab the Ntuple and histogramming service for the tree
   sc = service("THistSvc",m_thistSvc);
@@ -758,6 +769,11 @@ StatusCode ISF_HitAnalysis::execute() {
 
 		  if (particleIndex>loopEnd) break; //enough particles
 		  
+    //UPDATE EXTRAPOLATION WITH ALGTOOL
+	  TFCSTruthState truth((*it)->momentum().px(),(*it)->momentum().py(),(*it)->momentum().pz(),(*it)->momentum().e(),(*it)->pdg_id());
+	  TFCSExtrapolationState result;
+	  m_FastCaloSimCaloExtrapolation->extrapolate(result,&truth);
+
     //UPDATE EXTRAPOLATION
     std::vector<Trk::HitInfo>* hitVector = caloHits(*(*it));
 
@@ -777,6 +793,8 @@ StatusCode ISF_HitAnalysis::execute() {
 		  HepMC::GenVertex* pvtx = (*it)->production_vertex();
 		  if (pvtx)
 		    {
+		      truth.set_vertex(pvtx->position().x(),pvtx->position().y(),pvtx->position().z(),pvtx->position().t());
+
 		      m_truth_vtxbarcode->push_back(pvtx->barcode());
 		      double radius2=(pvtx->position().x()*pvtx->position().x())+(pvtx->position().y()*pvtx->position().y());
 		      ATH_MSG_VERBOSE("particle "<<particleIndex<<" Mom: "<<(*it)->momentum().e()<<"|"<<(*it)->momentum().px()<<"|"<<(*it)->momentum().py()<<"|"<<(*it)->momentum().pz()<<" vertex_x "<<pvtx->position().x()<<" y "<<pvtx->position().y()<<" z "<<pvtx->position().z()<<" r2 "<<radius2<<" VertexBarcode: "<<pvtx->barcode()<<" ParticleBarcode:"<<(*it)->barcode()<<" status: "<<(*it)->status());

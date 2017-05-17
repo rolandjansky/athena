@@ -17,7 +17,7 @@ using namespace std;
 #include "TPrincipal.h"
 #include "TMath.h"
 #include "TBrowser.h"
-#include "ISF_FastCaloSimParametrization/firstPCA.h"
+#include "firstPCA.h"
 #include "ISF_FastCaloSimParametrization/TreeReader.h"
 #include "TLorentzVector.h"
 #include "TChain.h"

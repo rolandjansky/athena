@@ -3,7 +3,8 @@
 */
 
 #include "FastCaloSimGeometryHelper.h"
-#include "CaloDetDescr/CaloDetDescrElement.h"
+//#include "CaloDetDescr/CaloDetDescrElement.h"
+#include "ISF_FastCaloSimParametrization/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
 using namespace std;
@@ -46,15 +47,15 @@ bool FastCaloSimGeometryHelper::LoadGeometryFromCaloDDM()
 {
   ATH_MSG_INFO("Start LoadGeometryFromCaloDDM()");
   int jentry=0;
-  for(CaloDetDescrManager::calo_element_const_iterator calo_iter=m_caloMgr->element_begin();calo_iter<m_caloMgr->element_end();++calo_iter) {
-    const CaloDetDescrElement* pcell=*calo_iter;
-    addcell(pcell);
+  //for(CaloDetDescrManager::calo_element_const_iterator calo_iter=m_caloMgr->element_begin();calo_iter<m_caloMgr->element_end();++calo_iter) {
+    //const CaloDetDescrElement* pcell=*calo_iter;
+    //addcell(pcell);
 
-    if(jentry%10000==0) {
-      ATH_MSG_DEBUG("Load calo cell "<<jentry<<" : "<<pcell->getSampling()<<", "<<pcell->identify());
-    }
-    ++jentry;
-  }
+    //if(jentry%10000==0) {
+      //ATH_MSG_DEBUG("Load calo cell "<<jentry<<" : "<<pcell->getSampling()<<", "<<pcell->identify());
+    //}
+    //++jentry;
+  //}
 
   bool ok=PostProcessGeometry();
 
