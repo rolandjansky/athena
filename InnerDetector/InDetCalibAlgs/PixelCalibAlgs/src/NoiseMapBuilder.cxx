@@ -5,7 +5,7 @@
 // PixelConditions
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
-#include "PixelConditionsServices/ISpecialPixelMapSvc.h" // kazuki
+#include "PixelConditionsServices/ISpecialPixelMapSvc.h" 
 #include "PixelConditionsData/SpecialPixelMap.h"
 
 // Gaudi
@@ -13,10 +13,10 @@
 
 // EDM
 #include "InDetRawData/PixelRDO_Container.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h" // kazuki
-#include "InDetReadoutGeometry/SiDetectorElement.h" // kazuki
-#include "InDetReadoutGeometry/PixelModuleDesign.h" // kazuki
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h" // kazuki
+#include "InDetReadoutGeometry/PixelDetectorManager.h" 
+#include "InDetReadoutGeometry/SiDetectorElement.h" 
+#include "InDetReadoutGeometry/PixelModuleDesign.h" 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h" 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
@@ -25,25 +25,26 @@
 
 // ROOT
 #include "TH2.h"
-#include "TString.h" // kazuki
+#include "TString.h" 
 
 // standard library
 #include <string>
 #include <sstream>
 #include <algorithm>
-#include <map> // kazuki
+#include <map> 
 #include <fstream>
-#include <cstdlib> // getenv
-
+#include <cstdlib> 
 
 NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_tHistSvc("THistSvc", name),
   m_pixelConditionsSummarySvc("PixelConditionsSummarySvc", name),
   m_BSErrorsSvc("PixelByteStreamErrorsSvc",name),
-  m_specialPixelMapSvc("SpecialPixelMapSvc", name), // kazuki
+  m_specialPixelMapSvc("SpecialPixelMapSvc", name), 
+  m_pixman(0), 
+  m_pixelID(0),
   m_pixelRDOKey("PixelRDOs"),
-  m_isIBL(true), // kazuki
+  m_isIBL(true), 
   m_nEvents(0.),
   m_nEventsHist(nullptr),
   m_nEventsLBHist(nullptr),
@@ -51,29 +52,26 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   m_overlayedPixelNoiseMap(nullptr),
   m_overlayedIBLDCNoiseMap(nullptr),
   m_overlayedIBLSCNoiseMap(nullptr),
-  m_pixelID(0),
-  m_pixman(0), 
   m_disk1ACut(1.e-3),
   m_disk2ACut(1.e-3),
   m_disk3ACut(1.e-3),
   m_disk1CCut(1.e-3),
   m_disk2CCut(1.e-3),
   m_disk3CCut(1.e-3),
-  m_iblCut(1.e-3), // kazuki
+  m_iblCut(1.e-3), 
   m_bLayerCut(1.e-3),
   m_layer1Cut(1.e-3),
   m_layer2Cut(1.e-3),
-  m_dbmCut(1.e-3), // kazuki
-  //m_longPixelMultiplier(1.),
-  m_longPixelMultiplier(1.5), // kazuki
-  //m_gangedPixelMultiplier(1.),
-  m_gangedPixelMultiplier(2.), // kazuki
+  m_dbmCut(1.e-3), 
+  m_nLB_max(3001),
+  m_longPixelMultiplier(1.5), 
+  m_gangedPixelMultiplier(2.), 
   m_occupancyPerBC(true),
   m_nBCReadout(2),
   m_lbMin(0),
   m_lbMax(-1),
-  m_calculateNoiseMaps(false)
-{
+  m_calculateNoiseMaps(false) {
+
   declareProperty("PixelRDOKey", m_pixelRDOKey, "StoreGate key of pixel RDOs");
   declareProperty("Disk1ACut", m_disk1ACut, "Occupancy cut for Disk1A pixels");
   declareProperty("Disk2ACut", m_disk2ACut, "Occupancy cut for Disk2A pixels");
@@ -84,7 +82,8 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("BLayerCut", m_bLayerCut, "Occupancy cut for BLayer pixels");
   declareProperty("Layer1Cut", m_layer1Cut, "Occupancy cut for Layer1 pixels");
   declareProperty("Layer2Cut", m_layer2Cut, "Occupancy cut for Layer2 pixels");
-  declareProperty("IBLCut", m_dbmCut, "Occupancy cut for DBM pixels"); // kazuki
+  declareProperty("IBLCut", m_dbmCut, "Occupancy cut for DBM pixels"); 
+  declareProperty("nLBmax", m_nLB_max, "Maximum number of LB (for histograms binning)");
   declareProperty("NBCReadout", m_nBCReadout, "Number of bunch crossings read out");
   declareProperty("LBMin", m_lbMin, "First lumi block to consider");
   declareProperty("LBMax", m_lbMax, "Last lumi block to consider");
@@ -100,7 +99,6 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
 
 
 NoiseMapBuilder::~NoiseMapBuilder(){}
-
 
 std::string NoiseMapBuilder::getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta){
   for(unsigned int ii = 0; ii < m_pixelMapping.size(); ii++) {
@@ -120,68 +118,85 @@ std::string NoiseMapBuilder::getDCSIDFromPosition (int barrel_ec, int layer, int
 
 
 StatusCode NoiseMapBuilder::initialize(){
-  ATH_MSG_INFO( "Initializing NoiseMapBuilder" );
-
-  StatusCode sc = detStore()->retrieve( m_pixelID, "PixelID" );
-  if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve pixel ID helper" );
+  ATH_MSG_INFO("Initializing NoiseMapBuilder");
+  
+  // retrieve THistSvc
+  StatusCode sc = m_tHistSvc.retrieve();
+  if(!sc.isSuccess()){
+    ATH_MSG_FATAL("Unable to retrieve THistSvc");
     return StatusCode::FAILURE;
   }
 
-  sc = m_specialPixelMapSvc.retrieve();
-  if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve SpecialPixelMapSvc" );
+  // retrieve PixelConditionsSummarySvc
+  sc = m_pixelConditionsSummarySvc.retrieve();
+  if(!sc.isSuccess()){
+    ATH_MSG_FATAL("Unable to retrieve PixelConditionsSummarySvc");
     return StatusCode::FAILURE;
   }
   
-  sc = detStore()->retrieve( m_pixman, "Pixel" );
-  if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve pixel ID manager" );
-    return StatusCode::FAILURE;
-  }
-
-  sc = m_tHistSvc.retrieve();
-  if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve THistSvc" );
-    return StatusCode::FAILURE;
-  }
-
-  sc = m_pixelConditionsSummarySvc.retrieve();
-  if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve PixelConditionsSummarySvc" );
-    return StatusCode::FAILURE;
-  }
-
+  // retrieve PixelByteStreamErrorsSvc
   sc = m_BSErrorsSvc.retrieve();
-  if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve bytestream errors service" );
+  if(!sc.isSuccess()){
+    ATH_MSG_FATAL("Unable to retrieve bytestream errors service");
     return StatusCode::FAILURE;
   }
 
-  m_hitMaps.resize(m_pixelID->wafer_hash_max());
-  m_LBdependence.resize(m_pixelID->wafer_hash_max());
-  m_BCIDdependence.resize(m_pixelID->wafer_hash_max());
-  m_TOTdistributions.resize(m_pixelID->wafer_hash_max());
-
-  if( m_calculateNoiseMaps ){
-    m_noiseMaps.resize(m_pixelID->wafer_hash_max());
+  // retrieve SpecialPixelMapSvc
+  sc = m_specialPixelMapSvc.retrieve();
+  if(!sc.isSuccess()){
+    ATH_MSG_FATAL("Unable to retrieve SpecialPixelMapSvc");
+    return StatusCode::FAILURE;
   }
 
+  // retrieve PixelDetectorManager
+  sc = detStore()->retrieve(m_pixman,"Pixel");
+  if(!sc.isSuccess()){
+    ATH_MSG_FATAL("Unable to retrieve PixelDetectorManager");
+    return StatusCode::FAILURE;
+  }
+  
+  // retrieve PixelID helper
+  sc = detStore()->retrieve(m_pixelID, "PixelID");
+  if(!sc.isSuccess()){
+    ATH_MSG_FATAL("Unable to retrieve PixelID helper");
+    return StatusCode::FAILURE;
+  }
+
+  // resize vectors of histograms
+  const Identifier::size_type wahamax = m_pixelID->wafer_hash_max();
+  ATH_MSG_DEBUG("PixelID maxHash = " << wahamax);
+  m_hitMaps.resize(wahamax);
+  m_LBdependence.resize(wahamax);
+  m_BCIDdependence.resize(wahamax);
+  m_TOTdistributions.resize(wahamax);
+  if(m_calculateNoiseMaps)
+    m_noiseMaps.resize(wahamax);
+
+  return (registerHistograms()); 
+}
+
+StatusCode NoiseMapBuilder::registerHistograms(){
   m_nEventsHist = new TH1D("NEvents", "NEvents", 1, 0, 1);
   m_tHistSvc->regHist("/histfile/NEvents", m_nEventsHist).setChecked();
-
-  const int nLBmax = 3001;
-  m_nEventsLBHist = new TH1D("NEventsLB", "NEventsLB", nLBmax, -0.5, nLBmax + 0.5);
+  
+  m_nEventsLBHist = new TH1D("NEventsLB", "NEventsLB", m_nLB_max, -0.5, m_nLB_max+0.5);
   m_tHistSvc->regHist("/histfile/NEventsLB", m_nEventsLBHist).setChecked();
-
+  
   //std::string testarea = std::getenv("TestArea");
   //ifstream ifs(testarea + "/InstallArea/share/PixelMapping_Run2.dat");
   std::string cmtpath = std::getenv("DATAPATH");
   std::vector<std::string> paths = splitter(cmtpath, ':');
   std::ifstream ifs;
-  for (const auto& x : paths){
-    if(is_file_exist((x + "/PixelMapping_Run2.dat").c_str())){
+  bool found(false);
 
+  const std::string mapFile = "PixelMapping_Run2.dat";
+
+  for(const auto& x : paths){
+    //    if(is_file_exist((x + "/" + mPixelMapping_Run2.dat").c_str())){
+    if(is_file_exist((x+"/"+mapFile).c_str())){ // do it better
+
+      ATH_MSG_INFO("Mapping file '" << mapFile << "' found in " << x);
+           
       if(m_isIBL){
         ifs.open(x + "/PixelMapping_Run2.dat");
       } 
@@ -199,9 +214,18 @@ StatusCode NoiseMapBuilder::initialize(){
         tmp_position[3] = tmp_module_eta;
         m_pixelMapping.push_back(std::make_pair(tmp_module_name, tmp_position));
       }
+
+      // close file !!!!
+      found=true;
       break;
     }
   }
+
+  if(!found){
+    ATH_MSG_FATAL("Mapping file '" << mapFile << "' not found !!!");
+    return StatusCode::FAILURE;
+  }
+  
 
 #if 0
   // conversion map from position to DCS ID
@@ -309,7 +333,6 @@ StatusCode NoiseMapBuilder::initialize(){
   phi2moduleNum_DBM[1] = 10;
 #endif
 
-  // kazuki
   InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax;
   itermin = m_pixman->getDetectorElementBegin();
   itermax = m_pixman->getDetectorElementEnd();
@@ -327,11 +350,14 @@ StatusCode NoiseMapBuilder::initialize(){
     layer2flavour[1] = "B-layer";
     layer2flavour[2] = "Layer1";
     layer2flavour[3] = "Layer2";
-  } else {
+  } 
+  else {
     layer2flavour[0] = "B-layer";
     layer2flavour[1] = "Layer1";
     layer2flavour[2] = "Layer2";
   }
+
+
   // initialize histograms
   for( iter = itermin; iter != itermax; ++iter) {
     const InDetDD::SiDetectorElement* element = *iter;
@@ -367,7 +393,7 @@ StatusCode NoiseMapBuilder::initialize(){
           m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
           names.str(""); names.clear();
           // LB dependence
-          m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), nLBmax, -0.5, nLBmax + 0.5);
+          m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_nLB_max, -0.5, m_nLB_max + 0.5);
           names << "/histfile/LBdep_barrel/IBL/" << onlineID;
           m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
           names.str(""); names.clear();
@@ -400,7 +426,7 @@ StatusCode NoiseMapBuilder::initialize(){
           m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
           names.str(""); names.clear();
           // LB dependence
-          m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), nLBmax, -0.5, nLBmax + 0.5);
+          m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_nLB_max, -0.5, m_nLB_max + 0.5);
           names << "/histfile/LBdep_barrel/B-layer/" << onlineID;
           m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
           names.str(""); names.clear();
@@ -435,7 +461,7 @@ StatusCode NoiseMapBuilder::initialize(){
           m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
           names.str(""); names.clear();
           // LB dependence
-          m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), nLBmax, -0.5, nLBmax + 0.5);
+          m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_nLB_max, -0.5, m_nLB_max + 0.5);
           names << "/histfile/LBdep_barrel/Layer" << layer - 1 << "/" << onlineID;
           m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
           names.str(""); names.clear();
@@ -469,7 +495,7 @@ StatusCode NoiseMapBuilder::initialize(){
         m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
         names.str(""); names.clear();
         // Lumi Block dependence
-        m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), nLBmax, -0.5, nLBmax + 0.5);
+        m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_nLB_max, -0.5, m_nLB_max + 0.5);
         names << "/histfile/LBdep_endcapA/Disk" << (layer + 1) << "/" << onlineID;
         m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
         names.str(""); names.clear();
@@ -503,7 +529,7 @@ StatusCode NoiseMapBuilder::initialize(){
         m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
         names.str(""); names.clear();
         // LB dependence
-        m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), nLBmax, -0.5, nLBmax + 0.5);
+        m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_nLB_max, -0.5, m_nLB_max + 0.5);
         names << "/histfile/LBdep_endcapC/Disk" << (layer + 1) << "/" << onlineID;
         m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
         names.str(""); names.clear();
@@ -536,7 +562,7 @@ StatusCode NoiseMapBuilder::initialize(){
         m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
         names.str(""); names.clear();
         // LB dependence
-        m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), nLBmax, -0.5, nLBmax + 0.5);
+        m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_nLB_max, -0.5, m_nLB_max + 0.5);
         names << "/histfile/LBdep_DBMA/Layer" << (layer + 1) << "/" << onlineID;
         m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
         names.str(""); names.clear();
@@ -569,7 +595,7 @@ StatusCode NoiseMapBuilder::initialize(){
         m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
         names.str(""); names.clear();
         // LB dependence
-	m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), nLBmax, -0.5, nLBmax + 0.5);
+	m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_nLB_max, -0.5, m_nLB_max + 0.5);
         names << "/histfile/LBdep_DBMC/Layer" << (layer + 1) << "/" << onlineID;
         m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
         names.str(""); names.clear();
@@ -592,6 +618,26 @@ StatusCode NoiseMapBuilder::initialize(){
         }
       }
     } // end if m_isIBL
+  } // end for loop
+
+  m_disabledModules = new TH1D("DisabledModules", "Number of events disabled vs. IdentifierHash", 2048, 0, 2048);
+  m_tHistSvc->regHist("/histfile/DisabledModules", m_disabledModules).setChecked();
+  
+  if (m_calculateNoiseMaps) {
+    m_overlayedPixelNoiseMap = new TH2D("overlayedPixelNoiseMap", "Noisy pixel map overlayed all Pixel modules", 144, -0., 144., 328, 0., 328.);
+    m_tHistSvc->regHist("/histfile/overlayedPixelNoiseMap", m_overlayedPixelNoiseMap).setChecked();
+    
+    m_overlayedIBLDCNoiseMap = new TH2D("overlayedIBLDCNoiseMap", "Noisy pixel map overlayed all IBL Planar modules", 160, -0., 160., 336, 0., 336.);
+    m_overlayedIBLSCNoiseMap = new TH2D("overlayedIBLSCNoiseMap", "Noisy pixel map overlayed all IBL 3D modules", 80, -0., 80., 336, 0., 336.);
+    if (m_isIBL) {
+      m_tHistSvc->regHist("/histfile/overlayedIBLDCNoiseMap", m_overlayedIBLDCNoiseMap).setChecked();
+      m_tHistSvc->regHist("/histfile/overlayedIBLSCNoiseMap", m_overlayedIBLSCNoiseMap).setChecked();
+    }
+  }  
+
+  return StatusCode::SUCCESS;
+}
+
 
     //for (const auto& moduleHashInList : m_moduleHashList) {
     //  std::cout << "[DEBUG] moduleHash " << moduleHashInList << std::endl;
@@ -865,24 +911,6 @@ unsigned int hashID = ( ((m_pixelID->barrel_ec(moduleID) + 2) / 2) << 25 ) +
 //      }
 
 //m_disabledModules = new TH1D("DisabledModules", "Number of events disabled vs. IdentifierHash", 1744, 0, 1744);
-  }
-  m_disabledModules = new TH1D("DisabledModules", "Number of events disabled vs. IdentifierHash", 2048, 0, 2048);
-  m_tHistSvc->regHist("/histfile/DisabledModules", m_disabledModules).setChecked();
-
-  if (m_calculateNoiseMaps) {
-    m_overlayedPixelNoiseMap = new TH2D("overlayedPixelNoiseMap", "Noisy pixel map overlayed all Pixel modules", 144, -0., 144., 328, 0., 328.);
-    m_tHistSvc->regHist("/histfile/overlayedPixelNoiseMap", m_overlayedPixelNoiseMap).setChecked();
-
-    m_overlayedIBLDCNoiseMap = new TH2D("overlayedIBLDCNoiseMap", "Noisy pixel map overlayed all IBL Planar modules", 160, -0., 160., 336, 0., 336.);
-    m_overlayedIBLSCNoiseMap = new TH2D("overlayedIBLSCNoiseMap", "Noisy pixel map overlayed all IBL 3D modules", 80, -0., 80., 336, 0., 336.);
-    if (m_isIBL) {
-      m_tHistSvc->regHist("/histfile/overlayedIBLDCNoiseMap", m_overlayedIBLDCNoiseMap).setChecked();
-      m_tHistSvc->regHist("/histfile/overlayedIBLSCNoiseMap", m_overlayedIBLSCNoiseMap).setChecked();
-    }
-  }
-
-  return StatusCode::SUCCESS;
-}
 
 
 

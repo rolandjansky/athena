@@ -22,7 +22,8 @@ class TH2D;
 class TH2C;
 class TH1D;
 class ISpecialPixelMapSvc;
-namespace InDetDD{ // kazuki
+
+namespace InDetDD{ 
   class PixelDetectorManager;
 }
 
@@ -38,7 +39,6 @@ namespace InDetDD{ // kazuki
  * ruwiedel@physik.uni-bonn.de
  *
  */
-
 
 class NoiseMapBuilder: public AthAlgorithm {
 
@@ -77,16 +77,20 @@ class NoiseMapBuilder: public AthAlgorithm {
     infile.open(fileName);
     return infile.good();
   }
+
+  StatusCode registerHistograms();
   
  private:
   ServiceHandle <ITHistSvc> m_tHistSvc;
   ServiceHandle <IInDetConditionsSvc> m_pixelConditionsSummarySvc;
   ServiceHandle <IPixelByteStreamErrorsSvc> m_BSErrorsSvc;
   ServiceHandle <ISpecialPixelMapSvc> m_specialPixelMapSvc; 
-  
-  std::string m_pixelRDOKey;
-  
-  bool m_isIBL; // kazuki
+
+  const InDetDD::PixelDetectorManager *m_pixman; 
+  const PixelID *m_pixelID;
+
+  std::string m_pixelRDOKey;  
+  bool m_isIBL; 
   std::vector<int> m_moduleHashList;
   
   double m_nEvents;
@@ -95,10 +99,10 @@ class NoiseMapBuilder: public AthAlgorithm {
   TH1D* m_nEventsHist;
   TH1D* m_nEventsLBHist;
   std::vector<TH2D*> m_hitMaps;
-  std::vector<TH2C*> m_noiseMaps;
   std::vector<TH1D*> m_LBdependence;
   std::vector<TH1D*> m_BCIDdependence;
   std::vector<TH1D*> m_TOTdistributions;
+  std::vector<TH2C*> m_noiseMaps;
   
   TH1D* m_disabledModules;
   TH2D* m_overlayedPixelNoiseMap;
@@ -106,22 +110,25 @@ class NoiseMapBuilder: public AthAlgorithm {
   TH2D* m_overlayedIBLSCNoiseMap; // 3D Single Chip
   //TH2D* m_overlayedDBMNoiseMap; // DBM
 
-  const PixelID* m_pixelID;
-  const InDetDD::PixelDetectorManager* m_pixman; // kazuki
+  // cuts ....
+  double m_disk1ACut; // disk-1, A-side
+  double m_disk2ACut; // disk-2, A-side
+  double m_disk3ACut; // disk-3, A-side
 
-  double m_disk1ACut;
-  double m_disk2ACut;
-  double m_disk3ACut;
+  double m_disk1CCut; // disk-1, C-side
+  double m_disk2CCut; // disk-2, C-side
+  double m_disk3CCut; // disk-3, C-side
 
-  double m_disk1CCut;
-  double m_disk2CCut;
-  double m_disk3CCut;
+  double m_iblCut;    // IBL
+  double m_bLayerCut; // B-layer
+  double m_layer1Cut; // Layer 1
+  double m_layer2Cut; // Layer 2
 
-  double m_iblCut; // kazuki
-  double m_bLayerCut;
-  double m_layer1Cut;
-  double m_layer2Cut;
-  double m_dbmCut; // kazuki
+  double m_dbmCut;    // DBM
+
+  int m_nLB_max;
+
+
 
   double m_longPixelMultiplier;
   double m_gangedPixelMultiplier;
