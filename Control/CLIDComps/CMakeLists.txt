@@ -45,3 +45,9 @@ atlas_install_python_modules( python/*.py )
 atlas_install_runtime( share/Gaudi_clid.db )
 atlas_install_scripts( share/clid test/_clid_unittest.py )
 atlas_install_joboptions( share/*.opts )
+
+#need to ensure the joboption is installed by the time the genCLIDDB is compiled
+#otherwise genCLIDDB will crash
+if( TARGET genCLIDDB )
+  add_dependencies( genCLIDDB CLIDCompsJobOptInstall )
+endif()
