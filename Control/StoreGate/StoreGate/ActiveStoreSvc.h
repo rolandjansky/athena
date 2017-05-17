@@ -44,7 +44,7 @@ public:
     return activeStore();
   }
 
-  /// TEMPORARY: avoid warings
+  /// TEMPORARY: avoid warnings
   using IProxyDict::proxy;
 
   ///set the active store pointer: used by the event loop mgrs
@@ -160,7 +160,7 @@ public:
 
 private:
   StoreGateSvc* p_activeStore;    
-  std::string m_storeName; //< property: storegate instance name
+  std::string m_storeName; //< property: StoreGate instance name
 
 protected:
     

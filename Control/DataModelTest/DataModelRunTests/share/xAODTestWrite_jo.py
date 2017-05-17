@@ -37,6 +37,8 @@ theApp.EvtMax = 20
 # Set up the algorithm.
 #--------------------------------------------------------------
 
+from DataModelTestDataCommon.DataModelTestDataCommonConf import \
+     DMTest__xAODTestDecor
 from DataModelTestDataWrite.DataModelTestDataWriteConf import \
      DMTest__xAODTestWriteCVec, \
      DMTest__xAODTestWriteHVec, \
@@ -51,6 +53,7 @@ topSequence += DMTest__xAODTestWriteCView ("xAODTestWriteCView")
 topSequence += DMTest__xAODTestWriteCInfo ("xAODTestWriteCInfo")
 topSequence += DMTest__xAODTestWrite ("xAODTestWrite")
 topSequence += DMTest__xAODTestWriteCVecConst ("xAODTestWriteCVecConst")
+topSequence += DMTest__xAODTestDecor ("xAODTestDecor")
 topSequence += DMTest__xAODTestWriteSymlinks ("xAODTestWriteSymlinks")
 
 

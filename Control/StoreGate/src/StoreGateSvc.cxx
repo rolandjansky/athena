@@ -133,7 +133,7 @@ StoreGateSvc::keys(const CLID& id, bool allKeys){
 
 
 /////////////////////////////////////////////////////////////
-/// Service initialisation
+/// Service initialization
 StatusCode StoreGateSvc::initialize()    {
 
   // Initialize service:
@@ -388,7 +388,7 @@ StoreGateSvc::typeless_record( DataObject* obj, const std::string& key,
                                bool noHist ) {
   _SGXCALL(typeless_record, (obj, key, raw_ptr, allowMods, resetOnly, noHist), StatusCode::FAILURE);
 }
-/// same as typeless_record, allows to ovewrite an object in memory or on disk
+/// same as typeless_record, allows to overwrite an object in memory or on disk
 StatusCode 
 StoreGateSvc::typeless_overwrite( const CLID& id,
                                   DataObject* obj, const std::string& key,

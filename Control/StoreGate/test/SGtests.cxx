@@ -195,7 +195,7 @@ namespace Athena_test
     assert(rSG.record(pFoo, "pFoo1").isSuccess());
     //can't record with same key
     SGASSERTERROR(rSG.record(new Foo(3), "pFoo1", LOCKED).isSuccess());
-    //can'r record same object twice
+    //can't record same object twice
     SGASSERTERROR(rSG.record(pFoo, "pFoo2", !LOCKED).isSuccess());
     //check we haven't left any trace of "pFoo2" in DataStore
     assert(rSG.record(new Foo(2), "pFoo2", !LOCKED).isSuccess());
@@ -284,7 +284,7 @@ namespace Athena_test
     SGASSERTERROR(rSG.retrieve(pFoo).isSuccess());
 
     /// retrieve a keyless object with default key: should also fail
-    /// becaus of ambiguity
+    /// because of ambiguity
     SGASSERTERROR(rSG.retrieve(pFoo, SG::DEFAULTKEY).isSuccess());
 
     // record a keyed object and remove. this will only reset proxy
@@ -343,7 +343,7 @@ namespace Athena_test
     Base* pB;
     assert(rSG.retrieve(pB, "UnLocked").isSuccess());
 
-    //FIXME this will work when we'll have the inher tree from reflection
+    //FIXME this will work when we'll have the inheritance tree from reflection
     //FIXME    SGASSERTERROR(rSG.symLink(ClassID_traits<Foo>::ID(), 
     //FIXME			      "UnLocked", 
     //FIXME			      ClassID_traits<NotThere>::ID()).isSuccess()); 

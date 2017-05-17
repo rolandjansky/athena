@@ -640,7 +640,7 @@ StatusCode SGImplSvc::retrieve(const DataHandle<T>& chbegin,
 
 
 /**
- * @brief Retrieve an object of type @c T from storegate.
+ * @brief Retrieve an object of type @c T from StoreGate.
  *        Return 0 if not found.
  * @param key The key to use for the lookup.
  **/
@@ -653,7 +653,7 @@ T* SGImplSvc::retrieve ()
 }
 
 /**
- * @brief Retrieve an object of type @c T from storegate.
+ * @brief Retrieve an object of type @c T from StoreGate.
  *        Return 0 if not found.
  * @param key The key to use for the lookup.
  **/
@@ -666,7 +666,7 @@ T* SGImplSvc::retrieve (const TKEY& key)
 }
 
 /**
- * @brief Retrieve an object of type @c T from storegate.
+ * @brief Retrieve an object of type @c T from StoreGate.
  *        Return 0 if not found.
  * @param key The key to use for the lookup.
  **/
@@ -697,7 +697,7 @@ const T* SGImplSvc::tryConstRetrieve()
 }
 
 /**
- * @brief Retrieve an object of type @c T from storegate.
+ * @brief Retrieve an object of type @c T from StoreGate.
  *        Return 0 if not found. Don't print any WARNINGs
  * @param key The key to use for the lookup.
  **/
@@ -726,7 +726,7 @@ const T* SGImplSvc::tryConstRetrieve (const TKEY& key)
 }
 
 /**
- * @brief Retrieve an object of type @c T from storegate and associate it
+ * @brief Retrieve an object of type @c T from StoreGate and associate it
  *        to its auxiliary store
  *        Return 0 the object or the aux store is not found.
  * @param key The key to use for the lookup.

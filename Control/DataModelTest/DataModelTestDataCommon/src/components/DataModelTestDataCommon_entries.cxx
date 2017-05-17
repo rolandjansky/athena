@@ -11,6 +11,11 @@
  */
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
+
 #include "../xAODTestReadSymlink.h"
+#include "../xAODTestReadDecor.h"
+#include "../xAODTestDecor.h"
 
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestReadSymlink)
+DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestReadDecor)
+DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestDecor)

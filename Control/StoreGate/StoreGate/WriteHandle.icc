@@ -505,9 +505,9 @@ WriteHandle<T>::operator= (std::unique_ptr<T> data)
  * The object will also be known by the name given in @c key.
  */
 template <class T>
-StatusCode WriteHandle<T>::alias (const WriteHandleKey<T>& other)
+StatusCode WriteHandle<T>::alias (const WriteHandleKey<T>& key)
 {
-  return symLink_impl (this->clid(), other.key());
+  return symLink_impl (this->clid(), key.key());
 }
 
 

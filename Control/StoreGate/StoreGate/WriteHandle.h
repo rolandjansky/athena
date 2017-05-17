@@ -372,7 +372,7 @@ public:
    * @brief Alternate notation for record.  Records a non-const object.
    * @param data Object to record.
    *
-   * Throws an execption on failure.
+   * Throws an exception on failure.
    */
   WriteHandle& operator=( std::unique_ptr<T> data );
 
@@ -390,20 +390,17 @@ public:
 
 
   /**
-   * @brief Make an explicit link or alias.
-   * @param key Alternate clid/key by which the referenced object
-   *            should be known.
+   * @brief Make an explicit link.
+   * @param key Alternate clid by which the referenced object
+   *            should be known.  The SG key must match the key of the
+   *            current handle.
    *
    * You should generally not be using this!
    *
    * The current handle should be valid and referencing an object
    * (i.e., @c record should have been called on it).
    *
-   * If @c U is the same as @c T, then this makes an alias.
-   * The object will also be known by the name given in @c key.
-   *
-   * If the name in @c key is the same as the name for the current handle,
-   * then this makes a symlink: the object will be retrievable
+   * This makes a symlink: the object will be retrievable
    * as a different type.
    * 
    * Note that if @c T and @c @U are related via @c SG_BASE and/or
@@ -418,8 +415,6 @@ public:
    * This usage is here mainly to assist in migrating some existing
    * patterns to MT.  You should think several times before using
    * in new code.
-   *
-   * If both types and the keys are different, then it is an error.
    */
   template <class U>
   StatusCode symLink (const WriteHandleKey<U>& key);

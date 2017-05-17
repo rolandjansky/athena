@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigger
                           GaudiKernel
                           PRIVATE
+                          Event/EventInfo
                           Control/AthLinks
                           Control/StoreGate
                           Control/AthenaBaseComps
@@ -27,7 +28,7 @@ atlas_add_library( DataModelTestDataCommonLib
                    src/*.cxx
                    PUBLIC_HEADERS DataModelTestDataCommon
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthContainers SGTools xAODCore xAODTrigger GaudiKernel
+                   LINK_LIBRARIES AthContainers SGTools xAODCore xAODTrigger EventInfo GaudiKernel
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks StoreGateLib AthenaBaseComps )
 
 atlas_add_component( DataModelTestDataCommon

@@ -213,7 +213,7 @@ SGImplSvc::~SGImplSvc()  {
 }
 
 //////////////////////////////////////////////////////////////
-/// Service initialisation
+/// Service initialization
 StatusCode SGImplSvc::initialize()    {
 
   msg() << MSG::VERBOSE <<  "Initializing " << name() 
@@ -393,12 +393,12 @@ StatusCode SGImplSvc::clearStore(bool forceRemove)
   return StatusCode::SUCCESS;
 }
 //////////////////////////////////////////////////////////////
-/// Service finalisation
+/// Service finalization
 StatusCode SGImplSvc::finalize()    {
   msg() << MSG::VERBOSE << "Finalizing " << name() 
         << " - package version " << PACKAGE_VERSION << endmsg ;
   
-  // Incident service may not work in finalizea.
+  // Incident service may not work in finalize.
   // Clear this, so that we won't try to send an incident from clearStore.
   (m_pIncSvc.release()).ignore();
   
@@ -456,7 +456,7 @@ StatusCode SGImplSvc::queryInterface(const InterfaceID& riid, void** ppvInterfac
   else if ( interfaceID().versionMatch(riid) )    {
     // In principle this should be cast to ISGImplSvc*. However, there
     // is an anomaly in that existing clients are using the concrete StoreGate
-    // interface instread of an abstract ISGImplSvc interface.
+    // interface instead of an abstract ISGImplSvc interface.
     *ppvInterface = (SGImplSvc*)this;
   } else  {
     // Interface is not directly available: try out a base class
@@ -487,7 +487,7 @@ StatusCode SGImplSvc::recordAddress(const std::string& skey,
       return StatusCode::FAILURE;
     }
 
-  //do not ovewrite a persistent object
+  //do not overwrite a persistent object
   if (m_pPPS) {
     DataProxy *dp(m_pPPS->retrieveProxy(dataID, skey, *m_pStore));
     if (dp && dp->transientAddress() && dp->transientAddress()->provider()) {
@@ -1296,7 +1296,7 @@ SGImplSvc::proxyRange(const CLID& id,
 StatusCode SGImplSvc::setConst(const void* pObject)
 {
   lock_t lock (m_mutex);
-  // Check if dataproxy does not exist
+  // Check if DataProxy does not exist
   DataProxy * dp = proxy(pObject); 
 
   if (0 == dp)
@@ -1701,7 +1701,7 @@ void SGImplSvc::addedNewTransObject(CLID clid, const std::string& key) {
 /**
  * @brief Tell the store that a proxy has been bound to a handle.
  * @param proxy The proxy that was bound.
- * The default implemenatation does nothing.
+ * The default implementation does nothing.
  */
 void
 SGImplSvc::boundHandle (IResetable* handle)
