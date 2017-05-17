@@ -35,13 +35,13 @@ class TrackCaloClusterCreatorTool : public AthAlgTool {
 			    std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt, 
 			    std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap    );
     
-    void createClusterOnlyTCCs(xAOD::TrackCaloClusterContainer* tccContainer, 
-			       const xAOD::CaloClusterContainer* assocContainer, 
-			       std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap    );
+    void createNeutralTCCs(xAOD::TrackCaloClusterContainer* tccContainer,
+			   const xAOD::CaloClusterContainer* assocContainer,
+			   std::map <const xAOD::CaloCluster*, FourMom_t>* clusterToTracksWeightMap    );
     
-    void createTrackOnlyTCCs(xAOD::TrackCaloClusterContainer* tccContainer, 
-			     const xAOD::TrackParticleContainer* assocContainer, 
-			     std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt   );
+    void createChargedTCCs(xAOD::TrackCaloClusterContainer* tccContainer,
+			   const xAOD::TrackParticleContainer* assocContainer, 
+			   std::map <const xAOD::TrackParticle*, FourMom_t>* TrackTotalClusterPt   );
    
   private:  
     

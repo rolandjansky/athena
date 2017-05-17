@@ -74,7 +74,7 @@ bool ClusterFilterTool::rejectCluster(const xAOD::CaloCluster& cluster) {
     float dr2  = dPhi*dPhi+ dEta*dEta;
         
     // check if the track is matching the cluster
-    if (sqrt(dr2)<m_coneSize) {      
+    if (dr2<m_coneSize*m_coneSize) {      
       if (allVertices && allVertices->size()!=0) {
 	if (m_loosetrackvertexassoTool->isCompatible(*track, *(allVertices->at(0)))) {
 	  ATH_MSG_DEBUG ("PV0 is matched");

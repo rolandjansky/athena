@@ -23,8 +23,8 @@ namespace xAOD {
     
   public: 
     
-    /// Type of TrackCaloCluster - Charged - Neutral - Both
-    enum Taste { TrackOnly = 0, ClusterOnly, Combined };
+    /// Type of TrackCaloCluster - Charged - Neutral - Combined
+    enum Taste { Charged = 0, Neutral, Combined };
     
     // Default Constructor
     TrackCaloCluster_v1();

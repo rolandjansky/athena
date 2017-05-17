@@ -241,10 +241,10 @@ if 1:
   subjetrecorder.SubjetContainerName = "Kt2TrackCaloClusterSubJets"
   subjetfinder.SubjetRecorder = subjetrecorder
    
-  clname = "TrackCaloClusters"
-  clname1 = "TrackCaloClustersCombined"
-  clname2 = "TrackCaloClustersAll"
-  clname3 = "TrackCaloClustersAllTrack"
+  clname  = "TrackCaloClustersCombined"
+  clname1 = "TrackCaloClustersCombinedAndNeutral"
+  clname2 = "TrackCaloClustersCombinedAndCharged"
+  clname3 = "TrackCaloClustersAll"
   
   clnames = [clname, clname1, clname2, clname3]
   
@@ -505,6 +505,8 @@ xaodStream = MSMgr.NewPoolRootStream( "StreamAOD", "XAOD_"+Name+".pool.root" )
 # xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersAllAux.")
 # xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#TrackCaloClustersAllTrack")
 # xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#TrackCaloClustersAllTrackAux.")
+xaodStream.AddItem( "xAOD::TrackCaloClusterContainer#*")
+xaodStream.AddItem( "xAOD::TrackCaloClusterAuxContainer#*.")
 xaodStream.AddItem( "xAOD::JetContainer#My*")
 xaodStream.AddItem( "xAOD::JetAuxContainer#My*")
 xaodStream.AddItem( "xAOD::JetContainer#*TrackCaloClusters*")
