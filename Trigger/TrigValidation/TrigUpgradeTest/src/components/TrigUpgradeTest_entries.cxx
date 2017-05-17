@@ -8,12 +8,14 @@
 #include "../TestHypoTool.h"
 #include "../TestRecoAlg.h"
 #include "../TestRoRSeqFilter.h"
+#include "../TestMerger.h"
 
 
 DECLARE_NAMESPACE_ALGORITHM_FACTORY ( HLTTest, TestHypoAlg )
 DECLARE_NAMESPACE_TOOL_FACTORY      ( HLTTest, TestHypoTool )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY ( HLTTest, TestRecoAlg )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY ( HLTTest, TestRoRSeqFilter )
+DECLARE_NAMESPACE_ALGORITHM_FACTORY ( HLTTest, TestMerger )
 
 DECLARE_FACTORY_ENTRIES( TrigUpgradeTest )
 {
@@ -21,4 +23,5 @@ DECLARE_FACTORY_ENTRIES( TrigUpgradeTest )
   DECLARE_NAMESPACE_TOOL      ( HLTTest, TestHypoTool )
   DECLARE_NAMESPACE_ALGORITHM ( HLTTest, TestRecoAlg )
   DECLARE_NAMESPACE_ALGORITHM ( HLTTest, TestRoRSeqFilter )
+  DECLARE_NAMESPACE_ALGORITHM ( HLTTest, TestMerger )
 }
