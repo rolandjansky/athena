@@ -172,6 +172,7 @@ class TaskManager:
 
         self.debug = False
         self.paramstyle = None
+        self.is_managing_context = False
 
         self.dbtype, self.dbname = self.__class__.parseConnectionInfo(connstring)
 
@@ -200,9 +201,13 @@ class TaskManager:
         else:
             raise ValueError, 'Unknown database type: {}'.format(self.dbtype)
 
+    def __enter__(self):
+        ''' Remember that we're inside a 'with' statement so we can warn otherwise: '''
+        self.is_managing_context = True
+        return self
 
-    def __del__(self):
-        """Destructor to close database connection"""
+    def __exit__(self, exc_type, exc_value, traceback):
+        ''' Close the database connection at the end of the 'with' statement. '''
         try:
             self.dbcon.close()
         except:
@@ -310,6 +315,12 @@ end;
            of the current database) and executed, and the resulting cursor is returned.
            Loosely follows the method discussed in the Python Cookbook.
            WARNING: At present, limit doesn't work when ordering rows for Oracle!"""
+        if not self.is_managing_context:
+            print '**WARN**  TaskManager will keep the database connection open until it is deleted.'
+            print '**INFO**  TaskManager should generally only be used inside a with statement:'
+            print '**INFO**      with TaskManager(...) as taskman:'
+            print '**INFO**        # do something ...'
+
         if not statementParts:
             return None
         if isinstance(statementParts,str):
