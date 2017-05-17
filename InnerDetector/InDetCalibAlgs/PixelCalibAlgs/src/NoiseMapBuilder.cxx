@@ -44,7 +44,6 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   m_pixman(0), 
   m_pixelID(0),
   m_pixelRDOKey("PixelRDOs"),
-  m_isIBL(true), 
   m_nEvents(0.),
   m_nEventsHist(nullptr),
   m_nEventsLBHist(nullptr),
@@ -94,7 +93,6 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("THistSvc", m_tHistSvc, "THistSvc");
   declareProperty("PixelConditionsSummarySvc", m_pixelConditionsSummarySvc, "PixelConditionsSummarySvc");
   declareProperty("PixelByteStreamSummarySvc", m_BSErrorsSvc, "PixelBSErrorsSvc");
-  declareProperty("isIBL", m_isIBL, "If false IBL not considered"); // kazuki
 }
 
 
@@ -182,8 +180,6 @@ StatusCode NoiseMapBuilder::registerHistograms(){
   m_nEventsLBHist = new TH1D("NEventsLB", "NEventsLB", m_hist_lbMax, -0.5, m_hist_lbMax+0.5);
   m_tHistSvc->regHist("/histfile/NEventsLB", m_nEventsLBHist).setChecked();
   
-  //std::string testarea = std::getenv("TestArea");
-  //ifstream ifs(testarea + "/InstallArea/share/PixelMapping_Run2.dat");
   std::string cmtpath = std::getenv("DATAPATH");
   std::vector<std::string> paths = splitter(cmtpath, ':');
   std::ifstream ifs;
@@ -192,17 +188,11 @@ StatusCode NoiseMapBuilder::registerHistograms(){
   const std::string mapFile = "PixelMapping_Run2.dat";
 
   for(const auto& x : paths){
-    //    if(is_file_exist((x + "/" + mPixelMapping_Run2.dat").c_str())){
     if(is_file_exist((x+"/"+mapFile).c_str())){ // do it better
 
-      ATH_MSG_INFO("Mapping file '" << mapFile << "' found in " << x);
-           
-      if(m_isIBL){
-        ifs.open(x + "/PixelMapping_Run2.dat");
-      } 
-      else {
-        ifs.open(x + "/PixelMapping_May08.dat");
-      }
+      ATH_MSG_INFO("Mapping file '" << mapFile << "' found in " << x);           
+      ifs.open(x + "/PixelMapping_Run2.dat");
+
       int tmp_barrel_ec; int tmp_layer; int tmp_module_phi; int tmp_module_eta; std::string tmp_module_name;
       std::vector<int> tmp_position;
       tmp_position.resize(4);
@@ -337,27 +327,19 @@ StatusCode NoiseMapBuilder::registerHistograms(){
   InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax;
   itermin = m_pixman->getDetectorElementBegin();
   itermax = m_pixman->getDetectorElementEnd();
-  if(m_pixelID->wafer_hash_max() > 1744) m_isIBL = true; // #modules only Pixel is 1744
-  //std::cout << "DEBUG: wafer_hash_max = " << m_pixelID->wafer_hash_max() << std::endl;
+
   std::map<int, std::string> barrel_ec2string;
   barrel_ec2string[0] = "barrel";
   barrel_ec2string[2] = "endcapA";
   barrel_ec2string[-2] = "endcapC";
   barrel_ec2string[4] = "DBMA";
   barrel_ec2string[-4] = "DBMC";
-  std::map<int, std::string> layer2flavour;
-  if (m_isIBL) {
-    layer2flavour[0] = "IBL";
-    layer2flavour[1] = "B-layer";
-    layer2flavour[2] = "Layer1";
-    layer2flavour[3] = "Layer2";
-  } 
-  else {
-    layer2flavour[0] = "B-layer";
-    layer2flavour[1] = "Layer1";
-    layer2flavour[2] = "Layer2";
-  }
 
+  std::map<int, std::string> layer2flavour;
+  layer2flavour[0] = "IBL";
+  layer2flavour[1] = "B-layer";
+  layer2flavour[2] = "Layer1";
+  layer2flavour[3] = "Layer2";
 
   // initialize histograms
   for( iter = itermin; iter != itermax; ++iter) {
@@ -380,247 +362,246 @@ StatusCode NoiseMapBuilder::registerHistograms(){
     std::ostringstream names;
     TString tmp_onlineID;
     std::string onlineID;
-    if (m_isIBL) { // --- IBL --- //
-      if ( barrel == 0 ) { // barrel
-        if (layer == 0) { // IBL
-          m_moduleHashList.push_back(moduleHash);
 
-          //tmp_onlineID = Form("LI_S%02d_",module_phi + 1) + eta2moduleID_IBL[module_eta];
-          //onlineID = std::string(tmp_onlineID);
-          onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
-          // hit map
-          m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 160, -0., 160., 336, 0., 336.);
-          names << "/histfile/hitMaps_barrel/IBL/" << onlineID;
-          m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
-          names.str(""); names.clear();
-          // LB dependence
-          m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
-          names << "/histfile/LBdep_barrel/IBL/" << onlineID;
-          m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
-          names.str(""); names.clear();
-          // BCID dependence
-          m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
-          names << "/histfile/BCIDdep_barrel/IBL/" << onlineID;
-          m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
-          names.str(""); names.clear();
-          // TOT
-          m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 19, -0.5, 18.5);
-          names << "/histfile/TOT_barrel/IBL/" << onlineID;
-          m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
-          names.str(""); names.clear();
-          // noise map
-          if( m_calculateNoiseMaps ){
-            m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 160, -0., 160., 336, 0., 336.);
-            names << "/histfile/noiseMaps_barrel/IBL/" << onlineID;
-            m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
-            names.str(""); names.clear();
-          }
-        } else if (layer == 1) { // BLayer
-          m_moduleHashList.push_back(moduleHash);
-
-          //tmp_onlineID = Form("L%d_",layer - 1) + phi2moduleID_BLayer[module_phi] + eta2moduleID_PixelBarrel[module_eta];
-          //onlineID = std::string(tmp_onlineID);
-          onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
-          // hit map
-          m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
-          names << "/histfile/hitMaps_barrel/B-layer/" << onlineID;
-          m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
-          names.str(""); names.clear();
-          // LB dependence
-          m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
-          names << "/histfile/LBdep_barrel/B-layer/" << onlineID;
-          m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
-          names.str(""); names.clear();
-          // BCID dependence
-          m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
-          names << "/histfile/BCIDdep_barrel/B-layer/" << onlineID;
-          m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
-          names.str(""); names.clear();
-          // TOT
-          m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
-          names << "/histfile/TOT_barrel/B-layer/" << onlineID;
-          m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
-          names.str(""); names.clear();
-          // noise map
-          if( m_calculateNoiseMaps ){
-            m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
-            names << "/histfile/noiseMaps_barrel/B-layer/" << onlineID;
-            m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
-            names.str(""); names.clear();
-          }
-        } else { // Layer-1,2
-          m_moduleHashList.push_back(moduleHash);
-
-          //if(layer == 2) tmp_onlineID = Form("L%d_",layer - 1) + phi2moduleID_Layer1[module_phi] + eta2moduleID_PixelBarrel[module_eta];
-          //else if(layer == 3) tmp_onlineID = Form("L%d_",layer - 1) + phi2moduleID_Layer2[module_phi] + eta2moduleID_PixelBarrel[module_eta];
-
-          //onlineID = std::string(tmp_onlineID);
-          onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
-          // hit map
-          m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
-          names << "/histfile/hitMaps_barrel/Layer" << layer - 1 << "/" << onlineID;
-          m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
-          names.str(""); names.clear();
-          // LB dependence
-          m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
-          names << "/histfile/LBdep_barrel/Layer" << layer - 1 << "/" << onlineID;
-          m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
-          names.str(""); names.clear();
-          // BCID dependence
-          m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
-          names << "/histfile/BCIDdep_barrel/Layer" << layer - 1 << "/" <<onlineID;
-          m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
-          names.str(""); names.clear();
-          // TOT
-          m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
-          names << "/histfile/TOT_barrel/Layer" << layer - 1 << "/" << onlineID;
-          m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
-          names.str(""); names.clear();
-          // noise map
-          if( m_calculateNoiseMaps ){
-            m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
-            names << "/histfile/noiseMaps_barrel/Layer" << layer - 1 << "/" << onlineID;
-            m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
-            names.str(""); names.clear();
-          }
-        }
-      } else if ( barrel == 2 ) { // ECA
-        m_moduleHashList.push_back(moduleHash);
-
-        //tmp_onlineID = Form("D%dA_",layer + 1) + phi2moduleID_ECA[module_phi];
-        //onlineID = std::string(tmp_onlineID);
-        onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
-        // hitmap
-        m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
-        names << "/histfile/hitMaps_endcapA/Disk" << (layer + 1) << "/" << onlineID;
-        m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
-        names.str(""); names.clear();
-        // Lumi Block dependence
-        m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
-        names << "/histfile/LBdep_endcapA/Disk" << (layer + 1) << "/" << onlineID;
-        m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
-        names.str(""); names.clear();
-        // BCID dependence
-        m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
-        names << "/histfile/BCIDdep_endcapA/Layer" << (layer + 1) << "/" <<onlineID;
-        m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
-        names.str(""); names.clear();
-        // TOT
-        m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
-        names << "/histfile/TOT_endcapA/Layer" << (layer + 1) << "/" << onlineID;
-        m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
-        names.str(""); names.clear();
-        // noise map
-        if( m_calculateNoiseMaps ){
-          m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
-          names << "/histfile/noiseMaps_endcapA/Disk" << (layer + 1) << "/" << onlineID;
-          m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
-          names.str(""); names.clear();
-        }
-      } else if ( barrel == -2) { // ECC
-        m_moduleHashList.push_back(moduleHash);
-
-        //tmp_onlineID = Form("D%dC_",layer + 1) + phi2moduleID_ECC[module_phi];
-        //onlineID = std::string(tmp_onlineID);
-        onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
-        std::ostringstream names;
-        // hitmap
-        m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
-        names << "/histfile/hitMaps_endcapC/Disk" << (layer + 1) << "/" << onlineID;
-        m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
-        names.str(""); names.clear();
-        // LB dependence
-        m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
-        names << "/histfile/LBdep_endcapC/Disk" << (layer + 1) << "/" << onlineID;
-        m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
-        names.str(""); names.clear();
-        // BCID dependence
-        m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
-        names << "/histfile/BCIDdep_endcapC/Layer" << (layer + 1) << "/" <<onlineID;
-        m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
-        names.str(""); names.clear();
-        // TOT
-        m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
-        names << "/histfile/TOT_endcapC/Layer" << (layer + 1) << "/" << onlineID;
-        m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
-        names.str(""); names.clear();
-        // noise map
-        if( m_calculateNoiseMaps ){
-          m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
-          names << "/histfile/noiseMaps_endcapC/Disk" << (layer + 1) << "/" << onlineID;
-          m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
-          names.str(""); names.clear();
-        }
-      } else if ( barrel == 4 ) { // DBM A
-        m_moduleHashList.push_back(moduleHash);
-        //tmp_onlineID = Form("LI_S15_A_" + phi2moduleID_DBM[module_phi] + "_A%d", phi2moduleNum_DBM[module_phi] + layer);
-        //onlineID = std::string(tmp_onlineID);
-        onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
-        std::ostringstream names;
-        // hitmap
-        m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 80, -0., 80., 336, 0., 336.);
-        names << "/histfile/hitMaps_DBMA/Layer" << (layer + 1) << "/" << onlineID;
-        m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
-        names.str(""); names.clear();
-        // LB dependence
-        m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
-        names << "/histfile/LBdep_DBMA/Layer" << (layer + 1) << "/" << onlineID;
-        m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
-        names.str(""); names.clear();
-        // BCID dependence
-        m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
-        names << "/histfile/BCIDdep_DBMA/Layer" << (layer + 1) << "/" <<onlineID;
-        m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
-        names.str(""); names.clear();
-        // TOT
-        m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
-        names << "/histfile/TOT_DBMA/Layer" << (layer + 1) << "/" << onlineID;
-        m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
-        names.str(""); names.clear();
-        // noise map
-        if( m_calculateNoiseMaps ){
-          m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 80, -0., 80., 336, 0., 336.);
-          names << "/histfile/noiseMaps_DBMA/Layer" << (layer + 1) << "/" << onlineID;
-          m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
-          names.str(""); names.clear();
-        }
-      } else if ( barrel == -4) { // DBM C
-        m_moduleHashList.push_back(moduleHash);
-        //tmp_onlineID = Form("LI_S15_C_" + phi2moduleID_DBM[module_phi] + "_C%d", phi2moduleNum_DBM[module_phi] + layer);
-        //onlineID = std::string(tmp_onlineID);
-        onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
-        std::ostringstream names;
-        // hitmap
-        m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 80, -0., 80., 336, 0., 336.);
-        names << "/histfile/hitMaps_DBMC/Layer" << (layer + 1) << "/" << onlineID;
-        m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
-        names.str(""); names.clear();
-        // LB dependence
+    if ( barrel == 0 ) { // barrel
+      if (layer == 0) { // IBL
+	m_moduleHashList.push_back(moduleHash);
+	
+	//tmp_onlineID = Form("LI_S%02d_",module_phi + 1) + eta2moduleID_IBL[module_eta];
+	//onlineID = std::string(tmp_onlineID);
+	onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
+	// hit map
+	m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 160, -0., 160., 336, 0., 336.);
+	names << "/histfile/hitMaps_barrel/IBL/" << onlineID;
+	m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
+	names.str(""); names.clear();
+	// LB dependence
 	m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
-        names << "/histfile/LBdep_DBMC/Layer" << (layer + 1) << "/" << onlineID;
-        m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
-        names.str(""); names.clear();
-        // BCID dependence
-        m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
-        names << "/histfile/BCIDdep_DBMC/Layer" << (layer + 1) << "/" <<onlineID;
-        m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
-        names.str(""); names.clear();
-        // TOT
-        m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
-        names << "/histfile/TOT_DBMC/Layer" << (layer + 1) << "/" << onlineID;
-        m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
-        names.str(""); names.clear();
-        // noise map
-        if( m_calculateNoiseMaps ){
-          m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 80, -0., 80., 336, 0., 336.);
-          names << "/histfile/noiseMaps_DBMC/Layer" << (layer + 1) << "/" << onlineID;
-          m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
-          names.str(""); names.clear();
-        }
+	names << "/histfile/LBdep_barrel/IBL/" << onlineID;
+	m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
+	names.str(""); names.clear();
+	// BCID dependence
+	m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
+	names << "/histfile/BCIDdep_barrel/IBL/" << onlineID;
+	m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
+	names.str(""); names.clear();
+	// TOT
+	m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 19, -0.5, 18.5);
+	names << "/histfile/TOT_barrel/IBL/" << onlineID;
+	m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
+	names.str(""); names.clear();
+	// noise map
+	if( m_calculateNoiseMaps ){
+	  m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 160, -0., 160., 336, 0., 336.);
+	  names << "/histfile/noiseMaps_barrel/IBL/" << onlineID;
+	  m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
+	  names.str(""); names.clear();
+	}
+      } else if (layer == 1) { // BLayer
+	m_moduleHashList.push_back(moduleHash);
+	
+	//tmp_onlineID = Form("L%d_",layer - 1) + phi2moduleID_BLayer[module_phi] + eta2moduleID_PixelBarrel[module_eta];
+	//onlineID = std::string(tmp_onlineID);
+	onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
+	// hit map
+	m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
+	names << "/histfile/hitMaps_barrel/B-layer/" << onlineID;
+	m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
+	names.str(""); names.clear();
+	// LB dependence
+	m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
+	names << "/histfile/LBdep_barrel/B-layer/" << onlineID;
+	m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
+	names.str(""); names.clear();
+	// BCID dependence
+	m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
+	names << "/histfile/BCIDdep_barrel/B-layer/" << onlineID;
+	m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
+	names.str(""); names.clear();
+	// TOT
+	m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
+	names << "/histfile/TOT_barrel/B-layer/" << onlineID;
+	m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
+	names.str(""); names.clear();
+	// noise map
+	if( m_calculateNoiseMaps ){
+	  m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
+	  names << "/histfile/noiseMaps_barrel/B-layer/" << onlineID;
+	  m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
+	  names.str(""); names.clear();
+	}
+      } else { // Layer-1,2
+	m_moduleHashList.push_back(moduleHash);
+	
+	//if(layer == 2) tmp_onlineID = Form("L%d_",layer - 1) + phi2moduleID_Layer1[module_phi] + eta2moduleID_PixelBarrel[module_eta];
+	//else if(layer == 3) tmp_onlineID = Form("L%d_",layer - 1) + phi2moduleID_Layer2[module_phi] + eta2moduleID_PixelBarrel[module_eta];
+	
+	//onlineID = std::string(tmp_onlineID);
+	onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
+	// hit map
+	m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
+	names << "/histfile/hitMaps_barrel/Layer" << layer - 1 << "/" << onlineID;
+	m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
+	names.str(""); names.clear();
+	// LB dependence
+	m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
+	names << "/histfile/LBdep_barrel/Layer" << layer - 1 << "/" << onlineID;
+	m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
+	names.str(""); names.clear();
+	// BCID dependence
+	m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
+	names << "/histfile/BCIDdep_barrel/Layer" << layer - 1 << "/" <<onlineID;
+	m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
+	names.str(""); names.clear();
+	// TOT
+	m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
+	names << "/histfile/TOT_barrel/Layer" << layer - 1 << "/" << onlineID;
+	m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
+	names.str(""); names.clear();
+	// noise map
+	if( m_calculateNoiseMaps ){
+	  m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
+	  names << "/histfile/noiseMaps_barrel/Layer" << layer - 1 << "/" << onlineID;
+	  m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
+	  names.str(""); names.clear();
+	}
       }
-    } // end if m_isIBL
+    } else if ( barrel == 2 ) { // ECA
+      m_moduleHashList.push_back(moduleHash);
+      
+      //tmp_onlineID = Form("D%dA_",layer + 1) + phi2moduleID_ECA[module_phi];
+      //onlineID = std::string(tmp_onlineID);
+      onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
+      // hitmap
+      m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
+      names << "/histfile/hitMaps_endcapA/Disk" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
+      names.str(""); names.clear();
+      // Lumi Block dependence
+      m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
+      names << "/histfile/LBdep_endcapA/Disk" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
+      names.str(""); names.clear();
+      // BCID dependence
+      m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
+      names << "/histfile/BCIDdep_endcapA/Layer" << (layer + 1) << "/" <<onlineID;
+      m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
+      names.str(""); names.clear();
+      // TOT
+      m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
+      names << "/histfile/TOT_endcapA/Layer" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
+      names.str(""); names.clear();
+      // noise map
+      if( m_calculateNoiseMaps ){
+	m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
+	names << "/histfile/noiseMaps_endcapA/Disk" << (layer + 1) << "/" << onlineID;
+	m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
+	names.str(""); names.clear();
+      }
+    } else if ( barrel == -2) { // ECC
+      m_moduleHashList.push_back(moduleHash);
+      
+      //tmp_onlineID = Form("D%dC_",layer + 1) + phi2moduleID_ECC[module_phi];
+      //onlineID = std::string(tmp_onlineID);
+      onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
+      std::ostringstream names;
+      // hitmap
+      m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
+      names << "/histfile/hitMaps_endcapC/Disk" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
+      names.str(""); names.clear();
+      // LB dependence
+      m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
+      names << "/histfile/LBdep_endcapC/Disk" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
+      names.str(""); names.clear();
+      // BCID dependence
+      m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
+      names << "/histfile/BCIDdep_endcapC/Layer" << (layer + 1) << "/" <<onlineID;
+      m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
+      names.str(""); names.clear();
+      // TOT
+      m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
+      names << "/histfile/TOT_endcapC/Layer" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
+      names.str(""); names.clear();
+      // noise map
+      if( m_calculateNoiseMaps ){
+	m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
+	names << "/histfile/noiseMaps_endcapC/Disk" << (layer + 1) << "/" << onlineID;
+	m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
+	names.str(""); names.clear();
+      }
+    } else if ( barrel == 4 ) { // DBM A
+      m_moduleHashList.push_back(moduleHash);
+      //tmp_onlineID = Form("LI_S15_A_" + phi2moduleID_DBM[module_phi] + "_A%d", phi2moduleNum_DBM[module_phi] + layer);
+      //onlineID = std::string(tmp_onlineID);
+      onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
+      std::ostringstream names;
+      // hitmap
+      m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 80, -0., 80., 336, 0., 336.);
+      names << "/histfile/hitMaps_DBMA/Layer" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
+      names.str(""); names.clear();
+      // LB dependence
+      m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
+      names << "/histfile/LBdep_DBMA/Layer" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
+      names.str(""); names.clear();
+      // BCID dependence
+      m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
+      names << "/histfile/BCIDdep_DBMA/Layer" << (layer + 1) << "/" <<onlineID;
+      m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
+      names.str(""); names.clear();
+      // TOT
+      m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
+      names << "/histfile/TOT_DBMA/Layer" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
+      names.str(""); names.clear();
+      // noise map
+      if( m_calculateNoiseMaps ){
+	m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 80, -0., 80., 336, 0., 336.);
+	names << "/histfile/noiseMaps_DBMA/Layer" << (layer + 1) << "/" << onlineID;
+	m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
+	names.str(""); names.clear();
+      }
+    } else if ( barrel == -4) { // DBM C
+      m_moduleHashList.push_back(moduleHash);
+      //tmp_onlineID = Form("LI_S15_C_" + phi2moduleID_DBM[module_phi] + "_C%d", phi2moduleNum_DBM[module_phi] + layer);
+      //onlineID = std::string(tmp_onlineID);
+      onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
+      std::ostringstream names;
+      // hitmap
+      m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 80, -0., 80., 336, 0., 336.);
+      names << "/histfile/hitMaps_DBMC/Layer" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
+      names.str(""); names.clear();
+      // LB dependence
+      m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
+      names << "/histfile/LBdep_DBMC/Layer" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
+      names.str(""); names.clear();
+      // BCID dependence
+      m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
+      names << "/histfile/BCIDdep_DBMC/Layer" << (layer + 1) << "/" <<onlineID;
+      m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
+      names.str(""); names.clear();
+      // TOT
+      m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
+      names << "/histfile/TOT_DBMC/Layer" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
+      names.str(""); names.clear();
+      // noise map
+      if( m_calculateNoiseMaps ){
+	m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 80, -0., 80., 336, 0., 336.);
+	names << "/histfile/noiseMaps_DBMC/Layer" << (layer + 1) << "/" << onlineID;
+	m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
+	names.str(""); names.clear();
+      }
+    }
   } // end for loop
-
+  
   m_disabledModules = new TH1D("DisabledModules", "Number of events disabled vs. IdentifierHash", 2048, 0, 2048);
   m_tHistSvc->regHist("/histfile/DisabledModules", m_disabledModules).setChecked();
   
@@ -630,12 +611,11 @@ StatusCode NoiseMapBuilder::registerHistograms(){
     
     m_overlayedIBLDCNoiseMap = new TH2D("overlayedIBLDCNoiseMap", "Noisy pixel map overlayed all IBL Planar modules", 160, -0., 160., 336, 0., 336.);
     m_overlayedIBLSCNoiseMap = new TH2D("overlayedIBLSCNoiseMap", "Noisy pixel map overlayed all IBL 3D modules", 80, -0., 80., 336, 0., 336.);
-    if (m_isIBL) {
-      m_tHistSvc->regHist("/histfile/overlayedIBLDCNoiseMap", m_overlayedIBLDCNoiseMap).setChecked();
-      m_tHistSvc->regHist("/histfile/overlayedIBLSCNoiseMap", m_overlayedIBLSCNoiseMap).setChecked();
-    }
+    
+    m_tHistSvc->regHist("/histfile/overlayedIBLDCNoiseMap", m_overlayedIBLDCNoiseMap).setChecked();
+    m_tHistSvc->regHist("/histfile/overlayedIBLSCNoiseMap", m_overlayedIBLSCNoiseMap).setChecked();
   }  
-
+  
   return StatusCode::SUCCESS;
 }
 
@@ -1027,12 +1007,12 @@ StatusCode NoiseMapBuilder::finalize() {
   components.push_back("Disk1C");
   components.push_back("Disk2C");
   components.push_back("Disk3C");
-  if (m_isIBL) components.push_back("IBL"); // ----- IBL ----- //
+  components.push_back("IBL"); 
   components.push_back("B-layer");
   components.push_back("Layer1");
   components.push_back("Layer2");
-  if (m_isIBL) components.push_back("DBMA");
-  if (m_isIBL) components.push_back("DBMC");
+  components.push_back("DBMA");
+  components.push_back("DBMC");
 
   std::vector<std::string> types;
   types.push_back("Normal");
@@ -1137,7 +1117,6 @@ StatusCode NoiseMapBuilder::finalize() {
   InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax;
   itermin = m_pixman->getDetectorElementBegin();
   itermax = m_pixman->getDetectorElementEnd();
-  if(m_pixelID->wafer_hash_max() > 1744) m_isIBL = true; // #modules only Pixel is 1744
   //for(unsigned int moduleHash = 0; moduleHash < m_pixelID->wafer_hash_max(); moduleHash++)
   //for(std::vector<int>::iterator it = m_moduleHashList.begin(); it != m_moduleHashList.end(); ++it)
   for( iter = itermin; iter != itermax; ++iter)
@@ -1207,48 +1186,30 @@ StatusCode NoiseMapBuilder::finalize() {
       {
         cut = m_dbmCut; component = "DBMC";
       }
-    } else if ( barrel == 0 ) { // if barrel
-      if (m_isIBL) { // ----- IBL ----- //
-        if(layer == 0){
-          cut = m_iblCut;
-          nhitsNoNoisePlot = nhitsNoNoisePlotBI;
-          component = "IBL";
-        }
-        else if(layer == 1) { // CAUTION: layer #1 = BLayer since IBL installed
-          cut = m_bLayerCut;
-          nhitsNoNoisePlot = nhitsNoNoisePlotB0; // kazuki
-          component = "B-layer";
-        }
-        else if(layer == 2) {
-          cut = m_layer1Cut;
-          nhitsNoNoisePlot = nhitsNoNoisePlotB1; // kazuki
-          component = "Layer1";
-        }
-        else if(layer == 3) {
-          cut = m_layer2Cut;
-          nhitsNoNoisePlot = nhitsNoNoisePlotB2; // kazuki
-          component = "Layer2";
-        }
-      } else { // only Pixel
-        if(layer == 0){
-          cut = m_bLayerCut;
-          nhitsNoNoisePlot = nhitsNoNoisePlotB0; // kazuki
-          component = "B-layer";
-        }
-        else if(layer == 1) {
-          cut = m_layer1Cut;
-          nhitsNoNoisePlot = nhitsNoNoisePlotB1; // kazuki
-          component = "Layer1";
-        }
-        else if(layer == 2) {
-          cut = m_layer2Cut;
-          nhitsNoNoisePlot = nhitsNoNoisePlotB2; // kazuki
-          component = "Layer2";
-        }
-        else continue;
+    } 
+    else if ( barrel == 0 ) { // if barrel
+      if(layer == 0){
+	cut = m_iblCut;
+	nhitsNoNoisePlot = nhitsNoNoisePlotBI;
+	component = "IBL";
       }
+      else if(layer == 1) { // CAUTION: layer #1 = BLayer since IBL installed
+	cut = m_bLayerCut;
+	nhitsNoNoisePlot = nhitsNoNoisePlotB0; // kazuki
+	component = "B-layer";
+      }
+      else if(layer == 2) {
+	cut = m_layer1Cut;
+	nhitsNoNoisePlot = nhitsNoNoisePlotB1; // kazuki
+	component = "Layer1";
+      }
+      else if(layer == 3) {
+	cut = m_layer2Cut;
+	nhitsNoNoisePlot = nhitsNoNoisePlotB2; // kazuki
+	component = "Layer2";
+      } 
     }
-
+    
     //if(moduleHash == 0 || moduleHash == 1000) std::cout << "debug point 8: " << moduleHash << std::endl;
 
     if( m_BSErrorsSvc->getReadEvents(moduleHash)==0 && m_hitMaps[moduleHash]->GetEntries()==0 ) // original
@@ -1257,7 +1218,7 @@ StatusCode NoiseMapBuilder::finalize() {
 
       //if(moduleHash == 0 || moduleHash == 1000) std::cout << "debug point 9: " << moduleHash << std::endl;
 
-      if (!m_isIBL) {
+      /*      if (!m_isIBL) {
         unsigned int hashID = ( ((m_pixelID->barrel_ec(ident) + 2) / 2) << 25 ) +
           ( m_pixelID->layer_disk(ident) << 23) +
           ( m_pixelID->phi_module(ident) << 17) +
@@ -1266,71 +1227,45 @@ StatusCode NoiseMapBuilder::finalize() {
             << PixelConvert::OnlineID(hashID) << "\t"
             << PixelConvert::DCSID(PixelConvert::OnlineID(hashID)) );
       }
+      */
 
       //if(moduleHash == 0 || moduleHash == 1000) std::cout << "debug point 10: " << moduleHash << std::endl;
 
       if (barrel== 0) {
-        if (m_isIBL) { // ----- IBL ----- //
-          if(layer == 0){
-            disablePlotBI->Fill(module_eta,module_phi,-1);
-          }
-          else if(layer == 1) { // CAUTION: layer #1 = BLayer since IBL installed
-            disablePlotB0->Fill(module_eta,module_phi,-1);
-          }
-          else if(layer == 2) {
-            disablePlotB1->Fill(module_eta,module_phi,-1);
-          }
-          else if(layer == 3) {
-            disablePlotB2->Fill(module_eta,module_phi,-1);
-          }
-        }
-        else {
-          if(layer == 0){
-            disablePlotB0->Fill(module_eta,module_phi,-1);
-          }
-          else if(layer == 1) {
-            disablePlotB1->Fill(module_eta,module_phi,-1);
-          }
-          else if(layer == 2) {
-            disablePlotB2->Fill(module_eta,module_phi,-1);
-          }
-        }
+	if(layer == 0){
+	  disablePlotBI->Fill(module_eta,module_phi,-1);
+	}
+	else if(layer == 1) { // CAUTION: layer #1 = BLayer since IBL installed
+	  disablePlotB0->Fill(module_eta,module_phi,-1);
+	}
+	else if(layer == 2) {
+	  disablePlotB1->Fill(module_eta,module_phi,-1);
+	}
+	else if(layer == 3) {
+	  disablePlotB2->Fill(module_eta,module_phi,-1);
+	}        
       }
       else if (barrel== 2) { disablePlotEC->Fill(layer+1,module_phi,-1); }
       else if (barrel==-2) { disablePlotEC->Fill(-(layer+1),module_phi,-1); }
       else if (barrel== 4) { disablePlotDBM->Fill(layer+1,module_phi,-1); }
       else if (barrel==-4) { disablePlotDBM->Fill(-(layer+1),module_phi,-1); }
       totalDisabledModules++;
-
       continue;
     }
     else if( m_hitMaps[moduleHash]->GetEntries() != 0 ) ///////////////////////////////////////////////////////////////////////////////
     {
       if (barrel== 0) {
-        if (m_isIBL) { // ----- IBL ----- //
-          if(layer == 0){
-            nhitsPlotBI->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
-          }
-          else if(layer == 1) { // CAUTION: layer #1 = BLayer since IBL installed
-            nhitsPlotB0->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
-          }
-          else if(layer == 2) {
-            nhitsPlotB1->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
-          }
-          else if(layer == 3) {
-            nhitsPlotB2->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
-          }
-        }
-        else {
-          if(layer == 0){
-            nhitsPlotB0->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
-          }
-          else if(layer == 1) {
-            nhitsPlotB1->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
-          }
-          else if(layer == 2) {
-            nhitsPlotB2->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
-          }
+	if(layer == 0){
+	  nhitsPlotBI->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
+	}
+	else if(layer == 1) { // CAUTION: layer #1 = BLayer since IBL installed
+	  nhitsPlotB0->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
+	}
+	else if(layer == 2) {
+	  nhitsPlotB1->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
+	}
+	else if(layer == 3) {
+	  nhitsPlotB2->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());    
         }
       }
       else if (barrel== 2) {
@@ -1345,25 +1280,24 @@ StatusCode NoiseMapBuilder::finalize() {
       else if (barrel==-4) { 
         nhitsPlotDBM->Fill(-(layer+1),module_phi,m_hitMaps[moduleHash]->GetEntries());
       }
-
       modulesWithHits++;
     }
 
     //if(moduleHash == 0 || moduleHash == 1000) std::cout << "debug point 11: " << moduleHash << std::endl;
 
     int thisModuleCut = 0;
-    bool isIBL3D = ( m_isIBL && barrel == 0 && layer == 0 && (module_eta <= -7 || module_eta >= 6) ) ? true : false;
+    bool isIBL3D = ( barrel == 0 && layer == 0 && (module_eta <= -7 || module_eta >= 6) ) ? true : false;
 
     for(int pixel_eta = 0; pixel_eta <= eta_max; pixel_eta++){
       for(int pixel_phi = 0; pixel_phi <= phi_max; pixel_phi++){
 
         // kazuki added from here
-        int pixel_eta_on_chip = (m_isIBL && barrel == 0 && layer == 0) ? pixel_eta % 80 : pixel_eta % 18; // column
+        int pixel_eta_on_chip = (barrel == 0 && layer == 0) ? pixel_eta % 80 : pixel_eta % 18; // column
         int pixel_phi_on_chip = (pixel_phi <= 163) ? pixel_phi : 327 - pixel_phi; // eta
-        if (m_isIBL && barrel == 0 && layer == 0) pixel_phi_on_chip = pixel_phi;
+        if (barrel == 0 && layer == 0) pixel_phi_on_chip = pixel_phi;
         int pixelType = 0;
 
-        if (m_isIBL && barrel == 0 && layer == 0) { // ----- IBL ----- //
+        if (barrel == 0 && layer == 0) { // ----- IBL ----- //
           if( !isIBL3D && (pixel_eta_on_chip == 0 || pixel_eta_on_chip == 80 - 1) ){
             pixelType = 1; // long
           }
@@ -1461,7 +1395,7 @@ StatusCode NoiseMapBuilder::finalize() {
 
             if( m_calculateNoiseMaps ){
               m_noiseMaps[moduleHash]->Fill(pixel_eta, pixel_phi);
-              if (m_isIBL && component == "IBL") {
+              if (component == "IBL") {
                 if (module_eta >= -6 && module_eta <= 5) m_overlayedIBLDCNoiseMap->Fill(pixel_eta, pixel_phi); // Planar
                 if (module_eta <= -7 || module_eta >= 6) m_overlayedIBLSCNoiseMap->Fill(pixel_eta, pixel_phi); // 3D
               }
@@ -1479,38 +1413,22 @@ StatusCode NoiseMapBuilder::finalize() {
       maskedPlot->Fill( static_cast<double>(thisModuleCut) );
       modulesWithDisabledPixels++;
    
-      if      (barrel== 0) {
-        if (m_isIBL) { // ----- IBL ----- //
-          if(layer == 0){
-            disablePlotBI->Fill(module_eta,module_phi,thisModuleCut);
-          }
-          else if(layer == 1) { // CAUTION: layer #1 = BLayer since IBL installed
-            disablePlotB0->Fill(module_eta,module_phi,thisModuleCut);
-          }
-          else if(layer == 2) {
-            disablePlotB1->Fill(module_eta,module_phi,thisModuleCut);
-          }
-          else if(layer == 3) {
-            disablePlotB2->Fill(module_eta,module_phi,thisModuleCut);
-          }
-        }
-        else {
-          if(layer == 0){
-            disablePlotB0->Fill(module_eta,module_phi,thisModuleCut);
-          }
-          else if(layer == 1) {
-            disablePlotB1->Fill(module_eta,module_phi,thisModuleCut);
-          }
-          else if(layer == 2) {
-            disablePlotB2->Fill(module_eta,module_phi,thisModuleCut);
-          }
+      if(barrel== 0) {
+	if(layer == 0){
+	  disablePlotBI->Fill(module_eta,module_phi,thisModuleCut);
+	}
+	else if(layer == 1) { // CAUTION: layer #1 = BLayer since IBL installed
+	  disablePlotB0->Fill(module_eta,module_phi,thisModuleCut);
+	}
+	else if(layer == 2) {
+	  disablePlotB1->Fill(module_eta,module_phi,thisModuleCut);
+	}
+	else if(layer == 3) {
+	  disablePlotB2->Fill(module_eta,module_phi,thisModuleCut);
         }
       }
       else if (barrel== 2) { disablePlotEC->Fill(layer+1,module_phi,thisModuleCut); }
       else if (barrel==-2) { disablePlotEC->Fill(-(layer+1),module_phi,thisModuleCut); }
-
-   
-   
     }
     //if(moduleHash == 0 || moduleHash == 1000) std::cout << "debug point 14: " << moduleHash << std::endl;
   } // end for loop on moduleHash

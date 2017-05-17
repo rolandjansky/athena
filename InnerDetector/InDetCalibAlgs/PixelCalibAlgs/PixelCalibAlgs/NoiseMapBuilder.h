@@ -90,7 +90,6 @@ class NoiseMapBuilder: public AthAlgorithm {
   const PixelID *m_pixelID;
 
   std::string m_pixelRDOKey;  
-  bool m_isIBL; 
   std::vector<int> m_moduleHashList;
   
   double m_nEvents;
