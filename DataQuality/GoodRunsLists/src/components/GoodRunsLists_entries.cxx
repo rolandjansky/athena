@@ -9,4 +9,3 @@ DECLARE_COMPONENT( TriggerRegistryTool )
 
 #include "../GRLSelectorAlg.h"
 DECLARE_COMPONENT( GRLSelectorAlg )
-
