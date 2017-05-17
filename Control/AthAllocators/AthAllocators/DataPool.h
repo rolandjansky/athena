@@ -14,6 +14,10 @@
  * classes.  However, declaring @c DataPool instances as static will
  * cause thread-safety problems, and thus should no longer be done.
  *
+ * Be aware that a DataPool holds a lock on the underlying allocator.
+ * Therefore, if you try to create two pool instances referencing
+ * the same allocator (i.e, same type and same thread), you'll get a deadlock.
+ *
  * @author Srini Rajagopalan - ATLAS Collaboration
  *$Id: DataPool.h 470529 2011-11-24 23:54:22Z ssnyder $	
  */

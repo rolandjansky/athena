@@ -108,18 +108,16 @@ protected:
   
   /**
    * @brief Find the index for creating an allocator.
+   * @params Pointer to the supplied parameters.
+   *         If null, use the result of DEFPARAMS().
    *
    * We look up in the registry the Allocator name we get from @c params
    * (if this is blank, a name is derived from @c ALLOC).
    * If not found, then we register Allocator and return the new index.
    */
-  template <class HANDLE>
-  static
-  size_t makeIndex (const typename ALLOC::Params& params);
-
   template <class HANDLE, class DEFPARAMS>
   static
-  size_t makeIndex1 (const typename ALLOC::Params* params);
+  size_t makeIndex (const typename ALLOC::Params* params);
 
 private:
   /**
