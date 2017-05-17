@@ -25,6 +25,11 @@ def defineMenu():
         'L1_RD2_BGRP14', 'L1_RD3_BGRP15',
         ]
 
+   #Make sure these triggers don't get assigned random CTPIDs
+    Lvl1Flags.CtpIdMap().update({
+        'L1_RD2_BGRP14' : 463,
+        'L1_RD3_BGRP15' : 464,
+    })
 
     #---------------------------------
     # L1menu in MCppV5 is basis 
@@ -119,7 +124,7 @@ def defineMenu():
 #        "L1_EM12_W-MT35":'', 
 #        "L1_EM12_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EMXE":'', 
 #        "L1_EM12_W-MT35_XS50":'',
-        'L1_EM12_W-MT35_W-90RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EMX':'',
+#        'L1_EM12_W-MT35_W-90RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EMX':'',
 #        "L1_EM12_W-MT35_W-90RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EMXE":'',
 #        "L1_EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE":'',
 #        "L1_EM15_W-MT35_XS40_W-15DPHI-JXE-0_W-15DPHI-EM15XE":'', 
@@ -152,7 +157,7 @@ def defineMenu():
 
 #        'L1_HT150-J20s5.ETA31_MJJ-400':'',
 #        'L1_HT150-J20s5.ETA31_MJJ-400-CF':'',
-        'L1_J40.0ETA25_2J30_J20.31ETA49':'',
+#        'L1_J40.0ETA25_2J30_J20.31ETA49':'',
 #        'L1_EM22VHI' : 'L1_EM20A' , #eta [1.6,2.].
 #        'L1_EM13VH'    : 'L1_EM20C',     #eta[-2,-1.6] 
 #        'L1_J75'       : 'L1_J75A',         #[1.6,2.4]
