@@ -40,13 +40,6 @@ namespace TrigTauEmul {
     m_name_parser = new Parser(name + "_ChainParser");
     m_l1orl_tool = new TrigTauORLTool(name + "_orl_tool");
     m_l1topo_tool = new Level1TopoSelectionTool(name + "_topo_tool");
-
-    // This is a fallback initialization mostly meant for athena running - in RootCore, TriggerValidation does this already
-    if(Utils::toolStoreContains<ToolsRegistry>("ToolsRegistry")) {
-      m_registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
-    } else {
-      m_registry = new ToolsRegistry("ToolsRegistry");
-    } 
   }
 
   // Copy constructor
@@ -85,6 +78,13 @@ namespace TrigTauEmul {
 
   // Initialize
   StatusCode Level1EmulationTool::initialize() {
+    // This is a fallback initialization mostly meant for athena running - in RootCore, TriggerValidation does this already
+    if(Utils::toolStoreContains<ToolsRegistry>("ToolsRegistry")) {
+      m_registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
+    } else {
+      m_registry = new ToolsRegistry("ToolsRegistry");
+    } 
+
     // initialize parser
     ATH_CHECK(m_name_parser->initialize());
     m_name_parser->msg().setLevel(this->msg().level());
@@ -206,19 +206,19 @@ namespace TrigTauEmul {
   // Event calculate -- The meaty part of this algorithm
   // I'm gonna try to keep it as small as possible
   // and write the actual implementations elsewhere but ...
-  StatusCode Level1EmulationTool::calculate(const xAOD::EmTauRoIContainer* _l1taus, 
-      const xAOD::JetRoIContainer* _l1jets,
-      const xAOD::MuonRoIContainer* _l1muons,
-      const xAOD::EnergySumRoI* _l1xe)
+  StatusCode Level1EmulationTool::calculate(const xAOD::EmTauRoIContainer* l1taus_in, 
+      const xAOD::JetRoIContainer* l1jets_in,
+      const xAOD::MuonRoIContainer* l1muons_in,
+      const xAOD::EnergySumRoI* l1xe_in)
   {
     // Reset the counters to 0;
     reset_counters();
     //auto registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
       
-    const xAOD::EmTauRoIContainer* l1taus = _l1taus; 
-    const xAOD::JetRoIContainer* l1jets = _l1jets; 
-    const xAOD::MuonRoIContainer* l1muons = _l1muons;
-    const xAOD::EnergySumRoI* l1xe = _l1xe;
+    const xAOD::EmTauRoIContainer* l1taus = l1taus_in; 
+    const xAOD::JetRoIContainer* l1jets = l1jets_in; 
+    const xAOD::MuonRoIContainer* l1muons = l1muons_in;
+    const xAOD::EnergySumRoI* l1xe = l1xe_in;
 
     xAOD::ShallowAuxContainer* l1taus_aux = nullptr; 
     xAOD::ShallowAuxContainer* l1jets_aux = nullptr; 
@@ -227,19 +227,19 @@ namespace TrigTauEmul {
 
     // Build some shallow copies if needed
     if(m_useShallowCopies) { 
-      std::pair<xAOD::EmTauRoIContainer*, xAOD::ShallowAuxContainer*> taus_copy = xAOD::shallowCopyContainer(*_l1taus);
+      std::pair<xAOD::EmTauRoIContainer*, xAOD::ShallowAuxContainer*> taus_copy = xAOD::shallowCopyContainer(*l1taus_in);
       l1taus = taus_copy.first;
       l1taus_aux = taus_copy.second;
       
-      std::pair<xAOD::JetRoIContainer*, xAOD::ShallowAuxContainer*> jets_copy = xAOD::shallowCopyContainer(*_l1jets);
+      std::pair<xAOD::JetRoIContainer*, xAOD::ShallowAuxContainer*> jets_copy = xAOD::shallowCopyContainer(*l1jets_in);
       l1jets = jets_copy.first;
       l1jets_aux = jets_copy.second;
 
-      std::pair<xAOD::MuonRoIContainer*, xAOD::ShallowAuxContainer*> muons_copy = xAOD::shallowCopyContainer(*_l1muons);
+      std::pair<xAOD::MuonRoIContainer*, xAOD::ShallowAuxContainer*> muons_copy = xAOD::shallowCopyContainer(*l1muons_in);
       l1muons = muons_copy.first;
       l1muons_aux = muons_copy.second;
       
-      std::pair<xAOD::EnergySumRoI*, xAOD::ShallowAuxInfo*> xe_copy = xAOD::shallowCopyObject(*_l1xe);
+      std::pair<xAOD::EnergySumRoI*, xAOD::ShallowAuxInfo*> xe_copy = xAOD::shallowCopyObject(*l1xe_in);
       l1xe = xe_copy.first;
       l1xe_aux = xe_copy.second;
     }
