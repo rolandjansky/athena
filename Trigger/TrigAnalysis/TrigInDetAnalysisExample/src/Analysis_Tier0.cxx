@@ -1,4 +1,4 @@
-/** @file Analysis_Tier0.cxx */
+/** @file    Analysis_Tier0.cxx
 
 #include <cmath>
 
@@ -9,7 +9,7 @@
 
 
 Analysis_Tier0::Analysis_Tier0(const std::string& name, double pTCut, double etaCut, double d0Cut, double z0Cut) :
-  TrackAnalysis(name), m_pTCut(pTCut), m_etaCut(etaCut), m_d0Cut(d0Cut), m_z0Cut(z0Cut), m_debug(false) 
+  TrackAnalysis(name), m_pTCut(pTCut), m_etaCut(etaCut), m_d0Cut(d0Cut), m_z0Cut(z0Cut), m_debug(false), m_eventid(0) 
 {  }
 
 
@@ -30,8 +30,14 @@ void Analysis_Tier0::initialise() {
 
   m_debug = false;
 
-  h_chain = new TH1F( "Chain", cname.c_str(), 1, 0, 1 );
+  h_chain = new TH1F( "Chain", cname.c_str(), 5, 0, 5 );
+  h_chain->GetXaxis()->SetBinLabel(1, "Nrois" );
+  h_chain->GetXaxis()->SetBinLabel(2, "Nevents" );
+  h_chain->GetXaxis()->SetBinLabel(3, "N ref tracks" );
+  h_chain->GetXaxis()->SetBinLabel(4, "N matched tracks" );
+  h_chain->GetXaxis()->SetBinLabel(5, "" ); //  spare
 
+ 
   /// archive the chain name
 
   addHistogram(h_chain);
@@ -358,9 +364,16 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
   std::vector<TIDA::Track*>::const_iterator  reference    = referenceTracks.begin();
   std::vector<TIDA::Track*>::const_iterator  referenceEnd = referenceTracks.end();
 
-  /// fill number of times this analysis was called - presumably the number 
-  /// of passed events for this chain 
-  h_chain->Fill( 0.5 ) ;
+  /// fill number of times this analysis was called - presumably 
+  /// the number of passed RoIs for this chain 
+  h_chain->Fill( 0.5 );
+
+  if ( m_eventid != event()->event_number() ) { 
+    /// if the event number has changed, this is a new event
+    /// so update the event counts
+    m_eventid = event()->event_number(); 
+    h_chain->Fill( 1.5 );
+  }
 
   h_ntrk->Fill( referenceTracks.size() );
   h_ntrk_rec->Fill( testTracks.size() );
@@ -429,8 +442,12 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
     h_d0vsphi->Fill(referencePhi, referenceD0 );
     //   h2d_d0vsphi->Fill(referencePhi, referenceD0 );
 
+    h_chain->Fill(2.5);
+
 
     if(test){
+
+      h_chain->Fill(3.5);
 
       /// NB: do we want to fill the actual *trigger* quantities, or the 
       /// offline quantities for the *matched* tracks?
