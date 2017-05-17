@@ -63,6 +63,34 @@ void SelectionCut::fillHistogramCut(const xAOD::TauJet& xTau)
   fillHistogram(xTau, *m_hHistCut);
 }
 
+
+//______________________________________________________________________________
+void SelectionCut::setProperty(const std::string& name, const std::string& value)
+{
+  std::map<std::string, std::string&>::iterator it = m_mProperties.find(name);
+  if(it == m_mProperties.end() )
+    throw std::runtime_error (("Undeclared property: " + name + "\n").c_str());
+  it->second = value;
+}
+
+//______________________________________________________________________________
+void SelectionCut::declareProperty(const std::string& name, std::string& loc)
+{
+  std::pair<std::string, std::string&> p(name, loc);
+  m_mProperties.insert(p);
+}
+
+//______________________________________________________________________________
+std::string SelectionCut::getProperty(const std::string& name)
+{
+  std::map<std::string, std::string&>::iterator it = m_mProperties.find(name);
+  if(it == m_mProperties.end() )
+    throw std::runtime_error (("Undeclared property: " + name + "\n").c_str());
+
+  return it->second;
+}
+
+
 //_______________________________SelectionCutPt_________________________________
 //______________________________________________________________________________
 SelectionCutPt::SelectionCutPt(TauSelectionTool* tTST)
@@ -313,6 +341,20 @@ bool SelectionCutJetIDWP::accept(const xAOD::TauJet& xTau)
   default:
     m_tTST->msg() << MSG::WARNING << "The jet ID working point with the enum "<<m_tTST->m_iJetIDWP<<" is not available" << endmsg;
     break;
+// #ifdef XAODTAU_VERSIONS_TAUJET_V3_H
+//   case JETIDBDTVERYLOOSE:
+//     if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigVeryLoose)) bPass = true;
+//     break;
+//   case JETBDTBKGLOOSE:
+//     if (xTau.isTau(xAOD::TauJetParameters::JetBDTBkgLoose)) bPass = true;
+//     break;
+//   case JETBDTBKGMEDIUM:
+//     if (xTau.isTau(xAOD::TauJetParameters::JetBDTBkgMedium)) bPass = true;
+//     break;
+//   case JETBDTBKGTIGHT:
+//     if (xTau.isTau(xAOD::TauJetParameters::JetBDTBkgTight)) bPass = true;
+//     break;
+// #endif
   }
   if (bPass)
   {
@@ -330,12 +372,19 @@ SelectionCutBDTEleScore::SelectionCutBDTEleScore(TauSelectionTool* tTST)
 {
   m_hHistCutPre = CreateControlPlot("hEleBDT_pre","EleBDT_pre;BDTEleScore; events",100,0,1);
   m_hHistCut = CreateControlPlot("hEleBDT_cut","EleBDT_cut;BDTEleScore; events",100,0,1);
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+  m_sEleBDTDecorationName = "BDTEleScoreTrans_run2";
+#else
+  m_sEleBDTDecorationName = "BDTEleScoreSigTrans";
+#endif
+
 }
 
 //______________________________________________________________________________
 void SelectionCutBDTEleScore::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 {
-  hHist.Fill(xTau.discriminant(xAOD::TauJetParameters::BDTEleScore));
+  SG::AuxElement::ConstAccessor<float> accEleBDT(m_sEleBDTDecorationName);
+  hHist.Fill(accEleBDT(xTau));
 }
 
 //______________________________________________________________________________
@@ -344,17 +393,18 @@ bool SelectionCutBDTEleScore::accept(const xAOD::TauJet& xTau)
   // check EleBDTscore, if tau has a EleBDT score in one of the regions requiered then return true; false otherwise
   m_tTST->m_aAccept.addCut( "EleBDTScore",
                             "Selection of taus according to their EleBDTScore" );
-  double dEleBDTScore = xTau.discriminant(xAOD::TauJetParameters::BDTEleScore);
+  SG::AuxElement::ConstAccessor<float> accEleBDT(m_sEleBDTDecorationName);
+  float fEleBDTScore = accEleBDT(xTau);
   unsigned int iNumEleBDTRegion = m_tTST->m_vEleBDTRegion.size()/2;
   for( unsigned int iEleBDTRegion = 0; iEleBDTRegion < iNumEleBDTRegion; iEleBDTRegion++ )
   {
-    if ( dEleBDTScore >= m_tTST->m_vEleBDTRegion.at(iEleBDTRegion*2) and dEleBDTScore <= m_tTST->m_vEleBDTRegion.at(iEleBDTRegion*2+1))
+    if ( fEleBDTScore >= m_tTST->m_vEleBDTRegion.at(iEleBDTRegion*2) and fEleBDTScore <= m_tTST->m_vEleBDTRegion.at(iEleBDTRegion*2+1))
     {
-      m_tTST->m_aAccept.setCutResult( "EleBDTScore", true );
+      m_tTST->m_aAccept.setCutResult("EleBDTScore", true );
       return true;
     }
   }
-  m_tTST->msg() << MSG::VERBOSE << "Tau failed EleBDTScore requirement, tau EleBDTScore: " << dEleBDTScore << endmsg;
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed EleBDTScore requirement, tau EleBDTScore: " << fEleBDTScore << endmsg;
   return false;
 }
 
@@ -363,6 +413,11 @@ bool SelectionCutBDTEleScore::accept(const xAOD::TauJet& xTau)
 SelectionCutEleBDTWP::SelectionCutEleBDTWP(TauSelectionTool* tTST)
   : SelectionCut("CutEleBDTWP", tTST)
 {
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+  m_sEleBDTDecorationName = "BDTEleScoreTrans_run2";
+#else
+  m_sEleBDTDecorationName = "BDTEleScoreSigTrans";
+#endif
   m_hHistCutPre = CreateControlPlot("hEleBDTWP_pre","EleBDTWP_pre;; events",6,-.5,5.5);
   m_hHistCut = CreateControlPlot("hEleBDTWP_cut","EleBDTWP_cut;; events",6,-.5,5.5);
   // only proceed if histograms are defined
@@ -385,14 +440,11 @@ SelectionCutEleBDTWP::SelectionCutEleBDTWP(TauSelectionTool* tTST)
 //______________________________________________________________________________
 void SelectionCutEleBDTWP::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 {
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-  hHist.Fill(!xTau.isTau(xAOD::TauJetParameters::ElectronVetoLoose));
-  hHist.Fill(!xTau.isTau(xAOD::TauJetParameters::ElectronVetoMedium)+2);
-  hHist.Fill(!xTau.isTau(xAOD::TauJetParameters::ElectronVetoTight)+4);
-#else
-  (void)xTau;
-  (void)hHist;
-#endif
+  SG::AuxElement::ConstAccessor<float> accEleBDT(m_sEleBDTDecorationName);
+  float fEleBDTScore = accEleBDT(xTau);
+
+  hHist.Fill(fEleBDTScore>0.05);
+  hHist.Fill((fEleBDTScore>0.15)+2);
 }
 
 //______________________________________________________________________________
@@ -401,6 +453,10 @@ bool SelectionCutEleBDTWP::accept(const xAOD::TauJet& xTau)
   // check EleBDTscore, if tau passes EleBDT working point then return true; false otherwise
   m_tTST->m_aAccept.addCut( "EleBDTWP",
                             "Selection of taus according to their EleBDTScore" );
+
+  SG::AuxElement::ConstAccessor<float> accEleBDT(m_sEleBDTDecorationName);
+  float fEleBDTScore = accEleBDT(xTau);
+
   bool bPass = false;
   switch (m_tTST->m_iEleBDTWP)
   {
@@ -411,13 +467,10 @@ bool SelectionCutEleBDTWP::accept(const xAOD::TauJet& xTau)
     bPass = true;
     break;
   case ELEIDBDTLOOSE:
-    if (!xTau.isTau(xAOD::TauJetParameters::EleBDTLoose )) bPass = true;
+    if (fEleBDTScore > 0.05) bPass = true;
     break;
   case ELEIDBDTMEDIUM:
-    if (!xTau.isTau(xAOD::TauJetParameters::EleBDTMedium )) bPass = true;
-    break;
-  case ELEIDBDTTIGHT:
-    if (!xTau.isTau(xAOD::TauJetParameters::EleBDTTight )) bPass = true;
+    if (fEleBDTScore > 0.15) bPass = true;
     break;
   default:
     m_tTST->msg() << MSG::WARNING << "The electron ID working point with the enum "<<m_tTST->m_iJetIDWP<<" is not available" << endmsg;
@@ -428,7 +481,7 @@ bool SelectionCutEleBDTWP::accept(const xAOD::TauJet& xTau)
     m_tTST->m_aAccept.setCutResult( "EleBDTWP", true );
     return true;
   }
-  m_tTST->msg() << MSG::VERBOSE << "Tau failed EleBDT requirement, tau EleBDTScore: " << xTau.discriminant(xAOD::TauJetParameters::BDTEleScore) << endmsg;
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed EleBDT requirement, tau EleBDTScore: " << fEleBDTScore << endmsg;
   return false;
 }
 
@@ -436,27 +489,20 @@ bool SelectionCutEleBDTWP::accept(const xAOD::TauJet& xTau)
 //______________________________________________________________________________
 SelectionCutEleOLR::SelectionCutEleOLR(TauSelectionTool* tTST)
   : SelectionCut("CutEleOLR", tTST)
-  , m_tTOELLHDecorator(0)
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
   , m_bCheckEleMatchPassAvailable(true)
   , m_bEleMatchPassAvailable(true)
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-  , m_sEleOlrLhScoreDecorationName("ele_match_lhscore")
-#else
-  , m_sEleOlrLhScoreDecorationName("EleMatchLikelihoodScore")
-#endif
+#endif // not XAODTAU_VERSIONS_TAUJET_V3_H
 
 {
+  declareProperty( "EleOlrPassDecorationName", m_sEleOlrPassDecorationName = "ele_olr_pass_fix");
+  declareProperty( "EleOlrLhScoreDecorationName", m_sEleOlrLhScoreDecorationName = "ele_match_lhscore_fix");  
   m_hHistCutPre = CreateControlPlot("hEleOLR_pre","EleOLR_pre;Electron Likelihood Score; events",100,-4,4);
   m_hHistCut = CreateControlPlot("hEleOLR_cut","EleOLR_cut;Electron Likelihood Score; events",100,-4,4);
 }
 
 SelectionCutEleOLR::~SelectionCutEleOLR()
 {
-#ifdef ROOTCORE
-  if (m_tTOELLHDecorator and asg::ToolStore::remove(m_tTOELLHDecorator).isFailure())
-    m_tTST->msg() << MSG::ERROR << "An error occured while trying to remove "<<m_tTOELLHDecorator->name()<<" from tool store";
-#endif  // ROOTCORE
-  delete m_tTOELLHDecorator;
 }
 
 //______________________________________________________________________________
@@ -464,7 +510,7 @@ void SelectionCutEleOLR::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 {
   // run this to get ele_match_lhscore decoration
   getEvetoPass(xTau);
-  static SG::AuxElement::ConstAccessor<float> accEleMatchLhscore(m_sEleOlrLhScoreDecorationName.c_str());
+  SG::AuxElement::ConstAccessor<float> accEleMatchLhscore(m_sEleOlrLhScoreDecorationName.c_str());
   hHist.Fill(accEleMatchLhscore(xTau));
 }
 
@@ -486,23 +532,9 @@ bool SelectionCutEleOLR::accept(const xAOD::TauJet& xTau)
     return true;
   }
 
-  static SG::AuxElement::ConstAccessor<float> accEleMatchLhscore(m_sEleOlrLhScoreDecorationName.c_str());
+  SG::AuxElement::ConstAccessor<float> accEleMatchLhscore(m_sEleOlrLhScoreDecorationName.c_str());
   m_tTST->msg() << MSG::VERBOSE << "Tau failed EleOLR requirement, tau overlapping electron llh score: " << accEleMatchLhscore(xTau) << endmsg;
   return false;
-}
-
-//______________________________________________________________________________
-StatusCode SelectionCutEleOLR::createTOELLHDecorator()
-{
-  if (!m_tTOELLHDecorator)
-  {
-    m_tTOELLHDecorator = new TauOverlappingElectronLLHDecorator(m_tTST->name()+"_TOELLHDecorator");
-    m_tTOELLHDecorator->msg().setLevel( m_tTST->msg().level() );
-    if (m_tTOELLHDecorator->setProperty( "EleOLRFilePath", m_tTST->m_sEleOLRFilePath ).isFailure())
-      return StatusCode::FAILURE;
-    return m_tTOELLHDecorator->initialize();
-  }
-  return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
@@ -513,32 +545,20 @@ bool SelectionCutEleOLR::getEvetoPass(const xAOD::TauJet& xTau)
   if (m_bCheckEleMatchPassAvailable)
   {
     m_bCheckEleMatchPassAvailable = false;
-    if (!xTau.isAvailable<char>("ele_olr_pass"))
+    if (!xTau.isAvailable<char>(m_sEleOlrPassDecorationName))
     {
       m_bEleMatchPassAvailable = false;
-      if (createTOELLHDecorator().isFailure())
-        throw std::runtime_error ("TOELLHDecorator constructor failed\n");
     }
   }
   if (!m_bEleMatchPassAvailable)
-    if (m_tTOELLHDecorator->decorate(xTau).isFailure())
+    if (m_tTST->m_tTOELLHDecorator->decorate(xTau).isFailure())
       throw std::runtime_error ("TOELLHDecorator decoration failed\n");
-  static SG::AuxElement::ConstAccessor<char> accEleOlrPass("ele_olr_pass");
+  SG::AuxElement::ConstAccessor<char> accEleOlrPass(m_sEleOlrPassDecorationName.c_str());
   return (bool)accEleOlrPass(xTau);
 #else
   return xTau.isTau(xAOD::TauJetParameters::PassEleOLR);
-#endif
+#endif // not XAODTAU_VERSIONS_TAUJET_V3_H
 
-}
-
-//______________________________________________________________________________
-StatusCode SelectionCutEleOLR::beginEvent()
-{
-  if (createTOELLHDecorator().isFailure())
-    return StatusCode::FAILURE;
-  if (m_tTOELLHDecorator->beginEvent().isFailure())
-    return StatusCode::FAILURE;
-  return StatusCode::SUCCESS;
 }
 
 //____________________________SelectionCutMuonVeto______________________________
@@ -583,3 +603,69 @@ bool SelectionCutMuonVeto::accept(const xAOD::TauJet& xTau)
   m_tTST->msg() << MSG::VERBOSE << "Tau failed MuonVeto requirement" << endmsg;
   return false;
 }
+
+//added by Li-Gang Xia < ligang.xia@cern.ch >
+//____________________________SelectionCutMuonOLR______________________________
+//______________________________________________________________________________
+SelectionCutMuonOLR::SelectionCutMuonOLR(TauSelectionTool* tTST)
+  : SelectionCut("CutMuonOLR", tTST)
+  , m_bTauMuonOLR(true)
+  , m_xMuonContainer(0)
+{
+  //ATH_MSG_INFO("Construct SelectionCutMuonOLR");
+  m_hHistCutPre = CreateControlPlot("hMuonOLR_pre","MuonOLR_pre;; events",2,-.5,1.5);
+  m_hHistCut = CreateControlPlot("hMuonOLR_cut","MuonOLR_cut;; events",2,-.5,1.5);
+  // only proceed if histograms are defined
+  if (!m_hHistCutPre or !m_hHistCut)
+    return;
+  m_hHistCutPre->GetXaxis()->SetBinLabel(1,"!MuonOLR");
+  m_hHistCutPre->GetXaxis()->SetBinLabel(2,"MuonOLR");
+  m_hHistCut->GetXaxis()->SetBinLabel(1,"!MuonOLR");
+  m_hHistCut->GetXaxis()->SetBinLabel(2,"MuonOLR");
+}
+
+//______________________________________________________________________________
+void SelectionCutMuonOLR::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
+{
+  (void)xTau;
+  hHist.Fill(m_bTauMuonOLR);
+}
+
+//______________________________________________________________________________
+bool SelectionCutMuonOLR::accept(const xAOD::TauJet& xTau)
+{
+  m_tTST->m_aAccept.addCut( "MuonOLR",
+                            "Selection of taus according to their MuonOLR" );
+  if (!m_tTST->m_bMuonOLR)
+  {
+    m_tTST->m_aAccept.setCutResult( "MuonOLR", true );
+    return true;
+  }
+  // MuonOLR : removing tau overlapped with muon satisfying pt>2GeV and not calo-tagged
+  m_bTauMuonOLR = true;
+  if(!m_tTST->evtStore()->contains<xAOD::MuonContainer>(m_tTST->m_sMuonContainerName))
+    m_tTST->msg() << MSG::FATAL << "Muon container with name " << m_tTST->m_sMuonContainerName << " is not available" << endmsg;
+  else if(m_tTST->evtStore()->retrieve(m_xMuonContainer,m_tTST->m_sMuonContainerName).isFailure())
+    m_tTST->msg() << MSG::FATAL << "Muon container with name " << m_tTST->m_sMuonContainerName << " could not be retrieved from event store" << endmsg;
+  if(!m_xMuonContainer)
+    return false;
+
+  for( auto xMuon : *(m_xMuonContainer) )
+  {
+    if(xMuon->pt() < 2000.) continue;// pt > 2GeV
+    if(xMuon->muonType() == xAOD::Muon::CaloTagged) continue; // not calo-tagged
+    if(xMuon->p4().DeltaR( xTau.p4() ) > 0.2 ) continue; //delta R < 0.2
+    m_bTauMuonOLR = false;// muon-tau overlapped
+    break;
+  }
+  if(m_bTauMuonOLR == true)
+  {
+    m_tTST->m_aAccept.setCutResult( "MuonOLR", true );
+    return true;
+  }
+
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed MuonOLR requirement" << endmsg;
+  return false;
+}
+
+

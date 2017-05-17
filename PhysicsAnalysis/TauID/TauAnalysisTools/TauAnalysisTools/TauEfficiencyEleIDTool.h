@@ -25,6 +25,8 @@ namespace TauAnalysisTools
 
 class TauEfficiencyEleIDTool : public CommonEfficiencyTool
 {
+  ASG_TOOL_CLASS( TauEfficiencyEleIDTool,
+                  TauAnalysisTools::ITauEfficiencyCorrectionsTool )
 
 public:
 
@@ -35,33 +37,17 @@ public:
   CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
       double& dEfficiencyScaleFactor);
 
+  virtual StatusCode initialize();
+
 private:
   void setupWorkingPointSubstrings();
   std::string convertIDToString(int iLevel) const;
   std::string convertEVetoToString(int iLevel) const;
   std::string convertOLRToString(int iLevel) const;
 
-  // cache configs;
-  int m_iIDLevelCache;
-  int m_iEVLevelCache;
-  int m_iOLRLevelCache;
-
-  // string configs
-  std::string m_sIDLevel;
-  std::string m_sEVLevel;
-  std::string m_sOLRLevel;
-
-  // string configs for 3p eveto
-  std::string m_sIDLevel_eveto3p;
-  std::string m_sEVLevel_eveto3p;
-  std::string m_sOLRLevel_eveto3p;
-
   // declaration of the working point
   std::string m_sWorkingPoint_1p;
   std::string m_sWorkingPoint_3p;
-
-  // up/down direction
-  int m_iSysDirection;
 
 };
 } // namespace TauAnalysisTools
