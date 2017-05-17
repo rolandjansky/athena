@@ -56,7 +56,6 @@ print ParticleToCaloExtrapolationTool
 
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
 CaloClustersInCone = xAOD__CaloClustersInConeTool(name = "CaloClustersInCone", 
-
                                                   CaloClusterLocation = "TimedCaloCalTopoClusters")
 # CaloClustersInCone.OutputLevel = DEBUG
 ToolSvc += CaloClustersInCone
@@ -70,7 +69,6 @@ ParticleCaloCellAssociation = Rec__ParticleCaloClusterAssociationTool(name      
                                                                    CaloClusterLocation          = "TimedCaloCalTopoClusters",
                                                                    ClustersInConeTool           = CaloClustersInCone,
                                                                    ConeSize                     = 0.1,
-
                                                                    UseCovariance                = True )
 ParticleCaloCellAssociation.OutputLevel = DEBUG
 ToolSvc+=ParticleCaloCellAssociation
@@ -92,7 +90,6 @@ TrackParticleClusterAssociation = TrackParticleClusterAssociationAlg(name = "Tra
                                                             TrackParticleContainerName = "InDetTrackParticles",
                                                             PtCut = 400.,
                                                             OutputCollectionPostFix = "Test",
-
                                                             CaloClusterLocation = "TimedCaloCalTopoClusters")
 # TrackParticleClusterAssociation.OutputLevel = DEBUG
 topSequence += TrackParticleClusterAssociation
@@ -142,7 +139,6 @@ print      TrackCaloClusterCreator
 from TrackCaloClusterRecAlgs.TrackCaloClusterRecAlgsConf import TrackCaloClusterRecAlg
 ParticleToCaloExtrapolation = TrackCaloClusterRecAlg(name                           = "TrackCaloClusterRecAlg",
                                                      OutputCollectionPostFix        = "Test",
-
                                                      CaloClustersLocation           = "TimedCaloCalTopoClusters",
                                                      TrackCaloClusterContainerName  = "TrackCaloClusters",
                                                      TrackCaloClusterWeightsTool    = TrackCaloClusterWeights,
@@ -243,12 +239,11 @@ if 1:
   # subjetrecorder.SubjetLabel = "Kt2Subjets"
   # subjetrecorder.SubjetContainerName = "Kt2TrackCaloClusterSubJets"
   # subjetfinder.SubjetRecorder = subjetrecorder
-   
-  clname = "TrackCaloClusters"
-
-  clname1 = "TrackCaloClustersCombined"
-  clname2 = "TrackCaloClustersAll"
-  clname3 = "TrackCaloClustersAllTrack"
+  
+  clname  = "TrackCaloClustersCombined"
+  clname1 = "TrackCaloClustersCombinedAndNeutral"
+  clname2 = "TrackCaloClustersCombinedAndCharged"
+  clname3 = "TrackCaloClustersAll"
   
   clnames = [clname, clname1, clname2, clname3]
   
