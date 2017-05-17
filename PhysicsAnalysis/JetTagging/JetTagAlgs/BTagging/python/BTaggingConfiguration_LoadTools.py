@@ -352,6 +352,8 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
     ConfInstance.addTool('IP3DTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
   if 'RNNIP' in TaggerList:
     ConfInstance.addTool('RNNIPTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel)
+  if 'RNNIPNeg' in TaggerList:
+    ConfInstance.addTool('RNNIPNegTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel)
 
 #          if BTaggingFlags.IP3DFlip:
 #            addTool('IP3DFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
@@ -466,6 +468,8 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
   #set up MVTMFlip
   if (mvtm_active_flip_taggers):
     MVTMFlip = ConfInstance.addTool('MultivariateFlipTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+    MVTMFlip.arbitraryAuxData = BTaggingFlags.MultivariateFlipTagManagerAuxBranches
+    MVTMFlip.auxDataNameMap = BTaggingFlags.MultivariateTagManagerAuxNameMap
 
   if 'TagNtupleDumper' in TaggerList:
     tag = ConfInstance.addTool('TagNtupleDumper', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
@@ -534,7 +538,7 @@ def SetupJetCollectionRetag(JetCollection, TaggerList, ConfInstance = None):
                          CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
 
   if 'RNNIP' in TaggerList:
-    ConfInstance.addTool('RNNIPTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = VERBOSE)
+    ConfInstance.addTool('RNNIPTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
   # if 'IP3DNeg' in TaggerList:
   #   ConfInstance.addTool('IP3DNegTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
   #                        CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
