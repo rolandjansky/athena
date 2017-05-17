@@ -2219,9 +2219,6 @@ class L2EFChain_mu(L2EFChainDef):
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
     [trkfast, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig").getSequence()
 
-    from TrigmuRoI.TrigmuRoIConfig import TrigmuRoIConfig
-    Roimaker = TrigmuRoIConfig("TrigMuRoIMGonly")
-
     ########### EF algos  #################
     print self.chainPart['EFAlg']
     if 'SuperEF' in self.chainPart['EFAlg']:
@@ -2236,19 +2233,35 @@ class L2EFChain_mu(L2EFChainDef):
 
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoConfig
     theTrigMuonEFCombinerHypoConfig = TrigMuonEFCombinerHypoConfig(EFRecoAlgName,EFCombinerThresh)
-    self.EFsequenceList += [[ '' , [Roimaker], 'EF_mu_step2a' ]]
-    self.EFsequenceList += [[ 'EF_mu_step2a' , trkfast+trkprec, 'EF_mu_step2b']]
+
+    # L1 seeded from RoiMaker (seed from L1Topo) or Muon L1 Trigger + HLT chains configuration
+    if "inTimeRoI" not in self.chainPart['addInfo']:
+      from TrigmuRoI.TrigmuRoIConfig import TrigmuRoIConfig
+      Roimaker = TrigmuRoIConfig("TrigMuRoIMGonly")
+      self.EFsequenceList += [[ '' , [Roimaker], 'EF_mu_step2a' ]]
+      self.EFsequenceList += [[ 'EF_mu_step2a' , trkfast+trkprec, 'EF_mu_step2b']]
+    else:
+      self.EFsequenceList += [[ self.L2InputTE , trkfast+trkprec, 'EF_mu_step2b']]
     self.EFsequenceList += [[ 'EF_mu_step2b' , [theEFAlg], 'EF_mu_step2']]
     self.EFsequenceList += [[ 'EF_mu_step2'  , [theTrigMuonEFCombinerHypoConfig], 'EF_mu_step3']]
-    self.EFsignatureList += [ [['EF_mu_step2a']] ]
+
+    if "inTimeRoI" not in self.chainPart['addInfo']:
+      self.EFsignatureList += [ [['EF_mu_step2a']] ]
     self.EFsignatureList += [ [['EF_mu_step2b']] ]
     self.EFsignatureList += [ [['EF_mu_step2']] ]
     self.EFsignatureList += [ [['EF_mu_step3']] ]
 
-    self.TErenamingDict = {
-      'EF_mu_step2a': mergeRemovingOverlap('EF_SuperEF_MGOnly_L1x',  self.L2InputTE ),
-      'EF_mu_step2b': mergeRemovingOverlap('EF_SuperEF_MGOnly_',  '2b' + self.L2InputTE ),
-      'EF_mu_step2':  mergeRemovingOverlap('EF_SuperEF_MGOnly',  self.chainPartNameNoMult),
-      'EF_mu_step3':  mergeRemovingOverlap('EF_SuperEFHypo_MGOnly',  self.chainPartNameNoMult)
+    if "inTimeRoI" not in self.chainPart['addInfo']:
+      self.TErenamingDict = {
+        'EF_mu_step2a': mergeRemovingOverlap('EF_SuperEF_MGOnly_L1x',  self.L2InputTE ),
+        'EF_mu_step2b': mergeRemovingOverlap('EF_SuperEF_MGOnly_',  '2b' + self.L2InputTE ),
+        'EF_mu_step2':  mergeRemovingOverlap('EF_SuperEF_MGOnly',  self.chainPartNameNoMult),
+        'EF_mu_step3':  mergeRemovingOverlap('EF_SuperEFHypo_MGOnly',  self.chainPartNameNoMult)
+      }
+    else:
+      self.TErenamingDict = {
+        'EF_mu_step2b': mergeRemovingOverlap('EF_SuperEF_MGOnly_inTimeRoI_',  '2b' + self.L2InputTE ),
+        'EF_mu_step2':  mergeRemovingOverlap('EF_SuperEF_MGOnly_inTimeRoI',  self.chainPartNameNoMult),
+        'EF_mu_step3':  mergeRemovingOverlap('EF_SuperEFHypo_MGOnly_inTimeRoI',  self.chainPartNameNoMult)
       }
 
