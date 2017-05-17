@@ -53,6 +53,7 @@ atlas_add_library( TrigEFMissingETLib
    AthenaBaseComps xAODCaloEvent xAODJet xAODTrigMissingET GaudiKernel
    LArIdentifier TrigCaloEvent TrigMissingEtEvent TrigParticle CaloDetDescrLib
    LArCablingLib TrigT2CaloCommonLib TrigInterfacesLib TrigTimeAlgsLib
+   InDetTrackSelectionToolLib
    PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CxxUtils Identifier
    EventKernel xAODEventInfo JetEvent TrigMuonEvent TrigSteeringEvent
    PathResolver
