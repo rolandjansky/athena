@@ -63,13 +63,13 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   m_layer1Cut(1.e-3),
   m_layer2Cut(1.e-3),
   m_dbmCut(1.e-3), 
-  m_nLB_max(3001),
+  m_hist_lbMax(3001),
   m_longPixelMultiplier(1.5), 
   m_gangedPixelMultiplier(2.), 
   m_occupancyPerBC(true),
   m_nBCReadout(2),
-  m_lbMin(0),
-  m_lbMax(-1),
+  m_evt_lbMin(0),
+  m_evt_lbMax(-1),
   m_calculateNoiseMaps(false) {
 
   declareProperty("PixelRDOKey", m_pixelRDOKey, "StoreGate key of pixel RDOs");
@@ -83,10 +83,10 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("Layer1Cut", m_layer1Cut, "Occupancy cut for Layer1 pixels");
   declareProperty("Layer2Cut", m_layer2Cut, "Occupancy cut for Layer2 pixels");
   declareProperty("IBLCut", m_dbmCut, "Occupancy cut for DBM pixels"); 
-  declareProperty("nLBmax", m_nLB_max, "Maximum number of LB (for histograms binning)");
+  declareProperty("nLBmax", m_hist_lbMax, "Maximum number of LB (for histograms binning)");
   declareProperty("NBCReadout", m_nBCReadout, "Number of bunch crossings read out");
-  declareProperty("LBMin", m_lbMin, "First lumi block to consider");
-  declareProperty("LBMax", m_lbMax, "Last lumi block to consider");
+  declareProperty("LBMin", m_evt_lbMin, "First lumi block to consider");
+  declareProperty("LBMax", m_evt_lbMax, "Last lumi block to consider");
   declareProperty("LongPixelMultiplier", m_longPixelMultiplier, "Multiplier for long pixels");
   declareProperty("GangedPixelMultiplier", m_gangedPixelMultiplier, "Multiplier for ganged pixels");
   declareProperty("OccupancyPerBC", m_occupancyPerBC, "Calculate occupancy per BC or per event");
@@ -163,14 +163,14 @@ StatusCode NoiseMapBuilder::initialize(){
   }
 
   // resize vectors of histograms
-  const Identifier::size_type wahamax = m_pixelID->wafer_hash_max();
-  ATH_MSG_DEBUG("PixelID maxHash = " << wahamax);
-  m_hitMaps.resize(wahamax);
-  m_LBdependence.resize(wahamax);
-  m_BCIDdependence.resize(wahamax);
-  m_TOTdistributions.resize(wahamax);
+  const Identifier::size_type maxHash = m_pixelID->wafer_hash_max();
+  ATH_MSG_DEBUG("PixelID maxHash = " << maxHash);
+  m_hitMaps.resize(maxHash);
+  m_LBdependence.resize(maxHash);
+  m_BCIDdependence.resize(maxHash);
+  m_TOTdistributions.resize(maxHash);
   if(m_calculateNoiseMaps)
-    m_noiseMaps.resize(wahamax);
+    m_noiseMaps.resize(maxHash);
 
   return (registerHistograms()); 
 }
@@ -179,7 +179,7 @@ StatusCode NoiseMapBuilder::registerHistograms(){
   m_nEventsHist = new TH1D("NEvents", "NEvents", 1, 0, 1);
   m_tHistSvc->regHist("/histfile/NEvents", m_nEventsHist).setChecked();
   
-  m_nEventsLBHist = new TH1D("NEventsLB", "NEventsLB", m_nLB_max, -0.5, m_nLB_max+0.5);
+  m_nEventsLBHist = new TH1D("NEventsLB", "NEventsLB", m_hist_lbMax, -0.5, m_hist_lbMax+0.5);
   m_tHistSvc->regHist("/histfile/NEventsLB", m_nEventsLBHist).setChecked();
   
   //std::string testarea = std::getenv("TestArea");
@@ -227,7 +227,7 @@ StatusCode NoiseMapBuilder::registerHistograms(){
   }
   
 
-#if 0
+  /*#if 0
   // conversion map from position to DCS ID
   // ECA
   std::map<int, int> phi2M_ECA;
@@ -332,6 +332,7 @@ StatusCode NoiseMapBuilder::registerHistograms(){
   phi2moduleNum_DBM[0] = 7;
   phi2moduleNum_DBM[1] = 10;
 #endif
+  */
 
   InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax;
   itermin = m_pixman->getDetectorElementBegin();
@@ -393,7 +394,7 @@ StatusCode NoiseMapBuilder::registerHistograms(){
           m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
           names.str(""); names.clear();
           // LB dependence
-          m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_nLB_max, -0.5, m_nLB_max + 0.5);
+          m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
           names << "/histfile/LBdep_barrel/IBL/" << onlineID;
           m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
           names.str(""); names.clear();
@@ -426,7 +427,7 @@ StatusCode NoiseMapBuilder::registerHistograms(){
           m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
           names.str(""); names.clear();
           // LB dependence
-          m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_nLB_max, -0.5, m_nLB_max + 0.5);
+          m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
           names << "/histfile/LBdep_barrel/B-layer/" << onlineID;
           m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
           names.str(""); names.clear();
@@ -461,7 +462,7 @@ StatusCode NoiseMapBuilder::registerHistograms(){
           m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
           names.str(""); names.clear();
           // LB dependence
-          m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_nLB_max, -0.5, m_nLB_max + 0.5);
+          m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
           names << "/histfile/LBdep_barrel/Layer" << layer - 1 << "/" << onlineID;
           m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
           names.str(""); names.clear();
@@ -495,7 +496,7 @@ StatusCode NoiseMapBuilder::registerHistograms(){
         m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
         names.str(""); names.clear();
         // Lumi Block dependence
-        m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_nLB_max, -0.5, m_nLB_max + 0.5);
+        m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
         names << "/histfile/LBdep_endcapA/Disk" << (layer + 1) << "/" << onlineID;
         m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
         names.str(""); names.clear();
@@ -529,7 +530,7 @@ StatusCode NoiseMapBuilder::registerHistograms(){
         m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
         names.str(""); names.clear();
         // LB dependence
-        m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_nLB_max, -0.5, m_nLB_max + 0.5);
+        m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
         names << "/histfile/LBdep_endcapC/Disk" << (layer + 1) << "/" << onlineID;
         m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
         names.str(""); names.clear();
@@ -562,7 +563,7 @@ StatusCode NoiseMapBuilder::registerHistograms(){
         m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
         names.str(""); names.clear();
         // LB dependence
-        m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_nLB_max, -0.5, m_nLB_max + 0.5);
+        m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
         names << "/histfile/LBdep_DBMA/Layer" << (layer + 1) << "/" << onlineID;
         m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
         names.str(""); names.clear();
@@ -595,7 +596,7 @@ StatusCode NoiseMapBuilder::registerHistograms(){
         m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
         names.str(""); names.clear();
         // LB dependence
-	m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_nLB_max, -0.5, m_nLB_max + 0.5);
+	m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
         names << "/histfile/LBdep_DBMC/Layer" << (layer + 1) << "/" << onlineID;
         m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
         names.str(""); names.clear();
@@ -915,60 +916,63 @@ unsigned int hashID = ( ((m_pixelID->barrel_ec(moduleID) + 2) / 2) << 25 ) +
 
 
 StatusCode NoiseMapBuilder::execute(){
-
   ATH_MSG_DEBUG( "Executing NoiseMapBuilder" );
 
+  // retrieve EventInfo
   const EventInfo* eventInfo;
-
   StatusCode sc = sgSvc()->retrieve(eventInfo);
-  if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve event info" );
+  if(!sc.isSuccess()){
+    ATH_MSG_FATAL("Unable to retrieve event info");
     return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG( "Event info retrieved" );
+  } ATH_MSG_DEBUG("Event info retrieved");
+  
+  // check LB is in allowed range
   int LB =  static_cast<int>(eventInfo->event_ID()->lumi_block());
-  if( LB < m_lbMin ||
-      ( m_lbMax >= m_lbMin && LB > m_lbMax ) ){
-
-    ATH_MSG_VERBOSE( "Event in lumiblock " << eventInfo->event_ID()->lumi_block() <<
-        " not in selected range [" << m_lbMin << "," << m_lbMax << "], skipped");
-
+  if( (LB < m_evt_lbMin) || (m_evt_lbMax >= m_evt_lbMin && LB > m_evt_lbMax) ){
+    ATH_MSG_VERBOSE("Event in lumiblock " << eventInfo->event_ID()->lumi_block() <<
+		    " not in selected range [" << m_evt_lbMin << "," << m_evt_lbMax << "] => skipped");    
     return StatusCode::SUCCESS;
   }
 
-  const DataHandle< PixelRDO_Container > pixelRDOs;
+  // retrieve PixelRDO container
+  const DataHandle<PixelRDO_Container> pixelRDOs;
   sc = sgSvc()->retrieve(pixelRDOs, m_pixelRDOKey);
   if( !sc.isSuccess() ){
     ATH_MSG_FATAL( "Unable to retrieve pixel RDO container at " << m_pixelRDOKey );
     return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG( "Pixel RDO container retrieved" );
+  } ATH_MSG_DEBUG( "Pixel RDO container retrieved" );
 
 
-  for(PixelRDO_Container::const_iterator coll = pixelRDOs->begin(); coll != pixelRDOs->end(); coll++){
+  // loop in RDO container
+  for(PixelRDO_Container::const_iterator coll=pixelRDOs->begin(); 
+      coll!=pixelRDOs->end(); coll++){
 
-    const InDetRawDataCollection<PixelRDORawData>* PixelRDOCollection(*coll);
-
+    const InDetRawDataCollection<PixelRDORawData>* PixelRDOCollection(*coll);    
     if(PixelRDOCollection != 0){
       Identifier moduleID = PixelRDOCollection->identify();
       IdentifierHash moduleHash = m_pixelID->wafer_hash(moduleID);
-      //std::cout << "DEBUG: " << "moduleID, moduleHash = " << moduleID << ", " << moduleHash << std::endl;
-      if  ( !(m_pixelConditionsSummarySvc->isGood(moduleHash)) ) {
-        //takubo std::cout << "[DEBUG] !(m_pixelConditionsSummarySvc->isGood(moduleHash)) : moduleID = " << moduleID << std::endl;
-        continue;// exclude bad modules
+      ATH_MSG_VERBOSE("moduleID, moduleHash = " << moduleID << " , " << moduleHash);
+      
+      // exclude module if reported as not good by PixelConditionsSummarySvc
+      if( !(m_pixelConditionsSummarySvc->isGood(moduleHash)) ) {
+	ATH_MSG_VERBOSE("Module excluded as reported not good by PixelConditionsSummarySvc");
+        continue;
       }
+      
+      // exclude module if containg FE synch errors
       int errors = m_BSErrorsSvc->getModuleErrors(moduleHash);
-      if ( ( errors & 0x0001C000 ) ) {
-        //takubo std::cout << "[DEBUG] errors & 0x0001C000 : moduleID = " << moduleID << std::endl;
-        continue;                            // exclude FE synch errors
+      if( (errors & 0x0001C000) ) {
+	ATH_MSG_VERBOSE("Module excluded as containing FE synch errors");
+	continue;
       }
-      for(DataVector<PixelRDORawData>::const_iterator rdo = PixelRDOCollection->begin();
-          rdo!=PixelRDOCollection->end(); ++rdo){
-
+      
+      for(DataVector<PixelRDORawData>::const_iterator rdo=PixelRDOCollection->begin(); 
+	  rdo!=PixelRDOCollection->end(); ++rdo){
+	
         Identifier rdoID = (*rdo)->identify();
         unsigned int pixel_eta = m_pixelID->eta_index(rdoID);
         unsigned int pixel_phi = m_pixelID->phi_index(rdoID);
-
+	
         // for debug
         int TOT = (*rdo)->getToT(); // it returns a 8 bits "word"
         int BCID = (*rdo)->getBCID();
@@ -988,7 +992,8 @@ StatusCode NoiseMapBuilder::execute(){
   }
 
 
-  for(unsigned int moduleHash = 0; moduleHash < m_pixelID->wafer_hash_max(); moduleHash++) {
+  // [sgs] why is this done at every event ???
+  for(unsigned int moduleHash=0; moduleHash<m_pixelID->wafer_hash_max(); moduleHash++) {
     if( !m_pixelConditionsSummarySvc->isActive( moduleHash ) ){
       m_disabledModules->Fill( moduleHash );
     }
@@ -1004,13 +1009,11 @@ StatusCode NoiseMapBuilder::execute(){
 
 
 StatusCode NoiseMapBuilder::finalize() {
-
-  ATH_MSG_INFO( "Finalizing NoiseMapBuilder" );
-
-  if( m_occupancyPerBC ){
+  ATH_MSG_INFO("Finalizing NoiseMapBuilder");
+  
+  if(m_occupancyPerBC)
     m_nEvents *= m_nBCReadout;
-  }
-
+  
   int minLogOccupancy = 8;
   double minOccupancy = pow(10.,-minLogOccupancy);
 

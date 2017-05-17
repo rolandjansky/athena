@@ -96,39 +96,33 @@ class NoiseMapBuilder: public AthAlgorithm {
   double m_nEvents;
   //  double m_occupancyCut;
   
-  TH1D* m_nEventsHist;
-  TH1D* m_nEventsLBHist;
+  TH1D *m_nEventsHist;
+  TH1D *m_nEventsLBHist;
   std::vector<TH2D*> m_hitMaps;
   std::vector<TH1D*> m_LBdependence;
   std::vector<TH1D*> m_BCIDdependence;
   std::vector<TH1D*> m_TOTdistributions;
-  std::vector<TH2C*> m_noiseMaps;
-  
-  TH1D* m_disabledModules;
-  TH2D* m_overlayedPixelNoiseMap;
-  TH2D* m_overlayedIBLDCNoiseMap; // Planar Double Chip
-  TH2D* m_overlayedIBLSCNoiseMap; // 3D Single Chip
+  std::vector<TH2C*> m_noiseMaps;  
+  TH1D *m_disabledModules;
+  TH2D *m_overlayedPixelNoiseMap;
+  TH2D *m_overlayedIBLDCNoiseMap; // Planar Double Chip
+  TH2D *m_overlayedIBLSCNoiseMap; // 3D Single Chip
   //TH2D* m_overlayedDBMNoiseMap; // DBM
 
   // cuts ....
   double m_disk1ACut; // disk-1, A-side
   double m_disk2ACut; // disk-2, A-side
   double m_disk3ACut; // disk-3, A-side
-
   double m_disk1CCut; // disk-1, C-side
   double m_disk2CCut; // disk-2, C-side
   double m_disk3CCut; // disk-3, C-side
-
   double m_iblCut;    // IBL
   double m_bLayerCut; // B-layer
   double m_layer1Cut; // Layer 1
   double m_layer2Cut; // Layer 2
-
   double m_dbmCut;    // DBM
 
-  int m_nLB_max;
-
-
+  int m_hist_lbMax;   // max number of LB 
 
   double m_longPixelMultiplier;
   double m_gangedPixelMultiplier;
@@ -139,8 +133,8 @@ class NoiseMapBuilder: public AthAlgorithm {
 
   unsigned int m_nBCReadout;
 
-  int m_lbMin;
-  int m_lbMax;
+  int m_evt_lbMin; // lower limit for LB to be taken into account
+  int m_evt_lbMax; // upper limit for LB to be taken into account
 
   bool m_calculateNoiseMaps;
 };
