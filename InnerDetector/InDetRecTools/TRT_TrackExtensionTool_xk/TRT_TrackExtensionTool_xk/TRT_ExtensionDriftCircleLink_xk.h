@@ -3,7 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////////////////////
-//  Header file for class TRT_DriftCircleLink_xk
+//  Header file for class TRT_ExtensionDriftCircleLink_xk
 /////////////////////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 /////////////////////////////////////////////////////////////////////////////////
@@ -12,14 +12,14 @@
 // Version 1.0 3/10/2004 I.Gavrilenko
 /////////////////////////////////////////////////////////////////////////////////
 
-#ifndef TRT_DriftCircleLink_xk_H
-#define TRT_DriftCircleLink_xk_H
+#ifndef TRT_ExtensionDriftCircleLink_xk_H
+#define TRT_ExtensionDriftCircleLink_xk_H
 
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 
 namespace InDet{
 
-  class TRT_DriftCircleLink_xk
+  class TRT_ExtensionDriftCircleLink_xk
     {
       ///////////////////////////////////////////////////////////////////
       // Public methods
@@ -27,10 +27,10 @@ namespace InDet{
       
     public:
       
-      TRT_DriftCircleLink_xk();
-      TRT_DriftCircleLink_xk(const TRT_DriftCircleLink_xk&);
-      ~TRT_DriftCircleLink_xk();
-      TRT_DriftCircleLink_xk& operator  = (const TRT_DriftCircleLink_xk&);
+      TRT_ExtensionDriftCircleLink_xk();
+      TRT_ExtensionDriftCircleLink_xk(const TRT_ExtensionDriftCircleLink_xk&);
+      ~TRT_ExtensionDriftCircleLink_xk();
+      TRT_ExtensionDriftCircleLink_xk& operator  = (const TRT_ExtensionDriftCircleLink_xk&);
 
       ///////////////////////////////////////////////////////////////////
       // Main methods
@@ -78,7 +78,7 @@ namespace InDet{
   // Inline methods
   /////////////////////////////////////////////////////////////////////////////////
 
-  inline TRT_DriftCircleLink_xk::TRT_DriftCircleLink_xk()
+  inline TRT_ExtensionDriftCircleLink_xk::TRT_ExtensionDriftCircleLink_xk()
     {
       m_cluster   = 0 ;
       m_number    = 0 ;
@@ -90,13 +90,13 @@ namespace InDet{
       m_szlocal   = 0.;
     }
 
-  inline TRT_DriftCircleLink_xk::TRT_DriftCircleLink_xk(const TRT_DriftCircleLink_xk& L)
+  inline TRT_ExtensionDriftCircleLink_xk::TRT_ExtensionDriftCircleLink_xk(const TRT_ExtensionDriftCircleLink_xk& L)
     {
       *this = L;
     }
   
-  inline TRT_DriftCircleLink_xk& TRT_DriftCircleLink_xk::operator = 
-    (const TRT_DriftCircleLink_xk& L) 
+  inline TRT_ExtensionDriftCircleLink_xk& TRT_ExtensionDriftCircleLink_xk::operator = 
+    (const TRT_ExtensionDriftCircleLink_xk& L) 
     {
       m_cluster     = L.m_cluster  ;
       m_number      = L.m_number   ;
@@ -109,9 +109,9 @@ namespace InDet{
       return(*this);
     }
 
-  inline TRT_DriftCircleLink_xk::~TRT_DriftCircleLink_xk() {}
+  inline TRT_ExtensionDriftCircleLink_xk::~TRT_ExtensionDriftCircleLink_xk() {}
 
-  inline void TRT_DriftCircleLink_xk::set
+  inline void TRT_ExtensionDriftCircleLink_xk::set
     (const int& n,double& d,double& im,double& zl, double& s) 
     {
       m_cluster      = 0 ;
@@ -124,30 +124,30 @@ namespace InDet{
       m_szlocal      = 0.;
     }
 
-  inline void TRT_DriftCircleLink_xk::set
+  inline void TRT_ExtensionDriftCircleLink_xk::set
     (const int& n,double& d,double& im,double& zl, double& s,double& sd,double& sz) 
     {
       set(n,d,im,zl,s); m_sdistance = sd; m_szlocal = sz;;
     }
 
-  inline void TRT_DriftCircleLink_xk::set
+  inline void TRT_ExtensionDriftCircleLink_xk::set
     (const TRT_DriftCircle* const& c) 
     {
       m_cluster = c ;
     }
 
-  inline void TRT_DriftCircleLink_xk::newImpactParameter(const double& d)
+  inline void TRT_ExtensionDriftCircleLink_xk::newImpactParameter(const double& d)
     {
       if((m_impact*m_distance) > 0.) {m_distance = d; m_impact = d;}
       else                           {m_distance = d; m_impact =-d;}
     }
 
-  inline const Trk::Surface&  TRT_DriftCircleLink_xk::surface() const
+  inline const Trk::Surface&  TRT_ExtensionDriftCircleLink_xk::surface() const
     {
       return m_cluster->detectorElement()->surface(m_cluster->identify());
     }
 
-  inline void TRT_DriftCircleLink_xk::radiusCorrection(const double& dr)
+  inline void TRT_ExtensionDriftCircleLink_xk::radiusCorrection(const double& dr)
     {
       m_zlocal+=(m_szlocal*dr);
       double d = m_sdistance*dr; 
@@ -157,6 +157,6 @@ namespace InDet{
 
 } // end of name space
 
-#endif // TRT_DriftCircleLink_xk
+#endif // TRT_ExtensionDriftCircleLink_xk
 
 
