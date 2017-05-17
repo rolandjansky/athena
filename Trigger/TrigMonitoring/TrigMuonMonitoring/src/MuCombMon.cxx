@@ -168,7 +168,7 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 
   const DataHandle<xAOD::L2CombinedMuonContainer> combContainer;
   const DataHandle<xAOD::L2CombinedMuonContainer> lastcombContainer;
-  StatusCode sc_comb = m_storeGate->retrieve(combContainer,lastcombContainer);
+  StatusCode sc_comb = evtStore()->retrieve(combContainer,lastcombContainer);
   if ( sc_comb.isFailure() ) {
     ATH_MSG_WARNING( "Failed to retrieve HLT muComb container" );
     return StatusCode::SUCCESS;    

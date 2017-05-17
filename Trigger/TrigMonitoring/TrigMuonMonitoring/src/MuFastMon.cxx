@@ -236,7 +236,7 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
 
   const DataHandle<xAOD::L2StandAloneMuonContainer> mfContainer;
   const DataHandle<xAOD::L2StandAloneMuonContainer> lastmfContainer;
-  StatusCode sc_mf = m_storeGate->retrieve(mfContainer,lastmfContainer);
+  StatusCode sc_mf = evtStore()->retrieve(mfContainer,lastmfContainer);
   if ( sc_mf.isFailure() ) {
     ATH_MSG_VERBOSE( "Failed to retrieve HLT muFast container" );
     return StatusCode::SUCCESS;    

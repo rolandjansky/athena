@@ -1355,7 +1355,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 
       //get Event Info
       const DataHandle<EventInfo> evt;
-      StatusCode sc = m_storeGate->retrieve(evt);
+      StatusCode sc = evtStore()->retrieve(evt);
       if ( sc.isFailure() ) {
 	ATH_MSG_ERROR(" Cannot retrieve EventInfo ");
 	hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
@@ -2604,7 +2604,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    }
 
 	    const DataHandle<EventInfo> evt;
-	    sc = m_storeGate->retrieve(evt);
+	    sc = evtStore()->retrieve(evt);
 	    if ( sc.isFailure() ) {
 	      ATH_MSG_ERROR(" Cannot retrieve EventInfo ");
 	      return StatusCode::FAILURE;
@@ -4054,7 +4054,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 
 	    std::string muonKey = "Muons"; // MuidMuonCollection
 
-	    StatusCode sc = m_storeGate->retrieve(muonCont, muonKey);
+	    StatusCode sc = evtStore()->retrieve(muonCont, muonKey);
 	    if(sc.isFailure()){
 	      ATH_MSG_WARNING("Container of muon particle with key " << muonKey << " not found in Store Gate");
 	      return StatusCode::SUCCESS;
@@ -4066,7 +4066,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    // std::string vxKey = "VxPrimaryCandidate";  // attention
 	    std::string vxKey = "HLT_xAOD__VertexContainer_xPrimVx";  // May change to Offline Vx container key if possible
 	    const xAOD::VertexContainer* vxCont = 0;
-	    sc = m_storeGate->retrieve(vxCont, vxKey);
+	    sc = evtStore()->retrieve(vxCont, vxKey);
 	    if (sc.isFailure()) {
 	      ATH_MSG_INFO("Container of muon particle with key " << vxKey << " not found in Store Gate");
 	      return StatusCode::SUCCESS;
@@ -4318,7 +4318,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    // Process current event
 	    //
 	    const DataHandle<EventInfo> event_handle;
-	    if(m_storeGate -> retrieve(event_handle).isFailure()) {
+	    if(evtStore() -> retrieve(event_handle).isFailure()) {
 	      if (errcnt < 1) {
 		ATH_MSG_DEBUG("Failed to read EventInfo");
 		errcnt++;
@@ -4366,7 +4366,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    //const std::string key = "HLT_EXPRESS_OPI_HLT";
 	    const std::string key = "HLT_TrigOperationalInfoCollection_EXPRESS_OPI_HLT";
 
-	    if (!m_storeGate->contains<TrigOperationalInfoCollection>(key)) {
+	    if (!evtStore()->contains<TrigOperationalInfoCollection>(key)) {
 	      if (errcnt < 1) {
 		ATH_MSG_INFO("Missing TrigOperationalInfoCollection with key=" << key);
 		errcnt++;
@@ -4375,7 +4375,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    }
 
 	    const TrigOperationalInfoCollection *opi = 0;
-	    if (!m_storeGate->retrieve<TrigOperationalInfoCollection>(opi, key).isSuccess()) {
+	    if (!evtStore()->retrieve<TrigOperationalInfoCollection>(opi, key).isSuccess()) {
 	      if (errcnt < 1) {
 		ATH_MSG_INFO("Failed to retreive TrigOperationalInfoCollection with key=" << key);
 		return retvect;
@@ -4528,7 +4528,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 
 	    std::string muonKey = "LVL1MuonRoIs"; // MuidMuonCollection
 
-	    sc = m_storeGate->retrieve(lvl1Roi, muonKey);
+	    sc = evtStore()->retrieve(lvl1Roi, muonKey);
 	    if ( sc.isFailure() ) {
 	      ATH_MSG_DEBUG(" Cannot retrieve LVL1 Muon container");
 	      return StatusCode::FAILURE;
@@ -4536,7 +4536,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 
 
 	    const DataHandle<EventInfo> eventInfo;
-	    sc = m_storeGate->retrieve(eventInfo);
+	    sc = evtStore()->retrieve(eventInfo);
 	    if ( sc.isFailure() ) {
 	      ATH_MSG_ERROR(" Cannot retrieve EventInfo ");
 	      hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
