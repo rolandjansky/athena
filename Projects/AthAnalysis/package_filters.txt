@@ -46,7 +46,9 @@
 + PhysicsAnalysis/AnalysisCommon/ParticleJetTools
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
-+ PhysicsAnalysis/D3PDTools/.*
++ PhysicsAnalysis/D3PDTools/RootCoreUtils
++ Physicsanalysis/D3PDTools/SampleHandler
+- PhysicsAnalysis/D3PDTools/.*
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
 + PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
@@ -58,11 +60,11 @@
 + PhysicsAnalysis/MCTruthClassifier
 + PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
 + PhysicsAnalysis/MuonID/MuonSelectorTools
-+ PhysicsAnalysis/SUSYPhys/SUSYTools
+# + PhysicsAnalysis/SUSYPhys/SUSYTools
 + PhysicsAnalysis/TauID/DiTauMassTools
 + PhysicsAnalysis/TauID/TauAnalysisTools
 + PhysicsAnalysis/TauID/TauCorrUncert
-+ PhysicsAnalysis/TopPhys/QuickAna
+# + PhysicsAnalysis/TopPhys/QuickAna
 + PhysicsAnalysis/TrackingID/.*
 + Reconstruction/EventShapes/EventShapeInterface
 - Reconstruction/Jet/JetAnalysisTools/JetAnalysisEDM
@@ -100,7 +102,7 @@
 
 ### Here follows the Athena-specific parts of the analysis release
 
-# Core Athena:
+# Core Athena (would like to reduce) :
 + Control/AthAllocators
 + Control/AthenaServices
 + Control/StoreGate
@@ -119,25 +121,40 @@
 + Control/DataModelRoot
 + Control/RootUtils
 + Control/PerformanceMonitoring/PerfMonKernel
++ Control/Navigation
 
 + PhysicsAnalysis/POOLRootAccess
 
-# POOL Support: 
+# POOL Support (would like to decouple from core) : 
 + Database/APR/.*
 + Database/AthenaRoot/.*
++ Database/ConnectionManagement/.*
+- Database/AthenaPOOL/AthenaPoolExample.*
 - Database/AthenaPOOL/.*Tools
 + Database/AthenaPOOL/DBDataModel
 + Database/AthenaPOOL/.*
 + Database/IOVDb.*
 + Database/PersistentDataModel.*
 + Database/TPTools
++ Database/CoraCool
 
 
-# Other extras:
-+ Event/EventInfo
+# Basic DF setup :
++ PhysicsAnalysis/DerivationFramework/DerivationFrameworkCore
++ PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
++ PhysicsAnalysis/CommonTools/ExpressionEvaluation
+
+# EVNT support :
++ PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth
++ Generators/GeneratorObjects.*
++ Generators/HepMCWeightSvc
+
+
+# Other extras (would very much like to eliminate!) :
++ Event/EventInfo.*
 + DetectorDescription/Identifier
-
-
+# + Calorimeter/CaloIdentifier
++ DetectorDescription/GeoModel/GeoModelInterfaces
 
 # Don't build anything else:
 - .*
