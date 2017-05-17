@@ -32,4 +32,5 @@ atlas_install_headers( FastChainPileup )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( test/FastChainPileup_TestConfiguration.xml )
 atlas_install_scripts( scripts/sim_reg_test_fastchain.py )
+atlas_install_python_modules( python/*.py )
 
