@@ -157,7 +157,7 @@ def defineMenu():
 
 #        'L1_HT150-J20s5.ETA31_MJJ-400':'',
 #        'L1_HT150-J20s5.ETA31_MJJ-400-CF':'',
-#        'L1_J40.0ETA25_2J30_J20.31ETA49':'',
+         'L1_J40.0ETA25_2J30_J20.31ETA49':'',
 #        'L1_EM22VHI' : 'L1_EM20A' , #eta [1.6,2.].
 #        'L1_EM13VH'    : 'L1_EM20C',     #eta[-2,-1.6] 
 #        'L1_J75'       : 'L1_J75A',         #[1.6,2.4]
