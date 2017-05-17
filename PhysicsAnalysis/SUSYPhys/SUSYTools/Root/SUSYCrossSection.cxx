@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
+ 
 #include "SUSYTools/SUSYCrossSection.h"
 #include "PathResolver/PathResolver.h"
 #include <dirent.h>
