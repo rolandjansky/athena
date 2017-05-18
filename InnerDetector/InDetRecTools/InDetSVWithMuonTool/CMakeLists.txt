@@ -10,10 +10,8 @@ atlas_depends_on_subdirs(
     PUBLIC
     Control/AthenaBaseComps
     GaudiKernel
-    AtlasROOT
-    Reconstruction/Particle
-    Event/xAOD/xAODTracking
     Tracking/TrkVertexFitter/TrkVKalVrtFitter
+    Event/xAOD/xAODTracking
 
     PRIVATE
     PhysicsAnalysis/AnalysisCommon/AnalysisUtils
@@ -30,16 +28,18 @@ atlas_add_library(
     InDetSVWithMuonTool/*.h
     src/*.cxx
 
-    PUBLIC_HEADERS InDetSVWithMuonTool
+    PUBLIC_HEADERS
+    InDetSVWithMuonTool
 
-    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+    INCLUDE_DIRS
+    ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
 
     LINK_LIBRARIES
     ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES}
-    AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces Particle
-    TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters
-    TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces
-    TrkVertexFitterInterfaces xAODBTagging
+    AthenaBaseComps GaudiKernel TrkVKalVrtFitter xAODTracking
+
+    PRIVATE_LINK_LIBRARIES
+    AnalysisUtils xAODBTagging
     )
 
 
@@ -48,9 +48,9 @@ atlas_add_component(
     InDetSVWithMuonTool
     src/components/*.cxx
 
-    LINK_LIBRARIES GaudiKernel InDetSVWithMuonToolLib )
+    LINK_LIBRARIES
+    GaudiKernel InDetSVWithMuonToolLib
+    )
 
 # Install files from the package:
-atlas_install_headers( InDetSVWithMuonTool )
 atlas_install_python_modules( python/*.py )
-
