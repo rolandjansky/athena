@@ -11,7 +11,7 @@ __version__ = 'TrfUtils.py atlas/athena'
 import commands, os, sys, pprint
 import json, yaml
 from InDetBeamSpotExample import JobRunner
-from InDetBeamSpotExample import TaskManager
+from InDetBeamSpotExample.TaskManager import TaskManager
 from optparse import OptionParser
 
 def readJSON(fname):
