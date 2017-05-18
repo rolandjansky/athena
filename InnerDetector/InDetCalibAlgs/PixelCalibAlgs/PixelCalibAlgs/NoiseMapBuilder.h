@@ -79,6 +79,8 @@ class NoiseMapBuilder: public AthAlgorithm {
   }
 
   StatusCode registerHistograms();
+
+  const std::string histoSuffix(const int bec, const int layer);
   
  private:
   ServiceHandle <ITHistSvc> m_tHistSvc;
@@ -90,7 +92,7 @@ class NoiseMapBuilder: public AthAlgorithm {
   const PixelID *m_pixelID;
 
   std::string m_pixelRDOKey;  
-  std::vector<int> m_moduleHashList;
+  //std::vector<int> m_moduleHashList;
   
   double m_nEvents;
   //  double m_occupancyCut;

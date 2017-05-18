@@ -173,13 +173,29 @@ StatusCode NoiseMapBuilder::initialize(){
   return (registerHistograms()); 
 }
 
+const std::string NoiseMapBuilder::histoSuffix(const int bec, const int layer){
+  std::ostringstream out;
+  
+  switch(bec) {
+  case 0: 
+    out << "barrel/";  
+    if(layer==0)      { out << "IBL";              }
+    else if(layer==1) { out << "B-layer";          }
+    else              { out << "Layer" << layer-1; }
+    break;
+  case +2: out << "endcapA/Disk" << layer+1; break;
+  case -2: out << "endcapC/Disk" << layer+1; break;
+  case +4: out << "DBMA/Layer"   << layer+1; break;
+  case -4: out << "DBMC/Layer"   << layer+1; break;
+  default: break;
+  }  
+  return out.str();
+}
+
 StatusCode NoiseMapBuilder::registerHistograms(){
-  m_nEventsHist = new TH1D("NEvents", "NEvents", 1, 0, 1);
-  m_tHistSvc->regHist("/histfile/NEvents", m_nEventsHist).setChecked();
-  
-  m_nEventsLBHist = new TH1D("NEventsLB", "NEventsLB", m_hist_lbMax, -0.5, m_hist_lbMax+0.5);
-  m_tHistSvc->regHist("/histfile/NEventsLB", m_nEventsLBHist).setChecked();
-  
+
+  // start reading up mapping file
+ 
   std::string cmtpath = std::getenv("DATAPATH");
   std::vector<std::string> paths = splitter(cmtpath, ':');
   std::ifstream ifs;
@@ -215,223 +231,250 @@ StatusCode NoiseMapBuilder::registerHistograms(){
     ATH_MSG_FATAL("Mapping file '" << mapFile << "' not found !!!");
     return StatusCode::FAILURE;
   }
+
+ 
+  m_nEventsHist = new TH1D("NEvents", "NEvents", 1, 0, 1);
+  m_tHistSvc->regHist("/histfile/NEvents", m_nEventsHist).setChecked();
   
-
-  /*#if 0
-  // conversion map from position to DCS ID
-  // ECA
-  std::map<int, int> phi2M_ECA;
-  phi2M_ECA[0] = 1;
-  phi2M_ECA[1] = 6;
-  phi2M_ECA[2] = 2;
-  phi2M_ECA[3] = 5;
-  phi2M_ECA[4] = 3;
-  phi2M_ECA[5] = 4;
-  std::map<int, TString> phi2moduleID_ECA;
-  for(int phi = 0; phi < 48; phi++){
-    phi = phi + 6;
-    if (phi >= 48) phi = phi % 6;
-    phi2moduleID_ECA[phi] = Form("B%02d_S%d_M%d",(phi / 12) + 1, (phi % 12 < 6) ? 1 : 2, phi2M_ECA[phi % 6]);
-  }
-  // ECC
-  std::map<int, int> phi2M_ECC;
-  phi2M_ECC[0] = 4;
-  phi2M_ECC[1] = 3;
-  phi2M_ECC[2] = 5;
-  phi2M_ECC[3] = 2;
-  phi2M_ECC[4] = 6;
-  phi2M_ECC[5] = 1;
-  std::map<int, TString> phi2moduleID_ECC;
-  for(int phi = 0; phi < 48; phi++){
-    phi = phi + 6;
-    if (phi >= 48) phi = phi % 6;
-    phi2moduleID_ECC[phi] = Form("B%02d_S%d_M%d",(phi / 12) + 1, (phi % 12 < 6) ? 1 : 2, phi2M_ECC[phi % 6]);
-  }
-  // Barrel
-  int nlayer = 3;
-  if (m_isIBL) nlayer = 4;
-  //
-  std::vector<int> module_phi_max;
-  if (m_isIBL) module_phi_max.push_back(14);
-  module_phi_max.push_back(22);
-  module_phi_max.push_back(38);
-  module_phi_max.push_back(52);
-  // IBL
-  std::map<int, TString> eta2moduleID_IBL;
-  eta2moduleID_IBL[9] = TString("A_M4_A8_2");
-  eta2moduleID_IBL[8] = TString("A_M4_A8_1");
-  eta2moduleID_IBL[7] = TString("A_M4_A7_2");
-  eta2moduleID_IBL[6] = TString("A_M4_A7_1");
-  eta2moduleID_IBL[5] = TString("A_M3_A6");
-  eta2moduleID_IBL[4] = TString("A_M3_A5");
-  eta2moduleID_IBL[3] = TString("A_M2_A4");
-  eta2moduleID_IBL[2] = TString("A_M2_A3");
-  eta2moduleID_IBL[1] = TString("A_M1_A2");
-  eta2moduleID_IBL[0] = TString("A_M1_A1");
-  eta2moduleID_IBL[-1] = TString("C_M1_C1");
-  eta2moduleID_IBL[-2] = TString("C_M1_C2");
-  eta2moduleID_IBL[-3] = TString("C_M2_C3");
-  eta2moduleID_IBL[-4] = TString("C_M2_C4");
-  eta2moduleID_IBL[-5] = TString("C_M3_C5");
-  eta2moduleID_IBL[-6] = TString("C_M3_C6");
-  eta2moduleID_IBL[-7] = TString("C_M4_C7_1");
-  eta2moduleID_IBL[-8] = TString("C_M4_C7_2");
-  eta2moduleID_IBL[-9] = TString("C_M4_C8_1");
-  eta2moduleID_IBL[-10] = TString("C_M4_C8_2");
-  // Pixel
-  std::map<int, TString> eta2moduleID_PixelBarrel;
-  eta2moduleID_PixelBarrel[6] = TString("_M6A");
-  eta2moduleID_PixelBarrel[5] = TString("_M5A");
-  eta2moduleID_PixelBarrel[4] = TString("_M4A");
-  eta2moduleID_PixelBarrel[3] = TString("_M3A");
-  eta2moduleID_PixelBarrel[2] = TString("_M2A");
-  eta2moduleID_PixelBarrel[1] = TString("_M1A");
-  eta2moduleID_PixelBarrel[0] = TString("_M0");
-  eta2moduleID_PixelBarrel[-1] = TString("_M1C");
-  eta2moduleID_PixelBarrel[-2] = TString("_M2C");
-  eta2moduleID_PixelBarrel[-3] = TString("_M3C");
-  eta2moduleID_PixelBarrel[-4] = TString("_M4C");
-  eta2moduleID_PixelBarrel[-5] = TString("_M5C");
-  eta2moduleID_PixelBarrel[-6] = TString("_M6C");
-  //
-  std::map<int, TString> phi2moduleID_BLayer;
-  for(int phi = 0; phi < 22; phi++){
-    if(phi == 0) {
-      phi2moduleID_BLayer[phi] = TString("B11_S2");
-    } else {
-      phi2moduleID_BLayer[phi] = Form("B%02d_S%d",(phi + 1) / 2, (phi % 2) ? 1 : 2);
-    }
-  }
-  //
-  std::map<int, TString> phi2moduleID_Layer1;
-  std::map<int, TString> phi2moduleID_Layer2;
-  for(int phi = 0; phi < 52; phi++){
-    phi2moduleID_Layer1[phi] = Form("B%02d_S%d", (phi / 2) + 1, (phi % 2) ? 2 : 1);
-    if (phi == 51) phi2moduleID_Layer2[phi] = TString("B01_S1");
-    else phi2moduleID_Layer2[phi] = Form("B%02d_S%d", (phi + 1) / 2 + 1, (phi % 2) ? 1 : 2);
-  }
-  // DBM
-  std::map<int, TString> phi2moduleID_DBM;
-  phi2moduleID_DBM[2] = "12_M1";
-  phi2moduleID_DBM[3] = "12_M2";
-  phi2moduleID_DBM[0] = "34_M3";
-  phi2moduleID_DBM[1] = "34_M4";
-  std::map<int, int> phi2moduleNum_DBM;
-  phi2moduleNum_DBM[2] = 1;
-  phi2moduleNum_DBM[3] = 4;
-  phi2moduleNum_DBM[0] = 7;
-  phi2moduleNum_DBM[1] = 10;
-#endif
-  */
-
-  InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax;
-  itermin = m_pixman->getDetectorElementBegin();
-  itermax = m_pixman->getDetectorElementEnd();
-
-  std::map<int, std::string> barrel_ec2string;
-  barrel_ec2string[0] = "barrel";
-  barrel_ec2string[2] = "endcapA";
-  barrel_ec2string[-2] = "endcapC";
-  barrel_ec2string[4] = "DBMA";
-  barrel_ec2string[-4] = "DBMC";
-
-  std::map<int, std::string> layer2flavour;
-  layer2flavour[0] = "IBL";
-  layer2flavour[1] = "B-layer";
-  layer2flavour[2] = "Layer1";
-  layer2flavour[3] = "Layer2";
-
-  // initialize histograms
-  for( iter = itermin; iter != itermax; ++iter) {
+  m_nEventsLBHist = new TH1D("NEventsLB", "NEventsLB", m_hist_lbMax, -0.5, m_hist_lbMax+0.5);
+  m_tHistSvc->regHist("/histfile/NEventsLB", m_nEventsLBHist).setChecked();
+  
+  for(InDetDD::SiDetectorElementCollection::const_iterator iter=m_pixman->getDetectorElementBegin(); 
+      iter!=m_pixman->getDetectorElementEnd(); ++iter) {    
     const InDetDD::SiDetectorElement* element = *iter;
-    if(element == 0) continue;
+    if(!element) continue;
+    
     Identifier ident = element->identify();
-    if(!m_pixelID->is_pixel(ident)) continue;  // OK this Element is included
-    const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-    if(!design) continue;
+    if(!m_pixelID->is_pixel(ident)) continue; 
+    
+    //const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+    //if(!design) continue;    
     //unsigned int mchips = design->numberOfCircuits();
-    int barrel     = m_pixelID->barrel_ec (ident);
-    int layer      = m_pixelID->layer_disk(ident); // kazuki
+
+    int bec        = m_pixelID->barrel_ec(ident);
+    int layer      = m_pixelID->layer_disk(ident); 
     int module_phi = m_pixelID->phi_module(ident);
-    int module_eta = m_pixelID->eta_module(ident); // kazuki
+    int module_eta = m_pixelID->eta_module(ident); 
     int moduleHash = m_pixelID->wafer_hash(ident);
 
+    std::string onlineID = getDCSIDFromPosition(bec,layer,module_phi,module_eta);
     // debug
-    // std::cout << moduleHash << " " << NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta) << std::endl;
+    //std::cout << moduleHash << " " << NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta) << std::endl;
 
-    std::ostringstream names;
-    TString tmp_onlineID;
-    std::string onlineID;
+    std::ostringstream name;
+    
+    //
+    // hitmap
+    //
+    if( bec == 0 && layer == 0) // IBL
+      m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 160, 0, 160, 336, 0, 336);
+    else if( abs(bec) == 4 ) // DBM
+      m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 80,  0,  80, 336, 0, 336);
+    else
+      m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, 0, 144, 328, 0, 328);    
+    name << "/histfile/hitMaps_" << histoSuffix(bec,layer) << "/" << onlineID;
+    m_tHistSvc->regHist(name.str().c_str(), m_hitMaps[moduleHash]).setChecked();
+    name.str(""); name.clear();
 
-    if ( barrel == 0 ) { // barrel
+    //
+    // LB dependence
+    //
+    m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
+    name  << "/histfile/LBdep_" << histoSuffix(bec,layer) << "/" << onlineID;
+    m_tHistSvc->regHist(name.str().c_str(), m_LBdependence[moduleHash]).setChecked();
+    name.str(""); name.clear();
+    
+    //
+    // BCID dependence
+    //
+    m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
+    name << "/histfile/BCIDdep_" << histoSuffix(bec,layer) << "/" << onlineID;
+    m_tHistSvc->regHist(name.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
+    name.str(""); name.clear();
+    
+    // 
+    // TOT
+    //
+    if( bec == 0 && layer == 0) // IBL
+      m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 19, -0.5, 18.5);
+    else
+      m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
+    name << "/histfile/TOT_" << histoSuffix(bec,layer) << "/" << onlineID;
+    m_tHistSvc->regHist(name.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
+    name.str(""); name.clear();
+    
+    //
+    // noisemap
+    //
+    if( m_calculateNoiseMaps ){
+
+      if( bec == 0 && layer == 0) // IBL
+	m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 160, 0, 160, 336, 0, 336);
+      else if( abs(bec) == 4 ) // DBM
+	m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 80, 0, 80, 336, 0, 336);
+      else
+	m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, 0, 144, 328, 0, 328);
+      name << "/histfile/noiseMaps_" << histoSuffix(bec,layer) << "/" << onlineID;
+      m_tHistSvc->regHist(name.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
+      name.str(""); name.clear();
+    }
+
+        
+    // bin change
+    /*    m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 160, 0, 160, 336, 0, 336);
+    m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, 0, 144, 328, 0, 328);
+    m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, 0, 144, 328, 0, 328);
+    m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, 0, 144, 328, 0, 328);
+    m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, 0, 144, 328, 0, 328);
+    m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 80,  0,  80, 336, 0, 336);
+    m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 80,  0,  80, 336, 0, 336);
+    name << "/histfile/hitMaps_barrel/IBL/" << onlineID;
+    name << "/histfile/hitMaps_barrel/B-layer/" << onlineID;
+    name << "/histfile/hitMaps_barrel/Layer" << layer - 1 << "/" << onlineID; // layers1-2
+    name << "/histfile/hitMaps_endcapA/Disk" << (layer + 1) << "/" << onlineID; // EC-A
+    name << "/histfile/hitMaps_endcapC/Disk" << (layer + 1) << "/" << onlineID;  // EC-C
+    name << "/histfile/hitMaps_DBMA/Layer" << (layer + 1) << "/" << onlineID; // DBMA
+    name << "/histfile/hitMaps_DBMC/Layer" << (layer + 1) << "/" << onlineID; // DBMC
+   
+    m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
+    m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
+    m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
+    m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
+    m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
+    m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
+    m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
+    name << "/histfile/LBdep_barrel/IBL/" << onlineID; // bec=0, lay=0
+    name << "/histfile/LBdep_barrel/B-layer/" << onlineID;  // bec=0, lay=1 
+    name << "/histfile/LBdep_barrel/Layer" << layer - 1 << "/" <<onlineID; // bec=0, lay=2,3 [1,2]
+    name << "/histfile/LBdep_endcapA/Disk" << (layer + 1) << "/" << onlineID; // bec=+2, disk [1,2,3]
+    name << "/histfile/LBdep_endcapC/Disk" << (layer + 1) << "/" << onlineID; // bec=-2, disk [1,2,3]
+    name << "/histfile/LBdep_DBMA/Layer" << (layer + 1) << "/" << onlineID;  // bec=+4, lay [1,2,3]
+    name << "/histfile/LBdep_DBMC/Layer" << (layer + 1) << "/" << onlineID; // bec=-4, lay [1,2,3]
+
+    m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
+    m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
+    m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
+    m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
+    m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
+    m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
+    m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
+    name << "/histfile/BCIDdep_barrel/IBL/" << onlineID; 
+    name << "/histfile/BCIDdep_barrel/B-layer/" << onlineID;
+    name << "/histfile/BCIDdep_barrel/Layer" << layer - 1 << "/" <<onlineID;// layers1-2
+    name << "/histfile/BCIDdep_endcapA/Layer" << (layer + 1) << "/" <<onlineID; // EC-A
+    name << "/histfile/BCIDdep_endcapC/Layer" << (layer + 1) << "/" <<onlineID; // EC-C
+    name << "/histfile/BCIDdep_DBMA/Layer" << (layer + 1) << "/" <<onlineID; // DBMA
+    name << "/histfile/BCIDdep_DBMC/Layer" << (layer + 1) << "/" <<onlineID;// DBMC
+
+    // bin chaneg
+    m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 19, -0.5, 18.5);
+    m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
+    m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
+    m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
+    m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
+    m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
+    m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
+    name << "/histfile/TOT_barrel/IBL/" << onlineID;
+    name << "/histfile/TOT_barrel/B-layer/" << onlineID;
+    name << "/histfile/TOT_barrel/Layer" << layer - 1 << "/" << onlineID;// layers1-2
+    name << "/histfile/TOT_endcapA/Layer" << (layer + 1) << "/" << onlineID;// EC-A
+    name << "/histfile/TOT_endcapC/Layer" << (layer + 1) << "/" << onlineID; // EC-C
+    name << "/histfile/TOT_DBMA/Layer" << (layer + 1) << "/" << onlineID; // DBMA
+    name << "/histfile/TOT_DBMC/Layer" << (layer + 1) << "/" << onlineID; // DBMC
+
+    // bin-change
+    m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 160, -0., 160., 336, 0., 336.);
+    m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
+    m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
+    m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
+    m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
+    m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 80, -0., 80., 336, 0., 336.);
+    m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 80, -0., 80., 336, 0., 336.);
+    name << "/histfile/noiseMaps_barrel/IBL/" << onlineID; 
+    name << "/histfile/noiseMaps_barrel/B-layer/" << onlineID;
+    name << "/histfile/noiseMaps_barrel/Layer" << layer - 1 << "/" << onlineID;
+    name << "/histfile/noiseMaps_endcapA/Disk" << (layer + 1) << "/" << onlineID;
+    name << "/histfile/noiseMaps_endcapC/Disk" << (layer + 1) << "/" << onlineID;
+    name << "/histfile/noiseMaps_DBMA/Layer" << (layer + 1) << "/" << onlineID;
+    name << "/histfile/noiseMaps_DBMC/Layer" << (layer + 1) << "/" << onlineID;
+    */
+
+
+    /*    if ( barrel == 0 ) { // barrel
       if (layer == 0) { // IBL
-	m_moduleHashList.push_back(moduleHash);
+	//m_moduleHashList.push_back(moduleHash);
 	
 	//tmp_onlineID = Form("LI_S%02d_",module_phi + 1) + eta2moduleID_IBL[module_eta];
 	//onlineID = std::string(tmp_onlineID);
 	onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
+
 	// hit map
 	m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 160, -0., 160., 336, 0., 336.);
-	names << "/histfile/hitMaps_barrel/IBL/" << onlineID;
-	m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
-	names.str(""); names.clear();
+	name << "/histfile/hitMaps_barrel/IBL/" << onlineID;
+	m_tHistSvc->regHist(name.str().c_str(), m_hitMaps[moduleHash]).setChecked();
+	name.str(""); name.clear();
+
 	// LB dependence
 	m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
-	names << "/histfile/LBdep_barrel/IBL/" << onlineID;
-	m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
-	names.str(""); names.clear();
+	name << "/histfile/LBdep_barrel/IBL/" << onlineID;
+	m_tHistSvc->regHist(name.str().c_str(), m_LBdependence[moduleHash]).setChecked();
+	name.str(""); name.clear();
+
 	// BCID dependence
 	m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
-	names << "/histfile/BCIDdep_barrel/IBL/" << onlineID;
-	m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
-	names.str(""); names.clear();
+	name << "/histfile/BCIDdep_barrel/IBL/" << onlineID;
+	m_tHistSvc->regHist(name.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
+	name.str(""); name.clear();
+
 	// TOT
 	m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 19, -0.5, 18.5);
-	names << "/histfile/TOT_barrel/IBL/" << onlineID;
-	m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
-	names.str(""); names.clear();
+	name << "/histfile/TOT_barrel/IBL/" << onlineID;
+	m_tHistSvc->regHist(name.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
+	name.str(""); name.clear();
+
 	// noise map
 	if( m_calculateNoiseMaps ){
 	  m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 160, -0., 160., 336, 0., 336.);
-	  names << "/histfile/noiseMaps_barrel/IBL/" << onlineID;
-	  m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
-	  names.str(""); names.clear();
+	  name << "/histfile/noiseMaps_barrel/IBL/" << onlineID;
+	  m_tHistSvc->regHist(name.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
+	  name.str(""); name.clear();
 	}
-      } else if (layer == 1) { // BLayer
-	m_moduleHashList.push_back(moduleHash);
+      } 
+      else if (layer == 1) { // BLayer
+	//m_moduleHashList.push_back(moduleHash);
 	
 	//tmp_onlineID = Form("L%d_",layer - 1) + phi2moduleID_BLayer[module_phi] + eta2moduleID_PixelBarrel[module_eta];
 	//onlineID = std::string(tmp_onlineID);
 	onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
 	// hit map
 	m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
-	names << "/histfile/hitMaps_barrel/B-layer/" << onlineID;
-	m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
-	names.str(""); names.clear();
+	name << "/histfile/hitMaps_barrel/B-layer/" << onlineID;
+	m_tHistSvc->regHist(name.str().c_str(), m_hitMaps[moduleHash]).setChecked();
+	name.str(""); name.clear();
 	// LB dependence
 	m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
-	names << "/histfile/LBdep_barrel/B-layer/" << onlineID;
-	m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
-	names.str(""); names.clear();
+	name << "/histfile/LBdep_barrel/B-layer/" << onlineID;
+	m_tHistSvc->regHist(name.str().c_str(), m_LBdependence[moduleHash]).setChecked();
+	name.str(""); name.clear();
 	// BCID dependence
 	m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
-	names << "/histfile/BCIDdep_barrel/B-layer/" << onlineID;
-	m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
-	names.str(""); names.clear();
+	name << "/histfile/BCIDdep_barrel/B-layer/" << onlineID;
+	m_tHistSvc->regHist(name.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
+	name.str(""); name.clear();
 	// TOT
 	m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
-	names << "/histfile/TOT_barrel/B-layer/" << onlineID;
-	m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
-	names.str(""); names.clear();
+	name << "/histfile/TOT_barrel/B-layer/" << onlineID;
+	m_tHistSvc->regHist(name.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
+	name.str(""); name.clear();
 	// noise map
 	if( m_calculateNoiseMaps ){
 	  m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
-	  names << "/histfile/noiseMaps_barrel/B-layer/" << onlineID;
-	  m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
-	  names.str(""); names.clear();
+	  name << "/histfile/noiseMaps_barrel/B-layer/" << onlineID;
+	  m_tHistSvc->regHist(name.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
+	  name.str(""); name.clear();
 	}
       } else { // Layer-1,2
-	m_moduleHashList.push_back(moduleHash);
+	//m_moduleHashList.push_back(moduleHash);
 	
 	//if(layer == 2) tmp_onlineID = Form("L%d_",layer - 1) + phi2moduleID_Layer1[module_phi] + eta2moduleID_PixelBarrel[module_eta];
 	//else if(layer == 3) tmp_onlineID = Form("L%d_",layer - 1) + phi2moduleID_Layer2[module_phi] + eta2moduleID_PixelBarrel[module_eta];
@@ -440,179 +483,183 @@ StatusCode NoiseMapBuilder::registerHistograms(){
 	onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
 	// hit map
 	m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
-	names << "/histfile/hitMaps_barrel/Layer" << layer - 1 << "/" << onlineID;
-	m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
-	names.str(""); names.clear();
+	name << "/histfile/hitMaps_barrel/Layer" << layer - 1 << "/" << onlineID;
+	m_tHistSvc->regHist(name.str().c_str(), m_hitMaps[moduleHash]).setChecked();
+	name.str(""); name.clear();
 	// LB dependence
 	m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
-	names << "/histfile/LBdep_barrel/Layer" << layer - 1 << "/" << onlineID;
-	m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
-	names.str(""); names.clear();
+	name << "/histfile/LBdep_barrel/Layer" << layer - 1 << "/" << onlineID;
+	m_tHistSvc->regHist(name.str().c_str(), m_LBdependence[moduleHash]).setChecked();
+	name.str(""); name.clear();
 	// BCID dependence
 	m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
-	names << "/histfile/BCIDdep_barrel/Layer" << layer - 1 << "/" <<onlineID;
-	m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
-	names.str(""); names.clear();
+	name << "/histfile/BCIDdep_barrel/Layer" << layer - 1 << "/" <<onlineID;
+	m_tHistSvc->regHist(name.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
+	name.str(""); name.clear();
 	// TOT
 	m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
-	names << "/histfile/TOT_barrel/Layer" << layer - 1 << "/" << onlineID;
-	m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
-	names.str(""); names.clear();
+	name << "/histfile/TOT_barrel/Layer" << layer - 1 << "/" << onlineID;
+	m_tHistSvc->regHist(name.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
+	name.str(""); name.clear();
 	// noise map
 	if( m_calculateNoiseMaps ){
 	  m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
-	  names << "/histfile/noiseMaps_barrel/Layer" << layer - 1 << "/" << onlineID;
-	  m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
-	  names.str(""); names.clear();
+	  name << "/histfile/noiseMaps_barrel/Layer" << layer - 1 << "/" << onlineID;
+	  m_tHistSvc->regHist(name.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
+	  name.str(""); name.clear();
 	}
       }
     } else if ( barrel == 2 ) { // ECA
-      m_moduleHashList.push_back(moduleHash);
+      //m_moduleHashList.push_back(moduleHash);
       
       //tmp_onlineID = Form("D%dA_",layer + 1) + phi2moduleID_ECA[module_phi];
       //onlineID = std::string(tmp_onlineID);
       onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
       // hitmap
       m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
-      names << "/histfile/hitMaps_endcapA/Disk" << (layer + 1) << "/" << onlineID;
-      m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
-      names.str(""); names.clear();
+      name << "/histfile/hitMaps_endcapA/Disk" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(name.str().c_str(), m_hitMaps[moduleHash]).setChecked();
+      name.str(""); name.clear();
       // Lumi Block dependence
       m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
-      names << "/histfile/LBdep_endcapA/Disk" << (layer + 1) << "/" << onlineID;
-      m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
-      names.str(""); names.clear();
+      name << "/histfile/LBdep_endcapA/Disk" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(name.str().c_str(), m_LBdependence[moduleHash]).setChecked();
+      name.str(""); name.clear();
       // BCID dependence
       m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
-      names << "/histfile/BCIDdep_endcapA/Layer" << (layer + 1) << "/" <<onlineID;
-      m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
-      names.str(""); names.clear();
+      name << "/histfile/BCIDdep_endcapA/Layer" << (layer + 1) << "/" <<onlineID;
+      m_tHistSvc->regHist(name.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
+      name.str(""); name.clear();
       // TOT
       m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
-      names << "/histfile/TOT_endcapA/Layer" << (layer + 1) << "/" << onlineID;
-      m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
-      names.str(""); names.clear();
+      name << "/histfile/TOT_endcapA/Layer" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(name.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
+      name.str(""); name.clear();
       // noise map
       if( m_calculateNoiseMaps ){
 	m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
-	names << "/histfile/noiseMaps_endcapA/Disk" << (layer + 1) << "/" << onlineID;
-	m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
-	names.str(""); names.clear();
+	name << "/histfile/noiseMaps_endcapA/Disk" << (layer + 1) << "/" << onlineID;
+	m_tHistSvc->regHist(name.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
+	name.str(""); name.clear();
       }
     } else if ( barrel == -2) { // ECC
-      m_moduleHashList.push_back(moduleHash);
+      //m_moduleHashList.push_back(moduleHash);
       
       //tmp_onlineID = Form("D%dC_",layer + 1) + phi2moduleID_ECC[module_phi];
       //onlineID = std::string(tmp_onlineID);
       onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
-      std::ostringstream names;
+      std::ostringstream name;
       // hitmap
       m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
-      names << "/histfile/hitMaps_endcapC/Disk" << (layer + 1) << "/" << onlineID;
-      m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
-      names.str(""); names.clear();
+      name << "/histfile/hitMaps_endcapC/Disk" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(name.str().c_str(), m_hitMaps[moduleHash]).setChecked();
+      name.str(""); name.clear();
       // LB dependence
       m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
-      names << "/histfile/LBdep_endcapC/Disk" << (layer + 1) << "/" << onlineID;
-      m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
-      names.str(""); names.clear();
+      name << "/histfile/LBdep_endcapC/Disk" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(name.str().c_str(), m_LBdependence[moduleHash]).setChecked();
+      name.str(""); name.clear();
       // BCID dependence
       m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
-      names << "/histfile/BCIDdep_endcapC/Layer" << (layer + 1) << "/" <<onlineID;
-      m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
-      names.str(""); names.clear();
+      name << "/histfile/BCIDdep_endcapC/Layer" << (layer + 1) << "/" <<onlineID;
+      m_tHistSvc->regHist(name.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
+      name.str(""); name.clear();
       // TOT
       m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
-      names << "/histfile/TOT_endcapC/Layer" << (layer + 1) << "/" << onlineID;
-      m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
-      names.str(""); names.clear();
+      name << "/histfile/TOT_endcapC/Layer" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(name.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
+      name.str(""); name.clear();
       // noise map
       if( m_calculateNoiseMaps ){
 	m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, -0., 144., 328, 0., 328.);
-	names << "/histfile/noiseMaps_endcapC/Disk" << (layer + 1) << "/" << onlineID;
-	m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
-	names.str(""); names.clear();
+	name << "/histfile/noiseMaps_endcapC/Disk" << (layer + 1) << "/" << onlineID;
+	m_tHistSvc->regHist(name.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
+	name.str(""); name.clear();
       }
     } else if ( barrel == 4 ) { // DBM A
-      m_moduleHashList.push_back(moduleHash);
+      //m_moduleHashList.push_back(moduleHash);
       //tmp_onlineID = Form("LI_S15_A_" + phi2moduleID_DBM[module_phi] + "_A%d", phi2moduleNum_DBM[module_phi] + layer);
       //onlineID = std::string(tmp_onlineID);
       onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
-      std::ostringstream names;
+      std::ostringstream name;
       // hitmap
       m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 80, -0., 80., 336, 0., 336.);
-      names << "/histfile/hitMaps_DBMA/Layer" << (layer + 1) << "/" << onlineID;
-      m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
-      names.str(""); names.clear();
+      name << "/histfile/hitMaps_DBMA/Layer" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(name.str().c_str(), m_hitMaps[moduleHash]).setChecked();
+      name.str(""); name.clear();
       // LB dependence
       m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
-      names << "/histfile/LBdep_DBMA/Layer" << (layer + 1) << "/" << onlineID;
-      m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
-      names.str(""); names.clear();
+      name << "/histfile/LBdep_DBMA/Layer" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(name.str().c_str(), m_LBdependence[moduleHash]).setChecked();
+      name.str(""); name.clear();
       // BCID dependence
       m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
-      names << "/histfile/BCIDdep_DBMA/Layer" << (layer + 1) << "/" <<onlineID;
-      m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
-      names.str(""); names.clear();
+      name << "/histfile/BCIDdep_DBMA/Layer" << (layer + 1) << "/" <<onlineID;
+      m_tHistSvc->regHist(name.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
+      name.str(""); name.clear();
       // TOT
       m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
-      names << "/histfile/TOT_DBMA/Layer" << (layer + 1) << "/" << onlineID;
-      m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
-      names.str(""); names.clear();
+      name << "/histfile/TOT_DBMA/Layer" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(name.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
+      name.str(""); name.clear();
       // noise map
       if( m_calculateNoiseMaps ){
 	m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 80, -0., 80., 336, 0., 336.);
-	names << "/histfile/noiseMaps_DBMA/Layer" << (layer + 1) << "/" << onlineID;
-	m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
-	names.str(""); names.clear();
+	name << "/histfile/noiseMaps_DBMA/Layer" << (layer + 1) << "/" << onlineID;
+	m_tHistSvc->regHist(name.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
+	name.str(""); name.clear();
       }
     } else if ( barrel == -4) { // DBM C
-      m_moduleHashList.push_back(moduleHash);
+      //m_moduleHashList.push_back(moduleHash);
       //tmp_onlineID = Form("LI_S15_C_" + phi2moduleID_DBM[module_phi] + "_C%d", phi2moduleNum_DBM[module_phi] + layer);
       //onlineID = std::string(tmp_onlineID);
       onlineID = NoiseMapBuilder::getDCSIDFromPosition(barrel,layer,module_phi,module_eta);
-      std::ostringstream names;
+      std::ostringstream name;
       // hitmap
       m_hitMaps[moduleHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 80, -0., 80., 336, 0., 336.);
-      names << "/histfile/hitMaps_DBMC/Layer" << (layer + 1) << "/" << onlineID;
-      m_tHistSvc->regHist(names.str().c_str(), m_hitMaps[moduleHash]).setChecked();
-      names.str(""); names.clear();
+      name << "/histfile/hitMaps_DBMC/Layer" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(name.str().c_str(), m_hitMaps[moduleHash]).setChecked();
+      name.str(""); name.clear();
       // LB dependence
       m_LBdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
-      names << "/histfile/LBdep_DBMC/Layer" << (layer + 1) << "/" << onlineID;
-      m_tHistSvc->regHist(names.str().c_str(), m_LBdependence[moduleHash]).setChecked();
-      names.str(""); names.clear();
+      name << "/histfile/LBdep_DBMC/Layer" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(name.str().c_str(), m_LBdependence[moduleHash]).setChecked();
+      name.str(""); name.clear();
       // BCID dependence
       m_BCIDdependence[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
-      names << "/histfile/BCIDdep_DBMC/Layer" << (layer + 1) << "/" <<onlineID;
-      m_tHistSvc->regHist(names.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
-      names.str(""); names.clear();
+      name << "/histfile/BCIDdep_DBMC/Layer" << (layer + 1) << "/" <<onlineID;
+      m_tHistSvc->regHist(name.str().c_str(), m_BCIDdependence[moduleHash]).setChecked();
+      name.str(""); name.clear();
       // TOT
       m_TOTdistributions[moduleHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
-      names << "/histfile/TOT_DBMC/Layer" << (layer + 1) << "/" << onlineID;
-      m_tHistSvc->regHist(names.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
-      names.str(""); names.clear();
+      name << "/histfile/TOT_DBMC/Layer" << (layer + 1) << "/" << onlineID;
+      m_tHistSvc->regHist(name.str().c_str(), m_TOTdistributions[moduleHash]).setChecked();
+      name.str(""); name.clear();
       // noise map
       if( m_calculateNoiseMaps ){
 	m_noiseMaps[moduleHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 80, -0., 80., 336, 0., 336.);
-	names << "/histfile/noiseMaps_DBMC/Layer" << (layer + 1) << "/" << onlineID;
-	m_tHistSvc->regHist(names.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
-	names.str(""); names.clear();
+	name << "/histfile/noiseMaps_DBMC/Layer" << (layer + 1) << "/" << onlineID;
+	m_tHistSvc->regHist(name.str().c_str(), m_noiseMaps[moduleHash]).setChecked();
+	name.str(""); name.clear();
       }
-    }
+      }
+    */
+
   } // end for loop
   
+
+    
   m_disabledModules = new TH1D("DisabledModules", "Number of events disabled vs. IdentifierHash", 2048, 0, 2048);
   m_tHistSvc->regHist("/histfile/DisabledModules", m_disabledModules).setChecked();
   
   if (m_calculateNoiseMaps) {
-    m_overlayedPixelNoiseMap = new TH2D("overlayedPixelNoiseMap", "Noisy pixel map overlayed all Pixel modules", 144, -0., 144., 328, 0., 328.);
+    m_overlayedPixelNoiseMap = new TH2D("overlayedPixelNoiseMap", "Noisy pixel map overlayed all Pixel modules", 144, 0, 144, 328, 0, 328);
     m_tHistSvc->regHist("/histfile/overlayedPixelNoiseMap", m_overlayedPixelNoiseMap).setChecked();
     
-    m_overlayedIBLDCNoiseMap = new TH2D("overlayedIBLDCNoiseMap", "Noisy pixel map overlayed all IBL Planar modules", 160, -0., 160., 336, 0., 336.);
-    m_overlayedIBLSCNoiseMap = new TH2D("overlayedIBLSCNoiseMap", "Noisy pixel map overlayed all IBL 3D modules", 80, -0., 80., 336, 0., 336.);
-    
+    m_overlayedIBLDCNoiseMap = new TH2D("overlayedIBLDCNoiseMap", "Noisy pixel map overlayed all IBL Planar modules", 160, 0, 160, 336, 0, 336);
     m_tHistSvc->regHist("/histfile/overlayedIBLDCNoiseMap", m_overlayedIBLDCNoiseMap).setChecked();
+
+    m_overlayedIBLSCNoiseMap = new TH2D("overlayedIBLSCNoiseMap", "Noisy pixel map overlayed all IBL 3D modules", 80, 0, 80, 336, 0, 336);
     m_tHistSvc->regHist("/histfile/overlayedIBLSCNoiseMap", m_overlayedIBLSCNoiseMap).setChecked();
   }  
   
@@ -1113,7 +1160,7 @@ StatusCode NoiseMapBuilder::finalize() {
      << "m_pixelID->pixel_hash_max(): " << m_pixelID->pixel_hash_max()
      << std::endl;
      */
-  std::sort(m_moduleHashList.begin(), m_moduleHashList.end());
+  //std::sort(m_moduleHashList.begin(), m_moduleHashList.end());
   InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax;
   itermin = m_pixman->getDetectorElementBegin();
   itermax = m_pixman->getDetectorElementEnd();
