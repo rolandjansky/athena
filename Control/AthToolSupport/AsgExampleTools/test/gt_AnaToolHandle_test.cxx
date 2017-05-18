@@ -497,6 +497,28 @@ namespace asg
 
 
 
+#ifdef ROOTCORE
+  // check that the message level gets set correctly from the property
+  TEST (AnaToolHandleTest, setOutputLevel)
+  {
+    std::string name = makeUniqueName();
+    AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/" + name);
+    ASSERT_SUCCESS (tool.setProperty ("OutputLevel", MSG::ERROR));
+    ASSERT_SUCCESS (tool.initialize());
+    ASSERT_EQ (MSG::ERROR, tool->getOrigMsgLevel());
+  }
+
+  // check that the default message level is correct
+  TEST (AnaToolHandleTest, defaultOutputLevel)
+  {
+    std::string name = makeUniqueName();
+    AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/" + name);
+    ASSERT_SUCCESS (tool.initialize());
+    ASSERT_EQ (MSG::INFO, tool->getOrigMsgLevel());
+  }
+#endif
+
+
   // check that we can create a tool handle with the same name but
   // different parameters after we are done with the first one.  this
   // is routinely done as part of unit tests, so this absolutely has
