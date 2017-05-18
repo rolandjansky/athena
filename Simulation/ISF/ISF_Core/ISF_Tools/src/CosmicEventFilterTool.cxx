@@ -74,7 +74,7 @@ bool ISF::CosmicEventFilterTool::eventPassesFilter() const
   for(auto& coll : trackRecordCollectionHandles) {
     if (!coll.isValid())
         {
-          ATH_MSG_DEBUG("Cannot retrieve TrackRecordCollection " << coll.name());
+          ATH_MSG_DEBUG("Cannot retrieve TrackRecordCollection " << coll.key());
           return false;
         }
       unsigned int counter(0);
