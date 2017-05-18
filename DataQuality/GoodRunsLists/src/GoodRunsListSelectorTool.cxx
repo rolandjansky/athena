@@ -482,4 +482,4 @@ GoodRunsListSelectorTool::registerGRLSelector(const std::string& name, const std
   return true;
 }
 
-#endif
+#endif // XAOD_ANALYSIS

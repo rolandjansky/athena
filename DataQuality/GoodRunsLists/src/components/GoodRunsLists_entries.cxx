@@ -5,7 +5,7 @@
 
 #ifndef XAOD_ANALYSIS
 DECLARE_TOOL_FACTORY( GoodRunsListSelectorTool )
-#endif
+#endif // XAOD_ANALYSIS
 
 DECLARE_TOOL_FACTORY( GoodRunsListSelectionTool )
 DECLARE_TOOL_FACTORY( TriggerRegistryTool )
@@ -19,7 +19,7 @@ DECLARE_FACTORY_ENTRIES( GoodRunsLists ) {
     //DECLARE_ALGTOOL( GoodRunsListSelectorTool )
 #ifndef XAOD_ANALYSIS
     DECLARE_TOOL( GoodRunsListSelectorTool )
-#endif
+#endif // XAOD_ANALYSIS
     DECLARE_TOOL( GoodRunsListSelectionTool )
     DECLARE_ALGTOOL( TriggerRegistryTool )
 }

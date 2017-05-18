@@ -11,7 +11,7 @@
 #ifndef XAOD_ANALYSIS
 // Athena includes
 #include "TrkParameters/TrackParameters.h"
-#endif 
+#endif // XAOD_ANALYSIS
 
 #include <vector>
 class CaloCell;

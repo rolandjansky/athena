@@ -17,7 +17,7 @@
 #include "AthLinks/ElementLink.h"
 #ifndef XAOD_ANALYSIS
 #include "TrkTrack/TrackCollection.h"
-#endif
+#endif // XAOD_ANALYSIS
 
 // Want to be able to switch this off and on for the moment
 //#define XAODTRACKING_SUMMARYDYNAMIC      

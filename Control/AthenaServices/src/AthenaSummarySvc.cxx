@@ -24,7 +24,7 @@
 #include "PerfMonKernel/IPerfMonSvc.h"
 #ifndef XAOD_ANALYSIS
 #include "PerfMonEvent/DataModel.h"
-#endif
+#endif // XAOD_ANALYSIS
 #include "AthenaKernel/ILoggedMessageSvc.h"
 #include "AthenaKernel/ICoreDumpSvc.h"
 
@@ -798,7 +798,7 @@ AthenaSummarySvc::createDict( std::ofstream& ofd) {
     mon.add("exe",exe);
 
     p.add("monitored components",mon);
-#endif
+#endif // XAOD_ANALYSIS
   }
 
   p.add("exit",m_status);

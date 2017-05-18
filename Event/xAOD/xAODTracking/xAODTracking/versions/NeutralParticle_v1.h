@@ -22,7 +22,7 @@
 
 #ifndef XAOD_ANALYSIS
 #include "TrkNeutralParameters/NeutralParameters.h"
-#endif
+#endif // XAOD_ANALYSIS
 
 namespace xAOD {
   /// Class describing a NeutralParticle.
@@ -119,7 +119,7 @@ namespace xAOD {
       ///  \f$\left(\begin{array}{c}d_0\\z_0\\\phi_0\\\theta\\1/p\\\end{array}\right)\f$
       /// @note This is only available in Athena. 
       const Trk::NeutralPerigee& perigeeParameters() const;
-#endif 
+#endif // XAOD_ANALYSIS
 
       // /// @brief Returns a link (which can be invalid) to the xAOD::Vertex associated with this NeutralParticle.
       // const ElementLink< VertexContainer >& vertex() const;
@@ -140,7 +140,7 @@ namespace xAOD {
       /// @brief Cached NeutralPerigee, built from this object.
       /// @note This is only available in Athena.
       mutable Trk::NeutralPerigee* m_perigeeParameters;
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE and not __GCCXML__
+#endif // not XAOD_ANALYSIS and not __GCCXML__
 
     }; // class NeutralParticle_v1
 

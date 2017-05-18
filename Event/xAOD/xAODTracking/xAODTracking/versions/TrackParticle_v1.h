@@ -27,7 +27,7 @@ extern "C" {
 // Athena includes
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackCollection.h"
-#endif 
+#endif // XAOD_ANALYSIS
 
 namespace xAOD {
 
@@ -125,7 +125,7 @@ namespace xAOD {
         ///  \f$\left(\begin{array}{c}d_0\\z_0\\\phi_0\\\theta\\q/p\\\end{array}\right)\f$
         /// @note This is only available in Athena. 
         const Trk::Perigee& perigeeParameters() const;
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_ANALYSIS
       /// @}
 
       /// @name Curvilinear functions
@@ -181,7 +181,7 @@ namespace xAOD {
         /// @brief Returns a curvilinear representation of the parameters at 'index'.
         /// @note This is only available in Athena. 
         const Trk::CurvilinearParameters curvilinearParameters(unsigned int index) const;          
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_ANALYSIS
 
     /// Returns the radius of the first hit.
     float radiusOfFirstHit() const;
@@ -303,7 +303,7 @@ namespace xAOD {
         /// @brief Returns a pointer (which can be NULL) to the Trk::Track which was used to make this TrackParticle.
         /// @note This is only available in Athena. 
 		 const Trk::Track* track() const; 
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_ANALYSIS
         
         /// @brief Returns a link (which can be invalid) to the xAOD::Vertex associated with this TrackParticle.
         const ElementLink< VertexContainer >& vertexLink() const;
@@ -326,7 +326,7 @@ namespace xAOD {
       /// @brief Cached MeasuredPerigee, built from this object.
       /// @note This is only available in Athena.
      mutable Trk::Perigee* m_perigeeParameters;
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE and not __GCCXML__
+#endif // not XAOD_ANALYSIS and not __GCCXML__
 
     }; // class Track Particle
 
