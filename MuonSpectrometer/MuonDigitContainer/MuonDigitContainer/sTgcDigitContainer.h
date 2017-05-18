@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // sTgcDigitContainer.h
 
 #ifndef MUONDIGITCONTAINER_STGCDIGITCONAINTER_H
