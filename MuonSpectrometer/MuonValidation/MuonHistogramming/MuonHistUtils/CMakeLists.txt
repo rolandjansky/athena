@@ -7,7 +7,7 @@ atlas_subdir( MuonHistUtils )
 
 set( extra_deps )
 set( extra_libs )
-if( XAOD_STANDALONE )
+if( NOT XAOD_ANALYSIS )
     set( extra_dep Tracking/TrkEvent/TrkEventPrimitives )
     set( extra_libs TrkEventPrimitives )
 endif()
