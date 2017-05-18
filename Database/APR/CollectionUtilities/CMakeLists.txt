@@ -22,9 +22,9 @@ find_package( Boost )
 find_package( CORAL COMPONENTS CoralBase )
 find_package( XercesC )
 
-if( NOT XAOD_ANALYSIS )
-  find_package( yampl )
-endif()
+
+#yampl we find quietly and will build TokenExtractor if its found
+find_package( yampl QUIET )
 
 find_package( CURL )
 
@@ -53,12 +53,19 @@ atlas_add_library( CollectionUtilities
   PRIVATE_LINK_LIBRARIES ${XERCESC_LIBRARIES} ${Boost_LIBRARIES}
   FileCatalog POOLCore PersistencySvc )
 
+
+set( extraIncludes )
+set( extraLibs )
+if( YAMPL_FOUND )
+  set( extraIncludes ${YAMPL_INCLUDE_DIRS} )
+  set( extraLibs ${YAMPL_LIBRARIES} )
+endif()
 # Helper macro declaring the utilities of the package:
 macro( collection_utility name )
   atlas_add_executable( ${name} utilities/${name}.cpp
-    INCLUDE_DIRS ${CURL_INCLUDE_DIRS} ${YAMPL_INCLUDE_DIRS}
+    INCLUDE_DIRS ${CURL_INCLUDE_DIRS} ${extraIncludes}
     ${CORAL_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS}
-    LINK_LIBRARIES ${CURL_LIBRARIES} ${YAMPL_LIBRARIES}
+    LINK_LIBRARIES ${CURL_LIBRARIES} ${extraLibs}
     ${CORAL_LIBRARIES} ${XERCESC_LIBRARIES} CollectionBase
     PersistentDataModel FileCatalog POOLCore CollectionUtilities )
 endmacro( collection_utility )
@@ -75,7 +82,7 @@ collection_utility( CollQuery )
 collection_utility( CollRemove )
 collection_utility( CollSplitByGUID )
 
-if( NOT XAOD_ANALYSIS )
+if( YAMPL_FOUND )
   collection_utility( TokenExtractor )
 endif()
 
