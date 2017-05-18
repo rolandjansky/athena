@@ -15,5 +15,5 @@
 # only have the packages available that you want to compile anyway. 
 # So in that case you should not bother with using such a filter file.
 #
-+ Trigger/TrigMonitoring/TrigBjetMonitoring
++ Control/AthenaExamples/AthExHelloWorld
 - .*
