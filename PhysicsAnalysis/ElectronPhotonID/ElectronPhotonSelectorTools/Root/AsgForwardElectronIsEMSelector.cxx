@@ -90,7 +90,7 @@ StatusCode AsgForwardElectronIsEMSelector::initialize()
   StatusCode sc = StatusCode::SUCCESS ;
 
   if(!m_WorkingPoint.empty()){
-    m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::ForwardElectronCutPointToConfFile);
+    m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::m_ForwardElectronCutPointToConfFile);
   }
   
   if(!m_configFile.empty()) {

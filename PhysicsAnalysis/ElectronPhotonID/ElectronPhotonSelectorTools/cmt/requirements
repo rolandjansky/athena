@@ -13,9 +13,9 @@ use PATCore                     PATCore-*               PhysicsAnalysis/Analysis
 use xAODCaloEvent               xAODCaloEvent-*         Event/xAOD
 use xAODTracking                xAODTracking-*          Event/xAOD
 use xAODEgamma                  xAODEgamma-*            Event/xAOD
+use MVAUtils                    MVAUtils-*              Reconstruction
 use AsgTools                    AsgTools-*              Control/AthToolSupport
 use xAODTracking                xAODTracking-*          Event/xAOD
-use xAODHIEvent                 xAODHIEvent-*           Event/xAOD
 
 private
 use CxxUtils                    CxxUtils-*              Control
@@ -24,6 +24,7 @@ use  GaudiInterface             GaudiInterface-*        External
 use  xAODCaloEvent              xAODCaloEvent-*         Event/xAOD
 use  PathResolver               PathResolver-*          Tools
 use  FourMomUtils               FourMomUtils-*          Event 
+use xAODHIEvent                 xAODHIEvent-*           Event/xAOD
 use CxxUtils                    CxxUtils-*              Control
 
 # in AtlasEvent, even if in PhysicsAnalysis directory   

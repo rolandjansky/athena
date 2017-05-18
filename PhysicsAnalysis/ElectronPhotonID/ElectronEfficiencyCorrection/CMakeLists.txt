@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 797023 2017-02-14 11:03:58Z christos $
 ################################################################################
 # Package: ElectronEfficiencyCorrection
 ################################################################################
@@ -93,6 +94,7 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
       xAODCore ElectronPhotonSelectorToolsLib ElectronEfficiencyCorrectionLib )
+
 
 endif()
 
