@@ -73,14 +73,14 @@ namespace CP {
 
         public:
 
-            HistHandler_TH1F(TH1F* hist);
+            HistHandler_TH1F(TH1* hist);
             HistHandler_TH1F(const HistHandler_TH1F & other);
             virtual HistHandler_TH1F & operator =(const HistHandler_TH1F & other);
             virtual ~HistHandler_TH1F();
 
             virtual int NBins() const;
             virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
-            private:
+        private:
             AxisHandler *m_x_handler;
     };
 
@@ -88,15 +88,15 @@ namespace CP {
 
         public:
 
-            HistHandler_TH2F(TH2F* hist);
+            HistHandler_TH2F(TH2* hist);
             HistHandler_TH2F(const HistHandler_TH2F & other);
             virtual HistHandler_TH2F & operator =(const HistHandler_TH2F & other);
             virtual ~HistHandler_TH2F();
 
             virtual int NBins() const;
             virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
-            private:
-            TH2F* m_h;
+        private:
+            TH2* m_h;
             AxisHandler *m_x_handler;
             AxisHandler *m_y_handler;
     };
@@ -105,7 +105,7 @@ namespace CP {
 
         public:
 
-            HistHandler_TH3F(TH3F* hist);
+            HistHandler_TH3F(TH3* hist);
             HistHandler_TH3F(const HistHandler_TH3F & other);
             virtual HistHandler_TH3F & operator =(const HistHandler_TH3F & other);
             virtual ~HistHandler_TH3F();
@@ -113,7 +113,7 @@ namespace CP {
             virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
 
         private:
-            TH3F* m_h;
+            TH3* m_h;
             AxisHandler *m_x_handler;
             AxisHandler *m_y_handler;
             AxisHandler *m_z_handler;

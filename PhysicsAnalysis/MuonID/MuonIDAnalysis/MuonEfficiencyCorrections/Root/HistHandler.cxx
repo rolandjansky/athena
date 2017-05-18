@@ -113,7 +113,7 @@ namespace CP {
     //###########################################################################################################
     //                                                   HistHandler_TH1F
     //###########################################################################################################
-    HistHandler_TH1F::HistHandler_TH1F(TH1F* h) :
+    HistHandler_TH1F::HistHandler_TH1F(TH1* h) :
                     HistHandler(h),
                     m_x_handler(h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetXaxis())) {
     }
@@ -164,7 +164,7 @@ namespace CP {
     //###########################################################################################################
     //                                                   HistHandler_TH2F
     //###########################################################################################################
-    HistHandler_TH2F::HistHandler_TH2F(TH2F * h) :
+    HistHandler_TH2F::HistHandler_TH2F(TH2 * h) :
                     HistHandler(h),
                     m_h(h),
                     m_x_handler(m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetXaxis())),
@@ -222,7 +222,7 @@ namespace CP {
     //                                                   HistHandler_TH3F
     //###########################################################################################################
 
-    HistHandler_TH3F::HistHandler_TH3F(TH3F * h) :
+    HistHandler_TH3F::HistHandler_TH3F(TH3 * h) :
                     HistHandler(h),
                     m_h(h),
                     m_x_handler(m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetXaxis())),
