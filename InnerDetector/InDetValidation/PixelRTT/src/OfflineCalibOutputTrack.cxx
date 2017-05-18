@@ -18,6 +18,9 @@
 #include "PathResolver/PathResolver.h"
 
 
+using namespace std;
+
+
 namespace PixelValid{
 
 OfflineCalibOutputTrack::OfflineCalibOutputTrack(std::string input,
