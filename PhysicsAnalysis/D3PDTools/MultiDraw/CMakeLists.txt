@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 777928 2016-10-11 22:23:08Z krasznaa $
 
 # Set the name of the package:
 atlas_subdir( MultiDraw )
