@@ -7,6 +7,7 @@
 #include <EventLoop/Algorithm.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/OutputStream.h>
+#include <PathResolver/PathResolver.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/hadd.h>
 #include <RootCoreUtils/ExceptionMsg.h>
@@ -129,7 +130,14 @@ static SH::MetaObject defaultOpts()
   o.setString("nc_nGBPerJob", "MAX");
   o.setString("nc_mergeOutput", "true");
   o.setString("nc_rootVer", gROOT->GetVersion());
+#ifdef USE_CMAKE
+  o.setString("nc_cmtConfig", "x86_64-slc6-gcc49-opt");
+  o.setString("nc_useAthenaPackages", "true");
+#endif
+#ifndef USE_CMAKE
   o.setString("nc_cmtConfig", EL::getRootCoreConfig());
+  o.setString("nc_useRootCore", "true");
+#endif
   return o;
 } 
 
@@ -170,9 +178,11 @@ static Status::Enum submit(SH::Sample* const sample)
 
   static bool loaded = false;
   if (not loaded) {
-    TString path = "$ROOTCOREBIN/python/EventLoopGrid/ELG_prun.py";
-    gSystem->ExpandPathName(path);
-    TPython::LoadMacro(path.Data());
+    // TString path = "$ROOTCOREBIN/python/EventLoopGrid/ELG_prun.py";
+    // gSystem->ExpandPathName(path);
+    // TPython::LoadMacro(path.Data());
+    std::string path = PathResolverFindCalibFile("EventLoopGrid/ELG_prun.py");
+    TPython::LoadMacro(path.c_str());
     loaded = true;
   }
 
@@ -198,9 +208,11 @@ static Status::Enum checkPandaTask(SH::Sample* const sample)
 
   static bool loaded = false;
   if (not loaded) {
-    TString path = "$ROOTCOREBIN/python/EventLoopGrid/ELG_jediState.py";
-    gSystem->ExpandPathName(path);
-    TPython::LoadMacro(path.Data());
+    // TString path = "$ROOTCOREBIN/python/EventLoopGrid/ELG_jediState.py";
+    // gSystem->ExpandPathName(path);
+    // TPython::LoadMacro(path.Data());
+    std::string path = PathResolverFindCalibFile("EventLoopGrid/ELG_jediState.py");
+    TPython::LoadMacro(path.c_str());
     loaded = true;
   }
 
@@ -471,10 +483,12 @@ void EL::PrunDriver::doSubmit(const EL::Job& job,
 
   const std::string jobELGDir = location + "/elg";
   const std::string runShFile = jobELGDir + "/runjob.sh";
-  const std::string runShOrig = "$ROOTCOREBIN/data/EventLoopGrid/runjob.sh";
+  //const std::string runShOrig = "$ROOTCOREBIN/data/EventLoopGrid/runjob.sh";
   const std::string mergeShFile = jobELGDir + "/elg_merge";
-  const std::string mergeShOrig = 
-    "$ROOTCOREBIN/user_scripts/EventLoopGrid/elg_merge";
+  //const std::string mergeShOrig = 
+  //  "$ROOTCOREBIN/user_scripts/EventLoopGrid/elg_merge";
+  const std::string runShOrig = PathResolverFindCalibFile("EventLoopGrid/runjob.sh");
+  const std::string mergeShOrig = PathResolverFindCalibFile("EventLoopGrid/elg_merge");
   const std::string jobDefFile = jobELGDir + "/jobdef.root";
   gSystem->Exec(Form("mkdir -p %s", jobELGDir.c_str()));
   gSystem->Exec(Form("cp %s %s", runShOrig.c_str(), runShFile.c_str()));

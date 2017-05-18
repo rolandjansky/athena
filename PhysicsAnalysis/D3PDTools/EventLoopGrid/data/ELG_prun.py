@@ -42,7 +42,9 @@ def ELG_prun(sample) :
                 'disableAutoRetry',
                 'useNewCode',
                 'official',
-                'mergeOutput']
+                'mergeOutput',
+                'useRootCore',
+                'useAthenaPackages']
 
     for opt in opts :
         arg = sample.getMetaDouble('nc_' + opt, -1)        
@@ -79,8 +81,6 @@ def ELG_prun(sample) :
         pass
     else :
         cmd += ["--mergeScript=" + sample.getMetaString('nc_mergeScript')]
-
-    cmd += ["--useRootCore"]
 
     if len(sample.getMetaString('nc_EventLoop_SubmitFlags')) :
         cmd += shlex.split (sample.getMetaString('nc_EventLoop_SubmitFlags'))

@@ -2,20 +2,33 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __CINT__
 #include <EventLoopGrid/GridJobLoader.h>
 #include <TROOT.h>
 #include <iostream>
 #include <string>
-#endif
+#include <xAODRootAccess/Init.h>
+#include <AsgTools/MessageCheck.h>
 
-void loadrungridjob(const std::string& sampleName)
+int main (int argc, char **argv)
 {
+  using namespace asg::msgUserCode;
+  ANA_CHECK_SET_TYPE (int);
+
+  ANA_CHECK (xAOD::Init ());
+
+  if (argc != 2)
+  {
+    ANA_MSG_ERROR ("invalid number of arguments");
+    return -1;
+  }
+
+  std::string sampleName = argv[1];
+
   std::cout << "Running with ROOT version " << gROOT->GetVersion();
   std::cout << " (" << gROOT->GetVersionDate() << ")\n";
   std::cout << "Loading RootCore packages\n";
 
-  cout << "Loading EventLoop grid job\n";
+  std::cout << "Loading EventLoop grid job\n";
 
   EL::GridJobLoader gjl;
   gjl.Run(sampleName);
