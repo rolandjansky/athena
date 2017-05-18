@@ -18,9 +18,8 @@ dump [DSNAME TASKNAME]            Dump all or selected tasks in database
 show DSNAME [TASKNAME]            Show list of tasks
 update                            Update information of ongoing tasks
 update DSNAME TASKNAME            Update information of selected tasks
-rebuild                           Rebuild missing database entries from job files
-rebuild DSNAME TASKNAME           Rebuild selected database entries from job files
-import DBCONN                     Import all tasks from database DBCONN
+rebuild [DSNAME TASKNAME]         Rebuild missing or selected database entries from job files
+import [DSNAME TASKNAME] DBCONN   Import all or selected tasks from database DBCONN (duplicates not checked)
 setstatus DSNAME TASKNAME STATUS  Set status of selected tasks to STATUS
 setfield DSNAME TASKNAME FIELDNAME VALUE  Set database field to value (experts only!)
 delete DSNAME TASKNAME            Delete entry for selected task(s) (task files are NOT removed)
@@ -28,12 +27,6 @@ deleteResults DSNAME TASKNAME     Delete postprocessing results for selected set
 deleteTask DSNAME TASKNAME        Delete task files and corresponding TaskManager entry
                                   for a single task (will prompt for confirmation unless
                                   option --batch is used)
-
-Examples:
-
-taskman.py init
-taskman.py rebuild .
-taskman.py dump
 '''
 
 import sys, os, stat, commands
@@ -354,7 +347,30 @@ if cmd == 'rebuild':
 #
 # Import tasks from another task database
 #
-if cmd=='import' and len(args)==2:
+if cmd == 'import':
+    if len(cmdargs) == 1:
+        fromDbconn = cmdargs[0]
+        qual = []
+    elif len(cmdargs) == 3:
+        dsname = cmdargs[0]
+        taskname = cmdargs[1]
+        fromDbconn = cmdargs[2]
+
+        # Convert a minimal shell glob syntax into an SQL query:
+        import string
+        wildcards = string.maketrans('*?', '%_')
+        qual = []
+        if '*' in dsname or '?' in dsname:
+            qual.append("where DSNAME like '{}'".format(dsname.translate(wildcards)))
+        else:
+            qual.extend(['where DSNAME =', DbParam(dsname)])
+        if '*' in taskname or '?' in taskname:
+            qual.append("and TASKNAME like '{}'".format(taskname.translate(wildcards)))
+        else:
+            qual.extend(['and TASKNAME =', DbParam(taskname)])
+    else:
+        parser.error('Command import takes 1 or 3 arguments')
+
     try:
         destDbtype, destDbname = TaskManager.parseConnectionInfo(options.dbconn)
         fromDbtype, fromDbname = TaskManager.parseConnectionInfo(fromDbconn)
