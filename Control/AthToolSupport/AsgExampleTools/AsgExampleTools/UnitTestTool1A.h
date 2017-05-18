@@ -45,6 +45,9 @@ namespace asg
   public:
     virtual bool isInitialized () const override;
 
+  public:
+    virtual MSG::Level getOrigMsgLevel () const override;
+
     /// \brief whether initialize has been called
   public:
     bool m_isInitialized = false;
@@ -56,6 +59,10 @@ namespace asg
     /// \brief the integer property
   public:
     int m_propertyInt = -7;
+
+    /// \brief the message level at initialize
+  public:
+    MSG::Level m_origMsgLevel = MSG::INFO;
 
     /// \brief whether initialize should fail
   public:

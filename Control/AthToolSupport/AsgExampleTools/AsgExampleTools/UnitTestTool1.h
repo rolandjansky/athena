@@ -49,6 +49,10 @@ namespace asg
   public:
     virtual bool isInitialized () const override;
 
+  public:
+    virtual MSG::Level getOrigMsgLevel () const override;
+
+
     /// \brief whether initialize has been called
   public:
     bool m_isInitialized = false;
@@ -64,6 +68,10 @@ namespace asg
     /// \brief whether initialize should fail
   public:
     bool m_initializeFail = false;
+
+    /// \brief the message level at initialize
+  public:
+    MSG::Level m_origMsgLevel = MSG::INFO;
 
     /// \brief the number of times the tool of the given name has been
     /// instantiated
