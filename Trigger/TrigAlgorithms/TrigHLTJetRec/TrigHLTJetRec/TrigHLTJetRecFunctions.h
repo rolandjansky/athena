@@ -20,10 +20,6 @@
 #include "./AnyToPseudoJet.h"
 
 
-using jet::LabelIndex;
-using jet::PseudoJetVector;
-
-
 template <typename InputCollection>
   class AllSelector{
  public:
@@ -54,10 +50,10 @@ template <typename InputCollection>
 
 
 template<typename InputContainer, typename InputContainerSelector > 
-  HLT::ErrorCode convertToPseudoJets(LabelIndex* indexMap,
+  HLT::ErrorCode convertToPseudoJets(jet::LabelIndex* indexMap,
                                      std::string clusterCalib,
                                      const InputContainer* inContainer, 
-                                     PseudoJetVector& pjv)
+                                     jet::PseudoJetVector& pjv)
 {
   
   // setup LabelIndex: clusterCalib = "LC" or"EM"
