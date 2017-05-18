@@ -51,33 +51,15 @@ class NoiseMapBuilder: public AthAlgorithm {
   StatusCode finalize();
 
  private:
-  // vector of modulename and vector(barrel/endcap, layer, phi, eta)
-  std::vector< std::pair< std::string, std::vector<int> > > m_pixelMapping;
+  std::string getDCSIDFromPosition(int bec, int layer, int modPhi, int modEta);
   
-  //std::vector<int> getPositionFromDCSID (std::string DCSID);
-  std::string getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
-
-  std::vector<std::string> &splitter(const std::string &s, char delim, std::vector<std::string> &elems) {
-    std::stringstream ss(s);
-    std::string item;
-    while (std::getline(ss, item, delim)) {
-      elems.push_back(item);
-    }
-    return elems;
-  }
+  std::vector<std::string> &splitter(const std::string &str, 
+				     char delim, 
+				     std::vector<std::string> &elems);
   
-  std::vector<std::string> splitter(const std::string &s, char delim) {
-    std::vector<std::string> elems;
-    splitter(s, delim, elems);
-    return elems;
-  }
-
-  bool is_file_exist(const char *fileName){
-    std::ifstream infile;
-    infile.open(fileName);
-    return infile.good();
-  }
-
+  std::vector<std::string> splitter(const std::string &str, 
+				    char delim);
+  
   StatusCode registerHistograms();
 
   const std::string histoSuffix(const int bec, const int layer);
@@ -90,6 +72,9 @@ class NoiseMapBuilder: public AthAlgorithm {
 
   const InDetDD::PixelDetectorManager *m_pixman; 
   const PixelID *m_pixelID;
+  
+  // vector of modulename and vector(barrel/endcap, layer, phi, eta)
+  std::vector< std::pair< std::string, std::vector<int> > > m_pixelMapping;
 
   std::string m_pixelRDOKey;  
   //std::vector<int> m_moduleHashList;
@@ -139,5 +124,6 @@ class NoiseMapBuilder: public AthAlgorithm {
 
   bool m_calculateNoiseMaps;
 };
+
 
 #endif // PIXELCONDITIONSALGS_NOISEMAPBUILDER_H
