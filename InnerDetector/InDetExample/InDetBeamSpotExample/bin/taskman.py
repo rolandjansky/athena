@@ -94,9 +94,8 @@ if cmd == 'init':
         print 'Test connection succeeded: the database already exists!'
 
     if not options.batch:
-        a = raw_input('\nRECREATING TASK DATABASE SCHEMA - ANY EXISTING DATA WILL BE ERASED!\n\nARE YOU REALLY ABSOLUTEY SURE [n] ? ')
-        if a!='y':
-            sys.exit('ERROR: Rebuilding aborted by user')
+        a = raw_input('\nRECREATING TASK DATABASE SCHEMA - ANY EXISTING DATA WILL BE ERASED!\n\nARE YOU REALLY ABSOLUTELY SURE [n] ? ')
+        if a != 'y': sys.exit('ERROR: Rebuilding aborted by user')
         print
     with TaskManager(options.dbconn, createDatabase=True): pass
     sys.exit(0)
@@ -115,23 +114,26 @@ if cmd == 'checkdb':
         sys.exit('ERROR: checkdb is only supported for SQLite databases')
     if not os.path.exists(dbfile):
         sys.exit('ERROR: SQLite file %s does not exist' % dbfile)
-    (status,output) = commands.getstatusoutput("sqlite3 %s 'pragma integrity_check;'" % dbfile)
-    if status!=0:
+
+    (status, output) = commands.getstatusoutput("sqlite3 %s 'pragma integrity_check;'" % dbfile)
+    if status != 0:
         sys.exit('ERROR: Error executing sqlite3 command')
-    if output!='ok':
-        print 'ERROR: SQLite database file has errors:\n'
+    if output != 'ok':
+        print 'ERROR: SQLite database file has errors:'
         print output
         print
+
         if not options.batch:
             a = raw_input('Do you want to try VACUUM [n] ? ')
-            if a!='y':
+            if a != 'y':
                 sys.exit('\nERROR: VACUUM not executed - please fix database file manually')
-        (status,output) = commands.getstatusoutput("sqlite3 %s 'vacuum;'" % dbfile)
+        (status, output) = commands.getstatusoutput("sqlite3 %s 'vacuum;'" % dbfile)
         print output
-        if status!=0:
+        if status != 0:
             sys.exit('ERROR: VACUUM failed')
-        (status,output) = commands.getstatusoutput("sqlite3 %s 'pragma integrity_check;'" % dbfile)
-        if status!=0 or output!='ok':
+
+        (status, output) = commands.getstatusoutput("sqlite3 %s 'pragma integrity_check;'" % dbfile)
+        if status != 0 or output != 'ok':
             print output
             sys.exit('ERROR: Integrity check still failed - please check')
         print 'INFO: SQLite file now passes integrity test (content may still have errors)'

@@ -205,20 +205,26 @@ if cmd == 'upload' and len(cmdargs) == 1:
         passwd = open(os.environ.get('HOME')+prodcoolpasswdfile,'r').read().strip()
     except:
         sys.exit('ERROR: Unable to determine COOL upload password')
-    print '\nBeam spot file:   ',dbfile
-    print 'Uploading to tag: ',options.beamspottag
-    os.system('dumpBeamSpot.py -d %s -t %s %s' % (options.srcdbname,options.srctag,dbfile))
 
-    if options.ignoremode:
-        ignoremode = '--ignoremode %s' % options.ignoremode
-    else:
-        ignoremode = ''
-    if options.batch:
-        batchmode = '--batch'
-    else:
-        batchmode = ''
     print
-    stat = os.system('/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail %s %s --folder /Indet/Beampos --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_INDET_W %s' % (batchmode,ignoremode,options.srctag,options.beamspottag,options.destdbname,dbfile,options.srcdbname,passwd))
+    print 'Beam spot file:   ', dbfile
+    print 'Uploading to tag: ', options.beamspottag
+    os.system('dumpBeamSpot.py -d %s -t %s %s' % (
+        options.srcdbname,
+        options.srctag,
+        dbfile))
+
+    print
+    stat = os.system('/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail %s %s --folder /Indet/Beampos --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_INDET_W %s' % (
+        '--batch' if options.batch else '',
+        ('--ignoremode %s' % options.ignoremode) if options.ignoremode else '',
+        options.srctag,
+        options.beamspottag,
+        options.destdbname,
+        dbfile,
+        options.srcdbname,
+        passwd))
+
     if stat:
         print "\n\nERROR: UPLOADING TO COOL FAILED - PLEASE CHECK CAREFULLY!\n\n"
         sys.exit(1)
