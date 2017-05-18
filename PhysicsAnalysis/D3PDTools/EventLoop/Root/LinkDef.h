@@ -14,7 +14,6 @@
 #include <EventLoop/BatchWorker.h>
 #include <EventLoop/CondorDriver.h>
 #include <EventLoop/DirectDriver.h>
-#include <EventLoop/D3PDReaderSvc.h>
 #include <EventLoop/GEDriver.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/LLDriver.h>
@@ -79,12 +78,6 @@
 #pragma link C++ class std::pair<Long64_t,Long64_t>+;
 #pragma link C++ class std::vector<std::pair<Long64_t,Long64_t> >+;
 
-#ifdef ROOTCORE_PACKAGE_D3PDReader
-#pragma link C++ class EL::D3PDReaderSvc+;
-#endif
-
-#ifdef ROOTCORE_PACKAGE_xAODRootAccess
 #pragma link C++ class EL::TEventSvc+;
-#endif
 
 #endif

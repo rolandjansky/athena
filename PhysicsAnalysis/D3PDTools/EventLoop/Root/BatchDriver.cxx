@@ -412,11 +412,15 @@ namespace EL
   {
     RCU_READ_INVARIANT (this);
 
+#ifndef USE_CMAKE
     const char *ROOTCORECONFIG = getenv ("ROOTCORECONFIG");
+#endif
 
     const std::string writeLocation=getWriteLocation(location);
     const std::string submitLocation=getSubmitLocation(location);
+#ifndef USE_CMAKE
     const std::string rootCoreBin=getRootCoreBin();
+#endif
 
     std::string name = batchName ();
     bool multiFile = (name.find ("{JOBID}") != std::string::npos);
@@ -477,9 +481,12 @@ namespace EL
 	    file << "\n";
 	  }
 
+#ifndef USE_CMAKE
 	if (ROOTCORECONFIG)
 	  file << "export ROOTCORECONFIG=" << ROOTCORECONFIG << "\n";
+#endif
 
+#ifndef USE_CMAKE
 	file << "\n";
 	file << "if test -z ${ROOTCOREBIN+x}\n";
 	file << "then\n";
@@ -491,8 +498,9 @@ namespace EL
 	file << "  fi\n";
 	file << "fi\n";
 	file << "\n";
+#endif
 
-	file << "rc root -l -b -q \"$ROOTCOREBIN/user_scripts/EventLoop/batch_worker.C($EL_JOBID,\\\"" << submitLocation << "/config.root\\\")\" || abortJob\n";
+	file << "eventloop_batch_worker $EL_JOBID '" << submitLocation << "/config.root' || abortJob\n";
 
 	file << "test -f \"" << writeLocation << "/fetch/completed-$EL_JOBID\" || "
 	     << "touch \"" << writeLocation << "/fetch/fail-$EL_JOBID\"\n";
@@ -613,6 +621,7 @@ namespace EL
       return ".";
   }
 
+#ifndef USE_CMAKE
   const std::string BatchDriver :: 
   getRootCoreBin () const
   {
@@ -622,5 +631,5 @@ namespace EL
     else
       return "${TMPDIR}/RootCore/RootCoreBin";
   }
-
+#endif
 }

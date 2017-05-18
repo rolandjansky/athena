@@ -23,16 +23,10 @@
 #include <EventLoop/Global.h>
 
 #include <EventLoop/Algorithm.h>
-#include <RootCore/Packages.h>
 
 class TBranch;
 class TH1;
 class TTree;
-
-namespace D3PDReader
-{
-  class Event;
-}
 
 namespace EL
 {
@@ -152,15 +146,9 @@ namespace EL
   private:
     std::string m_name;
 
-#ifdef ROOTCORE_PACKAGE_D3PDReader
-    /// description: the event we are reading from
-  private:
-    D3PDReader::Event *m_event; //!
-#else
     /// description: the branch we are using
   private:
     TBranch *m_branch; //!
-#endif
 
     /// description: the value we are reading from the branch
   private:

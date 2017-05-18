@@ -24,6 +24,7 @@
 #include <EventLoop/Global.h>
 
 #include <TNamed.h>
+#include <AsgTools/INamedInterface.h>
 #include <EventLoop/StatusCode.h>
 
 class TH1;
@@ -31,7 +32,7 @@ class MsgStream;
 
 namespace EL
 {
-  class Algorithm : public TNamed
+  class Algorithm : public TNamed, public INamedInterface
   {
     //
     // public interface
@@ -246,6 +247,14 @@ namespace EL
 
 
     //
+    // inherited interface
+    //
+
+  public:
+    virtual const std::string& name() const;
+
+
+    //
     // friend interface for Job
     //
 
@@ -285,9 +294,18 @@ namespace EL
   private:
     mutable MsgStream *m_msg = nullptr; //!
 
+    /// \brief the algorithm name for which the message stream has
+    /// been instantiated
+  private:
+    mutable std::string m_msgName; //!
+
     /// \brief the message level configured
   private:
     int m_msgLevel = 3;
+
+    /// \brief the cache for \ref name
+  private:
+    mutable std::string m_nameCache; //!
 
     ClassDef(Algorithm, 1);
   };
