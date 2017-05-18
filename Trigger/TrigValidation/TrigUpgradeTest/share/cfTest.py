@@ -25,6 +25,13 @@ data = {'noreco': [';', ';', ';']}  # in the lists there are the events
 data['emclusters'] = ['eta:1,phi:1,et:2000; eta:1,phi:-1.2,et:3500;',
                       'eta:0.5,phi:0,et:1000; eta:1,phi:-1.2,et:3500;',
                       'eta:-0.6,phi:1.7,et:5000;']
+data['msmu']  = ['eta:-1.2,phi:0.7,pt:6500; eta:-1.1,phi:0.6,pt:8500;',
+                 'eta:-1.7,phi:-0.2,pt:6500;',
+                 ';']
+data['ctp'] = [ '', ]
+data['l1emroi'] = ['',]
+data['l1muroi'] = ['',]
+
 
 for name, d in data.iteritems():
     with open(name+".dat", "w") as f:
@@ -74,7 +81,7 @@ TopHLTSeq += HLTChainsSeq # in principle we do not need the HLTChainsSeq
 
 
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRecoAlg
-def reco(name, FileName, Output):
+def reco(name, Output, FileName="noreco.dat"):
     return HLTTest__TestRecoAlg("R_"+name, OutputLevel = DEBUG, FileName=FileName, Output=Output)
 
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
@@ -96,7 +103,7 @@ def pick(name):
     return allFilters[name]
 
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
-def emhtool(name):
+def emHTool(name):
     v = int(name[5:])*1000
     return HLTTest__TestHypoTool(name, OutputLevel=DEBUG, Threshold=v, Property="et")
 
@@ -106,19 +113,30 @@ steps[stepNo] += seqFilter( "Step1MU_E", Inputs=["L1MU", "L1EM"], Outputs=["step
 steps[stepNo] += seqFilter( "Step1EM", Inputs=["L1EM"], Outputs=["step0EM"])
 
 emHypo = hypo("Step1ElGamHypo", Input="EMClusters", Output="EMDecisions")
-emHypoTools = [ emhtool("HLT_e2"), emhtool("HLT_e3"), emhtool("HLT_e5"),
-                emhtool("HLT_g5"), emhtool("HLT_g7"), emhtool("HLT_g15") ]
+emHypoTools = [ emHTool("HLT_e2"), emHTool("HLT_e3"), emHTool("HLT_e5"),
+                emHTool("HLT_g5"), emHTool("HLT_g7"), emHTool("HLT_g15") ]
 emHypo.HypoTools = emHypoTools 
 emHypo += emHypoTools
 
+def msMuHTool(name):
+    v = int(name[6:])*1000
+    return HLTTest__TestHypoTool(name, OutputLevel=DEBUG, Threshold=v, Property="pt")
+
+msMuHypo =  hypo("Step1MuHypo", Input="MSMuons", Output="MSMUonDecisions")
+msMuHypoTools = [ msMuHTool("HLT_mu6"), msMuHTool("HLT_mu8"),  msMuHTool("HLT_mu10")  ]
+msMuHypo.HypoTools = msMuHypoTools
+msMuHypo += msMuHypoTools
+
+
 stepNo += 1 
-em1 = stepSeq( "em1", pick("Step1EM"), [ reco("EMRoIs", FileName="noreco.dat", Output="EMRoIs"),
+em1 = stepSeq( "em1", pick("Step1EM"), [ reco("EMRoIs", Output="EMRoIs"),
                                          reco("CaloClustering", FileName="emclusters.dat", Output="EMClusters"),
                                          emHypo ] )
 steps[stepNo] += em1
-
-# mu1 = stepSeq("mu1", pick("Step1MU"), [ reco("MURoIs", "noreco.dat"), reco("muMSRecAlg", "msmu.dat"), hypo("Step1MuHypo") ] )
-# steps[stepNo] += mu1
+mu1 = stepSeq("mu1", pick("Step1MU"), [ reco("MURoIs", Output="MURoIs"),
+                                        reco("muMSRecAlg", FileName="msmu.dat", Output="MSMuons"),
+                                        msMuHypo ] )
+steps[stepNo] += mu1
 
 # mue1 = stepSeq("mue1", pick("Step1MU_E"), [ pick("CaloClustering"), reco("muMSRecAlg", "msmu.dat"), hypo("Step1MuEHypo") ])
 # steps[stepNo] += mue1

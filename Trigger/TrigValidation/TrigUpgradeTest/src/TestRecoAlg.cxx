@@ -67,7 +67,8 @@ namespace HLTTest {
 	  }
 	  object.push_back( std::make_pair( trim ( keyval[0] ), std::stof(keyval[1]) ) );	
 	}
-	event.push_back(object);
+	if ( object.size() != 0 ) 
+	  event.push_back(object);
       }
       m_data.push_back(event);
     }
