@@ -8,6 +8,7 @@
 #include "AthenaInterprocess/SharedQueue.h"
 #include "AthenaInterprocess/Utilities.h"
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IIoComponent.h"
@@ -241,6 +242,8 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   // Flush stream buffers
   fflush(NULL);
 
+  int maxEvents(maxevt); // This can be modified after restart
+
   int dmtcp_enabled = dmtcp_is_enabled();
   if(dmtcp_enabled) {
     ATH_MSG_INFO("DMTCP is enabled. Preparing to checkpoint ...");
@@ -257,7 +260,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
     }
     else if(retval == DMTCP_AFTER_RESTART) {
       ATH_MSG_INFO("AthenaMP restarted from the checkpoint image");
-      ATH_CHECK(afterRestart());
+      ATH_CHECK(afterRestart(maxEvents));
     }
     else if(retval == DMTCP_NOT_PRESENT) {
       ATH_MSG_WARNING("Attempted to checkpoint, but DMTCP is not running. Skipping checkpoint ...");
@@ -277,7 +280,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
     (*it)->setRandString(randStream.str());
     if(it==m_tools.begin())
       incSvc->fireIncident(Incident(name(),"PreFork")); // Do it only once
-    int nChildren = (*it)->makePool(maxevt,m_nWorkers,m_workerTopDir);
+    int nChildren = (*it)->makePool(maxEvents,m_nWorkers,m_workerTopDir);
     if(nChildren==-1) {
       ATH_MSG_FATAL("makePool failed for " << (*it)->name());
       return StatusCode::FAILURE;
@@ -556,7 +559,7 @@ boost::shared_ptr<AthenaInterprocess::FdsRegistry> AthMpEvtLoopMgr::extractFds()
   return registry;
 }
 
-StatusCode AthMpEvtLoopMgr::afterRestart()
+StatusCode AthMpEvtLoopMgr::afterRestart(int& maxevt)
 {
   // In this function we parse runargs.* script and update several configuration parameters:
   //   1. Number of Workers
@@ -698,7 +701,36 @@ StatusCode AthMpEvtLoopMgr::afterRestart()
   
   ATH_MSG_INFO("Successfully registered new input with IoComponentMgr");
 
+  // _______________________ Update Output File ___________________________
+  std::string outputHitsFile = tokens["outputHITSFile"];
 
+  // Trim the strings. Remove '\"', '\'' and spaces
+  {
+    auto pos1 = std::find_if(outputHitsFile.begin(),outputHitsFile.end(),[](char ch){return (ch!=' ' && ch!='\'' && ch!='\"');});
+    outputHitsFile.erase(outputHitsFile.begin(),pos1);
+    auto pos2 = std::find_if(outputHitsFile.rbegin(),outputHitsFile.rend(),[](char ch){return (ch!=' ' && ch!='\'' && ch!='\"');});
+    outputHitsFile.erase(pos2.base(),outputHitsFile.end());
+    ATH_MSG_INFO("Retrieved new name for the output file: " << outputHitsFile);
+  }
+  
+  // Fire incident, such that AthenaOutputStream can update its output file name
+  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
+  ATH_CHECK(incSvc.retrieve());
+  incSvc->fireIncident(FileIncident(name(),"UpdateOutputFile",outputHitsFile));
 
+  // _______________________ Update Max Events ___________________________
+  maxevt = std::atoi(tokens["maxEvents"].c_str());
+
+  // _______________________ Update Skip Events ___________________________
+  int skipEvents = std::atoi(tokens["skipEvents"].c_str());
+
+  propertyName = "SkipEvents";
+  IntegerProperty skipEventsProperty(propertyName, skipEvents);
+  if(propertyServer->setProperty(skipEventsProperty).isFailure()) {
+    ATH_MSG_ERROR("Unable to update " << skipEventsProperty.name() << " property on the Event Selector");
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_INFO("Updated the SkipEvents property of the event selector. New value: " << skipEvents);
+  
   return StatusCode::SUCCESS;
 }

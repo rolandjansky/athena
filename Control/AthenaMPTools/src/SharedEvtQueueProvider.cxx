@@ -32,7 +32,6 @@ SharedEvtQueueProvider::SharedEvtQueueProvider(const std::string& type
   , m_nChunkStart(0)
   , m_nPositionInChunk(0)
   , m_nEvtRequested(-1)
-  , m_skipEvents(0)
   , m_nEvtCounted(0)
   , m_sharedEventQueue(0)
 {
@@ -63,23 +62,6 @@ StatusCode SharedEvtQueueProvider::initialize()
   StatusCode sc = AthenaMPToolBase::initialize();
   if(!sc.isSuccess())
     return sc;
-
-  // Get SkipEvents property of the event selector and store it locally
-  IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
-  if(propertyServer==0) {
-    ATH_MSG_ERROR( "Unable to cast event selector to IProperty" );
-    return StatusCode::FAILURE;
-  }
-  std::string propertyName("SkipEvents");
-  int skipEvents(0);
-  IntegerProperty skipEventsProp(propertyName,skipEvents);
-  sc = propertyServer->getProperty(&skipEventsProp);
-  if(sc.isFailure()) {
-    ATH_MSG_INFO( "Event Selector does not have SkipEvents property" );
-  }
-  else {
-    m_skipEvents = skipEventsProp.value();
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -249,44 +231,64 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueProvider::exec_
   ATH_MSG_INFO("Exec function in the AthenaMP Event Counter PID=" << getpid());
 
   bool all_ok(true);
-  IEvtSelector::Context* evtContext(0);
-  StatusCode sc = m_evtSelector->createContext(evtContext);
-  if(sc.isFailure()) {
-    ATH_MSG_ERROR("Failed to create the event selector context");
+
+  // Get SkipEvents property of the event selector
+  int skipEvents(0);
+  IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
+  if(propertyServer==0) {
+    ATH_MSG_ERROR( "Unable to cast event selector to IProperty" );
     all_ok=false;
   }
   else {
-    // advance to nEventsBeforeFork
-    for(int i(0); i<m_nEventsBeforeFork;++i) {
-      if(!m_evtSelector->next(*evtContext).isSuccess()) {
-	ATH_MSG_ERROR("Unexpected error: EventsBeforeFork>EventsInInputFiles");
-	all_ok=false;
-	break;
-      }
+    std::string propertyName("SkipEvents");
+    int skEvt(0);
+    IntegerProperty skipEventsProp(propertyName,skEvt);
+    if(propertyServer->getProperty(&skipEventsProp).isFailure()) {
+      ATH_MSG_INFO( "Event Selector does not have SkipEvents property" );
     }
+    else {
+      skipEvents = skipEventsProp.value();
+    }
+  }
 
-    if(all_ok) {
-      m_nChunkStart = m_skipEvents+m_nEventsBeforeFork;
-      m_nEvtCounted = m_nEventsBeforeFork;
-      m_nPositionInChunk = m_nChunkStart;      
-      ATH_MSG_VERBOSE("Starting to go through events. Chunk start = " << m_nChunkStart);
-
-      // Loop through all remaining events 
-      while(m_evtSelector->next(*evtContext).isSuccess()) {
-	m_nPositionInChunk++;
-	m_nEvtCounted++;
-	ATH_MSG_VERBOSE("Events Counted " << m_nEvtCounted << ", Position in Chunk " << m_nPositionInChunk);
-	if(((m_nPositionInChunk-m_nChunkStart)==m_nChunkSize)
-	   || (m_nEvtCounted==m_nEvtRequested)) {
-	  addEventsToQueue();
-	  m_nChunkStart = m_nPositionInChunk;
-	  if(m_nEvtCounted==m_nEvtRequested) break;
+  IEvtSelector::Context* evtContext(0);
+  if(all_ok) {
+    StatusCode sc = m_evtSelector->createContext(evtContext);
+    if(sc.isFailure()) {
+      ATH_MSG_ERROR("Failed to create the event selector context");
+      all_ok=false;
+    }
+    else {
+      // advance to nEventsBeforeFork
+      for(int i(0); i<m_nEventsBeforeFork;++i) {
+	if(!m_evtSelector->next(*evtContext).isSuccess()) {
+	  ATH_MSG_ERROR("Unexpected error: EventsBeforeFork>EventsInInputFiles");
+	  all_ok=false;
+	  break;
 	}
       }
     }
   }
-
+      
   if(all_ok) {
+    m_nChunkStart = skipEvents+m_nEventsBeforeFork;
+    m_nEvtCounted = m_nEventsBeforeFork;
+    m_nPositionInChunk = m_nChunkStart;      
+    ATH_MSG_VERBOSE("Starting to go through events. Chunk start = " << m_nChunkStart);
+    
+    // Loop through all remaining events 
+    while(m_evtSelector->next(*evtContext).isSuccess()) {
+      m_nPositionInChunk++;
+      m_nEvtCounted++;
+      ATH_MSG_VERBOSE("Events Counted " << m_nEvtCounted << ", Position in Chunk " << m_nPositionInChunk);
+      if(((m_nPositionInChunk-m_nChunkStart)==m_nChunkSize)
+	 || (m_nEvtCounted==m_nEvtRequested)) {
+	addEventsToQueue();
+	m_nChunkStart = m_nPositionInChunk;
+	if(m_nEvtCounted==m_nEvtRequested) break;
+      }
+    }
+
     updateShmem(m_nEvtCounted,true);
 
     ATH_MSG_INFO("Done counting events and populating shared queue. Total number of events to be processed: " << std::max(m_nEvtCounted - m_nEventsBeforeFork,0) 

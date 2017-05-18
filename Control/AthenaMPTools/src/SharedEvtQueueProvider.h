@@ -51,7 +51,6 @@ class SharedEvtQueueProvider : public AthenaMPToolBase
   
 
   int  m_nEvtRequested;    // Max event received from AppMgr
-  int  m_skipEvents;       // SkipEvent property value of the Event Selectors
   int  m_nEvtCounted;      // The number of events this tool has counted itself in the input files 
   
 

@@ -65,7 +65,7 @@ class AthMpEvtLoopMgr
   StatusCode wait();
   StatusCode generateOutputReport(); 
   boost::shared_ptr<AthenaInterprocess::FdsRegistry> extractFds();
-  StatusCode afterRestart();
+  StatusCode afterRestart(int&);
 }; 
 
 #endif
