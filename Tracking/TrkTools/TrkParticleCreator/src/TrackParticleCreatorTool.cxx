@@ -117,6 +117,7 @@ namespace Trk
     m_useMuonSummaryTool  (false),
     m_forceTrackSummaryUpdate (false),
     m_keepParameters      (false),
+    m_keepFirstParameters(false),
     m_keepAllPerigee      (false),
     m_expressPerigeeToBeamSpot(true),
     m_perigeeExpression("BeamLine")
@@ -131,6 +132,7 @@ namespace Trk
     declareProperty("UseTrackSummaryTool" , m_useTrackSummaryTool);
     declareProperty("UseMuonSummaryTool" , m_useMuonSummaryTool);
     declareProperty("KeepParameters",   m_keepParameters);
+    declareProperty("KeepFirstParameters",   m_keepFirstParameters);
     declareProperty("KeepAllPerigee",   m_keepAllPerigee);
     declareProperty("ExpressPerigeeToBeamSpot", m_expressPerigeeToBeamSpot);
     declareProperty("CheckConversion",    m_checkConversion=true);
@@ -674,10 +676,7 @@ namespace Trk
 
     }
     }
-    
-
-
-    if (m_keepParameters) {
+    if (m_keepParameters || m_keepFirstParameters) {
       // search first valid TSOS first
       for ( DataVector<const TrackStateOnSurface>::const_iterator itTSoS = trackStates->begin(); itTSoS != trackStates->end(); ++itTSoS) {
         if ( (*itTSoS)->type(TrackStateOnSurface::Measurement) && (*itTSoS)->trackParameters()!=0 &&  
@@ -689,6 +688,7 @@ namespace Trk
         }
       }
 
+      if (!m_keepFirstParameters) {
       // search last valid TSOS first
       for ( DataVector<const TrackStateOnSurface>::const_reverse_iterator rItTSoS = trackStates->rbegin(); rItTSoS != trackStates->rend(); ++rItTSoS) {
         if ( (*rItTSoS)->type(TrackStateOnSurface::Measurement) && (*rItTSoS)->trackParameters()!=0 &&
@@ -700,12 +700,12 @@ namespace Trk
           break;
         }
       }
+      }
 
       // security check:
       if (parameters.size() > 2)
         ATH_MSG_WARNING ("More than two additional track parameters to be stored in TrackParticle!");
     }
-
 
     // KeepAllPerigee will keep all perigee's on the track plus the parameters at the first measurement,
     // provided this measurement precedes any second perigee.
