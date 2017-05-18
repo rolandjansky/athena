@@ -227,6 +227,9 @@ def setupMenu():
         ['j60_tc_lcw_nojcalib',     'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j60_tc_lcw_sub',          'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
+        # Moved from Physics menu
+        ['j35_sktc_lcw_nojcalib',       'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+
 
 
         #####
@@ -1177,6 +1180,8 @@ def setupMenu():
         ['2mu4_bBmumuxv2_noL2_L1BPH-2M8-2MU4-B_BPH-0DR15-2MU4',  'L1_BPH-2M8-2MU4-B_BPH-0DR15-2MU4',     ['L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
         ['2mu4_bBmumux_BcmumuDsloose_noL2_L1BPH-2M8-2MU4-B_BPH-0DR15-2MU4',  'L1_BPH-2M8-2MU4-B_BPH-0DR15-2MU4',     ['L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
           
+        ['mu6_mu4_bUpsimumu_L1BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B', 'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B',     ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
+        ['mu6_mu4_bUpsimumu_L1BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-BO', 'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-BO',     ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
 
 
         ['2mu4_bBmumuxv2',                'L1_2MU4', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],

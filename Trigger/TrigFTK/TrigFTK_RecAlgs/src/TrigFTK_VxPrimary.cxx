@@ -122,15 +122,31 @@ HLT::ErrorCode TrigFTK_VxPrimary::hltExecute(const HLT::TriggerElement*, HLT::Tr
   if(outputLevel <= MSG::DEBUG)
     msg() << MSG::DEBUG << " In execHLTAlgorithm()" << endmsg;
   
-  xAOD::VertexContainer* theVertexContainer = nullptr;
+  xAOD::VertexContainer* viewVertexContainer = nullptr;
   if (m_useFastVertexTool) {
-    theVertexContainer = m_DataProviderSvc->getFastVertices(m_trackType);
+    viewVertexContainer = m_DataProviderSvc->getFastVertices(m_trackType);
   } else {
-    theVertexContainer = m_DataProviderSvc->getVertexContainer(m_useRefittedTracks);
+    viewVertexContainer = m_DataProviderSvc->getVertexContainer(m_useRefittedTracks);
   }
+  
+
+  // view collection is returned. Create a new collection that is not a view so that it can be persitified
+  // This can be removed once the conversion to use ViewVectors is completed.
+
+  xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer();
+  xAOD::VertexAuxContainer    theVertexContainerAux;
+  theVertexContainer->setStore(&theVertexContainerAux);
+  if (viewVertexContainer != nullptr) {
+    for (auto pv =  viewVertexContainer->begin(); pv !=  viewVertexContainer->end(); ++pv) {
+      xAOD::Vertex* vert = new xAOD::Vertex(*(*pv));
+      theVertexContainer->push_back(vert);
+    }
+    delete  viewVertexContainer;
+  }
+
   if ( HLT::OK !=  attachFeature(outputTE, theVertexContainer, m_vertexContainerName) ) {
     msg() << MSG::ERROR << "Could not attach feature to the TE" << endmsg;
-    
+    delete theVertexContainer;
     return HLT::NAV_ERROR;
   }
   
@@ -139,7 +155,8 @@ HLT::ErrorCode TrigFTK_VxPrimary::hltExecute(const HLT::TriggerElement*, HLT::Tr
     msg() << MSG::DEBUG << "Container recorded in StoreGate." << endmsg;
     msg() << MSG::DEBUG << "REGTEST: Container size :" << m_nVertices << endmsg;
   }    
-  
+
+
   size_t privtxcount(0), pileupvtxcount(0);
   unsigned int iv = 0;
   for (auto pv =  theVertexContainer->begin(); pv !=  theVertexContainer->end(); pv++, iv++) {
