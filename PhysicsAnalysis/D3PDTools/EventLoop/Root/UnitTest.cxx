@@ -21,7 +21,6 @@
 #include <EventLoop/Job.h>
 #include <EventLoop/OutputStream.h>
 #include <EventLoop/UnitTestAlg.h>
-#include <RootCore/Packages.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <SampleHandler/MetaFields.h>
@@ -125,9 +124,6 @@ namespace EL
 	sh.setMetaString ("mymeta", "test");
 	job.sampleHandler (sh);
       }
-#ifdef ROOTCORE_PACKAGE_D3PDReader
-      job.useD3PDReader ();
-#endif
       job.algsAdd (new UnitTestAlg (alg));
       bool outputDone = outputDisk == 0;
       for (Job::outputMIter outputStream = job.outputBegin(),

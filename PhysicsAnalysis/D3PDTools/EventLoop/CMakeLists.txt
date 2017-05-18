@@ -1,7 +1,8 @@
-# $Id: CMakeLists.txt 787195 2016-11-29 19:49:18Z krasznaa $
-
 # The name of the package:
 atlas_subdir( EventLoop )
+
+find_package( GTest )
+find_package( GMock )
 
 # The package's dependencies:
 atlas_depends_on_subdirs(
@@ -24,7 +25,7 @@ atlas_add_root_dictionary( EventLoop
    EventLoop/BackgroundWorker.h EventLoop/BatchDriver.h
    EventLoop/BatchJob.h EventLoop/BatchSegment.h EventLoop/BatchSample.h
    EventLoop/BatchWorker.h EventLoop/CondorDriver.h EventLoop/DirectDriver.h
-   EventLoop/D3PDReaderSvc.h EventLoop/GEDriver.h EventLoop/Job.h
+   EventLoop/GEDriver.h EventLoop/Job.h
    EventLoop/LLDriver.h EventLoop/LSFDriver.h EventLoop/LocalDriver.h
    EventLoop/OutputStream.h EventLoop/MetricsSvc.h EventLoop/ProofArgs.h
    EventLoop/ProofDriver.h EventLoop/ProofTSelector.h EventLoop/SoGEDriver.h
@@ -42,13 +43,15 @@ atlas_add_library( EventLoop
    SampleHandler
    PRIVATE_LINK_LIBRARIES AsgTools xAODRootAccess )
 
+target_compile_definitions (EventLoop PUBLIC USE_CMAKE)
+
 # Test(s) in the package:
 function( _add_gtest cxx_name )
    get_filename_component( test_name ${cxx_name} NAME_WE )
    atlas_add_test( ${test_name}
       SOURCES test/${test_name}.cxx
-      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GTEST_LIBRARIES} RootCoreUtils AsgTools
+      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+      LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} RootCoreUtils AsgTools
       SampleHandler EventLoop )
 endfunction( _add_gtest )
 
@@ -69,6 +72,15 @@ file( GLOB _tests test/ut_*.cxx )
 foreach( test ${_tests} )
    _add_gtest( ${test} )
 endforeach()
+
+file (GLOB util_sources RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/util/[a-zA-Z0-9]*.cxx")
+foreach (source ${util_sources})
+  string (REGEX REPLACE "util/(.*).cxx" "\\1" util ${source})
+  message (${util} ${source} LINK_LIBRARIES EventLoop)
+  atlas_add_executable (${util} ${source} LINK_LIBRARIES EventLoop)
+endforeach (source ${util_sources})
+
+
 
 # Install files from the package:
 atlas_install_scripts( scripts/el_retrieve scripts/el_wait )

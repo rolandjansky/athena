@@ -17,8 +17,6 @@
 
 #include <EventLoop/TEventSvc.h>
 
-#ifdef ROOTCORE_PACKAGE_xAODRootAccess
-
 #include <memory>
 #include <xAODRootAccess/TEvent.h>
 #include <xAODRootAccess/tools/TFileAccessTracer.h>
@@ -206,5 +204,3 @@ namespace EL
     return StatusCode::SUCCESS;
   }
 }
-
-#endif

@@ -138,14 +138,6 @@ namespace EL
     bool outputHas (const std::string& name) const;
 
 
-    /// effects: register this job to use the D3PDReader
-    /// guarantee: strong
-    /// failures: out of memory II
-    /// failures: D3PDReaderSvc not available
-  public:
-    void useD3PDReader ();
-
-
     /// effects: register this job to use XAODs
     /// guarantee: strong
     /// failures: out of memory II

@@ -67,8 +67,10 @@ namespace EL
 
       std::ostringstream cmd;
       cmd << "cd " << dirName.str() << " && ";
+#ifndef USE_CMAKE
       if (!options.castBool (Job::optLocalNoUnsetup, false))
 	cmd << " source $ROOTCOREDIR/scripts/unsetup.sh && ";
+#endif
       cmd << location << "/submit/run " << index;
       RCU::Shell::exec (cmd.str());
     }

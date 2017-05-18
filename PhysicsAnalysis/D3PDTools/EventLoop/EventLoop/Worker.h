@@ -37,11 +37,6 @@ class TString;
 class TTree;
 class TStopwatch;
 
-namespace D3PDReader
-{
-  class Event;
-}
-
 namespace xAOD
 {
   class TEvent;
@@ -181,15 +176,6 @@ namespace EL
     TTree *triggerConfig () const;
 
 
-    /// description: the D3PDReader event
-    /// guarantee: strong
-    /// failures: out of memory I
-    /// failures: D3PDReaderSvc not configured
-    /// postcondition: result != 0
-  public:
-    D3PDReader::Event *d3pdreader () const;
-
-
     /// description: the xAOD event and store
     /// guarantee: strong
     /// failures: out of memory I
@@ -198,13 +184,6 @@ namespace EL
   public:
     xAOD::TEvent *xaodEvent () const;
     xAOD::TStore *xaodStore () const;
-
-
-    /// returns: whether we have a D3PDReader configured
-    /// guarantee: strong
-    /// failures: out of memory I
-  public:
-    bool hasD3pdreader () const;
 
 
     /// effects: returns the algorithms with the given name or NULL if
