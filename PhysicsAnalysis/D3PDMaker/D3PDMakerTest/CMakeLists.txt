@@ -54,3 +54,11 @@ atlas_add_dictionary( D3PDMakerTestDict
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
+# Tests
+set( D3PDMAKERTEST_REFERENCE_TAG D3PDMakerTest/D3PDMakerTest-01-00-00 ) 
+
+
+atlas_add_test( D3PDTest1
+  SCRIPT test/D3PDTest1.sh
+  POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post_check.sh D3PDTest1"
+  ENVIRONMENT "ATLAS_REFERENCE_TAG=${D3PDMAKERTEST_REFERENCE_TAG}" )
