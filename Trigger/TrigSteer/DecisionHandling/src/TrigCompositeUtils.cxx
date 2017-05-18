@@ -4,6 +4,7 @@
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "AthContainers/AuxElement.h"
+
 #include "StoreGate/WriteHandle.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 
@@ -47,6 +48,7 @@ namespace TrigCompositeUtils {
     return false;
   }    
 
+
   bool passingIDs( const Decision* d,  const DecisionIDContainer& required);
 
   void linkToPrevious(Decision* d, const std::string& previousCollectionKey, size_t previousIndex) {
@@ -62,6 +64,4 @@ namespace TrigCompositeUtils {
     return d->objectLink<DecisionContainer>("seed");
   }
   
-
-
 }

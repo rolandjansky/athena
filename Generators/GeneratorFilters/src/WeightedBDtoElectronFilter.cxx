@@ -73,7 +73,7 @@ StatusCode WeightedBDtoElectronFilter::filterEvent() {
       // check stables only
       if ( (*pitr)->status() == 1) {
         // check pdg_id
-        if ( fabs((*pitr)->pdg_id()) == 11 ) {
+        if ( std::abs((*pitr)->pdg_id()) == 11 ) {
           // check pt
           if ( pt>=m_PtMin && pt<=m_PtMax) {
             // check eta
@@ -193,7 +193,7 @@ bool WeightedBDtoElectronFilter::PassPrescaleCheck( double etaAbs, double pt ) {
 std::string WeightedBDtoElectronFilter::longToStr( const long n ) const {
   if (0==n) return "0";
   std::string str = "";
-  for ( long m = n; m!=0; m/=10 ) str = char( '0' + abs(m%10) ) + str;
+  for ( long m = n; m!=0; m/=10 ) str = char( '0' + std::abs(m%10) ) + str;
   if ( n<0 ) str = "-" + str;
   return str;
 }

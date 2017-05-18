@@ -30,7 +30,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Calorimeter/CaloTriggerTool
                           Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/GeoModel/GeoModelInterfaces
                           Event/xAOD/xAODEventInfo
                           Generators/GeneratorObjects
                           LArCalorimeter/LArRecEvent

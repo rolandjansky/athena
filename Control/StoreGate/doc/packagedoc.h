@@ -40,7 +40,7 @@ a "gmake check".
 @section StoreGate_Documentation 
 
 The user guide is part of the Data Model User Guide which is 
-mantained in CVS
+maintained in CVS
 (http://atlas-sw.cern.ch/cgi-bin/viewcvs-atlas.cgi/offline/AtlasDoc/doc/DataModel/DataModel.pdf?rev=1.3). 
 
 More information is available from the Athena wiki 

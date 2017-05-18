@@ -84,12 +84,12 @@ namespace MonteCarloReact {
     friend std::ostream & operator << (std::ostream& os, const Efficiency& s);
   
   };
-}
 
-inline std::ostream& MonteCarloReact::operator << (std::ostream& os,
-                                                   const MonteCarloReact::Efficiency & eff) {
-  eff.m_doStream(os);
-  return os;
+  inline std::ostream& operator << (std::ostream& os, const Efficiency & eff) {
+    eff.m_doStream(os);
+    return os;
+  }
+
 }
 
 #endif  // MONTECARLOREACT_EFFICIENCY_H

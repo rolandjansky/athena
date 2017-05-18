@@ -97,7 +97,7 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
       // between the final quark in the decay chain and intermediates
       // That means the code is NOT appropriate for counting the number
       // of heavy flavor quarks!
-      if (m_Request_bQuark && fabs((*pitr)->pdg_id())==5 &&
+      if (m_Request_bQuark && std::abs((*pitr)->pdg_id())==5 &&
           (*pitr)->momentum().perp()>m_bPtMin &&
           fabs((*pitr)->momentum().pseudoRapidity())<m_bEtaMax) {
         if (m_RequireTruthJet) {
@@ -119,7 +119,7 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
       // That means the code is NOT appropriate for counting the number
       // of heavy flavor quarks!
       if (m_Request_cQuark &&
-          fabs((*pitr)->pdg_id())==4 &&
+          std::abs((*pitr)->pdg_id())==4 &&
           (*pitr)->momentum().perp()>m_cPtMin &&
           fabs((*pitr)->momentum().pseudoRapidity())<m_cEtaMax) {
         if (m_RequireTruthJet) {
@@ -174,7 +174,7 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
       // =========================
       bool pdgok = m_RequestSpecificPDGID &&
         ((*pitr)->pdg_id() == m_PDGID ||
-         (m_PDGAntiParticleToo && fabs((*pitr)->pdg_id()) == m_PDGID));
+         (m_PDGAntiParticleToo && std::abs((*pitr)->pdg_id()) == m_PDGID));
       if (pdgok && (*pitr)->momentum().perp() > m_PDGPtMin &&
           fabs((*pitr)->momentum().pseudoRapidity()) < m_PDGEtaMax) {
         if (m_RequireTruthJet) {

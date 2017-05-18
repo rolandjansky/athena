@@ -17,7 +17,6 @@
 
 // Atlas includes
 #include "AthenaKernel/errorcheck.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 static const InterfaceID IID_ITileRawChannelOF1Corrector("TileRawChannelOF1Corrector", 1, 0);
 
@@ -56,30 +55,7 @@ TileRawChannelOF1Corrector::TileRawChannelOF1Corrector(const std::string& type,
 StatusCode TileRawChannelOF1Corrector::initialize() {
 
   ATH_MSG_INFO("Initializing...");
-  
 
-  const IGeoModelSvc* geoModel = 0;
-  CHECK( service("GeoModelSvc", geoModel) );
-  
-  // dummy parameters for the callback:
-  int dummyInt = 0;
-  std::list<std::string> dummyList;
-  
-  if (geoModel->geoInitialized()) {
-    return geoInit(dummyInt, dummyList);
-  } else {
-    CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit, geoModel,
-                              &TileRawChannelOF1Corrector::geoInit, this) );
-  }
-  
-  return StatusCode::SUCCESS;
-}
-
-
-//
-// 
-StatusCode TileRawChannelOF1Corrector::geoInit(IOVSVC_CALLBACK_ARGS) {
-  
   CHECK( detStore()->retrieve(m_tileHWID) );
 
 

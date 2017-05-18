@@ -3,6 +3,10 @@ include.block ("InDetRecExample/InDetRecConditionsAccess.py")
 
 isData = (globalflags.DataSource == 'data')
 
+eventInfoKey = "ByteStreamEventInfo"
+if not isData:
+  eventInfoKey = "McEventInfo"
+
 if not ('conddb' in dir()):
   IOVDbSvc = Service("IOVDbSvc")
   from IOVDbSvc.CondDB import conddb
@@ -223,7 +227,8 @@ if DetFlags.haveRIO.SCT_on():
 
     # Load calibration conditions service
     from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataSvc
-    InDetSCT_ReadCalibDataSvc = SCT_ReadCalibDataSvc(name = "InDetSCT_ReadCalibDataSvc")
+    InDetSCT_ReadCalibDataSvc = SCT_ReadCalibDataSvc(name = "InDetSCT_ReadCalibDataSvc",
+                                                     EventInfoKey = eventInfoKey)
     ServiceMgr += InDetSCT_ReadCalibDataSvc
     if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_ReadCalibDataSvc
@@ -242,7 +247,8 @@ if DetFlags.haveRIO.SCT_on():
                                                                  OutputLevel   = INFO,
                                                                  WriteCondObjs = False,
                                                                  RegisterIOV   = False,
-                                                                 ReadWriteCool = True)
+                                                                 ReadWriteCool = True,
+                                                                 EventInfoKey  = eventInfoKey)
         ServiceMgr += InDetSCT_MonitorConditionsSvc
         if (InDetFlags.doPrintConfigurables()):
             print InDetSCT_MonitorConditionsSvc
@@ -288,7 +294,8 @@ if DetFlags.haveRIO.SCT_on():
             #conddb.addFolder("","<db>COOLONL_TDAQ/COMP200</db> /TDAQ/EnabledResources/ATLAS/SCT/Robins")
 
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledSvc
-        InDetSCT_TdaqEnabledSvc = SCT_TdaqEnabledSvc(name = "InDetSCT_TdaqEnabledSvc")
+        InDetSCT_TdaqEnabledSvc = SCT_TdaqEnabledSvc(name = "InDetSCT_TdaqEnabledSvc",
+                                                     EventInfoKey = eventInfoKey)
 
         ServiceMgr += InDetSCT_TdaqEnabledSvc
         if (InDetFlags.doPrintConfigurables()):

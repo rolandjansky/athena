@@ -32,7 +32,7 @@ WiredORdata::WiredORdata(DBline& data, int type) :
         if(get_data(data))
 	{
 	    WiredOR Wor(m_number,m_station,m_type,m_start,m_stop);
-            wor.push_back(Wor);
+            m_wor.push_back(Wor);
 	}
         data++;
     }while(!data("}"));
@@ -40,7 +40,7 @@ WiredORdata::WiredORdata(DBline& data, int type) :
 
 WiredORdata::~WiredORdata()
 {
-    wor.clear();
+    m_wor.clear();
 }
 
 void
@@ -87,10 +87,10 @@ WiredORdata::get_data(DBline& data)
 WiredOR*
 WiredORdata::give_wor(void)
 {
-    if(wor.size())
+    if(m_wor.size())
     {
-        WiredOR* Wor = new WiredOR(wor.front());
-	wor.pop_front();
+        WiredOR* Wor = new WiredOR(m_wor.front());
+	m_wor.pop_front();
 	return Wor;
     }
     return 0;
@@ -101,10 +101,10 @@ WiredORdata::Print(std::ostream& stream, bool detail) const
 {
     stream << "Wired OR data of station n. " << m_station;
     stream << " belonging to sector type " << m_type << std::endl;
-    stream << "It contains " << wor.size();
+    stream << "It contains " << m_wor.size();
     stream << " Wired ORs:" << std::endl;
     std::list < WiredOR >::const_iterator it;
-    for(it = wor.begin();it!=wor.end();++it) 
+    for(it = m_wor.begin();it!=m_wor.end();++it) 
         stream << ShowRequest<WiredOR>(*it,detail); 
 }
 

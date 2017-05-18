@@ -11,8 +11,8 @@
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandExponential.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
-#include "AtlasCLHEP_RandomGenerators/RandExpZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandExpZiggurat.h"
 
 // Gaudi includes
 #include "GaudiKernel/DataSvc.h"

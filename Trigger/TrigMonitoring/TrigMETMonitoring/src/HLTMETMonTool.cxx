@@ -45,6 +45,9 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   declareProperty("l1_key", m_lvl1_roi_key="LVL1EnergySumRoI");
   declareProperty("hlt_cell_key", m_hlt_cell_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET");
   declareProperty("hlt_mht_key", m_hlt_mht_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht");
+  declareProperty("hlt_mhtem_key", m_hlt_mhtem_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht_em");
+  declareProperty("hlt_trkmht_key", m_hlt_trkmht_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_trkmht");
+  declareProperty("hlt_trkmhtFTK_key", m_hlt_trkmhtFTK_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_trkmhtFTK");
   declareProperty("hlt_topocl_key", m_hlt_topocl_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl");
   declareProperty("hlt_topocl_PS_key", m_hlt_topocl_PS_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PS");
   declareProperty("hlt_topocl_PUC_key", m_hlt_topocl_PUC_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC");
@@ -242,6 +245,36 @@ StatusCode HLTMETMonTool::book() {
   //addHistogram(new TH2F("HLT_MET_etaphi_etweight_e", "HLT MET #eta/#phi(|Missing E_{T}|);#eta;#phi (rad) Signal-like e", 24, -4.8, 4.8, m_phi_bins, m_phi_min, m_phi_max));
 
 
+  /// Alternative algorithms: tc_lcw, tc_em, pueta, pufit, mht, feb, fex
+  for (std::vector<std::string>::iterator it2 = m_monitoring_alg.begin(); it2 != m_monitoring_alg.end(); it2++) {
+
+    std::string m_shifter_path_alg = mongroupName + "/" + *it2;
+    addMonGroup(new MonGroup(this, m_shifter_path_alg, run));
+    setCurrentMonGroup(m_shifter_path_alg);
+
+    addHistogram(new TH1F("HLT_MEx", "HLT Missing E_{x};E_{x} (GeV)", 199, -298.5,  298.5));
+    addHistogram(new TH1F("HLT_MEy", "HLT Missing E_{y};E_{y} (GeV)", 199, -298.5,  298.5));
+    addHistogram(new TH1F("HLT_MET", "HLT |Missing E_{T}|;ME_{T} (GeV)", m_et_bins, m_et_min, m_et_max));
+    addHistogram(new TH1F("HLT_MET_lin1", "HLT |Missing E_{T}| (0-10 GeV);ME_{T} (GeV)", 110, -0.5, 10.5));
+    addHistogram(new TH1F("HLT_SumEt", "HLT Sum |E_{T}|;SumE_{T} (GeV)", m_sumet_bins, m_sumet_min, m_sumet_max));
+    addHistogram(new TH1F("HLT_MET_phi", "HLT MET #phi (rad);#phi (rad)", m_phi_bins, m_phi_min, m_phi_max));
+    addHistogram(new TH1F("HLT_MET_phi_etweight", "HLT MET #phi(|Missing E_{T}|);#phi (rad)",    m_phi_bins, m_phi_min, m_phi_max));
+    addHistogram(new TH1F("HLT_MEx_log", "HLT Missing E_{x};sgn(E_{x}) log_{10}(E_{x}/GeV)", 27, -4.125, 4.125));
+    addHistogram(new TH1F("HLT_MEy_log", "HLT Missing E_{y};sgn(E_{y}) log_{10}(E_{y}/GeV)", 27, -4.125, 4.125));
+    addHistogram(new TH1F("HLT_MET_log", "HLT |Missing E_{T}|;log_{10}(ME_{T}/GeV)", 20, -1.875, 4.125));
+    addHistogram(new TH1F("HLT_SumEt_log", "HLT Sum |E_{T}|;log_{10}(SumE_{T}/GeV)", 20, -1.875, 4.125));
+    addHistogram(new TH1F("HLT_MEz", "HLT Missing E_{z};E_{z} (GeV)", 100, -298.5,298.5));
+    addHistogram(new TH1F("HLT_SumE", "HLT Sum |E|;SumE (GeV)", 153, -27., 18003.));
+    addHistogram(new TH1F("HLT_MEz_log", "HLT Missing E_{z};sgn(ME_{z}) log_{10}(ME_{z}/GeV)",27, -4.125, 4.125));
+    addHistogram(new TH1F("HLT_SumE_log", "HLT Sum |E|;log_{10}(SumE/GeV)",40, -1.875, 6.125));
+    addHistogram(new TH2F("HLT_MET_etaphi", "HLT MET #eta/#phi;#eta;#phi (rad)", 24, -4.8, 4.8, m_phi_bins, m_phi_min, m_phi_max));
+    addHistogram(new TH2F("HLT_MET_etaphi_etweight", "HLT MET #eta/#phi(|Missing E_{T}|);#eta;#phi (rad)", 24, -4.8, 4.8, m_phi_bins, m_phi_min, m_phi_max));
+    //addHistogram(new TH1F("HLT_XS", "HLT MET Significance;Significance (XS/GeV^{1/2})", 40, -0.025,  20.025));
+    //addHLTStatusHistogram();
+
+  }
+
+  
   if (!m_make_expert_histograms)
     return StatusCode::SUCCESS;  
 
@@ -328,36 +361,6 @@ StatusCode HLTMETMonTool::book() {
     //addHLTStatusHistogram();
 
   }
-  
-  /// Alternative algorithms: tc_lcw, tc_em, pueta, pufit, mht, feb, fex
-  for (std::vector<std::string>::iterator it2 = m_monitoring_alg.begin(); it2 != m_monitoring_alg.end(); it2++) {
-
-    std::string m_expert_path_alg = monGroupName + "/" + *it2;
-    addMonGroup(new MonGroup(this, m_expert_path_alg, run));
-    setCurrentMonGroup(m_expert_path_alg);
-
-    addHistogram(new TH1F("HLT_MEx", "HLT Missing E_{x};E_{x} (GeV)", 199, -298.5,  298.5));
-    addHistogram(new TH1F("HLT_MEy", "HLT Missing E_{y};E_{y} (GeV)", 199, -298.5,  298.5));
-    addHistogram(new TH1F("HLT_MET", "HLT |Missing E_{T}|;ME_{T} (GeV)", m_et_bins, m_et_min, m_et_max));
-    addHistogram(new TH1F("HLT_MET_lin1", "HLT |Missing E_{T}| (0-10 GeV);ME_{T} (GeV)", 110, -0.5, 10.5));
-    addHistogram(new TH1F("HLT_SumEt", "HLT Sum |E_{T}|;SumE_{T} (GeV)", m_sumet_bins, m_sumet_min, m_sumet_max));
-    addHistogram(new TH1F("HLT_MET_phi", "HLT MET #phi (rad);#phi (rad)", m_phi_bins, m_phi_min, m_phi_max));
-    addHistogram(new TH1F("HLT_MET_phi_etweight", "HLT MET #phi(|Missing E_{T}|);#phi (rad)",    m_phi_bins, m_phi_min, m_phi_max));
-    addHistogram(new TH1F("HLT_MEx_log", "HLT Missing E_{x};sgn(E_{x}) log_{10}(E_{x}/GeV)", 27, -4.125, 4.125));
-    addHistogram(new TH1F("HLT_MEy_log", "HLT Missing E_{y};sgn(E_{y}) log_{10}(E_{y}/GeV)", 27, -4.125, 4.125));
-    addHistogram(new TH1F("HLT_MET_log", "HLT |Missing E_{T}|;log_{10}(ME_{T}/GeV)", 20, -1.875, 4.125));
-    addHistogram(new TH1F("HLT_SumEt_log", "HLT Sum |E_{T}|;log_{10}(SumE_{T}/GeV)", 20, -1.875, 4.125));
-    addHistogram(new TH1F("HLT_MEz", "HLT Missing E_{z};E_{z} (GeV)", 100, -298.5,298.5));
-    addHistogram(new TH1F("HLT_SumE", "HLT Sum |E|;SumE (GeV)", 153, -27., 18003.));
-    addHistogram(new TH1F("HLT_MEz_log", "HLT Missing E_{z};sgn(ME_{z}) log_{10}(ME_{z}/GeV)",27, -4.125, 4.125));
-    addHistogram(new TH1F("HLT_SumE_log", "HLT Sum |E|;log_{10}(SumE/GeV)",40, -1.875, 6.125));
-    addHistogram(new TH2F("HLT_MET_etaphi", "HLT MET #eta/#phi;#eta;#phi (rad)", 24, -4.8, 4.8, m_phi_bins, m_phi_min, m_phi_max));
-    addHistogram(new TH2F("HLT_MET_etaphi_etweight", "HLT MET #eta/#phi(|Missing E_{T}|);#eta;#phi (rad)", 24, -4.8, 4.8, m_phi_bins, m_phi_min, m_phi_max));
-    //addHistogram(new TH1F("HLT_XS", "HLT MET Significance;Significance (XS/GeV^{1/2})", 40, -0.025,  20.025));
-    //addHLTStatusHistogram();
-
-  }
-
   
   /// Offline MET
   monGroupName = m_expert_path + "/Offline";
@@ -657,8 +660,43 @@ StatusCode HLTMETMonTool::fillMETHist() {
   if (sc.isFailure() || !m_hlt_mht_met_cont) {
     ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_mht_met_key << " from TDS");
   }
-  else 
+  else {
     ATH_MSG_DEBUG("Accessing met(mht) with " << m_hlt_mht_met_cont->size() << " elements");
+    //std::cout << "Found mht = " << m_hlt_mht_met_key << std::endl;
+  }
+
+  // Get HLT mhtem container
+  const xAOD::TrigMissingETContainer *m_hlt_mhtem_met_cont = 0;
+  sc = m_storeGate->retrieve(m_hlt_mhtem_met_cont, m_hlt_mhtem_met_key);
+  if (sc.isFailure() || !m_hlt_mhtem_met_cont) {
+    ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_mhtem_met_key << " from TDS");
+  }
+  else {
+    ATH_MSG_DEBUG("Accessing met(mhtem) with " << m_hlt_mhtem_met_cont->size() << " elements");
+    //std::cout << "Found mhtem = " << m_hlt_mhtem_met_key << std::endl;
+  }
+
+  // Get HLT trkmht container
+  const xAOD::TrigMissingETContainer *m_hlt_trkmht_met_cont = 0;
+  sc = m_storeGate->retrieve(m_hlt_trkmht_met_cont, m_hlt_trkmht_met_key);
+  if (sc.isFailure() || !m_hlt_trkmht_met_cont) {
+    ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_trkmht_met_key << " from TDS");
+  }
+  else {
+    ATH_MSG_DEBUG("Accessing met(trkmht) with " << m_hlt_trkmht_met_cont->size() << " elements");
+    //std::cout << "Found trkmht = " << m_hlt_trkmht_met_key << std::endl;
+  }
+
+  // Get HLT trkmhtFTK container
+  const xAOD::TrigMissingETContainer *m_hlt_trkmhtFTK_met_cont = 0;
+  sc = m_storeGate->retrieve(m_hlt_trkmhtFTK_met_cont, m_hlt_trkmhtFTK_met_key);
+  if (sc.isFailure() || !m_hlt_trkmhtFTK_met_cont) {
+    ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_trkmhtFTK_met_key << " from TDS");
+  }
+  else {
+    ATH_MSG_DEBUG("Accessing met(trkmhtFTK) with " << m_hlt_trkmhtFTK_met_cont->size() << " elements");
+    //std::cout << "Found trkmhtFTK = " << m_hlt_trkmhtFTK_met_key << std::endl;
+  }
 
   // Get HLT topocl container
   const xAOD::TrigMissingETContainer *m_hlt_topocl_met_cont = 0;
@@ -1036,6 +1074,138 @@ StatusCode HLTMETMonTool::fillMETHist() {
   // End of signal-like selection histograms #################
   //////////////////////////////////////////
 
+
+
+  //////////////////////////
+  // fill HLT histograms with alternative alg
+  std::string shifter_partial_path = m_shifter_path + "/HLT/";
+  for (std::vector<std::string>::iterator it2 = m_monitoring_alg.begin(); it2 != m_monitoring_alg.end(); it2++) {
+   
+    std::string name = *it2;
+    setCurrentMonGroup(shifter_partial_path+name);
+    ATH_MSG_DEBUG("Histogram Folder : " << shifter_partial_path+name);
+
+    //std::cout << "name = " << name << std::endl;
+    std::string algo = get_trigger_algo(name);
+    //std::cout << "algo = " << algo << std::endl;
+    ATH_MSG_DEBUG("Alternative Selected Alg : " << algo);
+    if (algo == "cell" && m_hlt_cell_met_cont && m_hlt_cell_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : Cell");
+      m_hlt_met = m_hlt_cell_met_cont->at(0);
+    } else if (algo == "mht" && m_hlt_mht_met_cont && m_hlt_mht_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : MHT");
+      m_hlt_met = m_hlt_mht_met_cont->at(0);
+    } else if (algo == "mhtem" && m_hlt_mhtem_met_cont && m_hlt_mhtem_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : mht_em");
+     m_hlt_met = m_hlt_mhtem_met_cont->at(0);
+    } else if (algo == "trkmht" && m_hlt_trkmht_met_cont && m_hlt_trkmht_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : trkmht");
+      m_hlt_met = m_hlt_trkmht_met_cont->at(0);
+    } else if (algo == "trkmhtFTK" && m_hlt_trkmhtFTK_met_cont && m_hlt_trkmhtFTK_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : trkmhtFTK");
+      m_hlt_met = m_hlt_trkmhtFTK_met_cont->at(0);
+    } else if (algo == "topocl" && m_hlt_topocl_met_cont && m_hlt_topocl_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : TopoCL");
+      m_hlt_met = m_hlt_topocl_met_cont->at(0);
+    } else if (algo == "topocl_PS" && m_hlt_topocl_PS_met_cont && m_hlt_topocl_PS_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : TopoCL_PS");
+      m_hlt_met = m_hlt_topocl_PS_met_cont->at(0);
+    } else if (algo == "topocl_PUC" && m_hlt_topocl_PUC_met_cont && m_hlt_topocl_PUC_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : TopoCL_PUC");
+      m_hlt_met = m_hlt_topocl_PUC_met_cont->at(0);
+    } else if (algo == "FEB" && m_hlt_FEB_met_cont && m_hlt_FEB_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : FEB");
+      m_hlt_met = m_hlt_FEB_met_cont->at(0);
+    } else if (algo == "Fex" && m_hlt_Fex_met_cont && m_hlt_Fex_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : FEX");
+      m_hlt_met = m_hlt_Fex_met_cont->at(0);
+    } else {
+      ATH_MSG_DEBUG("Alternative Alg : NONE");
+      m_hlt_met = 0;
+    }
+    ATH_MSG_DEBUG("m_hlt_met = " << m_hlt_met);
+    if (m_hlt_cell_met_cont && m_hlt_cell_met_cont->size()) {
+      ATH_MSG_DEBUG("m_hlt_met cell = " << m_hlt_cell_met_cont->at(0));
+      ATH_MSG_DEBUG("CELL MET Ex = " << m_hlt_cell_met_cont->at(0)->ex()/CLHEP::GeV);
+    }
+    if (m_hlt_mht_met_cont && m_hlt_mht_met_cont->size()) {
+      ATH_MSG_DEBUG("MHT  MET Ex = " << m_hlt_mht_met_cont->at(0)->ex()/CLHEP::GeV);
+    }
+    if (m_hlt_topocl_met_cont && m_hlt_topocl_met_cont->size()) {
+      ATH_MSG_DEBUG("CL   MET Ex = " << m_hlt_topocl_met_cont->at(0)->ex()/CLHEP::GeV);
+    }
+    if (m_hlt_topocl_PS_met_cont && m_hlt_topocl_PS_met_cont->size()) {
+      ATH_MSG_DEBUG("PS   MET Ex = " << m_hlt_topocl_PS_met_cont->at(0)->ex()/CLHEP::GeV);
+    }
+    if (m_hlt_topocl_PUC_met_cont && m_hlt_topocl_PUC_met_cont->size()) {
+      ATH_MSG_DEBUG("PUC  MET Ex = " << m_hlt_topocl_PUC_met_cont->at(0)->ex()/CLHEP::GeV);
+    }
+    if (m_hlt_FEB_met_cont && m_hlt_FEB_met_cont->size()) {
+      ATH_MSG_DEBUG("FEB  MET Ex = " << m_hlt_FEB_met_cont->at(0)->ex()/CLHEP::GeV);
+    }
+    
+    if (m_hlt_met) {  
+      float tmp_hlt_ex = m_hlt_met->ex()/CLHEP::GeV; 
+      float tmp_hlt_ey = m_hlt_met->ey()/CLHEP::GeV; 
+      float tmp_hlt_ez = m_hlt_met->ez()/CLHEP::GeV;
+      float tmp_hlt_met = sqrt(tmp_hlt_ex*tmp_hlt_ex+tmp_hlt_ey*tmp_hlt_ey); 
+      float tmp_hlt_sumet = m_hlt_met->sumEt()/CLHEP::GeV;
+      float tmp_hlt_sume  = m_hlt_met->sumE()/CLHEP::GeV; 
+      ATH_MSG_DEBUG("Alternative Ex = " << tmp_hlt_ex);
+      ATH_MSG_DEBUG("Alternative Ey = " << tmp_hlt_ey);
+      ATH_MSG_DEBUG("Alternative MET = " << tmp_hlt_met);
+      
+      CLHEP::Hep3Vector v(tmp_hlt_ex, tmp_hlt_ey, tmp_hlt_ez);
+      float tmp_hlt_eta = v.eta();
+      float tmp_hlt_phi = v.phi();
+      
+      float tmp_hlt_ex_log = -9e9;
+      float tmp_hlt_ey_log = -9e9;
+      float tmp_hlt_ez_log = -9e9;
+      float tmp_hlt_met_log = -9e9;
+      float tmp_hlt_sume_log = -9e9;
+      float tmp_hlt_sumet_log = -9e9;
+      //float tmp_hlt_me_log = -9e9;
+      
+      float epsilon = 1e-6;  // 1 keV
+      //if (tmp_hlt_me > epsilon)  tmp_hlt_me_log  = log10(fabsf(tmp_hlt_me)); // underflow otherwise
+      
+      epsilon = 1.189;
+      tmp_hlt_ex_log = signed_log(tmp_hlt_ex, epsilon);
+      tmp_hlt_ey_log = signed_log(tmp_hlt_ey, epsilon);
+      tmp_hlt_ez_log = signed_log(tmp_hlt_ez, epsilon);
+      tmp_hlt_met_log = signed_log(tmp_hlt_met, epsilon);
+      tmp_hlt_sume_log = signed_log(tmp_hlt_sume, epsilon);
+      tmp_hlt_sumet_log = signed_log(tmp_hlt_sumet, epsilon);
+      
+      if ((h = hist("HLT_MEx")))       h->Fill(tmp_hlt_ex);
+      if ((h = hist("HLT_MEy")))       h->Fill(tmp_hlt_ey);
+      if ((h = hist("HLT_MEz")))       h->Fill(tmp_hlt_ez);
+      if ((h = hist("HLT_MET")))       h->Fill(tmp_hlt_met);
+      if ((h = hist("HLT_MET_lin1")))  h->Fill(tmp_hlt_met);
+      if ((h = hist("HLT_SumEt")))     h->Fill(tmp_hlt_sumet);
+      if ((h = hist("HLT_MET_phi")) && tmp_hlt_met>0)   h->Fill(tmp_hlt_phi);
+      if ((h = hist("HLT_MET_phi_etweight")) && tmp_hlt_met>0)  h->Fill(tmp_hlt_phi, hlt_met); 
+      if ((h = hist("HLT_MEx_log")))   h->Fill(tmp_hlt_ex_log);
+      if ((h = hist("HLT_MEy_log")))   h->Fill(tmp_hlt_ey_log);
+      if ((h = hist("HLT_MEz_log")))   h->Fill(tmp_hlt_ez_log);
+      if ((h = hist("HLT_MET_log")))   h->Fill(tmp_hlt_met_log);
+      if ((h = hist("HLT_SumEt_log"))) h->Fill(tmp_hlt_sumet_log);
+      if ((h = hist("HLT_SumE")))      h->Fill(tmp_hlt_sume);
+      if ((h = hist("HLT_SumE_log")))  h->Fill(tmp_hlt_sume_log);
+      if ((h2 = hist2("HLT_MET_etaphi")) && tmp_hlt_met>0) h2->Fill(tmp_hlt_eta, tmp_hlt_phi);
+      if ((h2 = hist2("HLT_MET_etaphi_etweight")) && tmp_hlt_met>0) h2->Fill(tmp_hlt_eta, tmp_hlt_phi, tmp_hlt_met);
+      //if ((h = hist("HLT_XS"))) h->Fill(hlt_significance);
+
+    }
+
+  }
+  // End of alternative alg histograms
+  //////////////////////////
+
+
+
+
   if (!m_make_expert_histograms)
     return sc;
 
@@ -1258,121 +1428,6 @@ StatusCode HLTMETMonTool::fillMETHist() {
   //////////////////////////
 
 
-  //////////////////////////
-  // fill HLT histograms with alternative alg
-  expert_partial_path = m_expert_path + "/HLT/";
-  for (std::vector<std::string>::iterator it2 = m_monitoring_alg.begin(); it2 != m_monitoring_alg.end(); it2++) {
-   
-    std::string name = *it2;
-    setCurrentMonGroup(expert_partial_path+name);
-    ATH_MSG_DEBUG("Histogram Folder : " << expert_partial_path+name);
-
-    std::string algo = get_trigger_algo(name);
-    ATH_MSG_DEBUG("Alternative Selected Alg : " << algo);
-    if (algo == "cell" && m_hlt_cell_met_cont && m_hlt_cell_met_cont->size()>0) {
-      ATH_MSG_DEBUG("Alternative Alg : Cell");
-      m_hlt_met = m_hlt_cell_met_cont->at(0);
-    } else if (algo == "mht" && m_hlt_mht_met_cont && m_hlt_mht_met_cont->size()>0) {
-      ATH_MSG_DEBUG("Alternative Alg : MHT");
-      m_hlt_met = m_hlt_mht_met_cont->at(0);
-    } else if (algo == "topocl" && m_hlt_topocl_met_cont && m_hlt_topocl_met_cont->size()>0) {
-      ATH_MSG_DEBUG("Alternative Alg : TopoCL");
-      m_hlt_met = m_hlt_topocl_met_cont->at(0);
-    } else if (algo == "topocl_PS" && m_hlt_topocl_PS_met_cont && m_hlt_topocl_PS_met_cont->size()>0) {
-      ATH_MSG_DEBUG("Alternative Alg : TopoCL_PS");
-      m_hlt_met = m_hlt_topocl_PS_met_cont->at(0);
-    } else if (algo == "topocl_PUC" && m_hlt_topocl_PUC_met_cont && m_hlt_topocl_PUC_met_cont->size()>0) {
-      ATH_MSG_DEBUG("Alternative Alg : TopoCL_PUC");
-      m_hlt_met = m_hlt_topocl_PUC_met_cont->at(0);
-    } else if (algo == "FEB" && m_hlt_FEB_met_cont && m_hlt_FEB_met_cont->size()>0) {
-      ATH_MSG_DEBUG("Alternative Alg : FEB");
-      m_hlt_met = m_hlt_FEB_met_cont->at(0);
-    } else if (algo == "Fex" && m_hlt_Fex_met_cont && m_hlt_Fex_met_cont->size()>0) {
-      ATH_MSG_DEBUG("Alternative Alg : FEX");
-      m_hlt_met = m_hlt_Fex_met_cont->at(0);
-    } else {
-      ATH_MSG_DEBUG("Alternative Alg : NONE");
-      m_hlt_met = 0;
-    }
-    ATH_MSG_DEBUG("m_hlt_met = " << m_hlt_met);
-    if (m_hlt_cell_met_cont && m_hlt_cell_met_cont->size()) {
-      ATH_MSG_DEBUG("m_hlt_met cell = " << m_hlt_cell_met_cont->at(0));
-      ATH_MSG_DEBUG("CELL MET Ex = " << m_hlt_cell_met_cont->at(0)->ex()/CLHEP::GeV);
-      ATH_MSG_DEBUG("MHT  MET Ex = " << m_hlt_mht_met_cont->at(0)->ex()/CLHEP::GeV);
-    }
-    if (m_hlt_topocl_met_cont && m_hlt_topocl_met_cont->size()) {
-      ATH_MSG_DEBUG("CL   MET Ex = " << m_hlt_topocl_met_cont->at(0)->ex()/CLHEP::GeV);
-    }
-    if (m_hlt_topocl_PS_met_cont && m_hlt_topocl_PS_met_cont->size()) {
-      ATH_MSG_DEBUG("PS   MET Ex = " << m_hlt_topocl_PS_met_cont->at(0)->ex()/CLHEP::GeV);
-    }
-    if (m_hlt_topocl_PUC_met_cont && m_hlt_topocl_PUC_met_cont->size()) {
-      ATH_MSG_DEBUG("PUC  MET Ex = " << m_hlt_topocl_PUC_met_cont->at(0)->ex()/CLHEP::GeV);
-    }
-    if (m_hlt_FEB_met_cont && m_hlt_FEB_met_cont->size()) {
-      ATH_MSG_DEBUG("FEB  MET Ex = " << m_hlt_FEB_met_cont->at(0)->ex()/CLHEP::GeV);
-    }
-    
-    if (m_hlt_met) {  
-      
-      float tmp_hlt_ex = m_hlt_met->ex()/CLHEP::GeV; 
-      float tmp_hlt_ey = m_hlt_met->ey()/CLHEP::GeV; 
-      float tmp_hlt_ez = m_hlt_met->ez()/CLHEP::GeV;
-      float tmp_hlt_met = sqrt(tmp_hlt_ex*tmp_hlt_ex+tmp_hlt_ey*tmp_hlt_ey); 
-      float tmp_hlt_sumet = m_hlt_met->sumEt()/CLHEP::GeV;
-      float tmp_hlt_sume  = m_hlt_met->sumE()/CLHEP::GeV; 
-      ATH_MSG_DEBUG("Alternative Ex = " << tmp_hlt_ex);
-      ATH_MSG_DEBUG("Alternative Ey = " << tmp_hlt_ey);
-      ATH_MSG_DEBUG("Alternative MET = " << tmp_hlt_met);
-      
-      CLHEP::Hep3Vector v(tmp_hlt_ex, tmp_hlt_ey, tmp_hlt_ez);
-      float tmp_hlt_eta = v.eta();
-      float tmp_hlt_phi = v.phi();
-      
-      float tmp_hlt_ex_log = -9e9;
-      float tmp_hlt_ey_log = -9e9;
-      float tmp_hlt_ez_log = -9e9;
-      float tmp_hlt_met_log = -9e9;
-      float tmp_hlt_sume_log = -9e9;
-      float tmp_hlt_sumet_log = -9e9;
-      //float tmp_hlt_me_log = -9e9;
-      
-      float epsilon = 1e-6;  // 1 keV
-      //if (tmp_hlt_me > epsilon)  tmp_hlt_me_log  = log10(fabsf(tmp_hlt_me)); // underflow otherwise
-      
-      epsilon = 1.189;
-      tmp_hlt_ex_log = signed_log(tmp_hlt_ex, epsilon);
-      tmp_hlt_ey_log = signed_log(tmp_hlt_ey, epsilon);
-      tmp_hlt_ez_log = signed_log(tmp_hlt_ez, epsilon);
-      tmp_hlt_met_log = signed_log(tmp_hlt_met, epsilon);
-      tmp_hlt_sume_log = signed_log(tmp_hlt_sume, epsilon);
-      tmp_hlt_sumet_log = signed_log(tmp_hlt_sumet, epsilon);
-      
-      if ((h = hist("HLT_MEx")))       h->Fill(tmp_hlt_ex);
-      if ((h = hist("HLT_MEy")))       h->Fill(tmp_hlt_ey);
-      if ((h = hist("HLT_MEz")))       h->Fill(tmp_hlt_ez);
-      if ((h = hist("HLT_MET")))       h->Fill(tmp_hlt_met);
-      if ((h = hist("HLT_MET_lin1")))  h->Fill(tmp_hlt_met);
-      if ((h = hist("HLT_SumEt")))     h->Fill(tmp_hlt_sumet);
-      if ((h = hist("HLT_MET_phi")) && tmp_hlt_met>0)   h->Fill(tmp_hlt_phi);
-      if ((h = hist("HLT_MET_phi_etweight")) && tmp_hlt_met>0)  h->Fill(tmp_hlt_phi, hlt_met); 
-      if ((h = hist("HLT_MEx_log")))   h->Fill(tmp_hlt_ex_log);
-      if ((h = hist("HLT_MEy_log")))   h->Fill(tmp_hlt_ey_log);
-      if ((h = hist("HLT_MEz_log")))   h->Fill(tmp_hlt_ez_log);
-      if ((h = hist("HLT_MET_log")))   h->Fill(tmp_hlt_met_log);
-      if ((h = hist("HLT_SumEt_log"))) h->Fill(tmp_hlt_sumet_log);
-      if ((h = hist("HLT_SumE")))      h->Fill(tmp_hlt_sume);
-      if ((h = hist("HLT_SumE_log")))  h->Fill(tmp_hlt_sume_log);
-      if ((h2 = hist2("HLT_MET_etaphi")) && tmp_hlt_met>0) h2->Fill(tmp_hlt_eta, tmp_hlt_phi);
-      if ((h2 = hist2("HLT_MET_etaphi_etweight")) && tmp_hlt_met>0) h2->Fill(tmp_hlt_eta, tmp_hlt_phi, tmp_hlt_met);
-      //if ((h = hist("HLT_XS"))) h->Fill(hlt_significance);
-
-    }
-
-  }
-  // End of alternative alg histograms
-  //////////////////////////
-
   
   //////////////////////////
   // Offline MET
@@ -1468,8 +1523,14 @@ std::string HLTMETMonTool::get_trigger_level(std::string item)
 std::string HLTMETMonTool::get_trigger_algo(std::string item)
 {
   std::string algo = "";
-  if (item.find("mht") != std::string::npos)
+  if (item.find("mht_lcw") != std::string::npos)
     algo = "mht";
+  else if (item.find("mht_em") != std::string::npos)
+    algo = "mhtem";
+  else if (item.find("trkmht_FS") != std::string::npos)
+    algo = "trkmht";
+  else if (item.find("trkmht_FTK") != std::string::npos)
+    algo = "trkmhtFTK";
   else if (item.find("tc_lcw") != std::string::npos)
     algo = "topocl";
   else if (item.find("tc_em") != std::string::npos)

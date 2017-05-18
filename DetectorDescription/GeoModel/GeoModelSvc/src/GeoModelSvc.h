@@ -10,14 +10,14 @@
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelInterfaces/IGeoModelTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
 #include "AthenaBaseComps/AthService.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "EventInfoMgt/ITagInfoMgr.h"
 
-class StoreGateSvc;
 class ISvcLocator;
-class IToolSvc;
-class ITagInfoMgr;
 
 template <class TYPE> class SvcFactory;
 
@@ -35,10 +35,6 @@ public:
     // N.B. Don't forget to release the interface after use!!!
     virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
-    // Return a pointer to the store
-    StoreGateSvc* detStore() { return m_pDetStore; }
-
-    virtual StatusCode geoInit      (IOVSVC_CALLBACK_ARGS);
     virtual StatusCode align        (IOVSVC_CALLBACK_ARGS);
     virtual StatusCode compareTags  (IOVSVC_CALLBACK_ARGS);
 
@@ -65,15 +61,11 @@ private:
 
     ToolHandleArray< IGeoModelTool > m_detectorTools; // Detector Tools
 
-    //    StringArrayProperty m_names;		  // Detector names
-    bool                m_print;                  // Flag for print
-    //    std::vector<IGeoModelTool*>* m_detectors;     // Detector Tools
+    ISvcLocator*        m_pSvcLocator;
 
-    // cached pointers:
-    ISvcLocator*  m_pSvcLocator;                  // Service Locator
-    IToolSvc*     m_pToolSvc;     	          // Tool Service Locator
-    StoreGateSvc* m_pDetStore;        		  // The Transient Detector Store Service
-    ITagInfoMgr*  m_tagInfoMgr;                   // Tag Info Manager
+    ServiceHandle<IToolSvc>     m_toolSvc;     
+    ServiceHandle<StoreGateSvc> m_detStore;   
+    ServiceHandle<ITagInfoMgr>  m_tagInfoMgr;   
     ServiceHandle<IGeoDbTagSvc> m_geoDbTagSvc;
 
     std::string           m_AtlasVersion;
@@ -90,9 +82,8 @@ private:
     std::string           m_CavernInfraVersionOverride;
     std::string           m_ForwardDetectorsVersionOverride;
 
-    bool          m_automaticGeomVersion;         // Get geometry version from the input file
+    bool          m_printMaterials;               // Print the contents of the Material Manager at the end of geoInit
     bool          m_callBackON;                   // Register callback for Detector Tools
-    bool          m_geoInit;                      // True, if geometry was built successfully 
     bool          m_ignoreTagDifference;          // Keep going if TagInfo and property tags are different
                                                   // when geometry configured manually 
     bool          m_useTagInfo;                   // Flag for TagInfo usage
@@ -129,7 +120,7 @@ private:
 
     GeoModel::GeoConfig geoConfig() const {return m_geoDbTagSvc->geoConfig();}
 
-    bool geoInitialized() const;
+    StatusCode geoInit ();
     StatusCode fillTagInfo() const;
 };
 

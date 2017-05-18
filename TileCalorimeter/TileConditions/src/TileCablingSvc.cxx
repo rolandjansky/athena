@@ -72,25 +72,6 @@ StatusCode TileCablingSvc::initialize() {
   //=== 
   CHECK( m_detStore.retrieve() );
 
-  const IGeoModelSvc *geoModel = 0;
-  CHECK( service("GeoModelSvc", geoModel) );
-
-  // dummy parameters for the callback:
-  int dummyInt = 0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized()) {
-    return geoInit(dummyInt, dummyList);
-  } else {
-    CHECK( m_detStore->regFcn(&IGeoModelSvc::geoInit, geoModel, &TileCablingSvc::geoInit, this) );
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TileCablingSvc::geoInit(IOVSVC_CALLBACK_ARGS) {
-
-  ATH_MSG_DEBUG( "In geoInit() " );
-
   //=== retrieve all helpers from detector store
   const CaloLVL1_ID* caloID(0);
   CHECK( m_detStore->retrieve(caloID) );

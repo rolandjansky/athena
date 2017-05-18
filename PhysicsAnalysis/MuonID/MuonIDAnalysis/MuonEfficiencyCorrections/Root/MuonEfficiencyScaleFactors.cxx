@@ -526,9 +526,9 @@ namespace CP {
         } else if (!mySysConf.name().empty()) {
             for (std::set<SystematicVariation>::iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
                 if ((*t).isToyVariation()) {
-                    std::pair<unsigned, float> m_pair = (*t).getToyVariation();
-                    currentBinNumber = m_pair.first;
-                    currentEfficiencySystType = MuonEfficiencySystType(m_pair.second);
+                    std::pair<unsigned, float> mpair = (*t).getToyVariation();
+                    currentBinNumber = mpair.first;
+                    currentEfficiencySystType = MuonEfficiencySystType(mpair.second);
                 }
             }
             ATH_MSG_DEBUG("need to access currentBinNumber=" << currentBinNumber);

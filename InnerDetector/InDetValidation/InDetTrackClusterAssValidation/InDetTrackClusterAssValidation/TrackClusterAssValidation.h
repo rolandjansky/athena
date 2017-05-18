@@ -17,6 +17,7 @@
 #include "HepMC/GenParticle.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
+#include "StoreGate/ReadHandleKey.h"
 
 namespace InDet {
 
@@ -156,14 +157,14 @@ namespace InDet {
       double                             m_rmin                   ;
       double                             m_rmax                   ;
       std::vector<std::string>           m_tracklocation          ; 
-      std::string                        m_spacepointsSCTname     ;
+      SG::ReadHandleKey<SpacePointContainer> m_spacepointsSCTname ;
       std::string                        m_spacepointsPixelname   ;
       std::string                        m_spacepointsOverlapname ; 
-      std::string                        m_clustersSCTname        ;
+      SG::ReadHandleKey<SiClusterContainer> m_clustersSCTname     ;
       std::string                        m_clustersPixelname      ;
       std::string                        m_clustersTRTname        ;
       std::string                        m_truth_locationPixel    ;
-      std::string                        m_truth_locationSCT      ;
+      SG::ReadHandleKey<PRD_MultiTruthCollection> m_truth_locationSCT;
       std::string                        m_truth_locationTRT      ;
       const SpacePointContainer        * m_spacepointsSCT         ;
       const SpacePointContainer        * m_spacepointsPixel       ;

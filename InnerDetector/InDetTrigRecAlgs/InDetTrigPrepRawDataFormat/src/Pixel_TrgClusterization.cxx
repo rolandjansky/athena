@@ -38,9 +38,6 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 // Gaudi includes
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/ITHistSvc.h"
 #include "AthenaKernel/Timeout.h"
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"

@@ -22,9 +22,11 @@ grep ": Total" lbn ; echo
 
 #get info on number of events and files per lumi block in each run
 #rm -f lbnevents* # if you want to redo this
-rm -f runs_lbn_files.txt # if you want to redo this
-sstream="physics_ZeroBias" #pp
-#sstream="physics_MinBiasOverlay" #HI
+#rm -f runs_lbn_files.txt # if you want to redo this
+#sstream="physics_ZeroBias" #pp or UPC
+sstream="physics_MinBiasOverlay" #HI
+#suf="merge"
+suf="daq"
 rm -f runs_temp.txt
 for runn in `grep "subchild node value" lbn|cut -f 3 -d : |sed 's/[\x01-\x1F\x7F]//g'|sed 's%\[0m%%g'|sed 's%\[34m%%g'|sed ':a;N;$!ba;s/\n/ /g' `; do
  if [ ! -f lbnevents_${runn}.txt ]; then 
@@ -33,16 +35,25 @@ for runn in `grep "subchild node value" lbn|cut -f 3 -d : |sed 's/[\x01-\x1F\x7F
  fi 
  if [ ! -f runs_lbn_files.txt ]; then 
    echo "Getting file info for run $runn "
-   rucio list-file-replicas data16_13TeV.00${runn}.${sstream}.merge.RAW | grep "CERN-PROD_DATADISK" | cut -d '|' -f 6|sed "s% CERN-PROD_DATADISK: gsiftp://eosatlassftp.cern.ch:2811/%root://eosatlas.cern.ch//%" | sed -r 's/\s+//g' | grep "_lb" >> runs_temp.txt #pp 2015
-   #rucio list-file-replicas data15_hi.00${runn}.${sstream}.daq.RAW | grep "CERN-PROD_DATADISK" | cut -d '|' -f 6|sed "s% CERN-PROD_DATADISK: gsiftp://eosatlassftp.cern.ch:2811/%root://eosatlas.cern.ch//%" | sed -r 's/\s+//g' | grep "_lb" >> runs_temp.txt #HI 2015
-   echo -n "Replicated? : "; rucio list-dataset-replicas data16_13TeV.00${runn}.${sstream}.merge.RAW|grep CERN-PROD_DATADISK
-   nfound=`grep -c data runs_temp.txt`
-   echo "Found $nfound files so far"
+   rucio list-file-replicas data16_hip8TeV.00${runn}.${sstream}.${suf}.RAW | grep "CERN-PROD_TZDISK" | cut -d '|' -f 6|sed "s% CERN-PROD_TZDISK: gsiftp://eosatlassftp.cern.ch:2811/%root://eosatlas.cern.ch//%" | sed -r 's/\s+//g' | grep "_lb" > runs_temp_temp.txt
+   cat runs_temp_temp.txt >> runs_temp.txt
+   echo -n "Replicated? : "; rucio list-dataset-replicas data16_hip8TeV.00${runn}.${sstream}.${suf}.RAW|grep CERN-PROD_TZDISK
+   nfound=`grep -c data runs_temp_temp.txt`
+   echo "Found $nfound files on TZDISK"
+   if [ $nfound -eq 0 ]; then #look also on DATADISK if not found on TZDISK
+     echo "Getting file info for run $runn "
+     rucio list-file-replicas data16_hip8TeV.00${runn}.${sstream}.${suf}.RAW | grep "CERN-PROD_DATADISK" | cut -d '|' -f 6|sed "s% CERN-PROD_DATADISK: gsiftp://eosatlassftp.cern.ch:2811/%root://eosatlas.cern.ch//%" | sed -r 's/\s+//g' | grep "_lb" > runs_temp_temp.txt
+     cat runs_temp_temp.txt >> runs_temp.txt
+     echo -n "Replicated? : "; rucio list-dataset-replicas data16_hip8TeV.00${runn}.${sstream}.${suf}.RAW|grep CERN-PROD_DATADISK
+     nfound=`grep -c data runs_temp_temp.txt`
+     echo "Found $nfound files on DATADISK"
+   fi
  fi
 done #loop over all runs
+rm runs_temp_temp.txt
 if [ ! -f runs_lbn_files.txt ]; then mv runs_temp.txt runs_lbn_files.txt ; fi
 
-rm -f lbn_anal_map.txt # if you want to redo this
+#rm -f lbn_anal_map.txt # if you want to redo this
 if [ ! -f lbn_anal_map.txt ]; then root -l -b -q run_lbn_analyze.C > log_lbn_analyze.txt ; fi
 
 echo -n "Total events in dataset before GRL: "
@@ -54,7 +65,7 @@ grep "stream 1," lbn_anal_map.txt |cut -d ' ' -f 8 |awk '{total = total + $1}END
 echo -n "Selected events per stream: "
 grep "stream 8," lbn_anal_map.txt |cut -d ' ' -f 17 |awk '{total = total + $1}END{print total}'
 
-maxstream=0 #0 up to 49
+maxstream=19 #0 up to 49 - 19 does 1M events
 #split into all the desired streams
 for s in $(seq 0 $maxstream); do 
   grep "stream ${s}," lbn_anal_map.txt | grep -v "and 0 wanted" > lbn_anal_map_stream${s}.txt
@@ -65,16 +76,18 @@ done
 rm -f output_stream*/filelist_*.txt output_stream*/lbn_anal_map_*.txt
 python lbn_anal_map_splitter.py $maxstream > log_lbn_anal_map_splitter.txt
 rm output_stream*/*501.txt
-
-grep "not in files map" log_lbn_anal_map_splitter.txt
+grep "doesnt contain" log_lbn_anal_map_splitter.txt
 if [ $? == 0 ]; then exit; fi
+grep -c "not in files map" log_lbn_anal_map_splitter.txt
+#if [ $? == 0 ]; then exit; fi
+echo "$? files not found in map..."
 
 for s in $(seq 1 $maxstream); do
  echo "renaming stream $s to 0"
  for f in {1..500}; do sed -i -e "s%stream $s,%stream 0,%g" output_stream${s}/lbn_anal_map_${f}.txt; done
 done
 
-it=2016_pp_1 #just a name to tag this set of files
+it=2016_hip8TeV_1 #just a name to tag this set of files
 for s in $(seq 0 $maxstream); do cd output_stream${s}; tar cfz stream${s}_${it}.tar.gz *.txt; cd ..; done
 mv -v output_stream*/stream*_${it}.tar.gz ~/public/overlay/lists/
 

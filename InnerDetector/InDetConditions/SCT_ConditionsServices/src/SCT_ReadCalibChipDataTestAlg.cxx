@@ -30,7 +30,7 @@ using namespace std;
 SCT_ReadCalibChipDataTestAlg::SCT_ReadCalibChipDataTestAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_sc(0),
-  m_id_sct(0),
+  m_id_sct{nullptr},
   m_currentEventKey(std::string("EventInfo")),
   m_moduleId(0),
   m_waferId(0),

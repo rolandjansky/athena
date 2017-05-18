@@ -15,7 +15,7 @@
 // STL includes
 #include <string>
 
-// FrameWork includes
+// Framework includes
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ITHistSvc.h"
 

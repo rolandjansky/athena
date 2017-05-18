@@ -100,7 +100,7 @@ public:
    *
    * Returns failure the key string format is bad.
    */
-  StatusCode assign (const std::string& sgkey);
+  virtual StatusCode assign (const std::string& sgkey);
 
   
   /**

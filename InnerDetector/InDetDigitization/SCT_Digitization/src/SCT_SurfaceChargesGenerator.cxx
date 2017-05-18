@@ -12,7 +12,7 @@
 // random number service includes
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandomEngine.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 
 // CLHEP

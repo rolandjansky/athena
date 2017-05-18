@@ -74,7 +74,6 @@ class ISF_HitAnalysis : public AthAlgorithm {
    virtual StatusCode initialize();
    virtual StatusCode finalize();
    virtual StatusCode execute();
-   virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
    virtual StatusCode updateMetaData(IOVSVC_CALLBACK_ARGS);
 
    //bool get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector,CaloCell_ID_FCS::CaloSample sample);

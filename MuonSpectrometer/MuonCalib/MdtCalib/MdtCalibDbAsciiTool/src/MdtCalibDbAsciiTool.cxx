@@ -34,7 +34,7 @@
 #include "MdtCalibDbAsciiTool/StationT0FromFile.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 namespace MuonCalib {
 

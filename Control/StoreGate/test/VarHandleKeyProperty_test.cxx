@@ -147,6 +147,34 @@ void test3()
   assert (k4.clid() == 293847295);
   assert (k4.key() == "ddd");
   assert (k4.storeHandle().name() == "BazSvc");
+
+  SG::ReadDecorHandleKey<MyObj> k5;
+  SimplePropertyRef<SG::ReadDecorHandleKey<MyObj> > p5 ("p5.zzz", k5);
+  assert (p5.fromString ("FooSvc/bbb.zzz").isSuccess());
+  assert (k5.clid() == 293847295);
+  assert (k5.key() == "bbb.zzz");
+  assert (k5.storeHandle().name() == "FooSvc");
+
+  SG::WriteDecorHandleKey<MyObj> k6;
+  SimplePropertyRef<SG::WriteDecorHandleKey<MyObj> > p6 ("p6.zzz", k6);
+  assert (p6.fromString ("FooSvc/bbb.zzz").isSuccess());
+  assert (k6.clid() == 293847295);
+  assert (k6.key() == "bbb.zzz");
+  assert (k6.storeHandle().name() == "FooSvc");
+
+  SG::ReadCondHandleKey<MyObj> k7 ("p7");
+  SimplePropertyRef<SG::ReadCondHandleKey<MyObj> > p7 ("p7", k7);
+  assert (p7.fromString ("FooSvc/bbb").isSuccess());
+  assert (k7.clid() == 293847295);
+  assert (k7.key() == "bbb");
+  assert (k7.storeHandle().name() == "FooSvc");
+
+  SG::WriteCondHandleKey<MyObj> k8 ("p8", "dbkey");
+  SimplePropertyRef<SG::WriteCondHandleKey<MyObj> > p8 ("p8", k8);
+  assert (p8.fromString ("FooSvc/bbb").isSuccess());
+  assert (k8.clid() == 293847295);
+  assert (k8.key() == "bbb");
+  assert (k8.storeHandle().name() == "FooSvc");
 }
 
 

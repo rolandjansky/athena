@@ -2,12 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/IDataProviderSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/INTupleSvc.h"
-
 static const int MAX_nParticle = 128;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 

@@ -24,7 +24,7 @@ StatusCode TTbarFilter::filterEvent() {
     const HepMC::GenEvent* genEvt = (*itr);
     HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin();
     for (; pitr!=genEvt->particles_end(); ++pitr) {
-      if (fabs((*pitr)->pdg_id()) == 6) {
+      if (std::abs((*pitr)->pdg_id()) == 6) {
         if ( (*pitr)->pdg_id() ==  6 ) N_quark_t_all++;
         if ( (*pitr)->pdg_id() == -6 ) N_quark_tbar_all++;
         int n_daughters = 0;

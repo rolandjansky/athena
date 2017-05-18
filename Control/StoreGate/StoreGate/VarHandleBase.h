@@ -259,7 +259,7 @@ namespace SG {
      *
      * This implicitly does a reset().
      */
-    StatusCode setProxyDict (IProxyDict* store);
+    virtual StatusCode setProxyDict (IProxyDict* store);
 
 
     // FIXME: Remove this once IResetable is cleaned up.
@@ -291,6 +291,7 @@ namespace SG {
      * @brief Set the 'const' bit for the bound proxy in the store.
      */
     StatusCode setConst();
+
 
   protected: 
     //*************************************************************************
@@ -363,7 +364,7 @@ namespace SG {
      * @brief Retrieve an object from StoreGate.
      * @param quiet If true, suppress failure messages.
      */
-    void* typeless_dataPointer_impl(bool quiet);
+    virtual void* typeless_dataPointer_impl(bool quiet);
 
 
     /**

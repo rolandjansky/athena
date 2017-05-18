@@ -49,8 +49,6 @@ class TileCablingSvc: public AthService {
       return m_disconnectedCells;
     }
 
-    StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
   private:
 
     TileCablingService* m_cablingService;

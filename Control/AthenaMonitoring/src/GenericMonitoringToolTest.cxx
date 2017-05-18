@@ -42,13 +42,13 @@ StatusCode GenericMonitoringToolTest::finalize() {
 
 class Scalar {
 public:
-    Scalar() : mValue(0) { }
-    Scalar(double value) : mValue(value) { }
+    Scalar() : m_value(0) { }
+    Scalar(double value) : m_value(value) { }
     
-    void operator=(double value) { mValue = value; }
-    operator double() const { return mValue; }
+    void operator=(double value) { m_value = value; }
+    operator double() const { return m_value; }
 private:
-    double mValue;
+    double m_value;
 };
 
 class Track {

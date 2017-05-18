@@ -15,6 +15,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadDecorHandleKey.h"
+#include "StoreGate/WriteDecorHandleKey.h"
 #include "TestTools/initGaudi.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include <vector>
@@ -45,6 +47,9 @@ public:
   SG::ReadHandleKey<MyObj> rkey;
   SG::WriteHandle<MyObj> whandle;
 
+  SG::ReadDecorHandleKey<MyObj> rdkey;
+  SG::WriteDecorHandleKey<MyObj> wdkey;
+
   std::vector<Gaudi::DataHandle*> inputs;
   std::vector<Gaudi::DataHandle*> outputs;
 };
@@ -55,6 +60,8 @@ MyAlg::MyAlg  (const std::string& name, ISvcLocator* svcLoc)
 {
   declareProperty ("rkey", rkey);
   declareProperty ("whandle", whandle);
+  declareProperty ("rdkey", rdkey);
+  declareProperty ("wdkey", wdkey);
 }
 
 
@@ -91,15 +98,19 @@ void test1 (ISvcLocator* svcLoc)
   assert (alg.whandle.storeHandle().name() == "BarSvc");
   assert (alg.whandle.mode() == Gaudi::DataHandle::Writer);
 
-  std::vector<std::string> inputKeys { "aaa"  };
+  std::vector<std::string> inputKeys { "aaa", "yyy.qqq", "zzz"  };
   assert (alg.inputs.size() == inputKeys.size());
-  for (size_t i = 0; i < inputKeys.size(); i++)
+  for (size_t i = 0; i < alg.inputs.size(); i++) {
+    //std::cout << "inp " << alg.inputs[i]->objKey() << "\n";
     assert (alg.inputs[i]->objKey() == inputKeys[i]);
+  }
 
-  std::vector<std::string> outputKeys { "eee" };
+  std::vector<std::string> outputKeys { "eee", "zzz.rrr" };
   assert (alg.outputs.size() == outputKeys.size());
-  for (size_t i = 0; i < outputKeys.size(); i++)
+  for (size_t i = 0; i < alg.outputs.size(); i++) {
+    //std::cout << "out " << alg.outputs[i]->objKey() << "\n";
     assert (alg.outputs[i]->objKey() == outputKeys[i]);
+  }
 
   IProxyDict* xdict = &*alg.evtStore();
   xdict = alg.evtStore()->hiveProxyDict();
@@ -111,6 +122,8 @@ void test1 (ISvcLocator* svcLoc)
 
   DataObjIDColl exp = {
     { ClassID_traits<AthenaBaseCompsTest::MyObj>::ID(), "eee" },
+    { ClassID_traits<AthenaBaseCompsTest::MyObj>::ID(), "zzz.rrr" },
+    { ClassID_traits<AthenaBaseCompsTest::MyBase>::ID(), "zzz.rrr" },
     { ClassID_traits<AthenaBaseCompsTest::MyBase>::ID(), "eee" },
   };
   if (exp != alg.outputDataObjs()) {

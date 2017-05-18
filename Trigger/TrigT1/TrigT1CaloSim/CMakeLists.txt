@@ -38,7 +38,6 @@ atlas_depends_on_subdirs(
    Event/EventInfo
    Event/xAOD/xAODEventInfo
    LumiBlock/LumiBlockComps
-   Simulation/Tools/AtlasCLHEP_RandomGenerators
    Tools/PathResolver
    Trigger/TrigT1/TrigT1CaloCondSvc )
 
@@ -58,7 +57,7 @@ atlas_add_library( TrigT1CaloSimLib
    CaloDetDescrLib PileUpToolsLib StoreGateLib SGtests LArCablingLib
    TileConditionsLib TrigT1CaloEventLib TrigT1CaloUtilsLib LumiBlockCompsLib
    PRIVATE_LINK_LIBRARIES AthenaKernel CxxUtils EventInfo xAODEventInfo
-   AtlasCLHEP_RandomGenerators PathResolver TrigT1CaloCondSvcLib )
+   PathResolver TrigT1CaloCondSvcLib )
 
 atlas_add_component( TrigT1CaloSim
    src/components/*.cxx

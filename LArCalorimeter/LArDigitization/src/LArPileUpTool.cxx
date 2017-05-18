@@ -15,7 +15,7 @@
 
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/ITriggerTime.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CaloIdentifier/LArID.h"
 #include "CaloIdentifier/LArID_Exception.h"
 #include "CaloIdentifier/LArNeighbours.h"

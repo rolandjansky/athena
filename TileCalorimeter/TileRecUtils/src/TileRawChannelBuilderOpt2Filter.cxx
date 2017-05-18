@@ -20,7 +20,6 @@
 
 // Gaudi includes
 #include "GaudiKernel/Property.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 // Atlas includes
 #include "AthAllocators/DataPool.h"
@@ -152,26 +151,6 @@ StatusCode TileRawChannelBuilderOpt2Filter::initialize() {
   m_nCenter = 0;
   m_nConst = 0;
 
-  const IGeoModelSvc *geoModel = 0;
-  CHECK( service("GeoModelSvc", geoModel) );
-  
-  // dummy parameters for the callback:
-  int dummyInt = 0;
-  std::list<std::string> dummyList;
-  
-  if (geoModel->geoInitialized()) {
-    return geoInit(dummyInt, dummyList);
-  } else {
-    CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit, geoModel,
-        &TileRawChannelBuilderOpt2Filter::geoInit, this) );
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode TileRawChannelBuilderOpt2Filter::geoInit(IOVSVC_CALLBACK_ARGS) {
-  
   //=== get TileCondToolOfc
   CHECK( m_tileCondToolOfc.retrieve() );
   
