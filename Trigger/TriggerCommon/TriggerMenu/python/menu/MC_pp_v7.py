@@ -1045,6 +1045,9 @@ def setupMenu():
     ###########################################################################################################
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
 
+	['3mu4_bDimu2700',                'L1_3MU4', [], [BPhysicsStream],             [RATE_BphysTag,BW_BphysTag], -1],
+	['mu11_mu6_bTau',                  'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1],
+	
         #['2mu6_bMuMu_L12MU6', 'L1_2MU6', [], [PhysicsStream], [], -1], 
 
         ['2mu4_bBmumu_noL2',    'L1_2MU4', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
