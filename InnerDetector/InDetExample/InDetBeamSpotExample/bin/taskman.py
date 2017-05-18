@@ -50,7 +50,8 @@ parser.add_option('-v', '--verbose', dest='verbose', action='store_true', defaul
 parser.add_option('-n', '--nowildcards', dest='nowildcards', action='store_true', default=False, help='do not add wildcards when looking up dataset and task names')
 parser.add_option('-d', '--dbconn', dest='dbconn', default='', help='task manager database connection string (default: check TASKDB, otherwise use sqlite_file:taskdata.db)')
 parser.add_option('', '--proddir', dest='proddir', default='.', help='production directory (default: "."')
-parser.add_option('-p', '--pretty', dest='pretty', action='store_true', default=False, help='try to nicely format output')
+parser.add_option('-p', '--pretty', dest='pretty', action='store_true', default=None, help='try to nicely format output (default: auto)')
+parser.add_option('', '--no-pretty', dest='pretty', action='store_false', help='do not attempt to format output')
 parser.add_option('', '--runtaskname', dest='runtaskname', default='CB_BEAMSPOT', help='task name')
 (options,args) = parser.parse_args()
 

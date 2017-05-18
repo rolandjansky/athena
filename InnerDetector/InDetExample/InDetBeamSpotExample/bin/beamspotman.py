@@ -391,17 +391,20 @@ if cmd == 'show' and len(cmdargs)==1:
     run = cmdargs[0]
 
     c = getFullCastorPath(run)
-    print '\nCASTOR base path:   ', options.castorpath
-    print   'Project tag:        ', options.project
-    print   'Stream:             ', options.stream
-    print   'Full path:          ', c
-    print '\nFiles in CASTOR:\n'
+    print
+    print 'CASTOR base path:   ', options.castorpath
+    print 'Project tag:        ', options.project
+    print 'Stream:             ', options.stream
+    print 'Full path:          ', c
+    print
+    print 'Files in CASTOR (filtered by: %s):' % options.filter
+    print '---------------'
+
     pattern = re.compile(options.filter)
     for f in DiskUtils.ls(c, longls=True).split('\n'):
-        # for EOS use 'eos ls -l' 
         if pattern.search(f):
             (access,nfiles,user,group,size,modmonth,modyear,modtime,name) = f.split()
-            print '%-60s   %s files, last modified %s %s %s' % (name,nfiles,modmonth,modyear,modtime)
+            print '%-80s   %s file(s), last modified %s %s %s' % (name,nfiles,modmonth,modyear,modtime)
 
     print
     print 'Beam spot tasks:'
