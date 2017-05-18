@@ -565,35 +565,6 @@ namespace Trk
     const Trk::TrackParameters* first(nullptr) ;
     const Trk::TrackParameters* tp(nullptr) ;
 
-    if (m_keepParameters) {
-      // search first valid TSOS first
-      for ( DataVector<const TrackStateOnSurface>::const_iterator itTSoS = trackStates->begin(); itTSoS != trackStates->end(); ++itTSoS) {
-        if ( (*itTSoS)->type(TrackStateOnSurface::Measurement) && (*itTSoS)->trackParameters()!=0 &&  
-             (*itTSoS)->measurementOnTrack()!=0 && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*itTSoS)->measurementOnTrack())) {
-	  first = (*itTSoS)->trackParameters();
-          parameters.push_back((*itTSoS)->trackParameters());
-          parameterPositions.push_back(xAOD::FirstMeasurement);
-          break;
-        }
-      }
-
-      // search last valid TSOS first
-      for ( DataVector<const TrackStateOnSurface>::const_reverse_iterator rItTSoS = trackStates->rbegin(); rItTSoS != trackStates->rend(); ++rItTSoS) {
-        if ( (*rItTSoS)->type(TrackStateOnSurface::Measurement) && (*rItTSoS)->trackParameters()!=0 &&
-            (*rItTSoS)->measurementOnTrack()!=0 && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rItTSoS)->measurementOnTrack())) {
-          if (!(first == (*rItTSoS)->trackParameters())) {
-            parameters.push_back((*rItTSoS)->trackParameters());
-            parameterPositions.push_back(xAOD::LastMeasurement);
-          }
-          break;
-        }
-      }
-
-      // security check:
-      if (parameters.size() > 2)
-        ATH_MSG_WARNING ("More than two additional track parameters to be stored in TrackParticle!");
-    }
-
     if (m_badclusterID!=0) {
     for ( DataVector<const TrackStateOnSurface>::const_iterator itTSoS = trackStates->begin(); itTSoS != trackStates->end(); ++itTSoS) {
       if ( (*itTSoS)->type(TrackStateOnSurface::Measurement) && (*itTSoS)->trackParameters()!=0 &&
@@ -704,6 +675,36 @@ namespace Trk
     }
     }
     
+
+
+    if (m_keepParameters) {
+      // search first valid TSOS first
+      for ( DataVector<const TrackStateOnSurface>::const_iterator itTSoS = trackStates->begin(); itTSoS != trackStates->end(); ++itTSoS) {
+        if ( (*itTSoS)->type(TrackStateOnSurface::Measurement) && (*itTSoS)->trackParameters()!=0 &&  
+             (*itTSoS)->measurementOnTrack()!=0 && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*itTSoS)->measurementOnTrack())) {
+	  first = (*itTSoS)->trackParameters();
+          parameters.push_back((*itTSoS)->trackParameters());
+          parameterPositions.push_back(xAOD::FirstMeasurement);
+          break;
+        }
+      }
+
+      // search last valid TSOS first
+      for ( DataVector<const TrackStateOnSurface>::const_reverse_iterator rItTSoS = trackStates->rbegin(); rItTSoS != trackStates->rend(); ++rItTSoS) {
+        if ( (*rItTSoS)->type(TrackStateOnSurface::Measurement) && (*rItTSoS)->trackParameters()!=0 &&
+            (*rItTSoS)->measurementOnTrack()!=0 && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rItTSoS)->measurementOnTrack())) {
+          if (!(first == (*rItTSoS)->trackParameters())) {
+            parameters.push_back((*rItTSoS)->trackParameters());
+            parameterPositions.push_back(xAOD::LastMeasurement);
+          }
+          break;
+        }
+      }
+
+      // security check:
+      if (parameters.size() > 2)
+        ATH_MSG_WARNING ("More than two additional track parameters to be stored in TrackParticle!");
+    }
 
 
     // KeepAllPerigee will keep all perigee's on the track plus the parameters at the first measurement,
