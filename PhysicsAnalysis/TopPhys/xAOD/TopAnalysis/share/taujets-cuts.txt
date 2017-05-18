@@ -1,0 +1,88 @@
+LibraryNames libTopEventSelectionTools libTopEventReconstructionTools
+
+### Good Run List
+GRLDir  GoodRunsLists
+GRLFile data15_13TeV/20160720/physics_25ns_20.7.xml data16_13TeV/20170215/physics_25ns_20.7.xml
+
+### Pile-up reweighting tool - this is now mandatory
+### Now requires only PRWLumiCalcFiles
+### No PRWDefaultChannel anymore
+### The nominal mc15c PU distribution is now appended to PRWConfigFiles automatically
+### Will hence be using mc15c_v2_defaults.NotRecommended.prw.root if nothing is provided for PRWConfigFiles
+# PRWConfigFiles TopCorrections/PRW.410000.mc15c.r7725_r7676.root
+PRWConfigFiles
+PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root GoodRunsLists/data16_13TeV/20170215/physics_25ns_20.7.lumicalc.OflLumi-13TeV-008.root
+# no PRWDefaultChannel anymore
+
+ElectronCollectionName Electrons
+MuonCollectionName Muons
+JetCollectionName AntiKt4EMTopoJets
+LargeJetCollectionName None
+LargeJetSubstructure None
+TauCollectionName TauJets
+PhotonCollectionName None
+
+TruthCollectionName TruthParticles
+TruthJetCollectionName AntiKt4TruthWZJets
+TopPartonHistory ttbar
+TopParticleLevel True
+TruthBlockInfo False
+PDFInfo True
+
+ObjectSelectionName top::ObjectLoaderStandardCuts
+OutputFormat top::EventSaverFlatNtuple
+OutputEvents SelectedEvents
+OutputFilename output.root
+PerfStats No
+
+Systematics Nominal
+
+ElectronID TightLH
+ElectronIDLoose MediumLH
+ElectronIsolation Gradient
+ElectronIsolationLoose None
+
+MuonQuality Medium
+MuonQualityLoose Medium
+MuonIsolation Gradient
+MuonIsolationLoose None
+
+TauPt 25000
+TauJetIDWP Medium
+TauJetIDWPLoose Medium
+TauEleBDTWP Loose
+TauEleBDTWPLoose Loose
+TauEleOLR False
+TauEleOLRLoose False
+
+FakesControlRegionDoLooseMC False
+OverlapRemovalLeptonDef Tight
+ApplyElectronInJetSubtraction False
+
+UseAodMetaData False
+IsAFII False
+
+BTaggingWP FixedCutBEff_77
+
+SELECTION taujets
+INITIAL
+GRL
+GOODCALO
+PRIVTX
+#TRIGDEC HLT_mu26
+MU_N 25000 >= 1
+MU_N 25000 == 1
+EL_N 25000 >= 0
+TAU_N 20000 == 1
+#MU_TRIGGER_MATCH
+#EMU_OVERLAP
+#JETCLEAN LooseBad
+JET_N 25000 >= 1
+#JET_N 25000 >= 2
+#JET_N 25000 >= 3
+#JET_N 25000 >= 4
+#MET+MWT > 60000
+#JET_N_BTAG FixedCutBEff_77 >= 1
+#EXAMPLEPLOTS
+NOBADMUON
+SAVE
