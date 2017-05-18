@@ -1,6 +1,8 @@
+# $Id: CMakeLists.txt 804698 2017-05-11 16:03:27Z krumnack $
 ################################################################################
 # Package: AsgTools
 ################################################################################
+
 
 # Declare the package name:
 atlas_subdir( AsgTools )
@@ -10,9 +12,9 @@ if( XAOD_STANDALONE )
    set( deps Control/xAODRootAccessInterfaces Control/xAODRootAccess )
    set( libs xAODRootAccessInterfaces xAODRootAccess )
 else()
-   set( deps Control/xAODRootAccess Control/AthenaBaseComps Control/SGTools
-      Database/IOVDbDataModel GaudiKernel )
-   set( libs xAODRootAccess AthenaBaseComps SGTools IOVDbDataModel GaudiKernel )
+   set( deps Control/xAODRootAccess Control/AthenaBaseComps Control/SGTools Database/IOVDbDataModel
+      GaudiKernel )
+   set( libs AthenaBaseComps SGTools IOVDbDataModel GaudiKernel )
 endif()
 
 # Declare the package's dependencies:
@@ -22,6 +24,7 @@ atlas_depends_on_subdirs( PUBLIC ${deps} )
 find_package( Boost COMPONENTS regex )
 find_package( ROOT COMPONENTS Core )
 find_package( GTest )
+find_package( GMock )
 
 # Decide which sources to use:
 if( XAOD_STANDALONE )
@@ -67,6 +70,24 @@ atlas_add_test( ut_asgtools_toolstore
    LINK_LIBRARIES AsgTools )
 
 if( XAOD_STANDALONE )
+
+   atlas_add_test( gt_AsgTool
+      SOURCES test/gt_AsgTool.cxx
+      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+      LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} AsgTools
+      EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
+
+   atlas_add_test( gt_MessageCheck
+      SOURCES test/gt_MessageCheck.cxx
+      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+      LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} AsgTools
+      EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
+
+   atlas_add_test( gt_TProperty
+      SOURCES test/gt_TProperty.cxx
+      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+      LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools
+      EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
 
    atlas_add_test( gt_asgtools_toolhandle_test
       SOURCES test/gt_asgtools_toolhandle_test.cxx
