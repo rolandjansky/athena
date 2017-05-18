@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // sTgcDigitCollection.h
 
 #ifndef MUONSPECTROMETER_STGCDIGITCOLLECTION_H

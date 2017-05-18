@@ -1,9 +1,4 @@
 /* -*- C++ -*- */
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef MUONDIGITIZATION_STGC_DIGITIZATIONTOOL_H
 #define MUONDIGITIZATION_STGC_DIGITIZATIONTOOL_H
 /** @class sTgcDigitizationTool
@@ -160,11 +155,14 @@ private:
   float m_readoutThreshold;
   float m_neighborOnThreshold;
   float m_saturation;
+  
   //float m_ADC;
   bool  m_deadtimeON;
   bool  m_produceDeadDigits;
   float m_deadtimeStrip;
   float m_deadtimePad;
+  float m_readtimeStrip;
+  float m_readtimePad;
   float m_timeWindowOffsetPad;
   float m_timeWindowOffsetStrip;
   float m_timeWindowPad;
@@ -172,12 +170,14 @@ private:
   float m_bunchCrossingTime;
   float m_timeJitterElectronicsStrip;
   float m_timeJitterElectronicsPad;
+  float m_hitTimeMergeThreshold;
 
-  std::vector<int> m_hitSourceVec;
+  std::map< Identifier, int > m_hitSourceVec;
 
   void readDeadtimeConfig();
 
   uint16_t bcTagging(const float digittime, const int channelType) const;
+  int humanBC(uint16_t bctag);
 
   //TFile *m_file;
   //TH2F *m_SimHitOrg, *m_SimHitMerged, *m_SimHitDigitized, *m_SimHitDigitizedwPad, *m_SimHitDigitizedwoPad;

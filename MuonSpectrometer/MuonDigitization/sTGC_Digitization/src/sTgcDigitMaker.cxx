@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 ////////////////////////////////////////////////////////////////////////////////
 //-----------------------------------------------------
 // sTgcDigitMaker.cxx
@@ -135,7 +131,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
   sTgcSimIdToOfflineId simToOffline(*m_idHelper);  
   int simId = hit->GenericId();
   Identifier layid = simToOffline.convert(simId);
-  ATH_MSG_VERBOSE("sTgc hit:  " << hit->globalPosition().x() << "  " << hit->globalPosition().y() << "  " << hit->globalPosition().z() << " mclink " << hit->particleLink() );
+  ATH_MSG_VERBOSE("sTgc hit:  time " << hit->globalTime() << " position " << hit->globalPosition().x() << "  " << hit->globalPosition().y() << "  " << hit->globalPosition().z() << " mclink " << hit->particleLink() << " PDG ID " << hit->particleEncoding() );
 
   std::string stName = m_idHelper->stationNameString(m_idHelper->stationName(layid));
   int isSmall = stName[2] == 'S';
@@ -667,7 +663,7 @@ void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const f
     }
   }
   if(!duplicate) {
-    m_digits->push_back(new sTgcDigit(id, bctag, digittime, -1));
+    m_digits->push_back(new sTgcDigit(id, bctag, digittime, -1, 0, 0));
   }
 
   return;
@@ -738,7 +734,7 @@ void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const f
     }
   }
   if(!duplicate) {
-    m_digits->push_back(new sTgcDigit(id, bctag, digittime, charge));
+    m_digits->push_back(new sTgcDigit(id, bctag, digittime, charge, 0, 0));
   }
 
   return;
