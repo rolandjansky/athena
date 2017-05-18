@@ -17,7 +17,6 @@ RoIsUnpackingEmulationTool::RoIsUnpackingEmulationTool( const std::string& type,
 					  const std::string& name, 
 					  const IInterface* parent ) 
   : AthAlgTool ( type, name, parent ),
-    m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ),
     m_inputFilename("RoIEmulation.dat") {
 
   declareProperty( "Decisions", m_decisionsKey="EMRoIDecisions", "Decisions for each RoI" );
@@ -33,7 +32,6 @@ RoIsUnpackingEmulationTool::~RoIsUnpackingEmulationTool(){
 
 
 StatusCode RoIsUnpackingEmulationTool::initialize() {  
-  CHECK( m_configSvc.retrieve() );
   CHECK( m_decisionsKey.initialize() );
   CHECK( m_trigRoIsKey.initialize() );
 
@@ -109,7 +107,7 @@ std::vector<std::vector<RoIsUnpackingEmulationTool::FakeRoI>> RoIsUnpackingEmula
   if (result.size() == 0) {
     throw std::invalid_argument("File " + m_inputFilename + " does not contain any RoI");
   }
-  
+  ATH_MSG_DEBUG("Read in " << result.size() << " pseudo events from " << m_inputFilename );
   return result;
 }
 
@@ -153,32 +151,18 @@ RoIsUnpackingEmulationTool::FakeRoI RoIsUnpackingEmulationTool::parseInputRoI(co
 
 
 StatusCode RoIsUnpackingEmulationTool::updateConfiguration() {
-  using namespace TrigConf;
-
-  const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
-  auto filteredThresholds= thresholdConfig->getThresholdVector( L1DataDef::EM );
-  ATH_MSG_DEBUG( "Number of filtered thresholds " << filteredThresholds.size() );
-  for (auto th :  filteredThresholds ) {
-    if ( th != nullptr ) {
-      ATH_MSG_DEBUG( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier(th->name()).numeric() ); 
-      m_emThresholds.push_back(th);
-    } else {
-      ATH_MSG_DEBUG( "Nullptr to the threshold" ); 
-    }
-  }
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode RoIsUnpackingEmulationTool::finalize()
-{
+StatusCode RoIsUnpackingEmulationTool::finalize(){
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode RoIsUnpackingEmulationTool::unpack( const EventContext& ctx,
-						 const ROIB::RoIBResult& roib,
-						 const HLT::IDSet& activeChains ) const {
+					       const ROIB::RoIBResult& /*roib*/,
+					       const HLT::IDSet& activeChains ) const {
   using namespace TrigCompositeUtils;
   auto decisionOutput = std::make_unique<DecisionContainer>();
   auto decisionAux    = std::make_unique<DecisionAuxContainer>();
@@ -198,7 +182,7 @@ StatusCode RoIsUnpackingEmulationTool::unpack( const EventContext& ctx,
   int line = eventId % m_inputData.size();
   ATH_MSG_DEBUG("Getting RoIs for event "<<eventId<<": retrieve combination from line "<< line);
   auto FakeRoIs = m_inputData[line];
-
+  
   
   for (auto& roi : FakeRoIs) {
     uint32_t roIWord = roi.roIWord;      
@@ -211,20 +195,16 @@ StatusCode RoIsUnpackingEmulationTool::unpack( const EventContext& ctx,
     
     auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );
     
-    for ( auto th: m_emThresholds ) {
-      ATH_MSG_VERBOSE( "Checking if the threshold " << th->name() << " passed" );
-      for ( const auto& passedth: roi.passedThresholdIDs ) {
-	if (passedth == th->name() ){
-	  ATH_MSG_DEBUG("Passed Threshold name " << th->name());
-	  addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
-	}
-      }
+    for ( auto th: roi.passedThresholdIDs ) {
+      ATH_MSG_DEBUG( "Passed Threshold " << th << " enabling respective chains" );
+      addChainsToDecision( HLT::Identifier( th ), decision, activeChains );
+      
       
       // TODO would be nice to have this. Requires modifying the TC class: decision->setDetail("Thresholds", passedThresholds); // record passing threshold names (for easy debugging)            
       decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
     }
   }
-
+  
   for ( auto roi: *trigRoIs ) {
     ATH_MSG_DEBUG("RoI Eta: " << roi->eta() << " Phi: " << roi->phi() << " RoIWord: " << roi->roiWord());
   }
@@ -240,7 +220,6 @@ StatusCode RoIsUnpackingEmulationTool::unpack( const EventContext& ctx,
     CHECK ( handle.record( std::move( decisionOutput ), std::move( decisionAux )  ) );
   }
   return StatusCode::SUCCESS; // what else
-  
-   
+ 
 }
 

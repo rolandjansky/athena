@@ -16,21 +16,46 @@ svcMgr += ForwardSchedulerSvc()
 svcMgr.ForwardSchedulerSvc.ShowDataFlow=True
 svcMgr.ForwardSchedulerSvc.ShowControlFlow=True
 
+include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
+svcMgr.ByteStreamInputSvc.FullFileName = [ "./input.data" ]
+
+# This is the list of proxies to set up so that retrieval attempt will trigger the BS conversion
+if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
+    from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
+    svcMgr += ByteStreamAddressProviderSvc()
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult" ]
+
 # Event-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
-job = AlgSequence()
+topSequence = AlgSequence()
+
+
+from SGComps.SGCompsConf import SGInputLoader
+topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
+topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
+
+
 
 
 data = {'noreco': [';', ';', ';']}  # in the lists there are the events
-data['emclusters'] = ['eta:1,phi:1,et:2000; eta:1,phi:-1.2,et:3500;',
-                      'eta:0.5,phi:0,et:1000; eta:1,phi:-1.2,et:3500;',
-                      'eta:-0.6,phi:1.7,et:5000;']
-data['msmu']  = ['eta:-1.2,phi:0.7,pt:6500; eta:-1.1,phi:0.6,pt:8500;',
-                 'eta:-1.7,phi:-0.2,pt:6500;',
-                 ';']
-data['ctp'] = [ '', ]
-data['l1emroi'] = ['',]
-data['l1muroi'] = ['',]
+data['emclusters'] = ['eta:1,phi:1,et:180000; eta:1,phi:-1.2,et:35000;',
+                      'eta:0.5,phi:0,et:120000; eta:1,phi:-1.2,et:65000;',
+                      'eta:-0.6,phi:1.7,et:9000;']
+data['msmu']  = [';',
+                 'eta:-1.2,phi:0.7,pt:6500; eta:-1.1,phi:0.6,pt:8500;',
+                 'eta:-1.7,phi:-0.2,pt:9500;']
+
+data['ctp'] = [ 'HLT_g100',  'HLT_2g50 HLT_e20', 'HLT_mu20 HLT_mu8 HLT_2mu8 HLT_mu8_e8' ]
+
+data['l1emroi'] = ['1,1,0,EM3,EM7,EM15,EM20,EM50,EM100; 1,-1.2,0,EM3,EM7',
+                   '-0.6,0.2,0,EM3,EM7,EM15,EM20,EM50,EM100; 1,-1.1,0,EM3,EM7,EM15,EM20,EM50',
+                   '-0.6,1.5,0,EM3,EM7,EM7']
+
+data['l1muroi'] = ['0,0,0,MU0;',
+                   '-1,0.5,0,MU6,MU8; -1,0.5,0,MU6,MU8,MU10',
+                   '-1.5,-0.1,0,MU6,MU8']
+
+
 
 
 for name, d in data.iteritems():
@@ -69,10 +94,29 @@ def stepSeq(name, filterAlg, rest):
 
 
 TopHLTSeq = seqAND("TopHLTSeq")
-job += TopHLTSeq
+topSequence += TopHLTSeq
 
 L1UnpackingSeq = parOR("L1UnpackingSeq")
+from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
+l1Decoder = L1Decoder( OutputLevel=DEBUG )
+
+ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllChains=False , InputFilename="ctp.dat" )
+ctpUnpacker.CTPToChainMapping = [ "0:HLT_g100",  "1:HLT_e20", "2:HLT_mu20", "3:HLT_2mu8", "3:HLT_mu8", "33:HLT_2mu8", "15:HLT_mu8_e8" ]
+l1Decoder.ctpUnpacker = ctpUnpacker
+
+emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EMDecisions" )
+emUnpacker.ThresholdToChainMapping = ["EM7 : HLT_mu8_e8", "EM20 : HLT_e20", "EM50 : HLT_2g50",   "EM100 : HLT_g100" ]
+
+muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1muroi.dat",  OutputTrigRoIs="L1MURoIs", Decisions="L1MUDecisions" )
+muUnpacker.ThresholdToChainMapping = ["MU8 : HLT_mu8", "MU8 : HLT_2mu8", "MU10 : HLT_mu20",   "EM100 : HLT_g100" ]
+
+l1Decoder.roiUnpackers = [emUnpacker, muUnpacker]
+
+L1UnpackingSeq += l1Decoder
+
 TopHLTSeq += L1UnpackingSeq
+
+
 
 steps = [ parOR("step%i" % i) for i in range(5)]
 HLTChainsSeq  = seqAND("HLTChainsSeq", steps)

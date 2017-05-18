@@ -50,7 +50,9 @@ private:
 
   std::string              m_inputFileName;
   // @brief returns names oc the chains (iner vector) to activate for each event (outer vector) 
-  std::vector < std::set< size_t > > m_events; // list of CTPID enabled, per event
+  //  std::vector < std::set< size_t > > m_events; // list of CTPID enabled, per event
+  std::vector < HLT::IDVec > m_events;
+  size_t m_event = 0;
   StatusCode parseInputFile() ;
 
 }; 
