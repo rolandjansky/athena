@@ -131,8 +131,6 @@ if cmd == 'checkdb':
             sys.exit('ERROR: Integrity check still failed - please check')
         print 'INFO: SQLite file now passes integrity test (content may still have errors)'
         sys.exit(2)
-    sys.exit(0)
-
 
     print 'INFO: SQLite file {} ok'.format(dbfile)
     sys.exit(0)
