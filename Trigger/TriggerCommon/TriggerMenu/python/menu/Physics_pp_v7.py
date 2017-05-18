@@ -2382,6 +2382,7 @@ def setupMenu():
         ['mu20_bJpsi_TrkPEB',           'L1_MU21', [], ['BphysPEB'], [RATE_BphysTag,BW_BphysTag], -1],
         
         ['3mu4_bDimu',                    'L1_3MU4', [], [BMultiMuonStream,'express'], [RATE_BphysTag,BW_BphysTag], -1],
+	['3mu4_bDimu2700',                'L1_3MU4', [], [BPhysicsStream],             [RATE_BphysTag,BW_BphysTag], -1],
         ['3mu4_bJpsi',                    'L1_3MU4', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
         ['3mu4_bTau',                     'L1_3MU4', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
         ['3mu4_nomucomb_bTau',            'L1_3MU4', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],  # OI validation w.r.t 2016 
@@ -2494,6 +2495,7 @@ def setupMenu():
 
         ['mu11_2mu4noL1_bTau_L1MU11_2MU6', 'L1_MU11_2MU6', ['L1_MU11','L2_mu11'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','2mu4noL1']]],
         ['mu11_mu6noL1_bTau_L1MU11_2MU6',  'L1_MU11_2MU6', ['L1_MU11','L2_mu6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','mu6noL1']]],
+	['mu11_mu6_bTau',                  'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1],
         ['mu20_mu6noL1_bTau',              'L1_MU21', ['L1_MU21','L2_mu20'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu20','mu6noL1']]],
         ## LFV topo based nscan (ATR-14352)
         ['mu11_2mu4noL1_bTau_L1LFV-MU',    'L1_LFV-MU', ['L1_MU10','L2_mu11'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','2mu4noL1']]],      
