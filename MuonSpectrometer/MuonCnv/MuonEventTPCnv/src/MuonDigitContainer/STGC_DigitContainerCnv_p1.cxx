@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #include "MuonDigitContainer/sTgcDigit.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "MuonEventTPCnv/MuonDigitContainer/STGC_Digit_p1.h"
@@ -23,6 +19,7 @@
 #include "MuonEventTPCnv/CreateTransientTemplates.h"
 
 
+//#include "DataModel/DataPool.h"
 /*******************************************************************************/
 StatusCode Muon::STGC_DigitContainerCnv_p1::initialize(MsgStream &log) {
   // Do not initialize again:
