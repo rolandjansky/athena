@@ -50,7 +50,7 @@ FTKMerger.doMerging = True # this enables the behavior of the FTKMergerAlgo as F
 
 runArgsMandatory =  ['NBanks', 'NSubRegions', 'pmap_path', 'loadHWConf_path']
 
-runArgsOptional = {'FirstRegion': 0, 'FirstSubreg': 0, 'MergeRegion': -1, 'HWNDiff': 6, 'HitWarrior': 2}
+runArgsOptional = {'FirstRegion': 0, 'FirstSubreg': 0, 'MergeRegion': -1, 'HWNDiff': 6, 'HitWarriorMerger': 2}
 
 nb=64
 
@@ -165,15 +165,15 @@ FTKTagOptions['SectorsAsPatterns12LHWMode2'] = \
 
 FTKTagOptions['FitITk'] = {
     'MergeRoads' : True ,
-    'HitWarrior' : 0 ,
+    'HitWarriorMerger' : 0 ,
 }
 FTKTagOptions['FitITkSaP'] = {
     'MergeRoads' : True ,
-    'HitWarrior' : 0 ,
+    'HitWarriorMerger' : 0 ,
 }
 FTKTagOptions['FitITkDC'] = {
     'MergeRoads' : True ,
-    'HitWarrior' : 0 ,
+    'HitWarriorMerger' : 0 ,
 }
 
 
@@ -228,6 +228,10 @@ for runArgName in runArgsMandatory + runArgsOptional.keys() :
       setattr(FTKMerger, runArgName, runArgsOptional[runArgName])
    else:
        raise RuntimeError, 'Failed to find mandatory FTKMerger runtime argument for transform %s' % runArgName
+
+if hasattr(runArgs, 'HitWarriorMerger'):
+  FTKMerger.HitWarriorMerger = runArgs.HitWarriorMerger  
+
 
 # set a meaningful name for the PerfMon file
 if FTKMerger.MergeRegion < 0:
