@@ -97,6 +97,10 @@ class ChainDef:
     def appendSignature(self, listOfTriggerElements):
         """add new signature to the end of the signature list and increment chain counter automatically"""
 
+        for s in self.signatureList:
+            if( s["listOfTriggerElements"] == listOfTriggerElements ):
+                return
+
         self.signatureList.append(
             {'signature_counter': self.signatureList[-1]["signature_counter"]+1,
              'listOfTriggerElements': listOfTriggerElements})
