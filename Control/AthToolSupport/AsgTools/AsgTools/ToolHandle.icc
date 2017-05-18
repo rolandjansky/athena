@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: ToolHandle.icc 802972 2017-04-15 18:13:17Z krumnack $
+// $Id: ToolHandle.icc 804869 2017-05-15 20:14:34Z krumnack $
 #ifndef ASGTOOLS_TOOLHANDLE_ICC
 #define ASGTOOLS_TOOLHANDLE_ICC
 
@@ -20,7 +20,7 @@ ToolHandle< T >::ToolHandle( T* ptool )
 }
 
 template< class T >
-ToolHandle< T >::ToolHandle( const std::string& typeAndName, asg::IAsgTool* parent )
+ToolHandle< T >::ToolHandle( const std::string& typeAndName, INamedInterface* parent )
 : ToolHandleBase( typeAndName , parent ), m_ptool( 0 ) {
 
 }
