@@ -11,6 +11,7 @@
 // includes
 //
 
+#undef NDEBUG
 #include <RootCoreUtils/Global.h>
 
 #include <iostream>
