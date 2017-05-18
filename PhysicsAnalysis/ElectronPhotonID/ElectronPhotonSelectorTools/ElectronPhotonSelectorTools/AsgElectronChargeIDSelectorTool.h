@@ -125,7 +125,7 @@ private:
 
   //BDT instances for different ID operating points (Tight, Medium, Loose) and the vector corresponds to n-fold
   const unsigned m_nfold  =1;
-  const unsigned bdt_index=0;
+  const unsigned m_bdt_index=0;
   std::vector<MVAUtils::BDT*> m_v_bdts;
 
   TString m_pid_name;

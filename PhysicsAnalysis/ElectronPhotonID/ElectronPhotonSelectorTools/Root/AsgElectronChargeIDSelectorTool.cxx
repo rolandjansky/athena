@@ -415,7 +415,7 @@ const Root::TResult& AsgElectronChargeIDSelectorTool::calculate( const xAOD::Ele
   if (!allFound) ATH_MSG_FATAL("Missing input variable for ECIDS BDT calculation");
 
   //long unsigned event_number=0;
-  //unsigned bdt_index=event_number%2;
+  //unsigned m_bdt_index=event_number%2;
 
   ////KM: dumping variables
   for (auto input: m_map_inputs)
@@ -423,11 +423,11 @@ const Root::TResult& AsgElectronChargeIDSelectorTool::calculate( const xAOD::Ele
 
   ////KM: dumping variables, only variables used by BDT
   // unsigned i=0;
-  // for (auto pointer: m_v_bdts.at(bdt_index)->GetPointers()) {
+  // for (auto pointer: m_v_bdts.at(m_bdt_index)->GetPointers()) {
   //   std::cout<<"\t kmdebug: "<<m_inputVars.at(i)<<"\t("<<pointer<<")\t = "<<*pointer<<std::endl; i++;
   // }
 
-  double bdt_output = m_v_bdts.at(bdt_index)->GetGradBoostMVA(m_v_bdts.at(bdt_index)->GetPointers());
+  double bdt_output = m_v_bdts.at(m_bdt_index)->GetGradBoostMVA(m_v_bdts.at(m_bdt_index)->GetPointers());
   ATH_MSG_DEBUG("ECIDS-BDT= "<<bdt_output);
 
   m_resultBDT.setResult(m_resultPosition_bdt,bdt_output);
