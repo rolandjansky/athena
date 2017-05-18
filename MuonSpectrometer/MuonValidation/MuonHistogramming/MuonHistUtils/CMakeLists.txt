@@ -5,6 +5,13 @@
 # Declare the package name:
 atlas_subdir( MuonHistUtils )
 
+set( extra_deps )
+set( extra_libs )
+if( XAOD_STANDALONE )
+    set( extra_dep Tracking/TrkEvent/TrkEventPrimitives )
+    set( extra_libs TrkEventPrimitives )
+endif()
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODMuon
@@ -12,11 +19,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigMuon
                           Event/xAOD/xAODTrigger
                           Event/xAOD/xAODTruth
-                          Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkValidation/TrkValHistUtils
                           PRIVATE
                           DetectorDescription/GeoPrimitives
-                          MuonSpectrometer/MuonIdHelpers )
+                          MuonSpectrometer/MuonIdHelpers
+                          ${extra_deps} )
 
 # External dependencies:
 find_package( Eigen )
@@ -29,6 +36,6 @@ atlas_add_library( MuonHistUtils
                    PUBLIC_HEADERS MuonHistUtils
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon xAODTracking xAODTrigMuon xAODTrigger xAODTruth TrkEventPrimitives TrkValHistUtils MuonIdHelpersLib
-                   PRIVATE_LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon xAODTracking xAODTrigMuon xAODTrigger xAODTruth TrkValHistUtils MuonIdHelpersLib
+                   PRIVATE_LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives ${extra_libs} )
 
