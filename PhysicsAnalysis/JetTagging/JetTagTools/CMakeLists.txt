@@ -90,9 +90,10 @@ atlas_add_library( JetTagToolsLib
    JetRecLib JetSubStructureMomentToolsLib egammaMVACalibLib MVAUtils
    TrackVertexAssociationToolLib ParticleJetToolsLib JetTagCalibrationLib
    MuonSelectorToolsLib MuonMomentumCorrectionsLib TrkNeuralNetworkUtilsLib
+   VxSecVertex
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${FASTJET_LIBRARIES} AthenaKernel
    Navigation xAODMuon JetEDM Particle ITrackToVertex TrkEventPrimitives
-   TrkLinks TrkTrack TrkTrackSummary VxJetVertex VxSecVertex VxVertex
+   TrkLinks TrkTrack TrkTrackSummary VxJetVertex VxVertex
    TrkVertexFitterInterfaces )
 
 atlas_add_component( JetTagTools
