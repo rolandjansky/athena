@@ -193,6 +193,11 @@ def getTaskManager():
         print 'ERROR: Unable to access task manager database %s' % options.dbconn
         sys.exit(1)
 
+def fail(message):
+    print
+    print 'ERROR:' % message
+    sys.exit(1)
+
 
 #
 # Upload any SQLite file to COOL (independent of task, w/o book keeping)
@@ -200,11 +205,11 @@ def getTaskManager():
 if cmd == 'upload' and len(cmdargs) == 1:
     dbfile = args[1]
     if not options.beamspottag:
-        sys.exit('ERROR: No beam spot tag specified')
+        fail('No beam spot tag specified')
     try:
         passwd = open(os.environ.get('HOME')+prodcoolpasswdfile,'r').read().strip()
     except:
-        sys.exit('ERROR: Unable to determine COOL upload password')
+        fail('Unable to determine COOL upload password')
 
     print
     print 'Beam spot file:   ', dbfile
@@ -225,9 +230,7 @@ if cmd == 'upload' and len(cmdargs) == 1:
         options.srcdbname,
         passwd))
 
-    if stat:
-        print "\n\nERROR: UPLOADING TO COOL FAILED - PLEASE CHECK CAREFULLY!\n\n"
-        sys.exit(1)
+    if stat: fail("UPLOADING TO COOL FAILED - PLEASE CHECK CAREFULLY!")
     sys.exit(0)
 
 
@@ -455,8 +458,7 @@ if cmd == 'postproc' and len(cmdargs) in [2,3]:
                     confirmWithUser=not options.batch,
                     addWildCards=not options.nowildcards)
         except TaskManagerCheckError, e:
-            print e
-            sys.exit(1)
+            fail(e)
         for taskName in taskList:
             t = taskman.getTaskDict(taskName[0], taskName[1])
             if steps:
