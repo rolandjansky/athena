@@ -141,12 +141,12 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
 
   // Accessors
   //static SG::AuxElement::ConstAccessor<int> acc_nVertex("NUMVERTICES");
-  static SG::AuxElement::ConstAccessor<float> acc_mu("MU");
-  static SG::AuxElement::ConstAccessor<float> acc_pt("pt");
-  static SG::AuxElement::ConstAccessor<int> acc_numTrack("NUMTRACK");
-  static SG::AuxElement::ConstAccessor<float> acc_absEta("ABS_ETA_LEAD_TRACK");
-  static SG::AuxElement::ConstAccessor<float> acc_score(m_scoreName);
-  static SG::AuxElement::Accessor<float> acc_newScore(m_newScoreName);
+  static const SG::AuxElement::ConstAccessor<float> acc_mu("MU");
+  static const SG::AuxElement::ConstAccessor<float> acc_pt("pt");
+  static const SG::AuxElement::ConstAccessor<int> acc_numTrack("NUMTRACK");
+  static const SG::AuxElement::ConstAccessor<float> acc_absEta("ABS_ETA_LEAD_TRACK");
+  SG::AuxElement::ConstAccessor<float> acc_score(m_scoreName);
+  SG::AuxElement::Accessor<float> acc_newScore(m_newScoreName);
 
   // histograms
   std::vector<m_pair_t> *histArray;
