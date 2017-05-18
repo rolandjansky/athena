@@ -1,0 +1,8 @@
+PACKAGE          = SampleHandler
+PACKAGE_PRELOAD  = Tree Proof PyROOT
+PACKAGE_CXXFLAGS =
+PACKAGE_LDFLAGS  = 
+PACKAGE_DEP      = RootCoreUtils Asg_GoogleTest AsgTools
+PACKAGE_PEDANTIC = 1
+
+include $(ROOTCOREDIR)/Makefile-common
