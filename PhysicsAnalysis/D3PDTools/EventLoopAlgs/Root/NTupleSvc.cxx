@@ -31,10 +31,6 @@
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
 
-#ifdef EVENT_LOOP_D3PDREADER
-#include <D3PDReader/Event.h>
-#endif
-
 //
 // method implementations
 //
@@ -72,7 +68,7 @@ namespace EL
   NTupleSvc ::
   NTupleSvc (const std::string& val_outputName)
     : m_file (0), m_tree (0), m_initialized (false),
-      m_d3pdreader (0), m_whiteboard (0)
+      m_whiteboard (0)
   {
     RCU_REQUIRE_SOFT (!val_outputName.empty());
 
@@ -277,10 +273,6 @@ namespace EL
 	iter->buffer[0] = m_whiteboard->getFloat (iter->name);
     }
 
-#ifdef EVENT_LOOP_D3PDREADER
-    if (m_d3pdreader)
-      m_d3pdreader->ReadAllActive();
-#endif
     m_tree->Fill ();
     return EL::StatusCode::SUCCESS;
   }
@@ -306,9 +298,6 @@ namespace EL
       m_initialized = true;
 
       std::set<std::string> branchList;
-
-      if (wk()->hasD3pdreader())
-	m_d3pdreader = wk()->d3pdreader();
 
       findBranches (branchList);
       initOutput (branchList);
