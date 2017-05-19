@@ -173,17 +173,19 @@ namespace met {
 	ATH_MSG_WARNING("Failed to extract ghost truth particles from jet");
       } else {
 	for (const auto& el : cacc_ghosttruth(*jet)) {
-	  const xAOD::TruthParticle *truth = static_cast<const xAOD::TruthParticle*>(*el);
-	  ATH_MSG_VERBOSE("Jet contains truth particle with pt " << truth->pt()
-			  << " status " << truth->status()
-			  << " pdgId " << truth->pdgId() );
-	  if(fabs(truth->charge())>1e-9) {
-	    trkvec += *truth;
-	  }
-	  if(!truth->isMuon()) {
-	    jetconst.push_back(el);
-	    jetTruth.push_back(truth);
-	    truthvec += *truth;
+	  if(el.isValid()) {
+	    const xAOD::TruthParticle *truth = static_cast<const xAOD::TruthParticle*>(*el);
+	    ATH_MSG_VERBOSE("Jet contains truth particle with pt " << truth->pt()
+			    << " status " << truth->status()
+			    << " pdgId " << truth->pdgId() );
+	    if(fabs(truth->charge())>1e-9) {
+	      trkvec += *truth;
+	    }
+	    if(!truth->isMuon()) {
+	      jetconst.push_back(el);
+	      jetTruth.push_back(truth);
+	      truthvec += *truth;
+	    }
 	  }
 	}
       }
@@ -225,8 +227,11 @@ namespace met {
     const TruthEvent* hsevent = truthEventCont->front();
     ConstDataVector<TruthParticleContainer> truthParticleCont(SG::VIEW_ELEMENTS);
     for(size_t itp=0; itp<hsevent->nTruthParticles(); ++itp) {
-      truthParticleCont.push_back(hsevent->truthParticle(itp));
-      ATH_MSG_VERBOSE("Extracted truth particle with index " << hsevent->truthParticle(itp)->index() );
+      const xAOD::TruthParticle* tp = hsevent->truthParticle(itp);
+      if(tp) {
+	truthParticleCont.push_back(tp);
+	ATH_MSG_VERBOSE("Extracted truth particle with index " << tp->index() );
+      }
     }
 
     const IParticleContainer* uniqueTruth = metMap->getUniqueSignals(truthParticleCont.asDataVector(),MissingETBase::UsageHandler::TruthParticle);
@@ -301,7 +306,10 @@ namespace met {
     const TruthEvent* hsevent = truthEventCont->front();
     ConstDataVector<TruthParticleContainer> truthParticleCont(SG::VIEW_ELEMENTS);
     for(size_t itp=0; itp<hsevent->nTruthParticles(); ++itp) {
-      truthParticleCont.push_back(hsevent->truthParticle(itp));
+      const xAOD::TruthParticle* tp = hsevent->truthParticle(itp);
+      if(tp) {
+	truthParticleCont.push_back(tp);
+      }
     }
 
     for(const auto& truth : truthParticleCont) {
@@ -312,6 +320,8 @@ namespace met {
       if(MC::isNonInteracting(truth->pdgId())) continue;
       float etasize = 0.025/2;
       float phisize = 0.025/2;
+      bool isSuperCluster = false;
+      float Rsize = 0.;
       switch(el->caloCluster()->clusterSize()) {
       case xAOD::CaloCluster::SW_55ele:
 	etasize *= 5; phisize *=5;
@@ -322,13 +332,19 @@ namespace met {
       case xAOD::CaloCluster::SW_37ele:
 	etasize *= 3; phisize *=7;
 	break;
+      case xAOD::CaloCluster::SuperCluster:
+	isSuperCluster = true;
+	Rsize = el->caloCluster()->getMomentValue( xAOD::CaloCluster::SECOND_R );
+	if (Rsize<0.) {ATH_MSG_WARNING("Invalid SECOND_R moment retrieved!");}
+	break;
       default:
 	ATH_MSG_WARNING("Unexpected electron cluster size " << el->caloCluster()->clusterSize() << " received!");
 	continue;
       }
       float deltaEta(fabs(truth->eta()-el->caloCluster()->eta()));
       float deltaPhi(fabs(truth->p4().DeltaPhi(el->caloCluster()->p4())));
-      if(deltaEta<etasize && deltaPhi<phisize) {
+      if( (isSuperCluster && (deltaEta*deltaEta+deltaPhi*deltaPhi)<Rsize*Rsize ) ||
+	  (deltaEta<etasize && deltaPhi<phisize) ) {
 	bool skip(false);
 	for(const auto& truthobj : truthlist) {
 	  const xAOD::TruthParticle *truth2 = static_cast<const xAOD::TruthParticle*>(truthobj);
@@ -382,17 +398,22 @@ namespace met {
     const TruthEvent* hsevent = truthEventCont->front();
     ConstDataVector<TruthParticleContainer> truthParticleCont(SG::VIEW_ELEMENTS);
     for(size_t itp=0; itp<hsevent->nTruthParticles(); ++itp) {
-      truthParticleCont.push_back(hsevent->truthParticle(itp));
+      const xAOD::TruthParticle* tp = hsevent->truthParticle(itp);
+      if(tp) {
+	truthParticleCont.push_back(tp);
+      }
     }
 
     for(const auto& truth : truthParticleCont) {
-      if(truth->pt()<1) continue;
+      if(!truth || truth->pt()<1) continue;
       // stable
       if(!MC::isGenStable(truth->status(),truth->barcode())) continue;
       // interacting
       if(MC::isNonInteracting(truth->pdgId())) continue;
       float etasize(0.025/2);
       float phisize(0.025/2);
+      bool isSuperCluster = false;
+      float Rsize = 0.;
       switch(ph->caloCluster()->clusterSize()) {
       case xAOD::CaloCluster::SW_55gam:
       case xAOD::CaloCluster::SW_55Econv:
@@ -407,13 +428,19 @@ namespace met {
       case xAOD::CaloCluster::SW_37Econv:
 	etasize *= 3; phisize *=7;
 	break;
+      case xAOD::CaloCluster::SuperCluster:
+	isSuperCluster = true;
+	Rsize = ph->caloCluster()->getMomentValue( xAOD::CaloCluster::SECOND_R );
+	if (Rsize<0.) {ATH_MSG_WARNING("Invalid SECOND_R moment retrieved!");}
+	break;
       default:
 	ATH_MSG_WARNING("Unexpected photon cluster size " << ph->caloCluster()->clusterSize() << " received!");
 	continue;
       }
       float deltaEta(fabs(truth->eta()-ph->caloCluster()->eta()));
       float deltaPhi(fabs(truth->p4().DeltaPhi(ph->caloCluster()->p4())));
-      if(deltaEta<etasize && deltaPhi<phisize) {
+      if( (isSuperCluster && (deltaEta*deltaEta+deltaPhi*deltaPhi)<Rsize*Rsize ) ||
+	  (deltaEta<etasize && deltaPhi<phisize) ) {
 	bool skip(false);
 	for(const auto& truthobj : truthlist) {
 	  const xAOD::TruthParticle *truth2 = static_cast<const xAOD::TruthParticle*>(truthobj);
@@ -447,10 +474,12 @@ namespace met {
     const Jet* seedjet = *tau->jetLink();
     std::vector<ElementLink<IParticleContainer> > jetconst = cacc_ghosttruth(*seedjet);
     for(const auto& truth : jetconst) {
-      // TEMP: use jet seed axis
-      //       taus will provide an accessor
-      if(!xAOD::P4Helpers::isInDeltaR(*seedjet,**truth,0.2,m_useRapidity)) continue;
-      truthlist.push_back(*truth);
+      if(truth) {
+	// TEMP: use jet seed axis
+	//       taus will provide an accessor
+	if(!xAOD::P4Helpers::isInDeltaR(*seedjet,**truth,0.2,m_useRapidity)) continue;
+	truthlist.push_back(*truth);
+      }
     }
     return StatusCode::SUCCESS;
   }
@@ -469,7 +498,6 @@ namespace met {
       hardObjs_tmp.push_back(obj);
     }
     std::sort(hardObjs_tmp.begin(),hardObjs_tmp.end(),greaterPt);
-
 
     for(const auto& obj : hardObjs_tmp) {
       if(obj->pt()<5e3 && obj->type()!=xAOD::Type::Muon) continue;

@@ -11,6 +11,7 @@ cfg_emt = METConfig('EMTopo',[BuildConfig('SoftClus','EMTopo')],
                     doRegions=True,
                     doOriginCorrClus=False
                     )
+cfg_emt.builders['SoftClus'].SignalState = clusterSigStates['EMScale']
 
 metFlags.METConfigs()[cfg_emt.suffix] = cfg_emt
 metFlags.METOutputList().append(cfg_emt.suffix)
@@ -23,6 +24,7 @@ cfg_lht = METConfig('LocHadTopo',[BuildConfig('SoftClus','LocHadTopo')],
                     doRegions=True,
                     doOriginCorrClus=False
                     )
+cfg_lht.builders['SoftClus'].SignalState = clusterSigStates['LocHad']
 
 metFlags.METConfigs()[cfg_lht.suffix] = cfg_lht
 metFlags.METOutputList().append(cfg_lht.suffix)
