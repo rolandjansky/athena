@@ -320,7 +320,7 @@ const Root::TResult& AsgElectronChargeIDSelectorTool::calculate( const xAOD::Ele
 	
   }
   else {
-    allFound*=false;
+    allFound=false;
     ATH_MSG_WARNING ( "Failed, no track particle: et= " << et << "eta= " << eta );
   }
 
