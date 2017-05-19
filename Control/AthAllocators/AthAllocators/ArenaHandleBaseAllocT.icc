@@ -141,36 +141,17 @@ const ALLOC* ArenaHandleBaseAllocT<ALLOC>::allocator() const
 
 /**
  * @brief Find the index for creating an allocator.
+ * @params Pointer to the supplied parameters.
+ *         If null, use the result of DEFPARAMS().
  *
  * We look up in the registry the Allocator name we get from @c params
  * (if this is blank, a name is derived from @c ALLOC).
  * If not found, then we register Allocator and return the new index.
  */
 template <typename ALLOC>
-template <class HANDLE>
-size_t
-ArenaHandleBaseAllocT<ALLOC>::makeIndex (const typename ALLOC::Params& params)
-{
-  ArenaAllocatorRegistry* reg = ArenaAllocatorRegistry::instance();
-  std::string name = params.name;
-  if (name.empty()) {
-    const static std::string sname = System::typeinfoName (typeid (HANDLE));
-    name = sname;
-  }
-  size_t i = reg->lookup (name);
-  if (i != std::string::npos)
-    return i;
-  return reg->registerCreator (name,
-                               CxxUtils::make_unique<Creator> (name,
-                                                               HANDLE::makeAllocator,
-                                                               params));
-}
-
-
-template <typename ALLOC>
 template <class HANDLE, class DEFPARAMS>
 size_t
-ArenaHandleBaseAllocT<ALLOC>::makeIndex1 (const typename ALLOC::Params* params)
+ArenaHandleBaseAllocT<ALLOC>::makeIndex (const typename ALLOC::Params* params)
 {
   ArenaAllocatorRegistry* reg = ArenaAllocatorRegistry::instance();
   std::string name;

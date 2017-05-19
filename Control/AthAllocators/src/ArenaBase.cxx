@@ -132,8 +132,9 @@ LockedAllocator ArenaBase::makeAllocator (size_t i)
 {
   // We have to create a new Allocator.
   // Make sure there's room in the vector.
-  if (m_allocs.size() <= i)
+  if (m_allocs.size() <= i) {
     m_allocs.resize (i+1);
+  }
 
   // Create the Allocator, using the Registry.
   std::unique_ptr<ArenaAllocatorBase> alloc =

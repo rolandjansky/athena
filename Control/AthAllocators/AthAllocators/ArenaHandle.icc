@@ -38,7 +38,7 @@ template <class T, class ALLOC>
 ArenaHandle<T, ALLOC>::ArenaHandle
   (const typename ALLOC::Params* params /*= nullptr*/)
     : Base (static_cast<SG::ArenaHeader*>(nullptr),
-            Base::template makeIndex1<ArenaHandle, defaultParams_t> (params))
+            Base::template makeIndex<ArenaHandle, defaultParams_t> (params))
 {
 }
 
@@ -55,7 +55,7 @@ ArenaHandle<T, ALLOC>::ArenaHandle
   (ArenaHeader* header,
    const typename ALLOC::Params* params /*= nullptr*/)
     : Base (header,
-            Base::template makeIndex1<ArenaHandle, defaultParams_t> (params))
+            Base::template makeIndex<ArenaHandle, defaultParams_t> (params))
 {
 }
 
@@ -75,7 +75,7 @@ ArenaHandle<T, ALLOC>::ArenaHandle
    const typename ALLOC::Params* params /*= nullptr*/)
     : Base (header,
             ctx,
-            Base::template makeIndex1<ArenaHandle, defaultParams_t> (params))
+            Base::template makeIndex<ArenaHandle, defaultParams_t> (params))
 {
 }
 
@@ -91,7 +91,7 @@ ArenaHandle<T, ALLOC>::ArenaHandle
   (Arena* arena,
    const typename ALLOC::Params* params /*= nullptr*/)
     : Base (arena,
-            Base::template makeIndex1<ArenaHandle, defaultParams_t> (params))
+            Base::template makeIndex<ArenaHandle, defaultParams_t> (params))
 {
 }
 
