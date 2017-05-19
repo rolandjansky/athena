@@ -16,23 +16,23 @@ svcMgr += ForwardSchedulerSvc()
 svcMgr.ForwardSchedulerSvc.ShowDataFlow=True
 svcMgr.ForwardSchedulerSvc.ShowControlFlow=True
 
-include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
-svcMgr.ByteStreamInputSvc.FullFileName = [ "./input.data" ]
+# include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
+# svcMgr.ByteStreamInputSvc.FullFileName = [ "./input.data" ]
 
-# This is the list of proxies to set up so that retrieval attempt will trigger the BS conversion
-if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
-    from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
-    svcMgr += ByteStreamAddressProviderSvc()
-svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult" ]
+# # This is the list of proxies to set up so that retrieval attempt will trigger the BS conversion
+# if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
+#     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
+#     svcMgr += ByteStreamAddressProviderSvc()
+# svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult" ]
 
 # Event-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
 topSequence = AlgSequence()
 
 
-from SGComps.SGCompsConf import SGInputLoader
-topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
-topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
+# from SGComps.SGCompsConf import SGInputLoader
+# topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
+# topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
 
 
 
@@ -98,7 +98,7 @@ topSequence += TopHLTSeq
 
 L1UnpackingSeq = parOR("L1UnpackingSeq")
 from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
-l1Decoder = L1Decoder( OutputLevel=DEBUG )
+l1Decoder = L1Decoder( OutputLevel=DEBUG, RoIBResult="" )
 
 ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllChains=False , InputFilename="ctp.dat" )
 ctpUnpacker.CTPToChainMapping = [ "0:HLT_g100",  "1:HLT_e20", "2:HLT_mu20", "3:HLT_2mu8", "3:HLT_mu8", "33:HLT_2mu8", "15:HLT_mu8_e8" ]

@@ -10,7 +10,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "DecisionHandling/HLTIdentifier.h"
+
 
 #include "./ITestHypoTool.h"
 
@@ -39,10 +39,10 @@ namespace HLTTest {
   
   private: 
 
-    TestHypoTool();
+    //    TestHypoTool();
     float m_threshold;
     std::string m_property;
-    HLT::Identifier m_decisionId;
+
   }; 
 
 } //> end namespace HLTTest
