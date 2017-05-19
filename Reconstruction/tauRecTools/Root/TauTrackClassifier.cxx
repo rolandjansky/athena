@@ -141,6 +141,7 @@ TrackMVABDT::~TrackMVABDT()
 StatusCode TrackMVABDT::finalize()
 {
   delete m_rReader;
+  m_rReader = nullptr;
   for( std::pair<TString, float*> p : m_mAvailableVars ) delete p.second;
   m_mAvailableVars.clear();
   return StatusCode::SUCCESS;
