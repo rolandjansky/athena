@@ -294,13 +294,13 @@ bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
 
   ATH_MSG_INFO("Exporting a new TrigConf from ConfigSvc for : SMK,L1,HLT=" << m_configSvc->masterKey() << "," << GetL1PSK() << "," << m_configSvc->hltPrescaleKey() );
 
-  std::stringstream _ss1, _ss2, _ss3;
-  _ss1 << m_configSvc->masterKey();
-  _ss1 >> m_triggerMenuSetup;
-  _ss2 << GetL1PSK();
-  _ss2 >> m_L1PrescaleSet;
-  _ss3 << m_configSvc->hltPrescaleKey();
-  _ss3 >> m_HLTPrescaleSet;
+  std::stringstream ss1, ss2, ss3;
+  ss1 << m_configSvc->masterKey();
+  ss1 >> m_triggerMenuSetup;
+  ss2 << GetL1PSK();
+  ss2 >> m_L1PrescaleSet;
+  ss3 << m_configSvc->hltPrescaleKey();
+  ss3 >> m_HLTPrescaleSet;
 
   //
   // Just update HLT prescales
@@ -350,23 +350,23 @@ bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
   conf.FillVar(confg, m_triggerMenuSetup, m_L1PrescaleSet, m_HLTPrescaleSet);
 
   // Fill config information from the CTP, starting with the BG info
-  const std::vector<TrigConf::BunchGroup> _bunchGroups = ctp_confg->bunchGroupSet().bunchGroups();
-  for (unsigned _bg = 0; _bg < _bunchGroups.size(); ++_bg) {
-    ATH_MSG_DEBUG(" TrigConf::CTPConfig BunchGroup " << _bunchGroups.at(_bg).name() << " has size " << _bunchGroups.at(_bg).bunches().size() );
-    std::stringstream _ssNameKey, _ssSizeKey, _ssSizeVal;
-    _ssNameKey << "CTPConfig:NAME:BGRP" << _bg;
-    _ssSizeKey << "CTPConfig:SIZE:BGRP" << _bg;
-    _ssSizeVal << _bunchGroups.at(_bg).bunches().size();
-    confg.addValue(_ssNameKey.str(), _bunchGroups.at(_bg).name());
-    confg.addValue(_ssSizeKey.str(), _ssSizeVal.str());
+  const std::vector<TrigConf::BunchGroup> bunchGroups = ctp_confg->bunchGroupSet().bunchGroups();
+  for (unsigned bg = 0; bg < bunchGroups.size(); ++bg) {
+    ATH_MSG_DEBUG(" TrigConf::CTPConfig BunchGroup " << bunchGroups.at(bg).name() << " has size " << bunchGroups.at(bg).bunches().size() );
+    std::stringstream ssNameKey, ssSizeKey, ssSizeVal;
+    ssNameKey << "CTPConfig:NAME:BGRP" << bg;
+    ssSizeKey << "CTPConfig:SIZE:BGRP" << bg;
+    ssSizeVal << bunchGroups.at(bg).bunches().size();
+    confg.addValue(ssNameKey.str(), bunchGroups.at(bg).name());
+    confg.addValue(ssSizeKey.str(), ssSizeVal.str());
   }
-  std::stringstream _bgSet, _ctpVersion, _l1Version;
-  _bgSet << ctp_confg->bunchGroupSetId();
-  _ctpVersion << ctp_confg->ctpVersion();
-  _l1Version << ctp_confg->l1Version();
-  confg.addValue("BunchGroupSet", _bgSet.str() );
-  confg.addValue("CTPVersion", _ctpVersion.str() );
-  confg.addValue("LV1Version", _l1Version.str() );  
+  std::stringstream bgSet, ctpVersion, l1Version;
+  bgSet << ctp_confg->bunchGroupSetId();
+  ctpVersion << ctp_confg->ctpVersion();
+  l1Version << ctp_confg->l1Version();
+  confg.addValue("BunchGroupSet", bgSet.str() );
+  confg.addValue("CTPVersion", ctpVersion.str() );
+  confg.addValue("LV1Version", l1Version.str() );  
 
   if(!conf.error().empty()) {
     ATH_MSG_INFO("FillConf error stream:" );
@@ -450,13 +450,13 @@ bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsign
 
   confg.setTriggerKeys(m_currentKey.getSMK(), m_currentKey.getLV1_PS(), m_currentKey.getHLT_PS());
 
-  std::stringstream _ss1, _ss2, _ss3;
-  _ss1 << m_currentKey.getSMK();
-  _ss1 >> m_triggerMenuSetup;
-  _ss2 << m_currentKey.getLV1_PS();
-  _ss2 >> m_L1PrescaleSet;
-  _ss3 << m_currentKey.getHLT_PS();
-  _ss3 >> m_HLTPrescaleSet;
+  std::stringstream ss1, ss2, ss3;
+  ss1 << m_currentKey.getSMK();
+  ss1 >> m_triggerMenuSetup;
+  ss2 << m_currentKey.getLV1_PS();
+  ss2 >> m_L1PrescaleSet;
+  ss3 << m_currentKey.getHLT_PS();
+  ss3 >> m_HLTPrescaleSet;
 
   std::stringstream keyStr;
   m_currentKey.print(keyStr);

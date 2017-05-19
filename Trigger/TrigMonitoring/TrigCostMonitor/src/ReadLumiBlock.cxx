@@ -80,17 +80,17 @@ void Trig::ReadLumiBlock::updateLumiBlocks(const unsigned run)
       const cool::IRecord &payload = obj.payload();
       const unsigned lumi = (obj.since()  & 0xffff);
 
-      const uint64_t _start = payload["StartTime"].data<cool::UInt63>();
-      const uint64_t _end = payload["EndTime"].data<cool::UInt63>();
-      const uint64_t _length = _end - _start;
+      const uint64_t start = payload["StartTime"].data<cool::UInt63>();
+      const uint64_t end = payload["EndTime"].data<cool::UInt63>();
+      const uint64_t length = end - start;
 
-      m_lbLength[lumi] = _length;
+      m_lbLength[lumi] = length;
 
   	  m_debug << "  run=" << run
   	          << "   LB=" << lumi
-  		        << "   Start=" << _start
-  		        << "   End=" << _end
-  		        << "   Length=" << _length << endl;
+  		        << "   Start=" << start
+  		        << "   End=" << end
+  		        << "   Length=" << length << endl;
     }
   } else { 
     m_infos << "ReadRunData - missing COOL folder: /TRIGGER/LUMI/LBLB in " << m_cool_id << endl; 
@@ -101,13 +101,13 @@ void Trig::ReadLumiBlock::updateLumiBlocks(const unsigned run)
   closeDb();
 }
 
-float Trig::ReadLumiBlock::getLumiBlockLength(unsigned _lb) {
+float Trig::ReadLumiBlock::getLumiBlockLength(unsigned lb) {
 
-	if (m_lbLength.count(_lb) != 1) {
- 		m_infos << "Unknown lumiblock number " << _lb << endl;
+	if (m_lbLength.count(lb) != 1) {
+ 		m_infos << "Unknown lumiblock number " << lb << endl;
  		return 0; 
 	}
-	return m_lbLength[_lb] * 1e-9; // Convert from ns
+	return m_lbLength[lb] * 1e-9; // Convert from ns
 }
 
 //---------------------------------------------------------------------------------------
