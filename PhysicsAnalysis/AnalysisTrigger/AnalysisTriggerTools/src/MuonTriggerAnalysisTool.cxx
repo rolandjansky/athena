@@ -281,10 +281,10 @@ bool MuonTriggerAnalysisTool::muonLvl1Match( const I4Momentum* particle,
 
   if ( m_isInThreeBC ){
     const MuCTPI_RDO* muCTPI_RDO;
-    std::string  m_muCPTILocation ="MUCTPI_RDO";
-    StatusCode sc = m_storeGate->retrieve( muCTPI_RDO, m_muCPTILocation );
+    std::string  muCPTILocation ="MUCTPI_RDO";
+    StatusCode sc = m_storeGate->retrieve( muCTPI_RDO, muCPTILocation );
     if ( sc.isFailure() ) {
-      ATH_MSG_ERROR( "Could not find MUCTPI_RDO at " << m_muCPTILocation);
+      ATH_MSG_ERROR( "Could not find MUCTPI_RDO at " << muCPTILocation);
       return false;
     }
     
