@@ -127,6 +127,7 @@ def setupMenu():
 
         ['mu10_mgonly_L1LATE-MU10_J50',          'L1_LATE-MU10_J50',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu10_mgonly_L1LATE-MU10_XE50',         'L1_LATE-MU10_XE50',          [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+	['mu50_mgonly_inTimeRoI_L1MU21',         'L1_MU21',          [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
 
 
         ['mu8',                    'L1_MU6',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1], 
