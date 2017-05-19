@@ -3,14 +3,14 @@
 */
 
 /**
- *   $Id: LArG4GenShowerLib.cxx 746605 2016-05-12 13:25:40Z disimone $:
+ *   $Id: LArG4GenShowerLib.cxx 770430 2016-08-26 20:49:25Z ssnyder $:
  *
  *   @short Implementation of shower library generation algorithm
  *
  *
  *  @author Wolfgang Ehrenfeld, University of Hamburg, Germany
  *  @author Sasha Glazov, DESY Hamburg, Germany
- * @version $Revision: 746605 $
+ * @version $Revision: 770430 $
  *
  */
 
@@ -45,7 +45,7 @@ using CLHEP::Hep3Vector;
 // definition for helper struct
 class Dist {
 public:
-  Dist(ShowerLib::StepInfo* _h1, ShowerLib::StepInfo* _h2) : h1(_h1), h2(_h2) {}
+  Dist(ShowerLib::StepInfo* the_h1, ShowerLib::StepInfo* the_h2) : h1(the_h1), h2(the_h2) {}
   ShowerLib::StepInfo* h1;
   ShowerLib::StepInfo* h2;
   ShowerLib::StepInfo* merge ()
@@ -60,21 +60,21 @@ public:
 class  stepInfoDistCompare{
 public:
   enum CompareType {RHO,R,Z};
-  stepInfoDistCompare(const CompareType _type) : type(_type) {}
+  stepInfoDistCompare(const CompareType type) : m_type(type) {}
   bool operator()( const ShowerLib::StepInfo * first,  const ShowerLib::StepInfo * second) const {
-    return sortFunction(first, second, type );
+    return sortFunction(first, second, m_type );
   }
 private:
-  CompareType type;
+  CompareType m_type;
   //returns true if first is closer to the origin. this should sort from closest to farest
-  bool sortFunction ( const ShowerLib::StepInfo* first,  const ShowerLib::StepInfo* second, const CompareType _type) const {
-    if (_type == RHO) {
+  bool sortFunction ( const ShowerLib::StepInfo* first,  const ShowerLib::StepInfo* second, const CompareType type) const {
+    if (type == RHO) {
       if (first->position().mag2() < second->position().mag2()) return true;
       return false;
-    } else if (_type == R) {
+    } else if (type == R) {
       if (first->position().perp2() < second->position().perp2()) return true;
       return false;
-    } else if (_type == Z) {
+    } else if (type == Z) {
       if (first->position().z() < second->position().z()) return true;
       return false;
     }
@@ -415,8 +415,9 @@ void LArG4GenShowerLib::truncate(ShowerLib::StepInfoList* stepinfo)
     return;
   }
 
+  const double inv_rsum = 1. / rsum;
   for (iterCut = stepinfo->begin(); iterCut != stepinfo->end(); ++iterCut){
-    (*iterCut)->setE((*iterCut)->dep() * etot/rsum);
+    (*iterCut)->setE((*iterCut)->dep() * etot*inv_rsum);
   }
 
 }
@@ -521,11 +522,12 @@ void LArG4GenShowerLib::calculateMoments(const ShowerLib::StepInfoCollection& ev
   }
 
   // Center of gravity:
-  xavfra = xav/escal;
-  yavfra = yav/escal;
+  const double inv_escal = 1. / escal;
+  xavfra = xav*inv_escal;
+  yavfra = yav*inv_escal;
   // Second momentum:
-  ravfra = std::sqrt(std::abs((xav2/escal-xavfra*xavfra) +
-                              (yav2/escal-yavfra*yavfra)));
+  ravfra = std::sqrt(std::abs((xav2*inv_escal-xavfra*xavfra) +
+                              (yav2*inv_escal-yavfra*yavfra)));
   // energy is used as weights
   weights = escal;
 

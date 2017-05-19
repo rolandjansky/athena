@@ -5,8 +5,6 @@
 #include "TBECOuterModuleTool.h"
 #include "LArG4Code/LArG4SimpleSD.h"
 
-#include "LArG4EC/EnergyCalculator.h"
-
 #include "CxxUtils/make_unique.h"
 
 TBECOuterModuleTool::TBECOuterModuleTool(const std::string& type, const std::string& name, const IInterface *parent)
@@ -18,6 +16,13 @@ TBECOuterModuleTool::TBECOuterModuleTool(const std::string& type, const std::str
   , m_HitColl_gap_se("LArHitEMEC_gap_se")
   , m_HitColl_chcoll("LArHitEMEC_chcoll")
   , m_HitColl_ropt("LArHitEMEC_ropt")
+  , m_emecoutergadjcalc("EMECPosOuterWheel_ECOR_GADJCalculator", name)
+  , m_emecoutergadjoldcalc("EMECPosOuterWheel_ECOR_GADJ_OLDCalculator", name)
+  , m_emecoutergadjecalc("EMECPosOuterWheel_ECOR_GADJ_ECalculator", name)
+  , m_emecoutergadjscalc("EMECPosOuterWheel_ECOR_GADJ_SCalculator", name)
+  , m_emecoutergadjsecalc("EMECPosOuterWheel_ECOR_GADJ_SECalculator", name)
+  , m_emecouterchclcalc("EMECPosOuterWheel_ECOR_CHCLCalculator", name)
+  , m_emecoutercalc("EMECPosOuterWheelCalculator", name)
   , m_gapadjSD(nullptr)
   , m_gapoldSD(nullptr)
   , m_gap_eSD(nullptr)
@@ -27,18 +32,44 @@ TBECOuterModuleTool::TBECOuterModuleTool(const std::string& type, const std::str
   , m_roptSD(nullptr)
 {
   declareInterface<ISensitiveDetector>(this);
+  declareProperty("EMECPosOuterWheel_ECOR_GADJCalculator", m_emecoutergadjcalc);
+  declareProperty("EMECPosOuterWheel_ECOR_GADJ_OLDCalculator", m_emecoutergadjoldcalc);
+  declareProperty("EMECPosOuterWheel_ECOR_GADJ_ECalculator", m_emecoutergadjecalc);
+  declareProperty("EMECPosOuterWheel_ECOR_GADJ_SCalculator", m_emecoutergadjscalc);
+  declareProperty("EMECPosOuterWheel_ECOR_GADJ_SECalculator", m_emecoutergadjsecalc);
+  declareProperty("EMECPosOuterWheel_ECOR_CHCLCalculator", m_emecouterchclcalc);
+  declareProperty("EMECPosOuterWheelCalculator", m_emecoutercalc);
 }
 
+StatusCode TBECOuterModuleTool::initializeCalculators()
+{
+  ATH_CHECK(m_emecoutergadjcalc.retrieve());
+  ATH_CHECK(m_emecoutergadjoldcalc.retrieve());
+  ATH_CHECK(m_emecoutergadjecalc.retrieve());
+  ATH_CHECK(m_emecoutergadjscalc.retrieve());
+  ATH_CHECK(m_emecoutergadjsecalc.retrieve());
+  ATH_CHECK(m_emecouterchclcalc.retrieve());
+  ATH_CHECK(m_emecoutercalc.retrieve());
+
+  return StatusCode::SUCCESS;
+}
 
 StatusCode TBECOuterModuleTool::initializeSD()
 {
-  m_gapadjSD = new LArG4SimpleSD( "LAr::EMEC::OuterModule::SDout_gapadj" , new LArG4::EC::EnergyCalculator(LArWheelCalculator::OuterAbsorberModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_GADJ) , m_timeBinType , m_timeBinWidth );
-  m_gapoldSD = new LArG4SimpleSD("LAr::EMEC::OuterModule::SDout_gapold", new LArG4::EC::EnergyCalculator(LArWheelCalculator::OuterAbsorberModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_GADJ_OLD) , m_timeBinType , m_timeBinWidth);
-  m_gap_eSD  = new LArG4SimpleSD("LAr::EMEC::OuterModule::SDout_gap_e", new LArG4::EC::EnergyCalculator(LArWheelCalculator::OuterAbsorberModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_GADJ_E) , m_timeBinType , m_timeBinWidth);
-  m_gap_sSD  = new LArG4SimpleSD("LAr::EMEC::OuterModule::SDout_gap_s", new LArG4::EC::EnergyCalculator(LArWheelCalculator::OuterAbsorberModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_GADJ_S) , m_timeBinType , m_timeBinWidth);
-  m_gap_seSD = new LArG4SimpleSD("LAr::EMEC::OuterModule::SDout_gap_se", new LArG4::EC::EnergyCalculator(LArWheelCalculator::OuterAbsorberModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_GADJ_SE) , m_timeBinType , m_timeBinWidth);
-  m_chcollSD = new LArG4SimpleSD("LAr::EMEC::OuterModule::SDout_chcoll", new LArG4::EC::EnergyCalculator(LArWheelCalculator::OuterAbsorberModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_CHCL) , m_timeBinType , m_timeBinWidth);
-  m_roptSD   = new LArG4SimpleSD("LAr::EMEC::OuterModule::SDout_ropt", new LArG4::EC::EnergyCalculator(LArWheelCalculator::OuterAbsorberModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_ROPT) , m_timeBinType , m_timeBinWidth);
+  // Multi-threading not yet supported
+  if(m_gapadjSD) {
+    ATH_MSG_ERROR("TBECOuterModuleTool::initializeSD - SDs already exist. " <<
+                  "Are you running an MT job? Not yet supported!");
+    return StatusCode::FAILURE;
+  }
+
+  m_gapadjSD = new LArG4SimpleSD( "LAr::EMEC::OuterModule::SDout_gapadj" , &*m_emecoutergadjcalc, m_timeBinType , m_timeBinWidth );
+  m_gapoldSD = new LArG4SimpleSD("LAr::EMEC::OuterModule::SDout_gapold", &*m_emecoutergadjoldcalc, m_timeBinType , m_timeBinWidth);
+  m_gap_eSD  = new LArG4SimpleSD("LAr::EMEC::OuterModule::SDout_gap_e", &*m_emecoutergadjecalc, m_timeBinType , m_timeBinWidth);
+  m_gap_sSD  = new LArG4SimpleSD("LAr::EMEC::OuterModule::SDout_gap_s", &*m_emecoutergadjscalc, m_timeBinType , m_timeBinWidth);
+  m_gap_seSD = new LArG4SimpleSD("LAr::EMEC::OuterModule::SDout_gap_se", &*m_emecoutergadjsecalc, m_timeBinType , m_timeBinWidth);
+  m_chcollSD = new LArG4SimpleSD("LAr::EMEC::OuterModule::SDout_chcoll", &*m_emecouterchclcalc, m_timeBinType , m_timeBinWidth);
+  m_roptSD   = new LArG4SimpleSD("LAr::EMEC::OuterModule::SDout_ropt", &*m_emecoutercalc, m_timeBinType , m_timeBinWidth);
 
   std::map<G4VSensitiveDetector*,std::vector<std::string>*> configuration;
   configuration[m_gapadjSD] = &m_volumeNames;

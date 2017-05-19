@@ -16,8 +16,12 @@ void LArGeoTBH1GeoOptions::saveMe()
 
   if(result.isSuccess())
   {
-    StoreGateSvc* m_detStore = dynamic_cast<StoreGateSvc*>(pSvc);
-    result=m_detStore->record(this,"LArGeoTBH1GeoOptions");
+    StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*>(pSvc);
+    if (!detStore){
+      std::cout << "LArGeoTBH1GeoOptions::saveMe ERROR Could not dynamic cast det store" << std::endl;
+      return;
+    }
+    result=detStore->record(this,"LArGeoTBH1GeoOptions");
     if(!result.isSuccess())
       std::cout << "Can not record LArGeoTBH1GeoOptions" << std::endl;
   }

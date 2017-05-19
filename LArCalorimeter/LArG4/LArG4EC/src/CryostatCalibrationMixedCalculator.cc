@@ -11,17 +11,12 @@
 // simulation.
 
 #undef DEBUG_HITS
-#define DEBUG_VOLUMES
+#undef DEBUG_VOLUMES
 #undef DEBUG_DMXYZ
 
-#include "LArG4EC/CryostatCalibrationMixedCalculator.h"
-#ifdef DEBUG_DMXYZ
-#include "LArG4Code/CalibrationDefaultCalculator.h"
-#endif
-#include "LArG4EC/CryostatCalibrationLArCalculator.h"
+#include "CryostatCalibrationMixedCalculator.h"
 
 #include "LArG4Code/LArG4Identifier.h"
-#include "LArG4Code/VCalibrationCalculator.h"
 
 // direct access to database
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -47,13 +42,11 @@ namespace LArG4 {
 
   namespace EndcapCryostat {
 
-    VCalibrationCalculator* CalibrationMixedCalculator::m_backupCalculator = 0;
-
     ///////////////////////////////////////////////////////////
     // Local class to store detector parameters for calculator
     ///////////////////////////////////////////////////////////
     class CalibrationMixedCalculator::Parameters {
-      public:
+    public:
       Parameters();
       ~Parameters();
 
@@ -93,7 +86,7 @@ namespace LArG4 {
 
       // Obtain the geometry version information:
       std::string AtlasVersion = geoModel->atlasVersion();
-      std::string LArVersion = geoModel->LAr_VersionOverride();      
+      std::string LArVersion = geoModel->LAr_VersionOverride();
       std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
       std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
 
@@ -132,21 +125,21 @@ namespace LArG4 {
       m_z1BeforeFCal = m_zEMECRefPoint + m_LArEMECLArThickness;
       m_z2BeforeFCal = m_endZHec0;
 
-//       std::cout << "--- GGG CryostatCalibrationMixedCalculator.cc ---" << std::endl
-//         << "  m_zShift: " << m_zShift << std::endl
-//         << "  m_zEMECRefPoint: " << m_zEMECRefPoint << std::endl
-//         << "  m_LArEMECLArThickness: " << m_LArEMECLArThickness  << std::endl
-//         << "  m_startZFCal1: " << m_startZFCal1  << std::endl
-//         << "  m_startZFCal2: " << m_startZFCal2  << std::endl
-//         << "  m_startZFCal3: " << m_startZFCal3  << std::endl
-//         << "  m_hdepthFCal1: " << m_hdepthFCal1  << std::endl
-//         << "  m_hdepthFCal2: " << m_hdepthFCal2  << std::endl
-//         << "  m_hdepthFCal3: " << m_hdepthFCal3  << std::endl
-//         << "  m_endZFCal3: " << m_endZFCal3  << std::endl
-//         << "  m_endZHec0: " << m_endZHec0  << std::endl
-//         << "  m_z1BeforeFCal: " << m_z1BeforeFCal  << std::endl
-//         << "  m_z2BeforeFCal: " << m_z2BeforeFCal  << std::endl
-//         << std::endl;
+      //       std::cout << "--- GGG CryostatCalibrationMixedCalculator.cc ---" << std::endl
+      //         << "  m_zShift: " << m_zShift << std::endl
+      //         << "  m_zEMECRefPoint: " << m_zEMECRefPoint << std::endl
+      //         << "  m_LArEMECLArThickness: " << m_LArEMECLArThickness  << std::endl
+      //         << "  m_startZFCal1: " << m_startZFCal1  << std::endl
+      //         << "  m_startZFCal2: " << m_startZFCal2  << std::endl
+      //         << "  m_startZFCal3: " << m_startZFCal3  << std::endl
+      //         << "  m_hdepthFCal1: " << m_hdepthFCal1  << std::endl
+      //         << "  m_hdepthFCal2: " << m_hdepthFCal2  << std::endl
+      //         << "  m_hdepthFCal3: " << m_hdepthFCal3  << std::endl
+      //         << "  m_endZFCal3: " << m_endZFCal3  << std::endl
+      //         << "  m_endZHec0: " << m_endZHec0  << std::endl
+      //         << "  m_z1BeforeFCal: " << m_z1BeforeFCal  << std::endl
+      //         << "  m_z2BeforeFCal: " << m_z2BeforeFCal  << std::endl
+      //         << std::endl;
 
       pAccessSvc->disconnect();
     }
@@ -159,33 +152,45 @@ namespace LArG4 {
     // Methods
     ///////////////////////////////////////////////////////////
 
-    CalibrationMixedCalculator::CalibrationMixedCalculator() : m_par(new Parameters())
+    CalibrationMixedCalculator::CalibrationMixedCalculator(const std::string& name, ISvcLocator *pSvcLocator)
+      : LArCalibCalculatorSvcImp(name, pSvcLocator)
+      , m_par(nullptr)
+      , m_backupCalculator("EndcapCryostatCalibrationLArCalculator",name)
     {
+      declareProperty("BackupCalculator",m_backupCalculator);
+    }
+
+    StatusCode CalibrationMixedCalculator::initialize() {
       // Get a "backup" calculator.
-      if ( m_backupCalculator == 0)
-      m_backupCalculator = new CalibrationLArCalculator();
+      //if ( m_backupCalculator == 0)
+      //m_backupCalculator = new CalibrationLArCalculator();
+      ATH_CHECK(m_backupCalculator.retrieve());
+      m_par = new Parameters();
+      return StatusCode::SUCCESS;
     }
 
 
-    CalibrationMixedCalculator::~CalibrationMixedCalculator() 
+    CalibrationMixedCalculator::~CalibrationMixedCalculator()
     {
       // Cleanup pointers.
-      delete m_backupCalculator;
-      m_backupCalculator = 0;
+      //delete m_backupCalculator;
+      //m_backupCalculator = 0;
       delete m_par;
     }
 
     // This calculator is intended to apply to the endcap volumes that
     // have "mixed" identifiers:
 
-    G4bool CalibrationMixedCalculator::Process( const G4Step* a_step,
-                const eCalculatorProcessing a_process )
+    G4bool CalibrationMixedCalculator::Process (const G4Step* a_step,
+                                                LArG4Identifier & _identifier,
+                                                std::vector<G4double> & _energies,
+                                                const eCalculatorProcessing a_process) const
     {
       const static G4String volLArMgr = "LArMgr::";
       const static G4String volLArEndcapCryostat = "LAr::Endcap::Cryostat::";
       const static G4String volCylinderMixed = "Cylinder::Mixed";
       const static G4String volCylinderMixedPresampler = "Cylinder::Mixed::PresamplerMother";
-      const static G4String volExtraBeforePS = "ExtraCyl_beforePS"; 
+      const static G4String volExtraBeforePS = "ExtraCyl_beforePS";
       const static G4String volSectorMixed = "Sector::Mixed";
       const static G4String volEmecHecLArSectorMixed = "EmecHecLAr::Sector::Mixed";
       const static G4String volConeMixed = "Cone::Mixed";
@@ -194,351 +199,353 @@ namespace LArG4 {
       // identifier associated with this G4Step.  Note that the
       // default is to process both the energy and the ID.
 
-      m_energies.clear();
+      _energies.clear();
       if ( a_process == kEnergyAndID  ||  a_process == kOnlyEnergy ) {
-	m_energyCalculator.Energies( a_step, m_energies );
+        m_energyCalculator.Energies( a_step, _energies );
       } else {
-        for (unsigned int i=0; i != 4; i++) m_energies.push_back( 0. );
+        for (unsigned int i=0; i != 4; i++) _energies.push_back( 0. );
       }
 
 
-      m_identifier.clear();
+      _identifier.clear();
       if ( a_process == kEnergyAndID  ||  a_process == kOnlyID )
-      {
-        // Calculate the identifier.
-
-        // Note:
-        // LArG4::EndcapCryostat::CryostatCalibrationCalculator uses
-        // a table-based approach to determine the identifier.  The
-        // following code uses an "if-statement" approach.
-
-        // The fixed parameters (only a couple of which are readily
-        // accessible from the database):
-
-        static const double oneOverDeta = 10.;       //   1/Deta = 1./0.1 = 10.
-        static const double oneOverDphi = 32./M_PI;  //   1/Dphi
-
-        // Calculate the mid-point of the step, and the simple geometry variables.
-
-        G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
-        G4StepPoint* post_step_point = a_step->GetPostStepPoint();
-
-        G4ThreeVector startPoint = pre_step_point->GetPosition();
-        G4ThreeVector endPoint   = post_step_point->GetPosition();
-        G4ThreeVector p = (startPoint + endPoint) * 0.5;
-
-        //G4double rho = p.perp();
-        G4double eta = fabs( p.pseudoRapidity() );
-        G4double phi = p.phi(); 
-        if ( phi < 0. ) phi += 2.*M_PI; // Normalize for phiBin calculation
-
-        // Initialize identifier variables with (invalid) default
-        // values (INT_MIN is defined in <climits>).
-        G4int subdet = INT_MIN;
-        G4int type =  INT_MIN;
-        G4int sampling = INT_MIN;
-        G4int region = INT_MIN;
-        G4int etaBin = INT_MIN;
-        G4int phiBin = (int) ( phi * oneOverDphi );
-        // to handle rounding error problem
-        if(phiBin > 63) phiBin = 0;
-
-        G4String name = a_step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
-        G4int copy = a_step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo();
-
-        // we meet here 3 volume types:
-        // LArMgr::LAr::Endcap::Cryostat::*
-        // LAr::Endcap::Cryostat::Cylinder::Mixed::PresamplerMother
-        // LArMgr::LAr::FCAL::LiquidArgonC
-        if(name.compare(0, 8, volLArMgr) == 0) name.erase(0,8);
-
-        if ( name.size() == 23 && name == volFcalLiquidArgonC ) {
-          subdet = ( p.z() > 0.) ? 4 : -4;
-          type = 1;
-          if ( eta < 5.0) {
-            type = 2;
-            region = 5;
-            etaBin = (int) ( (eta-3.)* oneOverDeta );
-            sampling = 0;
-            if ( fabs(p.z()) < (m_par->m_startZFCal1+m_par->m_hdepthFCal1) ) {
-              sampling = 1;
-            } else if( fabs(p.z()) < (m_par->m_startZFCal2+m_par->m_hdepthFCal2) ) {
-              sampling = 2;
-            } else if( fabs(p.z()) < (m_par->m_startZFCal3+m_par->m_hdepthFCal3) ) {
-              sampling = 3;
-            } else {
-              type = 1;
-              sampling = 3;
-              region = 0;
-              etaBin = (int) ( (eta-1.7)* oneOverDeta );
-            }
-          } else if (eta < 8.0) {
-            sampling = 3;
-            region = 1;
-            etaBin = (int) ( (eta-5.)* 0.5 * oneOverDeta );
-          } else {
-            sampling = 3;
-            region = 2;
-            etaBin = 0;
-            phiBin = 0;
-          }
-        }else if(name.size() > 23){
-          name.erase(0,23);
-          if ( ( ( copy == 3 || copy == 14 ) && name == volCylinderMixed ) || name == volCylinderMixedPresampler || name==volExtraBeforePS) 
-          {
-            // case 1  // front walls
-            // volumeName LArMgr::LAr::Endcap::Cryostat::Cylinder::Mixed, copy number   3, 14
-            // volumeName LAr::Endcap::Cryostat::Cylinder::Mixed::PresamplerMother
-
-            // subdet = +/-4    "+" or " -" according to sign of Z in World coorinate
-            subdet = ( p.z() > 0.) ? 4 : -4;
-            type = 1;
-            if ( eta < 1.4 ) {
-              sampling = 2;
-              region = 5;
-              etaBin = (int) ( (eta-1.) * oneOverDeta );
-            }else if ( eta < 1.5 ) {
-              sampling = 1;
-              region = 6;
-              etaBin = (int) ( (eta-1.3) * oneOverDeta );
-            } else if ( eta < 1.8 ) {
-              sampling = 1;
-              region = 5;
-              // these walls are behind the scintillator - so it is
-              // region=5 and not region=4 even for 1.5<eta<1.6
-              etaBin = (int) ( (eta-1.5) * oneOverDeta );
-            } else if ( eta < 3.2 ) {
-              sampling = 1;
-              region = 6;
-              etaBin = (int) ( (eta-1.3) * oneOverDeta );
-            } else if ( eta < 5.0 ) {          // we expect that eta < 5.0
-              type = 1;
-              sampling = 1;
-              region = 7;
-              etaBin = (int) ( (eta-3.2) * oneOverDeta );
-            } else if( eta < 8.0 ) {
-              sampling = 3;
-              region = 1;
-              etaBin = (int) ( (eta-5.0) * 0.5 * oneOverDeta );
-            } else {
-              sampling = 3;
-              region = 2;
-              etaBin = 0;
-              phiBin = 0;
-            }
-          } else if ( ( copy == 9 || copy == 12 || copy == 13 ) && name == volCylinderMixed ) {
-            // case 2  // back walls near Tile
-            // volumeName   "LArMgr::LAr::Endcap::Cryostat::Cylinder::Mixed"
-            // copy number   9, 12, 13
-
-            type = 1;
-            if ( eta < 1.7 ) {
-              subdet = ( p.z() > 0.) ? 5 : -5;
-              sampling = 3;
-              region = 0;
-              etaBin = (int) ( eta * oneOverDeta );
-            } else if ( eta < 5.0 ) {
-              subdet = ( p.z() > 0.) ? 4 : -4;
-              sampling = 3;
-              region = 0;
-              etaBin = (int) ( (eta-1.7) * oneOverDeta );
-            }
-          } else if ( ( ( copy == 10 || copy == 19 ) && name == volCylinderMixed ) ||
-            ( ( copy == 3 || copy == 4 ) && name == volSectorMixed ) ||
-            ( ( copy ==  1 || copy ==  2 || copy ==  8 || copy ==  9 || copy == 10 || copy == 11 || copy == 12 ) && name == volEmecHecLArSectorMixed ) ) {
-            // case 3  // walls and supports at large rho
-            // volumeName   "LAr::Endcap::Cryostat::Cylinder"
-            // copy number   10, 19
-
-            // volumeName    "LAr::Endcap::Cryostat::Sector"  
-            // copy number   3, 4 SectorDBArray: daughters of cryoMotherLogical
-
-            // volumeName   "LAr::Endcap::Cryostat::EmecHecLAr::Sector" 
-            // copy number   1-2,8,9-12
-
-            subdet = ( p.z() > 0.) ? 4 : -4;
-            type = 1;
-            if ( eta < 1.7 ) {
-              sampling = 2;
-              region = 5;
-              etaBin = (int) ( (eta-1.) * oneOverDeta );
-            } else {
-              sampling = 3;
-              region = 0;
-              etaBin = (int) ( (eta-1.7) * oneOverDeta );
-            }
-          }else if ( copy == 27 && name == volCylinderMixed ) {
-            // case 4  //  wall between HEC and FCAL
-            // volumeName   "LAr::Endcap::Cryostat::Cylinder::Mixed"
-            // copy number   27
-            subdet = ( p.z() > 0.) ? 4 : -4;
-            if ( fabs(p.z()) < m_par->m_startZFCal1 ) {
-              type = 2;
-              sampling = 1; 
-              region = 5;
-              etaBin = (int) ( (eta-3.0) * oneOverDeta );
-            } else if ( fabs(p.z()) < m_par->m_startZFCal2 ) {
-              type = 2;
-              sampling = 1;
-              region = 4;
-              etaBin = 0;
-            } else if ( fabs(p.z()) < m_par->m_startZFCal3 ) { //
-              type = 2;
-              sampling = 2;
-              region = 4;
-              etaBin = 0;
-            } else if ( fabs(p.z()) < m_par->m_endZFCal3 ) { //
-              type = 2;
-              sampling = 3;
-              region = 4;
-              etaBin = 0;
-            } else{ // leakage behind FCAL+HEC
-              type = 1;
-              sampling = 3;
-              region = 0;
-              etaBin = (int) ( (eta-1.7) * oneOverDeta );
-            }
-          } else if ( copy==1 && name == volConeMixed) {
-            // case 6  //   walls close to beam-pipe
-            // volumeName   "LAr::Endcap::Cryostat::Cone::Mixed"
-            // copy number   6, 7, 16, 29, 33
-            subdet = ( p.z() > 0.) ? 4 : -4;
-            type = 1;
-            if ( eta < 5.0 ) {
-              if(fabs(p.z()) < m_par->m_z1BeforeFCal) {
-                type = 1;
-                sampling = 1;
-                region = 7;
-                etaBin = (int) ( (eta-3.2) * oneOverDeta );
-                if(etaBin < 0) etaBin = 0;
-              } else if (fabs(p.z()) < m_par->m_z2BeforeFCal){
-                type = 2;
-                sampling = 0;
-                region = 5;
-                etaBin = (int) ( (eta-3.0) * oneOverDeta );
-              } else {
-                type = 2;
-                sampling = 1;
-                region = 5;
-                etaBin = (int) ( (eta-3.0) * oneOverDeta );
-              }
-              if(etaBin < 0) etaBin = 0; // FcalNose can be a litle bit further than 3.2
-            } else if ( eta < 8.0 ) {
-              sampling = 3;
-              region = 1;
-              etaBin = (int) ( (eta-5.)* 0.5 * oneOverDeta );
-            } else {
-              sampling = 3;
-              region = 2;
-              etaBin = 0;
-              phiBin = 0;
-            }
-          }else if ( ( copy == 6 || copy == 7 || copy == 16 || copy == 33 ) && name == volCylinderMixed ) {
-            // case 6  //   walls close to beam-pipe
-            // volumeName   "LAr::Endcap::Cryostat::Cylinder::Mixed"
-            // copy number   6, 7, 16, 29, 33
-            subdet = ( p.z() > 0.) ? 4 : -4;
-            type = 1;
-            if ( eta < 5.0 ) {
-              if(fabs(p.z()) < m_par->m_z1BeforeFCal) {
-                type = 1;
-                sampling = 1;
-                region = 7;
-                etaBin = (int) ( (eta-3.2) * oneOverDeta );
-                if(etaBin < 0) etaBin = 0;
-              } else if (fabs(p.z()) < m_par->m_z2BeforeFCal){
-                type = 2;
-                sampling = 0;
-                region = 5;
-                etaBin = (int) ( (eta-3.0) * oneOverDeta );
-              } else {
-                type = 2;
-                sampling = 1;
-                region = 5;
-                etaBin = (int) ( (eta-3.0) * oneOverDeta );
-              }
-            } else if ( eta < 8.0 ) {
-              sampling = 3;
-              region = 1;
-              etaBin = (int) ( (eta-5.)* 0.5 * oneOverDeta );
-            } else {
-              sampling = 3;
-              region = 2;
-              etaBin = 0;
-              phiBin = 0;
-            }
-          }
-        }
-
-        // What if we have a G4Step that isn't handled by the above
-        // code?  Answer: Use a "backup" calculator to try to
-        // process the step.
-
-        if ( type  == INT_MIN  ||
-          region   == INT_MIN  ||
-          sampling == INT_MIN  ||
-          etaBin   == INT_MIN  ||
-          phiBin   <  0 || etaBin < 0)
         {
-// g.p. 09/05/2006
+          // Calculate the identifier.
+
+          // Note:
+          // LArG4::EndcapCryostat::CryostatCalibrationCalculator uses
+          // a table-based approach to determine the identifier.  The
+          // following code uses an "if-statement" approach.
+
+          // The fixed parameters (only a couple of which are readily
+          // accessible from the database):
+
+          static const double oneOverDeta = 10.;       //   1/Deta = 1./0.1 = 10.
+          static const double oneOverDphi = 32./M_PI;  //   1/Dphi
+
+          // Calculate the mid-point of the step, and the simple geometry variables.
+
+          G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
+          G4StepPoint* post_step_point = a_step->GetPostStepPoint();
+
+          G4ThreeVector startPoint = pre_step_point->GetPosition();
+          G4ThreeVector endPoint   = post_step_point->GetPosition();
+          G4ThreeVector p = (startPoint + endPoint) * 0.5;
+
+          //G4double rho = p.perp();
+          G4double eta = fabs( p.pseudoRapidity() );
+          G4double phi = p.phi();
+          if ( phi < 0. ) phi += 2.*M_PI; // Normalize for phiBin calculation
+
+          // Initialize identifier variables with (invalid) default
+          // values (INT_MIN is defined in <climits>).
+          G4int subdet = INT_MIN;
+          G4int type =  INT_MIN;
+          G4int sampling = INT_MIN;
+          G4int region = INT_MIN;
+          G4int etaBin = INT_MIN;
+          G4int phiBin = (int) ( phi * oneOverDphi );
+          // to handle rounding error problem
+          if(phiBin > 63) phiBin = 0;
+
+          G4String name = a_step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
+          G4int copy = a_step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo();
+
+          // we meet here 3 volume types:
+          // LArMgr::LAr::Endcap::Cryostat::*
+          // LAr::Endcap::Cryostat::Cylinder::Mixed::PresamplerMother
+          // LArMgr::LAr::FCAL::LiquidArgonC
+          if(name.compare(0, 8, volLArMgr) == 0) name.erase(0,8);
+
+          if ( name.size() == 23 && name == volFcalLiquidArgonC ) {
+            subdet = ( p.z() > 0.) ? 4 : -4;
+            type = 1;
+            if ( eta < 5.0) {
+              type = 2;
+              region = 5;
+              etaBin = (int) ( (eta-3.)* oneOverDeta );
+              sampling = 0;
+              if ( fabs(p.z()) < (m_par->m_startZFCal1+m_par->m_hdepthFCal1) ) {
+                sampling = 1;
+              } else if( fabs(p.z()) < (m_par->m_startZFCal2+m_par->m_hdepthFCal2) ) {
+                sampling = 2;
+              } else if( fabs(p.z()) < (m_par->m_startZFCal3+m_par->m_hdepthFCal3) ) {
+                sampling = 3;
+              } else {
+                type = 1;
+                sampling = 3;
+                region = 0;
+                etaBin = (int) ( (eta-1.7)* oneOverDeta );
+              }
+            } else if (eta < 8.0) {
+              sampling = 3;
+              region = 1;
+              etaBin = (int) ( (eta-5.)* 0.5 * oneOverDeta );
+            } else {
+              sampling = 3;
+              region = 2;
+              etaBin = 0;
+              phiBin = 0;
+            }
+          }else if(name.size() > 23){
+            name.erase(0,23);
+            if ( ( ( copy == 3 || copy == 14 ) && name == volCylinderMixed ) || name == volCylinderMixedPresampler || name==volExtraBeforePS)
+              {
+                // case 1  // front walls
+                // volumeName LArMgr::LAr::Endcap::Cryostat::Cylinder::Mixed, copy number   3, 14
+                // volumeName LAr::Endcap::Cryostat::Cylinder::Mixed::PresamplerMother
+
+                // subdet = +/-4    "+" or " -" according to sign of Z in World coorinate
+                subdet = ( p.z() > 0.) ? 4 : -4;
+                type = 1;
+                if ( eta < 1.4 ) {
+                  sampling = 2;
+                  region = 5;
+                  etaBin = (int) ( (eta-1.) * oneOverDeta );
+                }else if ( eta < 1.5 ) {
+                  sampling = 1;
+                  region = 6;
+                  etaBin = (int) ( (eta-1.3) * oneOverDeta );
+                } else if ( eta < 1.8 ) {
+                  sampling = 1;
+                  region = 5;
+                  // these walls are behind the scintillator - so it is
+                  // region=5 and not region=4 even for 1.5<eta<1.6
+                  etaBin = (int) ( (eta-1.5) * oneOverDeta );
+                } else if ( eta < 3.2 ) {
+                  sampling = 1;
+                  region = 6;
+                  etaBin = (int) ( (eta-1.3) * oneOverDeta );
+                } else if ( eta < 5.0 ) {          // we expect that eta < 5.0
+                  type = 1;
+                  sampling = 1;
+                  region = 7;
+                  etaBin = (int) ( (eta-3.2) * oneOverDeta );
+                } else if( eta < 8.0 ) {
+                  sampling = 3;
+                  region = 1;
+                  etaBin = (int) ( (eta-5.0) * 0.5 * oneOverDeta );
+                } else {
+                  sampling = 3;
+                  region = 2;
+                  etaBin = 0;
+                  phiBin = 0;
+                }
+              } else if ( ( copy == 9 || copy == 12 || copy == 13 ) && name == volCylinderMixed ) {
+              // case 2  // back walls near Tile
+              // volumeName   "LArMgr::LAr::Endcap::Cryostat::Cylinder::Mixed"
+              // copy number   9, 12, 13
+
+              type = 1;
+              if ( eta < 1.7 ) {
+                subdet = ( p.z() > 0.) ? 5 : -5;
+                sampling = 3;
+                region = 0;
+                etaBin = (int) ( eta * oneOverDeta );
+              } else if ( eta < 5.0 ) {
+                subdet = ( p.z() > 0.) ? 4 : -4;
+                sampling = 3;
+                region = 0;
+                etaBin = (int) ( (eta-1.7) * oneOverDeta );
+              }
+            } else if ( ( ( copy == 10 || copy == 19 ) && name == volCylinderMixed ) ||
+                        ( ( copy == 3 || copy == 4 ) && name == volSectorMixed ) ||
+                        ( ( copy ==  1 || copy ==  2 || copy ==  8 || copy ==  9 || copy == 10 || copy == 11 || copy == 12 ) && name == volEmecHecLArSectorMixed ) ) {
+              // case 3  // walls and supports at large rho
+              // volumeName   "LAr::Endcap::Cryostat::Cylinder"
+              // copy number   10, 19
+
+              // volumeName    "LAr::Endcap::Cryostat::Sector"
+              // copy number   3, 4 SectorDBArray: daughters of cryoMotherLogical
+
+              // volumeName   "LAr::Endcap::Cryostat::EmecHecLAr::Sector"
+              // copy number   1-2,8,9-12
+
+              subdet = ( p.z() > 0.) ? 4 : -4;
+              type = 1;
+              if ( eta < 1.7 ) {
+                sampling = 2;
+                region = 5;
+                etaBin = (int) ( (eta-1.) * oneOverDeta );
+              } else {
+                sampling = 3;
+                region = 0;
+                etaBin = (int) ( (eta-1.7) * oneOverDeta );
+              }
+            }else if ( copy == 27 && name == volCylinderMixed ) {
+              // case 4  //  wall between HEC and FCAL
+              // volumeName   "LAr::Endcap::Cryostat::Cylinder::Mixed"
+              // copy number   27
+              subdet = ( p.z() > 0.) ? 4 : -4;
+              if ( fabs(p.z()) < m_par->m_startZFCal1 ) {
+                type = 2;
+                sampling = 1;
+                region = 5;
+                etaBin = (int) ( (eta-3.0) * oneOverDeta );
+              } else if ( fabs(p.z()) < m_par->m_startZFCal2 ) {
+                type = 2;
+                sampling = 1;
+                region = 4;
+                etaBin = 0;
+              } else if ( fabs(p.z()) < m_par->m_startZFCal3 ) { //
+                type = 2;
+                sampling = 2;
+                region = 4;
+                etaBin = 0;
+              } else if ( fabs(p.z()) < m_par->m_endZFCal3 ) { //
+                type = 2;
+                sampling = 3;
+                region = 4;
+                etaBin = 0;
+              } else{ // leakage behind FCAL+HEC
+                type = 1;
+                sampling = 3;
+                region = 0;
+                etaBin = (int) ( (eta-1.7) * oneOverDeta );
+              }
+            } else if ( copy==1 && name == volConeMixed) {
+              // case 6  //   walls close to beam-pipe
+              // volumeName   "LAr::Endcap::Cryostat::Cone::Mixed"
+              // copy number   6, 7, 16, 29, 33
+              subdet = ( p.z() > 0.) ? 4 : -4;
+              type = 1;
+              if ( eta < 5.0 ) {
+                if(fabs(p.z()) < m_par->m_z1BeforeFCal) {
+                  type = 1;
+                  sampling = 1;
+                  region = 7;
+                  etaBin = (int) ( (eta-3.2) * oneOverDeta );
+                  if(etaBin < 0) etaBin = 0;
+                } else if (fabs(p.z()) < m_par->m_z2BeforeFCal){
+                  type = 2;
+                  sampling = 0;
+                  region = 5;
+                  etaBin = (int) ( (eta-3.0) * oneOverDeta );
+                } else {
+                  type = 2;
+                  sampling = 1;
+                  region = 5;
+                  etaBin = (int) ( (eta-3.0) * oneOverDeta );
+                }
+                if(etaBin < 0) etaBin = 0; // FcalNose can be a litle bit further than 3.2
+              } else if ( eta < 8.0 ) {
+                sampling = 3;
+                region = 1;
+                etaBin = (int) ( (eta-5.)* 0.5 * oneOverDeta );
+              } else {
+                sampling = 3;
+                region = 2;
+                etaBin = 0;
+                phiBin = 0;
+              }
+            }else if ( ( copy == 6 || copy == 7 || copy == 16 || copy == 33 ) && name == volCylinderMixed ) {
+              // case 6  //   walls close to beam-pipe
+              // volumeName   "LAr::Endcap::Cryostat::Cylinder::Mixed"
+              // copy number   6, 7, 16, 29, 33
+              subdet = ( p.z() > 0.) ? 4 : -4;
+              type = 1;
+              if ( eta < 5.0 ) {
+                if(fabs(p.z()) < m_par->m_z1BeforeFCal) {
+                  type = 1;
+                  sampling = 1;
+                  region = 7;
+                  etaBin = (int) ( (eta-3.2) * oneOverDeta );
+                  if(etaBin < 0) etaBin = 0;
+                } else if (fabs(p.z()) < m_par->m_z2BeforeFCal){
+                  type = 2;
+                  sampling = 0;
+                  region = 5;
+                  etaBin = (int) ( (eta-3.0) * oneOverDeta );
+                } else {
+                  type = 2;
+                  sampling = 1;
+                  region = 5;
+                  etaBin = (int) ( (eta-3.0) * oneOverDeta );
+                }
+              } else if ( eta < 8.0 ) {
+                sampling = 3;
+                region = 1;
+                etaBin = (int) ( (eta-5.)* 0.5 * oneOverDeta );
+              } else {
+                sampling = 3;
+                region = 2;
+                etaBin = 0;
+                phiBin = 0;
+              }
+            }
+          }
+
+          // What if we have a G4Step that isn't handled by the above
+          // code?  Answer: Use a "backup" calculator to try to
+          // process the step.
+
+          if ( type  == INT_MIN  ||
+               region   == INT_MIN  ||
+               sampling == INT_MIN  ||
+               etaBin   == INT_MIN  ||
+               phiBin   <  0 || etaBin < 0)
+            {
+              // g.p. 09/05/2006
 #ifdef DEBUG_DMXYZ
-        LArG4::CalibrationDefaultCalculator::Print("UNEXP LArG4EC/CryostatCalibrationMixedCalculator",m_identifier,a_step);
+              LArG4::CalibrationDefaultCalculator::Print("UNEXP LArG4EC/CryostatCalibrationMixedCalculator",_identifier,a_step);
 #endif
 #if defined (DEBUG_VOLUMES) || defined (DEBUG_HITS)
-        static const G4int messageMax = 1000;
-        static G4int messageCount = 0;
-        if ( messageCount++ < messageMax ) {
-          std::cout << "LArG4::EndcapCryostat::CalibrationMixedCalculator::Process"
-            << " (error " << messageCount << " of " << messageMax << " max displayed)"
-            << std::endl
-            << "   G4Step in '"
-            << name
-            << "' copy="
-            << copy
-            << ", using backup calculator"
-            << std::endl;
-          std::cout << " type:" << type
-            << " region:" << region
-            << " sampling:" << sampling
-            << " etaBin:" << etaBin
-            << " phiBin:" << phiBin
-            << " xyz:"<<p.x()<<", "<<p.y()<<", "<<p.z()
-            << " eta:"<< eta
-            <<std::endl;
-          }
+              static const G4int messageMax = 1000;
+              static G4int messageCount = 0; // exists only if debug activated
+              if ( messageCount++ < messageMax ) {
+                std::cout << "LArG4::EndcapCryostat::CalibrationMixedCalculator::Process"
+                          << " (error " << messageCount << " of " << messageMax << " max displayed)"
+                          << std::endl
+                          << "   G4Step in '"
+                          << name
+                          << "' copy="
+                          << copy
+                          << ", using backup calculator"
+                          << std::endl;
+                std::cout << " type:" << type
+                          << " region:" << region
+                          << " sampling:" << sampling
+                          << " etaBin:" << etaBin
+                          << " phiBin:" << phiBin
+                          << " xyz:"<<p.x()<<", "<<p.y()<<", "<<p.z()
+                          << " eta:"<< eta
+                          <<std::endl;
+              }
 #endif
-          m_backupCalculator->Process(a_step, kOnlyID);
-          m_identifier = m_backupCalculator->identifier();
-        } else {
-          // Append the cell ID to the (empty) identifier.
-          m_identifier << 10         // Calorimeter
-            << subdet     // LAr +/-4 where "+" or " -" according to the sign of Z in World coorinate
-            << type
-            << sampling
-            << region
-            << etaBin
-            << phiBin;
-        }
-      } // if a_process == kEnergyAndID  ||  a_process == kOnlyID
+              //m_backupCalculator->Process(a_step, kOnlyID);
+              //_identifier = m_backupCalculator->identifier();
+              std::vector<G4double> _tmpv;
+              m_backupCalculator->Process(a_step, _identifier, _tmpv, kOnlyID);
+            } else {
+            // Append the cell ID to the (empty) identifier.
+            _identifier << 10         // Calorimeter
+                        << subdet     // LAr +/-4 where "+" or " -" according to the sign of Z in World coorinate
+                        << type
+                        << sampling
+                        << region
+                        << etaBin
+                        << phiBin;
+          }
+        } // if a_process == kEnergyAndID  ||  a_process == kOnlyID
 
 #ifdef DEBUG_HITS
-//      G4double energy = accumulate(m_energies.begin(),m_energies.end(),0.);
+      //      G4double energy = accumulate(_energies.begin(),_energies.end(),0.);
       std::cout << "LArG4::EndcapCryostat::CalibrationMixedCalculator::Process"
-        << " ID=" << std::string(m_identifier)
-//        << " energy=" << energy
-        << " energies=(" << m_energies[0]
-        << "," << m_energies[1]
-        << "," << m_energies[2]
-        << "," << m_energies[3] << ")"
-        << std::endl;
+                << " ID=" << std::string(_identifier)
+        //        << " energy=" << energy
+                << " energies=(" << _energies[0]
+                << "," << _energies[1]
+                << "," << _energies[2]
+                << "," << _energies[3] << ")"
+                << std::endl;
 #endif
 
-// g.p. 09/05/2006
+      // g.p. 09/05/2006
 #ifdef DEBUG_DMXYZ
-      LArG4::CalibrationDefaultCalculator::Print("DMXYZ LArG4EC/CryostatCalibrationMixedCalculator",m_identifier,a_step);
+      LArG4::CalibrationDefaultCalculator::Print("DMXYZ LArG4EC/CryostatCalibrationMixedCalculator",_identifier,a_step);
 #endif
       // Check for bad result.
-      if ( m_identifier == LArG4Identifier() ) return false;
+      if ( _identifier == LArG4Identifier() ) return false;
 
       return true;
     }
