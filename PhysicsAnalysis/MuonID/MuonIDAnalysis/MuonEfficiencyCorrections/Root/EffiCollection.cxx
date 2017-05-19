@@ -243,7 +243,7 @@ namespace CP {
                     m_FileType(FileType) {
         TFile* fin = TFile::Open(FileName.c_str());
         if (!fin) {
-            Error("CollectionContainer", "%s", ("Unable to open file " + FileName).c_str());
+            Error("CollectionContainer", ("Unable to open file " + FileName).c_str());
             return;
         }
         TTree* intree = 0;
@@ -299,7 +299,7 @@ namespace CP {
                 if (m_currentSF->first.first <= RunNumber && m_currentSF->first.second >= RunNumber) return true;
             }
         } else return true;
-        Error("CollectionContainer", "Could not find any SF period matching the run number %u", RunNumber);
+        Error("CollectionContainer", Form("Could not find any SF period matching the run number %u", RunNumber));
         return false;
     }
     EfficiencyScaleFactor* EffiCollection::CollectionContainer::retrieve(unsigned int RunNumber) {
