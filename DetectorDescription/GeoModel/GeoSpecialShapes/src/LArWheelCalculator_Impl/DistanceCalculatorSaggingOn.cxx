@@ -53,13 +53,13 @@ namespace LArWheelCalculator_Impl {
 			std::string sag_file = sagging_opt_value.substr(5);
 			msg << MSG::DEBUG
 			    << "geting sagging parameters from file "
-				<< sag_file << " ..." << endreq;
+				<< sag_file << " ..." << endmsg;
 			FILE *F = fopen(sag_file.c_str(), "r");
 			if(F == 0){
 		   		msg << MSG::FATAL
 				    << "cannot open EMEC sagging parameters file "
 					<< sag_file
-					<< endreq;
+					<< endmsg;
 				throw std::runtime_error("LArWheelCalculator: read sagging parameters from file");
 			}
 			int s, w, t, n;
@@ -81,7 +81,7 @@ namespace LArWheelCalculator_Impl {
 					msg << MSG::VERBOSE
 					    << "sagging for " << s << " " << w << " " << t
 						<< " " << n << ": " << p0 << " " << p1 << " "
-						<< p2 << " " << p3 << endreq;
+						<< p2 << " " << p3 << endmsg;
 				}
 			}
 			fclose(F);
@@ -91,7 +91,7 @@ namespace LArWheelCalculator_Impl {
 	    		msg << MSG::ERROR
 				    << "wrong value(s) "
 					<< " for EMEC sagging parameters: "
-					<< sagging_opt_value << ", defaults are used" << endreq;
+					<< sagging_opt_value << ", defaults are used" << endmsg;
 			} else {
 				for(int j = 0; j < lwc()->m_NumberOfFans; j ++){
 					if(lwc()->m_isInner){
@@ -106,7 +106,7 @@ namespace LArWheelCalculator_Impl {
 		}
 //	}
 	  msg << MSG::INFO  << "Sagging parameters        : " << m_sagging_parameter[0][0] << " " << m_sagging_parameter[0][1] << std::endl
-	    << "Sagging parameters        : " << m_sagging_parameter[1][0] << " " << m_sagging_parameter[1][1] << endreq;
+	    << "Sagging parameters        : " << m_sagging_parameter[1][0] << " " << m_sagging_parameter[1][1] << endmsg;
 	}
 // Represents aproximate, probably underestimate, distance to the
 // neutral fibre of the vertical fan. Sign of return value means

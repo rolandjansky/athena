@@ -9,7 +9,7 @@
 #include "LArG4Code/LArG4SimpleSD.h"
 
 // Forward declarations.
-class LArVCalculator;
+class ILArCalculatorSvc;
 class G4Step;
 class G4TouchableHistory;
 
@@ -17,7 +17,7 @@ class G4TouchableHistory;
 class LArG4H62004SD : public LArG4SimpleSD
 {
 public:
-  LArG4H62004SD(G4String name, LArVCalculator* calc, const std::string& type, const float width);
+  LArG4H62004SD(G4String name, ILArCalculatorSvc* calc, const std::string& type, const float width);
   virtual ~LArG4H62004SD() {}
 
   // The required functions for all sensitive detectors:

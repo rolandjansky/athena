@@ -8,10 +8,6 @@
 
 #include "CxxUtils/make_unique.h"
 
-// The calculators that I need...
-#include "LArG4HEC/LArHECCalibrationWheelCalculator.h"
-#include "LArG4H62004DeadCalibrationCalculator.h"
-
 // For escaped energy
 #include "CaloG4Sim/EscapedEnergyRegistry.h"
 #include "LArG4Code/EscapedEnergyProcessing.h"
@@ -19,19 +15,27 @@
 LArG4H62004DeadSDTool::LArG4H62004DeadSDTool(const std::string& type, const std::string& name, const IInterface *parent)
   : LArG4SDTool(type,name,parent)
   , m_HitColl("LArCalibrationHitDeadMaterial")
+  , m_calculator("LArG4H62004DeadCalibrationCalculator", name)
   , m_deadSD(nullptr)
   , m_uninstSD(nullptr)
 {
   declareProperty("doEscapedEnergy",m_do_eep=false);
+  declareProperty("Calculator", m_calculator);
   declareInterface<ISensitiveDetector>(this);
+}
+
+StatusCode LArG4H62004DeadSDTool::initializeCalculators()
+{
+  ATH_CHECK(m_calculator.retrieve());
+  return StatusCode::SUCCESS;
 }
 
 StatusCode LArG4H62004DeadSDTool::initializeSD()
 {
   // Lots of singleton calculators !!!
-  m_deadSD  = new LArG4H62004CalibSD( "LArDead::Dead::H6" , new LArG4H62004DeadCalibrationCalculator() , m_doPID);
+  m_deadSD  = new LArG4H62004CalibSD( "LArDead::Dead::H6" , &*m_calculator, m_doPID);
   // Take care of the default material
-  if (m_do_eep) m_uninstSD    = new LArG4H62004CalibSD( "Default::Dead::Uninstrumented::Calibration::H6" , new LArG4H62004DeadCalibrationCalculator() , m_doPID );
+  if (m_do_eep) m_uninstSD    = new LArG4H62004CalibSD( "Default::Dead::Uninstrumented::Calibration::H6" , &*m_calculator, m_doPID );
 
   std::map<G4VSensitiveDetector*,std::vector<std::string>*> configuration;
   configuration[m_deadSD]  = &m_volumeNames;
