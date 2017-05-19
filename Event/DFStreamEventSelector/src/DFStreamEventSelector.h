@@ -1,4 +1,4 @@
-/*   --+- C++ -+-- */
+/*  -*- c++ -*- */
 /* A simple class to use DFDataSource implementations to read data
  *
  */
@@ -8,6 +8,7 @@
 #ifndef GAUDIKERNEL_IEVTSELECTOR_H
 # include "GaudiKernel/IEvtSelector.h"
 #endif
+#include "GaudiKernel/IIncidentSvc.h"
 
 #ifndef GAUDIKERNEL_PROPERTY_H
 # include "GaudiKernel/Property.h"
@@ -25,7 +26,12 @@
 #endif
 
 #include "AthenaBaseComps/AthService.h"
-#include "hltinterface/DataSource.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+
+namespace HLT{
+  class DataSource;
+}
 
 class DFStreamEventSelector:public AthService,
 			     public IEvtSelector{
@@ -33,6 +39,14 @@ public:
   DFStreamEventSelector(const std::string &name, ISvcLocator* pSvcLocator);
   virtual ~DFStreamEventSelector();
   typedef IEvtSelector::Context   EvtContext;
+  class DFContext:public IEvtSelector::Context{
+  public:
+    DFContext();
+    ~DFContext();
+    void* identifier() const;
+  private:
+    uint32_t L1id;
+  };
   /**Create and return a context object that will
      keep track of the state of selection.
 
@@ -104,9 +118,18 @@ public:
     * @param c Reference pointer to the Context object.
     */
   virtual StatusCode resetCriteria(const std::string& cr,Context& c)const override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode start() override;
+  virtual StatusCode stop() override;
+  virtual StatusCode finalize() override;
+	
 private:
+  typedef HLT::DataSource* (*dscreator)(void);  
+
+  std::shared_ptr<HLT::DataSource> m_ds;
   ServiceHandle<IIncidentSvc> m_incidentSvc;
   ServiceHandle<StoreGateSvc> m_evtStore;
+  ServiceHandle<IROBDataProviderSvc> m_robProvider;
   Gaudi::Property<std::string> m_plugin{this,"PluginName","FileDS","Name of the DataSource plugin"};
   Gaudi::Property<std::string> m_pluginConfig{this,"PluginConfig","","Plugin configuration, in the form of xml serialized ptree"};
   Gaudi::Property<bool> m_overrideRunNumber;
