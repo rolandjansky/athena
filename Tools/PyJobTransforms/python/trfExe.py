@@ -1317,7 +1317,7 @@ class athenaExecutor(scriptExecutor):
                             if bind_port("127.0.0.1",port)==0:
                                 break
                         msg.info("Using port %s for dmtcp_launch."%port)
-                        print >>wrapper, './dmtcp_restart_script.sh -p %s '%port
+                        print >>wrapper, './dmtcp_restart_script.sh -p %s -h 127.0.0.1'%port
                     else:
                         print >>wrapper, ' '.join(self._cmd)
             os.chmod(self._wrapperFile, 0755)

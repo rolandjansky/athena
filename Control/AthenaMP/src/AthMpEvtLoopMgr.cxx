@@ -581,7 +581,6 @@ StatusCode AthMpEvtLoopMgr::afterRestart(int& maxevt)
   // ___________________________________ Parse the runargs.* file _____________________________________
   std::map<std::string,std::string> tokens;
   tokens["nprocs"]=std::string("");
-  tokens["randomSeed"]=std::string("");
   tokens["skipEvents"]=std::string("");
   tokens["maxEvents"]=std::string("");
   tokens["inputEVNTFile"]=std::string("");

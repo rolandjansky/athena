@@ -241,8 +241,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueProvider::exec_
   }
   else {
     std::string propertyName("SkipEvents");
-    int skEvt(0);
-    IntegerProperty skipEventsProp(propertyName,skEvt);
+    IntegerProperty skipEventsProp(propertyName,skipEvents);
     if(propertyServer->getProperty(&skipEventsProp).isFailure()) {
       ATH_MSG_INFO( "Event Selector does not have SkipEvents property" );
     }
