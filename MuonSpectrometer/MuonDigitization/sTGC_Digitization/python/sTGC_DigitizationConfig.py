@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 #
 # Import sTGC_Digitization job properties
 #
@@ -29,7 +27,7 @@ def sTgcDigitizationTool(name="sTgcDigitizationTool",**kwargs):
     kwargs.setdefault("InputObjectName", "sTGCSensitiveDetector")
     kwargs.setdefault("OutputObjectName", "sTGC_DIGITS")
     kwargs.setdefault("OutputSDOName", "sTGC_SDO")
-    kwargs.setdefault("doToFCorrection", False)
+    kwargs.setdefault("doToFCorrection", True)
      
     return CfgMgr.sTgcDigitizationTool(name,**kwargs)
 
