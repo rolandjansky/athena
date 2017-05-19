@@ -9,12 +9,7 @@ from AthenaCommon.CfgGetter import addTool, addService
 # G4UA::LArGeoH62004EventActionTool,
 # G4UA::LArGeoH62004SteppingActionTool,
 # G4UA::LArHitsH6EventActionTool, G4UA::RadLenNtupleTool
-
-addTool("LArG4H6SD.LArG4H6SDTools.LArGeoH62004EventAction", "LArGeoH62004EventAction")
-addTool("LArG4H6SD.LArG4H6SDTools.LArGeoH62004SteppingAction", "LArGeoH62004SteppingAction")
-addTool("LArG4H6SD.LArG4H6SDTools.LArHitsH6EventAction", "LArHitsH6EventAction")
-addTool("LArG4H6SD.LArG4H6SDTools.LArTBH6BeamInfo", "LArTBH6BeamInfo")
-addTool("LArG4H6SD.LArG4H6SDTools.LArTBH6TriggerTimeTool", "LArTBH6TriggerTimeTool")
+# G4UA::LArTBH6TriggerTimeTool
 
 # Sensitive detector tools
 addTool("LArG4H6SD.LArG4H6SDConfig.getLArG4TBECBeamChSDTool", "LArG4TBECBeamChSensitiveDetector")
