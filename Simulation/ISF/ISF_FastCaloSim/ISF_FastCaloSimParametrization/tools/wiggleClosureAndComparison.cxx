@@ -40,9 +40,11 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
   
   //load geometry finder
   CaloGeometryFromFile* geo=new CaloGeometryFromFile();
-  geo->LoadGeometryFromFile("ATLAS-GEO-20-00-01.root","ATLAS-GEO-20-00-01");
+  geo->LoadGeometryFromFile("/afs/cern.ch/atlas/groups/Simulation/FastCaloSim/ATLAS-GEO-20-00-01.root","ATLAS-GEO-20-00-01");
+  geo->LoadFCalGeometryFromFiles("FCal1-electrodes.sorted.HV.09Nov2007.dat","FCal2-electrodes.sorted.HV.April2011.dat","FCal3-electrodes.sorted.HV.09Nov2007.dat");
   
-  TFile *originalFile = TFile::Open("root://eosatlas//eos/atlas/user/z/zhubacek/FastCaloSim/LArShift020715/ISF_HitAnalysis6_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.merged.pool.root");
+  //TFile *originalFile = TFile::Open("root://eosatlas//eos/atlas/user/z/zhubacek/FastCaloSim/LArShift020715/ISF_HitAnalysis6_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.merged.pool.root");
+  TFile *originalFile = TFile::Open("/eos/atlas/user/s/schaarsc/FCS/user.fladias.428137.FastCalo_pid11_E65536_etam35_35_zv_m100.e4001_s2864_r7736.w0_162706_matched_output.root/user.fladias.8834798._000001.matched_output.root");
   
   TFile *PCAfile = TFile::Open("firstPCA_pions_flavia.root");
   
@@ -233,7 +235,7 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
       
       Long64_t myID = it->first;
 
-      const CaloDetDescrElement* cell;
+      const CaloGeoDetDescrElement* cell;
       Identifier cellid(myID);
       cell=geo->getDDE(cellid);
       
@@ -251,7 +253,7 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
       
       Long64_t myID = it->first;
 
-      const CaloDetDescrElement* cell;
+      const CaloGeoDetDescrElement* cell;
       Identifier cellid(myID);
       cell=geo->getDDE(cellid);
       
@@ -267,7 +269,7 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
       
       Long64_t myID = it->first;
 
-      const CaloDetDescrElement* cell;
+      const CaloGeoDetDescrElement* cell;
       Identifier cellid(myID);
       cell=geo->getDDE(cellid);
       
@@ -322,9 +324,11 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
 	float z = ((FCS_matchedcell)(*vec)[j]).hit[ihit].hit_z;
 	float t = ((FCS_matchedcell)(*vec)[j]).hit[ihit].hit_time;	
 	TLorentzVector *hitVec = new TLorentzVector(x, y, z, t);
-	const CaloDetDescrElement* someCell;
-	someCell=geo->getDDE(((FCS_matchedcell)(*vec)[j]).hit[ihit].sampling,hitVec->Eta(),hitVec->Phi());
-
+	int hitSampling=((FCS_matchedcell)(*vec)[j]).hit[ihit].sampling;
+	const CaloGeoDetDescrElement* someCell;
+	if(hitSampling<21)someCell=geo->getDDE(hitSampling,hitVec->Eta(),hitVec->Phi());
+	else if (hitSampling<24)someCell=geo->getFCalDDE(hitSampling,x,y,z);
+	else someCell=0;
 	Long64_t someCellID = someCell->identify();
 	
 	if (Eoriginal.find(someCellID) != Eoriginal.end()){
@@ -359,7 +363,7 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
       random1->SetSeed(0);
       
       //now I use the geomery lookup tool to get the cell eta/phi
-      const CaloDetDescrElement* cell;
+      const CaloGeoDetDescrElement* cell;
       Identifier cellid(cell_ID);
       cell=geo->getDDE(cellid); //This is working also for the FCal
       
@@ -372,8 +376,11 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
 	float z = ((FCS_matchedcell)(*vec)[j]).hit[ihit].hit_z;
 	float t = ((FCS_matchedcell)(*vec)[j]).hit[ihit].hit_time;	
 	TLorentzVector *hitVec = new TLorentzVector(x, y, z, t);
-	const CaloDetDescrElement* initCell;
-	initCell=geo->getDDE(((FCS_matchedcell)(*vec)[j]).hit[ihit].sampling,hitVec->Eta(),hitVec->Phi());
+	int hitSampling=((FCS_matchedcell)(*vec)[j]).hit[ihit].sampling;
+	const CaloGeoDetDescrElement* initCell;
+	if(hitSampling<21)initCell=geo->getDDE(hitSampling,hitVec->Eta(),hitVec->Phi());
+	else if (hitSampling<24)initCell=geo->getFCalDDE(hitSampling,x,y,z);
+	else initCell=0;
 	
 	if (initCell && cell){	  
 	  float efficiencyEta = ( (2.0*(hitVec->Eta()-initCell->eta()))/initCell->deta());
@@ -405,8 +412,10 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
 	  else
 	    wigglePhi = (eff_phi->GetBinCenter(chosenBin+2))/2; 
 	  
-	  const CaloDetDescrElement* foundCell;
-	  foundCell=geo->getDDE(((FCS_matchedcell)(*vec)[j]).hit[ihit].sampling,hitVec->Eta(),(hitVec->Phi())-(wigglePhi*initCell->dphi()));
+	  const CaloGeoDetDescrElement* foundCell;
+	  if(hitSampling<21)foundCell=geo->getDDE(hitSampling,hitVec->Eta(),(hitVec->Phi())-(wigglePhi*initCell->dphi()));
+	  else if (hitSampling<24)foundCell=geo->getFCalDDE(hitSampling,x,y,z);
+		else foundCell=0;
 
 	  //deposit energy in specific cell
 	  Long64_t foundCellID = foundCell->identify();
@@ -433,7 +442,7 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
     for ( std::map<Long64_t, double>::iterator it2 = Eclosure.begin(); it2!=Eclosure.end(); it2++) {
       
       Long64_t myID = it2->first;
-      const CaloDetDescrElement* cell;
+      const CaloGeoDetDescrElement* cell;
       Identifier cellid(myID);
       cell=geo->getDDE(cellid);
       
@@ -464,7 +473,7 @@ void wiggleClosureAndComparison(TString sampling="Sampling_0"){
 
       Long64_t myID = it->first;
       
-      const CaloDetDescrElement* cell;
+      const CaloGeoDetDescrElement* cell;
       Identifier cellid(myID);
       cell=geo->getDDE(cellid);
       
