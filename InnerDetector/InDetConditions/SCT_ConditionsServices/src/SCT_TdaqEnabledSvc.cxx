@@ -110,6 +110,8 @@ SCT_TdaqEnabledSvc::initialize(){
   ATH_CHECK(m_detStore->retrieve(m_pHelper,"SCT_ID"));
   // Retrieve cabling service
   ATH_CHECK(m_cablingSvc.retrieve());
+  // Read Handle Key
+  ATH_CHECK(m_eventInfoKey.initialize());
   return StatusCode::SUCCESS;
 }
 
