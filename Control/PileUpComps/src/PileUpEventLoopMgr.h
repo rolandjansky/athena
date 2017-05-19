@@ -142,6 +142,9 @@ private:
   /// property: is this job running RDO+RDO overlay.
   BooleanProperty m_isEventOverlayJob;
 
+  /// property: is this job running MC RDO+RDO overlay.
+  BooleanProperty m_isEventOverlayJobMC;
+
   /// property: the run number from an EVNT file, used to set the mc_channel_number, for overlay
   IntegerProperty m_mcRunNumber;
 
