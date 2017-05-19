@@ -667,7 +667,7 @@ void Trig::TrigNtElemTool::FillAllRoI(const HLT::TriggerElement* initialNode) {
     }
 
     if (data.roiValid == true) {
-      m_Roi.insert(RoiMap::value_type(hlt_te, data)).first;
+      m_Roi.insert(RoiMap::value_type(hlt_te, data));//.first;
     }
   }
 
