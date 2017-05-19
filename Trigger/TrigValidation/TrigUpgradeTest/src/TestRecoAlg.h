@@ -28,10 +28,7 @@ namespace HLTTest {
   { 
   public: 
     TestRecoAlg( const std::string& name, ISvcLocator* pSvcLocator );
-
     virtual ~TestRecoAlg(); 
-
-    //TestRecoAlg &operator=(const TestRecoAlg &alg); 
 
     StatusCode  initialize() override;
     StatusCode  execute() override;
@@ -46,10 +43,6 @@ namespace HLTTest {
     typedef std::vector< Obj_t > Event_t;
     std::vector< Event_t > m_data;
     SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_output;
-    size_t m_eventNo;
-
-
-  
   }; 
 
 } //> end namespace HLTTest

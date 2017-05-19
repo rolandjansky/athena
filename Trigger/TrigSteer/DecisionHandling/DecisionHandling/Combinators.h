@@ -29,10 +29,23 @@ namespace HLT {
    **/
   class CombinationsGenerator {
   public:
-    CombinationsGenerator( const std::initializer_list<size_t>& collectionSizes );
+    /**
+     * @brief construct combnations maker with the sizes of collection to which it shoudl be applied
+     **/
+    CombinationsGenerator( std::initializer_list<size_t> collectionSizes );
     void reset();
+    /**
+     * @brief returns current combination
+     **/
     const std::vector<size_t>& operator()() const;
+    /**
+     * @brief moves to the next combination
+     **/    
     void operator++();
+
+    /**
+     * @brief are combinations exhausted
+     **/        
     operator bool() const;
   private:
     const std::vector<size_t> m_maxes;

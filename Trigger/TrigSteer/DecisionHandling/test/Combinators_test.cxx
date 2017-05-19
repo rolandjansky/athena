@@ -27,8 +27,8 @@ int main() {
   //  VALUE(is_inclusive_combination_present(a, aCuts)) EXPECTED(true);
 
 
-  CombinationsGenerator g( 2, 3);
-  
+  //  CombinationsGenerator g( {2, 3} );
+  // this will come
 
   
   return 0;  

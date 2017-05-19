@@ -12,18 +12,15 @@ namespace HLTTest {
   TestHypoAlg::TestHypoAlg( const std::string& name, 
 			    ISvcLocator* pSvcLocator )    
     : AthAlgorithm( name, pSvcLocator ),
-      m_tools(this)
-  {
+      m_tools(this) {
     declareProperty( "Input", m_recoInput );
     declareProperty( "Output", m_output );
     declareProperty( "HypoTools", m_tools );
   }
 
-  TestHypoAlg::~TestHypoAlg()
-  {}
+  TestHypoAlg::~TestHypoAlg() {}
 
-  StatusCode TestHypoAlg::initialize()
-  {
+  StatusCode TestHypoAlg::initialize() {
     ATH_MSG_INFO ("Initializing " << name() << "...");
     CHECK( m_output.initialize() );
     CHECK( m_recoInput.initialize() );
@@ -31,15 +28,13 @@ namespace HLTTest {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode TestHypoAlg::finalize()
-  {
+  StatusCode TestHypoAlg::finalize() {
     ATH_MSG_INFO( "Finalizing " << name() << "..." );
 
     return StatusCode::SUCCESS;
   }
 
-  StatusCode TestHypoAlg::execute()
-  {  
+  StatusCode TestHypoAlg::execute() {  
     ATH_MSG_DEBUG( "Executing " << name() << "..." );
     auto input = SG::makeHandle(m_recoInput);
 

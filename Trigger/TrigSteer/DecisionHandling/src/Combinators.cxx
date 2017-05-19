@@ -6,7 +6,7 @@
 
 
 using namespace HLT;
-CombinationsGenerator::CombinationsGenerator( const std::initializer_list<size_t>& collectionSizes )
+CombinationsGenerator::CombinationsGenerator( std::initializer_list<size_t> collectionSizes )
   : m_maxes( collectionSizes ),
     m_current( m_maxes.size() ) {}
 
@@ -19,13 +19,7 @@ const std::vector<size_t>& CombinationsGenerator::operator()() const {
   retrun m_current;
 }
 void CombinationsGenerator::operator++() {
-  for ( size_t i = 0; i < m_maxes.size(); ++i )  { // find first index that can be increased
-    if ( m_current[i] < m_maxes[i] ) {
-      m_current[i]++;
-      return;
-    }
-  }
-  m_current.clear(); // if we do not mamange to increase anu index, it is the end
+  m_current.clear(); 
 }
 
 CombinationsGenerator::operator bool() const {

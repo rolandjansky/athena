@@ -16,15 +16,12 @@ namespace HLTTest {
   TestRecoAlg::TestRecoAlg( const std::string& name, 
 			    ISvcLocator* pSvcLocator ) : 
     ::AthAlgorithm( name, pSvcLocator ),
-    m_output(name),
-    m_eventNo(0)
-  {
+    m_output(name) {
     declareProperty( "FileName", m_fileName, "Input file with fake objects" );
     declareProperty( "Output", m_output, "Output collection name" );
   }
 
-  TestRecoAlg::~TestRecoAlg()
-  {}
+  TestRecoAlg::~TestRecoAlg() {}
 
   void split(const std::string& src, char delim, std::vector<std::string>& result) {
     std::istringstream i(src);
@@ -93,8 +90,13 @@ namespace HLTTest {
     auto output = std::make_unique<xAOD::TrigCompositeContainer>();
     auto aux = std::make_unique<xAOD::TrigCompositeAuxContainer>();
     output->setStore( aux.get() );
-  
-    for ( auto object: m_data[m_eventNo] ) {
+
+    const EventContext& context = Gaudi::Hive::currentContext();
+    EventContextHash hash;
+    size_t ctx = hash.hash(context);    
+    const size_t eventNo = ctx % m_data.size();
+    
+    for ( auto object: m_data[eventNo] ) {
       auto xobj = new xAOD::TrigComposite;
       output->push_back( xobj );
       ATH_MSG_DEBUG( "Reconstructed object" );
@@ -104,12 +106,9 @@ namespace HLTTest {
       }
     }
   
-    m_eventNo =  ( m_eventNo >= m_data.size()-1 ) ? 0 :  m_eventNo + 1;
-
     auto handle = SG::makeHandle(m_output);
     CHECK( handle.record( std::move(output), std::move(aux) ) );
 
-  
     return StatusCode::SUCCESS;
   }
 

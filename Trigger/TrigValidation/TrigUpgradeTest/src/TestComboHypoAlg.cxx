@@ -12,8 +12,7 @@ namespace HLTTest {
 
 TestComboHypoAlg::TestComboHypoAlg( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator )
-{
+  ::AthAlgorithm( name, pSvcLocator ) {
   //declareProperty( "Property", m_nProperty );
   declareProperty( "Input1", m_recoInput1 ); 
   declareProperty( "Input2", m_recoInput2 );
@@ -26,11 +25,9 @@ TestComboHypoAlg::TestComboHypoAlg( const std::string& name,
   declareProperty( "DecisionLabel", m_decisionLabel );
 }
 
-TestComboHypoAlg::~TestComboHypoAlg()
-{}
+TestComboHypoAlg::~TestComboHypoAlg() {}
 
-StatusCode TestComboHypoAlg::initialize()
-{
+StatusCode TestComboHypoAlg::initialize() {
   ATH_MSG_INFO ("Initializing " << name() << "...");
   CHECK( m_recoInput1.initialize() );
   CHECK( m_recoInput2.initialize() );
@@ -39,8 +36,7 @@ StatusCode TestComboHypoAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TestComboHypoAlg::finalize()
-{
+StatusCode TestComboHypoAlg::finalize() {
   ATH_MSG_INFO ("Finalizing " << name() << "...");
 
   return StatusCode::SUCCESS;
@@ -55,7 +51,7 @@ StatusCode TestComboHypoAlg::finalize()
     }
     {
       auto feature2 = d2->objectLink<xAOD::TrigCompositeContainer>( "feature" );    
-      float v = (*feature2)->getDetail<float>( m_property1 );
+      float v = (*feature2)->getDetail<float>( m_property2 );
       if ( v < m_threshold2 )
 	return false;
     }
@@ -63,8 +59,7 @@ StatusCode TestComboHypoAlg::finalize()
   }
 
   
-StatusCode TestComboHypoAlg::execute()
-{  
+StatusCode TestComboHypoAlg::execute() {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
   auto input1 = SG::makeHandle(m_recoInput1);
   auto input2 = SG::makeHandle(m_recoInput2);
@@ -76,7 +71,6 @@ StatusCode TestComboHypoAlg::execute()
   auto decisions2 = std::make_unique<DecisionContainer>();
   auto aux2 = std::make_unique<DecisionAuxContainer>();
   decisions2->setStore( aux2.get() );
-
 
   // pre-recate decision objects for each container
   size_t counter1 = 0;
@@ -91,12 +85,11 @@ StatusCode TestComboHypoAlg::execute()
     d->setObjectLink("feature", ElementLink<xAOD::TrigCompositeContainer>( m_recoInput2.key(),  counter2) );
   }
 
-
   
   counter1 = 0;
-  for ( auto obj1Iter = input1->begin(); obj1Iter != input1->end(); ++obj1Iter, ++counter1 ) {
+  for ( auto obj1Iter = decisions1->begin(); obj1Iter != decisions1->end(); ++obj1Iter, ++counter1 ) {
     counter2 = 0;
-    for ( auto obj2Iter = input2->begin(); obj2Iter != input2->end(); ++obj2Iter, ++counter2 ) {
+    for ( auto obj2Iter = decisions2->begin(); obj2Iter != decisions2->end(); ++obj2Iter, ++counter2 ) {
       if (  passed(*obj1Iter, *obj2Iter)  ) {
 	auto did = HLT::Identifier( m_decisionLabel ).numeric();	
 	addDecisionID( did,  decisions1.get()->at(counter1) );
@@ -104,7 +97,16 @@ StatusCode TestComboHypoAlg::execute()
       }
     }
   }
-    
+
+  {
+    auto h = SG::makeHandle( m_output1 );
+    CHECK( h.record( std::move( decisions1 ) , std::move( aux1 ) ) );
+  }
+  {
+    auto h = SG::makeHandle( m_output2 );
+    CHECK( h.record( std::move( decisions2 ) , std::move( aux2 ) ) );
+  }
+
   return StatusCode::SUCCESS;
 }
 
