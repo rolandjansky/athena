@@ -1655,17 +1655,9 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
      * First: organize raw hits by module
      */
     vector<FTKRawHit> sortHits;
-    int tempModId = 999999;
 
     for(unsigned int i = 0; i < hits.size(); i++) {
         int modId = hitToModuleId(hits[i]);
-
-	// if(PRINT_INPUT && hitSelector(hits[i])){
-	//   if(tempModId != modId) printInputData(hits, sortHits, i);
-	//   else sortHits.push_back(hits[i]);
-
-	//   tempModId = modId;
-	// }
 
         if (modId>=0) {
             hitsByModule[modId].push_back( &(hits[i]) );
