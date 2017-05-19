@@ -12,7 +12,7 @@ TrackCaloClusterCreatorTool::TrackCaloClusterCreatorTool(const std::string& t, c
   m_loosetrackvertexassoTool("LooseTrackVertexAssociationTool"),
   m_caloEntryMapName("ParticleToCaloExtensionMap"),
   m_useEnergy(false),
-  m_doOriginCorrection(true),
+  m_doOriginCorrection(false),
   m_storeCorrectedPosition(false),
   m_applyFilter(true),
   m_clusterFilterTool("ClusterFilterTool")
@@ -79,23 +79,25 @@ void TrackCaloClusterCreatorTool::createCombinedTCCs(xAOD::TrackCaloClusterConta
             } // for caloClusterLinks
         } // if caloClusterLinks().size
         
-        // retrieve the caloExtensionContainer to get the track direction at the calo entrance
-        IParticleToCaloExtensionMap * caloExtensionMap = 0;
-	if(evtStore()->retrieve(caloExtensionMap,m_caloEntryMapName).isFailure())
-	  ATH_MSG_WARNING( "Unable to retrieve " << m_caloEntryMapName << " will leak the ParticleCaloExtension" );
+        double eta = trk->eta();
+	double phi = trk->phi();
 	
-	const Trk::TrackParameters* pars = caloExtensionMap->readCaloEntry(trk);
-	
-	double eta = pars->position().eta();
-	double phi = pars->position().phi();
-	
-	if (m_doOriginCorrection)
+	if (m_doOriginCorrection) {
+	  // retrieve the caloExtensionContainer to get the track direction at the calo entrance
+	  IParticleToCaloExtensionMap * caloExtensionMap = 0;
+	  if(evtStore()->retrieve(caloExtensionMap,m_caloEntryMapName).isFailure())
+	    ATH_MSG_WARNING( "Unable to retrieve " << m_caloEntryMapName << " will leak the ParticleCaloExtension" );
+	  
+	  const Trk::TrackParameters* pars = caloExtensionMap->readCaloEntry(trk);
+	  eta = pars->position().eta();
+	  phi = pars->position().phi();
+	  
 	  computeVertexCorr(eta, phi, (vxCont->at(0))->position(), pars->position().perp());
-	
-	if (m_storeCorrectedPosition) {
-	  trk->auxdecor<int>("Corrected") = 1;
-	  trk->auxdecor<float>("CaloEntryPosEtaCorr") = eta;
-	  trk->auxdecor<float>("CaloEntryPosPhiCorr") = phi;
+	  if (m_storeCorrectedPosition) {
+	    trk->auxdecor<int>("Corrected") = 1;
+	    trk->auxdecor<float>("CaloEntryPosEtaCorr") = eta;
+	    trk->auxdecor<float>("CaloEntryPosPhiCorr") = phi;
+	  }
 	}
 	
 // 	std::cout << "Element = " << trk << " --- eta --> " << pars->position().eta() << "      " << trk->eta()  << "    --- delta = " << (pars->position().eta() - trk->eta())<< std::endl;
@@ -104,6 +106,9 @@ void TrackCaloClusterCreatorTool::createCombinedTCCs(xAOD::TrackCaloClusterConta
         tccContainer->push_back(tcc);
         tcc->setParameters(tcc_4p.Pt(),eta,phi,tcc_4p.M(),xAOD::TrackCaloCluster::Taste::Combined,assocClusters->trackParticleLink(),assocClusters->caloClusterLinks());
         
+	// Commenting this for the moment... We can decide if we want this back later.
+	//         tcc->setParameters(tcc_4p.Pt(),eta,phi,tcc_4p.M(),xAOD::TrackCaloCluster::Taste::Combined,assocClusters->trackParticleLink(),assocClusters->caloClusterLinks());
+	
         ATH_MSG_VERBOSE ("Created TCC with pt " << tcc->pt() << " eta " << tcc->eta() << " phi " << tcc->phi() << " mass " << tcc->m() << " taste " << tcc->taste());
     } // for assoc clusters
     
