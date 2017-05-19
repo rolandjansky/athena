@@ -12,7 +12,7 @@ def bunchSpacingOfRun(runnumber,LB,verbose=False):
 
     tdaqDBName="COOLONL_TDAQ/CONDBR2"
     folder="/TDAQ/OLC/LHC/FILLPARAMS"
-    iovtime=getTimeForLB(runnumber,LB,True)
+    iovtime=getTimeForLB(runnumber,LB,readOracle=True)
 
     if iovtime==0:
         print "ERROR, can't get start time of run %i, LB %i" % (runnumber,LB)
@@ -21,7 +21,7 @@ def bunchSpacingOfRun(runnumber,LB,verbose=False):
     obj=None
     db = None
     try:
-        db=indirectOpen(tdaqDBName)
+        db=indirectOpen(tdaqDBName,oracle=True)
         f=db.getFolder(folder)
         obj=f.findObject(cool.ValidityKey(iovtime),0)
     except Exception,e:
