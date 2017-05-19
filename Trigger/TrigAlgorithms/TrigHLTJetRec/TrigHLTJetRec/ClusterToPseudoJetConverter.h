@@ -21,7 +21,7 @@ public:
   ClusterToPseudoJetConverter(const ClusterToPseudoJet& apj,
                               bool uncalibrated);
 
-  PseudoJet operator()(ValueType c) const;
+  fastjet::PseudoJet operator()(ValueType c) const;
 
 private: 
   ClusterToPseudoJet m_apj;

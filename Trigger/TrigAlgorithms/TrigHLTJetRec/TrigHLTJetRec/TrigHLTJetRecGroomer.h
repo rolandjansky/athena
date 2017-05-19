@@ -25,7 +25,7 @@ class TrigHLTJetRecGroomer : public TrigHLTJetRecFromCluster
         TrigHLTJetRecGroomer(const std::string& name, ISvcLocator* pSvcLocator);
         virtual ~TrigHLTJetRecGroomer();
 
-        virtual HLT::ErrorCode hltInitialize();
+        virtual HLT::ErrorCode hltInitialize() override;
 
     protected:
         const xAOD::JetContainer* build() const override;
