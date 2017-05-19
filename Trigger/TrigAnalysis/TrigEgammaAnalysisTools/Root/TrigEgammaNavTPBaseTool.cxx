@@ -175,6 +175,7 @@ bool TrigEgammaNavTPBaseTool::EventWiseSelection(){
     if ( !MinimalTriggerRequirement() ) return false;
     hist1(m_anatype+"_CutCounter")->Fill("PassTrigger",1);
 
+    
     return true;
 }
 
