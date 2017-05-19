@@ -24,6 +24,7 @@
 #include "TrigMuonEvent/CombinedMuonFeature.h"
 #include "TrigMuonEvent/TrigMuonEFContainer.h"
 #include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
+#include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
 #include "TrigMuonEvent/TrigMuonEFCbTrack.h"
 #include "muonEvent/MuonContainer.h"
 
@@ -574,13 +575,13 @@ bool MuonTriggerAnalysisTool::muonEFMatch( const I4Momentum* particle,
     if (muContainer) {
       ATH_MSG_DEBUG("loop on muContainer of size: " << muContainer->size());
       // loop on the muon objects
-      for (TrigMuonEFInfoContainer::const_iterator it_mu = muContainer->begin() ; it_mu != muContainer->end() ; ++it_mu) {
-	
-	const TrigMuonEFCbTrack* trigMuonEF = (*it_mu)->CombinedTrack();
- 
-	//	double dEta = (*it_mu)->eta()-eta;
-	//	double dPhi = (*it_mu)->phi()-phi;
+      for (const TrigMuonEFInfo* muinfo : *muContainer) {
 
+        const TrigMuonEFInfoTrackContainer* tracks = muinfo->TrackContainer();
+        if (!tracks || tracks->empty()) continue;
+        const TrigMuonEFInfoTrack* t = tracks->front();
+	const TrigMuonEFCbTrack* trigMuonEF = t->CombinedTrack();
+ 
 	double dEta = trigMuonEF->eta()-eta;
 	double dPhi = trigMuonEF->phi()-phi;
 
