@@ -29,6 +29,7 @@ class AFP_RawDataCollection : public DataVector <AFP_RawData>
  uint16_t m_header_numberId;
  uint16_t m_ADC2Id;
  bool m_TrigSyncErrId;
+ uint32_t m_robID;		///< ID of ROB from which data come from. Destinguish A and C side
 
  public:
 
@@ -49,6 +50,7 @@ void Set_lvl1Id(uint16_t MB_number);
   void Set_header(uint16_t header_number_number);
   void Set_ADC2_POT(uint16_t ADC2_number);
   void SetTrigSyncErr(bool bit); 
+  void Set_robID(const uint32_t robID) {m_robID = robID;}
 
   void SetZero_POT();
 	  
@@ -61,6 +63,7 @@ uint16_t Get_lvl1Id() const {return m_L1Id;};
   uint16_t Get_header_number_POT()  const {return m_header_numberId;};
   uint16_t Get_ADC2_POT()  const {return m_ADC2Id;};
   bool GetTrigSyncErr()  const {return m_TrigSyncErrId;};
+  uint32_t Get_robID() const {return m_robID;}
 
   const std::vector<AFP_RawData>& Get_POT_DATA()  const {return m_POT_DATA;};
   AFP_RawData Get_POT_PMF_DATA(uint32_t Numpmf)  const {return m_POT_DATA[Numpmf];};
@@ -71,14 +74,3 @@ CLASS_DEF( AFP_RawDataCollection , 1078031561 , 1 )
 
 #endif 
 
-
-
-
-
-
-
-
-
-
-
- 
