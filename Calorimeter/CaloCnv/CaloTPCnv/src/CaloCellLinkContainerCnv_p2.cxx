@@ -10,7 +10,7 @@
  */
 
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "CaloTPCnv/CaloCellLinkContainerCnv_p2.h"
 #include "AthenaKernel/errorcheck.h"
 

@@ -35,19 +35,19 @@ template <class TYPE> class SvcFactory;
     This supports self learning converters:
     User hooks include the following (overridable) entries:
     - findCnvFactory:      returns a suitable converter factory
-    - createConverter:     the actual convetrer creation
+    - createConverter:     the actual converter creation
     - configureConverter:  configure converter before initialize
     - initializeConverter: initializes the converter
     - activateConverter:   any additional configuration to be done after 
                            initialize.
 
     configureConverter and activateConverter are user hooks, where
-    the convetrer can be manipulated by the hosting service
+    the converter can be manipulated by the hosting service
     and knowledge can be supplied, which a "generic" converter cannot 
-    aquire itself.
+    acquire itself.
 
     These hooks allow any sub-classed conversion service to
-    override the calls and create converters, which aquire
+    override the calls and create converters, which acquire
     the knowledge about their persistency type and the
     object type they convert during the initialization.
 
@@ -92,7 +92,7 @@ public:
     const CLID&     clID()  const {
       return m_class;
     }
-    // comparaison operators
+    // comparison operators
     bool operator == (const WorkerEntry& rhs)   
     {
       return rhs.clID() == clID();

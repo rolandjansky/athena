@@ -32,8 +32,10 @@ namespace xAODMaker {
 
   StatusCode MuonSegmentCnvAlg::initialize() {
 
-    ATH_MSG_DEBUG( "SegmentContainerName  = " << m_muonSegmentLocation << "  xAODContainerName = " << m_xaodContainerName );
+    ATH_MSG_DEBUG( "SegmentContainerName  = " << m_muonSegmentLocation.key() << "  xAODContainerName = " << m_xaodContainerName.key() );
     ATH_CHECK(m_muonSegmentConverterTool.retrieve());
+    ATH_CHECK(m_muonSegmentLocation.initialize());
+    ATH_CHECK(m_xaodContainerName.initialize());
 
       // Return gracefully:
     return StatusCode::SUCCESS;
@@ -43,11 +45,13 @@ namespace xAODMaker {
 
      // Retrieve the AOD particles:
      const Trk::SegmentCollection* segments = 0;
-     if(evtStore()->transientContains<Trk::SegmentCollection>(m_muonSegmentLocation)) {
-        if(evtStore()->retrieve(segments,m_muonSegmentLocation).isFailure()) {
-           ATH_MSG_FATAL( "Unable to retrieve " << m_muonSegmentLocation );
-           return StatusCode::FAILURE;
-        }
+     SG::ReadHandle<Trk::SegmentCollection> h_segments(m_muonSegmentLocation);
+     if(h_segments.isValid()) {
+       segments = h_segments.cptr();
+     }
+     else{
+       ATH_MSG_FATAL( "Unable to retrieve " << m_muonSegmentLocation.key() );
+       return StatusCode::FAILURE;
      }
 
      // If there's no input, we're done already:
@@ -55,20 +59,20 @@ namespace xAODMaker {
 
      // Create the xAOD container and its auxiliary store:
      xAOD::MuonSegmentContainer* xaod = new xAOD::MuonSegmentContainer();
-     CHECK( evtStore()->record( xaod, m_xaodContainerName ) );
      xAOD::MuonSegmentAuxContainer* aux = new xAOD::MuonSegmentAuxContainer();
-     CHECK( evtStore()->record( aux, m_xaodContainerName + "Aux." ) );
      xaod->setStore( aux );
+     SG::WriteHandle<xAOD::MuonSegmentContainer> wh_segments(m_xaodContainerName);
+     ATH_CHECK(wh_segments.record(std::unique_ptr<xAOD::MuonSegmentContainer>(xaod), std::unique_ptr<xAOD::MuonSegmentAuxContainer>(aux)));
 
      unsigned int index = 0;
      for( auto it = segments->begin();it!=segments->end();++it,++index ){
         const Muon::MuonSegment* muonSegment = dynamic_cast<const Muon::MuonSegment*>(&(**it));
         if( !muonSegment ) continue;
-        ElementLink< ::Trk::SegmentCollection > link(m_muonSegmentLocation,index);
+        ElementLink< ::Trk::SegmentCollection > link(m_muonSegmentLocation.key(),index);
         /*xAOD::MuonSegment* xaodSegment =*/
         m_muonSegmentConverterTool->convert(link,xaod);
      }
-     ATH_MSG_DEBUG( "Recorded MuonSegments with key: " << m_xaodContainerName << " size " << xaod->size() );
+     ATH_MSG_DEBUG( "Recorded MuonSegments with key: " << m_xaodContainerName.key() << " size " << xaod->size() );
 
      return StatusCode::SUCCESS;
   }

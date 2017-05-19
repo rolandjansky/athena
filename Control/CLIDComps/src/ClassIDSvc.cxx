@@ -86,8 +86,7 @@ ClassIDSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 StatusCode 
 ClassIDSvc::initialize()
 {
-  ATH_MSG_VERBOSE( "Initializing " << name() << " - package version " <<
-                   PACKAGE_VERSION ) ;
+  ATH_MSG_VERBOSE( "Initializing " << name() ) ;
 
   CHECK( Service::initialize() );
 
@@ -582,7 +581,6 @@ ClassIDSvc::fillDB() {
 
 StatusCode
 ClassIDSvc::reinitialize() {
-  ATH_MSG_INFO("RE-initializing " << name() 
-	       << " - package version " << PACKAGE_VERSION ) ;  
+  ATH_MSG_INFO("RE-initializing " << name() ) ;  
   return fillDB();
 }

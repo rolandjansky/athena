@@ -364,30 +364,30 @@ return;
 // very loose implementation. No worry about time performance
 void IAlgToolCalo::storeCells( void ) {
 
-        CaloCellContainer * m_ContainerLAr;
-        CaloCellContainer * m_ContainerTile;
+        CaloCellContainer * ContainerLAr;
+        CaloCellContainer * ContainerTile;
 	if ( evtStore()->contains<CaloCellContainer>("RoILArCells") ) {
 	        ATH_MSG_DEBUG("Found Container, will retrieve it");
-	if ( evtStore()->retrieve(m_ContainerLAr,"RoILArCells").isFailure() ){
+	if ( evtStore()->retrieve(ContainerLAr,"RoILArCells").isFailure() ){
 	        ATH_MSG_DEBUG("Could not retrieve container : RoILarCells");
 	}
 	} else {
 	     ATH_MSG_DEBUG("Creating Container RoILArCells");
-          m_ContainerLAr = new CaloCellContainer();
+          ContainerLAr = new CaloCellContainer();
 	
-             if ( evtStore()->record(m_ContainerLAr,"RoILArCells").isFailure() ){
+             if ( evtStore()->record(ContainerLAr,"RoILArCells").isFailure() ){
 	        ATH_MSG_ERROR("Error! Could not store Container");
              }
         } // End of if contains
 	if ( evtStore()->contains<CaloCellContainer>("RoITileCells") ) {
 	        ATH_MSG_DEBUG("Found Container, will retrieve it");
-	if ( evtStore()->retrieve(m_ContainerTile,"RoITileCells").isFailure() ){
+	if ( evtStore()->retrieve(ContainerTile,"RoITileCells").isFailure() ){
 	        ATH_MSG_DEBUG("Could not retrieve container : RoITileCells");
 	}
 	} else {
 	     ATH_MSG_DEBUG("Creating Container RoITileCells");
-             m_ContainerTile = new CaloCellContainer();
-             if ( evtStore()->record(m_ContainerTile,"RoITileCells").isFailure() ){
+             ContainerTile = new CaloCellContainer();
+             if ( evtStore()->record(ContainerTile,"RoITileCells").isFailure() ){
 	        ATH_MSG_ERROR("Could not store Container");
              }
         } // End of if retrieve
@@ -395,14 +395,14 @@ void IAlgToolCalo::storeCells( void ) {
         if ( lardecoded )
         for ( m_it = m_iBegin; m_it != m_iEnd; ++m_it) {
                 CaloCell* larcell = (CaloCell*)(*m_it)->clone();
-                m_ContainerLAr->push_back(larcell);
+                ContainerLAr->push_back(larcell);
         }
-        ATH_MSG_DEBUG( "LAr Container size : " << m_ContainerLAr->size() );
+        ATH_MSG_DEBUG( "LAr Container size : " << ContainerLAr->size() );
         // Now I have a Tile container
         if ( tiledecoded )
 	  for ( m_itt = m_itBegin; m_itt != m_itEnd; ++m_itt) {
 	    CaloCell* tilecell = (CaloCell*)(*m_itt)->clone();
-	    m_ContainerTile->push_back(tilecell);
+	    ContainerTile->push_back(tilecell);
 	  }
-        ATH_MSG_DEBUG( "Tile Container size : "<< m_ContainerTile->size() );
+        ATH_MSG_DEBUG( "Tile Container size : "<< ContainerTile->size() );
 }

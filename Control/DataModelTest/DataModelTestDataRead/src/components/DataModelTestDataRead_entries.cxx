@@ -17,7 +17,6 @@
 #include "../xAODTestReadCView.h"
 #include "../xAODTestReadHVec.h"
 #include "../xAODTestFilterCVec.h"
-#include "../xAODTestDecor.h"
 #include "../xAODTestClearDecor.h"
 #include "../xAODTestTypelessRead.h"
 #include "../xAODTestShallowCopy.h"
@@ -33,7 +32,6 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestReadCVec)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestReadCView)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestReadHVec)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestFilterCVec)
-DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestDecor)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestClearDecor)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestTypelessRead)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestShallowCopy)

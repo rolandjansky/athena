@@ -57,7 +57,7 @@ namespace Muon
       virtual ~TgcRdoToPrepDataTool();
       
       /** Query the IMuonRdoToPrepDataTool interface */
-      StatusCode queryInterface(const InterfaceID& riid, void** ppvIf) override;
+      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIf) override;
       
       /** Standard AthAlgTool initialize method */
       virtual StatusCode initialize() override;
@@ -69,13 +69,13 @@ namespace Muon
        *  @param requestedIdHashVect          Vector of hashes to convert i.e. the hashes of ROD collections in a 'Region of Interest'  
        *  @return selectedIdHashVect This is the subset of requestedIdVect which were actually found to contain data   
        *  (i.e. if you want you can use this vector of hashes to optimise the retrieval of data in subsequent steps.) */ 
-      StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) override;
+      virtual StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) override;
 
       /** Print Input RDO for debugging */ 
-      void printInputRdo();
+      virtual void printInputRdo() override;
       
       /** Print PRD for debugging */
-      void printPrepData();
+      virtual void printPrepData() override;
 
       /** Resolve possible conflicts with IProperty::interfaceID() */
       static const InterfaceID& interfaceID() { return IMuonRdoToPrepDataTool::interfaceID(); }
@@ -389,7 +389,7 @@ namespace Muon
       SG::WriteHandleKeyArray<TgcPrepDataContainer> m_outputprepdataKeys;
 
       /** Aboid compiler warning **/
-      virtual StatusCode decode( const std::vector<uint32_t>& /*robIds*/ ) {return StatusCode::FAILURE;}
+      virtual StatusCode decode( const std::vector<uint32_t>& /*robIds*/ ) override {return StatusCode::FAILURE;}
    }; 
 } // end of namespace
 

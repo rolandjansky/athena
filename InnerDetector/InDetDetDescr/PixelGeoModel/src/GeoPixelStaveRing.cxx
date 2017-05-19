@@ -46,25 +46,25 @@ GeoVPhysVol* GeoPixelStaveRing::SetParametersAndBuild(std::string ringName, std:
 
 GeoVPhysVol* GeoPixelStaveRing::Build(){
 
-  gmt_mgr->msg(MSG::INFO) <<"Build detailed stave ring support : "<<m_ringName<<"  "<<m_ringPosition<<endmsg;
+  m_gmt_mgr->msg(MSG::INFO) <<"Build detailed stave ring support : "<<m_ringName<<"  "<<m_ringPosition<<endmsg;
 
   double safety = 0.001*CLHEP::mm; 
   bool isBLayer = false;
-  if(gmt_mgr->GetLD() == 0) isBLayer = true;
+  if(m_gmt_mgr->GetLD() == 0) isBLayer = true;
   GeoPixelSiCrystal theSensor(isBLayer);
   GeoPixelModule pm(theSensor);
   // Ladder geometry
 
-  double endBlockFixingPoint= gmt_mgr->IBLStaveMechanicalStaveEndBlockFixPoint();
-  double totalStaveLength = gmt_mgr->IBLStaveLength();
+  double endBlockFixingPoint= m_gmt_mgr->IBLStaveMechanicalStaveEndBlockFixPoint();
+  double totalStaveLength = m_gmt_mgr->IBLStaveLength();
 
   if(m_ringPosition=="AC")
     {
       // Stave ring geometry
-      double ringWidth = gmt_mgr->IBLSupportRingWidth();
-      m_innerRadius = gmt_mgr->IBLSupportRingInnerRadius();
-      m_outerRadius = gmt_mgr->IBLSupportRingOuterRadius();
-      double fixingPoint = gmt_mgr->IBLSupportMechanicalStaveRingFixPoint();
+      double ringWidth = m_gmt_mgr->IBLSupportRingWidth();
+      m_innerRadius = m_gmt_mgr->IBLSupportRingInnerRadius();
+      m_outerRadius = m_gmt_mgr->IBLSupportRingOuterRadius();
+      double fixingPoint = m_gmt_mgr->IBLSupportMechanicalStaveRingFixPoint();
 
       // SES (dec 2012 - IBL pcache ): values hard coded as the one defined in ATLAS-IBL-02-01-00
       //   to get rid off the overlap between staverings ans ladder with ATLAS-IBL-02-00-00 values
@@ -75,50 +75,50 @@ GeoVPhysVol* GeoPixelStaveRing::Build(){
       double ringPosition = -ringWidth*0.5+fixingPoint;
       m_zPosition = endBlockPosition-ringPosition;
 
-      double IPTouterRadius = gmt_mgr->IBLServiceGetMaxRadialPosition("IPT","simple",m_zPosition,m_zPosition)+safety;
-      gmt_mgr->msg(MSG::DEBUG)<<"IBL stave ring "<<m_zPosition<<" "<<m_innerRadius<<"  "<<IPTouterRadius<<endmsg;
+      double IPTouterRadius = m_gmt_mgr->IBLServiceGetMaxRadialPosition("IPT","simple",m_zPosition,m_zPosition)+safety;
+      m_gmt_mgr->msg(MSG::DEBUG)<<"IBL stave ring "<<m_zPosition<<" "<<m_innerRadius<<"  "<<IPTouterRadius<<endmsg;
       if(IPTouterRadius>m_innerRadius) m_innerRadius=IPTouterRadius;
 
       // create log and phys volumes
-      gmt_mgr->msg(MSG::DEBUG)<<"-> IBL stave ring "<<m_zPosition<<" "<<m_innerRadius<<"  "<<m_outerRadius<<endmsg;
+      m_gmt_mgr->msg(MSG::DEBUG)<<"-> IBL stave ring "<<m_zPosition<<" "<<m_innerRadius<<"  "<<m_outerRadius<<endmsg;
       const GeoTube* ring_tube = new GeoTube(m_innerRadius,m_outerRadius,ringWidth*0.5);
-      const GeoMaterial* ring_material_weight = mat_mgr->getMaterialForVolume("pix::StaveRing_IBLwght",ring_tube->volume());
-      gmt_mgr->msg(MSG::DEBUG)<<"IBL stave ring weighted material : "<<(ring_material_weight==0)<<endmsg;
+      const GeoMaterial* ring_material_weight = m_mat_mgr->getMaterialForVolume("pix::StaveRing_IBLwght",ring_tube->volume());
+      m_gmt_mgr->msg(MSG::DEBUG)<<"IBL stave ring weighted material : "<<(ring_material_weight==0)<<endmsg;
 
       GeoLogVol * logVol = 0;
       if(ring_material_weight)
 	logVol = new GeoLogVol(m_ringName,ring_tube,ring_material_weight);
       else {
-	const GeoMaterial* ring_material = mat_mgr->getMaterial("pix::StaveRing_IBL");
+	const GeoMaterial* ring_material = m_mat_mgr->getMaterial("pix::StaveRing_IBL");
 	logVol = new GeoLogVol(m_ringName,ring_tube,ring_material);
       }
       GeoPhysVol * logVolPV = new GeoPhysVol(logVol);
-  gmt_mgr->msg(MSG::INFO) <<"Build detailed stave ring support - logVol : "<<logVol->getName()<<endmsg;
+  m_gmt_mgr->msg(MSG::INFO) <<"Build detailed stave ring support - logVol : "<<logVol->getName()<<endmsg;
 
       return logVolPV;
     }
 
   // Stave ring geometry
-  double ringWidth = gmt_mgr->IBLSupportMidRingWidth();
-  m_innerRadius = gmt_mgr->IBLSupportMidRingInnerRadius();
-  m_outerRadius = gmt_mgr->IBLSupportMidRingOuterRadius();
+  double ringWidth = m_gmt_mgr->IBLSupportMidRingWidth();
+  m_innerRadius = m_gmt_mgr->IBLSupportMidRingInnerRadius();
+  m_outerRadius = m_gmt_mgr->IBLSupportMidRingOuterRadius();
   
   m_zPosition = 0.0;
   
   // create log and phys volumes
   const GeoTube* ring_tube = new GeoTube(m_innerRadius,m_outerRadius,ringWidth*0.5);
-  const GeoMaterial* ring_material_weight = mat_mgr->getMaterialForVolume("pix::StaveRingMid_IBLwght",ring_tube->volume());
+  const GeoMaterial* ring_material_weight = m_mat_mgr->getMaterialForVolume("pix::StaveRingMid_IBLwght",ring_tube->volume());
   GeoLogVol *logVol=0;
   if(ring_material_weight)
     logVol = new GeoLogVol(m_ringName,ring_tube,ring_material_weight);
   else {
-    const GeoMaterial* ring_material = mat_mgr->getMaterial("pix::MiddleRing_IBL");
+    const GeoMaterial* ring_material = m_mat_mgr->getMaterial("pix::MiddleRing_IBL");
     logVol = new GeoLogVol(m_ringName,ring_tube,ring_material);
   }
 
   GeoPhysVol * logVolPV = new GeoPhysVol(logVol); 
 
-  gmt_mgr->msg(MSG::INFO) <<"Build detailed stave ring support - logVol : "<<logVol->getName()<<endmsg;
+  m_gmt_mgr->msg(MSG::INFO) <<"Build detailed stave ring support - logVol : "<<logVol->getName()<<endmsg;
 
   return logVolPV;
 

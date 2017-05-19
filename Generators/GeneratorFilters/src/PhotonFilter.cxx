@@ -15,7 +15,6 @@ PhotonFilter::PhotonFilter(const std::string& name, ISvcLocator* pSvcLocator)
 
   // Backward compatibility aliases
   declareProperty("Ptcut", m_Ptmin = 10000.);
-  declareProperty("Etacut", m_EtaRange = 2.50);
 }
 
 

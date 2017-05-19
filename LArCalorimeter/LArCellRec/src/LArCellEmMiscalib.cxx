@@ -19,7 +19,6 @@ PURPOSE:  applies miscalibration in EM calorimeter
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <CLHEP/Random/Randomize.h>
@@ -61,30 +60,7 @@ LArCellEmMiscalib::LArCellEmMiscalib(
 
 StatusCode LArCellEmMiscalib::initialize()
 {
-  const IGeoModelSvc *geoModel=0;
-  ATH_CHECK( service("GeoModelSvc", geoModel) );
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
-                                  geoModel,
-                                  &LArCellEmMiscalib::geoInit,this) );
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-LArCellEmMiscalib::geoInit(IOVSVC_CALLBACK_ARGS)
-{
-  ATH_MSG_INFO( " in LArCellEmMiscalib::geoInit()"  );
+  ATH_MSG_INFO( " in LArCellEmMiscalib::initialize()"  );
 
   ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
   ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );

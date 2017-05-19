@@ -1,6 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
+
+/*
+ * This macro is meant for testing purposes of the MCP efficiency teams, it is not a minimal working example for analyzers,
+ * please use MuonEfficiencyCorrectionsRootCoreTest instead
+ */
 
 #include <memory>
 #include <cstdlib>
@@ -37,61 +42,13 @@
 #include "AsgTools/AnaToolHandle.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 
+#include "MuonEfficiencyCorrections/MuonSFTestHelper.h"
+
 #define CHECK_CPCorr(Arg) \
     if (Arg.code() == CP::CorrectionCode::Error){    \
         Error(#Arg,"Correction Code 'Error' (returned in line %i) ",__LINE__); \
         return 1;   \
     }
-#define CHECK_CPSys(Arg) \
-    if (Arg.code() == CP::SystematicCode::Unsupported){    \
-        Warning(#Arg,"Unsupported systematic (in line %i) ",__LINE__); \
-    }      
-
-enum HistoType {
-    SF = 0, Sys, Stat, Eff, MCEff
-};
-
-std::vector<TH1D*> m_histos;
-std::vector<TH1D*> m_Comphistos;
-
-TH1D* CreateHistogram(std::string name, unsigned int type, std::string bonusname = "") {
-    std::string histoname = name;
-    if (type == SF) histoname += "_SF";
-    else if (type == Sys) histoname += "_Sys";
-    else if (type == Stat) histoname += "_Stat";
-    histoname += bonusname;
-    float lowestbin(0.), highestbin(1.);
-    if (type == SF) {
-        highestbin = 2.1;
-    }
-    TH1D *histo = new TH1D(histoname.c_str(), histoname.c_str(), 100000, lowestbin, highestbin);
-    if (type == SF) histo->GetXaxis()->SetTitle("SF value");
-    else if (type == Sys) histo->GetXaxis()->SetTitle("Relative systematic SF uncertainty");
-    else if (type == Stat) histo->GetXaxis()->SetTitle("Relative statistical SF uncertainty");
-    histo->GetYaxis()->SetTitle("Fraction of muons");
-    m_histos.push_back(histo);
-    return histo;
-}
-
-TH1D* CreateComparisonHistogram(std::string name, unsigned int type, std::string bonusname = "") {
-    std::string histoname = "Comparison_" + name;
-    if (type == SF) histoname += "_SF";
-    else if (type == Eff) histoname += "_Eff";
-    else if (type == MCEff) histoname += "_MCEff";
-    else if (type == Sys) histoname += "_Sys";
-    else if (type == Stat) histoname += "_Stat";
-    histoname += bonusname;
-    float lowestbin(0.), highestbin(1.);
-    TH1D *histo = new TH1D(histoname.c_str(), histoname.c_str(), 100000, lowestbin, highestbin);
-    if (type == SF) histo->GetXaxis()->SetTitle("|SF_{new}-SF_{old}|");
-    else if (type == Eff) histo->GetXaxis()->SetTitle("|Eff_{new}-Eff_{old}|");
-    else if (type == MCEff) histo->GetXaxis()->SetTitle("|MC-Eff_{new}-MC-Eff_{old}|");
-    else if (type == Sys) histo->GetXaxis()->SetTitle("|Sys_{new}-Sys_{old}|");
-    else if (type == Stat) histo->GetXaxis()->SetTitle("|Stat-Eff_{new}-Stat_{old}|");
-    histo->GetYaxis()->SetTitle("Fraction of muons");
-    m_Comphistos.push_back(histo);
-    return histo;
-}
 
 int main(int argc, char* argv[]) {
 
@@ -108,6 +65,7 @@ int main(int argc, char* argv[]) {
     std::string DefaultCalibRelease = "";
     std::string SFComparisonFolder = "";
     long long int nmax = -1;
+    double LowPtThreshold = -1;
     // read the config provided by the user
     for (int k = 1; k < argc - 1; ++k) {
         if (std::string(argv[k]).find("-i") == 0) {
@@ -124,6 +82,10 @@ int main(int argc, char* argv[]) {
         }
         if (std::string(argv[k]).find("-o") == 0) {
             OutputFilename = argv[k + 1];
+        }
+        if (std::string(argv[k]).find("-JPsi") == 0) {
+            LowPtThreshold = 15.e3;
+            if (OutputFilename == "Applied_SFs.root") OutputFilename = "Applied_SFs_JPsi.root";
         }
     }
     bool doComparison = !SFComparisonFolder.empty();
@@ -159,186 +121,104 @@ int main(int argc, char* argv[]) {
     double t_init = tsw.CpuTime();
     tsw.Reset();
     tsw.Start();
-    
+
     unsigned int nMuons = 0;
 
-    asg::AnaToolHandle<CP::IPileupReweightingTool> m_prw_tool("CP::PileupReweightingTool/myTool");
+    asg::AnaToolHandle < CP::IPileupReweightingTool > m_prw_tool("CP::PileupReweightingTool/myTool");
     // This is just a placeholder configuration for testing. Do not use these config files for your analysis!
     std::vector<std::string> m_ConfigFiles { "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root" };
-    ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("ConfigFiles", m_ConfigFiles));
     std::vector<std::string> m_LumiCalcFiles { "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_data15_13TeV.periodAllYear_DetStatus-v79-repro20-02_DQDefects-00-02-02_PHYS_StandardGRL_All_Good_25ns.root", "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_data16_13TeV.periodAllYear_DetStatus-v83-pro20-15_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root" };
+    ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("ConfigFiles", m_ConfigFiles));
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("LumiCalcFiles", m_LumiCalcFiles));
-    ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DataScaleFactor", 1.0/1.09));
+
+    ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DataScaleFactor", 1.0 / 1.09));
     ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DataScaleFactorUP", 1.));
-    ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DataScaleFactorDOWN", 1.0/1.18));
+    ASG_CHECK_SA(APP_NAME, m_prw_tool.setProperty("DataScaleFactorDOWN", 1.0 / 1.18));
     ASG_CHECK_SA(APP_NAME, m_prw_tool.initialize());
 
-    CP::MuonEfficiencyScaleFactors m_effi_corr("Medium");
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr, "WorkingPoint", "Medium"));
-    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA( APP_NAME,asg::setProperty( m_effi_corr, "CustomInputFolder", DefaultCalibRelease));
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr, "LowPtThreshold", -1.));
-    ASG_CHECK_SA(APP_NAME, m_effi_corr.initialize());
-    CP::SystematicSet statup;
-    statup.insert(CP::SystematicVariation("MUON_EFF_STAT", 1));
-    CP::SystematicSet statdown;
-    statdown.insert(CP::SystematicVariation("MUON_EFF_STAT", -1));
-    CP::SystematicSet sysup;
-    sysup.insert(CP::SystematicVariation("MUON_EFF_SYS", 1));
-    CP::SystematicSet sysdown;
-    sysdown.insert(CP::SystematicVariation("MUON_EFF_SYS", -1));
+    TestMuonSF::MuonSFTestHelper m_effi_corr_medium("RecoMedium");
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_medium.setProperty("WorkingPoint", "Medium"));
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_medium.setProperty("LowPtThreshold", LowPtThreshold));
+    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, m_effi_corr_medium.setProperty("CustomInputFolder", DefaultCalibRelease));
+    TestMuonSF::MuonSFTestHelper m_effi_corr_loose("RecoLoose");
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_loose.setProperty("WorkingPoint", "Loose"));
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_loose.setProperty("LowPtThreshold", LowPtThreshold));
+    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, m_effi_corr_loose.setProperty("CustomInputFolder", DefaultCalibRelease));
+    TestMuonSF::MuonSFTestHelper m_effi_corr_tight("RecoTight");
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_tight.setProperty("WorkingPoint", "Tight"));
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_tight.setProperty("LowPtThreshold", LowPtThreshold));
+    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, m_effi_corr_tight.setProperty("CustomInputFolder", DefaultCalibRelease));
+    TestMuonSF::MuonSFTestHelper m_effi_corr_HighPt("RecoHighPt");
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_HighPt.setProperty("WorkingPoint", "HighPt"));
+    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, m_effi_corr_HighPt.setProperty("CustomInputFolder", DefaultCalibRelease));
 
-    
-    CP::MuonEfficiencyScaleFactors m_effi_corr_loose("TestLooseSFs");
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr_loose, "WorkingPoint", "Loose"));
-    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA( APP_NAME,asg::setProperty( m_effi_corr_loose, "CustomInputFolder", DefaultCalibRelease));
-    ASG_CHECK_SA(APP_NAME, m_effi_corr_loose.initialize());
+    TestMuonSF::MuonSFTestHelper m_effi_corr_ttva("TTVALoose");
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_ttva.setProperty("WorkingPoint", "TTVA"));
+    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, m_effi_corr_ttva.setProperty("CustomInputFolder", DefaultCalibRelease));
 
-    CP::MuonEfficiencyScaleFactors m_effi_corr_HighPt("TestHighPtSFs");
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr_HighPt, "WorkingPoint", "HighPt"));
-    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA( APP_NAME,asg::setProperty( m_effi_corr_HighPt, "CustomInputFolder", DefaultCalibRelease));
-    ASG_CHECK_SA(APP_NAME, m_effi_corr_HighPt.initialize());
+    TestMuonSF::MuonSFTestHelper m_effi_corr_BadMuonVeto("BadMuonVetoHighPt");
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_BadMuonVeto.setProperty("WorkingPoint", "BadMuonVeto"));
+    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, m_effi_corr_BadMuonVeto.setProperty("CustomInputFolder", DefaultCalibRelease));
 
-    CP::MuonEfficiencyScaleFactors m_effi_corr_Tight("TestTightSFs");
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr_Tight, "WorkingPoint", "Tight"));
-    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA( APP_NAME,asg::setProperty( m_effi_corr_Tight, "CustomInputFolder", DefaultCalibRelease));
-    ASG_CHECK_SA(APP_NAME, m_effi_corr_Tight.initialize());
+    TestMuonSF::MuonSFTestHelper m_effi_corr_iso("IsoGradientIso");
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_iso.setProperty("WorkingPoint", "GradientIso"));
+    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, m_effi_corr_iso.setProperty("CustomInputFolder", DefaultCalibRelease));
 
-    CP::MuonEfficiencyScaleFactors m_ttva_corr("TestTTVASFs");
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "WorkingPoint", "TTVA"));
-    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA( APP_NAME,asg::setProperty( m_ttva_corr, "CustomInputFolder", DefaultCalibRelease));
-    ASG_CHECK_SA(APP_NAME, m_ttva_corr.initialize());
+    TestMuonSF::MuonSFTestHelper m_effi_corr_medium_comp("CompMediumSFs");
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_medium_comp.setProperty("WorkingPoint", "Medium"));
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_medium_comp.setProperty("LowPtThreshold", LowPtThreshold));
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_medium_comp.setProperty("CustomInputFolder", SFComparisonFolder));
+    TestMuonSF::MuonSFTestHelper m_effi_corr_loose_comp("CompLooseSFs");
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_loose_comp.setProperty("WorkingPoint", "Loose"));
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_loose_comp.setProperty("LowPtThreshold", LowPtThreshold));
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_loose_comp.setProperty("CustomInputFolder", SFComparisonFolder));
+    TestMuonSF::MuonSFTestHelper m_effi_corr_tight_comp("CompTightSFs");
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_tight_comp.setProperty("WorkingPoint", "Tight"));
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_tight_comp.setProperty("LowPtThreshold", LowPtThreshold));
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_tight_comp.setProperty("CustomInputFolder", SFComparisonFolder));
+    TestMuonSF::MuonSFTestHelper m_effi_corr_HighPt_comp("CompHighPtSFs");
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_HighPt_comp.setProperty("WorkingPoint", "HighPt"));
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_HighPt_comp.setProperty("CustomInputFolder", SFComparisonFolder));
 
-    CP::SystematicSet statupTTVA;
-    statupTTVA.insert(CP::SystematicVariation("MUON_TTVA_STAT", 1));
-    CP::SystematicSet sysupTTVA;
-    sysupTTVA.insert(CP::SystematicVariation("MUON_TTVA_SYS", 1));
+    TestMuonSF::MuonSFTestHelper m_effi_corr_ttva_comp("CompTTVASFs");
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_ttva_comp.setProperty("WorkingPoint", "TTVA"));
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_ttva_comp.setProperty("CustomInputFolder", SFComparisonFolder));
+    TestMuonSF::MuonSFTestHelper m_effi_corr_BadMuonVeto_comp("CompBadMuonVetoSFs");
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_BadMuonVeto_comp.setProperty("WorkingPoint", "BadMuonVeto"));
+    ASG_CHECK_SA(APP_NAME, m_effi_corr_BadMuonVeto_comp.setProperty("CustomInputFolder", SFComparisonFolder));
+    TestMuonSF::MuonSFTestHelper m_iso_corr_comp("CompIsoSF");
+    ASG_CHECK_SA(APP_NAME, m_iso_corr_comp.setProperty("WorkingPoint", "GradientIso"));
+    ASG_CHECK_SA(APP_NAME, m_iso_corr_comp.setProperty("CustomInputFolder", SFComparisonFolder));
 
-    CP::MuonEfficiencyScaleFactors m_effi_corr_medium_comp("CompMediumSFs");
-    CP::MuonEfficiencyScaleFactors m_effi_corr_loose_comp("CompLooseSFs");
-    CP::MuonEfficiencyScaleFactors m_effi_corr_HighPt_comp("CompHighPtSFs");
-    CP::MuonEfficiencyScaleFactors m_effi_corr_Tight_comp("CompTightSFs");
-    CP::MuonEfficiencyScaleFactors m_ttva_corr_comp("CompTTVASFs");
+    TestMuonSF::MuonSFReleaseComparer m_compare_medium(m_effi_corr_medium, m_effi_corr_medium_comp);
+    TestMuonSF::MuonSFReleaseComparer m_compare_loose(m_effi_corr_loose, m_effi_corr_loose_comp);
+    TestMuonSF::MuonSFReleaseComparer m_compare_tight(m_effi_corr_tight, m_effi_corr_tight_comp);
+    TestMuonSF::MuonSFReleaseComparer m_compare_HighPt(m_effi_corr_HighPt, m_effi_corr_HighPt_comp);
+    TestMuonSF::MuonSFReleaseComparer m_compare_ttva(m_effi_corr_ttva, m_effi_corr_ttva_comp);
+    TestMuonSF::MuonSFReleaseComparer m_compare_BadMuonVeto(m_effi_corr_BadMuonVeto, m_effi_corr_BadMuonVeto_comp);
+    TestMuonSF::MuonSFReleaseComparer m_compare_iso(m_effi_corr_iso, m_iso_corr_comp);
+
     if (doComparison) {
-        ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr_medium_comp, "WorkingPoint", "Loose"));
-        ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr_medium_comp, "CustomInputFolder", SFComparisonFolder));
-        ASG_CHECK_SA(APP_NAME, m_effi_corr_medium_comp.initialize());
-
-        ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr_loose_comp, "WorkingPoint", "Loose"));
-        ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr_loose_comp, "CustomInputFolder", SFComparisonFolder));
-        ASG_CHECK_SA(APP_NAME, m_effi_corr_loose_comp.initialize());
-
-        ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr_HighPt_comp, "WorkingPoint", "HighPt"));
-        ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr_HighPt_comp, "CustomInputFolder", SFComparisonFolder));
-        ASG_CHECK_SA(APP_NAME, m_effi_corr_HighPt_comp.initialize());
-
-        ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr_Tight_comp, "WorkingPoint", "Tight"));
-        ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr_Tight_comp, "CustomInputFolder", SFComparisonFolder));
-        ASG_CHECK_SA(APP_NAME, m_effi_corr_Tight_comp.initialize());
-
-        ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr_comp, "WorkingPoint", "TTVA"));
-        ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr_comp, "CustomInputFolder", SFComparisonFolder));
-        ASG_CHECK_SA(APP_NAME, m_ttva_corr_comp.initialize());
+        ASG_CHECK_SA(APP_NAME, m_compare_medium.initialize());
+        ASG_CHECK_SA(APP_NAME, m_compare_loose.initialize());
+        ASG_CHECK_SA(APP_NAME, m_compare_tight.initialize());
+        ASG_CHECK_SA(APP_NAME, m_compare_HighPt.initialize());
+        ASG_CHECK_SA(APP_NAME, m_compare_ttva.initialize());
+        ASG_CHECK_SA(APP_NAME, m_compare_BadMuonVeto.initialize());
+        ASG_CHECK_SA(APP_NAME, m_compare_iso.initialize());
+    } else {
+        ASG_CHECK_SA(APP_NAME, m_effi_corr_medium.initialize());
+        ASG_CHECK_SA(APP_NAME, m_effi_corr_loose.initialize());
+        ASG_CHECK_SA(APP_NAME, m_effi_corr_tight.initialize());
+        ASG_CHECK_SA(APP_NAME, m_effi_corr_HighPt.initialize());
+        ASG_CHECK_SA(APP_NAME, m_effi_corr_ttva.initialize());
+        ASG_CHECK_SA(APP_NAME, m_effi_corr_BadMuonVeto.initialize());
+        ASG_CHECK_SA(APP_NAME, m_effi_corr_iso.initialize());
     }
-
-
-
-    CP::MuonEfficiencyScaleFactors m_iso_effi_corr("TestIsolationSF");
-    ASG_CHECK_SA(APP_NAME, m_iso_effi_corr.setProperty("WorkingPoint", "GradientIso"));
-    if (!DefaultCalibRelease.empty()) ASG_CHECK_SA( APP_NAME,asg::setProperty( m_iso_effi_corr, "CustomInputFolder", DefaultCalibRelease));
-    ASG_CHECK_SA(APP_NAME, m_iso_effi_corr.initialize());
-
-    CP::SystematicSet isosysup;
-    isosysup.insert(CP::SystematicVariation("MUON_ISO_SYS", 1));
-    CP::SystematicSet isostatup;
-    isostatup.insert(CP::SystematicVariation("MUON_ISO_STAT", 1));
 
     // write a root file containing the SFs, stat and sys errors
     TFile *f = new TFile(OutputFilename.c_str(), "RECREATE");
-    TH1D *histSF_Medium = CreateHistogram("Medium", HistoType::SF);
-    TH1D *histSF_Medium_sys = CreateHistogram("Medium", HistoType::Sys);
-    TH1D *histSF_Medium_stat = CreateHistogram("Medium", HistoType::Stat);
-    TH1D *histSF_Loose = CreateHistogram("Loose", HistoType::SF);
-    TH1D *histSF_Loose_sys = CreateHistogram("Loose", HistoType::Sys);
-    TH1D *histSF_Loose_stat = CreateHistogram("Loose", HistoType::Stat);
-    TH1D *histSF_HighPt = CreateHistogram("HighPt", HistoType::SF);
-    TH1D *histSF_HighPt_sys = CreateHistogram("HighPt", HistoType::Sys);
-    TH1D *histSF_HighPt_stat = CreateHistogram("HighPt", HistoType::Stat);
-    TH1D *histSF_Tight = CreateHistogram("Tight", HistoType::SF);
-    TH1D *histSF_Tight_sys = CreateHistogram("Tight", HistoType::Sys);
-    TH1D *histSF_Tight_stat = CreateHistogram("Tight", HistoType::Stat);
-    TH1D *histSF_TTVA = CreateHistogram("TTVA", HistoType::SF);
-    TH1D *histSF_TTVA_sys = CreateHistogram("TTVA", HistoType::Sys);
-    TH1D *histSF_TTVA_stat = CreateHistogram("TTVA", HistoType::Stat);
-    TH1D *histSF_Iso = CreateHistogram("Iso", HistoType::SF);
-    TH1D *histSF_Iso_sys = CreateHistogram("Iso", HistoType::Sys);
-    TH1D *histSF_Iso_stat = CreateHistogram("Iso", HistoType::Stat);
 
-    // also check 0<|eta|<2.5 and 2.5<|eta|<2.7 separately
-    TH1D *histSF_Medium_NoHighEta = CreateHistogram("Medium", HistoType::SF, "_NoHighEta");
-    TH1D *histSF_Medium_sys_NoHighEta = CreateHistogram("Medium", HistoType::Sys, "_NoHighEta");
-    TH1D *histSF_Medium_stat_NoHighEta = CreateHistogram("Medium", HistoType::Stat, "_NoHighEta");
-    TH1D *histSF_Loose_NoHighEta = CreateHistogram("Loose", HistoType::SF, "_NoHighEta");
-    TH1D *histSF_Loose_sys_NoHighEta = CreateHistogram("Loose", HistoType::Sys, "_NoHighEta");
-    TH1D *histSF_Loose_stat_NoHighEta = CreateHistogram("Loose", HistoType::Stat, "_NoHighEta");
-    TH1D *histSF_HighPt_NoHighEta = CreateHistogram("HighPt", HistoType::SF, "_NoHighEta");
-    TH1D *histSF_HighPt_sys_NoHighEta = CreateHistogram("HighPt", HistoType::Sys, "_NoHighEta");
-    TH1D *histSF_HighPt_stat_NoHighEta = CreateHistogram("HighPt", HistoType::Stat, "_NoHighEta");
-    TH1D *histSF_Tight_NoHighEta = CreateHistogram("Tight", HistoType::SF, "_NoHighEta");
-    TH1D *histSF_Tight_sys_NoHighEta = CreateHistogram("Tight", HistoType::Sys, "_NoHighEta");
-    TH1D *histSF_Tight_stat_NoHighEta = CreateHistogram("Tight", HistoType::Stat, "_NoHighEta");
-    TH1D *histSF_Medium_HighEta = CreateHistogram("Medium", HistoType::SF, "_HighEta");
-    TH1D *histSF_Medium_sys_HighEta = CreateHistogram("Medium", HistoType::Sys, "_HighEta");
-    TH1D *histSF_Medium_stat_HighEta = CreateHistogram("Medium", HistoType::Stat, "_HighEta");
-    TH1D *histSF_Loose_HighEta = CreateHistogram("Loose", HistoType::SF, "_HighEta");
-    TH1D *histSF_Loose_sys_HighEta = CreateHistogram("Loose", HistoType::Sys, "_HighEta");
-    TH1D *histSF_Loose_stat_HighEta = CreateHistogram("Loose", HistoType::Stat, "_HighEta");
-    TH1D *histSF_HighPt_HighEta = CreateHistogram("HighPt", HistoType::SF, "_HighEta");
-    TH1D *histSF_HighPt_sys_HighEta = CreateHistogram("HighPt", HistoType::Sys, "_HighEta");
-    TH1D *histSF_HighPt_stat_HighEta = CreateHistogram("HighPt", HistoType::Stat, "_HighEta");
-    TH1D *histSF_Tight_HighEta = CreateHistogram("Tight", HistoType::SF, "_HighEta");
-    TH1D *histSF_Tight_sys_HighEta = CreateHistogram("Tight", HistoType::Sys, "_HighEta");
-    TH1D *histSF_Tight_stat_HighEta = CreateHistogram("Tight", HistoType::Stat, "_HighEta");
-
-    // also for comparisons, check 0<|eta|<2.5 and 2.5<|eta|<2.7 separately
-    TH1D *histSFComp_Medium_NoHighEta = CreateComparisonHistogram("Medium", HistoType::SF, "_NoHighEta");
-    TH1D *histSFComp_Medium_Eff_NoHighEta = CreateComparisonHistogram("Medium", HistoType::Eff, "_NoHighEta");
-    TH1D *histSFComp_Medium_sys_NoHighEta = CreateComparisonHistogram("Medium", HistoType::Sys, "_NoHighEta");
-    TH1D *histSFComp_Medium_stat_NoHighEta = CreateComparisonHistogram("Medium", HistoType::Stat, "_NoHighEta");
-    TH1D *histSFComp_Loose_NoHighEta = CreateComparisonHistogram("Loose", HistoType::SF, "_NoHighEta");
-    TH1D *histSFComp_Loose_Eff_NoHighEta = CreateComparisonHistogram("Loose", HistoType::Eff, "_NoHighEta");
-    TH1D *histSFComp_Loose_sys_NoHighEta = CreateComparisonHistogram("Loose", HistoType::Sys, "_NoHighEta");
-    TH1D *histSFComp_Loose_stat_NoHighEta = CreateComparisonHistogram("Loose", HistoType::Stat, "_NoHighEta");
-    TH1D *histSFComp_HighPt_NoHighEta = CreateComparisonHistogram("HighPt", HistoType::SF, "_NoHighEta");
-    TH1D *histSFComp_HighPt_Eff_NoHighEta = CreateComparisonHistogram("HighPt", HistoType::Eff, "_NoHighEta");
-    TH1D *histSFComp_HighPt_sys_NoHighEta = CreateComparisonHistogram("HighPt", HistoType::Sys, "_NoHighEta");
-    TH1D *histSFComp_HighPt_stat_NoHighEta = CreateComparisonHistogram("HighPt", HistoType::Stat, "_NoHighEta");
-    TH1D *histSFComp_Tight_NoHighEta = CreateComparisonHistogram("Tight", HistoType::SF, "_NoHighEta");
-    TH1D *histSFComp_Tight_Eff_NoHighEta = CreateComparisonHistogram("Tight", HistoType::Eff, "_NoHighEta");
-    TH1D *histSFComp_Tight_sys_NoHighEta = CreateComparisonHistogram("Tight", HistoType::Sys, "_NoHighEta");
-    TH1D *histSFComp_Tight_stat_NoHighEta = CreateComparisonHistogram("Tight", HistoType::Stat, "_NoHighEta");
-    TH1D *histSFComp_Medium_HighEta = CreateComparisonHistogram("Medium", HistoType::SF, "_HighEta");
-    TH1D *histSFComp_Medium_sys_HighEta = CreateComparisonHistogram("Medium", HistoType::Sys, "_HighEta");
-    TH1D *histSFComp_Medium_stat_HighEta = CreateComparisonHistogram("Medium", HistoType::Stat, "_HighEta");
-    TH1D *histSFComp_Loose_HighEta = CreateComparisonHistogram("Loose", HistoType::SF, "_HighEta");
-    TH1D *histSFComp_Loose_sys_HighEta = CreateComparisonHistogram("Loose", HistoType::Sys, "_HighEta");
-    TH1D *histSFComp_Loose_stat_HighEta = CreateComparisonHistogram("Loose", HistoType::Stat, "_HighEta");
-    TH1D *histSFComp_HighPt_HighEta = CreateComparisonHistogram("HighPt", HistoType::SF, "_HighEta");
-    TH1D *histSFComp_HighPt_sys_HighEta = CreateComparisonHistogram("HighPt", HistoType::Sys, "_HighEta");
-    TH1D *histSFComp_HighPt_stat_HighEta = CreateComparisonHistogram("HighPt", HistoType::Stat, "_HighEta");
-    TH1D *histSFComp_Tight_HighEta = CreateComparisonHistogram("Tight", HistoType::SF, "_HighEta");
-    TH1D *histSFComp_Tight_sys_HighEta = CreateComparisonHistogram("Tight", HistoType::Sys, "_HighEta");
-    TH1D *histSFComp_Tight_stat_HighEta = CreateComparisonHistogram("Tight", HistoType::Stat, "_HighEta");
-    TH1D *histSFComp_TTVA = CreateComparisonHistogram("TTVA", HistoType::SF);
-    TH1D *histSFComp_TTVA_Eff = CreateComparisonHistogram("TTVA", HistoType::Eff);
-    TH1D *histSFComp_TTVA_sys = CreateComparisonHistogram("TTVA", HistoType::Sys);
-    TH1D *histSFComp_TTVA_stat = CreateComparisonHistogram("TTVA", HistoType::Stat);
-
-    // check pt > 15GeV only
-    TH1D *histSF_Medium_sys_pt15 = CreateHistogram("Medium", HistoType::Sys, "_pt15");
-    TH1D *histSF_Loose_sys_pt15 = CreateHistogram("Loose", HistoType::Sys, "_pt15");
-    
-    if (doComparison) for (auto hist : m_Comphistos) m_histos.push_back(hist);
-    
     for (Long64_t entry = 0; entry < entries; ++entry) {
 
         // Tell the object which entry to look at:
@@ -354,316 +234,49 @@ int main(int argc, char* argv[]) {
         const xAOD::MuonContainer* muons = 0;
         RETURN_CHECK(APP_NAME, event.retrieve(muons, "Muons"));
 
-        // Print their properties, using the tools:
-        xAOD::MuonContainer::const_iterator mu_itr = muons->begin();
-        xAOD::MuonContainer::const_iterator mu_end = muons->end();
+        for (const auto& imuon : *muons) {
 
-        for (; mu_itr != mu_end; ++mu_itr) {
+            if (fabs(imuon->eta()) > 2.7) continue;
+            if (fabs(imuon->pt()) < 4000.) continue;
 
-            if (fabs((*mu_itr)->eta()) > 2.7) continue;
-            if (fabs((*mu_itr)->pt()) < 5000.) continue;
-            
             //ignore calo-tag muons:
-            if ((*mu_itr)->author() == xAOD::Muon::CaloTag) continue;
-            
+            if (imuon->author() == xAOD::Muon::CaloTag) continue;
+
             ++nMuons;
 
-            // Use the "simple interface" of the tool(s):
-            float eff = 0.0, sf = 0.0;
-
-            CHECK_CPSys(m_effi_corr.applySystematicVariation(CP::SystematicSet()));
-            CHECK_CPCorr(m_effi_corr.getEfficiencyScaleFactor(**mu_itr, sf));
-            float centralSF = sf;
-            CHECK_CPSys(m_effi_corr.applySystematicVariation(statup));
-            CHECK_CPCorr(m_effi_corr.getEfficiencyScaleFactor(**mu_itr, sf));
-            float statupSF = sf;
-            CHECK_CPSys(m_effi_corr.applySystematicVariation(sysup));
-            CHECK_CPCorr(m_effi_corr.getEfficiencyScaleFactor(**mu_itr, sf));
-            float upSF = sf;
-            CHECK_CPSys(m_effi_corr.applySystematicVariation(CP::SystematicSet()));
-
-            histSF_Medium->Fill(fabs(centralSF));
-            histSF_Medium_stat->Fill(fabs(statupSF - centralSF));
-            if (fabs(statupSF - centralSF) > 1) std::cout << "WARNING: MediumWP: Statistical error greater than 100% for muon with " << Form("pt=%.1f, eta=%.1f, phi=%.1f, author=%i", (*mu_itr)->pt(), (*mu_itr)->eta(), (*mu_itr)->phi(), (*mu_itr)->author()) << std::endl;
-            histSF_Medium_sys->Fill(fabs(upSF - centralSF));
-            if (fabs(upSF - centralSF) > 1) std::cout << "WARNING: MediumWP: Systematic error greater than 100% for muon with " << Form("pt=%.1f, eta=%.1f, phi=%.1f, author=%i", (*mu_itr)->pt(), (*mu_itr)->eta(), (*mu_itr)->phi(), (*mu_itr)->author()) << std::endl;
-            if ((*mu_itr)->pt() > 15000.) histSF_Medium_sys_pt15->Fill(fabs(upSF - centralSF));
-
-            if (fabs((*mu_itr)->eta()) < 2.5) {
-                histSF_Medium_NoHighEta->Fill(fabs(centralSF));
-                histSF_Medium_stat_NoHighEta->Fill(fabs(statupSF - centralSF));
-                histSF_Medium_sys_NoHighEta->Fill(fabs(upSF - centralSF));
-            }
-            if (fabs((*mu_itr)->eta()) > 2.5) {
-                histSF_Medium_HighEta->Fill(fabs(centralSF));
-                histSF_Medium_stat_HighEta->Fill(fabs(statupSF - centralSF));
-                histSF_Medium_sys_HighEta->Fill(fabs(upSF - centralSF));
-            }
-                
-                
             if (doComparison) {
-                CHECK_CPSys(m_effi_corr_medium_comp.applySystematicVariation(CP::SystematicSet()));
-                CHECK_CPCorr(m_effi_corr_medium_comp.getEfficiencyScaleFactor(**mu_itr, sf));
-                float centralSFMediumComp = sf;
-                CHECK_CPSys(m_effi_corr_medium_comp.applySystematicVariation(statup));
-                CHECK_CPCorr(m_effi_corr_medium_comp.getEfficiencyScaleFactor(**mu_itr, sf));
-                float statupSFMediumComp = sf;
-                CHECK_CPSys(m_effi_corr_medium_comp.applySystematicVariation(sysup));
-                CHECK_CPCorr(m_effi_corr_medium_comp.getEfficiencyScaleFactor(**mu_itr, sf));
-                float upSFMediumComp = sf;
-                CHECK_CPSys(m_effi_corr_medium_comp.applySystematicVariation(CP::SystematicSet()));
-
-                if (fabs((*mu_itr)->eta()) < 2.5) {
-                    float EffMediumComp = 1.;
-                    CHECK_CPCorr(m_effi_corr_medium_comp.getDataEfficiency(**mu_itr, EffMediumComp));
-                    CHECK_CPCorr(m_effi_corr.getDataEfficiency(**mu_itr, eff));
-                    histSFComp_Medium_NoHighEta->Fill(fabs(centralSF - centralSFMediumComp));
-                    histSFComp_Medium_Eff_NoHighEta->Fill(fabs(eff - EffMediumComp));
-                    histSFComp_Medium_stat_NoHighEta->Fill(fabs(statupSF - statupSFMediumComp));
-                    histSFComp_Medium_sys_NoHighEta->Fill(fabs(upSF-upSFMediumComp));
-                } else if (fabs((*mu_itr)->eta()) > 2.5) {
-                    histSFComp_Medium_HighEta->Fill(fabs(centralSF - centralSFMediumComp));
-                    histSFComp_Medium_stat_HighEta->Fill(fabs(statupSF - statupSFMediumComp));
-                    histSFComp_Medium_sys_HighEta->Fill(fabs(upSF-upSFMediumComp));
-                }
+                CHECK_CPCorr(m_compare_medium.TestSF(*imuon));
+                CHECK_CPCorr(m_compare_loose.TestSF(*imuon));
+                CHECK_CPCorr(m_compare_tight.TestSF(*imuon));
+                CHECK_CPCorr(m_compare_HighPt.TestSF(*imuon));
+                CHECK_CPCorr(m_compare_ttva.TestSF(*imuon));
+                CHECK_CPCorr(m_compare_BadMuonVeto.TestSF(*imuon));
+                CHECK_CPCorr(m_compare_iso.TestSF(*imuon));
+            } else {
+                CHECK_CPCorr(m_effi_corr_loose.TestSF(*imuon));
+                CHECK_CPCorr(m_effi_corr_medium.TestSF(*imuon));
+                CHECK_CPCorr(m_effi_corr_tight.TestSF(*imuon));
+                CHECK_CPCorr(m_effi_corr_HighPt.TestSF(*imuon));
+                CHECK_CPCorr(m_effi_corr_ttva.TestSF(*imuon));
+                CHECK_CPCorr(m_effi_corr_BadMuonVeto.TestSF(*imuon));
+                CHECK_CPCorr(m_effi_corr_iso.TestSF(*imuon));
             }
-
-
-            // fill the Loose histos
-            CHECK_CPSys(m_effi_corr_loose.applySystematicVariation(CP::SystematicSet()));
-            CHECK_CPCorr(m_effi_corr_loose.getEfficiencyScaleFactor(**mu_itr, sf));
-            float centralSFLoose = sf;
-            CHECK_CPSys(m_effi_corr_loose.applySystematicVariation(statup));
-            CHECK_CPCorr(m_effi_corr_loose.getEfficiencyScaleFactor(**mu_itr, sf));
-            float statupSFLoose = sf;
-            CHECK_CPSys(m_effi_corr_loose.applySystematicVariation(sysup));
-            CHECK_CPCorr(m_effi_corr_loose.getEfficiencyScaleFactor(**mu_itr, sf));
-            float upSFLoose = sf;
-            CHECK_CPSys(m_effi_corr_loose.applySystematicVariation(CP::SystematicSet()));
-
-            histSF_Loose->Fill(fabs(centralSFLoose));
-            if (fabs(statupSFLoose - centralSFLoose) > 1) std::cout << "WARNING: LooseWP: Statistical error greater than 100% for muon with " << Form("pt=%.1f, eta=%.1f, phi=%.1f", (*mu_itr)->pt(), (*mu_itr)->eta(), (*mu_itr)->phi()) << std::endl;
-            histSF_Loose_stat->Fill(fabs(statupSFLoose - centralSFLoose));
-            if (fabs(upSFLoose - centralSFLoose) > 1) std::cout << "WARNING: LooseWP: Systematic error greater than 100% for muon with " << Form("pt=%.1f, eta=%.1f, phi=%.1f", (*mu_itr)->pt(), (*mu_itr)->eta(), (*mu_itr)->phi()) << std::endl;
-            histSF_Loose_sys->Fill(fabs(upSFLoose - centralSFLoose));
-            if ((*mu_itr)->pt() > 15000.) histSF_Loose_sys_pt15->Fill(fabs(upSFLoose - centralSFLoose));
-
-            if (fabs((*mu_itr)->eta()) < 2.5) {
-                histSF_Loose_NoHighEta->Fill(fabs(centralSFLoose));
-                histSF_Loose_stat_NoHighEta->Fill(fabs(statupSFLoose - centralSFLoose));
-                histSF_Loose_sys_NoHighEta->Fill(fabs(upSFLoose - centralSFLoose));
-            }
-            if (fabs((*mu_itr)->eta()) > 2.5) {
-                histSF_Loose_HighEta->Fill(fabs(centralSFLoose));
-                histSF_Loose_stat_HighEta->Fill(fabs(statupSFLoose - centralSFLoose));
-                histSF_Loose_sys_HighEta->Fill(fabs(upSFLoose - centralSFLoose));
-            }
-
-            if (doComparison) {
-                CHECK_CPSys(m_effi_corr_loose_comp.applySystematicVariation(CP::SystematicSet()));
-                CHECK_CPCorr(m_effi_corr_loose_comp.getEfficiencyScaleFactor(**mu_itr, sf));
-                float centralSFLooseComp = sf;
-                CHECK_CPSys(m_effi_corr_loose_comp.applySystematicVariation(statup));
-                CHECK_CPCorr(m_effi_corr_loose_comp.getEfficiencyScaleFactor(**mu_itr, sf));
-                float statupSFLooseComp = sf;
-                CHECK_CPSys(m_effi_corr_loose_comp.applySystematicVariation(sysup));
-                CHECK_CPCorr(m_effi_corr_loose_comp.getEfficiencyScaleFactor(**mu_itr, sf));
-                float upSFLooseComp = sf;
-                CHECK_CPSys(m_effi_corr_loose_comp.applySystematicVariation(CP::SystematicSet()));
-
-                if (fabs((*mu_itr)->eta()) < 2.5) {
-                    float EffLooseComp = 1.;
-                    CHECK_CPCorr(m_effi_corr_medium_comp.getDataEfficiency(**mu_itr, EffLooseComp));
-                    CHECK_CPCorr(m_effi_corr_loose.getDataEfficiency(**mu_itr, eff));
-                    histSFComp_Loose_NoHighEta->Fill(fabs(centralSFLoose - centralSFLooseComp));
-                    histSFComp_Loose_Eff_NoHighEta->Fill(fabs(eff - EffLooseComp));
-                    histSFComp_Loose_stat_NoHighEta->Fill(fabs(statupSFLoose - statupSFLooseComp));
-                    histSFComp_Loose_sys_NoHighEta->Fill(fabs(upSFLoose-upSFLooseComp));
-
-                } else if (fabs((*mu_itr)->eta()) > 2.5) {
-                    histSFComp_Loose_HighEta->Fill(fabs(centralSFLoose - centralSFLooseComp));
-                    histSFComp_Loose_stat_HighEta->Fill(fabs(statupSFLoose - statupSFLooseComp));
-                    histSFComp_Loose_sys_HighEta->Fill(fabs(upSFLoose-upSFLooseComp));
-                }
-            }
-
-            // fill the HighPt histos
-            CHECK_CPSys(m_effi_corr_HighPt.applySystematicVariation(CP::SystematicSet()));
-            CHECK_CPCorr(m_effi_corr_HighPt.getEfficiencyScaleFactor(**mu_itr, sf));
-            float centralSFHighPt = sf;
-            CHECK_CPSys(m_effi_corr_HighPt.applySystematicVariation(statup));
-            CHECK_CPCorr(m_effi_corr_HighPt.getEfficiencyScaleFactor(**mu_itr, sf));
-            float statupSFHighPt = sf;
-            CHECK_CPSys(m_effi_corr_HighPt.applySystematicVariation(sysup));
-            CHECK_CPCorr(m_effi_corr_HighPt.getEfficiencyScaleFactor(**mu_itr, sf));
-            float upSFHighPt = sf;
-            CHECK_CPSys(m_effi_corr_HighPt.applySystematicVariation(CP::SystematicSet()));
-
-            histSF_HighPt->Fill(fabs(centralSFHighPt));
-            if (fabs(statupSFHighPt - centralSFHighPt) > 1) std::cout << "WARNING: HighPtWP: Statistical error greater than 100% for muon with " << Form("pt=%.1f, eta=%.1f, phi=%.1f", (*mu_itr)->pt(), (*mu_itr)->eta(), (*mu_itr)->phi()) << std::endl;
-            histSF_HighPt_stat->Fill(fabs(statupSFHighPt - centralSFHighPt));
-            if (fabs(upSFHighPt - centralSFHighPt) > 1) std::cout << "WARNING: HighPtWP: Systematic error greater than 100% for muon with " << Form("pt=%.1f, eta=%.1f, phi=%.1f", (*mu_itr)->pt(), (*mu_itr)->eta(), (*mu_itr)->phi()) << std::endl;
-            histSF_HighPt_sys->Fill(fabs(upSFHighPt - centralSFHighPt));
-
-            if (fabs((*mu_itr)->eta()) < 2.5) {
-                histSF_HighPt_NoHighEta->Fill(fabs(centralSFHighPt));
-                histSF_HighPt_stat_NoHighEta->Fill(fabs(statupSFHighPt - centralSFHighPt));
-                histSF_HighPt_sys_NoHighEta->Fill(fabs(upSFHighPt - centralSFHighPt));
-            }
-            if (fabs((*mu_itr)->eta()) > 2.5) {
-                histSF_HighPt_HighEta->Fill(fabs(centralSFHighPt));
-                histSF_HighPt_stat_HighEta->Fill(fabs(statupSFHighPt - centralSFHighPt));
-                histSF_HighPt_sys_HighEta->Fill(fabs(upSFHighPt - centralSFHighPt));
-            }
-
-            if (doComparison) {
-                CHECK_CPSys(m_effi_corr_HighPt_comp.applySystematicVariation(CP::SystematicSet()));
-                CHECK_CPCorr(m_effi_corr_HighPt_comp.getEfficiencyScaleFactor(**mu_itr, sf));
-                float centralSFHighPtComp = sf;
-                CHECK_CPSys(m_effi_corr_HighPt_comp.applySystematicVariation(statup));
-                CHECK_CPCorr(m_effi_corr_HighPt_comp.getEfficiencyScaleFactor(**mu_itr, sf));
-                float statupSFHighPtComp = sf;
-                CHECK_CPSys(m_effi_corr_HighPt_comp.applySystematicVariation(sysup));
-                CHECK_CPCorr(m_effi_corr_HighPt_comp.getEfficiencyScaleFactor(**mu_itr, sf));
-                float upSFHighPtComp = sf;
-                CHECK_CPSys(m_effi_corr_HighPt_comp.applySystematicVariation(CP::SystematicSet()));
-
-                if (fabs((*mu_itr)->eta()) < 2.5) {
-                    float EffHighPtComp = 1.;
-                    CHECK_CPCorr(m_effi_corr_HighPt_comp.getDataEfficiency(**mu_itr, EffHighPtComp));
-                    CHECK_CPCorr(m_effi_corr_HighPt.getDataEfficiency(**mu_itr, eff));
-                    histSFComp_HighPt_NoHighEta->Fill(fabs(centralSFHighPt - centralSFHighPtComp));
-                    histSFComp_HighPt_Eff_NoHighEta->Fill(fabs(eff - EffHighPtComp));
-                    histSFComp_HighPt_stat_NoHighEta->Fill(fabs((statupSFHighPt - statupSFHighPtComp)));
-                    histSFComp_HighPt_sys_NoHighEta->Fill(fabs((upSFHighPt -upSFHighPtComp)));
-                } else if (fabs((*mu_itr)->eta()) > 2.5) {
-                    histSFComp_HighPt_HighEta->Fill(fabs(centralSFHighPt - centralSFHighPtComp));
-                    histSFComp_HighPt_stat_HighEta->Fill(fabs(statupSFHighPt - statupSFHighPtComp));
-                    histSFComp_HighPt_sys_HighEta->Fill(fabs(upSFHighPt -upSFHighPtComp));
-                }
-            }
-
-            // fill the Tight histos
-            CHECK_CPSys(m_effi_corr_Tight.applySystematicVariation(CP::SystematicSet()));
-            CHECK_CPCorr(m_effi_corr_Tight.getEfficiencyScaleFactor(**mu_itr, sf));
-            float centralSFTight = sf;
-            CHECK_CPSys(m_effi_corr_Tight.applySystematicVariation(statup));
-            CHECK_CPCorr(m_effi_corr_Tight.getEfficiencyScaleFactor(**mu_itr, sf));
-            float statupSFTight = sf;
-            CHECK_CPSys(m_effi_corr_Tight.applySystematicVariation(sysup));
-            CHECK_CPCorr(m_effi_corr_Tight.getEfficiencyScaleFactor(**mu_itr, sf));
-            float upSFTight = sf;
-            CHECK_CPSys(m_effi_corr_Tight.applySystematicVariation(CP::SystematicSet()));
-
-            histSF_Tight->Fill(fabs(centralSFTight));
-            if (fabs(statupSFTight - centralSFTight) > 1) std::cout << "WARNING: TightWP: Statistical error greater than 100% for muon with " << Form("pt=%.1f, eta=%.1f, phi=%.1f", (*mu_itr)->pt(), (*mu_itr)->eta(), (*mu_itr)->phi()) << std::endl;
-            histSF_Tight_stat->Fill(fabs(statupSFTight - centralSFTight));
-            if (fabs(upSFTight - centralSFTight) > 1) std::cout << "WARNING: TightWP: Systematic error greater than 100% for muon with " << Form("pt=%.1f, eta=%.1f, phi=%.1f", (*mu_itr)->pt(), (*mu_itr)->eta(), (*mu_itr)->phi()) << std::endl;
-            histSF_Tight_sys->Fill(fabs(upSFTight - centralSFTight));
-
-            if (fabs((*mu_itr)->eta()) < 2.5) {
-                histSF_Tight_NoHighEta->Fill(fabs(centralSFTight));
-                histSF_Tight_stat_NoHighEta->Fill(fabs(statupSFTight - centralSFTight));
-                histSF_Tight_sys_NoHighEta->Fill(fabs(upSFTight - centralSFTight));
-            }
-            if (fabs((*mu_itr)->eta()) > 2.5) {
-                histSF_Tight_HighEta->Fill(fabs(centralSFTight));
-                histSF_Tight_stat_HighEta->Fill(fabs(statupSFTight - centralSFTight));
-                histSF_Tight_sys_HighEta->Fill(fabs(upSFTight - centralSFTight));
-            }
-
-            if (doComparison) {
-                CHECK_CPSys(m_effi_corr_Tight_comp.applySystematicVariation(CP::SystematicSet()));
-                CHECK_CPCorr(m_effi_corr_Tight_comp.getEfficiencyScaleFactor(**mu_itr, sf));
-                float centralSFTightComp = sf;
-                CHECK_CPSys(m_effi_corr_Tight_comp.applySystematicVariation(statup));
-                CHECK_CPCorr(m_effi_corr_Tight_comp.getEfficiencyScaleFactor(**mu_itr, sf));
-                float statupSFTightComp = sf;
-                CHECK_CPSys(m_effi_corr_Tight_comp.applySystematicVariation(sysup));
-                CHECK_CPCorr(m_effi_corr_Tight_comp.getEfficiencyScaleFactor(**mu_itr, sf));
-                float upSFTightComp = sf;
-                CHECK_CPSys(m_effi_corr_Tight_comp.applySystematicVariation(CP::SystematicSet()));
-
-                if (fabs((*mu_itr)->eta()) < 2.5) {
-                    float EffTightComp = 1.;
-                    CHECK_CPCorr(m_effi_corr_Tight_comp.getDataEfficiency(**mu_itr, EffTightComp));
-                    CHECK_CPCorr(m_effi_corr_Tight.getDataEfficiency(**mu_itr, eff));
-                    histSFComp_Tight_NoHighEta->Fill(fabs(centralSFTight - centralSFTightComp));
-                    histSFComp_Tight_Eff_NoHighEta->Fill(fabs(eff - EffTightComp));
-                    histSFComp_Tight_stat_NoHighEta->Fill(fabs((statupSFTight -statupSFTightComp)));
-                    histSFComp_Tight_sys_NoHighEta->Fill(fabs((upSFTight -upSFTightComp)));
-                } else if (fabs((*mu_itr)->eta()) > 2.5) {
-                    histSFComp_Tight_HighEta->Fill(fabs(centralSFTight - centralSFTightComp));
-                    histSFComp_Tight_stat_HighEta->Fill(fabs(statupSFTight -statupSFTightComp));
-                    histSFComp_Tight_sys_HighEta->Fill(fabs(upSFTight -upSFTightComp));
-                }
-            }
-
-            // check TTVA efficiencies
-            CHECK_CPSys(m_ttva_corr.applySystematicVariation(CP::SystematicSet()));
-            CHECK_CPCorr(m_ttva_corr.getEfficiencyScaleFactor(**mu_itr, sf));
-            float TTVAcentralSF = sf;
-            CHECK_CPSys(m_ttva_corr.applySystematicVariation(statupTTVA));
-            CHECK_CPCorr(m_ttva_corr.getEfficiencyScaleFactor(**mu_itr, sf));
-            float TTVAstatupSF = sf;
-            CHECK_CPSys(m_ttva_corr.applySystematicVariation(sysupTTVA));
-            CHECK_CPCorr(m_ttva_corr.getEfficiencyScaleFactor(**mu_itr, sf));
-            float TTVAupSF = sf;
-            CHECK_CPSys(m_ttva_corr.applySystematicVariation(CP::SystematicSet()));
-
-            if ((*mu_itr)->pt() > 10000.) {
-                histSF_TTVA->Fill(TTVAcentralSF);
-                if (fabs(TTVAstatupSF - TTVAcentralSF) > 1) std::cout << "WARNING: TTVAWP: Statistical error greater than 100% for muon with " << Form("pt=%.1f, eta=%.1f, phi=%.1f", (*mu_itr)->pt(), (*mu_itr)->eta(), (*mu_itr)->phi()) << std::endl;
-                 histSF_TTVA_stat->Fill(fabs(TTVAstatupSF - TTVAcentralSF));
-                if (fabs(TTVAupSF - TTVAcentralSF) > 1) std::cout << "WARNING: TTVAWP: Systematic error greater than 100% for muon with " << Form("pt=%.1f, eta=%.1f, phi=%.1f", (*mu_itr)->pt(), (*mu_itr)->eta(), (*mu_itr)->phi()) << std::endl;
-                histSF_TTVA_sys->Fill(fabs(TTVAupSF - TTVAcentralSF));
-                if (doComparison) {
-                    CHECK_CPSys(m_ttva_corr_comp.applySystematicVariation(CP::SystematicSet()));
-                    CHECK_CPCorr(m_ttva_corr_comp.getEfficiencyScaleFactor(**mu_itr, sf));
-                    float centralSFTTVAComp = sf;
-                    CHECK_CPSys(m_ttva_corr_comp.applySystematicVariation(statupTTVA));
-                    CHECK_CPCorr(m_ttva_corr_comp.getEfficiencyScaleFactor(**mu_itr, sf));
-                    float statupSFTTVAComp = sf;
-                    CHECK_CPSys(m_ttva_corr_comp.applySystematicVariation(sysupTTVA));
-                    CHECK_CPCorr(m_ttva_corr_comp.getEfficiencyScaleFactor(**mu_itr, sf));
-                    float upSFTTVAComp = sf;
-                    CHECK_CPSys(m_ttva_corr_comp.applySystematicVariation(CP::SystematicSet()));
-                    float EffTTVAComp = 1.;
-                    CHECK_CPCorr(m_ttva_corr_comp.getDataEfficiency(**mu_itr, EffTTVAComp));
-                    CHECK_CPCorr(m_ttva_corr.getDataEfficiency(**mu_itr, eff));
-                    histSFComp_TTVA->Fill(fabs(TTVAcentralSF - centralSFTTVAComp));
-                    histSFComp_TTVA_Eff->Fill(fabs(eff - EffTTVAComp));
-                    histSFComp_TTVA_stat->Fill(fabs(TTVAstatupSF-statupSFTTVAComp ));
-                    histSFComp_TTVA_sys->Fill(fabs(TTVAupSF -upSFTTVAComp));
-                }
-            }
-
-            // do the isolation part similar as reco efficinecy
-            float isoeff = 0.0, isosf = 0.0;
-            CHECK_CPSys(m_iso_effi_corr.applySystematicVariation(CP::SystematicSet()));
-            CHECK_CPCorr(m_iso_effi_corr.getDataEfficiency(**mu_itr, isoeff));
-            CHECK_CPCorr(m_iso_effi_corr.getEfficiencyScaleFactor(**mu_itr, isosf));
-            float centralSFIso = isosf;
-            histSF_Iso->Fill(fabs(centralSFIso));
-            CHECK_CPSys(m_iso_effi_corr.applySystematicVariation(isosysup));
-            CHECK_CPCorr(m_iso_effi_corr.getEfficiencyScaleFactor(**mu_itr, isosf));
-            float upSFIso = isosf;
-            if (fabs(upSFIso - centralSFIso) > 1) std::cout << "WARNING: Iso: Systematic error greater than 100% for muon with " << Form("pt=%.1f, eta=%.1f, phi=%.1f", (*mu_itr)->pt(), (*mu_itr)->eta(), (*mu_itr)->phi()) << std::endl;
-            histSF_Iso_sys->Fill(fabs(upSFIso - centralSFIso));
-            CHECK_CPSys(m_iso_effi_corr.applySystematicVariation(isostatup));
-            CHECK_CPCorr(m_iso_effi_corr.getEfficiencyScaleFactor(**mu_itr, isosf));
-            float statupSFIso = isosf;
-            if (fabs(statupSFIso - centralSFIso) > 1) std::cout << "WARNING: Iso: Statistical error greater than 100% for muon with " << Form("pt=%.1f, eta=%.1f, phi=%.1f", (*mu_itr)->pt(), (*mu_itr)->eta(), (*mu_itr)->phi()) << std::endl;
-            histSF_Iso_stat->Fill(fabs(statupSFIso - centralSFIso));
         }
     }
     double t_run = tsw.CpuTime() / entries;
     Info(APP_NAME, " MCP init took %g s", t_init);
     Info(APP_NAME, " time per event: %g s", t_run);
-    
+
     std::cout << "Number of muons in file: " << nMuons << std::endl;
 
-    for (auto hist : m_histos) f->WriteTObject(hist);
+    m_compare_loose.WriteHistosToFile(f);
+    m_compare_medium.WriteHistosToFile(f);
+    m_compare_tight.WriteHistosToFile(f);
+    m_compare_HighPt.WriteHistosToFile(f);
+    m_compare_ttva.WriteHistosToFile(f);
+    m_effi_corr_BadMuonVeto.WriteHistosToFile(f);
+    m_compare_iso.WriteHistosToFile(f);
+
     f->Close();
 
     //get smart slimming list

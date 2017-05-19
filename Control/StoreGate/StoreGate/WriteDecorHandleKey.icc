@@ -1,0 +1,114 @@
+// $Id$
+/*
+ * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ */
+/**
+ * @file StoreGate/WriteDecorHandleKey.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Mar, 2017
+ * @brief Property holding a SG store/key/clid/attr name from which a
+ *        WriteDecorHandle is made.
+ */
+
+
+#include "StoreGate/tools/DecorKeyHelpers.h"
+
+
+namespace SG {
+
+
+/**
+ * @brief Constructor.
+ * @param key The StoreGate key for the object.
+ * @param storeName Name to use for the store, if it's not encoded in sgkey.
+ *
+ * The provided key may actually start with the name of the store,
+ * separated by a slash:  "MyStore/Obj".  If no slash is present
+ * the store named by @c storeName is used.
+ */
+template <class T>
+WriteDecorHandleKey<T>::WriteDecorHandleKey (const std::string& key /*= ""*/,
+                                             const std::string& storeName /*= "StoreGateSvc"*/) :
+  Base (key, storeName),
+  m_contHandleKey (contKeyFromKey (key), storeName)
+{
+}
+
+
+/**
+ * @brief Change the key of the object to which we're referring.
+ * @param sgkey The StoreGate key for the object.
+ * 
+ * The provided key may actually start with the name of the store,
+ * separated by a slash:  "MyStore/Obj".  If no slash is present,
+ * the store is not changed.
+ */
+template <class T>
+WriteDecorHandleKey<T>&
+WriteDecorHandleKey<T>::operator= (const std::string& sgkey)
+{
+  m_contHandleKey = contKeyFromKey (sgkey);
+  Base::operator= (sgkey);
+  return *this;
+}
+
+
+/**
+ * @brief Change the key of the object to which we're referring.
+ * @param sgkey The StoreGate key for the object.
+ * 
+ * The provided key may actually start with the name of the store,
+ * separated by a slash:  "MyStore/Obj".  If no slash is present
+ * the store is not changed.  A key name that starts with a slash
+ * is interpreted as a hierarchical key name, not an empty store name.
+ *
+ * Returns failure the key string format is bad.
+ */
+template <class T>
+StatusCode WriteDecorHandleKey<T>::assign (const std::string& sgkey)
+{
+  if (m_contHandleKey.assign (contKeyFromKey (sgkey)).isFailure())
+    return StatusCode::FAILURE;
+  return Base::assign (sgkey);
+}
+
+  
+/**
+ * @brief If this object is used as a property, then this should be called
+ *        during the initialize phase.  It will fail if the requested
+ *        StoreGate service cannot be found or if the key is blank.
+ *
+ * @param used If false, then this handle is not to be used.
+ *             Instead of normal initialization, the key will be cleared.
+ */
+template <class T>
+StatusCode WriteDecorHandleKey<T>::initialize (bool used /*= true*/)
+{
+  if (m_contHandleKey.initialize (used).isFailure())
+    return StatusCode::FAILURE;
+  return Base::initialize (used);
+}
+
+
+/**
+ * @brief Return the handle key for the container.
+ */
+template <class T>
+const ReadHandleKey<T>& WriteDecorHandleKey<T>::contHandleKey() const
+{
+  return m_contHandleKey;
+}
+
+
+/**
+ * @brief Return the handle key for the container.
+ */
+template <class T>
+ReadHandleKey<T>& WriteDecorHandleKey<T>::contHandleKey_nc()
+{
+  return m_contHandleKey;
+}
+
+
+} // namespace SG
+

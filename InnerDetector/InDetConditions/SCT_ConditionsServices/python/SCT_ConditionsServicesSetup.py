@@ -27,6 +27,10 @@ class SCT_ConditionsServicesSetup:
         from AthenaCommon.GlobalFlags import globalflags
         if globalflags.DataSource() == 'geant4': isMC = True
 
+        self.eventInfoKey = "ByteStreamEventInfo"
+        if isMC:
+            self.eventInfoKey = "McEventInfo"
+
         self.summarySvc  = self.initSummarySvc('InDetSCT_ConditionsSummarySvc')     
         self.flaggedSvc  = self.initFlaggedSvc('InDetSCT_FlaggedConditionSvc')      
         self.configSvc   = self.initConfigSvc('InDetSCT_ConfigurationConditionsSvc')
@@ -91,7 +95,8 @@ class SCT_ConditionsServicesSetup:
             monitorSvc = SCT_MonitorConditionsSvc(name = instanceName, 
                                                        WriteCondObjs = False,
                                                        RegisterIOV   = False,
-                                                       ReadWriteCool = True)
+                                                       ReadWriteCool = True,
+                                                       EventInfoKey  = self.eventInfoKey)
                                                        #OutputLevel = INFO)
             self.svcMgr += monitorSvc
 
@@ -145,7 +150,8 @@ class SCT_ConditionsServicesSetup:
             calibSvc = getattr(self.svcMgr, instanceName); 
         else:
             from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataSvc
-            calibSvc = SCT_ReadCalibDataSvc(name = instanceName)
+            calibSvc = SCT_ReadCalibDataSvc(name = instanceName,
+                                            EventInfoKey = self.eventInfoKey)
             self.svcMgr += calibSvc
 
         self.summarySvc.ConditionsServices+=[instanceName]

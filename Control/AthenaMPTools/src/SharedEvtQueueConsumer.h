@@ -13,6 +13,7 @@
 
 class IEventSeek;
 class IEventShare;
+class IDataShare;
 class IChronoStatSvc;
 
 class SharedEvtQueueConsumer : public AthenaMPToolBase
@@ -52,6 +53,7 @@ class SharedEvtQueueConsumer : public AthenaMPToolBase
 
   // Properties
   bool m_useSharedReader; // Work in pair with a SharedReader
+  bool m_useSharedWriter; // Work in pair with a SharedWriter
   bool m_isPileup;        // Are we doing pile-up digitization?
   bool m_isRoundRobin;    // Are we running in the "reproducible mode"?
   int  m_nEventsBeforeFork;
@@ -62,6 +64,7 @@ class SharedEvtQueueConsumer : public AthenaMPToolBase
   ServiceHandle<IChronoStatSvc>  m_chronoStatSvc;
   IEventSeek*                    m_evtSeek;
   IEventShare*                   m_evtShare;
+  IDataShare*                    m_dataShare;
 
   AthenaInterprocess::SharedQueue*  m_sharedEventQueue;          
   AthenaInterprocess::SharedQueue*  m_sharedRankQueue;          

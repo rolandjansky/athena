@@ -237,10 +237,6 @@ private:
 
   virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS);
 
-  /** Callback added to handle Data-driven GeoModel initialisation
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
   bool checkIfConnected(const Identifier &id);
   void commonCalculations(float & OFC_AC_OFC,float & OFC_OFC, int icase, unsigned int firstSample=0);
   StatusCode retrieveCellDatabase(const IdentifierHash & idCaloHash,

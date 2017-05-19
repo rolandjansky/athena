@@ -123,12 +123,12 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
   //---------------------------------------------------------------------------
   msg( MSG:: INFO) << "  JetFilterWithTruthPhoton filtering .  \n"  << endmsg;  
   // Loop over all events in McEventCollection: find particles and fill grid
-  double m_etgrid[m_grphi][m_greta]; // clean it out before we start
-  bool m_etgridused[m_grphi][m_greta]; //will use this to mark off cells after they are added to jets
+  double etgrid[m_grphi][m_greta]; // clean it out before we start
+  bool etgridused[m_grphi][m_greta]; //will use this to mark off cells after they are added to jets
   for(int ie=0; ie < m_greta; ++ie) { //initialise everything to be safe
     for(int ip=0; ip < m_grphi; ++ip) {
-      m_etgrid[ip][ie]=0.;
-      m_etgridused[ip][ie]=false;
+      etgrid[ip][ie]=0.;
+      etgridused[ip][ie]=false;
     }
   }
 
@@ -164,7 +164,7 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
 	    ip-=m_grphi; //fix phi wrapping note that this is done after rr is calculated
 	  
 
-	  m_etgrid[ip][ie]=m_etgrid[ip][ie]+(*pitr)->momentum().perp(); // fortran had pt here
+	  etgrid[ip][ie]=etgrid[ip][ie]+(*pitr)->momentum().perp(); // fortran had pt here
 	  if ((*pitr)->pdg_id() == 22 && 
 	      (*pitr)->momentum().perp() > m_photonPt && 
 	      fabs((*pitr)->momentum().pseudoRapidity()) < m_photonEta) {
@@ -191,20 +191,20 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
     int    phihigh=0;
     for (int ie0=m_netacell; ie0< m_greta-m_netacell; ++ie0){// only look away from the edges
       for (int ip0=0; ip0<m_grphi; ++ip0){
-	if(m_etgrid[ip0][ie0]>ethigh && !m_etgridused[ip0][ie0]){
-	  ethigh=m_etgrid[ip0][ie0];
+	if(etgrid[ip0][ie0]>ethigh && !etgridused[ip0][ie0]){
+	  ethigh=etgrid[ip0][ie0];
 	  etahigh=ie0;
 	  phihigh=ip0;
 	}
       }
     }
     //std::cout << "Highest cell eta phi  " << etahigh << " , " << phihigh << "energy " << ethigh << std::endl;
-    //std::cout << "interesting cells  83 and 129  "<< m_etgrid[83][129] << "   " <<  m_etgrid[84][129] << std::endl;
+    //std::cout << "interesting cells  83 and 129  "<< etgrid[83][129] << "   " <<  etgrid[84][129] << std::endl;
     /*
     if(ltest<1 ){
       for (int ie0=1+m_netacell; ie0< m_greta-m_netacell-1; ++ie0){// only look away from the edges
 	for (int ip0=0; ip0<m_grphi; ++ip0){
-	  std::cout << "ip  " <<ip0 << "ie " <<ie0 << "energy  "<<m_etgrid[ip0][ie0]/GeV << std::endl;
+	  std::cout << "ip  " <<ip0 << "ie " <<ie0 << "energy  "<<etgrid[ip0][ie0]/GeV << std::endl;
 	}
       } 
       std::cout << "Highest cell "<< ethigh/Gaudi::Units::GeV  << "eta " << etahigh*m_edeta-m_emaxeta << "phi  " << -m_twopi/2.+m_edphi*phihigh << std::endl;
@@ -227,8 +227,8 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
 	  double sum1=0.;
 	  for(int ip0=0; ip0<m_nphicell2 ; ip0++){
 	    int ip1=ip0-m_nphicell+phihigh;
-	    sum=sum+m_etgrid[ip1][etahigh-1];
-	    sum1=sum1+m_etgrid[ip1][etahigh+1];
+	    sum=sum+etgrid[ip1][etahigh-1];
+	    sum1=sum1+etgrid[ip1][etahigh+1];
 	  }
 	  if(sum < sum1) {
 	    etahigh=etahigh+1; //shift over by one
@@ -239,8 +239,8 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
 	  double sum1=0.;
 	  for(int ie0=0; ie0<m_netacell2 ; ie0++){
 	    int ie1=ie0-m_netacell+etahigh;
-	    sum=sum+m_etgrid[(phihigh-1)%m_grphi][ie1];
-	    sum1=sum1+m_etgrid[(phihigh+1)%m_grphi][ie1];
+	    sum=sum+etgrid[(phihigh-1)%m_grphi][ie1];
+	    sum1=sum1+etgrid[(phihigh+1)%m_grphi][ie1];
 	  }
 	  if(sum < sum1) {
 	    phihigh=(phihigh+1)%m_grphi; //shift over by one
@@ -258,10 +258,10 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
 	      int ip1=ip0-m_nphicell+phihigh;
 	      int ie1=ie0-m_netacell+etahigh;
 	      //std::cout << "checking loop " << ip1 << "   "<< ie1 << std::endl;
-	      if(!m_etgridused[ip1][ie1]) sum=sum+m_etgrid[ip1][ie1];
-	      if(!m_etgridused[ip1][ie1+1]) sum1=sum1+m_etgrid[ip1][ie1+1];
-	      if(!m_etgridused[ip1+1][ie1]) sum2=sum2+m_etgrid[(ip1+1)%m_grphi][ie1];
-	      if(!m_etgridused[ip1+1][ie1+1]) sum3=sum3+m_etgrid[(ip1+1)%m_grphi][ie1+1];
+	      if(!etgridused[ip1][ie1]) sum=sum+etgrid[ip1][ie1];
+	      if(!etgridused[ip1][ie1+1]) sum1=sum1+etgrid[ip1][ie1+1];
+	      if(!etgridused[ip1+1][ie1]) sum2=sum2+etgrid[(ip1+1)%m_grphi][ie1];
+	      if(!etgridused[ip1+1][ie1+1]) sum3=sum3+etgrid[(ip1+1)%m_grphi][ie1+1];
 	    }
 	  }
 	  if(sum < sum1 && sum2 < sum1 && sum3 < sum1) etahigh=etahigh+1;
@@ -291,12 +291,12 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
 
 	  if(rr<m_Cone*m_Cone || !m_Type){ // make sure that its inside
 	    //check that the cell can be used and add energy to jet and mark the cell as used
-	    if(!m_etgridused[ip1][ie1]){
-	      m_etgridused[ip1][ie1]=true;
-	      jetpx=jetpx+m_etgrid[ip1][ie1]*cos(-m_twopi/2.+(ip1+0.5)*m_edphi);
-	      jetpy=jetpy+m_etgrid[ip1][ie1]*sin(-m_twopi/2.+(ip1+0.5)*m_edphi);
-	      jetpz=jetpz+m_etgrid[ip1][ie1]*sinh((ie1+0.5)*m_edeta-m_emaxeta);
-	      jete=jete+m_etgrid[ip1][ie1]*cosh((ie1+0.5)*m_edeta-m_emaxeta);
+	    if(!etgridused[ip1][ie1]){
+	      etgridused[ip1][ie1]=true;
+	      jetpx=jetpx+etgrid[ip1][ie1]*cos(-m_twopi/2.+(ip1+0.5)*m_edphi);
+	      jetpy=jetpy+etgrid[ip1][ie1]*sin(-m_twopi/2.+(ip1+0.5)*m_edphi);
+	      jetpz=jetpz+etgrid[ip1][ie1]*sinh((ie1+0.5)*m_edeta-m_emaxeta);
+	      jete=jete+etgrid[ip1][ie1]*cosh((ie1+0.5)*m_edeta-m_emaxeta);
 	    }
 	  }
 	}

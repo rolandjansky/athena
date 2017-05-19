@@ -18,6 +18,7 @@
 
 #include "StoreGate/VarHandleBase.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "SGTools/ClassID_traits.h"
 #include "GaudiKernel/EventContext.h"
 #include <string>
@@ -35,7 +36,7 @@ namespace SG {
  * It can be reset by the store for asynchronous updates (IOVSvc)
  *
  * @c SG::ReadHandle<T> can access const and non-const proxies in StoreGate but
- * cannot modify them (ie: it is actually a const T*).
+ * cannot modify them (i.e.: it is actually a const T*).
  * A valid proxy must already exist in StoreGate.
  *
  * Usage example:
@@ -57,7 +58,7 @@ namespace SG {
  *                  << *m_int);
  *     return StatusCode::SUCCESS;
  *   }
- * @endcode
+ @endcode
  *
  * For more information have a look under the package
  *     Control/AthenaExamples/AthExHelloWorld
@@ -201,7 +202,32 @@ public:
    */
   const_pointer_type get (const EventContext& ctx) const;
 
-  
+
+  //************************************************************************
+  // Alias.
+  //
+
+
+  /**
+   * @brief Make an alias.
+   * @param key Alternate key by which the referenced object should be known.
+   *
+   * The current handle should be valid and referencing an object.
+   *
+   * The object will also be known by the name given in @c key.
+   */
+  StatusCode alias (const WriteHandleKey<T>& key);
+
+
+protected:
+  /**
+   * @brief Protected constructor used by WriteDecorHandle.
+   * @param key The key object holding the clid/key.
+   * @param ctx The event context, or nullptr to use the global default.
+   */
+  explicit ReadHandle (const VarHandleKey& key, const EventContext* ctx);
+
+
 private:
   /**
    * @brief Helper: dereference the pointer.

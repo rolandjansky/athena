@@ -17,7 +17,7 @@ TRANS*  RawInfoSummaryForTagCnv::createTransient()
 {
    static pool::Guid p1_guid( "4CBBDF6D-4A58-42A9-9B26-534676C52F4C" );
 
-   MsgStream mlog(messageService(), "RawInfoSummaryForTagCnv" );
+   MsgStream mlog(msgSvc(), "RawInfoSummaryForTagCnv" );
    mlog << MSG::DEBUG << "createTransient()" << endmsg;
 
    if( compareClassGuid( p1_guid ) ) {
@@ -33,7 +33,7 @@ TRANS*  RawInfoSummaryForTagCnv::createTransient()
 
 PERS* RawInfoSummaryForTagCnv::createPersistent(TRANS* transObj)
 {
-   MsgStream mlog(messageService(), "RawInfoSummaryForTagCnv" );
+   MsgStream mlog(msgSvc(), "RawInfoSummaryForTagCnv" );
    mlog << MSG::DEBUG << "createPersistent()" << endmsg;
    return m_TPConverter.createPersistent( transObj, mlog );   
 }

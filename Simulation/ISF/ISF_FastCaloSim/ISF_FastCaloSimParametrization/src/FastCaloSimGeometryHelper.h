@@ -12,7 +12,6 @@
 #include "ISF_FastCaloSimParametrization/IFastCaloSimGeometryHelper.h"
 
 class CaloDetDescrManager;
-class IGeoModelSvc;
 
 class FastCaloSimGeometryHelper:public AthAlgTool, public CaloGeometry, public IFastCaloSimGeometryHelper {
   public :
@@ -26,10 +25,7 @@ class FastCaloSimGeometryHelper:public AthAlgTool, public CaloGeometry, public I
     StatusCode  initialize();
     StatusCode  finalize();
 
-    virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-    
   private:  
-    const IGeoModelSvc *m_geoModel;
     /// DetDescr mgr for access to the calo helper
     const CaloDetDescrManager* m_caloMgr;  
     

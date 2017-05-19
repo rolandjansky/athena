@@ -34,8 +34,8 @@ WZtoLeptonFilter::WZtoLeptonFilter(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty( "Ptcut_electron", m_Pt_e = 0.01 );
   declareProperty( "Ptcut_muon", m_Pt_mu = 0.01 );
   for (int i = 0; i < 45; i++) {
-    catevti[i]=0.;
-    catevtf[i]=0.;
+    m_catevti[i]=0.;
+    m_catevtf[i]=0.;
   }
 }
 
@@ -45,8 +45,8 @@ StatusCode WZtoLeptonFilter::filterInitialize() {
   m_tot_wghts = 0;
   m_wPass = 0;
   for (int cnt = 0; cnt < 45; ++cnt) {
-    catevti[ cnt ] = 0;
-    catevtf[ cnt ] = 0;
+    m_catevti[ cnt ] = 0;
+    m_catevtf[ cnt ] = 0;
   }
   return StatusCode::SUCCESS;
 }
@@ -55,8 +55,8 @@ StatusCode WZtoLeptonFilter::filterInitialize() {
 StatusCode WZtoLeptonFilter::filterFinalize() {
   double catsum[2] = { 0., 0. };
   for (int cnt = 0; cnt < 40; ++cnt) {
-    catsum[0] += catevti[cnt];
-    catsum[1] += catevtf[cnt];
+    catsum[0] += m_catevti[cnt];
+    catsum[1] += m_catevtf[cnt];
   }
   catsum[0] /= m_tot_wghts;
   catsum[1] /= m_tot_wghts;
@@ -86,52 +86,52 @@ StatusCode WZtoLeptonFilter::filterFinalize() {
                  << "W = directly from W/Z boson, w = W + kinematical cuts,"<< "\n"
                  << "b = from B (or other) hadrons  + kinematical cuts " << "\n"
                  << "..................................................." << "\n"
-                 << "W=0, w=0, b>=3 : " << catevti[ 0 ]/m_tot_wghts << "\n"
-                 << "W=0, w=0, b=2  : " << catevti[ 1 ]/m_tot_wghts << "\n"
-                 << "W=0, w=0, b=1  : " << catevti[ 2 ]/m_tot_wghts << "\n"
-                 << "W=0, w=0, b=0  : " << catevti[ 3 ]/m_tot_wghts << "\n"
+                 << "W=0, w=0, b>=3 : " << m_catevti[ 0 ]/m_tot_wghts << "\n"
+                 << "W=0, w=0, b=2  : " << m_catevti[ 1 ]/m_tot_wghts << "\n"
+                 << "W=0, w=0, b=1  : " << m_catevti[ 2 ]/m_tot_wghts << "\n"
+                 << "W=0, w=0, b=0  : " << m_catevti[ 3 ]/m_tot_wghts << "\n"
 
-                 << "W=1, w=0, b>=3 : " << catevti[ 4 ]/m_tot_wghts << "\n"
-                 << "W=1, w=0, b=2  : " << catevti[ 5 ]/m_tot_wghts << "\n"
-                 << "W=1, w=0, b=1  : " << catevti[ 6 ]/m_tot_wghts << "\n"
-                 << "W=1, w=0, b=0  : " << catevti[ 7 ]/m_tot_wghts << "\n"
-                 << "W=1, w=1, b>=3 : " << catevti[ 8 ]/m_tot_wghts << "\n"
-                 << "W=1, w=1, b=2  : " << catevti[ 9 ]/m_tot_wghts << "\n"
-                 << "W=1, w=1, b=1  : " << catevti[ 10 ]/m_tot_wghts << "\n"
-                 << "W=1, w=1, b=0  : " << catevti[ 11 ]/m_tot_wghts << "\n"
+                 << "W=1, w=0, b>=3 : " << m_catevti[ 4 ]/m_tot_wghts << "\n"
+                 << "W=1, w=0, b=2  : " << m_catevti[ 5 ]/m_tot_wghts << "\n"
+                 << "W=1, w=0, b=1  : " << m_catevti[ 6 ]/m_tot_wghts << "\n"
+                 << "W=1, w=0, b=0  : " << m_catevti[ 7 ]/m_tot_wghts << "\n"
+                 << "W=1, w=1, b>=3 : " << m_catevti[ 8 ]/m_tot_wghts << "\n"
+                 << "W=1, w=1, b=2  : " << m_catevti[ 9 ]/m_tot_wghts << "\n"
+                 << "W=1, w=1, b=1  : " << m_catevti[ 10 ]/m_tot_wghts << "\n"
+                 << "W=1, w=1, b=0  : " << m_catevti[ 11 ]/m_tot_wghts << "\n"
 
-                 << "W=2, w=0, b>=3 : " << catevti[ 12 ]/m_tot_wghts << "\n"
-                 << "W=2, w=0, b=2  : " << catevti[ 13 ]/m_tot_wghts << "\n"
-                 << "W=2, w=0, b=1  : " << catevti[ 14 ]/m_tot_wghts << "\n"
-                 << "W=2, w=0, b=0  : " << catevti[ 15 ]/m_tot_wghts << "\n"
-                 << "W=2, w=1, b>=3 : " << catevti[ 16 ]/m_tot_wghts << "\n"
-                 << "W=2, w=1, b=2  : " << catevti[ 17 ]/m_tot_wghts << "\n"
-                 << "W=2, w=1, b=1  : " << catevti[ 18 ]/m_tot_wghts << "\n"
-                 << "W=2, w=1, b=0  : " << catevti[ 19 ]/m_tot_wghts << "\n"
-                 << "W=2, w=2, b>=3 : " << catevti[ 20 ]/m_tot_wghts << "\n"
-                 << "W=2, w=2, b=2  : " << catevti[ 21 ]/m_tot_wghts << "\n"
-                 << "W=2, w=2, b=1  : " << catevti[ 22 ]/m_tot_wghts << "\n"
-                 << "W=2, w=2, b=0  : " << catevti[ 23 ]/m_tot_wghts << "\n"
+                 << "W=2, w=0, b>=3 : " << m_catevti[ 12 ]/m_tot_wghts << "\n"
+                 << "W=2, w=0, b=2  : " << m_catevti[ 13 ]/m_tot_wghts << "\n"
+                 << "W=2, w=0, b=1  : " << m_catevti[ 14 ]/m_tot_wghts << "\n"
+                 << "W=2, w=0, b=0  : " << m_catevti[ 15 ]/m_tot_wghts << "\n"
+                 << "W=2, w=1, b>=3 : " << m_catevti[ 16 ]/m_tot_wghts << "\n"
+                 << "W=2, w=1, b=2  : " << m_catevti[ 17 ]/m_tot_wghts << "\n"
+                 << "W=2, w=1, b=1  : " << m_catevti[ 18 ]/m_tot_wghts << "\n"
+                 << "W=2, w=1, b=0  : " << m_catevti[ 19 ]/m_tot_wghts << "\n"
+                 << "W=2, w=2, b>=3 : " << m_catevti[ 20 ]/m_tot_wghts << "\n"
+                 << "W=2, w=2, b=2  : " << m_catevti[ 21 ]/m_tot_wghts << "\n"
+                 << "W=2, w=2, b=1  : " << m_catevti[ 22 ]/m_tot_wghts << "\n"
+                 << "W=2, w=2, b=0  : " << m_catevti[ 23 ]/m_tot_wghts << "\n"
 
-                 << "W>=3, w=0, b>=3 : " << catevti[ 24 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=0, b=2  : " << catevti[ 25 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=0, b=1  : " << catevti[ 26 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=0, b=0  : " << catevti[ 27 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=1, b>=3 : " << catevti[ 28 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=1, b=2  : " << catevti[ 29 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=1, b=1  : " << catevti[ 30 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=1, b=0  : " << catevti[ 31 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=2, b>=3 : " << catevti[ 32 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=2, b=2  : " << catevti[ 33 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=2, b=1  : " << catevti[ 34 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=2, b=0  : " << catevti[ 35 ]/m_tot_wghts << "\n"
-                 << "W>=3, w>=3, b>=3 : " << catevti[ 36 ]/m_tot_wghts << "\n"
-                 << "W>=3, w>=3, b=2  : " << catevti[ 37 ]/m_tot_wghts << "\n"
-                 << "W>=3, w>=3, b=1  : " << catevti[ 38 ]/m_tot_wghts << "\n"
-                 << "W>=3, w>=3, b=0  : " << catevti[ 39 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=0, b>=3 : " << m_catevti[ 24 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=0, b=2  : " << m_catevti[ 25 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=0, b=1  : " << m_catevti[ 26 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=0, b=0  : " << m_catevti[ 27 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=1, b>=3 : " << m_catevti[ 28 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=1, b=2  : " << m_catevti[ 29 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=1, b=1  : " << m_catevti[ 30 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=1, b=0  : " << m_catevti[ 31 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=2, b>=3 : " << m_catevti[ 32 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=2, b=2  : " << m_catevti[ 33 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=2, b=1  : " << m_catevti[ 34 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=2, b=0  : " << m_catevti[ 35 ]/m_tot_wghts << "\n"
+                 << "W>=3, w>=3, b>=3 : " << m_catevti[ 36 ]/m_tot_wghts << "\n"
+                 << "W>=3, w>=3, b=2  : " << m_catevti[ 37 ]/m_tot_wghts << "\n"
+                 << "W>=3, w>=3, b=1  : " << m_catevti[ 38 ]/m_tot_wghts << "\n"
+                 << "W>=3, w>=3, b=0  : " << m_catevti[ 39 ]/m_tot_wghts << "\n"
                  << "................................         " << "\n"
                  << "The sum over all 40 catalog == " << catsum[0] << "\n"
-                 << "including entirely hadronic  : " << catevti[ 40 ]/m_tot_wghts << "\n"
+                 << "including entirely hadronic  : " << m_catevti[ 40 ]/m_tot_wghts << "\n"
                  << "..............................................  " << "\n"
                  << "................................         " << "\n"
                  << "After the filtering you have " << "\n"
@@ -149,49 +149,49 @@ StatusCode WZtoLeptonFilter::filterFinalize() {
                  << "...................                " << "\n"
                  << "   They distribute among the following catalogs : " << "\n"
                  << "...................................  " << "\n"
-                 << "W=0, w=0, b>=3 : " << catevtf[ 0 ]/m_tot_wghts << "\n"
-                 << "W=0, w=0, b=2  : " << catevtf[ 1 ]/m_tot_wghts << "\n"
-                 << "W=0, w=0, b=1  : " << catevtf[ 2 ]/m_tot_wghts << "\n"
-                 << "W=0, w=0, b=0  : " << catevtf[ 3 ]/m_tot_wghts << "\n"
+                 << "W=0, w=0, b>=3 : " << m_catevtf[ 0 ]/m_tot_wghts << "\n"
+                 << "W=0, w=0, b=2  : " << m_catevtf[ 1 ]/m_tot_wghts << "\n"
+                 << "W=0, w=0, b=1  : " << m_catevtf[ 2 ]/m_tot_wghts << "\n"
+                 << "W=0, w=0, b=0  : " << m_catevtf[ 3 ]/m_tot_wghts << "\n"
 
-                 << "W=1, w=0, b>=3 : " << catevtf[ 4 ]/m_tot_wghts << "\n"
-                 << "W=1, w=0, b=2  : " << catevtf[ 5 ]/m_tot_wghts << "\n"
-                 << "W=1, w=0, b=1  : " << catevtf[ 6 ]/m_tot_wghts << "\n"
-                 << "W=1, w=0, b=0  : " << catevtf[ 7 ]/m_tot_wghts << "\n"
-                 << "W=1, w=1, b>=3 : " << catevtf[ 8 ]/m_tot_wghts << "\n"
-                 << "W=1, w=1, b=2  : " << catevtf[ 9 ]/m_tot_wghts << "\n"
-                 << "W=1, w=1, b=1  : " << catevtf[ 10 ]/m_tot_wghts << "\n"
-                 << "W=1, w=1, b=0  : " << catevtf[ 11 ]/m_tot_wghts << "\n"
+                 << "W=1, w=0, b>=3 : " << m_catevtf[ 4 ]/m_tot_wghts << "\n"
+                 << "W=1, w=0, b=2  : " << m_catevtf[ 5 ]/m_tot_wghts << "\n"
+                 << "W=1, w=0, b=1  : " << m_catevtf[ 6 ]/m_tot_wghts << "\n"
+                 << "W=1, w=0, b=0  : " << m_catevtf[ 7 ]/m_tot_wghts << "\n"
+                 << "W=1, w=1, b>=3 : " << m_catevtf[ 8 ]/m_tot_wghts << "\n"
+                 << "W=1, w=1, b=2  : " << m_catevtf[ 9 ]/m_tot_wghts << "\n"
+                 << "W=1, w=1, b=1  : " << m_catevtf[ 10 ]/m_tot_wghts << "\n"
+                 << "W=1, w=1, b=0  : " << m_catevtf[ 11 ]/m_tot_wghts << "\n"
 
-                 << "W=2, w=0, b>=3 : " << catevtf[ 12 ]/m_tot_wghts << "\n"
-                 << "W=2, w=0, b=2  : " << catevtf[ 13 ]/m_tot_wghts << "\n"
-                 << "W=2, w=0, b=1  : " << catevtf[ 14 ]/m_tot_wghts << "\n"
-                 << "W=2, w=0, b=0  : " << catevtf[ 15 ]/m_tot_wghts << "\n"
-                 << "W=2, w=1, b>=3 : " << catevtf[ 16 ]/m_tot_wghts << "\n"
-                 << "W=2, w=1, b=2  : " << catevtf[ 17 ]/m_tot_wghts << "\n"
-                 << "W=2, w=1, b=1  : " << catevtf[ 18 ]/m_tot_wghts << "\n"
-                 << "W=2, w=1, b=0  : " << catevtf[ 19 ]/m_tot_wghts << "\n"
-                 << "W=2, w=2, b>=3 : " << catevtf[ 20 ]/m_tot_wghts << "\n"
-                 << "W=2, w=2, b=2  : " << catevtf[ 21 ]/m_tot_wghts << "\n"
-                 << "W=2, w=2, b=1  : " << catevtf[ 22 ]/m_tot_wghts << "\n"
-                 << "W=2, w=2, b=0  : " << catevtf[ 23 ]/m_tot_wghts << "\n"
+                 << "W=2, w=0, b>=3 : " << m_catevtf[ 12 ]/m_tot_wghts << "\n"
+                 << "W=2, w=0, b=2  : " << m_catevtf[ 13 ]/m_tot_wghts << "\n"
+                 << "W=2, w=0, b=1  : " << m_catevtf[ 14 ]/m_tot_wghts << "\n"
+                 << "W=2, w=0, b=0  : " << m_catevtf[ 15 ]/m_tot_wghts << "\n"
+                 << "W=2, w=1, b>=3 : " << m_catevtf[ 16 ]/m_tot_wghts << "\n"
+                 << "W=2, w=1, b=2  : " << m_catevtf[ 17 ]/m_tot_wghts << "\n"
+                 << "W=2, w=1, b=1  : " << m_catevtf[ 18 ]/m_tot_wghts << "\n"
+                 << "W=2, w=1, b=0  : " << m_catevtf[ 19 ]/m_tot_wghts << "\n"
+                 << "W=2, w=2, b>=3 : " << m_catevtf[ 20 ]/m_tot_wghts << "\n"
+                 << "W=2, w=2, b=2  : " << m_catevtf[ 21 ]/m_tot_wghts << "\n"
+                 << "W=2, w=2, b=1  : " << m_catevtf[ 22 ]/m_tot_wghts << "\n"
+                 << "W=2, w=2, b=0  : " << m_catevtf[ 23 ]/m_tot_wghts << "\n"
 
-                 << "W>=3, w=0, b>=3 : " << catevtf[ 24 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=0, b=2  : " << catevtf[ 25 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=0, b=1  : " << catevtf[ 26 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=0, b=0  : " << catevtf[ 27 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=1, b>=3 : " << catevtf[ 28 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=1, b=2  : " << catevtf[ 29 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=1, b=1  : " << catevtf[ 30 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=1, b=0  : " << catevtf[ 31 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=2, b>=3 : " << catevtf[ 32 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=2, b=2  : " << catevtf[ 33 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=2, b=1  : " << catevtf[ 34 ]/m_tot_wghts << "\n"
-                 << "W>=3, w=2, b=0  : " << catevtf[ 35 ]/m_tot_wghts << "\n"
-                 << "W>=3, w>=3, b>=3 : " << catevtf[ 36 ]/m_tot_wghts << "\n"
-                 << "W>=3, w>=3, b=2  : " << catevtf[ 37 ]/m_tot_wghts << "\n"
-                 << "W>=3, w>=3, b=1  : " << catevtf[ 38 ]/m_tot_wghts << "\n"
-                 << "W>=3, w>=3, b=0  : " << catevtf[ 39 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=0, b>=3 : " << m_catevtf[ 24 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=0, b=2  : " << m_catevtf[ 25 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=0, b=1  : " << m_catevtf[ 26 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=0, b=0  : " << m_catevtf[ 27 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=1, b>=3 : " << m_catevtf[ 28 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=1, b=2  : " << m_catevtf[ 29 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=1, b=1  : " << m_catevtf[ 30 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=1, b=0  : " << m_catevtf[ 31 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=2, b>=3 : " << m_catevtf[ 32 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=2, b=2  : " << m_catevtf[ 33 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=2, b=1  : " << m_catevtf[ 34 ]/m_tot_wghts << "\n"
+                 << "W>=3, w=2, b=0  : " << m_catevtf[ 35 ]/m_tot_wghts << "\n"
+                 << "W>=3, w>=3, b>=3 : " << m_catevtf[ 36 ]/m_tot_wghts << "\n"
+                 << "W>=3, w>=3, b=2  : " << m_catevtf[ 37 ]/m_tot_wghts << "\n"
+                 << "W>=3, w>=3, b=1  : " << m_catevtf[ 38 ]/m_tot_wghts << "\n"
+                 << "W>=3, w>=3, b=0  : " << m_catevtf[ 39 ]/m_tot_wghts << "\n"
                  << "................................         " << "\n"
                  << "The sum over all 40 catalog == " << catsum[1] << "\n"
                  << "................................         " << "\n"
@@ -350,50 +350,50 @@ StatusCode WZtoLeptonFilter::filterEvent() {
     leps = (m_signal == 1) ? etronCT + muonCT : etronCT + muonCT + taulep;
 
     // Define some counters for event catalogs
-    if ( iWL == 0 && iwl == 0 && ibl >= 3 ) catevti[0] += wght;
-    if ( iWL == 0 && iwl == 0 && ibl == 2 ) catevti[1] += wght;
-    if ( iWL == 0 && iwl == 0 && ibl == 1 ) catevti[2] += wght;
-    if ( iWL == 0 && iwl == 0 && ibl == 0 ) catevti[3] += wght;
+    if ( iWL == 0 && iwl == 0 && ibl >= 3 ) m_catevti[0] += wght;
+    if ( iWL == 0 && iwl == 0 && ibl == 2 ) m_catevti[1] += wght;
+    if ( iWL == 0 && iwl == 0 && ibl == 1 ) m_catevti[2] += wght;
+    if ( iWL == 0 && iwl == 0 && ibl == 0 ) m_catevti[3] += wght;
 
-    if ( iWL == 1 && iwl == 0 && ibl >= 3 ) catevti[4] += wght;
-    if ( iWL == 1 && iwl == 0 && ibl == 2 ) catevti[5] += wght;
-    if ( iWL == 1 && iwl == 0 && ibl == 1 ) catevti[6] += wght;
-    if ( iWL == 1 && iwl == 0 && ibl == 0 ) catevti[7] += wght;
-    if ( iWL == 1 && iwl == 1 && ibl >= 3 ) catevti[8] += wght;
-    if ( iWL == 1 && iwl == 1 && ibl == 2 ) catevti[9] += wght;
-    if ( iWL == 1 && iwl == 1 && ibl == 1 ) catevti[10] += wght;
-    if ( iWL == 1 && iwl == 1 && ibl == 0 ) catevti[11] += wght;
+    if ( iWL == 1 && iwl == 0 && ibl >= 3 ) m_catevti[4] += wght;
+    if ( iWL == 1 && iwl == 0 && ibl == 2 ) m_catevti[5] += wght;
+    if ( iWL == 1 && iwl == 0 && ibl == 1 ) m_catevti[6] += wght;
+    if ( iWL == 1 && iwl == 0 && ibl == 0 ) m_catevti[7] += wght;
+    if ( iWL == 1 && iwl == 1 && ibl >= 3 ) m_catevti[8] += wght;
+    if ( iWL == 1 && iwl == 1 && ibl == 2 ) m_catevti[9] += wght;
+    if ( iWL == 1 && iwl == 1 && ibl == 1 ) m_catevti[10] += wght;
+    if ( iWL == 1 && iwl == 1 && ibl == 0 ) m_catevti[11] += wght;
 
-    if ( iWL == 2 && iwl == 0 && ibl >= 3 ) catevti[12] += wght;
-    if ( iWL == 2 && iwl == 0 && ibl == 2 ) catevti[13] += wght;
-    if ( iWL == 2 && iwl == 0 && ibl == 1 ) catevti[14] += wght;
-    if ( iWL == 2 && iwl == 0 && ibl == 0 ) catevti[15] += wght;
-    if ( iWL == 2 && iwl == 1 && ibl >= 3 ) catevti[16] += wght;
-    if ( iWL == 2 && iwl == 1 && ibl == 2 ) catevti[17] += wght;
-    if ( iWL == 2 && iwl == 1 && ibl == 1 ) catevti[18] += wght;
-    if ( iWL == 2 && iwl == 1 && ibl == 0 ) catevti[19] += wght;
-    if ( iWL == 2 && iwl == 2 && ibl >= 3 ) catevti[20] += wght;
-    if ( iWL == 2 && iwl == 2 && ibl == 2 ) catevti[21] += wght;
-    if ( iWL == 2 && iwl == 2 && ibl == 1 ) catevti[22] += wght;
-    if ( iWL == 2 && iwl == 2 && ibl == 0 ) catevti[23] += wght;
+    if ( iWL == 2 && iwl == 0 && ibl >= 3 ) m_catevti[12] += wght;
+    if ( iWL == 2 && iwl == 0 && ibl == 2 ) m_catevti[13] += wght;
+    if ( iWL == 2 && iwl == 0 && ibl == 1 ) m_catevti[14] += wght;
+    if ( iWL == 2 && iwl == 0 && ibl == 0 ) m_catevti[15] += wght;
+    if ( iWL == 2 && iwl == 1 && ibl >= 3 ) m_catevti[16] += wght;
+    if ( iWL == 2 && iwl == 1 && ibl == 2 ) m_catevti[17] += wght;
+    if ( iWL == 2 && iwl == 1 && ibl == 1 ) m_catevti[18] += wght;
+    if ( iWL == 2 && iwl == 1 && ibl == 0 ) m_catevti[19] += wght;
+    if ( iWL == 2 && iwl == 2 && ibl >= 3 ) m_catevti[20] += wght;
+    if ( iWL == 2 && iwl == 2 && ibl == 2 ) m_catevti[21] += wght;
+    if ( iWL == 2 && iwl == 2 && ibl == 1 ) m_catevti[22] += wght;
+    if ( iWL == 2 && iwl == 2 && ibl == 0 ) m_catevti[23] += wght;
 
-    if ( iWL >= 3 && iwl == 0 && ibl >= 3 ) catevti[24] += wght;
-    if ( iWL >= 3 && iwl == 0 && ibl == 2 ) catevti[25] += wght;
-    if ( iWL >= 3 && iwl == 0 && ibl == 1 ) catevti[26] += wght;
-    if ( iWL >= 3 && iwl == 0 && ibl == 0 ) catevti[27] += wght;
-    if ( iWL >= 3 && iwl == 1 && ibl >= 3 ) catevti[28] += wght;
-    if ( iWL >= 3 && iwl == 1 && ibl == 2 ) catevti[29] += wght;
-    if ( iWL >= 3 && iwl == 1 && ibl == 1 ) catevti[30] += wght;
-    if ( iWL >= 3 && iwl == 1 && ibl == 0 ) catevti[31] += wght;
-    if ( iWL >= 3 && iwl == 2 && ibl >= 3 ) catevti[32] += wght;
-    if ( iWL >= 3 && iwl == 2 && ibl == 2 ) catevti[33] += wght;
-    if ( iWL >= 3 && iwl == 2 && ibl == 1 ) catevti[34] += wght;
-    if ( iWL >= 3 && iwl == 2 && ibl == 0 ) catevti[35] += wght;
-    if ( iWL >= 3 && iwl >= 3 && ibl >= 3 ) catevti[36] += wght;
-    if ( iWL >= 3 && iwl >= 3 && ibl == 2 ) catevti[37] += wght;
-    if ( iWL >= 3 && iwl >= 3 && ibl == 1 ) catevti[38] += wght;
-    if ( iWL >= 3 && iwl >= 3 && ibl == 0 ) catevti[39] += wght;
-    if ( iWL ==0 && iBL == 0 ) catevti[40] += wght;
+    if ( iWL >= 3 && iwl == 0 && ibl >= 3 ) m_catevti[24] += wght;
+    if ( iWL >= 3 && iwl == 0 && ibl == 2 ) m_catevti[25] += wght;
+    if ( iWL >= 3 && iwl == 0 && ibl == 1 ) m_catevti[26] += wght;
+    if ( iWL >= 3 && iwl == 0 && ibl == 0 ) m_catevti[27] += wght;
+    if ( iWL >= 3 && iwl == 1 && ibl >= 3 ) m_catevti[28] += wght;
+    if ( iWL >= 3 && iwl == 1 && ibl == 2 ) m_catevti[29] += wght;
+    if ( iWL >= 3 && iwl == 1 && ibl == 1 ) m_catevti[30] += wght;
+    if ( iWL >= 3 && iwl == 1 && ibl == 0 ) m_catevti[31] += wght;
+    if ( iWL >= 3 && iwl == 2 && ibl >= 3 ) m_catevti[32] += wght;
+    if ( iWL >= 3 && iwl == 2 && ibl == 2 ) m_catevti[33] += wght;
+    if ( iWL >= 3 && iwl == 2 && ibl == 1 ) m_catevti[34] += wght;
+    if ( iWL >= 3 && iwl == 2 && ibl == 0 ) m_catevti[35] += wght;
+    if ( iWL >= 3 && iwl >= 3 && ibl >= 3 ) m_catevti[36] += wght;
+    if ( iWL >= 3 && iwl >= 3 && ibl == 2 ) m_catevti[37] += wght;
+    if ( iWL >= 3 && iwl >= 3 && ibl == 1 ) m_catevti[38] += wght;
+    if ( iWL >= 3 && iwl >= 3 && ibl == 0 ) m_catevti[39] += wght;
+    if ( iWL ==0 && iBL == 0 ) m_catevti[40] += wght;
 
     // Total number of charged leptons no matter their mothers
 
@@ -466,50 +466,50 @@ StatusCode WZtoLeptonFilter::filterEvent() {
         ATH_MSG_DEBUG("chrgs="<<posilep<<" "<<negalep);
       }
 
-      if ( iWL == 0 && iwl == 0 && ibl >= 3 ) catevtf[0] += wght;
-      if ( iWL == 0 && iwl == 0 && ibl == 2 ) catevtf[1] += wght;
-      if ( iWL == 0 && iwl == 0 && ibl == 1 ) catevtf[2] += wght;
-      if ( iWL == 0 && iwl == 0 && ibl == 0 ) catevtf[3] += wght;
+      if ( iWL == 0 && iwl == 0 && ibl >= 3 ) m_catevtf[0] += wght;
+      if ( iWL == 0 && iwl == 0 && ibl == 2 ) m_catevtf[1] += wght;
+      if ( iWL == 0 && iwl == 0 && ibl == 1 ) m_catevtf[2] += wght;
+      if ( iWL == 0 && iwl == 0 && ibl == 0 ) m_catevtf[3] += wght;
 
-      if ( iWL == 1 && iwl == 0 && ibl >= 3 ) catevtf[4] += wght;
-      if ( iWL == 1 && iwl == 0 && ibl == 2 ) catevtf[5] += wght;
-      if ( iWL == 1 && iwl == 0 && ibl == 1 ) catevtf[6] += wght;
-      if ( iWL == 1 && iwl == 0 && ibl == 0 ) catevtf[7] += wght;
-      if ( iWL == 1 && iwl == 1 && ibl >= 3 ) catevtf[8] += wght;
-      if ( iWL == 1 && iwl == 1 && ibl == 2 ) catevtf[9] += wght;
-      if ( iWL == 1 && iwl == 1 && ibl == 1 ) catevtf[10] += wght;
-      if ( iWL == 1 && iwl == 1 && ibl == 0 ) catevtf[11] += wght;
+      if ( iWL == 1 && iwl == 0 && ibl >= 3 ) m_catevtf[4] += wght;
+      if ( iWL == 1 && iwl == 0 && ibl == 2 ) m_catevtf[5] += wght;
+      if ( iWL == 1 && iwl == 0 && ibl == 1 ) m_catevtf[6] += wght;
+      if ( iWL == 1 && iwl == 0 && ibl == 0 ) m_catevtf[7] += wght;
+      if ( iWL == 1 && iwl == 1 && ibl >= 3 ) m_catevtf[8] += wght;
+      if ( iWL == 1 && iwl == 1 && ibl == 2 ) m_catevtf[9] += wght;
+      if ( iWL == 1 && iwl == 1 && ibl == 1 ) m_catevtf[10] += wght;
+      if ( iWL == 1 && iwl == 1 && ibl == 0 ) m_catevtf[11] += wght;
 
-      if ( iWL == 2 && iwl == 0 && ibl >= 3 ) catevtf[12] += wght;
-      if ( iWL == 2 && iwl == 0 && ibl == 2 ) catevtf[13] += wght;
-      if ( iWL == 2 && iwl == 0 && ibl == 1 ) catevtf[14] += wght;
-      if ( iWL == 2 && iwl == 0 && ibl == 0 ) catevtf[15] += wght;
-      if ( iWL == 2 && iwl == 1 && ibl >= 3 ) catevtf[16] += wght;
-      if ( iWL == 2 && iwl == 1 && ibl == 2 ) catevtf[17] += wght;
-      if ( iWL == 2 && iwl == 1 && ibl == 1 ) catevtf[18] += wght;
-      if ( iWL == 2 && iwl == 1 && ibl == 0 ) catevtf[19] += wght;
-      if ( iWL == 2 && iwl == 2 && ibl >= 3 ) catevtf[20] += wght;
-      if ( iWL == 2 && iwl == 2 && ibl == 2 ) catevtf[21] += wght;
-      if ( iWL == 2 && iwl == 2 && ibl == 1 ) catevtf[22] += wght;
-      if ( iWL == 2 && iwl == 2 && ibl == 0 ) catevtf[23] += wght;
+      if ( iWL == 2 && iwl == 0 && ibl >= 3 ) m_catevtf[12] += wght;
+      if ( iWL == 2 && iwl == 0 && ibl == 2 ) m_catevtf[13] += wght;
+      if ( iWL == 2 && iwl == 0 && ibl == 1 ) m_catevtf[14] += wght;
+      if ( iWL == 2 && iwl == 0 && ibl == 0 ) m_catevtf[15] += wght;
+      if ( iWL == 2 && iwl == 1 && ibl >= 3 ) m_catevtf[16] += wght;
+      if ( iWL == 2 && iwl == 1 && ibl == 2 ) m_catevtf[17] += wght;
+      if ( iWL == 2 && iwl == 1 && ibl == 1 ) m_catevtf[18] += wght;
+      if ( iWL == 2 && iwl == 1 && ibl == 0 ) m_catevtf[19] += wght;
+      if ( iWL == 2 && iwl == 2 && ibl >= 3 ) m_catevtf[20] += wght;
+      if ( iWL == 2 && iwl == 2 && ibl == 2 ) m_catevtf[21] += wght;
+      if ( iWL == 2 && iwl == 2 && ibl == 1 ) m_catevtf[22] += wght;
+      if ( iWL == 2 && iwl == 2 && ibl == 0 ) m_catevtf[23] += wght;
 
-      if ( iWL >= 3 && iwl == 0 && ibl >= 3 ) catevtf[24] += wght;
-      if ( iWL >= 3 && iwl == 0 && ibl == 2 ) catevtf[25] += wght;
-      if ( iWL >= 3 && iwl == 0 && ibl == 1 ) catevtf[26] += wght;
-      if ( iWL >= 3 && iwl == 0 && ibl == 0 ) catevtf[27] += wght;
-      if ( iWL >= 3 && iwl == 1 && ibl >= 3 ) catevtf[28] += wght;
-      if ( iWL >= 3 && iwl == 1 && ibl == 2 ) catevtf[29] += wght;
-      if ( iWL >= 3 && iwl == 1 && ibl == 1 ) catevtf[30] += wght;
-      if ( iWL >= 3 && iwl == 1 && ibl == 0 ) catevtf[31] += wght;
-      if ( iWL >= 3 && iwl == 2 && ibl >= 3 ) catevtf[32] += wght;
-      if ( iWL >= 3 && iwl == 2 && ibl == 2 ) catevtf[33] += wght;
-      if ( iWL >= 3 && iwl == 2 && ibl == 1 ) catevtf[34] += wght;
-      if ( iWL >= 3 && iwl == 2 && ibl == 0 ) catevtf[35] += wght;
-      if ( iWL >= 3 && iwl >= 3 && ibl >= 3 ) catevtf[36] += wght;
-      if ( iWL >= 3 && iwl >= 3 && ibl == 2 ) catevtf[37] += wght;
-      if ( iWL >= 3 && iwl >= 3 && ibl == 1 ) catevtf[38] += wght;
-      if ( iWL >= 3 && iwl >= 3 && ibl == 0 ) catevtf[39] += wght;
-      if ( iWL ==0  && iBL == 0 ) catevtf[40] += wght;
+      if ( iWL >= 3 && iwl == 0 && ibl >= 3 ) m_catevtf[24] += wght;
+      if ( iWL >= 3 && iwl == 0 && ibl == 2 ) m_catevtf[25] += wght;
+      if ( iWL >= 3 && iwl == 0 && ibl == 1 ) m_catevtf[26] += wght;
+      if ( iWL >= 3 && iwl == 0 && ibl == 0 ) m_catevtf[27] += wght;
+      if ( iWL >= 3 && iwl == 1 && ibl >= 3 ) m_catevtf[28] += wght;
+      if ( iWL >= 3 && iwl == 1 && ibl == 2 ) m_catevtf[29] += wght;
+      if ( iWL >= 3 && iwl == 1 && ibl == 1 ) m_catevtf[30] += wght;
+      if ( iWL >= 3 && iwl == 1 && ibl == 0 ) m_catevtf[31] += wght;
+      if ( iWL >= 3 && iwl == 2 && ibl >= 3 ) m_catevtf[32] += wght;
+      if ( iWL >= 3 && iwl == 2 && ibl == 2 ) m_catevtf[33] += wght;
+      if ( iWL >= 3 && iwl == 2 && ibl == 1 ) m_catevtf[34] += wght;
+      if ( iWL >= 3 && iwl == 2 && ibl == 0 ) m_catevtf[35] += wght;
+      if ( iWL >= 3 && iwl >= 3 && ibl >= 3 ) m_catevtf[36] += wght;
+      if ( iWL >= 3 && iwl >= 3 && ibl == 2 ) m_catevtf[37] += wght;
+      if ( iWL >= 3 && iwl >= 3 && ibl == 1 ) m_catevtf[38] += wght;
+      if ( iWL >= 3 && iwl >= 3 && ibl == 0 ) m_catevtf[39] += wght;
+      if ( iWL ==0  && iBL == 0 ) m_catevtf[40] += wght;
 
       setFilterPassed(true);
       m_wPass += wght;

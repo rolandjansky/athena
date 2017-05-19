@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __MuonRoILinks_h__
-#define __MuonRoILinks_h__
+#ifndef TRIGGERMENUNTUPLE_MUONROILINKS_H
+#define TRIGGERMENUNTUPLE_MUONROILINKS_H
 /*
   MuonRoILinks.h
 */
@@ -32,10 +32,10 @@ public:
   bool operator==(const MuonRoILinks& x) const;
 
 private:
-  FeatureIndex MuonFeatureIndex;
-  std::vector<FeatureIndex> InDetTrackIndex;
-  FeatureIndex CombinedMuonFeatureIndex;
+  FeatureIndex m_MuonFeatureIndex;
+  std::vector<FeatureIndex> m_InDetTrackIndex;
+  FeatureIndex m_CombinedMuonFeatureIndex;
 
 };
 
-#endif // __MuonRoILinks_h__
+#endif // TRIGGERMENUNTUPLE_MUONROILINKS_H

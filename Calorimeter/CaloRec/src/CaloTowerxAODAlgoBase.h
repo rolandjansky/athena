@@ -32,8 +32,6 @@ public:
   /// @brief destructor
   ~CaloTowerxAODAlgoBase();
 
-  StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
 protected:
 
   /// @name Algorithm properties

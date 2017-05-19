@@ -11,7 +11,7 @@
 
 // STL includes
 
-// FrameWork includes
+// Framework includes
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/CnvFactory.h"
@@ -163,7 +163,7 @@ AthCnvSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
     *ppvInterface = (IAddressCreator*)this;
   }
   else  {
-    // Interface is not directly availible: try out a base class
+    // Interface is not directly available: try out a base class
     return AthService::queryInterface(riid, ppvInterface);
   }
   addRef();

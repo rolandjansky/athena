@@ -29,17 +29,17 @@ using std::endl;
 using std::abs;
 
 GeoPixelRingSLHC::GeoPixelRingSLHC(GeoPixelSiCrystal& sensor)
-  : _sensor(sensor)
+  : m_sensor(sensor)
 {
   //   
   // Dimensions from class methods
   //
-  double rmin = gmt_mgr->PixelRingRMin(); // Default is 0.01 CLHEP::mm saftey added
-  double rmax = gmt_mgr->PixelRingRMax(); // Default is 0.01 CLHEP::mm saftey added
-  double halflength = gmt_mgr->PixelRingThickness()/2.;
-  const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+  double rmin = m_gmt_mgr->PixelRingRMin(); // Default is 0.01 CLHEP::mm saftey added
+  double rmax = m_gmt_mgr->PixelRingRMax(); // Default is 0.01 CLHEP::mm saftey added
+  double halflength = m_gmt_mgr->PixelRingThickness()/2.;
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoTube* ringTube = new GeoTube(rmin,rmax,halflength);
-  _ringLog = new GeoLogVol("ringLog",ringTube,air);
+  m_ringLog = new GeoLogVol("ringLog",ringTube,air);
 }
 
 
@@ -52,13 +52,13 @@ GeoPixelRingSLHC::GeoPixelRingSLHC(GeoPixelSiCrystal& sensor)
 //
 GeoVPhysVol* GeoPixelRingSLHC::Build() {
 
-  GeoPixelModule gpmod(_sensor);
+  GeoPixelModule gpmod(m_sensor);
 
-  GeoFullPhysVol* ringPhys = new GeoFullPhysVol(_ringLog);
+  GeoFullPhysVol* ringPhys = new GeoFullPhysVol(m_ringLog);
 
-  int idisk = gmt_mgr->GetLD();
-  int iring = gmt_mgr->Eta();
-  int nmodules = gmt_mgr->PixelDiskRingNModules();
+  int idisk = m_gmt_mgr->GetLD();
+  int iring = m_gmt_mgr->Eta();
+  int nmodules = m_gmt_mgr->PixelDiskRingNModules();
 
   // in case no modules are defined for the ring
   if(nmodules==0) return ringPhys;
@@ -68,23 +68,23 @@ GeoVPhysVol* GeoPixelRingSLHC::Build() {
 
   // This is the start angle of the even modules
   // Start angle could eventually come from the database...
-  // double startAngle = gmt_mgr->PixelECStartPhi();
+  // double startAngle = m_gmt_mgr->PixelECStartPhi();
   double startAngle = deltaPhi/2.;
 
   // This is the radius of the center of the active sensor (also center of the module)
-  double moduleRadius = gmt_mgr->PixelRingRcenter();
+  double moduleRadius = m_gmt_mgr->PixelRingRcenter();
 
   // -1 means near IP (back), +1 means away from IP (front), 0 means alternate
-  int ringSide = gmt_mgr->PixelRingSide();
-  double stagger = gmt_mgr->PixelRingStagger();
+  int ringSide = m_gmt_mgr->PixelRingSide();
+  double stagger = m_gmt_mgr->PixelRingStagger();
 
   
   // loop over modules
   for (int imod=0; imod<nmodules; imod++) {
 
     // If ringside == 0 then we only build even modules if front side and odd modules if back side
-    if (!ringSide && gmt_mgr->isDiskFront() &&   imod%2 )    continue; // skip odd module  
-    if (!ringSide && gmt_mgr->isDiskBack()  && !(imod%2)) continue ;  // skip even module
+    if (!ringSide && m_gmt_mgr->isDiskFront() &&   imod%2 )    continue; // skip odd module  
+    if (!ringSide && m_gmt_mgr->isDiskBack()  && !(imod%2)) continue ;  // skip even module
     
     // Fi stagger is non zero, alternating modules are stagger low/high.
     double zpos = 0.5*stagger * (imod%2 ? 1 : -1);
@@ -97,22 +97,22 @@ GeoVPhysVol* GeoPixelRingSLHC::Build() {
     // Numbering goes in opposite direction with module 0 becoming 23
     // (current layout).  E.g. mapping is 0<->23, 24<->47.
     //
-    //current layout:       int phiId = (gmt_mgr->GetSide()>0) ? imod : (3*nmodules-imod-1)%(2*nmodules);
-    int phiId = gmt_mgr->isAside() ? imod : (2*nmodules-imod-1)%(nmodules);
-    gmt_mgr->SetPhi( phiId );
+    //current layout:       int phiId = (m_gmt_mgr->GetSide()>0) ? imod : (3*nmodules-imod-1)%(2*nmodules);
+    int phiId = m_gmt_mgr->isAside() ? imod : (2*nmodules-imod-1)%(nmodules);
+    m_gmt_mgr->SetPhi( phiId );
 
     double angle = imod*deltaPhi+startAngle;
 
 //     cout<<"GPRing: disk="<< idisk<<" ring="<< iring <<" nmods="<< nmodules
 // 	<<", imod="<< imod <<", phiId="<< phiId
 // 	<<", angle="<< angle
-// 	<<" diskSide="<< (gmt_mgr->isAside() ? 'A' : 'C')
-// 	<<" diskFace="<< (gmt_mgr->isDiskFront()?"front":"back")
+// 	<<" diskSide="<< (m_gmt_mgr->isAside() ? 'A' : 'C')
+// 	<<" diskFace="<< (m_gmt_mgr->isDiskFront()?"front":"back")
 // 	<< endl;
 
     CLHEP::HepRotation rm;
     rm.rotateY(90*CLHEP::deg);
-    if( gmt_mgr->isDiskBack() ) rm.rotateX(180.*CLHEP::deg); // depth axis points towards disk.
+    if( m_gmt_mgr->isDiskBack() ) rm.rotateX(180.*CLHEP::deg); // depth axis points towards disk.
 
     rm.rotateZ(angle);
     CLHEP::Hep3Vector pos(moduleRadius,0,zpos);
@@ -127,9 +127,9 @@ GeoVPhysVol* GeoPixelRingSLHC::Build() {
     ringPhys->add(modulePhys);
 
     // Now store the xform by identifier:
-    Identifier id = _sensor.getID();
-//     PixelID* ppp = DDmgr->getIdHelper();
-    DDmgr->addAlignableTransform(0,id,xform,modulePhys);
+    Identifier id = m_sensor.getID();
+//     PixelID* ppp = m_DDmgr->getIdHelper();
+    m_DDmgr->addAlignableTransform(0,id,xform,modulePhys);
   }
 
   return ringPhys;

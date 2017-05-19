@@ -97,11 +97,6 @@ private:
 
   void getListOfCells();
 
-
-  /** Callback added to handle Data-driven GeoModel initialisation
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
   StatusCode computeValues(unsigned int bcid);
 
   void accumulateLumi(const unsigned int bcid, const float xlumiMC);

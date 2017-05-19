@@ -58,10 +58,6 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
                              xAOD::CaloClusterContainer* theClusters) const override;
   virtual StatusCode initialize() override;
 
-  /** Callback added to handle Data-driven GeoModel initialisation
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
   void getClusterSize();
 
  private: 

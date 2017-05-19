@@ -93,7 +93,7 @@ const TMatrixTSym<double>& xAOD::BPhysHelper::covariance()
   
   // cache covariance matrix
   if(!cacheCov())
-    return xAOD::BPhysHelper::emptyMatrix;
+    return xAOD::BPhysHelper::s_emptyMatrix;
   
   // all OK:
   return m_cachedCov;    
@@ -131,7 +131,7 @@ const std::vector<TVector3>& xAOD::BPhysHelper::refTrks()
 {
   // cache refitted tracks
   if( !cacheRefTracks() ) 
-    return xAOD::BPhysHelper::emptyVectorOfTVector3;
+    return xAOD::BPhysHelper::s_emptyVectorOfTVector3;
 
   // return
   return m_cachedRefTracks;  
@@ -451,7 +451,7 @@ const std::vector<const xAOD::Muon*>& xAOD::BPhysHelper::muons()
 {
   // cache linked muons
   if(!cacheMuons())
-    return xAOD::BPhysHelper::emptyVectorOfMuons;
+    return xAOD::BPhysHelper::s_emptyVectorOfMuons;
   
   // all OK:
   return m_cachedMuons;  
@@ -532,7 +532,7 @@ const std::vector<const xAOD::Vertex*>& xAOD::BPhysHelper::precedingVertices()
 {
   // cache linked precedingVertices
   if(!cachePrecedingVertices())
-    return xAOD::BPhysHelper::emptyVectorOfVertices;
+    return xAOD::BPhysHelper::s_emptyVectorOfVertices;
   
   // all OK:
   return m_cachedPrecedingVertices;  
@@ -613,7 +613,7 @@ const std::vector<const xAOD::Vertex*>& xAOD::BPhysHelper::cascadeVertices()
 {
   // cache linked cascadeVertices
   if(!cacheCascadeVertices())
-    return xAOD::BPhysHelper::emptyVectorOfVertices;
+    return xAOD::BPhysHelper::s_emptyVectorOfVertices;
   
   // all OK:
   return m_cachedCascadeVertices;  
@@ -1146,8 +1146,8 @@ bool xAOD::BPhysHelper::cacheCascadeVertices()
 }
 /*****************************************************************************/
 /*****************************************************************************/
-const std::vector<TVector3>            xAOD::BPhysHelper::emptyVectorOfTVector3(0);
-const std::vector<const xAOD::Muon*>   xAOD::BPhysHelper::emptyVectorOfMuons(0);
-const TMatrixTSym<double>              xAOD::BPhysHelper::emptyMatrix(0);
-const std::vector<const xAOD::Vertex*> xAOD::BPhysHelper::emptyVectorOfVertices(0);
+const std::vector<TVector3>            xAOD::BPhysHelper::s_emptyVectorOfTVector3(0);
+const std::vector<const xAOD::Muon*>   xAOD::BPhysHelper::s_emptyVectorOfMuons(0);
+const TMatrixTSym<double>              xAOD::BPhysHelper::s_emptyMatrix(0);
+const std::vector<const xAOD::Vertex*> xAOD::BPhysHelper::s_emptyVectorOfVertices(0);
 /*****************************************************************************/

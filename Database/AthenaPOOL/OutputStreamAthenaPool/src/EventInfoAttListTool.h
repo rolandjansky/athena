@@ -14,6 +14,7 @@ Purpose : Tool to buid the Global Event Tags
 #include "CoralBase/AttributeListSpecification.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/EventInfo.h"
 
 #include <string>
 
@@ -26,8 +27,8 @@ public:
   
   /** Standard Constructor */
   EventInfoAttListTool(const std::string& type, 
-                       const std::string& name, 
-                       const IInterface* parent);
+                   const std::string& name, 
+                   const IInterface* parent);
 
   /** AlgTool and IAlgTool interface methods */
   static const InterfaceID& interfaceID( ) { return IID_EventInfoAttListTool; };
@@ -40,6 +41,7 @@ public:
   bool isValid();
   const coral::AttributeListSpecification& getAttributeSpecification();
   const AthenaAttributeList getAttributeList(const xAOD::EventInfo& einfo);
+  const AthenaAttributeList getAttributeList(const EventInfo& einfo);
 
 protected:
 
@@ -47,8 +49,10 @@ protected:
   virtual ~EventInfoAttListTool( );
 
   /** the various components to build their own fragments of tag */
-  StatusCode eventTag (AthenaAttributeList& eventTagCol, 
-                       const xAOD::EventInfo& eventInfo);
+  StatusCode eventTag       (AthenaAttributeList& eventTagCol, 
+                             const xAOD::EventInfo& eventInfo);
+  StatusCode eventTag       (AthenaAttributeList& eventTagCol, 
+                             const EventInfo& eventInfo);
 
   coral::AttributeListSpecification* m_attribListSpec;
 

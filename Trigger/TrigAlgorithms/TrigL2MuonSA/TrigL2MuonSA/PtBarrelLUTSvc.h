@@ -22,8 +22,8 @@ namespace TrigL2MuonSA {
   {
   public:
     static const InterfaceID& interfaceID() { 
-      static const InterfaceID _IID(11496, 0 , 0);
-      return _IID;
+      static const InterfaceID IID(11496, 0 , 0);
+      return IID;
     }
 
   public:

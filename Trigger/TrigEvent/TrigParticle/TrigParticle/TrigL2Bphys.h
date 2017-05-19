@@ -31,8 +31,8 @@ Authour: J.Kirk - Wed May 10
 
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
-#include "DataModel/ElementLink.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
 class TrigL2BphysContainer;
 class TrigL2Bphys;
 

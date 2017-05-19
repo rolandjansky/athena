@@ -55,7 +55,12 @@ private:
     int  m_maxLength;
   
     NTuple::Item<int> m_nchan;
-    NTuple::Item<float> m_tolE;
+    NTuple::Item<double> m_tolE;
+    NTuple::Item<double> m_tolE0;
+    NTuple::Item<double> m_tolE1;
+    NTuple::Item<double> m_tolE2;
+    NTuple::Item<double> m_tolE3;
+    NTuple::Item<double> m_tolE4;
   
     NTuple::Array<float> m_energy;
     NTuple::Array<float> m_time;

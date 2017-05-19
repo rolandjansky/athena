@@ -48,7 +48,7 @@
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandLandau.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 // Validation mode - TTree includes
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h" 

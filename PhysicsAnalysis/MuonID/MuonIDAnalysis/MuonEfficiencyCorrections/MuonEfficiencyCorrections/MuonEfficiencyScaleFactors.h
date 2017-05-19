@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 /*
  * MuonEfficiencyScaleFactors.h
@@ -26,12 +26,13 @@
 
 namespace CP {
     class MuonEfficiencyScaleFactors: public CP::IMuonEfficiencyScaleFactors, public asg::AsgTool {
-            ASG_TOOL_CLASS2( MuonEfficiencyScaleFactors, CP::IMuonEfficiencyScaleFactors, CP::ISystematicsTool )
 
-            public:
+        public:
             MuonEfficiencyScaleFactors(const std::string& name);
 
             virtual ~MuonEfficiencyScaleFactors();
+            //Proper constructor for Athena
+            ASG_TOOL_CLASS2( MuonEfficiencyScaleFactors, CP::IMuonEfficiencyScaleFactors, CP::ISystematicsTool )
 
             /// initialize the tool once all settings are in place!
             virtual StatusCode initialize();
@@ -49,7 +50,7 @@ namespace CP {
             /// returns: the list of all systematics this tool can be affected by
             virtual SystematicSet affectingSystematics() const;
 
-            /// returns: the list of al l systematics this tool recommends to use
+            /// returns: the list of all systematics this tool recommends to use
             virtual SystematicSet recommendedSystematics() const;
 
             virtual SystematicCode applySystematicVariation(const SystematicSet& systConfig);
@@ -75,13 +76,10 @@ namespace CP {
             MuonEfficiencyScaleFactors & operator =(const MuonEfficiencyScaleFactors & tocopy);
 
         private:
-
             unsigned int getRandomRunNumber(const xAOD::EventInfo* info) const;
             /// load the SF histos
-            bool LoadEffiSet(SystematicSet sys);
+            bool LoadEffiSet(MuonEfficiencySystType sysType);
             bool LoadInputs();
-
-            /// a tool to help handle the user lumi inputs
 
             /// construct the name of the input files from the configuration
             std::string filename_Central();
@@ -91,7 +89,7 @@ namespace CP {
             std::string filename_LowPtCalo();
 
             // utility method to 'dress' a filename using the path resolver
-            std::string resolve_file_location(std::string filename);
+            std::string resolve_file_location(const std::string &filename);
 
             //Some util functions
             void CopyInformation(const MuonEfficiencyScaleFactors & tocopy);
@@ -99,12 +97,12 @@ namespace CP {
             StatusCode CreateDecorator(SG::AuxElement::Decorator<float>* &Dec, std::string &DecName, const std::string& defaultName);
             StatusCode CreateVecDecorator(SG::AuxElement::Decorator<std::vector<float>>* &Dec, std::string &DecName, const std::string& defaultName);
             StatusCode IsDecoratorNameUnique(std::string &name);
-
+            SystematicSet SetupSystematics(bool doUnfolded = false) const;
+            void SetupCheckSystematicSets();
             /// the working point to operate on
             std::string m_wp;
-            /// the data taking period to work with
+            boost::unordered_map<MuonEfficiencySystType, EffiCollection*> m_sf_sets;
 
-            boost::unordered_map<SystematicSet, EffiCollection*> m_sf_sets;
             EffiCollection *m_current_sf;
 
             std::string m_custom_dir;
@@ -130,8 +128,6 @@ namespace CP {
             // subfolder to load from the calibration db
             std::string m_calibration_version;
 
-            std::string m_effType;
-
             // threshold below which low-pt SF (i.e. from JPsi) should be used
             double m_lowpt_threshold;
             // decorators to quickly apply the eff and SF
@@ -145,7 +141,18 @@ namespace CP {
 
             CP::SystematicSet m_affectingSys;
 
+            // need CP::SystematicSets as members to retrieve MuonEfficiencySystType each event
+            CP::SystematicSet* m_Sys1Down;
+            CP::SystematicSet* m_Sys1Up;
+            CP::SystematicSet* m_Stat1Down;
+            CP::SystematicSet* m_Stat1Up;
+            CP::SystematicSet* m_LowPtSys1Down;
+            CP::SystematicSet* m_LowPtSys1Up;
+            CP::SystematicSet* m_LowPtStat1Down;
+            CP::SystematicSet* m_LowPtStat1Up;
+
             bool m_init;
+            bool m_seperateSystBins;
             CP::MuonEfficiencyType m_Type;
     };
 

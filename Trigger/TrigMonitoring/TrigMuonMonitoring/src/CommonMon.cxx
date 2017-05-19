@@ -107,7 +107,7 @@ float CalculateDeltaR(float off_eta, float off_phi,float on_eta, float on_phi);
 StatusCode HLTMuonMonTool::bookCommonDQA()
 {
 
-  if( newRun ){
+  if( newRunFlag() ){
 
     ATH_MSG_INFO("start booking Common histograms for newRun");
 
@@ -268,8 +268,8 @@ StatusCode HLTMuonMonTool::bookCommonDQA()
 
     ATH_MSG_INFO("finished booking Common histograms for newRun");
 
-  }else if( newLumiBlock ){
   }
+  //else if( newLumiBlockFlag() ){  }
 
   return StatusCode::SUCCESS;
 }
@@ -323,7 +323,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
 {
   std::string chainName = cName;  // YY modified 26.06.2011
 
-  if( newRun ) {
+  if( newRunFlag() ) {
 
     ATH_MSG_DEBUG("bookChainDQA_MSonly for chain=" << chainName );
 
@@ -643,8 +643,8 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
     }
     ATH_MSG_DEBUG("end bookChainDQA_MSonly for chain=" << chainName );
 
-  } else if(newLumiBlock ){
   }
+  //else if(newLumiBlockFlag() ){  }
 
   return StatusCode::SUCCESS;
 }
@@ -653,7 +653,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
 {
   std::string chainName = cName;  // YY modified 26.06.2011
 
-  if( newRun ) {
+  if( newRunFlag() ) {
 
     ATH_MSG_DEBUG("bookChainDQA_standard for chain=" << chainName ); 
 
@@ -873,8 +873,8 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
     }
     //*****************************************//
 
-  } else if( newLumiBlock ){
   }
+  //else if( newLumiBlockFlag() ){  }
 
   return StatusCode::SUCCESS;
 }
@@ -885,7 +885,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 {
   std::string chainName = cName;  // YY modified 26.06.2011
 
-  if( newRun ) {
+  if( newRunFlag() ) {
 
     ATH_MSG_DEBUG("bookChainDQA_generic for chain=" << chainName ); 
 
@@ -1316,8 +1316,8 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
     }
     ATH_MSG_DEBUG("end bookChainDQA_standard for chain=" << chainName );
 
-  } else if( newLumiBlock ){
   }
+  //else if( newLumiBlockFlag() ){  }
 
   return StatusCode::SUCCESS;
   }
@@ -1355,7 +1355,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 
       //get Event Info
       const DataHandle<EventInfo> evt;
-      StatusCode sc = m_storeGate->retrieve(evt);
+      StatusCode sc = evtStore()->retrieve(evt);
       if ( sc.isFailure() ) {
 	ATH_MSG_ERROR(" Cannot retrieve EventInfo ");
 	hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
@@ -2604,7 +2604,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    }
 
 	    const DataHandle<EventInfo> evt;
-	    sc = m_storeGate->retrieve(evt);
+	    sc = evtStore()->retrieve(evt);
 	    if ( sc.isFailure() ) {
 	      ATH_MSG_ERROR(" Cannot retrieve EventInfo ");
 	      return StatusCode::FAILURE;
@@ -3315,7 +3315,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	  }
 
 
-	  if(endOfRun){
+	  if(endOfRunFlag()){
 	    //triggers/event
 	    for(std::map<std::string, std::string>::iterator it=m_ztpmap.begin(); it != m_ztpmap.end() ; it++ ){
 
@@ -3338,7 +3338,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	  std::string numer;
 	  std::string effi;
 
-	  if( endOfRun ){
+	  if( endOfRunFlag() ){
 
 	    std::string monalg[3]={"_MuFast", "_MuonEFMS", "_MuonEFSA"};
 
@@ -3471,7 +3471,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	      refill_2d1d_coarse(h2d, h1d);
 	    }
 
-	  } else if( endOfLumiBlock ){
+	  } else if( endOfLumiBlockFlag() ){
 	  }
 
 	  return StatusCode::SUCCESS;
@@ -3495,7 +3495,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    iSTDH = 120;
 	  }
 
-	  if( endOfRun ){
+	  if( endOfRunFlag() ){
 
 
 	    // add by Yuan :  to book the histogram //
@@ -3609,7 +3609,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 
 	    }
 
-	  } else if( endOfLumiBlock ){
+	  } else if( endOfLumiBlockFlag() ){
 	  }
 	  return StatusCode::SUCCESS;
 	  //*****************************************//
@@ -3624,7 +3624,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	  std::string numer;
 	  std::string effi;
 
-	  if( endOfRun ){
+	  if( endOfRunFlag() ){
 	    std::string monalg[3]={"_MuFast", "_MuComb", "_EFmuon"};
 
 	    std::string wrtalg[3]={"_L1", "_MuFast", "_MuComb"};
@@ -3763,7 +3763,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		TH1F *h1d = (TH1F *)hist(numer, m_histdirdist2d);
 		refill_2d1d_coarse(h2d, h1d);
 	      }
-	    } else if( endOfLumiBlock ){
+           } else if( endOfLumiBlockFlag() ){
 	    }
 
 	    return StatusCode::SUCCESS;
@@ -3833,7 +3833,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    //    return StatusCode::SUCCESS;
 	    //  }
 
-	    if (endOfRun) {
+	    if (endOfRunFlag()) {
 	      for (int ialg = 0; ialg < MAXARR; ialg++) {
 		std::string chainName = charr[ialg];
 		std::string MoniAlg = monarr[ialg];
@@ -3947,7 +3947,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		}
 	      }
 
-	    } else if (endOfLumiBlock) {
+	    } else if (endOfLumiBlockFlag()) {
 	    }
 	    return StatusCode::SUCCESS;
 	  }
@@ -4054,7 +4054,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 
 	    std::string muonKey = "Muons"; // MuidMuonCollection
 
-	    StatusCode sc = m_storeGate->retrieve(muonCont, muonKey);
+	    StatusCode sc = evtStore()->retrieve(muonCont, muonKey);
 	    if(sc.isFailure()){
 	      ATH_MSG_WARNING("Container of muon particle with key " << muonKey << " not found in Store Gate");
 	      return StatusCode::SUCCESS;
@@ -4066,7 +4066,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    // std::string vxKey = "VxPrimaryCandidate";  // attention
 	    std::string vxKey = "HLT_xAOD__VertexContainer_xPrimVx";  // May change to Offline Vx container key if possible
 	    const xAOD::VertexContainer* vxCont = 0;
-	    sc = m_storeGate->retrieve(vxCont, vxKey);
+	    sc = evtStore()->retrieve(vxCont, vxKey);
 	    if (sc.isFailure()) {
 	      ATH_MSG_INFO("Container of muon particle with key " << vxKey << " not found in Store Gate");
 	      return StatusCode::SUCCESS;
@@ -4318,7 +4318,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    // Process current event
 	    //
 	    const DataHandle<EventInfo> event_handle;
-	    if(m_storeGate -> retrieve(event_handle).isFailure()) {
+	    if(evtStore() -> retrieve(event_handle).isFailure()) {
 	      if (errcnt < 1) {
 		ATH_MSG_DEBUG("Failed to read EventInfo");
 		errcnt++;
@@ -4366,7 +4366,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    //const std::string key = "HLT_EXPRESS_OPI_HLT";
 	    const std::string key = "HLT_TrigOperationalInfoCollection_EXPRESS_OPI_HLT";
 
-	    if (!m_storeGate->contains<TrigOperationalInfoCollection>(key)) {
+	    if (!evtStore()->contains<TrigOperationalInfoCollection>(key)) {
 	      if (errcnt < 1) {
 		ATH_MSG_INFO("Missing TrigOperationalInfoCollection with key=" << key);
 		errcnt++;
@@ -4375,7 +4375,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    }
 
 	    const TrigOperationalInfoCollection *opi = 0;
-	    if (!m_storeGate->retrieve<TrigOperationalInfoCollection>(opi, key).isSuccess()) {
+	    if (!evtStore()->retrieve<TrigOperationalInfoCollection>(opi, key).isSuccess()) {
 	      if (errcnt < 1) {
 		ATH_MSG_INFO("Failed to retreive TrigOperationalInfoCollection with key=" << key);
 		return retvect;
@@ -4528,7 +4528,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 
 	    std::string muonKey = "LVL1MuonRoIs"; // MuidMuonCollection
 
-	    sc = m_storeGate->retrieve(lvl1Roi, muonKey);
+	    sc = evtStore()->retrieve(lvl1Roi, muonKey);
 	    if ( sc.isFailure() ) {
 	      ATH_MSG_DEBUG(" Cannot retrieve LVL1 Muon container");
 	      return StatusCode::FAILURE;
@@ -4536,7 +4536,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 
 
 	    const DataHandle<EventInfo> eventInfo;
-	    sc = m_storeGate->retrieve(eventInfo);
+	    sc = evtStore()->retrieve(eventInfo);
 	    if ( sc.isFailure() ) {
 	      ATH_MSG_ERROR(" Cannot retrieve EventInfo ");
 	      hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );

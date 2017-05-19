@@ -51,10 +51,10 @@ class PixelCalibDbTestWriteRead:public AthAlgorithm {
   bool m_setup;                            //true for first event
 
   // algorithm parameters to be set in the jobOptions
-  bool par_read;           // read DB to file
-  bool par_write;          // stream structures to output 
-  std::string par_rfile;   // text file to read calibration data from
-  std::string par_wfile;     // text file to write
+  bool m_par_read;           // read DB to file
+  bool m_par_write;          // stream structures to output 
+  std::string m_par_rfile;   // text file to read calibration data from
+  std::string m_par_wfile;     // text file to write
 
 }; 
 

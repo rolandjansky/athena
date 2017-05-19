@@ -5,7 +5,7 @@
 #include "CaloTPCnv/CaloClusterContainerCnv_p2.h" 
 #include "CaloUtils/CaloClusterSignalState.h"
 
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 #include "AthenaKernel/errorcheck.h"
 
 // void CaloClusterContainerCnv_p2::persToTrans(const CaloClusterContainer_p2* pers, 

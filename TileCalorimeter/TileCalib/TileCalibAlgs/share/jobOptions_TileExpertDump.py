@@ -40,7 +40,7 @@ from AthenaCommon.JobProperties import jobproperties
 
 #--- see http://atlas.web.cern.ch/Atlas/GROUPS/OPERATIONS/dataBases/DDDB/tag_hierarchy_browser.php
 #--- for the geometry updates
-if RUN2: jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-02-00-00"
+if RUN2: jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
 else:    jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-02"
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
@@ -49,7 +49,7 @@ from AtlasGeoModel import GeoModelInit
 #=== set global tag
 #=============================================================
 from IOVDbSvc.CondDB import conddb
-if RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2014-00")
+if RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2016-25")
 else:    conddb.setGlobalTag("COMCOND-BLKPA-RUN1-06")
 
 #=============================================================

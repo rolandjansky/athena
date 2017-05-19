@@ -28,14 +28,14 @@ class GeoPixelModule : public GeoVPixelFactory {
 
   const GeoShape*  addShape(const GeoShape * lastShape, const GeoShape * nextShape, const HepGeom::Transform3D & trans);
 
-  const GeoLogVol* theModule;
-  Identifier _id;
+  const GeoLogVol* m_theModule;
+  Identifier m_id;
   GeoPixelSiCrystal& m_theSensor;
   bool m_isModule3D;
 
   double m_moduleSvcThickness;
   double m_moduleSvcWidth;
-  int nbModuleSvc;
+  int m_nbModuleSvc;
 
 };
 

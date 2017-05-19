@@ -68,10 +68,6 @@ namespace ISF {
           to be called by simulation kernel  */
       virtual StatusCode releaseEvent() = 0;                             
     
-      /** callback after geometry initialization,
-          needs to be registered in ::initialzie() */
-      virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS) = 0;
-                                 
       /** Assign a simulation service ID */
       inline void assignSimSvcID(SimSvcID id);
 

@@ -65,8 +65,6 @@ LeadingDiBjetFilter::LeadingDiBjetFilter(const std::string& name,
 //---------------------------------------------------------------------------
 StatusCode LeadingDiBjetFilter::filterInitialize() {
 //---------------------------------------------------------------------------
-  MsgStream log(messageService(), name());
-
   m_Nevt = 0;
   m_NPass = 0;
   m_SumOfWeigths_Pass = 0;
@@ -77,20 +75,18 @@ StatusCode LeadingDiBjetFilter::filterInitialize() {
     /* Set seed with respect to computer clock time */
     m_ranNumGen->SetSeed(0);
   }
-  log << MSG::INFO << "Initialized" << endmsg;
+  ATH_MSG_INFO( "Initialized"  );
   return StatusCode::SUCCESS;
 }
 
 //---------------------------------------------------------------------------
 StatusCode LeadingDiBjetFilter::filterFinalize() {
 //---------------------------------------------------------------------------
-  MsgStream log(messageService(), name());
-
   if(m_AcceptSomeLightEvents){
     delete m_ranNumGen;
   }
-  log << MSG::INFO <<  m_NPass << " Events out of " << m_Nevt << " passed the filter" << endmsg;
-  log << MSG::INFO <<  m_SumOfWeigths_Pass << " out of " << m_SumOfWeigths_Evt << " SumOfWeights counter, passed/total" << endmsg;
+  ATH_MSG_INFO(  m_NPass << " Events out of " << m_Nevt << " passed the filter"  );
+  ATH_MSG_INFO(  m_SumOfWeigths_Pass << " out of " << m_SumOfWeigths_Evt << " SumOfWeights counter, passed/total"  );
   return StatusCode::SUCCESS;
 }
 
@@ -98,8 +94,6 @@ StatusCode LeadingDiBjetFilter::filterFinalize() {
 //---------------------------------------------------------------------------
 StatusCode LeadingDiBjetFilter::filterEvent() {
 //---------------------------------------------------------------------------
-  MsgStream log(messageService(), name());
-
   bool pass = false;
   m_Nevt++;
   // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 001" << endmsg;
@@ -108,10 +102,9 @@ StatusCode LeadingDiBjetFilter::filterEvent() {
   StatusCode sc=evtStore()->retrieve( truthjetTES, m_TruthJetContainerName);
   // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 002" << endmsg;
   if( sc.isFailure()  ||  !truthjetTES ) {
-    log << MSG::WARNING
-	<< "No xAOD::JetContainer found in TDS " << m_TruthJetContainerName \
-	<< sc.isFailure() << " "<<   !truthjetTES
-	<< endmsg;
+    ATH_MSG_WARNING( "No xAOD::JetContainer found in TDS " << m_TruthJetContainerName \
+                     << sc.isFailure() << " "<<   !truthjetTES
+                     );
     return StatusCode::SUCCESS;
   }
 
@@ -217,8 +210,8 @@ StatusCode LeadingDiBjetFilter::filterEvent() {
   }
 
   if(m_Nevt < 20 || m_Nevt%100 == 0 || pass) {
-    log << MSG::INFO << " m_Nevt= " << m_Nevt << " n_events_in_collection= " << n_events_in_collection << " 1st,2nd lead_jet_pt= " << lead_jet_pt << " " <<  lead_2nd_jet_pt << " passLeadJetCut= " << passLeadJetCut 
-      << " n_bHadrons_total= " << n_bHadrons_total <<  " bJetCounter= " << bJetCounter << " pass= " << pass << " m_NPass= " << m_NPass << endmsg;
+    ATH_MSG_INFO( " m_Nevt= " << m_Nevt << " n_events_in_collection= " << n_events_in_collection << " 1st,2nd lead_jet_pt= " << lead_jet_pt << " " <<  lead_2nd_jet_pt << " passLeadJetCut= " << passLeadJetCut 
+                  << " n_bHadrons_total= " << n_bHadrons_total <<  " bJetCounter= " << bJetCounter << " pass= " << pass << " m_NPass= " << m_NPass  );
   }
   setFilterPassed(pass);
   return StatusCode::SUCCESS;

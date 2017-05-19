@@ -6,7 +6,7 @@
 #include "GaudiKernel/GaudiException.h"
 #include "egammaEvent/EMShower.h"
 #include "SGTools/ClassName.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "TrkTrack/Track.h" 
 #include "TrkParametersBase/ParametersBase.h"
 #include "TrkParticleBase/TrackParticleBase.h"

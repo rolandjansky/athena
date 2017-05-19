@@ -12,6 +12,11 @@
 // Gaudi includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"  // typedef
+#include "xAODEventInfo/EventInfo.h"
+#include "InDetRawData/SCT_RDO_Container.h"
+#include "TrkSpacePoint/SpacePointContainer.h"
+#include "TrkTrack/TrackCollection.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include <vector>
 #include <string>
@@ -52,10 +57,11 @@ private:
 
     const SCT_ID*       m_sctid;                   //!< SCT ID helper
     const InDet::SCT_ClusterContainer*  m_riocontainer; //!< container of RIOs
-    std::string m_jo_riocontainername; //!< jobOption: name of container with RIOs
-    std::string m_dataObjectName;     //!< Data object name: for the SCT this is "SCT_RDOs"
-    std::string m_spacePointContainerName;//!< SpacePoint container name: for the SCT this is "SCT_SpacePoints"
-    std::string m_inputTrackCollection; //! TrackCollection name, needed for hits-on-tracks, default is "CombinedInDetTracks"
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey; //!< key for xAOD::EventInfo
+    SG::ReadHandleKey<SCT_ClusterContainer> m_jo_riocontainername; //!< jobOption: name of container with RIOs
+    SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName;     //!< Data object name: for the SCT this is "SCT_RDOs"
+    SG::ReadHandleKey<SpacePointContainer> m_spacePointContainerName;//!< SpacePoint container name: for the SCT this is "SCT_SpacePoints"
+    SG::ReadHandleKey<TrackCollection> m_inputTrackCollection; //! TrackCollection name, needed for hits-on-tracks, default is "CombinedInDetTracks"
     ServiceHandle<ISCT_ByteStreamErrorsSvc> m_byteStreamErrSvc;
     ServiceHandle<ISCT_CablingSvc> m_cabling;
     std::string m_ntupleFileName;     //!< jobOption: Ntuple file name

@@ -16,7 +16,6 @@ PURPOSE:
 
 #include "LArCellRec/LArCellMerger.h"
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "Identifier/Identifier.h"
@@ -55,30 +54,6 @@ StatusCode LArCellMerger::initialize()
 {
   m_evt=0;
   m_ncell=0;
-
-   // callback to GeoModel to retrieve identifier helpers, etc..
-  const IGeoModelSvc *geoModel=0;
-  ATH_CHECK( service("GeoModelSvc", geoModel) );
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
-                                  geoModel,
-                                  &LArCellMerger::geoInit,this) );
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode LArCellMerger::geoInit(IOVSVC_CALLBACK_ARGS)
-{
 
   const  CaloIdManager* caloIdMgr;
   ATH_CHECK( detStore()->retrieve( caloIdMgr ) );

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __RoIData_h__
-#define __RoIData_h__
+#ifndef TRIGGERMENUNTUPLE_ROIDATA_H
+#define TRIGGERMENUNTUPLE_ROIDATA_H
 /*
   RoIData.h
 */
@@ -19,7 +19,7 @@ bool isAssociated(const std::string& chain_name,
 class RoIData {
 
 private:
-  static std::string sChainName;
+  static std::string s_chainName;
 
 public:
   RoIData(int create=0);
@@ -56,26 +56,26 @@ public:
 
 
 protected:
-  std::vector<std::string> mAssociatedChains;
-  std::vector<std::string> mPassedChains;
+  std::vector<std::string> m_associatedChains;
+  std::vector<std::string> m_passedChains;
 };
 
 const std::vector<std::string>& RoIData::getAssociatedChains() const {
-  return mAssociatedChains;
+  return m_associatedChains;
 }
 
 const std::vector<std::string>& RoIData::getPassedChains() const {
-  return mPassedChains;
+  return m_passedChains;
 }
 
 void RoIData::setAssociatedChains(const std::vector<std::string>& v) {
-  //  if (mAssociatedChains==0) mAssociatedChains = new std::vector<std::string>();
-  mAssociatedChains = v;
+  //  if (m_associatedChains==0) m_associatedChains = new std::vector<std::string>();
+  m_associatedChains = v;
 }
 
 void RoIData::setPassedChains(const std::vector<std::string>& v) {
-  //  if (mPassedChains==0) mPassedChains = new std::vector<std::string>();
-  mPassedChains = v;
+  //  if (m_passedChains==0) m_passedChains = new std::vector<std::string>();
+  m_passedChains = v;
 }
 
-#endif // __RoIData_h__
+#endif // TRIGGERMENUNTUPLE_ROIDATA_H

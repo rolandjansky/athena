@@ -8,16 +8,9 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
 
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/SmartDataLocator.h"
-#include "GaudiKernel/IDataProviderSvc.h"
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
-
-#include "GaudiKernel/PropertyMgr.h"
-
-#include "GaudiKernel/INTupleSvc.h"
 
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "TBCaloGeometry/TBCaloCoordinate.h"

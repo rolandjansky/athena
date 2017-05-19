@@ -79,8 +79,8 @@ namespace MuonCalib{
             float getParameter(RpcCondParType parType) const;
 
         private:
-            int id;
-            float eff, errEff, res1, res2, resX, errRes1, errRes2, errResX, time, errTime, noise, errNoise, noiseC, errNoiseC, cs, errCs;
+            int m_id;
+            float m_eff, m_errEff, m_res1, m_res2, m_resX, m_errRes1, m_errRes2, m_errResX, m_time, m_errTime, m_noise, m_errNoise, m_noiseC, m_errNoiseC, m_cs, m_errCs;
 
     };
 
@@ -93,52 +93,52 @@ namespace MuonCalib{
             switch(parType)
             {
                 case RpcCondParType::EFF:
-                    eff = value;
+                    m_eff = value;
                     break;
                 case RpcCondParType::ERREFF:
-                    errEff = value;
+                    m_errEff = value;
                     break;
                 case RpcCondParType::RES1:
-                    res1 = value;
+                    m_res1 = value;
                     break;
                 case RpcCondParType::ERRRES1:
-                    errRes1 = value;
+                    m_errRes1 = value;
                     break;
                 case RpcCondParType::RES2:
-                    res2 = value;
+                    m_res2 = value;
                     break;
                 case RpcCondParType::ERRRES2:
-                    errRes2 = value;
+                    m_errRes2 = value;
                     break;
                 case RpcCondParType::RESX:
-                    resX = value;
+                    m_resX = value;
                     break;
                 case RpcCondParType::ERRRESX:
-                    errResX = value;
+                    m_errResX = value;
                     break;
                 case RpcCondParType::TIME:
-                    time = value;
+                    m_time = value;
                     break;
                 case RpcCondParType::ERRTIME:
-                    errTime = value;
+                    m_errTime = value;
                     break;
                 case RpcCondParType::NOISE:
-                    noise = value;
+                    m_noise = value;
                     break;
                 case RpcCondParType::NOISEC:
-                    noiseC = value;
+                    m_noiseC = value;
                     break;
                 case RpcCondParType::ERRNOISE:
-                    errNoise = value;
+                    m_errNoise = value;
                     break;
                 case RpcCondParType::ERRNOISEC:
-                    errNoiseC = value;
+                    m_errNoiseC = value;
                     break;
                 case RpcCondParType::CS:
-                    cs = value;
+                    m_cs = value;
                     break;
                 case RpcCondParType::ERRCS:
-                    errCs = value;
+                    m_errCs = value;
                     break;
                 default:
                     std::cout  << "RpcCalibData ERROR:  Invalid parameter type specified for setParameter."

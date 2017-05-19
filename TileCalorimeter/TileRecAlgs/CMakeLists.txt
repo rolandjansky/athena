@@ -17,7 +17,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloEvent
                           Control/AthenaKernel
-                          DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/Identifier
                           Event/EventContainers
                           Event/xAOD/xAODEventInfo

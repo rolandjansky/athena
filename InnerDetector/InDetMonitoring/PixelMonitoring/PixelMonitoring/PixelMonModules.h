@@ -31,8 +31,7 @@ class PixelMonModules
       virtual StatusCode regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run, bool doIBL)=0;
       //virtual StatusCode regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run, ManagedMonitorToolBase::MgmtAttr_t m=ATTRIB_MANAGED, bool doIBL)=0;
 protected:
-      int nBins;
-      StatusCode sc;
+      int m_nBins;
       std::string getHistName(int i, bool forPath=false, bool doIBL=false);
       
 };
@@ -57,7 +56,7 @@ virtual ~PixelMonModules1D();
       virtual void Reset();
       double GetBinContent(double value, Identifier &id, const PixelID* pixID);
    private:
-      TH1F* Dummy;           //shouldn't be used unless messed up;
+      TH1F* m_Dummy;         //shouldn't be used unless messed up;
       TH1F* &getHist(int i); //make looping over all the histos easier.
 };
 
@@ -81,7 +80,7 @@ virtual ~PixelMonModulesProf();
       virtual void Reset();
       //double GetBinContent(double value, Identifier &id, const PixelID* pixID);
    private:
-      TProfile_LW* Dummy;           //shouldn't be used unless messed up;
+      TProfile_LW* m_Dummy;         //shouldn't be used unless messed up;
       TProfile_LW* &getHist(int i); //make looping over all the histos easier.
 };
 
@@ -103,7 +102,7 @@ class PixelMonModules2D : public PixelMonModules
       void Fill(double value0, double value1, Identifier &id, const PixelID* pixID,bool doIBL);
       virtual void Reset();
    private:
-      TH2F* Dummy;           //shouldn't be used unless messed up;
+      TH2F* m_Dummy;         //shouldn't be used unless messed up;
       TH2F* &getHist(int i); //make looping over all the histos easier.
 };
 

@@ -8,7 +8,7 @@
 #include "TriggerMenuAnalysis/TrigAccessTool.h"
 #include "TriggerMenuAnalysis/HLTObjectsInRoI.h"
 #include "TriggerMenuAnalysis/L1RoIObjects.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLinkVector.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigT1Interfaces/RecJetRoI.h"

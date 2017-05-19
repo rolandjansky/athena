@@ -17,7 +17,7 @@
 #include "CaloTPCnv/CaloClusterContainer_p4.h"
 
 #include "DataModelAthenaPool/ElementLinkCnv_p2.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "AthenaPoolCnvSvc/ITPConverter.h"
 
 class CaloClusterContainer;

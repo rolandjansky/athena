@@ -48,9 +48,6 @@ class TileRawChannelOF1Corrector: public AthAlgTool, virtual public ITileRawChan
     /** AlgTool finalize method */
     virtual StatusCode finalize() override;
 
-    /** Callback to handle Data-driven GeoModel initialisation */
-    virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
     /** Correct TileRawChannel amplitudes if pedestal changed */
     virtual StatusCode process(const TileRawChannelContainer* rawChannelContainer) override;
 

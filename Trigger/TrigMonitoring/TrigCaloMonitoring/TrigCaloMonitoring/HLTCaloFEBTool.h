@@ -69,8 +69,8 @@ private:
         LArFebEnergyCollection m_larfebcol_hec;
         LArFebEnergyCollection m_larfebcol_em;
         LArFebEnergyCollection m_larfebcol_fcal;*/
-        LArFebEnergyCollection::const_iterator tbegin;
-        LArFebEnergyCollection::const_iterator tend;
+        LArFebEnergyCollection::const_iterator m_tbegin;
+        LArFebEnergyCollection::const_iterator m_tend;
          /** EF Calorimeter tools for calorimeter data unpacking. */
 
         void doComparison(std::vector<LArFebEnergy> &febcoll, std::map<HWIdentifier,std::pair<LArFebEnergy,LArFebEnergy> > *larfebmap,int &count,int &count_not_found,int &countp,double &total,double &totalx,double &totaly,double &totalz,double &x,double &y,double &z);

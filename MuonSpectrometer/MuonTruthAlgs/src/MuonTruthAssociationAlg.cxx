@@ -299,7 +299,7 @@ void MuonTruthAssociationAlg::addMuon( const xAOD::TruthParticleContainer& truth
             }      
         }
         muonLink.toPersistent();
-        const_cast<xAOD::TruthParticle&>(*truthParticle).auxdata<ElementLink< xAOD::MuonContainer > >("recoMuonLink") = muonLink;
+        truthParticle->auxdecor<ElementLink< xAOD::MuonContainer > >("recoMuonLink") = muonLink;
     }
 }
 

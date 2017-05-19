@@ -38,16 +38,16 @@ class AlignmentBarrelLUT: public AthAlgTool
     std::pair<int, int> GetBinNumber(int saddress, int innerR, double etaMap, double phiMap) const;
 
   private:
-    double dZ[4][2][15][30][2]; // [s_address][innerR][eta][phi][etaQ]
+    double m_dZ[4][2][15][30][2]; // [s_address][innerR][eta][phi][etaQ]
 
-    int NbinEta[4][2]; // [s_address][innerR]
-    float EtaMin[4][2];
-    float EtaMax[4][2];
-    float EtaStep[4][2];
-    int NbinPhi[4][2];
-    float PhiMin[4][2];
-    float PhiMax[4][2];
-    float PhiStep[4][2];
+    int m_NbinEta[4][2]; // [s_address][innerR]
+    float m_EtaMin[4][2];
+    float m_EtaMax[4][2];
+    float m_EtaStep[4][2];
+    int m_NbinPhi[4][2];
+    float m_PhiMin[4][2];
+    float m_PhiMax[4][2];
+    float m_PhiStep[4][2];
 
   };
 

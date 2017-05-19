@@ -8,17 +8,17 @@
  
 
 AFP_SIDLocRecoEvCollection_PERS* AFP_SIDLocRecoEvCollectionCnv::createPersistent(AFP_SIDLocRecoEvCollection* transCont) {
-    MsgStream mlog(messageService(), "AFP_SIDLocRecoEvCollectionConverter" );
-    AFP_SIDLocRecoEvCollectionCnv_p1   m_TPConverter;
-    AFP_SIDLocRecoEvCollection_PERS *persObj = m_TPConverter.createPersistent( transCont, mlog );
+    MsgStream mlog(msgSvc(), "AFP_SIDLocRecoEvCollectionConverter" );
+    AFP_SIDLocRecoEvCollectionCnv_p1   TPConverter;
+    AFP_SIDLocRecoEvCollection_PERS *persObj = TPConverter.createPersistent( transCont, mlog );
     return persObj;
 }
 
 
 AFP_SIDLocRecoEvCollection* AFP_SIDLocRecoEvCollectionCnv::createTransient() {
-    MsgStream mlog(messageService(), "AFP_SIDLocRecoEvCollectionConverter" );
+    MsgStream mlog(msgSvc(), "AFP_SIDLocRecoEvCollectionConverter" );
     
-    AFP_SIDLocRecoEvCollectionCnv_p1   m_TPConverter_p1;
+    AFP_SIDLocRecoEvCollectionCnv_p1   TPConverter_p1;
 
     AFP_SIDLocRecoEvCollection       *trans_cont(0); // probably inicialization
     
@@ -27,7 +27,7 @@ AFP_SIDLocRecoEvCollection* AFP_SIDLocRecoEvCollectionCnv::createTransient() {
     
     if( this->compareClassGuid(p1_guid)) {
          std::auto_ptr< AFP_SIDLocRecoEvCollection_p1 >   col_vect( this->poolReadObject< AFP_SIDLocRecoEvCollection_p1 >() );
-        trans_cont = m_TPConverter_p1.createTransient( col_vect.get(), mlog );
+        trans_cont = TPConverter_p1.createTransient( col_vect.get(), mlog );
     }
  
     else {

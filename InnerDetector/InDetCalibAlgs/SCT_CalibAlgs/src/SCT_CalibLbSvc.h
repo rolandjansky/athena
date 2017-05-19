@@ -17,8 +17,10 @@
 //Athena includes
 #include "AthenaBaseComps/AthService.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "SCT_CalibAlgs/ISCT_CalibEvtInfo.h"
+#include "InDetRawData/SCT_RDO_Container.h"
 
 //Inner detector includes
 #include "InDetIdentifier/SCT_ID.h"
@@ -74,6 +76,8 @@ private:
   //private use in this class
   int                m_LbRange;
   int                m_LbsToMerge;
+
+  SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerKey;
   
   void
   fillLbForWafer(const IdentifierHash &waferHash, const int theFirstStrip, const int groupSize );

@@ -89,11 +89,13 @@ namespace MonteCarloReact {
 
     virtual bool m_validateInput() const  { return true; }
   };
+
+  inline std::ostream& operator << (std::ostream& os, const Resolution & res) {
+    res.m_doStream(os);
+    return os;
+  }
+
 }
 
-inline std::ostream& MonteCarloReact::operator << (std::ostream& os, const MonteCarloReact::Resolution & res) {
-  res.m_doStream(os);
-  return os;
-}
 
 #endif  // RESOLUTION_HPP

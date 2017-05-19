@@ -140,7 +140,7 @@ T2MissingET::T2MissingET(const std::string& name, ISvcLocator* pSvcLocator)
   m_maskGlobErrors           = 0x80000000; // bit 31
 
   //initialization to prevent coverity error:
-  firsteventinrun=false;
+  m_firsteventinrun=false;
 
 }
 
@@ -152,11 +152,11 @@ HLT::ErrorCode T2MissingET::hltBeginRun() {
   // access StoreGate
   m_StoreGate = store();
   if (m_StoreGate==0) {
-    msg() << MSG::ERROR << "Can not access StoreGate" << endmsg;
+    ATH_MSG_ERROR( "Can not access StoreGate"  );
     return HLT::SG_ERROR;
   }
 
-  firsteventinrun = true;
+  m_firsteventinrun = true;
 
   return HLT::OK; 
 }
@@ -179,17 +179,6 @@ HLT::TriggerElement* T2MissingET::makeSeeding(std::vector<std::vector<HLT::Trigg
       if ( getFeature(tes.at(teIdx), lvl1_energyRoi) == HLT::OK) { // for the seeding use onlt XE/TE/XS trigger elements (i.e. those having the RecEnergy obj)
 	if ( lvl1_energyRoi ) {
 	  allTEs.push_back(tes.at(teIdx)); 
-	  /*
-	    if (msgLvl() <= MSG::INFO) {
-	    msg() << MSG::INFO << "using TE as a seed " << tes.at(teIdx)->getId() << endmsg; 
-	    }
-	  */
-	} else {
-	  /*
-	  if (msgLvl() <= MSG::INFO) {
-	    msg() << MSG::INFO << "skipping TE  " << tes.at(teIdx)->getId() << endmsg; 
-	    }
-	  */
 	}
       }	     
     }
@@ -203,9 +192,7 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   // CACHING
   // first check whether we executed this instance before:
   if (m_useCachedResult) {
-    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Executing this T2MissingET " << name() << " in cached mode" << endmsg;
-    }
+    ATH_MSG_DEBUG( "Executing this T2MissingET " << name() << " in cached mode"  );
 
     HLT::TriggerElement* outputTE = makeSeeding(tes_in, type_out);
 
@@ -219,13 +206,13 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   // event status flag
   int flag=0;
 
-  if(firsteventinrun) {
-    msg() << MSG::DEBUG << "REGTEST: First event in run" << endmsg;
+  if(m_firsteventinrun) {
+    ATH_MSG_DEBUG( "REGTEST: First event in run"  );
     // get EventInfo
     const xAOD::EventInfo* pEvent(0);
     StatusCode sc = m_StoreGate->retrieve(pEvent);
     if ( sc.isFailure() ) {
-      msg() << MSG::ERROR << "Cannot find xAODEventInfo object" << endmsg;
+      ATH_MSG_ERROR( "Cannot find xAODEventInfo object"  );
       return HLT::SG_ERROR;
     }
     m_current_run_id = pEvent->runNumber();
@@ -238,7 +225,7 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
       snprintf(buff,512,
             "REGTEST: Run number = %11u, luminosity block = %11u, event number = %11u, bunch crossing = %11u",
             m_current_run_id, m_current_lbk_id, m_current_evt_id, m_current_bcg_id);
-      msg() << MSG::DEBUG << buff << endmsg;
+      ATH_MSG_DEBUG( buff  );
     }
 
     m_LArEMbarrelAside=true;
@@ -261,7 +248,7 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
       if(msgLvl() <= MSG::DEBUG){
         char buff[512];
         snprintf(buff,512,"REGTEST: DetMask = 0x%08lu",mask64);
-        msg() << MSG::DEBUG << buff << endmsg;
+        ATH_MSG_DEBUG( buff  );
       }
 
       if (!(mask64==0)) {  // 0 means present
@@ -280,18 +267,18 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
         m_TileExtBarAside   = dm.is_set(eformat::TILECAL_EXT_A_SIDE);
         m_TileExtBarCside   = dm.is_set(eformat::TILECAL_EXT_C_SIDE);
 
-        if(!m_LArEMbarrelAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_BARREL_A_SIDE is absent!" << endmsg;
-        if(!m_LArEMbarrelCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_BARREL_C_SIDE is absent!" << endmsg;
-        if(!m_LArEMendCapAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_ENDCAP_A_SIDE is absent!" << endmsg;
-        if(!m_LArEMendCapCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_EM_ENDCAP_C_SIDE is absent!" << endmsg;
-        if(!m_LArHECendCapAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_HAD_ENDCAP_A_SIDE is absent!" << endmsg;
-        if(!m_LArHECendCapCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_HAD_ENDCAP_C_SIDE is absent!" << endmsg;
-        if(!m_LArFCalAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_FCAL_A_SIDE is absent!" << endmsg;
-        if(!m_LArFCalCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "LAR_FCAL_C_SIDE is absent!" << endmsg;
-        if(!m_TileBarrelAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_BARREL_A_SIDE is absent!" << endmsg;
-        if(!m_TileBarrelCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_BARREL_C_SIDE is absent!" << endmsg;
-        if(!m_TileExtBarAside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_EXT_A_SIDE is absent!" << endmsg;
-        if(!m_TileExtBarCside && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "TILECAL_EXT_C_SIDE is absent!" << endmsg;
+        if(!m_LArEMbarrelAside) ATH_MSG_WARNING( "LAR_EM_BARREL_A_SIDE is absent!"  );
+        if(!m_LArEMbarrelCside) ATH_MSG_WARNING( "LAR_EM_BARREL_C_SIDE is absent!"  );
+        if(!m_LArEMendCapAside) ATH_MSG_WARNING( "LAR_EM_ENDCAP_A_SIDE is absent!"  );
+        if(!m_LArEMendCapCside) ATH_MSG_WARNING( "LAR_EM_ENDCAP_C_SIDE is absent!"  );
+        if(!m_LArHECendCapAside) ATH_MSG_WARNING( "LAR_HAD_ENDCAP_A_SIDE is absent!"  );
+        if(!m_LArHECendCapCside) ATH_MSG_WARNING( "LAR_HAD_ENDCAP_C_SIDE is absent!"  );
+        if(!m_LArFCalAside) ATH_MSG_WARNING( "LAR_FCAL_A_SIDE is absent!"  );
+        if(!m_LArFCalCside) ATH_MSG_WARNING( "LAR_FCAL_C_SIDE is absent!"  );
+        if(!m_TileBarrelAside) ATH_MSG_WARNING( "TILECAL_BARREL_A_SIDE is absent!"  );
+        if(!m_TileBarrelCside) ATH_MSG_WARNING( "TILECAL_BARREL_C_SIDE is absent!"  );
+        if(!m_TileExtBarAside) ATH_MSG_WARNING( "TILECAL_EXT_A_SIDE is absent!"  );
+        if(!m_TileExtBarCside) ATH_MSG_WARNING( "TILECAL_EXT_C_SIDE is absent!"  );
 
         m_L1Calo=true;
         if (!dm.is_set(eformat::TDAQ_CALO_PREPROC)) m_L1Calo=false;
@@ -300,12 +287,12 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
         if (!dm.is_set(eformat::TDAQ_CALO_JET_PROC_DAQ)) m_L1Calo=false;
         if (!dm.is_set(eformat::TDAQ_CALO_JET_PROC_ROI)) m_L1Calo=false;
 
-        if(!m_L1Calo && msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "L1Calo is absent!" << endmsg;
+        if(!m_L1Calo) ATH_MSG_WARNING( "L1Calo is absent!"  );
 
       } // Finshed dealing with non zero detector mask
 
     } // finished decoding detector mask
-    firsteventinrun = false;
+    m_firsteventinrun = false;
   } // end processing of first run in event 
 
   // if L1Calo is missing, produce an empty feature
@@ -318,9 +305,7 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
     m_met_feature->defineComponents(vs_aux); 
     
     if (m_met_feature==0) {
-      if(msgLvl() <= MSG::WARNING)
-	msg() << MSG::WARNING
-	      << "cannot create the TrigMissingET object!" << endmsg;
+      ATH_MSG_WARNING( "cannot create the TrigMissingET object!"  );
       return HLT::NO_HLT_RESULT;
     }
 
@@ -332,10 +317,7 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
     HLT::ErrorCode hltStatus = attachFeature(outputTE, m_met_feature, m_featureLabel);
 
     if ( hltStatus != HLT::OK ) {
-      if(msgLvl() <= MSG::WARNING)
-	msg() << MSG::WARNING
-	      << "Write of TrigMissingET feature into outputTE failed"
-	      << endmsg;
+      ATH_MSG_WARNING( "Write of TrigMissingET feature into outputTE failed" );
       return hltStatus;
     }
 
@@ -392,38 +374,32 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   unsigned int tes_in0_size=0;  // size of L1 result (must be = 1)
 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "tes_in.size() = " << tes_in_size << endmsg;
+    ATH_MSG_DEBUG( "tes_in.size() = " << tes_in_size  );
 
     for (unsigned u=0; u<tes_in_size; ++u) {
-      msg() << MSG::DEBUG << "tes_in[" << u << "].size() = " << tes_in[u].size() << endmsg;
+      ATH_MSG_DEBUG( "tes_in[" << u << "].size() = " << tes_in[u].size()  );
     }
   }
 
   switch (tes_in_size) {
   case 0: // unseeded mode
     seeded=false;
-    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Running in unseeded mode" << endmsg;
-    }
+    ATH_MSG_DEBUG( "Running in unseeded mode"  );
     break;
 
   case 1: // seeded mode
     seeded=true;
-    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Running in seeded mode" << endmsg;
-    }
+    ATH_MSG_DEBUG( "Running in seeded mode"  );
     tes_in0_size=tes_in[0].size();
     if (tes_in0_size != 1) {
-      msg() << MSG::WARNING // ERROR
-	    << "Configuration error: expecting exactly 1 L1 result.  Aborting chain" << endmsg;
+      ATH_MSG_WARNING( "Configuration error: expecting exactly 1 L1 result.  Aborting chain"  );
       return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::BAD_JOB_SETUP);
     }
     break;
 
   default:
-    msg() << MSG::WARNING // ERROR
-	  << "Configuration error: tes_in.size() is " << tes_in_size
-	  << " but can only be 1 or 0 in unseeded mode.  Aborting chain" << endmsg;
+    ATH_MSG_WARNING( "Configuration error: tes_in.size() is " << tes_in_size
+                     << " but can only be 1 or 0 in unseeded mode.  Aborting chain"  );
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::BAD_JOB_SETUP);
   }
 
@@ -435,17 +411,16 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
     HLT::ErrorCode status = getFeatures(tes_in[0][0], vectorOfEnergyRoI);
     if(status == HLT::OK) {
       if ( vectorOfEnergyRoI.size() < 1 ) {
-	msg() << MSG::WARNING << "Cannot find L1 result!" << endmsg;
+	ATH_MSG_WARNING( "Cannot find L1 result!"  );
 	return HLT::NAV_ERROR; 
       }
       else if ( vectorOfEnergyRoI.size() > 1 ) {
-	msg() << MSG::WARNING << "found " << vectorOfEnergyRoI.size() 
-	      << " RecEnergyRoI features but they should be exactly 1!  Taking first one with fingers crossed" << endmsg;
+	ATH_MSG_WARNING( "found " << vectorOfEnergyRoI.size() 
+                         << " RecEnergyRoI features but they should be exactly 1!  Taking first one with fingers crossed"  );
       }
       lvl1_energyRoi = vectorOfEnergyRoI.front();
     } else {
-      msg() << MSG::WARNING
-	    << "RecEnergyRoI feature not found.  Aborting" << endmsg;
+      ATH_MSG_WARNING( "RecEnergyRoI feature not found.  Aborting"  );
       return HLT::NAV_ERROR; 
     }
   } else { // unseeded mode: get all RoIs and look for the good one
@@ -458,7 +433,7 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
       }
     }
     if(!lvl1_energyRoi) {
-      msg() << MSG::WARNING << "No RecEnergyRoI object found!  Aborting" << endmsg;
+      ATH_MSG_WARNING( "No RecEnergyRoI object found!  Aborting"  );
       return HLT::NAV_ERROR;
     }
   }
@@ -476,7 +451,7 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
       const xAOD::EventInfo* pEvent(0);
       StatusCode sc = m_StoreGate->retrieve(pEvent);
       if ( sc.isFailure() ) {
-        msg() << MSG::ERROR << "Cannot find xAOD::EventInfo object" << endmsg;
+        ATH_MSG_ERROR( "Cannot find xAOD::EventInfo object"  );
       } else {
         m_current_run_id = pEvent->runNumber();
         m_current_lbk_id = pEvent->lumiBlock();
@@ -486,14 +461,14 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
         snprintf(buff,512,
              "REGTEST: Run number = %11u, luminosity block = %11u, event number = %11u, bunch crossing = %11u",
              m_current_run_id, m_current_lbk_id, m_current_evt_id, m_current_bcg_id);
-        msg() << MSG::DEBUG << buff << endmsg;
+        ATH_MSG_DEBUG( buff  );
       }
     }
-    msg() << MSG::DEBUG << "REGTEST: (LVL1) Lvl1Id = " << config()->getLvl1Id() << endmsg;
-    msg() << MSG::DEBUG << "REGTEST: (LVL1) et = " <<  m_lvl1_met << " GeV" << endmsg;
-    msg() << MSG::DEBUG << "REGTEST: (LVL1) ex = " <<  m_lvl1_mex << " GeV" << endmsg;
-    msg() << MSG::DEBUG << "REGTEST: (LVL1) ey = " <<  m_lvl1_mey << " GeV" << endmsg;
-    msg() << MSG::DEBUG << "REGTEST: (LVL1) SumEt = " <<  m_lvl1_set << " GeV" << endmsg;
+    ATH_MSG_DEBUG( "REGTEST: (LVL1) Lvl1Id = " << config()->getLvl1Id()  );
+    ATH_MSG_DEBUG( "REGTEST: (LVL1) et = " <<  m_lvl1_met << " GeV"  );
+    ATH_MSG_DEBUG( "REGTEST: (LVL1) ex = " <<  m_lvl1_mex << " GeV"  );
+    ATH_MSG_DEBUG( "REGTEST: (LVL1) ey = " <<  m_lvl1_mey << " GeV"  );
+    ATH_MSG_DEBUG( "REGTEST: (LVL1) SumEt = " <<  m_lvl1_set << " GeV"  );
   }
 
   // convert energy from GeV to MeV
@@ -541,9 +516,8 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
       }
       if (xx>aa && xx<bb) {
 	flag |= m_maskMETinBadPhiRegion; // flag event
-	if (msgLvl() <= MSG::INFO)
-	  msg() << MSG::INFO << " -- measured phi = " << m_lvl2_phi
-		<< " --> event flagged" << endmsg;
+        ATH_MSG_INFO( " -- measured phi = " << m_lvl2_phi
+                      << " --> event flagged"  );
 
 	/*
 NO CHECK ON ETA CAN BE DONE ON THE RESULT BY L1Calo: keep this code for the future :-)
@@ -557,18 +531,17 @@ NO CHECK ON ETA CAN BE DONE ON THE RESULT BY L1Calo: keep this code for the futu
 	  float MEeta=0; // no L1Calo eta is available!
 	  if (MEeta>etaMin && MEeta<etaMax) {
 	    flag |= m_maskMETinBadRegion; // flag event
-	    msg() << MSG::INFO << " -- measured eta = " << MEeta
-		  << " --> event flagged" << endmsg;
-	  }
+	    ATH_MSG_INFO( " -- measured eta = " << MEeta
+	 	  << " --> event flagged"  );
+ 	  }
 	  else {
-	    msg() << MSG::INFO << " -- event does not point here" << endmsg;
+            ATH_MSG_INFO( " -- event does not point here"  );
 	  }
 	} // end eta check
 	*/
 
       } else {
-	if (msgLvl() <= MSG::INFO)
-	  msg() << MSG::INFO << " -- event does not point here" << endmsg;
+        ATH_MSG_INFO( " -- event does not point here"  );
       } // end of region check
     } // loop over bad regions
   } // end of phi check
@@ -594,8 +567,7 @@ NO CHECK ON ETA CAN BE DONE ON THE RESULT BY L1Calo: keep this code for the futu
   m_met_feature->defineComponents(vs_aux); 
     
   if (m_met_feature==0) {
-    msg() << MSG::WARNING // ERROR 
-	  << "cannot create the TrigMissingET object!" << endmsg;
+    ATH_MSG_WARNING( "cannot create the TrigMissingET object!"  );
     return HLT::NO_HLT_RESULT;
   }
   init(m_met_feature);
@@ -615,13 +587,13 @@ NO CHECK ON ETA CAN BE DONE ON THE RESULT BY L1Calo: keep this code for the futu
   m_lvl2_met = sqrt(m_lvl2_mex * m_lvl2_mex + m_lvl2_mey * m_lvl2_mey);
 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "REGTEST: (LVL2) et = " <<  m_lvl2_met << " GeV" << endmsg;
-    msg() << MSG::DEBUG << "REGTEST: (LVL2) ex = " <<  m_lvl2_mex << " GeV" << endmsg;
-    msg() << MSG::DEBUG << "REGTEST: (LVL2) ey = " <<  m_lvl2_mey << " GeV" << endmsg;
-    msg() << MSG::DEBUG << "REGTEST: (LVL2) SumEt = " <<  m_lvl2_set << " GeV" << endmsg;
+    ATH_MSG_DEBUG( "REGTEST: (LVL2) et = " <<  m_lvl2_met << " GeV"  );
+    ATH_MSG_DEBUG( "REGTEST: (LVL2) ex = " <<  m_lvl2_mex << " GeV"  );
+    ATH_MSG_DEBUG( "REGTEST: (LVL2) ey = " <<  m_lvl2_mey << " GeV"  );
+    ATH_MSG_DEBUG( "REGTEST: (LVL2) SumEt = " <<  m_lvl2_set << " GeV"  );
     char buff[128];
     std::snprintf(buff,128,"REGTEST: (LVL2) Event status = 0x%08x", (unsigned)flag);
-    msg() << MSG::DEBUG << buff << endmsg;
+    ATH_MSG_DEBUG( buff  );
   }
 
   // monitoring: status flag
@@ -690,9 +662,7 @@ NO CHECK ON ETA CAN BE DONE ON THE RESULT BY L1Calo: keep this code for the futu
   HLT::ErrorCode hltStatus = attachFeature(outputTE, m_met_feature, m_featureLabel);
 
   if ( hltStatus != HLT::OK ) {
-     msg() << MSG::WARNING // ERROR 
-	   << "Write of TrigMissingET feature into outputTE failed"
-	   << endmsg;
+    ATH_MSG_WARNING( "Write of TrigMissingET feature into outputTE failed" );
      return hltStatus;
   }
 
@@ -713,7 +683,7 @@ NO CHECK ON ETA CAN BE DONE ON THE RESULT BY L1Calo: keep this code for the futu
 HLT::ErrorCode T2MissingET::init(xAOD::TrigMissingET *met){
   int ncom=met->getNumberOfComponents();
   if(ncom!=NCOM){
-    msg() << MSG::ERROR << "Wrong number of TrigMissingET dimension." << endmsg;
+    ATH_MSG_ERROR( "Wrong number of TrigMissingET dimension."  );
     return HLT::NO_HLT_RESULT;
   } 
   met->setNameOfComponent(0,"Muons    ");

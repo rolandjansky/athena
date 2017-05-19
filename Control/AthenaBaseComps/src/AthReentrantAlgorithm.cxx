@@ -13,7 +13,7 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthAlgorithmDHUpdate.h"
 
-// FrameWork includes
+// Framework includes
 #include "GaudiKernel/Property.h"
 #ifndef REENTRANT_GAUDI
 #include "GaudiKernel/ThreadLocalContext.h"

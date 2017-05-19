@@ -116,15 +116,8 @@ Muon::MuonStationBuilder::~MuonStationBuilder()
 StatusCode Muon::MuonStationBuilder::initialize()
 {
 
-    // Get DetectorStore service
-    //
-    StoreGateSvc* m_detStore=0;
-    StatusCode ds = service("DetectorStore",m_detStore);
-    if (ds.isFailure()) {
-      ATH_MSG_FATAL( "DetectorStore service not found !");
-    }
     // get Muon Spectrometer Description Manager
-    ds = m_detStore->retrieve(m_muonMgr);
+    StatusCode ds = detStore()->retrieve(m_muonMgr);
     if (ds.isFailure()) {
       ATH_MSG_ERROR("Could not get MuonDetectorManager, no layers for muons will be built. " );
     }

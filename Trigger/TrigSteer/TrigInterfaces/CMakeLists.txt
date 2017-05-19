@@ -9,7 +9,8 @@ atlas_subdir( TrigInterfaces )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaMonitoring
-                          Control/DataModel
+                          Control/AthContainers
+                          Control/AthLinks
                           GaudiKernel
                           Trigger/TrigEvent/TrigNavigation
                           Trigger/TrigEvent/TrigSteeringEvent
@@ -29,32 +30,32 @@ atlas_add_library( TrigInterfacesLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigInterfaces
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps DataModel GaudiKernel TrigSteeringEvent TrigStorageDefinitions AthenaMonitoringLib TrigNavigationLib StoreGateLib SGtests TrigTimeAlgsLib
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthContainers AthLinks GaudiKernel TrigSteeringEvent TrigStorageDefinitions AthenaMonitoringLib TrigNavigationLib StoreGateLib SGtests TrigTimeAlgsLib
                    PRIVATE_LINK_LIBRARIES TestTools AthenaKernel xAODTrigger )
 
 atlas_add_component( TrigInterfaces
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaMonitoringLib DataModel GaudiKernel TrigNavigationLib TrigSteeringEvent TrigStorageDefinitions TestTools AthenaKernel StoreGateLib SGtests xAODTrigger TrigTimeAlgsLib TrigInterfacesLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaMonitoringLib AthContainers AthLinks GaudiKernel TrigNavigationLib TrigSteeringEvent TrigStorageDefinitions TestTools AthenaKernel StoreGateLib SGtests xAODTrigger TrigTimeAlgsLib TrigInterfacesLib )
 
 atlas_add_test( Templates_test
                 SOURCES
                 test/Templates_test.cxx
                 INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaMonitoringLib DataModel GaudiKernel TrigNavigationLib TrigSteeringEvent TrigStorageDefinitions TestTools AthenaKernel StoreGateLib SGtests xAODTrigger TrigTimeAlgsLib TrigInterfacesLib
+                LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaMonitoringLib AthContainers AthLinks GaudiKernel TrigNavigationLib TrigSteeringEvent TrigStorageDefinitions TestTools AthenaKernel StoreGateLib SGtests xAODTrigger TrigTimeAlgsLib TrigInterfacesLib
                 EXTRA_PATTERNS ".*" )
 
 atlas_add_test( MonitoredAlgo_test
                 SOURCES
                 test/MonitoredAlgo_test.cxx
                 INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaMonitoringLib DataModel GaudiKernel TrigNavigationLib TrigSteeringEvent TrigStorageDefinitions TestTools AthenaKernel StoreGateLib SGtests xAODTrigger TrigTimeAlgsLib TrigInterfacesLib
+                LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaMonitoringLib AthContainers AthLinks GaudiKernel TrigNavigationLib TrigSteeringEvent TrigStorageDefinitions TestTools AthenaKernel StoreGateLib SGtests xAODTrigger TrigTimeAlgsLib TrigInterfacesLib
                 EXTRA_PATTERNS ".*" )
 
 atlas_add_test( HLTCheck_test
                 SOURCES
                 test/HLTCheck_test.cxx
                 INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaMonitoringLib DataModel GaudiKernel TrigNavigationLib TrigSteeringEvent TrigStorageDefinitions TestTools AthenaKernel StoreGateLib SGtests xAODTrigger TrigTimeAlgsLib TrigInterfacesLib
+                LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaMonitoringLib AthContainers AthLinks GaudiKernel TrigNavigationLib TrigSteeringEvent TrigStorageDefinitions TestTools AthenaKernel StoreGateLib SGtests xAODTrigger TrigTimeAlgsLib TrigInterfacesLib
                 EXTRA_PATTERNS ".*" )
 

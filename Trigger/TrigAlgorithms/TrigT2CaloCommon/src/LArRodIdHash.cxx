@@ -3,7 +3,7 @@
 */
 
 #include "TrigT2CaloCommon/LArRodIdHash.h" 
-#include "LArTools/LArCablingService.h" 
+#include "LArCabling/LArCablingService.h" 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"

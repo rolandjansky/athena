@@ -23,7 +23,6 @@
 //Atlas include
 #include "AthenaKernel/errorcheck.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 // Calo includes
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -279,27 +278,6 @@ TileAANtuple::~TileAANtuple() {
 /// Alg standard interface function
 StatusCode TileAANtuple::initialize() {
   ATH_MSG_INFO( "Initialization started");
-  
-  const IGeoModelSvc *geoModel = 0;
-  CHECK( service("GeoModelSvc", geoModel));
-  
-  // dummy parameters for the callback:
-  int dummyInt = 0;
-  std::list<std::string> dummyList;
-  
-  if (geoModel->geoInitialized()) {
-    return geoInit(dummyInt, dummyList);
-  } else {
-    CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit, geoModel, &TileAANtuple::geoInit, this) );
-  }
-  
-  return StatusCode::SUCCESS;
-}
-
-/// callback for delayed initialization
-StatusCode TileAANtuple::geoInit(IOVSVC_CALLBACK_ARGS) {
-  
-  ATH_MSG_INFO( "Initialization in geoInit callback started" );
   
   // find TileCablingService
   m_cabling = TileCablingService::getInstance();

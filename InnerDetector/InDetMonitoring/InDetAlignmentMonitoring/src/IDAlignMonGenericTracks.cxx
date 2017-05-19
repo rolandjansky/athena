@@ -560,11 +560,9 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
   MonGroup al_mon ( this, outputDirName, run );
   MonGroup al_mon_ls ( this, outputDirName, lowStat );
 
-  if ( newLowStat ) {  
-  }
-  if ( newLumiBlock ) {  
-  }
-  if ( newRun ) {  
+  //if ( newLowStatFlag ) {    }
+  //if ( newLumiBlockFlag() ) {    }
+  if ( newRunFlag() ) {  
 
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job
@@ -1986,15 +1984,15 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
         }
         // --- trt
         if (m_idHelper->is_trt(surfaceID)){
-          int m_barrel_ec      = m_trtID->barrel_ec(surfaceID);
-          if(m_barrel_ec == 1 || m_barrel_ec == -1 ) {
+          int barrel_ec      = m_trtID->barrel_ec(surfaceID);
+          if(barrel_ec == 1 || barrel_ec == -1 ) {
             nhtrtB++;
             m_hitMap_barrel  -> Fill( hitSurfaceX,   hitSurfaceY, hweight );
           }
-          else if(m_barrel_ec ==  2){
+          else if(barrel_ec ==  2){
             nhtrtECA++;
             m_hitMap_endcapA -> Fill( float(gp.z()), float(gp.phi()), hweight );
-          }else if(m_barrel_ec == -2){
+          }else if(barrel_ec == -2){
             nhtrtECC++;
             m_hitMap_endcapC -> Fill( float(gp.z()), float(gp.phi()), hweight );
           }
@@ -2467,11 +2465,9 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
 
 StatusCode IDAlignMonGenericTracks::procHistograms()
 {
-  if( endOfLowStat ) {
-  }
-  if( endOfLumiBlock ) {
-  }
-  if( endOfRun ) {
+  //if( endOfLowStatFlag() ) {  }
+  //if( endOfLumiBlockFlag() ) {  }
+  if( endOfRunFlag() ) {
 
     m_ZpT_diff->Add(m_ZpT_p,m_ZpT_n,1.,-1);
     m_pT_diff->Add(m_pT_p,m_pT_n,1.,-1);
@@ -2503,17 +2499,17 @@ StatusCode IDAlignMonGenericTracks::procHistograms()
 
 
 
-void IDAlignMonGenericTracks::ProcessAsymHistograms(TH1F* m_neg, TH1F* m_pos, TH1F* m_asym) 
+void IDAlignMonGenericTracks::ProcessAsymHistograms(TH1F* h_neg, TH1F* h_pos, TH1F* h_asym) 
 {
-  if (m_neg->GetNbinsX()==m_pos->GetNbinsX()&& m_neg->GetNbinsX()==m_asym->GetNbinsX()) {
-    for (int i=1;i<=m_neg->GetNbinsX();i++) {
-      float nneg=m_neg->GetBinContent(i);
-      float npos=m_pos->GetBinContent(i);
+  if (h_neg->GetNbinsX()==h_pos->GetNbinsX()&& h_neg->GetNbinsX()==h_asym->GetNbinsX()) {
+    for (int i=1;i<=h_neg->GetNbinsX();i++) {
+      float nneg=h_neg->GetBinContent(i);
+      float npos=h_pos->GetBinContent(i);
       float asym=0;
       if (nneg+npos>0) asym=(npos-nneg)/(nneg+npos);
-      m_asym->SetBinContent(i,asym);
+      h_asym->SetBinContent(i,asym);
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) 
-                              << ">>ProcessAsymHistograms>> " << m_asym->GetTitle() 
+                              << ">>ProcessAsymHistograms>> " << h_asym->GetTitle() 
                               << "  bin: " << i 
                               << "  npos=" << npos
                               << "  nneg=" << nneg
@@ -2525,17 +2521,17 @@ void IDAlignMonGenericTracks::ProcessAsymHistograms(TH1F* m_neg, TH1F* m_pos, TH
 }
 
 
-void IDAlignMonGenericTracks::ProcessAsymHistograms(TH1F_LW* m_neg, TH1F_LW* m_pos, TH1F_LW* m_asym) 
+void IDAlignMonGenericTracks::ProcessAsymHistograms(TH1F_LW* h_neg, TH1F_LW* h_pos, TH1F_LW* h_asym) 
 {
-  if (m_neg->GetNbinsX()==m_pos->GetNbinsX()&& m_neg->GetNbinsX()==m_asym->GetNbinsX()) {
-    for (unsigned int i=1;i<=m_neg->GetNbinsX();i++) {
-      float nneg=m_neg->GetBinContent(i);
-      float npos=m_pos->GetBinContent(i);
+  if (h_neg->GetNbinsX()==h_pos->GetNbinsX()&& h_neg->GetNbinsX()==h_asym->GetNbinsX()) {
+    for (unsigned int i=1;i<=h_neg->GetNbinsX();i++) {
+      float nneg=h_neg->GetBinContent(i);
+      float npos=h_pos->GetBinContent(i);
       float asym=0;
       if (nneg+npos>0) asym=(npos-nneg)/(nneg+npos);
-      m_asym->SetBinContent(i,asym);
+      h_asym->SetBinContent(i,asym);
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) 
-                              << ">>ProcessAsymHistograms>> " << m_asym->GetTitle() 
+                              << ">>ProcessAsymHistograms>> " << h_asym->GetTitle() 
                               << "  bin: " << i 
                               << "  npos=" << npos
                               << "  nneg=" << nneg
