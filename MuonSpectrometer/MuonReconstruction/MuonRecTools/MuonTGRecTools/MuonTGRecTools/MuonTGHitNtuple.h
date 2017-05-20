@@ -9,7 +9,7 @@
 #include "GaudiKernel/IPartPropSvc.h"
 #include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "DataModel/DataLink.h"
+#include "AthLinks/DataLink.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonIdHelpers/TgcIdHelper.h"
