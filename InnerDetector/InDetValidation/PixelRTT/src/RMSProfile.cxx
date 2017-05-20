@@ -13,19 +13,19 @@
 
 
 RMSProfile::RMSProfile():TProfile(){
-	rms_graph = NULL;
+	m_rms_graph = NULL;
 }
 
 
 RMSProfile::RMSProfile(const TProfile &profile):TProfile(profile){
-	rms_graph = NULL;
+	m_rms_graph = NULL;
 }
 
 
 RMSProfile::RMSProfile(const char *name,const char *title,
 	Int_t nbinsx,Double_t xlow,Double_t xup, Option_t *option)
    		:TProfile(name,title,nbinsx,xlow,xup,option){
-	rms_graph = NULL;
+	m_rms_graph = NULL;
 }
 
 
@@ -33,28 +33,28 @@ RMSProfile::RMSProfile(const char *name,const char *title,
 	Int_t nbinsx,Double_t xlow,Double_t xup,
 	Double_t ylow,Double_t yup,Option_t *option)
    		:TProfile(name,title,nbinsx,xlow,xup,ylow,yup,option){
-	rms_graph = NULL;
+	m_rms_graph = NULL;
 }
 	
 
 RMSProfile::RMSProfile(const char *name,const char *title,
 	Int_t nbinsx,const Float_t *xbins, Option_t *option)
    		:TProfile(name,title,nbinsx,xbins,option){
-	rms_graph = NULL;		
+	m_rms_graph = NULL;		
 }
 
 
 RMSProfile::RMSProfile(const char *name,const char *title,
 	Int_t nbinsx,const Double_t  *xbins, Option_t *option)
 		:TProfile(name,title,nbinsx,xbins,option){
-	rms_graph = NULL;
+	m_rms_graph = NULL;
 }
 
 RMSProfile::RMSProfile(const char *name,const char *title,
 	Int_t nbinsx,const Double_t *xbins,
 	Double_t ylow,Double_t yup, Option_t *option)
    		:TProfile(name,title,nbinsx,xbins,ylow,yup,option){
-	rms_graph = NULL;
+	m_rms_graph = NULL;
 }
 	
 /*
@@ -63,15 +63,15 @@ RMSProfile::RMSProfile(const char *name,TDirectory * my_dir){
 	((RMSProfile&)swap).Copy(*this); //
 	//swap->Copy(*this);
 	std::string rmsname = std::string(name) + "RMS";
-	rms_graph = (TProfile *)my_dir->Get(rmsname.c_str());
+	m_rms_graph = (TProfile *)my_dir->Get(rmsname.c_str());
 }
 */		
 
 TProfile *RMSProfile::GetTheRMSProfile(){		
 	
-	if(rms_graph != 0) return rms_graph;
+	if(m_rms_graph != 0) return m_rms_graph;
 
-	rms_graph = (TProfile *)(TProfile::Clone());
+	m_rms_graph = (TProfile *)(TProfile::Clone());
 	Int_t nbinsx = GetNbinsX();
 	for(Int_t j=0;j<nbinsx+1;j++){
 		Double_t entries = GetBinEntries(j);
@@ -85,15 +85,15 @@ TProfile *RMSProfile::GetTheRMSProfile(){
 					- RMS_val*RMS_val*entries));
 		}
 			
-		rms_graph->SetBinContent(j+1,rms_recal);
-		rms_graph->SetBinEntries(j+1,entries);
-		rms_graph->SetBinError(j+1,err_recal);
+		m_rms_graph->SetBinContent(j+1,rms_recal);
+		m_rms_graph->SetBinEntries(j+1,entries);
+		m_rms_graph->SetBinError(j+1,err_recal);
 	}
 	std::string rmsname = std::string(GetName()) + std::string("RMS");
 	std::string rmstitle = std::string("RMS ") + std::string(GetTitle());
-	rms_graph->SetTitle(rmstitle.c_str());
-	rms_graph->SetName(rmsname.c_str());
-	return rms_graph;			
+	m_rms_graph->SetTitle(rmstitle.c_str());
+	m_rms_graph->SetName(rmsname.c_str());
+	return m_rms_graph;			
 }
 
 
