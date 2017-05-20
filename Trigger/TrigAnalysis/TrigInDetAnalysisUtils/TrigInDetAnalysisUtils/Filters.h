@@ -228,11 +228,11 @@ class Filter_Combined : public TrackFilter {
 public:
 
   Filter_Combined( TrackFilter* f1, TrackFilter* f2) : 
-    mf1(f1), mf2(f2), m_roi(0), 
+    m_mf1(f1), m_mf2(f2), m_roi(0), 
     m_debugPrintout(false), 
-    mcontain(true), 
-    mcontainR(1000), 
-    mcontainZ(2700) 
+    m_contain(true), 
+    m_containR(1000), 
+    m_containZ(2700) 
   { } 
 
   void setRoi( TIDARoiDescriptor* r ) { m_roi = r; } 
@@ -241,8 +241,8 @@ public:
   /// set / unset the flag to determine whether tracks 
   /// should be fully contained in the RoI or not 
 
-  void containtracks( bool b=true ) { mcontain=b; }
-  void containtracksR( double r )   { mcontainR=r; }
+  void containtracks( bool b=true ) { m_contain=b; }
+  void containtracksR( double r )   { m_containR=r; }
 
 
   bool contains( const TIDA::Track* t, const TIDARoiDescriptor* r ) const { 
@@ -266,24 +266,24 @@ public:
         
 
 
-      if ( mcontain ) { 
+      if ( m_contain ) { 
 	/// so here - depending on the track charge, and track pt, 
 	/// ensure that the track is *completely* contained within 
 	/// the RoI 
 
-	double zexit = mcontainZ;
+	double zexit = m_containZ;
 
-	if  ( t->eta()<0 ) zexit = -mcontainZ;
+	if  ( t->eta()<0 ) zexit = -m_containZ;
        
 	double tantheta = std::tan( 2*std::atan( std::exp( -t->eta() ) ) );
 	
 	double rexit = (zexit-t->z0()) * tantheta;
 	
 	/// leaves through the barrel side or front face?
-	if ( std::fabs(rexit)>mcontainR ) { 
-	  rexit = mcontainR;
+	if ( std::fabs(rexit)>m_containR ) { 
+	  rexit = m_containR;
 	  ///  don't actually need to calculate the z exit coordinate
-	  //	  zexit = mcontainR / tantheta + t->z0();
+	  //	  zexit = m_containR / tantheta + t->z0();
 	}
 	
 	double newphi = outerphi( t->pT(), t->phi(), rexit );
@@ -312,18 +312,18 @@ public:
     if ( r!=0 ) m_roi = r;
     
     if ( m_debugPrintout ) { 
-      std::cout << "\tFilter: " << this << "\tfilter1 " << mf1->select(t,m_roi) << "\tfilter2 " << mf2->select(t,m_roi) << "\troi " << m_roi << std::endl;
+      std::cout << "\tFilter: " << this << "\tfilter1 " << m_mf1->select(t,m_roi) << "\tfilter2 " << m_mf2->select(t,m_roi) << "\troi " << m_roi << std::endl;
     }
 
     /// no roi so just return the and of the input filters
-    if ( m_roi==0 ) return ( mf1->select(t,r) && mf2->select(t,r) );
+    if ( m_roi==0 ) return ( m_mf1->select(t,r) && m_mf2->select(t,r) );
     else {
 
       if ( m_debugPrintout ) { 
-	std::cout << "\tFilter::filter1 " << mf1->select(t,m_roi) << "\tfilter2 " << mf2->select(t,m_roi) << "\troi " << *m_roi << std::endl; 
+	std::cout << "\tFilter::filter1 " << m_mf1->select(t,m_roi) << "\tfilter2 " << m_mf2->select(t,m_roi) << "\troi " << *m_roi << std::endl; 
       }
 
-      if ( contains( t, m_roi ) )  return ( mf1->select(t,m_roi) && mf2->select(t,m_roi) );
+      if ( contains( t, m_roi ) )  return ( m_mf1->select(t,m_roi) && m_mf2->select(t,m_roi) );
       else  return false;
 
     }
@@ -364,16 +364,16 @@ public:
   
 private:
 
-  TrackFilter* mf1;
-  TrackFilter* mf2;
+  TrackFilter* m_mf1;
+  TrackFilter* m_mf2;
 
   const TIDARoiDescriptor* m_roi;
 
   bool  m_debugPrintout;
 
-  bool   mcontain;
-  double mcontainR;
-  double mcontainZ;
+  bool   m_contain;
+  double m_containR;
+  double m_containZ;
 
 };
 
