@@ -16,6 +16,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include <regex>
 
 #include <cstdlib>
 #include <cstdio>
@@ -318,11 +319,11 @@ std::string replace( std::string s, const std::string& s2, const std::string& s3
 
 
 // remove regx from a string
-void depunctuate(std::string& s, const std::string& regex=":") 
+void depunctuate(std::string& s, const std::string& regx=":") 
 {
   std::string::size_type pos;
-  while ( (pos = s.find(regex))!=std::string::npos ) {
-    s.erase(pos, regex.size());
+  while ( (pos = s.find(regx))!=std::string::npos ) {
+    s.erase(pos, regx.size());
   }
 } 
   
@@ -393,7 +394,42 @@ void error( int i, std::ostream& s ) {  s << std::endl; std::exit(i);  }
 /// map instances to allow setting of the algorithms 
 /// and descriptions
 
-typedef  std::map<histogram,std::string> hmap_t;
+class hmap_t : public std::map<histogram,std::string> { 
+
+public:
+
+  /// sadly, when matching regular expressions, we need to iterate 
+  /// through the map and cannot use the standard map::find() methods
+  /// which sadly, slows the searching down
+
+  virtual std::map<histogram,std::string>::iterator find( const std::string& s ) {
+    return std::map<histogram,std::string>::find( s );
+  }
+
+  virtual std::map<histogram,std::string>::const_iterator find( const std::string& s ) const { 
+    return std::map<histogram,std::string>::find( s );
+  }
+
+  virtual std::map<histogram,std::string>::iterator match( const std::string& s ) {
+    std::map<histogram,std::string>::iterator  itr = begin();
+    while( itr!=end() ) { 
+      if ( std::regex_match( s, std::regex(itr->first) ) ) return itr;
+      itr++;
+    }
+    return itr;
+  }
+
+  virtual std::map<histogram,std::string>::const_iterator match( const std::string& s ) const { 
+    std::map<histogram,std::string>::const_iterator  itr = begin();
+    while( itr!=end() ) { 
+      if ( std::regex_match( s, std::regex(itr->first) ) ) return itr;
+      itr++;
+    }
+    return itr;
+  }
+  
+};
+
 
 /// store any user histogram to algorithm mapping
 hmap_t algorithms;
@@ -405,38 +441,64 @@ hmap_t descriptions;
 hmap_t displays;
 
 
+/// store the list of any directories to be wildcarded and 
+/// the algorithms to use for them - use "hist=NULL"; if no 
+/// algorithm is required
+hmap_t  wildcards;
+
+
+
+/// look in a histogram name map and return the regex mapped property name
+/// goes up the tree as far as to 2 subdirectory names of additional 
+/// specialisation for the histogram names  
+/// NB: take care, this is a recursive algorithm !!!
+ 
+std::string match( const hmap_t& m, const node* n, const std::string& obj, const std::string& property ) {    
+  /// don't do anything is the map is empty
+  if ( m.size() && n )  { 
+    hmap_t::const_iterator itr = m.match( obj );
+    if ( itr!=m.end() ) return itr->second;
+    else if ( n->parent() ) return match( m, n->parent(), n->parent()->name()+"/"+obj, property );
+  }
+  return property;
+}
+
+
+
+bool find( const std::string& s, const std::vector<std::string>& regexv ) { 
+  for ( unsigned i=regexv.size() ; i-- ; ) if ( std::regex_match( s, std::regex(regexv[i]) ) ) return true;
+  return false;
+} 
+
+
+
 
 /// look in a histogram name map and return the mapped property name
-/// allows up to 2 subdirectory names of additional specialisation for 
-/// the histogram names  
-/// NB: with a little thought, this could be rewritten recursively
- 
-std::string find( const hmap_t& m, const node* n, const std::string& property ) {  
+/// goes up the tree as far as to 2 subdirectory names of additional 
+/// specialisation for the histogram names  
+/// NB: take care, this is a recursive algorithm !!!
 
-  std::string _property = property;
-  
-  /// don't do anything is the map is empty
-  if ( m.size() ) {
-    
-    /// default value to help steer choice
-    hmap_t::const_iterator itr = m.end();
-
-    /// allow up to two parent directories
-    if ( n && n->parent() && n->parent()->parent() ) itr = m.find( n->parent()->parent()->name()+"/"+n->parent()->name()+"/"+n->name() );
-    if ( itr!=m.end() ) _property = itr->second;
-    else { 
-      if ( n && n->parent() ) itr = m.find( n->parent()->name()+"/"+n->name() );
-      if ( itr!=m.end() ) _property = itr->second;
-      else { 
-	if ( n )  itr = m.find( n->name() );
-	if ( itr!=m.end() ) _property = itr->second;
-      }
-    }
+std::string find_internal( const hmap_t& m, const node* n, const std::string& obj, const std::string& property ) {  
+  /// don't do anything if the map is empty
+  if ( m.size() && n ) { 
+    hmap_t::const_iterator itr = m.find( obj );
+    if ( itr!=m.end() ) return itr->second;
+    else if ( n->parent() )  return find_internal( m, n->parent(), n->parent()->name()+"/", property ); 
   }
-
-  return _property;
-
+  return property;
 }
+
+
+
+/// look for an exact match first, if you don't find one, search for a regular 
+/// expression match  
+
+std::string find( const hmap_t& m, const node* n, const std::string& obj, const std::string& property ) {  
+  std::string _property = find_internal( m, n, obj, "FAIL" );
+  if ( _property != "FAIL" ) return _property;
+  return match( m, n, obj, property );
+}
+
 
 
 /// parse and individual line - must have the syntax: tag = "value";  
@@ -473,10 +535,7 @@ bool parse( const std::string _line, histogram& tag, std::string& val, bool requ
 
 
 
-
-hmap_t  parse( const std::string& filename, bool requirequotes=true ) {
-
-  hmap_t       lookup;
+std::vector<std::string> read_lines( const std::string& filename ) { 
 
   std::fstream file( filename );
   
@@ -524,6 +583,31 @@ hmap_t  parse( const std::string& filename, bool requirequotes=true ) {
     }
   }
 
+  return lines;
+}
+
+
+std::vector<std::string> parse_wc( const std::string& filename ) { 
+  
+  std::vector<std::string> _lines = read_lines( filename ); 
+
+  std::vector<std::string> out;
+  
+  for ( unsigned i=0 ; i<_lines.size() ; i++ ) {
+    std::string line = _lines[i];
+    remove( line, " " );  
+    std::string val = chopto( line, " ;" );
+    if ( val.size() ) out.push_back( val );
+  }
+    
+  return out;
+}
+
+hmap_t  parse( const std::string& filename, bool requirequotes=true ) {
+
+  hmap_t       lookup;
+
+  std::vector<std::string> lines = read_lines( filename );  
 
   /// now parse each line 
     
@@ -894,11 +978,19 @@ public:
       for ( unsigned i=0 ; i<n.size() ; i++ ) { 
 	if       ( n[i]->type()!=node::HISTOGRAM ) makeass( *n[i], newspacer, path, rawpath, found ) ;
 	else if  ( n[i]->type()==node::HISTOGRAM ) { 
-	  if ( !mallhists ) { 
+
+	  std::string allhists = "";
+	  if ( n[i]->parent() ) allhists = find( wildcards, n[i]->parent(), n[i]->parent()->name(), "" ); 
+
+	  //	  std::cerr << "allhists: " << n[i]->parent()->name() << "\tall: " << allhists << ":" << std::endl;
+
+	  std::string _algorithm = algorithm;
+
+	  if ( !mallhists || allhists!="" ) { 
 	    if ( first_hists ) {
-	      (*outp) << space << "\t"   << "hist .* {\n";
-	      (*outp) << space << "\t\t" << "regex       \t= 1\n";
-	      (*outp) << space << "\t\t" << "algorithm   \t= " << algorithm << "\n";
+	      if ( allhists!="" ) _algorithm = allhists; 
+	      (*outp) << space << "\t"   << "hist   all_in_dir {\n";
+ 	      if ( _algorithm!="NULL" && _algorithm!="0" ) (*outp) << space << "\t\t" << "algorithm   \t= " << _algorithm << "\n";
 	      (*outp) << space << "\t\t" << "description \t= " << description << "\n";
 	      (*outp) << space << "\t\t" << "output      \t= " << path << "\n";
 	      (*outp) << space << "\t\t" << "display     \t= StatBox\n";
@@ -910,9 +1002,9 @@ public:
 	  }
 	  else { 
 	    
-	    std::string _algorithm   = find( algorithms,   n[i], algorithm );
-	    std::string _description = find( descriptions, n[i], description );
-	    std::string _display     = find( displays,     n[i], "StatBox" );
+	    std::string _algorithm   = find( algorithms,   n[i], n[i]->name(), algorithm );
+	    std::string _description = find( descriptions, n[i], n[i]->name(), description );
+	    std::string _display     = find( displays,     n[i], n[i]->name(), "StatBox" );
 
 	    (*outp) << space << "\t"   << "hist " << n[i]->name() << " {\n";
 	    (*outp) << space << "\t\t" << "algorithm   \t= " << _algorithm << "\n";
@@ -1091,7 +1183,7 @@ void search( TDirectory* td, const std::string& s, std::string cwd, node* n ) {
 
 	  /// keep the max number of entries updated
 	  if ( std::string(tobj->GetName())=="Chain" ) { 
-	    double N = ((TH1*)get<TObject>(tobj))->GetEntries();
+	    double N = ((TH1*)get<TObject>(tobj))->GetBinContent(1);
 
 	    //	    std::cout << "entries " << np->name() << " " << " " << np->parent()->name() << " " << N << std::endl;
 	    //    std::cout << "\tentries " << np->parent()->name() << "/" << np->name() << "\t" << N << std::endl;
@@ -1265,6 +1357,8 @@ int usage(std::ostream& s, int , char** argv, int status=-1) {
   s << "    -dp,  --dispfile  FILENAME  \tread display information from FILENAME\n"; 
   s << "    -t,   --tag       VALUE     \tadd the VALUE to the list of command per histogram\n";
   s << "    -wc,  --wildcard            \tprint use hist * rather than a separate entry for each histogram\n";
+  s << "    -wf,  --wcfile    FILENAME  \tread list of directories to wildcard from a file\n";
+  s << "    -wd,  --wcdir     DIR=ALG   \tadd wildcard for DIRECTORY using ALG for the algorithm\n";
   s << "    -dr,  --deleteref           \tdelete unselected histograms\n";
   s << "    -or,  --outref   FILENAME   \tfile to write reduced output to (overwrites input otherwise) \n";
   s << "    -rh,  --relocate            \trelocate selected histograms\n";
@@ -1318,6 +1412,8 @@ int main(int argc, char** argv) {
   std::string dir = "";
 
   std::vector<std::string> subdirs;
+
+  std::string              wildcardfile;
 
 
   bool deleteref = false;
@@ -1374,7 +1470,7 @@ int main(int argc, char** argv) {
 	  std::string tdir = argv[i];
 	  do { 
 	    subdirs.push_back( chop( tdir, "/" ) );
-	  }
+	  } 
 	  while ( tdir.size() ); 
       }
       else  return usage( std::cerr, argc, argv );
@@ -1393,6 +1489,24 @@ int main(int argc, char** argv) {
     } 
     else if ( argvi=="-af" || argvi.find("--algfile")==0 ) {
       if ( ++i<argc-offset ) algfile = argv[i];
+      else  return usage( std::cerr, argc, argv );
+    } 
+    else if ( argvi=="-dp" || argvi.find("--dispfile")==0 ) {
+      if ( ++i<argc-offset ) displayfile = argv[i];
+      else  return usage( std::cerr, argc, argv );
+    } 
+    else if ( argvi=="-wd" || argvi.find("--wcdir")==0 ) {
+      if ( ++i<argc-offset ) { 
+	histogram     tag="";
+	std::string value="";
+	/// parse the input string - add a terminating ";" just in case 
+	if ( parse( std::string(argv[i])+";", tag, value, false ) ) wildcards.insert( hmap_t::value_type( tag, value ) );
+	else  return usage( std::cerr << "Could not parse wildcard directory", argc, argv );
+      }
+      else  return usage( std::cerr, argc, argv );
+    } 
+    else if ( argvi=="-wf" || argvi.find("--wcfile")==0 ) {
+      if ( ++i<argc-offset ) wildcardfile = argv[i];
       else  return usage( std::cerr, argc, argv );
     } 
     else if ( argvi=="-dp" || argvi.find("--dispfile")==0 ) {
@@ -1461,6 +1575,20 @@ int main(int argc, char** argv) {
     if ( !file_exists( displayfile ) ) error( 1, std::cerr << "display file " << displayfile << " does not esist" ); 
     displays = parse( displayfile, false );
   }
+
+
+  /// parse the wildcard directories 
+
+  if ( wildcardfile!="" ) { 
+    std::cerr << "reading wildcard information from : \t" << wildcardfile << std::endl; 
+    if ( !file_exists( wildcardfile ) ) error( 1, std::cerr << "wildcard file " << wildcardfile << " does not esist" ); 
+    hmap_t _wildcards = parse( wildcardfile, false );
+    wildcards.insert(  _wildcards.begin(), _wildcards.end() );
+  }
+
+  //  for ( hmap_t::const_iterator itr = wildcards.begin() ; itr!=wildcards.end() ; itr++ ) {
+  //     std::cout << "wildcard: " << itr->first << " " << itr->second << std::endl;
+  // }
 
 
   //  time the actual running of the cost() routine
