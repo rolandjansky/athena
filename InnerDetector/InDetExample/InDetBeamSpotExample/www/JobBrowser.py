@@ -5,7 +5,7 @@ ATLAS beam spot web page for displaying beam spot job data.
 """
 
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: JobBrowser.py 467432 2011-11-10 16:36:27Z beringer $'
+__version__ = 'JobBrowser.py atlas/athena'
 
 from BeamSpotWebPage import BeamSpotWebPage
 from InDetBeamSpotExample.TaskManager import *
@@ -111,7 +111,7 @@ class JobBrowser(BeamSpotWebPage):
             table += "</tr>\n"
         table += "</tbody></table>\n"
         return table
- 
+
 
 # Code to test or run locally
 if __name__ == '__main__':
