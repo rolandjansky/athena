@@ -690,8 +690,8 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
 								      bcheck,
 								      particle,
 								      matupmode);
-		}
-		if (resultParameters){   
+      }
+      if (resultParameters){   
         // destination reached : indicated through result parameters
         // set the model action of the material effects updators
         for (unsigned int imueot = 0; imueot < m_subUpdators.size(); ++imueot) {
