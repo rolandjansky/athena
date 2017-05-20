@@ -69,7 +69,6 @@ Muon::MuonTGHitNtuple::MuonTGHitNtuple(const std::string &name, ISvcLocator *pSv
   m_processHoles(false),
   m_identifyHoles(false),
   m_processFatras(true),
-  m_outFile(0),
   m_ptree(0),
   m_THistSvc(0),
   m_treeLocation("/tree/hits")

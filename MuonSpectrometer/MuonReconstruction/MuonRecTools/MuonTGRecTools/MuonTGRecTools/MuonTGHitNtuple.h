@@ -124,7 +124,6 @@ class MuonTGHitNtuple : public AthAlgorithm
 //  Max Nber of Hits in to save
   int m_MaxNberOfHits;
 
-  TFile* m_outFile;
   TTree* m_ptree;
   ITHistSvc*                       m_THistSvc; 
  
