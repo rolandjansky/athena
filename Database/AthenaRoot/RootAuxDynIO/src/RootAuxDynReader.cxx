@@ -111,6 +111,29 @@ getAuxIdForAttribute(const std::string& attr, TClass *tclass, EDataType edt, boo
 }
 
 
+std::string getKeyFromBranch (TBranch* branch)
+{
+  TClass *tc = 0;
+  EDataType type;
+  if( branch->GetExpectedType(tc, type) == 0  && tc != nullptr) {
+    const char* brname = branch->GetName();
+    const char* clname = tc->GetName();
+    size_t namelen = strlen (clname);
+    std::string key = brname;
+    if (strncmp (brname, clname, namelen) == 0 &&
+        brname[namelen] == '_')
+    {
+      key.erase (0, namelen+1);
+    }
+
+    if (key.size() >= 5 && key.substr(key.size()-4, 4) == RootAuxDynIO::AUX_POSTFIX )
+      key = key.substr (0, key.size()-4);
+    return key;
+  }
+  return "";
+}
+
+
 
 } // anonymous namespace
 
@@ -195,15 +218,18 @@ void RootAuxDynReader::BranchInfo::setAddress(void* data) const
 RootAuxDynReader::RootAuxDynReader(TBranch *branch, int store_holder_offset)
       : m_tree( branch->GetTree() ),
         m_baseBranchName( branch->GetName() ),
-        m_storeHolderOffset( store_holder_offset )
+        m_storeHolderOffset( store_holder_offset ),
+        m_key (getKeyFromBranch (branch))
 {
+   const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
    string branch_prefix = RootAuxDynIO::auxBranchName("", m_baseBranchName);
    // cout << "RootAuxDynReader: scanning for branches with prefix: " << branch_prefix << endl;
    TObjArray *all_branches = m_tree->GetListOfBranches();
    for( int i=0; i<all_branches->GetEntriesFast(); i++ ) {
       const char *bname =  (*all_branches)[i]->GetName();
       if( strncmp(bname, branch_prefix.c_str(), branch_prefix.size()) == 0 ) {
-         const string  attr  = bname+branch_prefix.size();
+         const string  attr_inFile  = bname+branch_prefix.size();
+         const string attr = r.inputRename (m_key, attr_inFile);
          m_branchMap[attr] = (TBranch*)(*all_branches)[i];
          // m_attrNames.insert(attr); // may be useful
          // cout <<  "  >>>  Branch " << bname << ", attr=" << attr << endl;
@@ -253,8 +279,30 @@ RootAuxDynReader::getBranchInfo(const SG::auxid_t& auxid, const SG::AuxStoreInte
       SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
       brInfo.auxid = auxid;
       brInfo.attribName = r.getName(auxid);
-      const string aux_branch_name = RootAuxDynIO::auxBranchName(brInfo.attribName, m_baseBranchName);
-      brInfo.branch = m_tree->GetBranch( aux_branch_name.c_str() );
+      
+      // Don't match this attribute if it's been renamed.
+      // For example, suppose we've renamed attribute `foo' to `foo_old',
+      // and someone then comes and asks for `foo'.
+      // `foo' will not be found in the m_branchMap test below
+      // (`foo_old' will be in this map).  Howeve, in the following
+      // else clause, we'll recreate the branch name from `foo'.
+      // This branch exists (renaming is only in the transient store),
+      // so if we didn't have the condition here, then we'd then
+      // make a `foo' attribute from theat branch.
+      if (r.inputRename (m_key, brInfo.attribName) != brInfo.attribName) {
+        brInfo.status = BranchInfo::NotFound;
+        return brInfo;
+      }
+
+      auto it = m_branchMap.find (brInfo.attribName);
+      if (it != m_branchMap.end()) {
+        brInfo.branch = it->second;
+      }
+      else {
+        const string aux_branch_name = RootAuxDynIO::auxBranchName(brInfo.attribName, m_baseBranchName);
+        brInfo.branch = m_tree->GetBranch( aux_branch_name.c_str() );
+      }
+      
       // mark initialized here so it remembers this branch was not found
       if( !brInfo.branch ) {
          brInfo.status = BranchInfo::NotFound;
@@ -263,7 +311,7 @@ RootAuxDynReader::getBranchInfo(const SG::auxid_t& auxid, const SG::AuxStoreInte
       EDataType    typ;
       if( brInfo.branch->GetExpectedType( brInfo.tclass, typ) ) {
          brInfo.status = BranchInfo::TypeError;
-         throw string("Error getting branch type for ") + aux_branch_name;
+         throw string("Error getting branch type for ") + brInfo.branch->GetName();
       }
    
       if( !store.standalone() )
@@ -291,7 +339,7 @@ RootAuxDynReader::getBranchInfo(const SG::auxid_t& auxid, const SG::AuxStoreInte
             brInfo.SE_edt = TDataType::GetType(*tinf);
             if( brInfo.SE_edt <=0 ) {
                brInfo.status = BranchInfo::TypeError;
-               throw string("Error getting ROOT type for AUX branch ") + aux_branch_name
+               throw string("Error getting ROOT type for AUX branch ") + brInfo.branch->GetName()
                   + " typeinfo=" + tinf->name();
             }
          }
