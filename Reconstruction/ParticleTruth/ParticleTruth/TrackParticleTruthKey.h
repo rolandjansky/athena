@@ -6,7 +6,7 @@
 #define PARTICLETRUTH_TRACKPARTICLETRUTHKEY_H
 
 #include "Particle/TrackParticleContainer.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 namespace Rec {
 
