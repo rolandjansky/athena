@@ -58,11 +58,9 @@ namespace xAODMaker {
      if( ! segments ) return StatusCode::SUCCESS;
 
      // Create the xAOD container and its auxiliary store:
-     xAOD::MuonSegmentContainer* xaod = new xAOD::MuonSegmentContainer();
-     xAOD::MuonSegmentAuxContainer* aux = new xAOD::MuonSegmentAuxContainer();
-     xaod->setStore( aux );
-     SG::WriteHandle<xAOD::MuonSegmentContainer> wh_segments(m_xaodContainerName);
-     ATH_CHECK(wh_segments.record(std::unique_ptr<xAOD::MuonSegmentContainer>(xaod), std::unique_ptr<xAOD::MuonSegmentAuxContainer>(aux)));
+     SG::WriteHandle<xAOD::MuonSegmentContainer> xaod (m_xaodContainerName);
+     ATH_CHECK(xaod.record(std::make_unique<xAOD::MuonSegmentContainer>(),
+                           std::make_unique<xAOD::MuonSegmentAuxContainer>()));
 
      unsigned int index = 0;
      for( auto it = segments->begin();it!=segments->end();++it,++index ){
@@ -70,7 +68,7 @@ namespace xAODMaker {
         if( !muonSegment ) continue;
         ElementLink< ::Trk::SegmentCollection > link(m_muonSegmentLocation.key(),index);
         /*xAOD::MuonSegment* xaodSegment =*/
-        m_muonSegmentConverterTool->convert(link,xaod);
+        m_muonSegmentConverterTool->convert(link,xaod.ptr());
      }
      ATH_MSG_DEBUG( "Recorded MuonSegments with key: " << m_xaodContainerName.key() << " size " << xaod->size() );
 
