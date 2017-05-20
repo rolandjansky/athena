@@ -35,11 +35,6 @@ class TileCondToolTiming : public AthAlgTool {
   
   private:
 
-    StatusCode recache( IOVSVC_CALLBACK_ARGS); 
-
-    //=== cache of total adc timing correction
-    std::vector<float>  m_cache;
-
     //=== TileCondProxies
     ToolHandle<ITileCondProxy<TileCalibDrawerFlt> > m_pryAdcOffset;
 };
@@ -47,10 +42,10 @@ class TileCondToolTiming : public AthAlgTool {
 
 //
 //____________________________________________________________________
-inline float 
-TileCondToolTiming::getSignalPhase(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const
-{
-  return m_cache[TileCalibUtils::getAdcIdx(drawerIdx, channel, adc)];
+inline float TileCondToolTiming::getSignalPhase(unsigned int drawerIdx, 
+                                                unsigned int channel, 
+                                                unsigned int adc) const {
+  return getChannelOffset(drawerIdx, channel, adc);
 }
 
 #endif
