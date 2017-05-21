@@ -432,10 +432,11 @@ namespace InDet{
       m_NRefTrk=0;
       if( InpTrk.size() < 2 ) { return 0;} // 0,1 track => nothing to do!
       int NPVParticle = SelGoodTrkParticle( InpTrk, PrimVrt, JetDir, SelectedTracks);
-      if(SelectedTracks.size() && SelectedTracks[0]->pt()/JetDir.Pt()>1.)SelectedTracks.erase(SelectedTracks.begin());
+      while(SelectedTracks.size() && SelectedTracks[0]->pt()/JetDir.Pt()>1.)SelectedTracks.erase(SelectedTracks.begin());
       if((int)SelectedTracks.size()>m_TrackInJetNumberLimit){
         SelectedTracks.resize(m_TrackInJetNumberLimit); // SelectedTracks are ordered in pT
       }
+      while( SelectedTracks.size()>4 && medianPtF(SelectedTracks)/JetDir.Pt()<0.01) SelectedTracks.pop_back();
 
       long int NTracks = (int) (SelectedTracks.size());
       if(m_FillHist){m_hb_ntrkjet->Fill( (double) NTracks, m_w_1); }
