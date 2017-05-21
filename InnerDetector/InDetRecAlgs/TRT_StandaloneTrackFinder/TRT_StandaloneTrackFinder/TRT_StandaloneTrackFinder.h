@@ -68,8 +68,7 @@ namespace InDet {
       /* Private data                                                */
       ///////////////////////////////////////////////////////////////////
      
-      int    m_nprint             ;
-      int    m_ntracks = 0        ;  //!< Number of tracks found
+      int    m_nprint             ; 
 
       int    m_minNumDriftCircles ;  //!< Minimum number of drift circles for TRT segment tracks
       double m_minPt              ;  //!< Minimum pt cut for TRT only (used in preselection * 0.9)
