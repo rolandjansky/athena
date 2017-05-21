@@ -63,21 +63,21 @@ StatusCode InDet::TRT_StandaloneTrackFinder::initialize()
 {
   StatusCode  sc;
 
-  msg(MSG::DEBUG) << "Initializing TRT_StandaloneTrackFinder" << endmsg;
+  ATH_MSG_DEBUG ("Initializing TRT_StandaloneTrackFinder");
 
   sc = m_segToTrackTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_segToTrackTool << endmsg;
+   ATH_MSG_FATAL ("Failed to retrieve tool " << m_segToTrackTool ); 
     return StatusCode::FAILURE;
   }else{
-    msg() << MSG::INFO << "Retrieved tool " << m_segToTrackTool << endmsg;
+    ATH_MSG_INFO ("Retrieved tool " << m_segToTrackTool );
   }
 
 
   // Get output print level
   //
   if(msgLvl(MSG::DEBUG)) {
-    m_nprint=0; msg(MSG::DEBUG) << (*this) << endmsg;
+    m_nprint=0; ATH_MSG_DEBUG ( (*this) );
   }
 
   //Global counters. See the include file for definitions
@@ -94,7 +94,7 @@ StatusCode InDet::TRT_StandaloneTrackFinder::initialize()
 
 }
 
-///////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 // Execute
 ///////////////////////////////////////////////////////////////////
 StatusCode InDet::TRT_StandaloneTrackFinder::execute()
@@ -237,7 +237,7 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
   
   // Print common event information
   if(msgLvl(MSG::DEBUG)) {
-    m_nprint=1; msg(MSG::DEBUG) << (*this) << endmsg;
+    m_nprint=1; ATH_MSG_DEBUG ( (*this) );
   }
 
   return StatusCode::SUCCESS;
@@ -249,7 +249,7 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
 
 StatusCode InDet::TRT_StandaloneTrackFinder::finalize()
 {
-  m_nprint=2; msg(MSG::INFO)<<(*this)<<endmsg;
+  m_nprint=2; ATH_MSG_DEBUG ( (*this) ); 
   return StatusCode::SUCCESS;
 }
 
