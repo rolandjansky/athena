@@ -98,7 +98,8 @@ TrigL1TopoROBMonitor::TrigL1TopoROBMonitor(const std::string& name, ISvcLocator*
   m_histTopoHdwNotSimResult(0),
   m_histTopoProblems(0),
   m_histInputLinkCRCfromROIConv(0),
-  m_setTopoSimResult(false)
+  m_setTopoSimResult(false),
+  m_firstEvent(true)
 {
   m_scaler = new HLT::PeriodicScaler();
   declareProperty("L1TopoDAQROBIDs", m_vDAQROBIDs = {0x00910000, 0x00910010, 0x00910020}, "L1TOPO DAQ ROB IDs");
@@ -169,7 +170,9 @@ StatusCode TrigL1TopoROBMonitor::execute() {
     eformat::helper::DetectorMask detMask(mask64);
     ATH_MSG_VERBOSE ( "DetectorMask " << detMask.string() << " is_set(TDAQ_CALO_TOPO_PROC): " << detMask.is_set(eformat::TDAQ_CALO_TOPO_PROC) );
     if (! detMask.is_set(eformat::TDAQ_CALO_TOPO_PROC) ){
-      ATH_MSG_INFO( "SubDetector::TDAQ_CALO_TOPO_PROC not included so do nothing and return" );
+      if(m_firstEvent)
+        ATH_MSG_INFO( "SubDetector::TDAQ_CALO_TOPO_PROC not included so do nothing and return" );
+      m_firstEvent = false;
       return StatusCode::SUCCESS;
     }
   }
