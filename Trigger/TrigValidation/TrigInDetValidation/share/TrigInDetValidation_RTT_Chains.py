@@ -1,7 +1,7 @@
 from TriggerMenu import useNewTriggerMenu 
 use_new_tm = useNewTriggerMenu() 
 
-def electronChains(runMergedChain, doIDNewTracking):
+def electronChains(doIDNewTracking):
 
   idTrigChainlist = []
   tidaAnalysischains = ["Truth"]
@@ -9,50 +9,14 @@ def electronChains(runMergedChain, doIDNewTracking):
   if doIDNewTracking:
     tidaAnalysischains += ["Offline"]
   
-  if not use_new_tm:
-    idTrigChainlist += [
-      'e22vh_medium_IDTrkNoCut',
-      ]
-    tidaAnalysischains += [
-      "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:0",
-      "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:1",
-      "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:2",
-      "EF_e22vh_medium_IDTrkNoCut:InDetTrigParticleCreation_Electron_EFID",  
-      ]
-  else:
-    idTrigChainlist.append( ['e24_medium_L2Star_idperf', 'L1_EM18VH', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
-    idTrigChainlist.append( ['e5_loose_L2Star_idperf', 'L1_EM3', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
-    tidaAnalysischains += [
-      "HLT_e24_medium_L2Star_idperf:TrigL2SiTrackFinder_eGamma:0",
-      "HLT_e24_medium_L2Star_idperf:TrigL2SiTrackFinder_eGamma:1",
-      "HLT_e24_medium_L2Star_idperf:TrigL2SiTrackFinder_eGamma:2",
-      "HLT_e24_medium_L2Star_idperf:InDetTrigParticleCreation_Electron_EFID",  
-      "HLT_e24_medium_L2Star_idperf:InDetTrigTrackingxAODCnv_Electron_EFID",
-      "HLT_e5_loose_L2Star_idperf:TrigL2SiTrackFinder_eGamma:0",
-      "HLT_e5_loose_L2Star_idperf:TrigL2SiTrackFinder_eGamma:1",
-      "HLT_e5_loose_L2Star_idperf:TrigL2SiTrackFinder_eGamma:2",
-      "HLT_e5_loose_L2Star_idperf:InDetTrigParticleCreation_Electron_EFID",  
-      "HLT_e5_loose_L2Star_idperf:InDetTrigTrackingxAODCnv_Electron_EFID",  
-      ]
-  
-  if 'runMergedChain' in dir() and runMergedChain==True:
-    if use_new_tm:
-      idTrigChainlist.append(  ['e24_medium_idperf', 'L1_EM18VH', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
-      idTrigChainlist.append(   ['e5_loose_idperf', 'L1_EM3', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
-      tidaAnalysischains.append('HLT_e24_medium_idperf:TrigFastTrackFinder_eGamma')
-      tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigParticleCreation_Electron_EFID')
-      tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_EFID')
-      tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig')
-      tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_FTF')
-      tidaAnalysischains.append('HLT_e5_loose_idperf:TrigFastTrackFinder_eGamma')
-      tidaAnalysischains.append('HLT_e5_loose_idperf:InDetTrigParticleCreation_Electron_EFID')
-      tidaAnalysischains.append('HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_EFID')
-      tidaAnalysischains.append('HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig')
-      tidaAnalysischains.append('HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_FTF')
-    else:
-      idTrigChainlist.append('e24vh_medium1_IDTrkNoCut_IDT')
-      tidaAnalysischains.append('EF_e24vh_medium1_IDTrkNoCut_IDT:TrigFastTrackFinder_eGamma')
-      tidaAnalysischains.append('EF_e24vh_medium1_IDTrkNoCut_IDT:InDetTrigParticleCreation_Electron_EFID')
+  idTrigChainlist.append(  ['e24_medium_idperf', 'L1_EM18VH', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
+  idTrigChainlist.append(   ['e5_loose_idperf', 'L1_EM3', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
+  tidaAnalysischains.append('HLT_e24_medium_idperf:TrigFastTrackFinder_eGamma')
+  tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig')
+  tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_FTF')
+  tidaAnalysischains.append('HLT_e5_loose_idperf:TrigFastTrackFinder_eGamma')
+  tidaAnalysischains.append('HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig')
+  tidaAnalysischains.append('HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_FTF')
 
   return (idTrigChainlist, tidaAnalysischains)
 
@@ -251,12 +215,16 @@ def beamspotChains(runMergedChain, doIDNewTracking, doFTK):
   idTrigChainlist.append(['beamspot_allTE_trkfast',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
   if doFTK:
     idTrigChainlist.append(['beamspot_allTE_FTK',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
+    idTrigChainlist.append(['beamspot_idperf_FTK',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
+
   
   tidaAnalysischains += [
     'HLT_beamspot_allTE_L2StarB:TrigL2SiTrackFinder_BeamSpotB',
     'HLT_beamspot_allTE_trkfast:TrigFastTrackFinder_BeamSpot_IDTrig',
     'HLT_beamspot_allTE_trkfast:InDetTrigTrackingxAODCnv_BeamSpot_FTF',
     'HLT_beamspot_allTE_FTK:InDetTrigTrackingxAODCnv_BeamSpot_FTK',
+    'HLT_beamspot_idperf_FTK:InDetTrigTrackingxAODCnv_BeamSpot_FTKMon',
+    'HLT_beamspot_idperf_FTK:InDetTrigTrackingxAODCnv_BeamSpot_FTF',
     ]
   return (idTrigChainlist, tidaAnalysischains)
 

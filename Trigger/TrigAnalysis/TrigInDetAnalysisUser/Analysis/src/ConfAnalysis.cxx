@@ -18,6 +18,7 @@
 #include "TrigInDetAnalysis/TIDAEvent.h"
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
 
+#include <fstream>
 
 #include "BinConfig.h"
 
@@ -28,6 +29,7 @@
 
 bool PRINT_BRESIDUALS = false;
 
+std::ofstream dumpfile("dumpfile.log");
 
 void Normalise(TH1* h) { 
 
@@ -133,8 +135,10 @@ void ConfAnalysis::initialiseInternal() {
   double  pt_a = 1;
   double  pt_b = 1;
   
-  Npt = int(40*_binConfig.pt_NScale);
-  pt_a = 3.5;
+  //  Npt = int(40*_binConfig.pt_NScale);
+  //  pt_a = 3.5;
+  Npt = int(45*_binConfig.pt_NScale);
+  pt_a = 4;
   pt_b = 2;
   // etaBins = 12;
   //  }
@@ -1437,13 +1441,14 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
       rDz0res[2]->Fill( z0t, dz0r-dz0t );  
       rDz0res[3]->Fill( phit, dz0r-dz0t );  
       
-      
-      if ( dumpflag ) { 
+
+      if ( dumpflag ) {
+	std::ostream& dumpstream = dumpfile; 
 	if ( dz0t>0 && std::fabs( dz0r-dz0t )>0.04 ) { 
 	  dump = true;
-	  std::cout << "POOR sigma(z0) agreement \n\trefrack:  " << *reftracks[i] << "\n\ttestrack: " << *matchedreco << std::endl; 
+	  dumpstream << "POOR sigma(z0) agreement \n\trefrack:  " << *reftracks[i] << "\n\ttestrack: " << *matchedreco << std::endl; 
 	  //	    std::cout << "dz0r dz0t" << dz0r << "\t" << dz0t << std::endl;
-	}  
+	}
       }
       
 	
@@ -1726,24 +1731,26 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
 
 
-      if ( dumpflag ) {  
+      if ( dumpflag ) {
+	std::ostream& dumpstream = dumpfile; 
+  
 	if ( std::fabs(pTt)>1 ) { 
 	  dump = true; 
 
 	  hipt = true;
-	  std::cout << mname << "\tMISSING TRACK run " << r << "\tevent " << ev 
+	  dumpstream << mname << "\tMISSING TRACK run " << r << "\tevent " << ev 
 		    << "\tlb " << lb << "\tN vertices " << NvtxCount << std::endl;
-	  std::cout << mname << "\tMISSING TRACK RoI   " << *groi << std::endl;
-	  std::cout << mname << "\tMISSING TRACK Track " << *reftracks[i];
-	  if ( std::fabs(pTt)>=30 ) std::cout << "\tvery high pt";
+	  dumpstream << mname << "\tMISSING TRACK RoI   " << *groi << std::endl;
+	  dumpstream << mname << "\tMISSING TRACK Track " << *reftracks[i];
+	  if ( std::fabs(pTt)>=30 ) dumpstream << "\tvery high pt";
 	  if ( std::fabs(pTt)>4 &&
-	       std::fabs(pTt)<30  ) std::cout << "\t     high pt";
-	  std::cout << std::endl;
+	       std::fabs(pTt)<30  ) dumpstream << "\t     high pt";
+	  dumpstream << std::endl;
 
 	  if ( std::fabs(pTt)>=20 ){
-	    std::cout << "Test tracks " << std::endl;
+	    dumpstream << "Test tracks " << std::endl;
 	    for (unsigned int ii=0; ii<testtracks.size(); ii++){
-	      std::cout << *testtracks[ii] << std::endl;
+	      dumpstream << *testtracks[ii] << std::endl;
 	    }
 	  }
 	}

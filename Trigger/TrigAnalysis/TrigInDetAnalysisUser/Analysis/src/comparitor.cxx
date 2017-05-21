@@ -506,7 +506,7 @@ int main(int argc, char** argv) {
       for (unsigned int i=0; i<dataTree->GetEntries() ; i++ ) {
 	dataTree->GetEntry(i);      
 	release_data.push_back( releaseData->Data() );
-	std::cout << "main() release data: " << release_data.back() << " " << *releaseData << std::endl;
+	std::cout << "main() release data: " << release_data.back() << " : " << *releaseData << std::endl;
       }
     }
   
@@ -517,8 +517,17 @@ int main(int argc, char** argv) {
       //    std::cout << "release: " << chop(release_data[0], " " ) << std::endl;
       //    std::cout << "release: " << chop(release_data[0], " " ) << std::endl;
       
-      release += "  (" + chop(release_data[0], " " );
-      release += " " + chop(release_data[0], " " ) + ")";
+      std::string nightly = chop(release_data[0], " " );
+
+      if ( contains(nightly,"private" ) ) { 
+	for ( int ic=0 ; ic<4 ; ic++ ) chop(release_data[0], " " );
+	release += "  (" + release_data[0]+")"; 
+      }
+      else {
+	release += "  (" + nightly; 
+	chop( release_data[0], " " );
+	release += " " + chop(release_data[0], " " ) + ")";
+      }
     }
   }
   
@@ -631,8 +640,10 @@ int main(int argc, char** argv) {
     //  { "pT",  "p_{T}",     "xaxis:lin:0.7:100",  "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
     { "pT",      "p_{T}",     "xaxis:lin:auto:1:100",     "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
     { "pT_rec",  "p_{T} rec", "xaxis:lin:auto:1:100",   "Trigger p_{T} [GeV]",   "yaxis:log:auto",  ""  },
-    { "a0",      "a0",        "xaxis:lin:-2:2",     "Offline a_{0} [mm]",    "yaxis:log:auto",  ""  },
-    { "a0_rec",  "a0 rec",    "xaxis:lin:-2:2",     "Trigger a_{0} [mm]",    "yaxis:log:auto",  ""  },
+    { "a0",      "a0",        "xaxis:lin:-3:3",     "Offline a_{0} [mm]",    "yaxis:log:auto",  ""  },
+    { "a0_rec",  "a0 rec",    "xaxis:lin:-3:3",     "Trigger a_{0} [mm]",    "yaxis:log:auto",  ""  },
+    //{ "a0",      "a0",        "xaxis:lin:autosym",     "Offline a_{0} [mm]",    "yaxis:log:auto",  ""  },
+    //{ "a0_rec",  "a0 rec",    "xaxis:lin:autosym",     "Trigger a_{0} [mm]",    "yaxis:log:auto",  ""  },
     { "z0",      "z0",        "xaxis:lin:-250:250", "z_{0} [mm]",            "yaxis:log:auto",  ""  },
 
     /// efficiencies - 10 

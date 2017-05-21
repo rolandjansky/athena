@@ -150,9 +150,6 @@ void AnalysisConfig_Ntuple::loop() {
 	  beamline.push_back(zbeam);
 	  m_provider->msg(MSG::INFO) << " beamline values : " << beamline[0] << "\t" << beamline[1]  << "\t" << beamline[2] << endmsg;	
 	}
-	else { 
-	  m_provider->msg(MSG::INFO) << " could not find BeamCondSvc " << endmsg;
-	}
 
 	// get (online) beam position
 	double xbeam_online = 0;
@@ -183,9 +180,6 @@ void AnalysisConfig_Ntuple::loop() {
 				     << "\tx=" << xbeam_online 
 				     << "\ty=" << ybeam_online 
 				     << "\tz=" << zbeam_online << endmsg; 
-	}
-	else { 
-	  m_provider->msg(MSG::INFO) << " could not find OnlineBeamCondSvc " << endmsg;
 	}
 
 	m_provider->msg(MSG::INFO) << " offline beam position\tx=" << xbeam        << "\ty=" << ybeam        << "\tz=" << zbeam        << endmsg; 
@@ -1552,19 +1546,22 @@ void AnalysisConfig_Ntuple::book() {
 	// get the beam condition services - one for online and one for offline
 
 	m_iBeamCondSvc = 0;
-	if ( m_provider->service( "BeamCondSvc", m_iBeamCondSvc ).isFailure() )  { 
-	  m_provider->msg(MSG::WARNING) << " failed to retrieve BeamCondSvc: " << "BeamCondSvc" << endmsg;
-	}
-	else { 
-	  m_provider->msg(MSG::INFO) << " successfully retrieves BeamCondSvc: " << "BeamCondSvc" << endmsg;
-	}
-
 	m_iOnlineBeamCondSvc = 0;
-	if ( m_provider->service( "InDetBeamSpotOnline", m_iOnlineBeamCondSvc ).isFailure() )  { 
-	  m_provider->msg(MSG::WARNING) << " failed to retrieve Online BeamCondSvc " << "InDetBeamSpotOnline" << endmsg;
-	}
-	else { 
-	  m_provider->msg(MSG::INFO) << " successfuly retrieved Online BeamCondSvc " << "InDetBeamSpotOnline" << endmsg;
+
+	if ( m_useBeamCondSvc ) { 
+	  if ( m_provider->service( "BeamCondSvc", m_iBeamCondSvc ).isFailure() )  { 
+	    m_provider->msg(MSG::WARNING) << " failed to retrieve BeamCondSvc: " << "BeamCondSvc" << endmsg;
+	  }
+	  else { 
+	    m_provider->msg(MSG::INFO) << " successfully retrieves BeamCondSvc: " << "BeamCondSvc" << endmsg;
+	  }
+	  
+	  if ( m_provider->service( "InDetBeamSpotOnline", m_iOnlineBeamCondSvc ).isFailure() )  { 
+	    m_provider->msg(MSG::WARNING) << " failed to retrieve Online BeamCondSvc " << "InDetBeamSpotOnline" << endmsg;
+	  }
+	  else { 
+	    m_provider->msg(MSG::INFO) << " successfuly retrieved Online BeamCondSvc " << "InDetBeamSpotOnline" << endmsg;
+	  }
 	}
 
 	// get the TriggerDecisionTool
