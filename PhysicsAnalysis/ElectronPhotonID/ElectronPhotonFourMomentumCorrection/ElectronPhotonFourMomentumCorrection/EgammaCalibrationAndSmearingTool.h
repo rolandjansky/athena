@@ -34,10 +34,13 @@ class egammaLayerRecalibTool;
 namespace egGain { class GainTool; }
 
 namespace xAOD {
-	inline float get_phi_calo(const xAOD::CaloCluster& cluster, bool do_throw=false)
+  inline float get_phi_calo(const xAOD::CaloCluster& cluster, int author, bool do_throw=false)
 	{
 	  double phi_calo;
-	  if (cluster.retrieveMoment(xAOD::CaloCluster::PHICALOFRAME, phi_calo)) { }
+	  if(author== xAOD::EgammaParameters::AuthorFwdElectron){
+	    phi_calo = cluster.phi();
+	  }
+	  else if (cluster.retrieveMoment(xAOD::CaloCluster::PHICALOFRAME, phi_calo)) { }
 	  else if (cluster.isAvailable<float>("phiCalo")) {
 	    phi_calo = cluster.auxdata<float>("phiCalo");
 	  }
@@ -51,10 +54,13 @@ namespace xAOD {
 	  return phi_calo;
 	}
 
-	inline float get_eta_calo(const xAOD::CaloCluster& cluster, bool do_throw=false)
+  inline float get_eta_calo(const xAOD::CaloCluster& cluster, int author, bool do_throw=false)
 	{
 	  double eta_calo;
-	  if (cluster.retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,
+	  if(author== xAOD::EgammaParameters::AuthorFwdElectron){ 
+            eta_calo = cluster.eta();
+          }
+	  else if (cluster.retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,
 				       eta_calo)) { }
 	  else if (cluster.isAvailable<float>("etaCalo")) {
 	    eta_calo = cluster.auxdata<float>("etaCalo");
@@ -164,7 +170,7 @@ private:
   {
 		AbsEtaCaloPredicate(double eta_min, double eta_max) : m_eta_min(eta_min), m_eta_max(eta_max) {}
     bool operator()(const xAOD::Egamma& p) {
-      const double aeta = std::abs(xAOD::get_eta_calo(*p.caloCluster()));
+      const double aeta = std::abs(xAOD::get_eta_calo(*p.caloCluster(),p.author()));
       return (aeta >= m_eta_min and aeta < m_eta_max);
     }
   private:
