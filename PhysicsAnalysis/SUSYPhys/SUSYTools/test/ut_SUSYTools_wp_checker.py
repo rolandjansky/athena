@@ -96,7 +96,7 @@ Btag.enable: true
 #
 Btag.Tagger: MV2c10
 Btag.WP: ${BTAG_WP}
-Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-01-31_v1.root
+Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-04-24_v1.root
 #
 # set the -999. to positive number to override default
 OR.DoBoostedElectron: false

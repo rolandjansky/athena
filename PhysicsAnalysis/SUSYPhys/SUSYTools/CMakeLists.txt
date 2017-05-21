@@ -1,7 +1,9 @@
+# $Id: CMakeLists.txt 797759 2017-02-18 01:24:37Z zmarshal $
 ################################################################################
 # Package: SUSYTools
 ################################################################################
 
+ 
 # Declare the package name:
 atlas_subdir( SUSYTools )
 
@@ -71,6 +73,7 @@ atlas_depends_on_subdirs(
    Reconstruction/Jet/JetMomentTools
    Reconstruction/MET/METInterface
    Reconstruction/MET/METUtilities
+   Reconstruction/tauRecTools
    Tools/PathResolver
    Trigger/TrigAnalysis/TriggerMatchingTool
    Trigger/TrigConfiguration/TrigConfInterfaces
@@ -163,18 +166,18 @@ if( XAOD_STANDALONE )
       SCRIPT test/ut_SUSYTools_config_checker.py )
    atlas_add_test( ut_SUSYTools_wp_checker
       SCRIPT test/ut_SUSYTools_wp_checker.py )
+   atlas_add_test( ut_SUSYToolsTester_atlfast
+      SOURCES test/ut_SUSYToolsTester_atlfast.cxx )
+   atlas_add_test( ut_SUSYToolsTester_data
+      SOURCES test/ut_SUSYToolsTester_data.cxx )
+   atlas_add_test( ut_SUSYToolsTester_mc
+      SOURCES test/ut_SUSYToolsTester_mc.cxx )
+   atlas_add_test( ut_SUSYToolsTester_mc_w_2016_lumi
+      SOURCES test/ut_SUSYToolsTester_mc_w_2016_lumi.cxx )
 endif()
-
-atlas_add_test( ut_SUSYToolsTester_atlfast
-   SOURCES test/ut_SUSYToolsTester_atlfast.cxx )
-atlas_add_test( ut_SUSYToolsTester_data
-   SOURCES test/ut_SUSYToolsTester_data.cxx )
-atlas_add_test( ut_SUSYToolsTester_mc
-   SOURCES test/ut_SUSYToolsTester_mc.cxx )
-atlas_add_test( ut_SUSYToolsTester_mc_w_2016_lumi
-   SOURCES test/ut_SUSYToolsTester_mc_w_2016_lumi.cxx )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_data( data/* )
+

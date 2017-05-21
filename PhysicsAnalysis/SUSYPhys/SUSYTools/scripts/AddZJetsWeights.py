@@ -1,6 +1,6 @@
-#!/usr/bin/env python
-
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+#!/usr/bin/env python
 
 import os,sys,subprocess,datetime,copy,math,array,shutil,ROOT,re,string
 from ROOT import gROOT
@@ -626,8 +626,247 @@ def generateZpTMapping(dictionary):
 
 
 
+    ## New Sherpa 2.2.1 mapping
+    print "Adding the Sherpa 2.2.1 nominal to the dictionary"
+
+    # 0-70, bin 1, 70-140 bin 2 etc.
+    print "Adding Z--> nunu to the dictionary"
+    print "Range 0-70"
+    for i in range(364142, 364145):
+        dictionary[i] = 1
+        print i
+        
+    print "Range 70-140"
+    for i in range(364145, 364148):
+        dictionary[i] = 2
+        print i
+    
+    print "Range 140-280"
+    for i in range(364148, 364151):
+        dictionary[i] = 3
+        print i
+    
+
+    print "Range 280-500"
+    for i in range(364151, 364154):
+        dictionary[i] = 4
+        print i
+    
+    print "Range 500-1000"
+    for i == 364154:
+        dictionary[i] = 5
+        print i
+    
+    print "Range 1000-ECM"
+    for i == 364155:
+        dictionary[i] = 7
+        print i
+        
 
 
+    print "Adding Z--> ee to the dictionary"
+    print "Range 0-70"
+    for i in range(364114, 364117):
+        dictionary[i] = 1
+        print i
+        
+    print "Range 70-140"
+    for i in range(364117, 364120):
+        dictionary[i] = 2
+        print i
+    
+    print "Range 140-280"
+    for i in range(364120,364123):
+        dictionary[i] = 3
+        print i
+    
+
+    print "Range 280-500"
+    for i in range(364123, 364126):
+        dictionary[i] = 4
+        print i
+    
+    print "Range 500-1000"
+    for i == 364126:
+        dictionary[i] = 5
+        print i
+    
+    print "Range 1000-ECM"
+    for i == 364127:
+        dictionary[i] = 7
+        print i
+        
+
+
+    print "Adding Z--> mumu to the dictionary"
+    print "Range 0-70"
+    for i in range(364100, 364103):
+        dictionary[i] = 1
+        print i
+        
+    print "Range 70-140"
+    for i in range(364103, 364106):
+        dictionary[i] = 2
+        print i
+    
+    print "Range 140-280"
+    for i in range(364106, 364109):
+        dictionary[i] = 3
+        print i
+    
+
+    print "Range 280-500"
+    for i in range(364109, 364112):
+        dictionary[i] = 4
+        print i
+    
+    print "Range 500-1000"
+    for i == 364112:
+        dictionary[i] = 5
+        print i
+    
+    print "Range 1000-ECM"
+    for i == 364113:
+        dictionary[i] = 7
+        print i
+        
+
+    print "Adding Z--> tautau to the dictionary"
+    print "Range 0-70"
+    for i in range(364128, 364131):
+        dictionary[i] = 1
+        print i
+        
+    print "Range 70-140"
+    for i in range(364131, 364134):
+        dictionary[i] = 2
+        print i
+    
+    print "Range 140-280"
+    for i in range(364134, 364137):
+        dictionary[i] = 3
+        print i
+    
+
+    print "Range 280-500"
+    for i in range(364137, 364140):
+        dictionary[i] = 4
+        print i
+    
+    print "Range 500-1000"
+    for i == 364140:
+        dictionary[i] = 5
+        print i
+    
+    print "Range 1000-ECM"
+    for i == 364141:
+        dictionary[i] = 7
+        print i
+    
+
+
+
+    print "Adding W+Jets MCIDs for Sherpa 2.2.1"
+    print "Adding W--> enu to the dictionary"
+    print "Range 0-70"
+    for i in range(364170, 364173):
+        dictionary[i] = 1
+        print i
+        
+    print "Range 70-140"
+    for i in range(364173, 364176):
+        dictionary[i] = 2
+        print i
+    
+    print "Range 140-280"
+    for i in range(364176, 364179):
+        dictionary[i] = 3
+        print i
+    
+
+    print "Range 280-500"
+    for i in range(364179, 364182):
+        dictionary[i] = 4
+        print i
+    
+    print "Range 500-1000"
+    for i == 364182:
+        dictionary[i] = 5
+        print i
+    
+    print "Range 1000-ECM"
+    for i == 364183:
+        dictionary[i] = 7
+        print i
+    
+    
+
+    print "Adding W--> munu to the dictionary"
+    print "Range 0-70"
+    for i in range(364156, 364159):
+        dictionary[i] = 1
+        print i
+        
+    print "Range 70-140"
+    for i in range(364159, 364162):
+        dictionary[i] = 2
+        print i
+    
+    print "Range 140-280"
+    for i in range(364162, 364165):
+        dictionary[i] = 3
+        print i
+    
+
+    print "Range 280-500"
+    for i in range(364165, 364168):
+        dictionary[i] = 4
+        print i
+    
+    print "Range 500-1000"
+    for i == 364168:
+        dictionary[i] = 5
+        print i
+    
+    print "Range 1000-ECM"
+    for i == 364169:
+        dictionary[i] = 7
+        print i
+    
+    
+
+    print "Adding W--> taunu to the dictionary"
+    print "Range 0-70"
+    for i in range(364184, 364187):
+        dictionary[i] = 1
+        print i
+        
+    print "Range 70-140"
+    for i in range(364187, 364190):
+        dictionary[i] = 2
+        print i
+    
+    print "Range 140-280"
+    for i in range(364190, 364193):
+        dictionary[i] = 3
+        print i
+    
+
+    print "Range 280-500"
+    for i in range(364193, 364196):
+        dictionary[i] = 4
+        print i
+    
+    print "Range 500-1000"
+    for i == 364196:
+        dictionary[i] = 5
+        print i
+    
+    print "Range 1000-ECM"
+    for i == 364197:
+        dictionary[i] = 7
+        print i
+    
 
 
     return dictionary

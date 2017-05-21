@@ -7,7 +7,7 @@ import argparse,sys,os
 parser = argparse.ArgumentParser()
 parser.add_argument('--ifile', help='input ilumicalc file', dest='ifile', default='')
 parser.add_argument('--ofile', help='output file', dest='ofile', default='ilumi2histo.root')
-parser.add_argument('--relunc', help='luminosity relative uncertainty [%]', dest='relunc', default=5.)
+parser.add_argument('--relunc', help='luminosity relative uncertainty [%]', dest='relunc', default=3.2)
 
 config = parser.parse_args()
 
@@ -25,13 +25,17 @@ try:
 
             run  =  m_file.Get(k.GetName()).GetTitle().split()[-1]
 
-            if not 'Delivered' in  m_file.Get(k.GetName()).GetTitle():
-                print 'WARNING : No lumi provided for run ',run 
-                continue
+            #OLD WAY (look at histogram title)
+            #if not 'Delivered' in  m_file.Get(k.GetName()).GetTitle():
+            #    print 'WARNING : No lumi provided for run ',run 
+            #    continue
+            #lumi =  m_file.Get(k.GetName()).GetTitle().split('=')[1]
+            #lumi =  float(lumi.split('/')[0])
 
-            lumi =  m_file.Get(k.GetName()).GetTitle().split('=')[1]
-            lumi =  lumi.split('/')[0]
 
+            #NEW WAY (look at last filled bin) 
+            h = m_file.Get(k.GetName())
+            lumi = h.GetBinContent( h.GetNbinsX()-9 )
 
             lumi_map[run] = float(lumi)*1e-6
 

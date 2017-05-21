@@ -3,12 +3,13 @@
 <unifiedTestConfiguration>
 
   <atn>
-  
+    <!--- AthAnalysisBase tests -->
     <TEST name="SUSYTools_minimalExampleJobOptions_mc" type="athena" suite="SUSYTools">
       <options_atn>SUSYTools/minimalExampleJobOptions_mc.py || { rm monitoring.mc.root;exit 1; }</options_atn>
       <timelimit>15</timelimit>
       <author> SUSY Background Forum conveners </author>
       <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
+      <project_exclude>AnalysisBase</project_exclude>
       <postscript>rootcomp.py --html --atnMode --output rootcomp_monitoring.mc.root monitoring.mc.root
       </postscript>
       <expectations>
@@ -16,12 +17,12 @@
         <returnValue>0</returnValue>
       </expectations>
     </TEST>
-    
     <TEST name="SUSYTools_minimalExampleJobOptions_atlfast" type="athena" suite="SUSYTools">
       <options_atn>SUSYTools/minimalExampleJobOptions_atlfast.py || { rm monitoring.atlfast.root;exit 1; }</options_atn>
       <timelimit>15</timelimit>
       <author> SUSY Background Forum conveners </author>
       <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
+      <project_exclude>AnalysisBase</project_exclude>
       <postscript>rootcomp.py --html --atnMode --output rootcomp_monitoring.atlfast.root monitoring.atlfast.root
       </postscript>
       <expectations>
@@ -29,12 +30,12 @@
         <returnValue>0</returnValue>
       </expectations>
     </TEST>
-    
     <TEST name="SUSYTools_minimalExampleJobOptions_data" type="athena" suite="SUSYTools">
       <options_atn>SUSYTools/minimalExampleJobOptions_data.py || { rm monitoring.data.root;exit 1; }</options_atn>
       <timelimit>15</timelimit>
       <author> SUSY Background Forum conveners </author>
       <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
+      <project_exclude>AnalysisBase</project_exclude>
       <postscript>rootcomp.py --html --atnMode --output rootcomp_monitoring.data.root monitoring.data.root
       </postscript>
       <expectations>
@@ -42,12 +43,24 @@
         <returnValue>0</returnValue>
       </expectations>
     </TEST>
-
     <TEST name="SUSYTools_applyST" type="athena" suite="SUSYTools">
       <options_atn>SUSYTools/applyST.py || { rm DAOD_AST.topaod_jul20.pool.root;exit 1; }</options_atn>
       <timelimit>15</timelimit>
       <author> SUSY Background Forum conveners </author>
       <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
+      <project_exclude>AnalysisBase</project_exclude>
+      <expectations>
+        <errorMessage>FAILURE (ERROR)</errorMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+
+    <!--- AnalysisBase tests -->
+    <TEST name="SUSYTools_test" type="athena" suite="SUSYTools">
+      <timelimit>15</timelimit>
+      <author> SUSY Background Forum conveners </author>
+      <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
+      <project_exclude>AthAnalysisBase</project_exclude>
       <expectations>
         <errorMessage>FAILURE (ERROR)</errorMessage>
         <returnValue>0</returnValue>

@@ -1,13 +1,10 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
+ 
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 
 using namespace ST;
-//  using namespace std;
-
-//#ifdef XAOD_STANDALONE
 
 #include "JetCalibTools/JetCalibrationTool.h"
 #include "JetSelectorTools/JetCleaningTool.h"
@@ -39,6 +36,7 @@ using namespace ST;
 #include "TauAnalysisTools/TauSmearingTool.h"
 #include "TauAnalysisTools/TauTruthMatchingTool.h" 
 #include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
+#include "tauRecTools/TauWPDecorator.h"
 //
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
 #include "xAODBTaggingEfficiency/BTaggingSelectionTool.h"
@@ -64,24 +62,19 @@ using namespace ST;
 //
 #include "PMGTools/PMGSherpa22VJetsWeightTool.h"
 
-// includes only needed for CMT build (should be temporary until OR tools also migrated to AnaToolHandle)
-#ifndef XAOD_STANDALONE
-#include "GaudiKernel/IJobOptionsSvc.h"
-#endif
-
 #define SET_DUAL_TOOL( TOOLHANDLE, TOOLTYPE, TOOLNAME )                \
   ASG_SET_ANA_TOOL_TYPE(TOOLHANDLE, TOOLTYPE);                        \
   TOOLHANDLE.setName(TOOLNAME);                                                
 
-#define CONFIG_EG_EFF_TOOL( TOOLHANDLE, TOOLNAME, CORRFILE )		\
+#define CONFIG_EG_EFF_TOOL( TOOLHANDLE, TOOLNAME, CORRFILE )                \
   if( !TOOLHANDLE.isUserConfigured() ) {                                \
     SET_DUAL_TOOL(TOOLHANDLE, AsgElectronEfficiencyCorrectionTool, TOOLNAME); \
     std::vector< std::string > corrFileNameList = {CORRFILE}; \
     ATH_CHECK( TOOLHANDLE.setProperty("CorrectionFileNameList", corrFileNameList) ); \
-    if(!isData())							\
+    if(!isData())                                                        \
       ATH_CHECK (TOOLHANDLE.setProperty("ForceDataType", (int) data_type) ); \
     ATH_CHECK( TOOLHANDLE.setProperty("CorrelationModel", m_EG_corrModel) ); \
-    ATH_CHECK( TOOLHANDLE.initialize() );				\
+    ATH_CHECK( TOOLHANDLE.initialize() );                                \
   }  
 
 #define CONFIG_EG_EFF_TOOL_KEY( TOOLHANDLE, TOOLNAME, KEYNAME, KEY )        \
@@ -89,7 +82,7 @@ using namespace ST;
     SET_DUAL_TOOL(TOOLHANDLE, AsgElectronEfficiencyCorrectionTool, TOOLNAME); \
     std::cout << "Will now set key \"" << KEYNAME << "\" to value \"" << KEY << "\" when configuring an AsgElectronEfficiencyCorrectionTool" << std::endl; \
     ATH_CHECK( TOOLHANDLE.setProperty(KEYNAME, KEY) );                  \
-    if(!isData())							\
+    if(!isData())                                                        \
       ATH_CHECK (TOOLHANDLE.setProperty("ForceDataType", (int) data_type) ); \
     ATH_CHECK( TOOLHANDLE.setProperty("CorrelationModel", m_EG_corrModel) ); \
     ATH_CHECK( TOOLHANDLE.initialize() );                                \
@@ -166,12 +159,19 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 #if ROOTCORE_RELEASE_SERIES==24
     std::string JES_config_file("JES_data2016_data2015_Recommendation_Dec2016.config"); //JES_MC15cRecommendation_May2016.config");
     
-    if(m_JMScalib){ //with JMS calibration (if requested)
+    if(!m_JMScalib.empty()){ //with JMS calibration (if requested)
       JES_config_file = "JES_data2016_data2015_Recommendation_Dec2016_JMS.config";
     }
     
 #else
-    std::string JES_config_file("JES_MC15cRecommendation_May2016_rel21.config");
+    //std::string JES_config_file("JES_MC15cRecommendation_May2016_rel21.config");
+    //:: +SZ
+    std::string JES_config_file("JES_data2016_data2015_Recommendation_Dec2016_rel21.config"); 
+    if(!m_JMScalib.empty()){ //with JMS calibration (if requested)
+      JES_config_file = "JES_data2016_data2015_Recommendation_Dec2016_JMS_rel21.config";
+    }
+    //:: !SZ
+
 #endif
     
     if (isAtlfast()) {
@@ -184,17 +184,23 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
         return StatusCode::FAILURE;
       }
 
-      if(m_JMScalib){
+      if(!m_JMScalib.empty()){
         ATH_MSG_ERROR("JMS calibration is not supported for AF-II samples. Please modify your settings.");
         return StatusCode::FAILURE;
         // ATH_MSG_WARNING("*** JMS calibration is not validated for AF-II samples. Please modify your settings if this is not intended ! ***");
       }
 
     }
-    
+
+//:: +SZ
     // form the string describing the calibration sequence to use
+#if ROOTCORE_RELEASE_SERIES==24    
     std::string calibseq("JetArea_Residual_Origin_EtaJES_GSC");
-    if(m_JMScalib){
+#else    
+    std::string calibseq("JetArea_Residual_EtaJES_GSC");
+#endif
+//:: !SZ
+    if(!m_JMScalib.empty()){
       calibseq += "_JMS";
     }
     if (isData()) { 
@@ -204,17 +210,17 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     // finally, PFlow jets need special care
     if (m_jetInputType == xAOD::JetInput::EMPFlow) {
       //Following : https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ApplyJetCalibration2016#Calibration_of_PFlow_jets_in_20
-      //Note! : There is no GSC available in this calibration yet, left out for the moment
+      //Note! : There is no origin correction explicitly included in the PFlow JES
       //
       
-#if ROOTCORE_RELEASE_SERIES==24                                                                                                                                              
+#if ROOTCORE_RELEASE_SERIES==24
       JES_config_file = "JES_MC15cRecommendation_PFlow_Aug2016.config"; //JES_MC15Prerecommendation_PFlow_July2015.config";
 #else
       JES_config_file = "JES_MC15cRecommendation_PFlow_Aug2016.config"; //JES_MC15Prerecommendation_PFlow_July2015.config";
 #endif
       calibseq = "JetArea_Residual_EtaJES_GSC";
 
-      if(m_JMScalib){
+      if(!m_JMScalib.empty()){
         ATH_MSG_ERROR("JMS calibration is not supported for EMPFlow jets. Please modify your settings.");
         return StatusCode::FAILURE;
       }
@@ -304,22 +310,34 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     }
     toolName = "JetUncertaintiesTool_" + jetdef;
 
-    std::string configfile("JES_2016/Moriond2017/JES2016_21NP.config");
-    //std::string configfile("JES_2015/ICHEP2016/JES2015_19NP.config");
-    //std::string configfile("JES_2015/ICHEP2016/JES2015_AllNuisanceParameters.config");
-    switch (m_jesNPset) {
-      //  For testing reduced JES NPs
-    // case 1:  configfile = "JES_2015/ICHEP2016/JES2015_SR_Scenario1.config"; break;
-    // case 2:  configfile = "JES_2015/ICHEP2016/JES2015_SR_Scenario2.config"; break;
-    // case 3:  configfile = "JES_2015/ICHEP2016/JES2015_SR_Scenario3.config"; break;
-    // case 4:  configfile = "JES_2015/ICHEP2016/JES2015_SR_Scenario4.config"; break;
-    case 1:  configfile = "JES_2016/Moriond2017/JES2016_SR_Scenario1.config"; break;
-    case 2:  configfile = "JES_2016/Moriond2017/JES2016_SR_Scenario2.config"; break;
-    case 3:  configfile = "JES_2016/Moriond2017/JES2016_SR_Scenario3.config"; break;
-    case 4:  configfile = "JES_2016/Moriond2017/JES2016_SR_Scenario4.config"; break;
-    default: break;
+    std::string configfile;
+    if (m_JMScalib.empty()){
+      configfile = "JES_2016/Moriond2017/JES2016_21NP.config";
+      switch (m_jesNPset) {
+        //  For testing reduced JES NPs
+      case 1:  configfile = "JES_2016/Moriond2017/JES2016_SR_Scenario1.config"; break;
+      case 2:  configfile = "JES_2016/Moriond2017/JES2016_SR_Scenario2.config"; break;
+      case 3:  configfile = "JES_2016/Moriond2017/JES2016_SR_Scenario3.config"; break;
+      case 4:  configfile = "JES_2016/Moriond2017/JES2016_SR_Scenario4.config"; break;
+      default: break;
+      }
+    } else {
+      // Make sure we got a sensible value for the configuration
+      if (m_JMScalib!="Frozen" && m_JMScalib!="Extrap"){
+        ATH_MSG_ERROR("JMS calibration uncertainty must be either Frozen or Extrap.  " << m_JMScalib << " is not a supported value. Please modify your settings.");
+        return StatusCode::FAILURE;
+      }
+      // Calibration uncertainties with small-R jet mass calibration
+      configfile = "JES_2016/Moriond2017/JES2016_21NP_JMS"+m_JMScalib+".config";
+      switch (m_jesNPset) {
+        //  For testing reduced JES NPs
+      case 1:  configfile = "JES_2016/Moriond2017/JES2016_SR_Scenario1_JMS"+m_JMScalib+".config"; break;
+      case 2:  configfile = "JES_2016/Moriond2017/JES2016_SR_Scenario2_JMS"+m_JMScalib+".config"; break;
+      case 3:  configfile = "JES_2016/Moriond2017/JES2016_SR_Scenario3_JMS"+m_JMScalib+".config"; break;
+      case 4:  configfile = "JES_2016/Moriond2017/JES2016_SR_Scenario4_JMS"+m_JMScalib+".config"; break;
+      default: break;
+      }
     }
-
     SET_DUAL_TOOL(m_jetUncertaintiesTool,JetUncertaintiesTool,"JetUncertaintiesTool/"+toolName);
 
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("JetDefinition", jetdef) );
@@ -327,12 +345,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("ConfigFile", configfile) );
     ATH_CHECK( m_jetUncertaintiesTool.retrieve() );
 
-    CP::SystematicSet defaultSet;
-    CP::SystematicCode ret = m_jetUncertaintiesTool->applySystematicVariation(defaultSet);
-    if (ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure JetUncertaintiesTool for default systematic setting.");
-      return StatusCode::FAILURE;
-    }
+    // CP::SystematicSet defaultSet;
+    // CP::SystematicCode ret = m_jetUncertaintiesTool->applySystematicVariation(defaultSet);
+    // if (ret != CP::SystematicCode::Ok) {
+    //   ATH_MSG_ERROR("Cannot configure JetUncertaintiesTool for default systematic setting.");
+    //   return StatusCode::FAILURE;
+    // }
   }
 
   // Initialise jet uncertainty tool for fat jets
@@ -353,13 +371,13 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
       std::string temp(m_fatJetUncVars);
       do {
-	auto pos = temp.find(",");
-	shift_vars.push_back(temp.substr(0, pos));
-	if (pos == std::string::npos)
-	  temp = "";
-	else
-	  temp = temp.substr(pos + 1);
-	
+        auto pos = temp.find(",");
+        shift_vars.push_back(temp.substr(0, pos));
+        if (pos == std::string::npos)
+          temp = "";
+        else
+          temp = temp.substr(pos + 1);
+        
       }
       while (!temp.empty() );
 
@@ -367,18 +385,18 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     }
 
     ATH_CHECK( m_fatjetUncertaintiesTool.retrieve() );
-    CP::SystematicSet defaultSet;
-    CP::SystematicCode ret = m_fatjetUncertaintiesTool->applySystematicVariation(defaultSet);
-    if (ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure (Fat)JetUncertaintiesTool for default systematic setting.");
-      return StatusCode::FAILURE;
-    }
+    // CP::SystematicSet defaultSet;
+    // CP::SystematicCode ret = m_fatjetUncertaintiesTool->applySystematicVariation(defaultSet);
+    // if (ret != CP::SystematicCode::Ok) {
+    //   ATH_MSG_ERROR("Cannot configure (Fat)JetUncertaintiesTool for default systematic setting.");
+    //   return StatusCode::FAILURE;
+    // }
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise jet cleaning tools
 
-  if (!m_jetCleaningTool.isUserConfigured()) {
+  if (m_badJetCut!="" && !m_jetCleaningTool.isUserConfigured()) {
     toolName = "JetCleaningTool";
     SET_DUAL_TOOL(m_jetCleaningTool, JetCleaningTool, toolName);
     ATH_CHECK( m_jetCleaningTool.setProperty("CutLevel", m_badJetCut) );
@@ -406,7 +424,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     // Set the decoration to the name we used to use
     ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("ScaleFactorDecorationName","jvtscalefact") );
     // Set the jvt moment (the one we update!)
-    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("JetJvtMomentName", "jvt") );
+    //    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("JetJvtMomentName", "Jvt") ); //default!
 
     if (m_jetInputType == xAOD::JetInput::EMTopo){
       ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2017/JvtSFFile_EM.root") );
@@ -516,7 +534,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     SET_DUAL_TOOL(m_muonEfficiencySFTool, CP::MuonEfficiencyScaleFactors, toolName);
     ATH_CHECK( m_muonEfficiencySFTool.setProperty("WorkingPoint", muQual) );
     if(m_muNoTRT) //use config with disabled TRT quality cut
-      ATH_CHECK( m_muonEfficiencySFTool.setProperty("CalibrationRelease", "170209_Moriond_noTRT") );
+      ATH_CHECK( m_muonEfficiencySFTool.setProperty("CalibrationRelease", "170410_Moriond_noTRT") );
     
     ATH_CHECK( m_muonEfficiencySFTool.retrieve() );
   }
@@ -526,7 +544,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     SET_DUAL_TOOL(m_muonEfficiencyBMHighPtSFTool, CP::MuonEfficiencyScaleFactors, toolName);
     ATH_CHECK( m_muonEfficiencyBMHighPtSFTool.setProperty("WorkingPoint", "BadMuonVeto_HighPt") );
     if(m_muNoTRT) //use config with disabled TRT quality cut
-      ATH_CHECK( m_muonEfficiencyBMHighPtSFTool.setProperty("CalibrationRelease", "170209_Moriond_noTRT") );
+      ATH_CHECK( m_muonEfficiencyBMHighPtSFTool.setProperty("CalibrationRelease", "170410_Moriond_noTRT") );
     
     ATH_CHECK( m_muonEfficiencyBMHighPtSFTool.retrieve() );
   }
@@ -540,6 +558,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "MuonTTVAEfficiencyScaleFactors";
     SET_DUAL_TOOL(m_muonTTVAEfficiencySFTool, CP::MuonEfficiencyScaleFactors, toolName);
     ATH_CHECK( m_muonTTVAEfficiencySFTool.setProperty("WorkingPoint", "TTVA") );
+    // Recommendation of the muon experts: use noTRT calibration, as the noTRT and standard
+    //  calibrations are the same, but the noTRT calibration includes low-pT SFs
+    ATH_CHECK( m_muonTTVAEfficiencySFTool.setProperty("CalibrationRelease", "170410_Moriond_noTRT") );
     ATH_CHECK( m_muonTTVAEfficiencySFTool.retrieve() );
   }
   
@@ -645,6 +666,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise electron efficiency tool
+  //map name hardcoded for now. Might need some maintenance/thinking //MT
+  std::string egMapFile = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v2/map0.txt";
 
   PATCore::ParticleDataType::DataType data_type(PATCore::ParticleDataType::Data);
   if (!isData()) {
@@ -673,6 +696,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     if ( !m_elecEfficiencySFTool_iso.isUserConfigured() ) {
       SET_DUAL_TOOL(m_elecEfficiencySFTool_iso, AsgElectronEfficiencyCorrectionTool, toolName);
 
+      // New isolation recommendations - have to keep the map by hand for now
+      ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty ("MapFilePath", egMapFile) );
+
       ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IsoKey", m_eleIso_WP) );
       if (!isData()) {
@@ -691,13 +717,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     }
     else{
       if(m_eleChID_WP != "Medium")
-	ATH_MSG_WARNING("** Only MediumCFT supported for SF at the moment. We rolled back to that for now, but be aware of it! ");
+        ATH_MSG_WARNING("** Only MediumCFT supported for SF at the moment. We rolled back to that for now, but be aware of it! ");
       m_runECIS = true;
     }
 
     //-- get KEYS supported by egamma SF tools
-    //map name hardcoded for now. Might need some maintenance/thinking //MT
-    std::string egMapFile = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/map0.txt";
+    //map name hardcoded above for now
     std::vector<std::string> eSF_keys = getElSFkeys(egMapFile);
  
     // electron triggers - first SFs (but we need to massage the id string since all combinations are not supported)
@@ -722,12 +747,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     else{
       triggerDiEleIso = TString(m_eleIso_WP).Copy().ReplaceAll("GradientLoose","Gradient").ReplaceAll("TrackOnly","").ReplaceAll("FixedCutTight","Gradient").Data();
       if (std::find(eSF_keys.begin(), eSF_keys.end(), m_electronTriggerSFStringDiLepton+"_"+eleId+"_"+triggerDiEleIso) != eSF_keys.end()){
-	ATH_MSG_WARNING("  ***  THERE IS A PROBLEM WITH THE  ELECTRON TRIGGER SF YOU SELECTED:  " << m_electronTriggerSFStringDiLepton << " ***");
-	ATH_MSG_WARNING("  ***     THE ELECTRON TRIGGER SF ARE NOT SUPPORTED FOR THE ISOLATION WP YOU PICKED (" << m_eleIso_WP << ") . FALLING TO 'Gradient' HERE (ONLY) -- Use at your own risk! ***");
+        ATH_MSG_WARNING("  ***  THERE IS A PROBLEM WITH THE  ELECTRON TRIGGER SF YOU SELECTED:  " << m_electronTriggerSFStringDiLepton << " ***");
+        ATH_MSG_WARNING("  ***     THE ELECTRON TRIGGER SF ARE NOT SUPPORTED FOR THE ISOLATION WP YOU PICKED (" << m_eleIso_WP << ") . FALLING TO 'Gradient' HERE (ONLY) -- Use at your own risk! ***");
       }
       else{
-	ATH_MSG_ERROR("***  THE ELECTRON TRIGGER SF YOU SELECTED (" << m_electronTriggerSFStringDiLepton << ") GOT NO SUPPORT FOR YOUR ID+ISO WPs (" << m_eleId << "+" << m_eleIso_WP << "). The fallback options failed as well sorry! ***");
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR("***  THE ELECTRON TRIGGER SF YOU SELECTED (" << m_electronTriggerSFStringDiLepton << ") GOT NO SUPPORT FOR YOUR ID+ISO WPs (" << m_eleId << "+" << m_eleIso_WP << "). The fallback options failed as well sorry! ***");
+        return StatusCode::FAILURE;
       }
     }
 
@@ -739,12 +764,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     else{
       triggerMixedEleIso = TString(m_eleIso_WP).Copy().ReplaceAll("GradientLoose","Gradient").ReplaceAll("TrackOnly","").ReplaceAll("FixedCutTight","Gradient").Data();
       if (std::find(eSF_keys.begin(), eSF_keys.end(), m_electronTriggerSFStringMixedLepton+"_"+eleId+"_"+triggerMixedEleIso) != eSF_keys.end()){
-	ATH_MSG_WARNING("  ***  THERE IS A PROBLEM WITH THE  ELECTRON TRIGGER SF YOU SELECTED:  " << m_electronTriggerSFStringMixedLepton << " ***");
-	ATH_MSG_WARNING("  ***     THE ELECTRON TRIGGER SF ARE NOT SUPPORTED FOR THE ISOLATION WP YOU PICKED (" << m_eleIso_WP << ") . FALLING TO 'GRADIENT' HERE (ONLY) -- Use at your own risk! ***");
+        ATH_MSG_WARNING("  ***  THERE IS A PROBLEM WITH THE  ELECTRON TRIGGER SF YOU SELECTED:  " << m_electronTriggerSFStringMixedLepton << " ***");
+        ATH_MSG_WARNING("  ***     THE ELECTRON TRIGGER SF ARE NOT SUPPORTED FOR THE ISOLATION WP YOU PICKED (" << m_eleIso_WP << ") . FALLING TO 'GRADIENT' HERE (ONLY) -- Use at your own risk! ***");
       }
       else{
-	ATH_MSG_ERROR("***  THE ELECTRON TRIGGER SF YOU SELECTED (" << m_electronTriggerSFStringMixedLepton << ") GOT NO SUPPORT FOR YOUR ID+ISO WPs (" << m_eleId << "+" << m_eleIso_WP << "). The fallback options failed as well sorry! ***");
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR("***  THE ELECTRON TRIGGER SF YOU SELECTED (" << m_electronTriggerSFStringMixedLepton << ") GOT NO SUPPORT FOR YOUR ID+ISO WPs (" << m_eleId << "+" << m_eleIso_WP << "). The fallback options failed as well sorry! ***");
+        return StatusCode::FAILURE;
       }
     }
 
@@ -757,6 +782,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("IsoKey", triggerEleIso) );   
       ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("CorrelationModel", m_EG_corrModel) ); 
+      if (!isData()) {
+        ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("ForceDataType", (int) data_type) );
+      }
       ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.initialize() );   
     }
     toolName = "AsgElectronEfficiencyCorrectionTool_trig_diLep_" + m_eleId;
@@ -767,6 +795,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("IsoKey", triggerDiEleIso) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("CorrelationModel", m_EG_corrModel) ); 
+      if (!isData()) {
+        ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("ForceDataType", (int) data_type) );
+      }
       ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.initialize() );
     }    
     toolName = "AsgElectronEfficiencyCorrectionTool_trig_mixLep_" + m_eleId;
@@ -777,6 +808,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep.setProperty("IsoKey", triggerMixedEleIso) );   
       ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep.setProperty("CorrelationModel", m_EG_corrModel) ); 
+      if (!isData()) {
+        ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep.setProperty("ForceDataType", (int) data_type) );
+      }
       ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep.initialize() );
     }    
     // then efficiencies
@@ -788,6 +822,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("IsoKey", triggerEleIso) );   
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("CorrelationModel", m_EG_corrModel) ); 
+      if (!isData()) {
+        ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("ForceDataType", (int) data_type) );
+      }
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.initialize() );
     }
     std::cout <<  m_electronTriggerSFStringDiLepton+"_"+eleId+"_"+triggerDiEleIso << std::endl;
@@ -800,6 +837,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("IsoKey", triggerDiEleIso) );   
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("CorrelationModel", m_EG_corrModel) ); 
+      if (!isData()) {
+        ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("ForceDataType", (int) data_type) );
+      }
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.initialize() );
     }    
     toolName = "AsgElectronEfficiencyCorrectionTool_trig_mixLep_" + m_eleId;
@@ -810,6 +850,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep.setProperty("IsoKey", triggerMixedEleIso) );   
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep.setProperty("CorrelationModel", m_EG_corrModel) ); 
+      if (!isData()) {
+        ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep.setProperty("ForceDataType", (int) data_type) );
+      }
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep.initialize() );
     }
   }
@@ -940,6 +983,31 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_egammaCalibTool.retrieve() );
   }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////
+// Initialize tau score re-decorator
+#if ROOTCORE_RELEASE_SERIES==24  
+  if (!m_tauWPdecorator.isUserConfigured()) {
+    toolName = "TauWPDecorator";
+    SET_DUAL_TOOL(m_tauWPdecorator, TauWPDecorator, toolName);
+    
+    if (!m_tauWPdecorator.empty()) {
+      ATH_CHECK( m_tauWPdecorator.setProperty("flatteningFile1Prong", "flat1SmoothAODfix.root") );
+      ATH_CHECK( m_tauWPdecorator.setProperty("flatteningFile3Prong", "flat3SmoothAODfix.root") );
+      ATH_CHECK( m_tauWPdecorator.setProperty("DefineWPs", true) );
+      ATH_CHECK( m_tauWPdecorator.setProperty("SigEffWPVeryLoose1P", 0.95) );
+      ATH_CHECK( m_tauWPdecorator.setProperty("SigEffWPLoose1P", 0.85) );
+      ATH_CHECK( m_tauWPdecorator.setProperty("SigEffWPMedium1P", 0.75) );
+      ATH_CHECK( m_tauWPdecorator.setProperty("SigEffWPTight1P", 0.60) );
+      ATH_CHECK( m_tauWPdecorator.setProperty("SigEffWPVeryLoose3P", 0.95) );
+      ATH_CHECK( m_tauWPdecorator.setProperty("SigEffWPLoose3P", 0.75) );
+      ATH_CHECK( m_tauWPdecorator.setProperty("SigEffWPMedium3P", 0.60) );
+      ATH_CHECK( m_tauWPdecorator.setProperty("SigEffWPTight3P", 0.45) );
+    }
+    ATH_CHECK( m_tauWPdecorator.retrieve() );
+  }
+#endif  
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise tau selection tools
 
@@ -958,8 +1026,10 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_tauSelTool.setProperty("ConfigPath", inputfile) );
 
     if(m_tauRecalcOLR){
+      ATH_CHECK( m_tauSelTool.setProperty("RecalcEleOLR", true) );     
+    }
+    if(m_tauNoAODFixCheck){
       ATH_CHECK( m_tauSelTool.setProperty("IgnoreAODFixCheck", true) );
-      ATH_CHECK( m_tauSelTool.setProperty("RecalcEleOLR", true) );
     }
 
     ATH_CHECK( m_tauSelTool.retrieve() );
@@ -980,8 +1050,10 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_tauSelToolBaseline.setProperty("ConfigPath", inputfile) );
 
     if(m_tauRecalcOLR){
-      ATH_CHECK( m_tauSelToolBaseline.setProperty("IgnoreAODFixCheck", true) );
       ATH_CHECK( m_tauSelToolBaseline.setProperty("RecalcEleOLR", true) );
+    }
+    if(m_tauNoAODFixCheck){
+      ATH_CHECK( m_tauSelToolBaseline.setProperty("IgnoreAODFixCheck", true) );
     }
 
     ATH_CHECK( m_tauSelToolBaseline.retrieve() );
@@ -1236,27 +1308,28 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
 // /////////////////////////////////////////////////////////////////////////////////////////
 // Initialise Overlap Removal Tool
+  if ( m_orToolbox.masterTool.empty() ){
 
-  // keep these separate for RootCore and Athena for now
-#ifdef XAOD_STANDALONE
-
-  if( m_orToolbox.masterTool.empty() ){
+    // set up the master tool
     std::string suffix = "";
     if (m_orDoTau) suffix += "Tau";
     if (m_orDoPhoton) suffix += "Gamma";
+    if (m_orDoBjet) suffix += "Bjet";
+    std::string toolName = "ORTool" + suffix;
+    ATH_MSG_INFO("SUSYTools: Autoconfiguring " << toolName);
+
     std::string bJetLabel = "";
     //overwrite lepton flags if the global is false (yes?)
     if (!m_orDoBjet || !m_useBtagging) {
       m_orDoElBjet = false;
       m_orDoMuBjet = false;
-      //      m_orDoTauBjet = false;
+      m_orDoTauBjet = false;
     }
-    if (m_orDoElBjet || m_orDoMuBjet) { // || m_orDoTauBjet) {
-      suffix += "Bjet";
+    if (m_orDoElBjet || m_orDoMuBjet || m_orDoTauBjet) {
       bJetLabel = "bjet_loose";
     }
-    auto toolName = "ORTool" + suffix;
 
+    // Set the generic flags
     ORUtils::ORFlags orFlags(toolName, m_orInputLabel, "passOR");
     orFlags.bJetLabel      = bJetLabel;
     orFlags.boostedLeptons = (m_orDoBoostedElectron || m_orDoBoostedMuon);
@@ -1268,14 +1341,25 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     orFlags.doTaus = m_orDoTau;
     orFlags.doPhotons = m_orDoPhoton;
     orFlags.doFatJets = m_orDoFatjets;
-    
+
+    //set up all recommended tools
     ATH_CHECK( ORUtils::recommendedTools(orFlags, m_orToolbox));
-    
-    
-    // now turn off boosted lepton OR for those that were not requested to be on
+
+    // We don't currently have a good way to determine here which object
+    // definitions are disabled, so we currently just configure all overlap
+    // tools and disable the pointer safety checks
+    ATH_CHECK( m_orToolbox.masterTool.setProperty("RequireExpectedPointers", false) );
+
+    // Override boosted OR sliding cone options
     ATH_CHECK( m_orToolbox.eleJetORT.setProperty("UseSlidingDR", m_orDoBoostedElectron) );
     ATH_CHECK( m_orToolbox.muJetORT.setProperty("UseSlidingDR", m_orDoBoostedMuon) );
-    
+
+    //add custom tau-jet OR tool 
+    if(m_orDoTau){
+      m_orToolbox.tauJetORT.setTypeAndName("ORUtils::TauJetOverlapTool/" + orFlags.masterName + ".TauJetORT");
+      ATH_CHECK( m_orToolbox.tauJetORT.setProperty("BJetLabel", m_orDoTauBjet?bJetLabel:"") );
+    }
+
     // override sliding cone params if sliding dR is on and the user-provided parameter values are non-negative
     if (m_orDoBoostedElectron) {
       if (m_orBoostedElectronC1 > 0) ATH_CHECK( m_orToolbox.eleJetORT.setProperty("SlidingDRC1", m_orBoostedElectronC1) );
@@ -1287,227 +1371,44 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       if (m_orBoostedMuonC2 > 0) ATH_CHECK( m_orToolbox.muJetORT.setProperty("SlidingDRC2", m_orBoostedMuonC2) );
       if (m_orBoostedMuonMaxConeSize > 0) ATH_CHECK( m_orToolbox.muJetORT.setProperty("SlidingDRMaxCone", m_orBoostedMuonMaxConeSize) );
     }
-    
+
     // and switch off lep-bjet check if not requested
-    if (!m_orDoElBjet)
+    if (!m_orDoElBjet) {
       ATH_CHECK(m_orToolbox.eleJetORT.setProperty("BJetLabel", ""));
-    if (!m_orDoMuBjet)
+    }
+    if (!m_orDoMuBjet) {
       ATH_CHECK(m_orToolbox.muJetORT.setProperty("BJetLabel", ""));
-    // if (!m_orDoTauBjet)
-    //   ATH_CHECK(m_orToolbox.tauJetORT.setProperty("BJetLabel", ""));
+    }
 
-
-    
-    // propagate the JVT settings 
-    // ATH_CHECK(m_orToolbox.eleJetORT.setProperty("ApplyJVT", m_orApplyJVT));
-    // ATH_CHECK(m_orToolbox.muJetORT.setProperty("ApplyJVT", m_orApplyJVT));
-    // if(m_orApplyJVT){ //sync to JvtEfficiency tool settings
-    //   ATH_CHECK(m_orToolbox.eleJetORT.setProperty("JVT", m_jetJvtEfficiencyTool->getJvtThresh() ));
-    //   ATH_CHECK(m_orToolbox.muJetORT.setProperty("JVT", m_jetJvtEfficiencyTool->getJvtThresh() ));
-    //   ATH_CHECK(m_orToolbox.eleJetORT.setProperty("JVTPt", m_jetJvtEfficiencyTool->getUserPtMax() ));
-    //   ATH_CHECK(m_orToolbox.muJetORT.setProperty("JVTPt", m_jetJvtEfficiencyTool->getUserPtMax() ));
-    // }
-    
-    
     // propagate the mu-jet ghost-association option which might be set by the user (default is true)
     ATH_CHECK(m_orToolbox.muJetORT.setProperty("UseGhostAssociation", m_orDoMuonJetGhostAssociation));
-    
+
     // propagate mu-jet OR settings if requested
-    if (m_orMuJetPtRatio > 0)    ATH_CHECK(m_orToolbox.muJetORT.setProperty("MuJetPtRatio", m_orMuJetPtRatio) );
-    if (m_orMuJetTrkPtRatio > 0) ATH_CHECK(m_orToolbox.muJetORT.setProperty("MuJetTrkPtRatio", m_orMuJetTrkPtRatio) );
+    ATH_CHECK(m_orToolbox.muJetORT.setProperty("ApplyRelPt", m_orApplyRelPt) );
+    if(m_orApplyRelPt){
+      if (m_orMuJetPtRatio > 0)    ATH_CHECK(m_orToolbox.muJetORT.setProperty("MuJetPtRatio", m_orMuJetPtRatio) );
+      if (m_orMuJetTrkPtRatio > 0) ATH_CHECK(m_orToolbox.muJetORT.setProperty("MuJetTrkPtRatio", m_orMuJetTrkPtRatio) );
+    }
     if (m_orMuJetInnerDR > 0)    ATH_CHECK(m_orToolbox.muJetORT.setProperty("InnerDR", m_orMuJetInnerDR) );
-    
+
     // propagate the calo muon setting for EleMuORT
     ATH_CHECK(m_orToolbox.eleMuORT.setProperty("RemoveCaloMuons", m_orRemoveCaloMuons) );
-    
+
     // propagate the fatjets OR settings
     if(m_orDoFatjets){
       if(m_EleFatJetDR>0) ATH_CHECK(m_orToolbox.eleFatJetORT.setProperty("DR", m_EleFatJetDR));
       if(m_JetFatJetDR>0) ATH_CHECK(m_orToolbox.jetFatJetORT.setProperty("DR", m_JetFatJetDR));
     }
-    
-    // set loose electron ID for TauEl removal  //NOT SUPPORTED ANYMORE!
-    // if(m_orDoTau)
-    //   ATH_CHECK(m_orToolbox.tauEleORT.setProperty("ElectronID", "passBaseID") );
-    
-    
+
+    // Make sure that we deal with prorities correctly
+    ATH_CHECK(m_orToolbox.eleJetORT.setProperty("EnableUserPriority", true));
+    ATH_CHECK(m_orToolbox.muJetORT.setProperty("EnableUserPriority", true));
+    if (m_orDoTau) ATH_CHECK(m_orToolbox.tauJetORT.setProperty("EnableUserPriority", true));
+    if (m_orDoPhoton) ATH_CHECK(m_orToolbox.phoJetORT.setProperty("EnableUserPriority", true));
+
     ATH_CHECK(m_orToolbox.initialize());
-    //      m_orTool = m_orToolbox.masterTool;
-    //    }
-  }
-  
-#else //CMT INIT
-  
-  ServiceHandle<IJobOptionsSvc> josvc("JobOptionsSvc", name());
-  std::string fullToolName = "";
-  
-  // Initialise Overlap Removal Tool
-  if (!m_orTool.empty())
-    return StatusCode::SUCCESS;
 
-  // set up the master tool
-  std::string suffix = "";
-  if (m_orDoTau) suffix += "Tau";
-  if (m_orDoPhoton) suffix += "Gamma";
-  if (m_orDoBjet) suffix += "Bjet";
-  toolName = "ORTool" + suffix;
-  ATH_MSG_INFO("SUSYTools: Autoconfiguring " << toolName);
-  m_orTool.setTypeAndName("ORUtils::OverlapRemovalTool/STAutoConf_" + toolName);
-  fullToolName = "ToolSvc.STAutoConf_" + toolName;
-
-  std::vector<std::string> orTools;
-  orTools.push_back(fullToolName);
-
-  // create the tools and point the master tool to them
-  ToolHandle<ORUtils::IOverlapTool> eleMuORT("ORUtils::EleMuSharedTrkOverlapTool/EleMuORT");
-  ToolHandle<ORUtils::IOverlapTool> muJetORT("ORUtils::MuJetOverlapTool/MuJetORT");
-  ToolHandle<ORUtils::IOverlapTool> eleJetORT("ORUtils::EleJetOverlapTool/EleJetORT");
-  ATH_CHECK( josvc->addPropertyToCatalogue(fullToolName, GaudiHandleProperty("EleMuORT", eleMuORT)) );
-  ATH_CHECK( josvc->addPropertyToCatalogue(fullToolName, GaudiHandleProperty("MuJetORT",  muJetORT)) );
-  ATH_CHECK( josvc->addPropertyToCatalogue(fullToolName, GaudiHandleProperty("EleJetORT", eleJetORT)) );
-  orTools.push_back(std::string(fullToolName).append(".EleMuORT"));
-  orTools.push_back(std::string(fullToolName).append(".EleJetORT"));
-  orTools.push_back(std::string(fullToolName).append(".MuJetORT"));
-
-  if (m_orDoTau) {
-    // ToolHandle<ORUtils::IOverlapTool> tauEleORT("ORUtils::TauLooseEleOverlapTool/TauEleORT");
-    // ToolHandle<ORUtils::IOverlapTool> tauMuORT( "ORUtils::TauLooseMuOverlapTool/TauMuORT");
-    ToolHandle<ORUtils::IOverlapTool> tauEleORT("ORUtils::DeltaROverlapTool/TauEleORT");
-    ToolHandle<ORUtils::IOverlapTool> tauMuORT( "ORUtils::DeltaROverlapTool/TauMuORT");
-    ToolHandle<ORUtils::IOverlapTool> tauJetORT("ORUtils::DeltaROverlapTool/TauJetORT");
-    ATH_CHECK( josvc->addPropertyToCatalogue(fullToolName, GaudiHandleProperty("TauEleORT", tauEleORT)) );
-    ATH_CHECK( josvc->addPropertyToCatalogue(fullToolName, GaudiHandleProperty("TauMuORT", tauMuORT)) );
-    ATH_CHECK( josvc->addPropertyToCatalogue(fullToolName, GaudiHandleProperty("TauJetORT", tauJetORT)) );
-    orTools.push_back(std::string(fullToolName).append(".TauEleORT"));
-    orTools.push_back(std::string(fullToolName).append(".TauMuORT"));
-    orTools.push_back(std::string(fullToolName).append(".TauJetORT"));
-  }
-
-  if (m_orDoPhoton) {
-    ToolHandle<ORUtils::IOverlapTool> phoEleORT("ORUtils::DeltaROverlapTool/PhoEleORT");
-    ToolHandle<ORUtils::IOverlapTool> phoMuORT("ORUtils::DeltaROverlapTool/PhoMuORT");
-    ToolHandle<ORUtils::IOverlapTool> phoJetORT("ORUtils::DeltaROverlapTool/PhoJetORT");
-    ATH_CHECK( josvc->addPropertyToCatalogue(fullToolName, GaudiHandleProperty("PhoEleORT", phoEleORT)) );
-    ATH_CHECK( josvc->addPropertyToCatalogue(fullToolName, GaudiHandleProperty("PhoMuORT", phoMuORT)) );
-    ATH_CHECK( josvc->addPropertyToCatalogue(fullToolName, GaudiHandleProperty("PhoJetORT", phoJetORT)) );
-    orTools.push_back(std::string(fullToolName).append(".PhoEleORT"));
-    orTools.push_back(std::string(fullToolName).append(".PhoMuORT"));
-    orTools.push_back(std::string(fullToolName).append(".PhoJetORT"));
-  }
-
-  if (m_orDoFatjets){
-    ToolHandle<ORUtils::IOverlapTool> eleFatJetORT("ORUtils::DeltaROverlapTool/EleFatJetORT");
-    ToolHandle<ORUtils::IOverlapTool> jetFatJetORT("ORUtils::DeltaROverlapTool/JetFatJetORT");
-    ATH_CHECK( josvc->addPropertyToCatalogue(fullToolName, GaudiHandleProperty("EleFatJetORT", eleFatJetORT)) );
-    ATH_CHECK( josvc->addPropertyToCatalogue(fullToolName, GaudiHandleProperty("JetFatJetORT", jetFatJetORT)) );
-    orTools.push_back(std::string(fullToolName).append(".EleFatJetORT"));
-    orTools.push_back(std::string(fullToolName).append(".JetFatJetORT"));
-  }
-
-  // use these props for all the subtools
-  StringProperty inputLabelProp("InputLabel", m_orInputLabel); //"selected" by default
-  StringProperty outputLabelProp("OutputLabel", "passOR");
-  BooleanProperty outputPassValueProp("OutputPassValue", true);
-
-  // a few additional ones only needed for lep-jet
-  StringProperty bjetElLabelProp("BJetLabel", (m_orDoElBjet ? "bjet_loose" : ""));
-  StringProperty bjetMuLabelProp("BJetLabel", (m_orDoMuBjet ? "bjet_loose" : ""));
-  //  StringProperty bjetTauLabelProp("BJetLabel", (m_orDoTauBjet ? "bjet_loose" : ""));
-
-
-  // a few additional ones only needed for e-jet and mu-jet
-  BooleanProperty slidingDRProp("UseSlidingDR", (m_orDoBoostedElectron || m_orDoBoostedMuon)); 
-  BooleanProperty slidingDRProp_ele("UseSlidingDR", m_orDoBoostedElectron); 
-  DoubleProperty slidingC1Prop_ele("SlidingDRC1", m_orBoostedElectronC1);
-  DoubleProperty slidingC2Prop_ele("SlidingDRC2", m_orBoostedElectronC2);
-  DoubleProperty slidingMaxProp_ele("SlidingDRMaxCone", m_orBoostedElectronMaxConeSize);
-  BooleanProperty slidingDRProp_mu("UseSlidingDR", m_orDoBoostedMuon);
-  DoubleProperty slidingC1Prop_mu("SlidingDRC1", m_orBoostedMuonC1);
-  DoubleProperty slidingC2Prop_mu("SlidingDRC2", m_orBoostedMuonC2);
-  DoubleProperty slidingMaxProp_mu("SlidingDRMaxCone", m_orBoostedMuonMaxConeSize);
-
-  // BooleanProperty applyJvtProp("ApplyJVT", m_orApplyJVT); 
-  // DoubleProperty  ORJvtThresholdProp("JVT", m_jetJvtEfficiencyTool->getJvtThresh() );
-  // DoubleProperty  ORJvtPtMaxProp("JVTPt", m_jetJvtEfficiencyTool->getUserPtMax() ); 
-
-  DoubleProperty OReleFatjetDR("DR", m_EleFatJetDR);
-  DoubleProperty ORjetFatjetDR("DR", m_JetFatJetDR);
-
-  // now loop over all the subtools and conigure them with the properties above
-  for (auto& toolName : orTools) {
-
-    // these should be set for all
-    ATH_CHECK( josvc->addPropertyToCatalogue(toolName, inputLabelProp) );
-    ATH_CHECK( josvc->addPropertyToCatalogue(toolName, outputLabelProp) );
-    ATH_CHECK( josvc->addPropertyToCatalogue(toolName, outputPassValueProp) );
-
-    // both e-jet and mu-jet should get these set too
-    if ( toolName == std::string(fullToolName).append(".EleJetORT")) {
-      ATH_CHECK( josvc->addPropertyToCatalogue(toolName, bjetElLabelProp) );
-      ATH_CHECK( josvc->addPropertyToCatalogue(toolName, slidingDRProp_ele) );
-      if (m_orBoostedElectronC1 > 0)
-        ATH_CHECK( josvc->addPropertyToCatalogue(toolName, slidingC1Prop_ele) );
-      if (m_orBoostedElectronC2 > 0)
-        ATH_CHECK( josvc->addPropertyToCatalogue(toolName, slidingC2Prop_ele) );
-      if (m_orBoostedElectronMaxConeSize > 0)
-        ATH_CHECK( josvc->addPropertyToCatalogue(toolName, slidingMaxProp_ele) );
-
-      // ATH_CHECK( josvc->addPropertyToCatalogue(toolName, applyJvtProp) );
-      // if(m_orApplyJVT){
-      //   ATH_CHECK( josvc->addPropertyToCatalogue(toolName, ORJvtThresholdProp) );
-      //   ATH_CHECK( josvc->addPropertyToCatalogue(toolName, ORJvtPtMaxProp) );
-      // }
-    }
-
-    if ( toolName == std::string(fullToolName).append(".MuJetORT") ) {
-      ATH_CHECK( josvc->addPropertyToCatalogue(toolName, bjetMuLabelProp) );
-      ATH_CHECK( josvc->addPropertyToCatalogue(toolName, slidingDRProp_mu) );
-
-      if (m_orBoostedMuonC1 > 0)             ATH_CHECK( josvc->addPropertyToCatalogue(toolName, slidingC1Prop_mu) );
-      if (m_orBoostedMuonC2 > 0)             ATH_CHECK( josvc->addPropertyToCatalogue(toolName, slidingC2Prop_mu) );
-      if (m_orBoostedMuonMaxConeSize > 0)    ATH_CHECK( josvc->addPropertyToCatalogue(toolName, slidingMaxProp_mu) );
-
-      // ATH_CHECK( josvc->addPropertyToCatalogue(toolName, applyJvtProp) );
-      // if(m_orApplyJVT){
-      //   ATH_CHECK( josvc->addPropertyToCatalogue(toolName, ORJvtThresholdProp) );
-      //   ATH_CHECK( josvc->addPropertyToCatalogue(toolName, ORJvtPtMaxProp) );
-      // }
-
-      // for the muon-jet tool, propagate the ghost-association setting from the user (on by default)
-      ATH_CHECK( josvc->addPropertyToCatalogue( toolName, BooleanProperty("UseGhostAssociation", m_orDoMuonJetGhostAssociation)) );
-      
-      if (m_orMuJetPtRatio > 0)    ATH_CHECK( josvc->addPropertyToCatalogue( toolName, DoubleProperty("MuJetPtRatio", m_orMuJetPtRatio)) );
-      if (m_orMuJetTrkPtRatio > 0) ATH_CHECK( josvc->addPropertyToCatalogue( toolName, DoubleProperty("MuJetTrkPtRatio", m_orMuJetTrkPtRatio)) );
-      if (m_orMuJetInnerDR > 0)    ATH_CHECK( josvc->addPropertyToCatalogue( toolName, DoubleProperty("InnerDR", m_orMuJetInnerDR) ));
-    }
-
-    // this gets set automatically by the helper tool in the RootCore init
-    if ( toolName == std::string(fullToolName).append(".TauJetORT") ) {
-      //ATH_CHECK( josvc->addPropertyToCatalogue(toolName, bjetTauLabelProp) ); //no longer supported! we moved to DeltaR tool now!
-      ATH_CHECK( josvc->addPropertyToCatalogue(toolName, DoubleProperty("DR", 0.2)));
-    }
-
-    //set loose electron ID for TauEle removal
-    // if(m_orDoTau){
-    //   if ( toolName == std::string(fullToolName).append(".TauEleORT") ) {
-    //     ATH_CHECK(josvc->addPropertyToCatalogue(toolName, StringProperty("ElectronID", "passBaseID") ));
-    //   }
-    // }
-
-
-    // propagate the calo muon setting for EleMuORT
-    if( toolName == std::string(fullToolName).append(".EleMuORT") )
-      ATH_CHECK(josvc->addPropertyToCatalogue( toolName, BooleanProperty("RemoveCaloMuons", m_orRemoveCaloMuons) ));
-
-    // propagate the fatjets OR settings
-    if ( toolName == std::string(fullToolName).append(".EleFatJetORT") ) 
-      if(m_EleFatJetDR>0) ATH_CHECK(josvc->addPropertyToCatalogue( toolName, DoubleProperty("DR", m_EleFatJetDR)));
-    if ( toolName == std::string(fullToolName).append(".JetFatJetORT") ) 
-      if(m_JetFatJetDR>0) ATH_CHECK(josvc->addPropertyToCatalogue( toolName, DoubleProperty("DR", m_JetFatJetDR)));
-    
-  }
-#endif
-
+  } // Done with the OR toolbox setup!
 
 // /////////////////////////////////////////////////////////////////////////////////////////
 // Initialise PMG Tools

@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 // $Id$
 /**
@@ -31,8 +30,8 @@
 //#include "AsgTools/SetProperty.h"
 #include "TEnv.h"
 
-//#include "AssociationUtils/ORToolBox.h"
 #include "AssociationUtils/ToolBox.h"
+#include "AssociationUtils/IOverlapTool.h"
 #include "JetJvtEfficiency/IJetJvtEfficiency.h"
 #include "JetSubStructureUtils/BosonTag.h"
 
@@ -87,6 +86,8 @@ namespace TauAnalysisTools {
   class ITauOverlappingElectronLLHDecorator;
   class ITauTruthMatchingTool;
 }
+
+class TauWPDecorator; 
 
 namespace ORUtils {
   class IOverlapRemovalTool;
@@ -479,6 +480,7 @@ namespace ST {
     std::string m_tauId;
     std::string m_tauIdBaseline;
     bool        m_tauMVACalib; //!< Use the MVA calibration for taus
+    bool        m_tauIDrecalc; //!< Recalculate TauID definition (20.7.8.2 bugfix) 
     std::string m_eleIso_WP;
     std::string m_eleChID_WP;
     bool        m_runECIS; //run ChargeIDSelector if valid WP was selected
@@ -532,6 +534,7 @@ namespace ST {
     std::string m_tauConfigPathBaseline;
     bool m_tauDoTTM;
     bool m_tauRecalcOLR;
+    bool m_tauNoAODFixCheck;
 
     double m_jetPt;
     double m_jetEta;
@@ -543,14 +546,14 @@ namespace ST {
     double m_fwdjetPtMax;
     bool   m_fwdjetTightOp;
 
-    bool m_JMScalib;
+    std::string m_JMScalib;
 
     bool m_orDoTau;
     bool m_orDoPhoton;
     bool m_orDoBjet;
     bool m_orDoElBjet;
     bool m_orDoMuBjet;
-    //    bool m_orDoTauBjet;
+    bool m_orDoTauBjet;
     bool m_orDoBoostedElectron;
     double m_orBoostedElectronC1;
     double m_orBoostedElectronC2;
@@ -559,6 +562,7 @@ namespace ST {
     double m_orBoostedMuonC1;
     double m_orBoostedMuonC2;
     double m_orBoostedMuonMaxConeSize;
+    bool   m_orApplyRelPt;
     double m_orMuJetPtRatio;
     double m_orMuJetTrkPtRatio;
     double m_orMuJetInnerDR;
@@ -658,6 +662,7 @@ namespace ST {
     asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool3;
     asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool4;
     asg::AnaToolHandle<TauAnalysisTools::ITauOverlappingElectronLLHDecorator> m_tauElORdecorator;
+    asg::AnaToolHandle<TauWPDecorator> m_tauWPdecorator;
     //
     asg::AnaToolHandle<IBTaggingEfficiencyTool> m_btagEffTool;
     asg::AnaToolHandle<IBTaggingSelectionTool> m_btagSelTool;
@@ -676,14 +681,8 @@ namespace ST {
     //
     asg::AnaToolHandle<CP::IPileupReweightingTool> m_prwTool;
     //
-#ifdef XAOD_STANDALONE // more convenient for property setting
-    //ORUtils::ORToolBox m_orToolbox;
+    asg::AnaToolHandle<ORUtils::IOverlapTool> m_tauJetORtool;
     ORUtils::ToolBox m_orToolbox;
-#else
-    ToolHandle<ORUtils::IOverlapRemovalTool> m_orTool;
-#endif
-    //ToolHandle<ORUtils::IOverlapRemovalTool> m_orTool;
-    //    asg::AnaToolHandle<ORUtils::IOverlapRemovalTool> m_orTool;
     //
     asg::AnaToolHandle<IWeightTool> m_pmgSHnjetWeighter;
     asg::AnaToolHandle<IWeightTool> m_pmgSHnjetWeighterWZ;
