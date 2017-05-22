@@ -444,11 +444,10 @@ bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsign
 {
   
   // Do we need to update? (note that if we do, this also sets m_currentKey)
-  if (GetKeysChangedFromDB(run, lumi) == false) {
-    return false; // Nothing to do
-  }
-
+  const bool getChanged = GetKeysChangedFromDB(run, lumi);
   confg.setTriggerKeys(m_currentKey.getSMK(), m_currentKey.getLV1_PS(), m_currentKey.getHLT_PS());
+
+  if (getChanged == false) return false; // Nothing to do
 
   std::stringstream _ss1, _ss2, _ss3;
   _ss1 << m_currentKey.getSMK();

@@ -143,7 +143,7 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
 		  "FTK layer configuration");
   declareProperty("force_merge",m_force_merge,"Force the merging disabling any check");
  
-  declareProperty("HitWarrior",m_HW_level);
+  declareProperty("HitWarriorMerger",m_HW_level);
   declareProperty("HWNDiff",m_HW_ndiff);
   declareProperty("loadHWConf_path",m_HW_path); 
   declareProperty("KeepRejected",m_keep_rejected); 

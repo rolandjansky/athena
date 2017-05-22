@@ -217,18 +217,18 @@ def defineCPSGroups():
 				       ],
 				       
 				       
-        'RATE:CPS:HLT_mu_jet_L1MU6_J20' : [	
-					'mu6_j85_bperf_split_dr05_dz02',
-					'mu6_j110_bperf_split_dr05_dz02',
-				       ],
+      #  'RATE:CPS:HLT_mu_jet_L1MU6_J20' : [	
+				#	'mu6_j60_gsc85_bperf_split_dr05_dz02',
+				#	'mu6_j60_gsc110_bperf_split_dr05_dz02',
+				#       ],
         'RATE:CPS:HLT_mu_jet_L1MU6_J40' : [
 					'mu6_j150_bperf_split_dr05_dz02',
 					'mu6_j150_bperf_split',
 					'mu6_j175_bperf_split_dr05_dz02',	
 				       ],
         'RATE:CPS:HLT_mu_jet_L1MU6_J75' : [
-						'mu6_j260_bperf_split_dr05_dz02',
-						'mu6_j320_bperf_split_dr05_dz02',
+						'mu6_j175_gsc260_bperf_split_dr05_dz02',
+						'mu6_j225_gsc320_bperf_split_dr05_dz02',
 						'mu6_j320_bperf_split',
 						'mu6_j400_bperf_split_dr05_dz02',     
 				       ],			    
@@ -300,23 +300,29 @@ def defineCPSGroups():
                 'RATE:CPS:HLT_e24_medium_L1EM18VHI' : ['e24_lhmedium_L1EM18VHI',
                                                        'e24_lhmedium_nod0_L1EM18VHI',
                                                        ],
-                'RATE:CPS:HLT_mu_jet_L1MU6_J75' : ['mu6_j260_bperf_split_dr05_dz02',
-                                                   'mu6_j320_bperf_split_dr05_dz02',
-                                                   'mu6_j320_bperf_split_dr05_dz99',
-                                                   'mu6_j320_bperf_split',
-                                                   'mu6_j400_bperf_split_dr05_dz02',     
+                'RATE:CPS:HLT_mu_jet_L1MU6_J75' : ['mu6_j175_gsc260_bperf_split_dr05_dz02',
+                                                   'mu6_j225_gsc320_bperf_split_dr05_dz02',
+                                                   'mu6_j225_gsc320_bperf_split_dr05_dz99',
+                                                   'mu6_j225_gsc320_bperf_split',
+                                                   'mu6_j225_gsc400_bperf_split_dr05_dz02',     
                                                    ],
-                'RATE:CPS:HLT_mu_jet_L1MU6_J40' : ['mu6_j150_bperf_split_dr05_dz02',
-                                                   'mu6_j150_bperf_split_dr05_dz99',
-                                                   'mu6_j150_bperf_split',
-                                                   'mu6_j175_bperf_split_dr05_dz02',	
+                'RATE:CPS:HLT_mu_jet_L1MU6_J40' : ['mu6_j110_gsc150_bperf_split_dr05_dz02',
+                                                   'mu6_j110_gsc150_bperf_split_dr05_dz99',
+                                                   'mu6_j110_gsc150_bperf_split',
+                                                   'mu6_j150_gsc175_bperf_split_dr05_dz02',	
                                                    ],
                 'RATE:CPS:HLT_mu_jet_L1MU4' : ['mu4_j15_bperf_split_dr05_dz02',
                                                'mu4_j25_bperf_split_dr05_dz02',
-                                               'mu4_j35_bperf_split_dr05_dz02',
-                                               'mu4_j35_bperf_split_dr05_dz99',
-                                               'mu4_j35_bperf_split',
+                                               'mu4_j15_gsc35_bperf_split_dr05_dz02',
+                                               'mu4_j15_gsc35_bperf_split_dr05_dz99',
+                                               'mu4_j15_gsc35_bperf_split',
                                                ],
+
+                'RATE:CPS:HLT_mu_jet_L1MU6_J20' : ['mu6_j60_gsc85_bperf_split_dr05_dz02',
+                                                   'mu6_j60_gsc110_bperf_split_dr05_dz02',
+                                                   ],
+
+
 #        'RATE:CPS:HLT_xe70_L1XE50' : ['xe70_L1XE50',
 #                                      'xe75_L1XE50',
 #                                      'xe80_L1XE50',
@@ -834,7 +840,31 @@ def defineCPSGroups():
                                             ],
 
         'RATE:CPS:HLT_j390_a10t_SMC_L1HT' : [ 'j390_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',
-                                                'j390_a10t_lcw_jes_L1HT190-J15.ETA21',
+                                              'j390_a10t_lcw_jes_L1HT190-J15.ETA21',
+                                            ],
+
+        'RATE:CPS:HLT_j420_a10t_SMC_L1J100' : [ 'j420_a10t_lcw_jes_30smcINF_L1J100',
+                                                'j420_a10t_lcw_jes_L1J100',
+                                            ],
+
+        'RATE:CPS:HLT_j420_a10t_SMC_L1SC111': [ 'j420_a10t_lcw_jes_30smcINF_L1SC111',
+                                                'j420_a10t_lcw_jes_L1SC111',
+                                            ],
+
+        'RATE:CPS:HLT_j420_a10t_SMC_L1HT' : [ 'j420_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',
+                                              'j420_a10t_lcw_jes_L1HT190-J15.ETA21',
+                                            ],
+
+        'RATE:CPS:HLT_j440_a10t_SMC_L1J100' : [ 'j440_a10t_lcw_jes_30smcINF_L1J100',
+                                                'j440_a10t_lcw_jes_L1J100',
+                                            ],
+
+        'RATE:CPS:HLT_j440_a10t_SMC_L1SC111': [ 'j440_a10t_lcw_jes_30smcINF_L1SC111',
+                                                'j440_a10t_lcw_jes_L1SC111',
+                                            ],
+
+        'RATE:CPS:HLT_j440_a10t_SMC_L1HT' : [ 'j440_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',
+                                              'j440_a10t_lcw_jes_L1HT190-J15.ETA21',
                                             ],
 
         'RATE:CPS:HLT_2j330_a10t_SMC_L1J100': [ '2j330_a10t_lcw_jes_30smcINF_L1J100',
@@ -859,6 +889,18 @@ def defineCPSGroups():
 
         'RATE:CPS:HLT_2j340_a10t_SMC_L1HT'  : [ '2j340_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',
                                                 '2j340_a10t_lcw_jes_L1HT190-J15.ETA21',
+                                            ],
+
+        'RATE:CPS:HLT_2j350_a10t_SMC_L1J100': [ '2j350_a10t_lcw_jes_30smcINF_L1J100',
+                                                '2j350_a10t_lcw_jes_L1J100',
+                                            ],
+
+        'RATE:CPS:HLT_2j350_a10t_SMC_L1SC111':[ '2j350_a10t_lcw_jes_30smcINF_L1SC111',
+                                                '2j350_a10t_lcw_jes_L1SC111',
+                                            ],
+
+        'RATE:CPS:HLT_2j350_a10t_SMC_L1HT'  : [ '2j350_a10t_lcw_jes_30smcINF_L1HT190-J15.ETA21',
+                                                '2j350_a10t_lcw_jes_L1HT190-J15.ETA21',
                                             ],
 
         # Multi-jet chains

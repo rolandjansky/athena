@@ -83,33 +83,21 @@ class TileBadChanTool: public AthAlgTool
     ToolHandle<ITileCondProxy<TileCalibDrawerBch> > m_pryOflBch;
 
     std::vector<const TileBchDecoder*> m_tileBchDecoder;
-    std::map<unsigned int, TileBchStatus> m_statusMapAdc;
-    std::map<unsigned int, TileBchStatus> m_statusMapChn;
-    TileBchStatus m_defaultStatus;
+    std::map<HWIdentifier, TileBchStatus> m_statusMapAdc;
+    std::map<HWIdentifier, TileBchStatus> m_statusMapChn;
 
-    enum CACHE_SIZE { MAX_DRAWERIDX = 276, MAX_CHAN = 48 };
-    unsigned char m_adcStatus[MAX_DRAWERIDX][MAX_CHAN];
+    TileBchStatus m_defaultStatus;
 
     // dummy declarations just to make new gccreflex happy
     TileBadChanTool& operator=(const TileBadChanTool&);
 
     std::vector<std::vector<float> > m_tripsProbs;
     bool m_useOflBch;
+
+    const TileHWID* m_tileHWID;
+    std::vector<unsigned int> m_roses;
+    std::vector<unsigned int> m_drawers;
 };
 
-//
-//____________________________________________________________________
-__attribute__((always_inline))   inline const TileBchStatus&
-TileBadChanTool::getAdcStatus(unsigned int drawerIdx
-                             , unsigned int channel
-                             , unsigned int adc) const {
-
-  if ((m_adcStatus[drawerIdx][channel] >> (adc)) & 1U) {
-    return (m_statusMapAdc.find(TileCalibUtils::getAdcIdx(drawerIdx, channel, adc)))->second;
-  } else {
-    return m_defaultStatus;
-  }
-
-}
 
 #endif

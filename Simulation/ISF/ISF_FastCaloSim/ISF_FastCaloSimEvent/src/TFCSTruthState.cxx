@@ -17,9 +17,3 @@ TFCSTruthState::TFCSTruthState(Double_t x, Double_t y, Double_t z, Double_t t, i
   m_pdgid=pdgid;
 }
 
-//=============================================
-//========== ROOT persistency stuff ===========
-//=============================================
-
-ClassImp(TFCSTruthState)
-

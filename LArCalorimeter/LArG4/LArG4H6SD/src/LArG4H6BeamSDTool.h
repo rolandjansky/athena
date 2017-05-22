@@ -12,7 +12,7 @@ class LArG4H6BeamSDTool : public SensitiveDetectorBase
 public:
   LArG4H6BeamSDTool(const std::string& type, const std::string& name, const IInterface *parent);
   virtual ~LArG4H6BeamSDTool() {}
-    
+
   G4VSensitiveDetector* makeSD() override final;
 };
 

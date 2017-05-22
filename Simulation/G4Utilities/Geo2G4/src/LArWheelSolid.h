@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __LArWheelSolid_H__
-#define __LArWheelSolid_H__
+#ifndef GEO2G4_LARWHEELSOLID_H
+#define GEO2G4_LARWHEELSOLID_H
 
 #include "AthenaKernel/MsgStreamMember.h"
 #include "G4VSolid.hh"
@@ -104,46 +104,46 @@ public:
   // 07-Feb-2003 WGS: For compatibility with Geant 4.5.0
   virtual std::ostream& StreamInfo(std::ostream& os) const { return os; }
 
-  const G4Polycone *GetBoundingPolycone(void) const { return BoundingPolycone; }
+  const G4Polycone *GetBoundingPolycone(void) const { return m_BoundingPolycone; }
   const LArWheelCalculator *GetCalculator(void) const { return m_Calculator; }
-  LArWheelSolid_t GetType(void) const { return Type; }
+  LArWheelSolid_t GetType(void) const { return m_Type; }
 
   G4ThreeVector GetPointOnSurface(void) const;
   G4double GetCubicVolume(void);
   G4double GetSurfaceArea(void);
 
 private:
-  static const G4double Tolerance;
-  static const G4double AngularTolerance;
-  static const G4double IterationPrecision;
-  static const G4double IterationPrecision2;
-  static const unsigned int IterationsLimit;
+  static const G4double s_Tolerance;
+  static const G4double s_AngularTolerance;
+  static const G4double s_IterationPrecision;
+  static const G4double s_IterationPrecision2;
+  static const unsigned int s_IterationsLimit;
 
-  G4bool IsOuter;
-  const LArWheelSolid_t Type;
+  G4bool m_IsOuter;
+  const LArWheelSolid_t m_Type;
   LArWheelCalculator *m_Calculator;
-  G4double FanHalfThickness, FHTplusT, FHTminusT;
-  G4double FanPhiAmplitude;
-  G4double MinPhi;
-  G4double MaxPhi;
-  const G4double PhiPosition;
-  G4Polycone* BoundingPolycone;
-  G4VSolid* BoundingShape;
+  G4double m_FanHalfThickness, m_FHTplusT, m_FHTminusT;
+  G4double m_FanPhiAmplitude;
+  G4double m_MinPhi;
+  G4double m_MaxPhi;
+  const G4double m_PhiPosition;
+  G4Polycone* m_BoundingPolycone;
+  G4VSolid* m_BoundingShape;
 #ifdef LARWHEELSOLID_USE_FANBOUND
-  G4VSolid* FanBound;
+  G4VSolid* m_FanBound;
 #endif
 
-  std::vector<G4double> Zsect;
-  G4int Zsect_start_search;
+  std::vector<G4double> m_Zsect;
+  G4int m_Zsect_start_search;
 
   LArFanSections *m_fs;
 
   // z at outer wheel "bend"
-  G4double Zmid;
+  G4double m_Zmid;
   // Special limit, used in dto
-  G4double Ymin;
+  G4double m_Ymin;
   // limits for use in service functions
-  G4double Zmin, Zmax, Rmin, Rmax;
+  G4double m_Zmin, m_Zmax, m_Rmin, m_Rmax;
 
   void inner_solid_init(const G4String &);
   void outer_solid_init(const G4String &);
@@ -203,9 +203,9 @@ protected:
   /// Private message stream member
   mutable Athena::MsgStreamMember m_msg;
 
-  TF1 *f_area, *f_vol, *f_area_on_pc, *f_length, *f_side_area;
+  TF1 *m_f_area, *m_f_vol, *m_f_area_on_pc, *m_f_length, *m_f_side_area;
 
-  double test_index;
+  double m_test_index;
   friend double LArWheelSolid_fcn_area(double *, double *);
   friend double LArWheelSolid_fcn_vol(double *, double *);
   friend double LArWheelSolid_fcn_area_on_pc(double *, double *);
@@ -231,8 +231,8 @@ protected:
 	G4bool test_dto(const G4ThreeVector &p,
 	                const G4ThreeVector &v, const G4double distance) const;
   private:
-	const char *TypeStr(void) const { return LArWheelSolidTypeString(Type); }
+	const char *TypeStr(void) const { return LArWheelSolidTypeString(m_Type); }
 #endif
 };
 
-#endif // __LArWheelSolid_H__
+#endif // GEO2G4_LARWHEELSOLID_H

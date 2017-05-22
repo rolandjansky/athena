@@ -10,6 +10,7 @@
 // AthAnalysisBase doesn't know about calo cells (geometry would be needed)
 #ifndef XAOD_ANALYSIS
 #include "../ThinCaloCellsTool.h"
+#include "../ThinTrkTrackAlg.h"
 #endif
 #include "../ThinCaloClustersAlg.h"
 #include "../ThinCaloClustersTool.h"
@@ -26,6 +27,7 @@ DECLARE_ALGORITHM_FACTORY( ThinCaloCellsAlg )
 // AthAnalysisBase doesn't know about calo cells (geometry would be needed)
 #ifndef XAOD_ANALYSIS
 DECLARE_TOOL_FACTORY( ThinCaloCellsTool )
+DECLARE_ALGORITHM_FACTORY( ThinTrkTrackAlg )
 #endif
 DECLARE_ALGORITHM_FACTORY( ThinCaloClustersAlg )
 DECLARE_TOOL_FACTORY( ThinCaloClustersTool )
@@ -44,6 +46,7 @@ DECLARE_FACTORY_ENTRIES( ThinningUtils )
 // AthAnalysisBase doesn't know about calo cells (geometry would be needed)
 #ifndef XAOD_ANALYSIS
   DECLARE_TOOL( ThinCaloCellsTool );
+  DECLARE_ALGORITHM ( ThinTrkTrackAlg );
 #endif
   DECLARE_ALGORITHM( ThinCaloClustersAlg );
   DECLARE_TOOL( ThinCaloClustersTool );

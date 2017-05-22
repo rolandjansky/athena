@@ -110,6 +110,13 @@ def configureFlagsATLFASTII():
     ISF_Flags.UsingGeant4 = True
     return
 
+def configureFlagsATLFASTII_PileUp():
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "ATLFASTII_PileUp"
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    ISF_Flags.UsingGeant4 = True
+    return
+
 ## methods for simulators which use Fatras + FastCaloSim
 
 def configureFlagsATLFASTIIF():
@@ -138,6 +145,13 @@ def configureFlagsATLFASTIIF_PileUp():
     configureFlagsATLFASTIIF()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "ATLFASTIIF_PileUp"
+    return
+  
+def configureFlagsG4HS_FastPileup():
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "G4HS_FastPileup"
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    ISF_Flags.UsingGeant4 = True
     return
 
 def configureFlagsATLFASTIIF_IDOnly():

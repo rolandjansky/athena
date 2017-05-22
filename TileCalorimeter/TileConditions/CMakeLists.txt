@@ -67,6 +67,14 @@ atlas_add_test( TileCondToolDspThreshold_test
                 SOURCES test/TileCondToolDspThreshold_test.cxx
                 LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps TestTools GaudiKernel ${CORAL_LIBRARIES} )
 
+atlas_add_test( TileCablingService_test
+                SOURCES test/TileCablingService_test.cxx
+                LINK_LIBRARIES TileConditionsLib TileIdentifier StoreGateLib IdDictParser TestTools CxxUtils )
+
+atlas_add_test( TileCablingService_UpgradeABC_test
+                SOURCES test/TileCablingService_UpgradeABC_test.cxx
+                LINK_LIBRARIES TileConditionsLib TileIdentifier StoreGateLib IdDictParser TestTools CxxUtils )
+
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

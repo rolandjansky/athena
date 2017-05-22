@@ -10,6 +10,7 @@ monStreams = ['monitoring_random',
               ]
 
 physicsStreams = ['Main',
+                  'BphysLS',
                   'Physics',
                   'Background',
                   'DISCARD',

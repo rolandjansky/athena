@@ -132,7 +132,7 @@ float JetVertexTaggerTool::evaluateJvt(float rpt, float jvfcorr) const {
 //**********************************************************************
 
 float JetVertexTaggerTool::updateJvt(const xAOD::Jet& jet, std::string sjvt, std::string scale) const {
-  string sjvfcorr = "JVFCorr";
+  string sjvfcorr = m_jvfCorrName;
   string srpt = sjvt + "Rpt";
   JetFourMom_t p4old = jet.jetP4(scale);
   float ptold = p4old.pt();

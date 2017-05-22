@@ -773,14 +773,14 @@ void SiTrkAlignDBTool::updateAsL2(const Trk::AlignModule * module, const Amg::Tr
   // check the level we store in
   ATH_MSG_INFO("DB aligning at level: "<<level);
   
-  unsigned int idet=0;
-  Trk::AlignModule::DetectorType det = idet ? Trk::AlignModule::SCT : Trk::AlignModule::Pixel;
+  Trk::AlignModule::DetectorType det = Trk::AlignModule::Pixel;
   const std::vector<const Trk::TrkDetElementBase *> * elements = module->detElementCollection(det);
-      
+
   if( !elements ) {
     ATH_MSG_FATAL("no elements of type "<<det);
+    return;
   }
-      
+
   ATH_MSG_DEBUG("looping over "<<elements->size()<<" elements");
   std::vector<std::string> level_mods; // where we store the unique identifiers we want to update
     
@@ -846,6 +846,7 @@ void SiTrkAlignDBTool::updateAsL16(const Trk::AlignModule * module, double bowx)
 
   if( !elements ) {
     ATH_MSG_FATAL("no elements of type "<<det);
+    return;
   }
 
   ATH_MSG_DEBUG("looping over "<<elements->size()<<" elements");

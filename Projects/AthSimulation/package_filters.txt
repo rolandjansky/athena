@@ -25,6 +25,7 @@
 + Control/AthAllocators
 + Control/AthContainers
 + Control/AthContainersInterfaces
++ Control/AthContainersRoot
 + Control/AthLinks
 + Control/AthToolSupport/AsgTools
 + Control/AthenaBaseComps
@@ -58,6 +59,8 @@
 + Control/SGTools
 + Control/StoreGate
 + Control/StoreGateBindings
++ Control/xAODRootAccess
++ Control/xAODRootAccessInterfaces
 + Database/APR/CollectionBase
 + Database/APR/CollectionUtilities
 + Database/APR/FileCatalog
@@ -84,6 +87,7 @@
 + Database/AthenaPOOL/StlAthenaPoolCnv
 + Database/AthenaRoot/AthenaRootComps
 + Database/AthenaRoot/AthenaRootKernel
++ Database/AthenaRoot/RootAuxDynIO
 + Database/AtlasSTLAddReflex
 + Database/AtlasSealCLHEP
 + Database/CondDBObjects
@@ -146,6 +150,7 @@
 + Event/xAOD/xAODCore
 + Event/xAOD/xAODCoreAthenaPool
 + Event/xAOD/xAODCoreCnv
++ Event/xAOD/xAODEventFormat
 + Event/xAOD/xAODEventInfo
 + Event/xAOD/xAODJet
 + Event/xAOD/xAODJetAthenaPool
@@ -257,6 +262,7 @@
 + Reconstruction/RecEvent
 + Reconstruction/RecEventAthenaPool
 + Reconstruction/RecEventTPCnv
++ Simulation/Barcode/BarcodeEvent
 + Simulation/Barcode/BarcodeInterfaces
 + Simulation/Barcode/BarcodeServices
 + Simulation/BeamEffects
@@ -298,6 +304,7 @@
 + Simulation/ISF/ISF_Example
 + Simulation/ISF/ISF_Geant4/ISF_Geant4CommonServices
 + Simulation/ISF/ISF_Geant4/ISF_Geant4CommonTools
++ Simulation/ISF/ISF_Geant4/ISF_Geant4Event
 + Simulation/ISF/ISF_Geant4/ISF_Geant4Interfaces
 + Simulation/ISF/ISF_Geant4/ISF_Geant4Services
 + Simulation/ISF/ISF_Geant4/ISF_Geant4Tools

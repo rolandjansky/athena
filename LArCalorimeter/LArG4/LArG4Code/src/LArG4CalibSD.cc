@@ -4,7 +4,7 @@
 
 #include "LArG4Code/LArG4CalibSD.h"
 
-#include "LArG4Code/VCalibrationCalculator.h"
+#include "LArG4Code/ILArCalibCalculatorSvc.h"
 #include "CaloIdentifier/LArID_Exception.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
@@ -18,7 +18,7 @@
 
 #include "G4Step.hh"
 
-LArG4CalibSD::LArG4CalibSD(G4String a_name, LArG4::VCalibrationCalculator* calc, bool doPID)
+LArG4CalibSD::LArG4CalibSD(G4String a_name, ILArCalibCalculatorSvc* calc, bool doPID)
   : G4VSensitiveDetector(a_name)
   , m_calculator(calc)
   , m_numberInvalidHits(0)
@@ -53,12 +53,15 @@ G4bool LArG4CalibSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
   // it occurred outside the sensitive region.  If such a thing
   // happens, it means that the geometry definitions in the
   // detector-construction routine and the calculator do not agree.)
-  if(!(m_calculator->Process(a_step))) {
+  LArG4Identifier _identifier;
+  std::vector<G4double>  _energies;
+
+  if(!(m_calculator->Process(a_step, _identifier, _energies))) {
     m_numberInvalidHits++;
     return false;
   }
 
-  return SimpleHit( m_calculator->identifier() , m_calculator->energies() );
+  return SimpleHit( _identifier , _energies );
 }
 
 G4bool LArG4CalibSD::SimpleHit( const LArG4Identifier& a_ident , const std::vector<double>& energies ){
@@ -150,10 +153,13 @@ G4bool LArG4CalibSD::SimpleHit( const LArG4Identifier& a_ident , const std::vect
 G4bool LArG4CalibSD::SpecialHit(G4Step* a_step,
                                 const std::vector<G4double>& a_energies)
 {
-  // If we can't calculate the identifier, something is wrong.
-  if (!(m_calculator->Process( a_step, LArG4::VCalibrationCalculator::kOnlyID))) return false;
+  LArG4Identifier _identifier;
+  std::vector<G4double>  _vtmp;
 
-  return SimpleHit( m_calculator->identifier() , a_energies );
+  // If we can't calculate the identifier, something is wrong.
+  if (!(m_calculator->Process( a_step, _identifier, _vtmp, LArG4::kOnlyID))) return false;
+
+  return SimpleHit( _identifier , a_energies );
 } 
  
 

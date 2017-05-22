@@ -6,10 +6,10 @@
 
 #undef DEBUG_HITS
 
-#include "LArG4EC/CalibrationCalculator.h"
-#include "LArG4EC/EnergyCalculator.h"
+#include "CalibrationCalculator.h"
 
 #include "LArG4Code/LArG4Identifier.h"
+#include "LArG4Code/ILArCalculatorSvc.h"
 
 #include "G4Step.hh"
 #include "globals.hh"
@@ -18,69 +18,120 @@ namespace LArG4 {
 
   namespace EC {
 
-    CalibrationCalculator::CalibrationCalculator(LArWheelCalculator::LArWheelCalculator_t t, int zside)
+    //CalibrationCalculator::CalibrationCalculator(LArG4::LArWheelCalculator_t t, int zside)
+    CalibrationCalculator::CalibrationCalculator(const std::string& name, ISvcLocator *pSvcLocator)
+      : LArCalibCalculatorSvcImp(name, pSvcLocator)
+      , m_wcalc_tProp(0)
+      , m_wcalc_t(LArG4::InnerAbsorberWheel)
+      , m_geometryCalculator("",name)
     {
-      // Make sure there are no uninitialized variables.
-      m_geometryCalculator = new EnergyCalculator(t, EnergyCalculator::EMEC_ECOR_OFF, zside);
+      declareProperty("WheelType", m_wcalc_tProp);
+      m_wcalc_tProp.declareUpdateHandler(&CalibrationCalculator::WheelTypeHandler, this);
+      declareProperty("zSide", m_zside=0);
+      declareProperty("GeometryCalculator",m_geometryCalculator);
+    }
+
+    void CalibrationCalculator::WheelTypeHandler(Property&)
+    {
+      switch(m_wcalc_tProp.value())
+        {
+        case  0: m_wcalc_t = LArG4::InnerAbsorberWheel; break;
+        case  1: m_wcalc_t = LArG4::OuterAbsorberWheel; break;
+        case  2: m_wcalc_t = LArG4::InnerElectrodWheel; break;
+        case  3: m_wcalc_t = LArG4::OuterElectrodWheel; break;
+        case  4: m_wcalc_t = LArG4::InnerAbsorberModule; break;
+        case  5: m_wcalc_t = LArG4::OuterAbsorberModule; break;
+        case  6: m_wcalc_t = LArG4::InnerElectrodModule; break;
+        case  7: m_wcalc_t = LArG4::OuterElectrodModule; break;
+        case  8: m_wcalc_t = LArG4::BackInnerBarretteWheel; break;
+        case  9: m_wcalc_t = LArG4::BackOuterBarretteWheel; break;
+        case 10: m_wcalc_t = LArG4::BackInnerBarretteWheelCalib; break;
+        case 11: m_wcalc_t = LArG4::BackOuterBarretteWheelCalib; break;
+        case 12: m_wcalc_t = LArG4::BackInnerBarretteModule; break;
+        case 13: m_wcalc_t = LArG4::BackOuterBarretteModule; break;
+        case 14: m_wcalc_t = LArG4::BackInnerBarretteModuleCalib; break;
+        case 15: m_wcalc_t = LArG4::BackOuterBarretteModuleCalib; break;
+        case 16: m_wcalc_t = LArG4::InnerGlueWheel; break;
+        case 17: m_wcalc_t = LArG4::OuterGlueWheel; break;
+        case 18: m_wcalc_t = LArG4::InnerLeadWheel; break;
+        case 19: m_wcalc_t = LArG4::OuterLeadWheel; break;
+        default:
+          {
+            std::ostringstream merr;
+            merr <<
+              "CalibrationCalculator::WheelTypeHandler FATAL: invalid LArWheelCalculator_t specified "
+                 << m_wcalc_tProp.value();
+            std::cerr << merr.str() << std::endl;
+            throw GaudiException(merr.str(), "CalibrationCalculator::WheelTypeHandler", StatusCode::FAILURE);
+          }
+        }
+    }
+
+    StatusCode CalibrationCalculator::initialize() {
+      ATH_CHECK(m_geometryCalculator.retrieve());
+
+      return StatusCode::SUCCESS;
     }
 
 
     CalibrationCalculator::~CalibrationCalculator()
     {
       // Clean up pointers.
-      delete m_geometryCalculator;
+      //delete m_geometryCalculator;
     }
 
-
-    G4bool CalibrationCalculator::Process( const G4Step* a_step,
-					   const eCalculatorProcessing a_process )
+    G4bool CalibrationCalculator::Process (const G4Step* a_step,
+                                           LArG4Identifier & _identifier,
+                                           std::vector<G4double> & _energies,
+                                           const eCalculatorProcessing a_process) const
     {
       // Use the calculators to determine the energies and the
       // identifier associated with this G4Step.  Note that the
       // default is to process both the energy and the ID.
 
-      m_energies.clear();
+      _energies.clear();
       if ( a_process == kEnergyAndID  ||  a_process == kOnlyEnergy )
-	{
+        {
 #ifdef DEBUG_HITS
-	  std::cout << "LArG4::EC::CalibrationCalculator::Process"
-		    << " calling SimulationEnergies"
-		    << " at m_energyCalculator="
-		    << m_energyCalculator
-		    << std::endl;
+          std::cout << "LArG4::EC::CalibrationCalculator::Process"
+                    << " calling SimulationEnergies"
+                    << " at m_energyCalculator="
+                    << m_energyCalculator
+                    << std::endl;
 #endif
-	  m_energyCalculator.Energies( a_step, m_energies );
-	}
+          m_energyCalculator.Energies( a_step, _energies );
+        }
       else
-	for (unsigned int i=0; i != 4; i++) m_energies.push_back( 0. );
+        for (unsigned int i=0; i != 4; i++) _energies.push_back( 0. );
 
 
-      if ( a_process == kEnergyAndID  ||  a_process == kOnlyID )
-	{
-	  // Calculate the identifier.
-	  (void)m_geometryCalculator->Process( a_step );
-	   m_identifier =  m_geometryCalculator->identifier();
-	}
-      else
-	m_identifier = LArG4Identifier();
+      if ( a_process == kEnergyAndID  ||  a_process == kOnlyID ) {
+        // Calculate the identifier.
+        //(void)m_geometryCalculator->Process( a_step );
+        // _identifier =  m_geometryCalculator->identifier();
+        std::vector<LArHitData> hdata;
+        m_geometryCalculator->Process( a_step, hdata );
+        _identifier =  hdata[0].id;
+      } else
+        _identifier = LArG4Identifier();
 
 
 #ifdef DEBUG_HITS
-      G4double energy = accumulate(m_energies.begin(),m_energies.end(),0.);
+      G4double energy = accumulate(_energies.begin(),_energies.end(),0.);
       std::cout << "LArG4::EC::CalibrationCalculator::Process"
-		<< " ID=" << std::string(m_identifier)
-		<< " energy=" << energy
-		<< " energies=(" << m_energies[0]
-		<< "," << m_energies[1]
-		<< "," << m_energies[2]
-		<< "," << m_energies[3] << ")"
-		<< std::endl;
+                << " ID=" << std::string(_identifier)
+                << " energy=" << energy
+                << " energies=(" << _energies[0]
+                << "," << _energies[1]
+                << "," << _energies[2]
+                << "," << _energies[3] << ")"
+                << std::endl;
 #endif
 
       // Check for bad result.
-      if ( m_identifier == LArG4Identifier() ) {
+      if ( _identifier == LArG4Identifier() ) {
         std::cout << "return invalid from EmecCalibrationCalculator" << std::endl;
-	return false;
+        return false;
       }
 
       return true;

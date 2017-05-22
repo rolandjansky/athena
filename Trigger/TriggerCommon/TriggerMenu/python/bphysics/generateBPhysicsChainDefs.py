@@ -82,7 +82,7 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True, doL2MultiTrack = False)
     SameConfigTopos = ['bJpsi', 'bDimu', 'bDimu2700', 'bTau', 'bTauTrk', 'trkTau',
                        'bDsPhiXtight','bDsPhiX', 'bPhi', 
                        'bBmumu', 'bJpsimumu', 'bUpsimumu', 'Zmumu','bUpsi',
-                       'bNocut']
+                       'bNocut', 'bVertex2', 'bVertex3']
     ntopos = len(topoAlgs)
 
     topoThresh = chainDict['topoThreshold']
@@ -256,6 +256,34 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         # but because of 3mu_bJpsi items we will not gain anything
         L2Fex = TrigMultiTrkFex_DiMu_noCut()
         L2Hypo = EFMultiMuHypo_DiMu_noCut("L2MultiMuTrkHypo_noCut")
+        L2Hypo.bphysCollectionKey = "MultiTrkFex"
+
+        EFFex = TrigBphysMuonCounter_bNmu("TrigBphysMuonCounter"+fexNameExt, trkmuons)
+        EFHypo = None
+
+    elif (mtopo == 'bVertex2'):
+
+        from TrigBphysHypo.TrigMultiTrkFexConfig import  TrigMultiTrkFex_Vtx2
+        from TrigBphysHypo.TrigBphysMuonCounterConfig import  TrigBphysMuonCounter_bNmu
+        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Vtx20
+        # at level 2 just check that there is at least 2 tracks. One could cut this more down with multiplicity cut for 3mu_bNocut
+        # but because of 3mu_bJpsi items we will not gain anything
+        L2Fex = TrigMultiTrkFex_Vtx2()
+        L2Hypo = EFMultiMuHypo_Vtx20("EFMultiMuHypo_Vtx20")
+        L2Hypo.bphysCollectionKey = "MultiTrkFex"
+
+        EFFex = TrigBphysMuonCounter_bNmu("TrigBphysMuonCounter"+fexNameExt, trkmuons)
+        EFHypo = None
+
+    elif (mtopo == 'bVertex3'):
+
+        from TrigBphysHypo.TrigMultiTrkFexConfig import  TrigMultiTrkFex_Vtx3
+        from TrigBphysHypo.TrigBphysMuonCounterConfig import  TrigBphysMuonCounter_bNmu
+        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Vtx20
+        # at level 2 just check that there is at least 2 tracks. One could cut this more down with multiplicity cut for 3mu_bNocut
+        # but because of 3mu_bJpsi items we will not gain anything
+        L2Fex = TrigMultiTrkFex_Vtx3()
+        L2Hypo = EFMultiMuHypo_Vtx20("EFMultiMuHypo_Vtx20")
         L2Hypo.bphysCollectionKey = "MultiTrkFex"
 
         EFFex = TrigBphysMuonCounter_bNmu("TrigBphysMuonCounter"+fexNameExt, trkmuons)

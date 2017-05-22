@@ -18,7 +18,7 @@
 
 #undef DEBUG_PROCESS
 
-using namespace LArG4;
+//using namespace LArG4;
 
 EscapedEnergyProcessing::EscapedEnergyProcessing(LArG4CalibSD* SD)
   : m_defaultSD(SD)

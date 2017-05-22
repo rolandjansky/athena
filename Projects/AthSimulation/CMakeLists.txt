@@ -16,11 +16,12 @@ find_package( AtlasCMake QUIET )
 # Find the base project(s):
 find_package( AthSimulationExternals REQUIRED )
 find_package( Gaudi REQUIRED )
+find_package( Frontier_Client )
 
 # Temporarily setting additional compile flags here:
 add_definitions( -DSIMULATIONBASE )
 
-set( AthSimulationBase TRUE CACHE BOOL
+set( SIMULATIONBASE TRUE CACHE BOOL
    "Flag specifying that this is a simulation release build" )
 
 # Load all the files from the externals/ subdirectory:

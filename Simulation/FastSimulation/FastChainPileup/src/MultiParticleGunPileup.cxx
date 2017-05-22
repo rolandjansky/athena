@@ -24,7 +24,8 @@ MultiParticleGunPileup::MultiParticleGunPileup(const std::string& name, ISvcLoca
   m_file(NULL),
   m_htgPileupProfile(NULL),
   m_htgPileupMu(NULL),
-  m_htgPileupEvents(NULL)
+  m_htgPileupEvents(NULL),
+  partSampler(NULL)
 {
   declareProperty("NCollPerEvent",m_ncollevent=20,"Collisons per event (-1 to use profile)");
   declareProperty("PileupProfile",m_pileupProfile,"Pileup profile array");
