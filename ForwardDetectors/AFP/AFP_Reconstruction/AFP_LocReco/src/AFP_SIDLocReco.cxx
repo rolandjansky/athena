@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #include "AFP_LocReco/AFP_SIDLocReco.h"
 
 #include "AthenaKernel/errorcheck.h"
@@ -15,11 +16,16 @@
 #include "xAODForward/AFPTrackContainer.h"
 #include "xAODForward/AFPTrackAuxContainer.h"
 
+using namespace std;
+
 
 AFP_SIDLocReco::AFP_SIDLocReco(const string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator),
+  m_recoToolHandle("AFPSiDBasicKalmanTool")
 {
   ATH_MSG_DEBUG("begin AFP_SIDLocReco::AFP_SIDLocReco");
+
+  declareProperty("recoTool",m_recoToolHandle);
 
   m_Config.clear();
   m_pGeometry = new AFP_Geometry(&m_Config);
@@ -42,8 +48,6 @@ AFP_SIDLocReco::AFP_SIDLocReco(const string& name, ISvcLocator* pSvcLocator) :
 
 
   m_strKeyGeometryForReco			= "AFP_GeometryForReco";
-  m_strSIDCollectionName			= "AFPSiHitContainer";
-  m_strKeySIDLocRecoEvCollection		= "AFPTrackContainer";
 
   m_pSIDLocRecoEvCollection = NULL;
   m_pSIDLocRecoEvent = NULL;
@@ -60,12 +64,6 @@ AFP_SIDLocReco::~AFP_SIDLocReco()
 {
   ATH_MSG_DEBUG("begin AFP_SIDLocReco::~AFP_SIDLocReco");
 
-  // 	if(m_pGeometryReader!=NULL)
-  // 	{
-  // 		delete m_pGeometryReader;
-  // 		m_pGeometryReader = NULL;
-  // 	}
-
   ATH_MSG_DEBUG("begin AFP_SIDLocReco::~AFP_SIDLocReco");
 }
 
@@ -75,6 +73,12 @@ StatusCode AFP_SIDLocReco::initialize()
 
   StatusCode sc;
   ClearGeometry();
+
+  sc=m_recoToolHandle.retrieve(); //Dot, not asterisk! This is a method of the ToolHandle, not of the tool it holds.
+  if (sc.isFailure()) {
+    ATH_MSG_ERROR("Failed to retrieve AlgTool " << m_recoToolHandle);
+    return sc;
+  }
 
   sc = service("StoreGateSvc",m_storeGate);
   if(sc.isFailure())
@@ -94,19 +98,6 @@ StatusCode AFP_SIDLocReco::initialize()
       return StatusCode::SUCCESS;
     }
 
-  //write AFP_GeometryReader to StoreGate
-  /*if (StatusCode::SUCCESS!=service("DetectorStore",m_pDetStore))
-    {
-    LogStream << MSG::ERROR << "Detector store not found" << endreq;
-    return StatusCode::FAILURE;
-    }
-    sc = m_pDetStore->record(m_pGeometryReader, m_strKeyGeometryForReco);
-    if(sc.isFailure())
-    {
-    LogStream << MSG::ERROR << "m_pGeometryReader: unable to record to StoreGate" << endreq;
-    return sc;
-    }*/
-
   m_iEvent = 0;
 
   ATH_MSG_DEBUG("end AFP_SIDLocReco::initialize()");
@@ -118,9 +109,6 @@ StatusCode AFP_SIDLocReco::execute()
   ATH_MSG_DEBUG("begin AFP_SIDLocReco::execute()");
 
   StatusCode sc;
-
-  list<SIDHIT> ListSIDHits;
-  ListSIDHits.clear();
 
   m_eventNum = 0;
   m_iRunNum  = 0;
@@ -138,55 +126,8 @@ StatusCode AFP_SIDLocReco::execute()
       m_iRunNum = eventInfo->event_ID()->run_number();
     }
 
+  CHECK( m_recoToolHandle->reconstructTracks() );
 
-  // 	//  get truth information
-  // 	//////////////////////////////////////////
-  // 	const McEventCollection* mcTru = 0;     
-  // 	sc = m_storeGate->retrieve(mcTru,"TruthEvent");
-  // 	if(sc.isFailure() || !mcTru){
-  // 		LogStream << MSG::DEBUG << "Container "<< "TruthEvent" <<" NOT FOUND !!!!!!!" << endreq;
-  // //		return StatusCode::FAILURE;
-  // 	}
-	
-	
-
-  sc = RecordSIDCollection();
-  if (sc.isFailure())
-    {
-      ATH_MSG_WARNING("RecordCollection() failed");
-      return StatusCode::SUCCESS;
-    }
-
-  // init xAOD
-  xAOD::AFPTrackContainer* trackContainer = new xAOD::AFPTrackContainer();
-  CHECK( evtStore()->record(trackContainer, m_strKeySIDLocRecoEvCollection) );
-  xAOD::AFPTrackAuxContainer* trackAuxContainer = new xAOD::AFPTrackAuxContainer();
-  CHECK( evtStore()->record(trackAuxContainer, m_strKeySIDLocRecoEvCollection + "Aux.") );
-  trackContainer->setStore(trackAuxContainer);
-	
-  sc = AFPCollectionReading(ListSIDHits);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING("AFP_Collection_Reading Failed");
-    //		return StatusCode::SUCCESS;
-  }
-  else {
-    string strAlgoSID;
-    for(unsigned int i=0; i<m_vecListAlgoSID.size(); i++)
-      {
-	strAlgoSID = m_vecListAlgoSID[i];
-
-	//execute SID algorithm
-	sc = ExecuteRecoMethod(strAlgoSID, ListSIDHits, trackContainer);
-			
-	if (sc.isFailure())
-	  {
-	    ATH_MSG_WARNING("SID Algorithm " << strAlgoSID << " failure!");
-	    return StatusCode::SUCCESS;
-	  }
-      }
-  }
-
-	
   m_iEvent++;
   ATH_MSG_DEBUG("end AFP_SIDLocReco::execute()");
   return StatusCode::SUCCESS;
@@ -205,80 +146,19 @@ void AFP_SIDLocReco::ClearGeometry()
 {
   ATH_MSG_DEBUG("begin AFP_SIDLocReco::ClearGeometry()");
 
-  ///////
   memset(&m_fsSID, 0, sizeof(m_fsSID));
   memset(&m_fxSID, 0, sizeof(m_fxSID));
   memset(&m_fySID, 0, sizeof(m_fySID));
   memset(&m_fzSID, 0, sizeof(m_fzSID));
-  ///////
 	
   ATH_MSG_DEBUG("end AFP_SIDLocReco::ClearGeometry()");
 }
 
 
-StatusCode AFP_SIDLocReco::AFPCollectionReading(list<SIDHIT> &ListSIDHits)
-{
-  StatusCode sc;
-
-  ATH_MSG_DEBUG("begin AFP_SIDLocReco::AFPCollectionReading()");
-
-  SIDHIT SIDHit;
-
-  ListSIDHits.clear();
-
-  const xAOD::AFPSiHitContainer* siHitContainer = 0;
-  sc = m_storeGate->retrieve(siHitContainer, m_strSIDCollectionName);
-  if(sc.isFailure() || !siHitContainer)
-    {
-      return StatusCode::SUCCESS;
-    }
-
-  xAOD::AFPSiHitContainer::const_iterator hitIter = siHitContainer->begin();
-  xAOD::AFPSiHitContainer::const_iterator mcSIDGenEnd = siHitContainer->end();
-
-  for(;hitIter!=mcSIDGenEnd;++hitIter) {
-    xAOD::AFPSiHit* hit = *hitIter;
-    SIDHit.iEvent 			= m_eventNum;
-    SIDHit.fADC  			= hit->depositedCharge();
-    SIDHit.fTDC 			= 0;
-    SIDHit.nDetectorID  		= hit->pixelLayerID();
-    SIDHit.nStationID 		= hit->stationID();
-    SIDHit.nPixelRow		= hit->pixelVertID();
-    SIDHit.nPixelCol		= hit->pixelHorizID();
-
-
-    ListSIDHits.push_back(SIDHit);
-  }
-
-  // const AFP_SiDigiCollection* mcSIDGen = 0;
-  // sc = m_storeGate->retrieve(mcSIDGen,m_strSIDCollectionName);
-  // if(sc.isFailure() || !mcSIDGen)
-
-  //   AFP_SiDigiCollection::const_iterator mcSIDGenBeg = mcSIDGen->begin();
-  // AFP_SiDigiCollection::const_iterator mcSIDGenEnd = mcSIDGen->end();
- 
-  // for(;mcSIDGenBeg!=mcSIDGenEnd;++mcSIDGenBeg) {
-  //   SIDHit.iEvent = m_eventNum;
-  //   SIDHit.fADC  = mcSIDGenBeg->m_fADC;
-  //   SIDHit.fTDC = mcSIDGenBeg->m_fTDC;
-  //   SIDHit.nDetectorID  = mcSIDGenBeg->m_nDetectorID;
-  //   SIDHit.nStationID = mcSIDGenBeg->m_nStationID;
-  //   SIDHit.nPixelRow= mcSIDGenBeg->m_nPixelRow;
-  //   SIDHit.nPixelCol= mcSIDGenBeg->m_nPixelCol;
-
-  //   ListSIDHits.push_back(SIDHit);
-  // }
-	    
-  ATH_MSG_DEBUG("end AFP_SIDLocReco::AFPCollectionReading()");
-
-  return StatusCode::SUCCESS;
-}
-
 bool AFP_SIDLocReco::ReadGeometryDetCS()
 {
   ATH_MSG_DEBUG("begin AFP_SIDLocReco::ReadGeometryDetCS()");
 
-  //////	
   StatusCode sc;
 	
   for(Int_t nStationID = 0; nStationID < SIDSTATIONID; nStationID++)
@@ -312,9 +192,6 @@ bool AFP_SIDLocReco::ReadGeometryDetCS()
 			
 	}
     }	
-  //////
-	
-  //SaveGeometry();
 
   ATH_MSG_DEBUG("end AFP_SIDLocReco::ReadGeometryDetCS()");
 
@@ -325,10 +202,6 @@ bool AFP_SIDLocReco::StoreReconstructionGeometry(/*const char* szDataDestination
 {
   ATH_MSG_DEBUG("begin AFP_SIDLocReco::StoreReconstructionGeometry()");
 
-  //////
-  // (...)
-  //////
-
   ATH_MSG_DEBUG("end AFP_SIDLocReco::StoreReconstructionGeometry()");
 
   return true;
@@ -338,155 +211,8 @@ void AFP_SIDLocReco::SaveGeometry()
 {
   ATH_MSG_DEBUG("begin AFP_SIDLocReco::SaveGeometry()");
 
-  /////
-  // (...)
-  /////
-
   ATH_MSG_DEBUG("end AFP_SIDLocReco::SaveGeometry()");
 }
-
-StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const string strAlgo, const list<SIDHIT> &ListSIDHits, xAOD::AFPTrackContainer* resultContainer)
-{
-  ATH_MSG_DEBUG("begin AFP_SIDLocReco::ExecuteRecoMethod()");
-
-  if (!resultContainer) {
-    ATH_MSG_WARNING ("Null pointer given for a result tracks container.");
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode sc = StatusCode::SUCCESS;
-  SIDRESULT SIDResults;
-  list<SIDRESULT> listSIDResults;
-  listSIDResults.clear();
-
-  map<string, int> mapRecoMethods;
-  mapRecoMethods.clear();
-  mapRecoMethods.insert(pair<string, int>("SIDBasicKalman", 1));
-
-  switch(mapRecoMethods[strAlgo])
-    {
-    case 1:
-      {
-	const xAOD::AFPSiHitContainer* siHitContainer = 0;
-	sc = m_storeGate->retrieve(siHitContainer, m_strSIDCollectionName);
-	if(sc.isFailure() || !siHitContainer) {
-	  return StatusCode::SUCCESS;
-	}
-
-
-	AFP_SIDBasicKalman* pSIDBasicKalman = new AFP_SIDBasicKalman();
-
-	sc = pSIDBasicKalman->Initialize(m_AmpThresh, m_iDataType, ListSIDHits, m_fsSID, m_fxSID, m_fySID, m_fzSID);
-	sc = pSIDBasicKalman->Execute();
-	sc = pSIDBasicKalman->Finalize(&listSIDResults);
-
-	list<SIDRESULT>::const_iterator iter;
-	for(iter=listSIDResults.begin(); iter!=listSIDResults.end(); iter++) {
-	  if (iter->nStationID != -1) {
-	    xAOD::AFPTrack* track = new xAOD::AFPTrack;
-	    resultContainer->push_back(track);
-			    
-	    track->setStationID(iter->nStationID);
-	    track->setXLocal(iter->x_pos);
-	    track->setYLocal(iter->y_pos);
-	    track->setZLocal(iter->z_pos);
-	    track->setXSlope(iter->x_slope);
-	    track->setYSlope(iter->y_slope);
-	    //			    track->setz_slope	iter->z_slope;
-	    track->setNHits(iter->nHits);
-	    track->setNHoles(iter->nHoles);
-	    track->setChi2(iter->fChi2);
-
-	    ATH_MSG_DEBUG("Track reconstructed with "<<iter->ListHitID.size()<<" hits. In hits container there are in total "<<siHitContainer->size()<<" hits.");
-			    
-	    std::vector<int>::const_iterator end = iter->ListHitID.end();
-	    for (std::vector<int>::const_iterator hitIter = iter->ListHitID.begin(); hitIter != end; ++hitIter) {
-	      const int pixelRow = (*hitIter)%100;
-	      const int pixelCol = (( (*hitIter)/100) % 1000);
-	      const int pixelLayer = ( (*hitIter)/100000) % 10;
-	      const int pixelStation = ( (*hitIter)/1000000) % 10;
-	      int result = 0;
-	      auto endHits = siHitContainer->end();
-	      for (auto origHitIter = siHitContainer->begin(); origHitIter != endHits; ++origHitIter) {
-		if (
-		    (*origHitIter)->pixelVertID() == pixelRow
-		    && (*origHitIter)->pixelHorizID() == pixelCol
-		    && (*origHitIter)->pixelLayerID() == pixelLayer
-		    && (*origHitIter)->stationID() == pixelStation
-		    )
-		  break;
-
-		result++;
-	      }
-
-	      // check if the hit was found
-	      if (result < siHitContainer->size()) {
-		ATH_MSG_DEBUG("To the list of hits in a track adding hit "<<result<<"/"<<siHitContainer->size()<<".");
-
-		ElementLink< xAOD::AFPSiHitContainer >* hitLink = new ElementLink< xAOD::AFPSiHitContainer >;
-		hitLink->toIndexedElement(*siHitContainer, result);
-		track->addHit(*hitLink);
-
-		ElementLink< xAOD::AFPTrackContainer >* trackLink = new ElementLink< xAOD::AFPTrackContainer >;
-		trackLink->toIndexedElement(*resultContainer, resultContainer->size() -1);
-		xAOD::AFPSiHit * hit = const_cast<xAOD::AFPSiHit*> (siHitContainer->at(result));
-		hit->addTrackLink(*trackLink);
-	      }
-	      else
-		ATH_MSG_WARNING("Track hit not found in hits list. HitID: "<<(*hitIter)
-				<<"  station: "<<pixelStation
-				<<"  layer: "<<pixelLayer
-				<<"  row: "<<pixelRow
-				<<"  col: "<<pixelCol
-				<<"  dataType: "<<m_iDataType
-				);
-	    }
-	  }
-	}
-
-	delete pSIDBasicKalman;
-	break;
-      }
-
-
-
-
-    default:
-      {
-	ATH_MSG_WARNING("Unable to recognize selected algorithm");
-	return StatusCode::SUCCESS;
-      }
-    }
-
-  ATH_MSG_DEBUG("end AFP_SIDLocReco::ExecuteRecoMethod()");
-
-  return sc;
-}
-
-StatusCode AFP_SIDLocReco::RecordSIDCollection()
-{
-  ATH_MSG_DEBUG("begin AFP_SIDLocReco::RecordSIDCollection()");
-
-  StatusCode sc = StatusCode::SUCCESS;
-
-  m_pSIDLocRecoEvCollection = new AFP_SIDLocRecoEvCollection();
-  sc = m_storeGate->record(m_pSIDLocRecoEvCollection, m_strKeySIDLocRecoEvCollection);
-
-  if (sc.isFailure())
-    {
-      ATH_MSG_WARNING( m_strAlgoSID << "SID - Could not record the empty LocRecoEv collection in StoreGate");
-      return StatusCode::SUCCESS;
-    }
-  else
-    {
-      ATH_MSG_DEBUG("SID - LocRecoEv collection was recorded in StoreGate");
-    }
-
-  ATH_MSG_DEBUG("end AFP_SIDLocReco::RecordSIDCollection()");
-
-  return sc;
-}
-
 
 void SIDRESULT::clear()
 {
