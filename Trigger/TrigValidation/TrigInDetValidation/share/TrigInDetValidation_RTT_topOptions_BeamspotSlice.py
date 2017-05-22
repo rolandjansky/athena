@@ -39,10 +39,6 @@ if athenaCommonFlags.FilesInput()==[]:
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Chains.py")
 
-rMC = False
-if 'runMergedChain' in dir() and runMergedChain==True:
-  rMC = True
-
 rID=False
 if 'doIDNewTracking' in dir() and doIDNewTracking==True:
   rID = True
@@ -53,7 +49,7 @@ if 'doFTK' in dir() and doFTK==True:
   TriggerFlags.doFTK=True
   rFTK=True
 
-(idtrigChainlist, tidaAnalysischains) = beamspotChains(rMC,rID,rFTK)
+(idtrigChainlist, tidaAnalysischains) = beamspotChains(rID,rFTK)
 
 def resetSigs():
   TriggerFlags.doHypo=False
