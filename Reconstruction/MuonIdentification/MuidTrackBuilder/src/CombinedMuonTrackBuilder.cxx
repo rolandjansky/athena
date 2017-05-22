@@ -1599,9 +1599,9 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
                 break;
               }
             }
-            if ((**s).trackParameters()
+            if (s != prefit->trackStateOnSurfaces()->end()
 		&& s != prefit->trackStateOnSurfaces()->begin()
-		&& s != prefit->trackStateOnSurfaces()->end())
+		&& (**s).trackParameters())
 	    {
 		parameters	= (**s).trackParameters()->clone();
 		caloParameters	= parameters;
