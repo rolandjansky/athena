@@ -9,35 +9,24 @@
 #include <vector>
 namespace HLT {
   /**
-   * @brief This function verifies if in the input data there exists an inclusive combination
-   * The is there is enough elements to form an N elements combination of objects passing the array of inclusive cuts
-   * @return is a list of objects that pass the participate in at least one calid combination
-   * The object F has to implement following methods:
-   * size_t size() returning number of elements required in the ocmbination
-   * bool passing(T obj, size_t N) returning tru if the obj passes the cut N
-   * this is a desiderata of the interface, an implementation is missing
-   **/
-  template<typename T, typename F>
-    std::vector<T> inclusive_combination_subset( const std::vector<T>& data, F f) {
-    return data;
-  }
-
-  /**
    * @class CombinationsGenerator helper to generate all possible combinations of objects
    * Provided size of all collections from which the objects shoudl be combined it allws to get all 
-   * 
    **/
-  class CombinationsGenerator {
+  class CombinationGenerator {
   public:
     /**
      * @brief construct combnations maker with the sizes of collection to which it shoudl be applied
      **/
-    CombinationsGenerator( std::initializer_list<size_t> collectionSizes );
+    CombinationGenerator( const std::initializer_list<size_t>& collectionSizes );
+    void add( size_t nextColl) { m_maxes.push_back( nextColl ); reset(); }
     void reset();
+    size_t size() const { return m_maxes.size(); }
     /**
      * @brief returns current combination
      **/
-    const std::vector<size_t>& operator()() const;
+    const std::vector<size_t>& operator()() const { return m_current; }
+    const std::vector<size_t>& current() const { return m_current; }
+    
     /**
      * @brief moves to the next combination
      **/    
@@ -48,9 +37,45 @@ namespace HLT {
      **/        
     operator bool() const;
   private:
-    const std::vector<size_t> m_maxes;
+    std::vector<size_t> m_maxes;
     std::vector<size_t> m_current;
   };
+
+  /**
+   * @class Utility class to generate combinations dierctly with collections and their respective iterators
+   * The usage is expected to be:
+   * auto ci = CombinationIterator( collA, collB, collC );
+   * while ( ci ) {
+   *   //iterators aIter, bIter, cIter are iterators for collA, collB and collC respectively
+   *   ci(aIter,bIter,cIter);  // they form now valid combination
+   *   ++ci; // and they move ahead
+   * }
+   * @warning the implementation is missing for now 
+   **/
+  template<typename ... Collections>
+  class CombinationIterator {
+  public:
+
+    CombinationIterator( Collections ... coll);
+    ~CombinationIterator();
+
+    template<typename ... Iterators>
+    void operator()( Iterators ... iter ) const;
+
+    
+    void reset() {  }
+    /**
+     * @brief are combinations exhausted
+     **/        
+    operator bool() const;
+        
+    /**
+     * @brief moves to the next combination
+     **/    
+    void operator++();    
+  private:
+  };
+  
   
 }
 
