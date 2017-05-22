@@ -206,7 +206,15 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
       self.AlgList = []
       self.signatureCounterOffset = 14
 
-      from TrigDetCalib.TrigDetCalibConfig import *
+      from TrigDetCalib.TrigDetCalibConfig import (CheckForTracks_Trk9_Central,
+                                                   CheckForTracks_Trk16_Central,
+                                                   CheckForTracks_Trk29_Central,
+                                                   CheckForTracks_Trk9_Fwd,
+                                                   CheckForTracks_Trk16_Fwd,
+                                                   CheckForTracks_Trk29_Fwd,
+                                                   CheckForTracks_Trk9_Central_Beamspot,
+                                                   CheckForTracks_Trk9_Fwd_Beamspot) 
+
       trkAlgDict = {
          'idcalib_trk9_central'  : CheckForTracks_Trk9_Central('CheckForTracks_Trk9_Central'),
          'idcalib_trk16_central' : CheckForTracks_Trk16_Central('CheckForTracks_Trk16_Central'),
