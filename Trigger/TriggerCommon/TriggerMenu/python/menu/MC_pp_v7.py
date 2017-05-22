@@ -2167,6 +2167,12 @@ ps_beamspot_list=[
     'beamspot_trkFS_trkfast',
     'beamspot_trkFS_trkfast_L1TRT_EMPTY',
     'beamspot_trkFS_trkfast_L1TRT_FILLED',
+    'beamspot_trkFS_trkfast_L1J15',
+    'beamspot_allTE_trkfast_peb_L1J15',
+    'beamspot_activeTE_trkfast_peb_L1J15',
+    'beamspot_allTE_trkfast_peb_L13J15',
+    'beamspot_trkFS_trkfast_L13J15',
+    'beamspot_activeTE_trkfast_L13J15'
     ]
 ps_fwdphys_list=[
     'lhcfpeb',
@@ -2429,6 +2435,7 @@ ps_minb_list=[
     'mb_sp_L1RD0_UNPAIRED_ISO',
     'mb_sp_ncb_L1RD0_UNPAIRED_ISO',
     'mb_sp_blayer_L1RD0_UNPAIRED_ISO',
+    'mb_sp_L1RD0_FILLED',
     'mb_sptrk_L1RD3_FILLED',
     'mb_sptrk_noisesup',
     'mb_sptrk_noisesup_L1RD0_EMPTY',
@@ -2494,6 +2501,7 @@ ps_rerun_list = [
     'xe0noL1_l2fsperf_pufit',
     'xe0noL1_l2fsperf_tc_em',
     'xe0noL1_l2fsperf_tc_lcw',
+    'mu0noL1'
     ]
 
 if TriggerFlags.doFTK():
@@ -2673,6 +2681,12 @@ ps_perform_list = [
     '2j55_bperf_split_L1J30_2J20_4J20.0ETA49_MJJ-700',
     '2j55_bperf_split_L1J30_2J20_4J20.0ETA49_MJJ-800',
     '2j55_bperf_split_L1J30_2J20_4J20.0ETA49_MJJ-900',
+    'j15_gsc35_boffperf_split',
+    'j25_bperf_split',
+    'j25_boffperf',
+    'e4_etcut',
+    'e5_lhmedium_nod0',
+    'e5_lhloose_nod0_idperf'
     ]
 
 ps_Jpsi_list = [
