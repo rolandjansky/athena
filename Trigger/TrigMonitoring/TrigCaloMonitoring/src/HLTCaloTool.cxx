@@ -166,7 +166,7 @@ StatusCode HLTCaloTool::fill() {
 	TH2* hist_HitAccetaphiTile = hist2("HitAccetaphiTile");
 	TH2* hist_HitAccetaphiLAr = hist2("HitAccetaphiLAr");
 	for(; tbeg!=tend ; ++tbeg){
-		CaloCell* tcell = (*tbeg);
+		const CaloCell* tcell = (*tbeg);
 		IdentifierHash tid = tcell->caloDDE()->calo_hash();
 		float tenergy = tcell->energy();
 		CaloGain::CaloGain tgain = tcell->gain();

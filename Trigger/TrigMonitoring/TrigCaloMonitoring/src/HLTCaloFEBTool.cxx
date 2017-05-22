@@ -243,7 +243,7 @@ StatusCode HLTCaloFEBTool::fill() {
 	std::map<HWIdentifier,LArFebEnergy>::iterator it;
 
 	for(; beg!=end ; ++beg){
-		CaloCell* cell = (*beg);
+		const CaloCell* cell = (*beg);
 		if ( cell && cell->caloDDE()
 			&& cell->caloDDE()->getSubCalo() < CaloCell_ID::TILE ){
 			Identifier idh = cell->ID();

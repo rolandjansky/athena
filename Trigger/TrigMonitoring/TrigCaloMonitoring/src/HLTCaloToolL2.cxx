@@ -181,7 +181,7 @@ StatusCode HLTCaloToolL2::fill() {
 	CaloCellContainer::const_iterator tbeg = pCaloCellContainer->begin();
 	CaloCellContainer::const_iterator tend = pCaloCellContainer->end();
 	for(; tbeg!=tend ; ++tbeg){
-		CaloCell* tcell = (*tbeg);
+		const CaloCell* tcell = (*tbeg);
 		IdentifierHash tid = tcell->caloDDE()->calo_hash();
 		float tenergy = tcell->energy();
 		float ttime = tcell->time();
