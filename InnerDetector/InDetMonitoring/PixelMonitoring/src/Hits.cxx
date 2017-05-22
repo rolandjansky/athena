@@ -551,7 +551,12 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	if ( m_occupancy) m_occupancy->Fill(rdoID, m_pixelid, m_doIBL);
 	if ( m_occupancy_10min && m_doLumiBlock) m_occupancy_10min->Fill(rdoID, m_pixelid, m_doIBL);
 	if ( m_hitmap_tmp ) m_hitmap_tmp->Fill(rdoID, m_pixelid, m_doIBL);
-	if ( m_average_pixocc && nChannels_mod[pixlayeribl2d3d] > 0 ) m_average_pixocc->WeightingFill(rdoID, m_pixelid, m_doIBL, 1.0/( 1.0*nChannels_mod[pixlayeribl2d3d]) );
+	if ( m_average_pixocc &&
+             pixlayeribl2d3d < PixLayerIBL2D3D::COUNT &&
+             nChannels_mod[pixlayeribl2d3d] > 0 )
+        {
+          m_average_pixocc->WeightingFill(rdoID, m_pixelid, m_doIBL, 1.0/( 1.0*nChannels_mod[pixlayeribl2d3d]) );
+        }
 
        
 	/// Fill Lvl1A
