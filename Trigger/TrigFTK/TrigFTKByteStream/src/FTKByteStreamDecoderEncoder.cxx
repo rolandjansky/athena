@@ -7,14 +7,6 @@
 using namespace FTKByteStreamDecoderEncoder;
 
 namespace {
-  void packNumberOfTracks(uint16_t nTracksLowPt, uint16_t nTracksHighPt, std::vector<uint32_t>& rod ) {
-    uint32_t size_data = nTracksHighPt;
-    size_data <<= 16;
-    size_data |= nTracksLowPt;
-    rod.push_back( size_data );
-  }
-
-  
   void unpackNumberOfTracks(OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, 
 			    uint16_t& nTracksLowPt, uint16_t& nTracksHighPt, uint32_t& nTracks) {
     nTracksLowPt  =  rodData[0] & 0xffff; 
@@ -111,7 +103,7 @@ namespace FTKByteStreamDecoderEncoder {
 
 
   StatusCode decode(uint32_t nTracks, OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result, 
-		    MsgStream& msg) {
+		    MsgStream& /*msg*/) {
     
     result->reserve(result->size() + nTracks);
     for ( size_t i = 0; i < nTracks; ++i ) {
