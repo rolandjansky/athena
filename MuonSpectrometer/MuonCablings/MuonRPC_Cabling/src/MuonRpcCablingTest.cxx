@@ -11,8 +11,6 @@
 //<doc><file>	$Id: MuonRpcCablingTest.cxx,v 1.43 2009/03/28 10:59:01 stefspa Exp $
 //<version>	$Name:  $
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "MuonRPC_Cabling/MuonRpcCablingTest.h"
 
 #include "MuonIdHelpers/RpcIdHelper.h"
@@ -28,20 +26,9 @@
 #include <sstream>
 typedef std::istringstream mystream;
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
-
 
 MuonRpcCablingTest::MuonRpcCablingTest(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm            ( name, pSvcLocator ),
-    p_MuonMgr		    ( 0 ),
     m_idHelper              ( 0 ),
     m_cablingSvc            ( NULL ),
     m_padHashIdHelper       ( NULL ),
@@ -54,7 +41,7 @@ MuonRpcCablingTest::MuonRpcCablingTest(const std::string& name, ISvcLocator* pSv
     declareProperty("selectedRois",    m_selRoiVec);    
     declareProperty("selectedPads",    m_selPadVec);    
     declareProperty("testOnlyFirstLastCMChannel",m_firstLastChannel=false);
-    first = true;
+    m_first = true;
 }
 
 
@@ -67,7 +54,7 @@ MuonRpcCablingTest::initialize()
     StatusCode status = StatusCode::SUCCESS;
 
     msg()<<MSG::INFO<<"In Initialize"<<endmsg;
-    first = true;
+    m_first = true;
 
 //     status = detStore()->retrieve( p_MuonMgr );
 //     if ( status.isFailure() ) {
@@ -116,8 +103,8 @@ MuonRpcCablingTest::initialize()
 StatusCode
 MuonRpcCablingTest::execute()
 {
-    if (!first) return StatusCode::SUCCESS;
-    first = false;
+    if (!m_first) return StatusCode::SUCCESS;
+    m_first = false;
     std::ofstream fout("RPC_Mapping.dump");
     
     msg() << MSG::INFO << "Executing" << endmsg;
@@ -125,8 +112,8 @@ MuonRpcCablingTest::execute()
     m_padHashIdHelper = m_cablingSvc->padHashFunction();
     
     
-    const CablingRPCBase* _cabling = m_cablingSvc->getRPCCabling();
-    if (!_cabling) 
+    const CablingRPCBase* cabling = m_cablingSvc->getRPCCabling();
+    if (!cabling) 
     {
         msg (MSG::ERROR) <<" CablingRPCBase not retrieven !!!!!!"<<endmsg;
         return StatusCode::FAILURE;
@@ -221,7 +208,7 @@ MuonRpcCablingTest::execute()
 		ATH_MSG_DEBUG("New RoiID = " << iRoiNumber);
 		
                 ATH_MSG_DEBUG("SubSysID  = " << iSubSysId << " SectorID = " << iSectorId << " RoiNumber =" << iRoiNumber);
-                if (_cabling->give_PAD_address(iSubSysId,iSectorId,iRoiNumber,logic_sector,pad_id,PadId))
+                if (cabling->give_PAD_address(iSubSysId,iSectorId,iRoiNumber,logic_sector,pad_id,PadId))
                 {
 		    pad_idId = pad_id;
                     ATH_MSG_DEBUG("pad_id, PadId ------------------------ "

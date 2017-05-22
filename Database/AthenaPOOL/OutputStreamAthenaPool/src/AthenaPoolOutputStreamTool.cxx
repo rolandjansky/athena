@@ -252,6 +252,7 @@ StatusCode AthenaPoolOutputStreamTool::connectOutput(const std::string& outputNa
    std::string::size_type pos = outputConnectionString.find("[AttributeListKey=");
    if (pos != std::string::npos) {
       attrListKey = outputConnectionString.substr(pos + 18, outputConnectionString.find("]", pos + 18) - pos - 18);
+      attrListKey = outputConnectionString.substr(pos + 18, outputConnectionString.find("]", pos + 18) - pos - 18);
    }
    if (!attrListKey.empty()) {
       const DataHandle<AthenaAttributeList> attrList;

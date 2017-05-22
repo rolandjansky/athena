@@ -479,8 +479,9 @@ template <class T>
 ArenaAllocatorBase::Stats
 ArenaPoolSTLAllocator<T, T>::stats() const
 {
-  if (m_poolptr)
+  if (m_poolptr) {
     return m_poolptr->stats();
+  }
   return ArenaAllocatorBase::Stats();
 }
 

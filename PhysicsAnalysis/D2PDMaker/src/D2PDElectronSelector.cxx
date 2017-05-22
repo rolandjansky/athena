@@ -38,8 +38,8 @@
 #include "GaudiKernel/ListItem.h"
 
 // The needed ElementLink stuff
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLink.h" 
+#include "AthContainers/DataVector.h"
+#include "AthLinks/ElementLink.h" 
 
 // egamma includes
 #include "egammaEvent/egammaContainer.h"

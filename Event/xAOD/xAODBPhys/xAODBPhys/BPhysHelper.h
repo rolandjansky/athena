@@ -5,7 +5,7 @@
 /** @file:   BPhysHelper.h
  *  @author: Daniel Scheirich <daniel.scheirich@cern.ch>
  *
- *  @brief:  B-physcis xAOD helpers.
+ *  @brief:  B-physics xAOD helpers.
  *
  *  This class provides interface to the basic B-physics augmemtation of
  *  the xAOD::Vertex, i.e.:
@@ -687,10 +687,10 @@ namespace xAOD {
        *  Return error values for vector quantities: 
        */
       
-      static const std::vector<TVector3>            emptyVectorOfTVector3;
-      static const std::vector<const xAOD::Muon*>   emptyVectorOfMuons;
-      static const TMatrixTSym<double>              emptyMatrix;
-      static const std::vector<const xAOD::Vertex*> emptyVectorOfVertices;
+      static const std::vector<TVector3>            s_emptyVectorOfTVector3;
+      static const std::vector<const xAOD::Muon*>   s_emptyVectorOfMuons;
+      static const TMatrixTSym<double>              s_emptyMatrix;
+      static const std::vector<const xAOD::Vertex*> s_emptyVectorOfVertices;
       /** @}  */
       
   }; // BPhysHelper

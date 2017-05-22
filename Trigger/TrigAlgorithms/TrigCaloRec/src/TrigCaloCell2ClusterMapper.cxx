@@ -35,8 +35,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloEvent/CaloCell2ClusterMap.h"
 #include "CaloEvent/CaloClusterContainer.h"
-//#include "GeoModelSvc/IGeoModelSvc.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
@@ -72,59 +70,12 @@ TrigCaloCell2ClusterMapper::~TrigCaloCell2ClusterMapper()
 //StatusCode TrigCaloCell2ClusterMapper::initialize()
 HLT::ErrorCode TrigCaloCell2ClusterMapper::hltInitialize()
 {
-    ATH_MSG_DEBUG( "in initialize() TrigCaloCell2ClusterMapper ");
+  ATH_MSG_DEBUG( "in initialize() TrigCaloCell2ClusterMapper ");
 
-    StoreGateSvc* detStore;
-    if (service("DetectorStore", detStore).isFailure()) {
-    ATH_MSG_ERROR( "Unable to access DetectorStore") ;
-    return HLT::ERROR;
-  }
-
-  const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
- {
-    ATH_MSG_ERROR( "Could not locate GeoModelSvc");
-    return HLT::OK;
-  }
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    StatusCode mysc = geoInit(dummyInt,dummyList);
-    if (mysc.isFailure())  return HLT::ERROR;
-    else  return HLT::OK;
-  }
-  else
-  {
-    sc = detStore->regFcn(&IGeoModelSvc::geoInit,
-			  geoModel,
-			  &TrigCaloCell2ClusterMapper::geoInit,this);
-    if(sc.isFailure())
-    {
-      ATH_MSG_ERROR( "Could not register geoInit callback");
-      //return sc;
-      return HLT::ERROR;
-    }
-  }
-
-  return HLT::OK;
-}
-
-
-
-StatusCode TrigCaloCell2ClusterMapper::geoInit(IOVSVC_CALLBACK_ARGS)
-{
-  // pointer to detector manager:
   m_calo_dd_man  = CaloDetDescrManager::instance(); 
-
   m_calo_id   = m_calo_dd_man->getCaloCell_ID();
 
-  return StatusCode::SUCCESS;
-
+  return HLT::OK;
 }
 
 //###############################################################################

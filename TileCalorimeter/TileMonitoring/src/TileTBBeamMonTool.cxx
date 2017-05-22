@@ -75,6 +75,7 @@ TileTBBeamMonTool::TileTBBeamMonTool(const std::string & type, const std::string
   , m_s3cou(0)
   , m_cher1(0)
   , m_cher2(0)
+  , m_cher3(0)
   , m_muTag(0)
   , m_muHalo(0)
   , m_muVeto(0)
@@ -86,6 +87,10 @@ TileTBBeamMonTool::TileTBBeamMonTool(const std::string & type, const std::string
   , m_pmt6cou(0)
   , m_pmt7cou(0)
   , m_pmt8cou(0)
+  , m_pmt9cou(0)
+  , m_pmt10cou(0)
+  , m_pmt11cou(0)
+  , m_pmt12cou(0)
   , m_xCha1(0.0F)
   , m_yCha1(0.0F)
   , m_xCha2(0.0F)
@@ -107,16 +112,27 @@ TileTBBeamMonTool::TileTBBeamMonTool(const std::string & type, const std::string
   declareProperty("BC1Z", m_beamBC1Z  = 15600.0);
   declareProperty("BC2Z", m_beamBC2Z  = 2600.0); 
 
-  //Constants updated 13-10-15 by Vincent & Michaela: https://pcata007.cern.ch/elog/TB2015/107
-  declareProperty("BC1HorizontalSlope", m_horizontal_slope1 = -0.175666);
-  declareProperty("BC1HorizontalOffset", m_horizontal_offset1 = -0.0462586);
-  declareProperty("BC1VerticalSlope", m_vertical_slope1 = -0.176809);
-  declareProperty("BC1VerticalOffset", m_vertical_offset1 = -0.051923);
+  // Constant updated 29-09-26 by Joakim Olsson: https://pcata007.cern.ch/elog/TB2016/300
+  declareProperty("BC1HorizontalSlope", m_horizontal_slope1 = -0.172098);
+  declareProperty("BC1HorizontalOffset", m_horizontal_offset1 = 0.100857923042);
+  declareProperty("BC1VerticalSlope", m_vertical_slope1 = -0.172855178323);
+  declareProperty("BC1VerticalOffset", m_vertical_offset1 = -0.133045996607);
 
-  declareProperty("BC2HorizontalSlope", m_horizontal_slope2 = -0.18053);
-  declareProperty("BC2HorizontalOffset", m_horizontal_offset2 = 0.25202);
-  declareProperty("BC2VerticalSlope", m_vertical_slope2 = -0.181128);
-  declareProperty("BC2VerticalOffset", m_vertical_offset2 = 0.0431688);
+  declareProperty("BC2HorizontalSlope", m_horizontal_slope2 = -0.173463);
+  declareProperty("BC2HorizontalOffset", m_horizontal_offset2 = 0.271555258578);
+  declareProperty("BC2VerticalSlope", m_vertical_slope2 = -0.173805131744);
+  declareProperty("BC2VerticalOffset", m_vertical_offset2 = 0.305483228502);
+
+//  //Constants updated 13-10-15 by Vincent & Michaela: https://pcata007.cern.ch/elog/TB2015/107
+//  declareProperty("BC1HorizontalSlope", m_horizontal_slope1 = -0.175666);
+//  declareProperty("BC1HorizontalOffset", m_horizontal_offset1 = -0.0462586);
+//  declareProperty("BC1VerticalSlope", m_vertical_slope1 = -0.176809);
+//  declareProperty("BC1VerticalOffset", m_vertical_offset1 = -0.051923);
+//
+//  declareProperty("BC2HorizontalSlope", m_horizontal_slope2 = -0.18053);
+//  declareProperty("BC2HorizontalOffset", m_horizontal_offset2 = 0.25202);
+//  declareProperty("BC2VerticalSlope", m_vertical_slope2 = -0.181128);
+//  declareProperty("BC2VerticalOffset", m_vertical_offset2 = 0.0431688);
 
   //Energy cut for cell impact plot
   declareProperty("CutEnergyMin", m_cut_energy_min = 0); //for 50GeV electrons 
@@ -220,6 +236,12 @@ StatusCode TileTBBeamMonTool::storeBeamElements() {
           case 5: m_pmt6cou = amplitude; break;
           case 6: m_pmt7cou = amplitude; break;
           case 7: m_pmt8cou = amplitude; break;
+	    /*
+          case 8: m_pmt9cou = amplitude; break;
+          case 9: m_pmt10cou = amplitude; break;
+          case 10: m_pmt11cou = amplitude; break;
+          case 11: m_pmt12cou = amplitude; break;
+	    */
           default: WRONG_CHANNEL(frag, cha);
 
           }
@@ -230,8 +252,30 @@ StatusCode TileTBBeamMonTool::storeBeamElements() {
           }
 
           break;
-          
-        case COMMON_TDC1_FRAG:
+
+	case ADDR_ADC_FRAG:
+
+	  switch(cha) {
+
+	  case 0: m_pmt9cou = amplitude; break;
+	  case 1: m_pmt10cou = amplitude; break;
+	  case 2: m_pmt11cou = amplitude; break;
+	  case 3: m_pmt12cou = amplitude; break;
+	  case 4:
+	  case 5:
+	  case 6:
+	  case 7: break;
+	  default: WRONG_CHANNEL(frag, cha);
+	  }
+
+          if(cha < 6) {
+            m_muBack[cha] = amplitude;
+            m_total_muon_energy += amplitude;
+          }
+
+	  break;
+	    
+	case COMMON_TDC1_FRAG:
           
           FRAG_FOUND(frag, cha, dsize);
           
@@ -243,7 +287,7 @@ StatusCode TileTBBeamMonTool::storeBeamElements() {
           
           switch(cha) {
           
-          // set counter values for 1D beam elements
+	    // set counter values for 1D beam elements
           case 0: m_s1cou = amplitude; break;
           case 1: m_s2cou = amplitude; break;
           case 2: m_s3cou = amplitude; break;
@@ -253,7 +297,7 @@ StatusCode TileTBBeamMonTool::storeBeamElements() {
           case 6: m_muHalo= amplitude; break;
           case 7: m_muVeto= amplitude; break;
           default: WRONG_CHANNEL(frag, cha);
-
+	    
           }
           break;
         }
@@ -342,6 +386,8 @@ StatusCode TileTBBeamMonTool::fillHistograms() {
 
   CHECK( storeBeamElements() );
 
+  m_cher3 = m_s3cou; // Test beam September 2016
+
   //Filling histograms
   m_BC1Profile->Fill(m_xCha1, m_yCha1);
   m_BC2Profile->Fill(m_xCha2, m_yCha2); 
@@ -360,9 +406,11 @@ StatusCode TileTBBeamMonTool::fillHistograms() {
   m_S3hist->Fill(m_s3cou); 
   m_Cher1hist->Fill(m_cher1); 
   m_Cher2hist->Fill(m_cher2); 
+  m_Cher3hist->Fill(m_cher3); 
   m_ImpactProfile->Fill(m_xImp, m_yImp); 
   m_Cher1Energy->Fill(m_total_energy, m_cher1);
   m_Cher2Energy->Fill(m_total_energy, m_cher2);
+  m_Cher3Energy->Fill(m_total_energy, m_cher3);
   m_CherCompare->Fill(m_cher1, m_cher2);
   m_ScinCalEnergy->Fill(m_s1cou, m_total_energy);
   m_MuonEnergy->Fill(m_total_muon_energy);
@@ -374,6 +422,10 @@ StatusCode TileTBBeamMonTool::fillHistograms() {
   m_PMT6->Fill(m_pmt6cou);
   m_PMT7->Fill(m_pmt7cou);
   m_PMT8->Fill(m_pmt8cou);
+  m_PMT9->Fill(m_pmt9cou);
+  m_PMT10->Fill(m_pmt10cou);
+  m_PMT11->Fill(m_pmt11cou);
+  m_PMT12->Fill(m_pmt12cou);
 
   //for hit map
 
@@ -486,6 +538,12 @@ void TileTBBeamMonTool::initFirstEvent() {
   m_Cher2Energy->GetYaxis()->SetTitle("Cher2");
   m_Cher2Energy->SetOption("COLZ");
 
+  m_Cher3Energy = book2F("", "Cher3Energy", "Run " + runNumber + ": Cher3 counts v. Total Energy",500, 0., 200., 500, 0., 5000., run, ATTRIB_MANAGED, "", "mergeRebinned");
+  m_Cher3Energy->GetXaxis()->SetTitle("Total energy");
+  m_Cher3Energy->GetYaxis()->SetTitle("Cher3");
+  m_Cher3Energy->SetOption("COLZ");
+
+
   //2D cher 1 vs. cher 2
   m_CherCompare = book2F("", "CherCompare", "Run " + runNumber + ": Cher 2 vs. Cher 1",500, 0., 1700., 500, 0., 1000., run, ATTRIB_MANAGED, "", "mergeRebinned");
   m_CherCompare->GetXaxis()->SetTitle("Cher1");
@@ -515,6 +573,10 @@ void TileTBBeamMonTool::initFirstEvent() {
   m_Cher2hist = book1F("", "Cher2hist", "Run " + runNumber + ": Cher2 Hist", 200, 0., 5000., run, ATTRIB_MANAGED, "", "mergeRebinned"),
   m_Cher2hist->GetYaxis()->SetTitle("Counts");
 
+  m_Cher3hist = book1F("", "Cher3hist", "Run " + runNumber + ": Cher3 Hist", 200, 0., 5000., run, ATTRIB_MANAGED, "", "mergeRebinned"),
+  m_Cher3hist->GetYaxis()->SetTitle("Counts");
+
+
   m_MuonEnergy = book1F("", "TotalMuonEnergy", "Run " + runNumber + ": Muon Wall Total Hist", 500, 0., 5000., run, ATTRIB_MANAGED, "", "mergeRebinned"),
   m_MuonEnergy->GetYaxis()->SetTitle("Counts");
 
@@ -541,6 +603,18 @@ void TileTBBeamMonTool::initFirstEvent() {
 
   m_PMT8 = book1F("", "MuonWallPMT8", "Run " + runNumber + ": Muon Wall PMT8 Hist", 500, 0., 5000., run, ATTRIB_MANAGED, "", "mergeRebinned"),
   m_PMT8->GetYaxis()->SetTitle("Counts");
+
+  m_PMT9 = book1F("", "MuonWallPMT9", "Run " + runNumber + ": Muon Wall PMT9 Hist", 500, 0., 5000., run, ATTRIB_MANAGED, "", "mergeRebinned"),
+  m_PMT9->GetYaxis()->SetTitle("Counts");
+
+  m_PMT10 = book1F("", "MuonWallPMT10", "Run " + runNumber + ": Muon Wall PMT10 Hist", 500, 0., 5000., run, ATTRIB_MANAGED, "", "mergeRebinned"),
+  m_PMT10->GetYaxis()->SetTitle("Counts");
+
+  m_PMT11 = book1F("", "MuonWallPMT11", "Run " + runNumber + ": Muon Wall PMT11 Hist", 500, 0., 5000., run, ATTRIB_MANAGED, "", "mergeRebinned"),
+  m_PMT11->GetYaxis()->SetTitle("Counts");
+
+  m_PMT12 = book1F("", "MuonWallPMT12", "Run " + runNumber + ": Muon Wall PMT12 Hist", 500, 0., 5000., run, ATTRIB_MANAGED, "", "mergeRebinned"),
+  m_PMT12->GetYaxis()->SetTitle("Counts");
 
   //PMT hit map
   m_PMTHitMap = book2F("", "PMTHitMap", "Run " + runNumber + ": PMT Hit Map", 4, 0., 4., 2, 0., 2., run, ATTRIB_MANAGED, "", "mergeRebinned");

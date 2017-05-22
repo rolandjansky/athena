@@ -250,6 +250,10 @@ class TileROD_Decoder: public AthAlgTool {
      48 read-out channels of a tilecal module. */
     void unpack_frag5(uint32_t version, const uint32_t* p, pDigiVec & pDigits, pRwChVec & pChannel);
 
+    /** unpack_frag6 decodes tile subfragment type 0x6. This subfragment contains the
+     tile raw digits with 16 samples and 2 gains from the 48 read-out channels of a tilecal module. */
+    void unpack_frag6(uint32_t version, const uint32_t* p, pDigiVec & pDigits) const;
+
     /** unpack_frag3HLT decodes tile subfragment type 0x3 for the high level trigger (HLT).
      This subfragment contains the
      reconstructed amplitude and phase from the tilecal digitized pulse and a
@@ -424,6 +428,11 @@ class TileROD_Decoder: public AthAlgTool {
     float m_timeMaxThresh; //!< correct amplitude is time is below time max threshold
     void updateAmpThreshold(float ampMinThresh);
 
+    // outsize this time withdow, all amplitudes taken from Reco fragment
+    // will be set to zero 
+    float m_allowedTimeMin; //!< set amp to zero if time is below allowed time min
+    float m_allowedTimeMax; //!< set amp to zero if time is above allowed time max
+
     ToolHandle<TileCondToolTiming> m_tileToolTiming;      //!< Tile Timing tool
     ToolHandle<TileCondToolOfcCool> m_tileCondToolOfcCool; //!< OF Coefficients from Cool
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
@@ -495,6 +504,8 @@ class TileROD_Decoder: public AthAlgTool {
     std::vector<int> m_list_of_masked_drawers;
     void initHid2re();
     void initTileMuRcvHid2re();
+
+    unsigned int m_maxChannels;
 
     const uint32_t * get_data(const ROBData * rob) {
       const uint32_t * p;
@@ -931,6 +942,10 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
             m_rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset);
             unpack_frag5(version, p, pDigits, pChannel);
           }
+          break;
+
+        case 6:
+          unpack_frag6(version, p, pDigits);
           break;
 
         case 0xA:

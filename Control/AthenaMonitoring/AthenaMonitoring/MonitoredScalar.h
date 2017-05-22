@@ -26,15 +26,15 @@ namespace Monitored {
             
             MonitoredScalar(MonitoredScalar&&) = default;
             
-            void operator=(T value) { mValue = value; }
-            operator T() const { return mValue; }
+            void operator=(T value) { m_value = value; }
+            operator T() const { return m_value; }
             
-            const std::vector<double> getVectorRepresentation() const override { return { double(mValue) }; }
+            const std::vector<double> getVectorRepresentation() const override { return { double(m_value) }; }
         private:
-            T mValue;
+            T m_value;
             
             MonitoredScalar(std::string name, const T& defaultValue = {})
-              : IMonitoredVariable(std::move(name)), mValue(defaultValue) { }
+              : IMonitoredVariable(std::move(name)), m_value(defaultValue) { }
             MonitoredScalar(MonitoredScalar const&) = delete;
             MonitoredScalar& operator=(MonitoredScalar const&) = delete;
         };

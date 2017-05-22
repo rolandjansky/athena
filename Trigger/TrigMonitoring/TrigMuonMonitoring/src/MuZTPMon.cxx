@@ -125,7 +125,7 @@ StatusCode HLTMuonMonTool::initMuZTPDQA()
 
 StatusCode HLTMuonMonTool::bookMuZTPDQA()
 {
-  if( newRun ){
+  if( newRunFlag() ){
     m_ztp_newrun=true;
     for(std::map<std::string, std::string>::iterator itmap=m_ztpmap.begin();itmap!=m_ztpmap.end();++itmap){
       
@@ -250,8 +250,8 @@ StatusCode HLTMuonMonTool::bookMuZTPDQA()
       }//var
     }//trigger vector
     
-  }else if( newLumiBlock ){
   }
+  //else if( newLumiBlockFlag() ){  }
   return StatusCode::SUCCESS;
 }
 
@@ -299,8 +299,8 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 
   //RETRIEVE Vertex Container
   const xAOD::VertexContainer* VertexContainer=0;
-  //StatusCode sc_ztp = m_storeGate->retrieve(VertexContainer,"VxPrimaryCandidate");
-  StatusCode sc_ztp = m_storeGate->retrieve(VertexContainer,"HLT_xAOD__VertexContainer_xPrimVx");
+  //StatusCode sc_ztp = evtStore()->retrieve(VertexContainer,"VxPrimaryCandidate");
+  StatusCode sc_ztp = evtStore()->retrieve(VertexContainer,"HLT_xAOD__VertexContainer_xPrimVx");
   if(sc_ztp.isFailure()) {
     ATH_MSG_INFO("VxPrimaryCandidate" << " Container Unavailable");
     return StatusCode::SUCCESS;
@@ -425,11 +425,11 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
     // add by Yuan
     // YY moved to xAOD 2 Oct 2014
     // const LVL1_ROI* lvl1Roi;
-    // StatusCode sc = m_storeGate->retrieve(lvl1Roi,"LVL1_ROI");
+    // StatusCode sc = evtStore()->retrieve(lvl1Roi,"LVL1_ROI");
     const xAOD::MuonRoIContainer* lvl1Roi;
     std::string muonKeyL1 = "LVL1MuonRoIs"; // MuidMuonCollection
 
-    StatusCode sc = m_storeGate->retrieve(lvl1Roi, muonKeyL1);
+    StatusCode sc = evtStore()->retrieve(lvl1Roi, muonKeyL1);
     if (sc.isFailure()) {
       cout<< " can not retrieve LVL1 ROI"<<endl;
     } else {
@@ -618,7 +618,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
     const xAOD::MuonContainer* muonCont;
     
     std::string muonKey = "Muons";  /// default MuidMuonCollection
-    sc = m_storeGate->retrieve( muonCont, muonKey); 
+    sc = evtStore()->retrieve( muonCont, muonKey); 
     if(sc.isFailure() || !muonCont){
       ATH_MSG_WARNING( "Container of muon particle with key " << muonKey << " not found in Store Gate with size " );
       return StatusCode::SUCCESS;
@@ -963,7 +963,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 
 StatusCode HLTMuonMonTool::procMuZTPDQA()
 {
-  if( endOfRun ){
+  if( endOfRunFlag() ){
 
     for(std::map<std::string, std::string>::iterator itmap=m_ztpmap.begin();itmap!=m_ztpmap.end();++itmap){
 
@@ -996,8 +996,8 @@ StatusCode HLTMuonMonTool::procMuZTPDQA()
       }//var
     }
     
-  }else if( endOfLumiBlock ){
   }
+  //else if( endOfLumiBlockFlag() ){  }
   return StatusCode::SUCCESS;
 }
 

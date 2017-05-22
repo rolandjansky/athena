@@ -76,7 +76,6 @@ StatusCode xAODTestWriteCVec::execute_r (const EventContext& ctx) const
   coll->setStore (store.get());
 
   const static C::Accessor<int> anInt2 ("anInt2");
-  const static C::Decorator<int> dInt1 ("dInt1");
   const static C::Decorator<int> dVar1 ("dVar1");
   const static C::Decorator<int> dVar2 ("dVar2");
   const static C::Accessor<ElementLink<DMTest::CVec> > cEL ("cEL");
@@ -103,7 +102,6 @@ StatusCode xAODTestWriteCVec::execute_r (const EventContext& ctx) const
     c.setPVFloat (std::move (pvf));
 
     anInt2(c) = count*300 + i+1;
-    dInt1(c) = count*400 + i+1;
     dVar1(c) = count*450 + i+1;
     dVar2(c) = count*750 + i+1;
     dpInt1(c) = count*50 + i+1;

@@ -84,7 +84,7 @@ StatusCode T2SampCalibTool::initialize()
   StatusCode sc;
 
   // Initialize MsgStream
-  m_log.setLevel(outputLevel());
+  m_log.setLevel(msgLevel());
   
   //Locate the ptr to the conditions store - needed for dB
   sc = service("DetectorStore", m_detStore);
@@ -186,7 +186,7 @@ double T2SampCalibTool::c_energy(double EMe,double HADe, double eta)
   double etR = etf * eR;
 
   if ( etR < m_etcut ) {
-    if ( outputLevel() <= MSG::DEBUG )
+    if ( msgLevel() <= MSG::DEBUG )
       m_log << MSG::DEBUG << "Cluster transv. energy :" << etR << ", below threshold :" 
             << m_etcut << endmsg;
     return 0.0;
@@ -231,7 +231,7 @@ double T2SampCalibTool::c_energy(double EMe,double HADe, double eta)
     f = std::fabs(eC - eR ) /eR;
     eR = eC;
     if( eR < m_ecut || etf*eR < m_etcut) {
-      if ( outputLevel() <= MSG::DEBUG )
+      if ( msgLevel() <= MSG::DEBUG )
         m_log << MSG::DEBUG << "At iteration: " << count << ", cluster transv. energy :" 
               << etR << ", below threshold :"   << m_etcut << endmsg;
 
@@ -267,7 +267,7 @@ double T2SampCalibTool::c_febenergy(double EMe,double HADe,
   double etR = etf * eR;
 
   if ( etR < m_etcut ) {
-    if ( outputLevel() <= MSG::DEBUG )
+    if ( msgLevel() <= MSG::DEBUG )
       m_log << MSG::DEBUG << "Cluster transv. energy :" << etR << ", below threshold :" 
             << m_etcut << endmsg;
     return 0.0;
@@ -313,7 +313,7 @@ double T2SampCalibTool::c_febenergy(double EMe,double HADe,
     f = fabs(eC - eR ) /eR;
     eR = eC;
     if( eR < m_ecut || etf*eR < m_etcut) {
-      if ( outputLevel() <= MSG::DEBUG )
+      if ( msgLevel() <= MSG::DEBUG )
         m_log << MSG::DEBUG << "At iteration: " << count << ", cluster transv. energy :" 
               << etR << ", below threshold :"   << m_etcut << endmsg;
 
@@ -413,7 +413,7 @@ StatusCode T2SampCalibTool::printCondObjects(){
     m_log <<MSG::ERROR <<"T2CaloJetCalib_dBObj ptr is 0" <<endmsg;
     return( StatusCode::FAILURE);
   }
-  if(outputLevel() <= MSG::DEBUG){
+  if(msgLevel() <= MSG::DEBUG){
     int eta_size=(m_lvl2_calib->eta_ranges().size());
     m_log << MSG::DEBUG << "T2SampCalibTool::Number of eta bins: " <<  eta_size << endmsg;
     for(int i=0;i<eta_size;++i){
@@ -447,7 +447,7 @@ StatusCode T2SampCalibTool::assignWeights(){
   // Print calibration data //
   ////////////////////////////
   if(m_readFromDb){
-    if(outputLevel() <= MSG::INFO){
+    if(msgLevel() <= MSG::INFO){
       int eta_size=(m_lvl2_calib_handle->eta_ranges().size());
       m_etareg.resize(eta_size,0);
       for(int i=0;i<eta_size;++i){
@@ -475,7 +475,7 @@ StatusCode T2SampCalibTool::assignWeights(){
     }
   }
 
-  if(outputLevel() <= MSG::DEBUG)
+  if(msgLevel() <= MSG::DEBUG)
     m_log << MSG::DEBUG <<  "T2SampCalib Weights: " << endmsg;
   
   for(int i=0; i<m_nbin_eta; ++i)
@@ -485,13 +485,13 @@ StatusCode T2SampCalibTool::assignWeights(){
 	  for(int k=0;k<m_nEReg; ++k)
 	    {
 	      m_wt[i][j][k]=m_Weights[i*m_nSamp*m_nEReg + j*m_nEReg + k];
-	      if(outputLevel() <= MSG::DEBUG)
+	      if(msgLevel() <= MSG::DEBUG)
 		m_log << MSG::DEBUG << "  m_wt["<<i<<"]["<<j<<"]["<<k<<"] =" << m_wt[i][j][k];
 	    }
-	  if(outputLevel() <= MSG::DEBUG)
+	  if(msgLevel() <= MSG::DEBUG)
 	    m_log << MSG::DEBUG << endmsg;
 	}
-      if(outputLevel() <= MSG::DEBUG)
+      if(msgLevel() <= MSG::DEBUG)
 	m_log << MSG::DEBUG << endmsg;
     }
   return StatusCode::SUCCESS;

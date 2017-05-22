@@ -27,7 +27,7 @@
 
 
 
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 void InDet::PixelClusterContainerCnv_p1::transToPers(const InDet::PixelClusterContainer* transCont,  InDet::InDetPRD_Container_p1* persCont, MsgStream &log) 
 {

@@ -30,13 +30,13 @@ DecayModeFilter::DecayModeFilter(const std::string& name, ISvcLocator* pSvcLocat
   //declareProperty("sleptonsPDG", m_sleptons_PDG);
   declareProperty("LSPsPDG", m_LSPs_PDG);
 
-  selected = false;
+  m_selected = false;
 }
 
 
 StatusCode DecayModeFilter::filterInitialize() {
   if (m_modeID == "-") {
-    ATH_MSG_INFO("No decay mode selected: Events will only be analyzed, not cut.");
+    ATH_MSG_INFO("No decay mode m_selected: Events will only be analyzed, not cut.");
   }
   if (m_submode == "C" && m_nChargedLeptons == -1) {
     ATH_MSG_ERROR("When selecting a specific leptonic submode, also nChargedLeptons has to be set!");
@@ -137,7 +137,7 @@ StatusCode DecayModeFilter::filterEvent() {
       if (!(parent1ok && parent2ok)) continue;
       ATH_MSG_DEBUG("Both parents ok ");
       //printChain(parent1); printChain(parent2);
-      selected = false;
+      m_selected = false;
 
       bool isDirect1(false), isBosonic1(false), isLeptonic1(false), isDirect3body1(false);
       analyzeChain(parent1, isDirect1, isBosonic1, isLeptonic1, isDirect3body1);
@@ -168,8 +168,8 @@ StatusCode DecayModeFilter::filterEvent() {
 
       // Filters
       if (m_modeID == "A" && isDirectMode) setFilterPassed(true);
-      if (m_modeID == "B" && isBosonicMode && selected) setFilterPassed(true);
-      if (m_modeID == "C" && isLeptonicMode && selected) setFilterPassed(true);
+      if (m_modeID == "B" && isBosonicMode && m_selected) setFilterPassed(true);
+      if (m_modeID == "C" && isLeptonicMode && m_selected) setFilterPassed(true);
       if (m_modeID == "D" && isDirect3bodyMode) setFilterPassed(true);
       if (m_modeID == "E" && isAsymmDirectMode) setFilterPassed(true);
 
@@ -222,19 +222,19 @@ void DecayModeFilter::analyzeChain(HepMC::GenParticle* parent, bool& isDirect, b
     isBosonic=true;
     m_nBosonicDecays++;
     ATH_MSG_DEBUG(" isBosonic.");
-    if (m_submode=="W" && NW==1) selected = true;
-    if (m_submode=="Z" && NZ==1) selected = true;
-    if (m_submode=="H" && NH==1) selected = true;
-    ATH_MSG_DEBUG(" selected: " << selected);
+    if (m_submode=="W" && NW==1) m_selected = true;
+    if (m_submode=="Z" && NZ==1) m_selected = true;
+    if (m_submode=="H" && NH==1) m_selected = true;
+    ATH_MSG_DEBUG(" m_selected: " << m_selected);
   }
   if (length==3 && Nchi2==1 && Nse+Nsmu+Nstau==1) {
     isLeptonic=true;
     m_nLeptonicDecays++;
     ATH_MSG_DEBUG(" isLeptonic.");
-    if (m_submode=="se" && Nse==1 && m_nChargedLeptons==nChargedLeptons) selected=true;
-    if (m_submode=="smu" && Nsmu==1 && m_nChargedLeptons==nChargedLeptons) selected=true;
-    if (m_submode=="stau" && Nstau==1 && m_nChargedLeptons==nChargedLeptons) selected=true;
-    ATH_MSG_DEBUG(" selected: " << selected);
+    if (m_submode=="se" && Nse==1 && m_nChargedLeptons==nChargedLeptons) m_selected=true;
+    if (m_submode=="smu" && Nsmu==1 && m_nChargedLeptons==nChargedLeptons) m_selected=true;
+    if (m_submode=="stau" && Nstau==1 && m_nChargedLeptons==nChargedLeptons) m_selected=true;
+    ATH_MSG_DEBUG(" m_selected: " << m_selected);
   }
 }
 

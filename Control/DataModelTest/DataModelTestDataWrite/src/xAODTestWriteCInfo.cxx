@@ -68,13 +68,11 @@ StatusCode xAODTestWriteCInfo::execute_r (const EventContext& ctx) const
   cinfo->setStore (info_store.get());
 
   static C::Accessor<int> anInt2 ("anInt2");
-  static C::Decorator<int> dInt1 ("dInt1");
   static C::Accessor<ElementLink<DMTest::CVec> > cEL ("cEL");
 
   cinfo->setAnInt (count * 1000);
   cinfo->setAFloat ((float)count * 0.1);
   anInt2(*cinfo) = count * 2000;
-  dInt1(*cinfo) = count * 3000;
 
   cEL(*cinfo).toIndexedElement (*cvec, count % cvec->size());
 

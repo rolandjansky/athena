@@ -19,6 +19,8 @@
 
 #include "DataModelTestDataCommon/B.h"
 #include "DataModelTestDataCommon/D.h"
+#include "DataModelTestDataCommon/S1.h"
+#include "DataModelTestDataCommon/S2.h"
 #include "DataModelTestDataCommon/BAux.h"
 #include "DataModelTestDataCommon/BAuxStandalone.h"
 #include "DataModelTestDataCommon/BAuxVec.h"

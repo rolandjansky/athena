@@ -12,33 +12,33 @@ using namespace std;
 
 
 FeatureIndex::FeatureIndex() : 
-  mIndex(-1), mStatus(0) {
+  m_index(-1), m_status(0) {
 }
 
 FeatureIndex::FeatureIndex(int index, int status) : 
-  mIndex(index), mStatus(status) {
+  m_index(index), m_status(status) {
 }
 
 FeatureIndex::~FeatureIndex() {
 }
 
 void FeatureIndex::set(int index, int status){
-  mIndex = index;  mStatus = status;
+  m_index = index;  m_status = status;
 }
 void FeatureIndex::setIndex(int index){
-  mIndex = index;
+  m_index = index;
 }
 void FeatureIndex::setStatus(int status){
-  mStatus = status;
+  m_status = status;
 }
 
 bool FeatureIndex::isValid() const {
-  if (mIndex >= 0) return true;
+  if (m_index >= 0) return true;
   else return false;
 }
 
 bool FeatureIndex::sameIndex(const FeatureIndex& x) const {
-  if (mIndex == x.mIndex) {
+  if (m_index == x.m_index) {
     return true;
   } else {
     return false;
@@ -46,7 +46,7 @@ bool FeatureIndex::sameIndex(const FeatureIndex& x) const {
 }
 
 bool FeatureIndex::operator!=(const FeatureIndex& x) const {
-  if (mIndex != x.mIndex || mStatus != x.mStatus) {
+  if (m_index != x.m_index || m_status != x.m_status) {
     return true;
   } else {
     return false;
@@ -54,7 +54,7 @@ bool FeatureIndex::operator!=(const FeatureIndex& x) const {
 }
 
 bool FeatureIndex::operator==(const FeatureIndex& x) const {
-  if (mIndex == x.mIndex && mStatus == x.mStatus) {
+  if (m_index == x.m_index && m_status == x.m_status) {
     return true;
   } else {
     return false;

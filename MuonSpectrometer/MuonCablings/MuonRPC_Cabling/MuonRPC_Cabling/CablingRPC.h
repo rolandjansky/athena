@@ -82,14 +82,14 @@ class CablingRPC : public CablingRPCBase
 
     private:
     static CablingRPCBase* s_instance;
-    static std::string ConfName;
-    static std::string CorrName;
+    static std::string s_ConfName;
+    static std::string s_CorrName;
     static bool s_status;
     static bool s_cosmic_configuration;
-    static std::string DataName;
+    static std::string s_DataName;
 
-    const static std::string *CorrMapPString, *ConfMapPString;
-    const static std::map<std::string, std::string>* p_trigroads;
+    const static std::string *s_CorrMapPString, *s_ConfMapPString;
+    const static std::map<std::string, std::string>* s_trigroads;
     
     static bool s_RPCMapfromCool;
     unsigned int m_absZindexInThelayerOfThisChamber[8][2][9][8][2][4];
@@ -114,7 +114,7 @@ class CablingRPC : public CablingRPCBase
     void ClearPtoTrigRoads();
     void ClearPtoCablingMap(); 
 
-    const std::map<std::string, std::string>* GetPtoTrigRoads() const {return p_trigroads;}
+    const std::map<std::string, std::string>* GetPtoTrigRoads() const {return s_trigroads;}
 
     bool isLoaded(void) const {return s_status;}
 

@@ -342,6 +342,11 @@ TriggerHLTList = [
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_mht',                             'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_mhtAux.',                      'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
 
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trkmht',                             'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trkmhtAux.',                      'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
+
+
+
     ('xAOD::TrigMissingET#HLT_TrigL2MissingET_FEB',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigL2MissingET_FEBAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
 
@@ -540,6 +545,8 @@ TriggerHLTList = [
     # Reclustered jets
     ('xAOD::JetContainer#HLT_a10r_tcemsubjesFS',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
     ('xAOD::JetTrigAuxContainer#HLT_a10r_tcemsubjesFSAux.',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetContainer#HLT_a10r_tcemsubjesISFS',                       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a10r_tcemsubjesISFSAux.',            'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
 
     # Cosmics
     ('xAOD::JetContainer#HLT_TrigCosmicJetRec',                          '',                       'Jet'),
@@ -567,6 +574,10 @@ TriggerHLTList = [
     ('xAOD::JetTrigAuxContainer#HLT_a10t_tcemnojcalibFSAux.',            'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetContainer#HLT_a10t_tclcwnojcalibFS',                      'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetTrigAuxContainer#HLT_a10t_tclcwnojcalibFSAux.',           'BS ESD AODFULL', 'Jet'),
+
+    # SoftKiller
+    ('xAOD::JetContainer#HLT_a4sktclcwnojcalibFS',                       'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a4sktclcwnojcalibFSAux.',            'BS ESD AODFULL', 'Jet'),
 
     #GSC
     ('xAOD::JetContainer#HLT_GSCJet', 						'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),

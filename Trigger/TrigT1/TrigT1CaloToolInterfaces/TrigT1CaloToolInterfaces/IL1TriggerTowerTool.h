@@ -21,7 +21,7 @@
 #include "Identifier/Identifier.h"
 #include "Identifier/HWIdentifier.h"
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
-#include "xAODTrigL1Calo/TriggerTower.h"
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
 
 namespace LVL1
 {

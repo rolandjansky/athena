@@ -27,8 +27,9 @@ Arena::Arena (const std::string& name, ArenaHeader* header /*= 0*/)
   : ArenaBase (name),
     m_header (header)
 {
-  if (!m_header)
+  if (!m_header) {
     m_header = SG::ArenaHeader::defaultHeader();
+  }
   m_header->addArena (this);
 }
 

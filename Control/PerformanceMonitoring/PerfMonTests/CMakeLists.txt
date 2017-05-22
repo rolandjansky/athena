@@ -9,7 +9,8 @@ atlas_subdir( PerfMonTests )
 atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/DataModel
+                          Control/AthAllocators
+                          Control/AthContainers
                           Control/PerformanceMonitoring/PerfMonComps
                           Control/PerformanceMonitoring/PerfMonKernel
                           Control/SGTools
@@ -26,7 +27,7 @@ atlas_add_component( PerfMonTests
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel DataModel PerfMonKernel SGTools StoreGateLib SGtests GaudiKernel )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthAllocators AthContainers PerfMonKernel SGTools StoreGateLib SGtests GaudiKernel )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

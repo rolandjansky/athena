@@ -13,7 +13,7 @@
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "Particle/TrackParticleContainer.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLinkVector.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"

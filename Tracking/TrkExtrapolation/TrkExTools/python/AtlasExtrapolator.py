@@ -81,8 +81,8 @@ class AtlasExtrapolator( Trk__Extrapolator ):
        AtlasSubPropagators += [ AtlasRungeKuttaPropagator.name() ]
        AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name() ]
        
-       # default for BeamPipe is (Rk,Mat)
-       AtlasSubPropagators += [ AtlasRungeKuttaPropagator.name() ]
+       # default for BeamPipe is (STEP,Mat)
+       AtlasSubPropagators += [ AtlasSTEP_Propagator.name() ]
        AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name() ]
        
        # default for Calo is (STEP,Mat)

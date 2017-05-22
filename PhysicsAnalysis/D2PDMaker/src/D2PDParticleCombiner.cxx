@@ -30,8 +30,8 @@
 #include <climits>
 
 // The needed ElementLink stuff
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLink.h" 
+#include "AthContainers/DataVector.h"
+#include "AthLinks/ElementLink.h" 
 
 // The composite particle
 #include "ParticleEvent/CompositeParticle.h"

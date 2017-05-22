@@ -847,7 +847,7 @@ StatusCode AthenaPoolCnvSvc::makeClient(int num) {
       }
    }
    if (m_inputStreamingTool.empty()) {
-      return(StatusCode::RECOVERABLE);
+      return(StatusCode::SUCCESS);
    }
    ATH_MSG_DEBUG("makeClient: " << m_inputStreamingTool << " = " << num);
    return(m_inputStreamingTool->makeClient(num));

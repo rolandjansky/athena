@@ -17,8 +17,8 @@
 #include "TrigNavigation/Navigation.h"
 #include "TrigNavigation/NavigationCore.h"
 
-#include "DataModel/ElementLink.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
 
 class ISvcLocator;
 class ITrigTimerSvc;

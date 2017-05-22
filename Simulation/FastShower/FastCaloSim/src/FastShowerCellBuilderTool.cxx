@@ -20,7 +20,7 @@
   #include "GaudiKernel/IPartPropSvc.h"
   #include "HepPDT/ParticleData.hh"
 #endif  
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"

@@ -46,30 +46,27 @@
 //#include "mock_CablingSvc.h"
 
 
-
-
 #include "InDetIdentifier/SCT_ID.h"
-
-// Needed every time an AthAlgorithm, AthAlgTool or AthService is instantiated
-ISvcLocator* g_svcLoc =  Gaudi::svcLocator();
-
-// Needed for the setup of StorgateSvc
-const SCT_ID * m_pHelper = new SCT_ID();
-
-// Easy way to set up services
-const ServiceLocatorHelper helper(*g_svcLoc, "HELPER");
-
-// Set up a new StoreGateSvc instance named DetectorStore, as SCT_RODVetoSvc needs
-IService* i_svc = helper.service("StoreGateSvc/DetectorStore", true /*queit*/ , true /*createIf*/);
-StoreGateSvc* m_detStore = dynamic_cast<StoreGateSvc*> (i_svc);
-StatusCode sc = m_detStore->record(m_pHelper, "SCT_ID");
 
 
 // global test environment takes care of setting up Gaudi
 class GaudiEnvironment : public ::testing::Environment {
   protected:
     virtual void SetUp() override {
+        ISvcLocator* g_svcLoc =  Gaudi::svcLocator();
+
 	Athena_test::initGaudi(g_svcLoc);
+
+        // Needed for the setup of StorgateSvc
+        const SCT_ID * pHelper = new SCT_ID();
+
+        // Easy way to set up services
+        const ServiceLocatorHelper helper(*g_svcLoc, "HELPER");
+
+        // Set up a new StoreGateSvc instance named DetectorStore, as SCT_RODVetoSvc needs
+        IService* i_svc = helper.service("StoreGateSvc/DetectorStore", true /*queit*/ , true /*createIf*/);
+        StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*> (i_svc);
+        StatusCode sc = detStore->record(pHelper, "SCT_ID");
     }
 };
 
@@ -81,6 +78,7 @@ class SCT_RODVetoSvc_test: public ::testing::Test{
 
 
     virtual void SetUp() override {
+        ISvcLocator* g_svcLoc =  Gaudi::svcLocator();
     	m_svc = new SCT_RODVetoSvc("SCT_RODVetoSvc", g_svcLoc );
         
     }

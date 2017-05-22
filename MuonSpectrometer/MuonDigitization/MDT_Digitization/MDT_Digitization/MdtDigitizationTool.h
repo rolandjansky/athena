@@ -54,7 +54,7 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 #include "MuonCondInterface/IMDTConditionsSvc.h"

@@ -62,7 +62,7 @@ StatusCode T2JESCalibTool::setProperty (const Property& p){
 StatusCode T2JESCalibTool::initialize()
 {
   // Initialize MsgStream
-  m_log.setLevel(outputLevel());
+  m_log.setLevel(msgLevel());
   return StatusCode::SUCCESS;  
 }
 
@@ -85,7 +85,7 @@ double T2JESCalibTool::c_energy(double EMe,double HADe,double eta)
   double EMscale_et = etf * EMscale_e;
 
   if ( EMscale_et < m_etcut ) {
-    if ( outputLevel() <= MSG::DEBUG )
+    if ( msgLevel() <= MSG::DEBUG )
       m_log << MSG::DEBUG << "Cluster transv. energy :" << EMscale_et 
             << ", below threshold :" << m_etcut << endmsg;
     return 0.0;

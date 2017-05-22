@@ -38,6 +38,8 @@
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 
+#include "StoreGate/ReadHandleKey.h"
+
 namespace AlignMon {
   class TrackSelectionTool;
 }
@@ -787,7 +789,7 @@ class IDStandardPerformance : public ManagedMonitorToolBase
     bool m_doHitBasedMatching;
     
     std::string m_PixeltracksName;
-    std::string m_SCTtracksName;
+    SG::ReadHandleKey<TrackCollection> m_SCTtracksName;
     std::string m_TRTtracksName;
 
     typedef std::multimap<HepMcParticleLink,float> recoToTruthMap;//!< map containing reco track and matched truth track barcode

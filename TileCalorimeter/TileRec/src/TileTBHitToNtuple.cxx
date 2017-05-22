@@ -72,10 +72,20 @@ StatusCode TileTBHitToNtuple::initialize()
     return StatusCode::FAILURE;
   }
   m_ntuplePtr=ntupleSvc()->book(DirPtr.ptr(), m_ntupleID, 
-                                CLID_ColumnWiseTuple, "TileTBHit-Ntuple");
+                                    CLID_ColumnWiseTuple, "TileTBHit-Ntuple");
   if(!m_ntuplePtr) {
-    ATH_MSG_ERROR( "Failed to book ntuple: TileTBHitToNtuple" );
-    return StatusCode::FAILURE;
+    
+    std::string ntupleCompleteID=m_ntupleLoc+"/"+m_ntupleID;
+
+    NTuplePtr nt(ntupleSvc(),ntupleCompleteID);
+    if (!nt) {
+      ATH_MSG_ERROR( "Failed to book or to retrieve ntuple "
+         << ntupleCompleteID );
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_INFO( "Reaccessing ntuple " << ntupleCompleteID );
+      m_ntuplePtr = nt;
+    }
   }
 
   CHECK( m_ntuplePtr->addItem("TileTBHit/nchan",m_nchan,0,max_chan) );

@@ -15,7 +15,7 @@
 
 // local includes
 
-#include "TrkValHistUtils/PlotBase.h"
+#include "InDetPlotBase.h"
 #include "TProfile.h"
 // could be fwd declared?
 #include "xAODTracking/TrackParticle.h"
@@ -38,7 +38,7 @@ class IExtrapolator;
 
 
 ///class holding res plots for Inner Detector RTT Validation and implementing fill methods
-class InDetPerfPlot_resITk: public PlotBase {
+class InDetPerfPlot_resITk: public InDetPlotBase {
 public:
   enum Param {
     D0, Z0, QOVERP, QOVERPT, THETA, PHI, PT, Z0SIN, NPARAMS
@@ -57,7 +57,7 @@ public:
   };
 
 
-  InDetPerfPlot_resITk(PlotBase* pParent, const std::string& dirName);
+  InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::string& dirName);
 
   void fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt);
 //  virtual bool isDefined(TString t);
@@ -92,7 +92,7 @@ private:
   void makeResolutions(TH2* h, TH1* h2[m_nResHist]);
 
   void makeResolutions(TH3* h, TH1* h2[][m_nResHist], TH1* h3[][m_nResHist]);
-  void getMeanWidthResultsModUnits(TH1* p_input_hist, vector<float>& p_result,
+  void getMeanWidthResultsModUnits(TH1* p_input_hist, std::vector<float>& p_result,
 				   IDPVM::GetMeanWidth::methods p_method);
   void getTrackParameters(const xAOD::TruthParticle& truthprt);
   void getTrackParameters(const xAOD::TrackParticle& truthprt);

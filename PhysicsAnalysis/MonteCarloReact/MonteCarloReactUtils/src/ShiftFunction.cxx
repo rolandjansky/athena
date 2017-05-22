@@ -24,7 +24,7 @@ using namespace std;
 ShiftFunction::ShiftFunction( istream & ist,
                               const ResInfo* request) : Resolution(), m_flowMode(Default)
 {
-  m_makeResolution( ist, request );
+  makeResolution( ist, request );
 }
 
 ShiftFunction::ShiftFunction( const TF1 * ) : Resolution(), m_flowMode(Default)
@@ -44,7 +44,7 @@ ShiftFunction::ShiftFunction( const TF2 * ) : Resolution(), m_flowMode(Default)
 void ShiftFunction::defineBins(const vector< float > & edges)
 {
   m_axisEdges.push_back(vector<float>(edges)) ;
-  m_initRes() ;
+  initRes() ;
 }
 
 void ShiftFunction::defineBins( int nbins, float xlo, float xhi)
@@ -59,7 +59,7 @@ void ShiftFunction::defineBins( int nbins, float xlo, float xhi)
   for( int i = 0; i <= nbins; ++i) {
     m_axisEdges.back().push_back(xlo + ( i * xs )) ;
   }
-  m_initRes() ;
+  initRes() ;
 }
 
 void ShiftFunction::addTAxis(const TAxis* axis) {
@@ -67,7 +67,7 @@ void ShiftFunction::addTAxis(const TAxis* axis) {
   for( int i = 0; i < axis->GetNbins(); i++) 
     m_axisEdges.back().push_back(axis->GetBinLowEdge( i+1)) ;  
   m_axisEdges.back().push_back(axis->GetBinUpEdge( axis->GetNbins())) ;  
-  m_initRes() ;
+  initRes() ;
 }
 
 int ShiftFunction::getNbins(int n) const {
@@ -406,7 +406,7 @@ int ShiftFunction::findBin( const vector< float >& loEdges, float x, FindBinMode
 
 
 
-bool ShiftFunction::m_parseInputLine( const string & key, const vector< string> & line)
+bool ShiftFunction::parseInputLine( const string & key, const vector< string> & line)
 {
   if( key.find("BinEdges") != string::npos ) {
     int npar = line.size();
@@ -414,7 +414,7 @@ bool ShiftFunction::m_parseInputLine( const string & key, const vector< string> 
     for( int i =0; i < npar; ++i) { 
       m_axisEdges.back().push_back(atof( (line[i]).c_str())) ;
     }
-    m_initRes() ;
+    initRes() ;
     return true ;
   }
   
@@ -442,7 +442,7 @@ bool ShiftFunction::m_parseInputLine( const string & key, const vector< string> 
   return false;
 }
 
-void ShiftFunction::m_stream( ostream & os) const
+void ShiftFunction::stream( ostream & os) const
 {
   // first do bin edges
   for (vector<vector<float> >::const_iterator it =  m_axisEdges.begin();
@@ -479,7 +479,7 @@ void ShiftFunction::m_stream( ostream & os) const
 
 
 
-void ShiftFunction::m_initRes() {
+void ShiftFunction::initRes() {
   m_tf1.resize(getNbins() ) ;  
 }
 

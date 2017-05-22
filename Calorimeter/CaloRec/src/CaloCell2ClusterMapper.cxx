@@ -35,7 +35,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloEvent/CaloCell2ClusterMap.h"
 #include "CaloEvent/CaloClusterContainer.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "AthAllocators/DataPool.h"
 #include "AthenaKernel/errorcheck.h"
 
@@ -65,28 +64,6 @@ CaloCell2ClusterMapper::~CaloCell2ClusterMapper()
 //###############################################################################
 
 StatusCode CaloCell2ClusterMapper::initialize() {
-  const IGeoModelSvc *geoModel = 0;
-  ATH_CHECK(service("GeoModelSvc", geoModel));
-
-  // dummy parameters for the callback:
-  int dummyInt = 0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized()) {
-    return geoInit(dummyInt, dummyList);
-  }
-
-  ATH_CHECK(detStore()->regFcn(&IGeoModelSvc::geoInit, geoModel,
-                               &CaloCell2ClusterMapper::geoInit, this));
-
-  ATH_CHECK(m_mapOutputKey.initialize());
-  ATH_CHECK(m_clusterKey.initialize());
-  
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-CaloCell2ClusterMapper::geoInit(IOVSVC_CALLBACK_ARGS) {
   // pointer to detector manager:
   m_calo_dd_man = CaloDetDescrManager::instance();
   m_calo_id = m_calo_dd_man->getCaloCell_ID();

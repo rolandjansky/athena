@@ -60,7 +60,7 @@ StatusCode HLTMuonMonTool::initMuonEFDQA()
 StatusCode HLTMuonMonTool::bookMuonEFDQA()
 {
   //histograms in each 10LBs 
-  if( newRun || newLowStat ){
+  if( newRunFlag() || newLowStatFlag() ){
 
     addHistogram( new TH2F("EFMS_eta_vs_phi_in_10LBs",           "TrigMuonEF TrackBuilder eta vs phi in 10LBs; #eta ; #phi",           27, -2.7, 2.7, 16, -CLHEP::pi, CLHEP::pi), m_histdircoverage );
     addHistogram( new TH2F("EFSA_eta_vs_phi_in_10LBs",           "TrigMuonEF Extrapolator eta vs phi in 10LBs; #eta ; #phi",           27, -2.7, 2.7, 16, -CLHEP::pi, CLHEP::pi), m_histdircoverage );
@@ -68,7 +68,7 @@ StatusCode HLTMuonMonTool::bookMuonEFDQA()
 
   }
 
-  if( newRun ){
+  if( newRunFlag() ){
 
     addHistogram( new TH1F("EFMS_pt",    "TrigMuonEF TrackBuilder pT; p_{T}[GeV/c]; Entries",    105, 0.,105.), m_histdirmuonef );
     addHistogram( new TH1F("EFMS_signed_pt",    "TrigMuonEF TrackBuilder signed pT; signed p_{T}[GeV/c]; Entries",    210, -105.,105.), m_histdirmuonef );
@@ -226,8 +226,8 @@ StatusCode HLTMuonMonTool::bookMuonEFDQA()
     addHistogram( new TH1F("EF_SA_Over_Moore_SA_10GeV_Cut",     "EF_SA_Over_Moore_SA_10GeV_Cut; LB ; Ratio",  400, 1., 801.), m_histdirrateratio );
     addHistogram( new TH1F("EF_CB_Over_Muid_10GeV_Cut",         "EF_CB_Over_Muid_10GeV_Cut; LB ; Ratio",  400, 1., 801.), m_histdirrateratio );
 
-  }else if( newLumiBlock ){
   }
+  //else if( newLumiBlockFlag() ){  }
   return StatusCode::SUCCESS;
 }
 
@@ -304,7 +304,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   // Section 1: simple histograms
   // First try from xAOD::Muon
   const xAOD::MuonContainer* muonEFcontainer(0);
-  StatusCode sc_muonEFi = m_storeGate->retrieve(muonEFcontainer, "HLT_xAOD__MuonContainer_MuonEFInfo");
+  StatusCode sc_muonEFi = evtStore()->retrieve(muonEFcontainer, "HLT_xAOD__MuonContainer_MuonEFInfo");
   // ATH_MSG_INFO ( "EF muon xAOD: " << sc_muonEFi );
   
   if (!sc_muonEFi.isFailure()) { // xAOD for EF muon found
@@ -411,7 +411,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
     // Retrieve Muon from TrigMuonEFInfoContainer
     ATH_MSG_DEBUG( "about to get TrigMuonEFInfo" );
     const DataHandle< TrigMuonEFInfoContainer > trigMuon, lastTrigMuon;
-    StatusCode sc_muonEFi = m_storeGate->retrieve(trigMuon,lastTrigMuon);
+    StatusCode sc_muonEFi = evtStore()->retrieve(trigMuon,lastTrigMuon);
     if( sc_muonEFi.isFailure() ) {
       ATH_MSG_DEBUG( "Failed to retrieve HLT TrigMuonEFContainer Muon" );
     }
@@ -421,7 +421,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
       ATH_MSG_DEBUG( "Failed to retrieve HLT TrigMuonEFInfoContainer Muon" );
       // Failed to retrieve TrigMuonEFInfoContainer: trying TrigMuonEFContainer 
       const DataHandle<TrigMuonEFContainer> teContainerEnd,teContainerIt;
-      StatusCode sc_muonEF = m_storeGate->retrieve(teContainerIt,teContainerEnd);
+      StatusCode sc_muonEF = evtStore()->retrieve(teContainerIt,teContainerEnd);
       if( sc_muonEF.isFailure() ) {
 	ATH_MSG_DEBUG( "Failed to retrieve HLT TrigMuonEFContainer Muon" );
       } else {
@@ -676,7 +676,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   const xAOD::MuonContainer* muonCont;
 
   std::string muonKey = "Muons";
-  StatusCode sc = m_storeGate->retrieve( muonCont, muonKey);
+  StatusCode sc = evtStore()->retrieve( muonCont, muonKey);
   if(sc.isFailure() || !muonCont){
     ATH_MSG_WARNING( "Container of muon particle with key " << muonKey << " not found in Store Gate with size " );
     return StatusCode::SUCCESS;
@@ -905,7 +905,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   // Retrieve MuonFeatureContainer
   const DataHandle<xAOD::L2StandAloneMuonContainer> mfContainer;
   const DataHandle<xAOD::L2StandAloneMuonContainer> lastmfContainer;
-  StatusCode sc_mf = m_storeGate->retrieve(mfContainer,lastmfContainer);
+  StatusCode sc_mf = evtStore()->retrieve(mfContainer,lastmfContainer);
   if ( sc_mf.isFailure() ) {
     ATH_MSG_WARNING( "Failed to retrieve HLT muFast container" );
     return StatusCode::SUCCESS;    
@@ -1056,7 +1056,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 
   const DataHandle<xAOD::L2CombinedMuonContainer> combContainer;
   const DataHandle<xAOD::L2CombinedMuonContainer> lastcombContainer;
-  StatusCode sc_comb = m_storeGate->retrieve(combContainer,lastcombContainer);
+  StatusCode sc_comb = evtStore()->retrieve(combContainer,lastcombContainer);
 
   if ( sc_comb.isFailure() ) {
     ATH_MSG_WARNING( "Failed to retrieve HLT muComb container" );
@@ -1432,7 +1432,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 
 StatusCode HLTMuonMonTool::procMuonEFDQA()
 {
-  if( endOfRun ){
+  if( endOfRunFlag() ){
 
     ATH_MSG_DEBUG("procMuonEFDQA");
 
@@ -1481,7 +1481,7 @@ StatusCode HLTMuonMonTool::procMuonEFDQA()
 
     
 
-  }else if( endOfLumiBlock ){
   }
+  //else if( endOfLumiBlockFlag() ){  }
   return StatusCode::SUCCESS;
 }

@@ -22,7 +22,7 @@ int RoILinks::addCombLinks(const CombLinks& links) {
   std::vector<CombLinks>::const_iterator p;
   int i=0;
   bool foundit=false;
-  for (p=CombIndex.begin(); p!=CombIndex.end(); ++p) {
+  for (p=m_CombIndex.begin(); p!=m_CombIndex.end(); ++p) {
     if (p->RoIType() != links.RoIType()) continue;
     if ( (*p) == links) {
       foundit = true;
@@ -31,9 +31,9 @@ int RoILinks::addCombLinks(const CombLinks& links) {
     i ++;
   }
   if (!foundit) {
-    CombIndex.push_back(links);
+    m_CombIndex.push_back(links);
     i = -1;
-    for (p=CombIndex.begin(); p!=CombIndex.end(); ++p) {
+    for (p=m_CombIndex.begin(); p!=m_CombIndex.end(); ++p) {
       if (p->RoIType() == links.RoIType()) i++;
     }
   }
@@ -44,7 +44,7 @@ int RoILinks::addMuonRoILinks(const MuonRoILinks& MuonRoI) {
   std::vector<MuonRoILinks>::const_iterator p;
   int i=0;
   bool foundit=false;
-  for (p=MuonRoIIndex.begin(); p!=MuonRoIIndex.end(); ++p) {
+  for (p=m_MuonRoIIndex.begin(); p!=m_MuonRoIIndex.end(); ++p) {
     if ( (*p) == MuonRoI) {
       foundit = true;
       break;
@@ -52,8 +52,8 @@ int RoILinks::addMuonRoILinks(const MuonRoILinks& MuonRoI) {
     i ++;
   }
   if (!foundit) {
-    MuonRoIIndex.push_back(MuonRoI);
-    i = static_cast<int>(MuonRoIIndex.size()) - 1;
+    m_MuonRoIIndex.push_back(MuonRoI);
+    i = static_cast<int>(m_MuonRoIIndex.size()) - 1;
   }
   return i;
 }
@@ -77,7 +77,7 @@ int RoILinks::addElectronRoILinks(const ElectronRoILinks& ElectronRoI) {
   std::vector<ElectronRoILinks>::const_iterator p;
   int i=0;
   bool foundit=false;
-  for (p=ElectronRoIIndex.begin(); p!=ElectronRoIIndex.end(); ++p) {
+  for (p=m_ElectronRoIIndex.begin(); p!=m_ElectronRoIIndex.end(); ++p) {
     if ( (*p) == ElectronRoI) {
       foundit = true;
       break;
@@ -85,8 +85,8 @@ int RoILinks::addElectronRoILinks(const ElectronRoILinks& ElectronRoI) {
     i ++;
   }
   if (!foundit) {
-    ElectronRoIIndex.push_back(ElectronRoI);
-    i = static_cast<int>(ElectronRoIIndex.size()) - 1;
+    m_ElectronRoIIndex.push_back(ElectronRoI);
+    i = static_cast<int>(m_ElectronRoIIndex.size()) - 1;
   }
   return i;
 }
@@ -135,10 +135,10 @@ int RoILinks::addElectronRoILinks(int index_EMCluster,
 
 
 const std::vector<MuonRoILinks>& RoILinks::getMuonRoILinks() const {
-  return MuonRoIIndex;
+  return m_MuonRoIIndex;
 }
 const std::vector<ElectronRoILinks>& RoILinks::getElectronRoILinks() const {
-  return ElectronRoIIndex;
+  return m_ElectronRoIIndex;
 }
 
 std::vector<ElectronRoILinks> 
@@ -150,7 +150,7 @@ RoILinks::getElectronRoILinks(const ChainEntry& chain) const {
 
   for (unsigned int i=0; i<n; ++i) {
     if (roi_types[i] == ChainEntry::kElectronRoIType) {
-      v.push_back(ElectronRoIIndex[roi_indices[i]]);
+      v.push_back(m_ElectronRoIIndex[roi_indices[i]]);
     }
   }
   return v;
@@ -160,7 +160,7 @@ std::vector<CombLinks> RoILinks::getCombLinks(int roi_type) const {
   std::vector<CombLinks> x;
   std::vector<CombLinks>::const_iterator p;
 
-  for (p=CombIndex.begin(); p!=CombIndex.end(); ++p) {
+  for (p=m_CombIndex.begin(); p!=m_CombIndex.end(); ++p) {
     if (roi_type < 0 || p->RoIType() == roi_type) x.push_back(*p);
   }
   return x;
@@ -192,10 +192,10 @@ std::vector<CombLinks> RoILinks::getCombLinks(const ChainEntry& chain) const {
 
 
 void RoILinks::clear() {
-  MuonRoIIndex.clear();
-  ElectronRoIIndex.clear();
-  TauRoIIndex.clear();
-  JetRoIIndex.clear();
-  CombIndex.clear();
+  m_MuonRoIIndex.clear();
+  m_ElectronRoIIndex.clear();
+  m_TauRoIIndex.clear();
+  m_JetRoIIndex.clear();
+  m_CombIndex.clear();
 }
 

@@ -8,7 +8,8 @@ use GaudiInterface      GaudiInterface-*             External
 use AthenaBaseComps     AthenaBaseComps-*            Control
 use AthenaMonitoring    AthenaMonitoring-*           Control
 use TrigSteeringEvent   TrigSteeringEvent-*          Trigger/TrigEvent
-use DataModel           DataModel-*		             Control
+use AthContainers       AthContainers-*		     Control
+use AthLinks            AthLinks-*		     Control
 use DataCollection      DataCollection-*             External
 
 

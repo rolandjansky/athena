@@ -122,10 +122,10 @@ namespace Monitored {
   public: 
     HistogramFiller1D(TH1* hist, HistogramDef histDef)
       : HistogramFiller(hist, histDef) {}
-    virtual unsigned fill();
+    virtual unsigned fill() override;
     HistogramFiller1D* clone() override { return new HistogramFiller1D(*this); };
   protected:
-    virtual TH1* histogram() { return m_hist; }
+    virtual TH1* histogram() override { return m_hist; }
   };
   
   /**
@@ -135,7 +135,7 @@ namespace Monitored {
   public:
     CumulativeHistogramFiller1D(TH1* hist, HistogramDef histDef) 
       : HistogramFiller1D(hist, histDef) {}
-    virtual unsigned fill();
+    virtual unsigned fill() override;
     virtual CumulativeHistogramFiller1D* clone() override { return new CumulativeHistogramFiller1D(*this); };
   };
   
@@ -143,7 +143,7 @@ namespace Monitored {
   public:
     VecHistogramFiller1D(TH1* hist, HistogramDef histDef) 
       : HistogramFiller1D(hist, histDef) {}
-    virtual unsigned fill();
+    virtual unsigned fill() override;
     virtual VecHistogramFiller1D* clone() override { return new VecHistogramFiller1D(*this); };
   };
   
@@ -151,7 +151,7 @@ namespace Monitored {
   public:
     VecHistogramFiller1DWithOverflows(TH1* hist, HistogramDef histDef) 
       : HistogramFiller1D(hist, histDef) {}
-    virtual unsigned fill();
+    virtual unsigned fill() override;
     virtual VecHistogramFiller1DWithOverflows* clone() override { return new VecHistogramFiller1DWithOverflows(*this); };
   };
   
@@ -162,10 +162,10 @@ namespace Monitored {
   public:
     HistogramFillerProfile(TProfile* hist, HistogramDef histDef)
       : HistogramFiller(hist, histDef) {};
-    virtual unsigned fill();
+    virtual unsigned fill() override;
     virtual HistogramFillerProfile* clone() override { return new HistogramFillerProfile(*this); };
   protected:
-    virtual TProfile* histogram() { return static_cast<TProfile*>(m_hist); }
+    virtual TProfile* histogram() override { return static_cast<TProfile*>(m_hist); }
   };
   
   /**
@@ -175,10 +175,10 @@ namespace Monitored {
   public:
     HistogramFiller2D(TH2* hist, HistogramDef histDef)
       : HistogramFiller(hist, histDef) {};
-    virtual unsigned fill();
+    virtual unsigned fill() override;
     virtual HistogramFiller2D* clone() override { return new HistogramFiller2D(*this); };
   protected:
-    virtual TH2* histogram() { return static_cast<TH2*>(m_hist); }
+    virtual TH2* histogram() override { return static_cast<TH2*>(m_hist); }
   };
   
   /**
@@ -188,10 +188,10 @@ namespace Monitored {
   public:
     HistogramFiller2DProfile(TProfile2D* hist, HistogramDef histDef)
       : HistogramFiller(hist, histDef) {};
-    virtual unsigned fill();
+    virtual unsigned fill() override;
     virtual HistogramFiller2DProfile* clone() override { return new HistogramFiller2DProfile(*this); };
   protected:
-    virtual TProfile2D* histogram() { return static_cast<TProfile2D*>(m_hist); }
+    virtual TProfile2D* histogram() override { return static_cast<TProfile2D*>(m_hist); }
   };
 }
  

@@ -117,8 +117,9 @@ void ArenaBlockAllocatorBase::reserve (size_t size)
     // Growing the pool.
     // Make a new block of the required size (but not less than nblock).
     size_t sz = size - m_stats.elts.total;
-    if (sz < m_params.nblock)
+    if (sz < m_params.nblock) {
       sz = m_params.nblock;
+    }
     ArenaBlock* newblock = ArenaBlock::newBlock (sz, m_params.eltSize,
                                                  m_params.constructor);
 
@@ -166,8 +167,9 @@ void ArenaBlockAllocatorBase::erase()
 {
   // Do we need to run clear() on the allocated elements?
   // If so, do so via reset().
-  if (m_params.mustClear && m_params.clear)
+  if (m_params.mustClear && m_params.clear) {
     reset();
+  }
 
   // Kill the block lists (both free and in use).
   ArenaBlock::destroyList (m_blocks, m_params.destructor);

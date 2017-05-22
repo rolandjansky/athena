@@ -10,7 +10,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrigT1CaloEvent/TriggerTower.h"
-#include "xAODTrigL1Calo/TriggerTower.h"
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "TrigT1CaloEvent/CPMTower.h"
 #include "xAODTrigL1Calo/CPMTower.h"
 #include <map>

@@ -36,7 +36,7 @@ class MsgStream;
 
 // forward declare some conversion class
 template <class T1, class T2, class T3>
-  class T_AthenaPoolTPPolyCnvBase;
+  class TPPolyCnvBase;
 class JetKeyDescriptor_p1;
 
 // payload for the JetKeyDescriptor framework.
@@ -46,7 +46,7 @@ class JetKeyDescriptor
   friend class JetKeyDescriptorCnv_p1;
   friend class JetKeyDescriptorCnv;
   friend class JetKeyDescriptorInstance;
-  friend class T_AthenaPoolTPPolyCnvBase<JetKeyDescriptor,JetKeyDescriptor, JetKeyDescriptor_p1>;  
+  friend class TPPolyCnvBase<JetKeyDescriptor,JetKeyDescriptor, JetKeyDescriptor_p1>;  
  public:
   
   typedef std::string      category_t;

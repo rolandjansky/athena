@@ -58,8 +58,9 @@ void ArenaBlock::destroy (ArenaBlock* p, func_t* dtor)
   if (dtor) {
     size_t elt_size = p->eltSize();
     size_t n = p->size();
-    for (size_t i = 0; i < n; i++)
+    for (size_t i = 0; i < n; i++) {
       dtor (p->index (i, elt_size));
+    }
   }
   --s_nactive;
   std::free (p);
@@ -95,8 +96,9 @@ ArenaBlock::destroyList (ArenaBlock* p, func_t* dtor)
  */
 void ArenaBlock::appendList (ArenaBlock** link, ArenaBlock* tail)
 {
-  while (*link)
+  while (*link) {
     link = &(*link)->link();
+  }
   *link = tail;
 }
 
@@ -119,11 +121,13 @@ void ArenaBlock::applyList (ArenaBlock* p,
 {
   if (!p) return;
   size_t elt_size = p->eltSize();
-  if (n > p->size())
+  if (n > p->size()) {
     n = p->size();
+  }
   while (1) {
-    for (size_t i = 0; i < n; i++)
+    for (size_t i = 0; i < n; i++) {
       func (p->index (i, elt_size));
+    }
     p = p->link();
     if (!p) break;
     n = p->size();

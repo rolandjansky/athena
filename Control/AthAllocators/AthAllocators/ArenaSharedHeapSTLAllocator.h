@@ -63,7 +63,6 @@
 #define ATLALLOCATORS_ARENASHAREDHEAPSTLALLOCATOR_H
 
 
-#include "AthAllocators/ArenaSTLAllocator.h"
 #include "AthAllocators/ArenaHeapAllocator.h"
 #include "AthAllocators/ArenaHeapSTLAllocator.h"
 #include "AthAllocators/ArenaAllocatorRegistry.h"

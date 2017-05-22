@@ -257,7 +257,7 @@ std::string
 AthTruthSelectionTool::str() const {
   return m_cutFlow.report();
 }
-//Following is from Simone Pagan-Griso, to be re-incorporated for specific studies
+
 /*
 bool AthTruthSelectionTool::acceptExtrapolatedTPToSurface(const xAOD::TruthParticle& p) const
 {

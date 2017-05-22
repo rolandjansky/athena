@@ -10,7 +10,7 @@
 
 #include "LArIdentifier/LArIdManager.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
@@ -109,7 +109,7 @@ StatusCode HLTCaloFEBTool::book(bool newEventsBlock, bool newLumiBlock, bool new
 
   addMonGroup( new MonGroup(this,"HLT/CaloFEBMon",run) );
 
-  if ( newRun ) {
+  if ( newRunFlag() ) {
 
   addHistogram(new TH1I("NEMLArFEBs","Number of HLT EM LAr FEBs; Number of HLT FEBs; Number of Events",100,0,1500));
   addHistogram(new TH1I("NHECLArFEBs","Number of HLT HEC LAr FEBs; Number of HLT FEBs; Number of Events",100,0,500));
@@ -188,7 +188,7 @@ StatusCode HLTCaloFEBTool::book(bool newEventsBlock, bool newLumiBlock, bool new
   if ( m_ntuple ) 
     addTree( new TNtuple("Details","Details","et:eta:phi:gain:tet:teta:tphi:tgain:lartile") );
   
-  }else if ( newEventsBlock || newLumiBlock ){
+  }else if ( newEventsBlockFlag() || newLumiBlockFlag() ){
     return StatusCode::SUCCESS;
   }
 
@@ -204,7 +204,7 @@ StatusCode HLTCaloFEBTool::fill() {
   	     if ( m_log->level() <= MSG::DEBUG )
 		(*m_log) << MSG::DEBUG << "No Calo Cell Container found"
                         << endmsg;
-		return StatusCode::SUCCESS;
+             return StatusCode::SUCCESS;
 	}
 #ifndef NDEBUG
   	if ( m_log->level() <= MSG::DEBUG ){
@@ -494,7 +494,7 @@ StatusCode HLTCaloFEBTool::fill() {
 	//LArFebEnergyCollection::const_iterator tit;
         bool prepare=true;
         if(m_useloadfullcoll){
-          if(m_data->LoadFullCollections(tbegin,tend,TTEM,prepare).isFailure()){
+          if(m_data->LoadFullCollections(m_tbegin,m_tend,TTEM,prepare).isFailure()){
              (*m_log) << MSG::ERROR << "Problems reading LoadFullCollection"
                     << endmsg;
 		return StatusCode::FAILURE;
@@ -507,13 +507,13 @@ StatusCode HLTCaloFEBTool::fill() {
 	//if ( m_data->LoadFullCollections(tbegin,tend,TTEM).isFailure() ) {
         m_data->RegionSelector(0,etamin,etamax,phimin,phimax, TTEM);
 	//LArFebEnergyCollection::const_iterator titem0,tbeginem0,tendem0;
-	if ( m_data->LoadCollections(tbegin,tend,0).isFailure() ) {
+	if ( m_data->LoadCollections(m_tbegin,m_tend,0).isFailure() ) {
 		(*m_log) << MSG::ERROR << "Problems to read FEB info"
 			<< endmsg;
 		return StatusCode::FAILURE;
 	}
         //LArFebEnergy *feb = new LArFebEnergy();
-	for(LArFebEnergyCollection::const_iterator tit= tbegin; tit!=tend; ++tit) {
+	for(LArFebEnergyCollection::const_iterator tit= m_tbegin; tit!=m_tend; ++tit) {
                 LArFebEnergy feb = LArFebEnergy((*tit)->getFebId(),(*tit)->getFebEx(),(*tit)->getFebEy(),(*tit)->getFebEz(),0.);
                 /*feb->setFebEx((*tit)->getFebEx());
                 feb->setFebEy((*tit)->getFebEy());
@@ -531,12 +531,12 @@ StatusCode HLTCaloFEBTool::fill() {
         m_data->RegionSelector(1,etamin,etamax,phimin,phimax,TTEM);
 	//LArFebEnergyCollection::const_iterator tbeginem1;
 	//LArFebEnergyCollection::const_iterator tendem1;
-	if ( m_data->LoadCollections(tbegin,tend,1).isFailure() ) {
+	if ( m_data->LoadCollections(m_tbegin,m_tend,1).isFailure() ) {
 		(*m_log) << MSG::ERROR << "Problems to read FEB info"
 			<< endmsg;
 		return StatusCode::FAILURE;
 	}
-	for(LArFebEnergyCollection::const_iterator tit = tbegin; tit!=tend; ++tit) {
+	for(LArFebEnergyCollection::const_iterator tit = m_tbegin; tit!=m_tend; ++tit) {
                 //LArFebEnergy *feb = new LArFebEnergy((*tit)->getFebId());
                 LArFebEnergy feb = LArFebEnergy((*tit)->getFebId(),(*tit)->getFebEx(),(*tit)->getFebEy(),(*tit)->getFebEz(),0.);
                 /*feb->setFebEx((*tit)->getFebEx());
@@ -554,12 +554,12 @@ StatusCode HLTCaloFEBTool::fill() {
 	}
         m_data->RegionSelector(2,etamin,etamax,phimin,phimax, TTEM);
 	//LArFebEnergyCollection::const_iterator titem2,tbeginem2,tendem2;
-	if ( m_data->LoadCollections(tbegin,tend,2).isFailure() ) {
+	if ( m_data->LoadCollections(m_tbegin,m_tend,2).isFailure() ) {
 		(*m_log) << MSG::ERROR << "Problems to read FEB info"
 			<< endmsg;
 		return StatusCode::FAILURE;
 	}
-	for( LArFebEnergyCollection::const_iterator tit= tbegin; tit!=tend; ++tit) {
+	for( LArFebEnergyCollection::const_iterator tit= m_tbegin; tit!=m_tend; ++tit) {
                 //LArFebEnergy *feb = new LArFebEnergy((*tit)->getFebId());
                 LArFebEnergy feb = LArFebEnergy((*tit)->getFebId(),(*tit)->getFebEx(),(*tit)->getFebEy(),(*tit)->getFebEz(),0.);
                 /*feb->setFebEx((*tit)->getFebEx());
@@ -577,12 +577,12 @@ StatusCode HLTCaloFEBTool::fill() {
 	}
         m_data->RegionSelector(3,etamin,etamax,phimin,phimax, TTEM);
 	//LArFebEnergyCollection::const_iterator titem3,tbeginem3,tendem3;
-	if ( m_data->LoadCollections(tbegin,tend,3).isFailure() ) {
+	if ( m_data->LoadCollections(m_tbegin,m_tend,3).isFailure() ) {
 		(*m_log) << MSG::ERROR << "Problems to read FEB info"
 			<< endmsg;
 		return StatusCode::FAILURE;
 	}
-	for(LArFebEnergyCollection::const_iterator  tit= tbegin; tit!=tend; ++tit) {
+	for(LArFebEnergyCollection::const_iterator  tit= m_tbegin; tit!=m_tend; ++tit) {
                 LArFebEnergy feb = LArFebEnergy((*tit)->getFebId(),(*tit)->getFebEx(),(*tit)->getFebEy(),(*tit)->getFebEz(),0.);
                 /*feb->setFebEx((*tit)->getFebEx());
                 feb->setFebEy((*tit)->getFebEy());
@@ -599,12 +599,12 @@ StatusCode HLTCaloFEBTool::fill() {
 	}
         m_data->RegionSelector(0,etamin,etamax,phimin,phimax, TTHEC);
 	//LArFebEnergyCollection::const_iterator tithec0,tbeginhec0,tendhec0;
-	if ( m_data->LoadCollections(tbegin,tend).isFailure() ) {
+	if ( m_data->LoadCollections(m_tbegin,m_tend).isFailure() ) {
 		(*m_log) << MSG::ERROR << "Problems to read FEB info"
 			<< endmsg;
 		return StatusCode::FAILURE;
 	}
-	for(LArFebEnergyCollection::const_iterator  tit = tbegin; tit!=tend; ++tit) {
+	for(LArFebEnergyCollection::const_iterator  tit = m_tbegin; tit!=m_tend; ++tit) {
                 LArFebEnergy feb = LArFebEnergy((*tit)->getFebId(),(*tit)->getFebEx(),(*tit)->getFebEy(),(*tit)->getFebEz(),0.);
                 /*feb->setFebEx((*tit)->getFebEx());
                 feb->setFebEy((*tit)->getFebEy());
@@ -621,12 +621,12 @@ StatusCode HLTCaloFEBTool::fill() {
 		m_larfebcol_hec.push_back(feb);
 	}
         m_data->RegionSelector(0,etamin,etamax,phimin,phimax, FCALHAD);
-	if ( m_data->LoadCollections(tbegin,tend).isFailure() ) {
+	if ( m_data->LoadCollections(m_tbegin,m_tend).isFailure() ) {
 		(*m_log) << MSG::ERROR << "Problems to read FEB info"
 			<< endmsg;
 		return StatusCode::FAILURE;
 	}
-	for(LArFebEnergyCollection::const_iterator tit = tbegin; tit!=tend; ++tit) {
+	for(LArFebEnergyCollection::const_iterator tit = m_tbegin; tit!=m_tend; ++tit) {
                 LArFebEnergy feb = LArFebEnergy((*tit)->getFebId(),(*tit)->getFebEx(),(*tit)->getFebEy(),(*tit)->getFebEz(),0.);
                 /*feb->setFebEx((*tit)->getFebEx());
                 feb->setFebEy((*tit)->getFebEy());
@@ -642,12 +642,12 @@ StatusCode HLTCaloFEBTool::fill() {
 		m_larfebcol_fcal.push_back(feb);
 	}
         m_data->RegionSelector(1,etamin,etamax,phimin,phimax, FCALHAD);
-	if ( m_data->LoadCollections(tbegin,tend).isFailure() ) {
+	if ( m_data->LoadCollections(m_tbegin,m_tend).isFailure() ) {
 		(*m_log) << MSG::ERROR << "Problems to read FEB info"
 			<< endmsg;
 		return StatusCode::FAILURE;
 	}
-	for(LArFebEnergyCollection::const_iterator tit = tbegin; tit!=tend; ++tit) {
+	for(LArFebEnergyCollection::const_iterator tit = m_tbegin; tit!=m_tend; ++tit) {
                 LArFebEnergy feb = LArFebEnergy((*tit)->getFebId(),(*tit)->getFebEx(),(*tit)->getFebEy(),(*tit)->getFebEz(),0.);
                 /*feb->setFebEx((*tit)->getFebEx());
                 feb->setFebEy((*tit)->getFebEy());
@@ -663,12 +663,12 @@ StatusCode HLTCaloFEBTool::fill() {
 		m_larfebcol_fcal.push_back(feb);
 	}
         m_data->RegionSelector(0,etamin,etamax,phimin,phimax, FCALEM);
-	if ( m_data->LoadCollections(tbegin,tend).isFailure() ) {
+	if ( m_data->LoadCollections(m_tbegin,m_tend).isFailure() ) {
 		(*m_log) << MSG::ERROR << "Problems to read FEB info"
 			<< endmsg;
 		return StatusCode::FAILURE;
 	}
-	for(LArFebEnergyCollection::const_iterator tit = tbegin; tit!=tend; ++tit) {
+	for(LArFebEnergyCollection::const_iterator tit = m_tbegin; tit!=m_tend; ++tit) {
                 LArFebEnergy feb = LArFebEnergy((*tit)->getFebId(),(*tit)->getFebEx(),(*tit)->getFebEy(),(*tit)->getFebEz(),0.);
                 /*feb->setFebEx((*tit)->getFebEx());
                 feb->setFebEy((*tit)->getFebEy());
@@ -876,17 +876,17 @@ void HLTCaloFEBTool::doComparison(std::vector<LArFebEnergy> &febcoll,std::map<HW
                           //float offFebE = sqrt(offFebEx*offFebEx + offFebEy*offFebEy
                                                  //+ offFebEz*offFebEz);
                           found = true;
-                          float diffx = fabsf(offFebEx
+                          float diffx = std::abs(offFebEx
                                 - (*tit).getFebEx() );
                           //float diffxp = 0;
-                          //if ( fabsf ((*tit).getFebEx()) > 0.2 )
+                          //if ( std::abs ((*tit).getFebEx()) > 0.2 )
                           //      diffxp = 100*diffx/(*tit).getFebEx();
-                          float diffy = fabsf(offFebEy
+                          float diffy = std::abs(offFebEy
                                 - (*tit).getFebEy() );
                           //float diffyp = 0;
-                          //if ( fabsf ((*tit).getFebEy()) > 0.2 )
+                          //if ( std::abs ((*tit).getFebEy()) > 0.2 )
                           //      diffyp = 100*diffy/(*tit).getFebEy();
-                          float diffz = fabsf(offFebEz
+                          float diffz = std::abs(offFebEz
                                 - (*tit).getFebEz() );
                           //float diffzp = 0;
                           //float offFebPhi = atan2f(offFebEy,offFebEx);
@@ -897,7 +897,7 @@ void HLTCaloFEBTool::doComparison(std::vector<LArFebEnergy> &febcoll,std::map<HW
                           float febex = (*tit).getFebEx();
                           float febey = (*tit).getFebEy();
                           float febez = (*tit).getFebEz();
-                          //if ( fabsf ((*tit).getFebEz()) > 0.2 )
+                          //if ( std::abs ((*tit).getFebEz()) > 0.2 )
                           //      diffzp = 100*diffz/(*tit).getFebEz();
                           if ( ((diffx >= m_difflimit) ||
                                (diffy >= m_difflimit) ||

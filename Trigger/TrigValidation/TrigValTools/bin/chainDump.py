@@ -61,6 +61,7 @@ class chainDump:
 
         # defaults are given twice -- once here and once below for interactive use
         self.checkFile         = paramDict.get('rootFile',rfile)
+        self.refFile           = paramDict.get('referenceFile',"")
         self.checkDir          = paramDict.get('rootDirs', dirs)
         self.checkHist         = paramDict.get('rootHists',hists)
         self.totalEvHist       = paramDict.get('totalHist',totHist)
@@ -72,6 +73,7 @@ class chainDump:
         self.compare           = paramDict.get('compare',False)
         self.noSum             = paramDict.get('noSum',False)
         self.enhancedBias      = paramDict.get('enhancedBias',False)
+        self.normalize         = paramDict.get('normalize',False)
         self.enhancedTag       = paramDict.get('enhancedTag',defEnhancedTag)
         self.top               = paramDict.get('top',False)
         self.out               = paramDict.get('out',False)
@@ -79,7 +81,8 @@ class chainDump:
 
         if self.verbose:
            print "verbose mode                        ", self.verbose
-           print "checking file(s):                   ", self.checkFile 
+           print "checking file(s):                   ", self.checkFile
+           print "reference file:                     ", self.refFile
            print "saveToFile:                         ", self.saveToFile
            print "compare results of multiple files:  ", self.compare
            print "integer tolerance:                  ", self.intTolerance
@@ -196,12 +199,15 @@ class chainDump:
                     if maxReleaseEvents > 0.0:
                         giveDiffWarning = True
                     maxReleaseEvents = eventSum
+             
             print line
             if self.saveToFile:
                 f.write(line+"\n")
-            #print "maxReleaseEvents",maxReleaseEvents
+            #print "maxReleaseEvents",maxReleaseEvents 
             #print "DMS ",nameList
             if  giveDiffWarning and self.enhancedBias:
+                print "WARNING: Releases do not all have the same number of events, rescaling to",maxReleaseEvents
+            if  self.normalize:
                 print "WARNING: Releases do not all have the same number of events, rescaling to",maxReleaseEvents
             for chainName in nameList:
                 line = chainName.ljust(nmax+1)
@@ -234,6 +240,8 @@ class chainDump:
                     #print chainName,sum,releaseCounts
                     counts += [ [sum,releaseEvents] ]
                     if self.enhancedBias and releaseEvents > 0:
+                        line += " %8d" % int(sum*maxReleaseEvents/releaseEvents)
+                    if self.normalize and releaseEvents > 0:
                         line += " %8d" % int(sum*maxReleaseEvents/releaseEvents)
                     else: 
                         line += " %8d" % sum
@@ -428,7 +436,10 @@ class chainDump:
        files = glob.glob(self.checkFile)
        if len(files) < 1:
            return self.error
-
+       if self.refFile:
+           rfiles = glob.glob(self.refFile)
+           if len(rfiles) > 0:
+               files += rfiles
        #
        #  group files into different releases -- mainly for enhanced bias
        # 
@@ -592,7 +603,8 @@ class chainDump:
 #
 #          sort list 
 #
-           goodReleaseFileList.sort(reverse=True)
+           if not self.refFile:
+               goodReleaseFileList.sort(reverse=True)
 #
 #      need to switch saveComparison so that 
 #      if works from a matrix of releases and goodfile
@@ -626,6 +638,10 @@ if __name__ == "__main__":
     parser.add_option("--rootFile",
                       action = "store", default = rfile, type="string",
                       help = "name of root file")
+    
+    parser.add_option("--referenceFile",
+                      action = "store", default = "", type="string",
+                      help = "name of reference root file")
 
     parser.add_option("--fracTolerance",
                       action = "store", default = [], type="string",
@@ -674,6 +690,10 @@ if __name__ == "__main__":
     parser.add_option("-e","--enhancedBias",
                       action = "store_true", default = False,
                       help = "only look at enhanced Bias tests")
+    
+    parser.add_option("-N","--normalize",
+                      action = "store_true", default = False,
+                      help = "normalize to maximum events")
 
     parser.add_option("-t","--top",
                       action = "store_true", default = False,
@@ -694,7 +714,9 @@ if __name__ == "__main__":
     # fill in params dictionary as it would be in RTT
 
     params = {'rootFile'  : opts.rootFile}
-
+    
+    params['referenceFile']=opts.referenceFile
+    
     if  not opts.rootDirs == [] :
        params['rootDirs'] = opts.rootDirs
     else:
@@ -730,6 +752,8 @@ if __name__ == "__main__":
     params['noSum'] = opts.noSum
 
     params['enhancedBias'] = opts.enhancedBias
+
+    params['normalize'] = opts.normalize
 
     params['top'] = opts.top
 

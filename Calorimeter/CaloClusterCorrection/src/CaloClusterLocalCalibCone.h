@@ -51,10 +51,6 @@ class CaloClusterLocalCalibCone : public AthAlgTool, virtual public CaloClusterC
   virtual StatusCode execute(const EventContext& ctx,
                              xAOD::CaloClusterContainer*  clusColl) const override;
 
-  /** Callback added to handle Data-driven GeoModel initialization
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
  private:
 
   CaloClusterLocalCalibCone();

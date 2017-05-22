@@ -33,13 +33,13 @@ namespace Monitored {
             MonitoredValuesCollection(MonitoredValuesCollection&&) = default;
             
             const std::vector<double> getVectorRepresentation() const override {
-                return std::vector<double>(std::begin(mCollection), std::end(mCollection));
+                return std::vector<double>(std::begin(m_collection), std::end(m_collection));
             }
         private:
-            const T& mCollection;
+            const T& m_collection;
             
             MonitoredValuesCollection(std::string name, const T& collection)
-              : IMonitoredVariable(std::move(name)), mCollection(collection) { }
+              : IMonitoredVariable(std::move(name)), m_collection(collection) { }
             MonitoredValuesCollection(MonitoredValuesCollection const&) = delete;
             MonitoredValuesCollection& operator=(MonitoredValuesCollection const&) = delete;
         };
@@ -52,23 +52,23 @@ namespace Monitored {
             MonitoredObjectsCollection(MonitoredObjectsCollection&&) = default;
             
             const std::vector<double> getVectorRepresentation() const override {
-                auto distance = std::distance(std::begin(mCollection), std::end(mCollection));
+                auto distance = std::distance(std::begin(m_collection), std::end(m_collection));
                 
                 std::vector<double> result;
                 result.reserve(distance);
                 
-                for(auto value : mCollection) {
-                    result.push_back(mConverterToDouble(value));
+                for(auto value : m_collection) {
+                    result.push_back(m_converterToDouble(value));
                 }
                 
                 return result;
             }
         private:
-            const T& mCollection;
-            std::function<double(const typename MonitoredHelpers::get_collection_values_type<T>::value_type&)> mConverterToDouble;
+            const T& m_collection;
+            std::function<double(const typename MonitoredHelpers::get_collection_values_type<T>::value_type&)> m_converterToDouble;
             
             MonitoredObjectsCollection(std::string name, const T& collection, std::function<double(const typename MonitoredHelpers::get_collection_values_type<T>::value_type&)> converterToDouble)
-            : IMonitoredVariable(std::move(name)), mCollection(collection), mConverterToDouble(std::move(converterToDouble)) { }
+            : IMonitoredVariable(std::move(name)), m_collection(collection), m_converterToDouble(std::move(converterToDouble)) { }
             MonitoredObjectsCollection(MonitoredObjectsCollection const&) = delete;
             MonitoredObjectsCollection& operator=(MonitoredObjectsCollection const&) = delete;
         };

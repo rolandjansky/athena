@@ -110,11 +110,11 @@ TrigHLTEnergyDensity::hltExecute(const HLT::TriggerElement* inputTE,
   
   ATH_MSG_DEBUG("Number of incoming clusters: " << clusterContainer->size());
   
-  LabelIndex* indexMap = new LabelIndex("PseudoJetLabelMapTrigger");
+  jet::LabelIndex* indexMap = new jet::LabelIndex("PseudoJetLabelMapTrigger");
   indexMap->addLabel("Topo");
   // setup CaloCluster to PseudoJet convertor
   AnyToPseudoJet<const xAOD::CaloCluster*> ctpj(indexMap);
-  PseudoJetVector pjv;
+  jet::PseudoJetVector pjv;
 
   auto status = this -> getPseudoJets(clusterContainer, indexMap, pjv);
   if (status == HLT::OK) {
@@ -167,8 +167,8 @@ TrigHLTEnergyDensity::hltExecute(const HLT::TriggerElement* inputTE,
 
 HLT::ErrorCode 
 TrigHLTEnergyDensity::getPseudoJets(const xAOD::CaloClusterContainer* ic,
-                                    LabelIndex* indexMap,
-                                    PseudoJetVector& pjv){
+                                    jet::LabelIndex* indexMap,
+                                    jet::PseudoJetVector& pjv){
 
   // convert elements of DataVector<CaloCluster> to pseudojets
   // after switching the state of the CaloCluster objects to

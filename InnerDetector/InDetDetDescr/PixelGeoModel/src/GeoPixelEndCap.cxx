@@ -34,22 +34,22 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
   //
   // create the Barrel Mother volume
   // 
-  double rmin = gmt_mgr->PixelEndcapRMin();
-  double rmax = gmt_mgr->PixelEndcapRMax();
-  double halflength = (gmt_mgr->PixelEndcapZMax()-gmt_mgr->PixelEndcapZMin())/2.;
-  const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+  double rmin = m_gmt_mgr->PixelEndcapRMin();
+  double rmax = m_gmt_mgr->PixelEndcapRMax();
+  double halflength = (m_gmt_mgr->PixelEndcapZMax()-m_gmt_mgr->PixelEndcapZMin())/2.;
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoTube* ecTube = new GeoTube(rmin,rmax,halflength);
   const GeoLogVol* ecLog = new GeoLogVol("EndCap",ecTube,air);
   GeoFullPhysVol* ecPhys = new GeoFullPhysVol(ecLog);
 
-  int ndisks = gmt_mgr->PixelEndcapNDisk();
-  gmt_mgr->msg(MSG::DEBUG) << "Number of disks is " << ndisks << endmsg;
+  int ndisks = m_gmt_mgr->PixelEndcapNDisk();
+  m_gmt_mgr->msg(MSG::DEBUG) << "Number of disks is " << ndisks << endmsg;
   
   // Set numerology
-  DDmgr->numerology().setNumDisks(ndisks);
+  m_DDmgr->numerology().setNumDisks(ndisks);
 
   // position of the endcap
-  double endcapZOffset = 0.5* (gmt_mgr->PixelEndcapZMax()+gmt_mgr->PixelEndcapZMin());
+  double endcapZOffset = 0.5* (m_gmt_mgr->PixelEndcapZMax()+m_gmt_mgr->PixelEndcapZMin());
   
   //
   // Place the disks and cables on both sides
@@ -57,23 +57,23 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
   GeoPixelDiskSLHC * pdslhc = 0;
   GeoPixelDisk * pd = 0;
   GeoPixelECCable * pecc = 0;
-  if (gmt_mgr->slhc()) {
+  if (m_gmt_mgr->slhc()) {
     pdslhc = new GeoPixelDiskSLHC;
   } else {
     pd = new GeoPixelDisk;
     pecc = new GeoPixelECCable;      
   }  
   for(int idisk = 0; idisk < ndisks; idisk++) {
-    gmt_mgr->SetCurrentLD(idisk);
+    m_gmt_mgr->SetCurrentLD(idisk);
     // Some method is accessing the eta before the disk is built so we set it 
     // to a valid value.
-    gmt_mgr->SetEta(0);
-    if(gmt_mgr->isLDPresent()) {
+    m_gmt_mgr->SetEta(0);
+    if(m_gmt_mgr->isLDPresent()) {
       //
       // The position is given w.r.t to the center of the detector!
       //
       //position of the disk
-      double zdisk = gmt_mgr->PixelDiskZPosition()-endcapZOffset;
+      double zdisk = m_gmt_mgr->PixelDiskZPosition()-endcapZOffset;
       // place the disk
       std::ostringstream nameTag; 
       nameTag << "Disk" << idisk;
@@ -81,7 +81,7 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
       GeoAlignableTransform* xform = new GeoAlignableTransform(HepGeom::TranslateZ3D(zdisk));
 
       GeoVPhysVol * diskPhys = 0;
-      if (gmt_mgr->slhc()) {
+      if (m_gmt_mgr->slhc()) {
 	diskPhys = pdslhc->Build();
       } else {
 	diskPhys = pd->Build();
@@ -93,15 +93,15 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
       ecPhys->add(diskPhys);
 
       // Store the alignable transform
-      int brl_ec = 2*gmt_mgr->GetSide();
-      Identifier id = gmt_mgr->getIdHelper()->wafer_id(brl_ec,idisk,0,0);
-      DDmgr->addAlignableTransform(1, id, xform, diskPhys);
+      int brl_ec = 2*m_gmt_mgr->GetSide();
+      Identifier id = m_gmt_mgr->getIdHelper()->wafer_id(brl_ec,idisk,0,0);
+      m_DDmgr->addAlignableTransform(1, id, xform, diskPhys);
 
       //
       // place the cables twice for the two active parts
       //
       if (pecc && pd) { // Not in SLHC
-	double dz = pd->Thickness()/2. + gmt_mgr->PixelECCablesDistance() ;
+	double dz = pd->Thickness()/2. + m_gmt_mgr->PixelECCablesDistance() ;
 	GeoTransform * xformCablesPlus = new GeoTransform(HepGeom::TranslateZ3D(zdisk+dz));
 	ecPhys->add(xformCablesPlus);
 	ecPhys->add(pecc->Build() );
@@ -110,7 +110,7 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
 	ecPhys->add(pecc->Build() );
       }
     } else {
-      if(gmt_mgr->msgLvl(MSG::DEBUG))	gmt_mgr->msg(MSG::DEBUG) << "Disk " << idisk << " not built" << endmsg;
+      if(m_gmt_mgr->msgLvl(MSG::DEBUG))	m_gmt_mgr->msg(MSG::DEBUG) << "Disk " << idisk << " not built" << endmsg;
     }
   }
   delete pdslhc;
@@ -122,7 +122,7 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
     // Add the Endcap services inide the EC volume
     //
     std::string region;
-    if (gmt_mgr->GetSide()>0) { 
+    if (m_gmt_mgr->GetSide()>0) { 
       // EndcapA
       region = "A";
     } else {
@@ -138,9 +138,9 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
 
   {
     // Extra Material
-    InDetDD::ExtraMaterial xMat(gmt_mgr->distortedMatManager());
+    InDetDD::ExtraMaterial xMat(m_gmt_mgr->distortedMatManager());
     xMat.add(ecPhys,"PixelEndcap",endcapZOffset);
-    if (gmt_mgr->GetSide()>0) { // EndcapA
+    if (m_gmt_mgr->GetSide()>0) { // EndcapA
       xMat.add(ecPhys,"PixelEndcapA",endcapZOffset);
     } else {            // EndcapC
       xMat.add(ecPhys,"PixelEndcapC",endcapZOffset);

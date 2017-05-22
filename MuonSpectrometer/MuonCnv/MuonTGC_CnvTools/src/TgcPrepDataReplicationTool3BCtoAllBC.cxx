@@ -76,8 +76,8 @@ StatusCode Muon::TgcPrepDataReplicationTool3BCtoAllBC::finalize()
 StatusCode Muon::TgcPrepDataReplicationTool3BCtoAllBC::convert3BCtoAllBC()
 {
 
-  SG::WriteHandle<TgcPrepDataContainer> m_tgcPrepDataContainerAll(m_AllBCKey);
-  m_tgcPrepDataContainerAll = std::unique_ptr<TgcPrepDataContainer>( new TgcPrepDataContainer(m_tgcHelper->module_hash_max()) );
+  SG::WriteHandle<TgcPrepDataContainer> tgcPrepDataContainerAll(m_AllBCKey);
+  tgcPrepDataContainerAll = std::unique_ptr<TgcPrepDataContainer>( new TgcPrepDataContainer(m_tgcHelper->module_hash_max()) );
   
   auto tgc3BCs = m_3BCKeys.makeHandles();
 
@@ -107,7 +107,7 @@ StatusCode Muon::TgcPrepDataReplicationTool3BCtoAllBC::convert3BCtoAllBC()
         Identifier elementId = m_tgcHelper->elementID(channelId);
 
         Muon::TgcPrepDataCollection* collection = Muon::IDC_Helper::getCollection<TgcPrepDataContainer, TgcIdHelper>
-                            (elementId, m_tgcPrepDataContainerAll.ptr(), m_tgcHelper, msg());
+                            (elementId, tgcPrepDataContainerAll.ptr(), m_tgcHelper, msg());
 
         bool duplicateInAllBCs = false;
         TgcPrepDataCollection::iterator tgcAllItr  = collection->begin();

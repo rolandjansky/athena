@@ -36,6 +36,9 @@ class SGInputLoader
   /// Destructor: 
   virtual ~SGInputLoader(); 
 
+  /// this Alg is Clonable (for AthenaMT)
+  bool isClonable() const override { return true; }
+
   // Assignment operator: 
   //SGInputLoader &operator=(const SGInputLoader &alg); 
 

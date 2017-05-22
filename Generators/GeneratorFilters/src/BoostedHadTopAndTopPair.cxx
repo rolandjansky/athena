@@ -28,8 +28,6 @@ BoostedHadTopAndTopPair::BoostedHadTopAndTopPair(const std::string& name, ISvcLo
 
 
 StatusCode BoostedHadTopAndTopPair::filterEvent() {
-  MsgStream log(messageService(), name());
-
   // if true, the event pass the filter :
   bool pass        = false;
   bool passTopHad  = false;

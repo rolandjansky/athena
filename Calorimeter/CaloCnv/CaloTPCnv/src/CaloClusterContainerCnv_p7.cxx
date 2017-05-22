@@ -4,7 +4,7 @@
 
 #include "CaloTPCnv/CaloClusterContainerCnv_p7.h" 
 
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
     
 #include "EventCommonTPCnv/Compressor.h"
 #include "CaloEvent/CaloSamplingData.h"

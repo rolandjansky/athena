@@ -37,9 +37,7 @@ StatusCode TestHypoAlgView::execute() {
   m_outputAux = CxxUtils::make_unique< xAOD::TrigCompositeAuxContainer >();  
   m_output->setStore(m_outputAux.ptr());
 
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
-  const EventContext& ctx = getContext();
-#else
+#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
   const EventContext& ctx = *getContext();
 #endif
 

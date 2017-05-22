@@ -14,7 +14,7 @@
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/TrRelation.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include <sstream>
 
 using namespace MuGirlNS;

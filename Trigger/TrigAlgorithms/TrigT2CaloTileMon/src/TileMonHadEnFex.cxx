@@ -317,8 +317,7 @@ StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double eta
      msg() << MSG::DEBUG << " REGTEST:   TILE:  TileContSize()" << m_data->TileContSize() << endmsg;
 #endif
 
-   TrigT2TileJet* jet = new TrigT2TileJet();
-   TrigT2Tower hottest_tower;
+   TrigT2TileJet jet;
    
    for (unsigned int iR=0;iR<m_data->TileContSize();iR++) { //loop over TileCal drawers
         // Time to access Collection (and ByteStreamCnv ROBs)
@@ -326,7 +325,6 @@ StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double eta
 	// For the first sample you will create the containers
 	// For the others no
         if ( m_data->LoadCollections(m_itBegin,m_itEnd,iR,!iR).isFailure() ) {
-	  delete jet;
 	  return StatusCode::FAILURE;
 	}
 	// Finished to access Collection
@@ -356,7 +354,7 @@ StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double eta
       // possibly do some tower building
       // Energy Eta Phi Layer
       Trig3Momentum tile_cell(energyCell,etaCell,phiCell,samp);
-      jet->insertCell(tile_cell, msg());
+      jet.insertCell(tile_cell, msg());
 
    } // end of loop over cells
    
@@ -367,8 +365,9 @@ StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double eta
 
 
    if ( msg().level()<MSG::DEBUG )
-   jet->print(msg());
-   jet->findHottestTower(hottest_tower);
+   jet.print(msg());
+   TrigT2Tower hottest_tower;
+   jet.findHottestTower(hottest_tower);
 
    // FILL HISTOS if at least one cell is set. if not RoI is not in Tile Barrel or Ext, Barrel and in consequence Hottest_tower would be emtpy
    // Will get bias because of check for > 0.0 but can't be avoided because we take log(e)
@@ -411,9 +410,6 @@ StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double eta
       }
    }
 
-
-   // call destructor, jet won't be used by a 2. tool up to now!
-   delete jet;
 
 	// Stop all timers
    if (!m_timersvc.empty()){ 

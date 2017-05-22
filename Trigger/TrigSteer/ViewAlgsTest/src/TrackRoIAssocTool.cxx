@@ -52,7 +52,7 @@ StatusCode TrackRoIAssocTool::associate(SG::ReadHandle< TrackCollection > tracks
           float trackPerigeeEta = -log(tan(0.5*trackPerigeeTheta));
           double deta = trackPerigeeEta - roi->eta(); 
           double dphi = trackPars->parameters()[Trk::phi] - roi->phi();
-          double dzed = trackPars->parameters()[Trk::z0] - roi->zed();
+          //double dzed = trackPars->parameters()[Trk::z0] - roi->zed();
           if ( dphi<-M_PI ) dphi +=2*M_PI;
           if ( dphi>M_PI )  dphi -=2*M_PI;
           float dR = std::sqrt(dphi*dphi + deta*deta);

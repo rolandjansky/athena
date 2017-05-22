@@ -162,7 +162,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_doRefresh5min = false;
    m_firstBookTime = 0;
    m_currentBCID = 0;
-   isFirstBook = false;
+   m_isFirstBook = false;
    m_nRefresh = 0;
    m_nRefresh5min = 0;
    m_ntracksPerEvent = 0;
@@ -352,7 +352,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_errors_ModSync_mod = 0;
 
    m_pixelid =0;
-   pixelmgr =0;
    m_event =0;
    m_event2 =0;
    m_startTime =0; 
@@ -610,8 +609,7 @@ PixelMainMon::~PixelMainMon()
 
 StatusCode PixelMainMon::initialize()
 {
-   sc = ManagedMonitorToolBase::initialize();
-   if(!sc.isSuccess()) return sc;
+   ATH_CHECK( ManagedMonitorToolBase::initialize() );
    time ( &m_startTime );  //mark time for start of run
    //m_idHelper = new AtlasDetectorID; // not need "new"
 
@@ -623,11 +621,7 @@ StatusCode PixelMainMon::initialize()
 
    // Get the dictionary manager from the detector store
 
-   sc = detStore()->retrieve(m_idHelper, "AtlasID");
-   if (sc.isFailure()) {
-     msg(MSG::ERROR) << "Could not get ID helper !" << endmsg;
-     return sc;
-   }
+   ATH_CHECK(  detStore()->retrieve(m_idHelper, "AtlasID") );
 
    if ( m_pixelCondSummarySvc.retrieve().isFailure() ) {
       if(msgLvl(MSG::FATAL)) msg(MSG::FATAL)  << "Failed to retrieve tool " << m_pixelCondSummarySvc << endmsg;
@@ -818,26 +812,25 @@ StatusCode PixelMainMon::bookHistograms()
   //m_doOnline = true;
 
    const EventInfo* thisEventInfo;
-   sc=evtStore()->retrieve(thisEventInfo);
-   if(sc != StatusCode::SUCCESS) {
+   if(evtStore()->retrieve(thisEventInfo) != StatusCode::SUCCESS) {
       if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endmsg;
    }else{
       m_lumiBlockNum = thisEventInfo->event_ID()->lumi_block();
 
       if(m_doOnline){
          m_runNum = thisEventInfo->event_ID()->run_number();
-         std::stringstream m_runNumStr;
-         m_runNumStr << m_runNum;
-         m_histTitleExt = " (Run " + m_runNumStr.str() + ")";
+         std::stringstream runNumStr;
+         runNumStr << m_runNum;
+         m_histTitleExt = " (Run " + runNumStr.str() + ")";
       }else{
          m_histTitleExt = "";
       }
-      if(newLumiBlock) {
+      if(newLumiBlockFlag()) {
          m_LBstartTime = thisEventInfo->event_ID()->time_stamp();
       }
-      if( !isFirstBook ){
+      if( !m_isFirstBook ){
          m_firstBookTime = thisEventInfo->event_ID()->time_stamp();
-         isFirstBook = true;
+         m_isFirstBook = true;
       }
    }
 
@@ -880,23 +873,27 @@ StatusCode PixelMainMon::bookHistograms()
 
    if(m_doLumiBlock){
       if(m_doRDO){                                                    
-	      sc=BookHitsLumiBlockMon();
-	      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book lowStat histograms" << endmsg; 
+              if (BookHitsLumiBlockMon().isFailure()) {
+                if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book lowStat histograms" << endmsg; 
+              }
 	      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking RDO for lowStat" << endmsg;  
       }
       if(m_doRODError){
-         sc=BookRODErrorLumiBlockMon();
-         if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book lowStat histograms" << endmsg; 
+         if (BookRODErrorLumiBlockMon().isFailure()) {
+           if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book lowStat histograms" << endmsg; 
+         }
          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking ROD Error for lowStat" << endmsg;  
       }
       if(m_doCluster){
-         sc=BookClustersLumiBlockMon();
-         if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book lowStat histograms" << endmsg; 
+         if (BookClustersLumiBlockMon().isFailure()) {
+           if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book lowStat histograms" << endmsg; 
+         }
          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Cluster for lowStat" << endmsg;  
       }
       if(m_doStatus){
-         sc=BookStatusLumiBlockMon();
-         if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book lowStat histograms" << endmsg; 
+         if (BookStatusLumiBlockMon().isFailure()) {
+           if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book lowStat histograms" << endmsg; 
+         }
          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Status for lowStat" << endmsg;  
       }
    }
@@ -909,6 +906,7 @@ StatusCode PixelMainMon::bookHistograms()
      if(m_doOnTrack)      path_hits.replace(path_hits.begin(), path_hits.end(), "Pixel/HitsOnTrack");
      if(m_doOnPixelTrack) path_hits.replace(path_hits.begin(), path_hits.end(), "Pixel/HitsOnPixelTrack");
      MonGroup hitsHistos(   this, path_hits.c_str(),  run, ATTRIB_MANAGED ); //declare a group of histograms
+     StatusCode sc;
      sc = hitsHistos.regHist(m_mu_vs_bcid = TProfile_LW::create("Interactions_vs_bcid", "<Interactions> vs BCID;BCID;<#Interactions/event>"    , m_bcidRange,-0.5,-0.5+(1.0*m_bcidRange)));
      sc = hitsHistos.regHist(m_mu_vs_lumi = TProfile_LW::create("Interactions_vs_lumi", "<Interactions> vs LB;lumi block;<#Interactions/event>", m_lbRange,-0.5,-0.5+(1.0*m_lbRange)));
      sc = hitsHistos.regHist(m_events_per_lumi = TH1F_LW::create("Events_per_lumi", "nEvents vs LB;lumi block;#events", m_lbRange,-0.5,-0.5+(1.0*m_lbRange)));
@@ -941,44 +939,51 @@ StatusCode PixelMainMon::bookHistograms()
    ///
    if(m_doTrack)
    {
-      sc=BookTrackMon();
-      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endmsg; 
+      if (BookTrackMon().isFailure()) {
+        if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endmsg; 
+      }
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Track" << endmsg;  
    }
    if(m_doRDO)
    {                                                    
-      sc=BookHitsMon();
-      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endmsg; 
+      if (BookHitsMon().isFailure()) {
+        if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endmsg; 
+      }
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking RDO" << endmsg;  
    }
    if(m_doRODError) 
    {
-      sc=BookRODErrorMon();
-      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endmsg; 
+      if (BookRODErrorMon().isFailure()) {
+        if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endmsg; 
+      }
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking ROD Error" << endmsg;  
    }
    if(m_doSpacePoint)
    {
-      sc=BookSpacePointMon();
-      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endmsg; 
+      if (BookSpacePointMon().isFailure()) {
+        if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endmsg; 
+      }
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking SP" << endmsg;  
    }
    if(m_doCluster)
    {
-      sc=BookClustersMon();
-      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endmsg; 
+      if (BookClustersMon().isFailure()) {
+        if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endmsg; 
+      }
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Cluster" << endmsg;  
    }
    if(m_doStatus)
    {
-      sc=BookStatusMon();
-      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endmsg; 
+      if (BookStatusMon().isFailure()) {
+        if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endmsg; 
+      }
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Status" << endmsg;  
    }
    if(m_doDCS)
    {
-      sc=BookPixelDCSMon();
-      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endmsg; 
+      if (BookPixelDCSMon().isFailure()) {
+        if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endmsg; 
+      }
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking DCS" << endmsg;  
    }
 
@@ -996,8 +1001,7 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
    m_majorityDisabled = false;
 
    const EventInfo* thisEventInfo;
-   sc=evtStore()->retrieve(thisEventInfo);
-   if(sc != StatusCode::SUCCESS) {
+   if(evtStore()->retrieve(thisEventInfo) != StatusCode::SUCCESS) {
       if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endmsg;
    }else{
       m_currentTime = thisEventInfo->event_ID()->time_stamp(); 
@@ -1082,15 +1086,17 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
    /// Pixel Info
    ///
    if(m_doStatus) { //fill status histograms first, to check number of disabled modules
-      sc=FillStatusMon();   
-      if(sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endmsg; 
+      if(FillStatusMon().isFailure()) {
+        if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endmsg; 
+      }
    }
 
    //if(m_doRODError&&evtStore()->contains<PixelRODErrorCollection>(m_detector_error_name))
    if(m_doRODError)
    {
-      sc=FillRODErrorMon();
-      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endmsg; 
+      if (FillRODErrorMon().isFailure()) {
+        if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endmsg; 
+      }
    }else{
       if(m_storegate_errors) m_storegate_errors->Fill(5.,1.);
    }
@@ -1098,8 +1104,9 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
    /// Track
    if(m_doTrack){
       if(evtStore()->contains< TrackCollection >(m_TracksName)){
-        sc=FillTrackMon();
-        if(sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endmsg; 
+        if (FillTrackMon().isFailure()) {
+          if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endmsg; 
+        }
       }else if(m_storegate_errors) m_storegate_errors->Fill(4.,2.);
    }else{
       if(m_storegate_errors) m_storegate_errors->Fill(4.,1.);
@@ -1107,7 +1114,11 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
 
    /// Hits
    if(m_doRDO){
-      if(evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName) ) sc=FillHitsMon();
+      if(evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName) ) {
+        if (FillHitsMon().isFailure()) {
+          if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endmsg; 
+        }
+      }
       else if(m_storegate_errors) m_storegate_errors->Fill(1.,2.); 
    }else{
       if(m_storegate_errors) m_storegate_errors->Fill(1.,1.); 
@@ -1116,8 +1127,9 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
    /// Cluster
    if(m_doCluster){
       if(evtStore()->contains<InDet::PixelClusterContainer>(m_Pixel_SiClustersName)){
-        sc=FillClustersMon();
-        if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endmsg; 
+        if (FillClustersMon().isFailure()) {
+          if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endmsg; 
+        }
       }else if(m_storegate_errors) m_storegate_errors->Fill(3.,2.);
    }else{
       if(m_storegate_errors) m_storegate_errors->Fill(3.,1.);
@@ -1127,8 +1139,9 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
    if(m_doSpacePoint)
    {
       if(evtStore()->contains<SpacePointContainer>(m_Pixel_SpacePointsName)){
-        sc=FillSpacePointMon();
-        if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endmsg; 
+        if (FillSpacePointMon().isFailure()) {
+          if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endmsg; 
+        }
       }else if(m_storegate_errors) m_storegate_errors->Fill(2.,2.);
    }else{
       if(m_storegate_errors) m_storegate_errors->Fill(2.,1.);
@@ -1137,8 +1150,9 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
 
    /// DCS
    if(m_doDCS){
-      sc=FillPixelDCSMon();
-      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endmsg;
+      if (FillPixelDCSMon().isFailure()) {
+        if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endmsg;
+      }
    }else{
       if(m_storegate_errors)m_storegate_errors->Fill(6.,1.);
    }
@@ -1155,26 +1169,45 @@ StatusCode PixelMainMon::procHistograms()
    // Part 1: Get the messaging service, print where you are
    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "finalize()" << endmsg;
    //if(endOfEventsBlock){}
-   if(endOfLumiBlock)
+   if(endOfLumiBlockFlag())
    {
      m_LBendTime = m_currentTime;
-     //if (m_doTrack) { sc=ProcTrackMon(); }
-     if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endmsg; 
+     //if (m_doTrack) { m_sc=ProcTrackMon(); }
+     //if (m_sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endmsg; 
    }
    
    if( m_doOnline ){
-   //   if(m_doRDO){ sc=ProcHitsMon(); }
-   //   if (m_doCluster) { sc=ProcClustersMon(); }
+   //   if(m_doRDO){ m_sc=ProcHitsMon(); }
+   //   if (m_doCluster) { m_sc=ProcClustersMon(); }
    }
 
-   if(!m_doOnline && endOfRun)
+   if(!m_doOnline && endOfRunFlag())
    {
-      if (m_doRDO)     { sc=ProcHitsMon(); }
-      if (m_doCluster) { sc=ProcClustersMon(); }
-      if (m_doStatus)  { sc=ProcStatusMon(); }
-      if (m_doDCS) { sc=ProcPixelDCSMon(); }
-      if (m_doTrack) { sc=ProcTrackMon(); }
-      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endmsg; 
+      if (m_doRDO) {
+        if (ProcHitsMon().isFailure()) {
+          if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endmsg; 
+        }
+      }
+      if (m_doCluster) {
+        if (ProcClustersMon().isFailure()) {
+          if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endmsg; 
+        }
+      }
+      if (m_doStatus) {
+        if (ProcStatusMon().isFailure()) {
+          if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endmsg; 
+        }
+      }
+      if (m_doDCS) {
+        if (ProcPixelDCSMon().isFailure()) {
+          if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endmsg; 
+        }
+      }
+      if (m_doTrack) {
+        if (ProcTrackMon().isFailure()) {
+          if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endmsg; 
+        }
+      }
    }
   
    return StatusCode::SUCCESS;

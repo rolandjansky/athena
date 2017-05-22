@@ -1,6 +1,6 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaBaseComps/AthMemMacros.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "Hit.h"
 #include "PerfMonTestPolyVectorAlgWithMemSvc.h"
 /* #define DEBUG_ME 1 */

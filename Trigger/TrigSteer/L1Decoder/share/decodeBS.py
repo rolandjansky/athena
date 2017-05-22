@@ -1,7 +1,14 @@
 #
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
+#
 # get_files LVL1config_Physics_pp_v5.xml
 # ln -s /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/atn-test/data15_13TeV.00266904.physics_EnhancedBias.merge.RAW._lb0452._SFO-1._0001.1 input.data
-# 
+# exact config for this data is: https://atlas-trigconf.cern.ch/run2/smkey/2142/l1key/1077/hltkey/765/
+
+import os.path
+assert os.path.isfile('input.data'), 'No input file: see the JO to see how to get it'
 
 ## @file L1Topo_ReadBS_test.py
 ## @brief Example job options file to read BS file to test a converter
@@ -28,10 +35,9 @@ from AthenaCommon.ConcurrencyFlags import jobproperties as jp
 nThreads = jp.ConcurrencyFlags.NumThreads()
 
 if nThreads >= 1:
-  ## get a handle on the ForwardScheduler
-  from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-  svcMgr += ForwardSchedulerSvc()
-  svcMgr.ForwardSchedulerSvc.CheckDependencies = True
+  ## get a handle on the Scheduler
+  from AthenaCommon.AlgScheduler import AlgScheduler
+  AlgScheduler.CheckDependencies( True )
 
 # Use McEventSelector so we can run with AthenaMP
 #import AthenaCommon.AtlasUnixGeneratorJob
@@ -78,17 +84,57 @@ if nThreads >= 1:
   topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
 
 
-#Run calo decoder
-from L1Decoder.L1DecoderConf import L1CaloDecoder
-caloDecoder = L1CaloDecoder() # by default it is steered towards the RoIBResult of the name above
-caloDecoder.OutputLevel=VERBOSE
-topSequence += caloDecoder
+doL1Emulation=True
+from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, L1Decoder, MURoIsUnpackingTool
+from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool
+l1Decoder = L1Decoder( OutputLevel=DEBUG )
+if doL1Emulation:
+    ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllChains=True )
+else:
+    ctpUnpacker = CTPUnpackingTool( OutputLevel =  DEBUG, ForceEnableAllChains=True )
 
-#Dumper
-from ViewAlgs.ViewAlgsConf import DumpDecisions
-dumper = DumpDecisions("L1CaloDecisions")
-dumper.OutputLevel=VERBOSE
-topSequence += dumper
+l1Decoder.ctpUnpacker = ctpUnpacker
+l1Decoder.ctpUnpacker.CTPToChainMapping = ["0:HLT_e3",  "0:HLT_g5", "1:HLT_e7", "2:HLT_2e3", "15:HLT_mu6", "33:HLT_2mu6", "15:HLT_mu6idperf", "42:HLT_e15mu4"] # this are real IDs of L1_* items in pp_v5 menu
+
+if doL1Emulation:
+    emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG )
+else:
+    emUnpacker = EMRoIsUnpackingTool( OutputLevel=DEBUG )
+
+emUnpacker.ThresholdToChainMapping = ["EM3 : HLT_e3", "EM3 : HLT_g5",  "EM7 : HLT_e7", "EM15 : HLT_e15mu4" ]
+
+if doL1Emulation:
+    muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", OutputLevel=DEBUG )
+else:
+    muUnpacker = MURoIsUnpackingTool( OutputLevel=DEBUG )
+muUnpacker.ThresholdToChainMapping = ["MU6 : HLT_mu6", "MU6 : HLT_mu6idperf", "MU4 : HLT_e15mu4"] 
+# do not know yet how to configure the services for it
+
+l1Decoder.roiUnpackers = [emUnpacker]
+l1Decoder.Chains="HLTChainsResult"
+topSequence += l1Decoder
+#Run calo decoder
+
+from DecisionHandling.DecisionHandlingConf import DumpDecisions
+emDecisionsDumper = DumpDecisions("DumpEML1RoIs", OutputLevel=DEBUG)
+emDecisionsDumper.Decisions = "EMRoIDecisions"
+topSequence += emDecisionsDumper
+
+chainSeedingDumper = DumpDecisions("ChainSeedingDumper", OutputLevel=DEBUG)
+chainSeedingDumper.Decisions = "HLTChainsResult"
+topSequence += chainSeedingDumper
+
+
+
+# caloDecoder = L1CaloDecoder() # by default it is steered towards the RoIBResult of the name above
+# caloDecoder.OutputLevel=VERBOSE
+# topSequence += caloDecoder
+
+# #Dumper
+# from ViewAlgs.ViewAlgsConf import DumpDecisions
+# dumper = DumpDecisions("L1CaloDecisions")
+# dumper.OutputLevel=VERBOSE
+# topSequence += dumper
 
 
 #--------------------------------------------------------------

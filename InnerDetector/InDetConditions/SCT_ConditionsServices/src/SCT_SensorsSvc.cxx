@@ -20,7 +20,7 @@ const std::string sensorsFolderName("/SCT/Sensors");
 SCT_SensorsSvc::SCT_SensorsSvc( const std::string& name, ISvcLocator* pSvcLocator ):
   AthService(name, pSvcLocator),
   m_detStore("DetectorStore",name),
-  m_sensorsManufacturer(0){
+  m_sensorsManufacturer{nullptr}{
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode SCT_SensorsSvc::initialize(){

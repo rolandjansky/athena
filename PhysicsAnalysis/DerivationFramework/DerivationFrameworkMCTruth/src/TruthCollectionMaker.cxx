@@ -25,10 +25,10 @@ DerivationFramework::TruthCollectionMaker::TruthCollectionMaker(const std::strin
                                                                 const std::string& n,
                                                                 const IInterface* p) :
 
-//do_compress = true: removes particles with the same pdgId in a decay chain (but keeps first and last)
-//do_sherpa = true: checks if there are truth W bosons in the current record.  If not, tries to combine W daughters to create one.
+//m_do_compress = true: removes particles with the same pdgId in a decay chain (but keeps first and last)
+//m_do_sherpa = true: checks if there are truth W bosons in the current record.  If not, tries to combine W daughters to create one.
 
-//Disclaimer: do_sherpa currently only works for W+jets.  It will not work for Z+jets for dibosons (coming soon).
+//Disclaimer: m_do_sherpa currently only works for W+jets.  It will not work for Z+jets for dibosons (coming soon).
 
 AthAlgTool(t,n,p),
 //m_ntotvtx(0),
@@ -39,16 +39,16 @@ m_particlesKey("TruthParticles"),
 //m_verticesKey("TruthVertices"),
 m_collectionName(""),
 m_partString(""),
-do_compress(false),
-do_sherpa(false)
+m_do_compress(false),
+m_do_sherpa(false)
 {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("ParticlesKey", m_particlesKey);
     //declareProperty("VerticesKey", m_verticesKey);
     declareProperty("NewCollectionName", m_collectionName);
     declareProperty("ParticleSelectionString", m_partString);
-    declareProperty("Do_Compress",do_compress);
-    declareProperty("Do_Sherpa",do_sherpa);
+    declareProperty("Do_Compress",m_do_compress);
+    declareProperty("Do_Sherpa",m_do_sherpa);
 }
 
 // Destructor
@@ -156,10 +156,10 @@ StatusCode DerivationFramework::TruthCollectionMaker::addBranches() const
             //Let's check if we want to build W/Z bosons
             bool SherpaW = false;
             bool SherpaZ = false;
-            if (m_partString.find("24") != std::string::npos && do_sherpa) {
+            if (m_partString.find("24") != std::string::npos && m_do_sherpa) {
                 SherpaW = true;
             }
-            if (m_partString.find("23") != std::string::npos && do_sherpa) {
+            if (m_partString.find("23") != std::string::npos && m_do_sherpa) {
                 SherpaZ = true;
             }
             if (SherpaW or SherpaZ){
@@ -180,7 +180,7 @@ StatusCode DerivationFramework::TruthCollectionMaker::addBranches() const
                     //In TRUTH3, we want to remove all particles but the first and last in a decay chain.  This is off in TRUTH1.  The first and last particles in the decay chain are decorated as such.
                     
                     const xAOD::TruthParticle* theParticle = (*importedTruthParticles)[i];
-                    if (do_compress){
+                    if (m_do_compress){
                         bool same_as_mother = false;
                         bool same_as_daughter = false;
                         if (theParticle->hasProdVtx()){

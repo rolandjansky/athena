@@ -67,11 +67,11 @@ InDet::SiSpacePointsSeedMaker_ATLxk::SiSpacePointsSeedMaker_ATLxk
   m_diversss  =  50     ;
   m_divermax  =  20.    ;
   m_dazmax    = .02     ;
-  r_rmax      = 600.    ;
-  r_rstep     =  2.     ;
-  r_Sorted    = 0       ;
-  r_index     = 0       ;
-  r_map       = 0       ;    
+  m_r_rmax      = 600.  ;
+  m_r_rstep     =  2.   ;
+  m_r_Sorted    = 0     ;
+  m_r_index     = 0     ;
+  m_r_map       = 0     ;    
   m_maxsizeSP = 5000    ;
   m_maxOneSize= 5       ;
   m_SP        = 0       ;
@@ -107,8 +107,8 @@ InDet::SiSpacePointsSeedMaker_ATLxk::SiSpacePointsSeedMaker_ATLxk
   declareProperty("etaMin"                ,m_etamin                );
   declareProperty("etaMax"                ,m_etamax                );  
   declareProperty("pTmin"                 ,m_ptmin                 );
-  declareProperty("radMax"                ,r_rmax                  );
-  declareProperty("radStep"               ,r_rstep                 );
+  declareProperty("radMax"                ,m_r_rmax                  );
+  declareProperty("radStep"               ,m_r_rstep                 );
   declareProperty("maxSize"               ,m_maxsize               );
   declareProperty("maxSizeSP"             ,m_maxsizeSP             );
   declareProperty("minZ"                  ,m_zmin                  );
@@ -150,20 +150,20 @@ InDet::SiSpacePointsSeedMaker_ATLxk::SiSpacePointsSeedMaker_ATLxk
 
 InDet::SiSpacePointsSeedMaker_ATLxk::~SiSpacePointsSeedMaker_ATLxk()
 {
-  if(r_index ) delete [] r_index ;
-  if(r_map   ) delete [] r_map   ; 
-  if(r_Sorted) delete [] r_Sorted;
+  if(m_r_index ) delete [] m_r_index ;
+  if(m_r_map   ) delete [] m_r_map   ; 
+  if(m_r_Sorted) delete [] m_r_Sorted;
 
   // Delete seeds
   //
-  for(i_seed=l_seeds.begin(); i_seed!=l_seeds.end (); ++i_seed) {
-    delete *i_seed;
+  for(m_i_seed=m_l_seeds.begin(); m_i_seed!=m_l_seeds.end (); ++m_i_seed) {
+    delete *m_i_seed;
   }
   // Delete space points for reconstruction
   //
-  i_spforseed=l_spforseed.begin();
-  for(; i_spforseed!=l_spforseed.end(); ++i_spforseed) {
-    delete *i_spforseed;
+  m_i_spforseed=m_l_spforseed.begin();
+  for(; m_i_spforseed!=m_l_spforseed.end(); ++m_i_spforseed) {
+    delete *m_i_spforseed;
   } 
   if(m_seedOutput) delete m_seedOutput; 
 
@@ -261,22 +261,22 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(int iteration)
     m_ipt2K     = m_ipt2/(m_K*m_K);
     m_ipt2C     = m_ipt2*m_COF    ;
     m_COFK      = m_COF*(m_K*m_K) ;  
-    i_spforseed = l_spforseed.begin();
+    m_i_spforseed = m_l_spforseed.begin();
   }
   else {
-    r_first = 0; fillLists(); return;
+    m_r_first = 0; fillLists(); return;
   }
 
   m_dbm ?  m_checketa = false : m_checketa = m_dzdrmin > 1.;
 
-  float irstep = 1./r_rstep;
-  int   irmax  = r_size-1  ;
-  for(int i=0; i!=m_nr; ++i) {int n = r_index[i]; r_map[n] = 0; r_Sorted[n].clear();}
+  float irstep = 1./m_r_rstep;
+  int   irmax  = m_r_size-1  ;
+  for(int i=0; i!=m_nr; ++i) {int n = m_r_index[i]; m_r_map[n] = 0; m_r_Sorted[n].clear();}
   m_ns = m_nr = 0;
 
   // Get pixels space points containers from store gate 
   //
-  r_first = 0;
+  m_r_first = 0;
   if(!m_dbm && m_pixel) {
 
 //    m_spacepointsPixel = 0;
@@ -294,7 +294,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(int iteration)
     
 	for(; sp != spe; ++sp) {
 
-	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax) continue;
+	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > m_r_rmax) continue;
 
 	  // Remove DBM space points
 	  //
@@ -305,14 +305,14 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(int iteration)
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); if(!sps) continue;
 
 	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
-	  r_Sorted[ir].push_back(sps); ++r_map[ir];
-	  if(r_map[ir]==1) r_index[m_nr++] = ir;
-	  if(ir > r_first) r_first = ir;
+	  m_r_Sorted[ir].push_back(sps); ++m_r_map[ir];
+	  if(m_r_map[ir]==1) m_r_index[m_nr++] = ir;
+	  if(ir > m_r_first) m_r_first = ir;
 	  ++m_ns;
 	}
       }
     }
-    ++r_first;
+    ++m_r_first;
   }
 
   // Get sct space points containers from store gate 
@@ -334,13 +334,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(int iteration)
     
 	for(; sp != spe; ++sp) {
 
-	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax) continue;
+	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > m_r_rmax) continue;
 
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); if(!sps) continue;
 
 	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
-	  r_Sorted[ir].push_back(sps); ++r_map[ir];
-	  if(r_map[ir]==1) r_index[m_nr++] = ir;
+	  m_r_Sorted[ir].push_back(sps); ++m_r_map[ir];
+	  if(m_r_map[ir]==1) m_r_index[m_nr++] = ir;
 	  ++m_ns;
 	}
       }
@@ -359,13 +359,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(int iteration)
 	
 	for (; sp!=spe; ++sp) {
 
-	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax) continue;
+	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > m_r_rmax) continue;
 
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); if(!sps) continue;
 
 	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
-	  r_Sorted[ir].push_back(sps); ++r_map[ir];
-	  if(r_map[ir]==1) r_index[m_nr++] = ir;
+	  m_r_Sorted[ir].push_back(sps); ++m_r_map[ir];
+	  if(m_r_map[ir]==1) m_r_index[m_nr++] = ir;
 	  ++m_ns;
 	}
       }
@@ -395,21 +395,21 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(int iteration)
 	  //
 	  const InDetDD::SiDetectorElement* de= 
 	    static_cast<const InDetDD::SiDetectorElement*>((*sp)->clusterList().first->detectorElement());
-	  if(!de || !de->isDBM() || (*sp)->r() > r_rmax) continue;
+	  if(!de || !de->isDBM() || (*sp)->r() > m_r_rmax) continue;
 
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); if(!sps) continue;
 
 	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
-	  r_Sorted[ir].push_back(sps); ++r_map[ir];
-	  if(r_map[ir]==1) r_index[m_nr++] = ir;
-	  if(ir > r_first) r_first = ir;
+	  m_r_Sorted[ir].push_back(sps); ++m_r_map[ir];
+	  if(m_r_map[ir]==1) m_r_index[m_nr++] = ir;
+	  if(ir > m_r_first) m_r_first = ir;
 	  ++m_ns;
 	}
       }
     }
-    ++r_first;
+    ++m_r_first;
   }
-  if(iteration < 0) r_first = 0;
+  if(iteration < 0) m_r_first = 0;
   fillLists();
 }
 
@@ -442,15 +442,15 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
   m_ipt2C     = m_ipt2*m_COF    ;
   m_COFK      = m_COF*(m_K*m_K) ;  
 
-  i_spforseed = l_spforseed.begin();
+  m_i_spforseed = m_l_spforseed.begin();
 
-  float irstep = 1./r_rstep;
-  int   irmax  = r_size-1  ;
+  float irstep = 1./m_r_rstep;
+  int   irmax  = m_r_size-1  ;
 
-  r_first      = 0         ;
+  m_r_first      = 0         ;
   m_checketa   = false     ;
 
-  for(int i=0; i!=m_nr; ++i) {int n = r_index[i]; r_map[n] = 0; r_Sorted[n].clear();}
+  for(int i=0; i!=m_nr; ++i) {int n = m_r_index[i]; m_r_map[n] = 0; m_r_Sorted[n].clear();}
   m_ns = m_nr = 0;
 
   // Get pixels space points containers from store gate 
@@ -476,11 +476,11 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
 
 	for(; sp != spe; ++sp) {
 
-	  float r = (*sp)->r(); if(r > r_rmax) continue;
+	  float r = (*sp)->r(); if(r > m_r_rmax) continue;
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); 
 	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
-	  r_Sorted[ir].push_back(sps); ++r_map[ir];
-	  if(r_map[ir]==1) r_index[m_nr++] = ir;
+	  m_r_Sorted[ir].push_back(sps); ++m_r_map[ir];
+	  if(m_r_map[ir]==1) m_r_index[m_nr++] = ir;
 	  ++m_ns;
 	}
       }
@@ -490,9 +490,6 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
   // Get sct space points containers from store gate 
   //
   if(m_sct && vSCT.size()) {
-
-//    m_spacepointsSCT     = 0;
-//    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
 
     if(m_spacepointsSCT.isValid()) {
 
@@ -510,11 +507,11 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
 
 	for(; sp != spe; ++sp) {
 
-	  float r = (*sp)->r(); if(r > r_rmax) continue;
+	  float r = (*sp)->r(); if(r > m_r_rmax) continue;
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); 
 	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
-	  r_Sorted[ir].push_back(sps); ++r_map[ir];
-	  if(r_map[ir]==1) r_index[m_nr++] = ir;
+	  m_r_Sorted[ir].push_back(sps); ++m_r_map[ir];
+	  if(m_r_map[ir]==1) m_r_index[m_nr++] = ir;
 	  ++m_ns;
 	}
       }
@@ -562,7 +559,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::find2Sp(const std::list<Trk::Vertex>& 
   
   if(newv || !m_state || m_nspoint!=2 || m_mode!=mode || m_nlist) {
 
-    i_seede   = l_seeds.begin();
+    m_i_seede   = m_l_seeds.begin();
     m_state   = 1   ;
     m_nspoint = 2   ;
     m_nlist   = 0   ;
@@ -573,7 +570,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::find2Sp(const std::list<Trk::Vertex>& 
     m_zMin    = 0   ;
     production2Sp ();
   }
-  i_seed  = l_seeds.begin();
+  m_i_seed  = m_l_seeds.begin();
   
   if(m_outputlevel<=0) {
     m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
@@ -594,7 +591,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::find3Sp(const std::list<Trk::Vertex>& 
   bool newv = newVertices(lv);
 
   if(newv || !m_state || m_nspoint!=3 || m_mode!=mode || m_nlist) {
-    i_seede   = l_seeds.begin() ;
+    m_i_seede   = m_l_seeds.begin() ;
     m_state   = 1               ;
     m_nspoint = 3               ;
     m_nlist   = 0               ;
@@ -605,7 +602,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::find3Sp(const std::list<Trk::Vertex>& 
     m_zMin    = 0               ;
     production3Sp();
   }
-  i_seed  = l_seeds.begin();
+  m_i_seed  = m_l_seeds.begin();
   m_seed  = m_seeds.begin();
 
   if(m_outputlevel<=0) {
@@ -627,7 +624,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::find3Sp(const std::list<Trk::Vertex>& 
   bool newv = newVertices(lv);
 
   if(newv || !m_state || m_nspoint!=3 || m_mode!=mode || m_nlist) {
-    i_seede   = l_seeds.begin() ;
+    m_i_seede   = m_l_seeds.begin() ;
     m_state   = 1               ;
     m_nspoint = 3               ;
     m_nlist   = 0               ;
@@ -638,7 +635,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::find3Sp(const std::list<Trk::Vertex>& 
     m_zMin    = 0               ;
     production3Sp();
   }
-  i_seed  = l_seeds.begin();
+  m_i_seed  = m_l_seeds.begin();
   m_seed  = m_seeds.begin();
 
   if(m_outputlevel<=0) {
@@ -662,7 +659,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::findVSp (const std::list<Trk::Vertex>&
   
   if(newv || !m_state || m_nspoint!=4 || m_mode!=mode || m_nlist) {
 
-    i_seede   = l_seeds.begin() ;
+    m_i_seede   = m_l_seeds.begin() ;
     m_state   = 1               ;
     m_nspoint = 4               ;
     m_nlist   = 0               ;
@@ -673,7 +670,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::findVSp (const std::list<Trk::Vertex>&
     m_zMin    = 0               ;
     production3Sp();
   }
-  i_seed  = l_seeds.begin();
+  m_i_seed  = m_l_seeds.begin();
   m_seed  = m_seeds.begin();
 
   if(m_outputlevel<=0) {
@@ -687,7 +684,8 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::findVSp (const std::list<Trk::Vertex>&
 
 MsgStream& InDet::SiSpacePointsSeedMaker_ATLxk::dump( MsgStream& out ) const
 {
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)  return dumpEvent(out);
+  return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -735,10 +733,10 @@ MsgStream& InDet::SiSpacePointsSeedMaker_ATLxk::dumpConditions( MsgStream& out )
      <<std::setw(12)<<std::setprecision(5)<<m_rapcut
      <<"                              |"<<std::endl;
   out<<"| max radius SP           | "
-     <<std::setw(12)<<std::setprecision(5)<<r_rmax 
+     <<std::setw(12)<<std::setprecision(5)<<m_r_rmax 
      <<"                              |"<<std::endl;
   out<<"| radius step             | "
-     <<std::setw(12)<<std::setprecision(5)<<r_rstep
+     <<std::setw(12)<<std::setprecision(5)<<m_r_rstep
      <<"                              |"<<std::endl;
   out<<"| min Z-vertex position   | "
      <<std::setw(12)<<std::setprecision(5)<<m_zmin
@@ -847,7 +845,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_ATLxk::dumpEvent( MsgStream& out ) cons
      <<std::setw(12)<<m_nsazv
      <<"                              |"<<std::endl;
   out<<"| seeds                   | "
-     <<std::setw(12)<<l_seeds.size()
+     <<std::setw(12)<<m_l_seeds.size()
      <<"                              |"<<std::endl;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
@@ -922,13 +920,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::findNext ()
 {
   if(m_endlist) return;
 
-  i_seede = l_seeds.begin();
+  m_i_seede = m_l_seeds.begin();
 
   if     (m_mode==0 || m_mode==1) production2Sp ();
   else if(m_mode==2 || m_mode==3) production3Sp ();
   else if(m_mode==5 || m_mode==6) production3Sp ();
 
-  i_seed  = l_seeds.begin();
+  m_i_seed  = m_l_seeds.begin();
   m_seed  = m_seeds.begin(); 
   ++m_nlist;
 }                       
@@ -939,21 +937,21 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::findNext ()
 
 bool InDet::SiSpacePointsSeedMaker_ATLxk::newVertices(const std::list<Trk::Vertex>& lV)
 {
-  unsigned int s1 = l_vertex.size(); 
+  unsigned int s1 = m_l_vertex.size(); 
   unsigned int s2 = lV      .size(); 
 
   m_isvertex = false;
   if(s1==0 && s2==0) return false;
 
   std::list<Trk::Vertex>::const_iterator v;
-  l_vertex.clear();
+  m_l_vertex.clear();
   if(s2 == 0) return false;
 
   m_isvertex = true;
-  for(v=lV.begin(); v!=lV.end(); ++v) {l_vertex.insert(float((*v).position().z()));}
+  for(v=lV.begin(); v!=lV.end(); ++v) {m_l_vertex.insert(float((*v).position().z()));}
 
-  m_zminU = (*l_vertex. begin())-20.; if( m_zminU < m_zmin) m_zminU = m_zmin;
-  m_zmaxU = (*l_vertex.rbegin())+20.; if( m_zmaxU > m_zmax) m_zmaxU = m_zmax;
+  m_zminU = (*m_l_vertex. begin())-20.; if( m_zminU < m_zmin) m_zminU = m_zmin;
+  m_zmaxU = (*m_l_vertex.rbegin())+20.; if( m_zmaxU > m_zmax) m_zmaxU = m_zmax;
 
   return false;
 }
@@ -968,7 +966,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
   
   // For DBM reconstruction we use new parameters
   //
-  if     (     m_dbm    ) {r_rmax  = 150.; r_rstep = .5; m_drmin = 2.; m_ptmin = 10.; m_diver = 150.;}
+  if     (     m_dbm    ) {m_r_rmax  = 150.; m_r_rstep = .5; m_drmin = 2.; m_ptmin = 10.; m_diver = 150.;}
   else if(m_ptmin < 100.) m_ptmin = 100.;
 
   if(m_diversss < m_diver   ) m_diversss = m_diver   ; 
@@ -978,7 +976,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
   m_dzdrmax0  = 1./tan(2.*atan(exp(-m_etamax)));
   m_dzdrmin0  = 1./tan(2.*atan(exp(-m_etamin)));
   
-  m_r3max     = r_rmax                         ; 
+  m_r3max     = m_r_rmax                         ; 
   m_COF       =  134*.05*9.                    ;
   m_ipt       = 1./fabs(.9*m_ptmin)            ;
   m_ipt2      = m_ipt*m_ipt                    ;
@@ -988,27 +986,27 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
 
   // Build radius sorted containers
   //
-  r_size = int((r_rmax+.1)/r_rstep);
-  r_Sorted = new std::list<InDet::SiSpacePointForSeed*>[r_size];
-  r_index  = new int[r_size];
-  r_map    = new int[r_size];  
-  m_nr   = 0; for(int i=0; i!=r_size; ++i) {r_index[i]=0; r_map[i]=0;}
+  m_r_size = int((m_r_rmax+.1)/m_r_rstep);
+  m_r_Sorted = new std::list<InDet::SiSpacePointForSeed*>[m_r_size];
+  m_r_index  = new int[m_r_size];
+  m_r_map    = new int[m_r_size];  
+  m_nr   = 0; for(int i=0; i!=m_r_size; ++i) {m_r_index[i]=0; m_r_map[i]=0;}
 
   // Build radius-azimuthal sorted containers
   //
   const float pi2     = 2.*M_PI            ;
   const int   NFmax    = 53                ;
   const float sFmax   = float(NFmax )/pi2;
-  const float m_sFmin = 100./60.          ;
+  const float sFmin = 100./60.          ;
 
   float ptm = 400.; if(!m_dbm && m_ptmin < ptm) ptm = m_ptmin;
 
-  m_sF        = ptm /60. ; if(m_sF    >sFmax ) m_sF    = sFmax  ; else if(m_sF < m_sFmin) m_sF = m_sFmin;
+  m_sF        = ptm /60. ; if(m_sF    >sFmax ) m_sF    = sFmax  ; else if(m_sF < sFmin) m_sF = sFmin;
   m_fNmax     = int(pi2*m_sF); if(m_fNmax >=NFmax) m_fNmax = NFmax-1;
 
   // Build radius-azimuthal-Z sorted containers
   //
-  m_nrfz  = 0; for(int i=0; i!=583; ++i) {rfz_index [i]=0; rfz_map [i]=0;}
+  m_nrfz  = 0; for(int i=0; i!=583; ++i) {m_rfz_index [i]=0; m_rfz_map [i]=0;}
 
   // Build radius-azimuthal-Z sorted containers for Z-vertices
   //
@@ -1016,7 +1014,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
   const float sFvmax = float(NFtmax)/pi2;
   m_sFv       = m_ptmin/120.  ; if(m_sFv   >sFvmax)  m_sFv    = sFvmax; 
   m_fvNmax    = int(pi2*m_sFv); if(m_fvNmax>=NFtmax) m_fvNmax = NFtmax-1;
-  m_nrfzv = 0; for(int i=0; i!=300; ++i) {rfzv_index[i]=0; rfzv_map[i]=0;}
+  m_nrfzv = 0; for(int i=0; i!=300; ++i) {m_rfzv_index[i]=0; m_rfzv_map[i]=0;}
 
   // Build maps for radius-azimuthal-Z sorted collections 
   //
@@ -1032,62 +1030,62 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
       int a        = f *11+z;
       int b        = fb*11+z;
       int c        = ft*11+z;
-      rfz_b [a]    = 3; rfz_t [a]    = 3;
-      rfz_ib[a][0] = a; rfz_it[a][0] = a; 
-      rfz_ib[a][1] = b; rfz_it[a][1] = b; 
-      rfz_ib[a][2] = c; rfz_it[a][2] = c; 
+      m_rfz_b [a]    = 3; m_rfz_t [a]    = 3;
+      m_rfz_ib[a][0] = a; m_rfz_it[a][0] = a; 
+      m_rfz_ib[a][1] = b; m_rfz_it[a][1] = b; 
+      m_rfz_ib[a][2] = c; m_rfz_it[a][2] = c; 
       if     (z==5) {
 
-	rfz_t [a]    = 9 ;
-	rfz_it[a][3] = a+1; 
-	rfz_it[a][4] = b+1; 
-	rfz_it[a][5] = c+1; 
-	rfz_it[a][6] = a-1; 
-	rfz_it[a][7] = b-1; 
-	rfz_it[a][8] = c-1; 
+	m_rfz_t [a]    = 9 ;
+	m_rfz_it[a][3] = a+1; 
+	m_rfz_it[a][4] = b+1; 
+	m_rfz_it[a][5] = c+1; 
+	m_rfz_it[a][6] = a-1; 
+	m_rfz_it[a][7] = b-1; 
+	m_rfz_it[a][8] = c-1; 
       }
       else if(z> 5) {
 
-	rfz_b [a]    = 6 ;
-	rfz_ib[a][3] = a-1; 
-	rfz_ib[a][4] = b-1; 
-	rfz_ib[a][5] = c-1; 
+	m_rfz_b [a]    = 6 ;
+	m_rfz_ib[a][3] = a-1; 
+	m_rfz_ib[a][4] = b-1; 
+	m_rfz_ib[a][5] = c-1; 
 
 	if(z<10) {
 
-	  rfz_t [a]    = 6 ;
-	  rfz_it[a][3] = a+1; 
-	  rfz_it[a][4] = b+1; 
-	  rfz_it[a][5] = c+1; 
+	  m_rfz_t [a]    = 6 ;
+	  m_rfz_it[a][3] = a+1; 
+	  m_rfz_it[a][4] = b+1; 
+	  m_rfz_it[a][5] = c+1; 
 	}
       }
       else {
 
-	rfz_b [a]    = 6 ;
-	rfz_ib[a][3] = a+1; 
-	rfz_ib[a][4] = b+1; 
-	rfz_ib[a][5] = c+1; 
+	m_rfz_b [a]    = 6 ;
+	m_rfz_ib[a][3] = a+1; 
+	m_rfz_ib[a][4] = b+1; 
+	m_rfz_ib[a][5] = c+1; 
 
 	if(z>0) {
 
-	  rfz_t [a]    = 6 ;
-	  rfz_it[a][3] = a-1; 
-	  rfz_it[a][4] = b-1; 
-	  rfz_it[a][5] = c-1; 
+	  m_rfz_t [a]    = 6 ;
+	  m_rfz_it[a][3] = a-1; 
+	  m_rfz_it[a][4] = b-1; 
+	  m_rfz_it[a][5] = c-1; 
 	}
       }
 
       if     (z==3) {
-	rfz_b[a]      = 9;
-	rfz_ib[a][6] = a+2; 
-	rfz_ib[a][7] = b+2; 
-	rfz_ib[a][8] = c+2; 
+	m_rfz_b[a]      = 9;
+	m_rfz_ib[a][6] = a+2; 
+	m_rfz_ib[a][7] = b+2; 
+	m_rfz_ib[a][8] = c+2; 
       }
       else if(z==7) {
-	rfz_b[a]      = 9;
-	rfz_ib[a][6] = a-2; 
-	rfz_ib[a][7] = b-2; 
-	rfz_ib[a][8] = c-2; 
+	m_rfz_b[a]      = 9;
+	m_rfz_ib[a][6] = a-2; 
+	m_rfz_ib[a][7] = b-2; 
+	m_rfz_ib[a][8] = c-2; 
       }
     }
   }
@@ -1106,21 +1104,21 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
       int a  = f *3+z; 
       int b  = fb*3+z;
       int c  = ft*3+z;
-      rfzv_n[a]    = 3;
-      rfzv_i[a][0] = a;
-      rfzv_i[a][1] = b;
-      rfzv_i[a][2] = c;
+      m_rfzv_n[a]    = 3;
+      m_rfzv_i[a][0] = a;
+      m_rfzv_i[a][1] = b;
+      m_rfzv_i[a][2] = c;
       if     (z>1) {
-	rfzv_n[a]    = 6;
-	rfzv_i[a][3] = a-1;
-	rfzv_i[a][4] = b-1;
-	rfzv_i[a][5] = c-1;
+	m_rfzv_n[a]    = 6;
+	m_rfzv_i[a][3] = a-1;
+	m_rfzv_i[a][4] = b-1;
+	m_rfzv_i[a][5] = c-1;
       }
       else if(z<1) {
-	rfzv_n[a]    = 6;
-	rfzv_i[a][3] = a+1;
-	rfzv_i[a][4] = b+1;
-	rfzv_i[a][5] = c+1;
+	m_rfzv_n[a]    = 6;
+	m_rfzv_i[a][3] = a+1;
+	m_rfzv_i[a][4] = b+1;
+	m_rfzv_i[a][5] = c+1;
       }
     }
   }
@@ -1136,8 +1134,8 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
 
   if(!m_seedOutput) m_seedOutput = new InDet::SiSpacePointsSeed();
 
-  i_seed  = l_seeds.begin();
-  i_seede = l_seeds.end  ();
+  m_i_seed  = m_l_seeds.begin();
+  m_i_seede = m_l_seeds.end  ();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1180,7 +1178,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildBeamFrameWork()
 ///////////////////////////////////////////////////////////////////
 
 void  InDet::SiSpacePointsSeedMaker_ATLxk::convertToBeamFrameWork
-(Trk::SpacePoint*const& sp,float* r) 
+(const Trk::SpacePoint*const& sp,float* r) 
 {
   
   r[0] = float(sp->globalPosition().x())-m_xbeam[0];
@@ -1200,9 +1198,11 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillLists()
   int  ir0 =     0;
   bool ibl = false;
 
-  for(int i=r_first; i!=r_size;  ++i) {
+  for(int i=m_r_first; i!=m_r_size;  ++i) {
 
-    if(!r_map[i]) continue; r = r_Sorted[i].begin(); re = r_Sorted[i].end();
+    if(!m_r_map[i]) continue;
+    r = m_r_Sorted[i].begin(); re = m_r_Sorted[i].end();
+    
     if(!ir0) ir0 = i;
 
     if( m_iteration) {
@@ -1218,7 +1218,11 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillLists()
       //
       float F = (*r)->phi(); if(F<0.) F+=pi2;
 
-      int   f = int(F*m_sF); f<0 ? f = m_fNmax : f>m_fNmax ? f = 0 : f=f;
+      int   f = int(F*m_sF);
+      if (f < 0)
+        f = m_fNmax;
+      else if (f > m_fNmax)
+        f = 0;
 
       int z; float Z = (*r)->z();
 
@@ -1232,20 +1236,25 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillLists()
       }
 
       int n = f*11+z; ++m_nsaz;
-      rfz_Sorted[n].push_back(*r); if(!rfz_map[n]++) rfz_index[m_nrfz++] = n;
+      m_rfz_Sorted[n].push_back(*r); if(!m_rfz_map[n]++) m_rfz_index[m_nrfz++] = n;
       
       if(!m_iteration && (*r)->spacepoint->clusterList().second == 0 && z>=3 && z<=7) { 
 	z<=4 ? z=0 : z>=6 ? z=2 : z=1;
 
-	// Azimutla angle and Z-coordinate sort for fast vertex search
+	// Azimuthal angle and Z-coordinate sort for fast vertex search
 	//
-	f = int(F*m_sFv); f<0 ? f+=m_fvNmax : f> m_fvNmax ? f-=m_fvNmax : f=f;
+	f = int(F*m_sFv);
+        if (f < 0)
+          f += m_fvNmax;
+        else if (f> m_fvNmax)
+          f -= m_fvNmax;
+
 	n = f*3+z; ++m_nsazv;
-	rfzv_Sorted[n].push_back(*r); if(!rfzv_map[n]++) rfzv_index[m_nrfzv++] = n;
+	m_rfzv_Sorted[n].push_back(*r); if(!m_rfzv_map[n]++) m_rfzv_index[m_nrfzv++] = n;
       }
     }
   }
-  if(!m_sct && ir0 && float(ir0)*r_rstep < 43.) m_umax = -200.;
+  if(!m_sct && ir0 && float(ir0)*m_r_rstep < 43.) m_umax = -200.;
   m_state = 0;
 }
    
@@ -1256,13 +1265,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillLists()
 void InDet::SiSpacePointsSeedMaker_ATLxk::erase()
 {
   for(int i=0; i!=m_nrfz;  ++i) {
-    int n = rfz_index[i]; rfz_map[n] = 0;
-    rfz_Sorted[n].clear();
+    int n = m_rfz_index[i]; m_rfz_map[n] = 0;
+    m_rfz_Sorted[n].clear();
   }
   
   for(int i=0; i!=m_nrfzv; ++i) {
-    int n = rfzv_index[i]; rfzv_map[n] = 0;
-    rfzv_Sorted[n].clear();
+    int n = m_rfzv_index[i]; m_rfzv_map[n] = 0;
+    m_rfzv_Sorted[n].clear();
   }
   m_state = 0;
   m_nsaz  = 0;
@@ -1307,9 +1316,9 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production2Sp()
     int z = 0; if(!m_endlist) z = m_zMin;
     for(; z!=3; ++z) {
       
-      int a  = f*3+z;  if(!rfzv_map[a]) continue; 
-      r0  = rfzv_Sorted[a].begin(); 
-      r0e = rfzv_Sorted[a].end  (); 
+      int a  = f*3+z;  if(!m_rfzv_map[a]) continue; 
+      r0  = m_rfzv_Sorted[a].begin(); 
+      r0e = m_rfzv_Sorted[a].end  (); 
 
       if(!m_endlist) {r0 = m_rMin; m_endlist = true;}
 
@@ -1320,28 +1329,31 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production2Sp()
 	float X  = (*r0)->x();
 	float Y  = (*r0)->y();
 	float R  = (*r0)->radius();
-	if(R<m_r2minv) continue; if(R>m_r2maxv) break;
+	if(R<m_r2minv) continue;
+        if(R>m_r2maxv) break;
 	float Z  = (*r0)->z();
 	float ax = X/R;
 	float ay = Y/R;
 
 	// Bottom links production
 	//
-	int NB = rfzv_n[a];
+	int NB = m_rfzv_n[a];
 	for(int i=0; i!=NB; ++i) {
 	  
-	  int an = rfzv_i[a][i];
-	  if(!rfzv_map[an]) continue; 
+	  int an = m_rfzv_i[a][i];
+	  if(!m_rfzv_map[an]) continue; 
 
-	  r  =  rfzv_Sorted[an].begin();
-	  re =  rfzv_Sorted[an].end  ();
+	  r  =  m_rfzv_Sorted[an].begin();
+	  re =  m_rfzv_Sorted[an].end  ();
 	  
 	  for(; r!=re; ++r) {
 	    
 	    float Rb =(*r)->radius();
-	    if(Rb<m_r1minv) continue; if(Rb>m_r1maxv) break;
+	    if(Rb<m_r1minv) continue;
+            if(Rb>m_r1maxv) break;
 	    float dR = R-Rb; 
-	    if(dR<m_drminv) break; if(dR>m_drmax) continue;
+	    if(dR<m_drminv) break;
+            if(dR>m_drmax) continue;
 	    float dZ = Z-(*r)->z();
 	    float Tz = dZ/dR; if(Tz<m_dzdrmin || Tz>m_dzdrmax) continue;
 	    float Zo = Z-R*Tz;	          
@@ -1363,7 +1375,8 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production2Sp()
 	    float UR = Ut*R+1.              ; if(UR == 0.) continue;
 	    float A  = Vt*R/UR              ;
 	    float B  = Vt-A*Ut              ;
-	    if(fabs(B*m_K) > m_ipt*sqrt(1.+A*A)) continue; ++nseed;
+	    if(fabs(B*m_K) > m_ipt*sqrt(1.+A*A)) continue;
+            ++nseed;
 	    newSeed((*r),(*r0),Zo);
 	  }
 	}
@@ -1399,19 +1412,19 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp()
 
     for(; z!=11; ++z) {
 
-      int a  = f *11+ZI[z];  if(!rfz_map[a]) continue;
+      int a  = f *11+ZI[z];  if(!m_rfz_map[a]) continue;
       int NB = 0, NT = 0;
-      for(int i=0; i!=rfz_b[a]; ++i) {
+      for(int i=0; i!=m_rfz_b[a]; ++i) {
 	
-	int an =  rfz_ib[a][i];
-	if(!rfz_map[an]) continue;
-	rb [NB] = rfz_Sorted[an].begin(); rbe[NB++] = rfz_Sorted[an].end();
+	int an =  m_rfz_ib[a][i];
+	if(!m_rfz_map[an]) continue;
+	rb [NB] = m_rfz_Sorted[an].begin(); rbe[NB++] = m_rfz_Sorted[an].end();
       } 
-      for(int i=0; i!=rfz_t[a]; ++i) {
+      for(int i=0; i!=m_rfz_t[a]; ++i) {
 	
-	int an =  rfz_it[a][i];
-	if(!rfz_map[an]) continue; 
-	rt [NT] = rfz_Sorted[an].begin(); rte[NT++] = rfz_Sorted[an].end();
+	int an =  m_rfz_it[a][i];
+	if(!m_rfz_map[an]) continue; 
+	rt [NT] = m_rfz_Sorted[an].begin(); rte[NT++] = m_rfz_Sorted[an].end();
       } 
       if(!m_trigger) production3Sp       (rb,rbe,rt,rte,NB,NT,nseed);
       else           production3SpTrigger(rb,rbe,rt,rte,NB,NT,nseed);
@@ -1871,14 +1884,14 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillSeeds ()
     if(l!=lf && s->spacepoint0()->radius() < 43. && w > -200.) continue;
     if(!s->setQuality(w)) continue;
     
-    if(i_seede!=l_seeds.end()) {
-      s  = (*i_seede++);
+    if(m_i_seede!=m_l_seeds.end()) {
+      s  = (*m_i_seede++);
       *s = *(*l).second;
     }
     else                  {
       s = new SiSpacePointsProSeed(*(*l).second);
-      l_seeds.push_back(s);
-      i_seede = l_seeds.end(); 
+      m_l_seeds.push_back(s);
+      m_i_seede = m_l_seeds.end(); 
     }
     
     if     (s->spacepoint0()->spacepoint->clusterList().second) w-=3000.;

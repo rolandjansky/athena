@@ -101,12 +101,13 @@ theApp.EvtMax = 20
 # Application:
 #--------------------------------------------------------------
 
+from DataModelTestDataCommon.DataModelTestDataCommonConf import \
+     DMTest__xAODTestDecor
 from DataModelTestDataRead.DataModelTestDataReadConf import \
      DMTest__xAODTestReadCVec, \
      DMTest__xAODTestRead, \
      DMTest__xAODTestReadCView, \
      DMTest__xAODTestReadHVec, \
-     DMTest__xAODTestDecor, \
      DMTest__xAODTestClearDecor, \
      DMTest__xAODTestShallowCopy
 

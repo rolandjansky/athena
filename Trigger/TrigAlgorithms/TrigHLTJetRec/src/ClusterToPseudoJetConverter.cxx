@@ -10,7 +10,7 @@ m_apj(apj), m_uncalibrated(uncalibrated){
 }
 
 
-PseudoJet ClusterToPseudoJetConverter::operator()(ValueType c) const{
+fastjet::PseudoJet ClusterToPseudoJetConverter::operator()(ValueType c) const{
   if (m_uncalibrated){
     CaloClusterChangeSignalState stateHelper (c, 
                                               xAOD::CaloCluster::UNCALIBRATED);

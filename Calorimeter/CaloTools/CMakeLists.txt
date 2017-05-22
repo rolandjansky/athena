@@ -35,7 +35,6 @@ atlas_depends_on_subdirs(
    AtlasTest/TestTools
    Calorimeter/CaloCondBlobObjs
    Control/AthAllocators
-   DetectorDescription/GeoModel/GeoModelInterfaces
    DetectorDescription/IdDictParser
    Event/xAOD/xAODBase
    Event/xAOD/xAODEventInfo

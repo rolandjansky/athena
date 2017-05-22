@@ -36,7 +36,8 @@ class T_AthenaPoolCustCnv : public T_AthenaPoolCnvBase<TRANS> {
 
 protected:
    /// Constructor
-   T_AthenaPoolCustCnv(ISvcLocator* pSvcLocator);
+   T_AthenaPoolCustCnv(ISvcLocator* pSvcLocator,
+                       const char* name = nullptr);
 
    /// Gaudi Service Interface method implementations:
    virtual StatusCode initialize();

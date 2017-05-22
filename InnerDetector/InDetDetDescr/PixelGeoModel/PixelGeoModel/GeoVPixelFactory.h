@@ -26,9 +26,9 @@ class GeoVPixelFactory {
   static void setGeometryManager(PixelGeometryManager * geometryManger);
      
  protected:
-  PixelGeometryManager* gmt_mgr;
-  InDetMaterialManager* mat_mgr;
-  static InDetDD::PixelDetectorManager* DDmgr;
+  PixelGeometryManager* m_gmt_mgr;
+  InDetMaterialManager* m_mat_mgr;
+  static InDetDD::PixelDetectorManager* m_DDmgr;
   static PixelGeometryManager * s_geometryManager;
   const double m_epsilon;
 

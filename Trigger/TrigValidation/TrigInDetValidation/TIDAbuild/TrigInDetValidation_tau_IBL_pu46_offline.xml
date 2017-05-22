@@ -27,7 +27,7 @@
 
 	   
          	   
-           <action position="03">
+           <action position="02">
              <modulename>RttLibraryTools</modulename> 
              <testname>ExeRunner</testname> 
              <arg> 
@@ -43,7 +43,7 @@
 
 	   
          	   
-           <action position="04">
+           <action position="03">
              <modulename>RttLibraryTools</modulename> 
              <testname>ExeRunner</testname> 
              <arg> 
@@ -58,20 +58,6 @@
 
 
 	   
-           <action position="05">
-             <modulename>RttLibraryTools</modulename> 
-             <testname>ExeRunner</testname> 
-             <arg> 
-               <argname>exeName</argname>
-               <argvalue>TIDArun.sh</argvalue> 
-             </arg>
-             <arg> 
-               <argname>exeParamString</argname>
-               <argvalue>data-tau-IBL.root data-tau_IBL_pu46_offline-reference.root  HLT_tau29_idperf_InDetTrigTrackingxAODCnv_Tau_EFID HLT_tau20_r1_idperf_InDetTrigTrackingxAODCnv_Tau_EFID --tag EFID  -d HLTEF-plots </argvalue>
-             </arg>
-           </action> 
-
-
 
 #	  include "TrigInDetValidation_expertMonitoring.xml"
 #	  include "TrigInDetValidation_costMonitoring.xml"

@@ -30,7 +30,6 @@
 //forward declarations
 class IdentifierHash;
 class ISiliconConditionsSvc;
-class IGeoModelSvc;
 class StoreGateSvc;
 
 namespace InDetDD {
@@ -102,15 +101,10 @@ public:
   /** IOV CallBack */
   virtual StatusCode callBack(IOVSVC_CALLBACK_ARGS);
 
-
-  /** GeoInit callback */
-  StatusCode geoInitCallback(IOVSVC_CALLBACK_ARGS);
-
   /** IOV Callback for correction folder */
   virtual StatusCode corrFolderCallBack(IOVSVC_CALLBACK_ARGS);
 
 private:
-  StatusCode geoInitialize();
   void updateCache(const IdentifierHash& elementHash);
   void updateCache(const IdentifierHash& elementHash, const Amg::Vector2D& locPos, bool useLocPos);
   const Amg::Vector3D& getMagneticField(const IdentifierHash& elementHash, const Amg::Vector2D& locPos, bool useLocPos);
@@ -141,7 +135,6 @@ private:
   ServiceHandle<ISiliconConditionsSvc>   m_siConditionsSvc;
   ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
   ServiceHandle<StoreGateSvc>            m_detStore;
-  ServiceHandle<IGeoModelSvc>            m_geoModelSvc;
 
   const DataHandle<AthenaAttributeList> m_dbData;
 

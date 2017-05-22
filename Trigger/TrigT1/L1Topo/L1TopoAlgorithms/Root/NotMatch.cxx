@@ -81,15 +81,11 @@ TCS::NotMatch::~NotMatch(){}
 
 TCS::StatusCode
 TCS::NotMatch::initialize() {
-   
    p_NumberLeading1 = parameter("InputWidth1").value();
    p_NumberLeading2 = parameter("InputWidth2").value();
    if(parameter("MaxTob1").value() > 0) p_NumberLeading1 = parameter("MaxTob1").value();
    if(parameter("MaxTob2").value() > 0) p_NumberLeading2 = parameter("MaxTob2").value();
-
-
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
-   
     p_MinET1[i] = parameter("MinET1",i).value();
     p_MinET2[i] = parameter("MinET2",i).value();
     TRG_MSG_INFO("MinET1          : " << p_MinET1[i]);
@@ -107,86 +103,58 @@ TCS::NotMatch::initialize() {
 
     p_DRCut[i]   = parameter("DRCut",i).value();
     TRG_MSG_INFO("DRCut          : " << p_DRCut[i]);
-
-
-
    }
-
-
-
    TRG_MSG_INFO("Maxtob 1          : " << p_NumberLeading1);
    TRG_MSG_INFO("Maxtob 2          : " << p_NumberLeading2);
    TRG_MSG_INFO("number output : " << numberOutputBits());
-
-
    return StatusCode::SUCCESS;
 }
-
-
 
 TCS::StatusCode
 TCS::NotMatch::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
                              Decision & decision )
 {
-
-      
    if( input.size() == 2) {
-
       bool matched = false;
       unsigned int deltaR2= 999;
-
-      for(unsigned int i=0; i<numberOutputBits(); ++i) { 
+      for(unsigned int i=0; i<numberOutputBits(); ++i) {
+          bool all_unmatched = true;
+          vector<GenericTOB*> unmatched_tobs;
        for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
            ++tob1)
          {
-
             if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
             if( parType_t(fabs((*tob1)->eta())) > p_EtaMax1[i] ) continue; // Eta cut
             if( parType_t(fabs((*tob1)->eta())) < p_EtaMin1[i] ) continue; // Eta cut
             matched = false;
             deltaR2 = 999;
-
             for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2 && matched != true ;
                  ++tob2) {
-
                if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
                if( parType_t(fabs((*tob2)->eta())) > p_EtaMax2[i] ) continue; // Eta cut
                if( parType_t(fabs((*tob2)->eta())) < p_EtaMin2[i] ) continue; // Eta cut
-
                // test DeltaR2Min, DeltaR2Max
                deltaR2 = calcDeltaR2BW( *tob1, *tob2 );
                if (deltaR2 <= p_DRCut[i]) matched = true; 
-	       
-            }
-        
+            } // for(tob2)
             // protection against no jets
             if (deltaR2 == 999) matched = true;
- 
-
-             
-            bool accept = matched?false:true ;
-
-            if (accept) decision.setBit( i, accept );
-
-            if(accept)
-             output[i]->push_back( TCS::CompositeTOB(*tob1));
-
-            TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " delta-match = " << deltaR2 );
-
-            
-
-
-         }
-
+            if(not matched) unmatched_tobs.push_back(*tob1);
+            all_unmatched = all_unmatched and not matched;
+         } // for(tob1)
+       const bool accept = all_unmatched and unmatched_tobs.size()>0;
+       if(accept){
+           decision.setBit(i, true);
+           for(const auto tob : unmatched_tobs)
+               output[i]->push_back(TCS::CompositeTOB(tob));
        }
-
+       TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail"));
+      } // for(i)
    } else {
-
       TCS_EXCEPTION("NotMatch alg must have  2 inputs, but got " << input.size());
-
    }
    return TCS::StatusCode::SUCCESS;
 
@@ -197,64 +165,46 @@ TCS::NotMatch::process( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
                              Decision & decision )
 {
-
-      
    if( input.size() == 2) {
-
       bool matched = false;
       unsigned int deltaR2= 999;
-
       for(unsigned int i=0; i<numberOutputBits(); ++i) { 
+       bool all_unmatched = true;
+       vector<GenericTOB*> unmatched_tobs;
        for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
            ++tob1)
          {
-
             if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
             if( parType_t(fabs((*tob1)->eta())) > p_EtaMax1[i] ) continue; // Eta cut
             if( parType_t(fabs((*tob1)->eta())) < p_EtaMin1[i] ) continue; // Eta cut
             matched = false;
             deltaR2 = 999;
-
             for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2 && matched != true ;
                  ++tob2) {
-
                if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
                if( parType_t(fabs((*tob2)->eta())) > p_EtaMax2[i] ) continue; // Eta cut
                if( parType_t(fabs((*tob2)->eta())) < p_EtaMin2[i] ) continue; // Eta cut
-
                // test DeltaR2Min, DeltaR2Max
                deltaR2 = calcDeltaR2( *tob1, *tob2 );
                if (deltaR2 <= p_DRCut[i]) matched = true; 
-	       
-            }
-        
+            } // for(tob2)
             // protection against no jets
             if (deltaR2 == 999) matched = true;
- 
-
-             
-            bool accept = matched?false:true ;
-
-            if (accept) decision.setBit( i, accept );
-
-            if(accept)
-             output[i]->push_back( TCS::CompositeTOB(*tob1));
-
-            TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " delta-match = " << deltaR2 );
-
-            
-
-
-         }
-
+            if(not matched) unmatched_tobs.push_back(*tob1);
+            all_unmatched = all_unmatched and not matched;
+         } // for(tob1)
+       const bool accept = all_unmatched and unmatched_tobs.size()>0;
+       if(accept){
+           decision.setBit(i, true);
+           for(const auto tob : unmatched_tobs)
+               output[i]->push_back(TCS::CompositeTOB(tob));
        }
-
+       TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail"));
+      } // for(i)
    } else {
-
       TCS_EXCEPTION("NotMatch alg must have  2 inputs, but got " << input.size());
-
    }
    return TCS::StatusCode::SUCCESS;
 }

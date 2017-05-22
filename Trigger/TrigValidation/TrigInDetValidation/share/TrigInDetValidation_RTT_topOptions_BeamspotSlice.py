@@ -61,5 +61,27 @@ def resetSigs():
   TriggerFlags.BeamspotSlice.setAll();
   TriggerFlags.BeamspotSlice.signatures = idtrigChainlist
 
+
+
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
 topSequence.TrigSteer_HLT.terminateAlgo.Prescale=1.
+
+if 'fastZFinder' in dir() and fastZFinder==True:
+  FTF = topSequence.TrigSteer_HLT.TrigFastTrackFinder_BeamSpot_IDTrig
+
+  # set fast ZFinder settings here
+  # from AthenaCommon.ConfigurableDb import getConfigurable
+  # zfinder = getConfigurable("TrigZFinder")
+  zfinder = FTF.trigZFinder
+
+  zfinder.NumberOfPeaks = 4
+  zfinder.TripletMode = 1
+  zfinder.TripletDZ = 1
+  zfinder.PhiBinSize = 0.1
+  zfinder.MaxLayer = 3
+  zfinder.MinVtxSignificance = 10
+  zfinder.Percentile = 0.95
+
+  print zfinder
+
+

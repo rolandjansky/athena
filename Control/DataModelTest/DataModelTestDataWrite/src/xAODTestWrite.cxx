@@ -82,7 +82,6 @@ StatusCode xAODTestWrite::execute()
   trig_coll->setStore (trig_store);
 
   static C::Accessor<int> anInt2 ("anInt2");
-  static C::Decorator<int> dInt1 ("dInt1");
   static C::Accessor<ElementLink<DMTest::CVec> > cEL ("cEL");
 
   //static C::Decorator<SG::PackedElement<unsigned int> > dpInt1 ("dpInt1");
@@ -97,7 +96,6 @@ StatusCode xAODTestWrite::execute()
     c.setAFloat (m_count * 600 + (float)i*0.1);
 
     anInt2(c) = m_count*700 + i+1;
-    dInt1(c) = m_count*480 + i+1;
   }
 
   CHECK( evtStore()->record (trig_coll, "ctrig") );

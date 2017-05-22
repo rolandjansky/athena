@@ -14,7 +14,7 @@
 // STL includes
 #include <string>
 
-// FrameWork includes
+// Framework includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/ICutFlowSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -84,7 +84,7 @@ class AthFilterAlgorithm
   /// this is usually pushed to the @c ICutFlowSvc
   std::string m_filterDescr;
 
-  //special case: post-python default value of property FilterDescription sent to ICutFlowSvc only if not explicitely specifed before
+  //special case: post-python default value of property FilterDescription sent to ICutFlowSvc only if not explicitly specified before
   bool m_resetSelfDescription;
   void doNotResetSelfDescription( Property& );
 

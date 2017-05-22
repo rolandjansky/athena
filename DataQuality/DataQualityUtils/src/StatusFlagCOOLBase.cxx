@@ -20,6 +20,7 @@
 #include "CoolKernel/Exception.h"
 #include "CoolKernel/IDatabaseSvc.h"
 #include "CoolKernel/StorageType.h"
+#include "CoolKernel/ConstRecordAdapter.h"
 
 ClassImp(dqutils::StatusFlagCOOLBase)
 
@@ -44,7 +45,7 @@ cool::IFolderPtr
 StatusFlagCOOLBase::
 coolFolderInstance(std::string folderStr) {
     try {
-        cool::IFolderPtr folder = coolDb->getFolder(folderStr.c_str());
+        cool::IFolderPtr folder = m_coolDb->getFolder(folderStr.c_str());
         std::cout << "Browsing objects of '" << folderStr << "'" << std::endl;
 	//folder->setupStorageBuffer();
         return folder;
@@ -58,13 +59,13 @@ coolFolderInstance(std::string folderStr) {
 void 
 StatusFlagCOOLBase::
 setSince(cool::Int64 run, cool::Int64 lumi) {
-    since = ((run << 32) + lumi);
+    m_since = ((run << 32) + lumi);
 }
 
 void 
 StatusFlagCOOLBase::
 setUntil(cool::Int64 run, cool::Int64 lumi) {
-    until = ((run << 32) + lumi);
+    m_until = ((run << 32) + lumi);
 }
 
 void
@@ -87,24 +88,24 @@ setIOV(cool::Int64 run) {
 void
 StatusFlagCOOLBase::
 printIOV(){
-    cool::Int64 runS=since>>32;
-    cool::Int64 lumiS=since-(runS<<32);
-    cool::Int64 runU=until>>32;
-    cool::Int64 lumiU=until-(runU<<32);
-    std::cout << "Using IOVrange [(" << runS << "," << lumiS << "),("  << runU << "," << lumiU << ")[ " << "[" << since << "," << until << "[" << std::endl;
+    cool::Int64 runS=m_since>>32;
+    cool::Int64 lumiS=m_since-(runS<<32);
+    cool::Int64 runU=m_until>>32;
+    cool::Int64 lumiU=m_until-(runU<<32);
+    std::cout << "Using IOVrange [(" << runS << "," << lumiS << "),("  << runU << "," << lumiU << ")[ " << "[" << m_since << "," << m_until << "[" << std::endl;
 }
 
 void
 StatusFlagCOOLBase::
 flush() {
-  //coolFolder->flushStorageBuffer();
+  //m_coolFolder->flushStorageBuffer();
 }
 
 void
 StatusFlagCOOLBase::
 Initialize(std::string dbStr, std::string folderStr, int runS, int lumiS, int runU, int lumiU) {
-  coolDb = this->coolDbInstance(dbStr, false);
-  coolFolder = this->coolFolderInstance(folderStr);
+  m_coolDb = this->coolDbInstance(dbStr, false);
+  m_coolFolder = this->coolFolderInstance(folderStr);
   this->setIOV(runS, lumiS, runU, lumiU);
 }
 
@@ -128,8 +129,8 @@ StatusFlagCOOLBase() {
 
 StatusFlagCOOLBase::
 ~StatusFlagCOOLBase () {
-  //coolFolder->flushStorageBuffer();
-    coolDb->closeDatabase();
+  //m_coolFolder->flushStorageBuffer();
+    m_coolDb->closeDatabase();
     std::cout << "Cleared!" << std::endl;
 }
 
@@ -137,7 +138,7 @@ void
 StatusFlagCOOLBase::
 dump(cool::ChannelSelection selection, std::string tag_name) {      
     try {
-        cool::IObjectIteratorPtr objects = coolFolder->browseObjects(since, until-1, selection, tag_name);
+        cool::IObjectIteratorPtr objects = m_coolFolder->browseObjects(m_since, m_until-1, selection, tag_name);
         while (objects->goToNext()) {
             const cool::IObject& element = objects->currentRef();
             std::cout << element << std::endl;;
@@ -154,7 +155,7 @@ dumpField(cool::ChannelId channelId, std::string field, std::string tag_name) {
     std::string result ="";
     try {
         cool::ChannelSelection selection = cool::ChannelSelection(channelId);
-        cool::IObjectIteratorPtr objects = coolFolder->browseObjects(since, until-1, selection, tag_name);
+        cool::IObjectIteratorPtr objects = m_coolFolder->browseObjects(m_since, m_until-1, selection, tag_name);
         while (objects->goToNext()) {
             const cool::IObject& element = objects->currentRef();
             result = element.payloadValue(field);
@@ -187,23 +188,24 @@ void
 StatusFlagCOOLBase::
 insert_helper(cool::ChannelId channelId, coral::AttributeList& payload,
 	      std::string& tag_name) {
+  cool::ConstRecordAdapter record (m_coolFolder->payloadSpecification(), payload);
   if (tag_name=="HEAD") {
-    coolFolder->storeObject(since, until, cool::Record(coolFolder->payloadSpecification(), payload), channelId);
+    m_coolFolder->storeObject(m_since, m_until, cool::Record(m_coolFolder->payloadSpecification(), payload), channelId);
   } else {
-    coolFolder->storeObject(since, until, cool::Record(coolFolder->payloadSpecification(), payload), channelId, tag_name, true);
+    m_coolFolder->storeObject(m_since, m_until, cool::Record(m_coolFolder->payloadSpecification(), payload), channelId, tag_name, true);
   }
 }
 
 cool::IFolderPtr 
 StatusFlagCOOLBase::
 getCoolFolder() {
-    return this->coolFolder;
+    return this->m_coolFolder;
 }
 
 cool::IDatabasePtr 
 StatusFlagCOOLBase::
 getCoolDb() {
-    return this->coolDb;
+    return this->m_coolDb;
 }
 
 

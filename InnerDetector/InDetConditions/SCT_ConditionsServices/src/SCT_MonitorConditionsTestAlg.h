@@ -20,10 +20,14 @@
 //Gaudi
 #include "GaudiKernel/ServiceHandle.h"
 
+// Read Handle Key
+#include "StoreGate/ReadHandleKey.h"
+// Event Info
+#include "xAODEventInfo/EventInfo.h"
+
 //Forward declarations
 class ISvcLocator;
 class StatusCode;
-class EventInfo;
 class ISCT_MonitorConditionsSvc;
 class SCT_ID;
 
@@ -42,7 +46,7 @@ class SCT_MonitorConditionsTestAlg : public AthAlgorithm {
   const SCT_ID*                            m_sctId;
 
   // Parameters to control the db access 
-  const EventInfo*                         m_evt;
+  SG::ReadHandleKey<xAOD::EventInfo>       m_evtKey;
   UnsignedIntegerProperty                  m_select_run;
   UnsignedIntegerProperty                  m_select_event;
 

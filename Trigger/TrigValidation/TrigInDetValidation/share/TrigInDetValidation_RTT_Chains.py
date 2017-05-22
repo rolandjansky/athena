@@ -1,7 +1,7 @@
 from TriggerMenu import useNewTriggerMenu 
 use_new_tm = useNewTriggerMenu() 
 
-def electronChains(runMergedChain, doIDNewTracking):
+def electronChains(doIDNewTracking):
 
   idTrigChainlist = []
   tidaAnalysischains = ["Truth"]
@@ -9,50 +9,14 @@ def electronChains(runMergedChain, doIDNewTracking):
   if doIDNewTracking:
     tidaAnalysischains += ["Offline"]
   
-  if not use_new_tm:
-    idTrigChainlist += [
-      'e22vh_medium_IDTrkNoCut',
-      ]
-    tidaAnalysischains += [
-      "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:0",
-      "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:1",
-      "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:2",
-      "EF_e22vh_medium_IDTrkNoCut:InDetTrigParticleCreation_Electron_EFID",  
-      ]
-  else:
-    idTrigChainlist.append( ['e24_medium_L2Star_idperf', 'L1_EM18VH', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
-    idTrigChainlist.append( ['e5_loose_L2Star_idperf', 'L1_EM3', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
-    tidaAnalysischains += [
-      "HLT_e24_medium_L2Star_idperf:TrigL2SiTrackFinder_eGamma:0",
-      "HLT_e24_medium_L2Star_idperf:TrigL2SiTrackFinder_eGamma:1",
-      "HLT_e24_medium_L2Star_idperf:TrigL2SiTrackFinder_eGamma:2",
-      "HLT_e24_medium_L2Star_idperf:InDetTrigParticleCreation_Electron_EFID",  
-      "HLT_e24_medium_L2Star_idperf:InDetTrigTrackingxAODCnv_Electron_EFID",
-      "HLT_e5_loose_L2Star_idperf:TrigL2SiTrackFinder_eGamma:0",
-      "HLT_e5_loose_L2Star_idperf:TrigL2SiTrackFinder_eGamma:1",
-      "HLT_e5_loose_L2Star_idperf:TrigL2SiTrackFinder_eGamma:2",
-      "HLT_e5_loose_L2Star_idperf:InDetTrigParticleCreation_Electron_EFID",  
-      "HLT_e5_loose_L2Star_idperf:InDetTrigTrackingxAODCnv_Electron_EFID",  
-      ]
-  
-  if 'runMergedChain' in dir() and runMergedChain==True:
-    if use_new_tm:
-      idTrigChainlist.append(  ['e24_medium_idperf', 'L1_EM18VH', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
-      idTrigChainlist.append(   ['e5_loose_idperf', 'L1_EM3', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
-      tidaAnalysischains.append('HLT_e24_medium_idperf:TrigFastTrackFinder_eGamma')
-      tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigParticleCreation_Electron_EFID')
-      tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_EFID')
-      tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig')
-      tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_FTF')
-      tidaAnalysischains.append('HLT_e5_loose_idperf:TrigFastTrackFinder_eGamma')
-      tidaAnalysischains.append('HLT_e5_loose_idperf:InDetTrigParticleCreation_Electron_EFID')
-      tidaAnalysischains.append('HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_EFID')
-      tidaAnalysischains.append('HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig')
-      tidaAnalysischains.append('HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_FTF')
-    else:
-      idTrigChainlist.append('e24vh_medium1_IDTrkNoCut_IDT')
-      tidaAnalysischains.append('EF_e24vh_medium1_IDTrkNoCut_IDT:TrigFastTrackFinder_eGamma')
-      tidaAnalysischains.append('EF_e24vh_medium1_IDTrkNoCut_IDT:InDetTrigParticleCreation_Electron_EFID')
+  idTrigChainlist.append(  ['e24_medium_idperf', 'L1_EM18VH', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
+  idTrigChainlist.append(   ['e5_loose_idperf', 'L1_EM3', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
+  tidaAnalysischains.append('HLT_e24_medium_idperf:TrigFastTrackFinder_eGamma')
+  tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig')
+  tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_FTF')
+  tidaAnalysischains.append('HLT_e5_loose_idperf:TrigFastTrackFinder_eGamma')
+  tidaAnalysischains.append('HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig')
+  tidaAnalysischains.append('HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_FTF')
 
   return (idTrigChainlist, tidaAnalysischains)
 
@@ -172,7 +136,7 @@ def tauChains(runMergedChain, doIDNewTracking, doFTK):
   return (idTrigChainlist, tidaAnalysischains)
 
 
-def bjetChains(runMergedChain, doIDNewTracking, doFTK):
+def bjetChains(runMergedChain, doIDNewTracking, doFTK, doBperf):
   idTrigChainlist = []
 
   tidaAnalysischains = ["Truth"]
@@ -191,24 +155,39 @@ def bjetChains(runMergedChain, doIDNewTracking, doFTK):
       "EF_b55_NoCut_j55_a4tchad:InDetTrigParticleCreation_Bjet_EFID"
       ] 
   else :
-    idTrigChainlist.append( ['j55_bperf',        'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)
+    idTrigChainlist.append( ['j55_boffperf',        'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)
 ##    idTrigChainlist.append( ['j55_EFID_bperf',   'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)
-    idTrigChainlist.append( ['j55_bperf_split',  'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)
+    idTrigChainlist.append( ['j55_boffperf_split',  'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)
+    if (doBperf):
+      idTrigChainlist.append( ['j55_bperf',        'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)
+      idTrigChainlist.append( ['j55_bperf_split',  'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)
     if (doFTK):
-      idTrigChainlist.append( ['j55_bperf_split_FTKVtx',  'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)
-      idTrigChainlist.append( ['j55_bperf_split_FTK',  'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)
-      idTrigChainlist.append( ['j55_bperf_split_FTKRefit',  'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)      
+      idTrigChainlist.append( ['j55_boffperf_split_FTKVtx',  'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)
+      idTrigChainlist.append( ['j55_boffperf_split_FTK',  'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)
+      idTrigChainlist.append( ['j55_boffperf_split_FTKRefit',  'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)      
+      if (doBperf):
+        idTrigChainlist.append( ['j55_bperf_split_FTKVtx',  'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)
+        idTrigChainlist.append( ['j55_bperf_split_FTK',  'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)
+        idTrigChainlist.append( ['j55_bperf_split_FTKRefit',  'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)      
     tidaAnalysischains += [
       'HLT_j55_bperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig',
       'HLT_j55_bperf:key=InDetTrigTrackingxAODCnv_Bjet_FTF:roi=forID',
+      'HLT_j55_boffperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig',
+      'HLT_j55_boffperf:key=InDetTrigTrackingxAODCnv_Bjet_FTF:roi=forID',
       #
       'HLT_j55_bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig:roi=forID',
       'HLT_j55_bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF:roi=forID',
       'HLT_j55_bperf_split:key=TrigFastTrackFinder_Jet:roi=forID',
+      'HLT_j55_boffperf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig:roi=forID',
+      'HLT_j55_boffperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF:roi=forID',
+      'HLT_j55_boffperf_split:key=TrigFastTrackFinder_Jet:roi=forID',
       #
       'HLT_j55_bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi',
       'HLT_j55_bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx',
       'HLT_j55_bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoVtx',
+      'HLT_j55_boffperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi',
+      'HLT_j55_boffperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx',
+      'HLT_j55_boffperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoVtx',
       #
       'HLT_j55_bperf_split_FTKVtx:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig',
       'HLT_j55_bperf_split_FTKVtx:key=InDetTrigTrackingxAODCnv_Bjet_FTF',
@@ -216,6 +195,12 @@ def bjetChains(runMergedChain, doIDNewTracking, doFTK):
       'HLT_j55_bperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK',
       'HLT_j55_bperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig',
       'HLT_j55_bperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit',
+      'HLT_j55_boffperf_split_FTKVtx:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig',
+      'HLT_j55_boffperf_split_FTKVtx:key=InDetTrigTrackingxAODCnv_Bjet_FTF',
+      'HLT_j55_boffperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig',
+      'HLT_j55_boffperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK',
+      'HLT_j55_boffperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig',
+      'HLT_j55_boffperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit',
       ]
   return (idTrigChainlist, tidaAnalysischains)
 
@@ -230,12 +215,16 @@ def beamspotChains(runMergedChain, doIDNewTracking, doFTK):
   idTrigChainlist.append(['beamspot_allTE_trkfast',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
   if doFTK:
     idTrigChainlist.append(['beamspot_allTE_FTK',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
+    idTrigChainlist.append(['beamspot_idperf_FTK',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
+
   
   tidaAnalysischains += [
     'HLT_beamspot_allTE_L2StarB:TrigL2SiTrackFinder_BeamSpotB',
     'HLT_beamspot_allTE_trkfast:TrigFastTrackFinder_BeamSpot_IDTrig',
     'HLT_beamspot_allTE_trkfast:InDetTrigTrackingxAODCnv_BeamSpot_FTF',
     'HLT_beamspot_allTE_FTK:InDetTrigTrackingxAODCnv_BeamSpot_FTK',
+    'HLT_beamspot_idperf_FTK:InDetTrigTrackingxAODCnv_BeamSpot_FTKMon',
+    'HLT_beamspot_idperf_FTK:InDetTrigTrackingxAODCnv_BeamSpot_FTF',
     ]
   return (idTrigChainlist, tidaAnalysischains)
 

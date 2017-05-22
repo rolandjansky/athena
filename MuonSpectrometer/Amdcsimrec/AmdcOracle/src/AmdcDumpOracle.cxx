@@ -4,7 +4,6 @@
 
 #include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/PropertyMgr.h"
 
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/IDataProviderSvc.h"
@@ -583,13 +582,13 @@ void AmdcDumpOracle::DumpASZT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -651,13 +650,13 @@ void AmdcDumpOracle::DumpISZT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -720,13 +719,13 @@ void AmdcDumpOracle::DumpAPTP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -793,13 +792,13 @@ void AmdcDumpOracle::DumpALMN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -860,13 +859,13 @@ void AmdcDumpOracle::DumpALIN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -913,13 +912,13 @@ void AmdcDumpOracle::DumpWMDT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -978,13 +977,13 @@ void AmdcDumpOracle::DumpWSPA( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -1043,13 +1042,13 @@ void AmdcDumpOracle::DumpWSUP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -1108,13 +1107,13 @@ void AmdcDumpOracle::DumpWCHV( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -1173,13 +1172,13 @@ void AmdcDumpOracle::DumpWCMI( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -1238,13 +1237,13 @@ void AmdcDumpOracle::DumpWCRO( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -1303,13 +1302,13 @@ void AmdcDumpOracle::DumpWLBI( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -1368,13 +1367,13 @@ void AmdcDumpOracle::DumpWDED( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -1433,13 +1432,13 @@ void AmdcDumpOracle::DumpASMP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -1499,13 +1498,13 @@ void AmdcDumpOracle::DumpDBAM( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -1562,13 +1561,13 @@ void AmdcDumpOracle::DumpWCSC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -1627,13 +1626,13 @@ void AmdcDumpOracle::DumpATLN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -1693,13 +1692,13 @@ void AmdcDumpOracle::DumpGGLN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -1758,13 +1757,13 @@ void AmdcDumpOracle::DumpWTGC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -1823,13 +1822,13 @@ void AmdcDumpOracle::DumpAWLN( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -1888,13 +1887,13 @@ void AmdcDumpOracle::DumpWRPC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -1951,13 +1950,13 @@ void AmdcDumpOracle::DumpACUT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -2003,13 +2002,13 @@ void AmdcDumpOracle::DumpATYP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -2068,13 +2067,13 @@ void AmdcDumpOracle::DumpAGDD( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -2131,13 +2130,13 @@ void AmdcDumpOracle::DumpAMDC( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -2194,13 +2193,13 @@ void AmdcDumpOracle::DumpABRT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -2257,13 +2256,13 @@ void AmdcDumpOracle::DumpAECT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -2320,13 +2319,13 @@ void AmdcDumpOracle::DumpECST( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -2383,13 +2382,13 @@ void AmdcDumpOracle::DumpFEET( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -2446,13 +2445,13 @@ void AmdcDumpOracle::DumpGENV( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -2510,13 +2509,13 @@ void AmdcDumpOracle::DumpJDSH( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -2573,13 +2572,13 @@ void AmdcDumpOracle::DumpJFSH( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -2636,13 +2635,13 @@ void AmdcDumpOracle::DumpJTSH( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -2699,13 +2698,13 @@ void AmdcDumpOracle::DumpMBAP( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -2762,13 +2761,13 @@ void AmdcDumpOracle::DumpAgddXMLVariables( IRDBAccessSvc* pIRDBAccessSvc, std::s
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -2827,13 +2826,13 @@ void AmdcDumpOracle::DumpHwSwIdMapping( IRDBAccessSvc* pIRDBAccessSvc, std::stri
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;
@@ -2892,13 +2891,13 @@ void AmdcDumpOracle::DumpXtomoData( IRDBAccessSvc* pIRDBAccessSvc, std::string T
   Kwarn = -1 ;
   Kchck = 0 ;
   
-  const IRDBRecordset* pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordset(NameOfTheSet,"RDB");
+  IRDBRecordset_ptr pIRDBRecordsetFromRDB = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"RDB");
   if (pIRDBRecordsetFromRDB->size() == 0){
     OutFile << "No " << NameOfTheSet << " in RDB " << std::endl;
     return;
   } 
   
-  const IRDBRecordset* pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordset(NameOfTheSet,"Amdc");
+  IRDBRecordset_ptr pIRDBRecordsetFromAmdc = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,"Amdc");
   if (pIRDBRecordsetFromAmdc->size() == 0){
     OutFile << "No " << NameOfTheSet << " in Amdc " << std::endl;
     return;

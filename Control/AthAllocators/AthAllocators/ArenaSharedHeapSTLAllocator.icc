@@ -57,8 +57,9 @@ ArenaHeapAllocator* ArenaSharedHeapSTLHeader::get_pool()
   const static size_t index = get_index<T>();
 
   // Expand the list of allocators if needed.
-  if (index >= m_allocators.size())
+  if (index >= m_allocators.size()) {
     m_allocators.resize (index+1);
+  }
 
   // Create the allocator if we haven't done so yet.
   if (!m_allocators[index]) {
@@ -104,8 +105,9 @@ size_t ArenaSharedHeapSTLHeader::get_index()
   std::string name = get_name<T>();
   ArenaAllocatorRegistry* reg = ArenaAllocatorRegistry::instance();
   size_t index = reg->lookup (name);
-  if (index == std::string::npos)
+  if (index == std::string::npos) {
     index = reg->registerCreator (name, 0);
+  }
   return index;
 }
 
@@ -184,8 +186,9 @@ ArenaSharedHeapSTLAllocator<T>::operator=
   (const ArenaSharedHeapSTLAllocator& a)
 {
   if (&a != this) {
-    if (m_header != a.m_header)
+    if (m_header != a.m_header) {
       throw SG::ExcDifferentArenas();
+    }
     assert (m_pool == a.m_pool);
   }
   return *this;

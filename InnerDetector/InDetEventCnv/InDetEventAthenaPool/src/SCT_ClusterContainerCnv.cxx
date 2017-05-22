@@ -13,7 +13,7 @@
 #include <iostream>
 
   SCT_ClusterContainerCnv::SCT_ClusterContainerCnv (ISvcLocator* svcloc)
-    : SCT_ClusterContainerCnvBase(svcloc),
+    : SCT_ClusterContainerCnvBase(svcloc, "SCT_ClusterContainerCnv"),
       m_converter_p0(),
       m_storeGate(nullptr)
   {}
@@ -22,8 +22,6 @@
 
 
 StatusCode SCT_ClusterContainerCnv::initialize() {
-   IDEvtAthPool::setMsgName(this,"SCT_ClusterContainerCnv");//So msg() won't use name "AthenaPoolConverter" 
-
    ATH_MSG_INFO("SCT_ClusterContainerCnv::initialize()");
 
    StatusCode sc = SCT_ClusterContainerCnvBase::initialize();

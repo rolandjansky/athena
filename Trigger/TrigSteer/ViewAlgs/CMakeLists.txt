@@ -9,8 +9,8 @@ atlas_subdir( ViewAlgs )
 atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigger
                           GaudiKernel
-						  Control/AthContainers
-						  Control/AthLinks 
+			  Control/AthContainers
+			  Control/AthLinks 
                           PRIVATE
                           Control/AthViews
                           Control/StoreGate
@@ -30,4 +30,3 @@ atlas_add_library( ViewAlgsLib
 atlas_add_component( ViewAlgs
                      src/components/*.cxx
                      LINK_LIBRARIES xAODTrigger GaudiKernel AthViews AthenaBaseComps CxxUtils TrigConfHLTData TrigSteeringEvent ViewAlgsLib )
-

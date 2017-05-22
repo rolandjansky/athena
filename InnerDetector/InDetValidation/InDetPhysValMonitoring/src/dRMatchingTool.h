@@ -56,7 +56,7 @@
  *
  * The tool is able to perform matching wrt. dR as well relative pT-resolution,
  * i.e.
- *  @f$ \Delta p_{T}/p_{T} = \frac{|p_{T,this} - p_{T,other}|}{p_{T,this}} @f$
+ *   \Delta p_{T}/p_{T} = \frac{|p_{T,this} - p_{T,other}|}{p_{T,this}}
  * The tool is configured such that a successful match means that all set cuts
  * were passed. That means that if only the dR-cut is set, no pT-resoution cut
  * is imposed, and conversely. In particular, if neither cut is set, no

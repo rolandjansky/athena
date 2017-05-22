@@ -32,18 +32,18 @@ GeoVPhysVol* GeoPixelTMT::Build() {
   double totVolume = 0;
   HepGeom::RotateX3D traprot(180.*CLHEP::deg);
 
-  int halfNModule = gmt_mgr->PixelNModule()/2;
+  int halfNModule = m_gmt_mgr->PixelNModule()/2;
 
-  for (int ii = 0; ii < gmt_mgr->PixelTMTNumParts(); ii++) {
-    double z1 =  gmt_mgr->PixelTMTPosZ1(ii);
-    double z2 =  gmt_mgr->PixelTMTPosZ2(ii);
-    double xbase1 =  gmt_mgr->PixelTMTBaseX1(ii);
-    double xbase2 =  gmt_mgr->PixelTMTBaseX2(ii);
-    double w1 =  gmt_mgr->PixelTMTWidthX1(ii);
-    double w2 =  gmt_mgr->PixelTMTWidthX2(ii);
-    double widthy   = gmt_mgr->PixelTMTWidthY(ii);
-    double ypos = gmt_mgr->PixelTMTPosY(ii);
-    bool   perModule = gmt_mgr->PixelTMTPerModule(ii);
+  for (int ii = 0; ii < m_gmt_mgr->PixelTMTNumParts(); ii++) {
+    double z1 =  m_gmt_mgr->PixelTMTPosZ1(ii);
+    double z2 =  m_gmt_mgr->PixelTMTPosZ2(ii);
+    double xbase1 =  m_gmt_mgr->PixelTMTBaseX1(ii);
+    double xbase2 =  m_gmt_mgr->PixelTMTBaseX2(ii);
+    double w1 =  m_gmt_mgr->PixelTMTWidthX1(ii);
+    double w2 =  m_gmt_mgr->PixelTMTWidthX2(ii);
+    double widthy   = m_gmt_mgr->PixelTMTWidthY(ii);
+    double ypos = m_gmt_mgr->PixelTMTPosY(ii);
+    bool   perModule = m_gmt_mgr->PixelTMTPerModule(ii);
 
 
     // Code below assume z2>z1. Swap if this is not the case
@@ -97,7 +97,7 @@ GeoVPhysVol* GeoPixelTMT::Build() {
     } else { // Once per module, copied in +z and -z side.
       for (int ii = 0; ii < halfNModule; ii++) {
 	totVolume += shape->volume() * 2;// added twice below
-	double zshift = gmt_mgr->PixelModuleZPosition(1) * ii;
+	double zshift = m_gmt_mgr->PixelModuleZPosition(1) * ii;
 
 	HepGeom::Translate3D transPos(xpos,ypos,zpos+zshift);
 	lastShape = addShape(lastShape, shape, transPos); 
@@ -112,8 +112,8 @@ GeoVPhysVol* GeoPixelTMT::Build() {
   // don't trust boolean volume
   // double totVolume = tmtShape->volume();
   //std::cout << "TMT volume " << totVolume/CLHEP::cm3 << std::endl;
-  std::string matName = gmt_mgr->getMaterialName("TMT", gmt_mgr->GetLD());
-  const GeoMaterial* trapMat = mat_mgr->getMaterialForVolume(matName,totVolume);
+  std::string matName = m_gmt_mgr->getMaterialName("TMT", m_gmt_mgr->GetLD());
+  const GeoMaterial* trapMat = m_mat_mgr->getMaterialForVolume(matName,totVolume);
   GeoLogVol* theTMT = new GeoLogVol("TMT",tmtShape,trapMat);
 
   // No need to set m_transform as default transform is OK.

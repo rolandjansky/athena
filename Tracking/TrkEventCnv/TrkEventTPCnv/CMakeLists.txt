@@ -9,7 +9,8 @@ atlas_subdir( TrkEventTPCnv )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
-   Control/DataModel
+   Control/AthContainers
+   Control/AthLinks
    Control/DataModelAthenaPool
    Control/StoreGate
    Database/AthenaPOOL/AthenaPoolCnvSvc
@@ -94,7 +95,7 @@ atlas_add_tpcnv_library( TrkEventTPCnv
    TrkEventTPCnv/TrkDetElementSurface/*.h src/TrkDetElementSurface/*.cxx
    PUBLIC_HEADERS TrkEventTPCnv
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} DataModel DataModelAthenaPoolLib
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthContainers AthLinks DataModelAthenaPoolLib
    StoreGateLib AthenaPoolCnvSvcLib AthenaPoolUtilities GeoPrimitives Identifier
    EventPrimitives GaudiKernel InDetIdentifier TrkDistortedSurfaces TrkSurfaces
    TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMaterialOnTrack

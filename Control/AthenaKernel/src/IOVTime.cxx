@@ -193,6 +193,20 @@ IOVTime::operator std::string () const {
   return os.str();
 }
 
+IOVTime::operator EventIDBase() const {
+  if (isBoth()) {
+    return EventIDBase(run(),event(),
+                       timestamp()/1000000000LL,timestamp()%1000000000LL);
+  } else if (isTimestamp()) {
+    return EventIDBase(EventIDBase::UNDEFNUM,EventIDBase::UNDEFEVT,
+                       timestamp()/1000000000LL,timestamp()%1000000000LL);
+  } else if (isRunEvent()) {
+    return EventIDBase(run(),event());
+  } else {
+    return EventIDBase();
+  }
+}
+
 MsgStream &operator << (MsgStream& os, const IOVTime& rhs) {
   os << (std::string) rhs;
   return os;

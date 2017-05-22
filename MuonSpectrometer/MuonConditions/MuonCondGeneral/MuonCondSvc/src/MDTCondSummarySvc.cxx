@@ -9,11 +9,6 @@
 #include <algorithm>
 #include <sstream>
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/ToolFactory.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/IDataProviderSvc.h"
 
 //Gaudi includes
 #include "GaudiKernel/StatusCode.h"

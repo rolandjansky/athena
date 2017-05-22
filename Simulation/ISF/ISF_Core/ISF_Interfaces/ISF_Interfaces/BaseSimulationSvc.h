@@ -38,9 +38,6 @@ namespace ISF {
       It facilitates the use of event store and detector store, provides record and retrieve 
       methods and initializes the ChronoStatSvc.
       
-      It implements a dummy callback from the detector Store after the GeoModelSvc has initialized
-      the detector geometry.
-  
       @author Michael.Duehrssen -at- cern.ch, Andreas.Salzburger -at- cern.ch, Elmar.Ritsch -at- cern.ch
      */
   class BaseSimulationSvc : public AthService, public ISimulationSvc { 
@@ -92,13 +89,6 @@ namespace ISF {
         
         return StatusCode::SUCCESS; 
       }      
-
-      /** Callback after geometry has been built - dummy implementation */
-      virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS) 
-      {
-         ATH_MSG_VERBOSE( m_screenOutputPrefix << " Callback recieved after geometry setup.");  
-         return StatusCode::SUCCESS; 
-      }
 
       /** Return the simulation service descriptor */
       std::string& simSvcDescriptor() { return m_simDescr; }

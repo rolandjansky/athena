@@ -1626,7 +1626,7 @@ Analysis::CalibrationDataInterfaceROOT::getWeightScaleFactor (const CalibrationD
       return Analysis::kError;
     }
     // the 'extrapolation' uncertainty (always a named one) needs a somewhat special treatment
-    bool extrapolate = SFNamed ? eigenVariation->isExtrapolationVariation(numVariation) : false;
+    bool extrapolate = (unc==SFNamed) ? eigenVariation->isExtrapolationVariation(numVariation) : false;
     
     double valueUp;
     double valueDown;

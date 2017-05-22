@@ -7,7 +7,7 @@
 
 // For the Athena-based random numbers.
 #include "CLHEP/Random/RandFlat.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 // Units

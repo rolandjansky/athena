@@ -49,19 +49,19 @@ public:
   const std::vector<ElectronRoILinks>& getElectronRoILinks() const;
   std::vector<ElectronRoILinks> getElectronRoILinks(const ChainEntry& chain) const;
 
-  const std::vector<CombLinks>& getCombLinks() const { return CombIndex; }
+  const std::vector<CombLinks>& getCombLinks() const { return m_CombIndex; }
   std::vector<CombLinks> getCombLinks(int roi_type) const;
   std::vector<CombLinks> getCombLinks(const ChainEntry& chain) const;
 
   void clear();
   
 private:
-  std::vector<MuonRoILinks> MuonRoIIndex;
-  std::vector<ElectronRoILinks> ElectronRoIIndex;
-  std::vector<TauRoILinks> TauRoIIndex;
-  std::vector<JetRoILinks> JetRoIIndex;
+  std::vector<MuonRoILinks> m_MuonRoIIndex;
+  std::vector<ElectronRoILinks> m_ElectronRoIIndex;
+  std::vector<TauRoILinks> m_TauRoIIndex;
+  std::vector<JetRoILinks> m_JetRoIIndex;
 
-  std::vector<CombLinks> CombIndex; // Generic link similar to Trig::Combination
+  std::vector<CombLinks> m_CombIndex; // Generic link similar to Trig::Combination
 };
 
 //#include "SGTools/CLASS_DEF.h"

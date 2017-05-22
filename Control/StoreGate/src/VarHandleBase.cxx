@@ -58,6 +58,33 @@ namespace SG {
 
 
   /**
+   * @brief Helper for symLink_impl.
+   *
+   * A simple @c DataBucket that holds an arbitrary pointer/clid.
+   * We stub out everything else that we don't use.
+   */
+  class SymlinkDataObject
+    : public DataBucketBase
+  {
+  public:
+    SymlinkDataObject (CLID clid, void* obj) : m_clid (clid), m_obj (obj) {}
+    virtual const CLID& clID() const override { return m_clid; }
+    virtual void* object() override { return m_obj; }
+    virtual const std::type_info& tinfo() const override { return typeid(void); }
+    virtual void* cast (CLID, SG::IRegisterTransient*, bool) const override { std::abort(); }
+    virtual void* cast (const std::type_info&, SG::IRegisterTransient*, bool) const override { std::abort(); }
+    virtual DataBucketBase* clone() const override { std::abort(); }
+    virtual void relinquish() override { std::abort(); }
+    virtual void lock() override { }
+
+  
+  private:
+    CLID m_clid;
+    void* m_obj;
+  };
+
+
+  /**
    * @brief Constructor with default key.
    * @param clid CLID of the referenced class.
    * @param mode Mode of this handle (read/write/update).
@@ -793,6 +820,32 @@ namespace SG {
     }
 
     return typeless_dataPointer_fromProxy (proxy, quiet);
+  }
+
+
+  /**
+   * @brief Make a symlink or alias to the object currently referenced
+   *        by this handle.
+   * @param newClid CLID of link.
+   * @param newKey SG key of link.
+   *
+   * If newClid matches the existing clid, then make an alias.
+   * If newKey matches the existing key, then make a symlink.
+   * If neither match, it's an error.
+   */
+  StatusCode VarHandleBase::symLink_impl (CLID newClid,
+                                          const std::string& newKey) const
+  {
+    if (!m_ptr || !m_store) {
+      REPORT_ERROR (StatusCode::FAILURE) << "symlink: Handle not valid.";
+      return StatusCode::FAILURE;
+    }
+    
+    SG::DataObjectSharedPtr<DataObject> obj (new SymlinkDataObject (newClid, m_ptr));
+    SG::DataProxy* prox = m_store->recordObject (obj, newKey, false, true);
+    if (!prox)
+      return StatusCode::FAILURE;
+    return StatusCode::SUCCESS;
   }
 
 

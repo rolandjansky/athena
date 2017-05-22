@@ -41,8 +41,9 @@ ArenaSharedHeapSTLHeader::ArenaSharedHeapSTLHeader (const void* owner,
 ArenaSharedHeapSTLHeader::~ArenaSharedHeapSTLHeader()
 {
   size_t sz = m_allocators.size();
-  for (size_t i = 0; i < sz; i++)
+  for (size_t i = 0; i < sz; i++) {
     delete m_allocators[i];
+  }
 }
 
 
@@ -67,9 +68,10 @@ ArenaAllocatorBase::Stats ArenaSharedHeapSTLHeader::totstats() const
  */
 void ArenaSharedHeapSTLHeader::report (std::ostream& os) const
 {
-  for (size_t i = 0; i < m_allocators.size(); i++)
+  for (size_t i = 0; i < m_allocators.size(); i++) {
     if (m_allocators[i])
       m_allocators[i]->report (os);
+  }
 }
 
 

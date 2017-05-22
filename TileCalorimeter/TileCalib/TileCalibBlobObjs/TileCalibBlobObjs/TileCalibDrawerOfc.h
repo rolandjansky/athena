@@ -25,6 +25,7 @@
 
 #include "TileCalibBlobObjs/TileCalibDrawerBase.h"
 #include "TileCalibBlobObjs/TileCalibType.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "CoralBase/Blob.h"
 #include <stdint.h>
 #include <iostream>
@@ -98,14 +99,20 @@ class TileCalibDrawerOfc : public TileCalibDrawerBase {
 
   /** @brief Returns OFC data.
       @param field The field identifier
-      @param channel The channel number; if >= getNChans() it is reset to 0 without warning (default policy) 
+      @param channel The channel number; If channel number >= getNChans() 
+                     it is reset to channel % (maximum number of channels in drawer) 
+                     if channel number > (maximum number of channels in drawer)
+                     otherwise it is reset to 0 without warning (default policy)   
       @param adc The gain index; if >= getNGains() it is reset to 0 without warning (default policy)
       @param phase The phase of interest
       @param sample The sample of interest */
   float  getOfc(unsigned int field, unsigned int channel, unsigned int adc, float phase, unsigned int sample) const;
 
   /** @brief Fill all OFC for optimazation.
-      @param channel The channel number; if >= getNChans() it is reset to 0 without warning (default policy) 
+      @param channel The channel number; If channel number >= getNChans() 
+                     it is reset to channel % (maximum number of channels in drawer) 
+                     if channel number > (maximum number of channels in drawer)
+                     otherwise it is reset to 0 without warning (default policy)   
       @param adc The gain index; if >= getNGains() it is reset to 0 without warning (default policy)
       @param phase The phase of interest */
   void fillOfc (unsigned int channel,unsigned int adc, float& phase, float* w_a, float* w_b, float* w_c, float* g, float* dg ) const;
@@ -309,8 +316,18 @@ __attribute__((always_inline))
 inline float* TileCalibDrawerOfc::getOfcStartAddress(unsigned int field, unsigned int channel, unsigned int adc, float& phase) const {
 
   //=== check default policy
-  if(channel >= getNChans()) {channel = 0;}
-  if(    adc >= getNGains()) {adc     = 0;}
+
+  if(channel >= getNChans()) {
+    if (channel <= TileCalibUtils::MAX_CHAN) {
+      channel = 0;
+    } else {
+      channel = channel % TileCalibUtils::MAX_CHAN;
+      if (channel >= getNChans()) channel = 0;
+    }
+  }
+
+
+  if(adc >= getNGains()) {adc = 0;}
   
   //=== this calculation is only valid for a blob layout according 
   //=== to version 1 or version 2

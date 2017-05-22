@@ -83,10 +83,6 @@ class LArCellDeadOTXCorr : public AthAlgTool,
 		virtual StatusCode process( CaloCellContainer * CellCont) ;
 		virtual StatusCode finalize();
 
-		// Callback added to handle Data-driven GeoModel initialisation
-
-		virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
 		using AthAlgTool::setProperty;
 
 		virtual StatusCode setProperty (const std::string& propname,
