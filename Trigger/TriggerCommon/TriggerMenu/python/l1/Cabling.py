@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+from Limits import Limits # noqa: F401
 from AthenaCommon.Logging import logging
 log = logging.getLogger("Cabling")
 log.setLevel(logging.INFO)

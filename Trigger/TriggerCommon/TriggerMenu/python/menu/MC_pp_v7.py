@@ -2172,7 +2172,7 @@ ps_beamspot_list=[
     'beamspot_activeTE_trkfast_peb_L1J15',
     'beamspot_allTE_trkfast_peb_L13J15',
     'beamspot_trkFS_trkfast_L13J15',
-    'beamspot_activeTE_trkfast_L13J15'
+    'beamspot_activeTE_trkfast_peb_L13J15'
     ]
 ps_fwdphys_list=[
     'lhcfpeb',

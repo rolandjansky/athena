@@ -1218,7 +1218,7 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, d
         EFFex = EFBMuMuFex_Jpsi()
         EFHypo = EFBMuMuHypo_Jpsi()
        
-\    # Use simple di-muon fex/hypo for L2
+    # Use simple di-muon fex/hypo for L2
     # Note - may need to change oppsign and vtx requirements
     # noL2 option to skip dimuon selection at L2
 

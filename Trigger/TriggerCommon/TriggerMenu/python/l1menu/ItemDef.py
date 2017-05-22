@@ -11,8 +11,9 @@ log = logging.getLogger('TriggerMenu.Lvl1.py')
 # The trigger types
 from TriggerMenu.l1.TriggerTypeDef import TT
 from TriggerMenu.l1.Limits import Limits
-from TriggerMenu.l1.Logic import Not
+from TriggerMenu.l1.Logic import Logic,Not # noqa: F401
 from TriggerMenu.l1.Lvl1MenuItems import LVL1MenuItem
+from TriggerMenu.l1.Lvl1Condition import ThrCondition, Lvl1InternalTrigger  # noqa: F401
 
 class ItemDef:
     """

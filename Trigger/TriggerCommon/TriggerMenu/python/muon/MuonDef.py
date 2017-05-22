@@ -11,7 +11,7 @@ logging.getLogger().info("Importing %s",__name__)
 
 log = logging.getLogger("TriggerMenu.muon.MuonDef")
 
-from TriggerMenu.menu.HltConfig import *
+from TriggerMenu.menu.HltConfig import mergeRemovingOverlap,L2EFChainDef
 
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
 from InDetTrigRecExample.EFInDetConfig import TrigEFIDSequence
@@ -1360,7 +1360,7 @@ class L2EFChain_mu(L2EFChainDef):
     multiplicity = str(self.mult)
     hypocut = 'opposite'
     hypocutEF = multiplicity+"_"+threshold
-    seed = self.allMuThrs[0]
+    #seed = self.allMuThrs[0]
     theCTAlg = CfgGetter.getAlgorithm("TrigMuSuperEF_CTonly")
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonCaloTagHypoConfig
     theTrigMuonCT_FS_Hypo = TrigMuonCaloTagHypoConfig('MuonCT', threshold, int(multiplicity),  self.allMuThrs[0])
@@ -1376,7 +1376,7 @@ class L2EFChain_mu(L2EFChainDef):
     inputTEfromL2 = "placeHolderTE"
     ########### Sequence List ##############
     if "0eta010" in self.chainPart['etaRange'] or "0eta500" in self.chainPart["etaRange"]:
-      seed = '0eta0'
+      #seed = '0eta0'
       from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
       from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFFSRoiMakerUnseededConfig, TrigMuonEFFSRoiMakerConfig
       if "0eta010" in self.chainPart['etaRange']:
@@ -1390,7 +1390,7 @@ class L2EFChain_mu(L2EFChainDef):
         return
       
       theEFRoIMakerCT = TrigMuonEFFSRoiMakerConfig("TrigMuonEFFSRoiMakerCT", RoISizeEta=0.1)
-      combinedMuonTE=inputTEfromL2[0]
+
       self.EFsequenceList += [["",
                               [PESA__DummyUnseededAllTEAlgo("EFDummyAlgo")],
                                'EF_CT_seed']]
