@@ -22,8 +22,7 @@ l1_seeds ={
               'L1_J30.0ETA49_2J20.0ETA49', 'L1_TAU12',
               'L1_MU4_J12', 'L1_2EM7',
               'L1_2MU4', 'L1_XS30', 
-              'L1_J15', 'L1_ZB',
-              'L1_DETA-JJ'], # Topo
+              'L1_J15', 'L1_ZB'],
 
     # High(er) threshold prescaled L1 items - slected at HLT based on TBP bit from L1 in random-seeded events 
     'high' : ['L1_3J15','L1_EM18VH',
@@ -35,11 +34,17 @@ l1_seeds ={
               'L1_EM15VH_3EM7', 'L1_2EM15',
               'L1_EM15I_MU4', 'L1_2MU6',
               'L1_TAU20_2TAU12_XE35', 
-              'L1_DR-TAU20ITAU12I', 'L1_DY-BOX-2MU4', # Topo
-              'L1_DY-DR-2MU4', 'L1_2CMU4', # Topo
+              'L1_DR-TAU20ITAU12I', 'L1_DY-BOX-2MU6', # Topo
+              'L1_DY-DR-2MU4', # Topo
               'L1_2MU4-B', 'L1_BTAG-MU4J15', # Topo
               'L1_MJJ-100', 'L1_J4-MATCH', # Topo
-              'L1_HT190-J15.ETA21']  # Topo
+              'L1_HT190-J15.ETA21', #Topo,
+              'L1_2MU4_J20_XE30_DPHI-J20s2XE30',  # 2017
+              'L1_MU4_J20_XE30_DPHI-J20s2XE30', # 2017
+              'L1_J40_XE50_DPHI-J20s2XE50', # 2017
+              'L1_2MU4_J40_XE20', # 2017
+              'L1_MU4_J50_XE40'] # 2017
+
     }
 
 #########################################################################
