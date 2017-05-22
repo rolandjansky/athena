@@ -17,6 +17,7 @@
 #                   
 ######################################################################### 
 
+
 ifeq ($(AtlasEvent_PLATFORM),)
   ifeq ($(PLATFORM),)
     ATLAS_ARCH = $(shell uname)
