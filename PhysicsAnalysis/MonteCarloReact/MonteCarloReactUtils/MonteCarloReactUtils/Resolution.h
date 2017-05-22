@@ -67,31 +67,31 @@ namespace MonteCarloReact {
     ResInfo m_spec;
     bool m_isValid;
   
-    virtual void m_stream( std::ostream & os ) const =0;
+    virtual void stream( std::ostream & os ) const =0;
 
-    void m_doStream( std::ostream & os ) const;  
+    void doStream( std::ostream & os ) const;  
 
-    bool m_makeResolution(std::istream& fstr, const ResInfo* request=0); 
+    bool makeResolution(std::istream& fstr, const ResInfo* request=0); 
   
-    virtual bool m_parseInputLine( const std::string& ,
-                                   const std::vector<std::string> & /* line */) { return false;}
+    virtual bool parseInputLine( const std::string& ,
+                                 const std::vector<std::string> & /* line */) { return false;}
     
   private:
 
-    bool m_resParse(std::istream& fstr, const ResInfo* request=0);
+    bool resParse(std::istream& fstr, const ResInfo* request=0);
 
-    bool m_tokenize(const std::string &, std::string &,
+    bool tokenize(const std::string &, std::string &,
                   std::vector<std::string>&, const std::string & delimiters = " ");
    
-    bool m_doValidateInput() const ;
+    bool doValidateInput() const ;
   
     friend std::ostream & operator << (std::ostream& os, const Resolution& s);
 
-    virtual bool m_validateInput() const  { return true; }
+    virtual bool validateInput() const  { return true; }
   };
 
   inline std::ostream& operator << (std::ostream& os, const Resolution & res) {
-    res.m_doStream(os);
+    res.doStream(os);
     return os;
   }
 

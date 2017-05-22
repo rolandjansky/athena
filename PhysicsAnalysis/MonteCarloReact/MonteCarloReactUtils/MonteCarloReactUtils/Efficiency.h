@@ -59,34 +59,34 @@ namespace MonteCarloReact {
     EffInfo m_spec;
     bool m_isValid;
     
-    void m_doStream( std::ostream & os ) const;  
+    void doStream( std::ostream & os ) const;  
 
-    bool m_makeEfficiency(std::istream& fstr, const EffInfo* request=0);
+    bool makeEfficiency(std::istream& fstr, const EffInfo* request=0);
     
-    virtual void m_stream( std::ostream & os ) const =0;
+    virtual void stream( std::ostream & os ) const =0;
     
-    virtual bool m_parseInputLine( const std::string& ,
-                                   const std::vector<std::string> & /* line */) { return false;}
+    virtual bool parseInputLine( const std::string& ,
+                                 const std::vector<std::string> & /* line */) { return false;}
      
   
   private:
   
     /* parser for istream object */
-    bool m_effParse(std::istream& fstr, const EffInfo* request=0);
+    bool effParse(std::istream& fstr, const EffInfo* request=0);
 
-    /* get indiviaul contents of a line in the efficiency file */
-    bool m_tokenize(const std::string &, std::string &,
-                    std::vector<std::string>&, const std::string & delimiters = " ");
+    /* get individual contents of a line in the efficiency file */
+    bool tokenize(const std::string &, std::string &,
+                  std::vector<std::string>&, const std::string & delimiters = " ");
 
     /* validation methods */
-    bool m_doValidateInput() const ;
+    bool doValidateInput() const ;
     
     friend std::ostream & operator << (std::ostream& os, const Efficiency& s);
   
   };
 
   inline std::ostream& operator << (std::ostream& os, const Efficiency & eff) {
-    eff.m_doStream(os);
+    eff.doStream(os);
     return os;
   }
 

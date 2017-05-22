@@ -55,13 +55,13 @@ namespace MonteCarloReact {
     bool m_isValid;
     Efficiency * m_eff;
     
-    bool m_makeEfficiencyObj(const EffInfo&, const std::string& path="./");
-    bool m_makeEfficiencyObj(const EffInfo&, const std::vector<std::string>& path);
+    bool makeEfficiencyObj(const EffInfo&, const std::string& path="./");
+    bool makeEfficiencyObj(const EffInfo&, const std::vector<std::string>& path);
 
   
   private:
     /* recursive search for spc files in directory */
-    void m_addFilesToList(const char* path, std::vector<std::string>& files) ;
+    void addFilesToList(const char* path, std::vector<std::string>& files) ;
   };
 }
 #endif // MONTECARLOREACTUTILS_EFFTOOL_H

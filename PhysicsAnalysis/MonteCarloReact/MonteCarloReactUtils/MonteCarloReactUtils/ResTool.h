@@ -31,13 +31,13 @@ namespace MonteCarloReact {
 
     // path is a directory location with mcr files
     ResTool(const ResInfo& spec, const std::string& path="./") {
-      m_isValid = m_makeResolutionObj(spec, path);
+      m_isValid = makeResolutionObj(spec, path);
       if( !m_isValid ) m_res = 0;
     }
 
     // path is a vectro of directory locations with mcr files
     ResTool(const ResInfo& spec, const std::vector<std::string>& path) {
-      m_isValid = m_makeResolutionObj(spec, path);
+      m_isValid = makeResolutionObj(spec, path);
       if( !m_isValid ) m_res = 0;
     }
 
@@ -54,15 +54,15 @@ namespace MonteCarloReact {
     bool isValid() const { return m_isValid; }
     
   protected:
-    bool m_makeResolutionObj(const ResInfo&, const std::string& path="./");
-    bool m_makeResolutionObj(const ResInfo&, const std::vector<std::string>& path);
+    bool makeResolutionObj(const ResInfo&, const std::string& path="./");
+    bool makeResolutionObj(const ResInfo&, const std::vector<std::string>& path);
   
     bool m_isValid;
     Resolution * m_res;
   
   private:
     //recursive search for spc files in directory
-    void m_addFilesToList(const char* path, std::vector<std::string>& files) ;
+    void addFilesToList(const char* path, std::vector<std::string>& files) ;
   };
 }
 #endif 

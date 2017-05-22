@@ -22,7 +22,7 @@ using namespace std;
 BinnedEfficiency::BinnedEfficiency( istream & ist,
 				    const EffInfo* request) : Efficiency(), m_flowMode(Default)
 {
-  m_makeEfficiency( ist, request );
+  makeEfficiency( ist, request );
   makeEfficiencyHistogram( request );
 }
 
@@ -84,7 +84,7 @@ BinnedEfficiency::BinnedEfficiency( const TH1 * h) : Efficiency(), m_flowMode(De
 void BinnedEfficiency::defineBins(const vector< float > & loEdges)
 {
   m_axisEdges.push_back(vector<float>(loEdges)) ;
-  m_initEff() ;
+  initEff() ;
 }
 
 
@@ -99,7 +99,7 @@ void BinnedEfficiency::defineBins( int nbins, float xlo, float xhi)
   m_axisEdges.push_back(vector<float>()) ;
   for( int i = 0; i <= nbins; ++i) 
     m_axisEdges.back().push_back(xlo + ( i * xs )) ;
-  m_initEff() ;
+  initEff() ;
 }
 
 
@@ -108,7 +108,7 @@ void BinnedEfficiency::addTAxis(const TAxis* axis) {
   for( int i = 0; i < axis->GetNbins(); i++) 
     m_axisEdges.back().push_back(axis->GetBinLowEdge( i+1)) ;  
   m_axisEdges.back().push_back(axis->GetBinUpEdge( axis->GetNbins())) ;  
-  m_initEff() ;
+  initEff() ;
 }
 
 const EffVal& BinnedEfficiency::fill(const std::vector<float>& axis, bool passed) {
@@ -506,14 +506,14 @@ int BinnedEfficiency::findBin( const vector< float >& loEdges, float x, FindBinM
 }
 
 
-bool BinnedEfficiency::m_parseInputLine( const string & key, const vector< string> & line)
+bool BinnedEfficiency::parseInputLine( const string & key, const vector< string> & line)
 {
   if( key.find("BinEdges") != string::npos ) {
     int npar = line.size();
     m_axisEdges.push_back(vector<float>()) ;
     for( int i =0; i < npar; ++i) 
       m_axisEdges.back().push_back(atof( (line[i]).c_str())) ;
-    m_initEff() ;
+    initEff() ;
     return true ;
   }
   
@@ -549,7 +549,7 @@ bool BinnedEfficiency::m_parseInputLine( const string & key, const vector< strin
   return false;
 }
 
-void BinnedEfficiency::m_stream( ostream & os) const
+void BinnedEfficiency::stream( ostream & os) const
 {
   // first do bin edges
   for (vector<vector<float> >::const_iterator it =  m_axisEdges.begin();
@@ -587,7 +587,7 @@ void BinnedEfficiency::m_stream( ostream & os) const
 }
 
 
-void BinnedEfficiency::m_initEff() {
+void BinnedEfficiency::initEff() {
   int i = m_eff.size() ;
   m_eff.resize(getNbins() ) ;  
   for (; i < int(m_eff.size()); i++) m_eff[i].setBinNumber(i) ;
