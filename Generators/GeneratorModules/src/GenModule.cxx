@@ -60,7 +60,7 @@ StatusCode GenModule::execute() {
   CHECK(this->fillEvt(evt));
 
   // Add the event to the MC event collection
-   if (events().isValid()) {
+   if (events()) {
     // If this is an "afterburner" generator, replace the last event rather than add a new one
     /// @todo Remove hard-coded alg name checking (already incomplete)
         if (m_isAfterburner || name() == "Tauola" || name() == "Photos") {

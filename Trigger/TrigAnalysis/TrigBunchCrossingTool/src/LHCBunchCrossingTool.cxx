@@ -1124,7 +1124,13 @@ namespace Trig {
          }
          // We are interested in this bunch!
          // Convert the value to a float:
-         double value = static_cast< double >( *ptr );
+         //double value = static_cast< double >( *ptr );
+         // Above is undefined (and not portable!) because ptr may not
+         // be aligned.  The sequence below should be well-defined.
+         union { TYPE val;  char buf[sizeof(TYPE)]; } u;
+         memcpy (u.buf, ptr, sizeof(TYPE));
+         double value = static_cast< double >( u.val );
+
          // Depending on the size of the storage, normalize
          // this relative value to 1.0:
          if( typeid( TYPE ) == typeid( int8_t ) ) {

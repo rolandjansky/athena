@@ -6,10 +6,10 @@
 
 WMultiLeptonFilter::WMultiLeptonFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter(name,pSvcLocator),
-    H_WPlus_e(0), H_WMinus_e(0), 
-    H_WPlus_m(0), H_WMinus_m(0), 
-    T_WPlus_e(0), T_WMinus_e(0), 
-    T_WPlus_m(0), T_WMinus_m(0)
+    m_H_WPlus_e(0), m_H_WMinus_e(0), 
+    m_H_WPlus_m(0), m_H_WMinus_m(0), 
+    m_T_WPlus_e(0), m_T_WMinus_e(0), 
+    m_T_WPlus_m(0), m_T_WMinus_m(0)
 {
   declareProperty("NLeptonsH",m_NLeptonsH = 2);
   declareProperty("NLeptonsT",m_NLeptonsT = 1);
@@ -18,20 +18,20 @@ WMultiLeptonFilter::WMultiLeptonFilter(const std::string& name, ISvcLocator* pSv
 
 StatusCode WMultiLeptonFilter::filterInitialize() {
   // 8 counters for branch ratio check
-  H_WPlus_e = 0, H_WMinus_e = 0;
-  H_WPlus_m = 0, H_WMinus_m = 0;
-  T_WPlus_e = 0, T_WMinus_e = 0;
-  T_WPlus_m = 0, T_WMinus_m = 0;
+  m_H_WPlus_e = 0, m_H_WMinus_e = 0;
+  m_H_WPlus_m = 0, m_H_WMinus_m = 0;
+  m_T_WPlus_e = 0, m_T_WMinus_e = 0;
+  m_T_WPlus_m = 0, m_T_WMinus_m = 0;
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode WMultiLeptonFilter::filterFinalize() {
   ATH_MSG_INFO("statistics of H->W->lep and Top->W->lep ");
-  ATH_MSG_INFO(" H_WPlus_e:\t " << H_WPlus_e << "\t H_WMinus_e:\t " << H_WMinus_e);
-  ATH_MSG_INFO(" H_WPlus_m:\t " << H_WPlus_m << "\t H_WMinus_m:\t " << H_WMinus_m);
-  ATH_MSG_INFO(" T_WPlus_e:\t " << T_WPlus_e << "\t T_WMinus_e:\t " << T_WMinus_e);
-  ATH_MSG_INFO(" T_WPlus_m:\t " << T_WPlus_m << "\t T_WMinus_m:\t " << T_WMinus_m);
+  ATH_MSG_INFO(" m_H_WPlus_e:\t " << m_H_WPlus_e << "\t m_H_WMinus_e:\t " << m_H_WMinus_e);
+  ATH_MSG_INFO(" m_H_WPlus_m:\t " << m_H_WPlus_m << "\t m_H_WMinus_m:\t " << m_H_WMinus_m);
+  ATH_MSG_INFO(" m_T_WPlus_e:\t " << m_T_WPlus_e << "\t m_T_WMinus_e:\t " << m_T_WMinus_e);
+  ATH_MSG_INFO(" m_T_WPlus_m:\t " << m_T_WPlus_m << "\t m_T_WMinus_m:\t " << m_T_WMinus_m);
   return StatusCode::SUCCESS;
 }
 
@@ -63,20 +63,20 @@ StatusCode WMultiLeptonFilter::filterEvent() {
           if ( (abs((*thisChild)->pdg_id()) == 11) ) {
             if (fromhiggs) NLeptonsH++;
             if (fromtop)   NLeptonsT++;
-            if (fromhiggs && ((*thisChild)->pdg_id() == -11) )  H_WPlus_e++;
-            if (fromhiggs && ((*thisChild)->pdg_id() ==  11) )  H_WMinus_e++;
-            if (fromtop   && ((*thisChild)->pdg_id() == -11) )  T_WPlus_e++;
-            if (fromtop   && ((*thisChild)->pdg_id() ==  11) )  T_WMinus_e++;
+            if (fromhiggs && ((*thisChild)->pdg_id() == -11) )  m_H_WPlus_e++;
+            if (fromhiggs && ((*thisChild)->pdg_id() ==  11) )  m_H_WMinus_e++;
+            if (fromtop   && ((*thisChild)->pdg_id() == -11) )  m_T_WPlus_e++;
+            if (fromtop   && ((*thisChild)->pdg_id() ==  11) )  m_T_WMinus_e++;
             ATH_MSG_DEBUG(" electron from W ");
           }
 
           if ( (abs((*thisChild)->pdg_id()) == 13) ) {
             if (fromhiggs) NLeptonsH++;
             if (fromtop)   NLeptonsT++;
-            if (fromhiggs && ((*thisChild)->pdg_id() == -13) )  H_WPlus_m++;
-            if (fromhiggs && ((*thisChild)->pdg_id() ==  13) )  H_WMinus_m++;
-            if (fromtop   && ((*thisChild)->pdg_id() == -13) )  T_WPlus_m++;
-            if (fromtop   && ((*thisChild)->pdg_id() ==  13) )  T_WMinus_m++;
+            if (fromhiggs && ((*thisChild)->pdg_id() == -13) )  m_H_WPlus_m++;
+            if (fromhiggs && ((*thisChild)->pdg_id() ==  13) )  m_H_WMinus_m++;
+            if (fromtop   && ((*thisChild)->pdg_id() == -13) )  m_T_WPlus_m++;
+            if (fromtop   && ((*thisChild)->pdg_id() ==  13) )  m_T_WMinus_m++;
             ATH_MSG_DEBUG(" muon from W ");
           }
         }

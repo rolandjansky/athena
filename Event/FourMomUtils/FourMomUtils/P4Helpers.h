@@ -37,7 +37,7 @@ on objects deriving from I4Momentum.
 
 namespace P4Helpers
 {
-  /// Computes efficiently \Delta{\eta}
+  /// Computes efficiently @f$ \Delta{\eta} @f$
   inline
   double deltaEta( const I4Momentum& p1, const I4Momentum& p2 )
   {
@@ -69,7 +69,7 @@ namespace P4Helpers
     return dEta;
   }
 
-  /// Computes efficiently \Delta{\eta}^2
+  /// Computes efficiently @f$ \Delta{\eta}^2 @f$
   inline
   double deltaEtaSq( const I4Momentum& p1, const I4Momentum& p2 )
   {
@@ -111,7 +111,7 @@ namespace P4Helpers
     return dEtaSq;
   }
 
-  /// Computes efficiently \Delta{\eta}, pointer args.
+  /// Computes efficiently @f$ \Delta{\eta} @f$, pointer args.
   inline
   double deltaEta( const I4Momentum * const p1, const I4Momentum * const p2 )
   {
@@ -187,7 +187,7 @@ namespace P4Helpers
   double deltaPhi( const I4Momentum * const pA, const I4Momentum * const pB )
   { return deltaPhi( pA->phi(), pB->phi() ); }
 
-  /// \Delta{R} from 1 @c I4Momentum
+  /// @f$ \Delta{R} @f$ from 1 @c I4Momentum
   inline
   double deltaR( const I4Momentum& p4, double eta, double phi )
   {
@@ -212,8 +212,8 @@ namespace P4Helpers
   double deltaR( const I4Momentum * const pA, const I4Momentum * const pB )
   { return P4Helpers::deltaR( *pA, *pB ); }
 
-  /// Check if 2 @c I4Momentum are in a \Delta{R} cone
-  /// @param dR [in] \Delta{R}
+  /// Check if 2 @c I4Momentum are in a @f$ \Delta{R} @f$ cone
+  /// @param dR [in] @f$ \Delta{R} @f$
   /// @return true if they are
   inline
   bool isInDeltaR( const I4Momentum& p1, const I4Momentum& p2,
@@ -281,7 +281,7 @@ namespace P4Helpers
 
   /// Find the closest element in a collection to an @c I4Momentum
   /// @param index [out] index of the closest element
-  /// @param deltaR [out] \Delta{R}
+  /// @param deltaR [out] @f$ \Delta{R} @f$
   /// @return true if found
   template <class Container_t>
   inline
@@ -306,7 +306,7 @@ namespace P4Helpers
 
   /// Find the closest element in a collection to an @c I4Momentum
   /// @param index [out] index of the closest element
-  /// @param deltaR [out] \Delta{R}
+  /// @param deltaR [out] @f$ \Delta{R} @f$
   /// @return true if found
   template <class Container_t>
   inline
@@ -319,8 +319,8 @@ namespace P4Helpers
 
   /// find the closest element in R - with a condition on E
   /// @param index [out] index of the closest element
-  /// @param deltaR [out] \Delta{R}
-  /// @param deltaE [out] \Delta{E}
+  /// @param deltaR [out] @f$ \Delta{R} @f$
+  /// @param deltaE [out] @f$ \Delta{E} @f$
   /// @return true if found
   template <class Container_t>
   inline
@@ -351,8 +351,8 @@ namespace P4Helpers
 
   /// find the closest element in R - with a condition on E
   /// @param index [out] index of the closest element
-  /// @param deltaR [out] \Delta{R}
-  /// @param deltaE [out] \Delta{E}
+  /// @param deltaR [out] @f$ \Delta{R} @f$
+  /// @param deltaE [out] @f$ \Delta{E} @f$
   /// @return false if found
   template <class Container_t>
   inline

@@ -10,8 +10,7 @@
  *  for the purposes of V0 fitting
  *
  *  @authors:   E. Bouhova-Thacker <e.bouhova@cern.ch>, R. Henderson <Rob.Henderson@cern.ch> 
- *  @created:   14 December 2006
- *  @modified:  
+ *  @date:   14 December 2006
  *
  */
 

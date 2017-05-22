@@ -534,6 +534,7 @@ StatusCode Muon::TgcRODReadOut::decodeRodToRdo(const ByteStream& vData,
 	
 	break;
       }
+      /* FALLTHROUGH */
       
       
     case HeaderSLBC: // SLB data

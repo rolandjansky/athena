@@ -23,7 +23,9 @@
 
 //__________________________________________________________________________
 template <class TRANS, class PERS>
-T_AthenaPoolCustCnv<TRANS, PERS>::T_AthenaPoolCustCnv(ISvcLocator* pSvcLocator) : T_AthenaPoolCnvBase<TRANS>(pSvcLocator) {
+T_AthenaPoolCustCnv<TRANS, PERS>::T_AthenaPoolCustCnv(ISvcLocator* pSvcLocator,
+                                                      const char* name /*= nullptr*/)
+  : T_AthenaPoolCnvBase<TRANS>(pSvcLocator, name) {
 }
 //______________________________________________________________________________
 template <class TRANS, class PERS>

@@ -3,7 +3,7 @@
 */
 
 /**
- * @Project: AnalysisUtils
+ * @package: AnalysisUtils
  *
  * @class CombinatoricsOdometer
  *

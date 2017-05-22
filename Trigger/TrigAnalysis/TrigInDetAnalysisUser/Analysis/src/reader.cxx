@@ -56,9 +56,9 @@ int main(int argc, char** argv) {
   else { 
     for ( int i=1 ; i<argc ; i++ ) { 
       std::string argi = std::string(argv[i]);
-      if      ( argi == "-r" || argi == "--release" ) show_release = true;
+      if      ( argi == "-r"  || argi == "--release" ) show_release = true;
       if      ( argi == "-ro" || argi == "--releaseonly" ) show_release = quit_after_release = true;
-      else if ( argi == "-h" || argi == "--help" )    return usage( std::cout, argc, argv );
+      else if ( argi == "-h"  || argi == "--help" )    return usage( std::cout, argc, argv );
       else    files.push_back( argi );
     }
   }
@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
       exit(-1);
     }
   
-    if ( show_release ) { 
+    if ( show_release || quit_after_release ) { 
       TTree*  dataTree = (TTree*)finput.Get("dataTree");
       TString* releaseData = new TString("");
       

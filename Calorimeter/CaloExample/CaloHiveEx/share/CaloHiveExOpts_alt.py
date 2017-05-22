@@ -33,10 +33,10 @@ if (nThreads < 1) :
 # from GaudiHive.GaudiHiveConf import AlgResourcePool
 # svcMgr += AlgResourcePool( OutputLevel = INFO );
 
-from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-svcMgr += ForwardSchedulerSvc()
-svcMgr.ForwardSchedulerSvc.CheckDependencies = True
-# svcMgr.ForwardSchedulerSvc.OutputLevel = INFO
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.OutputLevel( INFO )
+AlgScheduler.ShowControlFlow( True )
+AlgScheduler.ShowDataDependencies( True )
 
 from RecExConfig.RecFlags import rec
 rec.doTruth.set_Value_and_Lock(False)
@@ -300,21 +300,11 @@ algCardinality = nThreads
 if (algCardinality > 1):   
    for alg in topSequence:      
       name = alg.name()
-      if (             
-            name == "SGInputLoader"
-            or name == "CaloCellMaker" 
-            or name == "StreamESD"
-            or name == "EventCounter"
-            or name == "xAODMaker::EventInfoCnvAlg"
-            #or name == "xAODMaker::TriggerTowerCnvAlg"
-         ) :
-         # Don't clone these algs
+      if name in ["CaloCellMaker","StreamESD","EventCounter","xAODMaker::EventInfoCnvAlg"] :
+         # suppress INFO message about Alg unclonability
          alg.Cardinality = 1
-         alg.IsClonable = False
-         print " -> suppressing cloning for ", name
       else:
          alg.Cardinality = algCardinality
-         alg.IsClonable = True
            
 
 #print topSequence

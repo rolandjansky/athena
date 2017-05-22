@@ -838,7 +838,7 @@ StatusCode
 IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id, 
                       const EventIDBase& now) {
   
-  std::lock_guard<std::recursive_mutex> lock(m_lock);
+  std::lock_guard<std::mutex> lock(m_lock);
 
   ATH_MSG_DEBUG("createCondObj:  id: " << id << "  t: " << now << "  valid: "
                 << ccb->valid(now));

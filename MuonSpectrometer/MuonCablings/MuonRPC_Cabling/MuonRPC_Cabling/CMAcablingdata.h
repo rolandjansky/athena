@@ -42,7 +42,7 @@ class CMAcablingdata : public BaseObject
     CMAcoverage m_coverage;
     std::string m_covtag;
 
-    ETAlist etaCMA;
+    ETAlist m_etaCMA;
 
     void reset_data(void);
     bool get_data(DBline&);

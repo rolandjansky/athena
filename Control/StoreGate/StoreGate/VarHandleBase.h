@@ -259,7 +259,7 @@ namespace SG {
      *
      * This implicitly does a reset().
      */
-    StatusCode setProxyDict (IProxyDict* store);
+    virtual StatusCode setProxyDict (IProxyDict* store);
 
 
     // FIXME: Remove this once IResetable is cleaned up.
@@ -291,6 +291,7 @@ namespace SG {
      * @brief Set the 'const' bit for the bound proxy in the store.
      */
     StatusCode setConst();
+
 
   protected: 
     //*************************************************************************
@@ -363,7 +364,7 @@ namespace SG {
      * @brief Retrieve an object from StoreGate.
      * @param quiet If true, suppress failure messages.
      */
-    void* typeless_dataPointer_impl(bool quiet);
+    virtual void* typeless_dataPointer_impl(bool quiet);
 
 
     /**
@@ -402,6 +403,19 @@ namespace SG {
      */
     const void* get_impl (const EventContext* ctx,
                           bool quiet = defaultQuiet) const;
+
+
+    /**
+     * @brief Make a symlink or alias to the object currently referenced
+     *        by this handle.
+     * @param newClid CLID of link.
+     * @param newKey SG key of link.
+     *
+     * If newClid matches the existing clid, then make an alias.
+     * If newKey matches the existing key, then make a symlink.
+     * If neither match, it's an error.
+     */
+    StatusCode symLink_impl (CLID newClid, const std::string& newKey) const;
 
 
   protected: 
@@ -472,7 +486,7 @@ namespace SG {
   /**
    * @brief Output stream.
    * @param out Stream to which to write.
-   * @parma o Object to write.
+   * @param o Object to write.
    */
   std::ostream& operator<<( std::ostream& out, const VarHandleBase& o );
 

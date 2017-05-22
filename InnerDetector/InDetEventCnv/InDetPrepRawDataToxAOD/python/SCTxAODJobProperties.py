@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @file InDetPrepRawDataToxAOD/python/SCTxAODJobProperties.py
-## @purpose Python module to hold common flags to configure SCT AxAOD-making jobOptions
+## @brief Python module to hold common flags to configure SCT AxAOD-making jobOptions
 ##
 
 """ SCTxAODJobProperties

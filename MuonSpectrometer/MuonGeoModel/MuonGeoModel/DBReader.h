@@ -497,7 +497,6 @@ namespace MuonGM {
                     csc->cathreadoutpitch=wcsc[i].pcatre*CLHEP::cm; // it was not used before but set by hand in CscReadoutEl.
                     // Azimuthal strip pitch
                     if ((mysql->getGeometryVersion()).substr(0,3)       == "P03")         csc->phireadoutpitch=20.*CLHEP::mm;
-                    else if ((mysql->getGeometryVersion()).substr(0,3)  == "Q02")         csc->phireadoutpitch=12.92*CLHEP::mm;
                     else  {
                         //csc->phireadoutpitch = wcsc[i].psndco*CLHEP::cm;
                         csc->phireadoutpitch = wcsc[i].azcat*CLHEP::cm;
@@ -968,10 +967,6 @@ namespace MuonGM {
                 if (p.zindex<0 && name.substr(0,1) == "B" && hasMdts) p.z = p.z-halfpitch;
             
                 if (name == "BOG1" && (mysql->getGeometryVersion()).substr(0,3) == "P03") p.z=p.z+165.0*CLHEP::mm;
-                if ( (name == "BOG1" || name == "BOG2" || name == "BOG4" || name == "BOG5") &&
-                     (mysql->getGeometryVersion()) == "Q02_initial" && mysql->getCutoutsBogFlag()==0)
-                    p.z=p.z+165.0*CLHEP::mm;
-                
                 if (name == "CSS1" && (mysql->getGeometryVersion()).substr(0,10) == "P03-DC2v01") {
                     log<<MSG::INFO<<" CSS original z Position is "<<p.z<<std::endl;
                     p.z=7202.26*CLHEP::mm;
@@ -1021,9 +1016,6 @@ namespace MuonGM {
         
 
         
-        // here you got all "AMDB" positions ... build the symmetric ones ...
-        // this is not needed in the TB setup
-        if (mysql->getGeometryVersion() == "CTB2004") return;
             
         int nstat = 0;
         int nnodes = 0;
@@ -1277,8 +1269,7 @@ namespace MuonGM {
         std::string name = "XXX0", type_name="XXX";
 
         double default_halfpitch = 1.55*CLHEP::cm;
-        if ( mysql->getGeometryVersion() == "CTB2004" || (mysql->getGeometryVersion()).substr(0,1) == "Q" ||
-            (mysql->getGeometryVersion()).substr(0,1) == "R" )
+	if  ((mysql->getGeometryVersion()).substr(0,1) == "R" )
         {
             default_halfpitch = 15.0175*CLHEP::mm;
         }
@@ -1325,21 +1316,6 @@ namespace MuonGM {
                     //log<<MSG::DEBUG<<" thus we can define the name "
 		    //<<name<<" while type_name = "<<type_name
                     //   <<endmsg;
-                    if (mysql->getGeometryVersion() == "CTB2004")
-                    {
-		      if (mysql->getCtbBisFlag() == 0)
-			{
-			  if (type_name=="BEE" || type_name=="BIS") {
-                            log<<MSG::WARNING<<" skipping type, subtype "
-                               <<name<<" "<<type_name<<" on purpose "<<endmsg;
-                            continue;
-			  }
-			}
-                        // std::cout
-                        // <<" HERE re-defined name: type_name, name = <"
-                        // <<type_name<<"> <"
-                        // <<name<<">"<<std::endl;
-                    }
                 }
                 else
                 {
@@ -1436,13 +1412,7 @@ namespace MuonGM {
             {
                 c->posy = c->posy-165.0*CLHEP::mm;
             }
-            if ( (name == "BOG1" || name == "BOG2" || name == "BOG4" || name == "BOG5") &&
-                 (mysql->getGeometryVersion()) == "Q02_initial" && mysql->getCutoutsBogFlag()==0) {
-                if (cartec != "MDT" && cartec != "CHV" && cartec != "CMI" && cartec != "CRO")
-                    c->posy = c->posy-165.0*CLHEP::mm;
-            }
-            
-        
+	    
             //std::cout<<" This component of station "<<name<<" is a "<<c->name<<std::endl;
             if (cartec == "CSC")
             {
@@ -1506,12 +1476,6 @@ namespace MuonGM {
                         // <<" posy   redefined = "<<derc->posy<<std::endl;
                     }
                 }
-                if ( (name == "BOG1" || name == "BOG2" || name == "BOG4" || name == "BOG5") &&
-                     mysql->getGeometryVersion() == "Q02_initial" && mysql->getCutoutsBogFlag()==0) 
-                {
-                    derc->dy = derc->dy - 12*2.*halfpitch; // remove 6 tubes on each side
-                    derc->posy = derc->posy+14.51*CLHEP::mm;
-                }
                 //ProcessMDT(derc->name, c->deadx);
             }
             else if (cartec=="RPC"){
@@ -1519,37 +1483,9 @@ namespace MuonGM {
                 derc->ndivy=1;
                 derc->ndivz=1;
                 // DHW 4 Feb 09 : no longer needed, read in above:   derc->iswap=1;
-                if (mysql->getGeometryVersion()== "CTB2004" &&
-                    type_name=="BOL" &&
-                    (mysql->getLayoutName() == "a.01" || mysql->getLayoutName() == "a.02") ) {
-                    // 26072004 there's an inconsistecy between the BOL rpc in the real setup and
-                    // in the database
-                    // these lines should be removed when the error is cured in the database 
-                    std::cout<<" Original "<<name<<" posx,y,z "
-                             <<derc->posx<<" "<<derc->posy<<" "<<derc->posz<<std::endl;
-                    if (derc->posy == 0.) derc->posy = 1050.0000;
-                    else derc->posy = 0.;
-                    std::cout<<" Reset to "<<name<<" posx,y,z "
-                             <<derc->posx<<" "<<derc->posy<<" "<<derc->posz<<std::endl;
-                    // 26072004 there's an inconsistecy between the BOL rpc in the real setup and
-                    // in the database
-                }
                 // ProcessRPC(derc->name);
             }
             else if (cartec=="DED") {
-                if (mysql->getGeometryVersion()== "CTB2004" && type_name=="BOL" && mysql->getNovaVersion() < 6) {
-                    // 26072004 there's an inconsistecy between the BOL rpc in the real setup and
-                    // in the database
-                    // these lines should be removed when the error is cured in the database 
-                    std::cout<<" DED ********** "<<name<<" posx,y,z "
-                             <<c->posx<<" "<<c->posy<<" "<<c->posz<<std::endl;
-                    if (c->posy == 0.) c->posy = 1114.0000;
-                    else c->posy = 0.;
-                    std::cout<<" Reset to "<<name<<" posx,y,z "
-                             <<c->posx<<" "<<c->posy<<" "<<c->posz<<std::endl;
-                    // 26072004 there's an inconsistecy between the BOL rpc in the real setup and
-                    // in the database
-                }
                 //ProcessDED(c->name);
             }
             // else if (cartec=="SUP") ProcessSUP(c->name);
@@ -1569,13 +1505,6 @@ namespace MuonGM {
                     }
                 }
                 // these are standard components: do nothing
-                if ( (name == "BOG1" || name == "BOG2" || name == "BOG4" || name == "BOG5") &&
-                     (mysql->getGeometryVersion()) == "Q02_initial" && mysql->getCutoutsBogFlag()==0 && 
-                     (cartec=="CHV" || cartec=="CRO" || cartec=="CMI") ) 
-                {
-                    c->dy = c->dy - 12*2.*halfpitch; // remove 6 tubes on each side
-                    c->posy = c->posy+14.51*CLHEP::mm;
-                }
             }
             else
             {

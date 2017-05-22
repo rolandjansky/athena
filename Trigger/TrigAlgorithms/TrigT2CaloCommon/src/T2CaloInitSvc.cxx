@@ -31,8 +31,7 @@ StatusCode T2CaloInitSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
     { 
         *ppvIF = (T2CaloInitSvc*)this; 
     } else { 
-        MsgStream log(messageService(), name());
-        log << MSG::DEBUG << name() << " cannot found the interface!" <<endmsg;
+        ATH_MSG_DEBUG( name() << " cannot found the interface!"  );
         return AthService::queryInterface(riid, ppvIF); 
     }
     return StatusCode::SUCCESS;
@@ -40,35 +39,18 @@ StatusCode T2CaloInitSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
 
 StatusCode T2CaloInitSvc::initialize()
 {
-    StatusCode sc;
+    ATH_MSG_DEBUG( name() << ": Start of run initialisation"  );
 
-    MsgStream log(messageService(), name());
-    log << MSG::DEBUG << name() << ": Start of run initialisation" << endmsg;
-
-    sc = AthService::initialize();
-    if ( sc.isFailure() ) return sc;
+    ATH_CHECK( AthService::initialize() );
     
     //ISvcLocator* svcLoc = Gaudi::svcLocator( );
     StoreGateSvc* detStore = 0;
     const CaloDetDescrManager* theMgr;
 
     //sc = svcLoc->service( "DetectorStore", detStore );
-    sc = service( "DetectorStore", detStore );
-    if ( sc.isSuccess( ) ) {
-      sc = detStore->retrieve( theMgr );    
-      if(sc.isSuccess( )) {
-	log << MSG::DEBUG << name() << ": successfully retrived CaloDetDescrManager" << endmsg;
-      }
-      else {
-        log << MSG::ERROR << name() << ": failed to retrive CaloDetDescrManager" << endmsg;
-        return sc;
-      }
-      
-    }
-    else {
-      log << MSG::ERROR << name() << ": Could not locate DetectorStore" << endmsg;
-      return sc;
-    }
+    ATH_CHECK( service( "DetectorStore", detStore ) );
+    ATH_CHECK( detStore->retrieve( theMgr ) );
+    ATH_MSG_DEBUG( name() << ": successfully retrived CaloDetDescrManager"  );
 
     return StatusCode::SUCCESS;
 }

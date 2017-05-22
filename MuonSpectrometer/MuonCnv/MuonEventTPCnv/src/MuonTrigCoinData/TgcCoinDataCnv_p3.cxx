@@ -5,7 +5,7 @@
 #include "MuonTrigCoinData/TgcCoinData.h"
 #include "MuonEventTPCnv/MuonTrigCoinData/TgcCoinDataCnv_p3.h"
 #include <algorithm>
-#include "DataModel/tools/IdentContIndex.h"
+#include "AthLinks/tools/IdentContIndex.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 #include "CxxUtils/make_unique.h"
 
@@ -117,8 +117,8 @@ transToPers( const Muon::TgcCoinData *transObj, Muon::TgcCoinData_p3 *persObj, M
   persObj->m_trackletIdStrip = transObj->trackletIdStrip(); 
   persObj->m_widthIn = transObj->widthIn(); 
   persObj->m_widthOut = transObj->widthOut(); 
-  persObj->m_posIn = toPersistent( &m_localPosCnv, &transObj->posIn(), log );
-  persObj->m_posOut = toPersistent( &m_localPosCnv, &transObj->posOut(), log );
+  persObj->m_posIn = toPersistent( &m_localPosCnv, transObj->posInPtr(), log );
+  persObj->m_posOut = toPersistent( &m_localPosCnv, transObj->posOutPtr(), log );
   // persObj->m_errMat = toPersistent( &m_errorMxCnv, transObj->m_errMat, log );
    
   if (transObj->hasErrMat() )

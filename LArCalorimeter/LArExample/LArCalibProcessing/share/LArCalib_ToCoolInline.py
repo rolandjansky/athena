@@ -61,7 +61,6 @@ include("LArCalibProcessing/LArCalib_MinimalSetup.py")
 theApp.EvtMax = 1
 conddb.setGlobalTag(globalTag) #For id mapping
 
-svcMgr.PoolSvc.CheckDictionary=False
 svcMgr.PoolSvc.SortReplicas=False
 
 svcMgr.EventSelector.RunNumber = 2147483647

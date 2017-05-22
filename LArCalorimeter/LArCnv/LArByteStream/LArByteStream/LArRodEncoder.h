@@ -41,7 +41,7 @@
 #include "LArRawEvent/LArCalibDigit.h"
 #include "LArRawEvent/LArCalibDigitContainer.h"
 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArByteStream/LArRodBlockStructure.h"
 //#include "LArByteStream/LArRodBlockStructure_0.h"
 //#include "LArByteStream/LArRodBlockStructure_1.h"

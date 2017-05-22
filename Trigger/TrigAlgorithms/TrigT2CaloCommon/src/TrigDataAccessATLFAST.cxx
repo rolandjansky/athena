@@ -343,14 +343,14 @@ StatusCode TrigDataAccessATLFAST::LoadCollections (
 		const std::vector<LArCellCollection*>::const_iterator it =
 			(m_larcell->find(m_vrodid32[rodidx]));
 /*
-        	LArCellCollection* m_col =
+        	LArCellCollection* col =
 			*(m_larcell->find(m_vrodid32[rodidx]));
 */
 		if ( it != m_larcell->end() ) { // Alread decoded collection
-		LArCellCollection *m_col = *it;
+		LArCellCollection *col = *it;
 		// Fills from the container
-		fillColl(cells,*m_col);
-        	// if (m_col->size() == 0) return StatusCode::FAILURE;
+		fillColl(cells,*col);
+        	// if (col->size() == 0) return StatusCode::FAILURE;
 		}
 		rodidx++;
 
@@ -361,11 +361,11 @@ StatusCode TrigDataAccessATLFAST::LoadCollections (
         Begin = m_sel->begin();
         End   = m_sel->end();
 	if (msgLvl(MSG::DEBUG)) {
-	  LArTT_Selector<LArCellCont>::const_iterator m_it;
-	  for ( m_it=Begin; m_it != End; ++m_it ){
-            ATH_MSG_DEBUG( "Eta: " << (*m_it)->eta()
-                           << "; Phi: " << (*m_it)->phi() <<
-                           "; Energy: " << (*m_it)->energy() );
+	  LArTT_Selector<LArCellCont>::const_iterator it;
+	  for ( it=Begin; it != End; ++it ){
+            ATH_MSG_DEBUG( "Eta: " << (*it)->eta()
+                           << "; Phi: " << (*it)->phi() <<
+                           "; Energy: " << (*it)->energy() );
 	  } // End of for printout cells
 	}
 	return StatusCode::SUCCESS;
@@ -386,23 +386,23 @@ StatusCode TrigDataAccessATLFAST::LoadCollections (
 	//for (size_t i = 0; i < m_listID.size(); ++i){
 		m_tile[0] = m_tilecell->find_rod(m_rIds[i]);
 		// Find the collection to fill
-                TileCellCollection* m_col = NULL;
-		m_col = *(m_tilecell->find(m_rIds[i]));
-		if ( m_col != NULL ) {
-		fillColl(cells,*m_col);
-                Begin = m_col->begin();
-                End = m_col->end();
+                TileCellCollection* col = NULL;
+		col = *(m_tilecell->find(m_rIds[i]));
+		if ( col != NULL ) {
+		fillColl(cells,*col);
+                Begin = col->begin();
+                End = col->end();
 		}
 
         //} // End of for through RobFrags
 
 	if (msgLvl(MSG::DEBUG)) {
-	  TileCellCollection::const_iterator m_itt = Begin;
-	  for (m_itt=Begin;m_itt!=End;++m_itt){
-            ATH_MSG_DEBUG( "Eta: " << (*m_itt)->eta()
-                           << "; Phi: " << (*m_itt)->phi() <<
-                           "; Energy: " << (*m_itt)->energy() << 
-                           "; Hash Id: " << (*m_itt)->caloDDE()->calo_hash() );
+	  TileCellCollection::const_iterator itt = Begin;
+	  for (itt=Begin;itt!=End;++itt){
+            ATH_MSG_DEBUG( "Eta: " << (*itt)->eta()
+                           << "; Phi: " << (*itt)->phi() <<
+                           "; Energy: " << (*itt)->energy() << 
+                           "; Hash Id: " << (*itt)->caloDDE()->calo_hash() );
 	  } // End of for printout cells
 	}
         return StatusCode::SUCCESS;
@@ -436,7 +436,7 @@ StatusCode TrigDataAccessATLFAST::LoadCollections (
                 } // End of if small size
                 m_lardecoder->setRobFrag(m_robFrags[i]);
                 m_lardecoder->fillCollectionHLTFeb(roddata1,roddatasize,*m_febcoll);
-                // if (m_col->size() == 0) return StatusCode::FAILURE;
+                // if (col->size() == 0) return StatusCode::FAILURE;
 
         } // End of for through RobFrags
         // These iterators can be used by every Tool
@@ -481,8 +481,8 @@ StatusCode TrigDataAccessATLFAST::LoadFullCollections (
            const std::vector<LArCellCollection*>::const_iterator it =
                    (m_larcell->find(m_vrodid32lar[rodidx]));
           if (it != m_larcell->end() ) {
-              LArCellCollection *m_col = *it;
-              fillColl(cells,*m_col);
+              LArCellCollection *col = *it;
+              fillColl(cells,*col);
           }
                 rodidx++;
         } // End of for through RobFrags
@@ -490,11 +490,11 @@ StatusCode TrigDataAccessATLFAST::LoadFullCollections (
 
 	if (msgLvl(MSG::DEBUG)) {
 	  int i=0;
-	  LArTT_Selector<LArCellCont>::const_iterator m_it;
-	  for ( m_it=Begin; m_it != End; ++m_it ){
-            ATH_MSG_DEBUG( "Eta: " << (*m_it)->eta()
-                           << "; Phi: " << (*m_it)->phi() <<
-                           "; Energy: " << (*m_it)->energy() );
+	  LArTT_Selector<LArCellCont>::const_iterator it;
+	  for ( it=Begin; it != End; ++it ){
+            ATH_MSG_DEBUG( "Eta: " << (*it)->eta()
+                           << "; Phi: " << (*it)->phi() <<
+                           "; Energy: " << (*it)->energy() );
 	    i++;
 	  } // End of for printout cells
 	}
@@ -516,21 +516,21 @@ StatusCode TrigDataAccessATLFAST::LoadFullCollections (
         Begin=End;
                 m_tile[0] = m_tilecell->find_rod(m_rIdstile[i]);
                 // Find the collection to fill
-                TileCellCollection* m_col = NULL;
-                m_col = *(m_tilecell->find(m_rIdstile[i]));
-                if( m_col!=NULL){
-                  fillColl(cells,*m_col);
-                  Begin = m_col->begin();
-                  End = m_col->end();
+                TileCellCollection* col = NULL;
+                col = *(m_tilecell->find(m_rIdstile[i]));
+                if( col!=NULL){
+                  fillColl(cells,*col);
+                  Begin = col->begin();
+                  End = col->end();
                 }
 
 	if (msgLvl(MSG::DEBUG)) {
-	  TileCellCollection::const_iterator m_itt = Begin;
-	  for (m_itt=Begin;m_itt!=End;++m_itt){
-            ATH_MSG_DEBUG( "Eta: " << (*m_itt)->eta()
-                           << "; Phi: " << (*m_itt)->phi() <<
-                           "; Energy: " << (*m_itt)->energy() <<
-                           "; Hash Id: " << (*m_itt)->caloDDE()->calo_hash() );
+	  TileCellCollection::const_iterator itt = Begin;
+	  for (itt=Begin;itt!=End;++itt){
+            ATH_MSG_DEBUG( "Eta: " << (*itt)->eta()
+                           << "; Phi: " << (*itt)->phi() <<
+                           "; Energy: " << (*itt)->energy() <<
+                           "; Hash Id: " << (*itt)->caloDDE()->calo_hash() );
 	  } // End of for printout cells
 	}
         return StatusCode::SUCCESS;

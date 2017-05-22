@@ -4,10 +4,9 @@
 
 #include "InDetLowBetaContainerCnv.h"
 #include "InDetEventTPCnv/InDetLowBetaInfo/InDetLowBetaContainerCnv_tlp1.h"
-#include "MsgUtil.h"
 
 InDetLowBetaContainerCnv::InDetLowBetaContainerCnv(ISvcLocator *svcloc)
-  : InDetLowBetaContainerCnvBase(svcloc),
+  : InDetLowBetaContainerCnvBase(svcloc, "InDetLowBetaContainerCnv"),
     m_TPConverter_tlp1 (new InDetLowBetaContainerCnv_tlp1)
 { }
 
@@ -19,9 +18,6 @@ InDetLowBetaContainerCnv::~InDetLowBetaContainerCnv()
 
 // createPersistent
 InDetLowBetaContainer_PERS *InDetLowBetaContainerCnv::createPersistent(InDet::InDetLowBetaContainer *transObj) {
-  //should really do it just once in ::initialize instead:
-  IDEvtAthPool::setMsgName(this,"InDetLowBetaContainerCnv");//So msg() won't use name "AthenaPoolConverter" 
-
   ATH_MSG_DEBUG("InDetLowBetaContainerCnv::createPersistent called");
 
   InDetLowBetaContainer_PERS *p_InDetLowBetaCont = m_TPConverter_tlp1->createPersistent(transObj, msg());
@@ -32,9 +28,6 @@ InDetLowBetaContainer_PERS *InDetLowBetaContainerCnv::createPersistent(InDet::In
  
 // createTransient
 InDet::InDetLowBetaContainer *InDetLowBetaContainerCnv::createTransient() {
-  //should really do it just once in ::initialize instead:
-  IDEvtAthPool::setMsgName(this,"InDetLowBetaContainerCnv");//So msg() won't use name "AthenaPoolConverter" 
-  
   ATH_MSG_DEBUG("InDetLowBetaContainerCnv::createTransient called");
 
   static pool::Guid tlp1_guid("2EBE2034-8157-477B-B327-D37BE8A0317D");

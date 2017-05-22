@@ -20,7 +20,6 @@
 
 // Gaudi includes
 #include "GaudiKernel/Property.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 // Atlas includes
 #include "AthAllocators/DataPool.h"
@@ -89,6 +88,8 @@ TileRawChannelBuilderOpt2Filter::TileRawChannelBuilderOpt2Filter(const std::stri
   declareProperty("TimeCorrection", m_correctTimeNI = false);
   declareProperty("BestPhase",m_bestPhase = false);
   declareProperty("EmulateDSP",m_emulateDsp = false);
+  declareProperty("NoiseThresholdHG",m_noiseThresholdHG = 5);
+  declareProperty("NoiseThresholdLG",m_noiseThresholdLG = 3);
 }
 
 
@@ -150,26 +151,6 @@ StatusCode TileRawChannelBuilderOpt2Filter::initialize() {
   m_nCenter = 0;
   m_nConst = 0;
 
-  const IGeoModelSvc *geoModel = 0;
-  CHECK( service("GeoModelSvc", geoModel) );
-  
-  // dummy parameters for the callback:
-  int dummyInt = 0;
-  std::list<std::string> dummyList;
-  
-  if (geoModel->geoInitialized()) {
-    return geoInit(dummyInt, dummyList);
-  } else {
-    CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit, geoModel,
-        &TileRawChannelBuilderOpt2Filter::geoInit, this) );
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode TileRawChannelBuilderOpt2Filter::geoInit(IOVSVC_CALLBACK_ARGS) {
-  
   //=== get TileCondToolOfc
   CHECK( m_tileCondToolOfc.retrieve() );
   
@@ -422,9 +403,9 @@ double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
     } else { // With iterations => 3 cases defined for correct pedestal treatment
 
       // values used for pedestal-like events when iterations are performed
-      const int sigma_hi = 5;
-      const int sigma_lo = 3;
-      int sigma = (gain) ? sigma_hi : sigma_lo;
+      //const int sigma_hi = 5;
+      //const int sigma_lo = 3;
+      int sigma = (gain) ? m_noiseThresholdHG : m_noiseThresholdLG;
       int digits_size_1 = m_digits.size() - 1;
 
       // Signal events: OF with iterations

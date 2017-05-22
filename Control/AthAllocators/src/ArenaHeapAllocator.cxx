@@ -166,14 +166,16 @@ void ArenaHeapAllocator::slowClear()
   // Make a list of all free elements, in sorted order.
   std::vector<pointer> free_ptrs;
   free_ptrs.reserve (m_stats.elts.total - m_stats.elts.inuse);
-  for (pointer p = m_freeptr; p; p = link(p))
+  for (pointer p = m_freeptr; p; p = link(p)) {
     free_ptrs.push_back (p);
+  }
   std::sort (free_ptrs.begin(), free_ptrs.end());
 
   // Make a list of all used blocks, in sorted order.
   std::vector<ArenaBlock*> blocks;
-  for (ArenaBlock* p = m_blocks; p; p = p->link())
+  for (ArenaBlock* p = m_blocks; p; p = p->link()) {
     blocks.push_back (p);
+  }
   std::sort (blocks.begin(), blocks.end());
 
   // Walk through both of these lists.
@@ -190,10 +192,12 @@ void ArenaHeapAllocator::slowClear()
     size_t elt_size = bl.eltSize();
     for (size_t i = 0; i < sz; i++) {
       pointer ptr = bl.index (i, elt_size);
-      if (pi != pi_end && ptr == *pi)
+      if (pi != pi_end && ptr == *pi) {
         ++pi;
-      else
+      }
+      else {
         clear (ptr);
+      }
     }
   }
 }

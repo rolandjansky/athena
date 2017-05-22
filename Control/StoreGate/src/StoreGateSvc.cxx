@@ -133,7 +133,7 @@ StoreGateSvc::keys(const CLID& id, bool allKeys){
 
 
 /////////////////////////////////////////////////////////////
-/// Service initialisation
+/// Service initialization
 StatusCode StoreGateSvc::initialize()    {
 
   // Initialize service:
@@ -309,6 +309,8 @@ StatusCode StoreGateSvc::addToStore (CLID id, SG::DataProxy* proxy)
  * @param returnExisting If true, return proxy if this key already exists.
  *                       If the object has been recorded under a different
  *                       key, then make an alias.
+ *                       If the object has been recorded under a different
+ *                       clid, then make a link.
  *
  * Full-blown record.  @c obj should usually be something
  * deriving from @c SG::DataBucket.
@@ -386,7 +388,7 @@ StoreGateSvc::typeless_record( DataObject* obj, const std::string& key,
                                bool noHist ) {
   _SGXCALL(typeless_record, (obj, key, raw_ptr, allowMods, resetOnly, noHist), StatusCode::FAILURE);
 }
-/// same as typeless_record, allows to ovewrite an object in memory or on disk
+/// same as typeless_record, allows to overwrite an object in memory or on disk
 StatusCode 
 StoreGateSvc::typeless_overwrite( const CLID& id,
                                   DataObject* obj, const std::string& key,

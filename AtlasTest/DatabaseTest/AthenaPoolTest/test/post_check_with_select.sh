@@ -1,4 +1,4 @@
-#!/bin/sh -xv
+#!/bin/sh 
 #/** @file post.sh
 # @brief sh script that check the return code of an executable and compares 
 # its output with a reference (if available).
@@ -20,15 +20,39 @@ select=$2
     joblog=${test}.log
 #    if [ "$status" = 0 ]
 #	then 
-	echo "[92;1m post.sh> OK: ${test} exited normally. Output is in $joblog [m"
+	#echo "[92;1m post.sh> OK: ${test} exited normally. Output is in $joblog [m"
 	reflog=../share/${test}.ref
+
+        # If we can't find the reference file, maybe it's located outside
+        # the repo.  With the switch to git, we have to fall back
+        # to handling the versioning manually.
+        # ATLAS_REFERENCE_TAG should be a string of the form PACKAGE/VERSION.
+        # We first look for it in DATAPATH.  If we don't find it,
+        # we then look under ATLAS_REFERENCE_DATA, which falls back
+        # to an afs path if it's not found.
+        if [ \( ! -r $reflog \) -a "$ATLAS_REFERENCE_TAG" != "" ]; then
+            # Look for the file in DATAPATH.
+            # We have to look for the directory, not the file itself,
+            # since get_files is hardcoded not to look more than two
+            # levels down.
+            get_files -data -symlink $ATLAS_REFERENCE_TAG > /dev/null
+            reflog=`basename $ATLAS_REFERENCE_TAG`/${test}.ref
+            if [ ! -r $reflog ]; then
+                testdata=$ATLAS_REFERENCE_DATA
+                if [ "$testdata" = "" ]; then
+                    testdata=/afs/cern.ch/atlas/maxidisk/d33/referencefiles
+                fi
+                reflog=$testdata/$ATLAS_REFERENCE_TAG/${test}.ref
+            fi
+        fi
+
 	if [ -r $reflog ]
 	    then
             # If select string is non-zero, use it for the comparison,
             # otherwise do standard diff with exclusions
 	    if [ -n "${select}" ]
 		then
-		echo "Selecting on: ${select}"
+		#echo "Selecting on: ${select}"
 		diff  -a -b -B  $joblog $reflog >> xlog
 		diff  -a -b -B  $joblog $reflog |\
 		    # select only the differing lines
@@ -45,9 +69,9 @@ select=$2
 		egrep -a -v 'package version' |\
 		    # spurious warning for EventSelector
 		egrep -a -v 'Service already offline' |\
-		egrep -a -v 'Property update|input handles|output handles|Data Deps|in queryInterface|Default to ConversionSvc' |\
+		egrep -a -v 'Property update|input handles|output handles|Data Deps|in queryInterface|Default to ConversionSvc|entering handle' |\
 		    # Must remove excess print for CaloShowerContainer
-		egrep -a -v 'CaloShowerContainer' 
+		egrep -a -v 'CaloShowerContainer'
 
 	    else 
 #	    echo " post.sh> Now comparing output with reference"
@@ -111,7 +135,8 @@ select=$2
 		echo "[97;101;1m post.sh> ERROR: $joblog and $reflog differ [m"
 		exit 1
 	    else
-		echo "[92;1m post.sh> OK: $joblog and $reflog identical [m"
+                true
+		#echo "[92;1m post.sh> OK: $joblog and $reflog identical [m"
 	    fi
 	else
 	    tail $joblog
@@ -127,7 +152,7 @@ select=$2
 
 # Check output for ERROR/FATAL
 joblog=${test}.log
-echo 
+#echo 
 
 exit $status
 

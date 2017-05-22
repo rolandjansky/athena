@@ -13,12 +13,11 @@ GenBase::GenBase(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_mcEventKey("GEN_EVENT"),
     m_ppSvc("PartPropSvc", name),
-    m_mcevents("GEN_EVENT"), m_mcevents_const("GEN_EVENT")
+    m_mcevents_const("GEN_EVENT")
 {
   declareProperty("McEventKey", m_mcEventKey="GEN_EVENT", "StoreGate key of the MC event collection");
   declareProperty("MakeMcEvent", m_mkMcEvent=false, "Create a new MC event collection if it doesn't exist");
   declareProperty("PartPropSvc", m_ppSvc);
-  declareProperty("McEventsRW", m_mcevents=SG::RWVar<McEventCollection>(m_mcEventKey));
   declareProperty("McEventsR", m_mcevents_const=SG::RVar<McEventCollection>(m_mcEventKey));
 }
 
@@ -34,16 +33,21 @@ StatusCode GenBase::initialize() {
 
 
 /// Access the current event's McEventCollection
-SG::RWVar<McEventCollection> GenBase::events() {
+McEventCollection* GenBase::events() {
   // Make a new MC event collection if necessary
+  McEventCollection* mcevents = nullptr;
   if (!evtStore()->contains<McEventCollection>(m_mcEventKey) && m_mkMcEvent) {
     ATH_MSG_DEBUG("Creating new McEventCollection in the event store");
-    McEventCollection* mcevents = new McEventCollection();
+    mcevents = new McEventCollection();
     if (evtStore()->record(mcevents, m_mcEventKey).isFailure())
       ATH_MSG_ERROR("Failed to record a new McEventCollection");
   }
+  else {
+    if (evtStore()->retrieve (mcevents, m_mcEventKey).isFailure())
+      ATH_MSG_ERROR("Failed to retrieve McEventCollection");
+  }
 
-  return m_mcevents;
+  return mcevents;
 }
 
 

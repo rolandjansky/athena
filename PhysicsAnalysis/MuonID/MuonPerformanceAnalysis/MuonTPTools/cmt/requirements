@@ -12,7 +12,7 @@ use  MuonSelectorTools          MuonSelectorTools-*             PhysicsAnalysis/
 use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
 use  TrigMuonMatching           TrigMuonMatching-*              Trigger/TrigAnalysis
 use  AtlasROOT                  AtlasROOT-*                     External
-use  GoodRunsLists              GoodRunsLists-*                 DataQuality
+use  AsgAnalysisInterfaces      AsgAnalysisInterfaces-*         PhysicsAnalysis/Interfaces
 use  FsrUtils                  FsrUtils-*                     PhysicsAnalysis/AnalysisCommon
 use  IsolationSelection         IsolationSelection-*            PhysicsAnalysis/AnalysisCommon
 use  JetSelectorTools           JetSelectorTools-*              PhysicsAnalysis/JetMissingEtID

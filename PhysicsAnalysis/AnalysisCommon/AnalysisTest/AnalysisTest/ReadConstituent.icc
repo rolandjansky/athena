@@ -5,12 +5,6 @@
 
 #include "StoreGate/StoreGate.h"
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/IDataProviderSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/INTupleSvc.h"
-
 static const int MAX_nCon = 128;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 

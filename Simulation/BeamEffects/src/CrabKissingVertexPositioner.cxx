@@ -18,7 +18,7 @@
 #include "CLHEP/Geometry/Transform3D.h"
 #include <math.h>       /* erf */
 // RandomNumber generator
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 
 /** Constructor */

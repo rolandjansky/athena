@@ -69,7 +69,7 @@ def prepareCostTool(target):
     
     tool.toolConf     = Trig__TrigNtConfTool('Conf'+target)
     tool.toolEBWeight = Trig__TrigNtEBWeightTool('Ebwt'+target)
-    tool_elem = Trig__TrigNtElemTool('Elem'+target)
+    tool_elem = Trig__TrigNtElemTool('Elem'+target) # Not currently utilised
     tool_exec = Trig__TrigNtExecTool('Exec'+target)
     tool_lvl1 = Trig__TrigNtLvl1Tool('Lvl1'+target)
     tool_hlt2 = Trig__TrigNtHltRTool('Hlt2'+target)
@@ -128,16 +128,13 @@ def prepareCostTool(target):
                 
         if   tool.level == "L2":
             tool.eventTools += [ tool_lvl1 ]
-            tool.scaleTools += [ tool_elem ]
             tool.scaleTools += [ tool_exec ]
             tool.scaleTools += [ tool_robs ]
         elif tool.level == "EF":
-            tool.scaleTools += [ tool_elem ]
             tool.scaleTools += [ tool_exec ]
             tool.scaleTools += [ tool_hlt2 ]
         elif tool.level == "HLT":
             tool.eventTools += [ tool_lvl1 ]
-            tool.scaleTools += [ tool_elem ]
             tool.scaleTools += [ tool_exec ]
             tool.scaleTools += [ tool_robs ]
             tool.scaleTools += [ tool_hlt2 ]

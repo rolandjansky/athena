@@ -53,7 +53,7 @@ def findFile(pathvar, fname):
 
 ## @brief List all processes and parents and form a dictionary where the 
 #  parent key lists all child PIDs
-#  @parameter listMyOrphans If this is @c True, then processes which share the same
+#  @param listMyOrphans If this is @c True, then processes which share the same
 #  @c pgid as this process and have parent PID=1 (i.e., init) get added to this process's children,
 #  which allows these orphans to be added to the kill list. N.B. this means
 #  that orphans have two entries - as child of init and a child of this
@@ -292,7 +292,7 @@ def releaseIsOlderThan(major, minor=None):
 
 ## @brief Quote a string array so that it can be echoed back on the command line in a cut 'n' paste safe way
 #  @param strArray: Array of strings to quote
-#  @detail Technique is to first quote any pre-existing single quotes, then single quote all of the array 
+#  @details Technique is to first quote any pre-existing single quotes, then single quote all of the array 
 #  elements so that the shell sees them as a single argument 
 def shQuoteStrings(strArray = sys.argv):
     return [ "'" + qstring.replace("'", "\\'") + "'" for qstring in strArray ]
@@ -315,7 +315,7 @@ def lineByLine(filename, strip = True, removeTimestamp = True):
     f.close()
     
 
-## #brief XML pretty print an ElementTree.ELement object
+## @brief XML pretty print an ElementTree.ELement object
 #  @param element ElementTree.ELement object to print
 #  @param indent Indent parameter for minidom toprettyxml method
 #  @param poolFileCatalogFormat Whether to reformat the XML as a classic POOLFILECATALOG document
@@ -360,7 +360,7 @@ def prettyXML(element, indent = ' ', poolFileCatalogFormat = False):
 
 
 ## @brief Return isoformated 'now' string
-#  @detail Uses datetime.isoformat method, but suppressing microseconds
+#  @details Uses datetime.isoformat method, but suppressing microseconds
 def isodate():
     return datetime.now().replace(microsecond=0).isoformat()
 
@@ -382,7 +382,7 @@ def forceToAlphaNum(string):
 
 
 ## @brief Compare metadata for files, but taking into account that GUID can vary
-#  @detail Compare metadata dictionaries, but allowing for differences in the file_guid property
+#  @details Compare metadata dictionaries, but allowing for differences in the file_guid property
 #  as this is generated randomly for file types without an intrinsic GUID
 #  @param metadata1 Filel metadata dictionary
 #  @param metadata2 File2 metadata dictionary
@@ -440,7 +440,7 @@ def unpackTarFile(filename, directory="."):
 
 
 ## @brief Ensure that the DBRelease tarball has been unpacked 
-#  @detail Extract the dbversion number and look for an unpacked directory.
+#  @details Extract the dbversion number and look for an unpacked directory.
 #  If found then this release is already setup. If not then try to unpack
 #  the tarball.
 #  @param tarball The tarball file
@@ -580,7 +580,7 @@ def cliToKey(option):
 
 
 ## @brief print in a human-readable way the items of a given object
-#  @detail This function prints in a human-readable way the items of a given
+#  @details This function prints in a human-readable way the items of a given
 #  object.
 #  @param object to print
 def printHR(the_object):
@@ -598,7 +598,7 @@ def printHR(the_object):
 
 
 ## @brief return a URL-safe, base 64-encoded pseudorandom UUID
-#  @detail This function returns a URL-safe, base 64-encoded pseudorandom
+#  @details This function returns a URL-safe, base 64-encoded pseudorandom
 #  Universally Unique IDentifier (UUID).
 #  @return string of URL-safe, base 64-encoded pseudorandom UUID
 def uniqueIdentifier():
@@ -607,7 +607,7 @@ def uniqueIdentifier():
 
 ## @brief return either singular or plural units as appropriate for a given
 #  quantity
-#  @detail This function returns either singular or plural units as appropriate
+#  @details This function returns either singular or plural units as appropriate
 #  for a given quantity. So, a quantity of 1 would cause the return of singular
 #  units and a quantity of 2 would cause the return of plural units.
 #  @param quantity the numerical quantity
@@ -638,7 +638,7 @@ def isInteractiveEnv():
 
 
 ## @brief Job: a set of pieces of information relevant to a given work function
-#  @detail A Job object is a set of pieces of information relevant to a given
+#  @details A Job object is a set of pieces of information relevant to a given
 #  work function. A Job object comprises a name, a work function, work function
 #  arguments, the work function timeout specification, a
 #  multiprocessing.Pool.apply_async() object and, ultimately, a result object.
@@ -681,7 +681,7 @@ class Job(object):
         return self._name
 
     ## @brief return an object self description string
-    #  @ detail	This method returns an object description string consisting of
+    #  @details	This method returns an object description string consisting of
     #  a listing of the items of the object self.
     #  @return object description string
     def __str__(self):
@@ -694,7 +694,7 @@ class Job(object):
         return descriptionString
 
     ## @brief print in a human-readable way the items of the object self
-    #  @detail This function prints in a human-readable way the items of the
+    #  @details This function prints in a human-readable way the items of the
     #  object self.
     def printout(self):
         printHR(vars(self))
@@ -702,7 +702,7 @@ class Job(object):
 
 ## @brief JobGroup: a set of Job objects and pieces of information relevant to a
 #  given set of Job objects
-#  @detail A JobGroup is a set of Job objects and pieces of information relevant
+#  @details A JobGroup is a set of Job objects and pieces of information relevant
 #  to a given set of Job objects. A JobGroup object comprises a name, a list of
 #  Job objects, a timeout and, ultimately, an ordered list of result objects.
 #  The timeout can be speecified or derived from the summation of the timeout
@@ -752,7 +752,7 @@ class JobGroup(object):
         return descriptionString
 
     ## @brief return Boolean JobGroup timeout status
-    #  @detail This method returns the timeout status of a JobGroup object. If
+    #  @details This method returns the timeout status of a JobGroup object. If
     #  the JobGroup object has not timed out, the Boolean False is returned. If
     #  the JobGroup object has timed out, the Boolean True is returned. If the
     #  JobGroup object has been completed or is not submitted, the Boolean False
@@ -771,7 +771,7 @@ class JobGroup(object):
             return False
 
     ## @brief print in a human-readable way the items of the object self
-    #  @detail This function prints in a human-readable way the items of the
+    #  @details This function prints in a human-readable way the items of the
     #  object self.
     def printout(self):
         printHR(vars(self))
@@ -793,7 +793,7 @@ def initialise_processes():
 class ParallelJobProcessor(object):
 
     ## @brief initialisation method that accepts submissions and starts pool
-    #  @detail	This method is the initialisation method of the parallel job
+    #  @details	This method is the initialisation method of the parallel job
     #  processor. It accepts input JobGroup object submissions and prepares a
     #  pool of workers.
     def __init__(
@@ -828,7 +828,7 @@ class ParallelJobProcessor(object):
         ))
 
     ## @brief return an object self-description string
-    #  @detail This method returns an object description string consisting of
+    #  @details This method returns an object description string consisting of
     #  a listing of the items of the object self.
     #  @return object description string
     def __str__(self):
@@ -841,14 +841,14 @@ class ParallelJobProcessor(object):
         return descriptionString
 
     ## @brief print in a human-readable way the items of the object self
-    #  @detail This function prints in a human-readable way the items of the
+    #  @details This function prints in a human-readable way the items of the
     #  object self.
     def printout(self):
         printHR(vars(self)
         )
 
     ## @brief submit a Job object or a JobGroup object for processing
-    #  @detail This method submits a specified Job object or JobGroup object
+    #  @details This method submits a specified Job object or JobGroup object
     #  for processing. On successful submission, it returns the value 0.
     #  @param jobSubmission Job object or JobGroup object for submission
     def submit(
@@ -928,7 +928,7 @@ class ParallelJobProcessor(object):
         return 0
 
     ## @brief get results of JobGroup object submission
-    #  @detail This method returns an ordered list of results for jobs
+    #  @details This method returns an ordered list of results for jobs
     #  submitted.
     #  @return order list of results for jobs
     def getResults(self):
@@ -1077,7 +1077,7 @@ class ParallelJobProcessor(object):
         self._terminate()
 
     ## @brief return a status report string
-    #  @detail This method returns a status report string, detailing
+    #  @details This method returns a status report string, detailing
     #  information on the JobGroup submission and on the job processing status.
     #  @return status report string
     def statusReport(self):
@@ -1135,7 +1135,7 @@ class ParallelJobProcessor(object):
         return statusReport
 
     ## @brief abort parallel job processor
-    #  @detail This method aborts the parallel job processor. It is used
+    #  @details This method aborts the parallel job processor. It is used
     #  typically when an exception is raised.
     def _abort(self):
         self.status = "aborting"
@@ -1146,7 +1146,7 @@ class ParallelJobProcessor(object):
         self._terminate()
 
     ## @brief terminate parallel job processor
-    #  @detail This method terminates the parallel job processor. It terminates
+    #  @details This method terminates the parallel job processor. It terminates
     #  the subprocesses of the parallel job processor. It is used typically
     #  when terminating the parallel job processor on successful completion of
     #  job processing and when aborting the parallel job processor.
@@ -1239,3 +1239,20 @@ def ValgrindCommand(
             format = returnFormat
         ))
         raise(Exception)
+
+
+# calculate cpuTime from os.times() times tuple
+def calcCpuTime(start, stop):
+    cpuTime = None
+    if start and stop:
+        cpuTime = reduce(lambda x1, x2: x1+x2, map(lambda x1, x2: x2-x1, start[2:4], stop[2:4]))
+
+    return cpuTime
+
+# calculate wallTime from os.times() times tuple
+def calcWallTime(start, stop):
+    wallTime = None
+    if start and stop:
+        wallTime = stop[4] - start[4]
+
+    return wallTime

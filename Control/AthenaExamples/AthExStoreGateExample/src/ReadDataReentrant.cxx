@@ -41,10 +41,8 @@ ReadDataReentrant::ReadDataReentrant(const std::string& name, ISvcLocator* pSvcL
   AthReentrantAlgorithm(name, pSvcLocator)
 {
   
-  declareProperty ("DObjKey3", m_dobjKey3 = std::string("WriteDataReentrant"));
   declareProperty ("CObjKey", m_cobjKey = std::string("cobj"));
   declareProperty ("VFloatKey", m_vFloatKey = std::string("vFloat"));
-  //declareProperty ("NonExistingKey", m_nonexistingKey = std::string("FunnyNonexistingKey"));
   declareProperty ("PLinkListKey", m_pLinkListKey = std::string("WriteDataReentrant"));
   declareProperty ("LinkVectorKey", m_linkVectorKey = std::string("linkvec"));
   declareProperty ("TestObjectKey", m_testObjectKey = "testobj");
@@ -59,10 +57,8 @@ StatusCode ReadDataReentrant::initialize()
 
   ATH_MSG_INFO ("in initialize()");
 
-  ATH_CHECK( m_dobjKey3.initialize() );
   ATH_CHECK( m_cobjKey.initialize() );
   ATH_CHECK( m_vFloatKey.initialize() );
-  //ATH_CHECK( m_nonexistingKey.initialize() );
   ATH_CHECK( m_pLinkListKey.initialize() );
   ATH_CHECK( m_linkVectorKey.initialize() );
   ATH_CHECK( m_testObjectKey.initialize() );
@@ -113,11 +109,6 @@ StatusCode ReadDataReentrant::execute_r (const EventContext& ctx) const
   /////////////////////////////////////////////////////////////////////
   //   ii) Get a specific MyDataObj by providing its key 
   //       (in this case the name of the algo which recorded it)
-
-  //this time we set a *non-const* pointer. *If* we get back a valid
-  //pointer we'll be able to modify the content of the underlying transient obj
-  SG::UpdateHandle<MyDataObj> dobj3 (m_dobjKey3, ctx);
-  dobj3->val(4);
 
   SG::ReadHandle<TestDataObject> testobj (m_testObjectKey, ctx);
   if (testobj->val() != 10) std::abort();

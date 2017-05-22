@@ -3,7 +3,7 @@
 */
 
 #include "TrigInterfaces/IMonitoredAlgo.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 //////////////////////////////////////////////////////////////////
 // look here

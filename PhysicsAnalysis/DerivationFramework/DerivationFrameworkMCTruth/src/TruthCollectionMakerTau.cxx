@@ -69,8 +69,8 @@ StatusCode DerivationFramework::TruthCollectionMakerTau::addBranches() const
   ATH_MSG_VERBOSE("addBranches() ...");
 
   // Retrieve truth collections
-  const xAOD::TruthParticleContainer* m_xTruthParticleContainer;
-  if ( evtStore()->retrieve(m_xTruthParticleContainer,m_particlesKey).isFailure() ) {
+  const xAOD::TruthParticleContainer* xTruthParticleContainer;
+  if ( evtStore()->retrieve(xTruthParticleContainer,m_particlesKey).isFailure() ) {
     ATH_MSG_ERROR("No TruthParticle collection with name " << m_particlesKey << " found in StoreGate!");
     return StatusCode::FAILURE;
   }
@@ -83,10 +83,10 @@ StatusCode DerivationFramework::TruthCollectionMakerTau::addBranches() const
   newParticleCollection->setStore( newParticleAuxCollection );
   ATH_MSG_DEBUG( "Recorded new TruthParticleContainer with key: " <<  m_collectionName);
   
-  if ( !m_xTruthParticleContainer )
+  if ( !xTruthParticleContainer )
     return Status::SUCCESS;
   
-  for (auto xTruthParticle : *m_xTruthParticleContainer)
+  for (auto xTruthParticle : *xTruthParticleContainer)
   {
     if ( xTruthParticle->isTau() )
     {
@@ -109,7 +109,7 @@ StatusCode DerivationFramework::TruthCollectionMakerTau::addBranches() const
       } 
 
       // create link to the original TruthParticle
-      ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink(xTruthParticle, *m_xTruthParticleContainer);
+      ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink(xTruthParticle, *xTruthParticleContainer);
       xTruthTau->auxdata< ElementLink< xAOD::TruthParticleContainer > >("originalTruthParticle" ) = lTruthParticleLink;
 	
       newParticleCollection->push_back(xTruthTau);

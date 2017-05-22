@@ -8,7 +8,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/IDataProviderSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/Service.h"

@@ -89,6 +89,13 @@ AthSequencer::AthSequencer( const std::string& name,
 AthSequencer::~AthSequencer()
 {}
 
+/// Mark as a sequencer.
+bool AthSequencer::isSequence() const
+{
+  return true;
+}
+
+
 StatusCode
 AthSequencer::initialize()
 {

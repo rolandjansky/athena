@@ -9,7 +9,7 @@
     @version 0.1
 */
 
-/*! \mainpage Instructions for the MC Shifting Tool.
+/*! \page MCShiftingToolInstructions_page Instructions for the MC Shifting Tool.
 
     This tool is used to shift Monte Carlo distributions to correct against some
     of the known problems in the simulation. These distributions are shifted by

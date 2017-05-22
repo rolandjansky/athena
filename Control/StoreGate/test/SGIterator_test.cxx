@@ -80,7 +80,7 @@ namespace Athena_test {
     assert(iterMyCopy2->m_i==3);
     assert(iterMy==iterMyCopy2);
 
-    //try a couple of stl algorithms to check the typedefs
+    //try a couple of STL algorithms to check the typedefs
     std::distance(iterMy, iterMyCopy); 
     cout << "*** SGIterator test OK ***" <<endl;
   }  
@@ -118,7 +118,7 @@ namespace Athena_test {
     assert(iterMyCopy2->m_i==3);
     assert(iterMy==iterMyCopy2);
 
-    //try a couple of stl algorithms to check the typedefs
+    //try a couple of STL algorithms to check the typedefs
     std::distance(iterMy, iterMyCopy); 
     //needs ordering predicate    std::sort(iterMy, iterMyCopy); 
     cout << "*** SGConstIterator test OK ***" <<endl;

@@ -103,6 +103,10 @@ StatusCode L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_K(keys)) {
 
 		// get the keys/folders required by current object
 		std::vector<std::string> vCoolInputKeys = pobj->coolInputKeys();
+                
+                std::vector<std::string> otherkeys = m_map_conditions2key[pobj];
+                vCoolInputKeys.insert(vCoolInputKeys.end(),otherkeys.begin(),otherkeys.end());
+                
 		std::string conditionType = pobj->conditionType();
 
 		if(conditionType=="CondAttrListCollection") {

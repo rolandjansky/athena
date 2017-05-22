@@ -50,7 +50,7 @@ FTKMerger.doMerging = True # this enables the behavior of the FTKMergerAlgo as F
 
 runArgsMandatory =  ['NBanks', 'NSubRegions', 'pmap_path', 'loadHWConf_path']
 
-runArgsOptional = {'FirstRegion': 0, 'FirstSubreg': 0, 'MergeRegion': -1, 'HWNDiff': 6, 'HitWarrior': 2}
+runArgsOptional = {'FirstRegion': 0, 'FirstSubreg': 0, 'MergeRegion': -1, 'HWNDiff': 6, 'HitWarriorMerger': 2}
 
 nb=64
 
@@ -114,6 +114,12 @@ FTKTagOptions["HWMode2Test32Tower"] = \
 FTKTagOptions["HWMode2Test64Tower"] = \
    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
          'loadHWConf_path': 'raw_8LcIbl123.hw'}
+FTKTagOptions["64Tower2017.v1.ECFix"] = \
+   {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
+         'loadHWConf_path': 'raw_8LcIbl123.hw'}
+FTKTagOptions["64Tower2018.v1.ECFix"] = \
+   {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
+         'loadHWConf_path': 'raw_8LcIbl123.hw'}
 FTKTagOptions["64Tower2017.v1"] = \
    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
          'loadHWConf_path': 'raw_8LcIbl123.hw'}
@@ -159,15 +165,15 @@ FTKTagOptions['SectorsAsPatterns12LHWMode2'] = \
 
 FTKTagOptions['FitITk'] = {
     'MergeRoads' : True ,
-    'HitWarrior' : 0 ,
+    'HitWarriorMerger' : 0 ,
 }
 FTKTagOptions['FitITkSaP'] = {
     'MergeRoads' : True ,
-    'HitWarrior' : 0 ,
+    'HitWarriorMerger' : 0 ,
 }
 FTKTagOptions['FitITkDC'] = {
     'MergeRoads' : True ,
-    'HitWarrior' : 0 ,
+    'HitWarriorMerger' : 0 ,
 }
 
 
@@ -223,6 +229,10 @@ for runArgName in runArgsMandatory + runArgsOptional.keys() :
    else:
        raise RuntimeError, 'Failed to find mandatory FTKMerger runtime argument for transform %s' % runArgName
 
+if hasattr(runArgs, 'HitWarriorMerger'):
+  FTKMerger.HitWarriorMerger = runArgs.HitWarriorMerger  
+
+
 # set a meaningful name for the PerfMon file
 if FTKMerger.MergeRegion < 0:
   pmjp.PerfMonFlags.OutputFile = 'ntuple_FTKMerge.pmon.gz'
@@ -242,6 +252,14 @@ if hasattr(runArgs,'EvtInfoTreeName'):
     FTKMerger.EvtInfoTreeName = runArgs.EvtInfoTreeName
 if hasattr(runArgs,'TruthTrackTreeName'):
     FTKMerger.TruthTrackTreeName = runArgs.TruthTrackTreeName
+
+if hasattr(runArgs, 'SaveOfflineTree'):
+    if runArgs.SaveOfflineTree == False:
+        print "SaveOfflineTrees False"
+        FTKMerger.OfflineTreeName = '' ### be safe
+    else: ## use default
+        print "SaveOfflineTrees True and setting name to default = offline_cluster_tree"
+        FTKMerger.OfflineTreeName = 'offline_cluster_tree'
 
 if hasattr(runArgs, 'SaveTruthTree'):
     if runArgs.SaveTruthTree:

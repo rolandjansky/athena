@@ -54,7 +54,7 @@ class DataHandle :
 public:
   typedef std::iterator<std::forward_iterator_tag, DATA> base_t;
 
-  //FIXME this should come from iterator inher!
+  //FIXME this should come from iterator inheritance!
   typedef typename base_t::iterator_category iterator_category;
   typedef typename base_t::value_type value_type;
   typedef typename base_t::difference_type difference_type;
@@ -65,7 +65,7 @@ public:
 
   typedef DataHandleBase::ID_type ID_type;
 
-  /// \name structors and assignment
+  /// \name constructors and assignment
   //@{
   DataHandle();
   DataHandle(const DataHandle& h);
@@ -92,11 +92,11 @@ public:
   // FIXME op! is to keep backward compatibility with Gaudi
   // FIXME similar to checking the SmartDataPtr
   // FIXME dangerous stuff: remove!
-  ///DEPRECATED for statements like:  if (!DataHandle<XXX>) {...} 
+  ///DEPRECATED for statements like:  if (!DataHandle\<XXX\>) {...} 
   bool operator !() const { return !isValid(); }
 
   //FIXME VERY dangerous stuff: remove!
-  ///DEPRECATED for statements like:  if (DataHandle<XXX>) {...} 
+  ///DEPRECATED for statements like:  if (DataHandle\<XXX\>) {...} 
   operator int() const  { return isValid(); }
   //@}
 
@@ -114,8 +114,8 @@ public:
 
   /// \name access to the underlying ptr
   //@{
-  operator pointer_type()             { return ptr(); }  ///< often ambiguos
-  operator const_pointer_type() const { return cptr(); } ///< often ambiguos
+  operator pointer_type()             { return ptr(); }  ///< often ambiguous
+  operator const_pointer_type() const { return cptr(); } ///< often ambiguous
 
   const_pointer_type cptr() const;   ///< safer explicit ptr accessor 
   pointer_type ptr();                ///< safer explicit ptr accessor 

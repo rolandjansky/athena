@@ -3,7 +3,7 @@
 */
 
 /** @file TRT_StrawNeighbourSvc.cxx
- *  @Service to information on straws electronic grouping
+ *  @brief Service to information on straws electronic grouping
  *  Develuped for the study of noise correlations between straws
  *  @author Esben Klinkby <klinkby@nbi.dk>
  **/
@@ -121,10 +121,10 @@ StatusCode TRT_StrawNeighbourSvc::initialize()
   DecodeVersionKey versionKey(geoModel, "TRT");
   std::string detectorKey  = versionKey.tag();
   std::string detectorNode = versionKey.node();
-  const IRDBRecordset* RDB_TRTElec  = iAccessSvc->getRecordset("TRTBarElecToStrawRel",detectorKey,detectorNode);
+  IRDBRecordset_ptr RDB_TRTElec  = iAccessSvc->getRecordsetPtr("TRTBarElecToStrawRel",detectorKey,detectorNode);
   
   if (RDB_TRTElec->size()==0) {
-    RDB_TRTElec = iAccessSvc->getRecordset("TRTBarElecToStrawRel","TRTBarElecToStrawRel-02");
+    RDB_TRTElec = iAccessSvc->getRecordsetPtr("TRTBarElecToStrawRel","TRTBarElecToStrawRel-02");
     msg(MSG::INFO) << "The folder: InnerDetector->TRT->TRTBarrel->TRTBarrelElectronics not found in DetDesc tag. Using hardcoded tag: TRTBarElecToStrawRel-02" << endmsg;
   }
   

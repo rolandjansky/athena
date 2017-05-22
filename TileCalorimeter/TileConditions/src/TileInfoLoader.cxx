@@ -236,28 +236,6 @@ StatusCode TileInfoLoader::initialize() {
   //=== Find the detector store service.
   CHECK( m_detStore.retrieve() );
 
-  const IGeoModelSvc *geoModel = 0;
-  CHECK( service("GeoModelSvc", geoModel) );
-
-  // dummy parameters for the callback:
-  int dummyInt = 0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized()) {
-    return geoInit(dummyInt,dummyList);
-  } else  {
-    CHECK( m_detStore->regFcn(&IGeoModelSvc::geoInit, geoModel
-                              , &TileInfoLoader::geoInit,this ) );
-
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TileInfoLoader::geoInit(IOVSVC_CALLBACK_ARGS) {
-
-  ATH_MSG_INFO( name() << " in geoInit() ..." );
-
   // initialize sampling fraction for all C10 cells to default value
   for (int i=0; i<64; ++i) {
     m_info->m_emscaleC[i] =  m_info->m_emscaleA;
@@ -279,17 +257,25 @@ StatusCode TileInfoLoader::geoInit(IOVSVC_CALLBACK_ARGS) {
     int upg  = atlasVersion.compare(0,7,"ATLAS-P") ;
     int ver = 0;
 
-    if (geo == 0 || comm == 0 || ibl == 0 || slhc == 0 || run1 == 0 || run2 == 0 || upg == 0) {
+    bool nothing_found = (geo*run1*ibl*run2*comm*slhc*upg != 0);
+    GeoModel::GeoConfig geoConfig = geoModel->geoConfig();
+    bool RUN2 = (nothing_found && (geoConfig==GeoModel::GEO_RUN2 
+                                   || geoConfig==GeoModel::GEO_RUN3
+                                   || geoConfig==GeoModel::GEO_RUN4
+                                   || geoConfig==GeoModel::GEO_ITk
+                     )) || (run2 == 0); // calibration for all geometries >=RUN2 are the same as in RUN2
+
+    if (geo == 0 || comm == 0 || ibl == 0 || slhc == 0 || run1 == 0 || run2 == 0 || upg == 0 || RUN2) {
       int pos = (atlasVersion.substr(9)).find("-");
-      if(run1 == 0 || run2 == 0) pos = (atlasVersion.substr(13)).find("-");
+      if(run1 == 0 || run2 == 0) pos = (atlasVersion.substr(13)).find("-") + 4;
       std::string geoVersion = atlasVersion.substr(pos+10,2)
                              + atlasVersion.substr(pos+13,2)
                              + atlasVersion.substr(pos+16,2);
       ver = atoi(geoVersion.c_str());
+      ATH_MSG_INFO( "New ATLAS geometry detected: " << atlasVersion << " (" << geoVersion << ")"  << " version " << ver  );
 
       if (fabs(m_info->m_ttL1Calib - 4.1) < 0.001) {
         // They are TTL1Calib = 4.1 and TTL1NoiseSigma = 2.5 but should be 6.9 and 2.8 respectively.
-        ATH_MSG_INFO( "New ATLAS geometry detected: " << atlasVersion << " (" << geoVersion << ")" );
 
         msg(MSG::INFO) << "Changing TTL1 calib from " << m_info->m_ttL1Calib;
         m_info->m_ttL1Calib = 6.9;
@@ -299,6 +285,8 @@ StatusCode TileInfoLoader::geoInit(IOVSVC_CALLBACK_ARGS) {
         m_info->m_ttL1NoiseSigma = 2.8;
         msg(MSG::INFO) << " to " << m_info->m_ttL1NoiseSigma << endmsg;
       }
+    } else {
+      ATH_MSG_INFO( "ATLAS geometry " << atlasVersion << " version " << ver );
     }
 
     if (m_info->m_emscaleA < 0.0) { // negative value from jobOptions
@@ -314,8 +302,8 @@ StatusCode TileInfoLoader::geoInit(IOVSVC_CALLBACK_ARGS) {
       }
     }
 
-    if (ver >= 140000 || run1 == 0 || ibl == 0 || slhc == 0 || run2 == 0 || upg == 0) {
-      if (ibl == 0 || run2 == 0)
+    if (ver >= 140000 || run1 == 0 || ibl == 0 || slhc == 0 || run2 == 0 || upg == 0 || RUN2) {
+      if (ibl == 0 || run2 == 0 || RUN2)
         ATH_MSG_INFO( "ATLAS IBL geometry - special sampling fractions for gap/crack scin are allowed" );
       else if (slhc == 0 || upg == 0)
         ATH_MSG_INFO( "ATLAS SLHC geometry - special sampling fractions for gap/crack scin are allowed" );

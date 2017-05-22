@@ -87,7 +87,13 @@ public:
    * @param b Buffer from/to which to read/write.
    * @param objp Object instance.
    */
-  virtual void operator()(TBuffer &b, void *objp);
+  virtual void operator()(TBuffer &b, void *objp) override;
+
+
+  /**
+   * @brief Clone operation, required for MT.
+   */
+  virtual TClassStreamer* Generate() const override;
 
 
 private:
@@ -149,6 +155,16 @@ void PackedContainerStreamer<T>::operator() ( TBuffer& b, void* objp ) {
 
       b.SetByteCount(R__c, kTRUE);
    }
+}
+
+
+/**
+ * @brief Clone operation, required for MT.
+ */
+template <class T>
+TClassStreamer* PackedContainerStreamer<T>::Generate() const
+{
+  return new PackedContainerStreamer<T> (*this);
 }
 
 

@@ -101,12 +101,13 @@ theApp.EvtMax = 20
 # Application:
 #--------------------------------------------------------------
 
+from DataModelTestDataCommon.DataModelTestDataCommonConf import \
+     DMTest__xAODTestDecor
 from DataModelTestDataRead.DataModelTestDataReadConf import \
      DMTest__xAODTestReadCVec, \
      DMTest__xAODTestRead, \
      DMTest__xAODTestReadCView, \
      DMTest__xAODTestReadHVec, \
-     DMTest__xAODTestDecor, \
      DMTest__xAODTestClearDecor, \
      DMTest__xAODTestShallowCopy
 
@@ -135,7 +136,7 @@ topSequence += DMTest__xAODTestDecor ('AuxDataTestDecor1_scopy',
                                       Offset = 300)
 
 # Stream's output file
-Stream1_Augmented = MSMgr.NewPoolStream ('Stream1', 'xaoddata2.root',asAlg=True)
+Stream1_Augmented = MSMgr.NewPoolStream ('Stream1', 'xaoddata2.root',asAlg=True, noTag=True)
 Stream1_Augmented.AddMetaDataItem ('xAOD::EventFormat#EventFormat')
 Stream1 = Stream1_Augmented.GetEventStream()
 Stream1.WritingTool.SubLevelBranchName = '<key>'
@@ -154,7 +155,7 @@ topSequence += DMTest__xAODTestDecor ('AuxDataTestDecor2_scopy',
                                       DecorName = 'dInt250',
                                       Offset = 600)
 # Stream's output file
-Stream2_Augmented = MSMgr.NewPoolStream ('Stream2','xaoddata2b.root',asAlg=True)
+Stream2_Augmented = MSMgr.NewPoolStream ('Stream2','xaoddata2b.root',asAlg=True, noTag=True)
 Stream2_Augmented.AddMetaDataItem ('xAOD::EventFormat#EventFormat')
 Stream2 = Stream2_Augmented.GetEventStream()
 Stream2.WritingTool.SubLevelBranchName = '<key>'

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
 use File::Basename;
-use DateTime;
+use Date::Manip::Date;
 
 # Produce summary table for trigtest.pl tests in same dir or first parameter to script
 my $output="index.html";
@@ -261,13 +261,16 @@ function showBuildFailures(failures,link) {
 	print HTMLOUT "<script src=\"".$nicosWWWPage."/build_failures_".$atn_relno.".js\" language=\"JavaScript\"></script>\n";
 	print HTMLOUT "<script type=\"text/javascript\">showBuildFailures(failures_".$atn_relno."(),"."\"".$nicosWWWPage."/nicos_buildsummary_".$atn_relno.".html\")</script>";
 
-    # Link to GitLab diff
-    my ($date,$time) = split('T',$release);
-    my ($y,$m,$d) = split('-',$date);
-    my $yesterday = DateTime->new(year=>$y, month=>$m, day=>$d)->subtract(days=>1);
-    my $prevrel = join('-',$yesterday->year(),sprintf("%02d",$yesterday->month()),sprintf("%02d",$yesterday->day())).'T'.$time;
-    my $gitdiff = "https://gitlab.cern.ch/atlas/athena/compare/nightly%2F$gitbranch%2F$prevrel...nightly%2F$gitbranch%2F$release";
-	
+    # Link to GitLab diff between today's and yesterday's release
+    my $fmt="%Y-%m-%dT%H%M";
+    my $date = new Date::Manip::Date;
+    $date->parse_format($fmt,$release);
+    my $delta = $date->new_delta();
+    $delta->set(d => -1);  # minus 1 day
+    my $yesterday = $date->calc($delta); 
+    my $prevrel = $yesterday->printf($fmt);
+    my $gitdiff = "https://gitlab.cern.ch/atlas/athena/compare/nightly%2F$gitbranch%2F$prevrel...nightly%2F$gitbranch%2F$release";	
+
 	print HTMLOUT "<br>Other nightlies: ";
     if (defined $no_of_nightlies_exceptions{$project}){
         $no_of_nightlies=$no_of_nightlies_exceptions{$project};

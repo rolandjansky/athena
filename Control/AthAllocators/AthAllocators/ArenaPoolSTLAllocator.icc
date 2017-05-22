@@ -369,7 +369,7 @@ void ArenaPoolSTLAllocator<T, VETO>::reserve (size_t size)
  * @brief Return the statistics block for this allocator.
  */
 template <class T, class VETO>
-const ArenaAllocatorBase::Stats& ArenaPoolSTLAllocator<T, VETO>::stats() const
+ArenaAllocatorBase::Stats ArenaPoolSTLAllocator<T, VETO>::stats() const
 {
   return m_pool.stats();
 }
@@ -379,10 +379,9 @@ const ArenaAllocatorBase::Stats& ArenaPoolSTLAllocator<T, VETO>::stats() const
  * @brief Return a pointer to the underlying allocator (may be 0).
  */
 template <class T, class VETO>
-ArenaAllocatorBase* ArenaPoolSTLAllocator<T, VETO>::poolptr() const
+const ArenaAllocatorBase* ArenaPoolSTLAllocator<T, VETO>::poolptr() const
 {
-  const ArenaAllocatorBase* tmp = &m_pool;
-  return const_cast<ArenaAllocatorBase*> (tmp);
+  return &m_pool;
 }
 
 
@@ -393,17 +392,9 @@ ArenaAllocatorBase* ArenaPoolSTLAllocator<T, VETO>::poolptr() const
 
 /**
  * @brief Default constructor.
- * @param nblock Value to set in the parameters structure for the
- *               number of elements to allocate per block.
- * @param name   Value to set in the parameters structure for the
- *               allocator name.
  */
 template <class T, class VETO>
-ArenaPoolSTLAllocator<T*, VETO>::ArenaPoolSTLAllocator
-  (size_t nblock /*= 1000*/, const std::string& name /*= ""*/)
-    : m_nblock (nblock),
-      m_name (name),
-      m_poolptr (0)
+ArenaPoolSTLAllocator<T*, VETO>::ArenaPoolSTLAllocator()
 {
 }
 
@@ -416,113 +407,8 @@ ArenaPoolSTLAllocator<T*, VETO>::ArenaPoolSTLAllocator
 template <class T, class VETO>
 template <class U, class V>
 ArenaPoolSTLAllocator<T*, VETO>::ArenaPoolSTLAllocator
-  (const ArenaPoolSTLAllocator<U, V>& a)
-    : m_nblock (a.nblock()),
-      m_name (a.name()),
-      m_poolptr (a.poolptr())
+  (const ArenaPoolSTLAllocator<U, V>&)
 {
-}
-
-
-/**
- * @brief Return the hinted number of objects allocated per block.
- */
-template <class T, class VETO>
-inline
-size_t ArenaPoolSTLAllocator<T*, VETO>::nblock() const
-{
-  return m_nblock;
-}
-
-
-/**
- * @brief Return the name of this allocator.
- */
-template <class T, class VETO>
-inline
-const std::string& ArenaPoolSTLAllocator<T*, VETO>::name() const
-{
-  return m_name;
-}
-
-
-/**
- * @brief Free all allocated elements.
- *
- * All elements allocated are returned to the free state.
- * @c clear should be called on them if it was provided.
- * The elements may continue to be cached internally, without
- * returning to the system.
- */
-template <class T, class VETO>
-void ArenaPoolSTLAllocator<T*, VETO>::reset()
-{
-  if (m_poolptr)
-    m_poolptr->reset();
-}
-
-
-/**
- * @brief Free all allocated elements and release memory back to the system.
- *
- * All elements allocated are freed, and all allocated blocks of memory
- * are released back to the system.
- * @c destructor should be called on them if it was provided
- * (preceded by @c clear if provided and @c mustClear was set).
- */
-template <class T, class VETO>
-void ArenaPoolSTLAllocator<T*, VETO>::erase()
-{
-  if (m_poolptr)
-    m_poolptr->erase();
-}
-
-
-/**
- * @brief Set the total number of elements cached by the allocator.
- * @param size The desired pool size.
- *
- * This allows changing the number of elements that are currently free
- * but cached.  Any allocated elements are not affected by this call.
- *
- * If @c size is greater than the total number of elements currently
- * cached, then more will be allocated.  This will preferably done
- * with a single block, but that is not guaranteed; in addition, the
- * allocator may allocate more elements than is requested.
- *
- * If @c size is smaller than the total number of elements currently
- * cached, as many blocks as possible will be released back to the system.
- * It may not be possible to release the number of elements requested;
- * this should be implemented on a best-effort basis.
- */
-template <class T, class VETO>
-void ArenaPoolSTLAllocator<T*, VETO>::reserve (size_t size)
-{
-  if (m_poolptr)
-    m_poolptr->reserve (size);
-}
-
-
-/**
- * @brief Return the statistics block for this allocator.
- */
-template <class T, class VETO>
-const ArenaAllocatorBase::Stats& ArenaPoolSTLAllocator<T*, VETO>::stats() const
-{
-  if (m_poolptr)
-    return m_poolptr->stats();
-  static ArenaAllocatorBase::Stats tmp;
-  return tmp;
-}
-
-
-/**
- * @brief Return a pointer to the underlying allocator (may be 0).
- */
-template <class T, class VETO>
-ArenaAllocatorBase* ArenaPoolSTLAllocator<T*, VETO>::poolptr() const
-{
-  return m_poolptr;
 }
 
 
@@ -587,6 +473,51 @@ const std::string& ArenaPoolSTLAllocator<T, T>::name() const
 
 
 /**
+ * @brief Return the statistics block for this allocator.
+ */
+template <class T>
+ArenaAllocatorBase::Stats
+ArenaPoolSTLAllocator<T, T>::stats() const
+{
+  if (m_poolptr) {
+    return m_poolptr->stats();
+  }
+  return ArenaAllocatorBase::Stats();
+}
+
+
+/**
+ * @brief Return a pointer to the underlying allocator (may be 0).
+ */
+template <class T>
+const ArenaAllocatorBase* ArenaPoolSTLAllocator<T, T>::poolptr() const
+{
+  return m_poolptr;
+}
+
+
+//****************************************************************************
+// Non-const variant.
+//
+
+
+/**
+ * @brief Constructor.
+ * @param a Allocator to reference.
+ * @param poolptr_nc Non-const pointer to the underlying allocator.
+ */
+template <class T>
+template <class U, class V>
+ArenaNonConstPoolSTLAllocator<T>::ArenaNonConstPoolSTLAllocator
+  (const ArenaPoolSTLAllocator<U, V>& a,
+   ArenaAllocatorBase* poolptr_nc)
+    : ArenaPoolSTLAllocator<T, T>(a),
+    m_poolptr_nc (poolptr_nc)
+{
+}
+
+
+/**
  * @brief Free all allocated elements.
  *
  * All elements allocated are returned to the free state.
@@ -595,10 +526,10 @@ const std::string& ArenaPoolSTLAllocator<T, T>::name() const
  * returning to the system.
  */
 template <class T>
-void ArenaPoolSTLAllocator<T, T>::reset()
+void ArenaNonConstPoolSTLAllocator<T>::reset()
 {
-  if (m_poolptr)
-    m_poolptr->reset();
+  if (m_poolptr_nc)
+    m_poolptr_nc->reset();
 }
 
 
@@ -611,10 +542,10 @@ void ArenaPoolSTLAllocator<T, T>::reset()
  * (preceded by @c clear if provided and @c mustClear was set).
  */
 template <class T>
-void ArenaPoolSTLAllocator<T, T>::erase()
+void ArenaNonConstPoolSTLAllocator<T>::erase()
 {
-  if (m_poolptr)
-    m_poolptr->erase();
+  if (m_poolptr_nc)
+    m_poolptr_nc->erase();
 }
 
 
@@ -636,34 +567,28 @@ void ArenaPoolSTLAllocator<T, T>::erase()
  * this should be implemented on a best-effort basis.
  */
 template <class T>
-void ArenaPoolSTLAllocator<T, T>::reserve (size_t size)
+void ArenaNonConstPoolSTLAllocator<T>::reserve (size_t size)
 {
-  if (m_poolptr)
-    m_poolptr->reserve (size);
+  if (m_poolptr_nc)
+    m_poolptr_nc->reserve (size);
 }
 
 
 /**
- * @brief Return the statistics block for this allocator.
+ * @brief Return an allocator supporting non-const methods from
+ *        a non-const container reference.
+ * @param c The (non-const) container.
  */
 template <class T>
-const ArenaAllocatorBase::Stats&
-ArenaPoolSTLAllocator<T, T>::stats() const
+template <class CONT>
+ArenaNonConstPoolSTLAllocator<T>
+ArenaPoolSTLAllocator<T, T>::get_allocator ATLAS_NOT_CONST_THREAD_SAFE (CONT& c)
 {
-  if (m_poolptr)
-    return m_poolptr->stats();
-  static ArenaAllocatorBase::Stats tmp;
-  return tmp;
-}
-
-
-/**
- * @brief Return a pointer to the underlying allocator (may be 0).
- */
-template <class T>
-ArenaAllocatorBase* ArenaPoolSTLAllocator<T, T>::poolptr() const
-{
-  return m_poolptr;
+  // Must be called with a non-const object.
+  typename std::remove_const<CONT>::type& cc = c;
+  ArenaPoolSTLAllocator<T, T> a (cc.get_allocator());
+  return ArenaNonConstPoolSTLAllocator<T> (a,
+                                           const_cast<ArenaAllocatorBase*>(a.poolptr()));
 }
 
 

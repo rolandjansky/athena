@@ -5,9 +5,6 @@
 # Declare the package name:
 atlas_subdir( TileCalibBlobObjs )
 
-atlas_depends_on_subdirs ( PRIVATE
-                           AtlasTest/TestTools )
-
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -33,6 +30,10 @@ atlas_add_dictionary( TileCalibBlobObjsDict
 # Test(s) in the package:
 atlas_add_test( TileCalibDrawerOfc_test
                 SOURCES test/TileCalibDrawerOfc_test.cxx
+                LINK_LIBRARIES TileCalibBlobObjs TestTools ${CORAL_LIBRARIES} )
+
+atlas_add_test( TileCalibDrawerFlt_test
+                SOURCES test/TileCalibDrawerFlt_test.cxx
                 LINK_LIBRARIES TileCalibBlobObjs TestTools ${CORAL_LIBRARIES} )
 
 # Install files from the package:

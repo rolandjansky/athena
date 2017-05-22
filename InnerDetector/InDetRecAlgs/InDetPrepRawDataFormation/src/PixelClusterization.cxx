@@ -25,9 +25,7 @@
 #include "SiClusterizationTool/IPixelClusteringTool.h"
 #include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
 
-// Gaudi includes
-#include "StoreGate/DataHandle.h"
-#include "CxxUtils/make_unique.h"
+#include "StoreGate/WriteHandle.h"
 
 
 namespace InDet{
@@ -44,6 +42,7 @@ namespace InDet{
   m_roiSeeded(false),
   m_idHelper(nullptr),
   m_clusterContainerKey(""),
+  m_clusterContainerLinkKey(""),
   m_ambiguitiesMapKey(""),
   m_manager(nullptr) {  
     // Get parameter values from jobOptions file
@@ -54,6 +53,9 @@ namespace InDet{
     declareProperty("ClustersName", 
                   m_clusterContainerKey = std::string("PixelClusters"),
                   "Pixel cluster container");
+    declareProperty("ClustersLinkName_", 
+                  m_clusterContainerLinkKey = std::string("PixelClusters"),
+                  "Pixel cluster container link name (don't set this)");
     declareProperty("AmbiguitiesMap", 
                   m_ambiguitiesMapKey = std::string("PixelClusterAmbiguitiesMap"),
                   "Ambiguity Map container");
@@ -92,8 +94,13 @@ namespace InDet{
       ATH_CHECK( m_roiCollectionKey.initialize() );
       ATH_CHECK(m_regionSelector.retrieve());
     }
+
+    m_clusterContainerLinkKey = m_clusterContainerKey.key();
+
     ATH_CHECK( m_clusterContainerKey.initialize() );
+    ATH_CHECK( m_clusterContainerLinkKey.initialize() );
     ATH_CHECK( m_ambiguitiesMapKey.initialize() );
+
     ATH_MSG_DEBUG( "Initialize done !" );
     return StatusCode::SUCCESS;
   }
@@ -104,15 +111,14 @@ namespace InDet{
   
 //    ATH_MSG_INFO( "Container m_clusterContainer '" << m_clusterContainer.name() << "' set");
     SG::WriteHandle<PixelClusterContainer> clusterContainer(m_clusterContainerKey);
-    clusterContainer = CxxUtils::make_unique<PixelClusterContainer>(m_idHelper->wafer_hash_max());
+    ATH_CHECK( clusterContainer.record (std::make_unique<PixelClusterContainer>(m_idHelper->wafer_hash_max())) );
 
     ATH_CHECK(clusterContainer.isValid());
     ATH_MSG_DEBUG( "Container '" << clusterContainer->name() << "' initialised" );
 
-    SiClusterContainer* symSiContainer = nullptr;
-    ATH_CHECK(evtStore()->symLink(clusterContainer.cptr(), symSiContainer));
-
+    ATH_CHECK( clusterContainer.symLink (m_clusterContainerLinkKey) );
     ATH_MSG_DEBUG( "Pixel clusters '" << clusterContainer.name() << "' symlinked in StoreGate");
+
     ATH_MSG_DEBUG( "Creating the ganged ambiguities map");
     SG::WriteHandle<PixelGangedClusterAmbiguities> ambiguitiesMap(m_ambiguitiesMapKey);
     ambiguitiesMap = CxxUtils::make_unique<PixelGangedClusterAmbiguities>();

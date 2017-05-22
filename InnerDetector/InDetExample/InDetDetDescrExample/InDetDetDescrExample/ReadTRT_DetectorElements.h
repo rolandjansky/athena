@@ -28,7 +28,6 @@ namespace InDetDD{
   class TRT_EndcapElement;
 }
 
-class IGeoModelSvc;
 class TRT_ID;
 
 /**
@@ -48,10 +47,6 @@ public:
   StatusCode finalize();
   //@}
   
-  /// GeoInit callback
-  StatusCode geoInitCallback(IOVSVC_CALLBACK_ARGS);
-  StatusCode geoInitialize();
-
   void printAllElements();
 
   void printBarrelStraw(const InDetDD::TRT_BarrelElement * element, const unsigned int strawNum);
@@ -66,7 +61,6 @@ private:
   std::string m_managerName;
   bool m_doInit;
   bool m_doExec;
-  ServiceHandle<IGeoModelSvc> m_geoModelSvc;
 
   const InDetDD::TRT_DetectorManager * m_manager;
   const TRT_ID * m_idHelper;

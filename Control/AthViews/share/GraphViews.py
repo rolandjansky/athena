@@ -1,3 +1,7 @@
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 ###############################################################
 #
 # Job options file
@@ -11,9 +15,9 @@
 #--------------------------------------------------------------
 
 # Configure the scheduler
-from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-svcMgr += ForwardSchedulerSvc()
-svcMgr.ForwardSchedulerSvc.CheckDependencies = True
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.ShowControlFlow( True )
+AlgScheduler.ShowDataDependencies( True )
 
 # Make a separate alg pool for the view algs
 from GaudiHive.GaudiHiveConf import AlgResourcePool
@@ -23,6 +27,9 @@ svcMgr += AlgResourcePool( viewAlgPoolName )
 # Set of view algs
 from AthenaCommon.AlgSequence import AthSequencer
 allViewAlgorithms = AthSequencer( "allViewAlgorithms" )
+allViewAlgorithms.ModeOR = False
+allViewAlgorithms.Sequential = True
+allViewAlgorithms.StopOverride = False
 
 # Filter to stop view algs from running on whole event
 allViewAlgorithms += CfgMgr.AthPrescaler( "alwaysFail" )

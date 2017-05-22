@@ -125,6 +125,11 @@ public:
    void setNDCmaxPlane(size_t plane,int ndc);
    inline int getNDCmax(void) const { return m_nDCmax; }
    inline int getNDCmaxPlane(size_t plane) const { return m_nDCmaxPlane[plane]; }
+   void setWildcardPenalty(int penalty);
+   void setWildcardPenaltyPlane(size_t plane,int penalty);
+   inline int getWildcardPenalty(void) const { return m_wildcardPenalty; }
+   inline int getWildcardPenaltyPlane(size_t plane) const {
+      return m_wildcardPenaltyPlane[plane]; }
 
    // check hwmodeid settings
    int getHWModeSS_dc(void) const;
@@ -190,7 +195,7 @@ public:
    }
    // returns pair(SSID w/o dc bits , dc bits)
    std::pair<int,int> const &getDCssid(int layer,int sector,int tspSSID);
-   int getDCssidConst(int layer,int sector,int tspSSID) const;
+   int getDCssidConst(int layer,int tspSSID) const;
 
    // read root file (sector-ordered), one subregion
    int readSectorOrderedBank(const char *name, int maxpatts,int nSub,int numSectorMax,int nlamb);
@@ -236,8 +241,17 @@ protected:
    // finalize memory structures after reading bank data from file
    void readBankPostprocessing(const char *where);
 
-   // read wildcards from files
+   // read wildcards from default files
    void readWildcards(void);
+
+   // read bad module lists
+   void importBadModuleASCII(std::string const &name,int type);
+   void importBadModuleTTree(TDirectory *dir,char const *name="BadModules");
+   void exportBadModuleTTree(TDirectory *dir,char const *name="BadModules") const;
+   // set up wildcards for bad modules
+   void setupSectorWildcards(void);
+
+   VECTOR<MAP<int,int> > m_badModules;
 
    // hold pattern data for a given layer,SSID,sector (all patterns)
    //
@@ -305,6 +319,11 @@ protected:
      //   the bit number is given by iPattern*m_PatternBitsTotal
      VECTOR<std::vector<uint8_t> > m_pattern8Data;
      VECTOR<std::vector<uint16_t> > m_pattern16Data;
+     //
+     // this holds auxillary information (if available)
+     //  number of TSP patterns per pattern
+     //  integrated coverage per pattern
+     VECTOR<uint32_t> m_numTSP,m_coverage;
   };
   void erase();
   //
@@ -315,10 +334,6 @@ protected:
   // hold wildcards (layer mask) per sector
   typedef uint8_t HitPattern_t;
   VECTOR<HitPattern_t> m_SectorWC;
-  //
-  // hold bad SSIDs, from wildcard file
-  VECTOR<std::set<int> > m_badSSID;
-
   //
   // TSP-SSIDs 
   std::vector<std::list<int> > m_tspSSID;
@@ -341,8 +356,8 @@ protected:
  private:
   //
   // method to insert TSP patterns from one sector
-  typedef std::multimap<FTKHitPattern,uint64_t,FTKHitPatternCompare>
-     HitPatternMap_t;
+  typedef std::multimap<FTKHitPattern,std::pair<uint64_t,uint64_t>,
+     FTKHitPatternCompare> HitPatternMap_t;
   void insertPatterns(int sector,FTKPatternOneSector const *patterns,
                       int maxpatts,VECTOR< HitPatternMap_t > &dcPatterns,
                       int &nDC,int &nTSP);
@@ -351,15 +366,16 @@ protected:
   //   tspSSID to dcSSID and back
   //   (this should be moved to another class?)
   int getTSPssidSlow(int layer,int sector,int ssid,int tspXY);
-  int getDCssidSlow(int layer,int sector,int tspSSID);  
+  int getDCssidSlow(int layer,int sector,int tspSSID,int *moduleID);
   void insertSSID(int layer,int sector,int tspSSID,int dcSSID);
+  void invalidateSSIDtables(void);
 
   //
   // table to convert SSID w/o DC bits and DC bits to a TSP SSID
-  VECTOR<MAP<int,MAP<int,std::vector<int> > > > m_DCtoTSP;
+  VECTOR<MAP<int,std::vector<int> > > m_DCtoTSP;
   //
   // table to convert TSP SSID to SSID w/o DC bits and dc bits
-  VECTOR<MAP<int,MAP<int,std::pair<int,int> > > > m_TSPtoDC;
+  VECTOR<MAP<int,std::pair<int,int> > > m_TSPtoDC;
   //
   // lookup-tables to convert compressed DC bits to subSSmask,DC,HB
   //    m_subSSmask[layer][dcHBbits]  returns the subSSmask for this layer
@@ -405,11 +421,14 @@ protected:
 
   // steering for importing patterns
   VECTOR<int32_t> m_nDCmaxPlane;
+  VECTOR<int32_t> m_wildcardPenaltyPlane;
   int32_t m_nDCmax;
+  int32_t m_wildcardPenalty;
 
   //
   // identifier for wildcard SS
-  static int const m_WCID;
+  static int const k_WILDCARDid;
+  static int const k_INVALIDid;
   //
   // for generating HUF table
   void SplitlistHUF(uint64_t code,int *i2char,int *integral,int i0,int i1,

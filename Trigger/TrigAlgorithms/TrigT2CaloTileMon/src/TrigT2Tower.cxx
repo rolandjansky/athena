@@ -31,7 +31,7 @@ TrigT2Tower::TrigT2Tower(): m_eta(0.0), m_phi(0.0)
 }
 
 /** insert first Cell everytime new tower is build */
-TrigT2Tower::TrigT2Tower(Trig3Momentum newCell, MsgStream& log, double etaShift): m_eta(0.0), m_phi(0.0)
+TrigT2Tower::TrigT2Tower(const Trig3Momentum& newCell, MsgStream& log, double etaShift): m_eta(0.0), m_phi(0.0)
 {
    // flush tower
    setComplete( 0 );
@@ -51,7 +51,7 @@ TrigT2Tower::TrigT2Tower(Trig3Momentum newCell, MsgStream& log, double etaShift)
    insertCell( newCell, log);
 }
 
-bool TrigT2Tower::insertCell(Trig3Momentum cell, MsgStream& log)
+bool TrigT2Tower::insertCell(const Trig3Momentum& cell, MsgStream& log)
 {
    if ( cell.caloSample() == CaloSampling::TileBar0 || cell.caloSample() == CaloSampling::TileExt0 )
    {
@@ -101,22 +101,20 @@ bool TrigT2Tower::insertCell(Trig3Momentum cell, MsgStream& log)
 }
 
 // phi and eta is known up to 3 decimal
-bool TrigT2Tower::isMember(Trig3Momentum cell, MsgStream& log, double etaShift)
+bool TrigT2Tower::isMember(const Trig3Momentum& cell, MsgStream& log, double etaShift) const
 {
    double delta = 0.005;
    if ( fabs(eta()-(cell.eta()+etaShift))<delta && fabs(phi()-cell.phi())<delta )
    {
      if ( log.level()<MSG::DEBUG )
       log << MSG::DEBUG << " REGTEST:     CELL:          insert in EXISTING tower:   eta" << eta() << "   phi:" << phi() << endmsg;
-     return 1;
+     return true;
    }
-   else
-   {
-      return 0;
-   }
+
+   return false;
 }
 
-void TrigT2Tower::print(MsgStream& log, MSG::Level level)
+void TrigT2Tower::print(MsgStream& log, MSG::Level level) const
 {
    log << level << " REGTEST:   TOWER:  eta:" << eta() << " phi:" << phi() << " e:" << e() << endmsg;
    

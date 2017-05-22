@@ -80,7 +80,7 @@ SCT_ConditionsParameterSvc::SCT_ConditionsParameterSvc( const std::string& name,
   AthService(name, pSvcLocator),
   m_detStore("DetectorStore",name),
   m_cablingSvc("SCT_CablingSvc", name),
-  m_pHelper(0),
+  m_pHelper{nullptr},
   m_filled(false){
   boost::array<float,SCT_ConditionsServices::N_PARAMETERS> init;
   for (unsigned int i(0);i!=SCT_ConditionsServices::N_PARAMETERS;++i){

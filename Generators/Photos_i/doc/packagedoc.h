@@ -6,12 +6,12 @@
 
 @page Photos_i_page 
 
-<i>
+\<i\>
 
 The usage of Photos and Tauola in the Athena environment is described in the following note:
 https://svnweb.cern.ch/trac/atlasoff/browser/Generators/Photos_i/trunk/doc/athena_TauolaPhotos.pdf
 
-<\i>
+\<\i\>
 
 
 

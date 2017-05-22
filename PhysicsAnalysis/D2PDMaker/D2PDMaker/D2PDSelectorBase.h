@@ -8,7 +8,7 @@
 
 //=============================================================================
 /**
-   @Project: D2PDMaker
+   @package: D2PDMaker
    
    @class D2PDSelectorBase
    
@@ -72,8 +72,8 @@
 #include "AthenaKernel/IUserDataSvc.h"
 
 // The needed ElementLink stuff
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLink.h" 
+#include "AthContainers/DataVector.h"
+#include "AthLinks/ElementLink.h" 
 #include "CLIDSvc/CLASS_DEF.h"
 
 // Include official tools

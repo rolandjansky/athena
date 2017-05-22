@@ -15,8 +15,7 @@
 #define RDBACCESSTEST_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-
-class IRDBRecordset;
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 
 /**
  * @class RDBAccessTest
@@ -46,7 +45,7 @@ class RDBAccessTest:public AthAlgorithm
   virtual StatusCode finalize();
 
 private:
-  const IRDBRecordset* m_tifg;
+  IRDBRecordset_ptr m_tifg;
 };
 
 #endif

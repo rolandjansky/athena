@@ -67,10 +67,13 @@ if athenaCommonFlags.FilesInput()==[]:
 rMC = False
 rID = False
 rFTK=False
+rBperf=False
 if 'runMergedChain' in dir() and runMergedChain==True:
   rMC = True
 if 'doIDNewTracking' in dir() and doIDNewTracking==True:
   rID = True
+if 'doBperf' in dir() and doBperf==True:
+  rBperf = True
 
 tidaAnalysischains = []
 
@@ -85,7 +88,7 @@ tidaAnalysischains += muonAnalysischains
 (tauChainlist, tauAnalysischains) = tauChains(rMC, rID, rFTK)
 tidaAnalysischains += tauAnalysischains
 
-(bjetChainlist, bjetAnalysischains) = bjetChains(rMC, rID, rFTK)
+(bjetChainlist, bjetAnalysischains) = bjetChains(rMC, rID, rFTK, rBperf)
 tidaAnalysischains += bjetAnalysischains
 
 (minBiasChainlist, minBiasAnalysischains) = minBiasChains(rMC, rID)
@@ -106,7 +109,7 @@ def resetSigs():
   TriggerFlags.BjetSlice.setAll();
   TriggerFlags.BjetSlice.signatures = bjetChainlist
 
-  TriggerFlags.MinBiasSlice.setAll();
-  TriggerFlags.MinBiasSlice.signatures = minBiasChainlist
+#  TriggerFlags.MinBiasSlice.setAll();
+#  TriggerFlags.MinBiasSlice.signatures = minBiasChainlist
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")

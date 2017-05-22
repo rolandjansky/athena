@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __JetRoILinks_h__
-#define __JetRoILinks_h__
+#ifndef TRIGGERMENUNTUPLE_JETROILINKS_H
+#define TRIGGERMENUNTUPLE_JETROILINKS_H
 /*
   JetRoILinks.h
 */
@@ -15,8 +15,8 @@ public:
   ~JetRoILinks();
 
 protected:
-  FeatureIndex mTrigJetIndex;
+  FeatureIndex m_trigJetIndex;
 
 };
 
-#endif // __JetRoILinks_h__
+#endif // TRIGGERMENUNTUPLE_JETROILINKS_H

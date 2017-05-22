@@ -1,3 +1,7 @@
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 # an example of minimal jO based on RecExCommon configuration running the FastTrackFinder 
 # to find tracks in predefined RoIs
 # 20/2/2017 Jiri.Masik@manchester.ac.uk
@@ -13,11 +17,11 @@
 # source/Trigger/TrigAlgorithms/TrigFastTrackFinder
 # with the mods to the configuration of the TrigOnlineSpacePointTool
  
-from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-# svcMgr += ForwardSchedulerSvc()
-svcMgr.ForwardSchedulerSvc.CheckDependencies = True
-svcMgr.ForwardSchedulerSvc.OutputLevel=VERBOSE
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.CheckDependencies( True )
+AlgScheduler.OutputLevel( VERBOSE )
+AlgScheduler.ShowDataDependencies( True )
 
 ## get a handle on the ServiceManager
 from AthenaCommon.AlgSequence import AlgSequence
@@ -33,8 +37,11 @@ topSequence.SGInputLoader.Load = [ ('PixelRDO_Container','PixelRDOs'),
 
 
 from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
+from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+
 l1svc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
-l1svc.XMLMenuFile = "LVL1config_Physics_pp_v7.xml"
+l1svc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
 svcMgr += l1svc
 
 
@@ -213,8 +220,8 @@ InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name          
                                                                   SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
                                                                   PixelsClustersName     = InDetKeys.PixelClusters(),
                                                                   SCT_ClustersName       = InDetKeys.SCT_Clusters(),
-                                                                  SpacePointsPixelName   = 'PixelTrigSpacePoints',
-                                                                  SpacePointsSCTName     = 'SCT_TrigSpacePoints',
+                                                                  SpacePointsPixelName   = InDetKeys.PixelSpacePoints(),
+                                                                  SpacePointsSCTName     = InDetKeys.SCT_SpacePoints(),
                                                                   SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                                   ProcessPixels          = DetFlags.haveRIO.pixel_on(),
                                                                   ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
@@ -225,7 +232,7 @@ topSequence += InDetSiTrackerSpacePointFinder
 from TrigFastTrackFinder.TrigFastTrackFinderMT_Config import TrigFastTrackFinderMT_eGamma
 theFTFMT = TrigFastTrackFinderMT_eGamma()
 
-#topSequence += theFTFMT
+topSequence += theFTFMT
 log.info(theFTFMT)
 
 #probably initialized only in trigger=True?

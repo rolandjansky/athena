@@ -71,11 +71,11 @@ class SectorLogicSetup : public BaseObject
 
     StationMap m_stations;
 
-    RPCmap RPCs;
-    WORmap WORs;
-    EtaCMAmap etaCMAs;
-    EvenPhiCMAmap evenphiCMAs;
-    OddPhiCMAmap oddphiCMAs;
+    RPCmap m_RPCs;
+    WORmap m_WORs;
+    EtaCMAmap m_etaCMAs;
+    EvenPhiCMAmap m_evenphiCMAs;
+    OddPhiCMAmap m_oddphiCMAs;
 
     std::string m_online_database;
     std::string m_layout;
@@ -92,7 +92,7 @@ class SectorLogicSetup : public BaseObject
     EvenPhiCMAmap::iterator find_evenphiCMA(int Eta,int Phi);
     OddPhiCMAmap::iterator find_oddphiCMA(int Eta, int Phi);    
 
-    const static std::map<std::string, std::string>* p_trigroads;
+    const static std::map<std::string, std::string>* s_trigroads;
 
     public:
     SectorLogicSetup();
@@ -111,11 +111,11 @@ class SectorLogicSetup : public BaseObject
     const SECTORlist& sectors(void)      const {return m_sectors;} 
     const StationMap& giveStations(void) const {return m_stations;}
 
-    const RPCmap& giveRPC(void)  const {return RPCs;}
-    const WORmap& giveWOR(void)  const {return WORs;}
-    const EtaCMAmap& giveEtaCMA(void)  const {return etaCMAs;}
-    const EvenPhiCMAmap& giveEvenPhiCMA(void) const {return evenphiCMAs;}
-    const OddPhiCMAmap&  giveOddPhiCMA(void)  const {return oddphiCMAs;}
+    const RPCmap& giveRPC(void)  const {return m_RPCs;}
+    const WORmap& giveWOR(void)  const {return m_WORs;}
+    const EtaCMAmap& giveEtaCMA(void)  const {return m_etaCMAs;}
+    const EvenPhiCMAmap& giveEvenPhiCMA(void) const {return m_evenphiCMAs;}
+    const OddPhiCMAmap&  giveOddPhiCMA(void)  const {return m_oddphiCMAs;}
     
 
     const RPCchamber* find_chamber(int,int) const;
@@ -202,7 +202,7 @@ class SectorLogicSetup : public BaseObject
     friend std::ostream& operator<< (std::ostream&,const SectorLogicSetup&);
 
     void SetPtoTrigRoads(const std::map<std::string, std::string>*); 
-    const std::map<std::string, std::string>* GetPtoTrigRoads() const {return p_trigroads;} //LBTAG
+    const std::map<std::string, std::string>* GetPtoTrigRoads() const {return s_trigroads;} //LBTAG
 
 };
 

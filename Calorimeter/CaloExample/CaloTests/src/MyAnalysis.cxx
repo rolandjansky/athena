@@ -26,7 +26,7 @@
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "LArRawUtils/LArRawDetSelector.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"

@@ -23,7 +23,7 @@ namespace xAOD {
     ///@brief Helper function for getting the "Original" Track Particle (i.e before GSF) via the GSF Track Particle
     const xAOD::TrackParticle* getOriginalTrackParticleFromGSF(const xAOD::TrackParticle* trkPar);
 
-    ///@Brief return parameters for the last measurement for a GSF track particle
+    ///@brief return parameters for the last measurement for a GSF track particle
     float getLastMeasurementQoverP(const xAOD::TrackParticle *tp);
 
     ///@brief Return a list of all or only the best TrackParticle associated to the object. 

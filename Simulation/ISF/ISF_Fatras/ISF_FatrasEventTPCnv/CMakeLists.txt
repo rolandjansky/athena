@@ -20,7 +20,7 @@ atlas_depends_on_subdirs(
    AtlasTest/TestTools
    Control/AthenaKernel
    Control/CxxUtils
-   Control/DataModel
+   Control/AthAllocators
    Control/StoreGate
    DetectorDescription/GeoPrimitives
    DetectorDescription/IdDictParser
@@ -36,7 +36,7 @@ atlas_add_tpcnv_library( ISF_FatrasEventTPCnv
    PUBLIC_HEADERS ISF_FatrasEventTPCnv
    LINK_LIBRARIES AthenaPoolCnvSvcLib AthenaPoolUtilities Identifier
    InDetEventTPCnv ISF_FatrasDetDescrModel ISF_FatrasEvent TrkEventTPCnv
-   PRIVATE_LINK_LIBRARIES AthenaKernel CxxUtils DataModel StoreGateLib
+   PRIVATE_LINK_LIBRARIES AthenaKernel CxxUtils AthAllocators StoreGateLib
    EventPrimitives GaudiKernel InDetIdentifier )
 
 atlas_add_dictionary( ISF_FatrasEventTPCnvDict

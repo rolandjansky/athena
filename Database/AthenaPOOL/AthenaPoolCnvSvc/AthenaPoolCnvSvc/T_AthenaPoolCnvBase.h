@@ -25,7 +25,8 @@ class T_AthenaPoolCnvBase : public AthenaPoolConverter {
 
 protected:
    /// Constructor
-   T_AthenaPoolCnvBase(ISvcLocator* svcloc);
+   T_AthenaPoolCnvBase(ISvcLocator* svcloc,
+                       const char* name = nullptr);
 
    /// Gaudi Service Interface method implementations:
    virtual StatusCode initialize();

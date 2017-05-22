@@ -18,8 +18,9 @@
 
 namespace TrigConf {
 
-struct TrigDBConnectionConfig
+class TrigDBConnectionConfig
 {
+public:
   enum DBType { Oracle, MySQL, SQLite, DBLookup };
   typedef std::pair<unsigned int, unsigned int> LumiPSPair;
   typedef std::vector<LumiPSPair> PSKeys;

@@ -5,13 +5,9 @@
 #ifndef AthenaPoolTopLevelEXTTPCnvBase_H
 #define AthenaPoolTopLevelEXTTPCnvBase_H
 
-#define TopLevelTPCnvBaseP AthenaPoolTopLevelExtTPConverter
-
-#include "AthenaPoolTopLevelTPCnvBase.h"
 #include "TPTools/TopLevelTPCnvBaseP.h"
 
-//template< class TL_PERS >
-//using AthenaPoolTopLevelExtTPConverter = TopLevelTPCnvBaseP<TL_PERS>;
-
+template< class TL_PERS >
+using AthenaPoolTopLevelExtTPConverter = TopLevelTPCnvBaseP<TL_PERS>;
 
 #endif

@@ -38,7 +38,8 @@ FTKConstantBank::FTKConstantBank() :
   m_kaverage_aux(0),
   m_maj_invkk_aux(0),
   m_maj_invkk_hw(0),
-  m_maj_invkk_pow(0), m_maj_invkk_pow_hw(0)
+  m_maj_invkk_pow(0), m_maj_invkk_pow_hw(0),
+  m_dTIBL(-999999)
 {
   // nothing to do
 }
@@ -55,7 +56,8 @@ FTKConstantBank::FTKConstantBank(int ncoords, const char *fname) :
   m_maj_invkk_aux(0),
   m_maj_invkk_hw(0),
   m_maj_invkk_pow(0),
-  m_maj_invkk_pow_hw(0)
+  m_maj_invkk_pow_hw(0),
+  m_dTIBL(-999999)
 {
   //TODO: make possible to read constants in different formats
   m_ncoords = ncoords;
@@ -484,7 +486,22 @@ void FTKConstantBank::linfit_chisq(int secid, FTKTrack &trk) const {
     {
       double s = m_kaverage[secid][i];
       for(int j=0;j<m_ncoords;++j) {
-	s += m_kernel[secid][i][j]*trk.getCoords()[j];
+	// JAA: This is a bit of a kludge, but it works - if the temperature difference is more than 10,000 kelvin, we probably have other troubles
+	// It is one-sided (so we do allow such ridiculous positive variations), but that is ok
+	if (j == 0 && m_ncoords == 16 && (trk.getFTKHit(0).getIsBarrel() == 1) && m_dTIBL > -9999) { // SSB, IBL and row coordinate - make temperature correction
+	  int etamodule = trk.getFTKHit(0).getEtaModule(); // this counts from 0, not from -10
+	  double coord = trk.getCoords()[0];
+	  if (etamodule >= 0 && etamodule < 20) {
+	    //	    double dx = dxdtIBL*m_dTIBL*(z*z-z0IBL*z0IBL)/(z0IBL*z0IBL);
+	    double dx = dxdtIBL*m_dTIBL*(zIBL_squared[etamodule]-z0IBL_squared)*z0IBL_squared_inv;	    
+
+	    // convert from 6.25 micron units. But we seem to be missing a factor of 10 still, for now this works - unclear why
+	    coord = coord - dx*0.016;
+	  }
+	  s += m_kernel[secid][i][j]*coord;
+	}
+	else 
+	  s += m_kernel[secid][i][j]*trk.getCoords()[j];
       }
       chi2 += s*s;
     }
@@ -506,7 +523,22 @@ void FTKConstantBank::linfit_pars_eval(int secid, FTKTrack &trk) const
   for (int ip=0;ip<m_npars;++ip) { // parameter loop
     pars[ip] = m_fit_const[secid][ip];
     for(int j=0;j<m_ncoords;++j)  { // scalar product
-      pars[ip] += m_fit_pars[secid][ip][j]*trk.getCoords()[j];
+      // JAA: This is a bit of a kludge, but it works - if the temperature difference is more than 10,000 kelvin, we probably have other troubles
+      // It is one-sided (so we do allow such ridiculous positive variations), but that is ok
+      if (j == 0 && m_ncoords == 16 && (trk.getFTKHit(0).getIsBarrel() == 1) && m_dTIBL > -9999) { // SSB, IBL and row coordinate - make temperature correction
+	  int etamodule = trk.getFTKHit(0).getEtaModule(); // this counts from 0, not from -10
+	  double coord = trk.getCoords()[0];
+	  if (etamodule >= 0 && etamodule < 20) {
+	    //	    double dx = dxdtIBL*m_dTIBL*(z*z-z0IBL*z0IBL)/(z0IBL*z0IBL);
+	    double dx = dxdtIBL*m_dTIBL*(zIBL_squared[etamodule]-z0IBL_squared)*z0IBL_squared_inv;	    
+
+	    // convert from 6.25 micron units. But we seem to be missing a factor of 10 still, for now this works - unclear why
+	    coord = coord - dx*0.016;
+	  }
+	pars[ip] += m_fit_pars[secid][ip][j]*coord;
+      }      
+      else 
+	pars[ip] += m_fit_pars[secid][ip][j]*trk.getCoords()[j];
     }
   } // end parameter loop
 

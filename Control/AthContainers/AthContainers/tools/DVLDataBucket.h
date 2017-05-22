@@ -34,7 +34,7 @@ namespace SG {
  *
  * In particular, we may have a situation where we're asked to convert
  * from @c DataVector\<D> to @c DataVector\<B>, where these two classes
- * are not related by inheritance, but @c D derived from @B.
+ * are not related by inheritance, but @c D derived from @c B.
  * (In practice, this arises when one has multiple inheritance,
  * and can't mirror both arms with @c DataVector/@c DataList.)
  *

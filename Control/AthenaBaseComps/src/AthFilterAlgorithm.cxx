@@ -14,7 +14,7 @@
 
 // STL includes
 
-// FrameWork includes
+// Framework includes
 #include "GaudiKernel/Property.h"
 
 

@@ -17,7 +17,7 @@ class AthenaHepMCInterface: public FADS::FadsGenerator
     ~AthenaHepMCInterface();
     void Initialize();
     void Terminate();
-    HepMC::GenEvent* GenerateAnEvent();
+    const HepMC::GenEvent* GenerateAnEvent();
     /// Log a message using the Athena controlled logging system
     MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
     /// Check whether the logging system is active at the provided verbosity level

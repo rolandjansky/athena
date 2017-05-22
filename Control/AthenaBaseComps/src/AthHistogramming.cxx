@@ -111,7 +111,7 @@ TH1* AthHistogramming::bookGetPointer( TH1& histRef, std::string tDir, std::stri
   if ( it != m_histMap.end() ) // It does exist!
     {
       m_msg << MSG::WARNING
-            << "Detected a hash collission. The hash for the histogram with name=" << histName
+            << "Detected a hash collision. The hash for the histogram with name=" << histName
             << " already exists and points to a histogram with name=" << it->second->GetName()
             << " NOT going to book the new histogram and returning a NULL pointer!" << endmsg;
       return NULL;
@@ -233,7 +233,7 @@ TTree* AthHistogramming::bookGetPointer( const TTree& treeRef, std::string tDir,
   if ( it != m_treeMap.end() ) // It does exist!
     {
       m_msg << MSG::WARNING
-            << "Detected a hash collission. The hash for the TTree with name=" << treeName
+            << "Detected a hash collision. The hash for the TTree with name=" << treeName
             << " already exists and points to a TTree with name=" << it->second->GetName()
             << " NOT going to book the new histogram and returning a NULL pointer!" << endmsg;
       return NULL;
@@ -350,7 +350,7 @@ TGraph* AthHistogramming::bookGetPointer( const TGraph& graphRef, std::string tD
   if ( it != m_graphMap.end() ) // It does exist!
     {
       m_msg << MSG::WARNING
-            << "Detected a hash collission. The hash for the TGraph with name=" << graphName
+            << "Detected a hash collision. The hash for the TGraph with name=" << graphName
             << " already exists and points to a TGraph with name=" << it->second->GetName()
             << " NOT going to book the new histogram and returning a NULL pointer!" << endmsg;
       return NULL;

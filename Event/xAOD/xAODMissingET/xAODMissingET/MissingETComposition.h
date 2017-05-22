@@ -49,7 +49,7 @@ namespace xAOD
     static bool insert(MissingETComponentMap* pMap,const MissingET* pMET,const IParticle* pPart,MissingETBase::Types::weight_t weight=MissingETBase::Types::weight_t());
     /*! @brief Insert MET object and contributing object by pointers, with list of signals and optional kinematic weight object.
      *
-     *  @copydetail insert(MissingETComponentMap*,const MissingET*,const IParticle*,MissingETBase::Types::weight_t)
+     *  @copydetails insert(MissingETComponentMap*,const MissingET*,const IParticle*,MissingETBase::Types::weight_t)
      *
      *  @param[in] signalList reference to non-modifiable list of (base type) pointers to signals associated with the given physics or signal object
      *  @param[in] p          signal type indicator (optional, default is MissingETBase:UsageHandler::OnlyCluster)
@@ -70,7 +70,7 @@ namespace xAOD
     static bool insert(MissingETComponentMap* pMap,const MissingET* pMET,const IParticle* pPart,double wpx,double wpy,double wet);
     /*! @brief Insert MET object and contributing object by pointers, with list of signals and individual weight components
      *
-     *  @copydetail insert(MissingETComponentMap*,const MissingET*,const IParticle*,double,double,double)
+     *  @copydetails insert(MissingETComponentMap*,const MissingET*,const IParticle*,double,double,double)
      *
      *  @param[in] signalList reference to non-modifiable list of (base type) pointers to signals associated with the given physics or signal object
      *  @param[in] p          signal type indicator (optional, default is MissingETBase:UsageHandler::OnlyCluster)

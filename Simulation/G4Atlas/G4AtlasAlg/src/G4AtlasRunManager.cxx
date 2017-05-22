@@ -289,8 +289,8 @@ bool G4AtlasRunManager::SimulateFADSEvent()
   if (m_releaseGeo)
     {
       ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-      StoreGateSvc* m_detStore;
-      if (svcLocator->service("DetectorStore",m_detStore).isFailure())
+      StoreGateSvc* detStore;
+      if (svcLocator->service("DetectorStore",detStore).isFailure())
         {
           ATH_MSG_ERROR( "G4AtlasRunManager could not access the detector store - PANIC!!!!" );
           G4ExceptionDescription description;

@@ -78,32 +78,32 @@ class PadReadOutStructure : public RPCReadOut {
   //
   // internal objects;
   //
-  MatrixReadOutStructure MRS;
-  MatrixReadOut MR;
+  MatrixReadOutStructure m_MRS;
+  MatrixReadOut m_MR;
 
   //
   // some static parameter describing the structure
   //
-  static const ubit16 headerNum=3;
-  static const ubit16 headerPos[headerNum];
-  static const ubit16 headerLen[headerNum];
-  static const ubit16 headerVal;
-  static const ubit16 subHeaderNum=2;
-  static const ubit16 subHeaderPos[subHeaderNum];
-  static const ubit16 subHeaderLen[subHeaderNum];
-  static const ubit16 subHeaderVal;
-  static const ubit16 prefooterNum=5;
-  static const ubit16 prefooterPos[prefooterNum];
-  static const ubit16 prefooterLen[prefooterNum];
-  static const ubit16 prefooterVal;
-  static const ubit16 footerNum=6;
-  static const ubit16 footerPos[footerNum];
-  static const ubit16 footerLen[footerNum];
-  static const ubit16 footerVal;
+  static const ubit16 s_headerNum=3;
+  static const ubit16 s_headerPos[s_headerNum];
+  static const ubit16 s_headerLen[s_headerNum];
+  static const ubit16 s_headerVal;
+  static const ubit16 s_subHeaderNum=2;
+  static const ubit16 s_subHeaderPos[s_subHeaderNum];
+  static const ubit16 s_subHeaderLen[s_subHeaderNum];
+  static const ubit16 s_subHeaderVal;
+  static const ubit16 s_prefooterNum=5;
+  static const ubit16 s_prefooterPos[s_prefooterNum];
+  static const ubit16 s_prefooterLen[s_prefooterNum];
+  static const ubit16 s_prefooterVal;
+  static const ubit16 s_footerNum=6;
+  static const ubit16 s_footerPos[s_footerNum];
+  static const ubit16 s_footerLen[s_footerNum];
+  static const ubit16 s_footerVal;
   //
   // pointer to a temporary array
   //
-  ubit16* vectorStruct;
+  ubit16* m_vectorStruct;
   //
 };
 

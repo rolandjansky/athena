@@ -3,7 +3,7 @@
 */
 
 /** @file TRT_ByteStream_ConditionsSvc.cxx
- *  @Service for accessing TRT ByteStream conditions information
+ *  @brief Service for accessing TRT ByteStream conditions information
  *  @author Denver Whittington
  *  @author Paul Keener
  */

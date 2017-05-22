@@ -18,7 +18,7 @@
 
 // INCLUDE HEADER FILES:
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "SGTools/CLASS_DEF.h"
 #include "muonEvent/Muon.h"
 

@@ -53,7 +53,6 @@
 #include "GaudiKernel/IToolSvc.h"
 
 // Gaudi includes
-#include "GaudiKernel/PropertyMgr.h"
 #include "GaudiKernel/SmartDataPtr.h"
 
 #include <set>
@@ -68,7 +67,7 @@
 static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
 //Barcodes at the HepMC level are int
 
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 //AJB Temporary for debugging and development
 //#include "driftCircle.h"
@@ -153,8 +152,8 @@ TRTDigitizationTool::~TRTDigitizationTool() {
 StatusCode TRTDigitizationTool::initialize()
 {
 
-  //ATH_MSG_INFO ( "TRTDigitization::initialize()" );
-  ATH_MSG_DEBUG ( "TRTDigitization::initialize() begin" );
+  ATH_MSG_INFO ( "TRTDigitization::initialize() begin" );
+  //ATH_MSG_DEBUG ( "TRTDigitization::initialize() begin" );
 
   // Get the TRT Detector Manager
   if (StatusCode::SUCCESS != detStore()->retrieve(m_manager,"TRT") ) {

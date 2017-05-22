@@ -205,14 +205,9 @@ namespace Muon {
 
     m_phietahitassociation = new std::map<const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >;
 
-    if(!m_recordAllOutput){ //Nullify unused output
-       m_CosmicPhiPatternsKey = "";
-       m_CosmicEtaPatternsKey = "";
-       m_COMBINED_PATTERNSKey = "";
-    }
-    ATH_CHECK( m_CosmicPhiPatternsKey.initialize() );
-    ATH_CHECK( m_CosmicEtaPatternsKey.initialize() );
-    ATH_CHECK( m_COMBINED_PATTERNSKey.initialize() );
+    ATH_CHECK( m_CosmicPhiPatternsKey.initialize(m_recordAllOutput) );
+    ATH_CHECK( m_CosmicEtaPatternsKey.initialize(m_recordAllOutput) );
+    ATH_CHECK( m_COMBINED_PATTERNSKey.initialize(m_recordAllOutput) );
 
     ATH_MSG_VERBOSE ("End of Initializing");
     return StatusCode::SUCCESS; 

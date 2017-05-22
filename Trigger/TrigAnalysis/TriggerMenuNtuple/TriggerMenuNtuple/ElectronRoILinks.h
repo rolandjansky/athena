@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __ElectronRoILinks_h__
-#define __ElectronRoILinks_h__
+#ifndef TRIGGERMENUNTUPLE_ELECTRONROILINKS_H
+#define TRIGGERMENUNTUPLE_ELECTRONROILINKS_H
 /*
   ElectronRoILinks.h
 */
@@ -15,15 +15,15 @@ public:
   ElectronRoILinks();
   ~ElectronRoILinks();
 
-  const FeatureIndex& getEMClusterIndex() const { return EMClusterIndex; }
+  const FeatureIndex& getEMClusterIndex() const { return m_EMClusterIndex; }
   const std::vector<FeatureIndex>& getInDetTrackIndex() const {
-    return InDetTrackIndex;
+    return m_InDetTrackIndex;
   }
   const std::vector<FeatureIndex>& getTrigElectronIndex() const {
-    return TrigElectronIndex;
+    return m_TrigElectronIndex;
   }
   const std::vector<FeatureIndex>& getEgammaIndex() const {
-    return EgammaIndex;
+    return m_EgammaIndex;
   }
 
   void set(const FeatureIndex& index_EMCluster, 
@@ -44,10 +44,10 @@ public:
   bool operator==(const ElectronRoILinks& x) const;
 
 private:
-  FeatureIndex EMClusterIndex;
-  std::vector<FeatureIndex> InDetTrackIndex;
-  std::vector<FeatureIndex> TrigElectronIndex;
-  std::vector<FeatureIndex> EgammaIndex;
+  FeatureIndex m_EMClusterIndex;
+  std::vector<FeatureIndex> m_InDetTrackIndex;
+  std::vector<FeatureIndex> m_TrigElectronIndex;
+  std::vector<FeatureIndex> m_EgammaIndex;
 };
 
-#endif // __ElectronRoILinks_h__
+#endif // TRIGGERMENUNTUPLE_ELECTRONROILINKS_H

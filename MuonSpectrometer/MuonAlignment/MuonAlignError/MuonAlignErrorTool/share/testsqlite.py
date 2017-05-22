@@ -46,7 +46,7 @@ spec=cool.FolderSpecification(cool.FolderVersioning.MULTI_VERSION,recspec,True)
 
 desc='<timeStamp>time</timeStamp><addrHeader><address_header service_type="71" clid="1238547719" /></addrHeader><typeName>CondAttrListCollection</typeName>'
 
-####<timeStamp>time</timeStamp><addrHeader><address_header service_type="71" clid="40774348" /></addrHeader><typeName>AthenaAttributeList</typeName>
+#<timeStamp>time</timeStamp><addrHeader><address_header service_type="71" clid="40774348" /></addrHeader><typeName>AthenaAttributeList</typeName>
 
 # create the folder - single version
 # last argument is createParents - if true, automatically creates parent folders if needed

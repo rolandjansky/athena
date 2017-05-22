@@ -37,7 +37,7 @@ namespace D3PD {
  * out all the code that doesn't depend on the template argument.
  *
  * Derived classes should define @c fromTypeinfo (this is normally
- * done by @c MultiAssociationTool).  The @book method may also
+ * done by @c MultiAssociationTool).  The @c book method may also
  * be overridden if the tool should itself fill any tuple variables.
  */
 class MultiAssociationToolImpl

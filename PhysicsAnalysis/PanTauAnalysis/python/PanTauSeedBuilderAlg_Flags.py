@@ -2,7 +2,7 @@
 
 ##
 ## @file PanTauAnalysis/python/PanTauSeedBuilderAlg_Flags.py
-## @purpose Python module to hold the flags that configure the TauSeedBuilderAlg
+## @brief Python module to hold the flags that configure the TauSeedBuilderAlg
 ##
 
 """ PanTauSeedBuilderAlg_Flags

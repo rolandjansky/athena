@@ -38,11 +38,6 @@ MessageSvc.OutputLevel =3
 AthenaEventLoopMgr = Service ("AthenaEventLoopMgr")
 AthenaEventLoopMgr.OutputLevel=4
 
-#Necessary DLL's 
-theApp.Dlls += [ "LArRawUtils","LArROD", "LArTools"]
-theApp.Dlls += [ "LArByteStream"]
-#theApp.Dlls += [ "CaloDetMgrDetDescrCnv" ]
-
 # The only TopAlg: ReadLArDigits 
 theApp.TopAlg += ["ReadLArDigits"]
 ReadLArDigits = Algorithm( "ReadLArDigits" )

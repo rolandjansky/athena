@@ -10,9 +10,6 @@
 #include "JetEDM/LabelIndex.h"
 #include "JetEDM/PseudoJetVector.h"
 
-using jet::LabelIndex;
-using jet::PseudoJetVector;
-
 class IEventShapeTool;
 class ITriggerPseudoJetGetter;
 
@@ -49,8 +46,8 @@ private:
   float m_energyDensity;  // allow monitoring.
 
   HLT::ErrorCode getPseudoJets(const xAOD::CaloClusterContainer*,
-                               LabelIndex*,
-                               PseudoJetVector&);
+                               jet::LabelIndex*,
+                               jet::PseudoJetVector&);
 
 }; 
 #endif

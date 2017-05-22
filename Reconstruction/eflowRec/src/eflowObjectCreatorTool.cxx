@@ -44,9 +44,9 @@ namespace EFlow_Fn{
 eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const std::string& name, const IInterface* parent) :
     AthAlgTool(type, name, parent),
     m_PFOOutputName("JetETMiss"),
-    m_chargedPFOContainer(0),
-    m_neutralPFOContainer(0),
-    m_neutralPFOContainer_nonModified(0),
+    m_chargedPFOContainer(nullptr),
+    m_neutralPFOContainer(nullptr),
+    m_neutralPFOContainer_nonModified(nullptr),
     m_eOverPMode(false),
     m_goldenModeString(""),
     m_LCMode(false),

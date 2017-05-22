@@ -15,7 +15,7 @@
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 
 eflowRecCluster::eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& clusElementLink) :
-  m_clusterId(-1), m_cluster(*clusElementLink), m_clusElementLink(clusElementLink), m_isTouchable(false), m_type(0), m_matchCluster(0) {
+  m_clusterId(-1), m_cluster(*clusElementLink), m_clusElementLink(clusElementLink), m_isTouchable(false), m_type(0), m_matchCluster(nullptr) {
   m_matchCluster = new eflowMatchCluster(this);
 }
 

@@ -69,7 +69,7 @@
 #include <vector>
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"

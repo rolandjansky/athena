@@ -12,7 +12,6 @@
 #include "Identifier/Identifier.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include <iostream>
 #include <vector>
@@ -43,8 +42,7 @@ namespace{
 TestTRT_Alignment::TestTRT_Alignment(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_manager(0),
-  m_idHelper(0),
-  m_geoModelSvc("GeoModelSvc", name)
+  m_idHelper(0)
 {  
   // Get parameter values from jobOptions file
   declareProperty("ManagerName", m_managerName = "TRT");
@@ -55,7 +53,6 @@ TestTRT_Alignment::TestTRT_Alignment(const std::string& name, ISvcLocator* pSvcL
   declareProperty("ErrorTranslation",m_errTrans = 1e-12); // For testing if alignment changed
   declareProperty("HardwiredShifts", m_hardwiredShifts = false);
   declareProperty("Precision", m_precision = 6);
-  declareProperty("GeoModelSvc",  m_geoModelSvc);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -77,37 +74,6 @@ StatusCode TestTRT_Alignment::initialize(){
       msg(MSG::INFO) << " NB. TestAllStraws flag is ignored" << endmsg;
     }
   }
-   // GeoModelSvc
-  if (m_geoModelSvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  StatusCode sc;
-  if(m_geoModelSvc->geoInitialized()) {
-    msg(MSG::INFO) << "Geometry already initialized. Call geoInitialize."  << endmsg;
-    sc = geoInitialize();
-
-  } else {
-    msg(MSG::INFO) << "Geometry not yet initialized. Registering callback"  << endmsg;
-    // Register callback to check when TagInfo has changed
-    sc =  detStore()->regFcn(&IGeoModelSvc::geoInit, &*m_geoModelSvc, &TestTRT_Alignment::geoInitCallback, this);
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Cannot register geoInitCallback function "  << endmsg;
-    } else {
-      msg(MSG::DEBUG) << "Registered geoInitCallback callback  " << endmsg;
-    }
-  }
-  return sc;
-}
- 
- 
-StatusCode TestTRT_Alignment::geoInitCallback(IOVSVC_CALLBACK_ARGS){
-  msg(MSG::INFO) <<"geoInitCallback is called" << endmsg; 
-  return geoInitialize();
-}
-
-
-StatusCode TestTRT_Alignment::geoInitialize() {
   // Retrieve GeoModel Detector Elements
   // You can either get the SCT or pixel manager or the common base class
   // manager. In this example I get the base class.

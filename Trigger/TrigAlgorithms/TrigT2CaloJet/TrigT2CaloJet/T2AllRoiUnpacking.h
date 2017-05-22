@@ -86,10 +86,10 @@ class T2AllRoiUnpacking: public HLT::AllTEAlgo {
   ToolHandle< T2CaloJetGridFromCells > m_caloGridFromCellsTool;
   bool m_retrievedGridTool;
   std::vector<Trig3Momentum>* m_grid;
-  //! (\eta,\phi) regions that have been already processed
+  //! @f$ (\eta,\phi) @f$ regions that have been already processed
   /*! This datamember is reset at each event */
   std::vector< EtaPhiRectangle > m_processedRegions;
-  //! (\eta,\phi) regions that overlap with regions that have already been processed
+  //! @f$ (\eta,\phi) @f$ regions that overlap with regions that have already been processed
   /*! This datamember is reset at each TriggerElement */
   std::vector< EtaPhiRectangle > m_overlapRegions;
   /** For Logging, in all tools we should use (*m_log) to avoid recalling of the MsgStream all the time. */
@@ -116,15 +116,15 @@ class T2AllRoiUnpacking: public HLT::AllTEAlgo {
 //
 //----------------------------------------------------------
 
-/*! \brief A class describing a rectangle in \eta , \phi
+/*! \brief A class describing a rectangle in @f$ \eta @f$, @f$ \phi @f$
  *
  * An EtaPhiRectangle object can be used to keep track of a rectangle
  * in these coordinates. It is meant to be a simple object that takes
- * care of the 2\pi ambigiuties and that can perform simple operations
+ * care of the @f$ 2\pi @f$ ambigiuties and that can perform simple operations
  * such as compute the overlap between two rectangles.  While the
- * minimum and maximum \phi values can be provided in any range,
- * internally all \phi angles are stored and handled within
- * (-\pi,+\pi].
+ * minimum and maximum @f$ \phi @f$ values can be provided in any range,
+ * internally all @f$ \phi angles @f$ are stored and handled within
+ * (@f$ -\pi @f$,@f$ +\pi @f$].
  * Maybe at some point you could use TVector2.h (but they store x,y) or gsl::polar.
  */
 
@@ -150,7 +150,7 @@ class EtaPhiRectangle{
   double phiMax() const { return m_phiMax; };
   double etaHalfWidth() const {return m_etaHw; };
   double phiHalfWidth() const {return m_phiHw; };
-  //! determine whether a given point in (\eta,\phi) is inside this EtaPhiRectangle
+  //! determine whether a given point in (@f$ \eta @f$, @f$ \phi @f$) is inside this EtaPhiRectangle
   bool contains(const EtaPhiPoint &point) const;
   //! same as above, but less safe agaist eta-phi swap
   bool contains(const double &eta, const double &phi) const { return contains(std::make_pair(eta,phi));};
@@ -160,9 +160,9 @@ class EtaPhiRectangle{
   //! compute the rectangle corresponding to the overlapping area
   static EtaPhiRectangle overlappingRectangle(const EtaPhiRectangle &lhs,
 					     const EtaPhiRectangle &rhs);
-  //! convert any angle to its equivalent in ( -\pi , +\pi ]
+  //! convert any angle to its equivalent in ( @f$ -\pi @f$, @f$ +\pi @f$]
   static double phi_mpi_pi(const double &val);
-  //! convert any angle to its equivalent in ( 0 , +2\pi ]
+  //! convert any angle to its equivalent in ( 0 , @f$ +2\pi @f$]
   static double phi_zero_2pi(const double &val);
   //! print the rectangle
   void print(std::ostream& stream) const;
@@ -182,7 +182,7 @@ class EtaPhiRectangle{
   double m_phiMax; //!< maximum phi
   double m_phiCen; //!< central phi
   double m_phiHw;  //!< phi half width
-  bool m_wrapsAroundPi; //!< whether the rectangle crosses over \phi = \pi
+  bool m_wrapsAroundPi; //!< whether the rectangle crosses over @f$ \phi = \pi @f$
 
 }; // end EtaPhiRectangle
 
@@ -218,9 +218,9 @@ class L2CaloRoiBoundsCalculator {
 		     const double &phiHalfWidth);
   double m_etaMin, m_etaMax;  //!< eta range
   double m_phiMin, m_phiMax;  //!< phi range
-  double m_roiEtaLimit;       //!< a reasonable maximum in \eta (4.8, does not include FCAL)
-  double m_fcalEtaMin;	      //!< FCAL minumum \eta (3.0)
-  double m_fcalEtaMax;	      //!< FCAL maxumum \eta (5.0)
+  double m_roiEtaLimit;       //!< a reasonable maximum in @f$ \eta @f$ (4.8, does not include FCAL)
+  double m_fcalEtaMin;	      //!< FCAL minumum @f$ \eta @f$ (3.0)
+  double m_fcalEtaMax;	      //!< FCAL maxumum @f$ \eta @f$ (5.0)
   double m_minFcalEtaCenter;  //!< if the \eta center is above this (3.2), then we think it's FCAL
 }; // end L2CaloRoiBoundsCalculator
 

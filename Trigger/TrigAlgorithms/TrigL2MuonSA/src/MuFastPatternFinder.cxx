@@ -100,15 +100,15 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
 		 << StationName << "/" << StationEta << "/" << StationPhi << "/" << Multilayer << "/"
 		 << Layer << "/" << Tube);
 
-   Identifier id = m_mdtIdHelper->channelID(StationName,StationEta,
-					    StationPhi,Multilayer,Layer,Tube);
+   Identifier id = ( mdtHit.Id.is_valid() ) ? mdtHit.Id : m_mdtIdHelper->channelID(StationName,StationEta,
+       StationPhi,Multilayer,Layer,Tube);
 
    int tdcCounts    = (int)mdtHit.DriftTime;
    int adcCounts    = mdtHit.Adc;
 
    double R    = mdtHit.R;
    //   double InCo = mdtHit.cInCo;
-   double InCo = cos(fabsf(track_phi - phi0))!=0 ? 1./(cos(fabsf(track_phi - phi0))): 0; 
+   double InCo = cos(std::abs(track_phi - phi0))!=0 ? 1./(cos(std::abs(track_phi - phi0))): 0; 
    double X    = (isEndcap)? R*cos(track_phi): R*InCo*cos(track_phi);
    double Y    = (isEndcap)? R*sin(track_phi): R*InCo*sin(track_phi);
    double Z    = mdtHit.Z;

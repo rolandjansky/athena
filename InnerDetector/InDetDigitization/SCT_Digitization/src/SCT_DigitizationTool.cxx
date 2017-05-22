@@ -17,7 +17,6 @@
 
 // Hit class includes
 #include "InDetSimEvent/SiHit.h"
-#include "InDetSimData/InDetSimDataCollection.h"
 #include "Identifier/Identifier.h"
 
 // Det Descr includes
@@ -29,6 +28,9 @@
 #include "SCT_Digitization/ISCT_FrontEnd.h"
 #include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
 #include "SCT_Digitization/ISCT_RandomDisabledCellGenerator.h"
+
+// Data Handle
+#include "StoreGate/ReadHandle.h"
 
 // C++ Standard Library
 #include <sstream>
@@ -46,22 +48,24 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string &type,
                                            const IInterface *parent) :
     PileUpToolBase(type, name, parent),
     m_tfix(-999.),
-    m_comTime(0),
+    m_comTime(0.),
     m_enableHits(true),
     m_onlyHitElements(false),
     m_HardScatterSplittingMode(0),
     m_HardScatterSplittingSkipper(false),
+    m_ComTimeKey("ComTime"),
     m_detID(nullptr),
     m_detMgr(nullptr),
     m_sct_FrontEnd("SCT_FrontEnd", this),
     m_sct_SurfaceChargesGenerator("SCT_SurfaceChargesGenerator", this),
     m_sct_RandomDisabledCellGenerator("SCT_RandomDisabledCellGenerator", this),
+    m_rdoContainerKey(""),
     m_rndmSvc("AtRndmGenSvc", name),
     m_mergeSvc("PileUpMergeSvc", name),
     m_rndmEngine(nullptr),
     m_atlasID(nullptr),
     m_thpcsi(nullptr),
-    chargedDiodes(nullptr),
+    m_chargedDiodes(nullptr),
     m_vetoThisBarcode(crazyParticleBarcode) {
     declareInterface<SCT_DigitizationTool>(this);
     declareProperty("FixedTime", m_tfix,
@@ -82,9 +86,9 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string &type,
 
     declareProperty("InputObjectName", m_inputObjectName = "",
                     "Input Object name");
-    declareProperty("OutputObjectName", m_outputRDOCollName = "SCT_RDOs",
+    declareProperty("OutputObjectName", m_rdoContainerKey = std::string("SCT_RDOs"),
                     "Output Object name");
-    declareProperty("OutputSDOName", m_outputSDOCollName = "SCT_SDO_Map",
+    declareProperty("OutputSDOName", m_simDataCollMapKey = std::string("SCT_SDO_Map"),
                     "Output SDO container name");
     declareProperty("RndmSvc", m_rndmSvc,
                     "Random Number Service used in SCT & Pixel digitization");
@@ -138,6 +142,11 @@ StatusCode SCT_DigitizationTool::initialize() {
         CHECK(initDisabledCells());
         ATH_MSG_INFO("Use of Random disabled cells");
     }
+
+    // +++ Initialize WriteHandleKey
+    ATH_CHECK(m_rdoContainerKey.initialize());
+    ATH_CHECK(m_simDataCollMapKey.initialize());
+    ATH_CHECK(m_ComTimeKey.initialize(m_useComTime));
 
     ATH_MSG_DEBUG("SiDigitizationTool::initialize() complete");
 
@@ -304,7 +313,7 @@ StatusCode SCT_DigitizationTool::processAllSubEvents() {
     else {
         ATH_MSG_DEBUG("no hits found in event!");
     }
-    delete chargedDiodes;
+    delete m_chargedDiodes;
     ATH_MSG_DEBUG("Digitized Elements with Hits");
 
     // loop over elements without hits
@@ -323,36 +332,17 @@ StatusCode SCT_DigitizationTool::prepareEvent(unsigned int /*index*/) {
     ATH_MSG_VERBOSE("SCT_DigitizationTool::prepareEvent()");
     // Create the IdentifiableContainer to contain the digit collections Create
     // a new RDO container
-    try
-    {
-        m_rdocontainer = new SCT_RDO_Container(m_detID->wafer_hash_max());
-    }
-    catch (std::bad_alloc)
-    {
-        ATH_MSG_FATAL("Could not create a new SCT RawDataContainer !");
-        return StatusCode::FAILURE;
-    }
-
-    // register RDO container with storegate
-    StatusCode sc = evtStore()->record(m_rdocontainer, m_outputRDOCollName);
-    if (sc.isFailure()) {
-        ATH_MSG_FATAL("Container '" << m_outputRDOCollName <<
-            "' could not be registered in StoreGate !");
-        return StatusCode::FAILURE;
-    }
+    m_rdoContainer = SG::makeHandle(m_rdoContainerKey);
+    ATH_CHECK(m_rdoContainer.record(std::make_unique<SCT_RDO_Container>(m_detID->wafer_hash_max())));
 
     // Create a map for the SDO and register it into StoreGate
-    m_simDataCollMap = new  InDetSimDataCollection();
-    sc = evtStore()->record(m_simDataCollMap, m_outputSDOCollName);
-    if (sc.isFailure()) {
-        ATH_MSG_FATAL("InDetSimData map '" << m_outputSDOCollName <<
-            "' could not be registered in StoreGate !");
-        return StatusCode::FAILURE;
-    }
+    m_simDataCollMap = SG::makeHandle(m_simDataCollMapKey);
+    ATH_CHECK(m_simDataCollMap.record(std::make_unique<InDetSimDataCollection>()));
 
     if (m_useComTime) {
-        if (StatusCode::SUCCESS == evtStore()->retrieve(m_ComTime, "ComTime")) {
-            m_comTime = m_ComTime->getTime();
+      SG::ReadHandle<ComTime> comTime(m_ComTimeKey);
+      if (comTime.isValid()) {
+	    m_comTime = comTime->getTime();
             m_sct_SurfaceChargesGenerator->setComTime(m_comTime);
             ATH_MSG_DEBUG(
                 "Found tool for cosmic/commissioning timing: ComTime");
@@ -373,7 +363,7 @@ StatusCode SCT_DigitizationTool::prepareEvent(unsigned int /*index*/) {
 
 
     m_thpcsi = new TimedHitCollection<SiHit>();
-    chargedDiodes = new SiChargedDiodeCollection;
+    m_chargedDiodes = new SiChargedDiodeCollection;
     m_HardScatterSplittingSkipper = false;
     return StatusCode::SUCCESS;
 }
@@ -388,16 +378,16 @@ StatusCode SCT_DigitizationTool::mergeEvent() {
     if (m_enableHits) {
         digitizeAllHits();
     }
-    delete chargedDiodes;
+    delete m_chargedDiodes;
 
     digitizeNonHits();
 
-    for (std::vector<SiHitCollection *>::iterator it = hitCollPtrs.begin();
-         it != hitCollPtrs.end(); it++) {
+    for (std::vector<SiHitCollection *>::iterator it = m_hitCollPtrs.begin();
+         it != m_hitCollPtrs.end(); it++) {
         (*it)->Clear();
         delete(*it);
     }
-    hitCollPtrs.clear();
+    m_hitCollPtrs.clear();
 
     ATH_MSG_DEBUG("Digitize success!");
     return StatusCode::SUCCESS;
@@ -414,40 +404,40 @@ void SCT_DigitizationTool::digitizeAllHits() {
     ATH_MSG_DEBUG("Digitizing hits");
     int hitcount = 0; // First, elements with hits.
 
-    while (digitizeElement(chargedDiodes)) {
+    while (digitizeElement(m_chargedDiodes)) {
         ATH_MSG_DEBUG("Hit collection ID=" << m_detID->show_to_string(
-                          chargedDiodes->identify()));
+                          m_chargedDiodes->identify()));
 
         hitcount++;  // Hitcount will be a number in the hit collection minus
                      // number of hits in missing mods
 
         ATH_MSG_DEBUG("in digitize elements with hits: ec - layer - eta - phi  "
-                      << m_detID->barrel_ec(chargedDiodes->identify()) << " - "
-                      << m_detID->layer_disk(chargedDiodes->identify()) << " - "
-                      << m_detID->eta_module(chargedDiodes->identify()) << " - "
-                      << m_detID->phi_module(chargedDiodes->identify()) << " - "
+                      << m_detID->barrel_ec(m_chargedDiodes->identify()) << " - "
+                      << m_detID->layer_disk(m_chargedDiodes->identify()) << " - "
+                      << m_detID->eta_module(m_chargedDiodes->identify()) << " - "
+                      << m_detID->phi_module(m_chargedDiodes->identify()) << " - "
                       << " processing hit number " << hitcount
                       );
 
         // Have a flag to check if the module is present or not
         // Generally assume it is:
 
-        IdentifierHash idHash = chargedDiodes->identifyHash();
+        IdentifierHash idHash = m_chargedDiodes->identifyHash();
 
         assert(idHash < m_processedElements.size());
         m_processedElements[idHash] = true;
 
         // create and store RDO and SDO
 
-        if (!chargedDiodes->empty()) {
-            StatusCode sc = createAndStoreRDO(chargedDiodes);
+        if (!m_chargedDiodes->empty()) {
+            StatusCode sc = createAndStoreRDO(m_chargedDiodes);
             if (sc.isSuccess()) { // error msg is given inside
                                   // createAndStoreRDO()
-                addSDO(chargedDiodes);
+                addSDO(m_chargedDiodes);
             }
         }
 
-        chargedDiodes->clear();
+        m_chargedDiodes->clear();
     }
     ATH_MSG_DEBUG("hits processed");
     return;
@@ -460,7 +450,7 @@ void SCT_DigitizationTool::digitizeNonHits() {
     }
 
     ATH_MSG_DEBUG("processing elements without hits");
-    chargedDiodes = new SiChargedDiodeCollection;
+    m_chargedDiodes = new SiChargedDiodeCollection;
 
     for (unsigned int i = 0; i < m_processedElements.size(); i++) {
         if (!m_processedElements[i]) {
@@ -481,26 +471,26 @@ void SCT_DigitizationTool::digitizeNonHits() {
                     << "size: " << m_processedElements.size()
                     );
 
-                chargedDiodes->setDetectorElement(element);
+                m_chargedDiodes->setDetectorElement(element);
                 ATH_MSG_DEBUG("calling applyProcessorTools() for NON hits");
-                applyProcessorTools(chargedDiodes);
+                applyProcessorTools(m_chargedDiodes);
 
                 // Create and store RDO and SDO
                 // Don't create empty ones.
-                if (!chargedDiodes->empty()) {
-                    StatusCode sc = createAndStoreRDO(chargedDiodes);
+                if (!m_chargedDiodes->empty()) {
+                    StatusCode sc = createAndStoreRDO(m_chargedDiodes);
                     if (sc.isSuccess()) {// error msg is given inside
                                          // createAndStoreRDO()
-                        addSDO(chargedDiodes);
+                        addSDO(m_chargedDiodes);
                     }
                 }
 
-                chargedDiodes->clear();
+                m_chargedDiodes->clear();
             }
         }
     }
 
-    delete chargedDiodes;
+    delete m_chargedDiodes;
     return;
 }
 
@@ -649,7 +639,7 @@ StatusCode SCT_DigitizationTool::processBunchXing(int bunchXing,
         PileUpTimeEventIndex timeIndex(iEvt->time(), iEvt->index());
         SiHitCollection *hitCollPtr = new SiHitCollection(*seHitColl);
         m_thpcsi->insert(timeIndex, hitCollPtr);
-        hitCollPtrs.push_back(hitCollPtr);
+        m_hitCollPtrs.push_back(hitCollPtr);
     }
 
     return StatusCode::SUCCESS;
@@ -707,7 +697,7 @@ StatusCode SCT_DigitizationTool::createAndStoreRDO(
     int barrelec(m_detID->barrel_ec(id_coll));
 
     if (!m_barrelonly || std::abs(barrelec) <= 1) {
-        if (m_rdocontainer->addCollection(RDOColl,
+      if (m_rdoContainer->addCollection(RDOColl,
                                           RDOColl->identifyHash()).isFailure())
         {
             ATH_MSG_FATAL(

@@ -17,7 +17,7 @@
 
 class StoreGateSvc;
 
-/** @classMakeInputDataHeader 
+/** @class MakeInputDataHeader 
  *  @brief This class provides an algorithm to make an OutputDataHeader the InputDataHeader.
  **/
 class MakeInputDataHeader : public ::AthAlgorithm {

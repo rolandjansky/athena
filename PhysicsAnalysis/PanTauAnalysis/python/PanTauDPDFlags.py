@@ -2,7 +2,7 @@
 
 ##
 ## @file PanTauAnalysis/python/PanTauDPDFlags.py
-## @purpose Python module to hold common flags to configure PanTau DPD writing
+## @brief Python module to hold common flags to configure PanTau DPD writing
 ##
 
 """ PanTauDPDFlags

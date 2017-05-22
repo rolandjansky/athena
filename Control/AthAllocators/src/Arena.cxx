@@ -24,11 +24,12 @@ namespace SG {
  *        If defaulted, the global default @c ArenaHeader will be used.
  */
 Arena::Arena (const std::string& name, ArenaHeader* header /*= 0*/)
-  : m_header (header),
-    m_name (name)
+  : ArenaBase (name),
+    m_header (header)
 {
-  if (!m_header)
+  if (!m_header) {
     m_header = SG::ArenaHeader::defaultHeader();
+  }
   m_header->addArena (this);
 }
 
@@ -39,96 +40,25 @@ Arena::Arena (const std::string& name, ArenaHeader* header /*= 0*/)
 Arena::~Arena()
 {
   m_header->delArena (this);
-  for (ArenaAllocatorBase* alloc : m_allocs)
-    delete alloc;
-}
-
-
-/**
- * @brief reset all contained allocators.  All elements will be freed.
- */
-void Arena::reset()
-{
-  for (ArenaAllocatorBase* alloc : m_allocs) {
-    if (alloc)
-      alloc->reset();
-  }
-}
-
-
-/**
- * @brief erase all contained allocators.  All elements will be freed,
- *        and the memory returned to the system.
- */
-void Arena::erase()
-{
-  for (ArenaAllocatorBase* alloc : m_allocs) {
-    if (alloc)
-      alloc->erase();
-  }
-}
-
-
-/**
- * @brief Generate a report of the memory in use by this @c Arena.
- * @param os The stream to which to write the report.
- */
-void Arena::report (std::ostream& os) const
-{
-  bool first = true;
-  for (ArenaAllocatorBase* alloc : m_allocs) {
-    if (alloc) {
-      if (first) {
-        ArenaAllocatorBase::Stats::header (os);
-        os << std::endl;
-        first = false;
-      }
-      alloc->report (os);
-    }
-  }
-}
-
-
-/**
- * @brief Return statistics summed over all allocators in this @c Arena.
- */
-const ArenaAllocatorBase::Stats& Arena::stats () const
-{
-  m_stats = ArenaAllocatorBase::Stats();
-  for (ArenaAllocatorBase* alloc : m_allocs) {
-    if (alloc) {
-      m_stats += alloc->stats();
-    }
-  }
-  return m_stats;
 }
 
 
 /**
  * @brief Return the @c ArenaHeader with which this @c Arena is associated.
  */
-ArenaHeader* Arena::header() const
+ArenaHeader* Arena::header()
 {
   return m_header;
 }
 
 
 /**
- * @brief Return this @c Arena's name.
- */
-const std::string& Arena::name() const
-{
-  return m_name;
-}
-
-
-/**
  * @brief Make this @c Arena the current one for its @c ArenaHeader.
- * @returns The previously current allocator vector.
+ * @returns The previously current Arena.
  */
-ArenaHeader::ArenaAllocVec_t* Arena::makeCurrent()
+ArenaBase* Arena::makeCurrent()
 {
-  return m_header->setAllocVec (&m_allocs);
+  return m_header->setArena (this);
 }
 
 
@@ -138,7 +68,7 @@ ArenaHeader::ArenaAllocVec_t* Arena::makeCurrent()
  */
 Arena::Push::Push (Arena& a)
   : m_header (a.header()),
-    m_allocs (a.makeCurrent())
+    m_prev (a.makeCurrent())
 {
 }
 
@@ -148,7 +78,7 @@ Arena::Push::Push (Arena& a)
  */
 Arena::Push::~Push()
 {
-  m_header->setAllocVec (m_allocs);
+  m_header->setArena (m_prev);
 }
 
 

@@ -53,36 +53,36 @@ class HIMonitoringZdcTool : public ManagedMonitorToolBase
 
 
 	 private:
-		double NEW_AEM, NEW_AHAD1, NEW_AHAD2, NEW_AHAD3;
-		double NEW_CEM, NEW_CHAD1, NEW_CHAD2, NEW_CHAD3;
-		double AEM, AHAD1, AHAD2, AHAD3;
-		double CEM, CHAD1, CHAD2, CHAD3;
-		double G0AEM, G0AHAD1, G0AHAD2, G0AHAD3;
-		double G0CEM, G0CHAD1, G0CHAD2, G0CHAD3;
-		double G1AEM, G1AHAD1, G1AHAD2, G1AHAD3;
-		double G1CEM, G1CHAD1, G1CHAD2, G1CHAD3;
-		double SumSideA, SumSideC;
-		double NEW_SumSideA, NEW_SumSideC;
+		double m_NEW_AEM, m_NEW_AHAD1, m_NEW_AHAD2, m_NEW_AHAD3;
+		double m_NEW_CEM, m_NEW_CHAD1, m_NEW_CHAD2, m_NEW_CHAD3;
+		double m_AEM, m_AHAD1, m_AHAD2, m_AHAD3;
+		double m_CEM, m_CHAD1, m_CHAD2, m_CHAD3;
+		double m_G0AEM, m_G0AHAD1, m_G0AHAD2, m_G0AHAD3;
+		double m_G0CEM, m_G0CHAD1, m_G0CHAD2, m_G0CHAD3;
+		double m_G1AEM, m_G1AHAD1, m_G1AHAD2, m_G1AHAD3;
+		double m_G1CEM, m_G1CHAD1, m_G1CHAD2, m_G1CHAD3;
+		double m_SumSideA, m_SumSideC;
+		double m_NEW_SumSideA, m_NEW_SumSideC;
 
 
 		/// histograms 
-		TH1D* hamp[Nmod][Nside];
-		TH1D* hamp_NEW[Nmod][Nside];
-		TH1D* hampG0[Nmod][Nside];
-		TH1D* hampG1[Nmod][Nside];
-		TH1D* hSumSideAmp[Nside];
-		TH1D* hSumSideAmp_NEW[Nside];
-		TH1D* hSumSideAmpG0[Nside];
-		TH1D* hSumSideAmpG1[Nside];
-		TH2D_LW* hEM_HAD1[Nside];
-		TH2D_LW* hHAD1_HAD2[Nside];
-		TH2D_LW* hHAD2_HAD3[Nside];
-		TH2D_LW* hSideAC;
+		TH1D* m_hamp[Nmod][Nside];
+		TH1D* m_hamp_NEW[Nmod][Nside];
+		TH1D* m_hampG0[Nmod][Nside];
+		TH1D* m_hampG1[Nmod][Nside];
+		TH1D* m_hSumSideAmp[Nside];
+		TH1D* m_hSumSideAmp_NEW[Nside];
+		TH1D* m_hSumSideAmpG0[Nside];
+		TH1D* m_hSumSideAmpG1[Nside];
+		TH2D_LW* m_hEM_HAD1[Nside];
+		TH2D_LW* m_hHAD1_HAD2[Nside];
+		TH2D_LW* m_hHAD2_HAD3[Nside];
+		TH2D_LW* m_hSideAC;
 
-		TH2D_LW* hEM_HAD1_NEW[Nside];
-		TH2D_LW* hHAD1_HAD2_NEW[Nside];
-		TH2D_LW* hHAD2_HAD3_NEW[Nside];
-		TH2D_LW* hSideAC_NEW;
+		TH2D_LW* m_hEM_HAD1_NEW[Nside];
+		TH2D_LW* m_hHAD1_HAD2_NEW[Nside];
+		TH2D_LW* m_hHAD2_HAD3_NEW[Nside];
+		TH2D_LW* m_hSideAC_NEW;
 
 	    
 };

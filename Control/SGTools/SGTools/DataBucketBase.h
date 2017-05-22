@@ -82,7 +82,7 @@ class DataBucketBase : public DataObject
   virtual void relinquish() = 0;
 
   /**
-   * If the held object derives from @c ILockable, call @lock() on it.
+   * If the held object derives from @c ILockable, call @c lock() on it.
    */
   virtual void lock() = 0;
 };

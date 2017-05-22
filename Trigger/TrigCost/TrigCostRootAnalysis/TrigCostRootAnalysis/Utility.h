@@ -44,7 +44,7 @@ class TFile;
  * @def UNUSED(expr)
  * Preprocessed macro to mark deliberately unused variables and hide pedantic compiler warnings.
  */
-#define UNUSED(expr) do { (void)(expr); } while (0)
+#define UNUSED(expr) do {(void) (expr);} while (0)
 
 /**
  * @file Utility.h
@@ -57,7 +57,6 @@ class TFile;
  */
 
 namespace TrigCostRootAnalysis {
-
   //Forward declaration
   class TrigCostData;
   class CounterBase;
@@ -101,7 +100,8 @@ namespace TrigCostRootAnalysis {
   };
 
   const static std::string BunchGroupNameStr[] = {
-    "NONE", "FILLED", "CALREQ", "EMPTY", "UNPAIRED_ISO", "UNPAIRED_NONISO", "FIRSTEMPTY", "UNPAIRED", "ABORTGAPNOTCALIB", "UNSET"
+    "NONE", "FILLED", "CALREQ", "EMPTY", "UNPAIRED_ISO", "UNPAIRED_NONISO", "FIRSTEMPTY", "UNPAIRED",
+    "ABORTGAPNOTCALIB", "UNSET"
   };
 
   enum FormatterOption_t {
@@ -114,9 +114,12 @@ namespace TrigCostRootAnalysis {
     kFormatOptionMiliSecToSec, //!< Convert cell from miliseconds to seconds
     kFormatOptionToPercentage, //!< Multiply by 100
     kFormatOptionUseEntries, //!< Use the numer of DataVariable etries rather than the DataVariable value
-    kFormatOptionUseStringDecoration, //!< Output a value not from the counter's DataStore, rather a string decoration instead.
-    kFormatOptionUseFloatDecoration,//!< Output a value not from the counter's DataStore, rather a Float_t decoration instead.
-    kFormatOptionUseIntDecoration//!< Output a value not from the counter's DataStore, rather a Int_t decoration instead.
+    kFormatOptionUseStringDecoration, //!< Output a value not from the counter's DataStore, rather a string decoration
+                                      // instead.
+    kFormatOptionUseFloatDecoration,//!< Output a value not from the counter's DataStore, rather a Float_t decoration
+                                    // instead.
+    kFormatOptionUseIntDecoration//!< Output a value not from the counter's DataStore, rather a Int_t decoration
+                                 // instead.
   };
 
   /**
@@ -170,10 +173,12 @@ namespace TrigCostRootAnalysis {
     kDoNotWriteMetadata,
     kCurrentEventBunchGroupID,
     kCurrentEventEBWeight,
-    kCurrentEventWasRandomOnline, // <BEGIN> Monitors - ORDERING IS IMPORTANT HERE
-    kMonitorBegin, //!< This entry must be first (used in loops elsewhere). The rest of the monitors can technically come in any order, and new ones may be added
+    kCurrentEventWasRandomOnline, // \<BEGIN\> Monitors - ORDERING IS IMPORTANT HERE
+    kMonitorBegin, //!< This entry must be first (used in loops elsewhere). The rest of the monitors can technically
+                   // come in any order, and new ones may be added
     kDoRatesUpgradeMonitor,
-    kDoRatesMonitor, //<! Keep RATES first, breaks the partitioning (to be fixed :( ) but other monitors can read from this one. TODO - this is no longer true?
+    kDoRatesMonitor, //<! Keep RATES first, breaks the partitioning (to be fixed :( ) but other monitors can read from
+                     // this one. TODO - this is no longer true?
     kDoChainMonitor,
     kDoChainAlgorithmMonitor,
     kDoSequenceMonitor,
@@ -187,9 +192,9 @@ namespace TrigCostRootAnalysis {
     kDoROSChainMonitor,
     kDoROIMonitor,
     kDoGlobalsMonitor,
-    kDoFullEventMonitor, //!< This entry must be after the GlobalsMonitor/ breaks the partitioning (to be fixed :( ) 
+    kDoFullEventMonitor, //!< This entry must be after the GlobalsMonitor/ breaks the partitioning (to be fixed :( )
     kDoEventProfileMonitor,
-    kDoAllMonitor, //!< This entry must be last // <END> Monitors - ORDERING IS IMPORTANT HERE
+    kDoAllMonitor, //!< This entry must be last // \<END\> Monitors - ORDERING IS IMPORTANT HERE
     kEnableROSToAlgMatching,
     kPatternsMonitor,
     kPatternsOutput,
@@ -236,6 +241,7 @@ namespace TrigCostRootAnalysis {
     kDoEBWeighting,
     kDoCPS,
     kIgnoreNonPhysBunchGroups,
+    kIgnoreGRL,
     kNoLBRescaling,
     kPatternsInvert,
     kDirectlyApplyPrescales,
@@ -271,11 +277,12 @@ namespace TrigCostRootAnalysis {
     kTargetPairedBunches,
     kPatternsExactMatch,
     kJIRA,
+    kUseOnlyTheseBCIDs,
     kRunLumi,
     kRunLumiXML,
     kDoExponentialMu,
     kInvertHighMuRunVeto,
-    kDebug, 
+    kDebug,
     kNPasses,
     kUpgradeMergeTOBOverlap,
     kCurrentPass,
@@ -292,6 +299,7 @@ namespace TrigCostRootAnalysis {
     kPrescaleXMLPath2,
     kPrescaleXMLName1,
     kPrescaleXMLName2,
+    kAutoMonXMLPath,
     kPrescaleSetName,
     kEventPickList,
     kMenuName,
@@ -442,7 +450,7 @@ namespace TrigCostRootAnalysis {
     kDecROSString,
     kDecAlgClassName,
     kDecCounterClassification,
-    kDecChainName, 
+    kDecChainName,
     kDecSeqName,
     kDecLbLength,
     kDecType,
@@ -460,6 +468,7 @@ namespace TrigCostRootAnalysis {
     kDecUniqueFraction,
     kDecExpressRate,
     kDecMyROS,
+    kDecMyROBIN,
     kDecInputRate,
     kMsgNonPhysics,     // Error message suppression ENUM
     kMsgDivZero,
@@ -491,52 +500,52 @@ namespace TrigCostRootAnalysis {
   // Typedefs - used throughout
   // All iterators are implicitly const unless they contain "NonConst".
   typedef std::map< Int_t, std::string>       IntStringMap_t;
-  typedef IntStringMap_t::const_iterator      IntStringMapIt_t;
+  typedef IntStringMap_t::const_iterator IntStringMapIt_t;
   typedef std::map< Int_t, Int_t>             IntIntMap_t;
-  typedef IntIntMap_t::const_iterator         IntIntMapIt_t;
+  typedef IntIntMap_t::const_iterator IntIntMapIt_t;
   typedef std::map< UInt_t, UInt_t>           UIntUIntMap_t;
-  typedef UIntUIntMap_t::const_iterator       UIntUIntMapIt_t;
+  typedef UIntUIntMap_t::const_iterator UIntUIntMapIt_t;
   typedef std::map< Int_t, Float_t>           IntFloatMap_t;
-  typedef IntFloatMap_t::const_iterator       IntFloatMapIt_t;
+  typedef IntFloatMap_t::const_iterator IntFloatMapIt_t;
   typedef std::map< Int_t, Double_t>          IntDoubleMap_t;
-  typedef IntDoubleMap_t::const_iterator      IntDoubleMapIt_t;
+  typedef IntDoubleMap_t::const_iterator IntDoubleMapIt_t;
   typedef std::map< Float_t, Int_t>           FloatIntMap_t;
-  typedef FloatIntMap_t::const_iterator       FloatIntMapIt_t;
+  typedef FloatIntMap_t::const_iterator FloatIntMapIt_t;
   typedef std::map< std::string, std::string> StringStringMap_t;
-  typedef StringStringMap_t::const_iterator   StringStringMapIt_t;
+  typedef StringStringMap_t::const_iterator StringStringMapIt_t;
   typedef std::map< std::string, Int_t>       StringIntMap_t;
-  typedef StringIntMap_t::const_iterator      StringIntMapIt_t;
-  typedef StringIntMap_t::iterator            StringIntMapNonConstIt_t;
+  typedef StringIntMap_t::const_iterator StringIntMapIt_t;
+  typedef StringIntMap_t::iterator StringIntMapNonConstIt_t;
   typedef std::map< std::string, Float_t>     StringFloatMap_t;
-  typedef StringFloatMap_t::const_iterator    StringFloatMapIt_t;
+  typedef StringFloatMap_t::const_iterator StringFloatMapIt_t;
   typedef std::map< std::string, Double_t>    StringDoubleMap_t;
-  typedef StringDoubleMap_t::const_iterator   StringDoubleMapIt_t;
-  typedef StringDoubleMap_t::iterator         StringDoubleMapNonConstIt_t;
+  typedef StringDoubleMap_t::const_iterator StringDoubleMapIt_t;
+  typedef StringDoubleMap_t::iterator StringDoubleMapNonConstIt_t;
 
   typedef std::map< std::pair<std::string, Float_t>, Int_t > PairStringFloat_Float_Map_t;
-  typedef PairStringFloat_Float_Map_t::const_iterator        PairStringFloat_Float_MapIt_t;
+  typedef PairStringFloat_Float_Map_t::const_iterator PairStringFloat_Float_MapIt_t;
 
   typedef std::map< Int_t, std::pair<std::string, Int_t> > Int_PairStringInt_Map_t;
-  typedef Int_PairStringInt_Map_t::const_iterator          Int_PairStringInt_MapIt_t;
+  typedef Int_PairStringInt_Map_t::const_iterator Int_PairStringInt_MapIt_t;
 
   typedef std::map< ConfKey_t, std::string> confStringMap_t;
-  typedef confStringMap_t::const_iterator   confStringMapIt_t;
+  typedef confStringMap_t::const_iterator confStringMapIt_t;
   typedef std::map< ConfKey_t, Int_t>       confIntMap_t;
-  typedef confIntMap_t::const_iterator      confIntMapIt_t;
+  typedef confIntMap_t::const_iterator confIntMapIt_t;
   typedef std::map< ConfKey_t, Float_t>     confFloatMap_t;
-  typedef confFloatMap_t::const_iterator    confFloatMapIt_t;
+  typedef confFloatMap_t::const_iterator confFloatMapIt_t;
 
   typedef std::map< ConfKey_t, MonitorBase* >  monitorMap_t;
-  typedef monitorMap_t::const_iterator         monitorIt_t;
-  typedef monitorMap_t::iterator               monitorNonConstIt_t;
+  typedef monitorMap_t::const_iterator monitorIt_t;
+  typedef monitorMap_t::iterator monitorNonConstIt_t;
   typedef std::pair< ConfKey_t, MonitorBase* > monitorPair_t;
 
   typedef std::map< std::string, CounterBase* > CounterMap_t;
-  typedef CounterMap_t::const_iterator          CounterMapIt_t;
+  typedef CounterMap_t::const_iterator CounterMapIt_t;
 
   typedef std::map< std::string, CounterMap_t > CounterCollection_t;
-  typedef CounterCollection_t::const_iterator   CounterCollectionIt_t;
-  typedef CounterCollection_t::iterator         CounterCollectionNonConstIt_t;
+  typedef CounterCollection_t::const_iterator CounterCollectionIt_t;
+  typedef CounterCollection_t::iterator CounterCollectionNonConstIt_t;
 
   typedef std::set< CounterMap_t* >       CounterMapSet_t;
   typedef CounterMapSet_t::const_iterator CounterMapSetIt_t;
@@ -545,11 +554,14 @@ namespace TrigCostRootAnalysis {
   typedef CounterSet_t::const_iterator CounterSetIt_t;
 
   typedef std::pair< ConfKey_t, VariableOption_t >  ConfVariableOptionPair_t;
-  typedef std::vector< ConfVariableOptionPair_t >   VariableOptionVector_t; //!< Structure to hold a reference to what is stored in a DataStore
+  typedef std::vector< ConfVariableOptionPair_t >   VariableOptionVector_t; //!< Structure to hold a reference to what
+                                                                            // is stored in a DataStore
 
-  typedef std::map< ConfKey_t, DataVariable* >::const_iterator VariableMapIt_t; //!< Internal use name to DataVariable pointer iterator typedef.
+  typedef std::map< ConfKey_t, DataVariable* >::const_iterator VariableMapIt_t; //!< Internal use name to DataVariable
+                                                                                // pointer iterator typedef.
 
-  typedef std::map< CounterMap_t*, ConfKey_t > CounterMapType_t; // We iterate over a set of CounterMap_t, nice to know what kind of collection it was from
+  typedef std::map< CounterMap_t*, ConfKey_t > CounterMapType_t; // We iterate over a set of CounterMap_t, nice to know
+                                                                 // what kind of collection it was from
 
   typedef std::set<CounterBaseRates*>           CounterBaseRatesSet_t;
   typedef CounterBaseRatesSet_t::const_iterator CounterBaseRatesSetIt_t;
@@ -558,13 +570,13 @@ namespace TrigCostRootAnalysis {
   typedef ChainItemSet_t::const_iterator ChainItemSetIt_t;
 
   typedef std::map< std::string, RatesChainItem* > ChainItemMap_t;
-  typedef ChainItemMap_t::const_iterator           ChainItemMapIt_t;
+  typedef ChainItemMap_t::const_iterator ChainItemMapIt_t;
 
   typedef std::set<RatesCPSGroup*>      CPSGroupSet_t;
   typedef CPSGroupSet_t::const_iterator CPSGroupSetIt_t;
 
   typedef std::map< std::string, RatesCPSGroup* > CPSGroupMap_t;
-  typedef CPSGroupMap_t::const_iterator           CPSGroupMapIt_t;
+  typedef CPSGroupMap_t::const_iterator CPSGroupMapIt_t;
 
   typedef std::set< Int_t >        IntSet_t;
   typedef IntSet_t::const_iterator IntSetIt_t;
@@ -574,48 +586,46 @@ namespace TrigCostRootAnalysis {
 
   typedef std::map< std::string, IntSet_t > StringIntSetMap_t;
   typedef StringIntSetMap_t::const_iterator StringIntSetMapIt_t;
-  typedef StringIntSetMap_t::iterator       StringIntSetMapNonConstIt_t;
+  typedef StringIntSetMap_t::iterator StringIntSetMapNonConstIt_t;
 
 
   // Helper functions
   // These need to find a more permanent home
 
-  Bool_t checkPatternNameMonitor( const std::string& _patternName, Bool_t _invert, Bool_t _isRerun = kFALSE );
-  Bool_t checkPatternNameOutput( const std::string& _patternName, Bool_t _invert );
-  Bool_t checkPatternUnique( const std::string& _patternName, Bool_t _invert );
-  Bool_t checkPatternOverlap( const std::string& _patternName, Bool_t _invert );
-  Bool_t checkPatternInternal( const std::string& _counterName, ConfKey_t _list, Bool_t _invert );
-  Bool_t checkPatternNoLumiWeight( const std::string& _counterName);
-  Bool_t checkPatternNoMuLumiWeight( const std::string& _counterName);
-  Bool_t checkPatternNoBunchLumiWeight( const std::string& _counterName);
-  Bool_t checkPatternExponentialWithMu( const std::string& _counterName);
+  Bool_t checkPatternNameMonitor(const std::string& _patternName, Bool_t _invert, Bool_t _isRerun = kFALSE);
+  Bool_t checkPatternNameOutput(const std::string& _patternName, Bool_t _invert);
+  Bool_t checkPatternUnique(const std::string& _patternName, Bool_t _invert);
+  Bool_t checkPatternOverlap(const std::string& _patternName, Bool_t _invert);
+  Bool_t checkPatternInternal(const std::string& _counterName, ConfKey_t _list, Bool_t _invert);
+  Bool_t checkPatternNoLumiWeight(const std::string& _counterName);
+  Bool_t checkPatternNoMuLumiWeight(const std::string& _counterName);
+  Bool_t checkPatternNoBunchLumiWeight(const std::string& _counterName);
+  Bool_t checkPatternExponentialWithMu(const std::string& _counterName);
 
-  Int_t stringToInt(const std::string &_i);
-  Float_t stringToFloat(const std::string &_i);
-  Double_t stringToDouble(const std::string &_i);
+  Int_t stringToInt(const std::string& _i);
+  Float_t stringToFloat(const std::string& _i);
+  Double_t stringToDouble(const std::string& _i);
   std::string intToString(Long64_t _i, UInt_t _pad = 0);
   std::string intToString(Int_t _i, UInt_t _pad = 0);
   std::string intToString(UInt_t _i, UInt_t _pad = 0);
   std::string floatToString(Float_t _f, Int_t _precision = 4);
   std::string doubleToString(Double_t _d, Int_t _precision = 4);
-  void plotText(Double_t x, Double_t y, const char *text);
+  void plotText(Double_t x, Double_t y, const char* text);
   void plotHistogram(TH1F* _h, Bool_t _isLogY = kTRUE, std::string _opt = "");
   Bool_t isZero(Float_t _float, Float_t _precision = 0.00000001);
   Bool_t isEqual(Float_t _float1, Float_t _float2, Float_t _precision = 0.00000001);
   ConfVariableOptionPair_t makePair(ConfKey_t _name, VariableOption_t _vo);
-  UInt_t stringToIntHash( std::string& s );
+  UInt_t stringToIntHash(std::string& s);
   const std::string& getLevelString(UInt_t _level);
   Float_t deltaR(Float_t _phi1, Float_t _phi2, Float_t _eta1, Float_t _eta2);
 
   class JsonExport {
   public:
-
     JsonExport() : m_level(0), m_hasLeaves(kFALSE), m_justEnded(kFALSE), m_minimal(kFALSE) {
     }
 
     void addNode(std::ostream& _fout, std::string _name, std::string _icon = "") {
-
-      if (!m_minimal) _fout << std::string(m_level*2, ' ');
+      if (!m_minimal) _fout << std::string(m_level * 2, ' ');
       if (m_justEnded == kTRUE) _fout << ",";
       _fout << "{";
       if (!m_minimal) _fout << std::endl;
@@ -623,11 +633,11 @@ namespace TrigCostRootAnalysis {
 
       ++m_level;
 
-      if (!m_minimal) _fout << std::string(m_level*2, ' ');
+      if (!m_minimal) _fout << std::string(m_level * 2, ' ');
       _fout << "\"text\": \"" << _name << "\",";
-      if (!m_minimal) _fout << std::endl << std::string(m_level*2, ' ');
+      if (!m_minimal) _fout << std::endl << std::string(m_level * 2, ' ');
       if (_icon != "") _fout << "\"icon\": \"images/" << _icon << ".png\",";
-      if (!m_minimal && _icon != "") _fout << std::endl << std::string(m_level*2, ' ');
+      if (!m_minimal && _icon != "") _fout << std::endl << std::string(m_level * 2, ' ');
       _fout << "\"children\": [";
       ++m_level;
       if (!m_minimal) _fout << std::endl;
@@ -636,19 +646,20 @@ namespace TrigCostRootAnalysis {
     void addLeaf(std::ostream& _fout, std::string _name, std::string _icon = "") {
       if (m_hasLeaves != 0) _fout << "," << std::endl;
       m_hasLeaves = kTRUE;
-      if (!m_minimal)  _fout << std::string(m_level*2, ' ');
+      if (!m_minimal) _fout << std::string(m_level * 2, ' ');
       _fout << "{\"text\": \"" << _name << "\"";
-      if (_icon != "") _fout <<  ", \"icon\": \"images/" << _icon << ".png\"";
+      if (_icon != "") _fout << ", \"icon\": \"images/" << _icon << ".png\"";
       _fout << "}";
     }
 
-    void addLeafCustom(std::ostream& _fout, std::string _name, std::string _value, std::string _name2 = "", std::string _value2 = "") {
+    void addLeafCustom(std::ostream& _fout, std::string _name, std::string _value, std::string _name2 = "",
+                       std::string _value2 = "") {
       if (m_hasLeaves != 0) _fout << "," << std::endl;
       m_hasLeaves = kTRUE;
-      if (!m_minimal)  _fout << std::string(m_level*2, ' ');
-      _fout << "{\"" << _name <<  "\": \"" << _value << "\"";
+      if (!m_minimal) _fout << std::string(m_level * 2, ' ');
+      _fout << "{\"" << _name << "\": \"" << _value << "\"";
       if (_name2 != "") {
-        _fout << ", \"" << _name2 <<  "\": \"" << _value2 << "\"}";
+        _fout << ", \"" << _name2 << "\": \"" << _value2 << "\"}";
       } else {
         _fout << "}";
       }
@@ -662,13 +673,13 @@ namespace TrigCostRootAnalysis {
       m_justEnded = kTRUE;
 
 
-      if (!m_minimal) _fout << std::string(m_level*2, ' ');
+      if (!m_minimal) _fout << std::string(m_level * 2, ' ');
       _fout << "]";
       --m_level; // Leaves
 
 
       if (!m_minimal) _fout << std::endl;
-      _fout << std::string(m_level*2, ' ') << "}" << std::endl; //always do this endl to make the file not crazy
+      _fout << std::string(m_level * 2, ' ') << "}" << std::endl; //always do this endl to make the file not crazy
       --m_level; // Node
     }
 
@@ -677,7 +688,6 @@ namespace TrigCostRootAnalysis {
     Bool_t m_justEnded;
     Bool_t m_minimal;
   };
-
 }
 
 #endif //TrigCostRootAnalysis_Utility_H

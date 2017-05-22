@@ -206,7 +206,7 @@ namespace Trk
                 const FitQualityOnSurface       *fitQoS,
                 const MaterialEffectsBase       *materialEffectsOnTrack,
                 const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern,
-                const AlignmentEffectsOnTrack    *alignmentEffectsOnTrack=0 /// @TODO remove =0 at some point
+                const AlignmentEffectsOnTrack    *alignmentEffectsOnTrack=0 /// @todo remove =0 at some point
                 );
 
             /**

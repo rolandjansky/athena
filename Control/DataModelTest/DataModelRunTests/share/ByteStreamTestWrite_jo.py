@@ -39,6 +39,8 @@ bswrite = ['DMTest::CVec#cvec.-dVar2',
            ]
 
 from TrigNavigation.TrigNavigationConf import HLT__Navigation
+from DataModelTestDataCommon.DataModelTestDataCommonConf import \
+     DMTest__xAODTestDecor
 from DataModelTestDataWrite.DataModelTestDataWriteConf import \
      DMTest__xAODTestWriteCVec, \
      DMTest__xAODTestWriteHVec, \
@@ -52,6 +54,10 @@ topSequence += DMTest__xAODTestWriteCView ("xAODTestWriteCView",
 topSequence += DMTest__xAODTestWriteHVec ("xAODTestWriteHVec",
                                           HVecKey = 'HLT_DMTest__HVec_hvec',
                                           HViewKey = 'HLT_DMTest__HView_hview')
+topSequence += DMTest__xAODTestDecor ("xAODTestDecor",
+                                      ReadPrefix = 'HLT_DMTest__CVec_',
+                                      DoCInfo = False,
+                                      DoCTrig = False)
 
 # Making sure that no dyn vars are selected by default.
 topSequence += DMTest__xAODTestWriteCVec ("xAODTestWriteCVec2",

@@ -22,7 +22,6 @@ atlas_depends_on_subdirs(
    Control/CxxUtils
    Control/AthAllocators
    Control/SGTools
-   DetectorDescription/GeoModel/GeoModelInterfaces
    DetectorDescription/IdDictParser
    DetectorDescription/Identifier
    Event/EventKernel

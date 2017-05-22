@@ -95,10 +95,10 @@ namespace DerivationFramework {
 //     }
 
     /// Loop over tracks
-    int ipar=0;
-    for(auto particle : *toDecorate) {
-      /// Only decorate those passed selection
-      if (!entries[ipar++]) continue;
+    //int ipar=0;
+    //for(auto particle : *toDecorate) {
+    //  /// Only decorate those passed selection
+    //  if (!entries[ipar++]) continue;
 
 //     Trk::PropDirection dir = Trk::oppositeMomentum;
 //     if( msEntrance->inside( pars.position() ) ){
@@ -169,7 +169,7 @@ namespace DerivationFramework {
 //       auto pars = m_trackExtrapoTool->extrapolateToMuonEntryRecord(trk->track()->, trk->particleHypothesis());
 //     const Trk::TrackParameters* pars = m_trackExtrapoTool->extrapolateToMuonEntryRecord(trk->curvilinearParameters(0), trk->particleHypothesis());
     /// start decoration
-    }
+    //}
     return StatusCode::SUCCESS;
   }
 

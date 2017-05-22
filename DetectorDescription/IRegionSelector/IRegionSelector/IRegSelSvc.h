@@ -26,8 +26,8 @@ class IRegSelSvc: virtual public IInterface {
   virtual ~IRegSelSvc(){}
   /// Retrieve interface ID
   static const InterfaceID& interfaceID() { 
-    static const InterfaceID _IID("IRegSelSvc", 1 , 0);
-    return _IID; 
+    static const InterfaceID IID("IRegSelSvc", 1 , 0);
+    return IID; 
   }
   //static const InterfaceID& interfaceID() { return IID_IRegSelSvc; }
   

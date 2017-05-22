@@ -55,16 +55,16 @@ class StoreGateSvc;
 class RegSelSvc: public extends2<AthService, IRegSelSvc, IIncidentListener>
 {
  public:
-  /** @method Standard constructor for Gaudi services.
+  /** @c Standard constructor for Gaudi services.
    */
   RegSelSvc(const std::string& name, ISvcLocator* sl);
   //! Destructor.
   virtual ~RegSelSvc();
-  /** @method queryInterface needed for Gaudi services
+  /** @c queryInterface needed for Gaudi services
    */
   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF);
 
-  //! @method reinitialize standard Service interface
+  //! @c reinitialize standard Service interface
   /*!
       Read list of pixel and sct robids to be initialised from OKS
       and anable the corresponding modules
@@ -75,7 +75,7 @@ class RegSelSvc: public extends2<AthService, IRegSelSvc, IIncidentListener>
   bool reinitialiseInternalFromOKS();
   bool GetEnabledROBsFromOKS(); 
 
-  //! @method initialize standard Service interface
+  //! @c initialize standard Service interface
   /*!
     Load detector description tables for all detectors loaded in Constructor. 
     Internal maps for retrieve %Identifier %Hash and ROBID information are loaded. 
@@ -102,7 +102,7 @@ class RegSelSvc: public extends2<AthService, IRegSelSvc, IIncidentListener>
 
   // StatusCode handleCalo(IOVSVC_CALLBACK_ARGS);
 
-  //! @method finalize  standard Service interface, deletes all maps from memory
+  //! @c finalize  standard Service interface, deletes all maps from memory
   StatusCode finalize();
   
   // Interface inherited from IRegSelSvc service

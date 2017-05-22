@@ -36,13 +36,13 @@ namespace MuonCalib{
 
 	    RpcCalibData * getData(int measPhi, int strip) const ;
 	    const Identifier getGapID() const;
-	    int getNEtaStrips() const {return nRecEta;}
-	    int getNPhiStrips() const {return nRecPhi1;}
+	    int getNEtaStrips() const {return m_nRecEta;}
+	    int getNPhiStrips() const {return m_nRecPhi1;}
 
         private:
 	    void  initData(std::string etaRec, std::string etaDet, std::string phiRec1, std::string phiRec2, std::string phiDet1, std::string phiDet2);
-	    int nRecEta, nDetEta,nRecPhi1,nRecPhi2,nDetPhi1,nDetPhi2;
-	    Identifier theGap;
+	    int m_nRecEta, m_nDetEta,m_nRecPhi1,m_nRecPhi2,m_nDetPhi1,m_nDetPhi2;
+	    Identifier m_theGap;
 	    std::vector<RpcCalibData*> m_thePhiData;
 	    std::vector<RpcCalibData*> m_theEtaData;
 	    

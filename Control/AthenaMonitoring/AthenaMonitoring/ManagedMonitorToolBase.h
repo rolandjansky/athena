@@ -652,7 +652,7 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
 
 
       /**
-       * Average mu, i.e. <mu>
+       * Average mu, i.e. \<mu\>
        *
        */
        virtual float lbAverageInteractionsPerCrossing();

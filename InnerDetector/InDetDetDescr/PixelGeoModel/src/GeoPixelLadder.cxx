@@ -36,11 +36,11 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
   //   
   // Length of the ladder is in the db
   //
-  double length = gmt_mgr->PixelLadderLength();
+  double length = m_gmt_mgr->PixelLadderLength();
   double safety = 0.01*CLHEP::mm; 
 
   m_width = calcWidth();
-  m_thicknessP = 0.5 * gmt_mgr->PixelLadderThickness();
+  m_thicknessP = 0.5 * m_gmt_mgr->PixelLadderThickness();
   m_thicknessN = m_thicknessP;
 
   // If thickness from database is 0. Then we need to calculate the thickness 
@@ -64,11 +64,11 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
     double halfThickness = m_thicknessP;
     ladderShape = new GeoBox(halfThickness, m_width/2., length/2.);
   } 
-  else if (gmt_mgr->PixelBentStaveNModule() != 0)
+  else if (m_gmt_mgr->PixelBentStaveNModule() != 0)
     {
       // Calculate thickness from bent stave part
-      double angle              = gmt_mgr->PixelLadderBentStaveAngle() * CLHEP::pi / 180.0;
-      double BentStaveThickness = double(gmt_mgr->PixelBentStaveNModule()) * gmt_mgr->PixelLadderModuleDeltaZ() * sin(angle);
+      double angle              = m_gmt_mgr->PixelLadderBentStaveAngle() * CLHEP::pi / 180.0;
+      double BentStaveThickness = double(m_gmt_mgr->PixelBentStaveNModule()) * m_gmt_mgr->PixelLadderModuleDeltaZ() * sin(angle);
       
       // Extend +ve or -ve ladder thickness according to stave angle
       if (angle < 0) m_thicknessP += BentStaveThickness;
@@ -88,7 +88,7 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
       const GeoShape & shiftedBox = (*box) << HepGeom::TranslateX3D(shift);
       ladderShape = &shiftedBox; 
     }
-  else if (!(gmt_mgr->PixelStaveLayout()>3&& gmt_mgr->PixelStaveLayout()<7)){
+  else if (!(m_gmt_mgr->PixelStaveLayout()>3&& m_gmt_mgr->PixelStaveLayout()<7)){
     double halfThickness = 0.5*(m_thicknessP+m_thicknessN);
     double shift = 0.5*(m_thicknessP-m_thicknessN);
     GeoBox * box = new GeoBox(halfThickness, m_width/2., length/2.);
@@ -103,10 +103,10 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
     }
   else
     {
-      gmt_mgr->msg(MSG::ERROR)<<"No ladder shape could be defined "<<endmsg;      
+      m_gmt_mgr->msg(MSG::ERROR)<<"No ladder shape could be defined "<<endmsg;      
     }
 
-  const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   m_theLadder = new GeoLogVol("Ladder",ladderShape,air);
 
   m_thickness = 2*std::max(m_thicknessN,m_thicknessP);
@@ -152,26 +152,26 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
   //
   GeoPixelModule pm(m_theSensor);
   
-  bool isBLayer=(gmt_mgr->GetLD() == 0);
+  bool isBLayer=(m_gmt_mgr->GetLD() == 0);
   bool isModule3D=true;
-  if (gmt_mgr->PixelStaveLayout()<5) isModule3D=false;
+  if (m_gmt_mgr->PixelStaveLayout()<5) isModule3D=false;
   GeoPixelSiCrystal theSensor3D(isBLayer,isModule3D);
   GeoPixelModule pm3D(theSensor3D);
   //  double pm3DLength=pm3D.Length();
 
   // Pixel module parameters
-  int staveLayout = gmt_mgr->PixelStaveLayout();
-  int nbPixelModule=gmt_mgr->PixelNModule();
+  int staveLayout = m_gmt_mgr->PixelStaveLayout();
+  int nbPixelModule=m_gmt_mgr->PixelNModule();
   int nbPixelPlanarModule=0;
   int nbPixel3DModule=0;
   bool bDetailedStaveLayout=false;
-  double pixelModuleGap=gmt_mgr->IBLStaveModuleGap();
+  double pixelModuleGap=m_gmt_mgr->IBLStaveModuleGap();
   double zNegStavePos= 0.0;
   double planarLength=0.0;
   double v3DHalfLength=0.0;
   double v3DLength=0.0;
 
-  bool bVerbose= (gmt_mgr->msgLvl(MSG::DEBUG));
+  bool bVerbose= (m_gmt_mgr->msgLvl(MSG::DEBUG));
 
   // Radial shift of Si3D module in case its thickness is greater that SiPl module's one
   double Si3DRadialShift=0.;
@@ -181,19 +181,19 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
       double SiPlThick = pm.ThicknessP();
       double Si3DThick = pm3D.ThicknessP();
       if(Si3DThick>SiPlThick) Si3DRadialShift=-(Si3DThick-SiPlThick);
-      //      gmt_mgr->msg(MSG::INFO)<<"Si3D/SiPl radial shift : "<<Si3DRadialShift<<"  Pl/3D : "<<SiPlThick<<" "<<Si3DThick<<endmsg;
+      //      m_gmt_mgr->msg(MSG::INFO)<<"Si3D/SiPl radial shift : "<<Si3DRadialShift<<"  Pl/3D : "<<SiPlThick<<" "<<Si3DThick<<endmsg;
 
-      double MechanicalStaveOffset = gmt_mgr->IBLStaveMechanicalStaveOffset();
-      double MechanicalStaveOffset3D = gmt_mgr->IBLStaveMechanicalStaveOffset(true);
+      double MechanicalStaveOffset = m_gmt_mgr->IBLStaveMechanicalStaveOffset();
+      double MechanicalStaveOffset3D = m_gmt_mgr->IBLStaveMechanicalStaveOffset(true);
       Si3DLateralShift= -(MechanicalStaveOffset3D-MechanicalStaveOffset);
     }
 
   // Module 3D geometry (IBL planar and 3D modules)
-  if(gmt_mgr->ibl() && gmt_mgr->GetLD()==0)
+  if(m_gmt_mgr->ibl() && m_gmt_mgr->GetLD()==0)
     {
       if(staveLayout==4)
 	{
-	  nbPixelModule=gmt_mgr->IBLStaveModuleNumber_AllPlanar();
+	  nbPixelModule=m_gmt_mgr->IBLStaveModuleNumber_AllPlanar();
 	  bDetailedStaveLayout=true;
 	  nbPixelPlanarModule=nbPixelModule;
 
@@ -218,14 +218,14 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
 	      zNegStavePos=-v3DLength;
 	    }
 
-	  //	  gmt_mgr->msg(MSG::INFO)<<"GeoPixelLadder : "<<nbPixelModule<<" "<<nbPixelPlanarModule<<" + "<<nbPixel3DModule<<"   planar and 3D Lengths : "<<planarLength<<" "<<v3DLength<<endmsg;
+	  //	  m_gmt_mgr->msg(MSG::INFO)<<"GeoPixelLadder : "<<nbPixelModule<<" "<<nbPixelPlanarModule<<" + "<<nbPixel3DModule<<"   planar and 3D Lengths : "<<planarLength<<" "<<v3DLength<<endmsg;
 	}
     }
 
   for(int ii = 0; ii < nbPixelModule; ii++) {
 
-    int etaModule = gmt_mgr->PixelModuleEtaFromIndex(ii);
-    gmt_mgr->SetEta(etaModule);
+    int etaModule = m_gmt_mgr->PixelModuleEtaFromIndex(ii);
+    m_gmt_mgr->SetEta(etaModule);
 
 //
 // For standard ATLAS stave shift down the central module, as its flag is -1.
@@ -235,52 +235,52 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
 // some layers. 
 //
     
-    double xpos = gmt_mgr->PixelModuleStaggerDistance() *  gmt_mgr->PixelModuleStaggerSign(etaModule)
-      + gmt_mgr->PixelModuleDrDistance()*gmt_mgr->PixelModuleShiftFlag(etaModule)/2.; 
+    double xpos = m_gmt_mgr->PixelModuleStaggerDistance() *  m_gmt_mgr->PixelModuleStaggerSign(etaModule)
+      + m_gmt_mgr->PixelModuleDrDistance()*m_gmt_mgr->PixelModuleShiftFlag(etaModule)/2.; 
 //
 // Get the z position from the db
 //
-    double zpos = gmt_mgr->PixelModuleZPosition(etaModule);
+    double zpos = m_gmt_mgr->PixelModuleZPosition(etaModule);
     bool b3DModule=false;
     double xposShift=0.;
     double yposShift=0.;
 
     // detailed stave model : parameters are taken from PixelIBLStave table instead of PixelStave
-    if(gmt_mgr->ibl() && bDetailedStaveLayout && gmt_mgr->GetLD()==0)
+    if(m_gmt_mgr->ibl() && bDetailedStaveLayout && m_gmt_mgr->GetLD()==0)
       {
-	int moduleIndex =  gmt_mgr->PixelModuleIndexFromEta(etaModule);  
+	int moduleIndex =  m_gmt_mgr->PixelModuleIndexFromEta(etaModule);  
 
-	if(gmt_mgr->PixelStaveLayout()==4)   /// 100 % planar modules
-	  zpos=(pm.Length()+gmt_mgr->IBLStaveModuleGap()) * (moduleIndex - 0.5*(gmt_mgr->IBLStaveModuleNumber_AllPlanar()-1));
-	else if(gmt_mgr->PixelStaveLayout()==5)   /// 75/25  planar/3D
+	if(m_gmt_mgr->PixelStaveLayout()==4)   /// 100 % planar modules
+	  zpos=(pm.Length()+m_gmt_mgr->IBLStaveModuleGap()) * (moduleIndex - 0.5*(m_gmt_mgr->IBLStaveModuleNumber_AllPlanar()-1));
+	else if(m_gmt_mgr->PixelStaveLayout()==5)   /// 75/25  planar/3D
 	  {
 
-	    if(bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"Eta : cmpt/index "<<ii<<" "<<moduleIndex<<endmsg;
+	    if(bVerbose)m_gmt_mgr->msg(MSG::DEBUG)<<"Eta : cmpt/index "<<ii<<" "<<moduleIndex<<endmsg;
 
 	    if(ii<nbPixel3DModule/2) // zneg 3D pixel area
 	      {
 		b3DModule=true;
-		zpos=(pm3D.Length()+gmt_mgr->IBLStaveModuleGap()) * moduleIndex;
+		zpos=(pm3D.Length()+m_gmt_mgr->IBLStaveModuleGap()) * moduleIndex;
 		zpos+=pm3D.Length()*0.5;
 		xposShift=Si3DRadialShift;
 		yposShift=Si3DLateralShift;
-		if(bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"left 3D module "<<pm3D.Length()<<" "<<zpos<<endmsg;
+		if(bVerbose)m_gmt_mgr->msg(MSG::DEBUG)<<"left 3D module "<<pm3D.Length()<<" "<<zpos<<endmsg;
 	      }
 	    else if(ii>nbPixelPlanarModule+nbPixel3DModule/2-1)  // zpos 3D pixel area
 	      {
-		if(bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"right 3D module "<<pm3D.Length()<<" "<<zpos<<endmsg;
+		if(bVerbose)m_gmt_mgr->msg(MSG::DEBUG)<<"right 3D module "<<pm3D.Length()<<" "<<zpos<<endmsg;
 		b3DModule=true;
-		zpos=v3DHalfLength+planarLength+gmt_mgr->IBLStaveModuleGap();
-		zpos+=(pm3D.Length()+gmt_mgr->IBLStaveModuleGap()) * (moduleIndex - nbPixel3DModule/2 - nbPixelPlanarModule); 
+		zpos=v3DHalfLength+planarLength+m_gmt_mgr->IBLStaveModuleGap();
+		zpos+=(pm3D.Length()+m_gmt_mgr->IBLStaveModuleGap()) * (moduleIndex - nbPixel3DModule/2 - nbPixelPlanarModule); 
 		zpos+=pm3D.Length()*0.5;
 		xposShift=Si3DRadialShift;
 		yposShift=Si3DLateralShift;
 	      }
 	    else  // planar pixel area
 	      {
-		zpos=v3DHalfLength+(pm.Length()+gmt_mgr->IBLStaveModuleGap()) * (moduleIndex - nbPixel3DModule/2); 
+		zpos=v3DHalfLength+(pm.Length()+m_gmt_mgr->IBLStaveModuleGap()) * (moduleIndex - nbPixel3DModule/2); 
 		zpos+=pm.Length()*0.5;
-		if(bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"planar module "<<pm.Length()<<" "<<zpos<<endmsg;
+		if(bVerbose)m_gmt_mgr->msg(MSG::DEBUG)<<"planar module "<<pm.Length()<<" "<<zpos<<endmsg;
 		xposShift=0.;
 	      }
 
@@ -288,12 +288,12 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
 	    zpos=zNegStavePos+zpos;
 
 	  }
-	else if(gmt_mgr->PixelStaveLayout()==6)   /// 50/50  planar/3D
+	else if(m_gmt_mgr->PixelStaveLayout()==6)   /// 50/50  planar/3D
 	  {
 
 	    if(ii<nbPixel3DModule) // zneg 3D pixel area
 	      {
-		if(bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"left 3D module "<<pm3D.Length()<<" "<<moduleIndex<<endmsg;
+		if(bVerbose)m_gmt_mgr->msg(MSG::DEBUG)<<"left 3D module "<<pm3D.Length()<<" "<<moduleIndex<<endmsg;
 		b3DModule=true;
 		zpos=(pm3D.Length()+pixelModuleGap) * moduleIndex;
 		zpos=zNegStavePos+zpos+pm3D.Length()*0.5;
@@ -302,8 +302,8 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
 	      }
 	    else  // zpos 3D pixel area
 	      {
-		if(bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"right plannar module "<<pm.Length()<<" "<<moduleIndex<<endmsg;
-		zpos=(pm.Length()+gmt_mgr->IBLStaveModuleGap()) * (moduleIndex - nbPixel3DModule);
+		if(bVerbose)m_gmt_mgr->msg(MSG::DEBUG)<<"right plannar module "<<pm.Length()<<" "<<moduleIndex<<endmsg;
+		zpos=(pm.Length()+m_gmt_mgr->IBLStaveModuleGap()) * (moduleIndex - nbPixel3DModule);
 		zpos+=pm.Length()*0.5+pixelModuleGap*0.5;
 	      }
 	  }
@@ -315,7 +315,7 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
 //  Rotate if module is inclined.
 //
     CLHEP::HepRotation rm;
-    rm.rotateY(gmt_mgr->PixelModuleAngle()*gmt_mgr->PixelModuleAngleSign(etaModule) );
+    rm.rotateY(m_gmt_mgr->PixelModuleAngle()*m_gmt_mgr->PixelModuleAngleSign(etaModule) );
 //
 // Place the Module
 //
@@ -327,13 +327,13 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
       modulephys = pm3D.Build();
 
     std::ostringstream nameTag; 
-    nameTag << "ModuleBrl" << gmt_mgr->Eta();
+    nameTag << "ModuleBrl" << m_gmt_mgr->Eta();
     GeoNameTag * tag = new GeoNameTag(nameTag.str());
     GeoAlignableTransform* xform;
 
     xform = new GeoAlignableTransform(HepGeom::Transform3D(rm,modulepos));
     ladderPhys->add(tag);
-    ladderPhys->add(new GeoIdentifierTag(gmt_mgr->Eta() ) );
+    ladderPhys->add(new GeoIdentifierTag(m_gmt_mgr->Eta() ) );
     ladderPhys->add(xform);
     ladderPhys->add(modulephys );
 
@@ -341,7 +341,7 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
     Identifier id;
     if(!b3DModule)  id = m_theSensor.getID();
     else id = theSensor3D.getID();
-    DDmgr->addAlignableTransform(0,id,xform,modulephys);
+    m_DDmgr->addAlignableTransform(0,id,xform,modulephys);
     
   }
   //Add the TMT or other stave support
@@ -351,28 +351,28 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
   }
 
   
-  if (gmt_mgr->PixelBentStaveNModule() != 0)
+  if (m_gmt_mgr->PixelBentStaveNModule() != 0)
     {
       std::cout << "SB: Adding bent stave support" << std::endl;
-      double thickness = gmt_mgr->PixelLadderSupportThickness();
-      double width     = gmt_mgr->PixelLadderSupportWidth();
-      double length    = gmt_mgr->PixelLadderSupportLength();
-      double xOffset   = gmt_mgr->PixelLadderServicesX();
-      //      double yOffset   = gmt_mgr->PixelLadderServicesY();
-      //      int staveIndex   = gmt_mgr->PixelStaveIndex(gmt_mgr->GetLD());
+      double thickness = m_gmt_mgr->PixelLadderSupportThickness();
+      double width     = m_gmt_mgr->PixelLadderSupportWidth();
+      double length    = m_gmt_mgr->PixelLadderSupportLength();
+      double xOffset   = m_gmt_mgr->PixelLadderServicesX();
+      //      double yOffset   = m_gmt_mgr->PixelLadderServicesY();
+      //      int staveIndex   = m_gmt_mgr->PixelStaveIndex(m_gmt_mgr->GetLD());
       
       // Bent stave half length  = 0.5 * nModules * ModuleSize
-      double bentStaveHalfLength = 0.5 * double(gmt_mgr->PixelBentStaveNModule()) * gmt_mgr->PixelLadderModuleDeltaZ();
+      double bentStaveHalfLength = 0.5 * double(m_gmt_mgr->PixelBentStaveNModule()) * m_gmt_mgr->PixelLadderModuleDeltaZ();
       
       // Create bent stave
       GeoBox * shapeSupBent = new GeoBox(0.5*thickness, 0.5*width, bentStaveHalfLength);
       
-      //      std::string matName = gmt_mgr->getMaterialName("StaveSupportOuter", gmt_mgr->GetLD(), staveIndex);
-      //      std::string matName = gmt_mgr->getMaterialName("StaveSupport", gmt_mgr->GetLD(), staveIndex);
-      //      const GeoMaterial* materialSup = mat_mgr->getMaterialForVolume(matName,shapeSupBent->volume());
-      const GeoMaterial* materialSup = mat_mgr->getMaterial("pix::StaveSupportBase");
+      //      std::string matName = m_gmt_mgr->getMaterialName("StaveSupportOuter", m_gmt_mgr->GetLD(), staveIndex);
+      //      std::string matName = m_gmt_mgr->getMaterialName("StaveSupport", m_gmt_mgr->GetLD(), staveIndex);
+      //      const GeoMaterial* materialSup = m_mat_mgr->getMaterialForVolume(matName,shapeSupBent->volume());
+      const GeoMaterial* materialSup = m_mat_mgr->getMaterial("pix::StaveSupportBase");
       
-      double ang = gmt_mgr->PixelLadderBentStaveAngle() * CLHEP::pi / 180.0;
+      double ang = m_gmt_mgr->PixelLadderBentStaveAngle() * CLHEP::pi / 180.0;
       double xst = xOffset - (bentStaveHalfLength * sin(ang)); 
       
       // Construct bent stave at negative z
@@ -408,20 +408,20 @@ double GeoPixelLadder::calcThickness() {
   //
 
   const double safety = 0.01*CLHEP::mm; 
-  double clearance = gmt_mgr->PixelLadderThicknessClearance();
+  double clearance = m_gmt_mgr->PixelLadderThicknessClearance();
   clearance = std::max(clearance, safety);
 
-  double thickn = 0.5 * gmt_mgr->PixelBoardThickness() + gmt_mgr->PixelHybridThickness() + clearance;
-  double thickp = 0.5 * gmt_mgr->PixelBoardThickness() + gmt_mgr->PixelChipThickness() + gmt_mgr->PixelChipGap() + clearance;
+  double thickn = 0.5 * m_gmt_mgr->PixelBoardThickness() + m_gmt_mgr->PixelHybridThickness() + clearance;
+  double thickp = 0.5 * m_gmt_mgr->PixelBoardThickness() + m_gmt_mgr->PixelChipThickness() + m_gmt_mgr->PixelChipGap() + clearance;
   double thick = std::max(thickn, thickp); 
 
-  double length =  std::max(gmt_mgr->PixelBoardLength(), std::max(gmt_mgr->PixelHybridLength(), gmt_mgr->PixelChipLength())); 
-  double tiltThick = 0.5*length * sin(std::abs(gmt_mgr->PixelModuleAngle())) + thick * cos(gmt_mgr->PixelModuleAngle());
+  double length =  std::max(m_gmt_mgr->PixelBoardLength(), std::max(m_gmt_mgr->PixelHybridLength(), m_gmt_mgr->PixelChipLength())); 
+  double tiltThick = 0.5*length * sin(std::abs(m_gmt_mgr->PixelModuleAngle())) + thick * cos(m_gmt_mgr->PixelModuleAngle());
   
   // take into account stagger and tilt
   //PixelModuleDrDistance can be -ve
-  double thick1 = std::max(thick + 0.5*gmt_mgr->PixelModuleDrDistance(), thick - 0.5*gmt_mgr->PixelModuleDrDistance());
-  double thick2 = tiltThick + gmt_mgr->PixelModuleStaggerDistance();
+  double thick1 = std::max(thick + 0.5*m_gmt_mgr->PixelModuleDrDistance(), thick - 0.5*m_gmt_mgr->PixelModuleDrDistance());
+  double thick2 = tiltThick + m_gmt_mgr->PixelModuleStaggerDistance();
 		    
   thick = std::max(thick1,thick2);
 		    
@@ -433,11 +433,11 @@ double GeoPixelLadder::calcWidth() {
   //
   // The width is the maximum among the component widths
   //
-  const double clearanceRphi = gmt_mgr->PixelLadderWidthClearance(); // From Grant : no clash with big pigtail part
+  const double clearanceRphi = m_gmt_mgr->PixelLadderWidthClearance(); // From Grant : no clash with big pigtail part
   double width = max( max(
-                     gmt_mgr->PixelBoardWidth(),
-                     gmt_mgr->PixelHybridWidth()),
-                 gmt_mgr->PixelChipWidth());
+                     m_gmt_mgr->PixelBoardWidth(),
+                     m_gmt_mgr->PixelHybridWidth()),
+                 m_gmt_mgr->PixelChipWidth());
   //width += 5.8; // New DC3 ! to allow module movement
   width += 2*clearanceRphi; // New DC3 ! to allow module movement
   return width;

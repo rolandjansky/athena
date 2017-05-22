@@ -33,7 +33,7 @@
 class ISvcLocator;
 
 T2CaloCosmic::T2CaloCosmic(const std::string & name, ISvcLocator* pSvcLocator)
-  : T2CaloBase(name, pSvcLocator),  m_log(0)
+  : T2CaloBase(name, pSvcLocator)
 {
     declareProperty("TrigEMClusterKey",m_trigEmClusterKey = "T2CaloTrigEMCluster");
     declareProperty("L1ForceEta",m_l1eta = -10.0);
@@ -46,14 +46,11 @@ T2CaloCosmic::T2CaloCosmic(const std::string & name, ISvcLocator* pSvcLocator)
 
 T2CaloCosmic::~T2CaloCosmic()
 {
-  delete m_log;
 }
 
 
 HLT::ErrorCode T2CaloCosmic::hltInitialize()
 {
-  if (!m_log) m_log = new MsgStream(messageService(), name());
-
   // Support for new monitoring
   declareMonitoredObject("Eta",
 			m_monitoredCluster,&TrigEMCluster::eta);
@@ -113,26 +110,26 @@ HLT::ErrorCode T2CaloCosmic::hltExecute(const HLT::TriggerElement* inputTE,
 
   // End LVL1 part
   double etamin, etamax, phimin, phimax;
-  double _eta, _phi;
+  double eta, phi;
 
   int roiword = roiDescriptor->roiWord();
 
   //  if ( !m_trustRoiLimits ) { 
   if ( (m_l1eta<-9.9)&&(m_l1phi<-9.9)){
-    _eta = roiDescriptor->eta();
-    _phi = roiDescriptor->phi();
+    eta = roiDescriptor->eta();
+    phi = roiDescriptor->phi();
   }
   else { 
-    _eta = m_l1eta;
-    _phi = HLT::wrapPhi(m_l1phi);
+    eta = m_l1eta;
+    phi = HLT::wrapPhi(m_l1phi);
   }
   
-  etamin = std::max(-2.5, _eta - m_etaWidth);
-  etamax = std::min( 2.5, _eta + m_etaWidth);
-  phimin = HLT::wrapPhi( _phi - m_phiWidth);
-  phimax = HLT::wrapPhi( _phi + m_phiWidth);
+  etamin = std::max(-2.5, eta - m_etaWidth);
+  etamax = std::min( 2.5, eta + m_etaWidth);
+  phimin = HLT::wrapPhi( phi - m_phiWidth);
+  phimax = HLT::wrapPhi( phi + m_phiWidth);
   
-  TrigRoiDescriptor* newroi = new TrigRoiDescriptor( _eta, etamin, etamax, _phi, phimin, phimax );
+  TrigRoiDescriptor* newroi = new TrigRoiDescriptor( eta, etamin, etamax, phi, phimin, phimax );
   attachFeature( outputTE, newroi, "T2CaloCosmic" );
   roiDescriptor = newroi;
   
@@ -151,7 +148,7 @@ HLT::ErrorCode T2CaloCosmic::hltExecute(const HLT::TriggerElement* inputTE,
 
   if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG)  << " Making TrigEMCluster "<< endmsg;
 
-  std::vector<xAOD::TrigEMCluster*> m_vec_clus;
+  std::vector<xAOD::TrigEMCluster*> vec_clus;
   std::cout << "m_emAlgTools.size() = " << m_emAlgTools.size() << std::endl;
   // Ok, ignoring LVL1 and forcing a position
   int counter=0;
@@ -180,7 +177,7 @@ HLT::ErrorCode T2CaloCosmic::hltExecute(const HLT::TriggerElement* inputTE,
   if ( (counter==0 || counter==1) && (*ptrigEmCluster).energy()==0)
 	return HLT::OK; 
   counter++;
-  m_vec_clus.push_back(ptrigEmCluster);
+  vec_clus.push_back(ptrigEmCluster);
   }
   // support to new monitoring
   m_rCore=0;
@@ -194,8 +191,8 @@ HLT::ErrorCode T2CaloCosmic::hltExecute(const HLT::TriggerElement* inputTE,
   }
 */
   if ( m_timersvc ) m_timer[1]->stop();
-  for(size_t i=0;i<m_vec_clus.size();i++){
-  xAOD::TrigEMCluster* ptrigEmCluster=m_vec_clus[i];
+  for(size_t i=0;i<vec_clus.size();i++){
+  xAOD::TrigEMCluster* ptrigEmCluster=vec_clus[i];
   
   // Print out Cluster produced
   msg(MSG::DEBUG)  << " Values of Cluster produced: "<< endmsg;
@@ -232,7 +229,7 @@ HLT::ErrorCode T2CaloCosmic::hltExecute(const HLT::TriggerElement* inputTE,
   // Note that the steering will propagate l1Id and roiId automatically
   // so no need to set them.
 /*
-  TrigEMCluster* ptrigEmCluster = m_vec_clus[0];
+  TrigEMCluster* ptrigEmCluster = vec_clus[0];
   TrigRoiDescriptor* newRoiDescriptor = 
     new TrigRoiDescriptor(roiDescriptor->l1Id(), roiDescriptor->roiId(),
 			  ptrigEmCluster->eta(), ptrigEmCluster->phi());

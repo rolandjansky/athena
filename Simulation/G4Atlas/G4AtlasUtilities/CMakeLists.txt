@@ -24,15 +24,14 @@ find_package( XercesC )
 atlas_add_library( G4AtlasUtilities
                    src/*.cxx
                    PUBLIC_HEADERS G4AtlasUtilities
-                   INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   DEFINITIONS ${CLHEP_DEFINITIONS}
+                   INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} 
                    LINK_LIBRARIES ${XERCESC_LIBRARIES} AthenaKernel FadsKinematics
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${GEANT4_LIBRARIES} GaudiKernel )
 
 atlas_add_dictionary( G4AtlasUtilitiesDict
                       G4AtlasUtilities/G4AtlasUtilitiesDict.h
                       G4AtlasUtilities/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${EIGEN_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel FadsKinematics GaudiKernel G4AtlasUtilities )
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} 
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} AthenaKernel FadsKinematics GaudiKernel G4AtlasUtilities )
 

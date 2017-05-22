@@ -69,7 +69,7 @@ public:
 
 TruthHepMCEventConverter::TruthHepMCEventConverter()
 {
-  printLev=0;
+  m_printLev=0;
   m_modded = new std::vector<int>(10);
 }
 
@@ -149,7 +149,7 @@ G4PrimaryParticle* TruthHepMCEventConverter::ConstructG4PrimaryParticle(HepMC::G
   CLHEP::HepLorentzVector lp(hp->momentum().px(),hp->momentum().py(),hp->momentum().pz(),hp->momentum().e());
   G4ThreeVector& p=lp;
 
-  if (printLev>1)
+  if (m_printLev>1)
   {
     std::cout << "GenParticle being converted :"<<std::endl;
     std::cout << "momentum components (in MeV): "<<p<<std::endl;
@@ -197,7 +197,7 @@ void TruthHepMCEventConverter::HepMC2G4(const HepMC::GenEvent* evt, G4Event * an
   std::vector<G4PrimaryVertex*> vertexVector;
   std::vector<G4PrimaryParticle*> particleVector;
 
-  if (printLev>3) std::cout<<" This is the Truth HepMC event converter "<<std::endl;
+  if (m_printLev>3) std::cout<<" This is the Truth HepMC event converter "<<std::endl;
 
   FADS::GeneratorCenter *gc = FADS::GeneratorCenter::GetGeneratorCenter();
 
@@ -209,7 +209,7 @@ void TruthHepMCEventConverter::HepMC2G4(const HepMC::GenEvent* evt, G4Event * an
   for (pit=gc->BeginParticleManipulator();pit!=gc->EndParticleManipulator();pit++)
     if ((*pit).second->IsOn()) (*pit).second->EventInitialization();
 
-  if (printLev>=3) std::cout<<" creating the Truth event "<<std::endl;
+  if (m_printLev>=3) std::cout<<" creating the Truth event "<<std::endl;
   HepMC::GenEvent* newEvt = new HepMC::GenEvent(*evt);
 
   StoreGateSvc* storeGate=0;
@@ -261,7 +261,7 @@ void TruthHepMCEventConverter::HepMC2G4(const HepMC::GenEvent* evt, G4Event * an
 
   for ( Hv_iterator v = newEvt->vertices_begin();v != newEvt->vertices_end(); ++v )
   {
-    if (printLev>4)
+    if (m_printLev>4)
       std::cout << " new vertex being processed " << std::endl << *(*v) << std::endl;
 
     // Check if we've already modified this vertex
@@ -273,7 +273,7 @@ void TruthHepMCEventConverter::HepMC2G4(const HepMC::GenEvent* evt, G4Event * an
       }
     }
     if (IsUsed){
-      if (printLev>3)
+      if (m_printLev>3)
         std::cout <<  "Cutting a vertex because it's been used." << std::endl;
       continue;
     }
@@ -345,7 +345,7 @@ void TruthHepMCEventConverter::HepMC2G4(const HepMC::GenEvent* evt, G4Event * an
           }
           if (pGood)
           {
-            if (printLev>3) std::cout<<" particle accepted "<<std::endl;
+            if (m_printLev>3) std::cout<<" particle accepted "<<std::endl;
             TransformHepMCParticle((*iit).second, part);
             nStableParticles++;
             PrimaryParticleInformation* ppi=new PrimaryParticleInformation;
@@ -363,7 +363,7 @@ void TruthHepMCEventConverter::HepMC2G4(const HepMC::GenEvent* evt, G4Event * an
                ModifyVertex( &(*part), ((*iit).second)->end_vertex() );
             }
             if ( !((*iit).second)->end_vertex() && ((*iit).second)->status() != 1){
-              if (printLev>2)
+              if (m_printLev>2)
                 std::cout << "Used a known(" << IsKnown << ") part with EV("
                           << ((*iit).second)->end_vertex() << ") and status code "
                           << ((*iit).second)->status() << std::endl;
@@ -418,7 +418,7 @@ void TruthHepMCEventConverter::HepMC2G4(const HepMC::GenEvent* evt, G4Event * an
   } // Manipulated the signal process vertex
 
   // publish the truth to SG
-  if (printLev>=3) std::cout<<" recording the truth event to SG "<<std::endl;
+  if (m_printLev>=3) std::cout<<" recording the truth event to SG "<<std::endl;
 
   std::string key = "TruthEvent";
   McEventCollection* mcEvtColl;

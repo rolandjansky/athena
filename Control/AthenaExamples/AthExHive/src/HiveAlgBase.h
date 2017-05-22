@@ -22,6 +22,8 @@ public:
   
  HiveAlgBase (const std::string& name, ISvcLocator* pSvcLocator);
   ~HiveAlgBase();
+
+  bool isClonable() const override { return true; }
   
   // Define the initialize, execute and finalize methods:
   

@@ -59,13 +59,13 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   // 2 : No ladder services or TMT
   // 3 : Rectangular services. 
 
-  int staveLayout = gmt_mgr->PixelStaveLayout();
+  int staveLayout = m_gmt_mgr->PixelStaveLayout();
   // FIXME: Envelope needs to be checked.
 
   // Build the sensor first to use the same for all the module in the layer
   // Likewise the TMT and the "Ladder"
   bool isBLayer = false;
-  if(gmt_mgr->GetLD() == 0) isBLayer = true;
+  if(m_gmt_mgr->GetLD() == 0) isBLayer = true;
   GeoPixelSiCrystal theSensor(isBLayer);
   GeoPixelStaveSupport * staveSupport = 0;
   if (staveLayout ==0 || staveLayout==1) {
@@ -81,17 +81,17 @@ GeoVPhysVol* GeoPixelLayer::Build() {
 
   if (staveLayout >3 && staveLayout <7)
     {
-      gmt_mgr->SetIBLPlanarModuleNumber(staveSupport->PixelNPlanarModule());
-      gmt_mgr->SetIBL3DModuleNumber(staveSupport->PixelN3DModule());
+      m_gmt_mgr->SetIBLPlanarModuleNumber(staveSupport->PixelNPlanarModule());
+      m_gmt_mgr->SetIBL3DModuleNumber(staveSupport->PixelN3DModule());
     }
 
   if(!staveSupport)
     {
-      gmt_mgr->msg(MSG::ERROR)<<"No stave support corresponding to the staveLayout "<<staveLayout<<" could be defined "<<endmsg; 
+      m_gmt_mgr->msg(MSG::ERROR)<<"No stave support corresponding to the staveLayout "<<staveLayout<<" could be defined "<<endmsg; 
       return 0;
     }
 
-  gmt_mgr->msg(MSG::INFO)<<"*** LAYER "<<gmt_mgr->GetLD()<<"  planar/3D modules : "<< staveSupport->PixelNPlanarModule()<<" "<<staveSupport->PixelN3DModule()<<endmsg;
+  m_gmt_mgr->msg(MSG::INFO)<<"*** LAYER "<<m_gmt_mgr->GetLD()<<"  planar/3D modules : "<< staveSupport->PixelNPlanarModule()<<" "<<staveSupport->PixelN3DModule()<<endmsg;
 
 
   GeoPixelLadder pixelLadder(theSensor, staveSupport);
@@ -99,13 +99,13 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //
   // layer radius, number of sectors and tilt used in various places
   //
-  double layerRadius = gmt_mgr->PixelLayerRadius();
-  double ladderTilt   = gmt_mgr->PixelLadderTilt();
-  int nSectors = gmt_mgr->NPixelSectors();
+  double layerRadius = m_gmt_mgr->PixelLayerRadius();
+  double ladderTilt   = m_gmt_mgr->PixelLadderTilt();
+  int nSectors = m_gmt_mgr->NPixelSectors();
 
   // Set numerology
-  DDmgr->numerology().setNumPhiModulesForLayer(gmt_mgr->GetLD(),nSectors);
-  DDmgr->numerology().setNumEtaModulesForLayer(gmt_mgr->GetLD(),gmt_mgr->PixelNModule());
+  m_DDmgr->numerology().setNumPhiModulesForLayer(m_gmt_mgr->GetLD(),nSectors);
+  m_DDmgr->numerology().setNumEtaModulesForLayer(m_gmt_mgr->GetLD(),m_gmt_mgr->PixelNModule());
 
   //
   // Calculate layerThicknessN: Thickness from layer radius to min radius of envelope
@@ -157,15 +157,15 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //std::cout << "Layer Envelope (ladder only):          " 
   //	    << layerRadius - layerThicknessN << " to " << layerRadius + layerThicknessP <<std::endl;
 
-  if(gmt_mgr->PixelLayerSupportCylPresent()) { // false for non slhc geometries
-    double rminSupport = gmt_mgr->PixelLayerSupportRMin();
-    double rmaxSupport = rminSupport + gmt_mgr->PixelLayerSupportThick();
+  if(m_gmt_mgr->PixelLayerSupportCylPresent()) { // false for non slhc geometries
+    double rminSupport = m_gmt_mgr->PixelLayerSupportRMin();
+    double rmaxSupport = rminSupport + m_gmt_mgr->PixelLayerSupportThick();
 
     // Check there is no overlap with support material
     // Support cylinder is normally on outer side, but code also allows for the possibilty that it is on the inner side.
     if (rminSupport < layerRadius + layerThicknessP &&
 	rmaxSupport >  layerRadius - layerThicknessN) {
-      gmt_mgr->msg(MSG::ERROR) 
+      m_gmt_mgr->msg(MSG::ERROR) 
 	<< "GeoPixelLayer: Support cylinder clashes with ladder. Support: " << rminSupport << " to " << rmaxSupport
 	<< " , Ladder extent: " << layerRadius - layerThicknessN << " to " << layerRadius + layerThicknessP << endmsg;
     }
@@ -199,8 +199,8 @@ GeoVPhysVol* GeoPixelLayer::Build() {
     // Get max ladder type
     //int maxLadType = 0;
     for(int iPhi = 0; iPhi < nSectors; iPhi++) {
-      gmt_mgr->SetPhi(iPhi);
-      int ladderType = gmt_mgr->PixelFluidOrient(gmt_mgr->GetLD(), iPhi);
+      m_gmt_mgr->SetPhi(iPhi);
+      int ladderType = m_gmt_mgr->PixelFluidOrient(m_gmt_mgr->GetLD(), iPhi);
       maxLadType = std::max(ladderType, maxLadType);
     }
     // Create the GeoPixelLadderServices types that are needed.
@@ -209,9 +209,9 @@ GeoVPhysVol* GeoPixelLayer::Build() {
     ladderServicesArray.resize(2*(maxLadType+1));
     GeoPixelLadderServices *firstLadderServices = 0;
     for(int iPhi = 0; iPhi < nSectors; iPhi++) {
-      gmt_mgr->SetPhi(iPhi);
-      int ladderType = gmt_mgr->PixelFluidOrient(gmt_mgr->GetLD(), iPhi);
-      int biStave    = gmt_mgr->PixelBiStaveType(gmt_mgr->GetLD(), iPhi) % 2;  // Will be 1 or 2 -> Map to 1,0
+      m_gmt_mgr->SetPhi(iPhi);
+      int ladderType = m_gmt_mgr->PixelFluidOrient(m_gmt_mgr->GetLD(), iPhi);
+      int biStave    = m_gmt_mgr->PixelBiStaveType(m_gmt_mgr->GetLD(), iPhi) % 2;  // Will be 1 or 2 -> Map to 1,0
       //int biStave    = iPhi % 2;  // Should only be 0 or 1
       if (ladderType < 0) std::cout << "ERROR: Unexpected value of ladderType: " << ladderType << std::endl;
       if (!ladderServicesArray[biStave*(maxLadType+1) + ladderType]) {
@@ -251,8 +251,8 @@ GeoVPhysVol* GeoPixelLayer::Build() {
       
       // translate relative to sensor center (center of tilt rotation),
       // then tilt then translate by radius of layer, then calculate r.
-      double xLadderServicesOffset = gmt_mgr->PixelLadderServicesX();
-      double yLadderServicesOffset = gmt_mgr->PixelLadderServicesY();
+      double xLadderServicesOffset = m_gmt_mgr->PixelLadderServicesX();
+      double yLadderServicesOffset = m_gmt_mgr->PixelLadderServicesY();
       // xCenter, yCenter or coordinates of ladder services relative to active layer center (center of tilt rotation)
       xCenter = (firstLadderServices->referenceX() + xLadderServicesOffset);
       yCenter = (firstLadderServices->referenceY() + yLadderServicesOffset);
@@ -268,7 +268,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
 				std::max(corner2global.perp(), 
 					 std::max(corner3global.perp(), corner4global.perp())));
       // Thickness from layer radius to max radius of envelope
-      layerThicknessP = std::max(layerThicknessP, rMaxTmp - gmt_mgr->PixelLayerRadius());
+      layerThicknessP = std::max(layerThicknessP, rMaxTmp - m_gmt_mgr->PixelLayerRadius());
 
       //std::cout << rMaxTmp << std::endl;
       //std::cout << layerThicknessP<< " "<<layerThicknessN <<std::endl;
@@ -294,8 +294,8 @@ GeoVPhysVol* GeoPixelLayer::Build() {
     //
     GeoPixelPigtail pigtail;
     pigtailPhysVol = pigtail.Build();
-    transPigtail = HepGeom::Translate3D(pigtail.bendCenterX() + gmt_mgr->PixelLadderCableOffsetX(), 
-				  pigtail.bendCenterY() + gmt_mgr->PixelLadderCableOffsetY(), 
+    transPigtail = HepGeom::Translate3D(pigtail.bendCenterX() + m_gmt_mgr->PixelLadderCableOffsetX(), 
+				  pigtail.bendCenterY() + m_gmt_mgr->PixelLadderCableOffsetY(), 
 				  0.);
 
 
@@ -305,25 +305,25 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   // Layer dimensions from above, etc
   //
   double safety = 0.01 * CLHEP::mm;
-  double rmin =  gmt_mgr->PixelLayerRadius()-layerThicknessN - safety;
-  double rmax =  gmt_mgr->PixelLayerRadius()+layerThicknessP + safety;
-  double length = gmt_mgr->PixelLadderLength() + 4*m_epsilon; // Ladder has length gmt_mgr->PixelLadderLength() +  2*m_epsilon
+  double rmin =  m_gmt_mgr->PixelLayerRadius()-layerThicknessN - safety;
+  double rmax =  m_gmt_mgr->PixelLayerRadius()+layerThicknessP + safety;
+  double length = m_gmt_mgr->PixelLadderLength() + 4*m_epsilon; // Ladder has length m_gmt_mgr->PixelLadderLength() +  2*m_epsilon
   //std::cout << "rmin = " << rmin << ", rmax = " << rmax << std::endl;
 
   //  In case of IBL stave detailed descriptiob
   bool bAddIBLStaveRings=false;
-  if(gmt_mgr->GetLD()==0&&gmt_mgr->ibl()&&gmt_mgr->PixelStaveLayout()>3&&gmt_mgr->PixelStaveLayout()<8)
+  if(m_gmt_mgr->GetLD()==0&&m_gmt_mgr->ibl()&&m_gmt_mgr->PixelStaveLayout()>3&&m_gmt_mgr->PixelStaveLayout()<8)
     {
       bAddIBLStaveRings=true;
       double safety = 0.001 * CLHEP::mm;
-      double outerRadius = gmt_mgr->IBLSupportMidRingInnerRadius();  
+      double outerRadius = m_gmt_mgr->IBLSupportMidRingInnerRadius();  
       rmax=outerRadius-safety;
 
-      if(gmt_mgr->PixelStaveAxe()==1) {
-	double outerRadius = gmt_mgr->IBLSupportMidRingOuterRadius();  
+      if(m_gmt_mgr->PixelStaveAxe()==1) {
+	double outerRadius = m_gmt_mgr->IBLSupportMidRingOuterRadius();  
 	rmax=outerRadius+safety;
       }
-      gmt_mgr->msg(MSG::INFO)<<"Layer IBL / stave ring :  outer radius max  "<<rmax<<endmsg;
+      m_gmt_mgr->msg(MSG::INFO)<<"Layer IBL / stave ring :  outer radius max  "<<rmax<<endmsg;
 
     }
 
@@ -333,9 +333,9 @@ GeoVPhysVol* GeoPixelLayer::Build() {
 //   
 //   Now make the layer envelope
 //    
-//   const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+//   const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
 //   std::ostringstream lname;
-//   lname << "Layer" << gmt_mgr->GetLD();
+//   lname << "Layer" << m_gmt_mgr->GetLD();
 //   const GeoTube* layerTube = new GeoTube(rmin,rmax,0.5*length); //solid
 //   const GeoLogVol* layerLog = new GeoLogVol(lname.str(),layerTube,air); //log volume
 //   GeoFullPhysVol* layerPhys = new GeoFullPhysVol(layerLog); // phys vol
@@ -348,19 +348,19 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //  
   double angle=(nSectors>0)?(360./(double)nSectors)*CLHEP::deg:(360.*CLHEP::deg);
   HepGeom::Transform3D transRadiusAndTilt = HepGeom::TranslateX3D(layerRadius)*HepGeom::RotateZ3D(ladderTilt);
-  double phiOfModuleZero =  gmt_mgr->PhiOfModuleZero();
+  double phiOfModuleZero =  m_gmt_mgr->PhiOfModuleZero();
 
   // IBL rotations are defined vs the cooling pipe center...
-  if(gmt_mgr->GetLD()==0&&gmt_mgr->ibl()&&gmt_mgr->PixelStaveAxe()==1)   
+  if(m_gmt_mgr->GetLD()==0&&m_gmt_mgr->ibl()&&m_gmt_mgr->PixelStaveAxe()==1)   
     {
 
       //  Point that defines the center of the cooling pipe
-      HepGeom::Point3D<double> centerCoolingPipe = gmt_mgr->IBLStaveRotationAxis() ;
+      HepGeom::Point3D<double> centerCoolingPipe = m_gmt_mgr->IBLStaveRotationAxis() ;
       HepGeom::Point3D<double> centerCoolingPipe_inv = -centerCoolingPipe;
 
       // Transforms
       HepGeom::Transform3D staveTrf = HepGeom::RotateZ3D(ladderTilt)*HepGeom::Translate3D(centerCoolingPipe_inv);
-      double staveRadius = gmt_mgr->IBLStaveRadius() ;
+      double staveRadius = m_gmt_mgr->IBLStaveRadius() ;
 
       transRadiusAndTilt = HepGeom::TranslateX3D(staveRadius)*staveTrf;
     }
@@ -369,7 +369,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   // Loop over the sectors and place everything
   //
   for(int ii = 0; ii < nSectors; ii++) {
-    gmt_mgr->SetPhi(ii);
+    m_gmt_mgr->SetPhi(ii);
 
     // Build ladder
     GeoVPhysVol *ladderPhys=pixelLadder.Build();
@@ -384,10 +384,10 @@ GeoVPhysVol* GeoPixelLayer::Build() {
       //
       // Now make the layer envelope
       // 
-      gmt_mgr->msg(MSG::INFO)<<"Layer "<<gmt_mgr->GetLD()<<" in/out radius "<<rmin<<"  "<<rmax<<endmsg;
-      const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+      m_gmt_mgr->msg(MSG::INFO)<<"Layer "<<m_gmt_mgr->GetLD()<<" in/out radius "<<rmin<<"  "<<rmax<<endmsg;
+      const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
       std::ostringstream lname;
-      lname << "Layer" << gmt_mgr->GetLD();
+      lname << "Layer" << m_gmt_mgr->GetLD();
       const GeoTube* layerTube = new GeoTube(rmin,rmax,0.5*length); //solid
       const GeoLogVol* layerLog = new GeoLogVol(lname.str(),layerTube,air); //log volume
       layerPhys = new GeoFullPhysVol(layerLog); // phys vol
@@ -410,21 +410,21 @@ GeoVPhysVol* GeoPixelLayer::Build() {
     layerPhys->add(xform);
     layerPhys->add(ladderPhys);   //pixelLadder.Build());
 
-    if(gmt_mgr->DoServicesOnLadder() && staveLayout == 0) {
+    if(m_gmt_mgr->DoServicesOnLadder() && staveLayout == 0) {
 
       //
       // Place the LadderServices volume (omega, tubes, connectors, cables for the layer)
       //
       // NB. PixelFluidOrient and PixelCableBiStave depends on phi
-      int ladderType = gmt_mgr->PixelFluidOrient(gmt_mgr->GetLD(), ii);
-      int biStave    = gmt_mgr->PixelBiStaveType(gmt_mgr->GetLD(), ii) % 2;  // Will be 1 or 2 -> Map to 1,0
-      //int biStave    = gmt_mgr->PixelCableBiStave() % 2;
+      int ladderType = m_gmt_mgr->PixelFluidOrient(m_gmt_mgr->GetLD(), ii);
+      int biStave    = m_gmt_mgr->PixelBiStaveType(m_gmt_mgr->GetLD(), ii) % 2;  // Will be 1 or 2 -> Map to 1,0
+      //int biStave    = m_gmt_mgr->PixelCableBiStave() % 2;
       //int biStave    = ii % 2;
       //std::cout << "Layer,phiModule,fluidtype,bistavetype,index: " 
-      //	  << gmt_mgr->GetLD()  << ", "
+      //	  << m_gmt_mgr->GetLD()  << ", "
       //	  << ii << ", "
       //	  << ladderType << ", "
-      //	  << gmt_mgr->PixelBiStaveType(gmt_mgr->GetLD(), ii)  << ", "
+      //	  << m_gmt_mgr->PixelBiStaveType(m_gmt_mgr->GetLD(), ii)  << ", "
       //          << biStave*(maxLadType+1) + ladderType << std::endl;
 
 
@@ -447,19 +447,19 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   // SLHC only
   // Add the "support layer" -- another way to add extra material
   // but it has to be inside the logical layer volume
-  if(gmt_mgr->PixelLayerSupportCylPresent()) { // false for non slhc geometries
+  if(m_gmt_mgr->PixelLayerSupportCylPresent()) { // false for non slhc geometries
     std::ostringstream slname;
-    slname << "PixelLayer" << gmt_mgr->GetLD() << "Support";
-    double rminSupport = gmt_mgr->PixelLayerSupportRMin();
-    double rmaxSupport = rminSupport + gmt_mgr->PixelLayerSupportThick();
+    slname << "PixelLayer" << m_gmt_mgr->GetLD() << "Support";
+    double rminSupport = m_gmt_mgr->PixelLayerSupportRMin();
+    double rmaxSupport = rminSupport + m_gmt_mgr->PixelLayerSupportThick();
     const GeoTube* supportCylEnv = new GeoTube(rminSupport, rmaxSupport, 0.5*length);
     // Will generalize later. 
-    std::string matName = gmt_mgr->getMaterialName("LayerSupport", gmt_mgr->GetLD());
+    std::string matName = m_gmt_mgr->getMaterialName("LayerSupport", m_gmt_mgr->GetLD());
     if (matName.empty()) {
-      gmt_mgr->msg(MSG::WARNING) << "Support layer material not in database. Setting to Carbon." << endmsg;
+      m_gmt_mgr->msg(MSG::WARNING) << "Support layer material not in database. Setting to Carbon." << endmsg;
       matName = "std::Carbon";
     }
-    const GeoMaterial *supportMat = mat_mgr->getMaterial(matName);
+    const GeoMaterial *supportMat = m_mat_mgr->getMaterial(matName);
     const GeoLogVol* supportCylLog = new GeoLogVol(slname.str(), supportCylEnv, supportMat);
     GeoPhysVol * supportCyl = new GeoPhysVol(supportCylLog);
     layerPhys->add(supportCyl);
@@ -468,9 +468,9 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //
   // Extra Material. I don't think there is much room but we provide the hooks anyway   
   //
-  InDetDD::ExtraMaterial xMat(gmt_mgr->distortedMatManager());
+  InDetDD::ExtraMaterial xMat(m_gmt_mgr->distortedMatManager());
   xMat.add(layerPhys,"PixelLayer");
-  std::ostringstream ostr; ostr << gmt_mgr->GetLD();
+  std::ostringstream ostr; ostr << m_gmt_mgr->GetLD();
   xMat.add(layerPhys,"PixelLayer"+ostr.str());
   
 
@@ -479,7 +479,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //
   if(bAddIBLStaveRings)
     {
-      gmt_mgr->msg(MSG::INFO) << "IBL stave ring support"<< endmsg;
+      m_gmt_mgr->msg(MSG::INFO) << "IBL stave ring support"<< endmsg;
 
       GeoPixelStaveRingServices staveRingService(pixelLadder, *staveSupport);
       staveRingService.Build();
@@ -492,7 +492,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
       m_xformSupportC = staveRingService.getSupportTrfC();
       m_xformSupportMidRing = staveRingService.getSupportTrfMidRing();
       
-      if(gmt_mgr->PixelStaveAxe()==1) {
+      if(m_gmt_mgr->PixelStaveAxe()==1) {
 	GeoNameTag *tagM = new GeoNameTag("Brl0M_StaveRing");         
 	GeoTransform *xformSupportMidRing = new GeoTransform(HepGeom::Transform3D());
 	GeoVPhysVol *supportPhysMidRing = getSupportMidRing();

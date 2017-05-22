@@ -605,6 +605,20 @@ void TrackFitter711::processor_end(int ibank)
   m_trackoutput->addNFitsHWRejectedMajorityI(ibank,m_nfits_rejmajI);
   m_trackoutput->addNConnections(ibank,m_nconn);
   m_trackoutput->addNExtrapolatedTracks(ibank,m_nextrapolatedTracks);
+  
+  // m_trackoutput_pre_hw->addNCombsI(ibank,m_ncombsI);
+  // m_trackoutput_pre_hw->addNFitsI(ibank,m_nfitsI);
+  // m_trackoutput_pre_hw->addNFitsMajorityI(ibank,m_nfits_majI);
+  // m_trackoutput_pre_hw->addNFitsMajorityI_pix(ibank,m_nfits_majI_pix);
+  // m_trackoutput_pre_hw->addNFitsMajorityI_SCT(ibank,m_nfits_majI_SCT);
+  // m_trackoutput_pre_hw->addNFitsRecoveryI(ibank,m_nfits_recI);
+  // m_trackoutput_pre_hw->addNAddFitsRecoveryI(ibank,m_nfits_addrecI);
+  // m_trackoutput_pre_hw->addNFitsBadI(ibank,m_nfits_badI);
+  // m_trackoutput_pre_hw->addNFitsHWRejectedI(ibank,m_nfits_rejI);
+  // m_trackoutput_pre_hw->addNFitsBadMajorityI(ibank,m_nfits_badmajI);
+  // m_trackoutput_pre_hw->addNFitsHWRejectedMajorityI(ibank,m_nfits_rejmajI);
+  // m_trackoutput_pre_hw->addNConnections(ibank,m_nconn);
+  // m_trackoutput_pre_hw->addNExtrapolatedTracks(ibank,m_nextrapolatedTracks);
 }
 
 
@@ -618,16 +632,19 @@ void TrackFitter711::processor(const FTKRoad &road) {
   if (m_resolution_mode) {
 
     list<FTKTrack> road_tracks; // list 7L tracks for this road
+    list<FTKTrack> road_tracks_pre_hw; // list 7L tracks before the HW filter
 
-    processor_Incomplete(road,road_tracks);
+    processor_Incomplete(road,road_tracks, road_tracks_pre_hw);
 
     // JAAA not used anymore
     //    processor_ResolutionMode(road,road_tracks);
   }
   else {     // performe the fits of the incomplete set of constants
     list<FTKTrack> road_tracks; // list 7L tracks for this road
+    list<FTKTrack> road_tracks_pre_hw; // list 7L tracks before the HW filter
+
     // perfom the incomplete fit
-    processor_Incomplete(road,road_tracks);
+    processor_Incomplete(road,road_tracks, road_tracks_pre_hw);
 
     if (road_tracks.empty()) return;
 
@@ -637,16 +654,19 @@ void TrackFitter711::processor(const FTKRoad &road) {
       for (;itrack!=road_tracks.end();++itrack) {
         m_trackoutput->addTrackI(region,*itrack);
       }
+      // itrack = road_tracks_pre_hw.begin();
+      // for (;itrack!=road_tracks_pre_hw.end();++itrack) {
+      //   m_trackoutput_pre_hw->addTrackI(region,*itrack);
+      //      }
     }
-
     // extrapolate and complete the  fit
-    if (!m_super_extrapolate)
+    if (!m_super_extrapolate){
       processor_Extrapolate(road,road_tracks);
-    else
+    }
+    else{
       processor_SuperExtrapolate(road,road_tracks);
-
-
   }
+}
 }
 
 
@@ -655,7 +675,8 @@ void TrackFitter711::processor(const FTKRoad &road) {
     constant set and add some details related in the method how the
     incomplete tracks are managed in the current case */
 void TrackFitter711::processor_Incomplete(const FTKRoad &road,
-                                          list<FTKTrack> &road_tracks)
+                                          list<FTKTrack> &road_tracks,
+                                          list<FTKTrack> &road_tracks_pre_hw)
 {
   // check if the road was marked as rejected by the RW or HF
   if (road.getRWRejected()!=0 &&
@@ -847,6 +868,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
 
        // majority track with bad chisq have no reason to be kept, recovery is not possible
        if (newtrkI.getNMissing() > 0) {
+           // float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
            float dof = m_ncoords - m_npars - newtrkI.getNMissing();
            if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
            float chisqcut = m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut_maj;
@@ -907,6 +929,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
        newtrkI = theCombos[idx];
        if( newtrkI.getNMissing() != 0 ) continue;
 
+       // float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing(); 
        float dof = m_ncoords - m_npars - newtrkI.getNMissing();
        if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
@@ -920,6 +943,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
    for( unsigned int idx = 0; idx < theCombos.size(); idx++ ) {
      newtrkI = theCombos[idx];
 
+     // float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
      float dof = m_ncoords - m_npars - newtrkI.getNMissing();
      if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
@@ -942,7 +966,8 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
 
        m_nfits_recI += 1; // ONLY recovery fits
 
-       for (int ip=(m_require_first?1:0);ip<nplanes;++ip) { // loop over the combinations
+       int firstCombo = m_require_first ? 1:0;
+       for (int ip=firstCombo;ip<nplanes;++ip) { // loop over the combinations
 
          // skip planes with multiple hits
          if (norecovery_mask&(1<<ip)) continue;
@@ -976,7 +1001,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
          }
        } // end loop over the combinations
 
-       if (idbest>0) {
+       if (idbest>=firstCombo) {
          // a track, excluding the 1st layer, was found
          newtrkI = combtrackI[idbest];
          newtrkI.setTypeMask(1); // set as recovered
@@ -984,6 +1009,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
 
      } // end block to recover complete tracks with bad chi2
 
+     //dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
      dof = m_ncoords - m_npars - newtrkI.getNMissing();
      if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
@@ -991,6 +1017,9 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
      if (newtrkI.getChi2()< ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut :
                              (newtrkI.getNMissing() > 0 ? m_Chi2Cut_maj : m_Chi2Cut) )  &&
          newtrkI.getChi2() != 0 ) {
+
+       // appending pre-HW tracks to dump
+       //       road_tracks_pre_hw.push_back(newtrkI);
 
        // to append the found track go trought the HW filter
        // add this track to track list only if
@@ -1001,7 +1030,6 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
        // -1 means is worse than an old track (duplicated)
 
        int accepted(0);
-
        // Disable hitwarrior, auto-accept every track
        if (m_HitWarrior!=0)
          accepted = doHitWarriorFilter(newtrkI,road_tracks);
@@ -2004,6 +2032,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
           (newtrk.getNMissing() > 0 ? m_Chi2Cut_maj : m_Chi2Cut) )  &&
         newtrk.getChi2() != 0 )
     {
+
       // to append the found track go trought the HW filter
       // add this track to track list only if
       // don't have common hits with another track,
@@ -2018,6 +2047,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
       if (m_HitWarrior!=0)
         accepted = doHitWarriorFilter(newtrk,m_tracks);
 
+      //std::cout<<"TH: I accepted = "<<accepted<<std::endl;
       if (accepted>=0) // track accepted, no hits shared with already fitted tracks
       {
         // copy newtrkI after truth assignment.

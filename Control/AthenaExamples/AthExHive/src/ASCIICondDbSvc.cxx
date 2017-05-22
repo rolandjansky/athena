@@ -145,7 +145,7 @@ ASCIICondDbSvc::dump() const {
 void
 ASCIICondDbSvc::dump(std::ostringstream& ost) const {
 
-  std::lock_guard<std::recursive_mutex> lock(m_lock);
+  std::lock_guard<std::mutex> lock(m_lock);
 
   ost << "ASCIICondDbSvc::dump()";
 
@@ -226,7 +226,7 @@ StatusCode
 ASCIICondDbSvc::getRange(const std::string& dbKey , const EventContext& ctx,
                   EventIDRange& rng, IASCIICondDbSvc::dbData_t& val) const {
 
-  std::lock_guard<std::recursive_mutex> lock(m_lock);
+  std::lock_guard<std::mutex> lock(m_lock);
 
   registry_t::const_iterator itr = m_registry.find(dbKey);
 

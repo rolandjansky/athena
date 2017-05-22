@@ -4,17 +4,7 @@ pwd
 
 echo "args: $*"
 
-BASEDIR=/afs/cern.ch/user/s/sutt/public
-
-
-# copy basic web page information 
-
-for FILE in style.css index.php; do
-  echo "checking file $FILE"
-  if [ ! -e $FILE ]; then 
-    cp  $BASEDIR/TIDAWeb/TIDAV/$FILE .
-  fi
-done
+BASEDIR=/eos/atlas/atlascerngroupdisk/proj-sit/trigindet
 
 echo 
 echo "copy reference file and run comparitor"
@@ -30,8 +20,8 @@ if [ -e TrkNtuple-0000.root ]; then
 
     echo "RELEASE: $RELEASE"
 
-    if [ -d $BASEREFDIR/$RELEASE ]; then 
-        REFDIR=$BASEREFDIR/$RELEASE
+    if [ -d $BASEREFDIR/share/$RELEASE ]; then 
+        REFDIR=$BASEREFDIR/share/$RELEASE
     fi
 
     echo "fetching reference files from $REFDIR"

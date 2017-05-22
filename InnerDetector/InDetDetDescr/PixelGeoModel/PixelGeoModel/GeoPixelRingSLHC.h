@@ -15,8 +15,8 @@ class GeoPixelRingSLHC : public GeoVPixelFactory {
   virtual GeoVPhysVol* Build();
 
  private:  
-  GeoPixelSiCrystal& _sensor;
-  GeoLogVol* _ringLog;
+  GeoPixelSiCrystal& m_sensor;
+  GeoLogVol* m_ringLog;
 };
 
 #endif

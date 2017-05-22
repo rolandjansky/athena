@@ -14,6 +14,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/TriggerInfo.h"
+#include "StoreGate/ReadHandle.h"
 
 const std::string SCTMotherTrigMonTool::m_triggerNames[] = {
   "RNDM", "BPTX", "L1CAL", "TGC", "RPC", "MBTS", "COSM", "Calib"
@@ -24,7 +25,8 @@ SCTMotherTrigMonTool::SCTMotherTrigMonTool(const std::string &type, const std::s
   m_doTrigger(true),
   m_isStream(false),
   m_firedTriggers(0),
-  m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool") {
+  m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
+  m_eventInfoKey(std::string("ByteStreamEventInfo")) {
   declareProperty("doTrigger", m_doTrigger);
 }
 
@@ -34,16 +36,17 @@ SCTMotherTrigMonTool::initialize() {
     msg(MSG::ERROR) << "Could not initialize Monitor tool base!" << endmsg;
     return StatusCode::FAILURE;
   }
+
+  ATH_CHECK( m_eventInfoKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
 // ---------------------------------------------------------
 StatusCode
 SCTMotherTrigMonTool::checkTriggers() {
-  const EventInfo *evtInfo(0);
-
-  if (evtStore()->contains<EventInfo>("ByteStreamEventInfo")) {
-    evtStore()->retrieve(evtInfo, "ByteStreamEventInfo");
+  if (evtStore()->contains<EventInfo>(m_eventInfoKey.key())) {
+    SG::ReadHandle<EventInfo> evtInfo(m_eventInfoKey);
     m_firedTriggers = evtInfo->trigger_info()->level1TriggerType();
 
     return StatusCode::SUCCESS;
@@ -83,10 +86,8 @@ SCTMotherTrigMonTool::isCalibrationNoise(const std::string &L1_Item) {
 
 bool
 SCTMotherTrigMonTool::isStream(const std::string &StreamName) {
-  const EventInfo *evtInfo(0);
-
-  if (evtStore()->contains<EventInfo>("ByteStreamEventInfo")) {
-    evtStore()->retrieve(evtInfo, "ByteStreamEventInfo");
+  if (evtStore()->contains<EventInfo>(m_eventInfoKey.key())) {
+    SG::ReadHandle<EventInfo> evtInfo(m_eventInfoKey);
 
     m_isStream = false;
 

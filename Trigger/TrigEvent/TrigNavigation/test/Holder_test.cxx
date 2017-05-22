@@ -16,9 +16,11 @@
 #include "AthContainers/AuxTypeRegistry.h"
 
 #include "TrigNavigation/TriggerElement.h"
+#include "CxxUtils/ubsan_suppress.h"
 
 #include "TestTypes.h"
 #include "TestUtils.h"
+#include "TInterpreter.h"
 
 using namespace std;
 using namespace HLTNavDetails;
@@ -348,7 +350,7 @@ StatusCode serialize_xAOD() {
 
 //*****************************************************************************
 int main() {
-
+   CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); } );
 
    ISvcLocator* pSvcLoc;
    if (!Athena_test::initGaudi("test.txt",  pSvcLoc)) {

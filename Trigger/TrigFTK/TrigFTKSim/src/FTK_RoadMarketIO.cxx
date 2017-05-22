@@ -223,6 +223,17 @@ void FTK_RoadMarketOutput::naoSetNclusTot(int bank, int val)
 }
 
 
+void FTK_RoadMarketOutput::naoSetNclus_road(int bank, const std::vector<int> &val)
+{
+  m_market->getStream(bank)->naoSetNclus_road(val);
+}
+
+void FTK_RoadMarketOutput::naoAddNclus_road(int bank, const std::vector<int> &val)
+{
+  m_market->getStream(bank)->naoAddNclus_road(val);
+}
+
+
 void FTK_RoadMarketOutput::naoSetNclus(int bank, const std::vector<int> &val)
 {
   m_market->getStream(bank)->naoSetNclus(val);

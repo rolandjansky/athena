@@ -59,6 +59,6 @@ int main() {
    SIMPLE_ASSERT( asg::ToolStore::get( "dummyTool3" ) == 0 );
    SIMPLE_ASSERT( asg::ToolStore::get( "dummyTool4" ) == 0 );
 
-   // Retrun gracefully:
+   // Return gracefully:
    return 0;
 }

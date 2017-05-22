@@ -710,7 +710,7 @@ class Tile2000_2003(TBSimSkeleton):
         AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external '+\
                                        'done')
 
-##   @classmethod
+##   \@classmethod
 ##   def do_GeoSD(self):
 ##      """ Defines the geometry and SD
 ##      """

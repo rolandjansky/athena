@@ -39,11 +39,11 @@ GeoVPhysVol* GeoPixelDiskSLHC::Build( ) {
   //
   // Build disk
   //
-  int idisk = gmt_mgr->GetLD();
-  double rmin = gmt_mgr->PixelDiskRMin(true); //including supports
-  double rmax = gmt_mgr->PixelDiskRMax(true); //including supports
-  double halflength = gmt_mgr->PixelDiskThickness() / 2.;
-  const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+  int idisk = m_gmt_mgr->GetLD();
+  double rmin = m_gmt_mgr->PixelDiskRMin(true); //including supports
+  double rmax = m_gmt_mgr->PixelDiskRMax(true); //including supports
+  double halflength = m_gmt_mgr->PixelDiskThickness() / 2.;
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoTube* diskTube = new GeoTube(rmin,rmax,halflength);
   const GeoLogVol* diskLog = new GeoLogVol("diskLog",diskTube,air);
   GeoFullPhysVol* diskPhys = new GeoFullPhysVol(diskLog);
@@ -51,31 +51,31 @@ GeoVPhysVol* GeoPixelDiskSLHC::Build( ) {
   //
   // Upgrade pixel: each disk contains NRING rings
   //
-  int nrings = gmt_mgr->PixelDiskNRings();
+  int nrings = m_gmt_mgr->PixelDiskNRings();
 
   // Set numerology
-  DDmgr->numerology().setNumRingsForDisk(gmt_mgr->GetLD(),nrings);
+  m_DDmgr->numerology().setNumRingsForDisk(m_gmt_mgr->GetLD(),nrings);
 
   for (int iring = 0; iring < nrings; iring++) {
 
     // offset from disk center to (front- or back-face) ring center
-    gmt_mgr->SetEta( iring );
+    m_gmt_mgr->SetEta( iring );
     // Set numerology
-    DDmgr->numerology().setNumPhiModulesForDiskRing(gmt_mgr->GetLD(),iring,gmt_mgr->PixelDiskRingNModules());
+    m_DDmgr->numerology().setNumPhiModulesForDiskRing(m_gmt_mgr->GetLD(),iring,m_gmt_mgr->PixelDiskRingNModules());
     //
     // Define the sensor to be used, it will be the same for each ring
     //
     GeoPixelSiCrystal theSensor(false);
 
 
-    double zpos = gmt_mgr->PixelRingZpos();
+    double zpos = m_gmt_mgr->PixelRingZpos();
 
     // -1 means near IP, +1 means away from IP, 0 means alternate
-    int ringSide = gmt_mgr->PixelRingSide();
+    int ringSide = m_gmt_mgr->PixelRingSide();
 
     if (ringSide == 0 || ringSide == 1) {
       // front rings first (away from IP)
-      gmt_mgr->setDiskFront();
+      m_gmt_mgr->setDiskFront();
       GeoPixelRingSLHC gpRingF(theSensor);
       GeoTransform* xfront = new GeoTransform( HepGeom::Translate3D(0, 0, zpos) );
       diskPhys->add( new GeoNameTag("PixelECRing") );
@@ -87,7 +87,7 @@ GeoVPhysVol* GeoPixelDiskSLHC::Build( ) {
     
     if (ringSide == 0 || ringSide == -1) {
       // then back rings (near IP)
-      gmt_mgr->setDiskBack();
+      m_gmt_mgr->setDiskBack();
       GeoPixelRingSLHC gpRingB(theSensor);
       GeoTransform* xback = new GeoTransform( HepGeom::Translate3D(0, 0, -zpos) );
       diskPhys->add( new GeoNameTag("PixelECRing") );
@@ -110,19 +110,19 @@ GeoVPhysVol* GeoPixelDiskSLHC::Build( ) {
   }
 
 
-  // Extra Material - use gmt_mgr from base class GeoVPixelFactory
-  InDetDD::ExtraMaterial xMat(gmt_mgr->distortedMatManager());
+  // Extra Material - use m_gmt_mgr from base class GeoVPixelFactory
+  InDetDD::ExtraMaterial xMat(m_gmt_mgr->distortedMatManager());
   xMat.add(diskPhys,"PixelDisk");
 
   std::ostringstream ostr;
   ostr <<"PixelDisk"<< idisk;
   xMat.add(diskPhys,ostr.str());
-  if(gmt_mgr->isAside()) {
+  if(m_gmt_mgr->isAside()) {
     // EndcapA
     xMat.add(diskPhys,"PixelDiskA");
     xMat.add(diskPhys,"PixelDiskA"+ostr.str());
   }
-  else if(gmt_mgr->isCside()) {
+  else if(m_gmt_mgr->isCside()) {
     // EndcapC
     xMat.add(diskPhys,"PixelDiskC");
     xMat.add(diskPhys,"PixelDiskC"+ostr.str());

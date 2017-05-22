@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "AthenaStackingActionTool.h"
 
 namespace G4UA
@@ -40,8 +39,7 @@ namespace G4UA
   {
     ATH_MSG_DEBUG("makeAction");
     // Create and configure the action plugin.
-    auto action = CxxUtils::make_unique<AthenaStackingAction>(m_config);
-    return std::move(action);
+    return std::make_unique<AthenaStackingAction>(m_config);
   }
 
   //---------------------------------------------------------------------------
