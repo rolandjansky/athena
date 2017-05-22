@@ -13,7 +13,7 @@ class TFCSExtrapolationState:public TObject {
     TFCSExtrapolationState();
 
     void clear();
-    
+
     enum SUBPOS { SUBPOS_MID = 0, SUBPOS_ENT = 1, SUBPOS_EXT = 2}; //MID=middle, ENT=entrance, EXT=exit of cal layer
 
     void set_OK (int layer,int subpos,bool   val=true) {m_CaloOK[layer][subpos]=val;};
@@ -55,6 +55,9 @@ class TFCSExtrapolationState:public TObject {
     double IDCaloBoundary_r() const {return m_IDCaloBoundary_r;};
     double IDCaloBoundary_z() const {return m_IDCaloBoundary_z;};
 
+    double IDCaloBoundary_AngleEta() const {return m_IDCaloBoundary_AngleEta;};
+    double IDCaloBoundary_Angle3D() const {return m_IDCaloBoundary_Angle3D;};
+
     void set_IDCaloBoundary_AngleEta(double val) {m_IDCaloBoundary_AngleEta=val;};
     void set_IDCaloBoundary_Angle3D(double val) {m_IDCaloBoundary_Angle3D=val;};
 
@@ -66,7 +69,7 @@ class TFCSExtrapolationState:public TObject {
     double m_zCalo[CaloCell_ID_FCS::MaxSample][3];
     double m_dCalo[CaloCell_ID_FCS::MaxSample][3];
     double m_distetaCaloBorder[CaloCell_ID_FCS::MaxSample][3];
-    
+
     int    m_CaloSurface_sample;
     double m_CaloSurface_eta;
     double m_CaloSurface_phi;

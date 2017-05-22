@@ -46,7 +46,7 @@ StatusCode FastCaloSimGeometryHelper::finalize()
 bool FastCaloSimGeometryHelper::LoadGeometryFromCaloDDM()
 {
   ATH_MSG_INFO("Start LoadGeometryFromCaloDDM()");
-//  int jentry=0;
+  //int jentry=0;
   //for(CaloDetDescrManager::calo_element_const_iterator calo_iter=m_caloMgr->element_begin();calo_iter<m_caloMgr->element_end();++calo_iter) {
     //const CaloDetDescrElement* pcell=*calo_iter;
     //addcell(pcell);
