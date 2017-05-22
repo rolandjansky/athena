@@ -27,9 +27,9 @@ DetailedChains = {
                   "Tau3mu" : 'HLT_([2-3]?mu[0-9]+).*_bTau.*'
                  }
 DetailedL1TopoChains = {
-                      "L1BPH-M-DR-low"    : "HLT_mu6_mu4_bDimu_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4",
-                      "L1BPH-M-DR"        : "HLT_2mu6_bDimu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6",
-                      "L1BPH-M"           : "HLT_2mu6_bDimu_L1BPH-8M15-2MU6"
+                      "L1BPH-M-DR-low"    : "HLT_2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6",
+                      "L1BPH-M-DR"        : "HLT_2mu6_bUpsimumu_L1BPH-8M15-2MU6_BPH-0DR22-2MU6",
+                      #"L1BPH-M"           : "HLT_2mu6_bDimu_L1BPH-8M15-2MU6"
                        }
 EfficiencyChains = {
                     "BMuMu"  : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)",
