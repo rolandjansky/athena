@@ -13,8 +13,7 @@ namespace G4UA{
   }
   std::unique_ptr<TestActionShowerLib>  TestActionShowerLibTool::makeAction(){
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<TestActionShowerLib>();
-    return std::move(action);
+    return CxxUtils::make_unique<TestActionShowerLib>();
   }
   StatusCode TestActionShowerLibTool::queryInterface(const InterfaceID& riid, void** ppvIf){
     

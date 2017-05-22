@@ -155,6 +155,9 @@ protected:
   /// also run purity analyses
   bool m_runPurity;
 
+  /// determine whether this should be treated as a shifter chain
+  bool m_shifter;
+
   /// max number of shifter chains to use - must be < 2 at the moment
   int m_shifterChains;
 

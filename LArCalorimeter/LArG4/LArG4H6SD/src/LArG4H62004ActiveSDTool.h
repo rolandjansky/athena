@@ -11,15 +11,19 @@
 
 #include "StoreGate/WriteHandle.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
+#include "LArG4Code/ILArCalibCalculatorSvc.h"
 
 class LArG4H62004CalibSD;
 
+/// DEPRECATED AND WILL BE REMOVED.
+/// Please see LArG4::H62004ActiveSDTool instead.
+///
 class LArG4H62004ActiveSDTool : public LArG4SDTool
 {
  public:
   // Constructor
   LArG4H62004ActiveSDTool(const std::string& type, const std::string& name, const IInterface *parent);
-    
+
   // Destructor
   virtual ~LArG4H62004ActiveSDTool() {}
 
@@ -30,8 +34,15 @@ class LArG4H62004ActiveSDTool : public LArG4SDTool
   StatusCode Gather() override final;
 
  private:
+  StatusCode initializeCalculators() override final;
+
   // The actual hit container - here because the base class is for both calib and standard SD tools
   SG::WriteHandle<CaloCalibrationHitContainer> m_HitColl;
+  ServiceHandle<ILArCalibCalculatorSvc> m_emepiwcalc;
+  ServiceHandle<ILArCalibCalculatorSvc> m_heccalc;
+  ServiceHandle<ILArCalibCalculatorSvc> m_fcal1calc;
+  ServiceHandle<ILArCalibCalculatorSvc> m_fcal2calc;
+  ServiceHandle<ILArCalibCalculatorSvc> m_fcalcoldcalc;
 
   LArG4H62004CalibSD* m_emecSD;
   LArG4H62004CalibSD* m_hecSD;

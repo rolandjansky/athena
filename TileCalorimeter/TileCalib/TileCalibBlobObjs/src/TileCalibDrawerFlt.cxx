@@ -3,6 +3,7 @@
 */
 
 #include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 #include <iostream>
 #include <algorithm>
 
@@ -93,8 +94,17 @@ TileCalibDrawerFlt::getCalib(unsigned int channel, unsigned int adc, float energ
 
     //=== Tile Default Policy has to be enforced here again, 
     //=== since getAddress() below assumes valid channel & adc
-    if(channel >= getNChans()) {channel=0;}
-    if(    adc >= getNGains()) {adc    =0;}
+
+    if(channel >= getNChans()) {
+      if (channel <= TileCalibUtils::MAX_CHAN) {
+        channel = 0;
+      } else {
+        channel = channel % TileCalibUtils::MAX_CHAN;
+        if (channel >= getNChans()) channel = 0;
+      }
+    }
+
+    if(adc >= getNGains()) {adc = 0;}
     
     //=== determine position in table
     const float* xBeg   = getAddress(channel,adc);
@@ -139,8 +149,17 @@ TileCalibDrawerFlt::getYDY(unsigned int channel, unsigned int adc, float x,
   
   //=== Tile Default Policy has to be enforced here again, 
   //=== since getAddress() below assumes valid channel & adc
-  if(channel >= getNChans()) {channel=0;}
-  if(    adc >= getNGains()) {adc    =0;}
+
+  if(channel >= getNChans()) {
+    if (channel <= TileCalibUtils::MAX_CHAN) {
+      channel = 0;
+    } else {
+      channel = channel % TileCalibUtils::MAX_CHAN;
+      if (channel >= getNChans()) channel = 0;
+    }
+  }
+
+  if( adc >= getNGains()) {adc = 0;}
   
   //=== determine position in table
   const float* xBeg   = getAddress(channel,adc);
@@ -198,8 +217,17 @@ TileCalibDrawerFlt::getY(unsigned int channel, unsigned int adc, float x) const
   
   //=== Tile Default Policy has to be enforced here again, 
   //=== since getAddress() below assumes valid channel & adc
-  if(channel >= getNChans()) {channel=0;}
-  if(    adc >= getNGains()) {adc    =0;}
+  
+  if(channel >= getNChans()) {
+    if (channel <= TileCalibUtils::MAX_CHAN) {
+      channel = 0;
+    } else {
+      channel = channel % TileCalibUtils::MAX_CHAN;
+      if (channel >= getNChans()) channel = 0;
+    }
+  }
+  
+  if(adc >= getNGains()) {adc = 0;}
   
   //=== determine position in table
   const float* xBeg   = getAddress(channel,adc);

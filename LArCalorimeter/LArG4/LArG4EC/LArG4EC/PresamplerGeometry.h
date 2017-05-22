@@ -17,9 +17,8 @@
 
 #ifndef LArG4_EC_PresamplerGeometry_H
 #define LArG4_EC_PresamplerGeometry_H
-
-#include "G4ThreeVector.hh"
-#include "globals.hh"
+#include "LArG4EC/IECPresamplerGeometry.h"
+#include "AthenaBaseComps/AthService.h"
 
 // Forward declarations.
 class LArG4Identifier;
@@ -33,38 +32,37 @@ namespace LArG4 {
 
   namespace EC {
 
-    class PresamplerGeometry {
+    class PresamplerGeometry: public AthService, virtual public IECPresamplerGeometry {
 
     public:
-      // Standard implementation of a singleton pattern.
-      static const PresamplerGeometry* GetInstance();
+      // Constructor
+      PresamplerGeometry(const std::string& name, ISvcLocator * pSvcLocator);
+      StatusCode initialize() override final;
       virtual ~PresamplerGeometry();
+
+      /** Query interface method to make athena happy */
+      virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
 
       // 15-Jan-2002 WGS: A "lookup" function for detector measurements,
       // sizes, and other values.
       enum kValue {
-	rMinEndcapPresampler,
-	rMaxEndcapPresampler,
-	zEndcapPresamplerFrontFace,
-	zEndcapPresamplerBackFace,
-	EndcapPresamplerHalfThickness,
-	EndcapPresamplerZpositionInMother
+        rMinEndcapPresampler,
+        rMaxEndcapPresampler,
+        zEndcapPresamplerFrontFace,
+        zEndcapPresamplerBackFace,
+        EndcapPresamplerHalfThickness,
+        EndcapPresamplerZpositionInMother
       };
-      G4double GetValue(const kValue) const;
-      
       // This is the "meat" of this class: calculate the identifier
       // given a G4Step.
-      LArG4Identifier CalculateIdentifier( const G4Step* ) const;
-
-    protected:
-      // Constructor is protected according to the singleton pattern.
-      PresamplerGeometry();
+      LArG4Identifier CalculateIdentifier( const G4Step* ) const override final;
 
     private:
 
+      double GetValue(const kValue) const;
 
       struct Clockwork;
-      Clockwork *c;
+      Clockwork *m_c; //FIXME is it really worth creating this struct on the heap?
 
       PresamplerGeometry (const PresamplerGeometry&);
       PresamplerGeometry& operator= (const PresamplerGeometry&);

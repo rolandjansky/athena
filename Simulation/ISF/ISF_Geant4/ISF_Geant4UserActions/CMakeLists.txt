@@ -17,11 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/CxxUtils
                           Control/AthenaBaseComps
                           Generators/GeneratorObjects
-                          LArCalorimeter/LArG4/LArG4Barrel
                           LArCalorimeter/LArG4/LArG4Code
-                          LArCalorimeter/LArG4/LArG4EC
-                          LArCalorimeter/LArG4/LArG4FCAL
-                          LArCalorimeter/LArG4/LArG4HEC
                           Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimEvent
                           TileCalorimeter/TileG4/TileGeoG4SD )
 
@@ -36,7 +32,7 @@ atlas_add_component( ISF_Geant4UserActions
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} StoreGateLib SGtests GaudiKernel G4AtlasInterfaces G4AtlasToolsLib CaloDetDescrLib CaloIdentifier CxxUtils GeneratorObjects LArG4Barrel LArG4Code LArG4EC LArG4FCAL LArG4HEC ISF_FastCaloSimEvent TileGeoG4SDLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} StoreGateLib SGtests GaudiKernel G4AtlasInterfaces G4AtlasToolsLib CaloDetDescrLib CaloIdentifier CxxUtils GeneratorObjects LArG4Code ISF_FastCaloSimEvent TileGeoG4SDLib )
 
 # Install files from the package:
 atlas_install_headers( ISF_Geant4UserActions )

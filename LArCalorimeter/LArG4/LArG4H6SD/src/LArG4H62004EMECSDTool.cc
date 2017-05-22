@@ -7,21 +7,27 @@
 
 #include "LArG4Code/LArG4Hit.h"
 
-#include "LArG4EC/EnergyCalculator.h"
-
 #include "CxxUtils/make_unique.h"
 
 LArG4H62004EMECSDTool::LArG4H62004EMECSDTool(const std::string& type, const std::string& name, const IInterface *parent)
   : LArG4SDTool(type,name,parent)
   , m_HitColl("LArHitEMEC")
+  , m_calculator("EMECPosInnerWheel_ECOR_GADJCalculator", name)
   , m_emecSD(nullptr)
 {
   declareInterface<ISensitiveDetector>(this);
+  declareProperty("Calculator", m_calculator);
+}
+
+StatusCode LArG4H62004EMECSDTool::initializeCalculators()
+{
+  ATH_CHECK(m_calculator.retrieve());
+  return StatusCode::SUCCESS;
 }
 
 StatusCode LArG4H62004EMECSDTool::initializeSD()
 {
-  m_emecSD = new LArG4H62004SD( "LAr::EMEC::InnerModule::H6" , new LArG4::EC::EnergyCalculator(LArWheelCalculator::InnerAbsorberModule,LArG4::EC::EnergyCalculator::EMEC_ECOR_GADJ) , m_timeBinType , m_timeBinWidth );
+  m_emecSD = new LArG4H62004SD( "LAr::EMEC::InnerModule::H6" , &*m_calculator , m_timeBinType , m_timeBinWidth );
 
   std::map<G4VSensitiveDetector*,std::vector<std::string>*> configuration;
   configuration[m_emecSD] = &m_volumeNames;

@@ -31,10 +31,14 @@ uint32_t bitFieldSize(uint32_t word, uint8_t offset, uint8_t size) {
   return (word >> offset) & ((1U << size) - 1);
 }
 
+uint32_t crateModuleMask(uint8_t crate, uint8_t module) {
+  return (crate << 8) | (1 << 4) | module;
+} 
+
 uint32_t coolId(uint8_t crate, uint8_t module, uint8_t channel) {
   const uint8_t pin = channel % 16;
   const uint8_t asic = channel / 16;
-  return (crate << 24) | (1 << 20) | (module << 16) | (pin << 8) | asic;
+  return (crateModuleMask(crate, module) << 16) | (pin << 8) | asic;
 } 
 
 int16_t pedCorrection(uint16_t twoBytePedCor) {
@@ -72,6 +76,7 @@ PpmByteStreamReadV1V2Tool::PpmByteStreamReadV1V2Tool(const std::string& name /*=
     m_verCode(0),
     m_ppPointer(0),
     m_ppMaxBit(0),
+    m_maxSizeSeen(0),
     m_triggerTowers(nullptr)
 {
   declareInterface<PpmByteStreamReadV1V2Tool>(this);
@@ -124,11 +129,11 @@ StatusCode PpmByteStreamReadV1V2Tool::convert(
     xAOD::TriggerTowerContainer* const ttCollection) {
 
   m_triggerTowers = ttCollection;
-  m_coolIdToTriggerTowerMap.clear();
-  m_coolIds.clear();
-  m_triggerTowersOrder.clear();
-  createEmptyTriggerTowers_();
   
+  if (m_maxSizeSeen > m_triggerTowers->capacity()){
+    m_triggerTowers->reserve (m_maxSizeSeen);
+  }
+
   m_subDetectorID = eformat::TDAQ_CALO_PREPROC;
   m_requestedType = RequestType::PPM;
 
@@ -143,23 +148,8 @@ StatusCode PpmByteStreamReadV1V2Tool::convert(
 
     }
   }
-  
-  m_triggerTowers->reserve(m_triggerTowersOrder.size());
-  
-  for (auto coolId: m_triggerTowersOrder) {
-          auto& tt = m_coolIdToTriggerTowerMap[coolId];
-          if (tt->adc().size()>0 || tt->errorWord()){
-            m_triggerTowers->push_back(std::move(tt));
-          }
-  }
 
-  // for ( auto it = m_coolIdToTriggerTowerMap.begin(); it != m_coolIdToTriggerTowerMap.end(); ++it ){
-  //   auto& tt = it->second;
-  //   if (tt->adc().size()>0 || tt->errorWord()){
-  //     m_triggerTowers->push_back(std::move(tt));
-  //   }
-  // }
-
+  m_maxSizeSeen = std::max (m_maxSizeSeen, m_triggerTowers->size());
   m_triggerTowers = nullptr;
   return StatusCode::SUCCESS;
 }
@@ -625,7 +615,7 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmCompressedR4V1_() {
   // }
 
   try{
-    for(uint8_t chan = 0; chan < 64; ++chan) {
+    for(uint8_t chan = 0; chan < s_channels; ++chan) {
       uint8_t present = 1;
 
       std::vector<uint8_t> haveLut(numLut, 0);
@@ -932,50 +922,16 @@ void PpmByteStreamReadV1V2Tool::processSubBlockStatus_(uint8_t crate, uint8_t mo
   errorBits.set(LVL1::DataError::SubStatusWord, payload);
 
   const uint32_t error = errorBits.error();
-  for(uint8_t channel=0; channel < s_channels; ++channel){
-    auto coolId = ::coolId(crate, module, channel);
-    if (m_coolIdToTriggerTowerMap.count(coolId)){
-      m_coolIdToTriggerTowerMap[coolId]->setErrorWord(error);
+  int curr = m_triggerTowers->size() - 1;
+  for(int i=0; i < s_channels; ++i){
+    if (curr < 0){
+      break;
     }
-  }
-}
-
-void PpmByteStreamReadV1V2Tool::createEmptyTriggerTowers_() {
-  m_coolIdToTriggerTowerMap.reserve(s_crates * s_modules * s_channels);
-  std::vector<uint16_t> dummyAdcVector;
-  uint32_t dummyErrorWord = 0;
-  for (uint8_t crate = 0; crate < s_crates; ++crate) {
-    for (uint8_t module = 0; module < s_modules; ++module) {
-      for (uint8_t channel = 0; channel < s_channels; ++channel) {
-        auto coolId = ::coolId(crate, module, channel);
-        m_coolIds.insert(coolId);
-
-        int layer = 0;
-        double eta = 0.;
-        double phi = 0.;
-
-        bool isData =
-            m_ppmMaps->mapping(crate, module, channel, eta, phi, layer);
-
-        if (!isData && !m_ppmIsRetSpare && !m_ppmIsRetMuon) {
-          continue;
-        }
-
-        if (!isData) {
-          const int pin = channel % 16;
-          const int asic = channel / 16;
-          eta = 16 * crate + module;
-          phi = 4 * pin + asic;
-        }
-
-        xAOD::TriggerTower* tt = new xAOD::TriggerTower();
-        tt->makePrivateStore();
-        tt->initialize(coolId, eta, phi);
-        tt->setAdc(dummyAdcVector);
-        tt->setErrorWord(dummyErrorWord);
-        // m_triggerTowers->push_back(tt);
-        m_coolIdToTriggerTowerMap.emplace(coolId, tt);
-      }
+    auto tt = (*m_triggerTowers)[curr--];
+    if (tt->coolId() >> 16 & crateModuleMask(crate, module)){
+      tt->setErrorWord(error);
+    }else{
+      break;
     }
   }
 }
@@ -996,14 +952,27 @@ StatusCode PpmByteStreamReadV1V2Tool::addTriggerTowerV2_(
 
   uint32_t coolId = ::coolId(crate, module, channel);
 
-
-  if (!m_coolIdToTriggerTowerMap.count(coolId)){
+  int layer = 0;
+  double eta = 0.;
+  double phi = 0.;
+  
+  bool isData = m_ppmMaps->mapping(crate, module, channel, eta, phi, layer);
+  
+  if (!isData && !m_ppmIsRetSpare && !m_ppmIsRetMuon){
     return StatusCode::SUCCESS;
   }
 
-  auto& tt = m_coolIdToTriggerTowerMap[coolId];
-  m_triggerTowersOrder.push_back(coolId);
-  tt->initialize(coolId, tt->eta(), tt->phi(),
+  if (!isData) {
+    const int pin  = channel % 16;
+    const int asic = channel / 16;
+    eta = 16 * crate + module;
+    phi = 4 * pin + asic;
+  }
+
+  xAOD::TriggerTower* tt = new xAOD::TriggerTower();
+  m_triggerTowers->push_back(tt);
+
+  tt->initialize(coolId, eta, phi,
                  std::move(lcpVal), std::move(ljeVal),
                  std::move(pedCor), std::move(pedEn),
                  std::move(lcpBcidVec), std::move(adcVal),
@@ -1132,12 +1101,6 @@ uint32_t PpmByteStreamReadV1V2Tool::getPpmBytestreamField_(const uint8_t numBits
       uint32_t field2 = ::bitFieldSize(m_ppBlock[iWord + 1], 0, nb2);
       result = field1 | (field2 << nb1);
     }
-
-    // std::bitset<32> r(result);
-    // for(size_t i = 0; i < numBits; ++i) {
-    //   std::cout << int(r[i]);
-    // }
-    // std::cout << " " << result << std::endl;
 
     return result;
   }

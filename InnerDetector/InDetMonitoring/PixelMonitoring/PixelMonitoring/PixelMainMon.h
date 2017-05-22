@@ -340,6 +340,7 @@ private:
    TH1F_LW*                m_maxocc_per_bcid_mod[PixLayerIBL2D3D::COUNT];
    PixelMon2DMaps*         m_occupancy;
    PixelMon2DMapsLW*       m_average_pixocc;
+   PixelMon2DProfilesLW*   m_occupancy_pix_evt;
    PixelMon2DMaps*         m_occupancy_10min;
    TProfile*               m_occupancy_time1;
    TProfile*               m_occupancy_time2;

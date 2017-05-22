@@ -32,6 +32,10 @@ atlas_add_test( TileCalibDrawerOfc_test
                 SOURCES test/TileCalibDrawerOfc_test.cxx
                 LINK_LIBRARIES TileCalibBlobObjs TestTools ${CORAL_LIBRARIES} )
 
+atlas_add_test( TileCalibDrawerFlt_test
+                SOURCES test/TileCalibDrawerFlt_test.cxx
+                LINK_LIBRARIES TileCalibBlobObjs TestTools ${CORAL_LIBRARIES} )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 

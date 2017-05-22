@@ -2,6 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// AFP includes
+#include "AFP_RawEv/AFP_ROBID.h"
+
 // AFP_ByteStream2RawCnv includes
 #include "AFP_ByteStream2RawCnv/AFP_RawDataProvider.h"
 
@@ -55,11 +58,11 @@ StatusCode AFP_RawDataProvider::execute() {
 
   std::vector<const ROBFragment *> listOfRobf;
   std::vector<unsigned int> ROBIDs;
-  ROBIDs.push_back(0x00850000);
-  ROBIDs.push_back(0x00850001);
+  ROBIDs.push_back(AFP_ROBID::sideA);
+  ROBIDs.push_back(AFP_ROBID::sideC);
 
   m_robDataProvider->getROBData(ROBIDs, listOfRobf);
-  ATH_MSG_DEBUG("  ROB ID " << std::hex << ROBIDs);
+  ATH_MSG_DEBUG("  ROB ID " << std::hex << ROBIDs<<std::dec);
   ATH_MSG_DEBUG(" Number of ROB fragments is " << listOfRobf.size());
 
   if (m_rawDataTool->convert(listOfRobf, container).isFailure()) {

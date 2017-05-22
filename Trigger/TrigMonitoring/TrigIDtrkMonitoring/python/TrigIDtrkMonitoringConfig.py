@@ -105,17 +105,18 @@ def TrigIDtrkMonitoringTool():
 		tidaegammapurity = TrigTestBase(name = "IDEgammaPurityTool",
 					       histoPathBase = "/Trigger/HLT")
 		tidaegammapurity.AnalysisConfig = "Tier0"
-		tidaegammapurity.SliceTag = "HLT/TRIDT/EgammaPurity/Shifter"
+		tidaegammapurity.SliceTag = "HLT/TRIDT/EgammaPurity/Expert"
 		tidaegammapurity.UseHighestPT = True
 		tidaegammapurity.RunPurity = True
 		# tidabase.OutputLevel = DEBUG
+		tidaegammapurity.Shifter = True
 		tidaegammapurity.ntupleChainNames += [
 			"Offline",
-			"HLT_e26_lhtight_idperf:InDetTrigTrackingxAODCnv_Electron_FTF",
-			"HLT_e26_lhtight_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig",
+		        "HLT_e26_lhtight_idperf:InDetTrigTrackingxAODCnv_Electron_FTF",
+		        "HLT_e26_lhtight_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig",
                         # HI chains 
-			"HLT_e15_medium_ion_idperf_L1EM12:InDetTrigTrackingxAODCnv_Electron_FTF",
-			"HLT_e15_medium_ion_idperf_L1EM12:InDetTrigTrackingxAODCnv_Electron_IDTrig",
+		        "HLT_e15_medium_ion_idperf_L1EM12:InDetTrigTrackingxAODCnv_Electron_FTF",
+		        "HLT_e15_medium_ion_idperf_L1EM12:InDetTrigTrackingxAODCnv_Electron_IDTrig",
 			"HLT_e.*_idperf:InDetTrigTrackingxAODCnv_Electron_FTF",
 			"HLT_e.*_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig"
 			]
@@ -173,18 +174,19 @@ def TrigIDtrkMonitoringTool():
 		tidamuonpurity = TrigTestBase(name = "IDMuonPurityTool",
 					histoPathBase = "/Trigger/HLT")
 		tidamuonpurity.AnalysisConfig = "Tier0"
-		tidamuonpurity.SliceTag = "HLT/TRIDT/MuonPurity/Shifter"
+		tidamuonpurity.SliceTag = "HLT/TRIDT/MuonPurity/Expert"
 		tidamuonpurity.UseHighestPT = True
 		tidamuonpurity.RunPurity = True
+		tidamuonpurity.Shifter = True
 		tidamuonpurity.ntupleChainNames += [
 			"Offline",
-			"HLT_mu20_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
-			"HLT_mu20_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
+		        "HLT_mu20_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+		        "HLT_mu20_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
                         # HI chains 
-			"HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
-			"HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
-			"HLT_mu8_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
-			"HLT_mu8_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+			# "HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
+		        # "HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
+		        # "HLT_mu8_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
+		        # "HLT_mu8_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig",
 			"HLT_mu.*_idperf:InDetTrigTrackingxAODCnv_Muon_FTF",
 			"HLT_mu.*_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig"
 			]
@@ -240,14 +242,15 @@ def TrigIDtrkMonitoringTool():
 		tidataupurity = TrigTestBase(name = "IDTauPurityTool",
 					    histoPathBase = "/Trigger/HLT")
 		tidataupurity.AnalysisConfig = "Tier0"
-		tidataupurity.SliceTag = "HLT/TRIDT/TauPurity/Shifter"
+		tidataupurity.SliceTag = "HLT/TRIDT/TauPurity/Expert"
 		tidataupurity.UseHighestPT = True
 		tidataupurity.RunPurity = True
+		tidataupurity.Shifter = True
 		tidataupurity.ntupleChainNames += [
 			"Offline",
 #			"HLT_tau25_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1",
-			"HLT_tau25_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
-			"HLT_tau25_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3",
+#			"HLT_tau25_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
+#			"HLT_tau25_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3",
 			"HLT_tau.*_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
 			"HLT_tau.*_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3"
 			]
@@ -304,7 +307,7 @@ def TrigIDtrkMonitoringTool():
 		tidabjetpurity = TrigTestBase(name = "IDBjetPurityerTool",
 					     histoPathBase = "/Trigger/HLT")
 		tidabjetpurity.AnalysisConfig = "Tier0"
-		tidabjetpurity.SliceTag = "HLT/TRIDT/BjetPurity/Shifter"
+		tidabjetpurity.SliceTag = "HLT/TRIDT/BjetPurity/Expert"
 		tidabjetpurity.RunPurity = True
 		tidabjetpurity.ntupleChainNames += [
 			"Offline",
