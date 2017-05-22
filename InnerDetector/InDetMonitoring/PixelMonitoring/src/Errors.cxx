@@ -118,7 +118,6 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    std::string hname;
    std::string htitles;
 
-
    hname = makeHistname("SyncErrors_per_lumi_PIX", false);
    htitles = makeHisttitle("Average Synchronization errors per event, PIXEL BARREL", (atext_LB+atext_err), false);
    sc = rodHistos.regHist(m_errhist_syncerr_LB_pix = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
