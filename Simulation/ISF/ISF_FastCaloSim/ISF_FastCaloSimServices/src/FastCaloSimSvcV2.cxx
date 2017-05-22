@@ -309,7 +309,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
               //std::cout<<"got a hit positon from the histogram!"<<" r "<<r<<" alpha "<<alpha<<std::endl;
 
               //double r_layer=m_rlayers[ilayer*n_pcabins+pcabin-1];
-              double r_layer=m_rlayer[ilayer];
+              double r_layer=m_rlayer[layer];
               double hit_eta=findHitEta(alpha,r,r_layer,particle_position.z(),eta);
 
               delta_phi_mm = r * sin(alpha);
