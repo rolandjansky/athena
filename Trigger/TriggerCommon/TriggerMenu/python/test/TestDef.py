@@ -9,12 +9,7 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger( 'TriggerMenu.test.TestDef' )
 
-from TriggerMenu.menu.HltConfig import *
-
-from AthenaCommon.Include import include
-from AthenaCommon.SystemOfUnits import GeV
-from TriggerJobOpts.TriggerFlags  import TriggerFlags
-
+from TriggerMenu.menu.HltConfig import L2EFChainDef,mergeRemovingOverlap
 
 ###################################################################################
 
@@ -28,9 +23,7 @@ def getInputTEfromL1Item(item):
 class L2EFChain_test(L2EFChainDef):
 
     def __init__(self, chainDict):
-        mlog = logging.getLogger( 'TestDef.py:L2EFChain_TestTemplate' )
-
-        self.L2sequenceList   = []
+ 
         self.EFsequenceList   = []
         self.L2signatureList  = []
         self.EFsignatureList  = []
