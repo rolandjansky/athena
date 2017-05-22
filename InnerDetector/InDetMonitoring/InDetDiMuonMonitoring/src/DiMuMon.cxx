@@ -73,7 +73,7 @@ DiMuMon::~DiMuMon()
 
 StatusCode DiMuMon::initialize(){
 
-  sc = ManagedMonitorToolBase::initialize();
+  ATH_CHECK( ManagedMonitorToolBase::initialize() );
 
   if (m_regions.empty()) {
     m_regions.push_back("All");
@@ -150,7 +150,7 @@ StatusCode DiMuMon::initialize(){
   m_coneSize = 0.4;
   m_isolationCut = 0.2;
 
-  return sc;
+  return StatusCode::SUCCESS;
 
 }
 
@@ -186,11 +186,10 @@ StatusCode DiMuMon::bookHistograms()
 //   if (isNewEventsBlock || isNewLumiBlock){
      // do nothing
     // }
-   if ( newLowStat || newLumiBlock ) {
-   }
+   //if ( newLowStatFlag() || newLumiBlockFlag() ) {  }
 
 
-   if( newRun ) {
+   if( newRunFlag() ) {
 
      //   if( isNewRun ) {
 
@@ -294,7 +293,7 @@ StatusCode DiMuMon::fillHistograms()
 
   //  if (m_lumiBlockNum<402 || m_lumiBlockNum>1330) return StatusCode::SUCCESS;
 
-  double m_muonMass = 105.66*CLHEP::MeV;
+  double muonMass = 105.66*CLHEP::MeV;
   //retrieve all muons
   const xAOD::MuonContainer* muons(0);
   StatusCode sc = evtStore()->retrieve(muons, m_muonCollection);
@@ -377,7 +376,7 @@ StatusCode DiMuMon::fillHistograms()
 	}
 
 	//cut on the pair invariant mass
-	double invmass = getInvmass(id1,id2,m_muonMass);
+	double invmass = getInvmass(id1,id2,muonMass);
 	if (invmass<m_minInvmass || invmass>m_maxInvmass) continue;
 	m_stat->Fill("InvMassOK",1);
 
@@ -518,10 +517,9 @@ StatusCode DiMuMon::fillHistograms()
 StatusCode DiMuMon::procHistograms()
 {
 
-  if (endOfLowStat || endOfLumiBlock){
-    //do nothing
-  }
-   if(endOfRun && m_doFits) {
+   //if (endOfLowStatFlag() || endOfLumiBlockFlag()){ }
+
+   if(endOfRunFlag() && m_doFits) {
      std::vector<std::string> ::iterator ireg = m_regions.begin();
      for (ireg = m_regions.begin(); ireg != m_regions.end(); ireg++){
        std::map<std::string, TH2F*>::iterator ivar2D = m_2DinvmassVSx[*ireg].begin();
