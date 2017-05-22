@@ -692,6 +692,135 @@
       </chain>
 
       <chain>
+        <chainName>MC_plus_MC_Overlay_Legacy</chainName>
+        <abortOnError />
+
+        <sequential>
+          <chainElement>
+            <jobTransform userJobId="MC_Legacy_OverlayPool_tf">
+              <doc></doc>
+              <jobTransformJobName>MC_Legacy_OverlayPool_tf</jobTransformJobName>
+              <jobTransformCmd>
+		OverlayPool_tf.py --inputHITSFile /afs/cern.ch/work/t/tkharlam/public/mc15_13TeV.422011.ParticleGun_single_mu_Pt100.simul.HITS.e4459_s2726/HITS.06623162._000064.pool.root.1 --inputRDO_BKGFile /afs/cern.ch/work/t/tkharlam/public/user.tkharlam.mc15_13TeV.159000.ParticleGenerator_nu_E50.RDO_EXT0/user.tkharlam.10837893.EXT0._000906.RDO.pool.root --outputRDOFile MC_plus_MC.RDO.pool.root --AddCaloDigi True --maxEvents 10 --skipEvents 2  --digiSeedOffset1 511 --digiSeedOffset2 727 --conditionsTag OFLCOND-RUN12-SDR-31 --triggerConfig 'OverlayPool=default' --postExec 'from IOVDbSvc.CondDB import conddb;conddb.addFolder("GLOBAL_OFL","/GLOBAL/BField/Maps");conddb.addFolder("DCS_OFL","/EXT/DCS/MAGNETS/SENSORDATA");conddb.addFolder("PIXEL_OFL","/PIXEL/PixReco");ServiceMgr.TGCcablingServerSvc.forcedUse=True;' --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True);'
+              </jobTransformCmd>
+              <group>Overlay_JobTransforms</group>
+              <queue>long</queue>
+            </jobTransform>
+            <chainfileout>MC_plus_MC.RDO.pool.root</chainfileout>
+          </chainElement>
+
+          <parallel>
+            <chainElement>
+              <!-- Regression Test on RDOs -->
+              <jobTransform userJobId="MC_OverlayPool_Legacy_RDO_Reg">
+                <doc>Regression test for RDOs created by OverlayPool_tf.py</doc>
+                <jobTransformJobName>MC_OverlayPool_Legacy_RDO_Reg</jobTransformJobName>
+                <jobTransformCmd>
+                  sim_reg_test.py MC_Legacy_OverlayPool_tf MC_plus_MC.RDO.pool.root RDO.pool
+                </jobTransformCmd>
+                <group>Overlay_JobTransforms</group>
+                <queue>short</queue>
+                <test>
+                  <modulename>FlexibleDiffPoolFilesRunner</modulename>
+                  <testname>FlexibleDiffPoolFilesRunner</testname>
+                  <testidentifier>RDO_RegressionTestRunner</testidentifier>
+                  <arg>
+                    <argname>platformDependent</argname>
+                    <argvalue>True</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>doDetailedChecks</argname>
+                    <argvalue>True</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>fileName</argname>
+                    <argvalue>today.RDO.pool.root</argvalue>
+                  </arg>
+                  <arg>
+                    <argname>refFileName</argname>
+                    <argvalue>yesterday.RDO.pool.root</argvalue>
+                  </arg>
+                  <keepFilePattern>today.RDO.pool.root_yesterday.RDO.pool.root.diffPool</keepFilePattern>
+                </test>
+                <testToRemove>
+                  <jobGroupName>RTT:Top</jobGroupName>
+                  <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+              </jobTransform>
+            </chainElement>
+
+            <sequential>
+              <chainElement>
+                <jobTransform userJobId="MC_OverlayPool_Legacy_Reco_tf">
+                  <doc>Reco of MC+Data overlay</doc>
+                  <jobTransformJobName>MC_OverlayPool_Legacy_Reco_tf</jobTransformJobName>
+                  <jobTransformCmd>
+                    Reco_tf.py --inputRDOFile MC_plus_MC.RDO.pool.root --outputESDFile MC_plus_MC.ESD.pool.root --outputAODFile MC_plus_MC.AOD.pool.root --maxEvents -1 --skipEvents 0 --autoConfiguration everything --preExec 'rec.doTrigger=False;from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True);' 'RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False'
+                  </jobTransformCmd>
+                  <group>Overlay_JobTransforms</group>
+                  <chaindataset_info>
+                    <jobTransformData />
+                    <chaindatasetName>MC_plus_MC.RDO.pool.root</chaindatasetName>
+                    <dataset_info>
+                      <dc2 />
+                      <datasetName>/afs/cern.ch/work/t/tkharlam/public/overlay_RTT/MC_plus_MC.RDO.pool.root</datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <chainfileout>MC_plus_MC.ESD.pool.root</chainfileout>
+              </chainElement>
+              <chainElement>
+                <!-- Regression Test on ESDs -->
+                <jobTransform userJobId="MC_OverlayPool_Legacy_ESD_Reg">
+                  <doc>Regression test for Reco_tf"</doc>
+                  <jobTransformJobName>MC_OverlayPool_Legacy_ESD_Reg</jobTransformJobName>
+                  <jobTransformCmd>
+                    sim_reg_test.py MC_OverlayPool_Legacy_Reco_tf MC_plus_MC.ESD.pool.root ESD.pool
+                  </jobTransformCmd>
+                  <group>Overlay_JobTransforms</group>
+                  <queue>short</queue>
+                  <test>
+                    <modulename>FlexibleDiffPoolFilesRunner</modulename>
+                    <testname>FlexibleDiffPoolFilesRunner</testname>
+                    <testidentifier>ESD_RegressionTestRunner</testidentifier>
+                    <arg>
+                      <argname>platformDependent</argname>
+                      <argvalue>True</argvalue>
+                    </arg>
+                    <arg>
+                      <argname>doDetailedChecks</argname>
+                      <argvalue>True</argvalue>
+                    </arg>
+                    <arg>
+                      <argname>fileName</argname>
+                      <argvalue>today.ESD.pool.root</argvalue>
+                    </arg>
+                    <arg>
+                      <argname>refFileName</argname>
+                      <argvalue>yesterday.ESD.pool.root</argvalue>
+                    </arg>
+                    <arg>
+                      <argname>optionString</argname>
+                      <argvalue>--ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_timings RecoTimingObj_p1_RAWtoESD_mems TrackParticleAssocs_p1_GSFTrackAssociation</argvalue>
+                    </arg>
+                    <keepFilePattern>today.ESD.pool.root_yesterday.ESD.pool.root.diffPool</keepFilePattern>
+                  </test>
+                  <testToRemove>
+                    <jobGroupName>RTT:Top</jobGroupName>
+                    <testidentifier>CheckFileRunner0</testidentifier>
+                  </testToRemove>
+                </jobTransform>
+              </chainElement>
+            </sequential>
+
+          </parallel>
+
+        </sequential>
+
+      </chain>
+
+      <chain>
         <chainName>MC15_BSFilter_Legacy</chainName>
         <abortOnError />
 
