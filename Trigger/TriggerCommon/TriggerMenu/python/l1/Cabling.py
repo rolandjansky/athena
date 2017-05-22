@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from Limits import Limits
 from AthenaCommon.Logging import logging
 log = logging.getLogger("Cabling")
 log.setLevel(logging.INFO)
@@ -147,7 +146,7 @@ class Cabling:
     def calcBitnum(thrtype):
         # get the widths for the threshold types is defined in L1Common
         exec("nbits = Limits.%s_bitnum" % thrtype)
-        return nbits
+        return nbits # noqa: F821
 
 
 
@@ -267,14 +266,14 @@ class InputCable:
         exec("cable = Limits.%s_cable" % thrtype)
         
         # we change the format for run 2, the tuple now contains also the bit multiplicity, as it is not constant per type
-        infosize = (len(cable)-1)/cable[0]
+        infosize = (len(cable)-1)/cable[0]   # noqa: F821
 
         if infosize==5:
-            cableAssign = [tuple(cable[x:x+5]) for x in range(1,len(cable),5)]
+            cableAssign = [tuple(cable[x:x+5]) for x in range(1,len(cable),5)]   # noqa: F821
         else:
             #print "Cabling for threshold type %s is not yet defined for Run 2" % thrtype
             bitnum = Cabling.calcBitnum(thrtype)
-            cableAssign = [tuple(cable[x:x+4] + [bitnum]) for x in range(1,len(cable),4)]
+            cableAssign = [tuple(cable[x:x+4] + [bitnum]) for x in range(1,len(cable),4)]   # noqa: F821
 
         return cableAssign
 

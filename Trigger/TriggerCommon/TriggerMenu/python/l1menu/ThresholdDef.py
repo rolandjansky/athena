@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenu.l1.Lvl1Thresholds import LVL1Threshold, ThresholdValue
+from TriggerMenu.l1.Lvl1Thresholds import ThresholdValue
 from TriggerMenu.l1.Limits import CaloLimits as CL
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
