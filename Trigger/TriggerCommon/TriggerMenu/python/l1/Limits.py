@@ -51,13 +51,13 @@ class Limits:
     def getCTPdataformat(version):
         module = __import__('CTPfragment.CTPdataformat_v%i' % version, globals(), locals(), ['CTPdataformat_v%i' % version], -1)
         exec("CTPdataformat = module.CTPdataformat_v%i" % version)
-        return CTPdataformat
+        return CTPdataformat # noqa: F821
 
     @staticmethod
     def getL1Common(version):
         module = __import__('L1Common.L1Common_v%i' % version, globals(), locals(), ['L1Common_v%i' % version], -1)
         exec("L1Common = module.L1Common_v%i" % version)
-        return L1Common
+        return L1Common  # noqa: F821
 
     @staticmethod
     def setLimits(CTPVersion, verbose = False):

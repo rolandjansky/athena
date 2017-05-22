@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from PrescaleHelper import getCutFromPrescale, getPrescaleFromCut, maxPrescaleCut
+from PrescaleHelper import getCutFromPrescale, getPrescaleFromCut
 from Lvl1MenuUtil import oldStyle
 
 from AthenaCommon.Logging import logging
@@ -171,7 +171,6 @@ class PrescaleHandler(object):
         self.items = menuitems
         self.itemsByPartition = {}
 
-        from Lvl1Flags import Lvl1Flags
         for item in menuitems:
             self.itemsByPartition.setdefault(item.partition,[]).append(item)
 
