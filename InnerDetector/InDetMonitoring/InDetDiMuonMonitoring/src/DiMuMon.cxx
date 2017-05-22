@@ -562,7 +562,7 @@ void DiMuMon::iterativeGausFit (TH2F* hin, std::vector<TH1F*> hout, int mode){
   for (int i=0; i<nbins;i++){
     std::ostringstream o; o<<i;
     TString projName = hname + o.str();
-    TH1F* htemp = (TH1F*) (hin->ProjectionY(projName,i+1,i+1)->Clone());
+    TH1D* htemp = (TH1D*) (hin->ProjectionY(projName,i+1,i+1)->Clone());
     htemp->SetTitle(projName);
     htemp->Sumw2();
     if (htemp->GetEntries()>50){
