@@ -293,7 +293,7 @@ TgcLv1RawDataValAlg::bookHistogramsRecurrent(){
   if (m_debuglevel) m_log << MSG::DEBUG << "TGCLV1 RawData Monitoring Histograms being booked" << endmsg;
   
   // Book histograms per 10LBs 
-  if( newRun || newLowStatInterval ){
+  if( newRunFlag() || newLowStatIntervalFlag() ){
     // not monitor these profiles at GM
     if( m_environment != AthenaMonManager::online ){
       if( ( bookHistogramsLowStat() ).isFailure() ){
@@ -310,11 +310,11 @@ TgcLv1RawDataValAlg::bookHistogramsRecurrent(){
   }// newLowStatInterval
   
   // Book histograms per ... (not used yet, but commenting them out causes "unused" warnings)
-  if(newLumiBlock){}
+  if(newLumiBlockFlag()){}
   
   
   // Book histograms per Run
-  if(newRun){         
+  if(newRunFlag()){
     // Book Number Of Trigger And Profile histograms
     if((bookHistogramsNumberOfTriggersAndProfile()).isFailure()){
       m_log << MSG::FATAL << "bookNumberOfTriggersAndProfileHisto() Failed  " << endmsg;
@@ -485,7 +485,7 @@ TgcLv1RawDataValAlg::procHistograms(){
   if (m_debuglevel) m_log << MSG::DEBUG << "TgcLv1RawDataValAlg finalize()" << endmsg;
   
   // Process histograms per LumiBlock
-  if(endOfLumiBlock){
+  if(endOfLumiBlockFlag()){
 
     // Efficiency for Global Monitoring
     if( m_environment == AthenaMonManager::online ) {
@@ -509,7 +509,7 @@ TgcLv1RawDataValAlg::procHistograms(){
     }
   }
   // Process histograms per Run
-  if(endOfRun){
+  if(endOfRunFlag()){
     ///////////////////////////////////////////////////////////////////////////
     // TriggerTiming
     // SL/LPT timing

@@ -154,7 +154,7 @@ TgcRawDataValAlg::bookHistogramsRecurrent(){
   if (m_debuglevel) m_log << MSG::DEBUG << "TGC RawData Monitoring Histograms being booked" << endmsg;
   StatusCode sc = StatusCode::SUCCESS; 
 
-  if( newRun || newLowStatInterval ){
+  if( newRunFlag() || newLowStatIntervalFlag() ){
     // not monitor these profiles at GM
     if( m_environment != AthenaMonManager::online ) {
       sc = bookHistogramsLowStat();
@@ -169,9 +169,9 @@ TgcRawDataValAlg::bookHistogramsRecurrent(){
       }
   }
      
-  if(newLumiBlock){}   
+  if(newLumiBlockFlag()){}   
 
-  if(newRun) {      
+  if(newRunFlag()) {      
     //if (m_debuglevel) m_log << MSG::DEBUG << "TGC RawData Monitoring : newRun" << endmsg;
 
     sc = bookHistogramsNumberOfHits();
@@ -290,7 +290,7 @@ TgcRawDataValAlg::procHistograms(){
     m_log << MSG::DEBUG << "********Reached Last Event in TgcRawDataValAlg !!!" << endmsg;
     m_log << MSG::DEBUG << "TgcRawDataValAlg finalize()" << endmsg;
   } 
-  if(endOfLumiBlock){
+  if(endOfLumiBlockFlag()){
     //histogram division every LB only for Global Montioring
     if(m_environment==AthenaMonManager::online){
       // calculate occupancy map
@@ -345,7 +345,7 @@ TgcRawDataValAlg::procHistograms(){
     }// isOnlineMonitoring
   }//endOfLumiBlock
 
-  if(endOfRun){
+  if(endOfRunFlag()){
     // calculate occupancy map
     for(int ac=0;ac<2;ac++){
       for(int ws=0;ws<2;ws++){
