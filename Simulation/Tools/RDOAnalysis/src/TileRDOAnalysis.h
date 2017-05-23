@@ -12,10 +12,8 @@
 #include "StoreGate/ReadHandleKey.h"
 
 #include "TileEvent/TileRawChannelContainer.h"
-#include "TileEvent/TileRawChannelCollection.h"
 #include "TileEvent/TileContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
-#include "TileEvent/TileDigitsCollection.h"
 
 #include <string>
 #include <vector>
@@ -39,7 +37,7 @@ private:
   SG::ReadHandleKey<TileRawChannelContainer> m_inputMuRcvRawChKey;
   SG::ReadHandleKey<TileMuonReceiverContainer> m_inputMuRcvKey;
   SG::ReadHandleKey<TileTTL1Container> m_inputMBTS_TTL1Key;
-  SG::ReadHandleKey<TileTTl1Container> m_inputTileTTL1Key;
+  SG::ReadHandleKey<TileTTL1Container> m_inputTileTTL1Key;
   SG::ReadHandleKey<TileL2Container> m_inputL2Key;
   SG::ReadHandleKey<TileDigitsContainer> m_inputDigitsFltKey;
   SG::ReadHandleKey<TileDigitsContainer> m_inputDigitsMuRcvKey;

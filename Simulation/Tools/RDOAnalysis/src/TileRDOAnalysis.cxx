@@ -6,6 +6,9 @@
 #include "TileRDOAnalysis.h"
 #include "StoreGate/ReadHandle.h"
 
+#include "TileEvent/TileRawChannelCollection.h"
+#include "TileEvent/TileDigitsCollection.h"
+
 #include "TTree.h"
 #include "TString.h"
 

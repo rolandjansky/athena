@@ -457,7 +457,7 @@ StatusCode TRT_FastRDOAnalysis::execute() {
   m_allStrAxis_phi->clear();
 
   // get containers -- fill branches + histos
-  SG::ReadHandle<InDet::SCT_ClusterContainer> p_trtDC_cont (m_inputKey);
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> p_trtDC_cont (m_inputKey);
   if(p_trtDC_cont.isValid()) {
     // loop over cluster container
     InDet::TRT_DriftCircleContainer::const_iterator trtDCcont_itr(p_trtDC_cont->begin());

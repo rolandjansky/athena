@@ -371,9 +371,10 @@ StatusCode TGC_RDOAnalysis::execute() {
       const uint16_t tgcTrigType((*tgcCont_itr)->triggerType());
       const uint16_t tgcBcID((*tgcCont_itr)->bcId());
       const uint16_t tgcL1ID((*tgcCont_itr)->l1Id());
-      const TgcRdo::Errors& tgcErr = (*tgcCont_itr)->errors();
-      const TgcRdo::RodStatus& tgcRodStat = (*tgcCont_itr)->rodStatus();
-      const TgcRdo::LocalStatus& tgcLocalStat = (*tgcCont_itr)->localStatus();
+      // @todo variables to plot in the future
+      // const TgcRdo::Errors& tgcErr = (*tgcCont_itr)->errors();
+      // const TgcRdo::RodStatus& tgcRodStat = (*tgcCont_itr)->rodStatus();
+      // const TgcRdo::LocalStatus& tgcLocalStat = (*tgcCont_itr)->localStatus();
       const uint32_t tgcOrbit((*tgcCont_itr)->orbit());
       const uint16_t tgcVersion((*tgcCont_itr)->version());
 

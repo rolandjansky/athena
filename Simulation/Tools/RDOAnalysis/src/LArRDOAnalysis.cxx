@@ -271,7 +271,7 @@ StatusCode LArRDOAnalysis::execute() {
 
 
   // LAr Digits
-  SG::ReadHandle<const LArDigitContainer> p_larDigiCont(m_inputDigitKey);
+  SG::ReadHandle<LArDigitContainer> p_larDigiCont(m_inputDigitKey);
   if (p_larDigiCont.isValid()) {
     LArDigitContainer::const_iterator digi_itr(p_larDigiCont->begin());
     const LArDigitContainer::const_iterator digi_end(p_larDigiCont->end());

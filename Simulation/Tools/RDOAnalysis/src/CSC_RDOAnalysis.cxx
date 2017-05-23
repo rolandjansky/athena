@@ -303,19 +303,6 @@ StatusCode CSC_RDOAnalysis::execute() {
       const uint16_t subID((*cscCont_itr)->subDetectorId());
       const std::vector<uint16_t>& collRpuID = (*cscCont_itr)->rpuID();
       const std::vector<uint8_t>& dataType = (*cscCont_itr)->dataType();
-      const bool smplPhase((*cscCont_itr)->samplingPhase());
-      const bool trigType((*cscCont_itr)->triggerType());
-      const uint8_t firstBitSum((*cscCont_itr)->firstBitSummary());
-      const uint32_t evtType((*cscCont_itr)->eventType());
-      const uint8_t calAmp((*cscCont_itr)->calAmplitude());
-      const uint8_t calLay((*cscCont_itr)->calLayer());
-      const uint32_t scaAdd((*cscCont_itr)->scaAddress());
-      const uint16_t numSmpl((*cscCont_itr)->numSamples());
-      const uint16_t collLatency((*cscCont_itr)->latency());
-      const uint8_t collRate((*cscCont_itr)->rate());
-      const bool sparse((*cscCont_itr)->sparsified());
-      const bool neut((*cscCont_itr)->neutron());
-      const bool calEn((*cscCont_itr)->calEnabled());
 
       m_collID->push_back(collID);
       m_rodID->push_back(rodID);
