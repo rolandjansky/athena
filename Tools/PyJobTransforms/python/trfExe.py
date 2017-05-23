@@ -26,6 +26,7 @@ msg = logging.getLogger(__name__)
 from PyJobTransforms.trfJobOptions import JobOptionsTemplate
 from PyJobTransforms.trfUtils import asetupReport, unpackDBRelease, setupDBRelease, cvmfsDBReleaseCheck, forceToAlphaNum
 from PyJobTransforms.trfUtils import ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime
+from PyJobTransforms.trfUtils import bind_port
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
 from PyJobTransforms.trfMPTools import detectAthenaMPProcs, athenaMPOutputHandler
@@ -1303,7 +1304,22 @@ class athenaExecutor(scriptExecutor):
                 else:
                     msg.info('Valgrind not engaged')
                     # run Athena command
-                    print >>wrapper, ' '.join(self._cmd)
+                    if 'checkpoint' in self.conf.argdict and self.conf._argdict['checkpoint'].value is True:
+                        for port in range(7770,7790):
+                            if bind_port("127.0.0.1",port)==0:
+                                break
+                        msg.info("Using port %s for dmtcp_launch."%port)
+                        print >>wrapper,'dmtcp_launch -p %s'%port, ' '.join(self._cmd)
+                    elif 'restart' in self.conf.argdict and self.conf._argdict['restart'].value is not None and 'MergeAthenaMP' not in self.name:
+                        restartTarball = self.conf._argdict['restart'].value
+                        print >>wrapper, 'tar -xf %s -C .' % restartTarball
+                        for port in range(7770,7790):
+                            if bind_port("127.0.0.1",port)==0:
+                                break
+                        msg.info("Using port %s for dmtcp_launch."%port)
+                        print >>wrapper, './dmtcp_restart_script.sh -p %s -h 127.0.0.1'%port
+                    else:
+                        print >>wrapper, ' '.join(self._cmd)
             os.chmod(self._wrapperFile, 0755)
         except (IOError, OSError) as e:
             errMsg = 'error writing athena wrapper {fileName}: {error}'.format(

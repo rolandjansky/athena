@@ -15,6 +15,7 @@
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
+#include "GaudiKernel/FileIncident.h"
 
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaOutputTool.h"
@@ -336,6 +337,30 @@ void AthenaOutputStream::handle(const Incident& inc) {
             }
          }
       }
+   }
+   else if (inc.type() == "UpdateOutputFile") {
+     const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
+     if(fileInc!=nullptr) {
+       if(m_outputName != fileInc->fileName()) {
+	 m_outputName = fileInc->fileName();
+	 ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
+	 if(iomgr.retrieve().isFailure()) {
+	   ATH_MSG_FATAL("Cannot retrieve IoComponentMgr from within the incident handler");
+	   return;
+	 }
+	 if(iomgr->io_register(this, IIoComponentMgr::IoMode::WRITE, m_outputName).isFailure()) {
+	   ATH_MSG_FATAL("Cannot register new output name with IoComponentMgr");
+	   return;
+	 }
+       }
+       else {
+	 ATH_MSG_DEBUG("New output file name received through the UpdateOutputFile incident is the same as the already defined output name. Nothing to do");
+       }
+     }
+     else {
+       ATH_MSG_FATAL("Cannot dyn-cast the UpdateOutputFile incident to FileIncident");
+       return;
+     }
    }
    ATH_MSG_DEBUG("Leaving handle");
 }
@@ -811,6 +836,7 @@ StatusCode AthenaOutputStream::io_reinit() {
       return StatusCode::FAILURE;
    }
    incSvc->addListener(this, "MetaDataStop", 50);
+   incSvc->addListener(this, "UpdateOutputFile", 50);
    for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator iter = m_helperTools.begin();
        iter != m_helperTools.end(); iter++) {
       if (!(*iter)->postInitialize().isSuccess()) {
