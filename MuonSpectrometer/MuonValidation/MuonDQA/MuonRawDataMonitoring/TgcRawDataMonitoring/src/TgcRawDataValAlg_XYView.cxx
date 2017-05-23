@@ -60,9 +60,7 @@ TgcRawDataValAlg::bookHistogramsXYView(){
   // XY_View_A_Layer[1-9]
   // XY_View_C_Layer[1-9]
 
-  m_log << MSG::INFO << "bookHistogramsXYView" << endmsg;       
-
-  StatusCode sc=StatusCode::SUCCESS;
+  ATH_MSG_INFO( "bookHistogramsXYView"  );
 
   MonGroup tgcprd_shift_a( this, m_generic_path_tgcmonitoring + "/TGCEA", run, ATTRIB_UNMANAGED ); 
   MonGroup tgcprd_shift_c( this, m_generic_path_tgcmonitoring + "/TGCEC", run, ATTRIB_UNMANAGED ); 
@@ -79,11 +77,7 @@ TgcRawDataValAlg::bookHistogramsXYView(){
   for( int ac=0 ; ac<2 ; ac++ ){
     ss.str(""); ss<< "XY_View_" << side[ac];
     m_tgcxyview[ac] = new TH2F( ss.str().c_str(), (ss.str() + ";X [cm]; Y[cm]").c_str(),120,-1200,1200,120,-1200,1200 );//20cmx20cm cell
-    sc=tgcprd_shift_ac[ac]->regHist(m_tgcxyview[ac]) ;  
-    if(sc.isFailure()) { 
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgcprd_shift_ac[ac]->regHist(m_tgcxyview[ac]) );
 
     //histograms not for for Global Montioring
     if( m_environment != AthenaMonManager::online ) {
@@ -92,11 +86,7 @@ TgcRawDataValAlg::bookHistogramsXYView(){
         int layer=i+1;
         ss.str(""); ss<<"XY_View_" << side[ac] <<"_Layer"<<layer;
         m_tgcxyviewlayer[ac][i] = new TH2F(ss.str().c_str(), (ss.str() + ";X [cm]; Y [cm]").c_str(),120,-1200,1200,120,-1200,1200 );//20cmx20cm cell
-        sc=tgcprd_expert_ac[ac]->regHist(m_tgcxyviewlayer[ac][i]) ;  
-        if(sc.isFailure()) { 
-          m_log << MSG::FATAL << ss.str() <<" Failed to register histogram " << endmsg;       
-          return sc;
-        }
+        ATH_CHECK( tgcprd_expert_ac[ac]->regHist(m_tgcxyviewlayer[ac][i]) );
       }//loop over layer
     }//Global monitoring
     else
@@ -106,7 +96,7 @@ TgcRawDataValAlg::bookHistogramsXYView(){
 
   }//loop over ac
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 

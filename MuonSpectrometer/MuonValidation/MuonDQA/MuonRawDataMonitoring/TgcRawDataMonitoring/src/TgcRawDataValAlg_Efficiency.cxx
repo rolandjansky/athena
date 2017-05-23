@@ -73,8 +73,7 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
   // Summary_Of_Wire_Efficiency_Per_Chamber_Type_Station[1-3]_{E,F[1-5]}_T[1-9]
   // Summary_Of_Strip_Efficiency_Per_Chamber_Type_Station[1-3]_{E,F[1-5]}_T[1-9]
 
-  m_log << MSG::INFO << "bookHistogramsEfficiency" << endmsg;       
-  StatusCode sc=StatusCode::SUCCESS;
+  ATH_MSG_INFO( "bookHistogramsEfficiency"  );
 
   MonGroup tgcprd_eff_a( this, m_generic_path_tgcmonitoring + "/TGCEA/Efficiency", run, ATTRIB_UNMANAGED ); 
   MonGroup tgcprd_eff_c( this, m_generic_path_tgcmonitoring + "/TGCEC/Efficiency", run, ATTRIB_UNMANAGED ); 
@@ -105,31 +104,19 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
     //efficiency for A/C side, wire 1-7, strip 8-13
     ss.str(""); ss << "Efficiency_" << side[ac];
     m_tgceff[ac]=new TH1F(ss.str().c_str(), (ss.str() + ";;Efficiency").c_str(),13,0,13); 
-    sc=tgcprd_eff_ac[ac]->regHist(m_tgceff[ac]) ;  
-    if(sc.isFailure()) { 
-      m_log << MSG::FATAL << "m_tgceff[ac] Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgcprd_eff_ac[ac]->regHist(m_tgceff[ac]) );
     
     //efficiency for A/C side numerator
     ss.str(""); ss << "Efficiency_" << side[ac] << "_Numerator";
     m_tgceffnum[ac]=new TH1F(ss.str().c_str(), (ss.str() + ";;Number of Events").c_str(),13,0,13);
     m_tgceffnum[ac]->Sumw2();
-    sc=tgcprd_effnumdenom_ac[ac]->regHist(m_tgceffnum[ac]);
-    if(sc.isFailure()) { 
-      m_log << MSG::FATAL << "m_tgceffnum[ac] Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgcprd_effnumdenom_ac[ac]->regHist(m_tgceffnum[ac]) );
     
     //efficiency for A side wire and stripdenominator
     ss.str(""); ss << "Efficiency_" << side[ac] << "_Denominator";
     m_tgceffdenom[ac]=new TH1F(ss.str().c_str(), (ss.str() + "Number of Events").c_str(),13,0,13);
     m_tgceffdenom[ac]->Sumw2();
-    sc=tgcprd_effnumdenom_ac[ac]->regHist(m_tgceffdenom[ac]) ;  
-    if(sc.isFailure()) { 
-      m_log << MSG::FATAL << "m_tgceffdenom[ac] Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgcprd_effnumdenom_ac[ac]->regHist(m_tgceffdenom[ac]) );
 
     // no strip layer2
     //m_tgceffnum[ac]->Fill(8);
@@ -141,49 +128,29 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
       //Efficiency map
       ss.str(""); ss << wseff[ws] << "_Map_" << side[ac];
       m_tgceffmap[ac][ws] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
-      sc=tgcprd_eff_ac[ac]->regHist(m_tgceffmap[ac][ws]) ;  
-      if(sc.isFailure()) { 
-        m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-        return sc;
-      }
+      ATH_CHECK( tgcprd_eff_ac[ac]->regHist(m_tgceffmap[ac][ws]) );
       
       //Efficiency map numerator
       ss.str(""); ss << wseff[ws] << "_Map_" << side[ac] << "_Numerator";
       m_tgceffmapnum[ac][ws] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
-      sc=tgcprd_effnumdenom_ac[ac]->regHist(m_tgceffmapnum[ac][ws]) ;  
-      if(sc.isFailure()) { 
-        m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-        return sc;
-      }
+      ATH_CHECK( tgcprd_effnumdenom_ac[ac]->regHist(m_tgceffmapnum[ac][ws]) );
       
       //Efficiency map denominator
       ss.str(""); ss << wseff[ws] << "_Map_" << side[ac] << "_Denominator";
       m_tgceffmapdenom[ac][ws] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
-      sc=tgcprd_effnumdenom_ac[ac]->regHist(m_tgceffmapdenom[ac][ws]) ;  
-      if(sc.isFailure()) { 
-        m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-        return sc;
-      }
+      ATH_CHECK( tgcprd_effnumdenom_ac[ac]->regHist(m_tgceffmapdenom[ac][ws]) );
       
       //Efficiency map for previous and next when hits are not found in current BC
       for(int bc=0;bc<2;bc++){
         //Efficiency map
         ss.str(""); ss << wseff[ws] << "_Map" << sbc[bc] << "_" << side[ac];
         m_tgceffmapbc[ac][ws][bc] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
-        sc=tgcprd_eff_expert_ac[ac]->regHist(m_tgceffmapbc[ac][ws][bc]) ;  
-        if(sc.isFailure()) { 
-          m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-          return sc;
-        }
+        ATH_CHECK( tgcprd_eff_expert_ac[ac]->regHist(m_tgceffmapbc[ac][ws][bc]) );
         
         // Numerator
         ss.str(""); ss << wseff[ws] << "_Map" << sbc[bc] << "_" << side[ac] << "_Numerator";
         m_tgceffmapnumbc[ac][ws][bc] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
-        sc=tgcprd_effnumdenom_expert_ac[ac]->regHist(m_tgceffmapnumbc[ac][ws][bc]) ;  
-        if(sc.isFailure()) { 
-          m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-          return sc;
-        }
+        ATH_CHECK( tgcprd_effnumdenom_expert_ac[ac]->regHist(m_tgceffmapnumbc[ac][ws][bc]) );
       }
     }//ws
   }//ac
@@ -349,31 +316,19 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
       // efficiency for each sector/layer
       ss.str(""); ss << wseff[ws] << "_" << side[i];
       m_tgceffsector[i][ws]=new TH1F(ss.str().c_str(), (ss.str() + ";;Efficiency").c_str(),84,0,84);
-      sc=tgcprd_eff_expert_ac[i]->regHist(m_tgceffsector[i][ws]) ;  
-      if(sc.isFailure()) { 
-        m_log << MSG::FATAL << ss.str() <<" Failed to register histogram " << endmsg;       
-        return sc;
-      }
+      ATH_CHECK( tgcprd_eff_expert_ac[i]->regHist(m_tgceffsector[i][ws]) );
 
       // efficiency numerator
       ss.str(""); ss << wseff[ws] << "_" << side[i] << "_Numerator";    
       m_tgceffsectornum[i][ws]=new TH1F(ss.str().c_str(), (ss.str() + ";;Efficiency" ).c_str(),84,0,84);       
       m_tgceffsectornum[i][ws]->Sumw2();
-      sc=tgcprd_effnumdenom_expert_ac[i]->regHist(m_tgceffsectornum[i][ws]) ;  
-      if(sc.isFailure()) { 
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return sc;
-      }
+      ATH_CHECK( tgcprd_effnumdenom_expert_ac[i]->regHist(m_tgceffsectornum[i][ws]) );
 
       // efficiency denominator
       ss.str(""); ss << wseff[ws] << "_" << side[i] << "_Denominator";
       m_tgceffsectordenom[i][ws]=new TH1F(ss.str().c_str(),(ss.str() + ";;Efficiency" ).c_str(),84,0,84);
       m_tgceffsectordenom[i][ws]->Sumw2();
-      sc=tgcprd_effnumdenom_expert_ac[i]->regHist(m_tgceffsectordenom[i][ws]) ;  
-      if(sc.isFailure()) { 
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return sc;
-      }
+      ATH_CHECK( tgcprd_effnumdenom_expert_ac[i]->regHist(m_tgceffsectordenom[i][ws]) );
     }
 
     for(int ws=0;ws<2;ws++)
@@ -393,11 +348,7 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
     for(int ws=0;ws<2;ws++){
       ss.str(""); ss<<"Summary_Of_"<<wseff[ws]<<"_Per_GasGap_"<<side[i];
       m_tgcsummaryofeffpergasgap[i][ws]=new TH1F(ss.str().c_str(), (ss.str() + ";Efficiency; Entries").c_str(), 101, 0., 1.01);
-      sc=tgcprd_summary_ac[i]->regHist(m_tgcsummaryofeffpergasgap[i][ws]) ;  
-      if(sc.isFailure()) { 
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return sc;
-      }
+      ATH_CHECK( tgcprd_summary_ac[i]->regHist(m_tgcsummaryofeffpergasgap[i][ws]) );
     }      
   }
 
@@ -413,22 +364,17 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
         //Summary
         ss.str(""); ss<<"Summary_Of_"<<wseff[ws]<<"_Per_Chamber_Type_Station"<<sta+1<<type[ntype];
         m_tgcsummaryofeffperchambertype[ws][ntype]=new TH1F(ss.str().c_str(), (ss.str() + ";Efficiency; Entries").c_str(), 101, 0., 1.01);
-        sc=tgcprd_summary.regHist(m_tgcsummaryofeffperchambertype[ws][ntype++]) ;  
-        if(sc.isFailure()) { 
-          m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-          return sc;
-        }
+        ATH_CHECK( tgcprd_summary.regHist(m_tgcsummaryofeffperchambertype[ws][ntype++]) );
       }
     }
   }
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
 StatusCode
 TgcRawDataValAlg::fillEfficiency(){
-  StatusCode sc=StatusCode::SUCCESS;
 
   vector<double> LptEta[2][2];//[ws][ac]        Eta associated lpt
   vector<double> LptPhi[2][2];//[ws][ac]        Phi associated lpt
@@ -441,11 +387,7 @@ TgcRawDataValAlg::fillEfficiency(){
 
   // Retrieve current coincidence container from storegate
   const Muon::TgcCoinDataContainer* tgc_trg_container(0);
-  sc = (*m_activeStore)->retrieve(tgc_trg_container, m_outputCoinCollectionLocation);
-  if (sc.isFailure() || 0 == tgc_trg_container ) {
-    m_log << MSG::ERROR << " Cannot retrieve TgcCoinDataContainer " << endmsg;
-    return sc;
-  }
+  ATH_CHECK( (*m_activeStore)->retrieve(tgc_trg_container, m_outputCoinCollectionLocation) );
   
   // Loop over TGCCoinContainer
   Muon::TgcCoinDataContainer::const_iterator it_end=tgc_trg_container->end();
@@ -453,7 +395,7 @@ TgcRawDataValAlg::fillEfficiency(){
        it!=it_end;
        ++it){
     if(it == it_end || (*it)->size()==0)continue;  //check if there are counts 
-    if (m_debuglevel) m_log<<MSG::DEBUG<< "size of tgccoin collection is " << (*it) -> size() << endmsg;
+    ATH_MSG_DEBUG( "size of tgccoin collection is " << (*it) -> size()  );
     
     // Loop over Collection
     Muon::TgcCoinDataCollection::const_iterator itc_end=(*it)->end();
@@ -726,7 +668,7 @@ TgcRawDataValAlg::fillEfficiency(){
     }//eta
   }//ac
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 void
@@ -780,7 +722,7 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
     int dmin       = m_dchmin[layer][refLayer][ws][ac] - dch_extra;
     int dmax       = m_dchmax[layer][refLayer][ws][ac] + dch_extra;
     if(compareID(prdChannel, referenceChannel, dmin, dmax)){
-      if(m_debuglevel)m_log<<MSG::DEBUG<<"calculate efficiency current layer"<<layer+1 << " eta" << eta << " phi" << phi48 << " fire" <<std::endl;
+      ATH_MSG_DEBUG("calculate efficiency current layer"<<layer+1 << " eta" << eta << " phi" << phi48 << " fire"  );
       m_tgceffmapnum[ac][ws]->Fill(binx, biny);
       m_tgceffnum[ac]->Fill(layerws);//fill numerator
       if(!isEIFI){
@@ -799,7 +741,7 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
     int dmin       = m_dchmin[layer][refLayer][ws][ac] - dch_extra;
     int dmax       = m_dchmax[layer][refLayer][ws][ac] + dch_extra;
     if(compareID(prdChannel, referenceChannel, dmin, dmax)){
-      if(m_debuglevel)m_log<<MSG::DEBUG<<"calculate efficiency previous layer"<<layer+1 << " eta" << eta << " phi" << phi48 << " fire" <<std::endl;
+      ATH_MSG_DEBUG("calculate efficiency previous layer"<<layer+1 << " eta" << eta << " phi" << phi48 << " fire"  );
       //if(!isEIFI){
         m_tgceffmapnumbc[ac][ws][PREV]->Fill(binx, biny);
       //}
@@ -816,7 +758,7 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
     int dmin       = m_dchmin[layer][refLayer][ws][ac] - dch_extra;
     int dmax       = m_dchmax[layer][refLayer][ws][ac] + dch_extra;
     if(compareID(prdChannel, referenceChannel, dmin, dmax)){
-      if(m_debuglevel)m_log<<MSG::DEBUG<<"calculate efficiency next layer"<<layer+1 << " eta" << eta << " phi" << phi48 << " fire" <<std::endl;
+      ATH_MSG_DEBUG("calculate efficiency next layer"<<layer+1 << " eta" << eta << " phi" << phi48 << " fire"  );
       //if(!isEIFI){
         m_tgceffmapnumbc[ac][ws][NEXT-1]->Fill(binx, biny); // only prev/next defined, array index should be 1 for NEXT PRD
       //}
@@ -824,6 +766,6 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
     }
   }
   
-  if(m_debuglevel)m_log<<MSG::DEBUG<<"no matching hit for efficiency calculation"<<endmsg;
+  ATH_MSG_DEBUG("no matching hit for efficiency calculation" );
   return;
 }

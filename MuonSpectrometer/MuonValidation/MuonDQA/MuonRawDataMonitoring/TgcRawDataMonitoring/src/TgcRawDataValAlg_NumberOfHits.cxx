@@ -61,9 +61,7 @@ TgcRawDataValAlg::bookHistogramsNumberOfHits(){
   // Number_Of_TGC_Strip_Hits_Per_Event
   // Number_Of_TGC_Hits_Per_Event_{A,C}
 
-  m_log << MSG::INFO << "bookHistogramsNumberOfHits" << endmsg;       
-
-  StatusCode sc=StatusCode::SUCCESS;
+  ATH_MSG_INFO( "bookHistogramsNumberOfHits"  );
 
   //MonGroup tgcprd_shift( this, generic_path_tgcmonitoring + "/Overview", shift, run ); 
   MonGroup tgcprd_shift( this, m_generic_path_tgcmonitoring + "/Global", run, ATTRIB_UNMANAGED ); 
@@ -76,51 +74,31 @@ TgcRawDataValAlg::bookHistogramsNumberOfHits(){
 
   //event counter
   m_tgceventcounter=new TH1F("Event_Counter","Event_Counter; [counts]; Number of Hits/Events",1,0,1.);       
-  sc=tgcprd_shift.regHist(m_tgceventcounter) ;  
-  if(sc.isFailure()) { 
-    m_log << MSG::FATAL << "m_tgceventcounter Failed to register histogram " << endmsg;       
-    return sc;
-  }
+  ATH_CHECK( tgcprd_shift.regHist(m_tgceventcounter) );
 
   //number of hits per event
   m_tgcevents=new TH1F("Number_Of_TGC_Hits_Per_Event", "Number_Of_TGC_Hits_Per_Event; [counts]; Number of Hits/Events",500,0,500.);       
-  sc=tgcprd_shift.regHist(m_tgcevents) ;  
-  if(sc.isFailure()) { 
-    m_log << MSG::FATAL << "m_tgcevents Failed to register histogram " << endmsg;       
-    return sc;
-  }
+  ATH_CHECK( tgcprd_shift.regHist(m_tgcevents) );
   
   //number of wire hits per event
   std::string tgcnumberofwirehits_title = "Number_Of_TGC_Wire_Hits_Per_Event";
   m_tgcnumberofwirehits=new TH1F("Number_Of_TGC_Wire_Hits_Per_Event", "Number_Of_TGC_Wire_Hits_Per_Event; [counts]; Number of Wire Hits/Event",300,0,300.);       
-  sc=tgcprd_expert.regHist(m_tgcnumberofwirehits) ;  
-  if(sc.isFailure()) { 
-    m_log << MSG::FATAL << "m_tgcnumberofwirehits Failed to register histogram " << endmsg;       
-    return sc;
-  }
+  ATH_CHECK( tgcprd_expert.regHist(m_tgcnumberofwirehits) );
 
   //number of strip hits per event
   std::string tgcnumberofstriphits_title = "Number_Of_TGC_Strip_Hits_Per_Event";
   m_tgcnumberofstriphits=new TH1F("Number_Of_TGC_Strip_Hits_Per_Event", "Number_Of_TGC_Strip_Hits_Per_Event; [counts]; Number of Strip Hits/Events",300,0,300.);       
-  sc=tgcprd_expert.regHist(m_tgcnumberofstriphits) ;  
-  if(sc.isFailure()) { 
-    m_log << MSG::FATAL << "m_tgcnumberofstriphits Failed to register histogram " << endmsg;       
-    return sc;
-  }
+  ATH_CHECK( tgcprd_expert.regHist(m_tgcnumberofstriphits) );
 
   //number of hits per event for A and C side
   for(int ac=0;ac<2;ac++){
     ss.str(""); ss<<"Number_Of_TGC_Hits_Per_Event_"<<side[ac];
     m_tgcnumberofhits[ac]=new TH1F(ss.str().c_str(), (ss.str() + "; [counts]; Number of Hits/Events" ).c_str(),500,0.,500.);       
-    if(ac==0) sc=tgcprd_shift_a.regHist(m_tgcnumberofhits[ac]) ;  
-    else      sc=tgcprd_shift_c.regHist(m_tgcnumberofhits[ac]) ;  
-    if(sc.isFailure()) { 
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    if(ac==0) ATH_CHECK( tgcprd_shift_a.regHist(m_tgcnumberofhits[ac]) );
+    else      ATH_CHECK( tgcprd_shift_c.regHist(m_tgcnumberofhits[ac]) );
   }
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
