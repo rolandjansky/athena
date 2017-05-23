@@ -218,6 +218,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    memset(m_maxocc_per_bcid_mod, 0, sizeof(m_maxocc_per_bcid_mod));
    m_occupancy = 0;
    m_average_pixocc = 0;
+   m_occupancy_pix_evt = 0;
    m_occupancy_10min = 0;
    m_occupancy_time1 = 0;
    m_occupancy_time2 = 0;
