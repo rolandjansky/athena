@@ -21,12 +21,12 @@ namespace PixelCalib{
 
 PixelChargeInterpolationCalibration::PixelChargeInterpolationCalibration(std::string tag,
 		PixelChargeInterpolationParameters &model):
-	DigitalCalibration(0),
-	AnalogCalibration(0),
+	m_DigitalCalibration(0),
+	m_AnalogCalibration(0),
 	m_plots(0){
 
-	DigitalCalibration = new PixelChargeInterpolationHistograms(tag,model);
-	AnalogCalibration = new PixelChargeInterpolationHistograms("analog_" + tag,model);
+	m_DigitalCalibration = new PixelChargeInterpolationHistograms(tag,model);
+	m_AnalogCalibration = new PixelChargeInterpolationHistograms("analog_" + tag,model);
 
 }
 
@@ -34,8 +34,8 @@ PixelChargeInterpolationCalibration::PixelChargeInterpolationCalibration(std::st
 
 PixelChargeInterpolationCalibration::~PixelChargeInterpolationCalibration(){
 
-	delete DigitalCalibration; DigitalCalibration = 0;
-	delete AnalogCalibration; AnalogCalibration = 0;
+	delete m_DigitalCalibration; m_DigitalCalibration = 0;
+	delete m_AnalogCalibration; m_AnalogCalibration = 0;
 	delete m_plots; m_plots = 0;
 
 }
@@ -49,8 +49,8 @@ void PixelChargeInterpolationCalibration::Read(TDirectory *histofile){
 	if(histofile != 0) globaldir = histofile;
 
 	globaldir->cd("ChargeInterpolation");
-	DigitalCalibration->Read();
-	AnalogCalibration->Read();
+	m_DigitalCalibration->Read();
+	m_AnalogCalibration->Read();
 	
 	current->cd();
 }
@@ -64,8 +64,8 @@ void PixelChargeInterpolationCalibration::Write(TDirectory *writedir){
 	if(writedir != 0) globaldir = writedir;
 
 	globaldir->mkdir("ChargeInterpolation")->cd();
-	DigitalCalibration->Write();
-	AnalogCalibration->Write();
+	m_DigitalCalibration->Write();
+	m_AnalogCalibration->Write();
 	m_plots->Write();
 	
 	current->cd();
@@ -89,10 +89,10 @@ void PixelChargeInterpolationCalibration::Fill(Int_t DetType, Double_t GeVTrkPt,
 	// fill with the same values for the relevant layers 
 	for(int iLayer = 0; iLayer < totlayers; iLayer++){
 		DetType = iLayer + modifier;
-		DigitalCalibration->Fill(DetType, GeVTrkPt,
+		m_DigitalCalibration->Fill(DetType, GeVTrkPt,
 					TrkEta, DeltaCol, digreseta, OmegaEta,
 					alpha, DeltaRow, digresphi, OmegaPhi);
-		AnalogCalibration->Fill(DetType, GeVTrkPt,
+		m_AnalogCalibration->Fill(DetType, GeVTrkPt,
 					TrkEta, DeltaCol, reseta, OmegaEta,
 					alpha, DeltaRow, resphi, OmegaPhi);
 	}
@@ -111,8 +111,8 @@ int PixelChargeInterpolationCalibration::Analyze( std::string output,
   	logfile.open((output + ".log").c_str());
   	logfile << "Log file for the pixel calibration fits." << std::endl;	
 
-	DigitalParameters = DigitalCalibration->Analyze(logfile);
-	AnalogParameters = AnalogCalibration->Analyze(logfile);
+	DigitalParameters = m_DigitalCalibration->Analyze(logfile);
+	AnalogParameters = m_AnalogCalibration->Analyze(logfile);
 
   	logfile.close();	
 

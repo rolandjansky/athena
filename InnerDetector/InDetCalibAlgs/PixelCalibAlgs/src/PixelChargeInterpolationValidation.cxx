@@ -302,17 +302,17 @@ PixelChargeInterpolationValidation::PixelChargeInterpolationValidation(std::stri
 					);
 	}
 
-	eta_phi_correlation = new TH2F("eta_phi_correlation",
+	m_eta_phi_correlation = new TH2F("eta_phi_correlation",
 		       	"#phi_{i} #eta_{i} correlation", 100, -100,100, 100, -2.5, 2.5);
 
-	eta_phi_correlation->GetYaxis()->SetTitle("#eta_{i}");
-	eta_phi_correlation->GetXaxis()->SetTitle("#phi_{i}");
+	m_eta_phi_correlation->GetYaxis()->SetTitle("#eta_{i}");
+	m_eta_phi_correlation->GetXaxis()->SetTitle("#phi_{i}");
 
-	CSeta_CSphi_correlation = new TH2F("CSeta_CSphi_correlation",
+	m_CSeta_CSphi_correlation = new TH2F("CSeta_CSphi_correlation",
 		       	"#Deltarow #Deltacolumn  correlation", 10, 0,10, 10, 0, 10);
 
-	CSeta_CSphi_correlation->GetYaxis()->SetTitle("#eta_{i}");
-	CSeta_CSphi_correlation->GetXaxis()->SetTitle("#phi_{i}");
+	m_CSeta_CSphi_correlation->GetYaxis()->SetTitle("#eta_{i}");
+	m_CSeta_CSphi_correlation->GetXaxis()->SetTitle("#phi_{i}");
 
 
 	double ptbins_Layerpointer[101];
@@ -322,10 +322,10 @@ PixelChargeInterpolationValidation::PixelChargeInterpolationValidation(std::stri
 	for(int i  = 0; i < ntot2+1; i++){
 		ptbins_Layerpointer[i] = start2 * pow( end2/start2, double(i)/double(ntot2) );
 	}
-	ResEtaDig_vs_p = new TH2F("ResEtaDig_vs_p",
+	m_ResEtaDig_vs_p = new TH2F("ResEtaDig_vs_p",
 		       	"Local y residuals vs p_{T}",
 			100, ptbins_Layerpointer, 100, -1000, 1000);
-	ResPhiDig_vs_p = new TH2F("ResPhiDig_vs_p", "Local x residuals vs p_{T}",
+	m_ResPhiDig_vs_p = new TH2F("ResPhiDig_vs_p", "Local x residuals vs p_{T}",
 		       	100, ptbins_Layerpointer, 100, -400, 400);
 
 
@@ -412,10 +412,10 @@ PixelChargeInterpolationValidation::~PixelChargeInterpolationValidation(){
 		delete m_etaClustersize[i]; m_etaClustersize[i] = 0;
 	}
 
-	delete eta_phi_correlation; eta_phi_correlation = 0;
-	delete CSeta_CSphi_correlation; CSeta_CSphi_correlation = 0;
-	delete ResEtaDig_vs_p; ResEtaDig_vs_p = 0;
-	delete ResPhiDig_vs_p; ResPhiDig_vs_p = 0;
+	delete m_eta_phi_correlation; m_eta_phi_correlation = 0;
+	delete m_CSeta_CSphi_correlation; m_CSeta_CSphi_correlation = 0;
+	delete m_ResEtaDig_vs_p; m_ResEtaDig_vs_p = 0;
+	delete m_ResPhiDig_vs_p; m_ResPhiDig_vs_p = 0;
 
 
 }
@@ -469,8 +469,8 @@ int PixelChargeInterpolationValidation::Read(TDirectory *file){
 		//m_phiClustersize[i]->Read();
 		//m_etaClustersize[i]->Read();
 	}
-	//eta_phi_correlation
-	//CSeta_CSphi_correlation
+	//m_eta_phi_correlation
+	//m_CSeta_CSphi_correlation
 
 	current->cd();
 	return readhistos;
@@ -526,10 +526,10 @@ int PixelChargeInterpolationValidation::Write(TDirectory *writedir){
 		m_etaClustersize[i]->Write();
 	}
 
-	eta_phi_correlation->Write();
-	CSeta_CSphi_correlation->Write();
-	ResEtaDig_vs_p->Write();
-	ResPhiDig_vs_p->Write();
+	m_eta_phi_correlation->Write();
+	m_CSeta_CSphi_correlation->Write();
+	m_ResEtaDig_vs_p->Write();
+	m_ResPhiDig_vs_p->Write();
 
 	current->cd();
 	return writtenhistos;	
@@ -658,10 +658,10 @@ void PixelChargeInterpolationValidation::Fill(int Layer, double GeVTrkPt,
 		m_phiClustersize[int(CSphi)-1]->Fill(Phi);
 	}
 
-	eta_phi_correlation->Fill(Phi,Eta);
-	CSeta_CSphi_correlation->Fill(Phi,Eta);
-	ResEtaDig_vs_p->Fill(GeVTrkPt,digResEta);
-	ResPhiDig_vs_p->Fill(GeVTrkPt,digResPhi);
+	m_eta_phi_correlation->Fill(Phi,Eta);
+	m_CSeta_CSphi_correlation->Fill(Phi,Eta);
+	m_ResEtaDig_vs_p->Fill(GeVTrkPt,digResEta);
+	m_ResPhiDig_vs_p->Fill(GeVTrkPt,digResPhi);
 	return;
 
 }

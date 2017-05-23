@@ -41,8 +41,8 @@ private:
   PixelChargeInterpolationCalibration(const PixelChargeInterpolationCalibration &);
   PixelChargeInterpolationCalibration &operator=(const PixelChargeInterpolationCalibration&);
 
-	PixelChargeInterpolationHistograms *DigitalCalibration;
-	PixelChargeInterpolationHistograms *AnalogCalibration;
+	PixelChargeInterpolationHistograms *m_DigitalCalibration;
+	PixelChargeInterpolationHistograms *m_AnalogCalibration;
 	PixelChargeInterpolationPlot *m_plots;
 };
 

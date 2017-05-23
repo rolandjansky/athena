@@ -22,26 +22,26 @@
 namespace PixelCalib{
 
 LorentzAngleCalibration::LorentzAngleCalibration(int layer,std::string cosmicORbeam):
-	curLayer(layer),curType(cosmicORbeam){
+	m_curLayer(layer),m_curType(cosmicORbeam){
 
-	if(curType != "cosmic") curType = "beam";
+	if(m_curType != "cosmic") m_curType = "beam";
 
 	double *etaBins, *phiBins;
 	int netaBins, nphiBins;
 		
-	EtaModule = 0;
-	PhiModule = 0;
+	m_EtaModule = 0;
+	m_PhiModule = 0;
 	
 	netaBins = EtaModuleBins(etaBins);
-	if(curLayer == 2){
-		layername = "Layer2";
+	if(m_curLayer == 2){
+		m_layername = "Layer2";
 		nphiBins = Layer2PhiModuleBins(phiBins);
-	}else if(curLayer == 1){
-		layername = "Layer1";
+	}else if(m_curLayer == 1){
+		m_layername = "Layer1";
 		nphiBins = Layer1PhiModuleBins(phiBins);
 	}else{
-		curLayer = 0;
-		layername = "bLayer";
+		m_curLayer = 0;
+		m_layername = "bLayer";
 		nphiBins = BlayerPhiModuleBins(phiBins);
 	}
 
@@ -50,49 +50,49 @@ LorentzAngleCalibration::LorentzAngleCalibration(int layer,std::string cosmicORb
 	std::vector <double *> BinsDiv;
 
 	double lowlimit,highlimit;
-	if(curType == "cosmic"){
+	if(m_curType == "cosmic"){
 		lowlimit = -40;
 		highlimit = 60;
 	}else{
 		lowlimit = -10;
 		highlimit = 30;
 	}
-	TProfile *Profmodel = new TProfile((layername + "ClusterSizeVsAngle").c_str(),
-				(layername + " Cluster Size Vs Angle").c_str(), 50,
+	TProfile *Profmodel = new TProfile((m_layername + "ClusterSizeVsAngle").c_str(),
+				(m_layername + " Cluster Size Vs Angle").c_str(), 50,
 				lowlimit, highlimit);
 	// second division good for all!!
 	NameDiv.push_back("etaModule");
 	NDiv.push_back(netaBins);
 	BinsDiv.push_back(etaBins);
-	if(curType != "cosmic"){
+	if(m_curType != "cosmic"){
 		// first division will change for each layer:
 		NameDiv.push_back("phiModule");
 		NDiv.push_back(nphiBins);
 		BinsDiv.push_back(phiBins);
 	}
 
-	LayerProfile = new MultiHisto<TProfile>(*Profmodel,NameDiv,NDiv,BinsDiv);
+	m_LayerProfile = new MultiHisto<TProfile>(*Profmodel,NameDiv,NDiv,BinsDiv);
 
-	int nhistos = LayerProfile->GetNhistos();
-	LorentzAngle0 = new TVectorT<double>(nhistos);
-	LorentzAngle0Errors = new TVectorT<double>(nhistos);
-	LorentzAngle1 = new TVectorT<double>(nhistos);
-	LorentzAngle1Errors = new TVectorT<double>(nhistos);
-	LorentzAngle2 = new TVectorT<double>(nhistos);
-	LorentzAngle2Errors = new TVectorT<double>(nhistos);
-	EtaModule = new TVectorT<double>(nhistos);
-	if(curType != "cosmic") PhiModule = new TVectorT<double>(nhistos);
+	int nhistos = m_LayerProfile->GetNhistos();
+	m_LorentzAngle0 = new TVectorT<double>(nhistos);
+	m_LorentzAngle0Errors = new TVectorT<double>(nhistos);
+	m_LorentzAngle1 = new TVectorT<double>(nhistos);
+	m_LorentzAngle1Errors = new TVectorT<double>(nhistos);
+	m_LorentzAngle2 = new TVectorT<double>(nhistos);
+	m_LorentzAngle2Errors = new TVectorT<double>(nhistos);
+	m_EtaModule = new TVectorT<double>(nhistos);
+	if(m_curType != "cosmic") m_PhiModule = new TVectorT<double>(nhistos);
 	
 	for(int i = 0; i < nhistos; i++){
-		std::vector<int> indexes = LayerProfile->GetDivisionsIndexes(i);
-		if(curType != "cosmic") (*PhiModule)(i) = phiBins[indexes[1]];
-		(*EtaModule)(i) = etaBins[indexes[0]];
-		(*LorentzAngle0)(i) = 0;
-		(*LorentzAngle0Errors)(i) = 0;
-		(*LorentzAngle1)(i) = 0;
-		(*LorentzAngle1Errors)(i) = 0;
-		(*LorentzAngle2)(i) = 0;
-		(*LorentzAngle2Errors)(i) = 0;
+		std::vector<int> indexes = m_LayerProfile->GetDivisionsIndexes(i);
+		if(m_curType != "cosmic") (*m_PhiModule)(i) = phiBins[indexes[1]];
+		(*m_EtaModule)(i) = etaBins[indexes[0]];
+		(*m_LorentzAngle0)(i) = 0;
+		(*m_LorentzAngle0Errors)(i) = 0;
+		(*m_LorentzAngle1)(i) = 0;
+		(*m_LorentzAngle1Errors)(i) = 0;
+		(*m_LorentzAngle2)(i) = 0;
+		(*m_LorentzAngle2Errors)(i) = 0;
 	}
 	
 	delete[] etaBins;
@@ -103,18 +103,18 @@ LorentzAngleCalibration::LorentzAngleCalibration(int layer,std::string cosmicORb
 
 int LorentzAngleCalibration::Read(){
 
-	LorentzAngle0->Read((layername + "LorentzAngle0").c_str());
-	LorentzAngle0Errors->Read((layername + "LorentzAngle0Errors").c_str());
-	LorentzAngle1->Read((layername + "LorentzAngle1").c_str());
-	LorentzAngle1Errors->Read((layername + "LorentzAngle1Errors").c_str());
-	LorentzAngle2->Read((layername + "LorentzAngle2").c_str());
-	LorentzAngle2Errors->Read((layername + "LorentzAngle2Errors").c_str());
-	EtaModule->Read((layername + "EtaModule").c_str());
-	if(curType != "cosmic") PhiModule->Read((layername + "PhiModule").c_str());
+	m_LorentzAngle0->Read((m_layername + "m_LorentzAngle0").c_str());
+	m_LorentzAngle0Errors->Read((m_layername + "m_LorentzAngle0Errors").c_str());
+	m_LorentzAngle1->Read((m_layername + "m_LorentzAngle1").c_str());
+	m_LorentzAngle1Errors->Read((m_layername + "m_LorentzAngle1Errors").c_str());
+	m_LorentzAngle2->Read((m_layername + "m_LorentzAngle2").c_str());
+	m_LorentzAngle2Errors->Read((m_layername + "m_LorentzAngle2Errors").c_str());
+	m_EtaModule->Read((m_layername + "m_EtaModule").c_str());
+	if(m_curType != "cosmic") m_PhiModule->Read((m_layername + "m_PhiModule").c_str());
 	
-	TDirectory *histodir = (TDirectory *)gDirectory->Get(LayerProfile->GetName());
+	TDirectory *histodir = (TDirectory *)gDirectory->Get(m_LayerProfile->GetName());
 
-	return LayerProfile->FillFromFile(histodir);
+	return m_LayerProfile->FillFromFile(histodir);
 
 }
 
@@ -122,17 +122,17 @@ int LorentzAngleCalibration::Read(){
 
 int LorentzAngleCalibration::Write(){
 
-	LayerProfile->Write();
-	LorentzAngle0->Write((layername + "LorentzAngle0").c_str());
-	LorentzAngle0Errors->Write((layername + "LorentzAngle0Errors").c_str());
-	LorentzAngle1->Write((layername + "LorentzAngle1").c_str());
-	LorentzAngle1Errors->Write((layername + "LorentzAngle1Errors").c_str());
-	LorentzAngle2->Write((layername + "LorentzAngle2").c_str());
-	LorentzAngle2Errors->Write((layername + "LorentzAngle2Errors").c_str());
-	EtaModule->Write((layername + "EtaModule").c_str());
-	if(curType != "cosmic") PhiModule->Write((layername + "PhiModule").c_str());
+	m_LayerProfile->Write();
+	m_LorentzAngle0->Write((m_layername + "m_LorentzAngle0").c_str());
+	m_LorentzAngle0Errors->Write((m_layername + "m_LorentzAngle0Errors").c_str());
+	m_LorentzAngle1->Write((m_layername + "m_LorentzAngle1").c_str());
+	m_LorentzAngle1Errors->Write((m_layername + "m_LorentzAngle1Errors").c_str());
+	m_LorentzAngle2->Write((m_layername + "m_LorentzAngle2").c_str());
+	m_LorentzAngle2Errors->Write((m_layername + "m_LorentzAngle2Errors").c_str());
+	m_EtaModule->Write((m_layername + "m_EtaModule").c_str());
+	if(m_curType != "cosmic") m_PhiModule->Write((m_layername + "m_PhiModule").c_str());
 
-	return LayerProfile->GetNhistos();
+	return m_LayerProfile->GetNhistos();
 
 }
 
@@ -141,13 +141,13 @@ int LorentzAngleCalibration::Write(){
 bool LorentzAngleCalibration::Fill(Int_t Layer, Int_t EtaIndex, Int_t PhiIndex,
 		Double_t ClusterSize, Double_t Angle){
 	bool passed = kFALSE;
-	if( Layer == curLayer ){
+	if( Layer == m_curLayer ){
 		passed = kTRUE;
 		static std::vector<Double_t> Pars(2);
 		Pars[1] = PhiIndex;
 		Pars[0] = EtaIndex;
 
-		LayerProfile->Fill(Angle,ClusterSize,Pars);
+		m_LayerProfile->Fill(Angle,ClusterSize,Pars);
 	}
 	return passed;
 }
@@ -157,10 +157,10 @@ bool LorentzAngleCalibration::Fill(Int_t Layer, Int_t EtaIndex, Int_t PhiIndex,
 int LorentzAngleCalibration::Analyze(ofstream &logfile){
 	
 	int nfits = 0;
-	for(unsigned int i = 0; i < LayerProfile->GetNhistos(); i++){
-		TProfile *swap = LayerProfile->GetHisto(i);
+	for(unsigned int i = 0; i < m_LayerProfile->GetNhistos(); i++){
+		TProfile *swap = m_LayerProfile->GetHisto(i);
 		double lowlimit,highlimit;
-		if(curType == "cosmic"){
+		if(m_curType == "cosmic"){
 			lowlimit = -5;
 			highlimit = 25;
 		}else{
@@ -177,12 +177,12 @@ int LorentzAngleCalibration::Analyze(ofstream &logfile){
 		fitfunc->SetParLimits(2,1,1.5);
 		if(swap->Fit("fitfunc","QR") == 0){
 			nfits++;
-			(*LorentzAngle0)(i) = fitfunc->GetParameter(0);
-			(*LorentzAngle0Errors)(i) = fitfunc->GetParError(0);
-			(*LorentzAngle1)(i) = fitfunc->GetParameter(1);
-			(*LorentzAngle1Errors)(i) = fitfunc->GetParError(1);
-			(*LorentzAngle2)(i) = fitfunc->GetParameter(2);
-			(*LorentzAngle2Errors)(i) = fitfunc->GetParError(2);
+			(*m_LorentzAngle0)(i) = fitfunc->GetParameter(0);
+			(*m_LorentzAngle0Errors)(i) = fitfunc->GetParError(0);
+			(*m_LorentzAngle1)(i) = fitfunc->GetParameter(1);
+			(*m_LorentzAngle1Errors)(i) = fitfunc->GetParError(1);
+			(*m_LorentzAngle2)(i) = fitfunc->GetParameter(2);
+			(*m_LorentzAngle2Errors)(i) = fitfunc->GetParError(2);
 			logfile << swap->GetTitle() << " --> " << std::endl;
 		}else logfile << swap->GetTitle() << " --> Failing fit!" << std::endl;
 
@@ -195,26 +195,26 @@ int LorentzAngleCalibration::Analyze(ofstream &logfile){
 
 void LorentzAngleCalibration::PlotValidation(TCanvas *c1, std::string outname){
 
-	int nmodules = LorentzAngle0->GetNrows();
-	TH1D *graph0 = new TH1D( (layername + "LorentzAngle0Histo").c_str(),
-			(layername + " Width vs Module Index").c_str(),
+	int nmodules = m_LorentzAngle0->GetNrows();
+	TH1D *graph0 = new TH1D( (m_layername + "LorentzAngle0Histo").c_str(),
+			(m_layername + " Width vs Module Index").c_str(),
 			nmodules,0,nmodules);
-	TH1D *graph1 = new TH1D( (layername + "LorentzAngle1Histo").c_str(),
-			(layername + " Lorentz Angle vs Module Index").c_str(),
+	TH1D *graph1 = new TH1D( (m_layername + "LorentzAngle1Histo").c_str(),
+			(m_layername + " Lorentz Angle vs Module Index").c_str(),
 			nmodules,0,nmodules);
-	TH1D *graph2 = new TH1D( (layername + "LorentzAngle2Histo").c_str(),
-			(layername + " Vertex y-coordinate vs Module Index").c_str(),
+	TH1D *graph2 = new TH1D( (m_layername + "LorentzAngle2Histo").c_str(),
+			(m_layername + " Vertex y-coordinate vs Module Index").c_str(),
 			nmodules,0,nmodules);
-	TH1D *graph3 = new TH1D( (layername + "LorentzAngle").c_str(),
-			(layername + " Lorentz Angle distribution").c_str(),
+	TH1D *graph3 = new TH1D( (m_layername + "LorentzAngle").c_str(),
+			(m_layername + " Lorentz Angle distribution").c_str(),
 			50,0,25);
 	for(int i = 0; i < nmodules; i++){
-		double par0 = (*LorentzAngle0)[i];
-		double error0 = (*LorentzAngle0Errors)[i];
-		double angle = (*LorentzAngle1)[i];
-		double error = (*LorentzAngle1Errors)[i];
-		double par2 = (*LorentzAngle2)[i];
-		double error2 = (*LorentzAngle2Errors)[i];
+		double par0 = (*m_LorentzAngle0)[i];
+		double error0 = (*m_LorentzAngle0Errors)[i];
+		double angle = (*m_LorentzAngle1)[i];
+		double error = (*m_LorentzAngle1Errors)[i];
+		double par2 = (*m_LorentzAngle2)[i];
+		double error2 = (*m_LorentzAngle2Errors)[i];
 		graph0->SetBinContent(i,par0);
 		graph0->SetBinError(i,error0);
 		graph1->SetBinContent(i,angle);
@@ -239,7 +239,7 @@ void LorentzAngleCalibration::PlotValidation(TCanvas *c1, std::string outname){
 	graph2->DrawCopy();
 	for (int i = 0; i < nmodules; i++){
 		int color = 2;
-		if( int( (*EtaModule)[i] ) %2 ) color = 3;
+		if( int( (*m_EtaModule)[i] ) %2 ) color = 3;
 		graph0->SetFillColor(color);
 		graph0->SetLineColor(color);
 		graph0->SetMarkerStyle(20);
