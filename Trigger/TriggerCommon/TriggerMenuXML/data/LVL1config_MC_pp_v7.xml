@@ -6264,20 +6264,18 @@
     <TriggerThreshold active="1" bitnum="3" id="50" mapping="8" name="EM15VHI" type="EM" input="ctpin" version="1">
       <TriggerThresholdValue em_isolation="63" etamin="-49" etamax="49" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="1" thresholdval="17" type="EM" window="0"/>
       <TriggerThresholdValue em_isolation="63" etamin="-25" etamax="-17" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="16" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-17" etamax="-15" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="14" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-15" etamax="-14" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="12" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-14" etamax="-13" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="13" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-13" etamax="-11" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="14" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-11" etamax="-8" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="15" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-8" etamax="-7" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="16" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-17" etamax="-15" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="15" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-15" etamax="-14" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="13" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-14" etamax="-12" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="14" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-12" etamax="-9" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="15" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-9" etamax="-7" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="16" type="EM" window="0"/>
       <TriggerThresholdValue em_isolation="63" etamin="-7" etamax="0" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="17" type="EM" window="0"/>
       <TriggerThresholdValue em_isolation="63" etamin="0" etamax="7" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="17" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="7" etamax="8" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="16" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="8" etamax="11" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="15" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="11" etamax="13" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="14" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="13" etamax="14" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="13" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="14" etamax="15" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="12" type="EM" window="0"/>
-      <TriggerThresholdValue em_isolation="63" etamin="15" etamax="17" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="14" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="7" etamax="9" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="16" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="9" etamax="12" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="15" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="12" etamax="14" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="14" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="14" etamax="15" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="13" type="EM" window="0"/>
+      <TriggerThresholdValue em_isolation="63" etamin="15" etamax="17" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="15" type="EM" window="0"/>
       <TriggerThresholdValue em_isolation="63" etamin="17" etamax="25" had_isolation="63" had_veto="99" isobits="00100" name="EM15VHIfull" phimin="0" phimax="64" priority="2" thresholdval="16" type="EM" window="0"/>
       <Cable connector="CON1" input="SLOT7" name="EM2">
         <Signal range_begin="0" range_end="2"/>
