@@ -104,7 +104,6 @@ namespace InDet{
 //            Secondary track list is ready
 //            Now common vertex fit
 //
-      std::vector<const Rec::TrackParticle*>::const_iterator   i_ntrk, i_found;
       Amg::Vector3D          FitVertex;
       std::vector<double> ErrorMatrix;
       std::vector< std::vector<double> > TrkAtVrt; 
@@ -120,21 +119,21 @@ namespace InDet{
       std::vector<const Rec::TrackParticle*> AdditionalTracks;
       VrtVrtDist(PrimVrt, FitVertex, ErrorMatrix, Signif3D);
       if(Signif3D>8.){
-       for (i_ntrk = SelectedTracks.begin(); i_ntrk < SelectedTracks.end(); ++i_ntrk) {
-         i_found = find( ListSecondTracks.begin(), ListSecondTracks.end(), (*i_ntrk));
+       for (auto i_ntrk : SelectedTracks) {
+         std::vector<const Rec::TrackParticle*>::const_iterator i_found = 
+	                         find( ListSecondTracks.begin(), ListSecondTracks.end(), i_ntrk);
 	 if( i_found != ListSecondTracks.end() ) continue;
-         Signif3DS = m_fitSvc->VKalGetImpact((*i_ntrk), FitVertex         , 1, Impact, ImpactError);
+         Signif3DS = m_fitSvc->VKalGetImpact(i_ntrk, FitVertex         , 1, Impact, ImpactError);
          if( Signif3DS > 10.) continue;
-         Signif3DP = m_fitSvc->VKalGetImpact((*i_ntrk), PrimVrt.position(), 1, Impact, ImpactError);
+         Signif3DP = m_fitSvc->VKalGetImpact(i_ntrk, PrimVrt.position(), 1, Impact, ImpactError);
          if(m_FillHist){ m_hb_diffPS->Fill( Signif3DP-Signif3DS, m_w_1); }
-	 if(Signif3DP-Signif3DS>1.0) AdditionalTracks.push_back((*i_ntrk));
+	 if(Signif3DP-Signif3DS>1.0) AdditionalTracks.push_back(i_ntrk);
        }
       }
 //
 // Add found tracks and refit
       if( AdditionalTracks.size() > 0){
-        for (i_ntrk = AdditionalTracks.begin(); i_ntrk < AdditionalTracks.end(); ++i_ntrk)
-                      ListSecondTracks.push_back((*i_ntrk));
+        for (auto i_ntrk : AdditionalTracks) ListSecondTracks.push_back(i_ntrk);
         std::vector<int> tmpCount(ListSecondTracks.size(),1);
         Chi2 =  FitCommonVrt( ListSecondTracks, tmpCount, xaodPrimVrt, JetDir, InpMass, FitVertex, ErrorMatrix, Momentum, TrkAtVrt);
         if( Chi2 < 0) { return 0; }      // Vertex not reconstructed
@@ -148,10 +147,9 @@ namespace InDet{
         int Charge=0, tCnt=0;
 	int BLshared=0;
 	int PXshared=0;
-        std::vector<const Rec::TrackParticle*>::const_iterator   i_ntrk;
-        for (i_ntrk = ListSecondTracks.begin(); i_ntrk < ListSecondTracks.end(); ++i_ntrk) {
-            Charge +=  (int) (*i_ntrk)->charge();
-            const Trk::TrackSummary* testSum = (*i_ntrk)->trackSummary();
+        for (auto i_ntrk : ListSecondTracks) {
+            Charge +=  (int) i_ntrk->charge();
+            const Trk::TrackSummary* testSum = i_ntrk->trackSummary();
             if(testSum){  BLshared   += testSum->get(Trk::numberOfBLayerSharedHits);
                           PXshared   += testSum->get(Trk::numberOfPixelSharedHits); }
             tCnt++;
@@ -421,7 +419,6 @@ namespace InDet{
 
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "GetVrtSec() called with xAOD::TrackParticle=" <<InpTrk.size()<< endmsg;
 
-      std::vector<const xAOD::TrackParticle*>::const_iterator   i_ntrk;
       std::vector<double> ErrorMatrix,Impact,ImpactError;
       Amg::Vector3D          FitVertex;
       std::vector< std::vector<double> > TrkAtVrt; 
@@ -435,10 +432,11 @@ namespace InDet{
       m_NRefTrk=0;
       if( InpTrk.size() < 2 ) { return 0;} // 0,1 track => nothing to do!
       int NPVParticle = SelGoodTrkParticle( InpTrk, PrimVrt, JetDir, SelectedTracks);
-      if(SelectedTracks.size() && SelectedTracks[0]->pt()/JetDir.Pt()>1.)SelectedTracks.erase(SelectedTracks.begin());
+      while(SelectedTracks.size() && SelectedTracks[0]->pt()/JetDir.Pt()>1.)SelectedTracks.erase(SelectedTracks.begin());
       if((int)SelectedTracks.size()>m_TrackInJetNumberLimit){
         SelectedTracks.resize(m_TrackInJetNumberLimit); // SelectedTracks are ordered in pT
       }
+      while( SelectedTracks.size()>4 && medianPtF(SelectedTracks)/JetDir.Pt()<0.01) SelectedTracks.pop_back();
 
       long int NTracks = (int) (SelectedTracks.size());
       if(m_FillHist){m_hb_ntrkjet->Fill( (double) NTracks, m_w_1); }
@@ -492,7 +490,6 @@ namespace InDet{
 //            Secondary track list is ready
 //            Now common vertex fit
 //
-      std::vector<const xAOD::TrackParticle*>::const_iterator   i_found;
       double Signif3DP=0, Signif3DS=0;
 
       Chi2 =  FitCommonVrt( ListSecondTracks, combCount, PrimVrt, JetDir, InpMass, FitVertex, ErrorMatrix, Momentum, TrkAtVrt);
@@ -516,17 +513,18 @@ namespace InDet{
       std::map<double,const xAOD::TrackParticle*> AdditionalTracks;
       VrtVrtDist(PrimVrt, FitVertex, ErrorMatrix, Signif3D);
       if(Signif3D>8.){
-       for (i_ntrk = SelectedTracks.begin(); i_ntrk < SelectedTracks.end(); ++i_ntrk) {
-         i_found = find( ListSecondTracks.begin(), ListSecondTracks.end(), (*i_ntrk));
+       for (auto i_ntrk : SelectedTracks) {
+         std::vector<const xAOD::TrackParticle*>::const_iterator   i_found =
+                             find( ListSecondTracks.begin(), ListSecondTracks.end(), i_ntrk);
 	 if( i_found != ListSecondTracks.end() ) continue;
-         if((*i_ntrk)->pt()<m_JetPtFractionCut*JetDir.Perp())continue;
-         if(!Check1TrVertexInPixel((*i_ntrk),FitVertex)) continue;
-         Signif3DS = m_fitSvc->VKalGetImpact((*i_ntrk), FitVertex         , 1, Impact, ImpactError);
+         if(i_ntrk->pt()<m_JetPtFractionCut*JetDir.Perp())continue;
+         if(!Check1TrVertexInPixel(i_ntrk,FitVertex)) continue;
+         Signif3DS = m_fitSvc->VKalGetImpact(i_ntrk, FitVertex         , 1, Impact, ImpactError);
          if( Signif3DS > 10.) continue;
-         if((*i_ntrk)->radiusOfFirstHit()>60 && FitVertex.perp()<m_RlayerB-m_SVResolutionR)continue;  //VK no hit in IBL and BL
-         Signif3DP = m_fitSvc->VKalGetImpact((*i_ntrk), PrimVrt.position(), 1, Impact, ImpactError);
+         if(i_ntrk->radiusOfFirstHit()>60 && FitVertex.perp()<m_RlayerB-m_SVResolutionR)continue;  //VK no hit in IBL and BL
+         Signif3DP = m_fitSvc->VKalGetImpact(i_ntrk, PrimVrt.position(), 1, Impact, ImpactError);
          if(m_FillHist){ m_hb_diffPS->Fill( Signif3DP-Signif3DS, m_w_1); }
-	 if(Signif3DP-Signif3DS>-1.0) AdditionalTracks[Signif3DP-Signif3DS]=(*i_ntrk);
+	 if(Signif3DP-Signif3DS>-1.0) AdditionalTracks[Signif3DP-Signif3DS]=i_ntrk;
        }
       }
 //
@@ -548,11 +546,11 @@ for (auto atrk : AdditionalTracks)ListSecondTracks.push_back(atrk.second);      
         int Charge=0;
 	uint8_t BLshared=0;
 	uint8_t PXshared=0;
-        for (i_ntrk = ListSecondTracks.begin(); i_ntrk < ListSecondTracks.end(); ++i_ntrk) {
-            Charge +=  (int) (*i_ntrk)->charge();
+        for (auto i_ntrk : ListSecondTracks) {
+            Charge +=  (int) i_ntrk->charge();
             uint8_t retval=0;
-            if( (*i_ntrk)->summaryValue( retval, xAOD::numberOfPixelSharedHits)  )  PXshared  += retval;
-            if( (*i_ntrk)->summaryValue( retval, xAOD::numberOfInnermostPixelLayerSharedHits) )  BLshared  += retval;
+            if( i_ntrk->summaryValue( retval, xAOD::numberOfPixelSharedHits)  )  PXshared  += retval;
+            if( i_ntrk->summaryValue( retval, xAOD::numberOfInnermostPixelLayerSharedHits) )  BLshared  += retval;
         }
 
         double vvdist3D=VrtVrtDist(PrimVrt, FitVertex, ErrorMatrix, Signif3D);
@@ -872,7 +870,7 @@ for (auto atrk : AdditionalTracks)ListSecondTracks.push_back(atrk.second);      
 //  Impact parameters with sign calculations
 //
       double SignifR,SignifZ;
-      std::vector<double> TrackSignif(NTracks),TrackPt(NTracks),TrackSignifBase(NTracks),adpt(NTracks);
+      std::vector<double> TrackSignif(NTracks),TrackPt(NTracks),TrackSignifBase(NTracks),adpt(NTracks),TrkSigZ(NTracks);
       AmgVector(5) tmpPerigee; tmpPerigee<<0.,0.,0.,0.,0.;
       int NPrimTrk=0, NSecTrk=0;
       m_NRefTrk=0;
@@ -909,6 +907,7 @@ for (auto atrk : AdditionalTracks)ListSecondTracks.push_back(atrk.second);      
            if(SignifZ < 1.-m_AntiPileupSigZCut ) ImpactSignif=0.;  
          }
          TrackSignif[i]=ImpactSignif;
+         TrkSigZ[i]=SignifZ;
          if(m_FillHist){m_hb_impact->Fill( ImpactSignif, m_w_1);}
 	 adpt[i]=pow(TrackPt[i]/JetDir.Perp(),0.5);
 	 //adpt[i]=trkPtCorr(TrackPt[i]);
@@ -969,6 +968,8 @@ for (auto atrk : AdditionalTracks)ListSecondTracks.push_back(atrk.second);      
 	     if(fabs(FitVertex.z())> 650.)     continue;  // definitely outside of Pixel detector
              Dist2D=FitVertex.perp(); 
 	     if(Dist2D    > 180. )             continue;  // can't be from B decay
+	     if(m_useMaterialRejection && Dist2D>m_Rbeampipe-2.)
+	         { if( TrkSigZ[i]>25. || TrkSigZ[j]>25. || TrkSigZ[i]<-10. || TrkSigZ[j]<-10.) continue; }
              VrtVrtDist(PrimVrt, FitVertex, ErrorMatrix, Signif3D);
 //---
 	     vDist=FitVertex-PrimVrt.position();
@@ -1069,8 +1070,8 @@ for (auto atrk : AdditionalTracks)ListSecondTracks.push_back(atrk.second);      
 //
 //  Check interactions on pixel layers
 //
+             if(m_FillHist){  m_hb_r2d->Fill( FitVertex.perp(), m_w_1); }
 	     if(m_useMaterialRejection && Dist2D>m_Rbeampipe-2.){
-                if(m_FillHist){  m_hb_r2d->Fill( FitVertex.perp(), m_w_1); }
 	        float ptLim=TMath::Max(m_hadronIntPtCut,m_JetPtFractionCut*JetDir.Perp());
               //if(m_materialMap){
               //  if(m_materialMap->inMaterial(FitVertex)) BadTracks=4;

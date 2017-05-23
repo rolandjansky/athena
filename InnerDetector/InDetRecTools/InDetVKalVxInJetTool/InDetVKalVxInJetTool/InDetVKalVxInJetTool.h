@@ -475,6 +475,8 @@ namespace InDet {
      bool  Check2TrVertexInPixel( const Track* p1, const Track* p2, Amg::Vector3D &, double ) const;
      template <class Track>
      bool  Check1TrVertexInPixel( const Track* p1, Amg::Vector3D &) const;
+     template <class Track>
+     double medianPtF( std::vector<const Track*> & Trks) const;
 
      void  getPixelLayers(const  Rec::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLay) const;
      void  getPixelLayers(const xAOD::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLay) const;
@@ -584,6 +586,12 @@ namespace InDet {
           if( d0Trk+d1Trk+d2Trk ==0 )return false;
         }
         return true;
+   }
+
+   template <class Track>
+   double InDetVKalVxInJetTool::medianPtF( std::vector<const Track*> & Trks) const{
+     int NT=Trks.size(); if(NT==0)return 0.;
+     return (Trks[(NT-1)/2]->pt()+Trks[NT/2]->pt())/2.;
    }
 }  //end namespace
 

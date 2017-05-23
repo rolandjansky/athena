@@ -81,14 +81,14 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
       long int NTracks = 0;
       TLorentzVector MomentumJet;
       if     (xAODwrk) {  SelGoodTrkParticle( xAODwrk->InpTrk, PrimVrt, JetDir, xAODwrk->listJetTracks);
+			  while( xAODwrk->listJetTracks.size() && xAODwrk->listJetTracks[0]->pt()/JetDir.Pt()>1.)
+			         xAODwrk->listJetTracks.erase(xAODwrk->listJetTracks.begin());
                           NTracks = xAODwrk->listJetTracks.size();
-                          if(NTracks && xAODwrk->listJetTracks[0]->pt()/JetDir.Pt()>1.)
-			             xAODwrk->listJetTracks.erase(xAODwrk->listJetTracks.begin());
                           MomentumJet = TotalMom(xAODwrk->listJetTracks);}
       else if(RECwork) {  SelGoodTrkParticle( RECwork->InpTrk, PrimVrt, JetDir, RECwork->listJetTracks);
+			  while( RECwork->listJetTracks.size() && RECwork->listJetTracks[0]->pt()/JetDir.Pt()>1.)
+			         RECwork->listJetTracks.erase(RECwork->listJetTracks.begin());
                           NTracks = RECwork->listJetTracks.size();
-                          if(NTracks && RECwork->listJetTracks[0]->pt()/JetDir.Pt()>1.)
-			             RECwork->listJetTracks.erase(RECwork->listJetTracks.begin());
                           MomentumJet = TotalMom(GetPerigeeVector(RECwork->listJetTracks));}
 
       if(NTracks>m_TrackInJetNumberLimit){
@@ -96,12 +96,17 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
         else if(RECwork ) RECwork->listJetTracks.resize(m_TrackInJetNumberLimit);
         NTracks=m_TrackInJetNumberLimit;
       }
-      if(m_FillHist){m_hb_ntrkjet->Fill( (double) NTracks, m_w_1); }
       if( NTracks < 2 ) { return finalVertices;} // 0,1 selected track => nothing to do!
 
+      if(xAODwrk){
+          while( xAODwrk->listJetTracks.size()>4 && medianPtF(xAODwrk->listJetTracks)/JetDir.Pt()<0.01) 
+             xAODwrk->listJetTracks.pop_back();
+          NTracks = xAODwrk->listJetTracks.size();
+      }
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Number of selected tracks inside jet= " <<NTracks << endmsg;
       
-      if(m_FillHist){m_hb_jmom->Fill( MomentumJet.Perp(), m_w_1); }
+      if(m_FillHist){m_hb_jmom->Fill( MomentumJet.Perp(), m_w_1);
+                     m_hb_ntrkjet->Fill( (double) NTracks, m_w_1); }
 
 //
 //  InpTrk[]           - input track list
@@ -604,7 +609,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
        nth=iv.SelTrk.size(); if(nth == 0) continue;   /* Definitely bad vertices */
        Amg::Vector3D tmpVec=iv.vertex-PrimVrt.position();
        TLorentzVector Momentum(tmpVec.x(),tmpVec.y(),tmpVec.z(),m_massPi);
-       if(Momentum.DeltaR(JetDir)>m_ConeForTag) iv.Good=false; /* Vertex outside jet cone??? */
+       //if(Momentum.DeltaR(JetDir)>m_ConeForTag) iv.Good=false; /* Vertex outside jet cone??? Very bad cut*/
        if( iv.Good) {
 	  nGoodVertices++;                                    
 	  GoodVertices.emplace_back(iv);    /* add it */
@@ -990,10 +995,10 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
           int v1=(*TrkInVrt)[SelectedTrack][0]; int v2=(*TrkInVrt)[SelectedTrack][1];
           if( (*WrkVrtSet)[v1].SelTrk.size()==2 && (*WrkVrtSet)[v2].SelTrk.size()==2){
             if( (*WrkVrtSet)[SelectedVertex].Chi2 < TMath::ChisquareQuantile(0.9, 1) ){    // Probability > 10%!!!
-              double vr1=(*WrkVrtSet)[v1].vertex.perp(); double vr2=(*WrkVrtSet)[v2].vertex.perp();
-              if     (SelectedVertex==v1 && vr2<vr1)  SelectedVertex=v2;  // Swap to remove the closest vertex
-              else if(SelectedVertex==v2 && vr1<vr2)  SelectedVertex=v1;  // Swap to remove the closest vertex
+              //double vr1=(*WrkVrtSet)[v1].vertex.perp(); double vr2=(*WrkVrtSet)[v2].vertex.perp();
               double M1=(*WrkVrtSet)[v1].vertexMom.M();  double M2=(*WrkVrtSet)[v2].vertexMom.M();
+              if     (SelectedVertex==v1 && M2<M1)  SelectedVertex=v2;  // Swap to remove the lightest vertex
+              else if(SelectedVertex==v2 && M1<M2)  SelectedVertex=v1;  // Swap to remove the lightest vertex
               if( M1>VrtBCMassLimit && M2<VrtBCMassLimit ) SelectedVertex=v1;
               if( M1<VrtBCMassLimit && M2>VrtBCMassLimit ) SelectedVertex=v2;
             }
@@ -1136,7 +1141,14 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
    {
       if(!(*WrkVrtSet).at(V1).Good)return -1.;         //bad vertex
       if(!(*WrkVrtSet).at(V2).Good)return -1.;         //bad vertex
-
+      double RMin=TMath::Min((*WrkVrtSet)[V1].vertex.perp(),(*WrkVrtSet)[V2].vertex.perp());
+      double RMax=TMath::Max((*WrkVrtSet)[V1].vertex.perp(),(*WrkVrtSet)[V2].vertex.perp());
+      if(RMax-RMin>m_SVResolutionR){
+        if(RMin<m_RlayerB && m_RlayerB<RMax) return -1.;
+        if(RMin<m_Rlayer1 && m_Rlayer1<RMax) return -1.;
+        if(RMin<m_Rlayer2 && m_Rlayer2<RMax) return -1.;
+      }
+      
       newvrt.Good=true;
       int NTrk_V1=(*WrkVrtSet)[V1].SelTrk.size();
       int NTrk_V2=(*WrkVrtSet)[V2].SelTrk.size();
