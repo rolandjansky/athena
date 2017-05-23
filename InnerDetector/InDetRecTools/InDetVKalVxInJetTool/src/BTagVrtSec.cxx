@@ -870,7 +870,7 @@ for (auto atrk : AdditionalTracks)ListSecondTracks.push_back(atrk.second);      
 //  Impact parameters with sign calculations
 //
       double SignifR,SignifZ;
-      std::vector<double> TrackSignif(NTracks),TrackPt(NTracks),TrackSignifBase(NTracks),adpt(NTracks);
+      std::vector<double> TrackSignif(NTracks),TrackPt(NTracks),TrackSignifBase(NTracks),adpt(NTracks),TrkSigZ(NTracks);
       AmgVector(5) tmpPerigee; tmpPerigee<<0.,0.,0.,0.,0.;
       int NPrimTrk=0, NSecTrk=0;
       m_NRefTrk=0;
@@ -907,6 +907,7 @@ for (auto atrk : AdditionalTracks)ListSecondTracks.push_back(atrk.second);      
            if(SignifZ < 1.-m_AntiPileupSigZCut ) ImpactSignif=0.;  
          }
          TrackSignif[i]=ImpactSignif;
+         TrkSigZ[i]=SignifZ;
          if(m_FillHist){m_hb_impact->Fill( ImpactSignif, m_w_1);}
 	 adpt[i]=pow(TrackPt[i]/JetDir.Perp(),0.5);
 	 //adpt[i]=trkPtCorr(TrackPt[i]);
@@ -967,6 +968,8 @@ for (auto atrk : AdditionalTracks)ListSecondTracks.push_back(atrk.second);      
 	     if(fabs(FitVertex.z())> 650.)     continue;  // definitely outside of Pixel detector
              Dist2D=FitVertex.perp(); 
 	     if(Dist2D    > 180. )             continue;  // can't be from B decay
+	     if(m_useMaterialRejection && Dist2D>m_Rbeampipe-2.)
+	         { if( TrkSigZ[i]>25. || TrkSigZ[j]>25. || TrkSigZ[i]<-10. || TrkSigZ[j]<-10.) continue; }
              VrtVrtDist(PrimVrt, FitVertex, ErrorMatrix, Signif3D);
 //---
 	     vDist=FitVertex-PrimVrt.position();
@@ -1067,8 +1070,8 @@ for (auto atrk : AdditionalTracks)ListSecondTracks.push_back(atrk.second);      
 //
 //  Check interactions on pixel layers
 //
+             if(m_FillHist){  m_hb_r2d->Fill( FitVertex.perp(), m_w_1); }
 	     if(m_useMaterialRejection && Dist2D>m_Rbeampipe-2.){
-                if(m_FillHist){  m_hb_r2d->Fill( FitVertex.perp(), m_w_1); }
 	        float ptLim=TMath::Max(m_hadronIntPtCut,m_JetPtFractionCut*JetDir.Perp());
               //if(m_materialMap){
               //  if(m_materialMap->inMaterial(FitVertex)) BadTracks=4;
