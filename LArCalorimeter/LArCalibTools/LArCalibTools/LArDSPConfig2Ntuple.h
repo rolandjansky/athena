@@ -24,7 +24,9 @@ class LArDSPConfig2Ntuple : public LArCond2NtupleBase
    std::string m_folder;
 
    NTuple::Item<short> m_peakSample;
+   NTuple::Item<short> m_useHgIntercept;
    NTuple::Item<short> m_useMgIntercept;
+   NTuple::Item<short> m_useLgIntercept;
  
 };
 

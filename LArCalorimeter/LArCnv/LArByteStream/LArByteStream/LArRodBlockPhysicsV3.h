@@ -39,7 +39,7 @@
 
 #undef  LARBSDBGOUTPUT
 #ifdef  LARBSDBGOUTPUT
-#define LARBSDBG(text) m_logstr<<MSG::DEBUG<<text<<endreq
+#define LARBSDBG(text) m_logstr<<MSG::DEBUG<<text<<endmsg
 #else
 #define LARBSDBG(text)
 #endif
@@ -261,7 +261,7 @@ inline int LArRodBlockPhysicsV3::getNextEnergy(int& channelNumber,int32_t& energ
       tQ=m_TimeQualityPtr[m_TimeQualityIndex]; 
 
 #ifdef LARBSDBGOUTPUT
-      m_logstr <<MSG::DEBUG<<"This cell has time and Quality information "<<endreq;
+      m_logstr <<MSG::DEBUG<<"This cell has time and Quality information "<<endmsg;
 #endif
 	
       // Decode Time, Quality
@@ -281,14 +281,14 @@ inline int LArRodBlockPhysicsV3::getNextEnergy(int& channelNumber,int32_t& energ
 
 
 #ifdef LARBSDBGOUTPUT
-  m_logstr <<MSG::DEBUG<<"Range = "<<range<<endreq;
-  m_logstr <<MSG::DEBUG<<"Sign = "<<sign<<endreq;
+  m_logstr <<MSG::DEBUG<<"Range = "<<range<<endmsg;
+  m_logstr <<MSG::DEBUG<<"Sign = "<<sign<<endmsg;
   m_logstr << MSG::DEBUG<<" Encoded Energy ="<< encodedEnergy << " E=" << energy
 	 << " t=" << time 
 	 << " Q=" << quality 
 	 << " G=" << gain 
 	 << " channel Number=" << channelNumber
-	 << endreq;
+	 << endmsg;
 #endif
  
   return 1;

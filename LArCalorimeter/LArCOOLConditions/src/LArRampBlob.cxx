@@ -26,14 +26,14 @@ void LArRampBlob::readBlob(const CondAttrListCollection* attrList, MsgStream& ms
   CondAttrListCollection::const_iterator gainIt_e=attrList->end();
   
   m_pRamp.resize(attrList->size());
-  msg << MSG::DEBUG << "Found data for " << attrList->size() << " gains." << endreq;
+  msg << MSG::DEBUG << "Found data for " << attrList->size() << " gains." << endmsg;
   
   int blobSize=0;  
 
   for(;gainIt!=gainIt_e;++gainIt) {
     const unsigned gain=gainIt->first;
     if (gain>=attrList->size() || gain>2) {
-      msg << MSG::ERROR << "Found unexpected COOL-channel (=gain) number:" << gain << endreq;
+      msg << MSG::ERROR << "Found unexpected COOL-channel (=gain) number:" << gain << endmsg;
       return; //ERROR
     }
     const coral::AttributeList& attr=gainIt->second;
@@ -44,12 +44,12 @@ void LArRampBlob::readBlob(const CondAttrListCollection* attrList, MsgStream& ms
     //Sanity checks:
     if (blobSize!=rampBlob.size()) {
       msg << MSG::ERROR << "Unequal blob size (" << blobSize << "/" 
-	       << rampBlob.size() << ")" <<endreq;
+	       << rampBlob.size() << ")" <<endmsg;
       return;
     }
     if (m_nPoints!=attr["nPoints"].data<unsigned>()) {
       msg << MSG::ERROR << "Unequal polynom degree (" << m_nPoints << "/" 
-	  << attr["nPoints"].data<unsigned>() << ")" << endreq;
+	  << attr["nPoints"].data<unsigned>() << ")" << endmsg;
       return;
     }
     
@@ -58,11 +58,11 @@ void LArRampBlob::readBlob(const CondAttrListCollection* attrList, MsgStream& ms
 
   
   if (m_nPoints==0) {
-    msg << MSG::ERROR << "Number of points is zero!" << endreq;
+    msg << MSG::ERROR << "Number of points is zero!" << endmsg;
     return;
   }
   m_nChannels=blobSize/(sizeof(float)*m_nPoints);
-  msg << MSG::DEBUG << "Found data for " << m_nChannels << endreq;
+  msg << MSG::DEBUG << "Found data for " << m_nChannels << endmsg;
   return;
 }
 
