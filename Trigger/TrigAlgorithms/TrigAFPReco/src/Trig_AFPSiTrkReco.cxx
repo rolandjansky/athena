@@ -1,0 +1,114 @@
+/*
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
+
+#include "TrigAFPReco/Trig_AFPSiTrkReco.h"
+#include "xAODForward/AFPTrackContainer.h"
+#include "xAODForward/AFPSiHitContainer.h"
+
+Trig_AFPSiTrkReco::Trig_AFPSiTrkReco(const std::string& name,
+                                     ISvcLocator* pSvcLocator)
+  : HLT::FexAlgo(name, pSvcLocator),
+  m_robDataProvider("ROBDataProviderSvc", name),
+  m_rawDataTool("AFP_RawDataProviderTool"),
+  m_digiTool("AFP_Raw2DigiTool"),
+  m_trackRecoTool("AFP_SIDLocRecoTool") {
+  declareProperty("AFP_RawDataCollectionKey", m_rawDataCollectionKey = "AFP_RawData");
+  declareProperty("AFP_SiHitContainerName", m_siHitContainerName = "AFPSiHitContainer");
+  declareProperty("AFP_TrackContainerName", m_trackContainerName = "AFPTrackContainer");
+  declareProperty("RawDataProviderTool", m_rawDataTool);
+  declareProperty("DigiTool", m_digiTool);
+  declareProperty("SiDTool", m_trackRecoTool);
+}
+
+Trig_AFPSiTrkReco::~Trig_AFPSiTrkReco() {}
+
+HLT::ErrorCode Trig_AFPSiTrkReco::hltInitialize() {
+  ATH_MSG_DEBUG("Trig_AFPSiTrkReco::initialize");
+
+  if (m_robDataProvider.retrieve().isFailure()) {
+    ATH_MSG_WARNING("Failed to retrieve service " << m_robDataProvider);
+    return HLT::ERROR;
+  } else ATH_MSG_DEBUG("Retrieved service " << m_robDataProvider);
+
+  if (m_rawDataTool.retrieve().isFailure()) {
+    ATH_MSG_WARNING("Failed to retrieve service " << m_rawDataTool);
+    return HLT::ERROR;
+  } else {
+    ATH_MSG_DEBUG("Retrieved service " << m_rawDataTool);
+  }
+
+  if (m_digiTool.retrieve().isFailure()) {
+    ATH_MSG_WARNING("Failed to retrieve service " << m_digiTool);
+    return HLT::ERROR;
+  } else {
+    ATH_MSG_DEBUG("Retrieved service " << m_digiTool);
+  }
+
+  if (m_trackRecoTool.retrieve().isFailure()) {
+    ATH_MSG_WARNING("Failed to retrieve service " << m_trackRecoTool);
+    return HLT::ERROR;
+  } else {
+    ATH_MSG_DEBUG("Retrieved service " << m_trackRecoTool);
+  }
+
+  ATH_MSG_DEBUG("Before the end of Trig_AFPSiTrkReco::initialize");
+  return HLT::OK;
+}
+
+HLT::ErrorCode Trig_AFPSiTrkReco::hltExecute(const HLT::TriggerElement* /*inputTE*/,
+                                             HLT::TriggerElement* /*outputTE*/) {
+  ATH_MSG_DEBUG("Trig_AFPSiTrkReco::EXECUTE");
+
+  if (!evtStore()->contains<xAOD::AFPSiHitContainer>(m_siHitContainerName)) {
+    //Reconstructing Raw Data from ROBs
+    AFP_RawDataContainer* container = new AFP_RawDataContainer();
+    ATH_MSG_DEBUG("Created AFP RDO Container");
+    StatusCode recordSC =
+      evtStore()->record(container, m_rawDataCollectionKey);
+    if (recordSC.isFailure()) {
+      ATH_MSG_WARNING("Unable to record AFP RDO Container");
+      return HLT::ERROR;
+    } else {
+      ATH_MSG_DEBUG("AFP RDO Container recorded");
+    }
+
+    std::vector<const ROBFragment*> listOfRobf;
+    std::vector<unsigned int> ROBIDs;
+    ROBIDs.push_back(0x00850001);
+    ROBIDs.push_back(0x00850002);
+
+    m_robDataProvider->getROBData(ROBIDs, listOfRobf);
+    ATH_MSG_DEBUG("  ROB ID " << std::hex << ROBIDs << std::dec);
+    ATH_MSG_DEBUG(" Number of ROB fragments is " << listOfRobf.size());
+
+    if (m_rawDataTool->convert(listOfRobf, container).isFailure()) {
+      ATH_MSG_WARNING("BS conversion into RDOs failed");
+      return HLT::ERROR;
+    } else {
+      ATH_MSG_DEBUG(" Number of collections in container is "
+                    << container->size());
+    }
+
+    if (m_digiTool->recoSiHits().isFailure()) {
+      ATH_MSG_WARNING("Could not reconstruct SiHits");
+      return HLT::ERROR;
+    } else {
+      ATH_MSG_DEBUG(" Number of collections in Si Hit container is ");
+    }
+  }
+
+  if (!evtStore()->contains<xAOD::AFPTrackContainer>(m_trackContainerName)) {
+    if (m_trackRecoTool->reconstructTracks().isFailure()) {
+      ATH_MSG_WARNING("Tracks reconstruction failed");
+      return HLT::ERROR;
+    }
+  }
+
+  return HLT::OK;
+}
+
+HLT::ErrorCode Trig_AFPSiTrkReco::hltFinalize() {
+  ATH_MSG_DEBUG("Trig_AFPSiTrkReco::FINALIZE");
+  return HLT::OK;
+}
