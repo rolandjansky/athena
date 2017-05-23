@@ -154,9 +154,9 @@ StatusCode LArRampAdHocPatchingAlg::ApplyAdHocPatches(std::vector<unsigned>& cha
     }
     /*
     if (status) {
-      (*m_log) << MSG::INFO << "Sucessfully patched  channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << gain << endreq;
+      (*m_log) << MSG::INFO << "Sucessfully patched  channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << gain << endmsg;
     } else {
-      (*m_log) << MSG::WARNING << "Failed to patch channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << gain << endreq;
+      (*m_log) << MSG::WARNING << "Failed to patch channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << gain << endmsg;
     }
     */
   }

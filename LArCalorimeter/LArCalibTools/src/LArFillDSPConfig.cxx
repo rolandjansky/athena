@@ -22,6 +22,7 @@ LArFillDSPConfig::LArFillDSPConfig( const std::string& name,
 {
   declareProperty("Foldername",m_folderName="/LAR/Configuraton/DSPConfiguration");
   declareProperty("Dump",m_dump=true);
+  declareProperty("isLowMu",m_lowmu=false);
 }
 
 // Destructor
@@ -52,7 +53,10 @@ StatusCode LArFillDSPConfig::stop() {
   
   for (unsigned iFeb=0;iFeb<nFebs;++iFeb) {
     const HWIdentifier febId=m_onlineID->feb_Id(iFeb);
-    const bool useMGRampIntercept=(m_onlineID->isEMBchannel(febId) || m_onlineID->isEMECchannel(febId));
+    bool useMGRampIntercept=(m_onlineID->isEMBchannel(febId) || m_onlineID->isEMECchannel(febId));
+    if(m_lowmu) {
+       if(m_onlineID->isFCALchannel(febId)) useMGRampIntercept=true;
+    } 
     uint8_t peakSample=2;
     if (m_onlineID->isHECchannel(febId)) peakSample=1; //HEC: peak-sample=1
     larDSPConfig.set(iFeb,peakSample,useMGRampIntercept);

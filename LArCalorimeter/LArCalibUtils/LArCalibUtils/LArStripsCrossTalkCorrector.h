@@ -11,7 +11,7 @@
 #include "GaudiKernel/ToolHandle.h"
 //#include "StoreGate/StoreGateSvc.h"
 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArElecCalib/ILArPedestal.h"

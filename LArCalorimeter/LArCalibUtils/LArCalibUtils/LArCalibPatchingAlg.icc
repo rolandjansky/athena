@@ -55,11 +55,6 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::initialize() {
     return StatusCode::SUCCESS;
   }
   else if (m_patchMethodProp=="PhiAverage") {
-//    if (typeid(CONDITIONSCONTAINER)==typeid(LArCaliWaveContainer)) {
-//      (*m_log) << MSG::ERROR << "PhiAverage not implemented for CaliWaveContainer." 
-//	       << "Please choose FEBNeighbor or PhiNeighbor as patching strategy" << endreq;
-//      return StatusCode::FAILURE;
-//    }
     m_patchMethod=PhiAverage;
     return StatusCode::SUCCESS;
   }
@@ -155,7 +150,7 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::stop() {
     msg() << MSG::INFO << "Artificially inserted correction subsets in COOL channels";
     for(size_t j=0;j<completedChans.size();++j) 
       msg() << MSG::INFO << " " << completedChans[j];
-    msg() << MSG::INFO << endreq;
+    msg() << MSG::INFO << endmsg;
   }
 
 
@@ -208,7 +203,6 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::patch(const HWIdentifier chid, co
     return false;
 
   } else if (m_patchMethod==PhiNeighbor) {
-    //    (*m_log) << MSG::ERROR << "Patching Method 'Phi-neighbor' not yet implemented." << endreq;
     try {
       const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
       int eta, phi, phi_min, phi_max, phi_range;
@@ -368,14 +362,6 @@ std::vector<HWIdentifier>& LArCalibPatchingAlg<CONDITIONSCONTAINER>::getFEBChans
   return m_idList;
 }
 
-/*
-template<class CONDITIONSCONTAINER>
-bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier, const int gain, LArCondObj&) {
-  (*m_log) << MSG::ERROR << " getAverage not implemented for this data type" << endreq;
-  return false;
-}
-*/
-
 template<class CONDITIONSCONTAINER>
 bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chid, const int gain, LArRampP1& patch, bool isphi) {
 
@@ -415,7 +401,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
       patch.m_vRamp[i]+=ramp.m_vRamp[i];
       msg() << MSG::DEBUG << ramp.m_vRamp[i] << " ";
     }
-    msg() << MSG::DEBUG << endreq;
+    msg() << MSG::DEBUG << endmsg;
     nCells++;
   }
   if (nCells==0) {
@@ -433,7 +419,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
  msg() << MSG::INFO << "Patched Ramp (based on " << nCells << " channels):" ; 
  for (size_t i=0;i<s;i++)
    msg() << MSG::INFO << " " << patch.m_vRamp[i];
- msg() << MSG::INFO << endreq;
+ msg() << MSG::INFO << endmsg;
  return true;
 }
 
@@ -567,15 +553,15 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
          }
          patch.push_back(cwave);
          /*dmax =*/ wHelper.getDMax(cwave, tmax);
-         // (*m_log) << MSG::DEBUG <<tmax<<endreq;
+         // (*m_log) << MSG::DEBUG <<tmax<<endmsg;
          patch_max.push_back(tmax);
          patch_nadd.push_back(1);
        }else { // We have such DAC already, add
          /*dmax =*/ wHelper.getDMax(cwave, tmax);
-         // (*m_log) << MSG::DEBUG <<tmax<<endreq;
+         // (*m_log) << MSG::DEBUG <<tmax<<endmsg;
          tmax = tmax * (1. / patch_nadd[idx]);
          patch_max[idx]  = (patch_max[idx] + tmax) * (patch_nadd[idx] / (patch_nadd[idx] + 1.));
-         // (*m_log) << MSG::DEBUG <<" Current average: "<<patch_max[idx]<<endreq;
+         // (*m_log) << MSG::DEBUG <<" Current average: "<<patch_max[idx]<<endmsg;
        }
        ++patch_nadd[idx]; 
      }
@@ -611,7 +597,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
          LArWave wtrans = wHelper.Dtranslate(cwave, patch_max[idx] - tmax);
          patch_wave.push_back(LArWave(wtrans.getWave(), wtrans.getDt()));
          ATH_MSG_DEBUG ( "New DAC " );
-//         (*m_log) << MSG::DEBUG << "size of first wave: "<<patch_wave.back().getSize()<<endreq;
+//         (*m_log) << MSG::DEBUG << "size of first wave: "<<patch_wave.back().getSize()<<endmsg;
          ATH_MSG_DEBUG ( " shifted by: "<< patch_max[idx] - tmax );
          ATH_MSG_DEBUG (tmax);
          patch_nadd.push_back(1);
@@ -619,7 +605,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
          /*dmax =*/ wHelper.getDMax(cwave, tmax); 
          ATH_MSG_DEBUG ( "Adding cell 0x"<< std::hex << it->get_compact() << std::dec );
          ATH_MSG_DEBUG ( " shifted by: "<< patch_max[idx] - tmax );
-         //(*m_log) << MSG::DEBUG <<tmax<<endreq;
+         //(*m_log) << MSG::DEBUG <<tmax<<endmsg;
          if(tmax < 0 || fabs(patch_max[idx] - tmax) > cwave.getWave().size()*cwave.getDt()) {
            ATH_MSG_WARNING ( "Wrong patch_max[idx]-tmax:"<<patch_max[idx]-tmax<<" for cell 0x" << std::hex << it->get_compact() << std::dec <<", not added in average");
              continue;
@@ -629,7 +615,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
          patch_wave[idx]  = (patch_wave[idx] + wtrans) * (patch_nadd[idx] / (patch_nadd[idx] + 1.));
          ++patch_nadd[idx]; 
          ATH_MSG_DEBUG ( patch_nadd[idx] << " cells added ");
-//         (*m_log) << MSG::DEBUG << "size after adding: "<<patch_wave[idx].getSize()<<endreq;
+//         (*m_log) << MSG::DEBUG << "size after adding: "<<patch_wave[idx].getSize()<<endmsg;
        }
        nCells++;
     }

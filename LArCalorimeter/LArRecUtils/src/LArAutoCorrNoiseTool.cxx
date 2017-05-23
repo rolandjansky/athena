@@ -3,8 +3,6 @@
 */
 
 #include "LArRecUtils/LArAutoCorrNoiseTool.h"
-#include "GaudiKernel/ToolFactory.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "LArElecCalib/LArConditionsException.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -41,73 +39,39 @@ LArAutoCorrNoiseTool::LArAutoCorrNoiseTool(const std::string& type,
 
 StatusCode LArAutoCorrNoiseTool::initialize()
 {
-  MsgStream log( msgSvc(), name() );
-  
-  log << MSG::DEBUG << "LArAutoCorrNoiseTool initialize() begin" << endreq;
+  ATH_MSG_DEBUG( "LArAutoCorrNoiseTool initialize() begin"  );
   
   if (StatusCode::SUCCESS==detStore()->regFcn(&ILArAutoCorrNoiseTool::LoadCalibration,
                                               dynamic_cast<ILArAutoCorrNoiseTool*>(this),m_dd_autocorr,m_keyAutoCorr)) {
-    log << MSG::INFO << "Registered callback for key: " << m_keyAutoCorr << endreq;
+    ATH_MSG_INFO( "Registered callback for key: " << m_keyAutoCorr  );
   } else {
-    log << MSG::ERROR << "Cannot register testCallback function for key " << m_keyAutoCorr << endreq;
+    ATH_MSG_ERROR( "Cannot register testCallback function for key " << m_keyAutoCorr  );
   }
   
   if ( m_isSC ){
-    StatusCode sc = detStore()->retrieve(m_lar_scon_id,"LArOnline_SuperCellID");
-    if (sc.isFailure()) {
-      log  << MSG::ERROR << "Unable to retrieve  LArOnline_SuperCellID from DetectorStore" 
-           << endreq;
-      return StatusCode::FAILURE;
-    }
-  
-    if(m_cablingSCService.retrieve().isFailure())
-    {
-      log << MSG::ERROR << "Unable to get SCCablingService " << endreq;
-      return StatusCode::FAILURE;
-    }
-
-
+    ATH_CHECK(  detStore()->retrieve(m_lar_scon_id,"LArOnline_SuperCellID") );
+    ATH_CHECK( m_cablingSCService.retrieve() );
   } // m_isSC
   else {
-
-    StatusCode sc = detStore()->retrieve(m_lar_on_id,"LArOnlineID");
-    if (sc.isFailure()) {
-      log  << MSG::ERROR << "Unable to retrieve  LArOnlineID from DetectorStore"
-           << endreq;
-      return StatusCode::FAILURE;
-    }
-
-    if(m_cablingService.retrieve().isFailure())
-    {
-      log << MSG::ERROR << "Unable to get CablingService " << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(  detStore()->retrieve(m_lar_on_id,"LArOnlineID") );
+    ATH_CHECK( m_cablingService.retrieve() );
     if (m_MCSym) {
-      if (m_larmcsym.retrieve().isFailure()){
-        log << MSG::ERROR << "Unable to get LArMCSym Tool " << endreq;
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( m_larmcsym.retrieve() );
     }
-
   }
   
   if (m_loadAtBegin) {
-    log << MSG::DEBUG << "Setting callback function to load calibration at begin of run" << endreq;
+    ATH_MSG_DEBUG( "Setting callback function to load calibration at begin of run"  );
     // Incident Service: 
-    IIncidentSvc* incSvc;
-    StatusCode sc = service("IncidentSvc", incSvc);
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve pointer to IncidentSvc "
-	  << endreq;
-      return sc;
-    }
+    IIncidentSvc* incSvc = nullptr;
+    ATH_CHECK(  service("IncidentSvc", incSvc) );
     
     //start listening to "BeginRun". The incident should be fired AFTER the IOV callbacks and only once.
     const long priority=std::numeric_limits<long>::min(); //Very low priority
     incSvc->addListener(this, "BeginRun", priority ,false,true); //single-shot incident
   }
   
-  log << MSG::DEBUG << "LArAutoCorrNoiseTool initialize() end" << endreq;
+  ATH_MSG_DEBUG( "LArAutoCorrNoiseTool initialize() end"  );
   
   return StatusCode::SUCCESS;
 }
@@ -123,17 +87,7 @@ StatusCode LArAutoCorrNoiseTool::finalize()
 // *** retrieves needed data from the DB *** 
 StatusCode LArAutoCorrNoiseTool::LoadCalibration(IOVSVC_CALLBACK_ARGS)
 {
-  
-#if 0
-  MsgStream log( msgSvc(), name() );
-  log << MSG::DEBUG << "in LoadCalibration " << endreq;
-  
-  log << MSG::DEBUG << "Callback invoked for " << keys.size() << " keys" << endreq;
-#endif
-  
   m_cacheValid = false; 
-
-
   return StatusCode::SUCCESS;
 }
 
@@ -144,9 +98,7 @@ StatusCode LArAutoCorrNoiseTool::getTerms()
 {
   
 #ifndef NDEBUG
-  MsgStream log( msgSvc(), name() );
-
-  log << MSG::DEBUG << "in getAutoCorrNoise::getTerms" << endreq;
+  ATH_MSG_DEBUG( "in getAutoCorrNoise::getTerms"  );
 #endif
 
   // get HWIdentifier iterator
@@ -174,7 +126,7 @@ StatusCode LArAutoCorrNoiseTool::getTerms()
   int count2 = 0;
   // loop over em Identifiers
 #ifndef NDEBUG
-  log << MSG::DEBUG << "start loop over cells in getAutoCorrNoise" << endreq;
+  ATH_MSG_DEBUG( "start loop over cells in getAutoCorrNoise"  );
 #endif
   for(;it!=it_e;++it)
   {    
@@ -238,9 +190,9 @@ StatusCode LArAutoCorrNoiseTool::getTerms()
 
   }
 #ifndef NDEBUG
-  log << MSG::INFO  << "LArAutoCorrNoise Ncell " << count << endreq;
-  log << MSG::INFO  << "LArAutoCorrNoise Nsymcell " << count2 << endreq;
-  log << MSG::DEBUG << "end of loop over cells " << endreq;
+  ATH_MSG_INFO( "LArAutoCorrNoise Ncell " << count  );
+  ATH_MSG_INFO( "LArAutoCorrNoise Nsymcell " << count2  );
+  ATH_MSG_DEBUG( "end of loop over cells "  );
 #endif
 
   m_cacheValid = true;
@@ -258,10 +210,7 @@ LArAutoCorrNoiseTool::autoCorrSqrt(const HWIdentifier& CellID,
     StatusCode  sc = this->getTerms();
     if (sc.isFailure()) 
       {
-	MsgStream log( msgSvc(), name() );
-	log << MSG::ERROR
-	    << "getTerms failed "
-	    << endreq;
+	ATH_MSG_ERROR( "getTerms failed " );
 	throw LArConditionsException("Could not compute in LArAutoCorrNoiseTool::autoCorrSqrt");
       }
   }
@@ -269,8 +218,7 @@ LArAutoCorrNoiseTool::autoCorrSqrt(const HWIdentifier& CellID,
   if (Nsampl>0 && Nsampl != m_Nsampl) {
     m_Nsampl = Nsampl;
     if ( (this->getTerms()).isFailure() ){
-	MsgStream log( msgSvc(), name() ); 
-	log << MSG::ERROR << "getTerms failed" << endreq; 
+      ATH_MSG_ERROR( "getTerms failed"  );
     }
   }
 
@@ -283,10 +231,7 @@ LArAutoCorrNoiseTool::autoCorrSqrt(const HWIdentifier& CellID,
   
   MAP::const_iterator it = (m_terms[gain]).find(id32) ; 
   if(it == (m_terms[gain]).end()){
-     MsgStream log( msgSvc(), name() );
-    log << MSG::ERROR
-	<< "Unable to find ID = " << CellID << " in m_terms" 
-	<< endreq;
+    ATH_MSG_ERROR( "Unable to find ID = " << CellID << " in m_terms" );
     static std::vector<float> empty; 
     return empty; 
   }
@@ -305,10 +250,7 @@ LArAutoCorrNoiseTool::autoCorrSqrt(const Identifier& CellID,
     StatusCode  sc = this->getTerms();
     if (sc.isFailure()) 
       {
-	MsgStream log( msgSvc(), name() );
-	log << MSG::ERROR
-	    << "getTerms failed "
-	    << endreq;
+	ATH_MSG_ERROR( "getTerms failed " );
 	throw LArConditionsException("Could not compute in LArAutoCorrNoiseTool::autoCorrSqrt");
       }
   }
@@ -321,10 +263,7 @@ LArAutoCorrNoiseTool::autoCorrSqrt(const Identifier& CellID,
 
   MAP::const_iterator it = (m_terms[gain]).find(id32) ; 
   if(it == (m_terms[gain]).end()){
-     MsgStream log( msgSvc(), name() );
-    log << MSG::ERROR
-        << "Unable to find ID = " << CellID << " in m_terms" 
-        << endreq; 
+    ATH_MSG_ERROR( "Unable to find ID = " << CellID << " in m_terms" );
     static std::vector<float> empty;  
     return empty;  
   }
@@ -335,17 +274,13 @@ LArAutoCorrNoiseTool::autoCorrSqrt(const Identifier& CellID,
 
 
 void LArAutoCorrNoiseTool::handle(const Incident&) {
-     MsgStream log( msgSvc(), name() );
-     log << MSG::DEBUG << "In Incident-handle" << endreq;
+     ATH_MSG_DEBUG( "In Incident-handle"  );
 
      if(!m_cacheValid){
        StatusCode  sc = this->getTerms();
        if (sc.isFailure()) 
 	 {
-	   MsgStream log( msgSvc(), name() );
-	   log << MSG::ERROR
-	       << "getTerms failed "
-	       << endreq;
+	   ATH_MSG_ERROR( "getTerms failed " );
 	   throw LArConditionsException("Could not getTerms in LArAutoCorrNoiseTool::handle");
 	 }
      }
