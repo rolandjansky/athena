@@ -13,7 +13,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 // EDM
-#include "EventInfo/EventInfo.h"
 #include "TrackRecord/TrackRecordCollection.h"
 
 // ISF includes
