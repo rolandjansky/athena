@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/AthenaBaseComps
+			  Control/AthenaConfiguration
                           TestPolicy )
 
 # Component(s) in the package:
