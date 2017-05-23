@@ -5,7 +5,7 @@ ATLAS beam spot web page template, based on generic WebPage template.
 """
 
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: BeamSpotWebPage.py 500226 2012-05-11 11:01:22Z beringer $'
+__version__ = 'BeamSpotWebPage.py atlas/athena'
 
 
 import os

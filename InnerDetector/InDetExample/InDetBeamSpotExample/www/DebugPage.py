@@ -5,7 +5,7 @@ ATLAS beam spot web page for debugging
 """
 
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: DebugPage.py 467432 2011-11-10 16:36:27Z beringer $'
+__version__ = 'DebugPage.py atlas/athena'
 
 from BeamSpotWebPage import BeamSpotWebPage
 from InDetBeamSpotExample.Utils import getUserName
