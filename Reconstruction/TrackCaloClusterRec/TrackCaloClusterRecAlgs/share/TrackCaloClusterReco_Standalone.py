@@ -24,18 +24,19 @@ print "globalflags.DetDescrVersion = ", globalflags.DetDescrVersion
 include("RecExCond/AllDet_detDescr.py")
 
 from JetRec.JetRecConf import JetAlgorithm
-from JetRecTools.JetRecToolsConf import JetConstituentModSequence, CaloClusterConstituentsOrigin, ClusterTimeCutTool
+#from JetRecTools.JetRecToolsConf import JetConstituentModSequence, CaloClusterConstituentsOrigin, ClusterTimeCutTool
+from JetRecTools.JetRecToolsConf import JetConstituentModSequence, CaloClusterConstituentsOrigin
 ccco = CaloClusterConstituentsOrigin("JetConstit_LCOrigin") 
 ToolSvc += ccco
 
-ctct = ClusterTimeCutTool("JetConstit_Timecut") 
-ToolSvc += ctct
+#ctct = ClusterTimeCutTool("JetConstit_Timecut") 
+#ToolSvc += ctct
 
 PFSequence = JetConstituentModSequence("JetConstitSeq_LCOriginAndTime",
                                        InputContainer = "CaloCalTopoClusters",
                                        OutputContainer = "TimedCaloCalTopoClusters",
                                        InputType = "CaloCluster",
-                                       Modifiers = [ctct, ccco],
+                                       Modifiers = [ccco],
                                        SaveAsShallow = False
                                        )
 ToolSvc += PFSequence
@@ -115,23 +116,22 @@ jettva  =   TrackVertexAssociationTool( name                    = "tvassoc",
 ToolSvc+=jettva 
 print      jettva
 
-from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import ClusterFilterTool
-clusterfiltertool = ClusterFilterTool(name                       = "clusterfiltertool",
-                                      LooseTrackVertexAssoTool   = loosetrackvertexassotool,
-                                      TrackParticleContainerName = "InDetTrackParticles",
-                                      ConeSize                   = 0.2,
-                                      StoreParameters            = False)
+#from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import ClusterFilterTool
+#clusterfiltertool = ClusterFilterTool(name                       = "clusterfiltertool",
+#                                      LooseTrackVertexAssoTool   = loosetrackvertexassotool,
+#                                      TrackParticleContainerName = "InDetTrackParticles",
+#                                      ConeSize                   = 0.2,
+#                                      StoreParameters            = False)
 
-ToolSvc+=clusterfiltertool
+#ToolSvc+=clusterfiltertool
 #clusterfiltertool.OutputLevel = VERBOSE
-print clusterfiltertool
+#print clusterfiltertool
 
 from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import TrackCaloClusterCreatorTool
 TrackCaloClusterCreator = TrackCaloClusterCreatorTool(name                      = "TrackCaloClusterCreator",
                                                       VertexContainerName       = "PrimaryVertices",
                                                       LooseTrackVertexAssoTool  = loosetrackvertexassotool,
-                                                      ApplyClusterFilter        = True,
-                                                      ClusterFilterTool         = clusterfiltertool   )
+                                                      ApplyClusterFilter        = False  )
 # TrackCaloClusterCreator.OutputLevel = VERBOSE
 ToolSvc+=TrackCaloClusterCreator
 print      TrackCaloClusterCreator
@@ -164,13 +164,13 @@ if 1:
   ToolSvc += groomer
 
   # Add filter for copied jets.
-  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import NSubjettinessTool
-  ToolSvc += NSubjettinessTool("nsubjettiness")
-  nsubjettiness = ToolSvc.nsubjettiness
+  #from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import NSubjettinessTool
+  #ToolSvc += NSubjettinessTool("nsubjettiness")
+  #nsubjettiness = ToolSvc.nsubjettiness
   
-  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import NSubjettinessRatiosTool
-  ToolSvc += NSubjettinessRatiosTool("nsubjettinessratios")
-  nsubjettinessratios = ToolSvc.nsubjettinessratios
+  #from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import NSubjettinessRatiosTool
+  #ToolSvc += NSubjettinessRatiosTool("nsubjettinessratios")
+  #nsubjettinessratios = ToolSvc.nsubjettinessratios
   
   # from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KTSplittingScaleTool
   # ToolSvc += KTSplittingScaleTool("ktsplittingscale")
@@ -200,13 +200,13 @@ if 1:
   # ToolSvc += CenterOfMassShapesTool("centerofmassshapes")
   # centerofmassshapes = ToolSvc.centerofmassshapes
   
-  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorTool
-  ToolSvc += EnergyCorrelatorTool("energycorrelator")
-  energycorrelator = ToolSvc.energycorrelator
+  #from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorTool
+  #ToolSvc += EnergyCorrelatorTool("energycorrelator")
+  #energycorrelator = ToolSvc.energycorrelator
   
-  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorRatiosTool
-  ToolSvc += EnergyCorrelatorRatiosTool("energycorrelatorratios")
-  energycorrelatorratios = ToolSvc.energycorrelatorratios
+  #from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorRatiosTool
+  #ToolSvc += EnergyCorrelatorRatiosTool("energycorrelatorratios")
+  #energycorrelatorratios = ToolSvc.energycorrelatorratios
   
   # from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullTool
   # ToolSvc += JetPullTool("pull")
@@ -241,11 +241,12 @@ if 1:
   # subjetfinder.SubjetRecorder = subjetrecorder
   
   clname  = "TrackCaloClustersCombined"
-  clname1 = "TrackCaloClustersCombinedAndNeutral"
-  clname2 = "TrackCaloClustersCombinedAndCharged"
+#  clname1 = "TrackCaloClustersCombinedAndNeutral"
+#  clname2 = "TrackCaloClustersCombinedAndCharged"
   clname3 = "TrackCaloClustersAll"
   
-  clnames = [clname, clname1, clname2, clname3]
+#  clnames = [clname, clname1, clname2, clname3]
+  clnames = [clname, clname3]
   
   from JetRec.JetRecConf import JetPseudojetRetriever
   from JetRec.JetRecConf import JetRecTool
@@ -281,8 +282,8 @@ if 1:
     # jetrec.OutputLevel = INFO
     jetrec.PseudoJetGetters += [psjget]
     jetrec.JetFinder = jfind  
-    jetrec.JetModifiers += [nsubjettiness]
-    jetrec.JetModifiers += [nsubjettinessratios]
+    #jetrec.JetModifiers += [nsubjettiness]
+    #jetrec.JetModifiers += [nsubjettinessratios]
     # jetrec.JetModifiers += [ktsplittingscale]
     # jetrec.JetModifiers += [dipolarity]
     # jetrec.JetModifiers += [angularity]
@@ -290,8 +291,8 @@ if 1:
     # jetrec.JetModifiers += [ktmassdrop]
     # jetrec.JetModifiers += [planarflow]
     # jetrec.JetModifiers += [centerofmassshapes]
-    jetrec.JetModifiers += [energycorrelator]
-    jetrec.JetModifiers += [energycorrelatorratios]
+    #jetrec.JetModifiers += [energycorrelator]
+    #jetrec.JetModifiers += [energycorrelatorratios]
     # jetrec.JetModifiers += [pull]
     # jetrec.JetModifiers += [charge]
     # jetrec.JetModifiers += [subjetmaker]
@@ -307,8 +308,8 @@ if 1:
     jetrec_trimm.InputContainer  = "AntiKt10"+name+"Jets"
     jetrec_trimm.OutputContainer = "AntiKt10"+name+"TrimmedJets"
     jetrec_trimm.JetPseudojetRetriever = jetPseudojetRetriever
-    jetrec_trimm.JetModifiers += [nsubjettiness]
-    jetrec_trimm.JetModifiers += [nsubjettinessratios]
+    #jetrec_trimm.JetModifiers += [nsubjettiness]
+    #jetrec_trimm.JetModifiers += [nsubjettinessratios]
     # jetrec_trimm.JetModifiers += [ktsplittingscale]
     # jetrec_trimm.JetModifiers += [dipolarity]
     # jetrec_trimm.JetModifiers += [angularity]
@@ -316,8 +317,8 @@ if 1:
     # jetrec_trimm.JetModifiers += [ktmassdrop]
     # jetrec_trimm.JetModifiers += [planarflow]
     # jetrec_trimm.JetModifiers += [centerofmassshapes]
-    jetrec_trimm.JetModifiers += [energycorrelator]
-    jetrec_trimm.JetModifiers += [energycorrelatorratios]
+    #jetrec_trimm.JetModifiers += [energycorrelator]
+    #jetrec_trimm.JetModifiers += [energycorrelatorratios]
     # jetrec_trimm.JetModifiers += [pull]
     # jetrec_trimm.JetModifiers += [charge]
     # jetrec_trimm.JetModifiers += [subjetmaker]
@@ -373,8 +374,8 @@ if 1:
   # jetrec.OutputLevel = INFO
   jetrec.PseudoJetGetters += [psjget, psjget2]
   jetrec.JetFinder = jfind  
-  jetrec.JetModifiers += [nsubjettiness]
-  jetrec.JetModifiers += [nsubjettinessratios]
+  #jetrec.JetModifiers += [nsubjettiness]
+  #jetrec.JetModifiers += [nsubjettinessratios]
   # jetrec.JetModifiers += [ktsplittingscale]
   # jetrec.JetModifiers += [dipolarity]
   # jetrec.JetModifiers += [angularity]
@@ -382,8 +383,8 @@ if 1:
   # jetrec.JetModifiers += [ktmassdrop]
   # jetrec.JetModifiers += [planarflow]
   # jetrec.JetModifiers += [centerofmassshapes]
-  jetrec.JetModifiers += [energycorrelator]
-  jetrec.JetModifiers += [energycorrelatorratios]
+  #jetrec.JetModifiers += [energycorrelator]
+  #jetrec.JetModifiers += [energycorrelatorratios]
   # jetrec.JetModifiers += [pull]
   # jetrec.JetModifiers += [charge]
   # jetrec.JetModifiers += [subjetmaker]
@@ -405,8 +406,8 @@ if 1:
   jetrec_trimm.InputContainer        = "MyAntiKt10LCTopoJets"
   jetrec_trimm.OutputContainer       = "MyAntiKt10LCTopoTrimmedJets"
   jetrec_trimm.JetPseudojetRetriever = jetPseudojetRetriever
-  jetrec_trimm.JetModifiers += [nsubjettiness]
-  jetrec_trimm.JetModifiers += [nsubjettinessratios]
+  #jetrec_trimm.JetModifiers += [nsubjettiness]
+  #jetrec_trimm.JetModifiers += [nsubjettinessratios]
   # jetrec_trimm.JetModifiers += [ktsplittingscale]
   # jetrec_trimm.JetModifiers += [dipolarity]
   # jetrec_trimm.JetModifiers += [angularity]
@@ -414,8 +415,8 @@ if 1:
   # jetrec_trimm.JetModifiers += [ktmassdrop]
   # jetrec_trimm.JetModifiers += [planarflow]
   # jetrec_trimm.JetModifiers += [centerofmassshapes]
-  jetrec_trimm.JetModifiers += [energycorrelator]
-  jetrec_trimm.JetModifiers += [energycorrelatorratios]
+  #jetrec_trimm.JetModifiers += [energycorrelator]
+  #jetrec_trimm.JetModifiers += [energycorrelatorratios]
   # jetrec_trimm.JetModifiers += [pull]
   # jetrec_trimm.JetModifiers += [charge]
   # jetrec_trimm.JetModifiers += [subjetmaker]
@@ -468,8 +469,8 @@ if 1:
   # jetrec.OutputLevel = INFO
   jetrec.PseudoJetGetters += [psjget]
   jetrec.JetFinder = jfind  
-  jetrec.JetModifiers += [nsubjettiness]
-  jetrec.JetModifiers += [nsubjettinessratios]
+  #jetrec.JetModifiers += [nsubjettiness]
+  #jetrec.JetModifiers += [nsubjettinessratios]
   # jetrec.JetModifiers += [ktsplittingscale]
   # jetrec.JetModifiers += [dipolarity]
   # jetrec.JetModifiers += [angularity]
@@ -477,8 +478,8 @@ if 1:
   # jetrec.JetModifiers += [ktmassdrop]
   # jetrec.JetModifiers += [planarflow]
   # jetrec.JetModifiers += [centerofmassshapes]
-  jetrec.JetModifiers += [energycorrelator]
-  jetrec.JetModifiers += [energycorrelatorratios]
+  #jetrec.JetModifiers += [energycorrelator]
+  #jetrec.JetModifiers += [energycorrelatorratios]
   # jetrec.JetModifiers += [pull]
   # jetrec.JetModifiers += [charge]
   # jetrec.JetModifiers += [subjetmaker]
@@ -492,8 +493,8 @@ if 1:
   jetrec_trimm.InputContainer        = "MyAntiKt10TruthJets"
   jetrec_trimm.OutputContainer       = "MyAntiKt10TruthTrimmedJets"
   jetrec_trimm.JetPseudojetRetriever = jetPseudojetRetriever
-  jetrec_trimm.JetModifiers += [nsubjettiness]
-  jetrec_trimm.JetModifiers += [nsubjettinessratios]
+  #jetrec_trimm.JetModifiers += [nsubjettiness]
+  #jetrec_trimm.JetModifiers += [nsubjettinessratios]
   # jetrec_trimm.JetModifiers += [ktsplittingscale]
   # jetrec_trimm.JetModifiers += [dipolarity]
   # jetrec_trimm.JetModifiers += [angularity]
@@ -501,8 +502,8 @@ if 1:
   # jetrec_trimm.JetModifiers += [ktmassdrop]
   # jetrec_trimm.JetModifiers += [planarflow]
   # jetrec_trimm.JetModifiers += [centerofmassshapes]
-  jetrec_trimm.JetModifiers += [energycorrelator]
-  jetrec_trimm.JetModifiers += [energycorrelatorratios]
+  #jetrec_trimm.JetModifiers += [energycorrelator]
+  #jetrec_trimm.JetModifiers += [energycorrelatorratios]
   # jetrec_trimm.JetModifiers += [pull]
   # jetrec_trimm.JetModifiers += [charge]
   # jetrec_trimm.JetModifiers += [subjetmaker]
@@ -545,6 +546,6 @@ xaodStream.AddItem( "xAOD::JetAuxContainer#*TrackCaloClusters*")
 # xaodStream.AddItem( "xAOD::CaloClusterContainer#*")
 # xaodStream.AddItem( "xAOD::CaloClusterAuxContainer#*")
 
-from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
-pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
+#from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
+#pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
 
