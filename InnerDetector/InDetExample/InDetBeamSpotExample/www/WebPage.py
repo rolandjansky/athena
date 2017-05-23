@@ -7,7 +7,7 @@ and a footer. It is compatible with different web servers using e.g. CGI, mod_py
 or CherryPy.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: WebPage.py 474725 2011-12-21 05:03:55Z beringer $'
+__version__ = 'WebPage.py atlas/athena'
 
 
 import time

@@ -129,10 +129,10 @@ parser.add_option('', '--mon', dest='mon', action='store_true', default=False, h
 parser.add_option('', '--resubAll', dest='resubAll', action='store_true', default=False, help='Resubmit all jobs irrespective of status')
 parser.add_option('-q', '--queue', dest='batch_queue', default=None, help='Name of batch queue to use (default is context-specific)')
 
-(options,args) = parser.parse_args()
-if len(args) < 1:
-    parser.error('wrong number of command line arguments')
+(options, args) = parser.parse_args()
+if len(args) < 1: parser.error('wrong number of command line arguments')
 cmd = args[0]
+cmdargs = args[1:]
 
 # General error checking (skipped in expert mode to allow testing)
 if not options.expertmode:
@@ -185,11 +185,19 @@ def getT0DbConnection():
         sys.exit('ERROR: Unable to connect to Tier-0 Oracle database (invalid cx_Oracle connection)')
     return oracle
 
+def getTaskManager():
+    ''' Open task manager (used by all following commands, at the very least through subcommands) '''
+    try:
+        return TaskManager(options.dbconn)
+    except:
+        print 'ERROR: Unable to access task manager database %s' % options.dbconn
+        sys.exit(1)
+
 
 #
 # Upload any SQLite file to COOL (independent of task, w/o book keeping)
 #
-if cmd=='upload' and len(args)==2:
+if cmd == 'upload' and len(cmdargs) == 1:
     dbfile = args[1]
     if not options.beamspottag:
         sys.exit('ERROR: No beam spot tag specified')
@@ -365,7 +373,7 @@ if cmd=='backup' and len(args)==2:
 #
 # List backup directory on castor
 #
-if cmd=='lsbackup' and len(args)==1:
+if cmd == 'lsbackup' and not cmdargs:
     backuppath = castorarchivepath if options.archive else castorbackuppath
     backuppath = os.path.normpath(backuppath)+'/'
     print '\nCASTOR directory %s:\n' % backuppath
@@ -377,20 +385,11 @@ if cmd=='lsbackup' and len(args)==1:
 
 
 #
-# Open task manager (used by all following commands, at the very least through subcommands)
-#
-try:
-    taskman = TaskManager(options.dbconn)
-except:
-    print 'ERROR: Unable to access task manager database %s' % options.dbconn
-    sys.exit(1)
-
-
-#
 # Show available data sets
 #
-if cmd=='show' and len(args)==2:
-    run = args[1]
+if cmd == 'show' and len(cmdargs)==1:
+    run = cmdargs[0]
+
     c = getFullCastorPath(run)
     print '\nCASTOR base path:   ', options.castorpath
     print   'Project tag:        ', options.project
@@ -404,39 +403,57 @@ if cmd=='show' and len(args)==2:
             (access,nfiles,user,group,size,modmonth,modyear,modtime,name) = f.split()
             print '%-60s   %s files, last modified %s %s %s' % (name,nfiles,modmonth,modyear,modtime)
 
-    print '\nBeam spot tasks:\n'
-    for t in taskman.taskIterDict(qual=["where DSNAME like '%%%s%%' order by UPDATED" % run]):
-        print '%-40s %-25s  %-2s job(s), last update %s' % (t['DSNAME'],t['TASKNAME'],t['NJOBS'],time.ctime(t['UPDATED']))
-    print '\n'
+    print
+    print 'Beam spot tasks:'
+    print '---------------'
+    with getTaskManager() as taskman:
+        for t in taskman.taskIterDict(qual=["where DSNAME like '%%%s%%' order by UPDATED" % run]):
+            print '%-45s %-45s  %4s job(s), last update %s' % (t['DSNAME'],t['TASKNAME'],t['NJOBS'],time.ctime(t['UPDATED']))
     sys.exit(0)
 
 
 #
 # Postprocessing: for all tasks requiring it, or for a selected set of tasks
 #
-if cmd=='postproc' and len(args)==1:
-    for t in taskman.taskIterDict(qual=['where STATUS > %i and STATUS <= %i order by UPDATED' % (TaskManager.StatusCodes['RUNNING'],TaskManager.StatusCodes['POSTPROCESSING'])]):
-        doPostProcessing(taskman,t,t['TASKPOSTPROCSTEPS'].split(),BeamSpotPostProcessing)
+if cmd == 'postproc' and not cmdargs:
+    with getTaskManager() as taskman:
+        for t in taskman.taskIterDict(
+                qual=['where STATUS > %i and STATUS <= %i order by UPDATED' % (
+                    TaskManager.StatusCodes['RUNNING'],
+                    TaskManager.StatusCodes['POSTPROCESSING'])]):
+            doPostProcessing(taskman, t, t['TASKPOSTPROCSTEPS'].split(), BeamSpotPostProcessing)
     sys.exit(0)
 
-if cmd=='postproc' and len(args)>=3 and len(args)<=4:
-    whatList = args[3].split(',') if len(args)>3 else None
-    if whatList:
-        print 'Executing postprocessing tasks:',whatList
+if cmd == 'postproc' and len(cmdargs) in [2,3]:
+    dsname = cmdargs[0]
+    taskname = cmdargs[1]
+
+    # for backwards compatibility these are equivalent:
+    #   $0 postproc DSNAME TASKNAME POSTPROCSTEPS
+    #   $0 -z POSTPROCSTEPS postproc DSNAME TASKNAME
+    steps = options.postprocsteps if len(cmdargs) < 3 else cmdargs[2].split(',')
+    if steps:
+        print 'Executing postprocessing tasks:', steps
     else:
         print 'Executing postprocessing tasks as specified in task database'
     print
-    try:
-        taskList = getFullTaskNames(taskman,args[1],args[2],confirmWithUser=not options.batch,addWildCards=not options.nowildcards)
-    except TaskManagerCheckError, e:
-        print e
-        sys.exit(1)
-    for taskName in taskList:
-        t = taskman.getTaskDict(taskName[0],taskName[1])
-        if whatList:
-            doPostProcessing(taskman,t,whatList,BeamSpotPostProcessing,True)
-        else:
-            doPostProcessing(taskman,t,t['TASKPOSTPROCSTEPS'].split(),BeamSpotPostProcessing,True)
+
+    with getTaskManager() as taskman:
+        try:
+            taskList = getFullTaskNames(taskman,
+                    dsname,
+                    taskname,
+                    confirmWithUser=not options.batch,
+                    addWildCards=not options.nowildcards)
+        except TaskManagerCheckError, e:
+            print e
+            sys.exit(1)
+        for taskName in taskList:
+            t = taskman.getTaskDict(taskName[0], taskName[1])
+            if steps:
+                doPostProcessing(taskman, t, steps, BeamSpotPostProcessing, forceRun=True)
+            else:
+                doPostProcessing(taskman, t, t['TASKPOSTPROCSTEPS'].split(), BeamSpotPostProcessing, forceRun=True)
     sys.exit(0)
 
 
@@ -444,73 +461,74 @@ if cmd=='postproc' and len(args)>=3 and len(args)<=4:
 # Upload beam spot data for given task to COOL
 #
 if cmd=='upload' and len(args)==3:
-    try:
-        [(dsname,task)] = getFullTaskNames(taskman,args[1],args[2],requireSingleTask=True,confirmWithUser=not options.batch,addWildCards=not options.nowildcards)
-    except TaskManagerCheckError, e:
-        print e
-        sys.exit(1)
-    if not options.beamspottag:
-        sys.exit('ERROR: No beam spot tag specified')
+    with getTaskManager() as taskman:
+        try:
+            [(dsname,task)] = getFullTaskNames(taskman,args[1],args[2],requireSingleTask=True,confirmWithUser=not options.batch,addWildCards=not options.nowildcards)
+        except TaskManagerCheckError, e:
+            print e
+            sys.exit(1)
+        if not options.beamspottag:
+            sys.exit('ERROR: No beam spot tag specified')
 
-    dbfile = glob.glob('%s/%s/*-beamspot.db' % (dsname,task))
-    if len(dbfile)!=1:
-        print 'ERROR: Missing or ambiguous input COOL file:',dbfile
-        sys.exit()
+        dbfile = glob.glob('%s/%s/*-beamspot.db' % (dsname,task))
+        if len(dbfile)!=1:
+            print 'ERROR: Missing or ambiguous input COOL file:',dbfile
+            sys.exit()
 
-    try:
-        passwd = open(os.environ.get('HOME')+prodcoolpasswdfile,'r').read().strip()
-    except:
-        sys.exit('ERROR: Unable to determine COOL upload password')
+        try:
+            passwd = open(os.environ.get('HOME')+prodcoolpasswdfile,'r').read().strip()
+        except:
+            sys.exit('ERROR: Unable to determine COOL upload password')
 
-    print '\nData set:         ',dsname
-    print 'Beam spot file:   ',dbfile[0]
-    print 'Uploading to tag: ',options.beamspottag
-    os.system('dumpBeamSpot.py -d %s -t %s %s' % (options.srcdbname,options.srctag,dbfile[0]))
+        print '\nData set:         ',dsname
+        print 'Beam spot file:   ',dbfile[0]
+        print 'Uploading to tag: ',options.beamspottag
+        os.system('dumpBeamSpot.py -d %s -t %s %s' % (options.srcdbname,options.srctag,dbfile[0]))
 
-    if options.ignoremode:
-        ignoremode = '--ignoremode %s' % options.ignoremode
-    else:
-        ignoremode = ''
-    if options.batch:
-        batchmode = '--batch'
-    else:
-        batchmode = ''
+        if options.ignoremode:
+            ignoremode = '--ignoremode %s' % options.ignoremode
+        else:
+            ignoremode = ''
+        if options.batch:
+            batchmode = '--batch'
+        else:
+            batchmode = ''
 
-    stat = os.system('/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail  %s %s --folder /Indet/Beampos --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_INDET_W %s' % (batchmode,ignoremode,options.srctag,options.beamspottag,options.destdbname,dbfile[0],options.srcdbname,passwd))
+        stat = os.system('/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail  %s %s --folder /Indet/Beampos --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_INDET_W %s' % (batchmode,ignoremode,options.srctag,options.beamspottag,options.destdbname,dbfile[0],options.srcdbname,passwd))
 
-    if stat:
-        print "\n\nERROR: UPLOADING TO COOL FAILED - PLEASE CHECK CAREFULLY!\n\n"
-        sys.exit(1)
+        if stat:
+            print "\n\nERROR: UPLOADING TO COOL FAILED - PLEASE CHECK CAREFULLY!\n\n"
+            sys.exit(1)
 
-    # Record upload information, both in task DB (field COOLTAGS) and in upload flag file
-    uploadflag = dbfile[0]+'.uploaded'
-    stat = os.system('echo "`date`   %s" >> %s' % (options.beamspottag,uploadflag) )
-    if stat:
-        print "ERROR: Uploading was successful, but unable to set upload flag", uploadflag 
+        # Record upload information, both in task DB (field COOLTAGS) and in upload flag file
+        uploadflag = dbfile[0]+'.uploaded'
+        stat = os.system('echo "`date`   %s" >> %s' % (options.beamspottag,uploadflag) )
+        if stat:
+            print "ERROR: Uploading was successful, but unable to set upload flag", uploadflag 
 
-    cooltags = options.beamspottag
+        cooltags = options.beamspottag
 
-    # If uploading to the beamspot tag linked to Current BLK alias and Next BLK alias aslo exists (not '')
-    # and points to different tag then AtlCoolMerge will upload to the Next beamspot tag too.  Hence record
-    # that in COOLTAGS too.  Mimik logic in AtlCoolMergeLib.py
-    
-    nextbeamspot = ''
-    try:
-        nextbeamspot = COOLUtils.resolveNextBeamSpotFolder()
-    except:
+        # If uploading to the beamspot tag linked to Current BLK alias and Next BLK alias aslo exists (not '')
+        # and points to different tag then AtlCoolMerge will upload to the Next beamspot tag too.  Hence record
+        # that in COOLTAGS too.  Mimik logic in AtlCoolMergeLib.py
+
         nextbeamspot = ''
-    if nextbeamspot == options.beamspottag:
-        nextbeamspot = ''
-    if not ('UPD' in options.beamspottag and 'UPD' in nextbeamspot):
-        nextbeamspot = ''
-    if nextbeamspot != '':
-        print 'Additionally uploading to Next tag: ',nextbeamspot
-        cooltags = appendUnique(cooltags, nextbeamspot)
+        try:
+            nextbeamspot = COOLUtils.resolveNextBeamSpotFolder()
+        except:
+            nextbeamspot = ''
+        if nextbeamspot == options.beamspottag:
+            nextbeamspot = ''
+        if not ('UPD' in options.beamspottag and 'UPD' in nextbeamspot):
+            nextbeamspot = ''
+        if nextbeamspot != '':
+            print 'Additionally uploading to Next tag: ',nextbeamspot
+            cooltags = appendUnique(cooltags, nextbeamspot)
 
-    # Upload tag(s) to TaskManager
-    t = taskman.getTaskDict(dsname,task)
-    taskman.setValue(dsname,task,'COOLTAGS',appendUnique(t['COOLTAGS'],cooltags))
-        
+        # Upload tag(s) to TaskManager
+        t = taskman.getTaskDict(dsname,task)
+        taskman.setValue(dsname,task,'COOLTAGS',appendUnique(t['COOLTAGS'],cooltags))
+
     sys.exit(0)
 
 
@@ -519,8 +537,8 @@ if cmd=='upload' and len(args)==3:
 #
 if cmd=='dq2get' and len(args)==3:
     try:
-        [(dsname,task)] = getFullTaskNames(taskman,args[1],args[2],requireSingleTask=True,addWildCards=not options.nowildcards)
-        del taskman
+        with getTaskManager() as taskman:
+            [(dsname,task)] = getFullTaskNames(taskman,args[1],args[2],requireSingleTask=True,addWildCards=not options.nowildcards)
     except TaskManagerCheckError, e:
         print e
         sys.exit(1)
@@ -555,8 +573,8 @@ if cmd=='dq2get' and len(args)==3:
 #
 if cmd=='queryT0' and len(args)==3:
     try:
-        [(dsname,task)] = getFullTaskNames(taskman,args[1],args[2],requireSingleTask=True,addWildCards=not options.nowildcards)
-        del taskman
+        with getTaskManager() as taskman:
+            [(dsname,task)] = getFullTaskNames(taskman,args[1],args[2],requireSingleTask=True,addWildCards=not options.nowildcards)
     except TaskManagerCheckError, e:
         print e
         sys.exit(1)
@@ -614,61 +632,61 @@ if cmd=='runCmd' and len(args)==4:
     print '    %s' % (74*'-')
 
     taskList = []
-    for t in taskman.taskIterDict('*',qual):
-        dsname = t['DSNAME']
+    with getTaskManager() as taskman:
+        for t in taskman.taskIterDict('*',qual):
+            dsname = t['DSNAME']
 
-        # Deal with express vs minBias in 900 GeV runs
-        if options.nominbias and dsname.find('physics_MinBias') :
-            print 'Warning: changing physics_MinBias in dsname to express_express'
-            dsname = dsname.replace('physics_MinBias','express_express')
-            t['DSNAME'] = dsname
+            # Deal with express vs minBias in 900 GeV runs
+            if options.nominbias and dsname.find('physics_MinBias') :
+                print 'Warning: changing physics_MinBias in dsname to express_express'
+                dsname = dsname.replace('physics_MinBias','express_express')
+                t['DSNAME'] = dsname
 
-        runnr = t['RUNNR']
-        taskname = t['TASKNAME']
-        print '    %-10s   %-40s   %s'% (runnr,dsname,taskname)
+            runnr = t['RUNNR']
+            taskname = t['TASKNAME']
+            print '    %-10s   %-40s   %s'% (runnr,dsname,taskname)
 
-        if options.excludeiftask:
-            if options.nowildcards:
-                # n = taskman.getNTasks(['where DSNAME =',DbParam(dsname),'and TASKNAME like',DbParam(options.excludeiftask)])
-                n = taskman.getNTasks(["where DSNAME ='%s' and TASKNAME like '%s'" % (dsname,options.excludeiftask)])
-            else:
-                n = taskman.getNTasks(["where DSNAME ='%s' and TASKNAME like '%%%s%%'" % (dsname,options.excludeiftask)])
-            if n!=0:
-                print '    ==> SKIPPING - %i matching tasks found' % n
-                continue
-
-        if options.excludeds:
-            excludeList = options.excludeds.split(',')
-            for s in excludeList:
-                if s in dsname:
-                    print '    ==> SKIPPING dataset'
+            if options.excludeiftask:
+                if options.nowildcards:
+                    # n = taskman.getNTasks(['where DSNAME =',DbParam(dsname),'and TASKNAME like',DbParam(options.excludeiftask)])
+                    n = taskman.getNTasks(["where DSNAME ='%s' and TASKNAME like '%s'" % (dsname,options.excludeiftask)])
+                else:
+                    n = taskman.getNTasks(["where DSNAME ='%s' and TASKNAME like '%%%s%%'" % (dsname,options.excludeiftask)])
+                if n!=0:
+                    print '    ==> SKIPPING - %i matching tasks found' % n
                     continue
-            
 
-        if options.dslist:
-            stat, out = commands.getstatusoutput('grep -c %s %s' % (dsname, options.dslist))
-            if stat==2: # Missing file etc 
-                print out
-                sys.exit(1)
+            if options.excludeds:
+                excludeList = options.excludeds.split(',')
+                for s in excludeList:
+                    if s in dsname:
+                        print '    ==> SKIPPING dataset'
+                        continue
 
-            try:
-                if int(out)==0:
-                    print '    ==> SKIPPING - dataset %s not found in %s' % (dsname, options.dslist)
-                    continue
-            except ValueError: # Some other error
-                print out
-                sys.exit(1)
+            if options.dslist:
+                stat, out = commands.getstatusoutput('grep -c %s %s' % (dsname, options.dslist))
+                if stat==2: # Missing file etc
+                    print out
+                    sys.exit(1)
 
-            del stat, out
-            # # Find full dtasetname from file
-            stat, out = commands.getstatusoutput('grep %s %s' % (dsname, options.dslist))
-            if stat==2: # Missing file etc 
-                print out
-                sys.exit(1)
+                try:
+                    if int(out)==0:
+                        print '    ==> SKIPPING - dataset %s not found in %s' % (dsname, options.dslist)
+                        continue
+                except ValueError: # Some other error
+                    print out
+                    sys.exit(1)
 
-            t['FULLDSNAME'] = out.strip()
+                del stat, out
+                # # Find full dtasetname from file
+                stat, out = commands.getstatusoutput('grep %s %s' % (dsname, options.dslist))
+                if stat==2: # Missing file etc
+                    print out
+                    sys.exit(1)
 
-        taskList.append(t)
+                t['FULLDSNAME'] = out.strip()
+
+            taskList.append(t)
 
     if not taskList:
         print '\nNo jobs need to be run.\n'
@@ -707,25 +725,26 @@ if cmd=='runMonJobs' and len(args)<3:
 
     onDiskCode = TaskManager.OnDiskCodes['ALLONDISK']
     taskList = []
-    for t in taskman.taskIterDict('*',["where TASKNAME like '%s%%'" % options.runtaskname,
-                                       "and UPDATED >= ", DbParam(earliestUpdateTime),
-                                       "and ONDISK = ", DbParam(onDiskCode),
-                                       "and COOLTAGS like '%%%s%%'" % options.beamspottag,
-                                       "order by RUNNR desc"]):
-        dsname = t['DSNAME']
-        runnr = t['RUNNR']
-        taskName = t['TASKNAME']
-        datatag = taskName.split('.')[-1].split('_')[0]
-        monTaskName = 'MON.%s.%s' % (taskName,datatag)
+    with getTaskManager() as taskman:
+        for t in taskman.taskIterDict('*',["where TASKNAME like '%s%%'" % options.runtaskname,
+                                           "and UPDATED >= ", DbParam(earliestUpdateTime),
+                                           "and ONDISK = ", DbParam(onDiskCode),
+                                           "and COOLTAGS like '%%%s%%'" % options.beamspottag,
+                                           "order by RUNNR desc"]):
+            dsname = t['DSNAME']
+            runnr = t['RUNNR']
+            taskName = t['TASKNAME']
+            datatag = taskName.split('.')[-1].split('_')[0]
+            monTaskName = 'MON.%s.%s' % (taskName,datatag)
 
-        try:
-            m = taskman.taskIterDict('*',['where RUNNR =',DbParam(runnr),'and DSNAME =',DbParam(dsname),'and TASKNAME =',DbParam(monTaskName),'order by UPDATED desc']).next()
-            print '       %-10s  %s'% (runnr,monTaskName)
-        except:
-            print '    *  %-10s  %s'% (runnr,'--- no monitoring task found ---')
-            taskList.append(t)
-            pass
-    
+            try:
+                m = taskman.taskIterDict('*',['where RUNNR =',DbParam(runnr),'and DSNAME =',DbParam(dsname),'and TASKNAME =',DbParam(monTaskName),'order by UPDATED desc']).next()
+                print '       %-10s  %s'% (runnr,monTaskName)
+            except:
+                print '    *  %-10s  %s'% (runnr,'--- no monitoring task found ---')
+                taskList.append(t)
+                pass
+
     if not taskList:
         print '\nNo jobs need to be run.\n'
         sys.exit(0)
@@ -819,62 +838,62 @@ if cmd=='archive' and len(args)==3:
             print '         - will be marked as ARCHIVED in the task database'
             print '         - all its files *** WILL BE DELETED ***'
         print
-    try:
-        taskList = getFullTaskNames(taskman,args[1],args[2],confirmWithUser=not options.batch,addWildCards=not options.nowildcards)
-    except TaskManagerCheckError, e:
-        print e
-        sys.exit(1)
 
-    tmpdir = '/tmp'
-    backuppath = castorarchivepath
-    onDiskCode = TaskManager.OnDiskCodes.get('ALLONDISK',None)
-    archivedCode = TaskManager.OnDiskCodes.get('RESULTSONDISK',None) if options.resultsondisk else TaskManager.OnDiskCodes.get('ARCHIVED',None)
-    exceptList = ['*dqflags.txt', '*.gif', '*.pdf', '*.config.py*', '*.argdict.gpickle', '*.AveBeamSpot.log', '*.PlotBeamSpotCompareReproc.log', '*.sh', '*.BeamSpotNt.*', '*.BeamSpotGlobalNt.log', '*.status.*', '*.exit.*']
-    
-    for (dsname,taskname) in taskList:
-        t = taskman.getTaskDict(dsname,taskname)
-
-
-        # Check that task files are still on disk, so we're not overwriting an earlier archive
-        if t['ONDISK'] != onDiskCode:
-            print 'Skipping task %s / %s status %s (task files must be on disk)' % (dsname,taskname,getKey(TaskManager.OnDiskCodes,t['ONDISK']))
-            print
-            continue            
-
-        dir = '%s/%s' % (dsname,taskname)
-        outname = dir.replace('/','-')+time.strftime('-%G_%m_%d.tar.gz')
-        print 'Archiving task %s / %s ...' % (dsname,taskname)
-        print '    --> %s/%s ...' % (backuppath,outname)
-
-        # Paranoia check against later catastrophic delete
-        if dir=='.' or dir=='*':
-            print '\n**** FATAL ERROR: Very dangerous value of task directory found: %s - ABORTING' % dir
+    with getTaskManager() as taskman:
+        try:
+            taskList = getFullTaskNames(taskman,args[1],args[2],confirmWithUser=not options.batch,addWildCards=not options.nowildcards)
+        except TaskManagerCheckError, e:
+            print e
             sys.exit(1)
 
-        # If expected directory exists, tar up files, write to CASTOR, mark as archived, and delete
-        if os.path.exists(dir):
-            status = os.system('tar czf %s/%s %s' % (tmpdir,outname,dir)) >> 8
-            if status:
-                sys.exit('\n**** ERROR: Unable to create local tar file %s/%s' % (tmpdir,outname))
-            status = os.system('xrdcp %s/%s root://eosatlas/%s/%s' % (tmpdir,outname,backuppath,outname)) >> 8
-            if status:
-                sys.exit('\n**** ERROR: Unable to copy file to CASTOR to %s/%s' % (backuppath,outname))
+        tmpdir = '/tmp'
+        backuppath = castorarchivepath
+        onDiskCode = TaskManager.OnDiskCodes.get('ALLONDISK',None)
+        archivedCode = TaskManager.OnDiskCodes.get('RESULTSONDISK',None) if options.resultsondisk else TaskManager.OnDiskCodes.get('ARCHIVED',None)
+        exceptList = ['*dqflags.txt', '*.gif', '*.pdf', '*.config.py*', '*.argdict.gpickle', '*.AveBeamSpot.log', '*.PlotBeamSpotCompareReproc.log', '*.sh', '*.BeamSpotNt.*', '*.BeamSpotGlobalNt.log', '*.status.*', '*.exit.*']
 
-            os.system('rm %s/%s' % (tmpdir,outname))
-            n = taskman.setValue(dsname,taskname,'ONDISK',archivedCode)
-            if n!=1:
-                sys.exit('\n**** ERROR: Unexpected number of tasks modified: %i instead of 1 (DSNAME=%s,TASKNAME=%s)' % (n,dsname,taskname))
+        for (dsname,taskname) in taskList:
+            t = taskman.getTaskDict(dsname,taskname)
 
-            if options.resultsondisk:
-                oscmd = "find %s ! \( -name '%s' \) -type f -exec rm  {} \;" % (dir, "' -or -name '".join(exceptList))
-                os.system(oscmd)
+            # Check that task files are still on disk, so we're not overwriting an earlier archive
+            if t['ONDISK'] != onDiskCode:
+                print 'Skipping task %s / %s status %s (task files must be on disk)' % (dsname,taskname,getKey(TaskManager.OnDiskCodes,t['ONDISK']))
+                print
+                continue
+
+            dir = '%s/%s' % (dsname,taskname)
+            outname = dir.replace('/','-')+time.strftime('-%G_%m_%d.tar.gz')
+            print 'Archiving task %s / %s ...' % (dsname,taskname)
+            print '    --> %s/%s ...' % (backuppath,outname)
+
+            # Paranoia check against later catastrophic delete
+            if dir=='.' or dir=='*':
+                print '\n**** FATAL ERROR: Very dangerous value of task directory found: %s - ABORTING' % dir
+                sys.exit(1)
+
+            # If expected directory exists, tar up files, write to CASTOR, mark as archived, and delete
+            if os.path.exists(dir):
+                status = os.system('tar czf %s/%s %s' % (tmpdir,outname,dir)) >> 8
+                if status:
+                    sys.exit('\n**** ERROR: Unable to create local tar file %s/%s' % (tmpdir,outname))
+                status = os.system('xrdcp %s/%s root://eosatlas/%s/%s' % (tmpdir,outname,backuppath,outname)) >> 8
+                if status:
+                    sys.exit('\n**** ERROR: Unable to copy file to CASTOR to %s/%s' % (backuppath,outname))
+
+                os.system('rm %s/%s' % (tmpdir,outname))
+                n = taskman.setValue(dsname,taskname,'ONDISK',archivedCode)
+                if n!=1:
+                    sys.exit('\n**** ERROR: Unexpected number of tasks modified: %i instead of 1 (DSNAME=%s,TASKNAME=%s)' % (n,dsname,taskname))
+
+                if options.resultsondisk:
+                    oscmd = "find %s ! \( -name '%s' \) -type f -exec rm  {} \;" % (dir, "' -or -name '".join(exceptList))
+                    os.system(oscmd)
+                else:
+                    os.system('rm -rf %s' % dir)
             else:
-                os.system('rm -rf %s' % dir)
-        
-        else:
-            print '\n**** ERROR: No task directory',dir,'\n'
+                print '\n**** ERROR: No task directory',dir,'\n'
 
-        print
+            print
     sys.exit(0)
 
 #
@@ -944,13 +963,13 @@ if cmd=='resubmit' and len(args) in [3,4]:
         jobConfig['logfile']='%(jobdir)s/%(jobname)s.log' % jobConfig
         jobConfig['scriptfile']='%(jobdir)s/%(jobname)s.sh' % jobConfig
 
-        
         batchCmd = 'bsub -q %(batchqueue)s -J %(jobname)s -o %(logfile)s %(scriptfile)s' % jobConfig
         print batchCmd
         os.system(batchCmd)
 
-    print taskman.getStatus(dsname, taskname)
-    taskman.setStatus(dsname, taskname, TaskManager.StatusCodes['RUNNING'] )
+    with getTaskManager() as taskman:
+        print taskman.getStatus(dsname, taskname)
+        taskman.setStatus(dsname, taskname, TaskManager.StatusCodes['RUNNING'] )
 
     sys.exit(0)
 
@@ -1092,44 +1111,46 @@ if cmd=='reproc' and len(args)==5:
                     jobLBDict[jobId].append(lbnr)
 
     # Submit bunched jobs
-    for i in  sorted(jobFileDict.keys()):
-        jobnr = i*lbperjob+1  # use first LB number as job number
-        files=jobFileDict[i]
-        lbs = sorted(set(jobLBDict[i]))
+    with getTaskManager() as taskman:
+        for i in  sorted(jobFileDict.keys()):
+            jobnr = i*lbperjob+1  # use first LB number as job number
+            files=jobFileDict[i]
+            lbs = sorted(set(jobLBDict[i]))
 
-        #params['lbList'] = '[' + ','.join([str(l) for l in lbs]) + ']'
-        intlbs = []
-        for lbnr in lbs:
-            intlbs.append(int(lbnr))
-        params['lbList'] = intlbs
-        jobname=dsname+'-'+taskname+'-lb%03i' % jobnr
+            #params['lbList'] = '[' + ','.join([str(l) for l in lbs]) + ']'
+            intlbs = []
+            for lbnr in lbs:
+                intlbs.append(int(lbnr))
+            params['lbList'] = intlbs
+            jobname=dsname+'-'+taskname+'-lb%03i' % jobnr
 
-        queue = options.batch_queue or 'atlasb1_long'
-        runner = LSFJobRunner.LSFJobRunner(jobnr=jobnr,
-                                           jobdir=os.getcwd()+'/'+dsname+'/'+taskname+'/'+jobname,
-                                           jobname=jobname,
-                                           inputds='',
-                                           inputfiles=files,
-                                           joboptionpath=jobopts,
-                                           filesperjob=len(files),
-                                           batchqueue=queue,
-                                           addinputtopoolcatalog=True,
-                                           taskpostprocsteps='ReprocVertexDefaultProcessing',
-                                           #outputfilelist=['dpd.root', 'nt.root', 'monitoring,root', 'beamspot.db'],
-                                           autoconfparams='DetDescrVersion',
-                                           returnstatuscode=True,
-                                           comment=cmd,
-                                           **params)
+            queue = options.batch_queue or 'atlasb1_long'
+            runner = LSFJobRunner.LSFJobRunner(
+                    jobnr=jobnr,
+                    jobdir=os.getcwd()+'/'+dsname+'/'+taskname+'/'+jobname,
+                    jobname=jobname,
+                    inputds='',
+                    inputfiles=files,
+                    joboptionpath=jobopts,
+                    filesperjob=len(files),
+                    batchqueue=queue,
+                    addinputtopoolcatalog=True,
+                    taskpostprocsteps='ReprocVertexDefaultProcessing',
+                    #outputfilelist=['dpd.root', 'nt.root', 'monitoring,root', 'beamspot.db'],
+                    autoconfparams='DetDescrVersion',
+                    returnstatuscode=True,
+                    comment=cmd,
+                    **params)
 
-        #runner.showParams()
-        try:
-            runner.configure()
-        except Exception,e:
-            print "ERROR: Unable to configure JobRunner job - perhaps same job was already configured / run before?"
-            print "DEBUG: Exception =",e
-        else:
-            taskman.addTask(dsname, taskname, jobopts, runner.getParam('release'), runner.getNJobs(), runner.getParam('taskpostprocsteps'), comment=cmd)
-            runner.run()
+            #runner.showParams()
+            try:
+                runner.configure()
+            except Exception,e:
+                print "ERROR: Unable to configure JobRunner job - perhaps same job was already configured / run before?"
+                print "DEBUG: Exception =",e
+            else:
+                taskman.addTask(dsname, taskname, jobopts, runner.getParam('release'), runner.getNJobs(), runner.getParam('taskpostprocsteps'), comment=cmd)
+                runner.run()
 
     sys.exit(0)
 
@@ -1271,44 +1292,46 @@ if cmd=='reproc' and len(args)==5:
                     jobLBDict[jobId].append(lbnr)
 
     # Submit bunched jobs
-    for i in  sorted(jobFileDict.keys()):
-        jobnr = i*lbperjob+1  # use first LB number as job number
-        files=jobFileDict[i]
-        lbs = sorted(set(jobLBDict[i]))
+    with getTaskManager() as taskman:
+        for i in  sorted(jobFileDict.keys()):
+            jobnr = i*lbperjob+1  # use first LB number as job number
+            files=jobFileDict[i]
+            lbs = sorted(set(jobLBDict[i]))
 
-        #params['lbList'] = '[' + ','.join([str(l) for l in lbs]) + ']'
-        intlbs = []
-        for lbnr in lbs:
-            intlbs.append(int(lbnr))
-        params['lbList'] = intlbs
-        jobname=dsname+'-'+taskname+'-lb%03i' % jobnr
+            #params['lbList'] = '[' + ','.join([str(l) for l in lbs]) + ']'
+            intlbs = []
+            for lbnr in lbs:
+                intlbs.append(int(lbnr))
+            params['lbList'] = intlbs
+            jobname=dsname+'-'+taskname+'-lb%03i' % jobnr
 
-        queue = options.batch_queue or '2nd'
-        runner = LSFJobRunner.LSFJobRunner(jobnr=jobnr,
-                                           jobdir=os.getcwd()+'/'+dsname+'/'+taskname+'/'+jobname,
-                                           jobname=jobname,
-                                           inputds='',
-                                           inputfiles=files,
-                                           joboptionpath=jobopts,
-                                           filesperjob=len(files),
-                                           batchqueue=queue,
-                                           addinputtopoolcatalog=True,
-                                           taskpostprocsteps='ReprocVertexDefaultProcessing',
-                                           #outputfilelist=['dpd.root', 'nt.root', 'monitoring,root', 'beamspot.db'],
-                                           autoconfparams='DetDescrVersion',
-                                           returnstatuscode=True,
-                                           comment=cmd,
-                                           **params)
+            queue = options.batch_queue or '2nd'
+            runner = LSFJobRunner.LSFJobRunner(
+                    jobnr=jobnr,
+                    jobdir=os.getcwd()+'/'+dsname+'/'+taskname+'/'+jobname,
+                    jobname=jobname,
+                    inputds='',
+                    inputfiles=files,
+                    joboptionpath=jobopts,
+                    filesperjob=len(files),
+                    batchqueue=queue,
+                    addinputtopoolcatalog=True,
+                    taskpostprocsteps='ReprocVertexDefaultProcessing',
+                    #outputfilelist=['dpd.root', 'nt.root', 'monitoring,root', 'beamspot.db'],
+                    autoconfparams='DetDescrVersion',
+                    returnstatuscode=True,
+                    comment=cmd,
+                    **params)
 
-        #runner.showParams()
-        try:
-            runner.configure()
-        except Exception,e:
-            print "ERROR: Unable to configure JobRunner job - perhaps same job was already configured / run before?"
-            print "DEBUG: Exception =",e
-        else:
-            taskman.addTask(dsname, taskname, jobopts, runner.getParam('release'), runner.getNJobs(), runner.getParam('taskpostprocsteps'), comment=cmd)
-            runner.run()
+            #runner.showParams()
+            try:
+                runner.configure()
+            except Exception,e:
+                print "ERROR: Unable to configure JobRunner job - perhaps same job was already configured / run before?"
+                print "DEBUG: Exception =",e
+            else:
+                taskman.addTask(dsname, taskname, jobopts, runner.getParam('release'), runner.getNJobs(), runner.getParam('taskpostprocsteps'), comment=cmd)
+                runner.run()
 
     sys.exit(0)
 
@@ -1458,54 +1481,57 @@ if cmd=='runaod' and len(args)==5:
                     jobLBDict[jobId].append(lbnr)
 
     # Submit bunched jobs
-    for i in  sorted(jobFileDict.keys()):
-        jobnr = i*lbperjob+1  # use first LB number as job number
-        files=jobFileDict[i]
-        lbs = sorted(set(jobLBDict[i]))
+    with getTaskManager() as taskman:
+        for i in  sorted(jobFileDict.keys()):
+            jobnr = i*lbperjob+1  # use first LB number as job number
+            files=jobFileDict[i]
+            lbs = sorted(set(jobLBDict[i]))
 
-        intlbs = []
-        for lbnr in lbs:
-            intlbs.append(int(lbnr))
-        params['lbList'] = intlbs
+            intlbs = []
+            for lbnr in lbs:
+                intlbs.append(int(lbnr))
+            params['lbList'] = intlbs
 
-        # Allow job-by-job parameters
-        try:
-            p = jobParams[i]
-            for k,v in p.items(): params[k] = v
-        except KeyError:
-            pass
-
-        jobname=dsname+'-'+taskname+'-lb%03i' % jobnr
-
-        queue = options.batch_queue
-        if queue is None:
-            # run on a different queue for VdM to avoid clogging up the normal queue
-            queue = 'atlasb1_long' if options.pseudoLbFile else 'atlasb1'
-        runner = LSFJobRunner.LSFJobRunner(jobnr=jobnr,
-                                           jobdir=os.getcwd()+'/'+dsname+'/'+taskname+'/'+jobname,
-                                           jobname=jobname,
-                                           inputds='',
-                                           inputfiles=files,
-                                           joboptionpath=jobopts,
-                                           filesperjob=len(files),
-                                           batchqueue=queue,
-                                           addinputtopoolcatalog=True,
-                                           taskpostprocsteps=' '.join(options.postprocsteps),
-                                           autoconfparams='DetDescrVersion',
-                                           returnstatuscode=True,
-                                           comment=cmd,
-                                           **params)
-        if options.testonly:
-            runner.showParams()
-        else:
+            # Allow job-by-job parameters
             try:
-                runner.configure()
-            except Exception,e:
-                print "ERROR: Unable to configure JobRunner job - perhaps same job was already configured / run before?"
-                print "DEBUG: Exception =",e
+                p = jobParams[i]
+                for k,v in p.items(): params[k] = v
+            except KeyError:
+                pass
+
+            jobname=dsname+'-'+taskname+'-lb%03i' % jobnr
+
+            queue = options.batch_queue
+            if queue is None:
+                # run on a different queue for VdM scans to avoid clogging up the normal queue
+                queue='atlasb1_long' if options.pseudoLbFile else 'atlasb1'
+            runner = LSFJobRunner.LSFJobRunner(
+                    jobnr=jobnr,
+                    jobdir=os.getcwd()+'/'+dsname+'/'+taskname+'/'+jobname,
+                    jobname=jobname,
+                    inputds='',
+                    inputfiles=files,
+                    joboptionpath=jobopts,
+                    filesperjob=len(files),
+                    batchqueue=queue,
+                    addinputtopoolcatalog=True,
+                    taskpostprocsteps=' '.join(options.postprocsteps),
+                    autoconfparams='DetDescrVersion',
+                    returnstatuscode=True,
+                    comment=cmd,
+                    **params)
+            if options.testonly:
+                runner.showParams()
             else:
-                taskman.addTask(dsname, taskname, jobopts, runner.getParam('release'), runner.getNJobs(), runner.getParam('taskpostprocsteps'), comment=cmd)
-                runner.run()
+                try:
+                    runner.configure()
+                except Exception,e:
+                    print "ERROR: Unable to configure JobRunner job - perhaps same job was already configured / run before?"
+                    print "DEBUG: Exception =",e
+                else:
+                    taskman.addTask(dsname, taskname, jobopts, runner.getParam('release'), runner.getNJobs(), runner.getParam('taskpostprocsteps'), comment=cmd)
+                    runner.run()
+
     sys.exit(0)
 
 
@@ -1554,11 +1580,12 @@ if cmd=='dqflag' and len(args)==2:
 #
 if cmd=='dqflag' and len(args)==3:
     try:
-        [(dsname,task)] = getFullTaskNames(taskman,args[1],args[2],requireSingleTask=True,confirmWithUser=not options.batch,addWildCards=not options.nowildcards)
+        with getTaskManager() as taskman:
+            [(dsname,task)] = getFullTaskNames(taskman,args[1],args[2],requireSingleTask=True,confirmWithUser=not options.batch,addWildCards=not options.nowildcards)
     except TaskManagerCheckError, e:
         print e
         sys.exit(1)
-        
+
     if not options.dqtag:
         sys.exit('ERROR: No beam spot DQ tag specified')
 
@@ -1645,30 +1672,31 @@ if cmd=='runBCIDJobs' and len(args)<3:
 
     if not options.beamspottag:
         sys.exit('ERROR: No beam spot tag specified')
-        
+
     print 'Running the following BCID tasks for tasks of type %s:\n' % options.runtaskname
     print '       %-10s  %s' % ('RUN','BCID TASK')
     print '    %s' % (60*'-')
 
     taskList = []
-    for t in taskman.taskIterDict('*',["where TASKNAME like '%s%%'" % options.runtaskname,
-                                       "and UPDATED >= ", DbParam(earliestUpdateTime),
-                                       "and COOLTAGS like '%%%s%%'" % options.beamspottag,
-                                       "order by RUNNR desc"]):
-        dsname = t['DSNAME']
-        runnr = t['RUNNR']
-        taskName = t['TASKNAME']
-        datatag = taskName.split('.')[-1].split('_')[0]
-        bcidTaskName = 'BCID.%s.%s' % (taskName,datatag)
+    with getTaskManager() as taskman:
+        for t in taskman.taskIterDict('*',["where TASKNAME like '%s%%'" % options.runtaskname,
+                                           "and UPDATED >= ", DbParam(earliestUpdateTime),
+                                           "and COOLTAGS like '%%%s%%'" % options.beamspottag,
+                                           "order by RUNNR desc"]):
+            dsname = t['DSNAME']
+            runnr = t['RUNNR']
+            taskName = t['TASKNAME']
+            datatag = taskName.split('.')[-1].split('_')[0]
+            bcidTaskName = 'BCID.%s.%s' % (taskName,datatag)
 
-        try:
-            m = taskman.taskIterDict('*',['where RUNNR =',DbParam(runnr),'and DSNAME =',DbParam(dsname),'and TASKNAME =',DbParam(bcidTaskName),'order by UPDATED desc']).next()
-            print '       %-10s  %s'% (runnr,bcidTaskName)
-        except:
-            print '    *  %-10s  %s'% (runnr,'--- no BCID task found ---')
-            taskList.append(t)
-            pass
-    
+            try:
+                m = taskman.taskIterDict('*',['where RUNNR =',DbParam(runnr),'and DSNAME =',DbParam(dsname),'and TASKNAME =',DbParam(bcidTaskName),'order by UPDATED desc']).next()
+                print '       %-10s  %s'% (runnr,bcidTaskName)
+            except:
+                print '    *  %-10s  %s'% (runnr,'--- no BCID task found ---')
+                taskList.append(t)
+                pass
+
     if not taskList:
         print '\nNo jobs need to be run.\n'
         sys.exit(0)

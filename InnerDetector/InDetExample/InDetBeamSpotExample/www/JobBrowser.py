@@ -75,22 +75,22 @@ class JobBrowser(BeamSpotWebPage):
         self.addToPageHeader(tableSorter)
 
     def content(self,**args):
-        taskman = TaskManager(self.globalConfig['taskDb'])
-        if 'r' in args:
-            table = taskCountForRun % (taskman.getNTasks(['where RUNNR =',DbParam(args['r'])]), args['r'])
-            taskIter = taskman.taskIterDict('*', ['where RUNNR =',DbParam(args['r']),'order by UPDATED'] )
-        elif 'd' in args:
-            table = taskCountForDS % (taskman.getNTasks(["where DSNAME like '%%%s%%'" % args['d']]), args['d'])
-            taskIter = taskman.taskIterDict('*', ["where DSNAME like '%%%s%%' order by UPDATED" % args['d']] )
-        else:
-            limit = int(args['limit']) if 'limit' in args else 50
-            if not limit:
-                limit = 99999999
-                table = taskCount % taskman.getNTasks()
-                taskIter = taskman.taskIterDict(qual=('order by UPDATED desc',))
+        with TaskManager(self.globalConfig['taskDb']) as taskman:
+            if 'r' in args:
+                table = taskCountForRun % (taskman.getNTasks(['where RUNNR =',DbParam(args['r'])]), args['r'])
+                taskIter = taskman.taskIterDict('*', ['where RUNNR =',DbParam(args['r']),'order by UPDATED'] )
+            elif 'd' in args:
+                table = taskCountForDS % (taskman.getNTasks(["where DSNAME like '%%%s%%'" % args['d']]), args['d'])
+                taskIter = taskman.taskIterDict('*', ["where DSNAME like '%%%s%%' order by UPDATED" % args['d']] )
             else:
-                table = taskCountLimit % (taskman.getNTasks(),limit)
-                taskIter = taskman.taskIterDict(qual=('order by UPDATED desc',),limit=limit)
+                limit = int(args['limit']) if 'limit' in args else 50
+                if not limit:
+                    limit = 99999999
+                    table = taskCount % taskman.getNTasks()
+                    taskIter = taskman.taskIterDict(qual=('order by UPDATED desc',))
+                else:
+                    table = taskCountLimit % (taskman.getNTasks(),limit)
+                    taskIter = taskman.taskIterDict(qual=('order by UPDATED desc',),limit=limit)
         table += tableHeader
         for t in taskIter:
             dsname = t['DSNAME']

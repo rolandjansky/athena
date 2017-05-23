@@ -5,7 +5,7 @@ ATLAS beam spot web page for letting users create their customized beam spot plo
 """
 
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: MyPlots.py 474726 2011-12-21 05:04:36Z beringer $'
+__version__ = 'MyPlots.py atlas/athena'
 
 from WebPage import *
 from BeamSpotWebPage import BeamSpotWebPage
