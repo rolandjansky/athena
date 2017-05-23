@@ -14,7 +14,7 @@ TrackCaloClusterCreatorTool::TrackCaloClusterCreatorTool(const std::string& t, c
   m_useEnergy(false),
   m_doOriginCorrection(false),
   m_storeCorrectedPosition(false),
-  m_applyFilter(true),
+  m_applyFilter(false),
   m_clusterFilterTool("ClusterFilterTool")
 {
     declareProperty("VertexContainerName"          ,    m_vertexContname                  = "PrimaryVertices"   );
