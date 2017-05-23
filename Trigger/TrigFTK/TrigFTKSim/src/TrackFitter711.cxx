@@ -632,19 +632,21 @@ void TrackFitter711::processor(const FTKRoad &road) {
   if (m_resolution_mode) {
 
     list<FTKTrack> road_tracks; // list 7L tracks for this road
-    list<FTKTrack> road_tracks_pre_hw; // list 7L tracks before the HW filter
+//    list<FTKTrack> road_tracks_pre_hw; // list 7L tracks before the HW filter
 
-    processor_Incomplete(road,road_tracks, road_tracks_pre_hw);
+    processor_Incomplete(road,road_tracks);
+//    processor_Incomplete(road,road_tracks, road_tracks_pre_hw);
 
     // JAAA not used anymore
     //    processor_ResolutionMode(road,road_tracks);
   }
   else {     // performe the fits of the incomplete set of constants
     list<FTKTrack> road_tracks; // list 7L tracks for this road
-    list<FTKTrack> road_tracks_pre_hw; // list 7L tracks before the HW filter
+//    list<FTKTrack> road_tracks_pre_hw; // list 7L tracks before the HW filter
 
     // perfom the incomplete fit
-    processor_Incomplete(road,road_tracks, road_tracks_pre_hw);
+    processor_Incomplete(road,road_tracks);
+//    processor_Incomplete(road,road_tracks, road_tracks_pre_hw);
 
     if (road_tracks.empty()) return;
 
@@ -674,9 +676,11 @@ void TrackFitter711::processor(const FTKRoad &road) {
     TrackFitter class. Basically changes the reference to the incomplete
     constant set and add some details related in the method how the
     incomplete tracks are managed in the current case */
+// void TrackFitter711::processor_Incomplete(const FTKRoad &road,
+//                                           list<FTKTrack> &road_tracks,
+//                                           list<FTKTrack> &road_tracks_pre_hw)
 void TrackFitter711::processor_Incomplete(const FTKRoad &road,
-                                          list<FTKTrack> &road_tracks,
-                                          list<FTKTrack> &road_tracks_pre_hw)
+                                          list<FTKTrack> &road_tracks)
 {
   // check if the road was marked as rejected by the RW or HF
   if (road.getRWRejected()!=0 &&

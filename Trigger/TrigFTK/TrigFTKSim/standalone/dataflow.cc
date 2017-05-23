@@ -370,9 +370,6 @@ void Process(unsigned int ientry) {
    ADD_TO_HIST( stream[itower]->naoGetNclus(6),"nCluster6");
    ADD_TO_HIST( stream[itower]->naoGetNclus(7),"nCluster7");
 
-   std::cerr << "JAAAA n0 road = " << stream[itower]->naoGetNclus_road(0) << " and non road = " << stream[itower]->naoGetNclus(0) << std::endl;
-   std::cerr << "JAAAA n1 road = " << stream[itower]->naoGetNclus_road(1) << " and non road = " << stream[itower]->naoGetNclus(1) << std::endl;
- 
 
    ADD_TO_HIST( stream[itower]->naoGetNclus_road(0),"nCluster(road0)");
    ADD_TO_HIST( stream[itower]->naoGetNclus_road(1),"nCluster(road1)");
@@ -402,10 +399,8 @@ void Process(unsigned int ientry) {
 }
 
 void Terminate() {
-  std::cerr << "JAAAAA" << std::endl;
   myfile << "Type\t\tbarrelmean\t\tbarrelmax\t\tendcapmean\t\tendcapmax" << endl;
   myfile << "--------------" << endl;
-  std::cerr << "JAAAAA2" << std::endl;
   // kludge, can do this better but works for now
   float temp[MAXTOWER], temp2[MAXTOWER], temp3[MAXTOWER];
   for (int i = 0; i < 8; i++) {
@@ -418,11 +413,9 @@ void Terminate() {
     printinfo (temp3, Form("NCluster(road)L%d",i));
     printinfo (temp2, Form("NSSIDL%d",i));
   }
-  std::cerr << "JAAAAA4" << std::endl;
   AddBreak();
   printinfo (nRoad, "NRoads");
   AddBreak();
-  std::cerr << "JAAAAA45" << std::endl;
   printinfo (nFitI, "NFitAux (8/8 + 7/8)");
   printinfo (nFitRecoveryI, "NFitAux Recovery");
   printinfo (nTrackI, "NTrackAux");
@@ -441,43 +434,30 @@ void Terminate() {
   printinfo (nFitMajority, "NFitSSB Majority");
   printinfo (nFitMajoritySCT, "NFitSSB Majority missing SCT");
   printinfo (nFitMajorityPix, "NFitSSB Majority missing Pix");
-  std::cerr << "JAAAAA9" << std::endl;
  int size_nRoad, first_decile_pos_nRoad, last_decile_pos_nRoad, max_quickselect_nRoad, first_decile_nRoad, last_decile_nRoad ;
   int size_nFitI, first_decile_pos_nFitI, last_decile_pos_nFitI, max_quickselect_nFitI, first_decile_nFitI, last_decile_nFitI ;
-    std::cerr << "JAAAAA91" << std::endl;
   // definition of the quartiles
   size_nRoad = nRoadArr.size();
   first_decile_pos_nRoad = size_nRoad/10;
   last_decile_pos_nRoad = 9*first_decile_pos_nRoad;
   max_quickselect_nRoad = size_nRoad - 1;
-  std::cerr << "JAAAAA94" << std::endl;
   size_nFitI = nFitIArr.size();
   first_decile_pos_nFitI = size_nFitI/10;
   last_decile_pos_nFitI = 9*first_decile_pos_nFitI;
   max_quickselect_nFitI = size_nFitI - 1;
-    std::cerr << "JAAAAA99" << std::endl;
   for (int itower = 0; itower < ntower; itower++) {
-    std::cerr << "JAAAAA9itower = " << itower << std::endl;
     //    if(!processedTower[itower]) continue;
-    std::cerr << "JAAAAA9 bbb itower = " << itower << std::endl;
-    
+     
     // to generalize in case we run on multiple towers
-    //vector<float> nRoad_perevt;
-    /*for(int i = 0; i < size_nRoad; i++){
-      //myfile << " for event " << i << " nRoadArr.size() is " << nRoadArr[i].size() << endl;
-      for(int j=0; j<nRoadArr[i].size(); j++){
-	nRoad_perevt.push_back(nRoadArr[i][j]);
-      }
-      }*/
-    AddBreak();
-    int nRoad_perevt[size_nRoad];
-    for(int i = 0; i < size_nRoad; i++){     
-      nRoad_perevt[i]=nRoadArr[i][0];      
-      }
-    int nFitI_perevt[size_nFitI];
-    for(int i = 0; i < size_nFitI; i++){     
-      nFitI_perevt[i]=nFitIArr[i][0];     
-      }    
+     vector<int> nRoad_perevt; nRoad_perevt.resize(size_nRoad);
+     vector<int> nFitI_perevt; nRoad_perevt.resize(size_nFitI);
+     AddBreak();
+     for(int i = 0; i < size_nRoad; i++){     
+        nRoad_perevt[i]=nRoadArr[i][0];      
+     }
+     for(int i = 0; i < size_nFitI; i++){     
+        nFitI_perevt[i]=nFitIArr[i][0];     
+     }    
    
     first_decile_nRoad = quick_select(nRoad_perevt, 0, max_quickselect_nRoad, first_decile_pos_nRoad);
     last_decile_nRoad = quick_select(nRoad_perevt, 0, max_quickselect_nRoad, last_decile_pos_nRoad);
@@ -573,7 +553,8 @@ void AddBreak(int n) {
 
 // some functions used for the calculation of the k^th value of an r+1 long array called input with the method called quick_select.
 //int partition(vector<float> input, int p, int r)
-int partition(int* input, int p, int r)
+//int partition(int* input, int p, int r)
+int partition(vector<int> input, int p, int r)
 {
   int pivot = input[r];
     
@@ -597,8 +578,7 @@ int partition(int* input, int p, int r)
   return r;
 }
 
-//int quick_select(vector<float> input, int p, int r, int k)
-int quick_select(int* input, int p, int r, int k)
+int quick_select(vector<int> input, int p, int r, int k)
 {
   if ( p == r ) return input[p];
   int j = partition(input, p, r);
