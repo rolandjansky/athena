@@ -10,6 +10,12 @@
 
 #include "ByteStreamData/RawEvent.h"
 
+class MdtIdHelper;
+
+namespace MuonGM {
+   class MuonDetectorManager;
+}
+
 // #include "MuonByteStream/RPC_Hid2RESrcID.h"
 
 /** This class provides conversion from LArRawChannel to ROD format. 
@@ -63,7 +69,10 @@ public:
 private: 
 
 	//	RPC_Hid2RESrcID* m_hid2re; 
-	std::vector<const MdtCsm*> m_vMdtCsm;  
+	std::vector<const MdtCsm*> m_vMdtCsm;
+	const MdtIdHelper* m_mdtIdHelper;
+	const MuonGM::MuonDetectorManager* m_mdm;
+	int m_BMGid;
 } ; 
 
 #endif

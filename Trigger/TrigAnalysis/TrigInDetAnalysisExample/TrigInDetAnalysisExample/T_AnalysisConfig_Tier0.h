@@ -1,6 +1,6 @@
 // emacs: this is -*- c++ -*-
 //
-//   @file    T_AnalysisConfig_Tier0.h        
+//   @file    T_AnalysisConfig_Tier0.h
 //
 //            baseclass template so that we can use in different contexts 
 //            in different ways in the monitoring 
@@ -16,8 +16,9 @@
 //
 // 
 //   Copyright (C) 2014 M.Sutton (sutt@cern.ch)    
+//   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 //
-//   $Id: T_AnalysisConfig_Tier0.h  v0.0   Wed 28 Oct 2014 02:47:05 CET sutt $
+//   $Id: T_AnalysisConfig_Tier0.h  Tue 16 May 2017 09:28:55 CEST sutt $
 
 #ifndef TrigInDetAnalysisExample_T_AnalysisConfig_Tier0_H
 #define TrigInDetAnalysisExample_T_AnalysisConfig_Tier0_H
@@ -138,6 +139,7 @@ public:
 			 testFilter, referenceFilter,
 			 associator,
 			 analysis ),
+    m_useBeamCondSvc(false),
     m_doOffline(true),
     m_doMuons(false),
     m_doElectrons(false),
@@ -147,7 +149,8 @@ public:
     m_NRois(0),
     m_NRefTracks(0),
     m_NTestTracks(0),
-    m_runPurity(false)
+    m_runPurity(false),
+    m_shifter(false)
   {
     m_event = new TIDA::Event();
     m_chainNames.push_back(testChainName);
@@ -170,6 +173,10 @@ public:
   virtual ~T_AnalysisConfig_Tier0() { delete m_event; }
 
   void setRunPurity( bool b ) { m_runPurity=b; }
+
+  void setShifter( bool b )    { m_shifter=b; }
+
+  void useBeamCondSvc( bool b ) { m_useBeamCondSvc = b; }
 
 public:
 
@@ -1066,6 +1073,7 @@ protected:
         // m_provider->msg(MSG::VERBOSE) << " Offline tracks " << endmsg;
 
         if ( m_doOffline ) {
+
 #         ifdef XAODTRACKING_TRACKPARTICLE_H
           if ( m_provider->evtStore()->template contains<xAOD::TrackParticleContainer>("InDetTrackParticles") ) {
             this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorRef, "InDetTrackParticles" );
@@ -1202,11 +1210,12 @@ protected:
     // get the beam condition services - one for online and one for offline
 
     m_iBeamCondSvc = 0;
-    if ( m_provider->service( "BeamCondSvc", m_iBeamCondSvc ).isFailure() ) {
-      if(m_provider->msg().level() <= MSG::ERROR)
-        m_provider->msg(MSG::ERROR) << " failed to retrieve BeamCondSvc " << endmsg;
+    if ( m_useBeamCondSvc ) { 
+      if ( m_provider->service( "BeamCondSvc", m_iBeamCondSvc ).isFailure() && m_provider->msg().level() <= MSG::ERROR ) {
+	m_provider->msg(MSG::ERROR) << " failed to retrieve BeamCondSvc " << endmsg;
+      }
     }
-
+    
     // get the TriggerDecisionTool
 
     if( m_tdt->retrieve().isFailure() ) {
@@ -1327,7 +1336,7 @@ protected:
 
 
       
-      if ( name().find("Shifter")!=std::string::npos ) {
+      if ( name().find("Shifter")!=std::string::npos || m_shifter ) {
 	/// shifter histograms - do not encode chain names
 	if      ( m_chainNames.at(ic).tail().find("_FTF") != std::string::npos )              mongroup = folder_name + "/FTF";
 	else if ( m_chainNames.at(ic).tail().find("_IDTrig") != std::string::npos || 
@@ -1453,6 +1462,8 @@ protected:
   IBeamCondSvc*  m_iBeamCondSvc;
   IBeamCondSvc*  m_iOnlineBeamCondSvc;
 
+  bool           m_useBeamCondSvc;
+
   TIDA::Event*  m_event;
 
   TFile*    mFile;
@@ -1479,6 +1490,8 @@ protected:
   int m_NTestTracks;
 
   bool m_runPurity;
+
+  bool m_shifter;
 
 };
 

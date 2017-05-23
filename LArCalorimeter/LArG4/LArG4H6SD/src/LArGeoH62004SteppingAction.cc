@@ -3,6 +3,7 @@
 */
 
 #include "LArGeoH62004SteppingAction.h"
+#include "LArG4Code/ILArCalculatorSvc.h"
 #include "LArG4Code/LArG4SimpleSD.h"
 #include "LArG4Code/LArG4Identifier.h"
 #include "G4Track.hh"

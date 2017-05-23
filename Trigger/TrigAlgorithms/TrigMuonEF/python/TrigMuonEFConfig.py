@@ -417,11 +417,10 @@ def TMEF_MuonInsideOutRecoTool(name="TMEF_MuonInsideOutRecoTool",**kwargs):
 ### Stau late trigger configs
 
 def TMEF_MuonStauRecoTool( name='TMEF_MuonStauRecoTool', **kwargs ):
-   kwargs.setdefault('DoSummary', True)
-   kwargs.setdefault('OutputLevel', 'VERBOSE')
+   # kwargs.setdefault('DoSummary', True)
+   kwargs.setdefault('DoSummary', muonCombinedRecFlags.printSummary() )
    kwargs.setdefault('ConsideredPDGs', [13,-13,1000015,-1000015])
    kwargs.setdefault('DoTruth', rec.doTruth() )
-   kwargs.setdefault('DoSummary', muonCombinedRecFlags.printSummary() )
    kwargs.setdefault('MuonSegmentMaker', CfgGetter.getPublicTool('DCMathStauSegmentMaker') )
    kwargs.setdefault('MuonInsideOutRecoTool', CfgGetter.getPublicTool('TMEF_MuonStauInsideOutRecoTool') )
    return CfgMgr.MuonCombined__MuonStauRecoTool(name,**kwargs )

@@ -125,6 +125,7 @@ protected:
   IBeamCondSvc*  m_iBeamCondSvc;
   IBeamCondSvc*  m_iOnlineBeamCondSvc;
   
+  bool           m_useBeamCondSvc;
 
   TIDA::Event*  m_event;
 

@@ -7,7 +7,7 @@
 atlas_subdir( xAODCaloEvent )
 
 # Extra dependencies, based on what environment we're in:
-if( NOT XAOD_ANALYSIS )
+if( NOT XAOD_ANALYSIS AND NOT SIMULATIONBASE )
    set( extra_deps Calorimeter/CaloEvent )
    set( extra_libs CaloEvent )
 endif()
@@ -28,7 +28,7 @@ atlas_depends_on_subdirs(
 find_package( Eigen )
 
 # Extra source(s), based on what environment we are in:
-if( NOT XAOD_ANALYSIS )
+if( NOT XAOD_ANALYSIS AND NOT SIMULATIONBASE )
    set( extra_sources src/*.cxx )
 endif()
 

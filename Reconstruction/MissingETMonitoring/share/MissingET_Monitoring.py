@@ -1,10 +1,14 @@
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 from MissingETMonitoring.MissingETMonitoringConf import *
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
 
 from JetSelectorTools.JetSelectorToolsConf import JetCleaningTool
-cleaningTool = JetCleaningTool( "LooseBadJets" , CutLevel = "LooseBad")
+#cleaningTool = JetCleaningTool( "LooseBadJets" , CutLevel = "LooseBad")
+cleaningTool = JetCleaningTool( "TightBadJets" , CutLevel = "TightBad")
 ToolSvc += cleaningTool
 
 monbadlb = GetLArBadLBFilterTool()
@@ -98,7 +102,8 @@ for trigger in triggerList:
     metMonTool.metCalKey    = ""
     metMonTool.eleColKey    = ""
     metMonTool.muoColKey    = ""
-    metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+#    metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+    metMonTool.jetColKey    = "AntiKt4EMTopoJets"
     metMonTool.TriggerChain = trigger
 #    metMonTool.FilterTools.append(monFilledBunchFilterTool)
     metMonTool.FilterTools.append(monbadlb)
@@ -122,7 +127,8 @@ for trigger in triggerList:
     metMonTool.metKeys      = ["MET_Topo","MET_LocHadTopo"]
     metMonTool.metFinKey    = ""
     metMonTool.metCalKey    = ""
-    metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+#    metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+    metMonTool.jetColKey    = "AntiKt4EMTopoJets"
     metMonTool.eleColKey    = ""
     metMonTool.muoColKey    = ""
     metMonTool.TriggerChain = trigger
@@ -141,7 +147,8 @@ for trigger in triggerList:
     metMonTool.metKeys      = ["MET_RefEle", "MET_RefGamma", "MET_RefTau", "MET_RefJet", "MET_Muon", "MET_PVSoftTrk", "MET_SoftClus", "MET_RefFinal"]
     metMonTool.metFinKey    = ""
     metMonTool.metCalKey    = ""
-    metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+#    metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+    metMonTool.jetColKey    = "AntiKt4EMTopoJets"
     metMonTool.eleColKey    = ""
     metMonTool.muoColKey    = ""
     metMonTool.TriggerChain = trigger
@@ -160,7 +167,8 @@ for trigger in triggerList:
     metMonTool.metKeys      = ["MET_PFlow_RefEle", "MET_PFlow_RefGamma", "MET_PFlow_RefTau", "MET_PFlow_RefJet", "MET_PFlow_Muon", "MET_PFlow_PVSoftTrk", "MET_PFlow_SoftClus", "MET_PFlow_RefFinal"]
     metMonTool.metFinKey    = ""
     metMonTool.metCalKey    = ""
-    metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+#    metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+    metMonTool.jetColKey    = "AntiKt4EMTopoJets"
     metMonTool.eleColKey    = ""
     metMonTool.muoColKey    = ""
     metMonTool.TriggerChain = trigger
@@ -180,7 +188,8 @@ for trigger in triggerList:
     metMonTool.metKeys      = ["MET_RefEle", "MET_RefGamma", "MET_RefTau", "MET_RefJet", "MET_Muon", "MET_PVSoftTrk", "MET_SoftClus", "MET_RefFinal"]
     metMonTool.metFinKey    = ""
     metMonTool.metCalKey    = ""
-    metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+#    metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+    metMonTool.jetColKey    = "AntiKt4EMTopoJets"
     metMonTool.eleColKey    = ""
     metMonTool.muoColKey    = ""
     metMonTool.doMetCut80 = False
@@ -203,7 +212,8 @@ for trigger in triggerList:
     metMonTool.metKeys      = ["MET_Topo","MET_LocHadTopo"]
     metMonTool.metFinKey    = ""
     metMonTool.metCalKey    = ""
-    metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+#    metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+    metMonTool.jetColKey    = "AntiKt4EMTopoJets"
     metMonTool.eleColKey    = ""
     metMonTool.muoColKey    = ""
     metMonTool.doJetcleaning = True
@@ -225,7 +235,8 @@ for trigger in triggerList:
     metMonTool.metKeys      = []
     metMonTool.metFinKey    = "MET_Topo"
     metMonTool.metCalKey    = "MET_Topo"
-    metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+#    metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+    metMonTool.jetColKey    = "AntiKt4EMTopoJets"
     metMonTool.eleColKey    = ""
     metMonTool.muoColKey    = ""
     metMonTool.doJetcleaning = True
@@ -248,7 +259,8 @@ metMonTool.NameSuffix   = "Refined_cut80"
 metMonTool.metKeys      = ["MET_RefEle", "MET_RefGamma", "MET_RefTau", "MET_RefJet", "MET_Muon", "MET_PVSoftTrk", "MET_SoftClus", "MET_RefFinal"]
 metMonTool.metFinKey    = ""
 metMonTool.metCalKey    = ""
-metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+#metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+metMonTool.jetColKey    = "AntiKt4EMTopoJets"
 metMonTool.eleColKey    = ""
 metMonTool.muoColKey    = ""
 metMonTool.doMetCut80 = True
@@ -268,7 +280,8 @@ metMonTool.NameSuffix   = "Calo_cut80"
 metMonTool.metKeys      = ["MET_Topo","MET_LocHadTopo"]
 metMonTool.metFinKey    = ""
 metMonTool.metCalKey    = ""
-metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+#metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+metMonTool.jetColKey    = "AntiKt4EMTopoJets"
 metMonTool.eleColKey    = ""
 metMonTool.muoColKey    = ""
 metMonTool.doMetCut80 = True
@@ -297,7 +310,8 @@ metMonTool.metKeys           = []
 metMonTool.metFinKey         = "MET_Topo"
 #metMonTool.metCalKey         = "MET_Topo"
 metMonTool.metCalKey         = ""
-metMonTool.jetColKey         = "AntiKt4LCTopoJets"
+#metMonTool.jetColKey         = "AntiKt4LCTopoJets"
+metMonTool.jetColKey         = "AntiKt4EMTopoJets"
 metMonTool.eleColKey         = ""
 metMonTool.muoColKey         = ""
 metMonTool.doMetCut80        = False
@@ -320,7 +334,8 @@ metMonTool.NameSuffix        = "cut80"
 metMonTool.metKeys           = []
 metMonTool.metFinKey         = "MET_Topo"
 metMonTool.metCalKey         = "MET_Topo"
-metMonTool.jetColKey         = "AntiKt4LCTopoJets"
+#metMonTool.jetColKey         = "AntiKt4LCTopoJets"
+metMonTool.jetColKey         = "AntiKt4EMTopoJets"
 metMonTool.eleColKey         = ""
 metMonTool.muoColKey         = ""
 metMonTool.doMetCut80 = True

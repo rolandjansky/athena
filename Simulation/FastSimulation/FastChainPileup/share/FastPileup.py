@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 # FastPileup.py - set up fast pileup emulation using in-time generator
 # Richard Hawkings, Vladimir Lyubushkin, 23/4/15
 
@@ -31,6 +33,8 @@ evgenConfig.keywords = ["QCD", "minBias","SM"]
 
 # following copied from nonStandard/Pythia8/Pythia8_A2_MSTW2008LO_Common.py
 # modified to use MultiPy8Pileup
+
+from FastChainPileup.FastChain_jobProperties import FastChain_Flags
 
 from FastChainPileup.FastChainPileupConf import MultiPy8Pileup
 genSeq += MultiPy8Pileup("Pythia8")
@@ -79,8 +83,13 @@ genSeq.Pythia8.McEventsRW=gen_pu
 
 genSeq.Pythia8.NCollPerEvent=-1
 genSeq.Pythia8.PileupProfile=pileUpProfile
-genSeq.Pythia8.MultBCID=[1.]
+#genSeq.Pythia8.MultBCID=[1.]
+genSeq.Pythia8.MultBCID=FastChain_Flags.FastChainBCID()
 # genSeq.Pythia8.HistFile='profile.root'
+
+fast_chain_log.info("Check FastChainBCID Value");
+fast_chain_log.info(FastChain_Flags.FastChainBCID.get_Value())
+
 
 randomSeed=0
 if hasattr(runArgs, "randomSeed"):

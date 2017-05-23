@@ -94,6 +94,7 @@ class TrigL1TopoROBMonitor:public AthAlgorithm {
   std::bitset<m_nTopoCTPOutputs> m_topoSimResult; //! simulation of CTP output
   std::bitset<m_nTopoCTPOutputs> m_topoCtpResult; //! actual hardware CTP output
   bool m_setTopoSimResult;
+  bool m_firstEvent; //! used to toggle the ATH_MSG_INFO only on the first event
   enum class Problems {
     ROI_NO_RDO=0,
     ROI_CNV_ERR,

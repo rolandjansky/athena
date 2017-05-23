@@ -52,11 +52,11 @@ if hasattr(runArgs,"inputAODFile"):
     globalflags.InputFormat.set_Value_and_Lock('pool')
     athenaCommonFlags.PoolAODInput.set_Value_and_Lock( runArgs.inputAODFile )
 
-if hasattr(runArgs,"outputHISTFile"):
+if hasattr(runArgs,"outputHIST_TEMPFile"):
     rec.doMonitoring.set_Value_and_Lock(False)
     from AthenaMonitoring.DQMonFlags import DQMonFlags
     DQMonFlags.doMonitoring.set_Value_and_Lock(False)
-    DQMonFlags.histogramFile.set_Value_and_Lock( runArgs.outputHISTFile )
+    DQMonFlags.histogramFile.set_Value_and_Lock( runArgs.outputHIST_TEMPFile )
     DQMonFlags.doHLTMon.set_Value_and_Lock(True)
 
 if hasattr(runArgs,"monFlags"):

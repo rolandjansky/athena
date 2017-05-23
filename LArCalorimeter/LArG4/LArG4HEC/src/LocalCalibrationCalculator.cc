@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArG4HEC/LocalCalibrationCalculator.h"
+#include "LocalCalibrationCalculator.h"
 
 #include "G4Step.hh"
 #include "G4TouchableHistory.hh"
@@ -15,42 +15,83 @@ namespace LArG4 {
 
   namespace HEC {
 
-    LocalCalibrationCalculator::LocalCalibrationCalculator(const eLocalGeometryType type) {
+    LocalCalibrationCalculator::LocalCalibrationCalculator(const std::string& name, ISvcLocator *pSvcLocator)
+      : LArCalibCalculatorSvcImp(name, pSvcLocator)
+      , m_geometryCalculator("LocalHECGeometry",name)
+      , m_geometryType(kLocActive)
+     {
+       declareProperty("GeometryCalculator", m_geometryCalculator);
+       declareProperty("GeometryType",m_strgeometryType="ACTIVE");
+       m_strgeometryType.declareUpdateHandler(&LocalCalibrationCalculator::GeometryTypeUpdateHandler, this);
 #ifdef DEBUG_HITS
-	  std::cout << "LArG4::HEC::LocalCalibrationCalculator constructed" << std::endl;
+       std::cout << "LArG4::HEC::LocalCalibrationCalculator constructed" << std::endl;
 #endif
-      // Initialize the geometry calculator.
-      m_geometryCalculator = LocalGeometry::GetInstance();
-      m_geometryType = type;
+     }
+
+    void LocalCalibrationCalculator::GeometryTypeUpdateHandler(Property&)
+    {
+      std::string geoTypeString = m_strgeometryType.value();
+      std::transform(geoTypeString.begin(), geoTypeString.end(),geoTypeString.begin(), ::toupper);
+      if(geoTypeString.find("DEAD") != std::string::npos)
+        {
+          m_geometryType=kLocDead;
+        }
+      else if (geoTypeString.find("INACTIVE") != std::string::npos)
+        {
+          m_geometryType=kLocInactive;
+        }
+      else if (geoTypeString.find("ACTIVE") != std::string::npos)
+        {
+          m_geometryType=kLocActive;
+        }
+      else
+        {
+          std::ostringstream merr;
+          merr <<
+            "LArG4::HEC::LocalCalibrationCalculator::GeometryTypeUpdateHandler FATAL: invalid eHECGeometryType specified "
+               << geoTypeString;
+          std::cerr << merr.str() << std::endl;
+          throw GaudiException(merr.str(), "LArG4::HEC::LocalCalibrationCalculator::GeometryTypeUpdateHandler", StatusCode::FAILURE);
+        }
+
     }
 
+    StatusCode LocalCalibrationCalculator::initialize()
+    {
+      // Initialize the geometry calculator.
+      ATH_CHECK(m_geometryCalculator.retrieve());
+
+      return StatusCode::SUCCESS;
+    }
 
     LocalCalibrationCalculator::~LocalCalibrationCalculator() {
     }
 
 
-    G4bool LocalCalibrationCalculator::Process( const G4Step* a_step,
-					   const eCalculatorProcessing a_process ) {
+    G4bool LocalCalibrationCalculator::Process(const G4Step* step, LArG4Identifier & identifier,
+                                          std::vector<G4double> & energies,
+                                          const eCalculatorProcessing process) const
+    {
 
 #ifdef DEBUG_HITS
 	  std::cout << "LArG4::HEC::LocalCalibrationCalculator::Process" << std::endl;
 #endif
-      m_energies.clear();
-      if ( a_process == kEnergyAndID  ||  a_process == kOnlyEnergy )
+      energies.clear();
+      if ( process == kEnergyAndID  ||  process == kOnlyEnergy )
 	{
 #ifdef DEBUG_HITS
           std::cout << " calling SimulationEnergies" << std::endl;
 #endif
-	  m_energyCalculator.Energies( a_step, m_energies );
+	  m_energyCalculator.Energies( step, energies );
 	}
       else
-	for (unsigned int i=0; i != 4; i++) m_energies.push_back( 0. );
+	for (unsigned int i=0; i != 4; i++) energies.push_back( 0. );
 
 
-      if ( a_process == kEnergyAndID  ||  a_process == kOnlyID )
+      if ( process == kEnergyAndID  ||  process == kOnlyID )
 	{
 	   // Calculate the identifier.
-           G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
+           G4StepPoint* pre_step_point = step->GetPreStepPoint();
            G4TouchableHistory* theTouchable = (G4TouchableHistory*) (pre_step_point->GetTouchable());
            // Volume name 
            G4String hitVolume = theTouchable->GetVolume(0)->GetName();
@@ -63,32 +104,32 @@ namespace LArG4 {
           } 
 	  if(m_geometryType != kLocDead) {
              if(hitVolume=="Slice" ) {
-                 m_identifier = m_geometryCalculator->CalculateIdentifier(a_step, kLocInactive, 0, 4.*CLHEP::mm);
+                 identifier = m_geometryCalculator->CalculateIdentifier(step, kLocInactive, 0, 4.*CLHEP::mm);
 	     } else if(hitVolume=="Absorber" ) {
-                 m_identifier = m_geometryCalculator->CalculateIdentifier(a_step, kLocInactive, 0, 2.*CLHEP::mm, 1.02*CLHEP::mm);
+                 identifier = m_geometryCalculator->CalculateIdentifier(step, kLocInactive, 0, 2.*CLHEP::mm, 1.02*CLHEP::mm);
              } else if(hitVolume=="Electrode") { 
-                 m_identifier = m_geometryCalculator->CalculateIdentifier(a_step, kLocInactive, 1, 4.*CLHEP::mm);
+                 identifier = m_geometryCalculator->CalculateIdentifier(step, kLocInactive, 1, 4.*CLHEP::mm);
              } else if(hitVolume=="Copper") {
-                 m_identifier = m_geometryCalculator->CalculateIdentifier(a_step, kLocInactive, 2, 4.*CLHEP::mm);
+                 identifier = m_geometryCalculator->CalculateIdentifier(step, kLocInactive, 2, 4.*CLHEP::mm);
              } else if(hitVolume=="TieRod"){ // We should call another functions for TieRods 
-                 m_identifier = m_geometryCalculator->CalculateIdentifier(a_step, kLocActive, -1);
-	     } else m_identifier = LArG4Identifier();
-	  } else m_identifier = m_geometryCalculator->CalculateIdentifier(a_step, m_geometryType, 0, 4.*CLHEP::mm);
+                 identifier = m_geometryCalculator->CalculateIdentifier(step, kLocActive, -1);
+	     } else identifier = LArG4Identifier();
+	  } else identifier = m_geometryCalculator->CalculateIdentifier(step, m_geometryType, 0, 4.*CLHEP::mm);
 
 #ifdef DEBUG_HITS
-	  G4double energy = accumulate(m_energies.begin(),m_energies.end(),0.);
+	  G4double energy = accumulate(energies.begin(),energies.end(),0.);
 	  std::cout << "LArG4::HEC::LocalCalibrationCalculator::Process"
-		    << " ID=" << std::string(m_identifier)
+		    << " ID=" << std::string(identifier)
 		    << " energy=" << energy
-		    << " energies=(" << m_energies[0]
-		    << "," << m_energies[1]
-		    << "," << m_energies[2]
-		    << "," << m_energies[3] << ")"
+		    << " energies=(" << energies[0]
+		    << "," << energies[1]
+		    << "," << energies[2]
+		    << "," << energies[3] << ")"
 		    << std::endl;
 #endif
 
           // Check for bad result.
-          if ( m_identifier == LArG4Identifier() ) return false;
+          if ( identifier == LArG4Identifier() ) return false;
 
           return true;
         }

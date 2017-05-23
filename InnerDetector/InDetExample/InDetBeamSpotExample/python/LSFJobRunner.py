@@ -29,7 +29,7 @@ class LSFJobRunner(JobRunner):
 
     def submitJob(self,jobConfig):
         """Submit a JobRunner job as a LSF batch job."""
-        batchCmd = 'bsub -q %(batchqueue)s -J %(jobname)s -o %(logfile)s %(scriptfile)s' % jobConfig
+        batchCmd = 'bsub -L /bin/bash -q %(batchqueue)s -J %(jobname)s -o %(logfile)s %(scriptfile)s' % jobConfig
         print batchCmd
         os.system(batchCmd)
         return None

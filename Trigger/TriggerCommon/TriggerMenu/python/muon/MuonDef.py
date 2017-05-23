@@ -549,12 +549,12 @@ class L2EFChain_mu(L2EFChainDef):
 
     if (self.chainPart['isoInfo']) and ( self.chainPart['isoInfo'] not in ["icalo","iloosecalo","imediumcalo","ivarmediumcalo","ivarloosecalo"] ):
 
-      self.TErenamingDict.update({'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', chainPartNameNoMultNoDS.replace('_'+self.chainPart['isoInfo'],'')),
-                                  'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   chainPartNameNoMultNoDS.replace('_'+self.chainPart['isoInfo'],'')),
-                                  'EF_mu_roi': mergeRemovingOverlap('EF_SuperEFRoI_',   chainPartNameNoMultNoDS),
-                                  'EF_mu_step3': mergeRemovingOverlap('EF_muI_efid_',    chainPartNameNoMultNoDS),
-                                  'EF_mu_step4': mergeRemovingOverlap('EF_trkIso_',       chainPartNameNoMultNoDS),
-                                  'EF_mu_hypo3': mergeRemovingOverlap('EF_trkIsohyp_',       chainPartNameNoMultNoDS)})
+      self.TErenamingDict.update({'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', chainPartNameNoMultNoDS.replace('_'+self.chainPart['isoInfo'],'')+'_'+self.L2InputTE),
+                                  'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   chainPartNameNoMultNoDS.replace('_'+self.chainPart['isoInfo'],'')+'_'+self.L2InputTE),
+                                  'EF_mu_roi': mergeRemovingOverlap('EF_SuperEFRoI_',   chainPartNameNoMultNoDS+'_'+self.L2InputTE),
+                                  'EF_mu_step3': mergeRemovingOverlap('EF_muI_efid_',    chainPartNameNoMultNoDS+'_'+self.L2InputTE),
+                                  'EF_mu_step4': mergeRemovingOverlap('EF_trkIso_',       chainPartNameNoMultNoDS+'_'+self.L2InputTE),
+                                  'EF_mu_hypo3': mergeRemovingOverlap('EF_trkIsohyp_',       chainPartNameNoMultNoDS+'_'+self.L2InputTE)})
     if (self.chainPart['isoInfo']) and ( self.chainPart['isoInfo'] == "icalo" ):
 
       self.TErenamingDict.update({'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', self.chainPartNameNoMult.replace('_'+self.chainPart['isoInfo'],'')),
@@ -1361,22 +1361,24 @@ class L2EFChain_mu(L2EFChainDef):
     hypocut = 'opposite'
     hypocutEF = multiplicity+"_"+threshold
     seed = self.allMuThrs[0]
-
     theCTAlg = CfgGetter.getAlgorithm("TrigMuSuperEF_CTonly")
-
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonCaloTagHypoConfig
-    theTrigMuonCT_FS_Hypo = TrigMuonCaloTagHypoConfig('MuonCT', threshold, int(multiplicity) )
+    theTrigMuonCT_FS_Hypo = TrigMuonCaloTagHypoConfig('MuonCT', threshold, int(multiplicity),  self.allMuThrs[0])
 
+    theTrigMuonEFCombinerHypoConfigCT = TrigMuonEFCombinerHypoConfig('MuonCT',self.allMuThrs[0])
     from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMaker_topo, TrigCaloCellMaker_super
-    
+    from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFRoiAggregatorConfig
+
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
     [trkfast, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig").getSequence()
     
+
+    inputTEfromL2 = "placeHolderTE"
     ########### Sequence List ##############
     if "0eta010" in self.chainPart['etaRange'] or "0eta500" in self.chainPart["etaRange"]:
       seed = '0eta0'
       from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
-      from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFFSRoiMakerUnseededConfig
+      from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFFSRoiMakerUnseededConfig, TrigMuonEFFSRoiMakerConfig
       if "0eta010" in self.chainPart['etaRange']:
         theEFRoIMaker = TrigMuonEFFSRoiMakerUnseededConfig("TrigMuonEFFSRoiMakerUnseeded_0eta010", RoISizeEta=0.1)
         hypocut = "0eta010"
@@ -1387,6 +1389,8 @@ class L2EFChain_mu(L2EFChainDef):
         log.error("Cannot setup unseeded muon calotag chain which is not 0eta500 or 0eta010")
         return
       
+      theEFRoIMakerCT = TrigMuonEFFSRoiMakerConfig("TrigMuonEFFSRoiMakerCT", RoISizeEta=0.1)
+      combinedMuonTE=inputTEfromL2[0]
       self.EFsequenceList += [["",
                               [PESA__DummyUnseededAllTEAlgo("EFDummyAlgo")],
                                'EF_CT_seed']]
@@ -1403,7 +1407,17 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsequenceList += [['EF_CT_tracks',
                                [theCTAlg],
                                'EF_CT_alg']]
-      self.EFsequenceList += [['EF_CT_alg',
+      self.EFsequenceList += [[inputTEfromL2,
+                               [theTrigMuonEFCombinerHypoConfigCT],
+                               'EF_CT_hypo1']]
+      self.EFsequenceList += [[['EF_CT_alg','EF_CT_hypo1'],
+                               [theEFRoIMakerCT],
+                               'EF_CT_roi2']]
+      self.EFsequenceList += [['EF_CT_roi2',
+                               [TrigMuonEFRoiAggregatorConfig('TrigMuonEFFSRoiAggregatorCT')],
+                               'EF_CT_roiagg']]
+
+      self.EFsequenceList += [['EF_CT_roiagg',
                                [theTrigMuonCT_FS_Hypo],
                                'EF_CT_hypo']]
     
@@ -1418,17 +1432,23 @@ class L2EFChain_mu(L2EFChainDef):
     self.EFsignatureList += [ [['EF_CT_calo']] ]
     self.EFsignatureList += [ [['EF_CT_tracks']] ]
     self.EFsignatureList += [ [['EF_CT_alg']] ]    
+    self.EFsignatureList += [ [['EF_CT_hypo1']] ]
+    self.EFsignatureList += [ [['EF_CT_roi2']] ]    
+    self.EFsignatureList += [ [['EF_CT_roiagg']] ]    
     self.EFsignatureList += [ [['EF_CT_hypo']] ]
 
     ########### TE renaming ##########
 
     self.TErenamingDict = {
-      'EF_CT_seed': mergeRemovingOverlap('EF_CT_seed_',seed),
-      'EF_CT_roi': mergeRemovingOverlap('EF_CT_roi_',seed+"_"+hypocut),
-      'EF_CT_calo': mergeRemovingOverlap('EF_CT_calo_', seed+"_"+hypocut),
-      'EF_CT_tracks': mergeRemovingOverlap('EF_CT_tracks_',seed+"_"+hypocut),
-      'EF_CT_alg': mergeRemovingOverlap('EF_CT_alg_', seed+"_"+hypocut),
-      'EF_CT_hypo': mergeRemovingOverlap('EF_CT_hyp_',seed+"_"+ hypocut+'_CTHypo_'+hypocutEF),
+      'EF_CT_seed': mergeRemovingOverlap('EF_CT_seed_',hypocut),
+      'EF_CT_roi': mergeRemovingOverlap('EF_CT_roi_',hypocut),
+      'EF_CT_calo': mergeRemovingOverlap('EF_CT_calo_', hypocut),
+      'EF_CT_tracks': mergeRemovingOverlap('EF_CT_tracks_',hypocut),
+      'EF_CT_hypo1': mergeRemovingOverlap('EF_CT_hyp1_',hypocut+'_CTHypo1_'+hypocutEF+'_'+self.allMuThrs[0]),
+      'EF_CT_alg': mergeRemovingOverlap('EF_CT_alg_', hypocut+'_'+hypocutEF),
+      'EF_CT_roi2': mergeRemovingOverlap('EF_CT_roi2_', hypocut+'_'+hypocutEF+'_'+self.allMuThrs[0]),
+      'EF_CT_roiagg': mergeRemovingOverlap('EF_CT_roiagg_', hypocut+'_'+hypocutEF+'_'+self.allMuThrs[0]),
+      'EF_CT_hypo': mergeRemovingOverlap('EF_CT_hyp_',hypocut+'_CTHypo_'+hypocutEF+'_'+self.allMuThrs[0]),
       }
   #################################################################################################
   #################################################################################################
@@ -1472,7 +1492,7 @@ class L2EFChain_mu(L2EFChainDef):
     if self.chainPart['isoInfo'] == "iloosems":
       theTrigMuonEFTrackIsolationHypoConfig = TrigMuonEFTrackIsolationHypoConfig("Muon","MSEFOnlyLooseWide")
 
-    name = 'Muon'
+    name = 'MuonNS'
     if "noComb" in self.chainPart['addInfo']:
       name = 'Muon_noComb'
     if "nscan05" in self.chainPart['FSinfo']:
@@ -1482,19 +1502,19 @@ class L2EFChain_mu(L2EFChainDef):
 
     if len(self.allMuThrs) == 1:
       theTrigMuonEFCombinerMultiHypoConfigNS = TrigMuonEFCombinerHypoConfig(name, self.allMuThrs[0])
-      theTrigMuonEFExtrapolatorMultiHypoConfigNS = TrigMuonEFExtrapolatorHypoConfig('Muon', self.allMuThrs[0])      
+      theTrigMuonEFExtrapolatorMultiHypoConfigNS = TrigMuonEFExtrapolatorHypoConfig('MuonNS', self.allMuThrs[0])      
       try: hypocut = '%s' %(self.allMuThrs[0].split("GeV")[0])
       except:  hypocut = '%s' %(self.allMuThrs[0])
 
     elif len(self.allMuThrs) == 2:
       theTrigMuonEFCombinerMultiHypoConfigNS = TrigMuonEFCombinerMultiHypoConfig(name,self.allMuThrs[0], self.allMuThrs[1]) 
-      theTrigMuonEFExtrapolatorMultiHypoConfigNS = TrigMuonEFExtrapolatorMultiHypoConfig('Muon',self.allMuThrs[0], self.allMuThrs[1])       
+      theTrigMuonEFExtrapolatorMultiHypoConfigNS = TrigMuonEFExtrapolatorMultiHypoConfig('MuonNS',self.allMuThrs[0], self.allMuThrs[1])       
       try: hypocut = '%s_%s' %(self.allMuThrs[0].split("GeV")[0], self.allMuThrs[1].split("GeV")[0])                  
       except:hypocut = '%s_%s' %(self.allMuThrs[0], self.allMuThrs[1])                  
 
     elif len(self.allMuThrs) == 3:
       theTrigMuonEFCombinerMultiHypoConfigNS = TrigMuonEFCombinerMultiHypoConfig(name,self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2])
-      theTrigMuonEFExtrapolatorMultiHypoConfigNS = TrigMuonEFExtrapolatorMultiHypoConfig('Muon',self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2])
+      theTrigMuonEFExtrapolatorMultiHypoConfigNS = TrigMuonEFExtrapolatorMultiHypoConfig('MuonNS',self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2])
       try: hypocut = '%s_%s_%s' %(self.allMuThrs[0].split("GeV")[0], self.allMuThrs[1].split("GeV")[0],self.allMuThrs[2].split("GeV")[0])      
       except: hypocut = '%s_%s_%s' %(self.allMuThrs[0], self.allMuThrs[1],self.allMuThrs[2])                                  
     else:

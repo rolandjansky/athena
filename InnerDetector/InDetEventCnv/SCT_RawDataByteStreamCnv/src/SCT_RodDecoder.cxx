@@ -66,12 +66,12 @@ SCT_RodDecoder::SCT_RodDecoder
      m_truncatedRODNumber(0),
      m_numMissingLinkHeader(0),
      m_numUnknownOfflineId(0),
-     m_bsErrCont(nullptr),
+     m_bsErrContainerName(""),
      m_incidentSvc("IncidentSvc", name)
 {
   declareProperty("CablingSvc",m_cabling);
   declareProperty("ErrorsSvc",m_byteStreamErrSvc);
-  declareProperty("ByteStreamErrContainer",m_bsErrContainerName="SCT_ByteStreamErrs");
+  declareProperty("ByteStreamErrContainer",m_bsErrContainerName=std::string("SCT_ByteStreamErrs"));
   declareProperty("TriggerMode",m_triggerMode=true);
   declareInterface< ISCT_RodDecoder  >( this );
 }
@@ -95,6 +95,8 @@ StatusCode SCT_RodDecoder::initialize() {
 
   ATH_CHECK(m_byteStreamErrSvc.retrieve()) ;
 
+  ATH_CHECK(m_bsErrContainerName.initialize());
+
   IIncidentSvc* incsvc;
   sc = service("IncidentSvc", incsvc);
   int priority = 100;
@@ -110,8 +112,8 @@ StatusCode SCT_RodDecoder::initialize() {
 void
 SCT_RodDecoder::handle(const Incident& inc) {
   if ((inc.type() == "BeginEvent") && (! m_triggerMode) ){
-    m_bsErrCont = new InDetBSErrContainer();
-    StatusCode sc = evtStore()->record(m_bsErrCont,m_bsErrContainerName);
+    m_bsErrCont = SG::makeHandle(m_bsErrContainerName);
+    StatusCode sc = m_bsErrCont.record(std::make_unique<InDetBSErrContainer>());
     if (sc.isFailure() ) msg(MSG::ERROR) << "Failed to record BSErrors to SG"<<endmsg;
   }
   m_byteStreamErrSvc->setCondensedReadout(m_condensedMode);
@@ -712,6 +714,29 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
 	  m_trail_error_overflow++ ;
 	  addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::TrailerOverflowError);
 	  sc=StatusCode::RECOVERABLE;
+	}
+	if (d[n] & 0xF) { 
+	  // fisrt temporarily masked chip information
+	  // 0 means no masked chip (always has been 0 until April 2017)
+	  // 
+	  // If Rx redundacy is not used, 
+	  // 1 means chips 0-5 are temporarily masked. 
+	  // 6 means chip 5 is temporarily masked. 
+	  // 7 means chips 6-11 are temporarily masked. 
+	  // 12 means chip 11 is temporarily masked. 
+	  // 
+	  // If Rx redundacy is used and link-1 is not used,
+	  // 1 means chips 0-11 are temporarily masked. 
+	  // 6 means chips 5-11 are temporarily masked. 
+	  // 7 means chips 6-11 are temporarily masked. 
+	  // 12 means chip 11 is temporarily masked. 
+	  // 
+	  // If Rx redundacy is used and link-0 is not used,
+	  // 1 means chips 0-5 are temporarily masked. 
+	  // 6 means chip 5 is temporarily masked. 
+	  // 7 means chips 6-11, 0-5 are temporarily masked. 
+	  // 12 means chips 11, 0-5 are temporarily masked. 
+	  m_byteStreamErrSvc->setFirstTempMaskedChip(currentLinkIdHash, (d[n] & 0xF));
 	}
 	continue; 
       }

@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 783761 2016-11-11 16:50:45Z nkoehler $
 ################################################################################
 # Package: MuonEfficiencyCorrections
 ################################################################################
@@ -30,7 +31,7 @@ atlas_depends_on_subdirs(
    ${extra_dep} )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
+find_package( Boost )
 find_package( ROOT COMPONENTS Core Tree RIO Hist Physics )
 
 # Libraries in the package:

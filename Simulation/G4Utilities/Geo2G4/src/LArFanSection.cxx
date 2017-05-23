@@ -93,7 +93,7 @@ bool LArWheelSolid::fs_cross_lower(
 	const G4bool out = out_dist >= 0.0;
 	if(check_D(t1, A, B, C, out)){
 		const G4double zz1 = p.z() + v.z() * t1;
-		if(zz1 < Zsect.front() || zz1 > Zsect.back()){
+		if(zz1 < m_Zsect.front() || zz1 > m_Zsect.back()){
 			LWSDBG(8, std::cout << "fcl out on Z " << zz1 << std::endl);
 			return false;
 		}
@@ -125,13 +125,13 @@ bool LArWheelSolid::fs_cross_upper(
 	G4double B = p.x()*v.x() + p.y()*v.y();
 	G4double C = p.perp2();
 
-	if(IsOuter){
+	if(m_IsOuter){
 		const G4double &Af = A, &Bf = B;
 		const G4double Cf = C - m_fs->Cflat2;
 		G4double b1;
 		if(check_D(b1, Af, Bf, Cf, Cf >= 0.)){
 			const G4double zz1 = p.z() + v.z() * b1;
-			if(zz1 >= Zmid && zz1 <= Zsect.back()){
+			if(zz1 >= m_Zmid && zz1 <= m_Zsect.back()){
 				const G4double xx1 = p.x() + v.x() * b1;
 				if(xx1 < m_fs->xmin || xx1 > m_fs->xmax) return false;
 				q.setX(xx1);
@@ -151,7 +151,7 @@ bool LArWheelSolid::fs_cross_upper(
 	const G4bool out = m_fs->Amax*p.z() + m_fs->Bmax <= p.perp();
 	if(check_D(t1, A, B, C, out)){
 		const G4double zz1 = p.z() + v.z() * t1;
-		if(zz1 < Zsect.front() || zz1 > Zmid) return false;
+		if(zz1 < m_Zsect.front() || zz1 > m_Zmid) return false;
 		const G4double xx1 = p.x() + v.x() * t1;
 		if(xx1 < m_fs->xmin || xx1 > m_fs->xmax) return false;
 		q.setX(xx1);
@@ -189,10 +189,10 @@ LArWheelSolid::FanBoundExit_t LArWheelSolid::find_exit_point(
 	G4double dz;
 	FanBoundExit_t resultz = NoCross;
 	if(v.z() > 0.){
-		dz = (Zsect.back() - p.z()) / v.z();
+		dz = (m_Zsect.back() - p.z()) / v.z();
 		resultz = ExitAtBack;
 	} else if(v.z() < 0.){
-		dz = (Zsect.front() - p.z()) / v.z();
+		dz = (m_Zsect.front() - p.z()) / v.z();
 		resultz = ExitAtFront;
 	} else {
 		dz = kInfinity;
@@ -212,13 +212,13 @@ LArWheelSolid::FanBoundExit_t LArWheelSolid::find_exit_point(
 		return NoCross;
 	}
 
-	if (IsOuter && q.z() >= Zmid && q.z() <= Zsect.back()+Tolerance && q.perp2() >= m_fs->Cflat2) {
+	if (m_IsOuter && q.z() >= m_Zmid && q.z() <= m_Zsect.back()+s_Tolerance && q.perp2() >= m_fs->Cflat2) {
 		// outside of upper cylinder
 		q = p;
 		return NoCross;
 	}
 	const G4double out_distupper = m_fs->Amax*q.z() + m_fs->Bmax - q.perp(); // < 0 - above upper cone
-	LWSDBG(7, std::cout << "fep out_distupper(q)=" << out_distupper << " Tolerance=" << Tolerance << std::endl);
+	LWSDBG(7, std::cout << "fep out_distupper(q)=" << out_distupper << " s_Tolerance=" << s_Tolerance << std::endl);
 	if (out_distupper <= 0.0) {
 		// side intersection point is above upper cone
 		// initial point p was at exit boundary

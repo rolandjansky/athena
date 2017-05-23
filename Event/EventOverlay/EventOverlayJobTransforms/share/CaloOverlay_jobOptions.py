@@ -66,7 +66,9 @@ if DetFlags.overlay.Tile_on():
     include( "TileIdCnv/TileIdCnv_jobOptions.py" )
     include( "TileConditions/TileConditions_jobOptions.py" )        
 
-    include("TileSimAlgs/TileDigitization_jobOptions.py")
+    include( "TileSimAlgs/TileDigitization_jobOptions.py" )
+    include( "TileL2Algs/TileL2Algs_jobOptions.py" )
+
     job.TileHitVecToCnt.DigitizationTool.RndmEvtOverlay = True
     theTileDigitsMaker.RndmEvtOverlay = True
     if readBS and isRealData:

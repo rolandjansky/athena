@@ -13,7 +13,6 @@ TrackFastSimSDTool::TrackFastSimSDTool(const std::string& type, const std::strin
   : SensitiveDetectorBase( type , name , parent )
 {
   declareInterface<ISensitiveDetector>(this);
-  m_volumeNames = { "Muon::DummyVolumeName" };
   m_outputCollectionNames = {"NeutronBG"};
   m_noVolumes=true;
 }

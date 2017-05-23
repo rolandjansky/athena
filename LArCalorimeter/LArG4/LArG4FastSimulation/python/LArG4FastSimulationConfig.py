@@ -53,7 +53,7 @@ def getFCALFastShower(name="FCALFastShower", **kwargs):
     kwargs.setdefault("AbsHighEta",         4.4)
     kwargs.setdefault("DetectorTag",        300000)
     kwargs.setdefault("SensitiveDetector", "FCALFastSimDedicatedSD")
-    kwargs.setdefault("EMinEneShowerLib",   3.0)
+    kwargs.setdefault("EMinEneShowerLib",   0.51)
     return CfgMgr.LArFastShowerTool(name, **kwargs)
 
 def getFCAL2FastShower(name="FCAL2FastShower", **kwargs):
@@ -68,5 +68,5 @@ def getFCAL2FastShower(name="FCAL2FastShower", **kwargs):
     kwargs.setdefault("AbsHighEta",         4.4)
     kwargs.setdefault("DetectorTag",        400000)
     kwargs.setdefault("SensitiveDetector", "FCALFastSimDedicatedSD")
-    kwargs.setdefault("EMinEneShowerLib",   1.0)
+    kwargs.setdefault("EMinEneShowerLib",   0.51)
     return CfgMgr.LArFastShowerTool(name, **kwargs)

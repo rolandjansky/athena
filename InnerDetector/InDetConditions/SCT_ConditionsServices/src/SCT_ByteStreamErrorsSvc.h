@@ -23,8 +23,14 @@
 #include "AthenaBaseComps/AthService.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
+#include "InDetByteStreamErrors/InDetBSErrContainer.h"
 /** needs to be included here for gcc 4.3 compatibility */
 #include "StoreGate/StoreGateSvc.h"
+
+#include "Identifier/IdContext.h"
+
+/** Read Handle Key */
+#include "StoreGate/ReadHandleKey.h"
 
 /** forward declarations */
 template <class TYPE> class SvcFactory;
@@ -98,6 +104,12 @@ public:
   virtual void setDecodedROD(const boost::uint32_t rodId);
   virtual std::vector<boost::uint32_t> getRODOuts() const;
 
+  virtual void setFirstTempMaskedChip(const IdentifierHash& hashId, const unsigned int firstTempMaskedChip);
+  virtual unsigned int getFirstTempMaskedChip(const IdentifierHash& hashId) const;
+  virtual std::map<Identifier, unsigned int>* tempMaskedChips() const {return m_tempMaskedChips;}
+  virtual unsigned int tempMaskedChips(const Identifier & moduleId) const;
+  virtual unsigned int abcdErrorChips(const Identifier & moduleId) const;
+
 private:
 
   const SCT_ID* m_sct_id;
@@ -113,11 +125,15 @@ private:
 
   std::set<IdentifierHash>* m_rxRedundancy;
 
+  std::map<IdentifierHash, unsigned int> m_firstTempMaskedChips;
+  std::map<Identifier, unsigned int>* m_tempMaskedChips;
+  IdContext m_cntx_sct;
+
   int m_numBsErrors[SCT_ByteStreamErrors::NUM_ERROR_TYPES];
 
   bool m_isRODSimulatedData;
 
-  std::string m_bsErrContainerName;
+  SG::ReadHandleKey<InDetBSErrContainer> m_bsErrContainerName;
 
   bool m_useDCSfromBS;
   int m_numRODsHVon;

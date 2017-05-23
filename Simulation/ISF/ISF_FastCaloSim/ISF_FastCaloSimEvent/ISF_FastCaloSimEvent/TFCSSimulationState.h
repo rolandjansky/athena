@@ -15,11 +15,13 @@ class TFCSSimulationState:public TObject
     
     bool   is_valid() const {return m_Ebin>=0;};
     double E() const {return m_Etot;};
-    double E(int sample) const {return m_E[sample];};
+    double E(int sample)     const {return m_E[sample];};
+    double Efrac(int sample) const {return m_Efrac[sample];};
     int    Ebin() const {return m_Ebin;};
     
     void set_Ebin(int bin) {m_Ebin=bin;};
-    void set_E(int sample,double Esample) { m_E[sample]=Esample; } ;
+    void set_E(int sample,double Esample)     { m_E[sample]=Esample; } ;
+    void set_Efrac(int sample,double Efracsample) { m_Efrac[sample]=Efracsample; } ;
     void set_E(double E) { m_Etot=E; } ;
     void add_E(int sample,double Esample) { m_E[sample]+=Esample;m_Etot+=Esample; };
     
@@ -32,12 +34,13 @@ class TFCSSimulationState:public TObject
     int    m_Ebin;
     double m_Etot;
     double m_E[CaloCell_ID_FCS::MaxSample];
+    double m_Efrac[CaloCell_ID_FCS::MaxSample];
 
   ClassDef(TFCSSimulationState,1)  //TFCSSimulationState
 };
 
-//#if defined(__MAKECINT__)
-//#pragma link C++ class TFCSSimulationState+;
-//#endif
+#if defined(__MAKECINT__)
+#pragma link C++ class TFCSSimulationState+;
+#endif
 
 #endif

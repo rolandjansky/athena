@@ -94,6 +94,13 @@ FCSgeoHelper=FastCaloSimGeometryHelper()
 ToolSvc+=FCSgeoHelper
 ISF_HitAnalysis.CaloGeometryHelper=FCSgeoHelper
 
+from AthenaCommon.CfgGetter import getPublicTool
+#ISF_HitAnalysis.FastCaloSimCaloExtrapolation= 'ISF_FastCaloSimCaloExtrapolation'
+ISF_HitAnalysis.FastCaloSimCaloExtrapolation= getPublicTool('ISF_FastCaloSimCaloExtrapolation')
+ISF_HitAnalysis.FastCaloSimCaloExtrapolation.OutputLevel = DEBUG
+ToolSvc.ISF_FastCaloSimCaloExtrapolation.OutputLevel = DEBUG
+
+
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
 #name the output file here
