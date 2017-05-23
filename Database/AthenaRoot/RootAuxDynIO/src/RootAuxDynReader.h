@@ -71,6 +71,7 @@ protected:
   // offset of the AxuStoreHolder base class in the objects read by the Reader
   int                                   m_storeHolderOffset = -1;
   bool                                  m_initialized = false;
+  std::string                           m_key;
 };
 
 

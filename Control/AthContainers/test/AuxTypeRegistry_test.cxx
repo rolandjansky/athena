@@ -21,10 +21,46 @@
 
 #ifndef XAOD_STANDALONE
 #include "SGTools/TestStore.h"
+#include "SGTools/StringPool.h"
 #include "SGTools/CLASS_DEF.h"
 CLASS_DEF (std::vector<int*>, 28374627, 0)
 using namespace SGTest;
 #endif
+
+
+class TestStringPool
+  : public IStringPool
+{
+public:
+  virtual
+  sgkey_t stringToKey (const std::string& str, CLID clid) override
+  {
+    return m_pool.stringToKey (str, clid);
+  }
+
+  virtual
+  const std::string* keyToString (sgkey_t key) const override
+  {
+    return m_pool.keyToString (key);
+  }
+
+  virtual
+  const std::string* keyToString (sgkey_t key,
+                                  CLID& clid) const override
+  {
+    return m_pool.keyToString (key, clid);
+  }
+
+  virtual
+  void registerKey (sgkey_t key,
+                    const std::string& str,
+                    CLID clid)
+  {
+    m_pool.registerKey (key, str, clid);
+  }
+
+  SG::StringPool m_pool;
+};
 
 
 struct Payload
@@ -400,6 +436,39 @@ void test_copyForOutput()
 }
 
 
+void addto_renameMap (Athena::IInputRename::InputRenameMap_t& map,
+                      IStringPool& pool,
+                      const char* from,
+                      const char* to)
+{
+  CLID clid = 123;
+  sgkey_t from_key = pool.stringToKey (from, clid);
+  sgkey_t to_key   = pool.stringToKey (to, clid);
+  map[from_key] = to_key;
+}
+
+
+void test_renameMap()
+{
+  std::cout << "test_renameMap\n";
+
+#ifndef XAOD_STANDALONE
+  TestStringPool pool;
+  Athena::IInputRename::InputRenameMap_t map;
+
+  addto_renameMap (map, pool, "a", "a_renamed");
+  addto_renameMap (map, pool, "b.c", "b.c_renamed");
+  addto_renameMap (map, pool, "b.d", "b");
+
+  SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+  r.setInputRenameMap (&map, pool);
+
+  assert (r.inputRename ("a", "b") == "b");
+  assert (r.inputRename ("b", "c") == "c_renamed");
+#endif
+}
+
+
 int main()
 {
 #ifndef XAOD_STANDALONE
@@ -411,5 +480,6 @@ int main()
   test_factories();
   test_get_by_ti();
   test_copyForOutput();
+  test_renameMap();
   return 0;
 }
