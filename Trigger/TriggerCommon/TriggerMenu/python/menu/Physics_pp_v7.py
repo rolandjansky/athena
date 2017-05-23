@@ -49,7 +49,7 @@ def setupMenu():
         ['mu24_iloose', 'L1_MU21', [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu24_ivarmedium',	      'L1_MU21',	   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu26_ivarmedium',	     'L1_MU21', 	  [], [PhysicsStream, 'express'], ['RATE:SingleMuon', 'BW:Muon'], -1],
-        ['mu26_ivarmedium_zROItest', 'L1_MU21', 	  [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+#        ['mu26_ivarmedium_zROItest', 'L1_MU21', 	  [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu28_ivarmedium',	     'L1_MU21', 	  [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu35_ivarmedium',	     'L1_MU21', 	  [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
 
