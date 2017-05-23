@@ -6,7 +6,7 @@ import TriggerMenu.menu.Physics_pp_v7 as physics_menu
 from TriggerJobOpts.TriggerFlags          import TriggerFlags
 from copy                                 import deepcopy
 
-
+import re
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'MC_pp_v7.py' )
@@ -25,8 +25,8 @@ def setupMenu():
     RATE_BphysTag      = 'RATE:Bphysics'
     RATE_BMultiMuonTag = 'RATE:MultiMuon'  # can become RATE:BMultiMuon' with one letter change 
     BW_BphysTag        = 'BW:Bphys'
-    RATE_DYTag         = 'RATE:Muon'   
-    BW_DYTag           = 'BW:Muon'   
+    #RATE_DYTag         = 'RATE:Muon'   #not being used at this time
+    #BW_DYTag           = 'BW:Muon'   
     
     
     # ---------------------------------------------------------------------------------------

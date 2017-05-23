@@ -42,6 +42,7 @@ class HLTChain:
                     if type(te) != type(''): # check if this is a string
                         raise Exception("The trigger element: " + str(te) + " in the signature: " + self.sigcounter + "is not a plain string" )
                     #xTriggerElement = etree.SubElement(xSignature, 'TRIGGERELEMENT', te_name=str(te))
+                    etree.SubElement(xSignature, 'TRIGGERELEMENT', te_name=str(te))
                     
     # construction
     def __init__(self, chain_name, chain_counter,
@@ -287,12 +288,13 @@ class HLTChain:
 
         xTriggerTypeList = etree.SubElement(xChain, 'TRIGGERTYPE_LIST')
         for bit in self.trigger_type_bits:
-            print "HEATHER: THIS CODE IS ALIVE!"
-            xTriggerType = etree.SubElement(xTriggerTypeList, 'TRIGGERTYPE', bit = str(bit))
+            #xTriggerType = etree.SubElement(xTriggerTypeList, 'TRIGGERTYPE', bit = str(bit))
+            etree.SubElement(xTriggerTypeList, 'TRIGGERTYPE', bit = str(bit))
 
         xStreamTagList = etree.SubElement(xChain, 'STREAMTAG_LIST')
         for stream in self.stream_tag:
-            xStreamTag = etree.SubElement(xStreamTagList, 'STREAMTAG',
+            #xStreamTag = etree.SubElement(xStreamTagList, 'STREAMTAG',
+            etree.SubElement(xStreamTagList, 'STREAMTAG',
                                           stream = stream[0],
                                           type = stream[1],
                                           obeyLB = stream[2],
@@ -306,7 +308,8 @@ class HLTChain:
 
         xGroupList = etree.SubElement(xChain, 'GROUP_LIST')
         for g in self.groups:
-            xGroup = etree.SubElement(xGroupList, 'GROUP', name = g)
+            #xGroup = etree.SubElement(xGroupList, 'GROUP', name = g)
+            etree.SubElement(xGroupList, 'GROUP', name = g)
             
         xSignatureList = etree.SubElement(xChain, 'SIGNATURE_LIST')
         for sig in self.siglist:

@@ -71,9 +71,6 @@ def readL1MenuFromXML(menu="LVL1config_Physics_pp_v6.xml"):
 
 
 def findUnneededRun2():
-    from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
-    from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
-    
     menus = ['Physics_pp_v6']
 
     for menu in menus:
@@ -85,8 +82,6 @@ def findUnneededRun2():
 
 
 def findRequiredItemsFromXML():
-    from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
-    from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
     
     menus = ['Physics_pp_v7','MC_pp_v7','Physics_pp_v6','MC_pp_v6']
 
@@ -136,11 +131,8 @@ def findFreeCTPIDs(menu):
     [menus,allItems,allThrs] = load(f)
 
     TF.triggerMenuSetup = menu
-    tpcl1 = TriggerConfigLVL1( outputFile = TF.outputLVL1configFile() )
 
     print set(Lvl1Flags.CtpIdMap().keys()) - allItems
-
-
     
 def main():
     printCabling = False

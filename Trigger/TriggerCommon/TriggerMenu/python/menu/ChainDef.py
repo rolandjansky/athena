@@ -57,7 +57,7 @@ class ChainDef:
 
         #safety: if asked to insert with sig_counter -1, use addSignature
         if signature_counter == -1:
-            addSignature(signature_counter,listOfTriggerElements)
+            self.addSignature(signature_counter,listOfTriggerElements)
         else:
             pos_newSeq = -1
             

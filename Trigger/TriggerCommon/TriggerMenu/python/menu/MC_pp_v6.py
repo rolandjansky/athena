@@ -5,7 +5,7 @@ import TriggerMenu.menu.Physics_pp_v6 as physics_menu
 
 from TriggerJobOpts.TriggerFlags          import TriggerFlags
 from copy                                 import deepcopy
-
+import re
 
 
 from AthenaCommon.Logging import logging
