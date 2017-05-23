@@ -35,8 +35,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/NTuple.h"
 
-#include "DataModel/DataLink.h"
-
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 #include "MuonTrigCoinData/TgcCoinData.h"
