@@ -38,11 +38,11 @@ def setupMenu():
         ['2mu14_nomucomb',         'L1_2MU10',          [], [PhysicsStream], ['RATE:MultiMuon', 'RATE:UpgradeMuon', 'RATE:UpgradeAll', 'BW:Muon'], -1],
 
         #upgrade study chains
-        ['mu20_ivarmedium_L1MU6',	   'L1_MU6', 	  [], [PhysicsStream], ['RATE:SingleMuon', 'RATE:UpgradeMuon', 'RATE:UpgradeAll', 'BW:Muon'], -1],
-        ['mu20_L1MU6',			   'L1_MU6',           [], [PhysicsStream], ['RATE:SingleMuon', 'RATE:UpgradeMuon', 'RATE:UpgradeAll', 'BW:Muon'], -1],
+        ['mu20_ivarmedium',	   'L1_MU6', 	  [], [PhysicsStream], ['RATE:SingleMuon', 'RATE:UpgradeMuon', 'RATE:UpgradeAll', 'BW:Muon'], -1],
+        ['mu20',			   'L1_MU6',           [], [PhysicsStream], ['RATE:SingleMuon', 'RATE:UpgradeMuon', 'RATE:UpgradeAll', 'BW:Muon'], -1],
         ['mu40_L1MU6',			  'L1_MU6',           [], [PhysicsStream], ['RATE:SingleMuon', 'RATE:UpgradeMuon', 'RATE:UpgradeAll', 'BW:Muon'], -1],
-        ['mu20_L1MU6_mu8noL1',          'L1_MU6', ['L1_MU6',''], [PhysicsStream], ['RATE:MultiMuon', 'RATE:UpgradeMuon', 'RATE:UpgradeAll','BW:Muon'], -1,['serial',-1,['mu20_L1MU6','mu8noL1']]],
-        ['mu20_L1MU6_2mu4noL1',        'L1_MU6', ['L1_MU6',''], [PhysicsStream], ['RATE:MultiMuon', 'RATE:UpgradeMuon', 'RATE:UpgradeAll','BW:Muon'], -1,['serial',-1,['mu20_L1MU6','2mu4noL1']]],
+        ['mu20_mu8noL1',          'L1_MU6', ['L1_MU6',''], [PhysicsStream], ['RATE:MultiMuon', 'RATE:UpgradeMuon', 'RATE:UpgradeAll','BW:Muon'], -1,['serial',-1,['mu20','mu8noL1']]],
+        ['mu20_2mu4noL1',        'L1_MU6', ['L1_MU6',''], [PhysicsStream], ['RATE:MultiMuon', 'RATE:UpgradeMuon', 'RATE:UpgradeAll','BW:Muon'], -1,['serial',-1,['mu20','2mu4noL1']]],
         ['2mu11_L1MU6',                         'L1_MU6',           [], [PhysicsStream], ['RATE:MultiMuon', 'RATE:UpgradeMuon', 'RATE:UpgradeAll', 'BW:Muon'], -1],
 
         ]
@@ -131,16 +131,16 @@ def setupMenu():
         
         #upgrade study chains
         ['tau125_medium1_tracktwo_L1TAU12',       'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'RATE:UpgradeTau', 'RATE:UpgradeAll', 'BW:Tau'], -1],
-        ['tau150_medium1_tracktwo_L1TAU12',       'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'RATE:UpgradeTau', 'RATE:UpgradeAll', 'BW:Tau'], -1],
-        ['tau40_medium1_tracktwo_L1TAU20_tau30_medium1_tracktwo_L1TAU12',   'L1_TAU20_2TAU12',['L1_TAU20','L1_TAU12'], [PhysicsStream], ['RATE:MultiTau', 'RATE:UpgradeTau', 'RATE:UpgradeAll',  'BW:Tau'], -1,['serial',-1,["tau40_medium1_tracktwo_L1TAU20","tau30_medium1_tracktwo_L1TAU12"]]]       ,
+        ['tau160_medium1_tracktwo_L1TAU12',       'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'RATE:UpgradeTau', 'RATE:UpgradeAll', 'BW:Tau'], -1],
+        ['tau40_medium1_tracktwo_L1TAU20_tau29_medium1_tracktwo_L1TAU12',   'L1_TAU20_2TAU12',['L1_TAU20','L1_TAU12'], [PhysicsStream], ['RATE:MultiTau', 'RATE:UpgradeTau', 'RATE:UpgradeAll',  'BW:Tau'], -1,['serial',-1,["tau40_medium1_tracktwo_L1TAU20","tau29_medium1_tracktwo_L1TAU12"]]]       ,
         
         ]
     
     TriggerFlags.EgammaSlice.signatures = [
         # Current primaries (2017 menu)
         ['e28_lhtight_nod0_ivarloose',        'L1_EM24VHI', [], [PhysicsStream,'express'], ['RATE:SingleElectron', 'RATE:UpgradeElectron', 'RATE:UpgradeAll','BW:Egamma'],-1],
-        ['e60_lhmedium_nod0_L1EM24VHI', 'L1_EM24VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'RATE:UpgradeElectron', 'RATE:UpgradeAll', 'BW:Egamma'],-1] 
-        ['e60_medium_L1EM24VHI',               	 'L1_EM24VHI',     [], [PhysicsStream], ['RATE:SingleElectron',  'RATE:UpgradeElectron', 'RATE:UpgradeAll', 'BW:Egamma'],-1], 
+        ['e60_lhmedium_nod0_L1EM24VHI', 'L1_EM24VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'RATE:UpgradeElectron', 'RATE:UpgradeAll', 'BW:Egamma'],-1] ,
+        ['e60_medium_L1EM24VHI',        'L1_EM24VHI', [], [PhysicsStream], ['RATE:SingleElectron',  'RATE:UpgradeElectron', 'RATE:UpgradeAll', 'BW:Egamma'],-1], 
         ['e140_lhloose_nod0_L1EM24VHI', 'L1_EM24VHI', [], [PhysicsStream], ['RATE:SingleElectron',  'RATE:UpgradeElectron', 'RATE:UpgradeAll', 'BW:Egamma'],-1],
         ['2e24_lhvloose_nod0',                   'L1_2EM20VH', [], [PhysicsStream], ['RATE:MultiElectron',  'RATE:UpgradeElectron', 'RATE:UpgradeAll', 'BW:Egamma'],-1],
         
@@ -152,7 +152,7 @@ def setupMenu():
         
         #upgrade study chains
         ['e22_lhtight_nod0_ivarloose_L1EM15VHI',        'L1_EM15VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'RATE:UpgradeElectron', 'RATE:UpgradeAll','BW:Egamma'],-1],
-        ['e45_lhmedium_nod0_L1EM15VHI', 			'L1_EM15VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'RATE:UpgradeElectron', 'RATE:UpgradeAll', 'BW:Egamma'],-1] 
+        ['e45_lhmedium_nod0_L1EM15VHI', 			'L1_EM15VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'RATE:UpgradeElectron', 'RATE:UpgradeAll', 'BW:Egamma'],-1], 
         ['e45_medium_L1EM15VHI',               	 	'L1_EM15VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'RATE:UpgradeElectron', 'RATE:UpgradeAll', 'BW:Egamma'],-1], 
         ['e60_lhloose_nod0_L1EM15VHI', 			'L1_EM15VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'RATE:UpgradeElectron', 'RATE:UpgradeAll', 'BW:Egamma'],-1],
         ['2e15_lhvloose_nod0_L12EM10VH',                 'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiElectron',  'RATE:UpgradeElectron', 'RATE:UpgradeAll', 'BW:Egamma'],-1],
@@ -180,9 +180,9 @@ def setupMenu():
         
         #upgrade study chains
         ['j60_gsc100_bmv2c2050_split_xe80_mht_L1XE35','L1_XE35',[],[PhysicsStream], ['RATE:MultiBJet', 'RATE:UpgradeBJet', 'RATE:UpgradeAll',  'BW:BJet', 'BW:MET'], -1,['serial',-1,['j60_gsc100_bmv2c2050_split','xe80_mht_L1XE35']]],
-        ['j80_bmv2c2050_split_xe60_L1XE35''L1_XE35',  [],  [PhysicsStream], ['RATE:JetMET', 'RATE:UpgradeJetMET', 'RATE:UpgradeAll','BW:MET', 'BW:BJet'], -1,['serial',-1,["j80_bmv2c2050_split","xe60_L1XE35"]]],
-        ['j80_xe80_L1XE35',                    'L1_XE35',['',''], [PhysicsStream], ['RATE:JetMET', 'RATE:UpgradeJetMET', 'RATE:UpgradeAll',  'BW:Jet', 'BW:MET'], -1,['serial',-1,["j100","xe80_L1XE35"]]],
-        ['j140_xe125_L1XE35',                'L1_XE35',['',''], [PhysicsStream], ['RATE:JetMET', 'RATE:UpgradeJetMET', 'RATE:UpgradeAll',  'BW:Jet', 'BW:MET'], -1,['serial',-1,["j100","xe80_L1XE35"]]],
+        ['j80_bmv2c2050_split_xe60_L1XE35', 'L1_XE35',  [],  [PhysicsStream], ['RATE:JetMET', 'RATE:UpgradeJetMET', 'RATE:UpgradeAll','BW:MET', 'BW:BJet'], -1,['serial',-1,["j80_bmv2c2050_split","xe60_L1XE35"]]],
+        ['j80_xe80_L1XE35',                    'L1_XE35',['',''], [PhysicsStream], ['RATE:JetMET', 'RATE:UpgradeJetMET', 'RATE:UpgradeAll',  'BW:Jet', 'BW:MET'], -1,['serial',-1,["j80","xe80_L1XE35"]]],
+        ['j140_xe125_L1XE35',                'L1_XE35',['',''], [PhysicsStream], ['RATE:JetMET', 'RATE:UpgradeJetMET', 'RATE:UpgradeAll',  'BW:Jet', 'BW:MET'], -1,['serial',-1,["j140","xe125_L1XE35"]]],
         
         ]
 

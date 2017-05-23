@@ -398,7 +398,7 @@ def getSpecificL1Seeds(l1seedname, l1itemobject):
         log.warning('No L1item name given!')
 
     else: 
-        #log.error('Given seed %s could not be found!' %l1seedname)
+        log.error('Given seed %s could not be found!' %str(l1seedname))
         return 'ERROR_'+l1seedname
 
     L1Seed = L1Seed.split(",")
