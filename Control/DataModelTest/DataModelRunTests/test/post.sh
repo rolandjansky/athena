@@ -189,7 +189,7 @@ PP="$PP"'|INFO massageEventInfo:'
 PP="$PP"'|Loop Finished'
 
 # Hive ordering.
-PP="$PP"'|Terminating thread-pool resources'
+PP="$PP"'|Terminating thread-pool resources|Joining Scheduler thread'
 
 
 
