@@ -51,3 +51,4 @@ atlas_add_test( caloRunData   SCRIPT scripts/caloRunData.sh
                 PROPERTIES TIMEOUT 500 
               )
 
+atlas_install_python_modules( python/*.py )

@@ -43,6 +43,7 @@ namespace HLTTest {
     typedef std::vector< Obj_t > Event_t;
     std::vector< Event_t > m_data;
     SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_output;
+    SG::ReadHandleKey<xAOD::TrigCompositeContainer>  m_input;
   }; 
 
 } //> end namespace HLTTest

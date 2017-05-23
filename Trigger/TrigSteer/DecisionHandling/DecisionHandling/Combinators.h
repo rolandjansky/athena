@@ -61,7 +61,6 @@ namespace HLT {
 
     template<typename ... Iterators>
     void operator()( Iterators ... iter ) const;
-
     
     void reset() {  }
     /**
@@ -74,8 +73,8 @@ namespace HLT {
      **/    
     void operator++();    
   private:
-  };
-  
+    CombinationGenerator m_generator;
+  };  
   
 }
 

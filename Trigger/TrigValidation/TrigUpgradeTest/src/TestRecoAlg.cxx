@@ -16,9 +16,11 @@ namespace HLTTest {
   TestRecoAlg::TestRecoAlg( const std::string& name, 
 			    ISvcLocator* pSvcLocator ) : 
     ::AthAlgorithm( name, pSvcLocator ),
-    m_output(name) {
+    m_output(name),
+    m_input("") {
     declareProperty( "FileName", m_fileName, "Input file with fake objects" );
     declareProperty( "Output", m_output, "Output collection name" );
+    declareProperty( "Input", m_output="", "Input collection name" );
   }
 
   TestRecoAlg::~TestRecoAlg() {}
@@ -41,7 +43,7 @@ namespace HLTTest {
 
 
     CHECK( m_output.initialize() );
-    
+    CHECK( m_input.initialize( not m_input.key().empty() ) );
     std::ifstream inputFile( m_fileName );
     std::string line;
     typedef std::vector<std::string> Split_t;
@@ -90,7 +92,16 @@ namespace HLTTest {
     auto output = std::make_unique<xAOD::TrigCompositeContainer>();
     auto aux = std::make_unique<xAOD::TrigCompositeAuxContainer>();
     output->setStore( aux.get() );
+    if ( not m_input.key().empty() ) {
+      auto inputHandle = SG::makeHandle(m_input);
+      ATH_MSG_DEBUG("Input " << m_input.key() << " should be available, scanning it");
+      for ( auto i: *inputHandle.cptr() ) {
+	ATH_MSG_DEBUG(" reading input " << i);
+      }
+    }
 
+      
+    
     const EventContext& context = Gaudi::Hive::currentContext();
     EventContextHash hash;
     size_t ctx = hash.hash(context);    

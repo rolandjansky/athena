@@ -26,8 +26,6 @@ svcMgr.ForwardSchedulerSvc.ShowControlFlow=True
 # svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult" ]
 
 # Event-level algorithm sequence
-from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
-topSequence = AlgSequence()
 
 
 # from SGComps.SGCompsConf import SGInputLoader
@@ -72,97 +70,14 @@ data['photons'] = ['eta:1,phi:1,pt:130000;',
                    ';',
                    ';']
 
-for name, d in data.iteritems():
-    with open(name+".dat", "w") as f:
-        for event in d:
-            f.write(event)
-            f.write("\n")
-# EOF input generation        
+
+from TrigUpgradeTest.TestUtils import writeEmulationFiles
+writeEmulationFiles(data)
+
+include("TrigUpgradetest/L1CF.py")
+include("TrigUpgradetest/HLTCF.py")
 
 
-
-
-def parOR(name, subs=[]):
-    seq = AthSequencer( name )
-    seq.ModeOR = True
-    seq.Sequential = False
-    seq.StopOverride = True
-    for s in subs:
-        seq += s
-    return seq
-    
-def seqAND(name, subs=[]):
-    seq = AthSequencer( name )
-    seq.ModeOR = False
-    seq.Sequential = True
-    seq.StopOverride = False
-    for s in subs:
-        seq += s
-    return seq
-
-def stepSeq(name, filterAlg, rest):
-    stepReco = parOR(name+"_reco", rest)
-    stepAnd = seqAND(name, [ filterAlg, stepReco ])
-    return stepAnd
-
-
-
-TopHLTSeq = seqAND("TopHLTSeq")
-topSequence += TopHLTSeq
-
-L1UnpackingSeq = parOR("L1UnpackingSeq")
-from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
-l1Decoder = L1Decoder( OutputLevel=DEBUG, RoIBResult="" )
-
-ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllChains=False , InputFilename="ctp.dat" )
-#ctpUnpacker.CTPToChainMapping = [ "0:HLT_g100",  "1:HLT_e20", "2:HLT_mu20", "3:HLT_2mu8", "3:HLT_mu8", "33:HLT_2mu8", "15:HLT_mu8_e8" ]
-l1Decoder.ctpUnpacker = ctpUnpacker
-
-emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EMDecisions" )
-emUnpacker.ThresholdToChainMapping = ["EM7 : HLT_mu8_e8", "EM20 : HLT_e20", "EM50 : HLT_2g50",   "EM100 : HLT_g100" ]
-
-muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1muroi.dat",  OutputTrigRoIs="L1MURoIs", Decisions="L1MUDecisions" )
-muUnpacker.ThresholdToChainMapping = ["MU8 : HLT_mu8", "MU8 : HLT_2mu8", "MU10 : HLT_mu20",   "EM100 : HLT_g100" ]
-
-l1Decoder.roiUnpackers = [emUnpacker, muUnpacker]
-
-L1UnpackingSeq += l1Decoder
-
-TopHLTSeq += L1UnpackingSeq
-
-
-
-steps = [ parOR("step%i" % i) for i in range(5)]
-HLTChainsSeq  = seqAND("HLTChainsSeq", steps)
-TopHLTSeq += HLTChainsSeq # in principle we do not need the HLTChainsSeq 
-
-
-allAlgs={}
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRecoAlg
-def reco(name, Output, FileName="noreco.dat"):
-    a = HLTTest__TestRecoAlg("R_"+name, OutputLevel = DEBUG, FileName=FileName, Output=Output)
-    allAlgs[name] = a
-    return a
-
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
-def hypo(name, Input, Output):
-    h = HLTTest__TestHypoAlg("H_"+name, OutputLevel = DEBUG, Input=Input, Output=Output)
-    allAlgs[name] = h
-    return h
-
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRoRSeqFilter
-
-def seqFilter(name, Inputs=[], Outputs=[], Chains=[]):
-    global allAlgs
-    f = HLTTest__TestRoRSeqFilter("F_"+name, OutputLevel = DEBUG, Inputs=Inputs, Outputs=Outputs, Chains=Chains)
-    if "Step1" in name: # so that we see events running through, will be gone once L1 emulation is included
-        f.AlwaysPass = True        
-    allAlgs[name] = f
-    return f
-
-def pick(name):
-    global allAlgs
-    return allAlgs[name]
 
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
 def emHTool(name):
@@ -170,12 +85,12 @@ def emHTool(name):
     return HLTTest__TestHypoTool(name, OutputLevel=DEBUG, Threshold=v, Property="et")
 
 
-
 muChains  = [ 'HLT_mu20', 'HLT_mu8', 'HLT_2mu8' ]
 eChains   = [ 'HLT_e20' ]
 gChains   = [ 'HLT_g100', 'HLT_2g50' ]
 mueChains = [ 'HLT_mu8_e8' ]
 
+steps = [ parOR("step%i" % i) for i in range(5)]
 stepNo = 0
 steps[stepNo] += seqFilter( "Step1MU", Inputs=["L1MU"], Outputs=["step0MU"], Chains=muChains )
 steps[stepNo] += seqFilter( "Step1MU_E", Inputs=["L1MU", "L1EM"], Outputs=["step0MU","step0EM"], Chains=mueChains )
@@ -199,16 +114,16 @@ msMuHypo += msMuHypoTools
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestComboHypoAlg
 
 stepNo += 1 
-em1 = stepSeq( "em1", pick("Step1EM"), [ reco("EMRoIs", Output="EMRoIs"),
+em1 = stepSeq( "em1", useExisting("Step1EM"), [ reco("EMRoIs", Output="EMRoIs"),
                                          reco("CaloClustering", FileName="emclusters.dat", Output="EMClusters"),
                                          emHypo ] )
 steps[stepNo] += em1
-mu1 = stepSeq("mu1", pick("Step1MU"), [ reco("MURoIs", Output="MURoIs"),
+mu1 = stepSeq("mu1", useExisting("Step1MU"), [ reco("MURoIs", Output="MURoIs"),
                                         reco("muMSRecAlg", FileName="msmu.dat", Output="MSMuons"),
                                         msMuHypo ] )
 steps[stepNo] += mu1
 
-mue1 = stepSeq("mue1", pick("Step1MU_E"), [ pick("CaloClustering"), pick("muMSRecAlg"),
+mue1 = stepSeq("mue1", useExisting("Step1MU_E"), [ useExisting("CaloClustering"), useExisting("muMSRecAlg"),
                                             HLTTest__TestComboHypoAlg("mueHypo1", OutputLevel=DEBUG, Input1="EMClusters", Input2="MSMuons",
                                                                       Output1="step1MUEDecisionsEM", Output2="step1MUEDecisionsMU",
                                                                       Property1="et", Property2="pt", Threshold1=8000, Threshold2=8000,
@@ -246,22 +161,22 @@ def merger(name, Inputs, Output ):
     return m
 
 stepNo += 1
-mu2 = stepSeq("mu2", pick("Step2MU"), [ reco("TrigFastTrackFinder", FileName="tracks.dat", Output="Tracks"),  reco("MuonRecAlg", FileName="mucomb.dat", Output="CombMuons"), muCombHypo ] )
+mu2 = stepSeq("mu2", useExisting("Step2MU"), [ reco("TrigFastTrackFinder", FileName="tracks.dat", Output="Tracks"),  reco("MuonRecAlg", FileName="mucomb.dat", Output="CombMuons"), muCombHypo ] )
 steps[stepNo] += mu2
 
-e2 = stepSeq( "e2" , pick("Step2E"), [ pick("TrigFastTrackFinder"), reco("ElectronRecAlg", FileName="electrons.dat", Output="Electrons"), eHypo ] )
+e2 = stepSeq( "e2" , useExisting("Step2E"), [ useExisting("TrigFastTrackFinder"), reco("ElectronRecAlg", FileName="electrons.dat", Output="Electrons"), eHypo ] )
 steps[stepNo] += e2
 
-g2 = stepSeq("g2", pick("Step2G"), [ reco("GRoIs", "noreco.dat"), reco("PhotonRecAlg", FileName="photons.dat", Output="Photons"), gHypo ])
+g2 = stepSeq("g2", useExisting("Step2G"), [ reco("GRoIs", "noreco.dat"), reco("PhotonRecAlg", FileName="photons.dat", Output="Photons"), gHypo ])
 steps[stepNo] += g2
 stepNo += 1
 
-#mue2 = stepSeq("mue2", pick("Step2MU_E"), [ pick("TrkRoIs", "noreco.dat"), pick("TrigFastTrackFinder"), reco("MuonRecAlg", "mucomb.dat"),  reco("ElectronRecAlg"), hypo("Step2MuEHypo") ])
+#mue2 = stepSeq("mue2", useExisting("Step2MU_E"), [ useExisting("TrkRoIs", "noreco.dat"), useExisting("TrigFastTrackFinder"), reco("MuonRecAlg", "mucomb.dat"),  reco("ElectronRecAlg"), hypo("Step2MuEHypo") ])
 #steps[stepNo] += mue2
 
 
 theApp.EvtMax = 3
 
-
+TopHLTSeq += addSteps(steps)
 
 

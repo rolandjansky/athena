@@ -52,7 +52,8 @@ StatusCode CTPUnpackingEmulationTool::parseInputFile() {
     while ( allChains ) {
       std::string chainName;
       allChains >> chainName;
-      ids.push_back( HLT::Identifier(chainName).numeric() );
+      if ( not chainName.empty() ) 
+	ids.push_back( HLT::Identifier(chainName).numeric() );
     }
     // auto chainId = HLT::Identifier(chainName);
     // std::map<size_t, HLT::IDVec>::iterator it;// IndexToIdentifiers;
