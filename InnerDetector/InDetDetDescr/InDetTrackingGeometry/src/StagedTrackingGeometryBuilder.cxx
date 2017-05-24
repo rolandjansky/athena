@@ -498,44 +498,29 @@ bool InDet::StagedTrackingGeometryBuilder::ringLayout(const std::vector<const Tr
       ATH_MSG_INFO(" -> Ring at z-position " << zpos << " - with rMin/rMax = " << rMin << "/" << rMax );
     }
   }
-
+  
   // you need a post processing of the (rmin,rmax) in order to fit z-overlapping disks in the same ring
   std::vector<std::pair<double,double>> tmpradii;
-  for (unsigned int i = 0; i < radii.size()-1; i++) {
-    tmpradii.push_back(radii.at(i));
-    if ( radii.at(i+1).second > radii.at(i).second and radii.at(i+1).first < radii.at(i).second ){
-      tmpradii.at(i).second = radii.at(i+1).second;
-      tmpradii.at(i).first = radii.at(i).first;
+  
+  for (auto& rs: radii) {
+    bool found = false;
+    for (auto& tmprs: tmpradii) {
+      if ((rs.first<tmprs.first and rs.first>tmprs.second) or (rs.second>tmprs.first and rs.second<tmprs.second)) {
+	tmprs.first  = std::min(tmprs.first ,rs.first );
+	tmprs.second = std::max(tmprs.second,rs.second);
+	found = true;
+	break;
+      }
     }
-    if ( radii.at(i+1).second < radii.at(i).second and radii.at(i+1).second > radii.at(i).first ){
-      tmpradii.at(i).second = radii.at(i).second;
-      tmpradii.at(i).first = radii.at(i+1).first;
-    }
+    if (found) continue;
+    tmpradii.push_back(rs);
   }
-  
-  if (tmpradii.size()==0)
-    tmpradii = radii;
-  
-  if (radii.back().second > tmpradii.back().second and radii.back().first > tmpradii.back().first)
-    tmpradii.push_back(radii.back());
-  
+   
   // now you fill rmin and rmax
   for (auto& r: tmpradii) {
     rmins.push_back(r.first);
     rmaxs.push_back(r.second);
   }
-
-  // for ( auto& r : radii) 
-  //   ATH_MSG_INFO(" -> Rmin " << r.first << "  --> Rmax " << r.second );
-
-  // for ( auto& r : tmpradii) 
-  //   ATH_MSG_INFO(" -> Tmp Rmin " << r.first << "  --> Tmp Rmax " << r.second );
- 
-  // for ( auto& rmin : rmins) 
-  //   ATH_MSG_INFO(" -> Rmin " << rmin );
-  
-  // for ( auto& rmin : rmaxs) 
-  //   ATH_MSG_INFO(" -> Rmax " << rmin );
    
   //add rmin and rmax
   return (rmins.size() > 1 );
