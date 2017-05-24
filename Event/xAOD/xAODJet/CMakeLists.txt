@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 774256 2016-09-21 08:28:51Z jchapman $
+# $Id: CMakeLists.txt 801071 2017-03-20 22:11:25Z delsart $
 ################################################################################
 # Package: xAODJet
 ################################################################################
@@ -16,6 +16,9 @@ set( extra_test_libs )
 if( NOT XAOD_STANDALONE )
    set( extra_private_deps Control/SGTools )
    set( extra_test_libs SGTools )
+else()
+   set( extra_private_deps Control/xAODRootAccess )
+   set( extra_test_libs xAODRootAccess )
 endif()
 
 if( NOT SIMULATIONBASE )

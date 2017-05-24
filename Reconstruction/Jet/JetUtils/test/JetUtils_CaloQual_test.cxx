@@ -11,6 +11,10 @@
 
 #ifdef ROOTCORE
 #include "xAODRootAccess/TEvent.h"
+#include "xAODRootAccess/TStore.h"
+#include "xAODRootAccess/TActiveStore.h"
+#include "xAODRootAccess/Init.h"
+	
 #else
 // Done like this so that this will compile in both releases 20 and 21.
 # include "AthLinks/ElementLink.h"
@@ -33,15 +37,30 @@ using namespace jet;
 
 int main() {
 
-#ifdef ROOTCORE
-  // Create a TEvent object:
-  // xAOD::TEvent eventstore(xAOD::TEvent::kClassAccess);
-#else
+#ifndef XAOD_STANDALONE
+  // *********************** init in Athena
 # ifdef SGTOOLS_CURRENTEVENTSTORE_H
   SGTest::initTestStore();
+# else
+  SG::getDataSourcePointerFunc = getTestDataSourcePointer;
 # endif
-#endif
 
+#else
+  // *********************** init in standalone
+
+  assert( xAOD::Init() );
+  // Create a TEvent object:
+  xAOD::TEvent eventstore(xAOD::TEvent::kClassAccess);
+
+  xAOD::TStore tds;
+
+  bool ret = false;
+  ret = tds.record(ClusterData::jetCont, "jetCont"); 
+  assert ( ret == true);
+  ret = tds.record(ClusterData::clusterCont, "clustCont");
+  assert ( ret == true);
+
+#endif
 
   JetCaloCalculations calculators(false);
 #define ADDCALC( klass, vname) klass vname; vname.setName( #vname ); calculators.addCalculator(&vname)
@@ -69,7 +88,7 @@ int main() {
 
   // loop over jet and test calculations
 #define TESTCALC( calc) valuesDirect.push_back(calc( jet )); TEST_MSG(calc.name() <<" = " <<  valuesDirect.back() ) 
-  for(xAOD::Jet* jet : ClusterData::jetCont){
+  for(auto jet : *ClusterData::jetCont){
 
     // calculate from JetCalculations    
     std::vector<double>  valuesFromC =calculators.process( jet );
@@ -95,8 +114,7 @@ int main() {
     }
 
   } // end loop on jets
-  
-  
+
 } // main()
 
 // #else // XAOD_STANDALONE
