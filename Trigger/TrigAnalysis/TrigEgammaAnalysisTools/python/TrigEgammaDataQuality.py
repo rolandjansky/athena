@@ -11,6 +11,7 @@ class TrigEgammaPlotHolder:
         self.name = name
         self.RunNumber=""
         self.Lumi=""
+        self.Sequence=""
         self.Triggers=[]
         self.Efficiency={}
         self.Distribution={}
@@ -23,6 +24,9 @@ class TrigEgammaPlotHolder:
     def setRunNumber(self,run):
         if not self.RunNumber:
             self.RunNumber=run
+    def setSequence(self,seq):
+        if not self.Sequence:
+            self.Sequence=seq
     def setLumi(self,lumi):
         if not self.Lumi:
             self.Lumi=lumi

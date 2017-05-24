@@ -56,11 +56,10 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
     //
     if(pairObjs.size() == 0) return StatusCode::SUCCESS;
     const std::string dir = basePath+"/"+info.trigName+"/Distributions/";
-   
+    const auto fc = (tdt()->features(info.trigName, TrigDefs::alsoDeactivateTEs));
     // Retrieve FeatureContainer for a given trigger
     ATH_MSG_DEBUG("Distributions:: Retrieve features for chain " << info.trigName << " type " << info.trigType);
     if (boost::starts_with(info.trigName, "L1" )){
-        const auto fc = (tdt()->features(info.trigName, TrigDefs::alsoDeactivateTEs));
         const auto initRois = fc.get<TrigRoiDescriptor>();
         ATH_MSG_DEBUG("Size of initialRoI" << initRois.size());
         for(const auto feat : initRois){
@@ -84,32 +83,6 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
             if(xAOD::EgammaHelpers::isElectron(pairObj.first)) { // Fill offline tracking
                 const xAOD::Electron* elOff =static_cast<const xAOD::Electron*> (pairObj.first);
                 fillTracking(dir+"Offline",elOff);
-            }
-        }
-        // Get the L1 features for all TEs
-
-        const std::string l1trig=getL1Item(info.trigName);
-        ATH_MSG_DEBUG("Distributions:: Retrieve features for chain " << info.trigName << " type " << info.trigType << l1trig);
-        const auto fcl1 = (tdt()->features(l1trig, TrigDefs::alsoDeactivateTEs));
-        const auto fc = (tdt()->features(info.trigName, TrigDefs::alsoDeactivateTEs));
-        const auto initRois = fcl1.get<TrigRoiDescriptor>();
-        ATH_MSG_DEBUG("Size of initialRoI" << initRois.size());
-        for(const auto feat : initRois){
-            if(feat.te()==nullptr) {
-                ATH_MSG_DEBUG("initial RoI feature nullptr");
-                continue;
-            }
-            const TrigRoiDescriptor *roi = feat.cptr();
-            cd(dir+"HLT");
-            hist1("rejection")->Fill("L1Calo",1);
-            if(m_detailedHists){               
-                cd(dir+"RoI");
-                hist1("roi_eta")->Fill(roi->eta());
-                hist1("roi_phi")->Fill(roi->phi());
-                auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(feat);
-                const xAOD::EmTauRoI *l1 = itEmTau.cptr();
-                if(l1==nullptr) continue;
-                fillL1Calo(dir+"L1Calo",l1);
             }
         }
 
@@ -141,6 +114,30 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
             else ATH_MSG_WARNING("Chain type not Electron for TP Trigger");
         }
         else {
+            // Get the L1 features for all TEs
+
+            const std::string l1trig=getL1Item(info.trigName);
+            ATH_MSG_DEBUG("Distributions:: Retrieve features for chain " << info.trigName << " type " << info.trigType << l1trig);
+            const auto fcl1 = (tdt()->features(l1trig, TrigDefs::alsoDeactivateTEs));
+
+            const auto initRois = fcl1.get<TrigRoiDescriptor>();
+            ATH_MSG_DEBUG("Size of initialRoI" << initRois.size());
+            for(const auto feat : initRois){
+                if(feat.te()==nullptr) {
+                    ATH_MSG_DEBUG("initial RoI feature nullptr");
+                    continue;
+                }
+                const TrigRoiDescriptor *roi = feat.cptr();
+                cd(dir+"HLT");
+                hist1("rejection")->Fill("L1Calo",1);
+                cd(dir+"RoI");
+                hist1("roi_eta")->Fill(roi->eta());
+                hist1("roi_phi")->Fill(roi->phi());
+                auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(feat);
+                const xAOD::EmTauRoI *l1 = itEmTau.cptr();
+                if(l1==nullptr) continue;
+                fillL1Calo(dir+"L1Calo",l1);
+            }
             const auto vec_l2em = fc.get<xAOD::TrigEMCluster>("",TrigDefs::alsoDeactivateTEs);
             for (const auto feat : vec_l2em){
                 if(feat.te()==nullptr) continue;
