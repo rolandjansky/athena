@@ -42,6 +42,9 @@ UPDATES:  - Calculate identifier method used by PresamplerCalibrationCalculator.
 #include <limits.h>
 #include <iostream>
 
+#include "AthenaKernel/Units.h"
+namespace Units = Athena::Units;
+
 namespace LArG4 {
 
   namespace BarrelPresampler {
@@ -49,10 +52,8 @@ namespace LArG4 {
     Geometry::Geometry(const std::string& name, ISvcLocator *pSvcLocator)
       : AthService(name, pSvcLocator)
       , m_detectorName("LArMgr")
-        // , m_testbeam(false)
     {
       declareProperty("DetectorName",m_detectorName);
-      // declareProperty("TestBeam", m_testbeam);
     }
 
     //=====================================================================================
@@ -65,15 +66,12 @@ namespace LArG4 {
     {
 #include "PresParameterDef.icc"
 
-      /** Access source of detector parameters. */
-      m_parameters = LArVG4DetectorParameters::GetInstance();
-
-      /** position of mother volume inside nominal Atlas frame */
-      m_zpres=1549.*CLHEP::mm;
-      /** compute positions of end of modules and of first cathode in
-       a module in nominal Atlas coordinates */
-      const double eps=0.007*CLHEP::mm;
-      m_zminPS=3.00*CLHEP::mm;   // FIXME this should come from database
+      // position of mother volume inside nominal Atlas frame
+      m_zpres=1549.*Units::mm;
+      // compute positions of end of modules and of first cathode in a module in
+      // nominal Atlas coordinates
+      double eps=0.007*Units::mm;
+      m_zminPS=3.00*Units::mm;   // FIXME this should come from database
       m_end_module[0]=(m_mod[0][0]*m_cmm+2*eps)+m_zminPS+eps;
       for (int i=1;i<8;i++) m_end_module[i]=m_end_module[i-1]+(m_mod[i][0]*m_cmm+2*eps)+eps;
 #ifdef DEBUGHITS
@@ -96,7 +94,7 @@ namespace LArG4 {
       m_ncell_module[7]=5;
 
       // electrode tild in rad
-      for (int i=0;i<8;i++) m_tilt[i]=m_mod[i][3]*CLHEP::deg;
+      for (int i=0;i<8;i++) m_tilt[i]=m_mod[i][3]*Units::deg;
 
       // number of gaps per cell    module 7 is somewhat pathological (last cell is shorter)
       for (int i=0;i<7;i++) m_ngap_cell[i]=(int)((m_mod[i][1]+0.1)/m_ncell_module[i]);
@@ -109,7 +107,7 @@ namespace LArG4 {
       for (int i=0;i<8;i++) m_pitch[i]=m_mod[i][4]*m_cmm;
 
       // LAr total gap
-      m_halfThickLAr = 0.5*13.*CLHEP::mm;
+      m_halfThickLAr = 0.5*13.*Units::mm;
 
       return StatusCode::SUCCESS;
     }
@@ -412,7 +410,7 @@ namespace LArG4 {
       /** compute signed distance from middle of active layer along layer height axis */
       const G4int isect=G4int(phi*m_nsectors/(2.*M_PI));
       const G4double phi0= ((double)isect+0.5)*2.*M_PI/((double) m_nsectors);
-      static const G4double r0=1420.4*CLHEP::mm;   // FIXME should be recomputed from database
+      static const G4double r0=1420.4*Units::mm;   // FIXME should be recomputed from database
       currentCellData.dist=(xloc*cos(phi0)+yloc*sin(phi0)-r0);
 
 #ifdef DEBUGHITS
