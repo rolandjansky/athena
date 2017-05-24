@@ -12,7 +12,7 @@
 std::size_t ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(const xAOD::TrackParticle *tp){
 
   // Define an AsgMessaging instance
-  asg::AsgMessaging msg("ElectronSelectorHelpers");
+  static const asg::AsgMessaging msg("ElectronSelectorHelpers");
 
   if(!tp){
     msg.msg(MSG::WARNING) << "No track particle found!" << endmsg;
@@ -34,7 +34,7 @@ std::size_t ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(const xAOD:
 std::size_t ElectronSelectorHelpers::numberOfSCTHitsAndDeadSensors(const xAOD::TrackParticle *tp){
 
   // Define an AsgMessaging instance
-  asg::AsgMessaging msg("ElectronSelectorHelpers");
+  static const asg::AsgMessaging msg("ElectronSelectorHelpers");
 
   if(!tp){
     msg.msg(MSG::WARNING) << "No track particle found!" << endmsg;
@@ -60,7 +60,7 @@ std::size_t ElectronSelectorHelpers::numberOfSiliconHitsAndDeadSensors(const xAO
 bool ElectronSelectorHelpers::passBLayerRequirement(const xAOD::TrackParticle *tp){
 
   // Define an AsgMessaging instance
-  asg::AsgMessaging msg("ElectronSelectorHelpers");
+  static const asg::AsgMessaging msg("ElectronSelectorHelpers");
 
   if(!tp){
     msg.msg(MSG::WARNING) << "No track particle found!" << endmsg;
