@@ -8,7 +8,8 @@ use AthenaPoolCnvSvc        AthenaPoolCnvSvc-*        Database/AthenaPOOL
 use InDetIdentifier         InDetIdentifier-*         InnerDetector/InDetDetDescr
 use TrkTruthData            TrkTruthData-*            Tracking/TrkEvent
 use GeneratorObjectsTPCnv   GeneratorObjectsTPCnv-*   Generators
-use DataModel               DataModel-*               Control
+use AthLinks                AthLinks-*                Control
+use AthContainers           AthContainers-*           Control
 use DataModelAthenaPool     DataModelAthenaPool-*     Control
 use StoreGate               StoreGate-*               Control
 use TrkTrack                TrkTrack-*                Tracking/TrkEvent
