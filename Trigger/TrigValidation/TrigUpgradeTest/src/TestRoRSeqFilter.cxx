@@ -65,6 +65,7 @@ namespace HLTTest {
     
     for ( size_t inputIndex = 0; inputIndex < m_inputs.size(); ++inputIndex ) {
       auto input = m_inputs[inputIndex];
+      ATH_MSG_DEBUG( "Processing input " << input );
       // this will only store links to the inputs that are passing
       auto decisionOutput = std::make_unique<DecisionContainer>();
       auto decisionAux    = std::make_unique<DecisionAuxContainer>();
@@ -73,9 +74,12 @@ namespace HLTTest {
 
       // not bother recording if there is no output
       if ( not decisionOutput->empty() ) {
+	ATH_MSG_DEBUG( "Saving output " << m_outputs[inputIndex] );
 	pass = true;      
 	SG::WriteHandle<DecisionContainer> outputDH( m_outputs[inputIndex] );
-	CHECK( outputDH.record( std::move( decisionOutput ), std::move( decisionAux ) ) );
+	CHECK( outputDH.record( std::move( decisionOutput ), std::move( decisionAux ) ) );	
+      } else {
+	ATH_MSG_DEBUG( "None of the decisions in the input " << input << " passed, skipping recording output " );
       }
     }
 

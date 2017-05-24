@@ -11,7 +11,7 @@ def remember(name, instance):
     return instance
 
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRecoAlg
-def reco(name, Output, Input="", FileName="noreco.dat"):
+def reco(name, Output,  FileName="noreco.dat", Input=""):
     a = HLTTest__TestRecoAlg("R_"+name, OutputLevel = DEBUG, FileName=FileName, Output=Output, Input=Input)
     allAlgs[name] = a
     return a

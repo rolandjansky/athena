@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  GaudiKernel
 			  PRIVATE
 			  Control/AthenaBaseComps
+			  Trigger/TrigEvent/TrigSteeringEvent
                           )
 
 find_package( Boost COMPONENTS filesystem thread system )
@@ -22,7 +23,7 @@ atlas_add_library( TrigUpgradeTestLib
 		   PUBLIC_HEADERS TrigUpgradeTest
 		   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
 		   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
-		   GaudiKernel AthenaBaseComps DecisionHandlingLib )
+		   GaudiKernel AthenaBaseComps TrigSteeringEvent DecisionHandlingLib )
 										                    
 atlas_add_component( TrigUpgradeTest
                      src/components/*.cxx
@@ -31,13 +32,16 @@ atlas_add_component( TrigUpgradeTest
 		     ${ROOT_LIBRARIES} GaudiKernel
 		     AthenaBaseComps TrigUpgradeTestLib )
 
-atlas_add_test( GraphView1 SCRIPT scripts/GraphView.sh
-                ENVIRONMENT THREADS=1     )
-atlas_add_test( GraphView2 SCRIPT scripts/GraphView.sh
-                ENVIRONMENT THREADS=2     )
-atlas_add_test( GraphView64 SCRIPT scripts/GraphView.sh
-                ENVIRONMENT THREADS=64              )
-atlas_add_test( menuRun SCRIPT scripts/menuRun.sh)
+# for now this tests should not be run and be replaced
+# atlas_add_test( GraphView1 SCRIPT scripts/GraphView.sh
+#                 ENVIRONMENT THREADS=1     )
+# atlas_add_test( GraphView2 SCRIPT scripts/GraphView.sh
+#                 ENVIRONMENT THREADS=2     )
+# atlas_add_test( GraphView64 SCRIPT scripts/GraphView.sh
+#                 ENVIRONMENT THREADS=64              )
+# atlas_add_test( menuRun SCRIPT scripts/menuRun.sh)
+
+atlas_add_test( mergeTest SCRIPT scripts/mergeTest.sh)
 
 atlas_add_test( IDRunMC     SCRIPT scripts/IDRunMC.sh
                 PROPERTIES TIMEOUT 500 
@@ -50,5 +54,5 @@ atlas_add_test( IDRunData     SCRIPT scripts/IDRunData.sh
 atlas_add_test( caloRunData   SCRIPT scripts/caloRunData.sh
                 PROPERTIES TIMEOUT 500 
               )
-
+atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )

@@ -6,7 +6,8 @@
 #include <iostream>
 #include <fstream>
 #include <xAODTrigger/TrigCompositeAuxContainer.h>
-
+#include <TrigSteeringEvent/TrigRoiDescriptorCollection.h>
+#include <DecisionHandling/TrigCompositeUtils.h>
 #include "TestRecoAlg.h"
 
 
@@ -20,7 +21,7 @@ namespace HLTTest {
     m_input("") {
     declareProperty( "FileName", m_fileName, "Input file with fake objects" );
     declareProperty( "Output", m_output, "Output collection name" );
-    declareProperty( "Input", m_output="", "Input collection name" );
+    declareProperty( "Input", m_input, "Input collection name" );
   }
 
   TestRecoAlg::~TestRecoAlg() {}
@@ -79,14 +80,13 @@ namespace HLTTest {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode TestRecoAlg::finalize()
-  {
+  StatusCode TestRecoAlg::finalize() {
     ATH_MSG_INFO ("Finalizing " << name() << "...");
     return StatusCode::SUCCESS;
   }
 
-  StatusCode TestRecoAlg::execute()
-  {  
+  StatusCode TestRecoAlg::execute() {  
+    using namespace TrigCompositeUtils;
     ATH_MSG_DEBUG ("Executing " << name() << "...");
 
     auto output = std::make_unique<xAOD::TrigCompositeContainer>();
@@ -96,16 +96,20 @@ namespace HLTTest {
       auto inputHandle = SG::makeHandle(m_input);
       ATH_MSG_DEBUG("Input " << m_input.key() << " should be available, scanning it");
       for ( auto i: *inputHandle.cptr() ) {
-	ATH_MSG_DEBUG(" reading input " << i);
+	auto roiLink = findLink<TrigRoiDescriptorCollection>(i, "initialRoI");
+	if ( roiLink.isValid() ) {
+	  auto roiPtr(roiLink.link.cptr());
+	  ATH_MSG_DEBUG("RoI" << **roiPtr );
+	} else {
+	  ATH_MSG_DEBUG("RoI information missing");
+	}
       }
     }
 
       
     
     const EventContext& context = Gaudi::Hive::currentContext();
-    EventContextHash hash;
-    size_t ctx = hash.hash(context);    
-    const size_t eventNo = ctx % m_data.size();
+    const size_t eventNo = context.evt() % m_data.size();
     
     for ( auto object: m_data[eventNo] ) {
       auto xobj = new xAOD::TrigComposite;

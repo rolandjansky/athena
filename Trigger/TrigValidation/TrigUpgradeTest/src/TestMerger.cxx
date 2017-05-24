@@ -54,17 +54,17 @@ namespace HLTTest {
     for ( auto input: m_inputs ) {
       auto iHandle = SG::ReadHandle<DecisionContainer>(input);
       if ( iHandle.isValid() ) {
-	ATH_MSG_DEBUG( "Input " << input << " present" );
 	size_t counter = 0;
 	for ( auto iDecisionIter  = iHandle->begin(); iDecisionIter != iHandle->end(); ++iDecisionIter, ++counter ) {
 	  auto d = newDecisionIn(output.get());
 	  linkToPrevious(d, input, counter );
 	}
+	ATH_MSG_DEBUG( "Input " << input << " present, linked " << counter << " inputs" );
       } else {
-	ATH_MSG_DEBUG( "Input " << input << " not present" );
+	ATH_MSG_DEBUG( "Input " << input << " absent" );
       }
     }
-
+    
     auto outputHandle = SG::makeHandle(m_outputKey);
     CHECK( outputHandle.record( std::move(output), std::move(aux) ) );
     return StatusCode::SUCCESS;

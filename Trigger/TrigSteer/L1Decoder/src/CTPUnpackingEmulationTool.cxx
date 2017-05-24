@@ -102,10 +102,8 @@ StatusCode CTPUnpackingEmulationTool::decode( const ROIB::RoIBResult& /*roib*/, 
   
 
   const EventContext& context = Gaudi::Hive::currentContext();
-  EventContextHash hash;
-  size_t ctx = hash.hash(context);
  
-  int line = ctx % m_events.size();
+  int line = context.evt() % m_events.size();
   //  ATH_MSG_DEBUG("Getting chains for event "<<ctx<<": retrieve combination from line "<< line);
   //  auto tav = m_events[line];
 

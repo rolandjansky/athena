@@ -176,11 +176,8 @@ StatusCode RoIsUnpackingEmulationTool::unpack( const EventContext& ctx,
     return StatusCode::FAILURE;
   }
   
-  EventContextHash hash;
-  size_t eventId = hash.hash(ctx);
-  
-  int line = eventId % m_inputData.size();
-  ATH_MSG_DEBUG("Getting RoIs for event "<<eventId<<": retrieve combination from line "<< line);
+  int line = ctx.evt() % m_inputData.size();
+  ATH_MSG_DEBUG("Getting RoIs for event "<< line);
   auto FakeRoIs = m_inputData[line];
   
   
