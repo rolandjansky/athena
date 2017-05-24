@@ -9,7 +9,7 @@
 #include "TrkTruthData/TrackTruthKey.h"
 #include "TrkTruthData/DetailedTrackTruth.h"
 #include "TrkTrack/TrackCollection.h"
-#include "DataModel/DataLink.h"
+#include "AthLinks/DataLink.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
 #include <map>
