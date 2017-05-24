@@ -37,8 +37,6 @@
 #include "MuonDQAUtils/MuonDQAHistMap.h"
 
 
-using namespace std;
- 
 class TFile;
 class RpcIdHelper;
 template <class ConcreteAlgorithm> class AlgFactory;
