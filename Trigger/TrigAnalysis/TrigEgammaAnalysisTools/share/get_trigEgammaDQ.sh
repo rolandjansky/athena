@@ -42,31 +42,21 @@ echo $run $data $stream $refrun
 source /afs/cern.ch/project/eos/installation/atlas/etc/setup.sh
 
 BASE=/eos/atlas/atlastier0/rucio/${data}/${stream}/00${run}
-EOSPATH=/afs/cern.ch/project/eos/installation/pro/bin
 echo $BASE 
-#echo eos ls ${BASE} | grep HIST.x
-#echo eos ls ${BASE} | grep HIST.f
-
-DIR1=`$EOSPATH/eos.select ls ${BASE} | grep HIST.x`
-DIR2=`$EOSPATH/eos.select ls ${BASE} | grep HIST.f`
-#DIR1=`eos ls ${BASE} | grep HIST.x`
-#DIR2=`eos ls ${BASE} | grep HIST.f`
-echo "Found $DIR1 $DIR2"
+echo eos ls ${BASE} | grep HIST.x
+echo eos ls ${BASE} | grep HIST.f
+DIR1=`eos ls ${BASE} | grep HIST.x`
+DIR2=`eos ls ${BASE} | grep HIST.f`
+echo $DIR1 $DIR2
 
 if [ -n "$DIR1" ]; then
-    echo "TRY $BASE $DIR1"
-    echo "${BASE}/${DIR1}" 
-    FILETOCOPY1=`$EOSPATH/eos.select ls ${BASE}/${DIR1} | grep HIST`
-    echo $FILETOCOPY1
+    FILETOCOPY1=`eos ls ${BASE}/${DIR1} | grep HIST`
     echo "TEST ${BASE}/${DIR1}/${FILETOCOPY1}"
-    xrdcp ${BASE}/${DIR1}/${FILETOCOPY1} .
+    eos cp ${BASE}/${DIR1}/${FILETOCOPY1} .
 else
-    echo "TRY $BASE $DIR2"
-    echo "${BASE}/${DIR2}" 
-    FILETOCOPY1=`$EOSPATH/eos.select ls ${BASE}/${DIR2} | grep HIST`
-    echo $FILETOCOPY1
+    FILETOCOPY1=`eos ls ${BASE}/${DIR2} | grep HIST`
     echo "TEST ${BASE}/${DIR2}/${FILETOCOPY1}"
-    xrdcp ${BASE}/${DIR2}/${FILETOCOPY1} .
+    eos cp ${BASE}/${DIR2}/${FILETOCOPY1} .
 fi    
 
 if [ -n "$refrun" ]; then
@@ -92,15 +82,15 @@ fi
 
 
 
-hcg.exe ${FILETOCOPY1} -d HLT/Egamma -r Egamma TREG -ds "https://twiki.cern.ch/twiki/bin/view/Atlas/TrigEgammaDataQualityAndMonitoring" -a "HLT_Histogram_Not_Empty_with_Ref&GatherData" --deleteref > ${data}.${stream}.$run.config
+#hcg.exe ${inputfile} -d HLT/Egamma -r Egamma TREG -ds "https://twiki.cern.ch/twiki/bin/view/Atlas/TrigEgammaDataQualityAndMonitoring" -a "HLT_Histogram_Not_Empty_with_Ref&GatherData" --deleteref > ${data}.${stream}.$run.config
 
 if [ -n "$refrun" ]; then
-    trigEgammaDQ.py --file ${FILETOCOPY1} --run ${run} --t0 True --ref ${FILETOCOPY2} --refrun ${refrun} --lumi True
+    trigEgammaDQ.py --file ${FILETOCOPY1} --run ${run} --t0 True --ref ${FILETOCOPY2} --refrun ${refrun}
 else 
-    trigEgammaDQ.py --file ${FILETOCOPY1} --run ${run} --t0 True --lumi True
+    trigEgammaDQ.py --file ${FILETOCOPY1} --run ${run} --t0 True
 fi
 
-rm *.bak
+#rm *.bak
 #tar -czf TrigEgammaDQArchive_Run_${run}.tar.gz ${data}.* *.C *.eps --remove-files
 
 
