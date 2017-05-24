@@ -1,6 +1,8 @@
+# $Id: CMakeLists.txt 783761 2016-11-11 16:50:45Z nkoehler $
 ################################################################################
 # Package: MuonEfficiencyCorrections
 ################################################################################
+
 
 # Declare the package name:
 atlas_subdir( MuonEfficiencyCorrections )
@@ -65,6 +67,7 @@ endmacro( _add_exec )
 
 if( XAOD_STANDALONE )
    _add_exec( MuonEfficiencyCorrectionsRootCoreTest )
+   _add_exec( MuonEfficiencyCorrectionsSFFilesTest )
    _add_exec( MuonTriggerSFRootCoreTest )
    _add_exec( MuonTriggerSFRootCoreTest_maskFeet )
 endif()
