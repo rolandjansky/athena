@@ -246,8 +246,7 @@ StatusCode L1TriggerTowerTool::retrieveConditions()
       CHECK(retrieveGeneric<L1CaloPprConditionsContainer>(m_l1CondSvc, m_conditionsContainer));
       CHECK(retrieveGeneric<L1CaloPprDisabledChannelContainer>(m_l1CondSvc, m_disabledChannelContainer));
     }
-    
-    boost::any_cast<L1CaloPprConditionsContainerRun2*>(m_conditionsContainer)->dump();
+
     if(verbose) {
       ATH_MSG_VERBOSE( "Retrieved ConditionsContainer" );
       if(m_isRun2){
