@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
+ 
 // This source file implements all of the functions related to <OBJECT>
 // in the SUSYObjDef_xAOD class
 
@@ -20,6 +20,9 @@
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
+
+// Helper for object quality
+#include "ElectronPhotonSelectorTools/PhotonSelectorHelpers.h"
 
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
@@ -98,7 +101,7 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
     ATH_MSG_INFO( "PHOTON cl eta: " << input.caloCluster()->eta() );
     ATH_MSG_INFO( "PHOTON cl phi: " << input.caloCluster()->phi() );
     ATH_MSG_INFO( "PHOTON cl e: " << input.caloCluster()->e() );
-    ATH_MSG_INFO( "PHOTON OQ: " << acc_OQ(input) );
+    ATH_MSG_INFO( "PHOTON OQ: " << input.OQ() );
     ATH_MSG_INFO( "PHOTON author: " << input.author() );
   }
 
@@ -131,13 +134,10 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
     return StatusCode::SUCCESS;
 
   //Photon quality as in https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Photon_cleaning
-  uint32_t ph_OQ = acc_OQ(input); 
-  bool ph_good_timing = (m_photonAllowLate || (ph_OQ&67108864)==0);  
-  if( (ph_OQ&1073741824)!=0 ||
-      ( (ph_OQ&134217728)!=0 && (input.showerShapeValue(xAOD::EgammaParameters::Reta) >0.98 || input.showerShapeValue(xAOD::EgammaParameters::f1) >0.4 || !ph_good_timing)))
-    {
-      return StatusCode::SUCCESS;
-    }
+  if ( (!m_photonAllowLate && !PhotonSelectorHelpers::passOQquality(&input)) ||
+       ( m_photonAllowLate && !PhotonSelectorHelpers::passOQqualitydelayed(&input)) ){
+    return StatusCode::SUCCESS;
+  }
 
   if (!isAtlfast() && !isData()) {
     if ( m_electronPhotonShowerShapeFudgeTool->applyCorrection(input) != CP::CorrectionCode::Ok)

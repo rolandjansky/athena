@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
+ 
 // This source file implements all of the functions related to <OBJECT>
 // in the SUSYObjDef_xAOD class
 
@@ -40,8 +40,8 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<char>  acc_passJvt("passJvt");
   const static SG::AuxElement::ConstAccessor<char>  acc_passFJvt("passFJvt");
 
-  const static SG::AuxElement::Decorator<float> dec_jvt("jvt");
-  const static SG::AuxElement::Accessor<float> acc_jvt("jvt");
+  const static SG::AuxElement::Decorator<float> dec_jvt("Jvt");
+  const static SG::AuxElement::Accessor<float> acc_jvt("Jvt");
   
   const static SG::AuxElement::Decorator<char> dec_bjet("bjet");
   const static SG::AuxElement::Decorator<char> dec_bjet_jetunc("bjet_jetunc"); //added for JetUncertainties usage
@@ -270,8 +270,9 @@ namespace ST {
       //central jvt
       float jvt = m_jetJvtUpdateTool->updateJvt(input);
       ATH_MSG_VERBOSE("JVT recalculation: "
-                      << acc_jvt(input) << " (before)"
-                      << jvt << " (after)");
+		      << acc_jvt(input) << " (before)"
+		      << jvt << " (after)");
+
       dec_jvt(input) = jvt;
     }
 
@@ -286,8 +287,17 @@ namespace ST {
 
     if (input.pt() > 15e3) {
       if(!isFat){
-        if ( m_jetUncertaintiesTool->applyCorrection(input) != CP::CorrectionCode::Ok)
-          ATH_MSG_ERROR("Failed to apply JES correction ");
+	CP::CorrectionCode result = m_jetUncertaintiesTool->applyCorrection(input);
+	switch (result) {
+	case CP::CorrectionCode::Error:
+	  ATH_MSG_ERROR( "Failed to apply JES correction" );
+	  break;
+	case CP::CorrectionCode::OutOfValidityRange:
+	  ATH_MSG_WARNING( "JES correction OutOfValidity range (|eta|<2.0)."); // Jet (pt,eta,phi) = (" << input.pt() << ", " << input.eta() << ", " << input.phi() << ")");
+	  break;
+	default:
+	  break;
+	}	  
       }
     }
   
@@ -424,7 +434,7 @@ namespace ST {
 
     if ( input.pt() <= ptcut || isPileup ) return false;
 
-    dec_bad(input) = !m_jetCleaningTool->keep(input);
+    dec_bad(input) = m_jetCleaningTool.empty() ? false : !m_jetCleaningTool->keep(input);
 
     ATH_MSG_VERBOSE( "JET isbad?: " << (int) acc_bad(input) );
 
@@ -469,7 +479,7 @@ namespace ST {
 
       if ( fabs(jet->eta()) > 2.5 ) {
         ATH_MSG_VERBOSE( " Trying to retrieve b-tagging SF for jet with |eta|>2.5 (jet eta=" << jet->eta() << "), jet will be skipped");
-      } else if ( jet->pt() < 20e3 || jet->pt() > 1e6 ) {
+      } else if ( jet->pt() < 20e3 ){ //|| jet->pt() > 1e6 ) {
         ATH_MSG_VERBOSE( " Trying to retrieve b-tagging SF for jet with invalid pt (jet pt=" << jet->pt() << "), jet will be skipped");
       } else {
 

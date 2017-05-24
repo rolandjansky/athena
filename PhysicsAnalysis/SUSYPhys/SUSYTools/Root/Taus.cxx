@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
+ 
 // This source file implements all of the functions related to <OBJECT>
 // in the SUSYObjDef_xAOD class
 
@@ -22,6 +22,7 @@
 #include "TauAnalysisTools/ITauSmearingTool.h"
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"
 #include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
+#include "tauRecTools/TauWPDecorator.h"
 
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
@@ -75,6 +76,35 @@ StatusCode SUSYObjDef_xAOD::FillTau(xAOD::TauJet& input) {
 
   ATH_MSG_VERBOSE( "Starting FillTau on tau with pT = " << input.pt()/1000 << " GeV" );
   ATH_MSG_VERBOSE( "TAU pT before smearing " << input.pt()/1000 << " GeV");
+
+  // Re-decorate BDT score if requested (Bugfix for 20.7.8.2 derivations)
+  if(m_tauIDrecalc){
+    if(input.hasDiscriminant(xAOD::TauJetParameters::BDTJetScore)){
+      ATH_MSG_VERBOSE( "TAU Unflattened BDT Score " << input.discriminant(xAOD::TauJetParameters::BDTJetScore));
+      
+      // if(input.hasDiscriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans)) 
+      // 	ATH_MSG_VERBOSE( "TAU Buggy Flattened BDT score " << input.discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans));
+      
+      // We actually need to decorate some information to the tau to work properly
+      const xAOD::EventInfo* evtInfo = 0;
+      ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
+      
+      static SG::AuxElement::Accessor<float> acc_mu("MU");
+      acc_mu(input) = evtInfo->averageInteractionsPerCrossing();
+      static SG::AuxElement::Accessor<int> acc_numTrack("NUMTRACK");
+      acc_numTrack(input) = input.nTracks();
+      
+      // Re-calculate the BDT score
+#if ROOTCORE_RELEASE_SERIES==24
+      ATH_CHECK( m_tauWPdecorator->execute(input) );
+#endif
+
+      // ATH_MSG_VERBOSE( "TAU Fixed Flattened BDT score " << input.discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans));
+    }
+    else
+      ATH_MSG_ERROR(" Missing BDT Score: Cannot re-calculate decision ");
+  }
+  
 
   // If the MVA calibration is being used, be sure to apply the calibration to data as well
   if (fabs(input.eta()) <= 2.5 && input.nTracks() > 0 && (!isData() || m_tauMVACalib)) {

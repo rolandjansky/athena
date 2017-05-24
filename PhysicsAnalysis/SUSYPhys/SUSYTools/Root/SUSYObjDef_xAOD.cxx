@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
+ 
 // Local include(s):
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 
@@ -47,6 +47,7 @@
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"  
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
+#include "tauRecTools/TauWPDecorator.h"
 
 #include "PhotonEfficiencyCorrection/IAsgPhotonEfficiencyCorrectionTool.h"
 
@@ -124,6 +125,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_photonIdBaseline(""),
     m_tauId(""),
     m_tauIdBaseline(""),
+    m_tauIDrecalc(false),
     m_eleIso_WP(""),
     m_eleChID_WP(""),
     m_runECIS(false),
@@ -172,6 +174,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_tauConfigPathBaseline(""),
     m_tauDoTTM(false),
     m_tauRecalcOLR(false),
+    m_tauNoAODFixCheck(false),
     //
     m_jetPt(-99.),
     m_jetEta(-99.),
@@ -180,14 +183,14 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_fwdjetEtaMin(-99.),
     m_fwdjetPtMax(-99.),
     m_fwdjetTightOp(false),
-    m_JMScalib(false),
+    m_JMScalib(""),
     //
     m_orDoTau(false),
     m_orDoPhoton(false),
     m_orDoBjet(false),
     m_orDoElBjet(true),
     m_orDoMuBjet(true),
-    //    m_orDoTauBjet(true),
+    m_orDoTauBjet(true),
     m_orDoBoostedElectron(false),
     m_orBoostedElectronC1(-999.), // set to positive value to activate
     m_orBoostedElectronC2(-999.), // set to positive value to activate
@@ -196,6 +199,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_orBoostedMuonC1(-999.), // set to positive value to activate
     m_orBoostedMuonC2(-999.), // set to positive value to activate
     m_orBoostedMuonMaxConeSize(-999.), // set to positive value to activate
+    m_orApplyRelPt(false),
     m_orMuJetPtRatio(-999.),
     m_orMuJetTrkPtRatio(-999.),
     m_orMuJetInnerDR(-999),
@@ -296,9 +300,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     //
     m_prwTool(""),
     //
-#ifndef XAOD_STANDALONE
-    m_orTool(""),
-#endif
+    m_orToolbox("ORToolbox",this),
     //
     m_pmgSHnjetWeighter(""),
     m_pmgSHnjetWeighterWZ("")
@@ -313,7 +315,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "DoBjetOR",      m_orDoBjet );
   declareProperty( "DoElBjetOR",    m_orDoElBjet );
   declareProperty( "DoMuBjetOR",    m_orDoMuBjet );
-  //  declareProperty( "DoTauBjetOR",    m_orDoTauBjet );
+  declareProperty( "DoTauBjetOR",    m_orDoTauBjet );
   declareProperty( "UseBtagging",   m_useBtagging );
   declareProperty( "DoBoostedElectronOR", m_orDoBoostedElectron );
   declareProperty( "BoostedElectronORC1", m_orBoostedElectronC1 );
@@ -325,6 +327,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "BoostedMuonORMaxConeSize", m_orBoostedMuonMaxConeSize );
   declareProperty( "ORDoMuonJetGhostAssociation", m_orDoMuonJetGhostAssociation );
   declareProperty( "ORRemoveCaloMuons", m_orRemoveCaloMuons );
+  declareProperty( "ORMuJetApplyRelPt", m_orApplyRelPt);
   declareProperty( "ORMuJetPtRatio", m_orMuJetPtRatio);
   declareProperty( "ORMuJetInnerDR", m_orMuJetInnerDR );
   declareProperty( "ORJetTrkPtRatio", m_orMuJetTrkPtRatio);
@@ -357,7 +360,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "FwdJetDoJVT",  m_doFwdJVT );
   declareProperty( "FwdJetUseTightOP",  m_fwdjetTightOp );
 
-  declareProperty( "JetDoJMSCalib",  m_JMScalib );
+  declareProperty( "JetJMSCalib",  m_JMScalib );
 
   //BTAGGING
   declareProperty( "BtagTagger", m_BtagTagger); 
@@ -420,6 +423,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "TauMVACalibration", m_tauMVACalib);
   declareProperty( "TauDoTruthMatching", m_tauDoTTM);
   declareProperty( "TauRecalcElOLR", m_tauRecalcOLR);
+  declareProperty( "TauIgnoreAODFixCheck", m_tauNoAODFixCheck);
+  declareProperty( "TauIDRedecorate", m_tauIDrecalc); 
 
   //Leptons
   declareProperty( "SigLepRequireIso", m_doIsoSignal ); //leave here for back-compatibility
@@ -527,11 +532,9 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //
   m_pmgSHnjetWeighter.declarePropertyFor( this, "PMGSHVjetReweightTool", "The PMGSHVjetReweightTool (AntiKt4TruthJets)" );
   m_pmgSHnjetWeighterWZ.declarePropertyFor( this, "PMGSHVjetReweightWZTool", "The PMGSHVjetReweightTool (AntiKt4TruthWZJets)" );
-
-// this is only configurable in Athena? 
-#ifndef XAOD_STANDALONE
-  declareProperty( "OverlapRemovalTool", m_orTool);
-#endif
+  //
+  m_tauJetORtool.declarePropertyFor( this, "TauJetOverlapTool", "The TauJetOverlapTool");
+  //m_orToolbox.declarePropertyFor( this, "OverlapRemovalTool", "The overlap removal tool");
 
   //load supported WPs (by tightness order)
   el_id_support.push_back("VeryLooseLLH");
@@ -656,10 +659,6 @@ StatusCode SUSYObjDef_xAOD::initialize() {
   ATH_MSG_INFO("Build MET with map: " << m_inputMETMap);
 
   ATH_CHECK( this->SUSYToolsInit() );
-
-#ifndef XAOD_STANDALONE
-  CHECK_TOOL_RETRIEVE( m_orTool );
-#endif
 
   ATH_MSG_VERBOSE("Done with tool retrieval");
 
@@ -855,8 +854,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["FwdJet.doJVT"] = "FwdJetDoJVT";
   m_conf_to_prop["FwdJet.JvtUseTightOP"] = "FwdJetUseTightOP";
 
-  m_conf_to_prop["Jet.DoJMSCalib"] = "JetDoJMSCalib";
-
   m_conf_to_prop["OR.DoBoostedElectron"] = "DoBoostedElectronOR";
   m_conf_to_prop["OR.DoBoostedMuon"] = "DoBoostedMuonOR";
   m_conf_to_prop["OR.DoMuonJetGhostAssociation"] = "ORDoMuonJetGhostAssociation";
@@ -868,6 +865,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["OR.TauBjet"] = "DoTauBjetOR";
   m_conf_to_prop["OR.DoFatJets"] = "DoFatJetOR";
   m_conf_to_prop["OR.RemoveCaloMuons"] = "ORRemoveCaloMuons";
+  m_conf_to_prop["OR.MuJetApplyRelPt"] = "ORMuJetApplyRelPt";
   m_conf_to_prop["OR.ApplyJVT"] = "ORApplyJVT";
   m_conf_to_prop["OR.InputLabel"] = "ORInputLabel";
  
@@ -885,6 +883,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["Tau.MVACalibration"] = "TauMVACalibration";
   m_conf_to_prop["Tau.DoTruthMatching"] = "TauDoTruthMatching";
   m_conf_to_prop["Tau.RecalcElOLR"] = "TauRecalcElOLR";
+  m_conf_to_prop["Tau.IgnoreAODFixCheck"] = "TauIgnoreAODFixCheck";
+  m_conf_to_prop["Tau.IDRedecorate"] = "TauIDRedecorate";  
   //
 
   //
@@ -951,6 +951,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_tauMVACalib, "Tau.MVACalibration", rEnv, false);
   configFromFile(m_tauDoTTM, "Tau.DoTruthMatching", rEnv, false);
   configFromFile(m_tauRecalcOLR, "Tau.RecalcElOLR", rEnv, false);
+  configFromFile(m_tauNoAODFixCheck, "Tau.IgnoreAODFixCheck", rEnv, false);
+  configFromFile(m_tauIDrecalc, "Tau.IDRedecorate", rEnv, false);
   //
   configFromFile(m_jetPt, "Jet.Pt", rEnv, 20000.);
   configFromFile(m_jetEta, "Jet.Eta", rEnv, 2.8);
@@ -968,12 +970,12 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_fwdjetEtaMin, "FwdJet.JvtEtaMin", rEnv, 2.5);
   configFromFile(m_fwdjetPtMax, "FwdJet.JvtPtMax", rEnv, 50e3);
   configFromFile(m_fwdjetTightOp, "FwdJet.JvtUseTightOP", rEnv, false);
-  configFromFile(m_JMScalib, "Jet.DoJMSCalib", rEnv, false);
+  configFromFile(m_JMScalib, "Jet.JMSCalib", rEnv, "None");
   //
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
   configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
-  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-01-31_v1.root");
+  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-04-24_v1.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, false);
@@ -990,7 +992,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orDoBjet, "OR.Bjet", rEnv, true);
   configFromFile(m_orDoElBjet, "OR.ElBjet", rEnv, true);
   configFromFile(m_orDoMuBjet, "OR.MuBjet", rEnv, true);
-  //  configFromFile(m_orDoTauBjet, "OR.TauBjet", rEnv, true);
+  configFromFile(m_orDoTauBjet, "OR.TauBjet", rEnv, true);
+  configFromFile(m_orApplyRelPt, "OR.MuJetApplyRelPt", rEnv, false);
   configFromFile(m_orMuJetPtRatio, "OR.MuJetPtRatio", rEnv, -999.);
   configFromFile(m_orMuJetTrkPtRatio, "OR.MuJetTrkPtRatio", rEnv, -999.);
   configFromFile(m_orRemoveCaloMuons, "OR.RemoveCaloMuons", rEnv, true);
@@ -2080,11 +2083,7 @@ StatusCode SUSYObjDef_xAOD::OverlapRemoval(const xAOD::ElectronContainer *electr
     ATH_MSG_WARNING( "Will now call the OR tool on an event without a primary vertex, and it will likely crash. Please require a PV earlier in your analysis code!");
   }
 
-#ifdef XAOD_STANDALONE
   ATH_CHECK( m_orToolbox.masterTool->removeOverlaps(electrons, muons, jets, taujet, gamma, fatjets) );
-#else
-  ATH_CHECK( m_orTool->removeOverlaps(electrons, muons, jets, taujet, gamma, fatjets) );
-#endif
 
   /*
   // Count number of objects after overlap removal
@@ -2159,6 +2158,7 @@ unsigned int SUSYObjDef_xAOD::GetRandomRunNumber(bool muDependentRRN) {
   ATH_MSG_ERROR ( "Failed to find RandomRunNumber decoration! You need to call ApplyPRWTool() beforehand!" );
   return 0;
 }
+
 
 StatusCode SUSYObjDef_xAOD::ApplyPRWTool(bool muDependentRRN) {
 

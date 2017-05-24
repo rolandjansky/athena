@@ -316,6 +316,8 @@ StatusCode ApplySUSYTools::execute()
   // Reset systematics
   CHECK( m_objTool->resetSystematics() == CP::SystematicCode::Ok );
 
+  // Up front, apply pileup reweighting -- no need to weight
+  CHECK( m_objTool->ApplyPRWTool() );
 
   ////////////////////////////
   // Retrieve original objects

@@ -192,6 +192,15 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
   ATH_MSG_VERBOSE( "FillElectron: post-calibration pt=" << input.pt() );
 
+  if (input.pt() < etcut) return StatusCode::SUCCESS;
+
+  if (m_elebaselinez0>0. && acc_z0sinTheta(input)>m_elebaselinez0) return StatusCode::SUCCESS;
+  if (m_elebaselined0sig>0. && acc_d0sig(input)>m_elebaselined0sig) return StatusCode::SUCCESS;
+
+  dec_baseline(input) = true;
+  dec_selected(input) = 2;
+  dec_isol(input) = m_isoTool->accept(input);
+
   //ChargeIDSelector
   if( m_runECIS ){
     dec_passChID(input) = m_elecChargeIDSelectorTool->accept(input);
@@ -201,17 +210,10 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
     //get ElectronChargeEfficiencyCorrectionTool decorations in this case
     if(m_elecChargeEffCorrTool->applyEfficiencyScaleFactor(input) != CP::CorrectionCode::Ok)
       ATH_MSG_ERROR( "FillElectron: ElectronChargeEfficiencyCorrectionTool SF decoration failed ");
-
   }
-
-  if (input.pt() < etcut) return StatusCode::SUCCESS;
-
-  if (m_elebaselinez0>0. && acc_z0sinTheta(input)>m_elebaselinez0) return StatusCode::SUCCESS;
-  if (m_elebaselined0sig>0. && acc_d0sig(input)>m_elebaselined0sig) return StatusCode::SUCCESS;
-
-  dec_baseline(input) = true;
-  dec_selected(input) = 2;
-  dec_isol(input) = m_isoTool->accept(input);
+  else{ 
+    dec_passChID(input) = true;
+  }
 
   ATH_MSG_VERBOSE( "FillElectron: passed baseline selection" );
   
@@ -255,6 +257,9 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
   if (acc_isol(input) || !m_doElIsoSignal) {
     ATH_MSG_VERBOSE( "IsSignalElectron: passed isolation");
   } else return false; //isolation selection with IsoTool
+
+
+  if(!acc_passChID(input)) return false; //add charge flip check to signal definition
 
   dec_signal(input) = true;
 
