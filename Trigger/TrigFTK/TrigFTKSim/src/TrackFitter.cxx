@@ -228,7 +228,7 @@ void TrackFitter::init()
   // counter that enumerates current hit in FTKHit array
   m_hitcnt = new int[m_nplanes];
 
-  m_complete_mask = ~(~0<<m_ncoords);
+  m_complete_mask = ~(~0u<<m_ncoords);
   // allocate once the array of recovered tracks
   combtrack = new FTKTrack[m_ncoords];
   for (int ic=0;ic!=m_ncoords;++ic) {
