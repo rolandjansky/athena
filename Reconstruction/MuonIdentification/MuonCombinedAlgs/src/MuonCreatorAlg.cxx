@@ -106,7 +106,10 @@ StatusCode MuonCreatorAlg::execute()
   if( m_clusterContainerName != "" ) ATH_CHECK(retrieveOrCreateAndRecord(output.clusterContainer));
   
   // build muons
-  m_muonCreatorTool->create(muonCandidateCollection,indetCandidateCollection,output);
+  if(!muonCandidateCollection || !indetCandidateCollection){
+    ATH_MSG_WARNING("candidate collection missing, skip muon creation");
+  }
+  else m_muonCreatorTool->create(muonCandidateCollection,indetCandidateCollection,output);
 
   return StatusCode::SUCCESS;
 }
