@@ -2,26 +2,25 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PIXELDIGITIZATION_FEI4SimTool_H
-#define PIXELDIGITIZATION_FEI4SimTool_H
+#ifndef PIXELDIGITIZATION_RD53SimTool_H
+#define PIXELDIGITIZATION_RD53SimTool_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "FrontEndSimTool.h"
 
-class FEI4SimTool:public FrontEndSimTool {
+class RD53SimTool:public FrontEndSimTool {
 
   public:
-    FEI4SimTool( const std::string& type, const std::string& name,const IInterface* parent);
+    RD53SimTool( const std::string& type, const std::string& name,const IInterface* parent);
 
     virtual StatusCode initialize();
     virtual StatusCode finalize();
-    virtual ~FEI4SimTool();
+    virtual ~RD53SimTool();
     virtual void process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Collection &rdoCollection);
 
   private:
-    FEI4SimTool();
+    RD53SimTool();
 
-    int m_HitDiscConfig;
 };
 
-#endif // PIXELDIGITIZATION_FEI4SimTool_H
+#endif // PIXELDIGITIZATION_RD53SimTool_H
