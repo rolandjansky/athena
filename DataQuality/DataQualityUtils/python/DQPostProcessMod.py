@@ -130,6 +130,11 @@ def DQPostProcess( outFileName, isIncremental=False ):
                                                            createMDTConditionDBNoisy)
             createMDTConditionDBDead()
             createMDTConditionDBNoisy()
+
+    def zlumi(fname, isIncremental):
+        if not isIncremental:
+            from DataQualityUtils.doZLumi import go
+            go(fname)
  
     funclist = [ 
                  (mf.fitMergedFile_IDPerfMonManager,
@@ -179,7 +184,9 @@ def DQPostProcess( outFileName, isIncremental=False ):
                  (mf.PixelPostProcess,
                   ['daiki.yamaguchi@cern.ch']),
                  (mf.MuonTrackPostProcess,
-                  ['baojia.tong@cern.ch', 'alexander.tuna@cern.ch'])
+                  ['baojia.tong@cern.ch', 'alexander.tuna@cern.ch']),
+                 (zlumi,
+                  ['ponyisi@utexas.edu', 'harish.potti@utexas.edu']),
                ]
 
     for funcinfo in funclist:

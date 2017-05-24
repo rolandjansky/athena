@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration                   
 import sys, glob
 import ROOT
 
@@ -5,7 +7,14 @@ ROOT.gStyle.SetOptStat(0)
 
 ACCEPTANCE = 3.173927e-01
 
-infilename = sys.argv[1]
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('infile', type=str, help='input HIST file')
+parser.add_argument('--out', type=str, help='output ROOT file')
+
+args = parser.parse_args()
+
+infilename = args.infile
 infile = ROOT.TFile.Open(infilename, 'READ')
 
 rundir = None
@@ -37,7 +46,7 @@ effcydir = ROOT.TH1F('effcydir', 'Direct acc x efficiency', lbnums[-1]-lbnums[0]
                lbnums[-1]+0.5)
 
 from array import array
-fout = ROOT.TFile('%s_all.root' % rundir[4:], 'RECREATE')
+fout = ROOT.TFile(args.out if args.out else '%s_all.root' % rundir[4:], 'RECREATE')
 o_run = array('I', [0])
 o_lb = array('I', [0])
 o_lbwhen = array('d', [0., 0.])

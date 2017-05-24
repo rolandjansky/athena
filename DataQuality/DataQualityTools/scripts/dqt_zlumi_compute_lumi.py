@@ -2,16 +2,18 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import ROOT
-import sys
+import sys, os
 import logging
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('infile', type=str, help='input HIST file')
 parser.add_argument('--grl', type=str, help='Specify an input GRL')
-#parser.add_argument('--out', type=str, help='output ROOT file')
+parser.add_argument('--out', type=str, help='output ROOT file')
 parser.add_argument('--tag', type=str, help='Lumi tag',
                     default='OflLumiAcct-001')
+parser.add_argument('--plotdir', type=str, help='Directory to dump plots',
+                    default='plots')
 parser.add_argument('--mudep', type=int, help='Run mu-dependent efficiencies',
                     default=0)
 args = parser.parse_args()
@@ -53,7 +55,10 @@ if not runname:
     sys.exit(1)
 
 z_m = fin.Get('%s/GLOBAL/DQTGlobalWZFinder/m_Z_Counter_mu' % runname)
-outfname = '%s_data.root' % runname[4:]
+if args.out:
+    outfname = args.out
+else:
+    outfname = '%s_data.root' % runname[4:]
 
 if not z_m:
     logging.critical("Can't retrieve m_Z_Counter_mu")
@@ -259,10 +264,10 @@ leg.AddEntry(lumiplot_m, 'Z luminosity')
 leg.AddEntry(official_lum_zero, 'ATLAS preferred lumi', 'L')
 leg.SetBorderSize(0)
 leg.Draw()
-c1.Print('plots/%s_lumi.eps' % runname[4:])
-c1.Print('plots/%s_lumi.png' % runname[4:])
+c1.Print(os.path.join(args.plotdir, '%s_lumi.eps' % runname[4:]))
+c1.Print(os.path.join(args.plotdir, '%s_lumi.png' % runname[4:]))
 
 c1.Clear()
 lumiplot_m_ratio.Draw()
-c1.Print('plots/%s_lumi_ratio.eps' % runname[4:])
-c1.Print('plots/%s_lumi_ratio.png' % runname[4:])
+c1.Print(os.path.join(args.plotdir, '%s_lumi_ratio.eps' % runname[4:]))
+c1.Print(os.path.join(args.plotdir, '%s_lumi_ratio.png' % runname[4:]))
