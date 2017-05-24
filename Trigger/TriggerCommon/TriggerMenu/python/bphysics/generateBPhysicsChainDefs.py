@@ -116,6 +116,7 @@ def getBphysThresholds(chainDict) :
             mult_without_noL1 = mult_without_noL1 + int(part['multiplicity'])
 
     for dictpart in chainDict['chainParts']:
+        if 'noL1' in  dictpart['extra'] : continue
         if 'mu' in dictpart['trigType']:
             for x in range(0,int(dictpart['multiplicity'])):
                 if dictpart['threshold']!='0':
@@ -163,7 +164,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         if doL2MultiTrack :
             from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
             from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Jpsi
-            L2Fex = TrigMultiTrkFex_DiMu()
+            L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_Jpsi("L2MultiMuTrkHypo_Jpsi")  
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         else :
@@ -183,7 +185,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
             if doL2MultiTrack :
                 from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
                 from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu
-                L2Fex = TrigMultiTrkFex_DiMu()
+                L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+                L2Fex.setTrackThresholds( trkmuons )
                 L2Hypo = EFMultiMuHypo_DiMu("L2MultiMuTrkHypo_DiMu")
                 L2Hypo.bphysCollectionKey = "MultiTrkFex"
             else :
@@ -201,7 +204,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
             if doL2MultiTrack :
                 from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
                 from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu
-                L2Fex = TrigMultiTrkFex_DiMu()
+                L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+                L2Fex.setTrackThresholds( trkmuons )
                 L2Hypo = EFMultiMuHypo_DiMu("L2MultiMuTrkHypo_DiMu")
                 L2Hypo.bphysCollectionKey = "MultiTrkFex"
             else :
@@ -218,7 +222,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
     elif (mtopo =='bDimu2700'):
         from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu
-        L2Fex = TrigMultiTrkFex_DiMu()
+        L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+        L2Fex.setTrackThresholds( trkmuons )
         L2Hypo = EFMultiMuHypo_2700("L2MultiMuHypo_bTau")
 
         from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_DiMu
@@ -254,7 +259,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu_noCut
         # at level 2 just check that there is at least 2 tracks. One could cut this more down with multiplicity cut for 3mu_bNocut
         # but because of 3mu_bJpsi items we will not gain anything
-        L2Fex = TrigMultiTrkFex_DiMu_noCut()
+        L2Fex = TrigMultiTrkFex_DiMu_noCut("TrigMultiTrkFex_DiMu_noCut"+fexNameExt)
+        L2Fex.setTrackThresholds( trkmuons )
         L2Hypo = EFMultiMuHypo_DiMu_noCut("L2MultiMuTrkHypo_noCut")
         L2Hypo.bphysCollectionKey = "MultiTrkFex"
 
@@ -268,7 +274,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Vtx20
         # at level 2 just check that there is at least 2 tracks. One could cut this more down with multiplicity cut for 3mu_bNocut
         # but because of 3mu_bJpsi items we will not gain anything
-        L2Fex = TrigMultiTrkFex_Vtx2()
+        L2Fex = TrigMultiTrkFex_Vtx2("TrigMultiTrkFex_Vtx2"+fexNameExt)
+        L2Fex.setTrackThresholds( trkmuons )
         L2Hypo = EFMultiMuHypo_Vtx20("EFMultiMuHypo_Vtx20")
         L2Hypo.bphysCollectionKey = "MultiTrkFex"
 
@@ -282,7 +289,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Vtx20
         # at level 2 just check that there is at least 2 tracks. One could cut this more down with multiplicity cut for 3mu_bNocut
         # but because of 3mu_bJpsi items we will not gain anything
-        L2Fex = TrigMultiTrkFex_Vtx3()
+        L2Fex = TrigMultiTrkFex_Vtx3("TrigMultiTrkFex_Vtx3"+fexNameExt)
+        L2Fex.setTrackThresholds( trkmuons )
         L2Hypo = EFMultiMuHypo_Vtx20("EFMultiMuHypo_Vtx20")
         L2Hypo.bphysCollectionKey = "MultiTrkFex"
 
@@ -300,7 +308,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         if doL2MultiTrack :
             from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_trkTau
             from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu
-            L2Fex = TrigMultiTrkFex_trkTau()
+            L2Fex = TrigMultiTrkFex_trkTau("TrigMultiTrkFex_trkTau"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_2700("L2MultiMuHypo_bTau")
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         else :  # in 2016 there was no L2 part
@@ -388,7 +397,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         if doL2MultiTrack :
             from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
             from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu
-            L2Fex = TrigMultiTrkFex_DiMu()
+            L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )            
             L2Hypo = EFMultiMuHypo_Upsi("L2MultiMuTrkHypo_Upsi")  
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         else:
@@ -406,7 +416,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         if doL2MultiTrack :
             from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
             from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_BMeson
-            L2Fex = TrigMultiTrkFex_DiMu()
+            L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_BMeson("L2MultiMuTrkHypo_BMeson")  
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         else :
@@ -423,7 +434,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         if doL2MultiTrack :
             from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
             from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu
-            L2Fex = TrigMultiTrkFex_DiMu()
+            L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_Jpsi("L2MultiMuTrkHypo_Jpsi")  
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         else :
@@ -441,7 +453,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         if doL2MultiTrack :
             from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
             from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu
-            L2Fex = TrigMultiTrkFex_DiMu()
+            L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_Upsi("L2MultiMuTrkHypo_Upsi")
         else :
             from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_Upsi
@@ -715,7 +728,8 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             L2Fex  = L2BMuMuFex_DiMu_passL2() 
             L2Hypo = L2BMuMuHypo_DiMu_passL2()
         else :
-            L2Fex = TrigMultiTrkFex_DiMu_noCut()
+            L2Fex = TrigMultiTrkFex_DiMu_noCut("TrigMultiTrkFex_DiMu_noCut"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_DiMu_noCut("L2MultiMuTrkHypo_noCut")
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         EFFex  = EFBMuMuFex_DiMu_noOS()
@@ -727,7 +741,8 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             L2Fex  = L2BMuMuFex_DiMu_noOS() 
             L2Hypo = L2BMuMuHypo_DiMu_noVtx()
         else :
-            L2Fex = TrigMultiTrkFex_DiMu_noVtx_noOS()
+            L2Fex = TrigMultiTrkFex_DiMu_noVtx_noOS("TrigMultiTrkFex_DiMu_noVtx_noOS"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_DiMu_noVtx("L2MultiMuTrkHypo_noVtx")
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         from TrigBphysHypo.TrigEFBMuMuFexConfig  import EFBMuMuFex_DiMu_noOS
@@ -743,7 +758,8 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             L2Fex  = L2BMuMuFex_DiMu_noinvm_SS() 
             L2Hypo = L2BMuMuHypo_DiMu_noinvm_noVtx()
         else :
-            L2Fex = TrigMultiTrkFex_DiMu_noVtx_noM_SS()
+            L2Fex = TrigMultiTrkFex_DiMu_noVtx_noM_SS("TrigMultiTrkFex_DiMu_noVtx_noM_SS"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_DiMu_noCut("L2MultiMuTrkHypo_noCut")
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         EFFex  = EFBMuMuFex_DiMu_noinvm_SS()
@@ -766,7 +782,8 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             L2Fex  = L2BMuMuFex_DiMu_passL2() 
             L2Hypo = L2BMuMuHypo_DiMu_passL2()
         else :
-            L2Fex = TrigMultiTrkFex_DiMu_noCut()
+            L2Fex = TrigMultiTrkFex_DiMu_noCut("TrigMultiTrkFex_DiMu_noCut"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_DiMu_noCut("L2MultiMuTrkHypo_noCut")
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         EFFex  = EFBMuMuFex_DiMu()
@@ -785,7 +802,8 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             L2Fex  = L2BMuMuFex_Jpsi_passL2()
             L2Hypo = L2BMuMuHypo_Jpsi_passL2()
         else :
-            L2Fex = TrigMultiTrkFex_DiMu_noCut()
+            L2Fex = TrigMultiTrkFex_DiMu_noCut("TrigMultiTrkFex_DiMu_noCut"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_DiMu_noCut("L2MultiMuTrkHypo_noCut")
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         EFFex  = EFBMuMuFex_Jpsi()
@@ -804,7 +822,8 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             L2Fex  = L2BMuMuFex_DiMu_passL2()
             L2Hypo = L2BMuMuHypo_DiMu_passL2()
         else :
-            L2Fex = TrigMultiTrkFex_DiMu_noCut()
+            L2Fex = TrigMultiTrkFex_DiMu_noCut("TrigMultiTrkFex_DiMu_noCut"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_DiMu_noCut("L2MultiMuTrkHypo_noCut")
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         EFFex  = EFBMuMuFex_B()
@@ -818,7 +837,8 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             L2Fex  = L2BMuMuFex_DiMu() 
             L2Hypo = L2BMuMuHypo_DiMu()
         else :
-            L2Fex = TrigMultiTrkFex_DiMu()
+            L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_DiMu("L2MultiMuTrkHypo_DiMu")
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
 
@@ -833,7 +853,8 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             L2Fex  = L2BMuMuFex_Jpsi()
             L2Hypo = L2BMuMuHypo_Jpsi()
         else :
-            L2Fex = TrigMultiTrkFex_DiMu()
+            L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_Jpsi("L2MultiMuTrkHypo_Jpsi")  
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         EFFex  = EFBMuMuFex_passEF()
@@ -848,7 +869,8 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             L2Fex  = L2BMuMuFex_Jpsi()
             L2Hypo = L2BMuMuHypo_Jpsi()
         else :
-            L2Fex = TrigMultiTrkFex_DiMu()
+            L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_Jpsi("L2MultiMuTrkHypo_Jpsi")  
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         EFFex  = EFBMuMuFex_Jpsi()
@@ -862,7 +884,8 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             L2Fex  = L2BMuMuFex_DiMu()
             L2Hypo = L2BMuMuHypo_DiMu()
         else :
-            L2Fex = TrigMultiTrkFex_DiMu()
+            L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_DiMu("L2MultiMuTrkHypo_DiMu")  
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
 
@@ -877,7 +900,8 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             L2Fex  = L2BMuMuFex_B()
             L2Hypo = L2BMuMuHypo_B()
         else :
-            L2Fex = TrigMultiTrkFex_DiMu()
+            L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_BMeson("L2MultiMuTrkHypo_BMeson")  
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         EFFex  = EFBMuMuFex_B()
@@ -891,7 +915,8 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             L2Fex  = L2BMuMuFex_Upsi()
             L2Hypo = L2BMuMuHypo_Upsi()
         else :
-            L2Fex = TrigMultiTrkFex_DiMu()
+            L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_Upsi("L2MultiMuTrkHypo_Upsi")  
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
 
@@ -907,7 +932,8 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             L2Fex  = L2BMuMuFex_Jpsi()
             L2Hypo = L2BMuMuHypo_Jpsi()
         else :
-            L2Fex = TrigMultiTrkFex_DiMu()
+            L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_Jpsi("L2MultiMuTrkHypo_Jpsi")  
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         EFFex  = EFBMuMuFex_Jpsi()
@@ -921,7 +947,8 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             L2Fex  = L2BMuMuFex_DiMu()
             L2Hypo = L2BMuMuHypo_DiMu()
         else :
-            L2Fex = TrigMultiTrkFex_DiMu()
+            L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_DiMu("L2MultiMuTrkHypo_DiMu") 
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         EFFex  = EFBMuMuFex_DiMu()
@@ -931,7 +958,8 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu
         from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_DiMu
         from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_DiMu2700_Lxy0
-        L2Fex = TrigMultiTrkFex_DiMu()
+        L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+        L2Fex.setTrackThresholds( trkmuons )
         L2Hypo = EFMultiMuHypo_2700("L2MultiMuHypo_bTau")
         L2Hypo.bphysCollectionKey = "MultiTrkFex"
         EFFex  = EFBMuMuFex_DiMu()
@@ -945,7 +973,8 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             L2Fex  = L2BMuMuFex_B()
             L2Hypo = L2BMuMuHypo_B()
         else :
-            L2Fex = TrigMultiTrkFex_DiMu()
+            L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_BMeson("L2MultiMuTrkHypo_BMeson")  
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         EFFex  = EFBMuMuFex_B()
@@ -1115,6 +1144,9 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, d
     L2TEname = "L2_" + TEname+myTopoString+'_'+chainDict['L1item']
     EFTEname = "EF_" + chainDict['chainName']
 
+    fexNameExt,trkmuons, mult, mult_without_noL1  = getBphysThresholds(chainDict)
+
+    
     topo2StartFrom = None
     if topoStartFrom:
         L2TEname = "L2_" + TEname+myTopoString+'_tsf_'+chainDict['L1item']
@@ -1237,7 +1269,8 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, d
 
     if 'noL2' in topoAlgs:
         if doL2MultiTrack :
-            L2Fex = TrigMultiTrkFex_DiMu_noCut()
+            L2Fex = TrigMultiTrkFex_DiMu_noCut("TrigMultiTrkFex_DiMu_noCut"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_DiMu_noCut("L2MultiMuTrkHypo_DiMu_noCut")  
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         else :
@@ -1256,7 +1289,8 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, d
         if  doL2MultiTrack :
             from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
             from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Bmumux
-            L2Fex = TrigMultiTrkFex_DiMu()
+            L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+            L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_Bmumux("EFMultiMuHypo_Bmumux")  
             L2Hypo.bphysCollectionKey = "MultiTrkFex"
         else :
