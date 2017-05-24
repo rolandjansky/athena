@@ -69,51 +69,51 @@ namespace CP {
 
     };
 
-    class HistHandler_TH1F: public HistHandler {
+    class HistHandler_TH1: public HistHandler {
 
         public:
 
-            HistHandler_TH1F(TH1F* hist);
-            HistHandler_TH1F(const HistHandler_TH1F & other);
-            virtual HistHandler_TH1F & operator =(const HistHandler_TH1F & other);
-            virtual ~HistHandler_TH1F();
+            HistHandler_TH1(TH1* hist);
+            HistHandler_TH1(const HistHandler_TH1 & other);
+            virtual HistHandler_TH1 & operator =(const HistHandler_TH1 & other);
+            virtual ~HistHandler_TH1();
 
             virtual int NBins() const;
             virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
-            private:
+        private:
             AxisHandler *m_x_handler;
     };
 
-    class HistHandler_TH2F: public HistHandler {
+    class HistHandler_TH2: public HistHandler {
 
         public:
 
-            HistHandler_TH2F(TH2F* hist);
-            HistHandler_TH2F(const HistHandler_TH2F & other);
-            virtual HistHandler_TH2F & operator =(const HistHandler_TH2F & other);
-            virtual ~HistHandler_TH2F();
+            HistHandler_TH2(TH2* hist);
+            HistHandler_TH2(const HistHandler_TH2 & other);
+            virtual HistHandler_TH2 & operator =(const HistHandler_TH2 & other);
+            virtual ~HistHandler_TH2();
 
             virtual int NBins() const;
             virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
-            private:
-            TH2F* m_h;
+        private:
+            TH2* m_h;
             AxisHandler *m_x_handler;
             AxisHandler *m_y_handler;
     };
 
-    class HistHandler_TH3F: public HistHandler {
+    class HistHandler_TH3: public HistHandler {
 
         public:
 
-            HistHandler_TH3F(TH3F* hist);
-            HistHandler_TH3F(const HistHandler_TH3F & other);
-            virtual HistHandler_TH3F & operator =(const HistHandler_TH3F & other);
-            virtual ~HistHandler_TH3F();
+            HistHandler_TH3(TH3* hist);
+            HistHandler_TH3(const HistHandler_TH3 & other);
+            virtual HistHandler_TH3 & operator =(const HistHandler_TH3 & other);
+            virtual ~HistHandler_TH3();
             virtual int NBins() const;
             virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
 
         private:
-            TH3F* m_h;
+            TH3* m_h;
             AxisHandler *m_x_handler;
             AxisHandler *m_y_handler;
             AxisHandler *m_z_handler;
