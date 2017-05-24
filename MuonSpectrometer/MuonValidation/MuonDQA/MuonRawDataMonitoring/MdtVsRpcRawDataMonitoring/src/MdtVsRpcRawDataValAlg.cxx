@@ -572,10 +572,7 @@ StatusCode MdtVsRpcRawDataValAlg::bookHistogramsRecurrent()
     std::string generic_path_mdtvsrpcmonitoring = "Muon/MuonRawDataMonitoring/MDTvsRPC";
     MonGroup mdtrpc_shift_dqmf( this, generic_path_mdtvsrpcmonitoring+ "/Dqmf", run, ATTRIB_UNMANAGED ) ;
   
-    if(newEventsBlock){}
-    if(newLumiBlock){}
-
-    if(newRun) 
+    if(newRunFlag()) 
       {
 	ATH_MSG_DEBUG ( "MdtVsRpcRawDataValAlg : isNewRun" );
 	// Book RAW or ESD capable histos
@@ -795,9 +792,6 @@ void MdtVsRpcRawDataValAlg::bookMDTvsRPCsectorHistograms(std::string sector_name
 StatusCode MdtVsRpcRawDataValAlg::procHistograms()
 {
   ATH_MSG_DEBUG ( "MdtVsRpcRawDataValAlg finalize()" );
-  if(endOfEventsBlock){}
-  if(endOfLumiBlock){}
-  if(endOfRun){}
  
   return StatusCode::SUCCESS; 
 }
