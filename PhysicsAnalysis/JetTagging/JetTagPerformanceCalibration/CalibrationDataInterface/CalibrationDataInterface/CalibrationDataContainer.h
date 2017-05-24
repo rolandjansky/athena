@@ -361,6 +361,7 @@ namespace Analysis {
       Bin();                                                 // default constructor (for persistency)
       Bin(unsigned int dimension, double* low, double* up);
       Bin(const Bin& other);
+      Bin& operator=(const Bin& other);
       ~Bin();
       // return the number of dimensions
       unsigned int getDimension() const { return m_dimension; }
