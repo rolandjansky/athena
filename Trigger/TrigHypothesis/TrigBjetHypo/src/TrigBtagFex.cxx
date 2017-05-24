@@ -385,10 +385,15 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
   trigBTagging->variable<int>  ("JetFitter", "nSingleTracks",  m_mon_jf_nvtx1t);
   trigBTagging->variable<float>  ("JetFitter", "mass",  m_mon_jf_mass);
   trigBTagging->variable<float>  ("JetFitter", "energyFraction",  m_mon_jf_efrc);
+  
+  m_mon_jf_deta = -10.;
+  m_mon_jf_dphi = -10.;
   trigBTagging->variable<float>  ("JetFitter", "deltaeta",  m_mon_jf_deta);
-  trigBTagging->variable<float>  ("JetFitter", "deltaphi",  m_mon_jf_dphi);
+  trigBTagging->variable<float>  ("JetFitter", "deltaphi",  m_mon_jf_dphi); 
   m_mon_jf_dR = std::hypot( m_mon_jf_deta,m_mon_jf_dphi);
-  trigBTagging->variable<float>  ("JetFitter", "significance3d",  m_mon_jf_sig3);
+  if( m_mon_jf_dR > 14 ){ m_mon_jf_dR = -1. ; }
+  trigBTagging->variable<float>  ("JetFitter", "significance3d",  m_mon_jf_sig3); 
+
 
 
   m_mon_jet_pt  =  jet.pt()  ;
