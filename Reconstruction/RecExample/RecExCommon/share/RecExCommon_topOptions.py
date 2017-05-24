@@ -1426,7 +1426,11 @@ if rec.doWriteAOD():
             from ThinningUtils.ThinNegativeEnergyNeutralPFOs import ThinNegativeEnergyNeutralPFOs
             ThinNegativeEnergyNeutralPFOs()
 
-
+        #Thin Trk::Tracks for Electons and Muons (GSF/Combined)
+        if  (AODFlags.AddEgammaMuonTracksInAOD and not rec.doTruth()) or (AODFlags.AddEgammaTracksInMCAOD and rec.doTruth()): 
+            from ThinningUtils.ThinTrkTrack import ThinTrkTrack
+            ThinTrkTrack()
+            
        # Doens't exist in xAOD world:
        # if AODFlags.TrackParticleSlimmer or AODFlags.TrackParticleLastHitAndPerigeeSlimmer:
        #     from PrimaryDPDMaker.PrimaryDPDMakerConf import SlimTrackInfo
@@ -1444,6 +1448,7 @@ if rec.doWriteAOD():
 
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
     StreamAOD_Augmented=MSMgr.NewPoolStream(streamAODName,athenaCommonFlags.PoolAODOutput(),asAlg=True)
+
     if rec.doFileMetaData():
         # Trigger tool
         ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool")
@@ -1459,7 +1464,7 @@ if rec.doWriteAOD():
         # Metadata declared by the sub-systems:
         StreamAOD_Augmented.AddMetaDataItem( objKeyStore._store.metaData() )
         pass
-
+        
     ## This line provides the 'old' StreamAOD (which is the Event Stream only)
     ## for backward compatibility
     StreamAOD=StreamAOD_Augmented.GetEventStream()
@@ -1496,6 +1501,16 @@ if rec.doWriteAOD():
     # StreamAOD_Augmented.AddItem( "RecoTimingObj#RAWtoESD_timings" )
     # StreamAOD_Augmented.AddItem( "RecoTimingObj#ESDtoAOD_timings" )
     # StreamAOD_Augmented.AddItem( "RecoTimingObj#ESDtoAOD_mems" )
+
+    # Add the Thinned Trk Tracks associated to egamma and muon objects in data
+    if  AODFlags.AddEgammaMuonTracksInAOD and not rec.doTruth():
+        StreamAOD_Augmented.AddItem("TrackCollection#GSFTracks")
+        StreamAOD_Augmented.AddItem("TrackCollection#CombinedMuonTracks")
+
+    # Add the Thinned Trk Tracks associated to egamma objects in MC
+    elif  AODFlags.AddEgammaTracksInMCAOD and rec.doTruth():
+        StreamAOD_Augmented.AddItem("TrackCollection#GSFTracks")
+
 
 if rec.doAOD() or rec.doWriteAOD():
     #
