@@ -60,6 +60,9 @@ public:
   /// Write control histograms to output file
   virtual void writeControlHistograms() = 0;
 
+  /// Call this for each new event.
+  virtual StatusCode beginEvent() __attribute__ ((deprecated("This function is deprecated and will be removed in the future without further notice. Please remove it from your code."))) = 0;
+
 }; // class ITauSelectionTool
 
 } // namespace TauAnalysisTools

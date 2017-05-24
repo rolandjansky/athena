@@ -25,6 +25,8 @@ namespace TauAnalysisTools
 
 class TauEfficiencyContJetIDTool : public CommonEfficiencyTool
 {
+  ASG_TOOL_CLASS( TauEfficiencyContJetIDTool,
+                  TauAnalysisTools::ITauEfficiencyCorrectionsTool )
 
 public:
 

@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 796990 2017-02-14 07:47:22Z dduschin $
 ################################################################################
 # Package: TauAnalysisTools
 ################################################################################
@@ -48,7 +49,7 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO )
 # Libraries in the package:
 atlas_add_library( TauAnalysisToolsLib
    TauAnalysisTools/*.h Root/*.cxx
-   PUBLIC_HEADERS TauAnalysisTools
+	PUBLIC_HEADERS TauAnalysisTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODMuon xAODJet
    xAODTau xAODTracking xAODTruth TruthUtils PATCoreLib PATInterfaces
@@ -57,7 +58,7 @@ atlas_add_library( TauAnalysisToolsLib
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( TauAnalysisTools
-      src/*.cxx src/components/*.cxx
+      src/*.cxx src/components/*.cxx		     
       LINK_LIBRARIES AthenaBaseComps AsgTools xAODTau GaudiKernel
       TauAnalysisToolsLib )
 endif()

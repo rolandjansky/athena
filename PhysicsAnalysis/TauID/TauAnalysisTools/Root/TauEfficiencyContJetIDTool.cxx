@@ -40,7 +40,7 @@ CP::CorrectionCode TauEfficiencyContJetIDTool::getEfficiencyScaleFactor(const xA
     double& dEfficiencyScaleFactor)
 {
   // obtain ID SF value
-  if (!m_tTECT->m_bUseInclusiveEta)
+  if (!m_bUseInclusiveEta)
     return getTotalSF(xTau, dEfficiencyScaleFactor);
   // else
   return getTotalSFInclusiveEta(xTau, dEfficiencyScaleFactor);
@@ -54,7 +54,7 @@ CP::CorrectionCode TauEfficiencyContJetIDTool::applyEfficiencyScaleFactor(const 
   CP::CorrectionCode tmpCorrectionCode = getEfficiencyScaleFactor(xTau, sf);
   // adding scale factor
   xTau.auxdecor<double>(m_sVarName) = sf;
-  ATH_MSG_VERBOSE("Stored value " << sf << " as " << m_tTECT->m_sVarNameBase << " in auxdecor");
+  ATH_MSG_VERBOSE("Stored value " << sf << " as " << m_sVarName << " in auxdecor");
 
   return tmpCorrectionCode;
 }
@@ -117,7 +117,7 @@ CP::CorrectionCode TauEfficiencyContJetIDTool::getTotalSF(const xAOD::TauJet& xT
         continue;
       }
 
-      if (fabs(syst.parameter()) != 1)
+      if (std::abs(syst.parameter()) != 1)
       {
         ATH_MSG_WARNING("systematic variation other than 1 sigma is not supported, skipping this one");
         continue;
@@ -158,7 +158,7 @@ CP::CorrectionCode TauEfficiencyContJetIDTool::getTotalSFInclusiveEta(const xAOD
         continue;
       }
 
-      if (fabs(syst.parameter()) != 1)
+      if (std::abs(syst.parameter()) != 1)
       {
         ATH_MSG_WARNING("systematic variation other than 1 sigma is not supported, skipping this one");
         continue;
@@ -204,7 +204,7 @@ CP::CorrectionCode TauEfficiencyContJetIDTool::getBDTbinnedSFSysUnc(double& val,
     int prongness,
     const double& BDT)
 {
-  std::string workingPoint = "ID_SF_sys" + ConvertSystematicToString(m_tTECT->m_iContSysType) + ConvertDirectionToString(m_iSysDirection) + ConvertProngToString(prongness);
+  std::string workingPoint = "ID_SF_sys" + ConvertSystematicToString(m_iContSysType) + ConvertDirectionToString(m_iSysDirection) + ConvertProngToString(prongness);
   return this->GetIDValue(val, workingPoint, BDT);
 }
 
@@ -215,7 +215,7 @@ CP::CorrectionCode TauEfficiencyContJetIDTool::getBDTbinnedSFSysUnc(double& val,
     const double& eta,
     const double& BDT)
 {
-  std::string workingPoint = "ID_SF_sys" + ConvertSystematicToString(m_tTECT->m_iContSysType) + ConvertDirectionToString(m_iSysDirection) + ConvertProngToString(prongness) + ConvertEtaToString(eta);
+  std::string workingPoint = "ID_SF_sys" + ConvertSystematicToString(m_iContSysType) + ConvertDirectionToString(m_iSysDirection) + ConvertProngToString(prongness) + ConvertEtaToString(eta);
   return this->GetIDValue(val, workingPoint, BDT);
 }
 
@@ -285,11 +285,11 @@ std::string TauEfficiencyContJetIDTool::ConvertDirectionToString(const int iSysD
 //______________________________________________________________________________
 std::string TauEfficiencyContJetIDTool::ConvertEtaToString(const float& fEta)
 {
-  if(m_tTECT->m_bUseInclusiveEta)
+  if(m_bUseInclusiveEta)
     return "";
-  if(fabs(fEta) <= 1.5)
+  if(std::abs(fEta) <= 1.5)
     return "_barrel";
-  else if(fabs(fEta) > 1.5)
+  else if(std::abs(fEta) > 1.5)
     return "_endcap";
   else
   {

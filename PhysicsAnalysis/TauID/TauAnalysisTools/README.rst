@@ -52,8 +52,8 @@ First start with a clean shell and setup ATHENA, for example via::
 
   setupATLAS
 
-  #use 2.3.20 or higher
-  asetup AthAnalysisBase,2.3.20,here
+  #use 2.4.19 or higher
+  asetup AthAnalysisBase,2.4.19,here
 
 Where X stands for a release number. Get the package and setup environment::
   
@@ -73,8 +73,8 @@ First start with a clean shell and setup RootCore via::
 
   setupATLAS
 
-  #use 2.3.20 or higher
-  rcSetup Base,2.3.20
+  #use 2.4.19 or higher
+  rcSetup Base,2.4.19
   rc find_packages
 
 and compile with::
