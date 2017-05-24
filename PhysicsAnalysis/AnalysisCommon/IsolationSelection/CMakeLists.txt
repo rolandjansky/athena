@@ -33,12 +33,17 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( ROOT COMPONENTS Core Hist Tree )
 
+set(extra_libs)
+if ( NOT XAOD_STANDALONE)
+  set(extra_libs TrkExUtils)
+endif()
+
 # Libraries in the package:
 atlas_add_library( IsolationSelectionLib
   IsolationSelection/*.h Root/*.cxx
   PUBLIC_HEADERS IsolationSelection
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES AthContainers AsgTools xAODBase xAODEgamma xAODMuon
+  LINK_LIBRARIES AthContainers AsgTools xAODBase xAODEgamma xAODMuon ${extra_libs}
   xAODPrimitives PATCoreLib PATInterfaces InDetTrackSelectionToolLib
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver )
 
