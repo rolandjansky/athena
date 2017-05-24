@@ -15,7 +15,6 @@
 #include <boost/function_types/function_arity.hpp>
 #include <boost/typeof/std/utility.hpp>
 #include <boost/type_traits/remove_pointer.hpp>
-//#include "DataModel/ElementLink.h"
 
 
 namespace HLT{
