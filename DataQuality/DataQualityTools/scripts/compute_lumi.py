@@ -11,7 +11,7 @@ parser.add_argument('infile', type=str, help='input HIST file')
 parser.add_argument('--grl', type=str, help='Specify an input GRL')
 #parser.add_argument('--out', type=str, help='output ROOT file')
 parser.add_argument('--tag', type=str, help='Lumi tag',
-                    default='OflLumiAcct-13TeV-004')
+                    default='OflLumiAcct-001')
 parser.add_argument('--mudep', type=int, help='Run mu-dependent efficiencies',
                     default=0)
 args = parser.parse_args()
