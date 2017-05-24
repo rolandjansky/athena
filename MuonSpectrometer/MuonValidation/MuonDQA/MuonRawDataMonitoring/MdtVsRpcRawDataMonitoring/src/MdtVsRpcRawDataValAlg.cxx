@@ -165,41 +165,8 @@ StatusCode MdtVsRpcRawDataValAlg::initialize(){
     ATH_MSG_DEBUG ( " Found the MdtIdHelper. " );
   }
  
-  std::vector<std::string> hardware_name_list      ;
-  std::vector<std::string> layer_name_list         ;
-  std::vector<std::string> layerSector_name_list   ;
-  hardware_name_list.push_back("XXX")        ;
-
-  rpc_event_inarea=0;
   ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code;
   
-  imdt_station      =0;
-  imdt_eta          =0;
-  imdt_phi          =0;
-  imdt_multi        =0;
-  imdt_layer        =0;
-  imdt_wire         =0;
-  imdt_wirez        =0;
-  imdt_nmaxtubes    =0;
-  imdt_multi_near   =0;
-  stripzmin         =0;
-  stripzmax         =0;
-  pitch             =0;
-  wirezmax          =0;
-  wirezmin          =0;
-  foundmin          =0;
-  NtubesPerLayerlast=0;
-  z                 =0;
-  m_nColl           =0;
-  m_nPrd            =0;
-  m_nClus           =0;
-  m_nCollmdt        =0;
-  m_nPrdmdt         =0;
-  MDTvsRPCNbinz     =0;
-  MDTvsRPCNbinx     =0;
-  N_RpcHitdblPhi1   =0;
-  N_RpcHitdblPhi2   =0;
- 
   return StatusCode::SUCCESS;
 }
 
@@ -218,17 +185,17 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
     std::string layerSector_name ;
   
     //declare a group of histograms
-    std::string m_generic_path_mdtvsrpcmonitoring = "Muon/MuonRawDataMonitoring/MDTvsRPC" ;
-    MonGroup mdtrpc_shift_dqmf( this, m_generic_path_mdtvsrpcmonitoring+ "/Dqmf", run, ATTRIB_UNMANAGED ) ;
+    std::string generic_path_mdtvsrpcmonitoring = "Muon/MuonRawDataMonitoring/MDTvsRPC" ;
+    MonGroup mdtrpc_shift_dqmf( this, generic_path_mdtvsrpcmonitoring+ "/Dqmf", run, ATTRIB_UNMANAGED ) ;
   
-    sc = mdtrpc_shift_dqmf.getHist( MdtRpcZdiff, "MdtRpcZdifference" ) ;
+    sc = mdtrpc_shift_dqmf.getHist( m_MdtRpcZdiff, "MdtRpcZdifference" ) ;
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register MdtRpcZdifference hist to MonGroup" );         
     
-    sc = mdtrpc_shift_dqmf.getHist( MdtNHitsvsRpcNHits, "MdtNHitsvsRpcNHits" ) ;
+    sc = mdtrpc_shift_dqmf.getHist( m_MdtNHitsvsRpcNHits, "MdtNHitsvsRpcNHits" ) ;
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register MdtNHitsvsRpcNHits hist to MonGroup" ); 
   
     //mdt stuff begin     
-    m_nPrdmdt  = 0;
+    int nPrdmdt  = 0;
     Identifier ch_idmdt;
     Identifier dig_idmdt;
   
@@ -258,7 +225,7 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
     Muon::RpcPrepDataContainer::const_iterator containerIt;
   
   
-    m_nPrd = 0;
+    int nPrd = 0;
     Identifier ch_id;
     Identifier dig_id;
   
@@ -284,10 +251,10 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
     else{ Nhitsrpc=-0.5;}   
     if(Nhitsmdt>0){ Nhitsmdt=log10(Nhitsmdt);} 
     else{ Nhitsmdt=-0.5;}
-    MdtNHitsvsRpcNHits->Fill(Nhitsrpc,Nhitsmdt);
+    m_MdtNHitsvsRpcNHits->Fill(Nhitsrpc,Nhitsmdt);
     
-    N_RpcHitdblPhi1 = 0;
-    N_RpcHitdblPhi2 = 0;
+    int N_RpcHitdblPhi1 = 0;
+    int N_RpcHitdblPhi2 = 0;
     
     // to fix IConversionSvc ptr not set DataProxyÂ : appearing in every event
 
@@ -300,7 +267,7 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 	for (Muon::RpcPrepDataCollection::const_iterator rpcPrd = (*containerIt)->begin(); rpcPrd!=(*containerIt)->end(); ++rpcPrd)
 	  {
 
-	    if (m_nPrd<maxPRD) {
+	    if (nPrd<maxPRD) {
 
 	      //    if (containerIt!= rpc_container->end() && (*containerIt)->size()>0){      
       
@@ -308,21 +275,17 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 
 	      Identifier prd_id = (*rpcPrd)->identify();
 
-	      irpcstationPhi	=   int(m_rpcIdHelper->stationPhi (prd_id))  ;		   
-	      irpcstationName	=   int(m_rpcIdHelper->stationName(prd_id))  ;		   
-	      irpcstationEta	=   int(m_rpcIdHelper->stationEta (prd_id))  ;			   
-	      irpcdoubletR 	=   int(m_rpcIdHelper->doubletR   (prd_id))  ;		
-	      irpcmeasuresPhi	=   int(m_rpcIdHelper->measuresPhi(prd_id))  ;
+	      int irpcstationPhi	=   int(m_rpcIdHelper->stationPhi (prd_id))  ;		   
+	      int irpcstationName	=   int(m_rpcIdHelper->stationName(prd_id))  ;		   
+	      int irpcstationEta	=   int(m_rpcIdHelper->stationEta (prd_id))  ;			   
+	      int irpcdoubletR 	=   int(m_rpcIdHelper->doubletR   (prd_id))  ;		
+	      int irpcmeasuresPhi	=   int(m_rpcIdHelper->measuresPhi(prd_id))  ;
 	      // only take eta hits
 	      if( irpcmeasuresPhi != 0 )continue;
-	      irpcdoubletPhi	 =   int(m_rpcIdHelper->doubletPhi(prd_id))  ;
-	      irpcdoubletZ	 =   int(m_rpcIdHelper->doubletZ(prd_id))    ;
-	      irpcgasGap	 =   int(m_rpcIdHelper->gasGap(prd_id))      ;
-	      irpcstrip		 =   int(m_rpcIdHelper->strip(prd_id))       ;
+	      int irpcdoubletPhi	 =   int(m_rpcIdHelper->doubletPhi(prd_id))  ;
+	      int irpcdoubletZ	 =   int(m_rpcIdHelper->doubletZ(prd_id))    ;
+	      int irpcstrip		 =   int(m_rpcIdHelper->strip(prd_id))       ;
 	   
-	      irpctime		 =   double((*rpcPrd)->time())  	     ;		  
-	      irpctriggerInfo    =   double((*rpcPrd)->triggerInfo   ())     ;	      
-	      irpcambiguityFlag	 =   double((*rpcPrd)->ambiguityFlag ())     ;
 	    
       
       
@@ -334,6 +297,7 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 				      m_rpcIdHelper->stationPhi(dig_id), m_StationPhi, m_StationSize) && chambersCosmicSetup(hardware_name,m_cosmicStation)) {	 
 
 		//define layer
+                int imdt_multi_near = 0;
 		if( (irpcstationName>1) && (irpcstationName<4||irpcstationName==8) ){
 		  if(irpcdoubletR==1){layer_name="LowPt";imdt_multi_near=1;}
 		  else {layer_name="Pivot";imdt_multi_near=2;}
@@ -343,14 +307,13 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		} 
 
 		//define sector
-		side	     = 'A'     ;
-		EtaStripSign =  1      ; 
+		int side	     = 'A'     ;
 		if(irpcstationEta<0){
 		  side = 'C'         ;
-		  EtaStripSign = -1  ; 
 		}
-		sector = 2 * irpcstationPhi                              ;
+		int sector = 2 * irpcstationPhi                              ;
 		if(irpcstationName==2 ||  irpcstationName==4 ) sector--  ;
+                char sector_char[1000]    ;  
 		sprintf(sector_char,"Sector%.2d",sector)                   ;
 		sector_name =  sector_char                               ;
 
@@ -359,7 +322,8 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		int stname_index = irpcstationName;
 		if (irpcstationName==53) stname_index=MuonGM::MuonDetectorManager::NRpcStatType-2;
 	        else stname_index = irpcstationName-2;
-		NetaStrips = 0 ;
+		int NetaStrips = 0 ;
+                int ShiftEtaStripsDoubletZ[4];
 		for(int idbz=0; idbz!= 3; idbz++){
 		  ShiftEtaStripsDoubletZ[idbz] = NetaStrips;
 		  const MuonGM::RpcReadoutElement* rpc = 
@@ -371,8 +335,8 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 
 
 	    
-		histo_flag=true;
-		for (std::vector<std::string>::const_iterator iter=layerSector_name_list.begin(); iter!=layerSector_name_list.end(); iter++){
+		bool histo_flag=true;
+		for (std::vector<std::string>::const_iterator iter=m_layerSector_name_list.begin(); iter!=m_layerSector_name_list.end(); iter++){
 		  if ( (sector_name+layerSector_name)==*iter){histo_flag=false;}
 		}
 
@@ -385,14 +349,14 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		  int stname_index = irpcstationName;
 		  if (irpcstationName==53) stname_index=MuonGM::MuonDetectorManager::NRpcStatType-2;
 		  else stname_index = irpcstationName-2;
-		  stripzmin   =      0 ;
-		  stripzmax   = -10000 ;
+		  float stripzmin   =      0 ;
+		  float stripzmax   = -10000 ;
 		  for(int ieta=0; ieta!= 17; ieta++){
 		    for(int idbz=0; idbz!= 3; idbz++){
 		      const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(stname_index, ieta, irpcstationPhi-1, irpcdoubletR-1, idbz);
 		      if(rpc != NULL ){
 			const Amg::Vector3D r1 = rpc-> globalPosition();
-			pitch = rpc-> StripPitch(0)  ;
+			float pitch = rpc-> StripPitch(0)  ;
 		
 			float z1 = float ( r1.z() - ( rpc -> NetaStrips() ) * pitch / 2 );
 			if ( z1 < stripzmin ) {
@@ -407,9 +371,9 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		  } // for loop in etastation
 	  
 		  // get the MDT axis range
-		  wirezmax     = -10000. ;
-		  wirezmin     = +10000. ;
-		  foundmin     =      0  ;	
+		  float wirezmax     = -10000. ;
+		  float wirezmin     = +10000. ;
+		  float foundmin     =      0  ;	
 				  
 		  if (irpcstationName == 53) stname_index = MuonGM::MuonDetectorManager::NMdtStatType-2;
 		  else stname_index = irpcstationName;
@@ -418,8 +382,8 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		    if(lastdescr==NULL)continue;
 		
 		    const Amg::Vector3D lastelc = lastdescr->globalPosition();
-		    NtubesPerLayerlast = lastdescr->getNtubesperlayer();
-		    z =  float(lastelc.z()) + float(NtubesPerLayerlast)/2*29.9;
+		    int NtubesPerLayerlast = lastdescr->getNtubesperlayer();
+		    float z =  float(lastelc.z()) + float(NtubesPerLayerlast)/2*29.9;
 		
 		    if(foundmin==0){ wirezmin   =  float(lastelc.z()) - float(NtubesPerLayerlast)/2*29.9;} 
 		    foundmin = 1 ; 
@@ -427,7 +391,7 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 	      
 		  } // loop over eta		     
 		
-		  layerSector_name_list.push_back(sector_name+layerSector_name); 
+		  m_layerSector_name_list.push_back(sector_name+layerSector_name); 
 		  ATH_MSG_DEBUG ( " strip zmin  and zmax"  << stripzmin <<" "<< stripzmax );
 	      
 		  if (m_mdtvsrpcsectorhist)bookMDTvsRPCsectorHistograms(sector_name, layer_name, stripzmin, stripzmax, wirezmin, wirezmax);
@@ -443,30 +407,27 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		const MuonGM::RpcReadoutElement* descriptor =  m_muonMgr->getRpcReadoutElement(prd_id);
 		const Amg::Vector3D stripPos = descriptor->stripPos(prd_id);
 	        ATH_MSG_DEBUG ( "rpc coord" << stripPos.z() << stripPos.perp() );
-		irpcstripz = float( stripPos.z() );
+		float irpcstripz = float( stripPos.z() );
 
-		NphiStrips       = descriptor -> NphiStrips()    *  2                    ;
-		ShiftPhiStrips	 = descriptor -> NphiStrips()    * (irpcdoubletPhi  -1 ) ;
+		int ShiftPhiStrips	 = descriptor -> NphiStrips()    * (irpcdoubletPhi  -1 ) ;
 
-		ShiftEtaStrips	 = ShiftEtaStripsDoubletZ[irpcdoubletZ-1] ;
+		int ShiftEtaStrips	 = ShiftEtaStripsDoubletZ[irpcdoubletZ-1] ;
 
-		Nbin        = NetaStrips;
-		ShiftStrips = ShiftEtaStrips;
+		int ShiftStrips = ShiftEtaStrips;
 
 		//re-define for phi view
 		if(irpcmeasuresPhi==1) {
-		  Nbin = NphiStrips ;		 
 		  ShiftStrips =  ShiftPhiStrips;
 		}
 	    
 		//define sectorlogic		
-		sectorlogic = (sector-1) * 2 ; 
+		int sectorlogic = (sector-1) * 2 ; 
 		if(irpcdoubletPhi==1)sectorlogic -= 1     ;
 		if(sectorlogic<0)    sectorlogic += 32    ;
 		if(side == 'A')      sectorlogic += 32    ;
 		
-		++m_nPrd;
-		ATH_MSG_DEBUG ( " PRD number  " << m_nPrd );	    
+		++nPrd;
+		ATH_MSG_DEBUG ( " PRD number  " << nPrd );	    
 	    
 	    
 		//////////////loop inside rpc hits
@@ -483,31 +444,29 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		    for (Muon::MdtPrepDataCollection::const_iterator mdtCollection=(*containerMdtIt)->begin(); mdtCollection!=(*containerMdtIt)->end(); ++mdtCollection ) 
 		      {
 			dig_idmdt = (*mdtCollection)->identify();
-			imdt_station      =  int(m_mdtIdHelper->stationName (dig_idmdt));
+			int imdt_station      =  int(m_mdtIdHelper->stationName (dig_idmdt));
 			if (imdt_station != irpcstationName) continue;
-			imdt_eta          =  int(m_mdtIdHelper->stationEta  (dig_idmdt));
+			int imdt_eta          =  int(m_mdtIdHelper->stationEta  (dig_idmdt));
 			if (imdt_eta     != irpcstationEta ) continue; 
-			imdt_phi          =  int(m_mdtIdHelper->stationPhi  (dig_idmdt));
+			int imdt_phi          =  int(m_mdtIdHelper->stationPhi  (dig_idmdt));
 			if (imdt_phi     != irpcstationPhi ) continue;
 			dig_idmdt = (*mdtCollection)->identify();
-			imdt_multi     =  int(m_mdtIdHelper->multilayer  (dig_idmdt));
+			int imdt_multi     =  int(m_mdtIdHelper->multilayer  (dig_idmdt));
 			// only look at near multilayer
 			if(imdt_multi  != imdt_multi_near) continue;
-			imdt_adc       =  int((*mdtCollection)->adc());
+			int imdt_adc       =  int((*mdtCollection)->adc());
 			//cut on noise
 			if( imdt_adc<ncutadc )continue;  
-			imdt_tdc       =  int((*mdtCollection)->tdc());
-			imdt_layer     =  int(m_mdtIdHelper->tubeLayer   (dig_idmdt));
-			imdt_wire      =  int(m_mdtIdHelper->tube        (dig_idmdt));
-			imdt_nmaxtubes =  int(m_mdtIdHelper->tubeMax     (dig_idmdt));
+			int imdt_tdc       =  int((*mdtCollection)->tdc());
+			int imdt_wire      =  int(m_mdtIdHelper->tube        (dig_idmdt));
 		    
  		    
 			//get mdt information from geomodel to book and fill mdtvsrpc histos with the right min and max range
 			if (imdt_station == 53) imdt_station = MuonGM::MuonDetectorManager::NMdtStatType-2;
 			const MuonGM::MdtReadoutElement* mdt = m_muonMgr->getMdtReadoutElement( imdt_station,  imdt_eta+8, imdt_phi-1,  imdt_multi-1);
-			NetaTubes = mdt->getNtubesperlayer() ;			    	      
+			int NetaTubes = mdt->getNtubesperlayer() ;			    	      
 			const Amg::Vector3D elc =  mdt->globalPosition();
-			imdt_wirez =  float(elc.z());
+			float imdt_wirez =  float(elc.z());
 		  
 			if(imdt_wirez>=0) {imdt_wirez +=  (float(imdt_wire)-0.5-float(NetaTubes)/2 )* 29.9 ;}
 			else {imdt_wirez =  imdt_wirez -  (float(imdt_wire)-0.5-float(NetaTubes)/2 )* 29.9 ;}
@@ -515,8 +474,8 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 			//fill histos
 			if(m_mdtvsrpcchamberhist){
 		      
-			  histo_flag=true;
-			  for (std::vector<std::string>::const_iterator iter=layer_name_list.begin(); iter!=layer_name_list.end(); iter++){
+			  bool histo_flag=true;
+			  for (std::vector<std::string>::const_iterator iter=m_layer_name_list.begin(); iter!=m_layer_name_list.end(); iter++){
 			    if ( (hardware_name+layer_name)==*iter){histo_flag=false;}
 			  }
 			  if (histo_flag){
@@ -529,7 +488,7 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 			    const MuonGM::MdtReadoutElement* mdt = m_muonMgr->getMdtReadoutElement( imdt_station,  imdt_eta+8, imdt_phi-1,  imdt_multi_near-1);
 			    if(mdt==NULL)continue; // protection
 			    NetaTubes = mdt->getNtubesperlayer();
-			    layer_name_list.push_back(hardware_name+layer_name); 
+			    m_layer_name_list.push_back(hardware_name+layer_name); 
 			    if (NetaTubes!=0) bookMDTvsRPCHistograms(hardware_name,layer_name, NetaStrips, 0 , NetaStrips, NetaTubes, 0, NetaTubes);
 			  }
 			  // Per chamber
@@ -560,13 +519,13 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 			 else { ATH_MSG_DEBUG ( "mdttubevsrpcetastripsector not in hist list!" );}
 		        }
 			// shifter histogram
-			mdt_rpc_dz = imdt_wirez - irpcstripz     ;
-			MdtRpcZdiff -> Fill ( mdt_rpc_dz ) ;
+			double mdt_rpc_dz = imdt_wirez - irpcstripz     ;
+			m_MdtRpcZdiff -> Fill ( mdt_rpc_dz ) ;
 			
-			++m_nPrdmdt;
-			ATH_MSG_DEBUG ( " MdtPrepData number:  " << m_nPrdmdt );
+			++nPrdmdt;
+			ATH_MSG_DEBUG ( " MdtPrepData number:  " << nPrdmdt );
 	      
-			if (m_nPrdmdt > maxPrd-1) {
+			if (nPrdmdt > maxPrd-1) {
 			  ATH_MSG_WARNING ( "Maximum number of MdtPrepData in the ntuple reached: " << maxPrd );
 			  return StatusCode::SUCCESS;
 			}  
@@ -582,7 +541,7 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		  
 	      }//chamber name selection
  
-	      ATH_MSG_DEBUG ( " RpcPrepData number:  " << m_nPrd );
+	      ATH_MSG_DEBUG ( " RpcPrepData number:  " << nPrd );
  
 	    }//if maxprd rpc 
 	    else {
@@ -610,8 +569,8 @@ StatusCode MdtVsRpcRawDataValAlg::bookHistogramsRecurrent()
   if( m_doMdtvsRpcESD==true ) {if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD ) {
   
     //declare a group of histograms
-    std::string m_generic_path_mdtvsrpcmonitoring = "Muon/MuonRawDataMonitoring/MDTvsRPC";
-    MonGroup mdtrpc_shift_dqmf( this, m_generic_path_mdtvsrpcmonitoring+ "/Dqmf", run, ATTRIB_UNMANAGED ) ;
+    std::string generic_path_mdtvsrpcmonitoring = "Muon/MuonRawDataMonitoring/MDTvsRPC";
+    MonGroup mdtrpc_shift_dqmf( this, generic_path_mdtvsrpcmonitoring+ "/Dqmf", run, ATTRIB_UNMANAGED ) ;
   
     if(newEventsBlock){}
     if(newLumiBlock){}
@@ -625,10 +584,10 @@ StatusCode MdtVsRpcRawDataValAlg::bookHistogramsRecurrent()
 	// SHIFTer histograms
 	// distribution of difference Zmdt - Zrpc
 	float maxdz = 1500 ; // mm
-	std::string m_MdtRpcZdiff_title = "MdtRpcZdifference" ;
-	const char* m_MdtRpcZdiff_title_char = m_MdtRpcZdiff_title.c_str();
+	std::string MdtRpcZdiff_title = "MdtRpcZdifference" ;
+	const char* MdtRpcZdiff_title_char = MdtRpcZdiff_title.c_str();
 	 
-	TH1* MdtRpcZdiff = new TH1I( m_MdtRpcZdiff_title_char, m_MdtRpcZdiff_title_char, 100, -maxdz, maxdz ) ;
+	TH1* MdtRpcZdiff = new TH1I( MdtRpcZdiff_title_char, MdtRpcZdiff_title_char, 100, -maxdz, maxdz ) ;
 	sc = mdtrpc_shift_dqmf.regHist( MdtRpcZdiff ) ;
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "MdtRpcZdiff Failed to register histogram " );       
@@ -639,17 +598,17 @@ StatusCode MdtVsRpcRawDataValAlg::bookHistogramsRecurrent()
 	MdtRpcZdiff->SetFillColor(42);
 	 
 	 
-	  ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << MdtRpcZdiff << m_MdtRpcZdiff_title.c_str() );
+	  ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << MdtRpcZdiff << MdtRpcZdiff_title.c_str() );
 	 // ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	  ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	  ATH_MSG_DEBUG ( "Booked MdtRpcZdifference successfully" );
 	  
       
       // correlation number of MDT hits vs RPC hits
-	std::string m_MdtNHitsvsRpcNHits_title = "MdtNHitsvsRpcNHits" ;
-	const char* m_MdtNHitsvsRpcNHits_title_char = m_MdtNHitsvsRpcNHits_title.c_str();
+	std::string MdtNHitsvsRpcNHits_title = "MdtNHitsvsRpcNHits" ;
+	const char* MdtNHitsvsRpcNHits_title_char = MdtNHitsvsRpcNHits_title.c_str();
 	 
-	TH2* MdtNHitsvsRpcNHits = new TH2I( m_MdtNHitsvsRpcNHits_title_char, m_MdtNHitsvsRpcNHits_title_char, 11, -1, 10, 11, -1, 10) ;
+	TH2* MdtNHitsvsRpcNHits = new TH2I( MdtNHitsvsRpcNHits_title_char, MdtNHitsvsRpcNHits_title_char, 11, -1, 10, 11, -1, 10) ;
 	sc = mdtrpc_shift_dqmf.regHist( MdtNHitsvsRpcNHits ) ;
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "MdtNHitsvsRpcNHits Failed to register histogram " );       
@@ -663,7 +622,7 @@ StatusCode MdtVsRpcRawDataValAlg::bookHistogramsRecurrent()
  	MdtNHitsvsRpcNHits->SetMarkerStyle(21);   
   	MdtNHitsvsRpcNHits->SetMarkerSize(0.2); 	 
 	 
-	  ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << MdtNHitsvsRpcNHits << m_MdtNHitsvsRpcNHits_title.c_str() );
+	  ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << MdtNHitsvsRpcNHits << MdtNHitsvsRpcNHits_title.c_str() );
 	 // ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	  ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	  ATH_MSG_DEBUG ( "Booked MdtNHitsvsRpcNHits successfully" );
@@ -675,7 +634,7 @@ StatusCode MdtVsRpcRawDataValAlg::bookHistogramsRecurrent()
 }
 /*----------------------------------------------------------------------------------*/
 //input hardware name as produced from convertChamberName()
-void MdtVsRpcRawDataValAlg::bookMDTvsRPCHistograms(std::string m_hardware_name, std::string m_layer_name, int binz, int binminz, int binmaxz, int binx, int binminx, int binmaxx )
+void MdtVsRpcRawDataValAlg::bookMDTvsRPCHistograms(std::string hardware_name, std::string layer_name, int binz, int binminz, int binmaxz, int binx, int binminx, int binmaxx )
 { 
 
   StatusCode sc = StatusCode::SUCCESS;  
@@ -683,26 +642,26 @@ void MdtVsRpcRawDataValAlg::bookMDTvsRPCHistograms(std::string m_hardware_name, 
  
   if( m_doMdtvsRpcESD==true ) {if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD ) {
   
-    // m_hardware_name = "" ;
+    // hardware_name = "" ;
   
     binz =  binz / m_mdtvsrpcreducerpcnbins ;
     binx =  binx / m_mdtvsrpcreducemdtnbins ;
   
     //declare a group of histograms
-    std::string m_generic_path_mdtvsrpcmonitoring = "Muon/MuonRawDataMonitoring/MDTvsRPC";
-    MonGroup mdtvsrpc_prd_expert( this, m_generic_path_mdtvsrpcmonitoring+"/Chambers/"+m_hardware_name, run, ATTRIB_UNMANAGED );   
-    MuonDQAHistList& lst = m_stationHists.getList( m_hardware_name );
+    std::string generic_path_mdtvsrpcmonitoring = "Muon/MuonRawDataMonitoring/MDTvsRPC";
+    MonGroup mdtvsrpc_prd_expert( this, generic_path_mdtvsrpcmonitoring+"/Chambers/"+hardware_name, run, ATTRIB_UNMANAGED );   
+    MuonDQAHistList& lst = m_stationHists.getList( hardware_name );
     
     ////////////////////////////////////////////////////////////////////////////////////// 
     //histo path for mdt vrs rpc 
  
     // mdt vs rpc - doublephi separated 
-    std::string m_mdtvsrpc_dphi1_title       = m_hardware_name+"_"+m_layer_name+"_MDTtube_vs_RPCstrip_doublPhi1";
-    std::string m_mdtvsrpc_dphi2_title       = m_hardware_name+"_"+m_layer_name+"_MDTtube_vs_RPCstrip_doublPhi2";	
-    const char* m_mdtvsrpc_dphi1_title_char  = m_mdtvsrpc_dphi1_title.c_str()                                   ;
-    const char* m_mdtvsrpc_dphi2_title_char  = m_mdtvsrpc_dphi2_title.c_str()                                   ;
+    std::string mdtvsrpc_dphi1_title       = hardware_name+"_"+layer_name+"_MDTtube_vs_RPCstrip_doublPhi1";
+    std::string mdtvsrpc_dphi2_title       = hardware_name+"_"+layer_name+"_MDTtube_vs_RPCstrip_doublPhi2";	
+    const char* mdtvsrpc_dphi1_title_char  = mdtvsrpc_dphi1_title.c_str()                                   ;
+    const char* mdtvsrpc_dphi2_title_char  = mdtvsrpc_dphi2_title.c_str()                                   ;
 
-    TH2 *mdttubevsrpcetastrip_doublphi1 = new TH2I(m_mdtvsrpc_dphi1_title_char,m_mdtvsrpc_dphi1_title_char, binz, binminz, binmaxz, binx, binminx, binmaxx); 		
+    TH2 *mdttubevsrpcetastrip_doublphi1 = new TH2I(mdtvsrpc_dphi1_title_char,mdtvsrpc_dphi1_title_char, binz, binminz, binmaxz, binx, binminx, binmaxx); 		
     lst.addHist(mdttubevsrpcetastrip_doublphi1); 
     //mdtvsrpcexp_prd.regHist(mdttubevsrpcetastrip_doublphi1);
     mdttubevsrpcetastrip_doublphi1->SetOption("COLZ");
@@ -716,7 +675,7 @@ void MdtVsRpcRawDataValAlg::bookMDTvsRPCHistograms(std::string m_hardware_name, 
     sc = mdtvsrpc_prd_expert.regHist(mdttubevsrpcetastrip_doublphi1);
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register mdttubevsrpcetastrip_doublphi1 hist to MonGroup" );
   
-    TH2 *mdttubevsrpcetastrip_doublphi2 = new TH2I(m_mdtvsrpc_dphi2_title_char,m_mdtvsrpc_dphi2_title_char, binz, binminz, binmaxz, binx, binminx, binmaxx); 		
+    TH2 *mdttubevsrpcetastrip_doublphi2 = new TH2I(mdtvsrpc_dphi2_title_char,mdtvsrpc_dphi2_title_char, binz, binminz, binmaxz, binx, binminx, binmaxx); 		
     lst.addHist(mdttubevsrpcetastrip_doublphi2); 
     //mdtvsrpcexp_prd.regHist(mdttubevsrpcetastrip_doublphi2);
     mdttubevsrpcetastrip_doublphi2->SetOption("COLZ");
@@ -742,11 +701,11 @@ void MdtVsRpcRawDataValAlg::bookMDTvsRPCHistograms(std::string m_hardware_name, 
     //   doubletphi 1
 
   
-    std::string m_generic_path_mdttdcdoublphi1 = "/muoncosmics/MDTvsRPC/Chambers/"+m_hardware_name+"/"+m_layer_name;
-    std::string m_mdttdcdoublphi1_title = m_hardware_name+"_"+m_layer_name+"_MDTtdc_doublPhi1";	
-    const char* m_mdttdcdoublphi1_title_char = m_mdttdcdoublphi1_title.c_str();
+    std::string generic_path_mdttdcdoublphi1 = "/muoncosmics/MDTvsRPC/Chambers/"+hardware_name+"/"+layer_name;
+    std::string mdttdcdoublphi1_title = hardware_name+"_"+layer_name+"_MDTtdc_doublPhi1";	
+    const char* mdttdcdoublphi1_title_char = mdttdcdoublphi1_title.c_str();
 
-    TH1 *mdttdcdoublphi1=new TH1I(m_mdttdcdoublphi1_title_char,m_mdttdcdoublphi1_title_char, TDCNbin/m_mdtvsrpcreducemdttdcnbins, TDCminrange, TDCmaxrange); 		
+    TH1 *mdttdcdoublphi1=new TH1I(mdttdcdoublphi1_title_char,mdttdcdoublphi1_title_char, TDCNbin/m_mdtvsrpcreducemdttdcnbins, TDCminrange, TDCmaxrange); 		
     lst.addHist(mdttdcdoublphi1); 
     //mdtvsrpcexp_prd.regHist(mdttdcdoublphi1);
     mdttdcdoublphi1->SetFillColor(42);  
@@ -759,16 +718,16 @@ void MdtVsRpcRawDataValAlg::bookMDTvsRPCHistograms(std::string m_hardware_name, 
     sc = mdtvsrpc_prd_expert.regHist(mdttdcdoublphi1);
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register mdttdcdoublphi1 hist to MonGroup" );
    
-      ATH_MSG_DEBUG ( "INSIDE  bookmdttdcdoublphi1Histograms: " << mdttdcdoublphi1 << m_generic_path_mdttdcdoublphi1.c_str() );
+      ATH_MSG_DEBUG ( "INSIDE  bookmdttdcdoublphi1Histograms: " << mdttdcdoublphi1 << generic_path_mdttdcdoublphi1.c_str() );
       ATH_MSG_DEBUG ( "RUN : " << run );
     
     //   ---------------  doublphi2 
  
-    std::string m_generic_path_mdttdcdoublphi2 = "/muoncosmics/MDTvsRPC/Chambers/"+m_hardware_name+"/"+m_layer_name;
-    std::string m_mdttdcdoublphi2_title = m_hardware_name+"_"+m_layer_name+"_MDTtdc_doublPhi2";	
-    const char* m_mdttdcdoublphi2_title_char = m_mdttdcdoublphi2_title.c_str();
+    std::string generic_path_mdttdcdoublphi2 = "/muoncosmics/MDTvsRPC/Chambers/"+hardware_name+"/"+layer_name;
+    std::string mdttdcdoublphi2_title = hardware_name+"_"+layer_name+"_MDTtdc_doublPhi2";	
+    const char* mdttdcdoublphi2_title_char = mdttdcdoublphi2_title.c_str();
 
-    TH1 *mdttdcdoublphi2=new TH1I(m_mdttdcdoublphi2_title_char,m_mdttdcdoublphi2_title_char, TDCNbin/m_mdtvsrpcreducemdttdcnbins, TDCminrange, TDCmaxrange);	
+    TH1 *mdttdcdoublphi2=new TH1I(mdttdcdoublphi2_title_char,mdttdcdoublphi2_title_char, TDCNbin/m_mdtvsrpcreducemdttdcnbins, TDCminrange, TDCmaxrange);	
     lst.addHist(mdttdcdoublphi2); 
     //mdtvsrpcexp_prd.regHist(mdttdcdoublphi2);
     mdttdcdoublphi2->SetFillColor(42);  
@@ -781,7 +740,7 @@ void MdtVsRpcRawDataValAlg::bookMDTvsRPCHistograms(std::string m_hardware_name, 
     sc = mdtvsrpc_prd_expert.regHist(mdttdcdoublphi2);
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register mdttdcdoublphi2 hist to MonGroup" );
    
-      ATH_MSG_DEBUG ( "INSIDE  bookmdttdcdoublphi2Histograms: " << mdttdcdoublphi2 << m_generic_path_mdttdcdoublphi2.c_str() );
+      ATH_MSG_DEBUG ( "INSIDE  bookmdttdcdoublphi2Histograms: " << mdttdcdoublphi2 << generic_path_mdttdcdoublphi2.c_str() );
       ATH_MSG_DEBUG ( "RUN : " << run );
     
   
@@ -790,7 +749,7 @@ void MdtVsRpcRawDataValAlg::bookMDTvsRPCHistograms(std::string m_hardware_name, 
 }
 
 /*----------------------------------------------------------------------------------*/
-void MdtVsRpcRawDataValAlg::bookMDTvsRPCsectorHistograms(std::string m_sector_name, std::string m_layer_name, float stripzmin, float stripzmax,float wirezmin, float wirezmax )
+void MdtVsRpcRawDataValAlg::bookMDTvsRPCsectorHistograms(std::string sector_name, std::string layer_name, float stripzmin, float stripzmax,float wirezmin, float wirezmax )
 { 
  
   StatusCode sc = StatusCode::SUCCESS;   
@@ -798,20 +757,20 @@ void MdtVsRpcRawDataValAlg::bookMDTvsRPCsectorHistograms(std::string m_sector_na
   if( m_doMdtvsRpcESD==true ) {if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD ) {
   		  
     //declare a group of histograms
-    std::string m_generic_path_mdtvsrpcmonitoring = "Muon/MuonRawDataMonitoring/MDTvsRPC";
-    MonGroup mdtvsrpc_prd_shift( this, m_generic_path_mdtvsrpcmonitoring+"/Sectors/"+m_sector_name, run, ATTRIB_UNMANAGED );   
-    MuonDQAHistList& lst = m_stationHists.getList(m_sector_name);
+    std::string generic_path_mdtvsrpcmonitoring = "Muon/MuonRawDataMonitoring/MDTvsRPC";
+    MonGroup mdtvsrpc_prd_shift( this, generic_path_mdtvsrpcmonitoring+"/Sectors/"+sector_name, run, ATTRIB_UNMANAGED );   
+    MuonDQAHistList& lst = m_stationHists.getList(sector_name);
     
     ////////////////////////////////////////////////////////////////////////////////////// 
     //histo path for mdt vrs rpc 
-    std::string m_generic_path_mdtvsrpcsector = m_generic_path_mdtvsrpcmonitoring+"/Sectors/"+m_sector_name+m_layer_name;
-    std::string m_mdtvsrpcsector_title = m_sector_name+"_"+m_layer_name+"_MDTtube_vs_RPCstrip";	 
-    const char* m_mdtvsrpcsector_title_char = m_mdtvsrpcsector_title.c_str();
+    std::string generic_path_mdtvsrpcsector = generic_path_mdtvsrpcmonitoring+"/Sectors/"+sector_name+layer_name;
+    std::string mdtvsrpcsector_title = sector_name+"_"+layer_name+"_MDTtube_vs_RPCstrip";	 
+    const char* mdtvsrpcsector_title_char = mdtvsrpcsector_title.c_str();
   
-    MDTvsRPCNbinx = int( (-stripzmin+stripzmax) / 30 / m_mdtvsrpcreducemdtnbins)  ;
-    MDTvsRPCNbinz = int( (-wirezmin +wirezmax ) / 30 / m_mdtvsrpcreducerpcnbins)  ;
+    int MDTvsRPCNbinx = int( (-stripzmin+stripzmax) / 30 / m_mdtvsrpcreducemdtnbins)  ;
+    int MDTvsRPCNbinz = int( (-wirezmin +wirezmax ) / 30 / m_mdtvsrpcreducerpcnbins)  ;
    
-    TH2 *mdtvsrpcsector=new TH2I(m_mdtvsrpcsector_title_char,m_mdtvsrpcsector_title_char, MDTvsRPCNbinz, stripzmin, stripzmax , MDTvsRPCNbinx, wirezmin, wirezmax);    		
+    TH2 *mdtvsrpcsector=new TH2I(mdtvsrpcsector_title_char,mdtvsrpcsector_title_char, MDTvsRPCNbinz, stripzmin, stripzmax , MDTvsRPCNbinx, wirezmin, wirezmax);    		
     lst.addHist(mdtvsrpcsector); 
   
     mdtvsrpcsector->SetOption("COLZ");
@@ -822,7 +781,7 @@ void MdtVsRpcRawDataValAlg::bookMDTvsRPCsectorHistograms(std::string m_sector_na
     mdtvsrpcsector->GetXaxis()->SetTitle("<--- Side C                Rpc Eta strip z [mm]        Side A --->"	);
     mdtvsrpcsector->GetYaxis()->SetTitle("<--- Side C                Mdt wire z [mm]	       Side A --->"	);
   
-      ATH_MSG_DEBUG ( "INSIDE  bookMDTvsRPCsectorHistograms: " << mdtvsrpcsector << m_generic_path_mdtvsrpcsector.c_str() );
+      ATH_MSG_DEBUG ( "INSIDE  bookMDTvsRPCsectorHistograms: " << mdtvsrpcsector << generic_path_mdtvsrpcsector.c_str() );
       ATH_MSG_DEBUG ( "RUN : " << run );
      
     sc = mdtvsrpc_prd_shift.regHist(mdtvsrpcsector);  		     	
