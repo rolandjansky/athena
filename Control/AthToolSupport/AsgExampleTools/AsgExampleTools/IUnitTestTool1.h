@@ -12,6 +12,7 @@
 
 
 #include <AsgTools/IAsgTool.h>
+#include <AsgTools/MsgLevel.h>
 
 namespace asg
 {
@@ -37,6 +38,10 @@ namespace asg
     /// \brief get whether we have been initialized
   public:
     virtual bool isInitialized () const = 0;
+
+    /// \brief the message level during initialize()
+  public:
+    virtual MSG::Level getOrigMsgLevel () const = 0;
   };
 }
 

@@ -15,9 +15,7 @@ input_files=`echo $@ | sed 's/,/ /g'`
 
 tmp_output_file="new.$output_file"
 
-root -l -b -q \
-     "$ROOTCOREDIR/scripts/load_packages.C" \
-     "$ROOTCOREBIN/user_scripts/EventLoopGrid/elg_merge.C("\""$metadata_file"\"", "\""$tmp_output_file"\"", "\""$input_files"\"")"
+eventloop_grid_merge "$metadata_file" "$tmp_output_file" "$input_files"
 
 test -f "$tmp_output_file"
 

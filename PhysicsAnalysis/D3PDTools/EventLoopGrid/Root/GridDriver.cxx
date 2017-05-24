@@ -7,6 +7,7 @@
 #include "EventLoop/Algorithm.h"
 #include "EventLoop/Job.h"
 #include "EventLoop/OutputStream.h"
+#include <PathResolver/PathResolver.h>
 #include "RootCoreUtils/Assert.h"
 #include "RootCoreUtils/StringUtil.h"
 #include <RootCoreUtils/ThrowMsg.h>
@@ -190,10 +191,12 @@ namespace EL {
    const string sandboxDir  = jobELGDir + "/inputsandbox";
    const string downloadDir = jobELGDir + "/download";
    const string runShFile   = sandboxDir + "/runjob.sh";
-   const string runShOrig   = "$ROOTCOREBIN/data/EventLoopGrid/runjob.sh"; 
+   //const string runShOrig   = "$ROOTCOREBIN/data/EventLoopGrid/runjob.sh"; 
+   const std::string runShOrig = PathResolverFindCalibFile("EventLoopGrid/runjob.sh");
    const string mergeShFile = sandboxDir + "/elg_merge";
-   const string mergeShOrig = 
-     "$ROOTCOREBIN/user_scripts/EventLoopGrid/elg_merge"; 
+   //const string mergeShOrig = 
+   //  "$ROOTCOREBIN/user_scripts/EventLoopGrid/elg_merge";
+   const std::string mergeShOrig = PathResolverFindCalibFile("EventLoopGrid/elg_merge");
    const string jobDefFile  = sandboxDir + "/jobdef.root";
    gSystem->Exec(Form("mkdir -p %s", jobELGDir.c_str()));
    gSystem->Exec(Form("mkdir -p %s", sandboxDir.c_str()));
@@ -923,10 +926,10 @@ namespace EL {
     
       if (env.needProxy) env.needPanda = true;
 
-      if (env.needRootCore && not gSystem->Getenv("ROOTCOREBIN")) {
-	cerr << "Error: Must set up RootCore first" << endl;
-	return false;
-      }
+      // if (env.needRootCore && not gSystem->Getenv("ROOTCOREBIN")) {
+      // 	cerr << "Error: Must set up RootCore first" << endl;
+      // 	return false;
+      // }
 
       env.needPanda &= bool(gSystem->Exec("command -v prun >/dev/null"));
       env.needGanga &= bool(gSystem->Exec("command -v ganga >/dev/null"));

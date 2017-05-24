@@ -26,28 +26,9 @@
 
 namespace RCU
 {
-  void hadd (std::string output_file,
-	     std::vector<std::string> input_files,
+  void hadd (const std::string& output_file,
+	     const std::vector<std::string>& input_files,
 	     unsigned max_files)
-  {
-    std::ostringstream cmd;
-    cmd << "$ROOTCOREBIN/user_scripts/RootCoreUtils/rcu_hadd " << max_files
-	<< " " << output_file;
-    for (std::vector<std::string>::const_iterator input = input_files.begin(),
-	   end = input_files.end(); input != end; ++ input)
-    {
-      cmd << " " << *input;
-    }
-    int result = gSystem->Exec (cmd.str().c_str());
-    if (result != 0)
-      RCU_THROW_MSG ("failed to make merged file: " + output_file);
-  }
-
-
-
-  void hadd_core (std::string output_file,
-		  std::vector<std::string> input_files,
-		  unsigned max_files)
   {
     TFileMerger merger (false, false);
 

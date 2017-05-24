@@ -18,11 +18,9 @@
 #include <EventLoop/Worker.h>
 
 #include <EventLoop/Algorithm.h>
-#include <EventLoop/D3PDReaderSvc.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/StatusCode.h>
 #include <EventLoop/TEventSvc.h>
-#include <RootCore/Packages.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/RootUtils.h>
 #include <RootCoreUtils/ThrowMsg.h>
@@ -272,40 +270,16 @@ namespace EL
 
 
 
-  D3PDReader::Event *Worker ::
-  d3pdreader () const
-  {
-    RCU_READ_INVARIANT (this);
-
-#ifdef ROOTCORE_PACKAGE_D3PDReader
-    D3PDReaderSvc *const svc
-      = dynamic_cast<D3PDReaderSvc*>(getAlg (D3PDReaderSvc::name));
-    if (svc == 0)
-      RCU_THROW_MSG ("Job not configured for D3PDReader support");
-    return svc->event();
-#else
-    RCU_THROW_MSG ("EventLoop package not compiled with D3PDReader support");
-    return 0; //compiler dummy
-#endif    
-  }
-
-
-
   xAOD::TEvent *Worker ::
   xaodEvent () const
   {
     RCU_READ_INVARIANT (this);
 
-#ifdef ROOTCORE_PACKAGE_xAODRootAccess
     TEventSvc *const svc
       = dynamic_cast<TEventSvc*>(getAlg (TEventSvc::name));
     if (svc == 0)
       RCU_THROW_MSG ("Job not configured for xAOD support");
     return svc->event();
-#else
-    RCU_THROW_MSG ("EventLoop package not compiled with xAOD support");
-    return 0; //compiler dummy
-#endif    
   }
 
 
@@ -315,32 +289,11 @@ namespace EL
   {
     RCU_READ_INVARIANT (this);
 
-#ifdef ROOTCORE_PACKAGE_xAODRootAccess
     TEventSvc *const svc
       = dynamic_cast<TEventSvc*>(getAlg (TEventSvc::name));
     if (svc == 0)
       RCU_THROW_MSG ("Job not configured for xAOD support");
     return svc->store();
-#else
-    RCU_THROW_MSG ("EventLoop package not compiled with xAOD support");
-    return 0; //compiler dummy
-#endif    
-  }
-
-
-
-  bool Worker ::
-  hasD3pdreader () const
-  {
-    RCU_READ_INVARIANT (this);
-
-#ifdef ROOTCORE_PACKAGE_D3PDReader
-    D3PDReaderSvc *const svc
-      = dynamic_cast<D3PDReaderSvc*>(getAlg (D3PDReaderSvc::name));
-    return svc != 0;
-#else
-    return false;
-#endif    
   }
 
 

@@ -18,18 +18,16 @@
 #include <EventLoop/Job.h>
 
 #include <memory>
+#include <EventLoop/MessageCheck.h>
 #include <EventLoop/Algorithm.h>
-#include <EventLoop/D3PDReaderSvc.h>
 #include <EventLoop/OutputStream.h>
 #include <EventLoop/TEventSvc.h>
-#include <RootCore/Packages.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/CheckRootVersion.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <SampleHandler/MetaFields.h>
 #include <SampleHandler/MetaNames.h>
-
-#include <iostream>
+#include <sstream>
 
 //
 // method implementations
@@ -208,10 +206,39 @@ namespace EL
   void Job ::
   algsAdd (Algorithm *alg_swallow)
   {
+    using namespace msgEventLoop;
+
     std::auto_ptr<Algorithm> alg (alg_swallow);    
 
     RCU_CHANGE_INVARIANT (this);
     RCU_REQUIRE_SOFT (alg_swallow != 0);
+
+    std::string myname = alg_swallow->GetName();
+    if (myname.empty() || algsHas (myname))
+    {
+      if (myname.empty())
+        myname = "UnnamedAlgorithm";
+      bool unique = false;
+      for (unsigned iter = 1; !unique; ++ iter)
+      {
+        std::ostringstream str;
+        str << myname << iter;
+        if (!algsHas (str.str()))
+        {
+          myname = str.str();
+          unique = true;
+        }
+      }
+      if (strlen (alg_swallow->GetName()) > 0)
+        ANA_MSG_WARNING ("renaming algorithm " << alg_swallow->GetName() << " to " << myname << " to make the name unique");
+      alg_swallow->SetName (myname.c_str());
+      if (alg_swallow->GetName() != myname)
+      {
+        std::ostringstream message;
+        message << "failed to rename algorithm " << alg_swallow->GetName() << " to " << myname;
+        RCU_THROW_MSG (message.str());
+      }
+    }
 
     alg->sysSetupJob (*this);
     m_algs.push_back (alg.get());
@@ -306,31 +333,12 @@ namespace EL
 
 
   void Job ::
-  useD3PDReader ()
-  {
-    RCU_CHANGE_INVARIANT (this);
-
-#ifdef ROOTCORE_PACKAGE_D3PDReader
-    if (!algsHas (D3PDReaderSvc::name))
-      algsAdd (new D3PDReaderSvc);
-#else
-    RCU_THROW_MSG ("D3PDReaderSvc not configured");
-#endif
-  }
-
-
-
-  void Job ::
   useXAOD ()
   {
     RCU_CHANGE_INVARIANT (this);
 
-#ifdef ROOTCORE_PACKAGE_xAODRootAccess
     if (!algsHas (TEventSvc::name))
       algsAdd (new TEventSvc);
-#else
-    RCU_THROW_MSG ("TEventSvc not configured");
-#endif
   }
 
 

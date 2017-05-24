@@ -25,7 +25,7 @@
 namespace asg
 {
 #ifdef ROOTCORE
-   typedef asg::AsgTool parentType_t;
+   typedef INamedInterface parentType_t;
    typedef IAsgTool interfaceType_t;
 #else
    typedef INamedInterface parentType_t;

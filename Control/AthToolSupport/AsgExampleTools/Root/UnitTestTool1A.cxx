@@ -34,6 +34,7 @@ namespace asg
   StatusCode UnitTestTool1A ::
   initialize ()
   {
+    m_origMsgLevel = msg().level();
     if (m_initializeFail)
     {
       ATH_MSG_ERROR ("tool configured to fail initialize");
@@ -78,5 +79,13 @@ namespace asg
   isInitialized () const
   {
     return m_isInitialized;
+  }
+
+
+
+  MSG::Level UnitTestTool1A ::
+  getOrigMsgLevel () const
+  {
+    return m_origMsgLevel;
   }
 }

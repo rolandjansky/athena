@@ -20,21 +20,14 @@
 #include <EventLoop/Job.h>
 #include <EventLoop/OutputStream.h>
 #include <EventLoop/Worker.h>
-#include <RootCore/Packages.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <TFile.h>
 #include <TH1.h>
 #include <TTree.h>
 
-#ifdef ROOTCORE_PACKAGE_D3PDReader
-#include <D3PDReader/Event.h>
-#endif
-
-#ifdef ROOTCORE_PACKAGE_AsgTools
 #include <AsgTools/MsgStream.h>
 #include <AsgTools/MsgStreamMacros.h>
-#endif
 
 //
 // method implementations
@@ -56,11 +49,7 @@ namespace EL
   UnitTestAlg (const std::string& branchName)
     : makeOutput (true),
       m_name (branchName),
-#ifdef ROOTCORE_PACKAGE_D3PDReader
-      m_event (0),
-#else
       m_branch (0),
-#endif
       m_value (0),// m_hist (0),
       m_tree (0),
       m_hasInitialize (false),
@@ -75,10 +64,6 @@ namespace EL
   setupJob (Job& job)
   {
     RCU_CHANGE_INVARIANT (this);
-
-#ifdef ROOTCORE_PACKAGE_D3PDReader
-    job.useD3PDReader ();
-#endif    
 
     if (makeOutput)
     {
@@ -96,14 +81,10 @@ namespace EL
     RCU_CHANGE_INVARIANT (this);
 
     RCU_ASSERT (wk()->tree() != 0);
-#ifdef ROOTCORE_PACKAGE_D3PDReader
-    m_event = wk()->d3pdreader();
-#else
     m_branch = wk()->tree()->GetBranch (m_name.c_str());
     if (m_branch == 0)
       RCU_THROW_MSG ("failed to find branch " + m_name);
     m_branch->SetAddress (&m_value);
-#endif
     RCU_ASSERT_SOFT (firstFile == m_fileName.empty());
     m_fileName = wk()->inputFile()->GetName();
     return StatusCode::SUCCESS;
@@ -177,20 +158,14 @@ namespace EL
 
     RCU_ASSERT_SOFT (m_hasInitialize);
 
-#ifdef ROOTCORE_PACKAGE_D3PDReader
-    m_value = m_event->el.n();
-#else
     m_branch->GetEntry (wk()->treeEntry());
-#endif
     hist(m_name)->Fill (m_value);
     if (makeOutput)
       m_tree->Fill ();
 
-#ifdef ROOTCORE_PACKAGE_AsgTools
     setMsgLevel (MSG::INFO);
     if (++ m_calls < 3)
       ATH_MSG_INFO ("message test");
-#endif
 
     return StatusCode::SUCCESS;
   }

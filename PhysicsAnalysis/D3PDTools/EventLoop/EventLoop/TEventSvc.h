@@ -14,17 +14,13 @@
 // reports, feature suggestions, praise and complaints.
 
 
-/// This module defines the services interfacing with the D3PDReader.
+/// This module defines the services interfacing with TEvent.
 /// The interface provided in this module is intended for the general
 /// user.  The module is considered to be in the pre-alpha stage.
 
 
 
 #include <EventLoop/Global.h>
-
-#include <RootCore/Packages.h>
-
-#ifdef ROOTCORE_PACKAGE_xAODRootAccess
 
 #include <EventLoop/Algorithm.h>
 
@@ -164,7 +160,5 @@ namespace EL
 #pragma GCC diagnostic pop
   };
 }
-
-#endif
 
 #endif

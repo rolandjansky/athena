@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 777930 2016-10-11 22:30:28Z krasznaa $
 
 # Set the name of the package:
 atlas_subdir( EventLoopAlgs )

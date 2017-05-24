@@ -4,6 +4,12 @@
 
 #include <EventLoop/OutputStream.h>
 #include <RootCoreUtils/ThrowMsg.h>
+#include <xAODRootAccess/Init.h>
+#include <AsgTools/MessageCheck.h>
+#include <TList.h>
+#include <TSystem.h>
+#include <TFile.h>
+#include <regex>
 
 void try_exec(const std::string& cmd)
 {
@@ -12,10 +18,23 @@ void try_exec(const std::string& cmd)
   }
 }
 
-void elg_merge(const std::string& jobDefFile, 
-	       const std::string& output, 
-	       const std::string& input)
+int main (int argc, char **argv)
 {
+  using namespace asg::msgUserCode;
+  ANA_CHECK_SET_TYPE (int);
+
+  ANA_CHECK (xAOD::Init ());
+
+  if (argc != 4)
+  {
+    ANA_MSG_ERROR ("invalid number of arguments");
+    return -1;
+  }
+
+  std::string jobDefFile = argv[1];
+  std::string output = argv[2];
+  std::string input = argv[3];
+
   std::string type = "DEFAULT";
   std::string mergeCmd = "";
   
