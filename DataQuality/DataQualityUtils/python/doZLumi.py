@@ -13,6 +13,10 @@ def getRun(fname):
 
 def go(fname):
     import subprocess, os, shutil
+    if 'DQ_STREAM' in os.environ:
+        if (os.environ.get('DQPRODUCTION', '0') == '1'
+            and os.environ['DQ_STREAM'] != 'physics_Main'):
+            return
     if 'DISPLAY' in os.environ: del os.environ['DISPLAY']
     runno = getRun(fname)
     print 'Seen run', runno
