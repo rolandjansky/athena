@@ -36,31 +36,38 @@ StatusCode CTPUnpackingEmulationTool::parseInputFile() {
     ATH_MSG_ERROR("Input file " << m_inputFileName << " inaccessible");
     return StatusCode::FAILURE;
   }
-    
-  std::string chainName;
-  m_events.resize(1);
-  while ( inputFile >> chainName ) { 
+  
+  std::string line;
+  while ( std::getline( inputFile, line ) ) {
     //check if commented out
-    std::size_t found = chainName.find("#");
-    if (found != std::string::npos) {
-      std::string line;
-      std::getline(inputFile, line);
-      continue;
+    if ( line[0] == '#' ) continue;
+    // std::size_t found = line.find("#");
+    // if (found != std::string::npos) {
+    //   std::string line;
+    //   std::getline(inputFile, line);
+    //   continue;
+    // }
+    std::istringstream allChains( line );
+    HLT::IDVec ids;
+    while ( allChains ) {
+      std::string chainName;
+      allChains >> chainName;
+      if ( not chainName.empty() ) 
+	ids.push_back( HLT::Identifier(chainName).numeric() );
     }
-    auto chainId = HLT::Identifier(chainName);
-    std::map<size_t, HLT::IDVec>::iterator it;// IndexToIdentifiers;
-    for(it=m_ctpToChain.begin();it!=m_ctpToChain.end();it++)  {
-      auto ctpId = it->first;
-      HLT::IDVec chains= it->second;
-      auto itr = find (chains.begin(), chains.end(), chainId);
-      if ( itr != chains.end() ) {
-	m_events.back().insert( ctpId );
-      }
-    }
+    // auto chainId = HLT::Identifier(chainName);
+    // std::map<size_t, HLT::IDVec>::iterator it;// IndexToIdentifiers;
+    // for(it=m_ctpToChain.begin();it!=m_ctpToChain.end();it++)  {
+    //   auto ctpId = it->first;
+    //   HLT::IDVec chains= it->second;
+    //   auto itr = find (chains.begin(), chains.end(), chainId);
+    //   if ( itr != chains.end() ) {
+    // 	event.insert( ctpId );
+    //   }
+    // }
    
-  // m_events.back().push_back(TrigConf::HLTUtils::string2hash(chain, "chain"));
-    if ( inputFile.peek() == '\n') 
-      m_events.resize( m_events.size() + 1 ); // new event
+    if ( not ids.empty() ) 
+      m_events.push_back( ids ); // new event
   }
   inputFile.close(); 
 
@@ -83,7 +90,7 @@ StatusCode CTPUnpackingEmulationTool::initialize() {
 
 
 
-StatusCode CTPUnpackingEmulationTool::decode( const ROIB::RoIBResult& roib,  HLT::IDVec& enabledChains ) const {
+StatusCode CTPUnpackingEmulationTool::decode( const ROIB::RoIBResult& /*roib*/,  HLT::IDVec& enabledChains ) const {
   size_t numberPfActivatedBits= 0;
 
   if (m_events.size() ==0){
@@ -91,31 +98,34 @@ StatusCode CTPUnpackingEmulationTool::decode( const ROIB::RoIBResult& roib,  HLT
     return StatusCode::FAILURE;
   }
 
+
+  
+
   const EventContext& context = Gaudi::Hive::currentContext();
-  EventContextHash hash;
-  size_t ctx = hash.hash(context);
  
-  int line = ctx % m_events.size();
-  ATH_MSG_DEBUG("Getting chains for event "<<ctx<<": retrieve combination from line "<< line);
-  auto tav = m_events[line];
+  int line = context.evt() % m_events.size();
+  //  ATH_MSG_DEBUG("Getting chains for event "<<ctx<<": retrieve combination from line "<< line);
+  //  auto tav = m_events[line];
 
+  enabledChains =  m_events[line];
+  
+  // for ( const auto& ctpIndex : tav ) {
+  //   //    ATH_MSG_DEBUG("Enabling chain from CTP ID " << ctpIndex);  
+  //   auto itr = m_ctpToChain.find(ctpIndex);
+  //   if ( itr != m_ctpToChain.end() ) {
+  //     enabledChains.insert( enabledChains.end(), itr->second.begin(), itr->second.end() );
+  //   }
+  //   numberPfActivatedBits++;
+  // }
 
-  for ( const auto& ctpIndex : tav ) {
-    //    ATH_MSG_DEBUG("Enabling chain from CTP ID " << ctpIndex);  
-    auto itr = m_ctpToChain.find(ctpIndex);
-    if ( itr != m_ctpToChain.end() ) {
-      enabledChains.insert( enabledChains.end(), itr->second.begin(), itr->second.end() );
-    }
-    numberPfActivatedBits++;
-  }
+  // for ( auto chain: enabledChains ) {
+  //   ATH_MSG_DEBUG( "Enabling chain: " << chain );
+  // }
+  // if ( numberPfActivatedBits == 0 ) {
+  //   ATH_MSG_ERROR( "All CTP bits were disabled, this event shoudl not have shown here" );
+  //   return StatusCode::FAILURE;
+  // }
 
-  for ( auto chain: enabledChains ) {
-    ATH_MSG_DEBUG( "Enabling chain: " << chain );
-  }
-  if ( numberPfActivatedBits == 0 ) {
-    ATH_MSG_ERROR( "All CTP bits were disabled, this event shoudl not have shown here" );
-    return StatusCode::FAILURE;
-  }
   return StatusCode::SUCCESS;
 }
 

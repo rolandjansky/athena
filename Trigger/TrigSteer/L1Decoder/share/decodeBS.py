@@ -84,7 +84,7 @@ if nThreads >= 1:
   topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
 
 
-doL1Emulation=True
+doL1Emulation=False
 from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, L1Decoder, MURoIsUnpackingTool
 from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool
 l1Decoder = L1Decoder( OutputLevel=DEBUG )
