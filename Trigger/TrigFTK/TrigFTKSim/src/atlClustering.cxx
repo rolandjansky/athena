@@ -1278,8 +1278,8 @@ void averageCluster(cluster &clu) {
 	      int etaCol32 =0; 
 	      etaRow32 = lround(etaRow*32); 
 	      etaCol32 = lround(etaCol*32);
-	      int m_posStrategy = 1; 
-	      if(m_posStrategy == 1 && !hasGanged && etaRow>0 && etaCol > 0){
+	      int posStrategy = 1; 
+	      if(posStrategy == 1 && !hasGanged && etaRow>0 && etaCol > 0){
 	      if (BarrelEndCap==0) { 
 		phi_average+= lround((getDeltaX1A(clu)+(getDeltaX2A(clu))*etaRow32)/1024.); //  >>10; 
 		
@@ -1363,8 +1363,8 @@ void averageCluster(cluster &clu) {
                 // Values are made dependent on the sensor thickness to accomodate // different sensors layout. AA
                 //    Point3D<double> globalPos = element->globalPosition(centroid);
                 //    InDetDD::SiLocalPosition totCorrection(0,0,0);
-                int m_posStrategy = 1; //Same as m_posStrategy == 1 in InDetRecTools/SiClusterizationTool/trunk/src/MergedPixelsTool.cxx#L701
-                if(m_posStrategy == 1 && !hasGanged && etaRow>0 && etaCol > 0){
+                int posStrategy = 1; //Same as posStrategy == 1 in InDetRecTools/SiClusterizationTool/trunk/src/MergedPixelsTool.cxx#L701
+                if(posStrategy == 1 && !hasGanged && etaRow>0 && etaCol > 0){
 		  phi_average += pixXScaleFactor*deltax*(etaRow-0.5)/ftk::phiPitch;
 		  eta_average += pixYScaleFactor*deltay*(etaCol-0.5)/etaPitch;
                 } 

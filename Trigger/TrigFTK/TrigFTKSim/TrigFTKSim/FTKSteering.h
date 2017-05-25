@@ -54,7 +54,7 @@ class SteeringParameterInt : public SteeringParameter {
    virtual void Write(std::ostream &out) const;
    virtual SteeringParameter *Clone(void) const;
  protected:
-   int data;
+   int m_data;
 };
 
 class SteeringParameterDouble : public SteeringParameter {
@@ -66,7 +66,7 @@ class SteeringParameterDouble : public SteeringParameter {
    virtual void Write(std::ostream &out) const;
    virtual SteeringParameter *Clone(void) const;
  protected:
-   double data;
+   double m_data;
 };
 
 class SteeringParameterString : public SteeringParameter {
@@ -79,29 +79,29 @@ class SteeringParameterString : public SteeringParameter {
    virtual void Write(std::ostream &out) const;
    virtual SteeringParameter *Clone(void) const;
  protected:
-   std::string data;
+   std::string m_data;
 };
 
 class SteeringParameterArray {
  public:
    SteeringParameterArray(void);
    ~SteeringParameterArray(void);
-   inline unsigned GetFixedSize(void) const { return fixed; }
-   inline unsigned GetActualSize(void) const { return data.size(); }
+   inline unsigned GetFixedSize(void) const { return m_fixed; }
+   inline unsigned GetActualSize(void) const { return m_data.size(); }
    void Init(SteeringParameter *proto,unsigned size);
    void Clear(void);
-   inline operator int () const { return *(data[0]); }
-   inline operator double () const { return *(data[0]); }
-   inline operator const char * () const { return *(data[0]); }
-   inline SteeringParameter const & operator[](int i) const { return *(data[i]); }
-   inline SteeringParameter & operator[](int i) { return *(data[i]); }
+   inline operator int () const { return *(m_data[0]); }
+   inline operator double () const { return *(m_data[0]); }
+   inline operator const char * () const { return *(m_data[0]); }
+   inline SteeringParameter const & operator[](int i) const { return *(m_data[i]); }
+   inline SteeringParameter & operator[](int i) { return *(m_data[i]); }
    SteeringParameter *Expand(void);
    bool Shrink(void);
    SteeringParameterArray &operator=(SteeringParameterArray const &);
  protected:
-   unsigned fixed;
-   SteeringParameter *prototype;
-   std::vector<SteeringParameter *> data;
+   unsigned m_fixed;
+   SteeringParameter *m_prototype;
+   std::vector<SteeringParameter *> m_data;
 };
 
 class FTKSteering : public FTKLogging {
@@ -128,5 +128,5 @@ class FTKSteering : public FTKLogging {
  protected:
    SteeringParameterArray &AddPar
       (char const *name,SteeringParameter *proto,unsigned size);
-   std::map<std::string,SteeringParameterArray> parameter;
+   std::map<std::string,SteeringParameterArray> m_parameter;
 };

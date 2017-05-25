@@ -38,9 +38,9 @@ protected:
  
   FTKObjectStream **m_data; // objects with input data
 
-  int *cur_iobject; // array with ID of the used road / track
+  int *m_cur_iobject; // array with ID of the used road / track
   
-  FTKObject **cur_object; // array of current roads/tracks
+  FTKObject **m_cur_object; // array of current roads/tracks
 
   bool m_init; // true if the input is initialized
 
@@ -74,7 +74,7 @@ public:
 template<class FTKObjectStream, class FTKObject>
 FTKObjectInput<FTKObjectStream,FTKObject>::FTKObjectInput() :
   m_current_file(0), m_current_tree(0), m_entry(0),
-  m_max_entry(0), m_nbanks(0), m_data(0), cur_iobject(0), cur_object(0), m_init(0)
+  m_max_entry(0), m_nbanks(0), m_data(0), m_cur_iobject(0), m_cur_object(0), m_init(0)
 {
   // nothing to do
 }
@@ -157,8 +157,8 @@ void FTKObjectInput<FTKObjectStream,FTKObject>::init(bool *goodRegions)
   // allocate input structures
   m_data = new FTKObjectStream*[m_nbanks];
   // allocate internal counters
-  cur_iobject = new int[m_nbanks];
-  cur_object = new FTKObject*[m_nbanks];
+  m_cur_iobject = new int[m_nbanks];
+  m_cur_object = new FTKObject*[m_nbanks];
 
   for (int ib=0;ib<m_nbanks;++ib) {
     if (!goodRegions[ib]) {
@@ -168,8 +168,8 @@ void FTKObjectInput<FTKObjectStream,FTKObject>::init(bool *goodRegions)
     }
 
     m_data[ib] = new FTKObjectStream();
-    cur_iobject[ib] = -1;
-    cur_object[ib] = 0;
+    m_cur_iobject[ib] = -1;
+    m_cur_object[ib] = 0;
   }
   
   if (nextFile()==-1) {

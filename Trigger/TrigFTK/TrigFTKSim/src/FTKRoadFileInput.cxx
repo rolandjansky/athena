@@ -33,11 +33,11 @@ int FTKRoadFileInput::nextEvent()
     // check that this bank is enabled, not 0x0 pointer, or skip the bank
     if (!m_data[ib]) continue;
 
-    if (cur_object[ib]) {
-      m_data[ib]->detachHits(cur_iobject[ib]);
+    if (m_cur_object[ib]) {
+      m_data[ib]->detachHits(m_cur_iobject[ib]);
     }
-    cur_iobject[ib] = -1;
-    cur_object[ib] = 0;
+    m_cur_iobject[ib] = -1;
+    m_cur_object[ib] = 0;
     m_data[ib]->buildRoadMap();
     // expand the roads to prepare the list of the road to fit
     m_data[ib]->prepareFitList();
@@ -56,18 +56,18 @@ const FTKRoad* FTKRoadFileInput::nextRoad(int ibank)
   if (!m_data[ibank]) return 0x0;
 
   // get the road
-  cur_object[ibank] = m_data[ibank]->fetchRoad();
+  m_cur_object[ibank] = m_data[ibank]->fetchRoad();
 
   // check if the bank has enough roads
-  if (!cur_object[ibank]) {
-    cur_object[ibank] = 0;
+  if (!m_cur_object[ibank]) {
+    m_cur_object[ibank] = 0;
   }
   else {
     // increment road counter
-    cur_iobject[ibank] += 1; 
+    m_cur_iobject[ibank] += 1; 
   }
 
-  return cur_object[ibank];
+  return m_cur_object[ibank];
 }
 
 // retrieve superstrip by (bank,plane,ssid)

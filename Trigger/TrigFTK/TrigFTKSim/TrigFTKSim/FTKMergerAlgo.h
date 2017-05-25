@@ -195,7 +195,7 @@ private:
   const PixelID *m_pixel_id;
   const SCT_ID *m_sct_id;
 
-   std::vector<int> zerovec;
+   std::vector<int> m_zerovec;
 
 
   // Trk::Track
