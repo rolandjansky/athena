@@ -29,6 +29,9 @@ class TopoAlgoDef:
             usev6 = True
         if '_v7' in TriggerFlags.triggerMenuSetup():
             usev7 = True
+        if '_PhaseII' in TriggerFlags.triggerMenuSetup():
+            usev6 = True
+            usev7 = True
         if 'Physics' in TriggerFlags.triggerMenuSetup() or 'HI' in TriggerFlags.triggerMenuSetup():
             doPhysics = True
         

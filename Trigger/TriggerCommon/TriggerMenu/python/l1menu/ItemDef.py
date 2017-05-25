@@ -1599,11 +1599,11 @@ class ItemDef:
      
                     LVL1MenuItem('L1_LFV-MU6').setLogic( TOPO_0DR15_2MU6ab & physcond)
                     LVL1MenuItem('L1_LFV-MU').setLogic( TOPO_0DR10_MU10ab_MU6ab & physcond)
-                    if not '_v7' in TriggerFlags.triggerMenuSetup():
+                    if not '_v7' in TriggerFlags.triggerMenuSetup() and not '_PhaseII' in TriggerFlags.triggerMenuSetup():
                         LVL1MenuItem('L1_LFV-EM8I').setLogic( TOPO_0DETA04_0DPHI03_EM8abi_MU10ab & physcond)
                     else:
                         LVL1MenuItem('L1_LFV-EM8I').setLogic( TOPO_0DETA04_EM8abi_MU10ab & TOPO_0DPHI03_EM8abi_MU10ab & physcond) #ATR-14282
-                    if not '_v7' in TriggerFlags.triggerMenuSetup():
+                    if not '_v7' in TriggerFlags.triggerMenuSetup() and not '_PhaseII' in TriggerFlags.triggerMenuSetup():
                         LVL1MenuItem('L1_LFV-EM15I').setLogic( TOPO_0DETA04_0DPHI03_EM15abi_MUab & physcond)
                     else:
                         LVL1MenuItem('L1_LFV-EM15I').setLogic( TOPO_0DETA04_EM15abi_MUab & TOPO_0DPHI03_EM15abi_MUab & physcond) #ATR-14282
@@ -1717,7 +1717,7 @@ class ItemDef:
 
                     LVL1MenuItem('L1_LATE-MU10_XE50').setLogic( TOPO_LATE_MU10s1 & XE50 & physcond) 
                     LVL1MenuItem('L1_LATE-MU10_J50').setLogic(  TOPO_LATE_MU10s1 & J50 & physcond)  
-                    if '_v7' in TriggerFlags.triggerMenuSetup():
+                    if '_v7' in TriggerFlags.triggerMenuSetup() or '_PhaseII' in TriggerFlags.triggerMenuSetup():
                       LVL1MenuItem('L1_SC111-CJ15').setLogic(  TOPO_SC111_CJ15abETA26 & physcond)
                       LVL1MenuItem('L1_SC85-CJ15').setLogic(  TOPO_SC85_CJ15abETA26 & physcond)
                     else:
