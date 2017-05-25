@@ -1152,6 +1152,13 @@ class doStoreTrackSeeds(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class checkDeadElementsOnTrack(InDetFlagsJobProperty): 
+  """Enable check for dead modules and FEs""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = False
+
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -1413,6 +1420,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doBremRecovery         , False)
        self.checkThenSet(self.doCaloSeededBrem       , False)
        self.checkThenSet(self.doHadCaloSeededSSS     , False)
+       self.checkThenSet(self.checkDeadElementsOnTrack,True)
        # --- turn off TRT
        DetFlags.makeRIO.TRT_setOff()
        DetFlags.TRT_setOff()
@@ -2757,7 +2765,8 @@ _list_InDetJobProperties = [Enabled,
                             doDBM,
                             doParticleConversion,
                             doStoreTrackSeeds,
-                            doHIP300
+                            doHIP300,
+                            checkDeadElementsOnTrack
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)
