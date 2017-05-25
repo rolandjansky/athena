@@ -5,7 +5,7 @@ import ROOT
 import sys
 
 runnum = sys.argv[1].split('_')[0]
-f = ROOT.TFile.Open(sys.argv[1], 'READ')
+f = ROOT.TFile.Open(sys.argv[1], 'UPDATE')
 c1 = ROOT.TCanvas()
 lumitree = f.lumitree
 lumitree.Draw("zrate:lb+10:zratestat", "", "goff")
@@ -17,6 +17,7 @@ if lumitree.GetSelectedRows() > 0:
     gr.GetHistogram().SetYTitle('Fiducial Z yield/second')
     gr.SetMarkerStyle(20)
     gr.SetTitle('')
+    f.WriteTObject(gr, 'fid_z_rate')
     c1.Update()
     c1.Print('%s_fidyield.eps' % runnum)
 
@@ -48,12 +49,14 @@ if lumitree.GetSelectedRows() > 0:
     gr.GetHistogram().SetYTitle('Luminosity (x10^{33})')
     gr.SetMarkerStyle(20)
     gr.SetTitle('')
+    f.WriteTObject(gr, 'z_lumi')
     lumitree.Draw("offlumi:lb+10", "", "goff")
     gr2 = ROOT.TGraphErrors(lumitree.GetSelectedRows(), lumitree.GetV2(), lumitree.GetV1())
     gr2.SetMarkerStyle(21)
     gr2.SetMarkerSize(0.5)
     gr2.SetMarkerColor(ROOT.kRed)
     gr2.Draw('same,pl')
+    f.WriteTObject(gr, 'official_lumi')
     leg = ROOT.TLegend(0.65, 0.7, 0.89, 0.89)
     leg.SetBorderSize(0)
     leg.AddEntry(gr, 'Z luminosity', 'pl')
@@ -61,3 +64,4 @@ if lumitree.GetSelectedRows() > 0:
     leg.Draw()
     c1.Update()
     c1.Print('%s_lumicomp.eps' % runnum)
+    f.WriteTObject(c1, 'lumicomp_canvas')
