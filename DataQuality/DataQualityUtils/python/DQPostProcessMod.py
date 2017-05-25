@@ -83,7 +83,7 @@ def _ProtectPostProcessing( funcinfo, outFileName, isIncremental ):
         if isProduction:
             import smtplib
             server = smtplib.SMTP('localhost')
-            mail_cc = ['ponyisi@utexas.edu', 'yuriy.ilchenko@cern.ch']
+            mail_cc = ['ponyisi@utexas.edu', 'rnarayan@utexas.edu']
             msg = ['From: atlasdqm@cern.ch',
                    'To: %s' % ', '.join(mail_to),
                    'Cc: %s' % ', '.join(mail_cc),
