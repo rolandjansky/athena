@@ -8,7 +8,6 @@ atlas_subdir( RDBAccessTest )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Control/MinimalRunTime
                           GaudiKernel
                           TestPolicy
                           PRIVATE
