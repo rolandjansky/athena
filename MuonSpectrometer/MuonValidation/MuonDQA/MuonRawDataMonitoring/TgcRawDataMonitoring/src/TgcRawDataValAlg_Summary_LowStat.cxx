@@ -98,14 +98,10 @@ TgcRawDataValAlg::bookHistogramsSummary(){
   for(int sta=0;sta<4;sta++){// station
     for(int eta=0;eta<6;eta++){// eta
       if(sta==0 && eta==5){
-        tgcsummaryoflog10wireoccupancyperchambertype[ntype] = 0;
-        tgcsummaryoflog10stripoccupancyperchambertype[ntype] = 0;
         continue;
         
       }
       if(sta==3 && eta >1){
-        tgcsummaryoflog10wireoccupancyperchambertype[ntype] = 0;
-        tgcsummaryoflog10stripoccupancyperchambertype[ntype] = 0;
         continue;
       }
       
