@@ -250,6 +250,31 @@
     <y title="Entries"/>
   </h> 
   
+<!-- m_jet_response_m_npv -->
+  <h id="jet_response_m_npv" type="TH2F" title="Mass response vs NPV - all jets">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="Mass response" n="100" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_response_m_npv_2leadings -->
+  <h id="jet_response_m_npv_2leadings" type="TH2F" title="Mass response vs NPV - 2 leading jets">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="Mass response" n="100" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_response_m_npv_leading -->
+  <h id="jet_response_m_npv_leading" type="TH2F" title="Mass response vs NPV - leading jet">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="Mass response" n="100" lo="0." hi="5."/>
+  </h> 
+  
+<!-- m_jet_response_m_npv_subleading -->
+  <h id="jet_response_m_npv_subleading" type="TH2F" title="Mass response vs NPV - subleading jets">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="Mass response" n="100" lo="0." hi="5."/>
+  </h> 
+
+  
 <!-- m_jet_pseudoresponse_m -->
   <h id="jet_pseudoresponse_m" type="TH1F" title="Mass pseudo response - all jets">
     <x title="Mass pseudoresponse" n="100" lo="0." hi="5."/>
@@ -391,6 +416,30 @@
 <!-- m_jet_resolution_m_subleading -->
   <h id="jet_resolution_m_subleading" type="TH1F" title="Mass resolution - subleading jet">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
+    <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+  
+<!-- m_jet_resolution_m_npv -->
+  <h id="jet_resolution_m_npv" type="TH1F" title="Mass resolution - all jets">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_resolution_m_npv_2leadings -->
+  <h id="jet_resolution_m_npv_2leadings" type="TH1F" title="Mass resolution - 2 leading jets">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_resolution_m_npv_leading -->
+  <h id="jet_resolution_m_npv_leading" type="TH1F" title="Mass resolution - leading jet">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_resolution_m_npv_subleading -->
+  <h id="jet_resolution_m_npv_subleading" type="TH1F" title="Mass resolution - subleading jet">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
     <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
@@ -1921,6 +1970,13 @@
   <h id="tcc_pt_truth_pt" type="TH2F" title="TCC p_{T} vs Truth p_{T}">
     <x title="TrackCaloCluster p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
     <y title="Truth p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+  </h>
+  
+  <!-- m_tcc_N_M -->
+  <h id="tcc_N_M" type="TH2F" title="TCC N vs M">
+    <x title="# Matched Clusters"  n="100" lo="-0.5" hi="99.5" />
+    <y title="# Matched Tracks"    n="100" lo="-0.5" hi="99.5" />
+    <z title="Entries" />
   </h>
   
   <!-- m_clusters_all_neutral_eta -->

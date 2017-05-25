@@ -61,6 +61,12 @@ private:
   
   ///Jet Collection container
   // std::string m_jetContainerName;
+  
+  bool m_storeStats;
+  
+  void storeStats(const xAOD::TrackParticleClusterAssociationContainer* associatedClusters,
+		  const xAOD::CaloClusterContainer* allClusters, 
+		  const xAOD::TrackParticleContainer* allTracks);
     
 };
   
