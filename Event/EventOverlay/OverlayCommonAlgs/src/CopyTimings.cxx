@@ -29,15 +29,15 @@ StatusCode CopyTimings::overlayFinalize()
 //================================================================
 StatusCode CopyTimings::overlayExecute() {
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "CopyTimings::execute() begin"<< endreq;
+  log << MSG::DEBUG << "CopyTimings::execute() begin"<< endmsg;
 
   std::auto_ptr<RecoTimingObj> ap(m_storeGateData->retrievePrivateCopy<RecoTimingObj>("EVNTtoHITS_timings"));
   if (!m_storeGateOutput->record(ap, "EVNTtoHITS_timings").isSuccess()) {
-    log << MSG::ERROR << "problem recording object p=" << ap.get() << ", key=" << "EVNTtoHITS_timings" << endreq;
+    log << MSG::ERROR << "problem recording object p=" << ap.get() << ", key=" << "EVNTtoHITS_timings" << endmsg;
     return StatusCode::FAILURE;
   }
 
-  log << MSG::DEBUG << "CopyTimings::execute() end"<< endreq;
+  log << MSG::DEBUG << "CopyTimings::execute() end"<< endmsg;
   return StatusCode::SUCCESS;
 }
 
