@@ -16,7 +16,7 @@ parser.add_argument('--plotdir', type=str, help='Directory to dump plots',
                     default='plots')
 parser.add_argument('--mudep', type=int, help='Run mu-dependent efficiencies',
                     default=0)
-parser.add_argument('--dblivetime', type=bool, action='store_true',
+parser.add_argument('--dblivetime', action='store_true',
                     help='Look up livetime from DB')
 args = parser.parse_args()
 
@@ -149,7 +149,7 @@ for iov in iovs_acct:
     if not lbmin < iov.LumiBlock < lbmax:
         continue
     lb_lhcfill[iov.LumiBlock] = iov.FillNumber
-    if args.lblivetime:
+    if args.dblivetime:
         livetime.Fill(iov.LumiBlock, iov.LiveFraction)
     #print iov.InstLumi, iovs_lum[iov.LumiBlock-1].LBAvInstLumi
     official_lum_zero.Fill(iov.LumiBlock, iov.InstLumi/1e3)
