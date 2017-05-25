@@ -138,7 +138,7 @@ public:
    void FillSummaryHistos(PixelMon2DMaps* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2);
    int ParseDetailsString(std::string & detailsMod);
    bool OnTrack(Identifier id, bool isCluster);
-   int getErrorCategory(int bit, bool isibl);
+   int getErrorState(int bit, bool isibl);
 	std::string makeHistname(std::string set, bool ontrk);
 	std::string makeHisttitle(std::string set, std::string axis, bool ontrk);
    bool GetFEID( int pixlayer, int phiid, int etaid, int &oufephi, int &outfeeta);
@@ -536,32 +536,24 @@ private:
    ///
    static const int      kNumErrorBits{32};
    static const int      kNumErrorStates{16};
-   TProfile_LW*          m_ErrorFraction_per_evt[ErrorCategory::COUNT][PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_errors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_SyncErrors_per_lumi_PIX;
-   TProfile_LW*          m_SyncErrors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_SyncErrors_Mod_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_SyncErrors_ROD_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_OpticalErrors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_SEU_Errors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_TruncationErrors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_TruncationErrors_Mod_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_TruncationErrors_ROD_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_TimeoutErrors_per_lumi_mod[PixLayerIBL2D3D::COUNT]; 
+   TProfile_LW*          m_errhist_errcat_LB[PixLayerIBL2D3D::COUNT][ErrorCategory::COUNT];
+   TProfile_LW*          m_errhist_errtype_LB[PixLayerIBL2D3D::COUNT][ErrorCategoryMODROD::COUNT - 3];
+   PixelMon2DMapsLW*     m_errhist_errcat_map[ErrorCategory::COUNT];
+   PixelMon2DMapsLW*     m_errhist_errtype_map[ErrorCategoryMODROD::COUNT];
+   TProfile_LW*          m_errhist_errcat_avg[ErrorCategory::COUNT][PixLayerIBL2D3D::COUNT];
+   TProfile_LW*          m_errhist_tot_LB[PixLayerIBL2D3D::COUNT];
+   TProfile2D_LW*        m_errhist_per_bit_LB[PixLayerIBL2D3D::COUNT];
+   TProfile2D_LW*        m_errhist_per_type_LB[PixLayerIBL2D3D::COUNT];
+   TProfile_LW*          m_errhist_syncerr_LB_pix;
    TProfile*             m_error_time1;       
    TProfile*             m_error_time2;       
    TProfile*             m_error_time3;       
    PixelMonModules1D*    m_errors;
-   PixelMon2DMapsLW*     m_ErrorTypeMap[ErrorCategoryMODROD::COUNT];
-   PixelMon2DMapsLW*     m_ErrorCategoryMap[ErrorCategory::COUNT];
-   TProfile2D_LW*        m_ErrorBit_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile2D_LW*        m_Error_per_lumi_mod[PixLayerIBL2D3D::COUNT];
 
    // Histograms in 'ErrorsExpert' folder
    PixelMon2DLumiMaps*   m_errhist_expert_LB_maps[kNumErrorStates];
    PixelMon2DMapsLW*     m_errhist_expert_maps[kNumErrorStates];
    TProfile_LW*          m_errhist_expert_LB[PixLayer::COUNT-1][kNumErrorStates];
-   TH1I_LW*              m_errhist_expert_badmod_bits[PixLayer::COUNT];
    TH3F*                 m_errhist_expert_fe_trunc_err_3d[PixLayer::COUNT];
    TH1F_LW*              m_errhist_expert_servrec_ibl_unweighted;
    TH1F_LW*              m_errhist_expert_servrec_ibl_weighted;
