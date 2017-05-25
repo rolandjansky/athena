@@ -49,7 +49,11 @@ TCCPlots::TCCPlots(TCCPlotsBase* pParent, const std::string& sDir, const std::st
   m_jet_response_m_pt_subleading    (nullptr),
   m_jet_response_pt_subleading      (nullptr),
   m_jet_response_eta_subleading     (nullptr),
-  m_jet_response_phi_subleading     (nullptr), 
+  m_jet_response_phi_subleading     (nullptr),
+  m_jet_response_m_npv              (nullptr),
+  m_jet_response_m_npv_2leadings    (nullptr),
+  m_jet_response_m_npv_leading      (nullptr),
+  m_jet_response_m_npv_subleading   (nullptr),
   m_jet_pseudoresponse_m            (nullptr),
   m_jet_pseudoresponse_pt           (nullptr),
   m_jet_pseudoresponse_m_2leadings  (nullptr),
@@ -74,6 +78,10 @@ TCCPlots::TCCPlots(TCCPlotsBase* pParent, const std::string& sDir, const std::st
   m_jet_resolution_m_2leadings      (nullptr),
   m_jet_resolution_m_leading        (nullptr),
   m_jet_resolution_m_subleading     (nullptr),
+  m_jet_resolution_m_npv            (nullptr),
+  m_jet_resolution_m_npv_2leadings  (nullptr),
+  m_jet_resolution_m_npv_leading    (nullptr),
+  m_jet_resolution_m_npv_subleading (nullptr),
   m_jet_mopt_pt_response_m                   (nullptr),  
   m_jet_mopt_pt_response_m_2leadings         (nullptr),  
   m_jet_mopt_pt_response_m_leading           (nullptr),  
@@ -327,6 +335,7 @@ TCCPlots::TCCPlots(TCCPlotsBase* pParent, const std::string& sDir, const std::st
   m_tcc_pt_response                                         (nullptr),
   m_tcc_pt_track_pt                                         (nullptr),
   m_tcc_pt_pseudoresponse                                   (nullptr),
+  m_tcc_N_M                                                 (nullptr),
   m_trk_tcc_reco_pt_truth_pt                                (nullptr),
   m_trk_tcc_reco_pt_response                                (nullptr) {
 }
@@ -395,6 +404,10 @@ void TCCPlots::initializePlots() {
     book(m_jet_response_phi_leading                  , "jet_response_phi_leading"                 );
     book(m_jet_response_eta_subleading               , "jet_response_eta_subleading"              );
     book(m_jet_response_phi_subleading               , "jet_response_phi_subleading"              );
+    book(m_jet_response_m_npv                        , "jet_response_m_npv"                       );
+    book(m_jet_response_m_npv_2leadings              , "jet_response_m_npv_2leadings"             );
+    book(m_jet_response_m_npv_leading                , "jet_response_m_npv_leading"               );
+    book(m_jet_response_m_npv_subleading             , "jet_response_m_npv_subleading"            );
     book(m_jet_pseudoresponse_m                      , "jet_pseudoresponse_m"                     );
     book(m_jet_pseudoresponse_pt                     , "jet_pseudoresponse_pt"                    );
     book(m_jet_pseudoresponse_m_2leadings            , "jet_pseudoresponse_m_2leadings"           );
@@ -419,6 +432,10 @@ void TCCPlots::initializePlots() {
     book(m_jet_resolution_m_2leadings                , "jet_resolution_m_2leadings"               );
     book(m_jet_resolution_m_leading                  , "jet_resolution_m_leading"                 );
     book(m_jet_resolution_m_subleading               , "jet_resolution_m_subleading"              );
+    book(m_jet_resolution_m_npv                      , "jet_resolution_m_npv"                     );
+    book(m_jet_resolution_m_npv_2leadings            , "jet_resolution_m_npv_2leadings"           );
+    book(m_jet_resolution_m_npv_leading              , "jet_resolution_m_npv_leading"             );
+    book(m_jet_resolution_m_npv_subleading           , "jet_resolution_m_npv_subleading"          );
     book(m_jet_mopt_pt_response_m                    , "jet_mopt_pt_response_m"                   );
     book(m_jet_mopt_pt_response_m_2leadings          , "jet_mopt_pt_response_m_2leadings"         );
     book(m_jet_mopt_pt_response_m_leading            , "jet_mopt_pt_response_m_leading"           );
@@ -684,6 +701,7 @@ void TCCPlots::initializePlots() {
     book(m_tcc_pt_track_pt                , "tcc_pt_track_pt"                      );
     book(m_tcc_pt_truth_pt                , "tcc_pt_truth_pt"                      );
     book(m_tcc_pt_response                , "tcc_pt_response"                      );
+    book(m_tcc_N_M                        , "tcc_N_M"                              );
     
     book(m_trk_tcc_reco_pt_truth_pt                                  , "trk_tcc_reco_pt_truth_pt"                                 );
     book(m_trk_tcc_reco_pt_response                                  , "trk_tcc_reco_pt_response"                                 );
@@ -717,12 +735,14 @@ void TCCPlots::fillResponse(const xAOD::Jet& jet, const xAOD::Jet& truth) {
   fillHisto(m_jet_response_phi   , jet.phi()/truth.phi()      , m_eventWeight);
   
   fillHisto(m_jet_response_m_pt  , truth.pt()/GeV, jet.m()/truth.m() , m_eventWeight);
-  
+    
   static SG::AuxElement::Accessor<float> accD2("D2");
-  if (accD2.isAvailable(jet) and accD2.isAvailable(truth)) {
-    fillHisto(m_jet_response_d2 , accD2(jet)/accD2(truth), m_eventWeight);
-    fillHisto(m_jet_response_d2 , accD2(jet)/accD2(truth), m_eventWeight);
-  }
+  if (accD2.isAvailable(jet) and accD2.isAvailable(truth))
+    fillHisto(m_jet_response_d2 , accD2(jet)/accD2(truth), m_eventWeight);  
+}
+
+void TCCPlots::fillResponseNPV(const xAOD::Jet& jet, const xAOD::Jet& truth, int npv) {
+  fillHisto(m_jet_response_m_npv  , npv, jet.m()/truth.m() , m_eventWeight);
 }
 
 void TCCPlots::fillResponseNoPtNoMassCuts(const xAOD::Jet& jet, const xAOD::Jet& truth) {
@@ -732,10 +752,8 @@ void TCCPlots::fillResponseNoPtNoMassCuts(const xAOD::Jet& jet, const xAOD::Jet&
   fillHisto(m_jet_mopt_pt_response_phi   , truth.pt()/GeV, truth.m()/truth.pt(), jet.phi()/truth.phi(), m_eventWeight);
     
   static SG::AuxElement::Accessor<float> accD2("D2");
-  if (accD2.isAvailable(jet) and accD2.isAvailable(truth)) {
+  if (accD2.isAvailable(jet) and accD2.isAvailable(truth))
     fillHisto(m_jet_mopt_pt_response_d2 , truth.pt()/GeV, truth.m()/truth.pt(), accD2(jet)/accD2(truth), m_eventWeight);
-    fillHisto(m_jet_mopt_pt_response_d2 , truth.pt()/GeV, truth.m()/truth.pt(), accD2(jet)/accD2(truth), m_eventWeight);
-  }
 }
 
 void TCCPlots::fillPseudoResponse(const xAOD::Jet& jet, const xAOD::Jet& calo) {
@@ -807,6 +825,11 @@ void TCCPlots::fillResponseLeading(const xAOD::Jet& jet, const xAOD::Jet& truth)
   }
 }
 
+void TCCPlots::fillResponseLeadingNPV(const xAOD::Jet& jet, const xAOD::Jet& truth, int npv) {
+  fillHisto(m_jet_response_m_npv_2leadings  , npv, jet.m()/truth.m() , m_eventWeight);
+  fillHisto(m_jet_response_m_npv_leading    , npv, jet.m()/truth.m() , m_eventWeight);
+}
+
 void TCCPlots::fillResponseNoPtNoMassCutsLeading(const xAOD::Jet& jet, const xAOD::Jet& truth) {
   fillHisto(m_jet_mopt_pt_response_m_leading       , truth.pt()/GeV, truth.m()/truth.pt(), jet.m() /truth.m()   , m_eventWeight);
   fillHisto(m_jet_mopt_pt_response_m_2leadings     , truth.pt()/GeV, truth.m()/truth.pt(), jet.m() /truth.m()   , m_eventWeight);
@@ -853,6 +876,11 @@ void TCCPlots::fillResponseSubLeading(const xAOD::Jet& jet, const xAOD::Jet& tru
     fillHisto(m_jet_response_d2_2leadings    , accD2(jet)/accD2(truth), m_eventWeight);
     fillHisto(m_jet_response_d2_subleading   , accD2(jet)/accD2(truth), m_eventWeight);
   }
+}
+
+void TCCPlots::fillResponseSubLeadingNPV(const xAOD::Jet& jet, const xAOD::Jet& truth, int npv) {
+  fillHisto(m_jet_response_m_npv_2leadings  , npv, jet.m()/truth.m() , m_eventWeight);
+  fillHisto(m_jet_response_m_npv_subleading , npv, jet.m()/truth.m() , m_eventWeight);
 }
 
 void TCCPlots::fillResponseNoPtNoMassCutsSubLeading(const xAOD::Jet& jet, const xAOD::Jet& truth) {
@@ -1416,7 +1444,7 @@ void TCCPlots::fillCluster(const xAOD::CaloCluster& cluster) {
   
   static SG::AuxElement::Accessor< float > acc_calE( "calE" );
   
-  if (acc_calE.isAvailable(cluster) and acc_neutral(cluster)==1) {
+  if (acc_calE.isAvailable(cluster) and acc_neutral.isAvailable(cluster) and acc_neutral(cluster)==1) {
     fillHisto(m_clusters_pt_fraction_e, cluster.e()/GeV, acc_pt_fraction(cluster), m_eventWeight);
     if (acc_isPV0(cluster)==1)
       fillHisto(m_clusters_PV0_pt_fraction_e, cluster.e()/GeV, acc_pt_fraction(cluster), m_eventWeight);
@@ -1464,12 +1492,30 @@ void TCCPlots::fillTCC(const xAOD::TrackCaloCluster& tcc) {
         fillHisto(m_trk_tcc_reco_pt_truth_pt, track->pt()/GeV, assTruth->pt()/GeV, m_eventWeight);
         fillHisto(m_trk_tcc_reco_pt_response, track->pt()/assTruth->pt()         , m_eventWeight);
       }
+      
+      
+      //- There is one track matching a given number of clusters , N : size of the caloClusterLinks()
+      //- Each of those clusters matches a given number of tracks, M : size of MatchingTracks
+      //std::cout << "Size of the cluster vector: "<< tcc.caloClusterLinks().size() << std::endl;    
+      
+      if (tcc.caloClusterLinks().size()) {
+	int N = tcc.caloClusterLinks().size();
+	for (size_t c = 0; c < tcc.caloClusterLinks().size(); ++c) {
+	  const xAOD::CaloCluster* cluster = *(tcc.caloClusterLinks().at(c));
+	  static SG::AuxElement::Accessor< std::vector<ElementLink<xAOD::TrackParticleContainer>> > acc_links( "MatchingTracks" );
+	  if (acc_links.isAvailable(*cluster)) {
+	    int M = acc_links(*cluster).size();
+	    //std::cout << "Size of the track vector: "<< acc_links(*cluster).size() << std::endl;  
+	    fillHisto(m_tcc_N_M, N, M, m_eventWeight);
+	  }
+	} // for caloClusterLinks
+      } // if caloClusterLinks().size
     }
 }
 
 void TCCPlots::finalizePlots() {
   if (m_collectionType!= "")
-    std::cout << "Finalising " << m_collectionType << std::endl;
+    std::cout << "Finalising " << m_collectionType << " in folder " << m_folder << std::endl;
   
   if (m_collectionType == "jets") {
     
@@ -1530,6 +1576,11 @@ void TCCPlots::finalizePlots() {
     make_median(m_jet_mopt_pt_response_d2_2leadings      , m_jet_resolution_mopt_pt_d2_2leadings    );
     make_median(m_jet_mopt_pt_response_d2_leading        , m_jet_resolution_mopt_pt_d2_leading      );
     make_median(m_jet_mopt_pt_response_d2_subleading     , m_jet_resolution_mopt_pt_d2_subleading   );  
+    
+    make_median(m_jet_response_m_npv                      , m_jet_resolution_m_npv                  );
+    make_median(m_jet_response_m_npv_2leadings            , m_jet_resolution_m_npv_2leadings        );  
+    make_median(m_jet_response_m_npv_leading              , m_jet_resolution_m_npv_leading          );
+    make_median(m_jet_response_m_npv_subleading           , m_jet_resolution_m_npv_subleading       );
   
   } else if (m_collectionType == "tracks") {
     //pt + prod radius th2

@@ -13,7 +13,8 @@
 TrackCaloClusterRecAlg::TrackCaloClusterRecAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthAlgorithm( name, pSvcLocator ),
   m_trackCaloClusterWeightsTool("TrackCaloClusterRecTools/TrackCaloClusterWeightsTool"),
-  m_trackCaloClusterCreatorTool("TrackCaloClusterRecTools/TrackCaloClusterCreatorTool") {
+  m_trackCaloClusterCreatorTool("TrackCaloClusterRecTools/TrackCaloClusterCreatorTool"),
+  m_storeStats(false) {
       
     declareProperty("TrackParticleContainerName"   ,    m_trkParticleName                 = "InDetTrackParticles"   );
     declareProperty("OutputCollectionPostFix"      ,    m_outputPostFix                   = ""                      );
@@ -21,6 +22,7 @@ TrackCaloClusterRecAlg::TrackCaloClusterRecAlg( const std::string& name, ISvcLoc
     declareProperty("TrackCaloClusterContainerName",    m_trackCaloClusterContainerName   = "TrackCaloClusters"     );
     declareProperty("TrackCaloClusterWeightsTool"  ,    m_trackCaloClusterWeightsTool                               );
     declareProperty("TrackCaloClusterCreatorTool"  ,    m_trackCaloClusterCreatorTool                               );
+    declareProperty("StoreStatistics"              ,    m_storeStats                                                );
   }
   
 TrackCaloClusterRecAlg::~TrackCaloClusterRecAlg() {}
@@ -134,5 +136,79 @@ StatusCode TrackCaloClusterRecAlg::execute() {
     // Create trackonly xAOD::TCC
     m_trackCaloClusterCreatorTool->createChargedTCCs(tccContainer3, allTracks, &TrackTotalClusterPt);
     
+    if (m_storeStats) storeStats(associatedClusters, allClusters, allTracks);
+    
   return StatusCode::SUCCESS;
 }
+
+void TrackCaloClusterRecAlg::storeStats(const xAOD::TrackParticleClusterAssociationContainer* associatedClusters,
+                                        const xAOD::CaloClusterContainer* allClusters,
+					const xAOD::TrackParticleContainer* /*allTracks*/) {
+  
+//   std::map < const xAOD::TrackParticle*, int> NumClusters_toTracks;
+  std::map < const xAOD::CaloCluster*, std::vector < ElementLink < xAOD::TrackParticleContainer > > > NumTracks_toClusters;
+  
+  // First loop to fill cluster-to-tracks map
+  for ( const auto* assocClusters : *associatedClusters ) {
+    // flollow the link to the track particle
+    
+//     const xAOD::TrackParticle* trk = 0;
+//     if (assocClusters->trackParticleLink().isValid())
+//       trk = *(assocClusters->trackParticleLink());
+//     else if ( !assocClusters->trackParticleLink().isValid() )
+//       ATH_MSG_ERROR ("trackParticleLink is not valid! " );
+      
+    // filling the number of clusters matched to a track
+//     NumClusters_toTracks.insert(std::make_pair(trk, assocClusters->caloClusterLinks().size()));
+    
+    // follow the link to the calorimeter clusters
+    if (assocClusters->caloClusterLinks().size()) {
+      for (size_t c = 0; c < assocClusters->caloClusterLinks().size(); ++c) {
+	const xAOD::CaloCluster* cluster = *(assocClusters->caloClusterLinks().at(c));
+	if (NumTracks_toClusters.find(cluster) == NumTracks_toClusters.end()) 
+	  NumTracks_toClusters.insert(std::make_pair(cluster, std::vector<ElementLink<xAOD::TrackParticleContainer>>()));
+	NumTracks_toClusters.at(cluster).push_back(assocClusters->trackParticleLink());
+// 	  NumTracks_toClusters.insert(std::make_pair(cluster, std::make_pair(0, std::vector<ElementLink<xAOD::TrackParticleContainer>>())));
+// 	NumTracks_toClusters.at(cluster).first++;
+// 	NumTracks_toClusters.at(cluster).second.push_back(assocClusters->trackParticleLink());
+      }
+    }
+  }
+  
+  
+  for ( const auto* cluster : *allClusters ) {
+    if (NumTracks_toClusters.find(cluster) == NumTracks_toClusters.end())
+      NumTracks_toClusters.insert(std::make_pair(cluster, std::vector<ElementLink<xAOD::TrackParticleContainer>>()));
+    cluster->auxdecor<std::vector<ElementLink<xAOD::TrackParticleContainer>>>("MatchingTracks") = NumTracks_toClusters.at(cluster);
+//       NumTracks_toClusters.insert(std::make_pair(cluster, std::make_pair(0, std::vector<ElementLink<xAOD::TrackParticleContainer>>())));
+//     cluster->auxdecor<int>("NumberMatchingTracks") = NumTracks_toClusters.at(cluster).first;    
+//     cluster->auxdecor<std::vector<ElementLink<xAOD::TrackParticleContainer>>>("MatchingTracks") = NumTracks_toClusters.at(cluster).second;    
+  }
+  
+  /*for ( const auto* track : *allTracks ) {
+    if (NumClusters_toTracks.find(track) == NumClusters_toTracks.end())
+      NumClusters_toTracks.insert(std::make_pair(track, 0));
+    track->auxdecor<int>("NumberMatchingClusters") = NumClusters_toTracks.at(track);    
+  }*/ 
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

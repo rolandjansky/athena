@@ -34,6 +34,7 @@ TrackCaloClusterRecValidationTool::TrackCaloClusterRecValidationTool(const std::
   declareProperty("SaveJetInfo"                 , m_saveJetInfo = true);
   declareProperty("JetTruthContainerName"       , m_truthJetContainerName);
   declareProperty("JetContainerNames"           , m_jetContainerNames);
+  declareProperty("PrimaryVertexContainerName"  , m_vertexContainerName = "PrimaryVertices");
   declareProperty("TopoJetReferenceName"        , m_topoJetReferenceName = "AntiKt10LCTopoJets");
   declareProperty("TopoTrimmedJetReferenceName" , m_topoTrimmedJetReferenceName = "AntiKt10LCTopoTrimmedJets");
   declareProperty("maxTrkJetDR"                 , m_maxJetDR = 0.75);
@@ -114,6 +115,8 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
     const auto truths = getContainer<xAOD::JetContainer>(m_truthJetContainerName);
     if (not truths) return StatusCode::FAILURE;
     
+    const auto vertices = getContainer<xAOD::VertexContainer>(m_vertexContainerName);
+        
     // retrieve jet container
     for (auto name : m_jetContainerNames) {
       m_tccPlots.at(name)->setEventWeight(mcEventWeight);
@@ -160,6 +163,9 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
 	// if truth_matched exists, fill the jet histograms + truth matched
 	m_tccPlots.at(name)->fillResponse(*jet,*truth_matched);
 	m_tccPlots.at(name)->fillMomentsWithMassCut(*jet);
+	
+	if (vertices)
+	  m_tccPlots.at(name)->fillResponseNPV(*jet,*truth_matched,vertices->size());
 	
 	// get the calo matched
 	const xAOD::Jet* calo_matched = ClusterMatched(jet,caloclusters);
@@ -256,6 +262,8 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
 	if (truth_matches.at(0) and (truth_matches.at(0)->m()>m_minMass and truth_matches.at(0)->m()<m_maxMass)) {
 	  m_tccPlots.at(name)->fillMomentsLeadingWithMassCut(*leadings.at(0));
 	  m_tccPlots.at(name)->fillResponseLeading(*leadings.at(0),*truth_matches.at(0));
+	  if (vertices)
+	    m_tccPlots.at(name)->fillResponseLeadingNPV(*leadings.at(0),*truth_matches.at(0),vertices->size());
 	  if (calo_matches.at(0))
 	    m_tccPlots.at(name)->fillPseudoResponseLeading(*leadings.at(0),*calo_matches.at(0));
 	}
@@ -267,6 +275,8 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
 	if (truth_matches.at(1) and (truth_matches.at(1)->m()>m_minMass and truth_matches.at(1)->m()<m_maxMass)) {
 	  m_tccPlots.at(name)->fillMomentsSubLeadingWithMassCut(*leadings.at(1));
 	  m_tccPlots.at(name)->fillResponseSubLeading(*leadings.at(1),*truth_matches.at(1));
+	  if (vertices)
+	    m_tccPlots.at(name)->fillResponseSubLeadingNPV(*leadings.at(1),*truth_matches.at(1),vertices->size());
 	  if (calo_matches.at(1))
 	    m_tccPlots.at(name)->fillPseudoResponseSubLeading(*leadings.at(1),*calo_matches.at(1));
 	}
@@ -291,8 +301,7 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
       m_tccPlots.at(m_trackParticleCollectionName)->fillCaloEntryInfo(*track);
       m_tccPlots.at(m_trackParticleCollectionName)->fillPerigeeInfo(*track);
       m_tccPlots.at(m_trackParticleCollectionName)->fillPerigeeVsCaloEntry(*track);
-    }
-    
+    }    
   }
   
   // Getting the collections for the CaloClusters

@@ -31,6 +31,8 @@ TrackCaloClusterCreatorTool::~TrackCaloClusterCreatorTool() {}
 
 StatusCode TrackCaloClusterCreatorTool::initialize() {
   ATH_CHECK(m_loosetrackvertexassoTool.retrieve());
+  if (m_applyFilter)
+    ATH_CHECK(m_clusterFilterTool.retrieve());
   return StatusCode::SUCCESS;
 }
 

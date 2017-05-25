@@ -35,6 +35,10 @@ public:
   void fillResponseNoPtNoMassCutsLeading(const xAOD::Jet& jet, const xAOD::Jet& truth);
   void fillResponseNoPtNoMassCutsSubLeading(const xAOD::Jet& jet, const xAOD::Jet& truth);
   
+  void fillResponseNPV(const xAOD::Jet& jet, const xAOD::Jet& truth, int NPV);
+  void fillResponseLeadingNPV(const xAOD::Jet& jet, const xAOD::Jet& truth, int NPV);
+  void fillResponseSubLeadingNPV(const xAOD::Jet& jet, const xAOD::Jet& truth, int NPV);
+    
   void fillPseudoResponse(const xAOD::Jet& jet, const xAOD::Jet& calo);
   void fillPseudoResponseLeading(const xAOD::Jet& jet, const xAOD::Jet& calo);
   void fillPseudoResponseSubLeading(const xAOD::Jet& jet, const xAOD::Jet& calo);
@@ -133,6 +137,11 @@ private:
   TH1* m_jet_response_eta_subleading       ;
   TH1* m_jet_response_phi_subleading       ;
   
+  TH2* m_jet_response_m_npv                ;
+  TH2* m_jet_response_m_npv_2leadings      ;
+  TH2* m_jet_response_m_npv_leading        ;
+  TH2* m_jet_response_m_npv_subleading     ;
+  
   TH1* m_jet_pseudoresponse_m              ;
   TH1* m_jet_pseudoresponse_pt             ;
   
@@ -164,6 +173,11 @@ private:
   TH1* m_jet_resolution_m_2leadings        ;
   TH1* m_jet_resolution_m_leading          ;
   TH1* m_jet_resolution_m_subleading       ;  
+  
+  TH1* m_jet_resolution_m_npv              ;
+  TH1* m_jet_resolution_m_npv_2leadings    ;
+  TH1* m_jet_resolution_m_npv_leading      ;
+  TH1* m_jet_resolution_m_npv_subleading   ;  
   
   TH3* m_jet_mopt_pt_response_m                  ;
   TH3* m_jet_mopt_pt_response_m_2leadings        ;
@@ -433,6 +447,7 @@ private:
   TH1* m_tcc_pt_response                                          ;
   TH2* m_tcc_pt_track_pt                                          ;
   TH1* m_tcc_pt_pseudoresponse                                    ;
+  TH2* m_tcc_N_M                                                  ;
   
   TH2* m_trk_tcc_reco_pt_truth_pt                                 ;
   TH1* m_trk_tcc_reco_pt_response                                 ;   

@@ -56,6 +56,8 @@ private:
     
     std::vector<std::string> m_jetContainerNames;
     
+    std::string m_vertexContainerName;
+    
     std::string m_topoJetReferenceName;
     std::string m_topoTrimmedJetReferenceName;
 
