@@ -61,4 +61,12 @@
 	<class name="L1CaloDisabledTowersContainer" id="C3641506-70A4-4F96-844C-6B7B74F8A48C" />
 	<class name="L1CaloDisabledTowersContainer::const_iterator" />
 	<class name="L1CaloDisabledTowers" />
+
+	<class name="L1CaloPprChanStrategyContainer" id="E1ADA778-3F76-4774-BBE4-A384BF2E268D" />
+    <class name="L1CaloPprChanStrategyContainer::const_iterator" />
+    <class name="L1CaloPprChanStrategy" />
+
+    <class name="L1CaloDerivedRunParsContainer" id="F6852A0F-35C3-4FCF-B6C0-22CB27EA1857" />
+   	<class name="L1CaloDerivedRunParsContainer::const_iterator" />
+    <class name="L1CaloDerivedRunPars" />
 </lcgdict>
