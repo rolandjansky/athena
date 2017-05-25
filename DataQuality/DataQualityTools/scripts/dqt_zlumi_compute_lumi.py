@@ -16,6 +16,8 @@ parser.add_argument('--plotdir', type=str, help='Directory to dump plots',
                     default='plots')
 parser.add_argument('--mudep', type=int, help='Run mu-dependent efficiencies',
                     default=0)
+parser.add_argument('--dblivetime', type=bool, action='store_true',
+                    help='Look up livetime from DB')
 args = parser.parse_args()
 
 BINWIDTH=10
@@ -121,8 +123,12 @@ lb_length = fin.Get('%s/GLOBAL/DQTGlobalWZFinder/m_lblength_lb' % runname)
 lbmin, lbmax = lb_length.GetXaxis().GetXmin(), lb_length.GetXaxis().GetXmax()
 logging.info('low, high LBs: %s, %s', lbmin, lbmax)
 
-logging.info('Starting livetime lookup ... (remove when we have a proper in-file implementation ...)')
-livetime = ROOT.TProfile('livetime', 'Livetime', int(lbmax-lbmin), lbmin, lbmax)
+if args.dblivetime:
+    logging.info('Starting livetime lookup ... (remove when we have a proper in-file implementation ...)')
+    livetime = ROOT.TProfile('livetime', 'Livetime', int(lbmax-lbmin), lbmin, lbmax)
+else:
+    livetime = fin.Get('%s/GLOBAL/DQTGlobalWZFinder/m_livetime_lb' % runname)
+
 official_lum = ROOT.TProfile('official_lum', 'official integrated luminosity', int(lbmax-lbmin), lbmin, lbmax)
 official_lum_zero = ROOT.TProfile('official_lum_zero', 'official inst luminosity', int(lbmax-lbmin), lbmin, lbmax)
 official_mu = ROOT.TProfile('official_mu', 'official mu', int(lbmax-lbmin), lbmin, lbmax)
@@ -143,7 +149,8 @@ for iov in iovs_acct:
     if not lbmin < iov.LumiBlock < lbmax:
         continue
     lb_lhcfill[iov.LumiBlock] = iov.FillNumber
-    livetime.Fill(iov.LumiBlock, iov.LiveFraction)
+    if args.lblivetime:
+        livetime.Fill(iov.LumiBlock, iov.LiveFraction)
     #print iov.InstLumi, iovs_lum[iov.LumiBlock-1].LBAvInstLumi
     official_lum_zero.Fill(iov.LumiBlock, iov.InstLumi/1e3)
     official_lum.Fill(iov.LumiBlock, iov.InstLumi*iov.LBTime*iov.LiveFraction/1e3)
