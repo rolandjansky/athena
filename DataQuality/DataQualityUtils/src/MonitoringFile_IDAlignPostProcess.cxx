@@ -2462,17 +2462,14 @@ Make1DProfile(TH1* output, TH2* histo)
 {   
    int nXbins = histo->GetXaxis()->GetNbins(); //NEED TO CHANGE THIS 
    
-   double current_mu[nXbins];
-   double current_err_mu[nXbins];
-   double current_sigma[nXbins];
-   double current_err_sigma[nXbins];
+   double current_mu, current_err_mu, current_sigma, current_err_sigma;
 
    for(int i=0;i<nXbins;i++) {
    	TH1D * projection = histo->ProjectionY("projection",i+1,i+1);
-   	IterativeGaussFit(projection, current_mu[i], current_err_mu[i], current_sigma[i], current_err_sigma[i]);
+   	IterativeGaussFit(projection, current_mu, current_err_mu, current_sigma, current_err_sigma);
         
- 	output->SetBinContent(i,current_mu[i]);
-        output->SetBinError(i,current_err_mu[i]);
+ 	output->SetBinContent(i,current_mu);
+        output->SetBinError(i,current_err_mu);
    }
 }
 
