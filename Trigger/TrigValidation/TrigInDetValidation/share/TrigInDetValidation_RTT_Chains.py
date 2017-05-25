@@ -216,7 +216,7 @@ def beamspotChains(doIDNewTracking, doFTK):
   if doFTK:
     idTrigChainlist.append(['beamspot_allTE_FTK',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
     idTrigChainlist.append(['beamspot_idperf_FTK',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
-
+    idTrigChainlist.append(['beamspot_idperf_FTKRefit',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
   
   tidaAnalysischains += [
     #'HLT_beamspot_allTE_L2StarB:TrigL2SiTrackFinder_BeamSpotB',
