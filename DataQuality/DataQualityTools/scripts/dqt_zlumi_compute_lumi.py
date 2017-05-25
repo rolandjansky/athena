@@ -172,6 +172,12 @@ lumiplot_raw_m =  ROOT.TH1F('lumiplot_raw_m', 'Lumi, Z->#mu#mu, per LB',
 num_m, lum, denom, weighted_mu = 0, 0, 0, 0
 tot_num_m, tot_denom, tot_lum = 0, 0, 0
 for ibin in xrange(1, int(lbmax-lbmin)+1):
+    profileflag=True
+    try:
+        z_m[ibin]
+    except IndexError, e:
+        logging.error('Something unfortunate has happened; LB %d missing from Z count' % (ibin + lbmin - 1))
+        profileflag=False
     if args.mudep:
         l_zatimesc = mu_dep_eff(official_mu[ibin])
     else:
@@ -180,12 +186,13 @@ for ibin in xrange(1, int(lbmax-lbmin)+1):
         o_passgrl[0]=0
     else:
         o_passgrl[0]=1
-    if divisor[ibin] > 0:
+    if divisor[ibin] > 0 and profileflag:
         lumiplot_raw_m.SetBinContent(ibin, z_m[ibin]/divisor[ibin]*ZPURITYFACTOR/l_zatimesc/ZXSEC)
         lumiplot_raw_m.SetBinError(ibin, z_m[ibin]**.5/divisor[ibin]*ZPURITYFACTOR/l_zatimesc/ZXSEC)
     o_mu[0] = official_mu[ibin]
     if o_passgrl[0]:
-        num_m += z_m[ibin]; tot_num_m += z_m[ibin]
+        if profileflag:
+            num_m += z_m[ibin]; tot_num_m += z_m[ibin]
         denom += divisor[ibin]; tot_denom += divisor[ibin]
         lum += official_lum[ibin]; tot_lum += official_lum[ibin]
         weighted_mu += o_mu[0]*divisor[ibin]
@@ -197,8 +204,8 @@ for ibin in xrange(1, int(lbmax-lbmin)+1):
         o_lb[0] = int(lumiplot_raw_m.GetBinCenter(ibin))
         o_lbwhen[0] = lb_start_end[o_lb[0]][0]
         o_lbwhen[1] = lb_start_end[o_lb[0]][1]
-        o_zraw[0] = z_m[ibin]
-        o_zrawstat[0] = z_m.GetBinError(ibin)
+        o_zraw[0] = z_m[ibin] if profileflag else 0
+        o_zrawstat[0] = z_m.GetBinError(ibin) if profileflag else 0
         o_zlumi[0] = lumiplot_raw_m[ibin]
         o_zlumistat[0] = lumiplot_raw_m.GetBinError(ibin)
         o_offlumi[0] = official_lum_zero[ibin]
