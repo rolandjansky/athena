@@ -89,7 +89,7 @@ for lb in sorted(lbdirs):
     lbnum = int(lb[3:])
     yld = (h[2], h[3])
     ylderr = (h.GetBinError(2), h.GetBinError(3))
-    print yld, ylderr
+    #print yld, ylderr
     A, B = yld
     o_z_one[0], o_z_two[0] = yld
     if B == 0: continue
