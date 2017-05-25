@@ -2,9 +2,11 @@
 #  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
 
-#
-# get_files LVL1config_Physics_pp_v7.xml
-# 
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.CheckDependencies( True )
+AlgScheduler.OutputLevel( VERBOSE )
+AlgScheduler.ShowDataDependencies( True )
 
 from AthenaCommon.GlobalFlags import globalflags;
 globalflags.DataSource.set_Value_and_Lock("data");
