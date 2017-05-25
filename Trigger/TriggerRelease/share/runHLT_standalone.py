@@ -122,7 +122,7 @@ menuMap={
          'CosmicPPV1':      ('Physics_pp_v1_cosmics_prescale','TriggerMenuXML/LVL1config_Physics_pp_v1.xml'),
 
          #Upgrade menus:       menu name                   L1 xml file
-         'MCPhaseII':       ('MCPhaseII',           'TriggerMenuXML/LVL1config_MC_PhaseII.xml'),
+         'MCPhaseII':       ('MC_PhaseII',           'TriggerMenuXML/LVL1config_MC_PhaseII.xml'),
          }
 
 # Useful in job options beyond our control to always run the latest menu via 'testCurrentMenu=True'
