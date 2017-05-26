@@ -29,27 +29,27 @@
  
 namespace RpcGM 
 {
-std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* m_muonMgr, const RpcIdHelper* m_rpcIdHelper, Identifier prdcoll_id, int  irpctriggerInfo) 
+std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, const RpcIdHelper* rpcIdHelper, Identifier prdcoll_id, int  irpctriggerInfo) 
 {
    
-  int irpcstationPhi	 =   int(m_rpcIdHelper->stationPhi(prdcoll_id))   ;
-  int irpcstationName	 =   int(m_rpcIdHelper->stationName(prdcoll_id))  ;	     
-  int irpcstationEta	 =   int(m_rpcIdHelper->stationEta(prdcoll_id))   ;			     
-  int irpcdoubletR  	 =   int(m_rpcIdHelper->doubletR(prdcoll_id))	  ;		     
-  int irpcdoubletZ  	 =   int(m_rpcIdHelper->doubletZ(prdcoll_id))	  ;
-  int irpcdoubletPhi	 =   int(m_rpcIdHelper->doubletPhi(prdcoll_id))   ;
-  int irpcgasGap	 =   int(m_rpcIdHelper->gasGap(prdcoll_id))	  ;
-  int irpcmeasuresPhi	 =   int(m_rpcIdHelper->measuresPhi(prdcoll_id))  ;
-  int irpcstrip		 =   int(m_rpcIdHelper->strip(prdcoll_id))	  ;
+  int irpcstationPhi	 =   int(rpcIdHelper->stationPhi(prdcoll_id))   ;
+  int irpcstationName	 =   int(rpcIdHelper->stationName(prdcoll_id))  ;	     
+  int irpcstationEta	 =   int(rpcIdHelper->stationEta(prdcoll_id))   ;			     
+  int irpcdoubletR  	 =   int(rpcIdHelper->doubletR(prdcoll_id))	  ;		     
+  int irpcdoubletZ  	 =   int(rpcIdHelper->doubletZ(prdcoll_id))	  ;
+  int irpcdoubletPhi	 =   int(rpcIdHelper->doubletPhi(prdcoll_id))   ;
+  int irpcgasGap	 =   int(rpcIdHelper->gasGap(prdcoll_id))	  ;
+  int irpcmeasuresPhi	 =   int(rpcIdHelper->measuresPhi(prdcoll_id))  ;
+  int irpcstrip		 =   int(rpcIdHelper->strip(prdcoll_id))	  ;
 
   //std::cout << "prd irpcstationName " << irpcstationName<<" irpcstationEta " << irpcstationEta<< " irpcstationPhi " << irpcstationPhi<<" irpcdoubletR " << irpcdoubletR<< " irpcdoubletZ " << irpcdoubletZ <<std::endl;
    
   //get information from geomodel to book and fill rpc histos with the right max strip number
   
-  const MuonGM::RpcReadoutElement* descriptor = m_muonMgr->getRpcReadoutElement(prdcoll_id);
+  const MuonGM::RpcReadoutElement* descriptor = muonMgr->getRpcReadoutElement(prdcoll_id);
   //const MuonGM::RpcReadoutSet*     chamberset = 
-  // const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(irpcstationName-2, irpcstationEta  + 8,  irpcstationPhi-1, irpcdoubletR -1,irpcdoubletZ   -1);
-  // const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields( irpcstationName, irpcstationEta, irpcstationPhi, irpcdoubletR, irpcdoubletZ, irpcdoubletPhi  );
+  // const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcReadoutElement(irpcstationName-2, irpcstationEta  + 8,  irpcstationPhi-1, irpcdoubletR -1,irpcdoubletZ   -1);
+  // const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcRElement_fromIdFields( irpcstationName, irpcstationEta, irpcstationPhi, irpcdoubletR, irpcdoubletZ, irpcdoubletPhi  );
  		      
   std::vector<int>  rpcstriptot  ;
   
@@ -159,7 +159,7 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* m_muonMgr, co
         }
         
 	for(int idbz=1; idbz!= 4; idbz++){
-    	const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(krpcstationName, ieta, irpcstationPhi, krpcdoubletR, idbz, 1 );
+    	const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcRElement_fromIdFields(krpcstationName, ieta, irpcstationPhi, krpcdoubletR, idbz, 1 );
     	if(rpc != NULL ){
 	
 	//std::cout << "loop krpcstationName " << krpcstationName<<" ieta " << ieta<< " irpcstationPhi " << irpcstationPhi<<" krpcdoubletR " << krpcdoubletR<< " idbz " << idbz <<std::endl;
@@ -361,7 +361,7 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* m_muonMgr, co
  
 	for(int iz   =      1; iz   !=   lastdoubletZ+1; iz++	){ 
 	  
-	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(iname, keta, iphi, ir, iz, 1);
+	  const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcRElement_fromIdFields(iname, keta, iphi, ir, iz, 1);
 	  //std::cout <<iname << " "<< keta <<" "<< iphi<<" "<< iz<<" z "<< panel_dbindex<< std::endl; 
     
 	  if(rpc == NULL )continue;
@@ -415,7 +415,7 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* m_muonMgr, co
   return  rpcstriptot ;
 
 }
-std::vector<std::string>    RpcLayerSectorSideName(const RpcIdHelper* m_rpcIdHelper, Identifier prdcoll_id, int  irpctriggerInfo)
+std::vector<std::string>    RpcLayerSectorSideName(const RpcIdHelper* rpcIdHelper, Identifier prdcoll_id, int  irpctriggerInfo)
 {
   
   
@@ -448,14 +448,14 @@ std::vector<std::string>    RpcLayerSectorSideName(const RpcIdHelper* m_rpcIdHel
   std::string sector_dphi_layer            ; 
   	       
  
-  int irpcstationPhi	=   int(m_rpcIdHelper->stationPhi(prdcoll_id))   ;	      
-  int irpcstationName	=   int(m_rpcIdHelper->stationName(prdcoll_id))  ;	      
-  int irpcstationEta	=   int(m_rpcIdHelper->stationEta(prdcoll_id))   ;		      
-  int irpcdoubletR  	=   int(m_rpcIdHelper->doubletR(prdcoll_id))	 ;	      
-  int irpcdoubletZ  	=   int(m_rpcIdHelper->doubletZ(prdcoll_id))	 ;
-  int irpcdoubletPhi	=   int(m_rpcIdHelper->doubletPhi(prdcoll_id))   ;
-  int irpcgasGap	=   int(m_rpcIdHelper->gasGap(prdcoll_id))	 ;
-  int irpcmeasuresPhi	=   int(m_rpcIdHelper->measuresPhi(prdcoll_id))  ;
+  int irpcstationPhi	=   int(rpcIdHelper->stationPhi(prdcoll_id))   ;	      
+  int irpcstationName	=   int(rpcIdHelper->stationName(prdcoll_id))  ;	      
+  int irpcstationEta	=   int(rpcIdHelper->stationEta(prdcoll_id))   ;		      
+  int irpcdoubletR  	=   int(rpcIdHelper->doubletR(prdcoll_id))	 ;	      
+  int irpcdoubletZ  	=   int(rpcIdHelper->doubletZ(prdcoll_id))	 ;
+  int irpcdoubletPhi	=   int(rpcIdHelper->doubletPhi(prdcoll_id))   ;
+  int irpcgasGap	=   int(rpcIdHelper->gasGap(prdcoll_id))	 ;
+  int irpcmeasuresPhi	=   int(rpcIdHelper->measuresPhi(prdcoll_id))  ;
   
   sprintf(dblZ_char    ,"_dblZ%d"    ,irpcdoubletZ  );
   sprintf(dblPhi_char  ,"_dblPhi%d"  ,irpcdoubletPhi);
