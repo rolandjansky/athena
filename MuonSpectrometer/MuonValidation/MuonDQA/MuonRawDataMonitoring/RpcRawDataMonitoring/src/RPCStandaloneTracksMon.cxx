@@ -67,7 +67,6 @@ static const   int timeminrange	      =	 -200;
 static const   int timemaxrange	      =	  200;
 static const   int timeNbin	      =	  128;
 static const   int nstripfiducial     =     2;
-static const   int nstripfiduceff     =    80;
 static const   int MergePointDistance =   100;
 static const   int EtaStationSpan     =     2;
 static const   int DoublePhiSpan      =     1;
