@@ -3727,14 +3727,21 @@ def dump_TrigMuonEFTrack (t, f):
     return
 
 
-def dump_TrigMuonEFInfo (t, f):
-    print >> f, t.RoINum(),
+def dump_TrigMuonEFInfoTrack (t, f):
+    print >> f, '\n ', t.MuonType(),
     print >> f, '\n    spectrometer: ',
     dump_TrigMuonEFTrack (t.SpectrometerTrack(), f)
     print >> f, '\n    extrapolated: ',
     dump_TrigMuonEFTrack (t.ExtrapolatedTrack(), f)
     print >> f, '\n    combined: ',
     dump_TrigMuonEFTrack (t.CombinedTrack(), f)
+    return
+
+
+def dump_TrigMuonEFInfo (t, f):
+    print >> f, t.RoINum(),
+    for tt in t.TrackContainer():
+        dump_TrigMuonEFInfoTrack (tt, f)
     return
 
 
