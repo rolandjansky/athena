@@ -25,13 +25,13 @@ MuonClusterIsolationHypo::MuonClusterIsolationHypo(const std::string & name, ISv
     //note that the "cut" for background trigger is nJet,nTrk ==-1, but
     //the actual number of jets and tracks in dR cone is monitored
 
-    mCluNum = 0;
-    mNumJet = -1;
-    mNumTrk = -1;
+    m_CluNum = 0;
+    m_NumJet = -1;
+    m_NumTrk = -1;
 
-    declareMonitoredVariable("NumClu", mCluNum);
-    declareMonitoredVariable("NumJet", mNumJet);
-    declareMonitoredVariable("NumTrk", mNumTrk);
+    declareMonitoredVariable("NumClu", m_CluNum);
+    declareMonitoredVariable("NumJet", m_NumJet);
+    declareMonitoredVariable("NumTrk", m_NumTrk);
 
     declareProperty("AcceptAll", m_acceptAll=false);
     declareProperty("doIsolation", m_doIsolation=false);
@@ -188,9 +188,9 @@ HLT::ErrorCode MuonClusterIsolationHypo::hltExecute(const HLT::TriggerElement* o
                                     << endmsg;
                         }
                         // monitored variables
-                        mCluNum = numberRoI;
-                        mNumJet = numberJet;
-                        mNumTrk = numberTrk; //set these equal to actual cluster parameters 
+                        m_CluNum = numberRoI;
+                        m_NumJet = numberJet;
+                        m_NumTrk = numberTrk; //set these equal to actual cluster parameters 
                         result = true;
                     } else {
                         if(msgLvl() <= MSG::DEBUG) {
@@ -203,9 +203,9 @@ HLT::ErrorCode MuonClusterIsolationHypo::hltExecute(const HLT::TriggerElement* o
                         msg() << MSG::DEBUG << "Cluster passes noiso barrel selection cuts of > " << m_nRoIBarrel << " RoIs... event accepted" << endmsg;
                     }
                     // monitored variables
-                    mCluNum = numberRoI;
-                    mNumJet = numberJet;
-                    mNumTrk = numberTrk; //set these equal to actual cluster parameters 
+                    m_CluNum = numberRoI;
+                    m_NumJet = numberJet;
+                    m_NumTrk = numberTrk; //set these equal to actual cluster parameters 
                     result = true;
                 }
             }  else if((fabs(etaClust)>=m_etaMid && fabs(etaClust)<=m_etaMax) && numberRoI >= m_nRoIEndCap) {
@@ -219,9 +219,9 @@ HLT::ErrorCode MuonClusterIsolationHypo::hltExecute(const HLT::TriggerElement* o
                         }
 
                         // monitored variables
-                        mCluNum = numberRoI;
-                        mNumJet = numberJet;
-                        mNumTrk = numberTrk; //set these equal to actual cluster parameters
+                        m_CluNum = numberRoI;
+                        m_NumJet = numberJet;
+                        m_NumTrk = numberTrk; //set these equal to actual cluster parameters
                         result = true;
                     } else {
                         if(msgLvl() <= MSG::DEBUG) {
@@ -234,9 +234,9 @@ HLT::ErrorCode MuonClusterIsolationHypo::hltExecute(const HLT::TriggerElement* o
                         msg() << MSG::DEBUG << "Cluster passes noiso endcap selection cuts of > " << m_nRoIEndCap << " RoIs... event accepted" << endmsg;
                     }
                     // monitored variables
-                    mCluNum = numberRoI;
-                    mNumJet = numberJet;
-                    mNumTrk = numberTrk; //set these equal to actual cluster parameters 
+                    m_CluNum = numberRoI;
+                    m_NumJet = numberJet;
+                    m_NumTrk = numberTrk; //set these equal to actual cluster parameters 
                     result = true;
                 }
             } else {

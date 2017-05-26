@@ -60,7 +60,7 @@ class MuonClusterHypo: public HLT::HypoAlgo {
 
 
     /** Numbers of Roi in cluster */
-    int mCluNum;
+    int m_CluNum;
 
 
     // Other members:   
