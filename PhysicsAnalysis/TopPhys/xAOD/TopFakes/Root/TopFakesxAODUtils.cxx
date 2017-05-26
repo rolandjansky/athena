@@ -18,6 +18,7 @@
 #include "TopEvent/EventTools.h"
 #include "TopFakes/FakesWeights.h"
 
+
 void top::fakes::GetClosestJet (const xAOD::Electron& el, 
 				const xAOD::JetContainer& jets,
 				float& dRClosetJet, 
@@ -211,12 +212,12 @@ void top::fakes::GetTrigMatchVariable(const xAOD::Electron& el, int& trigmatch, 
       }
     }
     else {
-      std::cerr<<"Nothing is well-defined for runNumber "<<runNumber<<" - exiting..."<<std::cerr;
+      std::cerr<<"Nothing is well-defined for runNumber "<<runNumber<<" - exiting..."<<std::endl;
       exit(1);
     }
   }
   else {
-    std::cerr<<"Unknown release series - exiting..."<<std::cerr;
+    std::cerr<<"Unknown release series - exiting..."<<std::endl;
     exit(1);
   }
 
@@ -297,12 +298,12 @@ void top::fakes::GetTrigMatchVariable(const xAOD::Muon& mu, int& trigmatch, cons
       }
     }
     else {
-      std::cerr<<"Nothing is well-defined for runNumber "<<runNumber<<" - exiting..."<<std::cerr;
+      std::cerr<<"Nothing is well-defined for runNumber "<<runNumber<<" - exiting..."<<std::endl;
       exit(1);
     }
   }
   else {
-    std::cerr<<"Unknown release series - exiting..."<<std::cerr;
+    std::cerr<<"Unknown release series - exiting..."<<std::endl;
     exit(1);
   }
 
