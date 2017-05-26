@@ -2,10 +2,9 @@
 
 import sys, subprocess, tempfile, os, re, signal
 import __main__
-from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtWidgets import QLabel, QCheckBox, QMessageBox, QWidget
-from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QColor, QPalette, QIcon, QPixmap
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtWidgets import QLabel, QCheckBox, QMessageBox
+from PyQt5.QtGui import QColor, QPalette, QPixmap
 import timeit
 import socket
 
@@ -276,7 +275,7 @@ class Config:
                     end=i+1
                     break
             exec(''.join(lines[begin:end]))
-            self.menus = sorted(menuMap.keys())
+            self.menus = sorted(menuMap.keys()) 
         except:
             self.menus = None
 
