@@ -92,6 +92,7 @@ int usage(const std::string& name, int status) {
   s << "         --deleteref          \t delete unused reference histograms\n";
   s << "    -xo, --xoffset            \t relative x offset for the key\n"; 
   s << "    -yp, --ypos               \t relative yposition for the key\n"; 
+  s << "    -ac, --addchains          \t if possible, add chain names histogram labels \n";   
   s << "    -xe, --xerror value       \t size of the x error tick marks\n"; 
   //  s << "         --fe,            \t relative x offset for the key\n"; 
   s << "    -h,  --help              \t this help\n";
@@ -220,7 +221,9 @@ int main(int argc, char** argv) {
   bool normref     = false;
   bool scalepix    = true;
   bool oldrms      = false;
-  
+  bool addchains   = false;
+
+
   double xerror    = 0;
 
   std::string atlaslabel = "Internal";
@@ -291,6 +294,9 @@ int main(int argc, char** argv) {
     }
     else if ( arg=="--unscalepix" ) { 
       scalepix = false;
+    }
+    else if ( arg=="-ac" || arg=="--addchains" ) { 
+      addchains = true;
     }
     else if ( arg=="-yrange" ) { 
       effset = true;
@@ -1103,7 +1109,7 @@ int main(int argc, char** argv) {
       
       std::string chain_name = "";
 
-      if ( contains(chains[j],"Shifter") || !contains(chains[j],"HLT_") ) { 
+      if ( addchains && ( contains(chains[j],"Shifter") || !contains(chains[j],"HLT_") ) ) { 
 	TH1F* hchain = (TH1F*)ftest.Get((chains[j]+"/Chain").c_str()) ;
 	if ( hchain ) { 
 	  std::string name = hchain->GetTitle();
