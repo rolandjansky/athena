@@ -3523,7 +3523,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 		  }
     
 		   
-			char BinLabel[10];
+			char BinLabel[20];
 			sprintf(BinLabel,"Sec%d%s",(iphi-1)*2+ismall,NAME);
 			if(PlaneTipo==0){
 			  if(ieta>=0){
@@ -4932,7 +4932,8 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
  	    //std::cout << istripPhi << " PHI FOUND!!! and panel_Id= " << panel_id  << " " <<panel_id.get_identifier32().get_compact() << " " << strip_id<<std::endl;
  	    //}
 	    
-    	    if( strip_id == 0 ) continue;    	    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, strip_id, 0)).at(16);
+    	    if( strip_id == 0 ) continue;
+    	    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, strip_id, 0)).at(16);
 	    //std::cout << " coolStripIndex "<<coolStripIndex << " kNameF, eta, irc, iz+1, idblPhi+1, ig+1, istripPhi+1 "<<kNameF << " " <<ieta-8 <<" " <<irc << " "<< iz+1<< " "<< idblPhi+1<< " "<< ig+1 << " "<< " "<< istripPhi+1<< " "<< std::endl;
 
 	    //if(panel_id.get_identifier32().get_compact()<1000)std::cout<< "Less than 1000: "  << panel_id.get_identifier32().get_compact()<<std::endl;
