@@ -50,10 +50,10 @@ OfflineCalibOutputTrack::OfflineCalibOutputTrack(std::string input,
 	delete parametersModel;
 	parametersModel = 0;
 	
-	ResPhiValid = new ResPullValidation("phi","res",datatype);
-	PullPhiValid = new ResPullValidation("phi","pull",datatype);
-	ResEtaValid = new ResPullValidation("eta","res",datatype);
-	PullEtaValid = new ResPullValidation("eta","pull",datatype);
+	m_ResPhiValid = new ResPullValidation("phi","res",datatype);
+	m_PullPhiValid = new ResPullValidation("phi","pull",datatype);
+	m_ResEtaValid = new ResPullValidation("eta","res",datatype);
+	m_PullEtaValid = new ResPullValidation("eta","pull",datatype);
 
 	std::cout << "OfflineCalibOutputTrack()" << std::endl;	
 
@@ -68,14 +68,14 @@ OfflineCalibOutputTrack::~OfflineCalibOutputTrack(){
 	m_Calibration = 0;
 	m_Validation  = 0;
 	
-	delete ResPhiValid;
-	delete PullPhiValid;
-	delete ResEtaValid;
-	delete PullEtaValid;
-	ResPhiValid = 0;
-	PullPhiValid = 0;
-	ResEtaValid = 0;
-	PullEtaValid = 0;
+	delete m_ResPhiValid;
+	delete m_PullPhiValid;
+	delete m_ResEtaValid;
+	delete m_PullEtaValid;
+	m_ResPhiValid = 0;
+	m_PullPhiValid = 0;
+	m_ResEtaValid = 0;
+	m_PullEtaValid = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -92,10 +92,10 @@ void OfflineCalibOutputTrack::ReadHistoFile(std::string input){
 
 	inputhisto->cd();
 
-	ResPhiValid->Read();
-	PullPhiValid->Read();
-	ResEtaValid->Read();
-	PullEtaValid->Read();
+	m_ResPhiValid->Read();
+	m_PullPhiValid->Read();
+	m_ResEtaValid->Read();
+	m_PullEtaValid->Read();
 
 	olddir->cd();
 	inputhisto->Close();	
@@ -151,10 +151,10 @@ void OfflineCalibOutputTrack::Iterate(long maxentries){
 				   TrkEta, DeltaCol, digreseta, ResEta, ERReta,0., -1.);
 
 
-		ResPhiValid->Fill(DetType,GeVTrkPt,alpha,DeltaRow,ResPhi);
-		PullPhiValid->Fill(DetType,GeVTrkPt,alpha,DeltaRow,PullPhi);
-		ResEtaValid->Fill(DetType,GeVTrkPt,TrkEta,DeltaCol,ResEta);
-		PullEtaValid->Fill(DetType,GeVTrkPt,TrkEta,DeltaCol,PullEta);
+		m_ResPhiValid->Fill(DetType,GeVTrkPt,alpha,DeltaRow,ResPhi);
+		m_PullPhiValid->Fill(DetType,GeVTrkPt,alpha,DeltaRow,PullPhi);
+		m_ResEtaValid->Fill(DetType,GeVTrkPt,TrkEta,DeltaCol,ResEta);
+		m_PullEtaValid->Fill(DetType,GeVTrkPt,TrkEta,DeltaCol,PullEta);
 
 	  }// end of for   PixelHits
    }// end of for   entries
@@ -192,10 +192,10 @@ void OfflineCalibOutputTrack::Analyse(std::string output, std::string reference)
 	if(reference != ""){
 		ref_file = TFile::Open(reference.c_str(),"READ");
 	}
-	ResPhiValid->Analyze(ref_file);
-	PullPhiValid->Analyze(ref_file);
-	ResEtaValid->Analyze(ref_file);
-	PullEtaValid->Analyze(ref_file);
+	m_ResPhiValid->Analyze(ref_file);
+	m_PullPhiValid->Analyze(ref_file);
+	m_ResEtaValid->Analyze(ref_file);
+	m_PullEtaValid->Analyze(ref_file);
 	m_Validation->Analyze(ref_file);
 	if(ref_file != 0 && ref_file->IsOpen()) ref_file->Close();
 	delete ref_file;
@@ -209,10 +209,10 @@ void OfflineCalibOutputTrack::Analyse(std::string output, std::string reference)
 		m_Validation->Write();
 		TDirectory *old = gDirectory;
 
-		ResPhiValid->Write();
-		PullPhiValid->Write();
-		ResEtaValid->Write();
-		PullEtaValid->Write();
+		m_ResPhiValid->Write();
+		m_PullPhiValid->Write();
+		m_ResEtaValid->Write();
+		m_PullEtaValid->Write();
 		old->cd();
 		histofile->Close();
 	}

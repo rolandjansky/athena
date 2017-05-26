@@ -9,7 +9,7 @@
 
 class RMSProfile: public TProfile{
 private:
-	TProfile *rms_graph;
+	TProfile *m_rms_graph;
 
 public:
 	RMSProfile();
