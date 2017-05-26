@@ -124,7 +124,7 @@ HLT::ErrorCode MuonClusterHypo::hltExecute(const HLT::TriggerElement* outputTE, 
             if(msgLvl() <= MSG::DEBUG) {
                 msg() << MSG::DEBUG << "TrigComposite ptr = " << (void*)compObj << endmsg;
             }
-            for(const string & collName : compObj->linkColNames()) {
+            for(const std::string & collName : compObj->linkColNames()) {
                 if(msgLvl() <= MSG::DEBUG) {
                     msg() << MSG::DEBUG << " link to collection " << collName << endmsg;
                 }
