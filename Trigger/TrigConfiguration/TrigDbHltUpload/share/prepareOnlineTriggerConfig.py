@@ -3,7 +3,11 @@
 import sys, subprocess, tempfile, os, re, signal
 import __main__
 from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtWidgets import QLabel, QCheckBox,QMessageBox
+from PyQt5.QtWidgets import QLabel, QCheckBox, QMessageBox, QWidget
+from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QColor, QPalette, QIcon, QPixmap
+import timeit
+import socket
 
 class StringVar:
     def __init__(self,value=""):
@@ -66,6 +70,9 @@ class BoolOption:
     def __init__(self, name, isChecked, description, label):
         self.name        = name
         self.cb          = QCheckBox(label)
+        palette = QPalette( self.cb.palette() )
+        palette.setColor( palette.WindowText, QColor("#ffffff") )    
+        self.cb.setPalette(palette)
         self.description = description
         self.cb.setCheckState(QtCore.Qt.Checked if isChecked else QtCore.Qt.Unchecked)
         self.cb.setToolTip(description)
@@ -84,9 +91,12 @@ class Process:
         self.w_label.setCheckState(QtCore.Qt.Checked)
         self.w_state     = QLabel()
         self.w_logfile   = QLabel()
+        button_style ="QPushButton {padding: 4px; font-size: 14px; color: #3a81c7; font-weight: bold; background-color: #ffffff; border-radius: 1px; border: 1px solid #3a81c7;}"
         if name == 'jobCheckRes':
             self.w_showHLT  = QtWidgets.QPushButton("Show athenaHLT Result")
+            self.w_showHLT.setStyleSheet(button_style)
         self.w_clearbutton = QtWidgets.QPushButton("Clear")
+        self.w_clearbutton.setStyleSheet(button_style)
 
     def __str__(self):
         return "### %s\nprocess['%s'] = (%i, '%s', '%s')\n" % (self.description, self.name, self.enabled, self.w_state.text(), self.logfile)
@@ -167,10 +177,10 @@ class Config:
         import os
         tempdir = os.environ["TMPDIR"] if "TMPDIR" in os.environ else (tempfile.gettempdir() + '/' + os.environ["USER"])
         # red 
-        self.addOption('release','',"The release tag",  'Release:'      , QtWidgets.QLabel())
-        self.addOption('relName',  '',"The release name",    'Release Name:'        , QtWidgets.QLabel())
+        self.addOption('release','',"The release tag number",  'Release number:'      , QtWidgets.QLabel())
+        self.addOption('relName',  '',"The release build name",    'Release build:'        , QtWidgets.QLabel())
         self.addOption('swpath','',"The software path", 'Software path:', QtWidgets.QLabel())
-        self.addOption('tt','/afs/cern.ch/user/a/attrgcnf/TriggerTool/run_TriggerTool.sh',"The TriggerTool jar-file", 'TriggerTool:')
+        self.addOption('tt','/afs/cern.ch/user/a/attrgcnf/TriggerTool/run_TriggerTool.sh',"The TriggerTool run script", 'TriggerTool:')
         # green
         self.addOption('jobName', 'Default',"Job name", 'Job name:')
         self.addOption('jobOption','',"The python job option file", 'Joboption file')
@@ -185,7 +195,7 @@ class Config:
         self.addOption('setupEF','',"EF Setup file", 'EF setup:')
         self.addOption('dbAlias','TRIGGERDBREPR',"Alias for TriggerDB connection", 'DB connection')
         self.addOption('dbPW','',"Password for writer accound (not needed by experts)", 'DB password')
-        self.addOption('cfgKey',0,"Configuration key", 'Configuration key:')
+        self.addOption('cfgKey',0,"Super Master key", 'Super master key:')
         self.addOption('l1psKey',0,"LVL1 prescale key", 'LVL1 prescale key:')
         self.addOption('hltpsKey',0,"HLT prescale key", 'HLT prescale key:')
         self.addBoolOption('onlineMonitoring', 'Online Monitoring', 'Online Monitoring switch (e.g. online histogram service)', True)
@@ -194,11 +204,11 @@ class Config:
         self.addBoolOption('doDBConfig', 'doDBConfig', 'Needs to be true to generate the text files for configuration', True)
         self.dontStore('cafConfig', 'l1rerun', 'release', 'relName', 'swpath') # excempt from storage option to avoid accidental use for online
         # blue
-        self.addProcess('jobHLTjo',     "Run athenaHLT from JobOptions", 'run athenaHLT from JO')
-        self.addProcess('jobSetupCnv', "Run setup conversion script",  'convert setup')
-        self.addProcess('jobUploadDb', "Load TriggerDB",               'load TriggerDB')
-        self.addProcess('jobHLTdb',     "Run athenaHLT from TriggerDB",  'run athenaHLT from DB')
-        self.addProcess('jobCheckRes', "Compare counts",               'check results')
+        self.addProcess('jobHLTjo',     "Run athenaHLT from JobOptions", 'Run athenaHLT from JO')
+        self.addProcess('jobSetupCnv', "Run setup conversion script",  'Convert ef setup')
+        self.addProcess('jobUploadDb', "Upload xmls to TriggerDB",               'Upload xmls to TriggerDB')
+        self.addProcess('jobHLTdb',     "Run athenaHLT from TriggerDB",  'Run athenaHLT from DB')
+        self.addProcess('jobCheckRes', "Compare counts",               'Compare athenaHLT results')
         self.jobOption.qtw.textChanged.connect(self.readMenus)
         self.cafConfig.cb.stateChanged.connect(self.toggleModifierCAF)
         self.l1rerun.cb.stateChanged.connect(self.toggleL1RerunOption)
@@ -306,10 +316,11 @@ class KeyPrep(QtWidgets.QScrollArea):
         self.checkReleaseAndTT()
         self.updateMenuComboBox()
         self.updateCommandBox()
+        self.checkMachine()
         self.runThread = KeyPrep.RunThread(self)
         self.currentSubprocess = None
 
-    def position(self, w=550, h=870, m=30):
+    def position(self, w=675, h=870, m=30):
         desktop = QtWidgets.QApplication.desktop()
         dw = desktop.availableGeometry().width()
         dh = desktop.availableGeometry().height()
@@ -320,13 +331,11 @@ class KeyPrep(QtWidgets.QScrollArea):
     def elements(self):
         self.position()
         self.setWindowTitle('Prepare Trigger Configuration')
-
         self.gr_relconf = {
             'box' : QtWidgets.QGroupBox("Release configuration"),
             'cont': [ self.config.relName, self.config.release, self.config.swpath, self.config.tt ]
             }
-        self.gr_relconf['box'].setStyleSheet("QGroupBox { background-color: #8CDBFF; }");
-
+        self.gr_relconf['box'].setStyleSheet("QGroupBox { background-color: #3a81c7; color: #e2e2e2; font-weight: bold; font-size: 12pt; }")
 
         self.gr_setup = {
             'box' : QtWidgets.QGroupBox("Job configuration"),
@@ -335,22 +344,30 @@ class KeyPrep(QtWidgets.QScrollArea):
                       self.config.inputBSFile, self.config.l1menu, self.config.l1topomenu, self.config.hltmenu,
                       self.config.setupEF, self.config.cfgKey, self.config.l1psKey, self.config.hltpsKey ]
             }
-        self.gr_setup['box'].setStyleSheet("QGroupBox { background-color: #FFE430; }");
+        self.gr_setup['box'].setStyleSheet("QGroupBox { background-color: #7c7c7c; color: #ffffff;font-weight: bold; font-size: 12pt;  }");
 
         self.gr_run = {
             'box' : QtWidgets.QGroupBox("Run state"),
             'cont': [ self.config.jobHLTjo, self.config.jobSetupCnv, self.config.jobUploadDb,
                       self.config.jobHLTdb, self.config.jobCheckRes ]
             }
-        self.gr_run['box'].setStyleSheet("QGroupBox { background-color: #A5FF00; }");
+        self.gr_run['box'].setStyleSheet("QGroupBox { background-color: #e2e2e2; font-weight: bold; font-size: 12pt;}");
 
         self.config.jobCheckRes.w_showHLT.clicked.connect(self.displayResultHLT)
 
+        button_style ="QPushButton {padding: 4px; font-size: 14px; color: #3a81c7; \
+                      font-weight: bold; background-color: #ffffff; border-radius: 1px; border: 1px solid #3a81c7;}"
+
         self.d_menu = QtWidgets.QComboBox()
+        self.d_menu.setStyleSheet("QComboBox {padding: 2px; color #3a81c7; border-radius: 1px; border: 1px solid #3a81c7;}")
         self.b_save = QtWidgets.QPushButton("Save",self)
+        self.b_save.setStyleSheet(button_style)
         self.b_kill = QtWidgets.QPushButton("Kill Process",self)
+        self.b_kill.setStyleSheet(button_style)
         self.b_run  = QtWidgets.QPushButton("Run",self)
+        self.b_run.setStyleSheet(button_style)
         self.b_quit = QtWidgets.QPushButton("Quit",self)
+        self.b_quit.setStyleSheet(button_style)
         self.b_run.clicked.connect(self.run)
         self.b_kill.clicked.connect(self.killCurrentProcess)
         self.b_save.clicked.connect(self.config.write)
@@ -358,20 +375,29 @@ class KeyPrep(QtWidgets.QScrollArea):
 
     def layout(self):
         top = QtWidgets.QVBoxLayout()
+        top.setContentsMargins(0,0,0,0)
 
         # release info
         grid = QtWidgets.QGridLayout()
         for i,c in enumerate(self.gr_relconf['cont']):
             grid.addWidget(c.w_label,i,0,1,1)
+            c.w_label.setStyleSheet("QWidget { color: #e2e2e2; font-weight: bold; font-size: 11pt; }")
             grid.addWidget(c.qtw,i,1,1,3)
+            c.qtw.setStyleSheet("QWidget { color: #e2e2e2; }")
+            if c.name =="tt":
+              c.qtw.setStyleSheet("QWidget { background-color: #a9a9a9; }")
+
         self.gr_relconf['box'].setLayout(grid)
         top.addWidget(self.gr_relconf['box'])
 
         # job setup
         grid = QtWidgets.QGridLayout()
         grid.setVerticalSpacing(0)
+        grid.setHorizontalSpacing(0)
+        
         line = 0
         for c in self.gr_setup['cont']:
+            c.w_label.setStyleSheet("QWidget { color: #ffffff; }")
             if c.name=='userPreCommand':
                 grid.addWidget(c.w_label,line,0) # label
                 grid.addWidget(self.d_menu,line+1,0,QtCore.Qt.AlignTop) # menu combo box
@@ -381,8 +407,12 @@ class KeyPrep(QtWidgets.QScrollArea):
                 grid.addWidget(c.w_label,line,0) # label
                 grid.addWidget(c.qtw,line,1,1,7) # field
                 line += 1
+            if c.name in ['jobOption','l1psKey', 'hltpsKey', 'cfgKey', 'dbPW', 'l1menu','l1topomenu','hltmenu','setupEF']:
+                c.qtw.setStyleSheet("QWidget { background-color: #D4E1EA; }")
+
         grid.addItem(QtWidgets.QSpacerItem(10,10),line,0,1,4) # space
         hl = QtWidgets.QHBoxLayout() # horizontal box for buttons
+
         hl.addWidget(self.config.onlineMonitoring.cb)
         hl.addWidget(self.config.doDBConfig.cb)
         hl.addWidget(self.config.cafConfig.cb)
@@ -396,36 +426,47 @@ class KeyPrep(QtWidgets.QScrollArea):
         # job progress
         grid = QtWidgets.QGridLayout()
         grid.setVerticalSpacing(0)
+        grid.setHorizontalSpacing(0)
+        grid.setContentsMargins(0,0,0,0)
         line = 0
         for c in self.gr_run['cont']:
             grid.addWidget(c.w_label,line,0) # label
             grid.addWidget(c.w_state,line,1) # state
             if c.name != 'jobCheckRes':
                 grid.addWidget(c.w_logfile,line,2,1,6) # field
-                #c.w_logfile.setStyleSheet("QLineEdit { background-color: rgb(255, 176, 165); }");
             else:
                 grid.addWidget(c.w_showHLT,line,6) # show res button
-            #grid.addWidget(c.w_clearbutton,line,9) # clear button
             line += 1
         self.gr_run['box'].setLayout(grid)
         top.addWidget(self.gr_run['box'])
 
         actions = QtWidgets.QHBoxLayout()
-        #actions.addWidget(self.b_style)
+        actions.setContentsMargins(4,0,4,4)
         actions.addWidget(self.b_kill)
         actions.addStretch(1)
         actions.addWidget(self.b_run)
         actions.addWidget(self.b_quit)
         top.addLayout(actions)
-
-        #self.setLayout(top)
+        top.addStretch(1)
 
         frame = QtWidgets.QFrame()
         frame.setLayout(top)
+
+        palette = QPalette( frame.palette() )
+        palette.setColor( frame.backgroundRole(), QColor("#7c7c7c") )
+
+        frame.setAutoFillBackground(True)
+        frame.setPalette( palette )
+        
         self.setWidget(frame)
         self.setWidgetResizable(True)
+        self.setContentsMargins(0,0,100,0)
 
-
+        label = QLabel(self)
+        pixmap = QPixmap('/afs/cern.ch/user/a/attrgcnf/TriggerDBReplica/TrigDbHltUploadFiles/logo.png') 
+        label.setPixmap(pixmap)
+        label.setGeometry(675-5-100,5,675-5,100+5)
+       
     def updateMenuComboBox(self):
         menus = self.config.menus
         try:
@@ -453,10 +494,16 @@ class KeyPrep(QtWidgets.QScrollArea):
             self.config.setPreCommandModifier('test%s' % self.menuInPreCommand, None)
         self.config.setPreCommandModifier('test%s' % menu, 'True') # set the selected one
         self.menuInPreCommand = menu
+   
+    def checkMachine(self):
+      if "lxplus" in socket.gethostname():
+          QMessageBox.information(None, '', "Warning! You're running on lxplus, and this will be slow!")
+      elif "tbed" not in socket.gethostname():
+          QMessageBox.information(None, '', "Warning! You're not running on the testbed, it could be slow!")
 
     def quit(self):
         self.config.write()
-        QtGui.qApp.quit()
+        QtWidgets.qApp.quit()
 
     def setFrameTitle(self,title):
         self.setWindowTitle(title)
@@ -467,7 +514,7 @@ class KeyPrep(QtWidgets.QScrollArea):
 
     def checkReleaseAndTT(self):
         self.config.release.set(os.getenv('AtlasVersion'))
-        self.config.swpath.set(os.getenv('AtlasBaseDir'))
+        self.config.swpath.set(os.getenv('AtlasBaseDir'))	
         if os.getenv('AtlasProject') in ['Athena','AthenaP1']:
             self.config.relName.set(os.getenv('AtlasProject'))
         
@@ -500,7 +547,9 @@ class KeyPrep(QtWidgets.QScrollArea):
             self.success = True
 
         def run(self):
+            processing_times = []
             for job in ['HLTjo', 'SetupCnv', 'UploadDb', 'HLTdb', 'CheckRes']:
+                start_time = timeit.default_timer()
                 proc_conf = getattr(self.gui.config, "job%s" % job)
                 if not proc_conf.enabled:
                     proc_conf.setSkipped()
@@ -525,7 +574,10 @@ class KeyPrep(QtWidgets.QScrollArea):
                     return
                 proc_conf.setSuccess()
                 print >>self.gui, "===>>> Success"
-
+                elapsed = timeit.default_timer() - start_time
+		timer_line = "Elapsed time: " + str(elapsed)
+                print timer_line
+                processing_times += [timer_line]
             print "===>>> Success"
             self.gui.setFrameTitle('Success')
             self.success = True
@@ -568,10 +620,10 @@ class KeyPrep(QtWidgets.QScrollArea):
             print 'ERROR: <%s> No %s configured' % (caller, filedesc)
             proc_conf.setError()
             return False
-        #if 'root://eosatlas//eos/atlas/' not in filename and not os.path.exists(filename):
-        #    print 'ERROR: <%s> %s %s does not exist in %s' % (caller, filedesc, filename, os.path.realpath('.'))
-        #    proc_conf.setError()
-        #    return False
+        if 'root://eosatlas//eos/atlas/' not in filename and not os.path.exists(filename):
+            print 'ERROR: <%s> %s %s does not exist in %s' % (caller, filedesc, filename, os.path.realpath('.'))
+            proc_conf.setError()
+            return False
         return True
 
     # check input field
@@ -603,7 +655,6 @@ class KeyPrep(QtWidgets.QScrollArea):
     def executeProcess(self, cmd, proc_conf):
         try:
             FD = open(proc_conf.logfile,'w')
-            print cmd.split()
             self.currentSubprocess = subprocess.Popen(cmd.split(),stdout=FD,stderr=FD)
             self.currentSubprocess.wait()
             retCode = self.currentSubprocess.returncode
@@ -645,11 +696,11 @@ class KeyPrep(QtWidgets.QScrollArea):
         proc_conf.setLogfile(logfile)
 
 
-        args = [ '-n 1 -M -f %s' % self.config.inputBSFile(),
+        args = [ '-n 1 -f %s' % self.config.inputBSFile(),
+                 '-M' if self.config.onlineMonitoring() else '', 
                  "" if self.config.userPreCommand().strip()=='' else " -c %s"  % self.config.userPreCommand().strip() ]
         cmd = 'athenaHLT.py %s %s' % ( " ".join(args), self.config.jobOption() )
         print >>self, '%s &> %s' % (cmd,logfile)
-        #print "not actually running, cause it takes too long!"
 
         if not self.executeProcess(cmd, proc_conf): return False
 
@@ -684,13 +735,13 @@ class KeyPrep(QtWidgets.QScrollArea):
 
     def runSetupCnv(self, proc_conf):
 
-        print 'running the setup conversion'
+        print 'Running the setup conversion'
 
         # check for level 1 menu
         base = self.config.jobName()
         fullSetupDir = '%s/%s' % (self.config.setupDir(), base)
 
-        print ' i think things are in the folder',fullSetupDir,', and this is where I\'ll put the files'
+        print 'I think things are in the folder',fullSetupDir,', and this is where I\'ll put the files'
 
         l1menuName = os.path.basename(self.config.l1menu())
         subprocess.call( ('cp -f %s .' % self.config.l1menu()).split() )
@@ -812,6 +863,7 @@ class KeyPrep(QtWidgets.QScrollArea):
         args = [ '-f %s' % self.config.inputBSFile(),
                  '-n %i' % self.config.nEvt(),
                  '-J TrigConf::HLTJobOptionsSvc',
+                 '-M' if self.config.onlineMonitoring() else '', 
                  '--use-database --db-type Coral  --db-server %s --db-smk %i --db-hltpskey %i --db-extra {"lvl1key":%i}' % (self.config.dbAlias(),self.config.cfgKey(),self.config.hltpsKey(),self.config.l1psKey()) ]
 
         cmd  = 'athenaHLT.py %s' % ' '.join(args)
@@ -988,10 +1040,6 @@ class KeyPrep(QtWidgets.QScrollArea):
         #t.insert("%s+1l" % INSERT, ul)
         print ul
 
-
-
-
-
 def parse_programm_options():
     import getopt
     short_opt = "h?F:"
@@ -1024,6 +1072,7 @@ def main():
     signal.signal(signal.SIGINT, sigint_handler)
     inputFile = parse_programm_options()
     app = QtWidgets.QApplication(sys.argv)
+    app.setStyle('cleanlooks')
     timer = QtCore.QTimer()
     timer.start(500)  # interval after which timeout signal is called
     timer.timeout.connect(lambda: None)
