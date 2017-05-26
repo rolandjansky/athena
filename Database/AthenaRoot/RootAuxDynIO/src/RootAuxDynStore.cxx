@@ -17,10 +17,12 @@ using namespace std;
 
 
 
-RootAuxDynStore::RootAuxDynStore(RootAuxDynReader& reader, long long entry, bool standalone)
+RootAuxDynStore::RootAuxDynStore(RootAuxDynReader& reader, long long entry, bool standalone,
+                                 std::mutex* iomtx)
   : SG::AuxStoreInternal( standalone ),
     m_reader(reader),
-    m_entry(entry)
+    m_entry(entry),
+    m_iomutex(iomtx)
 {
    for( auto id : reader.auxIDs() ) {
       addAuxID(id);
@@ -77,7 +79,10 @@ bool RootAuxDynStore::readData(SG::auxid_t auxid)
          // reading fundamental type - ROOT expects a direct pointer
          data = vector;
       }
-   
+
+      // if have mutex, lock to prevent potential concurrent I/O from elsewhere
+      auto io_lock = m_iomutex? std::unique_lock<std::mutex>(*m_iomutex)
+         : std::unique_lock<std::mutex>();
       // read branch
       brInfo.setAddress(data);
       int  nbytes = brInfo.branch->GetEntry(m_entry);
