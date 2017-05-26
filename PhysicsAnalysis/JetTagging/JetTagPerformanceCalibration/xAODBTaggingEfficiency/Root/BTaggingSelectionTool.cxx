@@ -62,33 +62,34 @@ StatusCode BTaggingSelectionTool::initialize() {
     ATH_MSG_ERROR( "BTaggingSelectionTool couldn't access tagging cut definitions" );
     return StatusCode::FAILURE;
   }
-  
-  // The tool support only Akt4TopoEM, Akt4PV0Track and Akt2PV0Track jets with MV2c20 for now
+
+  // The tool supports only Akt4TopoEM, Akt4PV0Track and Akt2PV0Track jets, and VR track jets (AntiKtVR30Rmax4Rmin02TrackJets)
   if ("MV2c20"!=m_taggerName&&
       "MV2c10"!=m_taggerName&&
-      "MV2c00_MV2c100"!=m_taggerName){
+      "MV2cl100_MV2c100"!=m_taggerName){
     ATH_MSG_ERROR( "BTaggingSelectionTool doesn't support tagger: "+m_taggerName );
     return StatusCode::FAILURE;
   }
   if ("AntiKt4EMTopoJets"  != m_jetAuthor &&
       "AntiKt2PV0TrackJets"!= m_jetAuthor &&
-      "AntiKt4PV0TrackJets"!= m_jetAuthor
+      "AntiKt4PV0TrackJets"!= m_jetAuthor &&
+      "AntiKtVR30Rmax4Rmin02TrackJets" !=m_jetAuthor
       ){
     ATH_MSG_ERROR( "BTaggingSelectionTool doesn't support jet collection: "+m_jetAuthor );
     return StatusCode::FAILURE;
   }
 
   // Change the minPt cut if the user didn't touch it
-  if (20000==m_minPt){// is it still teh default value
-    if ("AntiKt2PV0TrackJets"== m_jetAuthor) m_minPt=10000 ;
+  if (20000==m_minPt){// is it still the default value
+    if ("AntiKt2PV0TrackJets"== m_jetAuthor || "AntiKtVR30Rmax4Rmin02TrackJets"== m_jetAuthor) m_minPt=10000 ;
     if ("AntiKt4PV0TrackJets"== m_jetAuthor) m_minPt= 7000 ;
   }
   // Change the maxRangePt cut if the user didn't touch it
-  if (1000000==m_maxRangePt){// is it still teh default value
-    if ("AntiKt2PV0TrackJets"== m_jetAuthor) m_maxRangePt= 400000;
+  if (1000000==m_maxRangePt){// is it still the default value
+    if ("AntiKt2PV0TrackJets"== m_jetAuthor || "AntiKtVR30Rmax4Rmin02TrackJets"== m_jetAuthor) m_maxRangePt= 400000;
     if ("AntiKt4PV0TrackJets"== m_jetAuthor) m_maxRangePt= 500000;
   }
-  
+
   // Operating point reading
   TString cutname = m_OP;
   if ("Continuous"==cutname(0,10)){  // For continuous tagging load all flat-cut WPs
@@ -148,23 +149,23 @@ const Root::TAccept& BTaggingSelectionTool::getTAccept() const {
   return m_accept;
 }
 
-const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::IParticle* p ) const { 
+const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::IParticle* p ) const {
   // Reset the result:
   m_accept.clear();
- 
+
   // Check if this is a jet:
   if( p->type() != xAOD::Type::Jet ) {
     ATH_MSG_ERROR( "accept(...) Function received a non-jet" );
     return m_accept;
   }
- 
+
   // Cast it to a jet:
   const xAOD::Jet* jet = dynamic_cast< const xAOD::Jet* >( p );
   if( ! jet ) {
     ATH_MSG_FATAL( "accept(...) Failed to cast particle to jet" );
     return m_accept;
   }
- 
+
   // Let the specific function do the work:
   return accept( *jet );
 }
@@ -178,10 +179,11 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
   }
 
   if ("AntiKt2PV0TrackJets"== m_jetAuthor ||
-      "AntiKt4PV0TrackJets"== m_jetAuthor
+      "AntiKt4PV0TrackJets"== m_jetAuthor ||
+      "AntiKtVR30Rmax4Rmin02TrackJets"== m_jetAuthor
       ){
     // We want at least 2 tracks in a track jet
-    m_accept.setCutResult( "NConstituents", jet.numConstituents() >= 2 );    
+    m_accept.setCutResult( "NConstituents", jet.numConstituents() >= 2 );
   }
 
   double pT = jet.pt();
@@ -198,20 +200,20 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
     ATH_MSG_VERBOSE( "MV2c20 " <<  weight_mv2 );
     return accept(pT, eta, weight_mv2);
   }
-  else { 
+  else {
     double weight_mv2c100(-10.);
-    double weight_mv2c00(-10.);
+    double weight_mv2cl100(-10.);
     const xAOD::BTagging* btag = jet.btagging();
     if ((!btag)){
       ATH_MSG_ERROR("Failed to retrieve the BTagging information");
     }
-    if ( (!btag->MVx_discriminant("MV2c00", weight_mv2c00 ))|| (!btag->MVx_discriminant("MV2c100", weight_mv2c100 )) ){
+    if ( (!btag->MVx_discriminant("MV2cl100", weight_mv2cl100 ))|| (!btag->MVx_discriminant("MV2c100", weight_mv2c100 )) ){
       ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
     }
-    ATH_MSG_VERBOSE( "MV2c00 "  <<  weight_mv2c00 );
+    ATH_MSG_VERBOSE( "MV2cl100 "  <<  weight_mv2cl100 );
     ATH_MSG_VERBOSE( "MV2c100 " <<  weight_mv2c100 );
-    return accept(pT, eta, weight_mv2c00, weight_mv2c100 );
-    
+    return accept(pT, eta, weight_mv2cl100, weight_mv2c100 );
+
   }
 }
 
@@ -249,14 +251,14 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
     return m_accept;
   }
   m_accept.setCutResult( "WorkingPoint", true );
-    
+
   // Return the result:
   return m_accept;
 }
 
 
 
-const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double weight_mv2c00, double weight_mv2c100) const
+const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double weight_mv2cl100, double weight_mv2c100) const
 {
   m_accept.clear();
 
@@ -285,11 +287,11 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
   else ATH_MSG_ERROR( "Bad cut configuration!" );
   ATH_MSG_VERBOSE( "Cut values " << cutvalueA << " " << cutvalueB );
 
-  if (  weight_mv2c00 < cutvalueA || weight_mv2c100 < cutvalueB ){
+  if ( !(  weight_mv2cl100 > cutvalueA && weight_mv2c100 < cutvalueB )  ){
     return m_accept;
   }
   m_accept.setCutResult( "WorkingPoint", true ); // IF we arrived here, the jet is tagged
-    
+
   // Return the result:
   return m_accept;
 }
@@ -297,20 +299,20 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
 
 
 
-int BTaggingSelectionTool::getQuantile( const xAOD::IParticle* p ) const {  
+int BTaggingSelectionTool::getQuantile( const xAOD::IParticle* p ) const {
   // Check if this is a jet:
   if( p->type() != xAOD::Type::Jet ) {
     ATH_MSG_ERROR( "accept(...) Function received a non-jet" );
     return m_accept;
   }
- 
+
   // Cast it to a jet:
   const xAOD::Jet* jet = dynamic_cast< const xAOD::Jet* >( p );
   if( ! jet ) {
     ATH_MSG_FATAL( "accept(...) Failed to cast particle to jet" );
     return m_accept;
   }
- 
+
   // Let the specific function do the work:
   return getQuantile( *jet );
 }
@@ -325,7 +327,7 @@ int BTaggingSelectionTool::getQuantile( const xAOD::Jet& jet ) const{
   }
   ATH_MSG_VERBOSE( "MV2c20 " <<  weight_mv2 );
 
-  return getQuantile(pT, eta, weight_mv2 ); 
+  return getQuantile(pT, eta, weight_mv2 );
 }
 
 
@@ -344,7 +346,7 @@ int BTaggingSelectionTool::getQuantile(double pT, double eta, double weight_mv2 
   // returns 0 if smaller than -1e4-> should never happen
   // return -1 if bigger than 1e4 or not in b-tagging acceptance
   //////////////////////
- 
+
   int bin_index(-1);
 
   if (! checkRange(pT, eta)) return bin_index;
@@ -388,5 +390,5 @@ double BTaggingSelectionTool::getCutValue() const
   else{
     std::cout << "not using fixed cut flavour tagging!" << std::endl;
     return -1000;
-  } 
+  }
 }
