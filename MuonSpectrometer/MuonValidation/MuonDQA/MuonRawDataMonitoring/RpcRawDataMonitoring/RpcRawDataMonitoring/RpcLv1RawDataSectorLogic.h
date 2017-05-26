@@ -67,16 +67,12 @@ class RpcLv1RawDataSectorLogic: public ManagedMonitorToolBase {
     
   // Private functions and members and histograms
   
-  StoreGateSvc*   m_eventStore;
   ActiveStoreSvc* m_activeStore;
   
   StatusCode StoreTriggerType();
   int GetTriggerType() { return m_trigtype; }
   int m_trigtype;
 
-  mutable MsgStream m_log;     // Gaudi message stream
-  bool m_debuglevel;           // control debug messages  
- 
   int m_rpc_eventstotal;
   int m_rpc_event_inarea;  
   
