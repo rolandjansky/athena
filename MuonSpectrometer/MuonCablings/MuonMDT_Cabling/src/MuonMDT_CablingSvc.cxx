@@ -124,7 +124,7 @@ StatusCode MuonMDT_CablingSvc::initialize()
     
     sc = m_detStore->regFcn(&MuonMDT_CablingSvc::initMappingModel,
 			    this,
-			    MapData, mapFolderName);
+			    MapData, mapFolderName, true);
     
     if (sc.isFailure()) {
       
@@ -142,7 +142,7 @@ StatusCode MuonMDT_CablingSvc::initialize()
     const DataHandle<CondAttrListCollection> MapData_mez;
     
     sc = m_detStore->regFcn(&MuonMDT_CablingSvc::initMappingModel,
-			    this,MapData_mez, mezzanineFolderName);
+			    this,MapData_mez, mezzanineFolderName, true);
     
     if (sc.isFailure()) {
       
