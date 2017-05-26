@@ -77,25 +77,18 @@ class RpcLv1RawDataSectorLogic: public ManagedMonitorToolBase {
   mutable MsgStream m_log;     // Gaudi message stream
   bool m_debuglevel;           // control debug messages  
  
-  int  m_sector;
-  int  m_side;
   int rpc_eventstotal;
   int rpc_event_inarea;  
   
   bool m_lumiblockhist			;
   
-  std::vector<Identifier>* m_rpcchambersId;
   std::vector<std::string> sectorlogic_list;
   std::vector<std::string> sectorlogicTowerCma_name_list;
   std::vector<std::string> sectorlogicTowerCma_name_list2;
   std::vector<std::string> profile_list;
   
   
-  std::vector<Identifier>* m_padsId;
   std::map<std::string,int> hitsperchamber_map;
-
-  bool in_area;
-  bool histo_flag;  
 
   // Declare Histograms
   TH1* rpclv1_Hits_per_TriggerSector;
@@ -114,20 +107,12 @@ class RpcLv1RawDataSectorLogic: public ManagedMonitorToolBase {
   TH2* rpclv1_TriggerSector_vs_Pad_Pt5;
   TH2* rpclv1_TriggerSector_vs_Pad_Pt6;
   TH2* rpclv1_rowinBCid_vs_TriggerSector;
-  TH2* rpclv1_triggerBCid_vs_TriggerSector;
   TH1* rpclv1_triggerBCid_inout;
 
 
   TH2* rpclv1_ptid_vs_Tower;
-  TH2* rpclv1_triggerBCid_vs_tower;
   TH2* rpclv1_triggerBCid_inout_vs_TriggerSector;
 
-  TH2* rpclv1_Pad_vs_SL_old;
-  TH2* rpclv1cmalogicstat_old;
-  TH2* rpclv1ROI_LowPt_old;
-  TH2* rpclv1ROI_HighPt_old;
-  TH2* rpclv1_TriggerLy_vs_SL_old;
-  TH2* rpclv1_TriggerCond_vs_SL_old;
   TH2* rpclv1_triggerBCid_inout_vs_Tower;
 
   // Global Variables declaration
@@ -141,13 +126,6 @@ class RpcLv1RawDataSectorLogic: public ManagedMonitorToolBase {
   std::string ijk_name;
   std::string cma_name_p;
   std::string ijk_name_p;
-  char sectorlogic_name_char[1000];
-  char tower_name_char[1000];
-  char cma_name_char[1000];
-  char thr_name_char[1000];
-  char ijk_name_char[1000];
-  char cma_name_p_char[1000];
-  char ijk_name_p_char[1000];
   
 
   // Sector Logic variable declaration
