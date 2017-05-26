@@ -312,8 +312,8 @@ std::vector<int>  findxrange(TH1* h, bool symmetric ) {
 #if 1
 
   /// zoom on non-empty bins
-  for ( ; ilo<=ihi ; ilo++ ) if ( h->GetBinContent(ilo)>0 ) break; 
-  for ( ; ihi>=ilo ; ihi-- ) if ( h->GetBinContent(ihi)>0 ) break;
+  for ( ; ilo<=ihi ; ilo++ ) if ( h->GetBinContent(ilo)!=0 ) break; 
+  for ( ; ihi>=ilo ; ihi-- ) if ( h->GetBinContent(ihi)!=0 ) break;
 
 #else
 
