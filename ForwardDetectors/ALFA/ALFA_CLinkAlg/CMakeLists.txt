@@ -9,7 +9,7 @@ atlas_subdir( ALFA_CLinkAlg )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/DataModel
+                          Control/AthLinks
                           Control/StoreGate
                           Event/xAOD/xAODForward
                           ForwardDetectors/ALFA/ALFA_CLinkEv
@@ -21,7 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( ALFA_CLinkAlg
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel DataModel StoreGateLib SGtests xAODForward ALFA_CLinkEv GaudiKernel EventInfo )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel AthLinks StoreGateLib SGtests xAODForward ALFA_CLinkEv GaudiKernel EventInfo )
 
 # Install files from the package:
 atlas_install_headers( ALFA_CLinkAlg )
