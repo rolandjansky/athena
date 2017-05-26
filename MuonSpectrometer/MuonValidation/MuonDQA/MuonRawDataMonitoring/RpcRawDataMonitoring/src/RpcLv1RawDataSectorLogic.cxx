@@ -393,9 +393,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
      
     MonGroup rpclv1sl_shift ( this, generic_path_rpclv1monitoring + "/Overview", run, ATTRIB_UNMANAGED );
     
-    if(newEventsBlock){}
-
-    if(newLumiBlock && m_lumiblockhist){
+    if(newLumiBlockFlag() && m_lumiblockhist){
       MonGroup rpclv1sl_lumi_block ( this, generic_path_rpclv1monitoring + "/lumiblock", lumiBlock, ATTRIB_UNMANAGED )  ;
       if (m_debuglevel) {
       	//m_log << MSG::DEBUG << "SHIFT : "<< shift << endmsg;
@@ -467,7 +465,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
     }// isNewLumiBlock
     
     
-    if(newRun) {
+    if(newRunFlag()) {
       
       if (m_debuglevel) {
 	//m_log << MSG::DEBUG << "SHIFT : "<< shift << endmsg;
@@ -783,9 +781,6 @@ StatusCode RpcLv1RawDataSectorLogic::procHistograms()
 {
 
   if (m_debuglevel) m_log << MSG::DEBUG << "RpcLv1RawDataSectorLogic finalize()" << endmsg;
-  if(endOfEventsBlock){}
-  if(endOfLumiBlock){}
-  if(endOfRun){} 
   return StatusCode::SUCCESS;
 }
 

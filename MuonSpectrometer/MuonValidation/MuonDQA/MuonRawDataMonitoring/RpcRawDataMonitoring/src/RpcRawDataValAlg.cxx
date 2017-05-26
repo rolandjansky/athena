@@ -2087,8 +2087,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
       MonGroup rpcprd_dq_BC_TrigTower( this, generic_path_rpcmonitoring + "/RPCBC", run, ATTRIB_UNMANAGED )    ;
       MonGroup rpcTrigRoad ( this, generic_path_rpcmonitoring + "/TriggerRoad", run, ATTRIB_UNMANAGED )  ;
     
-      if(newEventsBlock){}
-      if(newLumiBlock && m_doLumiPlot){
+      if(newLumiBlockFlag() && m_doLumiPlot){
 	
 	MonGroup rpcTrig_lumi_block ( this, generic_path_rpcmonitoring + "/lumiblock", lumiBlock, ATTRIB_UNMANAGED )  ;
  	
@@ -2119,7 +2118,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  	  
 	  
       }
-      if(newRun)
+      if(newRunFlag())
 	{      
 	  ATH_MSG_INFO (  "RPC RawData Monitoring : begin of run" );
 	  	  
@@ -4961,9 +4960,7 @@ StatusCode RpcRawDataValAlg::procHistograms()
    
   if( m_doRpcESD==true ) {if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD || m_environment == AthenaMonManager::online ) {    
     
-      if(endOfEventsBlock){}
-      if(endOfLumiBlock){}
-      if(endOfRun){        
+      if(endOfRunFlag()){        
 	if ( m_doTrigEvol && (m_rpc_eventstotal > m_minStatTrEvol) ) {    
  
 	  int rpc2DEtaStatBinX_BA 	= int ( m_rpc2DEtaStationTriggerHits_Side_Pt[enumBA_LowPt]->GetNbinsX() );
