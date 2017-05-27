@@ -67,12 +67,16 @@ namespace SG {
    * A handle object may be used as a algorithm/tool property directly.
    * Because the handle caches state, however, this means that the component
    * using it cannot be reentrant.  In such a case, the handle will be reset
-   * when the current algorithm completes.
+   * when the current algorithm completes.  In this case, the handle
+   * will be bound to the proxy.
    *
    * The preferred way of using handles is to use a HandleKey object
    * (one of ReadHandleKey<T>, WriteHandleKey<T>, UpdateHandleKey<T>)
    * as the property, and to create a handle instance on the stack from
-   * the key object (and the event context, if available).
+   * the key object (and the event context, if available).  In this
+   * case, the handle will not be bound to the proxy.  A handle created
+   * in this way should not live beyond the end of the algorithm in which
+   * it was created.
    */
   class VarHandleBase : public VarHandleKey, public IResetable
   {
@@ -434,6 +438,11 @@ namespace SG {
 
     /// True if the store was set explicitly via setProxyDict.
     bool m_storeWasSet;
+
+    /// True if this algorithm should be bound to the proxy.
+    /// This should be true if the handle was created as a property,
+    /// and false if it was constructed from a key.
+    bool m_doBind;
 
 
   private:
