@@ -1358,7 +1358,7 @@ sub resolveSymlinks() {
 # Read ReleaseData file and return dictionary with content
 sub release_metadata() {
     my %data;
-    my @dir = grep(/$ENV{'AtlasProject'}/, split(':',$ENV{'LD_LIBRARY_PATH'}));
+    my @dir = grep(/\/$ENV{'AtlasProject'}\//, split(':',$ENV{'LD_LIBRARY_PATH'}));
     open RELDATA, "$dir[0]/../ReleaseData" or print "=== Alert! Cannot open ReleaseData file\n";
     while (<RELDATA>) {
         chomp;
