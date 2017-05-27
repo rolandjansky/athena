@@ -2,18 +2,22 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import ROOT
-import sys
+import sys, os
 import logging
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('infile', type=str, help='input HIST file')
 parser.add_argument('--grl', type=str, help='Specify an input GRL')
-#parser.add_argument('--out', type=str, help='output ROOT file')
+parser.add_argument('--out', type=str, help='output ROOT file')
 parser.add_argument('--tag', type=str, help='Lumi tag',
-                    default='OflLumiAcct-13TeV-004')
+                    default='OflLumiAcct-001')
+parser.add_argument('--plotdir', type=str, help='Directory to dump plots',
+                    default='plots')
 parser.add_argument('--mudep', type=int, help='Run mu-dependent efficiencies',
                     default=0)
+parser.add_argument('--dblivetime', action='store_true',
+                    help='Look up livetime from DB')
 args = parser.parse_args()
 
 BINWIDTH=10
@@ -53,7 +57,10 @@ if not runname:
     sys.exit(1)
 
 z_m = fin.Get('%s/GLOBAL/DQTGlobalWZFinder/m_Z_Counter_mu' % runname)
-outfname = '%s_data.root' % runname[4:]
+if args.out:
+    outfname = args.out
+else:
+    outfname = '%s_data.root' % runname[4:]
 
 if not z_m:
     logging.critical("Can't retrieve m_Z_Counter_mu")
@@ -116,8 +123,12 @@ lb_length = fin.Get('%s/GLOBAL/DQTGlobalWZFinder/m_lblength_lb' % runname)
 lbmin, lbmax = lb_length.GetXaxis().GetXmin(), lb_length.GetXaxis().GetXmax()
 logging.info('low, high LBs: %s, %s', lbmin, lbmax)
 
-logging.info('Starting livetime lookup ... (remove when we have a proper in-file implementation ...)')
-livetime = ROOT.TProfile('livetime', 'Livetime', int(lbmax-lbmin), lbmin, lbmax)
+if args.dblivetime:
+    logging.info('Starting livetime lookup ... (remove when we have a proper in-file implementation ...)')
+    livetime = ROOT.TProfile('livetime', 'Livetime', int(lbmax-lbmin), lbmin, lbmax)
+else:
+    livetime = fin.Get('%s/GLOBAL/DQTGlobalWZFinder/m_livetime_lb' % runname)
+
 official_lum = ROOT.TProfile('official_lum', 'official integrated luminosity', int(lbmax-lbmin), lbmin, lbmax)
 official_lum_zero = ROOT.TProfile('official_lum_zero', 'official inst luminosity', int(lbmax-lbmin), lbmin, lbmax)
 official_mu = ROOT.TProfile('official_mu', 'official mu', int(lbmax-lbmin), lbmin, lbmax)
@@ -138,7 +149,8 @@ for iov in iovs_acct:
     if not lbmin < iov.LumiBlock < lbmax:
         continue
     lb_lhcfill[iov.LumiBlock] = iov.FillNumber
-    livetime.Fill(iov.LumiBlock, iov.LiveFraction)
+    if args.dblivetime:
+        livetime.Fill(iov.LumiBlock, iov.LiveFraction)
     #print iov.InstLumi, iovs_lum[iov.LumiBlock-1].LBAvInstLumi
     official_lum_zero.Fill(iov.LumiBlock, iov.InstLumi/1e3)
     official_lum.Fill(iov.LumiBlock, iov.InstLumi*iov.LBTime*iov.LiveFraction/1e3)
@@ -167,6 +179,12 @@ lumiplot_raw_m =  ROOT.TH1F('lumiplot_raw_m', 'Lumi, Z->#mu#mu, per LB',
 num_m, lum, denom, weighted_mu = 0, 0, 0, 0
 tot_num_m, tot_denom, tot_lum = 0, 0, 0
 for ibin in xrange(1, int(lbmax-lbmin)+1):
+    profileflag=True
+    try:
+        z_m[ibin]
+    except IndexError, e:
+        logging.error('Something unfortunate has happened; LB %d missing from Z count' % (ibin + lbmin - 1))
+        profileflag=False
     if args.mudep:
         l_zatimesc = mu_dep_eff(official_mu[ibin])
     else:
@@ -175,12 +193,13 @@ for ibin in xrange(1, int(lbmax-lbmin)+1):
         o_passgrl[0]=0
     else:
         o_passgrl[0]=1
-    if divisor[ibin] > 0:
+    if divisor[ibin] > 0 and profileflag:
         lumiplot_raw_m.SetBinContent(ibin, z_m[ibin]/divisor[ibin]*ZPURITYFACTOR/l_zatimesc/ZXSEC)
         lumiplot_raw_m.SetBinError(ibin, z_m[ibin]**.5/divisor[ibin]*ZPURITYFACTOR/l_zatimesc/ZXSEC)
     o_mu[0] = official_mu[ibin]
     if o_passgrl[0]:
-        num_m += z_m[ibin]; tot_num_m += z_m[ibin]
+        if profileflag:
+            num_m += z_m[ibin]; tot_num_m += z_m[ibin]
         denom += divisor[ibin]; tot_denom += divisor[ibin]
         lum += official_lum[ibin]; tot_lum += official_lum[ibin]
         weighted_mu += o_mu[0]*divisor[ibin]
@@ -192,8 +211,8 @@ for ibin in xrange(1, int(lbmax-lbmin)+1):
         o_lb[0] = int(lumiplot_raw_m.GetBinCenter(ibin))
         o_lbwhen[0] = lb_start_end[o_lb[0]][0]
         o_lbwhen[1] = lb_start_end[o_lb[0]][1]
-        o_zraw[0] = z_m[ibin]
-        o_zrawstat[0] = z_m.GetBinError(ibin)
+        o_zraw[0] = z_m[ibin] if profileflag else 0
+        o_zrawstat[0] = z_m.GetBinError(ibin) if profileflag else 0
         o_zlumi[0] = lumiplot_raw_m[ibin]
         o_zlumistat[0] = lumiplot_raw_m.GetBinError(ibin)
         o_offlumi[0] = official_lum_zero[ibin]
@@ -259,10 +278,10 @@ leg.AddEntry(lumiplot_m, 'Z luminosity')
 leg.AddEntry(official_lum_zero, 'ATLAS preferred lumi', 'L')
 leg.SetBorderSize(0)
 leg.Draw()
-c1.Print('plots/%s_lumi.eps' % runname[4:])
-c1.Print('plots/%s_lumi.png' % runname[4:])
+c1.Print(os.path.join(args.plotdir, '%s_lumi.eps' % runname[4:]))
+c1.Print(os.path.join(args.plotdir, '%s_lumi.png' % runname[4:]))
 
 c1.Clear()
 lumiplot_m_ratio.Draw()
-c1.Print('plots/%s_lumi_ratio.eps' % runname[4:])
-c1.Print('plots/%s_lumi_ratio.png' % runname[4:])
+c1.Print(os.path.join(args.plotdir, '%s_lumi_ratio.eps' % runname[4:]))
+c1.Print(os.path.join(args.plotdir, '%s_lumi_ratio.png' % runname[4:]))
