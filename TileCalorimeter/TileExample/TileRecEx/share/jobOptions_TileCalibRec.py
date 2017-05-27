@@ -168,7 +168,8 @@ else:
                                    % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
            else:
                if not 'DirectorySuffix' in dir():
-                   DirectorySuffix = 'merge.RAW'
+                   if RunStream.startswith('calibration'): DirectorySuffix = 'daq.RAW'
+                   else: DirectorySuffix = 'merge.RAW'
                    log.warning('DirectorySuffix is not set up and will be used: %(suff)s' % {'suff': DirectorySuffix})
 
                InputDirectory = ( "/eos/atlas/atlastier0/rucio/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.%(suff)s" 
@@ -198,8 +199,10 @@ else:
                 Year = 2014
             elif RunNumber < 287952:
                 Year = 2015
-            else:
+            elif RunNumber < 314450:
                 Year = 2016
+            else:
+                Year = 2017
 
 
             if 'RunStream' in dir():
@@ -252,7 +255,7 @@ def FindFile(path, runinput, filter):
         if RunFromLocal:
             files = check_output('ls %(path)s | grep %(run)s | grep %(filt)s' % {'path': path, 'run':run, 'filt':filter}, shell = True).splitlines()
         elif (path.startswith('/eos/')):
-            files = check_output('xrd eosatlas dirlist %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " | grep %(filt)s | sed "s|^.*/||" ' % {'path':path, 'run':run, 'filt':filter}, shell = True).splitlines()
+            files = check_output('xrdfs eosatlas ls -l %(path)s | grep %(run)s | grep -v "#" | grep -v -e "         [ 0-9][ 0-9][0-9] " | grep %(filt)s | sed "s|^.*/||" ' % {'path':path, 'run':run, 'filt':filter}, shell = True).splitlines()
         else:
             if (TilePhysRun and RunNumber > 28000 and RunNumber < 40000):
                 files = check_output('nsls -l %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " -e "hlterror" | grep %(filt)s | grep -e "b0000[01][01][01][01]" -e "physics.cosmics" | cut -c66- ' % {'path': path, 'run':run, 'filt':filter  }, shell = True).splitlines()
@@ -706,8 +709,8 @@ else:
     # Set Global tag for IOVDbSvc
     if not 'CondDbTag' in dir():
         if RUN2:
-            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-2016-05'
-            else:                        CondDbTag = 'CONDBR2-ES1PA-2015-11'
+            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-2017-07'
+            else:                        CondDbTag = 'CONDBR2-ES1PA-2017-03'
         else:
             if 'UPD4' in dir() and UPD4 and RunNumber > 141066: CondDbTag = 'COMCOND-BLKPA-RUN1-06'
             else:                                               CondDbTag = 'COMCOND-ES1PA-006-05'
@@ -797,22 +800,21 @@ print tileInfoConfigurator
 #============================================================
 #=== configure TileCondToolOfcCool
 #============================================================
-OfcFromCoolOF1 = OfcFromCOOL and (conddb.GetInstance() == 'CONDBR2') # there are OFCs for OF1 only in CONDBR2
+OfcFromCoolOF1 = doTileOF1 and OfcFromCOOL and (conddb.GetInstance() == 'CONDBR2') # there are OFCs for OF1 only in CONDBR2
 if not ReadPool or OfcFromCOOL or doTileMF:
     if TileLasPulse:
         tileCondToolOfcCool = getTileCondToolOfcCool('COOL', 'LAS')
-        if doTileOF1 and OfcFromCoolOF1: tileCondToolOfcCoolOF1 = getTileCondToolOfcCool('COOL', 'LAS', 'OF1', 'TileCondToolOfcCoolOF1')
-
+        if OfcFromCoolOF1: tileCondToolOfcCoolOF1 = getTileCondToolOfcCool('COOL', 'LAS', 'OF1', 'TileCondToolOfcCoolOF1')
     elif TileCisPulse:
         tileCondToolOfcCool = getTileCondToolOfcCool('COOL', 'CIS')
-        if doTileOF1 and OfcFromCoolOF1: tileCondToolOfcCoolOF1 = getTileCondToolOfcCool('COOL', 'CIS','OF1', 'TileCondToolOfcCoolOF1')
+        if OfcFromCoolOF1: tileCondToolOfcCoolOF1 = getTileCondToolOfcCool('COOL', 'CIS','OF1', 'TileCondToolOfcCoolOF1')
     else:
         tileCondToolOfcCool = getTileCondToolOfcCool('COOL', 'PHY')
-        if doTileOF1 and OfcFromCoolOF1: tileCondToolOfcCoolOF1 = getTileCondToolOfcCool('COOL', 'PHY', 'OF1', 'TileCondToolOfcCoolOF1')
+        if OfcFromCoolOF1: tileCondToolOfcCoolOF1 = getTileCondToolOfcCool('COOL', 'PHY', 'OF1', 'TileCondToolOfcCoolOF1')
 
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += tileCondToolOfcCool
-    if doTileOF1 and OfcFromCoolOF1: ToolSvc += tileCondToolOfcCoolOF1
+    if OfcFromCoolOF1: ToolSvc += tileCondToolOfcCoolOF1
 
 #============================================================
 #=== configure TileCondToolOfc
@@ -870,6 +872,8 @@ else:
 if doTileFit:
     ToolSvc.TileRawChannelBuilderFitFilter.MaxTimeFromPeak = 250.0; # recover behaviour of rel 13.0.30  
     ToolSvc.TileRawChannelBuilderFitFilter.RMSChannelNoise = 3; 
+    ToolSvc.TileRawChannelBuilderFitFilter.UseDSPCorrection = not TileBiGainRun
+
     print ToolSvc.TileRawChannelBuilderFitFilter
 
 if doTileFitCool:
@@ -883,6 +887,7 @@ if doTileFitCool:
         ToolSvc.TileRawChannelBuilderFitFilterCool.TileCondToolPulseShape = getTileCondToolPulseShape('COOL','CISPULSE100','TileCondToolPulseShape')
     else:
         ToolSvc.TileRawChannelBuilderFitFilterCool.TileCondToolPulseShape = getTileCondToolPulseShape('COOL','PHYS','TileCondToolPulseShape')
+    ToolSvc.TileRawChannelBuilderFitFilterCool.UseDSPCorrection = not TileBiGainRun
     
     print ToolSvc.TileRawChannelBuilderFitFilterCool
 
@@ -894,6 +899,7 @@ if doTileOpt2:
         ToolSvc.TileRawChannelBuilderOpt2Filter.MaxIterations = 3 # 3 iterations to match DSP reco
         if TileCompareMode or TileEmulateDSP:
             ToolSvc.TileRawChannelBuilderOpt2Filter.EmulateDSP = True # use dsp emulation
+    ToolSvc.TileRawChannelBuilderOpt2Filter.UseDSPCorrection = not TileBiGainRun
     
     print ToolSvc.TileRawChannelBuilderOpt2Filter
 
@@ -911,6 +917,7 @@ if doTileOptATLAS:
     ToolSvc.TileRawChannelBuilderOptATLAS.BestPhase   = PhaseFromCOOL; # Phase from COOL or assume phase=0
     if TileCompareMode or TileEmulateDSP:
         ToolSvc.TileRawChannelBuilderOptATLAS.EmulateDSP = True # use dsp emulation
+    ToolSvc.TileRawChannelBuilderOptATLAS.UseDSPCorrection = not TileBiGainRun
 
     print ToolSvc.TileRawChannelBuilderOptATLAS
     
@@ -923,12 +930,13 @@ if doTileMF:
         ToolSvc.TileRawChannelBuilderMF.correctTime = False; # do not need to correct time with best phase
 
     ToolSvc.TileRawChannelBuilderMF.BestPhase   = PhaseFromCOOL; # Phase from COOL or assume phase=0
+    ToolSvc.TileRawChannelBuilderMF.UseDSPCorrection = not TileBiGainRun
 
     print ToolSvc.TileRawChannelBuilderMF 
 
 if doTileOF1:
     ToolSvc.TileRawChannelBuilderOF1.PedestalMode = TileOF1Ped  
-    
+
     if OfcFromCoolOF1:
         ToolSvc.TileRawChannelBuilderOF1.TileCondToolOfc = tileCondToolOfcCoolOF1
 
@@ -939,6 +947,7 @@ if doTileOF1:
     ToolSvc.TileRawChannelBuilderOF1.BestPhase   = PhaseFromCOOL # Phase from COOL or assume phase=0
     if TileCompareMode or TileEmulateDSP:
         ToolSvc.TileRawChannelBuilderOF1.EmulateDSP = True # use dsp emulation
+    ToolSvc.TileRawChannelBuilderOF1.UseDSPCorrection = not TileBiGainRun
 
     print ToolSvc.TileRawChannelBuilderOF1    
 
@@ -1071,7 +1080,7 @@ if doD3PD:
             from CaloD3PDMaker.CaloInfoD3PDObject import CaloInfoD3PDObject
             from CaloD3PDMaker.MBTSD3PDObject import MBTSD3PDObject
 
-            if doRecoESD:
+            if doRecoESD and doCaloCell:
                 alg += TileDetailsD3PDObject (**_args(1, 'TileDetails',kw, sgkey='AllCaloNewReco', prefix='tile_', \
                                                               Kinematics_WriteEtaPhi = True, TileDetails_SavePositionInfo = TileD3PDSavePosition))
                     
@@ -1169,8 +1178,12 @@ if doTileNtuple:
     if useRODReco:
         if 'ReadAOD' in dir() and ReadAOD:
             TileNtuple.TileRawChannelContainerDsp = ""
+            TileNtuple.TileDigitsContainer = ""
+            TileNtuple.TileDigitsContainerFlt = ""
         elif ('ReadESD' in dir() and ReadESD):
             TileNtuple.TileRawChannelContainerDsp = "TileRawChannelFlt"
+            TileNtuple.TileDigitsContainer = ""
+            TileNtuple.TileDigitsContainerFlt = "TileDigitsFlt"
         else:
             TileNtuple.TileRawChannelContainerDsp = "TileRawChannelCnt"
     elif TilePhysTiming:
@@ -1638,16 +1651,16 @@ if doCreatePool:
 
 
 if doEventDisplay:
-    from HitDisplay.HitDisplayConf import HitDisplay
-    theHitDisplay = HitDisplay()
-    topSequence += theHitDisplay
+    from VP1Algs.VP1AlgsConf import VP1Alg
+    topSequence += VP1Alg()
+    topSequence.TimeOut = 0
 
 
 if doAtlantis:
     include("JiveXML/JiveXML_jobOptionBase.py")
     from AthenaCommon.AppMgr import ToolSvc
 
-    if doAtlantisStreamToServer:
+    if 'doAtlantisStreamToServer' in dir() and doAtlantisStreamToServer:
         from JiveXML.JiveXMLConf import JiveXML__ONCRPCServerSvc
         svcMgr += JiveXML__ONCRPCServerSvc("ONCRPCServerSvc", OutputLevel = DEBUG)
 
@@ -1672,14 +1685,14 @@ if doAtlantis:
         from CaloJiveXML.CaloJiveXMLConf import JiveXML__CaloTileRetriever
         theCaloTileRetriever = JiveXML__CaloTileRetriever (name = "CaloTileRetriever")
         theCaloTileRetriever.DoTileCellDetails = True
-        theCaloTileRetriever.DoTileDigit = ReadDigits
+        theCaloTileRetriever.DoTileDigit = ReadDigits or ('ReadESD' in dir() and ReadESD)
         theCaloTileRetriever.CellThreshold = 50.0
         ToolSvc += theCaloTileRetriever
         theEventData2XML.DataTypes += ["JiveXML::CaloTileRetriever/CaloTileRetriever"]
 
         from CaloJiveXML.CaloJiveXMLConf import JiveXML__CaloMBTSRetriever
         theCaloMBTSRetriever = JiveXML__CaloMBTSRetriever (name = "CaloMBTSRetriever")
-        theCaloMBTSRetriever.DoMBTSDigits = ReadDigits
+        theCaloMBTSRetriever.DoMBTSDigits = ReadDigits or ('ReadESD' in dir() and ReadESD)
         theCaloMBTSRetriever.MBTSThreshold = 0.05
         ToolSvc += theCaloMBTSRetriever
         theEventData2XML.DataTypes += ["JiveXML::CaloMBTSRetriever/CaloMBTSRetriever"]
@@ -1725,3 +1738,7 @@ if not 'db' in dir():
 
 if hasattr (svcMgr.ToolSvc, 'CaloNoiseToolDefault'):
     ToolSvc.CaloNoiseToolDefault.RescaleForHV = False
+
+# Needed during maintanance campaign
+# if doTileMon and doTileMonDigi: ToolSvc.TileDigitsMon.FillPedestalDifference = False
+

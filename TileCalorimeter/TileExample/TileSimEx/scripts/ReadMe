@@ -1,0 +1,113 @@
+###                           Simulation Tasks
+
+* Set up enviroment:
+
+  setupATLAS  
+  asetup 20.3.7.7,here # _ you can update the athena release _
+
+* Get and compile running packages:
+
+  * Get G4AtlasApps: Geant4 ATLAS simulation Applications
+    
+    pkgco.py G4AtlasApps-00-11-00-20 # _ you can update the G4AtlasApps release _  
+    cd Simulation/G4Atlas/G4AtlasApps/cmt  
+    gmake # _ compile the package _  
+    cd -  # _ go back to the working directory _  
+
+  * Get the package of Tile Simulation  
+
+    pkgco.py TileSimEx  
+    cd TileCalorimeter/TileExample/TileSimEx/cmt  
+    make # _ compile the package _  
+    cd ../run  
+
+* Put simulation and digization jobs (myjob_sim.py and myjob_dig)
+  and bash script of submitting jobs (sub_jobs.sh) in directory "run"  
+
+    * myjob_sim.py: job options of simulation
+
+    * myjob_dig.py: job option of digitization
+
+    * sub_jobs.sh:
+
+      Submit the simulation job and digitization job of different types
+      of particles with different beam energies and physics lists in a loop. 
+      This bash script will configure myjob_sim.py and myjob_dig.py first,
+      then call the configured job options.
+
+
+###                          Analyse MC
+
+* Several variables are used in analysis:
+
+ * Energy response and resolution are defined as the peak/beam energy and
+   sigma/peak of a Gaussian fit to the total energy distribution in the range
+   of -2sigma to 2sigma around the peak.  
+ * Lateral spread is defined as the mean energy deposit in barrel module 0
+   divided by the mean energy deposit in the production module.  
+ * Longitudinal shower profiles for pions and protons represent the mean energy
+   as a function of the depth. The depth is taken to be the size of 
+   the B sub-cell, since most of the energy is deposited here.
+
+
+* ** GetEnergy.cxx: **
+
+  * run by command:  
+    root -l -b -q GetEnergy.cxx  
+
+  * This script will loop and types of particles,
+    beam energies and physics lists.  
+
+  * Get the total energy, energy in Cental Barrel Module, 
+    Barrel Module 0 and Extended Barrel Modules.  
+
+  * Get the longitudinal distribution-the mean energy as a function
+    of the depth  
+
+
+* ** makePlot.py: ** Be careful that data of proton only has 3 beam energies.
+
+  * GetPlotSingleProperty(): Get energy response, energy resolution,
+    lateral spread and longitudinal profile of each type of particle, 
+    each physics list and each beam energy. And plot the energy response, 
+    energy resolution, lateral spread of each physics lists and each 
+    particle type, plot the longitudinal profile of each type of particle, 
+    each physics list and each beam energy.  
+
+  * GetDataPlotSingleProperty(): Get energy response, energy resolution,
+    lateral spread and longitudinal profile of data, and plot them.  
+
+  * ComDataMC(): Compare MC results with data, get the ratio of MC to data.
+    Draw all MC, data and their ratio on one plot.(energy response and 
+    resolution, lateral spread and longitudinal spread)  
+
+  * ComparePhysicsList(): Draw all MC results, data results on one plot.
+    (energy response and resolution, lateral spread)  
+  
+
+* Auxiliary scripts: ** HistToolKit.h, SetAttributes.h and GraphToolKit.h **
+
+  * set the standard format of histograms, grapherrors ......  
+  * draw several hitograms or grapherrors on the same canvas
+
+
+* ** HistToolKit.h: **
+
+  * bookTH1F() : create hitogram  
+  * DrawSingleHistOnCanvas(): draw single histogram  
+  * DrawThreeHistsOnCanvas(): draw three histograms on one canvas  
+  * DrawFourHistsOnCanvas(): draw four histograms on one canvas  
+  * DrawFourHistsOnCanvas(): draw five histograms on one canvas  
+  * DrawTopFiveHistsAndBottomFourHistsOnCanvas(): 
+    draw five histograms on top and four on bottom.  
+
+
+* ** GraphToolKit.h: **
+
+  * DrawSingleGraphErrorsOnCanvas(): draw single grapherrors on one canvas  
+  * DrawTwoGraphErrorsOnCanvas(): draw two grapherrors on one canvas  
+  * DrawThreeGraphErrorsOnCanvas(): draw three grapherrors on one canvas  
+  * DrawFourGraphErrorsOnCanvas(): draw four grapherrors on one canvas  
+  * DrawFiveGraphErrorsOnCanvas(): draw five grapherrors on one canvas  
+  * DrawTopFiveGraphErrorsAndBottomFourGraphErrorsOnCanvas():
+    draw five grapherrors on top and four on bottom.  

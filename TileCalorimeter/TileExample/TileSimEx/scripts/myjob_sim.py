@@ -1,9 +1,17 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 #==============================================================
 #
 # Job options file for Geant4 Simulation
 #
 # Standalone TileCal Testbeam in 2000-2003 
 #
+#==============================================================
+# The original copy of this job option is ../share/jobOptions_TileTB_Sim.py,
+# This skeleton is modified to loop over particle types, beam energies,
+# and physics lists in sub_jobs.sh
+# Number of events, pool outfile name, particle type, beam energy 
+# and physics list will be setup in sub_jobs.sh.
 #==============================================================
 
 ## Algorithm sequence
@@ -24,14 +32,18 @@ svcMgr.MessageSvc.useColors = False
 
 #--- Number of events to be processed (default is 10) ---------
 if not 'EvtMax' in dir():
-    EvtMax = 10
+    EvtMax = NEVENTS 
+    # NEVENT will be replaced by the number you set in sub_jobs.sh, when run sub_jobs.sh.
 
 #--- Suffix for output POOL file ------------------------------
 if not 'FileSuffix' in dir():
-    FileSuffix = ''
+    FileSuffix = '90-EBEAMENERGY-PARTICLENAME_PHYSICSLIST'
+    # EBEAMENERGY, PARTICLENAME and PHYSICSLIST will be replaced 
+    # by the beam enrgies, particle names and G4 physics that loop over in sub_jobs.sh.
 
 #--- AthenaCommon flags ---------------------------------------
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+# Set the output POOL file name
 athenaCommonFlags.PoolHitsOutput='tiletb%s.HITS.pool.root' % FileSuffix
 athenaCommonFlags.EvtMax=EvtMax
 
@@ -58,37 +70,34 @@ from AtlasGeoModel import GeoModelInit
 
 #--- Simulation flags -----------------------------------------
 from G4AtlasApps.SimFlags import simFlags
-if 'VP1' in dir():
-    simFlags.ReleaseGeoModel=False
 
 if not 'Geo' in dir():
-    # TileCal standalone setup with 2 barrels and 1 ext.barrel on top
-    #Geo = '2B1EB'
     # TileCal standalone setup with 2 barrels and 2 ext.barrels on top
-    #Geo = '2B2EB'
+    # This is the setup in out current simulations.
+    Geo = '2B2EB'
     # TileCal standalone setup with 3 barrels
     #Geo = '3B'
     # TileCal standalone setup with 5 barrels - use for sampling fraction calculation
-    Geo = '5B'
+    #Geo = '5B'
 simFlags.SimLayout='tb_Tile2000_2003_%s' % Geo
 simFlags.load_tbtile_flags()
 
 # set eta only if you want eta-projective scan
-if not 'Eta' in dir() and not 'Theta' in dir() and not 'Z' in dir():
-    Eta = 0.35
-
-if 'Eta' in dir():
-    simFlags.Eta=Eta
-
-else:
-    if not 'Theta' in dir():
-        Theta=-19.656205808169407
-
-    if not 'Z' in dir():
-        Z=817.96448041135261
-
-    simFlags.Theta=Theta
-    simFlags.Z=Z
+#if not 'Eta' in dir() and not 'Theta' in dir() and not 'Z' in dir():
+#    Eta = 0.35
+#
+#if 'Eta' in dir():
+#    simFlags.Eta=Eta
+#
+#else:
+#    if not 'Theta' in dir():
+#        Theta=-19.656205808169407
+#
+#    if not 'Z' in dir():
+#        Z=817.96448041135261
+#
+#    simFlags.Theta=Theta
+#    simFlags.Z=Z
 
 # these two values Theta and Z can be set instead of eta
 # negative theta corresponds to positive eta values
@@ -100,10 +109,11 @@ else:
 #
 # for 90 degrees scans put theta=+/-90
 # positive theta - beam enters from positive eta side (as defined in CTB setup!)
-#simFlags.Theta=90
+simFlags.Theta=90.0
 # Z coordinate is the distance from ATLAS center to the desired impact point
 # sensitive part starts at Z=2300, ends at Z=2300+3*100+3*130+3*150+2*190=3820
 #simFlags.Z=2550.0
+simFlags.Z=2795.0
 
 #
 # put 5.625 or -5.625 if you want to rotate table to up/bottom module
@@ -170,16 +180,20 @@ pg = PG.ParticleGun(randomSvcName=simFlags.RandomSvc.get_Value(), randomStream="
 #pg.sampler.pos = PG.PosSampler(x=-27500, y=[-20,20], z=[-15,15], t=-27500)
 #pg.sampler.mom = PG.EEtaMPhiSampler(energy=100000, eta=0, phi=0)
 
+# Setup particle type, beam energy and particle gun position in the simulation
+# PARTICLEID and  BEAMENERGY will be replaced  by the particle types
+# and beam enrgies that loop over in sub_jobs.sh.
 if not 'PID' in dir():
-    PID=11
+    PID=PARTICLEID # electron 11 proton 2212
 if not 'E' in dir():
-    E=100000
+    E=BEAMENERGY
 if not 'Ybeam' in dir():
     Ybeam=[-20,20]
 if not 'Zbeam' in dir():
-    Zbeam=[-20,20]
+    Zbeam=[-15,15]
+
 pg.sampler.pid = PID
-pg.sampler.pos = PG.PosSampler(x=-27500, y=Ybeam, z=Zbeam, t=[-25000,-17500])
+pg.sampler.pos = PG.PosSampler(x=-27500, y=Ybeam, z=Zbeam, t=-27500)
 pg.sampler.mom = PG.EEtaMPhiSampler(energy=E, eta=0, phi=0)
 
 topSeq += pg
@@ -194,20 +208,17 @@ except:
         from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
         topSeq += CopyEventWeight()
 
-try:
-    from AthenaCommon.CfgGetter import getAlgorithm
-    topSeq += getAlgorithm("BeamEffectsAlg")
-except:
-    print "can not import BeamEffectsAlg algorithm"
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("BeamEffectsAlg")
 
 #--- Geant4 flags ---------------------------------------------
 
 ## Select G4 physics list or use the default one
-#simFlags.PhysicsList.set_Value('QGSP_EMV')
-#simFlags.PhysicsList.set_Value('QGSP_BERT_EMV')
+# PHYSICSLIST will be replaced  by the physics lists that loop over in sub_jobs.sh.
 #simFlags.PhysicsList.set_Value('QGSP_BERT')
+#simFlags.PhysicsList.set_Value('QGSP_BIC')
 #simFlags.PhysicsList.set_Value('FTFP_BERT')
-#simFlags.PhysicsList.set_Value('FTFP_BERT_ATL_VALIDATION')
+simFlags.PhysicsList.set_Value('PHYSICSLIST')
 
 ## Use verbose G4 tracking
 if 'VerboseTracking' in dir():
@@ -229,10 +240,5 @@ if 'RangeCut' in dir():
 ## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
-
-## VP1 algorithm for visualization
-if 'VP1' in dir():
-    from VP1Algs.VP1AlgsConf import VP1Alg
-    topSeq += VP1Alg()
 
 #--- End of jobOptions_TileTB_Sim.py --------------------------
