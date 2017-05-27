@@ -236,9 +236,7 @@ double realmax( TH1* h, bool include_error, double lo, double hi ) {
   double rm = 0;
   if ( h->GetNbinsX()==0 )  return 0; 
 
-  bool first = 0;
-  if ( include_error ) rm += h->GetBinError(1);
-
+  bool first = true;
   for ( int i=1 ; i<=h->GetNbinsX() ; i++ ) { 
 
     if ( lo!=hi ) { 
@@ -248,9 +246,11 @@ double realmax( TH1* h, bool include_error, double lo, double hi ) {
 
     double re = h->GetBinContent(i);
     if ( include_error ) re += h->GetBinError(i);
-    if ( first || rm<re ) { 
-      rm = re;
-      first = false;
+    if ( re!=0 ) {
+      if ( first || rm<re ) { 
+	rm = re;
+	first = false;
+      }
     }
   }
 

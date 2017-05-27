@@ -601,7 +601,7 @@ public:
     double _min = 1000;
     for ( unsigned i=0 ; i<size() ; i++ ) {
       double rmtest = ::realmin( at(i).htest(), false, lo, hi );
-      if ( first || ( rmtest!=0 && _min>rmtest ) ) _min = rmtest;
+      if ( rmtest!=0 && ( first || _min>rmtest ) ) _min = rmtest;
       if ( rmtest!=0 ) first = false;
     }
     return _min;
@@ -613,7 +613,7 @@ public:
     for ( unsigned i=0 ; i<size() ; i++ ) {
       // double rmref  = realmin( at(i).href(), false );
       double rmtest = ::realmax( at(i).htest(), false, lo, hi );
-      if ( first || _max<rmtest ) _max = rmtest;
+      if ( rmtest!=0 && ( first || _max<rmtest ) ) _max = rmtest;
       if ( rmtest!=0 ) first = false;
     }
     return _max;
