@@ -561,7 +561,10 @@ class EgammaHypoBuilder(object):
             if(tt == 'g'):
                 fex,hypo = TrigL2CaloRingerFexHypo_g_EtCut(thr)
         elif idinfo:
-            fex, hypo = TrigL2CaloRingerFexHypo_e_ID(thr,idinfo,tt)
+            if(tt == 'e'):
+                fex, hypo = TrigL2CaloRingerFexHypo_e_ID(thr,idinfo,tt)
+            if(tt == 'g'):
+                fex, hypo = TrigL2CaloRingerFexHypo_e_NoCut(thr)
         else:
             log.error('Cannot configure ringer')
         seq = [fex,hypo]
