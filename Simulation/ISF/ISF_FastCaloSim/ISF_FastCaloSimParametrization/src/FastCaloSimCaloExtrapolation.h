@@ -14,86 +14,82 @@ namespace Trk
   class TrackingVolume;
 }
 
-#include "TrkExInterfaces/ITimedExtrapolator.h" 
+#include "TrkExInterfaces/ITimedExtrapolator.h"
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 
-class ICaloSurfaceBuilder;
 class ICaloSurfaceHelper;
-class ICaloCoordinateTool;
 
 namespace HepPDT
 {
   class ParticleDataTable;
-}  
+}
 
 #include "ISF_FastCaloSimParametrization/IFastCaloSimCaloExtrapolation.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 #include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
 
-class IFastCaloSimGeometryHelper;
+#include "ISF_FastCaloSimParametrization/IFastCaloSimGeometryHelper.h"
 
-class FastCaloSimCaloExtrapolation:public AthAlgTool, public IFastCaloSimCaloExtrapolation
+
+class FastCaloSimCaloExtrapolation:public AthAlgTool, virtual public IFastCaloSimCaloExtrapolation
 {
- 
- public:
-   FastCaloSimCaloExtrapolation( const std::string& t, const std::string& n, const IInterface* p );
-   ~FastCaloSimCaloExtrapolation();
 
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
+public:
+  FastCaloSimCaloExtrapolation( const std::string& t, const std::string& n, const IInterface* p );
+  ~FastCaloSimCaloExtrapolation();
 
-   IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
-   enum SUBPOS { SUBPOS_MID = TFCSExtrapolationState::SUBPOS_MID, SUBPOS_ENT = TFCSExtrapolationState::SUBPOS_ENT, SUBPOS_EXT = TFCSExtrapolationState::SUBPOS_EXT}; //MID=middle, ENT=entrance, EXT=exit of cal layer
-	 
-	 virtual void extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth);
-	
- protected:
+  virtual StatusCode initialize() override final;
+  virtual StatusCode finalize() override final;
 
-   // extrapolation through Calo
-   std::vector<Trk::HitInfo>* caloHits(const TFCSTruthState* truth) const;
-   void extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth,std::vector<Trk::HitInfo>* hitVector);
-   void extrapolate_to_ID(TFCSExtrapolationState& result,const TFCSTruthState* truth,std::vector<Trk::HitInfo>* hitVector);
-   bool get_calo_etaphi(TFCSExtrapolationState& result,std::vector<Trk::HitInfo>* hitVector,int sample,int subpos=SUBPOS_MID);
-   bool get_calo_surface(TFCSExtrapolationState& result,std::vector<Trk::HitInfo>* hitVector);
-   bool rz_cylinder_get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, double cylR, double cylZ, Amg::Vector3D& pos, Amg::Vector3D& mom);  
+  enum SUBPOS { SUBPOS_MID = TFCSExtrapolationState::SUBPOS_MID, SUBPOS_ENT = TFCSExtrapolationState::SUBPOS_ENT, SUBPOS_EXT = TFCSExtrapolationState::SUBPOS_EXT}; //MID=middle, ENT=entrance, EXT=exit of cal layer
 
-   bool   isCaloBarrel(int sample) const;
-   double deta(int sample,double eta) const;
-   void   minmaxeta(int sample,double eta,double& mineta,double& maxeta) const;
-   double rzmid(int sample,double eta) const;
-   double rzent(int sample,double eta) const;
-   double rzext(int sample,double eta) const;
-   double rmid(int sample,double eta) const;
-   double rent(int sample,double eta) const;
-   double rext(int sample,double eta) const;
-   double zmid(int sample,double eta) const;
-   double zent(int sample,double eta) const;
-   double zext(int sample,double eta) const;
-   double rpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
-   double zpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
-   double rzpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
-   
-   HepPDT::ParticleDataTable*     m_particleDataTable;
-   
-   double m_CaloBoundaryR;
-   double m_CaloBoundaryZ;
-   double m_calomargin;
+  virtual void extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth) override final;
 
-   std::vector< int > m_surfacelist;
+protected:
+  IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
 
-   // The new Extrapolator setup
-   ToolHandle<Trk::ITimedExtrapolator> m_extrapolator;          
-   ToolHandle<ICaloSurfaceHelper>      m_caloSurfaceHelper;
-   mutable const Trk::TrackingVolume*  m_caloEntrance;
-   std::string                         m_caloEntranceName; 
+  // extrapolation through Calo
+  std::vector<Trk::HitInfo>* caloHits(const TFCSTruthState* truth) const;
+  void extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth,std::vector<Trk::HitInfo>* hitVector);
+  void extrapolate_to_ID(TFCSExtrapolationState& result,const TFCSTruthState* truth,std::vector<Trk::HitInfo>* hitVector);
+  bool get_calo_etaphi(TFCSExtrapolationState& result,std::vector<Trk::HitInfo>* hitVector,int sample,int subpos=SUBPOS_MID);
+  bool get_calo_surface(TFCSExtrapolationState& result,std::vector<Trk::HitInfo>* hitVector);
+  bool rz_cylinder_get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, double cylR, double cylZ, Amg::Vector3D& pos, Amg::Vector3D& mom);
 
-   Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
+  bool   isCaloBarrel(int sample) const;
+  double deta(int sample,double eta) const;
+  void   minmaxeta(int sample,double eta,double& mineta,double& maxeta) const;
+  double rzmid(int sample,double eta) const;
+  double rzent(int sample,double eta) const;
+  double rzext(int sample,double eta) const;
+  double rmid(int sample,double eta) const;
+  double rent(int sample,double eta) const;
+  double rext(int sample,double eta) const;
+  double zmid(int sample,double eta) const;
+  double zent(int sample,double eta) const;
+  double zext(int sample,double eta) const;
+  double rpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
+  double zpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
+  double rzpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
 
-   // The FastCaloSimGeometryHelper tool
-   ToolHandle<IFastCaloSimGeometryHelper> m_CaloGeometryHelper;
+  HepPDT::ParticleDataTable*     m_particleDataTable;
+
+  double m_CaloBoundaryR;
+  double m_CaloBoundaryZ;
+  double m_calomargin;
+
+  std::vector< int > m_surfacelist;
+
+  // The new Extrapolator setup
+  ToolHandle<Trk::ITimedExtrapolator> m_extrapolator;
+  ToolHandle<ICaloSurfaceHelper>      m_caloSurfaceHelper;
+  mutable const Trk::TrackingVolume*  m_caloEntrance;
+  std::string                         m_caloEntranceName;
+
+  Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
+
+  // The FastCaloSimGeometryHelper tool
+  ToolHandle<IFastCaloSimGeometryHelper> m_CaloGeometryHelper;
 };
 
 #endif // FastCaloSimCaloExtrapolation_H
-
-
-
