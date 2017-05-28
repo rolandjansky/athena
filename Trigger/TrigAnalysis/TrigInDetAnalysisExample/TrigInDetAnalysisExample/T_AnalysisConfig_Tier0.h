@@ -24,8 +24,6 @@
 #define TrigInDetAnalysisExample_T_AnalysisConfig_Tier0_H
 
 
-// #include "TrigHLTMonitoring/IHLTMonTool.h"
-// #include "AthenaBaseComps/AthAlgorithm.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "TrigInDetAnalysis/TIDAEvent.h"
@@ -64,7 +62,6 @@
 #include "TrigInDetAnalysisUtils/Filter_RoiSelector.h"
 #include "TrigInDetAnalysisUtils/Associator_BestMatch.h"
 #include "TrigInDetAnalysisUtils/Filters.h"
-// #include "TrigInDetAnalysisUtils/OfflineObjectSelection.h"
 
 
 #include "VxVertex/VxContainer.h"
@@ -75,7 +72,6 @@
 
 #include "tauEvent/TauJetContainer.h"
 
-//#include "JetEvent/JetCollection.h"
 
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigDecisionTool/ExpertMethods.h"
@@ -87,7 +83,6 @@
 // the xAOD::TrackParticle header if it exists
 #include "TrkParticleCreator/TrackParticleCreatorTool.h"
 
-#define endmsg endmsg
 
 
 template<typename T>
@@ -165,6 +160,9 @@ public:
     std::cout << "\troi:   " << chain.roi()     << std::endl;
     std::cout << "\tvtx:   " << chain.vtx()     << std::endl;
     std::cout << "\tte:    " << chain.element() << std::endl;
+
+    std::cout << "\tpost:  " << chain.post()          << std::endl; 
+    std::cout << "\tpt:    " << chain.postvalue("pt") << std::endl;
 #endif
     
     m_testType = testType;
