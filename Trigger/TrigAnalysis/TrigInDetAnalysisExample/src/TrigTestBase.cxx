@@ -278,7 +278,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
             if ( !chainName.passed() )     selectChains[iselected] += ":DTE";
 	    //            if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
 
-	    if ( chainName.postcount() )     selectChains[iselected] += ":post:"+chainsName.post();
+	    if ( chainName.postcount() )     selectChains[iselected] += ":post:"+chainName.post();
 
 #if 0
 	    std::cout << "\nTrigTestBase::chain specification: " << chainName << "\t" << chainName.raw() << std::endl;
