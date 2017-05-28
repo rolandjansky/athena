@@ -23,9 +23,9 @@ class ChainString : public std::string {
 
 public:
 
-  ChainString(const std::string& s);
+  ChainString( const std::string& s );
 
-  ChainString(const ChainString& s);
+  ChainString( const ChainString& s );
 
   std::string head()  { return mhead;  }
   std::string tail()  { return mtail;  }
@@ -53,14 +53,24 @@ public:
     return "";
   }
 
+  std::string postvalue( const std::string& key ) const { 
+    if ( postcount() ) return value( key+"-post" ); 
+    return "";
+  }
+
   const std::vector<std::string> values() const { return mvalues; }
   const std::vector<std::string>   keys() const { return   mkeys; }
+
+  const std::string pre()  const { return mraw.substr( 0, mraw.find(":post") ); }
+  const std::string post() const { return mpost; }
+
+  const size_t postcount() const { return mpostcount; }
 
 public:   
 
   // chop tokens off the front of a string
   static std::string chop(std::string& s1, const std::string& s2) {
-    std::string::size_type pos = s1.find(s2);
+    std::string::size_type pos = s1.find_first_of(s2);
     std::string s3;
     if ( pos == std::string::npos ) {
       s3 = s1;
@@ -68,7 +78,7 @@ public:
     }
     else {
       s3 = s1.substr(0, pos); 
-      s1.erase(0, pos+s2.size());
+      s1.erase(0, pos+1);
     }
     return s3;
   } 
@@ -77,11 +87,12 @@ protected:
 
   // chomp tokens off the end of a string
   static std::string chomp(std::string& s1, const std::string& s2) {
-    std::string::size_type pos = s1.find(s2);
+    //    std::string::size_type pos = s1.find(s2);
+    std::string::size_type pos = s1.find_first_of(s2);
     std::string s3;
     if ( pos == std::string::npos ) return "";
 
-    s3 = s1.substr(pos+s2.size(), s1.size()); 
+    s3 = s1.substr(pos+1, s1.size()); 
     s1.erase(pos, s1.size());
 
     return s3;
@@ -115,6 +126,7 @@ protected:
 
   /// parse the full specification string
   void parse();
+  void parse( const std::string& s );
 
   int find( const std::string& key ) const { 
     for ( int i=mkeys.size() ; i-- ; ) if ( key==mkeys[i] ) return i;
@@ -136,6 +148,10 @@ private:
   std::vector<std::string> mvalues;
 
   std::string mraw;
+
+  std::string mpost;
+  size_t      mpostcount; 
+
 };
 
 
