@@ -64,7 +64,7 @@ public:
   const std::string pre()  const { return mraw.substr( 0, mraw.find(":post") ); }
   const std::string post() const { return mpost; }
 
-  const size_t postcount() const { return mpostcount; }
+  size_t postcount() const { return mpostcount; }
 
 public:   
 
