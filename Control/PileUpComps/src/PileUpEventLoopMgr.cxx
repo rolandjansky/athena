@@ -800,7 +800,7 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
     }
 
   // Fire BeginEvent "Incident"
-  m_incidentSvc->fireIncident(EventIncident(*pEvent, this->name(),"BeginEvent"));
+  //m_incidentSvc->fireIncident(EventIncident(*pEvent, this->name(),"BeginEvent"));
 
   // Execute Algorithms
   //  StatusCode sc = MinimalEventLoopMgr::executeEvent(par);
@@ -856,7 +856,7 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
     }
 
   // Fire EndEvent "Incident"
-  m_incidentSvc->fireIncident(EventIncident(*pEvent, this->name(),"EndEvent"));
+  //m_incidentSvc->fireIncident(EventIncident(*pEvent, this->name(),"EndEvent"));
 
   //------------------------------------------------------------------------
   // Check if there was an error processing current event
