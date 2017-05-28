@@ -566,6 +566,9 @@ bool tPlotter<T>::meanplotref = true;
 
 typedef tPlotter<TH1F> Plotter;
 
+bool empty( TH1* h );
+
+
 
 inline void hminus(TH1* h) { 
   std::cout << __FUNCTION__ << std::endl; 
@@ -598,7 +601,7 @@ public:
     double _min = 1000;
     for ( unsigned i=0 ; i<size() ; i++ ) {
       double rmtest = ::realmin( at(i).htest(), false, lo, hi );
-      if ( first || ( rmtest!=0 && _min>rmtest ) ) _min = rmtest;
+      if ( rmtest!=0 && ( first || _min>rmtest ) ) _min = rmtest;
       if ( rmtest!=0 ) first = false;
     }
     return _min;
@@ -610,7 +613,7 @@ public:
     for ( unsigned i=0 ; i<size() ; i++ ) {
       // double rmref  = realmin( at(i).href(), false );
       double rmtest = ::realmax( at(i).htest(), false, lo, hi );
-      if ( first || _max<rmtest ) _max = rmtest;
+      if ( rmtest!=0 && ( first || _max<rmtest ) ) _max = rmtest;
       if ( rmtest!=0 ) first = false;
     }
     return _max;
@@ -711,19 +714,26 @@ public:
   }
 
   std::vector<double> findxrange( bool symmetric=false ) { 
-    std::vector<double> v(2,0);
-    for ( unsigned i=0 ; i<size() ; i++ ) { 
-      //      std::vector<int> limits = findxrange( at(i).htest(), symmetric );
 
-      //      double lo = at(i).htest()->GetBinLowEdge(limits[0]);
-      //     double hi = at(i).htest()->GetBinLowEdge(limits[1]+1);
+    /// don't use empty histograms to find the bin limits
+    /// unless they are *all* empty 
+    
+    std::vector<double> v(2,0);
+    
+    if ( size()>0 ) v = ::findxrangeuser( at(0).htest(), symmetric );
+
+    bool first = true;
+
+    for ( unsigned i=1 ; i<size() ; i++ ) { 
+  
+      if ( ::empty( at(i).htest() ) ) continue;
 
       std::vector<double> limits = ::findxrangeuser( at(i).htest(), symmetric );
 
       double lo = limits[0];
       double hi = limits[1];
 
-      if ( i==0 ) { 
+      if ( first ) { 
 	v[0] = lo;
 	v[1] = hi;
       }
@@ -731,6 +741,8 @@ public:
 	if ( v[0]>lo ) v[0] = lo;
 	if ( v[1]<hi ) v[1] = hi;
       }
+
+      first = false;
     }
     
     return v;
