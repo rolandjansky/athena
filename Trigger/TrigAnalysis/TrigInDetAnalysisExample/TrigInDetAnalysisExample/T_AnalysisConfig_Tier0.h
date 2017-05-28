@@ -155,7 +155,7 @@ public:
     m_event = new TIDA::Event();
     m_chainNames.push_back(testChainName);
     
-#if 0
+#if 1
     ChainString& chain = m_chainNames.back(); 
 
     std::cout << "\nT_AnalysisConfig_Tier0::name:                " << name() << "\t" << this << std::endl;
