@@ -34,21 +34,37 @@ objectSelection = '( (' + photon_selection + ') || ('+ electron_selection +' ) )
 
 triggers =[]
 
-# HLT_noalg_ triggers for 2016 run
+# HLT_noalg_ triggers
 triggers += ['HLT_noalg_L1EM15VH']
+triggers += ['HLT_noalg_L1EM12']
+triggers += ['HLT_noalg_L1EM15']
+triggers += ['HLT_noalg_L1EM18VH']
+triggers += ['HLT_noalg_L1EM20VH']
+triggers += ['HLT_noalg_L1EM10']
+triggers += ['HLT_noalg_L1EM10VH']
+triggers += ['HLT_noalg_L1EM13VH']
+triggers += ['HLT_noalg_L1EM20VHI']
+triggers += ['HLT_noalg_L1EM22VHI']
+triggers += ['HLT_noalg_L1EM8VH']
 
 # pt_cut triggers
 triggers += ['HLT_g20_etcut_L1EM12']            
 
-# Passed through triggers
-triggers += ['HLT_g10_loose'                       ]
-triggers += ['HLT_g20_loose_L1EM12'                ]
+# Passed through triggers for bootstrapping
+triggers += ['HLT_g10_loose']
+triggers += ['HLT_g15_loose_L1EM7']
+triggers += ['HLT_g20_loose_L1EM12']
+triggers += ['HLT_g20_loose']
+triggers += ['HLT_g25_loose_L1EM15']
+triggers += ['HLT_g60_loose']
+triggers += ['HLT_g100_loose']
+triggers += ['HLT_g120_loose']
+triggers += ['HLT_g160_loose']
+triggers += ['HLT_g160_loose_L1EM24VHIM']
+triggers += ['HLT_g180_loose']
+triggers += ['HLT_g180_loose_L1EM24VHIM']
 
-# additional low pt HLT loose triggers
-triggers += ['HLT_g20_loose'                       ]
 
-# additional BT for high pt HLT loose triggers
-triggers += ['HLT_g60_loose'                       ]
 
 expression = '(' + ' || '.join(triggers) + ') && '+objectSelection
 print expression

@@ -73,24 +73,29 @@ jetm9Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM9Kernel",
                                                                 ThinningTools = thinningTools)
 
 #====================================================================
+# Special jets
+#====================================================================
+
+#AntiKt4PV0TrackJets
+#addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed", algseq=jetm9Seq, outputGroup="JETM9")
+#addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=jetm9Seq, outputGroup="JETM9")
+#AntiKt4PV0TrackJets
+addAntiKt2PV0TrackJets(jetm9Seq, "JETM9")
+addAntiKt4PV0TrackJets(jetm9Seq, "JETM9")
+
+OutputJets["JETM9"] = ["AntiKt4EMTopoJets","AntiKt4LCTopoJets"]
+
+if globalflags.DataSource()=='geant4':
+#    addStandardJets("AntiKt", 0.4, "Truth", mods="truth_ungroomed", ptmin=5000, algseq=jetm9Seq, outputGroup="JETM9")
+#    addStandardJets("AntiKt", 0.4, "TruthWZ", mods="truth_ungroomed", ptmin=5000, algseq=jetm9Seq, outputGroup="JETM9")
+     addAntiKt4TruthJets(jetm9Seq, "JETM9")
+     addAntiKt4TruthWZJets(jetm9Seq, "JETM9")
+
+#====================================================================
 # Jets for R-scan 
 #====================================================================
 from JetRec.JetRecStandard import jtm
 from JetRec.JetRecConf import JetAlgorithm
-
-
-topo_rscan_mods = jtm.modifiersMap["calib_topo_ungroomed"]
-print topo_rscan_mods
-if jetFlags.useTruth():
-    truth_rscan_mods = jtm.modifiersMap["truth_ungroomed"]
-    print truth_rscan_mods
-skipmods = ["ktdr","nsubjettiness","ktsplitter","angularity","dipolarity","planarflow","ktmassdrop","encorr","comshapes"]
-for mod in skipmods:
-    print "remove", mod
-    topo_rscan_mods.remove(jtm.tools[mod])
-    if jetFlags.useTruth(): truth_rscan_mods.remove(jtm.tools[mod])
-jtm.modifiersMap["topo_rscan"] = topo_rscan_mods
-if jetFlags.useTruth(): jtm.modifiersMap["truth_rscan"] = truth_rscan_mods
 
 def addRscanJets(jetalg,radius,inputtype,sequence,outputlist):
     jetname = "{0}{1}{2}Jets".format(jetalg,int(radius*10),inputtype)
@@ -98,17 +103,13 @@ def addRscanJets(jetalg,radius,inputtype,sequence,outputlist):
 
     if not hasattr(sequence,algname):
         if inputtype == "Truth":
-            addStandardJets(jetalg, radius, "Truth", mods="truth_rscan", ptmin=5000, algseq=sequence, outputGroup=outputlist)
+            addStandardJets(jetalg, radius, "Truth", mods="truth_ungroomed", ptmin=5000, algseq=sequence, outputGroup=outputlist)
         if inputtype == "TruthWZ":
-            addStandardJets(jetalg, radius, "TruthWZ", mods="truth_rscan", ptmin=5000, algseq=sequence, outputGroup=outputlist)
+            addStandardJets(jetalg, radius, "TruthWZ", mods="truth_ungroomed", ptmin=5000, algseq=sequence, outputGroup=outputlist)
         elif inputtype == "LCTopo":
-            addStandardJets(jetalg, radius, "LCTopo", mods="topo_rscan",
-                            ghostArea=0.01, ptmin=2000, ptminFilter=7000, calibOpt="aro", algseq=sequence, outputGroup=outputlist)
+            addStandardJets(jetalg, radius, "LCTopo", mods="lctopo_ungroomed",
+                            ghostArea=0.01, ptmin=2000, ptminFilter=7000, calibOpt="none", algseq=sequence, outputGroup=outputlist)
 
-OutputJets["JETM9"] = ["AntiKt4TruthJets","AntiKt4EMTopoJets","AntiKt4LCTopoJets"]
-#addDefaultTrimmedJets(jetm9Seq,"JETM9")
-if jetFlags.useTruth:
-    replaceBuggyAntiKt4TruthWZJets(jetm9Seq,"JETM9")
 for radius in [0.2, 0.3, 0.5, 0.6, 0.7, 0.8]:
     if jetFlags.useTruth:
         addRscanJets("AntiKt",radius,"Truth",jetm9Seq,"JETM9")
@@ -121,7 +122,7 @@ for radius in [0.2, 0.3, 0.5, 0.6, 0.7, 0.8]:
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM9SlimmingHelper = SlimmingHelper("JETM9SlimmingHelper")
 JETM9SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets","AntiKt4LCTopoJets","PrimaryVertices"]
-JETM9SlimmingHelper.AllVariables = ["TruthEvents","MuonSegments"]
+JETM9SlimmingHelper.AllVariables = ["TruthEvents","MuonSegments","Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape"]
 JETM9SlimmingHelper.ExtraVariables = ["TruthVertices.z"]
 
 # Trigger content

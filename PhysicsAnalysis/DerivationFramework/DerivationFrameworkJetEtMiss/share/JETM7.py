@@ -69,7 +69,7 @@ applyBTagging_xAODColl("AntiKt4EMTopo")
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 JETM7ThinningHelper = ThinningHelper( "JETM7ThinningHelper" )
-JETM7ThinningHelper.TriggerChains = orstr.join(electronTriggers+muonTriggers)
+# JETM7ThinningHelper.TriggerChains = orstr.join(electronTriggers+muonTriggers)
 JETM7ThinningHelper.AppendToStream( JETM7Stream )
 
 #====================================================================
@@ -143,25 +143,50 @@ if doTruthThinning and globalflags.DataSource()=='geant4':
 jetm7Seq = CfgMgr.AthSequencer("JETM7Sequence")
 DerivationFrameworkJob += jetm7Seq
 
+#=======================================
+# CREATE THE DERIVATION KERNEL ALGORITHM   
+#=======================================
+
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+jetm7Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM7Kernel_Skim",
+                                                          SkimmingTools = [JETM7SkimmingTool],
+                                                          ThinningTools = [],
+                                                          AugmentationTools = [])
+
+#====================================================================
+# CUSTOM JET RECONSTRUCTION
+#====================================================================
+
+# Needed for skimming
+# AntiKt*PV0TrackJets
+#addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed",
+#                algseq=jetm7Seq, outputGroup="JETM7")
+#addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed",
+#                algseq=jetm7Seq, outputGroup="JETM7")
+#AntiKt4PV0TrackJets
+addAntiKt2PV0TrackJets(jetm7Seq, "JETM7")
+addAntiKt4PV0TrackJets(jetm7Seq, "JETM7")
+if globalflags.DataSource()=='geant4':
+#    addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed",
+#                    algseq=jetm7Seq, outputGroup="JETM7")
+#    addStandardJets("AntiKt", 0.4, "TruthWZ", 5000, mods="truth_ungroomed",
+#                    algseq=jetm7Seq, outputGroup="JETM7")
+     addAntiKt4TruthJets(jetm7Seq, "JETM7")
+     addAntiKt4TruthWZJets(jetm7Seq, "JETM7")
 #==============================================================================
 # SUSY background generator filters
 #==============================================================================
 augmentationTools = []
 if globalflags.DataSource() == 'geant4':
-  replaceBuggyAntiKt4TruthWZJets(jetm7Seq)
   ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool(
     "JETM7GenFilt",
     SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset
   )
   augmentationTools.append(ToolSvc.JETM7GenFilt)
 
-#=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
-#=======================================
-
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-jetm7Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM7Kernel", 
-                                                          SkimmingTools = [JETM7SkimmingTool],
+jetm7Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM7Kernel",
+                                                          SkimmingTools = [],
                                                           ThinningTools = thinningTools,
                                                           AugmentationTools = augmentationTools)
 
@@ -170,10 +195,19 @@ jetm7Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM7Kernel",
 #=======================================
 
 if globalflags.DataSource()=='geant4':
-    addMETTruthMap('AntiKt4EMTopo')
-    addMETTruthMap('AntiKt4LCTopo')
-    addMETTruthMap('AntiKt4EMPFlow')
-    scheduleMETAssocAlg(jetm7Seq)
+    addMETTruthMap('AntiKt4EMTopo',"JETMX")
+    addMETTruthMap('AntiKt4LCTopo',"JETMX")
+    addMETTruthMap('AntiKt4EMPFlow',"JETMX")
+    scheduleMETAssocAlg(jetm7Seq,"JETMX")
+
+#=======================================
+# SCHEDULE REPLACEMENT B-TAG COLLECTIONS
+# Has to go after MET because of potential
+# problems with broken elementLinks
+#=======================================
+
+#from .FlavourTagCommon import FlavorTagInit
+
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -186,11 +220,13 @@ JETM7SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets"]
-JETM7SlimmingHelper.AllVariables = ["BTagging_AntiKt4LCTopo", "BTagging_AntiKt4EMTopo",# "CaloCalTopoClusters",
+JETM7SlimmingHelper.AllVariables = ["BTagging_AntiKt4EMTopo",# "CaloCalTopoClusters",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
-                                    "MuonSegments"
+                                    "MuonSegments",
+                                    "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
+JETM7SlimmingHelper.StaticContent = ["xAOD::BTaggingContainer#BTagging_AntiKt4LCTopo"]
 JETM7SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"]
 for truthc in [
     "TruthMuons",
@@ -209,6 +245,6 @@ JETM7SlimmingHelper.IncludeEGammaTriggerContent = True
 # Add the jet containers to the stream
 addJetOutputs(JETM7SlimmingHelper,["SmallR"])
 # Add the MET containers to the stream
-addMETOutputs(JETM7SlimmingHelper,["Diagnostic","Assocs","TruthAssocs","Track"])
+addMETOutputs(JETM7SlimmingHelper,["Diagnostic","Assocs","TruthAssocs","Track","JETMX"])
 
 JETM7SlimmingHelper.AppendContentToStream(JETM7Stream)

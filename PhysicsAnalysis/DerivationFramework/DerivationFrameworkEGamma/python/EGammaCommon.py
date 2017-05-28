@@ -22,7 +22,7 @@ ToolSvc += DFCommonPhotonsDirection
 
 #====================================================================
 # SHOWER SHAPE FUDGING IN MC 
-# (PRESELECTION=16: FUDGE FACTORS GEO21->DATA12)
+# (PRESELECTION=21: FUDGE FACTORS RUN2 2015+2016 DATA)
 #====================================================================
 
 from PyUtils import AthFile
@@ -46,7 +46,7 @@ if isFullSim:
 #print "globalflags.DataSource(): ", globalflags.DataSource()
 #if globalflags.DataSource()=='geant4':
     from ElectronPhotonShowerShapeFudgeTool.ElectronPhotonShowerShapeFudgeToolConf import ElectronPhotonShowerShapeFudgeTool
-    DF_ElectronPhotonShowerShapeFudgeTool = ElectronPhotonShowerShapeFudgeTool(Preselection=16)
+    DF_ElectronPhotonShowerShapeFudgeTool = ElectronPhotonShowerShapeFudgeTool(Preselection=21)
     ToolSvc += DF_ElectronPhotonShowerShapeFudgeTool
     print DF_ElectronPhotonShowerShapeFudgeTool
 
@@ -299,9 +299,12 @@ if  rec.doTruth():
 
     # Decorate Electron with bkg electron type/origin
     from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier as BkgElectronMCTruthClassifier    
+    BkgElectronMCTruthClassifier.barcodeG4Shift=(DerivationFrameworkSimBarcodeOffset+1)
+
     from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__BkgElectronClassification  
     BkgElectronClassificationTool = DerivationFramework__BkgElectronClassification (name = "BkgElectronClassificationTool",
-                                                                                    MCTruthClassifierTool = BkgElectronMCTruthClassifier)
+                                                                                    MCTruthClassifierTool = BkgElectronMCTruthClassifier,
+                                                                                    barcodeCut=DerivationFrameworkSimBarcodeOffset)
 
 
     ToolSvc += BkgElectronClassificationTool

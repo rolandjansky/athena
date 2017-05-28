@@ -67,8 +67,6 @@ private:  //data
 
   bool m_doArea;
   bool m_doFourVecArea;
-
-  bool m_isTrigger;
 };
 
 #endif

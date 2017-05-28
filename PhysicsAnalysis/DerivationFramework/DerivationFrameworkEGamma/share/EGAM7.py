@@ -1,4 +1,3 @@
-
 #********************************************************************
 # EGAM7.py - keep events passing or of electron triggers, to select
 #            fake electron candidates 
@@ -118,6 +117,13 @@ EGAM7SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM7Sk
 ToolSvc += EGAM7SkimmingTool
 print "EGAM7 skimming tool:", EGAM7SkimmingTool
 
+
+
+#====================================================================
+# DECORATION TOOLS
+#====================================================================
+
+
 #====================================================================
 # Gain and cluster energies per layer decoration tool
 #====================================================================
@@ -129,7 +135,7 @@ cluster_sizes = (3,5), (5,7), (7,7), (7,11)
 EGAM7_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
 
 
-#====================================================================                                                                              
+#====================================================================
 # Max Cell sum decoration tool
 #====================================================================                                                        
 
@@ -173,16 +179,30 @@ if globalflags.DataSource()=='geant4':
 print "EGAM7 thinningTools: ", thinningTools
 
 
+
+
+#=======================================
+# CREATE PRIVATE SEQUENCE
+#=======================================
+egam7Seq = CfgMgr.AthSequencer("EGAM7Sequence")
+DerivationFrameworkJob += egam7Seq
+
+
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM7Kernel",
-                                                                       AugmentationTools = [EGAM7_GainDecoratorTool, EGAM7_MaxCellDecoratorTool] + EGAM7_ClusterEnergyPerLayerDecorators,
-                                                                       SkimmingTools = [EGAM7SkimmingTool],
-                                                                       ThinningTools = thinningTools
-                                                                       )
+egam7Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM7Kernel",
+                                                         AugmentationTools = [EGAM7_GainDecoratorTool, EGAM7_MaxCellDecoratorTool] + EGAM7_ClusterEnergyPerLayerDecorators,
+                                                         SkimmingTools = [EGAM7SkimmingTool],
+                                                         ThinningTools = thinningTools
+                                                         )
+
+#====================================================================
+# RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
+#====================================================================
+addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=egam7Seq, outputGroup="EGAM7")
 
 
 #============ Create Derivation EGAM7 cell collection ==================
@@ -215,14 +235,15 @@ augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="EGAM7ThinningSvc", outStreams=[evtStream] )
 
+
+
 #====================================================================
 # CONTENT LIST
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 EGAM7SlimmingHelper = SlimmingHelper("EGAM7SlimmingHelper")
 
-# same content as EGAM1
-from DerivationFrameworkEGamma.EGAM1ExtraContent import *
+from DerivationFrameworkEGamma.EGAM7ExtraContent import *
 EGAM7SlimmingHelper.SmartCollections = [
 				        "Electrons",
 					"Photons",
@@ -242,8 +263,8 @@ EGAM7SlimmingHelper.IncludeEGammaTriggerContent = True
 EGAM7SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM7SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM7SlimmingHelper.AllVariables += ExtraContainersTrigger
-if globalflags.DataSource()!='geant4':
-    EGAM7SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
+#if globalflags.DataSource()!='geant4':
+#    EGAM7SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
 if globalflags.DataSource()=='geant4':
     EGAM7SlimmingHelper.ExtraVariables += ExtraContentAllTruth

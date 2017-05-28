@@ -147,11 +147,15 @@ namespace DerivationFramework {
          // Do a very evil hack:
          const JetContainer* origCont =
             dynamic_cast< const JetContainer* >( ( *dec_origlink( *( inputJets->front() ) ) )->container() );
+         if( ! origCont ) {
+            ATH_MSG_FATAL( "Couldn't cast the jet container to xAOD::JetContainer" );
+            return StatusCode::FAILURE;
+         }
          const SG::IConstAuxStore* cstore = origCont->getConstStore();
          const SG::IAuxStore* store = dynamic_cast< const SG::IAuxStore* >( cstore );
          SG::IAuxStore* ncstore = const_cast< SG::IAuxStore* >( store );
          if( ! ncstore ) {
-            ATH_MSG_FATAL( "Couldn't cast the jet auxiliary constainer to SG::IAuxStore" );
+            ATH_MSG_FATAL( "Couldn't cast the jet auxiliary container to SG::IAuxStore" );
             return StatusCode::FAILURE;
          }
          JetContainer* ncCont = const_cast< JetContainer* >( origCont );
