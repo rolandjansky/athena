@@ -94,12 +94,10 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
 
   declareProperty( "ShifterChains",    m_shifterChains = 1 );
 
-
   declareProperty( "GenericFlag", m_genericFlag = true );
   
   msg(MSG::INFO) << "TrigTestBase::TrigTestBase() exiting " << gDirectory->GetName() << endmsg;
 
-  //  msg(MSG::INFO) << "TrigTestBase::TrigTestBase() returning: " << endmsg;
 
 }
 
@@ -107,7 +105,6 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
 
 TrigTestBase::~TrigTestBase() {
 
-  //  m_sequences[i]->finalize();
   if ( m_fileopen ) for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->finalize();
 
   // msg(MSG::INFO) << "TrigTestBase::~TrigTestBase()" << endmsg;
@@ -275,7 +272,10 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
             if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
 	    if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
 	    if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
-            if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
+            if ( !chainName.passed() )     selectChains[iselected] += ":DTE";
+	    //            if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
+
+	    if ( chainName.postcount() )     selectChains[iselected] += ":post:"+chainName.post();
 
 #if 0
 	    std::cout << "\nTrigTestBase::chain specification: " << chainName << "\t" << chainName.raw() << std::endl;
