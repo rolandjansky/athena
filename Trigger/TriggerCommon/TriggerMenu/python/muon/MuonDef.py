@@ -72,10 +72,20 @@ class L2EFChain_mu(L2EFChainDef):
     if 'AFP' in self.L2InputTE:
       self.L2InputTE = self.L2InputTE.replace("AFP_C_","")
     if self.L2InputTE:      # cut of L1_, _EMPTY,..., & multiplicity
-      self.L2InputTE = self.L2InputTE.replace("L1_","")
-      if "dRl1" not in self.chainPart['addInfo']:
-         self.L2InputTE = self.L2InputTE.split("_")[0]
-         self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE 
+      if "dRl1" in self.chainPart['addInfo']:
+        tmpL2InputTE = []
+        for l1Thr in self.L2InputTE:
+          l1Thr = l1Thr.replace("L1_","")
+          l1Thr = l1Thr.split("_")[0]
+          l1Thr = l1Thr[1:] if l1Thr.isdigit() else l1Thr 
+          tmpL2InputTE.append(l1Thr)
+        self.L2InputTE = tmpL2InputTE
+        print self.L2InputTE 
+      else:
+        self.L2InputTE = self.L2InputTE.replace("L1_","")
+        self.L2InputTE = self.L2InputTE.split("_")[0]
+        self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
+      
     # --- used to configure hypos for FS muon chains
     self.allMuThrs=AllMuons
 
@@ -1354,11 +1364,11 @@ class L2EFChain_mu(L2EFChainDef):
     from TrigGenericAlgs.TrigGenericAlgsConfig import OverlapRemovalConfig
     OverlapRemoval_algo = OverlapRemovalConfig('OvlRem', MinCentDist = 1)
     
-    self.EFsequenceList += [[self.L2InputTE,
+    self.L2sequenceList += [[self.L2InputTE,
                              [OverlapRemoval_algo],
-                             'EF_OvlRem_dRl1']]
+                             'L2_OvlRem_dRl1']]
 
-    self.EFsignatureList += [ [['EF_OvlRem_dRl1']] ]
+    self.L2signatureList += [ [['L2_OvlRem_dRl1']] ]
 
   #################################################################################################
   #################################################################################################
