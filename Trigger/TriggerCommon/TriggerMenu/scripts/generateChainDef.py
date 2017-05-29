@@ -2,10 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import os, sys
-import re
 import xml.dom.minidom
-
 
 HypoTypes = (
     'TrigBjetHypo', 
@@ -153,7 +150,7 @@ class ChainList:
             if c.chain_name == chain_name:
                 return c
         return None
-    def findL2ChainSeedingEF(efchain):
+    def findL2ChainSeedingEF(self, efchain):
         for c in self.L2List:
             if c.chain_name == efchain.lower_chain_name:
                 return c
@@ -284,7 +281,6 @@ class L2EFChainDef:
     def dumpSeqDef(self):
         print """
     def defineSequences(self):"""
-        seq_types = []
         tes = []
         for sig in self.l2chain.signatures+self.efchain.signatures:
             for te in sig:

@@ -3,9 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import sys
-import os
 import commands
-import time
 import xml.etree.cElementTree as ET
 
 

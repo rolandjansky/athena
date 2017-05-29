@@ -4,7 +4,6 @@
 validity and repackage before forwarding ot to the ChainDef generating
 code."""
 import os
-import re
 import copy
 import sys
 import getopt
@@ -168,8 +167,6 @@ def _make_chaindef(from_central, instantiator):
 
     # rearrange the input data to produce chain_config
     chain_config = chainConfigMaker(from_central)
-
-    chain_name = chain_config.chain_name
 
     alg_factory = AlgFactory(chain_config)
     seq_builder = JetSequencesBuilder(alg_factory, chain_config)

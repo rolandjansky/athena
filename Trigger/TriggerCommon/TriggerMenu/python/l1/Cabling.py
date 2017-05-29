@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from Limits import Limits
+from Limits import Limits # noqa: F401
 from AthenaCommon.Logging import logging
 log = logging.getLogger("Cabling")
 log.setLevel(logging.INFO)
@@ -146,7 +146,7 @@ class Cabling:
     @staticmethod
     def calcBitnum(thrtype):
         # get the widths for the threshold types is defined in L1Common
-        exec("nbits = Limits.%s_bitnum" % thrtype)
+        nbits = getattr(Limits,'%s_bitnum' % thrtype)
         return nbits
 
 
@@ -264,8 +264,7 @@ class InputCable:
         """
         Gets the cable assignment from L1Common
         """
-        exec("cable = Limits.%s_cable" % thrtype)
-        
+        cable = getattr(Limits,'%s_cable' % thrtype)
         # we change the format for run 2, the tuple now contains also the bit multiplicity, as it is not constant per type
         infosize = (len(cable)-1)/cable[0]
 

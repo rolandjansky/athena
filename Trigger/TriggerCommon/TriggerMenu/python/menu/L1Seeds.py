@@ -311,7 +311,7 @@ def getL1LowLumi(l1seed):
 #####################################
 def getSpecificL1Seeds(l1seedname, l1itemobject):
     l1items = [i.name for i in l1itemobject]
-    l1ctpid = [i.ctpid for i in l1itemobject]
+    #l1ctpid = [i.ctpid for i in l1itemobject]
     L1Seed = ''
     if l1seedname == 'L1_J':
         L1Seed = getL1JetBS()

@@ -243,9 +243,9 @@ class L2EFChain_Monitoring(L2EFChainDef):
 
         try:
             from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_FullScanBC
-            theTrigL2SiTrackFInder_FullScanBC = TrigL2SiTrackFinder_FullScanBC()
+            theTrigL2SiTrackFinder_FullScanBC = TrigL2SiTrackFinder_FullScanBC()
         except:
-            theTrigL2SiTrackFInder_FullScanBC = None
+            theTrigL2SiTrackFinder_FullScanBC = None
 
 
             

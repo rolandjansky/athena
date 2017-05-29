@@ -9,8 +9,7 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger('TriggerMenu.calibcosmon.EnhancedBiasDef')
 
-from TriggerMenu.menu.HltConfig import *
-from TriggerJobOpts.TriggerFlags  import TriggerFlags
+from TriggerMenu.menu.HltConfig import L2EFChainDef
 
 #########################################################################
 

@@ -1,16 +1,15 @@
 #!/bin/env python
 
-from AthenaCommon.AthenaCommonFlags import jobproperties 
-from AthenaCommon.GlobalFlags import jobproperties
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon.GlobalFlags import globalflags
 
-jobproperties.print_JobProperties('tree&value')
-
+athenaCommonFlags.print_JobProperties('tree&value')
 
 from TriggerMenu.menu.GenerateMenu import GenerateMenu
 
 g = GenerateMenu()
 g.generate()
 
-jobproperties.AthenaCommonFlags.EvtMax=0
+athenaCommonFlags.EvtMax=0
 
-jobproperties.print_JobProperties('tree&value')
+globalflags.print_JobProperties('tree&value')

@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import sys, os, commands
+import os, commands
 import matplotlib.pyplot as plt
 import TriggerClasses
 
@@ -27,7 +27,7 @@ class plotter:
             return repr(self.value)
 
     def setValues(self, PS):
-        nLumi = len(PS['Lumi'])
+        #nLumi = len(PS['Lumi'])
         
         try:
             self.EFPS = PS['EFPS']

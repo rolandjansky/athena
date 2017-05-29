@@ -344,7 +344,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
         #print 'muon thr for antimatch:' + str(muonthr) 
         muonTE      = "EF_SuperEF_mu{0}_MU{1}".format(muonthr,muonthr)
         jetEtHypoTE = jetEtHypoTE+'_antimatchmu{0}'.format(muonthr)
-        gscEtHypoTE = "HLT_"+gscthresh+ftk+"_eta"+"_jsplit"+"_"+tracking+'_antimatchmu{0}'.format(muonthr)
+        #gscEtHypoTE = "HLT_"+gscthresh+ftk+"_eta"+"_jsplit"+"_"+tracking+'_antimatchmu{0}'.format(muonthr)
         jetHypoTE   = jetHypoTE+'_antimatchmu{0}'.format(muonthr)
         jetTrackTE  = jetTrackTE +'_antimatchmu{0}'.format(muonthr)
 

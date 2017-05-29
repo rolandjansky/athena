@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import unittest
-from mock import MagicMock, Mock
 
 from Sequence import Sequence
 
@@ -24,7 +23,7 @@ class TestSequence(unittest.TestCase):
     def test_0(self):
 
         # excercise __str__
-        s = str(self.sequence)
+        #s = str(self.sequence)
 
         instantiator = Instantiator()
         self.sequence.instantiateAlgs(instantiator)

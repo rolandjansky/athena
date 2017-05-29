@@ -19,8 +19,7 @@ from TrigEFMissingET.TrigEFMissingETConfig import (EFMissingET_Fex_2sidednoiseSu
                                                    EFMissingET_Fex_topoClustersPS, 
                                                    EFMissingET_Fex_topoClustersPUC)
 
-from TrigL2MissingET.TrigL2MissingETConfig import (L2CaloMissingET_Fex_ReadL2L1,
-                                                   L2MissingET_Fex)
+from TrigL2MissingET.TrigL2MissingETConfig import L2MissingET_Fex
 
 from TrigMissingETHypo.TrigMissingETHypoConfig import (EFMetHypoJetsXE,
                                                        EFMetHypoTrackAndJetsXE,
@@ -30,16 +29,13 @@ from TrigMissingETHypo.TrigMissingETHypoConfig import (EFMetHypoJetsXE,
                                                        EFMetHypoTCXE,
                                                        EFMetHypoTE,
                                                        EFMetHypoXE, 
-                                                       EFMetHypoXS_2sided,
-                                                       L2MetHypoFEBXE,
-                                                       L2MetHypoXE)
+                                                       EFMetHypoXS_2sided)
 
 from TrigMissingETMuon.TrigMissingETMuonConfig import (EFTrigMissingETMuon_Fex,
                                                        EFTrigMissingETMuon_Fex_Jets,
                                                        EFTrigMissingETMuon_Fex_topocl,
                                                        EFTrigMissingETMuon_Fex_topoclPS,
                                                        EFTrigMissingETMuon_Fex_topoclPUC,
-                                                       L2CaloTrigMissingETMuon_Fex,
                                                        L2TrigMissingETMuon_Fex)
 
 from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
@@ -110,8 +106,7 @@ class L2EFChain_met(L2EFChainDef):
         calibration = self.chainPart['calib']
         jetCalib    = self.chainPart['jetCalib']
         L2recoAlg   = self.chainPart['L2recoAlg']
-        EFrecoAlg   = self.chainPart['EFrecoAlg']        
-        L2muon      = self.chainPart['L2muonCorr']
+        EFrecoAlg   = self.chainPart['EFrecoAlg']
         EFmuon      = self.chainPart['EFmuonCorr']
         addInfo     = self.chainPart["addInfo"]
 
@@ -140,18 +135,6 @@ class L2EFChain_met(L2EFChainDef):
         ##L1 MET 
         theL2Fex     = L2MissingET_Fex()
         theL2MuonFex = L2TrigMissingETMuon_Fex()
-        
-        ##FEB MET at L2
-#        theL2FEBL1Check  =  L2CaloMissingET_Fex_ReadL2L1()
-        
-#        theL2FEBMuonFex  =  L2CaloTrigMissingETMuon_Fex() 
-
-        mucorr=  '_wMu' if L2muon else '' 
-        if L2recoAlg=="L2FS":
-            theL2MuonHypo  =  L2MetHypoFEBXE(name='L2MetHypo_xe%d%s_FEB'%(threshold,mucorr),l2_thr=threshold*GeV)
-        else:            
-            theL2MuonHypo  =  L2MetHypoXE('L2MetHypo_xe_noL2%s' %mucorr,l2_thr=threshold*GeV)
-
 
         mucorr=  '_wMu' if EFmuon else ''          
         ##MET with topo-cluster
@@ -241,11 +224,6 @@ class L2EFChain_met(L2EFChainDef):
         # Obtaining the needed jet TEs from the jet code
         #----------------------------------------------------
         from TriggerJobOpts.TriggerFlags import TriggerFlags
-        #if "v6" in TriggerFlags.triggerMenuSetup() or "v5" in TriggerFlags.triggerMenuSetup():
-        #    chain = ['j0_lcw', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
-        #else:
-        #    chain = ['j0', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
-        # chain = ['j0_lcw', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
 
         chain = ['j0_{0}_{1}'.format(calibration, jetCalib), '', [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
 
@@ -296,16 +274,6 @@ class L2EFChain_met(L2EFChainDef):
             self.L2sequenceList += [[ self.l2_input_tes,              [theL2Fex],                      'L2_xe_step1']]
             ##Moun Correction to L1 MET
             self.L2sequenceList += [[ ['L2_xe_step1', muonSeed],  [theL2MuonFex],                  'L2_xe_step2']]
-            
-            # ##FEB Met
-            # self.L2sequenceList += [[ 'L2_xe_step2',                 [theL2FEBL1Check],               'L2_xe_step3']]
-
-            # if L2recoAlg=="l2fsperf":
-            #     #Only execute Muon FEB MET and muon correction
-            #     self.L2sequenceList += [[ ['L2_xe_step3',muonSeed],   [theL2FEBMuonFex], 'L2_xe_step4']]            
-            # if L2recoAlg=="L2FS":
-            #     #Hypo on FEB MET
-            #     self.L2sequenceList += [[ ['L2_xe_step3',muonSeed],   [theL2FEBMuonFex,theL2MuonHypo], 'L2_xe_step4']]
 
         # --- EF ---                
 
@@ -395,8 +363,6 @@ class L2EFChain_met(L2EFChainDef):
         if L2recoAlg=="l2fsperf" or  L2recoAlg=="L2FS" :
             self.L2signatureList += [ [['L2_xe_step1']] ]
             self.L2signatureList += [ [['L2_xe_step2']] ]
-#            self.L2signatureList += [ [['L2_xe_step3']] ]
-#            self.L2signatureList += [ [['L2_xe_step4']] ]
 
         if EFrecoAlg=="trkmht" :
             self.EFsignatureList += [ [['EF_xe_step0']] ]   
@@ -413,13 +379,10 @@ class L2EFChain_met(L2EFChainDef):
         if L2recoAlg=="l2fsperf" or  L2recoAlg=="L2FS" :
             self.TErenamingDict['L2_xe_step1']= mergeRemovingOverlap('L2_', self.sig_id_noMult+'_step1')
             self.TErenamingDict['L2_xe_step2']= mergeRemovingOverlap('L2_', self.sig_id_noMult+'_step2')
-#            self.TErenamingDict['L2_xe_step3']= mergeRemovingOverlap('L2_', self.sig_id_noMult+'_step3')
-#            self.TErenamingDict['L2_xe_step4']= mergeRemovingOverlap('L2_', self.sig_id_noMult+'_step4')
 
         if EFrecoAlg=='trkmht':
             self.TErenamingDict['EF_xe_step0']= mergeRemovingOverlap('EF_', self.sig_id_noMult+"_step0")                                                                    
-  
-            
+              
         self.TErenamingDict['EF_xe_step1']= mergeRemovingOverlap('EF_', self.sig_id_noMult+'_step1')
         if "FStracks" in addInfo:
             self.TErenamingDict['EF_xe_step2']= mergeRemovingOverlap('EF_', self.sig_id_noMult+"_step2")

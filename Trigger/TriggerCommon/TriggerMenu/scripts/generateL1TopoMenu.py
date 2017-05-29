@@ -4,7 +4,6 @@
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
 from TriggerMenu.TriggerConfigL1Topo import TriggerConfigL1Topo
-from TriggerMenu.l1topo.L1TopoFlags import L1TopoFlags
 
 def generateL1TopoMenu(menu):
 

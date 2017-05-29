@@ -9,14 +9,13 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
-from TriggerMenu.calibcosmicmon.MonitorDef import *
-from TriggerMenu.menu.MenuUtils import *
+from TriggerMenu.calibcosmicmon.MonitorDef import L2EFChain_Monitoring
+from TriggerMenu.menu.MenuUtils import splitChainDict,mergeChainDefs
 
 ##########################################################################################
 ##########################################################################################
 
 def generateChainDefs(chainDict):
-    chainParts = chainDict['chainParts']
     
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs = []
