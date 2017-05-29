@@ -40,8 +40,8 @@ class EFMissingETFromFEBHeader : public EFMissingETBaseTool
   public:
 
     EFMissingETFromFEBHeader(const std::string& type,
-                             const std::string& name,
-                             const IInterface* parent);
+        const std::string& name, 
+        const IInterface* parent);
 
     ~EFMissingETFromFEBHeader();
 
@@ -49,12 +49,10 @@ class EFMissingETFromFEBHeader : public EFMissingETBaseTool
     virtual StatusCode finalize();
     virtual StatusCode execute();
 
-    virtual StatusCode execute(xAOD::TrigMissingET *met,
-                               TrigEFMissingEtHelper *metHelper,
-                               const xAOD::CaloClusterContainer *caloCluster,
-                               const xAOD::JetContainer *jets,
-                               const xAOD::TrackParticleContainer *track,
-                               const xAOD::VertexContainer *vertex);
+    virtual StatusCode execute(xAOD::TrigMissingET *met, 
+        TrigEFMissingEtHelper *metHelper, 
+        const xAOD::CaloClusterContainer *caloCluster,
+        const xAOD::JetContainer *jets);
 
     // slow calo data access via RegionSelector
     StatusCode addFebEnergyToHelper(TrigEFMissingEtHelper* met);
@@ -87,10 +85,11 @@ class EFMissingETFromFEBHeader : public EFMissingETBaseTool
     LArFebEnergyCollection::const_iterator m_Febit;
 
     // things needed to find the sampling:
-    LArCablingService*       m_cablingSvc;
-    const LArOnlineID*       m_LArOnlineID;
-    const CaloCell_ID*       m_CaloCell_ID;
-    LArReadoutModuleService  m_larROModSvc;
+    LArCablingService *m_cablingSvc;
+    const LArOnlineID *m_LArOnlineID;
+    const CaloCell_ID *m_CaloCell_ID;
+    LArReadoutModuleService m_larROModSvc;
+    
 };
 
 #endif // TRIGEFMISSINGET_EFMISSINGETFROMFEBHEADER

@@ -24,8 +24,8 @@ and updates the global event status flag
 using namespace std;
 
 
-EFMissingETFlags::EFMissingETFlags(const std::string& type,
-    const std::string& name,
+EFMissingETFlags::EFMissingETFlags(const std::string& type, 
+    const std::string& name, 
     const IInterface* parent):
   EFMissingETBaseTool(type, name, parent)
 {
@@ -93,9 +93,9 @@ EFMissingETFlags::EFMissingETFlags(const std::string& type,
     m_CompMaxMEtSumEtRatio.push_back(0.7);
   }
 
-  m_hCompFlags=nullptr;
+  m_hCompFlags=0;
 
-  m_fextype = FexType::OTHER;
+  m_fextype = FexType::OTHER; 
 
 }
 
@@ -110,11 +110,14 @@ EFMissingETFlags::~EFMissingETFlags()
 StatusCode EFMissingETFlags::initialize()
 {
 
-  ATH_MSG_DEBUG( "called EFMissingETFlags::initialize()" );
+  if (msgLvl(MSG::DEBUG)) {
+    msg(MSG::DEBUG) << "called EFMissingETFlags::initialize()" << endmsg;
+  }
 
   /// timers
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
-    ATH_MSG_WARNING( name() << ": Unable to locate TrigTimer Service" );
+    msg(MSG::WARNING) << name() <<
+      ": Unable to locate TrigTimer Service" << endmsg;
   }
   if (m_timersvc) {
     // global time
@@ -132,7 +135,10 @@ StatusCode EFMissingETFlags::start()
 // get histogramming service
   ITHistSvc *rootHistSvc;
   if (service("THistSvc", rootHistSvc).isFailure()) {
-    ATH_MSG_WARNING( "ERROR: unable to locate THistSvc. No histogram for component status bits!" );
+    msg(MSG::WARNING)
+             << "ERROR: unable to locate THistSvc."
+	     << "  No histogram for component status bits!"
+             << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -147,7 +153,7 @@ StatusCode EFMissingETFlags::start()
    "TileExt0", "TileExt1", "TileExt2",    // Tile extended barrel
    "FCalEM",   "FCalHad2", "FCalHad3",    // Forward cal endcap
    "Muons"                                // Muons
- };
+ }; 
  std::string bitName[bits] = { // see EFMissingETBaseTool
    "Processing",         // bit  0
    "ErrBSconv",          // bit  1
@@ -178,7 +184,10 @@ StatusCode EFMissingETFlags::start()
 
 // register histo
   if ( rootHistSvc->regHist(histoName,m_hCompFlags).isFailure() ) {
-    ATH_MSG_WARNING( "ERROR: can not book histo" << histoName << "  No histogram for component status bits!" );
+    msg(MSG::WARNING)
+             << "ERROR: can not book histo" << histoName
+	     << "  No histogram for component status bits!"
+             << endmsg;
   }
 
 
@@ -201,14 +210,14 @@ StatusCode EFMissingETFlags::execute()
 
 StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
     TrigEFMissingEtHelper *metHelper ,
-    const xAOD::CaloClusterContainer * /* caloCluster */ , const xAOD::JetContainer  * /* jets */,
-                                        const xAOD::TrackParticleContainer * /*trackContainer*/,
-                                        const xAOD::VertexContainer * /*vertexContainer*/ )
+    const xAOD::CaloClusterContainer * /* caloCluster */ , const xAOD::JetContainer  * /* jets */)
 {
-  ATH_MSG_DEBUG( "EFMissingETFlags::execute() called" );
+  if (msgLvl(MSG::DEBUG)) {
+     msg(MSG::DEBUG) << "EFMissingETFlags::execute() called" << endmsg;
+  }
 
   if (met==0 || metHelper==0) {
-     ATH_MSG_FATAL( "Null pointers as input!  Aborting" );
+     msg(MSG::FATAL) << "Null pointers as input!  Aborting" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -234,8 +243,8 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
   float FCal_SumE=0;
 
 
-  if (elem == 42) { // compute subdetector energies
-
+  if (elem == 42) { // compute subdetector energies 
+ 
      for (unsigned char i=0; i<elem-18; ++i) { // EMB
       TrigEFMissingEtComponent* metComp = metHelper->GetComponent(i);
       string Name=metComp->m_name;
@@ -257,7 +266,8 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
 	  EM_SumE += sumE;
 	  EMB_SumE += sumE;
 	} else {
-    ATH_MSG_WARNING( "Cannot find EMB!  Skipping check" );
+          msg(MSG::WARNING)
+		   << "Cannot find EMB!  Skipping check" << endmsg;
 	  break;
 	}
       } else if (i<8) { // EME
@@ -265,35 +275,40 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
 	  EM_SumE += sumE;
 	  EME_SumE += sumE;
 	} else {
-    ATH_MSG_WARNING( "Cannot find EME!  Skipping check" );
+          msg(MSG::WARNING) 
+		   << "Cannot find EME!  Skipping check" << endmsg;
 	  break;
 	}
       } else if (i<12) { // HEC
 	if (Name.substr(0,3)=="HEC") {
 	  HEC_SumE += sumE;
 	} else {
-    ATH_MSG_WARNING( "Cannot find HEC!  Skipping check" );
+          msg(MSG::WARNING)
+		   << "Cannot find HEC!  Skipping check" << endmsg;
 	  break;
 	}
       } else if (i<15) { // TileBar
 	if (Name.substr(0,7)=="TileBar") {
 	  TileBar_SumE += sumE;
 	} else {
-    ATH_MSG_WARNING( "Cannot find TileBar!  Skipping check" );
+          msg(MSG::WARNING)
+		   << "Cannot find TileBar!  Skipping check" << endmsg;
 	  break;
 	}
       } else if (i<18) { // TileGap
 	if (Name.substr(0,7)=="TileGap") {
 	  TileGap_SumE += sumE;
 	} else {
-    ATH_MSG_WARNING( "Cannot find TileGap!  Skipping check" );
+          msg(MSG::WARNING)
+		 << "Cannot find TileGap!  Skipping check" << endmsg;
 	break;
 	}
       } else if (i<21) { // TileExt
 	if (Name.substr(0,7)=="TileExt") {
 	  TileExt_SumE += sumE;
 	} else {
-    ATH_MSG_WARNING( "Cannot find TileExt!  Skipping check" );
+          msg(MSG::WARNING)
+		   << "Cannot find TileExt!  Skipping check" << endmsg;
 	  break;
 	}
       } else { // FCal
@@ -302,15 +317,17 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
 	  if (Name == "FCalEM") EM_SumE += sumE;
 	  FCal_SumE += sumE;
 	} else {
-    ATH_MSG_WARNING( "Cannot find FCal!  Skipping check" );
+          msg(MSG::WARNING) 
+		   << "Cannot find FCal!  Skipping check" << endmsg;
 	  break;
 	}
-      }  // end loop over i
+      }  // end loop over i 
 
      }  //end elem == 42
 
   } else {
-    ATH_MSG_WARNING( "Found " << elem << " (!=42) auxiliary components.  Skipping checks!" );
+    msg(MSG::WARNING) << "Found " << elem 
+	     << " (!=42) auxiliary components.  Skipping checks!" << endmsg;
   }
 
   /// main loop over components ///
@@ -328,7 +345,7 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
     float MET = sqrtf(MEx*MEx+MEy*MEy);
     float sumBadEt =   sumOfSigns * c0 + c1 *  metComp->m_sumBadEt;
 
-    // flag component if |MET/SumET| is too large
+    // flag component if |MET/SumET| is too large 
     if (elem==42 && i<24 && sumEt>0 && fabsf(MET/sumEt)>m_CompMaxMEtSumEtRatio[i]) {
       metComp->m_status |= m_maskCompBigMEtSEtRatio;
     }
@@ -409,7 +426,7 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
              metComp->m_status |= m_maskBadEnergyRatio;
           }
        }
-
+       
     }
 
 
