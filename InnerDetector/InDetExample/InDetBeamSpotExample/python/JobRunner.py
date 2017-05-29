@@ -78,15 +78,10 @@ class JobRunnerParameter:
                 return "%-20s = %-20s" % (self.name,self.value)
 
 def GetRelease():
-    asetup=os.path.expandvars('$AtlasVersion,$AtlasProject')
-    if os.path.expandvars('$AtlasPatchVersion,$AtlasPatch') != '':
-        asetup=os.path.expandvars('$AtlasPatchVersion,$AtlasPatch') 
-    oper=(os.path.expandvars('$CMTCONFIG')).split('-')[1]
-    arch=(os.path.expandvars('$CMTCONFIG')).split('-')[0]
-    bits="32"
-    if arch == "x86_64":
-        bits="64"
-    return "%s,%s,%s" % (asetup,oper,bits)
+    project = os.getenv('AtlasProject')
+    version = os.getenv('AtlasVersion')
+    platform = os.getenv('%s_PLATFORM' % project, os.getenv('CMTCONFIG'))
+    return ','.join([project, version] + platform.split('-'))
 
 # Main JobRunner class
 class JobRunner:
