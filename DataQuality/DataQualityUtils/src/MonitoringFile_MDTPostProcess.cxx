@@ -525,7 +525,7 @@ void MonitoringFile::MDTChamEff( std::string inFilename, std::string title, int 
 						yAxis = "M,13";
 					}
                                         if(EffG && dirName(0,3) == "BMF"){
-                                                xAxis = dirName(0,1) + dirName(4,1) + returnString(dirName(3,1).Atoi()*2-1);
+                                                xAxis = dirName(0,1) + dirName(4,1) + returnString(TString(dirName(3,1)).Atoi()*2-1);
                                         
                                         } 
 					double tubeLength = 4.9615;
@@ -554,7 +554,7 @@ void MonitoringFile::MDTChamEff( std::string inFilename, std::string title, int 
 					if( !hvOff ) {
 						TString eta_ring = dirName(0,2) + dirName(4,1);
 						TString eta_stat = dirName(3,1);
-                                                if(dirName(0,3)=="BMF") eta_stat = returnString(dirName(3,1).Atoi()*2-1);
+                                                if(dirName(0,3)=="BMF") eta_stat = returnString(TString(dirName(3,1)).Atoi()*2-1);
 						if(eta_stat=="5"||eta_stat=="6"||eta_stat=="7"||eta_stat=="8") eta_ring+="5,6";
 						if(eta_stat=="3"||eta_stat=="4") eta_ring+="3,4";
 						if(eta_stat=="1"||eta_stat=="2"||eta_stat=="0") eta_ring+="1,2";
@@ -1514,7 +1514,7 @@ void MonitoringFile::MDT2DHWName(TString hardware_name, TString &stateta_IMO_c, 
 
         //BMF1,2,3 corresponds to eta stations 1,3,5
         if( hardware_name(0,3) == "BMF"){
-            eta_s = returnString(hardware_name(3,1).Atoi()*2 - 1);
+            eta_s = returnString(TString(hardware_name(3,1)).Atoi()*2 - 1);
         }
 
 	stateta_c = hardware_name(0,2);
