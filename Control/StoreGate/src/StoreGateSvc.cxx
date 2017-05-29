@@ -13,6 +13,7 @@
 
 #include "GaudiKernel/IAppMgrUI.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
+#include <fstream>
 
 using namespace SG;
 using namespace std;
@@ -578,3 +579,17 @@ StoreGateSvc::createObj (IConverter* cvt,
 {
   _SGXCALL( createObj, (cvt, addr, refpObject), StatusCode::FAILURE );
 }
+
+
+void SG_dump (StoreGateSvc* sg)
+{
+  std::cout << sg->dump() << "\n";
+}
+
+void SG_dump (StoreGateSvc* sg, const char* fname)
+{
+  std::ofstream f (fname);
+  f << sg->dump() << "\n";
+  f.close();
+}
+
