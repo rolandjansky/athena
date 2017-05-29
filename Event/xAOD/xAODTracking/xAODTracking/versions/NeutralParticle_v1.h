@@ -20,11 +20,9 @@
 #include <bitset>
 #include <stdint.h>
 
-#ifndef XAOD_STANDALONE
-#ifndef XAOD_MANACORE
+#ifndef XAOD_ANALYSIS
 #include "TrkNeutralParameters/NeutralParameters.h"
-#endif // not XAOD_MANACORE
-#endif // not XAOD_STANDALONE
+#endif // XAOD_ANALYSIS
 
 namespace xAOD {
   /// Class describing a NeutralParticle.
@@ -114,14 +112,14 @@ namespace xAOD {
       /// Set the origin for the parameters.
       void setParametersOrigin(float x, float y, float z);
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
       /// @brief Returns the Trk::NeutralPerigee track parameters.
       ///
       /// These are defined as:
       ///  \f$\left(\begin{array}{c}d_0\\z_0\\\phi_0\\\theta\\1/p\\\end{array}\right)\f$
       /// @note This is only available in Athena. 
       const Trk::NeutralPerigee& perigeeParameters() const;
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // XAOD_ANALYSIS
 
       // /// @brief Returns a link (which can be invalid) to the xAOD::Vertex associated with this NeutralParticle.
       // const ElementLink< VertexContainer >& vertex() const;
@@ -138,11 +136,11 @@ namespace xAOD {
       /// (and so it needs updating);
       mutable bool m_perigeeCached;
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) ) && ( ! defined(__GCCXML__) ) && !defined(__CLING__)
+#if ( ! defined(XAOD_ANALYSIS) ) && ( ! defined(__GCCXML__) ) && !defined(__CLING__)
       /// @brief Cached NeutralPerigee, built from this object.
       /// @note This is only available in Athena.
       mutable Trk::NeutralPerigee* m_perigeeParameters;
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE and not __GCCXML__
+#endif // not XAOD_ANALYSIS and not __GCCXML__
 
     }; // class NeutralParticle_v1
 

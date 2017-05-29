@@ -23,13 +23,11 @@ extern "C" {
 #include "xAODTracking/TrackingPrimitives.h" 
 #include "xAODTracking/VertexContainerFwd.h" 
 
-#ifndef XAOD_STANDALONE
-#ifndef XAOD_MANACORE
+#ifndef XAOD_ANALYSIS
 // Athena includes
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackCollection.h"
-#endif // not XAOD_MANACORE
-#endif // not XAOD_STANDALONE
+#endif // XAOD_ANALYSIS
 
 namespace xAOD {
 
@@ -120,14 +118,14 @@ namespace xAOD {
         /// Set the origin for the parameters.
         void setParametersOrigin(float x, float y, float z);
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
         /// @brief Returns the Trk::MeasuredPerigee track parameters.
         ///
         /// These are defined as:
         ///  \f$\left(\begin{array}{c}d_0\\z_0\\\phi_0\\\theta\\q/p\\\end{array}\right)\f$
         /// @note This is only available in Athena. 
         const Trk::Perigee& perigeeParameters() const;
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_ANALYSIS
       /// @}
 
       /// @name Curvilinear functions
@@ -179,11 +177,11 @@ namespace xAOD {
         bool indexOfParameterAtPosition(unsigned int& index, ParameterPosition position) const;
         /// Set the 'position' (i.e. where it is in ATLAS) of the parameter at 'index', using the ParameterPosition enum. 
         void setParameterPosition(unsigned int index, ParameterPosition pos);
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
         /// @brief Returns a curvilinear representation of the parameters at 'index'.
         /// @note This is only available in Athena. 
         const Trk::CurvilinearParameters curvilinearParameters(unsigned int index) const;          
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_ANALYSIS
 
     /// Returns the radius of the first hit.
     float radiusOfFirstHit() const;
@@ -295,7 +293,7 @@ namespace xAOD {
       
       /// @name Links
       /// @{
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
         /// @brief Returns a link (which can be invalid) to the Trk::Track which was used to make this TrackParticle.
         /// @note This is only available in Athena. 
         const ElementLink< TrackCollection >& trackLink() const;
@@ -305,7 +303,7 @@ namespace xAOD {
         /// @brief Returns a pointer (which can be NULL) to the Trk::Track which was used to make this TrackParticle.
         /// @note This is only available in Athena. 
 		 const Trk::Track* track() const; 
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_ANALYSIS
         
         /// @brief Returns a link (which can be invalid) to the xAOD::Vertex associated with this TrackParticle.
         const ElementLink< VertexContainer >& vertexLink() const;
@@ -324,11 +322,11 @@ namespace xAOD {
      /// (and so it needs updating);
      mutable bool m_perigeeCached;
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) ) && ( ! defined(__GCCXML__) )  && !defined(__CLING__)
+#if ( ! defined(XAOD_ANALYSIS) ) && ( ! defined(__GCCXML__) )  && !defined(__CLING__)
       /// @brief Cached MeasuredPerigee, built from this object.
       /// @note This is only available in Athena.
      mutable Trk::Perigee* m_perigeeParameters;
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE and not __GCCXML__
+#endif // not XAOD_ANALYSIS and not __GCCXML__
 
     }; // class Track Particle
 

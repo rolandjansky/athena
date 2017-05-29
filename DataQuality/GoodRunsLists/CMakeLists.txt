@@ -15,6 +15,18 @@ if( XAOD_STANDALONE )
       PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
       PRIVATE
       Tools/PathResolver )
+elseif( XAOD_ANALYSIS )
+  atlas_depends_on_subdirs(
+      PUBLIC
+      Control/AthToolSupport/AsgTools
+      Event/xAOD/xAODEventInfo
+      PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
+      GaudiKernel
+      PRIVATE
+      Control/StoreGate
+      Event/EventInfo
+      Tools/PathResolver
+      AtlasTest/TestTools )
 else()
    atlas_depends_on_subdirs(
       PUBLIC
@@ -53,10 +65,15 @@ atlas_add_library( GoodRunsListsLib
    PRIVATE_LINK_LIBRARIES ${LIBXML2_LIBRARIES} PathResolver )
 
 if( NOT XAOD_STANDALONE )
+   if( XAOD_ANALYSIS )
+     set( extra_libs )
+   else()
+     set( extra_libs DetectorStatusLib )
+   endif()
    atlas_add_component( GoodRunsLists
       src/*.cxx src/components/*.cxx
       LINK_LIBRARIES AthenaBaseComps AthenaKernel xAODEventInfo GaudiKernel
-      StoreGateLib DetectorStatusLib EventInfo PathResolver GoodRunsListsLib )
+      StoreGateLib EventInfo PathResolver GoodRunsListsLib ${extra_libs} )
 endif()
 
 atlas_add_dictionary( GoodRunsListsDict

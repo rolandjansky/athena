@@ -322,7 +322,7 @@ bool xAOD::BPhysHelper::setRefTrks(const std::vector<TVector3>& refTrks)
 }
 
 /*****************************************************************************/
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
 
 bool xAOD::BPhysHelper::setRefTrks()
 {
@@ -351,7 +351,7 @@ bool xAOD::BPhysHelper::setRefTrks()
   return true;
   
 }
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE      
+#endif // not XAOD_ANALYSIS
 
 /*****************************************************************************/
 TVector3 xAOD::BPhysHelper::totalP()

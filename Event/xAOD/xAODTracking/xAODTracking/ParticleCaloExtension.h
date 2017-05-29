@@ -8,12 +8,10 @@
 #include "xAODTracking/TrackingPrimitives.h" 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-#ifndef XAOD_STANDALONE
-#ifndef XAOD_MANACORE
+#ifndef XAOD_ANALYSIS
 // Athena includes
 #include "TrkParameters/TrackParameters.h"
-#endif // not XAOD_MANACORE
-#endif // not XAOD_STANDALONE
+#endif // XAOD_ANALYSIS
 
 #include <vector>
 class CaloCell;
@@ -50,7 +48,7 @@ namespace xAOD {
     /// @brief fill the matrix with the covariance at position 'index', returns false if the parameters at 'index' does not have a covariance
     bool trackParameterCovarianceMatrix(ParametersCovMatrix_t& matrix, unsigned int index) const;
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
     /// @brief Returns a curvilinear representation of the parameters at 'index'.
     /// @note This is only available in Athena. 
     const Trk::CurvilinearParameters curvilinearParameters(unsigned int index) const;          
@@ -124,7 +122,7 @@ namespace xAOD {
     m_cellsAreSet=true;
   }
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
   inline const Trk::CurvilinearParameters ParticleCaloExtension::curvilinearParameters(unsigned int index) const {    
 
     // copy the correct values into the temp matrix

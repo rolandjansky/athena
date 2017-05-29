@@ -8,7 +8,7 @@ atlas_subdir( MuonIdHelpers )
 
 # Declare the package's dependencies. In standalone mode this package doesn't
 # depend on anything.
-if( NOT XAOD_STANDALONE )
+if( NOT XAOD_ANALYSIS )
    atlas_depends_on_subdirs(
       PUBLIC
       Control/AthenaBaseComps
@@ -23,7 +23,7 @@ if( NOT XAOD_STANDALONE )
 endif()
 
 # Decide on the sources/libraries to use based on the build environment:
-if( NOT XAOD_STANDALONE )
+if( NOT XAOD_ANALYSIS )
    set( extra_sources src/*.cxx )
    set( extra_libraries
       LINK_LIBRARIES AthenaBaseComps SGTools AtlasDetDescr IdDict Identifier
@@ -37,7 +37,7 @@ atlas_add_library( MuonIdHelpersLib
    ${extra_libraries} )
 
 # These are only needed with Athena present:
-if( NOT XAOD_STANDALONE )
+if( NOT XAOD_ANALYSIS )
    atlas_add_component( MuonIdHelpers
       src/components/*.cxx
       LINK_LIBRARIES MuonIdHelpersLib )

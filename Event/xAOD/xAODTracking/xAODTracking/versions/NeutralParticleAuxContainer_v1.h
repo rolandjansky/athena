@@ -15,11 +15,9 @@
 // EDM include(s):
 #include "xAODCore/AuxContainerBase.h"
 #include "AthLinks/ElementLink.h"
-#ifndef XAOD_STANDALONE
-#ifndef XAOD_MANACORE
+#ifndef XAOD_ANALYSIS
 #include "TrkTrack/TrackCollection.h"
-#endif // not XAOD_MANACORE
-#endif // not XAOD_STANDALONE
+#endif // XAOD_ANALYSIS
 
 // Want to be able to switch this off and on for the moment
 //#define XAODTRACKING_SUMMARYDYNAMIC      

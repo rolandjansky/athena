@@ -9,6 +9,8 @@ atlas_subdir( xAODTriggerCnv )
 # Extra dependencies, based on the build environment:
 if( XAOD_STANDALONE )
    set( extra_deps PRIVATE Control/xAODRootAccess )
+elseif( XAOD_ANALYSIS )
+   set( extra_deps PRIVATE Control/xAODRootAccess Database/AthenaPOOL/AthenaPoolKernel )
 else()
    set( extra_deps GaudiKernel
       PRIVATE
@@ -34,10 +36,10 @@ atlas_depends_on_subdirs(
    ${extra_deps} )
 
 # Build the package differently in standalone and Athena modes:
-if( XAOD_STANDALONE )
+if( XAOD_ANALYSIS )
 
    # The main library is an installed one in this case:
-   atlas_add_library( xAODTriggerCnv
+   atlas_add_library( xAODTriggerCnvLib
       xAODTriggerCnv/*.h Root/*.cxx
       PUBLIC_HEADERS xAODTriggerCnv
       LINK_LIBRARIES AsgTools xAODTrigger )
@@ -46,7 +48,14 @@ if( XAOD_STANDALONE )
    atlas_add_dictionary( xAODTriggerCnvDict
       xAODTriggerCnv/xAODTriggerCnvDict.h
       xAODTriggerCnv/selection.xml
-      LINK_LIBRARIES xAODTriggerCnv )
+      LINK_LIBRARIES xAODTriggerCnvLib )
+
+   # if AthAnalysis, need a component library too
+   if( NOT XAOD_STANDALONE )
+    atlas_add_component( xAODTriggerCnv
+      src/components/*.cxx
+      LINK_LIBRARIES xAODTriggerCnvLib )
+   endif()
 
    # The test(s) need(s) ROOT:
    find_package( ROOT COMPONENTS Core Tree RIO )
@@ -56,7 +65,7 @@ if( XAOD_STANDALONE )
       SOURCES test/ut_xaodtriggercnv_triggermenumetadatatool_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODTrigger
-      xAODTriggerCnv )
+      xAODTriggerCnvLib )
 
 else()
 

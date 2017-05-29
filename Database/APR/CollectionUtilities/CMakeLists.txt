@@ -21,7 +21,11 @@ atlas_depends_on_subdirs(
 find_package( Boost )
 find_package( CORAL COMPONENTS CoralBase )
 find_package( XercesC )
-find_package( yampl )
+
+
+#yampl we find quietly and will build TokenExtractor if its found
+find_package( yampl QUIET )
+
 find_package( CURL )
 
 # Component(s) in the package:
@@ -49,12 +53,19 @@ atlas_add_library( CollectionUtilities
   PRIVATE_LINK_LIBRARIES ${XERCESC_LIBRARIES} ${Boost_LIBRARIES}
   FileCatalog POOLCore PersistencySvc )
 
+
+set( extraIncludes )
+set( extraLibs )
+if( YAMPL_FOUND )
+  set( extraIncludes ${YAMPL_INCLUDE_DIRS} )
+  set( extraLibs ${YAMPL_LIBRARIES} )
+endif()
 # Helper macro declaring the utilities of the package:
 macro( collection_utility name )
   atlas_add_executable( ${name} utilities/${name}.cpp
-    INCLUDE_DIRS ${CURL_INCLUDE_DIRS} ${YAMPL_INCLUDE_DIRS}
+    INCLUDE_DIRS ${CURL_INCLUDE_DIRS} ${extraIncludes}
     ${CORAL_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS}
-    LINK_LIBRARIES ${CURL_LIBRARIES} ${YAMPL_LIBRARIES}
+    LINK_LIBRARIES ${CURL_LIBRARIES} ${extraLibs}
     ${CORAL_LIBRARIES} ${XERCESC_LIBRARIES} CollectionBase
     PersistentDataModel FileCatalog POOLCore CollectionUtilities )
 endmacro( collection_utility )
@@ -70,7 +81,10 @@ collection_utility( CollListToken )
 collection_utility( CollQuery )
 collection_utility( CollRemove )
 collection_utility( CollSplitByGUID )
-collection_utility( TokenExtractor )
+
+if( YAMPL_FOUND )
+  collection_utility( TokenExtractor )
+endif()
 
 # Install files from the package:
 atlas_install_scripts( scripts/*.exe scripts/*.py )

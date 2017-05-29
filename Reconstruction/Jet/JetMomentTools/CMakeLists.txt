@@ -73,12 +73,12 @@ atlas_add_library( JetMomentToolsLib
 if( NOT XAOD_STANDALONE )
    set( extra_libs )
    if( NOT XAOD_ANALYSIS )
-      set( extra_libs JetRecCaloLib CaloDetDescrLib CaloEvent AthenaKernel )
+      set( extra_libs JetRecCaloLib CaloDetDescrLib CaloEvent AthenaKernel CaloIdentifier )
    endif()
    atlas_add_component( JetMomentTools
       src/*.h src/*.cxx src/components/*.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier xAODCaloEvent xAODJet
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODCaloEvent xAODJet
       GaudiKernel JetRecLib JetUtils PathResolver JetMomentToolsLib
       ${extra_libs} )
 endif()

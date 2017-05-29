@@ -18,11 +18,9 @@
 // EDM include(s):
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#ifndef XAOD_STANDALONE
-#ifndef XAOD_MANACORE
+#ifndef XAOD_ANALYSIS
 #  include "VxVertex/VxTrackAtVertex.h"
-#endif // not XAOD_MANACORE
-#endif // not XAOD_STANDALONE
+#endif // not XAOD_ANALYSIS
 
 // xAOD include(s):
 #include "xAODTracking/TrackingPrimitives.h"
@@ -102,7 +100,7 @@ namespace xAOD {
       /// Set the type of the vertex
       void setVertexType( VxType::VertexType vType );
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
       /// Non-const access to the VxTrackAtVertex vector
       std::vector< Trk::VxTrackAtVertex >& vxTrackAtVertex();
       /// Const access to the vector of tracks fitted to the vertex (may not exist!)
