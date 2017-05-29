@@ -83,6 +83,7 @@ class TrigL1TopoROBMonitor:public AthAlgorithm {
   TH1F* m_histTopoSimHdwEventComparison;
   TH1F* m_histTopoCtpSimHdwEventComparison;
   TH1F* m_histTopoCtpHdwEventComparison;
+  TH1F* m_histTopoDaqRobEventComparison;
   TH1F* m_histTopoSimResult;
   TH1F* m_histTopoHdwResult;
   TH1F* m_histTopoSimNotHdwResult;
@@ -93,6 +94,8 @@ class TrigL1TopoROBMonitor:public AthAlgorithm {
   std::bitset<m_nTopoCTPOutputs> m_overflowBits; //! overflow bits corresponding to CTP output
   std::bitset<m_nTopoCTPOutputs> m_topoSimResult; //! simulation of CTP output
   std::bitset<m_nTopoCTPOutputs> m_topoCtpResult; //! actual hardware CTP output
+  std::bitset<m_nTopoCTPOutputs> m_triggerBitsDaqRob; //! trigger bits for BC0 from the DAQ ROB
+  std::bitset<m_nTopoCTPOutputs> m_overflowBitsDaqRob; //! overflow bits for BC0 from the DAQ ROB
   bool m_setTopoSimResult;
   enum class Problems {
     ROI_NO_RDO=0,
