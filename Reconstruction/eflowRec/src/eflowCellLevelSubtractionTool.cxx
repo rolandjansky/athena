@@ -11,8 +11,8 @@ PACKAGE:  offline/Reconstruction/eflowRec
 AUTHORS:  M.Hodgkinson
 CREATED:  25th January, 2005
 
-AUTHOR: 
-UPDATED: 
+AUTHOR: A.Hostiuc
+UPDATED: May 29th, 2017
 
 ********************************************************************/
 
@@ -33,7 +33,6 @@ UPDATED:
 #include "eflowRec/eflowCellSubtractionFacilitator.h"
 #include "eflowRec/eflowSubtractor.h"
 #include "eflowRec/eflowRingThicknesses.h"
-#include "eflowRec/eflowCellOrderingParameters.h"
 
 #include "CaloEvent/CaloCluster.h"
 
