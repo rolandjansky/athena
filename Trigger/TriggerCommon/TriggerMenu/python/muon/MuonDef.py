@@ -73,6 +73,9 @@ class L2EFChain_mu(L2EFChainDef):
       self.L2InputTE = self.L2InputTE.replace("AFP_C_","")
     if self.L2InputTE:      # cut of L1_, _EMPTY,..., & multiplicity
       if "dRl1" in self.chainPart['addInfo']:
+        #the dRl1 acts on a list of L1 RoIs, so we need to treat each item in the list separately
+        #then recreate the list with proper thresholds
+        #would probably be easier to just use ['MU6','MU6'] in the menu, but this way it's consistent 
         tmpL2InputTE = []
         for l1Thr in self.L2InputTE:
           l1Thr = l1Thr.replace("L1_","")
@@ -80,7 +83,6 @@ class L2EFChain_mu(L2EFChainDef):
           l1Thr = l1Thr[1:] if l1Thr.isdigit() else l1Thr 
           tmpL2InputTE.append(l1Thr)
         self.L2InputTE = tmpL2InputTE
-        print self.L2InputTE 
       else:
         self.L2InputTE = self.L2InputTE.replace("L1_","")
         self.L2InputTE = self.L2InputTE.split("_")[0]
