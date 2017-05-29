@@ -90,6 +90,7 @@ namespace PFODetails
     eflowRec_layerVectorCellOrdering,
     eflowRec_radiusVectorCellOrdering,
     eflowRec_avgEdensityVectorCellOrdering,
+    eflowRec_layerHED,
     /** These variables belong to the cell-based particle flow algorithm */
     cellBased_FIRST_ETA = 400, 
     cellBased_SECOND_R, 
@@ -137,10 +138,6 @@ namespace PFODetails
     tauShots_signalScore, 
     tauShots_nPhotons,
     tauShots_seedHash,
-    eflowRec_layerHED,
-    eflowRec_layerCellOrdering,
-    eflowRec_radiusCellOrdering,
-    eflowRec_avgEdensityCellOrdering,
   };
 
   /** This enum is used to label the associated particles to the PFO object */
