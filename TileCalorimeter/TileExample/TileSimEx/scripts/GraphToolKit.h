@@ -774,43 +774,7 @@ bool logx=false, bool toplogy=false, bool bottomlogy=false, bool isrectangle=fal
   SetMGraphAttributes(bottommg, 0.12, 1.4, 0.1, 0.12, 0.7, 0.1) ;
   bottommg->GetXaxis()->SetTitle(bottomgre1->GetXaxis()->GetTitle()) ;
   bottommg->GetYaxis()->SetTitle(bottomgre1->GetYaxis()->GetTitle()) ;
-/*  if(canvasname.find("pi")!=std::string::npos)
-  {
-    if(canvasname.find("LateralSpread")!=std::string::npos)
-    {
-      bottommg->GetYaxis()->SetRangeUser(0.76, 1.16) ;
-      bottommg->GetYaxis()->SetNdivisions(508) ;
-    }
-    if(canvasname.find("Resolution")!=std::string::npos)
-    {
-      bottommg->GetYaxis()->SetRangeUser(0.91, 1.21) ;
-      bottommg->GetYaxis()->SetNdivisions(506) ;
-    }
-    if(canvasname.find("Response")!=std::string::npos)
-    {
-      bottommg->GetYaxis()->SetRangeUser(0.96, 1.16) ;
-      bottommg->GetYaxis()->SetNdivisions(504) ;
-    }
-  }
-  else
-  {
-    if(canvasname.find("LateralSpread")!=std::string::npos)
-    {
-      bottommg->GetYaxis()->SetRangeUser(0.94, 1.39) ;
-      bottommg->GetYaxis()->SetNdivisions(509) ;
-    }
-    if(canvasname.find("Resolution")!=std::string::npos)
-    {
-      bottommg->GetYaxis()->SetRangeUser(0.81, 1.21) ;
-      bottommg->GetYaxis()->SetNdivisions(508) ;
-    }
-    if(canvasname.find("Response")!=std::string::npos)
-    {
-      bottommg->GetYaxis()->SetRangeUser(0.91, 1.26) ;
-      bottommg->GetYaxis()->SetNdivisions(507) ;
-    }
-  }
-*/
+
   c->Update() ;
   c->Print((canvasname+".eps").c_str()) ;
   c->Print((canvasname+".pdf").c_str()) ;
