@@ -95,7 +95,7 @@ EFMissingETFlags::EFMissingETFlags(const std::string& type,
 
   m_hCompFlags=0;
 
-  m_fextype = FexType::OTHER; 
+  _fextype = FexType::OTHER; 
 
 }
 
@@ -111,13 +111,13 @@ StatusCode EFMissingETFlags::initialize()
 {
 
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "called EFMissingETFlags::initialize()" << endmsg;
+    msg(MSG::DEBUG) << "called EFMissingETFlags::initialize()" << endreq;
   }
 
   /// timers
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
     msg(MSG::WARNING) << name() <<
-      ": Unable to locate TrigTimer Service" << endmsg;
+      ": Unable to locate TrigTimer Service" << endreq;
   }
   if (m_timersvc) {
     // global time
@@ -138,7 +138,7 @@ StatusCode EFMissingETFlags::start()
     msg(MSG::WARNING)
              << "ERROR: unable to locate THistSvc."
 	     << "  No histogram for component status bits!"
-             << endmsg;
+             << endreq;
     return StatusCode::SUCCESS;
   }
 
@@ -187,7 +187,7 @@ StatusCode EFMissingETFlags::start()
     msg(MSG::WARNING)
              << "ERROR: can not book histo" << histoName
 	     << "  No histogram for component status bits!"
-             << endmsg;
+             << endreq;
   }
 
 
@@ -213,11 +213,11 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
     const xAOD::CaloClusterContainer * /* caloCluster */ , const xAOD::JetContainer  * /* jets */)
 {
   if (msgLvl(MSG::DEBUG)) {
-     msg(MSG::DEBUG) << "EFMissingETFlags::execute() called" << endmsg;
+     msg(MSG::DEBUG) << "EFMissingETFlags::execute() called" << endreq;
   }
 
   if (met==0 || metHelper==0) {
-     msg(MSG::FATAL) << "Null pointers as input!  Aborting" << endmsg;
+     msg(MSG::FATAL) << "Null pointers as input!  Aborting" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -267,7 +267,7 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
 	  EMB_SumE += sumE;
 	} else {
           msg(MSG::WARNING)
-		   << "Cannot find EMB!  Skipping check" << endmsg;
+		   << "Cannot find EMB!  Skipping check" << endreq;
 	  break;
 	}
       } else if (i<8) { // EME
@@ -276,7 +276,7 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
 	  EME_SumE += sumE;
 	} else {
           msg(MSG::WARNING) 
-		   << "Cannot find EME!  Skipping check" << endmsg;
+		   << "Cannot find EME!  Skipping check" << endreq;
 	  break;
 	}
       } else if (i<12) { // HEC
@@ -284,7 +284,7 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
 	  HEC_SumE += sumE;
 	} else {
           msg(MSG::WARNING)
-		   << "Cannot find HEC!  Skipping check" << endmsg;
+		   << "Cannot find HEC!  Skipping check" << endreq;
 	  break;
 	}
       } else if (i<15) { // TileBar
@@ -292,7 +292,7 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
 	  TileBar_SumE += sumE;
 	} else {
           msg(MSG::WARNING)
-		   << "Cannot find TileBar!  Skipping check" << endmsg;
+		   << "Cannot find TileBar!  Skipping check" << endreq;
 	  break;
 	}
       } else if (i<18) { // TileGap
@@ -300,7 +300,7 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
 	  TileGap_SumE += sumE;
 	} else {
           msg(MSG::WARNING)
-		 << "Cannot find TileGap!  Skipping check" << endmsg;
+		 << "Cannot find TileGap!  Skipping check" << endreq;
 	break;
 	}
       } else if (i<21) { // TileExt
@@ -308,7 +308,7 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
 	  TileExt_SumE += sumE;
 	} else {
           msg(MSG::WARNING)
-		   << "Cannot find TileExt!  Skipping check" << endmsg;
+		   << "Cannot find TileExt!  Skipping check" << endreq;
 	  break;
 	}
       } else { // FCal
@@ -318,7 +318,7 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
 	  FCal_SumE += sumE;
 	} else {
           msg(MSG::WARNING) 
-		   << "Cannot find FCal!  Skipping check" << endmsg;
+		   << "Cannot find FCal!  Skipping check" << endreq;
 	  break;
 	}
       }  // end loop over i 
@@ -327,7 +327,7 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
 
   } else {
     msg(MSG::WARNING) << "Found " << elem 
-	     << " (!=42) auxiliary components.  Skipping checks!" << endmsg;
+	     << " (!=42) auxiliary components.  Skipping checks!" << endreq;
   }
 
   /// main loop over components ///
