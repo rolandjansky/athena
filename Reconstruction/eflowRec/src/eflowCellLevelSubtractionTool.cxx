@@ -125,8 +125,6 @@ StatusCode eflowCellLevelSubtractionTool::initialize(){
 
 }
 
-//figure out where this is called 
-
 void eflowCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer) {
 
   if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Executing eflowCellLevelSubtractionTool" << endmsg;
@@ -230,14 +228,11 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
 
         eflowRecTrack* efRecTrack = matchedTrackList[iTrack]->getTrack();
         
-        
         std::vector<eflowRecCluster*> matchedClusters;
         matchedClusters.clear();
         std::vector<eflowTrackClusterLink*> links = efRecTrack->getClusterMatches();
         std::vector<eflowTrackClusterLink*>::iterator itLink = links.begin();
         std::vector<eflowTrackClusterLink*>::iterator endLink = links.end();
-        
-        
         
         for (; itLink != endLink; ++itLink) {
           matchedClusters.push_back((*itLink)->getCluster());
@@ -258,7 +253,7 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
 
     std::vector<int> layerToStoreVector;
     std::vector<float> radiusToStoreVector;
-    std::vector<float> avgEdensityToStoreVector ;
+    std::vector<float> avgEdensityToStoreVector;
 	
 	for (int i=0; i < eflowCalo::nRegions ;i++){
 	
@@ -271,14 +266,11 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
         msg(MSG::DEBUG)  <<"extrapolated eta ["<<layer<<"] is "<<eta_extr<<std::endl;
         double phi_extr = calorimeterCellList.phiFF(layer);
         msg(MSG::DEBUG)  <<"extrapolated phi ["<<layer<<"] is "<<phi_extr<<std::endl;
-        
-        
-        
+    
         if (eta_extr == -999.0){
             continue;
         }
-
-
+        
           int indexofRing = 0;
           int layerToStore = -999;
 
@@ -291,14 +283,12 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
 
           double cellVolume = 0;
           int totalCells = 0;
-          double previouseta = 0;
-          double previousphi = 0;
               
           int n;
+          /* 100 is chosen as a number higher than the number of cells found in a normal list */
           for (n=1; n<100; n++){
         
               CellIt beginRing = calorimeterCellList.getLowerBound((eflowCaloENUM)i, ringThickness*(n-1));
-
 
                if(beginRing == calorimeterCellList.end()){
                    break;
@@ -316,22 +306,9 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
               for (; firstPair != lastPair; ++firstPair) {
                     const CaloDetDescrElement* DDE = ((*firstPair).first)->caloDDE();
                     CaloCell_ID::CaloSample sampling = DDE->getSampling();
-                
-                
-                    if (previouseta == ((*firstPair).first)->eta() && previousphi == ((*firstPair).first)->phi()){
-                        break;
-                    }
-                
-                
+                    
                     msg(MSG::DEBUG)  << " cell eta and phi are " << ((*firstPair).first)->eta() << " and " << ((*firstPair).first)->phi() << " with index " << (*firstPair).second << " and sampling of " << sampling << std::endl;
                     msg(MSG::DEBUG)  << " cell energy is " << ((*firstPair).first)->energy()<<std::endl;
-                
-                    previouseta = ((*firstPair).first)->eta();
-                    previousphi = ((*firstPair).first)->phi();
-                
-                    double celltrackdist = calorimeterCellList.dR(previouseta,previousphi,layer);
-                
-                
                 
                     totalCells += 1;
                     totalCellsinRing += 1;
@@ -340,7 +317,6 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
                     totalEnergyPerCell = ((*firstPair).first)->energy();
                     msg(MSG::DEBUG)  << " Total E per Cell is " << totalEnergyPerCell<<std::endl;
                     msg(MSG::DEBUG)  << " Total E per Ring is " << totalEnergyPerRing<<std::endl;
-        
 
                     cellVolume = DDE->volume();
                     msg(MSG::DEBUG)  << " cell volume is " << cellVolume/1000.<<std::endl;
@@ -351,9 +327,6 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
                     energyDensityPerRing += energyDensityPerCell;
                     msg(MSG::DEBUG)  << " Final added E density per Cell is " << energyDensityPerRing<<std::endl;
                     averageEnergyDensityPerRing = energyDensityPerRing/((totalCellsinRing)*(efRecTrack->getTrack()->e()/1000.));
-        
-
-            
                   }
 
             msg(MSG::DEBUG)  << " track E is " << efRecTrack->getTrack()->e()/1000.;
@@ -370,17 +343,9 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
             }
 
             else {msg(MSG::DEBUG)  <<"averageEnergyDensityPerRing = 0"<<std::endl;}
-        
-        
         }
 
-
-
-	    
-	    
 	    }
-	    
-	    
 	    
 	    efRecTrack->setLayerCellOrderVector(layerToStoreVector);
         efRecTrack->setRadiusCellOrderVector(radiusToStoreVector);
@@ -391,15 +356,10 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
         avgEdensityToStoreVector.clear();
 
     }
-
      
   }
   
   }
-
-
-
-
 
 void eflowCellLevelSubtractionTool::performSubtraction() {
 
