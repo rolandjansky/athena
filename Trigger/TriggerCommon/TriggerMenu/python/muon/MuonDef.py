@@ -2159,4 +2159,6 @@ class L2EFChain_mu(L2EFChainDef):
                               [theTrigMuonIDTrackMultiHypoConfig_Muon],
                               'EF_mu_step3']]
       self.EFsignatureList += [ [['EF_mu_step3']          ] ]
-      self.TErenamingDict['EF_mu_step3'] = mergeRemovingOverlap('EF_mutrkmulti_', idmulti+'_'+self.chainPartNameNoMult.replace(self.chainPart['specialStream'], '')+'_'+self.L2InputTE).replace('__', '_')
+      self.TErenamingDict += {
+        'EF_mu_step3': mergeRemovingOverlap('EF_mutrkmulti_', idmulti+'_'+self.chainPartNameNoMult.replace(self.chainPart['specialStream'], '')+'_'+self.L2InputTE).replace('__', '_'),
+      }
