@@ -34,7 +34,8 @@ atlas_add_component( ISF_HepMC_Tools
 # Tests
 atlas_add_test( GenParticleGenericFilter_test
                 SOURCES test/GenParticleGenericFilter_test.cxx src/GenParticleGenericFilter.cxx
-                LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} AthenaBaseComps )
+                INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
+                LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps )
 
 # Install files from the package:
 atlas_install_headers( ISF_HepMC_Tools )
