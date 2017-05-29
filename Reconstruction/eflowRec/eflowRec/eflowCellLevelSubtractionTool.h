@@ -50,13 +50,10 @@ public:
   void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer);
   StatusCode finalize();
 
- protected:
- 
- void calculateAverageEnergyDensity();
-
  private:
 
   void calculateRadialEnergyProfiles();
+  void calculateAverageEnergyDensity();
   void performSubtraction();
   bool runInGoldenMode() { return ((m_goldenModeString == "golden1") || (m_goldenModeString == "golden2")); }
   bool isEOverPFail(double expectedEnergy, double sigma, double clusterEnergy, bool consistencySigmaCut, bool useGoldenMode);
