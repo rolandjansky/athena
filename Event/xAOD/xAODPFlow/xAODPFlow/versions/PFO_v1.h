@@ -191,8 +191,6 @@ namespace xAOD {
     mutable bool m_p4EMCached;
     /** this defines the factor to compress floats by */
     int m_floatCompressionFactor;
-    
-    //std::vector<int> m_layervector;
 
   }; // class PFO
 
