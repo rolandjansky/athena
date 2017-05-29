@@ -40,7 +40,7 @@ def GetAllMuonThresholds(chainDict):
 
     return muons
 
-def generateChainDefs(chainDict, thisIsBphysChain=False):
+def generateChainDefs(chainDict):
     
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs = []
@@ -62,7 +62,7 @@ def generateChainDefs(chainDict, thisIsBphysChain=False):
             else:
                 AllMuons=[]
 
-            Muon = L2EFChain_mu(subChainDict, asymDiMuonChain, AllMuons, thisIsBphysChain)
+            Muon = L2EFChain_mu(subChainDict, asymDiMuonChain, AllMuons)
 
         listOfChainDefs += [Muon.generateHLTChainDef()]
         
