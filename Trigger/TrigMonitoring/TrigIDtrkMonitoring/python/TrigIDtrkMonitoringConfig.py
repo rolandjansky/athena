@@ -275,12 +275,12 @@ def TrigIDtrkMonitoringTool():
 			# jet based chains
 			"HLT_j55_bperf:InDetTrigTrackingxAODCnv_Bjet_FTF",
 			"HLT_j55_bperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
-			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:post:pt=5000",
-			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
-			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF",
+			"HLT_j55_bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:post:pt=5000",
+			"HLT_j55_bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF",
+			"HLT_j55_bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
 			"HLT_j.*boffperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:post:pt=5000",
-			"HLT_j.*boffperf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
-			"HLT_j.*boffperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF"
+			"HLT_j.*boffperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF",
+			"HLT_j.*boffperf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig"
 			]
 		ToolSvc += tidabjet;
 		list += [ "TrigTestBase/IDBjetTool" ]
@@ -293,8 +293,8 @@ def TrigIDtrkMonitoringTool():
 		tidabjetshift.SliceTag = "HLT/TRIDT/Bjet/Shifter"
 		tidabjetshift.ntupleChainNames += [
 			"Offline",
-			"HLT_j45*_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
-			"HLT_j45*_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+			"HLT_j35.*_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
+			"HLT_j35.*_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
 			"HLT_j5.*_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
 			"HLT_j5.*_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
 			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
@@ -326,8 +326,8 @@ def TrigIDtrkMonitoringTool():
 		tidabjetvtxshift.ShifterChains = 2
 		tidabjetvtxshift.ntupleChainNames += [
 			"Offline",
-			"HLT_j45*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=xPrimVx",
-			"HLT_j45*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=EFHistoPrmVtx",
+			"HLT_j35.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=xPrimVx",
+			"HLT_j35.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=EFHistoPrmVtx",
 			"HLT_j5.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=xPrimVx",
 			"HLT_j5.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=EFHistoPrmVtx",
 			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=xPrimVx",
@@ -335,6 +335,25 @@ def TrigIDtrkMonitoringTool():
 			]
 		ToolSvc += tidabjetvtxshift;
 		list += [ "TrigTestBase/IDBjetVtxShifterTool" ]
+
+
+                # Shifter instances
+		tidajetvtxshift = TrigTestBase(name = "IDJetVtxShifterTool",
+					     histoPathBase = "/Trigger/HLT")
+		tidajetvtxshift.AnalysisConfig = "Tier0"
+		tidajetvtxshift.SliceTag = "HLT/TRIDT/JetVtx/Shifter"
+		tidajetvtxshift.ShifterChains = 2
+		tidajetvtxshift.ntupleChainNames += [
+			"Offline",
+			"HLT_j35_gsc.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=xPrimVx",
+			"HLT_j35_gsc.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=EFHistoPrmVtx",
+			"HLT_j50_gsc.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=xPrimVx",
+			"HLT_j50_gsc.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=EFHistoPrmVtx",
+			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=xPrimVx",
+			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=EFHistoPrmVtx"
+			]
+		ToolSvc += tidajetvtxshift;
+		list += [ "TrigTestBase/IDJetVtxShifterTool" ]
 
 
 

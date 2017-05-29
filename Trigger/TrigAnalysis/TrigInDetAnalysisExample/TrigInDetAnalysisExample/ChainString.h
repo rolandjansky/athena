@@ -47,22 +47,26 @@ public:
 
   const std::string& raw() const { return mraw; }
   
+  /// can't make this return a reference in case there 
+  /// is no such key - could throw an exception then it 
+  /// would work, but that is far too excessive 
   std::string value( const std::string& key ) const { 
     int i=find(key);
     if ( i>=0 ) return mvalues[i];
     return "";
   }
 
+  /// same here regarding returning a reference 
   std::string postvalue( const std::string& key ) const { 
     if ( postcount() ) return value( key+"-post" ); 
     return "";
   }
 
-  const std::vector<std::string> values() const { return mvalues; }
-  const std::vector<std::string>   keys() const { return   mkeys; }
+  std::vector<std::string> values() const { return mvalues; }
+  std::vector<std::string>   keys() const { return   mkeys; }
 
-  const std::string pre()  const { return mraw.substr( 0, mraw.find(":post") ); }
-  const std::string post() const { return mpost; }
+  std::string pre()  const { return mraw.substr( 0, mraw.find(":post") ); }
+  std::string post() const { return mpost; }
 
   size_t postcount() const { return mpostcount; }
 
@@ -126,7 +130,7 @@ protected:
 
   /// parse the full specification string
   void parse();
-  void parse( const std::string& s );
+  void parse( std::string s );
 
   int find( const std::string& key ) const { 
     for ( int i=mkeys.size() ; i-- ; ) if ( key==mkeys[i] ) return i;

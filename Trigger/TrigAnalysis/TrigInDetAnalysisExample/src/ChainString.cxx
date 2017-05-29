@@ -20,8 +20,8 @@ ChainString::ChainString(const std::string& s) :
 }
 
 
-ChainString::ChainString(const ChainString& s) :
-  std::string(s), 
+ChainString::ChainString( const ChainString& s ) :
+  std::string(s.mraw), 
   mhead(s.mhead), mtail(s.mtail), mextra(s.mextra),
   melement(s.melement), mroi(s.mroi), 
   mvtx(s.mvtx),
@@ -36,36 +36,17 @@ ChainString::ChainString(const ChainString& s) :
 void ChainString::parse() { parse( *this ); }
 
 /// parse the full specification string
-void ChainString::parse( const std::string& s ) { 
+void ChainString::parse( std::string _s ) { 
 
-    std::cout << "ChainString::parse()" << std::endl;
-
-    std::string _s = s;
-  
     std::vector<std::string> fields;
 
-    //    std::cout << "\nChainString::parse() [" << _s << "]" << std::endl;
-    
-    //    std::string pass = chomp(_s,":;");
-    //    if ( pass!="" ) mpassed = ( pass=="DTE" ? false : true );    
-
-    //    std::string::size_type pos = _s.find_first_of(":;");
-
-    //    while ( pos!=std::string::npos ) { 
-    //     fields.push_back( chop( _s, ":;" ) ); 
-    //     pos = _s.find_first_of(":;");
-    //    }
-
-    while ( _s.find_first_of(":;")!=std::string::npos ) { 
-      fields.push_back( chop( _s, ":;" ) ); 
-    }
+    while ( _s.find_first_of(":;")!=std::string::npos ) fields.push_back( chop( _s, ":;" ) );
     
     fields.push_back(_s);
 
     bool postkeys = false;
 
     for ( unsigned i=0 ; i<fields.size() ; i++ ) { 
-      std::cout << "ChainString::parse() field: " << fields[i] << std::endl;
       if      ( fields[i]=="DTE" ) mpassed = false; 
       else if ( fields[i]=="post" ) postkeys = true; 
       else if ( fields[i].find("=")!=std::string::npos ) { 
@@ -74,14 +55,12 @@ void ChainString::parse( const std::string& s ) {
 	if ( postkeys ) { key += "-post"; mpostcount++; }
 	mkeys.push_back( key );
 	mvalues.push_back( _field );
-	//	mpostval.push_back( postkeys );
       }
     }
 
     bool usetags   = false;
-    //  bool useroitag = false;
     
-    mhead = fields[0]; 
+    if ( fields.size() ) mhead = fields[0]; 
 
     std::string tags[5] = { "collection=", "index=", "roi=", "vtx=", "te=" };
     std::string  alt[5] = { "key=",        "ind=",   "",    "",     ""     };
