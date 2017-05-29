@@ -204,9 +204,9 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
 		   */
 
   /** These are for the trigger */
-  IdentifierHash skipHash=0xffffffff, lastHash=0xffffffff;
+  IdentifierHash skipHash, lastHash;
 
-  IdentifierHash currentLinkIdHash = 0xffffffff;
+  IdentifierHash currentLinkIdHash;
 
   memset(saved,0,768*2);
   m_errorHit->clear();
@@ -831,7 +831,7 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize,int tbin, uint32_t onlineId
   }
   /** get offlineId from the link number and ROB number */
   IdentifierHash idCollHash =  m_cabling->getHashFromOnlineId(onlineId) ;
-  if (idCollHash==0xffffffff) {
+  if (not idCollHash.is_valid()) {
     m_numUnknownOfflineId++;
     ATH_MSG_ERROR("Unknown OfflineId for OnlineId -> cannot create RDO");
     ATH_MSG_WARNING("Unknown OfflineId for OnlineId "<<std::hex<<onlineId <<" -> cannot create RDO"<<std::dec);
