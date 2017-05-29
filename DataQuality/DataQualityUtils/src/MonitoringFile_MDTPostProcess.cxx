@@ -533,7 +533,7 @@ void MonitoringFile::MDTChamEff( std::string inFilename, std::string title, int 
 					// 	    double maxTubeLengthBarrel = 4961.5;  // just FYI
 					// 	    double maxTubeLengthEndcap = 5941.5;  // just FYI 
 					GetTubeLength(tubeLength,dirName);    // should always fill tubeLength
-					if(dirName(0,3) == "BME") tubeRadiusScale = 0.25;
+					if(dirName(0,3) == "BME" || dirName(0,3) == "BMG") tubeRadiusScale = 0.25;
 					double chamb_vol = (double)numTubesInChamber*tubeLength*0.0006881*tubeRadiusScale;   // 0.0006881 m2 = pi*tube_r^2
 					// BME tubes are half the radius = 1/4 the volume/
 					//double noiseCut_vol = (double)nTubes_noiseCut*tubeLength*0.0006881*tubeRadiusScale; // these represent the total volume in (m3) covered by the tubes in the chamber
