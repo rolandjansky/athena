@@ -89,7 +89,7 @@ void VtxAnalysis::initialise() {
   eff_zed   = new TProfile( "vx_zed_eff", "zed_eff;efficiency;offline vtx z [mm]",       50, -250,  250   );
   eff_ntrax = new TProfile( "vx_ntrax_eff", "ntrax_eff;number of tracks;efficiency",    80, vnbins );
   eff_nvtx  = new TProfile( "vx_nvtx_eff",  "nvtx_eff;number of vertices;efficiency",  100, -0.5,  100.5   );
-  eff_mu    = new TProfile( "vx_mu_eff",     "lb_eff;<#mu>;efficiency",                 61, -0.5,  60.5   );
+  eff_mu    = new TProfile( "vx_mu_eff",     "mu_eff;<#mu>;efficiency",                 61, -0.5,  60.5   );
   eff_lb    = new TProfile( "vx_lb_eff",     "lb_eff;lumi block;efficiency",           151, -0.5,  3019.5   );
  
   addHistogram( eff_zed );
