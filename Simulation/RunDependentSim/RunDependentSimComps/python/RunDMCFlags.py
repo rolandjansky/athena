@@ -105,7 +105,7 @@ class RunToTimestampDict(JobProperty):
         241306:1411306000, ##MC15c RUN-4 (ITk InclBrl4_OptRing (Step 1.8) + FCal, mu=60)
         241308:1411308000, ##MC15c RUN-4 (ITk InclBrl4_OptRing (Step 1.8) + FCal, mu=80)
         241314:1411314000, ##MC15c RUN-4 (ITk InclBrl4_OptRing (Step 1.8) + FCal, mu=140)
-        241320:1411220000, ##MC15c RUN-4 (ITk InclBrl4_OptRing (Step 1.8) + FCal, mu=200)
+        241320:1411320000, ##MC15c RUN-4 (ITk InclBrl4_OptRing (Step 1.8) + FCal, mu=200)
         241400:1411400000, ##MC15c RUN-4 (ITk LoI-VF + FCal, mu=0)
         241406:1411406000, ##MC15c RUN-4 (ITk LoI-VF + FCal, mu=60)
         241408:1411408000, ##MC15c RUN-4 (ITk LoI-VF + FCal, mu=80)
