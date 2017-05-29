@@ -124,9 +124,9 @@ def getBphysThresholds(chainDict) :
                     thr= dthr * 1000.  # in MeV; 
                     #lower to match EF muon threshols
                     if dthr < 9.5 :
-                        thr = thr - 250. 
+                        thr = thr - 400. 
                     elif dthr < 11.5 :
-                        thr = thr - 500. 
+                        thr = thr - 550. 
                     elif dthr < 21.5  :
                         thr = thr - 750.                         
                     else :
