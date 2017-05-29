@@ -155,10 +155,6 @@ class NewRegSelSvcDefault ( NewRegSelSvc )  :
                 self.enableTRT = True
             else:
                 self.enableTRT = False
-            if DetFlags.detdescr.FTK_on():
-                self.enableFTK = True
-            else:
-                self.enableFTK = False
         else:
             self.enableID = False
 

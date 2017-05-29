@@ -10,7 +10,6 @@
 #          include "samples/TrigInDetValidation_mu_sample4.xml"
 
 
-
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
@@ -26,13 +25,12 @@
 
 
 
-
      <action position="02">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
                 <argname>exeName</argname>
-                <argvalue>TIDArun.sh</argvalue> 
+                <argvalue>TIDAcomparitor.exe</argvalue> 
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
@@ -41,8 +39,22 @@
             </action>
 
 
-
      <action position="03">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-muon-pileup.root data-mu_Zmumu_pu40_run1-reference.root HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_0 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots </argvalue>
+              </arg>
+            </action>
+
+
+
+     <action position="04">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
@@ -51,10 +63,22 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-pileup.root data-mu_Zmumu_pu40_run1-reference.root HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_0 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-plots </argvalue>
+                <argvalue>data-muon-pileup.root data-mu_Zmumu_pu40_run1-reference.root HLT_mu24_L2Star_idperf_InDetTrigTrackingxAODCnv_Muon_EFID   -d HLTEF-test-plots </argvalue>
               </arg>
             </action>
 
+     <action position="05">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-muon-pileup.root data-mu_Zmumu_pu40_run1-reference.root HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_0 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_1 HLT_mu24_L2Star_idperf_TrigL2SiTrackFinder_Muon_2  -d HLTL2-test-plots </argvalue>
+              </arg>
+            </action>
 
 
 #	  include "TrigInDetValidation_expertMonitoring.xml"
@@ -70,12 +94,13 @@
             </testToRemove>
 
 
+	    <auxFilePattern>data-mu_Zmumu_pu40-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-mu_Zmumu_pu40-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
 
 	  <athenaCommonFlags />
 	  </athena>
-
 
 
 

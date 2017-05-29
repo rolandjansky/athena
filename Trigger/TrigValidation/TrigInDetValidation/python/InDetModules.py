@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 #ID modules as obtained by RegSelSvc.WriteTables
 #Format: layer, det, r, phi, z, rob, hash
 

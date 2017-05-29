@@ -37,7 +37,7 @@ TrigTestMonToolAC::TrigTestMonToolAC(const std::string & type, const std::string
      m_fileopen(false),
      m_requireDecision(false)
 {
-  msg(MSG::WARNING) << "TrigTestMonToolAC::TrigTestMonToolAC() compiled: " << __DATE__ << " " << __TIME__ << endmsg;
+  msg(MSG::WARNING) << "TrigTestMonToolAC::TrigTestMonToolAC() compiled: " << __DATE__ << " " << __TIME__ << endreq;
 
   declareProperty( "pTCut",   m_pTCut   = 0 );
   declareProperty( "etaCut",  m_etaCut  = 5 );
@@ -89,9 +89,9 @@ TrigTestMonToolAC::TrigTestMonToolAC(const std::string & type, const std::string
 
   declareProperty( "KeepAllEvents", m_keepAllEvents = false );
   
-  msg(MSG::INFO) << "TrigTestMonToolAC::TrigTestMonToolAC() " << gDirectory->GetName() << endmsg;
+  msg(MSG::INFO) << "TrigTestMonToolAC::TrigTestMonToolAC() " << gDirectory->GetName() << endreq;
 
-  msg(MSG::INFO) << "TrigTestMonToolAC::TrigTestMonToolAC() returning: " << endmsg;
+  msg(MSG::INFO) << "TrigTestMonToolAC::TrigTestMonToolAC() returning: " << endreq;
 
 }
 
@@ -102,7 +102,7 @@ TrigTestMonToolAC::~TrigTestMonToolAC() {
   //  m_sequences[i]->finalize();
   if ( m_fileopen ) for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->finalize();
 
-  msg(MSG::INFO) << "TrigTestMonToolAC::~TrigTestMonToolAC()" << endmsg;
+  msg(MSG::INFO) << "TrigTestMonToolAC::~TrigTestMonToolAC()" << endreq;
   for ( unsigned i=m_filters.size()     ; i-- ; ) delete m_filters[i];
   for ( unsigned i=m_associators.size() ; i-- ; ) delete m_associators[i];
 
@@ -112,9 +112,9 @@ TrigTestMonToolAC::~TrigTestMonToolAC() {
 
 StatusCode TrigTestMonToolAC::init() {
 
-  msg(MSG::DEBUG) << " ----- enter init() ----- " << endmsg;
+  msg(MSG::DEBUG) << " ----- enter init() ----- " << endreq;
 
-  msg(MSG::INFO) << "TrigTestMonToolAC::init() " << gDirectory->GetName() << endmsg;
+  msg(MSG::INFO) << "TrigTestMonToolAC::init() " << gDirectory->GetName() << endreq;
 
   //  std::cout << "TrigTestMonToolAC::init() SUTT buildNtuple " << m_buildNtuple << std::endl;
   
@@ -136,7 +136,7 @@ StatusCode TrigTestMonToolAC::init() {
   ///     we need to be automatically determine which chains to process, and so need
   ///     the TrigDecisionTool which is niot configured until we have an iov
 
-  msg(MSG::DEBUG) << " -----  exit init() ----- " << endmsg;
+  msg(MSG::DEBUG) << " -----  exit init() ----- " << endreq;
 
   return StatusCode::SUCCESS; 
 }
@@ -149,9 +149,9 @@ StatusCode TrigTestMonToolAC::book() {
 StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool newRun) { 
 #endif
 
-  msg(MSG::INFO) << " ----- enter book() (athena) ----- " << endmsg;
+  msg(MSG::INFO) << " ----- enter book() (athena) ----- " << endreq;
 
-  msg(MSG::INFO) << "TrigTestMonToolAC::book() " << gDirectory->GetName() << endmsg;
+  msg(MSG::INFO) << "TrigTestMonToolAC::book() " << gDirectory->GetName() << endreq;
 
 #ifdef ManagedMonitorToolBase_Uses_API_201401
 #if 0
@@ -203,11 +203,11 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
     m_associators.push_back(dR_matcher);
     m_associators.push_back(phi_matcher);
 
-    msg(MSG::WARNING) << "[91;1m" << "m_analysis_config " << m_analysis_config << "[m" << endmsg;
+    msg(MSG::WARNING) << "[91;1m" << "m_analysis_config " << m_analysis_config << "[m" << endreq;
    
     if ( m_analysis_config=="Tier0" || !m_buildNtuple ) {
 
-      msg(MSG::INFO) << "[91;1m" << "setting up tier 0 analyses " << endmsg;
+      msg(MSG::INFO) << "[91;1m" << "setting up tier 0 analyses " << endreq;
 
       std::vector<std::string> chains;
       chains.reserve( m_ntupleChainNames.size() );
@@ -236,7 +236,7 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
 	//  "[91;1m" 
 	//  "[m" 
 
-	if ( selectChains.size()==0 ) msg(MSG::WARNING) << "[91;1m"<< "No chains matched for requested input " << chainName <<   "[m" << endmsg;
+	if ( selectChains.size()==0 ) msg(MSG::WARNING) << "[91;1m"<< "No chains matched for requested input " << chainName <<   "[m" << endreq;
 	
 	for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 	  
@@ -250,7 +250,7 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
 
 	  chains.push_back( selectChains[iselected] );
 	  
-	  msg(MSG::INFO) << "[91;1m"  << "Matching chain " << selectChains[iselected] << "[m" << endmsg;
+	  msg(MSG::INFO) << "[91;1m"  << "Matching chain " << selectChains[iselected] << "[m" << endreq;
 	  
 	}
 	
@@ -259,11 +259,11 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
       
       m_chainNames = chains;
       
-      msg(MSG::INFO) << "[91;1m" << "Matching chains " << m_chainNames.size() << " init() [m" << endmsg;
+      msg(MSG::INFO) << "[91;1m" << "Matching chains " << m_chainNames.size() << " init() [m" << endreq;
       
       for ( unsigned i=0 ; i<m_chainNames.size() ; i++ ){
 	
-	msg(MSG::INFO) << "[91;1m"  << "booking a Tier0 chain " << m_chainNames[i] << " [m" << endmsg;
+	msg(MSG::INFO) << "[91;1m"  << "booking a Tier0 chain " << m_chainNames[i] << " [m" << endreq;
 	
 	m_sequences.push_back( new AnalysisConfig_Tier0(m_chainNames[i], 
 							m_chainNames[i], "", "",
@@ -280,21 +280,21 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
     }
   }   
   
-  msg(MSG::DEBUG) << "[91;1m  ----- File open? -----  [m" << endmsg;
+  msg(MSG::DEBUG) << "[91;1m  ----- File open? -----  [m" << endreq;
  
   if ( !m_fileopen && newRun && ( m_initialisePerRun || m_firstRun ) ) { 
     m_fileopen = true;
     
     for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) { 
-      msg(MSG::INFO) << "[91;1m ----- booking for analysis " << m_sequences[i]->name() << " ----- [m" << endmsg;
+      msg(MSG::INFO) << "[91;1m ----- booking for analysis " << m_sequences[i]->name() << " ----- [m" << endreq;
       m_sequences[i]->initialize(this, &m_tdt);
       m_sequences[i]->setGenericFlag(m_genericFlag);
       m_sequences[i]->book();      
-      msg(MSG::INFO) << "[91;1m ----- booked for analysis " << m_sequences[i]->name() << " ----- [m" << endmsg;
+      msg(MSG::INFO) << "[91;1m ----- booked for analysis " << m_sequences[i]->name() << " ----- [m" << endreq;
     }
     m_firstRun = false;
   }
-  msg(MSG::DEBUG) << " ----- exit book() ----- " << endmsg;
+  msg(MSG::DEBUG) << " ----- exit book() ----- " << endreq;
   return StatusCode::SUCCESS; 
 }
   
@@ -304,20 +304,20 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
 
 
 StatusCode TrigTestMonToolAC::fill() { 
-  msg(MSG::INFO) << " ----- enter fill() (athena) ----- " << endmsg;  
+  msg(MSG::INFO) << " ----- enter fill() (athena) ----- " << endreq;  
 
 
-  msg(MSG::INFO) << "chains: " << m_chainNames.size() << endmsg;
+  msg(MSG::INFO) << "chains: " << m_chainNames.size() << endreq;
 
   for ( unsigned i=0 ; i<m_chainNames.size() ; i++ ) { 
     ChainString s = m_chainNames[i];
     //std::vector<std::string> triggers = m_tdt->getListOfTriggers( s.head() );
-    msg(MSG::INFO) << "Trigger output " << s.head() << " " << s.tail() << "\tdecision " << m_tdt->isPassed( s.head() ) << endmsg;
+    msg(MSG::INFO) << "Trigger output " << s.head() << " " << s.tail() << "\tdecision " << m_tdt->isPassed( s.head() ) << endreq;
   }
   
   for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->execute();
 
-  msg(MSG::INFO) << " ----- exit fill() ----- " << endmsg;
+  msg(MSG::INFO) << " ----- exit fill() ----- " << endreq;
   return StatusCode::SUCCESS; 
 }
 
@@ -337,18 +337,18 @@ StatusCode TrigTestMonToolAC::proc(bool /* endOfEventsBlock*/, bool /* endOfLumi
 #endif
 #endif
 
-  msg(MSG::DEBUG) << " ----- enter proc() ----- " << endmsg;
+  msg(MSG::DEBUG) << " ----- enter proc() ----- " << endreq;
 
-  msg(MSG::DEBUG) << " ----- initialisePerRun: " <<  m_initialisePerRun << "\tendOfRun: " << endOfRun << "  -----" << endmsg;
+  msg(MSG::DEBUG) << " ----- initialisePerRun: " <<  m_initialisePerRun << "\tendOfRun: " << endOfRun << "  -----" << endreq;
  
   if ( m_initialisePerRun && endOfRun) {
     for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) { 
-      msg(MSG::INFO) << "[91;1m ----- finalize for analysis " << m_sequences[i]->name() << " ----- [m" << endmsg;
+      msg(MSG::INFO) << "[91;1m ----- finalize for analysis " << m_sequences[i]->name() << " ----- [m" << endreq;
       m_sequences[i]->finalize();
     }
     m_fileopen = false;
   }
-  msg(MSG::DEBUG) << " ====== exit proc() ====== " << endmsg;
+  msg(MSG::DEBUG) << " ====== exit proc() ====== " << endreq;
   return StatusCode::SUCCESS; 
 }
 
