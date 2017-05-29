@@ -136,6 +136,7 @@ bool TrigEgammaNavBaseTool::EventWiseSelection( ){
     //Calculate number of vertex 
     TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex();   
 
+
     return true; 
 }
 

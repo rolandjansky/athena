@@ -12,7 +12,6 @@
 #include <vector>
 #include <fstream>
 
-//#include "GaudiKernel/Algorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ObjectVector.h"
@@ -31,12 +30,6 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
-//#include "AFP_RawEv/AFP_RawData.h"
-//#include "AFP_RawEv/AFP_RawDataContainer.h"
-//#include "AFP_RawEv/AFP_RawDataCollection.h"
-//#include "AFP_RawEv/AFP_SIDDigitCollection.h"
-//#include "AFP_RawEv/AFP_TDDigitCollection.h"
-
 #include "AFP_Geometry/AFP_constants.h"
 #include "AFP_Geometry/AFP_Geometry.h"
 #include "AFP_Geometry/AFP_ConfigParams.h"
@@ -45,10 +38,9 @@
 #include "AFP_DigiEv/AFP_SiDigiCollection.h"
 #include "AFP_LocRecoEv/AFP_SIDLocRecoEvCollection.h"
 
-//#include "AFP_LocRecoEv/AFP_SIDLocRecoEvCollection.h"
-
 #include "AFP_LocReco/AFP_UserObjects.h"
-#include "AFP_LocReco/AFP_SIDBasicKalman.h"
+
+#include "AFP_LocRecoInterfaces/IAFPSiDLocRecoTool.h"
 
 #include "TROOT.h"
 
@@ -62,7 +54,8 @@
 #include "xAODForward/AFPTrackContainer.h"
 
 
-using namespace std;
+#include "GaudiKernel/ToolHandle.h" 
+
 
 #define SIDSTATIONID 4
 
@@ -81,10 +74,11 @@ class AFP_SIDLocReco : public AthAlgorithm
 		
 		// a handle on Store Gate
 		StoreGateSvc* m_storeGate;
-		//StoreGateSvc* m_pDetStore;
 
 		AFP_SIDLocRecoEvCollection*	m_pSIDLocRecoEvCollection;
 		AFP_SIDLocRecoEvent*			m_pSIDLocRecoEvent;
+
+  ToolHandle<IAFPSiDLocRecoTool> m_recoToolHandle;
 
 	private:
 
@@ -105,9 +99,6 @@ class AFP_SIDLocReco : public AthAlgorithm
 		vector<string> m_vecListAlgoSID;
 		string m_strAlgoSID;
 	
-		string m_strKeySIDLocRecoEvCollection;
-		string m_strSIDCollectionName;
-
 	public:
 		StatusCode initialize();
 		StatusCode execute();
@@ -118,11 +109,6 @@ class AFP_SIDLocReco : public AthAlgorithm
 		bool StoreReconstructionGeometry(/*const char* szDataDestination*/);
 		void SaveGeometry();
 		void ClearGeometry();
-
-		StatusCode AFPCollectionReading(list<SIDHIT> &ListSIDHits);	
-
-		StatusCode RecordSIDCollection();
-  StatusCode ExecuteRecoMethod(const string strAlgo, const list<SIDHIT> &ListSIDHits, xAOD::AFPTrackContainer* resultContainer);
 };
 
 #endif	//AFP_TDLOCRECO_h

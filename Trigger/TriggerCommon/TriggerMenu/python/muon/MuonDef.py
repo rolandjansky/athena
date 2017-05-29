@@ -1361,22 +1361,24 @@ class L2EFChain_mu(L2EFChainDef):
     hypocut = 'opposite'
     hypocutEF = multiplicity+"_"+threshold
     seed = self.allMuThrs[0]
-
     theCTAlg = CfgGetter.getAlgorithm("TrigMuSuperEF_CTonly")
-
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonCaloTagHypoConfig
-    theTrigMuonCT_FS_Hypo = TrigMuonCaloTagHypoConfig('MuonCT', threshold, int(multiplicity) )
+    theTrigMuonCT_FS_Hypo = TrigMuonCaloTagHypoConfig('MuonCT', threshold, int(multiplicity),  self.allMuThrs[0])
 
+    theTrigMuonEFCombinerHypoConfigCT = TrigMuonEFCombinerHypoConfig('MuonCT',self.allMuThrs[0])
     from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMaker_topo, TrigCaloCellMaker_super
-    
+    from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFRoiAggregatorConfig
+
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
     [trkfast, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig").getSequence()
     
+
+    inputTEfromL2 = "placeHolderTE"
     ########### Sequence List ##############
     if "0eta010" in self.chainPart['etaRange'] or "0eta500" in self.chainPart["etaRange"]:
       seed = '0eta0'
       from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
-      from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFFSRoiMakerUnseededConfig
+      from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFFSRoiMakerUnseededConfig, TrigMuonEFFSRoiMakerConfig
       if "0eta010" in self.chainPart['etaRange']:
         theEFRoIMaker = TrigMuonEFFSRoiMakerUnseededConfig("TrigMuonEFFSRoiMakerUnseeded_0eta010", RoISizeEta=0.1)
         hypocut = "0eta010"
@@ -1387,6 +1389,8 @@ class L2EFChain_mu(L2EFChainDef):
         log.error("Cannot setup unseeded muon calotag chain which is not 0eta500 or 0eta010")
         return
       
+      theEFRoIMakerCT = TrigMuonEFFSRoiMakerConfig("TrigMuonEFFSRoiMakerCT", RoISizeEta=0.1)
+      combinedMuonTE=inputTEfromL2[0]
       self.EFsequenceList += [["",
                               [PESA__DummyUnseededAllTEAlgo("EFDummyAlgo")],
                                'EF_CT_seed']]
@@ -1403,7 +1407,17 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsequenceList += [['EF_CT_tracks',
                                [theCTAlg],
                                'EF_CT_alg']]
-      self.EFsequenceList += [['EF_CT_alg',
+      self.EFsequenceList += [[inputTEfromL2,
+                               [theTrigMuonEFCombinerHypoConfigCT],
+                               'EF_CT_hypo1']]
+      self.EFsequenceList += [[['EF_CT_alg','EF_CT_hypo1'],
+                               [theEFRoIMakerCT],
+                               'EF_CT_roi2']]
+      self.EFsequenceList += [['EF_CT_roi2',
+                               [TrigMuonEFRoiAggregatorConfig('TrigMuonEFFSRoiAggregatorCT')],
+                               'EF_CT_roiagg']]
+
+      self.EFsequenceList += [['EF_CT_roiagg',
                                [theTrigMuonCT_FS_Hypo],
                                'EF_CT_hypo']]
     
@@ -1418,17 +1432,23 @@ class L2EFChain_mu(L2EFChainDef):
     self.EFsignatureList += [ [['EF_CT_calo']] ]
     self.EFsignatureList += [ [['EF_CT_tracks']] ]
     self.EFsignatureList += [ [['EF_CT_alg']] ]    
+    self.EFsignatureList += [ [['EF_CT_hypo1']] ]
+    self.EFsignatureList += [ [['EF_CT_roi2']] ]    
+    self.EFsignatureList += [ [['EF_CT_roiagg']] ]    
     self.EFsignatureList += [ [['EF_CT_hypo']] ]
 
     ########### TE renaming ##########
 
     self.TErenamingDict = {
-      'EF_CT_seed': mergeRemovingOverlap('EF_CT_seed_',seed),
-      'EF_CT_roi': mergeRemovingOverlap('EF_CT_roi_',seed+"_"+hypocut),
-      'EF_CT_calo': mergeRemovingOverlap('EF_CT_calo_', seed+"_"+hypocut),
-      'EF_CT_tracks': mergeRemovingOverlap('EF_CT_tracks_',seed+"_"+hypocut),
-      'EF_CT_alg': mergeRemovingOverlap('EF_CT_alg_', seed+"_"+hypocut),
-      'EF_CT_hypo': mergeRemovingOverlap('EF_CT_hyp_',seed+"_"+ hypocut+'_CTHypo_'+hypocutEF),
+      'EF_CT_seed': mergeRemovingOverlap('EF_CT_seed_',hypocut),
+      'EF_CT_roi': mergeRemovingOverlap('EF_CT_roi_',hypocut),
+      'EF_CT_calo': mergeRemovingOverlap('EF_CT_calo_', hypocut),
+      'EF_CT_tracks': mergeRemovingOverlap('EF_CT_tracks_',hypocut),
+      'EF_CT_hypo1': mergeRemovingOverlap('EF_CT_hyp1_',hypocut+'_CTHypo1_'+hypocutEF+'_'+self.allMuThrs[0]),
+      'EF_CT_alg': mergeRemovingOverlap('EF_CT_alg_', hypocut+'_'+hypocutEF),
+      'EF_CT_roi2': mergeRemovingOverlap('EF_CT_roi2_', hypocut+'_'+hypocutEF+'_'+self.allMuThrs[0]),
+      'EF_CT_roiagg': mergeRemovingOverlap('EF_CT_roiagg_', hypocut+'_'+hypocutEF+'_'+self.allMuThrs[0]),
+      'EF_CT_hypo': mergeRemovingOverlap('EF_CT_hyp_',hypocut+'_CTHypo_'+hypocutEF+'_'+self.allMuThrs[0]),
       }
   #################################################################################################
   #################################################################################################
@@ -2199,9 +2219,6 @@ class L2EFChain_mu(L2EFChainDef):
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
     [trkfast, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig").getSequence()
 
-    from TrigmuRoI.TrigmuRoIConfig import TrigmuRoIConfig
-    Roimaker = TrigmuRoIConfig("TrigMuRoIMGonly")
-
     ########### EF algos  #################
     print self.chainPart['EFAlg']
     if 'SuperEF' in self.chainPart['EFAlg']:
@@ -2216,19 +2233,35 @@ class L2EFChain_mu(L2EFChainDef):
 
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoConfig
     theTrigMuonEFCombinerHypoConfig = TrigMuonEFCombinerHypoConfig(EFRecoAlgName,EFCombinerThresh)
-    self.EFsequenceList += [[ '' , [Roimaker], 'EF_mu_step2a' ]]
-    self.EFsequenceList += [[ 'EF_mu_step2a' , trkfast+trkprec, 'EF_mu_step2b']]
+
+    # L1 seeded from RoiMaker (seed from L1Topo) or Muon L1 Trigger + HLT chains configuration
+    if "inTimeRoI" not in self.chainPart['addInfo']:
+      from TrigmuRoI.TrigmuRoIConfig import TrigmuRoIConfig
+      Roimaker = TrigmuRoIConfig("TrigMuRoIMGonly")
+      self.EFsequenceList += [[ '' , [Roimaker], 'EF_mu_step2a' ]]
+      self.EFsequenceList += [[ 'EF_mu_step2a' , trkfast+trkprec, 'EF_mu_step2b']]
+    else:
+      self.EFsequenceList += [[ self.L2InputTE , trkfast+trkprec, 'EF_mu_step2b']]
     self.EFsequenceList += [[ 'EF_mu_step2b' , [theEFAlg], 'EF_mu_step2']]
     self.EFsequenceList += [[ 'EF_mu_step2'  , [theTrigMuonEFCombinerHypoConfig], 'EF_mu_step3']]
-    self.EFsignatureList += [ [['EF_mu_step2a']] ]
+
+    if "inTimeRoI" not in self.chainPart['addInfo']:
+      self.EFsignatureList += [ [['EF_mu_step2a']] ]
     self.EFsignatureList += [ [['EF_mu_step2b']] ]
     self.EFsignatureList += [ [['EF_mu_step2']] ]
     self.EFsignatureList += [ [['EF_mu_step3']] ]
 
-    self.TErenamingDict = {
-      'EF_mu_step2a': mergeRemovingOverlap('EF_SuperEF_MGOnly_L1x',  self.L2InputTE ),
-      'EF_mu_step2b': mergeRemovingOverlap('EF_SuperEF_MGOnly_',  '2b' + self.L2InputTE ),
-      'EF_mu_step2':  mergeRemovingOverlap('EF_SuperEF_MGOnly',  self.chainPartNameNoMult),
-      'EF_mu_step3':  mergeRemovingOverlap('EF_SuperEFHypo_MGOnly',  self.chainPartNameNoMult)
+    if "inTimeRoI" not in self.chainPart['addInfo']:
+      self.TErenamingDict = {
+        'EF_mu_step2a': mergeRemovingOverlap('EF_SuperEF_MGOnly_L1x',  self.L2InputTE ),
+        'EF_mu_step2b': mergeRemovingOverlap('EF_SuperEF_MGOnly_',  '2b' + self.L2InputTE ),
+        'EF_mu_step2':  mergeRemovingOverlap('EF_SuperEF_MGOnly',  self.chainPartNameNoMult),
+        'EF_mu_step3':  mergeRemovingOverlap('EF_SuperEFHypo_MGOnly',  self.chainPartNameNoMult)
+      }
+    else:
+      self.TErenamingDict = {
+        'EF_mu_step2b': mergeRemovingOverlap('EF_SuperEF_MGOnly_inTimeRoI_',  '2b' + self.L2InputTE ),
+        'EF_mu_step2':  mergeRemovingOverlap('EF_SuperEF_MGOnly_inTimeRoI',  self.chainPartNameNoMult),
+        'EF_mu_step3':  mergeRemovingOverlap('EF_SuperEFHypo_MGOnly_inTimeRoI',  self.chainPartNameNoMult)
       }
 

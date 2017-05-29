@@ -98,7 +98,9 @@ def defineCPSGroups():
                                                'tau25_medium1_tracktwo',],  
         'RATE:CPS:HLT_tau160'		     :['tau160_idperf_track',
                                                'tau160_idperf_tracktwo',
-                                               'tau160_perf_tracktwo',],  
+                                               'tau160_perf_tracktwo',],  					       
+        'RATE:CPS:HLT_tau160_L1TAU100'	     :['tau160_idperf_tracktwo_L1TAU100',
+                                               'tau160_perf_tracktwo_L1TAU100',],  
         
         #BJet chains                                                                                                                                                    
         'RATE:CPS:HLT_j35b' : [#'j35_bperf',

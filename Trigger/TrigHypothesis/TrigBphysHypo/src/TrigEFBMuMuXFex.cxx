@@ -828,17 +828,16 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     int mu1_TE=-1;
     int mu2_TE=-1;
     if (!m_FTK) {
-      
       if ( inputTE.size() != 2 ) {
         msg() << MSG::DEBUG << "Got different than 2 number of input TEs: " << inputTE.size() << endmsg;
-        //m_mon_Errors.push_back(ERROR_Not_2_InputTEs);
-        //if ( timerSvc() ) m_TotTimer->stop();
-        //return HLT::BAD_JOB_SETUP;
-	mu1_TE=0;
-	mu2_TE=0;
+          //m_mon_Errors.push_back(ERROR_Not_2_InputTEs);
+          //if ( timerSvc() ) m_TotTimer->stop();
+          //return HLT::BAD_JOB_SETUP;
+        mu1_TE=0;
+        mu2_TE=0;
       }else{
-	mu1_TE=0;
-	mu2_TE=1;
+        mu1_TE=0;
+        mu2_TE=1;
       }
     } else {
       if ( inputTE.size() != 3 ) {
@@ -1505,6 +1504,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                               }
                               else
                                 ATH_MSG(DEBUG) << "Do not write out " << m_countBpToStore+1 << "th B+ candidate" << endmsg;
+                              delete trigPartBplusMuMuKplus;
                             }
                             else {
                               m_TrigBphysColl_b->push_back(trigPartBplusMuMuKplus);
@@ -1618,6 +1618,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                           }
                                           else
                                             ATH_MSG(DEBUG) << "Do not write out " << m_countBdToStore+1 << "th Bd candidate" << endmsg;
+                                          delete xaod_trigPartBdMuMuKstar;
+                                          delete xaod_trigPartKstar;
                                         }
                                         else {
                                           m_TrigBphysColl_b->push_back(xaod_trigPartBdMuMuKstar);
@@ -1664,6 +1666,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                           }
                                           else
                                             ATH_MSG(DEBUG) << "Do not write out " << m_countBdToStore+1 << "th Bd candidate" << endmsg;
+                                          delete xaod_trigPartBdMuMuKstar;
+                                          delete xaod_trigPartKstar;
                                         }
                                         else {
                                           m_TrigBphysColl_b->push_back(xaod_trigPartBdMuMuKstar);
@@ -1726,6 +1730,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                           }
                                           else
                                             ATH_MSG(DEBUG) << "Do not write out " << m_countBsToStore+1 << "th Bs candidate" << endmsg;
+                                          delete xaod_trigPartBsMuMuPhi;
+                                          delete xaod_trigPartPhi;
                                         }
                                         else {
                                           m_TrigBphysColl_b->push_back(xaod_trigPartBsMuMuPhi);
@@ -1819,6 +1825,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                               }
                                               else
                                                 ATH_MSG(DEBUG) << "Do not write out " << m_countLbToStore+1 << "th Lb candidate" << endmsg;
+                                              delete xaod_trigPartLbMuMuLambda;
+                                              delete xaod_trigPartLambda;
                                             }
                                             else {
                                               m_TrigBphysColl_b->push_back(xaod_trigPartLbMuMuLambda);
@@ -1870,6 +1878,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                 }
                                                 else
                                                   ATH_MSG(DEBUG) << "Do not write out " << m_countLbToStore+1 << "th Lb candidate" << endmsg;
+                                                delete xaod_trigPartLbMuMuLambda;
+                                                delete xaod_trigPartLambda;
                                               }
                                               else {
                                                 m_TrigBphysColl_b->push_back(xaod_trigPartLbMuMuLambda);
@@ -2002,6 +2012,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                       }
                                                       else
                                                         ATH_MSG(DEBUG) << "Do not write out " << m_countBcToStore+1 << "th Bc candidate" << endmsg;
+                                                      delete trigPartBcMuMuDs;
+                                                      delete trigPartDs;
                                                     }
                                                     else {
                                                       m_TrigBphysColl_b->push_back( trigPartBcMuMuDs );
@@ -2145,6 +2157,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                       }
                                                       else
                                                         ATH_MSG(DEBUG) << "Do not write out " << m_countBcDplusToStore+1 << "th Bc->D+ candidate" << endmsg;
+                                                      delete trigPartBcMuMuDplus;
+                                                      delete trigPartDplus;
                                                     }
                                                     else {
                                                       m_TrigBphysColl_b->push_back( trigPartBcMuMuDplus );
@@ -2304,6 +2318,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                       }
                                                       else
                                                         ATH_MSG(DEBUG) << "Do not write out " << m_countBcDstarToStore+1 << "th Bc->D* candidate" << endmsg;
+                                                      delete trigPartBcMuMuDstar;
+                                                      delete trigPartDstar;
                                                     }
                                                     else {
                                                       m_TrigBphysColl_b->push_back( trigPartBcMuMuDstar );
@@ -2404,6 +2420,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                       }
                                                       else
                                                         ATH_MSG(DEBUG) << "Do not write out " << m_countBcD0ToStore+1 << "th Bc->D0 candidate" << endmsg;
+                                                      delete trigPartBcMuMuD0;
+                                                      delete trigPartD0;
                                                     }
                                                     else {
                                                       m_TrigBphysColl_b->push_back( trigPartBcMuMuD0 );
@@ -2772,8 +2790,10 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
           ATH_MSG(DEBUG) << " Failed cascade fit for " << "B_c -> Ds" << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
         } else {
+          result->getSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
           ATH_MSG(DEBUG) << " Managed cascade fit for " << "B_c -> Ds" << endmsg;
           m_countPassedBcVtx++;
 
@@ -2791,6 +2811,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
             ATH_MSG(DEBUG) << " " << "B_c -> Ds" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
           } else {
             ATH_MSG(DEBUG) << " " << "B_c -> Ds" << " candidate accepted by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
@@ -2816,6 +2837,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
               ATH_MSG(DEBUG) << " " << "B_c -> Ds" << " candidate rejected by Lxy cut: Lxy = " << LxyDs << endmsg;
               delete fitVtx_X;
               delete fitVtx;
+              delete result;
               return nullptr;
 	    } else {
               m_countPassedBcDsLxy++;
@@ -2837,6 +2859,14 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
               m_mon_BcMuMuDs_pT_Bc.push_back(PtBc/1000.);
               m_mon_BcMuMuDs_VtxMass_Bc.push_back(vtxMassXMuMu/1000.);
               m_mon_BcMuMuDs_Chi2_Bc.push_back(chi2XMuMu);
+              
+              // manually attach the track links to fitVtx
+              for(auto tpel : vec_tracks) {
+                fitVtx->addTrackParticleLink(tpel);
+              }
+              
+              // result of cascate fit is not needed anymore
+              delete result;
                                     
             } // end XMuMu Lxy cut
           } // end XMuMu chi2 cut
@@ -3028,8 +3058,10 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDplus(const ElementLink<xAOD::Track
           ATH_MSG(DEBUG) << " Failed cascade fit for " << "B_c -> Dplus" << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
         } else {
+          result->getSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
           ATH_MSG(DEBUG) << " Managed cascade fit for " << "B_c -> Dplus" << endmsg;
           m_countPassedBcDplusVtx++;
 
@@ -3047,6 +3079,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDplus(const ElementLink<xAOD::Track
             ATH_MSG(DEBUG) << " " << "B_c -> Dplus" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
           } else {
             ATH_MSG(DEBUG) << " " << "B_c -> Dplus" << " candidate accepted by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
@@ -3073,6 +3106,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDplus(const ElementLink<xAOD::Track
               ATH_MSG(DEBUG) << " " << "B_c -> Dplus" << " candidate rejected by Lxy cut: Lxy = " << LxyDplus << endmsg;
               delete fitVtx_X;
               delete fitVtx;
+              delete result;
               return nullptr;
 	    } else {
               m_countPassedBcDplusLxy++;
@@ -3097,6 +3131,14 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDplus(const ElementLink<xAOD::Track
 	      //              m_mon_BcMuMuDplus_InvMass_Bc.push_back(massXMuMu/1000.);
               m_mon_BcMuMuDplus_VtxMass_Bc.push_back(vtxMassXMuMu/1000.);
               m_mon_BcMuMuDplus_Chi2_Bc.push_back(chi2XMuMu);
+              
+              // manually attach the track links to fitVtx
+              for(auto tpel : vec_tracks) {
+                fitVtx->addTrackParticleLink(tpel);
+              }
+              
+              // result of cascate fit is not needed anymore
+              delete result;
                                     
             } // end XMuMu Lxy cut
           } // end XMuMu chi2 cut
@@ -3327,8 +3369,10 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
           ATH_MSG(DEBUG) << " Failed cascade fit for " << "B_c -> Dstar" << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
         } else {
+          result->getSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
           ATH_MSG(DEBUG) << " Managed cascade fit for " << "B_c -> Dstar" << endmsg;
           m_countPassedBcDstarVtx++;
 
@@ -3346,6 +3390,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
             ATH_MSG(DEBUG) << " " << "B_c -> Dstar" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
           } else {
             ATH_MSG(DEBUG) << " " << "B_c -> Dstar" << " candidate accepted by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
@@ -3372,6 +3417,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
               ATH_MSG(DEBUG) << " " << "B_c -> Dstar" << " candidate rejected by Lxy cut: Lxy = " << LxyD0 << endmsg;
               delete fitVtx_X;
               delete fitVtx;
+              delete result;
               return nullptr;
 	    } else {
               m_countPassedBcD0DstarLxy++;
@@ -3403,6 +3449,14 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
 	      //              m_mon_BcMuMuDplus_InvMass_Bc.push_back(massXMuMu/1000.);
               m_mon_BcMuMuDstar_VtxMass_Bc.push_back(vtxMassXMuMu/1000.);
               m_mon_BcMuMuDstar_Chi2_Bc.push_back(chi2XMuMu);
+              
+              // manually attach the track links to fitVtx
+              for(auto tpel : vec_tracks) {
+                fitVtx->addTrackParticleLink(tpel);
+              }
+              
+              // result of cascate fit is not needed anymore
+              delete result;
                                     
             } // end XMuMu Lxy cut
           } // end XMuMu chi2 cut
@@ -3614,8 +3668,10 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuD0(const ElementLink<xAOD::TrackPar
           ATH_MSG(DEBUG) << " Failed cascade fit for " << "B_c -> D0" << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
         } else {
+          result->getSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
           ATH_MSG(DEBUG) << " Managed cascade fit for " << "B_c -> D0" << endmsg;
           m_countPassedBcD0Vtx++;
 
@@ -3633,6 +3689,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuD0(const ElementLink<xAOD::TrackPar
             ATH_MSG(DEBUG) << " " << "B_c -> D0" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
           } else {
             ATH_MSG(DEBUG) << " " << "B_c -> D0" << " candidate accepted by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
@@ -3658,6 +3715,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuD0(const ElementLink<xAOD::TrackPar
               ATH_MSG(DEBUG) << " " << "B_c -> D0" << " candidate rejected by Lxy cut: Lxy = " << LxyD0 << endmsg;
               delete fitVtx_X;
               delete fitVtx;
+              delete result;
               return nullptr;
 	    } else {
               m_countPassedBcD0Lxy++;
@@ -3680,6 +3738,14 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuD0(const ElementLink<xAOD::TrackPar
 	      //              m_mon_BcMuMuDplus_InvMass_Bc.push_back(massXMuMu/1000.);
               m_mon_BcMuMuD0_VtxMass_Bc.push_back(vtxMassXMuMu/1000.);
               m_mon_BcMuMuD0_Chi2_Bc.push_back(chi2XMuMu);
+              
+              // manually attach the track links to fitVtx
+              for(auto tpel : vec_tracks) {
+                fitVtx->addTrackParticleLink(tpel);
+              }
+              
+              // result of cascate fit is not needed anymore
+              delete result;
                                     
             } // end XMuMu Lxy cut
           } // end XMuMu chi2 cut
@@ -3865,8 +3931,10 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
           ATH_MSG(DEBUG) << " Failed cascade fit for " << "L_b -> Lambda" << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
         } else {
+          result->getSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
           ATH_MSG(DEBUG) << " Managed cascade fit for " << "L_b -> Lambda" << endmsg;
           m_countPassedLbVtx++;
 
@@ -3884,6 +3952,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
             ATH_MSG(DEBUG) << " " << "L_b -> Lambda" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
           } else {
             ATH_MSG(DEBUG) << " " << "L_b -> Lambda" << " candidate accepted by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
@@ -3909,6 +3978,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
               ATH_MSG(DEBUG) << " " << "L_b -> Lambda" << " candidate rejected by Lxy cut: Lxy = " << LxyLambda << endmsg;
               delete fitVtx_X;
               delete fitVtx;
+              delete result;
               return nullptr;
 	    } else {
               m_countPassedLbLambdaLxy++;
@@ -3919,12 +3989,18 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
     
               if( !(vtxMassX < m_upperLambdaVtxMassCut) ) {
                 ATH_MSG(DEBUG) << " " << "Lambda" << " candidate rejected by the vtx mass cut: m = " << vtxMassX << endmsg;
+                delete fitVtx_X;
+                delete fitVtx;
+                delete result;
                 return nullptr;
               }
               m_countPassedLambdaVtxMass++;
     
               if( !(vtxMassXMuMu > m_lowerLb_LambdaMuMuVtxMassCut && vtxMassXMuMu < m_upperLb_LambdaMuMuVtxMassCut) ) {
                 ATH_MSG(DEBUG) << " " << "L_b -> L" << " candidate rejected by the vtx mass cut: m = " << vtxMassXMuMu << endmsg;
+                delete fitVtx_X;
+                delete fitVtx;
+                delete result;
                 return nullptr;
               }
               m_countPassedLbVtxMass++;
@@ -3948,6 +4024,14 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
 
               m_mon_LbMuMuLambda_FinMass_Lambda.push_back(massX/1000.);
               m_mon_LbMuMuLambda_FinMass_Lb.push_back(massXMuMu/1000.);
+              
+              // manually attach the track links to fitVtx
+              for(auto tpel : vec_tracks) {
+                fitVtx->addTrackParticleLink(tpel);
+              }
+              
+              // result of cascate fit is not needed anymore
+              delete result;
                                     
             } // end XMuMu Lxy cut
           } // end XMuMu chi2 cut

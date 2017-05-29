@@ -606,8 +606,8 @@ def defineMenu():
         'L1_AFP_A_AND_C','L1_AFP_A_OR_C', 'L1_AFP_A', 'L1_AFP_C',
         'L1_AFP_A_AND_C_MBTS_2','L1_AFP_A_OR_C_MBTS_2',
         'L1_AFP_A_AND_C_J12','L1_AFP_A_OR_C_J12',
-        'L1_AFP_A_AND_C_EM3','L1_AFP_A_OR_C_EM3',
-        'L1_AFP_A_AND_C_MU4','L1_AFP_A_OR_C_MU4',
+        'L1_EM3_AFP_A_AND_C','L1_EM3_AFP_A_OR_C',
+        'L1_MU4_AFP_A_AND_C','L1_MU4_AFP_A_OR_C',
         'L1_AFP_A_AND_C_TE5','L1_AFP_A_OR_C_TE5',
         'L1_AFP_A_AND_C_J50','L1_AFP_A_AND_C_SPECTOF_J50',
         'L1_AFP_A_AND_C_J75','L1_AFP_A_AND_C_SPECTOF_J75',
@@ -802,6 +802,8 @@ def defineMenu():
         #'L1_BPH-2M8-2MU4-BO_BPH-0DR15-2MU4' ,
         'L1_BPH-7M15-2MU4_BPH-0DR24-2MU4-BO' ,
         'L1_BPH-2M8-MU6MU4-B_BPH-0DR15-MU6MU4',
+        'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B',
+        'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-BO',
         'L1_MU6_2MU4-B',
 
         'L1_BPH-2M8-2MU4', # ATR-15197 'L1_BPH-2M9-2MU4',
@@ -831,8 +833,8 @@ def defineMenu():
 
         'L1_TAU60_DR-TAU20ITAU12I',
 
-        'L1_SC111',
-        'L1_SC85',
+        'L1_SC111-CJ15',
+        'L1_SC85-CJ15',
         
         ##     # Partition 1
         ##     'L1_CALREQ0_P1', 'L1_CALREQ1_P1', 'L1_CALREQ2_P1',
@@ -903,11 +905,10 @@ def defineMenu():
         ]
     
 
-    # the CTP ID mapping still has to be defined, currently it is taken from the order of the items
-    #Free slot [ATR-14858], 16-08-16
-    #[82,143,377,378,379,406,409,416,480]
-
-    
+#CTP IDs are taken from this mapping. Every L1 item needs a unique ctpid.
+#Free CTP IDs (2017-05-15) are: 466, 470-479, 481, 486, 487, 488
+# 463-464 are reserved for L1_RD2_BGRP14 and L1_RD3_BGRP15 (in MC_PhyRD2sics_pp_v7)
+# 509-511 are reserved for CALREQ
 
     Lvl1Flags.CtpIdMap = {
         'L1_EM3' : 0,
@@ -1168,7 +1169,7 @@ def defineMenu():
         'L1_J40.0ETA25_2J15.31ETA49' : 181,
         'L1_J40.0ETA25_2J25_J20.31ETA49' : 182,
 
-        "L1_J40.0ETA25_2J30_J20.31ETA49":250 , 
+        "L1_J40.0ETA25_2J30_J20.31ETA49": 465, 
 
         "L1_HT150-J20s5.ETA31_MJJ-400": 272 , ## noid(ea)
         "L1_HT150-J20s5.ETA31_MJJ-400-CF": 273,
@@ -1205,10 +1206,10 @@ def defineMenu():
         'L1_AFP_A_OR_C_MBTS_2': 317,
         'L1_AFP_A_AND_C_J12': 379,
         'L1_AFP_A_OR_C_J12': 436,
-        'L1_AFP_A_AND_C_EM3': 437,
-        'L1_AFP_A_OR_C_EM3': 438,
-        'L1_AFP_A_AND_C_MU4': 439,
-        'L1_AFP_A_OR_C_MU4': 440,
+        'L1_EM3_AFP_A_AND_C': 437,
+        'L1_EM3_AFP_A_OR_C': 438,
+        'L1_MU4_AFP_A_AND_C': 439,
+        'L1_MU4_AFP_A_OR_C': 440,
         'L1_AFP_A_AND_C_TE5': 441,
         'L1_AFP_A_OR_C_TE5': 442,
         'L1_AFP_A_AND_C_J50': 443,
@@ -1333,16 +1334,32 @@ def defineMenu():
         'L1_W-HT20-JJ15.ETA49' : 281,
         'L1_W-NOMATCH' : 282,
         #'L1_W-NOMATCH_W-05RO-XEEMHT' : 283,
-        'L1_EM10_W-MT25' : 284,
+
+        'L1_EM12_W-MT25' : 50,
+        'L1_EM12_W-MT35_XS30_W-15DPHI-JXE-0_W-15DPHI-EMXE' : 77,
+        'L1_EM12_W-MT35_XS40_W-05DPHI-JXE-0_W-05DPHI-EMXE' : 79,
+        'L1_EM12_W-MT35_W-90RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EMXE' : 80,
+        'L1_EM12_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EMXE' : 124,
+        'L1_EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE' : 139,
+        'L1_EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE' : 250,
+        'L1_EM15_W-MT35_XS60_W-15DPHI-JXE-0_W-15DPHI-EM15XE' : 274,
+        'L1_EM15_W-MT35_XS60_W-05DPHI-JXE-0_W-05DPHI-EM15XE' : 275,
+
+        'L1_EM15_W-MT35_XS40_W-15DPHI-JXE-0_W-15DPHI-EM15XE' : 284,
+        'L1_EM15_W-MT35_XS40_W-05DPHI-JXE-0_W-05DPHI-EM15XE' : 285,
         'L1_EM15_W-MT35' : 286,
-        'L1_EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0' : 287,
-        'L1_EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS30' : 288,
-        'L1_EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20' : 289,
-        'L1_EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE' : 290,
-        'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE_W-250RO2-XEHT-0' : 291,
-        'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE_XS60' : 292,
-        'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE_XS30' : 293,
-        'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE' : 294,
+        'L1_EM12_W-MT35_XS50' : 287,
+        'L1_EM15_W-MT35_XS60' : 288,
+        'L1_EM10VH_W-MT35_XS50' : 289,
+        'L1_EM15VH_W-MT35_XS60' : 290,
+        'L1_EM20VH_W-MT35_XS60' : 291,
+        'L1_EM22VHI_W-MT35_XS40' : 292,
+        'L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0' : 293,
+        'L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20' : 294,
+
+        'L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE' : 322,
+        'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30' : 344,
+        'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE' : 384,
 #SX
 #        'L1_BPH-DR-2MU4' : 295,
 #        'L1_BPH-2M-2MU4' : 296,
@@ -1383,6 +1400,9 @@ def defineMenu():
         #'L1_BPH-2M8-2MU4-BO_BPH-0DR15-2MU4'  : 309,
         'L1_BPH-7M15-2MU4_BPH-0DR24-2MU4-BO'  : 310,
         'L1_BPH-2M8-MU6MU4-B_BPH-0DR15-MU6MU4' : 311,
+        'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B' : 487,
+        'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-BO' : 488,
+
         'L1_2MU4-BO' : 312,
         'L1_2MU6-BO' : 313,
         'L1_MU6_2MU4-B'  : 314,
@@ -1435,8 +1455,8 @@ def defineMenu():
         'L1_DR-EM15TAU12I' : 353,        
         'L1_LATE-MU10_XE50': 354,
         'L1_LATE-MU10_J50' : 355,
-        'L1_SC111' : 356,
-        'L1_SC85' : 357,
+        'L1_SC111-CJ15' : 356,
+        'L1_SC85-CJ15' : 357,
 #SX
 #        'L1_BPH-DR-2MU4-B' : 353,
 #        'L1_BPH-DR-2MU4-BO' : 354,
@@ -1462,7 +1482,7 @@ def defineMenu():
         'L1_3J35.0ETA23' : 425,
         'L1_TE20' : 374,
         'L1_TE10.0ETA24' : 375,
-        'L1_TE15.ETA24' : 416,
+        'L1_TE15.0ETA24' : 48,
         'L1_TE20.0ETA24' : 376,
         'L1_TE25.0ETA24' : 409,
         #'L1_XS40' : 377,
@@ -1472,7 +1492,7 @@ def defineMenu():
         'L1_J30.31ETA49_BGRP12' : 381,
         'L1_MU6_J30.0ETA49_2J20.0ETA49' : 382,
         'L1_4J20.0ETA49' : 383,
-        'L1_HT150-JJ15.ETA49_MJJ400' : 384,
+        'L1_HT150-JJ15.ETA49_MJJ-400' : 416,
 
         ### ATR-15062
         'L1_EM18VHI_MJJ-300' : 385,

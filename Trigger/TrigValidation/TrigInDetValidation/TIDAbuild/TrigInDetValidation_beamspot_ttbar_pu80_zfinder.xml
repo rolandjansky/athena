@@ -1,0 +1,62 @@
+         <athena trendId='all_pu80' userJobId='TrigInDetValidation_beamspot_ttbar_pu80_zfinder'>
+            <doc>BeamSpot slice, ttbar events, pu80</doc>
+            <displayName>BeamSpot slice, ttbar, pu80</displayName>
+	    <commandLineFlags>EventMax=1000;fastZFinder=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BeamspotSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+
+#          include "samples/TrigInDetValidation_ttbar_sample3.xml"	   
+
+            <action position="01">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat  -f data-all.root -b Test_bin.dat  </argvalue>
+                </arg>
+            </action>
+
+
+           <action position="02">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-all.root data-beamspot_ttbar_pu80_zfinder-reference.root HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTF -d HLTL2-test-plots  </argvalue>
+              </arg>
+            </action>
+
+
+
+
+#	  include "TrigInDetValidation_expertMonitoring.xml"
+#	  include "TrigInDetValidation_costMonitoring.xml"
+#         include "TrigInDetValidation_extra.xml"
+
+
+
+
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+
+#           include "TrigInDetValidation_aux.xml"
+
+   
+         <athenaCommonFlags /><alwaysRunPostProc /> 
+         </athena>
+
+
