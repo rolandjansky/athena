@@ -53,7 +53,7 @@ public:
   // histogram registration
 
   virtual void addHistogram( TH1* h ) { 
-    msg(MSG::INFO) << "TrigTestMonToolAC::addHistogram() " << endreq;
+    msg(MSG::INFO) << "TrigTestMonToolAC::addHistogram() " << endmsg;
     IHLTMonTool::addHistogram( h ); 
   }
 

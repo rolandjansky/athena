@@ -78,7 +78,8 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
     m_lutCreatorToolTGC  ("TGC_RegionSelectorTable"),
     m_lutCreatorToolCSC  ("CSC_RegionSelectorTable"),
     m_initFTK(false),
-    m_lutCreatorToolFTK  ("FTK_RegionSelectorTable"),
+    m_lutCreatorToolFTK  ("FTK_RegionSelectorTable/FTK_RegionSelectorTable"),
+    m_ftklut(nullptr),
     m_duplicateRemoval( true )
 {
   //! Declare properties
@@ -156,9 +157,9 @@ StatusCode RegSelSvc::initialize() {
   msg(MSG::INFO)
       << "DetectorDescription version " << m_geometryVersion;
   if (m_geometryVersionProp.value() == "use_geomodel"){
-    msg() << " (obtained from GeoModelSvc)" << endreq;
+    msg() << " (obtained from GeoModelSvc)" << endmsg;
   } else {
-    msg() << " (supplied as property)" << endreq;
+    msg() << " (supplied as property)" << endmsg;
   }
   ATH_MSG_DEBUG( "property value was " 
                  << m_geometryVersionProp.value() << ")" );
@@ -204,7 +205,7 @@ StatusCode RegSelSvc::initialize() {
 
   if( m_initOnlyMuon.value() )
     msg() << " ( rpc=" << rpcflag << " mdt=" << mdtflag << " tgc=" << tgcflag << " csc=" << cscflag << " )";
-  msg() << endreq;
+  msg() << endmsg;
   
      
   bool errorFlag=false; // true indicates an error occured somewhere
@@ -298,7 +299,7 @@ void RegSelSvc::handle(const Incident& incident) {
       std::vector<std::string>::const_iterator d;
       for (d=m_enabledDetectors.begin(); d!=m_enabledDetectors.end(); ++d)
         msg() << " " << *d;
-      msg() << " detectors have been initialized" << endreq; // " with Region Type " << m_regionType << endreq;
+      msg() << " detectors have been initialized" << endmsg; // " with Region Type " << m_regionType << endmsg;
     }
     
     if ( m_dumpTable ) { 

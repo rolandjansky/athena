@@ -20,12 +20,12 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   if(m_msgOutputLevel <= MSG::DEBUG && outputROBIDList.size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   outputROBIDList.clear();
 
@@ -33,7 +33,7 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
     if(m_msgOutputLevel <= MSG::WARNING ) 
       (*m_log) << MSG::WARNING << " bad roi parameter to regionselector" 
 	       << "\tetaMin=" << etaMin << "\tetaMax=" << etaMax 
-	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endreq;
+	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endmsg;
     
     return;
   }
@@ -49,27 +49,27 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
   case LAR: // Liquid Argon Calorimeter
     verifyInputs(LAR, etaMin, etaMax, phiMin, phiMax);
     m_larData.regionSelectorRobIdUint(sampling, etaMin, etaMax, phiMin, phiMax, outputROBIDList);
-    //log<< MSG::DEBUG << "LAR verifyOutput" << endreq; larData.verifyOutput(ROBID, sampling, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
+    //log<< MSG::DEBUG << "LAR verifyOutput" << endmsg; larData.verifyOutput(ROBID, sampling, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
     break;
   case TTEM: // Liquid Argon Trigger Tower EM Calorimeter
     verifyInputs(TTEM, etaMin, etaMax, phiMin, phiMax);
     m_ttemData.regionSelectorRobIdUint(sampling, etaMin, etaMax, phiMin, phiMax, outputROBIDList);
-    //log<< MSG::DEBUG << "TTEM verifyOutput" << endreq; ttemData.verifyOutput(ROBID, sampling, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
+    //log<< MSG::DEBUG << "TTEM verifyOutput" << endmsg; ttemData.verifyOutput(ROBID, sampling, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
     break;
   case TTHEC: // Liquid Argon Trigger Tower HEC Calorimeter
     verifyInputs(TTHEC, etaMin, etaMax, phiMin, phiMax);
     m_tthecData.regionSelectorRobIdUint(sampling, etaMin, etaMax, phiMin, phiMax, outputROBIDList);
-    //log<< MSG::DEBUG << "TTHEC verifyOutput" << endreq; tthecData.verifyOutput(ROBID, sampling, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
+    //log<< MSG::DEBUG << "TTHEC verifyOutput" << endmsg; tthecData.verifyOutput(ROBID, sampling, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
     break;
   case FCALEM: // Liquid Argon Trigger Tower FCALEM Calorimeter
     verifyInputs(FCALEM, etaMin, etaMax, phiMin, phiMax);
     m_ttfcalemData.regionSelectorRobIdUint(sampling, etaMin, etaMax, phiMin, phiMax, outputROBIDList);
-    //log<< MSG::DEBUG << "FCALEM verifyOutput" << endreq; ttfcalemData.verifyOutput(ROBID, sampling, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
+    //log<< MSG::DEBUG << "FCALEM verifyOutput" << endmsg; ttfcalemData.verifyOutput(ROBID, sampling, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
     break;
   case FCALHAD: // Liquid Argon Trigger Tower FCALHAD Calorimeter
     verifyInputs(FCALHAD, etaMin, etaMax, phiMin, phiMax);
     m_ttfcalhadData.regionSelectorRobIdUint(sampling, etaMin, etaMax, phiMin, phiMax, outputROBIDList);
-    //log<< MSG::DEBUG << "FCALHAD verifyOutput" << endreq; ttfcalhadData.verifyOutput(ROBID, sampling, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
+    //log<< MSG::DEBUG << "FCALHAD verifyOutput" << endmsg; ttfcalhadData.verifyOutput(ROBID, sampling, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
     break;
   case TILE: // Tile Calorimeters
     break;
@@ -87,7 +87,7 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
 
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetROBIDListUint for detector " << detectorID 
-	<< " got " << outputROBIDList.size() << " ROB IDs" << endreq;
+	<< " got " << outputROBIDList.size() << " ROB IDs" << endmsg;
   }
 
 }
@@ -118,24 +118,24 @@ void RegSelSvc::DetROBHashIDList(DETID detectorID,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   //  std::cout << "RegSelSvc::DetROBHashIDList() new map " << detectorID << std::endl; 
 
   //  if(m_msgOutputLevel <= MSG::WARNING ) 
-  //    (*m_log) << MSG::WARNING << " This method is obsolete - please replace" << endreq;
+  //    (*m_log) << MSG::WARNING << " This method is obsolete - please replace" << endmsg;
 
 
   if(m_msgOutputLevel <= MSG::DEBUG && outputROBIDList.size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   outputROBIDList.clear();
 
   if(m_msgOutputLevel <= MSG::DEBUG && IDList->size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   IDList->clear();
 
@@ -143,7 +143,7 @@ void RegSelSvc::DetROBHashIDList(DETID detectorID,
     (*m_log) << MSG::WARNING << " bad roi parameter to regionselector" 
 	     <<    "zMin=" <<   zMin <<   "\tzMax=" <<   zMax 
 	     << "\tetaMin=" << etaMin << "\tetaMax=" << etaMax 
-	     << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endreq;
+	     << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endmsg;
     
     return;
   }
@@ -169,7 +169,7 @@ void RegSelSvc::DetROBHashIDList(DETID detectorID,
 
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetROBHashIDList for detector " << detectorID 
-	<< " got " << IDList->size() << " hash IDs" << endreq;
+	<< " got " << IDList->size() << " hash IDs" << endmsg;
   }
 
 }
@@ -187,18 +187,18 @@ void RegSelSvc::DetROBHashIDList(DETID detectorID,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   if(m_msgOutputLevel <= MSG::DEBUG && outputROBIDList.size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   outputROBIDList.clear();
 
   if(m_msgOutputLevel <= MSG::DEBUG && IDList->size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   IDList->clear();
 
@@ -225,7 +225,7 @@ void RegSelSvc::DetROBHashIDList(DETID detectorID,
 
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetROBHashIDList for detector " << detectorID 
-	<< " got " << IDList->size() << " hash IDs" << endreq;
+	<< " got " << IDList->size() << " hash IDs" << endmsg;
   }
 
 }
@@ -247,20 +247,20 @@ void RegSelSvc::DetROBHashIDList(DETID detectorID, long layer,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   //  std::cout << "RegSelSvc::DetROBHashIDList() new map " << detectorID << std::endl; 
 
   if(m_msgOutputLevel <= MSG::DEBUG && outputROBIDList.size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   outputROBIDList.clear();
 
   if(m_msgOutputLevel <= MSG::DEBUG && IDList->size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   IDList->clear();
 
@@ -269,7 +269,7 @@ void RegSelSvc::DetROBHashIDList(DETID detectorID, long layer,
       (*m_log) << MSG::WARNING << " bad roi parameter to regionselector" 
 	       <<    "zMin=" <<   zMin <<   "\tzMax=" <<   zMax 
 	       << "\tetaMin=" << etaMin << "\tetaMax=" << etaMax 
-	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endreq;
+	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endmsg;
     
     return;
   }
@@ -295,7 +295,7 @@ void RegSelSvc::DetROBHashIDList(DETID detectorID, long layer,
 
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetROBHashIDList for detector " << detectorID 
-	<< " got " << IDList->size() << " hash IDs" << endreq;
+	<< " got " << IDList->size() << " hash IDs" << endmsg;
   }
 
 }
@@ -311,7 +311,7 @@ void RegSelSvc::DetROBHashIDList(DETID detectorID, long layer,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   //  std::cout << "RegSelSvc::DetROBHashIDList() new map " << detectorID << std::endl; 
@@ -319,13 +319,13 @@ void RegSelSvc::DetROBHashIDList(DETID detectorID, long layer,
 
   if(m_msgOutputLevel <= MSG::DEBUG && outputROBIDList.size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   outputROBIDList.clear();
 
   if(m_msgOutputLevel <= MSG::DEBUG && IDList->size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   IDList->clear();
 
@@ -353,7 +353,7 @@ void RegSelSvc::DetROBHashIDList(DETID detectorID, long layer,
 
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetROBHashIDList for detector " << detectorID 
-	<< " got " << IDList->size() << " hash IDs" << endreq;
+	<< " got " << IDList->size() << " hash IDs" << endmsg;
   }
 
 }
@@ -371,18 +371,18 @@ void RegSelSvc::DetROBHashIDList(DETID detectorID,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   if(m_msgOutputLevel <= MSG::DEBUG && outputROBIDList.size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   outputROBIDList.clear();
 
   if(m_msgOutputLevel <= MSG::DEBUG && IDList->size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   IDList->clear();
 
@@ -428,14 +428,14 @@ void RegSelSvc::DetDisabledHashIDList(DETID detectorID, long layer,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   //  std::cout << "RegSelSvc::DetDisabledHashIDList() new map " << detectorID << std::endl; 
 
   if(m_msgOutputLevel <= MSG::DEBUG && IDList->size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   IDList->clear();
 
@@ -444,7 +444,7 @@ void RegSelSvc::DetDisabledHashIDList(DETID detectorID, long layer,
       (*m_log) << MSG::WARNING << " bad roi parameter to regionselector" 
 	       <<    "zMin=" <<   zMin <<   "\tzMax=" <<   zMax 
 	       << "\tetaMin=" << etaMin << "\tetaMax=" << etaMax 
-	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endreq;
+	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endmsg;
     
     return;
   }
@@ -470,7 +470,7 @@ void RegSelSvc::DetDisabledHashIDList(DETID detectorID, long layer,
 
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetDisabledHashIDList for detector " << detectorID 
-	<< " got " << IDList->size() << " hash IDs" << endreq;
+	<< " got " << IDList->size() << " hash IDs" << endmsg;
   }
   
 }
@@ -489,12 +489,12 @@ void RegSelSvc::getDisabledLayers(DETID detectorID,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   if(m_msgOutputLevel <= MSG::DEBUG && layers.size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input layers vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input layers vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   layers.clear();
 
@@ -503,7 +503,7 @@ void RegSelSvc::getDisabledLayers(DETID detectorID,
       (*m_log) << MSG::WARNING << " bad roi parameter to regionselector" 
 	       <<    "zMin=" <<   zMin <<   "\tzMax=" <<   zMax 
 	       << "\tetaMin=" << etaMin << "\tetaMax=" << etaMax 
-	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endreq;
+	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endmsg;
     
     return;
   }
@@ -539,25 +539,25 @@ void RegSelSvc::getDisabledLayers(DETID detectorID,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   if(m_msgOutputLevel <= MSG::DEBUG && barrellayers.size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input barrellayers vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input barrellayers vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   barrellayers.clear();
 
 
   if(m_msgOutputLevel <= MSG::DEBUG && endAlayers.size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input endAlayers vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input endAlayers vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   endAlayers.clear();
  
   if(m_msgOutputLevel <= MSG::DEBUG && endClayers.size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input endClayers vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input endClayers vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   endClayers.clear();
  
@@ -566,7 +566,7 @@ void RegSelSvc::getDisabledLayers(DETID detectorID,
       (*m_log) << MSG::WARNING << " bad roi parameter to regionselector" 
 	       <<    "zMin=" <<   zMin <<   "\tzMax=" <<   zMax 
 	       << "\tetaMin=" << etaMin << "\tetaMax=" << etaMax 
-	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endreq;
+	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endmsg;
     
     return;
   }
@@ -609,7 +609,7 @@ void RegSelSvc::DetDisabledHashIDList(DETID detectorID, long layer,
 
   if(m_msgOutputLevel <= MSG::DEBUG && IDList->size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   IDList->clear();
 
@@ -637,7 +637,7 @@ void RegSelSvc::DetDisabledHashIDList(DETID detectorID, long layer,
 
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetDisabledHashIDList for detector " << detectorID 
-	<< " got " << IDList->size() << " hash IDs" << endreq;
+	<< " got " << IDList->size() << " hash IDs" << endmsg;
   }
   
 }
@@ -657,16 +657,16 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   //  if(m_msgOutputLevel <= MSG::WARNING ) 
-  //   (*m_log) << MSG::WARNING << " THIS METHOD IS OBSOLETE - PLEASE REPLACE" << endreq; 
+  //   (*m_log) << MSG::WARNING << " THIS METHOD IS OBSOLETE - PLEASE REPLACE" << endmsg; 
 
 
   if(m_msgOutputLevel <= MSG::DEBUG && IDList->size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   IDList->clear();
   
@@ -674,7 +674,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
     if(m_msgOutputLevel <= MSG::WARNING ) 
       (*m_log) << MSG::WARNING << " bad roi parameter to regionselector" 
 	       << "\tetaMin=" << etaMin << "\tetaMax=" << etaMax 
-	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endreq;
+	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endmsg;
     
     return;
   }
@@ -692,27 +692,27 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   case LAR:  // Liquid Argon Calorimeter
     verifyInputs(LAR, etaMin, etaMax, phiMin, phiMax);
     m_larData.regionSelector(etaMin, etaMax, phiMin, phiMax,(*IDList));
-    //log<< MSG::DEBUG << "LAR hashID verifyOutput" << endreq; larDataIdentHash.verifyOutput(etaMin, etaMax, phiMin, phiMax,IDList);
+    //log<< MSG::DEBUG << "LAR hashID verifyOutput" << endmsg; larDataIdentHash.verifyOutput(etaMin, etaMax, phiMin, phiMax,IDList);
     break;
   case TTEM: // Liquid Argon Trigger Tower EM Calorimeter
     verifyInputs(TTEM, etaMin, etaMax, phiMin, phiMax);
     m_ttemData.regionSelector(etaMin, etaMax, phiMin, phiMax,(*IDList));
-    //log<< MSG::DEBUG << "TTEM hashID verifyOutput" << endreq;  ttemDataIdentHash.verifyOutput(etaMin, etaMax, phiMin, phiMax,IDList);
+    //log<< MSG::DEBUG << "TTEM hashID verifyOutput" << endmsg;  ttemDataIdentHash.verifyOutput(etaMin, etaMax, phiMin, phiMax,IDList);
     break;
   case TTHEC: // Liquid Argon Trigger Tower HEC Calorimeter
     verifyInputs(TTHEC, etaMin, etaMax, phiMin, phiMax);
     m_tthecData.regionSelector(etaMin, etaMax, phiMin, phiMax,(*IDList));
-    //log<< MSG::DEBUG << "TTHEC hashID verifyOutput" << endreq; tthecDataIdentHash.verifyOutput(etaMin, etaMax, phiMin, phiMax,IDList);
+    //log<< MSG::DEBUG << "TTHEC hashID verifyOutput" << endmsg; tthecDataIdentHash.verifyOutput(etaMin, etaMax, phiMin, phiMax,IDList);
     break;
   case FCALEM: // Liquid Argon Trigger Tower HEC Calorimeter
     verifyInputs(FCALEM, etaMin, etaMax, phiMin, phiMax);
     m_ttfcalemData.regionSelector(etaMin, etaMax, phiMin, phiMax,(*IDList));
-    //log<< MSG::DEBUG << "TTHEC hashID verifyOutput" << endreq; ttfcalemDataIdentHash.verifyOutput(etaMin, etaMax, phiMin, phiMax,IDList);
+    //log<< MSG::DEBUG << "TTHEC hashID verifyOutput" << endmsg; ttfcalemDataIdentHash.verifyOutput(etaMin, etaMax, phiMin, phiMax,IDList);
     break;
   case FCALHAD: // Liquid Argon Trigger Tower HEC Calorimeter
     verifyInputs(FCALHAD, etaMin, etaMax, phiMin, phiMax);
     m_ttfcalhadData.regionSelector(etaMin, etaMax, phiMin, phiMax,(*IDList));
-    //log<< MSG::DEBUG << "TTHEC hashID verifyOutput" << endreq; ttfcalhadDataIdentHash.verifyOutput(etaMin, etaMax, phiMin, phiMax,IDList);
+    //log<< MSG::DEBUG << "TTHEC hashID verifyOutput" << endmsg; ttfcalhadDataIdentHash.verifyOutput(etaMin, etaMax, phiMin, phiMax,IDList);
     break;
   case TILE: // Tile Calorimeters
     verifyInputs(TILE, etaMin, etaMax, phiMin, phiMax);
@@ -724,7 +724,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
 
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetHashIDList for detector " << detectorID 
-	<< " got " << IDList->size() << " hash IDs" << endreq;
+	<< " got " << IDList->size() << " hash IDs" << endmsg;
   }
 
 }
@@ -745,17 +745,17 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   //  if(m_msgOutputLevel <= MSG::WARNING ) 
-  //    (*m_log) << MSG::WARNING << " THIS METHOD IS OBSOLETE - PLEASE REPLACE" << endreq; 
+  //    (*m_log) << MSG::WARNING << " THIS METHOD IS OBSOLETE - PLEASE REPLACE" << endmsg; 
 
   //  std::cout << "RegSelSvc::DetHashIDList() new map " << detectorID << std::endl; 
 
   if(m_msgOutputLevel <= MSG::DEBUG && IDList->size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING )       
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   IDList->clear();
 
@@ -764,7 +764,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
       (*m_log) << MSG::WARNING << " bad roi parameter to regionselector" 
 	       <<    "zMin=" <<   zMin <<   "\tzMax=" <<   zMax 
 	       << "\tetaMin=" << etaMin << "\tetaMax=" << etaMax 
-	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endreq;
+	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endmsg;
     
     return;
   }
@@ -811,7 +811,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
 
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetHashIDList for detector " << detectorID 
-	<< " got " << IDList->size() << " hash IDs" << endreq;
+	<< " got " << IDList->size() << " hash IDs" << endmsg;
   }
 
 }
@@ -832,17 +832,17 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   //  if(m_msgOutputLevel <= MSG::WARNING ) 
-  //    (*m_log) << MSG::WARNING << " THIS METHOD IS OBSOLETE - PLEASE REPLACE" << endreq; 
+  //    (*m_log) << MSG::WARNING << " THIS METHOD IS OBSOLETE - PLEASE REPLACE" << endmsg; 
 
   //  std::cout << "RegSelSvc::DetHashIDList() new map " << detectorID << std::endl; 
 
   if(m_msgOutputLevel <= MSG::DEBUG && IDList->size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   IDList->clear();
 
@@ -851,7 +851,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
       (*m_log) << MSG::WARNING << " bad roi parameter to regionselector" 
 	       <<    "zMin=" <<   zMin <<   "\tzMax=" <<   zMax 
 	       << "\tetaMin=" << etaMin << "\tetaMax=" << etaMax 
-	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endreq;
+	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endmsg;
     
     return;
   }
@@ -893,7 +893,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
 
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetHashIDList for detector " << detectorID 
-	<< " got " << IDList->size() << " hash IDs" << endreq;
+	<< " got " << IDList->size() << " hash IDs" << endmsg;
   }
 
 }
@@ -909,7 +909,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   if ( roi.isFullscan() ) return DetHashIDList( detectorID, IDList );
@@ -917,12 +917,12 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   //  std::cout << "RegSelSvc::DetHashIDList() new map " << detectorID << std::endl; 
 
   //  if(m_msgOutputLevel <= MSG::WARNING ) 
-  //    (*m_log) << MSG::WARNING << " THIS METHOD IS OBSOLETE - PLEASE REPLACE" << endreq; 
+  //    (*m_log) << MSG::WARNING << " THIS METHOD IS OBSOLETE - PLEASE REPLACE" << endmsg; 
 
 
   if(m_msgOutputLevel <= MSG::DEBUG && IDList->size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   IDList->clear();
 
@@ -966,7 +966,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
 
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetHashIDList for detector " << detectorID 
-	<< " got " << IDList->size() << " hash IDs" << endreq;
+	<< " got " << IDList->size() << " hash IDs" << endmsg;
   }
 
 }
@@ -985,14 +985,14 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   //  std::cout << "RegSelSvc::DetHashIDList() new map " << detectorID << std::endl; 
 
   if(m_msgOutputLevel <= MSG::DEBUG && IDList->size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   IDList->clear();
 
@@ -1001,7 +1001,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
       (*m_log) << MSG::WARNING << " bad roi parameter to regionselector" 
 	       <<    "zMin=" <<   zMin <<   "\tzMax=" <<   zMax 
 	       << "\tetaMin=" << etaMin << "\tetaMax=" << etaMax 
-	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endreq;
+	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endmsg;
     
     return;
   }
@@ -1043,7 +1043,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
 
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetHashIDList for detector " << detectorID 
-	<< " got " << IDList->size() << " hash IDs" << endreq;
+	<< " got " << IDList->size() << " hash IDs" << endmsg;
   }
 
 }
@@ -1056,7 +1056,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   if ( roi.isFullscan() ) return DetHashIDList( detectorID, layer, *IDList );
@@ -1065,7 +1065,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
 
   if(m_msgOutputLevel <= MSG::DEBUG && IDList->size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   IDList->clear();
 
@@ -1109,7 +1109,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
   
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetHashIDList for detector " << detectorID 
-	<< " got " << IDList->size() << " hash IDs" << endreq;
+	<< " got " << IDList->size() << " hash IDs" << endmsg;
   }
 
 }
@@ -1130,14 +1130,14 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   //  std::cout << "RegSelSvc::DetHashIDList() new map " << detectorID << std::endl;   
 
   if(m_msgOutputLevel <= MSG::DEBUG && IDList->size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   IDList->clear();
 
@@ -1190,12 +1190,12 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   if(m_msgOutputLevel <= MSG::DEBUG && IDList->size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   IDList->clear();
 
@@ -1203,7 +1203,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
     if(m_msgOutputLevel <= MSG::WARNING ) 
       (*m_log) << MSG::WARNING << " bad roi parameter to regionselector" 
 	       << "\tetaMin=" << etaMin << "\tetaMax=" << etaMax 
-	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endreq;
+	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endmsg;
     
     return;
   }
@@ -1222,27 +1222,27 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   case LAR: // Liquid Argon Calorimeter
     verifyInputs(LAR, etaMin, etaMax, phiMin, phiMax);
     m_larData.regionSelector(sampling, etaMin, etaMax, phiMin, phiMax,(*IDList));
-    //log<< MSG::DEBUG << "LAR hashID verifyOutput sampling " << sampling << endreq; larDataIdentHash.verifyOutput(sampling,etaMin, etaMax, phiMin, phiMax,IDList);
+    //log<< MSG::DEBUG << "LAR hashID verifyOutput sampling " << sampling << endmsg; larDataIdentHash.verifyOutput(sampling,etaMin, etaMax, phiMin, phiMax,IDList);
     break;
   case TTEM: // Liquid Argon Trigger Tower EM Calorimeter
     verifyInputs(TTEM, etaMin, etaMax, phiMin, phiMax);
     m_ttemData.regionSelector(sampling, etaMin, etaMax, phiMin, phiMax,(*IDList));
-    //log<< MSG::DEBUG << "TTEM hashID verifyOutput sampling " << sampling << endreq; ttemDataIdentHash.verifyOutput(sampling,etaMin, etaMax, phiMin, phiMax,IDList);
+    //log<< MSG::DEBUG << "TTEM hashID verifyOutput sampling " << sampling << endmsg; ttemDataIdentHash.verifyOutput(sampling,etaMin, etaMax, phiMin, phiMax,IDList);
     break;
   case TTHEC: // Liquid Argon Trigger Tower HEC Calorimeter
     verifyInputs(TTHEC, etaMin, etaMax, phiMin, phiMax);
     m_tthecData.regionSelector(sampling, etaMin, etaMax, phiMin, phiMax,(*IDList));
-    //log<< MSG::DEBUG << "TTEC hashID verifyOutput sampling " << sampling << endreq;  tthecDataIdentHash.verifyOutput(sampling,etaMin, etaMax, phiMin, phiMax,IDList);
+    //log<< MSG::DEBUG << "TTEC hashID verifyOutput sampling " << sampling << endmsg;  tthecDataIdentHash.verifyOutput(sampling,etaMin, etaMax, phiMin, phiMax,IDList);
     break;
   case FCALEM: // Liquid Argon Trigger Tower FCALEM Calorimeter
     verifyInputs(FCALEM, etaMin, etaMax, phiMin, phiMax);
     m_ttfcalemData.regionSelector(sampling, etaMin, etaMax, phiMin, phiMax,(*IDList));
-    //log<< MSG::DEBUG << "FCALEM hashID verifyOutput sampling " << sampling << endreq;  ttfcalemDataIdentHash.verifyOutput(sampling,etaMin, etaMax, phiMin, phiMax,IDList);
+    //log<< MSG::DEBUG << "FCALEM hashID verifyOutput sampling " << sampling << endmsg;  ttfcalemDataIdentHash.verifyOutput(sampling,etaMin, etaMax, phiMin, phiMax,IDList);
     break;
   case FCALHAD: // Liquid Argon Trigger Tower FCALHAD Calorimeter
     verifyInputs(FCALHAD, etaMin, etaMax, phiMin, phiMax);
     m_ttfcalhadData.regionSelector(sampling, etaMin, etaMax, phiMin, phiMax,(*IDList));
-    //log<< MSG::DEBUG << "FCALHAD hashID verifyOutput sampling " << sampling << endreq;  ttfcalhadDataIdentHash.verifyOutput(sampling,etaMin, etaMax, phiMin, phiMax,IDList);
+    //log<< MSG::DEBUG << "FCALHAD hashID verifyOutput sampling " << sampling << endmsg;  ttfcalhadDataIdentHash.verifyOutput(sampling,etaMin, etaMax, phiMin, phiMax,IDList);
     break;
   case TILE: // Tile Calorimeters
     break;
@@ -1252,7 +1252,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
 
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetHashIDList for detector " << detectorID 
-	<< " got " << IDList->size() << " hash IDs" << endreq;
+	<< " got " << IDList->size() << " hash IDs" << endmsg;
   }
 
 }
@@ -1269,12 +1269,12 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   if(m_msgOutputLevel <= MSG::DEBUG && IDList->size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   IDList->clear();
 
@@ -1282,7 +1282,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
     if(m_msgOutputLevel <= MSG::WARNING ) 
       (*m_log) << MSG::WARNING << " bad roi parameter to regionselector" 
 	       << "\tetaMin=" << etaMin << "\tetaMax=" << etaMax 
-	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endreq;
+	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endmsg;
     
     return;
   }
@@ -1295,7 +1295,7 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetHashIDList for detector " << detectorID 
-	     << " got " << IDList->size() << " hash IDs" << endreq;
+	     << " got " << IDList->size() << " hash IDs" << endmsg;
   }
   
 }
@@ -1317,12 +1317,12 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   if(m_msgOutputLevel <= MSG::DEBUG && outputROBIDList.size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   outputROBIDList.clear();
 
@@ -1330,7 +1330,7 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
     if(m_msgOutputLevel <= MSG::WARNING ) 
       (*m_log) << MSG::WARNING << " bad roi parameter to regionselector" 
 	       << "\tetaMin=" << etaMin << "\tetaMax=" << etaMax 
-	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endreq;
+	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endmsg;
     
     return;
   }
@@ -1345,27 +1345,27 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
   case LAR: // Liquid Argon Calorimeter
     verifyInputs(LAR, etaMin, etaMax, phiMin, phiMax);
     m_larData.regionSelectorRobIdUint(etaMin, etaMax, phiMin, phiMax, outputROBIDList);
-    //log<< MSG::DEBUG << "LAR verifyOutput" << endreq; larData.verifyOutput(ROBID, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
+    //log<< MSG::DEBUG << "LAR verifyOutput" << endmsg; larData.verifyOutput(ROBID, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
     break;
   case TTEM: // Liquid Argon Trigger Tower EM Calorimeter
     verifyInputs(TTEM, etaMin, etaMax, phiMin, phiMax);
     m_ttemData.regionSelectorRobIdUint(etaMin, etaMax, phiMin, phiMax, outputROBIDList);
-    //log<< MSG::DEBUG << "TTEM verifyOutput" << endreq; ttemData.verifyOutput(ROBID, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
+    //log<< MSG::DEBUG << "TTEM verifyOutput" << endmsg; ttemData.verifyOutput(ROBID, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
     break;
   case TTHEC: // Liquid Argon Trigger Tower HEC Calorimeter
     verifyInputs(TTHEC, etaMin, etaMax, phiMin, phiMax);
     m_tthecData.regionSelectorRobIdUint(etaMin, etaMax, phiMin, phiMax, outputROBIDList);
-    //log<< MSG::DEBUG << "TTHEC verifyOutput" << endreq; tthecData.verifyOutput(ROBID, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
+    //log<< MSG::DEBUG << "TTHEC verifyOutput" << endmsg; tthecData.verifyOutput(ROBID, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
     break;
   case FCALEM: // Liquid Argon Trigger Tower FCALEM Calorimeter
     verifyInputs(FCALEM, etaMin, etaMax, phiMin, phiMax);
     m_ttfcalemData.regionSelectorRobIdUint(etaMin, etaMax, phiMin, phiMax, outputROBIDList);
-    //log<< MSG::DEBUG << "FCALEM verifyOutput" << endreq; ttfcalemData.verifyOutput(ROBID, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
+    //log<< MSG::DEBUG << "FCALEM verifyOutput" << endmsg; ttfcalemData.verifyOutput(ROBID, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
     break;
   case FCALHAD: // Liquid Argon Trigger Tower FCALHAD Calorimeter
     verifyInputs(FCALHAD, etaMin, etaMax, phiMin, phiMax);
     m_ttfcalhadData.regionSelectorRobIdUint(etaMin, etaMax, phiMin, phiMax, outputROBIDList);
-    //log<< MSG::DEBUG << "FCALHAD verifyOutput" << endreq; ttfcalhadData.verifyOutput(ROBID, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
+    //log<< MSG::DEBUG << "FCALHAD verifyOutput" << endmsg; ttfcalhadData.verifyOutput(ROBID, etaMin, etaMax, phiMin, phiMax,outputROBIDList);
     break;
   case TILE: // Tile Calorimeters
     verifyInputs(TILE, etaMin, etaMax, phiMin, phiMax);
@@ -1393,7 +1393,7 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
 
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetROBIDListUint for detector " << detectorID 
-	<< " got " << outputROBIDList.size() << " ROB IDs" << endreq;
+	<< " got " << outputROBIDList.size() << " ROB IDs" << endmsg;
   }
 
 }
@@ -1413,14 +1413,14 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   //  std::cout << "RegSelSvc::DetROBIDListUint() new map " << detectorID << std::endl; 
 
   if(m_msgOutputLevel <= MSG::DEBUG && outputROBIDList.size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   outputROBIDList.clear();
 
@@ -1429,7 +1429,7 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
       (*m_log) << MSG::WARNING << " bad roi parameter to regionselector" 
 	       <<    "zMin=" <<   zMin <<   "\tzMax=" <<   zMax 
 	       << "\tetaMin=" << etaMin << "\tetaMax=" << etaMax 
-	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endreq;
+	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endmsg;
     
     return;
   }
@@ -1457,7 +1457,7 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
   
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetROBIDListUint for detector " << detectorID 
-	<< " got " << outputROBIDList.size() << " ROB IDs" << endreq;
+	<< " got " << outputROBIDList.size() << " ROB IDs" << endmsg;
   }
 
 }
@@ -1477,14 +1477,14 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   //  std::cout << "RegSelSvc::DetROBIDListUint() new map " << detectorID << std::endl; 
 
   if(m_msgOutputLevel <= MSG::DEBUG && outputROBIDList.size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   outputROBIDList.clear();
 
@@ -1493,7 +1493,7 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
       (*m_log) << MSG::WARNING << " bad roi parameter to regionselector" 
 	       <<    "zMin=" <<   zMin <<   "\tzMax=" <<   zMax 
 	       << "\tetaMin=" << etaMin << "\tetaMax=" << etaMax 
-	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endreq;
+	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endmsg;
     
     return;
   }
@@ -1521,7 +1521,7 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
   
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetROBIDListUint for detector " << detectorID 
-	<< " got " << outputROBIDList.size() << " ROB IDs" << endreq;
+	<< " got " << outputROBIDList.size() << " ROB IDs" << endmsg;
   }
 
 }
@@ -1540,14 +1540,14 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
   static bool first = true;
   if ( first ) { 
     first = false;
-    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endreq;	
+    (*m_log) << MSG::WARNING << __func__ << " - This method is obsolete DO NOT USE" << endmsg;	
   }
 
   //  std::cout << "RegSelSvc::DetROBIDListUint() new map " << detectorID << std::endl; 
 
   if(m_msgOutputLevel <= MSG::DEBUG && outputROBIDList.size()!=0 ){
     if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endmsg; 
   }
   outputROBIDList.clear();
 
@@ -1556,7 +1556,7 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
       (*m_log) << MSG::WARNING << " bad roi parameter to regionselector" 
 	       <<    "zMin=" <<   zMin <<   "\tzMax=" <<   zMax 
 	       << "\tetaMin=" << etaMin << "\tetaMax=" << etaMax 
-	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endreq;
+	       << "\tphiMin=" << phiMin << "\tphiMax=" << phiMax << endmsg;
     
     return;
   }
@@ -1582,7 +1582,7 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
   
   if(m_msgOutputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << "DetROBIDListUint for detector " << detectorID 
-	<< " got " << outputROBIDList.size() << " ROB IDs" << endreq;
+	<< " got " << outputROBIDList.size() << " ROB IDs" << endmsg;
   }
 
 }

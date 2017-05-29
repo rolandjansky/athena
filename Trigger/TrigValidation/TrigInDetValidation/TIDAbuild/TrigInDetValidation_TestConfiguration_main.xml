@@ -15,7 +15,7 @@
   <kv/>
 
    <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
-      <mailto>sutt@cern.ch,jiri.masik@cern.ch</mailto>
+      <mailto>sutt@cern.ch,jiri.masik@cern.ch,julie.kirk@stfc.ac.uk</mailto>
       <refRelease>14.5.0</refRelease>
 
 
@@ -29,7 +29,9 @@
 
 
 
+#     include   "TrigInDetValidation_all_ttbar_pu40.xml"
 #     include   "TrigInDetValidation_all_ttbar_pu46.xml"
+#     include   "TrigInDetValidation_all_ttbar_pu80.xml"
 
 #     include   "TrigInDetValidation_beamspot_ttbar_pu46.xml"
 
@@ -61,6 +63,16 @@
 #     include   "TrigInDetValidation_bjet_IBL_pu40.xml"
 #     include   "TrigInDetValidation_bjet_IBL_pu40_test.xml"
 #     include   "TrigInDetValidation_bjet_IBL_pu40_offline.xml"
+
+#     include   "TrigInDetValidation_bjet_IBL_pu46.xml"
+#     include   "TrigInDetValidation_bjet_IBL_pu80.xml"
+
+#     include   "TrigInDetValidation_bjet_IBL_pu40_trkpt2.xml"
+#     include   "TrigInDetValidation_bjet_IBL_pu40_super1.xml"
+#     include   "TrigInDetValidation_bjet_IBL_pu40_super2.xml"
+#     include   "TrigInDetValidation_bjet_IBL_pu40_super3.xml"
+#     include   "TrigInDetValidation_bjet_IBL_pu40_super4.xml"
+
 
 <!-- #     include   "TrigInDetValidation_tau_pu46.xml"  -->
 #     include   "TrigInDetValidation_tau_IBL_pu46.xml"
@@ -107,6 +119,7 @@
             <keepFilePattern displayColor="blue">*.root</keepFilePattern>
             <keepFilePattern maxsize="150">TrigInDet*.log</keepFilePattern>
             <keepFilePattern>*.log</keepFilePattern>
+            <keepFilePattern>*.root</keepFilePattern>
             <keepFilePattern displayColor="red">TIDA*.dat</keepFilePattern>
             <keepFilePattern displayColor="red">TIDA*.html</keepFilePattern>
             <keepFilePattern displayColor="red">TIDA*.htm</keepFilePattern>
@@ -116,10 +129,26 @@
             <keepFilePattern displayColor="red">*.css</keepFilePattern>
             <keepFilePattern>TIDAWeb/STAR</keepFilePattern>
             <keepFilePattern>TIDAWeb/build/STAR</keepFilePattern>
+
             <keepFilePattern>times/STAR</keepFilePattern>
+            <keepFilePattern>times-FTF/STAR</keepFilePattern>
+
+            <keepFilePattern>times/STAR.p*</keepFilePattern>
+            <keepFilePattern>times-FTF/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>times/STAR.pdf</keepFilePattern>
+            <keepFilePattern>times/STAR.png</keepFilePattern>
+
+            <keepFilePattern>times-FTF/STAR.pdf</keepFilePattern>
+            <keepFilePattern>times-FTF/STAR.png</keepFilePattern>
+
             <keepFilePattern>*.png</keepFilePattern>
             <keepFilePattern>*.ps</keepFilePattern>
-            <keepFilePattern>*.hist</keepFilePattern>
+            <keepFilePattern>*.php</keepFilePattern>
+            <keepFilePattern>*.php</keepFilePattern>
+            <keepFilePattern>*.css</keepFilePattern>
+            <keepFilePattern>*.dat</keepFilePattern>
+            <keepFilePattern>*.sh</keepFilePattern>
             <keepFilePattern>*.pool.root.1</keepFilePattern>
             <keepFilePattern>*.pool.root.2</keepFilePattern>
             <keepFilePattern>*.pdf</keepFilePattern>
@@ -166,6 +195,27 @@
             <keepFilePattern>HLT-plots-PrmVtx/STAR.p*</keepFilePattern>
           
             <keepFilePattern>HLTL2-plots-beamspot/STAR.p*</keepFilePattern>
+
+
+            <keepFilePattern>HLTEF-test-plots/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTEF-test-plots-lowpt/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>HLTL2-test-plots/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTL2-test-plots-lowpt/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>HLTEF-test-plots-electron/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTEF-test-plots-lowpt-electron/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>HLTL2-test-plots-electron/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTL2-test-plots-electron-lowpt/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>HLTEF-test-plots-muon/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTL2-test-plots-muon/STAR.p*</keepFilePattern>
+
+            <keepFilePattern>HLTEF-test-plots-tau/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTL2-test-plots-tau/STAR.p*</keepFilePattern>
+
+
 
             <keepFilePattern>costMonitoring*/STAR</keepFilePattern>
             <keepFilePattern>costMonitoring*/csv/STAR</keepFilePattern>

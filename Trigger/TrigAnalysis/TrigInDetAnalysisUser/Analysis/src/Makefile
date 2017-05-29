@@ -32,6 +32,7 @@ ifeq ($(CMTCONFIG),)
     # ATLASBASE = $(TestArea)/Trigger/TrigAnalysis/
     # ATLASBASE = /tmp/sutt/new/Trigger/TrigAnalysis
     # ATLASBASE = $(ATLAS_TEST_AREA)/Trigger/TrigAnalysis
+    # ATLASBASE = $(TestArea)/Trigger/TrigAnalysis
     ATLASBASE = $(HOME)/atlas/TIDA
     # ATLASBASE = /tmp/sutt/duff/Trigger/TrigAnalysis
     # ATLASBASE = /tmp/sutt/tida/Trigger/TrigAnalysis/
@@ -101,8 +102,8 @@ endif
 
 # Root variables
 ROOTCFLAGS   = $(shell root-config --cflags)
-ROOTLIBS     = $(shell root-config --glibs)
-ROOTGLIBS    = $(shell root-config --glibs)
+ROOTLIBS     = $(shell root-config --libs)
+ROOTGLIBS    = $(shell root-config --libs)
 
 CLHEPLIB    = $(shell clhep-config --libs)
 CLHEPCFLAGS = $(shell clhep-config --include)
@@ -160,7 +161,9 @@ ROBJECTS  = \
 	$(OBJDIR)/rmain.o  \
 	$(OBJDIR)/ConfAnalysis.o  \
 	$(OBJDIR)/ConfVtxAnalysis.o  \
-	$(OBJDIR)/PurityAnalysis.o
+	$(OBJDIR)/PurityAnalysis.o \
+	$(OBJDIR)/globals.o \
+	$(OBJDIR)/computils.o
 
 LOBJECTS  = \
 	$(OBJDIR)/TIDAEvent.o \
@@ -202,7 +205,7 @@ RLIBS += -L$(TIDUB)/Resplot/lib/$(ARCH_TYPE) -lResplot -L$(TIDUB)/Readcards/lib/
 
 # build executable: link
 
-all : dirs resplot readcards rdict wdict reader comparitor cpucost chains skim listroot
+all : dirs resplot readcards rdict wdict reader comparitor cpucost chains skim listroot sb
 
 $(OBJDIR)/computils.o : $(SRCDIR)/computils.h 
 $(OBJDIR)/comparitor.o : $(SRCDIR)/computils.h 
@@ -254,9 +257,12 @@ $(EXEDIR)/listroot : $(OBJDIR)/listroot.o $(OBJDIR)/AtlasStyle.o $(OBJDIR)/Atlas
 	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/listroot.o $(OBJDIR)/AtlasStyle.o  $(RLIBS) $(ROOTLIBS)
 
 runtool : dirs $(EXEDIR)/runtool
-$(EXEDIR)/runtool : dirs $(OBJDIR)/runtool.o 
-	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/runtool.o $(GLIBS)
+$(EXEDIR)/runtool : dirs $(OBJDIR)/runtool.o $(OBJDIR)/computils.o 
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/runtool.o $(OBJDIR)/computils.o $(GLIBS)
 
+sb : $(EXEDIR)/sb  
+$(EXEDIR)/sb : $(OBJDIR)/chainparser.o 
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/chainparser.o $(RLIBS) $(ROOTLIBS)
 
 
 # compile
@@ -299,7 +305,7 @@ $(LIBDIR)/libTIDA.a : $(LOBJECTS)
 libso: $(LIBDIR)/libTIDA.so 
 $(LIBDIR)/libTIDA.so : $(LOBJECTS) 
 	$(CXX) $(LDFLAGS) -O3 -dynamiclib -shared -o  $@ $(LOBJECTS) $(RSSOLIB)$(GLIBS)
-	
+
 else
 # if libraries are already build inside athena, do nothing 
 lib:
@@ -337,6 +343,7 @@ install : all
 	cp $(EXEDIR)/skim       $(HOME)/bin
 	cp $(EXEDIR)/listroot   $(HOME)/bin
 	cp $(EXEDIR)/runtool    $(HOME)/bin
+	cp $(EXEDIR)/sb         $(HOME)/bin
 
 dirs :  $(LIBDIR)/.d $(OBJDIR)/.d $(EXEDIR)/.d
 

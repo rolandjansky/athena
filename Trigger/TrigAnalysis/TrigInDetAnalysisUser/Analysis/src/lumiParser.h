@@ -24,6 +24,7 @@
 #include <cmath>
 
 #include "lumiList.h"
+#include "computils.h"
 
 
 class lumiParser : public lumiList {
@@ -43,6 +44,13 @@ public:
       std::string cmd = "wget ";
       cmd += file;
       tail( file, "/" );
+      if ( exists( file ) ) { 
+	/// save file if it exists to download again in case
+	/// it has changed
+	std::string mvcmd = "mv ";
+	mvcmd += file + " " + file + ".bak";
+	std::system( mvcmd.c_str() );
+      }
       std::system( cmd.c_str() ); 
     }
 
