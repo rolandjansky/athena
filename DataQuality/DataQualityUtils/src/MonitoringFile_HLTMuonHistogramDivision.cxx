@@ -46,6 +46,7 @@ namespace dqutils {
   {
 
     if (fdbg) std::cout << "  Start to Divide HLTMuon Histograms for Efficiency and Rate Ratio" << std::endl;
+
     PostProcessorFileWrapper mf( inFilename , "HLT Histogram Division");
     if (!mf.IsOpen()) {
       std::cerr << "HLTMuonPostProcess(): "
@@ -704,8 +705,6 @@ namespace dqutils {
 	}
 	h1sumL->SetBinContent(2, sumeff);
 	h1sumL->SetBinError(2, sumerr);
-        h1sumL->SetMinimum(0.0);
-        h1sumL->SetMaximum(1.05);
 
 	dir->cd();
 	h1sumL->Write("",TObject::kOverwrite);
@@ -905,8 +904,6 @@ namespace dqutils {
 		    }
 		    h1sumeff->SetBinContent(iholx+1, sumeff);
 		    h1sumeff->SetBinError(iholx+1, sumerr);
-                    h1sumeff->SetMinimum(0.0);
-	            h1sumeff->SetMaximum(1.05);
 		    // saving
 		    dir->cd();
 		    h1sumeff->Write("", TObject::kOverwrite);
@@ -996,8 +993,6 @@ namespace dqutils {
 		}
 		h1sumeff->SetBinContent(iholx+1, sumeff);
 		h1sumeff->SetBinError(iholx+1, sumerr);
-  	        h1sumeff->SetMinimum(0.0);
-	        h1sumeff->SetMaximum(1.05);
 		// saving
 		dir->cd();
 		h1sumeff->Write("", TObject::kOverwrite);
@@ -1184,8 +1179,6 @@ namespace dqutils {
 		    }
 		    h1sumeff->SetBinContent(iholx+1, sumeff);
 		    h1sumeff->SetBinError(iholx+1, sumerr);
-                    h1sumeff->SetMinimum(0.0);
-	            h1sumeff->SetMaximum(1.05);
 		    // saving
 		    dir->cd();
 		    h1sumeff->Write("", TObject::kOverwrite);
@@ -2008,8 +2001,6 @@ namespace dqutils {
 	      }
 	      h1eff->SetBinContent(ibin-1, sumeff);  ////
 	      h1eff->SetBinError(ibin-1, sumerr);    ////
-	      h1eff->SetMinimum(0.0);
-	      h1eff->SetMaximum(1.05);
 	    }
 	  }
 
@@ -2126,8 +2117,6 @@ namespace dqutils {
 	    }
 	    h1sumL->SetBinContent(2, sumeff);
 	    h1sumL->SetBinError(2, sumerr);
-	    h1sumL->SetMinimum(0.0);
-	    h1sumL->SetMaximum(1.05);
 	    efdir->cd();
 	    h1sumL->Write("",TObject::kOverwrite);
 	  }
@@ -2246,8 +2235,6 @@ namespace dqutils {
 		  }
 		  h1effL1->SetBinContent(be+1, sumeff);
 		  h1effL1->SetBinError(be+1, sumerr);
-		  h1eff->SetMinimum(0.0);
-		  h1eff->SetMaximum(1.05);
 		  efdir->cd();
 		  h1effL1->Write("",TObject::kOverwrite);
 		}
@@ -2308,8 +2295,6 @@ namespace dqutils {
 	      }
 	      h1effsum->SetBinContent(iholx+1, sumeff);
 	      h1effsum->SetBinError(iholx+1, sumerr);
-	      h1effsum->SetMinimum(0.0);
-	      h1effsum->SetMaximum(1.05);
 	      efdir->cd();
 	      h1effsum->Write("",TObject::kOverwrite);
 	    }
