@@ -146,8 +146,8 @@ class Cabling:
     @staticmethod
     def calcBitnum(thrtype):
         # get the widths for the threshold types is defined in L1Common
-        exec("nbits = Limits.%s_bitnum" % thrtype)
-        return nbits # noqa: F821
+        nbits = getattr(Limits,'%s_bitnum' % thrtype)
+        return nbits
 
 
 
@@ -264,17 +264,16 @@ class InputCable:
         """
         Gets the cable assignment from L1Common
         """
-        exec("cable = Limits.%s_cable" % thrtype)
-        
+        cable = getattr(Limits,'%s_cable' % thrtype)
         # we change the format for run 2, the tuple now contains also the bit multiplicity, as it is not constant per type
-        infosize = (len(cable)-1)/cable[0]   # noqa: F821
+        infosize = (len(cable)-1)/cable[0]
 
         if infosize==5:
-            cableAssign = [tuple(cable[x:x+5]) for x in range(1,len(cable),5)]   # noqa: F821
+            cableAssign = [tuple(cable[x:x+5]) for x in range(1,len(cable),5)]
         else:
             #print "Cabling for threshold type %s is not yet defined for Run 2" % thrtype
             bitnum = Cabling.calcBitnum(thrtype)
-            cableAssign = [tuple(cable[x:x+4] + [bitnum]) for x in range(1,len(cable),4)]   # noqa: F821
+            cableAssign = [tuple(cable[x:x+4] + [bitnum]) for x in range(1,len(cable),4)]
 
         return cableAssign
 
