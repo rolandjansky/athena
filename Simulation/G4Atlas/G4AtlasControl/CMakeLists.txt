@@ -17,6 +17,7 @@ find_package( CLHEP )
 find_package( Geant4 )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( XercesC )
+find_package( Eigen )
 
 # this line failed automatic conversion in cmt2cmake :
 # macro_prepend G4AtlasControlDict_shlibflags " -lG4AtlasControl "
@@ -25,10 +26,10 @@ find_package( XercesC )
 atlas_add_library( G4AtlasControl
                    src/*.cxx
                    PUBLIC_HEADERS G4AtlasControl
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} FadsPackageLoader MCTruthBaseLib )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} FadsPackageLoader MCTruthBaseLib )
 
 atlas_add_dictionary( G4AtlasControlDict
                       G4AtlasControl/G4AtlasControlDict.h
