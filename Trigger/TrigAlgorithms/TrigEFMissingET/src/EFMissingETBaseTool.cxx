@@ -36,11 +36,11 @@ EFMissingETBaseTool::EFMissingETBaseTool(const std::string& type,
   declareInterface<EFMissingETBaseTool>( this );
   declareProperty("ParentFexName", m_FexName="EFMissingET_Fex");
 
-  m_timersvc=nullptr;
-  m_glob_timer=nullptr;
+  m_timersvc=0;
+  m_glob_timer=0;
   for (int iDet=0; iDet<4; ++iDet)
     for (int iStep=0; iStep<3; ++iStep)
-      m_timer[iDet][iStep] = nullptr;
+      m_timer[iDet][iStep] = 0;
 
 
   /** definition of the meaning for the component flag bits **/
@@ -80,7 +80,7 @@ EFMissingETBaseTool::EFMissingETBaseTool(const std::string& type,
   m_maskObjInCrack           = 0x40000000; // bit 30
   m_maskGlobErrors           = 0x80000000; // bit 31
 
-  m_fextype = FexType::OTHER;
+  _fextype = FexType::OTHER; 
 
 }
 
@@ -114,10 +114,8 @@ StatusCode EFMissingETBaseTool::execute()
 
 StatusCode EFMissingETBaseTool::execute(xAOD::TrigMissingET * /* met */ ,
     TrigEFMissingEtHelper * /* metHelper */ ,
-    const xAOD::CaloClusterContainer * /* caloCluster */ , const xAOD::JetContainer  * /* jets */,
-                                        const xAOD::TrackParticleContainer * /*trackContainer*/,
-                                        const xAOD::VertexContainer * /*vertexContainer*/ )
-{
+    const xAOD::CaloClusterContainer * /* caloCluster */ , const xAOD::JetContainer  * /* jets */)
+{	
   return StatusCode::SUCCESS;
 }
 

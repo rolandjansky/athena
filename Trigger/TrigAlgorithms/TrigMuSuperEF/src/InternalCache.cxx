@@ -12,7 +12,6 @@
 #include "xAODTracking/TrackParticlexAODHelpers.h"
 InternalCache::InternalCache(){
   m_muoncandidates=0;
-  m_STMuonCandidates=0;
   m_extrapolatedtracks =0;
   m_combinedtracks=std::make_pair(new xAOD::TrackParticleContainer(),new xAOD::TrackParticleAuxContainer());
   m_satracks=std::make_pair(new xAOD::TrackParticleContainer(), new xAOD::TrackParticleAuxContainer());
@@ -26,8 +25,8 @@ InternalCache::InternalCache(){
  * We do not delete the pointers, since these are not owned by this class.
  */
 InternalCache::~InternalCache(){
-  if(m_combinedtracks.first) delete m_combinedtracks.first;  
-  if(m_combinedtracks.second) delete m_combinedtracks.second; 
+   if(m_combinedtracks.first) delete m_combinedtracks.first;  
+   if(m_combinedtracks.second) delete m_combinedtracks.second; 
   if(m_satracks.first) delete m_satracks.first;  
   if(m_satracks.second) delete m_satracks.second; 
   if(m_muoncont.first) delete m_muoncont.first;  
@@ -35,13 +34,12 @@ InternalCache::~InternalCache(){
 }
 
 
+
+
 void InternalCache::SetMuonCandidates(MuonCandidateCollection *muonCand){
   m_muoncandidates = muonCand;
 }
 
-void InternalCache::SetSegmentTaggedMuonCandidates(MuonCandidateCollection *muonCand){
-  m_STMuonCandidates = muonCand;
-}
 
 void InternalCache::SetCombinedTracks(xAOD::TrackParticleContainer* combtrk){
   xAOD::TrackParticleContainer::iterator trk_itr = combtrk->begin();

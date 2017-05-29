@@ -54,7 +54,7 @@ ChainDictTemplate = {
 AllowedTopos_e = ["Jpsiee","Zeg","Zee","Heg"]
 AllowedTopos_mu = ['Jpsimumu']
 AllowedTopos_xe = ['1dphi10', '2dphi05', '6dphi05', '6dphi15', '2dphi05', '2dphi15', 'mt25', 'mt35', 'razor140', 'razor170', 'razor200','razor220','razor100','razor185','razor195']
-AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu', 'bNocut',
+AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu', 
                       'bJpsimumu', 'bUpsimumu', 
                       'bBmumu', 'bBmumux', 
                       'bBmumuxv2', 'bBmumuxv3',
@@ -62,7 +62,7 @@ AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu', 'bNocut',
                       'BcmumuDs' ,   'BcmumuDsloose' ,
                       '7invm9', 'noos', 'noid', 'novtx',
                       '11invm60','18invm60', 'bUpsi',
-                      'Trkloose',  'TrkPEB', 'Zmumu', 'noL2', 'noEFbph',
+                      'Trkloose', 'Zmumu', 'noL2', 'noEFbph',
                       'noinvm', 'ss', 'BpmumuKp', 'Taumumux', 'Dsmumux', 'LbmumuLambda',
                       'trkTau', 'bTauTrk', 'bDsPhiX', 'bPhi','bDsPhiXtight',
                       '11invm24', '24invm60',
@@ -243,13 +243,11 @@ MuonChainParts_Default = {
 BphysicsChainParts = deepcopy(MuonChainParts)
 #BphysicsChainParts['bTracking'] = ['FTK']
 BphysicsChainParts['signature'] = ['Bphysics']
-BphysicsChainParts['peb'] = ['peb075']
 BphysicsChainParts['topo'] = AllowedTopos_bphys
 # ---- Bphysics Dictinary of default Values ----
 BphysicsChainParts_Default = deepcopy(MuonChainParts_Default)
 BphysicsChainParts_Default['signature'] = ['Bphysics']
 BphysicsChainParts_Default['topo'] = []
-BphysicsChainParts['peb'] = []
 BphysicsChainParts_Default['overlapRemoval'] = ['noOvlpRm']
 
 #==========================================================
@@ -303,12 +301,11 @@ METChainParts = {
     'trigType'     : ['xe'],   
     'extra'        : ['noL1'],
     'calib'        : ['lcw','had','em'],    
-    'jetCalib'     : JetChainParts['jetCalib'],
     'L2recoAlg'    : ['','l2fsperf','L2FS'],
-    'EFrecoAlg'    : ['tc','cell','pueta','mht','trkmht','pufit'],
+    'EFrecoAlg'    : ['tc','cell','pueta','mht','pufit'],
     'L2muonCorr'   : ['','wL2MuFEB','wEFMuFEB'],
     'EFmuonCorr'   : ['','wEFMu'],
-    'addInfo'      : ['FStracks','FTK'],
+    'addInfo'      : ['FStracks'],
     }
 # ---- MetDictinary of default Values ----
 METChainParts_Default = {
@@ -318,7 +315,6 @@ METChainParts_Default = {
     'threshold'      : '',
     'extra'          : '',
     'calib'          : 'lcw',
-    'jetCalib'       : JetChainParts_Default['jetCalib'],
     'L2recoAlg'      : '',
     'EFrecoAlg'      : 'cell',
     'L2muonCorr'     : '',

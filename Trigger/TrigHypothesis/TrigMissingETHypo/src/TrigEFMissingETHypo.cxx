@@ -107,7 +107,7 @@ HLT::ErrorCode TrigEFMissingETHypo::hltInitialize()
 // ----------------------------------------------------------------------
 {
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "hypo initialize()" << endmsg;
+    msg() << MSG::DEBUG << "hypo initialize()" << endreq;
   }
 
   // Initialize timing service
@@ -115,7 +115,7 @@ HLT::ErrorCode TrigEFMissingETHypo::hltInitialize()
   if(doTiming() ) {
     m_totTime=addTimer("TrigEFMissingETHypoInternalTotalTime");
     if (m_totTime==0) {
-      msg() << MSG::WARNING << "not able to initialize timer!" << endmsg;
+      msg() << MSG::WARNING << "not able to initialize timer!" << endreq;
     }
   }
 
@@ -128,7 +128,7 @@ HLT::ErrorCode TrigEFMissingETHypo::hltInitialize()
   if(msgLvl() <= MSG::DEBUG) {
     char buff[512];
     snprintf(buff, 512, "REGTEST: bitMask = 0x%08x", m_bitMask);
-    msg() << MSG::DEBUG << buff << endmsg;
+    msg() << MSG::DEBUG << buff << endreq;
   }
 
   return HLT::OK;
@@ -140,8 +140,8 @@ HLT::ErrorCode TrigEFMissingETHypo::hltFinalize(){
 // ----------------------------------------------------------------------
 
    if(msgLvl() <= MSG::DEBUG) {
-     msg() << MSG::DEBUG << "in finalize()" << endmsg;
-     msg() << MSG::DEBUG << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endmsg;
+     msg() << MSG::DEBUG << "in finalize()" << endreq;
+     msg() << MSG::DEBUG << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endreq;
    }
 
   return HLT::OK;
@@ -207,7 +207,7 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
   HLT::ErrorCode stat = getFeatures(outputTE, vectorMissingET, m_featureLabel);
 
   if(stat != HLT::OK) {
-    msg() << MSG::WARNING << " Failed to get vectorMissingETs " << endmsg;
+    msg() << MSG::WARNING << " Failed to get vectorMissingETs " << endreq;
     if (doTiming() && m_totTime) {
       m_totTime->stop();
     }
@@ -217,7 +217,7 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
   //check size of MissingET
   if( vectorMissingET.size() == 0 ){
     if(msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG<< " Got no MissingETs associated to the TE! " << endmsg;
+      msg() << MSG::DEBUG<< " Got no MissingETs associated to the TE! " << endreq;
     }
     m_errors++;
     if (doTiming() && m_totTime ) {
@@ -227,7 +227,7 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
   } else {
     if(msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG << " Got " << vectorMissingET.size()
-	    << " vectorMissingET size associated to the TE" << endmsg;
+	    << " vectorMissingET size associated to the TE" << endreq;
     }
   }
 
@@ -235,7 +235,7 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
 
   if (met==0){
     if(msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG<< " MissingET pointer is null" << endmsg;
+      msg() << MSG::DEBUG<< " MissingET pointer is null" << endreq;
     }
     m_errors++;
     if (doTiming() && m_totTime) {
@@ -313,7 +313,7 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
     if(msgLvl() <= MSG::WARNING) {
       msg() << MSG::WARNING << 
 	"ERROR: cannon find 'Muon' in component name - muon not uncorrected!"
-	    << endmsg;
+	    << endreq;
     }
   } //end of muon name test
 
@@ -424,7 +424,7 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
 	if(msgLvl() <= MSG::WARNING) {
 	  msg() << MSG::WARNING << 
 	    "ERROR: cannot find 'FCal' in component name - FCal not subtracted!"
-		<< endmsg;
+		<< endreq;
 	}
 	break;
       }
@@ -461,34 +461,34 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
     ) {
 
     msg() << MSG::DEBUG << "doMuonCorrection=" << m_doMuonCorrection
-	  << ", Forward=" << m_forward << ", Central=" << m_central << endmsg;
+	  << ", Forward=" << m_forward << ", Central=" << m_central << endreq;
 	  
-	msg() << MSG::DEBUG << "doEMScaleTC="<<m_doEMScaleTC << endmsg;  
+	msg() << MSG::DEBUG << "doEMScaleTC="<<m_doEMScaleTC << endreq;  
 
-    char buff[2000];
-    std::snprintf(buff,sizeof(buff),
+    char buff[128];
+    std::snprintf(buff,128,
      "REGTEST:            global       calo        muon       central       fcal   caloCentral");
-    msg() << MSG::DEBUG << buff << endmsg;
+    msg() << MSG::DEBUG << buff << endreq;
 
-    std::snprintf(buff,sizeof(buff),"REGTEST: Ex/MeV    %11.2f %11.2f %11.2f %11.2f %11.2f %11.2f", 
+    std::snprintf(buff,128,"REGTEST: Ex/MeV    %11.2f %11.2f %11.2f %11.2f %11.2f %11.2f", 
       Ex ,  caloEx ,  muonEx ,  centralEx ,  fcalEx ,  caloCentralEx);
-    msg() << MSG::DEBUG << buff << endmsg;
+    msg() << MSG::DEBUG << buff << endreq;
 
-    std::snprintf(buff,sizeof(buff),"REGTEST: Ey/MeV    %11.2f %11.2f %11.2f %11.2f %11.2f %11.2f", 
+    std::snprintf(buff,128,"REGTEST: Ey/MeV    %11.2f %11.2f %11.2f %11.2f %11.2f %11.2f", 
       Ey ,  caloEy ,  muonEy ,  centralEy ,  fcalEy ,  caloCentralEy);
-    msg() << MSG::DEBUG << buff << endmsg;
+    msg() << MSG::DEBUG << buff << endreq;
 
-    std::snprintf(buff,sizeof(buff),"REGTEST: Ez/MeV    %11.2f %11.2f %11.2f %11.2f %11.2f %11.2f", 
+    std::snprintf(buff,128,"REGTEST: Ez/MeV    %11.2f %11.2f %11.2f %11.2f %11.2f %11.2f", 
       Ez ,  caloEz ,  muonEz ,  centralEz ,  fcalEz ,  caloCentralEz);
-    msg() << MSG::DEBUG << buff << endmsg;
+    msg() << MSG::DEBUG << buff << endreq;
 
-    std::snprintf(buff,sizeof(buff),"REGTEST: MET/MeV   %11.2f %11.2f %11.2f %11.2f %11.2f %11.2f", 
+    std::snprintf(buff,128,"REGTEST: MET/MeV   %11.2f %11.2f %11.2f %11.2f %11.2f %11.2f", 
       MET,  caloMET,  muonMET,  centralMET,  fcalMET,  caloCentralMET);
-    msg() << MSG::DEBUG << buff << endmsg;
+    msg() << MSG::DEBUG << buff << endreq;
 
-    std::snprintf(buff,sizeof(buff),"REGTEST: SumET/MeV %11.2f %11.2f %11.2f %11.2f %11.2f %11.2f", 
+    std::snprintf(buff,128,"REGTEST: SumET/MeV %11.2f %11.2f %11.2f %11.2f %11.2f %11.2f", 
       SET,  caloSET,  muonSET,  centralSET,  fcalSET,  caloCentralSET);
-    msg() << MSG::DEBUG << buff << endmsg;
+    msg() << MSG::DEBUG << buff << endreq;
   }
 
   /// shall we use calorimeters only?
@@ -503,7 +503,7 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
   /// shall we veto on the central region?
   if ( m_forward < -epsilon ) {
     // reject if central_MET>|m_forward|
-    if ( centralMET > std::abs(m_forward) ) {
+    if ( centralMET > fabsf(m_forward) ) {
       pass = false;
       m_rejected++;
       return HLT::OK;
@@ -631,7 +631,7 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
   }
   */
   else if(!accepted){
-    msg() << MSG::WARNING << " WRONG Cut Type.  Event will Fail MET Cut " << endmsg;
+    msg() << MSG::WARNING << " WRONG Cut Type.  Event will Fail MET Cut " << endreq;
   }
 
   if(accepted) {
@@ -657,29 +657,29 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
     if (m_sumet_lin!=0) m_sumet_log = log10(fabsf(m_sumet_lin));
 
     if(msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << " Event accepted ! " << endmsg;
+      msg() << MSG::DEBUG << " Event accepted ! " << endreq;
       msg() << MSG::DEBUG << " REGTEST: Cut Type, MET Thresh/MeV, SumET Thresh/MeV = " << m_CutType
-            <<  " " <<  m_MEtCut << " " << m_SumEtCut << endmsg;
-      msg() << MSG::DEBUG << " REGTEST: et = " << MET << " MeV" << endmsg;
-      msg() << MSG::DEBUG << " REGTEST: ex = " << Ex << " MeV" << endmsg;
-      msg() << MSG::DEBUG << " REGTEST: ey = " << Ey << " MeV" << endmsg;
-      msg() << MSG::DEBUG << " REGTEST: ez = " << Ez << " MeV" << endmsg;
-      msg() << MSG::DEBUG << " REGTEST: SumEt = " << SET << " MeV" << endmsg;
-      msg() << MSG::DEBUG << " REGTEST: Sig = " << SIG << endmsg;
+            <<  " " <<  m_MEtCut << " " << m_SumEtCut << endreq;
+      msg() << MSG::DEBUG << " REGTEST: et = " << MET << " MeV" << endreq;
+      msg() << MSG::DEBUG << " REGTEST: ex = " << Ex << " MeV" << endreq;
+      msg() << MSG::DEBUG << " REGTEST: ey = " << Ey << " MeV" << endreq;
+      msg() << MSG::DEBUG << " REGTEST: ez = " << Ez << " MeV" << endreq;
+      msg() << MSG::DEBUG << " REGTEST: SumEt = " << SET << " MeV" << endreq;
+      msg() << MSG::DEBUG << " REGTEST: Sig = " << SIG << endreq;
     }
   }
   else{
     pass = false;
     if(msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << " Event rejected !" << endmsg;
+      msg() << MSG::DEBUG << " Event rejected !" << endreq;
       msg() << MSG::DEBUG << " REGTEST: Cut Type, MET Thresh/MeV, SumET Thresh/MeV = " << m_CutType
-            <<  " " <<  m_MEtCut << " " << m_SumEtCut << endmsg;
-      msg() << MSG::DEBUG << " REGTEST: et = " << MET << " MeV" << endmsg;
-      msg() << MSG::DEBUG << " REGTEST: ex = " << Ex << " MeV" << endmsg;
-      msg() << MSG::DEBUG << " REGTEST: ey = " << Ey << " MeV" << endmsg;
-      msg() << MSG::DEBUG << " REGTEST: ez = " << Ez << " MeV" << endmsg;
-      msg() << MSG::DEBUG << " REGTEST: SumEt = " << SET << " MeV" << endmsg;
-      msg() << MSG::DEBUG << " REGTEST: Sig = " << SIG << endmsg;
+            <<  " " <<  m_MEtCut << " " << m_SumEtCut << endreq;
+      msg() << MSG::DEBUG << " REGTEST: et = " << MET << " MeV" << endreq;
+      msg() << MSG::DEBUG << " REGTEST: ex = " << Ex << " MeV" << endreq;
+      msg() << MSG::DEBUG << " REGTEST: ey = " << Ey << " MeV" << endreq;
+      msg() << MSG::DEBUG << " REGTEST: ez = " << Ez << " MeV" << endreq;
+      msg() << MSG::DEBUG << " REGTEST: SumEt = " << SET << " MeV" << endreq;
+      msg() << MSG::DEBUG << " REGTEST: Sig = " << SIG << endreq;
     }
     m_rejected++;
   }

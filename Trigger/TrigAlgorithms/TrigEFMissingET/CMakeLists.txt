@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 800798 2017-03-16 17:29:50Z jburr $
+# $Id: CMakeLists.txt 774313 2016-09-21 13:15:28Z smh $
 ################################################################################
 # Package: TrigEFMissingET
 ################################################################################
@@ -28,8 +28,6 @@ atlas_depends_on_subdirs(
    Trigger/TrigSteer/TrigInterfaces
    Trigger/TrigTools/TrigTimeAlgs
    PRIVATE
-   PathResolver
-   InDetTrackSelectionTool
    Control/CxxUtils
    DetectorDescription/Identifier
    Event/EventKernel
@@ -55,7 +53,6 @@ atlas_add_library( TrigEFMissingETLib
    LArToolsLib TrigT2CaloCommonLib TrigInterfacesLib TrigTimeAlgsLib
    PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CxxUtils Identifier
    EventKernel xAODEventInfo JetEvent TrigMuonEvent TrigSteeringEvent
-   PathResolver
    TrigT1Interfaces )
 
 atlas_add_component( TrigEFMissingET

@@ -8,7 +8,6 @@ from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromClusters
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromClustersPS
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromClustersPUC
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromJets
-from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromTrackAndJets
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFlags
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETFromHelper
 
@@ -167,7 +166,7 @@ class EFMissingET_Fex_allCells (EFMissingETBase):
         self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0 ]       # Jet
         self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
+        self.ComponentFlags += [ 0,0 ]       
         self.ComponentFlags += [ 0 ]       # PUC
         self.ComponentFlags += [ 0 ]       # PUC prior correction
         self.ComponentFlags += [ 0 ]       # Muons
@@ -209,7 +208,7 @@ class EFMissingET_Fex_allCells (EFMissingETBase):
         self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00 ]                # Jet
         self.ComponentCalib1 += [ 1.00,1.00 ]
-        self.ComponentCalib1 += [ 1.00,1.00 ]
+        self.ComponentCalib1 += [ 1.00,1.00 ]      
         self.ComponentCalib1 += [ 1.00 ]                # PUC
         self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
         self.ComponentCalib1 += [ 1.00 ]                # Muons
@@ -363,7 +362,7 @@ class EFMissingET_Fex_noiseSupp (EFMissingETBase):
         self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0 ]       # Jet
         self.ComponentFlags += [ 0,0 ]
-        self.ComponentFlags += [ 0,0 ]
+        self.ComponentFlags += [ 0,0 ]   
         self.ComponentFlags += [ 0 ]       # PUC
         self.ComponentFlags += [ 0 ]       # PUC prior correction
         self.ComponentFlags += [ 0 ]       # Muons
@@ -384,7 +383,7 @@ class EFMissingET_Fex_noiseSupp (EFMissingETBase):
         self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0 ]       # Jet
         self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
+        self.ComponentCalib0 += [ 0, 0 ]        
         self.ComponentCalib0 += [ 0 ]       # PUC
         self.ComponentCalib0 += [ 0 ]       # PUC prior correction
         self.ComponentCalib0 += [ 0 ]       # Muons
@@ -579,7 +578,7 @@ class EFMissingET_Fex_2sidednoiseSupp (EFMissingETBase):
         self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0 ]       # Jet
         self.ComponentCalib0 += [ 0, 0 ]
-        self.ComponentCalib0 += [ 0, 0 ]
+        self.ComponentCalib0 += [ 0, 0 ]     
         self.ComponentCalib0 += [ 0 ]       # PUC
         self.ComponentCalib0 += [ 0 ]       # PUC prior correction
         self.ComponentCalib0 += [ 0 ]       # Muons
@@ -1178,6 +1177,8 @@ class EFMissingET_Fex_topoClustersPS (EFMissingETBase):
 
         self.AthenaMonTools = [ validation, online, cosmic]
 
+
+
 ##### Use topo. clusters for noise suppression #####
 class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
     __slots__ = []
@@ -1197,7 +1198,7 @@ class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
         clusterTool.ParentFexName = name
         flagTool.ParentFexName = name
         helperTool.ParentFexName = name
-
+        
         clusterTool.SubtractPileup = True
         clusterTool.towerWidthInput = 0.7
         clusterTool.EtaRange = 5.0
@@ -1365,18 +1366,20 @@ class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
 
         self.AthenaMonTools = [ validation, online, cosmic]
 
+
+
 ##### loop over jets #####
 class EFMissingET_Fex_Jets (EFMissingETBase):
     __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_Jets", extraCalib = ""):
+    def __init__ (self, name="EFMissingET_Fex_Jets"):
         super(EFMissingET_Fex_Jets, self).__init__(name)
 
         # name of TrigMissingET object
-        self.MissingETOutputKey = "TrigEFMissingET_mht{0}".format(extraCalib)
+        self.MissingETOutputKey = "TrigEFMissingET_mht"
         self.doJets = True
-
+                
         # tools
-        febTool    = EFMissingETFromFEBHeader("TheFEBTool")
+        febTool    = EFMissingETFromFEBHeader("TheFEBTool") 
         jetTool    = EFMissingETFromJets("TheJetTool")
         flagTool   = EFMissingETFlags("TheFlagsTool")
         helperTool = EFMissingETFromHelper("TheHelperTool")
@@ -1386,12 +1389,12 @@ class EFMissingET_Fex_Jets (EFMissingETBase):
         flagTool.ParentFexName = name
         helperTool.ParentFexName = name
         #
-
+        
         ## Configuration of jet fex
         jetTool.EtaSeparation = 2.2
         jetTool.CentralpTCut = 0.0
         jetTool.ForwardpTCut = 0.0
-
+        
         ## chain of tools
         self.Tools = []
         self.Tools += [ jetTool ]
@@ -1406,54 +1409,6 @@ class EFMissingET_Fex_Jets (EFMissingETBase):
 
         self.AthenaMonTools = [ validation, online, cosmic]
 
-##### loop over tracks and jets #####
-class EFMissingET_Fex_TrackAndJets (EFMissingETBase):
-    __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_TrackAndJets"):
-        super(EFMissingET_Fex_TrackAndJets, self).__init__(name)
-
-        # name of TrigMissingET object
-        self.MissingETOutputKey = "TrigEFMissingET_trkmht"
-        self.doJets = True
-        self.doTracks = True
-
-        # tools
-        febTool    = EFMissingETFromFEBHeader("TheFEBTool")
-        jetTool    = EFMissingETFromTrackAndJets("TheTrackAndJetTool")
-        flagTool   = EFMissingETFlags("TheFlagsTool")
-        helperTool = EFMissingETFromHelper("TheHelperTool")
-        #
-        febTool.ParentFexName = name
-        jetTool.ParentFexName = name
-        flagTool.ParentFexName = name
-        helperTool.ParentFexName = name
-        #
-
-        ## Configuration of jet fex
-        jetTool.EtaSeparation = 2.2
-        jetTool.CentralpTCut = 25 #GeV
-        jetTool.ForwardpTCut = 0.0
-        jetTool.TrackpTCut = 1 #GeV
-        jetTool.CentralJetJVTCut = 0.9
-        jetTool.TrackSelectionTool.CutLevel = "Loose"
-        jetTool.TrackSelectionTool.maxZ0SinTheta = 1.5
-        jetTool.TrackSelectionTool.maxD0overSigmaD0 = 3
-        jetTool.MuonTrackSelectionTool.CutLevel = "LooseMuon"
-        jetTool.MuonTrackSelectionTool.maxZ0SinTheta = 1.5
-        jetTool.MuonTrackSelectionTool.maxD0overSigmaD0 = 3
-
-        ## chain of tools
-        self.Tools = []
-        self.Tools += [ jetTool ]
-        self.Tools += [ flagTool ]
-        self.Tools += [ helperTool ]
-
-        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_alt, TrigEFMissingETOnlineMonitoring_alt, TrigEFMissingETCosmicMonitoring_alt
-        validation = TrigEFMissingETValidationMonitoring_alt()
-        online = TrigEFMissingETOnlineMonitoring_alt()
-        cosmic = TrigEFMissingETCosmicMonitoring_alt()
-
-        self.AthenaMonTools = [ validation, online, cosmic]
 
 ##### THE DEFAULT FEX #####
 class EFMissingET_Fex (EFMissingET_Fex_2sidednoiseSupp):
