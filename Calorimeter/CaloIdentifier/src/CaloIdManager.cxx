@@ -20,6 +20,7 @@
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloIdentifier/LArMiniFCAL_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
+#include "CaloIdentifier/HGTD_ID.h"
 #include "CaloIdentifier/TileID.h"
 #include "CaloIdentifier/TTOnlineID.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
@@ -46,6 +47,7 @@ CaloIdManager::CaloIdManager(void)
     m_fcal_id(0),
     m_minifcal_id(0),
     m_hec_id(0),
+    m_hgtd_id(0),
     m_tile_id(0),
     m_ttonline_id(0),
     m_cell_supercell_id(0),
@@ -169,6 +171,11 @@ CaloIdManager::getHEC_ID               (void) const
 {
     return (m_hec_id);
 }
+const HGTD_ID*
+CaloIdManager::getHGTD_ID               (void) const
+{
+    return (m_hgtd_id);
+}
 const TileID*
 CaloIdManager::getTileID               (void) const
 {
@@ -259,6 +266,12 @@ void
 CaloIdManager::set_helper              (const LArHEC_ID* idHelper)
 {
     m_hec_id = idHelper;
+}
+
+void
+CaloIdManager::set_helper              (const HGTD_ID* idHelper)
+{
+    m_hgtd_id = idHelper;
 }
 
 void
