@@ -107,7 +107,7 @@ float CalculateDeltaR(float off_eta, float off_phi,float on_eta, float on_phi);
 StatusCode HLTMuonMonTool::bookCommonDQA()
 {
 
-  if( newRun ){
+  if( newRunFlag() ){
 
     ATH_MSG_INFO("start booking Common histograms for newRun");
 
@@ -115,9 +115,9 @@ StatusCode HLTMuonMonTool::bookCommonDQA()
     addHistogram( new TH1F("Monitoring_Chain", "Monitoring_Chain",20,0,20), m_histdir);
     addHistogram( new TH1F("Common_Counter",           "Event Counter",  30, 0., 30.), m_histdir );
     hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(EVENT+1,"Event");
-    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUFAST+1,"muFast");
-    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUFASTFOUND+1,"muFast found");
-    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUFASTDFOUND+1,"muFast D found");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUFAST+1,"L2MuonSA");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUFASTFOUND+1,"L2MuonSA found");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUFASTDFOUND+1,"L2MuonSA D found");
     hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUCOMB+1,"muComb");
     hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUCOMBFOUND+1,"muComb found");
     hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUISO+1,"muIso");
@@ -268,7 +268,7 @@ StatusCode HLTMuonMonTool::bookCommonDQA()
 
     ATH_MSG_INFO("finished booking Common histograms for newRun");
 
-  }else if( newLumiBlock ){
+  }else if( newLumiBlockFlag() ){
   }
 
   return StatusCode::SUCCESS;
@@ -298,7 +298,7 @@ StatusCode HLTMuonMonTool::bookChainDQA()
   }
 
 
-  // YY adding Generic monitoring (using only TDT information for muFast, muComb and an EF algorithm)
+  // YY adding Generic monitoring (using only TDT information for L2MuonSA, muComb and an EF algorithm)
   for (it = m_histChainGeneric.begin(); it != m_histChainGeneric.end(); it++) {
     StatusCode sc = bookChainDQA_generic(*it,false);
     if (sc.isFailure()) {
@@ -323,7 +323,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
 {
   std::string chainName = cName;  // YY modified 26.06.2011
 
-  if( newRun ) {
+  if( newRunFlag() ) {
 
     ATH_MSG_DEBUG("bookChainDQA_MSonly for chain=" << chainName );
 
@@ -404,7 +404,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
     int phi_bins = 96;
     float phi_range = CLHEP::pi;
 
-    std::string monalg[3]={"_MuFast", "_MuonEFMS", "_MuonEFSA"};
+    std::string monalg[3]={"_L2MuonSA", "_MuonEFMS", "_MuonEFSA"};
     std::string bestr[2] = {"_Barrel", "_Endcap"};
 
 
@@ -428,7 +428,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
 	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
 	hist(name, m_histdireffnumdenom)->Sumw2();
 
-	name     = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
+	name     = chainName + m_triggerES[i] + "_L2MuonSA" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
 	nameaxis = name + "; Muid CB pT (GeV); Events";
 	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
 	hist(name, m_histdireffnumdenom)->Sumw2();
@@ -459,7 +459,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
       addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
       hist(name, m_histdireffnumdenom)->Sumw2();
 
-      // Barrel/endcap (YY 27.05.10) - Monitoring MuFast, MuonEFSA wrt offline
+      // Barrel/endcap (YY 27.05.10) - Monitoring L2MuonSA, MuonEFSA wrt offline
       for (int be = 0; be < 2; be++) {
 	name     = chainName + "_Turn_On_Curve_wrt_MuidSA" + bestr[be] + "_Denominator";
 	nameaxis = name + "; Muid SA pT (GeV); Events";
@@ -471,7 +471,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
     chainName = cName;
     pt_bins = lopt_bins;
 
-    std::string wrtalg[3]={"_L1", "_MuFast", "_MuFast"};
+    std::string wrtalg[3]={"_L1", "_L2MuonSA", "_L2MuonSA"};
 
     // wrt upstream
     for(int alg=0; alg<3;alg++){
@@ -543,8 +543,8 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
 	hist(name, m_histdireff)->Sumw2();
       }
 
-      // Barrel/endcap (YY 27.05.10) - Monitoring MuFast, MuonEFSA wrt upstream / offline
-      // monalg[3]={"_MuFast", "_MuonEFMS", "_MuonEFSA"}; -> select {0, 2}
+      // Barrel/endcap (YY 27.05.10) - Monitoring L2MuonSA, MuonEFSA wrt upstream / offline
+      // monalg[3]={"_L2MuonSA", "_MuonEFMS", "_MuonEFSA"}; -> select {0, 2}
       if (0 == alg || 2 == alg) {
 	for (int ihpt = 0; ihpt < 2; ihpt++) {  // reserving also high-pt and MSb histograms for wrt offline 
 	  // remove hpt histograms (Li Yuan 27.02.13)
@@ -625,25 +625,25 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
       } 
       addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 0.5+m_fEFSA), m_histdireff);
       TH1 *h = hist(name, m_histdireff);
-      h->GetXaxis()->SetBinLabel(iMuFast+1, "MuFast");
+      h->GetXaxis()->SetBinLabel(iL2MuonSA+1, "L2MuonSA");
       h->GetXaxis()->SetBinLabel(iEFSA+1, "EF SA");
     }
 
     // High-pt 3-bin summary:
     name = chainName + "_highpt3bins_effwrtL1";
-    nameaxis = name + "; pt bins; efficiency";
+    nameaxis = name + "; pt bins; Efficiency";
     addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), m_histdireff);
     TH1 *h = hist(name, m_histdireff);
     if(!m_HI_pp_mode){ 
       h->GetXaxis()->SetBinLabel(1, "12-20 GeV Z T&P");
       h->GetXaxis()->SetBinLabel(2, "20-25 GeV Z T&P");
     }else{ 
-      h->GetXaxis()->SetBinLabel(1, "50-100 GeV Z T&P");
+      h->GetXaxis()->SetBinLabel(1, "60-100 GeV Z T&P");
       h->GetXaxis()->SetBinLabel(2, "100-500 GeV Z T&P");
     }
     ATH_MSG_DEBUG("end bookChainDQA_MSonly for chain=" << chainName );
 
-  } else if(newLumiBlock ){
+  } else if(newLumiBlockFlag()){
   }
 
   return StatusCode::SUCCESS;
@@ -653,7 +653,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
 {
   std::string chainName = cName;  // YY modified 26.06.2011
 
-  if( newRun ) {
+  if( newRunFlag() ) {
 
     ATH_MSG_DEBUG("bookChainDQA_standard for chain=" << chainName ); 
 
@@ -805,15 +805,15 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
 
       // FS trigger efficiency summary for barrel and endcap
       name = chainName + "_EFplateau_wrtOffline";
-      nameaxis = name + "; region; efficiency";
+      nameaxis = name + "; Region; Efficiency";
       addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), m_histdireff);
       h = hist(name, m_histdireff);
       if(!m_HI_pp_mode){
       h->GetXaxis()->SetBinLabel(1, "Barrel 4-25 GeV");
       h->GetXaxis()->SetBinLabel(2, "Endcap 4-25 GeV");
       }else{
-      h->GetXaxis()->SetBinLabel(1, "Barrel 10-100 GeV");
-      h->GetXaxis()->SetBinLabel(2, "Endcap 10-100 GeV");
+      h->GetXaxis()->SetBinLabel(1, "Barrel 25-100 GeV");
+      h->GetXaxis()->SetBinLabel(2, "Endcap 25-100 GeV");
       }
       // not requiring one muon match with the pre_trigger ROI, only check the efficiency vs subleading pT muon
       name = chainName + "_Turn_On_Curve_wrt_subleading_MuidCB" + "_Denominator";
@@ -873,7 +873,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
     }
     //*****************************************//
 
-  } else if( newLumiBlock ){
+  } else if(newLumiBlockFlag()){
   }
 
   return StatusCode::SUCCESS;
@@ -885,7 +885,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 {
   std::string chainName = cName;  // YY modified 26.06.2011
 
-  if( newRun ) {
+  if( newRunFlag() ) {
 
     ATH_MSG_DEBUG("bookChainDQA_generic for chain=" << chainName ); 
 
@@ -968,7 +968,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
     int phi_bins = 96;
     float phi_range = CLHEP::pi;
 
-    std::string monalg[3]={"_MuFast", "_MuComb", "_EFmuon"};
+    std::string monalg[3]={"_L2MuonSA", "_MuComb", "_EFmuon"};
     std::string bestr[2] = {"_Barrel", "_Endcap"};
 
 
@@ -992,7 +992,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
 	hist(name, m_histdireffnumdenom)->Sumw2();
 
-	name     = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
+	name     = chainName + m_triggerES[i] + "_L2MuonSA" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
 	nameaxis = name + "; Muid CB pT (GeV); Events";
 	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
 	hist(name, m_histdireffnumdenom)->Sumw2();
@@ -1034,7 +1034,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
       addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
       hist(name, m_histdireffnumdenom)->Sumw2();
 
-      // Barrel/endcap (YY 20.05.10) - Monitoring MuFast, MuComb, MuonEFCB wrt offline
+      // Barrel/endcap (YY 20.05.10) - Monitoring L2MuonSA, MuComb, MuonEFCB wrt offline
       for (int be = 0; be < 2; be++) {
 	name     = chainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
 	nameaxis = name + "; Muid CB pT (GeV); Events";
@@ -1043,7 +1043,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
       }
     }
 
-    std::string wrtalg[3] = {"_L1", "_MuFast", "_MuComb"};
+    std::string wrtalg[3] = {"_L1", "_L2MuonSA", "_MuComb"};
 
     for (int alg = 0; alg < 3; alg++) {
 
@@ -1140,7 +1140,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 
 
 
-      // Barrel/endcap (YY 20.05.10) - Monitoring MuFast, MuComb, MuonEFCB wrt upstream / offline
+      // Barrel/endcap (YY 20.05.10) - Monitoring L2MuonSA, MuComb, MuonEFCB wrt upstream / offline
       for (int ihpt = 0; ihpt < 3; ihpt++) {  // reserving also high-pt and MSb histograms for wrt upstream
 	//trigger not-aware = wrt offline
 	if (ihpt == 0) {
@@ -1265,11 +1265,11 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
       if( !m_HI_pp_mode ){
 	nameaxis = name + "; Algorithm ; Express efficiency 15-25GeV"; 
       }else{
-	nameaxis = name + "; Algorithm ; Express efficiency 40-100GeV"; 
+	nameaxis = name + "; Algorithm ; Express efficiency 60-100GeV"; 
       }
       addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 3, -0.5, 0.5+m_fEFCB), m_histdireff); // for generic
       TH1 *h = hist(name, m_histdireff);
-      h->GetXaxis()->SetBinLabel(iMuFast+1, "MuFast");
+      h->GetXaxis()->SetBinLabel(iL2MuonSA+1, "L2MuonSA");
       h->GetXaxis()->SetBinLabel(iMuComb+1, "MuComb");
       h->GetXaxis()->SetBinLabel(iEFCB+1, "EF algorithm"); // for generic
       // h->GetXaxis()->SetBinLabel(iMuGirl+1, "MuGirl");
@@ -1278,27 +1278,27 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
     // High-pt 3-bin summary: always 2bins now 
     if (!isIsoOffline) {
       name = chainName + "_highpt3bins_effwrtL1";
-      nameaxis = name + "; pt bins; efficiency";
+      nameaxis = name + "; pt bins; Efficiency";
       addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), m_histdireff);
       TH1 *h = hist(name, m_histdireff);
       if(!m_HI_pp_mode){
 	h->GetXaxis()->SetBinLabel(1, "12-20 GeV Jpsi T&P");
 	h->GetXaxis()->SetBinLabel(2, "20-25 GeV Jpsi T&P");
       }else{
-	h->GetXaxis()->SetBinLabel(1, "50-100 GeV Z T&P");
+	h->GetXaxis()->SetBinLabel(1, "60-100 GeV Z T&P");
 	h->GetXaxis()->SetBinLabel(2, "100-500 GeV Z T&P");
       }
     } else {
       name = chainName + "_highpt3bins_effwrtL1";
-      nameaxis = name + "; pt bins; efficiency";
+      nameaxis = name + "; pt bins; Efficiency";
       addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), m_histdireff);
       TH1 *h = hist(name, m_histdireff);
       if( !m_HI_pp_mode ){
 	h->GetXaxis()->SetBinLabel(1, "12-20 GeV Jpsi T&P");
 	h->GetXaxis()->SetBinLabel(2, "20-25 GeV Jpsi T&P");
       }else{
-	h->GetXaxis()->SetBinLabel(1, "30-50 GeV Z T&P");
-	h->GetXaxis()->SetBinLabel(2, "50-100 GeV Z T&P");
+	h->GetXaxis()->SetBinLabel(1, "60-100 GeV Z T&P");
+	h->GetXaxis()->SetBinLabel(2, "100-500 GeV Z T&P");
       }
     }      
 
@@ -1311,12 +1311,12 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
     h->GetXaxis()->SetBinLabel(1, "Barrel 12-20 GeV Jpsi T&P");
     h->GetXaxis()->SetBinLabel(2, "Endcap 12-20 GeV Jpsi T&P");
     }else{
-    h->GetXaxis()->SetBinLabel(1, "Barrel 30-100 GeV Z T&P");
-    h->GetXaxis()->SetBinLabel(2, "Endcap 30-100 GeV Z T&P");
+    h->GetXaxis()->SetBinLabel(1, "Barrel 60-100 GeV Z T&P");
+    h->GetXaxis()->SetBinLabel(2, "Endcap 60-100 GeV Z T&P");
     }
     ATH_MSG_DEBUG("end bookChainDQA_standard for chain=" << chainName );
 
-  } else if( newLumiBlock ){
+  } else if(newLumiBlockFlag()){
   }
 
   return StatusCode::SUCCESS;
@@ -1352,28 +1352,30 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	}
       }
 
-
-      //get Event Info
-      const DataHandle<EventInfo> evt;
-      StatusCode sc = m_storeGate->retrieve(evt);
-      if ( sc.isFailure() ) {
-	ATH_MSG_ERROR(" Cannot retrieve EventInfo ");
-	hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
-	return StatusCode::FAILURE;
+      const EventInfo* evt(nullptr);
+      int event, run;
+      if( StatusCode::SUCCESS == evtStore()->retrieve(evt)){
+        event = evt->event_ID()->event_number();
+        run = evt->event_ID()->run_number();
+         ATH_MSG_DEBUG (" EventInfo : "   << " event: " << event << " run: " << run);
+      }else{
+         ATH_MSG_WARNING (" Unable to retrieve EventInfo from StoreGate ");
+ 	 hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
+         return StatusCode::SUCCESS;
       }
 
-      if( !evt.isValid() ){
-	ATH_MSG_FATAL(" Could not find event");
-	hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
-	return StatusCode::FAILURE;
+      if( !evt ){
+      	ATH_MSG_WARNING(" Could not find event");
+      	hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
+      	return StatusCode::SUCCESS;
       }
 
       const EventID* evtid = evt->event_ID();
 
       if(! evtid ){
-	ATH_MSG_FATAL(" no evtid object");
+	ATH_MSG_WARNING(" no evtid object");
 	hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
-	return StatusCode::FAILURE;
+	return StatusCode::SUCCESS;
       }
 
       m_lumiblock = evtid->lumi_block() ;
@@ -1528,10 +1530,10 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	fillTriggerOverlap();
 
 	//new check L1 flag
-	sc = fillL1MuRoI();
+	StatusCode sc = fillL1MuRoI();
 	if ( sc.isFailure() ) {
-	  ATH_MSG_ERROR(" Cannot retrieve MuonRoIInfo ");
-	  return StatusCode::FAILURE;
+	  ATH_MSG_WARNING(" Cannot retrieve MuonRoIInfo ");
+	  return StatusCode::SUCCESS;
 	}
 
 	return StatusCode::SUCCESS;
@@ -1575,7 +1577,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	      retval = StatusCode::RECOVERABLE;
 	    }
 	  }
-
 	  for(it=m_chainsGeneric.begin(), itr=0; it != m_chainsGeneric.end() ; it++,itr++ ){
 	    StatusCode sc = fillChainDQA_generic(*it, m_histChainGeneric[itr], false);
 	    if (sc.isFailure()) {
@@ -1860,10 +1861,10 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	      }
 	    }
 
-	    // L2 muFast
+	    // L2 L2MuonSA
 	    float dr_min_l2 = 9999;
 	    int   id_min_l2 = -1;
-	    std::string monalg = "_MuFast";
+	    std::string monalg = "_L2MuonSA";
 	    std::string wrtalg = "_L1";
 
 	    for(int iL2=0; iL2<(int)combsHLT.size(); iL2++) {
@@ -1905,7 +1906,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		  name     = histcName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 		  ATH_MSG_DEBUG( name << " filling" );
 		  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
-		  // Barrel/Endcap for L1  : monalg = MuFast, wrtalg = L1
+		  // Barrel/Endcap for L1  : monalg = L2MuonSA, wrtalg = L1
 		  name     = histcName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelSA] + "_Denominator";
 		  ATH_MSG_DEBUG( name << " filling" );
 		  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
@@ -1960,7 +1961,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    int   id_min_ef = -1;
 	    int   last_step = -1;
 	    monalg = "_MuonEFMS";
-	    wrtalg = "_MuFast";
+	    wrtalg = "_L2MuonSA";
 	    std::string monalg2 = "_MuonEFSA";
 
 
@@ -2420,7 +2421,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	      if( my_dr_min_l2 < DR_CUT && my_id_min_l2 != -1) {
 
 		match_L2_RoI[n_mu] = 1;
-		// check the muon fire mu24_tight ROI or not   MuFast
+		// check the muon fire mu24_tight ROI or not   L2MuonSA
 		bool mf_active = false;
 		std::vector< Feature<xAOD::L2StandAloneMuonContainer> > mf = my_combsHLT[my_id_min_l2].get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);
 		if( mf.size() == 1 ) {
@@ -2496,7 +2497,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	      if( my_dr_min_l2 < DR_CUT && my_id_min_l2 != -1 ) {
 
 		match_L2_RoI[n_mu] = 1;
-		// check the muon fire mu24_tight ROI or not   MuFast
+		// check the muon fire mu24_tight ROI or not   L2MuonSA
 		bool mf_active = false;
 		std::vector< Feature<xAOD::L2StandAloneMuonContainer> > mf = my_combsHLT_mu24_imedium[my_id_min_l2].get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);
 		if( mf.size() == 1 ) {
@@ -2603,12 +2604,20 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	      }
 	    }
 
-	    const DataHandle<EventInfo> evt;
-	    sc = m_storeGate->retrieve(evt);
-	    if ( sc.isFailure() ) {
-	      ATH_MSG_ERROR(" Cannot retrieve EventInfo ");
-	      return StatusCode::FAILURE;
+
+	    const EventInfo* evt;
+	    int event, run;
+	    if( StatusCode::SUCCESS == evtStore()->retrieve(evt)){
+	      event = evt->event_ID()->event_number();
+	      run = evt->event_ID()->run_number();
+	      ATH_MSG_DEBUG (" EventInfo : "   << " event: " << event << " run: " << run);
+
+	    }else{
+	      ATH_MSG_WARNING (" Unable to retrieve EventInfo from StoreGate ");
+	      return StatusCode::SUCCESS;
+
 	    }
+
 	    float mean_mu = evt->averageInteractionsPerCrossing();
 
 	    // start to dump the probe muon information //
@@ -2711,7 +2720,6 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 
 	  FeatureContainer fHLT = getTDT()->features(chainName,TrigDefs::alsoDeactivateTEs);  
 
-
 	  std::vector<Combination> combsHLT = fHLT.getCombinations();
 	  ATH_MSG_DEBUG("nr combsHLT=" << combsHLT.size());  
 	  for(std::vector<Combination>::const_iterator it=combsHLT.begin(); it!=combsHLT.end(); it++) {
@@ -2727,6 +2735,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	  // loop on each CB probe
 
 	  //float isolThresh = (isIsolOffline ? 0.1 : 0.5);
+	  //float isolThresh =  0.5;  //looser isolation in run2
 	  float isolThresh = (isIsolOffline ? 0.06 : 0.5);  // tighter isolation in run2
 
 	  for(int i_rec=0; i_rec<(int)m_RecMuonCB_pt.size(); i_rec++) {
@@ -2747,6 +2756,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    if ((rec_ptcone30*0.001) / rec_pt > isolThresh) continue; // use cone30 in run2 
 
 	    ATH_MSG_DEBUG("++ i_rec=" << i_rec);
+	    //ATH_MSG_INFO("rec: eta/phi/pt=" << rec_eta << " / " << rec_phi << " / " << rec_pt);
 	    ATH_MSG_DEBUG("rec: eta/phi/pt=" << rec_eta << " / " << rec_phi << " / " << rec_pt);
 	    // if( rec_pt > 50. ) rec_pt = 50.;
 	    // if( rec_pt > 100. ) rec_pt = 100.;
@@ -2776,6 +2786,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    // if (ES_lower_passed) {}
 	    // ES trigger-aware
 	    for (int i = 0; i <= m_maxESbr; i++) {
+		name     = HistchainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
 	      if(!m_CB_mon_ESbr[i])continue; 
 	      if (m_passedES[i]) {
 		name     = HistchainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
@@ -2788,13 +2799,13 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	      }
 	    }
 
-	    // L2 muFast and muComb
+	    // L2 L2MuonSA and muComb
 	    float dr_min_l2 = 9999;
 	    int   id_min_l2 = -1;
-	    std::string monalg  = "_MuFast";
+	    std::string monalg  = "_L2MuonSA";
 	    std::string monalg2 = "_MuComb";
 	    std::string wrtalg = "_L1";
-	    std::string wrtalg2 = "_MuFast";
+	    std::string wrtalg2 = "_L2MuonSA";
 
 	    for(int iL2=0; iL2<(int)combsHLT.size(); iL2++) {
 	      //std::vector< Feature<TrigRoiDescriptor> > initRois = fHLT.get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
@@ -2843,18 +2854,18 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		  name     = HistchainName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 		  ATH_MSG_DEBUG( name << " filling" );
 		  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
-		  // Barrel/Endcap for L1  : monalg = MuFast, wrtalg = L1
+		  // Barrel/Endcap for L1  : monalg = L2MuonSA, wrtalg = L1
 		  name     = HistchainName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
 		  ATH_MSG_DEBUG( name << " filling" );
 		  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 		}
 	      }
 
-	      // === MuFast ===
+	      // === L2MuonSA ===
 	      bool mf_active = false;
 	      std::vector< Feature<xAOD::L2StandAloneMuonContainer> > mf = combsHLT[id_min_l2].get<xAOD::L2StandAloneMuonContainer>("MuonL2SAInfo",TrigDefs::alsoDeactivateTEs);
 
-	      ATH_MSG_DEBUG(" MuFast container size: "<< mf.size());  
+	      ATH_MSG_DEBUG(" L2MuonSA container size: "<< mf.size());  
 	      if( mf.size() == 1 ) {
 		mf_active = mf[0].te()->getActiveState();
 		ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*mf[0].te()) << " / " << mf_active); 
@@ -2887,14 +2898,14 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		  }
 
 		  // 2D coverage hist
-		  ATH_MSG_DEBUG ( "Offline/muFast pt" << rec_pt << ", " << mf_pt );
-		  ATH_MSG_DEBUG ( "Offline/muFast eta" << rec_eta << ", " << mf_eta );
-		  ATH_MSG_DEBUG ( "Offline/muFast phi" << rec_phi << ", " << mf_phi );
+		  ATH_MSG_DEBUG ( "Offline/L2MuonSA pt" << rec_pt << ", " << mf_pt );
+		  ATH_MSG_DEBUG ( "Offline/L2MuonSA eta" << rec_eta << ", " << mf_eta );
+		  ATH_MSG_DEBUG ( "Offline/L2MuonSA phi" << rec_phi << ", " << mf_phi );
 		  name     = HistchainName + monalg + "_etaphi_wrt_MuidCB";
 		  hist2(name, m_histdirdist2d)->Fill(mf_eta, mf_phi);
 		  name     = HistchainName + monalg + "_etaphi_coarse_wrt_MuidCB";
 		  hist2(name, m_histdirdist2d)->Fill(mf_eta, mf_phi);
-		  // 1D covarage: muFast only
+		  // 1D covarage: L2MuonSA only
 		  name     = HistchainName + monalg + "_eta_wrt_MuidCB";
 		  hist(name, m_histdirdist2d)->Fill(mf_eta);
 		  name     = HistchainName + monalg + "_phi_wrt_MuidCB";
@@ -3237,6 +3248,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		// if (ES_lower_passed) {}
 		// ES trigger-aware
 		for (int i = 0; i <= m_maxESbr; i++) {
+		    name     = HistchainName + m_triggerES[i] + monalg3 + "_Turn_On_Curve_Numerator";
 		  if(!m_CB_mon_ESbr[i])continue; 
 		  if (m_passedES[i]) {
 		    ATH_MSG_DEBUG("last step " << last_step );
@@ -3315,7 +3327,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	  }
 
 
-	  if(endOfRun){
+	  if(endOfRunFlag()){
 	    //triggers/event
 	    for(std::map<std::string, std::string>::iterator it=m_ztpmap.begin(); it != m_ztpmap.end() ; it++ ){
 
@@ -3338,11 +3350,11 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	  std::string numer;
 	  std::string effi;
 
-	  if( endOfRun ){
+	  if( endOfRunFlag() ){
 
-	    std::string monalg[3]={"_MuFast", "_MuonEFMS", "_MuonEFSA"};
+	    std::string monalg[3]={"_L2MuonSA", "_MuonEFMS", "_MuonEFSA"};
 
-	    std::string wrtalg[3]={"_L1", "_MuFast", "_MuFast"};
+	    std::string wrtalg[3]={"_L1", "_L2MuonSA", "_L2MuonSA"};
 	    std::string bestr[2] = {"_Barrel", "_Endcap"};
 
 	    //wrt SA muon && Upstream trigger
@@ -3366,7 +3378,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		}
 		int ibin_holx = -1;
 		if (0 == alg) {
-		  int ibintmp = iMuFast;
+		  int ibintmp = iL2MuonSA;
 		  ibin_holx = ibintmp;
 		} else if (2 == alg) {
 		  int ibintmp = iEFSA;  
@@ -3393,12 +3405,12 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		  // L1 efficiency: new for 2011 HI runs and afterward
 		  // only division once since it is "the zero-th" algorithm
 		  denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA_Denominator";
-		  numer = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + "_Denominator";
+		  numer = chainName + m_triggerES[i] + "_L2MuonSA" + "_Turn_On_Curve_wrt" + "_L1" + "_Denominator";
 		  effi  = chainName + m_triggerES[i] + "_L1" + "_Turn_On_Curve_wrt_MuidSA";
 		  // Need to implement barrel and endcap ...
 		  for (int be = 0; be < 2; be++) {
 		    denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA" + bestr[be] + "_Denominator";
-		    numer = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
+		    numer = chainName + m_triggerES[i] + "_L2MuonSA" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
 		    effi  = chainName + m_triggerES[i] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidSA";
 		  }
 		}
@@ -3421,7 +3433,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		  }
 		  int ibin_holx = -1;
 		  if (0 == alg) {
-		    int tmp_idx =  iMuFast;
+		    int tmp_idx =  iL2MuonSA;
 		    ibin_holx   =  tmp_idx;
 		  } else if (2 == alg) {
 		    int tmp_idx = iEFSA;
@@ -3471,7 +3483,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	      refill_2d1d_coarse(h2d, h1d);
 	    }
 
-	  } else if( endOfLumiBlock ){
+	  } else if( endOfLumiBlockFlag() ){
 	  }
 
 	  return StatusCode::SUCCESS;
@@ -3491,11 +3503,11 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    iSTDL = 17;
 	    iSTDH = 75;
 	  }else{
-	    iSTDL = 39;
+	    iSTDL = 75;//25GeV
 	    iSTDH = 120;
 	  }
 
-	  if( endOfRun ){
+	  if( endOfRunFlag() ){
 
 
 	    // add by Yuan :  to book the histogram //
@@ -3609,7 +3621,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 
 	    }
 
-	  } else if( endOfLumiBlock ){
+	  } else if(endOfLumiBlockFlag()){
 	  }
 	  return StatusCode::SUCCESS;
 	  //*****************************************//
@@ -3624,10 +3636,10 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	  std::string numer;
 	  std::string effi;
 
-	  if( endOfRun ){
-	    std::string monalg[3]={"_MuFast", "_MuComb", "_EFmuon"};
+	  if( endOfRunFlag() ){
+	    std::string monalg[3]={"_L2MuonSA", "_MuComb", "_EFmuon"};
 
-	    std::string wrtalg[3]={"_L1", "_MuFast", "_MuComb"};
+	    std::string wrtalg[3]={"_L1", "_L2MuonSA", "_MuComb"};
 	    std::string bestr[2] = {"_Barrel", "_Endcap"};
 
 	    //wrt CB muon && Upstream trigger
@@ -3656,12 +3668,12 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		  // L1 efficiency: new for 2011 HI runs and afterward
 		  // only division once since it is "the zero-th" algorithm
 		  denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-		  numer = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + "_Denominator";
+		  numer = chainName + m_triggerES[i] + "_L2MuonSA" + "_Turn_On_Curve_wrt" + "_L1" + "_Denominator";
 		  effi  = chainName + m_triggerES[i] + "_L1" + "_Turn_On_Curve_wrt_MuidCB";
 		  // Need to implement barrel and endcap ...
 		  for (int be = 0; be < 2; be++) {
 		    denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
-		    numer = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
+		    numer = chainName + m_triggerES[i] + "_L2MuonSA" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
 		    effi  = chainName + m_triggerES[i] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
 
 		    if (ESINDEP == i) {
@@ -3704,7 +3716,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		  }
 		  int ibin_holx = -1;
 		  if (0 == alg) {
-		    ibin_holx = iMuFast;
+		    ibin_holx = iL2MuonSA;
 		  } else if (1 == alg) {
 		    ibin_holx = iMuComb;
 		  } else if (2 == alg) {
@@ -3763,7 +3775,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		TH1F *h1d = (TH1F *)hist(numer, m_histdirdist2d);
 		refill_2d1d_coarse(h2d, h1d);
 	      }
-	    } else if( endOfLumiBlock ){
+	    } else if(endOfLumiBlockFlag() ){
 	    }
 
 	    return StatusCode::SUCCESS;
@@ -3776,7 +3788,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    // std::string charr[4] = {"mu20", "mu20_MG", "mu15i", "mu40_MSonly_barrel"};
 	    // std::string charr[4] = {"mu22_medium", "mu22_MG_medium", "mu20i_medium", "mu40_MSonly_barrel_medium"};
 	    // std::string monarr[4] = {"_MuonEFCB", "_MuGirlEF", "_MuonEFCB", "_MuonEFSA"};
-	    // std::string monL2arr[4] = {"_MuFast", "_MuGirlL2", "_MuIso", "_MuFast"};
+	    // std::string monL2arr[4] = {"_L2MuonSA", "_MuGirlL2", "_MuIso", "_L2MuonSA"};
 	    // pp_v4
 
 	    int MAXARR = 0;
@@ -3791,7 +3803,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	      MAXARR++;
 	      charr.push_back("muChain"+std::to_string(ich+1));
 	      monarr.push_back("_EFmuon");
-	      monL2arr.push_back("_MuFast");
+	      monL2arr.push_back("_L2MuonSA");
 	      isBarrelMon.push_back(false);
 	      isMSbMon.push_back(true);
 	      monL1.push_back(true);
@@ -3801,7 +3813,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	      MAXARR++;
 	      charr.push_back("muChainEFiso"+std::to_string(ich+1));
 	      monarr.push_back("_EFmuon");
-	      monL2arr.push_back("_MuFast");
+	      monL2arr.push_back("_L2MuonSA");
 	      isBarrelMon.push_back(false);
 	      isMSbMon.push_back(false);
 	      monL1.push_back(true);
@@ -3811,7 +3823,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	      MAXARR++;
 	      charr.push_back("muChainMSonly"+std::to_string(ich+1));
 	      monarr.push_back("_MuonEFSA");
-	      monL2arr.push_back("_MuFast");
+	      monL2arr.push_back("_L2MuonSA");
 	      isBarrelMon.push_back(true);
 	      isMSbMon.push_back(false);
 	      monL1.push_back(false);
@@ -3822,7 +3834,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    //  const int MAXARR = 3;
 	    //  std::string charr[MAXARR] = {"mu36_tight", "mu24i_tight", "mu50_MSonly_barrel_tight"};
 	    //  std::string monarr[MAXARR] = {"_EFmuon", "_EFmuon", "_MuonEFSA"};
-	    //  std::string monL2arr[MAXARR] = {"_MuFast", "_MuFast", "_MuFast"};
+	    //  std::string monL2arr[MAXARR] = {"_L2MuonSA", "_L2MuonSA", "_L2MuonSA"};
 	    //  bool isBarrelMon[MAXARR] = {false, false, true}; // enable MSonly
 	    //  bool isMSbMon[MAXARR] = {true, false, false}; // Skip isol and MSonly
 	    //  bool monL1[MAXARR] = {true, true, false}; // Skip MSonly
@@ -3833,7 +3845,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    //    return StatusCode::SUCCESS;
 	    //  }
 
-	    if (endOfRun) {
+	    if (endOfRunFlag()) {
 	      for (int ialg = 0; ialg < MAXARR; ialg++) {
 		std::string chainName = charr[ialg];
 		std::string MoniAlg = monarr[ialg];
@@ -3912,8 +3924,10 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		  sumd = hist(histZtpDenB, hdirztp)->Integral(13, 25);
 		  
 		  }else{
-		  sumn = hist(histZtpNumB, hdirztp)->Integral(7, 10); // 30-50 GeV
-		  sumd = hist(histZtpDenB, hdirztp)->Integral(7, 10);
+		  sumn = hist(histZtpNumB, hdirztp)->Integral(13, 20); // 60-100 GeV
+		  //sumn = hist(histZtpNumB, hdirztp)->Integral(7, 10); // 30-50 GeV
+		  sumd = hist(histZtpDenB, hdirztp)->Integral(13, 20);
+		  //sumd = hist(histZtpDenB, hdirztp)->Integral(7, 10);
 		  }
 		  if (sumd == 0.) {
 		    sumeff = 0.;
@@ -3931,8 +3945,10 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		    sumn = hist(histZtpDenB, hdirztp)->Integral(13, 25);
 		    //sumn = hist(histZtpDenB, hdirztp)->Integral(16, 25);
 		  }else{
-		    sumn = hist(histZtpNumE, hdirztp)->Integral(7, 10);
-		    sumd = hist(histZtpDenE, hdirztp)->Integral(7, 10);
+		    //sumn = hist(histZtpNumE, hdirztp)->Integral(7, 10);
+		    sumn = hist(histZtpNumE, hdirztp)->Integral(13, 20);
+		    sumd = hist(histZtpDenE, hdirztp)->Integral(13, 20);
+		    //sumd = hist(histZtpDenE, hdirztp)->Integral(7, 10);
 		  }
 		  if (sumd == 0.) {
 		    sumeff = 0.;
@@ -3947,7 +3963,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		}
 	      }
 
-	    } else if (endOfLumiBlock) {
+	    } else if (endOfLumiBlockFlag()) {
 	    }
 	    return StatusCode::SUCCESS;
 	  }
@@ -4317,26 +4333,27 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    //
 	    // Process current event
 	    //
-	    const DataHandle<EventInfo> event_handle;
-	    if(m_storeGate -> retrieve(event_handle).isFailure()) {
-	      if (errcnt < 1) {
-		ATH_MSG_DEBUG("Failed to read EventInfo");
-		errcnt++;
-	      }
-	      return retvect;
-	    }
+	   
+      const EventInfo* event_handle(nullptr);
+      if(StatusCode::FAILURE==evtStore() -> retrieve(event_handle)){
+	if (errcnt < 1) {
+	  ATH_MSG_DEBUG("Failed to read EventInfo");
+	  errcnt++;
+	}
+	return retvect;
+      }
 
-	    //
-	    // Print EventInfo and stream tags
-	    //
-	    const TriggerInfo *trig = event_handle->trigger_info();
-	    if(!trig) {
-	      if (errcnt < 1) {
-		ATH_MSG_DEBUG("Failed to get TriggerInfo");
-		errcnt++;
-	      }
-	      return retvect;
-	    }
+      //
+      // Print EventInfo and stream tags
+      //
+      const TriggerInfo *trig = event_handle->trigger_info();
+      if(!trig) {
+	if (errcnt < 1) {
+	  ATH_MSG_DEBUG("Failed to get TriggerInfo");
+	  errcnt++;
+	}
+	return retvect;
+      }
 
 	    const std::vector<TriggerInfo::StreamTag> &streams = trig->streamTags();
 
@@ -4531,17 +4548,22 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	    sc = m_storeGate->retrieve(lvl1Roi, muonKey);
 	    if ( sc.isFailure() ) {
 	      ATH_MSG_DEBUG(" Cannot retrieve LVL1 Muon container");
-	      return StatusCode::FAILURE;
+	      return StatusCode::SUCCESS;
 	    }
 
+	    const EventInfo* eventInfo;
+	    int event, run;
+	    if( StatusCode::SUCCESS == evtStore()->retrieve(eventInfo)){
+	      event = eventInfo->event_ID()->event_number();
+	      run = eventInfo->event_ID()->run_number();
+	      ATH_MSG_DEBUG (" EventInfo : "   << " event: " << event << " run: " << run);
 
-	    const DataHandle<EventInfo> eventInfo;
-	    sc = m_storeGate->retrieve(eventInfo);
-	    if ( sc.isFailure() ) {
-	      ATH_MSG_ERROR(" Cannot retrieve EventInfo ");
-	      hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
-	      return StatusCode::FAILURE;
+	    }else{
+	      ATH_MSG_WARNING (" Unable to retrieve EventInfo from StoreGate ");
+	      return StatusCode::SUCCESS;
+
 	    }
+
 	    EventID::number_type bcid = eventInfo->event_ID()->bunch_crossing_id();
 
 	    bool filled = m_bunchTool->isFilled(bcid);

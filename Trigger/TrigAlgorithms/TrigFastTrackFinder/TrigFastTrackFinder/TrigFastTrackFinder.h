@@ -182,11 +182,11 @@ protected:
   std::vector<float> m_trk_dEta;
   //std::vector<double> m_sp_x, m_sp_y, m_sp_z, m_sp_r;//Spacepoint coordinates
   //
-  std::vector<float> m_IBL_layer;
-  std::vector<float> m_PixB_layer;
-  std::vector<float> m_PixEC_layer;
-  std::vector<float> m_SCTB_layer;
-  std::vector<float> m_SCTEC_layer;
+  std::vector<int> m_IBL_layer;
+  std::vector<int> m_PixB_layer;
+  std::vector<int> m_PixE_layer;
+  std::vector<int> m_SCTB_layer;
+  std::vector<int> m_SCTE_layer;
 
   std::vector<double> m_iblResPhi;
   std::vector<double> m_iblResEta;
@@ -218,6 +218,21 @@ protected:
   std::vector<double> m_pixResEtaECL2;
   std::vector<double> m_pixResPhiECL3;
   std::vector<double> m_pixResEtaECL3;
+
+  std::vector<double> m_sctResPhiBarrelL1;
+  std::vector<double> m_sctResPhiBarrelL2;
+  std::vector<double> m_sctResPhiBarrelL3;
+  std::vector<double> m_sctResPhiBarrelL4;
+
+  std::vector<double> m_sctResPhiEndcapL1;
+  std::vector<double> m_sctResPhiEndcapL2;
+  std::vector<double> m_sctResPhiEndcapL3;
+  std::vector<double> m_sctResPhiEndcapL4;
+  std::vector<double> m_sctResPhiEndcapL5;
+  std::vector<double> m_sctResPhiEndcapL6;
+  std::vector<double> m_sctResPhiEndcapL7;
+  std::vector<double> m_sctResPhiEndcapL8;
+  std::vector<double> m_sctResPhiEndcapL9;
 
   // Monitoring member functions 
 

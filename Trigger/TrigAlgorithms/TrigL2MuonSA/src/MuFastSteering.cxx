@@ -403,6 +403,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
 
       // Data preparation
       m_rpcHits.clear();
+      m_tgcHits.clear();     
       sc = m_dataPreparator->prepareData(*p_roi,
                                          *p_roids,
                                          m_rpcHits,
@@ -422,7 +423,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->pause();
 
       if ( m_rpcErrToDebugStream && m_dataPreparator->isRpcFakeRoi() ) {
-        ATH_MSG_WARNING("Invalid RoI in RPC data found: event to debug stream");
+        ATH_MSG_ERROR("Invalid RoI in RPC data found: event to debug stream");
 	TrigL2MuonSA::TrackPattern trackPattern;
 	m_trackPatterns.push_back(trackPattern);
 	updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
@@ -474,6 +475,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       ATH_MSG_DEBUG("Endcap");
 
       // Data preparation
+      m_rpcHits.clear();
       m_tgcHits.clear();     
       sc = m_dataPreparator->prepareData(*p_roi,
                                          *p_roids,

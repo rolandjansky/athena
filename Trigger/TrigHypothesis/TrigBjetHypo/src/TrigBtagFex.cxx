@@ -22,7 +22,7 @@
 #include "xAODBase/IParticle.h"
 
 #include "xAODJet/Jet.h"
-#include "xAODJet/JetContainer.h"
+ #include "xAODJet/JetContainer.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
 
@@ -68,9 +68,15 @@ TrigBtagFex::TrigBtagFex(const std::string& name, ISvcLocator* pSvcLocator) :
 
   // Run-2 monitoring
 
-  declareMonitoredVariable("sv_mass", m_mon_sv_mass, AutoClear);
-  declareMonitoredVariable("sv_evtx", m_mon_sv_evtx, AutoClear);
-  declareMonitoredVariable("sv_nvtx", m_mon_sv_nvtx, AutoClear);
+  declareMonitoredVariable("sv1_mass", m_mon_sv_mass, AutoClear);
+  declareMonitoredVariable("sv1_evtx", m_mon_sv_evtx, AutoClear);
+  declareMonitoredVariable("sv1_nvtx", m_mon_sv_nvtx, AutoClear);
+  declareMonitoredVariable("sv1_ntkv", m_mon_sv_ntkv, AutoClear);
+  declareMonitoredVariable("sv1_sig3", m_mon_sv_sig3, AutoClear);
+  declareMonitoredVariable("sv1_Lxy",  m_mon_sv_Lxy,  AutoClear);
+  declareMonitoredVariable("sv1_L3d",  m_mon_sv_L3d,  AutoClear);
+  declareMonitoredVariable("sv1_dR",   m_mon_sv_dR,   AutoClear);
+
 
   declareMonitoredVariable("tag_IP2D",    m_mon_tag_IP2D,    AutoClear);
   declareMonitoredVariable("tag_IP3D",    m_mon_tag_IP3D,    AutoClear);
@@ -79,6 +85,23 @@ TrigBtagFex::TrigBtagFex(const std::string& name, ISvcLocator* pSvcLocator) :
   declareMonitoredVariable("tag_MV2c00",  m_mon_tag_MV2c00,  AutoClear);
   declareMonitoredVariable("tag_MV2c10",  m_mon_tag_MV2c10,  AutoClear);
   declareMonitoredVariable("tag_MV2c20",  m_mon_tag_MV2c20,  AutoClear);
+  declareMonitoredVariable("tag_IP2_c",   m_mon_tag_IP2_c,   AutoClear);
+  declareMonitoredVariable("tag_IP2_cu",  m_mon_tag_IP2_cu,  AutoClear);
+  declareMonitoredVariable("tag_IP3_c",   m_mon_tag_IP3_c,   AutoClear);
+  declareMonitoredVariable("tag_IP3_cu",  m_mon_tag_IP3_cu,  AutoClear);
+
+  //MV2 taggers variables
+  declareMonitoredVariable("jf_n2tv",   m_mon_jf_n2tv,   AutoClear);
+  declareMonitoredVariable("jf_ntrkv",  m_mon_jf_ntrkv,  AutoClear);
+  declareMonitoredVariable("jf_nvtx",   m_mon_jf_nvtx,   AutoClear);
+  declareMonitoredVariable("jf_nvtx1t", m_mon_jf_nvtx1t, AutoClear);
+  declareMonitoredVariable("jf_mass",   m_mon_jf_mass,   AutoClear);
+  declareMonitoredVariable("jf_efrc",   m_mon_jf_efrc,   AutoClear);
+  declareMonitoredVariable("jf_dR",     m_mon_jf_dR,     AutoClear);
+  declareMonitoredVariable("jf_sig3",   m_mon_jf_sig3,   AutoClear);
+
+  declareMonitoredVariable("jet_pt",    m_mon_jet_pt,    AutoClear);
+  declareMonitoredVariable("jet_eta",   m_mon_jet_eta,   AutoClear);
 
 }
 
@@ -334,15 +357,48 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
   trigBTagging->variable<float>("SV1", "masssvx",  m_mon_sv_mass);
   trigBTagging->variable<float>("SV1", "efracsvx", m_mon_sv_evtx);
   trigBTagging->variable<int>  ("SV1", "N2Tpair",  m_mon_sv_nvtx);
+  trigBTagging->variable<int>  ("SV1", "NGTinSvx", m_mon_sv_ntkv);
+  trigBTagging->variable<float>("SV1", "normdist", m_mon_sv_sig3);
+  m_mon_sv_Lxy = trigBTagging->auxdata<float>("SV1_Lxy");
+  m_mon_sv_L3d = trigBTagging->auxdata<float>("SV1_L3d");
+  m_mon_sv_dR  = trigBTagging->auxdata<float>("SV1_deltaR");
 
   m_mon_tag_IP2D    = trigBTagging->IP2D_loglikelihoodratio();
   m_mon_tag_IP3D    = trigBTagging->IP3D_loglikelihoodratio();
   m_mon_tag_SV1     = trigBTagging->SV1_loglikelihoodratio();
   m_mon_tag_IP3DSV1 = trigBTagging->SV1plusIP3D_discriminant();
+  m_mon_tag_MV2c00  = trigBTagging->auxdata<double>("MV2c00_discriminant");
+  m_mon_tag_MV2c10  = trigBTagging->auxdata<double>("MV2c10_discriminant");
+  m_mon_tag_MV2c20  = trigBTagging->auxdata<double>("MV2c20_discriminant");
+  if( trigBTagging->IP2D_pc() != 0 ) m_mon_tag_IP2_c   = log(( trigBTagging->IP2D_pb() )/( trigBTagging->IP2D_pc() ));
+  else m_mon_tag_IP2_c   = -999.;
+  if( trigBTagging->IP2D_pu() != 0 ) m_mon_tag_IP2_cu  = log(( trigBTagging->IP2D_pc() )/( trigBTagging->IP2D_pu() ));
+  else m_mon_tag_IP2_cu  = -999.;
+  if( trigBTagging->IP3D_pc() != 0 ) m_mon_tag_IP3_c   = log(( trigBTagging->IP3D_pb() )/( trigBTagging->IP3D_pc() ));
+  else m_mon_tag_IP3_c   = -999.;
+  if( trigBTagging->IP3D_pu() != 0 ) m_mon_tag_IP3_cu  = log(( trigBTagging->IP3D_pc() )/( trigBTagging->IP3D_pu() ));
+  else m_mon_tag_IP3_cu  = -999.;
 
-  m_mon_tag_MV2c00 = trigBTagging->auxdata<double>("MV2c00_discriminant");
-  m_mon_tag_MV2c10 = trigBTagging->auxdata<double>("MV2c10_discriminant");
-  m_mon_tag_MV2c20 = trigBTagging->auxdata<double>("MV2c20_discriminant");
+  trigBTagging->variable<int>  ("JetFitter", "N2Tpair",  m_mon_jf_n2tv);
+  trigBTagging->variable<int>  ("JetFitter", "nTracksAtVtx",  m_mon_jf_ntrkv);
+  trigBTagging->variable<int>  ("JetFitter", "nVTX",  m_mon_jf_nvtx);
+  trigBTagging->variable<int>  ("JetFitter", "nSingleTracks",  m_mon_jf_nvtx1t);
+  trigBTagging->variable<float>  ("JetFitter", "mass",  m_mon_jf_mass);
+  trigBTagging->variable<float>  ("JetFitter", "energyFraction",  m_mon_jf_efrc);
+  
+  m_mon_jf_deta = -10.;
+  m_mon_jf_dphi = -10.;
+  trigBTagging->variable<float>  ("JetFitter", "deltaeta",  m_mon_jf_deta);
+  trigBTagging->variable<float>  ("JetFitter", "deltaphi",  m_mon_jf_dphi); 
+  m_mon_jf_dR = std::hypot( m_mon_jf_deta,m_mon_jf_dphi);
+  if( m_mon_jf_dR > 14 ){ m_mon_jf_dR = -1. ; }
+  trigBTagging->variable<float>  ("JetFitter", "significance3d",  m_mon_jf_sig3); 
+
+
+
+  m_mon_jet_pt  =  jet.pt()  ;
+  m_mon_jet_eta =  jet.eta() ;
+
 
   // Dump results 
   if(msgLvl() <= MSG::DEBUG)

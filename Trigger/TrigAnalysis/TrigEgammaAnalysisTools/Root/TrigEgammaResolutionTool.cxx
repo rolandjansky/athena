@@ -131,27 +131,28 @@ void TrigEgammaResolutionTool::resolutionElectron(const std::string basePath,std
             }
         } 
         // L1 resolutions
-        if(m_detailedHists){
-            auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(pairObj.second);
-            const xAOD::EmTauRoI *l1 = itEmTau.cptr();
-            if (l1) {
-                fillL1CaloResolution(dir7, l1, pairObj.first);
-                fillL1CaloAbsResolution(dir8, l1, pairObj.first);
-            }
+        auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(pairObj.second);
+        const xAOD::EmTauRoI *l1 = itEmTau.cptr();
+        if (l1) {
+            fillL1CaloResolution(dir7, l1, pairObj.first);
+            fillL1CaloAbsResolution(dir8, l1, pairObj.first);
         }
     }
 }
 
 void TrigEgammaResolutionTool::resolutionL2Photon(const std::string dir,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
     cd(dir);
+    ATH_MSG_DEBUG("L2 Photon Resolution");
     float dRmax = 100;
     const xAOD::TrigPhoton *phL2 = nullptr;
-    if(pairObj.second){
-        if(ancestorPassed<xAOD::TrigPhotonContainer>(pairObj.second))
-            phL2=closestObject<xAOD::TrigPhoton,xAOD::TrigPhotonContainer>(pairObj,dRmax);
-        if(phL2){    
-            if(dRmax < 0.05){
-                //Do something here
+    if(getSGContainsTrigPhoton()){
+        if(pairObj.second){
+            if(ancestorPassed<xAOD::TrigPhotonContainer>(pairObj.second))
+                phL2=closestObject<xAOD::TrigPhoton,xAOD::TrigPhotonContainer>(pairObj,dRmax);
+            if(phL2){    
+                if(dRmax < 0.05){
+                    //Do something here
+                }
             }
         }
     }

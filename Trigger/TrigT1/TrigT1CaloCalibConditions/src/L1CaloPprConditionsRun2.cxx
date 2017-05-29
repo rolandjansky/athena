@@ -5,6 +5,7 @@
 #include "TrigT1CaloCalibConditions/L1CaloPprConditionsRun2.h"
 
 #include <iostream>
+#include <cmath>
 
 L1CaloPprConditionsRun2::L1CaloPprConditionsRun2(unsigned short extBcidThreshold,
                                                  unsigned short satBcidThreshLow,
@@ -69,6 +70,48 @@ L1CaloPprConditionsRun2::L1CaloPprConditionsRun2(unsigned short extBcidThreshold
   m_pedMean(pedMean),
   m_pedFirSum(pedFirSum)
 {
+}
+
+namespace {
+unsigned short getLutOffset(double pedMean, unsigned short firStartBit,
+                            std::vector<short int> firCoeff,
+                            unsigned short lutSlope,
+                            unsigned short lutStrategy) {
+  unsigned short lutOffset = 0;
+  int firCoeffSum = 0;
+  for (unsigned int i = 0; i < firCoeff.size(); i++) {
+    firCoeffSum += firCoeff.at(i);
+  }
+  float lutOffsetReal = 0;
+  if (lutStrategy == 0) {
+    lutOffsetReal = (pedMean * static_cast<float>(firCoeffSum) /
+                     std::pow(2., static_cast<float>(firStartBit)));
+  } else {
+    lutOffsetReal = (pedMean * static_cast<float>(firCoeffSum) *
+                         static_cast<float>(lutSlope) /
+                         std::pow(2., static_cast<float>(firStartBit)) -
+                     static_cast<float>(lutSlope) / 2.0);
+  }
+  lutOffset =
+      static_cast<unsigned short>(lutOffsetReal < 0. ? 0 : lutOffsetReal + 0.5);
+  return lutOffset;
+}
+}
+
+void L1CaloPprConditionsRun2::initializeByStrategy(unsigned short firStartBit, short int firCoeff1,
+    short int firCoeff2, short int firCoeff3, short int firCoeff4,
+    short int firCoeff5, unsigned short lutCpSlope, unsigned short lutCpNoiseCut,
+    unsigned short lutJepSlope, unsigned short lutJepNoiseCut)
+{
+  m_firStartBit = firStartBit;
+  m_vFirCoefficients = {firCoeff1, firCoeff2, firCoeff3, firCoeff4, firCoeff5},
+  m_lutCpSlope = lutCpSlope;
+  m_lutCpNoiseCut = lutCpNoiseCut;
+  m_lutJepSlope = lutJepSlope;
+  m_lutJepNoiseCut = lutJepNoiseCut;
+
+  m_lutCpOffset = getLutOffset(m_pedMean, m_firStartBit, m_vFirCoefficients,m_lutCpSlope, m_lutCpStrategy);
+  m_lutJepOffset = getLutOffset(m_pedMean, m_firStartBit, m_vFirCoefficients,m_lutJepSlope, m_lutJepStrategy);
 }
 
 std::ostream& operator<<(std::ostream& output, const  L1CaloPprConditionsRun2& r) {

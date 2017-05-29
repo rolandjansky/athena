@@ -54,7 +54,10 @@ class TileCalibDrawerFlt : public TileCalibDrawerDat<float>
 					 uint64_t            timeStamp=0);
   
   /** @brief Returns the calibrated energy for a given channel/ADC and input energy
-      @param channel The channel number; if >= getNChans() it is reset to 0 without warning (default policy)   
+      @param channel The channel number; If channel number >= getNChans() 
+                     it is reset to channel % (maximum number of channels in drawer) 
+                     if channel number > (maximum number of channels in drawer)
+                     otherwise it is reset to 0 without warning (default policy)   
       @param adc The gain index; if >= getNGains() it is reset to 0 without warning (default policy)   
       @param energy The energy that should be calibrated 
       @param invert If true, the calibration is inverted */
@@ -62,7 +65,10 @@ class TileCalibDrawerFlt : public TileCalibDrawerDat<float>
 
   /** @brief Returns y and derivative dy for a given x for function blob of type 200.
       @return A bool indicating whether x was within the function range (true) or outside (false)
-      @param channel The channel number; if >= getNChans() it is reset to 0 without warning (default policy)   
+      @param channel The channel number; If channel number >= getNChans() 
+                     it is reset to channel % (maximum number of channels in drawer) 
+                     if channel number > (maximum number of channels in drawer)
+                     otherwise it is reset to 0 without warning (default policy)   
       @param adc The gain index; if >= getNGains() it is reset to 0 without warning (default policy)   
       @param x Input x value 
       @param y Y value corresponding to x

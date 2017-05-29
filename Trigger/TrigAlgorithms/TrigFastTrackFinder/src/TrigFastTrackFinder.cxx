@@ -221,6 +221,12 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   //declareMonitoredStdContainer("sp_r" ,m_sp_r);
 
   //Unbiased residuals
+  declareMonitoredStdContainer("layer_IBL",m_IBL_layer);
+  declareMonitoredStdContainer("layer_PixB",m_PixB_layer);
+  declareMonitoredStdContainer("layer_PixE",m_PixE_layer);
+  declareMonitoredStdContainer("layer_SCTB",m_SCTB_layer);
+  declareMonitoredStdContainer("layer_SCTE",m_SCTE_layer);
+
   declareMonitoredStdContainer("hit_IBLPhiResidual",m_iblResPhi);
   declareMonitoredStdContainer("hit_IBLEtaResidual",m_iblResEta);
   declareMonitoredStdContainer("hit_IBLPhiPull",    m_iblPullPhi);
@@ -252,7 +258,20 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareMonitoredStdContainer("hit_PIXEndCapL3PhiResidual",m_pixResPhiECL3);
   declareMonitoredStdContainer("hit_PIXEndCapL3EtaResidual",m_pixResEtaECL3);
 
-  
+  declareMonitoredStdContainer("hit_SCTBarrelL1PhiResidual",m_sctResPhiBarrelL1);
+  declareMonitoredStdContainer("hit_SCTBarrelL2PhiResidual",m_sctResPhiBarrelL2);
+  declareMonitoredStdContainer("hit_SCTBarrelL3PhiResidual",m_sctResPhiBarrelL3);
+  declareMonitoredStdContainer("hit_SCTBarrelL4PhiResidual",m_sctResPhiBarrelL4);
+
+  declareMonitoredStdContainer("hit_SCTEndcapL1PhiResidual",m_sctResPhiEndcapL1);
+  declareMonitoredStdContainer("hit_SCTEndcapL2PhiResidual",m_sctResPhiEndcapL2);
+  declareMonitoredStdContainer("hit_SCTEndcapL3PhiResidual",m_sctResPhiEndcapL3);
+  declareMonitoredStdContainer("hit_SCTEndcapL4PhiResidual",m_sctResPhiEndcapL4);
+  declareMonitoredStdContainer("hit_SCTEndcapL5PhiResidual",m_sctResPhiEndcapL5);
+  declareMonitoredStdContainer("hit_SCTEndcapL6PhiResidual",m_sctResPhiEndcapL6);
+  declareMonitoredStdContainer("hit_SCTEndcapL7PhiResidual",m_sctResPhiEndcapL7);
+  declareMonitoredStdContainer("hit_SCTEndcapL8PhiResidual",m_sctResPhiEndcapL8);
+  declareMonitoredStdContainer("hit_SCTEndcapL9PhiResidual",m_sctResPhiEndcapL9);
 }
 
 //--------------------------------------------------------------------------
@@ -1146,6 +1165,12 @@ void TrigFastTrackFinder::clearMembers() {
   //m_sp_z.clear();
   //m_sp_r.clear();
 
+  m_IBL_layer.clear();
+  m_PixB_layer.clear();
+  m_PixE_layer.clear();
+  m_SCTB_layer.clear();
+  m_SCTE_layer.clear();
+
   m_iblResPhi.clear();
   m_iblResEta.clear();
   m_iblPullPhi.clear();
@@ -1177,6 +1202,20 @@ void TrigFastTrackFinder::clearMembers() {
   m_pixResPhiECL3.clear();
   m_pixResEtaECL3.clear();
 
+  m_sctResPhiBarrelL1.clear();
+  m_sctResPhiBarrelL2.clear();
+  m_sctResPhiBarrelL3.clear();
+  m_sctResPhiBarrelL4.clear();
+
+  m_sctResPhiEndcapL1.clear();
+  m_sctResPhiEndcapL2.clear();
+  m_sctResPhiEndcapL3.clear();
+  m_sctResPhiEndcapL4.clear();
+  m_sctResPhiEndcapL5.clear();
+  m_sctResPhiEndcapL6.clear();
+  m_sctResPhiEndcapL7.clear();
+  m_sctResPhiEndcapL8.clear();
+  m_sctResPhiEndcapL9.clear();
 
   m_nPixSPsInRoI=0;
   m_nSCTSPsInRoI=0;
@@ -1336,7 +1375,7 @@ void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track) {
         break;
       case Region::PixEndcap :
         ATH_MSG_DEBUG("Pixel Endcap "  );
-	m_PixEC_layer.push_back(pixlayer);
+	m_PixE_layer.push_back(pixlayer);
         m_pixResPhiEC.push_back(it->phiResidual());
         m_pixPullPhiEC.push_back(it->phiPull());
 	if (pixlayer == 0) {
@@ -1359,12 +1398,51 @@ void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track) {
         ATH_MSG_DEBUG("SCT Barrel"  );
         m_sctResBarrel.push_back(it->phiResidual());
         m_sctPullBarrel.push_back(it->phiPull());
+	if (sctlayer == 0) {
+	  m_sctResPhiBarrelL1.push_back(it->phiResidual());
+	}
+	if (sctlayer == 1) {
+	  m_sctResPhiBarrelL2.push_back(it->phiResidual());
+	}
+	if (sctlayer == 2) {
+	  m_sctResPhiBarrelL3.push_back(it->phiResidual());
+	}
+	if (sctlayer == 3) {
+	  m_sctResPhiBarrelL4.push_back(it->phiResidual());
+	}
         break;
       case Region::SctEndcap :
-	m_SCTEC_layer.push_back(sctlayer);
+	m_SCTE_layer.push_back(sctlayer);
         ATH_MSG_DEBUG("SCT Endcap"  );
         m_sctResEC.push_back(it->phiResidual());
         m_sctPullEC.push_back(it->phiPull());
+	if (sctlayer == 0) {
+	  m_sctResPhiEndcapL1.push_back(it->phiResidual());
+	}
+	if (sctlayer == 1) {
+	  m_sctResPhiEndcapL2.push_back(it->phiResidual());
+	}
+	if (sctlayer == 2) {
+	  m_sctResPhiEndcapL3.push_back(it->phiResidual());
+	}
+	if (sctlayer == 3) {
+	  m_sctResPhiEndcapL4.push_back(it->phiResidual());
+	}
+	if (sctlayer == 4) {
+	  m_sctResPhiEndcapL5.push_back(it->phiResidual());
+	}
+	if (sctlayer == 5) {
+	  m_sctResPhiEndcapL6.push_back(it->phiResidual());
+	}
+	if (sctlayer == 6) {
+	  m_sctResPhiEndcapL7.push_back(it->phiResidual());
+	}
+	if (sctlayer == 7) {
+	  m_sctResPhiEndcapL8.push_back(it->phiResidual());
+	}
+	if (sctlayer == 8) {
+	  m_sctResPhiEndcapL9.push_back(it->phiResidual());
+	}
         break;
       case Region::IBL :
 	m_IBL_layer.push_back(pixlayer);

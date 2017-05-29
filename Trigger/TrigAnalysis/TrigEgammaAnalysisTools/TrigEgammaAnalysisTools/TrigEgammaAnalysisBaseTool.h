@@ -26,6 +26,8 @@
 #include "xAODEgamma/ElectronAuxContainer.h"
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
+#include "xAODTrigRinger/TrigRNNOutput.h"
+#include "xAODTrigRinger/TrigRNNOutputContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTrigger/TrigPassBits.h"
 #include "xAODEgamma/PhotonAuxContainer.h"
@@ -70,7 +72,9 @@ public:
   void setEmulationTool(ToolHandle<Trig::ITrigEgammaEmulationTool> tool){m_emulationTool=tool;}
   void setPVertex(const float onvertex, const float ngoodvertex){m_nPVertex = onvertex; m_nGoodVertex = ngoodvertex;}
   void setAvgMu(const float onlmu, const float offmu){m_onlmu=onlmu; m_offmu=offmu;} //For tools called by tools
-
+  void setSGContainsRnn(bool contains) {m_sgContainsRnn=contains;}
+  void setSGContainsTrigPhoton(bool contains) {m_sgContainsTrigPhoton=contains;}
+  
   // Set current MonGroup
   void cd(const std::string &dir);
   // Accessor members
@@ -111,7 +115,10 @@ private:
   float m_offmu;
   float m_nGoodVertex; 
   float m_nPVertex;
- 
+  
+  /*! Hook to check for RNN features in SG */
+  bool m_sgContainsRnn;
+  bool m_sgContainsTrigPhoton;
   // Properties  
   ToolHandle<Trig::TrigDecisionTool> m_trigdec;
   ToolHandle<Trig::ITrigEgammaMatchingTool> m_matchTool;
@@ -168,7 +175,11 @@ protected:
   float getNPVtx(){return m_nPVertex;}
   float getNGoodVertex(){return m_nGoodVertex;}
  
-  /* trig rings and offline rings helper method for feature extraction from xaod */
+  /* Protection for Holders not in AOD */
+  bool getSGContainsRnn() { return m_sgContainsRnn;}
+  bool getSGContainsTrigPhoton() { return m_sgContainsTrigPhoton;}
+
+  /* trig rings and offline rings helper method for feature extraction from xaod */ 
   bool getCaloRings( const xAOD::Electron *, std::vector<float> & );
   bool getTrigCaloRings( const xAOD::TrigEMCluster *, std::vector<float> & );
   void parseCaloRingsLayers( unsigned layer, unsigned &minRing, unsigned &maxRing, std::string &caloLayerName);
@@ -387,7 +398,7 @@ const T* TrigEgammaAnalysisBaseTool::getFeature(const HLT::TriggerElement* te,co
     if ( te == nullptr ) return nullptr;
     if ( (m_trigdec->ancestor<T>(te,key)).te() == nullptr )
         return nullptr;
-    return ( (m_trigdec->ancestor<T>(te)).cptr() );
+    return ( (m_trigdec->ancestor<T>(te,key)).cptr() );
 }
 
 template<class T>
@@ -395,7 +406,7 @@ bool TrigEgammaAnalysisBaseTool::ancestorPassed(const HLT::TriggerElement* te,co
     if ( te == nullptr ) return false;
     if ( (m_trigdec->ancestor<T>(te,key)).te() == nullptr )
         return false;
-    return ( (m_trigdec->ancestor<T>(te)).te()->getActiveState());
+    return ( (m_trigdec->ancestor<T>(te,key)).te()->getActiveState());
 }
 
 template <class T1, class T2>

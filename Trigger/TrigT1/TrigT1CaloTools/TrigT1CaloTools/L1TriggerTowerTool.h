@@ -29,6 +29,8 @@ class CaloTriggerTowerService;
 class Incident;
 class L1CaloCondSvc;
 class L1CaloPpmFineTimeRefsContainer;
+class L1CaloDerivedRunParsContainer;
+class L1CaloPprChanStrategyContainer;
 
 namespace TrigConf { class ILVL1ConfigSvc; }
 
@@ -155,6 +157,11 @@ namespace LVL1
 
       // one of L1CaloPprConditionsContainer{,Run2}*
       bool m_isRun2;
+      
+      /// For Run2 strategy (LowMu, HighMu)
+      L1CaloPprChanStrategyContainer* m_strategyContainer;
+      L1CaloDerivedRunParsContainer* m_derivedRunParsContainer;
+
       boost::any m_conditionsContainer;
       // one of L1CaloPprDisabledChannelContainer{,Run2}*
       boost::any m_disabledChannelContainer;

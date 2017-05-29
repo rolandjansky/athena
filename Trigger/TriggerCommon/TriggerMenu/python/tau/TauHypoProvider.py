@@ -258,6 +258,7 @@ class TauHypoProvider:
         ('medium1', 29): [3,  29.0*GeV, 2],
         ('medium1', 35): [3,  35.0*GeV, 2],
         ('medium1', 38): [3,  38.0*GeV, 2],
+        ('medium1', 40): [3,  40.0*GeV, 2],
         ('medium1', 50): [3,  50.0*GeV, 2],
         ('medium1', 60): [3,  60.0*GeV, 2],
         ('medium1', 80): [3,  80.0*GeV, 2],

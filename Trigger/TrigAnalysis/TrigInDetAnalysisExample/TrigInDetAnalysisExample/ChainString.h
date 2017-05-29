@@ -47,7 +47,7 @@ public:
 
   const std::string& raw() const { return mraw; }
   
-  std::string value( const std::string& key ) { 
+  std::string value( const std::string& key ) const { 
     int i=find(key);
     if ( i>=0 ) return mvalues[i];
     return "";
@@ -116,7 +116,7 @@ protected:
   /// parse the full specification string
   void parse();
 
-  int find( const std::string& key ) { 
+  int find( const std::string& key ) const { 
     for ( int i=mkeys.size() ; i-- ; ) if ( key==mkeys[i] ) return i;
     return -1;
   }

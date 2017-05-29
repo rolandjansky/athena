@@ -15,6 +15,8 @@ from AthenaCommon.SystemOfUnits import GeV,mm
 
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 
+from RecExConfig.RecFlags import rec
+from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
@@ -412,6 +414,41 @@ def TMEF_MuonInsideOutRecoTool(name="TMEF_MuonInsideOutRecoTool",**kwargs):
     kwargs.setdefault('MuonLayerSegmentFinderTool', 'TMEF_MuonLayerSegmentFinderTool')
     return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
 
+### Stau late trigger configs
+
+def TMEF_MuonStauRecoTool( name='TMEF_MuonStauRecoTool', **kwargs ):
+   # kwargs.setdefault('DoSummary', True)
+   kwargs.setdefault('DoSummary', muonCombinedRecFlags.printSummary() )
+   kwargs.setdefault('ConsideredPDGs', [13,-13,1000015,-1000015])
+   kwargs.setdefault('DoTruth', rec.doTruth() )
+   kwargs.setdefault('MuonSegmentMaker', CfgGetter.getPublicTool('DCMathStauSegmentMaker') )
+   kwargs.setdefault('MuonInsideOutRecoTool', CfgGetter.getPublicTool('TMEF_MuonStauInsideOutRecoTool') )
+   return CfgMgr.MuonCombined__MuonStauRecoTool(name,**kwargs )
+
+def TMEF_MuonStauInsideOutRecoTool( name='TMEF_MuonStauInsideOutRecoTool', **kwargs ):
+   kwargs.setdefault('MuonTrackBuilder','TMEF_CombinedMuonTrackBuilder')
+   kwargs.setdefault('MuonCandidateTrackBuilderTool', CfgGetter.getPublicTool('TMEF_MuonStauCandidateTrackBuilderTool') )
+   return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
+
+def TMEF_MuonStauCandidateTrackBuilderTool( name='TMEF_MuonStauCandidateTrackBuilderTool',**kwargs):
+   kwargs.setdefault('MuonTrackBuilder',  CfgGetter.getPublicTool('TMEF_CombinedStauTrackBuilder') )
+   return CfgMgr.Muon__MuonCandidateTrackBuilderTool(name,**kwargs)
+
+def TMEF_CombinedStauTrackBuilder( name='TMEF_CombinedStauTrackBuilder', **kwargs ):
+   kwargs.setdefault('MdtRotCreator'                 , CfgGetter.getPublicTool('MdtDriftCircleOnTrackCreatorStau') )
+   kwargs.setdefault('MuonHoleRecovery'              , CfgGetter.getPublicTool('TMEF_MuonStauSegmentRegionRecoveryTool') )
+   return TMEF_CombinedMuonTrackBuilder(name,**kwargs )
+
+def TMEF_MuonStauSegmentRegionRecoveryTool(name='TMEF_MuonStauSegmentRegionRecoveryTool',**kwargs ):
+   kwargs.setdefault('SeededSegmentFinder', CfgGetter.getPublicTool('MuonStauSeededSegmentFinder') )
+   kwargs.setdefault('ChamberHoleRecoveryTool', CfgGetter.getPublicTool('MuonStauChamberHoleRecoveryTool') )
+   kwargs.setdefault('Fitter',  CfgGetter.getPublicTool('TMEF_CombinedStauTrackBuilderFit') )
+   return CfgMgr.Muon__MuonSegmentRegionRecoveryTool(name,**kwargs)
+
+def TMEF_CombinedStauTrackBuilderFit( name='TMEF_CombinedStauTrackBuilderFit', **kwargs ):
+   kwargs.setdefault('MdtRotCreator'                 , CfgGetter.getPublicTool('MdtDriftCircleOnTrackCreatorStau') )
+   return TMEF_CombinedMuonTrackBuilder(name,**kwargs )
+
 # TrigMuonEF classes
 class TrigMuonEFTrackBuilderConfig ():
     __slots__ = ()
@@ -478,6 +515,7 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         self.maxRpcHits      = 0
         self.maxMdtHits      = 0
         self.doCache = True
+        self.IgnoreMisalginedCSCs = True
 
         self.TrackBuilderTool  = "TMEF_TrackBuilderTool"
         self.TrkSummaryTool = "TMEF_TrackSummaryTool"
