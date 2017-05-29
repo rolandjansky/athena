@@ -93,6 +93,7 @@ namespace xAOD{
         DEFINE_PFO_ACCESSOR(eflowRec_layerVectorCellOrdering);
         DEFINE_PFO_ACCESSOR(eflowRec_radiusVectorCellOrdering);
         DEFINE_PFO_ACCESSOR(eflowRec_avgEdensityVectorCellOrdering);
+        DEFINE_PFO_ACCESSOR(eflowRec_layerHED);
 	DEFINE_PFO_ACCESSOR(eflowRec_EM_PROBABILITY);
 	DEFINE_PFO_ACCESSOR(cellBased_FIRST_ETA); 
 	DEFINE_PFO_ACCESSOR(cellBased_SECOND_R); 
@@ -139,10 +140,6 @@ namespace xAOD{
 	DEFINE_PFO_ACCESSOR(tauShots_signalScore); 
 	DEFINE_PFO_ACCESSOR(tauShots_nPhotons); 
 	DEFINE_PFO_ACCESSOR(tauShots_seedHash);
-	DEFINE_PFO_ACCESSOR(eflowRec_layerHED);
-	DEFINE_PFO_ACCESSOR(eflowRec_layerCellOrdering);
-	DEFINE_PFO_ACCESSOR(eflowRec_radiusCellOrdering);
-	DEFINE_PFO_ACCESSOR(eflowRec_avgEdensityCellOrdering);
 	default:
 	  std::cerr << "xAOD::PFO_v1 ERROR Unknown float/double variable (" << static_cast<int>(variable) << ") requested" << std::endl;
 	  return 0;
