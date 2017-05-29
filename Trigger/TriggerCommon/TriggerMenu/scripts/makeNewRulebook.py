@@ -4,9 +4,7 @@
 # usage python makeNewRulebook.py ../rules/InitialBeam_HI_rulebook.txt rel_1 Physics_HI_v
 
 import sys
-import os
 import commands
-import time
 import xml.etree.cElementTree as ET
 
 

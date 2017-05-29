@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-import os, sys
 
 ## from AthenaCommon.AppMgr import ToolSvc
 ## from AthenaCommon.Include import include
@@ -10,20 +9,19 @@ import os, sys
 
 from TriggerMenu.menu.Lvl1 import Lvl1
 from TriggerMenu.menu.Lvl1Flags import Lvl1Flags
-from TriggerMenu.menu.TriggerPythonConfig import *
+from TriggerMenu.menu.TriggerPythonConfig import TriggerPythonConfig
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging
 
-from TriggerMenu.bjet.BjetSliceFlags import *
-from TriggerMenu.bphysics.BphysicsSliceFlags import *
-from TriggerMenu.menu.CombinedSliceFlags import *
-from TriggerMenu.menu.CommonSliceFlags import *
-from TriggerMenu.egamma.EgammaSliceFlags import *
-from TriggerMenu.jet.JetSliceFlags import *
-from TriggerMenu.met.METSliceFlags import *
-from TriggerMenu.minbias.MinBiasSliceFlags import *
-from TriggerMenu.muon.MuonSliceFlags import *
-from TriggerMenu.tau.TauSliceFlags import *
+from TriggerMenu.bjet.BjetSliceFlags import BjetSliceFlags
+from TriggerMenu.bphysics.BphysicsSliceFlags import BphysicsSliceFlags
+from TriggerMenu.menu.CombinedSliceFlags import CombinedSliceFlags
+from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
+from TriggerMenu.jet.JetSliceFlags import JetSliceFlags
+from TriggerMenu.met.METSliceFlags import METSliceFlags
+from TriggerMenu.minbias.MinBiasSliceFlags import MinBiasSliceFlags
+from TriggerMenu.muon.MuonSliceFlags import MuonSliceFlags
+from TriggerMenu.tau.TauSliceFlags import TauSliceFlags
 
 l1thresholds_in_1e31 = [
     'MU4', 'MU6', 'MU10', 'MU11', 'MU20', 'MU40',
@@ -176,6 +174,8 @@ def print2(m, offset=''):
 
 def printSignatures(slice):
     print2('TriggerFlags.%s.signatures = [' % slice, offset)
+    names = []
+    sigs = []
     exec 'sigs = %sFlags.signatures.allowedValues.allowedList' % slice
     exec 'names = %sFlags.signatures.StoredValue' % slice
     for name in names:
@@ -197,6 +197,7 @@ def printSignatures(slice):
 
 def printL1Thresholds():
     print2('Lvl1Flags.thresholds = [', offset)
+    thrs = []
     exec 'thrs = Lvl1Flags.thresholds.allowedValues.allowedList'
     str = ''
     for i, thr in enumerate(thrs):
@@ -213,6 +214,7 @@ def printL1Thresholds():
     
 def printL1Items():
     print2('Lvl1Flags.items = [', offset)
+    items = []
     exec 'items = Lvl1Flags.items.allowedValues.allowedList'
     str = ''
     for i, item in enumerate(items):

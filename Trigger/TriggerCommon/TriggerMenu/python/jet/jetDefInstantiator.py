@@ -10,11 +10,8 @@ from exc2string import exc2string2
 
 #from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-from TrigGenericAlgs.TrigGenericAlgsConf import \ # noqa: F401
-    PESA__DummyUnseededAllTEAlgo as DummyAlgo 
-
-from TrigGenericAlgs.TrigGenericAlgsConf import \ # noqa: F401
-    PESA__SeededSuperRoiAllTEAlgo as SeededAlgo 
+from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyAlgo   # noqa: F401
+from TrigGenericAlgs.TrigGenericAlgsConf import PESA__SeededSuperRoiAllTEAlgo as SeededAlgo # noqa: F401
 
 # from TrigGenericAlgs.TrigGenericAlgsConf import DummyFEX
 

@@ -4,8 +4,6 @@
 # Hlt configuration base classes
 #-----------------------------------------------------
 
-#from AthenaCommon.Configurable import *
-from TriggerJobOpts.TriggerFlags import *
 from TriggerMenu.menu.ChainDef import ChainDef
 from AthenaCommon.Logging import logging  # loads logger
 

@@ -314,7 +314,7 @@ class DictFromChainName(object):
             logDict.debug('chainparts %s', chainparts)
 
             # ---- check if L1 item is specified in chain Name ----
-            L1itemFromChainName = ''; L1item = ''; 
+            L1itemfromChainName = ''; L1item = ''; 
             chainpartsNoL1 = chainparts
             
             #Checking for L1 item for chain part and overall in the name
