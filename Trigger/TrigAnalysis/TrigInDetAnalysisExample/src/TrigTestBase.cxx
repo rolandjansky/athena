@@ -94,12 +94,10 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
 
   declareProperty( "ShifterChains",    m_shifterChains = 1 );
 
-
   declareProperty( "GenericFlag", m_genericFlag = true );
   
   msg(MSG::INFO) << "TrigTestBase::TrigTestBase() exiting " << gDirectory->GetName() << endmsg;
 
-  //  msg(MSG::INFO) << "TrigTestBase::TrigTestBase() returning: " << endmsg;
 
 }
 
@@ -107,7 +105,6 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
 
 TrigTestBase::~TrigTestBase() {
 
-  //  m_sequences[i]->finalize();
   if ( m_fileopen ) for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->finalize();
 
   // msg(MSG::INFO) << "TrigTestBase::~TrigTestBase()" << endmsg;
