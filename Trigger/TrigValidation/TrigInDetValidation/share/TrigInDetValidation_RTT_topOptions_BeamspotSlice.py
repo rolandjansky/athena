@@ -39,10 +39,6 @@ if athenaCommonFlags.FilesInput()==[]:
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Chains.py")
 
-rMC = False
-if 'runMergedChain' in dir() and runMergedChain==True:
-  rMC = True
-
 rID=False
 if 'doIDNewTracking' in dir() and doIDNewTracking==True:
   rID = True
@@ -53,7 +49,7 @@ if 'doFTK' in dir() and doFTK==True:
   TriggerFlags.doFTK=True
   rFTK=True
 
-(idtrigChainlist, tidaAnalysischains) = beamspotChains(rMC,rID,rFTK)
+(idtrigChainlist, tidaAnalysischains) = beamspotChains(rID,rFTK)
 
 def resetSigs():
   TriggerFlags.doHypo=False
@@ -67,12 +63,8 @@ include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
 topSequence.TrigSteer_HLT.terminateAlgo.Prescale=1.
 
 if 'fastZFinder' in dir() and fastZFinder==True:
-  FTF = topSequence.TrigSteer_HLT.TrigFastTrackFinder_BeamSpot_IDTrig
-
-  # set fast ZFinder settings here
-  # from AthenaCommon.ConfigurableDb import getConfigurable
-  # zfinder = getConfigurable("TrigZFinder")
-  zfinder = FTF.trigZFinder
+  from AthenaCommon.AppMgr import ToolSvc
+  zfinder = ToolSvc.TrigZFinder
 
   zfinder.NumberOfPeaks = 4
   zfinder.TripletMode = 1
@@ -82,6 +74,5 @@ if 'fastZFinder' in dir() and fastZFinder==True:
   zfinder.MinVtxSignificance = 10
   zfinder.Percentile = 0.95
 
+  print 'zfinder settings modified by TrigInDetValidation_RTT_topOptions_BeamspotSlice.py'
   print zfinder
-
-

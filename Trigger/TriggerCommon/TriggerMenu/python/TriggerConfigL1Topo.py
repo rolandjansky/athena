@@ -47,7 +47,7 @@ class TriggerConfigL1Topo:
     @staticmethod
     def getMenuBaseName(menuName):
         import re 
-        pattern = re.compile('_v\d+|DC14')
+        pattern = re.compile('_v\d+|DC14+|_PhaseII')
         patternPos = pattern.search(menuName)
         if patternPos:
             menuName=menuName[:patternPos.end()]

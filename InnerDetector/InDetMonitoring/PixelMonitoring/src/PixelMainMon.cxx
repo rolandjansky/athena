@@ -218,6 +218,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    memset(m_maxocc_per_bcid_mod, 0, sizeof(m_maxocc_per_bcid_mod));
    m_occupancy = 0;
    m_average_pixocc = 0;
+   m_occupancy_pix_evt = 0;
    m_occupancy_10min = 0;
    m_occupancy_time1 = 0;
    m_occupancy_time2 = 0;
@@ -400,25 +401,21 @@ PixelMainMon::PixelMainMon(const std::string & type,
    ///
    /// Errors
    ///
-   memset(m_ErrorFraction_per_evt, 0, sizeof(m_ErrorFraction_per_evt));
-   memset(m_errors_per_lumi_mod, 0, sizeof(m_errors_per_lumi_mod));
-   m_SyncErrors_per_lumi_PIX = 0;
-   memset(m_SyncErrors_per_lumi_mod, 0, sizeof(m_SyncErrors_per_lumi_mod));
-   memset(m_OpticalErrors_per_lumi_mod, 0, sizeof(m_OpticalErrors_per_lumi_mod));
-   memset(m_SEU_Errors_per_lumi_mod, 0, sizeof(m_SEU_Errors_per_lumi_mod));
-   memset(m_TruncationErrors_per_lumi_mod, 0, sizeof(m_TruncationErrors_per_lumi_mod));
-   memset(m_TimeoutErrors_per_lumi_mod, 0, sizeof(m_TimeoutErrors_per_lumi_mod));
+   memset(m_errhist_errcat_avg, 0, sizeof(m_errhist_errcat_avg));
+   memset(m_errhist_tot_LB, 0, sizeof(m_errhist_tot_LB));
+   m_errhist_syncerr_LB_pix = 0;
+   memset(m_errhist_errcat_LB, 0, sizeof(m_errhist_errcat_LB));
+   memset(m_errhist_errtype_LB, 0, sizeof(m_errhist_errtype_LB));
    m_error_time1 = 0;       
    m_error_time2 = 0;       
    m_error_time3 = 0;       
    m_errors = 0;
-   memset(m_ErrorTypeMap, 0, sizeof(m_ErrorTypeMap));
-   memset(m_ErrorCategoryMap, 0, sizeof(m_ErrorCategoryMap));
+   memset(m_errhist_errtype_map, 0, sizeof(m_errhist_errtype_map));
+   memset(m_errhist_errcat_map, 0, sizeof(m_errhist_errcat_map));
    memset(m_errhist_expert_maps, 0, sizeof(m_errhist_expert_maps));
    memset(m_errhist_expert_LB, 0, sizeof(m_errhist_expert_LB));
-   memset(m_ErrorBit_per_lumi_mod, 0, sizeof(m_ErrorBit_per_lumi_mod));
-   memset(m_Error_per_lumi_mod, 0, sizeof(m_Error_per_lumi_mod));
-   memset(m_errhist_expert_badmod_bits, 0, sizeof(m_errhist_expert_badmod_bits));
+   memset(m_errhist_per_bit_LB, 0, sizeof(m_errhist_per_bit_LB));
+   memset(m_errhist_per_type_LB, 0, sizeof(m_errhist_per_type_LB));
    memset(m_errhist_expert_fe_trunc_err_3d, 0, sizeof(m_errhist_expert_fe_trunc_err_3d));
    m_errhist_expert_servrec_ibl_unweighted = 0;
    m_errhist_expert_servrec_ibl_weighted = 0;

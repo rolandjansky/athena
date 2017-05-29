@@ -25,6 +25,8 @@ class TopoAlgoDef:
 
         if '_v7' in TriggerFlags.triggerMenuSetup():
             usev7 = True
+        if '_PhaseII' in TriggerFlags.triggerMenuSetup():
+            usev7 = True
         
         _emscale_for_decision = 2 # global scale for EM, TAU        
         if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):

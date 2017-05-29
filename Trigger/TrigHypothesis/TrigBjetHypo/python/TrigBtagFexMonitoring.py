@@ -61,7 +61,7 @@ class TrigBtagFexMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('jf_efrc', type='TH1F', title="BtagFex JetFitter Jet efrac ",
                                              xbins=200, xmin=0.0, xmax=1.0) ]
         self.Histograms += [ defineHistogram('jf_dR', type='TH1F', title="BtagFex JetFitter Delta R ",
-                                             xbins=200, xmin=-0.0, xmax=20.0) ]
+                                             xbins=200, xmin=-1.2, xmax=2.0) ]
         self.Histograms += [ defineHistogram('jf_sig3', type='TH1F', title="BtagFex JetFitter 3D vertex significance ",
                                              xbins=200, xmin=-0.0, xmax=100.0) ]
         self.Histograms += [ defineHistogram('jet_pt', type='TH1F', title="BtagFex Jet PT",
