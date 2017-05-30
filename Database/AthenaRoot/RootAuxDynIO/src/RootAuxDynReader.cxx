@@ -350,13 +350,13 @@ RootAuxDynReader::getBranchInfo(const SG::auxid_t& auxid, const SG::AuxStoreInte
 }
 
 
-void RootAuxDynReader::addReaderToObject(void* object, size_t ttree_row)
+void RootAuxDynReader::addReaderToObject(void* object, size_t ttree_row, std::mutex* iomtx)
 {
    auto store_holder = reinterpret_cast<SG::IAuxStoreHolder*>((char*)object + m_storeHolderOffset);
    bool standalone { store_holder->getStoreType()==SG::IAuxStoreHolder::AST_ObjectStore };
    if( !m_initialized )
       init(standalone);
-   store_holder->setStore( new RootAuxDynStore(*this, ttree_row, standalone) );
+   store_holder->setStore( new RootAuxDynStore(*this, ttree_row, standalone, iomtx) );
 }              
 
 
