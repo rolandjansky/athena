@@ -9,7 +9,11 @@ CastorMgr = StorageManager(name='castor', prefix='root://castoratlas/', cp='xrdc
 RFIOMgr = StorageManager(name='rfio', prefix='rfio:', cp='rfcp', ls='rfdir %s', longls='rfdir %s')
 #EOSMgr = StorageManager(name='eos', prefix='root://eosatlas/', cp='xrdcp', ls='/afs/cern.ch/project/eos/installation/0.1.0-22d/bin/eos.select ls', longls='/afs/cern.ch/project/eos/installation/0.1.0-22d/bin/eos.select ls -l')
 #EOSMgr = StorageManager(name='eos', prefix='root://eosatlas/', cp='xrdcp', ls='eos ls', longls='eos ls -l')
-EOSMgr = StorageManager(name='eos', prefix='root://eosatlas/', cp='xrdcp', ls='/bin/sh -l -c "eos ls %s"', longls='/bin/sh -l -c "eos ls -l %s"')    
+# As a workaround to athena's xrootd library being binary-incompatible with the
+# eos executable we set LD_LIBRARY_PATH. This can be reverted to the commented
+# out line once the eos executable learns to pick up the right library.
+# EOSMgr = StorageManager(name='eos', prefix='root://eosatlas/', cp='xrdcp', ls='/bin/sh -l -c "eos ls %s"', longls='/bin/sh -l -c "eos ls -l %s"')
+EOSMgr = StorageManager(name='eos', prefix='root://eosatlas/', cp='xrdcp', ls='/bin/sh -l -c "LD_LIBRARY_PATH=/usr/lib64/ eos ls %s"', longls='/bin/sh -l -c "LD_LIBRARY_PATH=/usr/lib64/ eos ls -l %s"')
 UnixMgr = StorageManager(name='unix', prefix='', cp='cp', ls='ls %s', longls='ls -l %s')    
 
 # Can also use 'xrd castoratlas ls'/'xrd eosatlas ls' but always does a long listing and so much slower than 'nsls'/'eos ls'
