@@ -8,4 +8,4 @@ use AtlasPolicy         AtlasPolicy-*
 use JetInterface        JetInterface-*      Reconstruction/Jet
 use PATInterfaces       PATInterfaces-*     PhysicsAnalysis/AnalysisCommon
 
-
+use xAODJet             xAODJet-*           Event/xAOD
