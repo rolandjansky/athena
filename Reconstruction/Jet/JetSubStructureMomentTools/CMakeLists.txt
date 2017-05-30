@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 779562 2016-10-21 09:48:54Z krasznaa $
 ################################################################################
 # Package: JetSubStructureMomentTools
 ################################################################################
@@ -53,9 +54,9 @@ if( NOT XAOD_STANDALONE )
 endif()
 
 atlas_add_dictionary( JetSubStructureMomentToolsDict
-   JetSubStructureMomentTools/JetSubStructureMomentToolsDict.h
+	JetSubStructureMomentTools/JetSubStructureMomentToolsDict.h
    JetSubStructureMomentTools/selection.xml
-   LINK_LIBRARIES JetSubStructureMomentToolsLib )
+	LINK_LIBRARIES JetSubStructureMomentToolsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
