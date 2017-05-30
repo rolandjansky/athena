@@ -24,7 +24,7 @@ public:
 private:
   SG::ReadHandleKey<ConstDataVector<TrigRoiDescriptorCollection> > m_roisContainer;
   SG::WriteHandleKey< TestClusterContainer > m_outputClusterContainer;
-  SG::WriteHandleKey< TestClusterAuxContainer > m_outputClusterContainerAux;
+
 
 };
 
