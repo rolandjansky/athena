@@ -3955,9 +3955,9 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="504" partition="1" name="L1_4J15_FTK" complex_deadtime="0" definition="(J15[x4]&amp;BGRP0&amp;BGRP1)" trigger_type="10100000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="504" partition="1" name="L1_4J20_FTK" complex_deadtime="0" definition="(J20[x4]&amp;BGRP0&amp;BGRP1)" trigger_type="10100000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="4" name="J15_x4" triggerthreshold="J15"/>
+        <TriggerCondition multi="4" name="J20_x4" triggerthreshold="J20"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
