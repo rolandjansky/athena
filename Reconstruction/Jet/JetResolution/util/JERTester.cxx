@@ -87,7 +87,7 @@ int main( int argc, char* argv[] ) {
   // Configure the JERTool.
   // I am demonstrating all the defaults here, so behavior
   // is the same as not specifying any configuration
-  jerTool.msg().setLevel(MSG::DEBUG);
+  //jerTool.msg().setLevel(MSG::DEBUG);
   CHECK( jerTool.setProperty("PlotFileName",
 			     "JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root") );
   //CHECK( jerTool.setProperty("JetAlg", JER::AKt4EM) );

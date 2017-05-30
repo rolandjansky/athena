@@ -137,8 +137,11 @@ StatusCode JERTool::initialize()
   // Determine the jet algorithm
   if(m_collectionName.find("AntiKt4EM") != std::string::npos)
     m_jetAlgo = JER::AKt4EM;
-  /*else if(m_collectionName.find("AntiKt4LC") != std::string::npos)
-    m_jetAlgo = JER::AKt4LC;
+
+  //using AKt4EM JER for LCTopo jets (This is temporary until we get new EMTopo/LCTopo JER recommendations).
+  else if(m_collectionName.find("AntiKt4LC") != std::string::npos)
+    m_jetAlgo = JER::AKt4EM;
+  /*
   else if(m_collectionName.find("AntiKt6EM") != std::string::npos)
     m_jetAlgo = JER::AKt6EM;
   else if(m_collectionName.find("AntiKt6LC") != std::string::npos)
@@ -151,7 +154,8 @@ StatusCode JERTool::initialize()
 
   // Print some information
   std::string description = "Unknown";
-  if(m_jetAlgo == JER::AKt4EM) description = "AntiKt4 EM+JES";
+  if (m_collectionName.find("AntiKt4EM") != std::string::npos) description = "AntiKt4 EM+JES";
+  else if (m_collectionName.find("AntiKt4LC") != std::string::npos) description = "AntiKt4 LC+JES";
   else
     ATH_MSG_ERROR("Not supported JetCollection: ");
   //DV This is temporary, since only EM is supported for now
@@ -159,8 +163,11 @@ StatusCode JERTool::initialize()
   else if(m_jetAlgo == JER::AKt6EM) description = "AntiKt6 EM+JES";
   else if(m_jetAlgo == JER::AKt6LC) description = "AntiKt6 LCW+JES";*/
 
-  ATH_MSG_INFO("Retrieving JER for jets: " << description);
+  if (m_collectionName.find("AntiKt4EM") != std::string::npos)
+    ATH_MSG_INFO("Retrieving AKt4EM JER for jets: " << description);
 
+  else if (m_collectionName.find("AntiKt4LC") != std::string::npos)
+    ATH_MSG_INFO("Retrieving AKt4EM JER for jets: " << description);
 
   // Load the inputs
   ATH_CHECK( loadJERInputs() );
