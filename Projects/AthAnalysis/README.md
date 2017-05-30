@@ -40,6 +40,14 @@ of the project against these newly built externals by executing the
 script. It uses the same directory layout inside the `build` directory as
 was used for the externals.
 
+Finally, if you want to then *use* the release, you need to set it up by
+sourcing the setup script in the install area:
+
+    source ../../../build/install/AthAnalysis/21.2.0/InstallArea/x86_64-slc6-gcc49-opt/setup.sh
+
+where you should replace `21.2.0` with whatever you find in the `version.txt` file.
+If you do this in a new shell you will need to lsetup cmake and gcc again though!
+
 Custom Builds
 -------------
 
