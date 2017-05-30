@@ -25,8 +25,6 @@ class FastCaloSimGeometryHelper:public AthAlgTool, public CaloGeometry, virtual 
   virtual StatusCode  initialize() override final;
   virtual StatusCode  finalize() override final;
 
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-  
   private:  
     /// DetDescr mgr for access to the calo helper
     const CaloDetDescrManager* m_caloMgr;  

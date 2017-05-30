@@ -230,9 +230,10 @@ ISF_HitAnalysis::~ISF_HitAnalysis()
 {
 }
 
-StatusCode ISF_HitAnalysis::updateMetaData( IOVSVC_CALLBACK_ARGS_P( I, keys ) ) {
+StatusCode ISF_HitAnalysis::updateMetaData( IOVSVC_CALLBACK_ARGS_P( I, keys ) )
+{
   ATH_MSG_INFO( "Updating the Sim+Digi MetaData" );
-  
+
   // Reset the internal settings:
   bool run_update = false;
 
@@ -241,17 +242,68 @@ StatusCode ISF_HitAnalysis::updateMetaData( IOVSVC_CALLBACK_ARGS_P( I, keys ) ) 
   msg( MSG::DEBUG ) << "Update called with " <<I<< " folder " << keys.size() << " keys:";
   std::list< std::string >::const_iterator itr = keys.begin();
   std::list< std::string >::const_iterator end = keys.end();
-  for( ; itr != end; ++itr ) {
-     if( *itr == m_MC_DIGI_PARAM ) run_update = true;
-     if( *itr == m_MC_SIM_PARAM ) run_update = true;
-     msg() << *itr;
-  }
+  for( ; itr != end; ++itr )
+    {
+      if( *itr == m_MC_DIGI_PARAM ) run_update = true;
+      if( *itr == m_MC_SIM_PARAM ) run_update = true;
+      msg() << *itr;
+    }
   msg() << endmsg;
   // If that's not the key that we received after all, let's just return
   // silently...
   if( ! run_update ) return StatusCode::SUCCESS;
 
-  StatusCode sc = detStore()->retrieve(m_tileMgr);
+  const DataHandle< AthenaAttributeList > simParam;
+  if( detStore()->retrieve( simParam, m_MC_SIM_PARAM ).isFailure() )
+    {
+      ATH_MSG_WARNING("Retrieving MC SIM metadata failed");
+    }
+  else
+    {
+      AthenaAttributeList::const_iterator attr_itr = simParam->begin();
+      AthenaAttributeList::const_iterator attr_end = simParam->end();
+      for( ; attr_itr != attr_end; ++attr_itr )
+        {
+          std::stringstream outstr;
+          attr_itr->toOutputStream(outstr);
+          ATH_MSG_INFO("MetaData: " << outstr.str());
+        }
+    }
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode ISF_HitAnalysis::initialize()
+{
+  ATH_MSG_INFO( "Initializing ISF_HitAnalysis" );
+
+  /*
+  // get a handle of StoreGate for access to the Detector Store
+  sc = service("DetectorStore", m_detStore);
+  if (sc.isFailure()) {
+  ATH_MSG_ERROR( "ZH Unable to retrieve pointer to Detector Store");
+  return sc;
+  }
+  // get a handle of StoreGate for access to the Event Store
+  sc = service("StoreGateSvc", m_storeGate);
+  if (sc.isFailure()) {
+  ATH_MSG_ERROR( "Unable to retrieve pointer to StoreGateSvc" );
+  return sc;
+  }
+  */
+
+  //
+  // Register the callback(s):
+  //
+  StatusCode sc = service("GeoModelSvc", m_geoModel);
+  if(sc.isFailure())
+    {
+      ATH_MSG_ERROR( "Could not locate GeoModelSvc" );
+      return StatusCode::FAILURE;
+    }
+
+  sc = detStore()->retrieve(m_tileMgr);
   if (sc.isFailure())
     {
       ATH_MSG_ERROR( "Unable to retrieve TileDetDescrManager from DetectorStore" );
@@ -335,106 +387,6 @@ StatusCode ISF_HitAnalysis::updateMetaData( IOVSVC_CALLBACK_ARGS_P( I, keys ) ) 
       else
         ATH_MSG_INFO("retrieved " << CaloCoordinateTool_name);
     } //tools
-
-  return StatusCode::SUCCESS;
-
-}
-
-StatusCode ISF_HitAnalysis::updateMetaData( IOVSVC_CALLBACK_ARGS_P( I, keys ) )
-{
-  ATH_MSG_INFO( "Updating the Sim+Digi MetaData" );
-
-  // Reset the internal settings:
-  bool run_update = false;
-
-  // Check what kind of keys we got. In principle the function should only
-  // receive the "/Digitization/Parameters" and "/Simulation/Parameters" key.
-  msg( MSG::DEBUG ) << "Update called with " <<I<< " folder " << keys.size() << " keys:";
-  std::list< std::string >::const_iterator itr = keys.begin();
-  std::list< std::string >::const_iterator end = keys.end();
-  for( ; itr != end; ++itr )
-    {
-      if( *itr == m_MC_DIGI_PARAM ) run_update = true;
-      if( *itr == m_MC_SIM_PARAM ) run_update = true;
-      msg() << *itr;
-    }
-  msg() << endmsg;
-  // If that's not the key that we received after all, let's just return
-  // silently...
-  if( ! run_update ) return StatusCode::SUCCESS;
-
-  const DataHandle< AthenaAttributeList > simParam;
-  if( detStore()->retrieve( simParam, m_MC_SIM_PARAM ).isFailure() )
-    {
-      ATH_MSG_WARNING("Retrieving MC SIM metadata failed");
-    }
-  else
-    {
-      AthenaAttributeList::const_iterator attr_itr = simParam->begin();
-      AthenaAttributeList::const_iterator attr_end = simParam->end();
-      for( ; attr_itr != attr_end; ++attr_itr )
-        {
-          std::stringstream outstr;
-          attr_itr->toOutputStream(outstr);
-          ATH_MSG_INFO("MetaData: " << outstr.str());
-        }
-    }
-
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode ISF_HitAnalysis::initialize()
-{
-  ATH_MSG_INFO( "Initializing ISF_HitAnalysis" );
-
-  /*
-  // get a handle of StoreGate for access to the Detector Store
-  sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()) {
-  ATH_MSG_ERROR( "ZH Unable to retrieve pointer to Detector Store");
-  return sc;
-  }
-  // get a handle of StoreGate for access to the Event Store
-  sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-  ATH_MSG_ERROR( "Unable to retrieve pointer to StoreGateSvc" );
-  return sc;
-  }
-  */
-
-  //
-  // Register the callback(s):
-  //
-  StatusCode sc = service("GeoModelSvc", m_geoModel);
-  if(sc.isFailure())
-    {
-      ATH_MSG_ERROR( "Could not locate GeoModelSvc" );
-      return StatusCode::FAILURE;
-    }
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (m_geoModel->geoInitialized())
-    {
-      sc=geoInit(dummyInt,dummyList);
-      if(sc.isFailure())
-        {
-          ATH_MSG_ERROR( "Call to geoInit failed" );
-          return StatusCode::FAILURE;
-        }
-    }
-  else
-    {
-      sc = detStore()->regFcn(&IGeoModelSvc::geoInit, m_geoModel, &ISF_HitAnalysis::geoInit,this);
-      if(sc.isFailure())
-        {
-          ATH_MSG_ERROR( "Could not register geoInit callback" );
-          return StatusCode::FAILURE;
-        }
-    }
 
   if( detStore()->contains< AthenaAttributeList >( m_MC_DIGI_PARAM ) )
     {
