@@ -33,6 +33,7 @@ struct MyDataObj {
   double m_f;
   int i() const { return m_i; }
   double f() const { return m_f; }
+  typedef std::true_type thread_safe;
 };
 bool operator==(const MyDataObj& lhs, const MyDataObj& rhs) {
   return ((lhs.m_i==rhs.m_i) && (lhs.m_f==rhs.m_f));

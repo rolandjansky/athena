@@ -31,7 +31,11 @@
 
 
 namespace AthenaBaseCompsTest {
-class MyObj {};
+class MyObj
+{
+public:
+  typedef std::true_type thread_safe;
+};
 }
 CLASS_DEF (AthenaBaseCompsTest::MyObj, 293847295, 1)
 using AthenaBaseCompsTest::MyObj;
