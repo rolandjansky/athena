@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 # @file PyUtils.scripts.cmt_newalg
 # @purpose streamline and ease the creation of new athena algs
 # @author Will Buttinger

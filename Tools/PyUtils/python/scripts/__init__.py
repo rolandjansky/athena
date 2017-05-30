@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 # hook for PyUtils.scripts package
 
 # FIXME: waiting for a proper declarative file
@@ -30,6 +28,9 @@ acmdlib.register('cmt.new-asgtool', 'PyUtils.scripts.cmt_newasgtool:main')
 acmdlib.register('cmt.new-pyalg', 'PyUtils.scripts.cmt_newpyalg:main')
 acmdlib.register('cmt.new-jobo', 'PyUtils.scripts.cmt_newjobo:main')
 acmdlib.register('cmt.new-analysisapp', 'PyUtils.scripts.cmt_newanalysisapp:main')
+
+acmdlib.register('cmake.new-pkg', 'PyUtils.scripts.cmake_newpkg:main')
+acmdlib.register('cmake.new-analysisalg', 'PyUtils.scripts.cmake_newanalysisalg:main')
 
 acmdlib.register('jira.issues', 'PyUtils.scripts.jira_issues:main')
 # acmdlib.register('jira.issue', 'PyUtils.scripts.jira_issue:main')

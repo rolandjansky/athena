@@ -1,13 +1,13 @@
 # @file PyUtils.scripts.cmt_newanalysisalg
 # @purpose streamline and ease the creation of new athena algs
 # @author Will Buttinger
-# @date September 2014
+# @date February 2017
 
 #Note - this code could use a serious rewrite, I just hacked it together to get something working
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 801634 $"
+__version__ = "$Revision: 795362 $"
 __author__ = "Will Buttinger"
 __doc__ = "streamline and ease the creation of new AthAnalysisAlgorithm"
 
@@ -164,7 +164,6 @@ StatusCode %(klass)s::beginInputFile() {
   return StatusCode::SUCCESS;
 }
 
-
 %(namespace_end)s
 """
     testxml_template = """\
@@ -184,7 +183,7 @@ StatusCode %(klass)s::beginInputFile() {
 
 ### functions -----------------------------------------------------------------
 @acmdlib.command(
-    name='cmt.new-analysisalg'
+    name='cmake.new-analysisalg'
     )
 @acmdlib.argument(
     'algname',
@@ -196,17 +195,12 @@ StatusCode %(klass)s::beginInputFile() {
     default=False,
     help='Create a skeleton joboption for execution of the new algorithm'
     )
-@acmdlib.argument(
-    '--atnTest',
-    action='store_true',
-    default=False,
-    help='Register the skeleton joboption as an ATN test'
-    )
+
 def main(args):
     """create a new AthAnalysisAlgorithm inside the current package. Call from within the package directory
 
     ex:
-     $ acmd cmt new-analysisalg MyAlg
+     $ acmd cmake new-analysisalg MyAlg
     """
     sc = 0
     
@@ -214,22 +208,18 @@ def main(args):
 
     #determine the package from the cwd 
     cwd = os.getcwd()
-    #check that cmt dir exists (i.e. this is a package)
-    if not os.path.isdir(cwd+"/cmt"):
+    #check that src dir exists and CMakeLists.txt exists (i.e. this is a package)
+    if not os.path.isdir(cwd+"/src") or not os.path.isfile(cwd+"/CMakeLists.txt"):
         print "ERROR you must call new-analysisalg from within the package you want to add the algorithm to"
         return -1
    
-    if args.atnTest and not full_alg_name.startswith("Test::"):
-       print "::: INFO  Requested --atnTest option, so adding 'Test::' namespace to the alg"
-       args.algname = "Test::%s"%args.algname
-       full_alg_name = args.algname
    
     full_pkg_name = os.path.basename(cwd)
     print textwrap.dedent("""\
     ::: create alg [%(full_alg_name)s] in pkg [%(full_pkg_name)s]""" %locals())
 
     
-    #first we must check that requirements file has the AthenaBaseComps use statement in it
+    #first we must check that CMakeLists.txt file has the AthAnalysisBaseComps dependency in it
     foundBaseComps=False
     hasxAODEventInfo=False
     hasAtlasROOT=False
@@ -237,50 +227,16 @@ def main(args):
     lastUse=0 
     lineCount=0
     hasLibraryLine=False
-    for line in open('cmt/requirements'):
+    hasComponentLine=False
+    for line in open('CMakeLists.txt'):
         lineCount +=1 
-        if line.startswith("library") or line.startswith("apply_pattern dual_use_library"): hasLibraryLine=True
-        if not line.startswith("use "): continue
-        lastUse=lineCount
-        uu = line.split(" ")
-        if uu[1].startswith("AthAnalysisBaseComps"): foundBaseComps=True
-        if uu[1].startswith("xAODEventInfo"): hasxAODEventInfo=True
-        if uu[1].startswith("AsgTools"): hasAsgTools=True
-        if uu[1].startswith("AtlasROOT"): hasAtlasROOT=True;
+        if "atlas_add_library" in line: hasLibraryLine=True
+        if "atlas_add_component" in line: hasComponentLine=True
+
+#GOT THIS FAR WITH EDITING
+
         
         
-    if not foundBaseComps:
-        print ":::  INFO Adding AthAnalysisBaseComps to requirements file"
-        #must add a use statement to the requirements file 
-        #put inside private blocks
-        lineCount=0
-        inPrivate=False
-        for line in fileinput.input('cmt/requirements', inplace=1):
-            lineCount+=1
-            if lineCount==lastUse+1:
-                if not inPrivate: print "private"
-                print ""
-                print "use AthAnalysisBaseComps AthAnalysisBaseComps-* Control"
-                print ""
-                if not hasAtlasROOT:
-                  print "#uncomment the next line to use ROOT libraries in your package"
-                  print "#use AtlasROOT AtlasROOT-* External"
-                  print ""
-                if not hasxAODEventInfo:
-                  print "#use xAODEventInfo xAODEventInfo-* Event/xAOD"
-                  print ""
-                if not hasAsgTools:
-                  print "#use AsgTools AsgTools-* Control/AthToolSupport"
-                  print ""
-                if not inPrivate: print "end_private"
-            if line.startswith("private"): inPrivate=True
-            elif line.startswith("end_private"): inPrivate=False
-            print line,
-    #append library line if necessary
-    if not hasLibraryLine:
-      with open("cmt/requirements", "a") as myfile:
-         myfile.write("library %s *.cxx components/*.cxx\n" % (full_pkg_name))
-         myfile.write("apply_pattern component_library\n")
 
     
     #following code borrowed from gen_klass
@@ -326,7 +282,8 @@ def main(args):
     o_cxx.close()
 
     #now add the algorithm to the _entries.cxx file in the components folder 
-    #first check they exist 
+    #first check they exist
+    if not os.path.exists("src/components"): os.mkdir("src/components"); 
     if not os.path.isfile("src/components/%s_load.cxx"%full_pkg_name):
        print ":::  INFO Creating src/components/%s_load.cxx"%full_pkg_name
        loadFile = open("src/components/%s_load.cxx"%full_pkg_name,'w')
@@ -402,7 +359,7 @@ DECLARE_ALGORITHM_FACTORY( %(klass)s )
             print line,
    
    
-    if args.atnTest or args.newJobo:
+    if args.newJobo:
       #make the joboptions file too
       full_jobo_name = namespace_klass + "JobOptions"
       full_alg_name = namespace_klass
@@ -427,35 +384,21 @@ DECLARE_ALGORITHM_FACTORY( %(klass)s )
          o_hdr.flush()
          o_hdr.close()
 
-    if args.atnTest:
-      testxml = getattr(Templates, 'testxml_template')
-      #add the test joboptions to the atn test
-      #check we have a test directory with appropriate xml file in it
-      if not os.path.isdir("test"):
-         os.mkdir("test")
-      if not os.path.isfile("test/%s.xml"%full_pkg_name):
-         print ":::  INFO Creating test/%s.xml"%full_pkg_name
-         loadFile = open("test/%s.xml"%full_pkg_name,'w')
-         loadFile.writelines("<?xml version=\"1.0\"?>\n<atn>\n")
-         loadFile.writelines(testxml%d)
-         loadFile.writelines("</atn>\n")
-         loadFile.flush()
-         loadFile.close()
-      else:
-         print ":::  INFO Adding %s to test/%s.xml"%(namespace_klass + "JobOptions.py",full_pkg_name)
-         nextAdd=False
-         for line in fileinput.input("test/%s.xml"%full_pkg_name, inplace=1):
-            if nextAdd:
-               print(testxml%d)
-               nextAdd=False
-            if "<atn>" in line: nextAdd=True
-            print line,
+    #need to reconfigure cmake so it knows about the new files
+    #rely on the WorkDir_DIR env var for this
+    workDir = os.environ.get("WorkDir_DIR")
+    if workDir == None:
+        print "::: ERROR No WorkDir_DIR env var, did you forget to source the setup.sh script?"
+        print "::: ERROR Please do this and reconfigure cmake manually!"
+    else:
+        print ":::  INFO Reconfiguring cmake %s/../." % workDir
+        res = commands.getstatusoutput('cmake %s/../.' % workDir)
+        if res[0]!=0:
+            print ":::  WARNING reconfigure unsuccessful. Please reconfigure manually!"
+        
 
-   
-    #to finish up, call cmt config so that the new algorithm will be captured and genconf run on it
-    cwd = os.getcwd()
-    try:
-        os.chdir('cmt')
-        _ = commands.getstatusoutput('cmt config')
-    finally:
-        os.chdir(cwd)
+    print ":::  INFO Please ensure your CMakeLists.txt file has "
+    print ":::       atlas_add_component( %s src/component/*.cxx ... )" % full_pkg_name
+    print ":::  INFO and necessary dependencies declared "
+    print ":::  INFO Minimum dependency is: Control/AthAnalysisBaseComps"
+

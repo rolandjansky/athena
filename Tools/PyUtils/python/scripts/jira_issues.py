@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 # @file PyUtils.scripts.jira
 # @purpose Interface with CERN JIRA instance
 # @author Edward Moyse
@@ -12,7 +10,6 @@ __author__ = "Edward Moyse"
 # Tried to use jira module, but apparently doesn't support cookie-based authenticatoon.
 
 # pip install --user requests
-import requests
 import os
 import PyUtils.acmdlib as acmdlib
 
@@ -20,6 +17,12 @@ import PyUtils.acmdlib as acmdlib
 
 def queryJira(querystring, cookies):
     # Now, let's make this request!
+    try:
+      import requests
+    except ImportError:
+      print "[WARN] Module 'requests' is not available so JIRA commands are not available (pip install --user requests)"
+      return
+
     base_url = "https://its.cern.ch/jira/rest/api/2/"
     url = base_url+querystring
 
@@ -57,9 +60,6 @@ def queryJira(querystring, cookies):
                   
 def main(args):
     """Interface to the CERN JIRA instance"""
-
-    import requests
-    
     #authentication
     try: 
         cookiesFile = file(args.cookies, 'r')
