@@ -72,10 +72,22 @@ class L2EFChain_mu(L2EFChainDef):
     if 'AFP' in self.L2InputTE:
       self.L2InputTE = self.L2InputTE.replace("AFP_C_","")
     if self.L2InputTE:      # cut of L1_, _EMPTY,..., & multiplicity
-      self.L2InputTE = self.L2InputTE.replace("L1_","")
-      self.L2InputTE = self.L2InputTE.split("_")[0]
-      self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
-    
+      if "dRl1" in self.chainPart['addInfo']:
+        #the dRl1 acts on a list of L1 RoIs, so we need to treat each item in the list separately
+        #then recreate the list with proper thresholds
+        #would probably be easier to just use ['MU6','MU6'] in the menu, but this way it's consistent 
+        tmpL2InputTE = []
+        for l1Thr in self.L2InputTE:
+          l1Thr = l1Thr.replace("L1_","")
+          l1Thr = l1Thr.split("_")[0]
+          l1Thr = l1Thr[1:] if l1Thr.isdigit() else l1Thr 
+          tmpL2InputTE.append(l1Thr)
+        self.L2InputTE = tmpL2InputTE
+      else:
+        self.L2InputTE = self.L2InputTE.replace("L1_","")
+        self.L2InputTE = self.L2InputTE.split("_")[0]
+        self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
+      
     # --- used to configure hypos for FS muon chains
     self.allMuThrs=AllMuons
 
@@ -106,6 +118,7 @@ class L2EFChain_mu(L2EFChainDef):
           and not self.chainPart['hypoInfo'] \
           and not self.chainPart['reccalibInfo'] \
           and "cosmicEF" not in self.chainPart['addInfo'] \
+          and not "dRl1" in self.chainPart['addInfo'] \
           and not self.thisIsBphysChain :
       self.setup_muXX_ID()
     elif "muL2" in self.chainPart['reccalibInfo']:
@@ -116,8 +129,10 @@ class L2EFChain_mu(L2EFChainDef):
       self.setup_muXX_NS()
     elif "calotag" in self.chainPart['FSinfo']:
       self.setup_muXX_calotag_noL1()
-    elif self.chainPart['extra'] or "JpsimumuFS" in self.chainPart['FSinfo']:
+    elif "noL1" in self.chainPart['extra'] or "JpsimumuFS" in self.chainPart['FSinfo']:
       self.setup_muXX_noL1()
+    elif "dRl1" in self.chainPart['addInfo']:
+      self.setup_muXX_dR()
     elif self.chainPart['reccalibInfo'] == "idperf":
       self.setup_muXX_idperf()
     elif self.chainPart['reccalibInfo'] == "l2msonly"  and "cosmicEF" not in self.chainPart['addInfo'] :
@@ -1089,27 +1104,31 @@ class L2EFChain_mu(L2EFChainDef):
 
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFExtrapolatorMultiHypoConfig, TrigMuonEFExtrapolatorHypoConfig
 
+    if "dRl1" in self.chainPart['addInfo']:
+      Nmuons=len(self.allMuThrs)-1
+    else:
+      Nmuons=len(self.allMuThrs)
     ##Use list of muon threshold in the chain to correctly configure the FS hypos
     
     if "JpsimumuFS" in self.chainPart['FSinfo']:
       theTrigMuonEFSA_FS_Hypo = TrigMuonEFExtrapolatorMultiHypoConfig('Muon','0GeV','0GeV')
       hypocut='0GeV_0GeV'    
     else:
-      if len(self.allMuThrs) == 0:
+      if Nmuons == 0:
         log.error("The list of allMuonThreshold is empty for a noL1 chain! It should never happen")
 
-      if len(self.allMuThrs) == 1:
+      if Nmuons == 1:
     	  theTrigMuonEFSA_FS_Hypo = TrigMuonEFExtrapolatorHypoConfig('Muon', '0GeV')
     	  hypocut = '0GeV'
 
-      elif len(self.allMuThrs) == 2:
+      elif Nmuons == 2:
     	  theTrigMuonEFSA_FS_Hypo = TrigMuonEFExtrapolatorMultiHypoConfig('Muon', '0GeV','0GeV')
     	  hypocut = '0GeV_0GeV'
 
-      elif len(self.allMuThrs) == 3:
+      elif Nmuons == 3:
     	  theTrigMuonEFSA_FS_Hypo = TrigMuonEFExtrapolatorMultiHypoConfig('Muon', '0GeV','0GeV','0GeV')
     	  hypocut = '0GeV_0GeV_0GeV'
-      elif len(self.allMuThrs) == 4:
+      elif Nmuons == 4:
          theTrigMuonEFSA_FS_Hypo = TrigMuonEFExtrapolatorMultiHypoConfig('Muon', '0GeV','0GeV','0GeV','0GeV')
          hypocut = '0GeV_0GeV_0GeV_0GeV'
       else:
@@ -1339,10 +1358,19 @@ class L2EFChain_mu(L2EFChainDef):
 
       }
 
+  #################################################################################################
+  #################################################################################################
 
+  def setup_muXX_dR(self):
+    
+    from TrigGenericAlgs.TrigGenericAlgsConfig import OverlapRemovalConfig
+    OverlapRemoval_algo = OverlapRemovalConfig('OvlRem', MinCentDist = 1)
+    
+    self.L2sequenceList += [[self.L2InputTE,
+                             [OverlapRemoval_algo],
+                             'L2_OvlRem_dRl1']]
 
-
-
+    self.L2signatureList += [ [['L2_OvlRem_dRl1']] ]
 
   #################################################################################################
   #################################################################################################

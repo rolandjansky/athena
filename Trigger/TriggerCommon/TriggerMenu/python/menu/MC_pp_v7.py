@@ -136,7 +136,10 @@ def setupMenu():
         ['mu4_mu4noL1',            'L1_MU4',  ['L1_MU4',''],  [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu4','mu4noL1']]],
 	['mu4noL1',                '',  [],  [PhysicsStream], ['RATE:SingleMuon','BW:Muon'], -1, ],
 	['mu0noL1',                '',  [],  [PhysicsStream], ['RATE:SingleMuon','BW:Muon'], -1, ],
-        
+       
+        #ATR-14377
+        ['mu6_dRl1_mu20_msonly_mu6noL1_dRl1_msonly','L1_2MU6', [['L1_MU6','L1_MU6'],'L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu6_dRl1','mu20_msonly','mu6noL1_dRl1_msonly']]],
+ 
         # Toroid-off run (ATR-9923)
         ['mu11_L1MU10_2mu4noL1_nscan03_L1MU10_2MU6', 'L1_MU10_2MU6', ['L1_MU10','L2_mu11_L1MU10'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11_L1MU10','2mu4noL1_nscan03']]],
         ['mu11_2mu4noL1_nscan03_L1MU11_2MU6',      'L1_MU11_2MU6',    ['L1_MU11','L2_mu11'],        [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11','2mu4noL1_nscan03']]],
