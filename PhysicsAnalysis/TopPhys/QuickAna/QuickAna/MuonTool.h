@@ -78,6 +78,7 @@ namespace ana
 
   private:
     SelectionCut cut_calib_tool;
+
   };
 
 
@@ -131,11 +132,17 @@ namespace ana
     bool m_looseImpactCut;
     /// Point above which to apply the high pT cuts
     float m_high_pT;
+    /// Don't apply a TRT cut -- only for specific derivations 
+    bool m_noTRT;
+    /// Apply the high-pT bad muon veto
+    bool m_doBadMuVeto;
 
     // CP tools
 
     /// description: the selection tool
     asg::AnaToolHandle<CP::IMuonSelectionTool> m_selection;
+    /// description: the selection tool for high-pT working point
+    asg::AnaToolHandle<CP::IMuonSelectionTool> m_selectionHPT;
     /// description: the isolation selection tool
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isolationTool;
 
@@ -187,6 +194,8 @@ namespace ana
 
     /// description: the reco efficiency correction tool
     asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_efficiency_scale;
+    /// description: the reco efficiency correction tool for high-pT
+    asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_efficiency_scaleHPT;
 
     /// description: the TTVA efficiency correction tool
     asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_ttva_efficiency_scale;
@@ -194,11 +203,20 @@ namespace ana
     /// description: the isolation efficiency correction tool
     asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_isolation_scale;
 
+    /// description: the bad muon veto efficiency correction tool
+    asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_badmuonveto_scale;
+
   private:
     /// Configuration:
 
     /// Isolation working point string
     std::string m_isolationWP;
+    /// Point above which to apply the high pT cuts
+    float m_high_pT;
+    /// Don't apply a TRT cut -- only for specific derivations 
+    bool m_noTRT;
+    /// Apply the high-pT bad muon veto
+    bool m_doBadMuVeto;
 
   public:
     /// description: desired quality
@@ -212,7 +230,9 @@ namespace ana
                           const std::string& isolationWPString = "Gradient",
                           const bool& inclusiveMET=false,
                           const bool& looseImpactCut=false,
-                          const float& high_pT=-1.);
+                          const float& high_pT=-1.,
+                          const bool noTRT=false,
+                          const bool badMuVeto=false);
 
 }
 

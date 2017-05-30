@@ -1,0 +1,112 @@
+## automatically generated CMT requirements file
+package QuickAna
+author  krumnack
+
+# Public dependencies: note AtlasPolicy must be first
+public
+use  AtlasPolicy                AtlasPolicy-*
+use  AsgTools                   AsgTools-*                      Control/AthToolSupport
+#use  EventLoop                  EventLoop-*
+use  AthContainers              AthContainers-*                 Control
+use  PATInterfaces              PATInterfaces-*                 PhysicsAnalysis/AnalysisCommon
+
+use  RootCoreUtils              RootCoreUtils-*                 PhysicsAnalysis/D3PDTools
+use  IsolationSelection         IsolationSelection-*            PhysicsAnalysis/AnalysisCommon
+#use  Asg_Test                   Asg_Test-*                      AsgExternal
+use  AssociationUtils           AssociationUtils-*              PhysicsAnalysis/AnalysisCommon
+
+use  AthContainers              AthContainers-*                 Control
+use  IsolationSelection         IsolationSelection-*            PhysicsAnalysis/AnalysisCommon
+#use  ElectronIsolationSelection ElectronIsolationSelection-*    PhysicsAnalysis/ElectronPhotonID
+use  PATInterfaces              PATInterfaces-*                 PhysicsAnalysis/AnalysisCommon
+use  RootCoreUtils              RootCoreUtils-*                 PhysicsAnalysis/D3PDTools
+#use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
+use  xAODEgamma                 xAODEgamma-*                    Event/xAOD
+use  xAODJet                    xAODJet-*                       Event/xAOD
+use  xAODMuon                   xAODMuon-*                      Event/xAOD
+use  xAODTau                    xAODTau-*                       Event/xAOD
+use  xAODCore                   xAODCore-*                      Event/xAOD
+use  xAODMissingET              xAODMissingET-*                 Event/xAOD
+use  xAODMuon                   xAODMuon-*                      Event/xAOD
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
+#use  xAODPrimitives             xAODPrimitives-*                Event/xAOD
+#use  xAODTracking               xAODTracking-*                  Event/xAOD
+use  xAODCore                   xAODCore-*                      Event/xAOD
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
+use  xAODMissingET              xAODMissingET-*                 Event/xAOD
+use  xAODTruth                  xAODTruth-*                     Event/xAOD
+
+
+# Private dependencies
+private
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  JetMomentTools             JetMomentTools-*                Reconstruction/Jet
+use  xAODTracking               xAODTracking-*                  Event/xAOD
+use  AtlasBoost                 AtlasBoost-*                    External
+use  GaudiInterface             GaudiInterface-*                External
+#use  AthLinks                   AthLinks-*                      Control
+use  AtlasROOT                  AtlasROOT-*                     External
+use  JetCalibTools              JetCalibTools-*                 Reconstruction/Jet
+use  JetUncertainties           JetUncertainties-*              Reconstruction/Jet
+use  JetResolution              JetResolution-*                 Reconstruction/Jet
+use  JetSelectorTools           JetSelectorTools-*              PhysicsAnalysis/JetMissingEtID
+use  JetJvtEfficiency           JetJvtEfficiency-*              Reconstruction/Jet
+use  METUtilities               METUtilities-*                  Reconstruction/MET
+use  MuonEfficiencyCorrections  MuonEfficiencyCorrections-*     PhysicsAnalysis/MuonID/MuonIDAnalysis
+use  MuonMomentumCorrections    MuonMomentumCorrections-*       PhysicsAnalysis/MuonID/MuonIDAnalysis
+use  MuonSelectorTools          MuonSelectorTools-*             PhysicsAnalysis/MuonID
+use  xAODBTaggingEfficiency     xAODBTaggingEfficiency-*        PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration
+
+use  ElectronEfficiencyCorrection               ElectronEfficiencyCorrection-*          PhysicsAnalysis/ElectronPhotonID
+use  ElectronPhotonFourMomentumCorrection       ElectronPhotonFourMomentumCorrection-*  PhysicsAnalysis/ElectronPhotonID
+use  ElectronPhotonShowerShapeFudgeTool         ElectronPhotonShowerShapeFudgeTool-*    PhysicsAnalysis/ElectronPhotonID
+use  ElectronPhotonSelectorTools                ElectronPhotonSelectorTools-*           PhysicsAnalysis/ElectronPhotonID
+
+use  AthAnalysisBaseComps       AthAnalysisBaseComps-*          Control
+use  CxxUtils                   CxxUtils-*                      Control
+
+use  xAODBTaggingEfficiency     xAODBTaggingEfficiency-*        PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration
+
+use  TrigConfxAOD               TrigConfxAOD-*                  Trigger/TrigConfiguration
+use  xAODBase                   xAODBase-*                      Event/xAOD
+#use  xAODTrigEgamma             xAODTrigEgamma-*                Event/xAOD
+
+use  StoreGate                  StoreGate-*                     Control
+use  TauAnalysisTools           TauAnalysisTools-*              PhysicsAnalysis/TauID
+use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
+use  PileupReweighting          PileupReweighting-*             PhysicsAnalysis/AnalysisCommon
+use  PathResolver               PathResolver-*                  Tools
+use  PhotonEfficiencyCorrection PhotonEfficiencyCorrection-*    PhysicsAnalysis/ElectronPhotonID
+use  IsolationCorrections       IsolationCorrections-*          PhysicsAnalysis/ElectronPhotonID
+use  METInterface               METInterface-*                  Reconstruction/MET
+use  TriggerMatchingTool        TriggerMatchingTool-*           Trigger/TrigAnalysis
+use  EventPrimitives            EventPrimitives-*               Event
+
+# To get the ASGSeries defined
+use  Asg_Test           Asg_Test-*     AsgExternal
+end_private
+
+macro_append pp_cppflags "" ASGSeries21 " -DROOTCORE_RELEASE_SERIES=21 "
+macro_append pp_cppflags "" ASGSeries23 " -DROOTCORE_RELEASE_SERIES=23 "
+macro_append pp_cppflags "" ASGSeries24 " -DROOTCORE_RELEASE_SERIES=24 "
+macro_append pp_cppflags "" ASGSeries25 " -DROOTCORE_RELEASE_SERIES=25 "
+
+branches Root src
+
+apply_tag  ROOTBasicLibs
+macro_append QuickAna_shlibflags " -lPyROOT -lProof -lProofPlayer " 
+
+# Create an installed library, i.e., one where others can inherit from
+# Actually, I think we'll need a component lib or dual-use
+
+#apply_pattern dual_use_library files=“../src/*.cxx ../Root/*.cxx”
+#library QuickAna ../Root/*.cxx ../src/AthExample.cxx ../src/components/*.cxx
+library QuickAna ../Root/*.cxx ../src/AthExample.cxx ../src/components/*.cxx
+apply_pattern component_library
+#apply_pattern installed_library
+
+macro QuickAna_TestConfiguration "../test/QuickAna_TestConfiguration.xml"
+apply_pattern declare_runtime extras="../test/QuickAna_TestConfiguration.xml"
+apply_pattern declare_calib files="../share/*.conf"
+
+apply_pattern declare_joboptions files=*.py

@@ -82,8 +82,6 @@ namespace ana
 
     // Configuration
 
-    // TODO: Add config options from ORFlags!
-
     /// The OR toolbox
     ORUtils::ToolBox m_orToolBox;
 
@@ -93,11 +91,14 @@ namespace ana
     /// QuickAna analysis selection name
     std::string m_anaSelectionName;
 
-    /// OR input decoration name
-    //std::string m_orInputLabel;
+    /// Sliding-DR option: 'muon', 'electron', 'both'
+    std::string m_slidingConeType;
 
-    /// OR output decoration name
-    //std::string m_orOutputLabel;
+    /// Use JVT for prioritization
+    bool m_jvtPriorities;
+
+    /// Muon Jet removal pT
+    bool m_applyRelPt;
 
   }; // class ORTool
 

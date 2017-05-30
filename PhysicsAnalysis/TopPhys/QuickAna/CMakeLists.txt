@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 780993 2016-10-28 13:22:53Z krasznaa $
 
 # The name of the package:
 atlas_subdir( QuickAna )

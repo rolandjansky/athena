@@ -188,7 +188,7 @@ namespace ana
       {
         // this drops all the tools from secondary working points
         // that should only exist once
-        const bool multiWP = tool.first->step() >= STEP_SELECT;
+        const bool multiWP = tool.first->step() >= STEP_SELECT || tool.first->step() == STEP_TRIG_DECISION;
         if (m_mode != Mode::OBJECT_DEFINITION ||
             m_firstWP || multiWP)
         {
@@ -197,7 +197,7 @@ namespace ana
             workingPoint = m_defName;
           if (m_mode != Mode::KINSELECT)
             ANA_CHECK (tool.first->setObjectType (m_defType, workingPoint));
-          sequence.addTool (std::unique_ptr<IAnaTool>(tool.first));
+          sequence.addTool (std::move(tool.first));
         }
       } else
       {

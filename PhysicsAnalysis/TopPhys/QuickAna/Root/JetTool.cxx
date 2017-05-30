@@ -49,13 +49,13 @@ namespace
 #elif ROOTCORE_RELEASE_SERIES == 24
   const char* btagAlgDefault = "MV2c10";
   const std::string bTagCalibFile =
-    "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-01-31_v1.root";
+    "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-04-24_v1.root";
   const char *jesFile = "JES_data2016_data2015_Recommendation_Dec2016.config";
   const std::string uncertConfigFile = "JES_2016/Moriond2017/JES2016_SR_Scenario1.config";
 #else
   const char* btagAlgDefault = "MV2c10";
   const std::string bTagCalibFile =
-    "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-01-31_v1.root";
+    "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-04-24_v1.root";
   const char *jesFile = "JES_MC15cRecommendation_May2016_rel21.config";
   const std::string uncertConfigFile = "JES_2016/Moriond2017/JES2016_SR_Scenario1.config";
 #endif
@@ -118,13 +118,21 @@ namespace ana
     //  https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/JetEtmissRecommendationsMC15
 
     // Strip off the "Jets" suffix in the jet collection name
+    // @TODO: update AnaToolHandle tool creation mechanism
+    ATH_CHECK (ASG_MAKE_ANA_TOOL (m_calibration_tool, JetCalibrationTool));
     const auto jetCollection = m_jetContainer.substr(0, m_jetContainer.size()-4);
     const std::string configFile = m_isAFII ? "JES_MC15Prerecommendation_AFII_June2015.config"
                                             : jesFile;
+#if ROOTCORE_RELEASE_SERIES == 24
     const std::string calibSeq = m_isData ? "JetArea_Residual_Origin_EtaJES_GSC_Insitu"
                                           : "JetArea_Residual_Origin_EtaJES_GSC";
-    // @TODO: update AnaToolHandle tool creation mechanism
-    ATH_CHECK (ASG_MAKE_ANA_TOOL (m_calibration_tool, JetCalibrationTool));
+#else
+    const std::string calibSeq = m_isData ? "JetArea_Residual_EtaJES_GSC_Insitu"
+                                          : "JetArea_Residual_EtaJES_GSC";
+    std::string rhoKey = jetCollection.find("LCTopo")!=std::string::npos ? "Kt4LCTopoOriginEventShape"
+                                                                         : "Kt4EMTopoOriginEventShape";
+    ATH_CHECK( m_calibration_tool.setProperty("RhoKey", rhoKey) );
+#endif
     ATH_CHECK( m_calibration_tool.setProperty("JetCollection", jetCollection) );
     ATH_CHECK( m_calibration_tool.setProperty("ConfigFile", configFile) );
     ATH_CHECK( m_calibration_tool.setProperty("CalibSequence", calibSeq) );
@@ -366,6 +374,7 @@ namespace ana
     ATH_CHECK( m_btagging_eff_tool.setProperty("OperatingPoint", m_btagWP) );
     ATH_CHECK( m_btagging_eff_tool.setProperty("JetAuthor", "AntiKt4EMTopoJets") );
     ATH_CHECK( m_btagging_eff_tool.setProperty("ScaleFactorFileName", bTagCalibFile) );
+    ATH_CHECK( m_btagging_eff_tool.setProperty("SystematicsStrategy", "Envelope") );
     ATH_CHECK( m_btagging_eff_tool.initialize() );
     // register for systematics
     registerTool (&*m_btagging_eff_tool);
@@ -501,11 +510,11 @@ namespace ana
                  "FixedCutBEff_77"))
 
   QUICK_ANA_JET_DEFINITION_MAKER ("antikt04_HZZ",
-    makeJetTool (args, "AntiKt4EMTopoJets", SelectionStep::MET,
+    makeJetTool (args, "AntiKt4EMTopoJets", SelectionStep::ANALYSIS,
                  "FixedCutBEff_85"))
 
   QUICK_ANA_JET_DEFINITION_MAKER( "AntiKt4EMTopo_SUSY",
-    makeJetTool (args, "AntiKt4EMTopoJets", SelectionStep::MET,
+    makeJetTool (args, "AntiKt4EMTopoJets", SelectionStep::ANALYSIS,
                  "FixedCutBEff_77"))
 
   QUICK_ANA_JET_DEFINITION_MAKER( "antikt04_DiMu",

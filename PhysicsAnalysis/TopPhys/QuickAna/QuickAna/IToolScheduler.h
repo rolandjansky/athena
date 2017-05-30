@@ -25,6 +25,7 @@
 
 #include <AsgTools/IAsgTool.h>
 #include <vector>
+#include <memory>
 
 namespace CP
 {
@@ -55,7 +56,7 @@ namespace ana
     /// guarantee: strong
     /// failures: out of memory I
   public:
-    virtual StatusCode addTool (IAnaTool *tool) = 0;
+    virtual StatusCode addTool (std::unique_ptr<IAnaTool> tool) = 0;
 
     /// returns: the list of all systematics the tools can be affected by
     /// guarantee: strong

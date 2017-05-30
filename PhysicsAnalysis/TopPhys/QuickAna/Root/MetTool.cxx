@@ -46,6 +46,9 @@
 #endif
 #include <METUtilities/METHelpers.h>
 
+// For the fJVT working point
+#include <JetMomentTools/JetForwardJvtTool.h>
+
 static const float GeV = 1000.;
 
 //
@@ -57,8 +60,10 @@ namespace ana
   MetTool ::
   MetTool (const std::string& name)
     : AsgTool (name), AnaTool (name),
+      m_doFJVT(false),
       m_metutil ("maker", this),
       m_metSystTool ("systTool", this),
+      m_fjvtTool ("fjvtTool", this),
       m_accessor ("dummy")
   {
     // Note: these are only used with METMaker
@@ -146,7 +151,17 @@ namespace ana
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_metutil, met::METMaker) );
     ATH_CHECK( m_metutil.setProperty("ORCaloTaggedMuons", m_doORCaloTaggedMuons) );
     ATH_CHECK( m_metutil.setProperty("DoSetMuonJetEMScale", m_doMuJetEMScale) );
-    ATH_CHECK( m_metutil.setProperty("JetSelection", m_jetSelection) );
+
+    if (m_jetSelection!="passFJVT"){
+      ATH_CHECK( m_metutil.setProperty("JetSelection", m_jetSelection) );
+    } else {
+      // Special forward JVT working point - requires the forward JVT tool to be enabled!
+      m_doFJVT = true;
+      ATH_CHECK( m_metutil.setProperty("JetRejectionDec", m_jetSelection) );
+      ATH_CHECK( ASG_MAKE_ANA_TOOL( m_fjvtTool, JetForwardJvtTool) );
+      ATH_CHECK( m_fjvtTool.setProperty("CentralMaxPt",60e3) );
+    }
+
     if (m_uniqueFrac>=0.) ATH_CHECK( m_metutil.setProperty("JetMinEFrac", m_uniqueFrac) );
     if (m_jetCut>=0.)     ATH_CHECK( m_metutil.setProperty("JetMinWeightedPt", m_jetCut) );
     if (!m_doTST)
@@ -175,7 +190,7 @@ namespace ana
       if (!m_doTST) ATH_CHECK( m_metSystTool.setProperty("ConfigSoftTrkFile","") );
       // No calo soft term systematics recommendations, so an empty string for now
       if (m_doTST) ATH_CHECK( m_metSystTool.setProperty("ConfigSoftCaloFile", "") );
-
+      if (m_doTrackMET) ATH_CHECK( m_metSystTool.setProperty("ConfigJetTrkFile","JetTrackSyst.config") );
       // No other non-default settings
       ATH_CHECK( m_metSystTool.initialize() );
       registerTool(&*m_metSystTool);
@@ -309,6 +324,10 @@ namespace ana
     {
       ATH_MSG_WARNING("Invalid jet container specified for MET rebuilding!");
       return StatusCode::SUCCESS;
+    } else if (m_doFJVT) {
+      // Make sure for forward jet working point we apply the fJVT tool
+      // This always returns zero, so no need for value checking right now
+      m_fjvtTool->modify( *objects.jets() );
     }
 
     if (m_doTrackMET)
@@ -371,9 +390,12 @@ namespace ana
   QUICK_ANA_MET_DEFINITION_MAKER( "default",   makeMetTool(args) )
   QUICK_ANA_MET_DEFINITION_MAKER( "noTauTerm", makeMetTool(args,false) )
   QUICK_ANA_MET_DEFINITION_MAKER( "trackmet",  makeMetTool(args,true,true,true,true) )
-  QUICK_ANA_MET_DEFINITION_MAKER( "susy2L",    makeMetTool(args) )
+  QUICK_ANA_MET_DEFINITION_MAKER( "susy2L",    makeMetTool(args,true,true,true,false,true,true) )
   QUICK_ANA_MET_DEFINITION_MAKER( "metZHinv",  makeMetTool(args,true,true,true,false,true,true) )
   QUICK_ANA_MET_DEFINITION_MAKER( "noTauCST",  makeMetTool(args,false,false) )
   QUICK_ANA_MET_DEFINITION_MAKER( "CST",       makeMetTool(args,true,false,false) )
+
+  QUICK_ANA_MET_DEFINITION_MAKER( "Tight",    makeMetTool(args,true,true,true,false,true,false,"Tight") )
+  QUICK_ANA_MET_DEFINITION_MAKER( "passFJVT",    makeMetTool(args,true,true,true,false,true,false,"passFJVT") )
 
 }

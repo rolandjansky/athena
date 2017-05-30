@@ -1,0 +1,52 @@
+#!/bin/bash
+
+OUTFILE=${ROOTCORECMT}/QuickAna_config.h
+
+test -e $OUTFILE -a $OUTFILE -nt $0 && exit 0
+
+rm -f $OUTFILE-
+mkdir -p `dirname $OUTFILE`
+touch $OUTFILE-
+
+export ROOTCORETEST_CXXFLAGS=-DXAOD_STANDALONE
+export ROOTCORETEST_DEP=QuickAna
+
+echo scanning local header files
+
+echo '#ifndef QUICK_ANA_CONFIG_H' >>$OUTFILE-
+echo '#define QUICK_ANA_CONFIG_H' >>$OUTFILE-
+
+
+
+# echo >>$OUTFILE-
+# echo '// whether we use xAOD::TauJet_v1' >>$OUTFILE-
+# $ROOTCOREDIR/scripts/test_cc.sh compile <<EOF || /bin/echo -n '// ' >>$OUTFILE-
+#   #include <xAODTau/TauJet.h>
+#   namespace xAOD
+#   {
+#     class TauJet_v1;
+#     typedef TauJet_v1 TauJet;
+#   }
+# EOF
+# echo '#define QUICK_ANA_TAU_JET_V1' >>$OUTFILE-
+
+
+
+# echo >>$OUTFILE-
+# echo '// whether we use xAOD::TauJet_v2' >>$OUTFILE-
+# $ROOTCOREDIR/scripts/test_cc.sh compile <<EOF || /bin/echo -n '// ' >>$OUTFILE-
+#   #include <xAODTau/TauJet.h>
+#   namespace xAOD
+#   {
+#     class TauJet_v2;
+#     typedef TauJet_v2 TauJet;
+#   }
+# EOF
+# echo '#define QUICK_ANA_TAU_JET_V2' >>$OUTFILE-
+
+
+
+echo >>$OUTFILE-
+echo '#endif' >>$OUTFILE-
+
+mv $OUTFILE- $OUTFILE
