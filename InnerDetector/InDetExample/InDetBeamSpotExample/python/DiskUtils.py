@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import os, re, fnmatch, commands
+import os, re, fnmatch, subprocess
 
 # StorageManager to deal with listing, copying, reading files from different storage systems
 from collections import namedtuple
@@ -81,12 +81,12 @@ def filelist(files, prefix=None):
 
     mgr = storageManager(path)
 
-    sc, flist = commands.getstatusoutput(mgr.ls % path)
-    if sc: # command failed
-        print flist
+    try:
+        flist = subprocess.check_output(mgr.ls % path, shell=True).split()
+    except subprocess.CalledProcessError as err:
+        print err.output
         return []
 
-    flist = flist.split()
     if not (os.path.basename(files) in ['', '*']): # no need to filter
         pattern = fnmatch.translate(os.path.basename(files))
         flist = filter(lambda x: re.search(pattern, x), flist)
@@ -110,9 +110,9 @@ def ls(path, longls=False):
     mgr = storageManager(path)
 
     if longls:
-        return commands.getoutput(mgr.longls % path)
+        return subprocess.check_output(mgr.longls % path, shell=True)
     else:
-        return commands.getoutput(mgr.ls % path)
+        return subprocess.check_output(mgr.ls % path, shell=True)
 
 def cp(src, dest='.'):
     src = rationalise(src)
