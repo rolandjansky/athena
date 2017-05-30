@@ -264,7 +264,6 @@ void eflowObjectCreatorTool::createChargedEflowObjects(eflowCaloObject* energyFl
     /* Optionally we add the links to clusters to the xAOD::PFO */
     if (true == addClusters){
        unsigned int nClusters = energyFlowCaloObject->nClusters();
-       std::cout << " nClusters is " << nClusters << std::endl;
        for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster){
 	 eflowRecCluster* thisEfRecCluster = energyFlowCaloObject->efRecCluster(iCluster);
 	 ElementLink<xAOD::CaloClusterContainer> theClusLink = thisEfRecCluster->getClusElementLink();
