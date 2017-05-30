@@ -326,12 +326,12 @@ def TrigIDtrkMonitoringTool():
 		tidabjetvtxshift.ShifterChains = 2
 		tidabjetvtxshift.ntupleChainNames += [
 			"Offline",
-			"HLT_j35.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=xPrimVx",
-			"HLT_j35.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=EFHistoPrmVtx",
-			"HLT_j5.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=xPrimVx",
-			"HLT_j5.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=EFHistoPrmVtx",
-			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=xPrimVx",
-			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=EFHistoPrmVtx"
+			"HLT_j35.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
+			"HLT_j35.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx",
+			"HLT_j5.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
+			"HLT_j5.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx",
+			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
+			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx"
 			]
 		ToolSvc += tidabjetvtxshift;
 		list += [ "TrigTestBase/IDBjetVtxShifterTool" ]
@@ -345,12 +345,12 @@ def TrigIDtrkMonitoringTool():
 		tidajetvtxshift.ShifterChains = 2
 		tidajetvtxshift.ntupleChainNames += [
 			"Offline",
-			"HLT_j35_gsc.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=xPrimVx",
-			"HLT_j35_gsc.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=EFHistoPrmVtx",
-			"HLT_j50_gsc.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=xPrimVx",
-			"HLT_j50_gsc.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=EFHistoPrmVtx",
-			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=xPrimVx",
-			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=EFHistoPrmVtx"
+			"HLT_j250_gsc.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
+			"HLT_j250_gsc.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx",
+			"HLT_j50_gsc.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
+			"HLT_j50_gsc.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx",
+			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
+			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx"
 			]
 		ToolSvc += tidajetvtxshift;
 		list += [ "TrigTestBase/IDJetVtxShifterTool" ]
