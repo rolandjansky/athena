@@ -491,11 +491,8 @@ int main(int argc, char** argv)
   std::vector<ChainString> chainConfig;
 
   for ( unsigned ic=0 ; ic<testChains.size() ; ic++ ) { 
-    //    std::cout << "\nchain " << testChains[ic] << std::endl;
     chainConfig.push_back( ChainString( testChains[ic] ) );
-    testChains[ic] = ChainString::chop( testChains[ic], ":post" );
-    //    std::cout << "chain " << chainConfig << std::endl;
-    //    std::cout << "\nchain " << testChains[ic] << std::endl;
+    testChains[ic] =  chainConfig.back().pre(); 
   }
 
 
@@ -901,7 +898,7 @@ int main(int argc, char** argv)
     analy_conf->initialise();
     analy_conf->setprint(false);
 
-    std::string vtxTool = chainConfig[i].value("rvtx");
+    std::string vtxTool = chainConfig[i].postvalue("rvtx");
 
     if ( vtxTool!="" ) { 
       ///  don't use the vertex name as the directory, since then we cannot 
@@ -1730,7 +1727,7 @@ int main(int argc, char** argv)
 	ConfAnalysis* cf = dynamic_cast<ConfAnalysis*>( analitr->second );
 
 	if ( cf ) { 
-	  std::string ptconfig = cf->config().value("pt");
+	  std::string ptconfig = cf->config().postvalue("pt");
 	  if ( ptconfig!="" ) { 
 	    double pt = std::atof( ptconfig.c_str() );
 	    if ( pt>0 ) { 
