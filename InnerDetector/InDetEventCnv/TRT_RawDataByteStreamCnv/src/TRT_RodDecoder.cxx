@@ -1846,7 +1846,6 @@ TRT_RodDecoder::update( IOVSVC_CALLBACK_ARGS_P(I,keys) )
 			  Ctable->m_TableVersion );
 
 	 delete Ctable;
-	 catrIt++;
 
 	 continue;
        }
@@ -1857,7 +1856,6 @@ TRT_RodDecoder::update( IOVSVC_CALLBACK_ARGS_P(I,keys) )
 	 ATH_MSG_WARNING( "Table " << Ctable->m_TableVersion 
 			  << " already loaded!  Not overwriting" );
 	 delete Ctable;
-	 catrIt++;
 
 	 continue;
        }
