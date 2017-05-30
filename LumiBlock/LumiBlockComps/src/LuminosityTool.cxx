@@ -534,10 +534,12 @@ LuminosityTool::recalculatePerBCIDLumi()
     // This is absolute luminosity, so just unpack values into our array
     
     ATH_MSG_DEBUG( "Unpacking lumi value from blob");
-    const float* p4 = (const float*) ++pchar;  // Points to next char after header
-    for (unsigned int i=0; i<nbcids; i++, p4++) {
-      m_LBInstLumi[i] = *p4;
-      ATH_MSG_DEBUG( "Bcid: " << i << " Lumi: " << *p4 );
+    ++pchar;  // Points to next char after header
+    for (unsigned int i=0; i<nbcids; i++) {
+      // Can't use assignment directly because source may be misaligned.
+      memcpy (&m_LBInstLumi[i], pchar, sizeof(float));
+      pchar += sizeof(float);
+      ATH_MSG_DEBUG( "Bcid: " << i << " Lumi: " << m_LBInstLumi[i] );
     }
     
   } else { // Run1 way, hard!
