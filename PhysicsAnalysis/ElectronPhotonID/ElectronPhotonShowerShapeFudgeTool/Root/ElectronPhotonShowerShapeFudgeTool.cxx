@@ -11,8 +11,6 @@
 */
 
 #include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonShowerShapeFudgeTool.h"
-#include "ElectronPhotonShowerShapeFudgeTool/FudgeMCTool.h"
-#include "ElectronPhotonShowerShapeFudgeTool/TElectronMCShifterTool.h"
 
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/Photon.h"
@@ -34,7 +32,11 @@ ElectronPhotonShowerShapeFudgeTool::ElectronPhotonShowerShapeFudgeTool(std::stri
   declareProperty("ConfigFile",m_configFile="","The config file to use for the Electron Shifter");
 
   // Create an instance of the underlying ROOT tool
+#ifdef USE_NEW_TOOL  
+  m_ph_rootTool = new TPhotonMCShifterTool();
+#else
   m_ph_rootTool = new FudgeMCTool();
+#endif
   m_el_rootTool = new TElectronMCShifterTool();
 }
 
@@ -99,7 +101,10 @@ StatusCode ElectronPhotonShowerShapeFudgeTool::initialize()
   m_el_rootTool->Widths[ElePIDNames::Var::wstot] = GetFloatVector("width_wstot", env);
   m_el_rootTool->Widths[ElePIDNames::Var::e277] = GetFloatVector("width_e277", env);
   m_el_rootTool->Widths[ElePIDNames::Var::DeltaE] = GetFloatVector("width_DeltaE", env);
-
+  
+#ifdef USE_NEW_TOOL  
+  m_ph_rootTool->LoadFFs(m_preselection);
+#endif
   return StatusCode::SUCCESS;
 }
 
@@ -286,10 +291,11 @@ const CP::CorrectionCode ElectronPhotonShowerShapeFudgeTool::applyCorrection( xA
                            f3     ,
                            fside  ,
                            ws3    ,
+                           wtot   ,
                            Eratio ,
                            e277   ,
                            DeltaE ,
-                           deltaEta ,
+                           deltaEta,
                            deltaPhiRescaled2
                          );
 
@@ -365,8 +371,8 @@ bool ElectronPhotonShowerShapeFudgeTool::strtof(const std::string& input, float&
   else {
     last = (input.find("#",first+1) );
     if (last == std::string::npos) {
-      static asg::AsgMessaging m_msg("Egamma::ElectronPhotonShowerShapeFudgeTool");
-      m_msg.msg(MSG::WARNING)<<" Improper comment format , inline comment should be enclosed between two #  "<<endmsg;
+      static asg::AsgMessaging msg("Egamma::ElectronPhotonShowerShapeFudgeTool");
+      msg.msg(MSG::WARNING)<<" Improper comment format , inline comment should be enclosed between two #  "<<endmsg;
       return false;
     }
     diff = last - first ;

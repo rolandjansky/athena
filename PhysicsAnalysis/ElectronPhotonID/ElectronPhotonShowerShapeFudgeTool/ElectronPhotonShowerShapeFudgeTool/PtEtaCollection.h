@@ -41,7 +41,7 @@ class PtEtaCollection
   double* GetPtArray()  { return m_PtArray; }
   double* GetEtaArray() { return m_EtaArray; }
   T* GetPayloadArray()  { return m_PayloadArray; }
-
+  
  protected:
 
   unsigned int m_PtBins;
