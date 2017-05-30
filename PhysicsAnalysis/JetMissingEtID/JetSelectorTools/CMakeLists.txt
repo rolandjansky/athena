@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 805308 2017-05-23 07:31:59Z jgonski $
 ################################################################################
 # Package: JetSelectorTools
 ################################################################################
@@ -10,12 +11,15 @@ set( extra_deps )
 if( XAOD_STANDALONE )
    set( extra_deps Control/xAODRootAccess )
 else()
-   set( extra_deps GaudiKernel )
+   set( extra_deps Control/AthenaBaseComps
+      GaudiKernel )
 endif()
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
+   Control/AthContainers
+   Control/AthLinks
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODJet
    PhysicsAnalysis/AnalysisCommon/PATCore
@@ -31,12 +35,12 @@ atlas_add_library( JetSelectorToolsLib
    JetSelectorTools/*.h Root/*.cxx
    PUBLIC_HEADERS JetSelectorTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODJet JetInterface PATCoreLib )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODJet JetInterface PATCoreLib AthContainers AthLinks)
 
 if( NOT XAOD_STANDALONE )
-   atlas_add_component( JetSelectorTools
-      src/components/*.cxx
-      LINK_LIBRARIES GaudiKernel JetSelectorToolsLib )
+atlas_add_component( JetSelectorTools
+   src/*.h src/*.cxx src/components/*.cxx
+   LINK_LIBRARIES AthenaBaseComps GaudiKernel JetSelectorToolsLib )
 endif()
 
 atlas_add_dictionary( JetSelectorToolsDict
@@ -55,4 +59,5 @@ endif()
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
+atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.config )
