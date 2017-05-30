@@ -1705,14 +1705,22 @@ int main(int argc, char** argv) {
 	  rmax = plots.realmax();
 	}
 	
-	if ( yinfo.log() && rmin!=0 && rmax!=0 ) { 
+	int csize = chains.size() + taglabels.size() + ( atlasstyle ? 1 : 0 );
 
+	if ( yinfo.log() && rmin>0 && rmax>0 ) { 
+
+	  /// calculate the log range
 	  double delta = std::log10(rmax)-std::log10(rmin);
 
-	  if ( atlasstyle ) ymaxset =  rmax*std::pow(10,delta*0.15*(chains.size()+taglabels.size()+1));
-	  else              ymaxset =  rmax*std::pow(10,delta*0.15*(chains.size()+taglabels.size())); 
+	  /// keep the original equation by way of documentation ...
+	  //    ymaxset =  rmax*std::pow(10,delta*0.15*csize); 
 
 	  yminset =  rmin*std::pow(10,-delta*0.1);
+
+	  double newdelta = std::log10(rmax) - std::log10(yminset) + 0.05*delta;
+
+	  if ( csize<10 ) ymaxset =  rmin*std::pow(10,newdelta/(1-0.07*csize));
+	  else            ymaxset =  rmin*std::pow(10,newdelta*2);
 
 	  if ( yminset!=yminset ) { 
 	    std::cerr << " range error " << delta << " " << yminset << " " << ymaxset << "\t(" << rmin << " " << rmax << ")" << std::endl;
@@ -1721,9 +1729,21 @@ int main(int argc, char** argv) {
 
 	}
 	else { 
+
+	  /// calculate the required range such that the histogram labels 
+	  /// won't crowd the points
+
 	  double delta = rmax-rmin;
-	  ymaxset = rmax+delta*0.1*chains.size();
-	  yminset = rmin-delta*0.1;
+
+	  yminset = rmin-0.1*delta;
+
+	  if ( rmin>=0 && yminset<=0 ) yminset = 0;
+	  
+	  double newdelta = rmax - yminset + 0.05*delta;
+
+	  if ( csize<10 ) ymaxset = yminset + newdelta/(1-0.09*csize);
+	  else            ymaxset = yminset + newdelta*2;
+
 	}
 	
       }
