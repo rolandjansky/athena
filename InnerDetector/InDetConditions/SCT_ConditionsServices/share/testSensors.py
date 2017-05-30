@@ -18,11 +18,20 @@ theApp.AuditAlgorithms=True
 # Load Geometry
 #--------------------------------------------------------------
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion="ATLAS-GEO-16-00-00"
+globalflags.DetDescrVersion="ATLAS-R1-2012-03-00-00"
+globalflags.ConditionsTag="COMCOND-BLKPA-RUN1-09 "
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
-globalflags.DataSource="geant4"
+globalflags.DataSource="data"
 print globalflags
+
+#--------------------------------------------------------------
+# Set up conditions
+#--------------------------------------------------------------
+from RecExConfig.RecFlags import rec
+rec.projectName.set_Value_and_Lock("data12_8TeV")
+from IOVDbSvc.CondDB import conddb
+# conddb.dbdata="COMP200"
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -58,16 +67,10 @@ import AtlasGeoModel.GeoModelInit
 #--------------------------------------------------------------
 
 IOVDbSvc = Service("IOVDbSvc")
-from IOVDbSvc.CondDB import conddb
-#IOVDbSvc.GlobalTag="OFLCOND-FDR-01-02-00"
-#'''
-#DBname='<dbConnection>oracle://DEVDB10;schema=ATLAS_SCT_COMMCOND_DEV;dbname=ROE2;user=ATLAS_SCT_COMMCOND_DEV</dbConnection>'
-
-#IOVDbSvc.Folders += [ DBname +' /SCT/Sensors']
-#'''
-IOVDbSvc.GlobalTag="OFLCOND-FDR-01-02-00"
+IOVDbSvc.GlobalTag=globalflags.ConditionsTag()
 IOVDbSvc.OutputLevel = 3
-conddb.addFolder('',"<db>COOLOFL_SCT/COMP200</db> /SCT/Sensors <tag>HEAD</tag>")
+conddb.addFolderWithTag("SCT_OFL","/SCT/Sensors","SctSensors-Sep03-14")
+# conddb.addFolderWithTag("SCT_OFL","/SCT/Sensors","SctSensors-01")
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
@@ -83,5 +86,5 @@ ServiceMgr +=SCT_SensorsSvc()
 import AthenaCommon.AtlasUnixGeneratorJob
 
 
-ServiceMgr.EventSelector.RunNumber  = 0
+ServiceMgr.EventSelector.RunNumber  = 140975
 theApp.EvtMax                   = 1
