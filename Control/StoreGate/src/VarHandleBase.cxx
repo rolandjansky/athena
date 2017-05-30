@@ -340,7 +340,7 @@ namespace SG {
       if (!store)
         store = this->storeHandle().get();
       if (store)
-        proxy = m_store->proxy(this->clid(), this->key());
+        proxy = store->proxy(this->clid(), this->key());
     }
     if (proxy) {
       return proxy->isValid();
