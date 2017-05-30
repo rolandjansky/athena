@@ -12,6 +12,7 @@
 #include <TError.h>
 #include <TString.h>
 #include <TTree.h>
+#include <TChain.h>
 
 // Infrastructure include(s):
 #ifdef ROOTCORE
@@ -61,20 +62,33 @@ int main( int argc, char* argv[] ) {
     if (string(argv[ipos]).compare("-event")==0)
       {       Ievent=atoi(argv[ipos+1]); break; }
   }}
+
+  int nEvents=-1;
+  if(options.find("-n")!=string::npos){
+  for( int ipos=0; ipos<argc ; ipos++ ) {
+    if (string(argv[ipos]).compare("-n")==0)
+      {       nEvents=atoi(argv[ipos+1]); break; }
+  }}
+
   
   //std::cout<<"Checking for event "<<Ievent<<std::endl;  
   //::: Initialise the application:
   //ATH_CHECK( xAOD::Init( APP_NAME ) );
   xAOD::Init( APP_NAME );
+  xAOD::TReturnCode::enableFailure();
 
   //::: Open the input file:
   const TString fileName = argv[ 1 ];
   Info( APP_NAME, "Opening file: %s", fileName.Data() );
   TFile* ifile( TFile::Open( fileName, "READ" ) );
-  if( !ifile ) Error( APP_NAME, "Cannot find file " + fileName );
+  if( !ifile ) Error( APP_NAME, "Cannot find file %s",fileName.Data() );
+
+  TChain *chain = new TChain ("CollectionTree","CollectionTree");
+  chain->Add(fileName);
 
   //::: Create a TEvent object:
-  xAOD::TEvent event( ifile, xAOD::TEvent::kAthenaAccess );
+  //xAOD::TEvent event( ifile, xAOD::TEvent::kAthenaAccess );
+  xAOD::TEvent event( (TTree*)chain, xAOD::TEvent::kAthenaAccess );
   Info( APP_NAME, "Number of events in the file: %i", static_cast< int >( event.getEntries() ) );
 
   //::: Create a transient object store. Needed for the tools.
@@ -94,11 +108,19 @@ int main( int argc, char* argv[] ) {
 
   //::: Muon Calibration and Smearing
   CP::MuonCalibrationAndSmearingTool corrTool( "MuonCorrectionTool" );
-  //corrTool.msg().setLevel( MSG::DEBUG );
+  //corrTool.msg().setLevel( MSG::VERBOSE);
+  corrTool.msg().setLevel( MSG::INFO);
+  //corrTool.msg().setLevel( MSG::WARNING);
   //ATH_CHECK( corrTool.initialize() );
   //corrTool.setProperty( "Release", "PreRecs" );
   //corrTool.setProperty( "Year", "Data15" );
   corrTool.setProperty( "Year", "Data16" );
+  corrTool.setProperty("Release","Recs2016_08_07");
+  corrTool.setProperty("StatComb",true);
+  //corrTool.setProperty("MinCombPt",300.00); 
+  corrTool.setProperty("SagittaCorr",false); 
+  corrTool.setProperty("SagittaRelease","sagittaBiasDataAll_06_02_17"); 
+  corrTool.setProperty("doSagittaMCDistortion",true);
   if(corrTool.initialize()!=StatusCode::SUCCESS) return 1;
 
   //::: Muon Selection
@@ -155,24 +177,26 @@ int main( int argc, char* argv[] ) {
   //::: Loop over the events:
   for( Long64_t entry = 0; entry < entries; ++entry ) {
 
+    if( nEvents!=-1 && entry > nEvents ) break; 
     //::: Tell the object which entry to look at:
     event.getEntry( entry );
 
     //::: Print some event information for fun:
     const xAOD::EventInfo* evtInfo = 0;
     //ATH_CHECK( event.retrieve( evtInfo, "EventInfo" ) );
-    event.retrieve( evtInfo, "EventInfo" );
+    if(event.retrieve( evtInfo, "EventInfo" ) != StatusCode::SUCCESS) continue; 
     if(Ievent!=-1 && static_cast <int> (evtInfo->eventNumber())!=Ievent) {
       //std::cout<<"Event "<<evtInfo->eventNumber()<<" Ievent "<<Ievent<<std::endl;
       continue;  
     }
 
-    //Info( APP_NAME, "===>>>  start processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry ) );
 
+    //Info( APP_NAME, "===>>>  start processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry ) );
+    
     //::: Get the Muons from the event:
     const xAOD::MuonContainer* muons = 0;
     //ATH_CHECK( event.retrieve( muons, "Muons" ) );
-    event.retrieve( muons, "Muons" );
+    if( event.retrieve( muons, "Muons" ) != StatusCode::SUCCESS) continue ;
     //Info( APP_NAME, "Number of muons: %i", static_cast< int >( muons->size() ) );
 
     // create a shallow copy of the muons container
@@ -194,7 +218,7 @@ int main( int argc, char* argv[] ) {
         Error( APP_NAME, "Cannot configure muon calibration tool for systematic" );
       }
 
-      for( int i=-0; i<1e3 ; i++) { 
+      //for( int i=-0; i<1e3 ; i++) { 
       //::: Loop over muon container
       for( auto muon: *muonsCorr ) {
 
@@ -205,13 +229,46 @@ int main( int argc, char* argv[] ) {
         // }
         //::: Should be using correctedCopy here, thesting behaviour of applyCorrection though
         InitPtCB = muon->pt();
-        InitPtID = muon->isAvailable< float >( "InnerDetectorPt" ) ? muon->auxdata< float >( "InnerDetectorPt" ) : -999;
-        InitPtMS = muon->isAvailable< float >( "MuonSpectrometerPt" ) ? muon->auxdata< float >( "MuonSpectrometerPt" ) : -999;
+        //InitPtID = muon->isAvailable< float >( "InnerDetectorPt" ) ? muon->auxdata< float >( "InnerDetectorPt" ) : -999;
+        //InitPtMS = muon->isAvailable< float >( "MuonSpectrometerPt" ) ? muon->auxdata< float >( "MuonSpectrometerPt" ) : -999;
+
+        InitPtID = -999;
+        if(muon->inDetTrackParticleLink().isValid()){
+          const ElementLink< xAOD::TrackParticleContainer >& id_track = muon->inDetTrackParticleLink();
+          InitPtID = (!id_track) ?  0:(*id_track)->pt();
+        }
+        InitPtMS = -999;
+        if( muon->extrapolatedMuonSpectrometerTrackParticleLink().isValid()){
+          const ElementLink< xAOD::TrackParticleContainer >& ms_track = muon->extrapolatedMuonSpectrometerTrackParticleLink();
+          InitPtMS = (!ms_track) ? 0:(*ms_track)->pt();
+        }
+        
         Eta = muon->eta();
         Phi = muon->phi();
         Charge = muon->charge();
+      
         //::: Print some info about the selected muon:
         //Info( APP_NAME, "Selected muon: eta = %g, phi = %g, pt = %g", muon->eta(), muon->phi(), muon->pt()/1e3 );
+        
+        float ptCB = 0 ;
+        if(muon->primaryTrackParticleLink().isValid()){
+          const ElementLink< xAOD::TrackParticleContainer >& cb_track = muon->primaryTrackParticleLink();
+          ptCB = (!cb_track) ? 0:(*cb_track)->pt();
+        }
+        float ptID = 0; 
+        if(muon->inDetTrackParticleLink().isValid()){
+          const ElementLink< xAOD::TrackParticleContainer >& id_track = muon->inDetTrackParticleLink();
+          ptID = (!id_track) ?  0:(*id_track)->pt();
+        }
+        float ptME =0 ;
+        if( muon->extrapolatedMuonSpectrometerTrackParticleLink().isValid()){
+          const ElementLink< xAOD::TrackParticleContainer >& ms_track = muon->extrapolatedMuonSpectrometerTrackParticleLink();
+          ptME = (!ms_track) ? 0:(*ms_track)->pt();
+        }
+       
+        if(entry %  1000 ==0 ) 
+          Info( APP_NAME, "--> CB %g, ID %g, ME %g, author: %d, type: %d",ptCB,ptID,ptME,muon->author(),muon->muonType());
+        
         //:::
         if( do_it_the_right_way ) {
           //::: Create a calibrated muon:
@@ -225,9 +282,8 @@ int main( int argc, char* argv[] ) {
           CorrPtMS = mu->auxdata< float >( "MuonSpectrometerPt" );
 
           //Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", mu->eta(), mu->phi(), mu->pt(), mu->auxdata< float >( "InnerDetectorPt" ), mu->auxdata< float >( "MuonSpectrometerPt" ) );
-
+          
           sysTreeMap[ *sysListItr ]->Fill();
-
           //::: Delete the calibrated muon:
           delete mu;
         }
@@ -243,14 +299,13 @@ int main( int argc, char* argv[] ) {
           ExpResoCB = corrTool.ExpectedResolution( "CB", *muon );
           ExpResoID = corrTool.ExpectedResolution( "ID", *muon );
           ExpResoMS = corrTool.ExpectedResolution( "MS", *muon );
-
-          //Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muon->eta(), muon->phi(), muon->pt()/1e3, muon->auxdata< float >( "InnerDetectorPt" )/1e3, muon->auxdata< float >( "MuonSpectrometerPt" )/1e3 );
-
+          if(entry %  1000 ==0 ) 
+            Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muon->eta(), muon->phi(), muon->pt()/1e3,CorrPtID,CorrPtMS);
           sysTreeMap[ *sysListItr ]->Fill();
-	}
-	break; 
+        }
+        //break; 
       }
-      }
+      //}
     }
     
     //::: Close with a message:
@@ -261,6 +316,8 @@ int main( int argc, char* argv[] ) {
   for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {
     sysTreeMap[ *sysListItr ]->Write();
   }
+
+  delete chain;
 
   //::: Close output file
   outputFile->Close();
