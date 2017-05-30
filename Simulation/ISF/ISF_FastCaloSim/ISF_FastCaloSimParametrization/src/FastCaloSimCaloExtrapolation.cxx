@@ -397,13 +397,13 @@ bool FastCaloSimCaloExtrapolation::get_calo_surface(TFCSExtrapolationState& resu
         min_calo_surf_dist=distsamp;
         msg(MSG::DEBUG)<<" r="<<rcalo<<" z="<<zcalo;
         if(distsamp<0) {
-          msg(MSG::DEBUG)<<endreq;
+          msg(MSG::DEBUG)<<endmsg;
           break;
         }
       }
-      msg(MSG::DEBUG)<<endreq;
+      msg(MSG::DEBUG)<<endmsg;
     } else {
-      msg(MSG::DEBUG)<<": eta > 900, not using this"<<endreq;
+      msg(MSG::DEBUG)<<": eta > 900, not using this"<<endmsg;
     }
   }
 
@@ -597,7 +597,7 @@ bool FastCaloSimCaloExtrapolation::get_calo_etaphi(TFCSExtrapolationState& resul
     msg(MSG::DEBUG)<<"  Final par TTC sample "<<sample<<" subpos="<<subpos;
     if(result.OK(sample,subpos)) msg()<<" (good)";
     else msg()<<" (bad)";
-    msg()<<" eta=" << result.eta(sample,subpos) << "   phi=" << result.phi(sample,subpos) <<" dCalo="<<result.d(sample,subpos)<<" dist(hit)="<<hitdist<< endreq;
+    msg()<<" eta=" << result.eta(sample,subpos) << "   phi=" << result.phi(sample,subpos) <<" dCalo="<<result.d(sample,subpos)<<" dist(hit)="<<hitdist<< endmsg;
   }
 
   return result.OK(sample,subpos);
