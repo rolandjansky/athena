@@ -7,17 +7,14 @@ from collections import namedtuple
 StorageManager = namedtuple('StorageManager', ['name', 'prefix', 'cp', 'ls', 'longls'])
 CastorMgr = StorageManager(name='castor', prefix='root://castoratlas/', cp='xrdcp', ls='nsls %s', longls='nsls -l %s')
 RFIOMgr = StorageManager(name='rfio', prefix='rfio:', cp='rfcp', ls='rfdir %s', longls='rfdir %s')
-#EOSMgr = StorageManager(name='eos', prefix='root://eosatlas/', cp='xrdcp', ls='/afs/cern.ch/project/eos/installation/0.1.0-22d/bin/eos.select ls', longls='/afs/cern.ch/project/eos/installation/0.1.0-22d/bin/eos.select ls -l')
-#EOSMgr = StorageManager(name='eos', prefix='root://eosatlas/', cp='xrdcp', ls='eos ls', longls='eos ls -l')
 # As a workaround to athena's xrootd library being binary-incompatible with the
 # eos executable we set LD_LIBRARY_PATH. This can be reverted to the commented
 # out line once the eos executable learns to pick up the right library.
 # EOSMgr = StorageManager(name='eos', prefix='root://eosatlas/', cp='xrdcp', ls='/bin/sh -l -c "eos ls %s"', longls='/bin/sh -l -c "eos ls -l %s"')
 EOSMgr = StorageManager(name='eos', prefix='root://eosatlas/', cp='xrdcp', ls='/bin/sh -l -c "LD_LIBRARY_PATH=/usr/lib64/ eos ls %s"', longls='/bin/sh -l -c "LD_LIBRARY_PATH=/usr/lib64/ eos ls -l %s"')
-UnixMgr = StorageManager(name='unix', prefix='', cp='cp', ls='ls %s', longls='ls -l %s')    
+UnixMgr = StorageManager(name='unix', prefix='', cp='cp', ls='ls %s', longls='ls -l %s')
 
 # Can also use 'xrd castoratlas ls'/'xrd eosatlas ls' but always does a long listing and so much slower than 'nsls'/'eos ls'
-# source /afs/cern.ch/project/eos/installation/pro/etc/setup.sh for eos aliases until installed by default
 
 def _hasWildcard(name) :
     """
@@ -68,10 +65,10 @@ def filelist(files, prefix=None):
              if prefix=True it will determin the prefix based on the pathname
 
     ex:
-    >>> filelist('/castor/cern.ch/atlas/*')
-    >>> filelist('/castor/cern.ch/atl*/foo?[bar]/*.pool.root.?')
-    >>> filelist('/eos/atlas/*', prefix='root://eosatlas/')
-    >>> filelist('/castor/cern.ch/atlas/*', prefix=True)
+    filelist('/castor/cern.ch/atlas/*')
+    filelist('/castor/cern.ch/atl*/foo?[bar]/*.pool.root.?')
+    filelist('/eos/atlas/*', prefix='root://eosatlas/')
+    filelist('/castor/cern.ch/atlas/*', prefix=True)
     """
 
     path, fname = os.path.split(files)
@@ -88,7 +85,7 @@ def filelist(files, prefix=None):
     if sc: # command failed
         print flist
         return []
-        
+
     flist = flist.split()
     if not (os.path.basename(files) in ['', '*']): # no need to filter
         pattern = fnmatch.translate(os.path.basename(files))
@@ -125,5 +122,5 @@ def cp(src, dest='.'):
 
     cp = 'cp'
     if srcmgr.cp == 'xrdcp' or destmgr.cp == 'xrdcp': cp = 'xrdcp'
-    
+
     return os.system('%s %s%s %s%s' %(cp, srcmgr.prefix, src, destmgr.prefix, dest))
