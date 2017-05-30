@@ -121,8 +121,8 @@ void test2()
   assert (h1.store() == "TestStore");
   assert (h1.auxid() == ityp);
   assert (h1.cptr() == fooptr);
-  // Two refs from the handle + 1 from the alias.
-  assert (foo_proxy->refCount() == 4);
+  // + 1 from the alias.
+  assert (foo_proxy->refCount() == 2);
 
   SG::WriteDecorHandle<MyObj, int> h2 (h1);
   assert (h2.key() == "foo.aaa");
@@ -130,14 +130,14 @@ void test2()
   assert (h2.isInitialized());
   assert (h2.auxid() == ityp);
   assert (h2.cptr() == fooptr);
-  assert (foo_proxy->refCount() == 6);
+  assert (foo_proxy->refCount() == 2);
 
   SG::WriteDecorHandle <MyObj, int> h3 (std::move(h2));
   assert (h3.key() == "foo.aaa");
   assert (h3.store() == "TestStore");
   assert (h3.isInitialized());
   assert (h3.cptr() == fooptr);
-  assert (foo_proxy->refCount() == 6);
+  assert (foo_proxy->refCount() == 2);
   assert (h2.key() == "foo.aaa");
   assert (h2.store() == "TestStore");
   assert (!h2.isInitialized());
@@ -150,7 +150,7 @@ void test2()
   SG::WriteDecorHandle<MyObj, int> h4 (k4);
   assert (h4.setProxyDict (&testStore).isSuccess());
   assert (h4.cptr() == barptr);
-  assert (bar_proxy->refCount() == 4);
+  assert (bar_proxy->refCount() == 2);
   assert (h4.auxid() == ityp2);
 
   h3 = h4;
@@ -165,8 +165,8 @@ void test2()
   assert (h3.auxid() == ityp2);
   assert (h4.auxid() == ityp2);
 
-  assert (foo_proxy->refCount() == 4);
-  assert (bar_proxy->refCount() == 6);
+  assert (foo_proxy->refCount() == 2);
+  assert (bar_proxy->refCount() == 2);
 
   // h1: foo, h2: unint, h3: bar, h4: bar
 
@@ -182,8 +182,8 @@ void test2()
   assert (h2.auxid() == ityp2);
   assert (h3.auxid() == ityp2);
 
-  assert (foo_proxy->refCount() == 4);
-  assert (bar_proxy->refCount() == 6);
+  assert (foo_proxy->refCount() == 2);
+  assert (bar_proxy->refCount() == 2);
 }
 
 

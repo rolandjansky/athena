@@ -95,7 +95,8 @@ namespace SG {
     m_ptr(0),
     m_proxy(0),
     m_store(nullptr),
-    m_storeWasSet(false)
+    m_storeWasSet(false),
+    m_doBind(true)
   {
 #ifdef DEBUG_VHB
     std::cerr << "VarHandleBase() " << this << std::endl;
@@ -119,7 +120,8 @@ namespace SG {
     m_ptr(NULL),
     m_proxy(NULL),
     m_store(nullptr),
-    m_storeWasSet(false)
+    m_storeWasSet(false),
+    m_doBind(true)
   {
   }
 
@@ -139,7 +141,8 @@ namespace SG {
       m_ptr(nullptr),
       m_proxy(nullptr),
       m_store(nullptr),
-      m_storeWasSet(false)
+      m_storeWasSet(false),
+      m_doBind(false)
   {
     if (key.storeHandle().get() == nullptr)
       throw SG::ExcUninitKey (key.clid(), key.key(),
@@ -160,7 +163,8 @@ namespace SG {
     m_ptr(rhs.m_ptr),
     m_proxy(nullptr),
     m_store(rhs.m_store),
-    m_storeWasSet(rhs.m_storeWasSet)
+    m_storeWasSet(rhs.m_storeWasSet),
+    m_doBind(rhs.m_doBind)
   {
 #ifdef DEBUG_VHB
     std::cerr << "::VHB::copy constr from " << &rhs
@@ -183,13 +187,16 @@ namespace SG {
     m_ptr(rhs.m_ptr),
     m_proxy(nullptr),
     m_store(rhs.m_store),
-    m_storeWasSet(rhs.m_storeWasSet)
+    m_storeWasSet(rhs.m_storeWasSet),
+    m_doBind(rhs.m_doBind)
   {
     rhs.m_ptr=0;
 
     if (rhs.m_proxy) {
-      rhs.m_proxy->unbindHandle (&rhs);
-      rhs.m_proxy->bindHandle(this);
+      if (m_doBind) {
+        rhs.m_proxy->unbindHandle (&rhs);
+        rhs.m_proxy->bindHandle(this);
+      }
       m_proxy = rhs.m_proxy;
       rhs.m_proxy=0; //no release: this has the ref now
     }
@@ -239,13 +246,16 @@ namespace SG {
       m_ptr =    rhs.m_ptr;
       m_store =  rhs.m_store;
       m_storeWasSet = rhs.m_storeWasSet;
+      m_doBind = rhs.m_doBind;
 
       rhs.m_ptr=0;
 
       resetProxy();
       if (rhs.m_proxy) {
-        rhs.m_proxy->unbindHandle (&rhs);
-        rhs.m_proxy->bindHandle (this);
+        if (m_doBind) {
+          rhs.m_proxy->unbindHandle (&rhs);
+          rhs.m_proxy->bindHandle (this);
+        }
         m_proxy =  rhs.m_proxy;
         rhs.m_proxy=0; //no release: this has the ref now
       }
@@ -904,8 +914,10 @@ namespace SG {
   void VarHandleBase::resetProxy()
   {
     if (m_proxy) {
-      m_proxy->unbindHandle(this);
-      m_proxy->release();
+      if (m_doBind) {
+        m_proxy->unbindHandle(this);
+        m_proxy->release();
+      }
       m_proxy = nullptr;
     }
   }
@@ -919,8 +931,10 @@ namespace SG {
   {
     resetProxy();
     if (proxy) {
-      proxy->addRef();
-      proxy->bindHandle (this);
+      if (m_doBind) {
+        proxy->addRef();
+        proxy->bindHandle (this);
+      }
       m_proxy = proxy;
     }
   }

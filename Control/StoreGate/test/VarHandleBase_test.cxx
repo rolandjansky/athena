@@ -225,6 +225,18 @@ void test2()
   assert (proxy->refCount() == 1);
   assert ((testStore.m_boundHandles == std::vector<IResetable*>{&h1}));
 
+  {
+    SG::VarHandleKey k11 (293847295, "foo", Gaudi::DataHandle::Writer);
+    k11.initialize().ignore();
+    TestHandle h11 (k11, nullptr);
+    assert (proxy->refCount() == 1);
+    assert ((testStore.m_boundHandles == std::vector<IResetable*>{&h1}));
+
+    TestHandle h12 (h11);
+    assert (proxy->refCount() == 1);
+    assert ((testStore.m_boundHandles == std::vector<IResetable*>{&h1}));
+  }
+
   // Test a !resetOnly proxy.
   auto obj5 = std::make_unique<MyObj>();
   //MyObj* objptr5 = obj5.get();
