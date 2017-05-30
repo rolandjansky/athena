@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           GaudiKernel
                           Simulation/G4Sim/SimHelpers
-                          Simulation/G4Sim/SimHelpers/ISF_Core/ISF_Interfaces
+                          Simulation/ISF/ISF_Core/ISF_Interfaces
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/CxxUtils
