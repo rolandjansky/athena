@@ -32,7 +32,6 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( CLHEP )
-find_package( Eigen )
 find_package( Geant4 )
 find_package( HepMC )
 find_package( HepPDT )
@@ -54,6 +53,7 @@ atlas_add_test( InputConverter_test
                   ${GTEST_INCLUDE_DIRS}
                   ${GMOCK_INCLUDE_DIRS}
                   ${ROOT_INCLUDE_DIRS}
+                  ${GEANT4_INCLUDE_DIRS}
                   ${HEPMC_INCLUDE_DIRS}
                   ${CLHEP_INCLUDE_DIRS}
                   ${HEPPDT_INCLUDE_DIRS}
@@ -61,6 +61,7 @@ atlas_add_test( InputConverter_test
                   ${GTEST_LIBRARIES}
                   ${GMOCK_LIBRARIES}
                   ${ROOT_LIBRARIES}
+                  ${GEANT4_LIBRARIES}
                   ${HEPMC_LIBRARIES}
                   ${CLHEP_LIBRARIES}
                   ${HEPPDT_LIBRARIES}
@@ -74,6 +75,7 @@ atlas_add_test( InputConverter_test
                   ISF_Event
                   ISF_Interfaces
                   PmbCxxUtils
+                  MCTruth
                 )
 
 # Install files from the package:
