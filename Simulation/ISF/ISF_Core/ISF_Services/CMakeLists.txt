@@ -76,6 +76,8 @@ atlas_add_test( InputConverter_test
                   ISF_Interfaces
                   PmbCxxUtils
                   MCTruth
+                ENVIRONMENT
+                  "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/test"
                 )
 
 # Install files from the package:
