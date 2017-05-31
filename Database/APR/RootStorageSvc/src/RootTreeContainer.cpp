@@ -401,9 +401,10 @@ RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid, DbAccessMod
   try {
      status = call->start(DataCallBack::GET, context.ptr, &user.ptr);
      if ( status.isSuccess() ) {
-        std::lock_guard<std::mutex>( m_rootDb->ioMutex() );
+        // lock access to this DB for MT safety
+        std::lock_guard<std::mutex>     lock( m_rootDb->ioMutex() );
         int numBytesBranch, icol = 0, numBytes = 0;
-	bool hasRead(false);
+        bool hasRead(false);
         Branches::iterator k;
         for(k=m_branches.begin(); k != m_branches.end(); ++k,++icol)  {
            BranchDesc& dsc = (*k);
