@@ -101,7 +101,7 @@ class L2EFChain_mu(L2EFChainDef):
     self.doOvlpRm = False
     if "nscan" in self.chainName or "bTau" in self.chainName :
       self.doOvlpRm = False
-    elif "ftkFS" in self.chainPart['FSinfo']:
+    elif "FTKFS" in self.chainPart['FSinfo']:
       self.setup_muXX_noL1FTK()
     elif (self.mult > 1) & ('wOvlpRm' in self.ovlpRm):
       self.doOvlpRm = True
@@ -356,7 +356,7 @@ class L2EFChain_mu(L2EFChainDef):
       EFinputTE = 'L2_mu_hypo2'
 
       # Run also FTK tracking
-    if self.chainPart['trkInfo'] == "ftk":
+    if "FTK" in self.chainPart['L2IDAlg']:
       from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
       
       [ftktrkfast, ftktrkprec] = TrigInDetFTKSequence("Muon","muonIso",sequenceFlavour=["PT"]).getSequence()    
@@ -496,7 +496,7 @@ class L2EFChain_mu(L2EFChainDef):
       self.L2signatureList += [ [['L2_mu_step2']*self.mult] ]
       self.L2signatureList += [ [['L2_mu_hypo2']*self.mult] ]
      
-    if self.chainPart['trkInfo'] == 'ftk':
+    if "FTK" in self.chainPart['L2IDAlg']:
       self.L2signatureList += [ [['L2_mu_step3']*self.mult] ]
       self.L2signatureList += [ [['L2_mu_step4']*self.mult] ] 
       self.L2signatureList += [ [['L2_mu_hypo3']*self.mult] ] 
@@ -534,7 +534,7 @@ class L2EFChain_mu(L2EFChainDef):
       'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', self.chainPartNameNoMult+'_'+self.L2InputTE),
       'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   self.chainPartNameNoMult+'_'+self.L2InputTE),
       }    
-    if self.chainPart['trkInfo'] == "ftk":
+    if "FTK" in self.chainPart['L2IDAlg']:
       self.TErenamingDict.update({'L2_mu_step3': mergeRemovingOverlap('EF_ftkfex_',self.chainPartNameNoMult+'_'+self.L2InputTE),
                                   'L2_mu_step4': mergeRemovingOverlap('EF_ftkiso_',self.chainPartNameNoMult+'_'+self.L2InputTE),
                                   'L2_mu_hypo3': mergeRemovingOverlap('EF_ftkhypo_',self.chainPartNameNoMult+'_'+self.L2InputTE),
