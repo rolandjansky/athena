@@ -33,6 +33,11 @@ StatusCode SchedulerProxyAlg::execute()
 #endif  
 
   auto inputHandle = SG::makeHandle( m_roisContainer, ctx );
+  if ( not inputHandle.isValid() )  {
+    ATH_MSG_ERROR("Input handle is invalid");
+    return StatusCode::FAILURE;
+  }
+  
   
   auto outputClusters = std::make_unique<TestClusterContainer>();
   auto outputClustersAux = std::make_unique<TestClusterAuxContainer>();
@@ -41,7 +46,7 @@ StatusCode SchedulerProxyAlg::execute()
   ATH_MSG_INFO( "Launching processing for View with RoIs" );
   for ( const auto roi: *inputHandle.cptr() )
   {
-    ATH_MSG_INFO( " ... " << *roi );
+    ATH_MSG_DEBUG( " ... " << *roi << " adding a cluster at slightly varried position and fake Et");
     TestCluster * cl = new TestCluster();
     outputClusters->push_back( cl );
     TestEDM::setClusterEt (cl, ( roi->eta() + roi->phi() )*10.0); // whatever values

@@ -46,34 +46,40 @@ StatusCode TestViewDriver::execute() {
   auto roisContainer = SG::makeHandle(m_roisContainer);
 
   //  this code is to be replaced by set of tools which are loaded depending on the way the RoI need to be placed in the views
+
+
+  auto contexts = std::vector<EventContext>();
   auto viewVector = std::make_unique<std::vector<SG::View*>>();
   unsigned int viewCounter = 0;
   for ( const auto roi: *roisContainer.cptr() ) {
-    viewVector->push_back( ViewHelper::makeView(name()+"_view", viewCounter++) );
+
+    contexts.push_back( getContext() );    
+    viewVector->push_back( ViewHelper::makeView( name()+"_view", viewCounter++) );
+    contexts.back().setProxy( viewVector->back() );
+
     
+    auto oneRoIColl = std::make_unique< ConstDataVector<TrigRoiDescriptorCollection> >();    
     // Divide the RoIs into a vector of single-element collections, one for each view
-    auto oneRoIColl = std::make_unique<ConstDataVector<TrigRoiDescriptorCollection>>();
-    
     //new ConstDataVector<TrigRoiDescriptorCollection>;
     oneRoIColl->clear(SG::VIEW_ELEMENTS); //Don't delete the RoIs
     oneRoIColl->push_back( roi );
-    EventContext newCtx = getContext(); // copy the ctx
-    newCtx.setProxy(  viewVector->back() ); // revire it to the view
     auto handle = SG::makeHandle( m_roisViewOutput, newCtx );
-    //      handle.setProxyDict( viewVector->back() );
     CHECK( handle.record( std::move( oneRoIColl ) ) );
-    //      CHECK( ViewHelper::addToView(viewVector.back(), m_roIKeyInViews, oneRoIColl ) );      
+
+
     ATH_MSG_DEBUG("Placed RoICollection with a single RoI " <<  *roi << " in the view");
     // just an RoI descriptor in the view
   } 
   // missing is super RoI, and not covering the case when this alg can actually comsume more than on RoIs input collections
 
+  
   // Run the views
-  CHECK( ViewHelper::RunViews( *viewVector,				// Vector to store views
+  CHECK( ViewHelper::RunViews( contexts
 			       m_viewAlgorithmNames,				// Algorithms to run in each view
-			       Gaudi::Hive::currentContext(),			// Context to attach the views to
 			       serviceLocator()->service( "ViewAlgPool" ) ) );	//FIXME this should realy be service handle, else we do costly retrival each execution, needs api change of ViewHelper
 
+  ATH_MSG_DEBUG("Execution in " << viewVector->size() << " Views performed");
+  
   // Harvest the results into a merged collection - currently impossible due to issue with TrigComposite
   auto outputClusterContainer = std::make_unique< TestClusterContainer >();
   auto outputClusterContainerAux = std::make_unique< TestClusterAuxContainer>();

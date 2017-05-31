@@ -62,11 +62,10 @@ allViewAlgs = AlgSequence("allViewAlgs")
 
 from ViewAlgsTest.ViewAlgsTestConf import SchedulerProxyAlg
 viewAlg = SchedulerProxyAlg( "algInView", OutputLevel = DEBUG, RoIsContainer = "InViewRoI")
-print "dupa", viewAlg.name() 
 
 allViewAlgs += viewAlg
 svcMgr.ViewAlgPool.TopAlg += [ viewAlg.getFullName() ]
-topSequence += allViewAlgs
+#topSequence += allViewAlgs
 
 
 from ViewAlgsTest.ViewAlgsTestConf import TestViewDriver
