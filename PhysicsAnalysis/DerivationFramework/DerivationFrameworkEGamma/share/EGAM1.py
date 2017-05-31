@@ -14,6 +14,7 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 RecomputeElectronSelectors = True
 #RecomputeElectronSelectors = False
 
+
 #====================================================================
 # SKIMMING TOOLS
 #====================================================================
@@ -30,14 +31,12 @@ RecomputeElectronSelectors = True
 # tool?
 #====================================================================
 
-# switch to likelihood selectors only as soon as they're commissioned (and used in trigger)
-
 if RecomputeElectronSelectors :
-    requirement_tag = '(Electrons.DFCommonElectronsIsEMTight || Electrons.DFCommonElectronsLHTight) && Electrons.pt > 24.5*GeV'
-    requirement_probe = '(Electrons.DFCommonElectronsIsEMMedium || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 19.5*GeV'
+    requirement_tag = '(Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 24.5*GeV)'
+    requirement_probe = '(Electrons.DFCommonElectronsLHMedium) && (Electrons.pt > 19.5*GeV)'
 else :
-    requirement_tag = '(Electrons.Tight || Electrons.DFCommonElectronsLHTight) && Electrons.pt > 24.5*GeV'
-    requirement_probe = '(Electrons.Medium || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 19.5*GeV'
+    requirement_tag = '(Electrons.LHTight) && (Electrons.pt > 24.5*GeV)'
+    requirement_probe = '(Electrons.LHMedium) && (Electrons.pt > 19.5*GeV)'
 
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGInvariantMassTool
 EGAM1_ZEEMassTool1 = DerivationFramework__EGInvariantMassTool( name = "EGAM1_ZEEMassTool1",
@@ -62,9 +61,9 @@ print EGAM1_ZEEMassTool1
 
 # switch to likelihood selectors only as soon as they're commissioned (and used in trigger)
 if RecomputeElectronSelectors:
-    requirement = '(Electrons.DFCommonElectronsIsEMMedium || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 19.5*GeV'
+    requirement = '(Electrons.DFCommonElectronsLHMedium) && (Electrons.pt > 19.5*GeV)'
 else:
-    requirement = '(Electrons.Medium || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 19.5*GeV'
+    requirement = '(Electrons.LHMedium) && (Electrons.pt > 19.5*GeV)'
 EGAM1_ZEEMassTool2 = DerivationFramework__EGInvariantMassTool( name = "EGAM1_ZEEMassTool2",
                                                                Object1Requirements = requirement,
                                                                Object2Requirements = requirement,
@@ -83,20 +82,18 @@ print EGAM1_ZEEMassTool2
 # SELECTION FOR T&P
 
 #====================================================================
-# Z->ee selection based on single e trigger, for reco (central) and ID SF(central+fwd)
+# Z->ee selection based on single e trigger, for reco (central) and ID SF(central)
 # 1 tight e, central, pT>25 GeV
 # 1 e, central, pT>15 GeV
 # OS+SS, mee>50 GeV
 #====================================================================
 
-# switch to likelihood selectors only as soon as they're commissioned (and used in trigger)
 if RecomputeElectronSelectors :
 #    use medium for early data upon electron group request
-    requirement_tag = '(Electrons.DFCommonElectronsIsEMMedium || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 24.5*GeV'
+    requirement_tag = '(Electrons.DFCommonElectronsLHMedium) && (Electrons.pt > 24.5*GeV)'
 else :
-    requirement_tag = '(Electrons.Medium || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 24.5*GeV'
-# central electrons: collection = Electrons, pt>14.5 GeV
-requirement_probe = 'Electrons.pt > 6.5*GeV'
+    requirement_tag = '(Electrons.LHMedium) && (Electrons.pt > 24.5*GeV)'
+requirement_probe = 'Electrons.pt > 4*GeV'
 EGAM1_ZEEMassTool3 = DerivationFramework__EGInvariantMassTool( name = "EGAM1_ZEEMassTool3",
                                                                Object1Requirements = requirement_tag,
                                                                Object2Requirements = requirement_probe,
@@ -120,12 +117,11 @@ print EGAM1_ZEEMassTool3
 # OS+SS, mee>50 GeV
 #====================================================================
 
-# switch to likelihood selectors only as soon as they're commissioned (and used in trigger)
 if RecomputeElectronSelectors:
 #    use medium for early data upon electron group request
-    requirement_tag = '(Electrons.DFCommonElectronsIsEMMedium || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 24.5*GeV'
+    requirement_tag = '(Electrons.DFCommonElectronsLHMedium) && (Electrons.pt > 24.5*GeV)'
 else:
-    requirement_tag = '(Electrons.Medium || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 24.5*GeV'
+    requirement_tag = '(Electrons.LHMedium) && (Electrons.pt > 24.5*GeV)'
 requirement_probe = 'DFCommonPhotons_et > 14.5*GeV'
 EGAM1_ZEGMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM1_ZEGMassTool",
                                                               Object1Requirements = requirement_tag,
@@ -154,6 +150,12 @@ ToolSvc += EGAM1SkimmingTool
 print "EGAM1 skimming tool:", EGAM1SkimmingTool
 
 
+
+#====================================================================
+# DECORATION TOOLS
+#====================================================================
+
+
 #====================================================================
 # Gain and cluster energies per layer decoration tool
 #====================================================================
@@ -176,9 +178,10 @@ EGAM1_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name        
 ToolSvc += EGAM1_MaxCellDecoratorTool
 
 
-#================
-# THINNING
-#================
+#====================================================================
+# THINNING TOOLS
+#====================================================================
+
 thinningTools=[]
 
 # Tracks associated with Jets
@@ -269,26 +272,35 @@ if globalflags.DataSource()=='geant4':
 print "EGAM1 thinningTools: ", thinningTools
 
 
+
+
+#=======================================
+# CREATE PRIVATE SEQUENCE
+#=======================================
+egam1Seq = CfgMgr.AthSequencer("EGAM1Sequence")
+DerivationFrameworkJob += egam1Seq
+
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM1Kernel",
-                                                                       AugmentationTools = [EGAM1_ZEEMassTool1, EGAM1_ZEEMassTool2, EGAM1_ZEEMassTool3, EGAM1_ZEGMassTool, EGAM1_GainDecoratorTool, EGAM1_MaxCellDecoratorTool] + EGAM1_ClusterEnergyPerLayerDecorators,
-                                                                       SkimmingTools = [EGAM1SkimmingTool],
-                                                                       ThinningTools = thinningTools
-                                                                       )
+egam1Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM1Kernel",
+                                                         AugmentationTools = [EGAM1_ZEEMassTool1, EGAM1_ZEEMassTool2, EGAM1_ZEEMassTool3, EGAM1_ZEGMassTool, EGAM1_GainDecoratorTool, EGAM1_MaxCellDecoratorTool] + EGAM1_ClusterEnergyPerLayerDecorators,
+                                                         SkimmingTools = [EGAM1SkimmingTool],
+                                                         ThinningTools = thinningTools
+                                                         )
+
+#====================================================================
+# RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
+#====================================================================
+addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=egam1Seq, outputGroup="EGAM1")
 
 #=======================================
 # ADD NON-PROMPT LEPTON VETO ALGORITHMS 
 #=======================================
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
-DerivationFrameworkJob += Config.DecoratePromptLepton("Electrons", "AntiKt4PV0TrackJets") 
-DerivationFrameworkJob += Config.DecoratePromptLepton("Muons", "AntiKt4PV0TrackJets")
-
-
-#========================================================================
+egam1Seq += Config.GetDecoratePromptLeptonAlgs()
 
 
 #====================================================================
@@ -310,6 +322,7 @@ from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="EGAM1ThinningSvc", outStreams=[evtStream] )
+
 
 
 #====================================================================
@@ -336,8 +349,12 @@ EGAM1SlimmingHelper.IncludeEGammaTriggerContent = True
 
 # Extra variables
 EGAM1SlimmingHelper.ExtraVariables = ExtraContentAll
+
+# the next line is not needed because we save all variables for electrons, including the prompt lepton decorations
+# EGAM1SlimmingHelper.ExtraVariables += Config.GetExtraPromptVariablesForDxAOD()
 EGAM1SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM1SlimmingHelper.AllVariables += ExtraContainersTrigger
+
 if globalflags.DataSource()!='geant4':
     EGAM1SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
 
@@ -347,6 +364,8 @@ if globalflags.DataSource()=='geant4':
 
 for tool in EGAM1_ClusterEnergyPerLayerDecorators:
     EGAM1SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
+
+EGAM1SlimmingHelper.ExtraVariables += ExtraVariablesEventShape
 
 # This line must come after we have finished configuring EGAM1SlimmingHelper
 EGAM1SlimmingHelper.AppendContentToStream(EGAM1Stream)
@@ -358,3 +377,5 @@ EGAM1SlimmingHelper.AppendContentToStream(EGAM1Stream)
 # Add Derived Egamma CellContainer
 from DerivationFrameworkEGamma.EGammaCellCommon import CellCommonThinning
 CellCommonThinning(EGAM1Stream)
+
+

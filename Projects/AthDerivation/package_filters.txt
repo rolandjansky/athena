@@ -10,6 +10,7 @@
 + AtlasGeometryCommon/SubDetectorEnvelopes
 
 # Calorimeter package(s):
++ Calorimeter/CaloCalibHitRec
 + Calorimeter/CaloClusterCorrection
 + Calorimeter/CaloCnv/CaloAthenaPool
 + Calorimeter/CaloCnv/CaloCondAthenaPool
@@ -19,11 +20,14 @@
 + Calorimeter/CaloCondBlobObjs
 + Calorimeter/CaloConditions
 + Calorimeter/CaloDetDescr
++ Calorimeter/CaloDmDetDescr
 + Calorimeter/CaloEvent
 + Calorimeter/CaloGeoHelpers
 + Calorimeter/CaloIdentifier
 + Calorimeter/CaloInterface
 + Calorimeter/CaloRec
++ Calorimeter/CaloSimEvent
++ Calorimeter/CaloTools
 + Calorimeter/CaloTrackingGeometry
 + Calorimeter/CaloTTDetDescr
 + Calorimeter/CaloTriggerTool
@@ -75,6 +79,8 @@
 + DetectorDescription/IdDict.*
 + DetectorDescription/Identifier
 + DetectorDescription/IRegionSelector
++ DetectorDescription/RegionSelector
++ DetectorDescription/RegSelLUT
 + DetectorDescription/RoiDescriptor
 
 # EDM package(s):
@@ -132,6 +138,7 @@
 
 # LAr package(s):
 + LArCalorimeter/LArCabling
++ LArCalorimeter/LArCnv/LArIdCnv
 + LArCalorimeter/LArCnv/LArCond.*
 + LArCalorimeter/LArDetDescr
 + LArCalorimeter/LArElecCalib
@@ -199,6 +206,7 @@
 + PhysicsAnalysis/JetTagging/JetTagCalibration
 + PhysicsAnalysis/JetTagging/JetTagEvent
 + PhysicsAnalysis/JetTagging/JetTagInfo
++ PhysicsAnalysis/JetTagging/JetTagNonPromptLepton
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/.*
 + PhysicsAnalysis/JetTagging/JetTagTools
 + PhysicsAnalysis/JpsiUpsilonTools
@@ -216,6 +224,7 @@
 
 # Reconstruction package(s):
 + Reconstruction/AODFix
++ Reconstruction/eflowRec
 + Reconstruction/egamma/egammaConditions
 + Reconstruction/egamma/egammaEvent
 + Reconstruction/egamma/egammaInterfaces
@@ -313,6 +322,7 @@
 + Trigger/TriggerCommon/TrigEDMConfig
 + Trigger/TriggerCommon/TriggerJobOpts
 + Trigger/TriggerCommon/TrigTier0
++ Trigger/TriggerCommon/TriggerMenu
 + Trigger/TrigDataAccess/TrigSerialize.*
 + Trigger/TrigEvent/Trig.*Event
 + Trigger/TrigEvent/Trig.*TPCnv
@@ -323,6 +333,9 @@
 + Trigger/TrigEvent/TrigNavigation
 + Trigger/TrigEvent/TrigParticle
 + Trigger/TrigEvent/TrigRoiConversion
++ Trigger/TrigEvent/TrigSteeringEvent
++ Trigger/TrigEvent/TrigSteeringEventAthenaPool
++ Trigger/TrigEvent/TrigSteeringEventTPCnv
 + Trigger/TrigEvent/TrigStorageDefinitions
 + Trigger/TrigFTK/FTK_RecExample
 + Trigger/TrigFTK/TrigFTK_RawData

@@ -49,7 +49,7 @@ class JetRecCalibrationFinder:
     "reco"            : "JES_MC15cRecommendation_May2016_rel21.config",
     "trigger"         : "JES_Full2012dataset_Preliminary_Trigger.config",
     "triggerNoPileup" : "JES_Full2012dataset_Preliminary_Trigger_NoPileup.config",
-    "trigger2016"     : "JES_data2016_data2015_Recommendation_Dec2016_Trigger.config",
+    "trigger2016"     : "JES_MC15cRecommendation_May2016_Trigger.config",
     "triggerTrim"     : "JES_MC15recommendation_FatJet_June2015.config",
     "pflow"           : "JES_MC15cRecommendation_PFlow_Aug2016_rel21.config"
   }

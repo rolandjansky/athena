@@ -55,7 +55,7 @@ JETM2Stream.AcceptAlgs(["JETM2Kernel"])
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 JETM2ThinningHelper = ThinningHelper( "JETM2ThinningHelper" )
-JETM2ThinningHelper.TriggerChains = orstr.join(electronTriggers+muonTriggers)
+#JETM2ThinningHelper.TriggerChains = orstr.join(electronTriggers+muonTriggers)
 JETM2ThinningHelper.AppendToStream( JETM2Stream )
 
 #====================================================================
@@ -144,10 +144,19 @@ jetm2Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM2Kernel",
 #=======================================
 
 if globalflags.DataSource()=='geant4':
-    addMETTruthMap('AntiKt4EMTopo')
-    addMETTruthMap('AntiKt4LCTopo')
-    addMETTruthMap('AntiKt4EMPFlow')
-    scheduleMETAssocAlg(jetm2Seq)
+    addMETTruthMap('AntiKt4EMTopo',"JETMX")
+    addMETTruthMap('AntiKt4LCTopo',"JETMX")
+    addMETTruthMap('AntiKt4EMPFlow',"JETMX")
+    scheduleMETAssocAlg(jetm2Seq,"JETMX")
+
+#=========================================
+# SCHEDULE REPLACEMENT B-TAG COLLECTIONS
+# Has to go after MET because of potential
+# problems with broken elementLinks
+#=========================================
+
+#from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -160,11 +169,13 @@ JETM2SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets"]
-JETM2SlimmingHelper.AllVariables = ["BTagging_AntiKt4LCTopo", "BTagging_AntiKt4EMTopo",# "CaloCalTopoClusters",
+JETM2SlimmingHelper.AllVariables = ["BTagging_AntiKt4EMTopo",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
-                                    "MuonSegments"
+                                    "MuonSegments",
+                                    "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
+JETM2SlimmingHelper.StaticContent = ["xAOD::BTaggingContainer#BTagging_AntiKt4LCTopo"]
 JETM2SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus",
                                       "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"]
 for truthc in [
