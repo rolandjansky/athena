@@ -1,15 +1,14 @@
-         <athena trendId='all_pu46' userJobId='TrigInDetValidation_FTK_beamspot_ttbar'>
-            <doc>BeamSpot slice, ttbar events, FTK, pu46</doc>
-            <displayName>BeamSpot slice, ttbar, FTK, pu46</displayName>
-	    <commandLineFlags>EventMax=1000;doFTK=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
+         <athena trendId='all_pu40' userJobId='TrigInDetValidation_beamspot_ttbar_pu40_zfinder'>
+            <doc>BeamSpot slice, ttbar events, pu40, run2 chains</doc>
+            <displayName>BeamSpot slice, ttbar, pu40, run2 chains</displayName>
+	    <commandLineFlags>EventMax=1000;runMergedChain=True;fastZFinder=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BeamspotSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
 
-#          include "samples/TrigInDetValidation_FTK_ttbar_sample2.xml"
+#          include "samples/TrigInDetValidation_ttbar_sample2.xml"
 	   
-
 
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
@@ -20,10 +19,9 @@
                 </arg>
                 <arg>
                     <argname>exeParamString</argname>
-                    <argvalue>TIDAdata11-rtt.dat  -f data-beamspot-FTK.root -b Test_bin.dat  </argvalue>
+                    <argvalue>TIDAdata11-rtt.dat  -f data-all.root -b Test_bin.dat  </argvalue>
                 </arg>
             </action>
-
 
 
            <action position="02">
@@ -35,10 +33,9 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-beamspot-FTK.root data-FTK_beamspot_ttbar-reference.root HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTF  HLT_beamspot_idperf_FTK_InDetTrigTrackingxAODCnv_BeamSpot_FTKMon HLT_beamspot_allTE_FTKRefit_InDetTrigTrackingxAODCnv_BeamSpot_FTKRefit -d HLTL2-plots </argvalue>
+                <argvalue>data-all.root data-beamspot_ttbar_pu40_zfinder-reference.root HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTF -d HLTL2-test-plots  </argvalue>
               </arg>
             </action>
-
 
 
 
@@ -62,6 +59,5 @@
    
          <athenaCommonFlags /><alwaysRunPostProc /> 
          </athena>
-
 
 
