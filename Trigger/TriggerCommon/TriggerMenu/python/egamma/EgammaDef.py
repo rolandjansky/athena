@@ -139,7 +139,6 @@ def update_map(seq):
 
 # Class to hold all possible Fex configurables
 # Can contain both sequences and single instances
-
 class EgammaFexBuilder(object):
     """
     Summary:
