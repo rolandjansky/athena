@@ -4020,7 +4020,8 @@ def setupMenu():
         ['noalg_L12EM15',          'L1_2EM15',          [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Egamma'], -1],
         ['noalg_L1EM15VH_3EM7',    'L1_EM15VH_3EM7',    [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Egamma'], -1],
         ['noalg_L1EM7',            'L1_EM7',            [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Egamma'], -1],
-        ['noalg_L1EM3',            'L1_EM3',            [], [PhysicsStream,'MinBias'], ['RATE:SeededStreamers', 'BW:Egamma'], -1],
+        ['noalg_L1EM3',            'L1_EM3',            [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Egamma'], -1],
+        ['noalg_mb_L1EM3',         'L1_EM3',            [], ['MinBias'], ['RATE:SeededStreamers', 'BW:Egamma'], -1],
         ['noalg_L12EM3',           'L1_2EM3',           [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Egamma'], -1],
 
         # Muon streamers
@@ -4086,7 +4087,8 @@ def setupMenu():
         ['noalg_L1MJJ-100', 'L1_MJJ-100', [], [PhysicsStream], ["RATE:L1TopoStreamers", "BW:Other"], -1],  
 
         # Chains for Week1 menu (ATR-11119)
-        ['noalg_L1MU4',   'L1_MU4',  [], [PhysicsStream, 'express','MinBias'], ["RATE:SeededStreamers", "BW:Muon"], -1 ], #AFP request
+        ['noalg_L1MU4',   'L1_MU4',  [], [PhysicsStream, 'express'], ["RATE:SeededStreamers", "BW:Muon"], -1 ], #AFP request
+        ['noalg_mb_L1MU4', 'L1_MU4',  [], ['MinBias'], ["RATE:SeededStreamers", "BW:Muon"], -1 ], #AFP request
         ['noalg_L1MU6',   'L1_MU6',  [], [PhysicsStream,'express'], ["RATE:SeededStreamers", "BW:Muon"], -1 ],
         ['noalg_L1J50',   'L1_J50',  [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jet"], -1 ],
 
@@ -4387,7 +4389,8 @@ def setupMenu():
         #L1Calo requested streamers
 	['noalg_L1J100',  'L1_J100',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jet"], -1],
 	['noalg_L1J100.31ETA49',  'L1_J100.31ETA49',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jet"], -1 ], 
-	['noalg_L1J12',  'L1_J12',   [], [PhysicsStream,'MinBias'], ["RATE:SeededStreamers", "BW:Jet"], -1 ], 
+        ['noalg_L1J12',  'L1_J12',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jet"], -1 ],
+        ['noalg_mb_L1J12',  'L1_J12',   [], ['MinBias'], ["RATE:SeededStreamers", "BW:Jet"], -1 ],
 	['noalg_L1J120',  'L1_J120',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jet"], -1],
 	['noalg_L1J15',  'L1_J15',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jet"], -1 ],
 	['noalg_L1J15.31ETA49',  'L1_J15.31ETA49',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jet"], -1 ],
