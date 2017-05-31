@@ -6,6 +6,13 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 # These lines were previously in SCT_Monitoring_ConditionsAccess.py
 ########################################################################
 
+doTriggger_InDetSCTHitsTool = False
+TrigDecisionTool_InDetSCTHitsTool = ""
+if globalflags.DataSource == "data":
+  from RecExConfig.RecFlags import rec
+  if rec.doTrigger():
+    doTriggger_InDetSCTHitsTool = True
+    TrigDecisionTool_InDetSCTHitsTool = DQMonFlags.nameTrigDecTool()
 from SCT_Monitoring.SCT_MonitoringConf import SCTHitsNoiseMonTool
 InDetSCTHitsTool = SCTHitsNoiseMonTool ( name                         = "InDetSCTHitsNoiseMonTool",
                                          OutputLevel                  = 4,
@@ -13,12 +20,9 @@ InDetSCTHitsTool = SCTHitsNoiseMonTool ( name                         = "InDetSC
                                          CheckRate                    = 1000,
                                          doPositiveEndcap             = True,
                                          doNegativeEndcap             = True,
-                                         doTrigger = globalflags.DataSource == "data")
+                                         doTrigger = doTriggger_InDetSCTHitsTool,
+                                         TrigDecisionTool = TrigDecisionTool_InDetSCTHitsTool)
 
-from RecExConfig.RecFlags import rec
-if not rec.doTrigger():
-  InDetSCTHitsTool.doTrigger=False
-	
 InDetSCTHitsTool.tracksName = InDetKeys.SCTTracks() if  InDetFlags.doTrackSegmentsSCT() else InDetKeys.UnslimmedTracks()
 
 ToolSvc += InDetSCTHitsTool
