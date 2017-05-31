@@ -57,7 +57,7 @@ StatusCode LArFlatConditionsAlg<T>::execute() {
 
   std::unique_ptr<T> flat=std::make_unique<T>(attr);
   
-  // Define validity of the output cond obbject and record it
+  // Define validity of the output cond object and record it
   EventIDRange rangeW;
   if(!readHandle.range(rangeW)) {
     ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
