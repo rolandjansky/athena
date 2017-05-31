@@ -126,7 +126,7 @@ def getBphysThresholds(chainDict) :
                     if dthr < 9.5 :
                         thr = thr - 250. 
                     elif dthr < 11.5 :
-                        thr = thr - 500. 
+                        thr = thr - 550. 
                     elif dthr < 21.5  :
                         thr = thr - 750.                         
                     else :
@@ -279,7 +279,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         L2Hypo = EFMultiMuHypo_Vtx20("EFMultiMuHypo_Vtx20")
         L2Hypo.bphysCollectionKey = "MultiTrkFex"
 
-        EFFex = TrigBphysMuonCounter_bNmu("TrigBphysMuonCounter"+fexNameExt, trkmuons)
+        EFFex = None #TrigBphysMuonCounter_bNmu("TrigBphysMuonCounter"+fexNameExt, trkmuons)
+        #EFFex.setEFMuonThresholds( trkmuons )
         EFHypo = None
 
     elif (mtopo == 'bVertex3'):
@@ -294,7 +295,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         L2Hypo = EFMultiMuHypo_Vtx20("EFMultiMuHypo_Vtx20")
         L2Hypo.bphysCollectionKey = "MultiTrkFex"
 
-        EFFex = TrigBphysMuonCounter_bNmu("TrigBphysMuonCounter"+fexNameExt, trkmuons)
+        EFFex = None #TrigBphysMuonCounter_bNmu("TrigBphysMuonCounter"+fexNameExt, trkmuons)
+        #EFFex.setEFMuonThresholds( trkmuons )       
         EFHypo = None
 
     elif (mtopo == 'bTau'):
@@ -488,12 +490,26 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         # that is to make sure that L1 topo seed is not give to EF-only chains..
         topo2StartFrom = None
 
-    if EFHypo != None :
-        theChainDef.addSequence([EFFex, EFHypo],inputTEsEF, EFTEname, topo_start_from=topo2StartFrom)
-    else :
-        theChainDef.addSequence([EFFex],inputTEsEF, EFTEname, topo_start_from=topo2StartFrom)
-    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])    
- 
+    # add step that counts EF muons above required thresholds
+    from TrigBphysHypo.TrigBphysMuonCounterConfig import  TrigBphysMuonCounter_bNmu
+    EFFexMu = TrigBphysMuonCounter_bNmu("TrigBphysMuonCounter"+fexNameExt, trkmuons)
+    EFFexMu.setEFMuonThresholds( trkmuons )
+    theChainDef.addSequence([EFFexMu],inputTEsEF, EFTEname+"_MuCounter", topo_start_from=topo2StartFrom)
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname+"_MuCounter"])    
+
+
+    # Here we need to use inputs from Muon sequence and not from TrigBphysMuonCounter_bNmu..
+    if EFFex != None :
+        if EFHypo != None :        
+            theChainDef.addSequence([EFFex, EFHypo],inputTEsEF, EFTEname, topo_start_from=topo2StartFrom)
+        else :
+            theChainDef.addSequence([EFFex],inputTEsEF, EFTEname, topo_start_from=topo2StartFrom)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])    
+
+
+
+
+    
     if 'idperf' in chainDict['chainName']:
       from TrigIDTPMonitor.TrigIDTPMonitorConfig import IDTPMonitor                                                                          
       IDTP = IDTPMonitor()
@@ -997,7 +1013,16 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         theChainDef.addSignatureL2([L2TEname])
     else :
         topo2StartFrom = None
- 
+
+    if not ('noEFbph' in topoAlgs) :
+        from TrigBphysHypo.TrigBphysMuonCounterConfig import  TrigBphysMuonCounter_bNmu
+        fexNameExt,trkmuons,mult, mult_without_noL1  = getBphysThresholds(chainDict)
+        EFFexMu = TrigBphysMuonCounter_bNmu("TrigBphysMuonCounter"+fexNameExt, trkmuons)
+        EFFexMu.setEFMuonThresholds( trkmuons )
+        theChainDef.addSequence([EFFexMu],inputTEsEF, EFTEname+"_MuCounter", topo_start_from=topo2StartFrom)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname+"_MuCounter"])    
+
+    # here we have to use inputs from Muon sequence and not TrigBphysMuonCounter_bNmu
     theChainDef.addSequence([EFFex, EFHypo],inputTEsEF, EFTEname, topo_start_from = topo2StartFrom)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])       
 
@@ -1112,7 +1137,8 @@ def bMuTrack(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
         theChainDef.addSequence(trkfast,EFinputTE, EFoutputTEfast)
 
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, EFoutTEsfast)
-
+        
+    
     EFTEcount = 0; EFoutTEsprec = [];
     for EFinputTE in inputTEsEF:
         EFTEcount = EFTEcount + 1

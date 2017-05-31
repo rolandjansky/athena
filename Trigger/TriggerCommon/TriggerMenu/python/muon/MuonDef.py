@@ -2201,7 +2201,7 @@ class L2EFChain_mu(L2EFChainDef):
       'EF_mu_hypo1': mergeRemovingOverlap('EF_SuperEFhyp_',   idmulti+'_'+self.chainPartNameNoMult.replace(self.chainPart['specialStream'], '')+'_'+self.L2InputTE).replace('__', '_'),
       }
 
-    # OI this makes no sense , as we already cut on good tracks at L2, there is no rejection, skip it (at least in 2017)
+    # OI this part gives problem to EF 2TE algos; keep it for v6 only.
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     if "_v6" in TriggerFlags.triggerMenuSetup():
       self.EFsequenceList += [[['EF_mu_hypo1'],
