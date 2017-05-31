@@ -154,8 +154,8 @@ def setupMenu():
             ['mu6_idperf_FTK',             'L1_MU6',            [], [PhysicsStream, 'express'], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
             ['mu24_idperf_FTKRefit',       'L1_MU21',           [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1], 
             ['mu6_idperf_FTKRefit',        'L1_MU6',            [], [PhysicsStream, 'express'], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
-            ['mu22_mu8noL1_ftkFS',         'L1_MU21', ['L1_MU21',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu22','mu8noL1_ftkFS']]],
-            ['mu26_ivarmedium_ftk',      'L1_MU21',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+            ['mu22_mu8noL1_FTKFS',         'L1_MU21', ['L1_MU21',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu22','mu8noL1_FTKFS']]],
+            ['mu26_ivarmedium_FTK',      'L1_MU21',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
             ]
 
     TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
