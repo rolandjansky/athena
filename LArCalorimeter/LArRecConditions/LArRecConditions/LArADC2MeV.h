@@ -20,7 +20,7 @@ class LArADC2MeV {
 
  public:
   LArADC2MeV() = delete;
-  LArADC2MeV(const LArOnlineID_Base* onlineID);
+  LArADC2MeV(const LArOnlineID_Base* onlineID, const size_t nGains);
   ~LArADC2MeV();
 
   const std::vector<float>& ADC2MEV(const HWIdentifier& id, int gain) const;
@@ -36,7 +36,7 @@ class LArADC2MeV {
   //In real life, the size of the inner vector (eg the degree of the ramp-polynom) is always 2
 
   const LArOnlineID_Base* m_onlineID;
-
+  const size_t m_nGains;
 };
 
 #include "CLIDSvc/CLASS_DEF.h"

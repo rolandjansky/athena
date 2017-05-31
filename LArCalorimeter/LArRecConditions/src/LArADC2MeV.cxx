@@ -3,14 +3,17 @@
 
 #include <cassert>
 
-LArADC2MeV::LArADC2MeV(const LArOnlineID_Base* onlineID) :
-  m_onlineID(onlineID) {
+LArADC2MeV::LArADC2MeV(const LArOnlineID_Base* onlineID, const size_t nGains) :
+  m_onlineID(onlineID),
+  m_nGains(nGains) {
 
   assert(m_onlineID); 
+  assert(nGains<3 && nGains>0);
 
-  for(auto& perGain : m_adc2MeV) {
-    perGain.resize(onlineID->channelHashMax());
+  for (size_t i=0;i<nGains;++i) {
+    m_adc2MeV[i].resize(onlineID->channelHashMax());
   }
+  
 }
 
 
