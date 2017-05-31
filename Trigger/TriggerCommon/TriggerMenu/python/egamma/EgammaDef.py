@@ -564,6 +564,7 @@ class EgammaHypoBuilder(object):
             if(tt == 'e'):
                 fex, hypo = TrigL2CaloRingerFexHypo_e_ID(thr,idinfo,tt)
             if(tt == 'g'):
+                # For now, there is no photon ringer tuning. 
                 fex, hypo = TrigL2CaloRingerFexHypo_g_NoCut(thr)
         else:
             log.error('Cannot configure ringer')
