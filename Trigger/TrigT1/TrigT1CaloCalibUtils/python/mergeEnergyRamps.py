@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 import ROOT
 import sys
 import time
@@ -34,7 +32,7 @@ class L1CaloGeometryConvertor:
          # get database service and open database
          dbSvc = cool.DatabaseSvcFactory.databaseService()
 
-         dbString = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=COMP200'
+         dbString = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2'
          try:
            db = dbSvc.openDatabase(dbString, False)        
          except Exception, e:
@@ -253,8 +251,9 @@ def WriteSqlite(name,input_dict):
   db = dbSvc.createDatabase( connectString )
 
   spec = cool.RecordSpecification()
-  spec.extend('factor',cool.StorageType.Float)
-  spec.extend( 'status', cool.StorageType.UInt32 )
+  spec.extend("factor", cool.StorageType.Float)
+  spec.extend("status", cool.StorageType.UInt32 )
+  folderSpec = cool.FolderSpecification(cool.FolderVersioning.SINGLE_VERSION, spec)
 
   now = int(time.time())
 
@@ -266,10 +265,10 @@ def WriteSqlite(name,input_dict):
   db.createFolderSet('/TRIGGER/Receivers')
   db.createFolderSet('/TRIGGER/Receivers/Factors')
 
-  folder_description = "<timeStamp>time</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\"/></addrHeader><typeName>CondAttrListCollection</typeName>"
-  f = db.createFolder( "/TRIGGER/Receivers/Factors/CalibGains" , spec, folder_description )
-#  f = db.createFolder( folder_name , spec, True )
+  folder_description = '<timeStamp>time</timeStamp><addrHeader><address_header service_type="71" clid="1238547719"/></addrHeader><typeName>CondAttrListCollection</typeName>'
+  f = db.createFolder( "/TRIGGER/Receivers/Factors/CalibGains", folderSpec, folder_description)
 
+  print " Now creating sqlite file for ", len(input_dict.keys()), " channels"
   for i in input_dict.keys():
     data = cool.Record( spec )
     data['factor'] = input_dict[i][0]
@@ -379,7 +378,7 @@ class GainsFromOracle:
        # get database service and open database
        dbSvc = cool.DatabaseSvcFactory.databaseService()
 
-       dbString = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=COMP200'
+       dbString = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2'
        try:
          db = dbSvc.openDatabase(dbString, False)        
        except Exception, e:
