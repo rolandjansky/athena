@@ -37,6 +37,7 @@ from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.OutputLevel( INFO )
 AlgScheduler.ShowControlFlow( True )
 AlgScheduler.ShowDataDependencies( True )
+AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 
 from RecExConfig.RecFlags import rec
 rec.doTruth.set_Value_and_Lock(False)
@@ -85,15 +86,6 @@ topSequence = AlgSequence()
 
 from SGComps.SGCompsConf import SGInputLoader
 topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
-
-topSequence.SGInputLoader.Load = [ ('EventInfo', 'McEventInfo'),
-                                   ('LArRawChannelContainer','LArRawChannels'),
-                                   ('TileRawChannelContainer','TileRawChannelCnt'),
-                                   ('DataVector<LVL1::TriggerTower>','TriggerTowers'),
-                                   ('CaloCalibrationHitContainer','LArCalibrationHitActive'),
-                                   ('CaloCalibrationHitContainer','LArCalibrationHitDeadMaterial'),
-                                   ('CaloCalibrationHitContainer','LArCalibrationHitInactive') ]
-   
 
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
 topSequence+=xAODMaker__EventInfoCnvAlg()
