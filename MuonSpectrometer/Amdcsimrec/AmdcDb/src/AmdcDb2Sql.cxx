@@ -78,7 +78,7 @@ void AmdcDb2Sql::DoSql(std::string TagFileName,std::string NameOfTheSet,std::str
   OutFile.open(FileName.c_str());
   OutFile << setiosflags(std::ios::fixed);
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,tag);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,tag);
   if (pIRDBRecordset->size()==0){
     OutFile << "No " << NameOfTheSet << " in AmdcDb " << std::endl;
     return;
