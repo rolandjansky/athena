@@ -268,14 +268,20 @@ print MuonHLTTrig_EventSkimmingTool
 # Final logical selection
 # ------------------------------------------------
 # ================================================
-
-#EventFilterTool=DerivationFramework__FilterCombinationOR(name="EventFilterTool",FilterList=[MuonNoAlgTrig_EventSkimmingTool, OrthoTrig_EventSkimmingTool])
-EventFilterTool=DerivationFramework__FilterCombinationOR(name="EventFilterTool",FilterList=[MuonNoAlgTrig_EventSkimmingTool, OrthoTrig_EventSkimmingTool, JpsiTrig_EventSkimmingTool, MuonHLTTrig_EventSkimmingTool])
-ToolSvc+=EventFilterTool
-print EventFilterTool
-
-desdAlignmentTriggerMuonSequence+=CfgMgr.DerivationFramework__DerivationKernel("EventSkimmingKernel", SkimmingTools=[EventFilterTool])
-
+if primDPDAlignTrigMu.doAlignmentFormat():
+    # If running alignment format, want following selction:
+    AlignmentEventStringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "AlignmentEventStringSkimmingTool",
+                                                                                   expression = "(count(Muons.muonType == 0 && Muons.pt > 5*GeV) > 0)")
+    
+    ToolSvc += AlignmentEventStringSkimmingTool
+    print AlignmentEventStringSkimmingTool
+    desdAlignmentTriggerMuonSequence+=CfgMgr.DerivationFramework__DerivationKernel("EventSkimmingKernel", SkimmingTools=[AlignmentEventStringSkimmingTool])
+    
+else:
+    EventFilterTool=DerivationFramework__FilterCombinationOR(name="EventFilterTool",FilterList=[MuonNoAlgTrig_EventSkimmingTool, OrthoTrig_EventSkimmingTool, JpsiTrig_EventSkimmingTool, MuonHLTTrig_EventSkimmingTool])
+    ToolSvc+=EventFilterTool
+    print EventFilterTool
+    desdAlignmentTriggerMuonSequence+=CfgMgr.DerivationFramework__DerivationKernel("EventSkimmingKernel", SkimmingTools=[EventFilterTool])
 
 # ------------------------
 # Create Track filters
@@ -322,6 +328,11 @@ from PrimaryDPDMaker import PrimaryDPD_OutputDefinitions as dpdOutput
 
 trackParticleAuxExclusions="-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 
+
+if primDPDAlignTrigMu.doAlignmentFormat():
+		trackParticleAuxExclusions=""
+
+
 #General
 AlignmentTriggerMuonStream.AddItem(["xAOD::EventInfo#*"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::EventAuxInfo#*"])
@@ -350,7 +361,10 @@ AlignmentTriggerMuonStream.AddItem(["Muon::MdtPrepDataContainer#*"])
 #Alignment
 AlignmentTriggerMuonStream.AddItem(["Trk::SegmentCollection#MuonSegments"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::VertexContainer#PrimaryVertices"])
-AlignmentTriggerMuonStream.AddItem(["xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex"])
+if primDPDAlignTrigMu.doAlignmentFormat():
+	AlignmentTriggerMuonStream.AddItem(["xAOD::VertexAuxContainer#PrimaryVerticesAux."])
+else:
+	AlignmentTriggerMuonStream.AddItem(["xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex"])
 AlignmentTriggerMuonStream.AddItem(["TrackCollection#MuonSpectrometerTracks"])
 AlignmentTriggerMuonStream.AddItem(["TrackCollection#CombinedMuonTracks"])
 #AlignmentTriggerMuonStream.AddItem(["TrackCollection#Tracks"])
