@@ -689,14 +689,14 @@ StatusCode TrigL1TopoROBMonitor::doCnvMon(bool prescalForDAQROBAccess) {
                   m_histTopoDaqRobEventComparison);
       if(m_overflowBitsDaqRob.none()){
           for (unsigned int i=0; i< m_nTopoCTPOutputs; ++i){
-              m_histTopoHdwResult->Fill(i,m_triggerBitsDaqRob.test(i));
+              m_histTopoDaqRobHdwResult->Fill(i,m_triggerBitsDaqRob.test(i));
           }
           for (unsigned int i=0; i< m_nTopoCTPOutputs; ++i){
-              m_histTopoSimResult->Fill(i,m_topoSimResult.test(i));
+              m_histTopoDaqRobSimResult->Fill(i,m_topoSimResult.test(i));
           }
           for (unsigned int i=0; i< m_nTopoCTPOutputs; ++i){
-              m_histTopoSimNotHdwResult->Fill(i, m_topoSimResult.test(i) and not m_triggerBitsDaqRob.test(i));
-              m_histTopoHdwNotSimResult->Fill(i, m_triggerBitsDaqRob.test(i) and not m_topoSimResult.test(i));
+              m_histTopoDaqRobSimNotHdwResult->Fill(i, m_topoSimResult.test(i) and not m_triggerBitsDaqRob.test(i));
+              m_histTopoDaqRobHdwNotSimResult->Fill(i, m_triggerBitsDaqRob.test(i) and not m_topoSimResult.test(i));
           }
       } // if(overflow.none)
   } // if(prescalForDAQROBAccess)
