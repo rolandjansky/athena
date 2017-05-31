@@ -263,35 +263,25 @@ MuonHLTTrig_EventSkimmingTool=DerivationFramework__FilterCombinationAND(name="Mu
 ToolSvc+=MuonHLTTrig_EventSkimmingTool
 print MuonHLTTrig_EventSkimmingTool
 
-
-
-
 # ================================================
 # ------------------------------------------------
 # Final logical selection
 # ------------------------------------------------
 # ================================================
-
-
 if primDPDAlignTrigMu.doAlignmentFormat():
-	# -------------------------------------------------------------------
-	# If running alignment format, want following selction:
-	# -------------------------------------------------------------------
-
-	AlignmentEventStringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "AlignmentEventStringSkimmingTool",
-																																							 expression = "(count(Muons.muonType == 0 && Muons.pt > 5*GeV) > 0)")
-
-	ToolSvc += AlignmentEventStringSkimmingTool
-	print AlignmentEventStringSkimmingTool
-	desdAlignmentTriggerMuonSequence+=CfgMgr.DerivationFramework__DerivationKernel("EventSkimmingKernel", SkimmingTools=[AlignmentEventStringSkimmingTool])
-
+    # If running alignment format, want following selction:
+    AlignmentEventStringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "AlignmentEventStringSkimmingTool",
+                                                                                   expression = "(count(Muons.muonType == 0 && Muons.pt > 5*GeV) > 0)")
+    
+    ToolSvc += AlignmentEventStringSkimmingTool
+    print AlignmentEventStringSkimmingTool
+    desdAlignmentTriggerMuonSequence+=CfgMgr.DerivationFramework__DerivationKernel("EventSkimmingKernel", SkimmingTools=[AlignmentEventStringSkimmingTool])
+    
 else:
-	EventFilterTool=DerivationFramework__FilterCombinationOR(name="EventFilterTool",FilterList=[MuonNoAlgTrig_EventSkimmingTool, OrthoTrig_EventSkimmingTool, JpsiTrig_EventSkimmingTool, MuonHLTTrig_EventSkimmingTool])
-	ToolSvc+=EventFilterTool
-	print EventFilterTool
-
-	desdAlignmentTriggerMuonSequence+=CfgMgr.DerivationFramework__DerivationKernel("EventSkimmingKernel", SkimmingTools=[EventFilterTool])
-
+    EventFilterTool=DerivationFramework__FilterCombinationOR(name="EventFilterTool",FilterList=[MuonNoAlgTrig_EventSkimmingTool, OrthoTrig_EventSkimmingTool, JpsiTrig_EventSkimmingTool, MuonHLTTrig_EventSkimmingTool])
+    ToolSvc+=EventFilterTool
+    print EventFilterTool
+    desdAlignmentTriggerMuonSequence+=CfgMgr.DerivationFramework__DerivationKernel("EventSkimmingKernel", SkimmingTools=[EventFilterTool])
 
 # ------------------------
 # Create Track filters
