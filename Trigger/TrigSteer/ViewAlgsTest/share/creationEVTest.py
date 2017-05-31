@@ -52,12 +52,16 @@ steps[0] += seqFilter( "Step0EM", Inputs=["L1EM"], Outputs=["step0EM"],
                       Chains=[ x.split(':')[-1].strip() for x in emUnpacker.ThresholdToChainMapping ] ) # all chains
 
 
+
 # this is a piece which is intended to be eliminated hopefully
 from GaudiHive.GaudiHiveConf import AlgResourcePool
 svcMgr += AlgResourcePool( "ViewAlgPool" )
 
 from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
-allViewAlgs = AlgSequence("allViewAlgs")
+allViewAlgs = AlgSequence( "allViewAlgs" )
+allViewAlgs += seqFilter( "NoExec" )
+#allViewAlgs += CfgMgr.AthPrescaler( "alwaysFail" )
+#allViewAlgs.alwaysFail.PercentPass = 0.0
 
 
 from ViewAlgsTest.ViewAlgsTestConf import SchedulerProxyAlg
@@ -65,7 +69,7 @@ viewAlg = SchedulerProxyAlg( "algInView", OutputLevel = DEBUG, RoIsContainer = "
 
 allViewAlgs += viewAlg
 svcMgr.ViewAlgPool.TopAlg += [ viewAlg.getFullName() ]
-#topSequence += allViewAlgs
+topSequence += allViewAlgs
 
 
 from ViewAlgsTest.ViewAlgsTestConf import TestViewDriver

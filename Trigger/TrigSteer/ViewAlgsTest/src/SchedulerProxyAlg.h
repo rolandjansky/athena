@@ -22,7 +22,7 @@ public:
   StatusCode execute();
 
 private:
-  SG::ReadHandleKey<ConstDataVector<TrigRoiDescriptorCollection> > m_roisContainer;
+  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roisContainer;
   SG::WriteHandleKey< TestClusterContainer > m_outputClusterContainer;
 
 

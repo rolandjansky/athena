@@ -59,24 +59,21 @@ StatusCode TestViewDriver::execute() {
 
     
     auto oneRoIColl = std::make_unique< ConstDataVector<TrigRoiDescriptorCollection> >();    
-    // Divide the RoIs into a vector of single-element collections, one for each view
-    //new ConstDataVector<TrigRoiDescriptorCollection>;
     oneRoIColl->clear(SG::VIEW_ELEMENTS); //Don't delete the RoIs
     oneRoIColl->push_back( roi );
-    auto handle = SG::makeHandle( m_roisViewOutput, newCtx );
+    auto handle = SG::makeHandle( m_roisViewOutput, contexts.back() );
+    handle.setProxyDict( viewVector->back() );
     CHECK( handle.record( std::move( oneRoIColl ) ) );
 
-
-    ATH_MSG_DEBUG("Placed RoICollection with a single RoI " <<  *roi << " in the view");
+    ATH_MSG_DEBUG("Placed RoICollection with a single RoI " <<  *roi << " in the view " << viewVector->back()->impl()->name() );
     // just an RoI descriptor in the view
   } 
   // missing is super RoI, and not covering the case when this alg can actually comsume more than on RoIs input collections
 
-  
   // Run the views
-  CHECK( ViewHelper::RunViews( contexts
-			       m_viewAlgorithmNames,				// Algorithms to run in each view
-			       serviceLocator()->service( "ViewAlgPool" ) ) );	//FIXME this should realy be service handle, else we do costly retrival each execution, needs api change of ViewHelper
+  CHECK( ViewHelper::runInViews( contexts,
+				 m_viewAlgorithmNames,				// Algorithms to run in each view
+				 serviceLocator()->service( "ViewAlgPool" ) ) );	//FIXME this should realy be service handle, else we do costly retrival each execution, needs api change of ViewHelper
 
   ATH_MSG_DEBUG("Execution in " << viewVector->size() << " Views performed");
   

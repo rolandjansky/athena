@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include "CxxUtils/make_unique.h"
-
+#include "AthViews/View.h"
 #include "./SchedulerProxyAlg.h"
 
 SchedulerProxyAlg::SchedulerProxyAlg(const std::string& name, ISvcLocator* pSvcLocator) 
@@ -24,21 +24,27 @@ StatusCode SchedulerProxyAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode SchedulerProxyAlg::execute()
-{
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
-  const EventContext& ctx = getContext();
-#else
-  const EventContext& ctx = *getContext();
-#endif  
+StatusCode SchedulerProxyAlg::execute() {
+  
 
-  auto inputHandle = SG::makeHandle( m_roisContainer, ctx );
+  auto proxyPtr = getContext().proxy();
+  auto viewPtr = dynamic_cast<SG::View*>(proxyPtr);
+  ATH_MSG_INFO("Proxy " << viewPtr );
+  if ( viewPtr != nullptr ) {
+    ATH_MSG_WARNING( "The alg operates on the view " << viewPtr->impl()->name() );
+  }
+// #ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
+//   const EventContext& ctx = getContext();
+// #else
+//   const EventContext& ctx = *getContext();
+// #endif  
+
+  auto inputHandle = SG::makeHandle( m_roisContainer );
   if ( not inputHandle.isValid() )  {
-    ATH_MSG_ERROR("Input handle is invalid");
+    ATH_MSG_ERROR("Input handle " << m_roisContainer.key()  << " is invalid");
     return StatusCode::FAILURE;
   }
-  
-  
+    
   auto outputClusters = std::make_unique<TestClusterContainer>();
   auto outputClustersAux = std::make_unique<TestClusterAuxContainer>();
   outputClusters->setStore( outputClustersAux.get() );
