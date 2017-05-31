@@ -99,6 +99,10 @@ class TrigL1TopoROBMonitor:public AthAlgorithm {
   TH1F* m_histInputLinkCRCfromROIConv;
   TH1F* m_histTopoSimOverfl;
   TH1F* m_histTopoHdwOverfl;
+  TH1F* m_histTopoDaqRobSimResult;
+  TH1F* m_histTopoDaqRobHdwResult;
+  TH1F* m_histTopoDaqRobSimNotHdwResult;
+  TH1F* m_histTopoDaqRobHdwNotSimResult;
   std::bitset<m_nTopoCTPOutputs> m_triggerBits; //! trigger bits sent to CTP
   std::bitset<m_nTopoCTPOutputs> m_overflowBits; //! overflow bits corresponding to CTP output
   std::bitset<m_nTopoCTPOutputs> m_topoSimResult; //! simulation of CTP output
