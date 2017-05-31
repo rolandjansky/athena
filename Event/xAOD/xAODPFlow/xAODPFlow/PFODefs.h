@@ -137,7 +137,7 @@ namespace PFODetails
     tauShots_mergedScore, 
     tauShots_signalScore, 
     tauShots_nPhotons,
-    tauShots_seedHash,
+    tauShots_seedHash
   };
 
   /** This enum is used to label the associated particles to the PFO object */
