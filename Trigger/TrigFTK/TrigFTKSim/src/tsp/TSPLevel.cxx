@@ -201,7 +201,7 @@ void TSPLevel::storeAMInfo()
 
       /* check is a valid mask: a valid mask has at least 1 bit set,
 	 there isn't any bit further the maximum set */
-      unsigned int maskForInvalidBits=~0<<npos;
+      unsigned int maskForInvalidBits=~0u<<npos;
       if (npos==32) maskForInvalidBits = 0;
       if (npos>32) FTKSetup::PrintMessageFmt(ftk::sevr,"Error: npos>32 (i.e. more than 5 DC bits) is an invalid configuration. npos=%d\n",npos);
       if (!mask || mask&(maskForInvalidBits)) {
@@ -229,7 +229,7 @@ int TSPLevel::evaluateSubSSMask(int nbits, int position, int dcmask, int hbmask)
   if (!nbits) return 0;
 
   // build mask to select only the first nbits
-  const int ref_ok = ~(~0<<nbits);
+  const int ref_ok = ~(~0u<<nbits);
   // shift the masks to remove the previous bits
   dcmask >>= position;
   hbmask >>= position;
@@ -280,7 +280,7 @@ void TSPLevel::simulate(FTKRoad& road){
       FTKSS& ss = m_splitted_ssmap[iplane][road.getSSID(iplane)];
 
       // in the bitmask filter the position for this layer
-      int pos = (hbmask>>m_tspmap.getBitOffset(iplane)) & (~(~0<<m_tspmap.getNBits(iplane)));
+      int pos = (hbmask>>m_tspmap.getBitOffset(iplane)) & (~(~0u<<m_tspmap.getNBits(iplane)));
 
       // the position value has to be converted in binary form from the Gray encoding
       pos = m_tspmap.getPosition(iplane,pos);
@@ -300,7 +300,7 @@ void TSPLevel::simulate(FTKRoad& road){
       subroad.setPatternDBID(subroad.getPatternID()); // there is no difference at this level between 2 Ids
       subroad.setSectorID(road.getSectorID());
       for (int ip=0;ip!=m_nplanes;++ip) {
-	int pos = (hbmask>>m_tspmap.getBitOffset(ip)) & (~(~0<<m_tspmap.getNBits(ip)));
+	int pos = (hbmask>>m_tspmap.getBitOffset(ip)) & (~(~0u<<m_tspmap.getNBits(ip)));
 	// the "pos" value is encoded using the Gray encoding, has to trasformed in standard binary code
 	pos = m_tspmap.getPosition(ip,pos);
 
@@ -446,7 +446,7 @@ int TSPLevel::getPatternInfo(int ipatt, const FTKPattern *ampatt, bool readTSP)
 
     /* check is a valid mask: a valid mask has at least 1 bit set,
 	 there isn't any bit further the maximum set */
-    unsigned int maskForInvalidBits=~0<<npos;
+    unsigned int maskForInvalidBits=~0u<<npos;
     if (npos==32) maskForInvalidBits = 0;
     if (npos>32) FTKSetup::PrintMessageFmt(ftk::sevr,"Error: npos>32 (i.e. more than 5 DC bits) is an invalid configuration. npos=%d\n",npos);
     if (!mask || mask&(maskForInvalidBits)) {
@@ -534,7 +534,7 @@ int TSPLevel::getPatternInfo(int ipatt, int _dcmask, int _hbmask/*, bool readTSP
 
     /* check is a valid mask: a valid mask has at least 1 bit set,
 	 there isn't any bit further the maximum set */
-    unsigned int maskForInvalidBits=~0<<npos;
+    unsigned int maskForInvalidBits=~0u<<npos;
     if (npos==32) maskForInvalidBits = 0;
     if (npos>32) FTKSetup::PrintMessageFmt(ftk::sevr,"Error: npos>32 (i.e. more than 5 DC bits) is an invalid configuration. npos=%d\n",npos);
     if (!mask || mask&(maskForInvalidBits)) {
@@ -561,7 +561,7 @@ unsigned int TSPLevel::getHBMask(int patt, int layer) const {
   const int &curhbmask =  m_hbmask[patt][0];
 
   // shift the word to have the bits for the layer in LSB position and set to bits after npos
-  return (curhbmask>>bitoffset)&(~(~0<<npos));
+  return (curhbmask>>bitoffset)&(~(~0u<<npos));
 }
 
 /** Return the DC mask for the high precision part for the layer "patt"
@@ -577,7 +577,7 @@ unsigned int TSPLevel::getDCMask(int patt, int layer) const {
   const int &curdcmask =  m_dcmask[patt];
 
   // shift the word to have the bits for the layer in LSB position and set to bits after npos
-  return (curdcmask>>bitoffset)&(~(~0<<npos));
+  return (curdcmask>>bitoffset)&(~(~0u<<npos));
 }
 
 

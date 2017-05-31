@@ -242,7 +242,7 @@ void TrackFitter711::init()
     combtrackI[ic].setNCoords(m_ncoords_incomplete);
     combtrackI[ic].setNPlanes(m_nplanes_incomplete);
   }
-  m_complete_maskI = ~(~0<<m_ncoords_incomplete);
+  m_complete_maskI = ~(~0u<<m_ncoords_incomplete);
 
   m_nplanes_ignored = m_nplanes-m_nplanes_incomplete;
   m_ncoords_ignored = m_ncoords-m_ncoords_incomplete;
