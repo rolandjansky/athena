@@ -293,7 +293,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         L2Hypo = EFMultiMuHypo_Vtx20("EFMultiMuHypo_Vtx20")
         L2Hypo.bphysCollectionKey = "MultiTrkFex"
 
-        EFFex = TrigBphysMuonCounter_bNmu("TrigBphysMuonCounter"+fexNameExt, trkmuons)
+        EFFex = None #TrigBphysMuonCounter_bNmu("TrigBphysMuonCounter"+fexNameExt, trkmuons)
+        #EFFex.setEFMuonThresholds( trkmuons )       
         EFHypo = None
 
     elif (mtopo == 'bTau'):
