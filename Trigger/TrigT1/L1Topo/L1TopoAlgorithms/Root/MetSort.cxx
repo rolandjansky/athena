@@ -51,9 +51,9 @@ TCS::MetSort::sort(const InputTOBArray & input, TOBArray & output) {
    // this returns values between -pi and pi. it needs to match the format for phi for jets and em/tau. The algorithm that uses this is mindeltaphi which
    // uses phiDouble, filled with the phi value as returned from calosim, which also uses -pi pi. However, if replaced by phi, this is an integer between 0 63, so
    // atan2 should be changed to match this. If all is replaced by the bitwise then all should match as both , the trigo function below and the TOB phi are given in the range 0 63 
-   int metphi = round(10*atan2(mets[0].Ey(),mets[0].Ex()));
+   //int metphi = round(10*atan2(mets[0].Ey(),mets[0].Ex()));
    // bitwise atan2 
-   //int metphi = TSU::Trigo::atan2(mets[0].Ex(),mets[0].Ey());
+   int metphi = TSU::Trigo::atan2(mets[0].Ex(),mets[0].Ey());
    //
    TRG_MSG_DEBUG("MET phi values " << metphi << " " );
    output.push_back( GenericTOB( missingET, 0, metphi ) );

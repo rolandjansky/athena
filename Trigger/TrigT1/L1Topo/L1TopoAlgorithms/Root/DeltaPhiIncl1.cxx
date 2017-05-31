@@ -14,33 +14,11 @@
 #include "L1TopoAlgorithms/DeltaPhiIncl1.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
+#include "L1TopoSimulationUtils/Kinematics.h"
 
 REGISTER_ALG_TCS(DeltaPhiIncl1)
 
 using namespace std;
-
-namespace {
-   unsigned int
-   calcDeltaPhi(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-      double dphi = fabs( tob1->phiDouble() - tob2->phiDouble() );
-      if(dphi>M_PI)
-         dphi = 2*M_PI - dphi;
-      
-      return round( 10 * dphi );
-   }
-
-   unsigned int
-   calcDeltaPhiBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-      int dphiB = abs( tob1->phi() - tob2->phi() );
-      if(dphiB>32)
-         dphiB = 64 - dphiB; 
-
-      return dphiB ;
-   }
-
-
-}
-
 
 TCS::DeltaPhiIncl1::DeltaPhiIncl1(const std::string & name) : DecisionAlg(name)
 {
@@ -113,7 +91,7 @@ TCS::DeltaPhiIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *> 
                      tob2 != input[0]->end() && distance( input[0]->begin(), tob2) < nLeading2;
                      ++tob2) {
                     // DeltaPhi cuts
-                    unsigned int deltaPhi = calcDeltaPhiBW( *tob1, *tob2 );
+                    unsigned int deltaPhi = TSU::Kinematics::calcDeltaPhiBW( *tob1, *tob2 );
                     std::stringstream msgss;
                     msgss << "  phi1=" << (*tob1)->phi() << " , phi2=" << (*tob2)->phi()
                           << ", DeltaPhi = " << deltaPhi << " -> ";
@@ -156,7 +134,7 @@ TCS::DeltaPhiIncl1::process( const std::vector<TCS::TOBArray const *> & input,
                      tob2 != input[0]->end() && distance( input[0]->begin(), tob2) < nLeading2;
                      ++tob2) {
                     // DeltaPhi cuts
-                    unsigned int deltaPhi = calcDeltaPhi( *tob1, *tob2 );
+                    unsigned int deltaPhi = TSU::Kinematics::calcDeltaPhi( *tob1, *tob2 );
                     std::stringstream msgss;
                     msgss << "    Combination : " << distance( input[0]->begin(), tob1) 
                           << " x " << distance( input[0]->begin(), tob2)

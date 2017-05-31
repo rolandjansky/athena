@@ -13,7 +13,7 @@
 #include "L1TopoAlgorithms/DeltaRSqrIncl1.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
-
+#include "L1TopoSimulationUtils/Kinematics.h"
 
 REGISTER_ALG_TCS(DeltaRSqrIncl1)
 
@@ -21,38 +21,6 @@ using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
 #define LOG cout << "TCS::DeltaRSqrIncl1:     "
-
-
-
-
-namespace {
-   unsigned int
-   calcDeltaR2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-      double deta = ( tob1->etaDouble() - tob2->etaDouble() );
-      double dphi = fabs( tob1->phiDouble() - tob2->phiDouble() );
-      if(dphi>M_PI)
-         dphi = 2*M_PI - dphi;
-
-
-      return round ( 100 * ((dphi)*(dphi) + (deta)*(deta) )) ;
-
-   }
-
-
-   unsigned int
-   calcDeltaR2BW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-
-      int detaB = abs( tob1->eta() - tob2->eta() );
-      int dphiB = abs( tob1->phi() - tob2->phi() );
-      if(dphiB>32)
-         dphiB = 64 - dphiB;
-
-      unsigned int bit_dr2 = dphiB*dphiB + detaB*detaB;
-      return bit_dr2;
-
-   }
-}
-
 
 TCS::DeltaRSqrIncl1::DeltaRSqrIncl1(const std::string & name) : DecisionAlg(name)
 {
@@ -131,7 +99,7 @@ TCS::DeltaRSqrIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *>
                   // OneBarrel
                   if (p_OneBarrel && parType_t(abs((*tob1)->eta())) > 10 && parType_t(abs((*tob2)->eta())) > 10 ) continue;
                   // DeltaR2 cuts
-                  unsigned int deltaR2 = calcDeltaR2BW( *tob1, *tob2 );
+                  unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2BW( *tob1, *tob2 );
                   for(unsigned int i=0; i<numberOutputBits(); ++i) {
                       bool accept = false;
                       accept = deltaR2 >= p_DeltaRMin[i] && deltaR2 <= p_DeltaRMax[i];
@@ -169,7 +137,7 @@ TCS::DeltaRSqrIncl1::process( const std::vector<TCS::TOBArray const *> & input,
                     // OneBarrel
                     if (p_OneBarrel && parType_t(abs((*tob1)->eta())) > 10 && parType_t(abs((*tob2)->eta())) > 10 ) continue;
                     // DeltaR2 cuts
-                    unsigned int deltaR2 = calcDeltaR2( *tob1, *tob2 );
+                    unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2( *tob1, *tob2 );
                     for(unsigned int i=0; i<numberOutputBits(); ++i) {
                     bool accept = false;
                     accept = deltaR2 >= p_DeltaRMin[i] && deltaR2 <= p_DeltaRMax[i];

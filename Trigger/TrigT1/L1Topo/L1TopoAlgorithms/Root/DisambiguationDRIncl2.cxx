@@ -14,6 +14,7 @@
 #include "L1TopoAlgorithms/DisambiguationDRIncl2.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
+#include "L1TopoSimulationUtils/Kinematics.h"
 
 REGISTER_ALG_TCS(DisambiguationDRIncl2)
 
@@ -21,36 +22,6 @@ using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
 #define LOG cout << "TCS::DisambiguationDRIncl2:     "
-
-
-
-
-namespace {
-   unsigned int
-   calcDeltaR2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-      double deta = ( tob1->etaDouble() - tob2->etaDouble() );
-      double dphi = fabs( tob1->phiDouble() - tob2->phiDouble() );
-      if(dphi>M_PI)
-         dphi = 2*M_PI - dphi;
-
-      return round ( 100 * ((dphi)*(dphi) + (deta)*(deta) )) ;
-
-   }
-
-   unsigned int
-   calcDeltaR2BW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-
-      int detaB = abs( tob1->eta() - tob2->eta() );
-      int dphiB = abs( tob1->phi() - tob2->phi() );
-      if(dphiB>32)
-         dphiB = 64 - dphiB;
-
-      unsigned int bit_dr2 = dphiB*dphiB + detaB*detaB;
-      return bit_dr2;
-
-   }
-  
-}
 
 
 TCS::DisambiguationDRIncl2::DisambiguationDRIncl2(const std::string & name) : DecisionAlg(name)
@@ -130,7 +101,7 @@ TCS::DisambiguationDRIncl2::processBitCorrect( const std::vector<TCS::TOBArray c
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
                 // test DeltaR2Min, DeltaR2Max
-                unsigned int deltaR2Cut = calcDeltaR2BW( *tob1, *tob2 );
+                unsigned int deltaR2Cut = TSU::Kinematics::calcDeltaR2BW( *tob1, *tob2 );
                 for(unsigned int i=0; i<numberOutputBits(); ++i) {
                     bool accept = false;
                     if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
@@ -179,7 +150,7 @@ TCS::DisambiguationDRIncl2::process( const std::vector<TCS::TOBArray const *> & 
                   tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                   ++tob2) {
                  // test DeltaR2Min, DeltaR2Max
-                 unsigned int deltaR2Cut = calcDeltaR2( *tob1, *tob2 );
+                 unsigned int deltaR2Cut = TSU::Kinematics::calcDeltaR2( *tob1, *tob2 );
                  for(unsigned int i=0; i<numberOutputBits(); ++i) {
                      bool accept = false;
                      if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
