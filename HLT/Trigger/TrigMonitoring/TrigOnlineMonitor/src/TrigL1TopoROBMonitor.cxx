@@ -104,6 +104,10 @@ TrigL1TopoROBMonitor::TrigL1TopoROBMonitor(const std::string& name, ISvcLocator*
   m_histTopoHdwNotSimOverflow(0),
   m_histTopoProblems(0),
   m_histInputLinkCRCfromROIConv(0),
+  m_histTopoDaqRobSimResult(0),
+  m_histTopoDaqRobHdwResult(0),
+  m_histTopoDaqRobSimNotHdwResult(0),
+  m_histTopoDaqRobHdwNotSimResult(0),
   m_setTopoSimResult(false),
   m_firstEvent(true)
 {
@@ -300,6 +304,10 @@ StatusCode TrigL1TopoROBMonitor::beginRun() {
   unsigned int nProblems=m_problems.size();
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoProblems, "Problems", "Counts of various problems", nProblems, 0, nProblems) ) ;
   CHECK( bookAndRegisterHist(rootHistSvc, m_histInputLinkCRCfromROIConv, "InputLinkCRCs","CRC flags for input links, from ROI via converter", 5, 0, 5) );
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobSimResult, "SimDaqRobResults", "L1Topo simulation accepts, events with no overflows (DAQ ROB)", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobHdwResult, "HdwDaqRobResults", "L1Topo hardware accepts, events with no overflows (DAQ ROB)", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobSimNotHdwResult, "SimNotHdwDaqRobResult", "L1Topo events with simulation accept and hardware fail, events with no overflows (DAQ ROB)", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobHdwNotSimResult, "HdwNotSimDaqRobResult", "L1Topo events with hardware accept and simulation fail, events with no overflows (DAQ ROB)", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
 
   // Next, apply x-bin labels to some histograms
 
@@ -366,6 +374,10 @@ StatusCode TrigL1TopoROBMonitor::beginRun() {
       m_histTopoCtpSimHdwEventComparison->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histTopoCtpHdwEventComparison->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histTopoDaqRobEventComparison->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
+      m_histTopoDaqRobSimResult->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
+      m_histTopoDaqRobHdwResult->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
+      m_histTopoDaqRobSimNotHdwResult->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
+      m_histTopoDaqRobHdwNotSimResult->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
     }
   }
 
@@ -675,6 +687,18 @@ StatusCode TrigL1TopoROBMonitor::doCnvMon(bool prescalForDAQROBAccess) {
       compBitSets("L1Topo hardware", "L1Topo DAQ ROB",
                   m_triggerBits, m_triggerBitsDaqRob,
                   m_histTopoDaqRobEventComparison);
+      if(m_overflowBitsDaqRob.none()){
+          for (unsigned int i=0; i< m_nTopoCTPOutputs; ++i){
+              m_histTopoHdwResult->Fill(i,m_triggerBitsDaqRob.test(i));
+          }
+          for (unsigned int i=0; i< m_nTopoCTPOutputs; ++i){
+              m_histTopoSimResult->Fill(i,m_topoSimResult.test(i));
+          }
+          for (unsigned int i=0; i< m_nTopoCTPOutputs; ++i){
+              m_histTopoSimNotHdwResult->Fill(i, m_topoSimResult.test(i) and not m_triggerBitsDaqRob.test(i));
+              m_histTopoHdwNotSimResult->Fill(i, m_triggerBitsDaqRob.test(i) and not m_topoSimResult.test(i));
+          }
+      } // if(overflow.none)
   } // if(prescalForDAQROBAccess)
   else {
     ATH_MSG_DEBUG( "L1Topo DAQ ROB access via converter skipped due to prescale" );
