@@ -418,7 +418,7 @@ StatusCode HLTMinBiasMonTool::book(bool newEventsBlock, bool newLumiBlock, bool 
 							if ( (k & l.first) == l.first)
 							{
 									addMonGroup(new MonGroup(this,"HLT/MinBiasMon/" + l.second + "/" + i, run, ATTRIB_UNMANAGED));
-									if (newRun)
+									if (newRunFlag())
 										bookHistogramsForItem(i, l.first);
 							}
 					}
@@ -428,7 +428,7 @@ StatusCode HLTMinBiasMonTool::book(bool newEventsBlock, bool newLumiBlock, bool 
 		}
 		//Time-dependent purity&efficiency histograms
 		addMonGroup(new MonGroup(this,"HLT/MinBiasMon/Purities&Efficiencies/" + i, run, ATTRIB_UNMANAGED));
-		if (newRun)
+		if (newRunFlag())
 		{
 			addHistogram(new TH1F("PurityAll", "Trigger All Purity;Lumiblock;Entry Rate", 1000, -0.5, 999.5));
 			hist("PurityAll")->Sumw2();
@@ -457,7 +457,7 @@ StatusCode HLTMinBiasMonTool::book(bool newEventsBlock, bool newLumiBlock, bool 
 		}
  	}
 	
-	if (newRun)
+	if (newRunFlag())
 	{
                 CANNOT_REBIN(tProf);
 		tProf->SetMinimum(0.0);
@@ -2043,7 +2043,7 @@ StatusCode HLTMinBiasMonTool::proc(bool endOfEventsBlock, bool endOfLumiBlock, b
 {
 	StatusCode sc = StatusCode::SUCCESS;
 	
-	if (endOfRun)
+	if (endOfRunFlag())
 	{
 		hist("TriggerPurities", "HLT/MinBiasMon")->Divide(hist("TriggerPuritiesPassed", "HLT/MinBiasMon"), hist("TriggerEntries", "HLT/MinBiasMon"), 1.0, 1.0, "B");
 		
