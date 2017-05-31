@@ -27,6 +27,7 @@ SharedEvtQueueProvider::SharedEvtQueueProvider(const std::string& type
 					       , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
   , m_isPileup(false)
+  , m_nprocesses(-1)
   , m_nEventsBeforeFork(0)
   , m_nChunkSize(1)
   , m_nChunkStart(0)
@@ -71,7 +72,7 @@ StatusCode SharedEvtQueueProvider::finalize()
   return StatusCode::SUCCESS;
 }
 
-int SharedEvtQueueProvider::makePool(int maxevt, int, const std::string& topdir)
+int SharedEvtQueueProvider::makePool(int maxevt, int nprocs, const std::string& topdir)
 {
   ATH_MSG_DEBUG( "In makePool " << getpid() );
 
@@ -85,6 +86,7 @@ int SharedEvtQueueProvider::makePool(int maxevt, int, const std::string& topdir)
     return -1;
   }
 
+  m_nprocesses = (nprocs==-1?sysconf(_SC_NPROCESSORS_ONLN):nprocs);
   m_nEvtRequested = maxevt;
   m_subprocTopDir = topdir;
 
@@ -270,25 +272,33 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueProvider::exec_
   }
       
   if(all_ok) {
-    m_nChunkStart = skipEvents+m_nEventsBeforeFork;
-    m_nEvtCounted = m_nEventsBeforeFork;
-    m_nPositionInChunk = m_nChunkStart;      
-    ATH_MSG_VERBOSE("Starting to go through events. Chunk start = " << m_nChunkStart);
-    
-    // Loop through all remaining events 
-    while(m_evtSelector->next(*evtContext).isSuccess()) {
-      m_nPositionInChunk++;
-      m_nEvtCounted++;
-      ATH_MSG_VERBOSE("Events Counted " << m_nEvtCounted << ", Position in Chunk " << m_nPositionInChunk);
-      if(((m_nPositionInChunk-m_nChunkStart)==m_nChunkSize)
-	 || (m_nEvtCounted==m_nEvtRequested)) {
-	addEventsToQueue();
-	m_nChunkStart = m_nPositionInChunk;
-	if(m_nEvtCounted==m_nEvtRequested) break;
+    if(m_nEvtRequested!=0) { // Take into account corner case with evtMax=0
+      m_nChunkStart = skipEvents+m_nEventsBeforeFork;
+      m_nEvtCounted = m_nEventsBeforeFork;
+      m_nPositionInChunk = m_nChunkStart;      
+      ATH_MSG_VERBOSE("Starting to go through events. Chunk start = " << m_nChunkStart+1);
+      
+      // Loop through all remaining events 
+      while(m_evtSelector->next(*evtContext).isSuccess()) {
+	m_nPositionInChunk++;
+	m_nEvtCounted++;
+	ATH_MSG_VERBOSE("Events Counted " << m_nEvtCounted << ", Position in Chunk " << m_nPositionInChunk);
+	if(((m_nPositionInChunk-m_nChunkStart)==m_nChunkSize)
+	   || (m_nEvtCounted==m_nEvtRequested)) {
+	  addEventsToQueue();
+	  m_nChunkStart = m_nPositionInChunk;
+	  if(m_nEvtCounted==m_nEvtRequested) break;
+	}
       }
     }
 
-    updateShmem(m_nEvtCounted,true);
+    // We are done. Add -m_nEvtCounted  m_nprocesses-times to the queue
+    long newValueForQueue = (long)(-m_nEvtCounted);
+    for(int i=0;i<m_nprocesses;++i) {
+      while(!m_sharedEventQueue->try_send_basic<long>(newValueForQueue)) {
+	usleep(1000);
+      }
+    }
 
     ATH_MSG_INFO("Done counting events and populating shared queue. Total number of events to be processed: " << std::max(m_nEvtCounted - m_nEventsBeforeFork,0) 
 		 << ", Event Chunk size in the queue is " << m_nChunkSize);
@@ -353,24 +363,10 @@ void SharedEvtQueueProvider::addEventsToQueue()
   ATH_MSG_DEBUG("in addEventsToQueue");
   long newValueForQueue = ((long)(m_nPositionInChunk-m_nChunkStart)<<(sizeof(int)*8))|m_nChunkStart;
   while(!m_sharedEventQueue->try_send_basic<long>(newValueForQueue)) {
-    updateShmem(m_nEvtCounted,false);
     usleep(100);
   }
   ATH_MSG_INFO("Sent to the queue 0x" << std::hex << newValueForQueue << std::dec
 	       << " which corresponds to Chunks start " << m_nChunkStart
 	       << " and chunk size " << m_nPositionInChunk-m_nChunkStart);
-}
-
-void SharedEvtQueueProvider::updateShmem(int eventCount, bool countFinal)
-{
-  std::string shmemName("/athmp-shmem-"+m_randStr);
-  boost::interprocess::shared_memory_object shmemSegment(boost::interprocess::open_only
-							 , shmemName.c_str()
-							 , boost::interprocess::read_write);
-  boost::interprocess::mapped_region shmemRegion(shmemSegment,boost::interprocess::read_write);
-  int* shmemCountedEvts = (int*)shmemRegion.get_address();
-  int* shmemCountFinal = shmemCountedEvts+1;
-  *shmemCountedEvts = eventCount;
-  *shmemCountFinal = countFinal;
 }
 

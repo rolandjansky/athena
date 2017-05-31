@@ -30,8 +30,6 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/interprocess/shared_memory_object.hpp>
-#include <boost/interprocess/mapped_region.hpp>
 
 #include "dmtcp.h"
 
@@ -55,7 +53,6 @@ AthMpEvtLoopMgr::AthMpEvtLoopMgr(const std::string& name
   , m_nPollingInterval(100) // 0.1 second
   , m_nMemSamplingInterval(0) // no sampling by default
   , m_nEventsBeforeFork(0)
-  , m_shmemName("")
   , m_masterPid(getpid())
 {
   declareProperty("NWorkers",m_nWorkers);
@@ -72,9 +69,6 @@ AthMpEvtLoopMgr::AthMpEvtLoopMgr(const std::string& name
 
 AthMpEvtLoopMgr::~AthMpEvtLoopMgr()
 {
-  if(!m_shmemName.empty()
-     && m_masterPid==getpid())
-    boost::interprocess::shared_memory_object::remove(m_shmemName.c_str());
 }
 
 StatusCode AthMpEvtLoopMgr::initialize()
@@ -166,15 +160,6 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
       return StatusCode::FAILURE;
     }
   }
-
-  // Initialize shared memory segment and by this way make sure it never gets re-initialized during the job
-  m_shmemName = std::string("/athmp-shmem-"+randStream.str());
-  boost::interprocess::shared_memory_object shmemSegment(boost::interprocess::create_only
-							 , m_shmemName.c_str()
-							 , boost::interprocess::read_write);
-  shmemSegment.truncate(2*sizeof(int));
-  boost::interprocess::mapped_region shmemRegion(shmemSegment,boost::interprocess::read_write);
-  std::memset(shmemRegion.get_address(),0,shmemRegion.get_size());
 
   // Prepare work directory for sub-processes
   if(mkdir(m_workerTopDir.c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)!=0) {
@@ -507,16 +492,16 @@ boost::shared_ptr<AthenaInterprocess::FdsRegistry> AthMpEvtLoopMgr::extractFds()
   // don't contain substrings from the "exclusion pattern" set
   // 2. Skip also stdout and stderr
 
-  std::vector<std::string> excludePatterns;
-  excludePatterns.reserve(7);
-  excludePatterns.push_back("/root/etc/plugins/");
-  excludePatterns.push_back("/root/cint/cint/");
-  excludePatterns.push_back("/root/include/");
-  excludePatterns.push_back("/var/tmp/");
-  excludePatterns.push_back("/var/lock/");
-  excludePatterns.push_back("/tmp/dmtcp");
-  excludePatterns.push_back("/dmtcp-");
-
+  std::vector<std::string> excludePatterns {
+    "/root/etc/plugins/"
+      ,"/root/cint/cint/"
+      ,"/root/include/"
+      ,"/var/tmp/"
+      ,"/var/lock/"
+      ,"/tmp/dmtcp"
+      ,"/dmtcp-"
+      };
+  
   path fdPath("/proc/self/fd");
   for(directory_iterator fdIt(fdPath); fdIt!=directory_iterator(); fdIt++) {
     if(is_symlink(fdIt->path())) {
@@ -633,12 +618,12 @@ StatusCode AthMpEvtLoopMgr::afterRestart(int& maxevt)
   
   // Parse the token value
   std::vector<std::string> inpFiles;
-  size_t comapos = inputEvntFile.find(",");
+  size_t commapos = inputEvntFile.find(",");
   size_t startpos = 0;
-  while(comapos!=std::string::npos) {
-    inpFiles.push_back(inputEvntFile.substr(startpos,comapos-startpos));
-    startpos = comapos+1;
-    comapos = inputEvntFile.find(",",startpos);
+  while(commapos!=std::string::npos) {
+    inpFiles.push_back(inputEvntFile.substr(startpos,commapos-startpos));
+    startpos = commapos+1;
+    commapos = inputEvntFile.find(",",startpos);
   }
   inpFiles.push_back(inputEvntFile.substr(startpos));
 
