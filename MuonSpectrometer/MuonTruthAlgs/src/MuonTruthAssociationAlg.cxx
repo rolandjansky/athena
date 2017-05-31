@@ -302,6 +302,13 @@ void MuonTruthAssociationAlg::addMuon( const xAOD::TruthParticleContainer& truth
       ATH_MSG_WARNING("Track particle is missing truthParticleLink variable!");
     }
   }
+
+  //one more thing: need to have muonlink set for all truth particles to avoid ELReset errors
+  for( const auto& truthParticle : truthParticles ){
+    if(!truthParticle->isAvailable<ElementLink< xAOD::MuonContainer > >("recoMuonLink")){
+      const_cast<xAOD::TruthParticle&>(*truthParticle).auxdata<ElementLink< xAOD::MuonContainer > >("recoMuonLink")=ElementLink< xAOD::MuonContainer > ();
+    }
+  }
 }
 
 // Finalize method:
