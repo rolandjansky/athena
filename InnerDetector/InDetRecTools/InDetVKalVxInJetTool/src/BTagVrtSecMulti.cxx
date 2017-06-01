@@ -449,7 +449,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 //
     m_fitSvc->setDefault();
     m_fitSvc->setMomCovCalc(1);
-    double Signif3D, Signif3Dproj, vProb=0.;
+    double Signif3D, vProb=0.;
     //double Dist3D=0;
 
 //--------- Start with 1-track vertices
@@ -489,7 +489,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
        curVrt.Good=false;       // Make them bad by default
        if(MomAtVrt(curVrt.TrkAtVrt[0]).Pt() < TMath::Max(m_hadronIntPtCut,m_JetPtFractionCut*JetDir.Perp()) ) continue; //Low Pt
        if(m_MultiWithOneTrkVrt){          /* 1track vertices left unassigned from good 2tr vertices */
-          Signif3Dproj=VrtVrtDist(PrimVrt, curVrt.vertex, curVrt.vertexCov, JetDir);
+          VrtVrtDist(PrimVrt,curVrt.vertex, curVrt.vertexCov, Signif3D); //VK non-projected Signif3D is worse
           double tmpProb=TMath::Prob( curVrt.Chi2, 1);                 //Chi2 of the original 2tr vertex
           bool trkGood=false;
           if     (RECwork)trkGood=Check1TrVertexInPixel(RECwork->listJetTracks[curVrt.SelTrk[0]],curVrt.vertex);
@@ -500,7 +500,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
              if     (xAODwrk) Signif3DP=m_fitSvc->VKalGetImpact(xAODwrk->listJetTracks[curVrt.SelTrk[0]],PrimVrt.position(), 1, Impact, ImpactError);
 	     else if(RECwork) Signif3DP=m_fitSvc->VKalGetImpact(RECwork->listJetTracks[curVrt.SelTrk[0]],PrimVrt.position(), 1, Impact, ImpactError);
              if(m_FillHist&&curVrt.vertex.perp()>20.){m_hb_diffPS->Fill( Signif3DP, m_w_1); }
-             if( Signif3DP>2.*m_TrkSigCut && Signif3Dproj>m_Sel2VrtSigCut) curVrt.Good=true; // accept only tracks which are far from primary vertex
+             if( Signif3DP>2.*m_TrkSigCut && Signif3D>m_Sel2VrtSigCut) curVrt.Good=true; // accept only tracks which are far from primary vertex
           }
        }
     }
@@ -514,8 +514,8 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
           WrkVrt & curVrt=(*WrkVrtSet)[iv];
           if(!curVrt.Good )                      continue;  //don't work on vertex which is already bad
           nth=(*WrkVrtSet)[iv].SelTrk.size(); if(nth == 1) continue;  // 1track vertices are treated already
-          Signif3Dproj=VrtVrtDist(PrimVrt, curVrt.vertex, curVrt.vertexCov, JetDir);
-          //VrtVrtDist(PrimVrt,curVrt.vertex, curVrt.vertexCov, Signif3D); //VK non-projected Signif3D is worse
+          //Signif3Dproj=VrtVrtDist(PrimVrt, curVrt.vertex, curVrt.vertexCov, JetDir);
+          VrtVrtDist(PrimVrt,curVrt.vertex, curVrt.vertexCov, Signif3D); //VK non-projected Signif3D is worse
  	  //std::cout<<" Solution="<<iv<<" Ntrk="<<nth<<'\n';
           if(xAODwrk)xAODwrk->tmpListTracks.resize(nth); else if(RECwork)RECwork->tmpListTracks.resize(nth);
           for(i=0;i<nth;i++) {
@@ -538,9 +538,9 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 //-----------------------------------------------------------------------------------------
           if(nth==2 && m_useVertexCleaning){
             if(RECwork){
-	       if(!Check2TrVertexInPixel(RECwork->tmpListTracks[0],RECwork->tmpListTracks[1],curVrt.vertex,Signif3Dproj))continue;
+	       if(!Check2TrVertexInPixel(RECwork->tmpListTracks[0],RECwork->tmpListTracks[1],curVrt.vertex,Signif3D))continue;
             }else if(xAODwrk){
-	       if(!Check2TrVertexInPixel(xAODwrk->tmpListTracks[0],xAODwrk->tmpListTracks[1],curVrt.vertex,Signif3Dproj))continue;
+	       if(!Check2TrVertexInPixel(xAODwrk->tmpListTracks[0],xAODwrk->tmpListTracks[1],curVrt.vertex,Signif3D))continue;
             }
 	  }
 //
@@ -561,6 +561,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 	    //         dR=TMath::Max(dR,MomAtVrt(curVrt.TrkAtVrt[mi]).DeltaR(MomAtVrt(curVrt.TrkAtVrt[mj])));
             //if(m_FillHist)m_hb_deltaRSVPV->Fill(dR,m_w_1);
             //if( m_killHighPtIBLFakes && curVrt.vertex.perp()<m_Rlayer1 && dR<0.015)continue;
+	    if(Signif3D<20.) continue;
           }
 //
 //---  Check V0s and conversions
@@ -576,8 +577,8 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
              if( mass_EE < 60. && curVrt.vertex.perp() > 20.) continue;
           }          
 //---
-	  if(m_FillHist){m_hb_sig3DTot->Fill( Signif3Dproj, m_w_1); }
-          if(Signif3Dproj<m_Sel2VrtSigCut)continue;      //Main PV-SV distance quality cut 
+	  if(m_FillHist){m_hb_sig3DTot->Fill( Signif3D, m_w_1); }
+          if(Signif3D<m_Sel2VrtSigCut)continue;      //Main PV-SV distance quality cut 
 //-----
 //        float Dist2D= (*WrkVrtSet)[iv].vertex.perp();
 //	  if(Dist2D<2.){

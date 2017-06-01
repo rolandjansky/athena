@@ -745,7 +745,8 @@ for (auto atrk : AdditionalTracks)ListSecondTracks.push_back(atrk.second);      
 //                                       PrimVrt.errorPosition().covValue(Trk::z,Trk::y),
 //                                       PrimVrt.errorPosition().covValue(Trk::z,Trk::z) );
 //      m_fitSvc->setCnstType(7);
-      if(m_RobustFit)m_fitSvc->setRobustness(m_RobustFit); else m_fitSvc->setRobustness(0);
+      if(m_RobustFit)m_fitSvc->setRobustness(m_RobustFit);
+      else m_fitSvc->setRobustness(0);
 //fit itself
       int NTracksVrt = ListSecondTracks.size(); double FitProb=0.;
 
