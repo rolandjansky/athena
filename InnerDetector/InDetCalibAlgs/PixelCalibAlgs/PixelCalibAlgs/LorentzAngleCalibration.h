@@ -10,8 +10,6 @@ class TProfile;
 template <class ht> class MultiHisto;
 template <class type> class TVectorT;
 
-using namespace std;
-
 namespace PixelCalib{
 
 class LorentzAngleCalibration{
@@ -21,7 +19,7 @@ public :
 	virtual ~LorentzAngleCalibration(){};
 	bool Fill(Int_t Layer, Int_t EtaModule, Int_t PhiModule,
 			Double_t ClusterSize, Double_t Angle);
-	int Analyze(ofstream &logfile);
+	int Analyze(std::ofstream &logfile);
 	int Write();
 	int Read();
 	void PlotValidation(TCanvas *c1, std::string outname);
