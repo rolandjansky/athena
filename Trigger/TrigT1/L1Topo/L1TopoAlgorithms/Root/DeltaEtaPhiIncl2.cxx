@@ -18,6 +18,7 @@
 
 REGISTER_ALG_TCS(DeltaEtaPhiIncl2)
 
+using namespace std;
 
 TCS::DeltaEtaPhiIncl2::DeltaEtaPhiIncl2(const std::string & name) : DecisionAlg(name)
 {
@@ -103,7 +104,7 @@ TCS::DeltaEtaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const 
                     // DeltaPhi cuts
                     unsigned int deltaPhi = TSU::Kinematics::calcDeltaPhiBW( *tob1, *tob2 );
                     // DeltaEta cuts
-                    unsigned int deltaEta = TSU::Kinematics::calcDeltaEta( *tob1, *tob2 );
+                    unsigned int deltaEta = TSU::Kinematics::calcDeltaEtaBW( *tob1, *tob2 );
                     //
                     // to-do change message output
                     std::stringstream msgss;

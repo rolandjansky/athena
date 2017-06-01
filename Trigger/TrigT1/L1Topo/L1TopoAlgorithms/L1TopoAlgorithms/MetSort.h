@@ -24,7 +24,8 @@ namespace TCS {
       virtual ~MetSort();
 
       virtual StatusCode initialize();
-      
+
+      virtual TCS::StatusCode sortBitCorrect(const InputTOBArray & input, TOBArray & output);    
       virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output);
 
 

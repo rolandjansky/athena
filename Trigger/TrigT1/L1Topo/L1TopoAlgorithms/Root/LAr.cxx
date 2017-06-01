@@ -64,7 +64,43 @@ TCS::LAr::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
                      Decision & decision )
 
 {
-	return process(input,output,decision);
+   if(input.size() == 1) {
+
+      TRG_MSG_DEBUG("input size     : " << input[0]->size());
+
+      unsigned int nLeading = p_NumberLeading1;
+      bool accept{false};
+
+      for( TOBArray::const_iterator tob1 = input[0]->begin(); 
+           tob1 != input[0]->end() && distance( input[0]->begin(), tob1) < nLeading;
+           ++tob1)
+         {
+
+            if( parType_t((*tob1)->Et()) <= p_MinET ) continue; // ET cut
+            if( parType_t((*tob1)->eta()) <= p_EtaMin ) continue; // ETa cut
+            if( parType_t((*tob1)->eta()) >= p_EtaMax ) continue; // ETa cut
+            if( parType_t(abs((*tob1)->phi())) <= p_PhiMin ) continue; // phi cut
+            if( parType_t(abs((*tob1)->phi())) >= p_PhiMax ) continue; // phi cut
+
+
+
+            accept = true;
+
+            output[0]->push_back(TCS::CompositeTOB(*tob1));
+
+            TRG_MSG_DEBUG("TOB " << distance(input[0]->begin(), tob1) << " ET = " << (*tob1)->Et() << " ETa = " << (*tob1)->eta() << " phi = " << (*tob1)->phi() );
+         }
+
+      decision.setBit( 0, accept );
+
+
+
+   } else {
+
+      TCS_EXCEPTION("LAr alg must have  1 input, but got " << input.size());
+
+   }
+   return TCS::StatusCode::SUCCESS;
 }
 
 

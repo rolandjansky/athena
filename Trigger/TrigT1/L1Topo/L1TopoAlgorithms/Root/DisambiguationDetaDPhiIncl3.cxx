@@ -141,7 +141,7 @@ TCS::DisambiguationDetaDPhiIncl3::processBitCorrect( const std::vector<TCS::TOBA
                // DeltaPhi cuts
                unsigned int deltaPhi = TSU::Kinematics::calcDeltaPhiBW( *tob1, *tob2 );
                // DeltaEta cuts
-               unsigned int deltaEta = TSU::Kinematics::calcDeltaEta( *tob1, *tob2 );
+               unsigned int deltaEta = TSU::Kinematics::calcDeltaEtaBW( *tob1, *tob2 );
 
                if(deltaPhi > p_DeltaPhiMax || deltaEta > p_DeltaEtaMax) continue;
                if (deltaEta < p_DeltaEtaMin &&  deltaPhi < p_DeltaPhiMin ) continue;

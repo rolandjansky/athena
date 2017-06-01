@@ -104,7 +104,7 @@ TCS::DeltaEtaPhiIncl1::processBitCorrect( const std::vector<TCS::TOBArray const 
                    // DeltaPhi cuts
                    unsigned int deltaPhi = TSU::Kinematics::calcDeltaPhiBW( *tob1, *tob2 );
                    // DeltaEta cuts
-                   unsigned int deltaEta = TSU::Kinematics::calcDeltaEta( *tob1, *tob2 );
+                   unsigned int deltaEta = TSU::Kinematics::calcDeltaEtaBW( *tob1, *tob2 );
                    //
                    // to-do change message output
                    std::stringstream msgss;
