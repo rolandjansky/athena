@@ -17,7 +17,7 @@ void FTK_RoadMarketInput::notValid(const char *method)
 
 
 FTK_RoadMarketInput::FTK_RoadMarketInput(FTK_RoadMarketTool *market) :
-   m_market(market),cur_road(0), cur_iroad(0)
+   m_market(market),m_cur_road(0), m_cur_iroad(0)
 {;}
 
 
@@ -31,8 +31,8 @@ inline void FTK_RoadMarketInput::setNBanks(int nbanks)
   }
 
   // prepare the structures to loop over the roads
-  cur_road = new FTKRoad*[m_market->getNBanks()];
-  cur_iroad = new int[m_market->getNBanks()];
+  m_cur_road = new FTKRoad*[m_market->getNBanks()];
+  m_cur_iroad = new int[m_market->getNBanks()];
 }
 
 inline int FTK_RoadMarketInput::getNBanks() const
@@ -71,18 +71,18 @@ const FTKRoad* FTK_RoadMarketInput::nextRoad(int ibank)
 {
 
   // get the road
-  cur_road[ibank] = m_market->getStream(ibank)->fetchRoad();
+  m_cur_road[ibank] = m_market->getStream(ibank)->fetchRoad();
 
   // check if the bank has enough roads
-  if (!cur_road[ibank]) {
-    cur_road[ibank] = 0;
+  if (!m_cur_road[ibank]) {
+    m_cur_road[ibank] = 0;
   }
   else {
     // increment road counter
-    cur_iroad[ibank] += 1; 
+    m_cur_iroad[ibank] += 1; 
   }
 
-  return cur_road[ibank];
+  return m_cur_road[ibank];
 }
 
 

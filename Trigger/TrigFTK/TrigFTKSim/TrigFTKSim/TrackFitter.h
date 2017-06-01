@@ -96,8 +96,8 @@ protected:
   int m_nfits_rejmaj; // number of fits rejected by HW
 
   int m_comb_id; // current combination id, has to be unique in each event, for each bank
-  FTKTrack newtrk; // fit attempt used in processor() method
-  FTKTrack *combtrack; // array of tracks temporary used during track recovery
+  FTKTrack m_newtrk; // fit attempt used in processor() method
+  FTKTrack *m_combtrack; // array of tracks temporary used during track recovery
   unsigned int m_complete_mask;
 
   // block of iterators used to compose the track fit combinations

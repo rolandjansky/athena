@@ -44,30 +44,30 @@ using namespace std;
 class PartitionSteering : public FTKSteering {
 public:
    static PartitionSteering *Instance(void) {
-      if(!fSteering) {
-         fSteering=new PartitionSteering();
+      if(!m_steering) {
+         m_steering=new PartitionSteering();
 
-         fSteering->AddIntPar("NREG",1,0);
-         fSteering->AddIntPar("NSUB",1,0);
-         fSteering->AddIntPar("NPATTERN",1,0);
+         m_steering->AddIntPar("NREG",1,0);
+         m_steering->AddIntPar("NSUB",1,0);
+         m_steering->AddIntPar("NPATTERN",1,0);
 
-         fSteering->AddIntPar("maxSectorId",1,0);
+         m_steering->AddIntPar("maxSectorId",1,0);
 
-         fSteering->AddDoublePar("absetarange",2,0.0);
+         m_steering->AddDoublePar("absetarange",2,0.0);
 
-         fSteering->AddDoublePar("etabinOffset",1,0.0);
+         m_steering->AddDoublePar("etabinOffset",1,0.0);
 
-         fSteering->AddDoublePar("epsilonLimit",1,1.0);
-         fSteering->AddDoublePar("weightLimit",1,0.0);
+         m_steering->AddDoublePar("epsilonLimit",1,1.0);
+         m_steering->AddDoublePar("weightLimit",1,0.0);
 
-         fSteering->AddStringPar("efficiency_file");
-         fSteering->AddStringPar("efficiency_plot");
+         m_steering->AddStringPar("efficiency_file");
+         m_steering->AddStringPar("efficiency_plot");
 
-         fSteering->AddStringPar("pattern_bank_path");
-         fSteering->AddStringPar("slices_file_path");
+         m_steering->AddStringPar("pattern_bank_path");
+         m_steering->AddStringPar("slices_file_path");
 
       }
-      return fSteering;
+      return m_steering;
    }
    const char *GetEfficiencyFileName(void) const {
       return *(*this)["efficiency_file"];
@@ -106,10 +106,10 @@ public:
       return (*this)["NREG"][0];
    }
 protected:
-   static PartitionSteering *fSteering;
+   static PartitionSteering *m_steering;
 };
 
-PartitionSteering *PartitionSteering::fSteering=0;
+PartitionSteering *PartitionSteering::m_steering=0;
 
 int main(int argc, char const *argv[]) {
    // ============ read steering ==================

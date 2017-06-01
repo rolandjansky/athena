@@ -74,7 +74,7 @@ TrackFitter711::TrackFitter711() :
   m_sector_for_superexp(0),
   m_ssid(0),
   m_bounds(0),
-  cur_iconn(0),
+  m_cur_iconn(0),
   m_cbitmask(0),
   m_cbitmask_real(0),
   m_norecovery_mask(0),
@@ -96,10 +96,10 @@ TrackFitter711::TrackFitter711() :
   m_histo_module_value_diff(0),
   m_ncomb_event_conn(0),
   m_IBL_res(0),
-  IBLcoordPhi(0),
-  IBLcoordEta(0),
+  m_IBLcoordPhi(0),
+  m_IBLcoordEta(0),
   m_histo_delta_guessed_hit_found_hit(0),
-  ibl_module_with_hit(0)
+  m_ibl_module_with_hit(0)
 {
    // change the current default behaviors when the constants
    m_noconstants_errlevel = ftk::warn;
@@ -233,14 +233,14 @@ void TrackFitter711::init()
   TrackFitter::init();
 
   // set the dimension of the temporary tracks
-  newtrkI.setNCoords(m_ncoords_incomplete);
-  newtrkI.setNPlanes(m_nplanes_incomplete);
+  m_newtrkI.setNCoords(m_ncoords_incomplete);
+  m_newtrkI.setNPlanes(m_nplanes_incomplete);
 
   // allocate once the array of recovered tracks
-  combtrackI = new FTKTrack[m_ncoords_incomplete];
+  m_combtrackI = new FTKTrack[m_ncoords_incomplete];
   for (int ic=0;ic!=m_ncoords_incomplete;++ic) {
-    combtrackI[ic].setNCoords(m_ncoords_incomplete);
-    combtrackI[ic].setNPlanes(m_nplanes_incomplete);
+    m_combtrackI[ic].setNCoords(m_ncoords_incomplete);
+    m_combtrackI[ic].setNPlanes(m_nplanes_incomplete);
   }
   m_complete_maskI = ~(~0u<<m_ncoords_incomplete);
 
@@ -748,7 +748,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
        m_startlist[p] = m_endlist[p] = m_position[p] = vector<FTKHit>::const_iterator(); // empty iterator, this will flag empty lists
        m_hitcnt[p]=-1;
        // set the fake hit in the empty layer
-       newtrkI.setFTKHit(p,FTKHit());
+       m_newtrkI.setFTKHit(p,FTKHit());
        int iy = m_pmap->getDim(p,1); // use to determine if plane with no hits is PIX or SCT
        if (iy == -1) missSCT = true; // SCT
        else missPix = true; // Pix
@@ -782,14 +782,14 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
 
    m_ncombsI += ncomb;
 
-   // newtrkI and newtrk are "global", the road related values can be set here
+   // m_newtrkI and newtrk are "global", the road related values can be set here
    // for all the combinations
-   newtrkI.setBankID(road.getBankID());
-   newtrkI.setRoadID(road.getRoadID());
-   newtrkI.setSectorID(road.getSectorID());
+   m_newtrkI.setBankID(road.getBankID());
+   m_newtrkI.setRoadID(road.getRoadID());
+   m_newtrkI.setSectorID(road.getSectorID());
    // bitmask variables for the complete tracks will change
-   newtrkI.setBitmask(bitmask);
-   newtrkI.setNMissing(nmissing);
+   m_newtrkI.setBitmask(bitmask);
+   m_newtrkI.setNMissing(nmissing);
 
    // the base HW flag depends if the road is accepted by the RW
    int HWbase = road.getRWRejected()*10;
@@ -802,7 +802,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
    //int min_nmissing = nplanes;
 
    // reset the FTK track type flag
-   newtrkI.setTypeMask(0);
+   m_newtrkI.setTypeMask(0);
 
    // FlagAK: don't process more than m_max_ncomb. Relevant for 10^34 events
    for (int comb=0;comb<(ncomb>m_max_ncomb ? m_max_ncomb : ncomb);++comb) {
@@ -837,22 +837,22 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
          int ndim = iy==-1 ?  1 : 2;
          if (m_hitcnt[ip]!=-1) {
            // set the cluster for this layer
-           newtrkI.setFTKHit(ip,*m_position[ip]);
+           m_newtrkI.setFTKHit(ip,*m_position[ip]);
 
            if (ndim==1) {
-             newtrkI.setCoord(ix,(*m_position[ip])[0]);
+             m_newtrkI.setCoord(ix,(*m_position[ip])[0]);
            }
            else {
-             newtrkI.setCoord(ix,(*m_position[ip])[0]);
-             newtrkI.setCoord(iy,(*m_position[ip])[1]);
+             m_newtrkI.setCoord(ix,(*m_position[ip])[0]);
+             m_newtrkI.setCoord(iy,(*m_position[ip])[1]);
            }
          }
        }
        // set the combination counter and increment it by 1
-       newtrkI.setTrackID(m_comb_idI++);
-       newtrkI.setCombinationID(comb);
-       newtrkI.setHWRejected(HWbase);
-       newtrkI.setHWTrackID(-1);
+       m_newtrkI.setTrackID(m_comb_idI++);
+       m_newtrkI.setCombinationID(comb);
+       m_newtrkI.setHWRejected(HWbase);
+       m_newtrkI.setHWTrackID(-1);
 
        // add one fit in the counters
        m_nfitsI += 1;
@@ -861,27 +861,27 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
        if (missSCT) m_nfits_majI_SCT += 1;
 
        /* Do the actual fit - see code in FTKConstantBank::linfit  */
-       current_bank_incomplete->linfit(sector,newtrkI);
-       newtrkI.setOrigChi2(newtrkI.getChi2());
+       current_bank_incomplete->linfit(sector,m_newtrkI);
+       m_newtrkI.setOrigChi2(m_newtrkI.getChi2());
 
        bool toAdd(true);
 
        // exact 0 means no valid constants, skipped
-       if( newtrkI.getChi2() == 0.)
+       if( m_newtrkI.getChi2() == 0.)
          toAdd = false;
 
        // majority track with bad chisq have no reason to be kept, recovery is not possible
-       if (newtrkI.getNMissing() > 0) {
-           // float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
-           float dof = m_ncoords - m_npars - newtrkI.getNMissing();
+       if (m_newtrkI.getNMissing() > 0) {
+           // float dof = m_ncoords_incomplete - m_npars - m_newtrkI.getNMissing();
+           float dof = m_ncoords - m_npars - m_newtrkI.getNMissing();
            if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
            float chisqcut = m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut_maj;
-           if (newtrkI.getChi2()>chisqcut)
+           if (m_newtrkI.getChi2()>chisqcut)
              toAdd = false;
        }
 
        if (toAdd)
-         theCombos.push_back(newtrkI);
+         theCombos.push_back(m_newtrkI);
 
      } // end if !hf_rejected
 
@@ -919,9 +919,9 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
            idbestfull = idx;
          }
        }
-       newtrkI = theCombos[idbestfull];
+       m_newtrkI = theCombos[idbestfull];
        theCombos.clear();
-       theCombos.push_back(newtrkI);
+       theCombos.push_back(m_newtrkI);
      }
    }
 
@@ -930,14 +930,14 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
    bool fullpassed = false;
    if( m_do_majority > 1 ) {
      for( unsigned int idx = 0; idx < theCombos.size(); idx++ ) {
-       newtrkI = theCombos[idx];
-       if( newtrkI.getNMissing() != 0 ) continue;
+       m_newtrkI = theCombos[idx];
+       if( m_newtrkI.getNMissing() != 0 ) continue;
 
-       // float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing(); 
-       float dof = m_ncoords - m_npars - newtrkI.getNMissing();
+       // float dof = m_ncoords_incomplete - m_npars - m_newtrkI.getNMissing(); 
+       float dof = m_ncoords - m_npars - m_newtrkI.getNMissing();
        if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
-       if( newtrkI.getChi2() < ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ) ) {
+       if( m_newtrkI.getChi2() < ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ) ) {
          fullpassed = true;
          break;
        }
@@ -945,27 +945,27 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
    }
 
    for( unsigned int idx = 0; idx < theCombos.size(); idx++ ) {
-     newtrkI = theCombos[idx];
+     m_newtrkI = theCombos[idx];
 
-     // float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
-     float dof = m_ncoords - m_npars - newtrkI.getNMissing();
+     // float dof = m_ncoords_incomplete - m_npars - m_newtrkI.getNMissing();
+     float dof = m_ncoords - m_npars - m_newtrkI.getNMissing();
      if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
      // Try to recover majority if chi2 no good
-     if (newtrkI.getNMissing()==0 &&
+     if (m_newtrkI.getNMissing()==0 &&
          (m_do_majority==1 || (m_do_majority>1 && !fullpassed)) &&
          // Do recovery if chi2 or chi2/dof is above threshold
-         (newtrkI.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut )) &&
+         (m_newtrkI.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut )) &&
          // Or veto majority if chi2 is too high
-         (newtrkI.getChi2() < m_Chi2Cut_vetomaj || m_Chi2Cut_vetomaj < 0) ) { // recover majority
+         (m_newtrkI.getChi2() < m_Chi2Cut_vetomaj || m_Chi2Cut_vetomaj < 0) ) { // recover majority
        /* if the N/N track have a bad chi2 we try to evaluate
           the track using the "best" track within the N combination
           of N-1/N tracks */
 
-       // in this block the used array of track combtrackI[] is created
+       // in this block the used array of track m_combtrackI[] is created
        // in the init block to save some time
 
-       float bestchi2(newtrkI.getChi2());
+       float bestchi2(m_newtrkI.getChi2());
        int idbest(-1);
 
        m_nfits_recI += 1; // ONLY recovery fits
@@ -977,10 +977,10 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
          if (norecovery_mask&(1<<ip)) continue;
 
          // start for the complete track
-         combtrackI[ip] = newtrkI;
+         m_combtrackI[ip] = m_newtrkI;
 
          // put an empty cluster in place pf the removed hit
-         combtrackI[ip].setFTKHit(ip,FTKHit());
+         m_combtrackI[ip].setFTKHit(ip,FTKHit());
 
          // remove the hits related with this plane
          int ix = m_pmap_incomplete->getDim(ip,0);
@@ -988,42 +988,42 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
          int ndim = iy==-1? 1 : 2;
 
          // set the number of missing points and the related bitmask
-         combtrackI[ip].setNMissing(ndim);
+         m_combtrackI[ip].setNMissing(ndim);
          unsigned int newbitmask = (1<<ix);
          if (iy!=-1) newbitmask |= (1<<iy);
-         newbitmask = newtrkI.getBitmask() & ~newbitmask;
+         newbitmask = m_newtrkI.getBitmask() & ~newbitmask;
 
-         combtrackI[ip].setBitmask(newbitmask);
+         m_combtrackI[ip].setBitmask(newbitmask);
 
          m_nfits_addrecI += 1;
-         current_bank_incomplete->linfit(sector,combtrackI[ip]);
+         current_bank_incomplete->linfit(sector,m_combtrackI[ip]);
 
          // check if the chi2 is better
-         if (combtrackI[ip].getChi2()<bestchi2) {
-           bestchi2 = combtrackI[ip].getChi2();
+         if (m_combtrackI[ip].getChi2()<bestchi2) {
+           bestchi2 = m_combtrackI[ip].getChi2();
            idbest = ip;
          }
        } // end loop over the combinations
 
        if (idbest>=firstCombo) {
          // a track, excluding the 1st layer, was found
-         newtrkI = combtrackI[idbest];
-         newtrkI.setTypeMask(1); // set as recovered
+         m_newtrkI = m_combtrackI[idbest];
+         m_newtrkI.setTypeMask(1); // set as recovered
        }
 
      } // end block to recover complete tracks with bad chi2
 
-     //dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
-     dof = m_ncoords - m_npars - newtrkI.getNMissing();
+     //dof = m_ncoords_incomplete - m_npars - m_newtrkI.getNMissing();
+     dof = m_ncoords - m_npars - m_newtrkI.getNMissing();
      if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
      // check if the track pass the quality requirements
-     if (newtrkI.getChi2()< ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut :
-                             (newtrkI.getNMissing() > 0 ? m_Chi2Cut_maj : m_Chi2Cut) )  &&
-         newtrkI.getChi2() != 0 ) {
+     if (m_newtrkI.getChi2()< ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut :
+                             (m_newtrkI.getNMissing() > 0 ? m_Chi2Cut_maj : m_Chi2Cut) )  &&
+         m_newtrkI.getChi2() != 0 ) {
 
        // appending pre-HW tracks to dump
-       //       road_tracks_pre_hw.push_back(newtrkI);
+       //       road_tracks_pre_hw.push_back(m_newtrkI);
 
        // to append the found track go trought the HW filter
        // add this track to track list only if
@@ -1036,12 +1036,12 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
        int accepted(0);
        // Disable hitwarrior, auto-accept every track
        if (m_HitWarrior!=0)
-         accepted = doHitWarriorFilter(newtrkI,road_tracks);
+         accepted = doHitWarriorFilter(m_newtrkI,road_tracks);
 
        if (accepted>=0) { // track accepted, no hits shared with already fitted tracks
-         // copy newtrkI after truth assignment.
-         compute_truth_incomplete(region,road,newtrkI);
-         road_tracks.push_back(newtrkI);
+         // copy m_newtrkI after truth assignment.
+         compute_truth_incomplete(region,road,m_newtrkI);
+         road_tracks.push_back(m_newtrkI);
          if (accepted==1) { // removed an existing track
            m_nfits_rejI += 1;
            if (nmissing>0) m_nfits_rejmajI += 1;
@@ -1056,8 +1056,8 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
 
          if (m_keep_rejected) {
            // copy newtrk after truth assignment.
-           compute_truth_incomplete(region,road,newtrkI);
-           road_tracks.push_back(newtrkI);
+           compute_truth_incomplete(region,road,m_newtrkI);
+           road_tracks.push_back(m_newtrkI);
          }
          m_nfits_rejI += 1;
          if (nmissing>0) m_nfits_rejmajI += 1;
@@ -1065,10 +1065,10 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
      }
      else { // if the track fail the cut on chi-square clean the hit list
        if (m_keep_rejected>1) {
-         newtrkI.setHWRejected( newtrkI.getHWRejected()+100 );
+         m_newtrkI.setHWRejected( m_newtrkI.getHWRejected()+100 );
          // copy newtrk after truth assignment.
-         compute_truth_incomplete(region,road,newtrkI);
-         road_tracks.push_back(newtrkI);
+         compute_truth_incomplete(region,road,m_newtrkI);
+         road_tracks.push_back(m_newtrkI);
        }
        m_nfits_badI += 1;
        if (nmissing>0) m_nfits_badmajI += 1;
@@ -1107,9 +1107,9 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
   }
 
   // set parameters that will remain the same for all the tracks
-  newtrk.setBankID(road.getBankID());
-  newtrk.setRoadID(road.getRoadID());
-  newtrk.setSectorID(road.getSectorID());
+  m_newtrk.setBankID(road.getBankID());
+  m_newtrk.setRoadID(road.getRoadID());
+  m_newtrk.setSectorID(road.getSectorID());
 
   // the base HW flag depends if the road is accepted by the RW
   int HWbase = road.getRWRejected()*10;
@@ -1263,8 +1263,8 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
     FTKTrack &curtrackI = *itrack;
 
     // reset the flags
-    newtrk.setHWRejected(HWbase);
-    newtrk.setHWTrackID(-1);
+    m_newtrk.setHWRejected(HWbase);
+    m_newtrk.setHWTrackID(-1);
 
     //------------------------------------------------------------
     // INCOMPLETE TRACKS PREPRATION
@@ -1276,39 +1276,39 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
     /* conventional complete bitmask, this assumes
        all hits for previous steps as real*/
     unsigned int cbitmask(m_incomplete_coordsmask_eff);
-    newtrk.setHalfInvPt(curtrackI.getHalfInvPt());
+    m_newtrk.setHalfInvPt(curtrackI.getHalfInvPt());
 
     /* Fix from corrgen: in the constant generation, tracks
        in regions 3, 4, and 5 has phi defined in the range [0:2 PI].
        For the extrapolation only checks if the angle is in those
        regions and fix the definition */
     if (m_ssmap_complete->getRegionMap()->getNumRegions()==8 && region>=3 && region<=5 && curtrackI.getPhi()<=0)
-      newtrk.setPhi(curtrackI.getPhi()+2*M_PI,false);
+      m_newtrk.setPhi(curtrackI.getPhi()+2*M_PI,false);
     else if (m_ssmap_complete->getRegionMap()->getNumRegions()==64 && (region==9 || region==10 || region==25 || region==26 || region==41 || region==42 || region==57 || region==58)  && curtrackI.getPhi()<=0)
-      newtrk.setPhi(curtrackI.getPhi());
+      m_newtrk.setPhi(curtrackI.getPhi());
     else
-      newtrk.setPhi(curtrackI.getPhi());
+      m_newtrk.setPhi(curtrackI.getPhi());
 
     // set the incomplete track with some original info
-    newtrk.setIP(curtrackI.getIP());
-    newtrk.setCotTheta(curtrackI.getCotTheta());
-    newtrk.setZ0(curtrackI.getZ0());
-    newtrk.setChi2(curtrackI.getChi2());
-    newtrk.setOrigChi2(curtrackI.getOrigChi2());
-    newtrk.setCombinationID(curtrackI.getCombinationID());
+    m_newtrk.setIP(curtrackI.getIP());
+    m_newtrk.setCotTheta(curtrackI.getCotTheta());
+    m_newtrk.setZ0(curtrackI.getZ0());
+    m_newtrk.setChi2(curtrackI.getChi2());
+    m_newtrk.setOrigChi2(curtrackI.getOrigChi2());
+    m_newtrk.setCombinationID(curtrackI.getCombinationID());
 
     // zero out coords
     for (int ix=0; ix!=m_ncoords; ++ix) {
-      newtrk.setCoord(ix,0);
+      m_newtrk.setCoord(ix,0);
     }
     //std::cout << "before exp" << std::endl;
     //for ( int i = 0; i < 16; i++)
-    //  std::cout << "newtrk.getCoord(" << i << ") = " << newtrk.getCoord(i) << std::endl;
+    //  std::cout << "m_newtrk.getCoord(" << i << ") = " << m_newtrk.getCoord(i) << std::endl;
 
     // set the incomplete track coordinates
     for (int ix=0; ix!=m_ncoords_incomplete; ++ix) {
       int cix = m_CImap_eff[ix];
-      newtrk.setCoord(cix,curtrackI.getCoord(ix));
+      m_newtrk.setCoord(cix,curtrackI.getCoord(ix));
 
       /* the real mask has 1 only in layers with hits */
       cbitmask_real |= ((curtrackI.getBitmask()&(1<<ix))>>ix)<<cix;
@@ -1316,20 +1316,20 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
 
     //std::cout << "before exp" << std::endl;
     //for ( int i = 0; i < 16; i++)
-    //  std::cout << "newtrk.getCoord(" << i << ") = " << newtrk.getCoord(i) << std::endl;
+    //  std::cout << "m_newtrk.getCoord(" << i << ") = " << m_newtrk.getCoord(i) << std::endl;
         // set the incomplete track hits
     for (int ip=0; ip!=m_nplanes_incomplete; ++ip) {
       int cip = m_CIlayermap_eff[ip];
-      newtrk.setFTKHit(cip,curtrackI.getFTKHit(ip));
+      m_newtrk.setFTKHit(cip,curtrackI.getFTKHit(ip));
     }
 
     // complete the track using the extrapolation method
     // the bitmask and number of missing point is artificial
-    newtrk.setBitmask(m_incomplete_coordsmask_eff);
-    newtrk.setNMissing(m_ncoords_ignored);
+    m_newtrk.setBitmask(m_incomplete_coordsmask_eff);
+    m_newtrk.setNMissing(m_ncoords_ignored);
 
     // set other track flags
-    newtrk.setTypeMask(curtrackI.getTypeMask());
+    m_newtrk.setTypeMask(curtrackI.getTypeMask());
 
 
     // ===== Incomplete tracks are ready to be extrapolated!
@@ -1354,7 +1354,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
       // "connected" subreg and sector are basically identical : synchronized.
       conn_subreg = subreg;
       conn_sector = sector;
-      newtrk.setSectorID(conn_subreg);
+      m_newtrk.setSectorID(conn_subreg);
 
       // debugging
       FTKSetup::PrintMessageFmt(m_noconstants_errlevel,"TRACKFITTER_MODE0 reg %d: sector %d: subreg %d: \n",region, sector, subreg);
@@ -1449,9 +1449,9 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
         // The first method is deprecated. No more geometrical extrapolation
         //
         if (!m_use_guessing)
-          current_bank_complete->extrapolate_coords(newtrk, tmpconn_sector, m_idcoords_eff, m_idpars);
+          current_bank_complete->extrapolate_coords(m_newtrk, tmpconn_sector, m_idcoords_eff, m_idpars);
         else
-          current_bank_complete->missing_point_guess(newtrk, tmpconn_sector);
+          current_bank_complete->missing_point_guess(m_newtrk, tmpconn_sector);
 
         // Counter that counts how many good extrapolation
         int nIN(0);
@@ -1460,14 +1460,14 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
         for (int ip=0; ip<m_nplanes_ignored; ++ip) {
           const int ndim = m_pmap->getPlane(m_idplanes[ip],0).getNDimension();
           if (ndim==1) {
-            const float &localX = newtrk.getCoord(m_idcoords_eff[ip]);
+            const float &localX = m_newtrk.getCoord(m_idcoords_eff[ip]);
 
             // If the following condition is met count as good local X
             if (localX>=0 && localX <= m_ssmap_complete->getMap(m_idplanes_eff[ip], 0, 0).m_phiwidth)
               nIN += 1;
           } else if (ndim==2) {
-            const float &localX = newtrk.getCoord(m_idcoords_eff[ip]);
-            const float &localY = newtrk.getCoord(m_idcoords_eff[ip]+1);
+            const float &localX = m_newtrk.getCoord(m_idcoords_eff[ip]);
+            const float &localY = m_newtrk.getCoord(m_idcoords_eff[ip]+1);
 
             // If the following condition is met count as good local X
             //std::cout << "missing_section["<< ip <<"]: " << missing_section[ip] << std::endl;
@@ -1505,7 +1505,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
       // set the variables to extrapolate the variables
       conn_subreg = simids.first;
       conn_sector = simids.second;
-      newtrk.setSectorID(conn_subreg);
+      m_newtrk.setSectorID(conn_subreg);
 
       current_bank_complete = m_constant[region][conn_subreg];
     }
@@ -1519,9 +1519,9 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
     // the missing_point_guess
     //------------------------------------------------------------
     if (!m_use_guessing)  // Geometrical extrapolation
-      current_bank_complete->extrapolate_coords(newtrk, conn_sector, m_idcoords_eff, m_idpars);
+      current_bank_complete->extrapolate_coords(m_newtrk, conn_sector, m_idcoords_eff, m_idpars);
     else
-      current_bank_complete->missing_point_guess(newtrk,conn_sector);
+      current_bank_complete->missing_point_guess(m_newtrk,conn_sector);
 
 
     //------------------------------------------------------------
@@ -1548,7 +1548,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
       FTKHit* tmpHit = new FTKHit(ndim);
       tmpHit->setSector(moduleID);
       for (int i=0;i<ndim;++i)
-        tmpHit->setCoord(i, newtrk.getCoord(m_idcoords_eff[ip]+i));
+        tmpHit->setCoord(i, m_newtrk.getCoord(m_idcoords_eff[ip]+i));
       tmpHit->setSector(moduleID);
       tmpHit->setEtaWidth(etawindow);
       tmpHit->setPhiWidth(phiwindow);
@@ -1586,7 +1586,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
 
 
       //// Use the module parameters to extract the new SS
-      //const float& localX = newtrk.getCoord(m_idcoords_eff[ip]);
+      //const float& localX = m_newtrk.getCoord(m_idcoords_eff[ip]);
 
       //// Print error message
       //if (localX<0 || localX>m_ssmap_complete->getMap(m_idplanes_eff[ip], 0, 0).m_phiwidth)
@@ -1601,7 +1601,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
       //if (ndim == 2) {
       //  // if ndim == 2 also load y axis coord.
       //  std::cout << "2nd coord:" << m_idcoords_eff[ip]+1 << std::endl;
-      //  const float& localY = newtrk.getCoord(m_idcoords_eff[ip]+1);
+      //  const float& localY = m_newtrk.getCoord(m_idcoords_eff[ip]+1);
 
       //  if (localY<0 || localY>m_ssmap_complete->getMap(m_idplanes_eff[ip], 0, 1).m_etawidth)
       //    FTKSetup::PrintMessageFmt(ftk::warn, "Warning: coordinate %d = %f\n", ip+1, localY);
@@ -1733,7 +1733,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
 	  if (ndim == 1) missSCT = true;
 	  else missPix = true;
           // in this case the extrapolation failed, some empty value is placed
-          newtrk.setFTKHit(m_idplanes_eff[ip],FTKHit()); // set an empty hit
+          m_newtrk.setFTKHit(m_idplanes_eff[ip],FTKHit()); // set an empty hit
         }
       }
     }
@@ -1753,17 +1753,17 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
 
       // set the correct number of missing points and
       // and the real bitmask
-      newtrk.setTrackID(m_comb_id++);
-      newtrk.setNMissing(curtrackI.getNMissing()+nmissing_more_coord);
+      m_newtrk.setTrackID(m_comb_id++);
+      m_newtrk.setNMissing(curtrackI.getNMissing()+nmissing_more_coord);
       //FTKSetup::PrintMessageFmt(ftk::info,"Track accepted");
       // match the truth only using the partial information in the layers within the road
       TrackFitter::compute_truth(region,road,curtrackI);
-      newtrk.setBarcode(curtrackI.getBarcode());
-      newtrk.setBarcodeFrac(curtrackI.getBarcodeFrac());
-      newtrk.setBitmask(cbitmask_real);
+      m_newtrk.setBarcode(curtrackI.getBarcode());
+      m_newtrk.setBarcodeFrac(curtrackI.getBarcodeFrac());
+      m_newtrk.setBitmask(cbitmask_real);
 
       m_nfits += 1;
-      theCombos.push_back(newtrk);
+      theCombos.push_back(m_newtrk);
       theCombosInfo.push_back(simids);
       theCombosNMiss.push_back(nmissing_more_coord);
     } else if (nmissing_more<=m_max_missing_extraplanes) {
@@ -1774,10 +1774,10 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
 
       // the number of missing points depends only by the last step,
       // the MJ hits in the first step are used as real hits
-      newtrk.setNMissing(nmissing_more_coord);
+      m_newtrk.setNMissing(nmissing_more_coord);
 
       // set the conventional bitmask for the fit
-      newtrk.setBitmask(cbitmask);
+      m_newtrk.setBitmask(cbitmask);
 
       // increment the number of addional fits
       m_ncombs += ncombs_more;
@@ -1794,15 +1794,15 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
 
             // the missing layers are assumed to be 1-D
             const int &cid = m_idcoords_eff[ip]+i;
-            newtrk.setFTKHit(m_idplanes_eff[ip],*curhit_more[ip]);
-            newtrk.setCoord(cid,(*curhit_more[ip])[i]);
+            m_newtrk.setFTKHit(m_idplanes_eff[ip],*curhit_more[ip]);
+            m_newtrk.setCoord(cid,(*curhit_more[ip])[i]);
 
 
           }
         }
 
         //for ( int i = 0; i < 16; i++)
-        //  std::cout << "newtrk.getCoord(" << i << ") = " << newtrk.getCoord(i) << std::endl;
+        //  std::cout << "m_newtrk.getCoord(" << i << ") = " << m_newtrk.getCoord(i) << std::endl;
 
         m_nfits += 1;
         //std::cout << "m_nfits: " << m_nfits << std::endl;
@@ -1814,22 +1814,22 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
 	}
 
         // perform the fit
-        //newtrk.setTrackID(m_comb_id++);
-        newtrk.setTrackID(curtrackI.getTrackID());
-        newtrk.setExtrapolationID(icomb_more);
-        current_bank_complete->linfit(conn_sector,newtrk);
-        //std::cout << " Chi2 " <<newtrk.getChi2() << std::endl;
-        newtrk.setOrigChi2(newtrk.getChi2());
+        //m_newtrk.setTrackID(m_comb_id++);
+        m_newtrk.setTrackID(curtrackI.getTrackID());
+        m_newtrk.setExtrapolationID(icomb_more);
+        current_bank_complete->linfit(conn_sector,m_newtrk);
+        //std::cout << " Chi2 " <<m_newtrk.getChi2() << std::endl;
+        m_newtrk.setOrigChi2(m_newtrk.getChi2());
 
         // set the correct number of missing points and
         // and the real bitmask
-        newtrk.setNMissing(curtrackI.getNMissing()+nmissing_more_coord);
-        newtrk.setBitmask(cbitmask_real);
+        m_newtrk.setNMissing(curtrackI.getNMissing()+nmissing_more_coord);
+        m_newtrk.setBitmask(cbitmask_real);
 
         // match the track to a geant particle using the channel-level
         // geant info in the superstrip data.
-        compute_truth(region,road,curtrackI,hits_more,newtrk);
-        theCombos.push_back(newtrk);
+        compute_truth(region,road,curtrackI,hits_more,m_newtrk);
+        theCombos.push_back(m_newtrk);
         theCombosInfo.push_back(simids);
         theCombosNMiss.push_back(nmissing_more_coord);
         //FTKSetup::PrintMessageFmt(ftk::info,"Track accepted");
@@ -1858,16 +1858,16 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
 
       // set the correct number of missing points and
       // and the real bitmask
-      newtrk.setTrackID(m_comb_id++);
-      newtrk.setNMissing(curtrackI.getNMissing()+nmissing_more_coord);
+      m_newtrk.setTrackID(m_comb_id++);
+      m_newtrk.setNMissing(curtrackI.getNMissing()+nmissing_more_coord);
 
       // match the truth only using the partial information in the layers within the road
       TrackFitter::compute_truth(region,road,curtrackI);
-      newtrk.setBarcode(curtrackI.getBarcode());
-      newtrk.setBarcodeFrac(curtrackI.getBarcodeFrac());
-      newtrk.setBitmask(cbitmask_real);
-      newtrk.setHWRejected(newtrk.getHWRejected()+1000);
-      theCombos.push_back(newtrk);
+      m_newtrk.setBarcode(curtrackI.getBarcode());
+      m_newtrk.setBarcodeFrac(curtrackI.getBarcodeFrac());
+      m_newtrk.setBitmask(cbitmask_real);
+      m_newtrk.setHWRejected(m_newtrk.getHWRejected()+1000);
+      theCombos.push_back(m_newtrk);
       theCombosInfo.push_back(simids);
       theCombosNMiss.push_back(nmissing_more_coord);
     }
@@ -1899,9 +1899,9 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
       }
     }
 
-    newtrk = theCombos[idbestfull];
+    m_newtrk = theCombos[idbestfull];
     theCombos.clear();
-    theCombos.push_back(newtrk);
+    theCombos.push_back(m_newtrk);
   }
   // In the case of m_do_majority > 1, we only do majority fits if
   // ALL full fits fail the chi2 cut
@@ -1911,14 +1911,14 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
   {
     for( unsigned int idx = 0; idx < theCombos.size(); idx++ )
     {
-      newtrk = theCombos[idx];
-      if( newtrk.getNMissing() != 0 )
+      m_newtrk = theCombos[idx];
+      if( m_newtrk.getNMissing() != 0 )
         continue;
 
-      float dof = m_ncoords - m_npars - newtrk.getNMissing();
+      float dof = m_ncoords - m_npars - m_newtrk.getNMissing();
       if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
-      if( newtrk.getChi2() < ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ) )
+      if( m_newtrk.getChi2() < ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ) )
       {
         fullpassed = true;
         break;
@@ -1935,20 +1935,20 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
   {
 
     // retrive the information on the stored track
-    newtrk = theCombos[idx];
+    m_newtrk = theCombos[idx];
     pair<int,int> simids = theCombosInfo[idx];
     int nmissing_more = theCombosNMiss[idx];
 
-    float dof = m_ncoords - m_npars - newtrk.getNMissing();
+    float dof = m_ncoords - m_npars - m_newtrk.getNMissing();
     if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
 
     //if (m_extrafits && nmissing_more==0 &&
     //    (m_do_majority==1 || (m_do_majority>1 && !fullpassed)) &&
     //    // Do recovery if chi2 or chi2/dof is above threshold
-    //    (newtrk.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut )) &&
+    //    (m_newtrk.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut )) &&
     //    // Or veto majority if chi2 is too high
-    //    (newtrk.getChi2() < m_Chi2Cut_vetomaj || m_Chi2Cut_vetomaj < 0) )
+    //    (m_newtrk.getChi2() < m_Chi2Cut_vetomaj || m_Chi2Cut_vetomaj < 0) )
 
     // -------------------------------------------------------
     // Boolean question
@@ -1957,9 +1957,9 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
     // Try to recover majority if chi2 no good
     bool do_majority_recover = m_extrafits && nmissing_more==0;
     do_majority_recover = do_majority_recover && (m_do_majority==1 || (m_do_majority>1 && !fullpassed));
-    do_majority_recover = do_majority_recover && (newtrk.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ));
-    do_majority_recover = do_majority_recover && (newtrk.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ));
-    do_majority_recover = do_majority_recover && (newtrk.getChi2() < m_Chi2Cut_vetomaj || m_Chi2Cut_vetomaj < 0);
+    do_majority_recover = do_majority_recover && (m_newtrk.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ));
+    do_majority_recover = do_majority_recover && (m_newtrk.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ));
+    do_majority_recover = do_majority_recover && (m_newtrk.getChi2() < m_Chi2Cut_vetomaj || m_Chi2Cut_vetomaj < 0);
 
 
     if (do_majority_recover)
@@ -1971,7 +1971,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
       // in this block the used array of track combtrack[] is created
       // in the init block to save some time
 
-      float bestchi2(newtrk.getChi2());
+      float bestchi2(m_newtrk.getChi2());
       int idbest(-1);
       m_nfits_rec += 1;
       const int recbegin = m_require_first ? 1 : 0;
@@ -1985,10 +1985,10 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
           continue;
 
         // start for the complete track
-        combtrack[ip] = newtrk;
+        m_combtrack[ip] = m_newtrk;
 
         // reset the correspondent hit
-        combtrack[ip].setFTKHit(ip,FTKHit());
+        m_combtrack[ip].setFTKHit(ip,FTKHit());
 
         // remove the hits related with this plane
         int ix = m_pmap->getDim(ip,0);
@@ -1996,23 +1996,23 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
         int ndim = iy==-1? 1 : 2;
 
         // set the number of missing points and the related bitmask
-        combtrack[ip].setNMissing(ndim);
+        m_combtrack[ip].setNMissing(ndim);
         unsigned int newbitmask = (1<<ix);
 
         if (iy!=-1) newbitmask |= (1<<iy);
 
         newbitmask = m_complete_mask & ~newbitmask;
 
-        combtrack[ip].setBitmask(newbitmask);
+        m_combtrack[ip].setBitmask(newbitmask);
 
         FTKConstantBank *current_bank_complete = m_constant[region][simids.first];
         m_nfits_addrec += 1;
-        current_bank_complete->linfit(simids.second,combtrack[ip]);
+        current_bank_complete->linfit(simids.second,m_combtrack[ip]);
 
         // check if the chi2 is better
-        if (combtrack[ip].getChi2()<bestchi2)
+        if (m_combtrack[ip].getChi2()<bestchi2)
         {
-          bestchi2 = combtrack[ip].getChi2();
+          bestchi2 = m_combtrack[ip].getChi2();
           idbest = ip;
         }
       } // end loop over the combinations
@@ -2020,21 +2020,21 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
       if (idbest>=recbegin) {
         // a track, excluding the 1st layer, was found
         // set the correct flags
-        combtrack[idbest].setTypeMask(newtrk.getTypeMask()|(1<<1));
-        combtrack[idbest].setNMissing(newtrk.getNMissing()+combtrack[idbest].getNMissing());
-        combtrack[idbest].setBitmask(newtrk.getBitmask() & combtrack[idbest].getBitmask());
-        newtrk = combtrack[idbest];
+        m_combtrack[idbest].setTypeMask(m_newtrk.getTypeMask()|(1<<1));
+        m_combtrack[idbest].setNMissing(m_newtrk.getNMissing()+m_combtrack[idbest].getNMissing());
+        m_combtrack[idbest].setBitmask(m_newtrk.getBitmask() & m_combtrack[idbest].getBitmask());
+        m_newtrk = m_combtrack[idbest];
       }
 
     } // end block to recover complete tracks with bad chi2
 
-    dof = m_ncoords - m_npars - newtrk.getNMissing();
+    dof = m_ncoords - m_npars - m_newtrk.getNMissing();
     if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
     // check if the track pass the quality requirements
-    if (newtrk.getChi2()< ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut :
-          (newtrk.getNMissing() > 0 ? m_Chi2Cut_maj : m_Chi2Cut) )  &&
-        newtrk.getChi2() != 0 )
+    if (m_newtrk.getChi2()< ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut :
+          (m_newtrk.getNMissing() > 0 ? m_Chi2Cut_maj : m_Chi2Cut) )  &&
+        m_newtrk.getChi2() != 0 )
     {
 
       // to append the found track go trought the HW filter
@@ -2049,13 +2049,13 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
 
       // Disable hitwarrior, auto-accept every track
       if (m_HitWarrior!=0)
-        accepted = doHitWarriorFilter(newtrk,m_tracks);
+        accepted = doHitWarriorFilter(m_newtrk,m_tracks);
 
       //std::cout<<"TH: I accepted = "<<accepted<<std::endl;
       if (accepted>=0) // track accepted, no hits shared with already fitted tracks
       {
-        // copy newtrkI after truth assignment.
-        m_tracks.push_back(newtrk);
+        // copy m_newtrkI after truth assignment.
+        m_tracks.push_back(m_newtrk);
 
         if (accepted==1) // removed an existing track
         {
@@ -2071,8 +2071,8 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
 
         if (m_keep_rejected)
         {
-          // copy newtrk after truth assignment.
-          m_tracks.push_back(newtrk);
+          // copy m_newtrk after truth assignment.
+          m_tracks.push_back(m_newtrk);
         }
 
         m_nfits_rej += 1;
@@ -2085,10 +2085,10 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
     {
       if (m_keep_rejected>1)
       {
-        newtrk.setHWRejected( newtrk.getHWRejected()+100 );
+        m_newtrk.setHWRejected( m_newtrk.getHWRejected()+100 );
 
-        // copy newtrk after truth assignment.
-        m_tracks.push_back(newtrk);
+        // copy m_newtrk after truth assignment.
+        m_tracks.push_back(m_newtrk);
       }
 
       m_nfits_bad += 1;
@@ -2459,7 +2459,7 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
     // set the incomplete track coordinates
     for (int ix=0; ix!=m_ncoords_incomplete; ++ix) {
       int cix = m_CImap_eff[ix];
-      newtrk.setCoord(cix,curtrackI.getCoord(ix));
+      m_newtrk.setCoord(cix,curtrackI.getCoord(ix));
 
 //       the real mask has 1 only in layers with hits 
       cbitmask_real |= ((curtrackI.getBitmask()&(1<<ix))>>ix)<<cix;
@@ -2473,11 +2473,11 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
     //}
     fulltracksI.push_back(curtrackI);
 
-    //newtrk.setNMissing(5);
-    //newtrk.setBitmask(m_resmode_bitmask);
+    //m_newtrk.setNMissing(5);
+    //m_newtrk.setBitmask(m_resmode_bitmask);
 
-    newtrk.setNMissing(5);
-    newtrk.setBitmask(curtrackI.getBitmask());
+    m_newtrk.setNMissing(5);
+    m_newtrk.setBitmask(curtrackI.getBitmask());
 
     // simids.first represents the subregion ID, simids.second the sector ID within the bank
     pair<int,int> simids(subreg,sector);
@@ -2541,7 +2541,7 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
       // Do the extrapolation for this similar sector and see if this is any better than the other.
       // The first method is deprecated. No more geometrical extrapolation
       //
-      current_bank_complete->missing_point_guess(newtrk, tmpconn_sector);
+      current_bank_complete->missing_point_guess(m_newtrk, tmpconn_sector);
 
       // Counter that counts how many good extrapolation
       int nIN(0);
@@ -2550,14 +2550,14 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
       for (int ip=0; ip<m_nplanes_ignored; ++ip) {
         const int ndim = m_pmap->getPlane(m_idplanes[ip],0).getNDimension();
         if (ndim==1) {
-          const float &localX = newtrk.getCoord(m_idcoords_eff[ip]);
+          const float &localX = m_newtrk.getCoord(m_idcoords_eff[ip]);
 
           // If the following condition is met count as good local X
           if (localX>=0 && localX <= m_ssmap_complete->getMap(m_idplanes_eff[ip], 0, 0).m_phiwidth)
             nIN += 1;
         } else if (ndim==2) {
-          const float &localX = newtrk.getCoord(m_idcoords_eff[ip]);
-          const float &localY = newtrk.getCoord(m_idcoords_eff[ip]+1);
+          const float &localX = m_newtrk.getCoord(m_idcoords_eff[ip]);
+          const float &localY = m_newtrk.getCoord(m_idcoords_eff[ip]+1);
 
           // If the following condition is met count as good local X
           if (localX>=0 && localX <= m_ssmap_complete->getMap(m_idplanes_eff[ip], 0, 0).m_phiwidth) {
@@ -2590,7 +2590,7 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
     // set the variables to extrapolate the variables
     conn_subreg = simids.first;
     conn_sector = simids.second;
-    newtrk.setSectorID(conn_subreg);
+    m_newtrk.setSectorID(conn_subreg);
 
     current_bank_complete = m_constant[region][conn_subreg];
 
@@ -2599,10 +2599,10 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
     // Two types of method
     // the missing_point_guess
     //------------------------------------------------------------
-    current_bank_complete->missing_point_guess(newtrk,conn_sector);
+    current_bank_complete->missing_point_guess(m_newtrk,conn_sector);
     // print the coordinates
-    for (int ix=0;ix!=newtrk.getNCoords();++ix) {
-      std::cout << std::setw(8) << newtrk.getCoord(ix);
+    for (int ix=0;ix!=m_newtrk.getNCoords();++ix) {
+      std::cout << std::setw(8) << m_newtrk.getCoord(ix);
     }
     std::cout << std::endl;
 
@@ -2631,7 +2631,7 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
       FTKHit* tmpHit = new FTKHit(ndim);
       tmpHit->setSector(moduleID);
       for (int i=0;i<ndim;++i)
-        tmpHit->setCoord(i, newtrk.getCoord(m_idcoords_eff[ip]+i));
+        tmpHit->setCoord(i, m_newtrk.getCoord(m_idcoords_eff[ip]+i));
       tmpHit->setSector(moduleID);
       tmpHit->setEtaWidth(etawindow);
       tmpHit->setPhiWidth(phiwindow);
@@ -2810,7 +2810,7 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
           cbitmask_real |= (1<<(m_idcoords_eff[ip]+i));
         } else {
           // in this case the extrapolation failed, some empty value is placed
-          newtrk.setFTKHit(m_idplanes_eff[ip],FTKHit()); // set an empty hit
+          m_newtrk.setFTKHit(m_idplanes_eff[ip],FTKHit()); // set an empty hit
         }
       }
     }
@@ -2831,10 +2831,10 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
 
       // the number of missing points depends only by the last step,
       // the MJ hits in the first step are used as real hits
-      newtrk.setNMissing(nmissing_more_coord);
+      m_newtrk.setNMissing(nmissing_more_coord);
 
       // set the conventional bitmask for the fit
-      newtrk.setBitmask(cbitmask);
+      m_newtrk.setBitmask(cbitmask);
 
       // increment the number of addional fits
       m_ncombs += ncombs_more;
@@ -2853,13 +2853,13 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
 
             // the missing layers are assumed to be 1-D
             const int &cid = m_idcoords_eff[ip]+i;
-            newtrk.setFTKHit(m_idplanes_eff[ip],*curhit_more[ip]);
+            m_newtrk.setFTKHit(m_idplanes_eff[ip],*curhit_more[ip]);
 
-            guessed_coords[iguess] = newtrk.getCoord(cid);
+            guessed_coords[iguess] = m_newtrk.getCoord(cid);
             iguess ++;
-            //std::cout << " cid : " << cid << ", guessed cord : " << newtrk.getCoord(cid) <<  ", coord : " << (*curhit_more[ip])[i] << std::endl;
+            //std::cout << " cid : " << cid << ", guessed cord : " << m_newtrk.getCoord(cid) <<  ", coord : " << (*curhit_more[ip])[i] << std::endl;
 
-            newtrk.setCoord(cid,(*curhit_more[ip])[i]);
+            m_newtrk.setCoord(cid,(*curhit_more[ip])[i]);
           }
         }
 
@@ -2867,77 +2867,77 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
         // Now doing my study
         float *real_coords = new float[7];
         // IBL
-        real_coords[0] = newtrk.getCoord(0);
-        real_coords[1] = newtrk.getCoord(1);
+        real_coords[0] = m_newtrk.getCoord(0);
+        real_coords[1] = m_newtrk.getCoord(1);
         // BL
-        real_coords[2] = newtrk.getCoord(2);
-        real_coords[3] = newtrk.getCoord(3);
+        real_coords[2] = m_newtrk.getCoord(2);
+        real_coords[3] = m_newtrk.getCoord(3);
         // SCTs
-        real_coords[4] = newtrk.getCoord(9);
-        real_coords[5] = newtrk.getCoord(11);
-        real_coords[6] = newtrk.getCoord(15);
+        real_coords[4] = m_newtrk.getCoord(9);
+        real_coords[5] = m_newtrk.getCoord(11);
+        real_coords[6] = m_newtrk.getCoord(15);
 
-        newtrkI.setCoord(0,0);
-        newtrkI.setCoord(1,0);
-        newtrkI.setCoord(2,newtrk.getCoord(4));
-        newtrkI.setCoord(3,newtrk.getCoord(5));
-        newtrkI.setCoord(4,newtrk.getCoord(6));
-        newtrkI.setCoord(5,newtrk.getCoord(7));
-        newtrkI.setCoord(6,newtrk.getCoord(8));
-        newtrkI.setCoord(7,newtrk.getCoord(10));
-        newtrkI.setCoord(8,newtrk.getCoord(12));
-        newtrkI.setCoord(9,newtrk.getCoord(13));
-        newtrkI.setCoord(10,newtrk.getCoord(14));
+        m_newtrkI.setCoord(0,0);
+        m_newtrkI.setCoord(1,0);
+        m_newtrkI.setCoord(2,m_newtrk.getCoord(4));
+        m_newtrkI.setCoord(3,m_newtrk.getCoord(5));
+        m_newtrkI.setCoord(4,m_newtrk.getCoord(6));
+        m_newtrkI.setCoord(5,m_newtrk.getCoord(7));
+        m_newtrkI.setCoord(6,m_newtrk.getCoord(8));
+        m_newtrkI.setCoord(7,m_newtrk.getCoord(10));
+        m_newtrkI.setCoord(8,m_newtrk.getCoord(12));
+        m_newtrkI.setCoord(9,m_newtrk.getCoord(13));
+        m_newtrkI.setCoord(10,m_newtrk.getCoord(14));
 
-        //for (int ix=0;ix!=newtrkI.getNCoords();++ix) {
-        //  std::cout << std::setw(8) << newtrkI.getCoord(ix);
+        //for (int ix=0;ix!=m_newtrkI.getNCoords();++ix) {
+        //  std::cout << std::setw(8) << m_newtrkI.getCoord(ix);
         //}
         //std::cout << std::endl;
 
         FTKConstantBank *current_bank_incomplete = m_constant_incomplete[region][subreg];
 
-        newtrkI.setNMissing(2);
-        newtrkI.setBitmask(2044);
+        m_newtrkI.setNMissing(2);
+        m_newtrkI.setBitmask(2044);
         //2044 = 00 11 11 1X 1X 11 1X : 8L missing BL bitmask
 
-        current_bank_incomplete->missing_point_guess(newtrkI,sector);
+        current_bank_incomplete->missing_point_guess(m_newtrkI,sector);
 
-        //for (int ix=0;ix!=newtrkI.getNCoords();++ix) {
-        //  std::cout << std::setw(8) << newtrkI.getCoord(ix);
+        //for (int ix=0;ix!=m_newtrkI.getNCoords();++ix) {
+        //  std::cout << std::setw(8) << m_newtrkI.getCoord(ix);
         //}
         //std::cout << std::endl;
 
-        // propagating these coordinates to newtrk.
-        newtrk.setCoord(0,0);
-        newtrk.setCoord(1,0);
-        newtrk.setCoord(2,newtrkI.getCoord(0));
-        newtrk.setCoord(3,newtrkI.getCoord(1));
-        newtrk.setCoord(4,newtrkI.getCoord(2));
-        newtrk.setCoord(5,newtrkI.getCoord(3));
-        newtrk.setCoord(6,newtrkI.getCoord(4));
-        newtrk.setCoord(7,newtrkI.getCoord(5));
-        newtrk.setCoord(8,newtrkI.getCoord(6));
-        newtrk.setCoord(9,0);
-        newtrk.setCoord(10,newtrkI.getCoord(7));
-        newtrk.setCoord(11,0);
-        newtrk.setCoord(12,newtrkI.getCoord(8));
-        newtrk.setCoord(13,newtrkI.getCoord(9));
-        newtrk.setCoord(14,newtrkI.getCoord(10));
-        newtrk.setCoord(15,0);
+        // propagating these coordinates to m_newtrk.
+        m_newtrk.setCoord(0,0);
+        m_newtrk.setCoord(1,0);
+        m_newtrk.setCoord(2,m_newtrkI.getCoord(0));
+        m_newtrk.setCoord(3,m_newtrkI.getCoord(1));
+        m_newtrk.setCoord(4,m_newtrkI.getCoord(2));
+        m_newtrk.setCoord(5,m_newtrkI.getCoord(3));
+        m_newtrk.setCoord(6,m_newtrkI.getCoord(4));
+        m_newtrk.setCoord(7,m_newtrkI.getCoord(5));
+        m_newtrk.setCoord(8,m_newtrkI.getCoord(6));
+        m_newtrk.setCoord(9,0);
+        m_newtrk.setCoord(10,m_newtrkI.getCoord(7));
+        m_newtrk.setCoord(11,0);
+        m_newtrk.setCoord(12,m_newtrkI.getCoord(8));
+        m_newtrk.setCoord(13,m_newtrkI.getCoord(9));
+        m_newtrk.setCoord(14,m_newtrkI.getCoord(10));
+        m_newtrk.setCoord(15,0);
 
-        newtrk.setNMissing(5);
-        //newtrk.setBitmask(m_resmode_bitmask);
-        newtrk.setBitmask(curtrackI.getBitmask());
+        m_newtrk.setNMissing(5);
+        //m_newtrk.setBitmask(m_resmode_bitmask);
+        m_newtrk.setBitmask(curtrackI.getBitmask());
 
-        current_bank_complete->missing_point_guess(newtrk,conn_sector);
+        current_bank_complete->missing_point_guess(m_newtrk,conn_sector);
 
-        //for (int ix=0;ix!=newtrk.getNCoords();++ix) {
-        //  std::cout << std::setw(8) << newtrk.getCoord(ix);
+        //for (int ix=0;ix!=m_newtrk.getNCoords();++ix) {
+        //  std::cout << std::setw(8) << m_newtrk.getCoord(ix);
         //}
         //std::cout << std::endl;
 
         m_histores_hitcoord_PXL[0]->Fill(guessed_coords[0]  - real_coords[0], guessed_coords[1]  - real_coords[1]);
-        m_histores_hitcoord_PXL[1]->Fill(newtrk.getCoord(0) - real_coords[0], newtrk.getCoord(1) - real_coords[1]);
+        m_histores_hitcoord_PXL[1]->Fill(m_newtrk.getCoord(0) - real_coords[0], m_newtrk.getCoord(1) - real_coords[1]);
 
         delete [] guessed_coords;
         delete [] real_coords;
@@ -3000,7 +3000,7 @@ void TrackFitter711::processor_SuperExtrapolate(const FTKRoad &road, list<FTKTra
   list<FTKTrack>::iterator itrack = road_tracks.begin();
 
   for (;itrack!=road_tracks.end();++itrack) {
-    newtrkI = *itrack;
+    m_newtrkI = *itrack;
     m_passedExtrapolation = false; ///reset this
     extrapolateIncompleteTrack(road);
   }
@@ -3040,9 +3040,9 @@ bool TrackFitter711::isConnFileOkay() {
 
 void TrackFitter711::prepareCompleteTrack(const FTKRoad &road) {
   // set parameters that will remain the same for all the tracks
-  newtrk.setBankID(road.getBankID());
-  newtrk.setRoadID(road.getRoadID());
-  newtrk.setSectorID(road.getSectorID());
+  m_newtrk.setBankID(road.getBankID());
+  m_newtrk.setRoadID(road.getRoadID());
+  m_newtrk.setSectorID(road.getSectorID());
 }
 
 void TrackFitter711::setLayerInversions(const FTKRoad &road) {
@@ -3123,13 +3123,13 @@ void TrackFitter711::setLayerInversions(const FTKRoad &road) {
 
 void TrackFitter711::extrapolateIncompleteTrack(const FTKRoad &road) {
   // reset the flags
-  newtrk.setHWRejected(m_baseHWflag);
-  newtrk.setHWTrackID(-1);
+  m_newtrk.setHWRejected(m_baseHWflag);
+  m_newtrk.setHWTrackID(-1);
   gatherConnections();
   printConnections();
-  bool * iblhits = new bool[conn_subregs.size()];
+  bool * iblhits = new bool[m_conn_subregs.size()];
   
-  for (setIConn(0); cur_iconn < (int) conn_subregs.size(); setIConn(cur_iconn+1)) {
+  for (setIConn(0); m_cur_iconn < (int) m_conn_subregs.size(); setIConn(m_cur_iconn+1)) {
     prepareTrack();
     performExtrapolation();
     guessedHitsToSSID();
@@ -3138,7 +3138,7 @@ void TrackFitter711::extrapolateIncompleteTrack(const FTKRoad &road) {
     printFoundHits();
     if (getDiagnosticMode())
       fillDiagnosticPlotsPerTrackPerConn();
-    iblhits[cur_iconn] = isIBLhitsFound();
+    iblhits[m_cur_iconn] = isIBLhitsFound();
     fitCompleteTracks(road);
     saveCompleteTracks();
   }
@@ -3149,7 +3149,7 @@ void TrackFitter711::extrapolateIncompleteTrack(const FTKRoad &road) {
     fillDiagnosticPlotsPerTrack();
   int total = 0;
   
-  for (unsigned iconn = 0; iconn < conn_subregs.size(); ++iconn) {
+  for (unsigned iconn = 0; iconn < m_conn_subregs.size(); ++iconn) {
     if (iblhits[iconn])
       total += 1;
   }
@@ -3163,9 +3163,9 @@ void TrackFitter711::prepareTrack() {
   // INCOMPLETE TRACKS PREPRATION
   //------------------------------------------------------------
 
-  completeTrackCandidates.clear();
-  connectedSectorPairs.clear();
-  nmissingOfCompleteTracks.clear();
+  m_completeTrackCandidates.clear();
+  m_connectedSectorPairs.clear();
+  m_nmissingOfCompleteTracks.clear();
 
   // complete track bitmask
   m_cbitmask_real = 0;
@@ -3173,59 +3173,59 @@ void TrackFitter711::prepareTrack() {
   /* conventional complete bitmask, this assumes
      all hits for previous steps as real*/
   m_cbitmask = m_incomplete_coordsmask_eff;
-  newtrk.setHalfInvPt(newtrkI.getHalfInvPt());
+  m_newtrk.setHalfInvPt(m_newtrkI.getHalfInvPt());
 
   /* Fix from corrgen: in the constant generation, tracks
      in regions 3, 4, and 5 has phi defined in the range [0:2 PI].
      For the extrapolation only checks if the angle is in those
      regions and fix the definition */
-  if (m_ssmap_complete->getRegionMap()->getNumRegions()==8 && m_region_for_superexp>=3 && m_region_for_superexp<=5 && newtrkI.getPhi()<=0)
-    newtrk.setPhi(newtrkI.getPhi()+2*M_PI,false);
-  else if (m_ssmap_complete->getRegionMap()->getNumRegions()==64 && (m_region_for_superexp==9 || m_region_for_superexp==10 || m_region_for_superexp==25 || m_region_for_superexp==26 || m_region_for_superexp==41 || m_region_for_superexp==42 || m_region_for_superexp==57 || m_region_for_superexp==58)  && newtrkI.getPhi()<=0)
-    newtrk.setPhi(newtrkI.getPhi());
+  if (m_ssmap_complete->getRegionMap()->getNumRegions()==8 && m_region_for_superexp>=3 && m_region_for_superexp<=5 && m_newtrkI.getPhi()<=0)
+    m_newtrk.setPhi(m_newtrkI.getPhi()+2*M_PI,false);
+  else if (m_ssmap_complete->getRegionMap()->getNumRegions()==64 && (m_region_for_superexp==9 || m_region_for_superexp==10 || m_region_for_superexp==25 || m_region_for_superexp==26 || m_region_for_superexp==41 || m_region_for_superexp==42 || m_region_for_superexp==57 || m_region_for_superexp==58)  && m_newtrkI.getPhi()<=0)
+    m_newtrk.setPhi(m_newtrkI.getPhi());
   else
-    newtrk.setPhi(newtrkI.getPhi());
+    m_newtrk.setPhi(m_newtrkI.getPhi());
 
   // set the incomplete track with some original info
-  newtrk.setIP(newtrkI.getIP());
-  newtrk.setCotTheta(newtrkI.getCotTheta());
-  newtrk.setZ0(newtrkI.getZ0());
-  newtrk.setChi2(newtrkI.getChi2());
-  newtrk.setOrigChi2(newtrkI.getOrigChi2());
-  newtrk.setCombinationID(newtrkI.getCombinationID());
+  m_newtrk.setIP(m_newtrkI.getIP());
+  m_newtrk.setCotTheta(m_newtrkI.getCotTheta());
+  m_newtrk.setZ0(m_newtrkI.getZ0());
+  m_newtrk.setChi2(m_newtrkI.getChi2());
+  m_newtrk.setOrigChi2(m_newtrkI.getOrigChi2());
+  m_newtrk.setCombinationID(m_newtrkI.getCombinationID());
 
   // zero out coords
   for (int ix=0; ix!=m_ncoords; ++ix) {
-    newtrk.setCoord(ix,0);
+    m_newtrk.setCoord(ix,0);
   }
 
   // set the incomplete track coordinates
   for (int ix=0; ix!=m_ncoords_incomplete; ++ix) {
     int cix = m_CImap_eff[ix];
-    newtrk.setCoord(cix,newtrkI.getCoord(ix));
+    m_newtrk.setCoord(cix,m_newtrkI.getCoord(ix));
 
     /* the real mask has 1 only in layers with hits */
-    m_cbitmask_real |= ((newtrkI.getBitmask()&(1<<ix))>>ix)<<cix;
+    m_cbitmask_real |= ((m_newtrkI.getBitmask()&(1<<ix))>>ix)<<cix;
   }
 
   for (int ip=0; ip!=m_nplanes_incomplete; ++ip) {
     int cip = m_CIlayermap_eff[ip];
-    newtrk.setFTKHit(cip,newtrkI.getFTKHit(ip));
+    m_newtrk.setFTKHit(cip,m_newtrkI.getFTKHit(ip));
   }
 
   // complete the track using the extrapolation method
   // the bitmask and number of missing point is artificial
-  newtrk.setBitmask(m_incomplete_coordsmask_eff);
-  newtrk.setNMissing(m_ncoords_ignored);
+  m_newtrk.setBitmask(m_incomplete_coordsmask_eff);
+  m_newtrk.setNMissing(m_ncoords_ignored);
 
   // set other track flags
-  newtrk.setTypeMask(newtrkI.getTypeMask());
+  m_newtrk.setTypeMask(m_newtrkI.getTypeMask());
 
   // set connindex
-  newtrk.setConnectionIndex(cur_iconn);
+  m_newtrk.setConnectionIndex(m_cur_iconn);
 
   // update the track sector ID with the 12L sector ID so it models SSB output
-  newtrk.setSectorID(conn_sectors[cur_iconn]);
+  m_newtrk.setSectorID(m_conn_sectors[m_cur_iconn]);
   
   //// ===== Incomplete tracks are ready to be extrapolated!
 }
@@ -3244,9 +3244,9 @@ void TrackFitter711::gatherConnections() {
   if (!m_use_multiple_conn)
     FTKSetup::PrintMessage(ftk::sevr, "TRACKFITTER_MODE=3 Requires UseMultipleConn=1");
 
-  conn_subregs.clear();
-  conn_sectors.clear();
-  conn_gcbanks.clear();
+  m_conn_subregs.clear();
+  m_conn_sectors.clear();
+  m_conn_gcbanks.clear();
 
   // loop over similar sectors
   for (int isim=0; isim!=nsims&&maxIN!=m_nplanes_ignored; ++isim) {
@@ -3265,7 +3265,7 @@ void TrackFitter711::gatherConnections() {
 
       continue;
     } else if (tmpsec>=tmpcon->getNSectors()) {
-    // check if the number of sector is compatible with this bank
+      // check if the number of sector is compatible with this bank
       FTKSetup::PrintMessageFmt(ftk::info,
                                 "*** Complete constants for Sector %d in region %d - %d don't exists\n",
                                 tmpsec,
@@ -3275,7 +3275,7 @@ void TrackFitter711::gatherConnections() {
 
       continue;
     } else if (!tmpcon->getIsGood(tmpsec)) {
-    // check if the sector has a valid constants set
+      // check if the sector has a valid constants set
       FTKSetup::PrintMessageFmt(ftk::info,
                                 "*** Incomplete constants for Sector %d in region %d - %d is not valid\n",
                                 tmpsec,
@@ -3286,18 +3286,18 @@ void TrackFitter711::gatherConnections() {
       continue;
     }
 
-    conn_subregs.push_back(tmpsub);
-    conn_sectors.push_back(tmpsec);
-    conn_gcbanks.push_back(tmpcon);
+    m_conn_subregs.push_back(tmpsub);
+    m_conn_sectors.push_back(tmpsec);
+    m_conn_gcbanks.push_back(tmpcon);
 
   } // Looping over similar sector is done.
-  m_nconn += conn_subregs.size();
+  m_nconn += m_conn_subregs.size();
 }
 
 void TrackFitter711::printCurCompleteTrack() {
   // print the coordinates
-  for (int ix=0;ix!=newtrk.getNCoords();++ix) {
-    std::cout << std::setw(8) << newtrk.getCoord(ix);
+  for (int ix=0;ix!=m_newtrk.getNCoords();++ix) {
+    std::cout << std::setw(8) << m_newtrk.getCoord(ix);
   }
   std::cout << std::endl;
 }
@@ -3305,15 +3305,15 @@ void TrackFitter711::printCurCompleteTrack() {
 void TrackFitter711::performExtrapolation() {
 
   if (isDebugSuperExp())
-    FTKSetup::PrintMessageFmt(ftk::info, "performing extrapolation with subreg: %d, sector: %d\n", conn_subregs.at(cur_iconn), conn_sectors.at(cur_iconn));
+    FTKSetup::PrintMessageFmt(ftk::info, "performing extrapolation with subreg: %d, sector: %d\n", m_conn_subregs.at(m_cur_iconn), m_conn_sectors.at(m_cur_iconn));
 
   if (isDebugSuperExp())
     printCurCompleteTrack();
 
-  conn_gcbanks.at(cur_iconn)->missing_point_guess(newtrk, conn_sectors.at(cur_iconn));
-  IBLcoordPhi = newtrk.getCoord(0);
-  IBLcoordEta = newtrk.getCoord(1);
-  //newtrk.setIBLGuessedHits();
+  m_conn_gcbanks.at(m_cur_iconn)->missing_point_guess(m_newtrk, m_conn_sectors.at(m_cur_iconn));
+  m_IBLcoordPhi = m_newtrk.getCoord(0);
+  m_IBLcoordEta = m_newtrk.getCoord(1);
+  //m_newtrk.setIBLGuessedHits();
 
   if (isDebugSuperExp())
     printCurCompleteTrack();
@@ -3330,7 +3330,7 @@ void TrackFitter711::guessedHitsToSSID() {
 
     /* use the module id to extract the phi id and the eta id,
        in particular for modules the ID is phiid*1000+etaid */
-    const int &moduleID = m_FC_relations[m_region_for_superexp][m_subreg_for_superexp]->getSimilarStereoIDs(m_sector_for_superexp,cur_iconn)[ip];
+    const int &moduleID = m_FC_relations[m_region_for_superexp][m_subreg_for_superexp]->getSimilarStereoIDs(m_sector_for_superexp,m_cur_iconn)[ip];
 
 
     float phiwindow = m_ssmap_complete->getMap(m_idplanes_eff[ip], m_section_of_exp_layers[ip], 0).m_phiwidth - 0.001;
@@ -3345,10 +3345,10 @@ void TrackFitter711::guessedHitsToSSID() {
     xMax[0]=phiwindow-0.5;
     xMax[1]=etawindow-0.5;
     for (int i=0;i<ndim;++i) {
-       double x=newtrk.getCoord(m_idcoords_eff[ip]+i);
-       if(x<0.) x=0.;
-       if(x>xMax[i]) x=xMax[i];
-       tmphit.setCoord(i,x);
+      double x=m_newtrk.getCoord(m_idcoords_eff[ip]+i);
+      if(x<0.) x=0.;
+      if(x>xMax[i]) x=xMax[i];
+      tmphit.setCoord(i,x);
     }
     tmphit.setEtaWidth(etawindow);
     tmphit.setPhiWidth(phiwindow);
@@ -3359,13 +3359,13 @@ void TrackFitter711::guessedHitsToSSID() {
     }
 
     if( FTKSetup::getFTKSetup().getHWModeSS()==2) {
-       try {
-          m_ssid[ip] = m_ssmap_complete->getSSTower
-             (tmphit, tmphit.getBankID(),true);
-       } catch(FTKException &e) {
-          cout<<"TrackFitter711::guessedHitsToSSID bug\n";
-          exit(0);
-       }
+      try {
+        m_ssid[ip] = m_ssmap_complete->getSSTower
+          (tmphit, tmphit.getBankID(),true);
+      } catch(FTKException &e) {
+        cout<<"TrackFitter711::guessedHitsToSSID bug\n";
+        exit(0);
+      }
     }else {
       m_ssid[ip] = m_ssmap_complete->getSSGlobal(tmphit, 1);
     }
@@ -3406,46 +3406,46 @@ void TrackFitter711::guessedHitsToSSID() {
     }
     if (isDebugSuperExp()) {
       if (ndim == 2) {
-        float x = newtrk.getCoord(m_idcoords_eff[ip]);
-        float y = newtrk.getCoord(m_idcoords_eff[ip]+1);
+        float x = m_newtrk.getCoord(m_idcoords_eff[ip]);
+        float y = m_newtrk.getCoord(m_idcoords_eff[ip]+1);
 
-	 if( FTKSetup::getFTKSetup().getHWModeSS()==2) {                                                                                                                         
+        if( FTKSetup::getFTKSetup().getHWModeSS()==2) {                                                                                                                         
           // modify coordinates and get the m_bounds                                                                                                                              
-	    tmphit.setCoord(1,0);                                                                                                                                            
-	    tmphit.setCoord(0,0);         std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(), true) << std::endl;                                                
-  	    tmphit.setCoord(0,x);         std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(), true) << std::endl;                                
-  	    tmphit.setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(), true) << std::endl;                                               
-	    // restore the x-coord                                                                                                                                            
-	    tmphit.setCoord(1,y);                                                                                                                                             
-  	    tmphit.setCoord(0,0);         std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true) << std::endl;                                         
-  	    tmphit.setCoord(0,x);         std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true) << std::endl;                                               
-  	    tmphit.setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true) << std::endl;                                                 
-	    // now vary y-cord                                                                                                                                                
-	    tmphit.setCoord(1,etawindow);                                                                                                                                        
-  	    tmphit.setCoord(0,0);         std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true) << std::endl;                                               
-  	    tmphit.setCoord(0,x);         std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true) << std::endl;                                                  
-  	    tmphit.setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true) << std::endl;                                                 
+          tmphit.setCoord(1,0);                                                                                                                                            
+          tmphit.setCoord(0,0);         std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(), true) << std::endl;                                                
+          tmphit.setCoord(0,x);         std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(), true) << std::endl;                                
+          tmphit.setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(), true) << std::endl;                                               
+          // restore the x-coord                                                                                                                                            
+          tmphit.setCoord(1,y);                                                                                                                                             
+          tmphit.setCoord(0,0);         std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true) << std::endl;                                         
+          tmphit.setCoord(0,x);         std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true) << std::endl;                                               
+          tmphit.setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true) << std::endl;                                                 
+          // now vary y-cord                                                                                                                                                
+          tmphit.setCoord(1,etawindow);                                                                                                                                        
+          tmphit.setCoord(0,0);         std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true) << std::endl;                                               
+          tmphit.setCoord(0,x);         std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true) << std::endl;                                                  
+          tmphit.setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true) << std::endl;                                                 
 
-	 }                                                                                                                                                                   
-	 else {                                                                                            
+        }                                                                                                                                                                   
+        else {                                                                                            
 
-        // modify coordinates and get the m_bounds
-        tmphit.setCoord(1,0);
-        tmphit.setCoord(0,0);         std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
-        tmphit.setCoord(0,x);         std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
-        tmphit.setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
-        // restore the x-coord
-        tmphit.setCoord(1,y);
-        tmphit.setCoord(0,0);         std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
-        tmphit.setCoord(0,x);         std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
-        tmphit.setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
-        // now vary y-cord
-        tmphit.setCoord(1,etawindow);
-        tmphit.setCoord(0,0);         std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
-        tmphit.setCoord(0,x);         std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
-        tmphit.setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
+          // modify coordinates and get the m_bounds
+          tmphit.setCoord(1,0);
+          tmphit.setCoord(0,0);         std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
+          tmphit.setCoord(0,x);         std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
+          tmphit.setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
+          // restore the x-coord
+          tmphit.setCoord(1,y);
+          tmphit.setCoord(0,0);         std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
+          tmphit.setCoord(0,x);         std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
+          tmphit.setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
+          // now vary y-cord
+          tmphit.setCoord(1,etawindow);
+          tmphit.setCoord(0,0);         std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
+          tmphit.setCoord(0,x);         std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
+          tmphit.setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
+        }
       }
-    }
     }
   }
 }
@@ -3458,68 +3458,68 @@ void TrackFitter711::obtainHitsFromSSIDs() {
 
   //std::cout << "Searching hits ...." << std::endl;
 
-   int nError=0,nTry=0;
+  int nError=0,nTry=0;
   // loop to retrieve the hit lists
   for (int ip=0; ip!=m_nplanes_ignored; ++ip) {
     m_hits_more[ip].clear();
 
     int ndim = m_pmap->getPlane(m_idplanes[ip],0).getNDimension();
-    int m_etaneighbours = (ndim==2) ? m_nneighbours : 0;
+    int etaneighbours = (ndim==2) ? m_nneighbours : 0;
     bool isSCT = (ndim==2) ? false : true; // FTKSSMap.h (hardcoded value either 100 or 200)
 
     // the hits are obtained from the extrapolated SS and the neighbor
     for (int ss_shift=-m_nneighbours/2; ss_shift!=m_nneighbours/2+1; ++ss_shift) {
-      for (int ss_shiftEta=-m_etaneighbours/2; ss_shiftEta!=m_etaneighbours/2+1; ++ss_shiftEta) {
+      for (int ss_shiftEta=-etaneighbours/2; ss_shiftEta!=etaneighbours/2+1; ++ss_shiftEta) {
 	int tmpSS;
-	 if( FTKSetup::getFTKSetup().getHWModeSS()==2) {   
+        if( FTKSetup::getFTKSetup().getHWModeSS()==2) {   
 
-	   int phiss =  m_ssmap_complete->getMap(m_idplanes_eff[ip], 0, 0).m_phiss;	   
-           int phimax=m_ssmap_complete->getMap(m_idplanes_eff[ip], 0, 0).m_phiwidth;
-	   int etass =  0;
-           int etamax=0;
-	   int section=0;
-	   int localX=0,localY=0;
-	   int localModuleID=-1;
-           nTry++;
-	   if(ndim ==2)	 {
-              etass =  m_ssmap_complete->getMap(m_idplanes_eff[ip], 0, 0).m_etass;
-              etamax=m_ssmap_complete->getMap(m_idplanes_eff[ip], 0, 0).m_etawidth;
-	   //the "official" procedure would involve:
-	   //decode the SSID into the local anc global coordinates
-	   //change the local coordinates as desired
-	   //re-encode the SSID
-	     m_ssmap_complete->decodeSSTowerXY(m_ssid[ip],m_subreg_for_superexp,m_idplanes_eff[ip],section, localModuleID,localX,localY,true);
+          int phiss =  m_ssmap_complete->getMap(m_idplanes_eff[ip], 0, 0).m_phiss;	   
+          int phimax=m_ssmap_complete->getMap(m_idplanes_eff[ip], 0, 0).m_phiwidth;
+          int etass =  0;
+          int etamax=0;
+          int section=0;
+          int localX=0,localY=0;
+          int localModuleID=-1;
+          nTry++;
+          if(ndim ==2)	 {
+            etass =  m_ssmap_complete->getMap(m_idplanes_eff[ip], 0, 0).m_etass;
+            etamax=m_ssmap_complete->getMap(m_idplanes_eff[ip], 0, 0).m_etawidth;
+            //the "official" procedure would involve:
+            //decode the SSID into the local anc global coordinates
+            //change the local coordinates as desired
+            //re-encode the SSID
+            m_ssmap_complete->decodeSSTowerXY(m_ssid[ip],m_subreg_for_superexp,m_idplanes_eff[ip],section, localModuleID,localX,localY,true);
             localX += ss_shift*phiss;
             localY += ss_shiftEta*etass;
             if((localX<0.)||(localX>=phimax)) continue;
             if((localY<0.)||(localY>=etamax)) continue;
             try {
-               tmpSS =  m_ssmap_complete->compressed_ssid_word_pixel(localModuleID,m_idplanes_eff[ip],section,localX,localY,true);
+              tmpSS =  m_ssmap_complete->compressed_ssid_word_pixel(localModuleID,m_idplanes_eff[ip],section,localX,localY,true);
             } catch(FTKException &e) {
-               // coordinates outside module boundary
-               nError++;
-               continue;
+              // coordinates outside module boundary
+              nError++;
+              continue;
             }
-           }else{
-	     m_ssmap_complete->decodeSSTowerX(m_ssid[ip],m_subreg_for_superexp,m_idplanes_eff[ip],section, localModuleID,localX,true);
+          }else{
+            m_ssmap_complete->decodeSSTowerX(m_ssid[ip],m_subreg_for_superexp,m_idplanes_eff[ip],section, localModuleID,localX,true);
             localX += ss_shift*phiss;
             if((localX<0.)||(localX>=phimax)) continue;
   	    try {
-               tmpSS =  m_ssmap_complete->compressed_ssid_word_strip(localModuleID,m_idplanes_eff[ip],section,localX,true);
+              tmpSS =  m_ssmap_complete->compressed_ssid_word_strip(localModuleID,m_idplanes_eff[ip],section,localX,true);
             } catch(FTKException &e) {
-               // coordinates outside module boundary
-               nError++;
-               continue;
+              // coordinates outside module boundary
+              nError++;
+              continue;
             }
-	   }
-	   //	   tmpSS = m_ssid[ip]+ss_shift*shift+ss_shiftEta;
-	   // std::cout << "tmpSS " << tmpSS << std::endl;
-	 }
-	 else tmpSS = m_ssid[ip]+ss_shift*FTKSSMap::getPhiOffset(isSCT,FTKSetup::getFTKSetup().getITkMode())+ss_shiftEta;
+          }
+          //	   tmpSS = m_ssid[ip]+ss_shift*shift+ss_shiftEta;
+          // std::cout << "tmpSS " << tmpSS << std::endl;
+        }
+        else tmpSS = m_ssid[ip]+ss_shift*FTKSSMap::getPhiOffset(isSCT,FTKSetup::getFTKSetup().getITkMode())+ss_shiftEta;
 
         if (getDiagnosticMode()) {
-          if (ip==0 && ibl_module_with_hit != 0) {
-            m_histo_module_value_diff->Fill(ibl_module_with_hit - tmpSS);
+          if (ip==0 && m_ibl_module_with_hit != 0) {
+            m_histo_module_value_diff->Fill(m_ibl_module_with_hit - tmpSS);
           }
         }
 
@@ -3550,9 +3550,9 @@ void TrackFitter711::obtainHitsFromSSIDs() {
     //  std::cout << m_hits_more[ip].size() << std::endl;
   } // end loop to retrieve the hit lists
   if(nError>0) {
-     FTKSetup::PrintMessageFmt
-        (ftk::warn,"obtainHitsFromSSIDs nError=%d nTry=%d\n",
-         nError,nTry);
+    FTKSetup::PrintMessageFmt
+      (ftk::warn,"obtainHitsFromSSIDs nError=%d nTry=%d\n",
+       nError,nTry);
   }
 }
 
@@ -3602,7 +3602,7 @@ void TrackFitter711::fitCompleteTracks(const FTKRoad &road) {
 	if (ndim == 1) missSCT = true;
 	else missPix = true;
         // in this case the extrapolation failed, some empty value is placed
-        newtrk.setFTKHit(m_idplanes_eff[ip],FTKHit()); // set an empty hit
+        m_newtrk.setFTKHit(m_idplanes_eff[ip],FTKHit()); // set an empty hit
       }
     }
   }
@@ -3621,10 +3621,10 @@ void TrackFitter711::fitCompleteTracks(const FTKRoad &road) {
 
     // the number of missing points depends only by the last step,
     // the MJ hits in the first step are used as real hits
-    newtrk.setNMissing(nmissing_more_coord);
+    m_newtrk.setNMissing(nmissing_more_coord);
 
     // set the conventional bitmask for the fit
-    newtrk.setBitmask(m_cbitmask);
+    m_newtrk.setBitmask(m_cbitmask);
 
     // increment the number of addional fits
     m_ncombs += ncombs_more;
@@ -3641,13 +3641,13 @@ void TrackFitter711::fitCompleteTracks(const FTKRoad &road) {
 
           // the missing layers are assumed to be 1-D
           const int &cid = m_idcoords_eff[ip]+i;
-          newtrk.setFTKHit(m_idplanes_eff[ip],*curhit_more[ip]);
-          newtrk.setCoord(cid,(*curhit_more[ip])[i]);
+          m_newtrk.setFTKHit(m_idplanes_eff[ip],*curhit_more[ip]);
+          m_newtrk.setCoord(cid,(*curhit_more[ip])[i]);
         }
       }
 
       //for ( int i = 0; i < 16; i++)
-      //  std::cout << "newtrk.getCoord(" << i << ") = " << newtrk.getCoord(i) << std::endl;
+      //  std::cout << "m_newtrk.getCoord(" << i << ") = " << m_newtrk.getCoord(i) << std::endl;
 
       m_nfits += 1;
       //std::cout << "m_nfits: " << m_nfits << std::endl;
@@ -3660,29 +3660,29 @@ void TrackFitter711::fitCompleteTracks(const FTKRoad &road) {
 
 
       // perform the fit
-      //newtrk.setTrackID(m_comb_id++);
-      newtrk.setTrackID(newtrkI.getTrackID());
-      newtrk.setExtrapolationID(icomb_more);
-      conn_gcbanks.at(cur_iconn)->linfit(conn_sectors.at(cur_iconn),newtrk);
-      //std::cout << " Chi2 " <<newtrk.getChi2() << std::endl;
-      newtrk.setOrigChi2(newtrk.getChi2());
+      //m_newtrk.setTrackID(m_comb_id++);
+      m_newtrk.setTrackID(m_newtrkI.getTrackID());
+      m_newtrk.setExtrapolationID(icomb_more);
+      m_conn_gcbanks.at(m_cur_iconn)->linfit(m_conn_sectors.at(m_cur_iconn),m_newtrk);
+      //std::cout << " Chi2 " <<m_newtrk.getChi2() << std::endl;
+      m_newtrk.setOrigChi2(m_newtrk.getChi2());
 
       // set the correct number of missing points and
       // and the real bitmask
-      newtrk.setNMissing(newtrkI.getNMissing()+nmissing_more_coord);
-      newtrk.setBitmask(m_cbitmask_real);
+      m_newtrk.setNMissing(m_newtrkI.getNMissing()+nmissing_more_coord);
+      m_newtrk.setBitmask(m_cbitmask_real);
 
       // match the track to a geant particle using the channel-level
       // geant info in the superstrip data.
-      compute_truth(m_region_for_superexp,road,newtrkI,m_hits_more,newtrk);
+      compute_truth(m_region_for_superexp,road,m_newtrkI,m_hits_more,m_newtrk);
 
       // accept track
       std::pair <int, int> simids;
-      simids.first = conn_subregs.at(cur_iconn);
-      simids.second = conn_sectors.at(cur_iconn);
-      completeTrackCandidates.push_back(newtrk);
-      connectedSectorPairs.push_back(simids);
-      nmissingOfCompleteTracks.push_back(nmissing_more_coord);
+      simids.first = m_conn_subregs.at(m_cur_iconn);
+      simids.second = m_conn_sectors.at(m_cur_iconn);
+      m_completeTrackCandidates.push_back(m_newtrk);
+      m_connectedSectorPairs.push_back(simids);
+      m_nmissingOfCompleteTracks.push_back(nmissing_more_coord);
 
       //FTKSetup::PrintMessageFmt(ftk::info,"Track accepted");
       // go to the next combination
@@ -3712,15 +3712,15 @@ void TrackFitter711::saveCompleteTracks() {
   bool fullpassed = false;
 
   if( m_do_majority > 1 ) {
-    for( unsigned int idx = 0; idx < completeTrackCandidates.size(); idx++ ) {
-      newtrk = completeTrackCandidates[idx];
-      if( newtrk.getNMissing() != 0 )
+    for( unsigned int idx = 0; idx < m_completeTrackCandidates.size(); idx++ ) {
+      m_newtrk = m_completeTrackCandidates[idx];
+      if( m_newtrk.getNMissing() != 0 )
         continue;
 
-      float dof = m_ncoords - m_npars - newtrk.getNMissing();
+      float dof = m_ncoords - m_npars - m_newtrk.getNMissing();
       if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
-      if( newtrk.getChi2() < ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ) ) {
+      if( m_newtrk.getChi2() < ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ) ) {
         fullpassed = true;
         break;
       }
@@ -3736,14 +3736,14 @@ void TrackFitter711::saveCompleteTracks() {
   // 2. If it's a full track do majority recover
   // 3. Then check chi-square again
   // 4. If chi-square has passed then save. (Also performs small scale HW)
-  for( unsigned int idx = 0; idx < completeTrackCandidates.size(); idx++ ) {
+  for( unsigned int idx = 0; idx < m_completeTrackCandidates.size(); idx++ ) {
 
     // retrive the information on the stored track
-    newtrk = completeTrackCandidates[idx];
-    pair<int,int> simids = connectedSectorPairs[idx];
-    int nmissing_more = nmissingOfCompleteTracks[idx];
+    m_newtrk = m_completeTrackCandidates[idx];
+    pair<int,int> simids = m_connectedSectorPairs[idx];
+    int nmissing_more = m_nmissingOfCompleteTracks[idx];
 
-    float dof = m_ncoords - m_npars - newtrk.getNMissing();
+    float dof = m_ncoords - m_npars - m_newtrk.getNMissing();
     if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
     // -------------------------------------------------------
@@ -3753,9 +3753,9 @@ void TrackFitter711::saveCompleteTracks() {
     // Try to recover majority if chi2 no good
     bool do_majority_recover = m_extrafits && nmissing_more==0;
     do_majority_recover = do_majority_recover && (m_do_majority==1 || (m_do_majority>1 && !fullpassed));
-    do_majority_recover = do_majority_recover && (newtrk.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ));
-    do_majority_recover = do_majority_recover && (newtrk.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ));
-    do_majority_recover = do_majority_recover && (newtrk.getChi2() < m_Chi2Cut_vetomaj || m_Chi2Cut_vetomaj < 0);
+    do_majority_recover = do_majority_recover && (m_newtrk.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ));
+    do_majority_recover = do_majority_recover && (m_newtrk.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ));
+    do_majority_recover = do_majority_recover && (m_newtrk.getChi2() < m_Chi2Cut_vetomaj || m_Chi2Cut_vetomaj < 0);
 
 
     if (do_majority_recover) {
@@ -3764,10 +3764,10 @@ void TrackFitter711::saveCompleteTracks() {
          the track using the "best" track within the N combination
          of N-1/N tracks */
       //      FTKSetup::PrintMessageFmt(ftk::info,"pass majority cut");
-      // in this block the used array of track combtrack[] is created
+      // in this block the used array of track m_combtrack[] is created
       // in the init block to save some time
 
-      float bestchi2(newtrk.getChi2());
+      float bestchi2(m_newtrk.getChi2());
       int idbest(-1);
       m_nfits_rec += 1;
       const int recbegin = m_require_first ? 1 : 0;
@@ -3780,10 +3780,10 @@ void TrackFitter711::saveCompleteTracks() {
           continue;
 
         // start for the complete track
-        combtrack[ip] = newtrk;
+        m_combtrack[ip] = m_newtrk;
 
         // reset the correspondent hit
-        combtrack[ip].setFTKHit(ip,FTKHit());
+        m_combtrack[ip].setFTKHit(ip,FTKHit());
 
         // remove the hits related with this plane
         int ix = m_pmap->getDim(ip,0);
@@ -3791,22 +3791,22 @@ void TrackFitter711::saveCompleteTracks() {
         int ndim = iy==-1? 1 : 2;
 
         // set the number of missing points and the related bitmask
-        combtrack[ip].setNMissing(ndim);
+        m_combtrack[ip].setNMissing(ndim);
         unsigned int newbitmask = (1<<ix);
 
         if (iy!=-1) newbitmask |= (1<<iy);
 
         newbitmask = m_complete_mask & ~newbitmask;
 
-        combtrack[ip].setBitmask(newbitmask);
+        m_combtrack[ip].setBitmask(newbitmask);
 
         FTKConstantBank *current_bank_complete = m_constant[m_region_for_superexp][simids.first];
         m_nfits_addrec += 1;
-        current_bank_complete->linfit(simids.second,combtrack[ip]);
+        current_bank_complete->linfit(simids.second,m_combtrack[ip]);
 
         // check if the chi2 is better
-        if (combtrack[ip].getChi2()<bestchi2) {
-          bestchi2 = combtrack[ip].getChi2();
+        if (m_combtrack[ip].getChi2()<bestchi2) {
+          bestchi2 = m_combtrack[ip].getChi2();
           idbest = ip;
         }
       } // end loop over the combinations
@@ -3814,15 +3814,15 @@ void TrackFitter711::saveCompleteTracks() {
       if (idbest>=recbegin) {
         // a track, excluding the 1st layer, was found
         // set the correct flags
-        combtrack[idbest].setTypeMask(newtrk.getTypeMask()|(1<<1));
-        combtrack[idbest].setNMissing(newtrk.getNMissing()+combtrack[idbest].getNMissing());
-        combtrack[idbest].setBitmask(newtrk.getBitmask() & combtrack[idbest].getBitmask());
-        newtrk = combtrack[idbest];
+        m_combtrack[idbest].setTypeMask(m_newtrk.getTypeMask()|(1<<1));
+        m_combtrack[idbest].setNMissing(m_newtrk.getNMissing()+m_combtrack[idbest].getNMissing());
+        m_combtrack[idbest].setBitmask(m_newtrk.getBitmask() & m_combtrack[idbest].getBitmask());
+        m_newtrk = m_combtrack[idbest];
       }
 
     } // end block to recover complete tracks with bad chi2
 
-    dof = m_ncoords - m_npars - newtrk.getNMissing();
+    dof = m_ncoords - m_npars - m_newtrk.getNMissing();
     if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
     //
@@ -3832,9 +3832,9 @@ void TrackFitter711::saveCompleteTracks() {
     //
 
     // check if the track pass the quality requirements
-    if (newtrk.getChi2()< ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut :
-          (newtrk.getNMissing() > 0 ? m_Chi2Cut_maj : m_Chi2Cut) )  &&
-        newtrk.getChi2() != 0 )
+    if (m_newtrk.getChi2()< ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut :
+                            (m_newtrk.getNMissing() > 0 ? m_Chi2Cut_maj : m_Chi2Cut) )  &&
+        m_newtrk.getChi2() != 0 )
     {
       // to append the found track go trought the HW filter
       // add this track to track list only if
@@ -3848,15 +3848,15 @@ void TrackFitter711::saveCompleteTracks() {
 
       // Disable hitwarrior, auto-accept every track
       if (m_HitWarrior!=0)
-        accepted = doHitWarriorFilter(newtrk,m_tracks);
+        accepted = doHitWarriorFilter(m_newtrk,m_tracks);
 
       // track accepted, no hits shared with already fitted tracks
       if (accepted>=0) {
         if (getDiagnosticMode())
           fillDiagnosticPlotsPerAcceptedTrack();
 
-        // copy newtrkI after truth assignment.
-        m_tracks.push_back(newtrk);
+        // copy m_newtrkI after truth assignment.
+        m_tracks.push_back(m_newtrk);
 
         // removed an existing track
         if (accepted==1) {
@@ -3869,8 +3869,8 @@ void TrackFitter711::saveCompleteTracks() {
         // clean the list of the hits
 
         if (m_keep_rejected) {
-          // copy newtrk after truth assignment.
-          m_tracks.push_back(newtrk);
+          // copy m_newtrk after truth assignment.
+          m_tracks.push_back(m_newtrk);
         }
 
         m_nfits_rej += 1;
@@ -3881,10 +3881,10 @@ void TrackFitter711::saveCompleteTracks() {
     } else {
       // if the track fail the cut on chi-square clean the hit list
       if (m_keep_rejected>1) {
-        newtrk.setHWRejected( newtrk.getHWRejected()+100 );
+        m_newtrk.setHWRejected( m_newtrk.getHWRejected()+100 );
 
-        // copy newtrk after truth assignment.
-        m_tracks.push_back(newtrk);
+        // copy m_newtrk after truth assignment.
+        m_tracks.push_back(m_newtrk);
       }
 
       m_nfits_bad += 1;
@@ -3958,10 +3958,10 @@ void TrackFitter711::printConnections() {
   if (!isDebugSuperExp())
     return;
 
-  for (unsigned int iconn = 0; iconn < conn_subregs.size(); ++ iconn) {
+  for (unsigned int iconn = 0; iconn < m_conn_subregs.size(); ++ iconn) {
     FTKSetup::PrintMessageFmt(ftk::info, " === Found connections === ");
-    FTKSetup::PrintMessageFmt(ftk::info, " subreg: %d, sector: %d\n", conn_subregs.at(iconn), conn_sectors.at(iconn));
-    if (!conn_gcbanks.at(iconn))
+    FTKSetup::PrintMessageFmt(ftk::info, " subreg: %d, sector: %d\n", m_conn_subregs.at(iconn), m_conn_sectors.at(iconn));
+    if (!m_conn_gcbanks.at(iconn))
       FTKSetup::PrintMessageFmt(ftk::sevr, " error in constants ");
   }
 
@@ -3990,7 +3990,7 @@ void TrackFitter711::printFoundHits() {
 }
 
 void TrackFitter711::fillDiagnosticPlotsPerTrack() {
-  m_histo_nconn_per_track->Fill(conn_subregs.size());
+  m_histo_nconn_per_track->Fill(m_conn_subregs.size());
 }
 
 void TrackFitter711::fillDiagnosticPlotsPerTrackPerConn() {
@@ -3998,19 +3998,19 @@ void TrackFitter711::fillDiagnosticPlotsPerTrackPerConn() {
   for (int ip=0; ip!=m_nplanes_ignored; ++ip) {
     combination *= m_hits_more[ip].size();
   }
-  //std::cout << " combination = (" << cur_iconn << " " << combination << ")" << std::endl;
+  //std::cout << " combination = (" << m_cur_iconn << " " << combination << ")" << std::endl;
   if (combination == 0)
-    m_histo_ncomb_per_track_each_conn[cur_iconn]->Fill(-999);
+    m_histo_ncomb_per_track_each_conn[m_cur_iconn]->Fill(-999);
   else
-    m_histo_ncomb_per_track_each_conn[cur_iconn]->Fill(combination);
+    m_histo_ncomb_per_track_each_conn[m_cur_iconn]->Fill(combination);
 
   // fill per event variables
-  m_ncomb_event_conn[cur_iconn] += combination;
+  m_ncomb_event_conn[m_cur_iconn] += combination;
 
   for (unsigned ihit = 0; ihit < m_hits_more[0].size(); ++ihit) {
     float found_phi = m_hits_more[0][ihit][0];
     float found_eta = m_hits_more[0][ihit][1];
-    m_histo_delta_guessed_hit_found_hit->Fill(found_phi - IBLcoordPhi, found_eta - IBLcoordEta);
+    m_histo_delta_guessed_hit_found_hit->Fill(found_phi - m_IBLcoordPhi, found_eta - m_IBLcoordEta);
   }
 }
 
@@ -4018,7 +4018,7 @@ void TrackFitter711::printEveryHitsInExtraLayers() {
   if (!isDebugSuperExp())
     return;
   std::cout <<"Checking NHits in unused SS: m_nregions:"<<m_nregions<<std::endl;
-  ibl_module_with_hit = -999;
+  m_ibl_module_with_hit = -999;
   for (int ibank=0; ibank<m_nregions; ++ibank) {
     FTKRoadStream* roadstream = m_roadinput->getStream(ibank);
     if (!roadstream)
@@ -4029,11 +4029,11 @@ void TrackFitter711::printEveryHitsInExtraLayers() {
     for (;unused_ssmap_iter != unused_ssmap.end(); ++unused_ssmap_iter) {
       std::map<int,FTKSS>::const_iterator unused_ss_iter = ((*unused_ssmap_iter).second).begin();
       for (;unused_ss_iter != ((*unused_ssmap_iter).second).end(); ++unused_ss_iter) {
-        if (ibl_module_with_hit == -999) {
+        if (m_ibl_module_with_hit == -999) {
           if (((*unused_ss_iter).second).getNHits() > 0)
-            ibl_module_with_hit = ((*unused_ss_iter).first);
+            m_ibl_module_with_hit = ((*unused_ss_iter).first);
           else
-            ibl_module_with_hit = 0;
+            m_ibl_module_with_hit = 0;
         }
         std::cout << " in : " << ((*unused_ss_iter).first) << " There are:  " << ((*unused_ss_iter).second).getNHits() << std::endl;
         //std::cout << ((((*unused_ss_iter).second).getHits()).at(0)).getEtaCode() <<std::endl;
@@ -4047,10 +4047,10 @@ void TrackFitter711::printEveryHitsInExtraLayers() {
 void TrackFitter711::fillDiagnosticPlotsPerAcceptedTrack() {
   for (int ip=0; ip!=m_nplanes_ignored; ++ip) {
     m_histo_nhitsfound_per_track_each_layer[ip]->Fill(m_hits_more[ip].size());
-    m_histo_nhitsfound_per_track_each_layer_each_conn[ip]->Fill(m_hits_more[ip].size(), cur_iconn);
+    m_histo_nhitsfound_per_track_each_layer_each_conn[ip]->Fill(m_hits_more[ip].size(), m_cur_iconn);
   }
-  if (newtrk.getBitmask()&1<<0) {
-    m_IBL_res->Fill(newtrk.getCoord(0) - IBLcoordPhi, newtrk.getCoord(1) - IBLcoordEta);
+  if (m_newtrk.getBitmask()&1<<0) {
+    m_IBL_res->Fill(m_newtrk.getCoord(0) - m_IBLcoordPhi, m_newtrk.getCoord(1) - m_IBLcoordEta);
   }
 }
 
@@ -4080,10 +4080,10 @@ bool TrackFitter711::passedNMissLayerRequirement(int nmiss) {
 
 bool TrackFitter711::isTransitionRegion() {
   if (m_check_TR_by == kModuleID) {
-    const int &moduleID = m_FC_relations[m_region_for_superexp][conn_subregs.at(cur_iconn)]->getSimilarStereoIDs(m_sector_for_superexp,cur_iconn)[m_nplanes_ignored-1];
+    const int &moduleID = m_FC_relations[m_region_for_superexp][m_conn_subregs.at(m_cur_iconn)]->getSimilarStereoIDs(m_sector_for_superexp,m_cur_iconn)[m_nplanes_ignored-1];
     return isTransitionRegion(moduleID);
   } else if (m_check_TR_by == kEta) {
-    const float &eta = newtrkI.getEta();
+    const float &eta = m_newtrkI.getEta();
     return isTransitionRegion(eta);
   } else {
     assert(0);

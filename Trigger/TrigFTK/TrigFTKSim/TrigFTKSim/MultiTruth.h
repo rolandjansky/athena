@@ -67,14 +67,14 @@ protected:
   struct TruthMapWeightAcc {
     MultiTruth::Weight operator()( const MultiTruth::Weight& result , const TruthMap::value_type& a ) const { return( result + a.second ); }
   };
-  TruthMap      _truth;
+  TruthMap      m_truth;
 private:
 public:
   MultiTruth() : TObject() {}
 
-  MultiTruth(const MultiTruth::Barcode& code,const MultiTruth::Weight weight=1.) : TObject() { _truth[code] = weight; }
+  MultiTruth(const MultiTruth::Barcode& code,const MultiTruth::Weight weight=1.) : TObject() { m_truth[code] = weight; }
 
-  MultiTruth(const MultiTruth &cpy) : TObject(cpy) { _truth = cpy._truth; }
+  MultiTruth(const MultiTruth &cpy) : TObject(cpy) { m_truth = cpy.m_truth; }
 
   // tricky: overloading derived class assignment operator
   MultiTruth& operator=(const MultiTruth& cpy) {
@@ -83,41 +83,41 @@ public:
 #endif
       {
 	this->TObject::operator=(cpy);
-	_truth = cpy._truth;
+	m_truth = cpy.m_truth;
       }
     return *this;
   }
 
-  virtual ~MultiTruth() { if( !_truth.empty() ) _truth.clear(); }
+  virtual ~MultiTruth() { if( !m_truth.empty() ) m_truth.clear(); }
 
-  TruthMap::const_iterator begin() const { return _truth.begin(); }
-  TruthMap::const_iterator end() const { return _truth.end(); }
+  TruthMap::const_iterator begin() const { return m_truth.begin(); }
+  TruthMap::const_iterator end() const { return m_truth.end(); }
 
   void add(const MultiTruth::Barcode& code,const MultiTruth::Weight& weight) {
     assert( weight >= 0. );
-    TruthMap::iterator i=_truth.find(code);
-    if( i==_truth.end() ) {
-      _truth[code] = weight;
+    TruthMap::iterator i=m_truth.find(code);
+    if( i==m_truth.end() ) {
+      m_truth[code] = weight;
     } else {
       i->second += weight;
     }
   }
 
   void add(const MultiTruth& rval) {
-    for( TruthMap::const_iterator i=rval._truth.begin(), f=rval._truth.end(); i!=f; ++i ) {
-      TruthMap::iterator j=_truth.find( i->first );
-      if( j!=_truth.end() ) {
+    for( TruthMap::const_iterator i=rval.m_truth.begin(), f=rval.m_truth.end(); i!=f; ++i ) {
+      TruthMap::iterator j=m_truth.find( i->first );
+      if( j!=m_truth.end() ) {
         j->second += i->second;
       } else {
-        _truth[ i->first ] = i->second;
+        m_truth[ i->first ] = i->second;
       }
     }
   }
 
   void assign_equal_normalization() {
-    if( _truth.empty() ) { return; }
-    unsigned int ncodes = _truth.size();
-    for( TruthMap::iterator i=_truth.begin(), f=_truth.end(); i!=f; ++i ) {
+    if( m_truth.empty() ) { return; }
+    unsigned int ncodes = m_truth.size();
+    for( TruthMap::iterator i=m_truth.begin(), f=m_truth.end(); i!=f; ++i ) {
       i->second = 1./ncodes;
     }
   }
@@ -126,24 +126,24 @@ public:
     // if this doesn't have any truth info, assign maxweight_barcode to be the truth.
     // otherwise, this should only have the barcode of the largest weight seen so far;
     // compare with the input barcode and keep the best.
-    if( _truth.empty() ) {
-      _truth[ code ] = weight;
+    if( m_truth.empty() ) {
+      m_truth[ code ] = weight;
     } else {
-      assert( _truth.size() == 1 );
-      if( _truth.begin()->second < weight ) {
-        _truth.clear();
-        _truth[ code ] = weight;
+      assert( m_truth.size() == 1 );
+      if( m_truth.begin()->second < weight ) {
+        m_truth.clear();
+        m_truth[ code ] = weight;
       }
     }
   }
 
   void maximize(const MultiTruth& rval) {
     // if rval has no truth info, do nothing.
-    if( rval._truth.empty() ) { return; }
+    if( rval.m_truth.empty() ) { return; }
     // find input barcode with maximum weight;
     Weight maxweight=0.;
     Barcode maxweight_barcode(-1l,-1l);
-    for( TruthMap::const_iterator i=rval._truth.begin(), f=rval._truth.end(); i!=f; ++i ) {
+    for( TruthMap::const_iterator i=rval.m_truth.begin(), f=rval.m_truth.end(); i!=f; ++i ) {
       if( i->second > maxweight ) {
         maxweight = i->second;
         maxweight_barcode = i->first;
@@ -166,26 +166,26 @@ public:
   }
 
   // matching probability definition and maximization logic
-  inline MultiTruth::Weight total_weight() const { return std::accumulate( _truth.begin() , _truth.end() , 0. , TruthMapWeightAcc() ); }
+  inline MultiTruth::Weight total_weight() const { return std::accumulate( m_truth.begin() , m_truth.end() , 0. , TruthMapWeightAcc() ); }
 
   inline MultiTruth::Weight weight(const MultiTruth::Barcode& code) const {
-    if( _truth.empty() ) { return 0.; }
-    TruthMap::const_iterator i=_truth.find(code);
-    if( i==_truth.end() ) { return 0.; }
+    if( m_truth.empty() ) { return 0.; }
+    TruthMap::const_iterator i=m_truth.find(code);
+    if( i==m_truth.end() ) { return 0.; }
     const MultiTruth::Weight tot = total_weight();
     return( i->second / tot );
   }
 
   inline bool best( MultiTruth::Barcode& code , MultiTruth::Weight& weight ) const {
-    if( _truth.empty() ) { return false; }
-    TruthMap::const_iterator i = std::max_element( _truth.begin() , _truth.end() , TruthMapWeightLt() );
+    if( m_truth.empty() ) { return false; }
+    TruthMap::const_iterator i = std::max_element( m_truth.begin() , m_truth.end() , TruthMapWeightLt() );
     code = i->first;
     const MultiTruth::Weight tot = total_weight();
     weight = tot>0. ? i->second/tot : 0.;
     return true;
   }
 
-  inline unsigned int multiplicity() const { return _truth.size(); }
+  inline unsigned int multiplicity() const { return m_truth.size(); }
   long int best_barcode() const;
   // write contents of this object to stdout
   void display() const;

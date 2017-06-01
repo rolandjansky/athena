@@ -67,8 +67,8 @@ FTK_SGHitInput::FTK_SGHitInput(const std::string& algname, const std::string &na
   m_readTruthTracks(false),
   m_UseNominalOrigin(false),
   m_dooutFileRawHits(false),
-  ofl(),
-  oflraw()
+  m_ofl(),
+  m_oflraw()
 {
   declareInterface<FTK_SGHitInputI>(this);
 
@@ -168,14 +168,14 @@ StatusCode FTK_SGHitInput::initialize(){
 
   // open output to .bz2 using streams for debug //
   if(m_dooutFileRawHits) {
-    oflraw.reset( new boost::iostreams::filtering_ostream );
-    if( !oflraw ) { return StatusCode::FAILURE; }
+    m_oflraw.reset( new boost::iostreams::filtering_ostream );
+    if( !m_oflraw ) { return StatusCode::FAILURE; }
     if( boost::algorithm::icontains(m_outFileNameRawHits,".bz2" ) ) {
       boost::iostreams::bzip2_params params;
       params.block_size = 9;
-      oflraw->push( boost::iostreams::bzip2_compressor(params) );
+      m_oflraw->push( boost::iostreams::bzip2_compressor(params) );
     }
-    oflraw->push( boost::iostreams::file_sink(m_outFileNameRawHits)); // open the file
+    m_oflraw->push( boost::iostreams::file_sink(m_outFileNameRawHits)); // open the file
   }
 
 
@@ -239,8 +239,8 @@ int FTK_SGHitInput::readData()
   setlevel1TriggerInfo(triggerInfo->level1TriggerInfo ());
 
   if(m_dooutFileRawHits){
-    (*oflraw) << "R\t" << eventID->run_number()<<'\n';
-    (*oflraw) << "F\t" << eventID->event_number()<<'\n';
+    (*m_oflraw) << "R\t" << eventID->run_number()<<'\n';
+    (*m_oflraw) << "F\t" << eventID->event_number()<<'\n';
   }
 
 
@@ -268,7 +268,7 @@ int FTK_SGHitInput::readData()
     read_truth_tracks();
   }
   // event footer
-  if(m_dooutFileRawHits)(*oflraw) << "L\t" << eventID->event_number()<<'\n';
+  if(m_dooutFileRawHits)(*m_oflraw) << "L\t" << eventID->event_number()<<'\n';
 
 
 
@@ -395,7 +395,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
 
         //output//
         if(m_dooutFileRawHits){ //bz2 file
-          (*oflraw) << "S\t"
+          (*m_oflraw) << "S\t"
                     << setw(14) << setprecision(10)
                     << gPos.x() << '\t'
                     << setw(14) << setprecision(10)
@@ -465,7 +465,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
           const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(rdoId);
           const Amg::Vector3D gPos( sielement->globalPosition(localPos) );
           if(m_dooutFileRawHits){
-            (*oflraw) << "# S\t"
+            (*m_oflraw) << "# S\t"
                       << setw(14) << setprecision(10)
                       << gPos.x() << '\t'
                       << setw(14) << setprecision(10)
@@ -490,7 +490,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
           const Identifier sdoId( i->first );
           const InDetSimData& sdo( i->second );
           const vector<InDetSimData::Deposit>& deposits( sdo.getdeposits() );
-          (*oflraw) << "# s"
+          (*m_oflraw) << "# s"
                     << " " << m_pixelId->barrel_ec(sdoId)
                     << " " << m_pixelId->layer_disk(sdoId)
                     << " " << m_pixelId->phi_module(sdoId)
@@ -506,7 +506,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
           for( vector<InDetSimData::Deposit>::const_iterator iDep=deposits.begin(), fDep=deposits.end(); iDep!=fDep; ++iDep ) {
             const HepMcParticleLink& particleLink( iDep->first );
             const InDetSimData::Deposit::second_type qdep( iDep->second ); // energy(charge) contributed by this particle
-            (*oflraw) << "# s q " << qdep << " " << particleLink.isValid() << " "
+            (*m_oflraw) << "# s q " << qdep << " " << particleLink.isValid() << " "
                       << (particleLink.isValid() ? particleLink.eventIndex() : -1)
                       << (particleLink.isValid() ? particleLink.barcode() : -1)
                       << endl;
@@ -601,7 +601,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
           } // end if truth found for this strip
         } // end if sct truth available
         if(m_dooutFileRawHits){
-          (*oflraw) << "S\t"
+          (*m_oflraw) << "S\t"
                     << setw(14) << setprecision(10)
                     << gPos.x() << '\t'
                     << setw(14) << setprecision(10)
@@ -662,7 +662,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
           const Amg::Vector3D gPos = sielement->globalPosition(localPos);
 
           if(m_dooutFileRawHits){
-            (*oflraw) << "# S\t"
+            (*m_oflraw) << "# S\t"
                       << setw(14) << setprecision(10)
                       << gPos.x() << '\t'
                       << setw(14) << setprecision(10)
@@ -688,7 +688,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
           const InDetSimData& sdo( i->second );
           const vector<InDetSimData::Deposit>& deposits( sdo.getdeposits() );
           if(m_dooutFileRawHits){
-            (*oflraw) << "# s"
+            (*m_oflraw) << "# s"
                       << " " << m_sctId->barrel_ec(sdoId)
                       << " " << m_sctId->layer_disk(sdoId)
                       << " " << m_sctId->phi_module(sdoId)
@@ -705,7 +705,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
             const HepMcParticleLink& particleLink( iDep->first );
             const InDetSimData::Deposit::second_type qdep( iDep->second ); // energy(charge) contributed by this particle
             if(m_dooutFileRawHits){
-              (*oflraw) << "# s q " << qdep << " " << particleLink.isValid() << " "
+              (*m_oflraw) << "# s q " << qdep << " " << particleLink.isValid() << " "
                         << (particleLink.isValid() ? particleLink.eventIndex() : -1)
                         << (particleLink.isValid() ? particleLink.barcode() : -1)
                         << endl;
@@ -780,7 +780,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
       } // if we have pixel sdo's available
 
       if(m_dooutFileRawHits){
-        (*oflraw) << "P\t"
+        (*m_oflraw) << "P\t"
                   << setw(14) << setprecision(10)
                   << gPos.x() << '\t'
                   << setw(14) << setprecision(10)
@@ -930,40 +930,40 @@ FTK_SGHitInput::read_truth_tracks()
 
       const Trk::TrackParameters* tP = m_extrapolator->extrapolate(cParameters, persf, Trk::anyDirection, false);
 
-      const double m_track_truth_d0 = tP ? tP->parameters()[Trk::d0] : 999.;
-      const double m_track_truth_phi = tP ? tP->parameters()[Trk::phi] : 999.;
-      const double m_track_truth_p = (tP && fabs(tP->parameters()[Trk::qOverP]) > 1.e-8) ?
+      const double track_truth_d0 = tP ? tP->parameters()[Trk::d0] : 999.;
+      const double track_truth_phi = tP ? tP->parameters()[Trk::phi] : 999.;
+      const double track_truth_p = (tP && fabs(tP->parameters()[Trk::qOverP]) > 1.e-8) ?
         tP->charge()/tP->parameters()[Trk::qOverP] : 10E7;
-      const double m_track_truth_x0 = tP ? tP->position().x() : 999.;
-      const double m_track_truth_y0 = tP ? tP->position().y() : 999.;
-      //const double m_track_truth_z0 = tP ? tP->position().z() : 999.;
-      const double m_track_truth_z0 = tP ? tP->parameters()[Trk::z0] : 999.;
-      const double m_track_truth_q = tP ? tP->charge() : 0.;
-      const double m_track_truth_sinphi = tP ? std::sin(tP->parameters()[Trk::phi]) : -1.;
-      const double m_track_truth_cosphi = tP ? std::cos(tP->parameters()[Trk::phi]) : -1.;
-      const double m_track_truth_sintheta = tP ? std::sin(tP->parameters()[Trk::theta]) : -1.;
-      const double m_track_truth_costheta = tP ? std::cos(tP->parameters()[Trk::theta]) : -1.;
-      double truth_d0corr = m_track_truth_d0-( primaryVtx.y()*cos(m_track_truth_phi)-primaryVtx.x()*sin(m_track_truth_phi) );
+      const double track_truth_x0 = tP ? tP->position().x() : 999.;
+      const double track_truth_y0 = tP ? tP->position().y() : 999.;
+      //const double track_truth_z0 = tP ? tP->position().z() : 999.;
+      const double track_truth_z0 = tP ? tP->parameters()[Trk::z0] : 999.;
+      const double track_truth_q = tP ? tP->charge() : 0.;
+      const double track_truth_sinphi = tP ? std::sin(tP->parameters()[Trk::phi]) : -1.;
+      const double track_truth_cosphi = tP ? std::cos(tP->parameters()[Trk::phi]) : -1.;
+      const double track_truth_sintheta = tP ? std::sin(tP->parameters()[Trk::theta]) : -1.;
+      const double track_truth_costheta = tP ? std::cos(tP->parameters()[Trk::theta]) : -1.;
+      double truth_d0corr = track_truth_d0-( primaryVtx.y()*cos(track_truth_phi)-primaryVtx.x()*sin(track_truth_phi) );
 
       // old truth-to-track tool: retrieve truth track parameters at perigee
       // boost::scoped_ptr<const Trk::TrackParameters> generatedTrackPerigee( m_truthToTrack->makePerigeeParameters(particle) );
-      // const double m_track_truth_d0 = generatedTrackPerigee ? generatedTrackPerigee->parameters()[Trk::d0] : 999.;
-      // const double m_track_truth_phi = generatedTrackPerigee ? generatedTrackPerigee->parameters()[Trk::phi0] : 999.;
-      // const double m_track_truth_p = (generatedTrackPerigee && generatedTrackPerigee->parameters()[Trk::qOverP] != 0.) ?
+      // const double track_truth_d0 = generatedTrackPerigee ? generatedTrackPerigee->parameters()[Trk::d0] : 999.;
+      // const double track_truth_phi = generatedTrackPerigee ? generatedTrackPerigee->parameters()[Trk::phi0] : 999.;
+      // const double track_truth_p = (generatedTrackPerigee && generatedTrackPerigee->parameters()[Trk::qOverP] != 0.) ?
       //   generatedTrackPerigee->charge()/generatedTrackPerigee->parameters()[Trk::qOverP] : 10E7;
-      // const double m_track_truth_x0 = generatedTrackPerigee ? generatedTrackPerigee->position().x() : 999.;
-      // const double m_track_truth_y0 = generatedTrackPerigee ? generatedTrackPerigee->position().y() : 999.;
-      // const double m_track_truth_z0 = generatedTrackPerigee ? generatedTrackPerigee->position().z() : 999.;
-      // const double m_track_truth_q = generatedTrackPerigee ? generatedTrackPerigee->charge() : 0.;
-      // const double m_track_truth_sinphi = generatedTrackPerigee ? std::sin(generatedTrackPerigee->parameters()[Trk::phi0]) : -1.;
-      // const double m_track_truth_cosphi = generatedTrackPerigee ? std::cos(generatedTrackPerigee->parameters()[Trk::phi0]) : -1.;
-      // const double m_track_truth_sintheta = generatedTrackPerigee ? std::sin(generatedTrackPerigee->parameters()[Trk::theta]) : -1.;
-      // const double m_track_truth_costheta = generatedTrackPerigee ? std::cos(generatedTrackPerigee->parameters()[Trk::theta]) : -1.;
-      // double truth_d0corr = m_track_truth_d0-( primaryVtx.y()*cos(m_track_truth_phi)-primaryVtx.x()*sin(m_track_truth_phi) );
+      // const double track_truth_x0 = generatedTrackPerigee ? generatedTrackPerigee->position().x() : 999.;
+      // const double track_truth_y0 = generatedTrackPerigee ? generatedTrackPerigee->position().y() : 999.;
+      // const double track_truth_z0 = generatedTrackPerigee ? generatedTrackPerigee->position().z() : 999.;
+      // const double track_truth_q = generatedTrackPerigee ? generatedTrackPerigee->charge() : 0.;
+      // const double track_truth_sinphi = generatedTrackPerigee ? std::sin(generatedTrackPerigee->parameters()[Trk::phi0]) : -1.;
+      // const double track_truth_cosphi = generatedTrackPerigee ? std::cos(generatedTrackPerigee->parameters()[Trk::phi0]) : -1.;
+      // const double track_truth_sintheta = generatedTrackPerigee ? std::sin(generatedTrackPerigee->parameters()[Trk::theta]) : -1.;
+      // const double track_truth_costheta = generatedTrackPerigee ? std::cos(generatedTrackPerigee->parameters()[Trk::theta]) : -1.;
+      // double truth_d0corr = track_truth_d0-( primaryVtx.y()*cos(track_truth_phi)-primaryVtx.x()*sin(track_truth_phi) );
       double truth_zvertex = 0.;
 
       if ( !m_useSimpleCuts ) {  // determine d0_corr based on beam position from BeamCondSvc
-        //toshi/// truth_d0corr = m_track_truth_d0-( m_beamCondSvc->beamPos().y()*cos(m_track_truth_phi)-m_beamCondSvc->beamPos().x()*sin(m_track_truth_phi) );
+        //toshi/// truth_d0corr = track_truth_d0-( m_beamCondSvc->beamPos().y()*cos(track_truth_phi)-m_beamCondSvc->beamPos().x()*sin(track_truth_phi) );
         //toshi//truth_zvertex = m_beamCondSvc->beamPos().z();
         if ( showd0corrSuccess ) {
           m_log << MSG::DEBUG << "Beamspot from BeamCondSvc used to determine cuts in dump_truth()"<< endmsg;
@@ -1015,16 +1015,16 @@ FTK_SGHitInput::read_truth_tracks()
         }*///toshi  comment out
       ParentBitmask parent_mask( construct_truth_bitmap( particle ) );
       if(m_dooutFileRawHits){
-        (*oflraw) << setiosflags(ios::scientific) << "T\t"
-                  << setw(14) << setprecision(10) << m_track_truth_x0 << '\t'
-                  << setw(14) << setprecision(10) << m_track_truth_y0 << '\t'
-                  << setw(14) << setprecision(10) << m_track_truth_z0 << '\t'
-                  << setw(14) << setprecision(10) << m_track_truth_d0 << '\t'
+        (*m_oflraw) << setiosflags(ios::scientific) << "T\t"
+                  << setw(14) << setprecision(10) << track_truth_x0 << '\t'
+                  << setw(14) << setprecision(10) << track_truth_y0 << '\t'
+                  << setw(14) << setprecision(10) << track_truth_z0 << '\t'
+                  << setw(14) << setprecision(10) << track_truth_d0 << '\t'
                   << setw(14) << setprecision(10) << primaryVtx.z() << '\t'
-                  << (int)m_track_truth_q << '\t'
-                  << setw(14) << setprecision(10) << m_track_truth_p*(m_track_truth_cosphi*m_track_truth_sintheta) << '\t'
-                  << setw(14) << setprecision(10) << m_track_truth_p*(m_track_truth_sinphi*m_track_truth_sintheta) << '\t'
-                  << setw(14) << setprecision(10) << m_track_truth_p*(m_track_truth_costheta) << '\t'
+                  << (int)track_truth_q << '\t'
+                  << setw(14) << setprecision(10) << track_truth_p*(track_truth_cosphi*track_truth_sintheta) << '\t'
+                  << setw(14) << setprecision(10) << track_truth_p*(track_truth_sinphi*track_truth_sintheta) << '\t'
+                  << setw(14) << setprecision(10) << track_truth_p*(track_truth_costheta) << '\t'
                   << pdgcode << '\t'
                   << setw(14) << (int)irecmatch << '\t'
                   << setw(14) << setprecision(10) << precmatch << '\t'
@@ -1036,15 +1036,15 @@ FTK_SGHitInput::read_truth_tracks()
       }
       //get truth track info
 
-      tmpSGTrack.setX(m_track_truth_x0);
-      tmpSGTrack.setY(m_track_truth_y0);
-      tmpSGTrack.setZ(m_track_truth_z0);
-      tmpSGTrack.setD0(m_track_truth_d0);
+      tmpSGTrack.setX(track_truth_x0);
+      tmpSGTrack.setY(track_truth_y0);
+      tmpSGTrack.setZ(track_truth_z0);
+      tmpSGTrack.setD0(track_truth_d0);
       tmpSGTrack.setVtxZ(primaryVtx.z());
-      tmpSGTrack.setQ(m_track_truth_q);
-      tmpSGTrack.setPX(m_track_truth_p*(m_track_truth_cosphi*m_track_truth_sintheta));
-      tmpSGTrack.setPY(m_track_truth_p*(m_track_truth_sinphi*m_track_truth_sintheta));
-      tmpSGTrack.setPZ(m_track_truth_p*m_track_truth_costheta);
+      tmpSGTrack.setQ(track_truth_q);
+      tmpSGTrack.setPX(track_truth_p*(track_truth_cosphi*track_truth_sintheta));
+      tmpSGTrack.setPY(track_truth_p*(track_truth_sinphi*track_truth_sintheta));
+      tmpSGTrack.setPZ(track_truth_p*track_truth_costheta);
       tmpSGTrack.setPDGCode(pdgcode);
       tmpSGTrack.setBarcode(extBarcode2.barcode());
       tmpSGTrack.setEventIndex(extBarcode2.eventIndex());
