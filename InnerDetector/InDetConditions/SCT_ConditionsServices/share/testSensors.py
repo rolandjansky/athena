@@ -39,6 +39,7 @@ from IOVDbSvc.CondDB import conddb
 conddb.dbdata="COMP200"
 conddb.addFolderWithTag("SCT_OFL","/SCT/Sensors","SctSensors-Sep03-14")
 
+# Not clear why these tags are not resolved from global tag
 conddb.blockFolder("/Indet/Align")
 conddb.addFolderWithTag("INDET_OFL","/Indet/Align","InDetAlign-BLK-UPD4-09")
 conddb.blockFolder("/Indet/PixelDist")
@@ -75,16 +76,14 @@ DetFlags.writeRIOPool.all_setOff()
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
+from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SensorsSvc
+ServiceMgr +=SCT_SensorsSvc()
+
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SensorsTestAlg
 job+= SCT_SensorsTestAlg()
-
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SensorsSvc
-ServiceMgr +=SCT_SensorsSvc()
-
-#SCT_SensorsSvc.AttrListCollFolders=["/SCT/Sensors"]
 
 import AthenaCommon.AtlasUnixGeneratorJob
 
