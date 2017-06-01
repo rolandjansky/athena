@@ -11,6 +11,7 @@
 #include "StoreGate/ReadHandle.h"
 
 //using xAOD::EventInfo;
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 /// -------------------------------------------------------
 /// contructor

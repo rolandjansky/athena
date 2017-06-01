@@ -10,6 +10,8 @@
 #include "IRegionSelector/IRegSelSvc.h" 
 #include "InDetIdentifier/SCT_ID.h"
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
 /// --------------------------------------------------------------------
 /// Constructor
 
