@@ -529,6 +529,14 @@ void test9()
   o = h4.put (ctx2, std::make_unique<MyObj>(26));
   assert (o->x == 26);
   assert (MyObj::deleted.empty());
+
+  SG::WriteHandle<MyObj> h6 ("foo6");
+  assert (h6.setProxyDict (&testStore).isSuccess());
+  o = h6.put (std::make_unique<const MyObj>(33));
+  assert (o->x == 33);
+  o = h6.put (ctx2, std::make_unique<const MyObj>(34));
+  assert (o->x == 34);
+  assert (MyObj::deleted.empty());
 }
 
 
@@ -595,6 +603,20 @@ void test10()
   auto ptrs9 = makeWithAux(40);
   o = h5.put (ctx2, std::move(ptrs9.first), std::move(ptrs9.second));
   assert (o->x == 40);
+  assert (MyObj::deleted.empty());
+  assert (MyObjAux::deleted.empty());
+
+  SG::WriteHandle<MyObj> h10 ("foo10");
+  assert (h10.setProxyDict (&testStore).isSuccess());
+  auto ptrs10 = makeWithAux(40);
+  o = h10.put (std::unique_ptr<const MyObj>(std::move(ptrs10.first)),
+               std::unique_ptr<const MyObjAux>(std::move(ptrs10.second)));
+  assert (o->x == 40);
+  auto ptrs11 = makeWithAux(50);
+  o = h10.put (ctx2,
+               std::unique_ptr<const MyObj>(std::move(ptrs11.first)),
+               std::unique_ptr<const MyObjAux>(std::move(ptrs11.second)));
+  assert (o->x == 50);
   assert (MyObj::deleted.empty());
   assert (MyObjAux::deleted.empty());
 }

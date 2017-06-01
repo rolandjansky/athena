@@ -696,7 +696,7 @@ namespace SG {
   const void*
   VarHandleBase::put_impl (const EventContext* ctx,
                            std::unique_ptr<DataObject> dobj,
-                           void* dataPtr,
+                           const void* dataPtr,
                            bool allowMods,
                            bool returnExisting,
                            IProxyDict* & store) const
