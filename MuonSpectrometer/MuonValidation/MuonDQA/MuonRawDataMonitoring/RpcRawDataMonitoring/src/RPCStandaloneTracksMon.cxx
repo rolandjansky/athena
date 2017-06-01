@@ -63,9 +63,6 @@
 
 using namespace std;
 
-static const   int maxColl	      =  1200;
-static const   int maxPRD 	      = 50000;
-static const   int maxClus	      =  1000;
 static const   int timeminrange	      =	 -200;
 static const   int timemaxrange	      =	  200;
 static const   int timeNbin	      =	  128;
