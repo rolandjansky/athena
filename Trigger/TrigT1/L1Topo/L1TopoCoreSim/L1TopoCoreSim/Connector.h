@@ -64,6 +64,13 @@ namespace TCS {
 
       unsigned int numberOutputBits() const;
 
+      /**
+         @brief to be toggled after 'attachOutputData' is called.
+         This flag is reset with reset().
+       */
+      void toggleInputOverflow(const bool value);
+      bool hasInputOverflow() const { return m_hasInputOverflow; }
+
    protected: // functions
 
       friend class TopoSteering;
@@ -97,6 +104,10 @@ namespace TCS {
       bool m_isExecuted {false};             // true if connector alg(s) have been executed on current event (must be reset at begin of event
 
       StatusCode m_executionStatusCode {StatusCode::SUCCESS}; // StatusCode of last execution (for cache)
+      /**
+         @brief whether the input data came with an overflow bit
+       */
+      bool m_hasInputOverflow;
 
    private:
 

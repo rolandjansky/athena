@@ -115,7 +115,13 @@ EnergyInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
    
    TCS::MetTOB met( -(topoData->Ex()), -(topoData->Ey()), topoData->Et() );
    inputEvent.setMET( met );
-
+   const bool has_overflow = (topoData->ExOverflow() or
+                              topoData->EyOverflow() or
+                              topoData->EtOverflow());
+   if(has_overflow) {
+          inputEvent.setOverflowFromEnergyInput(true);
+          ATH_MSG_DEBUG("setOverflowFromEnergyInput : true");
+   }
    m_hPt->Fill(met.Et());
    m_hPhi->Fill( atan2(met.Ey(),met.Ex()) );
 
