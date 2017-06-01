@@ -647,7 +647,7 @@ namespace xAOD {
     else if (!p_acc->isAvailable(*this)) {return nullptr;}
     else {
       const std::vector<ElementLink<IParticleContainer> >& theLinks = (*p_acc)(*this);
-      if(index<=theLinks.size()) {
+      if(index<theLinks.size()) {
 	ElementLink<IParticleContainer> theLink = theLinks[index];
 	if (theLink.isValid()){
 	  const IParticle *theParticle = *theLink;
@@ -669,7 +669,7 @@ namespace xAOD {
     else if (!p_acc->isAvailable(*this)) {return nullptr;}
     else {
       const std::vector<ElementLink<IParticleContainer> >& theLinks = (*p_acc)(*this);
-      if(index<=theLinks.size()) {
+      if(index<theLinks.size()) {
 	ElementLink<IParticleContainer> theLink = theLinks[index];
 	if (theLink.isValid()){
 	  const IParticle *theParticle = *theLinks[index];
