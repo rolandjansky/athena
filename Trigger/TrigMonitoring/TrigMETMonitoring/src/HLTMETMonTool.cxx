@@ -6,7 +6,6 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigConfL1Data/TriggerItem.h"
 #include "TrigMissingEtEvent/TrigMissingETContainer.h"
