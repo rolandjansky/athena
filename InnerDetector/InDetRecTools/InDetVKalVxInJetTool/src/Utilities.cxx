@@ -195,7 +195,7 @@ namespace InDet{
     double disty =  jetDir.y()*projDist;
     double distz =  jetDir.z()*projDist;
 
-    Amg::MatrixX  PrimCovMtx=PrimVrt.covariancePosition();  //Create
+    AmgSymMatrix(3)  PrimCovMtx=PrimVrt.covariancePosition();  //Create
     PrimCovMtx(0,0) += SecVrtErr[0];
     PrimCovMtx(0,1) += SecVrtErr[1];
     PrimCovMtx(1,0) += SecVrtErr[1];
@@ -206,7 +206,7 @@ namespace InDet{
     PrimCovMtx(2,1) += SecVrtErr[4];
     PrimCovMtx(2,2) += SecVrtErr[5];
 
-    Amg::MatrixX  WgtMtx = PrimCovMtx.inverse();
+    AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
 
     double Signif = distx*WgtMtx(0,0)*distx
                    +disty*WgtMtx(1,1)*disty
@@ -233,7 +233,7 @@ namespace InDet{
     double disty =  jetDir.y()*projDist;
     double distz =  jetDir.z()*projDist;
 
-    Amg::MatrixX  PrimCovMtx=PrimVrt.covariancePosition();  //Create
+    AmgSymMatrix(3)  PrimCovMtx=PrimVrt.covariancePosition();  //Create
     PrimCovMtx(0,0) += SecVrtErr[0];
     PrimCovMtx(0,1) += SecVrtErr[1];
     PrimCovMtx(1,0) += SecVrtErr[1];
@@ -244,7 +244,7 @@ namespace InDet{
     PrimCovMtx(2,1) += SecVrtErr[4];
     PrimCovMtx(2,2) += SecVrtErr[5];
 
-    Amg::MatrixX  WgtMtx = PrimCovMtx.inverse();
+    AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
 
     double Signif = distx*WgtMtx(0,0)*distx
                    +disty*WgtMtx(1,1)*disty
@@ -606,7 +606,7 @@ namespace InDet{
         }
 
   }
-  void   InDetVKalVxInJetTool::getPixelProblems(const xAOD::TrackParticle* Part, int &splshIBL, int &splshBL ) const
+  void InDetVKalVxInJetTool::getPixelProblems(const xAOD::TrackParticle* Part, int &splshIBL, int &splshBL ) const
   {
     	splshIBL=splshBL=0;
         if(m_existIBL){              // 4-layer pixel detector
@@ -620,7 +620,7 @@ namespace InDet{
           splshBL=share+split;
        }
   }
-    void   InDetVKalVxInJetTool::getPixelProblems(const Rec::TrackParticle* , int &splshIBL, int &splshBL ) const
+  void InDetVKalVxInJetTool::getPixelProblems(const Rec::TrackParticle* , int &splshIBL, int &splshBL ) const
   {
     	splshIBL=splshBL=0;  // Temporary implementation
   }
