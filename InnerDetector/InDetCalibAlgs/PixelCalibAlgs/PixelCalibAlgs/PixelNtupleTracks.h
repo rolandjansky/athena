@@ -23,8 +23,6 @@
 #include "Cintex/Cintex.h"
 #endif
 
-using namespace std;
-
 class PixelNtupleTracks {
 	
 	public :
@@ -357,7 +355,7 @@ PixelNtupleTracks::PixelNtupleTracks(std::string input,std::string collection){
 				abort();
 			}
 		}else{
-			ifstream myfile(input.c_str());
+                        std::ifstream myfile(input.c_str());
 			if (myfile.is_open()){
 				for(;;){
 					getline(myfile,input);

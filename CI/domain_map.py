@@ -4,6 +4,7 @@
 DOMAIN_MAP = {}
 
 DOMAIN_MAP['Analysis']         = set(['^PhysicsAnalysis/'])
+DOMAIN_MAP['BTagging']         = set(['JetTagging', 'ParticleJetTools', 'FlavourTag'])
 DOMAIN_MAP['Build']            = set(['^Build$','^Projects/'])
 DOMAIN_MAP['Calorimeter']      = set(['^Calorimeter/'])
 DOMAIN_MAP['CI']               = set(['^CI'])

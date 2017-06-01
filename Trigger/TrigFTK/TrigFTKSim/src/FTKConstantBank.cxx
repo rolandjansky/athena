@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <cmath>
 #include <bitset>
+#include <ieee754.h>
 using namespace std;
 
 //#define SIMPLEMJ // ibl undefined simple majority to see if we can get majority for ibl
@@ -756,10 +757,11 @@ int FTKConstantBank::missing_point_guess(FTKTrack &track, int secid, float *newc
 
 unsigned int FTKConstantBank::floatToReg27(float f) {
 
-  int f_f = (*(int*)&f);
-  int f_sign = (f_f >> 31) & 0x1;
-  int f_exp = (f_f >> 23) & 0xFF;
-  int f_frac = f_f & 0x007FFFFF;
+  ieee754_float f_f;
+  f_f.f = f;
+  int f_sign = f_f.ieee.negative;
+  int f_exp = f_f.ieee.exponent;
+  int f_frac = f_f.ieee.mantissa;
   int r_sign;
   int r_exp;
   int r_frac;

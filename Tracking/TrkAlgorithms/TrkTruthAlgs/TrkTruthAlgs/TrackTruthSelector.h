@@ -16,11 +16,13 @@ class TrackTruthSelector: public AthAlgorithm {
 public:
   TrackTruthSelector(const std::string &name,ISvcLocator *pSvcLocator);
   
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
   
 private:
+
+   
   // DetailedTrackTruthCollection input name
   SG::ReadHandleKey<DetailedTrackTruthCollection> m_detailedTrackTruthName;
 

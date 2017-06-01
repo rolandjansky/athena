@@ -19,6 +19,8 @@
 #include <string>
 #include <map>
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkGeometry/MaterialStepCollection.h"
 
 #ifdef TRKDETDESCR_MEMUSAGE   
 #include "TrkDetDescrUtils/MemoryLogger.h"
@@ -116,7 +118,7 @@ namespace Trk {
         const Trk::TrackingVolume*                           m_mappingVolume;
                                                              
         /** output / input steering */                       
-        std::string                                          m_inputMaterialStepCollection;
+        SG::ReadHandleKey<MaterialStepCollection>            m_inputMaterialStepCollection;
         std::string                                          m_outputLayerMaterialSetName;
                                                              
         /** general steering */                              
@@ -137,7 +139,7 @@ namespace Trk {
         
         
         Trk::ElementTable*                                   m_elementTable;                  //!< the accumulated element table
-        std::string                                          m_inputEventElementTable;        //!< input event table
+        SG::ReadHandleKey<Trk::ElementTable>                 m_inputEventElementTable;        //!< input event table
         
         // the material maps ordered with layer keys
         std::map<const Layer*,  LayerMaterialRecord >        m_layerRecords;                  //!< this is the general record for the search

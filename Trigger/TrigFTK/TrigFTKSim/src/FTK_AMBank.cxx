@@ -229,7 +229,7 @@ void FTK_AMBank::applyWildcard()
   m_useWC = true; // set the use of the WC
 
   // adject the WC and Veto IDs if the STL map is used
-  m_VetoID = ~(~0<<(sizeof(int)*8-1));
+  m_VetoID = ~(~0u<<(sizeof(int)*8-1));
   m_WCID = m_VetoID-1;
 
   unsigned int *m_WC_stat = new unsigned int[m_nplanes]; // store the static collected on the wildcard

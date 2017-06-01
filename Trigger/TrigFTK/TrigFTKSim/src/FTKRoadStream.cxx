@@ -255,7 +255,7 @@ void FTKRoadStream::attachHits( int roadid)
       int basessid = curroad->getSSID(ipl); // base full resolution SS for this layer
 
       // extract DC mask for this layer, reading only the related bits
-      unsigned int localdcmask = dcmask>>maskoffset & (~(~0<<ndcbits));
+      unsigned int localdcmask = dcmask>>maskoffset & (~(~0u<<ndcbits));
       // in the basessid mask the bits involved by the DC placing them to 0
       basessid &= ~localdcmask;
 

@@ -12,6 +12,7 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
+#include "StoreGate/ReadHandle.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/IOVTime.h"
 #include "AthenaKernel/IOVRange.h"
@@ -40,7 +41,7 @@ CondInputLoader::CondInputLoader( const std::string& name,
   declareProperty( "Load", m_load); 
   //->declareUpdateHandler(&CondInputLoader::loader, this);
   declareProperty( "ShowEventDump", m_dump=false);
-
+  declareProperty( "InputKey", m_inputKey="Input" );
 }
 
 // Destructor
@@ -81,6 +82,8 @@ CondInputLoader::initialize()
     ATH_MSG_FATAL("unable to retrieve IOVDbSvc");
     return StatusCode::FAILURE;
   }
+
+  ATH_CHECK( m_inputKey.initialize() );
 
   std::vector<std::string> keys = idb->getKeyList();
   std::string folderName, tg;
@@ -188,7 +191,7 @@ CondInputLoader::execute()
       if ( ! m_condStore->contains<CondContBase>( itr->key() ) ){
         ATH_MSG_INFO("ConditionStore does not contain a CondCont<> of "
                      << *itr
-                     << ". Either a ReadCondHandle was not initailized or "
+                     << ". Either a ReadCondHandle was not initialized or "
                      << "no other Algorithm is using this Handle");
         itr = m_load.erase(itr);
       } else {
@@ -225,6 +228,17 @@ CondInputLoader::execute()
     now.set_time_stamp(getContext()->eventID().time_stamp());
 #endif
   }
+
+  // For a MC event, the run number we need to use to look up the conditions
+  // may be different from that of the event itself.  If we have
+  // a ConditionsRun attribute defined, use that to override
+  // the event number.
+  SG::ReadHandle<AthenaAttributeList> input (m_inputKey, getContext());
+  if (input.isValid()) {
+    if (input->exists ("ConditionsRun"))
+      now.set_run_number ((*input)["ConditionsRun"].data<unsigned int>());
+  }
+
   IOVTime t(now.run_number(), now.event_number(), now.time_stamp());
 
   EventIDRange r;

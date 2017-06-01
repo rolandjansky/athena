@@ -18,9 +18,8 @@ dump [DSNAME TASKNAME]            Dump all or selected tasks in database
 show DSNAME [TASKNAME]            Show list of tasks
 update                            Update information of ongoing tasks
 update DSNAME TASKNAME            Update information of selected tasks
-rebuild                           Rebuild missing database entries from job files
-rebuild DSNAME TASKNAME           Rebuild selected database entries from job files
-import DBCONN                     Import all tasks from database DBCONN
+rebuild [DSNAME TASKNAME]         Rebuild missing or selected database entries from job files
+import [DSNAME TASKNAME] DBCONN   Import all or selected tasks from database DBCONN (duplicates not checked)
 setstatus DSNAME TASKNAME STATUS  Set status of selected tasks to STATUS
 setfield DSNAME TASKNAME FIELDNAME VALUE  Set database field to value (experts only!)
 delete DSNAME TASKNAME            Delete entry for selected task(s) (task files are NOT removed)
@@ -28,12 +27,6 @@ deleteResults DSNAME TASKNAME     Delete postprocessing results for selected set
 deleteTask DSNAME TASKNAME        Delete task files and corresponding TaskManager entry
                                   for a single task (will prompt for confirmation unless
                                   option --batch is used)
-
-Examples:
-
-taskman.py init
-taskman.py rebuild .
-taskman.py dump
 '''
 
 import sys, os, stat, commands
@@ -50,7 +43,8 @@ parser.add_option('-v', '--verbose', dest='verbose', action='store_true', defaul
 parser.add_option('-n', '--nowildcards', dest='nowildcards', action='store_true', default=False, help='do not add wildcards when looking up dataset and task names')
 parser.add_option('-d', '--dbconn', dest='dbconn', default='', help='task manager database connection string (default: check TASKDB, otherwise use sqlite_file:taskdata.db)')
 parser.add_option('', '--proddir', dest='proddir', default='.', help='production directory (default: "."')
-parser.add_option('-p', '--pretty', dest='pretty', action='store_true', default=False, help='try to nicely format output')
+parser.add_option('-p', '--pretty', dest='pretty', action='store_true', default=None, help='try to nicely format output (default: auto)')
+parser.add_option('', '--no-pretty', dest='pretty', action='store_false', help='do not attempt to format output')
 parser.add_option('', '--runtaskname', dest='runtaskname', default='CB_BEAMSPOT', help='task name')
 (options,args) = parser.parse_args()
 
@@ -93,9 +87,8 @@ if cmd == 'init':
         print 'Test connection succeeded: the database already exists!'
 
     if not options.batch:
-        a = raw_input('\nRECREATING TASK DATABASE SCHEMA - ANY EXISTING DATA WILL BE ERASED!\n\nARE YOU REALLY ABSOLUTEY SURE [n] ? ')
-        if a!='y':
-            sys.exit('ERROR: Rebuilding aborted by user')
+        a = raw_input('\nRECREATING TASK DATABASE SCHEMA - ANY EXISTING DATA WILL BE ERASED!\n\nARE YOU REALLY ABSOLUTELY SURE [n] ? ')
+        if a != 'y': sys.exit('ERROR: Rebuilding aborted by user')
         print
     with TaskManager(options.dbconn, createDatabase=True): pass
     sys.exit(0)
@@ -114,29 +107,30 @@ if cmd == 'checkdb':
         sys.exit('ERROR: checkdb is only supported for SQLite databases')
     if not os.path.exists(dbfile):
         sys.exit('ERROR: SQLite file %s does not exist' % dbfile)
-    (status,output) = commands.getstatusoutput("sqlite3 %s 'pragma integrity_check;'" % dbfile)
-    if status!=0:
+
+    (status, output) = commands.getstatusoutput("sqlite3 %s 'pragma integrity_check;'" % dbfile)
+    if status != 0:
         sys.exit('ERROR: Error executing sqlite3 command')
-    if output!='ok':
-        print 'ERROR: SQLite database file has errors:\n'
+    if output != 'ok':
+        print 'ERROR: SQLite database file has errors:'
         print output
         print
+
         if not options.batch:
             a = raw_input('Do you want to try VACUUM [n] ? ')
-            if a!='y':
+            if a != 'y':
                 sys.exit('\nERROR: VACUUM not executed - please fix database file manually')
-        (status,output) = commands.getstatusoutput("sqlite3 %s 'vacuum;'" % dbfile)
+        (status, output) = commands.getstatusoutput("sqlite3 %s 'vacuum;'" % dbfile)
         print output
-        if status!=0:
+        if status != 0:
             sys.exit('ERROR: VACUUM failed')
-        (status,output) = commands.getstatusoutput("sqlite3 %s 'pragma integrity_check;'" % dbfile)
-        if status!=0 or output!='ok':
+
+        (status, output) = commands.getstatusoutput("sqlite3 %s 'pragma integrity_check;'" % dbfile)
+        if status != 0 or output != 'ok':
             print output
             sys.exit('ERROR: Integrity check still failed - please check')
         print 'INFO: SQLite file now passes integrity test (content may still have errors)'
         sys.exit(2)
-    sys.exit(0)
-
 
     print 'INFO: SQLite file {} ok'.format(dbfile)
     sys.exit(0)
@@ -351,7 +345,30 @@ if cmd == 'rebuild':
 #
 # Import tasks from another task database
 #
-if cmd=='import' and len(args)==2:
+if cmd == 'import':
+    if len(cmdargs) == 1:
+        fromDbconn = cmdargs[0]
+        qual = []
+    elif len(cmdargs) == 3:
+        dsname = cmdargs[0]
+        taskname = cmdargs[1]
+        fromDbconn = cmdargs[2]
+
+        # Convert a minimal shell glob syntax into an SQL query:
+        import string
+        wildcards = string.maketrans('*?', '%_')
+        qual = []
+        if '*' in dsname or '?' in dsname:
+            qual.append("where DSNAME like '{}'".format(dsname.translate(wildcards)))
+        else:
+            qual.extend(['where DSNAME =', DbParam(dsname)])
+        if '*' in taskname or '?' in taskname:
+            qual.append("and TASKNAME like '{}'".format(taskname.translate(wildcards)))
+        else:
+            qual.extend(['and TASKNAME =', DbParam(taskname)])
+    else:
+        parser.error('Command import takes 1 or 3 arguments')
+
     try:
         destDbtype, destDbname = TaskManager.parseConnectionInfo(options.dbconn)
         fromDbtype, fromDbname = TaskManager.parseConnectionInfo(fromDbconn)

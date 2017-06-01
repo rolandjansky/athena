@@ -193,6 +193,11 @@ def getTaskManager():
         print 'ERROR: Unable to access task manager database %s' % options.dbconn
         sys.exit(1)
 
+def fail(message):
+    print
+    print 'ERROR:' % message
+    sys.exit(1)
+
 
 #
 # Upload any SQLite file to COOL (independent of task, w/o book keeping)
@@ -200,28 +205,32 @@ def getTaskManager():
 if cmd == 'upload' and len(cmdargs) == 1:
     dbfile = args[1]
     if not options.beamspottag:
-        sys.exit('ERROR: No beam spot tag specified')
+        fail('No beam spot tag specified')
     try:
         passwd = open(os.environ.get('HOME')+prodcoolpasswdfile,'r').read().strip()
     except:
-        sys.exit('ERROR: Unable to determine COOL upload password')
-    print '\nBeam spot file:   ',dbfile
-    print 'Uploading to tag: ',options.beamspottag
-    os.system('dumpBeamSpot.py -d %s -t %s %s' % (options.srcdbname,options.srctag,dbfile))
+        fail('Unable to determine COOL upload password')
 
-    if options.ignoremode:
-        ignoremode = '--ignoremode %s' % options.ignoremode
-    else:
-        ignoremode = ''
-    if options.batch:
-        batchmode = '--batch'
-    else:
-        batchmode = ''
     print
-    stat = os.system('/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail %s %s --folder /Indet/Beampos --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_INDET_W %s' % (batchmode,ignoremode,options.srctag,options.beamspottag,options.destdbname,dbfile,options.srcdbname,passwd))
-    if stat:
-        print "\n\nERROR: UPLOADING TO COOL FAILED - PLEASE CHECK CAREFULLY!\n\n"
-        sys.exit(1)
+    print 'Beam spot file:   ', dbfile
+    print 'Uploading to tag: ', options.beamspottag
+    os.system('dumpBeamSpot.py -d %s -t %s %s' % (
+        options.srcdbname,
+        options.srctag,
+        dbfile))
+
+    print
+    stat = os.system('/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail %s %s --folder /Indet/Beampos --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_INDET_W %s' % (
+        '--batch' if options.batch else '',
+        ('--ignoremode %s' % options.ignoremode) if options.ignoremode else '',
+        options.srctag,
+        options.beamspottag,
+        options.destdbname,
+        dbfile,
+        options.srcdbname,
+        passwd))
+
+    if stat: fail("UPLOADING TO COOL FAILED - PLEASE CHECK CAREFULLY!")
     sys.exit(0)
 
 
@@ -391,17 +400,20 @@ if cmd == 'show' and len(cmdargs)==1:
     run = cmdargs[0]
 
     c = getFullCastorPath(run)
-    print '\nCASTOR base path:   ', options.castorpath
-    print   'Project tag:        ', options.project
-    print   'Stream:             ', options.stream
-    print   'Full path:          ', c
-    print '\nFiles in CASTOR:\n'
+    print
+    print 'CASTOR base path:   ', options.castorpath
+    print 'Project tag:        ', options.project
+    print 'Stream:             ', options.stream
+    print 'Full path:          ', c
+    print
+    print 'Files in CASTOR (filtered by: %s):' % options.filter
+    print '---------------'
+
     pattern = re.compile(options.filter)
     for f in DiskUtils.ls(c, longls=True).split('\n'):
-        # for EOS use 'eos ls -l' 
         if pattern.search(f):
             (access,nfiles,user,group,size,modmonth,modyear,modtime,name) = f.split()
-            print '%-60s   %s files, last modified %s %s %s' % (name,nfiles,modmonth,modyear,modtime)
+            print '%-80s   %s file(s), last modified %s %s %s' % (name,nfiles,modmonth,modyear,modtime)
 
     print
     print 'Beam spot tasks:'
@@ -446,8 +458,7 @@ if cmd == 'postproc' and len(cmdargs) in [2,3]:
                     confirmWithUser=not options.batch,
                     addWildCards=not options.nowildcards)
         except TaskManagerCheckError, e:
-            print e
-            sys.exit(1)
+            fail(e)
         for taskName in taskList:
             t = taskman.getTaskDict(taskName[0], taskName[1])
             if steps:

@@ -208,9 +208,6 @@ if not G4data:
     TrigT1RPC.KeyForTruth = "GEN_EVENT"
 
 
-RDBAccessSvc = Service( "RDBAccessSvc" )
-RDBAccessSvc.HostName   = "pdb01"
-
 #---------------------------------------------------------------
 # Ntuple service output
 #---------------------------------------------------------------

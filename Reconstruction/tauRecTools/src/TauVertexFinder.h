@@ -45,9 +45,13 @@ public:
   virtual void cleanup(xAOD::TauJet* ) { }
   virtual void print() const { }
 
-  ElementLink<xAOD::VertexContainer> getPV_TJVA(const xAOD::TauJet& tauJet, const xAOD::VertexContainer& vertices);
 
 private:
+  ElementLink<xAOD::VertexContainer>
+  getPV_TJVA(const xAOD::TauJet& tauJet,
+             const xAOD::VertexContainer& vertices,
+             float& maxJVF);
+
   float getJetVertexFraction(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*>& tracks, const jet::TrackVertexAssociation* tva) const;
   // for online ATR-15665
   float getJetVertexFraction(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*>& tracks) const;      
@@ -62,7 +66,6 @@ private:
 
 private:
   bool m_printMissingContainerINFO;
-  float m_maxJVF;
   ToolHandle< InDet::IInDetTrackSelectionTool > m_TrackSelectionToolForTJVA;
 
   // for online

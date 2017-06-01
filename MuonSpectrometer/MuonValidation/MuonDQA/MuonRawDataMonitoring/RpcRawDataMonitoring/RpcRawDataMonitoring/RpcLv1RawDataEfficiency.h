@@ -187,7 +187,7 @@ class RpcLv1RawDataEfficiency: public ManagedMonitorToolBase {
   bool m_debuglevel;           // control debug messages  
   
 
-  StatusCode readOfflineMuonContainer(string key);
+  StatusCode readOfflineMuonContainer(std::string key);
   // Retrieving information and data
   StoreGateSvc*   m_eventStore;  // to get event info
   ActiveStoreSvc* m_activeStore; // to get all the other information
@@ -199,7 +199,7 @@ class RpcLv1RawDataEfficiency: public ManagedMonitorToolBase {
   StatusCode StoreTriggerType();
   int GetTriggerType() { return m_trigtype; }
   // helper function for the different types of histograms
-  stringstream m_ss; 
+  std::stringstream m_ss; 
 
   //for Sector Hits histograms
   float i_sectorid;
@@ -212,8 +212,8 @@ class RpcLv1RawDataEfficiency: public ManagedMonitorToolBase {
   int m_BCID;
 
   // muon informations for offline muons and trigger hits
-  vector<OfflineMuon>   m_OfflineMuons;
-  vector<CoincidenceData*> m_CoincidenceData;
+  std::vector<OfflineMuon>   m_OfflineMuons;
+  std::vector<CoincidenceData*> m_CoincidenceData;
 
   // Declare Histograms
   TH1* rpclv1_MinDeltaRTrackTrigger[2];

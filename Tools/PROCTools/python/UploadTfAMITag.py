@@ -40,7 +40,7 @@ OutputsVsStreams = {
     #'outputESDFile': {'dstype': '!replace RAW ESD', 'ifMatch': '(?!.*DRAW.*)(?!.*physics_Main.*)', 'HumanOutputs': 'always produced, except for DRAW input and physics_Main'},
     'outputESDFile': {'dstype': '!replace RAW ESD', 'ifMatch': '(?!.*DRAW.*)(?!.(.*physics_Main\..*|.*Background.*|.*L1Topo.*))', 'HumanOutputs': 'always produced, except for DRAW input and physics_Main'},
     'outputAODFile': {'dstype': '!replace RAW AOD', 'ifMatch': cphiProjTag+'(?!.*DRAW_RPVLL.*)(?!.*Background.*)', 'HumanOutputs': 'always produced except for DRAW_RPVLL.'},
-    'outputTAGFile': {'dstype': 'TAG', 'ifMatch': HIProjTag+'(?!.(.*DRAW.*))', 'HumanOutputs': 'Produced in AOD merging'},
+    'outputTAGFile': {'dstype': 'TAG', 'ifMatch': 'data[0-9][0-9]_(cos|1beam|.*eV|comm)(.*express_express\..*)(?!.(.*DRAW.*))', 'HumanOutputs': 'Produced in express stream'},
     'outputHISTFile': {'dstype': 'HIST', 'ifMatch': '(?!.(.*DRAW.*|.*debugrec.*))', 'HumanOutputs': 'always produced except for DRAW and debugrec'},  # note was disabled for Pb-Pb HardProbes
     'outputRDOFile': {'dstype': 'RDO', 'ifMatch': cphiProjTag, 'HumanOutputs': 'always produced.'},
 # NTuples
@@ -136,8 +136,8 @@ OutputsVsStreams = {
     'outputDESDM_TILEMUFile': {'dstype': 'DESDM_TILEMU','ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main.*)',
                               'HumanOutputs': 'produced for collision runs, for physics_Main stream.'},
 
-    #'outputDAOD_L1CALO2File': {'dstype': 'DAOD_L1CALO2','ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main.*)',
-    #                          'HumanOutputs': 'produced for special L1Calo runs, for physics_Main stream'},
+    'outputDAOD_L1CALO2File': {'dstype': 'DAOD_L1CALO2','ifMatch': cphiProjTag+'(?!.*DRAW.*)(.*physics_Main.*|.*ZeroBias.*)',
+                              'HumanOutputs': 'produced for special L1Calo runs, for physics_Main and ZeroBias streams'},
 
 }
 
@@ -288,7 +288,7 @@ if __name__ == '__main__':
         try:
             project = sys.argv[7]
         except:
-            print "INFO: No project specified -- this defaults to AtlasOffline"
+            print "INFO: No project specified -- this defaults to Athena"
         ### Patch Area
         try:
             patchArea = sys.argv[8]
@@ -331,7 +331,7 @@ if __name__ == '__main__':
     if project:
         relProj = project
     else:
-        relProj = "AtlasOffline" # the default
+        relProj = "Athena" # the default
     baseRelNbr=".".join(release_number.split(".")[:2])
     relPath = "/cvmfs/atlas.cern.ch/repo/sw/software/%s/%s/%s" % (baseRelNbr, relProj, release_number)
     if not os.path.isdir(relPath):

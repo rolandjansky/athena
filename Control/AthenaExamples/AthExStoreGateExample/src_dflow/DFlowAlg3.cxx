@@ -19,6 +19,14 @@
 // FrameWork includes
 #include "GaudiKernel/Property.h"
 
+namespace SG {
+template<>
+struct IsThreadSafeForUH<int, std::true_type>
+{
+  typedef std::true_type type;
+};
+}
+
 namespace AthEx {
 
 /////////////////////////////////////////////////////////////////// 

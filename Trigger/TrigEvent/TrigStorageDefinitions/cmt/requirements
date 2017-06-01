@@ -4,7 +4,8 @@ author lukas.heinrich@cern.ch
 
 public
 use  AtlasPolicy                AtlasPolicy-*
-use  DataModel                  DataModel-*                     Control
+use  AthLinks                   AthLinks-*                      Control
+use  AthContainers              AthContainers-*                 Control
 use  Navigation                 Navigation-*                    Control
 use  AtlasBoost                 AtlasBoost-*                    External
 use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD

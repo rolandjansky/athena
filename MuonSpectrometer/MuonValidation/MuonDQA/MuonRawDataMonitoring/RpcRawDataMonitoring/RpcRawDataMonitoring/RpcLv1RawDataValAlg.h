@@ -106,7 +106,6 @@ class RpcLv1RawDataValAlg: public ManagedMonitorToolBase {
   std::vector<Identifier>* m_padsId;
   std::map<std::string,int> hitsperchamber_map;
   
-  bool in_area              ;
   bool histo_flag           ;  
   bool m_doClusters         ;
   bool m_checkCabling       ;
@@ -141,10 +140,6 @@ class RpcLv1RawDataValAlg: public ManagedMonitorToolBase {
   int m_cosmicStation;
  
   // Define variables in the Ntuple:
-  int m_nColl;  		    // number of collection in the container
-  int m_nPrd;			    // number of prd in the collection
-  int m_nClus;                      // number of clusters 
-
   TH1* rpclv1_hitperEvent                 ;  
   TH1* rpclv1triggerlowpt_etastat	  ;
   TH1* rpclv1triggerlowpt_phistat	  ;
@@ -189,7 +184,6 @@ class RpcLv1RawDataValAlg: public ManagedMonitorToolBase {
   char thr_name_char[1000]		;
   char ijk_name_char[1000]              ;
   char cma_name_p_char[1000]		;
-  char ijk_name_p_char[1000]            ;
    
   
   int  i_sector       ;	   // pad sector Id
@@ -267,9 +261,6 @@ class RpcLv1RawDataValAlg: public ManagedMonitorToolBase {
   std::string SideSector    ;
   int  side                 ; 
   int  sector               ;
-  char sector_char[1000]    ;
-  char dblZ_char[100]       ;
-  char dblPhi_char[100]     ;
   
   const RpcPadContainer* rpcRDO ;  
   const RpcPad*          rdoColl;

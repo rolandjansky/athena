@@ -56,18 +56,10 @@
 
 using namespace std;
 
-static const   int maxColl	      =  1200;
 static const   int maxPRD 	      = 50000;
-static const   int maxClus	      =  1000;
 static const   int timeminrange	      =	 -200;
 static const   int timemaxrange	      =	  200;
 static const   int timeNbin	      =	  128;
-static const   int nstripfiducial     =     0;
-static const   int nstripfiduceff     =     3;
-static const   int MergePointDistance =    50;
-static const   int EtaStationSpan     =     2;
-static const   int DoublePhiSpan      =     1;
-static const float Chi2dofCut         =     1;
 
 /////////////////////////////////////////////////////////////////////////////
 

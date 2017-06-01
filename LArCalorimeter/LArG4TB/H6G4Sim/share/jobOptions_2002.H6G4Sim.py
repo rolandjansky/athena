@@ -4,8 +4,6 @@
 #
 #==============================================================
 theApp.setup( MONTECARLO )
-include( "RDBAccessSvc/RDBAccessSvcDevdb_jobOptions.py" )
-
 include( "NovaCnvSvc/NovaCnvSvc_jobOptions.py" )
 
 include( "NovaConverters/NovaConverters_jobOptions.py" )

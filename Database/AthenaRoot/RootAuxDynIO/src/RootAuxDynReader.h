@@ -42,7 +42,7 @@ public :
   RootAuxDynReader(TBranch *, int store_holder_offset);
 
   
-  virtual void addReaderToObject(void* object, size_t ttree_row);
+  virtual void addReaderToObject(void* object, size_t ttree_row, std::mutex* iomtx = nullptr );
 
   void init(bool standalone);
   const BranchInfo& getBranchInfo(const SG::auxid_t& auxid, const SG::AuxStoreInternal& store);

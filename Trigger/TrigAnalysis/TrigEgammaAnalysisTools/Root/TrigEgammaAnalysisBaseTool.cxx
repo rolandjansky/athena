@@ -902,22 +902,22 @@ GETTER(deltaPhiRescaled3)
 #undef GETTER    
 
     std::string TrigEgammaAnalysisBaseTool::getProbePid(const std::string pidtype){
-    static std::map<std::string,std::string> m_PidMap; //no longer class member but static
+    static std::map<std::string,std::string> PidMap; //no longer class member but static
     // Note vloose/lhvloose trigger mapped to Loose/LHLoose offline PID
-    if(m_PidMap.empty()){
-        m_PidMap["vloose"]="Loose";
-        m_PidMap["loose"]="Loose";
-        m_PidMap["medium"]="Medium";
-        m_PidMap["tight"]="Tight";
-        m_PidMap["loose1"]="Loose";
-        m_PidMap["medium1"]="Medium";
-        m_PidMap["tight1"]="Tight";
-        m_PidMap["lhvloose"]="LHLoose";
-        m_PidMap["lhloose"]="LHLoose";
-        m_PidMap["lhmedium"]="LHMedium";
-        m_PidMap["lhtight"]="LHTight";
+    if(PidMap.empty()){
+        PidMap["vloose"]="Loose";
+        PidMap["loose"]="Loose";
+        PidMap["medium"]="Medium";
+        PidMap["tight"]="Tight";
+        PidMap["loose1"]="Loose";
+        PidMap["medium1"]="Medium";
+        PidMap["tight1"]="Tight";
+        PidMap["lhvloose"]="LHLoose";
+        PidMap["lhloose"]="LHLoose";
+        PidMap["lhmedium"]="LHMedium";
+        PidMap["lhtight"]="LHTight";
     }
-    return m_PidMap[pidtype];
+    return PidMap[pidtype];
 }
 
 std::string TrigEgammaAnalysisBaseTool::getL1Item(std::string trigger){

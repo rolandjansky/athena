@@ -27,12 +27,35 @@
 namespace SG {
 
 
+   // Helper for testing thread_safe.
+   // Unless explicitly specialized,
+   // IsThreadSafeForUH<T, std::true_type>::type will be true_type if
+   // T has a `typedef std::true_type thread_safe', and false_type otherwise.
+   template <class T, class VALT>
+   struct IsThreadSafeForUH
+   {
+     typedef std::false_type type;
+   };
+   template <class T>
+   struct IsThreadSafeForUH<T, typename T::thread_safe>
+   {
+     typedef std::true_type type;
+   };
+
+
   /**
    * @class SG::UpdateHandle<T>
    * @brief a smart pointer to an object of a given type in an @c IProxyDict (such
    * as StoreGateSvc). It d-casts and caches locally the pointed-at object, to 
    * speed-up subsequent accesses.
    * It can be reset by the store for asynchronous updates (IOVSvc)
+   *
+   * IMPORTANT: UpdateHandle is not really compatible with running
+   * in multithreaded jobs.  At a minimum, the payload class @c T must
+   * be fully thread-safe for simultaneous reads and writes
+   * (@c DataVector does not satisfy this).  It's use will be reserved
+   * to a few special cases.  If you think you need to use @c UpdateHandle,
+   * please consult with the core and reco groups first.
    *
    * @c SG::UpdateHandle<T> can only access non-const proxies in StoreGate.
    * A valid proxy must already exist in StoreGate.
@@ -74,6 +97,13 @@ namespace SG {
     typedef const T*   const_pointer_type; //        qualified T type ?
     typedef T&             reference_type;
     typedef const T& const_reference_type;
+
+    
+  private:
+    // Verify that the payload has a thread_safe typedef yielding std::true_type.
+    static_assert (IsThreadSafeForUH<T, std::true_type>::type::value,
+                   "Use of UpdateHandle is restricted to a few explicitly thread-safe types.  If you think you need to use UpdateHandle, please consult with the core and reconstruction groups.");
+  public:
 
 
     //************************************************************************

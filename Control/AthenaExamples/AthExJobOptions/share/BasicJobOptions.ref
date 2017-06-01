@@ -1,89 +1,94 @@
-Fri Mar 17 17:21:36 CET 2017
+Wed May 24 22:45:53 CEST 2017
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc49-opt] [private/private] -- built on [2017-03-17 17:16]
+Py:Athena            INFO using release [WorkDir-22.0.0] [x86_64-slc6-gcc62-dbg] [atlas-work3e/ec48bb8c6b] -- built on [2017-05-24T2111]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 [?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthExJobOptions/AthExJobOptions_BasicJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5282 configurables from 7 genConfDb files
-Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+Py:ConfigurableDb    INFO Read module info for 5305 configurables from 15 genConfDb files
+Py:ConfigurableDb WARNING Found 1 duplicates among the 15 genConfDb files :
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -DumpDecisions: DecisionHandling.DecisionHandlingConf - ['ViewAlgs.ViewAlgsConf']
+Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
 Py:Athena            INFO Can't set int to string property (this is correct)
 Py:Athena            INFO Can't set non-existing property (this is correct)
 /***** Algorithm AthSequencer/TopAlg ***************************************************************
-|-Atomic                    = False
-|-AuditAlgorithms           = False
-|-AuditBeginRun             = False
-|-AuditEndRun               = False
-|-AuditExecute              = False
-|-AuditFinalize             = False
-|-AuditInitialize           = False
-|-AuditReinitialize         = False
-|-AuditRestart              = False
-|-AuditStart                = False
-|-AuditStop                 = False
-|-Cardinality               = 1
-|-ContinueEventloopOnFPE    = False
-|-DetStore                  = ServiceHandle('StoreGateSvc/DetectorStore')
-|-Enable                    = True
-|-ErrorCounter              = 0
-|-ErrorMax                  = 1
-|-EvtStore                  = ServiceHandle('StoreGateSvc')
-|-ExtraInputs               = []  (default: [])
-|-ExtraOutputs              = []  (default: [])
-|-IgnoreFilterPassed        = False
-|-IsClonable                = False
-|-IsIOBound                 = False
-|-Members                   = ['TopAlgorithm/TopAlgorithm', 'TopAlgorithm/MyAlg']  (default: [])
-|-ModeOR                    = False
-|-MonitorService            = 'MonitorSvc'
-|-NeededResources           = []  (default: [])
-|-OutputLevel               = 0
-|-RegisterForContextService = False
-|-Sequential                = False
-|-StopOverride              = False
-|-TimeOut                   = 0.0
-|-Timeline                  = True
-|-UserStore                 = ServiceHandle('UserDataSvc/UserDataSvc')
+|-Atomic                     = False
+|-AuditAlgorithms            = False
+|-AuditBeginRun              = False
+|-AuditEndRun                = False
+|-AuditExecute               = False
+|-AuditFinalize              = False
+|-AuditInitialize            = False
+|-AuditReinitialize          = False
+|-AuditRestart               = False
+|-AuditStart                 = False
+|-AuditStop                  = False
+|-Cardinality                = 1
+|-ContinueEventloopOnFPE     = False
+|-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+|-Enable                     = True
+|-ErrorCounter               = 0
+|-ErrorMax                   = 1
+|-EvtStore                   = ServiceHandle('StoreGateSvc')
+|-ExtraInputs                = []  (default: [])
+|-ExtraOutputs               = []  (default: [])
+|-FilterCircularDependencies = True
+|-IgnoreFilterPassed         = False
+|-IsIOBound                  = False
+|-Members                    = ['TopAlgorithm/TopAlgorithm', 'TopAlgorithm/MyAlg']  (default: [])
+|-ModeOR                     = False
+|-MonitorService             = 'MonitorSvc'
+|-NeededResources            = []  (default: [])
+|-OutputLevel                = 0
+|-RegisterForContextService  = False
+|-Sequential                 = False
+|-StopOverride               = False
+|-TimeOut                    = 0.0
+|-Timeline                   = True
+|-UserStore                  = ServiceHandle('UserDataSvc/UserDataSvc')
 |=/***** Algorithm TopAlgorithm/TopAlgorithm *********************************************************
-| |-AuditAlgorithms           = False
-| |-AuditBeginRun             = False
-| |-AuditEndRun               = False
-| |-AuditExecute              = False
-| |-AuditFinalize             = False
-| |-AuditInitialize           = False
-| |-AuditReinitialize         = False
-| |-AuditRestart              = False
-| |-AuditStart                = False
-| |-AuditStop                 = False
-| |-Cardinality               = 1
-| |-DetStore                  = ServiceHandle('StoreGateSvc/DetectorStore')
-| |-EmptyPrivateTool          = PrivateToolHandle('')
-| |-EmptyPublicTool           = PublicToolHandle('')
-| |-Enable                    = True
-| |-ErrorCounter              = 0
-| |-ErrorMax                  = 1
-| |-EvtStore                  = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs               = []  (default: [])
-| |-ExtraOutputs              = []  (default: [])
-| |-InputKey                  = ''  (default: '')
-| |-IsClonable                = False
-| |-IsIOBound                 = False
-| |-MonitorService            = 'MonitorSvc'
-| |-NeededResources           = []  (default: [])
-| |-OutputKey                 = 'AAA'  (default: 'outkey')
-| |-OutputLevel               = 2  (default: 0)
-| |-PrivateToolList           = PrivateToolHandleArray(['ConcreteTool/Tool1','ToolUsingTool/Tool2','ToolSpace::TemplatedTool<double>/Tool3'])
-| |-PublicToolList            = PublicToolHandleArray(['ConcreteTool/Tool4','ToolUsingTool/Tool5','ToolSpace::TemplatedTool<double>/Tool6'])
-| |-RegisterForContextService = False
-| |-RndmFactor                = 1.0
-| |-ThePublicTool             = PublicToolHandle('ConcreteTool')
-| |-TheSvc                    = ServiceHandle('ConcreteSvc')
-| |-TheTool                   = PrivateToolHandle('ToolSpace::TemplatedTool<double>/TSTT')
-| |                           (default: 'ToolUsingTool')
-| |-Timeline                  = True
-| |-UserStore                 = ServiceHandle('UserDataSvc/UserDataSvc')
+| |-AuditAlgorithms            = False
+| |-AuditBeginRun              = False
+| |-AuditEndRun                = False
+| |-AuditExecute               = False
+| |-AuditFinalize              = False
+| |-AuditInitialize            = False
+| |-AuditReinitialize          = False
+| |-AuditRestart               = False
+| |-AuditStart                 = False
+| |-AuditStop                  = False
+| |-Cardinality                = 1
+| |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-EmptyPrivateTool           = PrivateToolHandle('')
+| |-EmptyPublicTool            = PublicToolHandle('')
+| |-Enable                     = True
+| |-ErrorCounter               = 0
+| |-ErrorMax                   = 1
+| |-EvtStore                   = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                = []  (default: [])
+| |-ExtraOutputs               = []  (default: [])
+| |-FilterCircularDependencies = True
+| |-InputKey                   = ''  (default: '')
+| |-IsIOBound                  = False
+| |-MonitorService             = 'MonitorSvc'
+| |-NeededResources            = []  (default: [])
+| |-OutputKey                  = 'AAA'  (default: 'outkey')
+| |-OutputLevel                = 2  (default: 0)
+| |-PrivateToolList            = PrivateToolHandleArray(['ConcreteTool/Tool1','ToolUsingTool/Tool2','ToolSpace::TemplatedTool<double>/Tool3'])
+| |-PublicToolList             = PublicToolHandleArray(['ConcreteTool/Tool4','ToolUsingTool/Tool5','ToolSpace::TemplatedTool<double>/Tool6'])
+| |-RegisterForContextService  = False
+| |-RndmFactor                 = 1.0
+| |-ThePublicTool              = PublicToolHandle('ConcreteTool')
+| |-TheSvc                     = ServiceHandle('ConcreteSvc')
+| |-TheTool                    = PrivateToolHandle('ToolSpace::TemplatedTool<double>/TSTT')
+| |                            (default: 'ToolUsingTool')
+| |-Timeline                   = True
+| |-UserStore                  = ServiceHandle('UserDataSvc/UserDataSvc')
 | |=/***** Private AlgTool ToolSpace::TemplatedTool<double>/TSTT ***************************************
 | | |-AuditFinalize     = False
 | | |-AuditInitialize   = False
@@ -191,44 +196,44 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | \----- (End of Private AlgTool ToolSpace::TemplatedTool<double>/Tool3) -----------------------------
 | \----- (End of Algorithm TopAlgorithm/TopAlgorithm) ------------------------------------------------
 |=/***** Algorithm TopAlgorithm/MyAlg ****************************************************************
-| |-AuditAlgorithms           = False
-| |-AuditBeginRun             = False
-| |-AuditEndRun               = False
-| |-AuditExecute              = False
-| |-AuditFinalize             = False
-| |-AuditInitialize           = False
-| |-AuditReinitialize         = False
-| |-AuditRestart              = False
-| |-AuditStart                = False
-| |-AuditStop                 = False
-| |-Cardinality               = 1
-| |-DetStore                  = ServiceHandle('StoreGateSvc/DetectorStore')
-| |-EmptyPrivateTool          = PrivateToolHandle('')
-| |-EmptyPublicTool           = PublicToolHandle('')
-| |-Enable                    = True
-| |-ErrorCounter              = 0
-| |-ErrorMax                  = 1
-| |-EvtStore                  = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs               = []  (default: [])
-| |-ExtraOutputs              = []  (default: [])
-| |-InputKey                  = 'AAA'  (default: '')
-| |-IsClonable                = False
-| |-IsIOBound                 = False
-| |-MonitorService            = 'MonitorSvc'
-| |-NeededResources           = []  (default: [])
-| |-OutputKey                 = 'BBB'  (default: 'outkey')
-| |-OutputLevel               = 2  (default: 0)
-| |-PrivateToolList           = PrivateToolHandleArray(['ConcreteTool/PyCT1','ConcreteTool/PyCT2','ToolSpace::TemplatedTool<double>/PyTSTT3','ToolSpace::TemplatedTool<double>/PyTSTT4','ToolUsingTool/Special'])
-| |                           (default: "['ConcreteTool/Tool1','ToolUsingTool/Tool2','ToolSpace::TemplatedTool<double>/Tool3']")
-| |-PublicToolList            = PublicToolHandleArray(['ConcreteTool/Tool4','ToolUsingTool/Tool5','ToolSpace::TemplatedTool<double>/Tool6','ConcreteTool/PyCT5','ToolSpace::TemplatedTool<double>/PyTSTT7'])
-| |                           (default: "['ConcreteTool/Tool4','ToolUsingTool/Tool5','ToolSpace::TemplatedTool<double>/Tool6']")
-| |-RegisterForContextService = False
-| |-RndmFactor                = 1.0
-| |-ThePublicTool             = PublicToolHandle('ConcreteTool')
-| |-TheSvc                    = ServiceHandle('QotdSvc')  (default: 'ConcreteSvc')
-| |-TheTool                   = PrivateToolHandle('ToolUsingTool/ToolUsingTool')  (default: 'ToolUsingTool')
-| |-Timeline                  = True
-| |-UserStore                 = ServiceHandle('UserDataSvc/UserDataSvc')
+| |-AuditAlgorithms            = False
+| |-AuditBeginRun              = False
+| |-AuditEndRun                = False
+| |-AuditExecute               = False
+| |-AuditFinalize              = False
+| |-AuditInitialize            = False
+| |-AuditReinitialize          = False
+| |-AuditRestart               = False
+| |-AuditStart                 = False
+| |-AuditStop                  = False
+| |-Cardinality                = 1
+| |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+| |-EmptyPrivateTool           = PrivateToolHandle('')
+| |-EmptyPublicTool            = PublicToolHandle('')
+| |-Enable                     = True
+| |-ErrorCounter               = 0
+| |-ErrorMax                   = 1
+| |-EvtStore                   = ServiceHandle('StoreGateSvc')
+| |-ExtraInputs                = []  (default: [])
+| |-ExtraOutputs               = []  (default: [])
+| |-FilterCircularDependencies = True
+| |-InputKey                   = 'AAA'  (default: '')
+| |-IsIOBound                  = False
+| |-MonitorService             = 'MonitorSvc'
+| |-NeededResources            = []  (default: [])
+| |-OutputKey                  = 'BBB'  (default: 'outkey')
+| |-OutputLevel                = 2  (default: 0)
+| |-PrivateToolList            = PrivateToolHandleArray(['ConcreteTool/PyCT1','ConcreteTool/PyCT2','ToolSpace::TemplatedTool<double>/PyTSTT3','ToolSpace::TemplatedTool<double>/PyTSTT4','ToolUsingTool/Special'])
+| |                            (default: "['ConcreteTool/Tool1','ToolUsingTool/Tool2','ToolSpace::TemplatedTool<double>/Tool3']")
+| |-PublicToolList             = PublicToolHandleArray(['ConcreteTool/Tool4','ToolUsingTool/Tool5','ToolSpace::TemplatedTool<double>/Tool6','ConcreteTool/PyCT5','ToolSpace::TemplatedTool<double>/PyTSTT7'])
+| |                            (default: "['ConcreteTool/Tool4','ToolUsingTool/Tool5','ToolSpace::TemplatedTool<double>/Tool6']")
+| |-RegisterForContextService  = False
+| |-RndmFactor                 = 1.0
+| |-ThePublicTool              = PublicToolHandle('ConcreteTool')
+| |-TheSvc                     = ServiceHandle('QotdSvc')  (default: 'ConcreteSvc')
+| |-TheTool                    = PrivateToolHandle('ToolUsingTool/ToolUsingTool')  (default: 'ToolUsingTool')
+| |-Timeline                   = True
+| |-UserStore                  = ServiceHandle('UserDataSvc/UserDataSvc')
 | |=/***** Private AlgTool ConcreteTool/PyCT1 **********************************************************
 | | |-AuditFinalize     = False
 | | |-AuditInitialize   = False
@@ -413,8 +418,8 @@ Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r1)
-                                          running on p05614910w96644.cern.ch on Fri Mar 17 17:21:46 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r2)
+                                          running on lxplus025.cern.ch on Wed May 24 22:46:17 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -422,7 +427,7 @@ ApplicationMgr                     INFO Updating Gaudi::PluginService::SetDebug(
 StatusCodeSvc                      INFO initialize
 AthDictLoaderSvc                   INFO in initialize...
 AthDictLoaderSvc                   INFO acquired Dso-registry
-ClassIDSvc                         INFO  getRegistryEntries: read 2303 CLIDRegistry entries for module ALL
+ClassIDSvc                         INFO  getRegistryEntries: read 2307 CLIDRegistry entries for module ALL
 ChronoStatSvc                      INFO  Number of skipped events for MemStat-1
 CoreDumpSvc                        INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
@@ -522,7 +527,7 @@ MyAlg                             DEBUG Data Deps for MyAlg
 HistogramPersistencySvc         WARNING Histograms saving not required.
 ApplicationMgr                     INFO Application Manager Initialized successfully
 ApplicationMgr                     INFO Application Manager Started successfully
-ClassIDSvc                         INFO  getRegistryEntries: read 1279 CLIDRegistry entries for module ALL
+ClassIDSvc                         INFO  getRegistryEntries: read 1298 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr                 INFO   ===>>>  start of run 1    <<<===
 AthenaEventLoopMgr                 INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
 TopAlgorithm                       INFO got this quote [Your day will be somewhat dictated by authority].
@@ -729,7 +734,7 @@ TopAlgorithm.TSTT                 DEBUG Calling destructor
 *****Chrono*****                   INFO ****************************************************************************************************
 *****Chrono*****                   INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****                   INFO ****************************************************************************************************
-ChronoStatSvc                      INFO Time User   : Tot=  100 [ms]                                             #=  1
+ChronoStatSvc                      INFO Time User   : Tot=  210 [ms]                                             #=  1
 *****Chrono*****                   INFO ****************************************************************************************************
 ChronoStatSvc.finalize()           INFO  Service finalized successfully 
 ApplicationMgr                     INFO Application Manager Finalized successfully

@@ -911,7 +911,7 @@ int MdtRawDataValAlg::GetTubeMax( const Identifier & digcoll_id, const std::stri
 	  tubeMax = 546;
   
   
-  map<string,float>::iterator iter_tubesperchamber = m_tubesperchamber_map.find(hardware_name);
+  std::map<string,float>::iterator iter_tubesperchamber = m_tubesperchamber_map.find(hardware_name);
   if ( iter_tubesperchamber == m_tubesperchamber_map.end() ) { 
       m_tubesperchamber_map.insert( make_pair( hardware_name, tubeMax ) );
       ATH_MSG_DEBUG("Chamber " << hardware_name << " has " << tubeMax << " tubes.");

@@ -14,6 +14,7 @@ atlas_depends_on_subdirs(
    Control/AthContainers
    Control/AthenaKernel
    Control/SGTools
+   Database/PersistentDataModel
    GaudiKernel
    PRIVATE
    AtlasTest/TestTools
@@ -21,13 +22,14 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
+find_package( CORAL COMPONENTS CoralBase )
 find_package( TBB )
 
 # Component(s) in the package:
 atlas_add_library( StoreGateLib src/*.cxx
    PUBLIC_HEADERS StoreGate
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${TBB_LIBRARIES} AthAllocators AthenaKernel
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${CORAL_LIBRARIES} AthAllocators AthenaKernel
    SGTools GaudiKernel
    PRIVATE_LINK_LIBRARIES CxxUtils TestTools )
 

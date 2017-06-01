@@ -360,6 +360,7 @@ DbStatus RootTreeContainer::fetch(DbSelect& sel)  {
   if ( stmt ) {
     TTreeFormula* selStmt = stmt->m_ptr;
     if ( selStmt )  {
+      std::lock_guard<std::mutex>( m_rootDb->ioMutex() );
       Branches::iterator k;
       long long cur  = sel.link().second;
       Long64_t last = m_tree->GetEntries();
@@ -390,18 +391,20 @@ DbStatus RootTreeContainer::fetch(DbSelect& sel)  {
 }
 
 DbStatus 
-RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid, DbAccessMode /* mode */) {
+RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid, DbAccessMode /* mode */)
+{
   RootDataPtr user(0);
   RootDataPtr context(0);
   DbStatus status = Error;
   long long evt_id = oid.second;
-  //int evt_id = oid.second;
   // Read data; disable branch after reading the information
-  try     {
+  try {
      status = call->start(DataCallBack::GET, context.ptr, &user.ptr);
      if ( status.isSuccess() ) {
+        // lock access to this DB for MT safety
+        std::lock_guard<std::mutex>     lock( m_rootDb->ioMutex() );
         int numBytesBranch, icol = 0, numBytes = 0;
-	bool hasRead(false);
+        bool hasRead(false);
         Branches::iterator k;
         for(k=m_branches.begin(); k != m_branches.end(); ++k,++icol)  {
            BranchDesc& dsc = (*k);
@@ -460,7 +463,7 @@ RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid, DbAccessMod
                      // that will read branches on demand
                      if( dsc.aux_reader ) {
                         // cout << " ***  AuxDyn reader detected in " << dsc.clazz->GetName() << ", entry# " << evt_id << endl;
-                        dsc.aux_reader->addReaderToObject(*(void**)dsc.object, evt_id);
+                        dsc.aux_reader->addReaderToObject(*(void**)dsc.object, evt_id, &m_rootDb->ioMutex());
                      }
                      break;
                  }

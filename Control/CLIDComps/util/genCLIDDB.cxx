@@ -20,6 +20,10 @@ namespace po = boost::program_options;
 
 using namespace std;
 
+// Suppress roofit banner.  Besides the output, it spins up cling and
+// spits out ubsan warnings.
+int doBanner() { return 0; }
+
 int inputError(std::string errDescr, const po::options_description& optDescr ) {
   cerr << errDescr << "\n" << optDescr << endl;
   return 1;

@@ -251,3 +251,24 @@ class T2VertexBeamSpot_activeTE_FTK ( T2VertexBeamSpot_activeTE ) :
     def __init__ (self, name="T2VertexBeamSpot_activeTE_FTK"):
         super(T2VertexBeamSpot_activeTE_FTK, self).__init__(name, detail=0)
         self.TrackAlgoID    = AlgoId.FTF
+
+ # Setup for using FTKRefit tracks
+class T2VertexBeamSpot_FTKRefit ( T2VertexBeamSpot ) :
+    __slots__ = []
+    def __init__ (self, name="T2VertexBeamSpot_FTKRefit"):
+        super(T2VertexBeamSpot_FTKRefit, self).__init__(name, detail=2)
+        self.TrackAlgoID    = AlgoId.FTF
+ 
+# Setup for writing out all events seen by the BeamSpot algorithm with FTK tracks
+class T2VertexBeamSpot_activeAllTE_FTKRefit ( T2VertexBeamSpot_activeAllTE ) :
+    __slots__ = []
+    def __init__ (self, name="T2VertexBeamSpot_activeAllTE_FTKRefit"):
+        super(T2VertexBeamSpot_activeAllTE_FTKRefit, self).__init__(name, detail=0)
+        self.TrackAlgoID    = AlgoId.FTF
+ 
+# Setup for writing out events with a "good" vertex seen by the BeamSpot algorithm with FTK tracks
+class T2VertexBeamSpot_activeTE_FTKRefit ( T2VertexBeamSpot_activeTE ) :
+    __slots__ = []
+    def __init__ (self, name="T2VertexBeamSpot_activeTE_FTKRefit"):
+        super(T2VertexBeamSpot_activeTE_FTKRefit, self).__init__(name, detail=0)
+        self.TrackAlgoID    = AlgoId.FTF

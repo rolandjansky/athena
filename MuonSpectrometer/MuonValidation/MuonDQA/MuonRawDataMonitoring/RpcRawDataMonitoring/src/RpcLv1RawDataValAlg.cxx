@@ -1880,7 +1880,7 @@ void RpcLv1RawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const
   
   
   // Fill strip Id histogram
-  if ( (histName.find("ProfileCabling", 0)) != string::npos ) {
+  if ( (histName.find("ProfileCabling", 0)) != std::string::npos ) {
   
     sc = rpcCoolDb.getHist( rpcCool_PanelIdHist, histName.c_str() );
     if( sc.isFailure() ) ATH_MSG_WARNING (  "couldn't get "<< histName << " hist" );

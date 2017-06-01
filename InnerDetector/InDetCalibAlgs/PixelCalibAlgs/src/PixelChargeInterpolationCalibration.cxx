@@ -107,7 +107,7 @@ int PixelChargeInterpolationCalibration::Analyze( std::string output,
 	PixelChargeInterpolationParameters *DigitalParameters = 0;
 	PixelChargeInterpolationParameters *AnalogParameters = 0;
 	
-	ofstream logfile;
+        std::ofstream logfile;
   	logfile.open((output + ".log").c_str());
   	logfile << "Log file for the pixel calibration fits." << std::endl;	
 
@@ -132,7 +132,7 @@ int PixelChargeInterpolationCalibration::Analyze( std::string output,
 	//std::cout << reference_names.size() << std::endl;
 	for(unsigned int i = 0 ; i < reference_names.size() ; i++ ){
 		//std::cout << reference_names[i] << std::endl;
-		ifstream fin((reference_names[i]).c_str());
+                std::ifstream fin((reference_names[i]).c_str());
 		if(!fin.fail()){
 			fin.close();
 			PixelChargeInterpolationParameters *RefParameters =
