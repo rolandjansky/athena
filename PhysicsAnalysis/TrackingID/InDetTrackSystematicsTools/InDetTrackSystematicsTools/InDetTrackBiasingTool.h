@@ -1,9 +1,4 @@
 // -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #pragma once
 
 #include "InDetTrackSystematicsTools/IInDetTrackBiasingTool.h"
@@ -87,6 +82,10 @@ namespace InDet {
     bool m_isData = false;
     bool m_isSimulation = false;
     uint32_t m_runNumber = 0;
+
+    bool m_doD0Bias = true;
+    bool m_doZ0Bias = true;
+    bool m_doQoverPBias = true;
 
   }; // class InDetTrackBiasingTool
 

@@ -1,9 +1,4 @@
 // -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #pragma once
 #include <string>
 #include <map>
@@ -50,7 +45,7 @@ namespace InDet {
     // note that SystematicSet caches its hashes so this is probably not as slow as it might seem
     std::unordered_map< CP::SystematicSet, CP::SystematicSet > m_sysFilterMap;
 
-    const CP::SystematicSet* m_activeSysts;
+    const CP::SystematicSet* m_activeSysts = nullptr;
 
     bool isActive( TrackSystematic ) const;    
   };

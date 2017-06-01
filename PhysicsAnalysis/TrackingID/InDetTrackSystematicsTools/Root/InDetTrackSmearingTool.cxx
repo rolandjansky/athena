@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // ROOT include(s):
 #include <TRandom.h>
 #include <TH2F.h>
@@ -66,12 +62,13 @@ namespace InDet {
     ATH_CHECK( initObject<TH1>(m_smearD0Dead, "res_diff_d0_vs_pt.hist.root", "res_pt_d0_0") );
     ATH_CHECK( initObject<TH1>(m_smearZ0Dead, "res_diff_z0_vs_pt.hist.root", "res_pt_z0_0") );
    
-    ATH_CHECK( initObject<TH2>(m_smearD0, "trackIPAlign_MB2016_final.root", "quad_diff/d0quaddiff_comb_Pt_Eta" ) );
-    ATH_CHECK( initObject<TH2>(m_smearZ0, "trackIPAlign_MB2016_final.root", "quad_diff/z0quaddiff_comb_Pt_Eta" ) );
-    ATH_CHECK( initObject<TH2>(m_smearD0_sys_up, "trackIPAlign_MB2016_final.root", "quad_diff/d0quaddiff_comb_Pt_Eta_sys_up" ) );
-    ATH_CHECK( initObject<TH2>(m_smearZ0_sys_up, "trackIPAlign_MB2016_final.root", "quad_diff/z0quaddiff_comb_Pt_Eta_sys_up" ) );
-    ATH_CHECK( initObject<TH2>(m_smearD0_sys_dw, "trackIPAlign_MB2016_final.root", "quad_diff/d0quaddiff_comb_Pt_Eta_sys_dw" ) );
-    ATH_CHECK( initObject<TH2>(m_smearZ0_sys_dw, "trackIPAlign_MB2016_final.root", "quad_diff/z0quaddiff_comb_Pt_Eta_sys_dw" ) );
+    string rootfile = "trackIPAlign_testCmb.root";
+    ATH_CHECK( initObject<TH2>(m_smearD0, rootfile, "quad_diff/d0quaddiff_comb_Pt_Eta" ) );
+    ATH_CHECK( initObject<TH2>(m_smearZ0, rootfile, "quad_diff/z0quaddiff_comb_Pt_Eta" ) );
+    ATH_CHECK( initObject<TH2>(m_smearD0_sys_up, rootfile, "quad_diff/d0quaddiff_comb_Pt_Eta_sys_up" ) );
+    ATH_CHECK( initObject<TH2>(m_smearZ0_sys_up, rootfile, "quad_diff/z0quaddiff_comb_Pt_Eta_sys_up" ) );
+    ATH_CHECK( initObject<TH2>(m_smearD0_sys_dw, rootfile, "quad_diff/d0quaddiff_comb_Pt_Eta_sys_dw" ) );
+    ATH_CHECK( initObject<TH2>(m_smearZ0_sys_dw, rootfile, "quad_diff/z0quaddiff_comb_Pt_Eta_sys_dw" ) );
 
     ATH_MSG_INFO( "Using seed of " << m_seed << " to initialize RNG" );
     m_rnd = make_unique<TRandom3>(m_seed);

@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #include "InDetTrackSystematicsTools/InDetTrackBiasingTool.h"
 #include "xAODEventInfo/EventInfo.h"
 #include <math.h>
@@ -47,8 +43,6 @@ namespace InDet {
 
   StatusCode InDetTrackBiasingTool::initialize()
   {
-
-    if (m_runNumber > 0) ATH_CHECK( initHistograms(m_runNumber) );
     
     if (m_isData && m_isSimulation) {
       ATH_MSG_ERROR( "Cannot manually set for both data and simulation!" );
@@ -101,29 +95,35 @@ namespace InDet {
 	return CP::CorrectionCode::Error;
       }
     }
-
-    bool d0WmActive = isActive( TRK_BIAS_D0_WM );
-    bool z0WmActive = isActive( TRK_BIAS_Z0_WM );
-    bool qOverPWmActive = isActive( TRK_BIAS_QOVERP_SAGITTA_WM );
     
-    if ( m_isData || d0WmActive ) {
-      d0 += readHistogram(m_biasD0, m_biasD0Histogram, phi0, eta);
-      if ( m_isData && d0WmActive ) {
-	d0 += readHistogram(0., m_biasD0HistError, phi0, eta);
+    // do the biasing
+    if ( m_doD0Bias ) {
+      bool d0WmActive = isActive( TRK_BIAS_D0_WM );
+      if ( m_isData || d0WmActive ) {
+	d0 += readHistogram(m_biasD0, m_biasD0Histogram, phi0, eta);
+	if ( m_isData && d0WmActive ) {
+	  d0 += readHistogram(0., m_biasD0HistError, phi0, eta);
+	}
       }
     }
-    if ( m_isData || z0WmActive ) {
-      z0 += readHistogram(m_biasZ0, m_biasZ0Histogram, phi0, eta);
-      if ( m_isData && z0WmActive ) {
-	z0 += readHistogram(0., m_biasZ0HistError, phi0, eta);
+    if ( m_doZ0Bias ) {
+      bool z0WmActive = isActive( TRK_BIAS_Z0_WM );
+      if ( m_isData || z0WmActive ) {
+	z0 += readHistogram(m_biasZ0, m_biasZ0Histogram, phi0, eta);
+	if ( m_isData && z0WmActive ) {
+	  z0 += readHistogram(0., m_biasZ0HistError, phi0, eta);
+	}
       }
     }
-    if ( m_isData || qOverPWmActive ) {
-      auto sinTheta = sin(theta);
-      // readHistogram flips the sign of the correction if m_isSimulation is true
-      qOverP += 1.e-6*sinTheta*readHistogram(m_biasQoverPsagitta, m_biasQoverPsagittaHistogram, phi0, eta);
-      if ( m_isData && qOverPWmActive ) {
-	qOverP += 1.e-6*sinTheta*readHistogram(0., m_biasQoverPsagittaHistError, phi0, eta);
+    if ( m_doQoverPBias ) {
+      bool qOverPWmActive = isActive( TRK_BIAS_QOVERP_SAGITTA_WM );
+      if ( m_isData || qOverPWmActive ) {
+	auto sinTheta = sin(theta);
+	// readHistogram flips the sign of the correction if m_isSimulation is true
+	qOverP += 1.e-6*sinTheta*readHistogram(m_biasQoverPsagitta, m_biasQoverPsagittaHistogram, phi0, eta);
+	if ( m_isData && qOverPWmActive ) {
+	  qOverP += 1.e-6*sinTheta*readHistogram(0., m_biasQoverPsagittaHistError, phi0, eta);
+	}
       }
     }
 
@@ -137,14 +137,26 @@ namespace InDet {
   {
     string rootfileName;
     if (runNumber <= 0) {
-      ATH_MSG_WARNING( "Run number not set. Defaulting to 2015 setting." );
+      ATH_MSG_WARNING( "Run number not set." );
     }
-    if (runNumber < 297730) {
-      ATH_MSG_INFO( "Calibrating for 2015 runs (before 297730)." );
+    if (runNumber >= 286282 && runNumber <= 287931) {
+      ATH_MSG_INFO( "Calibrating for 2015 HI and 5 TeV pp runs (286282 to 287931)." );
+      ATH_MSG_INFO( "Note: no d0 and z0 maps are implemented." );
+      rootfileName = "5TeVHI2015_sagittaBias_pTmethod.root";
+      m_biasD0Histogram = nullptr;
+      m_biasZ0Histogram = nullptr;
+      ATH_CHECK ( initObject<TH2>(m_biasQoverPsagittaHistogram, rootfileName, "h_deltaSagittaMap") );
+      rootfileName = "5TeVHI2015_sagittaBias_pTmethod_statUncertainty.root";
+      m_biasD0HistError = nullptr;
+      m_biasZ0HistError = nullptr;
+      ATH_CHECK ( initObject<TH2>(m_biasQoverPsagittaHistError, rootfileName, "h_deltaSagittaMap_statErr") );
+    } else if (runNumber < 297730) {
+      ATH_MSG_INFO( "Calibrating for 2015 runs after 287931 and before 297730." );
       rootfileName = "correctionmaps_HighGran_IBLon_NoGRL_INDET_2015_datareproAll25ns_correctedEp.root";
       ATH_CHECK ( initObject<TH2>(m_biasD0Histogram, rootfileName, "d0CorrectionVsEtaPhi") );
       ATH_CHECK ( initObject<TH2>(m_biasZ0Histogram, rootfileName, "z0CorrectionVsEtaPhi") );
       ATH_CHECK ( initObject<TH2>(m_biasQoverPsagittaHistogram, rootfileName, "LambdaCorrectionVsEtaPhi_reweightedToEP") );
+      m_biasD0HistError = m_biasZ0HistError = m_biasQoverPsagittaHistError = nullptr;
     } else if (runNumber <= 300908) {
       ATH_MSG_INFO( "Calibrating for 2016 runs before IBL temperature change (297730 to 300908)." ); // pre-TSI: 297730 - 300908
       rootfileName = "CorrectionsResult_PreTSI.root";
@@ -176,9 +188,18 @@ namespace InDet {
       ATH_CHECK ( initObject<TH2>(m_biasZ0HistError, rootfileName, "z0/theUncertainty_z0") );
       ATH_CHECK ( initObject<TH2>(m_biasQoverPsagittaHistError, rootfileName, "sagitta/theUncertainty_sagitta") );
     } else {
-      ATH_MSG_ERROR( "Run number = " << runNumber << " too large to be recognized (after 311481)." );
+      ATH_MSG_ERROR( "Run number = " << runNumber << " not in recognized range (286282 to 311481)." );
       return StatusCode::FAILURE;
     }
+
+    
+    m_doD0Bias = m_biasD0Histogram != nullptr;
+    m_doZ0Bias = m_biasZ0Histogram != nullptr;
+    m_doQoverPBias = m_biasQoverPsagittaHistogram != nullptr;
+    
+    if (!m_doD0Bias) ATH_MSG_WARNING( "Will not perform d0 bias." );
+    if (!m_doZ0Bias) ATH_MSG_WARNING( "Will not perform z0 bias." );
+    if (!m_doQoverPBias) ATH_MSG_WARNING( "Will not perform q/p sagitta bias." );
 
     return StatusCode::SUCCESS;
   }
@@ -222,17 +243,18 @@ namespace InDet {
 			 ") does not match that from the event store (" << runNumber << ")." );
 	ATH_MSG_WARNING( "Will use the manually set run number, but you must make sure this is the desired behaviour!" );
       }
-    } else {
-      if ( ! initHistograms( runNumber ).isSuccess() ) {
-	return StatusCode::FAILURE;
-      }
+      runNumber = m_runNumber;
+    }
+    if ( ! initHistograms( runNumber ).isSuccess() ) {
+      return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;
   }
 
   float InDetTrackBiasingTool::readHistogram(float fDefault, TH2* histogram, float phi, float eta) const {
     if (histogram == nullptr) {
-      throw std::runtime_error( "Bias histogram is null. Check your run number / configuration combination." );
+      ATH_MSG_ERROR( "Configuration histogram is invalid. Check the run number and systematic configuration combination.");
+      throw std::runtime_error( "invalid configuration" );
     }
     
     // safety measure:

@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 
 // Dear emacs, this is -*- c++ -*-
 // $Id: ITSmeToolTester.h 299890 2014-03-29 08:54:38$
