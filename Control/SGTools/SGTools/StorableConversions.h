@@ -197,7 +197,8 @@ namespace SG {
 
   template <typename T>
   DataObject* asStorable(std::unique_ptr<T> pObject) {
-    typedef typename DataBucketTrait<T>::type bucket_t;
+    typedef typename std::remove_const<T>::type T_nc;
+    typedef typename DataBucketTrait<T_nc>::type bucket_t;
     return new bucket_t (std::move(pObject));
   }  
 
