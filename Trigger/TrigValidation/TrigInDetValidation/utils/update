@@ -62,7 +62,7 @@ foreach job ( $BASE/* )
     echo "eos testfile:   $testfile"
     cd $DIR
     cp -v $eosdir/$testfile /tmp/data-$jobid-reference.root
-    TIDAmakeSmallRefFile /tmp/data-$jobid-reference.root share/$PROJECT/data-$jobid-reference.root >& $jobid.log
+    TIDAmakeSmallRefFile.exe /tmp/data-$jobid-reference.root share/$PROJECT/data-$jobid-reference.root >& $jobid.log
     rm /tmp/data-$jobid-reference.root
    endif
 

@@ -12,10 +12,10 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 #set athenaCommonFlags.FilesInput to be able to use this job options standalone without RTT
 #secondSet of files can be activated by the if statement below 
 
-if athenaCommonFlags.FilesInput()==[]:
-  athenaCommonFlags.FilesInput=[
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000013.pool.root.1"
-    ]
+#if athenaCommonFlags.FilesInput()==[]:
+#  athenaCommonFlags.FilesInput=[
+#      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000013.pool.root.1"
+#    ]
 
 ###XMLDataSet='TrigInDetValidation_mu_single_mu_100' # <-- RTT jobID
 
