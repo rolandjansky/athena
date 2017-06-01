@@ -120,7 +120,8 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   m_acceptDiagonalClusters(1),
   m_pixelClusterAmbiguitiesMapName("PixelClusterAmbiguitiesMap"),
   m_ambiguitiesMap(0),
-  m_digitizationStepper("Trk::PlanarModuleStepper")
+  m_digitizationStepper("Trk::PlanarModuleStepper"),
+  m_DiffusionShift(0.004)
 {
   declareInterface<IPixelFastDigitizationTool>(this);
   declareProperty("RndmSvc"                        , m_rndmSvc,                  "Random Number Service used in Pixel digitization" );
@@ -147,6 +148,7 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   declareProperty("HardScatterSplittingMode"       , m_HardScatterSplittingMode, "Control pileup & signal splitting" );
   declareProperty( "ParticleBarcodeVeto"           , m_vetoThisBarcode, "Barcode of particle to ignore");
   declareProperty("DigitizationStepper",     m_digitizationStepper);
+  declareProperty("DiffusionShif", m_DiffusionShift);
 }
 
 PixelFastDigitizationTool::~PixelFastDigitizationTool() {
@@ -571,6 +573,10 @@ StatusCode PixelFastDigitizationTool::digitize()
 
       localStartPosition = hitSiDetElement->hitLocalToLocal3D(localStartPosition);
       localEndPosition = hitSiDetElement->hitLocalToLocal3D(localEndPosition);
+      
+      
+      //New function to tune the cluster size
+      bool diffusion = Diffuse(localStartPosition, localEndPosition, m_DiffusionShift);
 
       const Amg::Vector3D localDirection(localEndPosition.x()-localStartPosition.x(), localEndPosition.y()-localStartPosition.y(), localEndPosition.z()-localStartPosition.z());
       
@@ -807,14 +813,7 @@ StatusCode PixelFastDigitizationTool::digitize()
       // ---------------------------------------------------------------------------------------------
       //  PART 2: Cluster && ROT creation
       
-      // from InDetReadoutGeometry: width from eta
-      double etaWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromColumnRange(etaIndexMin, etaIndexMax);
-      // from InDetReadoutGeometry : width from phi
-       double phiWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromRowRange(phiIndexMin, phiIndexMax);
-
-      InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(m_siDeltaPhiCut,m_siDeltaEtaCut),
-                                                   Amg::Vector2D(phiWidth,etaWidth));
-
+   
       //ATTENTION      
 //       // correct shift implied by the scaling of the Lorentz angle
 //       double newshift = 0.5*thickness*tanLorAng;
@@ -826,6 +825,15 @@ StatusCode PixelFastDigitizationTool::digitize()
 	//ATTENTION this can be enabled, take a look to localDirection
 //         if (m_pixModuleDistortion &&  hitSiDetElement->isBarrel() )
 //           clusterPosition = m_pixDistortionTool->correctSimulation(hitSiDetElement->identify(), clusterPosition, localDirection);
+
+   
+	// from InDetReadoutGeometry: width from eta
+	double etaWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromColumnRange(etaIndexMin, etaIndexMax);
+	// from InDetReadoutGeometry : width from phi
+	double phiWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromRowRange(phiIndexMin, phiIndexMax);
+	
+	InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(m_siDeltaPhiCut,m_siDeltaEtaCut),
+                                                   Amg::Vector2D(phiWidth,etaWidth));
 
         // use the cluster maker from the offline software
         pixelCluster = m_clusterMaker->pixelCluster(clusterId,
@@ -839,7 +847,8 @@ StatusCode PixelFastDigitizationTool::digitize()
                                                     m_pixErrorStrategy,
                                                     *m_pixel_ID);
         if (isGanged)  pixelCluster->setGangedPixel(isGanged);
-	
+
+        delete siWidth; 	
 	
       }  else {
         ATH_MSG_WARNING("[ cluster - pix ] No pixels errors provided, but configured to use them.");
@@ -873,7 +882,8 @@ StatusCode PixelFastDigitizationTool::digitize()
 	
 	 m_pixPrdTruth->insert(std::make_pair(pixelCluster->identify(), p ));
       }
- 
+
+
       hit_vector.clear();
     } // end hit while
      
@@ -1129,330 +1139,25 @@ Amg::Vector3D PixelFastDigitizationTool::CalculateIntersection(Amg::Vector3D Poi
   return Intersection;
 }
 
-//Function for testing not yet integrated in the code
+bool PixelFastDigitizationTool::Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shift){
 
-// void PixelFastDigitizationTool::SplitCluster(Pixel_detElement_RIO_map & PixelDetElClusterMap,  const PixelID& pixelID){
-//   Pixel_detElement_RIO_map temporary_newMap;
-//   
-//   
-//    //std::cout<<"Split "<<std::endl;
-// //   std::cout<<"Cluster size "<<PixelDetElClusterMap.size()<<std::endl;
-//   for(Pixel_detElement_RIO_map::iterator currentClusIter = PixelDetElClusterMap.begin(); currentClusIter != PixelDetElClusterMap.end(); currentClusIter++)
-//   {
-//     int counter=0;
-//     std::multimap<int,Identifier> rows_rdo;
-//     std::multimap<int,int> rows_tot;
-//     
-//     std::multimap<int,Identifier> columns_rdo;
-//     std::multimap<int,int> columns_tot;
-//     
-//     std::vector<Identifier> currentRdoList = (*currentClusIter).second->rdoList();
-//     
-//     if( currentRdoList.size() == 1 ) continue;
-//     
-//     std::vector<int> currentTotList = (*currentClusIter).second->totList();
-//     const InDetDD::SiDetectorElement* detEl = (*currentClusIter).second->detectorElement();
-//     const IdentifierHash waferID = m_pixel_ID->wafer_hash(detEl->identify());
-//     
-// //     std::cout<<"currentRdoList "<<currentRdoList.size()<<std::endl;
-//     
-//     for(std::vector<Identifier>::iterator rdoID=currentRdoList.begin(); rdoID!=currentRdoList.end(); rdoID++)
-//     { 
-//       
-//       rows_rdo.insert(std::pair<int,Identifier>(pixelID.phi_index(*rdoID),(*rdoID)));
-//       rows_tot.insert(std::pair<int,int>(pixelID.phi_index(*rdoID),currentTotList[counter]));
-//       
-//       columns_rdo.insert(std::pair<int,Identifier>(pixelID.eta_index(*rdoID),(*rdoID)));
-//       columns_tot.insert(std::pair<int,int>(pixelID.eta_index(*rdoID),currentTotList[counter]));
-//       counter++;
-//     }
-//     
-//     
-//     if(rows_rdo.size() > 2){
-//       
-//       std::vector<std::vector<int> > row_hole;
-//       std::vector<int> vector_rows;     
-//       
-//       std::multimap<int,Identifier>::iterator previous_row=rows_rdo.begin();
-//       std::multimap<int,Identifier>::iterator rowIter=rows_rdo.begin();
-//       rowIter++;
-//       for(; rowIter!=rows_rdo.end(); rowIter++)
-//       {
-// 	
-// 	
-//  	//std::cout<<"row "<<(*previous_row).first<<std::endl;
-//  	//std::cout<<"row now "<<(*rowIter).first<<std::endl;
-// 	
-// 	vector_rows.push_back((*previous_row).first);
-// 	
-// 	if(abs(((*previous_row).first) - ((*rowIter).first)) > 1 ){ 
-// 	  
-//  	  //std::cout<<"vector rows size "<<vector_rows.size()<<std::endl;
-// 	  
-// 	  std::vector<int>::iterator it_e = std::unique (vector_rows.begin(), vector_rows.end());  
-// 	  vector_rows.resize( std::distance(vector_rows.begin(),it_e) ); 
-// 	  
-// 	  row_hole.push_back(vector_rows);
-// 	  vector_rows.clear();
-// 	  
-// 	  //std::cout<<"hole rows "<<((*previous_row).first) +1 <<std::endl<<std::endl;
-// 	}
-// 	
-// 	
-// 	previous_row++;
-//       }
-//       
-//       
-//       vector_rows.push_back((*previous_row).first);
-//       std::vector<int>::iterator it_e = std::unique (vector_rows.begin(), vector_rows.end());  
-//       vector_rows.resize( std::distance(vector_rows.begin(),it_e) ); 
-//       row_hole.push_back(vector_rows);
-//       vector_rows.clear();
-//       
-//       if(row_hole.size() > 1)
-//       {
-// 	bool ExistLargeCluster=false;
-// 	for(unsigned int v=0; v < row_hole.size(); v++){
-// 	  
-// 	  if (row_hole[v].size() == 1) continue;
-// 	  ExistLargeCluster=true;
-// 	  
-// 	  std::cout<<"row_hole[v].size" << row_hole[v].size() <<std::endl;
-// 	  InDet::PixelCluster* pixelCluster = CreatePixelCluster(row_hole[v], rows_rdo, rows_tot, pixelID, true, detEl);
-// 	  if(pixelCluster != NULL)
-// 	  {
-// 	    temporary_newMap.insert(Pixel_detElement_RIO_map::value_type(waferID, pixelCluster));
-// 	    
-// 	    std::multimap<Identifier,HepMcParticleLink>::iterator hitlink=m_pixPrdTruth->find((*currentClusIter).second->identify());
-// 	    
-// 	    // 	    std::cout<<"hitlink "<<m_pixPrdTruth->count((*currentClusIter).second->identify());
-// 	    unsigned int count_link=m_pixPrdTruth->count((*currentClusIter).second->identify());
-// 	    
-// 	    for(unsigned int o = 0; o<count_link; o++)
-// 	    { 
-// 	      m_pixPrdTruth->insert(std::make_pair(pixelCluster->identify(), (*hitlink).second ));
-// 	      hitlink++;
-// 	    }
-// 	  }
-// 	}
-// 	if(ExistLargeCluster){
-// 	  PixelDetElClusterMap.erase(currentClusIter);
-// 	  m_pixPrdTruth->erase((*currentClusIter).second->identify());
-// 	  //std::cout<<"New Clusters, valid "<<temporary_newMap.size()<<std::endl;
-// 	}
-//       }
-//       
-//     }
-//     
-//     //      if(columns_rdo.size() > 2){
-//     //       
-//     //       std::vector<std::vector<int> > column_hole;
-//     //       std::vector<int> vector_columns;     
-//     //       std::multimap<int,Identifier>::iterator previous_column=columns_rdo.begin();
-//     //       std::multimap<int,Identifier>::iterator columnIter=columns_rdo.begin();
-//     //       columnIter++;
-//     //       
-//     //       for(; columnIter!=columns_rdo.end(); columnIter++)
-//     //       {
-//     // 	
-//     // 	std::cout<<"column "<<(*previous_column).first<<std::endl;
-//     // 	std::cout<<"column now "<<(*columnIter).first<<std::endl;
-//     // 	
-//     // 	vector_columns.push_back((*previous_column).first);
-//     // 	
-//     // 	if(abs(((*previous_column).first) - ((*columnIter).first)) > 1 ){ 
-//     // 	  
-//     // 	  column_hole.push_back(vector_columns);
-//     // 	  vector_columns.clear();
-//     // 	  
-//     // 	  std::cout<<"hole columns "<<((*previous_column).first) +1 <<std::endl<<std::endl;
-//     // 	}
-//     // 	
-//     // 	previous_column++;
-//     //       }
-//     //       column_hole.push_back(vector_columns);
-//     //       vector_columns.clear();
-//     //       if(column_hole.size() > 1)
-//     //       {
-//     // 	std::cout<<"Number of cluster column"<<column_hole.size()<<std::endl<<std::endl;
-//     //       }
-//     //       //Creare un nuovo cluster usando questi pixel separati
-//     //     }
-//   }
-//   
-//   PixelDetElClusterMap.insert(temporary_newMap.begin(),temporary_newMap.end());  
-//   //std::cout<<"Number of cluster end "<<PixelDetElClusterMap.size()<<std::endl<<std::endl;
-//   
-// }
-// 
-// 
-// void PixelFastDigitizationTool::Check_SplitCluster(InDet::PixelCluster * currentClusIter,  const PixelID& pixelID){
-// 
-//     int counter=0;
-//     std::multimap<int,Identifier> rows_rdo;
-//     std::multimap<int,int> rows_tot;
-//     
-//     std::multimap<int,Identifier> columns_rdo;
-//     std::multimap<int,int> columns_tot;
-//     
-//     std::vector<Identifier> currentRdoList = currentClusIter->rdoList();
-//     std::vector<int> currentTotList = currentClusIter->totList();
-//     const InDetDD::SiDetectorElement* detEl = currentClusIter->detectorElement();
-//     const IdentifierHash waferID = m_pixel_ID->wafer_hash(detEl->identify());
-//     
-//     for(std::vector<Identifier>::iterator rdoID=currentRdoList.begin(); rdoID!=currentRdoList.end(); rdoID++)
-//     { 
-//       
-//       rows_rdo.insert(std::pair<int,Identifier>(pixelID.phi_index(*rdoID),(*rdoID)));
-//       rows_tot.insert(std::pair<int,int>(pixelID.phi_index(*rdoID),currentTotList[counter]));
-//       
-//       columns_rdo.insert(std::pair<int,Identifier>(pixelID.eta_index(*rdoID),(*rdoID)));
-//       columns_tot.insert(std::pair<int,int>(pixelID.eta_index(*rdoID),currentTotList[counter]));
-//       counter++;
-//     }
-//     
-//     
-//     if(rows_rdo.size() > 2){
-//       
-//       std::vector<std::vector<int> > row_hole;
-//       std::vector<int> vector_rows;     
-//       
-//       std::multimap<int,Identifier>::iterator previous_row=rows_rdo.begin();
-//       std::multimap<int,Identifier>::iterator rowIter=rows_rdo.begin();
-//       rowIter++;
-//       for(; rowIter!=rows_rdo.end(); rowIter++)
-//       {
-// 	
-// 	
-// //  	std::cout<<"row "<<(*previous_row).first<<std::endl;
-// //  	std::cout<<"row now "<<(*rowIter).first<<std::endl;
-// 	
-// 	vector_rows.push_back((*previous_row).first);
-// 	
-// 	if(abs(((*previous_row).first) - ((*rowIter).first)) > 1 ){ 
-// 	  
-//  	  std::cout<<"vector rows size "<<vector_rows.size()<<std::endl;
-// 	  
-// 	  std::vector<int>::iterator it_e = std::unique (vector_rows.begin(), vector_rows.end());  
-// 	  vector_rows.resize( std::distance(vector_rows.begin(),it_e) ); 
-// 	  
-// 	  row_hole.push_back(vector_rows);
-// 	  vector_rows.clear();
-// 	  
-//  	  std::cout<<"hole rows "<<((*previous_row).first) +1 <<std::endl<<std::endl;
-// 	}
-// 	
-// 	
-// 	previous_row++;
-//       }
-//       
-//      }
-// }
-// 
-// InDet::PixelCluster* PixelFastDigitizationTool::CreatePixelCluster(std::vector<int> row, std::multimap<int,Identifier> row_rdo, std::multimap<int,int> row_tot, const PixelID& pixel_ID, bool is_row, const InDetDD::SiDetectorElement* hitSiDetElement){
-//   
-//   InDet::PixelCluster* pixelCluster = 0;
-//   
-//   std::vector<Identifier> rdoList;
-//   std::vector<int> totList;
-//   
-// //   std::cout<<"vector rows size "<<row.size()<<std::endl;
-//   for(auto this_row: row){
-//     std::pair<std::multimap<int,Identifier>::iterator,std::multimap<int,Identifier>::iterator> begin_rdo = row_rdo.equal_range(this_row);
-//     for(std::multimap<int,Identifier>::iterator it=begin_rdo.first; it!=begin_rdo.second; ++it)
-//        {
-// 	 rdoList.push_back((*it).second);
-//  	 std::cout<<"(*it).first "<<(*it).first<<std::endl;
-//        }
-//     
-//     std::pair<std::multimap<int,int>::iterator,std::multimap<int,int>::iterator> begin_tot = row_tot.equal_range(this_row);
-//     for(std::multimap<int,int>::iterator it=begin_tot.first; it!=begin_tot.second; ++it)
-//        totList.push_back((*it).second);
-//   }
-//   
-//   //std::cout<<" Cluster, rdoList.size "<<rdoList.size()<<std::endl;
-//   //std::cout<<" Cluster, totList.size "<<totList.size()<<std::endl;
-//   
-//   int siDeltaCut_row,siDeltaCut_col;
-//   int IndexMin,IndexMax;
-//   double Width_col,Width_row;
-//   
-//   IndexMin=1000;
-//   IndexMax=-1000;
-//   
-//   double totalpath=0.;
-//   unsigned int i=0;
-//   
-//   Amg::Vector2D clusterPosition(0.,0.);
-//   
-//   for (std::vector<Identifier>::iterator rdoIter=rdoList.begin(); rdoIter != rdoList.end(); ++rdoIter) {
-//     
-//     const InDetDD::SiCellId& chargeCellId =  hitSiDetElement->cellIdFromIdentifier(*rdoIter);
-//     Amg::Vector2D chargeCenterPosition = hitSiDetElement->rawLocalPositionOfCell(chargeCellId);
-//     
-//     int chargeIndex=0;
-//     
-//     // phi/ eta index
-//     if(!is_row){
-//       chargeIndex = chargeCellId.phiIndex();
-//     }
-//     else{
-//       chargeIndex = chargeCellId.etaIndex();
-//     }
-//     
-//     IndexMin = chargeIndex < IndexMin ?  chargeIndex : IndexMin;
-//     IndexMax = chargeIndex > IndexMax ?  chargeIndex : IndexMax;
-//     
-//     
-//     totalpath+=(double)totList[i];
-//     clusterPosition += (double)totList[i] * chargeCenterPosition;
-//     i++;
-//   }
-//   
-//   clusterPosition*= 1./totalpath;
-//   
-//   if(is_row){
-// //     Width_row= design->widthFromRowRange(row[0], row[row.size() - 1]);
-// //     Width_col= design->widthFromColumnRange(IndexMin, IndexMax);
-//     siDeltaCut_row=(row[row.size() - 1] - row[0]) +1;
-//     siDeltaCut_col = (IndexMax-IndexMin)+1;
-//     
-//   }
-//   else{
-// //     Width_col= design->widthFromColumnRange(row[0], row[row.size() - 1]); 
-// //     Width_row= design->widthFromRowRange(IndexMin, IndexMax);
-//     siDeltaCut_col=(row[row.size() - 1] - row[0]) +1;
-//     siDeltaCut_row = (IndexMax-IndexMin)+1;
-//   }
-//   
-//   InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(siDeltaCut_row,siDeltaCut_col));
-//   
-//   Identifier clusterId = hitSiDetElement->identifierOfPosition(clusterPosition);
-//   
-//   pixelCluster = m_clusterMaker->pixelCluster(clusterId,
-// 					      clusterPosition,
-// 					      rdoList,
-// 					      0.,
-// 					      totList,
-// 					      *siWidth,
-// 					      hitSiDetElement,
-// 					      false,
-// 					      m_pixErrorStrategy,
-// 					      pixel_ID);
-//   
-//   
-//   if(!(pixelCluster->identify().is_valid()))
-//   {
-//     delete pixelCluster;
-//     return NULL;
-//   }
-//   
-//   if (! (pixel_ID.is_pixel(pixelCluster->identify()))) {delete pixelCluster; 
-//     return NULL;
-//   }
-//   
-//   return pixelCluster;
-//   
-//   
-//   
-// }
+  double localEntryX = localEntry.x();
+  double localEntryY = localEntry.y();
+  double localExitX = localExit.x();
+  double localExitY = localExit.y();  
+
+  double signX = localExitX>localEntryX ? 1:-1 ;
+  double signY = localExitY>localEntryY ? 1:-1 ;
+  
+  localEntryX += shift*signX*(-1);
+  localExitX += shift*signX;
+  localEntryY += shift*signY*(-1);
+  localExitY += shift*signY; 
+  
+  localEntry.setX(localEntryX);
+  localEntry.setY(localEntryY);
+  localExit.setX(localExitX);
+  localExit.setY(localExitY);
+
+  return true;
+}

@@ -80,7 +80,8 @@ SCT_FastDigitizationTool::SCT_FastDigitizationTool(const std::string& type,
   m_sctErrorStrategy(2),
   m_sctRotateEC(true),
   m_mergeCluster(true),
-  m_sctMinimalPathCut(120. * Gaudi::Units::micrometer)
+  m_sctMinimalPathCut(90.),
+  m_DiffusionShift(7)
 {
   declareInterface<ISCT_FastDigitizationTool>(this);
   declareProperty("InputObjectName"               , m_inputObjectName,          "Input Object name" );
@@ -98,6 +99,7 @@ SCT_FastDigitizationTool::SCT_FastDigitizationTool(const std::string& type,
   declareProperty("SCT_ErrorStrategy"             , m_sctErrorStrategy);
   declareProperty("SCT_RotateEndcapClusters"      , m_sctRotateEC);
   declareProperty("SCT_MinimalPathLength"         , m_sctMinimalPathCut);
+  declareProperty("DiffusionShift", m_DiffusionShift);
   declareProperty("HardScatterSplittingMode"      , m_HardScatterSplittingMode, "Control pileup & signal splitting" );
   declareProperty("ParticleBarcodeVeto"           , m_vetoThisBarcode, "Barcode of particle to ignore");
 }
@@ -142,6 +144,9 @@ StatusCode SCT_FastDigitizationTool::initialize()
 
   //locate the PileUpMergeSvc and initialize our local ptr
   CHECK(m_mergeSvc.retrieve());
+
+  //Initialize threshold
+  m_sctMinimalPathCut = m_sctMinimalPathCut * Gaudi::Units::micrometer;
 
   return StatusCode::SUCCESS ;
 }
@@ -359,8 +364,10 @@ StatusCode SCT_FastDigitizationTool::digitize()
       
       const double hitDepth  = hitSiDetElement->hitDepthDirection();
       
-      const HepGeom::Point3D<double> localStartPosition = hitSiDetElement->hitLocalToLocal3D(currentSiHit->localStartPosition());
-      const HepGeom::Point3D<double> localEndPosition = hitSiDetElement->hitLocalToLocal3D(currentSiHit->localEndPosition());
+      HepGeom::Point3D<double> localStartPosition = hitSiDetElement->hitLocalToLocal3D(currentSiHit->localStartPosition());
+      HepGeom::Point3D<double> localEndPosition = hitSiDetElement->hitLocalToLocal3D(currentSiHit->localEndPosition());
+      
+      bool diffusion = Diffuse(localStartPosition,localEndPosition, m_DiffusionShift * Gaudi::Units::micrometer);
       
       const double localEntryX = localStartPosition.x();
       const double localEntryY = localStartPosition.y();
@@ -368,6 +375,8 @@ StatusCode SCT_FastDigitizationTool::digitize()
       const double localExitX = localEndPosition.x();
       const double localExitY = localEndPosition.y();
       const double localExitZ = localEndPosition.z();
+      
+      
       
       const Amg::Vector2D localEntry(localEntryX,localEntryY);
       const Amg::Vector2D localExit(localExitX,localExitY);
@@ -744,6 +753,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	  m_sctSmearPathLength*CLHEP::RandGauss::shoot(m_randomEngine);
 	  chargeWeight *=  (1.+sPar);
 	}
+
 	// the threshold cut
 	if (!(chargeWeight > m_sctMinimalPathCut)) { continue; }
 	
@@ -1041,4 +1051,31 @@ bool SCT_FastDigitizationTool::NeighbouringClusters(const std::vector<Identifier
     } // end of loop over RDOs in the potential cluster
   //---------------------------------------------------------------------------------
   return isNeighbour;
+}
+
+
+bool SCT_FastDigitizationTool::Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shift ){
+    
+    double localEntryX = localEntry.x();
+    double localExitX = localExit.x();
+    
+    double signX =  (localExitX - localEntryX) > 0 ? 1 : -1;
+    localEntryX += shift * (-1) * signX;
+    localExitX += shift * signX;
+    localEntry.setX(localEntryX);
+    localExit.setX(localExitX);
+    
+    double localEntryY = localEntry.y();
+    double localExitY = localExit.y();
+    
+    double signY =  (localExitY - localEntryY) > 0 ? 1 : -1;
+    localEntryY += shift * (-1) * signY;
+    localExitY += shift * signY;
+    
+    //Check the effect in the endcap
+    localEntry.setY(localEntryY);
+    localExit.setY(localExitY);
+    
+    return true;
+    
 }

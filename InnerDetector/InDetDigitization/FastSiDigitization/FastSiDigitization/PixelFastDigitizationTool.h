@@ -144,12 +144,14 @@ private:
   std::vector<double>                   m_pixPhiError;              //!< phi error when not using the ClusterMaker
   std::vector<double>                   m_pixEtaError;              //!< eta error when not using the ClusterMaker
   int                                   m_pixErrorStrategy;         //!< error strategy for the  ClusterMaker
+  double                                m_DiffusionShift; //Shift of the track to improve cluster size description
   
   bool m_mergeCluster; //!< enable the merging of neighbour Pixel clusters >  
   bool m_splitClusters; //!< merging parameter used to define two clusters as neighbour >  
   bool m_acceptDiagonalClusters; //!< merging parameter used to define two clusters as neighbour >  
   std::string                           m_pixelClusterAmbiguitiesMapName;
   InDet::PixelGangedClusterAmbiguities* m_ambiguitiesMap;
+   
 
   //  bool isActiveAndGood(const ServiceHandle<IInDetConditionsSvc> &svc, const IdentifierHash &idHash, const Identifier &id, bool querySingleChannel, const char *elementName, const char *failureMessage = "") const;
   bool areNeighbours(const std::vector<Identifier>& group,  const Identifier& rdoID, InDetDD::SiDetectorElement* /*element*/, const PixelID& pixelID) const;
@@ -164,6 +166,7 @@ private:
   Trk::DigitizationModule * buildDetectorModule(const InDetDD::SiDetectorElement* ) const;
 
  Amg::Vector3D CalculateIntersection(Amg::Vector3D Point, Amg::Vector3D Direction, Amg::Vector2D PlaneBorder, double halfthickness) const;
+ bool Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shift );
   //   void addSDO( const DiodeCollectionPtr& collection );
 
 
