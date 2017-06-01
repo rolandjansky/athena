@@ -263,40 +263,16 @@ TrigFastTrackFinderMT::~TrigFastTrackFinderMT() {}
 //
 
 
-
-StatusCode TrigFastTrackFinderMT::initialize() {
-  ATH_CHECK( m_roiCollectionKey.initialize() );
-  ATH_CHECK( m_outputTracksKey.initialize() );
-  HLT::ErrorCode code = hltInitialize();
-  if (code != HLT::OK) {
-    return StatusCode::FAILURE;
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigFastTrackFinderMT::beginRun() {
-  HLT::ErrorCode code = hltBeginRun();
-  if (code != HLT::OK) {
-    return StatusCode::FAILURE;
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigFastTrackFinderMT::finalize() {
-  HLT::ErrorCode code = hltFinalize();
-  if (code != HLT::OK) {
-    return StatusCode::FAILURE;
-  }
-  return StatusCode::SUCCESS;
-}
-
-
-
 //-------------------------------------------------------------------------
 
 HLT::ErrorCode TrigFastTrackFinderMT::hltInitialize() {
 
-  ATH_MSG_DEBUG("TrigFastTrackFinderMT::initialize() "  << PACKAGE_VERSION);
+  if (m_roiCollectionKey.initialize().isFailure() ) {
+    return HLT::BAD_JOB_SETUP;
+  }
+  if (m_outputTracksKey.initialize().isFailure() ) {
+    return HLT::BAD_JOB_SETUP;
+  }
 
   if ( timerSvc() ) {
     m_SpacePointConversionTimer = addTimer("SpacePointConversion"); 

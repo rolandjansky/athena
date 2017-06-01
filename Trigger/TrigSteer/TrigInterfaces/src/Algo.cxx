@@ -120,9 +120,8 @@ StatusCode Algo::initialize()
 
 
   // Retrieve TrigTimer service.
-  //  m_timerSvc = 0;
 
-  if (m_doTiming || m_config -> getSteeringOPILevel() > 0) {
+  if (m_doTiming || (m_config && m_config -> getSteeringOPILevel() > 0 )) {
 
     StatusCode sc = service("TrigTimerSvc", m_timerSvc);
     if (sc.isFailure()) {
@@ -135,21 +134,23 @@ StatusCode Algo::initialize()
   m_totalTime = (m_doTiming ? addTimer("TotalTime") : 0);
 
   // Always have valid timer when OPI is collected
-  if ( m_config -> getSteeringOPILevel() > 0) {
-    if ( !m_totalTime || !m_totalTime->isActive() ) {
-      
-      TrigTimer *opiTimer = 0;
-      std::vector < TrigTimer* >::iterator ti;
-      for ( ti = m_timerSvc->begin(); ti != m_timerSvc->end(); ++ti ) {
-	TrigTimer *curTimer = *ti;
-	if(curTimer && curTimer->name() == "ALGO::OPITimer") { 
-	  opiTimer = curTimer;
-	  break;
-	}
+  if ( m_config ) {
+    if ( m_config -> getSteeringOPILevel() > 0) {
+      if ( !m_totalTime || !m_totalTime->isActive() ) {
+
+        TrigTimer *opiTimer = 0;
+        std::vector < TrigTimer* >::iterator ti;
+        for ( ti = m_timerSvc->begin(); ti != m_timerSvc->end(); ++ti ) {
+          TrigTimer *curTimer = *ti;
+          if(curTimer && curTimer->name() == "ALGO::OPITimer") { 
+            opiTimer = curTimer;
+            break;
+          }
+        }
+
+        if(!opiTimer) opiTimer = m_timerSvc -> addItem("ALGO::OPITimer");      
+        m_totalTime = opiTimer;
       }
-      
-      if(!opiTimer) opiTimer = m_timerSvc -> addItem("ALGO::OPITimer");      
-      m_totalTime = opiTimer;
     }
   }
 
