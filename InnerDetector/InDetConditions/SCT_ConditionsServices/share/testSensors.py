@@ -30,8 +30,21 @@ print globalflags
 #--------------------------------------------------------------
 from RecExConfig.RecFlags import rec
 rec.projectName.set_Value_and_Lock("data12_8TeV")
+
+# Load IOVDbSvc
+IOVDbSvc = Service("IOVDbSvc")
+IOVDbSvc.GlobalTag=globalflags.ConditionsTag()
+IOVDbSvc.OutputLevel = 3
 from IOVDbSvc.CondDB import conddb
-# conddb.dbdata="COMP200"
+conddb.dbdata="COMP200"
+conddb.addFolderWithTag("SCT_OFL","/SCT/Sensors","SctSensors-Sep03-14")
+
+conddb.blockFolder("/Indet/Align")
+conddb.addFolderWithTag("INDET_OFL","/Indet/Align","InDetAlign-BLK-UPD4-09")
+conddb.blockFolder("/Indet/PixelDist")
+conddb.addFolderWithTag("INDET_OFL","/Indet/PixelDist","InDetPixelDist-ES1-UPD1-01")
+conddb.blockFolder("/Indet/IBLDist")
+conddb.addFolderWithTag("INDET_OFL","/Indet/IBLDist","IBLDist-NULL")
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -61,16 +74,6 @@ DetFlags.writeRIOPool.all_setOff()
 
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
-
-#--------------------------------------------------------------
-# Load IOVDbSvc
-#--------------------------------------------------------------
-
-IOVDbSvc = Service("IOVDbSvc")
-IOVDbSvc.GlobalTag=globalflags.ConditionsTag()
-IOVDbSvc.OutputLevel = 3
-conddb.addFolderWithTag("SCT_OFL","/SCT/Sensors","SctSensors-Sep03-14")
-# conddb.addFolderWithTag("SCT_OFL","/SCT/Sensors","SctSensors-01")
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()

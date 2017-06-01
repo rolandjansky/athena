@@ -24,7 +24,6 @@ SCT_SensorsSvc::SCT_SensorsSvc( const std::string& name, ISvcLocator* pSvcLocato
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode SCT_SensorsSvc::initialize(){
-  std::cout <<" hi there "<<std::endl;
   m_sensorsManufacturer = new std::map<CondAttrListCollection::ChanNum, std::string >;
   // Retrieve detector store
   if (m_detStore.retrieve().isFailure())  return msg(MSG:: FATAL)<< "Detector service is not found!" << endmsg, StatusCode::FAILURE;
