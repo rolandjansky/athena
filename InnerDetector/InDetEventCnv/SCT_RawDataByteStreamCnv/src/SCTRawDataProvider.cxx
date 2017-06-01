@@ -32,6 +32,7 @@ SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
   declareProperty("RDOKey", m_rdoContainerKey = std::string("SCT_RDOs"));
   declareProperty("LVL1IDKey", m_lvl1CollectionKey = std::string("SCT_LVL1ID"));
   declareProperty("BCIDKey", m_bcidCollectionKey = std::string("SCT_BCID"));
+  declareProperty("ByteStreamErrContainer", m_bsErrContainerKey = std::string("SCT_ByteStreamErrs"));
   declareProperty ("ProviderTool", m_rawDataTool);
   declareProperty ("CablingSvc",   m_cabling);
 }
@@ -58,18 +59,22 @@ StatusCode SCTRawDataProvider::initialize() {
   ATH_CHECK( m_rdoContainerKey.initialize() );
   ATH_CHECK( m_lvl1CollectionKey.initialize() );
   ATH_CHECK( m_bcidCollectionKey.initialize() );
+  ATH_CHECK( m_bsErrContainerKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
 /// --------------------------------------------------------------------
 /// Execute
 
-StatusCode SCTRawDataProvider::execute() {
-
+StatusCode SCTRawDataProvider::execute()
+{
   SG::WriteHandle<SCT_RDO_Container> rdoContainer(m_rdoContainerKey);
-  rdoContainer = std::make_unique<SCT_RDO_Container>(m_sct_id->wafer_hash_max()); 
+  ATH_CHECK( rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sct_id->wafer_hash_max()) ) );
   ATH_CHECK(rdoContainer.isValid());
   
+  SG::WriteHandle<InDetBSErrContainer> bsErrContainer(m_bsErrContainerKey);
+  ATH_CHECK( bsErrContainer.record (std::make_unique<InDetBSErrContainer>()) );
+
   //// do we need this??  rdoIdc->cleanup();
 
   /** ask ROBDataProviderSvc for the vector of ROBFragment for all SCT ROBIDs */
@@ -131,7 +136,7 @@ StatusCode SCTRawDataProvider::execute() {
   }
 
   /** ask SCTRawDataProviderTool to decode it and to fill the IDC */
-  if (m_rawDataTool->convert(listOfRobf,&(*rdoContainer))==StatusCode::FAILURE)
+  if (m_rawDataTool->convert(listOfRobf, *rdoContainer, bsErrContainer.ptr()).isFailure())
     msg(MSG::ERROR) << "BS conversion into RDOs failed" << endmsg;
   
   return StatusCode::SUCCESS;
