@@ -127,9 +127,7 @@ class SCT_RodEncoder : virtual public ISCT_RodEncoder, virtual public AthAlgTool
   ServiceHandle<ISCT_CablingSvc> m_cabling ;
   ServiceHandle<ISCT_ByteStreamErrorsSvc> m_bsErrs ;
   const SCT_ID * m_sct_id ;
-  uint32_t m_rodid ;
   bool m_condensed ;
-  bool m_WriteByteStreamSummary ;
   std::set<Identifier> m_swapModuleId ;
   unsigned int  m_singleCondHitNumber ;
   unsigned int  m_pairedCondHitNumber ;
