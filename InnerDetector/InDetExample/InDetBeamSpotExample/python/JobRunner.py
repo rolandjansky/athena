@@ -21,6 +21,7 @@ import time
 import pprint
 import glob
 import re
+import subprocess
 
 
 # Default template of job submission script
@@ -337,7 +338,6 @@ class JobRunner:
 
         # Make sure start directory where script and config files will be written to exists
         os.makedirs('%(jobdir)s' % jobConfig) 
-        #os.system('mkdir -p %(jobdir)s' % jobConfig)
 
         # Write job configuration file
         config = open(jobConfig['configfile'],'w')
@@ -434,9 +434,10 @@ class JobRunner:
         logfile = jobConfig['logfile']
         exitstatus = jobConfig['exitstatus']
         # Write only to standard output, don't produce log file
-        #status = os.system(scriptfile) >> 8   # Convert to standard Unix exit code
+        #status = subprocess.call(scriptfile, shell=True) >> 8   # Convert to standard Unix exit code
         # Write to both stdout and log file, preserve exit status code
-        status = os.system('%s 2>&1 | tee %s ; exit `cat %s`' % (scriptfile,logfile,exitstatus)) >> 8   # Convert to standard Unix exit code 
+        status = subprocess.call('%s 2>&1 | tee %s ; exit `cat %s`'
+            % (scriptfile,logfile,exitstatus), shell=True) >> 8   # Convert to standard Unix exit code
         return status
 
 
@@ -445,7 +446,7 @@ class JobRunner:
         if not jobnr in self.jobs:
             raise JobRunnerError, 'Job number %s is not configured' % jobnr
         jobConfig = self.jobs[jobnr]
-        os.system('touch '+jobConfig['subflag'])
+        subprocess.call('touch '+jobConfig['subflag'], shell=True)
         status = self.submitJob(jobConfig)
         self.jobStatus[jobnr] = status
 
@@ -512,7 +513,8 @@ class JobRunner:
                         msg += "\n    %-20s = %s" % (i,data[k][i])
                 else:
                     msg += "\n\n%-20s = %s" % (k,data[k])
-            os.system("echo '%s' | mail -s '%s' '%s'" % (msg,subject,self.getParam('logmail')))
+            subprocess.call("echo '%s' | mail -s '%s' '%s'" %
+                (msg,subject,self.getParam('logmail')), shell=True)
 
 
 #
