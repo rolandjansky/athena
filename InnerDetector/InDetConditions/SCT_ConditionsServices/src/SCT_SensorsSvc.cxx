@@ -81,7 +81,7 @@ StatusCode SCT_SensorsSvc::fillSensorsData(int& /* i */ , std::list<std::string>
   for(sensorsData_itr = m_sensorsData->begin(); sensorsData_itr!= m_sensorsData->end(); ++sensorsData_itr)
     {
       CondAttrListCollection::ChanNum  channelNumber=sensorsData_itr->first;
-      m_sensorsManufacturer->insert(std::make_pair(channelNumber, sensorsData_itr->second[0].data<std::string>()));
+      (*m_sensorsManufacturer)[channelNumber] = sensorsData_itr->second[0].data<std::string>();
     }
 
   return StatusCode::SUCCESS;
