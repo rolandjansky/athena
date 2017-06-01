@@ -113,15 +113,14 @@ def extractFromFiles(fileNames):
                                                              branchNames = branchNames)
 
             try:
-                brs = tt.GetListOfBranches()
-                for br in brs:
-                    if not br.GetObjClassName() == 'EventStreamInfo': continue
+                for br in tt.GetListOfBranches():
+                    if not br.GetClassName() == 'EventStreamInfo': continue
 
                     # Find LBs in a given file
                     for lb in getLBs(tt, br.GetName()):
-                        fname = fileName.split('/')[-1]                            
+                        fname = fileName.split('/')[-1]
                         try:
-                            lbDict[fname].append(lb) 
+                            lbDict[fname].append(lb)
                         except KeyError:
                             lbDict[fname] = [lb]
                     #print 'Added lbs for Dict'
