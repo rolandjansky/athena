@@ -168,11 +168,15 @@ for xmlfile in $FILES; do
                   if [ "$ext" == "dat" -o "$ref" != "" ];  then 
 #                    echo "   getting file $ffile"
                      if [ "$command" != "TIDArun.sh" -a "$command" != "TIDArun" ]; then
-#                       $(echo $ffile | grep -q "\*") || echo "get_files -data $ffile" >> $outfile
+                        $(echo $ffile | grep -q "\*") || echo "get_files -data $ffile" >> $outfile
                         if [ "$ext" == "dat" ]; then 
 			    get_files -data $ffile
-                            for DATFILE in $(grep "^# *include" $ffile | sed 's|.*include ||g'); do 
+                            for DATFILE in $(grep "^# *include" $ffile | sed 's|.*include ||g' | sed 's|\"||g' ); do 
                                 echo "get_files -data $DATFILE" >> $outfile
+   			        get_files -data $DATFILE
+                                for EXTRAFILE in $(grep "^# *include" $DATFILE | sed 's|.*include ||g' | sed 's|\"||g' ); do 
+                                   echo "get_files -data $EXTRAFILE" >> $outfile
+                                done
                             done
 			fi
                      fi
