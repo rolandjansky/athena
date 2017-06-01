@@ -9,8 +9,8 @@
 //
 //************************************************************
 
-#ifndef CombinedScintillator_CombinedScintillatorSD_H
-#define CombinedScintillator_CombinedScintillatorSD_H
+#ifndef COMBINEDSCINTILLATOR_COMBINEDSCINTILLATORSD_H
+#define COMBINEDSCINTILLATOR_COMBINEDSCINTILLATORSD_H
 
 // Base Class
 #include "G4VSensitiveDetector.hh"
@@ -38,13 +38,13 @@ public:
 private:
   const TileTBID* m_tileTBID;
 
-  static const int nCell = 2;
+  static const int N_CELLS = 2;
 
-  int m_nhits[nCell];
-  TileSimHit* m_hit[nCell];
-  Identifier m_id[nCell];
+  int m_nhits[N_CELLS];
+  TileSimHit* m_hit[N_CELLS];
+  Identifier m_id[N_CELLS];
   // The hits collections
   SG::WriteHandle<TileHitVector> m_HitColl;
 };
 
-#endif
+#endif // COMBINEDSCINTILLATOR_COMBINEDSCINTILLATORSD_H

@@ -7,19 +7,21 @@
 
 #include "G4Track.hh"
 #include "MCTruth/TrackInformation.h"
+#include "GeneratorObjects/HepMcParticleLink.h"
 
 class TrackHelper {
 public:
-	TrackHelper(const G4Track* t);
-	bool IsPrimary() const ;
-	bool IsRegeneratedPrimary() const;
-	bool IsRegisteredSecondary() const ;
-	bool IsSecondary() const ;
-	int GetBarcode() const ;
-	TrackInformation * GetTrackInformation() {return trackInfo;}
+  TrackHelper(const G4Track* t);
+  bool IsPrimary() const ;
+  bool IsRegeneratedPrimary() const;
+  bool IsRegisteredSecondary() const ;
+  bool IsSecondary() const ;
+  int GetBarcode() const ;
+  TrackInformation * GetTrackInformation() {return trackInfo;}
+  HepMcParticleLink GetParticleLink();
 private:
-	const G4Track* theTrack;
-	TrackInformation *trackInfo;
+  const G4Track* theTrack;
+  TrackInformation *trackInfo;
 };
 
 #endif

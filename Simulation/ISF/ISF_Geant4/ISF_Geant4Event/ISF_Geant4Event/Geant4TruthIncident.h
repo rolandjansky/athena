@@ -13,7 +13,6 @@
 
 // ISF includes
 #include "ISF_Event/ITruthIncident.h"
-#include "ISF_Event/ITruthIncident.h"
 
 // HepMC includes
 #include "HepMC/SimpleVector.h"
@@ -23,13 +22,13 @@
 class G4Step;
 class G4Track;
 class EventInformation;
+
 namespace ISF {
   class ISFParticle;
 }
 
 
 namespace iGeant4 {
-
 
   /** @class Geant4TruthIncident
 

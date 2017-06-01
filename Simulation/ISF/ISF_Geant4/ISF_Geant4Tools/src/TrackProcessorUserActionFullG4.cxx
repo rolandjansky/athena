@@ -151,6 +151,9 @@ namespace G4UA{
                                                                                 *curISP,
                                                                                 nullptr // truthBinding
                                                                                 );
+          tmpISP->setNextGeoID(nextGeoID);
+          tmpISP->setNextSimID(ISF::fUndefinedSimID);
+
           auto generationZeroBarcode = tHelp.GetBarcode();
           tmpISP->setBarcode(generationZeroBarcode);
 

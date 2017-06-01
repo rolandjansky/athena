@@ -15,8 +15,8 @@
 G4AtlasSvc::G4AtlasSvc( const std::string& name, ISvcLocator* pSvcLocator )
   : AthService(name,pSvcLocator),m_detGeoSvc("DetectorGeometrySvc","G4AtlasSvc")
 {
-	ATH_MSG_INFO( "G4AtlasSvc being created!" );
-	declareProperty( "ActivateParallelWorlds",m_activateParallelGeometries,"Toggle on/off the G4 parallel geometry system");
+  ATH_MSG_INFO( "G4AtlasSvc being created!" );
+  declareProperty( "ActivateParallelWorlds",m_activateParallelGeometries,"Toggle on/off the G4 parallel geometry system");
 }
 
 G4AtlasSvc::~G4AtlasSvc()
@@ -36,21 +36,21 @@ StatusCode G4AtlasSvc::initialize(){
   CHECK(m_physicsListTool.retrieve());
 
   if (m_activateParallelGeometries)
-  {
-	G4VModularPhysicsList* thePhysicsList=dynamic_cast<G4VModularPhysicsList*>(m_physicsListTool->GetPhysicsList());
-	if (!thePhysicsList)
-	{
-		ATH_MSG_FATAL("Failed dynamic_cast!! this is not a G4VModularPhysicsList!");
-		return StatusCode::FAILURE;
-	}
+    {
+      G4VModularPhysicsList* thePhysicsList=dynamic_cast<G4VModularPhysicsList*>(m_physicsListTool->GetPhysicsList());
+      if (!thePhysicsList)
+        {
+          ATH_MSG_FATAL("Failed dynamic_cast!! this is not a G4VModularPhysicsList!");
+          return StatusCode::FAILURE;
+        }
 #if G4VERSION_NUMBER >= 1010
-	std::vector<std::string>& parallelWorldNames=m_detGeoSvc->GetParallelWorldNames();
-	for (auto it: parallelWorldNames)
-	{
-		thePhysicsList->RegisterPhysics(new G4ParallelWorldPhysics(it,true));
-	}
+      std::vector<std::string>& parallelWorldNames=m_detGeoSvc->GetParallelWorldNames();
+      for (auto& it: parallelWorldNames)
+        {
+          thePhysicsList->RegisterPhysics(new G4ParallelWorldPhysics(it,true));
+        }
 #endif
-  }
+    }
 
   return StatusCode::SUCCESS;
 }

@@ -17,7 +17,6 @@ def getDefaultEoRActions():
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.BeamFlags import jobproperties
     defaultUA=[]
-    #FIXME temp workaround
     if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
         defaultUA+=['G4UA::StoppedParticleActionTool']
     return defaultUA
@@ -31,6 +30,7 @@ def getDefaultBoEActions():
         defaultUA+=['G4UA::G4SimTimerTool']
         defaultUA+=['G4UA::MCTruthSteppingActionTool']
     defaultUA+=['G4UA::G4TrackCounterTool']
+
     if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, 'CavernBG') and not simFlags.CavernBG.statusOn:
         defaultUA+=['G4UA::CosmicPerigeeActionTool']
     if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
@@ -100,6 +100,7 @@ def getDefaultStaPrepareActions():
 # Stacking NewStage
 def getDefaultStaNewStageActions():
     return []
+
 
 def getUserActionSvc(name="G4UA::UserActionSvc", **kwargs):
     """
