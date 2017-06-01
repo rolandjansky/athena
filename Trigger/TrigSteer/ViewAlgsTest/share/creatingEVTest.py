@@ -44,8 +44,18 @@ l1Decoder.roiUnpackers = [emUnpacker]
 L1UnpackingSeq += l1Decoder
 TopHLTSeq += L1UnpackingSeq
 
+include( "TrigUpgradeTest/HLTCF.py" )
 
-include("TrigUpgradeTest/HLTCF.py")
+
+# definition of a hide corner for view algs
+viewAlgsContainer = seqAND( "ViewAlgsContainer" )
+alwaysFail = CfgMgr.AthPrescaler( "alwaysFail" )
+alwaysFail.PercentPass = 0.0
+viewAlgsContainer += alwaysFail
+alwaysPass = CfgMgr.AthPrescaler( "alwaysPass" )
+alwaysPass.PercentPass = 100.0
+TopHLTSeq += parOR( "viewAlgsHide", [alwaysPass, viewAlgsContainer])
+
 
 steps = [ parOR("step0Filtering"), parOR("step1InViewReco") ]
 steps[0] += seqFilter( "Step0EM", Inputs=["L1EM"], Outputs=["step0EM"],
@@ -65,15 +75,16 @@ allViewAlgs += seqFilter( "NoExec" )
 
 
 from ViewAlgsTest.ViewAlgsTestConf import SchedulerProxyAlg
-viewAlg = SchedulerProxyAlg( "algInView", OutputLevel = DEBUG, RoIsContainer = "InViewRoI")
+viewAlg = SchedulerProxyAlg( "algInView", OutputLevel = DEBUG, RoIsContainer = "InViewRoI", OutputClusterContainer="ViewClusters")
 
-allViewAlgs += viewAlg
+#allViewAlgs += viewAlg
+viewAlgsContainer += viewAlg
 svcMgr.ViewAlgPool.TopAlg += [ viewAlg.getFullName() ]
-topSequence += allViewAlgs
+#topSequence += allViewAlgs
 
 
 from ViewAlgsTest.ViewAlgsTestConf import TestViewDriver
-EMViewsMaker = TestViewDriver( "EMViewsMaker", OutputLevel = DEBUG, RoIsContainer = 'L1EMRoIs', RoIsViewOutput="InViewRoI", ViewAlgorithmNames = [ viewAlg.name() ] )
+EMViewsMaker = TestViewDriver( "EMViewsMaker", OutputLevel = DEBUG, RoIsContainer = 'L1EMRoIs', RoIsViewOutput="InViewRoI", ClustersViewInput="ViewClusters", ViewAlgorithmNames = [ viewAlg.name() ] )
 
 
 

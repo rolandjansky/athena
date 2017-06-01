@@ -26,22 +26,15 @@ StatusCode SchedulerProxyAlg::initialize()
 
 StatusCode SchedulerProxyAlg::execute() {
   
-
   auto proxyPtr = getContext().proxy();
   auto viewPtr = dynamic_cast<SG::View*>(proxyPtr);
-  ATH_MSG_INFO("Proxy " << viewPtr );
   if ( viewPtr != nullptr ) {
-    ATH_MSG_WARNING( "The alg operates on the view " << viewPtr->impl()->name() );
+    ATH_MSG_DEBUG( ".. The alg operates on the view " << viewPtr->impl()->name() );
   }
-// #ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
-//   const EventContext& ctx = getContext();
-// #else
-//   const EventContext& ctx = *getContext();
-// #endif  
 
   auto inputHandle = SG::makeHandle( m_roisContainer );
   if ( not inputHandle.isValid() )  {
-    ATH_MSG_ERROR("Input handle " << m_roisContainer.key()  << " is invalid");
+    ATH_MSG_ERROR(".. Input handle " << m_roisContainer.key()  << " is invalid");
     return StatusCode::FAILURE;
   }
     
@@ -49,20 +42,21 @@ StatusCode SchedulerProxyAlg::execute() {
   auto outputClustersAux = std::make_unique<TestClusterAuxContainer>();
   outputClusters->setStore( outputClustersAux.get() );
   
-  ATH_MSG_INFO( "Launching processing for View with RoIs" );
+  ATH_MSG_INFO( ".. Launching processing for View with RoIs" );
   for ( const auto roi: *inputHandle.cptr() )
   {
-    ATH_MSG_DEBUG( " ... " << *roi << " adding a cluster at slightly varried position and fake Et");
+
     TestCluster * cl = new TestCluster();
     outputClusters->push_back( cl );
     TestEDM::setClusterEt (cl, ( roi->eta() + roi->phi() )*10.0); // whatever values
     TestEDM::setClusterEta(cl, roi->eta() + 0.01);
     TestEDM::setClusterPhi(cl, roi->phi() - 0.05);
+    ATH_MSG_DEBUG( " ... " << *roi << " added a cluster at slightly varried position compared to RoI and fake Et: " << TestEDM::getClusterEt(cl) );
   }
 
   auto outputHandle = SG::makeHandle( m_outputClusterContainer );
   CHECK( outputHandle.record( std::move( outputClusters ), std::move( outputClustersAux ) ) );
-  ATH_MSG_INFO( "finished processing views" );
+  ATH_MSG_INFO( ".. finished processing view" );
   return StatusCode::SUCCESS;
 }
 

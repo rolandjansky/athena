@@ -27,10 +27,17 @@ public:
 
 private:
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roisContainer;
-  SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_roisViewOutput;
-  SG::WriteHandleKey< std::vector<SG::View*> > m_views;
-  SG::WriteHandleKey< TestClusterContainer > m_outputClusterContainer;
 
+  SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_roisViewOutput;
+  // this is problematic and we need to use plain string for the moment
+  SG::ReadHandleKey< TestClusterContainer > m_clustersViewInputHandle;
+  std::string m_clustersViewInput;
+
+  SG::WriteHandleKey< std::vector<SG::View*> > m_views;
+  //  SG::WriteHandleKey< TestClusterContainer > m_outputClusterContainer;
+
+
+  
   ServiceHandle<IAlgResourcePool> m_viewAlgorithmsPool;
   std::vector<std::string> m_viewAlgorithmNames;
   int m_roITypeInViews;
