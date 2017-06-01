@@ -25,9 +25,9 @@ MuonClusterHypo::MuonClusterHypo(const std::string & name, ISvcLocator* pSvcLoca
     //note that the "cut" for background trigger is nJet,nTrk ==-1, but
     //the actual number of jets and tracks in dR cone is monitored
 
-    mCluNum = 3;
+    m_CluNum = 3;
 
-    declareMonitoredVariable("NumClu", mCluNum);
+    declareMonitoredVariable("NumClu", m_CluNum);
 
     declareProperty("AcceptAll", m_acceptAll=false);
     declareProperty("nRoIEndCap", m_nRoIEndCap=4);   
@@ -124,7 +124,7 @@ HLT::ErrorCode MuonClusterHypo::hltExecute(const HLT::TriggerElement* outputTE, 
             if(msgLvl() <= MSG::DEBUG) {
                 msg() << MSG::DEBUG << "TrigComposite ptr = " << (void*)compObj << endmsg;
             }
-            for(const string & collName : compObj->linkColNames()) {
+            for(const std::string & collName : compObj->linkColNames()) {
                 if(msgLvl() <= MSG::DEBUG) {
                     msg() << MSG::DEBUG << " link to collection " << collName << endmsg;
                 }
@@ -158,7 +158,7 @@ HLT::ErrorCode MuonClusterHypo::hltExecute(const HLT::TriggerElement* outputTE, 
                 }
 
                 // monitored variables
-                mCluNum = numberRoI;
+                m_CluNum = numberRoI;
                 result = true;
 
             } else if((fabs(etaClust)>= m_etaMid && fabs(etaClust)<= m_etaMax) && numberRoI >= m_nRoIEndCap) {
@@ -168,7 +168,7 @@ HLT::ErrorCode MuonClusterHypo::hltExecute(const HLT::TriggerElement* outputTE, 
                 }
 
                 // monitored variables
-                mCluNum = numberRoI;
+                m_CluNum = numberRoI;
                 result = true;
 
             } else {
