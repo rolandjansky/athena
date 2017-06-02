@@ -163,7 +163,7 @@ def FindFile(path, runinput, filter):
         if RunFromLocal:
             files = check_output('ls %(path)s | grep %(run)s | grep %(filt)s' % {'path': path, 'run':run, 'filt':filter}, shell = True).splitlines()
         elif (path.startswith('/eos/')):
-            files = check_output('xrd eosatlas dirlist %(path)s | grep %(run)s | grep -v "#" | grep -v -e "          [ 0-9][ 0-9][0-9] " | grep %(filt)s | sed "s|^.*/||" ' % {'path':path, 'run':run, 'filt':filter}, shell = True).splitlines()
+            files = check_output('xrdfs eosatlas ls -l %(path)s | grep %(run)s | grep -v "#" | grep -v -e "         [ 0-9][ 0-9][0-9] " | grep %(filt)s | sed "s|^.*/||" ' % {'path':path, 'run':run, 'filt':filter}, shell = True).splitlines()
         else:
             files = check_output('nsls %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " | grep %(filt)s ' % {'path': path, 'run':run, 'filt':filter  }, shell = True).splitlines()
 
