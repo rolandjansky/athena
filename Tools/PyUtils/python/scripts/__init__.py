@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 # hook for PyUtils.scripts package
 
 # FIXME: waiting for a proper declarative file
