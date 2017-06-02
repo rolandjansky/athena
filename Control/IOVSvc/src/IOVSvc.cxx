@@ -853,7 +853,7 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
     return StatusCode::SUCCESS;
   }
 
-  IOVTime t(now.run_number(), now.event_number(), now.time_stamp());
+  IOVTime t(now.run_number(), now.event_number(), (long long)now.time_stamp()*1000000000+now.time_stamp_ns_offset());
   IOVRange range;
   IOpaqueAddress* ioa;
   std::string tag;
