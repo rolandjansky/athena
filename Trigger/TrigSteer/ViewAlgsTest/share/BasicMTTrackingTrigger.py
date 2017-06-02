@@ -150,6 +150,9 @@ include("TrigUpgradeTest/L1CF.py")
 data['l1emroi'] = ['1.3,2.9,2704088841,EM3,EM7,EM10,EM20;',
                    '1.2,3.1,2972524297,EM3,EM7,EM10,EM20;']
 
+data['l1muroi'] = [';',
+                   ';'] # required by L1CF
+
 data['ctp'] = ['HLT_e20',
                'HLT_e20']
 from TrigUpgradeTest.TestUtils import writeEmulationFiles
