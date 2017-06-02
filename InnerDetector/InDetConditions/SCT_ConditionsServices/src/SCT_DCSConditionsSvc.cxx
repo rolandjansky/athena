@@ -351,20 +351,20 @@ StatusCode SCT_DCSConditionsSvc::fillData(int &/* i */, std::list<std::string>& 
 	      }
 	      else m_pBadModules->remove(channelNumber, param);
 	      if (m_returnHVTemp){
-		m_pModulesHV->insert(make_pair(channelNumber,hvval));
+		(*m_pModulesHV)[channelNumber]=hvval;
 	      }
 	    }catch(...){
         ATH_MSG_DEBUG("Exception caught while trying to access HVCHVOLT_RECV");
 	    }
 	  } else if (m_returnHVTemp && param == "MOCH_TM0_RECV") {
 	    try{
-	    m_pModulesTemp0->insert(make_pair(channelNumber, (*attrList).second[param].data<float>()));
+              (*m_pModulesTemp0)[channelNumber]=(*attrList).second[param].data<float>();
 	    }catch(...){
 	      ATH_MSG_DEBUG("Exception caught while trying to access MOCH_TM0_RECV");
 	    }
 	  } else if (m_returnHVTemp && param == "MOCH_TM1_RECV") { //2 temp sensors per module
 	    try{
-	      m_pModulesTemp1->insert(make_pair(channelNumber, (*attrList).second[param].data<float>()));
+	      (*m_pModulesTemp1)[channelNumber]=(*attrList).second[param].data<float>();
 	    }catch(...){
         ATH_MSG_DEBUG("Exception caught while trying to access MOCH_TM1_RECV");
 	    }
@@ -375,7 +375,7 @@ StatusCode SCT_DCSConditionsSvc::fillData(int &/* i */, std::list<std::string>& 
       }
       m_dataFilled=true;
     }
-  
+
   //we are done with the db folders and have the data locally. 
   if (!m_dropFolder){
     std::list<std::string>::const_iterator itr2_key(keys.begin());
