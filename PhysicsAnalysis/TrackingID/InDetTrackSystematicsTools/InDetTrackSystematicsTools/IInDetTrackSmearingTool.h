@@ -1,8 +1,9 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: IInDetTrackSmearingTool.h 299883 2014-03-28 17:34:16Z krasznaa $
+// -*- c++ -*-
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
-#ifndef INDETTRACKSMEARINGTOOL_IINDETTRACKSMEARINGTOOL_H
-#define INDETTRACKSMEARINGTOOL_IINDETTRACKSMEARINGTOOL_H
+#pragma once
 
 // Framework include(s):
 #include "AsgTools/IAsgTool.h"
@@ -13,8 +14,6 @@
 // EDM include(s):
 #include "xAODTracking/TrackParticleContainer.h"
 
-// Local include(s):
-
 namespace InDet {
 
   /// Simple interface for calibrating/correcting tracks (inner-detector particles)
@@ -22,6 +21,7 @@ namespace InDet {
   /// Following the design principles outlined in the TF3 recommendations.
   ///
   /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+  /// @author Michael Clark <michael.ryan.clark@cern.ch>
   ///
   /// $Revision: 299883 $
   /// $Date: 2014-03-28 18:34:16 +0100 (Fri, 28 Mar 2014) $
@@ -58,5 +58,3 @@ namespace InDet {
   };/// class IInDetTrackSmearingTool
 
 } /// namespace InDet
-
-#endif

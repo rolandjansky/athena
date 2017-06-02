@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "InDetTrackSystematicsTools/InDetTrackBiasingTool.h"
 #include "xAODEventInfo/EventInfo.h"
 #include <math.h>

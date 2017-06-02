@@ -1,4 +1,6 @@
-// $Id: ITSmeToolTester.cxx 300458 2014-04-25 09:08:18Z krasznaa $
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 // Framework include(s):
 #include "xAODCore/ShallowCopy.h"
