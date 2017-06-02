@@ -53,27 +53,12 @@ int JetTrackMomentsTool::modifyJet(xAOD::Jet& jet) const {
     return 1;
   }
 
-  // const xAOD::VertexContainer* vertexContainer = nullptr;
-  // if ( evtStore()->retrieve(vertexContainer,m_vertexContainer).isFailure()
-  //      || vertexContainer == nullptr ) {
-  //   ATH_MSG_ERROR("Could not retrieve the VertexContainer from evtStore: "
-  //                 << m_vertexContainer);
-  //   return 1;
-  // }
-
   // Get the track-vertex association
   auto tva = SG::makeHandle (m_trackVertexAssoc_key);
   if (!tva.isValid()){
     ATH_MSG_ERROR("Invalid TrackVertexAssociation datahandle: " << m_tva);
     return 2;
   }
-
-  // const jet::TrackVertexAssociation* tva = nullptr;
-  // if ( evtStore()->retrieve(tva,m_tva).isFailure() || tva==nullptr ) {
-  //   ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation from evtStore: "
-  //                << m_tva);
-  //  return 2;
-  // }
 
 #if 0
     // Get the tracks associated to the jet
@@ -179,7 +164,6 @@ JetTrackMomentsTool::getTrackMoments(const xAOD::Jet& jet,
 {
     std::vector<TrackMomentStruct> moments(vertices->size());
 
-    // for (size_t iVertex = 0; iVertex < vertices->size(); ++iVertex)
     for (auto vertex : *vertices) {
       moments.push_back(getTrackMoments(jet, vertex, minTrackPt, tracks, tva));
     }
