@@ -64,7 +64,7 @@ namespace Muon {
     /** Number of ambiguities */
     unsigned int numberOfAmbiguities() const;
 
-    void setNGoodCscLayers(int nEta, int nPhi){nGood[0]=nPhi; nGood[1]=nEta;}
+    void setNGoodCscLayers(int nEta, int nPhi){m_nGood[0]=nPhi; m_nGood[1]=nEta;}
 
     int getNGoodCscLayers(int isEta) const; //isEta=0 means phi
 
@@ -82,24 +82,24 @@ namespace Muon {
     SegmentVecVec         m_segmentsPerStation;
 
     //if the station is a CSC station, this tells us how many good eta and phi layers it has
-    int nGood[2];
+    int m_nGood[2];
   };
 
   //if there are only 2 good layers for eta or phi those segments may be 2-layer segments
   inline bool MuonSegmentCombination::use2LayerSegments(int isEta) const
     {
-      return nGood[isEta]==2;
+      return m_nGood[isEta]==2;
     }
 
   //if there are fewer than 2 good layers for eta or phi we don't try to use eta or phi to build segments
   inline bool MuonSegmentCombination::useStripsInSegment(int isEta) const
     {
-      return nGood[isEta]>1;
+      return m_nGood[isEta]>1;
     }
 
   inline int MuonSegmentCombination::getNGoodCscLayers(int isEta) const
     {
-      return nGood[isEta];
+      return m_nGood[isEta];
     }
 
   inline  bool MuonSegmentCombination::addSegments( SegmentVec* segs )
