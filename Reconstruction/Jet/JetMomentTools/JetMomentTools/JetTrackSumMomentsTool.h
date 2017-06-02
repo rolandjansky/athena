@@ -51,13 +51,20 @@ public:
   virtual int modifyJet(xAOD::Jet& jet) const;
 
   // Local method to return the vector track sums
+  // std::pair<float,float>
+  // getJetTrackSums(const xAOD::Vertex*, 
+  //                      const std::vector<const xAOD::TrackParticle*>&, 
+  //                      const jet::TrackVertexAssociation*) const;
+
   std::pair<float,float>
   getJetTrackSums(const xAOD::Vertex*, 
-                        const std::vector<const xAOD::TrackParticle*>&, 
-                        const jet::TrackVertexAssociation*) const;
+                  const std::vector<const xAOD::TrackParticle*>&, 
+                  SG::ReadHandle<jet::TrackVertexAssociation>&) const;
 
   // Local method to return the HS vertex - that of type PriVtx
-  const xAOD::Vertex* findHSVertex(const xAOD::VertexContainer*&) const;
+  // const xAOD::Vertex* findHSVertex(const xAOD::VertexContainer*&) const;
+  const xAOD::Vertex* 
+    findHSVertex(SG::ReadHandle<xAOD::VertexContainer>&) const;
 
 private:
 
@@ -67,6 +74,10 @@ private:
   bool m_requireTrackPV;
   ToolHandle<IJetTrackSelector> m_htsel;
 
+  SG::ReadHandleKey< xAOD::VertexContainer> m_vertexContainer_key;
+  SG::ReadHandleKey<jet::TrackVertexAssociation> m_trackVertexAssoc_key;
+
 };
+
 
 #endif
