@@ -31,6 +31,9 @@ JetVertexTaggerTool::JetVertexTaggerTool(const std::string& name)
     declareProperty("JVTLikelihoodHistName",m_jvtlikelihoodHistName = "JVTRootCore_kNN100trim_pt20to50_Likelihood");
     declareProperty("TrackSelector", m_htsel);
     declareProperty("JVTName", m_jvtName ="Jvt");
+
+    declareProperty("VertexContainer", m_vertexContainer_key);
+
 }
 
 //**********************************************************************
@@ -61,6 +64,8 @@ StatusCode JetVertexTaggerTool::initialize() {
      return StatusCode::FAILURE;
    }
 
+  ATH_CHECK(m_vertexContainer_key.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -68,13 +73,17 @@ StatusCode JetVertexTaggerTool::initialize() {
 
 int JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
 
-  // Get the vertices container
-  const xAOD::VertexContainer* vertices = NULL;
-  if ( evtStore()->retrieve(vertices,m_verticesName).isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve the VertexContainer from evtStore: " << m_verticesName);
+  // Get input vertex collection
+  auto vertexContainer = SG::makeHandle (m_vertexContainer_key);
+  if (!vertexContainer.isValid()){
+    ATH_MSG_ERROR("Invalid VertexContainer datahandle: " << m_verticesName);
     return 1;
   }
-  ATH_MSG_DEBUG("Successfully retrieved VertexContainer from evtStore: " << m_verticesName);
+
+  auto vertices = vertexContainer.cptr();
+
+  // ATH_MSG_DEBUG("Successfully retrieved VertexContainer from evtStore: " << m_verticesName);
+  ATH_MSG_DEBUG("Successfully retrieved VertexContainer: " << m_verticesName);
 
 
   if (vertices->size() == 0 ) {

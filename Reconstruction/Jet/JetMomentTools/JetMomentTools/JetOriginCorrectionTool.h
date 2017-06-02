@@ -38,7 +38,7 @@ public:
 
   /// Inherited method to modify a jet. Compute the origin-corrected
   /// momentum and put it in the jet
-  virtual int modify(xAOD::JetContainer& jet) const;
+  int modify(xAOD::JetContainer& jet) const override;
   StatusCode initialize() override;
 
  protected:

@@ -119,6 +119,9 @@ private:  // data
   TFile * m_jvtfile;
   TH2F * m_jvthisto;
 
+
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key;
+
 };
 
 
