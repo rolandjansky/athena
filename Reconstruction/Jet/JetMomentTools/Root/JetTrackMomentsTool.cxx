@@ -21,6 +21,9 @@ JetTrackMomentsTool::JetTrackMomentsTool(const std::string& name)
     declareProperty("TrackVertexAssociation",m_tva);
     declareProperty("TrackMinPtCuts",m_minTrackPt);
     declareProperty("TrackSelector", m_htsel);
+
+    declareProperty("VertexContainer", m_vertexContainer_key);
+    declareProperty("AssociatedTracks", m_trackVertexAssoc_key);
 }
 
 
@@ -45,7 +48,6 @@ StatusCode JetTrackMomentsTool::initialize() {
 
 int JetTrackMomentsTool::modifyJet(xAOD::Jet& jet) const {
 
-  // Get input vertex collection
   // Get input vertex collection
   auto vertexContainer = SG::makeHandle (m_vertexContainer_key);
   if (!vertexContainer.isValid()){
