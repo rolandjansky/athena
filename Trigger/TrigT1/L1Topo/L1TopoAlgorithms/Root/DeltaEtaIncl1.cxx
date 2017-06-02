@@ -143,7 +143,7 @@ TCS::DeltaEtaIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *> 
                          << ", DeltaEta = " << deltaEta << " -> ";
                    accept = deltaEta >= p_DeltaEtaMin[i] && deltaEta <= p_DeltaEtaMax[i];
                    if( accept ) {
-                       decison.setBit(i, true);
+                       decision.setBit(i, true);
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                        if (!(iaccept[i])) {
                            iaccept[i]=1;
@@ -166,7 +166,7 @@ TCS::DeltaEtaIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *> 
 TCS::StatusCode
 TCS::DeltaEtaIncl1::process( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
-                             Decision & decison )
+                             Decision & decision )
 {
    if(input.size() == 1) {
        bool iaccept[numberOutputBits()];
@@ -197,7 +197,7 @@ TCS::DeltaEtaIncl1::process( const std::vector<TCS::TOBArray const *> & input,
                          << ", DeltaEta = " << deltaEta << " -> ";
                    accept = deltaEta >= p_DeltaEtaMin[i] && deltaEta <= p_DeltaEtaMax[i];
                    if( accept ) {
-                       decison.setBit(i, true);
+                       decision.setBit(i, true);
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                        if (!(iaccept[i])) {
                            iaccept[i]=1;
