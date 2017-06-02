@@ -17,7 +17,7 @@ if not 'logging' in dir(): import logging
 digilog = logging.getLogger('Digi_trf')
 digilog.info('doing RunLumiOverride configuration from file.')
 JobMaker=[
-     {'run':300000, 'lb':1, 'starttstamp':1500000000, 'dt':0.000, 'evts':_evts(0), 'mu':0.5 , 'force_new':False},
+     {'run':300000, 'lb':1, 'starttstamp':1500000000, 'dt':0.000, 'evts':_evts(1), 'mu':0.5 , 'force_new':False},
      {'run':300000, 'lb':2, 'starttstamp':1500000060, 'dt':0.000, 'evts':_evts(1), 'mu':1.5 , 'force_new':False},
      {'run':300000, 'lb':3, 'starttstamp':1500000120, 'dt':0.000, 'evts':_evts(1), 'mu':2.5 , 'force_new':False},
      {'run':300000, 'lb':4, 'starttstamp':1500000180, 'dt':0.000, 'evts':_evts(1), 'mu':3.5 , 'force_new':False},
@@ -27,7 +27,7 @@ JobMaker=[
      {'run':300000, 'lb':8, 'starttstamp':1500000420, 'dt':0.000, 'evts':_evts(1), 'mu':7.5 , 'force_new':False},
      {'run':300000, 'lb':9, 'starttstamp':1500000480, 'dt':0.000, 'evts':_evts(1), 'mu':8.5 , 'force_new':False},
     {'run':300000, 'lb':10, 'starttstamp':1500000540, 'dt':0.000, 'evts':_evts(1), 'mu':9.5 , 'force_new':False},
-    {'run':300000, 'lb':11, 'starttstamp':1500000600, 'dt':0.000, 'evts':_evts(1), 'mu':10.5, 'force_new':False},
+    {'run':300000, 'lb':11, 'starttstamp':1500000600, 'dt':0.000, 'evts':_evts(3), 'mu':10.5, 'force_new':False},
     {'run':300000, 'lb':12, 'starttstamp':1500000660, 'dt':0.000, 'evts':_evts(3), 'mu':11.5, 'force_new':False},
     {'run':300000, 'lb':13, 'starttstamp':1500000720, 'dt':0.000, 'evts':_evts(3), 'mu':12.5, 'force_new':False},
     {'run':300000, 'lb':14, 'starttstamp':1500000780, 'dt':0.000, 'evts':_evts(3), 'mu':13.5, 'force_new':False},
@@ -37,14 +37,14 @@ JobMaker=[
     {'run':300000, 'lb':18, 'starttstamp':1500001020, 'dt':0.000, 'evts':_evts(3), 'mu':17.5, 'force_new':False},
     {'run':300000, 'lb':19, 'starttstamp':1500001080, 'dt':0.000, 'evts':_evts(3), 'mu':18.5, 'force_new':False},
     {'run':300000, 'lb':20, 'starttstamp':1500001140, 'dt':0.000, 'evts':_evts(3), 'mu':19.5, 'force_new':False},
-    {'run':300000, 'lb':21, 'starttstamp':1500001200, 'dt':0.000, 'evts':_evts(3), 'mu':20.5, 'force_new':False},
+    {'run':300000, 'lb':21, 'starttstamp':1500001200, 'dt':0.000, 'evts':_evts(14), 'mu':20.5, 'force_new':False},
     {'run':300000, 'lb':22, 'starttstamp':1500001260, 'dt':0.000, 'evts':_evts(14), 'mu':21.5, 'force_new':False},
     {'run':300000, 'lb':23, 'starttstamp':1500001320, 'dt':0.000, 'evts':_evts(14), 'mu':22.5, 'force_new':False},
     {'run':300000, 'lb':24, 'starttstamp':1500001380, 'dt':0.000, 'evts':_evts(14), 'mu':23.5, 'force_new':False},
-    {'run':300000, 'lb':25, 'starttstamp':1500001440, 'dt':0.000, 'evts':_evts(14), 'mu':24.5, 'force_new':False},
+    {'run':300000, 'lb':25, 'starttstamp':1500001440, 'dt':0.000, 'evts':_evts(18), 'mu':24.5, 'force_new':False},
     {'run':300000, 'lb':26, 'starttstamp':1500001500, 'dt':0.000, 'evts':_evts(18), 'mu':25.5, 'force_new':False},
     {'run':300000, 'lb':27, 'starttstamp':1500001560, 'dt':0.000, 'evts':_evts(18), 'mu':26.5, 'force_new':False},
-    {'run':300000, 'lb':28, 'starttstamp':1500001620, 'dt':0.000, 'evts':_evts(18), 'mu':27.5, 'force_new':False},
+    {'run':300000, 'lb':28, 'starttstamp':1500001620, 'dt':0.000, 'evts':_evts(32), 'mu':27.5, 'force_new':False},
     {'run':300000, 'lb':29, 'starttstamp':1500001680, 'dt':0.000, 'evts':_evts(32), 'mu':28.5, 'force_new':False},
     {'run':300000, 'lb':30, 'starttstamp':1500001740, 'dt':0.000, 'evts':_evts(32), 'mu':29.5, 'force_new':False},
     {'run':300000, 'lb':31, 'starttstamp':1500001800, 'dt':0.000, 'evts':_evts(32), 'mu':30.5, 'force_new':False},
@@ -68,15 +68,15 @@ JobMaker=[
     {'run':300000, 'lb':49, 'starttstamp':1500002880, 'dt':0.000, 'evts':_evts(32), 'mu':48.5, 'force_new':False},
     {'run':300000, 'lb':50, 'starttstamp':1500002940, 'dt':0.000, 'evts':_evts(32), 'mu':49.5, 'force_new':False},
     {'run':300000, 'lb':51, 'starttstamp':1500003000, 'dt':0.000, 'evts':_evts(32), 'mu':50.5, 'force_new':False},
-    {'run':300000, 'lb':52, 'starttstamp':1500003060, 'dt':0.000, 'evts':_evts(32), 'mu':51.5, 'force_new':False},
+    {'run':300000, 'lb':52, 'starttstamp':1500003060, 'dt':0.000, 'evts':_evts(14), 'mu':51.5, 'force_new':False},
     {'run':300000, 'lb':53, 'starttstamp':1500003120, 'dt':0.000, 'evts':_evts(14), 'mu':52.5, 'force_new':False},
     {'run':300000, 'lb':54, 'starttstamp':1500003180, 'dt':0.000, 'evts':_evts(14), 'mu':53.5, 'force_new':False},
     {'run':300000, 'lb':55, 'starttstamp':1500003240, 'dt':0.000, 'evts':_evts(14), 'mu':54.5, 'force_new':False},
     {'run':300000, 'lb':56, 'starttstamp':1500003300, 'dt':0.000, 'evts':_evts(14), 'mu':55.5, 'force_new':False},
-    {'run':300000, 'lb':57, 'starttstamp':1500003360, 'dt':0.000, 'evts':_evts(14), 'mu':56.5, 'force_new':False},
-    {'run':300000, 'lb':58, 'starttstamp':1500003420, 'dt':0.000, 'evts':_evts(4), 'mu':57.5, 'force_new':False},
-    {'run':300000, 'lb':59, 'starttstamp':1500003480, 'dt':0.000, 'evts':_evts(4), 'mu':58.5, 'force_new':False},
-    {'run':300000, 'lb':60, 'starttstamp':1500003540, 'dt':0.000, 'evts':_evts(4), 'mu':59.5, 'force_new':False}
+    {'run':300000, 'lb':57, 'starttstamp':1500003360, 'dt':0.000, 'evts':_evts(3), 'mu':56.5, 'force_new':False},
+    {'run':300000, 'lb':58, 'starttstamp':1500003420, 'dt':0.000, 'evts':_evts(3), 'mu':57.5, 'force_new':False},
+    {'run':300000, 'lb':59, 'starttstamp':1500003480, 'dt':0.000, 'evts':_evts(3), 'mu':58.5, 'force_new':False},
+    {'run':300000, 'lb':60, 'starttstamp':1500003540, 'dt':0.000, 'evts':_evts(3), 'mu':59.5, 'force_new':False}
     #--> end                                                                   
 ]                                                                              
                                                                                
