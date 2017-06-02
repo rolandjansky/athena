@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 # @file PyUtils.scripts.cmt_newasgtool
 # @purpose streamline and ease the creation of new asg tools
 # @author Will Buttinger
