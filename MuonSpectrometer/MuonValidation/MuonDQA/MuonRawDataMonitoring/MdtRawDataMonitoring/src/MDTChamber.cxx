@@ -160,6 +160,8 @@ void MDTChamber::SetMDTHitsPerChamber_IMO_Bin(TH2F* h){
 
   std::string station_eta_s = m_hardware_name.substr(3,1);
   std::string statphi_s = m_hardware_name.substr(5,2);
+  if(m_hardware_name.substr(0,3)=="BMF2") station_eta_s = "3";
+  if(m_hardware_name.substr(0,3)=="BMF3") station_eta_s = "5";
 
   std::string ecap_layer_IMO = m_hardware_name.substr(0,1) + m_hardware_name.substr(4,1) + station_eta_s;
   if( m_station_phi == 12 && (m_station_eta == 4 || m_station_eta == 5) ) {//m_station_phi+1==actual phi station
@@ -210,6 +212,8 @@ void MDTChamber::SetMDTHitsPerML_byLayer_Bins(TH2F* h_mdthitspermultilayerLumi, 
   }
 
   std::string stateta_s = m_hardware_name.substr(3,1);
+  if(m_hardware_name.substr(0,3)=="BMF2") stateta_s = "3";
+  if(m_hardware_name.substr(0,3)=="BMF3") stateta_s = "5";
   std::string ecap_layer = m_hardware_name.substr(0,2) + m_hardware_name.at(4) + stateta_s;
   
   if( m_station_phi == 12 && (m_station_eta == 4 || m_station_eta == 5) ) {//m_station_phi+1==actual phi station
