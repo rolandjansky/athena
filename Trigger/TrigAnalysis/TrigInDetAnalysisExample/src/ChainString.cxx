@@ -21,7 +21,7 @@ ChainString::ChainString(const std::string& s) :
 
 
 ChainString::ChainString( const ChainString& s ) :
-  std::string(s.mraw), 
+  std::string(s), 
   mhead(s.mhead), mtail(s.mtail), mextra(s.mextra),
   melement(s.melement), mroi(s.mroi), 
   mvtx(s.mvtx),
@@ -40,15 +40,17 @@ void ChainString::parse( std::string _s ) {
 
     std::vector<std::string> fields;
 
-    while ( _s.find_first_of(":;")!=std::string::npos ) fields.push_back( chop( _s, ":;" ) );
+    while ( _s.find_first_of(":;")!=std::string::npos ) fields.push_back( chop( _s, ":" ) );
     
     fields.push_back(_s);
 
     bool postkeys = false;
 
     for ( unsigned i=0 ; i<fields.size() ; i++ ) { 
-      if      ( fields[i]=="DTE" ) mpassed = false; 
-      else if ( fields[i]=="post" ) postkeys = true; 
+      std::string dte = chomp( fields[i], ";" );
+      if ( !postkeys && dte=="DTE" ) mpassed = false;
+      if      ( fields[i]=="DTE" )   mpassed = false;
+      else if ( fields[i]=="post" )  postkeys = true; 
       else if ( fields[i].find("=")!=std::string::npos ) { 
 	std::string _field = fields[i];
 	std::string key = chop( _field, "=" );
@@ -63,8 +65,8 @@ void ChainString::parse( std::string _s ) {
     if ( fields.size() ) mhead = fields[0]; 
 
     std::string tags[5] = { "collection=", "index=", "roi=", "vtx=", "te=" };
-    std::string  alt[5] = { "key=",        "ind=",   "",    "",     ""     };
-    bool      tagged[5] = {  false,         false,    false, false, false  };    
+    std::string  alt[5] = {        "key=",   "ind=",     "",     "",    "" };
+    bool      tagged[5] = {         false,    false,  false,  false, false };    
  
     std::string* _values[5] = { &mtail, &mextra, &mroi, &mvtx, &melement };
 
@@ -90,8 +92,6 @@ void ChainString::parse( std::string _s ) {
       if ( fields[i].find("=")!=std::string::npos ) usetags = true;
     }
     
-    //    std::cout << "usetags " << usetags << std::endl;
-
     for ( unsigned i=first_tag ; i<fields.size() ; i++ ) {
       for ( unsigned itag=0 ; itag<5 ; itag++ ) { 
 
@@ -125,7 +125,6 @@ void ChainString::parse( std::string _s ) {
       }
     }
     
-    ///    std::cout << "use tags " << usetags << std::endl; 
     /// always enforce tags for the roi, vtx and te, optional for the 
     /// chain, collection and index
     /// grrrr, 
@@ -153,12 +152,8 @@ void ChainString::parse( std::string _s ) {
     for ( int i=0 ; i<5 ; i++ ) if ( *_values[i]!="" ) raw += ":" + *_values[i];
     if ( !mpassed ) raw += ";DTE";
   
-    /// save the original string
-    //    mraw = *this;
-
     /// overwrite with the parsed string 
     *(std::string*)(this) = raw;
-  
-    //    std::cout << "raw: " << *this << std::endl;
+
 }
 
