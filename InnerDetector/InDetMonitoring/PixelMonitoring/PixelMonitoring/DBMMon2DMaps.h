@@ -30,7 +30,6 @@ class DBMMon2DMaps
       void Scale(double number);
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
-      StatusCode sc;
       void formatHist();
       
 };

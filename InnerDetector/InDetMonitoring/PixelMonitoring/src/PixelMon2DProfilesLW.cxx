@@ -418,18 +418,19 @@ void PixelMon2DProfilesLW::FillFromMap(PixelMon2DMaps* inputmap, bool clear_inpu
 
 StatusCode PixelMon2DProfilesLW::regHist(ManagedMonitorToolBase::MonGroup &group)
 {
+  StatusCode sc = StatusCode::SUCCESS;
   if (mDoIBL && !mDoErrorHist) {
-    sc = group.regHist(IBL);
-    sc = group.regHist(IBL2D);
-    sc = group.regHist(IBL3D);
+    if (group.regHist(IBL).isFailure()) sc = StatusCode::FAILURE;
+    if (group.regHist(IBL2D).isFailure()) sc = StatusCode::FAILURE;
+    if (group.regHist(IBL3D).isFailure()) sc = StatusCode::FAILURE;
   }
-  sc = group.regHist(B0);
-  sc = group.regHist(B1);
-  sc = group.regHist(B2);
-  sc = group.regHist(A);
-  sc = group.regHist(C);
+  if (group.regHist(B0).isFailure()) sc = StatusCode::FAILURE;
+  if (group.regHist(B1).isFailure()) sc = StatusCode::FAILURE;
+  if (group.regHist(B2).isFailure()) sc = StatusCode::FAILURE;
+  if (group.regHist(A).isFailure()) sc = StatusCode::FAILURE;
+  if (group.regHist(C).isFailure()) sc = StatusCode::FAILURE;
   //sc = group.regHist(DBMA);
   //sc = group.regHist(DBMC);
   
-   return sc;
+  return sc;
 }
