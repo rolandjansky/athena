@@ -8,7 +8,7 @@
 TCS::MuonTOBArray::MuonTOBArray(const std::string & name, unsigned int reserve) :
    InputTOBArray(name),
    DataArrayImpl<MuonTOB>(reserve)
-{};
+{}
 
 void
 TCS::MuonTOBArray::print(std::ostream &o) const {

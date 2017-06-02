@@ -8,7 +8,7 @@
 TCS::LateMuonTOBArray::LateMuonTOBArray(const std::string & name, unsigned int reserve) :
    InputTOBArray(name),
    DataArrayImpl<LateMuonTOB>(reserve)
-{};
+{}
 
 void
 TCS::LateMuonTOBArray::print(std::ostream &o) const {
