@@ -42,11 +42,6 @@ class SCT_Amp : public AthAlgTool, virtual public ISCT_Amp {
   float crosstalk(const list_t &Charges, const float timeOverThreshold) const;
   void crosstalk(const list_t &Charges, const float timeOverThreshold, std::vector<float> &resp) const;
 
-  /** diagnostics */
-  void AccumulateAverages(const list_t &Charges);
-  void PrintAverages() const;
-  void PrintAverages(const char *fname) const;
-    
 private:
 
   /** signal peak time */   
@@ -63,10 +58,6 @@ private:
 
   /** Normalisation factor for the neighbour strip signal response */
   float m_NormConstNeigh ;
-
-  /** diagnostics average */
-  int m_Navr;  
-  std::vector<float> m_InAvr,m_OutAvr,m_SideAvr; 
 
   float m_tmin, m_tmax, m_dt ;
 

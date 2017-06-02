@@ -27,7 +27,6 @@ def getSCT_Amp(name="SCT_Amp", **kwargs):
     kwargs.setdefault("deltaT", 1.0)
     kwargs.setdefault("Tmin", -25.0)
     kwargs.setdefault("Tmax", 150.0)
-    kwargs.setdefault("NbAverage", 0)
     from SCT_Digitization.SCT_DigitizationConf import SCT_Amp
     return SCT_Amp(name, **kwargs)
 
