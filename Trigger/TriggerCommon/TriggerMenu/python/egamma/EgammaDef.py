@@ -76,6 +76,7 @@ from TrigEgammaHypo.TrigEFCaloCalibFexConfig import (TrigEFCaloCalibFex_Electron
 
 from TrigMultiVarHypo.TrigL2CaloRingerHypoConfig import (TrigL2CaloRingerFexHypo_e_ID,
                                                          TrigL2CaloRingerFexHypo_e_NoCut,
+                                                         TrigL2CaloRingerFexHypo_g_NoCut,
                                                          TrigL2CaloRingerFexHypo_e_EtCut,
                                                          TrigL2CaloRingerFexHypo_g_EtCut)
 
@@ -138,7 +139,6 @@ def update_map(seq):
 
 # Class to hold all possible Fex configurables
 # Can contain both sequences and single instances
-
 class EgammaFexBuilder(object):
     """
     Summary:
@@ -554,7 +554,7 @@ class EgammaHypoBuilder(object):
             if(tt == 'e'):
                 fex,hypo = TrigL2CaloRingerFexHypo_e_NoCut(thr)
             if(tt == 'g'):
-                fex,hypo = TrigL2CaloRingerFexHypo_e_NoCut(thr)
+                fex,hypo = TrigL2CaloRingerFexHypo_g_NoCut(thr)
         elif self._properties['etcut']:
             if(tt == 'e'):
                 fex,hypo = TrigL2CaloRingerFexHypo_e_EtCut(thr)
@@ -564,7 +564,8 @@ class EgammaHypoBuilder(object):
             if(tt == 'e'):
                 fex, hypo = TrigL2CaloRingerFexHypo_e_ID(thr,idinfo,tt)
             if(tt == 'g'):
-                fex, hypo = TrigL2CaloRingerFexHypo_e_NoCut(thr)
+                # For now, there is no photon ringer tuning. 
+                fex, hypo = TrigL2CaloRingerFexHypo_g_NoCut(thr)
         else:
             log.error('Cannot configure ringer')
         seq = [fex,hypo]
