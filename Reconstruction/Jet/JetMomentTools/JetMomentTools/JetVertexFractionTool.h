@@ -102,6 +102,10 @@ private:  // data
 private:  // methods
 
   std::vector<float> getEmptyJetVertexFraction(const xAOD::VertexContainer*) const;
+  
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key;  // m_verticesName
+  SG::ReadHandleKey<jet::TrackVertexAssociation> m_tva_key;  // m_tvaName
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksCont_key;  // m_tracksName
 
   // Local method to count the number of pileup tracks in the event
   int getPileupTrackCount(const xAOD::Vertex*,
