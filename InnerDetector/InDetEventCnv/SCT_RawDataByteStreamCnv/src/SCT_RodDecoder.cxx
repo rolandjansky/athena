@@ -725,33 +725,61 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& 
       
       ///---------------------------------------------------------------------
       /// FlaggedABCD error
+      /// 000xxxxxxFFFFEEE
+      /// 000: FlaggedABCD error: xxxxxxx not used, FFFF: chip, EEE: error code
       ///---------------------------------------------------------------------
       else if (((d[n]>>13)&0x7) == 0x0){
-        chip = ((d[n]>>3)&0x7) ;
+        chip = ((d[n]>>3)&0xF) ;
         ABCerror = d[n]&0x7; 
         /** no data should appear for that chip but how do we 
          * want to transmit this information ? */
         IdentifierHash flagIdHash(0);
-	if (onlineId == 0) {
-	  addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
-	  continue ;
-	} else {
-	  flagIdHash = m_cabling->getHashFromOnlineId(onlineId) ;
-	}
-	ATH_MSG_DEBUG(" xxx Flagged ABCD ERROR in chip "<<chip<<" Error code ABCerror "<<ABCerror<<" Link Nb (or Stream) "<<linkNb) ;
-	m_flag_error_bit++ ;
-	addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError, errs);
-	if(     chip==0) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip0, errs);
-	else if(chip==1) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip1, errs);
-	else if(chip==2) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip2, errs);
-	else if(chip==3) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip3, errs);
-	else if(chip==4) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip4, errs);
-	else if(chip==5) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip5, errs);
-	if(ABCerror & 0x1) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error1, errs);
-	if(ABCerror & 0x2) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error2, errs);
-	if(ABCerror & 0x4) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error4, errs);
-	sc=StatusCode::RECOVERABLE;
-	continue;
+        if (onlineId == 0) {
+          addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::ByteStreamParseError, errs);
+          continue ;
+        } else {
+          flagIdHash = m_cabling->getHashFromOnlineId(onlineId) ;
+        }
+        ATH_MSG_DEBUG(" xxx Flagged ABCD ERROR in chip "<<chip<<" Error code ABCerror "<<ABCerror<<" Link Nb (or Stream) "<<linkNb) ;
+        m_flag_error_bit++ ;
+        // Error code of ABCD error should be 1, 2, 4 or 7.
+        if(ABCerror!=0x1 and ABCerror!=0x2 and ABCerror!=0x4 and ABCerror!=0x7) {
+          ATH_MSG_DEBUG("ABCD error has an invalid error code " << ABCerror <<
+                        " the 16-bit word is 0x" << std::hex << d[n] << std::dec << " for hash " << flagIdHash);
+          addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Invalid, errs);
+        } else {
+          // Chip is 4 bits. The highest bit 3 represents side. Chip 0-5 on side 0 and chip 8-13 on side 1.
+          unsigned int side_ABCDError = static_cast<unsigned int>(chip/8);
+          if(flagIdHash.value()%2!=side_ABCDError) {
+            // If the sides from the ABCD error and online ID are different,
+            // the module is expected to read side 0 via link 1 and side 1 and via link 0.
+            // Hash Id is flipped.
+            ATH_MSG_DEBUG("ABCD error and online ID have different side information for hash " << flagIdHash << ". " <<
+                          side_ABCDError << " from ABCD error and " << flagIdHash.value()%2 << " from online ID");
+            flagIdHash = (flagIdHash.value()/2)*2+side_ABCDError;
+          }
+          // Chip should be 0-5 or 8-13.
+	  if(chip%8>=6) {
+            ATH_MSG_DEBUG("ABCD error has an invalid chip 0x" << std::hex << chip << std::dec <<
+                          " the 16-bit word is 0x" << std::hex << d[n] << std::dec <<
+                          " for hash " << flagIdHash.value());
+            addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Invalid);
+	  } else {
+            if(     ABCerror==0x1) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error1, errs);
+            else if(ABCerror==0x2) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error2, errs);
+            else if(ABCerror==0x4) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error4, errs);
+            else if(ABCerror==0x7) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error7, errs);
+            if(     chip%8==0) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip0, errs);
+            else if(chip%8==1) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip1, errs);
+            else if(chip%8==2) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip2, errs);
+            else if(chip%8==3) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip3, errs);
+            else if(chip%8==4) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip4, errs);
+            else if(chip%8==5) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip5, errs);
+          }
+        }
+        addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError, errs);
+        sc=StatusCode::RECOVERABLE;
+        continue;
       } else if (((d[n]>>13)&0x7) == 0x3){
         ///---------------------------------------------------------------------
         /// Raw Data
