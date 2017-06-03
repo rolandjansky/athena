@@ -54,37 +54,28 @@ private:
   std::string m_tva;
   std::vector<float> m_minTrackPt;
   ToolHandle<IJetTrackSelector> m_htsel;
-
-  SG::ReadHandleKey< xAOD::VertexContainer> m_vertexContainer_key;
-  SG::ReadHandleKey<jet::TrackVertexAssociation> m_trackVertexAssoc_key;
-   
+        
   // Private struct to make it unambiguous what each value is (rather than a vector)
   // Doubles for calculation for now - will be written as float in the aux store
   struct TrackMomentStruct { int numTrk; double sumPtTrk; double trackWidth; };
 
   // Local method to calculate NumTrk, SumPtTrk, and TrackWidth for all vertices
   const std::vector<TrackMomentStruct>
-  getTrackMoments(const xAOD::Jet& jet,
-                  // const xAOD::VertexContainer* vertices,
-                  SG::ReadHandle<xAOD::VertexContainer>& vertices,
-                  const float minTrackPt,
-                  const std::vector<const xAOD::TrackParticle*>& tracks,
-                  // const jet::TrackVertexAssociation* tva
-                  SG::ReadHandle<jet::TrackVertexAssociation>& tva
-                  ) const;
+  getTrackMoments(const xAOD::Jet& jet, const xAOD::VertexContainer* vertices,
+                  const float minTrackPt, const std::vector<const xAOD::TrackParticle*>& tracks,
+                  const jet::TrackVertexAssociation* tva) const;
         
   // Local method to calculate NumTrk, SumPtTrk, and TrackWidth for one vertex
   TrackMomentStruct
-  getTrackMoments(const xAOD::Jet&,
-                  const xAOD::Vertex* vertex, 
-                  const float minTrackPt,
+  getTrackMoments(const xAOD::Jet&, const xAOD::Vertex* vertex, const float minTrackPt,
                   const std::vector<const xAOD::TrackParticle*>& tracks,
-                  //const jet::TrackVertexAssociation* tva
-                  SG::ReadHandle<jet::TrackVertexAssociation>& tva
-                  ) const;
+                  const jet::TrackVertexAssociation* tva) const;
 
   // Parse the float to get a moment base name
   const std::string getMomentBaseName(const float minTrackPt) const;
+
+  SG::ReadHandleKey< xAOD::VertexContainer> m_vertexContainer_key;
+  SG::ReadHandleKey<jet::TrackVertexAssociation> m_trackVertexAssoc_key;
 
 };
 

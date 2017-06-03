@@ -22,8 +22,8 @@ JetTrackMomentsTool::JetTrackMomentsTool(const std::string& name)
     declareProperty("TrackMinPtCuts",m_minTrackPt);
     declareProperty("TrackSelector", m_htsel);
 
-    declareProperty("VertexContainer", m_vertexContainer_key);
-    declareProperty("AssociatedTracks", m_trackVertexAssoc_key);
+    declareProperty("VertexContainer",m_vertexContainer_key);
+    declareProperty("AssociatedTracks",m_trackVertexAssoc_key);
 }
 
 
@@ -37,6 +37,7 @@ StatusCode JetTrackMomentsTool::initialize() {
     ATH_MSG_INFO("  Track selector: " << m_htsel->name());
   }
 
+
   ATH_CHECK(m_vertexContainer_key.initialize());
   ATH_CHECK(m_trackVertexAssoc_key.initialize());
 
@@ -49,18 +50,24 @@ StatusCode JetTrackMomentsTool::initialize() {
 int JetTrackMomentsTool::modifyJet(xAOD::Jet& jet) const {
 
   // Get input vertex collection
-  auto vertexContainer = SG::makeHandle (m_vertexContainer_key);
-  if (!vertexContainer.isValid()){
-    ATH_MSG_ERROR("Invalid VertexContainer datahandle: " << m_vertexContainer);
+  auto handle_v = SG::makeHandle (m_vertexContainer_key);
+  if (!handle_v.isValid()){
+    ATH_MSG_ERROR("Could not retrieve the VertexContainer: "
+                  << m_vertexContainer);
     return 1;
   }
 
+  auto vertexContainer = handle_v.cptr();
+
   // Get the track-vertex association
-  auto tva = SG::makeHandle (m_trackVertexAssoc_key);
-  if (!tva.isValid()){
-    ATH_MSG_ERROR("Invalid TrackVertexAssociation datahandle: " << m_tva);
+  auto handle_tva = SG::makeHandle (m_trackVertexAssoc_key);
+  if (!handle_tva.isValid()){
+    ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation: "
+                  << m_tva);
     return 2;
   }
+
+  auto tva = handle_tva.cptr();
 
 #if 0
     // Get the tracks associated to the jet
@@ -114,7 +121,7 @@ int JetTrackMomentsTool::modifyJet(xAOD::Jet& jet) const {
     // Get info
     const float minPt = m_minTrackPt.at(iCut);
     const std::vector<TrackMomentStruct> moments =
-      getTrackMoments(jet, vertexContainer, minPt, tracks, tva);
+      getTrackMoments(jet,vertexContainer,minPt,tracks,tva);
     const std::string baseName = getMomentBaseName(minPt);
     // Collate info
     std::vector<int>   numTrkVec;       numTrkVec.resize(moments.size());
@@ -131,9 +138,8 @@ int JetTrackMomentsTool::modifyJet(xAOD::Jet& jet) const {
     jet.setAttribute("TrackWidth"+baseName,trackWidthVec);
 
     if (true == isPFlowJet){
-      const std::vector<TrackMomentStruct> pflowMoments = \
-        getTrackMoments(jet, vertexContainer, minPt, pflowTracks, tva);
-      
+      const std::vector<TrackMomentStruct> pflowMoments = getTrackMoments(jet,vertexContainer,minPt,pflowTracks,tva);
+
       std::vector<int>   pflowNumTrkVec;       pflowNumTrkVec.resize(pflowMoments.size());
       std::vector<float> pflowSumPtTrkVec;     pflowSumPtTrkVec.resize(pflowMoments.size());
       std::vector<float> pflowTrackWidthVec;   pflowTrackWidthVec.resize(pflowMoments.size());
@@ -154,34 +160,18 @@ int JetTrackMomentsTool::modifyJet(xAOD::Jet& jet) const {
 }
 
 
-const std::vector<JetTrackMomentsTool::TrackMomentStruct> 
-JetTrackMomentsTool::getTrackMoments(const xAOD::Jet& jet, 
-                                     //const xAOD::VertexContainer* vertices, 
-                                     SG::ReadHandle<xAOD::VertexContainer>& vertices,
-                                     const float minTrackPt, 
-                                     const std::vector<const xAOD::TrackParticle*>& tracks,
-                                     // const jet::TrackVertexAssociation* tva
-                                     SG::ReadHandle<jet::TrackVertexAssociation>& tva
-                                     ) const
+const std::vector<JetTrackMomentsTool::TrackMomentStruct> JetTrackMomentsTool::getTrackMoments(const xAOD::Jet& jet, const xAOD::VertexContainer* vertices, const float minTrackPt, const std::vector<const xAOD::TrackParticle*>& tracks, const jet::TrackVertexAssociation* tva) const
 {
-    std::vector<TrackMomentStruct> moments(vertices->size());
+    std::vector<TrackMomentStruct> moments;
+    moments.resize(vertices->size());
 
-    for (auto vertex : *vertices) {
-      moments.push_back(getTrackMoments(jet, vertex, minTrackPt, tracks, tva));
-    }
+    for (size_t iVertex = 0; iVertex < vertices->size(); ++iVertex)
+        moments[iVertex] = getTrackMoments(jet,vertices->at(iVertex),minTrackPt,tracks,tva);
 
     return moments;
 }
 
-JetTrackMomentsTool::TrackMomentStruct 
-JetTrackMomentsTool::getTrackMoments(const xAOD::Jet& jet, 
-                                     const xAOD::Vertex* vertex, 
-                                     const float minTrackPt, 
-                                     const std::vector<const xAOD::TrackParticle*>& tracks,
-                                     //const jet::TrackVertexAssociation* tva
-                                     SG::ReadHandle<jet::TrackVertexAssociation>& tva
-
-                                     ) const
+JetTrackMomentsTool::TrackMomentStruct JetTrackMomentsTool::getTrackMoments(const xAOD::Jet& jet, const xAOD::Vertex* vertex, const float minTrackPt, const std::vector<const xAOD::TrackParticle*>& tracks, const jet::TrackVertexAssociation* tva) const
 {
     // Prepare the moments
     TrackMomentStruct moments;
