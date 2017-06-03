@@ -63,6 +63,9 @@ JetBadChanCorrTool::JetBadChanCorrTool(	const std::string& name) :
   declareProperty("MissingCellMap", m_missingCellMapName= "MissingCaloCellsMap");
   declareProperty("ForceMissingCellCheck", m_forceMissingCellCheck=false);
   declareProperty("UseClusters",m_useClusters= false);
+
+  declareProperty("MissingCellMap", m_badCellMap_key="MissingCaloCellsMap");
+  
 }
 
 JetBadChanCorrTool::~JetBadChanCorrTool()
@@ -156,6 +159,8 @@ StatusCode JetBadChanCorrTool::initialize()
 
   }
  
+  ATH_CHECK(m_badCellMap_key.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -175,11 +180,14 @@ int JetBadChanCorrTool::modifyJet( xAOD::Jet& jet) const
   if(m_useClusters){
     res = correctionFromClustersBadCells( &jet);
   }else{
+    
+    auto handle = SG::makeHandle ( m_badCellMap_key);
+    if (!handle.isValid()){
+      ATH_MSG_ERROR("Could not retieve bad cell map "<< m_missingCellMapName);
+      return 1;
+    }
 
-    const jet::CaloCellFastMap * badCellMap ;
-    StatusCode sc= evtStore()->retrieve(badCellMap, m_missingCellMapName) ;
-    if(sc.isFailure() ) {ATH_MSG_ERROR("Could not retieve bad cell map "<< m_missingCellMapName); return 1;}
-
+    auto badCellMap = handle.cptr();
     
     // number of bad cells exceed the limit, set -1 and skip    
     if((int) badCellMap->cells().size() >m_nBadCellLimit){
