@@ -62,6 +62,7 @@ private:  // data
   std::string m_aname;
   std::string m_conname;
 
+  SG::ReadHandleKey<xAOD::JetContainer> m_jetContainer_key;
 };
 
 #endif
