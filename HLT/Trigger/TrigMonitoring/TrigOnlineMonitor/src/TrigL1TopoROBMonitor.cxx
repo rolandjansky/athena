@@ -849,7 +849,7 @@ StatusCode TrigL1TopoROBMonitor::doSimMon(bool prescalForDAQROBAccess){
 //----------------------------------------------------------
 StatusCode TrigL1TopoROBMonitor::doSimDaq(bool prescalForDAQROBAccess){
     ATH_MSG_DEBUG( "doSimDaq" );
-    if(m_setTopoSimResult and m_overflowBitsDaqRob.none()){
+    if(prescalForDAQROBAccess and m_setTopoSimResult and m_overflowBitsDaqRob.none()){
         for (unsigned int i=0; i< m_nTopoCTPOutputs; ++i){
             m_histTopoDaqRobHdwResult->Fill(i,m_triggerBitsDaqRob.test(i));
         }
