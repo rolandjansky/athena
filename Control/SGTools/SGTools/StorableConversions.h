@@ -29,6 +29,7 @@
 #include "boost/mpl/identity.hpp"
 #include "boost/mpl/eval_if.hpp"
 #include <memory>
+#include <type_traits>
 
 //
 //<<<<<< FORWARD DECLARATIONS                                           >>>>>>
@@ -220,8 +221,9 @@ namespace SG {
                      , IRegisterTransient* irt,
                      bool isConst /*= true*/)
   {
-    typedef typename DataBucketTrait<T>::type bucket_t;
-    DataBucketTrait<T>::init();
+    typedef typename std::remove_const<T>::type T_nc;
+    typedef typename DataBucketTrait<T_nc>::type bucket_t;
+    DataBucketTrait<T_nc>::init();
 
     //check inputs
     if (0 == pDObj) {
@@ -234,7 +236,7 @@ namespace SG {
     }
 
     // get T* from DataBucket:
-    SG::DataBucket<T>* bucketPtr = dynamic_cast<bucket_t*>(pDObj);
+    SG::DataBucket<T_nc>* bucketPtr = dynamic_cast<bucket_t*>(pDObj);
     bool success(0 != bucketPtr);
     if (success)
       pTrans = *bucketPtr;
@@ -242,7 +244,7 @@ namespace SG {
       // Try to use BaseInfo information to convert pointers.
       DataBucketBase* b = dynamic_cast<DataBucketBase*>(pDObj);
       if (b) {
-        pTrans = b->template cast<T> (irt, isConst);
+        pTrans = b->template cast<T_nc> (irt, isConst);
         if (pTrans)
           success = true;
       }
