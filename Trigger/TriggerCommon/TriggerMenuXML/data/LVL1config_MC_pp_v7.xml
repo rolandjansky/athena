@@ -126,12 +126,9 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="17" partition="1" name="L1_MU21" complex_deadtime="0" definition="((MU20[x1]|MU21[x1])&amp;BGRP0&amp;BGRP1)" trigger_type="10001000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="17" partition="1" name="L1_MU21" complex_deadtime="0" definition="(MU21[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10001000" monitor="LF:000|HF:000">
       <AND>
-        <OR>
-          <TriggerCondition multi="1" name="MU20_x1" triggerthreshold="MU20"/>
-          <TriggerCondition multi="1" name="MU21_x1" triggerthreshold="MU21"/>
-        </OR>
+        <TriggerCondition multi="1" name="MU21_x1" triggerthreshold="MU21"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -3245,12 +3242,9 @@
         <InternalTrigger name="BGRP9"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="406" partition="1" name="L1_MU21_FIRSTEMPTY" complex_deadtime="0" definition="((MU20[x1]|MU21[x1])&amp;BGRP0&amp;BGRP6)" trigger_type="10001000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="406" partition="1" name="L1_MU21_FIRSTEMPTY" complex_deadtime="0" definition="(MU21[x1]&amp;BGRP0&amp;BGRP6)" trigger_type="10001000" monitor="LF:000|HF:000">
       <AND>
-        <OR>
-          <TriggerCondition multi="1" name="MU20_x1" triggerthreshold="MU20"/>
-          <TriggerCondition multi="1" name="MU21_x1" triggerthreshold="MU21"/>
-        </OR>
+        <TriggerCondition multi="1" name="MU21_x1" triggerthreshold="MU21"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP6"/>
       </AND>
@@ -3895,12 +3889,9 @@
         <InternalTrigger name="BGRP0"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="497" partition="1" name="L1_MU21_FTK" complex_deadtime="0" definition="((MU20[x1]|MU21[x1])&amp;BGRP0&amp;BGRP1)" trigger_type="10100000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="497" partition="1" name="L1_MU21_FTK" complex_deadtime="0" definition="(MU21[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10100000" monitor="LF:000|HF:000">
       <AND>
-        <OR>
-          <TriggerCondition multi="1" name="MU20_x1" triggerthreshold="MU20"/>
-          <TriggerCondition multi="1" name="MU21_x1" triggerthreshold="MU21"/>
-        </OR>
+        <TriggerCondition multi="1" name="MU21_x1" triggerthreshold="MU21"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
