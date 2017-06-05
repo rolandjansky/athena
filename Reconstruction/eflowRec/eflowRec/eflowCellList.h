@@ -48,6 +48,8 @@ class eflowCellList : public eflowAbstractCellList{
     
   CellIt getLowerBound(eflowCaloENUM layer, double r)        { return m_cellPositionToCellMap.lower_bound( eflowCellPosition(this, layer, r) );}
 
+  CellIt find(eflowCaloENUM layer, double r) { return m_cellPositionToCellMap.find( eflowCellPosition(this, layer, r) );}
+
   int mapSize ()                                   { return m_cellPositionToCellMap.size();}
   void deleteFromList(CellIt& start, CellIt& end)  { m_cellPositionToCellMap.erase(start, end);}
   void deleteFromList(CellIt& it)                  { m_cellPositionToCellMap.erase(it);}
