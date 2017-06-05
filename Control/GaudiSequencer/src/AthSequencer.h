@@ -102,7 +102,7 @@ public:
   /**
    ** Reset the AthSequencer executed state for the current event.
    **/
-  void resetExecuted( );
+  virtual void resetExecuted( ) override;
 
   /**
    ** Has the StopOverride mode been set?
