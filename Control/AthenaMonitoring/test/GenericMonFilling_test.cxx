@@ -295,24 +295,24 @@ int main() {
   }
   
   // we need to test what happens to the monitoring when tool is not valid
-  InvalidToolHandle<GenericMonitoringTool> m_emptyMon;
-  VALUE( m_emptyMon.isValid() ) EXPECTED( false ); // self test
-  log << MSG::DEBUG << " mon tool validity " << m_emptyMon.isValid() << endmsg;
+  InvalidToolHandle<GenericMonitoringTool> emptyMon;
+  VALUE( emptyMon.isValid() ) EXPECTED( false ); // self test
+  log << MSG::DEBUG << " mon tool validity " << emptyMon.isValid() << endmsg;
 
     
   
-  ToolHandle<GenericMonitoringTool> m_validMon( "GenericMonitoringTool/MonTool" );
-  if ( m_validMon.retrieve().isFailure() ) {
+  ToolHandle<GenericMonitoringTool> validMon( "GenericMonitoringTool/MonTool" );
+  if ( validMon.retrieve().isFailure() ) {
     log << MSG::ERROR << "Failed to acquire the MonTool tools via the ToolHandle" << endmsg;
     return -1;
   }
   
-  assert( fillFromScalarWorked( m_validMon, histSvc ) );
-  assert( noToolBehaviourCorrect( m_emptyMon ) );
-  assert( fillFromScalarIndependentScopesWorked( m_validMon, histSvc ) );
-  assert( fill2DWorked( m_validMon, histSvc ) );
-  assert( fillExplcitelyWorked( m_validMon, histSvc ) );
-  assert( fillFromScalarIndependentScopesWorked( m_validMon, histSvc ) );
+  assert( fillFromScalarWorked( validMon, histSvc ) );
+  assert( noToolBehaviourCorrect( emptyMon ) );
+  assert( fillFromScalarIndependentScopesWorked( validMon, histSvc ) );
+  assert( fill2DWorked( validMon, histSvc ) );
+  assert( fillExplcitelyWorked( validMon, histSvc ) );
+  assert( fillFromScalarIndependentScopesWorked( validMon, histSvc ) );
   log << MSG::DEBUG << "All OK"  << endmsg;
   return 0;
 }
