@@ -92,7 +92,6 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_ftkMode(false),
   m_ftkRefit(false),
   m_useBeamSpot(true),
-  m_doTrigInDetTrack(false),
   m_nfreeCut(5), 
   m_iBeamCondSvc(nullptr),
   m_nTracks(0),
@@ -106,7 +105,6 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_CombTrackingTimer(nullptr), 
   m_TrackFitterTimer(nullptr), 
   m_attachedFeatureName(""),
-  m_attachedFeatureName_TIDT(""),
   m_outputCollectionSuffix(""),
   m_countTotalRoI(0),
   m_countRoIwithEnoughHits(0),
@@ -154,7 +152,6 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
 
   declareProperty( "MinHits",               m_minHits = 5 );
 
-  declareProperty("doTrigInDetTrack",            m_doTrigInDetTrack  = false);
   declareProperty( "OutputCollectionSuffix",m_outputCollectionSuffix = "");
  
   declareProperty( "UseBeamSpot",           m_useBeamSpot = true);
@@ -369,11 +366,9 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
   
   if ( m_outputCollectionSuffix != "" ) {
     m_attachedFeatureName = std::string("TrigFastTrackFinder_") + m_outputCollectionSuffix;
-    m_attachedFeatureName_TIDT = std::string("TrigFastTrackFinder_TrigInDetTrack") + m_outputCollectionSuffix;
   }
   else {
     m_attachedFeatureName      = std::string("TrigFastTrackFinder_");
-    m_attachedFeatureName_TIDT = std::string("TrigFastTrackFinder_TrigInDetTrack");
   }
 
   if (m_retrieveBarCodes) {
@@ -389,7 +384,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
   }
   
   ATH_MSG_DEBUG(" Feature set recorded with Key " << m_attachedFeatureName);
-  ATH_MSG_DEBUG(" Feature set recorded with Key " << m_attachedFeatureName_TIDT);
   ATH_MSG_DEBUG(" doResMon " << m_doResMonitoring);
   ATH_MSG_DEBUG(" Initialized successfully"); 
   return HLT::OK;
@@ -481,20 +475,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     }
     m_nTracks=ftkTracks->size();
 
-    if (m_doTrigInDetTrack) {
-      TrigInDetTrackCollection* ftkTracks_TIDT = new TrigInDetTrackCollection;
-      ftkTracks_TIDT->reserve(ftkTracks->size());
-      convertToTrigInDetTrack(*ftkTracks, *ftkTracks_TIDT);
-
-      code = attachFeature(outputTE, ftkTracks_TIDT, m_attachedFeatureName_TIDT);
-      if ( code != HLT::OK ) {
-        ATH_MSG_ERROR("REGTEST/ Write into outputTE failed");
-        delete ftkTracks;
-        delete ftkTracks_TIDT;
-        return code;
-      }
-    }
-
     return HLT::OK;
   }
   else {
@@ -552,10 +532,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
       ATH_MSG_DEBUG("No tracks found - too few hits in ROI to run " << m_roi_nSPs);
       HLT::ErrorCode code = attachFeature(outputTE, new TrackCollection, m_attachedFeatureName);
       if (code != HLT::OK) {
-        return code;
-      }
-      if (m_doTrigInDetTrack) {
-        code = attachFeature(outputTE, new TrigInDetTrackCollection, m_attachedFeatureName_TIDT);
         return code;
       }
       return code;
@@ -874,19 +850,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
       return code;
     }
 
-    //TrigInDetTrack output
-    if (m_doTrigInDetTrack) {
-      TrigInDetTrackCollection* fittedTracks_TIDT = new TrigInDetTrackCollection;
-      fittedTracks_TIDT->reserve(fittedTracks->size());
-      convertToTrigInDetTrack(*fittedTracks, *fittedTracks_TIDT);
-      code = attachFeature(outputTE, fittedTracks_TIDT, m_attachedFeatureName_TIDT);
-      if ( code != HLT::OK ) {
-        ATH_MSG_ERROR("REGTEST/ Write into outputTE failed");
-        delete fittedTracks;
-        delete fittedTracks_TIDT;
-        return code;
-      }
-    }
     m_currentStage = 7;
 
     return HLT::OK;

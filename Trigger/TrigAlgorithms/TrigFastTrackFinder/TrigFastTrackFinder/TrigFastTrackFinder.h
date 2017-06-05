@@ -116,7 +116,6 @@ protected:
   bool m_ftkRefit;//If True: Refit FTK tracks
   bool m_useBeamSpot; 
   bool m_vertexSeededMode;
-  bool m_doTrigInDetTrack;
   bool m_doZFinder;
   bool m_doFTKZFinder;
   bool m_doFTKFastVtxFinder;
