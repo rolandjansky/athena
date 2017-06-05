@@ -100,6 +100,9 @@ namespace Trk
     /** Access to the Surface method */
     virtual const S& associatedSurface() const override;
 
+    /** Test to see if there's a surface there. */
+    virtual bool hasSurface() const override { return true; }
+
     /** Return the measurementFrame of the parameters */
     virtual const Amg::RotationMatrix3D measurementFrame() const override;
 
