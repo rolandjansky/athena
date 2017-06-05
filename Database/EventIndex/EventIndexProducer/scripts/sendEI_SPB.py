@@ -3,13 +3,13 @@
 import logging
 import sys
 
-from EventIndexProducer.sendEI_Lib import eimrun
-from EventIndexProducer.sendEI_Lib import options as eioptions
+from EventIndexProducer.sendEI_SPB_Lib import eimrun
+from EventIndexProducer.sendEI_SPB_Lib import options as eioptions
 
 def main():
 
     # logger
-    logger = logging.getLogger('sendEI.py')
+    logger = logging.getLogger('sendEI_SPB.py')
     global log
     log = logger 
 
@@ -22,7 +22,7 @@ def main():
     if opt.debug > 0:
         logger.setLevel(logging.DEBUG)
 
-    eimrun(logger,opt)
+    eimrun(logger, opt)
 
 
 if __name__ == '__main__':
@@ -37,7 +37,4 @@ if __name__ == '__main__':
     root.addHandler(ch)
 
     main()
-
-    
-    
 

@@ -1,7 +1,5 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 """ Encodes a bit string composed mostly by zeroes"""
 
 _B64_alphabet = ( "ABCDEFGHIJKLMNOPQRSTUVWXYZ" 
