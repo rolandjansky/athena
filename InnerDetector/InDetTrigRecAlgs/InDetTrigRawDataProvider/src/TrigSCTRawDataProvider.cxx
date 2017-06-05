@@ -34,8 +34,8 @@ namespace InDet {
     m_storeGate       ("StoreGateSvc",name),
     m_detStore        ("DetectorStore",name),
     m_cablingSvc      ("SCT_CablingSvc",name),
-    m_container(0),
-    m_id(0)
+    m_id(0),
+    m_container(0)
   {
     declareInterface<InDet::ITrigRawDataProviderTool>(this);
     declareProperty("RDOKey", m_RDO_Key = "SCT_RDOs_EFID");
@@ -185,7 +185,7 @@ namespace InDet {
     // ask SCTRawDataProviderTool to decode it and to fill the IDC
     StatusCode scon = StatusCode::FAILURE;
     if (m_container){
-      scon =  m_rawDataTool->convert(listOfRobf,m_container);
+      scon =  m_rawDataTool->convert(listOfRobf,*m_container,nullptr);
       if (scon==StatusCode::FAILURE)
 	msg(MSG::ERROR) << "BS conversion into RDOs failed" << endmsg;
     }
