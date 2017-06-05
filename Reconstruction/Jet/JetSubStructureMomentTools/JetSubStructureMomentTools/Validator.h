@@ -14,8 +14,6 @@
 
 class TH1;
 
-//using namespace std;
-
 class Validator :
   virtual public IJetExecuteTool,
   virtual public asg::AsgTool {
