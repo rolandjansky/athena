@@ -50,22 +50,33 @@ if rec.doMuonCombined() and jobproperties.Beam.beamType()=='cosmics' and DetFlag
     topSequence+=splitter
 
     from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
-    InDetParticleCreatorTool_split = Trk__TrackParticleCreatorTool(name             = "InDetParticleCreatorTool_split",
-                                                                   KeepParameters   = True,
-                                                                   Extrapolator     = InDetExtrapolator,
-                                                                   TrackSummaryTool = InDetTrackSummaryTool)
+    InDetParticleCreatorTool_split = Trk__TrackParticleCreatorTool(name              = "InDetParticleCreatorTool_split",
+                                                                   KeepParameters    = True,
+                                                                   Extrapolator      = InDetExtrapolator,
+                                                                   TrackSummaryTool  = InDetTrackSummaryTool,
+                                                                   PerigeeExpression = "Origin")
     ToolSvc += InDetParticleCreatorTool_split
 
+    output_track_particle_name = InDetKeys.TrackParticles()+"_split"
+    from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
+    xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(name = "InDetxAODParticleCreatorAlg"+InputTrackCollection+"_split",
+                                                             ConvertTracks = True,
+                                                             ConvertTrackParticles = False,
+                                                             TrackContainerName = InDetKeys.Tracks()+"_split",
+                                                             xAODContainerName = output_track_particle_name,
+                                                             xAODTrackParticlesFromTracksContainerName = output_track_particle_name,
+                                                             TrackParticleCreator = InDetParticleCreatorTool_split,
+                                                             PrintIDSummaryInfo = True)
 
-    from InDetParticleCreation.InDetParticleCreationConf import InDet__TrackParticleCreator
-    InDetParticleCreation_split = InDet__TrackParticleCreator(name                     = "InDetParticleCreation_split",
-                                                              TrackParticleCreatorTool      = InDetParticleCreatorTool_split,
-                                                              TracksName               = InDetKeys.Tracks()+"_split",
-                                                              TrackParticlesOutputName = InDetKeys.TrackParticles()+"_split",
-                                                              PRDAssociationTool       = None ,
-                                                              DoSharedHits             = False,
-                                                              VxCandidatesPrimaryName  = InDetKeys.PrimaryVertices())
-    topSequence += InDetParticleCreation_split
+    if (InDetFlags.doTruth() and not InputTrackTruthCollection == ''):
+        xAODTrackParticleCnvAlg.AddTruthLink = True
+        xAODTrackParticleCnvAlg.TrackTruthContainerName = InputTrackTruthCollection
+    elif (InDetFlags.doTruth() and InputTrackTruthCollection == ''):
+        print "WARNING: ConfiguredxAODTrackParticleCreation - doTruth = True, but no input Truth collection specified!"
+    else:
+        xAODTrackParticleCnvAlg.AddTruthLink = False
+
+    topSequence += xAODTrackParticleCnvAlg
 
     #truth tracks
     if rec.doTruth():
