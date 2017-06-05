@@ -35,9 +35,6 @@ namespace InDet {
     declareProperty("biasD0", m_biasD0);
     declareProperty("biasZ0", m_biasZ0);
     declareProperty("biasQoverPsagitta", m_biasQoverPsagitta);
-    // it was shown that splitting into two periods did not affect the result significantly
-    // this feature is now disabled to prevent confusion
-    //    declareProperty("splitPeriods", m_splitPeriods);
     declareProperty("runNumber", m_runNumber);
     declareProperty("isData", m_isData);
     declareProperty("isSimulation", m_isSimulation);
@@ -84,12 +81,7 @@ namespace InDet {
 
   CP::CorrectionCode InDetTrackBiasingTool::applyCorrection(xAOD::TrackParticle& track) {
 
-    float d0 = track.d0();
-    float z0 = track.z0();
-    float phi0 = track.phi0();
-    float theta = track.theta();
-    float qOverP = track.qOverP();
-
+    float phi = track.phi0();
     float eta = track.eta();
 
     static bool firstTime = true;
@@ -99,41 +91,43 @@ namespace InDet {
 	return CP::CorrectionCode::Error;
       }
     }
+
+    // declare static accessors to avoid repeating string lookups
+    static SG::AuxElement::Accessor< float > accD0( "d0" );
+    static SG::AuxElement::Accessor< float > accZ0( "z0" );
+    static SG::AuxElement::Accessor< float > accQOverP( "qOverP" );
     
     // do the biasing
     if ( m_doD0Bias ) {
       bool d0WmActive = isActive( TRK_BIAS_D0_WM );
       if ( m_isData || d0WmActive ) {
-	d0 += readHistogram(m_biasD0, m_biasD0Histogram, phi0, eta);
+	accD0( track ) += readHistogram(m_biasD0, m_biasD0Histogram, phi, eta);
 	if ( m_isData && d0WmActive ) {
-	  d0 += readHistogram(0., m_biasD0HistError, phi0, eta);
+	  accD0( track ) += readHistogram(0., m_biasD0HistError, phi, eta);
 	}
       }
     }
     if ( m_doZ0Bias ) {
       bool z0WmActive = isActive( TRK_BIAS_Z0_WM );
       if ( m_isData || z0WmActive ) {
-	z0 += readHistogram(m_biasZ0, m_biasZ0Histogram, phi0, eta);
+	accZ0( track ) += readHistogram(m_biasZ0, m_biasZ0Histogram, phi, eta);
 	if ( m_isData && z0WmActive ) {
-	  z0 += readHistogram(0., m_biasZ0HistError, phi0, eta);
+	  accZ0( track ) += readHistogram(0., m_biasZ0HistError, phi, eta);
 	}
       }
     }
     if ( m_doQoverPBias ) {
       bool qOverPWmActive = isActive( TRK_BIAS_QOVERP_SAGITTA_WM );
       if ( m_isData || qOverPWmActive ) {
-	auto sinTheta = sin(theta);
+	auto sinTheta = 1.0/cosh(eta);
 	// readHistogram flips the sign of the correction if m_isSimulation is true
-	qOverP += 1.e-6*sinTheta*readHistogram(m_biasQoverPsagitta, m_biasQoverPsagittaHistogram, phi0, eta);
+	accQOverP( track ) += 1.e-6*sinTheta*readHistogram(m_biasQoverPsagitta, m_biasQoverPsagittaHistogram, phi, eta);
 	if ( m_isData && qOverPWmActive ) {
-	  qOverP += 1.e-6*sinTheta*readHistogram(0., m_biasQoverPsagittaHistError, phi0, eta);
+	  accQOverP( track ) += 1.e-6*sinTheta*readHistogram(0., m_biasQoverPsagittaHistError, phi, eta);
 	}
       }
     }
 
-    /// Set the defining parameters.     
-    track.setDefiningParameters(d0, z0, phi0, theta, qOverP);
-    
     return CP::CorrectionCode::Ok;
   }
 

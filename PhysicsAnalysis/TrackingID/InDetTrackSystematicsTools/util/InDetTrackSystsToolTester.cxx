@@ -121,26 +121,26 @@ int main( int argc, char* argv[] ) {
    CP::SystematicSet systSet = {
      // CP::SystematicVariation("TRK_RES_D0_MEAS"),
      // CP::SystematicVariation("TRK_RES_Z0_MEAS"),
-     // // CP::SystematicVariation("TRK_RES_D0_MEAS", 1), // these options are recommended for advanced users only
-     // // CP::SystematicVariation("TRK_RES_Z0_MEAS", 1),
-     // CP::SystematicVariation("TRK_RES_D0_MEAS", -1),
-     // CP::SystematicVariation("TRK_RES_Z0_MEAS", -1),
-     // CP::SystematicVariation("TRK_RES_D0_DEAD"),
-     // CP::SystematicVariation("TRK_RES_Z0_DEAD"),
-     // CP::SystematicVariation("TRK_BIAS_D0_WM"),
-     // CP::SystematicVariation("TRK_BIAS_Z0_WM"),
+     // CP::SystematicVariation("TRK_RES_D0_MEAS", 1), // these options are recommended for advanced users only
+     // CP::SystematicVariation("TRK_RES_Z0_MEAS", 1),
+     CP::SystematicVariation("TRK_RES_D0_MEAS", -1),
+     CP::SystematicVariation("TRK_RES_Z0_MEAS", -1),
+     CP::SystematicVariation("TRK_RES_D0_DEAD"),
+     CP::SystematicVariation("TRK_RES_Z0_DEAD"),
+     CP::SystematicVariation("TRK_BIAS_D0_WM"),
+     CP::SystematicVariation("TRK_BIAS_Z0_WM"),
      CP::SystematicVariation("TRK_BIAS_QOVERP_SAGITTA_WM"),
-     // CP::SystematicVariation("TRK_FAKE_RATE_LOOSE"),
+     CP::SystematicVariation("TRK_FAKE_RATE_LOOSE"),
      // CP::SystematicVariation("TRK_FAKE_RATE_TIGHT"), // have to pick one of these, and TIGHT isn't implemented yet
-     // CP::SystematicVariation("TRK_EFF_LOOSE_GLOBAL"),
-     // CP::SystematicVariation("TRK_EFF_LOOSE_IBL"),
-     // CP::SystematicVariation("TRK_EFF_LOOSE_PP0"),
-     // CP::SystematicVariation("TRK_EFF_LOOSE_PHYSMODEL"),
+     CP::SystematicVariation("TRK_EFF_LOOSE_GLOBAL"),
+     CP::SystematicVariation("TRK_EFF_LOOSE_IBL"),
+     CP::SystematicVariation("TRK_EFF_LOOSE_PP0"),
+     CP::SystematicVariation("TRK_EFF_LOOSE_PHYSMODEL"),
      // CP::SystematicVariation("TRK_EFF_TIGHT_GLOBAL"),
      // CP::SystematicVariation("TRK_EFF_TIGHT_IBL"),
      // CP::SystematicVariation("TRK_EFF_TIGHT_PP0"),
      // CP::SystematicVariation("TRK_EFF_TIGHT_PHYSMODEL"),
-     // CP::SystematicVariation("TRK_EFF_LOOSE_TIDE")
+     CP::SystematicVariation("TRK_EFF_LOOSE_TIDE")
    };
    std::vector< InDet::InDetTrackSystematicsTool* > tools = {&smearingTool, &biasingTool, &filterTool, &jetFilterTool};
 
