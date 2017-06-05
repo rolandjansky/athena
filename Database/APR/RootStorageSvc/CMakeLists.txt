@@ -8,6 +8,7 @@ atlas_subdir( RootStorageSvc )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
                           AtlasTest/TestTools
+                          Control/AthContainersRoot
                           Control/AthContainers
                           Control/AthContainersInterfaces
                           Control/CxxUtils
@@ -28,14 +29,7 @@ atlas_add_library( RootStorageSvc
                    NO_PUBLIC_HEADERS
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} RootUtilsPyROOT
-                   PRIVATE_LINK_LIBRARIES TestTools AthContainers CxxUtils RootUtils POOLCore StorageSvc PersistentDataModel GaudiKernel )
-
-atlas_add_test( RootAuxVectorFactory_test
-                SOURCES
-                test/RootAuxVectorFactory_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools AthContainers CxxUtils RootUtils RootUtilsPyROOT POOLCore StorageSvc PersistentDataModel GaudiKernel RootStorageSvc
-                EXTRA_PATTERNS "is already in" )
+                   PRIVATE_LINK_LIBRARIES TestTools AthContainers AthContainersRoot CxxUtils RootUtils POOLCore StorageSvc PersistentDataModel GaudiKernel )
 
 # Component list generation:
 atlas_generate_componentslist( RootStorageSvc )

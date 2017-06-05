@@ -6,20 +6,16 @@
 
 // $Id$
 /**
- * @file RootAuxVectorFactory.h
+ * @file AthContainersRoot/RootAuxVectorFactory.h
  * @author scott snyder <snyder@bnl.gov>
  * @date May, 2014
  * @brief Dynamic implementation of @c IAuxVectorFactory,
  *        relying on root's vector proxy.
- *
- * This is basically the same as the corresponding class in RootStorageSvc.
- * Duplicated here due to the lack of any suitable common packages
- * with the correct dependencies.
  */
 
 
-#ifndef ATHENAROOTACCESS_ROOTAUXVECTORFACTORY_H
-#define ATHENAROOTACCESS_ROOTAUXVECTORFACTORY_H
+#ifndef ATHCONTAINERSROOT_ROOTAUXVECTORFACTORY_H
+#define ATHCONTAINERSROOT_ROOTAUXVECTORFACTORY_H
 
 
 #include "AthContainersInterfaces/IAuxTypeVectorFactory.h"
@@ -31,7 +27,7 @@ class TClass;
 class TVirtualCollectionProxy;
 
 
-namespace AthenaROOTAccess {
+namespace SG {
 
 
 class RootAuxVectorFactory;
@@ -64,6 +60,25 @@ public:
                  size_t capacity);
 
 
+  /**
+   * @brief Constructor, from a pointer to a vector object.
+   * @param data The vector object.
+   * @param isPacked If true, @c data is a @c PackedContainer.
+   * @param ownFlag If true, then take ownership of @c data.
+   *
+   * If the element type is T, then @c data should be a pointer
+   * to a std::vector<T> object, which was obtained with @c new.
+   *
+   * This version does not support packed containers, so @c isPacked
+   * must be false.
+   */
+  RootAuxVector (const RootAuxVectorFactory* factory,
+                 void* data,
+                 bool isPacked,
+                 bool ownFlag);
+
+
+  
   /**
    * @brief Copy constructor.
    * @param other The vector to copy.
@@ -198,6 +213,9 @@ private:
 
   /// Pointer to the vector object itself.
   void* m_vec;
+
+  /// Should be delete the vector object?
+  bool m_ownFlag;
 };
 
 
@@ -263,8 +281,33 @@ public:
    * @brief Create a vector object of this type.
    * @param size Initial size of the new vector.
    * @param capacity Initial capacity of the new vector.
+   *
+   * Returns a newly-allocated object.
+   * FIXME: Should return a unique_ptr.
    */
   virtual SG::IAuxTypeVector* create (size_t size, size_t capacity) const
+    override;
+
+
+  /**
+   * @brief Create a vector object of this type from a data blob.
+   * @param data The vector object.
+   * @param isPacked If true, @c data is a @c PackedContainer.
+   * @param ownFlag If true, the newly-created IAuxTypeVector object
+   *                will take ownership of @c data.
+   *
+   * If the element type is T, then @c data should be a pointer
+   * to a std::vector<T> object, which was obtained with @c new.
+   *
+   * This version does not support packed containers, so @c isPacked
+   * must be false.
+   *
+   * Returns a newly-allocated object.
+   * FIXME: Should return a unique_ptr.
+   */
+  virtual SG::IAuxTypeVector* createFromData (void* data,
+                                              bool isPacked,
+                                              bool ownFlag) const
     override;
 
 
@@ -337,7 +380,7 @@ private:
 };
 
 
-} // namespace AthenaROOTAccess
+} // namespace SG
 
 
-#endif // not ATHENAROOTACCESS_ROOTAUXVECTORFACTORY_H
+#endif // not ATHCONTAINERSROOT_ROOTAUXVECTORFACTORY_H

@@ -4,7 +4,7 @@
 
 // $Id$
 /**
- * @file RootStorageSvc/src/RootAuxVectorFactory.cpp
+ * @file AthContainersRoot/src/RootAuxVectorFactory.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date May, 2014
  * @brief Dynamic implementation of @c IAuxVectorFactory,
@@ -12,7 +12,7 @@
  */
 
 
-#include "RootAuxVectorFactory.h"
+#include "AthContainersRoot/RootAuxVectorFactory.h"
 #include "AthContainers/tools/error.h"
 #include "TClass.h"
 #include "TVirtualCollectionProxy.h"
@@ -21,7 +21,7 @@
 #include <stdexcept>
 
 
-namespace pool {
+namespace {
 
 
 /**
@@ -43,6 +43,12 @@ TClass* lookupVectorType (TClass *cl)
 }
 
 
+} // anonymous namespace
+
+
+namespace SG {
+
+
 /**
  * @brief Constructor.  Makes a new vector.
  * @param factory The factory object for this type.
@@ -51,7 +57,8 @@ TClass* lookupVectorType (TClass *cl)
  */
 RootAuxVector::RootAuxVector (const RootAuxVectorFactory* factory,
                               size_t size, size_t /*capacity*/)
-  : m_factory (factory)
+  : m_factory (factory),
+    m_ownFlag (true)
 {
   TClass* vecClass = factory->vecClass();
   m_proxy = vecClass->GetCollectionProxy();
@@ -62,12 +69,40 @@ RootAuxVector::RootAuxVector (const RootAuxVectorFactory* factory,
 
 
 /**
+ * @brief Constructor, from a pointer to a vector object.
+ * @param data The vector object.
+ * @param isPacked If true, @c data is a @c PackedContainer.
+ * @param ownFlag If true, then take ownership of @c data.
+ *
+ * If the element type is T, then @c data should be a pointer
+ * to a std::vector<T> object, which was obtained with @c new.
+ *
+ * This version does not support packed containers, so @c isPacked
+ * must be false.
+ */
+RootAuxVector::RootAuxVector (const RootAuxVectorFactory* factory,
+                              void* data,
+                              bool isPacked,
+                              bool ownFlag)
+  : m_factory (factory),
+    m_ownFlag (ownFlag)
+{
+  if (isPacked) std::abort();
+  TClass* vecClass = factory->vecClass();
+  m_proxy = vecClass->GetCollectionProxy();
+  m_obj = data;
+  m_vec = reinterpret_cast<char*> (m_obj) + factory->offset();
+}
+
+
+/**
  * @brief Copy constructor.
  * @param other The vector to copy.
  */
 RootAuxVector::RootAuxVector (const RootAuxVector& other)
   : m_factory (other.m_factory),
-    m_proxy (other.m_proxy)
+    m_proxy (other.m_proxy),
+    m_ownFlag (true)
 {
   m_obj = m_factory->objClass()->New ();
   m_vec = reinterpret_cast<char*> (m_obj) + m_factory->offset();
@@ -95,7 +130,8 @@ RootAuxVector::RootAuxVector (const RootAuxVector& other)
  */
 RootAuxVector::~RootAuxVector()
 {
-  m_factory->objClass()->Destructor (m_obj);
+  if (m_ownFlag)
+    m_factory->objClass()->Destructor (m_obj);
 }
 
 
@@ -204,9 +240,10 @@ void RootAuxVector::shift (size_t pos, ptrdiff_t offs)
     size_t oldsz = m_proxy->Size();
     m_proxy->Allocate (oldsz + offs, false);
     char* beg = reinterpret_cast<char*>(m_proxy->At(0));
-    rootType.copyRange (beg + eltsz*(pos+offs),
-                        beg + eltsz*pos,
-                        m_proxy->Size() - pos - offs);
+    if (pos < oldsz)
+      rootType.copyRange (beg + eltsz*(pos+offs),
+                          beg + eltsz*pos,
+                          oldsz - pos);
     rootType.clearRange (beg + eltsz*pos, offs);
   }
 }
@@ -343,6 +380,31 @@ RootAuxVectorFactory::create (size_t size, size_t capacity) const
 
 
 /**
+ * @brief Create a vector object of this type from a data blob.
+ * @param data The vector object.
+ * @param isPacked If true, @c data is a @c PackedContainer.
+ * @param ownFlag If true, the newly-created IAuxTypeVector object
+ *                will take ownership of @c data.
+ *
+ * If the element type is T, then @c data should be a pointer
+ * to a std::vector<T> object, which was obtained with @c new.
+ *
+ * This version does not support packed containers, so @c isPacked
+ * must be false.
+ *
+ * Returns a newly-allocated object.
+ * FIXME: Should return a unique_ptr.
+ */
+SG::IAuxTypeVector*
+RootAuxVectorFactory::createFromData (void* data,
+                                      bool isPacked,
+                                      bool ownFlag) const
+{
+  return new RootAuxVector (this, data, isPacked, ownFlag);
+}
+
+
+/**
  * @brief Copy an element between vectors.
  * @param dst Pointer to the start of the destination vector's data.
  * @param dst_index Index of destination element in the vector.
@@ -414,4 +476,4 @@ bool RootAuxVectorFactory::isDynamic() const
 }
 
 
-} // namespace pool
+} // namespace SG
