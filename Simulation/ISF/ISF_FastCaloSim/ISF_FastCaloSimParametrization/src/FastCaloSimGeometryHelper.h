@@ -13,17 +13,17 @@
 
 class CaloDetDescrManager;
 
-class FastCaloSimGeometryHelper:public AthAlgTool, public CaloGeometry, public IFastCaloSimGeometryHelper {
+class FastCaloSimGeometryHelper:public AthAlgTool, public CaloGeometry, virtual public IFastCaloSimGeometryHelper {
   public :
     /** Constructor with parameters */
     FastCaloSimGeometryHelper( const std::string& t, const std::string& n, const IInterface* p );
 
     /** Destructor */
-    ~FastCaloSimGeometryHelper();
+  virtual ~FastCaloSimGeometryHelper();
 
     // Athena algtool's Hooks
-    StatusCode  initialize();
-    StatusCode  finalize();
+  virtual StatusCode  initialize() override final;
+  virtual StatusCode  finalize() override final;
 
   private:  
     /// DetDescr mgr for access to the calo helper

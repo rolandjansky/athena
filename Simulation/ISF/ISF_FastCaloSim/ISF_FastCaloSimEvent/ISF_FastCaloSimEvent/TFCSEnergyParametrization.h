@@ -22,8 +22,8 @@ private:
   ClassDef(TFCSEnergyParametrization,1)  //TFCSEnergyParametrization
 };
 
-//#if defined(__MAKECINT__)
-//#pragma link C++ class TFCSEnergyParametrization+;
-//#endif
+#if defined(__MAKECINT__)
+#pragma link C++ class TFCSEnergyParametrization+;
+#endif
 
 #endif

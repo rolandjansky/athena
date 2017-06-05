@@ -20,24 +20,22 @@ void init_epara()
  TMatrixD *m;
  
  gInterpreter->AddIncludePath("..");
+ gInterpreter->AddIncludePath("../epara");
  gInterpreter->AddIncludePath("../../ISF_FastCaloSimEvent");
-
- gROOT->LoadMacro("../Root/TreeReader.cxx+");
- 
- gROOT->LoadMacro("../Root/firstPCA.cxx+");
-
- gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCS1DFunction.cxx+");
- gROOT->LoadMacro("../Root/TFCS1DFunctionRegression.cxx+");
- gROOT->LoadMacro("../Root/TFCS1DFunctionRegressionTF.cxx+");
- gROOT->LoadMacro("../Root/TFCS1DFunctionHistogram.cxx+");
- gROOT->LoadMacro("../Root/TFCSFunction.cxx+");
  
  gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/IntArray.cxx+");
- gROOT->LoadMacro("../Root/secondPCA.cxx+");
+ gROOT->LoadMacro("../Root/TreeReader.cxx+");
+ gROOT->LoadMacro("../epara/firstPCA.cxx+");
+ gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCS1DFunction.cxx+");
+ gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCS1DFunctionRegression.cxx+");
+ gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCS1DFunctionRegressionTF.cxx+");
+ gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCS1DFunctionHistogram.cxx+");
+ gROOT->LoadMacro("../epara/TFCSFunction.cxx+");
+ gROOT->LoadMacro("../epara/TFCS1DRegression.cxx+");
+ gROOT->LoadMacro("../epara/secondPCA.cxx+");
  
- 
+ /*
  gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSExtrapolationState.cxx+");
- 
  gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSTruthState.cxx+");
  gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSSimulationState.cxx+");
  gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSParametrizationBase.cxx+");
@@ -45,6 +43,7 @@ void init_epara()
  gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSEnergyParametrization.cxx+");
  gROOT->LoadMacro("../../ISF_FastCaloSimEvent/src/TFCSPCAEnergyParametrization.cxx+");
  gROOT->LoadMacro("../Root/EnergyParametrizationValidation.cxx+");
+ */
  
  cout<<"init done"<<endl;
  

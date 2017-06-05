@@ -15,10 +15,9 @@ from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 #athenaCommonFlags.FilesInput = glob( "ESDpion_eta1.pool.root" )
 #athenaCommonFlags.FilesInput = glob( "ESD_calo__211__E10000_10000__eta20_20_Evts0-1000_z03350.pool.root" )
 #athenaCommonFlags.FilesInput = glob( "ESD_*root" )
-
-#athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/user/z/zhubacek/FastCaloSim/ForMichael/ESD_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.pool.root"] 
 #athenaCommonFlags.FilesInput = ["/afs/cern.ch/user/c/cmills/public/pions20GeV_fulldet.ESD.pool.root"] 
-athenaCommonFlags.FilesInput = ["/afs/cern.ch/user/c/cmills/public/pions20GeV_z0150_fulldet.ESD.pool.root"] 
+#athenaCommonFlags.FilesInput = ["/afs/cern.ch/user/c/cmills/public/pions20GeV_z0150_fulldet.ESD.pool.root"] 
+athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/user/z/zhubacek/FastCaloSim/ForMichael/ESD_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.pool.root"]
 
 ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput() # This is stupid and redundant, but necessary
 
@@ -34,6 +33,7 @@ from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOn()
 DetFlags.Calo_setOn()
 DetFlags.Muon_setOff()
+DetFlags.Forward_setOff()
 #include ('TrkDetDescrSvc/AtlasTrackingGeometrySvc.py')
 
 from ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConf import ISF_HitAnalysis
@@ -56,7 +56,7 @@ ISF_HitAnalysis.CaloBoundaryR = 1148.0
 ISF_HitAnalysis.CaloBoundaryZ = 3549.5 #before: 3475.0
 ISF_HitAnalysis.CaloMargin=100 #=10cm
 ISF_HitAnalysis.NTruthParticles = 1 # Copy only one truth particle to the ntuples for now
-ISF_HitAnalysis.OutputLevel = DEBUG
+ISF_HitAnalysis.OutputLevel = WARNING
 
 #############################
 ##### NEW TRACKING SETUP ####
@@ -89,10 +89,20 @@ ISF_HitAnalysis.Extrapolator=timedExtrapolator
 
 #############################
 
-from ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConf import FastCaloSimGeometryHelper
-FCSgeoHelper=FastCaloSimGeometryHelper()
-ToolSvc+=FCSgeoHelper
-ISF_HitAnalysis.CaloGeometryHelper=FCSgeoHelper
+from AthenaCommon.CfgGetter import getPublicTool
+
+#from ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConf import FastCaloSimGeometryHelper
+#FCSgeoHelper=FastCaloSimGeometryHelper()
+#ToolSvc+=FCSgeoHelper
+#ISF_HitAnalysis.CaloGeometryHelper=FCSgeoHelper
+fcsgeohelper= getPublicTool('FastCaloSimGeometryHelper')
+ToolSvc+=fcsgeohelper
+ISF_HitAnalysis.CaloGeometryHelper=fcsgeohelper
+
+ISF_HitAnalysis.FastCaloSimCaloExtrapolation= getPublicTool('FastCaloSimCaloExtrapolation')
+ISF_HitAnalysis.FastCaloSimCaloExtrapolation.OutputLevel = DEBUG
+ToolSvc.FastCaloSimCaloExtrapolation.OutputLevel = DEBUG
+
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
