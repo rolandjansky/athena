@@ -85,7 +85,7 @@ if DUMPTUPLE:
 # Output options
 #--------------------------------------------------------------
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-outStream = AthenaPoolOutputStream("StreamAOD")
+outStream = AthenaPoolOutputStream("StreamAOD", noTag=True)
 import os
 outStream.OutputFile = os.path.join( \
     os.path.dirname(INPUT[0]),
