@@ -81,12 +81,15 @@ SG::DataBucket<T>::DataBucket(T* data)
 
 template <typename T> 
 SG::DataBucket<T>::DataBucket(std::unique_ptr<T> data)
-  : m_ptr(data.release())
+  : DataBucket (data.release())
 {
-  // If T is a DataObject, increase the refcount.
-  typedef typename ClassID_traits<T>::is_DataObject_tag tag;
-  if (m_ptr)
-    SG::db_maybe_ref (m_ptr, tag());
+}
+
+template <typename T> 
+SG::DataBucket<T>::DataBucket(std::unique_ptr<const T> data)
+    // Rely on our caller to retain constness.
+  : DataBucket (const_cast<T*> (data.release()))
+{
 }
 
 template <typename T> 
