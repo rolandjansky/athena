@@ -26,6 +26,7 @@ EgammaChainsToKeepMonitoring={
 "e24_lhmedium_nod0_L1EM15VH_g25_medium",
 "e20_lhmedium_nod0_2g10_loose_L1EM15VH_3EM8VH",
 # Single items
+"e28_lhtight",
 "e60_lhmedium_nod0_L1EM24VHI",
 "e60_lhmedium_nod0_L1EM24VHIM",
 "e17_lhvloose_nod0",
