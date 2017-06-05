@@ -88,7 +88,7 @@ namespace ana
 
     asg::AnaToolHandle<Trig::TrigDecisionTool> m_trigDecTool;
     asg::AnaToolHandle<TrigConf::ITrigConfigTool> m_trigconfigTool;
-    // Muon Trigger Matching
+    /// Muon Trigger Matching
     asg::AnaToolHandle<Trig::IMatchingTool> m_triggerMatching;
 
   };
