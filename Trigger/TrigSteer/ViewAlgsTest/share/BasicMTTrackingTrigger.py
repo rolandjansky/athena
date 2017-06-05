@@ -64,17 +64,17 @@ def getOutput(obj, prop):
         return obj.getDefaultProperty(prop)
     raise "Error in reading property " + prop + " from " + obj
  
-def genMenuAlg(name, inputHypos, inputChains):
-    assert inputHypos != None, 'Alg to take hypo putput from is missing'
-    assert inputChains != None, 'Alg to take chain decisions from is missing'
-    log.info(inputChains, inputHypos)
-    from ViewAlgs.ViewAlgsConf import MenuAlg
-    menuAlg = MenuAlg(name)
-    menuAlg.HypoDecisions = getOutput(inputHypos, "OutputDecisions")
-    menuAlg.InputChainDecisions = getOutput(inputChains,"OutputChainDecisions")
-    setOutput(menuAlg, "OutputDecisions", name+"RoIs")
-    setOutput(menuAlg, "OutputChainDecisions", name+"Chains")
-    return menuAlg
+# def genMenuAlg(name, inputHypos, inputChains):
+#     assert inputHypos != None, 'Alg to take hypo putput from is missing'
+#     assert inputChains != None, 'Alg to take chain decisions from is missing'
+#     log.info(inputChains, inputHypos)
+#     from ViewAlgs.ViewAlgsConf import MenuAlg
+#     menuAlg = MenuAlg(name)
+#     menuAlg.HypoDecisions = getOutput(inputHypos, "OutputDecisions")
+#     menuAlg.InputChainDecisions = getOutput(inputChains,"OutputChainDecisions")
+#     setOutput(menuAlg, "OutputDecisions", name+"RoIs")
+#     setOutput(menuAlg, "OutputChainDecisions", name+"Chains")
+#     return menuAlg
 
 
 
@@ -136,13 +136,28 @@ for i in topSequence:
 
 
 #Run Fake RoI
-from L1Decoder.L1DecoderConf import FakeRoI
-fakeRoI = FakeRoI("fakeRoI")
-fakeRoI.InputFilename="caloRoIData.dat"
-setOutput(fakeRoI, "OutputDecisions", "OutputRoIs")
-fakeRoI.OutputLevel=DEBUG
+# from L1Decoder.L1DecoderConf import FakeRoI
+# fakeRoI = FakeRoI("fakeRoI")
+# fakeRoI.InputFilename="caloRoIData.dat"
+# setOutput(fakeRoI, "OutputDecisions", "OutputRoIs")
+# fakeRoI.OutputLevel=DEBUG
 
-topSequence += fakeRoI
+# topSequence += fakeRoI
+
+# once L1 re-simulation works this has to change from emulation to real unpacking
+include("TrigUpgradeTest/L1CF.py")
+
+data['l1emroi'] = ['1.3,2.9,2704088841,EM3,EM7,EM10,EM20;',
+                   '1.2,3.1,2972524297,EM3,EM7,EM10,EM20;']
+
+data['l1muroi'] = [';',
+                   ';'] # required by L1CF
+
+data['ctp'] = ['HLT_e20',
+               'HLT_e20']
+from TrigUpgradeTest.TestUtils import writeEmulationFiles
+writeEmulationFiles(data)
+
 
 theApp.EvtMax = 10
 svcMgr.DetectorStore.Dump=True
@@ -181,7 +196,7 @@ InDetPixelClusterization = InDet__PixelClusterization(name                    = 
                                                       DataObjectName          = InDetKeys.PixelRDOs(),
                                                       ClustersName            = InDetKeys.PixelClusters(),
                                                       isRoI_Seeded = True,
-                                                      RoIs = "OutputRoIs",
+                                                      RoIs = "L1EMRoIs",
                                                       )
 topSequence += InDetPixelClusterization
 
@@ -207,7 +222,7 @@ InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "I
                                                     conditionsService       = InDetSCT_ConditionsSummarySvc,
                                                     FlaggedConditionService = InDetSCT_FlaggedConditionSvc,
                                                     isRoI_Seeded = True,
-                                                    RoIs = "OutputRoIs",
+                                                    RoIs = "L1EMRoIs",
                                                     )
 topSequence += InDetSCT_Clusterization
 
@@ -231,6 +246,7 @@ topSequence += InDetSiTrackerSpacePointFinder
 
 from TrigFastTrackFinder.TrigFastTrackFinderMT_Config import TrigFastTrackFinderMT_eGamma
 theFTFMT = TrigFastTrackFinderMT_eGamma()
+theFTFMT.RoIs="L1EMRoIs"
 
 topSequence += theFTFMT
 log.info(theFTFMT)
