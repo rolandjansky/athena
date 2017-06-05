@@ -23,8 +23,6 @@
 #include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/NTuple.h"
-#include "DataModel/DataLink.h"
 
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonIdHelpers/MdtIdHelper.h" 
