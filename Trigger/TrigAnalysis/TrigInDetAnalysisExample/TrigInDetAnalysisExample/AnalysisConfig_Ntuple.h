@@ -36,7 +36,7 @@ public:
 
   AnalysisConfig_Ntuple(TIDARoiDescriptor* roiInfo, 
 			const std::vector<std::string>& chainNames, std::string outputFileName="TrkNtuple.root", 
-			double tauEtCutOffline=0.0, int TruthPdgId = 0, bool _keepAllEvents=false) : 
+			double tauEtCutOffline=0.0, int TruthPdgId = 0, bool keepAllEvents=false) : 
     T_AnalysisConfig<IHLTMonTool>( "Ntple",
 				   "", "", "",
 				   "", "", "",
@@ -46,8 +46,8 @@ public:
 				   0,
 				   0 ),
     m_event(0),
-    mFile(0),
-    mTree(0),
+    m_file(0),
+    m_tree(0),
     m_doOffline(false),
     m_doVertices(false),
     m_doMuons(false),
@@ -65,7 +65,7 @@ public:
   {  
     //    std::cout << "AnalysisConfig_Ntuple::AnalysisConfig_Ntuple() " << chainNames.size() << std::endl;
 
-    this->keepAllEvents( _keepAllEvents ); /// this is now i nthe base class
+    this->keepAllEvents( keepAllEvents ); /// this is now i nthe base class
 
     for ( unsigned i=0 ; i<chainNames.size() ; i++ ) { 
       if ( chainNames[i] != "Offline"     &&
@@ -129,9 +129,9 @@ protected:
 
   TIDA::Event*  m_event;
 
-  TFile*      mFile;  
-  TTree*      mTree;
-  TDirectory* mDir;
+  TFile*      m_file;  
+  TTree*      m_tree;
+  TDirectory* m_dir;
 
   std::vector<ChainString> m_chainNames;
 
