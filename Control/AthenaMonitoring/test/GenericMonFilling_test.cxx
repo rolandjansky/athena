@@ -314,5 +314,10 @@ int main() {
   assert( fillExplcitelyWorked( validMon, histSvc ) );
   assert( fillFromScalarIndependentScopesWorked( validMon, histSvc ) );
   log << MSG::DEBUG << "All OK"  << endmsg;
+
+  // Make sure that THistSvc gets finalized.
+  // Otherwise, the output file will get closed while global dtors are running,
+  // which can lead to crashes.
+  dynamic_cast<ISvcManager*>(pSvcLoc)->finalizeServices().ignore();
   return 0;
 }
