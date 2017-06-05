@@ -386,6 +386,7 @@ AthCnvSvc::removeConverter(const CLID& clid)
 IConverter*
 AthCnvSvc::converter(const CLID& clid)
 {
+  std::lock_guard<CallMutex> lock(m_conv_mut);
   Workers::iterator worker = m_workers.find (clid);
   if ( worker != m_workers.end() ) {
     return worker->second.converter();

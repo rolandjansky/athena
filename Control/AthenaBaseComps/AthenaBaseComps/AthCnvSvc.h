@@ -14,6 +14,7 @@
 // STL includes
 #include <string>
 #include <unordered_map>
+#include <mutex>
 
 // GaudiKernel
 #include "GaudiKernel/IConversionSvc.h"
@@ -315,6 +316,9 @@ protected:
   long                m_type;
   /// List of conversion workers
   Workers             m_workers;
+  /// Mutex to protect Converter creation
+  typedef std::mutex CallMutex;
+  CallMutex           m_conv_mut;
 }; 
 
 // I/O operators
