@@ -94,7 +94,6 @@ int usage(const std::string& name, int status) {
   s << "    -yp, --ypos               \t relative yposition for the key\n"; 
   s << "    -ac, --addchains          \t if possible, add chain names histogram labels \n";   
   s << "    -xe, --xerror value       \t size of the x error tick marks\n"; 
-  //  s << "         --fe,            \t relative x offset for the key\n"; 
   s << "    -h,  --help              \t this help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
   //  s << "\nReport bugs to <" << PACKAGE_BUGREPORT << ">";
@@ -128,12 +127,6 @@ std::string fullreplace( std::string s, const std::string& s2, const std::string
   return s;
 } 
 
-
-
-// std::string replace( std::string s, const std::string& pattern, const std::string& regex ) { 
-//  if ( pattern!="" && regex!="" && s.find(pattern)!=std::string::npos ) s.replace( s.find(pattern), pattern.size(), regex );
-//  return s;
-// }
 
 
 /// zero the contents of a 2d histogram 
