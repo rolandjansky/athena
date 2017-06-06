@@ -425,7 +425,7 @@ StatusCode photonMonTool::fillHistogramsForOnePhoton(xAOD::PhotonContainer::cons
     
   //ATH_MSG_DEBUG("photon et, eta and phi " << et << " " << eta << " " << phi << " region " << ir << " defined " << myHist.m_hvEt.size());
 
-  if (et>2500) return StatusCode::SUCCESS;
+  if (et<2500) return StatusCode::SUCCESS;
 
   ++myHist.m_nPhotonsPerRegion[ir];  
   ++myHist.m_nPhotons;    

@@ -252,7 +252,7 @@ StatusCode forwardElectronMonTool::fillHistograms()
     int ir = GetForwardRegion(eta);
     //ATH_MSG_DEBUG("electrons et, eta and phi" << et << " " << eta << " " << phi);
   
-    if (et>5000) return StatusCode::SUCCESS;
+    if (et<5000) return StatusCode::SUCCESS;
 
     // Isolation Energy 
     //float topoetcone40 = -999.;
