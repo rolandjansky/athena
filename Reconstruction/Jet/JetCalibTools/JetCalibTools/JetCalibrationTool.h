@@ -44,10 +44,9 @@ class JetCalibrationTool
 
   ASG_TOOL_CLASS2(JetCalibrationTool, IJetCalibrationTool, IJetModifier)
 
-public: 
-
+public:
   /// Constructor with parameters: 
-  JetCalibrationTool(const std::string& name);
+  JetCalibrationTool(const std::string& name = "JetCalibrationTool");
 
   /// Destructor: 
   virtual ~JetCalibrationTool(); 
@@ -91,7 +90,6 @@ private:
   std::string m_calibAreaTag;
   bool m_devMode;
   bool m_isData;
-  bool m_mass;
   bool m_timeDependentCalib;
   bool m_originCorrectedClusters;
   std::string m_rhoKey;
