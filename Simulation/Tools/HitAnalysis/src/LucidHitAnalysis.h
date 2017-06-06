@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef LUCID_HIT_ANALYSIS_H
 #define LUCID_HIT_ANALYSIS_H
 
@@ -16,11 +12,11 @@
 #include "TH2.h"
 #include "TTree.h"
 
-
 class TH1;
 class TH2;
 class TTree;
- 
+
+
 class LucidHitAnalysis : public AthAlgorithm {
 
  public:
@@ -33,7 +29,6 @@ class LucidHitAnalysis : public AthAlgorithm {
 
  private:
 
-   std::string m_collection;
    /** Some histograms**/
    TH1* h_hit_x;
    TH1* h_hit_y;
@@ -49,7 +44,6 @@ class LucidHitAnalysis : public AthAlgorithm {
    TH1* h_hit_posttime;
    TH1* h_genvolume;
    TH1* h_wavelength;
-  
 
    std::vector<float>* m_hit_x;
    std::vector<float>* m_hit_y;
@@ -64,8 +58,6 @@ class LucidHitAnalysis : public AthAlgorithm {
    std::vector<float>* m_gen_volume;
    std::vector<float>* m_wavelength;
    
-   
-   
    TTree * m_tree;
    std::string m_ntupleFileName; 
    std::string m_path; 
@@ -74,4 +66,3 @@ class LucidHitAnalysis : public AthAlgorithm {
 };
 
 #endif // LUCID_HIT_ANALYSIS_H
-

@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #include "SiLorentzAngleSvc/SiLorentzAngleSvc.h"
 
 #include "InDetIdentifier/PixelID.h"
@@ -126,19 +122,28 @@ StatusCode SiLorentzAngleSvc::geoInitialize() {
   }
   m_isPixel = (m_detectorName == "Pixel");
  
-  // Get conditions summary service. 
-  CHECK(m_siConditionsSvc.retrieve());
+  // Get conditions summary service.
+  if (!m_siConditionsSvc.empty()) {
+    ATH_MSG_INFO("Conditions Summary Service not empty --> attempting to retrieve.");
+    CHECK(m_siConditionsSvc.retrieve());
+  }
+  else {
+    ATH_MSG_INFO("Conditions Summary Service not requested.");
+  }
 
   // Get the detector manager
   CHECK(m_detStore->retrieve(m_detManager, m_detectorName));
 
-  if (m_siConditionsSvc->hasCallBack()) {
-    //Register callback. To be triggered after SiConditionsSvc's callback,
-    ATH_MSG_INFO("Registering callback." );
-    CHECK(m_detStore->regFcn(&ISiliconConditionsSvc::callBack,&*m_siConditionsSvc,&ISiLorentzAngleSvc::callBack,dynamic_cast<ISiLorentzAngleSvc*>(this),true));
-  } 
-  else {
-    ATH_MSG_WARNING("Conditions Summary Service has no callback." );
+  if (!m_siConditionsSvc.empty()) {
+    ATH_MSG_INFO("Conditions Summary Service not empty --> checking if has callback.");
+    if (m_siConditionsSvc->hasCallBack()) {
+      //Register callback. To be triggered after SiConditionsSvc's callback,
+      ATH_MSG_INFO("Registering callback." );
+      CHECK(m_detStore->regFcn(&ISiliconConditionsSvc::callBack,&*m_siConditionsSvc,&ISiLorentzAngleSvc::callBack,dynamic_cast<ISiLorentzAngleSvc*>(this),true));
+    } 
+    else {
+      ATH_MSG_WARNING("Conditions Summary Service has no callback." );
+    }
   }
 
   // Get maximum hash for vector sizes. We need the idhelper for this.
@@ -147,17 +152,17 @@ StatusCode SiLorentzAngleSvc::geoInitialize() {
     const PixelID * idHelper;
     CHECK(m_detStore->retrieve(idHelper,"PixelID"));
     maxHash = idHelper->wafer_hash_max();
-
-    // Check layout
-    if      (maxHash<2000) { ATH_MSG_INFO("Suppose RUN-1 geometry..."); }
-    else if (maxHash<2100) { ATH_MSG_INFO("Suppose RUN-2 geometry..."); }
-    else                   { ATH_MSG_INFO("Suppose RUN-4 geometry..."); }
   } 
   else { // SCT
     const SCT_ID * idHelper;
     CHECK(m_detStore->retrieve(idHelper,"SCT_ID"));
    maxHash = idHelper->wafer_hash_max();
   }
+
+  // Check layout
+  if      (maxHash<2000) { ATH_MSG_INFO("Suppose RUN-1 geometry..."); }
+  else if (maxHash<2100) { ATH_MSG_INFO("Suppose RUN-2 geometry..."); }
+  else                   { ATH_MSG_INFO("Suppose RUN-4 geometry..."); }
 
   // In case geoInitialize is called more than once (not likely in practice) 
   m_cacheValid.clear(); 

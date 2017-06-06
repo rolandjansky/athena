@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef TRUTH_HIT_ANALYSIS_H
 #define TRUTH_HIT_ANALYSIS_H
 
@@ -9,7 +5,6 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
-
 
 #include <string>
 #include <vector>
@@ -20,7 +15,8 @@
 class TH1;
 class TH2;
 class TTree;
- 
+
+
 class TruthHitAnalysis : public AthAlgorithm {
 
  public:
@@ -63,7 +59,6 @@ class TruthHitAnalysis : public AthAlgorithm {
    TH1* h_part_phi;
    TH1* h_part_p;
 
-
    std::vector<float>* m_vtx_x;
    std::vector<float>* m_vtx_y;
    std::vector<float>* m_vtx_z;
@@ -84,9 +79,6 @@ class TruthHitAnalysis : public AthAlgorithm {
    std::string m_path;
    ServiceHandle<ITHistSvc>  m_thistSvc;
 
-
-
 };
 
 #endif // TRUTH_HIT_ANALYSIS_H
-

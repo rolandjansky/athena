@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef ZDC_HIT_ANALYSIS_H
 #define ZDC_HIT_ANALYSIS_H
 
@@ -14,7 +10,6 @@
 #include <vector>
 #include "TH1.h"
 #include "TTree.h"
-
 
 class TH1;
 class TTree;
@@ -58,4 +53,3 @@ class ZDCHitAnalysis : public AthAlgorithm {
 };
 
 #endif // ZDC_HIT_ANALYSIS_H
-

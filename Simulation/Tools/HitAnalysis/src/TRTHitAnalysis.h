@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef TRT_HIT_ANALYSIS_H
 #define TRT_HIT_ANALYSIS_H
 
@@ -9,7 +5,6 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
-
 
 #include <string>
 #include <vector>
@@ -20,7 +15,8 @@
 class TH1;
 class TH2;
 class TTree;
- 
+
+
 class TRTHitAnalysis : public AthAlgorithm {
 
  public:
@@ -48,7 +44,6 @@ class TRTHitAnalysis : public AthAlgorithm {
    TH1* h_TRT_kine_nonphotons;
    TH1* h_TRT_barcode;
 
-
    std::vector<float>* m_TRT_x;
    std::vector<float>* m_TRT_y;
    std::vector<float>* m_TRT_z;
@@ -64,10 +59,8 @@ class TRTHitAnalysis : public AthAlgorithm {
    TTree * m_tree;
    std::string m_path;
    std::string m_ntupleFileName; 
-   ServiceHandle<ITHistSvc>  m_thistSvc;
-
+   ServiceHandle<ITHistSvc> m_thistSvc;
 
 };
 
 #endif // TRT_HIT_ANALYSIS_H
-
