@@ -13,8 +13,7 @@ Setup Instructions
 You need a recent version of cmake and gcc set up. You can get this from 
 setupATLAS with
 
-    lsetup "cmake 3.3.2"
-    lsetup "gcc gcc493_x86_64_slc6"
+    asetup gcc62,none --cmakesetup
 
 Build Instructions
 ------------------
