@@ -33,7 +33,7 @@ atlas_add_component( DstarVertexing
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps DataModel xAODTracking GaudiKernel EventPrimitives xAODEventInfo xAODJet xAODTruth InDetConversionFinderTools TrkToolInterfaces TrkV0Fitter TrkVKalVrtFitter TrkVertexAnalysisUtils TrkVertexFitterInterfaces)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps DataModel xAODTracking GaudiKernel EventPrimitives xAODEventInfo xAODJet xAODTruth InDetConversionFinderToolsLib TrkToolInterfaces TrkV0FitterLib TrkVKalVrtFitterLib TrkVertexAnalysisUtilsLib TrkVertexFitterInterfaces)
 
 # Install files from the package:
 atlas_install_headers( DstarVertexing )
