@@ -38,21 +38,21 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
   //
   // create the Barrel Mother volume
   // 
-  double rmin = gmt_mgr->PixelBarrelRMin();
-  double rmax = gmt_mgr->PixelBarrelRMax();
-  double halflength = gmt_mgr->PixelBarrelHalfLength();
-  const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+  double rmin = m_gmt_mgr->PixelBarrelRMin();
+  double rmax = m_gmt_mgr->PixelBarrelRMax();
+  double halflength = m_gmt_mgr->PixelBarrelHalfLength();
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoTube* barrelTube = new GeoTube(rmin,rmax,halflength);
   const GeoLogVol* barrelLog = new GeoLogVol("Barrel",barrelTube,air);
   GeoFullPhysVol* barrelPhys = new GeoFullPhysVol(barrelLog);
 
   // Set numerology
-  DDmgr->numerology().setNumLayers(gmt_mgr->PixelBarrelNLayer());
+  m_DDmgr->numerology().setNumLayers(m_gmt_mgr->PixelBarrelNLayer());
 
   // In case of IBL stave detailed description -> add stave ring support and emdblocks
   bool bAddIBLStaveRings=false;
-  gmt_mgr->SetCurrentLD(0);
-  if(gmt_mgr->ibl()&&gmt_mgr->PixelStaveLayout()>3&&gmt_mgr->PixelStaveLayout()<7)
+  m_gmt_mgr->SetCurrentLD(0);
+  if(m_gmt_mgr->ibl()&&m_gmt_mgr->PixelStaveLayout()>3&&m_gmt_mgr->PixelStaveLayout()<7)
     {
       bAddIBLStaveRings=true;
     }
@@ -61,16 +61,16 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
   // Build the layers inside
   //
   GeoPixelLayer layer;
-  for(int ii = 0; ii < gmt_mgr->PixelBarrelNLayer(); ii++){
+  for(int ii = 0; ii < m_gmt_mgr->PixelBarrelNLayer(); ii++){
     //cout << "Layer" << ii << endl;
-    gmt_mgr->SetCurrentLD(ii);
-    if(gmt_mgr->isLDPresent()){
+    m_gmt_mgr->SetCurrentLD(ii);
+    if(m_gmt_mgr->isLDPresent()){
       std::ostringstream lname;
       lname << "Layer" << ii;
       //      GeoAlignableTransform * xform = new GeoAlignableTransform(HepGeom::Transform3D()); 
 
       // IBL layer shift ( 2mm shift issue )
-      double layerZshift = gmt_mgr->PixelLayerGlobalShift();
+      double layerZshift = m_gmt_mgr->PixelLayerGlobalShift();
       GeoAlignableTransform* xform = new GeoAlignableTransform(HepGeom::Transform3D(CLHEP::HepRotation(),CLHEP::Hep3Vector(0.,0.,layerZshift)));
 
       GeoVPhysVol* layerphys = layer.Build();
@@ -81,8 +81,8 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
       barrelPhys->add(layerphys);
 	  
       // Store the transform (at level 1)
-      Identifier id = gmt_mgr->getIdHelper()->wafer_id(0,ii,0,0);
-      DDmgr->addAlignableTransform(1, id, xform, layerphys);
+      Identifier id = m_gmt_mgr->getIdHelper()->wafer_id(0,ii,0,0);
+      m_DDmgr->addAlignableTransform(1, id, xform, layerphys);
 
       // IBL stave ring service area  ( ring + endblocks + flexes + pipe + ...)
       if(m_pixServices&&bAddIBLStaveRings&&ii==0)
@@ -104,7 +104,7 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
 	  barrelPhys->add(supportPhys_C);
 
 	  // ----------- middle of stave services 
-	  if(gmt_mgr->PixelStaveAxe()==0) {
+	  if(m_gmt_mgr->PixelStaveAxe()==0) {
 	    GeoNameTag *tagM = new GeoNameTag("Brl0M_StaveRing");         
 	    GeoTransform *xformSupportMidRing = layer.getSupportTrfMidRing();
 	    GeoVPhysVol *supportPhysMidRing = layer.getSupportMidRing();
@@ -115,7 +115,7 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
 	  
 	  // ----------- end of stave PP0 services (insde barrel)
 	  
-	  if(gmt_mgr->IBLFlexAndWingDefined()){
+	  if(m_gmt_mgr->IBLFlexAndWingDefined()){
 	    GeoPixelIFlexServices iFlexSrv(0);
 	    iFlexSrv.Build();
 	    
@@ -137,7 +137,7 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
     }
     else 
       {
-	if(gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) << "Layer " << ii << " not built" << endmsg;
+	if(m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) << "Layer " << ii << " not built" << endmsg;
       }
   }
   
@@ -153,14 +153,14 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
     //
     // Add the pixel frame inside the barrel volume
     // In recent versions this taken care of in the general services.
-    if (gmt_mgr->oldFrame()) {
+    if (m_gmt_mgr->oldFrame()) {
       GeoPixelOldFrame frame;
       frame.BuildInBarrel(barrelPhys);      
     }
   }
   
   // Extra Material
-  InDetDD::ExtraMaterial xMat(gmt_mgr->distortedMatManager());
+  InDetDD::ExtraMaterial xMat(m_gmt_mgr->distortedMatManager());
   xMat.add(barrelPhys,"PixelBarrel");
   
   return barrelPhys;

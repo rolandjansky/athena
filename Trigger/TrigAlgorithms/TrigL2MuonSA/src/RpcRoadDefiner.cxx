@@ -152,12 +152,13 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     special = 1;
   muonRoad.Special = special;
   
-  for (int i_station=0; i_station<4; i_station++) {
+  for (int i_station=0; i_station<5; i_station++) {
     for (int i_layer=0; i_layer<8; i_layer++) {
       if (i_station==0)      muonRoad.rWidth[i_station][i_layer] = 400;//for inner
       else if (i_station==1) muonRoad.rWidth[i_station][i_layer] = 200;//for middle
       else if (i_station==2) muonRoad.rWidth[i_station][i_layer] = 400;//for outer
-      else if (i_station==3) muonRoad.rWidth[9][i_layer] = m_rWidth_RPC_Failed;//BME
+      else if (i_station==3) muonRoad.rWidth[i_station][i_layer] = 400;//EndcapInner
+      else if (i_station==4) muonRoad.rWidth[9][i_layer] = m_rWidth_RPC_Failed;//BME
       else muonRoad.rWidth[i_station][i_layer] = m_rWidth_RPC_Failed;
     }
   }
@@ -226,6 +227,8 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
       muonRoad.bw[1][i_sector] = rpcFitResult.offset_middle;
       muonRoad.aw[2][i_sector] =  rpcFitResult.slope_outer;
       muonRoad.bw[2][i_sector] = rpcFitResult.offset_outer;
+      muonRoad.aw[3][i_sector] = rpcFitResult.slope_inner; // Endcap Inner
+      muonRoad.bw[3][i_sector] = rpcFitResult.offset_inner;
       muonRoad.aw[9][i_sector] = rpcFitResult.slope_middle;//BME
       muonRoad.bw[9][i_sector] = rpcFitResult.offset_middle;
     }
@@ -243,7 +246,8 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
 	muonRoad.aw[i_station][i_sector] = awLow;
 	muonRoad.bw[i_station][i_sector] = 0;
 	if (i_station==2) muonRoad.aw[i_station][i_sector] = awHigh;
-        if (i_station==3) muonRoad.aw[9][i_sector] = awLow;//BME
+  if (i_station==3) muonRoad.aw[i_station][i_sector] = awLow; //EI
+  if (i_station==4) muonRoad.aw[9][i_sector] = awLow; //BME
       }
     }
   }

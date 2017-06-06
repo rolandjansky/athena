@@ -11,7 +11,7 @@
 
 Helper packages for the MuonCalibStandAlone packages.
 
-@secton CalibNtupleUtilsOverview Class Overview
+@section CalibNtupleUtilsOverview Class Overview
 This set of classes are usefull whilst analysing/handling CalibrationNtuples. It contains the following packages:
 - HistHandler : a class reducing the amount of code in order to make sets of TH1F/Th2F histograms which similar features. For example, if one choses to store station-level TDC spectra, only one HistHandler should be declared. The class sorts out which station-histogram will be filled (given a MuonFixedId).
 - HistSetting : Helper class in order to customize HistHandler with your favorite LabelSize/Offset, TitleSize/Offset etc.

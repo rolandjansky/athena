@@ -28,7 +28,7 @@
 #include <cfloat>
 
 // DataModel
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "SGTools/CLASS_DEF.h"
 
 // Athena Tool

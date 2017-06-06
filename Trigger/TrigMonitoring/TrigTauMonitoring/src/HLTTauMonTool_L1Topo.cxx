@@ -22,11 +22,11 @@ StatusCode HLTTauMonTool::fillTopoValidation(const std::string & trigItem_topo, 
 	const xAOD::JetRoIContainer *l1jets = 0;
         const xAOD::EmTauRoIContainer *l1taus = 0;
 
-	if ( m_storeGate->retrieve( l1jets, "LVL1JetRoIs").isFailure() ){
+	if ( evtStore()->retrieve( l1jets, "LVL1JetRoIs").isFailure() ){
 		ATH_MSG_WARNING("Failed to retrieve LVL1JetRoIs container. Exiting.");
 		//return StatusCode::FAILURE;
 	}
-	if ( m_storeGate->retrieve( l1taus, "LVL1EmTauRoIs").isFailure() ){
+	if ( evtStore()->retrieve( l1taus, "LVL1EmTauRoIs").isFailure() ){
                 ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoIs container. Exiting.");
                 //return StatusCode::FAILURE;
         }

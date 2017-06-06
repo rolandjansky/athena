@@ -27,8 +27,8 @@ ubit16 readFooter();
 ubit16 readBody();
 void   topPADBody(); 
 ubit16 readPADWord();
-ubit16 numberOfFragmentWords (){return numberOfWordsInFragment;};
-ubit16 numberOfCMROFragments(){return numberOfCMFragments;};
+ubit16 numberOfFragmentWords (){return m_numberOfWordsInFragment;};
+ubit16 numberOfCMROFragments(){return m_numberOfCMFragments;};
 void bytestream(std::ostream &stream);
 void decodeBytestream();
 PadReadOutStructure getHeader();
@@ -38,18 +38,18 @@ private:
 //
 // control flags for Body scanninng ...
 //
-ubit16 addressOfWordScanned;
-ubit16 numberOfCMFragments;
-ubit16 numberOfWordsInFragment;
-ubit16 newCMIndex;
-ubit16 newCMRO;
-ubit16 numberOfWordsRead;
-ubit16 numberOfWordsInCMRO;
-ubit16 endOfCMFragments;
-MatrixReadOut *currentCMRO;
+ubit16 m_addressOfWordScanned;
+ubit16 m_numberOfCMFragments;
+ubit16 m_numberOfWordsInFragment;
+ubit16 m_newCMIndex;
+ubit16 m_newCMRO;
+ubit16 m_numberOfWordsRead;
+ubit16 m_numberOfWordsInCMRO;
+ubit16 m_endOfCMFragments;
+MatrixReadOut *m_currentCMRO;
 //
 //
-PadReadOutStructure PROS;
+PadReadOutStructure m_PROS;
 MatrixReadOut *m_MROlist[8];
 ubit16 m_padID;
 ubit16        m_Header;

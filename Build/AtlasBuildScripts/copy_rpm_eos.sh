@@ -3,6 +3,8 @@
 # Script to copy local nightly RPMs to EOS and run createrepo
 #
 
+ERROR_COUNT=0
+
 # Function printing the usage information for the script
 usage() {
     echo "Usage: copy_rpm_eos.sh <-b branch> <-a arch> <-d week_day> <-s source dir> " 
@@ -65,24 +67,24 @@ DESTDIR=${DESTDIR}/${BRANCH}/${ARCH}/${DDAY}
 
 if [ ! -d ${DESTDIR} ] ; then 
    echo "mkdir -p ${DESTDIR}"
-   mkdir -p ${DESTDIR} 
+   mkdir -p ${DESTDIR} || ((ERROR_COUNT++))
 fi
 
 arr_rpm=(`(shopt -s nocaseglob; ls ${SOURCEDIR}/*.rpm)`)
 if [ "${#arr_rpm[@]}" -le 0 ]; then
    echo "nicos_rpm: Warning: no rpm files are found in ${SOURCEDIR}"
+   ((ERROR_COUNT++))
  else
    for ele in "${arr_rpm[@]}" 
    do
       echo "Info: copying $ele to ${DESTDIR}"                                                 
-      cp -a $ele ${DESTDIR} ; stateos=$?
-      if [ "$stateos" -ne 0 ]; then
-         echo "Error of eos copy: exit code $stateos"
-      fi
+      cp -a $ele ${DESTDIR} || ((ERROR_COUNT++))
    done
 fi 
 echo "====================================================="
 echo "=== Update http RPMs location"
 echo "====================================================="
 echo "nicos_rpm::::::: createrepo --workers 8 --update ${DESTDIR} :::::::" `date`
-createrepo --workers 8 --update ${DESTDIR}
+createrepo --workers 8 --update ${DESTDIR} || ((ERROR_COUNT++))
+
+exit ${ERROR_COUNT}

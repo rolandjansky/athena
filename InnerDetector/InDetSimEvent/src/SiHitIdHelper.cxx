@@ -9,7 +9,7 @@
 #include "StoreGate/StoreGate.h"
 #include "InDetIdentifier/PixelID.h"
 
-#ifdef ATHENAHIVE
+#ifdef G4MULTITHREADED
 #  include "GaudiKernel/ContextSpecificPtr.h"
 #endif
 
@@ -22,7 +22,7 @@ SiHitIdHelper::SiHitIdHelper() :HitIdHelper() {
 }
 
 SiHitIdHelper* SiHitIdHelper::GetHelper() {
-#ifdef ATHENAHIVE
+#ifdef G4MULTITHREADED
   // Context-specific singleton
   static Gaudi::Hive::ContextSpecificPtr<SiHitIdHelper> helperPtr;
   if(!helperPtr) helperPtr = new SiHitIdHelper();

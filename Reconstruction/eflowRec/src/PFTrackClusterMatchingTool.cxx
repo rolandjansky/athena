@@ -27,7 +27,7 @@ PFTrackClusterMatchingTool::PFTrackClusterMatchingTool(const std::string& type,
     m_clusterPositionType("GeomCenterEtaPhi"),
     m_distanceType("EtaPhiSquareSignificance"),
     m_matchCut(1.64*1.64),
-    m_matcher(0),
+    m_matcher(nullptr),
     m_tracksProcessed(0),
     m_tracksMatched(0) {
   declareInterface<PFTrackClusterMatchingTool>(this);

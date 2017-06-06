@@ -14,7 +14,7 @@ atlas_depends_on_subdirs(
    PRIVATE
    GaudiKernel
    AtlasTest/TestTools
-   Control/DataModel
+   Control/AthAllocators
    Database/AthenaPOOL/AthenaPoolCnvSvc
    InnerDetector/InDetConditions/InDetByteStreamErrors
    InnerDetector/InDetConditions/TRT_ConditionsData )
@@ -45,30 +45,30 @@ atlas_add_poolcnv_library( InDetConditionsAthenaPoolPoolCnv src/*.cxx
    MULT_CHAN_TYPES TRTCond::StrawT0MultChanContainer
    TRTCond::RtRelationMultChanContainer TRTCond::StrawDxMultChanContainer
    TRTCond::StrawStatusMultChanContainer
-   LINK_LIBRARIES AthenaPoolUtilities Identifier TestTools DataModel
+   LINK_LIBRARIES AthenaPoolUtilities Identifier TestTools AthAllocators
    AthenaPoolCnvSvcLib TRT_ConditionsData )
 
 atlas_add_dictionary( InDetConditionsAthenaPoolCnvDict
    InDetConditionsAthenaPool/InDetConditionsAthenaPoolCnvDict.h
    InDetConditionsAthenaPool/selection.xml
-   LINK_LIBRARIES AthenaPoolUtilities Identifier TestTools DataModel
+   LINK_LIBRARIES AthenaPoolUtilities Identifier TestTools AthAllocators
    AthenaPoolCnvSvcLib TRT_ConditionsData )
 
 # Tests in the package:
 atlas_add_test( InDetBSErrContainerCnv_p1_test
    SOURCES test/InDetBSErrContainerCnv_p1_test.cxx
    src/InDetBSErrContainerCnv_p1.cxx
-   LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib Identifier DataModel )
+   LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib Identifier AthAllocators )
 
 atlas_add_test( TRT_BSErrContainerCnv_p1_test
    SOURCES test/TRT_BSErrContainerCnv_p1_test.cxx
    src/TRT_BSErrContainerCnv_p1.cxx
-   LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib Identifier DataModel )
+   LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib Identifier AthAllocators )
 
 atlas_add_test( TRT_BSIdErrContainerCnv_p1_test
    SOURCES test/TRT_BSIdErrContainerCnv_p1_test.cxx
    src/TRT_BSIdErrContainerCnv_p1.cxx
-   LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib Identifier DataModel )
+   LINK_LIBRARIES GaudiKernel AthenaPoolCnvSvcLib Identifier AthAllocators )
 
 # Install files from the package:
 atlas_install_headers( InDetConditionsAthenaPool )

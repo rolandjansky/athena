@@ -26,7 +26,7 @@ public:
 
    /// Extend base-class conversion methods
    virtual ExampleHitContainer_p1* createPersistent(ExampleHitContainer* transObj){
-      MsgStream log(messageService(), "ExampleHitContainerCnv");
+      MsgStream log(msgSvc(), "ExampleHitContainerCnv");
       ExampleHitContainer_p1* persObj = m_TPconverter.createPersistent(transObj, log);
       return(persObj);
    }
@@ -34,7 +34,7 @@ public:
    virtual ExampleHitContainer* createTransient() {
       static pool::Guid p1_guid("6BB89FA1-EB62-4641-97CA-3F8DB6588053");
       if (compareClassGuid(p1_guid)) {
-         MsgStream log(messageService(), "ExampleHitContainer");
+         MsgStream log(msgSvc(), "ExampleHitContainer");
          std::auto_ptr<ExampleHitContainer_p1> cont_p1(this->poolReadObject<ExampleHitContainer_p1>());
          return(m_TPconverter.createTransient(cont_p1.get(), log));
       }

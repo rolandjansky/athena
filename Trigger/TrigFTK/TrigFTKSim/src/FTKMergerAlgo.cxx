@@ -125,6 +125,7 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   m_truthFileNames(),
   m_truthTrackTreeName(""),
   m_evtinfoTreeName(""),
+  m_offlineTreeName(""),
   m_saveTruthTree(1),
   m_out_convTrackPC(0)
 {
@@ -142,7 +143,7 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
 		  "FTK layer configuration");
   declareProperty("force_merge",m_force_merge,"Force the merging disabling any check");
  
-  declareProperty("HitWarrior",m_HW_level);
+  declareProperty("HitWarriorMerger",m_HW_level);
   declareProperty("HWNDiff",m_HW_ndiff);
   declareProperty("loadHWConf_path",m_HW_path); 
   declareProperty("KeepRejected",m_keep_rejected); 
@@ -176,6 +177,7 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   declareProperty("TruthFileNames",m_truthFileNames);
   declareProperty("TruthTrackTreeName",m_truthTrackTreeName);
   declareProperty("EvtInfoTreeName",m_evtinfoTreeName);
+  declareProperty("OfflineTreeName",m_offlineTreeName);
   declareProperty("SaveTruthTree",m_saveTruthTree);
   declareProperty("MergeRoads",m_MergeRoads,"if True the roads will be merged");
   declareProperty("MergeRoadsDetailed",m_MergeRoadsDetailed,"if True roads will be merged including saving detailed information. If set to true, will override MergeRoads");
@@ -477,8 +479,9 @@ StatusCode FTKMergerAlgo::execute() {
                m_banks[ib]->naoSetNroadsAMMissPix(0);
                m_banks[ib]->naoSetNroadsAMMissSCT(0);
                m_banks[ib]->naoSetNroadsMOD(0);
-               m_banks[ib]->naoSetNclus(zerovec);
-               m_banks[ib]->naoSetNss(zerovec);
+               m_banks[ib]->naoSetNclus(m_zerovec);
+               m_banks[ib]->naoSetNclus_road(m_zerovec);
+               m_banks[ib]->naoSetNss(m_zerovec);
                StatusCode sc = merge_roads(m_banks[ib],m_srbanks[ib], ib, m_nsubregions);
                if (sc.isFailure()) {
                   log << MSG::FATAL << "Unable to merge roads" << endmsg;
@@ -499,6 +502,7 @@ StatusCode FTKMergerAlgo::execute() {
          m_banks[m_nregions]->naoSetNroadsAMMissSCT(0);
          m_banks[m_nregions]->naoSetNroadsMOD(0);
          m_banks[m_nregions]->naoSetNclus(zerovec);
+         m_banks[m_nregions]->naoSetNclus_road(zerovec);
          m_banks[m_nregions]->naoSetNss(zerovec);
          for (unsigned int ib=0;ib<m_nregions;++ib) { // bank loop
             StatusCode sc = merge_roads(m_banks[m_nregions],m_srbanks[ib], ib, m_nsubregions);
@@ -875,7 +879,7 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
               m_ftkroad_tomerge_branch[ib][isub]->GetEntry(0);
               m_banks[ib]->init(m_srbanks[ib][isub]->getNPlanes()); 
               int np = m_srbanks[ib][isub]->getNPlanes();
-              if (zerovec.size() == 0) for (int i = 0; i < np; i++) zerovec.push_back(0);
+              if (m_zerovec.size() == 0) for (int i = 0; i < np; i++) m_zerovec.push_back(0);
            }
         }
 
@@ -903,7 +907,7 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
               m_ftkroad_tomerge_branch[ib][isub]->GetEntry(0);
               m_banks[m_nregions]->init(m_srbanks[ib][isub]->getNPlanes()); 
               int np = m_srbanks[ib][isub]->getNPlanes();
-              if (zerovec.size() == 0) for (int i = 0; i < np; i++) zerovec.push_back(0);
+              if (m_zerovec.size() == 0) for (int i = 0; i < np; i++) m_zerovec.push_back(0);
            }
         }
      }
@@ -1769,13 +1773,18 @@ StatusCode FTKMergerAlgo::finalizeCopyTruthTree() {
    MsgStream log(msgSvc(), name());
    log << MSG::DEBUG << "about to copy truth tree " << endmsg;
 
-   TChain *chain_truthtrack(0), *chain_evt(0);
+   TChain *chain_truthtrack(0), *chain_evt(0), *chain_offline(0);
    if (m_truthTrackTreeName != "") {
       chain_truthtrack = new TChain(m_truthTrackTreeName.c_str());
    }
    if (m_evtinfoTreeName != "") {
       chain_evt = new TChain(m_evtinfoTreeName.c_str());
    }
+
+   if (m_offlineTreeName != "") {
+      chain_offline = new TChain(m_offlineTreeName.c_str());
+   }
+
 
    for (unsigned int ifile=0;ifile!=m_truthFileNames.size(); ++ifile) { // file loop
       // get the current path
@@ -1786,6 +1795,11 @@ StatusCode FTKMergerAlgo::finalizeCopyTruthTree() {
       if (m_evtinfoTreeName != "") {
          chain_evt->Add(curfilepath.c_str());
       }
+      if (m_offlineTreeName != "") {
+         chain_offline->Add(curfilepath.c_str());
+      }
+
+
    }
 
    if (m_truthTrackTreeName != "") {
@@ -1806,6 +1820,11 @@ StatusCode FTKMergerAlgo::finalizeCopyTruthTree() {
       m_outputFile->cd();
       chain_evt->CloneTree()->Write();
       delete chain_evt;
+   }
+   if (m_offlineTreeName != "") {
+      m_outputFile->cd();
+      chain_offline->CloneTree()->Write();
+      delete chain_offline;
    }
    return StatusCode::SUCCESS;
 }
@@ -2386,6 +2405,7 @@ StatusCode FTKMergerAlgo::merge_roads(FTKRoadStream * &newbank,FTKRoadStream **o
          newbank->naoSetNhitsTot(newbank->naoGetNhitsTot()+oldbanks[isr]->naoGetNhitsTot());
          newbank->naoSetNclusTot(newbank->naoGetNclusTot()+oldbanks[isr]->naoGetNclusTot());
          newbank->naoAddNclus(oldbanks[isr]->naoGetNclus());
+         newbank->naoAddNclus_road(oldbanks[isr]->naoGetNclus_road());
          newbank->naoAddNss(oldbanks[isr]->naoGetNss());
          found = true;
       }

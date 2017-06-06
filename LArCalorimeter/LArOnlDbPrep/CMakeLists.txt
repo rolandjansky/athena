@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
                           LArCalorimeter/LArRecConditions
-                          LArCalorimeter/LArTools
+                          LArCalorimeter/LArCabling
                           PRIVATE
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloInterface
@@ -31,7 +31,7 @@ atlas_add_component( LArOnlDbPrep
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} CaloIdentifier CaloTriggerToolLib AthenaBaseComps GaudiKernel LArRecConditions LArToolsLib CaloDetDescrLib StoreGateLib SGtests AthenaPoolUtilities LArCOOLConditions LArIdentifier )
+                     LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} CaloIdentifier CaloTriggerToolLib AthenaBaseComps GaudiKernel LArRecConditions LArCablingLib CaloDetDescrLib StoreGateLib SGtests AthenaPoolUtilities LArCOOLConditions LArIdentifier )
 
 # Install files from the package:
 atlas_install_headers( LArOnlDbPrep )

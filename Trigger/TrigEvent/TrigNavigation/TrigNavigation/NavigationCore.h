@@ -180,6 +180,11 @@ namespace HLT {
     bool getFeature( const TriggerElement* te, const T*&  features, const std::string& label="", std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel);
 
     template<class T> 
+    bool getFeature( const TriggerElement* te,
+                     const ConstDataVector<T>*&  features,
+                     const std::string& label="", std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel);
+
+    template<class T> 
     const T* featureLink2Object( const TrigFeatureLink& );
 
     template<class T> 

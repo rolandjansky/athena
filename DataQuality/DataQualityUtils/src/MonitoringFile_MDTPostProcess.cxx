@@ -58,10 +58,10 @@ void MonitoringFile::MDTPostProcess( std::string inFilename, int txtFileOutputTy
 	return;
 }
 
-void MonitoringFile::MDTChamReAlign(std::string inFilename, std::string _title_){
+void MonitoringFile::MDTChamReAlign(std::string inFilename, std::string title){
 	//    std::cout << "Begin ReAlign MDT Chamber by Chamber Plots" << std::endl;
 
-	if(MDTCheckAlign(inFilename, _title_)) {/*std::cout << "File Already Aligned. Exiting..." << std::endl;*/ return;}
+	if(MDTCheckAlign(inFilename, title)) {/*std::cout << "File Already Aligned. Exiting..." << std::endl;*/ return;}
 
 	TFile* f = TFile::Open(inFilename.c_str(),"UPDATE");
 
@@ -86,7 +86,7 @@ void MonitoringFile::MDTChamReAlign(std::string inFilename, std::string _title_)
 		if (dir0 == 0) return;
 
 		TString runNumber = dir0->GetName();
-		TString mDir = runNumber+"/Muon/MuonRawDataMonitoring/" + _title_;
+		TString mDir = runNumber+"/Muon/MuonRawDataMonitoring/" + title;
 		TDirectory* mdt_base_dir = f->GetDirectory(mDir);
 		if (! mdt_base_dir) continue;
 		TIter nextcd1(mdt_base_dir->GetListOfKeys());
@@ -189,7 +189,7 @@ void MonitoringFile::MDTChamReAlign(std::string inFilename, std::string _title_)
 	return;
 }
 
-void MonitoringFile::MDTChamEff( std::string inFilename, std::string _title_, int txtFileOutputType) {
+void MonitoringFile::MDTChamEff( std::string inFilename, std::string title, int txtFileOutputType) {
 	//const float m_noiseCut = 100000;
 	//if(isIncremental || useOfflineTubeID || makePDF || doAllPDF){ std::cout << "dead code " << std::endl;}	
 	
@@ -235,7 +235,7 @@ void MonitoringFile::MDTChamEff( std::string inFilename, std::string _title_, in
 
 		if (!run_dir.Contains("run") )   continue;
 		//Compute Tube Effs
-		TString chamber_Area = run_dir + "/Muon/MuonRawDataMonitoring/"+_title_+"/";
+		TString chamber_Area = run_dir + "/Muon/MuonRawDataMonitoring/"+title+"/";
 
 		if(mf.GetDirectory(chamber_Area)) mf.cd(chamber_Area);
 		//else {std::cerr << "No MDT Directory! " << std::endl; f->Close() ; delete f; return; }
@@ -524,12 +524,16 @@ void MonitoringFile::MDTChamEff( std::string inFilename, std::string _title_, in
 						xAxis = dirName(0,1) + dirName(4,1) + "4";
 						yAxis = "M,13";
 					}
+                                        if(EffG && dirName(0,3) == "BMF"){
+                                                xAxis = dirName(0,1) + dirName(4,1) + returnString(TString(dirName(3,1)).Atoi()*2-1);
+                                        
+                                        } 
 					double tubeLength = 4.9615;
 					double tubeRadiusScale = 1;
 					// 	    double maxTubeLengthBarrel = 4961.5;  // just FYI
 					// 	    double maxTubeLengthEndcap = 5941.5;  // just FYI 
 					GetTubeLength(tubeLength,dirName);    // should always fill tubeLength
-					if(dirName(0,3) == "BME") tubeRadiusScale = 0.25;
+					if(dirName(0,3) == "BME" || dirName(0,3) == "BMG") tubeRadiusScale = 0.25;
 					double chamb_vol = (double)numTubesInChamber*tubeLength*0.0006881*tubeRadiusScale;   // 0.0006881 m2 = pi*tube_r^2
 					// BME tubes are half the radius = 1/4 the volume/
 					//double noiseCut_vol = (double)nTubes_noiseCut*tubeLength*0.0006881*tubeRadiusScale; // these represent the total volume in (m3) covered by the tubes in the chamber
@@ -550,6 +554,7 @@ void MonitoringFile::MDTChamEff( std::string inFilename, std::string _title_, in
 					if( !hvOff ) {
 						TString eta_ring = dirName(0,2) + dirName(4,1);
 						TString eta_stat = dirName(3,1);
+                                                if(dirName(0,3)=="BMF") eta_stat = returnString(TString(dirName(3,1)).Atoi()*2-1);
 						if(eta_stat=="5"||eta_stat=="6"||eta_stat=="7"||eta_stat=="8") eta_ring+="5,6";
 						if(eta_stat=="3"||eta_stat=="4") eta_ring+="3,4";
 						if(eta_stat=="1"||eta_stat=="2"||eta_stat=="0") eta_ring+="1,2";
@@ -585,7 +590,7 @@ void MonitoringFile::MDTChamEff( std::string inFilename, std::string _title_, in
 
 						//std::map<TString,float>::iterator noise_itr = noise_map.find(eta_ring);
 						//std::map<TString,float>::iterator bkgrd_itr = bkgrd_map.find(eta_ring);
-						std::map<TString,int>::iterator nTubes_itr = nTubes_map.find(eta_ring);
+						//std::map<TString,int>::iterator nTubes_itr = nTubes_map.find(eta_ring);
 						/*if( noise_itr == noise_map.end() ) noise_map.insert(std::make_pair(eta_ring,noise_rate));
                          else (*noise_itr).second += noise_rate;
                          if( bkgrd_itr == bkgrd_map.end() ) bkgrd_map.insert(std::make_pair(eta_ring,bkgrd_rate));
@@ -970,7 +975,7 @@ void MonitoringFile::MDTChamEff( std::string inFilename, std::string _title_, in
 }
 
 // This function is for grabbing overview hists from raw and doing something to them, rather than going through a chamber-by-chamber loop
-void MonitoringFile::MDTChamOcc( std::string inFilename, std::string _title_ ) {
+void MonitoringFile::MDTChamOcc( std::string inFilename, std::string title ) {
 	MDTPostProcessor mf( inFilename , "ChamberOcc Calculations");
 	if (!mf.IsOpen()) {
 		std::cerr << "MDTPostProcess(): "
@@ -989,7 +994,7 @@ void MonitoringFile::MDTChamOcc( std::string inFilename, std::string _title_ ) {
 		TString run_dir = key_run->GetName();      
 		if (!run_dir.Contains("run") )   continue;
 
-		TDirectory* dir_Overview = mf.GetDirectory(run_dir + "/Muon/MuonRawDataMonitoring/"+_title_+"/Overview");
+		TDirectory* dir_Overview = mf.GetDirectory(run_dir + "/Muon/MuonRawDataMonitoring/"+title+"/Overview");
 		if(!dir_Overview) continue;
 		TH1F* hNTriggers = 0; mf.get("TotalNumber_of_MDT_hits_per_event_ADCCut",hNTriggers,dir_Overview);
 		int nTriggers = 1;
@@ -1035,7 +1040,7 @@ void MonitoringFile::MDTChamOcc( std::string inFilename, std::string _title_ ) {
 	return;
 }
 
-void MonitoringFile::MDTTDCSum( std::string inFilename, std::string _title_ ){ 
+void MonitoringFile::MDTTDCSum( std::string inFilename, std::string title ){ 
 
 	MDTPostProcessor mf( inFilename, "Sector t0,tmax, & tdrift Calculations");
 
@@ -1065,7 +1070,7 @@ void MonitoringFile::MDTTDCSum( std::string inFilename, std::string _title_ ){
 		run_dir=tdir_run_name;
 
 		//Compute Summary Hists
-		TString Overview_Area = run_dir + "/Muon/MuonRawDataMonitoring/"+_title_;
+		TString Overview_Area = run_dir + "/Muon/MuonRawDataMonitoring/"+title;
 		TDirectory* dir_Main = 0;
 
 		if(mf.cd(Overview_Area)) dir_Main = mf.GetDirectory(Overview_Area);
@@ -1247,7 +1252,7 @@ void MonitoringFile::MDTTDCSum( std::string inFilename, std::string _title_ ){
 	return;
 }
 
-void  MonitoringFile::MDTLowStat( std::string inFilename, std::string _title_){
+void  MonitoringFile::MDTLowStat( std::string inFilename, std::string title){
 
 	MDTPostProcessor mf( inFilename, "MDT LowStat Analysis" );
 
@@ -1286,18 +1291,18 @@ void  MonitoringFile::MDTLowStat( std::string inFilename, std::string _title_){
 
 			TDirectory* lowStat_dir = dir0->GetDirectory(lowStat_str);
 			if(!lowStat_dir) continue;
-			TDirectory* dirOverview = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+_title_+"/Overview"));
-			TDirectory* dirOverviewBA = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+_title_+"/MDTBA/Overview"));
-			TDirectory* dirOverviewBC = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+_title_+"/MDTBC/Overview"));
-			TDirectory* dirOverviewEA = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+_title_+"/MDTEA/Overview"));
-			TDirectory* dirOverviewEC = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+_title_+"/MDTEC/Overview"));
+			TDirectory* dirOverview = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+title+"/Overview"));
+			TDirectory* dirOverviewBA = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+title+"/MDTBA/Overview"));
+			TDirectory* dirOverviewBC = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+title+"/MDTBC/Overview"));
+			TDirectory* dirOverviewEA = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+title+"/MDTEA/Overview"));
+			TDirectory* dirOverviewEC = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+title+"/MDTEC/Overview"));
 
 			if( !(dirOverview && dirOverviewBA && dirOverviewBC && dirOverviewEA && dirOverviewEC) ) {//Catch New Directory Name Fix
-				dirOverview = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+_title_+"/Overview_lowStat"));
-				dirOverviewBA = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+_title_+"/MDTBA/Overview_lowStat"));
-				dirOverviewBC = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+_title_+"/MDTBC/Overview_lowStat"));
-				dirOverviewEA = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+_title_+"/MDTEA/Overview_lowStat"));
-				dirOverviewEC = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+_title_+"/MDTEC/Overview_lowStat"));
+				dirOverview = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+title+"/Overview_lowStat"));
+				dirOverviewBA = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+title+"/MDTBA/Overview_lowStat"));
+				dirOverviewBC = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+title+"/MDTBC/Overview_lowStat"));
+				dirOverviewEA = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+title+"/MDTEA/Overview_lowStat"));
+				dirOverviewEC = lowStat_dir->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+title+"/MDTEC/Overview_lowStat"));
 			}
 
 			if( !(dirOverview && dirOverviewBA && dirOverviewBC && dirOverviewEA && dirOverviewEC) ) continue;//Make sure mdt has lowStat entires before continuing
@@ -1375,7 +1380,7 @@ void  MonitoringFile::MDTLowStat( std::string inFilename, std::string _title_){
 
 }
 
-bool MonitoringFile::MDTCheckAlign(std::string inFilename, std::string _title_){
+bool MonitoringFile::MDTCheckAlign(std::string inFilename, std::string title){
 
 	TFile* f = TFile::Open(inFilename.c_str(),"READ");
 
@@ -1399,13 +1404,13 @@ bool MonitoringFile::MDTCheckAlign(std::string inFilename, std::string _title_){
 	int keysBC = 0;
 	int keysEA = 0;
 	int keysEC = 0;
-	TDirectory* dirBA = dir0->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+_title_+"/MDTBA/Chambers"));
+	TDirectory* dirBA = dir0->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+title+"/MDTBA/Chambers"));
 	if(dirBA) keysBA = dirBA->GetNkeys();
-	TDirectory* dirBC = dir0->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+_title_+"/MDTBC/Chambers"));
+	TDirectory* dirBC = dir0->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+title+"/MDTBC/Chambers"));
 	if(dirBC) keysBC = dirBC->GetNkeys();
-	TDirectory* dirEA = dir0->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+_title_+"/MDTEA/Chambers"));
+	TDirectory* dirEA = dir0->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+title+"/MDTEA/Chambers"));
 	if(dirEA) keysEA = dirEA->GetNkeys();
-	TDirectory* dirEC = dir0->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+_title_+"/MDTEC/Chambers"));
+	TDirectory* dirEC = dir0->GetDirectory(TString("Muon/MuonRawDataMonitoring/"+title+"/MDTEC/Chambers"));
 	if(dirEC) keysEC = dirEC->GetNkeys();
 
 	bool aligned = (keysBA < 600 && keysBC < 600 && keysEA < 600 && keysEC < 600);
@@ -1506,6 +1511,11 @@ void MonitoringFile::MDT2DHWName(TString hardware_name, TString &stateta_IMO_c, 
 	if( hardware_name(0,3) == "BML" && TString(hardware_name(3,1)).Atoi() >= 4 && hardware_name(5,2) == "13" ){
 		eta_s = returnString( TString(hardware_name(3,1)).Atoi() + 1 );
 	}
+
+        //BMF1,2,3 corresponds to eta stations 1,3,5
+        if( hardware_name(0,3) == "BMF"){
+            eta_s = returnString(TString(hardware_name(3,1)).Atoi()*2 - 1);
+        }
 
 	stateta_c = hardware_name(0,2);
 	stateta_c += hardware_name(4,1);
@@ -1662,6 +1672,7 @@ void MonitoringFile::GetTubeLength( double & tubeLength, TString dirName ) {
 	else if( dirName(0,4) == "BIR2" || dirName(0,4) == "BIR4" || dirName(0,4) == "BIR5" ) tubeLength = 1.5365;
 	else if( dirName(0,4) == "BIR3" || dirName(0,4) == "BIR6" ) tubeLength = 1.1055;
 	else if( dirName(0,3) == "BME" ) tubeLength = 2.15; //approximate!
+	else if( dirName(0,3) == "BMG" ) tubeLength = 1.12; //approximate!
 	else if( dirName(0,3) == "BML" ) tubeLength = 3.5515;
 	else if( dirName(0,3) == "BMS" || dirName(0,3) == "BMF" ) tubeLength = 3.0715;
 	else if( dirName(0,3) == "BOL" ) tubeLength = 4.9615;

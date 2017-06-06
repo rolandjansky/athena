@@ -125,7 +125,6 @@ StatusCode MagField::ForwardRegionFieldSvc::queryInterface(const InterfaceID& ri
   return StatusCode::SUCCESS;
 }
 
-
 // Handle incident function - if BeginRun happens, initialize mag. fields
 void MagField::ForwardRegionFieldSvc::handle(const Incident& runIncident)
 {

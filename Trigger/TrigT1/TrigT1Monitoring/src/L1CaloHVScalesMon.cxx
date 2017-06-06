@@ -215,9 +215,9 @@ StatusCode L1CaloHVScalesMon::bookHistogramsRecurrent()
     // book histograms that are only relevant for cosmics data...
   }
 
-  if ( newLumiBlock) { }
+  //if ( newLumiBlockFlag()) { }
 
-  if ( newRun ) {	
+  if ( newRunFlag() ) {	
 
     MgmtAttr_t attr = ATTRIB_UNMANAGED;
     MonGroup Calo_HVCorr( this, m_PathInRootFile+"/HVCorrections",
@@ -734,9 +734,9 @@ StatusCode L1CaloHVScalesMon::fillHistograms()
 StatusCode L1CaloHVScalesMon::procHistograms()
 /*---------------------------------------------------------*/
 {
-  if ( endOfLumiBlock ) { }
+  //if ( endOfLumiBlockFlag() ) { }
 	
-  if ( endOfRun ) { }
+  //if ( endOfRunFlag() ) { }
   
   return StatusCode::SUCCESS;
 }

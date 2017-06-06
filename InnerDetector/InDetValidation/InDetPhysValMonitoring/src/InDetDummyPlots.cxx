@@ -29,12 +29,21 @@ InDetDummyPlots::InDetDummyPlots(InDetPlotBase* pParent, const std::string& sDir
   m_minimum_delta_R{},
   m_minimum_delta_R_2{},
   m_minimum_delta_R_3{},
+  m_minimum_delta_R_sub300{},
+  m_minimum_delta_R_300_600{},
+  m_minimum_delta_R_overall{},
   m_minimum_delta_R_not_found{},
   m_minimum_delta_R_2_not_found{},
   m_minimum_delta_R_3_not_found{},
+  m_minimum_delta_R_sub300_not_found{},
+  m_minimum_delta_R_300_600_not_found{},
+  m_minimum_delta_R_not_found_overall{},
   m_delta_inverse_pt{},
   m_delta_inverse_pt_not_found{},
-  m_charge_vs_truth_match_rate{} {
+  m_charge_vs_truth_match_rate{},
+  m_min_dR_vs_delta_inverse_pt{},
+  m_charge_truth_agreement{},
+  m_truth_vs_charge_product{} {
   // nop
 }
 
@@ -59,12 +68,21 @@ InDetDummyPlots::initializePlots() {
   book(m_minimum_delta_R, "minimum_delta_R");
   book(m_minimum_delta_R_2, "minimum_delta_R_2");
   book(m_minimum_delta_R_3, "minimum_delta_R_3");
+  book(m_minimum_delta_R_sub300, "minimum_delta_R_sub300");
+  book(m_minimum_delta_R_300_600, "minimum_delta_R_300_600");
+  book(m_minimum_delta_R_overall, "minimum_delta_R_overall");
   book(m_minimum_delta_R_not_found, "minimum_delta_R_not_found");
   book(m_minimum_delta_R_2_not_found, "minimum_delta_R_2_not_found");
   book(m_minimum_delta_R_3_not_found, "minimum_delta_R_3_not_found");
+  book(m_minimum_delta_R_sub300_not_found, "minimum_delta_R_sub300_not_found");
+  book(m_minimum_delta_R_300_600_not_found, "minimum_delta_R_300_600_not_found");
+  book(m_minimum_delta_R_not_found_overall, "minimum_delta_R_not_found_overall");
   book(m_delta_inverse_pt, "delta_inverse_pt");
   book(m_delta_inverse_pt_not_found, "delta_inverse_pt_not_found");
   book(m_charge_vs_truth_match_rate, "charge_vs_truth_match_rate");
+  book(m_min_dR_vs_delta_inverse_pt, "min_dR_vs_delta_inverse_pt");
+  book(m_charge_truth_agreement, "charge_truth_agreement");
+  book(m_truth_vs_charge_product, "truth_vs_charge_product");
 }
 
 void
@@ -185,8 +203,6 @@ void
 InDetDummyPlots::track_vs_truth(const xAOD::TrackParticle& track, const xAOD::TruthParticle& truth, float tmp){
   double track_theta = track.theta();
   double truth_theta = truth.auxdata< float >("theta");
-  //double track_pt = track.pt(); unused
-  //double truth_pt = truth.pt(); unused
   double truth_eta = truth.eta();
   double track_eta = -std::log(std::tan(track_theta*0.5));
 
@@ -196,20 +212,10 @@ InDetDummyPlots::track_vs_truth(const xAOD::TrackParticle& track, const xAOD::Tr
   double delta_R = sqrt(delta_eta * delta_eta + delta_theta * delta_theta);
 
   fillHisto(m_truthMatchProbability_vs_delta_R, delta_R, tmp);
-  /*
-  if(truth.hasProdVtx()){
-    const xAOD::TruthVertex* vtx = truth.prodVtx();
-    double prod_rad = vtx->perp();
-    if(prod_rad < 100){
-      fillHisto(m_minimum_delta_R, delta_R);
-
-    }
-  }
-  */
 }
 
 void
-InDetDummyPlots::minDR(float min_dR, float prod_rad, float bestmatch, double BIDPt, double truth_pt, float cvst){
+InDetDummyPlots::minDR(float min_dR, float prod_rad, float bestmatch, double BIDPt, double /* unused truth_pt*/){
 
   if(bestmatch > 0.50){
     fillHisto(m_delta_inverse_pt, BIDPt);
@@ -220,9 +226,15 @@ InDetDummyPlots::minDR(float min_dR, float prod_rad, float bestmatch, double BID
     }else{
       fillHisto(m_minimum_delta_R_3, min_dR);
     }
+    if(prod_rad < 300){
+      fillHisto(m_minimum_delta_R_sub300, min_dR);
+    }else{
+      fillHisto(m_minimum_delta_R_300_600, min_dR);
+    }
+    fillHisto(m_minimum_delta_R_overall, min_dR);
   }else{
     fillHisto(m_delta_inverse_pt_not_found, BIDPt);
-    std::cout<<"Rey: the match probability is "<<bestmatch<<"\n";
+    std::cout<<"Han: the bestmatch probability is "<<bestmatch<<"\n";
     if(prod_rad < 100){
       fillHisto(m_minimum_delta_R_not_found, min_dR);
     }else if(prod_rad < 200){
@@ -230,10 +242,18 @@ InDetDummyPlots::minDR(float min_dR, float prod_rad, float bestmatch, double BID
     }else{
       fillHisto(m_minimum_delta_R_3_not_found, min_dR);
     }
+    if(prod_rad < 300){
+      fillHisto(m_minimum_delta_R_sub300_not_found, min_dR);
+    }else{
+      fillHisto(m_minimum_delta_R_300_600_not_found, min_dR);
+    }
+    fillHisto(m_minimum_delta_R_not_found_overall, min_dR);
   }
 
-  fillHisto(m_charge_vs_truth_match_rate, truth_pt, cvst);
-
+  //fillHisto(m_charge_vs_truth_match_rate, truth_pt, cvst);
+  fillHisto(m_min_dR_vs_delta_inverse_pt, BIDPt, min_dR);
+  //fillHisto(m_charge_truth_agreement, prod_rad, cvst);
+  //fillHisto(m_truth_vs_charge_product, charge_product, bestmatch);
 }
 
 void

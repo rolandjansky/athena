@@ -51,10 +51,10 @@ private:
   std::vector<double> m_weights;
 
   //Parameters of double exponential fit for the gap distribution
-  double m_c0, m_c1, m_c2, m_c3, m_c4, m_c5, m_c6, m_c7, m_gapf, xsgapf;
+  double m_c0, m_c1, m_c2, m_c3, m_c4, m_c5, m_c6, m_c7, m_gapf, m_xsgapf;
 
   //Random number generator
-  TRandom3* myRandGen;
+  TRandom3* m_myRandGen;
 
   StoreGateSvc* m_storeGate;
 

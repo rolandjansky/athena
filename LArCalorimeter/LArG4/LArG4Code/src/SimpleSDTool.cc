@@ -7,9 +7,6 @@
 // External includes
 #include "CLHEP/Units/SystemOfUnits.h"
 
-// Framework includes
-#include "CxxUtils/make_unique.h"
-
 // ID helper includes
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArEM_ID.h"
@@ -106,7 +103,7 @@ namespace LArG4
     auto parsedVolumes = findLogicalVolumes(volumes, msg());
 
     // Create the simple SD
-    auto sd = CxxUtils::make_unique<LArG4SimpleSD>
+    auto sd = std::make_unique<LArG4SimpleSD>
       (sdName, calc, m_timeBinType, m_timeBinWidth);
     sd->setupHelpers(m_larEmID, m_larFcalID, m_larHecID, m_larMiniFcalID);
 
@@ -116,7 +113,7 @@ namespace LArG4
       throw GaudiException("Failed to assign sd: " + sdName,
                            name(), StatusCode::FAILURE);
     }
-    return std::move(sd);
+    return sd;
   }
 
 } // namespace LArG4

@@ -63,7 +63,7 @@ from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolE
 topSequence += AthPoolEx__ReadData("ReadData")
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolFromRaw.root" , True )
+Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolFromRaw.root" , True, noTag=True )
 Stream1.MetadataItemList += [ "ByteStreamMetadataContainer#*" ]
 
 from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__WriteTag

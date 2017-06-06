@@ -62,11 +62,11 @@ class CaloAsymRingsBuilder : public CaloRingsBuilder
     // Tool pro (python configurables):
     /// @{
     /**
-     * @brieg This can be set True to divide in two the eta axes.
+     * @brief This can be set True to divide in two the eta axes.
     **/
     bool m_doEtaAxesDivision;
     /**
-     * @brieg This can be set True to divide in two the phi axes.
+     * @brief This can be set True to divide in two the phi axes.
     **/
     bool m_doPhiAxesDivision;
 

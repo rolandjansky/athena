@@ -328,8 +328,8 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
     if (m_doZFinder) {
       sc = m_trigZFinder.retrieve();
       if(sc.isFailure()) {
-	ATH_MSG_ERROR("Could not retrieve "<<m_trigZFinder); 
-	return HLT::BAD_JOB_SETUP;
+        ATH_MSG_ERROR("Could not retrieve "<<m_trigZFinder); 
+        return HLT::BAD_JOB_SETUP;
       }
     }
     if(m_doFTKZFinder ) {

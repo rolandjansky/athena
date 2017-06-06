@@ -24,55 +24,55 @@ PixelMonModules::~PixelMonModules()
 
 PixelMonModulesProf::PixelMonModulesProf(std::string name, std::string title, int nbins, double* arr, bool doIBL)
 {
-  nBins=nbins;
+  m_nBins=nbins;
   for(int i=0; i < 1744 +280*doIBL; i++)
-    {
-      //getHist(i) = new TProfile((getHistName(i,false,doIBL)+"_"+name).c_str(), (getHistName(i,false,doIBL)+" "+title).c_str(), nbins, arr);
-      getHist(i) = TProfile_LW::create((getHistName(i,false,doIBL)+"_"+name).c_str(), (getHistName(i,false,doIBL)+" "+title).c_str(), nbins, arr);
-    }
+  {
+    //getHist(i) = new TProfile((getHistName(i,false,doIBL)+"_"+name).c_str(), (getHistName(i,false,doIBL)+" "+title).c_str(), nbins, arr);
+    getHist(i) = TProfile_LW::create((getHistName(i,false,doIBL)+"_"+name).c_str(), (getHistName(i,false,doIBL)+" "+title).c_str(), nbins, arr);
+  }
   if(doIBL==false){
     for(int i=1744; i < 2024; i++){
       getHist(i)=0;
     }
   }
   formatHist("",doIBL);
-  Dummy=0;
+  m_Dummy=0;
 }
 
 PixelMonModulesProf::PixelMonModulesProf(std::string name, std::string title, int nbins, double low, double high, bool doIBL)
 {
-  nBins=nbins;
+  m_nBins=nbins;
   for(int i=0; i < 1744 +280*doIBL; i++)
-    {
-      //getHist(i) = new TProfile((getHistName(i,false,doIBL)+"_"+name).c_str(), (getHistName(i,false,doIBL)+" "+title).c_str(), nbins, low, high);
-      getHist(i) = TProfile_LW::create((getHistName(i,false,doIBL)+"_"+name).c_str(), (getHistName(i,false,doIBL)+" "+title).c_str(), nbins, low, high);
-    }
+  {
+    //getHist(i) = new TProfile((getHistName(i,false,doIBL)+"_"+name).c_str(), (getHistName(i,false,doIBL)+" "+title).c_str(), nbins, low, high);
+    getHist(i) = TProfile_LW::create((getHistName(i,false,doIBL)+"_"+name).c_str(), (getHistName(i,false,doIBL)+" "+title).c_str(), nbins, low, high);
+  }
   if(doIBL==false){
     for(int i=1744; i < 2024; i++){
       getHist(i)=0;
     }
   }
   formatHist("",doIBL);
-  Dummy=0;
+  m_Dummy=0;
 }
 
 PixelMonModulesProf::~PixelMonModulesProf()
 {
   for(int i=0; i < 2024; i++)
   {
-     //if(getHist(i)){ delete getHist(i); }
-     if(getHist(i)){ LWHist::safeDelete( getHist(i) ); }
+    //if(getHist(i)){ delete getHist(i); }
+    if(getHist(i)){ LWHist::safeDelete( getHist(i) ); }
   }
 }
 
 PixelMonModules1D::PixelMonModules1D(std::string name, std::string title, int nbins, double* arr, bool doIBL)
 {
-  nBins=nbins;
+  m_nBins=nbins;
   for(int i=0; i < 1744 +280*doIBL; i++)
-    {
-      getHist(i) = new TH1F((getHistName(i,false,doIBL)+"_"+name).c_str(), (getHistName(i,false,doIBL)+" "+title).c_str(), nbins, arr);
-      //getHist(i) = TH1F_LW::create((getHistName(i,false,doIBL)+"_"+name).c_str(), (getHistName(i,false,doIBL)+" "+title).c_str(), nbins, arr);
-    }
+  {
+    getHist(i) = new TH1F((getHistName(i,false,doIBL)+"_"+name).c_str(), (getHistName(i,false,doIBL)+" "+title).c_str(), nbins, arr);
+    //getHist(i) = TH1F_LW::create((getHistName(i,false,doIBL)+"_"+name).c_str(), (getHistName(i,false,doIBL)+" "+title).c_str(), nbins, arr);
+  }
   if(doIBL==false){
     for(int i=1744; i < 2024; i++){
       getHist(i)=0;
@@ -80,17 +80,17 @@ PixelMonModules1D::PixelMonModules1D(std::string name, std::string title, int nb
   }
   formatHist("",doIBL);
   //formatHist(doIBL);
-  Dummy=0;
+  m_Dummy=0;
 }
 
 PixelMonModules1D::PixelMonModules1D(std::string name, std::string title, int nbins, double low, double high, bool doIBL)
 {
-  nBins=nbins;
+  m_nBins=nbins;
   for(int i=0; i < 1744 +280*doIBL; i++)
-    {
-      getHist(i) = new TH1F((getHistName(i,false,doIBL)+"_"+name).c_str(), (getHistName(i,false,doIBL)+" "+title).c_str(), nbins, low, high);
-      //getHist(i) = TH1F_LW::create((getHistName(i,false,doIBL)+"_"+name).c_str(), (getHistName(i,false,doIBL)+" "+title).c_str(), nbins, low, high);
-    }
+  {
+    getHist(i) = new TH1F((getHistName(i,false,doIBL)+"_"+name).c_str(), (getHistName(i,false,doIBL)+" "+title).c_str(), nbins, low, high);
+    //getHist(i) = TH1F_LW::create((getHistName(i,false,doIBL)+"_"+name).c_str(), (getHistName(i,false,doIBL)+" "+title).c_str(), nbins, low, high);
+  }
   if(doIBL==false){
     for(int i=1744; i < 2024; i++){
       getHist(i)=0;
@@ -98,52 +98,52 @@ PixelMonModules1D::PixelMonModules1D(std::string name, std::string title, int nb
   }
   formatHist("",doIBL);
   //formatHist(doIBL);
-  Dummy=0;
+  m_Dummy=0;
 }
 
 PixelMonModules1D::~PixelMonModules1D()
 {
   for(int i=0; i < 2024; i++)
   {
-     if(getHist(i)){ delete getHist(i); }
-     //if(getHist(i)){ LWHist::safeDelete( getHist(i) ); }
+    if(getHist(i)){ delete getHist(i); }
+    //if(getHist(i)){ LWHist::safeDelete( getHist(i) ); }
   }
 }
 
 PixelMonModules2D::PixelMonModules2D(std::string name, std::string title, int nbins0, double low0, double high0, int nbins1, double low1, double high1, bool doIBL)
 {
-  nBins=nbins0*nbins1;
+  m_nBins=nbins0*nbins1;
   for(int i=0; i < 1744 +280*doIBL; i++)
-    {
-      getHist(i) = new TH2F((getHistName(i,false,doIBL)+"_"+name).c_str(), (getHistName(i,false,doIBL)+" "+title).c_str(), nbins0, low0, high0, nbins1, low1, high1);
-    }
+  {
+    getHist(i) = new TH2F((getHistName(i,false,doIBL)+"_"+name).c_str(), (getHistName(i,false,doIBL)+" "+title).c_str(), nbins0, low0, high0, nbins1, low1, high1);
+  }
   if(doIBL==false){
     for(int i=1744; i < 2024; i++){
       getHist(i)=0;
     }
   }
   formatHist("",doIBL);
-  Dummy=0;
+  m_Dummy=0;
 }
 
 PixelMonModules2D::~PixelMonModules2D()
 {
   for(int i=0; i < 2024; i++)
-    {
-      if(getHist(i)){
-	delete getHist(i);
-      }
+  {
+    if(getHist(i)){
+      delete getHist(i);
     }
+  }
 }
 
 void PixelMonModulesProf::Reset()
 {
   for(int i=0; i < 2024; i++)
-    {
-      if(getHist(i)){
-	getHist(i)->Reset();
-      }
+  {
+    if(getHist(i)){
+      getHist(i)->Reset();
     }
+  }
 }
 
 //double PixelMonModulesProf::GetBinContent(double value, Identifier &id, const PixelID* pixID)
@@ -168,13 +168,14 @@ void PixelMonModulesProf::Reset()
 StatusCode PixelMonModulesProf::regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run, bool doIBL)
 {
   for(int i=0; i<1744 +280*doIBL; i++)
-    {
-      ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true,doIBL)).c_str(),Run);
-      sc = mgroup.regHist(getHist(i));
-      if(sc.isFailure() ) return StatusCode::FAILURE;
+  {
+    ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true,doIBL)).c_str(),Run);
+      if (mgroup.regHist(getHist(i)).isFailure()) {
+        return StatusCode::FAILURE;
+      }
     }
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -294,11 +295,12 @@ StatusCode PixelMonModules1D::regHist(ManagedMonitorToolBase* thisptr, std::stri
   for(int i=0; i<1744 +280*doIBL; i++)
     {
       ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true,doIBL)).c_str(),Run);
-      sc = mgroup.regHist(getHist(i));
-      if(sc.isFailure() ) return StatusCode::FAILURE;
+      if (mgroup.regHist(getHist(i)).isFailure()) {
+        return StatusCode::FAILURE;
+      }
     }
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode PixelMonModules2D::regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run, bool doIBL)
@@ -306,11 +308,12 @@ StatusCode PixelMonModules2D::regHist(ManagedMonitorToolBase* thisptr, std::stri
   for(int i=0; i<1744 +280*doIBL; i++)
     {
       ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true,doIBL)).c_str(),Run);
-      sc = mgroup.regHist(getHist(i));
-      if(sc.isFailure() ) return StatusCode::FAILURE;
+      if (mgroup.regHist(getHist(i)).isFailure()) {
+        return StatusCode::FAILURE;
+      }
     }
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 void PixelMonModules1D::formatHist(std::string opt, bool doIBL)                                                                              
@@ -344,7 +347,7 @@ void PixelMonModules2D::formatHist(std::string opt, bool doIBL)
 
 void PixelMonModules1D::SetBinLabel(const char* label, int binN)
 {
-  if(binN > nBins) return;
+  if(binN > m_nBins) return;
   for(int i=0; i < 2024; i++)
     {
       if(getHist(i)){getHist(i)->GetXaxis()->SetBinLabel(binN,label);}
@@ -366,7 +369,7 @@ TProfile_LW* &PixelMonModulesProf::getHist(int i)
    if(i<280){
     return  IBL[i/14][i%14];
   }
-  return Dummy;  
+  return m_Dummy;  
 }
 
 TH1F* &PixelMonModules1D::getHist(int i)
@@ -384,7 +387,7 @@ TH1F* &PixelMonModules1D::getHist(int i)
   if(i<280){
     return  IBL[i/14][i%14];
   }
-  return Dummy;  
+  return m_Dummy;  
 }
 
 TH2F* &PixelMonModules2D::getHist(int i)
@@ -402,7 +405,7 @@ TH2F* &PixelMonModules2D::getHist(int i)
   if(i<280){
    return  IBL[i/14][i%14];
   }
-  return Dummy;
+  return m_Dummy;
 }
 
 std::string PixelMonModules::getHistName(int i, bool forPath, bool doIBL)

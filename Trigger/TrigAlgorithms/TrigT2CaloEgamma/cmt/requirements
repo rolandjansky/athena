@@ -11,6 +11,7 @@ use GaudiInterface      GaudiInterface-*             External
 #use LArRawUtils         LArRawUtils-*                LArCalorimeter
 #use LArRecEvent         LArRecEvent-*                LArCalorimeter
 #use Identifier          Identifier-*                 DetectorDescription
+use AthenaBaseComps	AthenaBaseComps-*		Control
 
 
 use CaloEvent           CaloEvent-*                  Calorimeter

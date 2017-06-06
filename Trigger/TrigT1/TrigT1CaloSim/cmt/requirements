@@ -10,7 +10,7 @@ use     CaloDetDescr    CaloDetDescr-*   Calorimeter
 use     CaloIdentifier  CaloIdentifier-* Calorimeter
 use     LArRawEvent     LArRawEvent-*    LArCalorimeter
 #use     LArIdentifier   LArIdentifier-*  LArCalorimeter
-use     LArTools        LArTools-*       LArCalorimeter
+use     LArCabling      LArCabling-*     LArCalorimeter
 use     TileConditions  TileConditions-* TileCalorimeter
 use     TileEvent       TileEvent-*      TileCalorimeter
 use     CaloTTDetDescr  CaloTTDetDescr-* Calorimeter
@@ -57,5 +57,6 @@ use     LumiBlockComps  LumiBlockComps-* LumiBlock
 use     PathResolver    PathResolver-*   Tools
 use     TrigT1CaloCondSvc TrigT1CaloCondSvc-* Trigger/TrigT1
 use     xAODEventInfo   xAODEventInfo-*  Event/xAOD
+use     TrigT1CaloByteStream   TrigT1CaloByteStream-*  Trigger/TrigT1
 end_private
 

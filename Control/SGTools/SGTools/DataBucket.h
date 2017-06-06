@@ -36,6 +36,7 @@ namespace SG {
     DataBucket(): m_ptr(0) {}  //needed by the generic converters
     DataBucket(T* data);                 
     DataBucket(std::unique_ptr<T> data);
+    DataBucket(std::unique_ptr<const T> data);
     DataBucket(SG::DataObjectSharedPtr<T> data);
   
     // DESTRUCTOR:
@@ -110,7 +111,7 @@ namespace SG {
     virtual void relinquish() override{ m_ptr=0;} //LEAKS m_ptr
 
     /**
-     * If the held object derives from @c ILockable, call @lock() on it.
+     * If the held object derives from @c ILockable, call @c lock() on it.
      */
     virtual void lock() override;
 

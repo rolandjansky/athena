@@ -30,10 +30,12 @@
 
 
 #     include   "TrigInDetValidation_all_ttbar_pu40.xml"
-#     include   "TrigInDetValidation_all_ttbar_pu46.xml"
+<!-- #     include   "TrigInDetValidation_all_ttbar_pu46.xml" -->
 #     include   "TrigInDetValidation_all_ttbar_pu80.xml"
 
-#     include   "TrigInDetValidation_beamspot_ttbar_pu46.xml"
+#     include   "TrigInDetValidation_beamspot_ttbar_pu40.xml"
+#     include   "TrigInDetValidation_beamspot_ttbar_pu40_zfinder.xml"
+#     include   "TrigInDetValidation_beamspot_ttbar_pu80_zfinder.xml"
 
 #     include   "TrigInDetValidation_el_Jpsiee_pu40.xml"
 #     include   "TrigInDetValidation_el_single_e_7-80_larged0.xml"
@@ -61,17 +63,20 @@
 <!-- #     include   "TrigInDetValidation_bjet.xml"  -->
 <!-- #     include   "TrigInDetValidation_bjet_pu46.xml"  -->
 #     include   "TrigInDetValidation_bjet_IBL_pu40.xml"
-#     include   "TrigInDetValidation_bjet_IBL_pu40_test.xml"
+<!-- #     include   "TrigInDetValidation_bjet_IBL_pu40_test.xml" -->
 #     include   "TrigInDetValidation_bjet_IBL_pu40_offline.xml"
 
-#     include   "TrigInDetValidation_bjet_IBL_pu46.xml"
+<!-- #     include   "TrigInDetValidation_bjet_IBL_pu46.xml" -->
 #     include   "TrigInDetValidation_bjet_IBL_pu80.xml"
 
-#     include   "TrigInDetValidation_bjet_IBL_pu40_trkpt2.xml"
-#     include   "TrigInDetValidation_bjet_IBL_pu40_super1.xml"
-#     include   "TrigInDetValidation_bjet_IBL_pu40_super2.xml"
-#     include   "TrigInDetValidation_bjet_IBL_pu40_super3.xml"
-#     include   "TrigInDetValidation_bjet_IBL_pu40_super4.xml"
+#     include   "TrigInDetValidation_bjet_IBL_pu40_2016config.xml"
+#     include   "TrigInDetValidation_bjet_IBL_pu40_offline_2016config.xml"
+
+<!-- #     include   "TrigInDetValidation_bjet_IBL_pu40_trkpt2.xml"  -->
+<!-- #     include   "TrigInDetValidation_bjet_IBL_pu40_super1.xml" -->
+<!-- #     include   "TrigInDetValidation_bjet_IBL_pu40_super2.xml" -->
+<!-- #     include   "TrigInDetValidation_bjet_IBL_pu40_super3.xml" -->
+<!-- #     include   "TrigInDetValidation_bjet_IBL_pu40_super4.xml" -->
 
 
 <!-- #     include   "TrigInDetValidation_tau_pu46.xml"  -->
@@ -99,6 +104,8 @@
 #     include   "TrigInDetValidation_FTK_tau_tautau.xml"
 #     include   "TrigInDetValidation_FTK_bjet_ttbar.xml"
 #     include   "TrigInDetValidation_FTK_beamspot_ttbar.xml"
+#     include   "TrigInDetValidation_FTK_mu_ttbar_offline.xml"
+#     include   "TrigInDetValidation_FTK_bjet_ttbar_offline.xml"
 
       </jobList>
 

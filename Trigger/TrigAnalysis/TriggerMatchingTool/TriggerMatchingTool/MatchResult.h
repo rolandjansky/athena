@@ -44,7 +44,7 @@ namespace Trig {
     bool m_matched;
 
     //the original list of reco particles
-    std::vector<const xAOD::IParticle*> original_recolist;
+    std::vector<const xAOD::IParticle*> m_original_recolist;
     
     //we'll keep a type_sorted list to the reco particles that initiated this match
     std::map<xAOD::Type::ObjectType,std::vector<const xAOD::IParticle*> > m_recos_by_type;

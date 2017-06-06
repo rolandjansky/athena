@@ -33,7 +33,7 @@ find_package( Eigen )
 
 # Component(s) in the package:
 atlas_add_library( InDetReadoutGeometry
-                   src/*.c*
+                   src/*.cxx
                    PUBLIC_HEADERS InDetReadoutGeometry
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}

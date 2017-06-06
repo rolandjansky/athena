@@ -237,7 +237,7 @@ StatusCode EgammaHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
    
   } // End of loop over TileCal drawers
   rtrigEmCluster.setNCells(ncells+rtrigEmCluster.nCells() );
-  m_timer[0]->propVal(rtrigEmCluster.nCells() );
+  if (!m_timersvc.empty())  m_timer[0]->propVal(rtrigEmCluster.nCells() );
 
 #ifndef NDEBUG
   if ( msg().level() <= MSG::DEBUG ) {

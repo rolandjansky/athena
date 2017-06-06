@@ -10,8 +10,6 @@ class TProfile;
 template <class ht> class MultiHisto;
 template <class type> class TVectorT;
 
-using namespace std;
-
 namespace PixelCalib{
 
 class DepletionDepthCalibration{
@@ -28,18 +26,18 @@ public :
 	
 private:
 
-	int curLayer;
-	std::string curType;
-	std::string layername;
-	MultiHisto<TProfile> *LayerProfile;
-	TVectorT<double> *DepletionDepth0;
-	TVectorT<double> *DepletionDepth0Error;
-	TVectorT<double> *DepletionDepth1;
-	TVectorT<double> *DepletionDepth1Error;
-	TVectorT<double> *DepletionDepth2;
-	TVectorT<double> *DepletionDepth2Error;
-	TVectorT<double> *EtaModule;
-	TVectorT<double> *PhiModule;
+	int m_curLayer;
+	std::string m_curType;
+	std::string m_layername;
+	MultiHisto<TProfile> *m_LayerProfile;
+	TVectorT<double> *m_DepletionDepth0;
+	TVectorT<double> *m_DepletionDepth0Error;
+	TVectorT<double> *m_DepletionDepth1;
+	TVectorT<double> *m_DepletionDepth1Error;
+	TVectorT<double> *m_DepletionDepth2;
+	TVectorT<double> *m_DepletionDepth2Error;
+	TVectorT<double> *m_EtaModule;
+	TVectorT<double> *m_PhiModule;
 
 };
 

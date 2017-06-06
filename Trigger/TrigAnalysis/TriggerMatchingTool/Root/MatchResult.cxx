@@ -41,7 +41,6 @@ namespace Trig{
   
   std::vector<const xAOD::IParticle*> MatchResult::bestMatchedObjects(){
     double bestcost = 0;
-    const ComboMatch* bestcombo = 0;
     int i = 0;
     int bestindex = -1;
     for (const auto combresult : m_combresults){
@@ -56,7 +55,7 @@ namespace Trig{
       i++;
     }
     if(bestindex >= 0){
-      return alignMatchedObjects(original_recolist,m_combresults.at(bestindex));
+      return alignMatchedObjects(m_original_recolist,m_combresults.at(bestindex));
     }
     
     std::cout << "TriggerMatchingTool ERROR. Best matching combination was not found. This should not happen. Is the result matched (isMatched())? " << std::endl;

@@ -16,7 +16,7 @@
     procedue, and persistified together with the RDOs) containers are created
     and recorded on StoreGate; the MDTSimHit collection are merged using the 
     TimedHitCollection sorted container (done in handleMDTSimhit(TimedHitPtr
-    <MDTSimHit>& hit)) method); into a loop over the TimedHitCollection for 
+    \<MDTSimHit\>& hit)) method); into a loop over the TimedHitCollection for 
     the given DetectorElement, the handleMDTSimhit() method converts the SimID
     into the Offline ID to be associated to the Digit and pass to the
     digitization tool the drift radius and the distance to the chamber RO side
@@ -54,7 +54,7 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 #include "MuonCondInterface/IMDTConditionsSvc.h"

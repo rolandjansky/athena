@@ -4,6 +4,9 @@
 #
 #---- User Options -------
 
+if not "GridMode" in dir():
+  GridMode = False
+
 if not "EvtMax" in dir():
   EvtMax = -1
 
@@ -27,6 +30,9 @@ if not "EnableLumiExtrapolation" in dir():
 
 if not "TargetLuminosity" in dir(): # Only if EnableLumiExtrapolation=True. See RatesAnalysis/RatesAnalysisAlg.h for more sophisticated scaling
   TargetLuminosity = 1e34
+
+if not "VetoStartOfTrain" in dir(): # Implies DoRatesVsPositionInTrain=True
+  VetoStartOfTrain = 0
 
 # To simulate the application of prescales, need a prescale XML from the RuleBook
 # Make sure this is somewhere PathResolver can find it e.g. your current directory
@@ -56,7 +62,13 @@ if not "MCKFactor" in dir(): # Additional fudge-factor to apply to account for h
 if not "ForcePOOL" in dir(): # If hybrid mode is failing for some reason (true at the moment for 21.X)
   ForcePOOL = False
 
-#---- MC Setup -------
+#---- Setup -------
+
+if GridMode:
+  NormaliseHistograms = False
+
+if VetoStartOfTrain > 0:
+  DoRatesVsPositionInTrain = True
 
 jps.AthenaCommonFlags.FilesInput = FilesInput
 from PyUtils import AthFile

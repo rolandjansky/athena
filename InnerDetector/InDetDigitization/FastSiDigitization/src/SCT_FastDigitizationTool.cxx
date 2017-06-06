@@ -23,7 +23,7 @@
 
 // CLHEP
 #include "CLHEP/Random/RandomEngine.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandLandau.h"
 
 

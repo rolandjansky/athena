@@ -57,7 +57,7 @@ HLT::ErrorCode TrigHLTPSvsFSDiagnostics::hltInitialize() {
   m_event = 0;
   // Open output root file
   std::string fileName = "PSvsFS_"+m_chainName+"_.root";
-  fOut = TFile::Open(fileName.c_str(), "RECREATE");
+  m_fOut = TFile::Open(fileName.c_str(), "RECREATE");
 
   // Add histograms to map    
   //!-- PS/FS && Cluster/Jets histograms creation
@@ -66,27 +66,27 @@ HLT::ErrorCode TrigHLTPSvsFSDiagnostics::hltInitialize() {
    - m_objType[] - name of the containers to check, by default {"Clust","Jets","Jets_pass","focalJets"}
    - m_objTitle[]- name of the containers to appear in the tytle, by default {"clusters","jets","Jets passing hypo", "focal jets"}
    **/
-  addHist(hMap1D,"match_leadJet", "Check if the leading jets passing hypo match.;case ; entries", 2,   0.0,  2.0); 
-  addHist(hMap2D,"efficiency_allJets", "Efficiency for all FS jets passing hypo.;Et (MeV) ; efficiency", 100,   0.0,  1000000.0,11,-1.1,1.1);  
-  addHist(hMap2D,"efficiency_leadJet", "Efficiency for the leading jets passing hypo.;Et (MeV) ; efficiency", 100,   0.0,  1000000.0,11,-1.1,1.1);  
+  addHist(m_hMap1D,"match_leadJet", "Check if the leading jets passing hypo match.;case ; entries", 2,   0.0,  2.0); 
+  addHist(m_hMap2D,"efficiency_allJets", "Efficiency for all FS jets passing hypo.;Et (MeV) ; efficiency", 100,   0.0,  1000000.0,11,-1.1,1.1);  
+  addHist(m_hMap2D,"efficiency_leadJet", "Efficiency for the leading jets passing hypo.;Et (MeV) ; efficiency", 100,   0.0,  1000000.0,11,-1.1,1.1);  
 
   //!focal checks
-  addHist(hMap1D,"focal_has_leadJet", "Check if the leading jets is a focal jet.;case ; entries", 2,   0.0,  2.0);
-  addHist(hMap1D,"deltaR_leadJet",   "Leading Jets deltaR (PS-FS); #deltaR; entries", 100, 0., 0.2);
-  addHist(hMapProf,"deltaEtvsEta_focal", " Focal jets normalized deltaEt (PS-FS)/FS over FS eta; FS_eta; #deltaEt/FS_Et", 92, -4.9, 4.9);
-  addHist(hMapProf,"deltaEtvsEta_leadJet", " Leading jets normalized deltaEt (PS-FS)/FS over FS eta; FS_eta; #deltaEa/FS_Et", 92, -4.9, 4.9);
+  addHist(m_hMap1D,"focal_has_leadJet", "Check if the leading jets is a focal jet.;case ; entries", 2,   0.0,  2.0);
+  addHist(m_hMap1D,"deltaR_leadJet",   "Leading Jets deltaR (PS-FS); #deltaR; entries", 100, 0., 0.2);
+  addHist(m_hMapProf,"deltaEtvsEta_focal", " Focal jets normalized deltaEt (PS-FS)/FS over FS eta; FS_eta; #deltaEt/FS_Et", 92, -4.9, 4.9);
+  addHist(m_hMapProf,"deltaEtvsEta_leadJet", " Leading jets normalized deltaEt (PS-FS)/FS over FS eta; FS_eta; #deltaEa/FS_Et", 92, -4.9, 4.9);
 
   //!-- SuperRoI eta phi --
-  addHist(hMap1D,"nTEs", "Number of TEs per event for L1_J20; number of TEs; entries", 50, 0., 50.);
-  addHist(hMap1D,"SuperRoI_Total_Eta", "PS RoI eta distribution; #eta; entries", 99, -4.9, 4.9);
-  addHist(hMap1D,"SuperRoI_Total_Phi", "PS RoI phi distribution; #phi; entries", 64, -3.2, 3.2);
-  addHist(hMap2D,"PS_2D_SuperRoI","L1 RoIs found ; #eta;#phi",    92, -4.9, 4.9, 64, -3.2, 3.2);/*TMP*/
+  addHist(m_hMap1D,"nTEs", "Number of TEs per event for L1_J20; number of TEs; entries", 50, 0., 50.);
+  addHist(m_hMap1D,"SuperRoI_Total_Eta", "PS RoI eta distribution; #eta; entries", 99, -4.9, 4.9);
+  addHist(m_hMap1D,"SuperRoI_Total_Phi", "PS RoI phi distribution; #phi; entries", 64, -3.2, 3.2);
+  addHist(m_hMap2D,"PS_2D_SuperRoI","L1 RoIs found ; #eta;#phi",    92, -4.9, 4.9, 64, -3.2, 3.2);/*TMP*/
 
   for(unsigned int i=0; i<m_scanType.size() ;++i){   //!-- beguin PS/FS loop
     //!-- events accepted --
     //ex:          PS_nEvt_accepted - PS Number of events passing the hypo.;hypo ;nevents
-    addHist(hMap1D,m_scanType.at(i)+"_nEvt_accepted", m_scanType.at(i)+" Number of events passing the hypo.;hypo ;nevents", 2,   0.0,  2.0);
-    addHist(hMap1D,m_scanType.at(i)+"_deltaRoI_leadJet", m_scanType.at(i)+" deltaR to RoI center for leading jet.;case ; efficiency", 100,   0.0,  1.0);
+    addHist(m_hMap1D,m_scanType.at(i)+"_nEvt_accepted", m_scanType.at(i)+" Number of events passing the hypo.;hypo ;nevents", 2,   0.0,  2.0);
+    addHist(m_hMap1D,m_scanType.at(i)+"_deltaRoI_leadJet", m_scanType.at(i)+" deltaR to RoI center for leading jet.;case ; efficiency", 100,   0.0,  1.0);
 
     for(unsigned int j=0; j<m_objType.size() ;++j){ //!-- beguin Cluster/Jets loop
       //! If limits of histograms need to be changed, by default between Clusters and Jets or Jets passing hypo.
@@ -94,28 +94,28 @@ HLT::ErrorCode TrigHLTPSvsFSDiagnostics::hltInitialize() {
 
       //!-- containers size --
       //ex:          PS_n_Cluster - PS Number of clusters per event ;number of jets ;nevents
-      addHist(hMap1D,m_scanType.at(i)+"_n_"+m_objType.at(j), m_scanType.at(i)+" Number of "+m_objTitle.at(j)+" per event ;number of "+m_objTitle.at(j)+" ;nevents", 100,   0.0,  2000.0);
+      addHist(m_hMap1D,m_scanType.at(i)+"_n_"+m_objType.at(j), m_scanType.at(i)+" Number of "+m_objTitle.at(j)+" per event ;number of "+m_objTitle.at(j)+" ;nevents", 100,   0.0,  2000.0);
 
       //!-- Energy --
       //ex:          PS_E_Cluster - PS clusters energy distribution;Energy (MeV) ; entries
-      addHist(hMap1D,m_scanType.at(i)+"_E_"+m_objType.at(j), m_scanType.at(i)+" "+m_objTitle.at(j)+" energy distribution;Energy (MeV) ; entries", 100,   0.0,  1000000.0);
+      addHist(m_hMap1D,m_scanType.at(i)+"_E_"+m_objType.at(j), m_scanType.at(i)+" "+m_objTitle.at(j)+" energy distribution;Energy (MeV) ; entries", 100,   0.0,  1000000.0);
 
       //!-- Et --
       //ex:          PS_Et_Cluster - PS clusters Et distribution;Et (MeV) ; entries
-      addHist(hMap1D,m_scanType.at(i)+"_Et_"+m_objType.at(j), m_scanType.at(i)+" "+m_objTitle.at(j)+" Et distribution; Et (MeV); entries", 100,   0.0,  1000000.0);
+      addHist(m_hMap1D,m_scanType.at(i)+"_Et_"+m_objType.at(j), m_scanType.at(i)+" "+m_objTitle.at(j)+" Et distribution; Et (MeV); entries", 100,   0.0,  1000000.0);
 
       //!-- eta --
       //ex:          PS_Eta_Clust - PS Clusters eta distribution; #eta; entries
-      addHist(hMap1D,m_scanType.at(i)+"_Eta_"+m_objType.at(j), m_scanType.at(i)+" "+m_objTitle.at(j)+" eta distribution; #eta; entries", 92, -4.9, 4.9);
+      addHist(m_hMap1D,m_scanType.at(i)+"_Eta_"+m_objType.at(j), m_scanType.at(i)+" "+m_objTitle.at(j)+" eta distribution; #eta; entries", 92, -4.9, 4.9);
 
       //!-- phi --
       //ex:          PS_Phi_Clust - PS Clusters phi distribution; #phi; entries
-      addHist(hMap1D,m_scanType.at(i)+"_Phi_"+m_objType.at(j), m_scanType.at(i)+" "+m_objTitle.at(j)+" phi distribution; #phi; entries", 64, -3.2, 3.2);
+      addHist(m_hMap1D,m_scanType.at(i)+"_Phi_"+m_objType.at(j), m_scanType.at(i)+" "+m_objTitle.at(j)+" phi distribution; #phi; entries", 64, -3.2, 3.2);
 
 
       //!-- E vs Et --
       //ex:          PS_EvsEt_Clust - PS Clusters Energy vs Et;Et (MeV/c);Energy (MeV)
-      addHist(hMap2D,m_scanType.at(i)+"_EvsEt_"+m_objType.at(j), m_scanType.at(i)+" "+m_objTitle.at(j)+" Energy vs Et;Et (MeV);Energy (MeV)", 100,  0.0,  1000000.0,  100,  0.0,  1000000.0);
+      addHist(m_hMap2D,m_scanType.at(i)+"_EvsEt_"+m_objType.at(j), m_scanType.at(i)+" "+m_objTitle.at(j)+" Energy vs Et;Et (MeV);Energy (MeV)", 100,  0.0,  1000000.0,  100,  0.0,  1000000.0);
 
 
       /** histograms only with: (comparing PS to FS)
@@ -125,28 +125,28 @@ HLT::ErrorCode TrigHLTPSvsFSDiagnostics::hltInitialize() {
       if(i==0){
         //!-- deltaR --
         //ex:          tot_deltaR_Clust - Clusters deltaR (PS-FS); #deltaR; entries
-        addHist(hMap1D,"tot_deltaR_"+m_objType.at(j), m_objTitle.at(j)+" deltaR (PS-FS); #deltaR; entries",          100, 0., 0.2);
+        addHist(m_hMap1D,"tot_deltaR_"+m_objType.at(j), m_objTitle.at(j)+" deltaR (PS-FS); #deltaR; entries",          100, 0., 0.2);
 
         //!-- deltaR vs RoI center --
         //ex:          tot_deltaRvsCenter_Clust - Clusters normalized deltaR (PS-FS)/FS vs PS distance to RoI center; #delta to RoI center;#deltaR
-        addHist(hMapProf,"tot_deltaRvsCenter_"+m_objType.at(j), m_objTitle.at(j)+" normalized deltaR (PS-FS)/FS vs PS distance to RoI center; #delta to RoI center;#deltaR", 100, 0., 1.5);
+        addHist(m_hMapProf,"tot_deltaRvsCenter_"+m_objType.at(j), m_objTitle.at(j)+" normalized deltaR (PS-FS)/FS vs PS distance to RoI center; #delta to RoI center;#deltaR", 100, 0., 1.5);
 
         //!-- deltaE vs RoI center --
         //ex:          tot_deltaEtvsCenter_Clust - Clusters normalized deltaE (PS-FS)/FS vs distance to RoI center; #delta to RoI center;#deltaE/FS_E
-        addHist(hMapProf,"tot_deltaEtvsCenter_"+m_objType.at(j), m_objTitle.at(j)+" normalized absolute deltaEt (PS-FS)/FS vs distance to RoI center; #delta to RoI center;#deltaEt/FS_Et", 100, 0., 1.5);
+        addHist(m_hMapProf,"tot_deltaEtvsCenter_"+m_objType.at(j), m_objTitle.at(j)+" normalized absolute deltaEt (PS-FS)/FS vs distance to RoI center; #delta to RoI center;#deltaEt/FS_Et", 100, 0., 1.5);
 
         //!-- deltaEta vs Eta --
         //ex:          tot_deltaEtavsEta_Clust - Clusters normalized deltaEta (PS-FS)/FS over FS eta; FS_eta; #deltaEta/FS_Eta
-        addHist(hMapProf,"tot_deltaEtavsEta_"+m_objType.at(j), m_objTitle.at(j)+" Clusters normalized deltaEta (PS-FS)/FS over FS eta; FS_eta; #deltaEta/FS_Eta", 92, -4.9, 4.9);
+        addHist(m_hMapProf,"tot_deltaEtavsEta_"+m_objType.at(j), m_objTitle.at(j)+" Clusters normalized deltaEta (PS-FS)/FS over FS eta; FS_eta; #deltaEta/FS_Eta", 92, -4.9, 4.9);
 
         //!-- deltaPhi vs Phi --
         //ex:          tot_deltaPhivsPhi_Clust - Clusters normalized deltaPhi (PS-FS)/FS over FS phi; FS_phi; #deltaPhi/FS_Phi
-        addHist(hMapProf,"tot_deltaPhivsPhi_"+m_objType.at(j), m_objTitle.at(j)+" normalized deltaPhi (PS-FS)/FS over FS phi; FS_phi; #deltaPhi/FS_Phi", 64, -3.2, 3.2);
+        addHist(m_hMapProf,"tot_deltaPhivsPhi_"+m_objType.at(j), m_objTitle.at(j)+" normalized deltaPhi (PS-FS)/FS over FS phi; FS_phi; #deltaPhi/FS_Phi", 64, -3.2, 3.2);
 
         //!-- deltaE vs E --
         //ex:          tot_deltaEtvsEt_Clust - Clusters normalized deltaE (PS-FS)/FS over FS E; FS_Et; #deltaE/FS_E
-        addHist(hMap1D,"1D_tot_deltaEtvsEt_"+m_objType.at(j), m_objTitle.at(j)+" normalized deltaEt (PS-FS)/FS over FS Et; #deltaEt/FS_Et; entries", 100, 0., 5.);
-        addHist(hMapProf,"tot_deltaEtvsEt_"+m_objType.at(j), m_objTitle.at(j)+" normalized deltaEt (PS-FS)/FS over FS Et; FS_Et; #deltaEt/FS_Et", 100, 0., 1000000.);
+        addHist(m_hMap1D,"1D_tot_deltaEtvsEt_"+m_objType.at(j), m_objTitle.at(j)+" normalized deltaEt (PS-FS)/FS over FS Et; #deltaEt/FS_Et; entries", 100, 0., 5.);
+        addHist(m_hMapProf,"tot_deltaEtvsEt_"+m_objType.at(j), m_objTitle.at(j)+" normalized deltaEt (PS-FS)/FS over FS Et; FS_Et; #deltaEt/FS_Et", 100, 0., 1000000.);
       }
 
       /** Loop to create the histograms PER EVENT for the options set before:
@@ -159,17 +159,17 @@ HLT::ErrorCode TrigHLTPSvsFSDiagnostics::hltInitialize() {
       for(int k=0; k<m_nEvToPlot; ++k){
         //!-- 2D position height in E --
         //ex:          PS_2D_Clust - PS Clusters created evt-1; ; #eta;#phi;Energy (MeV)
-        addHist(hMap2D,histStr(m_scanType.at(i)+"_2D_"+m_objType.at(j)+"_",k+1,""),histStr(m_scanType.at(i)+" "+m_objTitle.at(j)+" created evt-",k+1,"; #eta;#phi;Et (MeV)").c_str(),    92, -4.9, 4.9, 64, -3.2, 3.2);
+        addHist(m_hMap2D,histStr(m_scanType.at(i)+"_2D_"+m_objType.at(j)+"_",k+1,""),histStr(m_scanType.at(i)+" "+m_objTitle.at(j)+" created evt-",k+1,"; #eta;#phi;Et (MeV)").c_str(),    92, -4.9, 4.9, 64, -3.2, 3.2);
       }
     }  //!-- end Cluster/Jets loop
   }    //!-- end PS/FS loop
 
 
   /* old temporary histograms
-  addHist(hMap1D,histStr("_deltaR_").c_str(), histStr("Clusters deltaR PS to FS evt-","; #deltaR; entries").c_str(), 100, 0., 0.2);
-  addHist(hMap2D,histStr("_MatchClusers_").c_str(), histStr("Match Clusters evt-","; #eta;#phi;Energy (MeV)").c_str(),   200, -5., 5., 128, -3.1416, 3.1416);  
-  addHist(hMapProf,histStr("_deltaRtoCenter_").c_str(), histStr("Clusters deltaR PS to FS vs distance to RoI center evt-","; #delta to RoI center;#deltaR").c_str(), 100, 0., 1.5);
-  addHist(hMapProf,histStr("_deltaEtoCenter_").c_str(), histStr("Clusters deltaE PS to FS vs distance to RoI center evt-","; #delta to RoI center;#deltaE (MeV)").c_str(), 100, 0., 1.5);
+  addHist(m_hMap1D,histStr("_deltaR_").c_str(), histStr("Clusters deltaR PS to FS evt-","; #deltaR; entries").c_str(), 100, 0., 0.2);
+  addHist(m_hMap2D,histStr("_MatchClusers_").c_str(), histStr("Match Clusters evt-","; #eta;#phi;Energy (MeV)").c_str(),   200, -5., 5., 128, -3.1416, 3.1416);  
+  addHist(m_hMapProf,histStr("_deltaRtoCenter_").c_str(), histStr("Clusters deltaR PS to FS vs distance to RoI center evt-","; #delta to RoI center;#deltaR").c_str(), 100, 0., 1.5);
+  addHist(m_hMapProf,histStr("_deltaEtoCenter_").c_str(), histStr("Clusters deltaE PS to FS vs distance to RoI center evt-","; #delta to RoI center;#deltaE (MeV)").c_str(), 100, 0., 1.5);
 
    */
   return HLT::OK; 
@@ -179,12 +179,12 @@ HLT::ErrorCode TrigHLTPSvsFSDiagnostics::hltInitialize() {
 HLT::ErrorCode TrigHLTPSvsFSDiagnostics::hltFinalize(){
   ATH_MSG_INFO ("Finalizing " << name() << "...");  
   // Save histograms and close file 
-  fOut->Write();
-  fOut->Close();
+  m_fOut->Write();
+  m_fOut->Close();
   // Clear histogram maps
-  hMap2D.clear();
-  hMap1D.clear();
-  hMapProf.clear();
+  m_hMap2D.clear();
+  m_hMap1D.clear();
+  m_hMapProf.clear();
   return HLT::OK;
 }
 
@@ -353,8 +353,8 @@ void TrigHLTPSvsFSDiagnostics::clustersCheck(){
   xAOD::CaloClusterContainer::const_iterator tmpClusterIter;
 
   //! number of clusters
-  hMap1D["PS_n_Clust"]->Fill(m_PSclusterCont->size());
-  hMap1D["FS_n_Clust"]->Fill(m_FSclusterCont->size());
+  m_hMap1D["PS_n_Clust"]->Fill(m_PSclusterCont->size());
+  m_hMap1D["FS_n_Clust"]->Fill(m_FSclusterCont->size());
 
   double delta_R = 0.;
   int PS=0;
@@ -384,43 +384,43 @@ void TrigHLTPSvsFSDiagnostics::clustersCheck(){
 
       //!Plot FS clusters observables
       if(FS==0){
-        hMap1D["FS_E_Clust"]->Fill(FS_Cluster->e());
-        hMap1D["FS_Et_Clust"]->Fill((FS_Cluster->p4()).Et());
-        hMap1D["FS_Eta_Clust"]->Fill(FS_Cluster->eta());
-        hMap1D["FS_Phi_Clust"]->Fill(FS_Cluster->phi());
-        hMap2D["FS_EvsEt_Clust"]->Fill((FS_Cluster->p4()).Et(), FS_Cluster->e());
+        m_hMap1D["FS_E_Clust"]->Fill(FS_Cluster->e());
+        m_hMap1D["FS_Et_Clust"]->Fill((FS_Cluster->p4()).Et());
+        m_hMap1D["FS_Eta_Clust"]->Fill(FS_Cluster->eta());
+        m_hMap1D["FS_Phi_Clust"]->Fill(FS_Cluster->phi());
+        m_hMap2D["FS_EvsEt_Clust"]->Fill((FS_Cluster->p4()).Et(), FS_Cluster->e());
 
         //!Plot all FS clusters for the first 15 events
         if(m_event<15){
-          hMap2D[histStr("FS_2D_Clust_").c_str()]->Fill(FS_Cluster->eta(),FS_Cluster->phi(),(FS_Cluster->p4()).Et());
+          m_hMap2D[histStr("FS_2D_Clust_").c_str()]->Fill(FS_Cluster->eta(),FS_Cluster->phi(),(FS_Cluster->p4()).Et());
         }
       }
     }//!-- finish loop over FS clusters --
 
     //!Plot PS clusters observables
-    hMap1D["PS_E_Clust"]->Fill(PS_Cluster->e());
-    hMap1D["PS_Et_Clust"]->Fill((PS_Cluster->p4()).Et());
-    hMap1D["PS_Eta_Clust"]->Fill(PS_Cluster->eta());
-    hMap1D["PS_Phi_Clust"]->Fill(PS_Cluster->phi());
-    hMap2D["PS_EvsEt_Clust"]->Fill((PS_Cluster->p4()).Et(), PS_Cluster->e());
+    m_hMap1D["PS_E_Clust"]->Fill(PS_Cluster->e());
+    m_hMap1D["PS_Et_Clust"]->Fill((PS_Cluster->p4()).Et());
+    m_hMap1D["PS_Eta_Clust"]->Fill(PS_Cluster->eta());
+    m_hMap1D["PS_Phi_Clust"]->Fill(PS_Cluster->phi());
+    m_hMap2D["PS_EvsEt_Clust"]->Fill((PS_Cluster->p4()).Et(), PS_Cluster->e());
 
     //!Plot all PS clusters for the first 15 events
     if(m_event<15){
       //!Print closests clusters
       /*std::printf("TEST::CLUST - min_delta_R=%f \n",min_delta_R);
       if(min_delta_R<0.005){
-        hMap2D[histStr("_MatchClusers_").c_str()]->Fill(PSCluster->eta(),PSCluster->phi(),PSCluster->e()); 
+        m_hMap2D[histStr("_MatchClusers_").c_str()]->Fill(PSCluster->eta(),PSCluster->phi(),PSCluster->e()); 
       }else{
       	std::printf("TEST::CLUST - PSCluster - evt=%d - pt=%f, eta=%f  phi=%f m=%f e=%f rapidity=%f \n",m_event,PSCluster->pt(),PSCluster->eta(),PSCluster->phi(),PSCluster->m(),PSCluster->e(),PSCluster->rapidity());
         std::printf("TEST::CLUST - FSCluster - evt=%d - pt=%f, eta=%f  phi=%f m=%f e=%f rapidity=%f \n",m_event,FSmatchCluster->pt(),FSmatchCluster->eta(),FSmatchCluster->phi(),FSmatchCluster->m(),FSmatchCluster->e(),FSmatchCluster->rapidity());
         std::printf("TEST::CLUST ----------------\n");
       }*/
       //!Delta R per event
-      hMap2D[histStr("PS_2D_Clust_").c_str()]->Fill(PS_Cluster->eta(),PS_Cluster->phi(),(PS_Cluster->p4()).Et());
+      m_hMap2D[histStr("PS_2D_Clust_").c_str()]->Fill(PS_Cluster->eta(),PS_Cluster->phi(),(PS_Cluster->p4()).Et());
     }
 
     //! PS to FS deltaR profile plot
-    hMap1D["tot_deltaR_Clust"]->Fill(min_delta_R);
+    m_hMap1D["tot_deltaR_Clust"]->Fill(min_delta_R);
 
     //!Fix for TProfile show 0.000 entries
     double deltaEta     = (PS_Cluster->eta()-FSmatchCluster->eta())/FSmatchCluster->eta();
@@ -430,10 +430,10 @@ void TrigHLTPSvsFSDiagnostics::clustersCheck(){
     double fix_deltaPhi = deltaPhi!=0?deltaPhi:0.0000000001;    
     //double fix_deltaE   = deltaE!=0?deltaE:0.0000000001;
 
-    hMapProf["tot_deltaEtavsEta_Clust"]->Fill(FSmatchCluster->eta(),fix_deltaEta);    
-    hMapProf["tot_deltaPhivsPhi_Clust"]->Fill(FSmatchCluster->phi(),fix_deltaPhi);   
-    hMapProf["tot_deltaEtvsEt_Clust"]->Fill((FSmatchCluster->p4()).Et(),deltaEt);
-    hMap1D["1D_tot_deltaEtvsEt_Clust"]->Fill(deltaEt);
+    m_hMapProf["tot_deltaEtavsEta_Clust"]->Fill(FSmatchCluster->eta(),fix_deltaEta);    
+    m_hMapProf["tot_deltaPhivsPhi_Clust"]->Fill(FSmatchCluster->phi(),fix_deltaPhi);   
+    m_hMapProf["tot_deltaEtvsEt_Clust"]->Fill((FSmatchCluster->p4()).Et(),deltaEt);
+    m_hMap1D["1D_tot_deltaEtvsEt_Clust"]->Fill(deltaEt);
 
     //!--- deltaR, deltaE to RoI center -------------------------
     //! loop over superRoI RoI's
@@ -462,8 +462,8 @@ void TrigHLTPSvsFSDiagnostics::clustersCheck(){
         fabs_Et= 0.0000000001;
       }
 
-      hMapProf["tot_deltaRvsCenter_Clust"]->Fill(min_deltaRoI,fix_delta_R);
-      hMapProf["tot_deltaEtvsCenter_Clust"]->Fill(min_deltaRoI,fabs_Et);
+      m_hMapProf["tot_deltaRvsCenter_Clust"]->Fill(min_deltaRoI,fix_delta_R);
+      m_hMapProf["tot_deltaEtvsCenter_Clust"]->Fill(min_deltaRoI,fabs_Et);
     }
     //----------------------------------------------------------
 
@@ -515,12 +515,12 @@ void TrigHLTPSvsFSDiagnostics::jetsCheck(){
   |---  superRoI plots    ---|
   |------------------------**/
   //!number of RoIS founded
-  hMap1D["nTEs"]->Fill(m_superRoi->size());
+  m_hMap1D["nTEs"]->Fill(m_superRoi->size());
 
   for(unsigned int i=0; i<m_superRoi->size(); i++){
-    hMap1D["SuperRoI_Total_Eta"]->Fill(m_superRoi->at(i)->eta());
-    hMap1D["SuperRoI_Total_Phi"]->Fill(m_superRoi->at(i)->phi());
-    hMap2D["PS_2D_SuperRoI"]->Fill(m_superRoi->at(i)->eta(),m_superRoi->at(i)->phi());
+    m_hMap1D["SuperRoI_Total_Eta"]->Fill(m_superRoi->at(i)->eta());
+    m_hMap1D["SuperRoI_Total_Phi"]->Fill(m_superRoi->at(i)->phi());
+    m_hMap2D["PS_2D_SuperRoI"]->Fill(m_superRoi->at(i)->eta(),m_superRoi->at(i)->phi());
   }
 
   /** -----------------------|
@@ -531,28 +531,28 @@ void TrigHLTPSvsFSDiagnostics::jetsCheck(){
 
   //! Check if the leading jets match
   std::string jetMatchTag = compareJets(PS_leadingJet, FS_leadingJet);
-  hMap1D["match_leadJet"]->Fill(jetMatchTag.c_str(),1.);
+  m_hMap1D["match_leadJet"]->Fill(jetMatchTag.c_str(),1.);
 
   //! leading jets efficiency plot
   if((FS_leadingJet->p4()).Et()>=m_hypoEt){
     if((PS_leadingJet->p4()).Et()>=m_hypoEt){     //FS and PS pass      | value=1
-      hMap2D["efficiency_leadJet"]->Fill((FS_leadingJet->p4()).Et(),1.);
+      m_hMap2D["efficiency_leadJet"]->Fill((FS_leadingJet->p4()).Et(),1.);
     }else{                          //FS pass and PS not  | value=0
-      hMap2D["efficiency_leadJet"]->Fill((FS_leadingJet->p4()).Et(),0.);
+      m_hMap2D["efficiency_leadJet"]->Fill((FS_leadingJet->p4()).Et(),0.);
       ATH_MSG_DEBUG("TEST::Failling hypo events " << m_event);
     }
   }else if((PS_leadingJet->p4()).Et()>=m_hypoEt){ //PS pass and FS not  | value=2
-    hMap2D["efficiency_leadJet"]->Fill((FS_leadingJet->p4()).Et(),-1.);
+    m_hMap2D["efficiency_leadJet"]->Fill((FS_leadingJet->p4()).Et(),-1.);
     ATH_MSG_DEBUG("TEST::Failling hypo events " << m_event);
   }
 
   double deltaEt = ((PS_leadingJet->p4()).Et()-(FS_leadingJet->p4()).Et())/(FS_leadingJet->p4()).Et();
-  hMapProf["deltaEtvsEta_leadJet"]->Fill(FS_leadingJet->eta(),deltaEt);
-  hMap1D["deltaR_leadJet"]->Fill(deltaR( (PS_leadingJet->eta()-FS_leadingJet->eta()) , (PS_leadingJet->phi()-FS_leadingJet->phi()) ));
+  m_hMapProf["deltaEtvsEta_leadJet"]->Fill(FS_leadingJet->eta(),deltaEt);
+  m_hMap1D["deltaR_leadJet"]->Fill(deltaR( (PS_leadingJet->eta()-FS_leadingJet->eta()) , (PS_leadingJet->phi()-FS_leadingJet->phi()) ));
 
   //! deltaRoI leading jet
-  hMap1D["PS_deltaRoI_leadJet"]->Fill(minDeltaRoI(PS_leadingJet->eta(), PS_leadingJet->phi()));
-  hMap1D["FS_deltaRoI_leadJet"]->Fill(minDeltaRoI(FS_leadingJet->eta(), FS_leadingJet->phi()));
+  m_hMap1D["PS_deltaRoI_leadJet"]->Fill(minDeltaRoI(PS_leadingJet->eta(), PS_leadingJet->phi()));
+  m_hMap1D["FS_deltaRoI_leadJet"]->Fill(minDeltaRoI(FS_leadingJet->eta(), FS_leadingJet->phi()));
 
 
 
@@ -561,8 +561,8 @@ void TrigHLTPSvsFSDiagnostics::jetsCheck(){
   |-----------------------**/
   //if(strContains(m_objType,"focalJets")){
   //! number of jets
-  hMap1D["PS_n_focalJets"]->Fill(PS_focalJets->size());
-  hMap1D["FS_n_focalJets"]->Fill(FS_focalJets->size());
+  m_hMap1D["PS_n_focalJets"]->Fill(PS_focalJets->size());
+  m_hMap1D["FS_n_focalJets"]->Fill(FS_focalJets->size());
 
   std::string PS_tag = "PS no lead jet";
   std::string FS_tag = "FS no lead jet";
@@ -583,15 +583,15 @@ void TrigHLTPSvsFSDiagnostics::jetsCheck(){
     fillHists("FS", "focalJets", FS_focalJets->at(i));
 
     double tmp_deltaR = deltaR( (PS_focalJets->at(i)->eta()-FS_focalJets->at(i)->eta()) , (PS_focalJets->at(i)->phi()-FS_focalJets->at(i)->phi()) );
-    hMap1D["tot_deltaR_focalJets"]->Fill(tmp_deltaR);
-    hMapProf["tot_deltaRvsCenter_focalJets"]->Fill(minDeltaRoI(FS_focalJets->at(i)->eta(), FS_focalJets->at(i)->phi()),tmp_deltaR);
+    m_hMap1D["tot_deltaR_focalJets"]->Fill(tmp_deltaR);
+    m_hMapProf["tot_deltaRvsCenter_focalJets"]->Fill(minDeltaRoI(FS_focalJets->at(i)->eta(), FS_focalJets->at(i)->phi()),tmp_deltaR);
 
     double deltaEt = ((PS_focalJets->at(i)->p4()).Et()-(FS_focalJets->at(i)->p4()).Et())/(FS_focalJets->at(i)->p4()).Et();
-    hMapProf["tot_deltaEtvsEt_focalJets"]->Fill((FS_focalJets->at(i)->p4()).Et(),deltaEt);
-    hMapProf["deltaEtvsEta_focal"]->Fill(FS_focalJets->at(i)->eta(),deltaEt);
+    m_hMapProf["tot_deltaEtvsEt_focalJets"]->Fill((FS_focalJets->at(i)->p4()).Et(),deltaEt);
+    m_hMapProf["deltaEtvsEta_focal"]->Fill(FS_focalJets->at(i)->eta(),deltaEt);
   }
-  hMap1D["focal_has_leadJet"]->Fill(PS_tag.c_str(),1);
-  hMap1D["focal_has_leadJet"]->Fill(FS_tag.c_str(),1);
+  m_hMap1D["focal_has_leadJet"]->Fill(PS_tag.c_str(),1);
+  m_hMap1D["focal_has_leadJet"]->Fill(FS_tag.c_str(),1);
   //}
 
   ATH_MSG_DEBUG("TEST:: Find error - 1 ");
@@ -599,8 +599,8 @@ void TrigHLTPSvsFSDiagnostics::jetsCheck(){
   |---  jet passing hypo  ---|
   |------------------------**/ 
   //! number of jets
-  hMap1D["PS_n_Jets_pass"]->Fill(m_PS_jetsPassingCont->size());
-  hMap1D["FS_n_Jets_pass"]->Fill(m_FS_jetsPassingCont->size());
+  m_hMap1D["PS_n_Jets_pass"]->Fill(m_PS_jetsPassingCont->size());
+  m_hMap1D["FS_n_Jets_pass"]->Fill(m_FS_jetsPassingCont->size());
 
   for(; PS_jetPassIter!=PS_jetPassIterEnd ; ++PS_jetPassIter){
     auto PS_Jet = *PS_jetPassIter;
@@ -608,16 +608,16 @@ void TrigHLTPSvsFSDiagnostics::jetsCheck(){
     //!Plot PS jets observables
     fillHists("PS", "Jets_pass", const_cast<xAOD::Jet_v1*>(PS_Jet));
 
-    /*hMap1D["tot_deltaR_Jets_pass"]->Fill(min_delta_R);
+    /*m_hMap1D["tot_deltaR_Jets_pass"]->Fill(min_delta_R);
 
-    hMapProf["tot_deltaEtavsEta_Jets_pass"]->Fill(FSmatchJet->eta(),fix_deltaEta);    
-    hMapProf["tot_deltaPhivsPhi_Jets_pass"]->Fill(FSmatchJet->phi(),fix_deltaPhi);   
-    hMapProf["tot_deltaEtvsEt_Jets_pass"]->Fill((FSmatchJet->p4()).Et(),deltaEt);
-    hMap1D["1D_tot_deltaEtvsEt_Jets_pass"]->Fill(deltaEt);
+    m_hMapProf["tot_deltaEtavsEta_Jets_pass"]->Fill(FSmatchJet->eta(),fix_deltaEta);    
+    m_hMapProf["tot_deltaPhivsPhi_Jets_pass"]->Fill(FSmatchJet->phi(),fix_deltaPhi);   
+    m_hMapProf["tot_deltaEtvsEt_Jets_pass"]->Fill((FSmatchJet->p4()).Et(),deltaEt);
+    m_hMap1D["1D_tot_deltaEtvsEt_Jets_pass"]->Fill(deltaEt);
 
     //!--- deltaR, deltaE to RoI center -------------------------
-    hMapProf["tot_deltaRvsCenter_Jets_pass"]->Fill(min_deltaRoI,fix_delta_R);
-    hMapProf["tot_deltaEtvsCenter_Jets_pass"]->Fill(min_deltaRoI,fabs_Et);*/
+    m_hMapProf["tot_deltaRvsCenter_Jets_pass"]->Fill(min_deltaRoI,fix_delta_R);
+    m_hMapProf["tot_deltaEtvsCenter_Jets_pass"]->Fill(min_deltaRoI,fabs_Et);*/
   }//end PS loop
 
   for(; FS_jetPassIter!=FS_jetPassIterEnd ; ++FS_jetPassIter){
@@ -631,8 +631,8 @@ void TrigHLTPSvsFSDiagnostics::jetsCheck(){
   |---  all jets          ---|
   |------------------------**/
   //! number of jets
-  hMap1D["PS_n_Jets"]->Fill(m_PS_j_container->size());
-  hMap1D["FS_n_Jets"]->Fill(m_FS_j_container->size());
+  m_hMap1D["PS_n_Jets"]->Fill(m_PS_j_container->size());
+  m_hMap1D["FS_n_Jets"]->Fill(m_FS_j_container->size());
 
   double tmpDelta_R = 0.;
   int PS=0;
@@ -670,7 +670,7 @@ void TrigHLTPSvsFSDiagnostics::jetsCheck(){
     fillHists("PS", "Jets", const_cast<xAOD::Jet_v1*>(PS_Jet));
 
     //! PS to FS deltaR profile plot
-    hMap1D["tot_deltaR_Jets"]->Fill(min_delta_R);
+    m_hMap1D["tot_deltaR_Jets"]->Fill(min_delta_R);
 
     //!Fix for TProfile show 0.000 entries
     double deltaEta     = (PS_Jet->eta()-FSmatchJet->eta())/FSmatchJet->eta();
@@ -680,28 +680,28 @@ void TrigHLTPSvsFSDiagnostics::jetsCheck(){
     double fix_deltaPhi = deltaPhi!=0?deltaPhi:0.0000000001;    
     //double fix_deltaE   = deltaE!=0?deltaE:0.0000000001;
 
-    hMapProf["tot_deltaEtavsEta_Jets"]->Fill(FSmatchJet->eta(),fix_deltaEta);    
-    hMapProf["tot_deltaPhivsPhi_Jets"]->Fill(FSmatchJet->phi(),fix_deltaPhi);   
-    hMapProf["tot_deltaEtvsEt_Jets"]->Fill((FSmatchJet->p4()).Et(),deltaEt);
-    hMap1D["1D_tot_deltaEtvsEt_Jets"]->Fill(deltaEt);
+    m_hMapProf["tot_deltaEtavsEta_Jets"]->Fill(FSmatchJet->eta(),fix_deltaEta);    
+    m_hMapProf["tot_deltaPhivsPhi_Jets"]->Fill(FSmatchJet->phi(),fix_deltaPhi);   
+    m_hMapProf["tot_deltaEtvsEt_Jets"]->Fill((FSmatchJet->p4()).Et(),deltaEt);
+    m_hMap1D["1D_tot_deltaEtvsEt_Jets"]->Fill(deltaEt);
 
     //!--- deltaR, deltaE to RoI center -------------------------
     double min_deltaRoI = minDeltaRoI(PS_Jet->eta(), PS_Jet->phi());
     double fabs_Et = fabs(((PS_Jet->p4()).Et()-(FSmatchJet->p4()).Et())/(FSmatchJet->p4()).Et());;
-    hMapProf["tot_deltaRvsCenter_Jets"]->Fill(min_deltaRoI,min_delta_R);
-    hMapProf["tot_deltaEtvsCenter_Jets"]->Fill(min_deltaRoI,fabs_Et);
+    m_hMapProf["tot_deltaRvsCenter_Jets"]->Fill(min_deltaRoI,min_delta_R);
+    m_hMapProf["tot_deltaEtvsCenter_Jets"]->Fill(min_deltaRoI,fabs_Et);
 
     //----------------------------------------------------------
 
     //! all jets passing hypo plot
     if((FSmatchJet->p4()).Et()>=m_hypoEt){
       if((PS_Jet->p4()).Et()>=m_hypoEt){     //FS and PS pass      | value=1
-        hMap2D["efficiency_allJets"]->Fill((FSmatchJet->p4()).Et(),1.);
+        m_hMap2D["efficiency_allJets"]->Fill((FSmatchJet->p4()).Et(),1.);
       }else{                          //FS pass and PS not  | value=0
-        hMap2D["efficiency_allJets"]->Fill((FSmatchJet->p4()).Et(),0.);
+        m_hMap2D["efficiency_allJets"]->Fill((FSmatchJet->p4()).Et(),0.);
       }
     }else if((PS_Jet->p4()).Et()>=m_hypoEt){ //PS pass and FS not  | value=2
-      hMap2D["efficiency_allJets"]->Fill((FSmatchJet->p4()).Et(),2.);
+      m_hMap2D["efficiency_allJets"]->Fill((FSmatchJet->p4()).Et(),2.);
     }
 
 
@@ -713,8 +713,8 @@ void TrigHLTPSvsFSDiagnostics::jetsCheck(){
   //! number of events accepted
   std::string PS_jetTag = m_PS_jetsPassingCont->size() > 0?"accepted":"rejected";
   std::string FS_jetTag = m_FS_jetsPassingCont->size() > 0?"accepted":"rejected";
-  hMap1D["PS_nEvt_accepted"]->Fill(PS_jetTag.c_str(),1);
-  hMap1D["FS_nEvt_accepted"]->Fill(FS_jetTag.c_str(),1);
+  m_hMap1D["PS_nEvt_accepted"]->Fill(PS_jetTag.c_str(),1);
+  m_hMap1D["FS_nEvt_accepted"]->Fill(FS_jetTag.c_str(),1);
   //std::printf("TEST::CLUST - PSvsFS - evt=%d - PScluster->size()=%d, PS=%d  FScluster->size()=%d FS=%d \n",m_event,PSclusterCont->size(),PS,FSclusterCont->size(),FS);  
   ATH_MSG_DEBUG("TEST:: Find error - 3 ");
 
@@ -814,15 +814,15 @@ double TrigHLTPSvsFSDiagnostics::minDeltaRoI(double eta, double phi){
 ---------------------------------------------------------**/
 void TrigHLTPSvsFSDiagnostics::fillHists(std::string scanType, std::string objType, xAOD::Jet_v1* jet){
   //!Plot jets observables
-  hMap1D[(scanType+"_E_"+objType).c_str()]->Fill(jet->e());
-  hMap1D[(scanType+"_Et_"+objType).c_str()]->Fill((jet->p4()).Et());
-  hMap1D[(scanType+"_Eta_"+objType).c_str()]->Fill(jet->eta());
-  hMap1D[(scanType+"_Phi_"+objType).c_str()]->Fill(jet->phi());
-  hMap2D[(scanType+"_EvsEt_"+objType).c_str()]->Fill((jet->p4()).Et(), jet->e());
+  m_hMap1D[(scanType+"_E_"+objType).c_str()]->Fill(jet->e());
+  m_hMap1D[(scanType+"_Et_"+objType).c_str()]->Fill((jet->p4()).Et());
+  m_hMap1D[(scanType+"_Eta_"+objType).c_str()]->Fill(jet->eta());
+  m_hMap1D[(scanType+"_Phi_"+objType).c_str()]->Fill(jet->phi());
+  m_hMap2D[(scanType+"_EvsEt_"+objType).c_str()]->Fill((jet->p4()).Et(), jet->e());
 
   //!Plot all jets for the first 15 events
   if(m_event<m_nEvToPlot){
-    hMap2D[histStr((scanType+"_2D_"+objType+"_")).c_str()]->Fill(jet->eta(),jet->phi(),(jet->p4()).Et());
+    m_hMap2D[histStr((scanType+"_2D_"+objType+"_")).c_str()]->Fill(jet->eta(),jet->phi(),(jet->p4()).Et());
   }
 }
 

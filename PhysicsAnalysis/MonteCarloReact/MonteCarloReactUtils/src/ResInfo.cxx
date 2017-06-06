@@ -317,20 +317,20 @@ int ResInfo::getResNFunc() const {
 // --------------- END of the META DATA  --------------
 
 std::string ResInfo::makeFileName() const {
-  std::string _filename;
+  std::string filename;
   std::vector< std::string > axes = getResVarNames();
   int dim = axes.size();
   
-  _filename = getDataType() + "_" + getResName() + "_" + getObjType() ;
-  if (getObjQuality()!="UNDEFINED") _filename += "_" + getObjQuality() ;
-  _filename += "_" + convertToString(dim) + "D";
-  for( int i = 0; i < dim; ++i) _filename += "_" + axes[i];
-  _filename += "_" + getResType() + ".mcr" ;
-  if(!_filename.empty())
-    return _filename;
+  filename = getDataType() + "_" + getResName() + "_" + getObjType() ;
+  if (getObjQuality()!="UNDEFINED") filename += "_" + getObjQuality() ;
+  filename += "_" + convertToString(dim) + "D";
+  for( int i = 0; i < dim; ++i) filename += "_" + axes[i];
+  filename += "_" + getResType() + ".mcr" ;
+  if(!filename.empty())
+    return filename;
   else {
-    _filename = "NOFILENAME";
-    return _filename;  
+    filename = "NOFILENAME";
+    return filename;  
   }
 }
 

@@ -19,7 +19,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTrigL1Calo
    GaudiKernel
    LArCalorimeter/LArRawEvent
-   LArCalorimeter/LArTools
+   LArCalorimeter/LArCabling
    TileCalorimeter/TileConditions
    TileCalorimeter/TileEvent
    Trigger/TrigConfiguration/TrigConfInterfaces
@@ -31,13 +31,13 @@ atlas_depends_on_subdirs(
    Trigger/TrigT1/TrigT1CaloToolInterfaces
    Trigger/TrigT1/TrigT1CaloUtils
    Trigger/TrigT1/TrigT1Interfaces
+   Trigger/TrigT1/TrigT1CaloByteStream
    PRIVATE
    Control/AthenaKernel
    Control/CxxUtils
    Event/EventInfo
    Event/xAOD/xAODEventInfo
    LumiBlock/LumiBlockComps
-   Simulation/Tools/AtlasCLHEP_RandomGenerators
    Tools/PathResolver
    Trigger/TrigT1/TrigT1CaloCondSvc )
 
@@ -52,12 +52,12 @@ atlas_add_library( TrigT1CaloSimLib
    DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier CaloTTDetDescr
    AthenaBaseComps AthContainers xAODTrigL1Calo GaudiKernel LArRawEvent
-   TileEvent TrigConfL1Data TrigT1CaloCalibConditions
+   TileEvent TrigConfL1Data TrigT1CaloCalibConditions 
    TrigT1CaloCalibToolInterfaces TrigT1CaloToolInterfaces TrigT1Interfaces
-   CaloDetDescrLib PileUpToolsLib StoreGateLib SGtests LArToolsLib
+   CaloDetDescrLib PileUpToolsLib StoreGateLib SGtests LArCablingLib
    TileConditionsLib TrigT1CaloEventLib TrigT1CaloUtilsLib LumiBlockCompsLib
    PRIVATE_LINK_LIBRARIES AthenaKernel CxxUtils EventInfo xAODEventInfo
-   AtlasCLHEP_RandomGenerators PathResolver TrigT1CaloCondSvcLib )
+   PathResolver TrigT1CaloCondSvcLib )
 
 atlas_add_component( TrigT1CaloSim
    src/components/*.cxx

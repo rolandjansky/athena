@@ -12,6 +12,7 @@
 #include <map>
 #include <set>
 #include <iosfwd>
+#include <mutex>
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/Service.h"
@@ -22,7 +23,6 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/ILoggedMessageSvc.h"
 
-#include <boost/thread/recursive_mutex.hpp>
 #include <boost/array.hpp>
 
 // Forward declarations
@@ -105,7 +105,7 @@ public:
 
   // Implementation of IMessageSvc::setDefaultStream()
   virtual void setDefaultStream( std::ostream* stream ) {
-    boost::recursive_mutex::scoped_lock lock(m_reportMutex);
+    std::lock_guard<std::mutex> lock(m_reportMutex);
     m_defaultStream = stream;
   }
 
@@ -201,14 +201,14 @@ private:
 	    const std::set<std::string>& declaredOutFileNames );
 
   /// Mutex to synchronize multiple threads printing.
-  mutable boost::recursive_mutex m_reportMutex;
+  mutable std::mutex m_reportMutex;
 
   /// Mutex to synchronize multiple access to m_messageMap.
-  mutable boost::recursive_mutex m_messageMapMutex;
+  mutable std::recursive_mutex m_messageMapMutex;
 
   /// Mutex to synchronize multiple access to m_thresholdMap
   /// (@see MsgStream::doOutput).
-  mutable boost::recursive_mutex m_thresholdMapMutex;
+  mutable std::mutex m_thresholdMapMutex;
 
   std::vector< std::pair<std::string, std::string> > m_msgLog[ MSG::NUM_LEVELS ];
   std::vector< LoggedMessage > m_msgKeyLog;

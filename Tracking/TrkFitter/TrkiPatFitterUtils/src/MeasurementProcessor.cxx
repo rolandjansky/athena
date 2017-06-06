@@ -28,7 +28,7 @@ namespace Trk{
 
 // constructor
 MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
-					    Amg::MatrixX&			derivativeMatrix,
+					    Amg::MatrixX&			/*derivativeMatrix*/,
 					    ToolHandle<IIntersector>&		intersector,
 					    std::list<FitMeasurement*>&		measurements,
 					    FitParameters*			parameters,
@@ -39,7 +39,6 @@ MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
 	m_caloEnergyMeasurement		(0),
 	m_cosPhi0			(parameters->cosPhi()),
 	m_cosTheta0			(parameters->cosTheta()),
-	m_derivativeMatrix		(derivativeMatrix),
 	m_derivQOverP0			(0.),
 	m_derivQOverP1			(0.),
 	m_energyResidual		(0.),

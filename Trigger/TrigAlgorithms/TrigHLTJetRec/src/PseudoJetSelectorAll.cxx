@@ -6,6 +6,8 @@
 #include "GaudiKernel/ToolFactory.h"
 #include "TrigHLTJetRec/PseudoJetSelectorAll.h"
 
+using jet::PseudoJetVector;
+
 PseudoJetSelectorAll::PseudoJetSelectorAll(const std::string& s,
                                            const std::string& name,
                                            const IInterface* i):

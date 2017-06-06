@@ -25,7 +25,11 @@
 #include <sstream>
 
 
-class MyObj {};
+class MyObj
+{
+public:
+  typedef std::true_type thread_safe;
+};
 CLASS_DEF (MyObj, 293847295, 1)
 
 namespace

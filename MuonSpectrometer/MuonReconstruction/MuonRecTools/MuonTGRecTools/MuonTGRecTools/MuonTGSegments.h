@@ -9,7 +9,7 @@
 #ifndef MUONTGMEASASSOCALG_MUONTGSEGMENTS_H
 #define MUONTGMEASASSOCALG_MUONTGSEGMENTS_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/DetachedTrackingVolume.h"
 #include "TrkSegment/Segment.h"

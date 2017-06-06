@@ -102,7 +102,6 @@ private:
   // -- algorithm members
   StoreGateSvc                    *m_StoreGate;         
   ActiveStoreSvc*                  m_activeStore;
-  const Trk::IExtrapolator        *m_extrapolator;
   mutable MuonTGHits*              m_hits; 
   mutable MuonTGSegments*          m_segments;
 

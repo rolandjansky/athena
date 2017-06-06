@@ -12,7 +12,7 @@
 
 // STL includes
 
-// FrameWork includes
+// Framework includes
 
 // AthenaBaseComps includes
 #include "AthenaBaseComps/AthService.h"

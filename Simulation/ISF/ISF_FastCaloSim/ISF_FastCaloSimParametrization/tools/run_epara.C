@@ -55,11 +55,11 @@ void run_epara()
  secondPCA* mysecondPCA=new secondPCA(pca1_outfilename,pca2_outfilename);
  mysecondPCA->set_PCAbin(0);
  mysecondPCA->set_storeDetails(0);
- mysecondPCA->set_cumulativehistobins(5000);
+ mysecondPCA->set_cumulativehistobins(1000);
  mysecondPCA->set_cut_maxdeviation_regression(5);
  mysecondPCA->set_cut_maxdeviation_smartrebin(5);
- mysecondPCA->set_Ntoys(1000);
- mysecondPCA->set_neurons_iteration(2,6);
+ mysecondPCA->set_Ntoys(5000);
+ mysecondPCA->set_neurons_iteration(2,16); //2,6
  mysecondPCA->set_skip_regression(0);
  mysecondPCA->run();
  

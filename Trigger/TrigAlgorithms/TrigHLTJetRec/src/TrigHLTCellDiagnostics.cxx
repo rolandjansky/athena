@@ -34,17 +34,17 @@ TrigHLTCellDiagnostics::~TrigHLTCellDiagnostics() { }
 HLT::ErrorCode TrigHLTCellDiagnostics::hltInitialize() {
   ATH_MSG_INFO("Initializing " << name() << "..."); 
   // Add histograms to map
-  addHist(hMap1D,"nCells",   200,   0.0,  200000.0);	 
-  addHist(hMap1D,"Eta",      100,  -5.0,  5.0);	
-  addHist(hMap1D,"Phi",       64,  -3.2,  3.2);	
-  addHist(hMap1D,"Rapidity", 100,  -5.0,  5.0);	
-  addHist(hMap1D,"Energy",   100,  -200.0,   200.0);	 
-  addHist(hMap1D,"Pt",       100,  -200.0,   200.0);	 
-  addHist(hMap1D,"Px",       100,  -200.0,   200.0);	 
-  addHist(hMap1D,"Py",       100,  -200.0,   200.0);	 
-  addHist(hMap1D,"Pz",       100,  -200.0,   200.0);	
-  addHist(hMap2D,"Eta_vs_Phi",    64,  -3.2,  3.2,  100,  -5.0,  5.0);
-  addHist(hMap2D,"Energy_vs_Pt",  100,  -200.0,  500.0,  100,  -500.0,  200.0);	  
+  addHist(m_hMap1D,"nCells",   200,   0.0,  200000.0);	 
+  addHist(m_hMap1D,"Eta",      100,  -5.0,  5.0);	
+  addHist(m_hMap1D,"Phi",       64,  -3.2,  3.2);	
+  addHist(m_hMap1D,"Rapidity", 100,  -5.0,  5.0);	
+  addHist(m_hMap1D,"Energy",   100,  -200.0,   200.0);	 
+  addHist(m_hMap1D,"Pt",       100,  -200.0,   200.0);	 
+  addHist(m_hMap1D,"Px",       100,  -200.0,   200.0);	 
+  addHist(m_hMap1D,"Py",       100,  -200.0,   200.0);	 
+  addHist(m_hMap1D,"Pz",       100,  -200.0,   200.0);	
+  addHist(m_hMap2D,"Eta_vs_Phi",    64,  -3.2,  3.2,  100,  -5.0,  5.0);
+  addHist(m_hMap2D,"Energy_vs_Pt",  100,  -200.0,  500.0,  100,  -500.0,  200.0);	  
   return HLT::OK; 
 }
 
@@ -58,17 +58,17 @@ HLT::ErrorCode TrigHLTCellDiagnostics::hltFinalize(){
   TDirectory* dir = fOut->mkdir(directory.c_str());
   dir->cd(); 
   // Save histograms and close file 
-  for (auto hist : hMap1D) {
+  for (auto hist : m_hMap1D) {
     hist.second->Write();
   }
-  for (auto hist : hMap2D) {
+  for (auto hist : m_hMap2D) {
     hist.second->Write();
   }
   fOut->Write();
   fOut->Close();
   // Clear histogram maps
-  hMap2D.clear();
-  hMap1D.clear();
+  m_hMap2D.clear();
+  m_hMap1D.clear();
   return HLT::OK;
 }
 
@@ -110,7 +110,7 @@ HLT::ErrorCode TrigHLTCellDiagnostics::hltExecute(const HLT::TriggerElement* inp
   }
 
   ATH_MSG_DEBUG("No of cells in the container: " << cellContainer->size());
-  hMap1D["nCells"]->Fill(cellContainer->size());
+  m_hMap1D["nCells"]->Fill(cellContainer->size());
 
   for (const auto &cell : *cellContainer) {
     // Get cell attributes
@@ -124,32 +124,32 @@ HLT::ErrorCode TrigHLTCellDiagnostics::hltExecute(const HLT::TriggerElement* inp
     double pz = cell->pz();
 
     // Fill histograms
-    hMap1D["Energy"]->Fill(energy);
-    hMap1D["Eta"]->Fill(eta);
-    hMap1D["Phi"]->Fill(phi);
-    hMap1D["Rapidity"]->Fill(rapidity);
-    hMap1D["Pt"]->Fill(pt);
-    hMap1D["Px"]->Fill(px);
-    hMap1D["Py"]->Fill(py);
-    hMap1D["Pz"]->Fill(pz);
-    hMap2D["Eta_vs_Phi"]->Fill(phi, eta);
-    hMap2D["Energy_vs_Pt"]->Fill(pt, energy);
+    m_hMap1D["Energy"]->Fill(energy);
+    m_hMap1D["Eta"]->Fill(eta);
+    m_hMap1D["Phi"]->Fill(phi);
+    m_hMap1D["Rapidity"]->Fill(rapidity);
+    m_hMap1D["Pt"]->Fill(pt);
+    m_hMap1D["Px"]->Fill(px);
+    m_hMap1D["Py"]->Fill(py);
+    m_hMap1D["Pz"]->Fill(pz);
+    m_hMap2D["Eta_vs_Phi"]->Fill(phi, eta);
+    m_hMap2D["Energy_vs_Pt"]->Fill(pt, energy);
   }
 
   // Set axis labels
-  hMap1D["nCells"]->GetXaxis()->SetTitle("nCells");
-  hMap1D["Energy"]->GetXaxis()->SetTitle("E [MeV]");
-  hMap1D["Eta"]->GetXaxis()->SetTitle("Eta");
-  hMap1D["Phi"]->GetXaxis()->SetTitle("Phi");
-  hMap1D["Rapidity"]->GetXaxis()->SetTitle("y");
-  hMap1D["Pt"]->GetXaxis()->SetTitle("Pt [MeV]");
-  hMap1D["Px"]->GetXaxis()->SetTitle("Px [MeV]");
-  hMap1D["Py"]->GetXaxis()->SetTitle("Py [MeV]");
-  hMap1D["Pz"]->GetXaxis()->SetTitle("Pz [MeV]");
-  hMap2D["Eta_vs_Phi"]->GetYaxis()->SetTitle("Eta");
-  hMap2D["Eta_vs_Phi"]->GetXaxis()->SetTitle("Phi");
-  hMap2D["Energy_vs_Pt"]->GetYaxis()->SetTitle("E [Mev]");
-  hMap2D["Energy_vs_Pt"]->GetXaxis()->SetTitle("Pt [Mev]");
+  m_hMap1D["nCells"]->GetXaxis()->SetTitle("nCells");
+  m_hMap1D["Energy"]->GetXaxis()->SetTitle("E [MeV]");
+  m_hMap1D["Eta"]->GetXaxis()->SetTitle("Eta");
+  m_hMap1D["Phi"]->GetXaxis()->SetTitle("Phi");
+  m_hMap1D["Rapidity"]->GetXaxis()->SetTitle("y");
+  m_hMap1D["Pt"]->GetXaxis()->SetTitle("Pt [MeV]");
+  m_hMap1D["Px"]->GetXaxis()->SetTitle("Px [MeV]");
+  m_hMap1D["Py"]->GetXaxis()->SetTitle("Py [MeV]");
+  m_hMap1D["Pz"]->GetXaxis()->SetTitle("Pz [MeV]");
+  m_hMap2D["Eta_vs_Phi"]->GetYaxis()->SetTitle("Eta");
+  m_hMap2D["Eta_vs_Phi"]->GetXaxis()->SetTitle("Phi");
+  m_hMap2D["Energy_vs_Pt"]->GetYaxis()->SetTitle("E [Mev]");
+  m_hMap2D["Energy_vs_Pt"]->GetXaxis()->SetTitle("Pt [Mev]");
 
   return HLT::OK;
 }

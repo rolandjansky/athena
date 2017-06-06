@@ -1,7 +1,6 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
 #include "IOVSvc/CondSvc.h"
 #include "AthenaKernel/CondCont.h"
 #include "GaudiKernel/EventIDBase.h"
@@ -60,7 +59,7 @@ CondSvc::dump() const {
 void
 CondSvc::dump(std::ostringstream& ost) const {
 
-  std::lock_guard<std::recursive_mutex> lock(m_lock);
+  std::lock_guard<std::mutex> lock(m_lock);
 
   ost << "CondSvc::dump()";
 
@@ -118,7 +117,7 @@ StatusCode
 CondSvc::regHandle(IAlgorithm* alg, const Gaudi::DataHandle& dh, 
                    const std::string& key) {
 
-  std::lock_guard<std::recursive_mutex> lock(m_lock);
+  std::lock_guard<std::mutex> lock(m_lock);
 
   ATH_MSG_DEBUG( "regHandle: alg: " << alg->name() << "  id: " << dh.fullKey()
                  << "  dBkey: " << key );
@@ -170,7 +169,7 @@ CondSvc::regHandle(IAlgorithm* alg, const Gaudi::DataHandle& dh,
 
 bool
 CondSvc::getInvalidIDs(const EventContext& ctx, DataObjIDColl& invalidIDs) {
-  std::lock_guard<std::recursive_mutex> lock(m_lock);
+  std::lock_guard<std::mutex> lock(m_lock);
 
   EventIDBase now(ctx.eventID().run_number(), ctx.eventID().event_number());
 
@@ -207,7 +206,7 @@ CondSvc::getInvalidIDs(const EventContext& ctx, DataObjIDColl& invalidIDs) {
 bool
 CondSvc::getIDValidity(const EventContext& ctx, DataObjIDColl& validIDs,
                        DataObjIDColl& invalidIDs) {
-  std::lock_guard<std::recursive_mutex> lock(m_lock);
+  std::lock_guard<std::mutex> lock(m_lock);
 
   EventIDBase now(ctx.eventID());
 
@@ -246,7 +245,7 @@ CondSvc::getIDValidity(const EventContext& ctx, DataObjIDColl& validIDs,
 
 bool
 CondSvc::getValidIDs(const EventContext& ctx, DataObjIDColl& validIDs) {
-  std::lock_guard<std::recursive_mutex> lock(m_lock);
+  std::lock_guard<std::mutex> lock(m_lock);
 
   EventIDBase now(ctx.eventID());
 
@@ -282,7 +281,7 @@ CondSvc::getValidIDs(const EventContext& ctx, DataObjIDColl& validIDs) {
 
 bool
 CondSvc::isValidID(const EventContext& ctx, const DataObjID& id) const {
-  std::lock_guard<std::recursive_mutex> lock(m_lock);
+  std::lock_guard<std::mutex> lock(m_lock);
 
   EventIDBase now(ctx.eventID());
 

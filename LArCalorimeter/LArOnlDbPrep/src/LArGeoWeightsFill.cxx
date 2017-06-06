@@ -6,7 +6,7 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "StoreGate/StoreGate.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include <fstream>

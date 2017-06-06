@@ -940,6 +940,7 @@ double TRT_ToT_dEdx::usedHits(const Trk::Track* track, EGasType& gasType, bool d
 {
   ATH_MSG_DEBUG("usedHits()");
   ShowDEDXSetup();  
+  gasType = kUnset;
 
   if (!track) {
     return 0;

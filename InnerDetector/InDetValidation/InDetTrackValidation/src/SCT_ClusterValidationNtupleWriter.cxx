@@ -27,17 +27,15 @@
 
 #include "TrkSpacePoint/SpacePoint.h"
 #include "TrkSpacePoint/SpacePointCollection.h"
-#include "TrkSpacePoint/SpacePointContainer.h"
 
 #include "TrkTrack/Track.h"
-#include "TrkTrack/TrackCollection.h"
 #include "DataModel/DataVector.h"
-
-#include "xAODEventInfo/EventInfo.h"
 
 #include "InDetPrepRawData/SCT_Cluster.h"
 
  #include "EventPrimitives/EventPrimitivesHelpers.h"
+
+#include "StoreGate/ReadHandle.h"
 
 //using HepGeom::Point3D;
 using CLHEP::GeV;
@@ -45,12 +43,13 @@ using CLHEP::GeV;
 InDet::SCT_ClusterValidationNtupleWriter::SCT_ClusterValidationNtupleWriter(const std::string& name, ISvcLocator* pSvcLocator):
         AthAlgorithm(name,pSvcLocator),
         m_riocontainer(0),
+	m_eventInfoKey(std::string("EventInfo")),
         //m_inputTrackCollection("Tracks")
         //        m_fullNtupleName("/NTUPLES/FILE1/FitterValidation/TrackStatistics"),
-        m_jo_riocontainername("SCT_Clusters"),
-        m_dataObjectName("SCT_RDOs"),
-	m_spacePointContainerName("SCT_SpacePoints"),
-	m_inputTrackCollection("CombinedInDetTracks"),
+        m_jo_riocontainername(std::string("SCT_Clusters")),
+        m_dataObjectName(std::string("SCT_RDOs")),
+	m_spacePointContainerName(std::string("SCT_SpacePoints")),
+	m_inputTrackCollection(std::string("CombinedInDetTracks")),
         m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc",name),
         m_cabling("SCT_CablingSvc",name),
         m_ntupleFileName("/NTUPLES/FILE1"), 
@@ -274,6 +273,13 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::initialize() {
       m_nt->Branch("SCTErr_Type",                   &m_scterr_type);
     }
 
+    // Read Handle Key
+    ATH_CHECK( m_eventInfoKey.initialize() );
+    ATH_CHECK( m_jo_riocontainername.initialize(m_fillCluster) );
+    ATH_CHECK( m_dataObjectName.initialize(m_fillRDO) );
+    ATH_CHECK( m_spacePointContainerName.initialize(m_fillSpacePoint) );
+    ATH_CHECK( m_inputTrackCollection.initialize(m_fillRDO and m_doHitsOnTracks) );
+
     return sc;
 }
 
@@ -283,9 +289,8 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
 
     //-------------
     // get some event properties    
-    const xAOD::EventInfo* eventInfo;
-    sc = evtStore()->retrieve(eventInfo);
-    if (sc.isFailure()) {
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+    if (not eventInfo.isValid()) {
         ATH_MSG_ERROR( "Could not retrieve event info" );
     }
     m_runNumber     = eventInfo->runNumber(); 
@@ -347,13 +352,16 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
     // Container with SCT RIOs
     m_riocontainer = 0;
     if ( m_fillCluster) {
-      if(!evtStore()->contains<SCT_ClusterContainer>(m_jo_riocontainername)){
+      if(!evtStore()->contains<SCT_ClusterContainer>(m_jo_riocontainername.key())){
 	ATH_MSG_DEBUG("No PrepRawDataContainer in StoreGate");
       }
       else {
-	sc = evtStore()->retrieve(m_riocontainer, m_jo_riocontainername);
-	if(sc.isFailure()) {
+	SG::ReadHandle<SCT_ClusterContainer> h_riocontainer(m_jo_riocontainername);
+	if(not h_riocontainer.isValid()) {
 	  ATH_MSG_DEBUG("Could not get PrepRawDataContainer");
+	} 
+	else {
+	  m_riocontainer = &*h_riocontainer;
 	}
       }
     }
@@ -361,13 +369,16 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
     // SpacePoint container
     const SpacePointContainer* p_spContainer = 0;
     if (m_fillSpacePoint) {
-      if(!evtStore()->contains<SpacePointContainer>(m_spacePointContainerName)){
+      if(!evtStore()->contains<SpacePointContainer>(m_spacePointContainerName.key())){
 	ATH_MSG_DEBUG("No SCT space-point container in StoreGate");
       }
       else {
-	sc = evtStore()->retrieve(p_spContainer,m_spacePointContainerName);
-	if(sc.isFailure()) {
+	SG::ReadHandle<SpacePointContainer> h_spContainer(m_spacePointContainerName);
+	if(not h_spContainer.isValid()) {
 	  ATH_MSG_DEBUG("Could not get SpacePointContainer");
+	}
+	else {
+	  p_spContainer = &*h_spContainer;
 	}
       }
     }
@@ -377,20 +388,22 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
     const SCT_RDO_Container* p_rdocontainer = 0;
     std::vector<Identifier> RDOsOnTracks;
     if(m_fillRDO) {
-      if(!evtStore()->contains<SCT_RDO_Container>(m_dataObjectName)){
+      if(!evtStore()->contains<SCT_RDO_Container>(m_dataObjectName.key())){
 	ATH_MSG_DEBUG("No SCT RDO container in StoreGate");
       }
       else {
-	sc =  evtStore()->retrieve(p_rdocontainer,m_dataObjectName);
-	if(sc.isFailure()) {
+	SG::ReadHandle<SCT_RDO_Container> h_rdocontainer(m_dataObjectName);
+	if(not h_rdocontainer.isValid()) {
 	  ATH_MSG_DEBUG( "Failed to retrieve SCT RDO container" );
+	}
+	else {
+	  p_rdocontainer = &*h_rdocontainer;
 	}
       }
       if (m_doHitsOnTracks) {
 	//Track container
-	const DataVector<Trk::Track>* tracks;
-	sc = evtStore()->retrieve(tracks,m_inputTrackCollection);
-	if (sc.isFailure() ) {
+	SG::ReadHandle<TrackCollection> tracks(m_inputTrackCollection);
+	if (not tracks.isValid() ) {
 	  ATH_MSG_ERROR("Track container not found");
 	}  else {
 	  // assemble list of RDOs on Tracks	  

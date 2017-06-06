@@ -69,6 +69,10 @@ AthSequencer::AthSequencer( const std::string& name,
   declareProperty( "StopOverride", m_stopOverride=false,
                    "Stop on filter failure Override flag" );
   
+
+  declareProperty( "Sequential", m_sequential=false,
+                   "Concurrent or strict Sequential ordering of Algs in Sequence");
+
   declareProperty( "TimeOut",      m_timeout=0,
                    "Abort job after one algorithm or sequence reaches the time out. Timeout given in Nanoseconds (official ATLAS units), despite its millisecond resolution" );
   
@@ -84,6 +88,13 @@ AthSequencer::AthSequencer( const std::string& name,
  **/
 AthSequencer::~AthSequencer()
 {}
+
+/// Mark as a sequencer.
+bool AthSequencer::isSequence() const
+{
+  return true;
+}
+
 
 StatusCode
 AthSequencer::initialize()
@@ -249,7 +260,7 @@ StatusCode AthSequencer::executeAlgorithm (Algorithm* theAlgorithm,
 StatusCode
 AthSequencer::finalize()
 {
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
+  ATH_MSG_DEBUG ("Finalizing " << name() << "...");
   return StatusCode::SUCCESS;
 }
 
@@ -558,7 +569,7 @@ AthSequencer::decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
   }
   // Print membership list
   if ( result.isSuccess() && !theAlgs->empty() ) {
-    msg(MSG::INFO) << "Member list: ";
+    msg(MSG::DEBUG) << "Member list: ";
     bool first = true;
     for (Algorithm* alg : *theAlgs) {
       if (first)
@@ -570,7 +581,7 @@ AthSequencer::decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
       else
         msg() << System::typeinfoName(typeid(*alg)) << "/" << alg->name();
     }
-    msg(MSG::INFO) << endmsg;
+    msg(MSG::DEBUG) << endmsg;
   }
   theAlgMgr->release();
   return result;

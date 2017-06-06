@@ -3,10 +3,12 @@
 */
 
 #include "PixelRawDataProvider.h"
+#include <memory>
 
 #include "PixelRawDataByteStreamCnv/IPixelRawDataProviderTool.h"
 #include "InDetIdentifier/PixelID.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "IRegionSelector/IRegSelSvc.h" 
 #include "PixelCabling/IPixelCablingSvc.h"
   
 
@@ -16,12 +18,17 @@
 PixelRawDataProvider::PixelRawDataProvider(const std::string& name,
 				       ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
+  m_regionSelector  ("RegSelSvc", name), 
   m_pixelCabling    ("PixelCablingSvc",name),
   m_robDataProvider ("ROBDataProviderSvc",name),
   m_rawDataTool     ("PixelRawDataProviderTool"),
-  m_pixel_id        (NULL),
+  m_pixel_id        (nullptr),
+  m_roiSeeded(false),
+  m_roiCollectionKey(""),
   m_rdoContainerKey("")
 {
+  declareProperty("RoIs", m_roiCollectionKey = std::string(""), "RoIs to read in");
+  declareProperty("isRoI_Seeded", m_roiSeeded = false, "Use RoI");
   declareProperty("RDOKey", m_rdoContainerKey = std::string("PixelRDOs"));
   declareProperty ("ROBDataProvider", m_robDataProvider);
   declareProperty ("ProviderTool", m_rawDataTool);
@@ -66,6 +73,14 @@ StatusCode PixelRawDataProvider::initialize() {
     msg(MSG::INFO) << "Retrieved tool " << m_pixelCabling << endmsg;
 
   ATH_CHECK( m_rdoContainerKey.initialize() );
+
+  if (m_roiSeeded) {
+    ATH_CHECK( m_roiCollectionKey.initialize() );
+    ATH_CHECK(m_regionSelector.retrieve());
+  }
+  else {//Only need pixel cabling if not using RoIs
+    ATH_CHECK(m_pixelCabling.retrieve());
+  }
  
   return StatusCode::SUCCESS;
 }
@@ -83,14 +98,35 @@ StatusCode PixelRawDataProvider::execute() {
 
   // write into StoreGate
   SG::WriteHandle<PixelRDO_Container> rdoContainer(m_rdoContainerKey);
-  rdoContainer = CxxUtils::make_unique<PixelRDO_Container>(m_pixel_id->wafer_hash_max()); 
+  rdoContainer = std::make_unique<PixelRDO_Container>(m_pixel_id->wafer_hash_max()); 
   ATH_CHECK(rdoContainer.isValid());
 
   // Print ROB map in m_robDataProvider
   //m_robDataProvider->print_robmap();
 
   // ask ROBDataProviderSvc for the vector of ROBFragment for all Pixel ROBIDs
-  std::vector<uint32_t> listOfRobs = m_pixelCabling->getAllRobs();  // need ROB id (not ROD)
+  std::vector<uint32_t> listOfRobs; 
+
+
+  if (!m_roiSeeded) {
+    listOfRobs = m_pixelCabling->getAllRobs();  // need ROB id (not ROD)
+  }
+  else {//Enter RoI-seeded mode
+      SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey);
+      ATH_CHECK(roiCollection.isValid());
+
+      TrigRoiDescriptorCollection::const_iterator roi = roiCollection->begin();
+      TrigRoiDescriptorCollection::const_iterator roiE = roiCollection->end();
+      TrigRoiDescriptor superRoI;//add all RoIs to a super-RoI
+      superRoI.setComposite(true);
+      superRoI.manageConstituents(false);
+      for (; roi!=roiE; ++roi) {
+        superRoI.push_back(*roi);
+      }
+      m_regionSelector->DetROBIDListUint( PIXEL, 
+					  superRoI,
+					  listOfRobs);
+  }
   std::vector<const ROBFragment*> listOfRobf;
   m_robDataProvider->getROBData( listOfRobs, listOfRobf);
 

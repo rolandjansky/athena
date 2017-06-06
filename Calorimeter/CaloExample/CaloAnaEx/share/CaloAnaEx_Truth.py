@@ -39,7 +39,7 @@ class CaloAnaEx_Truth:
 
     def initHTML(self):
         f=open("Truth.html","w")
-        f.write("<html><head><title>Truth</title><link rel=\"StyleSheet\" href=\"rtt.css\" type=\"text/css\" /><meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"><meta http-equiv=\"Content-Language\" content=\"en\"></head>")
+        f.write("<html><head><title>Truth</title><link rel=\"StyleSheet\" href=\"CaloAnaEx.ss\" type=\"text/css\" /><meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"><meta http-equiv=\"Content-Language\" content=\"en\"></head>")
         f.write("<body>")
         f.close()
 

@@ -70,6 +70,8 @@ StatusCode PixelMainMon::BookTrackMon(void)
    std::string hname;
    std::string htitles;
 
+   StatusCode sc;
+
    sc=trackHistos.regHist(m_track_res_phi  = TH1F_LW::create("Track_res_phi",  ("Pixel Residual LocX(phi)" + m_histTitleExt).c_str(),100,-0.1,0.1));
    sc=trackHistos.regHist(m_track_res_eta  = TH1F_LW::create("Track_res_eta",  ("Pixel Residual LocY(eta)" + m_histTitleExt).c_str(),100,-0.3,0.3));
    sc=trackHistos.regHist(m_track_pull_phi = TH1F_LW::create("Track_pull_phi", ("Pixel pull LocX(phi)"     + m_histTitleExt).c_str(),100,-1.2,1.2));      
@@ -218,7 +220,8 @@ StatusCode PixelMainMon::FillTrackMon(void)
    {
       const Trk::Track *track0=(*m_tracks)[i];
       if (track0 == 0) {
-         if (msgLvl(MSG::ERROR) ) msg(MSG::ERROR) << "no pointer to track!!!" << endmsg; break;
+         if (msgLvl(MSG::ERROR) ) msg(MSG::ERROR) << "no pointer to track!!!" << endmsg;
+         break;
       }
 
 
@@ -242,7 +245,8 @@ StatusCode PixelMainMon::FillTrackMon(void)
       if(summary){
       	if (summary->get(Trk::numberOfPixelHits)==0) continue;
       } else {
-      	if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "No Track Summary Found" << endmsg; continue;
+      	if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "No Track Summary Found" << endmsg;
+        continue;
       }
 
       const Trk::Track* track = track0;

@@ -5,6 +5,7 @@
 #include "Csc2dSegmentMaker.h"
 #include "CscSegmentMakers/ICscSegmentUtilTool.h"
 #include <sstream>
+#include <cmath>
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
@@ -74,7 +75,7 @@ std::string chamber(int istation, int zsec, int phi) {
 Csc2dSegmentMaker::
 Csc2dSegmentMaker(const std::string& type, const std::string& aname, const IInterface* parent)
   : AthAlgTool(type, aname, parent),
-    m_dumpcount(0), m_dumped(0), m_dump(false), m_pgm(0), m_phelper(0),
+    m_pgm(0), m_phelper(0),
     m_segmentTool("CscSegmentUtilTool/CscSegmentUtilTool"),
     m_cscClusterOnTrackCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
@@ -174,6 +175,8 @@ MuonSegmentCombinationCollection* Csc2dSegmentMaker::find( const std::vector<con
       ATH_MSG_DEBUG("Found 2d CSC segment " << m_printer->print( *pcol ));
     }
   }
+
+  if(mpsegs) ATH_MSG_DEBUG("found "<<mpsegs->size()<<" 2d csc segments");
       
   return mpsegs;
 }
@@ -208,9 +211,13 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
   std::string redName=stationName.substr(0,3); //CSS or CSL, all that the CscIdHelper wants
   std::string isPhi;
   ATH_MSG_DEBUG("in station "<<stationName<<" eta "<<stationEta<<", phi "<<stationPhi<<", chamber layer "<<chamberLayer);
-  int badLay1=-1,badLay2=-1;
+  //new method: we no longer assume automatically that eta and phi go together
+  //this is the usual reason for problems due to broken wires, but it need not always be the case
+  //instead, pass the status of every layer to the CscSegmentUtilTool
+  //if there are only 2 layers for eta or phi, do 2-layer segment finding for eta or phi
+  //if there are fewer than two good layers for eta or phi, so no eta or phi segment can be made, the final segment need not include information from the missing side
 
-  int nbadlay[2]={0,0}; //eta=0,phi=1
+  int layStatus[2]={0,0}; //eta=0,phi=1; each decimal place will be 0 for good, 1 for bad, so 1001 means first and 4th layers are bad, etc.
   for(int iLay=0;iLay<4;iLay++){ //loop over the layers in this chamber
     for(int iPhi=0;iPhi<2;iPhi++){ //eta or phi
       int nbad=0;
@@ -231,20 +238,14 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
       }
       ATH_MSG_DEBUG("found "<<nbad<<" bad strips out of "<<detEl->maxNumberOfStrips(iPhi)<<" in "<<isPhi<<" layer "<<iLay);
       if(nbad==detEl->maxNumberOfStrips(iPhi)){
-	nbadlay[iPhi]++;
-	if(badLay1>-1) badLay2=iLay;
-	else badLay1=iLay;
+	layStatus[iPhi]+=pow(10,iLay);
       }
     }
   }
-
-  bool use2Layers=false;
-  if(nbadlay[0]>1) use2Layers=true;
-  if(nbadlay[0]!=nbadlay[1]) ATH_MSG_WARNING("Counted "<<nbadlay[0]<<" bad eta layers but "<<nbadlay[1]<<" bad phi layers for station "<<stationName<<", "<<stationEta<<", "<<stationPhi<<", "<<chamberLayer);
-  if(use2Layers) ATH_MSG_DEBUG("use 2-layer segment finding for this chamber");
+  ATH_MSG_DEBUG("final status for eta is "<<layStatus[0]<<" and phi "<<layStatus[1]);
 
   for ( CscPrepDataCollection::const_iterator iclu=clus.begin(); iclu!=clus.end(); ++iclu ) {
-    CscPrepData* pclu = *iclu;
+    const CscPrepData* pclu = *iclu;
     Identifier id = pclu->identify();
     int station = m_phelper->stationName(id) - 49;
     int eta = m_phelper->stationEta(id);
@@ -303,12 +304,13 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
     if (eta_clus[i].size() >0) ++nHitLayer_eta;
     if (phi_clus[i].size() >0) ++nHitLayer_phi;
   }
+  ATH_MSG_DEBUG("there are "<<nHitLayer_eta<<" eta hit layers and "<<nHitLayer_phi<<" phi hit layers");
 
   //  MuonSegmentCombination* pcol;
   MuonSegmentCombination* pcol = 0;
   if (nHitLayer_eta >=2 || nHitLayer_phi >=2) {
     ATH_MSG_DEBUG( "Csc2dSegment calls get2dMuonSegmentCombination !!!" );
-    pcol = m_segmentTool->get2dMuonSegmentCombination(eta_id, phi_id, eta_clus, phi_clus, lpos000, use2Layers, badLay1, badLay2); 
+    pcol = m_segmentTool->get2dMuonSegmentCombination(eta_id, phi_id, eta_clus, phi_clus, lpos000, layStatus[0], layStatus[1]); 
   }
   
   // to avoid memory leak
@@ -324,6 +326,8 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
     }
     phi_clus[i].clear();
   }
+
+
 
   return pcol;
 }

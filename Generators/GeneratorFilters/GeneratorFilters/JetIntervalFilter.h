@@ -52,10 +52,10 @@ private:
   double m_gausMean;
   double m_gausSigma;
   double m_absDEtaCutOff; //Above which keep all
-  TRandom3* myRandGen;
+  TRandom3* m_myRandGen;
 
   /// Important functions
-  double m_calculateProbToKeep(double absoluteDeltaEta);
+  double calculateProbToKeep(double absoluteDeltaEta);
 
 };
 

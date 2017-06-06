@@ -10,7 +10,9 @@
 #include "AthenaKernel/IOVEntryT.h"
 
 #include "StoreGate/VarHandleBase.h"
+#include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "PersistentDataModel/AthenaAttributeList.h"
 
 #include "GaudiKernel/DataHandle.h"
 #include "GaudiKernel/DataObjID.h"
@@ -57,12 +59,11 @@ namespace SG {
 
     bool initCondHandle();
         
-    const EventIDBase& m_eid;
+    EventIDBase m_eid;
     CondCont<T>*  m_cc {nullptr};
     const IOVEntryT<T> * m_ent {nullptr};
     
     const SG::ReadCondHandleKey<T>& m_hkey;
-
   };
 
 
@@ -70,7 +71,7 @@ namespace SG {
 
   template <typename T>
   ReadCondHandle<T>::ReadCondHandle(const SG::ReadCondHandleKey<T>& key):
-    ReadCondHandle(key, Gaudi::Hive::currentContext())
+  ReadCondHandle(key, Gaudi::Hive::currentContext())
   { 
   }
 
@@ -84,8 +85,17 @@ namespace SG {
     m_cc( key.getCC() ),
     m_hkey(key)
   {
+    // FIXME: propagate input dependency?
+    SG::ReadHandleKey<AthenaAttributeList> inputKey ("Input");
+    inputKey.initialize().ignore();
+    SG::ReadHandle<AthenaAttributeList> input (inputKey, ctx);
+    if (input.isValid()) {
+      if (input->exists ("ConditionsRun"))
+        m_eid.set_run_number ((*input)["ConditionsRun"].data<unsigned int>());
+    }
+
     if (! m_hkey.isInit()) {
-      MsgStream msg(Athena::getMessageSvc(), "WriteCondHandle");
+      MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
       msg << MSG::ERROR 
           << "ReadCondHandleKey " << key.objKey() << " was not initialized"
           << endmsg;

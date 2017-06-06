@@ -115,65 +115,65 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
     // They are filled by the readXXX functions
 
     // Trigger RoI etas and phis
-    vector<float> m_L1TGCetas,  m_L1TGCphis;
-    vector<float> m_L1RPCetas,  m_L1RPCphis;
-    vector<float> m_L1Caloetas, m_L1Calophis;
+    std::vector<float> m_L1TGCetas,  m_L1TGCphis;
+    std::vector<float> m_L1RPCetas,  m_L1RPCphis;
+    std::vector<float> m_L1Caloetas, m_L1Calophis;
 
     // Vectors to read data into from collections
     // Offline Reconstructed Muon: muid
-    vector<float> m_muid_pt;
-    vector<float> m_muid_eta;
-    vector<float> m_muid_phi;
-    vector<float> m_muid_q;
+    std::vector<float> m_muid_pt;
+    std::vector<float> m_muid_eta;
+    std::vector<float> m_muid_phi;
+    std::vector<float> m_muid_q;
 
     // Muon Trigger: Low pT
-    vector<int>   m_lpt_delta[2][3];    //[ws][pcn]
-    vector<int>   m_lpt_tid[2][3];      //[ws][pcn]trackletID
-    vector<int>   m_lpt_sub[2][3];      //[ws][pcn]
-    vector<float> m_lpt_eta[2][3];      //[ws][pcn]
-    vector<float> m_lpt_phi[2][3];      //[ws][pcn]
-    vector<int>   m_lpt_etain[2][3];    //[ws][pcn]
-    vector<int>   m_lpt_etaout[2][3];   //[ws][pcn]
-    vector<int>   m_lpt_phi48[2][3];    //[ws][pcn]
-    vector<bool>  m_lpt_isAside[2][3];  //[ws][pcn]
-    vector<bool>  m_lpt_isForward[2][3];//[ws][pcn]
-    int           m_nLptWire[4];        //[pcnt]
-    int           m_nLptStrip[4];       //[pcnt]
+    std::vector<int>   m_lpt_delta[2][3];    //[ws][pcn]
+    std::vector<int>   m_lpt_tid[2][3];      //[ws][pcn]trackletID
+    std::vector<int>   m_lpt_sub[2][3];      //[ws][pcn]
+    std::vector<float> m_lpt_eta[2][3];      //[ws][pcn]
+    std::vector<float> m_lpt_phi[2][3];      //[ws][pcn]
+    std::vector<int>   m_lpt_etain[2][3];    //[ws][pcn]
+    std::vector<int>   m_lpt_etaout[2][3];   //[ws][pcn]
+    std::vector<int>   m_lpt_phi48[2][3];    //[ws][pcn]
+    std::vector<bool>  m_lpt_isAside[2][3];  //[ws][pcn]
+    std::vector<bool>  m_lpt_isForward[2][3];//[ws][pcn]
+    int                m_nLptWire[4];        //[pcnt]
+    int                m_nLptStrip[4];       //[pcnt]
     // Muon Trigger: High pT
-    vector<int>   m_hpt_delta[2][3];    //[ws][pcn]
-    vector<int>   m_hpt_tid[2][3];      //[ws][pcn]trackletID
-    vector<int>   m_hpt_sub[2][3];      //[ws][pcn]
-    vector<float> m_hpt_eta[2][3];      //[ws][pcn]
-    vector<float> m_hpt_phi[2][3];      //[ws][pcn]
-    vector<int>   m_hpt_etain[2][3];    //[ws][pcn]
-    vector<int>   m_hpt_etaout[2][3];   //[ws][pcn]
-    vector<int>   m_hpt_phi48[2][3];    //[ws][pcn]
-    vector<bool>  m_hpt_isAside[2][3];  //[ws][pcn]
-    vector<bool>  m_hpt_isForward[2][3];//[ws][pcn]
-    int           m_nHptWire[4];        //[pcnt]
-    int           m_nHptStrip[4];       //[pcnt]
-    vector<bool>  m_hpt_isInner[2][3];//[ws][pcn] flag for inner coin
-    vector<int>   m_hpt_inner[2][3];//[ws][pcn]
+    std::vector<int>   m_hpt_delta[2][3];    //[ws][pcn]
+    std::vector<int>   m_hpt_tid[2][3];      //[ws][pcn]trackletID
+    std::vector<int>   m_hpt_sub[2][3];      //[ws][pcn]
+    std::vector<float> m_hpt_eta[2][3];      //[ws][pcn]
+    std::vector<float> m_hpt_phi[2][3];      //[ws][pcn]
+    std::vector<int>   m_hpt_etain[2][3];    //[ws][pcn]
+    std::vector<int>   m_hpt_etaout[2][3];   //[ws][pcn]
+    std::vector<int>   m_hpt_phi48[2][3];    //[ws][pcn]
+    std::vector<bool>  m_hpt_isAside[2][3];  //[ws][pcn]
+    std::vector<bool>  m_hpt_isForward[2][3];//[ws][pcn]
+    int                m_nHptWire[4];        //[pcnt]
+    int                m_nHptStrip[4];       //[pcnt]
+    std::vector<bool>  m_hpt_isInner[2][3];//[ws][pcn] flag for inner coin
+    std::vector<int>   m_hpt_inner[2][3];//[ws][pcn]
     // Muon Trigger: SL
-    vector<int>   m_sl_pt[3];           //[pcn]
-    vector<float> m_sl_eta[3];          //[pcn]
-    vector<float> m_sl_phi[3];          //[pcn]
-    vector<int>   m_sl_tidw[3];         //[pcn]trackletID for wire
-    vector<int>   m_sl_tids[3];         //[pcn]trackletID for strip
-    vector<int>   m_sl_roi[3];          //[pcn]
-    vector<int>   m_sl_etaout[3];       //[pcn]
-    vector<int>   m_sl_phi48[3];        //[pcn]
-    vector<bool>  m_sl_isAside[3];      //[pcn]
-    vector<bool>  m_sl_isForward[3];    //[pcn]
-    vector<int>   m_sl_etaroi[3];       //[pcn]
-    vector<int>   m_sl_phiroi[3];       //[pcn]
-    int           m_nSL[4];             //[pcnt]
+    std::vector<int>   m_sl_pt[3];           //[pcn]
+    std::vector<float> m_sl_eta[3];          //[pcn]
+    std::vector<float> m_sl_phi[3];          //[pcn]
+    std::vector<int>   m_sl_tidw[3];         //[pcn]trackletID for wire
+    std::vector<int>   m_sl_tids[3];         //[pcn]trackletID for strip
+    std::vector<int>   m_sl_roi[3];          //[pcn]
+    std::vector<int>   m_sl_etaout[3];       //[pcn]
+    std::vector<int>   m_sl_phi48[3];        //[pcn]
+    std::vector<bool>  m_sl_isAside[3];      //[pcn]
+    std::vector<bool>  m_sl_isForward[3];    //[pcn]
+    std::vector<int>   m_sl_etaroi[3];       //[pcn]
+    std::vector<int>   m_sl_phiroi[3];       //[pcn]
+    int                m_nSL[4];             //[pcnt]
 
     void       clearVectorsArrays();
     void       readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* tgc_coin_container, int pcn);
     StatusCode readOfflineMuonContainer(std::string key,
-	vector<float>* mu_pt, vector<float>* mu_eta,
-	vector<float>* mu_phi,vector<float>* mu_q);
+	std::vector<float>* mu_pt, std::vector<float>* mu_eta,
+	std::vector<float>* mu_phi,std::vector<float>* mu_q);
     StatusCode readL1TriggerType();
     StatusCode readEventInfo();
 
@@ -336,8 +336,8 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
     void fillTriggerTiming0(int pt);
     void fillTriggerTiming1(int pt);
     void fillTriggerTimingAssociatedWithTrack( int ms,
-	vector<float>* mu_pt, vector<float>* mu_eta,
-	vector<float>* mu_phi,vector<float>* mu_q);
+	std::vector<float>* mu_pt, std::vector<float>* mu_eta,
+	std::vector<float>* mu_phi,std::vector<float>* mu_q);
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -374,8 +374,8 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
 
     // fill histograms
     void fillEfficiency(int ms,
-	vector<float>* mu_pt, vector<float>* mu_eta,
-	vector<float>* mu_phi,vector<float>* mu_q);
+	std::vector<float>* mu_pt, std::vector<float>* mu_eta,
+	std::vector<float>* mu_phi,std::vector<float>* mu_q);
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -393,8 +393,8 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
 
     // fill histograms
     void fillCoincidenceWindow(int ms,
-	vector<float>* mu_pt, vector<float>* mu_eta,
-	vector<float>* mu_phi,vector<float>* mu_q);
+	std::vector<float>* mu_pt, std::vector<float>* mu_eta,
+	std::vector<float>* mu_phi,std::vector<float>* mu_q);
 
 
     ///////////////////////////////////////////////////////////////////////////

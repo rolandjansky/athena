@@ -51,7 +51,6 @@ class TileTMDBRawChannelMonTool : public TileFatherMonTool {
     StatusCode bookTMDBSummaryHistograms(unsigned int ros);
     int tilemodule_to_check(int sector);
     float calc_dR(float dEta, float dPhi);
-    void fillTMDBThresholds();
     
     int m_nEventsProcessed;
     ToolHandle<ITileCondToolTMDB> m_tileToolTMDB;
@@ -85,9 +84,6 @@ class TileTMDBRawChannelMonTool : public TileFatherMonTool {
 
     float m_amplitudeThreshold;
 	
-	
-    int m_thre_a[256];
-    int m_thre_c[256];
 };
 
 #endif

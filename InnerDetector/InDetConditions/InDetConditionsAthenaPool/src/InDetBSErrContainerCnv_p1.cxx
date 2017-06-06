@@ -7,7 +7,7 @@
 #include "InDetBSErrContainerCnv_p1.h"
 
 #include "Identifier/IdentifierHash.h"
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 void InDetBSErrContainerCnv_p1::transToPers(const InDetBSErrContainer* transCont, InDetBSErrContainer_p1* persCont, MsgStream & /*log */) 
 {

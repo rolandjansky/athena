@@ -16,15 +16,23 @@
 namespace SG {
 
 
+/**
+ * @brief Constructor.
+ * @param name Name of the Allocator.
+ * @param makeFunc Function that creates an Allocator given a set of parameters.
+ * @param params Allocator parameters.
+ *
+ * This initializes the @c Creator for creating an Allocator.
+ * The name in @c params will be replaced with the @c name argument.
+ */
 template <typename ALLOC>
-template <class HANDLE>
-ArenaHandleBaseAllocT<ALLOC>::Creator::Creator
-  (HANDLE*, const typename ALLOC::Params& params)
-    : m_makeFunc (HANDLE::makeAllocator),
-      m_params (params)
+ArenaHandleBaseAllocT<ALLOC>::Creator::Creator (const std::string& name,
+                                                makeFunc_t* makeFunc,
+                                                const typename ALLOC::Params& params)
+  : m_makeFunc (makeFunc),
+    m_params (params)
 {
-  if (m_params.name.empty())
-    m_params.name = System::typeinfoName (typeid (HANDLE));
+  m_params.name = name;
 }
 
 
@@ -32,7 +40,8 @@ ArenaHandleBaseAllocT<ALLOC>::Creator::Creator
  * @brief Create an allocator instance.
  */
 template <typename ALLOC>
-ArenaAllocatorBase* ArenaHandleBaseAllocT<ALLOC>::Creator::create()
+std::unique_ptr<ArenaAllocatorBase>
+ArenaHandleBaseAllocT<ALLOC>::Creator::create()
 {
   return m_makeFunc (m_params);
 }
@@ -64,20 +73,29 @@ ArenaHandleBaseAllocT<ALLOC>::ArenaHandleBaseAllocT
 
 
 /**
- * @brief Constructor, passing in a creator instance.
+ * @brief Constructor, passing in an index, for a specific event slot.
  * @param header The group of Arenas which this Handle may reference.
  *               May be null to select the global default.
- * @param creator A @c Creator instance that will create an instance
- *                of the Allocator we use.
- *
- * We'll try looking up the allocator name (from @c creator) in the
- * registry to find the proper index.  If it's not found, we'll
- * register @c creator.
+ * @param ctx Event context identifying the event slot.
+ * @param index The index of this Handle's Allocator type.
  */
 template <typename ALLOC>
 ArenaHandleBaseAllocT<ALLOC>::ArenaHandleBaseAllocT (ArenaHeader* header,
-                                           const Creator& creator)
-  : ArenaHandleBase (header, makeIndex (creator))
+                                                     const EventContext& ctx,
+                                                     size_t index)
+  : ArenaHandleBase (header, ctx, index)
+{
+}
+
+
+/**
+ * @brief Constructor, passing in an index, for a specific Arena.
+ * @param arena The Arena in which to find the allocator.
+ * @param index The index of this Handle's Allocator type.
+ */
+template <typename ALLOC>
+ArenaHandleBaseAllocT<ALLOC>::ArenaHandleBaseAllocT (ArenaBase* arena, size_t index)
+  : ArenaHandleBase (arena, index)
 {
 }
 
@@ -101,27 +119,56 @@ ArenaHandleBaseAllocT<ALLOC>::params() const
  */
 template <typename ALLOC>
 inline
-ALLOC* ArenaHandleBaseAllocT<ALLOC>::allocator() const
+ALLOC* ArenaHandleBaseAllocT<ALLOC>::allocator()
 {
   return reinterpret_cast<ALLOC*> (this->baseAllocator());
 }
 
 
 /**
- * @brief Find the index for @c Creator, registering it if needed.
+ * @brief Return our current Allocator.
  *
- * We look up in the registry the Allocator name we get from @c creator.
- * If not found, then we register @c creator and return the new index.
+ * This is on the fast path for allocation.  It should be kept
+ * simple and inline.
  */
 template <typename ALLOC>
+inline
+const ALLOC* ArenaHandleBaseAllocT<ALLOC>::allocator() const
+{
+  return reinterpret_cast<const ALLOC*> (this->baseAllocator());
+}
+
+
+/**
+ * @brief Find the index for creating an allocator.
+ * @params Pointer to the supplied parameters.
+ *         If null, use the result of DEFPARAMS().
+ *
+ * We look up in the registry the Allocator name we get from @c params
+ * (if this is blank, a name is derived from @c ALLOC).
+ * If not found, then we register Allocator and return the new index.
+ */
+template <typename ALLOC>
+template <class HANDLE, class DEFPARAMS>
 size_t
-ArenaHandleBaseAllocT<ALLOC>::makeIndex (const Creator& creator)
+ArenaHandleBaseAllocT<ALLOC>::makeIndex (const typename ALLOC::Params* params)
 {
   ArenaAllocatorRegistry* reg = ArenaAllocatorRegistry::instance();
-  size_t i = reg->lookup (creator.name());
+  std::string name;
+  if (params) {
+    name = params->name;
+  }
+  if (name.empty()) {
+    const static std::string sname = System::typeinfoName (typeid (HANDLE));
+    name = sname;
+  }
+  size_t i = reg->lookup (name);
   if (i != std::string::npos)
     return i;
-  return reg->registerCreator (creator.name(), new Creator (creator));
+  return reg->registerCreator (name,
+                               CxxUtils::make_unique<Creator> (name,
+                                                               HANDLE::makeAllocator,
+                                                               params ? *params : DEFPARAMS()));
 }
 
 

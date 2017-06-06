@@ -33,7 +33,7 @@ public:
   void brem_photon_fill(const xAOD::TruthParticle& truth);
   void BT_fill(const xAOD::TruthParticle& truth, float weight);
   void track_vs_truth(const xAOD::TrackParticle& track, const xAOD::TruthParticle& truth, float tmp);
-  void minDR(float min_dR, float prod_rad, float prob, double BIDPt, double truth_pt, float cvst);
+  void minDR(float min_dR, float prod_rad, float prob, double BIDPt, double truth_pt);
 
 private:
   TH1* m_lepton_disappearance_radius;
@@ -59,12 +59,21 @@ private:
   TH1* m_minimum_delta_R;
   TH1* m_minimum_delta_R_2;
   TH1* m_minimum_delta_R_3;
+  TH1* m_minimum_delta_R_sub300;
+  TH1* m_minimum_delta_R_300_600;
+  TH1* m_minimum_delta_R_overall;
   TH1* m_minimum_delta_R_not_found;
   TH1* m_minimum_delta_R_2_not_found;
   TH1* m_minimum_delta_R_3_not_found;
+  TH1* m_minimum_delta_R_sub300_not_found;
+  TH1* m_minimum_delta_R_300_600_not_found;
+  TH1* m_minimum_delta_R_not_found_overall;
   TH1* m_delta_inverse_pt;
   TH1* m_delta_inverse_pt_not_found;
   TProfile* m_charge_vs_truth_match_rate;
+  TH2* m_min_dR_vs_delta_inverse_pt;
+  TProfile* m_charge_truth_agreement;
+  TH2* m_truth_vs_charge_product;
 
   // plot base has nop default implementation of this; we use it to book the histos
   void initializePlots();

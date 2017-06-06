@@ -23,11 +23,11 @@ namespace MonteCarloReact {
     EffVal getEff( const std::vector<float>&  /* value */) const { return EffVal();} 
     
   protected:
-    virtual bool m_parseInputLine( const std::string& ,
+    virtual bool parseInputLine( const std::string& ,
                                    const std::vector<std::string> & /* line */) { return false;}
 
   private:
-    void m_stream( std::ostream & os) const { os << "Not yet implemented!" << std::endl;}
+    void stream( std::ostream & os) const { os << "Not yet implemented!" << std::endl;}
     
   };
 }

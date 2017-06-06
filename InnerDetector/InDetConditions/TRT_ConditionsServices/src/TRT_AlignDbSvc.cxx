@@ -1521,14 +1521,14 @@ const AlignableTransform* TRT_AlignDbSvc::cgetTransPtr(const std::string key) co
   return pat;
 }
 
-/** Retruns the ring for a given strawLayer
+/** Returns the ring for a given strawLayer
  */
 int TRT_AlignDbSvc::getRingForStrawLayer(int strawlayer) const{
   return strawlayer / 4 * 4;
 }
 
 
-/** Retruns the true if the input key is from the old endcap scheme
+/** Returns the true if the input key is from the old endcap scheme
  */
 bool TRT_AlignDbSvc::isOldKey(std::string input) const{
   

@@ -28,17 +28,17 @@ m_Body        = 0;
 m_BodyCounter = 0;
 m_BodyLast    = 0;
 m_BodyCurr    = 0;
-numberOfWordsInFrag = SLROOrig.numberOfWordsInFrag;
-numberOfWordsInBody = SLROOrig.numberOfWordsInBody;
-numberOfWordsInCounters = SLROOrig.numberOfWordsInCounters;
-numberOfWordsInSLHits = SLROOrig.numberOfWordsInSLHits;
-counter32ok = SLROOrig.counter32ok;
-hitok = SLROOrig.hitok;
-for( ubit16 i=0; i<numberOfDataCounters; i++) {
-  counter16[i] = SLROOrig.counter16[i];
+m_numberOfWordsInFrag = SLROOrig.m_numberOfWordsInFrag;
+m_numberOfWordsInBody = SLROOrig.m_numberOfWordsInBody;
+m_numberOfWordsInCounters = SLROOrig.m_numberOfWordsInCounters;
+m_numberOfWordsInSLHits = SLROOrig.m_numberOfWordsInSLHits;
+m_counter32ok = SLROOrig.m_counter32ok;
+m_hitok = SLROOrig.m_hitok;
+for( ubit16 i=0; i<s_numberOfDataCounters; i++) {
+  m_counter16[i] = SLROOrig.m_counter16[i];
 }
-for( ubit16 i=0; i<numberOfDecodedCounters; i++) {
-  counter32[i] = SLROOrig.counter32[i];
+for( ubit16 i=0; i<s_numberOfDecodedCounters; i++) {
+  m_counter32[i] = SLROOrig.m_counter32[i];
 }
 //
 // Copy Dynamic structure
@@ -85,7 +85,7 @@ void SectorLogicReadOut::deleteSLBody() {
   m_BodyLast       = 0;
   m_BodyCurr       = 0;
   m_BodyCounter    = 0;
-  numberOfWordsInBody= 0;
+  m_numberOfWordsInBody= 0;
 }//end-of-deleteSLBody
 //----------------------------------------------------------------------------//
 void SectorLogicReadOut::initialize() {
@@ -104,14 +104,14 @@ void SectorLogicReadOut::initialize() {
   //
   // initialize check flags
   //
-  numberOfWordsInFrag      =0;
-  numberOfWordsInBody      =0;
-  numberOfWordsInCounters  =numberOfDataCounters;
-  numberOfWordsInSLHits    =0;
-  counter32ok=false;
-  hitok      =false;
-  for(ubit16 i=0; i<numberOfWordsInCounters; i++) {counter16[i]=0;}
-  for(ubit16 i=0; i<numberOfDecodedCounters; i++) {counter32[i]=0;}
+  m_numberOfWordsInFrag      =0;
+  m_numberOfWordsInBody      =0;
+  m_numberOfWordsInCounters  =s_numberOfDataCounters;
+  m_numberOfWordsInSLHits    =0;
+  m_counter32ok=false;
+  m_hitok      =false;
+  for(ubit16 i=0; i<m_numberOfWordsInCounters; i++) {m_counter16[i]=0;}
+  for(ubit16 i=0; i<s_numberOfDecodedCounters; i++) {m_counter32[i]=0;}
 }//end-of-initialize
 //----------------------------------------------------------------------------//
 void SectorLogicReadOut::reset() {
@@ -125,14 +125,14 @@ initialize();
 //----------------------------------------------------------------------------//
 void SectorLogicReadOut::writeRecord(ubit16 thisRecord, bool last) {
 
-  if(numberOfWordsInFrag==0) {
+  if(m_numberOfWordsInFrag==0) {
     m_Header = thisRecord;
-  } else if(numberOfWordsInFrag && !last) {
+  } else if(m_numberOfWordsInFrag && !last) {
     makeNewHit(thisRecord);
   } else {
     m_Footer = thisRecord;
   }
-  numberOfWordsInFrag++;  
+  m_numberOfWordsInFrag++;  
 }//end-of-void SectorLogicReadOut
 //----------------------------------------------------------------------------//  
 void SectorLogicReadOut::makeNewHit(ubit16 newHit) {  
@@ -146,10 +146,10 @@ void SectorLogicReadOut::makeNewHit(ubit16 newHit) {
     m_BodyLast->next = p;
   }//end-of-if
   m_BodyLast=p;
-  if(!numberOfWordsInBody) topSLBody();
-  numberOfWordsInBody++;
-  if(numberOfWordsInBody > numberOfWordsInCounters)
-    numberOfWordsInSLHits = (numberOfWordsInBody-numberOfWordsInCounters);
+  if(!m_numberOfWordsInBody) topSLBody();
+  m_numberOfWordsInBody++;
+  if(m_numberOfWordsInBody > m_numberOfWordsInCounters)
+    m_numberOfWordsInSLHits = (m_numberOfWordsInBody-m_numberOfWordsInCounters);
 }//end-of-SectorLogicReadOut::makeNewHit
 //----------------------------------------------------------------------------//
 ubit16 SectorLogicReadOut::readSLHitCurrent(){
@@ -183,26 +183,26 @@ ubit16 SectorLogicReadOut::readSLCounterCurrent(){
 //----------------------------------------------------------------------------//
 void SectorLogicReadOut::doCounter32(){
   topSLBodyCounters();
-  for(ubit16 i=0; i<numberOfWordsInCounters; i++) {
-   counter16[i]=readSLCounterCurrent()&0x1fff;
+  for(ubit16 i=0; i<m_numberOfWordsInCounters; i++) {
+   m_counter16[i]=readSLCounterCurrent()&0x1fff;
   }
 //
   ubit16 j=0;
-  for(ubit16 i=0;i<numberOfDecodedCounters;i++){
-    counter32[i]=(counter16[j]|(counter16[j+1]<<13)|(counter16[j+2] <<26));
+  for(ubit16 i=0;i<s_numberOfDecodedCounters;i++){
+    m_counter32[i]=(m_counter16[j]|(m_counter16[j+1]<<13)|(m_counter16[j+2] <<26));
     j+=3;
   }
 }//end-of-SectorLogicReadOut::doCounter32()
 //----------------------------------------------------------------------------//
 RODword SectorLogicReadOut::getCounter32(ubit16 index){
-  if(!counter32ok) {
+  if(!m_counter32ok) {
    doCounter32();
-   counter32ok=true;
+   m_counter32ok=true;
   }
-  if(index<numberOfDecodedCounters) {
-    return counter32[index];
+  if(index<s_numberOfDecodedCounters) {
+    return m_counter32[index];
   } else {
-   DISP<<" getCounter32: index= "<<index<<" is larger than "<<numberOfDecodedCounters<<std::endl;
+   DISP<<" getCounter32: index= "<<index<<" is larger than "<<s_numberOfDecodedCounters<<std::endl;
    DISP<<" getCounter32: ... return 0 value"<<std::endl;
    DISP_ERROR;
    return 0;
@@ -210,14 +210,14 @@ RODword SectorLogicReadOut::getCounter32(ubit16 index){
 }
 //----------------------------------------------------------------------------//
 float SectorLogicReadOut::padTriggerRate(ubit16 padAddress){
-  if(!counter32ok) doCounter32();
+  if(!m_counter32ok) doCounter32();
   //
   // units are kHz
   //
   static const float convertToTriggerRate=160314.74/4.0;// units are kHz
-  if(padAddress < ((numberOfDecodedCounters-3)/2)) {
+  if(padAddress < ((s_numberOfDecodedCounters-3)/2)) {
    return convertToTriggerRate
-          * (float (counter32[padAddress*2+1])/float (counter32[padAddress*2+0]));
+          * (float (m_counter32[padAddress*2+1])/float (m_counter32[padAddress*2+0]));
   } else {
     DISP<<" padTrigger: input padAddress= "<<padAddress<<" is not possible; "
         <<" return -1 value "<<std::endl;
@@ -228,17 +228,17 @@ float SectorLogicReadOut::padTriggerRate(ubit16 padAddress){
 //----------------------------------------------------------------------------//
 void SectorLogicReadOut::doHit(){
   topSLBody();
-  for(ubit16 j=0; j<nGates; j++) {
-    for(ubit16 i=0; i<nLinks; i++) {
-     hit[i][j]=readSLHitCurrent();
+  for(ubit16 j=0; j<s_nGates; j++) {
+    for(ubit16 i=0; i<s_nLinks; i++) {
+     m_hit[i][j]=readSLHitCurrent();
     }//end-of-for(ubit16 i
   }//end-of-for(ubit16 j
 }//end-of-SectorLogicReadOut::doHit()
 //----------------------------------------------------------------------------//
 ubit16 SectorLogicReadOut::cmadd(ubit16 indexLink, ubit16 indexGate) {
-  if(!hitok) doHit();
-  if(indexLink<nLinks && indexGate<nGates) {
-   return (hit[indexLink][indexGate]   ) & 0x3;
+  if(!m_hitok) doHit();
+  if(indexLink<s_nLinks && indexGate<s_nGates) {
+   return (m_hit[indexLink][indexGate]   ) & 0x3;
   } else {
     DISP<<" cmid: indexLink or indexGate is not possible "
         <<" return 0 value "<<std::endl;
@@ -248,9 +248,9 @@ ubit16 SectorLogicReadOut::cmadd(ubit16 indexLink, ubit16 indexGate) {
 }//end-of-SectorLogicReadOut::cmid(ubit16 indexLink, ubit16 indexGate)
 //----------------------------------------------------------------------------//
 ubit16 SectorLogicReadOut::ptid(ubit16 indexLink, ubit16 indexGate) {
-  if(!hitok) doHit();
-  if(indexLink<nLinks && indexGate<nGates) {
-   return (hit[indexLink][indexGate]>>2) & 0x7;
+  if(!m_hitok) doHit();
+  if(indexLink<s_nLinks && indexGate<s_nGates) {
+   return (m_hit[indexLink][indexGate]>>2) & 0x7;
   } else {
     DISP<<" ptid: indexLink or indexGate is not possible "
         <<" return 0 value "<<std::endl;
@@ -260,9 +260,9 @@ ubit16 SectorLogicReadOut::ptid(ubit16 indexLink, ubit16 indexGate) {
 }//end-of-SectorLogicReadOut::ptid(ubit16 indexLink, ubit16 indexGate)
 //----------------------------------------------------------------------------//
 ubit16 SectorLogicReadOut::opl(ubit16 indexLink, ubit16 indexGate) {
-  if(!hitok) doHit();
-  if(indexLink<nLinks && indexGate<nGates) {
-   return (hit[indexLink][indexGate]>>5) & 0x1;
+  if(!m_hitok) doHit();
+  if(indexLink<s_nLinks && indexGate<s_nGates) {
+   return (m_hit[indexLink][indexGate]>>5) & 0x1;
   } else {
     DISP<<" opl : indexLink or indexGate is not possible "
         <<" return 0 value "<<std::endl;
@@ -272,9 +272,9 @@ ubit16 SectorLogicReadOut::opl(ubit16 indexLink, ubit16 indexGate) {
 }//end-of-SectorLogicReadOut::opl(ubit16 indexLink, ubit16 indexGate)
 //----------------------------------------------------------------------------//
 ubit16 SectorLogicReadOut::ovphi(ubit16 indexLink, ubit16 indexGate) {
-  if(!hitok) doHit();
-  if(indexLink<nLinks && indexGate<nGates) {
-   return (hit[indexLink][indexGate]>>6) & 0x1;
+  if(!m_hitok) doHit();
+  if(indexLink<s_nLinks && indexGate<s_nGates) {
+   return (m_hit[indexLink][indexGate]>>6) & 0x1;
   } else {
     DISP<<" ovphi: indexLink or indexGate is not possible "
         <<" return 0 value "<<std::endl;
@@ -284,9 +284,9 @@ ubit16 SectorLogicReadOut::ovphi(ubit16 indexLink, ubit16 indexGate) {
 }//end-of-SectorLogicReadOut::ovphi(ubit16 indexLink, ubit16 indexGate)
 //----------------------------------------------------------------------------//
 ubit16 SectorLogicReadOut::oveta(ubit16 indexLink, ubit16 indexGate) {
-  if(!hitok) doHit();
-  if(indexLink<nLinks && indexGate<nGates) {
-   return (hit[indexLink][indexGate]>>7) & 0x1;
+  if(!m_hitok) doHit();
+  if(indexLink<s_nLinks && indexGate<s_nGates) {
+   return (m_hit[indexLink][indexGate]>>7) & 0x1;
   } else {
     DISP<<" oveta: indexLink or indexGate is not possible "
         <<" return 0 value "<<std::endl;
@@ -296,9 +296,9 @@ ubit16 SectorLogicReadOut::oveta(ubit16 indexLink, ubit16 indexGate) {
 }//end-of-SectorLogicReadOut::oveta(ubit16 indexLink, ubit16 indexGate)
 //----------------------------------------------------------------------------//
 ubit16 SectorLogicReadOut::res(ubit16 indexLink, ubit16 indexGate) {
-  if(!hitok) doHit();
-  if(indexLink<nLinks && indexGate<nGates) {
-   return (hit[indexLink][indexGate]>>8) & 0x1;
+  if(!m_hitok) doHit();
+  if(indexLink<s_nLinks && indexGate<s_nGates) {
+   return (m_hit[indexLink][indexGate]>>8) & 0x1;
   } else {
     DISP<<" res : indexLink or indexGate is not possible "
         <<" return 0 value "<<std::endl;
@@ -308,9 +308,9 @@ ubit16 SectorLogicReadOut::res(ubit16 indexLink, ubit16 indexGate) {
 }//end-of-SectorLogicReadOut::res(ubit16 indexLink, ubit16 indexGate)
 //----------------------------------------------------------------------------//
 ubit16 SectorLogicReadOut::bcid(ubit16 indexLink, ubit16 indexGate) {
-  if(!hitok) doHit();
-  if(indexLink<nLinks && indexGate<nGates) {
-   return (hit[indexLink][indexGate]>>9) & 0x7;
+  if(!m_hitok) doHit();
+  if(indexLink<s_nLinks && indexGate<s_nGates) {
+   return (m_hit[indexLink][indexGate]>>9) & 0x7;
   } else {
     DISP<<" bcid: indexLink or indexGate is not possible "
         <<" return 0 value "<<std::endl;
@@ -321,19 +321,19 @@ ubit16 SectorLogicReadOut::bcid(ubit16 indexLink, ubit16 indexGate) {
 //----------------------------------------------------------------------------//
 void SectorLogicReadOut::display(std::ostream &stream) {
   stream<<" **** Sector Logic ReadOut Fragment ****"<<std::endl;
-  stream<<" SectorLogic: number of Hits    :"<<numberOfWordsInSLHits<<std::endl;
-  stream<<" SectorLogic: number of Counters:"<<numberOfWordsInCounters<<std::endl;
+  stream<<" SectorLogic: number of Hits    :"<<m_numberOfWordsInSLHits<<std::endl;
+  stream<<" SectorLogic: number of Counters:"<<m_numberOfWordsInCounters<<std::endl;
   stream<<" SectorLogic: Header "<<std::hex<<m_Header<<std::dec<<std::endl;
-  for(ubit16 i=0; i<numberOfWordsInSLHits; i++) {
+  for(ubit16 i=0; i<m_numberOfWordsInSLHits; i++) {
     stream<<" SectorLogic: hit       "<<(i+1)<<"  ==> "
           <<std::hex<<readSLHitCurrent()<<std::dec<<std::endl;
   }
   stream<<" SectorLogic: Footer "<<std::hex<<m_Footer<<std::dec<<std::endl;
-  for(ubit16 i=0; i<numberOfWordsInCounters; i++) {
+  for(ubit16 i=0; i<m_numberOfWordsInCounters; i++) {
     stream<<" SectorLogic: counter   "<<(i+1)<<"  ==> "
           <<std::hex<<readSLCounterCurrent()<<std::dec<<std::endl;
   }
-  for(int i=0; i<numberOfDecodedCounters; i++) {
+  for(int i=0; i<s_numberOfDecodedCounters; i++) {
     stream<<" SectorLogic: Counter32 "<<(i+1)<<"  ==> "
           <<" = "<<std::hex<<getCounter32(i)<<std::dec<<std::endl;
   }
@@ -342,5 +342,5 @@ void SectorLogicReadOut::display(std::ostream &stream) {
 }//end-of-void SectorLogicReadOut::display
 //----------------------------------------------------------------------------//
 bool SectorLogicReadOut::checkFragment() {
-  return (numberOfWordsInBody==(nGates*nLinks+numberOfDataCounters));
+  return (m_numberOfWordsInBody==(s_nGates*s_nLinks+s_numberOfDataCounters));
 }//end-of-void SectorLogicReadOut::checkFragment()

@@ -12,12 +12,24 @@
 #include "TileEvent/TileDigits.h"
 #include "TileEvent/TileL2.h"
 #include "TileEvent/TileMuonReceiverObj.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 
 #include <iomanip>
 #include <sstream>
 #include <algorithm> 
 #include <cassert>
 #include <cmath>
+
+
+TileROD_Encoder::TileROD_Encoder(): 
+  m_tileHWID(0), 
+  m_verbose(false), 
+  m_type(0), 
+  m_unitType(0), 
+  m_msg("TileROD_Encoder"), 
+  m_maxChannels(TileCalibUtils::MAX_CHAN) {
+}
+
 
 void TileROD_Encoder::setTileHWID(const TileHWID* tileHWID, bool verbose, unsigned int type) {
   m_tileHWID = tileHWID;
@@ -86,6 +98,11 @@ void TileROD_Encoder::setTypeAndUnit(TileFragHash::TYPE type, TileRawChannelUnit
   }
 
 }
+
+void TileROD_Encoder::setMaxChannels(int maxChannels) {
+  m_maxChannels = maxChannels;
+}
+
 
 /** convert all TileRawChannels in the current list to a vector of 32bit words
 */
@@ -254,10 +271,10 @@ void TileROD_Encoder::fillROD2(std::vector<uint32_t>& v) {
 
       // remember where is the first channel
       start = v.size();
+      // reserve maximum number of channels in a drawer words 
+      // for all channels in the drawer
+      v.resize(start + m_maxChannels, 0);
 
-      // reserve 48 words for all channels in the drawer
-      for (int i = 0; i < 48; ++i)
-        v.push_back(0);
     }
 
     // FIXME:: protection against both low and high gain amplitude
@@ -267,7 +284,7 @@ void TileROD_Encoder::fillROD2(std::vector<uint32_t>& v) {
 
     int chan = rc->channel();
     int gain = rc->adc();
-    if (chan < 48) {
+    if (chan < m_maxChannels) {
       v[start + chan] = m_rc2bytes2.getWord(rc, gain);
     }
 
@@ -375,17 +392,20 @@ void TileROD_Encoder::fillROD4(std::vector<uint32_t>& v) {
 
       // very first word is start fragment identifier
       v.push_back(0xff1234ff);
-      // next word is frag size 54 = 48 + frag ID + frag size + start frag + 3 sumE words
-      v.push_back(54);
+      // next word is frag size: 
+      // (maximum number of channels in a drawer) + ...
+      // ... + (6 = start frag + frag size + frag ID + 3 sumE words)
+      v.push_back(m_maxChannels + 6);
       // next word is frag ID
       v.push_back(frag);
 
       // remember where is the first channel
       start = v.size();
 
-      // reserve 48 words for all channels in the drawer and 3 sumE words
-      for (int i = 0; i < 51; ++i)
-        v.push_back(0);
+      // reserve (maximum number of channels in a drawer) words 
+      // for all channels in the drawer and 3 sumE words
+      v.resize(start + m_maxChannels + 3, 0);
+
     }
 
     // FIXME:: protection against both low and high gain amplitude
@@ -395,7 +415,7 @@ void TileROD_Encoder::fillROD4(std::vector<uint32_t>& v) {
 
     int chan = rc->channel();
     int gain = rc->adc();
-    if (chan < 48) {
+    if (chan < m_maxChannels) {
       v[start + chan] = m_rc2bytes4.getWord(rc, gain);
     }
 

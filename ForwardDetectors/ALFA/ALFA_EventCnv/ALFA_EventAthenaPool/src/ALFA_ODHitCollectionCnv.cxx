@@ -8,7 +8,7 @@
  
 
 ALFA_ODHitCollection_PERS* ALFA_ODHitCollectionCnv::createPersistent(ALFA_ODHitCollection* transCont) {
-    MsgStream mlog(messageService(), "ALFA_ODHitCollectionConverter" );
+    MsgStream mlog(msgSvc(), "ALFA_ODHitCollectionConverter" );
     ALFA_ODHitCollectionCnv_p1   TPConverter;
     ALFA_ODHitCollection_PERS *persObj = TPConverter.createPersistent( transCont, mlog );
     return persObj;
@@ -16,7 +16,7 @@ ALFA_ODHitCollection_PERS* ALFA_ODHitCollectionCnv::createPersistent(ALFA_ODHitC
 
 
 ALFA_ODHitCollection* ALFA_ODHitCollectionCnv::createTransient() {
-    MsgStream mlog(messageService(), "ALFA_ODHitCollectionConverter" );
+    MsgStream mlog(msgSvc(), "ALFA_ODHitCollectionConverter" );
     
     ALFA_ODHitCollectionCnv_p1   TPConverter_p1;
 

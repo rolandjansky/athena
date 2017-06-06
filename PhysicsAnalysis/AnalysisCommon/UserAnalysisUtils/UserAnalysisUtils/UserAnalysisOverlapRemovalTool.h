@@ -39,6 +39,7 @@ Purpose : User tools for analyis overlap removal on ESD/AOD/DPD in Athena
 
 #include "NavFourMom/IParticleContainer.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
+#include "AthContainers/ConstDataVector.h"
 
 #include <string>
 #include <map>
@@ -100,16 +101,29 @@ protected:
    virtual ~UserAnalysisOverlapRemovalTool();
 
 private:
+  struct Vectors {
+    ConstDataVector<INavigable4MomentumCollection>* m_outputParticles;
+    ConstDataVector<INavigable4MomentumCollection>* m_outputLeptons;
+    ConstDataVector<ElectronContainer>* m_outputElectrons;
+    ConstDataVector<PhotonContainer>* m_outputPhotons;
+    ConstDataVector<Analysis::MuonContainer>* m_outputMuons;
+    ConstDataVector<Analysis::TauJetContainer>* m_outputTauJets;
+    ConstDataVector<JetCollection>* m_outputJets;
+    ConstDataVector<JetCollection>* m_outputBJets;
+    ConstDataVector<JetCollection>* m_outputLightJets;
+    ConstDataVector<Rec::TrackParticleContainer>* m_outputTrackParticles;
+    ConstDataVector<CaloClusterContainer>* m_outputCaloClusters;
+  };
 
   /** container preparation */
-  StatusCode prepareContainers();
-  StatusCode electronPreparation( std::string key );
-  StatusCode photonPreparation( std::string key );
-  StatusCode muonPreparation( std::string key );
-  StatusCode tauJetPreparation( std::string key );
-  StatusCode jetPreparation( std::string key );
-  StatusCode trackParticlePreparation( std::string key );
-  StatusCode caloClusterPreparation( std::string key );
+  StatusCode prepareContainers(Vectors& v);
+  StatusCode electronPreparation( Vectors& v, std::string key );
+  StatusCode photonPreparation( Vectors& v, std::string key );
+  StatusCode muonPreparation( Vectors& v, std::string key );
+  StatusCode tauJetPreparation( Vectors& v, std::string key );
+  StatusCode jetPreparation( Vectors& v, std::string key );
+  StatusCode trackParticlePreparation( Vectors& v, std::string key );
+  StatusCode caloClusterPreparation( Vectors& v, std::string key );
   StatusCode lockContainers();
 
   /** for debugging purposes - called if MSG_Level = DEBUG */

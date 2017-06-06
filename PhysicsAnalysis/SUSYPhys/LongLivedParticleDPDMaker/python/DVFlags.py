@@ -22,6 +22,7 @@ class DV_MultiJetTriggerFlags(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
     triggers = ["HLT_4j100","HLT_5j85","HLT_5j85_lcw","HLT_5j75_0eta250","EF_6j70","HLT_6j45_0eta240","HLT_7j45"]
+    trigger += ["HLT_4j110","HLT_5j85","HLT_5j65_0eta240_L14J150ETA25","HLT_6j85","HLT_6j55_0eta240_L14J150ETA25"]  #2017
     pass
 primRPVLLDESDM.add_JobProperty(DV_MultiJetTriggerFlags)
 
@@ -82,6 +83,7 @@ class DV_PhotonFilterFlags(JobProperty):
     cutEtaMax=2.5
     cutIsEM="Loose"
     triggers=["HLT_g140_loose"]
+    triggers+=["HLT_g140_tight","HLT_g200_loose"]#2017
     prescale=20
     nPassed=1
     pass
@@ -114,6 +116,7 @@ class DV_METFilterFlags(JobProperty):
               "HLT_xe110_mht_L1XE55_AND_xe65_L1XE55","HLT_xe110_mht_L1XE55_AND_xe70_L1XE55","HLT_xe110_mht_L1XE55_AND_xe75_L1XE55",
               "HLT_xe110_mht_L1XE55_AND_xe80_L1XE55"
 		         ]
+    triggers+=[ "HLT_xe110_pufit_L1XE60", "HLT_xe120_mht_L1XE60_xe80_L1XE60" ]  #2017
     pass
 primRPVLLDESDM.add_JobProperty(DV_METFilterFlags)
 

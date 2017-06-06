@@ -3,7 +3,7 @@
 DATADIR=/afs/cern.ch/atlas/offline/test/POOLCollectionTools
 XMLINPUT=$DATADIR/tagExtract_PUR.xml
 UTIL=CollAppend
-UTIL2=CollAppend.exe
+UTIL2=AthCollAppend
 
 # remove detritus from previous tests
 rm -f PoolCollectionCatalog.xml
@@ -24,7 +24,7 @@ fi
 cmd="$UTIL -xmlInput $XMLINPUT"
 echo $cmd
 #$cmd
-# Check Atlas version CollAppend
+# Check Atlas version AthCollAppend
 cmd="$UTIL2 -xmlInput $XMLINPUT"
 echo $cmd
 $cmd

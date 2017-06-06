@@ -2,7 +2,7 @@
 
 ##
 ## @file InDetTrigRecExample/python/InDetTrigJobProperties.py
-## @purpose Python module with InDetTrigJobProperties to hold
+## @brief Python module with InDetTrigJobProperties to hold
 ##          an independent configuration of EFID
 ##          some classes need to be duplicated from InDetJobProperties 
 

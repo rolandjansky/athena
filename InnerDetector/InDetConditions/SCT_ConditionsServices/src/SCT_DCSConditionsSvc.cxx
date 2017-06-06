@@ -48,11 +48,11 @@ m_ecInner_correction(-13.1),
 m_ecOuter_correction(-15.5),
 m_hvLowLimit(0.0),
 m_hvUpLimit(1000000.0),
-m_pBadModules(0),
-m_pModulesHV(0),
-m_pModulesTemp0(0),
-m_pModulesTemp1(0),
-m_pHelper(0), 
+m_pBadModules{nullptr},
+m_pModulesHV{nullptr},
+m_pModulesTemp0{nullptr},
+m_pModulesTemp1{nullptr},
+m_pHelper{nullptr}, 
 m_folderPrefix("/SCT/DCS"),
 m_chanstatCut("NORM"),
 m_useHV(false),
@@ -351,20 +351,20 @@ StatusCode SCT_DCSConditionsSvc::fillData(int &/* i */, std::list<std::string>& 
 	      }
 	      else m_pBadModules->remove(channelNumber, param);
 	      if (m_returnHVTemp){
-		m_pModulesHV->insert(make_pair(channelNumber,hvval));
+		(*m_pModulesHV)[channelNumber]=hvval;
 	      }
 	    }catch(...){
         ATH_MSG_DEBUG("Exception caught while trying to access HVCHVOLT_RECV");
 	    }
 	  } else if (m_returnHVTemp && param == "MOCH_TM0_RECV") {
 	    try{
-	    m_pModulesTemp0->insert(make_pair(channelNumber, (*attrList).second[param].data<float>()));
+              (*m_pModulesTemp0)[channelNumber]=(*attrList).second[param].data<float>();
 	    }catch(...){
 	      ATH_MSG_DEBUG("Exception caught while trying to access MOCH_TM0_RECV");
 	    }
 	  } else if (m_returnHVTemp && param == "MOCH_TM1_RECV") { //2 temp sensors per module
 	    try{
-	      m_pModulesTemp1->insert(make_pair(channelNumber, (*attrList).second[param].data<float>()));
+	      (*m_pModulesTemp1)[channelNumber]=(*attrList).second[param].data<float>();
 	    }catch(...){
         ATH_MSG_DEBUG("Exception caught while trying to access MOCH_TM1_RECV");
 	    }
@@ -375,7 +375,7 @@ StatusCode SCT_DCSConditionsSvc::fillData(int &/* i */, std::list<std::string>& 
       }
       m_dataFilled=true;
     }
-  
+
   //we are done with the db folders and have the data locally. 
   if (!m_dropFolder){
     std::list<std::string>::const_iterator itr2_key(keys.begin());

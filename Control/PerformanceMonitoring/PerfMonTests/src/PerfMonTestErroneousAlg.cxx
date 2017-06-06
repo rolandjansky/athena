@@ -45,9 +45,6 @@ ErroneousAlg::~ErroneousAlg()
 ////////////////////////////
 StatusCode ErroneousAlg::initialize()
 {
-  // configure our MsgStream
-  msg().setLevel( outputLevel() );
-
   ATH_MSG_INFO ( "Initializing " << name() << "..." ) ;
   return StatusCode::SUCCESS;
 }
@@ -113,6 +110,9 @@ bool ErroneousAlg::invalidRead()
   return true;
 }
 
+#ifdef __clang__
+#pragma GCC diagnostic ignored "-Wmismatched-new-delete"
+#endif
 bool ErroneousAlg::mismatchedFree()
 {
   const unsigned int maximum=8192;

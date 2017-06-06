@@ -23,7 +23,7 @@ private:
   Geo2G4MatPropTableFactory();
 
   static Geo2G4MatPropTableFactory* m_instance;
-  TableMap definedTables;
+  TableMap m_definedTables;
 };
 
 #endif

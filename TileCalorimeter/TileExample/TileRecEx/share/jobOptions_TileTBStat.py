@@ -74,17 +74,23 @@ if 'TilePhysRun' in dir():
            elif RunNumber < 254945:
                 InputDirectory = ( "/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
            else:
-                InputDirectory = ( "/eos/atlas/atlastier0/rucio/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
+               if not 'DirectorySuffix' in dir():
+                   if RunStream.startswith('calibration'): DirectorySuffix = 'daq.RAW'
+                   else: DirectorySuffix = 'merge.RAW'
+                   log.warning('DirectorySuffix is not set up and will be used: %(suff)s' % {'suff': DirectorySuffix})
+
+               InputDirectory = ( "/eos/atlas/atlastier0/rucio/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.%(suff)s" 
+                                  % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber, 'suff': DirectorySuffix })
 else:
     TilePhysRun=False
 
 if not 'InputDirectory' in dir():
-    if RunNumber<10:
+    if RunNumber < 10:
         InputDirectory = "."
-        RunFromLocal=True
-    elif RunNumber<36127:
+        RunFromLocal = True
+    elif RunNumber < 36127:
         InputDirectory = "/castor/cern.ch/atlas/testbeam/tilecal/2007/daq"
-    elif RunNumber<100000:
+    elif RunNumber < 100000:
         InputDirectory = "/castor/cern.ch/atlas/testbeam/tilecal/2008/daq"
     else:
         if RunNumber < 142682:
@@ -101,16 +107,39 @@ if not 'InputDirectory' in dir():
             Year = 2014
         elif RunNumber < 287952:
             Year = 2015
-        else:
+        elif RunNumber < 314450:
             Year = 2016
+        else:
+            Year = 2017
+
 
         if 'RunStream' in dir():
             if RunStream == 'l1calo' or RunStream == 'L1Calo':
                 InputDirectory = ( "/castor/cern.ch/grid/atlas/DAQ/l1calo/00%(run)s" % { 'run': RunNumber })
+            elif RunStream.startswith('calibration_L1Calo'):
+                if not 'DataProject' in dir(): 
+                    DataProject = 'data15_calib'
+                    log.warning('DataProject is not set up and will be used: %(project)s' % {'project': DataProject})
+
+                InputDirectory = ( "/eos/atlas/atlastier0/rucio/%(project)s/%(stream)s/00%(run)s" 
+                                   % {'project': DataProject, 'stream': RunStream, 'run': RunNumber })
             else:
-                InputDirectory = ( "/castor/cern.ch/grid/atlas/DAQ/%(year)s/00%(run)s/%(stream)s" % { 'year': Year, 'run': RunNumber, 'stream': RunStream })
+                if RunNumber < 254372:
+                    InputDirectory = ( "/castor/cern.ch/grid/atlas/DAQ/%(year)s/00%(run)s/%(stream)s" 
+                                       % { 'year': Year, 'run': RunNumber, 'stream': RunStream })
+                else:
+                    if not 'DataProject' in dir():
+                        DataProject = 'data15_cos'
+                        log.warning('DataProject is not set up and will be used: %(project)s' % {'project': DataProject})
+                    
+                    InputDirectory = ( "/eos/atlas/atlastier0/rucio/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.daq.RAW" 
+                                       % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
+                    
         else:
-            InputDirectory = ( "/castor/cern.ch/grid/atlas/DAQ/tile/%(year)s/daq" % { 'year': Year })
+            if RunNumber < 270317:
+                InputDirectory = ( "/castor/cern.ch/grid/atlas/DAQ/tile/%(year)s/daq" % { 'year': Year })
+            else:
+                InputDirectory = ( '/eos/atlas/atlascerngroupdisk/det-tile/online/%(year)s/daq' % { 'year': Year })
 
 if not 'FileFilter' in dir():
     FileFilter = ".data"
@@ -134,7 +163,7 @@ def FindFile(path, runinput, filter):
         if RunFromLocal:
             files = check_output('ls %(path)s | grep %(run)s | grep %(filt)s' % {'path': path, 'run':run, 'filt':filter}, shell = True).splitlines()
         elif (path.startswith('/eos/')):
-            files = check_output('xrd eosatlas dirlist %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " | grep %(filt)s | sed "s|^.*/||" ' % {'path':path, 'run':run, 'filt':filter}, shell = True).splitlines()
+            files = check_output('xrdfs eosatlas ls -l %(path)s | grep %(run)s | grep -v "#" | grep -v -e "         [ 0-9][ 0-9][0-9] " | grep %(filt)s | sed "s|^.*/||" ' % {'path':path, 'run':run, 'filt':filter}, shell = True).splitlines()
         else:
             files = check_output('nsls %(path)s | grep %(run)s | grep -v -e "               [ 0-9][ 0-9][0-9] " | grep %(filt)s ' % {'path': path, 'run':run, 'filt':filter  }, shell = True).splitlines()
 
@@ -240,7 +269,7 @@ DetFlags.readRDOBS.Tile_setOn()
 DetFlags.Print()
 
 from AthenaCommon.GlobalFlags import jobproperties
-if RUN2: jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-02-01-00"
+if RUN2: jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
 else:    jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-02"
 tbstat_log.info( "DetDescrVersion = %s" % (jobproperties.Global.DetDescrVersion()) )
 
@@ -257,7 +286,7 @@ else:    rec.projectName = "data12_tilecomm"
 
 from IOVDbSvc.CondDB import conddb
 if MC:     conddb.setGlobalTag("OFLCOND-RUN12-SDR-25")
-elif RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2016-05")
+elif RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2017-07")
 else:      conddb.setGlobalTag("COMCOND-BLKPA-RUN1-06")
 
 #=============================================================

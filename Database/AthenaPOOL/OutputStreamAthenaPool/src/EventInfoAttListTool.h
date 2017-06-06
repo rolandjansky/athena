@@ -10,17 +10,13 @@ Name    : EventInfoAttListTool.h
 Purpose : Tool to buid the Global Event Tags
 *****************************************************************************/
 
-#include "GaudiKernel/DataHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CoralBase/AttributeListSpecification.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/EventInfo.h"
 
-#include <map>
-#include <vector>
 #include <string>
-
-// forward declarations
 
 /** Interface ID for EventInfoAttListTool */  
 static const InterfaceID IID_EventInfoAttListTool("EventInfoAttListTool", 1, 0);
@@ -44,21 +40,22 @@ public:
   // interface 
   bool isValid();
   const coral::AttributeListSpecification& getAttributeSpecification();
-  const AthenaAttributeList getAttributeList(const DataHandle<xAOD::EventInfo> einfo);
+  const AthenaAttributeList getAttributeList(const xAOD::EventInfo& einfo);
+  const AthenaAttributeList getAttributeList(const EventInfo& einfo);
 
 protected:
 
-   /** Standard destructor */
-   virtual ~EventInfoAttListTool( );
+  /** Standard destructor */
+  virtual ~EventInfoAttListTool( );
 
-   /** the various components to build their own fragments of tag */
-   StatusCode eventTag       (AthenaAttributeList& eventTagCol, const DataHandle<xAOD::EventInfo> eventInfo);
+  /** the various components to build their own fragments of tag */
+  StatusCode eventTag       (AthenaAttributeList& eventTagCol, 
+                             const xAOD::EventInfo& eventInfo);
+  StatusCode eventTag       (AthenaAttributeList& eventTagCol, 
+                             const EventInfo& eventInfo);
 
-   coral::AttributeListSpecification* m_attribListSpec;
+  coral::AttributeListSpecification* m_attribListSpec;
 
- };
+};
 
 #endif // EVENTINFOATTLISTTOOL_H
-
-
-

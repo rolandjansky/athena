@@ -81,7 +81,7 @@ topSequence += McAodBuilder(
 # Pool Persistency
 #---------------------------------------------------------------
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-outStream = AthenaPoolOutputStream("OutStream")
+outStream = AthenaPoolOutputStream("OutStream", noTag=True)
 outStream.ItemList  = [ "EventInfo#McEventInfo"]
 outStream.ItemList += [ "McEventCollection#GEN_EVENT" ]
 outStream.ItemList += [ "McEventCollection#GEN_AOD" ]

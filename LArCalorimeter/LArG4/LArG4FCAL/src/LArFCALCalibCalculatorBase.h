@@ -37,8 +37,8 @@ namespace LArG4 {
     class LArFCALCalibCalculatorBase : public LArCalibCalculatorSvcImp {
     public:
       LArFCALCalibCalculatorBase(const std::string& name, ISvcLocator *pSvcLocator);
-      StatusCode initialize();
-      StatusCode finalize() {return StatusCode::SUCCESS;}
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
       virtual ~LArFCALCalibCalculatorBase(){};
 
 

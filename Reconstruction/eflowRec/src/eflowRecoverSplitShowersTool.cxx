@@ -37,7 +37,6 @@ using namespace eflowSubtract;
 
 eflowRecoverSplitShowersTool::eflowRecoverSplitShowersTool(const std::string& type,const std::string& name,const IInterface* parent):
 AthAlgTool(type, name, parent),
-m_debug(0),
 m_eflowCaloObjectContainer(0),
 m_rCell(0.75),
 m_windowRms(0.032),
@@ -211,10 +210,10 @@ int eflowRecoverSplitShowersTool::matchAndCreateEflowCaloObj() {
       m_eflowCaloObjectContainer->push_back(thisEflowCaloObject);
       continue;
     }
-    if (1 == m_debug) {
+    if (msgLvl(MSG::WARNING)){
       const xAOD::TrackParticle* track = thisEfRecTrack->getTrack();
-      std::cout << "Recovering charged EFO with e,eta and phi " << track->e() << ", "
-                << track->eta() << " and " << track->phi() << std::endl;
+      msg(MSG::DEBUG) << "Recovering charged EFO with e,eta and phi " << track->e() << ", "
+                << track->eta() << " and " << track->phi() << endmsg;
     }
     /* Get list of matched clusters */
     std::vector<eflowRecCluster*> matchedClusters = m_matchingTool->doMatches(thisEfRecTrack, m_clustersToConsider, -1);
@@ -303,14 +302,4 @@ double eflowRecoverSplitShowersTool::getSumEnergy(const std::vector<xAOD::CaloCl
     result += (*itCluster)->e();
   }
   return result;
-}
-
-void eflowRecoverSplitShowersTool::printClusterList(std::vector<xAOD::CaloCluster*>& clusters, std::string prefix) {
-  std::vector<xAOD::CaloCluster*>::iterator firstMatchedClus = clusters.begin();
-  std::vector<xAOD::CaloCluster*>::iterator lastMatchedClus = clusters.end();
-  for (; firstMatchedClus != lastMatchedClus; ++firstMatchedClus) {
-    std::cout << prefix << " have cluster with E, eta and phi of " << (*firstMatchedClus)->e()
-              << ", " << (*firstMatchedClus)->eta() << " and " << (*firstMatchedClus)->phi()
-              << std::endl;
-  }
 }

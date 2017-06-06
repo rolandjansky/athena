@@ -97,6 +97,7 @@ PixelCalibSvc::PixelCalibSvc(const std::string& name, ISvcLocator* sl):AthServic
   declareProperty("DiscrThreshVar",     m_discrThreshSigma,     "Discriminator threshold sigma");
   declareProperty("IntimeThresh",       m_intimeThresh,         "Discriminator in-time threshold");
   declareProperty("NoiseThresh",        m_noiseThresh,          "Discriminator noise");
+  declareProperty("DisableDB",          m_disableDb,            "Disable DB");
   declareProperty("IBLParameterService", m_IBLParameterSvc); 
   declareProperty("GeoModelService",     m_geoModelSvc);
   declareProperty("PixelOfflineCalibSvc",m_offlineCalibSvc);
@@ -144,7 +145,7 @@ StatusCode PixelCalibSvc::initialize() {
   CHECK(m_offlineCalibSvc.retrieve());
 
   // locate PixelCalibTools  
-  CHECK(m_dbTool.retrieve());
+  if (!m_disableDb) { CHECK(m_dbTool.retrieve()); }
 
   if (m_IBLParameterSvc.retrieve().isFailure()) {
     ATH_MSG_WARNING( "Could not retrieve IBLParameterSvc");
@@ -694,35 +695,18 @@ float PixelCalibSvc::getTotRes(const Identifier& pix_id, float Q) const {
 
 //getTotMean
 float PixelCalibSvc::getTotMean(const Identifier& pix_id, float Q) const {
+  if (m_disableDb) { return m_totparA*(m_totparE+Q)/(m_totparC+Q); }
 
   Identifier wafer_id = m_pixid->wafer_id(pix_id);
   int circ;
   int type = PixelType(pix_id,wafer_id,circ); 
-  float ToT = 0.0;
-  if (!m_disableDb && m_dbTool->getCalibPtr(wafer_id) && circ>-1) { 
-    ToT = m_dbTool->getCalibPtr(wafer_id)->getPixelChipSummaryData(circ)->getQ2Tot(type,Q); 
+  if (m_dbTool->getCalibPtr(wafer_id) && circ>-1) { 
+    return m_dbTool->getCalibPtr(wafer_id)->getPixelChipSummaryData(circ)->getQ2Tot(type,Q); 
   }
   else {
     ATH_MSG_WARNING("Condition DB is not available. Use hardcoded value.");
-    ToT = m_totparA*(m_totparE+Q)/(m_totparC+Q);
+    return m_totparA*(m_totparE+Q)/(m_totparC+Q);
   }
-
-/*
-  // In Pixel Digitization the DBM is separately treated as the below constant ToT formation.
-  // This should be revisited. 
-  const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
-  const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-  if (m_pixid->is_dbm(wafer_id)) {  // DBM uses constant so far.
-    ToT = 8.0*(Q-1200.0)/(8000.0-1200.0);
-  }
-  else {
-    if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
-      if (ToT>=m_offlineCalibSvc->getIBLToToverflow()) { ToT=m_offlineCalibSvc->getIBLToToverflow(); }
-    }
-  }
-*/
-
-  return ToT;
 }
 
 //getCharge

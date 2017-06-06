@@ -17,10 +17,9 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
-
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 #include "CxxUtils/make_unique.h"
-
-#include "AthViews/View.h"
 
 namespace AthViews {
 
@@ -32,7 +31,7 @@ namespace AthViews {
 ////////////////
 DFlowAlg1::DFlowAlg1( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
-  ::AthViewAlgorithm( name, pSvcLocator ),
+  ::AthAlgorithm( name, pSvcLocator ),
   m_r_int( "view_start" ),
   m_w_int( "dflow_int" )
 {
@@ -57,6 +56,9 @@ StatusCode DFlowAlg1::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
+  CHECK( m_r_int.initialize() );
+  CHECK( m_w_int.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -71,26 +73,38 @@ StatusCode DFlowAlg1::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  if ( !m_r_int.isValid() ) return StatusCode::FAILURE;
-  int seedData = *m_r_int;
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
+  const EventContext& ctx = getContext();
+#else
+  const EventContext& ctx = *getContext();
+#endif
 
-  ATH_MSG_INFO("myint handle...");
-  ATH_MSG_INFO("name: [" << m_w_int.name() << "]");
-  ATH_MSG_INFO("store [" << m_w_int.store() << "]");
-  ATH_MSG_INFO("clid: [" << m_w_int.clid() << "]");
-  
-  m_w_int.record( CxxUtils::make_unique< int >( seedData ) );
-
-  //redundant check as op = would throw if m_w_int was not valid (e.g. because if clid/key combo was duplicated)
-  if (m_w_int.isValid())
+  SG::ReadHandle< int > inputData( m_r_int, ctx );
+  if ( !inputData.isValid() )
   {
-    ATH_MSG_INFO("ptr: " << m_w_int.cptr());
-    ATH_MSG_INFO("val: " << *m_w_int);
+    ATH_MSG_ERROR( "Failed to retrieve initial view data from store " << inputData.store() );
+    return StatusCode::FAILURE;
+  }
+  int seedData = *inputData;
+
+  SG::WriteHandle< int > outputData( m_w_int, ctx );
+  ATH_MSG_INFO("myint handle...");
+  ATH_MSG_INFO("name: [" << outputData.name() << "]");
+  ATH_MSG_INFO("store [" << outputData.store() << "]");
+  ATH_MSG_INFO("clid: [" << outputData.clid() << "]");
+  
+  outputData.record( CxxUtils::make_unique< int >( seedData ) );
+
+  //redundant check as op = would throw if outputData was not valid (e.g. because if clid/key combo was duplicated)
+  if ( outputData.isValid() )
+  {
+    ATH_MSG_INFO("ptr: " << outputData.cptr());
+    ATH_MSG_INFO("val: " << *outputData);
     
     ATH_MSG_INFO("modify myint by value...");
 
-    ATH_MSG_INFO("ptr: " << m_w_int.cptr());
-    ATH_MSG_INFO("val: " << *m_w_int);
+    ATH_MSG_INFO("ptr: " << outputData.cptr());
+    ATH_MSG_INFO("val: " << *outputData);
   }
 
   return StatusCode::SUCCESS;

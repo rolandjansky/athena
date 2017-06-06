@@ -24,7 +24,6 @@ svcMgr.MessageSvc.Format = msgFmt
 # svcMgr.MessageSvc.useColors = True
 
 # svcMgr.AthenaHiveEventLoopMgr.OutputLevel = DEBUG
-# svcMgr.ForwardSchedulerSvc.OutputLevel = DEBUG
 
 #
 ## Override defaults. otherwise these are ALL EQUAL to the number of threads
@@ -32,11 +31,13 @@ svcMgr.MessageSvc.Format = msgFmt
 #
 
 # numStores = 1
-# numAlgsInFlight = 1
-
 # svcMgr.EventDataSvc.NSlots = numStores
-# svcMgr.ForwardSchedulerSvc.MaxEventsInFlight = numStores
-# svcMgr.ForwardSchedulerSvc.MaxAlgosInFlight = numAlgsInFlight
+
+# from AthenaCommon.AlgScheduler import AlgScheduler
+# AlgScheduler.OutputLevel( DEBUG )
+# AlgScheduler.ShowControlFlow( True )
+# AlgScheduler.ShowDataDependencies( True )
+# AlgScheduler.setThreadPoolSize( nThreads )
 
 # Thread pool service and initialization
 from GaudiHive.GaudiHiveConf import ThreadPoolSvc
@@ -184,6 +185,15 @@ sdMaster = ToolSvc.SensitiveDetectorMasterTool
 larSDs = [sd for sd in sdMaster.SensitiveDetectors if sd.name().startswith('LAr')]
 for sd in larSDs: sdMaster.SensitiveDetectors.remove(sd)
 
+# Workaround to disable the EventInfoTagBuilder.
+# Not sure how it gets on the sequence.
+try:
+    topSeq.remove(topSeq.EventInfoTagBuilder)
+except AttributeError as e:
+    from AthenaCommon.Logging import log as msg
+    msg.warning('EventInfoTagBuilder no longer on TopSeq')
+    msg.warning('Probably safe to disable workaround now.')
+
 # Increase verbosity of the output stream
 #topSeq.StreamHITS.OutputLevel = DEBUG
 
@@ -203,10 +213,7 @@ if (algCardinality != 1):
     for alg in topSeq:
         name = alg.name()
         if name in ["StreamHITS"]:
-            print 'Disabling cloning/cardinality for', name
-            # Don't clone these algs
+            # suppress INFO message about Alg unclonability
             alg.Cardinality = 1
-            alg.IsClonable = False
         else:
             alg.Cardinality = algCardinality
-            alg.IsClonable = True

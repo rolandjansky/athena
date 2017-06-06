@@ -217,10 +217,6 @@ logRecExOnline_globalconfig.info("RecExOnline: flag doPixelOnlyMon = %s" %doPixe
 if doPixelOnlyMon:
     ## force pixel on, turn off the rest of the ID:
     InDetFlags.doTrackSegmentsPixel.set_Value_and_Lock(True)
-    InDetFlags.doCTBTrackSegmentsPixel.set_Value_and_Lock(False)
-    InDetFlags.doCTBTracking.set_Value_and_Lock(False)
-    InDetFlags.doCTBTrackSegmentsSCT.set_Value_and_Lock(False)
-    InDetFlags.doCTBTrackSegmentsTRT.set_Value_and_Lock(False)
     InDetFlags.doTrackSegmentsSCT.set_Value_and_Lock(False)
     InDetFlags.doTrtSegments.set_Value_and_Lock(False)
 

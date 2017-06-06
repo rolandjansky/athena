@@ -52,7 +52,7 @@ class CaloDetDescrElement;
  * The function also depends on a set of parameters, @f$A@f$, @f$B@f$,
  * and so on.
  * Each of these parameters is then taken as a polynomial
- * in $\eta$, with coefficients $A_i$, $B_i$, and so on.  These coefficients
+ * in @f$ \eta @f$, with coefficients @f$ A_i @f$, @f$ B_i @f$, and so on.  These coefficients
  * are the parameters of the correction.  There is one set
  * of these coefficients per region per energy.
  *

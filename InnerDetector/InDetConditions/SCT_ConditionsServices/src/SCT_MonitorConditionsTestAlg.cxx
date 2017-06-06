@@ -16,23 +16,18 @@
 //Gaudi includes
 #include "GaudiKernel/StatusCode.h"
 
-// Include Event Info 
-#include "EventInfo/EventIncident.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-  
 //local includes
 #include "SCT_ConditionsServices/ISCT_MonitorConditionsSvc.h"
 #include "SCT_MonitorConditionsSvc.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
+#include "StoreGate/ReadHandle.h"
 
 SCT_MonitorConditionsTestAlg::SCT_MonitorConditionsTestAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthAlgorithm( name, pSvcLocator ), 
   m_pMonitorConditionsSvc("SCT_MonitorConditionsSvc",name),
-  m_sctId(0),
-  m_evt(0),
+  m_sctId{nullptr},
+  m_evtKey(std::string("EventInfo")),
   m_select_run(1),
   m_select_event(1)
 {
@@ -66,6 +61,9 @@ StatusCode SCT_MonitorConditionsTestAlg::initialize()
   }
   if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Found SCT_MoniotorConditinosSvc" << endmsg;
 
+  // Read Handle
+  ATH_CHECK( m_evtKey.initialize() );
+
   return StatusCode::SUCCESS;
 
 }
@@ -84,22 +82,22 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " in execute()" << endmsg;
 
-  StatusCode sc = evtStore()->retrieve(m_evt);
-  if ( sc.isFailure() ) {
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evtKey);
+  if ( not evt.isValid() ) {
     msg(MSG::ERROR) << "could not get event info " 
 	  << endmsg;
     return( StatusCode::FAILURE);
   }
   else {
-    if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Event: [" << m_evt->event_ID()->run_number()
-	  << "," << m_evt->event_ID()->event_number()
-	  << ":" << m_evt->event_ID()->time_stamp()
+    if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Event: [" << evt->runNumber()
+	  << "," << evt->eventNumber()
+	  << ":" << evt->timeStamp()
 	  << "]" << endmsg;
   }
  
   // We create the conditions objects only for a specified run and event
-  if ( m_evt->event_ID()->run_number() != m_select_run || 
-       m_evt->event_ID()->event_number() != m_select_event ) {
+  if ( evt->runNumber() != m_select_run || 
+       evt->eventNumber() != m_select_event ) {
     if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Event NOT selected for creating conditions objects " << endmsg;
     return StatusCode::SUCCESS;
   }

@@ -22,7 +22,6 @@
 // Athena
 #include "StoreGate/StoreGateSvc.h"
 
-//#include "DataModel/DataPool.h"
 
 StatusCode Muon::sTgcPrepDataContainerCnv_p1::initialize(MsgStream &log) {
    // Do not initialize again:

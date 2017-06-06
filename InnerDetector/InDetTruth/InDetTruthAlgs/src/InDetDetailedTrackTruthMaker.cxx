@@ -6,9 +6,10 @@
 // A. Gaponenko, 2006
 
 #include "InDetTruthAlgs/InDetDetailedTrackTruthMaker.h"
-#include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "TrkTruthData/DetailedTrackTruthCollection.h"
 #include "TrkTrack/TrackCollection.h"
+
+#include "StoreGate/ReadHandle.h"
 
 #include <iterator>
 
@@ -20,7 +21,7 @@ InDetDetailedTrackTruthMaker::InDetDetailedTrackTruthMaker(const std::string &na
   m_truthTool("Trk::DetailedTrackTruthBuilder")
 {  
   declareProperty("TruthNamePixel",          m_PRDTruthNamePixel      = "PRD_MultiTruthPixel");
-  declareProperty("TruthNameSCT",            m_PRDTruthNameSCT        = "PRD_MultiTruthSCT");
+  declareProperty("TruthNameSCT",            m_PRDTruthNameSCT        = std::string("PRD_MultiTruthSCT"));
   declareProperty("TruthNameTRT",            m_PRDTruthNameTRT        = "PRD_MultiTruthTRT");
   declareProperty("TrackCollectionName",     m_trackCollectionName    = "Tracks");
   declareProperty("DetailedTrackTruthName",  m_detailedTrackTruthName = "DetailedTrackTruth");
@@ -40,6 +41,9 @@ StatusCode InDetDetailedTrackTruthMaker::initialize()
   } else {
     ATH_MSG_INFO ("Retrieved tool " << m_truthTool);
   }
+
+  // Read Handle Key
+  ATH_CHECK(m_PRDTruthNameSCT.initialize(not m_PRDTruthNameSCT.key().empty()));
 
   //----------------
   return StatusCode::SUCCESS;
@@ -83,13 +87,14 @@ StatusCode InDetDetailedTrackTruthMaker::execute()
     }
   }
 
-  if(!m_PRDTruthNameSCT.empty()) {
-    sc = evtStore()->retrieve(prdCollectionVector[1], m_PRDTruthNameSCT);
-    if (sc.isFailure()){
-      ATH_MSG_WARNING ("SCT PRD_MultiTruthCollection "<<m_PRDTruthNameSCT<<" NOT found");
+  if(!m_PRDTruthNameSCT.key().empty()) {
+    SG::ReadHandle<PRD_MultiTruthCollection> prdCollection(m_PRDTruthNameSCT);
+    if (not prdCollection.isValid()){
+      ATH_MSG_WARNING ("SCT PRD_MultiTruthCollection "<<m_PRDTruthNameSCT.key()<<" NOT found");
     } else {
-      ATH_MSG_DEBUG ("Got SCT PRD_MultiTruthCollection "<<m_PRDTruthNameSCT);
+      ATH_MSG_DEBUG ("Got SCT PRD_MultiTruthCollection "<<m_PRDTruthNameSCT.key());
     }
+    prdCollectionVector[1] = prdCollection.cptr();
   }
 
   if(!m_PRDTruthNameTRT.empty()) {

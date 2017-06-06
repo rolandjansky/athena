@@ -285,6 +285,7 @@ namespace Trk {
 
       /** set material layer */
       void setMaterialLayer(const Layer& materiallay) const;
+      void setMaterialLayer(const Layer* materiallay) const;
       
       /** Output Method for MsgStream, to be overloaded by child classes */
       virtual MsgStream& dump(MsgStream& sl) const;
@@ -494,6 +495,8 @@ namespace Trk {
 
   inline void Surface::setMaterialLayer(const Layer& mlay) const
   { m_materialLayer = (&mlay); }
+  inline void Surface::setMaterialLayer(const Layer* mlay) const
+  { m_materialLayer = mlay; }
   
   inline void Surface::associateLayer(const Layer& lay) const
   { m_associatedLayer = (&lay); }

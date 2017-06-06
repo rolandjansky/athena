@@ -40,11 +40,8 @@ class TrigLLPInnerDetectorHypo: public HLT::HypoAlgo {
   HLT::ErrorCode checkDetectorMask();
   
   Bool_t                        m_hltExecuteInitialisationRun; //!< Flag to run extra initialisation on the first event when xAOD::EventInfo is present
-  ServiceHandle<StoreGateSvc>   m_detStore;
   ServiceHandle<IRegSelSvc>     m_regionSelector;      //!< region selector service
   
-  MsgStream m_log;
-
   const PixelID* m_pixHelper;   
   const SCT_ID* m_sctHelper;
   std::string m_sctSpName;

@@ -8,7 +8,7 @@ atlas_subdir( RpcCalibTools )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Control/DataModel
+                          Control/AthLinks
                           Control/StoreGate
                           GaudiKernel
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
@@ -27,12 +27,12 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( RpcCalibToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS RpcCalibTools
-                   LINK_LIBRARIES AthenaBaseComps DataModel GaudiKernel MuonReadoutGeometry TrkGeometry TrkParameters TrkTrack TrkExInterfaces StoreGateLib SGtests MuonIdHelpersLib
+                   LINK_LIBRARIES AthenaBaseComps AthLinks GaudiKernel MuonReadoutGeometry TrkGeometry TrkParameters TrkTrack TrkExInterfaces StoreGateLib SGtests MuonIdHelpersLib
                    PRIVATE_LINK_LIBRARIES MuonPrepRawData TrkMeasurementBase TrkRIO_OnTrack )
 
 atlas_add_component( RpcCalibTools
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps DataModel StoreGateLib SGtests GaudiKernel MuonReadoutGeometry TrkGeometry TrkParameters TrkTrack TrkExInterfaces MuonIdHelpersLib MuonPrepRawData TrkMeasurementBase TrkRIO_OnTrack RpcCalibToolsLib )
+                     LINK_LIBRARIES AthenaBaseComps AthLinks StoreGateLib SGtests GaudiKernel MuonReadoutGeometry TrkGeometry TrkParameters TrkTrack TrkExInterfaces MuonIdHelpersLib MuonPrepRawData TrkMeasurementBase TrkRIO_OnTrack RpcCalibToolsLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

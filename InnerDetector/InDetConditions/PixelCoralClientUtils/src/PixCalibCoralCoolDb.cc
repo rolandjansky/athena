@@ -23,8 +23,8 @@ using namespace std;
 //
 // this code is based on CoraCoolExample by R. Hawkings
 //
-PixCalibCoralCoolDb::PixCalibCoralCoolDb(string dbString, int verbose) :
-  m_dbstring(dbString), m_verbose(verbose)
+PixCalibCoralCoolDb::PixCalibCoralCoolDb(string dbString, int /*verbose*/) :
+  m_dbstring(dbString)
 {
 
   CoraCoolDatabaseSvc& corasvc=CoraCoolDatabaseSvcFactory::databaseService();
@@ -122,8 +122,8 @@ bool PixCalibCoralCoolDb::saveCalibData( string textfile , long long FK )
   CoraCoolFolderPtr folder;
 
   // delete existing folder, if any
-  bool m_delete = false;
-  if (m_delete && m_coradb->existsFolder(folderName)) {
+  bool do_delete = false;
+  if (do_delete && m_coradb->existsFolder(folderName)) {
     try {
       m_coradb->deleteFolder(folderName);
     }
@@ -224,8 +224,8 @@ bool PixCalibCoralCoolDb::referenceToRunInterval(long long FK, cool::ValidityKey
   CoraCoolFolderPtr folder;
 
   // delete existing folder, if any
-  bool m_delete = false;
-  if (m_delete && m_coradb->existsFolder(folderName)) {
+  bool do_delete = false;
+  if (do_delete && m_coradb->existsFolder(folderName)) {
     try {
       m_coradb->deleteFolder(folderName);
     }

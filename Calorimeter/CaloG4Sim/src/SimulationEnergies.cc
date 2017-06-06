@@ -71,6 +71,8 @@
 #include "CaloG4Sim/VEscapedEnergyProcessing.h"
 #include "CaloG4Sim/EscapedEnergyRegistry.h"
 
+#include "MCTruth/EventInformation.h"
+
 #include "G4EventManager.hh"
 #include "G4SteppingManager.hh"
 #include "G4TrackVector.hh"
@@ -82,6 +84,7 @@
 #include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"
 #include "G4VProcess.hh"
+#include "G4RunManager.hh"
 // #include "G4EmProcessSubType.hh"
 
 // Particle definitions
@@ -135,12 +138,6 @@ namespace CaloG4 {
   G4double SimulationEnergies::helium3Mass  = 0;
   */
 
-#ifdef ATHENAHIVE
-  SimulationEnergies::StCallThreadMap_t SimulationEnergies::m_calledForStepThreadMap;
-#else
-  G4bool SimulationEnergies::m_calledForStep = false;
-#endif
-
   SimulationEnergies::SimulationEnergies() 
   {
     // Initialize some static variables.
@@ -179,36 +176,6 @@ namespace CaloG4 {
   {;}
 
 
-  G4bool SimulationEnergies::StepWasProcessed() {
-#ifdef ATHENAHIVE
-    // Get current thread-ID
-    const auto tid = std::this_thread::get_id();
-    // Retrieve it from the call flags map
-    auto cfPair = m_calledForStepThreadMap.find(tid);
-    if(cfPair == m_calledForStepThreadMap.end()) return false;
-    return cfPair->second;
-#else
-    return m_calledForStep;
-#endif
-  }
-
-  void SimulationEnergies::SetStepProcessed() {
-#ifdef ATHENAHIVE
-    const auto tid = std::this_thread::get_id();
-    m_calledForStepThreadMap.insert( std::make_pair(tid, true) );
-#else
-    m_calledForStep = true;
-#endif
-  }
-
-  void SimulationEnergies::ResetStepProcessed() {
-#ifdef ATHENAHIVE
-    const auto tid = std::this_thread::get_id();
-    m_calledForStepThreadMap.insert( std::make_pair(tid, false) );
-#else
-    m_calledForStep = false;
-#endif
-  }
 
   // The "simple" call, intended for calibration calculators:
   void SimulationEnergies::Energies( const G4Step* a_step , std::vector<G4double>& energies ) const
@@ -226,8 +193,13 @@ namespace CaloG4 {
     energies.push_back( category.energy[SimulationEnergies::kInvisible0] );
     energies.push_back( category.energy[SimulationEnergies::kEscaped] );
 
-    // Note that we've been called for the current G4Step.
-    SetStepProcessed();
+    // Update the global step information to say that we've dealt with this
+    EventInformation * event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
+    if ( event_info ) {
+        // Update the step info
+        event_info->SetLastProcessedBarcode( a_step->GetTrack()->GetTrackID() );
+        event_info->SetLastProcessedStep( a_step->GetTrack()->GetCurrentStepNumber() );
+    }
   }
 
 

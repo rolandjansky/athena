@@ -14,7 +14,7 @@
 #include "AthenaPoolCnvSvc/ITPConverter.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "DataModelAthenaPool/DataLinkCnv_p1.h"
-#include "DataModel/DataLink.h"
+#include "AthLinks/DataLink.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCell2ClusterMap.h"
 #include "CaloEvent/CaloTowerContainer.h"

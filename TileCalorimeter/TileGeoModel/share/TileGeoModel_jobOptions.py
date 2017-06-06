@@ -17,9 +17,6 @@ if not 'TILEGEOMODEL_TILEGEOMODEL_HAS_BEEN_INCLUDED' in dir():
    from IOVDbSvc.CondDB import conddb
    import EventInfoMgt.EventInfoMgtInit
 
-   # Load RDBAcessSvc (Access to parameter Database)
-   #include ("RDBAccessSvc/RDBAccessSvcPdb_jobOptions.py")
-    
    from AthenaCommon.AppMgr import ServiceMgr
    from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
    GeoModelSvc = GeoModelSvc()

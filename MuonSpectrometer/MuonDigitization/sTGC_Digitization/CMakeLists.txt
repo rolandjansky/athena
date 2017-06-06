@@ -17,7 +17,6 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonIdHelpers
                           MuonSpectrometer/MuonSimEvent
                           Simulation/HitManagement
-                          Simulation/Tools/AtlasCLHEP_RandomGenerators
                           PRIVATE
                           Control/StoreGate
                           Event/EventInfo
@@ -46,7 +45,7 @@ atlas_add_component( sTGC_Digitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib Identifier xAODEventInfo GaudiKernel MuonSimEvent HitManagement AtlasCLHEP_RandomGenerators StoreGateLib SGtests EventInfo GeneratorObjects MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib Identifier xAODEventInfo GaudiKernel MuonSimEvent HitManagement StoreGateLib SGtests EventInfo GeneratorObjects MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives )
 
 # Install files from the package:
 atlas_install_headers( sTGC_Digitization )

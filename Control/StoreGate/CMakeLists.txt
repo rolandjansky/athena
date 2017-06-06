@@ -11,8 +11,10 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthAllocators
    Control/AthContainersInterfaces
+   Control/AthContainers
    Control/AthenaKernel
    Control/SGTools
+   Database/PersistentDataModel
    GaudiKernel
    PRIVATE
    AtlasTest/TestTools
@@ -20,13 +22,14 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
+find_package( CORAL COMPONENTS CoralBase )
 find_package( TBB )
 
 # Component(s) in the package:
 atlas_add_library( StoreGateLib src/*.cxx
    PUBLIC_HEADERS StoreGate
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${TBB_LIBRARIES} AthAllocators AthenaKernel
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${CORAL_LIBRARIES} AthAllocators AthenaKernel
    SGTools GaudiKernel
    PRIVATE_LINK_LIBRARIES CxxUtils TestTools )
 
@@ -131,6 +134,34 @@ atlas_add_test( ReadHandle_test
 atlas_add_test( UpdateHandle_test
    SOURCES test/UpdateHandle_test.cxx
    LINK_LIBRARIES SGtests
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+atlas_add_test( DecorKeyHelpers_test
+   SOURCES test/DecorKeyHelpers_test.cxx
+   LINK_LIBRARIES StoreGateLib )
+
+atlas_add_test( ReadDecorHandleKey_test
+   SOURCES test/ReadDecorHandleKey_test.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+   LINK_LIBRARIES StoreGateLib
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+atlas_add_test( WriteDecorHandleKey_test
+   SOURCES test/WriteDecorHandleKey_test.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+   LINK_LIBRARIES StoreGateLib
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+atlas_add_test( ReadDecorHandle_test
+   SOURCES test/ReadDecorHandle_test.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+   LINK_LIBRARIES StoreGateLib AthContainers
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+atlas_add_test( WriteDecorHandle_test
+   SOURCES test/WriteDecorHandle_test.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+   LINK_LIBRARIES StoreGateLib AthContainers
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 # Install files from the package:

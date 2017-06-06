@@ -9,6 +9,7 @@
 #include <vector>
 //#include <utility>
 #include <map>
+class TMap;
 
 namespace dqi{
   class ConditionsSingleton
@@ -21,13 +22,14 @@ namespace dqi{
     };
     static ConditionsSingleton *_instance;
     
-    ConditionsSingleton():numRefHisto(0){}
+  ConditionsSingleton():numRefHisto(0),m_refsourcedata(0){}
     ~ConditionsSingleton() {} 
     ConditionsSingleton(const ConditionsSingleton &);
     ConditionsSingleton & operator=(const ConditionsSingleton &);
     int numRefHisto;
     std::string currentConditions;
     std::map<std::string,std::string> referenceMap;
+    const TMap* m_refsourcedata;
   public:
     static ConditionsSingleton &getInstance();
     void makeConditionMap(std::map<std::string, std::string>& cmap,
@@ -43,6 +45,8 @@ namespace dqi{
     std::vector<std::pair<std::string,std::string> > getConditionReferencePairs(std::string inp);
     void setNewReferenceName(const std::string&,const std::string&);
     std::string getNewReferenceName(const std::string&,bool quiet=false);
+    void setRefSourceMapping(const TMap* refsourcedata);
+    std::string getRefSourceData(const std::string& rawref);
   };
 }
 

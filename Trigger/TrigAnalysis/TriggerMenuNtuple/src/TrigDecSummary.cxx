@@ -12,12 +12,11 @@
 using namespace std;
 
 const int kNL1Words=8;
-const int kNHltWords=256;
 
 TrigDecSummary::TrigDecSummary() : 
-  mL1_TBP(kNL1Words, 0), mL1_TAP(kNL1Words, 0), mL1_TAV(kNL1Words, 0), 
-  mL2_Raw(), mL2_PT(), 
-  mEF_Raw(), mEF_PT() {
+  m_L1_TBP(kNL1Words, 0), m_L1_TAP(kNL1Words, 0), m_L1_TAV(kNL1Words, 0), 
+  m_L2_Raw(), m_L2_PT(), 
+  m_EF_Raw(), m_EF_PT() {
 }
 
 TrigDecSummary::~TrigDecSummary() {
@@ -40,25 +39,25 @@ void TrigDecSummary::setBitStatus(unsigned int bit, DecType_t type, bool status)
     return;
   }
   if (status) {
-    if (type == kL1_TBP) mL1_TBP[iword] |= (1<<ibit);
-    if (type == kL1_TAP) mL1_TAP[iword] |= (1<<ibit);
-    if (type == kL1_TAV) mL1_TAV[iword] |= (1<<ibit);
+    if (type == kL1_TBP) m_L1_TBP[iword] |= (1<<ibit);
+    if (type == kL1_TAP) m_L1_TAP[iword] |= (1<<ibit);
+    if (type == kL1_TAV) m_L1_TAV[iword] |= (1<<ibit);
     
-    if (type == kL2_Raw) add(bit, mL2_Raw);
-    if (type == kL2_PT) add(bit, mL2_PT);
+    if (type == kL2_Raw) add(bit, m_L2_Raw);
+    if (type == kL2_PT) add(bit, m_L2_PT);
 
-    if (type == kEF_Raw) add(bit, mEF_Raw);
-    if (type == kEF_PT) add(bit, mEF_PT);
+    if (type == kEF_Raw) add(bit, m_EF_Raw);
+    if (type == kEF_PT) add(bit, m_EF_PT);
   } else {
-    if (type == kL1_TBP) mL1_TBP[iword] &= ~(1<<ibit);
-    if (type == kL1_TAP) mL1_TAP[iword] &= ~(1<<ibit);
-    if (type == kL1_TAV) mL1_TAV[iword] &= ~(1<<ibit);
+    if (type == kL1_TBP) m_L1_TBP[iword] &= ~(1<<ibit);
+    if (type == kL1_TAP) m_L1_TAP[iword] &= ~(1<<ibit);
+    if (type == kL1_TAV) m_L1_TAV[iword] &= ~(1<<ibit);
     
-    if (type == kL2_Raw) remove(bit, mL2_Raw);
-    if (type == kL2_PT) remove(bit, mL2_PT);
+    if (type == kL2_Raw) remove(bit, m_L2_Raw);
+    if (type == kL2_PT) remove(bit, m_L2_PT);
 
-    if (type == kEF_Raw) remove(bit, mEF_Raw);
-    if (type == kEF_PT) remove(bit, mEF_PT);
+    if (type == kEF_Raw) remove(bit, m_EF_Raw);
+    if (type == kEF_PT) remove(bit, m_EF_PT);
   }
 }
 
@@ -79,15 +78,15 @@ bool TrigDecSummary::bitStatus(unsigned int bit, DecType_t type) const {
     cout << "Bit too large" << endl;
   }
 
-  if (type == kL1_TBP) status = (mL1_TBP[iword] >> ibit) & 0x1;
-  if (type == kL1_TAP) status = (mL1_TAP[iword] >> ibit) & 0x1;
-  if (type == kL1_TAV) status = (mL1_TAV[iword] >> ibit) & 0x1;
+  if (type == kL1_TBP) status = (m_L1_TBP[iword] >> ibit) & 0x1;
+  if (type == kL1_TAP) status = (m_L1_TAP[iword] >> ibit) & 0x1;
+  if (type == kL1_TAV) status = (m_L1_TAV[iword] >> ibit) & 0x1;
 
-  if (type == kL2_Raw) status = bit_status(bit, mL2_Raw);
-  if (type == kL2_PT) status = bit_status(bit, mL2_PT);
+  if (type == kL2_Raw) status = bit_status(bit, m_L2_Raw);
+  if (type == kL2_PT) status = bit_status(bit, m_L2_PT);
 
-  if (type == kEF_Raw) status = bit_status(bit, mEF_Raw);
-  if (type == kEF_PT) status = bit_status(bit, mEF_PT);
+  if (type == kEF_Raw) status = bit_status(bit, m_EF_Raw);
+  if (type == kEF_PT) status = bit_status(bit, m_EF_PT);
 
   return status;
 }
@@ -96,20 +95,20 @@ void TrigDecSummary::clear() {
   int i;
 
   for (i=0; i<kNL1Words; ++i) {
-    mL1_TBP[i] = 0;
-    mL1_TAP[i] = 0;
-    mL1_TAV[i] = 0;
+    m_L1_TBP[i] = 0;
+    m_L1_TAP[i] = 0;
+    m_L1_TAV[i] = 0;
   }
 //   for (i=0; i<kNHltWords; ++i) {
-//     mL2_Raw[i] = 0;
-//     mL2_PT[i] = 0;
-//     mEF_Raw[i] = 0;
-//     mEF_PT[i] = 0;
+//     m_L2_Raw[i] = 0;
+//     m_L2_PT[i] = 0;
+//     m_EF_Raw[i] = 0;
+//     m_EF_PT[i] = 0;
 //   }
-  mL2_Raw.clear();
-  mL2_PT.clear();
-  mEF_Raw.clear();
-  mEF_PT.clear();
+  m_L2_Raw.clear();
+  m_L2_PT.clear();
+  m_EF_Raw.clear();
+  m_EF_PT.clear();
 }
 
 void TrigDecSummary::add(unsigned int n, std::vector<unsigned int>& v) {

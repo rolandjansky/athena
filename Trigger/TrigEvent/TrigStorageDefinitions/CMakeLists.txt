@@ -7,7 +7,8 @@ atlas_subdir( TrigStorageDefinitions )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/DataModel
+                          Control/AthLinks
+                          Control/AthContainers
                           Control/Navigation
                           Event/xAOD/xAODBTagging
                           Event/xAOD/xAODCaloEvent
@@ -36,29 +37,29 @@ find_package( Boost COMPONENTS filesystem thread system )
 atlas_add_library( TrigStorageDefinitions
                    PUBLIC_HEADERS TrigStorageDefinitions
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} DataModel Navigation xAODBTagging xAODCaloEvent xAODEgamma xAODHIEvent xAODJet xAODMuon xAODTau xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigEgamma xAODTrigL1Calo xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTrigRinger xAODTrigger )
+                   LINK_LIBRARIES ${Boost_LIBRARIES} AthLinks AthContainers Navigation xAODBTagging xAODCaloEvent xAODEgamma xAODHIEvent xAODJet xAODMuon xAODTau xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigEgamma xAODTrigL1Calo xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTrigRinger xAODTrigger )
 
 atlas_add_test( TypeInformation_test
                 SOURCES
                 test/TypeInformation_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} DataModel Navigation xAODBTagging xAODCaloEvent xAODEgamma xAODHIEvent xAODJet xAODMuon xAODTau xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigEgamma xAODTrigL1Calo xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTrigRinger xAODTrigger TestTools TrigStorageDefinitions )
+                LINK_LIBRARIES ${Boost_LIBRARIES} AthLinks AthContainers Navigation xAODBTagging xAODCaloEvent xAODEgamma xAODHIEvent xAODJet xAODMuon xAODTau xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigEgamma xAODTrigL1Calo xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTrigRinger xAODTrigger TestTools TrigStorageDefinitions )
 
 atlas_add_test( ListMap_test
                 SOURCES
                 test/ListMap_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} DataModel Navigation xAODBTagging xAODCaloEvent xAODEgamma xAODHIEvent xAODJet xAODMuon xAODTau xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigEgamma xAODTrigL1Calo xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTrigRinger xAODTrigger TestTools TrigStorageDefinitions )
+                LINK_LIBRARIES ${Boost_LIBRARIES} AthLinks AthContainers Navigation xAODBTagging xAODCaloEvent xAODEgamma xAODHIEvent xAODJet xAODMuon xAODTau xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigEgamma xAODTrigL1Calo xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTrigRinger xAODTrigger TestTools TrigStorageDefinitions )
 
 atlas_add_test( NewEDMMap_test
                 SOURCES
                 test/NewEDMMap_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} DataModel Navigation xAODBTagging xAODCaloEvent xAODEgamma xAODHIEvent xAODJet xAODMuon xAODTau xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigEgamma xAODTrigL1Calo xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTrigRinger xAODTrigger TestTools TrigStorageDefinitions )
+                LINK_LIBRARIES ${Boost_LIBRARIES} AthLinks AthContainers Navigation xAODBTagging xAODCaloEvent xAODEgamma xAODHIEvent xAODJet xAODMuon xAODTau xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigEgamma xAODTrigL1Calo xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTrigRinger xAODTrigger TestTools TrigStorageDefinitions )
 
 atlas_add_test( Basic_test
                 SOURCES
                 test/Basic_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} DataModel Navigation xAODBTagging xAODCaloEvent xAODEgamma xAODHIEvent xAODJet xAODMuon xAODTau xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigEgamma xAODTrigL1Calo xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTrigRinger xAODTrigger TestTools TrigStorageDefinitions )
+                LINK_LIBRARIES ${Boost_LIBRARIES} AthLinks AthContainers Navigation xAODBTagging xAODCaloEvent xAODEgamma xAODHIEvent xAODJet xAODMuon xAODTau xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigEgamma xAODTrigL1Calo xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTrigRinger xAODTrigger TestTools TrigStorageDefinitions )
 

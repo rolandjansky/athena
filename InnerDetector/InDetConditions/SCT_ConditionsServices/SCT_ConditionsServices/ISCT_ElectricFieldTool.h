@@ -4,7 +4,7 @@
 
 /**
  * @file ISCT_ElectricFieldTool.h
- * @primary author for Pixels Carolina Deluca (carolina.deluca.silberberg@cern.ch)
+ * @note primary author for Pixels Carolina Deluca (carolina.deluca.silberberg@cern.ch)
  * @author for SCT Peter Vankov (peter.vankov@cern.ch)
  **/
 #ifndef ISCT_ElectricFieldTool_h

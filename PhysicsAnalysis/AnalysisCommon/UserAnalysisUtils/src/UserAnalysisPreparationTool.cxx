@@ -18,6 +18,7 @@ Purpose : User Analysis Preparation - see UserAnalysisPreparationTool.h for deta
 
 // User Tools
 #include "UserAnalysisUtils/UserAnalysisPreparationTool.h"
+#include "AthContainers/ConstDataVector.h"
 
 #include <sstream>
 #include <iomanip>
@@ -291,7 +292,8 @@ StatusCode UserAnalysisPreparationTool::muonPreparation( std::string key ) {
   StatusCode sc = StatusCode::SUCCESS;
 
   /** create an empty container of all muons and record it */
-  MuonContainer * muons = new MuonContainer( SG::VIEW_ELEMENTS );
+  ConstDataVector<MuonContainer> * muons =
+    new ConstDataVector<MuonContainer>( SG::VIEW_ELEMENTS );
   sc = evtStore()->record ( muons, m_outputMuonKey );
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("Not able to create a collection of muons in StoreGate: key= " << m_outputMuonKey);
@@ -315,8 +317,7 @@ StatusCode UserAnalysisPreparationTool::muonPreparation( std::string key ) {
   for (; muonItr != muonItrE; ++muonItr) {
     //    if ( m_userSelectionTool->isSelected( *muonItr ) ) muons->push_back( *muonItr );
     if ( m_userSelectionTool->isSelected( *muonItr ) ) {
-      // FIXME: cast needed for copying between containers
-      muons->push_back( const_cast<Analysis::Muon*> (*muonItr) );
+      muons->push_back( *muonItr );
     }
  
   }  
@@ -333,7 +334,8 @@ StatusCode UserAnalysisPreparationTool::tauJetPreparation( std::string key ) {
   StatusCode sc = StatusCode::SUCCESS;
 
   /** create an empty container of all tauJets and record it */
-  TauJetContainer * tauJets = new TauJetContainer( SG::VIEW_ELEMENTS );
+  ConstDataVector<TauJetContainer> * tauJets =
+    new ConstDataVector<TauJetContainer>( SG::VIEW_ELEMENTS );
   sc = evtStore()->record ( tauJets, m_outputTauJetKey );
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("Not able to create a collection of tau jets in StoreGate: key= " << m_outputTauJetKey);
@@ -357,8 +359,7 @@ StatusCode UserAnalysisPreparationTool::tauJetPreparation( std::string key ) {
   for (; tauJetItr != tauJetItrE; ++tauJetItr) {
     //    if ( m_userSelectionTool->isSelected( *tauJetItr ) ) tauJets->push_back( *tauJetItr );
     if ( m_userSelectionTool->isSelected( *tauJetItr ) ) {
-      // FIXME: cast needed for copying between containers.
-      tauJets->push_back( const_cast<Analysis::TauJet*> (*tauJetItr) );
+      tauJets->push_back( *tauJetItr );
     }
  
   }
@@ -375,7 +376,8 @@ StatusCode UserAnalysisPreparationTool::jetPreparation( std::string key ) {
   StatusCode sc = StatusCode::SUCCESS;
 
   /** create an empty container of all jets and record it */
-  JetCollection * jets = new JetCollection( SG::VIEW_ELEMENTS );
+  ConstDataVector<JetCollection> * jets =
+    new ConstDataVector<JetCollection>( SG::VIEW_ELEMENTS );
   sc = evtStore()->record ( jets, m_outputJetKey );
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("Not able to create a collection of jets in StoreGate: key= " << m_outputJetKey);
@@ -399,8 +401,7 @@ StatusCode UserAnalysisPreparationTool::jetPreparation( std::string key ) {
   for (; jetItr != jetItrE; ++jetItr) {
     //    if ( m_userSelectionTool->isSelected( *jetItr ) ) jets->push_back( *jetItr );
     if ( m_userSelectionTool->isSelected( *jetItr ) ) {
-      // FIXME: Cast needed for copying between containers.
-      jets->push_back( const_cast<Jet*> (*jetItr) );
+      jets->push_back( *jetItr );
     }
 
   }
@@ -417,7 +418,8 @@ StatusCode UserAnalysisPreparationTool::trackParticlePreparation( std::string ke
   StatusCode sc = StatusCode::SUCCESS;
 
   /** create an empty container of TrackParticles and record it */
-  TrackParticleContainer * trackParticles = new TrackParticleContainer( SG::VIEW_ELEMENTS );
+  ConstDataVector<TrackParticleContainer> * trackParticles =
+    new ConstDataVector<TrackParticleContainer>( SG::VIEW_ELEMENTS );
   sc = evtStore()->record ( trackParticles, m_outputTrackParticleKey );
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("Not able to create a collection of TrackParticles in StoreGate: key= " << m_outputTrackParticleKey);
@@ -441,8 +443,7 @@ StatusCode UserAnalysisPreparationTool::trackParticlePreparation( std::string ke
   for (; trackParticleItr != trackParticleItrE; ++trackParticleItr) {
     //    if ( m_userSelectionTool->isSelected( *trackParticleItr ) ) trackParticles->push_back( *trackParticleItr );
     if ( m_userSelectionTool->isSelected( *trackParticleItr ) ) {
-      // FIXME: cast needed for copying between containers.
-      trackParticles->push_back( const_cast<Rec::TrackParticle*> (*trackParticleItr) );
+      trackParticles->push_back( *trackParticleItr );
     }
 
   }

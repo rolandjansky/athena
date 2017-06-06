@@ -82,7 +82,7 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   }
 
   if ( config.EqualTo("") || !config ) { ATH_MSG_FATAL("No configuration file specified."); return StatusCode::FAILURE; } 
-  m_calibAreaTag.insert(0,"CalibArea-00-04-76/"); // Hard-coding the CalibArea tag
+  m_calibAreaTag.insert(0,"CalibArea-00-04-77/"); // Hard-coding the CalibArea tag
   if(calibSeq.Contains("DEV")){
     m_devMode = true;
     ATH_MSG_WARNING("Dev Mode is ON!!! \n\n");
@@ -151,7 +151,7 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
 
   // Time-Dependent Insitu Calibration
   m_timeDependentCalib = m_globalConfig->GetValue("TimeDependentInsituCalibration",false);
-  if(m_timeDependentCalib){ // Read Insitu Configs
+  if(m_timeDependentCalib && calibSeq.Contains("Insitu")){ // Read Insitu Configs
     m_timeDependentInsituConfigs = JetCalibUtils::Vectorize( m_globalConfig->GetValue("InsituTimeDependentConfigs","") );
     if(m_timeDependentInsituConfigs.size()==0) ATH_MSG_ERROR("Please check there are at least two insitu configs");
     m_runBins = JetCalibUtils::VectorizeD( m_globalConfig->GetValue("InsituRunBins","") );

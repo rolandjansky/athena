@@ -7,6 +7,7 @@
 
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "IRegionSelector/IRegSelSvc.h" 
 #include "InDetIdentifier/SCT_ID.h"
 
 /// --------------------------------------------------------------------
@@ -15,17 +16,23 @@
 SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
 				       ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
+  m_regionSelector  ("RegSelSvc", name), 
   m_robDataProvider ("ROBDataProviderSvc",name),
   m_rawDataTool     ("SCTRawDataProviderTool",this),
   m_cabling         ("SCT_CablingSvc",name),
   m_sct_id(nullptr),
+  m_roiSeeded(false),
+  m_roiCollectionKey(""),
   m_rdoContainerKey(""),
   m_lvl1CollectionKey(""),
   m_bcidCollectionKey("")
 {
+  declareProperty("RoIs", m_roiCollectionKey = std::string(""), "RoIs to read in");
+  declareProperty("isRoI_Seeded", m_roiSeeded = false, "Use RoI");
   declareProperty("RDOKey", m_rdoContainerKey = std::string("SCT_RDOs"));
   declareProperty("LVL1IDKey", m_lvl1CollectionKey = std::string("SCT_LVL1ID"));
   declareProperty("BCIDKey", m_bcidCollectionKey = std::string("SCT_BCID"));
+  declareProperty("ByteStreamErrContainer", m_bsErrContainerKey = std::string("SCT_ByteStreamErrs"));
   declareProperty ("ProviderTool", m_rawDataTool);
   declareProperty ("CablingSvc",   m_cabling);
 }
@@ -40,31 +47,61 @@ StatusCode SCTRawDataProvider::initialize() {
   ATH_CHECK(m_rawDataTool.retrieve());
   /** Get the SCT ID helper **/
   ATH_CHECK(detStore()->retrieve(m_sct_id,"SCT_ID"));
-  /** Retrieve Cabling service */ 
-  ATH_CHECK(m_cabling.retrieve());
+  if (m_roiSeeded) {//Don't need SCT cabling if running in RoI-seeded mode
+    ATH_CHECK( m_roiCollectionKey.initialize() );
+    ATH_CHECK(m_regionSelector.retrieve());
+  }
+  else {
+    /** Retrieve Cabling service */ 
+    ATH_CHECK(m_cabling.retrieve());
+  }
   //Initialize 
   ATH_CHECK( m_rdoContainerKey.initialize() );
   ATH_CHECK( m_lvl1CollectionKey.initialize() );
   ATH_CHECK( m_bcidCollectionKey.initialize() );
+  ATH_CHECK( m_bsErrContainerKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
 /// --------------------------------------------------------------------
 /// Execute
 
-StatusCode SCTRawDataProvider::execute() {
-
+StatusCode SCTRawDataProvider::execute()
+{
   SG::WriteHandle<SCT_RDO_Container> rdoContainer(m_rdoContainerKey);
-  rdoContainer = std::make_unique<SCT_RDO_Container>(m_sct_id->wafer_hash_max()); 
+  ATH_CHECK( rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sct_id->wafer_hash_max()) ) );
   ATH_CHECK(rdoContainer.isValid());
   
+  SG::WriteHandle<InDetBSErrContainer> bsErrContainer(m_bsErrContainerKey);
+  ATH_CHECK( bsErrContainer.record (std::make_unique<InDetBSErrContainer>()) );
+
   //// do we need this??  rdoIdc->cleanup();
 
   /** ask ROBDataProviderSvc for the vector of ROBFragment for all SCT ROBIDs */
   std::vector<const ROBFragment*> listOfRobf;
-  std::vector<boost::uint32_t> rodList;
-  m_cabling->getAllRods(rodList);
+  if (!m_roiSeeded) {
+    std::vector<uint32_t> rodList;
+    m_cabling->getAllRods(rodList);
   m_robDataProvider->getROBData( rodList , listOfRobf);
+  }
+  else {//Only load ROBs from RoI
+    std::vector<uint32_t> listOfRobs;
+    SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey);
+    ATH_CHECK(roiCollection.isValid());
+    TrigRoiDescriptorCollection::const_iterator roi = roiCollection->begin();
+    TrigRoiDescriptorCollection::const_iterator roiE = roiCollection->end();
+    TrigRoiDescriptor superRoI;//add all RoIs to a super-RoI
+    superRoI.setComposite(true);
+    superRoI.manageConstituents(false);
+    for (; roi!=roiE; ++roi) {
+      superRoI.push_back(*roi);
+    }
+    m_regionSelector->DetROBIDListUint(SCT, 
+        superRoI,
+        listOfRobs);
+    m_robDataProvider->getROBData( listOfRobs, listOfRobf);
+  }
+
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of ROB fragments " << listOfRobf.size() << endmsg;
 
@@ -99,7 +136,7 @@ StatusCode SCTRawDataProvider::execute() {
   }
 
   /** ask SCTRawDataProviderTool to decode it and to fill the IDC */
-  if (m_rawDataTool->convert(listOfRobf,&(*rdoContainer))==StatusCode::FAILURE)
+  if (m_rawDataTool->convert(listOfRobf, *rdoContainer, bsErrContainer.ptr()).isFailure())
     msg(MSG::ERROR) << "BS conversion into RDOs failed" << endmsg;
   
   return StatusCode::SUCCESS;

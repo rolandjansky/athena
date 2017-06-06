@@ -501,7 +501,7 @@ namespace AtlasRoot {
 
     TH1F*         m_pedestals_es2017;
 
-    TH1D*         m_convRadius;
+    TH2D*         m_convRadius;
     TH1D*         m_convFakeRate;
     TH1D*         m_convRecoEfficiency;
 
@@ -536,7 +536,7 @@ namespace AtlasRoot {
     std::vector<TH1D*> m_matElectronScale;
     std::vector<TH1D*> m_matUnconvertedScale;
     std::vector<TH1D*> m_matConvertedScale;
-    std::vector<TH1D*> m_matElectronCstTerm;
+    std::vector<TH1F*> m_matElectronCstTerm;
     std::vector<TH1D*> m_matX0Additions;
 
     // Non-linearity graphs

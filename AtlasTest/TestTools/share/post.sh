@@ -39,6 +39,7 @@ s/(\.cxx|\.cpp|\.h|\.icc|LINE):[0-9]+/\\\\1/
 s/.[[][?]1034h//
 s/([0-9][0-9]* ms)/(xx ms)/
 s/([0-9][0-9]* ms total)/(xx ms total)/
+s/[[][0-9;]*m//g
 EOF
 
 # ignore diff annotations
@@ -155,11 +156,13 @@ PP="$PP"'|^(StoreGateSvc|[^ ]+Store) +(INFO|VERBOSE) (Stop|stop|Start)'
 PP="$PP"'|^warn  .fn-'
 
 # ubsan
-PP="$PP"'|bits/regex.h:1545'
+PP="$PP"'|bits/regex.h:11'
 
 # More StoreGate changes.
 PP="$PP"'|DEBUG trying to create store'
 
+# Differences in MT build.
+PP="$PP"'|^IncidentProcAlg.* INFO|^Ath.*Seq +INFO'
 
 
 if [ "$extrapatterns" != "" ]; then

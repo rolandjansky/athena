@@ -20,7 +20,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // DataModel includes
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 // StoreGateTests includes
 #include "StoreGateTests/PayLoad.h"

@@ -5,7 +5,7 @@
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkEventTPCnv/TrkPrepRawData/PrepRawDataCnv_p1.h"
 #include <algorithm>
-#include "DataModel/tools/IdentContIndex.h"
+#include "AthLinks/tools/IdentContIndex.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 

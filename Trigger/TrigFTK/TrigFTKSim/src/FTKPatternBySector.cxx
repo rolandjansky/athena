@@ -34,24 +34,24 @@ int FTKPatternBySectorBase::SetNLayers(int nLayer) {
    if(nLayer<=0) {
       if(nLayer<0) {
          Fatal("SetNLayers")
-            <<"\""<<fSourceName<<"\" negative number of layers requested "
+            <<"\""<<m_sourceName<<"\" negative number of layers requested "
             <<nLayer<<"\n";
       } else {
          Error("SetNLayers")
-            <<"\""<<fSourceName<<"\" zero number of layers requested\n";
+            <<"\""<<m_sourceName<<"\" zero number of layers requested\n";
       }
    } else {
-      if(fNLayers) {
-         if(nLayer!=fNLayers) {
+      if(m_NLayers) {
+         if(nLayer!=m_NLayers) {
             error++;
             Fatal("SetNLayers")
                <<" inconsistent number of layers: "
-               <<fNLayers<<" requested: "<<nLayer<<"\n";
+               <<m_NLayers<<" requested: "<<nLayer<<"\n";
          }
       } else {
-         fNLayers=nLayer;
+         m_NLayers=nLayer;
          Info("SetNLayers")
-            <<"\""<<fSourceName<<"\" number of layers is "<<fNLayers<<"\n";
+            <<"\""<<m_sourceName<<"\" number of layers is "<<m_NLayers<<"\n";
       }
    }
    return error;
@@ -198,9 +198,10 @@ FTKPatternBySectorReader *FTKPatternBySectorReader::Factory
    int errorForest=0;
    reader=new FTKPatternBySectorIndexedReader(dir,sectorList,&errorIndex);
    if(errorIndex) {
-      delete reader;
+     if (reader) delete reader;
       reader=new FTKPatternBySectorForestReader(dir,sectorList,&errorForest);
       if(errorForest) {
+ 	 if (reader) delete reader;
          reader=new FTKPatternBySectorIndexedReader(dir,sectorList,0);
          delete reader;
          reader=new FTKPatternBySectorForestReader(dir,sectorList,&errorForest);
@@ -346,7 +347,7 @@ int FTKPatternBySectorWriter::AppendMergedPatterns
 }
 #else
 
-uint64_t FTKPatternBySectorWriter::PATTERN_CHUNK=20000000;
+const uint64_t FTKPatternBySectorWriter::PATTERN_CHUNK=20000000;
 
 
 int FTKPatternBySectorWriter::AppendMergedPatterns
@@ -429,7 +430,7 @@ int FTKPatternBySectorWriter::AppendPatternsFromASCIIstream
    }
    FTKPatternWithCoverage pattern(GetNLayers());
    int sector;
-   fDir.cd();
+   m_dir.cd();
    int nread=0;
    for(Long64_t i=0;i<nPattern;i++) {
       Long64_t number;
@@ -484,12 +485,12 @@ int FTKPatternBySectorWriter::AppendMergedPatternsSector
 
 FTKPatternBySectorForestReader::FTKPatternBySectorForestReader(FTKRootFileChain &chain,int *error)
    : FTKPatternBySectorReader("FTKPatternBySectorForestReader") {
-   fSourceName=
+   m_sourceName=
       TString::Format("FTKRootFileChain(length=%d",chain.GetLength());
    for(int i=0;i<chain.GetLength();i++) {
-      fSourceName += "<"+chain[i]+">";
+      m_sourceName += "<"+chain[i]+">";
    }
-   fSourceName += ")";
+   m_sourceName += ")";
    for(int i=0;i<chain.GetLength();i++) {
       // open root file
       TString inputFileName=chain[i];
@@ -508,7 +509,7 @@ FTKPatternBySectorForestReader::FTKPatternBySectorForestReader(FTKRootFileChain 
          // store number of patterns per sector
          for(int sector=input->GetFirstSector();sector>=0;
              sector=input->GetNextSector(sector)) {
-            FTKPatternRootTreeReader * &reader=fPatterns[sector];
+            FTKPatternRootTreeReader * &reader=m_patterns[sector];
             FTKPatternRootChainReader *chainReader=
                static_cast<FTKPatternRootChainReader *>(reader);
             if(!reader) {
@@ -539,10 +540,10 @@ FTKPatternBySectorForestReader::FTKPatternBySectorForestReader
   : FTKPatternBySectorReader("FTKPatternBySectorForestReader") {
    // locate all TTree objects with pattern data
    // and store them in the STL map
-   //   fPatterns
+   //   m_patterns
    // if a valid tree is found, also determine the number of layers
-   fSourceName=dir.GetName();
-   fNLayers=0;
+   m_sourceName=dir.GetName();
+   m_NLayers=0;
    TIter next(dir.GetListOfKeys());
    TObject *o;
    while((o=next())) {
@@ -552,7 +553,7 @@ FTKPatternBySectorForestReader::FTKPatternBySectorForestReader
       //if(sector>100) continue;
       if((sector>=0)&&((!sectorlist)||
                        (sectorlist->find(sector)!=sectorlist->end()))) {
-         FTKPatternRootTreeReader * &patternTree=fPatterns[sector];
+         FTKPatternRootTreeReader * &patternTree=m_patterns[sector];
          if(patternTree) delete patternTree;
          FTKPatternRootTree *tree=new FTKPatternRootTree(dir,sector,0);
          patternTree=tree;
@@ -583,8 +584,8 @@ void FTKPatternBySectorForestReader::InitializeSectorByCoverageTable(void) {
    if(GetContentType()!=CONTENT_NOTMERGED) {
       int nSector=0;
       int nPattern=0;
-      for(PatternTreeBySectorRO_t::const_iterator i=fPatterns.begin();
-          i!=fPatterns.end();i++) {
+      for(PatternTreeBySectorRO_t::const_iterator i=m_patterns.begin();
+          i!=m_patterns.end();i++) {
          int sector=(*i).first;
          FTKPatternRootTreeReader *reader=(*i).second;
          reader->ReadCoverageOnly(true);
@@ -611,8 +612,8 @@ FTKPatternBySectorForestReader::~FTKPatternBySectorForestReader() {
    Long_t totalPatternsRead=0;
    int totalSectorsWithData=0;
    int totalSectors=0;
-   for(PatternTreeBySectorRO_t::iterator i=fPatterns.begin();
-       i!=fPatterns.end();i++) {
+   for(PatternTreeBySectorRO_t::iterator i=m_patterns.begin();
+       i!=m_patterns.end();i++) {
       Long_t nPatterns=(*i).second->GetNumberOfPatternsRead();
       if(nPatterns>0) totalSectorsWithData++;
       totalPatternsRead += nPatterns;
@@ -624,15 +625,15 @@ FTKPatternBySectorForestReader::~FTKPatternBySectorForestReader() {
          <<totalSectorsWithData
          <<"/"<<totalSectors
          <<" sectors with a total of "<<totalPatternsRead
-         <<" patterns read from \""<<fSourceName<<"\"\n";
+         <<" patterns read from \""<<m_sourceName<<"\"\n";
    }
 }
 
 Long64_t FTKPatternBySectorForestReader::GetNPatterns(int sector) const {
    // return number of patterns in one sector
    Long64_t n=0;
-   PatternTreeBySectorRO_t::const_iterator i=fPatterns.find(sector);
-   if(i != fPatterns.end()) {
+   PatternTreeBySectorRO_t::const_iterator i=m_patterns.find(sector);
+   if(i != m_patterns.end()) {
       n=(*i).second->GetNPatterns();
    }
    return n;
@@ -640,8 +641,8 @@ Long64_t FTKPatternBySectorForestReader::GetNPatterns(int sector) const {
 
 int FTKPatternBySectorForestReader::GetFirstSector(void) const {
    // return first (lowest) sector number
-   if(fPatterns.begin()!=fPatterns.end()) {
-      return (*fPatterns.begin()).first;
+   if(m_patterns.begin()!=m_patterns.end()) {
+      return (*m_patterns.begin()).first;
    } else {
       return -1;
    }
@@ -650,15 +651,15 @@ int FTKPatternBySectorForestReader::GetFirstSector(void) const {
 int FTKPatternBySectorForestReader::GetNextSector(int sector) const {
    // return next (higher) sector number
    // if there is none, return -1
-   PatternTreeBySectorRO_t::const_iterator i=fPatterns.upper_bound(sector);
-   if(i!=fPatterns.end())
+   PatternTreeBySectorRO_t::const_iterator i=m_patterns.upper_bound(sector);
+   if(i!=m_patterns.end())
       return (*i).first;
    return -1;
 }
 
 void FTKPatternBySectorForestReader::RewindSector(int sector) {
-   PatternTreeBySectorRO_t::iterator i=fPatterns.find(sector);
-   if(i!=fPatterns.end()) {
+   PatternTreeBySectorRO_t::iterator i=m_patterns.find(sector);
+   if(i!=m_patterns.end()) {
       FTKPatternRootTreeReader *reader=(*i).second;
       reader->Rewind();
       reader->ReadNextPattern();
@@ -672,8 +673,8 @@ FTKPatternOneSector *FTKPatternBySectorForestReader::Read
       Fatal("Read")<<"patterns are not merged\n";
    }
    FTKPatternOneSector *r=new FTKPatternOneSector(sector);
-   PatternTreeBySectorRO_t::iterator isector=fPatterns.find(sector);
-   if(isector!=fPatterns.end()) {
+   PatternTreeBySectorRO_t::iterator isector=m_patterns.find(sector);
+   if(isector!=m_patterns.end()) {
       FTKPatternRootTreeReader *reader=(*isector).second;
       while(reader->ReadNextPattern()) {
          FTKPatternWithCoverage const &pattern=reader->GetPattern();
@@ -693,8 +694,8 @@ FTKPatternOneSector *FTKPatternBySectorForestReader::Read
 
 FTKPatternBySectorForestWriter::FTKPatternBySectorForestWriter(TDirectory &dir)
    : FTKPatternBySectorWriter("FTKPatternBySectorWriter",dir) {
-   fSourceName=fDir.GetName();
-   Info("FTKPatternBySectorForestWriter")<<"dir="<<fSourceName<<"\n";
+   m_sourceName=m_dir.GetName();
+   Info("FTKPatternBySectorForestWriter")<<"dir="<<m_sourceName<<"\n";
 }
 
 FTKPatternBySectorForestWriter::~FTKPatternBySectorForestWriter() {
@@ -705,8 +706,8 @@ FTKPatternBySectorForestWriter::~FTKPatternBySectorForestWriter() {
    int totalSectorsWithData=0;
    int nPrint=0;
    TDirectory* lastDir=gDirectory;
-   for(PatternTreeBySectorRW_t::iterator i=fPatterns.begin();
-       i!=fPatterns.end();i++) {
+   for(PatternTreeBySectorRW_t::iterator i=m_patterns.begin();
+       i!=m_patterns.end();i++) {
       if(!(nPrint %100)) {
 	 ShowProgress(TString::Format("%d",(*i).first));
       }
@@ -718,16 +719,16 @@ FTKPatternBySectorForestWriter::~FTKPatternBySectorForestWriter() {
       n++;
    }
    if(GetContentType()==CONTENT_MERGED) {
-      fDir.cd();
+      m_dir.cd();
       TObjString *flagAsOrdered=new TObjString("IS_MERGED");
       flagAsOrdered->Write();
       delete flagAsOrdered;
    }
-   fDir.cd();
-   fDir.SaveSelf();
+   m_dir.cd();
+   m_dir.SaveSelf();
    Info("summary")<<totalSectorsWithData
                   <<" sectors with a total of "<<totalPatternsWritten
-                  <<" patterns written to: \""<<fDir.GetName()<<"\"\n";
+                  <<" patterns written to: \""<<m_dir.GetName()<<"\"\n";
    lastDir->cd(); // go back
 }
 
@@ -736,9 +737,9 @@ int FTKPatternBySectorForestWriter::AppendMergedPatternsSector
    // order patterns of one sector by coverage, then store them to disk
    int error=0;
    if(orderedByCoverage->Begin()!=orderedByCoverage->End()) {
-      FTKPatternRootTree * &patternTree=fPatterns[sector];
+      FTKPatternRootTree * &patternTree=m_patterns[sector];
       if(!patternTree) {
-         patternTree=new FTKPatternRootTree(fDir,sector,GetNLayers());
+         patternTree=new FTKPatternRootTree(m_dir,sector,GetNLayers());
          if(GetContentType()==CONTENT_EMPTY) {
             SetContentType(CONTENT_MERGED);
          }
@@ -760,9 +761,9 @@ int FTKPatternBySectorForestWriter::AppendPattern
 (int sector,int coverage,FTKHitPattern const &pattern) {
    // add one pattern to the output
    int error=0;
-   FTKPatternRootTree * &patternTree=fPatterns[sector];
+   FTKPatternRootTree * &patternTree=m_patterns[sector];
    if(!patternTree) {
-      patternTree=new FTKPatternRootTree(fDir,sector,GetNLayers());
+      patternTree=new FTKPatternRootTree(m_dir,sector,GetNLayers());
       if(GetContentType()==CONTENT_EMPTY) {
          SetContentType(CONTENT_MERGED);
       }
@@ -857,8 +858,8 @@ char const *FTKPatternBySectorIndexed::GetDecoderDataBranchID(uint32_t plane) {
 FTKPatternBySectorIndexedWriter::FTKPatternBySectorIndexedWriter
 (TDirectory &dir)
    : FTKPatternBySectorWriter("FTKPatternBySectorIndexedWriter",dir) {
-   fSourceName=fDir.GetName();
-   Info("FTKPatternBySectorIndexedWriter")<<"dir="<<fSourceName<<"\n";
+   m_sourceName=m_dir.GetName();
+   Info("FTKPatternBySectorIndexedWriter")<<"dir="<<m_sourceName<<"\n";
 m_cpatternDataTree=0;
    m_cpatternIndexTree=0;
    m_patternStorage=0;
@@ -866,11 +867,12 @@ m_cpatternDataTree=0;
 
 FTKPatternBySectorIndexedWriter::~FTKPatternBySectorIndexedWriter() {
    Flush();
-   fDir.cd();
+   m_dir.cd();
    m_cpatternDataTree->Write(0,TObject::kOverwrite);
    m_cpatternIndexTree->Write(0,TObject::kOverwrite);
    delete m_cpatternDataTree;
    delete m_cpatternIndexTree;
+   //  if (m_patternData) delete m_patternData;
 }
 
 int FTKPatternBySectorIndexedWriter::AppendPattern
@@ -954,7 +956,7 @@ int FTKPatternBySectorIndexedWriter::AppendPattern
 
 void FTKPatternBySectorIndexedWriter::Flush(void) {
    Info("Flush")<<"Number of sectors: "<<m_patternData.size()<<"\n";
-   fDir.cd();
+   m_dir.cd();
    if(!m_cpatternDataTree) {
 
       m_cpatternDataTree=new TTree(s_cdataTreeName,s_cdataTreeName);
@@ -1195,6 +1197,7 @@ FTKPatternBySectorIndexedReader::FTKPatternBySectorIndexedReader
    TTree *indexTree;
    dir.GetObject(s_indexTreeName,indexTree);
    m_dataTree=0;
+   m_patternData=0;
    if(indexTree && !InitializeIndex(indexTree,sectorList)) {
       dir.GetObject(s_cdataTreeName,m_dataTree);
    }
@@ -1219,6 +1222,7 @@ FTKPatternBySectorIndexedReader::FTKPatternBySectorIndexedReader
       if(!indexChain.Add(chain[i].c_str(),0)) ++errorCount;
    }
    m_dataTree=0;
+   m_patternData=0;
    if((!errorCount) && !InitializeIndex(&indexChain,0)) {
       TChain *dataChain=new TChain(s_cdataTreeName);
       for(int i=0;i<chain.GetLength();i++) {
@@ -1241,6 +1245,7 @@ FTKPatternBySectorIndexedReader::FTKPatternBySectorIndexedReader
 
 FTKPatternBySectorIndexedReader::~FTKPatternBySectorIndexedReader() {
    if(m_dataTree) delete m_dataTree;
+   if (m_patternData) delete m_patternData;
 }
 
 Long64_t FTKPatternBySectorIndexedReader::GetNPatterns(int sector) const {

@@ -137,7 +137,7 @@ class HLTJetMonTool : public IHLTMonTool {
 
     // jet selection, matching
     //bool m_doL1TrigEff, m_doHLTTrigEff, m_doOFJets, m_doEvtSel, m_debuglevel;
-    bool /*m_doLumiWeight,*/ m_doL1TrigEff, m_doHLTTrigEff, m_doOFJets, m_debuglevel;
+    bool /*m_doLumiWeight,*/ m_doL1TrigEff, m_doHLTTrigEff, m_doOFJets;
     
     bool m_doselOFJets, m_doselOFBasicHists, m_reqMinPtCut, m_reqEtaCut, m_reqMaxNJetCut;
     bool m_reqP4State, /*m_reqEMFracCut, m_reqN90Cut, m_reqTimeCut,*/ m_reqBadQCut;

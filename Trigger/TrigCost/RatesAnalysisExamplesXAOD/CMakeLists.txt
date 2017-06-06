@@ -10,6 +10,10 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Event/xAOD/xAODJet
+                          Event/xAOD/xAODMuon
+                          Event/xAOD/xAODMissingET
+                          Event/xAOD/xAODTau
+                          Event/xAOD/xAODEgamma
                           Trigger/TrigCost/RatesAnalysis )
 
 # Component(s) in the package:

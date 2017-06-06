@@ -12,10 +12,8 @@ library AtlasCollectionTools LumiMetaHandler.cxx GlobalUniqueKey.cxx GlobalSum.c
 
 #application  CollSplitByRun CollSplitByRun.cxx
 #macro_append CollSplitByRun_dependencies " AtlasCollectionTools" 
-application  CollAppend CollAppend.cxx
-macro_append CollAppend_dependencies " AtlasCollectionTools" 
-application  CollAppendXML CollAppendXML.cxx
-macro_append CollAppendXML_dependencies " AtlasCollectionTools" 
+application  AthCollAppend CollAppend.cxx
+macro_append AthCollAppend_dependencies " AtlasCollectionTools" 
 #application  GRLtest GRLtest.cxx
 
 macro_append AtlasCollectionTools_cppflags " `xml2-config --cflags`"

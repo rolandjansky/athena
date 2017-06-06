@@ -29,5 +29,6 @@ operator<<(std::ostream & o, const TCS::Decision & dec) {
    while(bit!=0) {
       o << (dec.bit(--bit)?1:0);
    }
+   o << "(overflow "<<dec.overflow()<<")";
    return o;
 }

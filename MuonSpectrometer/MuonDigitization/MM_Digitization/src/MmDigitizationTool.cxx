@@ -67,7 +67,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGamma.h"
 #include "CLHEP/Random/RandPoisson.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandExponential.h"
 
 #include "MuonAGDDDescription/MMDetectorDescription.h"

@@ -81,7 +81,7 @@ namespace xAOD {
     /** 
      * @brief Track position along Y axis in station local coordinate system.
      *
-     * @copydetail xAOD::AFPTrack_v1::xLocal()
+     * @copydetails xAOD::AFPTrack_v1::xLocal()
      */
     float yLocal() const;
 

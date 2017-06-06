@@ -5,7 +5,7 @@
 #ifndef STORAGEDEF_TRIGINDETEVENT
 #define STORAGEDEF_TRIGINDETEVENT
 #include "TrigStorageDefinitions/EDM_TypeInformation.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 namespace Trk{
   class Track;

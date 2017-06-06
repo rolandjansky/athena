@@ -21,7 +21,7 @@ namespace InDetDD {
          Class used to handle connection of multiple diodes to the same readout cell
 
          @author: David Calvet
-         @modifed: Grant Gorfine, Andreas Salzburger
+         @note: modifed by Grant Gorfine, Andreas Salzburger
       */
 
     class PixelMultipleConnection1D {

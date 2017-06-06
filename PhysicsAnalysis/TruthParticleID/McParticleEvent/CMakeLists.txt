@@ -35,7 +35,7 @@ atlas_add_library( McParticleEvent
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthContainers AthLinks Navigation
    EventKernel NavFourMom GeneratorObjects ParticleEvent VxVertex
-   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} )
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} )
 
 atlas_add_dictionary( McParticleEventDict
    McParticleEvent/McParticleEventDict.h McParticleEvent/selection.xml

@@ -118,8 +118,8 @@ private:
 
   // output
   // ================================================================
-  mutable boost::shared_ptr<boost::iostreams::filtering_ostream> ofl;
-  mutable boost::shared_ptr<boost::iostreams::filtering_ostream> oflraw;
+  mutable boost::shared_ptr<boost::iostreams::filtering_ostream> m_ofl;
+  mutable boost::shared_ptr<boost::iostreams::filtering_ostream> m_oflraw;
 
   void read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelClusterIndexMap ) ; // dump raw silicon data to text file and populate hitIndexMap for rec. track processing
   void read_truth_tracks() ; // dump old track-truth matching format to text file

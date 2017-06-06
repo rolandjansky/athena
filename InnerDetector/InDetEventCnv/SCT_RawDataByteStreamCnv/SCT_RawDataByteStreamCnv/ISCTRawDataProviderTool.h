@@ -9,6 +9,7 @@
 #include "ByteStreamData/RawEvent.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/InDetTimeCollection.h"
+#include "InDetByteStreamErrors/InDetBSErrContainer.h"
 
 #include <set>
 #include <string>
@@ -31,7 +32,8 @@ class ISCTRawDataProviderTool : virtual public IAlgTool
 
   //! this is the main decoding method
   virtual StatusCode convert( std::vector<const ROBFragment*>&,
-			      SCT_RDO_Container*) = 0;
+			      SCT_RDO_Container&,
+                              InDetBSErrContainer* errs) = 0;
 
 };
 

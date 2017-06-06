@@ -60,23 +60,23 @@ private:
   void _CreateHist();                                                            /*!< Creates a TH1F instance from the arrays if necessary. */
   void _ComputeCum();                                                            /*!< Calculates the cumulative function of the pdf if necessary. */
 
-  unsigned int _val_denominator;                                                 /*!< Holds the value of original denominator. */
-  unsigned int _val_numerator;                                                   /*!< Holds the value of original numerator. */
-  double _expectancy_val;                                                        /*!< Holds the Expectancy value of efficiency/weight. */
-  double _variance;                                                              /*!< Holds Variance of efficiency/weight (classical binomial/poisson model). */
-  double _stat_uncert_low;                                                       /*!< Holds lower bound of asymmetric statistical uncertainty. */
-  double _stat_uncert_high;                                                      /*!< Holds upper bound of asymmetric statistical uncertainty. */
-  double _sys_uncert;                                                            /*!< Holds absolute systematic uncertainty value of efficiency/weight. */
-  double _sys_uncert2;                                                           /*!< Holds absolute systematic uncertainty squared value of efficiency/weight. */
+  unsigned int m_val_denominator;                                                 /*!< Holds the value of original denominator. */
+  unsigned int m_val_numerator;                                                   /*!< Holds the value of original numerator. */
+  double m_expectancy_val;                                                        /*!< Holds the Expectancy value of efficiency/weight. */
+  double m_variance;                                                              /*!< Holds Variance of efficiency/weight (classical binomial/poisson model). */
+  double m_stat_uncert_low;                                                       /*!< Holds lower bound of asymmetric statistical uncertainty. */
+  double m_stat_uncert_high;                                                      /*!< Holds upper bound of asymmetric statistical uncertainty. */
+  double m_sys_uncert;                                                            /*!< Holds absolute systematic uncertainty value of efficiency/weight. */
+  double m_sys_uncert2;                                                           /*!< Holds absolute systematic uncertainty squared value of efficiency/weight. */
 
-  bool _is_trig;                                                                 /*!< Flag, set to true if weight entry is trigger based. */
-  bool _is_nan;                                                                  /*!< Flag, set to true if denominator is zero. */
-  unsigned int _ID;                                                              /*!< Holds internal ID (used by APReweight/APReweight2D/APReweight3D/APReweightND). */
-  double _integral;                                                              /*!< Holds the integral of the probability distribution. */
-  double *_pdf, *_bins, *_cumul;                                                 /*!< Histograms to hold the probability distribution and the cumulative distribution. */
-  TH1F *_hist;                                                                   /*!< Holds the TH1F instance from the arrays if computed. */
-  std::vector<int> _coords;                                                      /*!< Holds the coordinates of the current entry in the original histogram. */
-  std::vector< int > _n_dim_origin;                                              /*!< Holds the amount of dimensions and bins per axis in the original histogram. */
+  bool m_is_trig;                                                                 /*!< Flag, set to true if weight entry is trigger based. */
+  bool m_is_nan;                                                                  /*!< Flag, set to true if denominator is zero. */
+  unsigned int m_ID;                                                              /*!< Holds internal ID (used by APReweight/APReweight2D/APReweight3D/APReweightND). */
+  double m_integral;                                                              /*!< Holds the integral of the probability distribution. */
+  double *m_pdf, *m_bins, *m_cumul;                                                 /*!< Histograms to hold the probability distribution and the cumulative distribution. */
+  TH1F *m_hist;                                                                   /*!< Holds the TH1F instance from the arrays if computed. */
+  std::vector<int> m_coords;                                                      /*!< Holds the coordinates of the current entry in the original histogram. */
+  std::vector< int > m_n_dim_origin;                                              /*!< Holds the amount of dimensions and bins per axis in the original histogram. */
 };
 
 #endif

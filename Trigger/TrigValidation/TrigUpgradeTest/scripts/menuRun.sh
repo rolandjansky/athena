@@ -1,0 +1,4 @@
+get_files -data menuData.dat
+get_files -data muonRoIData.dat
+get_files -xmls HLTTestMenu.xml
+athena.py --threads=1 ViewAlgsTest/menuRun.py

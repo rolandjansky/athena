@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @file ISF_FastCaloSimJobProperties.py
-## @purpose Python module to hold common flags to configure JobOptions
+## @brief Python module to hold common flags to configure JobOptions
 ##
 
 """ ISF_FastCaloSimJobProperties
@@ -50,6 +50,17 @@ class FastShowerInputCollection(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'TruthEvent'
 
+class DoRandomFluctuations(JobProperty):
+    """Determines if Random Fluctuations should be used if particle is a pion"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class ParamsInputFilename(JobProperty):
+    """ Filename of the input parametrizations file. """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = '/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/FCSParams.root'
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -72,6 +83,8 @@ jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( FastCaloSimIsActive 
 jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( RandomStreamName           )
 jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( CaloCellsName              )
 jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( FastShowerInputCollection  )
+jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( DoRandomFluctuations       )
+jobproperties.ISF_FastCaloSimJobProperties.add_JobProperty( ParamsInputFilename        )
 
 ##-----------------------------------------------------------------------------
 ## 5th step

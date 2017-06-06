@@ -10,7 +10,7 @@
 #include "MDT_Response/Amplifier.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Random/RandPoisson.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 // Add support for CLHEP 1.9 by replacing forward declarations by inclusion
 // of equivalent header file.

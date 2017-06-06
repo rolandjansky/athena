@@ -19,7 +19,7 @@ using namespace MonteCarloReact;
 Efficiency::Efficiency() { m_isValid = false; }
 
 Efficiency::Efficiency(istream &fstr, 
-                       const EffInfo* request){ m_makeEfficiency( fstr, request);}
+                       const EffInfo* request){ makeEfficiency( fstr, request);}
 
 
 Efficiency::~Efficiency(){;}
@@ -35,9 +35,9 @@ bool Efficiency::isRequestInFile(istream& fp, const EffInfo* request) {
     getline(fp,str);
     // Tokenize is used to break the input line into a series of "words", the first of which is the "keyword". The fourth parameter to this call
     // is the set of delimeters for defining word boundaries
-    bool goodTokens = m_tokenize(str, key, tokens, "\t\r\n: ");
+    bool goodTokens = tokenize(str, key, tokens, "\t\r\n: ");
     if(!goodTokens)  continue ;
-    if( m_parseInputLine( key, tokens)) {
+    if( parseInputLine( key, tokens)) {
       endOfObject = true ;
       continue ;
     } 
@@ -67,19 +67,19 @@ void Efficiency::setInfo(EffInfo & spec ) {
   m_spec.setObjAlgorithm(spec.getObjAlgorithm());
 }
 
-void Efficiency::m_doStream( ostream & os) const {
+void Efficiency::doStream( ostream & os) const {
   // first dump efficiency info
   os << m_spec;
   // now dump the efficiency values themselves
-  m_stream( os );
+  stream( os );
 }
 
-bool Efficiency::m_makeEfficiency(istream& fstr, const EffInfo* request){
-  if(!m_effParse(fstr, request)) return false;  
+bool Efficiency::makeEfficiency(istream& fstr, const EffInfo* request){
+  if(!effParse(fstr, request)) return false;  
   else return true;
 }
 
-bool Efficiency::m_effParse(istream& fp, const EffInfo* request) {
+bool Efficiency::effParse(istream& fp, const EffInfo* request) {
   // read in one Efficiency object from the input stream
   bool endOfObject = false ; // true after filling one EffInfo object
   while(fp && fp.good()) { 
@@ -90,13 +90,13 @@ bool Efficiency::m_effParse(istream& fp, const EffInfo* request) {
     getline(fp,str);
     // Tokenize is used to break the input line into a series of "words", the first of which is the "keyword". The fourth parameter to this call
     // is the set of delimeters for defining word boundaries
-    bool goodTokens = m_tokenize(str, key, tokens, "\t\r\n: ");
+    bool goodTokens = tokenize(str, key, tokens, "\t\r\n: ");
     if(!goodTokens)  continue ;
     // ParseInputLine is implemented by the derived class. 
     // It returns true if the derived class found a key which it recongnised
     // thus endOfObject is set to true the first time a key is found belonging 
     // to the derived class.
-    if( m_parseInputLine( key, tokens)) { 
+    if( parseInputLine( key, tokens)) { 
       endOfObject = true ;
       continue ;
     } 
@@ -106,7 +106,7 @@ bool Efficiency::m_effParse(istream& fp, const EffInfo* request) {
       // recognised by the derived class after a block of lines (1 or more) which *were* recognised by the 
       // derived class.
       if(request && request->contains(m_spec)) { // does the specification of the efficiency match what we requested?
-	m_isValid = m_doValidateInput(); // is it valid?
+	m_isValid = doValidateInput(); // is it valid?
 	if( m_isValid ) {
 	  // now we need to put the current line back into the buffer in case the controller of the stream (most likely EffTool) wants to make 
 	  // a new Efficiency object to continue parsing the input stream to look for further instances of matching efficiencies!
@@ -125,13 +125,13 @@ bool Efficiency::m_effParse(istream& fp, const EffInfo* request) {
   // if we got to the end of the stream without finding a file. throw an exception here.
   if(request && !request->contains(m_spec)) 
     throw EffRequestNotFoundInFile() ;
-  m_isValid = m_doValidateInput();
+  m_isValid = doValidateInput();
   return m_isValid;
 }
 
 
 
-bool Efficiency::m_tokenize(const string& str, std::string & key, 
+bool Efficiency::tokenize(const string& str, std::string & key, 
                             vector<string>& tokens, const string& delimiters) {
   int nfound = 0;
   if(str.empty()) return false;
@@ -160,7 +160,7 @@ bool Efficiency::m_tokenize(const string& str, std::string & key,
 
 
 
-bool Efficiency::m_doValidateInput() const {
+bool Efficiency::doValidateInput() const {
   bool valid = true;
   // first make sure all the things needed to define an arbitrary efficiency have been defined
   

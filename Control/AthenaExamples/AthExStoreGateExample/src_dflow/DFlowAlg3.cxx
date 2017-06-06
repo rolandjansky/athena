@@ -12,11 +12,20 @@
 
 // AthExStoreGateExample includes
 #include "DFlowAlg3.h"
+#include "StoreGate/UpdateHandle.h"
 
 // STL includes
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
+
+namespace SG {
+template<>
+struct IsThreadSafeForUH<int, std::true_type>
+{
+  typedef std::true_type type;
+};
+}
 
 namespace AthEx {
 
@@ -37,16 +46,16 @@ DFlowAlg3::DFlowAlg3( const std::string& name,
 
 
   declareProperty("RIntFlow", 
-                  m_r_int = SG::ReadHandle<int>("dflow_int"),
+                  m_r_int = SG::ReadHandle<int>("dflow_int2"),
                   "Data flow of int (read)");
 
   declareProperty("RIntsFlow", 
                   m_r_ints = SG::ReadHandle<std::vector<int> >("dflow_ints"),
                   "Data flow of integers (read)");
 
-  declareProperty("RWIntsFlow", 
-                  m_rw_ints = SG::UpdateHandle<std::vector<int> >("dflow_ints"),
-                  "Data flow of integers (r/w)");
+  declareProperty("WIntsFlow", 
+                  m_w_ints = SG::WriteHandle<std::vector<int> >("dflow_ints2"),
+                  "Data flow of integers (write)");
 }
 
 // Destructor
@@ -92,16 +101,18 @@ StatusCode DFlowAlg3::execute()
 
   ATH_MSG_INFO("ptr: " << m_r_ints.ptr());
 
-  ATH_MSG_INFO("ints rw-handle...");
-  m_rw_ints->push_back(10);
+  ATH_MSG_INFO("ints w-handle...");
+  
+  ATH_CHECK( m_w_ints.record (std::make_unique<std::vector<int> > (*m_r_ints)) );
+  m_w_ints->push_back(10);
   if (m_r_int.isValid()) {
-    m_rw_ints->push_back(*m_r_int);
+    m_w_ints->push_back(*m_r_int);
   }
-  ATH_MSG_INFO("size:" << m_rw_ints->size());
-  for (int i = 0, imax = m_rw_ints->size();
+  ATH_MSG_INFO("size:" << m_w_ints->size());
+  for (int i = 0, imax = m_w_ints->size();
        i!=imax;
        ++i) {
-    ATH_MSG_INFO("val[" << i << "]= " << m_rw_ints->at(i));
+    ATH_MSG_INFO("val[" << i << "]= " << m_w_ints->at(i));
   }
 
   // try to modify 'ints' via ReadHadnle<>
@@ -114,24 +125,24 @@ StatusCode DFlowAlg3::execute()
   SG::ReadHandle<std::vector<int> > ints(m_r_ints.name());
   ATH_MSG_INFO("temporary r-handle[ints] - size: " << ints->size());
   ATH_MSG_INFO("compare pointers: ok=" << (ints.ptr() == m_r_ints.ptr()));
-  ATH_MSG_INFO("compare pointers: ok=" << (ints.ptr() == m_rw_ints.ptr()));
+  ATH_MSG_INFO("compare pointers: ok=" << (ints.ptr() == m_w_ints.ptr()));
 
   // test that modification thru one handle is seen thru the other one
-  std::vector<int> save = *m_rw_ints;
-  *m_rw_ints = std::vector<int>();
+  std::vector<int> save = *m_w_ints;
+  *m_w_ints = std::vector<int>();
   ATH_MSG_INFO("temporary r-handle[ints] - size: " << ints->size());
   if (m_r_int.isValid()) {
     ATH_MSG_INFO("data mbr  r-handle[ints] - size: " << m_r_ints->size());
   }
-  ATH_MSG_INFO("data mbr rw-handle[ints] - size: " << m_rw_ints->size());
+  ATH_MSG_INFO("data mbr w-handle[ints] - size: " << m_w_ints->size());
 
   ATH_MSG_INFO("--restore--");
-  *m_rw_ints = save;
+  *m_w_ints = save;
   ATH_MSG_INFO("temporary r-handle[ints] - size: " << ints->size());
   if (m_r_int.isValid()) {
     ATH_MSG_INFO("data mbr  r-handle[ints] - size: " << m_r_ints->size());
   }
-  ATH_MSG_INFO("data mbr rw-handle[ints] - size: " << m_rw_ints->size());
+  ATH_MSG_INFO("data mbr w-handle[ints] - size: " << m_w_ints->size());
 
 
   // test that inexistant proxies are correctly detected

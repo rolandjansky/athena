@@ -42,6 +42,8 @@ namespace LVL1 {
   //static const std::string DEFAULT_FrontPanelCTPLocation = "/Run/FrontPanelCTPLocation";
   //! default StoreGate location for Front Panel CTP inputs
   static const std::string DEFAULT_L1TopoCTPLocation = "/Run/L1TopoToCTPLocation";
+  //! default StoreGate location for Front Panel CTP inputs of l1topo overflow bits
+  static const std::string DEFAULT_L1TopoOverflowCTPLocation = "/Run/L1TopoOverflowToCTPLocation";
 
 } // namespace LVL1
 

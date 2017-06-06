@@ -1382,19 +1382,22 @@ def dump_Surface (info, f):
     dump_Threevec (info.normal(), f)
     if (isinstance (info, PyAthena.Trk.DiscSurface) and
         typename(info.bounds().__class__).find ('NoBounds') >= 0):
+        bd_class = info.bounds().__class__
         print >>f, '(no bounds)',
     elif (isinstance (info, PyAthena.Trk.CylinderSurface) and
-          not info.bounds()):
+          (not info.hasBounds() or not info.bounds())):
         print >>f, '(no bounds)',
+        bd_class = PyAthena.Trk.CylinderBounds
     else:
         dump_Threevec (info.globalReferencePoint(), f)
+        bd_class = info.bounds().__class__
     if isinstance (info, PyAthena.Trk.CylinderSurface):
         dump_AmgVector (info.rotSymmetryAxis(), f)
     print >> f, '\n          tf',
     dump_AmgMatrix (info.transform().matrix(), f, thresh=1e-8)
 #    print >> f, '\n          de', info.associatedDetectorElement(),
     print >> f, '\n          ly', tonone (info.associatedLayer()),
-    print >> f, '\n          bd', typename(info.bounds().__class__),
+    print >> f, '\n          bd', typename(bd_class),
     print >> f, '\n          id', \
           info.associatedDetectorElementIdentifier().getString(),
     return
@@ -1459,6 +1462,13 @@ def dump_surface (p, f):
     return
 
 
+def dump_associatedSurface (p, f):
+    if hasattr(p, 'hasSurface') and not p.hasSurface():
+        print >> f, None,
+    else:
+        dump_surface (p.associatedSurface(), f)
+    return
+
 
 def dump_ParametersBase (info, f):
     dump_AmgVector (info.parameters(), f)
@@ -1470,7 +1480,7 @@ def dump_ParametersBase (info, f):
         print >> f, '\n          cov',
         dump_AmgMatrix (info.covariance(), f)
     print >> f, '\n          sf',
-    dump_surface (info.associatedSurface(), f)
+    dump_associatedSurface (info, f)
     return
 
 
@@ -1619,7 +1629,7 @@ def dump_MuonClusterOnTrack (p, f):
 def dump_CompetingMuonClustersOnTrack (p, f):
     dump_CompetingRIOsOnTrack (p, f)
     dump_AmgVector (p.globalPosition(), f)
-    dump_surface (p.associatedSurface(), f)
+    dump_associatedSurface (p, f)
     for r in p.containedROTs():
         print >> f, '\n    mc ',
         dump_MuonClusterOnTrack (r, f)
@@ -1655,7 +1665,7 @@ def dump_CscClusterOnTrack (p, f):
 def dump_PseudoMeasurementOnTrack (p, f):
     dump_MeasurementBase (p, f)
     dump_AmgVector (p.globalPosition(), f)
-    dump_surface (p.associatedSurface(), f)
+    dump_associatedSurface (p, f)
     return
     
 
@@ -1692,7 +1702,7 @@ def dump_measurement (p, f):
 
 def dump_MaterialEffectsBase (p, f):
     print >> f, p.dumpType(), p.thicknessInX0(),
-    dump_surface (p.associatedSurface(), f)
+    dump_associatedSurface (p, f)
     return
 
 
@@ -2075,7 +2085,13 @@ def dump_RecVertex (v, f):
 
 
 def dump_ITrackLink (l, f):
-    dump_parameters (l.parameters(), f)
+    perigee = None
+    trk = l.cptr()
+    if trk:
+        pm = trk.trackParameters()
+        if pm and len(pm) > 0:
+            perigee = pm[-1]
+    dump_parameters (perigee, f)
     return
 
 
@@ -2109,7 +2125,13 @@ def dump_VxTrackAtVertex (t, f):
     tel = PyAthena.ElementLink ('DataVector<Trk::Track>')
     if not isinstance (t.trackOrParticleLink(), tel):
         print >> f, '\n      ip',
-        dump_parameters (t.initialPerigee(), f)
+        perigee = None
+        trk = t.trackOrParticleLink().cptr()
+        if trk:
+            pm = trk.trackParameters()
+            if pm and len(pm) > 0:
+                perigee = pm[-1]
+        dump_parameters (perigee, f)
         print >> f, '\n      pl',
         if isinstance (t.trackOrParticleLink(), PyAthena.Trk.LinkToTrack):
             dump_LinkToTrack (t.trackOrParticleLink(), f)
@@ -3705,14 +3727,21 @@ def dump_TrigMuonEFTrack (t, f):
     return
 
 
-def dump_TrigMuonEFInfo (t, f):
-    print >> f, t.RoINum(),
+def dump_TrigMuonEFInfoTrack (t, f):
+    print >> f, '\n ', t.MuonType(),
     print >> f, '\n    spectrometer: ',
     dump_TrigMuonEFTrack (t.SpectrometerTrack(), f)
     print >> f, '\n    extrapolated: ',
     dump_TrigMuonEFTrack (t.ExtrapolatedTrack(), f)
     print >> f, '\n    combined: ',
     dump_TrigMuonEFTrack (t.CombinedTrack(), f)
+    return
+
+
+def dump_TrigMuonEFInfo (t, f):
+    print >> f, t.RoINum(),
+    for tt in t.TrackContainer():
+        dump_TrigMuonEFInfoTrack (tt, f)
     return
 
 

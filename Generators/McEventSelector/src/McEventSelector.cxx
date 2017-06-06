@@ -436,8 +436,8 @@ McEventSelector::createAddress(const Context& refCtxt,
 StatusCode
 McEventSelector::releaseContext(Context*& /*refCtxt*/) const {
 
-  ATH_MSG_ERROR ("............. releaseContext Not Implemented .............");
-  return StatusCode::FAILURE;
+  // Nothing to do.
+  return StatusCode::SUCCESS;
 
 }
 

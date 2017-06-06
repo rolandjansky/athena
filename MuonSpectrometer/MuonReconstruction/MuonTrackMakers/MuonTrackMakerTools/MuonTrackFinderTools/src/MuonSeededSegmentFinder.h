@@ -121,17 +121,10 @@ namespace Muon {
     ToolHandle<Muon::MuonIdHelperTool>               m_idHelper;       //!< IdHelper tool
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;            //!< EDM printer tool
 
-    std::string m_key_mdt;                                //!< storegate location of the MdtPrepData
-    mutable const Muon::MdtPrepDataContainer* m_mdtPrdContainer;  //!< pointer to the MdtPrepData container    
-
-    std::string m_key_rpc;                                //!< storegate location of the RpcPrepData
-    mutable const Muon::RpcPrepDataContainer* m_rpcPrdContainer;  //!< pointer to the RpcPrepData container    
-
-    std::string m_key_tgc;                                //!< storegate location of the TgcPrepData
-    mutable const Muon::TgcPrepDataContainer* m_tgcPrdContainer;  //!< pointer to the TgcPrepData container    
-
-    std::string m_key_csc;                                //!< storegate location of the CscPrepData
-    mutable const Muon::CscPrepDataContainer* m_cscPrdContainer;  //!< pointer to the CscPrepData container    
+    SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_key_mdt;                                //!< storegate location of the MdtPrepData
+    SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_key_rpc;                                //!< storegate location of the RpcPrepData
+    SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_key_tgc;                                //!< storegate location of the TgcPrepData
+    SG::ReadHandleKey<Muon::CscPrepDataContainer> m_key_csc;                                //!< storegate location of the CscPrepData
 
     double m_adcCut;
     double m_maxSigma;

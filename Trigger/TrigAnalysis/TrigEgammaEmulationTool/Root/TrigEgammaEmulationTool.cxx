@@ -64,7 +64,6 @@ TrigEgammaEmulationTool( const std::string& myname )
     m_trigEMClusters =nullptr;
     m_emTauRois      =nullptr;
     m_storeGate      =nullptr;
-    m_l1Cont         =nullptr;
     
     // just for compile
     HLT::TriggerElement* t = NULL;

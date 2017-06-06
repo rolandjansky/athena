@@ -66,9 +66,6 @@ class TileRawChannelBuilderOpt2Filter: public TileRawChannelBuilder {
 
   private:
 
-    //!< Callback added to handle Data-driven GeoModel initialization
-    virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
     ToolHandle<TileCondToolTiming> m_tileToolTiming;
     ToolHandle<ITileCondToolOfc> m_tileCondToolOfc;
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample; //!< tool which provides noise values
@@ -108,6 +105,9 @@ class TileRawChannelBuilderOpt2Filter: public TileRawChannelBuilder {
 
 
     std::vector<float> m_digits;
+
+    int m_noiseThresholdHG;
+    int m_noiseThresholdLG;
 };
 
 #endif

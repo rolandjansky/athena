@@ -69,6 +69,7 @@ class TileTBBeamMonTool: public TileFatherMonTool {
     TH2F* m_ImpactProfile = nullptr;
     TH2F* m_Cher1Energy = nullptr;
     TH2F* m_Cher2Energy = nullptr;
+    TH2F* m_Cher3Energy = nullptr;
     TH2F* m_CherCompare = nullptr;
     TH2F* m_ScinCalEnergy = nullptr;
     TH1F* m_S1hist = nullptr;
@@ -76,6 +77,7 @@ class TileTBBeamMonTool: public TileFatherMonTool {
     TH1F* m_S3hist = nullptr;
     TH1F* m_Cher1hist = nullptr;
     TH1F* m_Cher2hist = nullptr;
+    TH1F* m_Cher3hist = nullptr;
     TH1F* m_MuonEnergy = nullptr;
     TH1F* m_PMT1 = nullptr;
     TH1F* m_PMT2 = nullptr;
@@ -85,6 +87,10 @@ class TileTBBeamMonTool: public TileFatherMonTool {
     TH1F* m_PMT6 = nullptr;
     TH1F* m_PMT7 = nullptr;
     TH1F* m_PMT8 = nullptr;
+    TH1F* m_PMT9 = nullptr;
+    TH1F* m_PMT10 = nullptr;
+    TH1F* m_PMT11 = nullptr;
+    TH1F* m_PMT12 = nullptr;
     TH2F* m_PMTHitMap = nullptr;
 
     bool m_isFirstEvent;
@@ -95,6 +101,7 @@ class TileTBBeamMonTool: public TileFatherMonTool {
     int m_s3cou;
     int m_cher1;
     int m_cher2;
+    int m_cher3;
     int m_muTag;
     int m_muHalo;
     int m_muVeto;
@@ -112,6 +119,10 @@ class TileTBBeamMonTool: public TileFatherMonTool {
     int m_pmt6cou;
     int m_pmt7cou;
     int m_pmt8cou;
+    int m_pmt9cou;
+    int m_pmt10cou;
+    int m_pmt11cou;
+    int m_pmt12cou;
 
     float m_xCha1;
     float m_yCha1;

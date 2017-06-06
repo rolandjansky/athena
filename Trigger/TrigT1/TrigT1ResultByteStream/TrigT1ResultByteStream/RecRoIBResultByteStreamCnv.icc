@@ -54,24 +54,16 @@ StatusCode RecRoIBResultByteStreamCnv< ROBF >::initialize() {
   //
   // Initialise the base class:
   //
-  StatusCode sc = Converter::initialize();
-  if( sc.isFailure() ) {
-    return sc;
-  }
+  ATH_CHECK(  Converter::initialize() );
 
-  MsgStream log( messageService(), "RecRoIBResultByteStreamCnv" );
+  MsgStream log( msgSvc(), "RecRoIBResultByteStreamCnv" );
   log << MSG::DEBUG << "In initialize()" << endmsg;
 
   //
   // Get RecRoIBResultByteStreamTool:
   //
-  sc = m_tool.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << "Couldn't retrieve RecRoIBResultByteStreamTool" << endmsg;
-    return sc;
-  } else {
-    log << MSG::DEBUG << "Retrieved RecRoIBResultByteStreamTool" << endmsg;
-  }
+  ATH_CHECK( m_tool.retrieve() );
+  log << MSG::DEBUG << "Retrieved RecRoIBResultByteStreamTool" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -85,7 +77,7 @@ StatusCode RecRoIBResultByteStreamCnv< ROBF >::initialize() {
 template< class ROBF >
 StatusCode RecRoIBResultByteStreamCnv< ROBF >::createObj( IOpaqueAddress* pAddr, DataObject*& pObj ) {
 
-  MsgStream log( messageService(), "RecRoIBResultByteStreamCnv" );
+  MsgStream log( msgSvc(), "RecRoIBResultByteStreamCnv" );
   log << MSG::DEBUG << "createObj() called" << endmsg;
 
   ByteStreamAddressL1R *pAddrL1;
@@ -100,13 +92,8 @@ StatusCode RecRoIBResultByteStreamCnv< ROBF >::createObj( IOpaqueAddress* pAddr,
   const std::vector< ROBF >& robs = pAddrL1->getPointers();
 
   // Convert to Object
-  StatusCode sc = m_tool->convert( robs, result );
-  if( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't Create Objects: " << *( pAddrL1->par() ) << endmsg;
-    return sc;
-  } else {
-    log << MSG::DEBUG << " Created Objects: " << *( pAddrL1->par() ) << endmsg;
-  }
+  ATH_CHECK(  m_tool->convert( robs, result ) );
+  log << MSG::DEBUG << " Created Objects: " << *( pAddrL1->par() ) << endmsg;
 
   pObj = SG::asStorable( result );
   return StatusCode::SUCCESS;

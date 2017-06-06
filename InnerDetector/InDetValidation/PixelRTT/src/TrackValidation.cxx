@@ -28,7 +28,7 @@ namespace PixelValid{
 
 CosmicTrackValidation::CosmicTrackValidation(){
 
-	globaldirname = "TrackValidation";
+	m_globaldirname = "TrackValidation";
 	std::vector <std::string> NameDiv;
 	std::vector <int> NDiv;
 	std::vector <double *> BinsDiv;
@@ -46,15 +46,15 @@ CosmicTrackValidation::CosmicTrackValidation(){
 	double  etalim = 2.5;
 
 	TH1D *ptHistomodel = new TH1D("ptditribution","Pt distribution",50,-ptlim,ptlim);
-	PtHistogram =  new MultiHisto<TH1D>(*ptHistomodel,NameDiv,NDiv,BinsDiv);
+	m_PtHistogram =  new MultiHisto<TH1D>(*ptHistomodel,NameDiv,NDiv,BinsDiv);
 	
 	
 	TH1D *angleHistomodel = new TH1D("angleditribution","Angle distribution",50,-anglelim,anglelim);
-	AngleHistogram =  new MultiHisto<TH1D>(*angleHistomodel,NameDiv,NDiv,BinsDiv);
+	m_AngleHistogram =  new MultiHisto<TH1D>(*angleHistomodel,NameDiv,NDiv,BinsDiv);
 	
 	
 	TH1D *etaHistomodel = new TH1D("etaditribution","Eta distribution",50,-etalim,etalim);
-	EtaHistogram =  new MultiHisto<TH1D>(*etaHistomodel,NameDiv,NDiv,BinsDiv);
+	m_EtaHistogram =  new MultiHisto<TH1D>(*etaHistomodel,NameDiv,NDiv,BinsDiv);
 	
 	
 	// second division:
@@ -69,17 +69,17 @@ CosmicTrackValidation::CosmicTrackValidation(){
 	Double_t *ptbins = LogaritmicBins(nptbins,0.05,500); 
 
 	TProfile *PtProfmodel =  new TProfile("nhitsVspt","nhits vs p_{t}",nptbins,ptbins);
-	PtProfile = new MultiHisto<TProfile>(*PtProfmodel,NameDiv,NDiv,BinsDiv);
+	m_PtProfile = new MultiHisto<TProfile>(*PtProfmodel,NameDiv,NDiv,BinsDiv);
 
 	// Angle histograms allocation:
 	TProfile *AngleProfmodel = new TProfile("nhitsVsAngle","nhits vs angle", 50, anglelim, -anglelim);
-	AngleProfile = new MultiHisto<TProfile>(*AngleProfmodel,NameDiv,NDiv,BinsDiv);
+	m_AngleProfile = new MultiHisto<TProfile>(*AngleProfmodel,NameDiv,NDiv,BinsDiv);
 
 	// Eta histograms allocation:
 	TProfile *EtaProfmodel = new TProfile("nhitsVsEta","nhits vs eta", 50, etalim, -etalim);
-	EtaProfile = new MultiHisto<TProfile>(*EtaProfmodel,NameDiv,NDiv,BinsDiv);
+	m_EtaProfile = new MultiHisto<TProfile>(*EtaProfmodel,NameDiv,NDiv,BinsDiv);
 	//std::cout << AngleProfmodel->ClassName() << std::endl;
-	//std::cout << AngleProfile->GetHisto(2)->ClassName() << std::endl;
+	//std::cout << m_AngleProfile->GetHisto(2)->ClassName() << std::endl;
 	
 	delete[] layerBins;
 	delete[] clusterSizeBins;
@@ -91,21 +91,21 @@ CosmicTrackValidation::CosmicTrackValidation(){
 int CosmicTrackValidation::Read(){
 
 
-	TDirectory *globaldir = (TDirectory *)gDirectory->Get(globaldirname.c_str());
+	TDirectory *globaldir = (TDirectory *)gDirectory->Get(m_globaldirname.c_str());
 
 	int readedhistos =0;
-	TDirectory *histodir = (TDirectory *)globaldir->Get(AngleProfile->GetName());
-	readedhistos += AngleProfile->FillFromFile(histodir);
-	histodir = (TDirectory *)globaldir->Get(EtaProfile->GetName());
-	readedhistos += EtaProfile->FillFromFile(histodir);
-	histodir = (TDirectory *)globaldir->Get(PtProfile->GetName());
-	readedhistos += PtProfile->FillFromFile(histodir);
-	histodir = (TDirectory *)globaldir->Get(AngleHistogram->GetName());
-	readedhistos += AngleHistogram->FillFromFile(histodir);
-	histodir = (TDirectory *)globaldir->Get(EtaHistogram->GetName());
-	readedhistos += EtaHistogram->FillFromFile(histodir);
-	histodir = (TDirectory *)globaldir->Get(PtHistogram->GetName());
-	readedhistos += PtHistogram->FillFromFile(histodir);
+	TDirectory *histodir = (TDirectory *)globaldir->Get(m_AngleProfile->GetName());
+	readedhistos += m_AngleProfile->FillFromFile(histodir);
+	histodir = (TDirectory *)globaldir->Get(m_EtaProfile->GetName());
+	readedhistos += m_EtaProfile->FillFromFile(histodir);
+	histodir = (TDirectory *)globaldir->Get(m_PtProfile->GetName());
+	readedhistos += m_PtProfile->FillFromFile(histodir);
+	histodir = (TDirectory *)globaldir->Get(m_AngleHistogram->GetName());
+	readedhistos += m_AngleHistogram->FillFromFile(histodir);
+	histodir = (TDirectory *)globaldir->Get(m_EtaHistogram->GetName());
+	readedhistos += m_EtaHistogram->FillFromFile(histodir);
+	histodir = (TDirectory *)globaldir->Get(m_PtHistogram->GetName());
+	readedhistos += m_PtHistogram->FillFromFile(histodir);
 	
 	return readedhistos;
 }
@@ -115,21 +115,21 @@ int CosmicTrackValidation::Read(){
 int CosmicTrackValidation::Write(){
 
 	TDirectory *current = gDirectory;
-	TDirectory *globaldir = current->mkdir(globaldirname.c_str());
+	TDirectory *globaldir = current->mkdir(m_globaldirname.c_str());
 	globaldir->cd();
 	int writtenhistos = 0;
-	AngleProfile->Write();
-	writtenhistos +=  AngleProfile->GetNhistos();
-	EtaProfile->Write();
-	writtenhistos +=  EtaProfile->GetNhistos();
-	PtProfile->Write();
-	writtenhistos +=  PtProfile->GetNhistos();
-	AngleHistogram->Write();
-	writtenhistos +=  AngleHistogram->GetNhistos();
-	EtaHistogram->Write();
-	writtenhistos +=  EtaHistogram->GetNhistos();
-	PtHistogram->Write();
-	writtenhistos +=  PtHistogram->GetNhistos();
+	m_AngleProfile->Write();
+	writtenhistos +=  m_AngleProfile->GetNhistos();
+	m_EtaProfile->Write();
+	writtenhistos +=  m_EtaProfile->GetNhistos();
+	m_PtProfile->Write();
+	writtenhistos +=  m_PtProfile->GetNhistos();
+	m_AngleHistogram->Write();
+	writtenhistos +=  m_AngleHistogram->GetNhistos();
+	m_EtaHistogram->Write();
+	writtenhistos +=  m_EtaHistogram->GetNhistos();
+	m_PtHistogram->Write();
+	writtenhistos +=  m_PtHistogram->GetNhistos();
 	current->cd();
 
 	return writtenhistos;	
@@ -149,13 +149,13 @@ bool CosmicTrackValidation::Fill(Int_t Layer, Double_t GeVTrkPt, Double_t Angle,
 		static std::vector<Double_t> Pars(3);
 		//Pars[1] = ClusterSize;
 		Pars[0] = Layer;
-		AngleProfile->Fill(Angle,nhits,Pars);
-		EtaProfile->Fill(Eta,nhits,Pars);
+		m_AngleProfile->Fill(Angle,nhits,Pars);
+		m_EtaProfile->Fill(Eta,nhits,Pars);
 		//std::cout << GeVTrkPt << std::endl;
-		PtProfile->Fill(GeVTrkPt,nhits,Pars);
-		AngleHistogram->Fill(Angle,1,Pars);
-		EtaHistogram->Fill(Eta,1,Pars);
-		PtHistogram->Fill(GeVTrkPt,1,Pars);
+		m_PtProfile->Fill(GeVTrkPt,nhits,Pars);
+		m_AngleHistogram->Fill(Angle,1,Pars);
+		m_EtaHistogram->Fill(Eta,1,Pars);
+		m_PtHistogram->Fill(GeVTrkPt,1,Pars);
 	//}
 	return passed;
 }
@@ -177,14 +177,14 @@ int CosmicTrackValidation::Analyze(TDirectory *ref_file){
 	}
 
 	char *currpath = getcwd(NULL,0);
-        if (mkdir(globaldirname.c_str(),S_IRWXU | S_IRWXG | S_IRWXO)!=0) {
+        if (mkdir(m_globaldirname.c_str(),S_IRWXU | S_IRWXG | S_IRWXO)!=0) {
           std::stringstream message;
-          message << "Failed to create directory: " << globaldirname;
+          message << "Failed to create directory: " << m_globaldirname;
           throw std::runtime_error(message.str());
         }
-	if (chdir(globaldirname.c_str())!=0) {
+	if (chdir(m_globaldirname.c_str())!=0) {
           std::stringstream message;
-          message << "Failed to enter directory: " << globaldirname;
+          message << "Failed to enter directory: " << m_globaldirname;
           throw std::runtime_error(message.str());
         }
 	// AA20150108
@@ -207,12 +207,12 @@ int CosmicTrackValidation::Analyze(TDirectory *ref_file){
 
 int CosmicTrackValidation::PlotAll(TCanvas ***c1, int ncanvas, Option_t* option,Int_t color){
 	
-	int npthistos =  PtProfile->GetNhistos();
-	int nanglehistos =  AngleProfile->GetNhistos();
-	int netahistos =  EtaProfile->GetNhistos();
-	int nanglehistograms =  AngleHistogram->GetNhistos();
-	int netahistograms =  EtaHistogram->GetNhistos();
-	int npthistograms =  PtHistogram->GetNhistos();
+	int npthistos =  m_PtProfile->GetNhistos();
+	int nanglehistos =  m_AngleProfile->GetNhistos();
+	int netahistos =  m_EtaProfile->GetNhistos();
+	int nanglehistograms =  m_AngleHistogram->GetNhistos();
+	int netahistograms =  m_EtaHistogram->GetNhistos();
+	int npthistograms =  m_PtHistogram->GetNhistos();
 	int nhistos =  npthistos + nanglehistos + netahistos + nanglehistograms + netahistograms + npthistograms;
 
 	if(ncanvas == 0 || *c1 == 0){
@@ -221,7 +221,7 @@ int CosmicTrackValidation::PlotAll(TCanvas ***c1, int ncanvas, Option_t* option,
 		for(int i = 0 ; i < ncanvas ; i++) (*c1)[i] = new TCanvas();
 	}else if(ncanvas != nhistos){
 		std::cout << "Number of canvases is not compatible with" <<
-			globaldirname << "!" << std::endl;
+			m_globaldirname << "!" << std::endl;
 		return 0;
 	}
 
@@ -230,7 +230,7 @@ int CosmicTrackValidation::PlotAll(TCanvas ***c1, int ncanvas, Option_t* option,
 		canvas_index++;
 		(*c1)[canvas_index]->cd();
 		(*c1)[canvas_index]->SetLogx();
-		TProfile *swap = PtProfile->GetHisto(i);
+		TProfile *swap = m_PtProfile->GetHisto(i);
 		(*c1)[canvas_index]->SetName(swap->GetName());
 		swap->SetLineColor(color);
 		swap->Draw(option);
@@ -239,7 +239,7 @@ int CosmicTrackValidation::PlotAll(TCanvas ***c1, int ncanvas, Option_t* option,
 	for(int i =0 ; i < nanglehistos ; i++ ){
 		canvas_index++;
 		(*c1)[canvas_index]->cd();
-		TProfile *swap = AngleProfile->GetHisto(i);
+		TProfile *swap = m_AngleProfile->GetHisto(i);
 		(*c1)[canvas_index]->SetName(swap->GetName());
 		swap->SetLineColor(color);
 		swap->Draw(option);
@@ -248,7 +248,7 @@ int CosmicTrackValidation::PlotAll(TCanvas ***c1, int ncanvas, Option_t* option,
 	for(int i =0 ; i < netahistos ; i++ ){
 		canvas_index++;
 		(*c1)[canvas_index]->cd();
-		TProfile *swap = EtaProfile->GetHisto(i);
+		TProfile *swap = m_EtaProfile->GetHisto(i);
 		(*c1)[canvas_index]->SetName(swap->GetName());
 		swap->SetLineColor(color);
 		swap->Draw(option);
@@ -258,7 +258,7 @@ int CosmicTrackValidation::PlotAll(TCanvas ***c1, int ncanvas, Option_t* option,
 	for(int i =0 ; i < nanglehistograms ; i++ ){
 		canvas_index++;
 		(*c1)[canvas_index]->cd();
-		TH1D *swap = AngleHistogram->GetHisto(i);
+		TH1D *swap = m_AngleHistogram->GetHisto(i);
 		(*c1)[canvas_index]->SetName(swap->GetName());
 		swap->SetLineColor(color);
 		swap->Draw(option);
@@ -267,7 +267,7 @@ int CosmicTrackValidation::PlotAll(TCanvas ***c1, int ncanvas, Option_t* option,
 	for(int i =0 ; i < netahistograms ; i++ ){
 		canvas_index++;
 		(*c1)[canvas_index]->cd();
-		TH1D *swap = EtaHistogram->GetHisto(i);
+		TH1D *swap = m_EtaHistogram->GetHisto(i);
 		(*c1)[canvas_index]->SetName(swap->GetName());
 		swap->SetLineColor(color);
 		swap->Draw(option);
@@ -277,7 +277,7 @@ int CosmicTrackValidation::PlotAll(TCanvas ***c1, int ncanvas, Option_t* option,
 	for(int i =0 ; i < npthistograms ; i++ ){
 		canvas_index++;
 		(*c1)[canvas_index]->cd();
-		TH1D *swap = PtHistogram->GetHisto(i);
+		TH1D *swap = m_PtHistogram->GetHisto(i);
 		(*c1)[canvas_index]->SetName(swap->GetName());
 		swap->SetLineColor(color);
 		swap->Draw(option);

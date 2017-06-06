@@ -15,7 +15,7 @@
 
 // local includes
 
-#include "TrkValHistUtils/PlotBase.h"
+#include "InDetPlotBase.h"
 #include "TProfile.h"
 // could be fwd declared?
 #include "xAODTracking/TrackParticle.h"
@@ -23,6 +23,7 @@
 #include "xAODTruth/TruthParticle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "InDetPlotBase.h"
+#include "GetMeanWidth.h"
 
 #include "TFitResultPtr.h"
 #include "TFitResult.h"
@@ -37,7 +38,7 @@ class IExtrapolator;
 
 
 ///class holding res plots for Inner Detector RTT Validation and implementing fill methods
-class InDetPerfPlot_resITk: public PlotBase {
+class InDetPerfPlot_resITk: public InDetPlotBase {
 public:
   enum Param {
     D0, Z0, QOVERP, QOVERPT, THETA, PHI, PT, Z0SIN, NPARAMS
@@ -56,7 +57,7 @@ public:
   };
 
 
-  InDetPerfPlot_resITk(PlotBase* pParent, const std::string& dirName);
+  InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::string& dirName);
 
   void fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt);
 //  virtual bool isDefined(TString t);
@@ -76,7 +77,10 @@ private:
   std::string m_resHisto[m_nResHist] = {
     "resolutionRMS", "meanRMS", "resolutionGAUS", "meanGAUS"
   };
-
+  
+  IDPVM::GetMeanWidth m_getMeanWidth;
+  IDPVM::GetMeanWidth::methods m_meanWidthMethod;
+  
   bool m_primTrk;
   bool m_secdTrk;
   bool m_allTrk;
@@ -88,12 +92,13 @@ private:
   void makeResolutions(TH2* h, TH1* h2[m_nResHist]);
 
   void makeResolutions(TH3* h, TH1* h2[][m_nResHist], TH1* h3[][m_nResHist]);
+  void getMeanWidthResultsModUnits(TH1* p_input_hist, std::vector<float>& p_result,
+				   IDPVM::GetMeanWidth::methods p_method);
   void getTrackParameters(const xAOD::TruthParticle& truthprt);
   void getTrackParameters(const xAOD::TrackParticle& truthprt);
   void getPlotParameters();
   void getPlots();
   void cloneHistogram(TH1D* h, TH1* hcopy);
-  std::vector<float> getResolution(TH1* h, std::string s);
 
   float m_trkP[NPARAMS];
   float m_truetrkP[NPARAMS];

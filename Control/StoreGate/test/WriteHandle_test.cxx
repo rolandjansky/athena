@@ -66,6 +66,10 @@ CLASS_DEF (MyObj, 293847295, 1)
 static const CLID MyCLID = 293847295;
 
 
+class MyObj2 {};
+CLASS_DEF (MyObj2, 293847395, 1)
+
+
 class MyDObj : public DataObject
 {
 public:
@@ -430,19 +434,22 @@ void test6()
   assert (!h1.isConst());
   assert (h1.ptr() == p1.get());
 
+  SG::DataObjectSharedPtr<MyDObj> p4 (new MyDObj (400));
+  assert (p4->refCount() == 1);
+
   SG::WriteHandle<MyDObj> h4 ("foo4", "FooSvc");
   assert (h4.setProxyDict (&testStore).isSuccess());
-  assert (h4.record (p1).isSuccess());
-  assert (p1->refCount() == 3);
+  assert (h4.record (p4).isSuccess());
+  assert (p4->refCount() == 2);
   assert (h4.isValid());
-  assert (h4->x == 300);
+  assert (h4->x == 400);
   assert (h4.isConst());
-  assert (h4.ptr() == p1.get());
+  assert (h4.ptr() == p4.get());
 
-  SG::WriteHandle<MyDObj> h5 ("foo4", "FooSvc");
+  SG::WriteHandle<MyDObj> h5 ("foo5", "FooSvc");
   assert (h5.setProxyDict (&testStore).isSuccess());
   assert (h5.record (p1).isFailure());
-  assert (p1->refCount() == 3);
+  assert (p1->refCount() == 2);
   assert (!h5.isValid());
 }
 
@@ -522,6 +529,14 @@ void test9()
   o = h4.put (ctx2, std::make_unique<MyObj>(26));
   assert (o->x == 26);
   assert (MyObj::deleted.empty());
+
+  SG::WriteHandle<MyObj> h6 ("foo6");
+  assert (h6.setProxyDict (&testStore).isSuccess());
+  o = h6.put (std::make_unique<const MyObj>(33));
+  assert (o->x == 33);
+  o = h6.put (ctx2, std::make_unique<const MyObj>(34));
+  assert (o->x == 34);
+  assert (MyObj::deleted.empty());
 }
 
 
@@ -590,6 +605,20 @@ void test10()
   assert (o->x == 40);
   assert (MyObj::deleted.empty());
   assert (MyObjAux::deleted.empty());
+
+  SG::WriteHandle<MyObj> h10 ("foo10");
+  assert (h10.setProxyDict (&testStore).isSuccess());
+  auto ptrs10 = makeWithAux(40);
+  o = h10.put (std::unique_ptr<const MyObj>(std::move(ptrs10.first)),
+               std::unique_ptr<const MyObjAux>(std::move(ptrs10.second)));
+  assert (o->x == 40);
+  auto ptrs11 = makeWithAux(50);
+  o = h10.put (ctx2,
+               std::unique_ptr<const MyObj>(std::move(ptrs11.first)),
+               std::unique_ptr<const MyObjAux>(std::move(ptrs11.second)));
+  assert (o->x == 50);
+  assert (MyObj::deleted.empty());
+  assert (MyObjAux::deleted.empty());
 }
 
 
@@ -608,15 +637,18 @@ void test11()
   assert (h1.put (p1) == p1.get());
   assert (p1->refCount() == 2);
 
+  SG::DataObjectSharedPtr<MyDObj> p4 (new MyDObj (400));
+  assert (p4->refCount() == 1);
+
   SG::WriteHandle<MyDObj> h4 ("foo4", "FooSvc");
   assert (h4.setProxyDict (&testStore).isSuccess());
-  assert (h4.put (p1) == p1.get());
-  assert (p1->refCount() == 3);
+  assert (h4.put (p4) == p4.get());
+  assert (p4->refCount() == 2);
 
-  SG::WriteHandle<MyDObj> h5 ("foo4");
+  SG::WriteHandle<MyDObj> h5 ("foo5");
   assert (h5.setProxyDict (&testStore).isSuccess());
   assert (h5.put (p1) == nullptr);
-  assert (p1->refCount() == 3);
+  assert (p1->refCount() == 2);
 
   // Record to a different context.
   MyObj::deleted.clear();
@@ -624,6 +656,39 @@ void test11()
   EventContext ctx2;
   ctx2.setProxy (&testStore2);
   assert (h5.put (ctx2, p1) == p1.get());
+}
+
+
+// symlink/alias.
+void test12()
+{
+  std::cout << "test12\n";
+
+  SGTest::TestStore testStore;
+
+  SG::WriteHandle<MyObj> h1 ("foo1", "FooSvc");
+  assert (h1.setProxyDict (&testStore).isSuccess());
+
+  assert (h1.record (std::make_unique<MyObj>(20)).isSuccess());
+  assert (h1.isValid());
+  assert (h1->x == 20);
+  SG::DataProxy* prox1 = testStore.proxy (ClassID_traits<MyObj>::ID(), "foo1");
+
+  // Making alias.
+  SG::WriteHandleKey<MyObj> h2 ("foo3", "FooSvc");
+  assert (h1.alias (h2).isSuccess());
+  assert (testStore.proxy (ClassID_traits<MyObj>::ID(), "foo3") == prox1);
+  assert (prox1->transientAddress()->alias().count ("foo3") == 1);
+
+  // Making symlink.
+  SG::WriteHandleKey<MyObj2> h3 ("foo1", "FooSvc");
+  assert (h1.symLink (h3).isSuccess());
+  assert (testStore.proxy (ClassID_traits<MyObj2>::ID(), "foo1") == prox1);
+  assert (prox1->transientAddress()->transientID (ClassID_traits<MyObj2>::ID()));
+
+  // Should give an error.
+  SG::WriteHandleKey<MyObj2> h4 ("foo3", "FooSvc");
+  assert (h1.symLink (h4).isFailure());
 }
 
 
@@ -645,5 +710,6 @@ int main()
   test9();
   test10();
   test11();
+  test12();
   return 0;
 }

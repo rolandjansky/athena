@@ -44,12 +44,11 @@ namespace EFlow_Fn{
 eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const std::string& name, const IInterface* parent) :
     AthAlgTool(type, name, parent),
     m_PFOOutputName("JetETMiss"),
-    m_chargedPFOContainer(0),
-    m_neutralPFOContainer(0),
-    m_neutralPFOContainer_nonModified(0),
+    m_chargedPFOContainer(nullptr),
+    m_neutralPFOContainer(nullptr),
+    m_neutralPFOContainer_nonModified(nullptr),
     m_eOverPMode(false),
     m_goldenModeString(""),
-    m_debug(0),
     m_LCMode(false),
     m_trackVertexAssociationTool(""),
     m_vertexContainerName("PrimaryVertices"),
@@ -216,13 +215,34 @@ void eflowObjectCreatorTool::createChargedEflowObjects(eflowCaloObject* energyFl
     bool isSet = myEflowObject->setTrackLink(theTrackLink);
     if (!isSet) { msg(MSG::WARNING) << "Could not set Track B in PFO " << endmsg; }
     myEflowObject->setCharge(efRecTrack->getTrack()->charge());
+
     
     std::pair<double,double> etaPhi(0.0,0.0);
+    
+      
 
     if (m_eOverPMode){
       /* In EOverPMode want charged eflowObjects to have extrapolated eta,phi as coordinates
        * (needed for analysis of EOverP Data) */
-      etaPhi = efRecTrack->getTrackCaloPoints().getEM2etaPhi();
+        etaPhi = efRecTrack->getTrackCaloPoints().getEM2etaPhi();
+        
+
+        /*add information to xAOD*/
+        xAOD::PFODetails::PFOAttributes myAttribute_layerHED = xAOD::PFODetails::PFOAttributes::eflowRec_layerHED;
+        myEflowObject->setAttribute<int>(myAttribute_layerHED,efRecTrack->getLayerHED() );
+
+        xAOD::PFODetails::PFOAttributes myAttribute_layerVectorCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_layerVectorCellOrdering;
+        myEflowObject->setAttribute<std::vector<int> >(myAttribute_layerVectorCellOrdering,efRecTrack->getLayerCellOrderVector() );
+
+        
+        xAOD::PFODetails::PFOAttributes myAttribute_radiusVectorCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_radiusVectorCellOrdering;
+       myEflowObject->setAttribute<std::vector<float> >(myAttribute_radiusVectorCellOrdering,efRecTrack->getRadiusCellOrderVector() );
+
+        
+        xAOD::PFODetails::PFOAttributes myAttribute_avgEdensityVectorCellOrdering = xAOD::PFODetails::PFOAttributes::eflowRec_avgEdensityVectorCellOrdering;
+        myEflowObject->setAttribute<std::vector<float> >(myAttribute_avgEdensityVectorCellOrdering,efRecTrack->getAvgEDensityCellOrderVector() );
+        
+        
     } else {
       /* In normal mode we want te track eta,phi at the perigee */
       etaPhi.first = efRecTrack->getTrack()->eta();
@@ -243,7 +263,6 @@ void eflowObjectCreatorTool::createChargedEflowObjects(eflowCaloObject* energyFl
     /* Optionally we add the links to clusters to the xAOD::PFO */
     if (true == addClusters){
        unsigned int nClusters = energyFlowCaloObject->nClusters();
-       std::cout << " nClusters is " << nClusters << std::endl;
        for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster){
 	 eflowRecCluster* thisEfRecCluster = energyFlowCaloObject->efRecCluster(iCluster);
 	 ElementLink<xAOD::CaloClusterContainer> theClusLink = thisEfRecCluster->getClusElementLink();
@@ -467,10 +486,8 @@ void eflowObjectCreatorTool::createNeutralEflowObjects(eflowCaloObject* energyFl
     xAOD::PFODetails::PFOAttributes myAttribute_TIMING = xAOD::PFODetails::PFOAttributes::eflowRec_TIMING;
     thisEflowObject->setAttribute(myAttribute_TIMING, clusterTiming);
 
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Created neutral EFO with E, eta and phi of " << thisEflowObject->e() << ", " << thisEflowObject->eta() << " and " << thisEflowObject->phi() << std::endl;
 
-    if (m_debug){
-      std::cout << "Created neutral EFO with E, eta and phi of " << thisEflowObject->e() << ", " << thisEflowObject->eta() << " and " << thisEflowObject->phi() << std::endl;
-    }
   }
 }
 
@@ -480,7 +497,7 @@ void eflowObjectCreatorTool::addMoment(xAOD::CaloCluster::MomentType momentType,
   bool isRetrieved = theCluster->retrieveMoment(momentType, moment);
   if (true == isRetrieved) {
     xAOD::PFODetails::PFOAttributes myAttribute = pfoAttribute;
-    float float_moment = static_cast<float>(moment);    
+    float float_moment = static_cast<float>(moment);
     thePFO->setAttribute(myAttribute, float_moment);
   }
   else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Could not retrieve moment from the CaloCluster " << endmsg;

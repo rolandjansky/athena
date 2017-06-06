@@ -368,13 +368,13 @@ class egammaMVACalib : public asg::AsgMessaging
       **/
     void defineInitialEnergyFormula();
 
-    /** Return the user infomation added in the xml files in the <UserInfo>
+    /** Return the user infomation added in the xml files in the \<UserInfo\>
      * section as a dictionary
      **/
     static AdditionalInfoMap getUserInfo(const TString & xmlfilename);
 
     /** Used by getMVAResponseTree: clone input tree, activating the branches defined by
-     * <copyBranches> and deactivating all of them first if <deactivateFirst>=true
+     * \<copyBranches\> and deactivating all of them first if \<deactivateFirst\>=true
      **/
     TTree* getOutputTree(TString copyBranches, bool deactivateFirst=true);
 

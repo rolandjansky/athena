@@ -46,7 +46,7 @@ StatusCode MuonSegmentTagAlg::execute()
     return StatusCode::SUCCESS;
   }
 
-  xAOD::MuonSegmentContainer* segments = 0;
+  const xAOD::MuonSegmentContainer* segments = 0;
   if(evtStore()->contains<xAOD::MuonSegmentContainer>(m_muonSegmenteCollectionName)) {
     if(evtStore()->retrieve(segments,m_muonSegmenteCollectionName).isFailure()) {
       ATH_MSG_FATAL( "Unable to retrieve " << m_muonSegmenteCollectionName );

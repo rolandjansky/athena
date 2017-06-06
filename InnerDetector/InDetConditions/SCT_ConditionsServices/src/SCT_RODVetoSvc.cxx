@@ -52,7 +52,7 @@ SCT_RODVetoSvc::SCT_RODVetoSvc( const std::string& name, ISvcLocator* pSvcLocato
   m_badRODElements("BadRODIdentifiers"),
   m_wFilled("isFilled"), 
   m_rFilled("isFilled"),
-  m_pHelper(0),
+  m_pHelper{nullptr},
   m_detStore("DetectorStore", name)
 {
   declareProperty("BadRODIdentifiers",m_badRODElements );

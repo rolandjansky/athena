@@ -20,7 +20,7 @@
  * can severely restrict the applicability of generic code.
  *
  * This header provides @a SG::safe_clid<T>(), which should return
- * the class ID of @T, or @a CLID_NULL if @a T does not have a defined
+ * the class ID of @a T, or @a CLID_NULL if @a T does not have a defined
  * class ID (without causing an error).
  *
  * The implementation relies on the fact that when the class ID traits

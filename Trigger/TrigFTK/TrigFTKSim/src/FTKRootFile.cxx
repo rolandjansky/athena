@@ -22,13 +22,13 @@ using namespace std;
 //================== class FTKRootFile =================
 
 FTKRootFile *FTKRootFile::Instance(void) {
-   if(!sTheFileAccess) {
-      sTheFileAccess=new FTKRootFile();
+   if(!s_theFileAccess) {
+      s_theFileAccess=new FTKRootFile();
    }
-   return sTheFileAccess;
+   return s_theFileAccess;
 }
 
-FTKRootFile *FTKRootFile::sTheFileAccess=0;
+FTKRootFile *FTKRootFile::s_theFileAccess=0;
 
 FTKRootFile::FTKRootFile(void) {
    // do nothing
@@ -64,9 +64,9 @@ bool FTKRootFile::IsRootFile(char const *path) {
 //================== class FTKRootFileChain =================
 
  void FTKRootFileChain::AddFile(char const *fileName) {
-   fFileNames.push_back(fileName); 
-   if ( (int)fFileNames.size() >= fMaxOpenFiles ) {
-      Warning("AddFile") << "Number of files in chain exceeds maximum number of open files (maxOpen="<<fMaxOpenFiles<<")."<<endl;
+   m_fileNames.push_back(fileName); 
+   if ( (int)m_fileNames.size() >= m_maxOpenFiles ) {
+      Warning("AddFile") << "Number of files in chain exceeds maximum number of open files (maxOpen="<<m_maxOpenFiles<<")."<<endl;
       Warning("AddFile") << "This will cause large time consumption by frequently re-opening and closing files."<<endl;
       }
 }
@@ -74,25 +74,25 @@ bool FTKRootFile::IsRootFile(char const *path) {
 
 bool FTKRootFileChain::Open(std::string const &fileName) {
    bool r=false;
-   if(fileName != fLastFileName) {
+   if(fileName != m_lastFileName) {
       // directory has changed
       // check whether there is an open file with that name
-      if(fOpenDirectories.find(fileName)==fOpenDirectories.end()) {
+      if(m_openDirectories.find(fileName)==m_openDirectories.end()) {
          // file not opened
-         if((int)fOpenDirectories.size()>=fMaxOpenFiles) {
+         if((int)m_openDirectories.size()>=m_maxOpenFiles) {
             // no space left in table, have to close another file
             // here: use the "first" slot
             // could be changed to use the recently used slot
             // or the least used slot
             // or the smallest file or ...
-            map<std::string,TDirectory *>::iterator j=fOpenDirectories.begin();
+            map<std::string,TDirectory *>::iterator j=m_openDirectories.begin();
             delete (*j).second;
-            fOpenDirectories.erase(j);
+            m_openDirectories.erase(j);
          }
          // open a new file
-	 fOpenDirectories[fileName] = OpenRootFileReadonly(fileName.c_str());
+	 m_openDirectories[fileName] = OpenRootFileReadonly(fileName.c_str());
       }
-      fLastFileName=fileName;
+      m_lastFileName=fileName;
       r=true;
    }
    return r;
@@ -106,14 +106,14 @@ TDirectory *FTKRootFileChain::OpenRootFileReadonly
 
 TDirectory *FTKRootFileChain::GetDirectory(void) const {
    std::map<std::string,TDirectory *>::const_iterator
-      i=fOpenDirectories.find(fLastFileName);
-   if(i==fOpenDirectories.end()) return 0;
+      i=m_openDirectories.find(m_lastFileName);
+   if(i==m_openDirectories.end()) return 0;
    return (*i).second;
 }
 
 FTKRootFileChain::~FTKRootFileChain() {
-   while(fOpenDirectories.begin()!=fOpenDirectories.end()) {
-      delete (*fOpenDirectories.begin()).second;
-      fOpenDirectories.erase(fOpenDirectories.begin());
+   while(m_openDirectories.begin()!=m_openDirectories.end()) {
+      delete (*m_openDirectories.begin()).second;
+      m_openDirectories.erase(m_openDirectories.begin());
    }
 }

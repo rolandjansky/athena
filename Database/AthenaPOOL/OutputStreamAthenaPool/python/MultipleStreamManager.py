@@ -162,11 +162,11 @@ class AugmentedStreamBase:
 #############################################################
 class AugmentedPoolStream( AugmentedStreamBase ):
     """This class manages the associated event-by-event and metadata AthenaOutputStreams as a single object."""
-    def  __init__(self, StreamName, FileName, asAlg, isVirtual):
+    def  __init__(self, StreamName, FileName, asAlg, isVirtual, noTag=False):
         AugmentedStreamBase.__init__(self,StreamName)
         #event-by-event stream
         from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-        self.Stream = AthenaPoolOutputStream( StreamName, FileName, asAlg )
+        self.Stream = AthenaPoolOutputStream( StreamName, FileName, asAlg, noTag=noTag )
         self.Stream.ForceRead=True;  #force read of output data objs
         if isVirtual == True:
             self.Stream.WriteOnExecute=False
@@ -554,8 +554,8 @@ class MultipleStreamManager:
             FileName=StreamName
         return self.NewStream(StreamName,FileName,type='bytestream')
 
-    def NewPoolStream(self,StreamName,FileName="default", asAlg=False):
-        return self.NewStream(StreamName,FileName,type='pool',asAlg=asAlg)
+    def NewPoolStream(self,StreamName,FileName="default", asAlg=False, noTag=False):
+        return self.NewStream(StreamName,FileName,type='pool',asAlg=asAlg, noTag=noTag)
 
     def NewPoolRootStream(self,StreamName,FileName="default", asAlg=False):
         theStream = self.NewStream(StreamName,FileName,type='pool',asAlg=asAlg)
@@ -596,7 +596,7 @@ class MultipleStreamManager:
         return self.NewStream( StreamName, FileName, type='root', asAlg = asAlg,
                                TreeName = TreeName )
 
-    def NewStream(self,StreamName,FileName="default",type='pool',asAlg=False,TreeName=None):
+    def NewStream(self,StreamName,FileName="default",type='pool',asAlg=False,TreeName=None,noTag=False):
         if FileName=="default":
             FileName=StreamName+".pool.root"
         try:
@@ -607,7 +607,7 @@ class MultipleStreamManager:
             #(This is expected, not actually an error.)
             index=self.nStream
             if type=='pool':
-                self.StreamList += [ AugmentedPoolStream(StreamName,FileName,asAlg,isVirtual=False) ]
+                self.StreamList += [ AugmentedPoolStream(StreamName,FileName,asAlg,isVirtual=False,noTag=noTag) ]
             elif type=='bytestream':
                 self.StreamList += [ AugmentedByteStream(StreamName,FileName) ]
             elif type=='virtual':

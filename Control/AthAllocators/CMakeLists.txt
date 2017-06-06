@@ -11,6 +11,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    GaudiKernel
    PRIVATE
+   Control/CxxUtils
    AtlasTest/TestTools )
 
 # External dependencies:
@@ -53,6 +54,7 @@ _simple_test( ArenaBase_test )
 _simple_test( ArenaPoolSTLAllocator_test )
 _simple_test( ArenaHeapSTLAllocator_test )
 _simple_test( ArenaSharedHeapSTLAllocator_test )
+_simple_test( LockedAllocator_test )
 
 atlas_add_test( DataPool_test
    SOURCES test/DataPool_test.cxx

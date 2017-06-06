@@ -36,11 +36,11 @@ int main( ) {
       
     }
 
-  asg::AnaToolHandle<CP::IEfficiencyScaleFactorTool> m_eccTool;
-  m_eccTool.setTypeAndName("CP::ElectronChargeEfficiencyCorrectionTool/myTool");
+  asg::AnaToolHandle<CP::IEfficiencyScaleFactorTool> eccTool;
+  eccTool.setTypeAndName("CP::ElectronChargeEfficiencyCorrectionTool/myTool");
   if(
-     m_eccTool.setProperty( "CorrectionFileName", "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/charge_misID/ChargeCorrectionSF.Medium_FixedCutTight.root" )&&
-     m_eccTool.retrieve()){
+     eccTool.setProperty( "CorrectionFileName", "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/charge_misID/ChargeCorrectionSF.Medium_FixedCutTight.root" )&&
+     eccTool.retrieve()){
     std::cout<<"ALL FINE" <<std::endl;
   }
   

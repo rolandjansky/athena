@@ -10,8 +10,6 @@
 
 class StatusCode;
 
-using jet::PseudoJetVector;
-
 class PseudoJetSelectorAll: virtual public IPseudoJetSelector, 
   public AthAlgTool {
 
@@ -23,8 +21,8 @@ public:
 
   ~PseudoJetSelectorAll(){};
   
-  StatusCode select(const PseudoJetVector&,
-                    PseudoJetVector&) const override;
+  StatusCode select(const jet::PseudoJetVector&,
+                    jet::PseudoJetVector&) const override;
 };
 
 #endif

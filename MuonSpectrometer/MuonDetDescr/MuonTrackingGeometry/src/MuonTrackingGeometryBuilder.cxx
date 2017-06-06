@@ -2572,7 +2572,7 @@ void Muon::MuonTrackingGeometryBuilder::getShieldParts() const
   diskShield.push_back(std::pair<int,float>(0,540.));
   diskShield.push_back(std::pair<int,float>(0,750.));
   diskShield.push_back(std::pair<int,float>(0,2700.));
-  diskShield.push_back(std::pair<int,float>(0,m_innerBarrelRadius));
+  diskShield.push_back(std::pair<int,float>(0,4255.));
   m_shieldHPart.push_back(diskShield);
 
   return;

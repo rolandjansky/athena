@@ -7,7 +7,7 @@
 
 #include "ParticleTruth/TrackParticleTruth.h"
 #include "Particle/TrackParticleContainer.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
 #include <map>

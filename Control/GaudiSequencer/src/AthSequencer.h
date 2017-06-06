@@ -54,47 +54,50 @@ public:
    ** Public Function Members **
    *****************************/
 
+  /// Mark as a sequencer.
+  virtual bool isSequence() const override final;
+
   /**
    ** Initialization of a sequencer. Typically things like histogram creation,
    ** setting up of data structures etc, should be done here. If a sequence
    ** has properties specified in the job options file, they will be set to
    ** the requested values BEFORE the initialize() method is invoked.
    **/
-  virtual StatusCode initialize( );
+  virtual StatusCode initialize( ) override;
   
   /**
    ** AthSequencer Reinitialization.
    **/
-  virtual StatusCode reinitialize( );
+  virtual StatusCode reinitialize( ) override;
   
   /**
    ** The actions to be performed by the sequencer on an event. This method
    ** is invoked once per event.
    **/
-  virtual StatusCode execute( );
+  virtual StatusCode execute( ) override;
   
   /**
    ** AthSequencer finalization.
    **/
-  virtual StatusCode finalize( );
+  virtual StatusCode finalize( ) override;
   
   /**
    ** AthSequencer beginRun.
    **/
-  virtual StatusCode beginRun( );
+  virtual StatusCode beginRun( ) override;
 
   /**
    ** AthSequencer endRun.
    **/
-  virtual StatusCode endRun( );
+  virtual StatusCode endRun( ) override;
 
   /** Start (from INITIALIZED to RUNNING). @c IStateful::start
    */
-  virtual StatusCode start ();
+  virtual StatusCode start () override;
   
   /** Stop (from RUNNING to INITIALIZED). 
    */
-  virtual StatusCode stop ();
+  virtual StatusCode stop () override;
 
   /**
    ** Reset the AthSequencer executed state for the current event.
@@ -218,6 +221,10 @@ private:
   Gaudi::Property<bool> m_ignoreFilter;
   /// Stop on filter failure Override flag (normally stop if alg filter fails)
   Gaudi::Property<bool> m_stopOverride;
+  /// a "Concurrent" or "Sequential" sequence. "Sequential" enforces
+  /// strict ordering in MT. "Concurrent" allows scheduler re-ordering 
+  /// for data flow (default)
+  Gaudi::Property<bool> m_sequential;
   
   /// set optional algorithm / sequence time outs
   double m_timeout;

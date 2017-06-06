@@ -10,10 +10,10 @@
 #define __FCALConstructionH62004_H__
 
 #include "GeoModelKernel/GeoFullPhysVol.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 
 // Forward declarations
 class ISvcLocator;
-class IRDBRecordset;
 
 namespace LArGeo {
 
@@ -33,9 +33,6 @@ namespace LArGeo {
     // Set a limit on cell number (for Visualization only);
     void setFCALVisLimit(int maxCell) {m_VisLimit    = maxCell;}
 
-    // Clean memory taken by RDBRecordsets
-    void cleanMemory();
-
   private: 
 
     // It is illegal to copy a FCALConstructionH62004:
@@ -50,11 +47,9 @@ namespace LArGeo {
 
     int m_VisLimit;
 
-    ISvcLocator*         m_svcLocator;
-    const IRDBRecordset* m_fcalElectrode;
-    const IRDBRecordset* m_fcalMod;
-    const IRDBRecordset* m_LArPosition;
-    const IRDBRecordset* m_LArAlignment;
+    ISvcLocator*      m_svcLocator;
+    IRDBRecordset_ptr m_fcalElectrode;
+    IRDBRecordset_ptr m_fcalMod;
   };
 
  

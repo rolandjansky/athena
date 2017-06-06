@@ -27,7 +27,6 @@
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "AthAllocators/ArenaPoolSTLAllocator.h"
 //#include "CxxUtils/unordered_set.h"
 #include "CxxUtils/prefetch.h"
@@ -181,42 +180,6 @@ CaloClusterMomentsMaker::CaloClusterMomentsMaker(const std::string& type,
 
 StatusCode CaloClusterMomentsMaker::initialize()
 {
-
-  const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endmsg;
-    return sc;
-  }
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    sc = detStore()->regFcn(&IGeoModelSvc::geoInit,
-			  geoModel,
-			  &CaloClusterMomentsMaker::geoInit,this);
-    if(sc.isFailure())
-    {
-      msg(MSG::ERROR) << "Could not register geoInit callback" << endmsg;
-      return sc;
-    }
-  }
-  return sc;
-}
-
-StatusCode
-CaloClusterMomentsMaker::geoInit(IOVSVC_CALLBACK_ARGS)
-{
-
-  //FIXME: All that could be done at initialize!
   m_calculateSignificance = false;
   m_calculateIsolation = false;
 

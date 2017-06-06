@@ -59,6 +59,7 @@ protected:
   FTKRoadInput *m_roadinput; // input module, pointer to use abstract class in the future
 
   FTKTrackOutput *m_trackoutput; // track output module
+  FTKTrackOutput *m_trackoutput_pre_hw; // track output module for tracks before the HW filter
 
   // output for firmware tests
   //FTKFirmwareOutput *m_fwoutput; // generic firmware output module
@@ -80,6 +81,7 @@ protected:
   int m_ntracks; // counter of the stored tracks
 
   std::list<FTKTrack> m_tracks; // list of output tracks
+  std::list<FTKTrack> m_tracks_pre_hw; // list of output tracks before HW filter
 
   int m_ncombs; // number of combinations
   int m_nfits; // number of fits tryied in a road
@@ -94,8 +96,8 @@ protected:
   int m_nfits_rejmaj; // number of fits rejected by HW
 
   int m_comb_id; // current combination id, has to be unique in each event, for each bank
-  FTKTrack newtrk; // fit attempt used in processor() method
-  FTKTrack *combtrack; // array of tracks temporary used during track recovery
+  FTKTrack m_newtrk; // fit attempt used in processor() method
+  FTKTrack *m_combtrack; // array of tracks temporary used during track recovery
   unsigned int m_complete_mask;
 
   // block of iterators used to compose the track fit combinations
@@ -186,8 +188,10 @@ public:
 
   void setTrackOutputModule(FTKTrackOutput *module)
     { m_trackoutput = module; }
+  void setTrackOutputModulePreHW(FTKTrackOutput *module)
+    { m_trackoutput_pre_hw = module; }
   FTKTrackOutput* getTrackOutputModule() { return m_trackoutput; }
-
+  FTKTrackOutput* getTrackOutputModulePreHW() { return m_trackoutput_pre_hw; }
   // output for firmware tests
   //void setFirmwareOutputModule(FTKFirmwareOutput *module) { m_fwoutput = module; }
   //void setNSectorsFWO( int v ) { m_maxsectors_fwo = v; }

@@ -637,22 +637,22 @@ namespace internal_poltrig {
   {
   public:
     friend class SplayTree<T, KeyType>;
-    BTreeNode( ) : _data(), _left( nullptr ), _right( nullptr ), _visited(false) { }
+    BTreeNode( ) : m_data(), m_left( nullptr ), m_right( nullptr ), m_visited(false) { }
     BTreeNode( const T & data, BTreeNode *lt, BTreeNode *rt )
-      : _data(data),_left( lt ), _right( rt ), _visited(false) { }
+      : m_data(data),m_left( lt ), m_right( rt ), m_visited(false) { }
 
-    T& data()                     { return _data; }
-    BTreeNode* Left()             { return _left; }
-    BTreeNode* Right()            { return _right; }
-    void SetVisited(const bool& visited) { _visited=visited; }
-    bool GetVisited()             { return _visited; }
-    KeyType keyValue()            { return _data->keyValue(); }
+    T& data()                     { return m_data; }
+    BTreeNode* Left()             { return m_left; }
+    BTreeNode* Right()            { return m_right; }
+    void SetVisited(const bool& visited) { m_visited=visited; }
+    bool GetVisited()             { return m_visited; }
+    KeyType keyValue()            { return m_data->keyValue(); }
 
   private:
-    T          _data;
-    BTreeNode *_left;
-    BTreeNode *_right;
-    bool      _visited;
+    T          m_data;
+    BTreeNode *m_left;
+    BTreeNode *m_right;
+    bool      m_visited;
 
   };
 
@@ -661,17 +661,17 @@ namespace internal_poltrig {
   class SplayTree
   {
   public:
-    explicit SplayTree( ):root(nullptr),size(0) { }
+    explicit SplayTree( ):m_root(nullptr),m_size(0) { }
     SplayTree( const SplayTree & rhs );
     ~SplayTree( );
 
     void MakeEmpty( );
     bool IsEmpty( ) const;
-    long int Size() { return size; }
+    long int Size() { return m_size; }
     BTreeNode<T, KeyType>* Root() { 
       // cppcheck false positive:
       // cppcheck-suppress CastIntegerToAddressAtReturn
-      return root;
+      return m_root;
     }
 
     void Find( const KeyType& keys, BTreeNode<T, KeyType>* & res);
@@ -689,24 +689,24 @@ namespace internal_poltrig {
 
     const SplayTree & operator=( const SplayTree & rhs );
     void PreOrder( void(*Visit)(BTreeNode<T,KeyType> *u) )
-    { PreOrder(Visit, root); }
+    { PreOrder(Visit, m_root); }
     void InOrder( void(*Visit)(BTreeNode<T,KeyType> *u) )
-    { InOrder(Visit, root); }
+    { InOrder(Visit, m_root); }
 
     void InOrder( void(*Visit)(BTreeNode<T,KeyType>*u, double y), double y)
-    { InOrder(Visit, root, y); }
+    { InOrder(Visit, m_root, y); }
 
     void PostOrder( void(*Visit)(BTreeNode<T,KeyType> *u) )
-    { PostOrder(Visit, root); }
+    { PostOrder(Visit, m_root); }
 
-    int Height( ) const { return Height(root); }  //height of root
+    int Height( ) const { return Height(m_root); }  //height of m_root
     int Height(BTreeNode<T, KeyType> *t) const;    //Height of subtree t;
-    BTreeNode<T, KeyType>* Left(BTreeNode<T, KeyType> *node) { return node->_left; }
-    BTreeNode<T, KeyType>* Right(BTreeNode<T, KeyType> *node) { return node->_right; }
+    BTreeNode<T, KeyType>* Left(BTreeNode<T, KeyType> *node) { return node->m_left; }
+    BTreeNode<T, KeyType>* Right(BTreeNode<T, KeyType> *node) { return node->m_right; }
 
   private:
-    BTreeNode<T, KeyType> *root;
-    long int              size;
+    BTreeNode<T, KeyType> *m_root;
+    long int              m_size;
 
     void reclaimMemory( BTreeNode<T, KeyType> * t ) const;
     BTreeNode<T, KeyType> * clone( BTreeNode<T, KeyType> *t ) const;
@@ -753,34 +753,34 @@ namespace internal_poltrig {
   {
 
     BTreeNode<T, KeyType> *newNode= new BTreeNode<T, KeyType>;
-    newNode->_data=x;
+    newNode->m_data=x;
 
-    if( root == nullptr )
+    if( m_root == nullptr )
       {
-	newNode->_left = newNode->_right = nullptr;
-	root = newNode; ++size;
+	newNode->m_left = newNode->m_right = nullptr;
+	m_root = newNode; ++m_size;
       }
     else
       {
 	KeyType keys=x->keyValue();
-	splay( keys, root );
-	KeyType rootk=root->keyValue();
+	splay( keys, m_root );
+	KeyType rootk=m_root->keyValue();
 	if( keys < rootk )
 	  {
-	    newNode->_left = root->_left;
-	    newNode->_right = root;
-	    root->_left = nullptr;
-	    root = newNode;
-	    ++size;
+	    newNode->m_left = m_root->m_left;
+	    newNode->m_right = m_root;
+	    m_root->m_left = nullptr;
+	    m_root = newNode;
+	    ++m_size;
 	  }
         else if( keys > rootk )
 	  {
 
-	    newNode->_right = root->_right;
-	    newNode->_left = root;
-	    root->_right = nullptr;
-	    root = newNode;
-	    ++size;
+	    newNode->m_right = m_root->m_right;
+	    newNode->m_left = m_root;
+	    m_root->m_right = nullptr;
+	    m_root = newNode;
+	    ++m_size;
 	  }
         else
 	  {
@@ -800,24 +800,24 @@ namespace internal_poltrig {
   {
     BTreeNode<T, KeyType> *newTree;
 
-    splay( keys, root );
-    if( root->keyValue() != keys ) { res=nullptr; return; } // Item not found; do nothing
+    splay( keys, m_root );
+    if( m_root->keyValue() != keys ) { res=nullptr; return; } // Item not found; do nothing
 
-    res = root;
+    res = m_root;
 
-    if( root->_left == nullptr )
-      newTree = root->_right;
+    if( m_root->m_left == nullptr )
+      newTree = m_root->m_right;
     else
       {
-	// Find the maximum in the _left subtree
-	// Splay it to the root; and then attach _right child
-	newTree = root->_left;
+	// Find the maximum in the m_left subtree
+	// Splay it to the m_root; and then attach m_right child
+	newTree = m_root->m_left;
 	splay( keys, newTree );
-	newTree->_right = root->_right;
+	newTree->m_right = m_root->m_right;
       }
 
-    root = newTree;
-    size--;
+    m_root = newTree;
+    m_size--;
   }
 
   //---------------------------------------------------------------------
@@ -828,23 +828,23 @@ namespace internal_poltrig {
   {
     BTreeNode<T, KeyType> *newTree;
 
-    splay( keys, root );
-    KeyType rootk=root->keyValue();
+    splay( keys, m_root );
+    KeyType rootk=m_root->keyValue();
     if( rootk != keys ) { return; } // Item not found; do nothing
 
-    if( root->_left == nullptr ) newTree = root->_right;
+    if( m_root->m_left == nullptr ) newTree = m_root->m_right;
     else
       {
-	// Find the maximum in the _left subtree
-	// Splay it to the root; and then attach _right child
-	newTree = root->_left;
+	// Find the maximum in the m_left subtree
+	// Splay it to the m_root; and then attach m_right child
+	newTree = m_root->m_left;
 	splay( keys, newTree );
-	newTree->_right = root->_right;
+	newTree->m_right = m_root->m_right;
       }
 
-    delete root;
-    root = newTree;
-    size--;
+    delete m_root;
+    m_root = newTree;
+    m_size--;
   }
 
 
@@ -858,21 +858,21 @@ namespace internal_poltrig {
     if( IsEmpty( ) )  { min=nullptr; return; }
 
     double keys=-1.0e30;
-    splay( keys, root );
+    splay( keys, m_root );
 
-    min = root;
+    min = m_root;
 
     BTreeNode<T, KeyType> *newTree;
-    if( root->_left == nullptr ) newTree = root->_right;
+    if( m_root->m_left == nullptr ) newTree = m_root->m_right;
     else
       {
-	newTree = root->_left;
+	newTree = m_root->m_left;
 	splay( keys, newTree );
-	newTree->_right = root->_right;
+	newTree->m_right = m_root->m_right;
       }
 
-    size--;
-    root = newTree;
+    m_size--;
+    m_root = newTree;
 
   }
 
@@ -885,20 +885,20 @@ namespace internal_poltrig {
     if( IsEmpty( ) )  { max=nullptr; return; }
 
     double keys=1.0e30;
-    splay( keys, root );
+    splay( keys, m_root );
 
-    max = root;
+    max = m_root;
 
     BTreeNode<T, KeyType> *newTree;
-    if( root->_left == nullptr ) newTree = root->_right;
+    if( m_root->m_left == nullptr ) newTree = m_root->m_right;
     else
       {
-	newTree = root->_left;
+	newTree = m_root->m_left;
 	splay( keys, newTree );
-	newTree->_right = root->_right;
+	newTree->m_right = m_root->m_right;
       }
-    size--;
-    root = newTree;
+    m_size--;
+    m_root = newTree;
   }
 
 
@@ -909,10 +909,10 @@ namespace internal_poltrig {
   void SplayTree<T, KeyType>::FindMin(BTreeNode<T, KeyType>* & min )
   {
     if( IsEmpty( ) )  { min=nullptr; return; }
-    BTreeNode<T, KeyType> *ptr = root;
+    BTreeNode<T, KeyType> *ptr = m_root;
 
-    while( ptr->_left != nullptr ) ptr = ptr->_left;
-    splay( ptr->keyValue(), root );
+    while( ptr->m_left != nullptr ) ptr = ptr->m_left;
+    splay( ptr->keyValue(), m_root );
     min = ptr;
   }
 
@@ -924,9 +924,9 @@ namespace internal_poltrig {
   {
     if( IsEmpty( ) )   { max=nullptr; return; }
 
-    BTreeNode<T, KeyType> *ptr = root;
-    while( ptr->_right != nullptr ) ptr = ptr->_right;
-    splay( ptr->keyValue(), root );
+    BTreeNode<T, KeyType> *ptr = m_root;
+    while( ptr->m_right != nullptr ) ptr = ptr->m_right;
+    splay( ptr->keyValue(), m_root );
     max =  ptr;
   }
 
@@ -938,9 +938,9 @@ namespace internal_poltrig {
   void SplayTree<T, KeyType>::Find( const KeyType& keys, BTreeNode<T, KeyType>* & res)
   {
     if( IsEmpty( ) ) { res=nullptr; return; }
-    splay( keys, root );
-    if( root->keyValue() != keys ) { res=nullptr; return; }
-    else res = root;
+    splay( keys, m_root );
+    if( m_root->keyValue() != keys ) { res=nullptr; return; }
+    else res = m_root;
   }
 
   //--------------------------------------------------------------------
@@ -952,13 +952,13 @@ namespace internal_poltrig {
   void SplayTree<T, KeyType>::FindMaxSmallerThan( const KeyType& keys, BTreeNode<T, KeyType>* &res)
   {
     if( IsEmpty( ) ) { res=nullptr; return; }
-    splay( keys, root );
+    splay( keys, m_root );
 
-    if( root->data()->keyValue() < keys) res=root;
-    else if(root->_left)
+    if( m_root->data()->keyValue() < keys) res=m_root;
+    else if(m_root->m_left)
       {
-	res=root->_left;
-	while(res->_right) res=res->_right;
+	res=m_root->m_left;
+	while(res->m_right) res=res->m_right;
       }
     else
       {
@@ -986,7 +986,7 @@ namespace internal_poltrig {
   template <class T, class KeyType>
   bool SplayTree<T, KeyType>::IsEmpty( ) const
   {
-    return root == nullptr;
+    return m_root == nullptr;
   }
 
   //----------------------------------------------------------------------
@@ -998,7 +998,7 @@ namespace internal_poltrig {
     if( this != &rhs )
       {
 	MakeEmpty( );
-	root = clone( rhs.root );
+	m_root = clone( rhs.m_root );
       }
 
     return *this;
@@ -1007,7 +1007,7 @@ namespace internal_poltrig {
   //-----------------------------------------------------------------------
   //Internal method to perform a top-down splay.
   //x is the key of target node to splay around.
-  //t is the root of the subtree to splay.
+  //t is the m_root of the subtree to splay.
   //-----------------------------------------------------------------------
   template <class T, class KeyType>
   void SplayTree<T, KeyType>::splay( const KeyType& keys, BTreeNode<T, KeyType> * & t ) const
@@ -1016,7 +1016,7 @@ namespace internal_poltrig {
     //    static BTreeNode<T, KeyType> header;
     BTreeNode<T, KeyType> header;//TK: Removed static keyword. Rather a bit slower than thread problems...
 
-    header._left = header._right = nullptr;
+    header.m_left = header.m_right = nullptr;
     leftTreeMax = rightTreeMin = &header;
 
     for( ; ; )
@@ -1024,57 +1024,57 @@ namespace internal_poltrig {
 	KeyType rkey=t->keyValue();
 	if( keys < rkey )
 	  {
-	    if(t->_left == nullptr) break;
-	    if( keys < t->_left->keyValue() ) rotateWithLeftChild( t );
-	    if( t->_left == nullptr ) break;
+	    if(t->m_left == nullptr) break;
+	    if( keys < t->m_left->keyValue() ) rotateWithLeftChild( t );
+	    if( t->m_left == nullptr ) break;
 
 	    // Link Right
-	    rightTreeMin->_left = t;
+	    rightTreeMin->m_left = t;
 	    rightTreeMin = t;
-	    t = t->_left;
+	    t = t->m_left;
 	  }
 	else if( keys > rkey )
 	  {
-	    if( t->_right == nullptr ) break;
-	    if( keys > t->_right->keyValue() ) rotateWithRightChild( t );
-	    if( t->_right == nullptr ) break;
+	    if( t->m_right == nullptr ) break;
+	    if( keys > t->m_right->keyValue() ) rotateWithRightChild( t );
+	    if( t->m_right == nullptr ) break;
 
 	    // Link Left
-	    leftTreeMax->_right = t;
+	    leftTreeMax->m_right = t;
 	    leftTreeMax = t;
-	    t = t->_right;
+	    t = t->m_right;
 	  }
 	else  break;
       }
 
-    leftTreeMax->_right = t->_left;
-    rightTreeMin->_left = t->_right;
-    t->_left = header._right;
-    t->_right = header._left;
+    leftTreeMax->m_right = t->m_left;
+    rightTreeMin->m_left = t->m_right;
+    t->m_left = header.m_right;
+    t->m_right = header.m_left;
 
   }
 
   //--------------------------------------------------------------------
-  //Rotate binary tree node with _left child.
+  //Rotate binary tree node with m_left child.
   //--------------------------------------------------------------------
   template <class T, class KeyType>
   void SplayTree<T, KeyType>::rotateWithLeftChild( BTreeNode<T, KeyType> * & k2 ) const
   {
-    BTreeNode<T, KeyType> *k1 = k2->_left;
-    k2->_left = k1->_right;
-    k1->_right = k2;
+    BTreeNode<T, KeyType> *k1 = k2->m_left;
+    k2->m_left = k1->m_right;
+    k1->m_right = k2;
     k2 = k1;
   }
 
   //---------------------------------------------------------------------
-  //Rotate binary tree node with _right child.
+  //Rotate binary tree node with m_right child.
   //---------------------------------------------------------------------
   template <class T, class KeyType>
   void SplayTree<T, KeyType>::rotateWithRightChild( BTreeNode<T, KeyType> * & k1 ) const
   {
-    BTreeNode<T, KeyType> *k2 = k1->_right;
-    k1->_right = k2->_left;
-    k2->_left = k1;
+    BTreeNode<T, KeyType> *k2 = k1->m_right;
+    k1->m_right = k2->m_left;
+    k2->m_left = k1;
     k1 = k2;
   }
 
@@ -1085,10 +1085,10 @@ namespace internal_poltrig {
   template <class T, class KeyType>
   void SplayTree<T, KeyType>::reclaimMemory( BTreeNode<T, KeyType> * t ) const
   {
-    if( t != t->_left )
+    if( t != t->m_left )
       {
-	reclaimMemory( t->_left );
-	reclaimMemory( t->_right );
+	reclaimMemory( t->m_left );
+	reclaimMemory( t->m_right );
 	delete t;
       }
   }
@@ -1100,10 +1100,10 @@ namespace internal_poltrig {
   template <class T, class KeyType>
   BTreeNode<T, KeyType> * SplayTree<T, KeyType>::clone( BTreeNode<T, KeyType> * t ) const
   {
-    if( t == t->_left )  // Cannot test against nullptrNode!!!
+    if( t == t->m_left )  // Cannot test against nullptrNode!!!
       return nullptr;
     else
-      return new BTreeNode<T, KeyType>( t->_data, clone( t->_left ), clone( t->_right ) );
+      return new BTreeNode<T, KeyType>( t->m_data, clone( t->m_left ), clone( t->m_right ) );
   }
 
   //-----------------------------------------------------------------------
@@ -1115,8 +1115,8 @@ namespace internal_poltrig {
     if(t!=nullptr)
       {
 	Visit(t);
-	PreOrder(Visit,t->_left);
-	PreOrder(Visit,t->_right);
+	PreOrder(Visit,t->m_left);
+	PreOrder(Visit,t->m_right);
       }
 
   }
@@ -1129,9 +1129,9 @@ namespace internal_poltrig {
   {
     if(t!=nullptr)
       {
-        InOrder(Visit,t->_left);
+        InOrder(Visit,t->m_left);
         Visit(t);
-        InOrder(Visit,t->_right);
+        InOrder(Visit,t->m_right);
       }
   }
 
@@ -1145,9 +1145,9 @@ namespace internal_poltrig {
   {
     if(t!=nullptr)
       {
-        InOrder(Visit,t->_left, y);
+        InOrder(Visit,t->m_left, y);
         Visit(t, y);
-        InOrder(Visit,t->_right, y);
+        InOrder(Visit,t->m_right, y);
       }
   }
 
@@ -1161,8 +1161,8 @@ namespace internal_poltrig {
   {
     if(t!=nullptr)
       {
-        PostOrder(Visit,t->_left);
-        PostOrder(Visit,t->_right);
+        PostOrder(Visit,t->m_left);
+        PostOrder(Visit,t->m_right);
         Visit(t);
       }
   }
@@ -1174,8 +1174,8 @@ namespace internal_poltrig {
   int SplayTree<T, KeyType>::Height(BTreeNode<T, KeyType> *subtree) const
   {
     if(subtree==nullptr) return 0;
-    int lh=Height(subtree->_left);
-    int rh=Height(subtree->_right);
+    int lh=Height(subtree->m_left);
+    int rh=Height(subtree->m_right);
 
     return (lh>rh)?(++lh):(++rh);
   }

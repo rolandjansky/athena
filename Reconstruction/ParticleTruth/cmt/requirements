@@ -4,7 +4,7 @@ author  Andreas Wildauer
 use AtlasPolicy          AtlasPolicy-*
 use CLIDSvc              CLIDSvc-*            Control
 use Particle             Particle-*           Reconstruction
-use DataModel            DataModel-*          Control
+use AthLinks             AthLinks-*           Control
 use GeneratorObjects     GeneratorObjects-*   Generators
 
 library ParticleTruth *.cxx

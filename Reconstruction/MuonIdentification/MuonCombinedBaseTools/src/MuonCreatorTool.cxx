@@ -305,15 +305,7 @@ namespace MuonCombined {
 	    if(nBadSmall==nBadLarge) countHits=true;
 	  }
 	}
-	//check for CSC unspoiled clusters: if none, and this is an endcap track that includes the CSC, reduce nGoodPrec by one
 	//as we arbitrarily declare this to be a barrel track if there are equal numbers of good barrel and endcap chambers, we need not worry about that situation
-	if(isEnd && chamberQual.count(Muon::MuonStationIndex::CSS)>0 || chamberQual.count(Muon::MuonStationIndex::CSL)>0){
-	  if(mu->auxdata<int>("nUnspoiledCscHits")==0){
-	    ATH_MSG_DEBUG("found no unspoiled csc hits, reduce # of good precision layers");
-	    nGoodPrec--;
-	  }
-	  else ATH_MSG_DEBUG("found "<<mu->auxdata<int>("nUnspoiledCscHits")<<" unspoiled csc hits, don't change nGoodPrecisionLayers");
-	}
 	if(countHits){ //decide large-small by counting hits
 	  uint8_t sumval=0;
 	  int nSmallHits=0,nLargeHits=0;
@@ -609,6 +601,7 @@ namespace MuonCombined {
           }
           // for the purpose of the truth matching, set the track link to point to the ID track
           //tp->setTrackLink(candidate.indetTrackParticle().trackLink());
+	  tp->setTrackLink( ElementLink< TrackCollection >() );
         }
       } //endif outputData.combinedTrackParticleContainer 
     }
@@ -1453,6 +1446,9 @@ namespace MuonCombined {
     if( !m_trackSegmentAssociationTool.empty() ) addSegmentsOnTrack(muon);
 
     addMSIDScatteringAngles(muon);
+    if(muon.combinedTrackParticleLink().isValid()) addMSIDScatteringAngles(**(muon.combinedTrackParticleLink()));
+    if(muon.extrapolatedMuonSpectrometerTrackParticleLink().isValid()) addMSIDScatteringAngles(**(muon.extrapolatedMuonSpectrometerTrackParticleLink()));
+    if(muon.msOnlyExtrapolatedMuonSpectrometerTrackParticleLink().isValid()) addMSIDScatteringAngles(**(muon.msOnlyExtrapolatedMuonSpectrometerTrackParticleLink()));
 
     if(!muon.isAvailable<int>("nUnspoiledCscHits")){
       muon.auxdata<int>("nUnspoiledCscHits")=-999;
@@ -1827,6 +1823,46 @@ namespace MuonCombined {
       muon.auxdata<float>("deltatheta_0")=-999;
       muon.auxdata<float>("sigmadeltaphi_0")=-999;
       muon.auxdata<float>("sigmadeltatheta_0")=-999;
+    }
+  }
+
+  void MuonCreatorTool::addMSIDScatteringAngles(const xAOD::TrackParticle& tp) const{
+    int nscatter=0;
+    if(tp.track() && tp.track()->trackStateOnSurfaces()){
+      for(auto tsos : *(tp.track()->trackStateOnSurfaces())) {
+	if(tsos->materialEffectsOnTrack()){
+          const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack () );
+          if(!meot->energyLoss() || !meot->scatteringAngles()) continue;
+          if(meot->energyLoss()->deltaE()==0){ //artificial scatterer found
+            if(nscatter==0){
+	      tp.auxdecor<float>("deltaphi_0")=meot->scatteringAngles()->deltaPhi();
+              tp.auxdecor<float>("deltatheta_0")=meot->scatteringAngles()->deltaTheta();
+              tp.auxdecor<float>("sigmadeltaphi_0")=meot->scatteringAngles()->sigmaDeltaPhi();
+              tp.auxdecor<float>("sigmadeltatheta_0")=meot->scatteringAngles()->sigmaDeltaTheta();
+            }
+            else if(nscatter==1){
+              tp.auxdecor<float>("deltaphi_1")=meot->scatteringAngles()->deltaPhi();
+              tp.auxdecor<float>("deltatheta_1")=meot->scatteringAngles()->deltaTheta();
+              tp.auxdecor<float>("sigmadeltaphi_1")=meot->scatteringAngles()->sigmaDeltaPhi();
+              tp.auxdecor<float>("sigmadeltatheta_1")=meot->scatteringAngles()->sigmaDeltaTheta();
+            }
+            nscatter++;
+          }
+	}
+        if(nscatter>1) break;
+      }
+    }
+    if(nscatter<=1){
+      tp.auxdecor<float>("deltaphi_1")=-999;
+      tp.auxdecor<float>("deltatheta_1")=-999;
+      tp.auxdecor<float>("sigmadeltaphi_1")=-999;
+      tp.auxdecor<float>("sigmadeltatheta_1")=-999;
+    }
+    if(nscatter==0){
+      tp.auxdecor<float>("deltaphi_0")=-999;
+      tp.auxdecor<float>("deltatheta_0")=-999;
+      tp.auxdecor<float>("sigmadeltaphi_0")=-999;
+      tp.auxdecor<float>("sigmadeltatheta_0")=-999;
     }
   }
  

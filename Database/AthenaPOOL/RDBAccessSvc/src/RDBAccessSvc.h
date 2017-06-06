@@ -37,11 +37,9 @@ template <class TYPE> class SvcFactory;
 
 
 // Recordsets of single connection
-typedef std::map<std::string, RDBRecordset*, std::less<std::string> > RecordsetMap;
 typedef std::map<std::string, IRDBRecordset_ptr> RecordsetPtrMap;
 
 // Pointers to recordset maps by connection name
-typedef std::map<std::string, RecordsetMap*, std::less<std::string> > RecordsetsByConn;
 typedef std::map<std::string, RecordsetPtrMap*> RecordsetPtrsByConn;
 
 // Session map
@@ -89,11 +87,6 @@ class RDBAccessSvc : public AthService, virtual public IRDBAccessSvc
   /// tag of the HVS branch node specified by tag2node otherwise
   /// @param tag2node [IN] some parent of the HVS leaf node specified by node parameter
   /// @return pointer to the recordset object
-  virtual const IRDBRecordset* getRecordset(const std::string& node,
-					    const std::string& tag,
-					    const std::string& tag2node,
-					    const std::string& connName);
-
   virtual IRDBRecordset_ptr getRecordsetPtr(const std::string& node,
 					    const std::string& tag,
 					    const std::string& tag2node="",
@@ -124,15 +117,8 @@ class RDBAccessSvc : public AthService, virtual public IRDBAccessSvc
 
   inline MsgStream& msgStream() { return msg(); }
 
-  //Implementation of standard methots
-
-  /// Initialize
   virtual StatusCode initialize();
-
-  /// Finalize
   virtual StatusCode finalize();
-
-  /// Query Interface
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
  protected:
@@ -145,20 +131,11 @@ class RDBAccessSvc : public AthService, virtual public IRDBAccessSvc
   /// Standard Service Destructor
   virtual ~RDBAccessSvc();
 
-  /// Cleaning up the recordset entry
-  void eraseRecordset(const RDBRecordset* recordset);
-
 private:
   SessionMap m_sessions;
   std::map<std::string, unsigned int, std::less<std::string> > m_openConnections;
 
-  std::string   m_hostName;  // To be removed as soon as two remainig client scripts have been cleaned up
-
-  RecordsetsByConn m_recordsets;
-  RecordsetPtrsByConn m_recordsetptrs;
-  
-  RDBRecordset m_empty;
-
+  RecordsetPtrsByConn m_recordsetptrs;  
   GlobalTagLookupMap m_globalTagLookup;
 
   bool shutdown_connection(const std::string& connName);

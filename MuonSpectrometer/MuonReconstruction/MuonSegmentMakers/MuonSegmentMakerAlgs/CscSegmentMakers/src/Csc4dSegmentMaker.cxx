@@ -134,7 +134,7 @@ Csc4dSegmentMaker::find( const MuonSegmentCombinationCollection& segcols) const
 
   for ( MuonSegmentCombinationCollection::const_iterator icom=segcols.begin();
         icom!=segcols.end(); ++icom ) {
-    MuonSegmentCombination& insegs = **icom;
+    const MuonSegmentCombination& insegs = **icom;
 
     int nsta = insegs.numberOfStations();
     if ( nsta != 2 ) { // This can be happened if segment is not made at all in case of two hit layers !!
@@ -158,7 +158,7 @@ Csc4dSegmentMaker::find( const MuonSegmentCombinationCollection& segcols) const
 }
 //******************************************************************************
 // For MuGirls... Seeded SegmentMaker part.... 
-
+//Note: this code was used by the old MuGirl but is not part of the current reconstruction
 std::vector<const MuonSegment*>* Csc4dSegmentMaker::find( const Amg::Vector3D& /*gpos*/, const Amg::Vector3D& /*gdir*/,
                                                           const std::vector< const MdtDriftCircleOnTrack* > & ,
                                                           const std::vector< const MuonClusterOnTrack* > & pcots,
@@ -223,6 +223,7 @@ std::vector<const MuonSegment*>* Csc4dSegmentMaker::find( const Amg::Vector3D& /
 
 } //find
 
+//Note: this code was used by the old MuGirl but is not part of the current reconstruction
 //******************************************************************************
 std::vector<const MuonSegment*>* Csc4dSegmentMaker::find( const Trk::TrackRoad& road,
                                                           const std::vector< std::vector< const MdtDriftCircleOnTrack* > >& ,

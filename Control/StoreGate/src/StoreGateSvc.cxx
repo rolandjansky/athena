@@ -13,6 +13,7 @@
 
 #include "GaudiKernel/IAppMgrUI.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
+#include <fstream>
 
 using namespace SG;
 using namespace std;
@@ -133,7 +134,7 @@ StoreGateSvc::keys(const CLID& id, bool allKeys){
 
 
 /////////////////////////////////////////////////////////////
-/// Service initialisation
+/// Service initialization
 StatusCode StoreGateSvc::initialize()    {
 
   // Initialize service:
@@ -174,7 +175,7 @@ StatusCode StoreGateSvc::initialize()    {
 
   std::string implStoreFullName = "SGImplSvc/" + implStoreName;
   debug() << "trying to create store " << implStoreFullName << endmsg;
-
+  
   ISvcManager* pSM(dynamic_cast<ISvcManager*>(&*serviceLocator()));
   if (!pSM) std::abort();
   m_defaultStore = dynamic_cast<SGImplSvc*>( (pSM->createService(implStoreFullName)).get() );
@@ -183,7 +184,7 @@ StatusCode StoreGateSvc::initialize()    {
     error() << "Could not create store " << implStoreFullName << endmsg;
     return StatusCode::FAILURE;
   }
-
+  
   if ( m_defaultStore->sysInitialize().isSuccess() ) {
     // createService returns to us a reference to the service; we shouldn't
     // increment it again.
@@ -203,6 +204,9 @@ StatusCode StoreGateSvc::initialize()    {
     error() << "Could not locate IncidentSvc" << endmsg;
     return StatusCode::FAILURE;
   }
+  const int PRIORITY=100;
+  m_incSvc->addListener(this, "EndEvent",PRIORITY);
+  m_incSvc->addListener(this, "BeginEvent", PRIORITY);
 
   return StatusCode::SUCCESS;
 }
@@ -222,6 +226,10 @@ StatusCode StoreGateSvc::stop()    {
           << " so that event stores get finalized and cleared before other stores" <<endmsg;
   }
   return StatusCode::SUCCESS;
+}
+
+void StoreGateSvc::handle(const Incident &inc) {
+  m_defaultStore->handle(inc);
 }
 
 //////////////////////////////////////////////////////////////
@@ -302,6 +310,8 @@ StatusCode StoreGateSvc::addToStore (CLID id, SG::DataProxy* proxy)
  * @param returnExisting If true, return proxy if this key already exists.
  *                       If the object has been recorded under a different
  *                       key, then make an alias.
+ *                       If the object has been recorded under a different
+ *                       clid, then make a link.
  *
  * Full-blown record.  @c obj should usually be something
  * deriving from @c SG::DataBucket.
@@ -379,7 +389,7 @@ StoreGateSvc::typeless_record( DataObject* obj, const std::string& key,
                                bool noHist ) {
   _SGXCALL(typeless_record, (obj, key, raw_ptr, allowMods, resetOnly, noHist), StatusCode::FAILURE);
 }
-/// same as typeless_record, allows to ovewrite an object in memory or on disk
+/// same as typeless_record, allows to overwrite an object in memory or on disk
 StatusCode 
 StoreGateSvc::typeless_overwrite( const CLID& id,
                                   DataObject* obj, const std::string& key,
@@ -569,3 +579,17 @@ StoreGateSvc::createObj (IConverter* cvt,
 {
   _SGXCALL( createObj, (cvt, addr, refpObject), StatusCode::FAILURE );
 }
+
+
+void SG_dump (StoreGateSvc* sg)
+{
+  std::cout << sg->dump() << "\n";
+}
+
+void SG_dump (StoreGateSvc* sg, const char* fname)
+{
+  std::ofstream f (fname);
+  f << sg->dump() << "\n";
+  f.close();
+}
+

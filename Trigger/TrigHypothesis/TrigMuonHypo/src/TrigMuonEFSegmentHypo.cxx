@@ -102,7 +102,7 @@ HLT::ErrorCode TrigMuonEFSegmentHypo::hltExecute(const HLT::TriggerElement* outp
       // apparently match chi2 not stored yet?
       //float matchchi2(-1);
       //muon->parameter(matchchi2, xAOD::Muon::msInnerMatchChi2);
-      if (debug) ATH_MSG_DEBUG("Retrieved muon with pt " << muon->pt()/CLHEP::GeV << " GeV."); //Match chi2 = " << matchchi2 << endreq;
+      if (debug) ATH_MSG_DEBUG("Retrieved muon with pt " << muon->pt()/CLHEP::GeV << " GeV."); //Match chi2 = " << matchchi2 << endmsg;
 
       m_fex_pt.push_back(muon->pt()/CLHEP::GeV);
       const float eta = muon->eta();

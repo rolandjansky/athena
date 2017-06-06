@@ -15,15 +15,16 @@ class ThinTrkTrack(Configured):
             theTrkTrackThinner = ThinTrkTrackAlg(
                 "ThinTrkTrackAlg",
                 doElectrons=True,
+                doPhotons=True,
                 doMuons=True,
                 MuonsKey="Muons",
                 ElectronsKey="Electrons",
+                PhotonsKey="Photons",
                 CombinedMuonsTrackKey="CombinedMuonTracks",
                 GSFTrackKey="GSFTracks")                
             
             from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR           
-            theTrkTrackThinner.OutputLevel=DEBUG
-            
+            #theTrkTrackThinner.OutputLevel=DEBUG            
             print theTrkTrackThinner
 
         except Exception:

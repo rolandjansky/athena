@@ -85,17 +85,35 @@ cd ${BUILDDIR} || ((ERROR_COUNT++))
 # Set up the externals project:
 source ${EXTDIR}/setup.sh || ((ERROR_COUNT++))
 
+#FIXME: simplify error counting below while keeping '| tee ...'
+
 # Configure the build:
+error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
+{
 cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
     -DGAUDI_ATLAS:BOOL=TRUE -DGAUDI_ATLAS_BASE_PROJECT:STRING=${EXTPROJECT} \
     -DCMAKE_INSTALL_PREFIX:PATH=/InstallArea/${PLATFORM} \
-    ${SOURCEDIR} 2>&1 | tee cmake_config.log || ((ERROR_COUNT++))
+    ${SOURCEDIR} || touch $error_stamp
+} 2>&1 | tee cmake_config.log 
+test -f $error_stamp && ((ERROR_COUNT++))
+rm -f $error_stamp
 
 # Build it:
-make -k || ((ERROR_COUNT++))
+error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
+{
+make -k || touch $error_stamp
+} 2>&1 | tee cmake_build.log
+test -f $error_stamp && ((ERROR_COUNT++))
+rm -f $error_stamp
+
 
 # Install it:
-make -k install/fast DESTDIR=${INSTALLDIR} || ((ERROR_COUNT++))
+error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
+{
+make -k install/fast DESTDIR=${INSTALLDIR} || touch $error_stamp
+} 2>&1 | tee cmake_install.log
+test -f $error_stamp && ((ERROR_COUNT++))
+rm -f $error_stamp
 
 # If no RPM directory was specified, stop here:
 if [ "$RPMDIR" = "" ]; then
@@ -103,8 +121,22 @@ if [ "$RPMDIR" = "" ]; then
 fi
 
 # Build the RPM for the project:
-cpack || ((ERROR_COUNT++))
-mkdir -p ${RPMDIR} || ((ERROR_COUNT++))
-cp GAUDI*.rpm ${RPMDIR} || ((ERROR_COUNT++))
+error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
+{
+cpack || touch $error_stamp
+} 2>&1 | tee cmake_cpack.log
+test -f $error_stamp && ((ERROR_COUNT++))
+rm -f $error_stamp
+
+error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
+{
+mkdir -p ${RPMDIR} && cp GAUDI*.rpm ${RPMDIR} || touch $error_stamp
+} 2>&1 | tee cp_rpm.log
+test -f $error_stamp && ((ERROR_COUNT++))
+rm -f $error_stamp
+
+if [ $ERROR_COUNT -ne 0 ]; then
+	echo "Gaudi build script counted $ERROR_COUNT errors"
+fi
 
 exit ${ERROR_COUNT}

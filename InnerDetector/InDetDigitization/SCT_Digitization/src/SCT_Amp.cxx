@@ -26,7 +26,6 @@ SCT_Amp::SCT_Amp(const std::string& type, const std::string& name,const IInterfa
   declareProperty("deltaT",m_dt=1.0);
   declareProperty("Tmin",m_tmin=-25.0);
   declareProperty("Tmax",m_tmax=150.0);
-  declareProperty("NbAverage",m_Navr=0);
 }
 
 // Destructor
@@ -55,10 +54,6 @@ StatusCode SCT_Amp::initialize() {
   m_NormConstNeigh = exp(3.0-sqrt(3.0))/(6*(2.0*sqrt(3.0)-3.0));
   m_NormConstNeigh *= (m_CrossFactor2sides/2.0)*(1.0-m_CrossFactorBack);
 
-  int Narr = int((m_tmax-m_tmin)/m_dt)+1 ;
-  m_InAvr.resize(Narr+1); m_OutAvr.resize(Narr+1); m_SideAvr.resize(Narr+1) ;
-  m_InAvr.clear(); m_OutAvr.clear(); m_SideAvr.clear();
-
 #ifdef SCT_DIG_DEBUG
   ATH_MSG_INFO (  "\tAmp created, PeakTime = " << m_PeakTime );
   ATH_MSG_INFO (  "\tResponse will be CR-RC^3 with tp = " << m_PeakTime/3.0 );
@@ -66,7 +61,6 @@ StatusCode SCT_Amp::initialize() {
   ATH_MSG_INFO (  "\tCoupling to backplane = " << m_CrossFactorBack );
   ATH_MSG_INFO (  "\tNormalization for central " << m_NormConstCentral );
   ATH_MSG_INFO (  "\tNormalization for neighbour " << m_NormConstNeigh  );
-  ATH_MSG_INFO (  "\tAverages for " << Narr << " times prepared" );
 #endif
 
   return sc ;
@@ -76,7 +70,6 @@ StatusCode SCT_Amp::initialize() {
 // Finalize 
 //----------------------------------------------------------------------
 StatusCode SCT_Amp::finalize() {
-  //  PrintAverages(std::string("tape.avpul").c_str()) ;
   StatusCode sc = AthAlgTool::finalize();
   if (sc.isFailure()) {
     ATH_MSG_FATAL ( "SCT_Amp::finalize() failed" );
@@ -176,65 +169,4 @@ void SCT_Amp::crosstalk(const list_t & Charges,const float timeOfThreshold, std:
   }
   for(short bin=0; bin<bin_max; ++bin) response[bin] = response[bin]*m_NormConstNeigh;
   return;
-}
-//----------------------------------------------------------------------
-// diagnostics
-//----------------------------------------------------------------------
-void SCT_Amp::AccumulateAverages(const list_t & Charges) {
-
-  if(m_Navr>=0) { 
-    int Narr = int((m_tmax-m_tmin)/m_dt)+1 ;	
-    // input charge integrated
-    list_t::const_iterator p_charge = Charges.begin();
-    list_t::const_iterator p_charge_end = Charges.end();
-    for(; p_charge != p_charge_end; ++p_charge) {
-      float ch=p_charge->charge() ;
-      float tC = p_charge->time() ;
-      int indx = int((tC - m_tmin)/m_dt)+1 ;
-      for(int i=indx; i<=Narr; ++i) {
-	m_InAvr[i] += ch ;
-      }
-    }
-    // output and side signals
-    for(float tr=m_tmin; tr<=m_tmax; tr+=m_dt) {
-      int i = int((tr - m_tmin)/m_dt)+1 ;
-      m_OutAvr[i] += this->response(Charges,tr) ;
-      m_SideAvr[i] += this->crosstalk(Charges,tr) ;
-    }
-    m_Navr++ ;
-  }
-}
-
-//----------------------------------------------------------------------
-// Printing on the screen
-//----------------------------------------------------------------------
-void SCT_Amp::PrintAverages() const {
-  ATH_MSG_INFO (  "Averages after " << m_Navr );
-  if(m_Navr>0) {
-    int Narr = int((m_tmax-m_tmin)/m_dt)+1 ;
-    for(int i=0;i<=Narr;++i) {
-      ATH_MSG_INFO (  m_tmin+m_dt*i << " " );
-      ATH_MSG_INFO (  m_InAvr[i]/m_Navr << " " );
-      ATH_MSG_INFO (  m_OutAvr[i]/m_Navr << " " );
-      ATH_MSG_INFO (  m_SideAvr[i]/m_Navr  ) ;
-    }
-  }    
-}
-
-//----------------------------------------------------------------------
-// Printing and saving in a file
-//----------------------------------------------------------------------
-void SCT_Amp::PrintAverages(const char *fname) const {
-  ATH_MSG_INFO (  "Averages after " << m_Navr <<  " to " << fname );
-  std::ofstream avrfile(fname) ;    
-    if(m_Navr>0) {
-      int Narr = int((m_tmax-m_tmin)/m_dt)+1 ;
-      for(int i=0;i<=Narr;++i) {
-	avrfile << m_tmin+m_dt*i << " " ;
-	avrfile << m_InAvr[i]/m_Navr << " " ;
-	avrfile << m_OutAvr[i]/m_Navr << " " ;
-	avrfile << m_SideAvr[i]/m_Navr << std::endl ; 
-      }
-    }
-    avrfile.close() ;
 }

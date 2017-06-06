@@ -48,6 +48,11 @@ const bool DEBUG_CLUSTERS = 0;
 const bool DEBUG_AVERAGE = 0;
 const bool DEBUG_AVERAGE_SCT = 0;
 
+const bool PRINT_INPUT    = 0; // print input data    
+const bool DEBUG_INPUT    = 0; // detail check input  
+const bool DEBUG_DECODER  = 0; // check decoder output
+const bool DEBUG_CENTROID = 0; // check centroid calc.
+
 const unsigned int MOD_ID_PHI_VAL  = 1;
 const unsigned int MOD_ID_PHI_MASK = 100;
 const unsigned int MOD_ID_ETA_VAL  = MOD_ID_PHI_MASK;
@@ -69,6 +74,8 @@ bool DUPLICATE_GANGED;
 bool GANGED_PATTERN_RECOGNITION;
 bool SPLIT_BLAYER_MODULES;
 //bool CLUSTERING_PRINTOUT;
+
+map<int,map<int,int> > module_dup;//ryu added 20160303
 
 /*!
  * Function examining whether a hit is in a specific ROD
@@ -93,6 +100,20 @@ cluster::~cluster()
     hitlist.clear();
 }
 
+/*! Function which examines whether a hit belongs to an IBL module. 
+ * \param hit the hit
+ * \return true if the hit is on an IBL module, false otherwide
+ */
+bool hitOnIBLmodule(const FTKRawHit &hit) 
+{
+    int BarrelEndCap = hit.getBarrelEC();
+    int layer = hit.getLayer();
+    bool fixEndcapL0 = FTKSetup::getFTKSetup().getfixEndcapL0();
+    bool isIBLmodule  = FTKSetup::getFTKSetup().getIBLMode()!=0 && layer==0 && (BarrelEndCap==0 || !fixEndcapL0);
+
+    return isIBLmodule;
+}
+
 /**
  * This class creates a hit whose coordinates are relative to the Front-End chip
  * of the module that it belongs to. It is used for the correct ordering of the hits 
@@ -108,15 +129,26 @@ class FTK_FECoordsHit {
         tot = hit->getTot();
         int acol = hit->getEtaStrip();
         int arow = hit->getPhiSide();
-        if (arow < ftk::clustering::rowsInFEChipPerPixelModuleRow) {
-            fe = ftk::clustering::feChipsInRowPixel + acol/ftk::clustering::colsInFEChipPerPixelModuleRow;
-            lrow = arow;
-            lcol = acol%ftk::clustering::colsInFEChipPerPixelModuleRow;
-        } else {
-            fe = (ftk::clustering::feChipsInRowPixel - 1) - acol/ftk::clustering::colsInFEChipPerPixelModuleRow; //-1 because we start counting from 0
-            lrow = (ftk::numberOfPhiPixelsInPixelModule - 1) - arow; //We start counting from 0
-            lcol = (ftk::clustering::colsInFEChipPerPixelModuleRow - 1) - acol%ftk::clustering::colsInFEChipPerPixelModuleRow; //Start counting from 0
-        }
+	if(!hitOnIBLmodule(*hit)){
+	    if (arow < ftk::clustering::rowsInFEChipPerPixelModuleRow) {
+	         fe = ftk::clustering::feChipsInRowPixel + acol/ftk::clustering::colsInFEChipPerPixelModuleRow;
+	         lrow = arow;
+	         lcol = acol%ftk::clustering::colsInFEChipPerPixelModuleRow;
+	    } else {
+	         fe = (ftk::clustering::feChipsInRowPixel - 1) - acol/ftk::clustering::colsInFEChipPerPixelModuleRow; //-1 because we start counting from 0
+		 lrow = (ftk::numberOfPhiPixelsInPixelModule - 1) - arow; //We start counting from 0
+		 lcol = (ftk::clustering::colsInFEChipPerPixelModuleRow - 1) - acol%ftk::clustering::colsInFEChipPerPixelModuleRow; //Start counting from 0
+	    }
+	}else{
+	  if (acol < ftk::clustering::colsInFEChipPerIblModuleRow) {
+	    fe = 0;
+	    lcol = acol;
+	  } else {
+	    fe = 1;
+	    lcol = acol-80;
+	  }
+	  lrow = (ftk::clustering::rowsInFEChipPerIblModuleRow - 1) - arow;
+	}
     }
 
     int fe; ///< The FE chip of the hit
@@ -182,20 +214,6 @@ double eta(FTKRawHit &hit) {
     return eta(hit.getX(), hit.getY(), hit.getZ());
 }
 
-/*! Function which examines whether a hit belongs to an IBL module. 
- * \param hit the hit
- * \return true if the hit is on an IBL module, false otherwide
- */
-bool hitOnIBLmodule(const FTKRawHit &hit) 
-{
-    int BarrelEndCap = hit.getBarrelEC();
-    int layer = hit.getLayer();
-    bool fixEndcapL0 = FTKSetup::getFTKSetup().getfixEndcapL0();
-    bool isIBLmodule  = FTKSetup::getFTKSetup().getIBLMode()!=0 && layer==0 && (BarrelEndCap==0 || !fixEndcapL0);
-
-    return isIBLmodule;
-}
-
 /*!
  * Function examining whether a cluster is split. 
  * \param clu the cluster to be examined
@@ -210,14 +228,26 @@ bool isSplitCluster(const cluster& clu)
             return false;
         FTK_ClusterCoordHit chit = FTK_ClusterCoordHit(**it , clu.seed);
         if ((chit.ccol >= GRID_COL_MAX - 1) ||  (chit.crow >= (GRID_ROW_MAX - 1)) || ( chit.crow <= 0))
-            return true;
+	  return true;
     }
 
     return false;
 }
 
+void printDebugInfo(FTKRawHit hits)
+{
+  cout << dec 
+       << "HitType "    << hits.getHitType()
+       << " BarrelEC "  << hits.getBarrelEC()
+       << " Layer "     << hits.getLayer()
+       << " IdHash "    << hits.getIdentifierHash()
+       << " PhiModule " << hits.getPhiModule()
+       << " EtaModule " << hits.getEtaModule()
+       << endl;
+}
 
-#if defined(CLUSTERING_PRINTOUT) || defined(CENTROID_PRINTOUT) || defined(DECODER_INPUT)
+//#if defined(CLUSTERING_PRINTOUT) || defined(CENTROID_PRINTOUT) || defined(DECODER_INPUT)
+#if defined(CLUSTERING_PRINTOUT) || defined(CENTROID_PRINTOUT) || defined(DECODER_INPUT) || defined(DECODER_OUTPUT)
 
 bool clusterSort (const FTK_ClusterCoordHit &i, const FTK_ClusterCoordHit &j)
 {
@@ -273,9 +303,9 @@ void printClusterList(clustersByModuleMap clustersByModule)
         cluList* cl = (*p).second;
         cluList::iterator b = cl->begin();
         FTKRawHit* hit = (*b).hitlist[0];
-        if (!(hit)->getIsPixel() || hitOnIBLmodule(*hit)) {
-            //continue ;
-        }
+        // if (!(hit)->getIsPixel() || hitOnIBLmodule(*hit)) {
+        //     //continue ;
+        // }
         if (hitSelector(*hit)) {
             printf("0x200000%02d\n", hitToModuleId(*hit));
             for (; b != cl->end(); b++) {
@@ -284,6 +314,14 @@ void printClusterList(clustersByModuleMap clustersByModule)
             }
             printf("0x40000000\n");
         }
+    // Yoshi 2016.09.29
+    // cout << "isIBLmodule/CluList is " << hitOnIBLmodule(*hit) << endl;
+    // printf("0x200000%02d\n", hitToModuleId(*hit));
+    // for (; b != cl->end(); b++) {
+    //   printClu(*b);
+    //   //printf("CENTROID: %.8X X: %d Y: %d\n", (*b).clusterEquiv.getHWWord(), (*b).clusterEquiv.getRowCoordinate(), (*b).clusterEquiv.getColumnCoordinate());
+    // }
+    // printf("0x40000000\n");
     }
 }
 
@@ -295,28 +333,216 @@ void printCentroidList(clustersByModuleMap clustersByModule)
         cluList* cl = (*p).second;
         cluList::iterator b = cl->begin();
         FTKRawHit* hit = (*b).hitlist[0];
+
+	bool isIBLmodule = hitOnIBLmodule(*hit);
+	int  idHash  = hitToModuleId(*hit);
+	int  isPixel = hit->getIsPixel();
+
+	if(module_dup[isPixel][idHash]==0) // dupli checker ryu 20160303
+	  module_dup[isPixel][idHash]++;
+	else continue; // ryu
+
         if (hitSelector(*hit)) {
-           printf("0x8%.7x\n", hitToModuleId(*hit));
+	  if(isIBLmodule){// for IBL
+	    bool FE0_exist = false;
+	    bool FE1_exist = false;
+
+	    if(hit->getEtaStrip() < 80){
+	      FE0_exist = true;
+	    
+	      b = cl->end() - 1;
+	      int nhit_inCluster = (*b).hitlist.size();
+	      hit = (*b).hitlist[nhit_inCluster-1];
+	      if(hit->getEtaStrip() >= 80)
+		FE1_exist = true;
+	    }else{
+	      FE1_exist = true;
+	    }
+
+	    b = cl->begin();
+	    hit = (*b).hitlist[0];
+
+	    if(FE1_exist == false && FE0_exist == true)
+	      printf("0x08%.7x\n", idHash);
+	    else
+	      printf("0x08%.7x\n", idHash-1);
+	  } else {
+	    printf("0x8%.7x\n", hitToModuleId(*hit));
+	  }
             for (; b != cl->end(); b++) {
                 //printToFile(outcentroid, (*b).clusterEquiv.getHWWord());
                 printf("0x%.8X ",(*b).clusterEquiv.getHWWord());
-                std::cout << (*b).clusterEquiv.getTot() << " " << (*b).clusterEquiv.getEtaStrip() << " " << (*b).clusterEquiv.getPhiSide() << std::endl;
+                //std::cout << (*b).clusterEquiv.getTot() << " " << (*b).clusterEquiv.getEtaStrip() << " " << (*b).clusterEquiv.getPhiSide() << std::endl;
+		if (DEBUG_CENTROID) printDebugInfo(*hit);
             }
             printf("0x40000000\n");
         }
     }
 }
 
-void printDecoderOutput(hitVector* currentHits)
+bool sortWords(const FTKRawHit* i, const FTKRawHit* j)
+{
+  int firstCol  = i->getEtaStrip() + 1;
+  int secondCol = j->getEtaStrip() + 1;
+  int firstRow  = 335 - i->getPhiSide(); // Keisuke 20170314, start from 0
+  int secondRow = 335 - j->getPhiSide(); // Keisuke 20170314, start from 0
+
+  if(firstCol != secondCol)      return firstCol < secondCol;
+  else return firstRow > secondRow;
+
+}
+
+//void printDecoderOutput(hitVector* currentHits)
+void printDecoderOutput(hitVector* currentHits, bool isIBLmodule)
 {
     hitVector::iterator hit = currentHits->begin();
-    printf("0x8%.7x\n", hitToModuleId(**hit));
-    for(hit = currentHits->begin(); hit!= currentHits->end(); hit++) {
-        printf("0x0%.2X%.2X%.3X",(*hit)->getTot(), (*hit)->getEtaStrip(), (*hit)->getPhiSide());
-        std::cout << (*hit)->getTot() << " " << (*hit)->getEtaStrip() << " " << (*hit)->getPhiSide() << std::endl;
+    hitVector *sortHits = currentHits;
+    int idHash = hitToModuleId(**hit);
+
+    if(isIBLmodule){ // Keisuke 20170215
+      stable_sort(sortHits->begin(), sortHits->end(), sortWords);
+      idHash = hitToModuleId(**sortHits->begin());
     }
+
+    if(hitSelector(**hit)){
+
+      if(module_dup[(**hit).getIsPixel()][hitToModuleId(**hit)]==0) // dupli checker ryu 20160303
+	module_dup[(**hit).getIsPixel()][hitToModuleId(**hit)]++;
+      else return; // ryu
+
+      if(DEBUG_DECODER) printDebugInfo(**hit);
+
+      if(isIBLmodule){ // for IBL
+	printf("0x8%.7x\n", idHash);
+	//stable_sort(sortHits->begin(), sortHits->end(), sortWords);
+
+	for(hitVector::iterator it = sortHits->begin(); it != sortHits->end(); ++it){
+	  int tempCol = (*it)->getEtaStrip();
+	  // if(tempCol >= 80) tempCol = tempCol - 80; // Yoshi 2016.11.18
+	  int tempRow = 335 - (*it)->getPhiSide(); // Keisuke 20170314, start from 0
+	  int tempTot = (*it)->getTot();
+	  int outputData = ( (tempTot << 20) | (tempCol << 12) | tempRow );
+	  printf("0x0%.7X",outputData);
+
+	  if(!DEBUG_DECODER) cout << endl;
+	  else{
+	    cout << " IBL HIT"
+		 << " col: " << setfill('0') << setw(3) << tempCol
+		 << " row: " << setfill('0') << setw(3) << tempRow
+		 << " tot: " << setfill('0') << setw(2) << tempTot
+		 << endl;
+	  }
+	}
+
+      }else{ // for Pixel
+	printf("0x8%.7x\n", hitToModuleId(**hit));
+	for(hit = currentHits->begin(); hit!= currentHits->end(); hit++) {
+	  printf("0x0%.2X%.2X%.3X",(*hit)->getTot(), (*hit)->getEtaStrip(), (*hit)->getPhiSide());
+	  //std::cout << (*hit)->getTot() << " " << (*hit)->getEtaStrip() << " " << (*hit)->getPhiSide() << std::endl;
+	  if(!DEBUG_DECODER) cout << endl;
+	  else{
+	    cout << " Pixel HIT"
+		 << " col: " << (*hit)->getEtaStrip()
+		 << " row: " << (*hit)->getPhiSide()
+		 << " tot: " << (*hit)->getTot()
+		 << endl;
+	  } 
+
+	} //hit loop
+	printf("0x40000000\n");
+      }
+    }// module check
 }
 #endif
+
+bool sortInput(const FTKRawHit* i, const FTKRawHit* j)
+{
+  int firstCol  = i->getEtaStrip() + 1;
+  int secondCol = j->getEtaStrip() + 1;
+  int firstRow  = 335 - i->getPhiSide(); // Keisuke 20170314, start from 0
+  int secondRow = 335 - j->getPhiSide(); // Keisuke 20170314, start from 0
+  int firstFE  = (firstCol  <= 80) ? 0 : 1;
+  int secondFE = (secondCol <= 80) ? 0 : 1;
+
+  if(firstCol >= 81) firstCol = firstCol - 80;
+  if(secondCol >= 81) secondCol = secondCol - 80;
+
+  if (firstFE != secondFE) return firstFE > secondFE;
+  else{
+    if(firstCol <= 40 || secondCol <= 40){
+      if(firstCol != secondCol)      return firstCol < secondCol;
+      else return firstRow < secondRow;
+    } else {
+      if(firstCol != secondCol)      return firstCol > secondCol;
+      else return firstRow < secondRow;
+    }
+  }
+}
+
+void printInputData(hitVector* currentHits, bool isIBLmodule){
+  hitVector::iterator hit = currentHits->begin();
+  hitVector *sortHits = currentHits;
+  int idHash = hitToModuleId(**hit) + 8;
+  if(isIBLmodule){
+    stable_sort(sortHits->begin(), sortHits->end(), sortInput);
+    idHash = hitToModuleId(**sortHits->begin()) + 8;
+  }
+  //  if(hitSelector(**hit)){
+
+  if(module_dup[(**hit).getIsPixel()][hitToModuleId(**hit)]==0) // dupli checker ryu 20160303
+    module_dup[(**hit).getIsPixel()][hitToModuleId(**hit)]++;
+  else return; // ryu
+
+  if(DEBUG_INPUT) printDebugInfo(**hit);
+
+  if(isIBLmodule){ // for IBL
+    printf("0x03%.1x000000\n", idHash);
+
+    //stable_sort(sortHits->begin(), sortHits->end(), sortInput);
+
+    for(hitVector::iterator it = sortHits->begin(); it != sortHits->end(); ++it){
+      int tempCol = (*it)->getEtaStrip() + 1;
+      if((idHash == 0x8 || idHash == 0xa) && tempCol <= 80){
+	printf("0x05%.1x400000\n", idHash);
+	idHash = idHash + 1;
+	printf("0x03%.1x000000\n", idHash);
+      }
+      if(tempCol >= 81) tempCol = tempCol - 80; // for generate real input
+      int tempRow = 335 - (*it)->getPhiSide(); // Keisuke 20170314, start from 0
+      int tempTot = (*it)->getTot();
+      int outputData = ((idHash << 24) | (tempTot << 20) | (tempCol << 9) | tempRow );
+      printf("0x09%.7x",outputData);
+
+      if(!DEBUG_INPUT) cout << endl;
+      else{
+	cout << " IBL HIT"
+	     << " col: " << setfill('0') << setw(3) << tempCol
+	     << " row: " << setfill('0') << setw(3) << tempRow
+	     << " tot: " << setfill('0') << setw(2) << tempTot
+	     << endl;
+      }
+    }
+
+  }else{ // for Pixel
+
+    printf("0x08%.7x\n", idHash);
+
+    for(hit = currentHits->begin(); hit!= currentHits->end(); hit++) {
+      printf("0x00%.2x%.2x%.3x ",(*hit)->getTot(), (*hit)->getEtaStrip(), (*hit)->getPhiSide());
+
+      if(!DEBUG_DECODER) cout << endl;
+      else{
+	cout << " Pixel HIT"
+	     << " col: " << (*hit)->getEtaStrip()
+	     << " row: " << (*hit)->getPhiSide()
+	     << " tot: " << (*hit)->getTot()
+	     << endl;
+      } 
+    }
+  }   // hit loop
+
+  printf("0x05%.1x400000\n", idHash);
+}
 
 #ifdef BOUNDING_BOX
 void calcBoundingBox(cluster& clu) 
@@ -723,6 +949,9 @@ void averageCluster(cluster &clu) {
 
     FTKRawHit &av = clu.clusterEquiv; ///< get pointer to clusterEquivalent
     FTKRawHit *first = *(clu.hitlist.begin()); ///< get 1st hit
+    // cluster cluSplit = clu; // Yoshi 2016.11.24
+    // FTKRawHit &avSplit = cluSplit.clusterEquiv; ///< get pointer to clusterEquivalent
+
     /// reset values for clusterEquivalent (alias av)
     av.reset();
     av.setX(0);
@@ -841,6 +1070,8 @@ void averageCluster(cluster &clu) {
         case PIXEL: {
             av.setPhiSide(0); // eta is reset a few lines above
 
+	    // HHHHH Different Clustering mode HHHHH
+
             if (PIXEL_CLUSTERING_MODE == 0) {
                 for (p=clu.hitlist.begin(); p!=clu.hitlist.end(); ++p) { //loop over hits in cluster
                     assert(av.getLayer()==(*p)->getLayer() && av.getPhiModule()==(*p)->getPhiModule() && av.getEtaModule()==(*p)->getEtaModule() );
@@ -870,6 +1101,8 @@ void averageCluster(cluster &clu) {
                 av.setPhiSide(tmp);
                 break;
             }
+
+	    // HHHHH above HHHHH
 
             /* For PIXEL_CLUSTERING_MODE > 0
              * calculate cluster center following code at line 701 of
@@ -914,6 +1147,17 @@ void averageCluster(cluster &clu) {
                     // multiply FE column by 4 to convert to 100um units
                     int FEnumber = col/ftk::clustering::colsInFEChipPerPixelModuleRow;
                     int FEcolumn = col%ftk::clustering::colsInFEChipPerPixelModuleRow;
+
+		    if(DEBUG_CENTROID && hitSelector(**p)){
+		      printf("0x00%.2X%.2X%.3X", tot, col, row);
+		      cout << " Pix HIT"
+			   << " FE: " << setfill('0') << setw(2) << FEnumber
+			   << " col: " << setfill('0') << setw(3) << col
+			   << " row: " << setfill('0') << setw(3) << row
+			   << " tot: " << setfill('0') << setw(2) << tot
+			   << " -> ";
+		    }
+
                     col = FEnumber*(ftk::clustering::colsInFEChipPerPixelModuleRow+1) + FEcolumn;
                     col *= pixYScaleFactor;
                     col += pixYScaleFactor/2; // add half a pixel to align to pixel center (assume normal 400um pixel)
@@ -921,6 +1165,19 @@ void averageCluster(cluster &clu) {
                     if (FEcolumn==0) col -= pixYScaleFactor/4; // correct position for first column in FE chip
                     if (FEcolumn==(ftk::clustering::colsInFEChipPerPixelModuleRow-1)) col += pixYScaleFactor/4; // correct position for last column in FE chip
                 } else if (isIBLmodule) { // IBL case
+		    row = 335 - (*p)->getPhiSide(); // inverse row coordinates // Yoshi 2016.10.28 // JAA updated 17.3.13
+
+		    // if(col >= 80) col = col - 80; // Yoshi 2016.11.18
+
+		    if(DEBUG_CENTROID && hitSelector(**p)){
+		      printf("0x00%.2X%.2X%.3X", tot, col, row);
+		      cout << " IBL HIT"
+			   << " col: " << setfill('0') << setw(3) << col
+			   << " row: " << setfill('0') << setw(3) << row
+			   << " tot: " << setfill('0') << setw(2) << tot
+			   << " -> ";
+		    }
+
                     //Modifications have to be made to include 3d modules 
                     int orig_col = col;
                     col *= pixYScaleFactor; // use units of 25um
@@ -938,6 +1195,18 @@ void averageCluster(cluster &clu) {
                     if (orig_col==159) col += pixYScaleFactor/2; // add half pixel (500um pixel in col159)
                 }
                 row *= pixXScaleFactor;
+
+		// comment 2017.01.30
+		// if(isIBLmodule) row += pixXScaleFactor/2; // applied Manolis' update
+
+		if(DEBUG_CENTROID && hitSelector(**p)){
+		  printf("0x00%.2X%.3X%.3X", tot, col, row);
+		  cout << " Norm."
+		       << " col: " << setfill('0') << setw(3) << col
+		       << " row: " << setfill('0') << setw(4) << row
+		       << " tot: " << setfill('0') << setw(2) << tot
+		       << endl;
+		}
 
                 if (row == rowMin) qRowMin += tot;
                 if (row < rowMin){
@@ -963,14 +1232,22 @@ void averageCluster(cluster &clu) {
                     qColMax = tot;
                 }
 
-                if ((*p)->getEtaStrip() > etaMax) 
-                    etaMax = (*p)->getEtaStrip();
-                if ((*p)->getEtaStrip() < etaMin) 
-                    etaMin = (*p)->getEtaStrip();
-                if ((*p)->getPhiSide() > phiMax) 
-                    phiMax = (*p)->getPhiSide();
-                if ((*p)->getPhiSide() < phiMin) 
-                    phiMin = (*p)->getPhiSide();
+		int phi = 335 - (*p)->getPhiSide(); // ROW // JAA updated 13 March 2017 to remove +1 as above
+		// int phi = (*p)->getPhiSide(); // ROW
+		int eta = (*p)->getEtaStrip();          // COLUMN
+
+		if (eta > etaMax) etaMax = eta;
+		if (eta < etaMin) etaMin = eta;
+		if (phi > phiMax) phiMax = phi;
+		if (phi < phiMin) phiMin = phi;
+                // if ((*p)->getEtaStrip() > etaMax) 
+                //     etaMax = (*p)->getEtaStrip();
+                // if ((*p)->getEtaStrip() < etaMin) 
+                //     etaMin = (*p)->getEtaStrip();
+                // if ((*p)->getPhiSide() > phiMax) 
+                //     phiMax = (*p)->getPhiSide();
+                // if ((*p)->getPhiSide() < phiMin) 
+                //     phiMin = (*p)->getPhiSide();
                 if (DEBUG_AVERAGE)
                     printHit(**p);
                 av.addTot(first->getTot()); // sum ToT for pixel clusters
@@ -982,6 +1259,10 @@ void averageCluster(cluster &clu) {
             double eta_average, phi_average;
             eta_average = (colMin + colMax) / 2.;
             phi_average = (rowMin + rowMax) / 2.;
+
+	    // Yoshi added 2017.02.01
+	    // if(colMin == pixYScaleFactor && colMin != colMax) eta_average = (colMin + colMax) / 2. - 1.;
+	    // if(colMax == 1626 && colMin != colMax) eta_average = (colMin + colMax) / 2. - 1.;
 
 	    // New Implementation 
 	   
@@ -997,8 +1278,8 @@ void averageCluster(cluster &clu) {
 	      int etaCol32 =0; 
 	      etaRow32 = lround(etaRow*32); 
 	      etaCol32 = lround(etaCol*32);
-	      int m_posStrategy = 1; 
-	      if(m_posStrategy == 1 && !hasGanged && etaRow>0 && etaCol > 0){
+	      int posStrategy = 1; 
+	      if(posStrategy == 1 && !hasGanged && etaRow>0 && etaCol > 0){
 	      if (BarrelEndCap==0) { 
 		phi_average+= lround((getDeltaX1A(clu)+(getDeltaX2A(clu))*etaRow32)/1024.); //  >>10; 
 		
@@ -1082,8 +1363,8 @@ void averageCluster(cluster &clu) {
                 // Values are made dependent on the sensor thickness to accomodate // different sensors layout. AA
                 //    Point3D<double> globalPos = element->globalPosition(centroid);
                 //    InDetDD::SiLocalPosition totCorrection(0,0,0);
-                int m_posStrategy = 1; //Same as m_posStrategy == 1 in InDetRecTools/SiClusterizationTool/trunk/src/MergedPixelsTool.cxx#L701
-                if(m_posStrategy == 1 && !hasGanged && etaRow>0 && etaCol > 0){
+                int posStrategy = 1; //Same as posStrategy == 1 in InDetRecTools/SiClusterizationTool/trunk/src/MergedPixelsTool.cxx#L701
+                if(posStrategy == 1 && !hasGanged && etaRow>0 && etaCol > 0){
 		  phi_average += pixXScaleFactor*deltax*(etaRow-0.5)/ftk::phiPitch;
 		  eta_average += pixYScaleFactor*deltay*(etaCol-0.5)/etaPitch;
                 } 
@@ -1099,20 +1380,25 @@ void averageCluster(cluster &clu) {
             }
 
             if (BarrelEndCap!=0) phi_average += ftk::clustering::pixelEndCapRPhiCorrection*pixXScaleFactor;
-            if (isIBLmodule) phi_average += ftk::clustering::pixelIblRPhiCorrection*pixXScaleFactor;
+            //if (isIBLmodule) phi_average += ftk::clustering::pixelIblRPhiCorrection*pixXScaleFactor; //temp Yoshi 2016.10.07
 	    
+	    // av.setEtaWidth(etaMax-etaMin+1); // duplicate!! needless
+	    // av.setPhiWidth(phiMax-phiMin+1);
+
 		//if (PIXEL_CLUSTERING_MODE == PIXEL_CLUSTERING_HARDWARE) {
             av.setRowCoordinate( lround(phi_average) );
 		//} else av.setRowCoordinate( lround(phi_average*pixXScaleFactor) );
             av.setColumnCoordinate( lround(eta_average) );
             av.setSplit(false);
 
-            if (PIXEL_CLUSTERING_MODE >= PIXEL_CLUSTERING_MIXED && !isIBLmodule && isSplitCluster(clu)) {
+	    // HHHHH Yoshi 2017.01.10 HHHHH
+            if (PIXEL_CLUSTERING_MODE >= PIXEL_CLUSTERING_MIXED && isSplitCluster(clu)) {
+	      //if (PIXEL_CLUSTERING_MODE >= PIXEL_CLUSTERING_MIXED && !isIBLmodule && isSplitCluster(clu)) {
                 av.setSplit(true);
             }
 
             eta_average*=numberOfEtaPixelsInModule/lengthOfPixelModuleInUmPixels/pixYScaleFactor;
-            phi_average/=pixXScaleFactor;
+            phi_average/=pixXScaleFactor; // Keisuke 20170314, bug fix of row coordinate range
             //if (isPixelmodule) {
                 //// rescale full module length 152*400um to the range 0-144
                 //// here 1 units is 400*19/18um (i.e. average 400/600um pixel length)
@@ -1190,7 +1476,8 @@ void atlClusteringBlayer(vector<FTKRawHit> &hits) {
 
 
 
-void realisticPixelDecoder(hitVector* &currentHits)
+//void realisticPixelDecoder(hitVector* &currentHits)
+void realisticPixelDecoder(hitVector* &currentHits, bool isIBLmodule) //Keisuke 20170215
 {
     hitVector::iterator hit = currentHits->begin();
 
@@ -1204,43 +1491,89 @@ void realisticPixelDecoder(hitVector* &currentHits)
     //}
 #endif
 
-    if (currentHits->size() > 1)
-        std::stable_sort(currentHits->begin(), currentHits->end(), sortbyFE);
+    // if (currentHits->size() > 1)
+    //     std::stable_sort(currentHits->begin(), currentHits->end(), sortbyFE);
 
     std::stack<FTKRawHit*> lifo;
     std::queue<FTKRawHit*> fifo;
-    for(hit = currentHits->begin(); hit != currentHits->end(); hit++) {
-        if ((*hit)->getPhiSide() <= 163)
+
+    if(!isIBLmodule){
+        if (currentHits->size() > 1)
+	    std::stable_sort(currentHits->begin(), currentHits->end(), sortbyFE);
+
+	for(hit = currentHits->begin(); hit != currentHits->end(); hit++) {
+	  if ((*hit)->getPhiSide() <= 163)
             fifo.push(*hit);
-        else lifo.push(*hit);
-    }
+	  else lifo.push(*hit);
+	}
 
-    currentHits->clear();
-
-    while(!lifo.empty() && !fifo.empty()){
-        if ((*lifo.top()).getEtaStrip() <= (*fifo.front()).getEtaStrip()) {
+	currentHits->clear();
+    
+	while(!lifo.empty() && !fifo.empty()){
+	  if ((*lifo.top()).getEtaStrip() <= (*fifo.front()).getEtaStrip()) {
             currentHits->push_back(lifo.top());
             lifo.pop();
-        }
-        else {
+	  }
+	  else {
             currentHits->push_back(fifo.front());
             fifo.pop();
-        }
-    }
+	  }
+	}
 
-    while(!lifo.empty()) {
-        currentHits->push_back(lifo.top());
-        lifo.pop();
-    }
-    while(!fifo.empty()) {
-        currentHits->push_back(fifo.front());
-        fifo.pop();
-    }
+	while(!lifo.empty()) {
+	  currentHits->push_back(lifo.top());
+	  lifo.pop();
+	}
+	while(!fifo.empty()) {
+	  currentHits->push_back(fifo.front());
+	  fifo.pop();
+	}
+    }else{
+      std::stack<FTKRawHit*> lifo_planar;
+      std::queue<FTKRawHit*> fifo_planar;
+
+      if (currentHits->size() > 1)
+	std::stable_sort(currentHits->begin(), currentHits->end(), sortInput);
+
+      for(hit = currentHits->begin(); hit != currentHits->end(); hit++) {
+	if ((*hit)->getEtaStrip() < 40)
+	  fifo.push(*hit);
+	else if ((*hit)->getEtaStrip() >= 40 && (*hit)->getEtaStrip() < 80)
+	  lifo.push(*hit);
+	else if ((*hit)->getEtaStrip() >= 80 && (*hit)->getEtaStrip() < 120)
+	  fifo_planar.push(*hit);
+	else if ((*hit)->getEtaStrip() >= 120 && (*hit)->getEtaStrip() < 160)
+	  lifo_planar.push(*hit);
+      }
+
+      currentHits->clear();
+
+      while(!fifo.empty()){
+	currentHits->push_back(fifo.front());
+	fifo.pop();     
+      }
+
+      while(!lifo.empty()) {
+	currentHits->push_back(lifo.top());
+	lifo.pop();
+      }
+
+      while(!fifo_planar.empty()) {
+	currentHits->push_back(fifo_planar.front());
+	fifo_planar.pop();
+      }
+
+      while(!lifo_planar.empty()) {
+	currentHits->push_back(lifo_planar.top());
+	lifo_planar.pop();
+      }
+    }// if isIBLmodule  
 
 }
 
 
-FTKRawHit* gridAUTH( boost::circular_buffer<FTKRawHit*> &cb, hitVector &fifo, hitVector &gridhits)
+//FTKRawHit* gridAUTH( boost::circular_buffer<FTKRawHit*> &cb, hitVector &fifo, hitVector &gridhits)
+FTKRawHit* gridAUTH( boost::circular_buffer<FTKRawHit*> &cb, hitVector &fifo, hitVector &gridhits, bool isIBLmodule)
 {
     //seed is set from cb if there are hits and from
     //fifo if the seed is empty.
@@ -1252,8 +1585,11 @@ FTKRawHit* gridAUTH( boost::circular_buffer<FTKRawHit*> &cb, hitVector &fifo, hi
             if ((*cbi)->getEtaStrip() < seed->getEtaStrip())
                 seed  = *cbi;
             else if ((*cbi)->getEtaStrip() == seed->getEtaStrip()) {
-                if ((*cbi)->getPhiSide() < seed->getPhiSide())
+	      //if ((*cbi)->getPhiSide() < seed->getPhiSide())
+	        if ((*cbi)->getPhiSide() < seed->getPhiSide() && !isIBLmodule) //Keisuke 20170215
                     seed = *cbi;
+		else if ((*cbi)->getPhiSide() > seed->getPhiSide() && isIBLmodule)
+		    seed = *cbi;
             }
         }
     }
@@ -1318,8 +1654,11 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
     /*
      * First: organize raw hits by module
      */
+    vector<FTKRawHit> sortHits;
+
     for(unsigned int i = 0; i < hits.size(); i++) {
         int modId = hitToModuleId(hits[i]);
+
         if (modId>=0) {
             hitsByModule[modId].push_back( &(hits[i]) );
             if (DUPLICATE_GANGED && hitIsGanged(hits[i])) {
@@ -1349,15 +1688,26 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
     clustersByModuleMap clustersByModule; ///< store clusters by module
     hitsByModuleFrozen = hitsByModule; ///< keep hits structure
     hitsByModuleMap::iterator p;
+
+    // #if defined(DECODER_OUTPUT) // control word (begin) // Yoshi 2016.10.01
+    // 	cout << "0x1B0F00000" << endl;
+    // #endif
+
     for (p = hitsByModule.begin(); p!=hitsByModule.end(); ++p) { // loop over modules
         hitVector *currentHits = & (p->second);
         FTKRawHit &firstHit = **(currentHits->begin());
         int modId = hitToModuleId( firstHit );
 
+	bool isIBLmodule  = hitOnIBLmodule(firstHit); // Yoshi 2016.09.29
+
+	if(PRINT_INPUT)
+	  printInputData(currentHits, isIBLmodule);
+
 #if defined(DECODER_OUTPUT)
-        printDecoderOutput(currentHits);
+	printDecoderOutput(currentHits, isIBLmodule);
+	//printDecoderOutput(currentHits);
 #endif
-        bool isIBLmodule  = hitOnIBLmodule(firstHit);
+        //bool isIBLmodule  = hitOnIBLmodule(firstHit);
         //bool isIBLmodule = FTKSetup::getFTKSetup().getIBLMode()!=0 && firstHit.getLayer()==0;
         cluList *currentClusters = new cluList(); // instantiate cluster list
         clustersByModule[modId] = currentClusters;
@@ -1365,17 +1715,22 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
         //The ideal clustering is going to be used in the following cases: 
         //1. PIXEL_CLUSTERING_MODE is less than 100 (PIXEL_CLUSTERING_MIXED)
         //2. The module is not a pixel module
-        if (PIXEL_CLUSTERING_MODE < PIXEL_CLUSTERING_MIXED || !firstHit.getIsPixel() || isIBLmodule) {
+
+	// HHHHH Yoshi 2017.01.10 HHHHH
+        if (PIXEL_CLUSTERING_MODE < PIXEL_CLUSTERING_MIXED || !firstHit.getIsPixel()) {
+	  //if (PIXEL_CLUSTERING_MODE < PIXEL_CLUSTERING_MIXED || !firstHit.getIsPixel() || isIBLmodule) {
             makeClustersLNF(currentHits, currentClusters); // use ideal clustering
         }
         else { // PIXEL_CLUSTERING_MODE >= 100 and pixel module 
-            realisticPixelDecoder(currentHits);
+	  //realisticPixelDecoder(currentHits);
+ 	    realisticPixelDecoder(currentHits, isIBLmodule);
 
             boost::circular_buffer<FTKRawHit*> circular_buffer (256);
             hitVector gridhits;
             hitVector fifo = *currentHits;
             while (!fifo.empty() || !circular_buffer.empty()) {
-                FTKRawHit* seed = gridAUTH(circular_buffer, fifo, gridhits);
+	        //FTKRawHit* seed = gridAUTH(circular_buffer, fifo, gridhits);
+	      FTKRawHit* seed = gridAUTH(circular_buffer, fifo, gridhits, isIBLmodule);
                 makeClusterFromSeed(&gridhits, currentClusters, seed);
 
                 for(hitVector::iterator hsi = gridhits.begin(); hsi != gridhits.end(); hsi++) {
@@ -1395,6 +1750,9 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
         }
     } // end of loop over modules
 
+    // #if defined(DECODER_OUTPUT) // control word (end) // Yoshi 2016.10.01
+    // 	cout << "0x2E0F00000" << endl;
+    // #endif
 
 #ifdef VERBOSE_DEBUG_CLUST
     std::cout << "Clusters made\n";

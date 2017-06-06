@@ -818,6 +818,67 @@ void AuxTypeRegistry::applyELVecThinning (void* dst)
 #endif
 
 
+#ifndef XAOD_STANDALONE
+/**
+ * @brief Declare input renaming requests.
+ * @param map Map of (hashed) sgkey -> sgkey for renaming requests.
+ * @param pool String pool in which the hashed keys are defined.
+ *
+ * This is called by @c AddressRemappingSvc when there is a request
+ * to rename input objects.  It saves any requests involving renaming
+ * of auxiliary variables and makes that information available via
+ * @c inputRename.
+ */
+void
+AuxTypeRegistry::setInputRenameMap (const Athena::IInputRename::InputRenameMap_t* map,
+                                    const IStringPool& pool)
+{
+  lock_t lock(*this);
+  m_renameMap.clear();
+  if (!map) return;
+  for (const auto& p : *map) {
+    sgkey_t from_sgkey = p.first;
+    sgkey_t to_sgkey = p.second;
+
+    const std::string* from_str = pool.keyToString (from_sgkey);
+    if (!from_str) continue;
+    std::string::size_type from_dpos = from_str->find (".");
+    if (from_dpos == std::string::npos || from_dpos == from_str->size()-1) continue;
+
+    const std::string* to_str = pool.keyToString (to_sgkey);
+    if (!to_str) continue;
+    std::string::size_type to_dpos = to_str->find (".");
+    if (to_dpos == std::string::npos || to_dpos == to_str->size()-1) continue;
+
+    m_renameMap[*from_str] = to_str->substr (to_dpos+1, std::string::npos);
+  }
+}
+#endif
+
+
+/**
+ * @brief Check for an input renaming of an auxiliary variable.
+ * @brief key The SG key of the object to which the variable is attached.
+ * @brief name The name of the variable on the input file.
+ *
+ * @returns The variable name to use in the transient representation.
+ * Will usually be @c name, but may be different if there was a renaming request.
+ */
+const std::string& AuxTypeRegistry::inputRename (const std::string& key,
+                                                 const std::string& name) const
+{
+  lock_t lock(*this);
+  if (m_renameMap.empty())
+    return name;
+
+  std::string fullkey = key + "." + name;
+  renameMap_t::const_iterator it = m_renameMap.find (fullkey);
+  if (it != m_renameMap.end())
+    return it->second;
+  return name;
+}
+
+
 } // namespace SG
 
 
