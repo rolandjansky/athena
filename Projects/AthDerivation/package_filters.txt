@@ -131,7 +131,7 @@
 + InnerDetector/InDetExample/InDetRecExample
 + InnerDetector/InDetRawEvent/.*
 + InnerDetector/InDetRecEvent/.*
-- InnerDetector/InDetRecTools/InDetVKalVxInJetTool
++ InnerDetector/InDetRecTools/InDetVKalVxInJetTool
 - InnerDetector/InDetRecTools/SiClusterOnTrackTool
 + InnerDetector/InDetRecTools/.*
 + InnerDetector/InDetValidation/InDetPhysValMonitoring
