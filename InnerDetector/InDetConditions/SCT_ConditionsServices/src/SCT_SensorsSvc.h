@@ -56,9 +56,8 @@ public:
   
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   virtual void getSensorsData(std::vector<std::string> & userVector);
-  //virtual std::string getManufacturer(const IdentifierHash &hashId);
   virtual std::string getManufacturer(unsigned int i);
-
+  virtual void printManufacturers();
 
   ///Callback for fill from database
   virtual StatusCode fillSensorsData(int&  i  , std::list<std::string>& keys);
