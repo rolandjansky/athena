@@ -76,8 +76,8 @@ private:
 
 };
 
-inline std::ostream& operator<<( std::ostream& s, const VertexAnalysis& _v ) { 
-  return s << _v.name();
+inline std::ostream& operator<<( std::ostream& s, const VertexAnalysis& v ) { 
+  return s << v.name();
 }
 
 
