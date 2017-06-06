@@ -90,33 +90,14 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
 
   // Get tool for space points seed maker
   //
-  if ( m_seedsmaker.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_seedsmaker << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_seedsmaker << endmsg;
-  }
-
+  ATH_CHECK( m_seedsmaker.retrieve() );
   if(m_useZvertexTool) {
-
-    // Get tool for z-coordinates ptimary vertices search
-    //
-    if ( m_zvertexmaker.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_zvertexmaker << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_zvertexmaker << endmsg;
-    }
+    ATH_CHECK( m_zvertexmaker.retrieve() );
   }
 
   // Get track-finding tool
   //
-  if ( m_trackmaker.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackmaker << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_trackmaker << endmsg;
-  }
+  ATH_CHECK(m_trackmaker.retrieve());
 
   if(m_useNewStrategy && m_beamconditions=="") {m_useNewStrategy = false; m_useZBoundaryFinding = false;}
 
@@ -130,13 +111,8 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
     
       // Get RungeKutta propagator tool
       //
-      if ( m_proptool.retrieve().isFailure() ) {
-	msg(MSG::FATAL) << "Failed to retrieve tool " << m_proptool << endmsg;
-	return StatusCode::FAILURE;
-      } else {
-	msg(MSG::INFO) << "Retrieved tool " << m_proptool << endmsg;
-      }
-      
+      ATH_CHECK( m_proptool.retrieve() );
+
       // Setup for magnetic field
       //
       magneticFieldInit();
