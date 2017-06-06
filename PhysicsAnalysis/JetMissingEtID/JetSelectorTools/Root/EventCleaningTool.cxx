@@ -45,7 +45,7 @@ EventCleaningTool::EventCleaningTool(const std::string& name)
   , m_cleaningLevel()
 {
   declareProperty( "PtCut" , m_pt = 20000.0 );
-  declareProperty( "EtaCut" , m_eta = 2.8 );
+  declareProperty( "EtaCut" , m_eta = 4.5 );
   declareProperty( "JvtDecorator" , m_jvt = "passJvt" );
   declareProperty( "OrDecorator" , m_or = "passOR" );
   declareProperty( "CleaningLevel" , m_cleaningLevel = "LooseBad");
@@ -94,7 +94,7 @@ bool EventCleaningTool::acceptEvent(const xAOD::JetContainer* jets) const
 
 		pass_pt = thisJet->pt() > m_pt; 
 		pass_eta = fabs(thisJet->eta()) < m_eta;
-		pass_accept = keep_jet(*thisJet); 
+		pass_accept = keepJet(*thisJet); 
 		if(pass_pt && pass_eta && acc_passJvt(*thisJet) && acc_passOR(*thisJet)){ //only consider jets for cleaning if they pass these requirements
 			isThisJetGood = pass_accept;
 			isEventAllGood = isEventAllGood && isThisJetGood; //any event with a bad jet is rejected 
@@ -105,7 +105,7 @@ bool EventCleaningTool::acceptEvent(const xAOD::JetContainer* jets) const
 	return isEventAllGood;		
 }
 
-int EventCleaningTool::keep_jet(const xAOD::Jet& jet) const 
+int EventCleaningTool::keepJet(const xAOD::Jet& jet) const 
 { 
 	return m_tool->keep(jet); 
 }

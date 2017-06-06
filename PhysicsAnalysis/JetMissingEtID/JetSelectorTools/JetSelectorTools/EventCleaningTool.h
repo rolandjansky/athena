@@ -53,10 +53,9 @@ class EventCleaningTool : public virtual IEventCleaningTool,
 
     virtual bool acceptEvent(const xAOD::JetContainer* jets) const override;
 
-    virtual int keep_jet(const xAOD::Jet& jet) const override; 
+    virtual int keepJet(const xAOD::Jet& jet) const override; 
     
   private:
-    /** Name of the cut */    
     double m_pt; 
     double m_eta; 
     std::string m_jvt; 

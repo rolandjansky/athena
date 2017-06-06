@@ -34,7 +34,7 @@ namespace ECUtils
       virtual bool
       acceptEvent(const xAOD::JetContainer* jets) const = 0;
   
-      virtual int keep_jet(const xAOD::Jet& jet) const =0; 
+      virtual int keepJet(const xAOD::Jet& jet) const =0; 
   
 }; // class IEventCleaningTool
 
