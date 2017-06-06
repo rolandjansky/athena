@@ -63,11 +63,7 @@
 
   typedef std::vector<double> dvect;
 
-  namespace Trk { 
-    class ITrackToVertexIPEstimator;
-    class ITrackParticleCreatorTool;
-  }
-  
+ 
 //------------------------------------------------------------------------
 namespace InDet {
 
@@ -112,10 +108,6 @@ namespace InDet {
       StatusCode initialize();
       StatusCode finalize();
 
-    
-      const Trk::VxSecVertexInfo* findSecVertex(const Trk::RecVertex & primaryVertex,
-					        const TLorentzVector & jetMomentum,
-					        const std::vector<const Rec::TrackParticle*> & inputTracks) const;
 
       const Trk::VxSecVertexInfo* findSecVertex(const Trk::RecVertex & primaryVertex,
 					        const TLorentzVector & jetMomentum,
@@ -255,8 +247,6 @@ namespace InDet {
 
       ToolHandle < Trk::IVertexFitter >       m_fitterSvc;
 //      ToolHandle < Trk::ITrkVKalVrtFitter >   m_fitSvc;
-      ToolHandle < Trk::ITrackToVertexIPEstimator > m_trackToVertexIP;
-      ToolHandle< Trk::ITrackParticleCreatorTool > m_trkPartCreator;
 //      ToolHandle< IInDetMaterialRejection > m_materialMap;
       Trk::TrkVKalVrtFitter*   m_fitSvc;
  

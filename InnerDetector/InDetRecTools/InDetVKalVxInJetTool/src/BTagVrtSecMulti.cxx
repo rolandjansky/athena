@@ -9,7 +9,7 @@
 #include  "GaudiKernel/ToolFactory.h"
 #include  "AnalysisUtils/AnalysisMisc.h"
 #include  "TrkParticleBase/TrackParticleBaseCollection.h"
-#include  "TrkParticleCreator/TrackParticleCreatorTool.h"
+//#include  "TrkParticleCreator/TrackParticleCreatorTool.h"
 #include  "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include  "TMath.h"
 #include  <algorithm>
@@ -40,6 +40,7 @@ extern   int  pgraphm_(
 namespace InDet{
 
 const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comoming from B,C-decays
+
 
 //   std::vector<xAOD::Vertex*> InDetVKalVxInJetTool::GetVrtSecMulti(
 //                                       const std::vector<const Rec::TrackParticle*>& InpTrk,
@@ -1381,11 +1382,6 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
             WrkVrt newvrt; newvrt.Good=true;
             Trk::Track* TT(0);          Rec::TrackParticle* TP(0);     xAOD::TrackParticle * xaodTP(0);
             if( RECwork ) {
-              if ( !m_trkPartCreator ){ 
-                 if ( m_trkPartCreator.retrieve().isFailure() )
-                    {if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve TrackParticleCreator tool" << endmsg;}
-                 else {if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved Trk::TrackParticleCreator tool" << m_trkPartCreator << endmsg;}
-              }
 	      if( m_trkPartCreator ){
                 TT = m_fitSvc->CreateTrkTrack(VKPerigee,CovPerigee); 
                 TP=m_trkPartCreator->createParticle(TT);

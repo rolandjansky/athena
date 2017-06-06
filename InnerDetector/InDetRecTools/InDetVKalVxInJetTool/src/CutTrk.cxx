@@ -5,8 +5,7 @@
 // Header include
 #include "InDetVKalVxInJetTool/InDetVKalVxInJetTool.h"
 #include  "AnalysisUtils/AnalysisMisc.h"
-#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
-#include <iostream>
+//#include <iostream>
 //-------------------------------------------------
 namespace InDet{
 

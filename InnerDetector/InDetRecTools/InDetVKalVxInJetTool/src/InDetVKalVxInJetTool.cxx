@@ -6,8 +6,6 @@
 #include "InDetVKalVxInJetTool/InDetVKalVxInJetTool.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
 #include "VxSecVertex/VxSecVKalVertexInfo.h"
-#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
-#include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "TMath.h"
 //
@@ -81,9 +79,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     //m_killHighPtIBLFakes(false),
     m_VertexMergeCut(3.),
     m_TrackDetachCut(6.),
-    m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this),
-    m_trackToVertexIP("Trk::TrackToVertexIPEstimator/TrackToVertexIPEstimator"),
-    m_trkPartCreator("Trk::TrackParticleCreatorTool/InDetParticleCreatorTool")
+    m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this)
 //    m_materialMap ("InDet::InDetMaterialRejTool", this)
 //    m_fitSvc("Trk::TrkVKalVrtFitter/VKalVrtFitter",this)
    {
@@ -157,8 +153,6 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     declareProperty("TrackDetachCut",	  m_TrackDetachCut, "To allow track from vertex detachment for MultiVertex Finder" );
 
     declareProperty("VertexFitterTool",  m_fitterSvc);
-    declareProperty("TrackToVertexTool", m_trackToVertexIP);
-    declareProperty("TrackParticleCreator", m_trkPartCreator);
 //    declareProperty("MaterialMap", m_materialMap);
 //    declareProperty("TrkVKalVrtFitter", m_fitSvc);
 //
@@ -217,20 +211,6 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
      //} else {
      //   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetMaterialRejTool found" << endmsg;
      //}
-//------
-//     if ( m_trackToVertexIP.retrieve().isFailure() ) {
-//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve trackToVertexIPEstimator tool. Used for tests only, so safe!" << endmsg;
-//     } else {
-//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved Trk::TrackToVertexIPEstimator tool. Only for tests!" << m_trackToVertexIP<<endmsg;
-//     }
-//-------
-//     if(m_MultiVertex && m_MultiWithOneTrkVrt) {
-//       if ( m_trkPartCreator.retrieve().isFailure() ) {
-//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve TrackParticleCreator tool " << endmsg;
-//       } else {
-//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved Trk::TrackParticleCreator tool" << m_trkPartCreator<<endmsg;
-//       }
-//     }
 //-------
 //     Trk::IVertexFitter * tmp;
 //     sc = toolSvc->retrieveTool("Trk::TrkVKalVrtFitter",tmp,this);
@@ -484,60 +464,6 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
    }
 
 
-
-   const Trk::VxSecVertexInfo* InDetVKalVxInJetTool::findSecVertex(const Trk::RecVertex & PrimVrt,
-							           const TLorentzVector & JetDir,
-						 	           const std::vector<const Rec::TrackParticle*> & InpTrk)
-    const  {
-    std::vector<double>     Results;
-    std::vector<const Rec::TrackParticle*>            SelSecTrk;
-    std::vector< std::vector<const Rec::TrackParticle*> >  SelSecTrkPerVrt;
-    std::vector<const Rec::TrackParticle*>            TrkFromV0;
-    std::vector<xAOD::Vertex*> listVrtSec(0);
-    double SecVtxMass =   0.;
-    double RatioE     =   0.;
-    double EnergyJet  =   0.;
-    int N2trVertices  =   0 ;
-
-    xAOD::Vertex xaodPrimVrt; 
-                            xaodPrimVrt.setPosition(PrimVrt.position());
-                            xaodPrimVrt.setCovariancePosition(PrimVrt.covariancePosition());
-
-    if(m_MultiVertex){
-       workVectorArrREC * tmpVectREC=new workVectorArrREC();
-       tmpVectREC->InpTrk.resize(InpTrk.size());
-       std::copy(InpTrk.begin(),InpTrk.end(), tmpVectREC->InpTrk.begin());
-       //////listVrtSec = GetVrtSecMulti(InpTrk,xaodPrimVrt,JetDir,Results,SelSecTrkPerVrt,TrkFromV0);
-       listVrtSec = GetVrtSecMulti(0,tmpVectREC,xaodPrimVrt,JetDir,Results);
-       SelSecTrkPerVrt.swap(tmpVectREC->FoundSecondTracks);
-       TrkFromV0.swap(tmpVectREC->TrkFromV0);
-       delete tmpVectREC;
-    }else{
-       xAOD::Vertex * secVrt = GetVrtSec( InpTrk,xaodPrimVrt,JetDir,Results,SelSecTrk,TrkFromV0);
-       if(secVrt != 0) listVrtSec.push_back(secVrt);
-       else if(m_FillHist){ m_pr_effVrt->Fill((float)m_NRefTrk,0.);              
-	                    m_pr_effVrtEta->Fill( JetDir.Eta(),0.);}
-    }
-    if(Results.size()<3) {
-       listVrtSec.clear();
-    }else{
-       SecVtxMass =      Results[0];
-       RatioE     =      Results[1];
-       N2trVertices  = (int)Results[2];
-       EnergyJet     =      Results[6];
-    }
-    const Trk::VxSecVKalVertexInfo* res = 
-          new Trk::VxSecVKalVertexInfo(listVrtSec, SecVtxMass, RatioE, N2trVertices, EnergyJet, PartToBase(TrkFromV0) );
-    if(Results.size()>8)res->setDstToMatLay(Results[7]);
-    m_fitSvc->clearMemory();
-    m_compatibilityGraph->clear();
-    std::vector<int> zytmp(1000); m_WorkArray->m_Incomp.swap(zytmp);    // Deallocate memory
-    std::vector<int> zwtmp(0);    m_WorkArray->m_Prmtrack.swap(zwtmp);  // 
-    return res;
-        
-//    return new Trk::VxSecVertexInfo(listVrtSec);
-
-   }
 
    const Trk::VxSecVertexInfo* InDetVKalVxInJetTool::findSecVertex(const Trk::RecVertex & PrimVrt,
 							           const TLorentzVector & JetDir,
