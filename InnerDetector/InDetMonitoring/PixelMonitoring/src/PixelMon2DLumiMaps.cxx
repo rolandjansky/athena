@@ -214,12 +214,15 @@ void PixelMon2DLumiMaps::formatHist(bool doIBL, bool errorHist)
 
 StatusCode PixelMon2DLumiMaps::regHist(ManagedMonitorToolBase::MonGroup &group,bool doIBL,bool errorHist)
 {
-  if(!errorHist && doIBL)sc = group.regHist(IBLlbm);
-   sc = group.regHist(B0lbm);
-   sc = group.regHist(B1lbm);
-   sc = group.regHist(B2lbm);
-   sc = group.regHist(Albm);
-   sc = group.regHist(Clbm);
+  StatusCode sc = StatusCode::SUCCESS;
+  if(!errorHist && doIBL) {
+    if (group.regHist(IBLlbm).isFailure()) sc = StatusCode::FAILURE;
+  }
+  if (group.regHist(B0lbm).isFailure()) sc = StatusCode::FAILURE;
+  if (group.regHist(B1lbm).isFailure()) sc = StatusCode::FAILURE;
+  if (group.regHist(B2lbm).isFailure()) sc = StatusCode::FAILURE;
+  if (group.regHist(Albm).isFailure()) sc = StatusCode::FAILURE;
+  if (group.regHist(Clbm).isFailure()) sc = StatusCode::FAILURE;
 
-   return sc;
+  return sc;
 }

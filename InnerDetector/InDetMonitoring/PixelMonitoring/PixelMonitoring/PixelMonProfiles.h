@@ -39,7 +39,6 @@ class PixelMonProfiles
       void Reset();
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
    private:
-      StatusCode sc;
       void formatHist();
 };
 
