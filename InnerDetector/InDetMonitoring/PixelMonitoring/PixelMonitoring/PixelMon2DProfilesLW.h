@@ -8,21 +8,27 @@
 #include <string.h>
 
 class TProfile2D_LW;
+class TH2F_LW;
 class Identifier;
 class PixelID;
 class StatusCode;
+class PixelMon2DMaps;
+class PixelMon2DMapsLW;
 
-// A helper class to remove a lot of the code duplication.
-// This is a collection of 5 2D histograms which make up the '2D mapsLW' used a lot of in the monitoring.
-// Each of the 2D mapsLW correspond to a detector region (B0, B1, B2, ECA, ECC).
+// A helper class to facilitate definition of per-layer 2D profile maps.
+// It defines a collection of TProfile2D_LW histograms for each pixel layer, which then can be declared or
+// filled in a single call.
 // This books and formats the histograms in the constructor. The fill method will take the identifier 
 // as the input and fill the correct histogram and bin. The histograms are also public so that they
 // can be formated/accessed like any other histograms in the monitoring.
+//
+// N.B. the type of histograms is the same as for PixelMonProfiles class,
+// but the filling methods are somewhat different. Candidate for cleanup.
 
 class PixelMon2DProfilesLW
 {
 public:
-  PixelMon2DProfilesLW(std::string name, std::string title, bool doIBL, bool errorHist);
+  PixelMon2DProfilesLW(std::string name, std::string title, bool doIBL, bool errorHist, bool copy2DFEval);
   ~PixelMon2DProfilesLW();
   TProfile2D_LW* IBL;
   TProfile2D_LW* IBL2D;
@@ -34,11 +40,15 @@ public:
   TProfile2D_LW* C;
   //TProfile2D_LW* DBMA;
   //TProfile2D_LW* DBMC;
-  void Fill(Identifier &id, const PixelID* pixID, bool doIBL, bool errorHist, float weight);
+  void Fill(Identifier &id, const PixelID* pixID, float value);
   void Fill2DMon(PixelMon2DProfilesLW* oldmap);
-  StatusCode regHist(ManagedMonitorToolBase::MonGroup &group, bool doIBL, bool errorHist);
+  void FillFromMap(PixelMon2DMaps* inputmap, bool clear_inputmap);
+  StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
-  void formatHist(bool doIBL, bool errorHist);
+  void formatHist();
+  bool mDoIBL;
+  bool mDoErrorHist;
+  bool mCopy2DFEval;
 };
 
 #endif
