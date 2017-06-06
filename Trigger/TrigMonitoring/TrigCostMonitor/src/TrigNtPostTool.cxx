@@ -109,7 +109,7 @@ bool Trig::TrigNtPostTool::Fill(TrigMonEvent &event)
       keys.push_back(data.getROBId());
       vars.push_back("ROB:SUBDET:"+robS.human_detector()+":GROUP:"+robS.human_group());
       
-      if(outputLevel() <= MSG::DEBUG) {
+      if(msgLvl(MSG::DEBUG)) {
         std::stringstream str;
         str <<"TrigMonROBData size/id/subdetector/group: " 
           << std::setw(6) << std::setfill(' ') << std::dec << data.getROBSize() << "/" 
@@ -134,7 +134,7 @@ bool Trig::TrigNtPostTool::Fill(TrigMonEvent &event)
       keys.push_back(data.getSubDet());
       vars.push_back("DET:SUBDET:"+robS.human_detector()+":GROUP:"+robS.human_group());
       
-      if(outputLevel() <= MSG::DEBUG) {
+      if(msgLvl(MSG::DEBUG)) {
         std::stringstream str;
         str << "TrigMonROBSum size/id/subdetector/group: " 
           << std::setw(6) << std::setfill(' ') << std::dec << data.getSize() << "/" 

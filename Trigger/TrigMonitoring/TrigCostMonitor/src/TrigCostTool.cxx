@@ -503,7 +503,7 @@ StatusCode TrigCostTool::fillHists()
     }
   }
 
-  if(outputLevel() <= MSG::DEBUG) { 
+  if(msgLvl(MSG::DEBUG)) { 
     ATH_MSG_DEBUG("Processed run #" << eventInfo->runNumber() << " lb #" << eventInfo->lumiBlock() << " event #" << eventInfo->eventNumber() );
     ATH_MSG_DEBUG("  steeringOPILevel  = " << opiLevel );
     ATH_MSG_DEBUG("  isMonitoringEvent = " << monitoringEvent << ", ranTools = " << runTools << ", ranScaleTools = " << ranSacleTools );

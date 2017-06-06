@@ -138,7 +138,7 @@ StatusCode TrigCostAlg::execute()
     (*it)->Fill(m_event);
   }
 
-  if(outputLevel() <= MSG::DEBUG && m_printEvent) {
+  if(msgLvl(MSG::DEBUG) && m_printEvent) {
     Trig::Print(m_event, m_config, msg(), MSG::DEBUG);
   }
 

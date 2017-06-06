@@ -104,21 +104,21 @@ StatusCode TrigCostRun::initialize()
   // Configure HLTResult extraction objects
   //
   m_readL2.hltLevel     = "L2";
-  m_readL2.outputLevel  = outputLevel();
+  m_readL2.outputLevel  = msgLevel();
   m_readL2.msgStream    = &msg();
   m_readL2.globalConfig = &m_config;
   m_readL2.timerNavig   = m_timerNavig;
   m_readL2.PrintInit();
 
   m_readEF.hltLevel     = "EF";  
-  m_readEF.outputLevel  = outputLevel();
+  m_readEF.outputLevel  = msgLevel();
   m_readEF.msgStream    = &msg();
   m_readEF.globalConfig = &m_config;
   m_readEF.timerNavig   = m_timerNavig;
   m_readEF.PrintInit();
   
   m_readHLT.hltLevel     = "HLT";  
-  m_readHLT.outputLevel  = outputLevel();
+  m_readHLT.outputLevel  = msgLevel();
   m_readHLT.msgStream    = &msg();
   m_readHLT.globalConfig = &m_config;
   m_readHLT.timerNavig   = m_timerNavig;
