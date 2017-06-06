@@ -79,7 +79,7 @@ if DUMP:
 # Pool Persistency
 #---------------------------------------------------------------
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-outStream = AthenaPoolOutputStream("OutStream")
+outStream = AthenaPoolOutputStream("OutStream", noTag=True)
 outStream.ItemList  = [
     "EventInfo#McEventInfo",
     "McEventCollection#"+MCEVENTKEY
