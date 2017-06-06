@@ -22,6 +22,7 @@ class TH1;
 class TH2;
 class TTree;
 
+
 class CaloHitAnalysis : public AthAlgorithm {
 
  public:
@@ -57,6 +58,9 @@ class CaloHitAnalysis : public AthAlgorithm {
    TH1* h_calib_eTot;
    TH1* h_calib_eTotpartID;
 
+   const TileID * m_tileID;
+   const TileDetDescrManager * m_tileMgr;
+
    std::vector<float>* m_cell_eta;
    std::vector<float>* m_cell_phi;
    std::vector<float>* m_cell_x;
@@ -75,19 +79,15 @@ class CaloHitAnalysis : public AthAlgorithm {
    std::vector<float>* m_calib_eEsc;
    std::vector<float>* m_calib_eTot;
    std::vector<float>* m_calib_partID;
- 
    
    std::string m_expert;    
    std::string m_calib;    
-   ServiceHandle<ITHistSvc> m_thistSvc;
-   std::string m_path;
-
+   
    TTree* m_tree;
    std::string m_ntupleFileName;
-   const TileID * m_tileID;
-   const TileDetDescrManager * m_tileMgr;
+   std::string m_path;
+   ServiceHandle<ITHistSvc> m_thistSvc;
    
 };
 
 #endif // CALO_HIT_ANALYSIS_H
-
