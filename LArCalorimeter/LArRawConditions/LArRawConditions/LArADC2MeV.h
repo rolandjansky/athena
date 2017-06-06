@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LARRECCONDITIONS_LARADC2MEV
-#define LARRECCONDITIONS_LARADC2MEV
+#ifndef LARRAWCONDITIONS_LARADC2MEV
+#define LARRAWCONDITIONS_LARADC2MEV
 
 #include "CaloIdentifier/CaloGain.h"
 #include "Identifier/HWIdentifier.h"

@@ -1,4 +1,4 @@
-#include "LArRecConditions/LArADC2MeV.h"
+#include "LArRawConditions/LArADC2MeV.h"
 #include "LArIdentifier/LArOnlineID_Base.h"
 
 #include <cassert>
@@ -16,6 +16,7 @@ LArADC2MeV::LArADC2MeV(const LArOnlineID_Base* onlineID, const size_t nGains) :
   
 }
 
+LArADC2MeV::~LArADC2MeV() {}
 
 bool LArADC2MeV::set(const IdentifierHash& hid, const int gain, std::vector<float>& adc2mev) {
   if (gain>=CaloGain::LARNGAIN || m_adc2MeV[gain].size() >= hid) return false;
