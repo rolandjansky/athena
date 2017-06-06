@@ -539,7 +539,8 @@ namespace VKalVrtAthena {
     declareProperty("doTRTPixCut",                  m_doTRTPixCut=false );
     declareProperty("CutTRTHits",                   m_CutTRTHits );
     declareProperty("doMergeFinalVerticesDistance", m_mergeFinalVerticesDistance=false );
-    declareProperty("VertexMergeFinalDistCut",      m_VertexMergeFinalDistCut=1. );
+    declareProperty("VertexMergeFinalDistCut",      m_VertexMergeFinalDistCut );
+    declareProperty("VertexMergeFinalDistScaling",  m_VertexMergeFinalDistScaling );
     declareProperty("VertexMergeCut",               m_VertexMergeCut );
     declareProperty("TrackDetachCut",               m_TrackDetachCut );
     declareProperty("FillHist",                     m_FillHist=false  );
@@ -758,7 +759,7 @@ namespace VKalVrtAthena {
   //____________________________________________________________________________________________________
   bool VrtSecInclusive::passedFakeReject( const Amg::Vector3D& FitVertex,
 					  const xAOD::TrackParticle *itrk,
-					  const xAOD::TrackParticle *jtrk  )
+					  const xAOD::TrackParticle *jtrk)
   {
     
     const double rad  = sqrt(FitVertex.x()*FitVertex.x() + FitVertex.y()*FitVertex.y()); 
@@ -767,6 +768,14 @@ namespace VKalVrtAthena {
     const uint32_t pattern_itrk = itrk->hitPattern();
     const uint32_t pattern_jtrk = jtrk->hitPattern();
     
+	uint8_t itrk_nPixDead(0), itrk_nSCTDead(0);
+	uint8_t jtrk_nPixDead(0), jtrk_nSCTDead(0);
+
+	itrk->summaryValue(itrk_nPixDead, xAOD::numberOfPixelDeadSensors );
+	itrk->summaryValue(itrk_nSCTDead, xAOD::numberOfSCTDeadSensors   );
+
+	jtrk->summaryValue(jtrk_nPixDead, xAOD::numberOfPixelDeadSensors );
+	jtrk->summaryValue(jtrk_nSCTDead, xAOD::numberOfSCTDeadSensors   );
 	
     if( m_geoModel == VKalVrtAthena::GeoModel::Run2 ) {
     
@@ -780,25 +789,25 @@ namespace VKalVrtAthena {
       
       // vertex area classification
       enum vertexArea {
-	insideBeamPipe,
-	
-	insidePixelBarrel0,
-	aroundPixelBarrel0,
-	
-	outsidePixelBarrel0_and_insidePixelBarrel1,
-	aroundPixelBarrel1,
-	
-	outsidePixelBarrel1_and_insidePixelBarrel2,
-	aroundPixelBarrel2,
-	
-	outsidePixelBarrel2_and_insidePixelBarrel3,
-	aroundPixelBarrel3,
-	
-	outsidePixelBarrel3_and_insideSctBarrel0,
-	aroundSctBarrel0,
-	
-	outsideSctBarrel0_and_insideSctBarrel1,
-	aroundSctBarrel1,
+		insideBeamPipe,
+
+		insidePixelBarrel0,
+		aroundPixelBarrel0,
+
+		outsidePixelBarrel0_and_insidePixelBarrel1,
+		aroundPixelBarrel1,
+
+		outsidePixelBarrel1_and_insidePixelBarrel2,
+		aroundPixelBarrel2,
+
+		outsidePixelBarrel2_and_insidePixelBarrel3,
+		aroundPixelBarrel3,
+
+		outsidePixelBarrel3_and_insideSctBarrel0,
+		aroundSctBarrel0,
+
+		outsideSctBarrel0_and_insideSctBarrel1,
+		aroundSctBarrel1,
       };
       
       // Mutually exclusive vertex position pattern
@@ -849,22 +858,22 @@ namespace VKalVrtAthena {
       //////////////////////////////////////////////////////////////////////////////////
       if( vertex_pattern == insideBeamPipe ) {
 	
-	if( ! (pattern_itrk & (1<<Trk::pixelBarrel0)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel0)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::pixelBarrel0)) && !(itrk_nPixDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel0)) && !(jtrk_nPixDead) ) return false;
 	
 	
       } else if( vertex_pattern == insidePixelBarrel0 ) {
 	
-	if( ! (pattern_itrk & (1<<Trk::pixelBarrel0)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel0)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::pixelBarrel0)) && !(itrk_nPixDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel0)) && !(jtrk_nPixDead) ) return false;
       }
       
       
       else if( vertex_pattern == aroundPixelBarrel0 ) {
 	
 	// require nothing for PixelBarrel0
-	if( ! (pattern_itrk & (1<<Trk::pixelBarrel1)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel1)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::pixelBarrel1)) && !(itrk_nPixDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel1)) && !(jtrk_nPixDead) ) return false;
       }
       
       
@@ -872,8 +881,8 @@ namespace VKalVrtAthena {
 	
 	if(   (pattern_itrk & (1<<Trk::pixelBarrel0)) ) return false;
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel0)) ) return false;
-	if( ! (pattern_itrk & (1<<Trk::pixelBarrel1)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel1)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::pixelBarrel1)) && !(itrk_nPixDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel1)) && !(jtrk_nPixDead) ) return false;
       }
       
       
@@ -882,8 +891,8 @@ namespace VKalVrtAthena {
 	if(   (pattern_itrk & (1<<Trk::pixelBarrel0)) ) return false;
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel0)) ) return false;
 	// require nothing for PixelBarrel1
-	if( ! (pattern_itrk & (1<<Trk::pixelBarrel2)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel2)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::pixelBarrel2)) && !(itrk_nPixDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel2)) && !(jtrk_nPixDead) ) return false;
       }
       
       
@@ -893,8 +902,8 @@ namespace VKalVrtAthena {
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel0)) ) return false;
 	if(   (pattern_itrk & (1<<Trk::pixelBarrel1)) ) return false;
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel1)) ) return false;
-	if( ! (pattern_itrk & (1<<Trk::pixelBarrel2)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel2)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::pixelBarrel2)) && !(itrk_nPixDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel2)) && !(jtrk_nPixDead) ) return false;
       }
       
       
@@ -905,8 +914,8 @@ namespace VKalVrtAthena {
 	if(   (pattern_itrk & (1<<Trk::pixelBarrel1)) ) return false;
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel1)) ) return false;
 	// require nothing for PixelBarrel2
-	if( ! (pattern_itrk & (1<<Trk::pixelBarrel3)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel3)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::pixelBarrel3)) && !(itrk_nPixDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel3)) && !(jtrk_nPixDead) ) return false;
       }
       
 
@@ -918,8 +927,8 @@ namespace VKalVrtAthena {
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel1)) ) return false;
 	if(   (pattern_itrk & (1<<Trk::pixelBarrel2)) ) return false;
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel2)) ) return false;
-	if( ! (pattern_itrk & (1<<Trk::pixelBarrel3)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel3)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::pixelBarrel3)) && !(itrk_nPixDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel3)) && !(jtrk_nPixDead) ) return false;
       }
 	
       else if( vertex_pattern == aroundPixelBarrel3 ) {
@@ -931,8 +940,8 @@ namespace VKalVrtAthena {
 	if(   (pattern_itrk & (1<<Trk::pixelBarrel2)) ) return false;
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel2)) ) return false;
 	// require nothing for PixelBarrel3
-	if( ! (pattern_itrk & (1<<Trk::sctBarrel0)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::sctBarrel0)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::sctBarrel0)) && !(itrk_nSCTDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::sctBarrel0)) && !(jtrk_nSCTDead) ) return false;
       }
       
       
@@ -946,8 +955,8 @@ namespace VKalVrtAthena {
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel2)) ) return false;
 	if(   (pattern_itrk & (1<<Trk::pixelBarrel3)) ) return false;
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel3)) ) return false;
-	if( ! (pattern_itrk & (1<<Trk::sctBarrel0)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::sctBarrel0)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::sctBarrel0)) && !(itrk_nSCTDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::sctBarrel0)) && !(jtrk_nSCTDead) ) return false;
       }
       
       
@@ -962,8 +971,8 @@ namespace VKalVrtAthena {
 	if(   (pattern_itrk & (1<<Trk::pixelBarrel3)) ) return false;
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel3)) ) return false;
 	// require nothing for SctBarrel0
-	if( ! (pattern_itrk & (1<<Trk::sctBarrel1)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::sctBarrel1)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::sctBarrel1)) && !(itrk_nSCTDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::sctBarrel1)) && !(jtrk_nSCTDead) ) return false;
       }
       
       
@@ -979,8 +988,8 @@ namespace VKalVrtAthena {
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel3)) ) return false;
 	if(   (pattern_itrk & (1<<Trk::sctBarrel0)) ) return false;
 	if(   (pattern_jtrk & (1<<Trk::sctBarrel0)) ) return false;
-	if( ! (pattern_itrk & (1<<Trk::sctBarrel1)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::sctBarrel1)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::sctBarrel1)) && !(itrk_nSCTDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::sctBarrel1)) && !(jtrk_nSCTDead) ) return false;
       }
       
       
@@ -996,8 +1005,8 @@ namespace VKalVrtAthena {
 	if(   (pattern_itrk & (1<<Trk::sctBarrel0)) ) return false;
 	if(   (pattern_jtrk & (1<<Trk::sctBarrel0)) ) return false;
 	// require nothing for SctBarrel1
-	if( ! (pattern_itrk & (1<<Trk::sctBarrel2)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::sctBarrel2)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::sctBarrel2)) && !(itrk_nSCTDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::sctBarrel2)) && !(jtrk_nSCTDead) ) return false;
       }
       //////////////////////////////////////////////////////////////////////////////////
       
@@ -1076,24 +1085,24 @@ namespace VKalVrtAthena {
       //////////////////////////////////////////////////////////////////////////////////
       if( vertex_pattern == insideBeamPipe ) {
 	
-	if( ! (pattern_itrk & (1<<Trk::pixelBarrel1)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel1)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::pixelBarrel1)) && !(itrk_nPixDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel1)) && !(jtrk_nPixDead) ) return false;
 	
       }
       
       
       else if( vertex_pattern == insidePixelBarrel1 ) {
 	
-	if( ! (pattern_itrk & (1<<Trk::pixelBarrel1)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel1)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::pixelBarrel1)) && !(itrk_nPixDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel1)) && !(jtrk_nPixDead) ) return false;
       }
       
       
       else if( vertex_pattern == aroundPixelBarrel1 ) {
 	
 	// require nothing for PixelBarrel1
-	if( ! (pattern_itrk & (1<<Trk::pixelBarrel2)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel2)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::pixelBarrel2)) && !(itrk_nPixDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel2)) && !(jtrk_nPixDead) ) return false;
       }
       
       
@@ -1101,8 +1110,8 @@ namespace VKalVrtAthena {
 	
 	if(   (pattern_itrk & (1<<Trk::pixelBarrel1)) ) return false;
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel1)) ) return false;
-	if( ! (pattern_itrk & (1<<Trk::pixelBarrel2)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel2)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::pixelBarrel2)) && !(itrk_nPixDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel2)) && !(jtrk_nPixDead) ) return false;
       }
       
       
@@ -1111,8 +1120,8 @@ namespace VKalVrtAthena {
 	if(   (pattern_itrk & (1<<Trk::pixelBarrel1)) ) return false;
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel1)) ) return false;
 	// require nothing for PixelBarrel2
-	if( ! (pattern_itrk & (1<<Trk::pixelBarrel3)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel3)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::pixelBarrel3)) && !(itrk_nPixDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel3)) && !(jtrk_nPixDead) ) return false;
       }
       
 
@@ -1122,8 +1131,8 @@ namespace VKalVrtAthena {
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel1)) ) return false;
 	if(   (pattern_itrk & (1<<Trk::pixelBarrel2)) ) return false;
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel2)) ) return false;
-	if( ! (pattern_itrk & (1<<Trk::pixelBarrel3)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel3)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::pixelBarrel3)) && !(itrk_nPixDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::pixelBarrel3)) && !(jtrk_nPixDead) ) return false;
       }
 	
       else if( vertex_pattern == aroundPixelBarrel3 ) {
@@ -1133,8 +1142,8 @@ namespace VKalVrtAthena {
 	if(   (pattern_itrk & (1<<Trk::pixelBarrel2)) ) return false;
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel2)) ) return false;
 	// require nothing for PixelBarrel3
-	if( ! (pattern_itrk & (1<<Trk::sctBarrel0)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::sctBarrel0)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::sctBarrel0)) && !(itrk_nSCTDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::sctBarrel0)) && !(jtrk_nSCTDead) ) return false;
       }
       
       
@@ -1146,8 +1155,8 @@ namespace VKalVrtAthena {
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel2)) ) return false;
 	if(   (pattern_itrk & (1<<Trk::pixelBarrel3)) ) return false;
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel3)) ) return false;
-	if( ! (pattern_itrk & (1<<Trk::sctBarrel0)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::sctBarrel0)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::sctBarrel0)) && !(itrk_nSCTDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::sctBarrel0)) && !(jtrk_nSCTDead) ) return false;
       }
       
       
@@ -1160,8 +1169,8 @@ namespace VKalVrtAthena {
 	if(   (pattern_itrk & (1<<Trk::pixelBarrel3)) ) return false;
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel3)) ) return false;
 	// require nothing for SctBarrel0
-	if( ! (pattern_itrk & (1<<Trk::sctBarrel1)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::sctBarrel1)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::sctBarrel1)) && !(itrk_nSCTDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::sctBarrel1)) && !(jtrk_nSCTDead) ) return false;
       }
       
       
@@ -1175,8 +1184,8 @@ namespace VKalVrtAthena {
 	if(   (pattern_jtrk & (1<<Trk::pixelBarrel3)) ) return false;
 	if(   (pattern_itrk & (1<<Trk::sctBarrel0)) ) return false;
 	if(   (pattern_jtrk & (1<<Trk::sctBarrel0)) ) return false;
-	if( ! (pattern_itrk & (1<<Trk::sctBarrel1)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::sctBarrel1)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::sctBarrel1)) && !(itrk_nSCTDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::sctBarrel1)) && !(jtrk_nSCTDead) ) return false;
       }
       
       
@@ -1190,8 +1199,8 @@ namespace VKalVrtAthena {
 	if(   (pattern_itrk & (1<<Trk::sctBarrel0)) ) return false;
 	if(   (pattern_jtrk & (1<<Trk::sctBarrel0)) ) return false;
 	// require nothing for SctBarrel1
-	if( ! (pattern_itrk & (1<<Trk::sctBarrel2)) ) return false;
-	if( ! (pattern_jtrk & (1<<Trk::sctBarrel2)) ) return false;
+	if( ! (pattern_itrk & (1<<Trk::sctBarrel2)) && !(itrk_nSCTDead) ) return false;
+	if( ! (pattern_jtrk & (1<<Trk::sctBarrel2)) && !(jtrk_nSCTDead) ) return false;
       }
       //////////////////////////////////////////////////////////////////////////////////
       

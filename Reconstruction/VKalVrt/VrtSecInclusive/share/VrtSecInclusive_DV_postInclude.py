@@ -28,6 +28,8 @@ topSequence.VrtSecInclusive.DoTruth = (globalflags.DataSource == 'geant4' and gl
 topSequence.VrtSecInclusive.RemoveFake2TrkVrt = True
 topSequence.VrtSecInclusive.doTRTPixCut=True
 topSequence.VrtSecInclusive.doMergeFinalVerticesDistance=True
+topSequence.VrtSecInclusive.VertexMergeFinalDistCut=1.0
+topSequence.VrtSecInclusive.VertexMergeFinalDistScaling=0.02
 topSequence.VrtSecInclusive.SelTrkMaxCutoff = 300
 
 # set options related to the vertex fitter

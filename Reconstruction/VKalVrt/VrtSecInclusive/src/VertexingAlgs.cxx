@@ -829,13 +829,16 @@ namespace VKalVrtAthena {
       
       if( foundV1 < 0 or foundV2 < 0 ) break;
       
-      if( foundMinVrtDst >  m_VertexMergeFinalDistCut ) {
+      double averageRadius = ( TMath::Hypot( (*WrkVrtSet)[foundV1].vertex.x(), (*WrkVrtSet)[foundV1].vertex.x() ) +
+                                  TMath::Hypot( (*WrkVrtSet)[foundV2].vertex.x(), (*WrkVrtSet)[foundV2].vertex.x() ) ) / 2.;
+
+      if( foundMinVrtDst >  m_VertexMergeFinalDistCut + m_VertexMergeFinalDistScaling*averageRadius ) {
         ATH_MSG_DEBUG( "Vertices " << foundV1 << " and " << foundV2
             <<" are separated by distance " << foundMinVrtDst );
         return StatusCode::SUCCESS;
       }
 
-      if( foundMinVrtDst < m_VertexMergeFinalDistCut) {
+      if( foundMinVrtDst < m_VertexMergeFinalDistCut + m_VertexMergeFinalDistScaling*averageRadius) {
         ATH_MSG_DEBUG( "Merging FINAL vertices " << foundV1 << " and " << foundV2
             <<" which are separated by distance "<< foundMinVrtDst );
         MergeVertices( WrkVrtSet, foundV1, foundV2 );
