@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+import sys
+import os
+
+output = os.getcwd() + '/grid'
+if len(sys.argv) == 2:
+    output = sys.argv[1]
+elif len(sys.argv) > 2:
+    print 'I dont understand you'
+    print 'Use me like'
+    print sys.argv[0]
+    print 'or'
+    print sys.argv[0], '<directory>'
+    sys.exit()
+
+print 'copying scripts to', output
+start = os.getenv('ROOTCOREBIN') + '/user_scripts/TopExamples/*.py'
+#print start
+
+if not os.path.exists(output):
+    os.makedirs(output)
+
+cmd = 'cp ' + start + ' ' + output
+#print cmd
+os.system(cmd)
